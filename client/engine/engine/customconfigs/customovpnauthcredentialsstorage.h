@@ -30,7 +30,7 @@ private:
     void writeToSettings();
 
     QHash<QString, Credentials> hash_;
-    QMutex mutex_;
+    QRecursiveMutex mutex_;
 
 };
 

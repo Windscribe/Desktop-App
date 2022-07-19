@@ -110,7 +110,7 @@ bool FirewallController_mac::deleteWhitelistPorts()
 
 bool FirewallController_mac::firewallOnImpl(const QString &ip, bool bAllowLanTraffic, const apiinfo::StaticIpPortsVector &ports )
 {
-    QString pfConfigFilePath = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+    QString pfConfigFilePath = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
     QDir dir(pfConfigFilePath);
     dir.mkpath(pfConfigFilePath);
     pfConfigFilePath += "/pf.conf";
@@ -244,7 +244,7 @@ void FirewallController_mac::enableFirewallOnBoot(bool bEnable)
     QString strTempFilePath = QString::fromLocal8Bit(getenv("TMPDIR")) + "windscribetemp.plist";
     QString filePath = "/Library/LaunchDaemons/com.aaa.windscribe.firewall_on.plist";
 
-    QString pfConfFilePath = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+    QString pfConfFilePath = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
     QString pfBashScriptFile = pfConfFilePath + "/windscribe_pf.sh";
     pfConfFilePath = pfConfFilePath + "/pf.conf";
 

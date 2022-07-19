@@ -22,20 +22,20 @@ import installutils as iutl
 DEP_TITLE = "Qt"
 DEP_URL = "https://download.qt.io/archive/qt/"
 DEP_OS_LIST = ["win32", "macos", "linux"]
-DEP_FILE_MASK = ["bin/**", "include/**", "lib/**", "mkspecs/**", "phrasebooks/**", "plugins/**",
-                  "translations/**"]
+DEP_FILE_MASK = ["bin/**", "include/**", "lib/**", "libexec/**", "mkspecs/**", "phrasebooks/**", "plugins/**", "translations/**"]
 
 QT_SKIP_MODULES = ["qtdoc", "qt3d", "qtactiveqt", "qtcanvas3d", "qtcharts", "qtconnectivity",
   "qtdatavis3d", "qtdeclarative", "qtdoc", "qtgamepad", "qtgraphicaleffects", "qtlocation",
   "qtmultimedia", "qtnetworkauth", "qtpurchasing", "qtquickcontrols", "qtquickcontrols2",
   "qtremoteobjects", "qtscript", "qtscxml", "qtserialbus", "qtserialport", "qtspeech",
   "qtvirtualkeyboard", "qtwayland", "qtwebchannel", "qtwebengine", "qtwebglplugin", "qtwebsockets",
-  "qtwebview"]
+  "qtwebview", "qtlottie", "qtmqtt", "qtopcua", "qtquicktimeline", "qtquick3d", "qtcoap", "qtpositioning",
+  "qtsensors", "qtopengl"]
 
 QT_SOURCE_CHANGES_JSON_PATH = "deps/custom_qt/source_changes.json"
 
+# This was required for Qt 5.12.x.  No longer required for Qt 6.
 def ReplaceSourceCode(qt_source_dir):
-  
   f = open(os.path.join(TOOLS_DIR, os.path.relpath(QT_SOURCE_CHANGES_JSON_PATH)), 'r')
   source_changes = json.load(f)
   for change in source_changes:
@@ -74,24 +74,25 @@ def BuildDependencyMSVC(installpath, openssl_root, outpath):
   iutl.RunCommand(["nmake", "install"], env=buildenv, shell=True)
 
 def BuildDependencyGNU(installpath, openssl_root, outpath):
+  c_ismac = utl.GetCurrentOS() == "macos"
   # Create an environment.
   buildenv = os.environ.copy()
-  buildenv.update({ "OPENSSL_LIBS" : "-L{}/lib -lssl -lcrypto".format(openssl_root) })
+  buildenv.update({ "OPENSSL_ROOT_DIR" : "{}".format(openssl_root) })
+  if c_ismac:
+    buildenv.update({ "CMAKE_OSX_ARCHITECTURES" : "x86_64;arm64" })
   # Configure.
   configure_cmd = \
     ["./configure", "-opensource", "-confirm-license", "-release", "-nomake", "examples"]
   configure_cmd.append("-openssl-linked")
-  configure_cmd.append("-I{}/include".format(openssl_root))
   configure_cmd.extend(["-prefix", installpath])
-  if utl.GetCurrentOS() == "linux":
-      configure_cmd.append("-no-opengl")
-      configure_cmd.append("-qt-libpng")
+  if not c_ismac:
+    configure_cmd.append("-qt-libpng")
   if QT_SKIP_MODULES:
     configure_cmd.extend(x for t in zip(["-skip"] * len(QT_SKIP_MODULES), QT_SKIP_MODULES) for x in t)
   iutl.RunCommand(configure_cmd, env=buildenv)
   # Build and install.
-  iutl.RunCommand(iutl.GetMakeBuildCommand(), env=buildenv)
-  iutl.RunCommand(["make", "install", "-s"], env=buildenv)
+  iutl.RunCommand(["cmake", "--build", ".", "--parallel"], env=buildenv)
+  iutl.RunCommand(["cmake", "--install", "."], env=buildenv)
 
 def InstallDependency():
   # Load environment.
@@ -126,11 +127,13 @@ def InstallDependency():
   else:
     extracteddir = archivetitle
   # Replace source code if necessary
-  ReplaceSourceCode(os.path.join(temp_dir, extracteddir))
+  #ReplaceSourceCode(os.path.join(temp_dir, extracteddir))
   # Build the dependency.
   dep_buildroot_var = "BUILDROOT_" + DEP_TITLE.upper()
   dep_buildroot_str = os.environ.get(dep_buildroot_var, os.path.join("build-libs", dep_name))
   outpath = os.path.normpath(os.path.join(os.path.dirname(TOOLS_DIR), dep_buildroot_str))
+  # Clean the output folder to ensure no conflicts when we're updating to a newer Qt version.
+  utl.RemoveDirectory(outpath)
   with utl.PushDir(os.path.join(temp_dir, extracteddir)):
     msg.HeadPrint("Building: \"{}\"".format(archivetitle))
     if utl.GetCurrentOS() == "win32":

@@ -41,7 +41,7 @@ private:
     void addCurlListForFreeLater(struct curl_slist *list);
 
     QByteArray data_;
-    mutable QMutex mutex_;
+    mutable QRecursiveMutex mutex_;
     CURLcode curlErrorCode_;
 
     quint64 id_;

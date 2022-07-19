@@ -151,14 +151,13 @@ void SingleAppInstancePrivate::debugOut(const char *format, ...)
     va_list arg_list;
     va_start(arg_list, format);
 
-    QString sMsg;
-    sMsg.vsprintf(format, arg_list);
+    QString sMsg = QString::vasprintf(format, arg_list);
 
     va_end(arg_list);
 
     if (sMsg.size() > 0)
     {
-        QString sFilename = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+        QString sFilename = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
         sFilename += QLatin1String("/log_singleappinstanceguard.txt");
 
         QFile fileLog(sFilename);
@@ -174,7 +173,7 @@ void SingleAppInstancePrivate::debugOut(const char *format, ...)
         if (fileLog.open(openMode))
         {
             QTextStream out(&fileLog);
-            out << QDateTime::currentDateTimeUtc().toString(Qt::ISODate) << ' ' << sMsg << endl;
+            out << QDateTime::currentDateTimeUtc().toString(Qt::ISODate) << ' ' << sMsg << Qt::endl;
             fileLog.close();
         }
     }

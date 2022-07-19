@@ -1,6 +1,6 @@
 // Software License Agreement (BSD License)
 //
-// Copyright (c) 2010-2015, Deusty, LLC
+// Copyright (c) 2010-2021, Deusty, LLC
 // All rights reserved.
 //
 // Redistribution and use of this software in source and binary forms,
@@ -20,7 +20,9 @@
     #define DD_LEGACY_MACROS 0
 #endif
 
-#import "DDLog.h"
+#import <CocoaLumberjack/DDLog.h>
+
+NS_ASSUME_NONNULL_BEGIN
 
 // Custom key set on messages sent to ASL
 extern const char* const kDDASLKeyDDLog;
@@ -41,6 +43,7 @@ extern const char* const kDDASLDDLogValue;
  * However, if you instead choose to use file logging (for faster performance),
  * you may choose to use a file logger and a tty logger.
  **/
+API_DEPRECATED("Use DDOSLogger instead", macosx(10.4,10.12), ios(2.0,10.0), watchos(2.0,3.0), tvos(9.0,10.0))
 @interface DDASLLogger : DDAbstractLogger <DDLogger>
 
 /**
@@ -48,7 +51,7 @@ extern const char* const kDDASLDDLogValue;
  *
  *  @return the shared instance
  */
-+ (instancetype)sharedInstance;
+@property (nonatomic, class, readonly, strong) DDASLLogger *sharedInstance;
 
 // Inherited from DDAbstractLogger
 
@@ -56,3 +59,5 @@ extern const char* const kDDASLDDLogValue;
 // - (void)setLogFormatter:(id <DDLogFormatter>)formatter;
 
 @end
+
+NS_ASSUME_NONNULL_END

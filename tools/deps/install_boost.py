@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # ------------------------------------------------------------------------------
 # Windscribe Build System
-# Copyright (c) 2020-2021, Windscribe Limited.  All rights reserved.
+# Copyright (c) 2020-2022, Windscribe Limited.  All rights reserved.
 # ------------------------------------------------------------------------------
 # Purpose: installs Boost.
 import os
@@ -24,10 +24,11 @@ DEP_URL = "https://boostorg.jfrog.io/artifactory/main/release/"
 DEP_OS_LIST = ["win32", "macos", "linux"]
 DEP_FILE_MASK = ["include/**", "lib/**"]
 
-BOOST_WITH_MODULES = ["regex", "serialization", "thread", "filesystem"]
+BOOST_WITH_MODULES = ["filesystem", "regex", "serialization", "thread"]
+BOOST_LIBS_CREATED = ["atomic", "filesystem", "regex", "serialization", "thread", "wserialization"]
 
 
-def BuildDependencyMSVC(installpath, outpath):
+def BuildDependencyMSVC(installpath):
   # Create an environment with VS vars.
   buildenv = os.environ.copy()
   buildenv.update({ "MAKEFLAGS" : "S" })
@@ -35,28 +36,43 @@ def BuildDependencyMSVC(installpath, outpath):
   # Configure.
   iutl.RunCommand(["bootstrap.bat"], env=buildenv, shell=True)
   # Build and install.  Use tagged layout to get installpath folder structure similar to MacOS/Linux.
-  b2cmd = [".\\b2", "install", "-q", "link=static", "--build-type=complete", "--abbreviate-paths", "--layout=tagged"]
+  b2cmd = [".\\b2", "install", "-q", "link=static", "--build-type=complete", "--abbreviate-paths", "--layout=tagged", "address-model=64"]
   b2cmd.append("--prefix={}".format(installpath))
   if BOOST_WITH_MODULES:
     b2cmd.extend(["--with-" + m for m in BOOST_WITH_MODULES])
   iutl.RunCommand(b2cmd, env=buildenv, shell=True)
 
 
-def BuildDependencyGNU(installpath, outpath):
-  # Create an environment.
-  buildenv = os.environ.copy()
+def BuildDependencyMacOS(installpath, build_arch, install_dep):
+  arch_type = ""
+  if build_arch == "arm64":
+    arch_type = "arm"
+  else:
+    arch_type = "x86"
   # Configure.
-  bootstrap_args = ""
-  b2_args = [] 
-  if utl.GetCurrentOS() == "macos":
-    bootstrap_args = "--with-toolset=clang" 
-    b2_args = ["toolset=clang", "cflags=-mmacosx-version-min=10.11",
-      "cxxflags=-mmacosx-version-min=10.11", "mflags=-mmacosx-version-min=10.11",
-      "mmflags=-mmacosx-version-min=10.11", "linkflags=-mmacosx-version-min=10.11"]
-  iutl.RunCommand(["sh", "bootstrap.sh", "--prefix={}".format(installpath), bootstrap_args])
+  iutl.RunCommand(["sh", "bootstrap.sh", "--prefix={}".format(installpath), "--with-toolset=clang",
+    "cxxflags=\"-arch {}\"".format(build_arch), "cflags=\"-arch {}\"".format(build_arch), "linkflags=\"-arch {}\"".format(build_arch)])
+  b2cmd = ["./b2", "-q", "link=static", "toolset=clang-darwin", "target-os=darwin", "architecture=" + arch_type,
+    "cflags=-mmacosx-version-min=10.14 -arch {}".format(build_arch), "cxxflags=-mmacosx-version-min=10.14 -arch {}".format(build_arch),
+    "mflags=-mmacosx-version-min=10.14 -arch {}".format(build_arch), "mmflags=-mmacosx-version-min=10.14 -arch {}".format(build_arch),
+    "linkflags=-mmacosx-version-min=10.14 -arch {}".format(build_arch)]
+  b2_install_cmd = ["./b2" , "install"]
+  if BOOST_WITH_MODULES:
+    module_args = ["--with-" + m for m in BOOST_WITH_MODULES]
+    b2cmd.extend(module_args)
+    b2_install_cmd.extend(module_args)
+  iutl.RunCommand(b2cmd)
+  if install_dep:
+    iutl.RunCommand(b2_install_cmd)
+    # Remove dylibs so they're not included in the zip.  We currently statically link to boost.
+    utl.RemoveAllFiles(os.path.join(installpath, "lib"), "*.dylib")
+
+
+def BuildDependencyLinux(installpath):
+  # Configure.
+  iutl.RunCommand(["sh", "bootstrap.sh", "--prefix={}".format(installpath)])
   # Build and install.
   b2cmd = ["./b2", "-q", "link=static"]
-  b2cmd.extend(b2_args)
   b2_install_cmd = ["./b2" , "install"]
   if BOOST_WITH_MODULES:
     module_args = ["--with-" + m for m in BOOST_WITH_MODULES]
@@ -64,13 +80,11 @@ def BuildDependencyGNU(installpath, outpath):
     b2_install_cmd.extend(module_args)
   iutl.RunCommand(b2cmd)
   iutl.RunCommand(b2_install_cmd)
-  # Remove dylibs.
-  if utl.GetCurrentOS() == "macos":
-    utl.RemoveAllFiles(os.path.join(installpath, "lib"), "*.dylib")
 
 
 def InstallDependency():
   # Load environment.
+  c_ismac = utl.GetCurrentOS() == "macos"
   msg.HeadPrint("Loading: \"{}\"".format(CONFIG_NAME))
   configdata = utl.LoadConfig(os.path.join(TOOLS_DIR, CONFIG_NAME))
   if not configdata:
@@ -92,18 +106,38 @@ def InstallDependency():
   iutl.DownloadFile("{}/{}/source/{}".format(DEP_URL, dep_version_str, archivename), localfilename)
   msg.HeadPrint("Extracting: \"{}\"".format(archivename))
   iutl.ExtractFile(localfilename)
+  if c_ismac:
+    # Need to configure and build boost for each target architecture in its own folder.
+    with utl.PushDir(temp_dir):
+      iutl.RunCommand(["mv", archivetitle, archivetitle + "-arm64"])
+      iutl.RunCommand(["cp", "-r", archivetitle + "-arm64", archivetitle + "-x86_64"])
   # Build the dependency.
   dep_buildroot_var = "BUILDROOT_" + DEP_TITLE.upper()
   dep_buildroot_str = os.environ.get(dep_buildroot_var, os.path.join("build-libs", dep_name))
   outpath = os.path.normpath(os.path.join(os.path.dirname(TOOLS_DIR), dep_buildroot_str))
   # Clean the output folder to ensure no conflicts when we're updating to a newer boost version.
   utl.RemoveDirectory(outpath)
-  with utl.PushDir(os.path.join(temp_dir, archivetitle)):
-    msg.HeadPrint("Building: \"{}\"".format(archivetitle))
-    if utl.GetCurrentOS() == "win32":
-      BuildDependencyMSVC(outpath, temp_dir)
-    else:
-      BuildDependencyGNU(outpath, temp_dir)
+  if c_ismac:
+    msg.Info("Building: {} for architecture arm64".format(archivetitle))
+    boost_src_dir_arm = os.path.join(temp_dir, archivetitle + "-arm64")
+    with utl.PushDir(boost_src_dir_arm):
+      BuildDependencyMacOS(outpath, "arm64", False)
+    msg.Info("Building: {} for architecture x86_64".format(archivetitle))
+    boost_src_dir_intel = os.path.join(temp_dir, archivetitle + "-x86_64")
+    with utl.PushDir(boost_src_dir_intel):
+      BuildDependencyMacOS(outpath, "x86_64", True)
+    with utl.PushDir(temp_dir):
+      msg.Info("Creating macOS universal libs...")
+      for lib_name in BOOST_LIBS_CREATED:
+        iutl.RunCommand(["lipo", "-create", "{}-arm64/stage/lib/libboost_{}.a".format(archivetitle, lib_name),
+        "{}-x86_64/stage/lib/libboost_{}.a".format(archivetitle, lib_name), "-output", "{}/lib/libboost_{}.a".format(outpath, lib_name)])
+  else:
+    with utl.PushDir(os.path.join(temp_dir, archivetitle)):
+      msg.HeadPrint("Building: \"{}\"".format(archivetitle))
+      if utl.GetCurrentOS() == "win32":
+        BuildDependencyMSVC(outpath)
+      else:
+        BuildDependencyLinux(outpath)
   # Copy the dependency to a zip file, if needed.
   aflist = [outpath]
   msg.Print("Installing artifacts...")

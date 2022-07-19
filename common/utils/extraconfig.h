@@ -47,7 +47,7 @@ public:
 private:
     ExtraConfig();
 
-    QMutex mutex_;
+    QRecursiveMutex mutex_;
     QString path_;
     QRegularExpression regExp_;
     QString detectedIp_;

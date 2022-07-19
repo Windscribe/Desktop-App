@@ -1,6 +1,6 @@
 // Software License Agreement (BSD License)
 //
-// Copyright (c) 2010-2015, Deusty, LLC
+// Copyright (c) 2010-2021, Deusty, LLC
 // All rights reserved.
 //
 // Redistribution and use of this software in source and binary forms,
@@ -18,7 +18,7 @@
     #define DD_LEGACY_MACROS 0
 #endif
 
-#import "DDLog.h"
+#import <CocoaLumberjack/DDLog.h>
 
 /**
  * The constant/variable/method responsible for controlling the current log level.
@@ -39,15 +39,15 @@
  * This big multiline macro makes all the other macros easier to read.
  **/
 #define LOGV_MACRO(isAsynchronous, lvl, flg, ctx, atag, fnct, frmt, avalist) \
-        [DDLog log : isAsynchronous                                     \
-             level : lvl                                                \
-              flag : flg                                                \
-           context : ctx                                                \
-              file : __FILE__                                           \
-          function : fnct                                               \
-              line : __LINE__                                           \
-               tag : atag                                               \
-            format : frmt                                               \
+        [DDLog log : isAsynchronous                                          \
+             level : lvl                                                     \
+              flag : flg                                                     \
+           context : ctx                                                     \
+              file : __FILE__                                                \
+          function : fnct                                                    \
+              line : __LINE__                                                \
+               tag : atag                                                    \
+            format : frmt                                                    \
               args : avalist]
 
 /**
@@ -80,4 +80,3 @@
 #define DDLogVInfo(frmt, avalist)    LOGV_MAYBE(LOG_ASYNC_ENABLED, LOG_LEVEL_DEF, DDLogFlagInfo,    0, nil, __PRETTY_FUNCTION__, frmt, avalist)
 #define DDLogVDebug(frmt, avalist)   LOGV_MAYBE(LOG_ASYNC_ENABLED, LOG_LEVEL_DEF, DDLogFlagDebug,   0, nil, __PRETTY_FUNCTION__, frmt, avalist)
 #define DDLogVVerbose(frmt, avalist) LOGV_MAYBE(LOG_ASYNC_ENABLED, LOG_LEVEL_DEF, DDLogFlagVerbose, 0, nil, __PRETTY_FUNCTION__, frmt, avalist)
-

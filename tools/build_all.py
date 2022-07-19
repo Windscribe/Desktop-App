@@ -7,6 +7,7 @@
 import glob2
 import os
 import re
+import subprocess
 import time
 import zipfile
 
@@ -182,6 +183,48 @@ def fix_rpath_linux(filename):
     iutl.RunCommand(["patchelf", "--set-rpath", rpath, srcfilename])
 
 
+def fix_rpath_macos(filename):
+    dylib_name = os.path.basename(filename)
+    pipe = subprocess.Popen(['otool', '-L', filename], stdout=subprocess.PIPE)
+    while True:
+        line = pipe.stdout.readline().decode("utf-8").strip()
+        if line == '':
+            break
+        if "/build-libs/" in line and "(compatibility version" in line:
+            old_dylib_path = line[:line.find("(compatibility version")].strip()
+            old_dylib_root = old_dylib_path[:old_dylib_path.find("/build-libs/")]
+            new_dylib_root = filename[:filename.find("/build-libs/")]
+            new_dylib_path = old_dylib_path.replace(old_dylib_root, new_dylib_root)
+            if new_dylib_path != old_dylib_path:
+                msg.HeadPrint("Patching {}: {} -> {}".format(dylib_name, old_dylib_path, new_dylib_path))
+                if os.path.basename(old_dylib_path) == dylib_name:
+                    iutl.RunCommand(["install_name_tool", "-id", new_dylib_path, filename])
+                else:
+                    iutl.RunCommand(["install_name_tool", "-change", old_dylib_path, new_dylib_path, filename])
+
+
+def fix_build_libs_rpaths(configdata):
+    # The build-libs are downloaded and extracted from zips to some arbitrary build path on the
+    # developer/CI machine.  The rpaths stamped into the macOS dylibs and linux shared objects
+    # when they were built will contain the full path of the machine used to create them.  We
+    # need to change these rpaths to those of the machine this script is now running on.
+    if CURRENT_OS == "macos":
+        if "files_fix_rpath_macos" in configdata:
+            for build_lib_name, binaries_to_patch in configdata["files_fix_rpath_macos"].iteritems():
+                build_lib_root = iutl.GetDependencyBuildRoot(build_lib_name)
+                if not os.path.exists(build_lib_root):
+                    raise iutl.InstallError("Cannot fix {} rpath, installation not found at {}".format(build_lib_name, build_lib_root))
+                for binary_name in binaries_to_patch:
+                    fix_rpath_macos(os.path.join(build_lib_root, binary_name))
+    elif CURRENT_OS == "linux":
+        protobuf_root = iutl.GetDependencyBuildRoot("protobuf")
+        if not os.path.exists(protobuf_root):
+            raise iutl.InstallError("Cannot fix protobuf rpath, protobuf installation not found at " + protobuf_root)
+        msg.Print("Patching protobuf rpaths...")
+        iutl.RunCommand(["patchelf", "--set-rpath", "$ORIGIN/../lib", "{}/bin/protoc".format(protobuf_root)])
+        iutl.RunCommand(["patchelf", "--set-rpath", "$ORIGIN/../lib", "{}/lib/libprotoc.so".format(protobuf_root)])
+
+
 def apply_mac_deploy_fixes(appname, fixlist):
     # Special deploy fixes for Mac.
     # 1. copy_libs
@@ -244,12 +287,11 @@ def apply_mac_deploy_fixes(appname, fixlist):
             msg.Warn("No embedded.provisionprofile found for this project.  IKEv2 will not function in this build.")
 
 
-def build_component(component, is_64bit, qt_root, buildenv=None, macdeployfixes=None, target_name_override=None):
+def build_component(component, qt_root, buildenv=None, macdeployfixes=None, target_name_override=None):
     # Collect settings.
     c_iswin = CURRENT_OS == "win32"
     c_ismac = CURRENT_OS == "macos"
     c_islinux = CURRENT_OS == utl.CURRENT_OS_LINUX;
-    c_bits = "64" if (is_64bit or c_ismac or c_islinux) else "32"
     c_project = component["project"]
     c_subdir = component["subdir"]
     c_target = component.get("target", None)
@@ -259,7 +301,7 @@ def build_component(component, is_64bit, qt_root, buildenv=None, macdeployfixes=
     if not c_iswin and c_target.endswith(".exe"):
         c_target = c_target[:len(c_target) - 4]
     # Setup a directory.
-    msg.Info("Building {} ({}-bit)...".format(component["name"], c_bits))
+    msg.Info("Building {} (64-bit)...".format(component["name"]))
     with utl.PushDir() as current_wd:
         temp_wd = os.path.normpath(os.path.join(current_wd, c_subdir))
         utl.CreateDirectory(temp_wd)
@@ -287,16 +329,15 @@ def build_component(component, is_64bit, qt_root, buildenv=None, macdeployfixes=
                     update_team_id(os.path.join(temp_wd, component["macapp"], "Contents", "Info.plist"))
         elif c_project.endswith(".vcxproj"):
             # Build MSVC project.
-            conf = "Release_x64" if is_64bit else "Release"
             build_cmd = [
                 "msbuild.exe", get_project_file(c_subdir, c_project),
-                "/p:OutDir={}release-{}{}".format(temp_wd + os.sep, c_bits, os.sep),
-                "/p:IntDir={}release-{}{}".format(temp_wd + os.sep, c_bits, os.sep),
-                "/p:IntermediateOutputPath={}release-{}{}".format(temp_wd + os.sep, c_bits, os.sep),
-                "/p:Configuration={}".format(conf), "-nologo", "-verbosity:m"
+                "/p:OutDir={}release{}".format(temp_wd + os.sep, os.sep),
+                "/p:IntDir={}release{}".format(temp_wd + os.sep, os.sep),
+                "/p:IntermediateOutputPath={}release{}".format(temp_wd + os.sep, os.sep),
+                "/p:Configuration={}".format("Release_x64"), "/p:NoWarn=C4267", "-nologo", "-verbosity:m"
             ]
             iutl.RunCommand(build_cmd, env=buildenv, shell=True)
-            target_location = "release-{}".format(c_bits)
+            target_location = "release"
         elif c_project.endswith(".xcodeproj"):
             # Build Xcode project.
             team_w_id = "DEVELOPMENT_TEAM={}".format(MAC_DEV_TEAM_ID)
@@ -395,42 +436,26 @@ def build_components(configdata, targetlist, qt_root):
     buildenv = os.environ.copy()
     if CURRENT_OS == "win32":
         buildenv.update({"MAKEFLAGS": "S"})
-        buildenv.update(iutl.GetVisualStudioEnvironment())
+        buildenv.update(iutl.GetVisualStudioEnvironment("x86_amd64"))
         buildenv.update({"CL": "/MP"})
         if arghelper.sign_app():
             # Used by the windscribe_service Visual Studio project to enabled signature checking.
             buildenv.update({"ExternalCompilerOptions": "/DUSE_SIGNATURE_CHECK"})
     # Build all components needed.
-    has_64bit = False
     for target in targetlist:
         if target not in configdata:
             raise iutl.InstallError("Undefined target: {} (please check \"{}\"".format(target, BUILD_CFG_NAME))
-        is_64bit = "is64bit" in configdata[target] and configdata[target]["is64bit"]
-        if is_64bit:
-            has_64bit = True
-            continue
         macdeployfixes = None
         if "macdeployfixes" in configdata and target in configdata["macdeployfixes"]:
             macdeployfixes = configdata["macdeployfixes"][target]
-        build_component(configdata[target], is_64bit, qt_root, buildenv, macdeployfixes)
-    if has_64bit:
-        buildenv.update(iutl.GetVisualStudioEnvironment("x86_amd64"))
-        for target in targetlist:
-            if target not in configdata:
-                raise iutl.InstallError("Undefined target: {} (please check \"{}\"".format(target, BUILD_CFG_NAME))
-            is_64bit = "is64bit" in configdata[target] and configdata[target]["is64bit"]
-            if is_64bit:
-                macdeployfixes = None
-                if "macdeployfixes" in configdata and target in configdata["macdeployfixes"]:
-                    macdeployfixes = configdata["macdeployfixes"][target]
-                build_component(configdata[target], is_64bit, qt_root, buildenv, macdeployfixes)
+        build_component(configdata[target], qt_root, buildenv, macdeployfixes)
 
 
 def build_auth_helper_win32(configdata, targetlist):
     # setup env
     buildenv = os.environ.copy()
     buildenv.update({"MAKEFLAGS": "S"})
-    buildenv.update(iutl.GetVisualStudioEnvironment())
+    buildenv.update(iutl.GetVisualStudioEnvironment("x86_amd64"))
     buildenv.update({"CL": "/MP"})
 
     with utl.PushDir() as current_wd:
@@ -449,7 +474,7 @@ def build_auth_helper_win32(configdata, targetlist):
             build_cmd = [
                 "msbuild.exe", get_project_file(c_subdir, c_project),
                 "/p:OutDir=..\Release{}".format(os.sep),
-                "/p:Configuration={}".format("Release"), "-nologo", "-verbosity:m"
+                "/p:Configuration={}".format("Release_x64"), "-nologo", "-verbosity:m"
             ]
             iutl.RunCommand(build_cmd, env=buildenv, shell=True)
 
@@ -485,17 +510,12 @@ def sign_executables_win32(configdata, cert_password, filename_to_sign=None):
         certfile = os.path.join(pathhelper.ROOT_DIR, configdata["windows_signing_cert"]["path_cert"])
         timestamp = configdata["windows_signing_cert"]["timestamp"]
 
-        msg.Info("Signing...")
         if filename_to_sign:
-            iutl.RunCommand([signtool, "sign", "/t", timestamp, "/f", certfile,
+            iutl.RunCommand([signtool, "sign", "/fd", "SHA256", "/t", timestamp, "/f", certfile,
                              "/p", cert_password, filename_to_sign])
         else:
-            iutl.RunCommand([signtool, "sign", "/t", timestamp, "/f", certfile,
+            iutl.RunCommand([signtool, "sign", "/fd", "SHA256", "/t", timestamp, "/f", certfile,
                              "/p", cert_password, os.path.join(BUILD_INSTALLER_FILES, "*.exe")])
-            iutl.RunCommand([signtool, "sign", "/t", timestamp, "/f", certfile,
-                             "/p", cert_password, os.path.join(BUILD_INSTALLER_FILES, "x32", "*.exe")])
-            iutl.RunCommand([signtool, "sign", "/t", timestamp, "/f", certfile,
-                             "/p", cert_password, os.path.join(BUILD_INSTALLER_FILES, "x64", "*.exe")])
     else:
         msg.Info("Skip signing. The signing data is not set in YML.")
 
@@ -524,13 +544,17 @@ def build_installer_win32(configdata, qt_root, msvc_root, crt_root, win_cert_pas
 
     if arghelper.sign_app():
         # Sign executable files with a certificate.
+        msg.Info("Signing executables...")
         sign_executables_win32(configdata, win_cert_password)
-        # Sign AuthHelper DLLs
-        if arghelper.build_com():
-            auth_helper_com_target = os.path.join(BUILD_INSTALLER_FILES, configdata["authhelper_com"]["target"])
-            sign_executables_win32(configdata, win_cert_password, auth_helper_com_target)
-            com_proxy_stub = os.path.join(BUILD_INSTALLER_FILES, configdata["authhelper_com_proxy_stub"]["target"])
-            sign_executables_win32(configdata, win_cert_password, com_proxy_stub)
+        # Sign DLLs we created
+        if "files_codesign_windows" in configdata:
+            msg.Info("Signing DLLs...")
+            for binary_name in configdata["files_codesign_windows"]:
+                binary_path = os.path.join(BUILD_INSTALLER_FILES, binary_name)
+                if os.path.exists(binary_path):
+                    sign_executables_win32(configdata, win_cert_password, binary_path)
+                else:
+                    msg.Warn("Skipping signing of {}.  File not found.".format(binary_path))
     # Place everything in a 7z archive.
     msg.Info("Zipping...")
     installer_info = configdata[configdata["installer"]["win32"]]
@@ -542,9 +566,9 @@ def build_installer_win32(configdata, qt_root, msvc_root, crt_root, win_cert_pas
     # Build and sign the installer.
     buildenv = os.environ.copy()
     buildenv.update({"MAKEFLAGS": "S"})
-    buildenv.update(iutl.GetVisualStudioEnvironment())
+    buildenv.update(iutl.GetVisualStudioEnvironment("x86_amd64"))
     buildenv.update({"CL": "/MP"})
-    build_component(installer_info, False, qt_root, buildenv)
+    build_component(installer_info, qt_root, buildenv)
     if arghelper.post_clean():
         utl.RemoveFile(archive_filename)
     final_installer_name = os.path.normpath(os.path.join(os.getcwd(),
@@ -555,6 +579,7 @@ def build_installer_win32(configdata, qt_root, msvc_root, crt_root, win_cert_pas
     utl.RenameFile(os.path.normpath(os.path.join(BUILD_INSTALLER_FILES,
                                                  installer_info["target"])), final_installer_name)
     if arghelper.sign_app():
+        msg.Info("Signing installer...")
         sign_executables_win32(configdata, win_cert_password, final_installer_name)
 
 
@@ -571,7 +596,7 @@ def build_installer_mac(configdata, qt_root):
                      "-y", "-bso0", "-bsp2"])
     # Build and sign the installer.
     installer_app_override = "WindscribeInstaller.app"
-    build_component(installer_info, False, qt_root, target_name_override=installer_app_override)
+    build_component(installer_info, qt_root, target_name_override=installer_app_override)
     if arghelper.notarize():
         msg.Print("Notarizing...")
         iutl.RunCommand([pathhelper.notarize_script_filename_absolute(), arghelper.OPTION_CI_MODE])
@@ -684,9 +709,9 @@ def build_all(win_cert_password):
     # Do some preliminary VS checks on Windows.
     if CURRENT_OS == "win32":
         buildenv = os.environ.copy()
-        buildenv.update(iutl.GetVisualStudioEnvironment())
-        msvc_root = os.path.join(buildenv["VCTOOLSREDISTDIR"], "x86", "Microsoft.VC141.CRT")
-        crt_root = "C:\\Program Files (x86)\\Windows Kits\\10\\Redist\\{}\\ucrt\\DLLS\\x86"\
+        buildenv.update(iutl.GetVisualStudioEnvironment("x86_amd64"))
+        msvc_root = os.path.join(buildenv["VCTOOLSREDISTDIR"], "x64", "Microsoft.VC142.CRT")
+        crt_root = "C:\\Program Files (x86)\\Windows Kits\\10\\Redist\\{}\\ucrt\\DLLS\\x64"\
             .format(buildenv["WINDOWSSDKVERSION"])
         if not os.path.exists(msvc_root):
             raise iutl.InstallError("MSVS installation not found.")
@@ -708,6 +733,8 @@ def build_all(win_cert_password):
         BUILD_SYMBOL_FILES = os.path.join(temp_dir, "SymbolFiles")
         utl.CreateDirectory(BUILD_SYMBOL_FILES, arghelper.post_clean())
 
+    fix_build_libs_rpaths(configdata)
+
     # Build the components.
     generate_protobuf()
     with utl.PushDir(temp_dir):
@@ -728,7 +755,6 @@ def build_all(win_cert_password):
     # Copy artifacts.
     msg.Print("Installing artifacts...")
     utl.CreateDirectory(artifact_dir, arghelper.post_clean())
-    msg.Print("Installing artifacts...")
     if CURRENT_OS == "macos":
         artifact_path = BUILD_INSTALLER_FILES
         installer_info = configdata[configdata["installer"]["macos"]]

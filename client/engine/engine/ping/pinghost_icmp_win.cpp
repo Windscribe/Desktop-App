@@ -10,7 +10,7 @@
 #include "Utils/logger.h"
 
 PingHost_ICMP_win::PingHost_ICMP_win(QObject *parent, IConnectStateController *stateController) : QObject(parent),
-    mutex_(QMutex::Recursive), connectStateController_(stateController)
+    connectStateController_(stateController)
 {
 
 }
@@ -145,8 +145,8 @@ void PingHost_ICMP_win::processNextPings()
 
         pingInfo->elapsedTimer.start();
         IcmpSendEcho2(pingInfo->hIcmpFile, NULL, icmpCallback, userArg,
-                                 ipaddr, (LPVOID)dataForSend, sizeof(dataForSend), NULL,
-                                 pingInfo->replyBuffer, pingInfo->replySize, 2000);
+                      ipaddr, (LPVOID)dataForSend, sizeof(dataForSend), NULL,
+                      pingInfo->replyBuffer, pingInfo->replySize, 2000);
     }
 }
 

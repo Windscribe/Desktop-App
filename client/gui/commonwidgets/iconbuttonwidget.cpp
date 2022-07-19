@@ -57,7 +57,7 @@ void IconButtonWidget::paintEvent(QPaintEvent *event)
     p->draw(0,0,&painter);
 }
 
-void IconButtonWidget::enterEvent(QEvent *event)
+void IconButtonWidget::enterEvent(QEnterEvent *event)
 {
     Q_UNUSED(event);
     startAnAnimation(opacityAnimation_, curOpacity_, hoverOpacity_, ANIMATION_SPEED_FAST);

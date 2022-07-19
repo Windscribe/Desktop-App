@@ -7,7 +7,7 @@ class WindowsNativeEventFilter : public QAbstractNativeEventFilter
 {
 public:
     WindowsNativeEventFilter();
-    virtual bool nativeEventFilter(const QByteArray &b, void *message, long *l);
+    virtual bool nativeEventFilter(const QByteArray &b, void *message, qintptr *l);
 
 private:
     bool bShutdownAlreadyReceived_;

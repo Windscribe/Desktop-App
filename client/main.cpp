@@ -27,6 +27,14 @@
     #include <signal.h>
 #endif
 
+#if (QT_VERSION != QT_VERSION_CHECK(6, 2, 4))
+// The installer/uninstaller, and winutils.h, use the 'QtWindowIcon' identifier in the
+// FindWindow API.  Unfortunately, said icon is named after the Qt6 version, so we'll
+// need to update all references to 'Qt624QWindowIcon' to the new version name when the
+// Qt version changes.
+#error Code fixup required due to Qt version change.  Please see comment above.
+#endif
+
 void applyScalingFactor(qreal ldpi, MainWindow &mw);
 
 #if defined (Q_OS_MAC) || defined (Q_OS_LINUX)
@@ -143,6 +151,7 @@ int main(int argc, char *argv[])
     qCDebug(LOG_BASIC) << "App start time:" << QDateTime::currentDateTime().toString();
     qCDebug(LOG_BASIC) << "App version:" << AppVersion::instance().fullVersionString();
     qCDebug(LOG_BASIC) << "OS Version:" << Utils::getOSVersion();
+    qCDebug(LOG_BASIC) << "CPU architecture:" << QSysInfo::currentCpuArchitecture();
 
 
 #ifdef Q_OS_WIN

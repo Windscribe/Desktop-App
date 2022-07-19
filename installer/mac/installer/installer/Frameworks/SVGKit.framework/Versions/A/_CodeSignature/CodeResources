@@ -6,17 +6,13 @@
 	<dict>
 		<key>Resources/Info.plist</key>
 		<data>
-		0IKMydX8PpERYykhhBrgWyM35kc=
+		5v4yiX+H3MzKCAiHlKm+sFXgAJY=
 		</data>
 	</dict>
 	<key>files2</key>
 	<dict>
 		<key>Headers/AppleSucksDOMImplementation.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			waYL4dCAVJ6p9cxFMIaeB9Sx4yo=
-			</data>
 			<key>hash2</key>
 			<data>
 			wAuoJQbqZ5qT1CBs+GceKmwG4fPKwSY+PhzQhDcU5NI=
@@ -24,10 +20,6 @@
 		</dict>
 		<key>Headers/Attr.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			HxXJEBHu6sP7cufBD5vuRWwa/oA=
-			</data>
 			<key>hash2</key>
 			<data>
 			P+2LMjPDC1Vbac4JfuGf5tNHAdvVjr9GI26KYzlU6vk=
@@ -35,10 +27,6 @@
 		</dict>
 		<key>Headers/BaseClassForAllSVGBasicShapes.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			5LikRksRsVBJRdhbLNv+SkS+xLY=
-			</data>
 			<key>hash2</key>
 			<data>
 			5eN+wTl+bwYJ/hnyZdqo2hjwQoa0H6Sc9zd/yKfus9Y=
@@ -46,10 +34,6 @@
 		</dict>
 		<key>Headers/BaseClassForAllSVGBasicShapes_ForSubclasses.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			bdyVkTLqXUYGsuNjJNFfH2rT/RU=
-			</data>
 			<key>hash2</key>
 			<data>
 			Bw0VVTbgcwjV6aUorQtkOO3bvT0aB5+1eT6kPrfhTF8=
@@ -57,10 +41,6 @@
 		</dict>
 		<key>Headers/CALayer+RecursiveClone.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			VUhh2PPD1aYsxpvQp7DdcN9lJVA=
-			</data>
 			<key>hash2</key>
 			<data>
 			BUSu2zwOpNuZsYJVRI90P0fq7v4HvK/8hfcTS95/6IQ=
@@ -68,10 +48,6 @@
 		</dict>
 		<key>Headers/CALayerWithChildHitTest.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			ey2rvOL5vUNY4YU9XrSuLeYcCdY=
-			</data>
 			<key>hash2</key>
 			<data>
 			jlS6LxEsYbB/WruEywAF4o5NRbTaJNvUncdBCrdNL6g=
@@ -79,10 +55,6 @@
 		</dict>
 		<key>Headers/CALayerWithClipRender.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			wWjin8V8jlzcbmBnz5ZaVufRpTk=
-			</data>
 			<key>hash2</key>
 			<data>
 			U4v+rId2Px3V3syEQqBZEAv0gBIlm8tlqmBSuv4CYmU=
@@ -90,10 +62,6 @@
 		</dict>
 		<key>Headers/CAShapeLayerWithClipRender.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			PKEOvw8yigExGFsPfwtbglz4rao=
-			</data>
 			<key>hash2</key>
 			<data>
 			g5P6VDs7aee9oOvMhvOsgTi15S232pA5A6lnkCs97MM=
@@ -101,10 +69,6 @@
 		</dict>
 		<key>Headers/CAShapeLayerWithHitTest.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			O8eZ9XKZt+SnnBfcO9XWgLMeEVk=
-			</data>
 			<key>hash2</key>
 			<data>
 			6z2sxWtQ4UZsYRaIHCVYVfk8k1vBZzWszkMeThEWfaE=
@@ -112,10 +76,6 @@
 		</dict>
 		<key>Headers/CDATASection.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			OLAjnnYBdb+tGSTSvp+DeiOWh58=
-			</data>
 			<key>hash2</key>
 			<data>
 			tFbbcqVaGHXhU8JRJWzmH07iBghxFcnhsdM91LHpe38=
@@ -123,10 +83,6 @@
 		</dict>
 		<key>Headers/CGPathAdditions.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			Tx+JZhy6mmzO/6GBfCdN9iPEXF4=
-			</data>
 			<key>hash2</key>
 			<data>
 			eapATL4eVFvVOTJnQ4WyVRpgg4PDNnPIcBXtY+nSbDo=
@@ -134,10 +90,6 @@
 		</dict>
 		<key>Headers/CSSPrimitiveValue.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			ZsOcJFjJKCP1iS2GP6Kvgw27oGY=
-			</data>
 			<key>hash2</key>
 			<data>
 			k07Rur68owf0q5u+3Ap+9YlgG305jmxxFbRBI4+xE9A=
@@ -145,10 +97,6 @@
 		</dict>
 		<key>Headers/CSSPrimitiveValue_ConfigurablePixelsPerInch.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			svH8o1CXa7pWkqjr+tbVDirkw4w=
-			</data>
 			<key>hash2</key>
 			<data>
 			Y1a5dS2bFmaQYYH+1g2ifqdDLFAb9OT8PN0uIyRwJFM=
@@ -156,10 +104,6 @@
 		</dict>
 		<key>Headers/CSSRule.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			uKTQRfz7cXI86BfotHta+dgMmBA=
-			</data>
 			<key>hash2</key>
 			<data>
 			BGu6lGC0A3iOEiDoPDPouU3AWYYeE8JBWTDmdku7stw=
@@ -167,10 +111,6 @@
 		</dict>
 		<key>Headers/CSSRuleList+Mutable.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			K/GllYsrb6daAl2TKrTpx6SDZFE=
-			</data>
 			<key>hash2</key>
 			<data>
 			zgSUPJkacej5Sr4j263g0NrfFzt6IiZW0LmhC2IGrXA=
@@ -178,10 +118,6 @@
 		</dict>
 		<key>Headers/CSSRuleList.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			MXA3bxr5rSGfZSBOHUyU/cqpwuQ=
-			</data>
 			<key>hash2</key>
 			<data>
 			RZjjWl/tm9EPWJaschlGwWfmFgzB7oZCE7lqmXepoRI=
@@ -189,10 +125,6 @@
 		</dict>
 		<key>Headers/CSSStyleDeclaration.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			RYSCAv4zLOP/yGFB5jHHd6ZVW7g=
-			</data>
 			<key>hash2</key>
 			<data>
 			oNGZ5ie84mwgiOcG8SIHc5V7pa4fTAEh6hDqQ/Usegw=
@@ -200,10 +132,6 @@
 		</dict>
 		<key>Headers/CSSStyleRule.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			NmVohtUHmp49WRygI9NxaLc8TWk=
-			</data>
 			<key>hash2</key>
 			<data>
 			RurAxOmBnb7pDPWZpGv2jXBfefLzBdwmNviDXllXZq8=
@@ -211,10 +139,6 @@
 		</dict>
 		<key>Headers/CSSStyleSheet.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			aDkLynXzGJ1CxuXwhPtey2kntx0=
-			</data>
 			<key>hash2</key>
 			<data>
 			SxJZ81MjeLBJL9eoV5hwwCSdwU83dNAfV9yjZJXdrlw=
@@ -222,10 +146,6 @@
 		</dict>
 		<key>Headers/CSSValue.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			8kAd1Kh8oPHNIVcYOvNELEbv3k8=
-			</data>
 			<key>hash2</key>
 			<data>
 			Meq8ZJN86OUeTfeNkZf3xJTYeRPlCHm94c6RMpLFO9Q=
@@ -233,10 +153,6 @@
 		</dict>
 		<key>Headers/CSSValueList.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			blZOaTmPfquK/K2jBp7SpEM1AnE=
-			</data>
 			<key>hash2</key>
 			<data>
 			72PgQgKEqIoVteL8vScWx+w78/IKLZxAFvuXbGSZr0k=
@@ -244,10 +160,6 @@
 		</dict>
 		<key>Headers/CSSValue_ForSubclasses.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			yw64ovFmhqzu5jO/75YHIhAmN8Q=
-			</data>
 			<key>hash2</key>
 			<data>
 			5k5LvDbX37QFbW830PhWSfeZh2R8xJ/mrkSW4XJh0tc=
@@ -255,10 +167,6 @@
 		</dict>
 		<key>Headers/CharacterData.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			I/n5+HkRBtpqmhZ+UmJVOYgb9Hk=
-			</data>
 			<key>hash2</key>
 			<data>
 			WSY+vWAkAqx7/cZ3rSnbRWTnTc0tIopasDp/y/9YVrY=
@@ -266,10 +174,6 @@
 		</dict>
 		<key>Headers/Comment.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			q8z2ypUHzF01gWQOuXsECqh07Tw=
-			</data>
 			<key>hash2</key>
 			<data>
 			PSf4hhmK7Zd1Zt8tI36Qyddi8E60xmvTE0pKx6ncB6Q=
@@ -277,10 +181,6 @@
 		</dict>
 		<key>Headers/ConverterSVGToCALayer.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			B+5FRvcsNDFx5j9nMm9wX9DtCEI=
-			</data>
 			<key>hash2</key>
 			<data>
 			soAWyUPkbSh+aEgGHMmcy6E7hHT3yCq9IXPepmJutN4=
@@ -288,10 +188,6 @@
 		</dict>
 		<key>Headers/DOMGlobalSettings.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			FBFd8EFGiR4rNDCM+JQkYBo7lPY=
-			</data>
 			<key>hash2</key>
 			<data>
 			6KT06JaBCuIDOQrC8Q/i0Bk/oet6xdirWeULgtjo2oM=
@@ -299,10 +195,6 @@
 		</dict>
 		<key>Headers/DOMHelperUtilities.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			EoEzzVWWVreGgaCHhXFcC8FaIlY=
-			</data>
 			<key>hash2</key>
 			<data>
 			MB/X8btyD51zxXqnXSN0CoizEawneo31N0oqG+CwbD4=
@@ -310,10 +202,6 @@
 		</dict>
 		<key>Headers/Document+Mutable.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			qq/RxUwLvp2iwgdd3JQnkEzquGY=
-			</data>
 			<key>hash2</key>
 			<data>
 			FIPnhfvX3/JO+A2d3kvdcCXe+ZGpBZ5wEVkF13jdtRA=
@@ -321,10 +209,6 @@
 		</dict>
 		<key>Headers/Document.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			3WdiB8FIcGZ6OVKgDuGcXQBrNBM=
-			</data>
 			<key>hash2</key>
 			<data>
 			TbhYQ2ETLn38le4KeAYPruxsP6l2gmqAWnyPtnqp91I=
@@ -332,10 +216,6 @@
 		</dict>
 		<key>Headers/DocumentCSS.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			UAgC0OXZUCUd6ub1tSOSY/9rHrk=
-			</data>
 			<key>hash2</key>
 			<data>
 			vqn0DBJAGMifmDlie4WTXofD2lH+SXKzkg7AanHoaNQ=
@@ -343,10 +223,6 @@
 		</dict>
 		<key>Headers/DocumentFragment.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			VVmB1EkxMm0UYP3TohLbFujY3qY=
-			</data>
 			<key>hash2</key>
 			<data>
 			QqcWnp748ZbsobDndNP8oVe853GHJIRubtJ6nXXfGys=
@@ -354,10 +230,6 @@
 		</dict>
 		<key>Headers/DocumentStyle.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			aP9ofdu/p1IhdiFDRcHreRsSpLU=
-			</data>
 			<key>hash2</key>
 			<data>
 			rDJhmD9uuEzmgT2UlO6yyiRGlhnz3jJDlppaa68u66s=
@@ -365,10 +237,6 @@
 		</dict>
 		<key>Headers/DocumentType.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			WYbnF7z+N6Hg8s+x5rUPEs/g9NE=
-			</data>
 			<key>hash2</key>
 			<data>
 			yYT3zT/pU7+oZ5Qi0qjliL08iAwdeKXeb4dC8Q5fjNc=
@@ -376,10 +244,6 @@
 		</dict>
 		<key>Headers/Element.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			ALyxu3XNFIKoa1JK5epa0t4A1CQ=
-			</data>
 			<key>hash2</key>
 			<data>
 			P4IedGxVJdCvHmRnJaXZf3G5z+x52DvT7kMzpqpDqH0=
@@ -387,10 +251,6 @@
 		</dict>
 		<key>Headers/EntityReference.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			cXFRwCIPPCb691k90HPpZr7yNd4=
-			</data>
 			<key>hash2</key>
 			<data>
 			eXOp8NpRfz7+gGZBIHovPooanAiMvXL/4y2bcwWP48Q=
@@ -398,10 +258,6 @@
 		</dict>
 		<key>Headers/MediaList.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			SlKHHNggDpqUkXNWSSbuEf3SyLc=
-			</data>
 			<key>hash2</key>
 			<data>
 			BS+enDRTKL1dJcQaamoYN6+FmoxslZ2UkCj++1AKJAE=
@@ -409,10 +265,6 @@
 		</dict>
 		<key>Headers/NSCharacterSet+SVGKExtensions.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			NpdJkRf2bFN0jXKhdQzz0cs7WVE=
-			</data>
 			<key>hash2</key>
 			<data>
 			ytHG7UemJGNBEEiQZcrHBQTE9L46XVXernsyZASj4c0=
@@ -420,10 +272,6 @@
 		</dict>
 		<key>Headers/NSData+NSInputStream.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			BQ03FmdZzmYpEnj8sj+2bBghYIQ=
-			</data>
 			<key>hash2</key>
 			<data>
 			fJym6EsnQblCt8pME3Pnj41zon1yyImCHnSfIrIJ7iU=
@@ -431,10 +279,6 @@
 		</dict>
 		<key>Headers/NamedNodeMap.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			hApVF91dGlezppQHmwABwdqz5JY=
-			</data>
 			<key>hash2</key>
 			<data>
 			Gq7+aYsNeHntdIc4vYOeUFfmShx+vm+Y+6I+Iq7hie4=
@@ -442,10 +286,6 @@
 		</dict>
 		<key>Headers/NamedNodeMap_Iterable.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			X0kUm9wjpDZVWzI+e5SHJOEQUkY=
-			</data>
 			<key>hash2</key>
 			<data>
 			otICzWVjW8BMbek7JNbdNF+tcwPwGD4FBhVDNN8rA2c=
@@ -453,10 +293,6 @@
 		</dict>
 		<key>Headers/Node+Mutable.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			2l/jNSCSnjIzY0ypX3zBTm4/vdI=
-			</data>
 			<key>hash2</key>
 			<data>
 			GHyOKD79dV5IDDA12dAj5A4B0r3mGF5hRDJWRiFhV8U=
@@ -464,10 +300,6 @@
 		</dict>
 		<key>Headers/Node.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			ZNUp42QCNOmtDJSJYMy0keMOy/8=
-			</data>
 			<key>hash2</key>
 			<data>
 			AsSiHwIx9QGd6brDKz33AtXKqBdohcx4mvfNlPpsVhk=
@@ -475,10 +307,6 @@
 		</dict>
 		<key>Headers/NodeList+Mutable.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			Uqi8I0yiJHPZjklWjlLNd7aN+CM=
-			</data>
 			<key>hash2</key>
 			<data>
 			fVyzYI+2AuRAX4raJiQoHbJ6Tb0pkQ8oe2WGK9/mWyI=
@@ -486,10 +314,6 @@
 		</dict>
 		<key>Headers/NodeList.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			99nvifBXlBaTMBNesqCnMkyAgP8=
-			</data>
 			<key>hash2</key>
 			<data>
 			RgKlA5oh1BunSPpzXg8rtGmt8uXp70OmBt27pFiGw/8=
@@ -497,10 +321,6 @@
 		</dict>
 		<key>Headers/ProcessingInstruction.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			adY3rW46+bJtEh1es6zXMVaG6I8=
-			</data>
 			<key>hash2</key>
 			<data>
 			P5e5Yknkbr/xGg4yOK9hpyS6YHw+fZEOXThapnT/Vus=
@@ -508,10 +328,6 @@
 		</dict>
 		<key>Headers/SVGAngle.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			bY64DBj8rXRt0gjYvcZ4w8uZci8=
-			</data>
 			<key>hash2</key>
 			<data>
 			jxLuO7XRkntMyPl/HrsJ6sqG+xhj8u5b5xH0F98v00E=
@@ -519,10 +335,6 @@
 		</dict>
 		<key>Headers/SVGAnimatedPreserveAspectRatio.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			0TFGPa9nAm8LxXkcC2TYemoE0yU=
-			</data>
 			<key>hash2</key>
 			<data>
 			u95ufUqbIcss3GXuWMXS08E1mZVJxwOvJpHiHr6aSLU=
@@ -530,10 +342,6 @@
 		</dict>
 		<key>Headers/SVGCircleElement.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			vegDp03vRjVihLeZZM38/eduiDo=
-			</data>
 			<key>hash2</key>
 			<data>
 			O1pF66Ef/tVWoh5g9hAfiG6eLfLKTtWD5JfaT2jdqRk=
@@ -541,10 +349,6 @@
 		</dict>
 		<key>Headers/SVGClipPathElement.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			MymbX23S7ClXgqmsK6yFx7yEdnU=
-			</data>
 			<key>hash2</key>
 			<data>
 			XZ3+XWqYzTseA5LCm85dRYNzG8IT4CeVq2YmqYPIrjs=
@@ -552,10 +356,6 @@
 		</dict>
 		<key>Headers/SVGDefsElement.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			VI75X1UA+wU6yVXOU7J0d/N9GuY=
-			</data>
 			<key>hash2</key>
 			<data>
 			jwIJxaiznOjgDs6DbSM7zm75k2eKd5zcfWNxtiFvV50=
@@ -563,10 +363,6 @@
 		</dict>
 		<key>Headers/SVGDescriptionElement.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			I7S6biKUITq4trFz7zdQx2N4l54=
-			</data>
 			<key>hash2</key>
 			<data>
 			JjWP0Qc6f7J16ets49K83cV8Si1erWDCWzpiQMtrbPY=
@@ -574,10 +370,6 @@
 		</dict>
 		<key>Headers/SVGDocument.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			QAPOdqtXMkbxR+j6uaX/fn81PyI=
-			</data>
 			<key>hash2</key>
 			<data>
 			tGaRb4zcgpMVMy7i4gQOCfBOdyxt/R998sZvYHkrZPw=
@@ -585,10 +377,6 @@
 		</dict>
 		<key>Headers/SVGDocument_Mutable.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			Yds5xb+ixTvyFgmgZKh7YRVi0/c=
-			</data>
 			<key>hash2</key>
 			<data>
 			o/jmNYtVlplByUX5eitsDGu+jt+Hpa9xMgfckLLpTaU=
@@ -596,10 +384,6 @@
 		</dict>
 		<key>Headers/SVGElement.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			RT70lScl3+tspI0kpg9tKXgAx2A=
-			</data>
 			<key>hash2</key>
 			<data>
 			woLtB18UPNiewPDdncjHuMylRWNdfeJp9r4JIQwXGaQ=
@@ -607,10 +391,6 @@
 		</dict>
 		<key>Headers/SVGElementInstance.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			woa+XOVC2DhCoTekFT/TP0jg50c=
-			</data>
 			<key>hash2</key>
 			<data>
 			jTSL2FWDDQLaLYj2AgJZtJBWzlH7hAlma9Gh1YgDXCs=
@@ -618,10 +398,6 @@
 		</dict>
 		<key>Headers/SVGElementInstanceList.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			vwUvxGkLOvKFB2zxmXvgO1q6I/o=
-			</data>
 			<key>hash2</key>
 			<data>
 			LqzNchBoAXljuE3cQwjZA7a499XUQDivZ1WP4oWlRrg=
@@ -629,10 +405,6 @@
 		</dict>
 		<key>Headers/SVGElementInstanceList_Internal.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			uRJbGvtY1j92erYhZH5ZxF9p5Aw=
-			</data>
 			<key>hash2</key>
 			<data>
 			njWGpNagv4Ljx0sC+1aWiDkU6DW2xVe1bPQ+E5RCVm0=
@@ -640,10 +412,6 @@
 		</dict>
 		<key>Headers/SVGElementInstance_Mutable.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			5hwyjOAHRipyPswJnAmqjOSQExM=
-			</data>
 			<key>hash2</key>
 			<data>
 			tTbn2EGuyiO/XiXWxoKCgarGfj3D3497NcP7xFLhcgA=
@@ -651,10 +419,6 @@
 		</dict>
 		<key>Headers/SVGElement_ForParser.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			5xka8Yv9V/30ASXiBfxvZY3Oz2g=
-			</data>
 			<key>hash2</key>
 			<data>
 			y+KdWvx7a3PrqDweLWs/UuNlp4iD9q9nyWqBrzHBT84=
@@ -662,10 +426,6 @@
 		</dict>
 		<key>Headers/SVGEllipseElement.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			5Ja5voYIq3Q35obY99XZkZ4rY0A=
-			</data>
 			<key>hash2</key>
 			<data>
 			46WiIGL1s7KUVauhnDbuksGJFuBdGSYeFxZpLGHmAEE=
@@ -673,10 +433,6 @@
 		</dict>
 		<key>Headers/SVGFitToViewBox.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			+SzVacTqKsWlsoXB+vmCAdAcQxk=
-			</data>
 			<key>hash2</key>
 			<data>
 			ApMPLYYmB31WmrDb91t55AyYNNjEJuFiP5e5UQiWQ9U=
@@ -684,10 +440,6 @@
 		</dict>
 		<key>Headers/SVGGElement.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			6yjQyCYSHB1OIXOvJ7fXrLnmhyY=
-			</data>
 			<key>hash2</key>
 			<data>
 			afhp/BxFAxJR1YcZUzxKvpgfqNZZ5YbzAbPv14MD640=
@@ -695,10 +447,6 @@
 		</dict>
 		<key>Headers/SVGGradientElement.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			2R6crmsFmN1GpydgH3P3C1+tjtw=
-			</data>
 			<key>hash2</key>
 			<data>
 			j+7cSwop5mdMVaJK8cH3YfMXEzoZXPsg1z0sGWoNyng=
@@ -706,10 +454,6 @@
 		</dict>
 		<key>Headers/SVGGradientLayer.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			M6Au7l4llRX5KEsPVPpgkRHsYKU=
-			</data>
 			<key>hash2</key>
 			<data>
 			j4oKDdgN5lrfOTdMZwukWfDBaMdtgGxDPvNau24w2l8=
@@ -717,10 +461,6 @@
 		</dict>
 		<key>Headers/SVGGradientStop.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			VBd9sjuQcYq9U3iaXbUOB84nGDs=
-			</data>
 			<key>hash2</key>
 			<data>
 			olpD1mqtBr766Q2WqxF4vY6a6Fiq+ey74sarVIvlEvU=
@@ -728,10 +468,6 @@
 		</dict>
 		<key>Headers/SVGGroupElement.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			+H8xucRbCYJFHinKv3PvZeeGBoA=
-			</data>
 			<key>hash2</key>
 			<data>
 			7FfeHJnRw/xLrd7H15YMhdizPkCnLqpa3Je42/Q0oXQ=
@@ -739,10 +475,6 @@
 		</dict>
 		<key>Headers/SVGHelperUtilities.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			2GCUmjmX1MgEF2+qS/iN+LiR04c=
-			</data>
 			<key>hash2</key>
 			<data>
 			yh1dPSAvx+iSt6rGzh7XT6gKYd+PixzfK6KI7EAScWE=
@@ -750,10 +482,6 @@
 		</dict>
 		<key>Headers/SVGImageElement.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			aDlJDqo/oPWd/iNE9NapG0IdrhE=
-			</data>
 			<key>hash2</key>
 			<data>
 			oPwPnvXPWTIcre649YI5YKaeLrXjC3LhL/j/jvinDCQ=
@@ -761,10 +489,6 @@
 		</dict>
 		<key>Headers/SVGKDefine.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			In0PRJU/P12OhyREe57SkXXec/g=
-			</data>
 			<key>hash2</key>
 			<data>
 			v2Hw1sGqUfCgbKUQEY4R06M4OZ6ns9z1FS9C8PySlYY=
@@ -772,10 +496,6 @@
 		</dict>
 		<key>Headers/SVGKExporterNSData.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			t+2PSm5bZt8QunrywrX94HyosIw=
-			</data>
 			<key>hash2</key>
 			<data>
 			FX2mNAvXuTGWHvdkV6Ikm4BseeGn/Da3FG7XARgb9+s=
@@ -783,10 +503,6 @@
 		</dict>
 		<key>Headers/SVGKExporterNSImage.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			LlmAbUaE7ER+SPY26PAt4qCNG5U=
-			</data>
 			<key>hash2</key>
 			<data>
 			56rPAmSn26OsoMKxVRDvXOrPCmcR6KlFc47G4cIYNW4=
@@ -794,10 +510,6 @@
 		</dict>
 		<key>Headers/SVGKFastImageView.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			ydOJBpKJGkR7rA7Zr1MDC/Z/JMI=
-			</data>
 			<key>hash2</key>
 			<data>
 			77ZkETGTFi8NyJnqHJ/P2bhTKarTF6JuNy+95h2/Fe0=
@@ -805,10 +517,6 @@
 		</dict>
 		<key>Headers/SVGKImage+CGContext.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			/fHIG2moklMJV/WIQrKCPJqr5WQ=
-			</data>
 			<key>hash2</key>
 			<data>
 			L4eMt6zld2InYvYTAYUfW4gHINhSL+Iy/NTQXLQa8EA=
@@ -816,10 +524,6 @@
 		</dict>
 		<key>Headers/SVGKImage.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			8VYeGqSDm43dm2akWLPd+8KS5B8=
-			</data>
 			<key>hash2</key>
 			<data>
 			9tJuD80iUQBdCbc/FQoeGH8pIQoUKlP6Igj2iwrYRYs=
@@ -827,10 +531,6 @@
 		</dict>
 		<key>Headers/SVGKImageRep.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			B+XDBJglKrIyzqGthSv4+4kR08Y=
-			</data>
 			<key>hash2</key>
 			<data>
 			lbNxuxMqz2J6HZo0h/etr9LkPEssO9dCGATJ9kEyVc8=
@@ -838,10 +538,6 @@
 		</dict>
 		<key>Headers/SVGKImageView.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			8mfPXLm88ayHO/m+JAw3BqI2uRc=
-			</data>
 			<key>hash2</key>
 			<data>
 			3U6ttsX/gI9E0kvxbglrEO/YcUhrUFZ7z3V7HjYDNlY=
@@ -849,10 +545,6 @@
 		</dict>
 		<key>Headers/SVGKInlineResource.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			3l6v9Bwdk0+VvsvbJVhkjB5BL0M=
-			</data>
 			<key>hash2</key>
 			<data>
 			tcmz2hU2GjQuAUrWYx3Qk5KIdMMqH5e4Voz8a4BQxIY=
@@ -860,10 +552,6 @@
 		</dict>
 		<key>Headers/SVGKLayer.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			WQZMbYaiCkdi+Eh5S5BEmrHnsAA=
-			</data>
 			<key>hash2</key>
 			<data>
 			QrROAMDgzfhJUfCH2gekLhWoJroUFpaicilZeu/jL4g=
@@ -871,10 +559,6 @@
 		</dict>
 		<key>Headers/SVGKLayeredImageView.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			Vwcoex5pMFxADRWg9O4bUxtvEsU=
-			</data>
 			<key>hash2</key>
 			<data>
 			bPG0HI+wkrVFezK78WdhoGj2wG4skme93lAeiAXfopA=
@@ -882,10 +566,6 @@
 		</dict>
 		<key>Headers/SVGKParseResult.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			HPFvBW3DO3ByMd/ChmoPWLqCf5I=
-			</data>
 			<key>hash2</key>
 			<data>
 			yggsZ00e/Hds2i52HxytOuGvsjTiDx8xeZ5mtn+Euy0=
@@ -893,10 +573,6 @@
 		</dict>
 		<key>Headers/SVGKParser.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			75iPXyC1+d8Jn2dnaMU0VvXxyAk=
-			</data>
 			<key>hash2</key>
 			<data>
 			+YDMGOguxIYJ4CVJbqv7MbRp4BYCW9/nqCcTdrj4JjA=
@@ -904,10 +580,6 @@
 		</dict>
 		<key>Headers/SVGKParserDOM.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			SrlxMBtYWcqN9/gONiqnusdPz0U=
-			</data>
 			<key>hash2</key>
 			<data>
 			rfyxQgUS1lfZtPH2StezflEqcT6IzIJfCHN/ZJRrGJM=
@@ -915,10 +587,6 @@
 		</dict>
 		<key>Headers/SVGKParserDefsAndUse.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			qUkTnv4CusKwCVZXBR1ibvIuR/U=
-			</data>
 			<key>hash2</key>
 			<data>
 			918O3Ym9eHdranEL69m1vxnM+Y7nWKs1wJCQqyiZFNQ=
@@ -926,10 +594,6 @@
 		</dict>
 		<key>Headers/SVGKParserExtension.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			14mYF64j3sKeuCRDBzKXnaM1+wc=
-			</data>
 			<key>hash2</key>
 			<data>
 			yplaKhTp99l9TaI5XFZ6H+LSK3vLDfX5fPYaRTm+qLo=
@@ -937,10 +601,6 @@
 		</dict>
 		<key>Headers/SVGKParserGradient.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			c0NQMvTIbgVYgm76GUUzG/NNf2o=
-			</data>
 			<key>hash2</key>
 			<data>
 			30NsMsnBh553Ssu0hCYCmoo6QqpgnVtYhboWu6Wm0JE=
@@ -948,10 +608,6 @@
 		</dict>
 		<key>Headers/SVGKParserPatternsAndGradients.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			sGEfe5W5Uv7cY0AFl4CpjqFVVwo=
-			</data>
 			<key>hash2</key>
 			<data>
 			iaWzOL8CPHLTSo/M8a/zm/K5TNIQPwIA/HhLxr5Ygbs=
@@ -959,10 +615,6 @@
 		</dict>
 		<key>Headers/SVGKParserSVG.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			AI+h1g61G6x9CclX/bq+crcvuCw=
-			</data>
 			<key>hash2</key>
 			<data>
 			b458XcydsxWIjk2l5e2ssEkt61db2Pl2+jgXGanTlkY=
@@ -970,10 +622,6 @@
 		</dict>
 		<key>Headers/SVGKParserStyles.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			kXilzxSEkzvcKHSgU9XTnlttmlg=
-			</data>
 			<key>hash2</key>
 			<data>
 			NkWfg8zwNF2SDdl7NExQj1oUZBpFj1J1YgwoB14qGfs=
@@ -981,10 +629,6 @@
 		</dict>
 		<key>Headers/SVGKPattern.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			5OsqSMS1oUqjRToOsJLSPhHABhw=
-			</data>
 			<key>hash2</key>
 			<data>
 			VOBBDMwtPpqlcj24npJFAZutxxRQ+2NXVWATfYwGUVI=
@@ -992,21 +636,13 @@
 		</dict>
 		<key>Headers/SVGKPointsAndPathsParser.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			J0H7qcD9oYxStE3BXFevpXbHnRQ=
-			</data>
 			<key>hash2</key>
 			<data>
-			EwMW44tNKhU/v1PbTq9+WLZq2QJjACXWsvkLJBmXw2A=
+			hvXm08F4NiAkiFSkg/zIF4QMSamwZF2fGx999N3aoSI=
 			</data>
 		</dict>
 		<key>Headers/SVGKSource.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			NT7kNh1q6O9QkGXSN+9pfvwic4A=
-			</data>
 			<key>hash2</key>
 			<data>
 			laQSnycAkhucg34Ir2Nkk8fSpnZXoqRVu60SWhjZhUs=
@@ -1014,10 +650,6 @@
 		</dict>
 		<key>Headers/SVGKSourceLocalFile.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			BhcViqu99dca4mMsS0m4ZJyD10E=
-			</data>
 			<key>hash2</key>
 			<data>
 			OAtWCFyY4UmDfAWFyTbRLzLJ2uQnW/US3DDtqO/1Y6c=
@@ -1025,10 +657,6 @@
 		</dict>
 		<key>Headers/SVGKSourceNSData.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			AxCdsaub6ovn3OIbfQbLJIr6h1s=
-			</data>
 			<key>hash2</key>
 			<data>
 			faXN0FAtEeDmM5OdwiP+quxNLXon92yZl1BYY5aN9+Q=
@@ -1036,10 +664,6 @@
 		</dict>
 		<key>Headers/SVGKSourceString.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			1+E5ejF3q7jRpnywIaVVH1NDDSA=
-			</data>
 			<key>hash2</key>
 			<data>
 			5v42XScurh6yGwUZ2iRS3N2QrJ3ckCpHNs0M0e0y8+g=
@@ -1047,10 +671,6 @@
 		</dict>
 		<key>Headers/SVGKSourceURL.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			wF/PjX220e51Mc6bLkPwL1b88ek=
-			</data>
 			<key>hash2</key>
 			<data>
 			cETsqGuzpRZHHP3sPcs24oepd+VYXNd44BjdGr9GqFU=
@@ -1058,21 +678,13 @@
 		</dict>
 		<key>Headers/SVGKit.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			QPF9XVyKtjn7gkii6ulU/5yprB0=
-			</data>
 			<key>hash2</key>
 			<data>
-			GS1ldpAuWetzhVdRfi3NWd1oxojreAATZ1fLSyjWr7w=
+			Vv5r5+A/rmg+/hPKz+zbLRDHsD0/tg8nwNy5YYyau+U=
 			</data>
 		</dict>
 		<key>Headers/SVGLength.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			zKY8Np80vTkxBep+fbOl+MM6emQ=
-			</data>
 			<key>hash2</key>
 			<data>
 			WecIfYsgS76ojEtQv5llG5hEHZoitbrUJYbxVQe1e70=
@@ -1080,10 +692,6 @@
 		</dict>
 		<key>Headers/SVGLineElement.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			5ZGIaXXpCF1Ta9pYBqc2zrljqKw=
-			</data>
 			<key>hash2</key>
 			<data>
 			bdDEpoyVcNrqamPlS+bs7Np+kWNw+SyPo37b72T0GnM=
@@ -1091,10 +699,6 @@
 		</dict>
 		<key>Headers/SVGLinearGradientElement.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			CounKmanPOMfGqbvCtTfu81dTCI=
-			</data>
 			<key>hash2</key>
 			<data>
 			9Nafww74tos6FATCUzEwmEcVUU0ZXSQFtXh8sFxugu8=
@@ -1102,10 +706,6 @@
 		</dict>
 		<key>Headers/SVGMatrix.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			6XQmyNAiGcH9x+izBuEzhfpfRkE=
-			</data>
 			<key>hash2</key>
 			<data>
 			kviwd//MUXxJ5HX9cLVzDRieEAO/gsZt59jl9ztJvOo=
@@ -1113,10 +713,6 @@
 		</dict>
 		<key>Headers/SVGNumber.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			kygXueDSf1Bn6SfL/ZjklK7a1V0=
-			</data>
 			<key>hash2</key>
 			<data>
 			3TFLO7oWsZLgIs5ihLHBq47eEgl/+h70EKW3AbZ/sVg=
@@ -1124,10 +720,6 @@
 		</dict>
 		<key>Headers/SVGPathElement.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			h5rv7BMbohrV1uMVQao4Z3wDO/c=
-			</data>
 			<key>hash2</key>
 			<data>
 			03Vw8+2LXgs33aRb05Bnzwlkn+G0+awFUuESt/LcEVc=
@@ -1135,10 +727,6 @@
 		</dict>
 		<key>Headers/SVGPoint.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			Vf19hNdCXAmf3Y/TrLQVlOotEgs=
-			</data>
 			<key>hash2</key>
 			<data>
 			d/CKqqgn8n7EaJq+w7VeTT95fqdrrjDSFI12+6aFxkg=
@@ -1146,10 +734,6 @@
 		</dict>
 		<key>Headers/SVGPolygonElement.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			rr4f1RorIeRB5NUZOr5K66vC5e8=
-			</data>
 			<key>hash2</key>
 			<data>
 			dcpzxKCRXyDkhHNWw6BR8IEnEepE8+ND/0LwnNT73/0=
@@ -1157,10 +741,6 @@
 		</dict>
 		<key>Headers/SVGPolylineElement.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			K0QQouUbQZxiPIIio0IkZRli3Eg=
-			</data>
 			<key>hash2</key>
 			<data>
 			hLB04SdRopbMx5GQfyEM8Y1dgVJHBREyXTeq3ubc2tg=
@@ -1168,10 +748,6 @@
 		</dict>
 		<key>Headers/SVGPreserveAspectRatio.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			tunn/eIfdnIVPw5HCNOj4KyKZ+U=
-			</data>
 			<key>hash2</key>
 			<data>
 			sN93al7t+ApKuCGsLaA2NvEObxsEOlHVdEIpEEtxB8w=
@@ -1179,10 +755,6 @@
 		</dict>
 		<key>Headers/SVGRadialGradientElement.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			ib5lzq0XlKlU8TsuvjwhH3Xzmy8=
-			</data>
 			<key>hash2</key>
 			<data>
 			yF7RcyektGkHotx1UYDF5nIltT1aAXYv9Mmzxf8SbNg=
@@ -1190,10 +762,6 @@
 		</dict>
 		<key>Headers/SVGRect.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			3hQKdXIndfOpDS8B5nkT3bYikzE=
-			</data>
 			<key>hash2</key>
 			<data>
 			+ZW9bzPRbH0kPXFfokd/0cj/SGxXoF7HSLqlGUc3LLg=
@@ -1201,10 +769,6 @@
 		</dict>
 		<key>Headers/SVGRectElement.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			VpjUvKRBlKTImCy9Xz3jmdTQGmE=
-			</data>
 			<key>hash2</key>
 			<data>
 			xYbTv7TV52GMXzVbRDiW5JbdkJTnLHAw16y73sVsPE8=
@@ -1212,10 +776,6 @@
 		</dict>
 		<key>Headers/SVGSVGElement.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			b/o3415JeUSm7aHzk2o9ptJvJR0=
-			</data>
 			<key>hash2</key>
 			<data>
 			4tHIAOYsxtpMwZD9eq6KgKgf66Gb3F5drP/bjozlF18=
@@ -1223,10 +783,6 @@
 		</dict>
 		<key>Headers/SVGSVGElement_Mutable.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			rpj3rZhyaodI0+nWK1gQknwWKko=
-			</data>
 			<key>hash2</key>
 			<data>
 			PdCYxLyzp5kc4Dg0Kd7JtPcS0sBmR/72U67U46a7qgo=
@@ -1234,10 +790,6 @@
 		</dict>
 		<key>Headers/SVGStylable.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			HDFzF12H84BHwCjx3flkEqtkm9o=
-			</data>
 			<key>hash2</key>
 			<data>
 			GcN9DpuTiDGVyzV7jAaSCwQZ0vUx4akdrJXl1S4XzC8=
@@ -1245,21 +797,13 @@
 		</dict>
 		<key>Headers/SVGStyleCatcher.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			wP3dkdPxkMfSp1DPZbp3mzHJcg8=
-			</data>
 			<key>hash2</key>
 			<data>
-			8Tx00egd+WrFs9NFWsbBfzlZKqkrSXfgf9uk5RcdDU8=
+			VWtywFshzJH8NsI/DSQ1cuBdCz/gMq1asbc0ao3t3Tg=
 			</data>
 		</dict>
 		<key>Headers/SVGStyleElement.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			4Zf3EEl3BzRR+OP5LbuQpSST+Uk=
-			</data>
 			<key>hash2</key>
 			<data>
 			H9YOd6C8nVlDttjB8yG0QSpJ3BCnawItbwg5jcjrZHo=
@@ -1267,10 +811,6 @@
 		</dict>
 		<key>Headers/SVGSwitchElement.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			T7BNRJkLMJ5ZqlLce7DEbYDX2Lw=
-			</data>
 			<key>hash2</key>
 			<data>
 			FiS4xI4jFi+n5NoGIYi5Wn7d+65Ip+xNQGhpAPTFDiw=
@@ -1278,10 +818,6 @@
 		</dict>
 		<key>Headers/SVGTextContentElement.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			f+tvRs23ozVHAa3+g4E1Z1E5a+U=
-			</data>
 			<key>hash2</key>
 			<data>
 			8qFSJIXHXhB+eqUxsNVfmnsklpxLyhfW5wzdMz9QGWQ=
@@ -1289,10 +825,6 @@
 		</dict>
 		<key>Headers/SVGTextElement.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			LDtSB3jiTWrXPZvsQ76W1LcXJvo=
-			</data>
 			<key>hash2</key>
 			<data>
 			q4cgmd9m2wxOFXd1jXYckW5hGnAzLlHi/Jhgy2TsvGQ=
@@ -1300,10 +832,6 @@
 		</dict>
 		<key>Headers/SVGTextLayer.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			ygkwssDU87najoJ5r0K2yxabBl8=
-			</data>
 			<key>hash2</key>
 			<data>
 			vFUdZ6WBA9/yLcP3E2uK7MTrQwACir47cqQ48Sn21kA=
@@ -1311,10 +839,6 @@
 		</dict>
 		<key>Headers/SVGTextPositioningElement.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			o1EuqR/OpZAK2ICBIC9DLGDZxf4=
-			</data>
 			<key>hash2</key>
 			<data>
 			Mq1YBYIApophG1oRFt4gdgOzezhj21BqIotuADABi5Q=
@@ -1322,10 +846,6 @@
 		</dict>
 		<key>Headers/SVGTextPositioningElement_Mutable.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			E+h00nVCuyEUDfNX/mv0LSOUMTU=
-			</data>
 			<key>hash2</key>
 			<data>
 			1xgxJaZOnaSNox5KhEtluEIWayQkbMDow6CjcHV45hw=
@@ -1333,10 +853,6 @@
 		</dict>
 		<key>Headers/SVGTitleElement.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			bNdMsVD3YbIEiSHvyI73wsRU7Ss=
-			</data>
 			<key>hash2</key>
 			<data>
 			04jGtLvFwAPY+DJtXJ2/gfgXFwJmsY1fXSiMMwTSrq0=
@@ -1344,10 +860,6 @@
 		</dict>
 		<key>Headers/SVGTransform.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			8q4zZmMP9LO9nh4QwpaTRQteivo=
-			</data>
 			<key>hash2</key>
 			<data>
 			2AI+8u4dNiYZBZ9KdI8ppx0M5xU9vZki3s2dug3D0G4=
@@ -1355,10 +867,6 @@
 		</dict>
 		<key>Headers/SVGTransformable.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			exvXPVZ6AWFivd5UdCexjtwgEAw=
-			</data>
 			<key>hash2</key>
 			<data>
 			r/E1Eax/o8qG+48bOKmb0FBrJKdDJa0ILOkE3zeEFs8=
@@ -1366,10 +874,6 @@
 		</dict>
 		<key>Headers/SVGUnitTypes.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			O+8GaupDQvZ5C4Qglk9iN8d+kGc=
-			</data>
 			<key>hash2</key>
 			<data>
 			HXIzZA/IxpVYnT0qVH+co34GiA/Jlemva8zjCrCVi+A=
@@ -1377,10 +881,6 @@
 		</dict>
 		<key>Headers/SVGUseElement.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			5A1XYZOTwDR3L8GqSRLbRao8u4M=
-			</data>
 			<key>hash2</key>
 			<data>
 			6P3Y5o0rgEycJK+M4rZwWgj8Wo2W2V8CWu/GW57B1a4=
@@ -1388,10 +888,6 @@
 		</dict>
 		<key>Headers/SVGUseElement_Mutable.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			DZltcPrGOhO1oBxuLqRPlPnmluI=
-			</data>
 			<key>hash2</key>
 			<data>
 			3sjM2+ljNY/r8PnGL5NNX9NcME5xd0NBI+bdys5UyYc=
@@ -1399,10 +895,6 @@
 		</dict>
 		<key>Headers/SVGUtils.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			NSJzFm0mRbAyLz0raDVGDSkhI0k=
-			</data>
 			<key>hash2</key>
 			<data>
 			o3FyQlVcibHGJOu0SEWzrQQ23wZTYxS0RnfVy1Yau9A=
@@ -1410,10 +902,6 @@
 		</dict>
 		<key>Headers/SVGViewSpec.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			IdzYzuwZX0d2o/u3z85rcJLCZ7g=
-			</data>
 			<key>hash2</key>
 			<data>
 			q4RGtqEO5LTbxNyZ8h0KfZRRIuRP85SyTDcjiyui9c4=
@@ -1421,10 +909,6 @@
 		</dict>
 		<key>Headers/StyleSheet.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			SL6/Ecmyu1+E03uJJ2VSg7MjIpo=
-			</data>
 			<key>hash2</key>
 			<data>
 			PuF/E7M4t8X4bPm5/tIkiRf95AakMZTqgN3jpAAVj/E=
@@ -1432,10 +916,6 @@
 		</dict>
 		<key>Headers/StyleSheetList+Mutable.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			54U/sJrdFiwcsSkKvbqjN9PWIxo=
-			</data>
 			<key>hash2</key>
 			<data>
 			KpW22zWQSFLzJcgIqq+bZhOwneXoI0a1UHNZnNmijBk=
@@ -1443,10 +923,6 @@
 		</dict>
 		<key>Headers/StyleSheetList.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			ohlrV+TZbHcFl7cf5eZghW6MCG0=
-			</data>
 			<key>hash2</key>
 			<data>
 			jM5puvn+AyTYARENUcN5ZUokYOFB0lkHVqWSxKrS1d8=
@@ -1454,10 +930,6 @@
 		</dict>
 		<key>Headers/Text.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			b6kUieJiOQQXYRp9DXR576vItOI=
-			</data>
 			<key>hash2</key>
 			<data>
 			GJBlj8juOB49pTdk75+RHFS6qVA2GzopLEfevy97Dfk=
@@ -1465,10 +937,6 @@
 		</dict>
 		<key>Headers/TinySVGTextAreaElement.h</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			Ji55R7TRdjd0tWqOOWuJ8LuoUH4=
-			</data>
 			<key>hash2</key>
 			<data>
 			I3aM11GheArg83gacTrdXnqSw6qjYa4uRhnBGxeizwo=
@@ -1476,10 +944,6 @@
 		</dict>
 		<key>Modules/module.modulemap</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			O7z8q5GXXrY5Vvwt3SriqqZ1B/Q=
-			</data>
 			<key>hash2</key>
 			<data>
 			yXhYjHhErA3tFFpKiqHrcCWNt0go1KC9ZGU8aMbhiDk=
@@ -1487,13 +951,9 @@
 		</dict>
 		<key>Resources/Info.plist</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			0IKMydX8PpERYykhhBrgWyM35kc=
-			</data>
 			<key>hash2</key>
 			<data>
-			UT2I21NsVegLK87X7VMErYlCCmF6EUVh2IR98h/fjKg=
+			gqmWiV/+VPje65XF+D15RgzJ6MPkoUHM4WDg5lEIgmw=
 			</data>
 		</dict>
 	</dict>

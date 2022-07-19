@@ -4,6 +4,7 @@
 #include <QCoreApplication>
 #include <QProcess>
 #include <QSettings>
+#include <QRegExp>
 
 QStringList OpenVpnVersionController::getAvailableOpenVpnVersions()
 {
@@ -158,7 +159,7 @@ QString OpenVpnVersionController::detectVersion(const QString &path)
     process.setProcessChannelMode(QProcess::MergedChannels);
     process.start(path, QStringList() << "--version");
     process.waitForFinished(-1);
-    QString strAnswer = QString::fromStdString((const char *)process.readAll().data()).toLower();
+    QString strAnswer = QString::fromStdString((const char *)process.readAll().constData()).toLower();
 
     // parse version from process output
     QRegExp rx("\\d{1,}.\\d{1,}.\\d{1,}");

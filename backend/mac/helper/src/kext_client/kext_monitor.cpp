@@ -1,11 +1,14 @@
-#include "kext_monitor.h"
-#include "logger.h"
-#include "utils.h"
+#include <IOKit/kext/KextManager.h>
 #include <thread>
+
+#include "kext_monitor.h"
+#include "../logger.h"
+#include "../utils.h"
+
+static const CFStringRef kDriverKextIdentifier = CFSTR("com.windscribe.kext");
 
 KextMonitor::KextMonitor() : isKextLoaded_(false)
 {
-    
 }
 
 void KextMonitor::setKextPath(const std::string &kextPath)
@@ -62,9 +65,17 @@ bool KextMonitor::unloadKext()
         LOG("Error: kext  path is empty");
         return false;
     }
-    
-    // For robustness, unloadKext() always tries to unload, even if we don't
-    // think we have loaded it.
+
+    // Check if the kext is loaded.  The /sbin/kextunload command below blocks for ~1s on
+    // macOS >= 11 if the kext is not loaded.  This adds ~8s delay to the startup of the app
+    // the first time it is run after install/reboot, as we call kextunload, and this
+    // method, multiple times.
+    if (!isKextLoaded())
+    {
+        isKextLoaded_ = false;
+        return true;
+    }
+
     LOG("Unloading kext - currently loaded: %d", isKextLoaded_);
 
     // Unloading our kext may take a few attempts under normal conditions.
@@ -157,4 +168,27 @@ void KextMonitor::chmodIfNeed(const char *name, uid_t user, gid_t group)
     {
         chown(name, user, group);
     }
+}
+
+bool KextMonitor::isKextLoaded() const
+{
+    bool kextLoaded = false;
+    
+    CFStringRef kext_ids[1];
+    kext_ids[0] = kDriverKextIdentifier;
+    CFArrayRef kext_id_query = CFArrayCreate(nullptr, (const void**)kext_ids, 1, &kCFTypeArrayCallBacks);
+    CFDictionaryRef kext_infos = KextManagerCopyLoadedKextInfo(kext_id_query, nullptr);
+    CFRelease(kext_id_query);
+
+    CFDictionaryRef windscribe_driver_info = nullptr;
+    if (CFDictionaryGetValueIfPresent(kext_infos, kDriverKextIdentifier, (const void**)&windscribe_driver_info)) {
+        kextLoaded = CFBooleanGetValue((CFBooleanRef)CFDictionaryGetValue(windscribe_driver_info, CFSTR("OSBundleStarted")));
+    }
+    else {
+        LOG("KextMonitor::isKextLoaded(): Windscribe kext not loaded on this host");
+    }
+    
+    CFRelease(kext_infos);
+    
+    return kextLoaded;
 }

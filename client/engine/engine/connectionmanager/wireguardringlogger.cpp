@@ -130,12 +130,17 @@ void WireguardRingLogger::process(int index)
         return;
     }
 
-    QDateTime dt = QDateTime::fromMSecsSinceEpoch(timestamp / 1000000, Qt::UTC);
-    QByteArray message((const char*)data + WG_LOG_TIMESTAMP_SIZE, WG_LOG_MESSAGE_SIZE);
-    qCDebug(LOG_WIREGUARD()) << dt.toString("ddMMyy hh:mm:ss:zzz") << QString::fromUtf8(message);
+    const char* msgData = (const char*)data + WG_LOG_TIMESTAMP_SIZE;
+    size_t msgLen = qstrnlen(msgData, WG_LOG_MESSAGE_SIZE);
 
-    if (!tunnelRunning_ && message.contains("Keypair 1 created for peer 1")) {
-        tunnelRunning_ = true;
+    if (msgLen > 0) {
+        QDateTime dt = QDateTime::fromMSecsSinceEpoch(timestamp / 1000000, Qt::UTC);
+        QByteArray message(msgData, msgLen);
+        qCDebug(LOG_WIREGUARD()) << dt.toString("ddMMyy hh:mm:ss:zzz") << message;
+
+        if (!tunnelRunning_ && message.contains("Keypair 1 created for peer 1")) {
+            tunnelRunning_ = true;
+        }
     }
 }
 

@@ -1,6 +1,7 @@
 #include "networkdetectionmanager_linux.h"
 
 #include <QRegularExpression>
+
 #include "utils/macutils.h"
 #include "utils/utils.h"
 #include "utils/logger.h"
@@ -20,10 +21,8 @@ NetworkDetectionManager_linux::NetworkDetectionManager_linux(QObject *parent, IH
     getDefaultRouteInterface(isOnline_);
     updateNetworkInfo(false);
 
-    ncm_ = new QNetworkConfigurationManager(this);
-    connect(ncm_, &QNetworkConfigurationManager::configurationAdded, this, &NetworkDetectionManager_linux::onNetworkUpdated);
-    connect(ncm_, &QNetworkConfigurationManager::configurationChanged, this, &NetworkDetectionManager_linux::onNetworkUpdated);
-    connect(ncm_, &QNetworkConfigurationManager::configurationRemoved, this, &NetworkDetectionManager_linux::onNetworkUpdated);
+    QNetworkInformation::instance()->load(QNetworkInformation::Feature::Reachability);
+    connect(QNetworkInformation::instance(), &QNetworkInformation::reachabilityChanged, this, &NetworkDetectionManager_linux::onReachabilityChanged);
 }
 
 NetworkDetectionManager_linux::~NetworkDetectionManager_linux()
@@ -40,8 +39,9 @@ bool NetworkDetectionManager_linux::isOnline()
     return isOnline_;
 }
 
-void NetworkDetectionManager_linux::onNetworkUpdated(const QNetworkConfiguration &/*config*/)
+void NetworkDetectionManager_linux::onReachabilityChanged(QNetworkInformation::Reachability newReachability)
 {
+    Q_UNUSED(newReachability)
     updateNetworkInfo(true);
 }
 
@@ -87,13 +87,13 @@ QString NetworkDetectionManager_linux::getDefaultRouteInterface(bool &isOnline)
         pclose(file);
     }
 
-    const QStringList lines = strReply.split('\n', QString::SkipEmptyParts);
+    const QStringList lines = strReply.split('\n', Qt::SkipEmptyParts);
 
     isOnline = !lines.isEmpty();
 
     for (auto &it : lines)
     {
-        const QStringList pars = it.split(QRegExp("\\s+"), QString::SkipEmptyParts);
+        const QStringList pars = it.split(QRegularExpression("\\s+"), Qt::SkipEmptyParts);
         if (pars.size() == 8)
         {
             if (!pars[7].startsWith("tun") && !pars[7].startsWith("utun"))
@@ -223,10 +223,10 @@ QString NetworkDetectionManager_linux::getFriendlyNameByIfName(const QString &if
         pclose(file);
     }
 
-    const QStringList lines = strReply.split('\n', QString::SkipEmptyParts);
+    const QStringList lines = strReply.split('\n', Qt::SkipEmptyParts);
     for (auto &it : lines)
     {
-        const QStringList pars = it.split(':', QString::SkipEmptyParts);
+        const QStringList pars = it.split(':', Qt::SkipEmptyParts);
         if (pars.size() == 2)
         {
             if (pars[1] == ifname)

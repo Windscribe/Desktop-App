@@ -162,8 +162,6 @@ bool WireGuardGoCommunicator::configure(const std::string &clientPrivateKey,
     const std::string &peerPublicKey, const std::string &peerPresharedKey,
     const std::string &peerEndpoint, const std::vector<std::string> &allowedIps, uint32_t fwmark)
 {
-    UNUSED(log);
-
     Connection connection(deviceName_);
     if (connection.getStatus() != Connection::Status::OK) {
         Logger::instance().out("WireGuardGoCommunicator::configure(): no connection to daemon");

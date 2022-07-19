@@ -7,10 +7,11 @@ setlocal ENABLEDELAYEDEXPANSION
 cd /d %0\..
 call msvc-env.bat
 
-set PLATFORMS=Win32
+set PLATFORMS=x64
 set CONFIGURATIONS=Release
+set _CL_=/MT
 
-call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat" x86
+call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat" x64
 
 rem msbuild /help > nul 2>&1
 rem if errorlevel 1 set DO_VCBUILD=1

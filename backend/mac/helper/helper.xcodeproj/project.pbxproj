@@ -37,6 +37,7 @@
 		00B1BA3225E4E3F60099A124 /* files.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00B1BA2F25E4E3F60099A124 /* files.cpp */; };
 		00EBAA04247D254400C86F6F /* logger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00EBAA02247D254400C86F6F /* logger.cpp */; };
 		6211D32C274EFFA800533D65 /* executable_signature_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6211D32A274EFFA800533D65 /* executable_signature_mac.mm */; };
+		622CE1542874BE08008AEDE6 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 622CE1532874BE08008AEDE6 /* IOKit.framework */; };
 		62BB9E1D27642AC00021F51F /* executable_signature.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 62BB9E1B27642AC00021F51F /* executable_signature.cpp */; };
 		840B29571D6BBE88007D9519 /* server.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 840B29551D6BBE88007D9519 /* server.cpp */; };
 		843077AD1DE3AE26002405EA /* execute_cmd.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 843077AB1DE3AE26002405EA /* execute_cmd.cpp */; };
@@ -139,6 +140,7 @@
 		00EBAA03247D254400C86F6F /* logger.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = logger.h; sourceTree = "<group>"; };
 		6211D32A274EFFA800533D65 /* executable_signature_mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = executable_signature_mac.mm; path = ../../../../common/utils/executable_signature/executable_signature_mac.mm; sourceTree = "<group>"; };
 		6211D32B274EFFA800533D65 /* executable_signature_mac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = executable_signature_mac.h; path = ../../../../common/utils/executable_signature/executable_signature_mac.h; sourceTree = "<group>"; };
+		622CE1532874BE08008AEDE6 /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = System/Library/Frameworks/IOKit.framework; sourceTree = SDKROOT; };
 		62BB9E1B27642AC00021F51F /* executable_signature.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = executable_signature.cpp; path = ../../../../common/utils/executable_signature/executable_signature.cpp; sourceTree = "<group>"; };
 		62BB9E1C27642AC00021F51F /* executable_signature.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = executable_signature.h; path = ../../../../common/utils/executable_signature/executable_signature.h; sourceTree = "<group>"; };
 		840B29551D6BBE88007D9519 /* server.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = server.cpp; sourceTree = "<group>"; };
@@ -175,6 +177,7 @@
 			files = (
 				888838512644773D00FE5C25 /* SystemConfiguration.framework in Frameworks */,
 				8434C10D1FD5BA1400B7030D /* Security.framework in Frameworks */,
+				622CE1542874BE08008AEDE6 /* IOKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -327,6 +330,7 @@
 		8434C1091FD5B9D800B7030D /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				622CE1532874BE08008AEDE6 /* IOKit.framework */,
 				8888384F2643340200FE5C25 /* SystemConfiguration.framework */,
 				8434C10C1FD5BA1400B7030D /* Security.framework */,
 				8434C10A1FD5B9D800B7030D /* CoreFoundation.framework */,
@@ -537,7 +541,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
@@ -585,7 +589,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = macosx;
 			};
@@ -611,7 +615,7 @@
 					"$(PROJECT_DIR)/../../../build-libs/boost/include",
 				);
 				LIBRARY_SEARCH_PATHS = "$(PROJECT_DIR)/../../../build-libs/boost/lib";
-				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
 				OTHER_LDFLAGS = (
 					"-sectcreate",
 					__TEXT,
@@ -647,7 +651,7 @@
 					"$(PROJECT_DIR)/../../../build-libs/boost/include",
 				);
 				LIBRARY_SEARCH_PATHS = "$(PROJECT_DIR)/../../../build-libs/boost/lib";
-				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
 				OTHER_LDFLAGS = (
 					"-sectcreate",
 					__TEXT,
