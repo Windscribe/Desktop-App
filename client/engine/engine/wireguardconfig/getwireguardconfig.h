@@ -18,7 +18,7 @@ class GetWireGuardConfig : public QObject
 public:
     GetWireGuardConfig(QObject *parent, ServerAPI *serverAPI, uint serverApiUserRole);
 
-    void getWireGuardConfig(const QString &serverName, bool deleteOldestKey);
+    void getWireGuardConfig(const QString &serverName, bool deleteOldestKey, const QString &deviceId);
     static void removeWireGuardSettings();
 
 signals:
@@ -36,6 +36,7 @@ private:
     WireGuardConfig wireGuardConfig_;
     QString serverName_;
     bool deleteOldestKey_;
+    QString deviceId_;
     bool isErrorCode1311Guard_;
     bool isRetryConnectRequest_;
     bool isRetryInitRequest_;

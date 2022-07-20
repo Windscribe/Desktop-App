@@ -12,7 +12,7 @@ GetWireGuardConfig::GetWireGuardConfig(QObject *parent, ServerAPI *serverAPI, ui
     connect(serverAPI_, &ServerAPI::wgConfigsConnectAnswer, this, &GetWireGuardConfig::onWgConfigsConnectAnswer, Qt::QueuedConnection);
 }
 
-void GetWireGuardConfig::getWireGuardConfig(const QString &serverName, bool deleteOldestKey)
+void GetWireGuardConfig::getWireGuardConfig(const QString &serverName, bool deleteOldestKey, const QString &deviceId)
 {
     if (isRequestAlreadyInProgress_)
     {
@@ -23,6 +23,7 @@ void GetWireGuardConfig::getWireGuardConfig(const QString &serverName, bool dele
     isRequestAlreadyInProgress_ = true;
     serverName_ = serverName;
     deleteOldestKey_ = deleteOldestKey;
+    deviceId_ = deviceId;
     isErrorCode1311Guard_ = false;
     isRetryConnectRequest_ = false;
     isRetryInitRequest_ = false;
@@ -36,7 +37,7 @@ void GetWireGuardConfig::getWireGuardConfig(const QString &serverName, bool dele
         wireGuardConfig_.setKeyPair(publicKey, privateKey);
         wireGuardConfig_.setPeerPresharedKey(presharedKey);
         wireGuardConfig_.setPeerAllowedIPs(allowedIPs);
-        serverAPI_->wgConfigsConnect(apiinfo::ApiInfo::getAuthHash(), serverApiUserRole_, true, wireGuardConfig_.clientPublicKey(), serverName_);
+        serverAPI_->wgConfigsConnect(apiinfo::ApiInfo::getAuthHash(), serverApiUserRole_, true, wireGuardConfig_.clientPublicKey(), serverName_, deviceId_);
     }
     else
     {
@@ -88,7 +89,7 @@ void GetWireGuardConfig::onWgConfigsInitAnswer(SERVER_API_RET_CODE retCode, uint
     // Persist the peer parameters we received.
     setWireGuardPeerInfo(wireGuardConfig_.peerPresharedKey(), wireGuardConfig_.peerAllowedIps());
 
-    serverAPI_->wgConfigsConnect(apiinfo::ApiInfo::getAuthHash(), serverApiUserRole_, true, wireGuardConfig_.clientPublicKey(), serverName_);
+    serverAPI_->wgConfigsConnect(apiinfo::ApiInfo::getAuthHash(), serverApiUserRole_, true, wireGuardConfig_.clientPublicKey(), serverName_, deviceId_);
 }
 
 void GetWireGuardConfig::onWgConfigsConnectAnswer(SERVER_API_RET_CODE retCode, uint userRole, bool isErrorCode, int errorCode, const QString &ipAddress, const QString &dnsAddress)
@@ -124,7 +125,7 @@ void GetWireGuardConfig::onWgConfigsConnectAnswer(SERVER_API_RET_CODE retCode, u
             // since this shouldn't happen. Retry the 'connect' API once. If it fails again, abort the connection attempt.
             if (!isRetryConnectRequest_) {
                 isRetryConnectRequest_ = true;
-                serverAPI_->wgConfigsConnect(apiinfo::ApiInfo::getAuthHash(), serverApiUserRole_, true, wireGuardConfig_.clientPublicKey(), serverName_);
+                serverAPI_->wgConfigsConnect(apiinfo::ApiInfo::getAuthHash(), serverApiUserRole_, true, wireGuardConfig_.clientPublicKey(), serverName_, deviceId_);
                 return;
             }
         }

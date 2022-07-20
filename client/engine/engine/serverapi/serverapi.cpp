@@ -299,16 +299,18 @@ class WGConfigsConnectRequest : public AuthenticatedRequest
 {
 public:
     WGConfigsConnectRequest(const QString &authhash, const QString &hostname, int replyType, uint timeout,
-                     uint userRole, const QString &clientPublicKey, const QString &serverName)
-        : AuthenticatedRequest(authhash, hostname, replyType, timeout, userRole), clientPublicKey_(clientPublicKey), serverName_(serverName)
+                            uint userRole, const QString &clientPublicKey, const QString &serverName, const QString &deviceId)
+        : AuthenticatedRequest(authhash, hostname, replyType, timeout, userRole), clientPublicKey_(clientPublicKey), serverName_(serverName), deviceId_(deviceId)
     {}
 
     QString clientPublicKey() const { return clientPublicKey_; }
     QString serverName() const { return serverName_; }
+    QString deviceId() const { return deviceId_; }
 
 private:
     const QString clientPublicKey_;
     const QString serverName_;
+    const QString deviceId_;
 };
 
 
@@ -835,7 +837,8 @@ void ServerAPI::wgConfigsInit(const QString &authHash, uint userRole, bool isNee
         authHash, hostname_, REPLY_WIREGUARD_INIT, NETWORK_TIMEOUT, userRole, clientPublicKey, deleteOldestKey));
 }
 
-void ServerAPI::wgConfigsConnect(const QString &authHash, uint userRole, bool isNeedCheckRequestsEnabled, const QString &clientPublicKey, const QString &serverName)
+void ServerAPI::wgConfigsConnect(const QString &authHash, uint userRole, bool isNeedCheckRequestsEnabled,
+                                 const QString &clientPublicKey, const QString &serverName, const QString &deviceId)
 {
     if (isNeedCheckRequestsEnabled && !bIsRequestsEnabled_)
     {
@@ -844,7 +847,7 @@ void ServerAPI::wgConfigsConnect(const QString &authHash, uint userRole, bool is
     }
 
     submitDnsRequest(createRequest<WGConfigsConnectRequest>(
-        authHash, hostname_, REPLY_WIREGUARD_CONNECT, NETWORK_TIMEOUT, userRole, clientPublicKey, serverName));
+        authHash, hostname_, REPLY_WIREGUARD_CONNECT, NETWORK_TIMEOUT, userRole, clientPublicKey, serverName, deviceId));
 }
 
 void ServerAPI::setIgnoreSslErrors(bool bIgnore)
@@ -1501,6 +1504,11 @@ void ServerAPI::handleWgConfigsConnectDnsResolve(BaseRequest *rd, bool success, 
     postData.addQueryItem("hostname", crd->serverName());
     postData.addQueryItem("platform", Utils::getPlatformNameSafe());
     postData.addQueryItem("app_version", AppVersion::instance().semanticVersionString());
+
+    if (!crd->deviceId().isEmpty()) {
+        qDebug() << "Setting device_id for WgConfigs connect request:" << crd->deviceId();
+        postData.addQueryItem("device_id", crd->deviceId());
+    }
 
     auto *curl_request = crd->createCurlRequest();
     curl_request->setPostData(postData.toString(QUrl::FullyEncoded).toUtf8());
