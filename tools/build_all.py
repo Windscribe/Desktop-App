@@ -363,7 +363,6 @@ def build_component(component, qt_root, buildenv=None, macdeployfixes=None, targ
                 # TODO: clean this warning at some point.
                 other_cflags += " -Wno-deprecated-declarations -Wno-incomplete-umbrella"
                 msg.Warn("Compiler warnings suppressed for this project.")
-                build_cmd.extend(["-arch", "x86_64"])
             if other_cflags:
                 build_cmd.append("OTHER_CFLAGS=$(inherited) " + other_cflags)
             build_cmd.extend(["clean", "build"])
