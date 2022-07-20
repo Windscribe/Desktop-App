@@ -266,8 +266,10 @@ main(int argc, char *argv[])
 
     debugOut("Starting WireGuard tunnel with config file: %ls", configFile.c_str());
 
-    WinUtils::Win32Handle hMonitorThread(::CreateThread(NULL, 0, monitorClientStatus,
-                                                        (LPVOID)argv[1], 0, NULL));
+    // Disabling client app monitoring.  The tunnel should remain up if the client app crashes.
+    // The client app will shut the tunnel down when it restarts.
+    //WinUtils::Win32Handle hMonitorThread(::CreateThread(NULL, 0, monitorClientStatus,
+    //                                                    (LPVOID)argv[1], 0, NULL));
 
     bool bResult = tunnelProc((const unsigned short*)configFile.c_str());
 
@@ -275,11 +277,11 @@ main(int argc, char *argv[])
         debugOut("Windscribe WireGuard service - WireGuardTunnelService from tunnel.dll failed");
     }
 
-    if (hMonitorThread.isValid() && (hMonitorThread.wait(0) != WAIT_OBJECT_0))
-    {
-        ::QueueUserAPC(stopMonitorThread, hMonitorThread.getHandle(), 0);
-        hMonitorThread.wait(5000);
-    }
+    //if (hMonitorThread.isValid() && (hMonitorThread.wait(0) != WAIT_OBJECT_0))
+    //{
+    //    ::QueueUserAPC(stopMonitorThread, hMonitorThread.getHandle(), 0);
+    //    hMonitorThread.wait(5000);
+    //}
 
     // Delete the config file.
     dwAttrib = ::GetFileAttributes(configFile.c_str());

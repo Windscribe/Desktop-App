@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
     else if (a.cliCommand() == CLI_COMMAND_HELP)
     {
         qCDebug(LOG_BASIC) << "Printing help menu";
-        std::cout << "windscribe-cli.exe supports the following commands:" << std::endl;
+        std::cout << "windscribe-cli supports the following commands:" << std::endl;
         std::cout << "connect                   - Connects to last connected location. If no last location, connect to best location." << std::endl;
         std::cout << "connect best              - Connects to best location                  " << std::endl;
         std::cout << "connect \"RegionName\"      - Connects to a random datacenter in the region" << std::endl;
