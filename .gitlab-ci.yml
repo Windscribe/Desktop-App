@@ -231,12 +231,22 @@ build:win:installer:
   script:
     - !reference [.build_win_installer_common, script]
     # upload installer and symbols to nexus
-    - !reference [.upload_installer_to_nexus_commit_win, script ]
-    - !reference [.upload_symbols_to_nexus_commit_win, script ]
     - !reference [.upload_installer_to_nexus_latest_win, script ]
     - !reference [.upload_symbols_to_nexus_latest_win, script ]
   rules:
-    - if: $BUILD_WIN == "y" && $CI_COMMIT_TAG == null
+    - if: $BUILD_WIN == "y" && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH != null
+
+# We don't upload artifacts for merge requests
+build:win:installer:mr:
+  <<: *template_win10_build
+  stage: Build
+  variables:
+    GIT_STRATEGY: clone
+    ARTIFACT_PATH: $ARTIFACT_INSTALLER
+  script:
+    - !reference [.build_win_installer_common, script]
+  rules:
+    - if: $BUILD_WIN == "y" && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH == null
 
 build:win:installer:tagged:
   <<: *template_win10_build
@@ -301,7 +311,6 @@ manual:build:mac:installer:
     - !reference [.build_mac_installer_common, script]
     - tools/build_all -zip --ci-mode --sign
     # upload dmg to nexus
-    - !reference [.upload_dmg_to_nexus_commit_mac, script]
     - !reference [.upload_dmg_to_nexus_latest_mac, script]
   when: manual
   rules:
@@ -318,10 +327,22 @@ build:mac:installer:
     # build the application/installer
     - tools/build_all -zip --ci-mode --sign
     # upload dmg to nexus
-    - !reference [.upload_dmg_to_nexus_commit_mac, script]
     - !reference [.upload_dmg_to_nexus_latest_mac, script]
   rules:
-    - if: $BUILD_MAC == "y" && $CI_COMMIT_TAG == null
+    - if: $BUILD_MAC == "y" && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH != null
+
+# We don't upload artifacts for merge requests
+build:mac:installer:mr:
+  <<: *template_mac_build
+  stage: Build
+  variables:
+    GIT_STRATEGY: clone
+    ARTIFACT_PATH: $ARTIFACT_INSTALLER
+  script:
+    - !reference [.build_mac_installer_common, script]
+    - tools/build_all -zip --ci-mode --sign
+  rules:
+    - if: $BUILD_MAC == "y" && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH == null
 
 build:mac:installer:tagged:
   <<: *template_mac_build
@@ -385,12 +406,22 @@ build:linux:installer:
   script:
     - !reference [.build_linux_installer_common, script]
     # upload deb and rpm packages to nexus
-    - !reference [.upload_deb_to_nexus_commit_linux, script ]
     - !reference [.upload_deb_to_nexus_latest_linux, script ]
-    - !reference [.upload_rpm_to_nexus_commit_linux, script ]
     - !reference [.upload_rpm_to_nexus_latest_linux, script ]
   rules:
-    - if: $BUILD_LINUX == "y" && $CI_COMMIT_TAG == null
+    - if: $BUILD_LINUX == "y" && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH != null
+
+# We don't upload artifacts for merge requests
+build:linux:installer:mr:
+  <<: *template_linux_build
+  stage: Build
+  variables:
+    GIT_STRATEGY: clone
+    ARTIFACT_PATH: $ARTIFACT_INSTALLER
+  script:
+    - !reference [.build_linux_installer_common, script]
+  rules:
+    - if: $BUILD_LINUX == "y" && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH == null
 
 build:linux:installer:tagged:
   <<: *template_linux_build
@@ -421,7 +452,7 @@ build:artifact:links:
     - echo ${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/Windscribe_$VERSION.dmg
     - echo ${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/Windscribe_$VERSION.exe
   rules:
-    - if: $CI_COMMIT_TAG == null
+    - if: $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH != null
 
 build:artifact:links:tagged:
   tags: [win10qty6]
