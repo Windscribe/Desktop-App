@@ -28,6 +28,18 @@ message GetState
 {
 }
 
+message Login
+{
+  optional string username = 1;
+  optional string password = 2;
+  optional string code2fa = 3;
+}
+
+message SignOut
+{
+  optional bool is_keep_firewall_on = 1;
+}
+
 
 // --- answers from GUI ---
 message ConnectToLocationAnswer
@@ -59,3 +71,11 @@ message State
 {
    optional bool is_logged_in = 1  [default = false];
 } 
+
+message LoggedIn
+{
+}
+
+message SignedOut
+{
+}

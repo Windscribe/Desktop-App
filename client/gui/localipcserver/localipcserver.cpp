@@ -161,6 +161,21 @@ void LocalIPCServer::onConnectionCommandCallback(IPC::Command *command, IPC::ICo
             }
         }
     }
+    else if (command->getStringId() == CliIpc::Login::descriptor()->full_name())
+    {
+    }
+    else if (command->getStringId() == CliIpc::SignOut::descriptor()->full_name())
+    {
+        if (isLoggedIn_)
+        {
+            connect(backend_, &Backend::signOutFinished, this, &LocalIPCServer::notifyCliSignOutFinished);
+            IPC::ProtobufCommand<CliIpc::SignOut> *cmd = static_cast<IPC::ProtobufCommand<CliIpc::SignOut> *>(command);
+            backend_->signOut(cmd->getProtoObj().is_keep_firewall_on());
+        }
+        else {
+            notifyCliSignOutFinished();
+        }
+    }
 }
 
 void LocalIPCServer::onConnectionStateCallback(int state, IPC::IConnection *connection)
@@ -213,4 +228,11 @@ void LocalIPCServer::sendCommand(const IPC::Command &command)
     {
         connection->sendCommand(command);
     }
+}
+
+void LocalIPCServer::notifyCliSignOutFinished()
+{
+    disconnect(backend_, &Backend::signOutFinished, this, &LocalIPCServer::notifyCliSignOutFinished);
+    IPC::ProtobufCommand<CliIpc::SignedOut> cmd;
+    sendCommand(cmd);
 }

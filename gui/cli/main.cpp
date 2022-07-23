@@ -5,7 +5,7 @@
 #include <QDateTime>
 #include <iostream>
 #include "backendcommander.h"
-#include "cliapplication.h"
+#include "cliarguments.h"
 #include "utils/logger.h"
 #include "utils/utils.h"
 
@@ -41,31 +41,37 @@ int main(int argc, char *argv[])
     qCDebug(LOG_BASIC) << "CLI start time:" << QDateTime::currentDateTime().toString();
     qCDebug(LOG_BASIC) << "OS Version:" << Utils::getOSVersion();
 
-    CliApplication a(argc, argv);
-    if (a.cliCommand() == CLI_COMMAND_NONE)
+    QCoreApplication a(argc, argv);
+
+    CliArguments cliArgs;
+    cliArgs.processArguments();
+
+    if (cliArgs.cliCommand() == CLI_COMMAND_NONE)
     {
         qCDebug(LOG_BASIC) << "CLI args fail: Couldn't determine appropriate command from arguments";
         QString output = QObject::tr("There appears to be an issue with the provided arguments. Try 'windscribe-cli help' to see available options");
         std::cout << output.toStdString() << std::endl;
         return 0;
     }
-    else if (a.cliCommand() == CLI_COMMAND_HELP)
+    else if (cliArgs.cliCommand() == CLI_COMMAND_HELP)
     {
         qCDebug(LOG_BASIC) << "Printing help menu";
         std::cout << "windscribe-cli supports the following commands:" << std::endl;
-        std::cout << "connect                   - Connects to last connected location. If no last location, connect to best location." << std::endl;
-        std::cout << "connect best              - Connects to best location                  " << std::endl;
-        std::cout << "connect \"RegionName\"      - Connects to a random datacenter in the region" << std::endl;
-        std::cout << "connect \"CityName\"        - Connects to a random datacenter in the city  " << std::endl;
-        std::cout << "connect \"Nickname\"        - Connects to datacenter with same nickname  " << std::endl;
-        std::cout << "connect \"ISO CountryCode\" - Connects to a random data center in the country" << std::endl;
-        std::cout << "disconnect                - Disconnects from current datacenter              " << std::endl;
-        std::cout << "firewall on|off           - Turn firewall ON/OFF                     " << std::endl;
-        std::cout << "locations                 - View a list of available locations" << std::endl;
+        std::cout << "connect                     - Connects to last connected location. If no last location, connect to best location." << std::endl;
+        std::cout << "connect best                - Connects to best location" << std::endl;
+        std::cout << "connect \"RegionName\"        - Connects to a random datacenter in the region" << std::endl;
+        std::cout << "connect \"CityName\"          - Connects to a random datacenter in the city" << std::endl;
+        std::cout << "connect \"Nickname\"          - Connects to datacenter with same nickname" << std::endl;
+        std::cout << "connect \"ISO CountryCode\"   - Connects to a random data center in the country" << std::endl;
+        std::cout << "disconnect                  - Disconnects from current datacenter" << std::endl;
+        std::cout << "firewall on|off             - Turn firewall ON/OFF" << std::endl;
+        std::cout << "locations                   - View a list of available locations" << std::endl;
+        std::cout << "login \"username\" \"password\" [2FA code] - login with given username and password, and optional two-factor authentication code" << std::endl;
+        std::cout << "signout on|off              - Sign out of the application and leave the firewall ON/OFF" << std::endl;
         return 0;
     }
 
-    BackendCommander *backendCommander = new BackendCommander(a.cliCommand(), a.location());
+    BackendCommander *backendCommander = new BackendCommander(cliArgs);
 
     QObject::connect(backendCommander, &BackendCommander::finished, [&](const QString &msg) {
         logAndCout(msg);
@@ -85,6 +91,12 @@ int main(int argc, char *argv[])
     }
     else
     {
+        if (cliArgs.cliCommand() == CLI_COMMAND_SIGN_OUT)
+        {
+            logAndCout(QCoreApplication::tr("The application is not running, signout not required."));
+            return 0;
+        }
+
         logAndCout(QCoreApplication::tr("No GUI instance detected, starting one now..."));
 
         // GUI pathing

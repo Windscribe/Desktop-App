@@ -30,6 +30,7 @@ private slots:
     void onBackendFirewallStateChanged(bool isEnabled);
     void onBackendLoginFinished(bool isLoginFromSavedSettings);
     void onBackendSignOutFinished();
+    void notifyCliSignOutFinished();
 
 private:
     Backend *backend_;
