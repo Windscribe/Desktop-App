@@ -1032,68 +1032,37 @@ void ServerAPI::handleServerLocationsDnsResolve(BaseRequest *rd, bool success,
     QSettings settings;
     QString countryOverride = settings.value("countryOverride", "").toString();
 
-    // if this is IP, then use ServerLocations request
-    QUrl url;
-    if (IpValidation::instance().isIp(hostname_))
+    QString modifiedHostname = hostname_;
+    if (modifiedHostname.startsWith("api", Qt::CaseInsensitive))
     {
-        url = QUrl("https://" + crd->getHostname() + "/ServerLocations");
-        QUrlQuery query = MakeQuery(crd->getAuthHash());
-
-        if (crd->getProtocol().isIkev2Protocol())
-        {
-            query.addQueryItem("sl_session_type", "4");
-            query.addQueryItem("sl_premium", crd->getIsPro() ? "1" : "0");
-        }
-
-        query.addQueryItem("browser", "mobike");
-        query.addQueryItem("platform", Utils::getPlatformNameSafe());
-        query.addQueryItem("app_version", AppVersion::instance().semanticVersionString());
-
-        if (!countryOverride.isEmpty() && connectStateController_->currentState() != CONNECT_STATE::CONNECT_STATE_DISCONNECTED)
-        {
-            query.addQueryItem("countryOverride", countryOverride);
-            qCDebug(LOG_SERVER_API) << "API request ServerLocations added countryOverride = " << countryOverride;
-        }
-
-        // add alc parameter in query, if not empty
-        if (!alcField.isEmpty())
-        {
-            query.addQueryItem("alc", alcField);
-        }
-
-        url.setQuery(query);
+        modifiedHostname = modifiedHostname.remove(0, 3);
+        modifiedHostname.insert(0, "assets");
     }
-    // this is domain name, then use domain assets.windscribe.com
+    else if (IpValidation::instance().isIp(modifiedHostname))
+    {
+        modifiedHostname += "/assets";
+    }
     else
     {
-        QString modifiedHostname = hostname_;
-        if (modifiedHostname.startsWith("api", Qt::CaseInsensitive))
-        {
-            modifiedHostname = modifiedHostname.remove(0, 3);
-            modifiedHostname.insert(0, "assets");
-        }
-        else
-        {
-            Q_ASSERT(false);
-        }
-        QString strIsPro = crd->getIsPro() ? "1" : "0";
-        url = QUrl("https://" + modifiedHostname + "/serverlist/mob-v2/" + strIsPro + "/" + crd->getRevision());
-
-        // add alc parameter in query, if not empty
-        QUrlQuery query;
-        if (!alcField.isEmpty())
-        {
-            query.addQueryItem("platform", Utils::getPlatformNameSafe());
-            query.addQueryItem("app_version", AppVersion::instance().semanticVersionString());
-            query.addQueryItem("alc", alcField);
-        }
-        if (!countryOverride.isEmpty() && connectStateController_->currentState() != CONNECT_STATE::CONNECT_STATE_DISCONNECTED)
-        {
-            query.addQueryItem("country_override", countryOverride);
-            qCDebug(LOG_SERVER_API) << "API request ServerLocations added countryOverride = " << countryOverride;
-        }
-        url.setQuery(query);
+        Q_ASSERT(false);
     }
+    QString strIsPro = crd->getIsPro() ? "1" : "0";
+    QUrl url = QUrl("https://" + modifiedHostname + "/serverlist/mob-v2/" + strIsPro + "/" + crd->getRevision());
+
+    // add alc parameter in query, if not empty
+    QUrlQuery query;
+    if (!alcField.isEmpty())
+    {
+        query.addQueryItem("platform", Utils::getPlatformNameSafe());
+        query.addQueryItem("app_version", AppVersion::instance().semanticVersionString());
+        query.addQueryItem("alc", alcField);
+    }
+    if (!countryOverride.isEmpty() && connectStateController_->currentState() != CONNECT_STATE::CONNECT_STATE_DISCONNECTED)
+    {
+        query.addQueryItem("country_override", countryOverride);
+        qCDebug(LOG_SERVER_API) << "API request ServerLocations added countryOverride = " << countryOverride;
+    }
+    url.setQuery(query);
 
     auto *curl_request = crd->createCurlRequest();
     curl_request->setGetData(url.toString());
