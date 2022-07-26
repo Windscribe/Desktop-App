@@ -7,6 +7,7 @@
 
 class CustomMenuWidget : public QMenu
 {
+    Q_OBJECT
 public:
 
     enum DefaultAction { UNDO, REDO, CUT, COPY, PASTE, DELETE, SELECT_ALL };

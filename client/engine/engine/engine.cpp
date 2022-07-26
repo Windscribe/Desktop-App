@@ -3,6 +3,8 @@
 #include <QCoreApplication>
 #include <QDir>
 #include <QCryptographicHash>
+#include <Objbase.h>
+#include <shellapi.h>
 #include "utils/utils.h"
 #include "utils/logger.h"
 #include "utils/mergelog.h"

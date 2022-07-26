@@ -7,7 +7,7 @@
 #include "utils/utils.h"
 #include "utils/executable_signature/executable_signature.h"
 #include "persistentstate.h"
-#include "engine/engineserver.h"
+#include "engineserver.h"
 #include <QCoreApplication>
 
 
