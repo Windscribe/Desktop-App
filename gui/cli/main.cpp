@@ -120,7 +120,7 @@ int main(int argc, char *argv[])
         qint64 pid;
         process.startDetached(&pid);
 
-        backendCommander->initAndSend();
+        backendCommander->initAndSend(false);
 #endif
     }
 
