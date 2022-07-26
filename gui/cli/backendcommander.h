@@ -14,7 +14,7 @@ public:
     BackendCommander(const CliArguments &cliArgs);
     ~BackendCommander();
 
-    void initAndSend();
+    void initAndSend(bool isGuiAlreadyRunning);
 
 signals:
     void finished(const QString &errorMsg);
@@ -23,6 +23,9 @@ signals:
 private slots:
     void onConnectionNewCommand(IPC::Command *command, IPC::IConnection *connection);
     void onConnectionStateChanged(int state, IPC::IConnection *connection);
+
+    void sendCommand();
+    void sendStateCommand();
 
 private:
     const CliArguments &cliArgs_;
@@ -36,9 +39,9 @@ private:
     QElapsedTimer loggedInTimer_;
     bool bCommandSent_ = false;
     bool bLogginInMessageShown_ = false;
+    bool isGuiAlreadyRunning_ = false;
 
-    void sendCommand();
-    void sendStateCommand();
+    void onStateResponse(IPC::Command *command);
 };
 
 #endif // BACKENDCOMMANDER_H

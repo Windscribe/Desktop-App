@@ -372,9 +372,9 @@ Command *CommandFactory::makeCommand(const std::string strId, char *buf, int siz
     {
         return new ProtobufCommand<CliIpc::Login>(buf, size);
     }
-    else if (strId == CliIpc::LoggedIn::descriptor()->full_name())
+    else if (strId == CliIpc::LoginResult::descriptor()->full_name())
     {
-        return new ProtobufCommand<CliIpc::LoggedIn>(buf, size);
+        return new ProtobufCommand<CliIpc::LoginResult>(buf, size);
     }
     else if (strId == CliIpc::SignOut::descriptor()->full_name())
     {

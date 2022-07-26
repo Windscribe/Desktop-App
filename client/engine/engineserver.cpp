@@ -73,7 +73,7 @@ bool EngineServer::handleCommand(IPC::Command *command)
             connect(engine_, SIGNAL(initFinished(ENGINE_INIT_RET_CODE)), SLOT(onEngineInitFinished(ENGINE_INIT_RET_CODE)));
             connect(engine_, SIGNAL(bfeEnableFinished(ENGINE_INIT_RET_CODE)), SLOT(onEngineBfeEnableFinished(ENGINE_INIT_RET_CODE)));
             connect(engine_, SIGNAL(firewallStateChanged(bool)), SLOT(onEngineFirewallStateChanged(bool)));
-            connect(engine_, SIGNAL(loginFinished(bool, QString, apiinfo::PortMap)), SLOT(onEngineLoginFinished(bool, QString, apiinfo::PortMap)));
+            connect(engine_, &Engine::loginFinished, this, &EngineServer::onEngineLoginFinished);
             connect(engine_, SIGNAL(loginStepMessage(LOGIN_MESSAGE)), SLOT(onEngineLoginMessage(LOGIN_MESSAGE)));
             connect(engine_, SIGNAL(notificationsUpdated(QVector<apiinfo::Notification>)), SLOT(onEngineNotificationsUpdated(QVector<apiinfo::Notification>)));
             connect(engine_, SIGNAL(checkUpdateUpdated(apiinfo::CheckUpdate)), SLOT(onEngineCheckUpdateUpdated(apiinfo::CheckUpdate)));

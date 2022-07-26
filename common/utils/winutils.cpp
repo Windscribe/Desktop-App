@@ -350,10 +350,15 @@ QMap<QString, QString> WinUtils::enumerateInstalledProgramIconLocations()
 bool WinUtils::isGuiAlreadyRunning()
 {
     HWND hwnd = FindWindow(classNameIcon.c_str(), wsGuiIcon.c_str());
-    if (hwnd)
-    {
+    if (hwnd) {
         return true;
     }
+
+    hwnd = FindWindow(classNameIconDebug.c_str(), wsGuiIcon.c_str());
+    if (hwnd) {
+        return true;
+    }
+
     return false;
 }
 

@@ -69,11 +69,14 @@ message AlreadyDisconnected
 
 message State
 {
-   optional bool is_logged_in = 1  [default = false];
+   optional bool is_logged_in = 1 [default = false];
+   optional bool waiting_for_login_info = 2 [default = false];
 } 
 
-message LoggedIn
+message LoginResult
 {
+   optional bool is_logged_in = 1;
+   optional string login_error = 2;
 }
 
 message SignedOut

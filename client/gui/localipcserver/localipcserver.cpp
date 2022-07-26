@@ -7,8 +7,6 @@
 
 LocalIPCServer::LocalIPCServer(Backend *backend, QObject *parent) : QObject(parent)
   , backend_(backend)
-  , server_(NULL)
-  , isLoggedIn_(false)
 {
     connect(backend_, &Backend::connectStateChanged, this, &LocalIPCServer::onBackendConnectStateChanged);
     connect(backend_, &Backend::firewallStateChanged, this, &LocalIPCServer::onBackendFirewallStateChanged);
@@ -30,7 +28,7 @@ LocalIPCServer::~LocalIPCServer()
 
 void LocalIPCServer::start()
 {
-    Q_ASSERT(server_ == NULL);
+    Q_ASSERT(server_ == nullptr);
     server_ = new IPC::Server();
     connect(dynamic_cast<QObject*>(server_), SIGNAL(newConnection(IPC::IConnection *)), SLOT(onServerCallbackAcceptFunction(IPC::IConnection *)));
 
@@ -120,6 +118,7 @@ void LocalIPCServer::onConnectionCommandCallback(IPC::Command *command, IPC::ICo
     {
         IPC::ProtobufCommand<CliIpc::State> cmd;
         cmd.getProtoObj().set_is_logged_in(isLoggedIn_);
+        cmd.getProtoObj().set_waiting_for_login_info(!backend_->isCanLoginWithAuthHash());
         sendCommand(cmd);
     }
     else if (command->getStringId() == CliIpc::Firewall::descriptor()->full_name())
@@ -163,6 +162,18 @@ void LocalIPCServer::onConnectionCommandCallback(IPC::Command *command, IPC::ICo
     }
     else if (command->getStringId() == CliIpc::Login::descriptor()->full_name())
     {
+        if (isLoggedIn_) {
+            notifyCliLoginFinished();
+        }
+        else
+        {
+            connect(backend_, &Backend::loginFinished, this, &LocalIPCServer::notifyCliLoginFinished);
+            connect(backend_, &Backend::loginError, this, &LocalIPCServer::notifyCliLoginFailed);
+            IPC::ProtobufCommand<CliIpc::Login> *cmd = static_cast<IPC::ProtobufCommand<CliIpc::Login> *>(command);
+            Q_EMIT attemptLogin(QString::fromStdString(cmd->getProtoObj().username()),
+                                QString::fromStdString(cmd->getProtoObj().password()),
+                                QString::fromStdString(cmd->getProtoObj().code2fa()));
+        }
     }
     else if (command->getStringId() == CliIpc::SignOut::descriptor()->full_name())
     {
@@ -230,9 +241,32 @@ void LocalIPCServer::sendCommand(const IPC::Command &command)
     }
 }
 
+void LocalIPCServer::notifyCliLoginFinished()
+{
+    sendLoginResult(true, QString());
+}
+
+void LocalIPCServer::notifyCliLoginFailed(ProtoTypes::LoginError loginError, const QString &errorMessage)
+{
+    Q_UNUSED(loginError)
+    sendLoginResult(false, errorMessage);
+}
+
 void LocalIPCServer::notifyCliSignOutFinished()
 {
     disconnect(backend_, &Backend::signOutFinished, this, &LocalIPCServer::notifyCliSignOutFinished);
     IPC::ProtobufCommand<CliIpc::SignedOut> cmd;
+    sendCommand(cmd);
+}
+
+void LocalIPCServer::sendLoginResult(bool isLoggedIn, const QString &errorMessage)
+{
+    disconnect(backend_, &Backend::loginFinished, this, &LocalIPCServer::notifyCliLoginFinished);
+    disconnect(backend_, &Backend::loginError, this, &LocalIPCServer::notifyCliLoginFailed);
+    IPC::ProtobufCommand<CliIpc::LoginResult> cmd;
+    cmd.getProtoObj().set_is_logged_in(isLoggedIn);
+    if (!errorMessage.isEmpty()) {
+        cmd.getProtoObj().set_login_error(errorMessage.toStdString());
+    }
     sendCommand(cmd);
 }

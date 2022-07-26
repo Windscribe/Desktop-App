@@ -9,6 +9,7 @@
 namespace WinUtils
 {
     const std::wstring classNameIcon = L"Qt624QWindowIcon";
+    const std::wstring classNameIconDebug = L"Qt624dQWindowIcon";
     const std::wstring wsGuiIcon = L"Windscribe";
     const std::wstring wmActivateGui = L"WindscribeAppActivate";
 
