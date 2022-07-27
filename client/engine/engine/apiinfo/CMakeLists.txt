@@ -1,0 +1,22 @@
+target_sources(engine PRIVATE
+    apiinfo.cpp
+    apiinfo.h
+    checkupdate.cpp
+    checkupdate.h
+    group.cpp
+    group.h
+    location.cpp
+    location.h
+    node.cpp
+    node.h
+    notification.cpp
+    notification.h
+    portmap.cpp
+    portmap.h
+    servercredentials.cpp
+    servercredentials.h
+    sessionstatus.cpp
+    sessionstatus.h
+    staticips.cpp
+    staticips.h
+)

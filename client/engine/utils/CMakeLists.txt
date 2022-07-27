@@ -1,0 +1,13 @@
+target_sources(engine PRIVATE
+    boost_includes.h
+)
+if (WIN32)
+    target_sources(engine PRIVATE
+        bfe_service_win.cpp
+        bfe_service_win.h
+        installedantiviruses_win.cpp
+        installedantiviruses_win.h
+        ras_service_win.cpp
+        ras_service_win.h
+    )
+endif (WIN32)
