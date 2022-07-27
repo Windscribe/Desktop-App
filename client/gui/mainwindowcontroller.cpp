@@ -72,7 +72,7 @@ MainWindowController::MainWindowController(QWidget *parent, LocationsWindow *loc
     externalConfigWindow_ = new ExternalConfigWindow::ExternalConfigWindowItem(nullptr, preferencesHelper);
     twoFactorAuthWindow_ = new TwoFactorAuthWindow::TwoFactorAuthWindowItem(nullptr, preferencesHelper);
     preferencesWindow_ = new PreferencesWindow::PreferencesWindowItem(NULL, preferences, preferencesHelper, accountInfo);
-    updateWindow_ = new UpdateWindow::UpdateWindowItem();
+    updateWindow_ = new UpdateWindowItem();
     upgradeAccountWindow_ = new UpgradeWindow::UpgradeWindowItem();
     bottomInfoWindow_ = new SharingFeatures::BottomInfoItem();
     generalMessageWindow_ = new GeneralMessage::GeneralMessageWindowItem(false);

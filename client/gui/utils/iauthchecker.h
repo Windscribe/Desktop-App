@@ -3,7 +3,7 @@
 
 #include <QObject>
 
-enum class AuthCheckerError { NO_ERROR, HELPER_ERROR, AUTHENTICATION_ERROR };
+enum class AuthCheckerError { AUTH_NO_ERROR, AUTH_HELPER_ERROR, AUTH_AUTHENTICATION_ERROR };
 
 class IAuthChecker : public QObject
 {

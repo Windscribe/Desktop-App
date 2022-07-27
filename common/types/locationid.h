@@ -78,7 +78,7 @@ private:
                     // for top level location - empty value
 };
 
-inline uint qHash(const LocationID &key, uint seed)
+inline size_t qHash(const LocationID &key, uint seed)
 {
     return qHash(key.getHashString(), seed);
 }

@@ -25,7 +25,7 @@ public:
         std::vector<char> buf(size);
         if (size > 0)
         {
-            protoObj.SerializeToArray(&buf[0], size);
+            protoObj.SerializeToArray(&buf[0], (int)size);
         }
         return buf;
     }

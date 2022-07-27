@@ -1,4 +1,6 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.23)
+
+project(gui)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -13,491 +15,39 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Network Svg Core5Compat)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Network Svg Core5Compat)
 
+
 set(PROJECT_SOURCES
-    backend/backend.cpp
-        backend/connectstatehelper.cpp
-        backend/firewallstatehelper.cpp
-        backend/notificationscontroller.cpp
-        backend/locationsmodel/alllocationsmodel.cpp
-        backend/locationsmodel/basiccitiesmodel.cpp
-        backend/locationsmodel/basiclocationsmodel.cpp
-        backend/locationsmodel/configuredcitiesmodel.cpp
-        backend/locationsmodel/favoritecitiesmodel.cpp
-        backend/locationsmodel/favoritelocationsstorage.cpp
-        backend/locationsmodel/locationsmodel.cpp
-        backend/locationsmodel/sortlocationsalgorithms.cpp
-        backend/locationsmodel/staticipscitiesmodel.cpp
-        backend/preferences/accountinfo.cpp
-        backend/preferences/detectlanrange.cpp
-        backend/preferences/guisettingsfromver1.cpp
-        backend/preferences/preferences.cpp
-        backend/preferences/preferenceshelper.cpp
-        backend/types/upgrademodetype.cpp
-        backend/types/dnswhileconnectedinfo.cpp
-        backend/persistentstate.cpp
-        #application/windowsnativeeventfilter.cpp
-        #application/windscribeapplication.cpp
-        #commongraphics/imageitem.cpp
-        #commongraphics/scalablegraphicsobject.cpp
-        #commonwidgets/combomenuwidget.cpp
-        #commonwidgets/combomenuwidgetbutton.cpp
-        #commonwidgets/iconwidget.cpp
-        #commonwidgets/lightwidget.cpp
-        #connectwindow/backgroundimage/backgroundimage.cpp
-        #connectwindow/backgroundimage/imagechanger.cpp
-        #connectwindow/backgroundimage/simpleimagechanger.cpp
-        #connectwindow/connectstateprotocolport/badgepixmap.cpp
-        #connectwindow/connectstateprotocolport/connectionbadgedots.cpp
-        #connectwindow/connectstateprotocolport/connectstateprotocolport.cpp
-        #connectwindow/ipaddressitem/ipaddressitem.cpp
-        #connectwindow/ipaddressitem/numberitem.cpp
-        #connectwindow/ipaddressitem/numberspixmap.cpp
-        #connectwindow/ipaddressitem/octetitem.cpp
-        #connectwindow/middleitem.cpp
-        #connectwindow/serverratingindicator.cpp
-        #dialogs/advancedparametersdialog.cpp
-        #dialogs/dialoggetusernamepassword.cpp
-        #dialogs/dialogmessagecpuusage.cpp
-        #graphicresources/fontdescr.cpp
-        #graphicresources/iconmanager.cpp
-        #graphicresources/independentpixmap.cpp
-        #launchonstartup/launchonstartup.cpp
-        #locationswindow/widgetlocations/footertopstrip.cpp
-        #locationswindow/widgetlocations/itemwidgetcity.cpp
-        #locationswindow/widgetlocations/itemwidgetheader.cpp
-        #locationswindow/widgetlocations/itemwidgetregion.cpp
-        #locationswindow/widgetlocations/scrollbar.cpp
-        #locationswindow/widgetlocations/widgetcitieslist.cpp
-        #locationswindow/widgetlocations/widgetlocations.cpp
-        #locationswindow/widgetlocations/widgetlocationslist.cpp
-        #mainwindowstate.cpp
-        #preferenceswindow/connectionwindow/packetsizeeditboxitem.cpp
-        #overlaysconnectwindow//upgradewindowitem.cpp
-        #overlaysconnectwindow/updatewindowitem.cpp
-        #overlaysconnectwindow/generalmessagetwobuttonwindowitem.cpp
-        #overlaysconnectwindow/generalmessagewindowitem.cpp
-        #overlaysconnectwindow/updateappitem.cpp
-        #preferenceswindow/debugwindow/apiresolutionitem.cpp
-        #preferenceswindow/generalwindow/backgroundsettingsitem.cpp
-        #preferenceswindow/generalwindow/selectimageitem.cpp
-        #preferenceswindow/generalwindow/versioninfoitem.cpp
-        #preferenceswindow/networkwhitelistwindow/currentnetworkitem.cpp
-        #preferenceswindow/networkwhitelistwindow/networklistitem.cpp
-        #preferenceswindow/networkwhitelistwindow/networkwhitelistshared.cpp
-        #preferenceswindow/splittunnelingwindow/appincludeditem.cpp
-        #preferenceswindow/splittunnelingwindow/appsearchitem.cpp
-        #preferenceswindow/splittunnelingwindow/iporhostnameitem.cpp
-        #preferenceswindow/splittunnelingwindow/newiporhostnameitem.cpp
-        #preferenceswindow/splittunnelingwindow/searchlineedititem.cpp
-        #preferenceswindow/splittunnelingwindow/splittunnelingappsitem.cpp
-        #preferenceswindow/splittunnelingwindow/splittunnelingappssearchitem.cpp
-        #preferenceswindow/splittunnelingwindow/splittunnelingappssearchwindowitem.cpp
-        #preferenceswindow/splittunnelingwindow/splittunnelingappswindowitem.cpp
-        #preferenceswindow/splittunnelingwindow/splittunnelingiphostnamewindowitem.cpp
-        #preferenceswindow/splittunnelingwindow/splittunnelingipsandhostnamesitem.cpp
-        #preferenceswindow/splittunnelingwindow/splittunnelingitem.cpp
-        #preferenceswindow/splittunnelingwindow/splittunnelingswitchitem.cpp
-        #showingdialogstate.cpp
-        #tooltips/itooltip.cpp
-        #tooltips/serverratingstooltip.cpp
-        #tooltips/tooltipbasic.cpp
-        #tooltips/tooltipcontroller.cpp
-        #tooltips/tooltipdescriptive.cpp
-        #tooltips/tooltiputil.cpp
-        #utils/imagewithshadow.cpp
-        #utils/protoenumtostring.cpp
-        #commonwidgets/custommenuwidget.cpp
-        #commonwidgets/customtexteditwidget.cpp
-        #commonwidgets/scrollareawidget.cpp
-        #commonwidgets/verticalscrollbarwidget.cpp
-        #loginwindow/initwindowitem.cpp
-        #log/logviewerwindow.cpp
-        #preferenceswindow/debugwindow/advancedparameterswindowitem.cpp
-        #utils/textshadow.cpp
-        #utils/writeaccessrightschecker.cpp
-        #blockconnect.cpp
-        #dpiscaleawarewidget.cpp
-        #dpiscalemanager.cpp
-        #freetrafficnotificationcontroller.cpp
-        #guitest.cpp
-        #systemtray/locationstraymenubutton.cpp
-        #systemtray/locationstraymenuitemdelegate.cpp
-        #systemtray/locationstraymenuwidget.cpp
-        #systemtray/locationstraymenunative.cpp
-        #systemtray/locationstraymenuscalemanager.cpp
-        #loginattemptscontroller.cpp
-        #mainwindow.cpp
-        #loginwindow/loginwindowitem.cpp
-        #loginwindow/welcomewindowitem.cpp
-        #loginwindow/credentialswindowitem.cpp
-        #loginwindow/logginginwindowitem.cpp
-        #loginwindow/loginyesnobutton.cpp
-        #loginwindow/usernamepasswordentry.cpp
-        #loginwindow/loginbutton.cpp
-        #loginwindow/iconhoverengagebutton.cpp
-        #loginwindow/firewallturnoffbutton.cpp
-        #graphicresources/fontmanager.cpp
-        #graphicresources/imageresourcessvg.cpp
-        #graphicresources/imageresourcesjpg.cpp
-        #emergencyconnectwindow/emergencyconnectwindowitem.cpp
-        #emergencyconnectwindow/textlinkbutton.cpp
-        #commongraphics/commongraphics.cpp
-        #connectwindow/connectwindowitem.cpp
-        #locationswindow/locationswindow.cpp
-        #locationswindow/widgetlocations/backgroundpixmapanimation.cpp
-        #locationswindow/widgetlocations/cursorupdatehelper.cpp
-        #locationswindow/widgetlocations/itemtimems.cpp
-        #locationswindow/widgetlocations/locationstab.cpp
-        #locationswindow/widgetlocations/widgetcities.cpp
-        #locationswindow/widgetlocations/widgetlocationssizes.cpp
-        #connectwindow/background.cpp
-        #connectwindow/connectbutton.cpp
-        #connectwindow/locationsbutton.cpp
-        #connectwindow/wifiname.cpp
-        #connectwindow/firewallbutton.cpp
-        #utils/makecustomshadow.cpp
-        #utils/shadowmanager.cpp
-        #preferenceswindow/preferenceswindowitem.cpp
-        #preferenceswindow/bottomresizeitem.cpp
-        #preferenceswindow/generalwindow/generalwindowitem.cpp
-        #preferenceswindow/scrollareaitem.cpp
-        #preferenceswindow/accountwindow/accountwindowitem.cpp
-        #preferenceswindow/connectionwindow/connectionwindowitem.cpp
-        #preferenceswindow/debugwindow//debugwindowitem.cpp
-        #preferenceswindow/sharewindow/sharewindowitem.cpp
-        #preferenceswindow/preferencestab/preferencestabcontrolitem.cpp
-        #commongraphics/checkboxbutton.cpp
-        #preferenceswindow/checkboxitem.cpp
-        #preferenceswindow/dividerline.cpp
-        #preferenceswindow/escapebutton.cpp
-        #preferenceswindow/comboboxitem.cpp
-        #newsfeedwindow/newsfeedwindowitem.cpp
-        #preferenceswindow/accountwindow/usernameitem.cpp
-        #preferenceswindow/accountwindow/emailitem.cpp
-        #preferenceswindow/accountwindow/planitem.cpp
-        #preferenceswindow/accountwindow/expiredateitem.cpp
-        #preferenceswindow/connectionwindow/subpageitem.cpp
-        #preferenceswindow/basepage.cpp
-        #preferenceswindow/baseitem.cpp
-        #preferenceswindow/sharewindow/securehotspotitem.cpp
-        #preferenceswindow/sharewindow/proxygatewayitem.cpp
-        #preferenceswindow/editboxitem.cpp
-        #preferenceswindow/sharewindow/proxyipaddressitem.cpp
-        #preferenceswindow/debugwindow/viewlogitem.cpp
-        #preferenceswindow/debugwindow/advancedparametersitem.cpp
-        #preferenceswindow/connectionwindow/firewallmodeitem.cpp
-        #preferenceswindow/connectionwindow/automanualswitchitem.cpp
-        #preferenceswindow/connectionwindow/connectionmodeitem.cpp
-        #preferenceswindow/connectionwindow/packetsizeitem.cpp
-        #preferenceswindow/connectionwindow/macspoofingitem.cpp
-        #preferenceswindow/connectionwindow/macaddressitem.cpp
-        #preferenceswindow/connectionwindow/autorotatemacitem.cpp
-        #commongraphics/verticalscrollbar.cpp
-        #preferenceswindow/networkwhitelistwindow/networkwhitelistwindowitem.cpp
-        #preferenceswindow/splittunnelingwindow/splittunnelingwindowitem.cpp
-        #preferenceswindow/proxysettingswindow/proxysettingswindowitem.cpp
-        #commongraphics/clickablegraphicsobject.cpp
-        #commongraphics/textbutton.cpp
-        #commongraphics/bubblebuttonbright.cpp
-        #externalconfig/externalconfigwindowitem.cpp
-        #twofactorauth/twofactorauthwindowitem.cpp
-        #twofactorauth/twofactorauthokbutton.cpp
-        #bottominfowidget/sharingfeatures/sharingfeatureswindowitem.cpp
-        bottominfowidget/sharingfeatures/sharingfeature.cpp
-        bottominfowidget/upgradewidget/upgradewidgetitem.cpp
-        bottominfowidget/bottominfoitem.cpp
-        commongraphics/bubblebuttondark.cpp
-        loginwindow/blockableqlineedit.cpp
-        commongraphics/texticonbutton.cpp
-        commongraphics/verticaldividerline.cpp
-        commonwidgets/custommenulineedit.cpp
-        commonwidgets/iconbuttonwidget.cpp
-        commonwidgets/textbuttonwidget.cpp
-        preferenceswindow/proxysettingswindow/proxysettingsitem.cpp
-        newsfeedwindow/scrollablemessage.cpp
-        commongraphics/iconbutton.cpp
-        preferenceswindow/textitem.cpp
-        connectwindow/logonotificationsbutton.cpp
-        preferenceswindow/connectionwindow/dnswhileconnecteditem.cpp
-        languagecontroller.cpp
-        locationswindow/widgetlocations/staticipdeviceinfo.cpp
-        locationswindow/widgetlocations/configfooterinfo.cpp
-        mainwindowcontroller.cpp
-        multipleaccountdetection/multipleaccountdetectionfactory.cpp
-        preferenceswindow/openurlitem.cpp
-        application/singleappinstance.cpp
-        localipcserver/localipcserver.cpp
+    # --- sources and headers ---
+    blockconnect.cpp
+    blockconnect.h
+    dpiscaleawarewidget.cpp
+    dpiscaleawarewidget.h
+    dpiscalemanager.cpp
+    dpiscalemanager.h
+    freetrafficnotificationcontroller.cpp
+    freetrafficnotificationcontroller.h
+    guitest.cpp
+    guitest.h
+    languagecontroller.cpp
+    languagecontroller.h
+    loginattemptscontroller.cpp
+    loginattemptscontroller.h
+    mainwindow.cpp
+    mainwindow.h
+    mainwindowcontroller.cpp
+    mainwindowcontroller.h
+    mainwindowstate.cpp
+    mainwindowstate.h
+    showingdialogstate.cpp
+    showingdialogstate.h
 
-        backend/backend.h
-            backend/connectstatehelper.h
-            backend/firewallstatehelper.h
-            backend/ibackend.h
-            backend/notificationscontroller.h
-            backend/locationsmodel/alllocationsmodel.h
-            backend/locationsmodel/basiccitiesmodel.h
-            backend/locationsmodel/basiclocationsmodel.h
-            backend/locationsmodel/configuredcitiesmodel.h
-            backend/locationsmodel/favoritecitiesmodel.h
-            backend/locationsmodel/favoritelocationsstorage.h
-            backend/locationsmodel/locationmodelitem.h
-            backend/locationsmodel/locationsmodel.h
-            backend/locationsmodel/sortlocationsalgorithms.h
-            backend/locationsmodel/staticipscitiesmodel.h
-            backend/preferences/accountinfo.h
-            backend/preferences/detectlanrange.h
-            backend/preferences/guisettingsfromver1.h
-            backend/preferences/preferences.h
-            backend/preferences/preferenceshelper.h
-            backend/types/upgrademodetype.h
-            backend/types/dnswhileconnectedinfo.h
-            backend/persistentstate.h
-            #application/windowsnativeeventfilter.h
-            #application/windscribeapplication.h
-            #commongraphics/imageitem.h
-            #commongraphics/scalablegraphicsobject.h
-            #commonwidgets/combomenuwidget.h
-            #commonwidgets/combomenuwidgetbutton.h
-            #commonwidgets/iconwidget.h
-            #commonwidgets/lightwidget.h
-            #connectwindow/backgroundimage/backgroundimage.h
-            #connectwindow/backgroundimage/imagechanger.h
-            #connectwindow/backgroundimage/simpleimagechanger.h
-            #connectwindow/connectstateprotocolport/badgepixmap.h
-            #connectwindow/connectstateprotocolport/connectionbadgedots.h
-            #connectwindow/connectstateprotocolport/connectstateprotocolport.h
-            #connectwindow/ipaddressitem/ipaddressitem.h
-            #connectwindow/ipaddressitem/numberitem.h
-            #connectwindow/ipaddressitem/numberspixmap.h
-            #connectwindow/ipaddressitem/octetitem.h
-            #connectwindow/middleitem.h
-            #connectwindow/serverratingindicator.h
-            #dialogs/advancedparametersdialog.h
-            #dialogs/dialoggetusernamepassword.h
-            #dialogs/dialogmessagecpuusage.h
-            #locationswindow/widgetlocations/footertopstrip.h
-            #locationswindow/widgetlocations/iitemwidget.h
-            #locationswindow/widgetlocations/itemwidgetcity.h
-            #locationswindow/widgetlocations/itemwidgetheader.h
-            #locationswindow/widgetlocations/itemwidgetregion.h
-            #locationswindow/widgetlocations/scrollbar.h
-            #locationswindow/widgetlocations/widgetcitieslist.h
-            #locationswindow/widgetlocations/widgetlocations.h
-            #locationswindow/widgetlocations/widgetlocationslist.h
-            #mainwindowstate.h
-            #overlaysconnectwindow/generalmessagetwobuttonwindowitem.h
-            #overlaysconnectwindow/igeneralmessagetwobuttonwindow.h
-            #overlaysconnectwindow/generalmessagewindowitem.h
-            #overlaysconnectwindow/igeneralmessagewindow.h
-            #overlaysconnectwindow/iupgradewindow.h
-            #overlaysconnectwindow/upgradewindowitem.h
-            #overlaysconnectwindow/iupdatewindow.h
-            #overlaysconnectwindow/updatewindowitem.h
-            #overlaysconnectwindow/iupdateappitem.h
-            #overlaysconnectwindow/updateappitem.h
-            #graphicresources/fontdescr.h
-            #graphicresources/iconmanager.h
-            #graphicresources/independentpixmap.h
-            #launchonstartup/launchonstartup.h
-            #loginwindow/iinitwindow.h
-            #loginwindow/initwindowitem.h
-            #preferenceswindow/connectionwindow/packetsizeeditboxitem.h
-            #preferenceswindow/debugwindow/apiresolutionitem.h
-            #preferenceswindow/generalwindow/backgroundsettingsitem.h
-            #preferenceswindow/generalwindow/selectimageitem.h
-            #preferenceswindow/generalwindow/versioninfoitem.h
-            #preferenceswindow/networkwhitelistwindow/currentnetworkitem.h
-            #preferenceswindow/networkwhitelistwindow/networklistitem.h
-            #preferenceswindow/networkwhitelistwindow/networkwhitelistshared.h
-            #preferenceswindow/splittunnelingwindow/appincludeditem.h
-            #preferenceswindow/splittunnelingwindow/appsearchitem.h
-            #preferenceswindow/splittunnelingwindow/iporhostnameitem.h
-            #preferenceswindow/splittunnelingwindow/newiporhostnameitem.h
-            #preferenceswindow/splittunnelingwindow/searchlineedititem.h
-            #preferenceswindow/splittunnelingwindow/splittunnelingappsitem.h
-            #preferenceswindow/splittunnelingwindow/splittunnelingappssearchitem.h
-            #preferenceswindow/splittunnelingwindow/splittunnelingappssearchwindowitem.h
-            #preferenceswindow/splittunnelingwindow/splittunnelingappswindowitem.h
-            #preferenceswindow/splittunnelingwindow/splittunnelingiphostnamewindowitem.h
-            #preferenceswindow/splittunnelingwindow/splittunnelingipsandhostnamesitem.h
-            #preferenceswindow/splittunnelingwindow/splittunnelingitem.h
-            #preferenceswindow/splittunnelingwindow/splittunnelingswitchitem.h
-            #showingdialogstate.h
-            #tooltips/itooltip.h
-            #tooltips/serverratingstooltip.h
-            #tooltips/tooltipbasic.h
-            #tooltips/tooltipcontroller.h
-            #tooltips/tooltipdescriptive.h
-            #tooltips/tooltiptypes.h
-            #tooltips/tooltiputil.h
-            #utils/authcheckerfactory.h
-            #utils/iauthchecker.h
-            #utils/imagewithshadow.h
-            #utils/protoenumtostring.h
-            #commonwidgets/custommenuwidget.h
-            #commonwidgets/customtexteditwidget.h
-            #commonwidgets/scrollareawidget.h
-            #commonwidgets/verticalscrollbarwidget.h
-            #log/logviewerwindow.h
-            #preferenceswindow/debugwindow/advancedparameterswindowitem.h
-            #utils/textshadow.h
-            #utils/writeaccessrightschecker.h
-            #utils/interfaceutils.h
-            #blockconnect.h
-            #dpiscaleawarewidget.h
-            #dpiscalemanager.h
-            #freetrafficnotificationcontroller.h
-            #guitest.h
-            #systemtray/locationstraymenubutton.h
-            #systemtray/locationstraymenuitemdelegate.h
-            #systemtray/locationstraymenuwidget.h
-            #systemtray/locationstraymenunative.h
-            #systemtray/locationstraymenuscalemanager.h
-            #loginattemptscontroller.h
-            #mainwindow.h
-            #graphicresources/fontmanager.h
-            #graphicresources/imageresourcessvg.h
-            #graphicresources/imageresourcesjpg.h
-            #loginwindow/logginginwindowitem.h
-            #connectwindow/connectwindowitem.h
-            #locationswindow/locationswindow.h
-            #locationswindow/widgetlocations/backgroundpixmapanimation.h
-            #locationswindow/widgetlocations/cursorupdatehelper.h
-            #locationswindow/widgetlocations/itemtimems.h
-            #locationswindow/widgetlocations/iwidgetlocationsinfo.h
-            #locationswindow/widgetlocations/locationstab.h
-            #locationswindow/widgetlocations/widgetcities.h
-            #locationswindow/widgetlocations/widgetlocationssizes.h
-            #connectwindow/connectbutton.h
-            #connectwindow/background.h
-            #connectwindow/locationsbutton.h
-            #connectwindow/wifiname.h
-            #connectwindow/firewallbutton.h
-            #loginwindow/loginwindowitem.h
-            #loginwindow/welcomewindowitem.h
-            #loginwindow/credentialswindowitem.h
-            #loginwindow/ilogginginwindow.h
-            #loginwindow/loginyesnobutton.h
-            #loginwindow/usernamepasswordentry.h
-            #loginwindow/loginbutton.h
-            #loginwindow/iloginwindow.h
-            #loginwindow/ilogginginwindow.h
-            #loginwindow/iconhoverengagebutton.h
-            #loginwindow/firewallturnoffbutton.h
-            #emergencyconnectwindow/iemergencyconnectwindow.h
-            #commongraphics/commongraphics.h
-            #emergencyconnectwindow/emergencyconnectwindowitem.h
-            #emergencyconnectwindow/textlinkbutton.h
-            #utils/makecustomshadow.h
-            #connectwindow/iconnectwindow.h
-            #utils/shadowmanager.h
-            #connectwindow/iconnectwindow.h
-            #preferenceswindow/ipreferenceswindow.h
-            #preferenceswindow/preferenceswindowitem.h
-            #preferenceswindow/bottomresizeitem.h
-            #preferenceswindow/generalwindow/generalwindowitem.h
-            #preferenceswindow/scrollareaitem.h
-            #preferenceswindow/accountwindow/accountwindowitem.h
-            #preferenceswindow/connectionwindow/connectionwindowitem.h
-            #preferenceswindow/debugwindow/debugwindowitem.h
-            #preferenceswindow/sharewindow/sharewindowitem.h
-            #preferenceswindow/preferencestab/ipreferencestabcontrol.h
-            #preferenceswindow/preferencestab/preferencestabcontrolitem.h
-            #commongraphics/checkboxbutton.h
-            #preferenceswindow/checkboxitem.h
-            #preferenceswindow/dividerline.h
-            #preferenceswindow/escapebutton.h
-            #preferenceswindow/comboboxitem.h
-            #newsfeedwindow/inewsfeedwindow.h
-            #newsfeedwindow/newsfeedwindowitem.h
-            #preferenceswindow/accountwindow/usernameitem.h
-            #preferenceswindow/accountwindow/emailitem.h
-            #preferenceswindow/accountwindow/planitem.h
-            #preferenceswindow/accountwindow/expiredateitem.h
-            #preferenceswindow/connectionwindow/subpageitem.h
-            #preferenceswindow/basepage.h
-            #preferenceswindow/baseitem.h
-            #preferenceswindow/sharewindow/securehotspotitem.h
-            #preferenceswindow/sharewindow/proxygatewayitem.h
-            #preferenceswindow/editboxitem.h
-            #preferenceswindow/sharewindow/proxyipaddressitem.h
-            #preferenceswindow/debugwindow/viewlogitem.h
-            #preferenceswindow/debugwindow/advancedparametersitem.h
-            #preferenceswindow/connectionwindow/firewallmodeitem.h
-            #preferenceswindow/connectionwindow/automanualswitchitem.h
-            #preferenceswindow/connectionwindow/connectionmodeitem.h
-            #preferenceswindow/connectionwindow/packetsizeitem.h
-            #preferenceswindow/connectionwindow/macspoofingitem.h
-            #preferenceswindow/connectionwindow/macaddressitem.h
-            #preferenceswindow/connectionwindow/autorotatemacitem.h
-            #commongraphics/verticalscrollbar.h
-            #preferenceswindow/networkwhitelistwindow/networkwhitelistwindowitem.h
-            #preferenceswindow/splittunnelingwindow/splittunnelingwindowitem.h
-            #preferenceswindow/proxysettingswindow/proxysettingswindowitem.h
-            #commongraphics/clickablegraphicsobject.h
-            #commongraphics/textbutton.h
-            #commongraphics/bubblebuttonbright.h
-            #externalconfig/iexternalconfigwindow.h
-            #externalconfig/externalconfigwindowitem.h
-            #twofactorauth/itwofactorauthwindow.h
-            #twofactorauth/twofactorauthwindowitem.h
-            #twofactorauth/twofactorauthokbutton.h
-            #connectwindow/iconnectwindow.h
-            #bottominfowidget/sharingfeatures/sharingfeatureswindowitem.h
-            #bottominfowidget/sharingfeatures/sharingfeature.h
-            #bottominfowidget/upgradewidget/upgradewidgetitem.h
-            #bottominfowidget/ibottominfoitem.h
-            #bottominfowidget/bottominfoitem.h
-            #commongraphics/bubblebuttondark.h
-            #loginwindow/blockableqlineedit.h
-            #commongraphics/texticonbutton.h
-            #commongraphics/verticaldividerline.h
-            #commonwidgets/custommenulineedit.h
-            #commonwidgets/iconbuttonwidget.h
-            #commonwidgets/textbuttonwidget.h
-            #preferenceswindow/proxysettingswindow/proxysettingsitem.h
-            #newsfeedwindow/scrollablemessage.h
-            #commongraphics/iconbutton.h
-            #preferenceswindow/textitem.h
-            #connectwindow/logonotificationsbutton.h
-            #preferenceswindow/connectionwindow/dnswhileconnecteditem.h
-            #languagecontroller.h
-            #locationswindow/widgetlocations/staticipdeviceinfo.h
-            #locationswindow/widgetlocations/configfooterinfo.h
-            #mainwindowcontroller.h
-            #multipleaccountdetection/imultipleaccountdetection.h
-            #multipleaccountdetection/multipleaccountdetectionfactory.h
-            #preferenceswindow/openurlitem.h
-            #application/singleappinstance.h
-            #application/singleappinstance_p.h
-            #localipcserver/localipcserver.h
-
-            svg.qrc
-            jpg.qrc
-            windscribe.qrc
-
-            dialogs/dialoggetusernamepassword.ui
-            dialogs/dialogmessagecpuusage.ui
+    # --- resources ---
+    jpg.qrc
+    svg.qrc
+    windscribe.qrc
 )
 
-if (WIN32)
-    set(WINDOWS_PROJECT_SOURCES
-        #multipleaccountdetection/multipleaccountdetection_win.cpp
-        #multipleaccountdetection/secretvalue_win.cpp
-        #utils/authchecker_win.cpp
-        #utils/scaleutils_win.cpp
-        #launchonstartup/launchonstartup_win.cpp
-        #utils/interfaceutils_win.cpp
-
-        #multipleaccountdetection/multipleaccountdetection_win.h
-        #multipleaccountdetection/secretvalue_win.h
-        #utils/authchecker_win.h
-        #utils/scaleutils_win.h
-        #launchonstartup/launchonstartup_win.h
-    )
-endif (WIN32)
-
-
-add_library(gui STATIC ${PROJECT_SOURCES} ${WINDOWS_PROJECT_SOURCES})
+add_library(gui STATIC ${PROJECT_SOURCES})
 
 target_link_libraries(gui PRIVATE Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Network Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Svg Qt${QT_VERSION_MAJOR}::Core5Compat)
 target_compile_definitions(gui PRIVATE CMAKE_LIBRARY_LIBRARY
@@ -516,4 +66,28 @@ target_include_directories(gui PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/../../build-libs/cares/dll_x64/include
     ${CMAKE_CURRENT_SOURCE_DIR}/../../build-libs/openssl/include
 )
+
+add_subdirectory(application)
+add_subdirectory(backend)
+add_subdirectory(bottominfowidget)
+add_subdirectory(commongraphics)
+add_subdirectory(commonwidgets)
+add_subdirectory(connectwindow)
+add_subdirectory(dialogs)
+add_subdirectory(emergencyconnectwindow)
+add_subdirectory(externalconfig)
+add_subdirectory(graphicresources)
+add_subdirectory(launchonstartup)
+add_subdirectory(localipcserver)
+add_subdirectory(locationswindow)
+add_subdirectory(log)
+add_subdirectory(loginwindow)
+add_subdirectory(multipleaccountdetection)
+add_subdirectory(newsfeedwindow)
+add_subdirectory(overlaysconnectwindow)
+add_subdirectory(preferenceswindow)
+add_subdirectory(systemtray)
+add_subdirectory(tooltips)
+add_subdirectory(twofactorauth)
+add_subdirectory(utils)
 

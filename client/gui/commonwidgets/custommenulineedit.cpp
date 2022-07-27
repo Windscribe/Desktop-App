@@ -77,31 +77,31 @@ void CustomMenuLineEdit::onMenuTriggered(QAction *action)
 {
     QVariant newItem = action->data();
 
-    if (newItem.toInt() == CustomMenuWidget::UNDO)
+    if (newItem.toInt() == CustomMenuWidget::ACT_UNDO)
     {
         undo();
     }
-    else if (newItem.toInt() == CustomMenuWidget::REDO)
+    else if (newItem.toInt() == CustomMenuWidget::ACT_REDO)
     {
         redo();
     }
-    else if (newItem.toInt() == CustomMenuWidget::CUT)
+    else if (newItem.toInt() == CustomMenuWidget::ACT_CUT)
     {
         cut();
     }
-    else if (newItem.toInt() == CustomMenuWidget::COPY)
+    else if (newItem.toInt() == CustomMenuWidget::ACT_COPY)
     {
         copy();
     }
-    else if (newItem.toInt() == CustomMenuWidget::PASTE)
+    else if (newItem.toInt() == CustomMenuWidget::ACT_PASTE)
     {
         paste();
     }
-    else if (newItem.toInt() == CustomMenuWidget::DELETE)
+    else if (newItem.toInt() == CustomMenuWidget::ACT_DELETE)
     {
         insert(""); // deletes selected text
     }
-    else if (newItem.toInt() == CustomMenuWidget::SELECT_ALL)
+    else if (newItem.toInt() == CustomMenuWidget::ACT_SELECT_ALL)
     {
         selectAll();
     }
@@ -119,24 +119,24 @@ void CustomMenuLineEdit::updateActionsState()
         bool enable = false;
         switch(userValue.toInt())
         {
-        case CustomMenuWidget::UNDO:
+        case CustomMenuWidget::ACT_UNDO:
             if (isUndoAvailable()) enable = true;
             break;
-        case CustomMenuWidget::REDO:
+        case CustomMenuWidget::ACT_REDO:
             if (isRedoAvailable()) enable = true;
             break;
-        case CustomMenuWidget::CUT:
-        case CustomMenuWidget::COPY:
-        case CustomMenuWidget::DELETE:
+        case CustomMenuWidget::ACT_CUT:
+        case CustomMenuWidget::ACT_COPY:
+        case CustomMenuWidget::ACT_DELETE:
             if (hasSelectedText()) enable = true;
             break;
-        case CustomMenuWidget::PASTE:
+        case CustomMenuWidget::ACT_PASTE:
         {
             const QMimeData *mimeData = QApplication::clipboard()->mimeData();
             if (mimeData->hasText()) enable = true;
             break;
         }
-        case CustomMenuWidget::SELECT_ALL:
+        case CustomMenuWidget::ACT_SELECT_ALL:
             enable = true;
             break;
         }

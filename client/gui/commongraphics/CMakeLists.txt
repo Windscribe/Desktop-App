@@ -1,0 +1,26 @@
+target_sources(gui PRIVATE
+    bubblebuttonbright.cpp
+    bubblebuttonbright.h
+    bubblebuttondark.cpp
+    bubblebuttondark.h
+    checkboxbutton.cpp
+    checkboxbutton.h
+    clickablegraphicsobject.cpp
+    clickablegraphicsobject.h
+    commongraphics.cpp
+    commongraphics.h
+    iconbutton.cpp
+    iconbutton.h
+    imageitem.cpp
+    imageitem.h
+    scalablegraphicsobject.cpp
+    scalablegraphicsobject.h
+    textbutton.cpp
+    textbutton.h
+    texticonbutton.cpp
+    texticonbutton.h
+    verticaldividerline.cpp
+    verticaldividerline.h
+    verticalscrollbar.cpp
+    verticalscrollbar.h
+)

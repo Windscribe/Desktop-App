@@ -647,7 +647,7 @@ void MainWindow::mouseMoveEvent(QMouseEvent *event)
     {
         if (event->buttons() & Qt::LeftButton && bMousePressed_)
         {
-            this->move(event->globalPos() - dragPosition_);
+            this->move(event->globalPosition().toPoint() - dragPosition_);
             mainWindowController_->hideAllToolTips();
             event->accept();
         }
@@ -660,7 +660,7 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
     {
         if (event->button() == Qt::LeftButton)
         {
-            dragPosition_ = event->globalPos() - this->frameGeometry().topLeft();
+            dragPosition_ = event->globalPosition().toPoint() - this->frameGeometry().topLeft();
 
             //event->accept();
             bMousePressed_ = true;
@@ -1437,7 +1437,7 @@ void MainWindow::onLocationsAddCustomConfigClicked()
                 std::unique_ptr<IAuthChecker> authChecker = AuthCheckerFactory::createAuthChecker();
 
                 AuthCheckerError err = authChecker->authenticate();
-                if (err == AuthCheckerError::AUTHENTICATION_ERROR)
+                if (err == AuthCheckerError::AUTH_AUTHENTICATION_ERROR)
                 {
                     qCDebug(LOG_BASIC) << "Cannot change path when non-system directory when windscribe is not elevated.";
                     const QString desc = tr(
@@ -1447,7 +1447,7 @@ void MainWindow::onLocationsAddCustomConfigClicked()
                     QMessageBox::warning(g_mainWindow, tr("Windscribe"), desc);
                     return;
                 }
-                else if (err == AuthCheckerError::HELPER_ERROR)
+                else if (err == AuthCheckerError::AUTH_HELPER_ERROR)
                 {
                     qCDebug(LOG_AUTH_HELPER) << "Failed to verify AuthHelper, binary may be corrupted.";
                     const QString desc = tr(

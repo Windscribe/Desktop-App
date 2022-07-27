@@ -9,9 +9,6 @@
 #include "languagecontroller.h"
 #include "dpiscalemanager.h"
 
-namespace UpdateWindow {
-
-
 UpdateWindowItem::UpdateWindowItem(ScalableGraphicsObject *parent) :
     ScalableGraphicsObject(parent),
     downloading_(false)
@@ -342,5 +339,3 @@ void UpdateWindowItem::updatePositions()
     cancelButton_->setPos(cancelPosX, CANCEL_BUTTON_POS_Y * G_SCALE);
 }
 
-
-} // namespace
