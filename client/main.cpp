@@ -88,6 +88,15 @@ int main(int argc, char *argv[])
     #endif
 #endif
 
+    Q_INIT_RESOURCE(engine);
+    Q_INIT_RESOURCE(jpg);
+    Q_INIT_RESOURCE(svg);
+    Q_INIT_RESOURCE(windscribe);
+    #ifdef Q_OS_MAC
+        Q_INIT_RESOURCE(windscribe_mac);
+    #endif
+
+
     // Switch to staging if necessary. It should be done at the beginning of main function.
     // Further, in all parts of the program, the staging check is performed by the function AppVersion::instance().isStaging()
     // Works only for guinea pig builds

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.23)
 
 project(Windscribe)
 
@@ -16,48 +16,56 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 
 set(PROJECT_SOURCES
         main.cpp
-        widget.cpp
-        widget.h
-        widget.ui
+        secrets.qrc
 )
 
-if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
-    qt_add_executable(test_cmake
+link_directories(${CMAKE_CURRENT_SOURCE_DIR}/../build-libs/boost/lib
+                 ${CMAKE_CURRENT_SOURCE_DIR}/../build-libs/protobuf/debug/lib
+                 ${CMAKE_CURRENT_SOURCE_DIR}/../build-libs/curl/lib
+                 ${CMAKE_CURRENT_SOURCE_DIR}/../build-libs/cares/dll_x64/lib
+                 ${CMAKE_CURRENT_SOURCE_DIR}/../build-libs/openssl/lib
+)
+
+qt_add_executable(Windscribe
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
     )
-# Define target properties for Android with Qt 6 as:
-#    set_property(TARGET test_cmake APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
-#                 ${CMAKE_CURRENT_SOURCE_DIR}/android)
-# For more information, see https://doc.qt.io/qt-6/qt-add-executable.html#target-creation
-else()
-    if(ANDROID)
-        add_library(test_cmake SHARED
-            ${PROJECT_SOURCES}
-        )
-# Define properties for Android with Qt 5 after find_package() calls as:
-#    set(ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/android")
-    else()
-        add_executable(test_cmake
-            ${PROJECT_SOURCES}
-        )
-    endif()
-endif()
 
-target_link_libraries(test_cmake PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
+target_link_options(Windscribe PRIVATE "/IGNORE:4099")
 
-set_target_properties(test_cmake PROPERTIES
-    MACOSX_BUNDLE_GUI_IDENTIFIER my.example.com
-    MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
-    MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
-    MACOSX_BUNDLE TRUE
-    WIN32_EXECUTABLE TRUE
+target_link_libraries(Windscribe PRIVATE Qt${QT_VERSION_MAJOR}::Widgets engine gui common
+    psapi.lib iphlpapi.lib dnsapi.lib rasapi32.lib pdh.lib
+    libprotobufd libcurl cares libeay32 ssleay32
 )
 
-install(TARGETS test_cmake
-    BUNDLE DESTINATION .
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
+target_include_directories(Windscribe PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/engine
+    ${CMAKE_CURRENT_SOURCE_DIR}/../common
+    ${CMAKE_CURRENT_SOURCE_DIR}/../build-libs/protobuf/release/include
+    #${CMAKE_CURRENT_SOURCE_DIR}/../../build-libs/boost/include
+    #${CMAKE_CURRENT_SOURCE_DIR}/../../build-libs/curl/include
+    #${CMAKE_CURRENT_SOURCE_DIR}/../../build-libs/cares/dll_x64/include
+    #${CMAKE_CURRENT_SOURCE_DIR}/../../build-libs/openssl/include
+)
 
-if(QT_VERSION_MAJOR EQUAL 6)
-    qt_finalize_executable(test_cmake)
-endif()
+
+#set_target_properties(test_cmake PROPERTIES
+#    MACOSX_BUNDLE_GUI_IDENTIFIER my.example.com
+#    MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
+#    MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+#    MACOSX_BUNDLE TRUE
+#    WIN32_EXECUTABLE TRUE
+#)
+
+#install(TARGETS test_cmake
+#    BUNDLE DESTINATION .
+#    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
+
+add_subdirectory(engine)
+add_subdirectory(gui)
+add_subdirectory(common)
+
+
+qt_finalize_executable(Windscribe)
+
+
