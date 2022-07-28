@@ -13,6 +13,12 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Qt6 REQUIRED COMPONENTS Widgets)
 
+# build_all.py sets this option when invoked with the '--sign' flag. Disabled by default
+OPTION(DEFINE_USE_SIGNATURE_CHECK_MACRO "Add define USE_SIGNATURE_CHECK to project" OFF)
+IF(DEFINE_USE_SIGNATURE_CHECK_MACRO)
+    ADD_DEFINITIONS(-DUSE_SIGNATURE_CHECK)
+ENDIF(DEFINE_USE_SIGNATURE_CHECK_MACRO)
+
 set(PROJECT_SOURCES
         main.cpp
 )
@@ -60,13 +66,13 @@ target_include_directories(Windscribe PRIVATE
 )
 
 
-#set_target_properties(test_cmake PROPERTIES
+set_target_properties(Windscribe PROPERTIES
 #    MACOSX_BUNDLE_GUI_IDENTIFIER my.example.com
 #    MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
 #    MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
 #    MACOSX_BUNDLE TRUE
-#    WIN32_EXECUTABLE TRUE
-#)
+    WIN32_EXECUTABLE TRUE
+)
 
 #install(TARGETS test_cmake
 #    BUNDLE DESTINATION .
