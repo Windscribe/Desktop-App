@@ -9,8 +9,7 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Network Core5Compat)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Network Core5Compat)
+find_package(Qt6 REQUIRED COMPONENTS Widgets Network Core5Compat)
 
 set(COMMON_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../../common)
 
@@ -86,7 +85,7 @@ endif (WIN32)
 add_library(common STATIC ${PROJECT_SOURCES} ${PROJECT_SOURCES_WIN})
 
 
-target_link_libraries(common PRIVATE Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Network Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Core5Compat)
+target_link_libraries(common PRIVATE Qt6::Core Qt6::Network Qt6::Widgets Qt6::Core5Compat)
 target_compile_definitions(common PRIVATE CMAKE_LIBRARY_LIBRARY
                                   WINVER=0x0601
                                   _WIN32_WINNT=0x0601

@@ -11,41 +11,52 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
+find_package(Qt6 REQUIRED COMPONENTS Widgets)
 
 set(PROJECT_SOURCES
         main.cpp
-        secrets.qrc
 )
+
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../common/utils/hardcodedsecrets.ini")
+    list(APPEND PROJECT_SOURCES secrets.qrc)
+endif()
 
 link_directories(${CMAKE_CURRENT_SOURCE_DIR}/../build-libs/boost/lib
                  ${CMAKE_CURRENT_SOURCE_DIR}/../build-libs/protobuf/debug/lib
+                 ${CMAKE_CURRENT_SOURCE_DIR}/../build-libs/protobuf/release/lib
                  ${CMAKE_CURRENT_SOURCE_DIR}/../build-libs/curl/lib
                  ${CMAKE_CURRENT_SOURCE_DIR}/../build-libs/cares/dll_x64/lib
                  ${CMAKE_CURRENT_SOURCE_DIR}/../build-libs/openssl/lib
 )
 
+if (WIN32)
+    set (WINDOWS_API_LIBRARIES psapi.lib iphlpapi.lib dnsapi.lib rasapi32.lib pdh.lib)
+    list(APPEND PROJECT_SOURCES client.rc)
+    # Generate debug information (symbol files) for Windows (release build only)
+    add_compile_options("$<$<CONFIG:Release>:/Zi>")
+    add_link_options("$<$<CONFIG:Release>:/DEBUG>" "$<$<CONFIG:Release>:/OPT:REF>" "$<$<CONFIG:Release>:/OPT:ICF>")
+endif (WIN32)
+
 qt_add_executable(Windscribe
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
-    )
+)
 
-target_link_options(Windscribe PRIVATE "/IGNORE:4099")
+if (WIN32)
+    target_link_options(Windscribe PRIVATE "/IGNORE:4099")
+endif (WIN32)
 
-target_link_libraries(Windscribe PRIVATE Qt${QT_VERSION_MAJOR}::Widgets engine gui common
-    psapi.lib iphlpapi.lib dnsapi.lib rasapi32.lib pdh.lib
-    libprotobufd libcurl cares libeay32 ssleay32
+target_link_libraries(Windscribe PRIVATE Qt6::Widgets engine gui common
+    ${WINDOWS_API_LIBRARIES}
+    libcurl cares libeay32 ssleay32
+    debug libprotobufd
+    optimized libprotobuf
 )
 
 target_include_directories(Windscribe PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/engine
     ${CMAKE_CURRENT_SOURCE_DIR}/../common
     ${CMAKE_CURRENT_SOURCE_DIR}/../build-libs/protobuf/release/include
-    #${CMAKE_CURRENT_SOURCE_DIR}/../../build-libs/boost/include
-    #${CMAKE_CURRENT_SOURCE_DIR}/../../build-libs/curl/include
-    #${CMAKE_CURRENT_SOURCE_DIR}/../../build-libs/cares/dll_x64/include
-    #${CMAKE_CURRENT_SOURCE_DIR}/../../build-libs/openssl/include
 )
 
 
@@ -64,7 +75,6 @@ target_include_directories(Windscribe PRIVATE
 add_subdirectory(engine)
 add_subdirectory(gui)
 add_subdirectory(common)
-
 
 qt_finalize_executable(Windscribe)
 

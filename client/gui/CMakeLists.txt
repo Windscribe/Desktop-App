@@ -8,12 +8,10 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
-
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Network Svg Core5Compat)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Network Svg Core5Compat)
+find_package(Qt6 REQUIRED COMPONENTS Widgets Network Svg Core5Compat)
 
 
 set(PROJECT_SOURCES
@@ -49,7 +47,7 @@ set(PROJECT_SOURCES
 
 add_library(gui STATIC ${PROJECT_SOURCES})
 
-target_link_libraries(gui PRIVATE Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Network Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Svg Qt${QT_VERSION_MAJOR}::Core5Compat)
+target_link_libraries(gui PRIVATE Qt6::Core Qt6::Network Qt6::Widgets Qt6::Svg Qt6::Core5Compat)
 target_compile_definitions(gui PRIVATE CMAKE_LIBRARY_LIBRARY
                                   WINVER=0x0601
                                   _WIN32_WINNT=0x0601
