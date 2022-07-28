@@ -1,3 +1,19 @@
+2.5.2 (28/07/2022)
+* Slow startup on macOS after initial install, upgrade, or reboot. #53
+* Only run Apple macOS notarization process in CI for tagged builds. #82
+* Native Apple ARM processor support and port to Qt 6. Minimum macOS verion now 10.14. #123
+* Remove 'check for update failed' notification dialog on unsupported Linux distros (e.g. Arch Linux). #235
+* Fixed some tunnel test parameter bugs identified by Keshav and Matthew. #267
+* Keep WireGuard tunnel active if client app terminates unexpectedly. #333
+* Windows build ported to Qt 6 and 64-bit. Minimum Windows version now 8.1. 32-bit Windows no longer supported. #353
+* Port Linux build to Qt 6. Minimum Ubuntu version now 20.04. #358
+* Implement port forwarding when using the WireGuard protocol. #379
+* Add login and signout functionality to the CLI app. #389
+* Remove use of the old method of ServerLocations API. #395
+* Copyright dates updated in all macOS plists.
+* Additional debug logging added to macOS installer.
+
+
 2.5.1 (28/06/2022)
 * Create Mac helper text file log (instead of syslog), in the same format as other logs. #57
 * Merge log from Mac helper to program log. #73
