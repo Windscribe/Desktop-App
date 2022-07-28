@@ -368,6 +368,22 @@ Command *CommandFactory::makeCommand(const std::string strId, char *buf, int siz
     {
         return new ProtobufCommand<CliIpc::FirewallStateChanged>(buf, size);
     }
+    else if (strId == CliIpc::Login::descriptor()->full_name())
+    {
+        return new ProtobufCommand<CliIpc::Login>(buf, size);
+    }
+    else if (strId == CliIpc::LoginResult::descriptor()->full_name())
+    {
+        return new ProtobufCommand<CliIpc::LoginResult>(buf, size);
+    }
+    else if (strId == CliIpc::SignOut::descriptor()->full_name())
+    {
+        return new ProtobufCommand<CliIpc::SignOut>(buf, size);
+    }
+    else if (strId == CliIpc::SignedOut::descriptor()->full_name())
+    {
+        return new ProtobufCommand<CliIpc::SignedOut>(buf, size);
+    }
 
 
     Q_ASSERT(false);

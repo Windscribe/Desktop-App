@@ -60,7 +60,7 @@ win32 {
     LIBS += -L"$$BUILD_LIBS_PATH/cares/dll_x64/lib" -lcares
 
     INCLUDEPATH += "$$BUILD_LIBS_PATH/openssl/include"
-    LIBS += -L"$$BUILD_LIBS_PATH/openssl/lib" -llibeay32 -lssleay32
+    LIBS += -L"$$BUILD_LIBS_PATH/openssl/lib" -llibcrypto -llibssl
 
 
     RC_FILE = client.rc

@@ -28,6 +28,18 @@ message GetState
 {
 }
 
+message Login
+{
+  optional string username = 1;
+  optional string password = 2;
+  optional string code2fa = 3;
+}
+
+message SignOut
+{
+  optional bool is_keep_firewall_on = 1;
+}
+
 
 // --- answers from GUI ---
 message ConnectToLocationAnswer
@@ -57,5 +69,16 @@ message AlreadyDisconnected
 
 message State
 {
-   optional bool is_logged_in = 1  [default = false];
+   optional bool is_logged_in = 1 [default = false];
+   optional bool waiting_for_login_info = 2 [default = false];
 } 
+
+message LoginResult
+{
+   optional bool is_logged_in = 1;
+   optional string login_error = 2;
+}
+
+message SignedOut
+{
+}

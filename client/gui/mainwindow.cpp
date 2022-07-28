@@ -142,8 +142,8 @@ MainWindow::MainWindow() :
     connect(backend_, SIGNAL(initFinished(ProtoTypes::InitState)), SLOT(onBackendInitFinished(ProtoTypes::InitState)));
     connect(backend_, SIGNAL(initTooLong()), SLOT(onBackendInitTooLong()));
 
-    connect(backend_, SIGNAL(loginFinished(bool)), SLOT(onBackendLoginFinished(bool)));
-    connect(backend_, SIGNAL(loginStepMessage(ProtoTypes::LoginMessage)), SLOT(onBackendLoginStepMessage(ProtoTypes::LoginMessage)));
+    connect(backend_, &Backend::loginFinished, this, &MainWindow::onBackendLoginFinished);
+    connect(backend_, &Backend::loginStepMessage, this, &MainWindow::onBackendLoginStepMessage);
     connect(backend_, &Backend::loginError, this, &MainWindow::onBackendLoginError);
 
     connect(backend_, SIGNAL(signOutFinished()), SLOT(onBackendSignOutFinished()));
@@ -203,6 +203,7 @@ MainWindow::MainWindow() :
     localIpcServer_ = new LocalIPCServer(backend_, this);
     connect(localIpcServer_, &LocalIPCServer::showLocations, this, &MainWindow::onReceivedOpenLocationsMessage);
     connect(localIpcServer_, &LocalIPCServer::connectToLocation, this, &MainWindow::onConnectToLocation);
+    connect(localIpcServer_, &LocalIPCServer::attemptLogin, this, &MainWindow::onLoginClick);
 
     mainWindowController_ = new MainWindowController(this, locationsWindow_, backend_->getPreferencesHelper(), backend_->getPreferences(), backend_->getAccountInfo());
 
@@ -1477,8 +1478,6 @@ void MainWindow::onBackendInitFinished(ProtoTypes::InitState initState)
 
     if (initState == ProtoTypes::INIT_SUCCESS)
     {
-        localIpcServer_->start(); // start local IPC server for receive commands from CLI
-
         setInitialFirewallState();
 
         Preferences *p = backend_->getPreferences();
@@ -1524,6 +1523,10 @@ void MainWindow::onBackendInitFinished(ProtoTypes::InitState initState)
         {
             mainWindowController_->getConnectWindow()->setProtocolPort(p->connectionSettings().protocol(), p->connectionSettings().port());
         }
+
+        // Start the IPC server last to give the above commands time to finish before we
+        // start accepting commands from the CLI.
+        localIpcServer_->start();
     }
     else if (initState == ProtoTypes::INIT_BFE_SERVICE_NOT_STARTED)
     {

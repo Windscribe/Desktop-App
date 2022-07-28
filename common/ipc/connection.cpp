@@ -7,10 +7,10 @@ namespace IPC
 
 Connection::Connection(QLocalSocket *localSocket) : localSocket_(localSocket), bytesWrittingInProgress_(0)
 {
-    QObject::connect(localSocket_, SIGNAL(disconnected()), SLOT(onSocketDisconnected()));
-    QObject::connect(localSocket_, SIGNAL(bytesWritten(qint64)), SLOT(onSocketBytesWritten(qint64)));
-    QObject::connect(localSocket_, SIGNAL(readyRead()), SLOT(onReadyRead()));
-    QObject::connect(localSocket_, SIGNAL(error(QLocalSocket::LocalSocketError)), SLOT(onSocketError(QLocalSocket::LocalSocketError)));
+    QObject::connect(localSocket_, &QLocalSocket::disconnected, this, &Connection::onSocketDisconnected);
+    QObject::connect(localSocket_, &QLocalSocket::bytesWritten, this, &Connection::onSocketBytesWritten);
+    QObject::connect(localSocket_, &QLocalSocket::readyRead, this, &Connection::onReadyRead);
+    QObject::connect(localSocket_, &QLocalSocket::errorOccurred, this, &Connection::onSocketError);
 }
 
 Connection::Connection() : localSocket_(NULL), bytesWrittingInProgress_(0)
@@ -26,11 +26,11 @@ void Connection::connect()
 {
     safeDeleteSocket();
     localSocket_ = new QLocalSocket;
-    QObject::connect(localSocket_, SIGNAL(connected()), SLOT(onSocketConnected()));
-    QObject::connect(localSocket_, SIGNAL(disconnected()), SLOT(onSocketDisconnected()));
-    QObject::connect(localSocket_, SIGNAL(bytesWritten(qint64)), SLOT(onSocketBytesWritten(qint64)));
-    QObject::connect(localSocket_, SIGNAL(readyRead()), SLOT(onReadyRead()));
-    QObject::connect(localSocket_, SIGNAL(error(QLocalSocket::LocalSocketError)), SLOT(onSocketError(QLocalSocket::LocalSocketError)));
+    QObject::connect(localSocket_, &QLocalSocket::connected, this, &Connection::onSocketConnected);
+    QObject::connect(localSocket_, &QLocalSocket::disconnected, this, &Connection::onSocketDisconnected);
+    QObject::connect(localSocket_, &QLocalSocket::bytesWritten, this, &Connection::onSocketBytesWritten);
+    QObject::connect(localSocket_, &QLocalSocket::readyRead, this, &Connection::onReadyRead);
+    QObject::connect(localSocket_, &QLocalSocket::errorOccurred, this, &Connection::onSocketError);
     localSocket_->connectToServer("Windscribe8rM7bza5OR");
 }
 

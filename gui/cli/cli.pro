@@ -125,7 +125,7 @@ SOURCES += \
         $$COMMON_PATH/utils/executable_signature/executable_signature.cpp \
         $$COMMON_PATH/utils/clean_sensitive_info.cpp \
         backendcommander.cpp \
-        cliapplication.cpp \
+        cliarguments.cpp \
         main.cpp
 
 # Default rules for deployment.
@@ -158,6 +158,6 @@ HEADERS += \
     $$COMMON_PATH/utils/executable_signature/executable_signature.h \
     $$COMMON_PATH/utils/clean_sensitive_info.h \
     backendcommander.h \
-    cliapplication.h
+    cliarguments.h
 
 RESOURCES += windscribe.qrc

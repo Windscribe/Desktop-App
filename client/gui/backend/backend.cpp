@@ -559,6 +559,8 @@ void Backend::onConnectionNewCommand(IPC::Command *command)
     }
     else if (command->getStringId() == IPCServerCommands::SignOutFinished::descriptor()->full_name())
     {
+        // The engine has completed user sign out.  Clear any auth hash we may have stored.
+        accountInfo_.setAuthHash(QString());
         Q_EMIT signOutFinished();
     }
     else if (command->getStringId() == IPCServerCommands::NotificationsUpdated::descriptor()->full_name())

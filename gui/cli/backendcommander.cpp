@@ -8,17 +8,12 @@
 
 #include <QTimer>
 
-BackendCommander::BackendCommander(CliCommand cmd, const QString &location) : QObject()
-    , ipcState_(IPC_INIT_STATE)
-    , connection_(nullptr)
-    , command_(cmd)
-    , locationStr_(location)
-    , bCommandSent_(false)
-    , bLogginInMessageShown_(false)
+BackendCommander::BackendCommander(const CliArguments &cliArgs) : QObject()
+    , cliArgs_(cliArgs)
 {
     unsigned long cliPid = Utils::getCurrentPid();
     qCDebug(LOG_BASIC) << "CLI pid: " << cliPid;
- }
+}
 
 BackendCommander::~BackendCommander()
 {
@@ -29,8 +24,9 @@ BackendCommander::~BackendCommander()
     }
 }
 
-void BackendCommander::initAndSend()
+void BackendCommander::initAndSend(bool isGuiAlreadyRunning)
 {
+    isGuiAlreadyRunning_ = isGuiAlreadyRunning;
     connection_ = new IPC::Connection();
     connect(dynamic_cast<QObject*>(connection_), SIGNAL(newCommand(IPC::Command *, IPC::IConnection *)), SLOT(onConnectionNewCommand(IPC::Command *, IPC::IConnection *)), Qt::QueuedConnection);
     connect(dynamic_cast<QObject*>(connection_), SIGNAL(stateChanged(int, IPC::IConnection *)), SLOT(onConnectionStateChanged(int, IPC::IConnection *)), Qt::QueuedConnection);
@@ -56,15 +52,14 @@ void BackendCommander::onConnectionNewCommand(IPC::Command *command, IPC::IConne
         }
         else
         {
-            emit finished(tr("Error: Could not find server matching: \"") + locationStr_ + "\"");
+            emit finished(tr("Error: Could not find server matching: \"") + cliArgs_.location() + "\"");
         }
     }
     else if (bCommandSent_ && command->getStringId() == CliIpc::ConnectStateChanged::descriptor()->full_name())
     {
         IPC::ProtobufCommand<CliIpc::ConnectStateChanged> *cmd = static_cast<IPC::ProtobufCommand<CliIpc::ConnectStateChanged> *>(command);
 
-
-        if (command_ >= CLI_COMMAND_CONNECT && command_ <= CLI_COMMAND_DISCONNECT)
+        if (cliArgs_.cliCommand() >= CLI_COMMAND_CONNECT && cliArgs_.cliCommand() <= CLI_COMMAND_DISCONNECT)
         {
             if (cmd->getProtoObj().connect_state().connect_state_type() == ProtoTypes::CONNECTED)
             {
@@ -96,28 +91,7 @@ void BackendCommander::onConnectionNewCommand(IPC::Command *command, IPC::IConne
     }
     else if (command->getStringId() == CliIpc::State::descriptor()->full_name())
     {
-        IPC::ProtobufCommand<CliIpc::State> *cmd = static_cast<IPC::ProtobufCommand<CliIpc::State> *>(command);
-        if (cmd->getProtoObj().is_logged_in())
-        {
-            sendCommand();
-        }
-        else
-        {
-            if (loggedInTimer_.isValid() && loggedInTimer_.elapsed() > MAX_LOGIN_TIME_MS)
-            {
-                loggedInTimer_.invalidate();
-                emit finished("Aborting: Gui did not login in time");
-            }
-            else
-            {
-                if (!bLogginInMessageShown_)
-                {
-                    bLogginInMessageShown_ = true;
-                    emit report("GUI is not logged in. Waiting for the login...");
-                }
-                QTimer::singleShot(100, this, &BackendCommander::sendStateCommand);
-            }
-        }
+        onStateResponse(command);
     }
     else if (command->getStringId() == CliIpc::FirewallStateChanged::descriptor()->full_name())
     {
@@ -136,6 +110,25 @@ void BackendCommander::onConnectionNewCommand(IPC::Command *command, IPC::IConne
         else
         {
             emit finished(tr("Firewall is OFF"));
+        }
+    }
+    else if (bCommandSent_ && command->getStringId() == CliIpc::SignedOut::descriptor()->full_name())
+    {
+        emit finished(tr("Signed out"));
+    }
+    else if (bCommandSent_ && command->getStringId() == CliIpc::LoginResult::descriptor()->full_name())
+    {
+        IPC::ProtobufCommand<CliIpc::LoginResult> *cmd = static_cast<IPC::ProtobufCommand<CliIpc::LoginResult> *>(command);
+        if (cmd->getProtoObj().is_logged_in()) {
+            emit finished(tr("login successful"));
+        }
+        else
+        {
+            QString errorMessage(tr("login failed"));
+            if (!cmd->getProtoObj().login_error().empty()) {
+                errorMessage += tr(". %1").arg(QString::fromStdString(cmd->getProtoObj().login_error()));
+            }
+            emit finished(errorMessage);
         }
     }
 }
@@ -179,36 +172,51 @@ void BackendCommander::onConnectionStateChanged(int state, IPC::IConnection * /*
 
 void BackendCommander::sendCommand()
 {
-    if (command_ == CLI_COMMAND_CONNECT || command_ == CLI_COMMAND_CONNECT_BEST || command_ == CLI_COMMAND_CONNECT_LOCATION)
+    if (cliArgs_.cliCommand() == CLI_COMMAND_CONNECT || cliArgs_.cliCommand() == CLI_COMMAND_CONNECT_BEST || cliArgs_.cliCommand() == CLI_COMMAND_CONNECT_LOCATION)
     {
         qCDebug(LOG_BASIC) << "Connecting to last";
 
         IPC::ProtobufCommand<CliIpc::Connect> cmd;
-        cmd.getProtoObj().set_location(locationStr_.toStdString());
+        cmd.getProtoObj().set_location(cliArgs_.location().toStdString());
         connection_->sendCommand(cmd);
     }
-    else if (command_ == CLI_COMMAND_DISCONNECT)
+    else if (cliArgs_.cliCommand() == CLI_COMMAND_DISCONNECT)
     {
         IPC::ProtobufCommand<CliIpc::Disconnect> cmd;
         connection_->sendCommand(cmd);
     }
-    else if (command_ == CLI_COMMAND_FIREWALL_ON)
+    else if (cliArgs_.cliCommand() == CLI_COMMAND_FIREWALL_ON)
     {
         IPC::ProtobufCommand<CliIpc::Firewall> cmd;
         cmd.getProtoObj().set_is_enable(true);
         connection_->sendCommand(cmd);
     }
-    else if (command_ == CLI_COMMAND_FIREWALL_OFF)
+    else if (cliArgs_.cliCommand() == CLI_COMMAND_FIREWALL_OFF)
     {
         IPC::ProtobufCommand<CliIpc::Firewall> cmd;
         cmd.getProtoObj().set_is_enable(false);
         connection_->sendCommand(cmd);
     }
-    else if (command_ == CLI_COMMAND_LOCATIONS)
+    else if (cliArgs_.cliCommand() == CLI_COMMAND_LOCATIONS)
     {
         IPC::ProtobufCommand<CliIpc::ShowLocations> cmd;
         connection_->sendCommand(cmd);
     }
+    else if (cliArgs_.cliCommand() == CLI_COMMAND_LOGIN)
+    {
+        IPC::ProtobufCommand<CliIpc::Login> cmd;
+        cmd.getProtoObj().set_username(cliArgs_.username().toStdString());
+        cmd.getProtoObj().set_password(cliArgs_.password().toStdString());
+        cmd.getProtoObj().set_code2fa(cliArgs_.code2fa().toStdString());
+        connection_->sendCommand(cmd);
+    }
+    else if (cliArgs_.cliCommand() == CLI_COMMAND_SIGN_OUT)
+    {
+        IPC::ProtobufCommand<CliIpc::SignOut> cmd;
+        cmd.getProtoObj().set_is_keep_firewall_on(cliArgs_.keepFirewallOn());
+        connection_->sendCommand(cmd);
+    }
+
     bCommandSent_ = true;
 }
 
@@ -218,3 +226,59 @@ void BackendCommander::sendStateCommand()
     connection_->sendCommand(cmd);
 }
 
+void BackendCommander::onStateResponse(IPC::Command *command)
+{
+    IPC::ProtobufCommand<CliIpc::State> *cmd = static_cast<IPC::ProtobufCommand<CliIpc::State> *>(command);
+
+    if (cmd->getProtoObj().is_logged_in())
+    {
+        if (cliArgs_.cliCommand() == CLI_COMMAND_LOGIN) {
+            emit finished(tr("The application is already logged in"));
+        }
+        else {
+            sendCommand();
+        }
+    }
+    else
+    {
+        if (cliArgs_.cliCommand() == CLI_COMMAND_LOGIN && cmd->getProtoObj().waiting_for_login_info())
+        {
+            // The app has let us know that it is not logged in and does not have cached login info.
+            loggedInTimer_.invalidate();
+
+            if (isGuiAlreadyRunning_) {
+                sendCommand();
+            }
+            else {
+                // Encountered an issue where the app UI gets stuck on the 'logging in' screen if we
+                // send the login command as soon as the app reports that its backend init has finished.
+                // The app does log in, but the UI doesn't update to reflect this state.  The app does
+                // not currently have a mechanism to let us know when it has finished transitioning to
+                // the login screen and is ready for us to submit the login request.
+                QTimer::singleShot(2500, this, &BackendCommander::sendCommand);
+            }
+        }
+        else if (cliArgs_.cliCommand() == CLI_COMMAND_SIGN_OUT && cmd->getProtoObj().waiting_for_login_info())
+        {
+            loggedInTimer_.invalidate();
+            emit finished(tr("The application is already signed out"));
+        }
+        else
+        {
+            if (loggedInTimer_.isValid() && loggedInTimer_.elapsed() > MAX_LOGIN_TIME_MS)
+            {
+                loggedInTimer_.invalidate();
+                emit finished("Aborting: GUI did not login in time");
+            }
+            else
+            {
+                if (!bLogginInMessageShown_)
+                {
+                    bLogginInMessageShown_ = true;
+                    emit report("GUI is not logged in. Waiting for the login...");
+                }
+                QTimer::singleShot(100, this, &BackendCommander::sendStateCommand);
+            }
+        }
+    }
+}

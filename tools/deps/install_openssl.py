@@ -41,8 +41,6 @@ def BuildDependencyMSVC(outpath):
   if is_testing_ok:
     iutl.RunCommand(["nmake", "test"], env=buildenv, shell=True)
   iutl.RunCommand(["nmake", "install_dev"], env=buildenv, shell=True)
-  utl.CopyFile("{}/lib/libcrypto.lib".format(outpath), "{}/lib/libeay32.lib".format(outpath))
-  utl.CopyFile("{}/lib/libssl.lib".format(outpath), "{}/lib/ssleay32.lib".format(outpath))
 
 
 def BuildDependencyMacOS(outpath, build_arch, install_dep):

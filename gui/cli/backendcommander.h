@@ -3,7 +3,7 @@
 
 #include <QElapsedTimer>
 #include <QObject>
-#include "cliapplication.h"
+#include "cliarguments.h"
 #include "ipc/iconnection.h"
 #include "ipc/command.h"
 
@@ -11,10 +11,10 @@ class BackendCommander : public QObject
 {
     Q_OBJECT
 public:
-    BackendCommander(CliCommand cmd, const QString &location);
+    BackendCommander(const CliArguments &cliArgs);
     ~BackendCommander();
 
-    void initAndSend();
+    void initAndSend(bool isGuiAlreadyRunning);
 
 signals:
     void finished(const QString &errorMsg);
@@ -24,22 +24,24 @@ private slots:
     void onConnectionNewCommand(IPC::Command *command, IPC::IConnection *connection);
     void onConnectionStateChanged(int state, IPC::IConnection *connection);
 
+    void sendCommand();
+    void sendStateCommand();
+
 private:
+    const CliArguments &cliArgs_;
     enum IPC_STATE { IPC_INIT_STATE, IPC_CONNECTING, IPC_CONNECTED };
-    IPC_STATE ipcState_;
+    IPC_STATE ipcState_ = IPC_INIT_STATE;
 
     static constexpr int MAX_WAIT_TIME_MS = 10000;   // 10 sec - maximum waiting time for connection to the GUI
     static constexpr int MAX_LOGIN_TIME_MS = 10000;   // 10 sec - maximum waiting time for login in the GUI
-    IPC::IConnection *connection_;
+    IPC::IConnection *connection_ = nullptr;
     QElapsedTimer connectingTimer_;
     QElapsedTimer loggedInTimer_;
-    CliCommand command_;
-    QString locationStr_;
-    bool bCommandSent_;
-    bool bLogginInMessageShown_;
+    bool bCommandSent_ = false;
+    bool bLogginInMessageShown_ = false;
+    bool isGuiAlreadyRunning_ = false;
 
-    void sendCommand();
-    void sendStateCommand();
+    void onStateResponse(IPC::Command *command);
 };
 
 #endif // BACKENDCOMMANDER_H
