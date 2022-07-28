@@ -734,10 +734,10 @@ void ServerAPI::myIP(bool isDisconnected, uint userRole, bool isNeedCheckRequest
 void ServerAPI::checkUpdate(const ProtoTypes::UpdateChannel updateChannel, uint userRole, bool isNeedCheckRequestsEnabled)
 {
     // This check will only be useful in the case that we expand our supported linux OSes and the platform flag is not added for that OS
-    if (Utils::getPlatformName() == "")
+    if (Utils::getPlatformName().isEmpty())
     {
-        qCDebug(LOG_SERVER_API) << "Check update failed: Platform name is invalid";
-        Q_EMIT sendUserWarning(ProtoTypes::USER_WARNING_CHECK_UPDATE_INVALID_PLATFORM);
+        qCDebug(LOG_SERVER_API) << "Check update failed: platform name is empty";
+        emit checkUpdateAnswer(apiinfo::CheckUpdate(), false, userRole);
         return;
     }
 

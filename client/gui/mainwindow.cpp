@@ -2271,8 +2271,8 @@ void MainWindow::onBackendHighCpuUsage(const QStringList &processesList)
 
 void MainWindow::showUserWarning(ProtoTypes::UserWarningType userWarningType)
 {
-    QString titleText = "";
-    QString descText = "";
+    QString titleText;
+    QString descText;
     if (userWarningType == ProtoTypes::USER_WARNING_MAC_SPOOFING_FAILURE_HARD)
     {
         titleText = tr("MAC Spoofing Failed");
@@ -2293,17 +2293,8 @@ void MainWindow::showUserWarning(ProtoTypes::UserWarningType userWarningType)
         titleText = tr("Logs too large to view");
         descText = tr("Could not view the logs because they are too big. You may want to try viewing manually.");
     }
-    else if (userWarningType == ProtoTypes::USER_WARNING_CHECK_UPDATE_INVALID_PLATFORM)
-    {
-        if (!alreadyShownWarnings_.contains(userWarningType)) // only show this once per run
-        {
-            alreadyShownWarnings_.insert(userWarningType);
-            titleText = tr("Check for update failed");
-            descText = tr("Windscribe could not check for update due to an invalid platform config. You may want to try manually updating your installation.");
-        }
-    }
 
-    if (titleText != "" || descText != "")
+    if (!titleText.isEmpty() && !descText.isEmpty())
     {
         if (!currentlyShowingUserWarningMessage_)
         {
