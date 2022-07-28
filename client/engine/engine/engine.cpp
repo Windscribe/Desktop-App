@@ -3,32 +3,28 @@
 #include <QCoreApplication>
 #include <QDir>
 #include <QCryptographicHash>
-#include <Objbase.h>
-#include <shellapi.h>
 #include "utils/utils.h"
 #include "utils/logger.h"
 #include "utils/mergelog.h"
 #include "utils/extraconfig.h"
 #include "utils/ipvalidation.h"
-#include "utils/executable_signature/executable_signature.h"
 #include "connectionmanager/connectionmanager.h"
 #include "connectionmanager/finishactiveconnections.h"
 #include "proxy/proxyservercontroller.h"
 #include "connectstatecontroller/connectstatecontroller.h"
 #include "dnsresolver/dnsserversconfiguration.h"
 #include "dnsresolver/dnsrequest.h"
-#include "dnsresolver/dnsutils.h"
 #include "crossplatformobjectfactory.h"
 #include "openvpnversioncontroller.h"
 #include "openvpnversioncontroller.h"
 #include "getdeviceid.h"
-#include "names.h"
-#include "version/appversion.h"
 
 // For testing merge log functionality
 //#include <QStandardPaths>
 
 #ifdef Q_OS_WIN
+    #include <Objbase.h>
+    #include <shellapi.h>
     #include "utils/bfe_service_win.h"
     #include "utils/winutils.h"
     #include "engine/dnsinfo_win.h"
@@ -38,7 +34,6 @@
     #include "helper/helper_win.h"
 #elif defined Q_OS_MAC
     #include "ipv6controller_mac.h"
-    #include "utils/macutils.h"
     #include "utils/network_utils/network_utils_mac.h"
     #include "networkdetectionmanager/reachabilityevents.h"
 #elif defined Q_OS_LINUX

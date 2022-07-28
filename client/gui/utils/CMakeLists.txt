@@ -24,4 +24,12 @@ if (WIN32)
         scaleutils_win.cpp
         scaleutils_win.h
     )
-endif (WIN32)
+elseif(APPLE)
+    target_sources(gui PRIVATE
+        authchecker_mac.h
+        authchecker_mac.mm
+        interfaceutils_mac.mm
+    )
+elseif(UNIX)
+   #todo
+endif()

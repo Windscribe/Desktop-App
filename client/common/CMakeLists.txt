@@ -78,11 +78,26 @@ if (WIN32)
         ${COMMON_PATH}/utils/executable_signature/executable_signature_win.cpp
         ${COMMON_PATH}/utils/servicecontrolmanager.cpp
     )
-endif (WIN32)
-#todo mac/linux
+elseif(APPLE)
+    set(PROJECT_SOURCES_MAC
+        ${COMMON_PATH}/exithandler_mac.h
+        ${COMMON_PATH}/exithandler_mac.mm
+        ${COMMON_PATH}/utils/executable_signature/executable_signature_mac.h
+        ${COMMON_PATH}/utils/executable_signature/executable_signature_mac.mm
+        ${COMMON_PATH}/utils/macutils.h
+        ${COMMON_PATH}/utils/macutils.mm
+        ${COMMON_PATH}/utils/network_utils/network_utils_mac.cpp
+        ${COMMON_PATH}/utils/network_utils/network_utils_mac.h
+        ${COMMON_PATH}/utils/widgetutils_mac.h
+        ${COMMON_PATH}/utils/widgetutils_mac.mm
+    )
+
+elseif(UNIX)
+    #todo linux
+endif()
 
 
-add_library(common STATIC ${PROJECT_SOURCES} ${PROJECT_SOURCES_WIN})
+add_library(common STATIC ${PROJECT_SOURCES} ${PROJECT_SOURCES_WIN} ${PROJECT_SOURCES_MAC})
 
 
 target_link_libraries(common PRIVATE Qt6::Core Qt6::Network Qt6::Widgets Qt6::Core5Compat)
@@ -95,6 +110,8 @@ target_compile_definitions(common PRIVATE CMAKE_LIBRARY_LIBRARY
 target_include_directories(common PRIVATE
     ${COMMON_PATH}
     ${CMAKE_CURRENT_SOURCE_DIR}/../../build-libs/protobuf/release/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../build-libs/protobuf/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/../gui
 )
 
 

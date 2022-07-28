@@ -61,8 +61,10 @@ target_link_libraries(Windscribe PRIVATE Qt6::Widgets engine gui common
 
 target_include_directories(Windscribe PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/engine
+    ${CMAKE_CURRENT_SOURCE_DIR}/gui
     ${CMAKE_CURRENT_SOURCE_DIR}/../common
     ${CMAKE_CURRENT_SOURCE_DIR}/../build-libs/protobuf/release/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/../build-libs/protobuf/include
 )
 
 

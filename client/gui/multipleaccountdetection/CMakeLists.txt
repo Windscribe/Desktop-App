@@ -11,4 +11,9 @@ if (WIN32)
         secretvalue_win.cpp
         secretvalue_win.h
     )
-endif (WIN32)
+elseif(UNIX)    #both Mac and Linux
+    target_sources(gui PRIVATE
+        multipleaccountdetection_posix.cpp
+        multipleaccountdetection_posix.h
+    )
+endif()

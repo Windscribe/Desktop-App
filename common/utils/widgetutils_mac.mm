@@ -3,7 +3,6 @@
 
 #include <QIcon>
 #include "widgetutils_mac.h"
-#include "macutils.h"
 #include "dpiscalemanager.h"
 
 #include <QDebug>

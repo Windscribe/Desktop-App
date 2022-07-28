@@ -8,11 +8,9 @@
 #include <QScrollArea>
 #include <QEasingCurve>
 #include "backend/locationsmodel/basiccitiesmodel.h"
-#include "backend/locationsmodel/favoritelocationsstorage.h"
 #include "commonwidgets/textbuttonwidget.h"
 #include "iwidgetlocationsinfo.h"
 #include "backgroundpixmapanimation.h"
-#include "tooltips/tooltiptypes.h"
 #include "widgetcitieslist.h"
 #include "scrollbar.h"
 

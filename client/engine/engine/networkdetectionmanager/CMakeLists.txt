@@ -9,5 +9,15 @@ if (WIN32)
         networkdetectionmanager_win.cpp
         networkdetectionmanager_win.h
     )
-endif (WIN32)
-#todo mac/linux
+elseif(APPLE)
+    target_sources(engine PRIVATE
+        networkdetectionmanager_mac.cpp
+        networkdetectionmanager_mac.h
+        reachability.h
+        reachability.m
+        reachabilityevents.h
+        reachabilityevents.mm
+    )
+elseif(UNIX)
+    #todo linux
+endif()

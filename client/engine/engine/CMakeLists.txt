@@ -17,11 +17,6 @@ target_sources(engine PRIVATE
     packetsizecontroller.h
     refetchservercredentialshelper.h
     sessionstatustimer.h
-
-    #engine/tempscripts_mac.cpp
-    #engine/tempscripts_mac.h
-    #engine/ipv6controller_mac.cpp
-    #engine/ipv6controller_mac.h
 )
 
 if (WIN32)
@@ -33,7 +28,17 @@ if (WIN32)
         measurementcpuusage.cpp
         measurementcpuusage.h
     )
-endif (WIN32)
+elseif(APPLE)
+    target_sources(engine PRIVATE
+        ipv6controller_mac.cpp
+        ipv6controller_mac.h
+        tempscripts_mac.cpp
+        tempscripts_mac.h
+    )
+elseif(UNIX)
+    #todo linux
+endif()
+
 
 add_subdirectory(apiinfo)
 add_subdirectory(autoupdater)
@@ -56,4 +61,3 @@ add_subdirectory(taputils)
 add_subdirectory(types)
 add_subdirectory(vpnshare)
 add_subdirectory(wireguardconfig)
-

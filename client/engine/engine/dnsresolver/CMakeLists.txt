@@ -14,5 +14,10 @@ if (WIN32)
     target_sources(engine PRIVATE
         dnsutils_win.cpp
     )
-endif (WIN32)
-#todo Mac/Linux
+elseif(APPLE)
+    target_sources(engine PRIVATE
+        dnsutils_mac.cpp
+    )
+elseif(UNIX)
+    #todo linux
+endif()

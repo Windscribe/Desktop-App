@@ -10,5 +10,13 @@ if (WIN32)
         autodetectproxy_win.cpp
         autodetectproxy_win.h
     )
-endif (WIN32)
-#todo mac/linux
+elseif(APPLE)
+    target_sources(engine PRIVATE
+        autodetectproxy_mac.h
+        autodetectproxy_mac.mm
+        pmachelpers.h
+        pmachelpers.mm
+    )
+elseif(UNIX)
+    #todo linux
+endif()

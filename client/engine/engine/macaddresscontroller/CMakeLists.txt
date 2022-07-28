@@ -9,5 +9,11 @@ if (WIN32)
         macaddresscontroller_win.h
 
     )
-endif (WIN32)
-#todo mac/linux
+elseif(APPLE)
+    target_sources(engine PRIVATE
+        macaddresscontroller_mac.cpp
+        macaddresscontroller_mac.h
+    )
+elseif(UNIX)
+    #todo linux
+endif()

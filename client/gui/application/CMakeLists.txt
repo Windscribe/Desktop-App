@@ -7,3 +7,10 @@ target_sources(gui PRIVATE
     windscribeapplication.cpp
     windscribeapplication.h
 )
+
+if(APPLE)
+    target_sources(gui PRIVATE
+        checkrunningapp/checkrunningapp_mac.mm
+        checkrunningapp/checkrunningapp_mac.h
+    )
+endif(APPLE)

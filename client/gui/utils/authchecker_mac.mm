@@ -197,7 +197,7 @@ AuthCheckerError AuthChecker_mac::authenticate()
     [g_macAuthCheckerHandler deauthenticate]; // no need to maintain authentication
     [cmds release];
     return success ?
-                AuthCheckerError::NO_ERROR :
-                AuthCheckerError::AUTHENTICATION_ERROR;
+                AuthCheckerError::AUTH_NO_ERROR :
+                AuthCheckerError::AUTH_AUTHENTICATION_ERROR;
 }
 

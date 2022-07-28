@@ -45,6 +45,10 @@ set(PROJECT_SOURCES
     windscribe.qrc
 )
 
+if (APPLE)
+    list(APPEND PROJECT_SOURCES windscribe_mac.qrc)
+endif (APPLE)
+
 add_library(gui STATIC ${PROJECT_SOURCES})
 
 target_link_libraries(gui PRIVATE Qt6::Core Qt6::Network Qt6::Widgets Qt6::Svg Qt6::Core5Compat)
@@ -59,6 +63,7 @@ target_include_directories(gui PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/../engine
     ${CMAKE_CURRENT_SOURCE_DIR}/../../common
     ${CMAKE_CURRENT_SOURCE_DIR}/../../build-libs/protobuf/release/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../build-libs/protobuf/include
     ${CMAKE_CURRENT_SOURCE_DIR}/../../build-libs/boost/include
     ${CMAKE_CURRENT_SOURCE_DIR}/../../build-libs/curl/include
     ${CMAKE_CURRENT_SOURCE_DIR}/../../build-libs/cares/dll_x64/include

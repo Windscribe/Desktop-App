@@ -45,6 +45,20 @@ if (WIN32)
         wireguardringlogger.cpp
         wireguardringlogger.h
     )
-endif (WIN32)
+elseif(APPLE)
+    target_sources(engine PRIVATE
+        ikev2connection_mac.h
+        ikev2connection_mac.mm
+        networkextensionlog_mac.cpp
+        networkextensionlog_mac.h
+        restorednsmanager_mac.h
+        restorednsmanager_mac.mm
+        sleepevents_mac.h
+        sleepevents_mac.mm
+        wireguardconnection_posix.cpp
+        wireguardconnection_posix.h
+    )
+elseif(UNIX)
+    #todo linux
+endif()
 
-#todo linux and mac

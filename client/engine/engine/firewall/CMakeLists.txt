@@ -12,5 +12,12 @@ if (WIN32)
         firewallcontroller_win.cpp
         firewallcontroller_win.h
     )
-endif (WIN32)
-# todo mac/linux
+elseif(APPLE)
+    target_sources(engine PRIVATE
+        firewallcontroller_mac.cpp
+        firewallcontroller_mac.h
+    )
+
+elseif(UNIX)
+    #todo linux
+endif()

@@ -8,5 +8,15 @@ if (WIN32)
         launchonstartup_win.cpp
         launchonstartup_win.h
     )
-endif (WIN32)
+elseif(APPLE)
+    target_sources(gui PRIVATE
+        launchonstartup_mac.mm
+        launchonstartup_win.h
+    )
 
+elseif(UNIX)
+    target_sources(gui PRIVATE
+        launchonstartup_linux.cpp
+        launchonstartup_linux.h
+    )
+endif()

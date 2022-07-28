@@ -11,5 +11,16 @@ if (WIN32)
         windscribeinstallhelper_win.cpp
         windscribeinstallhelper_win.h
     )
-endif (WIN32)
-#todo mac/linux
+elseif(APPLE)
+    target_sources(engine PRIVATE
+        helper_mac.cpp
+        helper_mac.h
+        helper_posix.cpp
+        helper_posix.h
+        installhelper_mac.h
+        installhelper_mac.mm
+    )
+elseif(UNIX)
+    #todo linux
+endif()
+
