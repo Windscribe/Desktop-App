@@ -13,7 +13,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Qt6 REQUIRED COMPONENTS Widgets Network Svg Core5Compat)
 
-
 set(PROJECT_SOURCES
     # --- sources and headers ---
     blockconnect.cpp
@@ -62,12 +61,12 @@ target_compile_definitions(gui PRIVATE CMAKE_LIBRARY_LIBRARY
 target_include_directories(gui PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/../engine
     ${CMAKE_CURRENT_SOURCE_DIR}/../../common
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../build-libs/protobuf/release/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../build-libs/protobuf/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../build-libs/boost/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../build-libs/curl/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../build-libs/cares/dll_x64/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../build-libs/openssl/include
+    ${WINDSCRIBE_BUILD_LIBS_PATH}/protobuf/release/include
+    ${WINDSCRIBE_BUILD_LIBS_PATH}/protobuf/include
+    ${WINDSCRIBE_BUILD_LIBS_PATH}/boost/include
+    ${WINDSCRIBE_BUILD_LIBS_PATH}/curl/include
+    ${WINDSCRIBE_BUILD_LIBS_PATH}/cares/dll_x64/include
+    ${WINDSCRIBE_BUILD_LIBS_PATH}/openssl/include
 )
 
 add_subdirectory(application)

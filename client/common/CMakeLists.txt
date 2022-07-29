@@ -109,8 +109,8 @@ target_compile_definitions(common PRIVATE CMAKE_LIBRARY_LIBRARY
 
 target_include_directories(common PRIVATE
     ${COMMON_PATH}
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../build-libs/protobuf/release/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../build-libs/protobuf/include
+    ${WINDSCRIBE_BUILD_LIBS_PATH}/protobuf/release/include
+    ${WINDSCRIBE_BUILD_LIBS_PATH}/protobuf/include
     ${CMAKE_CURRENT_SOURCE_DIR}/../gui
 )
 

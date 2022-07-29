@@ -33,13 +33,13 @@ target_compile_definitions(engine PRIVATE CMAKE_LIBRARY_LIBRARY
 
 target_include_directories(engine PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/../../common
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../build-libs/protobuf/release/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../build-libs/protobuf/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../build-libs/boost/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../build-libs/curl/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../build-libs/cares/dll_x64/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../build-libs/cares/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../build-libs/openssl/include
+    ${WINDSCRIBE_BUILD_LIBS_PATH}/protobuf/release/include
+    ${WINDSCRIBE_BUILD_LIBS_PATH}/protobuf/include
+    ${WINDSCRIBE_BUILD_LIBS_PATH}/boost/include
+    ${WINDSCRIBE_BUILD_LIBS_PATH}/curl/include
+    ${WINDSCRIBE_BUILD_LIBS_PATH}/cares/dll_x64/include
+    ${WINDSCRIBE_BUILD_LIBS_PATH}/cares/include
+    ${WINDSCRIBE_BUILD_LIBS_PATH}/openssl/include
 )
 
 add_subdirectory(engine)

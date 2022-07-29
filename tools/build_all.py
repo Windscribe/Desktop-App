@@ -402,8 +402,8 @@ def build_component(component, qt_root, buildenv=None, macdeployfixes=None, targ
             generate_cmd = ["cmake", "-DCMAKE_PREFIX_PATH=" + qt_root, os.path.dirname(get_project_file(c_subdir, c_project))]
             if arghelper.sign_app():
                 generate_cmd.extend(["-DDEFINE_USE_SIGNATURE_CHECK_MACRO=ON"])
-            if c_ismac:
-                build_cmd.extend(["DEVELOPMENT_TEAM={}".format(MAC_DEV_TEAM_ID)])
+            #if c_ismac:
+             #   build_cmd.extend(["DEVELOPMENT_TEAM={}".format(MAC_DEV_TEAM_ID)])
             msg.Info(generate_cmd)
             iutl.RunCommand(generate_cmd, env=buildenv, shell=c_iswin)
             build_cmd = ["cmake", "--build", ".", "--config Release"]
