@@ -10,4 +10,12 @@ if (WIN32)
         ras_service_win.cpp
         ras_service_win.h
     )
-endif (WIN32)
+elseif(APPLE)
+    # no files
+
+elseif(UNIX)
+    target_sources(engine PRIVATE
+        dnsscripts_linux.cpp
+        dnsscripts_linux.h
+)
+endif()

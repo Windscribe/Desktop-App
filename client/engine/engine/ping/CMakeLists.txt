@@ -14,11 +14,9 @@ if (WIN32)
         pinghost_icmp_win.cpp
         pinghost_icmp_win.h
     )
-elseif(APPLE)
+elseif(UNIX)    # both Mac and Linux
     target_sources(engine PRIVATE
-        pinghost_icmp_mac.cpp
+        pinghost_icmp_mac.cpp       # todo rename to _posix
         pinghost_icmp_mac.h
     )
-elseif(UNIX)
-    #todo linux
 endif()

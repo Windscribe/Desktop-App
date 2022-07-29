@@ -19,5 +19,8 @@ elseif(APPLE)
         reachabilityevents.mm
     )
 elseif(UNIX)
-    #todo linux
+    target_sources(engine PRIVATE
+        networkdetectionmanager_linux.cpp
+        networkdetectionmanager_linux.h
+    )
 endif()

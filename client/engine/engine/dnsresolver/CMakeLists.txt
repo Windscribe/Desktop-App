@@ -19,5 +19,7 @@ elseif(APPLE)
         dnsutils_mac.cpp
     )
 elseif(UNIX)
-    #todo linux
+    target_sources(engine PRIVATE
+        dnsutils_linux.cpp
+    )
 endif()

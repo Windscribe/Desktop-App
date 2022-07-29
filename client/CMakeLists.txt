@@ -80,6 +80,15 @@ elseif(APPLE)
     file(GLOB MAC_RESOURCES_FILES ${CMAKE_CURRENT_SOURCE_DIR}/engine/mac/resources/*.*)
     set_source_files_properties(${MAC_RESOURCES_FILES} PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
     list(APPEND PROJECT_SOURCES ${MAC_RESOURCES_FILES})
+
+elseif(UNIX)
+    link_directories(${WINDSCRIBE_BUILD_LIBS_PATH}/boost/lib
+                     ${WINDSCRIBE_BUILD_LIBS_PATH}/protobuf/lib
+                     ${WINDSCRIBE_BUILD_LIBS_PATH}/curl/lib
+                     ${WINDSCRIBE_BUILD_LIBS_PATH}/cares/lib
+                     ${WINDSCRIBE_BUILD_LIBS_PATH}/openssl/lib
+     )
+     set (OS_SPECIFIC_LIBRARIES ssl crypto cares curl protobuf libboost_serialization.a)
 endif()
 
 qt_add_executable(Windscribe
@@ -124,7 +133,7 @@ if (WIN32)
     target_link_options(Windscribe PRIVATE "/IGNORE:4099")
 endif (WIN32)
 
-target_link_libraries(Windscribe PRIVATE Qt6::Widgets Qt6::Network engine gui common ${OS_SPECIFIC_LIBRARIES})
+target_link_libraries(Windscribe PRIVATE Qt6::Widgets Qt6::Network gui engine common ${OS_SPECIFIC_LIBRARIES})
 
 target_include_directories(Windscribe PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/engine

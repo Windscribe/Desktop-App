@@ -17,7 +17,9 @@ elseif(APPLE)
         firewallcontroller_mac.cpp
         firewallcontroller_mac.h
     )
-
 elseif(UNIX)
-    #todo linux
+    target_sources(engine PRIVATE
+        firewallcontroller_linux.cpp
+        firewallcontroller_linux.h
+    )
 endif()

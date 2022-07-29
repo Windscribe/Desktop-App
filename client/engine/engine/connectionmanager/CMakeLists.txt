@@ -59,6 +59,11 @@ elseif(APPLE)
         wireguardconnection_posix.h
     )
 elseif(UNIX)
-    #todo linux
+    target_sources(engine PRIVATE
+        ikev2connection_linux.cpp
+        ikev2connection_linux.h
+        wireguardconnection_posix.cpp
+        wireguardconnection_posix.h
+    )
 endif()
 

@@ -10,6 +10,7 @@ import re
 import subprocess
 import time
 import zipfile
+import multiprocessing
 
 import base.messages as msg
 import base.process as proc
@@ -406,7 +407,7 @@ def build_component(component, qt_root, buildenv=None, macdeployfixes=None, targ
              #   build_cmd.extend(["DEVELOPMENT_TEAM={}".format(MAC_DEV_TEAM_ID)])
             msg.Info(generate_cmd)
             iutl.RunCommand(generate_cmd, env=buildenv, shell=c_iswin)
-            build_cmd = ["cmake", "--build", ".", "--config Release"]
+            build_cmd = ["cmake", "--build", ".", "--config Release", "--parallel " + str(multiprocessing.cpu_count())]
             msg.Info(build_cmd)
             iutl.RunCommand(build_cmd, env=buildenv, shell=c_iswin)
             target_location = "release" if c_iswin else ""

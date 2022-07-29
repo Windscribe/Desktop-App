@@ -21,6 +21,11 @@ elseif(APPLE)
         installhelper_mac.mm
     )
 elseif(UNIX)
-    #todo linux
+    target_sources(engine PRIVATE
+        helper_linux.cpp
+        helper_linux.h
+        helper_posix.cpp
+        helper_posix.h
+    )
 endif()
 

@@ -12,6 +12,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(Qt6 REQUIRED COMPONENTS Widgets Network Core5Compat)
 
 set(COMMON_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../../common)
+set(WINDSCRIBE_BUILD_LIBS_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../../build-libs)
 
 set(PROJECT_SOURCES
     ${COMMON_PATH}/ipc/command.h
@@ -80,8 +81,8 @@ if (WIN32)
     )
 elseif(APPLE)
     set(PROJECT_SOURCES_MAC
-        ${COMMON_PATH}/exithandler_mac.h
         ${COMMON_PATH}/exithandler_mac.mm
+        ${COMMON_PATH}/exithandler_mac.h
         ${COMMON_PATH}/utils/executable_signature/executable_signature_mac.h
         ${COMMON_PATH}/utils/executable_signature/executable_signature_mac.mm
         ${COMMON_PATH}/utils/macutils.h
@@ -93,11 +94,16 @@ elseif(APPLE)
     )
 
 elseif(UNIX)
-    #todo linux
+    set(PROJECT_SOURCES_LINUX
+        ${COMMON_PATH}/utils/executable_signature/executablesignature_linux.cpp
+        ${COMMON_PATH}/utils/executable_signature/executablesignature_linux.h
+        ${COMMON_PATH}/utils/linuxutils.cpp
+        ${COMMON_PATH}/utils/linuxutils.h
+    )
 endif()
 
 
-add_library(common STATIC ${PROJECT_SOURCES} ${PROJECT_SOURCES_WIN} ${PROJECT_SOURCES_MAC})
+add_library(common STATIC ${PROJECT_SOURCES} ${PROJECT_SOURCES_WIN} ${PROJECT_SOURCES_MAC} ${PROJECT_SOURCES_LINUX})
 
 
 target_link_libraries(common PRIVATE Qt6::Core Qt6::Network Qt6::Widgets Qt6::Core5Compat)
@@ -111,6 +117,8 @@ target_include_directories(common PRIVATE
     ${COMMON_PATH}
     ${WINDSCRIBE_BUILD_LIBS_PATH}/protobuf/release/include
     ${WINDSCRIBE_BUILD_LIBS_PATH}/protobuf/include
+    ${WINDSCRIBE_BUILD_LIBS_PATH}/openssl/include
+    ${WINDSCRIBE_BUILD_LIBS_PATH}/boost/include
     ${CMAKE_CURRENT_SOURCE_DIR}/../gui
 )
 

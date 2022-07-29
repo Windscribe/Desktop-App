@@ -15,5 +15,8 @@ elseif(APPLE)
         macaddresscontroller_mac.h
     )
 elseif(UNIX)
-    #todo linux
+    target_sources(engine PRIVATE
+        macaddresscontroller_linux.cpp
+        macaddresscontroller_linux.h
+    )
 endif()

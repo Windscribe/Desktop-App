@@ -31,5 +31,9 @@ elseif(APPLE)
         interfaceutils_mac.mm
     )
 elseif(UNIX)
-   #todo
+    target_sources(gui PRIVATE
+        authchecker_linux.cpp
+        authchecker_linux.h
+        interfaceutils_linux.cpp
+    )
 endif()

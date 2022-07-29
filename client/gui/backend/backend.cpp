@@ -5,7 +5,6 @@
 #include "ipc/connection.h"
 #include "ipc/protobufcommand.h"
 #include "utils/utils.h"
-#include "utils/executable_signature/executable_signature.h"
 #include "persistentstate.h"
 #include "engineserver.h"
 #include <QCoreApplication>

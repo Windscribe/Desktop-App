@@ -13,7 +13,6 @@ elseif(APPLE)
         launchonstartup_mac.mm
         launchonstartup_win.h
     )
-
 elseif(UNIX)
     target_sources(gui PRIVATE
         launchonstartup_linux.cpp
