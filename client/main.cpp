@@ -88,6 +88,15 @@ int main(int argc, char *argv[])
     #endif
 #endif
 
+    Q_INIT_RESOURCE(engine);
+    Q_INIT_RESOURCE(jpg);
+    Q_INIT_RESOURCE(svg);
+    Q_INIT_RESOURCE(windscribe);
+    #ifdef Q_OS_MAC
+        Q_INIT_RESOURCE(windscribe_mac);
+    #endif
+
+
     // Switch to staging if necessary. It should be done at the beginning of main function.
     // Further, in all parts of the program, the staging check is performed by the function AppVersion::instance().isStaging()
     // Works only for guinea pig builds
@@ -103,13 +112,6 @@ int main(int argc, char *argv[])
 #if defined(ENABLE_CRASH_REPORTS)
     Debug::CrashHandler::setModuleName(L"gui");
     Debug::CrashHandler::instance().bindToProcess();
-#endif
-
-#ifdef Q_OS_MAC
-    QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
-#elif defined (Q_OS_LINUX)
-    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-    QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
 #endif
 
     qputenv("QT_EVENT_DISPATCHER_CORE_FOUNDATION", "1");

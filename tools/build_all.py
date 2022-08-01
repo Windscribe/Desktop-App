@@ -10,6 +10,7 @@ import re
 import subprocess
 import time
 import zipfile
+import multiprocessing
 
 import base.messages as msg
 import base.process as proc
@@ -398,6 +399,29 @@ def build_component(component, qt_root, buildenv=None, macdeployfixes=None, targ
                     utl.CopyFile(os.path.join(outdir, c_target), os.path.join(temp_wd, c_target))
             os.chdir(temp_wd)
             target_location = ""
+        elif c_project == ("CMakeList.txt"):
+            generate_cmd = ["cmake", "-DCMAKE_PREFIX_PATH=" + qt_root, os.path.dirname(get_project_file(c_subdir, c_project))]
+            if arghelper.sign_app():
+                generate_cmd.extend(["-DDEFINE_USE_SIGNATURE_CHECK_MACRO=ON"])
+            if c_ismac:
+                generate_cmd.extend(["-DCMAKE_OSX_ARCHITECTURES=\'arm64;x86_64\'"])
+            #if c_ismac:
+             #   build_cmd.extend(["DEVELOPMENT_TEAM={}".format(MAC_DEV_TEAM_ID)])
+            msg.Info(generate_cmd)
+            iutl.RunCommand(generate_cmd, env=buildenv, shell=c_iswin)
+            build_cmd = ["cmake", "--build", ".", "--config Release", "--parallel " + str(multiprocessing.cpu_count())]
+            msg.Info(build_cmd)
+            iutl.RunCommand(build_cmd, env=buildenv, shell=c_iswin)
+            target_location = "release" if c_iswin else ""
+            if c_ismac and "macapp" in component:
+                deploy_cmd = [BUILD_MAC_DEPLOY, component["macapp"]]
+                if "plugins" in component and not component["plugins"]:
+                    deploy_cmd.append("-no-plugins")
+                iutl.RunCommand(deploy_cmd, env=buildenv)
+                update_version_in_plist(os.path.join(temp_wd, component["macapp"], "Contents", "Info.plist"))
+                if component["name"] == "Client":
+                    # Could not find an automated way to do this like we could with the xcodebuild below.
+                    update_team_id(os.path.join(temp_wd, component["macapp"], "Contents", "Info.plist"))
         else:
             raise iutl.InstallError("Unknown project type: \"{}\"!".format(c_project))
         # Apply Mac deploy fixes to the app.

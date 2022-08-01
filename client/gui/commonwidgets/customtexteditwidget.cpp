@@ -72,7 +72,7 @@ void CustomTextEditWidget::mouseReleaseEvent(QMouseEvent *event)
         const QMimeData *mimeData = QApplication::clipboard()->mimeData();
         if (mimeData->hasText()) enable = true;
 
-        QAction * action = menu_->action(CustomMenuWidget::PASTE);
+        QAction * action = menu_->action(CustomMenuWidget::ACT_PASTE);
         if (action != nullptr)
         {
             action->setEnabled(enable);
@@ -104,31 +104,31 @@ void CustomTextEditWidget::onMenuTriggered(QAction *action)
 {
     QVariant newItem = action->data();
 
-    if (newItem.toInt() == CustomMenuWidget::UNDO)
+    if (newItem.toInt() == CustomMenuWidget::ACT_UNDO)
     {
         undo();
     }
-    else if (newItem.toInt() == CustomMenuWidget::REDO)
+    else if (newItem.toInt() == CustomMenuWidget::ACT_REDO)
     {
         redo();
     }
-    else if (newItem.toInt() == CustomMenuWidget::CUT)
+    else if (newItem.toInt() == CustomMenuWidget::ACT_CUT)
     {
         cut();
     }
-    else if (newItem.toInt() == CustomMenuWidget::COPY)
+    else if (newItem.toInt() == CustomMenuWidget::ACT_COPY)
     {
         copy();
     }
-    else if (newItem.toInt() == CustomMenuWidget::PASTE)
+    else if (newItem.toInt() == CustomMenuWidget::ACT_PASTE)
     {
         paste();
     }
-    else if (newItem.toInt() == CustomMenuWidget::DELETE)
+    else if (newItem.toInt() == CustomMenuWidget::ACT_DELETE)
     {
         insertPlainText(""); // deletes selected text
     }
-    else if (newItem.toInt() == CustomMenuWidget::SELECT_ALL)
+    else if (newItem.toInt() == CustomMenuWidget::ACT_SELECT_ALL)
     {
         selectAll();
     }
@@ -138,7 +138,7 @@ void CustomTextEditWidget::onMenuTriggered(QAction *action)
 
 void CustomTextEditWidget::onUndoAvailableChanged(bool avail)
 {
-    QAction * action = menu_->action(CustomMenuWidget::UNDO);
+    QAction * action = menu_->action(CustomMenuWidget::ACT_UNDO);
     if (action != nullptr)
     {
         action->setEnabled(avail);
@@ -147,19 +147,19 @@ void CustomTextEditWidget::onUndoAvailableChanged(bool avail)
 
 void CustomTextEditWidget::onCopyAvailableChanged(bool avail)
 {
-    QAction * action = menu_->action(CustomMenuWidget::COPY);
+    QAction * action = menu_->action(CustomMenuWidget::ACT_COPY);
     if (action != nullptr)
     {
         action->setEnabled(avail);
     }
 
-    action = menu_->action(CustomMenuWidget::CUT);
+    action = menu_->action(CustomMenuWidget::ACT_CUT);
     if (action != nullptr)
     {
         action->setEnabled(avail);
     }
 
-    action = menu_->action(CustomMenuWidget::DELETE);
+    action = menu_->action(CustomMenuWidget::ACT_DELETE);
     if (action != nullptr)
     {
         action->setEnabled(avail);
@@ -168,7 +168,7 @@ void CustomTextEditWidget::onCopyAvailableChanged(bool avail)
 
 void CustomTextEditWidget::onRedoAvailableChanged(bool avail)
 {
-    QAction * action = menu_->action(CustomMenuWidget::REDO);
+    QAction * action = menu_->action(CustomMenuWidget::ACT_REDO);
     if (action != nullptr)
     {
         action->setEnabled(avail);
@@ -179,7 +179,7 @@ void CustomTextEditWidget::updateSelectAllAvailability()
 {
     bool selectAllAvailable = toPlainText() != "";
 
-    QAction *action = menu_->action(CustomMenuWidget::SELECT_ALL);
+    QAction *action = menu_->action(CustomMenuWidget::ACT_SELECT_ALL);
     if (action != nullptr)
     {
         action->setEnabled(selectAllAvailable);

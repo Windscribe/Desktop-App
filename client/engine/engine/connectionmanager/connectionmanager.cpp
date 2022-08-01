@@ -11,7 +11,7 @@
 #include "engine/types/connectionsettings.h"
 #include "engine/apiinfo/apiinfo.h"
 #include "engine/serverapi/serverapi.h"
-#include "engine/engine/getdeviceid.h"
+#include "engine/getdeviceid.h"
 
 #include "engine/networkdetectionmanager/inetworkdetectionmanager.h"
 #include "utils/extraconfig.h"

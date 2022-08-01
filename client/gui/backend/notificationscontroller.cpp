@@ -110,7 +110,7 @@ void NotificationsController::saveToSettings()
 
     size_t size = notifications_.ByteSizeLong();
     QByteArray arr(size, Qt::Uninitialized);
-    notifications_.SerializeToArray(arr.data(), size);
+    notifications_.SerializeToArray(arr.data(), (int)size);
 
     settings.setValue("notifications", arr);
 

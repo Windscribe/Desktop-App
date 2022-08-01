@@ -1,6 +1,7 @@
 #include "widgetutils_win.h"
 
 #include <Windows.h>
+#include <shellapi.h>
 #include "winutils.h"
 #include <QPainter>
 #include <QDir>

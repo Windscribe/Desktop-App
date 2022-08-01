@@ -629,7 +629,7 @@ void Preferences::saveGuiSettings() const
 {
     QSettings settings;
 
-    int size = guiSettings_.ByteSizeLong();
+    int size = (int)guiSettings_.ByteSizeLong();
     QByteArray arr(size, Qt::Uninitialized);
     guiSettings_.SerializeToArray(arr.data(), size);
 
