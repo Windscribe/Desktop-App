@@ -14,7 +14,6 @@
 #include "utils/utils.h"
 #include "utils/ipvalidation.h"
 #include "version/appversion.h"
-#include "../tests/sessionandlocations_test.h"
 #include "utils/extraconfig.h"
 #include <algorithm>
 

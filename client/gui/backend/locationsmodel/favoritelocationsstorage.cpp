@@ -65,7 +65,7 @@ void FavoriteLocationsStorage::writeToSettings()
 
     size_t size = arrIds.ByteSizeLong();
     QByteArray arr(size, Qt::Uninitialized);
-    arrIds.SerializeToArray(arr.data(), size);
+    arrIds.SerializeToArray(arr.data(), (int)size);
 
     QSettings settings;
     settings.setValue("favoriteLocations", arr);

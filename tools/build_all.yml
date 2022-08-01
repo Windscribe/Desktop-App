@@ -4,7 +4,7 @@
 # ------------------------------------------------------------------------------
 client:
   name:     Client
-  project:  client.pro
+  project:  CMakeList.txt
   subdir:   client
   target:   Windscribe.exe
   symbols:  Windscribe.pdb

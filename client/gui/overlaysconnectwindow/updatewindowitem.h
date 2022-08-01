@@ -7,9 +7,6 @@
 #include "commongraphics/bubblebuttonbright.h"
 #include "commongraphics/textbutton.h"
 
-namespace UpdateWindow {
-
-
 class UpdateWindowItem : public ScalableGraphicsObject, public IUpdateWindow
 {
     Q_OBJECT
@@ -103,7 +100,5 @@ private:
 
     const QString cancelButtonText();
 };
-
-} // namespace
 
 #endif // UPDATEWINDOWITEM_H
