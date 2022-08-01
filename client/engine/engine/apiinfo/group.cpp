@@ -73,49 +73,5 @@ bool Group::initFromJson(QJsonObject &obj, QStringList &forceDisconnectNodes)
     return true;
 }
 
-void Group::initFromProtoBuf(const ProtoApiInfo::Group &g)
-{
-    d->id_ = g.id();
-    d->city_ = QString::fromStdString(g.city());
-    d->nick_ = QString::fromStdString(g.nick());
-    d->pro_ = g.pro();
-    d->pingIp_ = QString::fromStdString(g.ping_ip());
-    d->wg_pubkey_ = QString::fromStdString(g.wg_pubkey());
-    d->dnsHostName_ = QString::fromStdString(g.dns_hostname());
-    d->ovpn_x509_ = QString::fromStdString(g.ovpn_x509());
-    d->link_speed_ = g.link_speed();
-    d->health_ = g.health();
-
-    for (int i = 0; i < g.nodes_size(); ++i)
-    {
-        Node node;
-        node.initFromProtoBuf(g.nodes(i));
-        d->nodes_ << node;
-    }
-
-    d->isValid_ = true;
-}
-
-ProtoApiInfo::Group Group::getProtoBuf() const
-{
-    Q_ASSERT(d->isValid_);
-
-    ProtoApiInfo::Group group;
-    group.set_id(d->id_);
-    group.set_city(d->city_.toStdString());
-    group.set_nick(d->nick_.toStdString());
-    group.set_pro(d->pro_);
-    group.set_ping_ip(d->pingIp_.toStdString());
-    group.set_wg_pubkey(d->wg_pubkey_.toStdString());
-    group.set_dns_hostname(d->dnsHostName_.toStdString());
-    group.set_ovpn_x509(d->ovpn_x509_.toStdString());
-    group.set_link_speed(d->link_speed_);
-    group.set_health(d->health_);
-    for (const Node &node : d->nodes_)
-    {
-        *group.add_nodes() = node.getProtoBuf();
-    }
-    return group;
-}
 
 } // namespace apiinfo

@@ -52,8 +52,6 @@ public:
     Location(const Location &other) : d (other.d) {}
 
     bool initFromJson(const QJsonObject &obj, QStringList &forceDisconnectNodes);
-    void initFromProtoBuf(const ProtoApiInfo::Location &l);
-    ProtoApiInfo::Location getProtoBuf() const;
 
     int getId() const { Q_ASSERT(d->isValid_); return d->id_; }
     QString getName() const { Q_ASSERT(d->isValid_); return d->name_; }

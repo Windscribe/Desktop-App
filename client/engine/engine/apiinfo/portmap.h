@@ -39,8 +39,6 @@ public:
     PortMap(const PortMap &other) : d (other.d) {}
 
     bool initFromJson(const QJsonArray &jsonArray);
-    void initFromProtoBuf(const ProtoApiInfo::PortMap &portMap);
-    ProtoApiInfo::PortMap getProtoBuf() const;
 
     int getPortItemCount() const;
     const PortItem *getPortItemByIndex(int ind) const;

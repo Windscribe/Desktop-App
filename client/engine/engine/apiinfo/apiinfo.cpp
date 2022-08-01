@@ -122,7 +122,7 @@ StaticIps ApiInfo::getStaticIps() const
 
 void ApiInfo::saveToSettings()
 {
-    Q_ASSERT(threadId_ == QThread::currentThreadId());
+    /*Q_ASSERT(threadId_ == QThread::currentThreadId());
 
     QSettings settings;
     ProtoApiInfo::ApiInfo protoApiInfo;
@@ -152,7 +152,7 @@ void ApiInfo::saveToSettings()
     else
     {
         settings.remove("revisionHash");
-    }
+    }*/
 }
 
 void ApiInfo::removeFromSettings()
@@ -172,7 +172,7 @@ void ApiInfo::removeFromSettings()
 
 bool ApiInfo::loadFromSettings()
 {
-    Q_ASSERT(threadId_ == QThread::currentThreadId());
+    /*Q_ASSERT(threadId_ == QThread::currentThreadId());
     QSettings settings;
     QString s = settings.value("apiInfo", "").toString();
     if (!s.isEmpty())
@@ -203,7 +203,7 @@ bool ApiInfo::loadFromSettings()
         sessionStatus_.setRevisionHash(settings.value("revisionHash", "").toString());
         return true;
     }
-    else
+    else*/
     {
         return false;
     }

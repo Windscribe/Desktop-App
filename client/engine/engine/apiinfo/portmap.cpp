@@ -36,41 +36,6 @@ bool PortMap::initFromJson(const QJsonArray &jsonArray)
     return true;
 }
 
-void PortMap::initFromProtoBuf(const ProtoApiInfo::PortMap &portMap)
-{
-    d->items_.clear();
-    for (int i = 0; i < portMap.items_size(); ++i)
-    {
-        PortItem pi;
-        pi.protocol = portMap.items(i).protocol();
-        pi.heading = QString::fromStdString(portMap.items(i).heading());
-        pi.use = QString::fromStdString(portMap.items(i).use());
-        for (int p = 0; p < portMap.items(i).ports_size(); ++p)
-        {
-            pi.ports << portMap.items(i).ports(p);
-        }
-        d->items_ << pi;
-    }
-}
-
-ProtoApiInfo::PortMap PortMap::getProtoBuf() const
-{
-    ProtoApiInfo::PortMap pm;
-    for (const PortItem &pi : d->items_)
-    {
-        ProtoApiInfo::PortMapItem *pmi = pm.add_items();
-        pmi->set_protocol(pi.protocol.convertToProtobuf());
-        pmi->set_heading(pi.heading.toStdString());
-        pmi->set_use(pi.use.toStdString());
-
-        for (auto port : pi.ports)
-        {
-            pmi->add_ports(port);
-        }
-    }
-    return pm;
-}
-
 int PortMap::getPortItemCount() const
 {
     return d->items_.count();

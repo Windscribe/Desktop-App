@@ -49,7 +49,6 @@ public:
     Notification(const Notification &other) : d (other.d) {}
 
     bool initFromJson(const QJsonObject &json);
-    ProtoTypes::ApiNotification getProtoBuf() const;
 
 private:
     QSharedDataPointer<NotificationData> d;

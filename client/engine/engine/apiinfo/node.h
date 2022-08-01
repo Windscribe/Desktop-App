@@ -4,7 +4,6 @@
 #include <QJsonObject>
 #include <QSharedDataPointer>
 #include <QStringList>
-#include "utils/protobuf_includes.h"
 
 namespace apiinfo {
 
@@ -44,8 +43,6 @@ public:
     Node(const Node &other) : d (other.d) { }
 
     bool initFromJson(QJsonObject &obj);
-    void initFromProtoBuf(const ProtoApiInfo::Node &n);
-    ProtoApiInfo::Node getProtoBuf() const;
 
     QString getHostname() const;
     bool isForceDisconnect() const;

@@ -56,8 +56,6 @@ public:
     Group(const Group &other) : d (other.d) {}
 
     bool initFromJson(QJsonObject &obj, QStringList &forceDisconnectNodes);
-    void initFromProtoBuf(const ProtoApiInfo::Group &g);
-    ProtoApiInfo::Group getProtoBuf() const;
 
     int getId() const { Q_ASSERT(d->isValid_); return d->id_; }
     QString getCity() const { Q_ASSERT(d->isValid_); return d->city_; }

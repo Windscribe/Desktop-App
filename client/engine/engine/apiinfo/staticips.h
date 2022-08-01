@@ -4,7 +4,6 @@
 #include <QSharedPointer>
 #include <QString>
 #include <QVector>
-#include "utils/protobuf_includes.h"
 
 namespace apiinfo {
 
@@ -112,8 +111,6 @@ public:
     StaticIps(const StaticIps &other) : d (other.d) {}
 
     bool initFromJson(QJsonObject &obj);
-    void initFromProtoBuf(const ProtoApiInfo::StaticIps &staticIps);
-    ProtoApiInfo::StaticIps getProtoBuf() const;
 
     const QString &getDeviceName() const { return d->deviceName_; }
     int getIpsCount() const { return d->ips_.count(); }
