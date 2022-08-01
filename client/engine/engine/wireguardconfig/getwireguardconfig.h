@@ -2,7 +2,7 @@
 #define GETWIREGUARDCONFIG_H
 
 #include <QObject>
-#include "engine/types/types.h"
+#include "types/enums.h"
 #include "wireguardconfig.h"
 #include "utils/simplecrypt.h"
 

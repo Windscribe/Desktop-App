@@ -75,11 +75,11 @@ bool EngineServer::handleCommand(IPC::Command *command)
             connect(engine_, SIGNAL(firewallStateChanged(bool)), SLOT(onEngineFirewallStateChanged(bool)));
             connect(engine_, &Engine::loginFinished, this, &EngineServer::onEngineLoginFinished);
             connect(engine_, SIGNAL(loginStepMessage(LOGIN_MESSAGE)), SLOT(onEngineLoginMessage(LOGIN_MESSAGE)));
-            connect(engine_, SIGNAL(notificationsUpdated(QVector<apiinfo::Notification>)), SLOT(onEngineNotificationsUpdated(QVector<apiinfo::Notification>)));
-            connect(engine_, SIGNAL(checkUpdateUpdated(apiinfo::CheckUpdate)), SLOT(onEngineCheckUpdateUpdated(apiinfo::CheckUpdate)));
+            connect(engine_, SIGNAL(notificationsUpdated(QVector<types::Notification>)), SLOT(onEngineNotificationsUpdated(QVector<types::Notification>)));
+            connect(engine_, SIGNAL(checkUpdateUpdated(types::CheckUpdate)), SLOT(onEngineCheckUpdateUpdated(types::CheckUpdate)));
             connect(engine_, SIGNAL(updateVersionChanged(uint, ProtoTypes::UpdateVersionState, ProtoTypes::UpdateVersionError)), SLOT(onEngineUpdateVersionChanged(uint, ProtoTypes::UpdateVersionState, ProtoTypes::UpdateVersionError)));
             connect(engine_, SIGNAL(myIpUpdated(QString,bool,bool)), SLOT(onEngineMyIpUpdated(QString,bool,bool)));
-            connect(engine_, SIGNAL(sessionStatusUpdated(apiinfo::SessionStatus)), SLOT(onEngineUpdateSessionStatus(apiinfo::SessionStatus)));
+            connect(engine_, SIGNAL(sessionStatusUpdated(types::SessionStatus)), SLOT(onEngineUpdateSessionStatus(types::SessionStatus)));
             connect(engine_, SIGNAL(sessionDeleted()), SLOT(onEngineSessionDeleted()));
             connect(engine_->getConnectStateController(), SIGNAL(stateChanged(CONNECT_STATE, DISCONNECT_REASON, ProtoTypes::ConnectError, LocationID)),
                     SLOT(onEngineConnectStateChanged(CONNECT_STATE, DISCONNECT_REASON, ProtoTypes::ConnectError, LocationID)));
@@ -596,7 +596,7 @@ void EngineServer::onEngineFirewallStateChanged(bool isEnabled)
     sendFirewallStateChanged(isEnabled);
 }
 
-void EngineServer::onEngineLoginFinished(bool isLoginFromSavedSettings, const QString &authHash, const apiinfo::PortMap &portMap)
+void EngineServer::onEngineLoginFinished(bool isLoginFromSavedSettings, const QString &authHash, const types::PortMap &portMap)
 {
     IPC::ProtobufCommand<IPCServerCommands::LoginFinished> cmd;
     cmd.getProtoObj().set_is_login_from_saved_settings(isLoginFromSavedSettings);
@@ -606,7 +606,7 @@ void EngineServer::onEngineLoginFinished(bool isLoginFromSavedSettings, const QS
     ProtoTypes::ArrayPortMap arrPortMap;
     for (int i = 0; i < portMap.getPortItemCount(); ++i)
     {
-        const apiinfo::PortItem *portItem = portMap.getPortItemByIndex(i);
+        const types::PortItem *portItem = portMap.getPortItemByIndex(i);
         ProtoTypes::PortMapItem pmi;
         pmi.set_protocol(portItem->protocol.convertToProtobuf());
         pmi.set_heading(portItem->heading.toStdString());
@@ -659,25 +659,25 @@ void EngineServer::onEngineSessionDeleted()
     sendCmdToAllAuthorizedAndGetStateClients(&cmd, true);
 }
 
-void EngineServer::onEngineUpdateSessionStatus(const apiinfo::SessionStatus &sessionStatus)
+void EngineServer::onEngineUpdateSessionStatus(const types::SessionStatus &sessionStatus)
 {
     IPC::ProtobufCommand<IPCServerCommands::SessionStatusUpdated> cmd;
     *cmd.getProtoObj().mutable_session_status() = sessionStatus.getProtoBuf();
     sendCmdToAllAuthorizedAndGetStateClients(&cmd, false);
 }
 
-void EngineServer::onEngineNotificationsUpdated(const QVector<apiinfo::Notification> &notifications)
+void EngineServer::onEngineNotificationsUpdated(const QVector<types::Notification> &notifications)
 {
     IPC::ProtobufCommand<IPCServerCommands::NotificationsUpdated> cmd;
 
-    for (const apiinfo::Notification &n : notifications)
+    for (const types::Notification &n : notifications)
     {
         *cmd.getProtoObj().mutable_array_notifications()->add_api_notifications() = n.getProtoBuf();
     }
     sendCmdToAllAuthorizedAndGetStateClients(&cmd, false);
 }
 
-void EngineServer::onEngineCheckUpdateUpdated(const apiinfo::CheckUpdate &checkUpdate)
+void EngineServer::onEngineCheckUpdateUpdated(const types::CheckUpdate &checkUpdate)
 {
     IPC::ProtobufCommand<IPCServerCommands::CheckUpdateInfoUpdated> cmd;
     *cmd.getProtoObj().mutable_check_update_info() = checkUpdate.getProtoBuf();

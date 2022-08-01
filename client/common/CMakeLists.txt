@@ -18,6 +18,8 @@ set(PROJECT_SOURCES
     ${COMMON_PATH}/ipc/command.h
     ${COMMON_PATH}/ipc/commandfactory.cpp
     ${COMMON_PATH}/ipc/commandfactory.h
+    ${COMMON_PATH}/ipc/commands.cpp
+    ${COMMON_PATH}/ipc/commands.h
     ${COMMON_PATH}/ipc/connection.cpp
     ${COMMON_PATH}/ipc/connection.h
     ${COMMON_PATH}/ipc/generated_proto/apiinfo.pb.cc
@@ -36,10 +38,41 @@ set(PROJECT_SOURCES
     ${COMMON_PATH}/ipc/server.cpp
     ${COMMON_PATH}/ipc/server.h
     ${COMMON_PATH}/names.h
+    ${COMMON_PATH}/types/checkupdate.cpp
+    ${COMMON_PATH}/types/checkupdate.h
+    ${COMMON_PATH}/types/connectionsettings.cpp
+    ${COMMON_PATH}/types/connectionsettings.h
+    ${COMMON_PATH}/types/dnsresolutionsettings.cpp
+    ${COMMON_PATH}/types/dnsresolutionsettings.h
+    ${COMMON_PATH}/types/enums.cpp
+    ${COMMON_PATH}/types/enums.h
+    ${COMMON_PATH}/types/group.cpp
+    ${COMMON_PATH}/types/group.h
+    ${COMMON_PATH}/types/location.cpp
+    ${COMMON_PATH}/types/location.h
     ${COMMON_PATH}/types/locationid.cpp
     ${COMMON_PATH}/types/locationid.h
+    ${COMMON_PATH}/types/loginsettings.cpp
+    ${COMMON_PATH}/types/loginsettings.h
+    ${COMMON_PATH}/types/proxysettings.cpp
+    ${COMMON_PATH}/types/proxysettings.h
+    ${COMMON_PATH}/types/node.cpp
+    ${COMMON_PATH}/types/node.h
+    ${COMMON_PATH}/types/notification.cpp
+    ${COMMON_PATH}/types/notification.h
     ${COMMON_PATH}/types/pingtime.cpp
     ${COMMON_PATH}/types/pingtime.h
+    ${COMMON_PATH}/types/portmap.cpp
+    ${COMMON_PATH}/types/portmap.h
+    ${COMMON_PATH}/types/protocoltype.cpp
+    ${COMMON_PATH}/types/protocoltype.h
+    ${COMMON_PATH}/types/servercredentials.cpp
+    ${COMMON_PATH}/types/servercredentials.h
+    ${COMMON_PATH}/types/sessionstatus.cpp
+    ${COMMON_PATH}/types/sessionstatus.h
+    ${COMMON_PATH}/types/staticips.cpp
+    ${COMMON_PATH}/types/staticips.h
+    ${COMMON_PATH}/types/wireguardtypes.h
     ${COMMON_PATH}/utils/clean_sensitive_info.cpp
     ${COMMON_PATH}/utils/clean_sensitive_info.h
     ${COMMON_PATH}/utils/executable_signature/executable_signature.cpp

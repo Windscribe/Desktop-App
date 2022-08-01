@@ -9,7 +9,7 @@ class AutoConnSettingsPolicy : public BaseConnSettingsPolicy
 {
     Q_OBJECT
 public:
-    AutoConnSettingsPolicy(QSharedPointer<locationsmodel::BaseLocationInfo> bli, const apiinfo::PortMap &portMap, bool isProxyEnabled);
+    AutoConnSettingsPolicy(QSharedPointer<locationsmodel::BaseLocationInfo> bli, const types::PortMap &portMap, bool isProxyEnabled);
 
     void reset() override;
     void debugLocationInfoToLog() const override;
@@ -23,7 +23,7 @@ public:
 private:
     struct AttemptInfo
     {
-        ProtocolType protocol;
+        types::ProtocolType protocol;
         int portMapInd;
         bool changeNode;
     };
@@ -35,10 +35,10 @@ private:
     static const int MAX_IKEV2_FAILED_ATTEMPTS = 5;
 
     QSharedPointer<locationsmodel::MutableLocationInfo> locationInfo_;
-    apiinfo::PortMap portMap_;
+    types::PortMap portMap_;
     bool bIsAllFailed_;
 
-    static bool sortPortMapFunction(const apiinfo::PortItem &p1, const apiinfo::PortItem &p2);
+    static bool sortPortMapFunction(const types::PortItem &p1, const types::PortItem &p2);
 };
 
 #endif // AUTOCONNSETTINGSPOLICY_H

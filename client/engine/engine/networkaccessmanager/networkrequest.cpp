@@ -64,12 +64,12 @@ bool NetworkRequest::isIgnoreSslErrors() const
     return bIgnoreSslErrors_;
 }
 
-void NetworkRequest::setProxySettings(const ProxySettings &proxySettings)
+void NetworkRequest::setProxySettings(const types::ProxySettings &proxySettings)
 {
     proxySettings_ = proxySettings;
 }
 
-const ProxySettings &NetworkRequest::proxySettings() const
+const types::ProxySettings &NetworkRequest::proxySettings() const
 {
     return proxySettings_;
 }

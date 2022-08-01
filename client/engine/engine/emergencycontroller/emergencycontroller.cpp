@@ -47,7 +47,7 @@ EmergencyController::~EmergencyController()
     SAFE_DELETE(makeOVPNFile_);
 }
 
-void EmergencyController::clickConnect(const ProxySettings &proxySettings)
+void EmergencyController::clickConnect(const types::ProxySettings &proxySettings)
 {
     Q_ASSERT(state_ == STATE_DISCONNECTED);
     state_= STATE_CONNECTING_FROM_USER_CLICK;

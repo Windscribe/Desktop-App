@@ -3,7 +3,7 @@
 
 ManualConnSettingsPolicy::ManualConnSettingsPolicy(
     QSharedPointer<locationsmodel::BaseLocationInfo> bli,
-    const ConnectionSettings &connectionSettings, const apiinfo::PortMap &portMap) :
+    const types::ConnectionSettings &connectionSettings, const types::PortMap &portMap) :
         locationInfo_(qSharedPointerDynamicCast<locationsmodel::MutableLocationInfo>(bli)),
         portMap_(portMap), connectionSettings_(connectionSettings), failedManualModeCounter_(0)
 {
@@ -77,7 +77,7 @@ CurrentConnectionDescr ManualConnSettingsPolicy::getCurrentConnectionSettings() 
             ccd.staticIpPorts = locationInfo_->getStaticIpPorts();
 
             // for static ip with wireguard protocol override id to wg_ip
-            if (ccd.protocol.getType() == ProtocolType::PROTOCOL_WIREGUARD )
+            if (ccd.protocol.getType() == types::ProtocolType::PROTOCOL_WIREGUARD )
             {
                 ccd.ip = locationInfo_->getWgIpForSelectedNode();
             }

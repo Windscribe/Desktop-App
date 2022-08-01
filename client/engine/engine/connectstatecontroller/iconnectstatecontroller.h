@@ -3,7 +3,7 @@
 
 #include <QObject>
 #include <QTimer>
-#include "engine/types/types.h"
+#include "types/enums.h"
 #include "types/locationid.h"
 
 class IConnectStateController : public QObject

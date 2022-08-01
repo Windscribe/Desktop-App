@@ -154,7 +154,7 @@ void Engine::loginWithAuthHash(const QString &authHash)
 
     {
         QMutexLocker lockerLoginSettings(&loginSettingsMutex_);
-        loginSettings_ = LoginSettings(authHash);
+        loginSettings_ = types::LoginSettings(authHash);
     }
     loginState_ = LOGIN_IN_PROGRESS;
     QMetaObject::invokeMethod(this, "loginImpl", Q_ARG(bool, false));
@@ -168,7 +168,7 @@ void Engine::loginWithUsernameAndPassword(const QString &username, const QString
 
     {
         QMutexLocker lockerLoginSettings(&loginSettingsMutex_);
-        loginSettings_ = LoginSettings(username, password, code2fa);
+        loginSettings_ = types::LoginSettings(username, password, code2fa);
     }
     loginState_ = LOGIN_IN_PROGRESS;
     QMetaObject::invokeMethod(this, "loginImpl", Q_ARG(bool, false));
@@ -252,7 +252,7 @@ void Engine::getWebSessionToken(ProtoTypes::WebSessionPurpose purpose)
     QMetaObject::invokeMethod(this, "getWebSessionTokenImpl", Q_ARG(ProtoTypes::WebSessionPurpose, purpose));
 }
 
-LoginSettings Engine::getLastLoginSettings()
+types::LoginSettings Engine::getLastLoginSettings()
 {
     QMutexLocker lockerLoginSettings(&loginSettingsMutex_);
     return loginSettings_;
@@ -641,18 +641,18 @@ void Engine::initPart2()
 
     serverAPI_ = new ServerAPI(this, connectStateController_);
     connect(serverAPI_, &ServerAPI::sessionAnswer, this, &Engine::onSessionAnswer, Qt::QueuedConnection);
-    connect(serverAPI_, SIGNAL(checkUpdateAnswer(apiinfo::CheckUpdate,bool,uint)),
-                        SLOT(onCheckUpdateAnswer(apiinfo::CheckUpdate,bool,uint)), Qt::QueuedConnection);
+    connect(serverAPI_, SIGNAL(checkUpdateAnswer(types::CheckUpdate,bool,uint)),
+                        SLOT(onCheckUpdateAnswer(types::CheckUpdate,bool,uint)), Qt::QueuedConnection);
     connect(serverAPI_, SIGNAL(hostIpsChanged(QStringList)), SLOT(onHostIPsChanged(QStringList)));
-    connect(serverAPI_, SIGNAL(notificationsAnswer(SERVER_API_RET_CODE,QVector<apiinfo::Notification>,uint)),
-                        SLOT(onNotificationsAnswer(SERVER_API_RET_CODE,QVector<apiinfo::Notification>,uint)));
+    connect(serverAPI_, SIGNAL(notificationsAnswer(SERVER_API_RET_CODE,QVector<types::Notification>,uint)),
+                        SLOT(onNotificationsAnswer(SERVER_API_RET_CODE,QVector<types::Notification>,uint)));
     connect(serverAPI_, SIGNAL(serverConfigsAnswer(SERVER_API_RET_CODE,QString,uint)), SLOT(onServerConfigsAnswer(SERVER_API_RET_CODE,QString,uint)));
     connect(serverAPI_, SIGNAL(debugLogAnswer(SERVER_API_RET_CODE,uint)), SLOT(onDebugLogAnswer(SERVER_API_RET_CODE,uint)));
     connect(serverAPI_, SIGNAL(confirmEmailAnswer(SERVER_API_RET_CODE,uint)), SLOT(onConfirmEmailAnswer(SERVER_API_RET_CODE,uint)));
     connect(serverAPI_, SIGNAL(webSessionAnswer(SERVER_API_RET_CODE, QString, uint)), SLOT(onWebSessionAnswer(SERVER_API_RET_CODE, QString, uint)));
-    connect(serverAPI_, SIGNAL(staticIpsAnswer(SERVER_API_RET_CODE,apiinfo::StaticIps, uint)), SLOT(onStaticIpsAnswer(SERVER_API_RET_CODE,apiinfo::StaticIps, uint)), Qt::QueuedConnection);
-    connect(serverAPI_, SIGNAL(serverLocationsAnswer(SERVER_API_RET_CODE, QVector<apiinfo::Location>,QStringList, uint)),
-                        SLOT(onServerLocationsAnswer(SERVER_API_RET_CODE,QVector<apiinfo::Location>,QStringList, uint)), Qt::QueuedConnection);
+    connect(serverAPI_, SIGNAL(staticIpsAnswer(SERVER_API_RET_CODE,types::StaticIps, uint)), SLOT(onStaticIpsAnswer(SERVER_API_RET_CODE,types::StaticIps, uint)), Qt::QueuedConnection);
+    connect(serverAPI_, SIGNAL(serverLocationsAnswer(SERVER_API_RET_CODE, QVector<types::Location>,QStringList, uint)),
+                        SLOT(onServerLocationsAnswer(SERVER_API_RET_CODE,QVector<types::Location>,QStringList, uint)), Qt::QueuedConnection);
     connect(serverAPI_, SIGNAL(sendUserWarning(ProtoTypes::UserWarningType)), SIGNAL(sendUserWarning(ProtoTypes::UserWarningType)));
 
     serverAPI_->setIgnoreSslErrors(engineSettings_.isIgnoreSslErrors());
@@ -764,7 +764,7 @@ void Engine::onInitializeHelper(INIT_HELPER_RET ret)
 #endif
 
     // turn off split tunneling (for case the state remains from the last launch)
-    helper_->sendConnectStatus(false, engineSettings_.isCloseTcpSockets(), engineSettings_.isAllowLanTraffic(), AdapterGatewayInfo(), AdapterGatewayInfo(), QString(), ProtocolType());
+    helper_->sendConnectStatus(false, engineSettings_.isCloseTcpSockets(), engineSettings_.isAllowLanTraffic(), AdapterGatewayInfo(), AdapterGatewayInfo(), QString(), types::ProtocolType());
     helper_->setSplitTunnelingSettings(false, false, false, QStringList(), QStringList(), QStringList());
 
 
@@ -866,7 +866,7 @@ void Engine::cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool is
     // turn off split tunneling
     if (helper_)
     {
-        helper_->sendConnectStatus(false, engineSettings_.isCloseTcpSockets(), engineSettings_.isAllowLanTraffic(), AdapterGatewayInfo(), AdapterGatewayInfo(), QString(), ProtocolType());
+        helper_->sendConnectStatus(false, engineSettings_.isCloseTcpSockets(), engineSettings_.isAllowLanTraffic(), AdapterGatewayInfo(), AdapterGatewayInfo(), QString(), types::ProtocolType());
         helper_->setSplitTunnelingSettings(false, false, false, QStringList(), QStringList(), QStringList());
     }
 
@@ -979,7 +979,7 @@ void Engine::clearCredentialsImpl()
 {
     if (!apiInfo_.isNull())
     {
-        apiInfo_->setServerCredentials(apiinfo::ServerCredentials());
+        apiInfo_->setServerCredentials(types::ServerCredentials());
     }
 }
 
@@ -1324,7 +1324,7 @@ void Engine::setSettingsImpl(const EngineSettings &engineSettings)
     {
         if (!apiInfo_.isNull())
         {
-            apiinfo::SessionStatus ss = apiInfo_->getSessionStatus();
+            types::SessionStatus ss = apiInfo_->getSessionStatus();
             if (isLanguageChanged)
             {
                 qCDebug(LOG_BASIC) << "Language changed -> update server locations";
@@ -1520,7 +1520,7 @@ void Engine::onLoginControllerStepMessage(LOGIN_MESSAGE msg)
     Q_EMIT loginStepMessage(msg);
 }
 
-void Engine::onServerLocationsAnswer(SERVER_API_RET_CODE retCode, const QVector<apiinfo::Location> &serverLocations, QStringList forceDisconnectNodes, uint userRole)
+void Engine::onServerLocationsAnswer(SERVER_API_RET_CODE retCode, const QVector<types::Location> &serverLocations, QStringList forceDisconnectNodes, uint userRole)
 {
     if (userRole == serverApiUserRole_)
     {
@@ -1544,7 +1544,7 @@ void Engine::onServerLocationsAnswer(SERVER_API_RET_CODE retCode, const QVector<
     }
 }
 
-void Engine::onSessionAnswer(SERVER_API_RET_CODE retCode, const apiinfo::SessionStatus &sessionStatus, uint userRole)
+void Engine::onSessionAnswer(SERVER_API_RET_CODE retCode, const types::SessionStatus &sessionStatus, uint userRole)
 {
     if (userRole == serverApiUserRole_)
     {
@@ -1561,7 +1561,7 @@ void Engine::onSessionAnswer(SERVER_API_RET_CODE retCode, const apiinfo::Session
      }
 }
 
-void Engine::onNotificationsAnswer(SERVER_API_RET_CODE retCode, const QVector<apiinfo::Notification> &notifications, uint userRole)
+void Engine::onNotificationsAnswer(SERVER_API_RET_CODE retCode, const QVector<types::Notification> &notifications, uint userRole)
 {
     if (userRole == serverApiUserRole_)
     {
@@ -1589,7 +1589,7 @@ void Engine::onServerConfigsAnswer(SERVER_API_RET_CODE retCode, const QString &c
     }
 }
 
-void Engine::onCheckUpdateAnswer(const apiinfo::CheckUpdate &checkUpdate, bool bNetworkErrorOccured, uint userRole)
+void Engine::onCheckUpdateAnswer(const types::CheckUpdate &checkUpdate, bool bNetworkErrorOccured, uint userRole)
 {
     qCDebug(LOG_BASIC) << "Received Check Update Answer";
 
@@ -1661,7 +1661,7 @@ void Engine::onConfirmEmailAnswer(SERVER_API_RET_CODE retCode, uint userRole)
     }
 }
 
-void Engine::onStaticIpsAnswer(SERVER_API_RET_CODE retCode, const apiinfo::StaticIps &staticIps, uint userRole)
+void Engine::onStaticIpsAnswer(SERVER_API_RET_CODE retCode, const types::StaticIps &staticIps, uint userRole)
 {
     if (userRole == serverApiUserRole_)
     {
@@ -1705,7 +1705,7 @@ void Engine::onUpdateServerResources()
     {
         qCDebug(LOG_BASIC) << "24 hours have past, refreshing all server API resources.";
 
-        const apiinfo::SessionStatus ss = apiInfo_->getSessionStatus();
+        const types::SessionStatus ss = apiInfo_->getSessionStatus();
         const QString authHash = apiInfo_->getAuthHash();
         const bool isConnected = (connectStateController_->currentState() == CONNECT_STATE_CONNECTED);
         const bool isDisconnected = (connectStateController_->currentState() == CONNECT_STATE_DISCONNECTED);
@@ -1713,11 +1713,11 @@ void Engine::onUpdateServerResources()
         if (isDisconnected || (isConnected && !connectionManager_->currentProtocol().isOpenVpnProtocol()))
         {
             serverAPI_->serverConfigs(authHash, serverApiUserRole_, true);
-            serverAPI_->serverCredentials(authHash, serverApiUserRole_, ProtocolType(ProtocolType::PROTOCOL_OPENVPN_UDP), true);
+            serverAPI_->serverCredentials(authHash, serverApiUserRole_, types::ProtocolType::PROTOCOL_OPENVPN_UDP, true);
         }
 
         if (isDisconnected || (isConnected && !connectionManager_->currentProtocol().isIkev2Protocol())) {
-            serverAPI_->serverCredentials(authHash, serverApiUserRole_, ProtocolType(ProtocolType::PROTOCOL_IKEV2), true);
+            serverAPI_->serverCredentials(authHash, serverApiUserRole_, types::ProtocolType::PROTOCOL_IKEV2, true);
         }
 
         serverAPI_->serverLocations(authHash, engineSettings_.language(), serverApiUserRole_, true, ss.getRevisionHash(), ss.isPro(),
@@ -2434,7 +2434,7 @@ void Engine::onEmergencyControllerError(ProtoTypes::ConnectError err)
     Q_EMIT emergencyConnectError(err);
 }
 
-void Engine::onRefetchServerCredentialsFinished(bool success, const apiinfo::ServerCredentials &serverCredentials, const QString &serverConfig)
+void Engine::onRefetchServerCredentialsFinished(bool success, const types::ServerCredentials &serverCredentials, const QString &serverConfig)
 {
     bool bFromAuthError = refetchServerCredentialsHelper_->property("fromAuthError").isValid();
     refetchServerCredentialsHelper_->deleteLater();
@@ -2658,7 +2658,7 @@ void Engine::setSplitTunnelingSettingsImpl(bool isActive, bool isExclude, const 
                                        files, ips, hosts);
 }
 
-void Engine::startLoginController(const LoginSettings &loginSettings, bool bFromConnectedState)
+void Engine::startLoginController(const types::LoginSettings &loginSettings, bool bFromConnectedState)
 {
     Q_ASSERT(loginController_ == NULL);
     Q_ASSERT(loginState_ == LOGIN_IN_PROGRESS);
@@ -2673,7 +2673,7 @@ void Engine::updateSessionStatus()
 {
     if (!apiInfo_.isNull())
     {
-        apiinfo::SessionStatus ss = apiInfo_->getSessionStatus();
+        types::SessionStatus ss = apiInfo_->getSessionStatus();
 
         if (ss.isChangedForLogging(prevSessionForLogging_))
         {
@@ -2704,7 +2704,7 @@ void Engine::updateSessionStatus()
             else
             {
                 // set empty list of static ips
-                apiInfo_->setStaticIps(apiinfo::StaticIps());
+                apiInfo_->setStaticIps(types::StaticIps());
                 updateServerLocations();
             }
         }
@@ -2872,8 +2872,8 @@ void Engine::doConnect(bool bEmitAuthError)
     {
         qCDebug(LOG_BASIC) << "Connecting to" << locationName_;
 
-        connectionManager_->clickConnect("", apiinfo::ServerCredentials(), bli,
-            engineSettings_.connectionSettings(), apiinfo::PortMap(),
+        connectionManager_->clickConnect("", types::ServerCredentials(), bli,
+            engineSettings_.connectionSettings(), types::PortMap(),
             ProxyServerController::instance().getCurrentProxySettings(), bEmitAuthError, engineSettings_.getCustomOvpnConfigsPath());
     }
 }
@@ -2954,7 +2954,7 @@ void Engine::onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON /*reas
     {
         if (state != CONNECT_STATE_CONNECTED)
         {
-            helper_->sendConnectStatus(false, engineSettings_.isCloseTcpSockets(), engineSettings_.isAllowLanTraffic(), AdapterGatewayInfo(), AdapterGatewayInfo(), QString(), ProtocolType());
+            helper_->sendConnectStatus(false, engineSettings_.isCloseTcpSockets(), engineSettings_.isAllowLanTraffic(), AdapterGatewayInfo(), AdapterGatewayInfo(), QString(), types::ProtocolType());
         }
     }
 }

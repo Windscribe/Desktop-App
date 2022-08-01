@@ -36,7 +36,7 @@ void RefetchServerCredentialsHelper::putFail()
     }
     else
     {
-        emit finished(false, apiinfo::ServerCredentials(), QString());
+        emit finished(false, types::ServerCredentials(), QString());
     }
     refetchServerCredentialsState_++;
 }
@@ -50,7 +50,8 @@ void RefetchServerCredentialsHelper::onTimerWaitServerAPIReady()
     }
 }
 
-void RefetchServerCredentialsHelper::onServerCredentialsAnswer(SERVER_API_RET_CODE retCode, const QString &radiusUsername, const QString &radiusPassword, ProtocolType protocol, uint userRole)
+void RefetchServerCredentialsHelper::onServerCredentialsAnswer(SERVER_API_RET_CODE retCode, const QString &radiusUsername, const QString &radiusPassword,
+                                                               types::ProtocolType protocol, uint userRole)
 {
     if (userRole == serverApiUserRole_)
     {
@@ -104,8 +105,8 @@ void RefetchServerCredentialsHelper::fetchServerCredentials()
     radiusUsernameIkev2_.clear();
     serverConfig_.clear();
     serverAPI_->serverConfigs(authHash_, serverApiUserRole_, true);
-    serverAPI_->serverCredentials(authHash_, serverApiUserRole_, ProtocolType(ProtocolType::PROTOCOL_OPENVPN_UDP), true);
-    serverAPI_->serverCredentials(authHash_, serverApiUserRole_, ProtocolType(ProtocolType::PROTOCOL_IKEV2), true);
+    serverAPI_->serverCredentials(authHash_, serverApiUserRole_, types::ProtocolType::PROTOCOL_OPENVPN_UDP, true);
+    serverAPI_->serverCredentials(authHash_, serverApiUserRole_, types::ProtocolType::PROTOCOL_IKEV2, true);
 }
 
 void RefetchServerCredentialsHelper::checkFinished()
@@ -119,7 +120,7 @@ void RefetchServerCredentialsHelper::checkFinished()
             if (!radiusUsernameOpenVpn_.isEmpty() && !radiusPasswordOpenVpn_.isEmpty() &&
                 !radiusUsernameIkev2_.isEmpty() && !radiusPasswordIkev2_.isEmpty() && !serverConfig_.isEmpty())
             {
-                emit finished(true, apiinfo::ServerCredentials(radiusUsernameOpenVpn_, radiusPasswordOpenVpn_, radiusUsernameIkev2_, radiusPasswordIkev2_), serverConfig_);
+                emit finished(true, types::ServerCredentials(radiusUsernameOpenVpn_, radiusPasswordOpenVpn_, radiusUsernameIkev2_, radiusPasswordIkev2_), serverConfig_);
             }
             else
             {

@@ -42,7 +42,7 @@ void LocationsModel::forceSendLocationsToCli()
     apiLocationsModel_->generateLocationsUpdatedForCliOnly();
 }
 
-void LocationsModel::setApiLocations(const QVector<apiinfo::Location> &locations, const apiinfo::StaticIps &staticIps)
+void LocationsModel::setApiLocations(const QVector<types::Location> &locations, const types::StaticIps &staticIps)
 {
     apiLocationsModel_->setLocations(locations, staticIps);
 }
@@ -58,7 +58,7 @@ void LocationsModel::clear()
     customConfigLocationsModel_->clear();
 }
 
-void LocationsModel::setProxySettings(const ProxySettings &proxySettings)
+void LocationsModel::setProxySettings(const types::ProxySettings &proxySettings)
 {
     pingHost_->setProxySettings(proxySettings);
 }

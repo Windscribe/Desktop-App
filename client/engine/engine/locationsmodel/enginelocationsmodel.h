@@ -2,10 +2,10 @@
 #define ENGINELOCATIONSMODEL_H
 
 #include <QObject>
-#include "engine/apiinfo/location.h"
-#include "engine/apiinfo/staticips.h"
+#include "types/location.h"
+#include "types/staticips.h"
 #include "types/locationid.h"
-#include "engine/proxy/proxysettings.h"
+#include "types/proxysettings.h"
 #include "locationitem.h"
 #include "pingipscontroller.h"
 #include "pingstorage.h"
@@ -26,11 +26,11 @@ public:
     ~LocationsModel() override;
 
     void forceSendLocationsToCli();
-    void setApiLocations(const QVector<apiinfo::Location> &locations, const apiinfo::StaticIps &staticIps);
+    void setApiLocations(const QVector<types::Location> &locations, const types::StaticIps &staticIps);
     void setCustomConfigLocations(const QVector<QSharedPointer<const customconfigs::ICustomConfig>> &customConfigs);
     void clear();
 
-    void setProxySettings(const ProxySettings &proxySettings);
+    void setProxySettings(const types::ProxySettings &proxySettings);
     void disableProxy();
     void enableProxy();
 

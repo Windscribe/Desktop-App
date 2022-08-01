@@ -66,7 +66,7 @@ public:
     bool IPv6StateInOS();
     void getWebSessionToken(ProtoTypes::WebSessionPurpose purpose);
 
-    LoginSettings getLastLoginSettings();
+    types::LoginSettings getLastLoginSettings();
     QString getAuthHash();
     void clearCredentials();
 
@@ -131,13 +131,13 @@ signals:
     void initFinished(ENGINE_INIT_RET_CODE retCode);
     void bfeEnableFinished(ENGINE_INIT_RET_CODE retCode);
     void cleanupFinished();
-    void loginFinished(bool isLoginFromSavedSettings, const QString &authHash, const apiinfo::PortMap &portMap);
+    void loginFinished(bool isLoginFromSavedSettings, const QString &authHash, const types::PortMap &portMap);
     void loginStepMessage(LOGIN_MESSAGE msg);
     void loginError(LOGIN_RET retCode, const QString &errorMessage);
     void sessionDeleted();
-    void sessionStatusUpdated(const apiinfo::SessionStatus &sessionStatus);
-    void notificationsUpdated(const QVector<apiinfo::Notification> &notifications);
-    void checkUpdateUpdated(const apiinfo::CheckUpdate &checkUpdate);
+    void sessionStatusUpdated(const types::SessionStatus &sessionStatus);
+    void notificationsUpdated(const QVector<types::Notification> &notifications);
+    void checkUpdateUpdated(const types::CheckUpdate &checkUpdate);
     void updateVersionChanged(uint progressPercent, const ProtoTypes::UpdateVersionState &state, const ProtoTypes::UpdateVersionError &error);
     void myIpUpdated(const QString &ip, bool success, bool isDisconnected);
     void statisticsUpdated(quint64 bytesIn, quint64 bytesOut, bool isTotalBytes);
@@ -232,19 +232,19 @@ private slots:
     void onReadyForNetworkRequests();
     void onLoginControllerStepMessage(LOGIN_MESSAGE msg);
 
-    void onServerLocationsAnswer(SERVER_API_RET_CODE retCode, const QVector<apiinfo::Location> &serverLocations,
+    void onServerLocationsAnswer(SERVER_API_RET_CODE retCode, const QVector<types::Location> &serverLocations,
                                  QStringList forceDisconnectNodes, uint userRole);
 
-    void onSessionAnswer(SERVER_API_RET_CODE retCode, const apiinfo::SessionStatus &sessionStatus, uint userRole);
-    void onNotificationsAnswer(SERVER_API_RET_CODE retCode, const QVector<apiinfo::Notification> &notifications, uint userRole);
+    void onSessionAnswer(SERVER_API_RET_CODE retCode, const types::SessionStatus &sessionStatus, uint userRole);
+    void onNotificationsAnswer(SERVER_API_RET_CODE retCode, const QVector<types::Notification> &notifications, uint userRole);
     void onServerConfigsAnswer(SERVER_API_RET_CODE retCode, const QString &config, uint userRole);
-    void onCheckUpdateAnswer(const apiinfo::CheckUpdate &checkUpdate, bool bNetworkErrorOccured, uint userRole);
+    void onCheckUpdateAnswer(const types::CheckUpdate &checkUpdate, bool bNetworkErrorOccured, uint userRole);
     void onHostIPsChanged(const QStringList &hostIps);
     void onWhitelistedIPsChanged(const QSet<QString> &ips);
     void onMyIpAnswer(const QString &ip, bool success, bool isDisconnected);
     void onDebugLogAnswer(SERVER_API_RET_CODE retCode, uint userRole);
     void onConfirmEmailAnswer(SERVER_API_RET_CODE retCode, uint userRole);
-    void onStaticIpsAnswer(SERVER_API_RET_CODE retCode, const apiinfo::StaticIps &staticIps, uint userRole);
+    void onStaticIpsAnswer(SERVER_API_RET_CODE retCode, const types::StaticIps &staticIps, uint userRole);
     void onWebSessionAnswer(SERVER_API_RET_CODE retCode, const QString &token, uint userRole);
 
     void onUpdateServerResources();
@@ -282,7 +282,7 @@ private slots:
     void onEmergencyControllerDisconnected(DISCONNECT_REASON reason);
     void onEmergencyControllerError(ProtoTypes::ConnectError err);
 
-    void onRefetchServerCredentialsFinished(bool success, const apiinfo::ServerCredentials &serverCredentials, const QString &serverConfig);
+    void onRefetchServerCredentialsFinished(bool success, const types::ServerCredentials &serverCredentials, const QString &serverConfig);
 
     void getNewNotifications();
 
@@ -351,7 +351,7 @@ private:
     LOGIN_STATE loginState_;
     FirewallExceptions firewallExceptions_;
 
-    LoginSettings loginSettings_;
+    types::LoginSettings loginSettings_;
     QRecursiveMutex loginSettingsMutex_;
 
     QTimer *updateServerResourcesTimer_;
@@ -371,8 +371,8 @@ private:
 
     QMutex mutex_;
 
-    apiinfo::SessionStatus prevSessionStatus_;
-    apiinfo::SessionStatus prevSessionForLogging_;
+    types::SessionStatus prevSessionStatus_;
+    types::SessionStatus prevSessionForLogging_;
 
     std::atomic<bool> isBlockConnect_;
     std::atomic<bool> isCleanupFinished_;
@@ -394,7 +394,7 @@ private:
     enum {UPDATE_SERVER_RESOURCES_PERIOD = 24 * 60 * 60 * 1000}; // 24 hours
     enum {NOTIFICATIONS_UPDATE_PERIOD = 60 * 60 * 1000}; // 1 hour
 
-    void startLoginController(const LoginSettings &loginSettings, bool bFromConnectedState);
+    void startLoginController(const types::LoginSettings &loginSettings, bool bFromConnectedState);
     void updateSessionStatus();
     void updateServerLocations();
     void updateFirewallSettings();

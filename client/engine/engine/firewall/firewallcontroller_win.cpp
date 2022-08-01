@@ -50,7 +50,7 @@ bool FirewallController_win::firewallActualState()
     return helper_win_->firewallActualState();
 }
 
-bool FirewallController_win::whitelistPorts(const apiinfo::StaticIpPortsVector &ports)
+bool FirewallController_win::whitelistPorts(const types::StaticIpPortsVector &ports)
 {
     QMutexLocker locker(&mutex_);
     return helper_win_->whitelistPorts(ports.getAsStringWithDelimiters());

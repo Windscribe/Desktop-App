@@ -3,10 +3,10 @@
 
 #include <QHostInfo>
 #include <QObject>
-#include "engine/apiinfo/location.h"
-#include "engine/apiinfo/staticips.h"
+#include "types/location.h"
+#include "types/staticips.h"
 #include "types/locationid.h"
-#include "engine/proxy/proxysettings.h"
+#include "types/proxysettings.h"
 #include "locationitem.h"
 #include "pingipscontroller.h"
 #include "pingstorage.h"

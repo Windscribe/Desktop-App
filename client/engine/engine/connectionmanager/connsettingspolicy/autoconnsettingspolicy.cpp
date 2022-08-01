@@ -7,7 +7,7 @@
 int AutoConnSettingsPolicy::failedIkev2Counter_ = 0;
 
 AutoConnSettingsPolicy::AutoConnSettingsPolicy(QSharedPointer<locationsmodel::BaseLocationInfo> bli,
-                                               const apiinfo::PortMap &portMap, bool isProxyEnabled)
+                                               const types::PortMap &portMap, bool isProxyEnabled)
 {
     attemps_.clear();
     curAttempt_ = 0;
@@ -19,11 +19,11 @@ AutoConnSettingsPolicy::AutoConnSettingsPolicy(QSharedPointer<locationsmodel::Ba
     Q_ASSERT(!locationInfo_->locationId().isCustomConfigsLocation());
 
     // remove wstunnel and WireGuard protocols from portMap_ for automatic connection mode
-    QVector<apiinfo::PortItem>::iterator it = portMap_.items().begin();
+    QVector<types::PortItem>::iterator it = portMap_.items().begin();
     while (it != portMap_.items().end())
     {
-        if (it->protocol.getType() == ProtocolType::PROTOCOL_WSTUNNEL ||
-            it->protocol.getType() == ProtocolType::PROTOCOL_WIREGUARD)
+        if (it->protocol.getType() == types::ProtocolType::PROTOCOL_WSTUNNEL ||
+            it->protocol.getType() == types::ProtocolType::PROTOCOL_WIREGUARD)
         {
             it = portMap_.items().erase(it);
         }
@@ -36,7 +36,7 @@ AutoConnSettingsPolicy::AutoConnSettingsPolicy(QSharedPointer<locationsmodel::Ba
     // sort portmap protocols in the following order: ikev2, udp, tcp, stealth
     std::sort(portMap_.items().begin(), portMap_.items().end(), sortPortMapFunction);
 
-    ProtocolType lastSuccessProtocolSaved;
+    types::ProtocolType lastSuccessProtocolSaved;
     QSettings settings;
     if (settings.contains("successConnectionProtocol"))
     {
@@ -44,7 +44,7 @@ AutoConnSettingsPolicy::AutoConnSettingsPolicy(QSharedPointer<locationsmodel::Ba
         QDataStream stream(&arr, QIODevice::ReadOnly);
         QString strProtocol;
         stream >> strProtocol;
-        lastSuccessProtocolSaved = ProtocolType(strProtocol);
+        lastSuccessProtocolSaved = types::ProtocolType(strProtocol);
     }
 
 
@@ -52,7 +52,7 @@ AutoConnSettingsPolicy::AutoConnSettingsPolicy(QSharedPointer<locationsmodel::Ba
     for (int portMapInd = 0; portMapInd < portMap_.items().count(); ++portMapInd)
     {
         // skip udp protocol, if proxy enabled
-        if (isProxyEnabled && portMap_.items()[portMapInd].protocol.getType() == ProtocolType::PROTOCOL_OPENVPN_UDP)
+        if (isProxyEnabled && portMap_.items()[portMapInd].protocol.getType() == types::ProtocolType::PROTOCOL_OPENVPN_UDP)
         {
             continue;
         }
@@ -187,7 +187,7 @@ CurrentConnectionDescr AutoConnSettingsPolicy::getCurrentConnectionSettings() co
         ccd.staticIpPorts = locationInfo_->getStaticIpPorts();
 
         // for static ip with wireguard protocol override id to wg_ip
-        if (ccd.protocol.getType() == ProtocolType::PROTOCOL_WIREGUARD )
+        if (ccd.protocol.getType() == types::ProtocolType::PROTOCOL_WIREGUARD )
         {
             ccd.ip = locationInfo_->getWgIpForSelectedNode();
         }
@@ -229,15 +229,15 @@ void AutoConnSettingsPolicy::resolveHostnames()
 
 // sort portmap protocols in the following order: ikev2, udp, tcp, stealth
 // operator<
-bool AutoConnSettingsPolicy::sortPortMapFunction(const apiinfo::PortItem &p1, const apiinfo::PortItem &p2)
+bool AutoConnSettingsPolicy::sortPortMapFunction(const types::PortItem &p1, const types::PortItem &p2)
 {
-    if (p1.protocol.getType() == ProtocolType::PROTOCOL_IKEV2)
+    if (p1.protocol.getType() == types::ProtocolType::PROTOCOL_IKEV2)
     {
         return true;
     }
-    else if (p1.protocol.getType() == ProtocolType::PROTOCOL_OPENVPN_UDP)
+    else if (p1.protocol.getType() == types::ProtocolType::PROTOCOL_OPENVPN_UDP)
     {
-        if (p2.protocol.getType() == ProtocolType::PROTOCOL_IKEV2 || p2.protocol.getType() == ProtocolType::PROTOCOL_OPENVPN_UDP)
+        if (p2.protocol.getType() == types::ProtocolType::PROTOCOL_IKEV2 || p2.protocol.getType() == types::ProtocolType::PROTOCOL_OPENVPN_UDP)
         {
             return false;
         }
@@ -246,10 +246,10 @@ bool AutoConnSettingsPolicy::sortPortMapFunction(const apiinfo::PortItem &p1, co
             return true;
         }
     }
-    else if (p1.protocol.getType() == ProtocolType::PROTOCOL_OPENVPN_TCP)
+    else if (p1.protocol.getType() == types::ProtocolType::PROTOCOL_OPENVPN_TCP)
     {
-        if (p2.protocol.getType() == ProtocolType::PROTOCOL_IKEV2 || p2.protocol.getType() == ProtocolType::PROTOCOL_OPENVPN_UDP
-                || p2.protocol.getType() == ProtocolType::PROTOCOL_OPENVPN_TCP)
+        if (p2.protocol.getType() == types::ProtocolType::PROTOCOL_IKEV2 || p2.protocol.getType() == types::ProtocolType::PROTOCOL_OPENVPN_UDP
+                || p2.protocol.getType() == types::ProtocolType::PROTOCOL_OPENVPN_TCP)
         {
             return false;
         }
@@ -258,7 +258,7 @@ bool AutoConnSettingsPolicy::sortPortMapFunction(const apiinfo::PortItem &p1, co
             return true;
         }
     }
-    else if (p1.protocol.getType() == ProtocolType::PROTOCOL_STUNNEL)
+    else if (p1.protocol.getType() == types::ProtocolType::PROTOCOL_STUNNEL)
     {
         return false;
     }

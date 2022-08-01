@@ -1,0 +1,34 @@
+#ifndef TYPES_DNSRESOLUTIONSETTINGS_H
+#define TYPES_DNSRESOLUTIONSETTINGS_H
+
+#include <QString>
+#include "utils/protobuf_includes.h"
+
+namespace types {
+
+class DnsResolutionSettings
+{
+public:
+    DnsResolutionSettings();
+    explicit DnsResolutionSettings(const ProtoTypes::ApiResolution &d);
+
+    void set(bool bAutomatic, const QString &manualIp);
+
+    void debugToLog();
+    ProtoTypes::ApiResolution convertToProtobuf() const;
+
+    bool isEqual(const DnsResolutionSettings &other) const;
+
+    bool getIsAutomatic() const;
+    QString getManualIp() const;
+
+private:
+    bool isInitialized_;
+    bool isEmptyManualIp_;
+    bool bAutomatic_;
+    QString manualIp_;
+};
+
+} //namespace types
+
+#endif // TYPES_DNSRESOLUTIONSETTINGS_H

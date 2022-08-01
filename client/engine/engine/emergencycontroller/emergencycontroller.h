@@ -4,7 +4,7 @@
 #include <QHostInfo>
 #include <QObject>
 #include "engine/helper/ihelper.h"
-#include "engine/types/types.h"
+#include "types/enums.h"
 #include "engine/connectionmanager/iconnection.h"
 #include "engine/connectionmanager/makeovpnfile.h"
 
@@ -20,7 +20,7 @@ public:
     explicit EmergencyController(QObject *parent, IHelper *helper);
     virtual ~EmergencyController();
 
-    void clickConnect(const ProxySettings &proxySettings);
+    void clickConnect(const types::ProxySettings &proxySettings);
     void clickDisconnect();
     bool isDisconnected();
     void blockingDisconnect();
@@ -50,7 +50,7 @@ private:
     QByteArray ovpnConfig_;
     IConnection *connector_;
     MakeOVPNFile *makeOVPNFile_;
-    ProxySettings proxySettings_;
+    types::ProxySettings proxySettings_;
 
     struct CONNECT_ATTEMPT_INFO
     {

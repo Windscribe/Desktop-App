@@ -2,11 +2,11 @@
 #define ENGINESETTINGS_H
 
 #include <QString>
-#include "engine/types/protocoltype.h"
-#include "engine/types/types.h"
-#include "engine/types/connectionsettings.h"
-#include "engine/types/dnsresolutionsettings.h"
-#include "engine/proxy/proxysettings.h"
+#include "types/protocoltype.h"
+#include "types/enums.h"
+#include "types/connectionsettings.h"
+#include "types/dnsresolutionsettings.h"
+#include "types/proxysettings.h"
 #include "ipc/command.h"
 #include "utils/simplecrypt.h"
 
@@ -31,9 +31,9 @@ public:
     bool isCloseTcpSockets() const;
     bool isAllowLanTraffic() const;
     const ProtoTypes::FirewallSettings &firewallSettings() const;
-    ConnectionSettings connectionSettings() const;
-    DnsResolutionSettings dnsResolutionSettings() const;
-    ProxySettings proxySettings() const;
+    types::ConnectionSettings connectionSettings() const;
+    types::DnsResolutionSettings dnsResolutionSettings() const;
+    types::ProxySettings proxySettings() const;
     DNS_POLICY_TYPE getDnsPolicy() const;
     ProtoTypes::DnsManagerType getDnsManager() const;
     ProtoTypes::MacAddrSpoofing getMacAddrSpoofing() const;

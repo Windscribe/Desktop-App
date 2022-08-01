@@ -4,7 +4,7 @@
 #include "utils/crashhandler.h"
 #include "utils/logger.h"
 #include "utils/utils.h"
-#include "engine/types/types.h"
+#include "types/enums.h"
 #include "availableport.h"
 #include "engine/openvpnversioncontroller.h"
 #include "utils/ipvalidation.h"
@@ -30,7 +30,7 @@ OpenVPNConnection::~OpenVPNConnection()
 }
 
 void OpenVPNConnection::startConnect(const QString &configPathOrUrl, const QString &ip, const QString &dnsHostName, const QString &username, const QString &password,
-                                     const ProxySettings &proxySettings, const WireGuardConfig *wireGuardConfig, bool isEnableIkev2Compression, bool isAutomaticConnectionMode)
+                                     const types::ProxySettings &proxySettings, const WireGuardConfig *wireGuardConfig, bool isEnableIkev2Compression, bool isAutomaticConnectionMode)
 {
     Q_UNUSED(ip);
     Q_UNUSED(dnsHostName);
@@ -125,7 +125,7 @@ OpenVPNConnection::CONNECTION_STATUS OpenVPNConnection::getCurrentState() const
     return currentState_;
 }
 
-IHelper::ExecuteError OpenVPNConnection::runOpenVPN(unsigned int port, const ProxySettings &proxySettings, unsigned long &outCmdId)
+IHelper::ExecuteError OpenVPNConnection::runOpenVPN(unsigned int port, const types::ProxySettings &proxySettings, unsigned long &outCmdId)
 {
 #ifdef Q_OS_WIN
     QString httpProxy, socksProxy;

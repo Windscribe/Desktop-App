@@ -2,17 +2,17 @@
 #define COMMANDS_H
 
 #include "command.h"
+//#include "engine/
 
 namespace IPC
 {
 
-static const int CLIENT_CMD_ClientAuth = 0;
-
-class CommandFactory
+class Command_NotificationsUpdated : public Command
 {
-public:
-    static Command *makeCommand(const std::string strId, char *buf, int size);
+    //explicit Command_NotificationsUpdated(const apiinfo::Notification &n);
+
 };
+
 
 } // namespace IPC
 

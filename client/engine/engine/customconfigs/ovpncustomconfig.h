@@ -3,7 +3,6 @@
 
 #include <QVector>
 #include "icustomconfig.h"
-#include "engine/types/protocoltype.h"
 
 namespace customconfigs {
 

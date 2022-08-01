@@ -11,14 +11,14 @@
 
 #include "iconnection.h"
 #include "testvpntunnel.h"
-#include "engine/types/protocoltype.h"
+#include "types/protocoltype.h"
 #include "engine/wireguardconfig/wireguardconfig.h"
 #include "engine/wireguardconfig/getwireguardconfiginloop.h"
 #include "connsettingspolicy/baseconnsettingspolicy.h"
 #include "engine/customconfigs/customovpnauthcredentialsstorage.h"
-#include "engine/apiinfo/servercredentials.h"
+#include "types/servercredentials.h"
 #include "engine/locationsmodel/baselocationinfo.h"
-#include "engine/types/connectionsettings.h"
+#include "types/connectionsettings.h"
 
 #ifdef Q_OS_MAC
     #include "restorednsmanager_mac.h"
@@ -39,9 +39,9 @@ public:
                                ServerAPI *serverAPI, CustomOvpnAuthCredentialsStorage *customOvpnAuthCredentialsStorage);
     ~ConnectionManager() override;
 
-    void clickConnect(const QString &ovpnConfig, const apiinfo::ServerCredentials &serverCredentials,
+    void clickConnect(const QString &ovpnConfig, const types::ServerCredentials &serverCredentials,
                       QSharedPointer<locationsmodel::BaseLocationInfo> bli,
-                      const ConnectionSettings &connectionSettings, const apiinfo::PortMap &portMap, const ProxySettings &proxySettings,
+                      const types::ConnectionSettings &connectionSettings, const types::PortMap &portMap, const types::ProxySettings &proxySettings,
                       bool bEmitAuthError, const QString &customConfigPath);
 
     void clickDisconnect();
@@ -69,7 +69,7 @@ public:
     QString getCustomOvpnConfigFileName();
 
     bool isStaticIpsLocation() const;
-    apiinfo::StaticIpPortsVector getStatisIps();
+    types::StaticIpPortsVector getStatisIps();
 
     void onWireGuardKeyLimitUserResponse(bool deleteOldestKey);
 
@@ -79,7 +79,7 @@ public:
     void startTunnelTests();
     bool isAllowFirewallAfterConnection() const;
 
-    ProtocolType currentProtocol() const;
+    types::ProtocolType currentProtocol() const;
 
 signals:
     void connected();
@@ -149,8 +149,8 @@ private:
     QString lastIp_;
 
     QString lastOvpnConfig_;
-    apiinfo::ServerCredentials lastServerCredentials_;
-    ProxySettings lastProxySettings_;
+    types::ServerCredentials lastServerCredentials_;
+    types::ProxySettings lastProxySettings_;
     bool bEmitAuthError_;
 
     QString customConfigPath_;
@@ -173,7 +173,7 @@ private:
     bool bLastIsOnline_;
     bool bWakeSignalReceived_;
 
-    ProtocolType currentProtocol_;
+    types::ProtocolType currentProtocol_;
 
     CurrentConnectionDescr currentConnectionDescr_;
 
@@ -198,7 +198,7 @@ private:
     void doMacRestoreProcedures();
     void startReconnectionTimer();
     void waitForNetworkConnectivity();
-    void recreateConnector(ProtocolType protocol);
+    void recreateConnector(types::ProtocolType protocol);
     void restoreConnectionAfterWakeUp();
 };
 

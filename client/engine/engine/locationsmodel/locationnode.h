@@ -3,8 +3,8 @@
 
 #include <QObject>
 #include <QVector>
-#include "engine/apiinfo/node.h"
-#include "engine/apiinfo/staticips.h"
+#include "types/node.h"
+#include "types/staticips.h"
 
 namespace locationsmodel {
 
@@ -25,7 +25,7 @@ public:
     virtual QString getStaticIpDnsName() const { Q_ASSERT(false); return ""; }
     virtual QString getStaticIpUsername() const { Q_ASSERT(false); return ""; }
     virtual QString getStaticIpPassword() const { Q_ASSERT(false); return ""; }
-    virtual apiinfo::StaticIpPortsVector getStaticIpPorts() const { Q_ASSERT(false); return apiinfo::StaticIpPortsVector(); }
+    virtual types::StaticIpPortsVector getStaticIpPorts() const { Q_ASSERT(false); return types::StaticIpPortsVector(); }
 };
 
 
@@ -72,14 +72,14 @@ class StaticLocationNode : public ApiLocationNode
 {
 public:
     explicit StaticLocationNode(const QStringList &ips, const QString &hostname, const QString &wg_pubkey, const QString &wg_ip, const QString &dnsName,
-                                const QString &username, const QString &password, const apiinfo::StaticIpPortsVector &ipPortsVector) :
+                                const QString &username, const QString &password, const types::StaticIpPortsVector &ipPortsVector) :
             ApiLocationNode(ips, hostname, 1, wg_pubkey), dnsName_(dnsName), username_(username), password_(password), wg_ip_(wg_ip), ipPortsVector_(ipPortsVector) {}
     virtual ~StaticLocationNode() {}
 
     QString getStaticIpDnsName() const override { return dnsName_; }
     QString getStaticIpUsername() const override { return username_; }
     QString getStaticIpPassword() const override { return password_; }
-    apiinfo::StaticIpPortsVector getStaticIpPorts() const override { return ipPortsVector_; }
+    types::StaticIpPortsVector getStaticIpPorts() const override { return ipPortsVector_; }
     QString getWgIp() const override { return wg_ip_; }
 
 private:
@@ -87,7 +87,7 @@ private:
     QString username_;
     QString password_;
     QString wg_ip_;
-    apiinfo::StaticIpPortsVector ipPortsVector_;
+    types::StaticIpPortsVector ipPortsVector_;
 };
 
 

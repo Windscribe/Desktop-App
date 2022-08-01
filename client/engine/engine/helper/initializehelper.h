@@ -3,7 +3,7 @@
 
 #include <QElapsedTimer>
 #include <QObject>
-#include "engine/types/types.h"
+#include "types/enums.h"
 
 class IHelper;
 

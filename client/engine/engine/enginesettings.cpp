@@ -130,21 +130,21 @@ const ProtoTypes::FirewallSettings &EngineSettings::firewallSettings() const
     return engineSettings_.firewall_settings();
 }
 
-ConnectionSettings EngineSettings::connectionSettings() const
+types::ConnectionSettings EngineSettings::connectionSettings() const
 {
-    ConnectionSettings cs(engineSettings_.connection_settings());
+    types::ConnectionSettings cs(engineSettings_.connection_settings());
     return cs;
 }
 
-DnsResolutionSettings EngineSettings::dnsResolutionSettings() const
+types::DnsResolutionSettings EngineSettings::dnsResolutionSettings() const
 {
-    DnsResolutionSettings drs(engineSettings_.api_resolution());
+    types::DnsResolutionSettings drs(engineSettings_.api_resolution());
     return drs;
 }
 
-ProxySettings EngineSettings::proxySettings() const
+types::ProxySettings EngineSettings::proxySettings() const
 {
-    ProxySettings ps(engineSettings_.proxy_settings());
+    types::ProxySettings ps(engineSettings_.proxy_settings());
     return ps;
 }
 
@@ -245,13 +245,13 @@ void EngineSettings::loadFromVersion1()
     }
 
     //vpnShareSettings_.readFromSettings(settings);
-    ConnectionSettings cs;
+    types::ConnectionSettings cs;
     if (cs.readFromSettingsV1(settings))
     {
         *engineSettings_.mutable_connection_settings() = cs.convertToProtobuf();
     }
 
-    ProxySettings ps;
+    types::ProxySettings ps;
     ps.readFromSettingsV1(settings);
     *engineSettings_.mutable_proxy_settings() = ps.convertToProtobuf();
 
@@ -260,7 +260,7 @@ void EngineSettings::loadFromVersion1()
 #if defined(Q_OS_LINUX)
 void EngineSettings::repairEngineSettings()
 {
-    // IKEv2 is dissabled on linux but is default protocol in ProtoTypes::ConnectionSettings.
+    // IKEv2 is disabled on linux but is default protocol in ProtoTypes::ConnectionSettings.
     // UDP should be default on Linux.
     if(engineSettings_.has_connection_settings() && engineSettings_.connection_settings().protocol() == ProtoTypes::Protocol::PROTOCOL_IKEV2) {
         engineSettings_.mutable_connection_settings()->set_protocol(ProtoTypes::Protocol::PROTOCOL_UDP);

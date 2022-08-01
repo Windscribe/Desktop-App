@@ -7,7 +7,7 @@
 
 #include "adapterutils_win.h"
 #include "engine/wireguardconfig/wireguardconfig.h"
-#include "engine/types/wireguardtypes.h"
+#include "types/wireguardtypes.h"
 #include "utils/crashhandler.h"
 #include "utils/logger.h"
 
@@ -41,7 +41,7 @@ WireGuardConnection::~WireGuardConnection()
 
 void WireGuardConnection::startConnect(const QString &configPathOrUrl, const QString &ip,
                                        const QString &dnsHostName, const QString &username,
-                                       const QString &password, const ProxySettings &proxySettings,
+                                       const QString &password, const types::ProxySettings &proxySettings,
                                        const WireGuardConfig *wireGuardConfig,
                                        bool isEnableIkev2Compression, bool isAutomaticConnectionMode)
 {
@@ -282,10 +282,10 @@ void WireGuardConnection::onGetWireguardStats()
     // access the API provided by the wireguard-nt kernel driver instance created by the
     // wireguard service.
 
-    WireGuardStatus status;
+    types::WireGuardStatus status;
     if (helper_->getWireGuardStatus(&status))
     {
-        if (status.state == WireGuardState::ACTIVE)
+        if (status.state == types::WireGuardState::ACTIVE)
         {
             if (!connectedSignalEmited_ && status.lastHandshake > 0)
             {

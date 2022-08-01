@@ -3,7 +3,7 @@
 
 #include <QObject>
 #include <QUrl>
-#include "engine/proxy/proxysettings.h"
+#include "types/proxysettings.h"
 #include "curlnetworkmanager2.h"
 #include "dnscache2.h"
 

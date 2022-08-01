@@ -10,9 +10,9 @@
 #include "windscribeinstallhelper_win.h"
 #include "engine/openvpnversioncontroller.h"
 #include "engine/wireguardconfig/wireguardconfig.h"
-#include "engine/types/wireguardtypes.h"
+#include "types/wireguardtypes.h"
+#include "types/protocoltype.h"
 #include "engine/connectionmanager/adaptergatewayinfo.h"
-#include "engine/types/protocoltype.h"
 #include "utils/win32handle.h"
 
 #define SERVICE_PIPE_NAME  (L"\\\\.\\pipe\\WindscribeService")
@@ -194,7 +194,7 @@ bool Helper_win::setSplitTunnelingSettings(bool isActive, bool isExclude, bool i
 }
 
 void Helper_win::sendConnectStatus(bool isConnected, bool isCloseTcpSocket, bool isKeepLocalSocket, const AdapterGatewayInfo &defaultAdapter, const AdapterGatewayInfo &vpnAdapter,
-                                   const QString &connectedIp, const ProtocolType &protocol)
+                                   const QString &connectedIp, const types::ProtocolType &protocol)
 {
     QMutexLocker locker(&mutex_);
 
@@ -313,7 +313,7 @@ bool Helper_win::configureWireGuard(const WireGuardConfig &config)
     return true;
 }
 
-bool Helper_win::getWireGuardStatus(WireGuardStatus *status)
+bool Helper_win::getWireGuardStatus(types::WireGuardStatus *status)
 {
     QMutexLocker locker(&mutex_);
 
@@ -322,14 +322,14 @@ bool Helper_win::getWireGuardStatus(WireGuardStatus *status)
     {
         if (mpr.exitCode == WIREGUARD_STATE_ERROR)
         {
-            status->state = WireGuardState::FAILURE;
+            status->state = types::WireGuardState::FAILURE;
             status->lastHandshake = 0;
             status->bytesReceived = 0;
             status->bytesTransmitted = 0;
         }
         else
         {
-            status->state = WireGuardState::ACTIVE;
+            status->state = types::WireGuardState::ACTIVE;
             status->lastHandshake = mpr.customInfoValue[0];
             status->bytesTransmitted = mpr.customInfoValue[1];
             status->bytesReceived = mpr.customInfoValue[2];

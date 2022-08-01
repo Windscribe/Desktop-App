@@ -1,6 +1,7 @@
 #include "getwireguardconfig.h"
 #include "engine/serverapi/serverapi.h"
 #include "utils/protobuf_includes.h"
+#include "engine/apiinfo/apiinfo.h"
 
 const QString GetWireGuardConfig::KEY_WIREGUARD_CONFIG = "wireguardConfig";
 
