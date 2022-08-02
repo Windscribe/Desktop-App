@@ -3,7 +3,8 @@
 #include "utils/logger.h"
 #include "ipc/server.h"
 #include "ipc/protobufcommand.h"
-#include "ipc/commands.h"
+#include "ipc/servercommands.h"
+#include "ipc/clientcommands.h"
 #include "engine/openvpnversioncontroller.h"
 #include <QDateTime>
 
@@ -118,20 +119,6 @@ bool EngineServer::handleCommand(IPC::Command *command)
         else
         {
             qCDebug(LOG_IPC) << "Engine already built";
-
-            IPC::ProtobufCommand<IPCServerCommands::InitFinished> cmd;
-            cmd.getProtoObj().set_init_state(ProtoTypes::INIT_SUCCESS);
-            *cmd.getProtoObj().mutable_engine_settings() = curEngineSettings_.getProtoBufEngineSettings();
-            const QStringList vers = OpenVpnVersionController::instance().getAvailableOpenVpnVersions();
-            for (const QString &openVpnVer : vers)
-            {
-                cmd.getProtoObj().add_available_openvpn_versions(openVpnVer.toStdString());
-            }
-            cmd.getProtoObj().set_is_wifi_sharing_supported(engine_->isWifiSharingSupported());
-            cmd.getProtoObj().set_is_saved_api_settings_exists(engine_->isApiSavedSettingsExists());
-            cmd.getProtoObj().set_auth_hash(engine_->getAuthHash().toStdString());
-
-            ///sendCmdToAllAuthorizedAndGetStateClientsOfType(cmd, true, ProtoTypes::CLIENT_ID_CLI);
         }
 
         return true;
@@ -345,21 +332,18 @@ bool EngineServer::handleCommand(IPC::Command *command)
         //*outCommand = cmd;
         return true;
     }
-    else if (command->getStringId() == IPCClientCommands::SetSettings::descriptor()->full_name())
+    else if (command->getStringId() == IPC::ClientCommands::SetSettings::getCommandStringId())
     {
-        IPC::ProtobufCommand<IPCClientCommands::SetSettings> *setSettingsCmd = static_cast<IPC::ProtobufCommand<IPCClientCommands::SetSettings> *>(command);
+        IPC::ClientCommands::SetSettings *setSettingsCmd = static_cast<IPC::ClientCommands::SetSettings *>(command);
 
-        if (!curEngineSettings_.isEqual(setSettingsCmd->getProtoObj().enginesettings()))
+        if (curEngineSettings_ != setSettingsCmd->getEngineSettings())
         {
-            curEngineSettings_ = EngineSettings(setSettingsCmd->getProtoObj().enginesettings());
+            curEngineSettings_ = setSettingsCmd->getEngineSettings();
             if (engine_)
             {
                 engine_->setSettings(curEngineSettings_);
             }
             curEngineSettings_.saveToSettings();
-
-            //todo ?
-            //Q_EMIT engineSettingsChanged(curEngineSettings_, connection);
         }
         return true;
     }
@@ -439,8 +423,6 @@ bool EngineServer::handleCommand(IPC::Command *command)
 
 void EngineServer::sendEngineInitReturnCode(ENGINE_INIT_RET_CODE retCode)
 {
-    IPC::ProtobufCommand<IPCServerCommands::InitFinished> cmd;
-
     if (retCode == ENGINE_INIT_SUCCESS)
     {
         connect(engine_->getLocationsModel(), SIGNAL(locationsUpdated(LocationID, QString, QSharedPointer<QVector<locationsmodel::LocationItem> >)),
@@ -454,19 +436,8 @@ void EngineServer::sendEngineInitReturnCode(ENGINE_INIT_RET_CODE retCode)
         connect(engine_->getLocationsModel(), SIGNAL(locationPingTimeChanged(LocationID,PingTime)),
                 SLOT(onEngineLocationsModelPingChangedChanged(LocationID,PingTime)));
 
-        cmd.getProtoObj().set_init_state(ProtoTypes::INIT_SUCCESS);
-        *cmd.getProtoObj().mutable_engine_settings() = curEngineSettings_.getProtoBufEngineSettings();
-
-        const QStringList vers = OpenVpnVersionController::instance().getAvailableOpenVpnVersions();
-        for (const QString &openVpnVer : vers)
-        {
-            cmd.getProtoObj().add_available_openvpn_versions(openVpnVer.toStdString());
-        }
-
-        cmd.getProtoObj().set_is_wifi_sharing_supported(engine_->isWifiSharingSupported());
-
-        cmd.getProtoObj().set_is_saved_api_settings_exists(engine_->isApiSavedSettingsExists());
-        cmd.getProtoObj().set_auth_hash(engine_->getAuthHash().toStdString());
+        IPC::ServerCommands::InitFinished cmd(INIT_STATE_SUCCESS, curEngineSettings_, OpenVpnVersionController::instance().getAvailableOpenVpnVersions(),
+                                              engine_->isWifiSharingSupported(), engine_->isApiSavedSettingsExists(), engine_->getAuthHash());
 
         sendCmdToAllAuthorizedAndGetStateClients(&cmd, true);
 
@@ -474,17 +445,21 @@ void EngineServer::sendEngineInitReturnCode(ENGINE_INIT_RET_CODE retCode)
     }
     else if (retCode == ENGINE_INIT_HELPER_FAILED)
     {
-        cmd.getProtoObj().set_init_state(ProtoTypes::INIT_HELPER_FAILED);
+        IPC::ServerCommands::InitFinished cmd(INIT_STATE_HELPER_FAILED, curEngineSettings_, OpenVpnVersionController::instance().getAvailableOpenVpnVersions(),
+                                              engine_->isWifiSharingSupported(), false, engine_->getAuthHash());
         sendCmdToAllAuthorizedAndGetStateClients(&cmd, true);
     }
     else if (retCode == ENGINE_INIT_BFE_SERVICE_FAILED)
     {
-        cmd.getProtoObj().set_init_state(ProtoTypes::INIT_BFE_SERVICE_NOT_STARTED);
+        IPC::ServerCommands::InitFinished cmd(INIT_STATE_BFE_SERVICE_NOT_STARTED, curEngineSettings_, OpenVpnVersionController::instance().getAvailableOpenVpnVersions(),
+                                              engine_->isWifiSharingSupported(), false, engine_->getAuthHash());
         sendCmdToAllAuthorizedAndGetStateClients(&cmd, true);
     }
     else if (retCode == ENGINE_INIT_HELPER_USER_CANCELED)
     {
-        cmd.getProtoObj().set_init_state(ProtoTypes::INIT_HELPER_USER_CANCELED);
+        IPC::ServerCommands::InitFinished cmd(INIT_STATE_HELPER_USER_CANCELED, curEngineSettings_, OpenVpnVersionController::instance().getAvailableOpenVpnVersions(),
+                                              engine_->isWifiSharingSupported(), false, engine_->getAuthHash());
+
         sendCmdToAllAuthorizedAndGetStateClients(&cmd, true);
     }
     else
@@ -525,10 +500,8 @@ void EngineServer::sendCommand(IPC::Command *command)
         // wait for command ClientAuth for authorization of client
         if (command->getStringId() == IPCClientCommands::ClientAuth::descriptor()->full_name())
         {
-            //IPC::ProtobufCommand<IPCClientCommands::ClientAuth> *cmdClientAuth = static_cast<IPC::ProtobufCommand<IPCClientCommands::ClientAuth> *>(command);
-
             bClientAuthReceived_ = true;
-            IPC::ProtobufCommand<IPCServerCommands::AuthReply> cmdReply;
+            IPC::ServerCommands::AuthReply cmdReply;
             emitCommand(&cmdReply);
         }
     }
@@ -662,7 +635,7 @@ void EngineServer::onEngineSessionDeleted()
 
 void EngineServer::onEngineUpdateSessionStatus(const types::SessionStatus &sessionStatus)
 {
-    IPC::SessionStatusUpdated cmd(sessionStatus);
+    IPC::ServerCommands::SessionStatusUpdated cmd(sessionStatus);
     sendCmdToAllAuthorizedAndGetStateClients(&cmd, false);
 }
 
@@ -982,13 +955,10 @@ void EngineServer::onEngineLocationsModelPingChangedChanged(const LocationID &id
     sendCmdToAllAuthorizedAndGetStateClients(&cmd, false);
 }
 
-void EngineServer::onMacAddrSpoofingChanged(const ProtoTypes::MacAddrSpoofing &macAddrSpoofing)
+void EngineServer::onMacAddrSpoofingChanged(const types::MacAddrSpoofing &macAddrSpoofing)
 {
-    // qDebug() << "EngineServer::onMacAddrspoofingChanged";
     curEngineSettings_.setMacAddrSpoofing(macAddrSpoofing);
-
-    IPC::ProtobufCommand<IPCServerCommands::EngineSettingsChanged> cmd;
-    *cmd.getProtoObj().mutable_enginesettings() = curEngineSettings_.getProtoBufEngineSettings();
+    IPC::ServerCommands::EngineSettingsChanged cmd(curEngineSettings_);
     sendCmdToAllAuthorizedAndGetStateClients(&cmd, true);
 }
 
@@ -1001,16 +971,14 @@ void EngineServer::onEngineSendUserWarning(ProtoTypes::UserWarningType userWarni
 
 void EngineServer::onEnginePacketSizeChanged(bool isAuto, int mtu)
 {
-    ProtoTypes::PacketSize packetSize;
-    packetSize.set_is_automatic(isAuto);
-    packetSize.set_mtu(mtu);
+    types::PacketSize packetSize;
+    packetSize.isAutomatic = isAuto;
+    packetSize.mtu = mtu;
 
     curEngineSettings_.setPacketSize(packetSize);
 
-    IPC::ProtobufCommand<IPCServerCommands::EngineSettingsChanged> cmd;
-    *cmd.getProtoObj().mutable_enginesettings() = curEngineSettings_.getProtoBufEngineSettings();
+    IPC::ServerCommands::EngineSettingsChanged cmd(curEngineSettings_);
     sendCmdToAllAuthorizedAndGetStateClients(&cmd, true);
-
 }
 
 void EngineServer::onEnginePacketSizeDetectionStateChanged(bool on, bool isError)

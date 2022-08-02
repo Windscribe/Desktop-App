@@ -19,6 +19,8 @@
 #include "types/servercredentials.h"
 #include "engine/locationsmodel/baselocationinfo.h"
 #include "types/connectionsettings.h"
+#include "types/packetsize.h"
+#include "types/dnswhileconnectedinfo.h"
 
 #ifdef Q_OS_MAC
     #include "restorednsmanager_mac.h"
@@ -54,11 +56,11 @@ public:
 
     struct CustomDnsAdapterGatewayInfo {
         AdapterGatewayInfo adapterInfo;
-        ProtoTypes::DnsWhileConnectedInfo dnsWhileConnectedInfo;
+        types::DnsWhileConnectedInfo dnsWhileConnectedInfo;
     };
     const CustomDnsAdapterGatewayInfo &getCustomDnsAdapterGatewayInfo() const;
     QString getCustomDnsIp() const;
-    void setDnsWhileConnectedInfo(const ProtoTypes::DnsWhileConnectedInfo &info);
+    void setDnsWhileConnectedInfo(const types::DnsWhileConnectedInfo &info);
 
     void removeIkev2ConnectionFromOS();
 
@@ -74,7 +76,7 @@ public:
     void onWireGuardKeyLimitUserResponse(bool deleteOldestKey);
 
     void setMss(int mss);
-    void setPacketSize(ProtoTypes::PacketSize ps);
+    void setPacketSize(types::PacketSize ps);
 
     void startTunnelTests();
     bool isAllowFirewallAfterConnection() const;
@@ -180,7 +182,7 @@ private:
     QString usernameForCustomOvpn_;     // can be empty
     QString passwordForCustomOvpn_;     // can be empty
 
-    ProtoTypes::PacketSize packetSize_;
+    types::PacketSize packetSize_;
 
     WireGuardConfig wireGuardConfig_;
     GetWireGuardConfigInLoop *getWireGuardConfigInLoop_;

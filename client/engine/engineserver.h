@@ -81,7 +81,7 @@ private slots:
     void onEngineLocationsModelCustomConfigItemsUpdated(QSharedPointer< QVector<locationsmodel::LocationItem> > items);
     void onEngineLocationsModelPingChangedChanged(const LocationID &id, PingTime timeMs);
 
-    void onMacAddrSpoofingChanged(const ProtoTypes::MacAddrSpoofing &macAddrSpoofing);
+    void onMacAddrSpoofingChanged(const types::MacAddrSpoofing &macAddrSpoofing);
     void onEngineSendUserWarning(ProtoTypes::UserWarningType userWarningType);
     void onEnginePacketSizeChanged(bool isAuto, int mtu);
     void onEnginePacketSizeDetectionStateChanged(bool on, bool isError);
@@ -93,7 +93,7 @@ private:
 
     Engine *engine_;
     QThread *threadEngine_;
-    EngineSettings curEngineSettings_;
+    types::EngineSettings curEngineSettings_;
 
     bool bClientAuthReceived_;
     QHash<IPC::IConnection *, ClientConnectionDescr> connections_;

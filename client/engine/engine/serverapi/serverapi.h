@@ -58,7 +58,7 @@ public:
 
     void myIP(bool isDisconnected, uint userRole, bool isNeedCheckRequestsEnabled);
 
-    void checkUpdate(const ProtoTypes::UpdateChannel updateChannel, uint userRole, bool isNeedCheckRequestsEnabled);
+    void checkUpdate(UPDATE_CHANNEL updateChannel, uint userRole, bool isNeedCheckRequestsEnabled);
     void debugLog(const QString &username, const QString &strLog, uint userRole, bool isNeedCheckRequestsEnabled);
     void speedRating(const QString &authHash, const QString &speedRatingHostname, const QString &ip, int rating,
                      uint userRole, bool isNeedCheckRequestsEnabled);

@@ -3,11 +3,6 @@ import "types.proto";
 
 package IPCServerCommands;
 
-// reply on successfully auth command
-message AuthReply
-{
-}
-
 message EngineSettingsChanged
 {
   optional ProtoTypes.EngineSettings engineSettings = 2;

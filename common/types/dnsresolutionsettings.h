@@ -22,9 +22,18 @@ public:
     bool getIsAutomatic() const;
     QString getManualIp() const;
 
+    bool operator==(const DnsResolutionSettings &other) const
+    {
+        return other.bAutomatic_ == bAutomatic_ &&
+               other.manualIp_ == manualIp_;
+    }
+
+    bool operator!=(const DnsResolutionSettings &other) const
+    {
+        return !(*this == other);
+    }
+
 private:
-    bool isInitialized_;
-    bool isEmptyManualIp_;
     bool bAutomatic_;
     QString manualIp_;
 };

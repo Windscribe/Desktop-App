@@ -38,8 +38,6 @@ target_sources(gui PRIVATE
     preferences/preferences.h
     preferences/preferenceshelper.cpp
     preferences/preferenceshelper.h
-    types/dnswhileconnectedinfo.cpp
-    types/dnswhileconnectedinfo.h
     types/upgrademodetype.cpp
     types/upgrademodetype.h
 )

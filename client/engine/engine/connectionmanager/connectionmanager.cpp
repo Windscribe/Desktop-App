@@ -258,15 +258,15 @@ const ConnectionManager::CustomDnsAdapterGatewayInfo &ConnectionManager::getCust
 
 QString ConnectionManager::getCustomDnsIp() const
 {
-    return QString(customDnsAdapterGatewayInfo_.dnsWhileConnectedInfo.ip_address().c_str());
+    return customDnsAdapterGatewayInfo_.dnsWhileConnectedInfo.ipAddress();
 }
 
-void ConnectionManager::setDnsWhileConnectedInfo(const ProtoTypes::DnsWhileConnectedInfo &info)
+void ConnectionManager::setDnsWhileConnectedInfo(const types::DnsWhileConnectedInfo &info)
 {
     customDnsAdapterGatewayInfo_.dnsWhileConnectedInfo = info;
 #ifdef Q_OS_WIN
     if(helper_) {
-        dynamic_cast<Helper_win*>(helper_)->setCustomDnsIp(info.ip_address().c_str());
+        dynamic_cast<Helper_win*>(helper_)->setCustomDnsIp(info.ipAddress());
     }
 #endif
 }
@@ -322,7 +322,7 @@ void ConnectionManager::onConnectionConnected(const AdapterGatewayInfo &connecti
     // override the DNS if we are using custom
     if (customDnsAdapterGatewayInfo_.dnsWhileConnectedInfo.type() == ProtoTypes::DNS_WHILE_CONNECTED_TYPE_CUSTOM)
     {
-        QString customDnsIp = QString::fromStdString(customDnsAdapterGatewayInfo_.dnsWhileConnectedInfo.ip_address());
+        QString customDnsIp = customDnsAdapterGatewayInfo_.dnsWhileConnectedInfo.ipAddress();
         customDnsAdapterGatewayInfo_.adapterInfo.setDnsServers(QStringList() << customDnsIp);
         qCDebug(LOG_CONNECTION) << "Custom DNS detected, will override with: " << customDnsIp;
     }
@@ -891,13 +891,13 @@ void ConnectionManager::doConnectPart2()
         {
 
             int mss = 0;
-            if (!packetSize_.is_automatic())
+            if (!packetSize_.isAutomatic)
             {
                 bool advParamsOpenVpnExists = false;
                 int openVpnOffset = ExtraConfig::instance().getMtuOffsetOpenVpn(advParamsOpenVpnExists);
                 if (!advParamsOpenVpnExists) openVpnOffset = MTU_OFFSET_OPENVPN;
 
-                mss = packetSize_.mtu() - openVpnOffset;
+                mss = packetSize_.mtu - openVpnOffset;
 
                 if (mss <= 0)
                 {
@@ -1337,7 +1337,7 @@ void ConnectionManager::onWireGuardKeyLimitUserResponse(bool deleteOldestKey)
     }
 }
 
-void ConnectionManager::setPacketSize(ProtoTypes::PacketSize ps)
+void ConnectionManager::setPacketSize(types::PacketSize ps)
 {
     packetSize_ = ps;
 }

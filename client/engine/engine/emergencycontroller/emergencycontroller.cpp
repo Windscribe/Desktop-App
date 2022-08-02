@@ -130,7 +130,7 @@ const AdapterGatewayInfo &EmergencyController::getVpnAdapterInfo() const
     return vpnAdapterInfo_;
 }
 
-void EmergencyController::setPacketSize(ProtoTypes::PacketSize ps)
+void EmergencyController::setPacketSize(types::PacketSize ps)
 {
     packetSize_ = ps;
 }
@@ -321,13 +321,13 @@ void EmergencyController::doConnect()
     attempts_.removeFirst();
 
     int mss = 0;
-    if (!packetSize_.is_automatic())
+    if (!packetSize_.isAutomatic)
     {
         bool advParamsOpenVpnExists = false;
         int openVpnOffset = ExtraConfig::instance().getMtuOffsetOpenVpn(advParamsOpenVpnExists);
         if (!advParamsOpenVpnExists) openVpnOffset = MTU_OFFSET_OPENVPN;
 
-        mss = packetSize_.mtu() - openVpnOffset;
+        mss = packetSize_.mtu - openVpnOffset;
 
         if (mss <= 0)
         {

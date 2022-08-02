@@ -2,8 +2,7 @@
 #define PREFERENCES_H
 
 #include <QObject>
-//#include "../types/types.h"
-#include "../types/dnswhileconnectedinfo.h"
+#include "types/dnswhileconnectedinfo.h"
 #include "utils/protobuf_includes.h"
 
 // all preferences with the ability to receive signals when certain preferences are changed
@@ -108,8 +107,8 @@ public:
 #endif
 
 
-    DnsWhileConnectedInfo dnsWhileConnectedInfo() const;
-    void setDnsWhileConnectedInfo(DnsWhileConnectedInfo d);
+    types::DnsWhileConnectedInfo dnsWhileConnectedInfo() const;
+    void setDnsWhileConnectedInfo(types::DnsWhileConnectedInfo d);
 
     bool keepAlive() const;
     void setKeepAlive(bool bEnabled);
@@ -180,7 +179,7 @@ signals:
     void dnsManagerChanged(ProtoTypes::DnsManagerType d);
 #endif
 
-    void dnsWhileConnectedInfoChanged(DnsWhileConnectedInfo dnsWcInfo);
+    void dnsWhileConnectedInfoChanged(types::DnsWhileConnectedInfo dnsWcInfo);
     void networkWhiteListChanged(ProtoTypes::NetworkWhiteList l);
     void splitTunnelingChanged(ProtoTypes::SplitTunneling st);
     void keepAliveChanged(bool b);

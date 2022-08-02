@@ -187,15 +187,15 @@ private:
 class CheckUpdateRequest : public ServerAPI::BaseRequest
 {
 public:
-    CheckUpdateRequest(ProtoTypes::UpdateChannel updateChannel, const QString &hostname, int replyType, uint timeout,
+    CheckUpdateRequest(UPDATE_CHANNEL updateChannel, const QString &hostname, int replyType, uint timeout,
                        uint userRole)
         : ServerAPI::BaseRequest(hostname, replyType, timeout, userRole),
           updateChannel_(updateChannel) {}
 
-    ProtoTypes::UpdateChannel getUpdateChannel() const { return updateChannel_; }
+    UPDATE_CHANNEL getUpdateChannel() const { return updateChannel_; }
 
 private:
-    ProtoTypes::UpdateChannel updateChannel_;
+    UPDATE_CHANNEL updateChannel_;
 };
 
 class DebugLogRequest : public ServerAPI::BaseRequest
@@ -730,7 +730,7 @@ void ServerAPI::myIP(bool isDisconnected, uint userRole, bool isNeedCheckRequest
         isDisconnected, hostname_, REPLY_MY_IP, GET_MY_IP_TIMEOUT, userRole));
 }
 
-void ServerAPI::checkUpdate(const ProtoTypes::UpdateChannel updateChannel, uint userRole, bool isNeedCheckRequestsEnabled)
+void ServerAPI::checkUpdate(UPDATE_CHANNEL updateChannel, uint userRole, bool isNeedCheckRequestsEnabled)
 {
     // This check will only be useful in the case that we expand our supported linux OSes and the platform flag is not added for that OS
     if (Utils::getPlatformName().isEmpty())

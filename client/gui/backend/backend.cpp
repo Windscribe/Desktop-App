@@ -4,7 +4,7 @@
 #include "utils/utils.h"
 #include "ipc/connection.h"
 #include "ipc/protobufcommand.h"
-#include "ipc/commands.h"
+#include "ipc/servercommands.h"
 #include "utils/utils.h"
 #include "persistentstate.h"
 #include "engineserver.h"
@@ -446,7 +446,7 @@ const types::SessionStatus &Backend::getSessionStatus() const
 
 void Backend::onConnectionNewCommand(IPC::Command *command)
 {
-    if (command->getStringId() == IPCServerCommands::AuthReply::descriptor()->full_name())
+    if (command->getStringId() == IPC::ServerCommands::AuthReply::getCommandStringId())
     {
         IPC::ProtobufCommand<IPCClientCommands::Init> cmd;
         qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
@@ -506,9 +506,9 @@ void Backend::onConnectionNewCommand(IPC::Command *command)
         IPC::ProtobufCommand<IPCServerCommands::LoginError> *cmd = static_cast<IPC::ProtobufCommand<IPCServerCommands::LoginError> *>(command);
         Q_EMIT loginError(cmd->getProtoObj().error(), QString::fromStdString(cmd->getProtoObj().error_message()));
     }
-    else if (command->getStringId() == IPC::SessionStatusUpdated::getCommandStringId())
+    else if (command->getStringId() == IPC::ServerCommands::SessionStatusUpdated::getCommandStringId())
     {
-        IPC::SessionStatusUpdated *cmd = static_cast<IPC::SessionStatusUpdated *>(command);
+        IPC::ServerCommands::SessionStatusUpdated *cmd = static_cast<IPC::ServerCommands::SessionStatusUpdated *>(command);
         latestSessionStatus_ = cmd->getSessionStatus();
         locationsModel_->setFreeSessionStatus(!latestSessionStatus_.isPremium());
         updateAccountInfo();

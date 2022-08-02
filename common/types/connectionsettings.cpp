@@ -5,9 +5,9 @@ const int typeIdConnectionSettings = qRegisterMetaType<types::ConnectionSettings
 
 namespace types {
 
-ConnectionSettings::ConnectionSettings() : port_(0), bAutomatic_(false), bInitialized_(false)
+ConnectionSettings::ConnectionSettings() :
+    protocol_(ProtocolType::PROTOCOL_IKEV2), port_(500), bAutomatic_(true), bInitialized_(true)
 {
-
 }
 
 ConnectionSettings::ConnectionSettings(const ProtoTypes::ConnectionSettings &s)

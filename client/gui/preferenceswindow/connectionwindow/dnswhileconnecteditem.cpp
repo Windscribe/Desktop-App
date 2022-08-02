@@ -11,10 +11,10 @@ DnsWhileConnectedItem::DnsWhileConnectedItem(ScalableGraphicsObject *parent) : B
     setFlags(flags() | QGraphicsItem::ItemClipsChildrenToShape | QGraphicsItem::ItemIsFocusable);
 
     comboBoxDNS_ = new ComboBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::ComboBoxItem", "DNS While Connected"), "", 50, Qt::transparent, 0, false);
-    const QList<DnsWhileConnectedInfo::DNS_WHILE_CONNECTED_TYPE> modes = DnsWhileConnectedInfo::allAvailableTypes();
-    for (const DnsWhileConnectedInfo::DNS_WHILE_CONNECTED_TYPE &d : modes)
+    const QList<DNS_WHILE_CONNECTED_TYPE> modes = types::DnsWhileConnectedInfo::allAvailableTypes();
+    for (const DNS_WHILE_CONNECTED_TYPE &d : modes)
     {
-        comboBoxDNS_->addItem(DnsWhileConnectedInfo::typeToString(d), static_cast<int>(d));
+        comboBoxDNS_->addItem(types::DnsWhileConnectedInfo::typeToString(d), static_cast<int>(d));
     }
     comboBoxDNS_->setCurrentItem(modes.first());
     connect(comboBoxDNS_, SIGNAL(currentItemChanged(QVariant)), SLOT(onDNSWhileConnectedModeChanged(QVariant)));
@@ -58,29 +58,29 @@ bool DnsWhileConnectedItem::hasItemWithFocus()
     return editBoxIP_->lineEditHasFocus();
 }
 
-void DnsWhileConnectedItem::setDNSWhileConnected(const DnsWhileConnectedInfo &dns)
+void DnsWhileConnectedItem::setDNSWhileConnected(const types::DnsWhileConnectedInfo &dns)
 {
     if (dns != curDNSWhileConnected_)
     {
         curDNSWhileConnected_ = dns;
 
         // update inner widgets
-        if (dns.type() == DnsWhileConnectedInfo::ROBERT)
+        if (dns.type() == DNS_WHILE_CONNECTED_TYPE_ROBERT)
         {
-            comboBoxDNS_->setCurrentItem(DnsWhileConnectedInfo::ROBERT);
+            comboBoxDNS_->setCurrentItem(DNS_WHILE_CONNECTED_TYPE_ROBERT);
         }
         else
         {
             editBoxIP_->setText(dns.ipAddress());
-            comboBoxDNS_->setCurrentItem(DnsWhileConnectedInfo::CUSTOM);
+            comboBoxDNS_->setCurrentItem(DNS_WHILE_CONNECTED_TYPE_CUSTOM);
         }
         updateHeight(curDNSWhileConnected_.type());
     }
 }
 
-void PreferencesWindow::DnsWhileConnectedItem::updateHeight(DnsWhileConnectedInfo::DNS_WHILE_CONNECTED_TYPE type)
+void PreferencesWindow::DnsWhileConnectedItem::updateHeight(DNS_WHILE_CONNECTED_TYPE type)
 {
-    if (type == DnsWhileConnectedInfo::CUSTOM && !isExpanded_)
+    if (type == DNS_WHILE_CONNECTED_TYPE_CUSTOM && !isExpanded_)
     {
         expandEnimation_.setDirection(QVariantAnimation::Forward);
         if (expandEnimation_.state() != QVariantAnimation::Running)
@@ -108,14 +108,14 @@ void DnsWhileConnectedItem::setHeightAndLinePos(int height)
 
 void DnsWhileConnectedItem::onDNSWhileConnectedModeChanged(QVariant v)
 {
-    updateHeight(static_cast<DnsWhileConnectedInfo::DNS_WHILE_CONNECTED_TYPE>(v.toInt()));
+    updateHeight(static_cast<DNS_WHILE_CONNECTED_TYPE>(v.toInt()));
 
     if (curDNSWhileConnected_.type() != v.toInt())
     {
-        curDNSWhileConnected_.setType(static_cast<DnsWhileConnectedInfo::DNS_WHILE_CONNECTED_TYPE>(v.toInt()));
+        curDNSWhileConnected_.setType(static_cast<DNS_WHILE_CONNECTED_TYPE>(v.toInt()));
 
         // clear ip when robert is selected
-        if (curDNSWhileConnected_.type() == DnsWhileConnectedInfo::ROBERT)
+        if (curDNSWhileConnected_.type() == DNS_WHILE_CONNECTED_TYPE_ROBERT)
         {
             curDNSWhileConnected_.setIpAddress("");
             editBoxIP_->setText("");
@@ -145,10 +145,10 @@ void DnsWhileConnectedItem::onLanguageChanged()
 
     comboBoxDNS_->clear();
 
-    const QList<DnsWhileConnectedInfo::DNS_WHILE_CONNECTED_TYPE> modes = DnsWhileConnectedInfo::allAvailableTypes();
-    for (const DnsWhileConnectedInfo::DNS_WHILE_CONNECTED_TYPE &d : modes)
+    const QList<DNS_WHILE_CONNECTED_TYPE> modes = types::DnsWhileConnectedInfo::allAvailableTypes();
+    for (const DNS_WHILE_CONNECTED_TYPE &d : modes)
     {
-        comboBoxDNS_->addItem(DnsWhileConnectedInfo::typeToString(d), static_cast<int>(d));
+        comboBoxDNS_->addItem(types::DnsWhileConnectedInfo::typeToString(d), static_cast<int>(d));
     }
     comboBoxDNS_->setCurrentItem(dnsSelected.toInt());
 }

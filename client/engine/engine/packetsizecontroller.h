@@ -3,7 +3,7 @@
 
 #include <QObject>
 #include <QMutex>
-#include "utils/protobuf_includes.h"
+#include "types/packetsize.h"
 
 class PacketSizeController : public QObject
 {
@@ -11,7 +11,7 @@ class PacketSizeController : public QObject
 public:
     explicit PacketSizeController(QObject *parent = nullptr);
 
-    void setPacketSize(const ProtoTypes::PacketSize &packetSize);
+    void setPacketSize(const types::PacketSize &packetSize);
     void detectAppropriatePacketSize(const QString &hostname);
     void earlyStop();
 signals:
@@ -24,8 +24,8 @@ private slots:
 private:
     QMutex mutex_;
     bool earlyStop_;
-    ProtoTypes::PacketSize packetSize_;
-    void setPacketSizeImpl(const ProtoTypes::PacketSize &packetSize);
+    types::PacketSize packetSize_;
+    void setPacketSizeImpl(const types::PacketSize &packetSize);
 
     int getIdealPacketSize(const QString &hostname);
 };

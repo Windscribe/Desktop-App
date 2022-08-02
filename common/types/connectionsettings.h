@@ -29,6 +29,20 @@ struct ConnectionSettings
 
     ProtoTypes::ConnectionSettings convertToProtobuf() const;
 
+    bool operator==(const ConnectionSettings &other) const
+    {
+        return other.protocol_ == protocol_ &&
+               other.port_ == port_ &&
+               other.bAutomatic_ == bAutomatic_ &&
+               other.bInitialized_ == bInitialized_;
+    }
+
+    bool operator!=(const ConnectionSettings &other) const
+    {
+        return !(*this == other);
+    }
+
+
 private:
     ProtocolType protocol_;
     uint    port_;

@@ -3,6 +3,7 @@
 
 #include <QString>
 #include <QStringList>
+#include "types/networkinterface.h"
 #include "protobuf_includes.h"
 
 #define SAFE_DELETE(x) if (x) { delete x; x = nullptr; }
@@ -36,10 +37,10 @@ namespace Utils {
     QString formatMacAddress(QString macAddress);
 
     // Network
-    ProtoTypes::NetworkInterface noNetworkInterface();
-    bool sameNetworkInterface(const ProtoTypes::NetworkInterface &interface1, const ProtoTypes::NetworkInterface &interface2);
-    ProtoTypes::NetworkInterface interfaceByName(const ProtoTypes::NetworkInterfaces &interfaces, const QString &interfaceName);
-    const ProtoTypes::NetworkInterfaces interfacesExceptOne(const ProtoTypes::NetworkInterfaces &interfaces, const ProtoTypes::NetworkInterface &exceptInterface);    
+    types::NetworkInterface noNetworkInterface();
+    bool sameNetworkInterface(const types::NetworkInterface &interface1, const types::NetworkInterface &interface2);
+    types::NetworkInterface interfaceByName(const QVector<types::NetworkInterface> &interfaces, const QString &interfaceName);
+    QVector<types::NetworkInterface> interfacesExceptOne(const QVector<types::NetworkInterface> &interfaces, const types::NetworkInterface &exceptInterface);
 
     bool pingWithMtu(const QString &url, int mtu);
     QString getLocalIP();

@@ -18,8 +18,10 @@ set(PROJECT_SOURCES
     ${COMMON_PATH}/ipc/command.h
     ${COMMON_PATH}/ipc/commandfactory.cpp
     ${COMMON_PATH}/ipc/commandfactory.h
-    ${COMMON_PATH}/ipc/commands.cpp
-    ${COMMON_PATH}/ipc/commands.h
+    ${COMMON_PATH}/ipc/servercommands.cpp
+    ${COMMON_PATH}/ipc/servercommands.h
+    ${COMMON_PATH}/ipc/clientcommands.cpp
+    ${COMMON_PATH}/ipc/clientcommands.h
     ${COMMON_PATH}/ipc/connection.cpp
     ${COMMON_PATH}/ipc/connection.h
     ${COMMON_PATH}/ipc/generated_proto/cli.pb.cc
@@ -71,6 +73,14 @@ set(PROJECT_SOURCES
     ${COMMON_PATH}/types/staticips.cpp
     ${COMMON_PATH}/types/staticips.h
     ${COMMON_PATH}/types/wireguardtypes.h
+    ${COMMON_PATH}/types/firewallsettings.h
+    ${COMMON_PATH}/types/packetsize.h
+    ${COMMON_PATH}/types/macaddrspoofing.h
+    ${COMMON_PATH}/types/networkinterface.h
+    ${COMMON_PATH}/types/dnswhileconnectedinfo.cpp
+    ${COMMON_PATH}/types/dnswhileconnectedinfo.h
+    ${COMMON_PATH}/types/enginesettings.cpp
+    ${COMMON_PATH}/types/enginesettings.h
     ${COMMON_PATH}/utils/clean_sensitive_info.cpp
     ${COMMON_PATH}/utils/clean_sensitive_info.h
     ${COMMON_PATH}/utils/executable_signature/executable_signature.cpp

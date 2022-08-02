@@ -16,7 +16,7 @@
 #include "engine/vpnshare/vpnsharecontroller.h"
 #include "engine/emergencycontroller/emergencycontroller.h"
 #include "getmyipcontroller.h"
-#include "enginesettings.h"
+#include "types/enginesettings.h"
 #include "sessionstatustimer.h"
 #include "engine/customconfigs/customconfigs.h"
 #include "engine/customconfigs/customovpnauthcredentialsstorage.h"
@@ -39,10 +39,10 @@ class Engine : public QObject
 {
     Q_OBJECT
 public:
-    explicit Engine(const EngineSettings &engineSettings);
+    explicit Engine(const types::EngineSettings &engineSettings);
     virtual ~Engine();
 
-    void setSettings(const EngineSettings &engineSettings);
+    void setSettings(const types::EngineSettings &engineSettings);
 
     void cleanup(bool isExitWithRestart, bool isFirewallChecked, bool isFirewallAlwaysOn, bool isLaunchOnStart);
     bool isCleanupFinished();
@@ -111,7 +111,7 @@ public:
     void forceUpdateServerLocations();
 
     void detectAppropriatePacketSize();
-    void setSettingsMacAddressSpoofing(const ProtoTypes::MacAddrSpoofing &macAddrSpoofing);
+    void setSettingsMacAddressSpoofing(const types::MacAddrSpoofing &macAddrSpoofing);
     void setSplitTunnelingSettings(bool isActive, bool isExclude, const QStringList &files,
                                    const QStringList &ips, const QStringList &hosts);
 
@@ -167,10 +167,10 @@ signals:
 
     void detectionCpuUsageAfterConnected(const QStringList processesList);
 
-    void networkChanged(ProtoTypes::NetworkInterface networkInterface);
+    void networkChanged(types::NetworkInterface networkInterface);
     // void engineSettingsChanged(const ProtoTypes::EngineSettings &engineSettings);
 
-    void macAddrSpoofingChanged(const ProtoTypes::MacAddrSpoofing &macAddrSpoofing);
+    void macAddrSpoofingChanged(const types::MacAddrSpoofing &macAddrSpoofing);
     void sendUserWarning(ProtoTypes::UserWarningType userWarningType);
     void internetConnectivityChanged(bool connectivity);
     void packetSizeChanged(bool isAuto, int mtu);
@@ -209,7 +209,7 @@ private slots:
     void firewallOnImpl();
     void firewallOffImpl();
     void speedRatingImpl(int rating, const QString &localExternalIp);
-    void setSettingsImpl(const EngineSettings &engineSettings);
+    void setSettingsImpl(const types::EngineSettings &engineSettings);
     void updateServerConfigsImpl();
     void checkForceDisconnectNode(const QStringList &forceDisconnectNodes);
 
@@ -224,7 +224,7 @@ private slots:
     void applicationActivatedImpl();
     void applicationDeactivatedImpl();
 
-    void setSettingsMacAddressSpoofingImpl(const ProtoTypes::MacAddrSpoofing &macAddrSpoofing);
+    void setSettingsMacAddressSpoofingImpl(const types::MacAddrSpoofing &macAddrSpoofing);
     void setSplitTunnelingSettingsImpl(bool isActive, bool isExclude, const QStringList &files,
                                        const QStringList &ips, const QStringList &hosts);
 
@@ -292,11 +292,11 @@ private slots:
     void onLocationsModelWhitelistCustomConfigIpsChanged(const QStringList &ips);
 
     void onNetworkOnlineStateChange(bool isOnline);
-    void onNetworkChange(const ProtoTypes::NetworkInterface &networkInterface);
+    void onNetworkChange(const types::NetworkInterface &networkInterface);
     void onPacketSizeControllerPacketSizeChanged(bool isAuto, int mtu);
     void onPacketSizeControllerFinishedSizeDetection(bool isError);
 
-    void onMacAddressSpoofingChanged(const ProtoTypes::MacAddrSpoofing &macAddrSpoofing);
+    void onMacAddressSpoofingChanged(const types::MacAddrSpoofing &macAddrSpoofing);
     void onMacAddressControllerSendUserWarning(ProtoTypes::UserWarningType userWarningType);
 #ifdef Q_OS_MAC
     void onMacAddressControllerRobustMacSpoofApplied();
@@ -317,7 +317,7 @@ private:
     void updateProxySettings();
     bool verifyContentsSha256(const QString &filename, const QString &compareHash);
 
-    EngineSettings engineSettings_;
+    types::EngineSettings engineSettings_;
     IHelper *helper_;
     FirewallController *firewallController_;
     NetworkAccessManager *networkAccessManager_;
@@ -387,7 +387,7 @@ private:
 
     bool online_;
 
-    ProtoTypes::PacketSize packetSize_;
+    types::PacketSize packetSize_;
     QThread *packetSizeControllerThread_;
     bool runningPacketDetection_;
 
@@ -412,7 +412,7 @@ private:
 
     bool overrideUpdateChannelWithInternal_;
     bool bPrevNetworkInterfaceInitialized_;
-    ProtoTypes::NetworkInterface prevNetworkInterface_;
+    types::NetworkInterface prevNetworkInterface_;
 };
 
 #endif // ENGINE_H

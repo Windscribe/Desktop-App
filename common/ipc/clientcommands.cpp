@@ -1,6 +1,6 @@
 #include <QObject>
 
-#include "commands.h"
+#include "servercommands.h"
 
 namespace IPC
 {

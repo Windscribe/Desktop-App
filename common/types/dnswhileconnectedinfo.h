@@ -1,17 +1,16 @@
-#ifndef DNSWHILECONNECTEDINFO_H
-#define DNSWHILECONNECTEDINFO_H
+#ifndef TYPES_DNSWHILECONNECTEDINFO_H
+#define TYPES_DNSWHILECONNECTEDINFO_H
 
 #include <QString>
-#include "ipc/generated_proto/types.pb.h"
+#include <QList>
+#include "enums.h"
 
+namespace types {
 
 class DnsWhileConnectedInfo
 {
-public:
-    enum DNS_WHILE_CONNECTED_TYPE { ROBERT, CUSTOM };
-
-    DnsWhileConnectedInfo();
-    explicit DnsWhileConnectedInfo(DNS_WHILE_CONNECTED_TYPE type);
+public:    
+    DnsWhileConnectedInfo() : type_(DNS_WHILE_CONNECTED_TYPE_ROBERT) {}
     explicit DnsWhileConnectedInfo(ProtoTypes::DnsWhileConnectedInfo protoBufInfo);
 
     QString toString() const;
@@ -28,9 +27,6 @@ public:
 private:
     DNS_WHILE_CONNECTED_TYPE type_;
     QString ipAddress_;
-
-    static QString robertText();
-    static QString customText();
 };
 
 inline bool operator==(const DnsWhileConnectedInfo& lhs, const DnsWhileConnectedInfo& rhs)
@@ -43,4 +39,8 @@ inline bool operator!=(const DnsWhileConnectedInfo& lhs, const DnsWhileConnected
     return lhs.type() != rhs.type() || lhs.ipAddress() != rhs.ipAddress();
 }
 
-#endif // DNSWHILECONNECTEDINFO_H
+
+
+} // types namespace
+
+#endif // TYPES_DNSWHILECONNECTEDINFO_H

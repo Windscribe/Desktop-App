@@ -459,12 +459,12 @@ void Preferences::setDnsManager(ProtoTypes::DnsManagerType d)
 }
 #endif
 
-DnsWhileConnectedInfo Preferences::dnsWhileConnectedInfo() const
+types::DnsWhileConnectedInfo Preferences::dnsWhileConnectedInfo() const
 {
-   return DnsWhileConnectedInfo(engineSettings_.dns_while_connected_info());
+   return types::DnsWhileConnectedInfo(engineSettings_.dns_while_connected_info());
 }
 
-void Preferences::setDnsWhileConnectedInfo(DnsWhileConnectedInfo d)
+void Preferences::setDnsWhileConnectedInfo(types::DnsWhileConnectedInfo d)
 {
     ProtoTypes::DnsWhileConnectedInfo protoDNS = d.toProtobuf();
     if (!google::protobuf::util::MessageDifferencer::Equals(engineSettings_.dns_while_connected_info(), protoDNS))
@@ -603,7 +603,7 @@ void Preferences::setEngineSettings(const ProtoTypes::EngineSettings &es)
     setDnsPolicy(es.dns_policy());
     setKeepAlive(es.is_keep_alive_enabled());
     setCustomOvpnConfigsPath(QString::fromStdString(es.customovpnconfigspath()));
-    setDnsWhileConnectedInfo(DnsWhileConnectedInfo(es.dns_while_connected_info()));
+    setDnsWhileConnectedInfo(types::DnsWhileConnectedInfo(es.dns_while_connected_info()));
 #ifdef Q_OS_LINUX
     setDnsManager(es.dns_manager());
 #endif
@@ -673,7 +673,7 @@ void Preferences::validateAndUpdateIfNeeded()
         protoDns.set_type(ProtoTypes::DNS_WHILE_CONNECTED_TYPE_ROBERT);
         protoDns.set_ip_address("");
         *engineSettings_.mutable_dns_while_connected_info() = protoDns;
-        emit dnsWhileConnectedInfoChanged(DnsWhileConnectedInfo(engineSettings_.dns_while_connected_info()));
+        emit dnsWhileConnectedInfoChanged(types::DnsWhileConnectedInfo(engineSettings_.dns_while_connected_info()));
         emit reportErrorToUser("Invalid DNS Settings", "'DNS while connected' was not configured with a valid IP Address. DNS was reverted to ROBERT (default).");
         is_update_needed = true;
     }

@@ -31,6 +31,16 @@ public:
 
     ProtoTypes::Protocol convertToProtobuf() const;
 
+    bool operator==(const ProtocolType &other) const
+    {
+        return other.protocol_ == protocol_;
+    }
+
+    bool operator!=(const ProtocolType &other) const
+    {
+        return !(*this == other);
+    }
+
     friend QDataStream& operator <<(QDataStream& stream, const ProtocolType& p)
     {
         stream << versionForSerialization_;

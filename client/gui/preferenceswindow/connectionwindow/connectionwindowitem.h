@@ -52,7 +52,7 @@ private slots:
     void onMacAddrSpoofingChanged(const ProtoTypes::MacAddrSpoofing &mas);
     void onIsAllowLanTrafficClicked(bool b);
     void onAllowLanTrafficButtonHoverLeave();
-    void onDnsWhileConnectedItemChanged(DnsWhileConnectedInfo dns);
+    void onDnsWhileConnectedItemChanged(types::DnsWhileConnectedInfo dns);
 
     void onFirewallModePreferencesChanged(const ProtoTypes::FirewallSettings &fm);
     void onConnectionModePreferencesChanged(const ProtoTypes::ConnectionSettings &cm);
@@ -67,7 +67,7 @@ private slots:
     void onKillTcpSocketsStateChanged(bool isChecked);
 #endif
 
-    void onDnsWhileConnectedPreferencesChanged(const DnsWhileConnectedInfo &dns);
+    void onDnsWhileConnectedPreferencesChanged(const types::DnsWhileConnectedInfo &dns);
 
     void onLanguageChanged();
 

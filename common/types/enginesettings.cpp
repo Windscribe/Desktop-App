@@ -3,39 +3,37 @@
 #include "utils/logger.h"
 #include "utils/winutils.h"
 
-const int typeIdEngineSettings = qRegisterMetaType<EngineSettings>("EngineSettings");
+const int typeIdEngineSettings = qRegisterMetaType<types::EngineSettings>("types::EngineSettings");
 
-EngineSettings::EngineSettings() : simpleCrypt_(0x4572A4ACF31A31BA)
+/*EngineSettings::EngineSettings() : simpleCrypt_(0x4572A4ACF31A31BA)
 {
 #if defined(Q_OS_LINUX)
     repairEngineSettings();
 #endif
-}
+}*/
 
-EngineSettings::EngineSettings(const ProtoTypes::EngineSettings &s) :
-    engineSettings_(s)
-  , simpleCrypt_(0x4572A4ACF31A31BA)
+namespace types {
+
+EngineSettings::EngineSettings() : d(new EngineSettingsData)
 {
-#if defined(Q_OS_LINUX)
-    repairEngineSettings();
-#endif
+
 }
 
 void EngineSettings::saveToSettings()
 {
-    QSettings settings;
+    /*QSettings settings;
 
     size_t size = engineSettings_.ByteSizeLong();
     QByteArray arr(size, Qt::Uninitialized);
     engineSettings_.SerializeToArray(arr.data(), size);
 
     // Changed engineSettings to engineSettings2 when settings enrcyption was added.
-    settings.setValue("engineSettings2", simpleCrypt_.encryptToString(arr));
+    settings.setValue("engineSettings2", simpleCrypt_.encryptToString(arr));*/
 }
 
 void EngineSettings::loadFromSettings()
 {
-    QSettings settings;
+    /*QSettings settings;
 
     const bool containsEncryptedSettings = settings.contains("engineSettings2");
     const bool containsSettings = settings.contains("engineSettings");
@@ -83,12 +81,77 @@ void EngineSettings::loadFromSettings()
         loadFromVersion1();
     }
     qCDebugMultiline(LOG_BASIC) << "Engine settings:"
-        << Utils::cleanSensitiveInfo(QString::fromStdString(engineSettings_.DebugString()));
+        << Utils::cleanSensitiveInfo(QString::fromStdString(engineSettings_.DebugString()));*/
 }
 
-const ProtoTypes::EngineSettings &EngineSettings::getProtoBufEngineSettings() const
+QString EngineSettings::language() const
 {
-    return engineSettings_;
+    return d->language;
+}
+
+bool EngineSettings::isIgnoreSslErrors() const
+{
+    return d->isIgnoreSslErrors;
+}
+
+bool EngineSettings::isCloseTcpSockets() const
+{
+    return d->isCloseTcpSockets;
+}
+
+bool EngineSettings::isAllowLanTraffic() const
+{
+    return d->isAllowLanTraffic;
+}
+
+const types::FirewallSettings &EngineSettings::firewallSettings() const
+{
+    return d->firewallSettings;
+}
+
+const types::ConnectionSettings &EngineSettings::connectionSettings() const
+{
+    return d->connectionSettings;
+}
+
+const types::DnsResolutionSettings &EngineSettings::dnsResolutionSettings() const
+{
+    return d->dnsResolutionSettings;
+}
+
+const types::ProxySettings &EngineSettings::proxySettings() const
+{
+    return d->proxySettings;
+}
+
+DNS_POLICY_TYPE EngineSettings::getDnsPolicy() const
+{
+    return d->dnsPolicy;
+}
+
+DNS_MANAGER_TYPE EngineSettings::getDnsManager() const
+{
+    return d->dnsManager;
+}
+
+const types::MacAddrSpoofing &EngineSettings::getMacAddrSpoofing() const
+{
+    return d->macAddrSpoofing;
+}
+
+const types::PacketSize &EngineSettings::getPacketSize() const
+{
+    return d->packetSize;
+}
+
+UPDATE_CHANNEL EngineSettings::getUpdateChannel() const
+{
+    return d->updateChannel;
+}
+
+const types::DnsWhileConnectedInfo &EngineSettings::getDnsWhileConnectedInfo() const
+{
+    return d->dnsWhileConnectedInfo;
 }
 
 /*IPC::Command *EngineSettings::transformToProtoBufCommand(unsigned int cmdUid) const
@@ -100,100 +163,63 @@ const ProtoTypes::EngineSettings &EngineSettings::getProtoBufEngineSettings() co
     return cmdEngineSettings;
 }*/
 
-bool EngineSettings::isEqual(const ProtoTypes::EngineSettings &s) const
+/*bool EngineSettings::isEqual(const ProtoTypes::EngineSettings &s) const
 {
     return google::protobuf::util::MessageDifferencer::Equals(engineSettings_, s);
-}
-
-QString EngineSettings::language() const
-{
-    return QString::fromStdString(engineSettings_.language());
-}
-
-bool EngineSettings::isIgnoreSslErrors() const
-{
-    return engineSettings_.is_ignore_ssl_errors();
-}
-
-bool EngineSettings::isCloseTcpSockets() const
-{
-    return engineSettings_.is_close_tcp_sockets();
-}
-
-bool EngineSettings::isAllowLanTraffic() const
-{
-    return engineSettings_.is_allow_lan_traffic();
-}
-
-const ProtoTypes::FirewallSettings &EngineSettings::firewallSettings() const
-{
-    return engineSettings_.firewall_settings();
-}
-
-types::ConnectionSettings EngineSettings::connectionSettings() const
-{
-    types::ConnectionSettings cs(engineSettings_.connection_settings());
-    return cs;
-}
-
-types::DnsResolutionSettings EngineSettings::dnsResolutionSettings() const
-{
-    types::DnsResolutionSettings drs(engineSettings_.api_resolution());
-    return drs;
-}
-
-types::ProxySettings EngineSettings::proxySettings() const
-{
-    types::ProxySettings ps(engineSettings_.proxy_settings());
-    return ps;
-}
-
-DNS_POLICY_TYPE EngineSettings::getDnsPolicy() const
-{
-    return (DNS_POLICY_TYPE)engineSettings_.dns_policy();
-}
-
-ProtoTypes::DnsManagerType EngineSettings::getDnsManager() const
-{
-    return engineSettings_.dns_manager();
-}
-
-ProtoTypes::MacAddrSpoofing EngineSettings::getMacAddrSpoofing() const
-{
-    return engineSettings_.mac_addr_spoofing();
-}
-
-ProtoTypes::PacketSize EngineSettings::getPacketSize() const
-{
-    return engineSettings_.packet_size();
-}
-
-ProtoTypes::UpdateChannel EngineSettings::getUpdateChannel() const
-{
-    return engineSettings_.update_channel();
-}
-
-ProtoTypes::DnsWhileConnectedInfo EngineSettings::getDnsWhileConnectedInfo() const
-{
-    return engineSettings_.dns_while_connected_info();
-}
+}*/
 
 bool EngineSettings::isUseWintun() const
 {
-    return engineSettings_.tap_adapter() == ProtoTypes::WINTUN_ADAPTER;
+    return d->tapAdapter == WINTUN_ADAPTER;
 }
 
 QString EngineSettings::getCustomOvpnConfigsPath() const
 {
-    return QString::fromStdString(engineSettings_.customovpnconfigspath());
+    return d->customOvpnConfigsPath;
 }
 
 bool EngineSettings::isKeepAliveEnabled() const
 {
-    return engineSettings_.is_keep_alive_enabled();
+    return d->isKeepAliveEnabled;
 }
 
-void EngineSettings::setMacAddrSpoofing(const ProtoTypes::MacAddrSpoofing &macAddrSpoofing)
+void EngineSettings::setMacAddrSpoofing(const MacAddrSpoofing &macAddrSpoofing)
+{
+    d->macAddrSpoofing = macAddrSpoofing;
+}
+
+void EngineSettings::setPacketSize(const PacketSize &packetSize)
+{
+    d->packetSize = packetSize;
+}
+
+bool EngineSettings::operator==(const EngineSettings &other) const
+{
+    return  other.d->language == d->language &&
+            other.d->updateChannel == d->updateChannel &&
+            other.d->isIgnoreSslErrors == d->isIgnoreSslErrors &&
+            other.d->isCloseTcpSockets == d->isCloseTcpSockets &&
+            other.d->isAllowLanTraffic == d->isAllowLanTraffic &&
+            other.d->firewallSettings == d->firewallSettings &&
+            other.d->connectionSettings == d->connectionSettings &&
+            other.d->dnsResolutionSettings == d->dnsResolutionSettings &&
+            other.d->proxySettings == d->proxySettings &&
+            other.d->packetSize == d->packetSize &&
+            other.d->macAddrSpoofing == d->macAddrSpoofing &&
+            other.d->dnsPolicy == d->dnsPolicy &&
+            other.d->tapAdapter == d->tapAdapter &&
+            other.d->customOvpnConfigsPath == d->customOvpnConfigsPath &&
+            other.d->isKeepAliveEnabled == d->isKeepAliveEnabled &&
+            other.d->dnsWhileConnectedInfo == d->dnsWhileConnectedInfo &&
+            other.d->dnsManager == d->dnsManager;
+}
+
+bool EngineSettings::operator!=(const EngineSettings &other) const
+{
+    return !(*this == other);
+}
+
+/*void EngineSettings::setMacAddrSpoofing(const ProtoTypes::MacAddrSpoofing &macAddrSpoofing)
 {
     *engineSettings_.mutable_mac_addr_spoofing() = macAddrSpoofing;
 }
@@ -201,9 +227,9 @@ void EngineSettings::setMacAddrSpoofing(const ProtoTypes::MacAddrSpoofing &macAd
 void EngineSettings::setPacketSize(const ProtoTypes::PacketSize &packetSize)
 {
     *engineSettings_.mutable_packet_size() = packetSize;
-}
+}*/
 
-void EngineSettings::loadFromVersion1()
+/*void EngineSettings::loadFromVersion1()
 {
     QSettings settings("Windscribe", "Windscribe");
     if (settings.contains("allowLanTraffic"))
@@ -254,8 +280,7 @@ void EngineSettings::loadFromVersion1()
     types::ProxySettings ps;
     ps.readFromSettingsV1(settings);
     *engineSettings_.mutable_proxy_settings() = ps.convertToProtobuf();
-
-}
+}*/
 
 #if defined(Q_OS_LINUX)
 void EngineSettings::repairEngineSettings()
@@ -274,3 +299,6 @@ void EngineSettings::repairEngineSettings()
     }
 }
 #endif
+
+} // types namespace
+

@@ -44,7 +44,7 @@
     #include "utils/linuxutils.h"
 #endif
 
-Engine::Engine(const EngineSettings &engineSettings) : QObject(nullptr),
+Engine::Engine(const types::EngineSettings &engineSettings) : QObject(nullptr),
     engineSettings_(engineSettings),
     helper_(nullptr),
     firewallController_(nullptr),
@@ -113,10 +113,10 @@ Engine::~Engine()
     qCDebug(LOG_BASIC) << "Engine destructor finished";
 }
 
-void Engine::setSettings(const EngineSettings &engineSettings)
+void Engine::setSettings(const types::EngineSettings &engineSettings)
 {
     QMutexLocker locker(&mutex_);
-    QMetaObject::invokeMethod(this, "setSettingsImpl", Q_ARG(EngineSettings, engineSettings));
+    QMetaObject::invokeMethod(this, "setSettingsImpl", Q_ARG(types::EngineSettings, engineSettings));
 }
 
 void Engine::cleanup(bool isExitWithRestart, bool isFirewallChecked, bool isFirewallAlwaysOn, bool isLaunchOnStart)
@@ -517,9 +517,9 @@ void Engine::detectAppropriatePacketSize()
     QMetaObject::invokeMethod(this, "detectAppropriatePacketSizeImpl");
 }
 
-void Engine::setSettingsMacAddressSpoofing(const ProtoTypes::MacAddrSpoofing &macAddrSpoofing)
+void Engine::setSettingsMacAddressSpoofing(const types::MacAddrSpoofing &macAddrSpoofing)
 {
-    QMetaObject::invokeMethod(this, "setSettingsMacAddressSpoofingImpl", Q_ARG(ProtoTypes::MacAddrSpoofing, macAddrSpoofing));
+    QMetaObject::invokeMethod(this, "setSettingsMacAddressSpoofingImpl", Q_ARG(types::MacAddrSpoofing, macAddrSpoofing));
 }
 
 void Engine::setSplitTunnelingSettings(bool isActive, bool isExclude, const QStringList &files,
@@ -601,12 +601,12 @@ void Engine::initPart2()
     DnsServersConfiguration::instance().setDnsServersPolicy(engineSettings_.getDnsPolicy());
     firewallExceptions_.setDnsPolicy(engineSettings_.getDnsPolicy());
 
-    ProtoTypes::MacAddrSpoofing macAddrSpoofing = engineSettings_.getMacAddrSpoofing();
+    types::MacAddrSpoofing macAddrSpoofing = engineSettings_.getMacAddrSpoofing();
     //todo refactor
 #ifdef Q_OS_MAC
     *macAddrSpoofing.mutable_network_interfaces() = NetworkUtils_mac::currentNetworkInterfaces(true);
 #elif defined Q_OS_WIN
-    *macAddrSpoofing.mutable_network_interfaces() = WinUtils::currentNetworkInterfaces(true);
+    macAddrSpoofing.networkInterfaces = WinUtils::currentNetworkInterfaces(true);
 #elif define Q_OS_LINUX
     todo
 #endif
@@ -625,7 +625,7 @@ void Engine::initPart2()
 
     packetSizeControllerThread_ = new QThread(this);
 
-    ProtoTypes::PacketSize packetSize = engineSettings_.getPacketSize();
+    types::PacketSize packetSize = engineSettings_.getPacketSize();
     packetSizeController_ = new PacketSizeController(nullptr);
     packetSizeController_->setPacketSize(packetSize);
     packetSize_ = packetSize;
@@ -1073,7 +1073,7 @@ void Engine::connectClickImpl(const LocationID &locationId)
 
     SAFE_DELETE(refetchServerCredentialsHelper_);
 
-    if (engineSettings_.firewallSettings().mode() == ProtoTypes::FIREWALL_MODE_AUTOMATIC && engineSettings_.firewallSettings().when() == ProtoTypes::FIREWALL_WHEN_BEFORE_CONNECTION)
+    if (engineSettings_.firewallSettings().mode == FIREWALL_MODE_AUTOMATIC && engineSettings_.firewallSettings().when == FIREWALL_WHEN_BEFORE_CONNECTION)
     {
         bool bFirewallStateOn = firewallController_->firewallActualState();
         if (!bFirewallStateOn)
@@ -1235,10 +1235,10 @@ void Engine::updateCurrentInternetConnectivityImpl()
 
 void Engine::updateCurrentNetworkInterfaceImpl()
 {
-    ProtoTypes::NetworkInterface networkInterface;
+    types::NetworkInterface networkInterface;
     networkDetectionManager_->getCurrentNetworkInterface(networkInterface);
 
-    if (!bPrevNetworkInterfaceInitialized_ || !google::protobuf::util::MessageDifferencer::Equals(networkInterface, prevNetworkInterface_))
+    if (!bPrevNetworkInterfaceInitialized_ || networkInterface != prevNetworkInterface_)
     {
         prevNetworkInterface_ = networkInterface;
         bPrevNetworkInterfaceInitialized_ = true;
@@ -1270,7 +1270,7 @@ void Engine::speedRatingImpl(int rating, const QString &localExternalIp)
     serverAPI_->speedRating(apiInfo_->getAuthHash(), lastConnectingHostname_, localExternalIp, rating, serverApiUserRole_, true);
 }
 
-void Engine::setSettingsImpl(const EngineSettings &engineSettings)
+void Engine::setSettingsImpl(const types::EngineSettings &engineSettings)
 {
     qCDebug(LOG_BASIC) << "Engine::";
 
@@ -1281,9 +1281,9 @@ void Engine::setSettingsImpl(const EngineSettings &engineSettings)
     bool isCloseTcpSocketsChanged = engineSettings_.isCloseTcpSockets() != engineSettings.isCloseTcpSockets();
     bool isDnsPolicyChanged = engineSettings_.getDnsPolicy() != engineSettings.getDnsPolicy();
     bool isCustomOvpnConfigsPathChanged = engineSettings_.getCustomOvpnConfigsPath() != engineSettings.getCustomOvpnConfigsPath();
-    bool isMACSpoofingChanged = !google::protobuf::util::MessageDifferencer::Equals(engineSettings_.getMacAddrSpoofing(), engineSettings.getMacAddrSpoofing());
-    bool isPacketSizeChanged =  !google::protobuf::util::MessageDifferencer::Equals(engineSettings_.getPacketSize(),      engineSettings.getPacketSize());
-    bool isDnsWhileConnectedChanged = !google::protobuf::util::MessageDifferencer::Equals(engineSettings_.getDnsWhileConnectedInfo(), engineSettings.getDnsWhileConnectedInfo());
+    bool isMACSpoofingChanged = engineSettings_.getMacAddrSpoofing() != engineSettings.getMacAddrSpoofing();
+    bool isPacketSizeChanged =  engineSettings_.getPacketSize() != engineSettings.getPacketSize();
+    bool isDnsWhileConnectedChanged = engineSettings_.getDnsWhileConnectedInfo() != engineSettings.getDnsWhileConnectedInfo();
     engineSettings_ = engineSettings;
 
 #ifdef Q_OS_LINUX
@@ -1312,11 +1312,11 @@ void Engine::setSettingsImpl(const EngineSettings &engineSettings)
 
     if (isUpdateChannelChanged)
     {
-        ProtoTypes::UpdateChannel channel =   engineSettings_.getUpdateChannel();
+        UPDATE_CHANNEL channel =   engineSettings_.getUpdateChannel();
         if (overrideUpdateChannelWithInternal_)
         {
             qCDebug(LOG_BASIC) << "Overriding update channel: internal";
-            channel = ProtoTypes::UPDATE_CHANNEL_INTERNAL;
+            channel = UPDATE_CHANNEL_INTERNAL;
         }
         serverAPI_->checkUpdate(channel, serverApiUserRole_, true);
     }
@@ -1735,11 +1735,11 @@ void Engine::onUpdateServerResources()
 
 void Engine::checkForAppUpdate()
 {
-    ProtoTypes::UpdateChannel channel = engineSettings_.getUpdateChannel();
+    UPDATE_CHANNEL channel = engineSettings_.getUpdateChannel();
     if (overrideUpdateChannelWithInternal_)
     {
         qCDebug(LOG_BASIC) << "Overriding update channel: internal";
-        channel = ProtoTypes::UPDATE_CHANNEL_INTERNAL;
+        channel = UPDATE_CHANNEL_INTERNAL;
     }
     serverAPI_->checkUpdate(channel, serverApiUserRole_, true);
 }
@@ -1763,12 +1763,12 @@ void Engine::onConnectionManagerConnected()
 #endif
 
     bool isFirewallAlreadyEnabled = false;
-    if (engineSettings_.firewallSettings().mode() == ProtoTypes::FIREWALL_MODE_AUTOMATIC) {
+    if (engineSettings_.firewallSettings().mode == FIREWALL_MODE_AUTOMATIC) {
         const bool isAllowFirewallAfterConnection =
             connectionManager_->isAllowFirewallAfterConnection();
 
         if (isAllowFirewallAfterConnection &&
-            engineSettings_.firewallSettings().when() == ProtoTypes::FIREWALL_WHEN_AFTER_CONNECTION)
+            engineSettings_.firewallSettings().when == FIREWALL_WHEN_AFTER_CONNECTION)
         {
             if (!firewallController_->firewallActualState())
             {
@@ -1780,7 +1780,7 @@ void Engine::onConnectionManagerConnected()
             }
         }
         else if (!isAllowFirewallAfterConnection &&
-            engineSettings_.firewallSettings().when() == ProtoTypes::FIREWALL_WHEN_BEFORE_CONNECTION)
+            engineSettings_.firewallSettings().when == FIREWALL_WHEN_BEFORE_CONNECTION)
         {
             if (firewallController_->firewallActualState())
             {
@@ -1800,11 +1800,11 @@ void Engine::onConnectionManagerConnected()
         firewallController_->firewallOn(firewallExceptions_.getIPAddressesForFirewallForConnectedState(connectionManager_->getLastConnectedIp()), engineSettings_.isAllowLanTraffic());
     }
 
-    if (connectionManager_->getCustomDnsAdapterGatewayInfo().dnsWhileConnectedInfo.type() == ProtoTypes::DNS_WHILE_CONNECTED_TYPE_CUSTOM)
+    if (connectionManager_->getCustomDnsAdapterGatewayInfo().dnsWhileConnectedInfo.type() == DNS_WHILE_CONNECTED_TYPE_CUSTOM)
     {
          if (!helper_->setCustomDnsWhileConnected(connectionManager_->currentProtocol().isIkev2Protocol(),
                                                   connectionManager_->getVpnAdapterInfo().ifIndex(),
-                                                  QString::fromStdString(connectionManager_->getCustomDnsAdapterGatewayInfo().dnsWhileConnectedInfo.ip_address())))
+                                                  connectionManager_->getCustomDnsAdapterGatewayInfo().dnsWhileConnectedInfo.ipAddress()))
          {
              qCDebug(LOG_CONNECTED_DNS) << "Failed to set Custom 'while connected' DNS";
          }
@@ -1817,7 +1817,7 @@ void Engine::onConnectionManagerConnected()
 
     if (connectionManager_->currentProtocol().isIkev2Protocol() || connectionManager_->currentProtocol().isWireGuardProtocol())
     {
-        if (!packetSize_.is_automatic())
+        if (!packetSize_.isAutomatic)
         {
             int mtuForProtocol = 0;
             if (connectionManager_->currentProtocol().isWireGuardProtocol())
@@ -1826,7 +1826,7 @@ void Engine::onConnectionManagerConnected()
                 int wgoffset = ExtraConfig::instance().getMtuOffsetWireguard(advParamWireguardMtuOffset);
                 if (!advParamWireguardMtuOffset) wgoffset = MTU_OFFSET_WG;
 
-                mtuForProtocol = packetSize_.mtu() - wgoffset;
+                mtuForProtocol = packetSize_.mtu - wgoffset;
             }
             else
             {
@@ -1834,7 +1834,7 @@ void Engine::onConnectionManagerConnected()
                 int ikev2offset = ExtraConfig::instance().getMtuOffsetIkev2(advParamIkevMtuOffset);
                 if (!advParamIkevMtuOffset) ikev2offset = MTU_OFFSET_IKEV2;
 
-                mtuForProtocol = packetSize_.mtu() - ikev2offset;
+                mtuForProtocol = packetSize_.mtu - ikev2offset;
             }
 
             if (mtuForProtocol > 0)
@@ -1951,7 +1951,7 @@ void Engine::onConnectionManagerDisconnected(DISCONNECT_REASON reason)
     {
         getMyIPController_->getIPFromDisconnectedState(1);
 
-        if (reason == DISCONNECTED_BY_USER && engineSettings_.firewallSettings().mode() == ProtoTypes::FIREWALL_MODE_AUTOMATIC &&
+        if (reason == DISCONNECTED_BY_USER && engineSettings_.firewallSettings().mode == FIREWALL_MODE_AUTOMATIC &&
             firewallController_->firewallActualState())
         {
             firewallController_->firewallOff();
@@ -2218,12 +2218,12 @@ void Engine::detectAppropriatePacketSizeImpl()
         }
         else
         {
-            qCDebug(LOG_PACKET_SIZE) << "ServerAPI not enabled for requests (working hostname not detected). Using: " << QString::number(packetSize_.mtu());
+            qCDebug(LOG_PACKET_SIZE) << "ServerAPI not enabled for requests (working hostname not detected). Using: " << QString::number(packetSize_.mtu);
         }
     }
     else
     {
-         qCDebug(LOG_PACKET_SIZE) << "No internet, cannot detect appropriate packet size. Using: " << QString::number(packetSize_.mtu());
+         qCDebug(LOG_PACKET_SIZE) << "No internet, cannot detect appropriate packet size. Using: " << QString::number(packetSize_.mtu);
     }
 }
 
@@ -2262,11 +2262,11 @@ void Engine::updateAdvancedParamsImpl()
     {
         overrideUpdateChannelWithInternal_ = newOverrideUpdateChannel;
 
-        ProtoTypes::UpdateChannel channel =   engineSettings_.getUpdateChannel();
+        UPDATE_CHANNEL channel =   engineSettings_.getUpdateChannel();
         if (overrideUpdateChannelWithInternal_)
         {
             qCDebug(LOG_BASIC) << "Overriding update channel: internal";
-            channel = ProtoTypes::UPDATE_CHANNEL_INTERNAL;
+            channel = UPDATE_CHANNEL_INTERNAL;
         }
         serverAPI_->checkUpdate(channel, serverApiUserRole_, true);
     }
@@ -2487,7 +2487,7 @@ void Engine::onNetworkOnlineStateChange(bool isOnline)
     }
 }
 
-void Engine::onNetworkChange(const ProtoTypes::NetworkInterface &networkInterface)
+void Engine::onNetworkChange(const types::NetworkInterface &networkInterface)
 {
     Q_EMIT networkChanged(networkInterface);
 }
@@ -2497,7 +2497,7 @@ void Engine::stopPacketDetection()
     QMetaObject::invokeMethod(this, "stopPacketDetectionImpl");
 }
 
-void Engine::onMacAddressSpoofingChanged(const ProtoTypes::MacAddrSpoofing &macAddrSpoofing)
+void Engine::onMacAddressSpoofingChanged(const types::MacAddrSpoofing &macAddrSpoofing)
 {
     qCDebug(LOG_BASIC) << "Engine::onMacAddressSpoofingChanged";
     setSettingsMacAddressSpoofing(macAddrSpoofing);
@@ -2505,17 +2505,17 @@ void Engine::onMacAddressSpoofingChanged(const ProtoTypes::MacAddrSpoofing &macA
 
 void Engine::onPacketSizeControllerPacketSizeChanged(bool isAuto, int mtu)
 {
-    ProtoTypes::PacketSize packetSize;
-    packetSize.set_is_automatic(isAuto);
-    packetSize.set_mtu(mtu);
+    types::PacketSize packetSize;
+    packetSize.isAutomatic = isAuto;
+    packetSize.mtu = mtu;
 
     packetSize_ = packetSize;
     connectionManager_->setPacketSize(packetSize);
     emergencyController_->setPacketSize(packetSize);
 
     // update gui
-    if (mtu    != engineSettings_.getPacketSize().mtu() ||
-        isAuto != engineSettings_.getPacketSize().is_automatic())
+    if (mtu    != engineSettings_.getPacketSize().mtu ||
+        isAuto != engineSettings_.getPacketSize().isAutomatic)
     {
 
         // qDebug() << "Updating gui with mtu: " << mtu;
@@ -2523,7 +2523,7 @@ void Engine::onPacketSizeControllerPacketSizeChanged(bool isAuto, int mtu)
 
         // Connection to EngineServer is chewing the parameters to garbage when passed as ProtoTypes::PacketSize
         // Probably has something to do with EngineThread
-        Q_EMIT packetSizeChanged(packetSize.is_automatic(), packetSize.mtu());
+        Q_EMIT packetSizeChanged(packetSize.isAutomatic, packetSize.mtu);
     }
 }
 
@@ -2645,7 +2645,7 @@ void Engine::applicationDeactivatedImpl()
     }
 }
 
-void Engine::setSettingsMacAddressSpoofingImpl(const ProtoTypes::MacAddrSpoofing &macAddrSpoofing)
+void Engine::setSettingsMacAddressSpoofingImpl(const types::MacAddrSpoofing &macAddrSpoofing)
 {
     engineSettings_.setMacAddrSpoofing(macAddrSpoofing);
     Q_EMIT macAddrSpoofingChanged(macAddrSpoofing);

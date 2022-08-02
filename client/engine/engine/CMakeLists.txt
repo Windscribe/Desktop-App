@@ -2,20 +2,18 @@ target_sources(engine PRIVATE
     crossplatformobjectfactory.cpp
     crossplatformobjectfactory.h
     engine.cpp
-    enginesettings.cpp
-    getdeviceid.cpp
-    getmyipcontroller.cpp
-    packetsizecontroller.cpp
-    refetchservercredentialshelper.cpp
-    sessionstatustimer.cpp
-    openvpnversioncontroller.cpp
     engine.h
-    enginesettings.h
+    getdeviceid.cpp
     getdeviceid.h
+    getmyipcontroller.cpp
     getmyipcontroller.h
+    openvpnversioncontroller.cpp
     openvpnversioncontroller.h
+    packetsizecontroller.cpp
     packetsizecontroller.h
+    refetchservercredentialshelper.cpp
     refetchservercredentialshelper.h
+    sessionstatustimer.cpp
     sessionstatustimer.h
 )
 

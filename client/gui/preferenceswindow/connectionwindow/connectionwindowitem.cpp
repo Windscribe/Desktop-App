@@ -25,7 +25,7 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
     connect(preferences, SIGNAL(isAllowLanTrafficChanged(bool)), SLOT(onIsAllowLanTrafficPreferencedChanged(bool)));
     connect(preferences, SIGNAL(invalidLanAddressNotification(QString)), SLOT(onInvalidLanAddressNotification(QString)));
     connect(preferences, SIGNAL(macAddrSpoofingChanged(ProtoTypes::MacAddrSpoofing)), SLOT(onMacAddrSpoofingPreferencesChanged(ProtoTypes::MacAddrSpoofing)));
-    connect(preferences, SIGNAL(dnsWhileConnectedInfoChanged(DnsWhileConnectedInfo)), SLOT(onDnsWhileConnectedPreferencesChanged(DnsWhileConnectedInfo)));
+    connect(preferences, SIGNAL(dnsWhileConnectedInfoChanged(types::DnsWhileConnectedInfo)), SLOT(onDnsWhileConnectedPreferencesChanged(types::DnsWhileConnectedInfo)));
     connect(preferencesHelper, SIGNAL(isFirewallBlockedChanged(bool)), SLOT(onIsFirewallBlockedChanged(bool)));
     connect(preferencesHelper, SIGNAL(isExternalConfigModeChanged(bool)), SLOT(onIsExternalConfigModeChanged(bool)));
 #if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
@@ -74,7 +74,7 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
     addItem(packetSizeItem_);
 
     dnsWhileConnectedItem_ = new DnsWhileConnectedItem(this);
-    connect(dnsWhileConnectedItem_, SIGNAL(dnsWhileConnectedInfoChanged(DnsWhileConnectedInfo)), SLOT(onDnsWhileConnectedItemChanged(DnsWhileConnectedInfo)));
+    connect(dnsWhileConnectedItem_, SIGNAL(dnsWhileConnectedInfoChanged(types::DnsWhileConnectedInfo)), SLOT(onDnsWhileConnectedItemChanged(types::DnsWhileConnectedInfo)));
     addItem(dnsWhileConnectedItem_);
 #endif
 
@@ -317,12 +317,12 @@ void ConnectionWindowItem::onIsExternalConfigModeChanged(bool bIsExternalConfigM
     connectionModeItem_->setVisible(!bIsExternalConfigMode);
 }
 
-void ConnectionWindowItem::onDnsWhileConnectedPreferencesChanged(const DnsWhileConnectedInfo &dns)
+void ConnectionWindowItem::onDnsWhileConnectedPreferencesChanged(const types::DnsWhileConnectedInfo &dns)
 {
     if(dnsWhileConnectedItem_) {
         dnsWhileConnectedItem_->setDNSWhileConnected(dns);
 
-        if (dns.type() == DnsWhileConnectedInfo::CUSTOM)
+        if (dns.type() == DNS_WHILE_CONNECTED_TYPE_CUSTOM)
         {
             // magic number is expanded height
             emit scrollToPosition(static_cast<int>(dnsWhileConnectedItem_->y()) + 50 + 43);
@@ -340,7 +340,7 @@ void ConnectionWindowItem::onIsAllowLanTrafficClicked(bool b)
     preferences_->setAllowLanTraffic(b);
 }
 
-void ConnectionWindowItem::onDnsWhileConnectedItemChanged(DnsWhileConnectedInfo dns)
+void ConnectionWindowItem::onDnsWhileConnectedItemChanged(types::DnsWhileConnectedInfo dns)
 {
     preferences_->setDnsWhileConnectedInfo(dns);
 }

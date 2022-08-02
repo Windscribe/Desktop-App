@@ -2,7 +2,7 @@
 #define INETWORKDETECTIONMANAGER_H
 
 #include <QObject>
-#include "utils/protobuf_includes.h"
+#include "types/networkinterface.h"
 
 class INetworkDetectionManager : public QObject
 {
@@ -10,11 +10,11 @@ class INetworkDetectionManager : public QObject
 public:
     explicit INetworkDetectionManager(QObject *parent) : QObject(parent) {}
     virtual ~INetworkDetectionManager() {}
-    virtual void getCurrentNetworkInterface(ProtoTypes::NetworkInterface &networkInterface) = 0;
+    virtual void getCurrentNetworkInterface(types::NetworkInterface &networkInterface) = 0;
     virtual bool isOnline() = 0;
 
 signals:
-    void networkChanged(const ProtoTypes::NetworkInterface &networkInterface);
+    void networkChanged(const types::NetworkInterface &networkInterface);
     void onlineStateChanged(bool isOnline);
 
 };

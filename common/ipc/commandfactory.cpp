@@ -165,10 +165,6 @@ Command *CommandFactory::makeCommand(const std::string strId, char *buf, int siz
         return new ProtobufCommand<IPCClientCommands::AdvancedParametersChanged>(buf, size);
     }
     // servers commands
-    else if (strId == IPCServerCommands::AuthReply::descriptor()->full_name())
-    {
-        return new ProtobufCommand<IPCServerCommands::AuthReply>(buf, size);
-    }
     else if (strId == IPCServerCommands::InitFinished::descriptor()->full_name())
     {
         return new ProtobufCommand<IPCServerCommands::InitFinished>(buf, size);

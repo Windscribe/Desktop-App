@@ -5,6 +5,7 @@
 #include <QObject>
 #include "engine/helper/ihelper.h"
 #include "types/enums.h"
+#include "types/packetsize.h"
 #include "engine/connectionmanager/iconnection.h"
 #include "engine/connectionmanager/makeovpnfile.h"
 
@@ -27,7 +28,7 @@ public:
 
     const AdapterGatewayInfo &getVpnAdapterInfo() const;
 
-    void setPacketSize(ProtoTypes::PacketSize ps);
+    void setPacketSize(types::PacketSize ps);
 
 signals:
     void connected();
@@ -63,7 +64,7 @@ private:
     QString lastIp_;
     uint serverApiUserRole_;
     int state_;
-    ProtoTypes::PacketSize packetSize_;
+    types::PacketSize packetSize_;
 
     AdapterGatewayInfo defaultAdapterInfo_;
     AdapterGatewayInfo vpnAdapterInfo_;
