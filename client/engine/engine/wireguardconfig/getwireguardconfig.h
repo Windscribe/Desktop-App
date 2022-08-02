@@ -49,8 +49,8 @@ private:
     void setWireGuardKeyPair(const QString &publicKey, const QString &privateKey);
     bool getWireGuardPeerInfo(QString &presharedKey, QString &allowedIPs);
     void setWireGuardPeerInfo(const QString &presharedKey, const QString &allowedIPs);
-    ProtoApiInfo::WireGuardConfig readWireGuardConfigFromSettings();
-    void writeWireGuardConfigToSettings(const ProtoApiInfo::WireGuardConfig &wgConfig);
+    WireGuardConfig readWireGuardConfigFromSettings();
+    void writeWireGuardConfigToSettings(const WireGuardConfig &wgConfig);
 };
 
 #endif // GETWIREGUARDCONFIG_H

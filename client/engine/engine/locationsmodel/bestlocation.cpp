@@ -1,5 +1,6 @@
 #include "bestlocation.h"
 
+#include <QIODevice>
 #include <QSettings>
 
 namespace locationsmodel {
@@ -49,14 +50,11 @@ void BestLocation::saveToSettings()
 {
     if (isValid_)
     {
-        ProtoApiInfo::BestLocation b;
-
-        *b.mutable_location_id() = id_.toProtobuf();
-
-        size_t size = b.ByteSizeLong();
-        QByteArray arr(size, Qt::Uninitialized);
-        b.SerializeToArray(arr.data(), size);
-
+        QByteArray arr;
+        {
+            QDataStream ds(&arr, QIODevice::WriteOnly);
+            ds << magic_ << versionForSerialization_ << id_;
+        }
         QSettings settings;
         settings.setValue("bestLocation", arr);
     }
@@ -68,12 +66,20 @@ void BestLocation::loadFromSettings()
     if (settings.contains("bestLocation"))
     {
         QByteArray arr = settings.value("bestLocation").toByteArray();
-        ProtoApiInfo::BestLocation b;
-        if (b.ParseFromArray(arr.data(), arr.size()))
+        QDataStream ds(&arr, QIODevice::ReadOnly);
+        quint32 magic, version;
+        ds >> magic;
+        if (magic != magic_)
         {
-            isValid_ = true;
-            id_ = LocationID::createFromProtoBuf(b.location_id());
+            return;
         }
+        ds >> version;
+        if (version > versionForSerialization_)
+        {
+            return;
+        }
+        ds >> id_;
+        isValid_ = true;
     }
 }
 

@@ -12,6 +12,7 @@ public:
                     const QString &allowedIps);
 
     void reset();
+    bool isValidSerialization() const { return isValidSerialization_; }
 
     QString clientPrivateKey() const { return client_.privateKey; }
     QString clientPublicKey() const { return client_.publicKey; }
@@ -34,10 +35,13 @@ public:
 
     bool generateKeyPair();
     bool haveKeyPair() const;
-    void setKeyPair(QString& publicKey, QString& privateKey);
+    void setKeyPair(const QString& publicKey, const QString& privateKey);
 
     static QString stripIpv6Address(const QStringList &addressList);
     static QString stripIpv6Address(const QString &addressList);
+
+    friend QDataStream& operator <<(QDataStream &stream, const WireGuardConfig &c);
+    friend QDataStream& operator >>(QDataStream &stream, WireGuardConfig &c);
 
 private:
     struct {
@@ -52,6 +56,12 @@ private:
         QString endpoint;
         QString allowedIps;
     } peer_;
+
+    bool isValidSerialization_;      // flag to check that we have successfully read from the stream
+
+    // for serialization
+    static constexpr quint32 magic_ = 0xA4B0C539;
+    static constexpr quint32 versionForSerialization_ = 1;  // should increment the version if the data format is changed
 };
 
 #endif // WIREGUARDCONFIG_H

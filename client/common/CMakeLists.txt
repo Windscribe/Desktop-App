@@ -22,8 +22,6 @@ set(PROJECT_SOURCES
     ${COMMON_PATH}/ipc/commands.h
     ${COMMON_PATH}/ipc/connection.cpp
     ${COMMON_PATH}/ipc/connection.h
-    ${COMMON_PATH}/ipc/generated_proto/apiinfo.pb.cc
-    ${COMMON_PATH}/ipc/generated_proto/apiinfo.pb.h
     ${COMMON_PATH}/ipc/generated_proto/cli.pb.cc
     ${COMMON_PATH}/ipc/generated_proto/cli.pb.h
     ${COMMON_PATH}/ipc/generated_proto/clientcommands.pb.cc
@@ -100,6 +98,11 @@ set(PROJECT_SOURCES
     ${COMMON_PATH}/version/appversion.cpp
     ${COMMON_PATH}/version/appversion.h
     ${COMMON_PATH}/version/windscribe_version.h
+
+    ${COMMON_PATH}/legacy_protobuf_support/protobuf-c/protobuf-c.c
+    ${COMMON_PATH}/legacy_protobuf_support/protobuf-c/protobuf-c.h
+    ${COMMON_PATH}/legacy_protobuf_support/apiinfo.pb-c.c
+    ${COMMON_PATH}/legacy_protobuf_support/apiinfo.pb-c.h
 )
 
 

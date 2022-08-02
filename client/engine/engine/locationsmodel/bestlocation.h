@@ -31,6 +31,10 @@ private:
     bool isDetectedFromThisAppStart_;        // if the location is detected with pings with this app start (not readed from settings or detected as random first)
     bool isDetectedWithDisconnectedIps_;     // if the location is detected without pings in connected state
     LocationID id_;
+
+    // for serialization
+    static constexpr quint32 magic_ = 0xA4B0C538;
+    static constexpr quint32 versionForSerialization_ = 1;  // should increment the version if the data format is changed
 };
 
 

@@ -59,6 +59,30 @@ public:
     int id() { return id_; }
     QString city() { return city_; }
 
+    friend QDataStream& operator <<(QDataStream &stream, const LocationID &l)
+    {
+        stream << versionForSerialization_;
+        stream << l.type_ << l.id_ << l.city_;
+        return stream;
+    }
+    friend QDataStream& operator >>(QDataStream &stream, LocationID &l)
+    {
+        quint32 version;
+        stream >> version;
+        Q_ASSERT(version == versionForSerialization_);
+        if (version > versionForSerialization_)
+        {
+            l.type_ = INVALID_LOCATION;
+            l.id_ = 0;
+            l.city_.clear();
+        }
+        else
+        {
+            stream >> l.type_ >> l.id_ >> l.city_;
+        }
+        return stream;
+    }
+
 private:
     static constexpr int INVALID_LOCATION = 0;
     static constexpr int API_LOCATION = 1;
@@ -76,6 +100,8 @@ private:
                     // for CUSTOM_OVPN_CONFIGS_LOCATION this is config filename
                     // for STATIC_IPS_LOCATION this is city + ip string
                     // for top level location - empty value
+
+    static constexpr quint32 versionForSerialization_ = 1;  // should increment the version if the data format is changed
 };
 
 inline size_t qHash(const LocationID &key, uint seed)
