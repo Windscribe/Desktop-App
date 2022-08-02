@@ -4,6 +4,7 @@
 #include <QObject>
 #include "types/dnswhileconnectedinfo.h"
 #include "utils/protobuf_includes.h"
+#include "types/enginesettings.h"
 
 // all preferences with the ability to receive signals when certain preferences are changed
 class Preferences : public QObject
@@ -50,8 +51,8 @@ public:
     ProtoTypes::LatencyDisplayType latencyDisplay() const;
     void setLatencyDisplay(ProtoTypes::LatencyDisplayType l);
 
-    ProtoTypes::UpdateChannel updateChannel() const;
-    void setUpdateChannel(ProtoTypes::UpdateChannel c);
+    UPDATE_CHANNEL updateChannel() const;
+    void setUpdateChannel(UPDATE_CHANNEL c);
 
     ProtoTypes::NetworkWhiteList networkWhiteList();
     void setNetworkWhiteList(ProtoTypes::NetworkWhiteList l);
@@ -59,23 +60,23 @@ public:
     //const CustomRouting &customRouting() const;
     //void setCustomRouting(const CustomRouting &cr);
 
-    const ProtoTypes::ProxySettings &proxySettings() const;
-    void setProxySettings(const ProtoTypes::ProxySettings &ps);
+    const types::ProxySettings &proxySettings() const;
+    void setProxySettings(const types::ProxySettings &ps);
 
-    const ProtoTypes::FirewallSettings &firewalSettings() const;
-    void setFirewallSettings(const ProtoTypes::FirewallSettings &fm);
+    const types::FirewallSettings &firewalSettings() const;
+    void setFirewallSettings(const types::FirewallSettings &fs);
 
-    const ProtoTypes::ConnectionSettings &connectionSettings() const;
-    void setConnectionSettings(const ProtoTypes::ConnectionSettings &cm);
+    const types::ConnectionSettings &connectionSettings() const;
+    void setConnectionSettings(const types::ConnectionSettings &cs);
 
-    const ProtoTypes::ApiResolution &apiResolution() const;
-    void setApiResolution(const ProtoTypes::ApiResolution &ar);
+    const types::DnsResolutionSettings &apiResolution() const;
+    void setApiResolution(const types::DnsResolutionSettings &s);
 
-    const ProtoTypes::PacketSize &packetSize() const;
-    void setPacketSize(const ProtoTypes::PacketSize &ps);
+    const types::PacketSize &packetSize() const;
+    void setPacketSize(const types::PacketSize &ps);
 
-    const ProtoTypes::MacAddrSpoofing &macAddrSpoofing() const;
-    void setMacAddrSpoofing(const ProtoTypes::MacAddrSpoofing &mas);
+    const types::MacAddrSpoofing &macAddrSpoofing() const;
+    void setMacAddrSpoofing(const types::MacAddrSpoofing &mas);
 
     bool isIgnoreSslErrors() const;
     void setIgnoreSslErrors(bool b);
@@ -95,11 +96,11 @@ public:
     void setDebugAdvancedParameters(const QString &p);
 
 #ifdef Q_OS_WIN
-    ProtoTypes::TapAdapterType tapAdapter() const;
-    void setTapAdapter(ProtoTypes::TapAdapterType tapAdapter);
+    TAP_ADAPTER_TYPE tapAdapter() const;
+    void setTapAdapter(TAP_ADAPTER_TYPE tapAdapter);
 #endif
-    ProtoTypes::DnsPolicy dnsPolicy() const;
-    void setDnsPolicy(ProtoTypes::DnsPolicy d);
+    DNS_POLICY_TYPE dnsPolicy() const;
+    void setDnsPolicy(DNS_POLICY_TYPE d);
 
 #ifdef Q_OS_LINUX
     ProtoTypes::DnsManagerType dnsManager() const;
@@ -124,10 +125,10 @@ public:
     QString customOvpnConfigsPath() const;
     void setCustomOvpnConfigsPath(const QString &path);
 
-    void setEngineSettings(const ProtoTypes::EngineSettings &es);
+    void setEngineSettings(const types::EngineSettings &es);
     //void setGuiSettings(const ProtoTypes::GuiSettings &gs);
 
-    ProtoTypes::EngineSettings getEngineSettings() const;
+    types::EngineSettings getEngineSettings() const;
 
     void saveGuiSettings() const;
     void loadGuiSettings();
@@ -150,13 +151,13 @@ signals:
     void languageChanged(const QString &lang);
     void locationOrderChanged(ProtoTypes::OrderLocationType o);
     void latencyDisplayChanged(ProtoTypes::LatencyDisplayType l);
-    void updateChannelChanged(const ProtoTypes::UpdateChannel &c);
-    void proxySettingsChanged(const ProtoTypes::ProxySettings &ps);
-    void firewallSettingsChanged(const ProtoTypes::FirewallSettings &fm);
-    void connectionSettingsChanged(const ProtoTypes::ConnectionSettings &cm);
-    void apiResolutionChanged(const ProtoTypes::ApiResolution &ar);
-    void packetSizeChanged(const ProtoTypes::PacketSize &ps);
-    void macAddrSpoofingChanged(const ProtoTypes::MacAddrSpoofing &mas);
+    void updateChannelChanged(UPDATE_CHANNEL c);
+    void proxySettingsChanged(const types::ProxySettings &ps);
+    void firewallSettingsChanged(const types::FirewallSettings &fs);
+    void connectionSettingsChanged(const types::ConnectionSettings &cm);
+    void apiResolutionChanged(const types::DnsResolutionSettings &s);
+    void packetSizeChanged(const types::PacketSize &ps);
+    void macAddrSpoofingChanged(const types::MacAddrSpoofing &mas);
     void isIgnoreSslErrorsChanged(bool b);
     void invalidLanAddressNotification(QString address);
     void customConfigsPathChanged(QString path);
@@ -165,7 +166,7 @@ signals:
 #if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     void minimizeAndCloseToTrayChanged(bool b);
     void isKillTcpSocketsChanged(bool b);
-    void tapAdapterChanged(ProtoTypes::TapAdapterType tapAdapter);
+    void tapAdapterChanged(TAP_ADAPTER_TYPE tapAdapter);
 #elif defined Q_OS_MAC
     void hideFromDockChanged(bool b);
 #endif
@@ -173,7 +174,7 @@ signals:
     void shareSecureHotspotChanged(const ProtoTypes::ShareSecureHotspot &ss);
     void shareProxyGatewayChanged(const ProtoTypes::ShareProxyGateway &sp);
     void debugAdvancedParametersChanged(const QString &pars);
-    void dnsPolicyChanged(ProtoTypes::DnsPolicy d);
+    void dnsPolicyChanged(DNS_POLICY_TYPE d);
 
 #if defined(Q_OS_LINUX)
     void dnsManagerChanged(ProtoTypes::DnsManagerType d);
@@ -188,7 +189,7 @@ signals:
     void reportErrorToUser(QString title, QString desc);
 
 private:
-    ProtoTypes::EngineSettings engineSettings_;
+    types::EngineSettings engineSettings_;
     ProtoTypes::GuiSettings guiSettings_;
 
     bool receivingEngineSettings_;

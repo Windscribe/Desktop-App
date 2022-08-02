@@ -63,29 +63,50 @@ public:
     //bool isEqual(const ProtoTypes::EngineSettings &s) const;
 
     QString language() const;
-    bool isIgnoreSslErrors() const;
-    bool isCloseTcpSockets() const;
-    bool isAllowLanTraffic() const;
-    const types::FirewallSettings &firewallSettings() const;
-    const types::ConnectionSettings &connectionSettings() const;
-    const types::DnsResolutionSettings &dnsResolutionSettings() const;
-    const types::ProxySettings &proxySettings() const;
-    DNS_POLICY_TYPE getDnsPolicy() const;
-    DNS_MANAGER_TYPE getDnsManager() const;
-    const types::MacAddrSpoofing &getMacAddrSpoofing() const;
-    const types::PacketSize &getPacketSize() const;
-    UPDATE_CHANNEL getUpdateChannel() const;
-    const types::DnsWhileConnectedInfo &getDnsWhileConnectedInfo() const;
-    bool isUseWintun() const;
-    QString getCustomOvpnConfigsPath() const;
-    bool isKeepAliveEnabled() const;
+    void setLanguage(const QString &lang);
 
+    bool isIgnoreSslErrors() const;
+    void setIsIgnoreSslErrors(bool ignore);
+    bool isCloseTcpSockets() const;
+    void setIsCloseTcpSockets(bool close);
+    bool isAllowLanTraffic() const;
+    void setIsAllowLanTraffic(bool isAllowLanTraffic);
+
+
+    const types::FirewallSettings &firewallSettings() const;
+    void setFirewallSettings(const types::FirewallSettings &fs);
+    const types::ConnectionSettings &connectionSettings() const;
+    void setConnectionSettings(const types::ConnectionSettings &cs);
+    const types::DnsResolutionSettings &dnsResolutionSettings() const;
+    void setDnsResolutionSettings(const types::DnsResolutionSettings &drs);
+    const types::ProxySettings &proxySettings() const;
+    void setProxySettings(const types::ProxySettings &ps);
+    DNS_POLICY_TYPE dnsPolicy() const;
+    void setDnsPolicy(DNS_POLICY_TYPE policy);
+    DNS_MANAGER_TYPE dnsManager() const;
+    void setDnsManager(DNS_MANAGER_TYPE dnsManager);
+    const types::MacAddrSpoofing &macAddrSpoofing() const;
     void setMacAddrSpoofing(const types::MacAddrSpoofing &macAddrSpoofing);
+    const types::PacketSize &packetSize() const;
     void setPacketSize(const types::PacketSize &packetSize);
+    UPDATE_CHANNEL updateChannel() const;
+    void setUpdateChannel(UPDATE_CHANNEL channel);
+    const types::DnsWhileConnectedInfo &dnsWhileConnectedInfo() const;
+    void setDnsWhileConnectedInfo(const types::DnsWhileConnectedInfo &info);
+
+    bool isUseWintun() const;
+    TAP_ADAPTER_TYPE tapAdapter() const;
+    void setTapAdapter(TAP_ADAPTER_TYPE tap);
+
+
+    QString customOvpnConfigsPath() const;
+    void setCustomOvpnConfigsPath(const QString &path);
+    bool isKeepAliveEnabled() const;
+    void setIsKeepAliveEnabled(bool enabled);
+
 
     bool operator==(const EngineSettings &other) const;
     bool operator!=(const EngineSettings &other) const;
-
 
 private:
     QSharedDataPointer<EngineSettingsData> d;

@@ -65,6 +65,9 @@ public:
         initState_(initState), engineSettings_(engineSettings), availableOpenvpnVersions_(availableOpenvpnVersions), isWifiSharingSupported_(isWifiSharingSupported),
         isSavedApiSettingsExists_(isSavedApiSettingsExists), authHash_(authHash)
     {}
+    explicit InitFinished(INIT_STATE initState) :
+        initState_(initState)
+    {}
 
     std::vector<char> getData() const override   {  Q_ASSERT(false); return std::vector<char>(); }
     std::string getStringId() const override { return getCommandStringId(); }

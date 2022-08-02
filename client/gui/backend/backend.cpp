@@ -5,6 +5,7 @@
 #include "ipc/connection.h"
 #include "ipc/protobufcommand.h"
 #include "ipc/servercommands.h"
+#include "ipc/clientcommands.h"
 #include "utils/utils.h"
 #include "persistentstate.h"
 #include "engineserver.h"
@@ -229,7 +230,7 @@ bool Backend::isFirewallEnabled()
 
 bool Backend::isFirewallAlwaysOn()
 {
-    return getPreferences()->firewalSettings().mode() == ProtoTypes::FIREWALL_MODE_ALWAYS_ON;
+    return getPreferences()->firewalSettings().mode == FIREWALL_MODE_ALWAYS_ON;
 }
 
 void Backend::emergencyConnectClick()
@@ -392,12 +393,11 @@ void Backend::sendAdvancedParametersChanged()
 
 void Backend::sendEngineSettingsIfChanged()
 {
-    if(!google::protobuf::util::MessageDifferencer::Equals(preferences_.getEngineSettings(), latestEngineSettings_))
+    if (preferences_.getEngineSettings() != latestEngineSettings_)
     {
         qCDebug(LOG_BASIC) << "Engine settings changed, sent to engine";
         latestEngineSettings_ = preferences_.getEngineSettings();
-        IPC::ProtobufCommand<IPCClientCommands::SetSettings> cmd;
-        *cmd.getProtoObj().mutable_enginesettings() = latestEngineSettings_;
+        IPC::ClientCommands::SetSettings cmd(latestEngineSettings_);
         qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
         engineServer_->sendCommand(&cmd);
     }
@@ -452,27 +452,27 @@ void Backend::onConnectionNewCommand(IPC::Command *command)
         qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
         engineServer_->sendCommand(&cmd);
     }
-    else if (command->getStringId() == IPCServerCommands::InitFinished::descriptor()->full_name())
+    else if (command->getStringId() == IPC::ServerCommands::InitFinished::getCommandStringId())
     {
         // if (ipcState_ != IPC_READY) // safe? -- prevent triggering GUI initFinished when Engine Init is broadcast as a result of CLI init
         {
-            IPC::ProtobufCommand<IPCServerCommands::InitFinished> *cmd = static_cast<IPC::ProtobufCommand<IPCServerCommands::InitFinished> *>(command);
-            if (cmd->getProtoObj().init_state() == ProtoTypes::INIT_SUCCESS)
+            IPC::ServerCommands::InitFinished *cmd = static_cast<IPC::ServerCommands::InitFinished *>(command);
+            if (cmd->initState_ == INIT_STATE_SUCCESS)
             {
-                latestEngineSettings_ = cmd->getProtoObj().engine_settings();
+                latestEngineSettings_ = cmd->engineSettings_;
                 preferences_.setEngineSettings(latestEngineSettings_);
-                getOpenVpnVersionsFromInitCommand(cmd->getProtoObj());
+                getOpenVpnVersionsFromInitCommand(*cmd);
 
                 // WiFi sharing supported state
-                if (cmd->getProtoObj().has_is_wifi_sharing_supported())
+                if (cmd->isWifiSharingSupported_)
                 {
-                    preferencesHelper_.setWifiSharingSupported(cmd->getProtoObj().is_wifi_sharing_supported());
+                    preferencesHelper_.setWifiSharingSupported(cmd->isWifiSharingSupported_);
                 }
 
-                isSavedApiSettingsExists_ = cmd->getProtoObj().is_saved_api_settings_exists();
-                accountInfo_.setAuthHash(QString::fromStdString(cmd->getProtoObj().auth_hash()));
+                isSavedApiSettingsExists_ = cmd->isSavedApiSettingsExists_;
+                accountInfo_.setAuthHash(cmd->authHash_);
             }
-            Q_EMIT initFinished(cmd->getProtoObj().init_state());
+            Q_EMIT initFinished(cmd->initState_);
         }
     }
     else if (command->getStringId() == IPCServerCommands::FirewallStateChanged::descriptor()->full_name())
@@ -608,10 +608,10 @@ void Backend::onConnectionNewCommand(IPC::Command *command)
     {
         Q_EMIT gotoCustomOvpnConfigModeFinished();
     }
-    else if (command->getStringId() == IPCServerCommands::EngineSettingsChanged::descriptor()->full_name())
+    else if (command->getStringId() == IPC::ServerCommands::EngineSettingsChanged::getCommandStringId())
     {
         qCDebugMultiline(LOG_IPC) << QString::fromStdString(command->getDebugString());
-        latestEngineSettings_ = static_cast<IPC::ProtobufCommand<IPCServerCommands::EngineSettingsChanged> *>(command)->getProtoObj().enginesettings();
+        latestEngineSettings_ = static_cast<IPC::ServerCommands::EngineSettingsChanged *>(command)->engineSettings_;
         preferences_.setEngineSettings(latestEngineSettings_);
     }
     else if (command->getStringId() == IPCServerCommands::CleanupFinished::descriptor()->full_name())
@@ -717,7 +717,7 @@ void Backend::abortInitialization()
     if (connection_)
         connection_->close();*/
 
-    Q_EMIT initFinished(ProtoTypes::INIT_CLEAN);
+    Q_EMIT initFinished(INIT_STATE_CLEAN);
 }
 
 // Assumes that duplicate network filtering occurs on Engine side
@@ -913,15 +913,15 @@ void Backend::updateAccountInfo()
     accountInfo_.setIsPremium(latestSessionStatus_.isPremium());
 }
 
-void Backend::getOpenVpnVersionsFromInitCommand(const IPCServerCommands::InitFinished &cmd)
+void Backend::getOpenVpnVersionsFromInitCommand(const IPC::ServerCommands::InitFinished &cmd)
 {
     // OpenVpn versions
-    if (cmd.available_openvpn_versions_size() > 0)
+    if (cmd.availableOpenvpnVersions_.size() > 0)
     {
         QStringList list;
-        for (int i = 0; i < cmd.available_openvpn_versions_size(); ++i)
+        for (auto it : cmd.availableOpenvpnVersions_)
         {
-            list << QString::fromStdString(cmd.available_openvpn_versions(i));
+            list << it;
         }
 
         preferencesHelper_.setAvailableOpenVpnVersions(list);

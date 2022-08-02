@@ -598,10 +598,10 @@ void Engine::initPart2()
 
     networkDetectionManager_ = CrossPlatformObjectFactory::createNetworkDetectionManager(this, helper_);
 
-    DnsServersConfiguration::instance().setDnsServersPolicy(engineSettings_.getDnsPolicy());
-    firewallExceptions_.setDnsPolicy(engineSettings_.getDnsPolicy());
+    DnsServersConfiguration::instance().setDnsServersPolicy(engineSettings_.dnsPolicy());
+    firewallExceptions_.setDnsPolicy(engineSettings_.dnsPolicy());
 
-    types::MacAddrSpoofing macAddrSpoofing = engineSettings_.getMacAddrSpoofing();
+    types::MacAddrSpoofing macAddrSpoofing = engineSettings_.macAddrSpoofing();
     //todo refactor
 #ifdef Q_OS_MAC
     *macAddrSpoofing.mutable_network_interfaces() = NetworkUtils_mac::currentNetworkInterfaces(true);
@@ -625,7 +625,7 @@ void Engine::initPart2()
 
     packetSizeControllerThread_ = new QThread(this);
 
-    types::PacketSize packetSize = engineSettings_.getPacketSize();
+    types::PacketSize packetSize = engineSettings_.packetSize();
     packetSizeController_ = new PacketSizeController(nullptr);
     packetSizeController_->setPacketSize(packetSize);
     packetSize_ = packetSize;
@@ -664,7 +664,7 @@ void Engine::initPart2()
 
     connectionManager_ = new ConnectionManager(this, helper_, networkDetectionManager_, serverAPI_, customOvpnAuthCredentialsStorage_);
     connectionManager_->setPacketSize(packetSize_);
-    connectionManager_->setDnsWhileConnectedInfo(engineSettings_.getDnsWhileConnectedInfo());
+    connectionManager_->setDnsWhileConnectedInfo(engineSettings_.dnsWhileConnectedInfo());
     connect(connectionManager_, SIGNAL(connected()), SLOT(onConnectionManagerConnected()));
     connect(connectionManager_, SIGNAL(disconnected(DISCONNECT_REASON)), SLOT(onConnectionManagerDisconnected(DISCONNECT_REASON)));
     connect(connectionManager_, SIGNAL(reconnecting()), SLOT(onConnectionManagerReconnecting()));
@@ -700,7 +700,7 @@ void Engine::initPart2()
     connect(emergencyController_, SIGNAL(errorDuringConnection(ProtoTypes::ConnectError)), SLOT(onEmergencyControllerError(ProtoTypes::ConnectError)));
 
     customConfigs_ = new customconfigs::CustomConfigs(this);
-    customConfigs_->changeDir(engineSettings_.getCustomOvpnConfigsPath());
+    customConfigs_->changeDir(engineSettings_.customOvpnConfigsPath());
     connect(customConfigs_, SIGNAL(changed()), SLOT(onCustomConfigsChanged()));
 
     updateServerResourcesTimer_ = new QTimer(this);
@@ -1275,15 +1275,15 @@ void Engine::setSettingsImpl(const types::EngineSettings &engineSettings)
     qCDebug(LOG_BASIC) << "Engine::";
 
     bool isAllowLanTrafficChanged = engineSettings_.isAllowLanTraffic() != engineSettings.isAllowLanTraffic();
-    bool isUpdateChannelChanged = engineSettings_.getUpdateChannel() != engineSettings.getUpdateChannel();
+    bool isUpdateChannelChanged = engineSettings_.updateChannel() != engineSettings.updateChannel();
     bool isLanguageChanged = engineSettings_.language() != engineSettings.language();
     bool isProtocolChanged = !engineSettings_.connectionSettings().protocol().isEqual(engineSettings.connectionSettings().protocol());
     bool isCloseTcpSocketsChanged = engineSettings_.isCloseTcpSockets() != engineSettings.isCloseTcpSockets();
-    bool isDnsPolicyChanged = engineSettings_.getDnsPolicy() != engineSettings.getDnsPolicy();
-    bool isCustomOvpnConfigsPathChanged = engineSettings_.getCustomOvpnConfigsPath() != engineSettings.getCustomOvpnConfigsPath();
-    bool isMACSpoofingChanged = engineSettings_.getMacAddrSpoofing() != engineSettings.getMacAddrSpoofing();
-    bool isPacketSizeChanged =  engineSettings_.getPacketSize() != engineSettings.getPacketSize();
-    bool isDnsWhileConnectedChanged = engineSettings_.getDnsWhileConnectedInfo() != engineSettings.getDnsWhileConnectedInfo();
+    bool isDnsPolicyChanged = engineSettings_.dnsPolicy() != engineSettings.dnsPolicy();
+    bool isCustomOvpnConfigsPathChanged = engineSettings_.customOvpnConfigsPath() != engineSettings.customOvpnConfigsPath();
+    bool isMACSpoofingChanged = engineSettings_.macAddrSpoofing() != engineSettings.macAddrSpoofing();
+    bool isPacketSizeChanged =  engineSettings_.packetSize() != engineSettings.packetSize();
+    bool isDnsWhileConnectedChanged = engineSettings_.dnsWhileConnectedInfo() != engineSettings.dnsWhileConnectedInfo();
     engineSettings_ = engineSettings;
 
 #ifdef Q_OS_LINUX
@@ -1292,17 +1292,17 @@ void Engine::setSettingsImpl(const types::EngineSettings &engineSettings)
 
     if (isDnsPolicyChanged)
     {
-        firewallExceptions_.setDnsPolicy(engineSettings_.getDnsPolicy());
+        firewallExceptions_.setDnsPolicy(engineSettings_.dnsPolicy());
         if (connectStateController_->currentState() != CONNECT_STATE_CONNECTED && emergencyConnectStateController_->currentState() != CONNECT_STATE_CONNECTED)
         {
-            DnsServersConfiguration::instance().setDnsServersPolicy(engineSettings_.getDnsPolicy());
+            DnsServersConfiguration::instance().setDnsServersPolicy(engineSettings_.dnsPolicy());
         }
     }
 
     if (isDnsWhileConnectedChanged)
     {
         // tell connection manager about new settings (it will use them onConnect)
-        connectionManager_->setDnsWhileConnectedInfo(engineSettings.getDnsWhileConnectedInfo());
+        connectionManager_->setDnsWhileConnectedInfo(engineSettings.dnsWhileConnectedInfo());
     }
 
     if (isAllowLanTrafficChanged || isDnsPolicyChanged)
@@ -1312,7 +1312,7 @@ void Engine::setSettingsImpl(const types::EngineSettings &engineSettings)
 
     if (isUpdateChannelChanged)
     {
-        UPDATE_CHANNEL channel =   engineSettings_.getUpdateChannel();
+        UPDATE_CHANNEL channel =   engineSettings_.updateChannel();
         if (overrideUpdateChannelWithInternal_)
         {
             qCDebug(LOG_BASIC) << "Overriding update channel: internal";
@@ -1363,20 +1363,20 @@ void Engine::setSettingsImpl(const types::EngineSettings &engineSettings)
     if (isMACSpoofingChanged)
     {
         qCDebug(LOG_BASIC) << "Set MAC Spoofing (Engine)";
-        macAddressController_->setMacAddrSpoofing(engineSettings_.getMacAddrSpoofing());
+        macAddressController_->setMacAddrSpoofing(engineSettings_.macAddrSpoofing());
     }
 
     if (isPacketSizeChanged)
     {
         qCDebug(LOG_BASIC) << "Engine updating packet size controller";
-        packetSizeController_->setPacketSize(engineSettings_.getPacketSize());
+        packetSizeController_->setPacketSize(engineSettings_.packetSize());
     }
 
     serverAPI_->setIgnoreSslErrors(engineSettings_.isIgnoreSslErrors());
 
     if (isCustomOvpnConfigsPathChanged)
     {
-        customConfigs_->changeDir(engineSettings_.getCustomOvpnConfigsPath());
+        customConfigs_->changeDir(engineSettings_.customOvpnConfigsPath());
     }
 
     keepAliveManager_->setEnabled(engineSettings_.isKeepAliveEnabled());
@@ -1735,7 +1735,7 @@ void Engine::onUpdateServerResources()
 
 void Engine::checkForAppUpdate()
 {
-    UPDATE_CHANNEL channel = engineSettings_.getUpdateChannel();
+    UPDATE_CHANNEL channel = engineSettings_.updateChannel();
     if (overrideUpdateChannelWithInternal_)
     {
         qCDebug(LOG_BASIC) << "Overriding update channel: internal";
@@ -1966,7 +1966,7 @@ void Engine::onConnectionManagerReconnecting()
 {
     qCDebug(LOG_BASIC) << "on reconnecting event";
 
-    DnsServersConfiguration::instance().setDnsServersPolicy(engineSettings_.getDnsPolicy());
+    DnsServersConfiguration::instance().setDnsServersPolicy(engineSettings_.dnsPolicy());
 
     if (firewallController_->firewallActualState())
     {
@@ -2262,7 +2262,7 @@ void Engine::updateAdvancedParamsImpl()
     {
         overrideUpdateChannelWithInternal_ = newOverrideUpdateChannel;
 
-        UPDATE_CHANNEL channel =   engineSettings_.getUpdateChannel();
+        UPDATE_CHANNEL channel =   engineSettings_.updateChannel();
         if (overrideUpdateChannelWithInternal_)
         {
             qCDebug(LOG_BASIC) << "Overriding update channel: internal";
@@ -2421,7 +2421,7 @@ void Engine::onEmergencyControllerDisconnected(DISCONNECT_REASON reason)
     qCDebug(LOG_BASIC) << "Engine::onEmergencyControllerDisconnected(), reason =" << reason;
 
     serverAPI_->enableProxy();
-    DnsServersConfiguration::instance().setDnsServersPolicy(engineSettings_.getDnsPolicy());
+    DnsServersConfiguration::instance().setDnsServersPolicy(engineSettings_.dnsPolicy());
 
     emergencyConnectStateController_->setDisconnectedState(reason, ProtoTypes::ConnectError::NO_CONNECT_ERROR);
     Q_EMIT emergencyDisconnected();
@@ -2514,8 +2514,8 @@ void Engine::onPacketSizeControllerPacketSizeChanged(bool isAuto, int mtu)
     emergencyController_->setPacketSize(packetSize);
 
     // update gui
-    if (mtu    != engineSettings_.getPacketSize().mtu ||
-        isAuto != engineSettings_.getPacketSize().isAutomatic)
+    if (mtu    != engineSettings_.packetSize().mtu ||
+        isAuto != engineSettings_.packetSize().isAutomatic)
     {
 
         // qDebug() << "Updating gui with mtu: " << mtu;
@@ -2861,7 +2861,7 @@ void Engine::doConnect(bool bEmitAuthError)
 
             connectionManager_->clickConnect(apiInfo_->getOvpnConfig(), apiInfo_->getServerCredentials(), bli,
                 engineSettings_.connectionSettings(), apiInfo_->getPortMap(),
-                ProxyServerController::instance().getCurrentProxySettings(), bEmitAuthError, engineSettings_.getCustomOvpnConfigsPath());
+                ProxyServerController::instance().getCurrentProxySettings(), bEmitAuthError, engineSettings_.customOvpnConfigsPath());
         }
     }
     // for custom configs without login
@@ -2871,7 +2871,7 @@ void Engine::doConnect(bool bEmitAuthError)
 
         connectionManager_->clickConnect("", types::ServerCredentials(), bli,
             engineSettings_.connectionSettings(), types::PortMap(),
-            ProxyServerController::instance().getCurrentProxySettings(), bEmitAuthError, engineSettings_.getCustomOvpnConfigsPath());
+            ProxyServerController::instance().getCurrentProxySettings(), bEmitAuthError, engineSettings_.customOvpnConfigsPath());
     }
 }
 
@@ -2914,7 +2914,7 @@ void Engine::doDisconnectRestoreStuff()
 
     serverAPI_->enableProxy();
     locationsModel_->enableProxy();
-    DnsServersConfiguration::instance().setDnsServersPolicy(engineSettings_.getDnsPolicy());
+    DnsServersConfiguration::instance().setDnsServersPolicy(engineSettings_.dnsPolicy());
 
 #if defined (Q_OS_MAC) || defined(Q_OS_LINUX)
     firewallController_->setInterfaceToSkip_posix("");

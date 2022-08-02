@@ -41,11 +41,6 @@ message GetSettings
 {
 }
 
-message SetSettings
-{
-  optional ProtoTypes.EngineSettings engineSettings = 1;
-}
-
 message Login           
 {
   optional string auth_hash = 1;

@@ -3,20 +3,6 @@ import "types.proto";
 
 package IPCServerCommands;
 
-message EngineSettingsChanged
-{
-  optional ProtoTypes.EngineSettings engineSettings = 2;
-}
-
-message InitFinished
-{
-  optional ProtoTypes.InitState init_state = 1 [default = INIT_CLEAN];
-  optional ProtoTypes.EngineSettings engine_settings = 2;
-  repeated string available_openvpn_versions = 3;
-  optional bool is_wifi_sharing_supported = 4;
-  optional bool is_saved_api_settings_exists = 5 [default = false];
-  optional string auth_hash = 6;  // valid if not empty, 
-}
 
 message BfeEnableFinished
 {

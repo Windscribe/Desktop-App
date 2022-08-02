@@ -36,10 +36,6 @@ Command *CommandFactory::makeCommand(const std::string strId, char *buf, int siz
     {
         return new ProtobufCommand<IPCClientCommands::GetSettings>(buf, size);
     }
-    else if (strId == IPCClientCommands::SetSettings::descriptor()->full_name())
-    {
-        return new ProtobufCommand<IPCClientCommands::SetSettings>(buf, size);
-    }
     else if (strId == IPCClientCommands::Login::descriptor()->full_name())
     {
         return new ProtobufCommand<IPCClientCommands::Login>(buf, size);
@@ -165,10 +161,6 @@ Command *CommandFactory::makeCommand(const std::string strId, char *buf, int siz
         return new ProtobufCommand<IPCClientCommands::AdvancedParametersChanged>(buf, size);
     }
     // servers commands
-    else if (strId == IPCServerCommands::InitFinished::descriptor()->full_name())
-    {
-        return new ProtobufCommand<IPCServerCommands::InitFinished>(buf, size);
-    }
     else if (strId == IPCServerCommands::FirewallStateChanged::descriptor()->full_name())
     {
         return new ProtobufCommand<IPCServerCommands::FirewallStateChanged>(buf, size);
@@ -184,10 +176,6 @@ Command *CommandFactory::makeCommand(const std::string strId, char *buf, int siz
     else if (strId == IPCServerCommands::LoginError::descriptor()->full_name())
     {
         return new ProtobufCommand<IPCServerCommands::LoginError>(buf, size);
-    }
-    else if (strId == IPCServerCommands::EngineSettingsChanged::descriptor()->full_name())
-    {
-        return new ProtobufCommand<IPCServerCommands::EngineSettingsChanged>(buf, size);
     }
     else if (strId == IPCServerCommands::LocationSpeedChanged::descriptor()->full_name())
     {

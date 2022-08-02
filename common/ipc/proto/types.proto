@@ -367,33 +367,6 @@ enum DnsManagerType
 }
 
 
-// engine settings, which can be changed by user from GUI
-message EngineSettings
-{
-  optional string language = 1 [default = "en"];
-  optional UpdateChannel update_channel = 2 [default = UPDATE_CHANNEL_RELEASE];
-  optional bool is_ignore_ssl_errors = 3 [default = false];
-  optional bool is_close_tcp_sockets = 4 [default = true];
-  optional bool is_allow_lan_traffic = 5 [default = false];
-  optional FirewallSettings firewall_settings = 6;
-  optional ConnectionSettings connection_settings = 7;
-  optional ApiResolution api_resolution = 8;
-  optional ProxySettings proxy_settings = 9;
-  // removed, don't use this fields numbers for new fields
-  //optional string openvpn_version = 10;
-  //optional ShareSecureHotspot share_secure_hotspot = 11;
-  //optional ShareProxyGateway share_proxy_gateway = 12;
-  //optional string advanced_parameters = 13;
-  optional PacketSize packet_size = 14;  
-  optional MacAddrSpoofing mac_addr_spoofing = 15;
-  optional DnsPolicy dns_policy = 16 [default = DNS_POLICY_OS_DEFAULT];
-  optional TapAdapterType tap_adapter = 17 [default = WINTUN_ADAPTER];
-  optional string customOvpnConfigsPath = 18;
-  optional bool is_keep_alive_enabled = 19 [default = false];
-  optional DnsWhileConnectedInfo dns_while_connected_info = 20;
-  optional DnsManagerType dns_manager = 21 [default = DNS_MANAGER_AUTOMATIC];
-}
-
 message ProxySharingInfo
 {
    optional bool is_enabled = 1;

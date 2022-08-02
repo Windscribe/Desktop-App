@@ -7,6 +7,7 @@
 #include <QProcess>
 #include "ipc/iconnection.h"
 #include "ipc/command.h"
+#include "ipc/servercommands.h"
 #include "types/locationid.h"
 #include "types/upgrademodetype.h"
 #include "locationsmodel/locationsmodel.h"
@@ -115,7 +116,7 @@ private slots:
 
 signals:
     // emited when connected to engine and received the engine settings, or error in initState variable
-    void initFinished(ProtoTypes::InitState initState);
+    void initFinished(INIT_STATE initState);
     void initTooLong();
     void cleanupFinished();
 
@@ -170,7 +171,7 @@ private:
     bool bLastLoginWithAuthHash_;
 
     types::SessionStatus latestSessionStatus_;
-    ProtoTypes::EngineSettings latestEngineSettings_;
+    types::EngineSettings latestEngineSettings_;
     ConnectStateHelper connectStateHelper_;
     ConnectStateHelper emergencyConnectStateHelper_;
     FirewallStateHelper firewallStateHelper_;
@@ -195,7 +196,7 @@ private:
 
     QString generateNewFriendlyName();
     void updateAccountInfo();
-    void getOpenVpnVersionsFromInitCommand(const IPCServerCommands::InitFinished &state);
+    void getOpenVpnVersionsFromInitCommand(const IPC::ServerCommands::InitFinished &state);
 };
 
 #endif // BACKEND_H

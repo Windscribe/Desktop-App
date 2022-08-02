@@ -445,20 +445,17 @@ void EngineServer::sendEngineInitReturnCode(ENGINE_INIT_RET_CODE retCode)
     }
     else if (retCode == ENGINE_INIT_HELPER_FAILED)
     {
-        IPC::ServerCommands::InitFinished cmd(INIT_STATE_HELPER_FAILED, curEngineSettings_, OpenVpnVersionController::instance().getAvailableOpenVpnVersions(),
-                                              engine_->isWifiSharingSupported(), false, engine_->getAuthHash());
+        IPC::ServerCommands::InitFinished cmd(INIT_STATE_HELPER_FAILED);
         sendCmdToAllAuthorizedAndGetStateClients(&cmd, true);
     }
     else if (retCode == ENGINE_INIT_BFE_SERVICE_FAILED)
     {
-        IPC::ServerCommands::InitFinished cmd(INIT_STATE_BFE_SERVICE_NOT_STARTED, curEngineSettings_, OpenVpnVersionController::instance().getAvailableOpenVpnVersions(),
-                                              engine_->isWifiSharingSupported(), false, engine_->getAuthHash());
+        IPC::ServerCommands::InitFinished cmd(INIT_STATE_BFE_SERVICE_NOT_STARTED);
         sendCmdToAllAuthorizedAndGetStateClients(&cmd, true);
     }
     else if (retCode == ENGINE_INIT_HELPER_USER_CANCELED)
     {
-        IPC::ServerCommands::InitFinished cmd(INIT_STATE_HELPER_USER_CANCELED, curEngineSettings_, OpenVpnVersionController::instance().getAvailableOpenVpnVersions(),
-                                              engine_->isWifiSharingSupported(), false, engine_->getAuthHash());
+        IPC::ServerCommands::InitFinished cmd(INIT_STATE_HELPER_USER_CANCELED);
 
         sendCmdToAllAuthorizedAndGetStateClients(&cmd, true);
     }
@@ -552,8 +549,7 @@ void EngineServer::onEngineBfeEnableFinished(ENGINE_INIT_RET_CODE retCode)
     }
     else
     {
-        IPC::ProtobufCommand<IPCServerCommands::InitFinished> cmd;
-        cmd.getProtoObj().set_init_state(ProtoTypes::INIT_BFE_SERVICE_FAILED_TO_START);
+        IPC::ServerCommands::InitFinished cmd(INIT_STATE_BFE_SERVICE_FAILED_TO_START);
         sendCmdToAllAuthorizedAndGetStateClients(&cmd, true);
     }
 }
