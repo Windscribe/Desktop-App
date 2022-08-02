@@ -3,6 +3,7 @@
 #include "utils/logger.h"
 #include "ipc/server.h"
 #include "ipc/protobufcommand.h"
+#include "ipc/commands.h"
 #include "engine/openvpnversioncontroller.h"
 #include <QDateTime>
 
@@ -661,8 +662,7 @@ void EngineServer::onEngineSessionDeleted()
 
 void EngineServer::onEngineUpdateSessionStatus(const types::SessionStatus &sessionStatus)
 {
-    IPC::ProtobufCommand<IPCServerCommands::SessionStatusUpdated> cmd;
-    *cmd.getProtoObj().mutable_session_status() = sessionStatus.getProtoBuf();
+    IPC::SessionStatusUpdated cmd(sessionStatus);
     sendCmdToAllAuthorizedAndGetStateClients(&cmd, false);
 }
 

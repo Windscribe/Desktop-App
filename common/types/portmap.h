@@ -15,6 +15,24 @@ struct PortItem
     QString heading;
     QString use;
     QVector<uint> ports;
+
+    friend QDataStream& operator <<(QDataStream& stream, const PortItem& p)
+    {
+        stream << versionForSerialization_;
+        stream << p.protocol << p.heading << p.use << p.ports;
+        return stream;
+    }
+    friend QDataStream& operator >>(QDataStream& stream, PortItem& p)
+    {
+        quint32 version;
+        stream >> version;
+        Q_ASSERT(version == versionForSerialization_);
+        stream >> p.protocol >> p.heading >> p.use >> p.ports;
+        return stream;
+    }
+
+private:
+    static constexpr quint32 versionForSerialization_ = 1;
 };
 
 class PortMapData : public QSharedData
@@ -51,9 +69,25 @@ public:
 
     PortMap& operator=(const PortMap&) = default;
 
+    friend QDataStream& operator <<(QDataStream& stream, const PortMap& p)
+    {
+        stream << versionForSerialization_;
+        stream << p.d->items_;
+        return stream;
+    }
+    friend QDataStream& operator >>(QDataStream& stream, PortMap& p)
+    {
+        quint32 version;
+        stream >> version;
+        Q_ASSERT(version == versionForSerialization_);
+        stream >> p.d->items_;
+        return stream;
+    }
+
 
 private:
     QSharedDataPointer<PortMapData> d;
+    static constexpr quint32 versionForSerialization_ = 1;
 };
 
 } //namespace types

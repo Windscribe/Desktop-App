@@ -45,7 +45,6 @@ bool Location::initFromJson(const QJsonObject &obj, QStringList &forceDisconnect
     }
 
     d->isValid_ = true;
-    d->type_ = SERVER_LOCATION_DEFAULT;
     return true;
 }
 

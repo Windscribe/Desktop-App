@@ -99,7 +99,10 @@ QSharedPointer<BaseLocationInfo> ApiLocationsModel::getMutableLocationInfoById(c
                     QVector< QSharedPointer<const BaseNode> > nodes;
 
                     QStringList ips;
-                    ips << sid.nodeIP1 << sid.nodeIP2 << sid.nodeIP3;
+                    for (auto it : sid.nodeIPs)
+                    {
+                        ips << it;
+                    }
                     nodes << QSharedPointer<BaseNode>(new StaticLocationNode(ips, sid.hostname, sid.wgPubKey, sid.wgIp, sid.dnsHostname, sid.username, sid.password, sid.getAllStaticIpIntPorts()));
 
                     QSharedPointer<BaseLocationInfo> bli(new MutableLocationInfo(locationId, sid.cityName + " - " + sid.staticIp, nodes, 0, "", sid.ovpnX509));

@@ -382,7 +382,7 @@ void LoginController::getAllConfigs()
         getAllConfigsController_->putServerCredentialsIkev2Answer(SERVER_RETURN_SUCCESS, loginSettings_.getServerCredentials().usernameForIkev2(), loginSettings_.getServerCredentials().passwordForIkev2());
     }
 
-    serverAPI_->serverLocations(newAuthHash_, language_, serverApiUserRole_, false, sessionStatus_.getRevisionHash(), sessionStatus_.isPro(), protocol_, sessionStatus_.getAlc());
+    serverAPI_->serverLocations(newAuthHash_, language_, serverApiUserRole_, false, sessionStatus_.getRevisionHash(), sessionStatus_.isPremium(), protocol_, sessionStatus_.getAlc());
     serverAPI_->portMap(newAuthHash_, serverApiUserRole_, false);
     if (sessionStatus_.getStaticIpsCount() > 0)
     {

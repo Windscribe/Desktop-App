@@ -1349,7 +1349,7 @@ void Engine::setSettingsImpl(const EngineSettings &engineSettings)
                 }
             }
             serverAPI_->serverLocations(apiInfo_->getAuthHash(), engineSettings_.language(), serverApiUserRole_, true, ss.getRevisionHash(),
-                                        ss.isPro(), engineSettings_.connectionSettings().protocol(), ss.getAlc());
+                                        ss.isPremium(), engineSettings_.connectionSettings().protocol(), ss.getAlc());
         }
     }
 
@@ -1720,7 +1720,7 @@ void Engine::onUpdateServerResources()
             serverAPI_->serverCredentials(authHash, serverApiUserRole_, types::ProtocolType::PROTOCOL_IKEV2, true);
         }
 
-        serverAPI_->serverLocations(authHash, engineSettings_.language(), serverApiUserRole_, true, ss.getRevisionHash(), ss.isPro(),
+        serverAPI_->serverLocations(authHash, engineSettings_.language(), serverApiUserRole_, true, ss.getRevisionHash(), ss.isPremium(),
                                     connectionManager_->currentProtocol(), ss.getAlc());
 
         serverAPI_->portMap(authHash, serverApiUserRole_, true);
@@ -2677,11 +2677,8 @@ void Engine::updateSessionStatus()
 
         if (ss.isChangedForLogging(prevSessionForLogging_))
         {
-            std::string strLog =  "[" + ss.getProtoBuf().descriptor()->name() + "] {\n"
-                   + Utils::cleanSensitiveInfo(ss.getProtoBuf().DebugString()) + "}";
-
             qCDebug(LOG_BASIC) << "update session status (changed since last call)";
-            qCDebugMultiline(LOG_BASIC) << QString::fromStdString(strLog);
+            qCDebugMultiline(LOG_BASIC) << ss.debugString();
             prevSessionForLogging_ = ss;
         }
         else
@@ -2709,11 +2706,11 @@ void Engine::updateSessionStatus()
             }
         }
 
-        if (prevSessionStatus_.getRevisionHash() != ss.getRevisionHash() || prevSessionStatus_.isPro() != ss.isPro() ||
+        if (prevSessionStatus_.getRevisionHash() != ss.getRevisionHash() || prevSessionStatus_.isPremium() != ss.isPremium() ||
             prevSessionStatus_.getAlc() != ss.getAlc() || (prevSessionStatus_.getStatus() != 1 && ss.getStatus() == 1))
         {
             serverAPI_->serverLocations(apiInfo_->getAuthHash(), engineSettings_.language(), serverApiUserRole_, true,
-                                        ss.getRevisionHash(), ss.isPro(), engineSettings_.connectionSettings().protocol(), ss.getAlc());
+                                        ss.getRevisionHash(), ss.isPremium(), engineSettings_.connectionSettings().protocol(), ss.getAlc());
         }
 
         if (prevSessionStatus_.getBillingPlanId() != ss.getBillingPlanId())

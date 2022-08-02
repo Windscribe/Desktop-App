@@ -61,11 +61,6 @@ message LoginError
    optional string error_message = 2;
 }
 
-message SessionStatusUpdated
-{
-   optional ProtoTypes.SessionStatus session_status = 1;
-}
-
 message NotificationsUpdated
 {
    optional ProtoTypes.ArrayApiNotification array_notifications = 1;

@@ -2,6 +2,7 @@
 #define TYPES_PROTOCOLTYPE_H
 
 #include <QString>
+#include <QDataStream>
 #include "utils/protobuf_includes.h"
 
 namespace types {
@@ -30,9 +31,26 @@ public:
 
     ProtoTypes::Protocol convertToProtobuf() const;
 
+    friend QDataStream& operator <<(QDataStream& stream, const ProtocolType& p)
+    {
+        stream << versionForSerialization_;
+        stream << static_cast<int>(p.protocol_);
+        return stream;
+    }
+    friend QDataStream& operator >>(QDataStream& stream, ProtocolType& p)
+    {
+        quint32 version;
+        stream >> version;
+        Q_ASSERT(version == versionForSerialization_);
+        int i;
+        stream >> i;
+        p.protocol_ = static_cast<PROTOCOL_TYPE>(i);
+        return stream;
+    }
 
 private:
     PROTOCOL_TYPE protocol_;
+    static constexpr quint32 versionForSerialization_ = 1;
 };
 
 } //namespace types

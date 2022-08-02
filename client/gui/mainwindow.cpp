@@ -148,7 +148,7 @@ MainWindow::MainWindow() :
 
     connect(backend_, SIGNAL(signOutFinished()), SLOT(onBackendSignOutFinished()));
 
-    connect(backend_, SIGNAL(sessionStatusChanged(ProtoTypes::SessionStatus)), SLOT(onBackendSessionStatusChanged(ProtoTypes::SessionStatus)));
+    connect(backend_, SIGNAL(sessionStatusChanged(types::SessionStatus)), SLOT(onBackendSessionStatusChanged(types::SessionStatus)));
     connect(backend_, SIGNAL(checkUpdateChanged(ProtoTypes::CheckUpdateInfo)), SLOT(onBackendCheckUpdateChanged(ProtoTypes::CheckUpdateInfo)));
     connect(backend_, SIGNAL(myIpChanged(QString, bool)), SLOT(onBackendMyIpChanged(QString, bool)));
     connect(backend_, SIGNAL(connectStateChanged(ProtoTypes::ConnectState)), SLOT(onBackendConnectStateChanged(ProtoTypes::ConnectState)));
@@ -1611,7 +1611,7 @@ void MainWindow::onBackendLoginFinished(bool /*isLoginFromSavedSettings*/)
     {
         backend_->recordInstall();
         // open first start URL
-        QString curUserId = QString::fromStdString(backend_->getSessionStatus().user_id());
+        QString curUserId = backend_->getSessionStatus().getUserId();
         QDesktopServices::openUrl(QUrl( QString("https://%1/installed/desktop?%2").arg(HardcodedSettings::instance().serverUrl()).arg(curUserId)));
     }
     PersistentState::instance().setFirstLogin(false);
@@ -1771,32 +1771,32 @@ void MainWindow::onBackendLoginError(ProtoTypes::LoginError loginError, const QS
     }
 }
 
-void MainWindow::onBackendSessionStatusChanged(const ProtoTypes::SessionStatus &sessionStatus)
+void MainWindow::onBackendSessionStatusChanged(const types::SessionStatus &sessionStatus)
 {
     //bFreeSessionStatus_ = sessionStatus->isPremium == 0;
     blockConnect_.setNotBlocking();
-    int status = sessionStatus.status();
+    qint32 status = sessionStatus.getStatus();
     // multiple account abuse detection
     QString entryUsername;
     bool bEntryIsPresent = multipleAccountDetection_->entryIsPresent(entryUsername);
-    if (bEntryIsPresent && (!sessionStatus.is_premium()) && sessionStatus.alc_size() == 0 && sessionStatus.status() == 1 && entryUsername != QString::fromStdString(sessionStatus.username()))
+    if (bEntryIsPresent && (!sessionStatus.isPremium()) && sessionStatus.getAlc().size() == 0 && sessionStatus.getStatus() == 1 && entryUsername != sessionStatus.getUsername())
     {
         status = 2;
         //qCDebug(LOG_BASIC) << "Abuse detection: User session status was changed to 2. Original username:" << entryUsername;
         blockConnect_.setBlockedMultiAccount(entryUsername);
     }
-    else if (bEntryIsPresent && entryUsername == QString::fromStdString(sessionStatus.username()) && sessionStatus.status() == 1)
+    else if (bEntryIsPresent && entryUsername == sessionStatus.getUsername() && sessionStatus.getStatus() == 1)
     {
         multipleAccountDetection_->removeEntry();
     }
 
     // free account
-    if (!sessionStatus.is_premium())
+    if (!sessionStatus.isPremium())
     {
         if (status == 2)
         {
             // write entry into registry expired_user = username
-            multipleAccountDetection_->userBecomeExpired(QString::fromStdString(sessionStatus.username()));
+            multipleAccountDetection_->userBecomeExpired(sessionStatus.getUsername());
 
             if ((!PersistentState::instance().lastLocation().isCustomConfigsLocation()) &&
                 (backend_->currentConnectState() == ProtoTypes::CONNECTED || backend_->currentConnectState() == ProtoTypes::CONNECTING))
@@ -1814,7 +1814,7 @@ void MainWindow::onBackendSessionStatusChanged(const ProtoTypes::SessionStatus &
         }
         else
         {
-            if (sessionStatus.traffic_max() == -1)
+            if (sessionStatus.getTrafficMax() == -1)
             {
                 mainWindowController_->getBottomInfoWindow()->setDataRemaining(-1, -1);
             }
@@ -1822,20 +1822,20 @@ void MainWindow::onBackendSessionStatusChanged(const ProtoTypes::SessionStatus &
             {
                 if (backend_->getPreferences()->isShowNotifications())
                 {
-                    freeTrafficNotificationController_->updateTrafficInfo(sessionStatus.traffic_used(), sessionStatus.traffic_max());
+                    freeTrafficNotificationController_->updateTrafficInfo(sessionStatus.getTrafficUsed(), sessionStatus.getTrafficMax());
                 }
 
-                mainWindowController_->getBottomInfoWindow()->setDataRemaining(sessionStatus.traffic_used(), sessionStatus.traffic_max());
+                mainWindowController_->getBottomInfoWindow()->setDataRemaining(sessionStatus.getTrafficUsed(), sessionStatus.getTrafficMax());
             }
         }
     }
     // premium account
     else
     {
-        if (sessionStatus.rebill() == 0)
+        if (sessionStatus.getRebill() == 0)
         {
             QDate curDate = QDateTime::currentDateTimeUtc().date();
-            QDate expireDate = QDate::fromString(QString::fromStdString(sessionStatus.premium_expire_date()), "yyyy-MM-dd");
+            QDate expireDate = QDate::fromString(sessionStatus.getPremiumExpireDate(), "yyyy-MM-dd");
 
             int days = curDate.daysTo(expireDate);
             if (days >= 0 && days <= 5)
@@ -3191,7 +3191,7 @@ void MainWindow::onLocationsTrayMenuLocationSelected(int type, QString locationT
         return;
     }
 
-    const bool is_premium = backend_->getSessionStatus().is_premium();
+    const bool is_premium = backend_->getSessionStatus().isPremium();
     if (cityIndex >= 0) {
         for (const auto &city : lmi->cities) {
             if (cityIndex--)

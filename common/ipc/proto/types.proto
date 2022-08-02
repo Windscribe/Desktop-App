@@ -174,23 +174,6 @@ message ArrayLocationId
 }
 
 
-message SessionStatus
-{
-  optional bool is_premium = 1;
-  optional int32 status = 2;     // 2 - disabled
-  optional int32 rebill = 3 [default = 0];
-  optional int32 billing_plan_id = 4;
-  optional string premium_expire_date = 5;
-  optional int64 traffic_used = 6;
-  optional int64 traffic_max = 7;
-  optional string username = 8;
-  optional string user_id = 9;
-  optional string email = 10;
-  optional int32 email_status = 11;
-  optional int32 static_ips = 12 [default = 0];
-  repeated string alc = 13;	// enabled locations for free users	
-}
-
 message CheckUpdateInfo
 {
   optional bool is_available = 1;

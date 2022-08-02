@@ -5,7 +5,6 @@ target_sources(gui PRIVATE
     connectstatehelper.h
     firewallstatehelper.cpp
     firewallstatehelper.h
-    ibackend.h
     locationsmodel/alllocationsmodel.cpp
     locationsmodel/alllocationsmodel.h
     locationsmodel/basiccitiesmodel.cpp

@@ -163,7 +163,7 @@ private slots:
     void onBackendLoginStepMessage(ProtoTypes::LoginMessage msg);
     void onBackendLoginError(ProtoTypes::LoginError loginError, const QString &errorMessage);
 
-    void onBackendSessionStatusChanged(const ProtoTypes::SessionStatus &sessionStatus);
+    void onBackendSessionStatusChanged(const types::SessionStatus &sessionStatus);
     void onBackendCheckUpdateChanged(const ProtoTypes::CheckUpdateInfo &checkUpdateInfo);
     void onBackendMyIpChanged(QString ip, bool isFromDisconnectedState);
     void onBackendConnectStateChanged(const ProtoTypes::ConnectState &connectState);

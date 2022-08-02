@@ -38,10 +38,10 @@ public:
     QString ovpn_x509_;
     int link_speed_;
     int health_;
+    QString dnsHostName_;   // if not empty, then use this dns, overwise from parent Location
 
     QVector<Node> nodes_;
 
-    QString dnsHostName_;   // if not empty, then use this dns, overwise from parent Location
 
     // internal state
     bool isValid_;
@@ -86,8 +86,8 @@ public:
                d->ovpn_x509_ == other.d->ovpn_x509_ &&
                d->link_speed_ == other.d->link_speed_ &&
                d->health_ == other.d->health_ &&
-               d->nodes_ == other.d->nodes_ &&
                d->dnsHostName_ == other.d->dnsHostName_ &&
+               d->nodes_ == other.d->nodes_ &&
                d->isValid_ == other.d->isValid_;
     }
 
@@ -96,8 +96,39 @@ public:
         return !operator==(other);
     }
 
+    friend QDataStream& operator <<(QDataStream& stream, const Group& g)
+    {
+        Q_ASSERT(g.d->isValid_);
+        stream << versionForSerialization_;
+
+        stream << g.d->id_ << g.d->city_ << g.d->nick_ << g.d->pro_ << g.d->pingIp_ << g.d->wg_pubkey_ << g.d->ovpn_x509_ << g.d->link_speed_ <<
+                  g.d->health_ << g.d->dnsHostName_ << g.d->nodes_;
+
+        return stream;
+    }
+    friend QDataStream& operator >>(QDataStream& stream, Group& g)
+    {
+        quint32 version;
+        stream >> version;
+        Q_ASSERT(version == versionForSerialization_);
+        if (version != versionForSerialization_)
+        {
+            g.d->isValid_ = false;
+            return stream;
+        }
+
+        stream >> g.d->id_ >> g.d->city_ >> g.d->nick_ >> g.d->pro_ >> g.d->pingIp_ >> g.d->wg_pubkey_ >> g.d->ovpn_x509_ >> g.d->link_speed_ >>
+                  g.d->health_ >> g.d->dnsHostName_ >> g.d->nodes_;
+
+        g.d->isValid_ = true;
+
+        return stream;
+    }
+
+
 private:
     QSharedDataPointer<GroupData> d;
+    static constexpr quint32 versionForSerialization_ = 1;
 };
 
 } //namespace types

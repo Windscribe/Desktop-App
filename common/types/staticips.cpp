@@ -41,9 +41,9 @@ bool StaticIps::initFromJson(QJsonObject &init_obj)
             if (objNode.contains("ip") && objNode.contains("ip2") && objNode.contains("ip3") &&
                 objNode.contains("city_name") && objNode.contains("hostname") && objNode.contains("dns_hostname"))
             {
-                sid.nodeIP1 = objNode["ip"].toString();
-                sid.nodeIP2 = objNode["ip2"].toString();
-                sid.nodeIP3 = objNode["ip3"].toString();
+                sid.nodeIPs << objNode["ip"].toString();
+                sid.nodeIPs << objNode["ip2"].toString();
+                sid.nodeIPs << objNode["ip3"].toString();
                 sid.cityName = objNode["city_name"].toString();
                 sid.hostname = objNode["hostname"].toString();
                 sid.dnsHostname = objNode["dns_hostname"].toString();

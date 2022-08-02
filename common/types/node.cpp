@@ -10,9 +10,9 @@ bool Node::initFromJson(QJsonObject &obj)
         return false;
     }
 
-    d->ip_[0] = obj["ip"].toString();
-    d->ip_[1] = obj["ip2"].toString();
-    d->ip_[2] = obj["ip3"].toString();
+    d->ips_ << obj["ip"].toString();
+    d->ips_ << obj["ip2"].toString();
+    d->ips_ << obj["ip3"].toString();
     d->hostname_ = obj["hostname"].toString();
     d->weight_ = obj["weight"].toInt();
 
@@ -45,7 +45,8 @@ QString Node::getIp(int ind) const
 {
     Q_ASSERT(d->isValid_);
     Q_ASSERT(ind >= 0 && ind <= 2);
-    return d->ip_[ind];
+    Q_ASSERT(d->ips_.size() == 3);
+    return d->ips_[ind];
 }
 
 int Node::getWeight() const

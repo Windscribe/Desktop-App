@@ -8,14 +8,11 @@
 
 namespace types {
 
-enum SERVER_LOCATION_TYPE { SERVER_LOCATION_DEFAULT, SERVER_LOCATION_CUSTOM_CONFIG, SERVER_LOCATION_BEST, SERVER_LOCATION_STATIC };
-
 class LocationData : public QSharedData
 {
 public:
     LocationData() : id_(0), premiumOnly_(0), p2p_(0),
-        isValid_(false),
-        type_(SERVER_LOCATION_DEFAULT) {}
+        isValid_(false) {}
 
     LocationData(const LocationData &other)
         : QSharedData(other),
@@ -26,8 +23,7 @@ public:
           p2p_(other.p2p_),
           dnsHostName_(other.dnsHostName_),
           groups_(other.groups_),
-          isValid_(other.isValid_),
-          type_(other.type_) {}
+          isValid_(other.isValid_) {}
     ~LocationData() {}
 
     int id_;
@@ -41,7 +37,6 @@ public:
 
     // internal state
     bool isValid_;
-    SERVER_LOCATION_TYPE type_;
 };
 
 // implicitly shared class Location
@@ -66,7 +61,7 @@ public:
 
     QStringList getAllPingIps() const;
 
-    bool operator== (const Location &other) const
+    bool operator == (const Location &other) const
     {
         return d->id_ == other.d->id_ &&
                d->name_ == other.d->name_ &&
@@ -75,17 +70,43 @@ public:
                d->p2p_ == other.d->p2p_ &&
                d->dnsHostName_ == other.d->dnsHostName_ &&
                d->groups_ == other.d->groups_ &&
-               d->isValid_ == other.d->isValid_ &&
-               d->type_ == other.d->type_;
+               d->isValid_ == other.d->isValid_;
     }
 
-    bool operator!= (const Location &other) const
+    bool operator != (const Location &other) const
     {
         return !operator==(other);
     }
 
+    friend QDataStream& operator <<(QDataStream& stream, const Location& l)
+    {
+        Q_ASSERT(l.d->isValid_);
+        stream << versionForSerialization_;
+
+        stream << l.d->id_ << l.d->name_ << l.d->countryCode_ << l.d->premiumOnly_ << l.d->p2p_ << l.d->dnsHostName_ << l.d->groups_;
+        return stream;
+    }
+    friend QDataStream& operator >>(QDataStream& stream, Location& l)
+    {
+        quint32 version;
+        stream >> version;
+        Q_ASSERT(version == versionForSerialization_);
+        if (version != versionForSerialization_)
+        {
+            l.d->isValid_ = false;
+            return stream;
+        }
+
+        stream >> l.d->id_ >> l.d->name_ >> l.d->countryCode_ >> l.d->premiumOnly_ >> l.d->p2p_ >> l.d->dnsHostName_ >> l.d->groups_;
+        l.d->isValid_ = true;
+
+        return stream;
+    }
+
+
 private:
     QSharedDataPointer<LocationData> d;
+    static constexpr quint32 versionForSerialization_ = 1;
 };
 
 

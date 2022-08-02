@@ -4,6 +4,7 @@
 #include "utils/utils.h"
 #include "ipc/connection.h"
 #include "ipc/protobufcommand.h"
+#include "ipc/commands.h"
 #include "utils/utils.h"
 #include "persistentstate.h"
 #include "engineserver.h"
@@ -438,7 +439,7 @@ void Backend::applicationDeactivated()
     engineServer_->sendCommand(&cmd);
 }
 
-const ProtoTypes::SessionStatus &Backend::getSessionStatus() const
+const types::SessionStatus &Backend::getSessionStatus() const
 {
     return latestSessionStatus_;
 }
@@ -505,11 +506,11 @@ void Backend::onConnectionNewCommand(IPC::Command *command)
         IPC::ProtobufCommand<IPCServerCommands::LoginError> *cmd = static_cast<IPC::ProtobufCommand<IPCServerCommands::LoginError> *>(command);
         Q_EMIT loginError(cmd->getProtoObj().error(), QString::fromStdString(cmd->getProtoObj().error_message()));
     }
-    else if (command->getStringId() == IPCServerCommands::SessionStatusUpdated::descriptor()->full_name())
+    else if (command->getStringId() == IPC::SessionStatusUpdated::getCommandStringId())
     {
-        IPC::ProtobufCommand<IPCServerCommands::SessionStatusUpdated> *cmd = static_cast<IPC::ProtobufCommand<IPCServerCommands::SessionStatusUpdated> *>(command);
-        latestSessionStatus_ = cmd->getProtoObj().session_status();
-        locationsModel_->setFreeSessionStatus(!latestSessionStatus_.is_premium());
+        IPC::SessionStatusUpdated *cmd = static_cast<IPC::SessionStatusUpdated *>(command);
+        latestSessionStatus_ = cmd->getSessionStatus();
+        locationsModel_->setFreeSessionStatus(!latestSessionStatus_.isPremium());
         updateAccountInfo();
         Q_EMIT sessionStatusChanged(latestSessionStatus_);
     }
@@ -904,12 +905,12 @@ QString Backend::generateNewFriendlyName()
 
 void Backend::updateAccountInfo()
 {
-    accountInfo_.setEmail(QString::fromStdString(latestSessionStatus_.email()));
-    accountInfo_.setNeedConfirmEmail(latestSessionStatus_.email_status() == 0);
-    accountInfo_.setUsername(QString::fromStdString(latestSessionStatus_.username()));
-    accountInfo_.setExpireDate(QString::fromStdString(latestSessionStatus_.premium_expire_date()));
-    accountInfo_.setPlan(latestSessionStatus_.traffic_max());
-    accountInfo_.setIsPremium(latestSessionStatus_.is_premium());
+    accountInfo_.setEmail(latestSessionStatus_.getEmail());
+    accountInfo_.setNeedConfirmEmail(latestSessionStatus_.getEmailStatus() == 0);
+    accountInfo_.setUsername(latestSessionStatus_.getUsername());
+    accountInfo_.setExpireDate(latestSessionStatus_.getPremiumExpireDate());
+    accountInfo_.setPlan(latestSessionStatus_.getTrafficMax());
+    accountInfo_.setIsPremium(latestSessionStatus_.isPremium());
 }
 
 void Backend::getOpenVpnVersionsFromInitCommand(const IPCServerCommands::InitFinished &cmd)

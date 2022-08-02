@@ -11,6 +11,24 @@ struct StaticIpPortDescr
 {
     unsigned int extPort;
     unsigned int intPort;
+
+    friend QDataStream& operator <<(QDataStream& stream, const StaticIpPortDescr& s)
+    {
+        stream << versionForSerialization_;
+        stream << s.extPort << s.intPort;
+        return stream;
+    }
+    friend QDataStream& operator >>(QDataStream& stream, StaticIpPortDescr& s)
+    {
+        quint32 version;
+        stream >> version;
+        Q_ASSERT(version == versionForSerialization_);
+        stream >> s.extPort >> s.intPort;
+        return stream;
+    }
+
+private:
+    static constexpr quint32 versionForSerialization_ = 1;
 };
 
 bool operator==(const StaticIpPortDescr &l, const StaticIpPortDescr&r);
@@ -32,9 +50,7 @@ struct StaticIpDescr
     QString shortName;
     QString cityName;
     uint serverId;
-    QString nodeIP1;
-    QString nodeIP2;
-    QString nodeIP3;
+    QVector<QString> nodeIPs;    // 3 ips
     QString hostname;
     QString dnsHostname;
     QString username;
@@ -44,7 +60,7 @@ struct StaticIpDescr
     QString ovpnX509;
     QVector<StaticIpPortDescr> ports;
 
-    const QString& getPingIp() const { return nodeIP1; }
+    const QString& getPingIp() const { Q_ASSERT(!nodeIPs.isEmpty()); return nodeIPs[0]; }
 
     StaticIpPortsVector getAllStaticIpIntPorts() const
     {
@@ -67,9 +83,7 @@ struct StaticIpDescr
                shortName == other.shortName &&
                cityName == other.cityName &&
                serverId == other.serverId &&
-               nodeIP1 == other.nodeIP1 &&
-               nodeIP2 == other.nodeIP2 &&
-               nodeIP3 == other.nodeIP3 &&
+               nodeIPs == other.nodeIPs &&
                hostname == other.hostname &&
                dnsHostname == other.dnsHostname &&
                username == other.username &&
@@ -85,6 +99,25 @@ struct StaticIpDescr
         return !operator==(other);
     }
 
+    friend QDataStream& operator <<(QDataStream& stream, const StaticIpDescr& s)
+    {
+        stream << versionForSerialization_;
+        stream << s.id << s.ipId << s.staticIp << s.type << s.name << s.countryCode << s.shortName << s.cityName << s.serverId << s.nodeIPs
+               << s.hostname << s.dnsHostname << s.username << s.password << s.wgIp << s.wgPubKey << s.ovpnX509 << s.ports;
+        return stream;
+    }
+    friend QDataStream& operator >>(QDataStream& stream, StaticIpDescr& s)
+    {
+        quint32 version;
+        stream >> version;
+        Q_ASSERT(version == versionForSerialization_);
+        stream >> s.id >> s.ipId >> s.staticIp >> s.type >> s.name >> s.countryCode >> s.shortName >> s.cityName >> s.serverId >> s.nodeIPs
+               >> s.hostname >> s.dnsHostname >> s.username >> s.password >> s.wgIp >> s.wgPubKey >> s.ovpnX509 >> s.ports;
+        return stream;
+    }
+
+private:
+    static constexpr quint32 versionForSerialization_ = 1;
 };
 
 // internal data for StaticIps
@@ -131,8 +164,24 @@ public:
 
     StaticIps& operator=(const StaticIps&) = default;
 
+    friend QDataStream& operator <<(QDataStream& stream, const StaticIps& s)
+    {
+        stream << versionForSerialization_;
+        stream << s.d->deviceName_ << s.d->ips_;
+        return stream;
+    }
+    friend QDataStream& operator >>(QDataStream& stream, StaticIps& s)
+    {
+        quint32 version;
+        stream >> version;
+        Q_ASSERT(version == versionForSerialization_);
+        stream >> s.d->deviceName_ >> s.d->ips_;
+        return stream;
+    }
+
 private:
     QSharedDataPointer<StaticIpsData> d;
+    static constexpr quint32 versionForSerialization_ = 1;
 };
 
 } //namespace types

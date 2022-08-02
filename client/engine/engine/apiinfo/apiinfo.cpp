@@ -122,29 +122,17 @@ types::StaticIps ApiInfo::getStaticIps() const
 
 void ApiInfo::saveToSettings()
 {
-    /*Q_ASSERT(threadId_ == QThread::currentThreadId());
-
-    QSettings settings;
-    ProtoApiInfo::ApiInfo protoApiInfo;
-
-    *protoApiInfo.mutable_session_status() = sessionStatus_.getProtoBuf();
-
-    for (const Location &l : locations_)
+    Q_ASSERT(threadId_ == QThread::currentThreadId());
+    QByteArray arr;
     {
-        *protoApiInfo.add_locations() = l.getProtoBuf();
+        QDataStream ds(&arr, QIODevice::WriteOnly);
+        ds.setVersion(QDataStream::Qt_6_2);
+        ds << magic_;
+        ds << versionForSerialization_;
+        ds << sessionStatus_ << locations_ << serverCredentials_ << ovpnConfig_ << portMap_ << staticIps_;
     }
-
-    *protoApiInfo.mutable_server_credentials() = serverCredentials_.getProtoBuf();
-    protoApiInfo.set_ovpn_config(ovpnConfig_.toStdString());
-    *protoApiInfo.mutable_port_map() = portMap_.getProtoBuf();
-    *protoApiInfo.mutable_static_ips() = staticIps_.getProtoBuf();
-
-    size_t size = protoApiInfo.ByteSizeLong();
-    QByteArray arr(size, Qt::Uninitialized);
-    protoApiInfo.SerializeToArray(arr.data(), size);
-
+    QSettings settings;
     settings.setValue("apiInfo", simpleCrypt_.encryptToString(arr));
-
     if (!sessionStatus_.getRevisionHash().isEmpty())
     {
         settings.setValue("revisionHash", sessionStatus_.getRevisionHash());
@@ -152,7 +140,7 @@ void ApiInfo::saveToSettings()
     else
     {
         settings.remove("revisionHash");
-    }*/
+    }
 }
 
 void ApiInfo::removeFromSettings()
@@ -172,38 +160,32 @@ void ApiInfo::removeFromSettings()
 
 bool ApiInfo::loadFromSettings()
 {
-    /*Q_ASSERT(threadId_ == QThread::currentThreadId());
+    Q_ASSERT(threadId_ == QThread::currentThreadId());
     QSettings settings;
     QString s = settings.value("apiInfo", "").toString();
     if (!s.isEmpty())
     {
         QByteArray arr = simpleCrypt_.decryptToByteArray(s);
-        ProtoApiInfo::ApiInfo protoApiInfo;
-        if (!protoApiInfo.ParseFromArray(arr.data(), arr.size()))
+        QDataStream ds(&arr, QIODevice::ReadOnly);
+        ds.setVersion(QDataStream::Qt_6_2);
+
+        quint32 magic, version;
+        ds >> magic;
+        if (magic != magic_)
         {
             return false;
         }
-
-        sessionStatus_.initFromProtoBuf(protoApiInfo.session_status());
-
-        locations_.clear();
-        for (int i = 0; i < protoApiInfo.locations_size(); ++i)
+        ds >> version;
+        if (version > versionForSerialization_)
         {
-            Location location;
-            location.initFromProtoBuf(protoApiInfo.locations(i));
-            locations_ << location;
+            return false;
         }
-
+        ds >> sessionStatus_ >> locations_ >> serverCredentials_ >> ovpnConfig_ >> portMap_ >> staticIps_;
         forceDisconnectNodes_.clear();
-        serverCredentials_ = ServerCredentials(protoApiInfo.server_credentials());
-        ovpnConfig_ = QString::fromStdString(protoApiInfo.ovpn_config());
-        portMap_.initFromProtoBuf(protoApiInfo.port_map());
-        staticIps_.initFromProtoBuf(protoApiInfo.static_ips());
-
         sessionStatus_.setRevisionHash(settings.value("revisionHash", "").toString());
         return true;
     }
-    else*/
+    else
     {
         return false;
     }

@@ -5,7 +5,6 @@
 #include <QObject>
 #include <QTimer>
 #include <QProcess>
-#include "ibackend.h"
 #include "ipc/iconnection.h"
 #include "ipc/command.h"
 #include "types/locationid.h"
@@ -16,6 +15,7 @@
 #include "preferences/accountinfo.h"
 #include "connectstatehelper.h"
 #include "firewallstatehelper.h"
+#include "types/sessionstatus.h"
 //#include "engine/engineserver.h"
 
 class EngineServer;
@@ -93,7 +93,7 @@ public:
     void applicationActivated();
     void applicationDeactivated();
 
-    const ProtoTypes::SessionStatus &getSessionStatus() const;
+    const types::SessionStatus &getSessionStatus() const;
 
     void handleNetworkChange(ProtoTypes::NetworkInterface networkInterface, bool manual=false);
     ProtoTypes::NetworkInterface getCurrentNetworkInterface();
@@ -133,7 +133,7 @@ signals:
     void firewallStateChanged(bool isEnabled);
     void notificationsChanged(const ProtoTypes::ArrayApiNotification &arr);
     void networkChanged(ProtoTypes::NetworkInterface interface);
-    void sessionStatusChanged(const ProtoTypes::SessionStatus &sessionStatus);
+    void sessionStatusChanged(const types::SessionStatus &sessionStatus);
     void checkUpdateChanged(const ProtoTypes::CheckUpdateInfo &checkUpdateInfo);
     void locationsUpdated();
     void splitTunnelingStateChanged(bool isActive);
@@ -169,7 +169,7 @@ private:
     bool isSavedApiSettingsExists_;
     bool bLastLoginWithAuthHash_;
 
-    ProtoTypes::SessionStatus latestSessionStatus_;
+    types::SessionStatus latestSessionStatus_;
     ProtoTypes::EngineSettings latestEngineSettings_;
     ConnectStateHelper connectStateHelper_;
     ConnectStateHelper emergencyConnectStateHelper_;

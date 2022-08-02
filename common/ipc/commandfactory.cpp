@@ -1,4 +1,5 @@
 #include <QObject>
+#include <QDebug>
 
 #include "commandfactory.h"
 #include "protobufcommand.h"
@@ -9,6 +10,7 @@ namespace IPC
 
 Command *CommandFactory::makeCommand(const std::string strId, char *buf, int size)
 {
+    qDebug() << QString::fromStdString(strId);
     // client commands
     if (strId == IPCClientCommands::ClientAuth::descriptor()->full_name())
     {
@@ -222,10 +224,6 @@ Command *CommandFactory::makeCommand(const std::string strId, char *buf, int siz
     else if (strId == IPCServerCommands::Ipv6StateInOS::descriptor()->full_name())
     {
         return new ProtobufCommand<IPCServerCommands::Ipv6StateInOS>(buf, size);
-    }
-    else if (strId == IPCServerCommands::SessionStatusUpdated::descriptor()->full_name())
-    {
-        return new ProtobufCommand<IPCServerCommands::SessionStatusUpdated>(buf, size);
     }
     else if (strId == IPCServerCommands::LocationsUpdated::descriptor()->full_name())
     {

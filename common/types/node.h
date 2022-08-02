@@ -11,22 +11,10 @@ class NodeData : public QSharedData
 {
 public:
     NodeData() : weight_(0), forceDisconnect_(0), isValid_(false) {}
-
-    NodeData(const NodeData &other)
-        : QSharedData(other),
-          hostname_(other.hostname_),
-          weight_(other.weight_),
-          forceDisconnect_(other.forceDisconnect_),
-          isValid_(other.isValid_)
-    {
-        ip_[0] = other.ip_[0];
-        ip_[1] = other.ip_[1];
-        ip_[2] = other.ip_[2];
-    }
     ~NodeData() {}
 
     // data from API
-    QString ip_[3];
+    QVector<QString> ips_;   // 3 ips
     QString hostname_;
     int weight_;
     int forceDisconnect_;
@@ -51,9 +39,7 @@ public:
 
     bool operator== (const Node &other) const
     {
-        return d->ip_[0] == other.d->ip_[0] &&
-               d->ip_[1] == other.d->ip_[1] &&
-               d->ip_[2] == other.d->ip_[2] &&
+        return d->ips_ == other.d->ips_ &&
                d->hostname_ == other.d->hostname_ &&
                d->weight_ == other.d->weight_ &&
                d->forceDisconnect_ == other.d->forceDisconnect_ &&
@@ -65,8 +51,36 @@ public:
         return !operator==(other);
     }
 
+    friend QDataStream& operator <<(QDataStream &stream, const Node &n)
+    {
+        Q_ASSERT(n.d->isValid_);
+        stream << versionForSerialization_;
+
+        // forceDisconnect_ does not require serialization
+        stream << n.d->ips_ << n.d->hostname_ << n.d->weight_;
+
+        return stream;
+    }
+    friend QDataStream& operator >>(QDataStream &stream, Node &n)
+    {
+        quint32 version;
+        stream >> version;
+        Q_ASSERT(version == versionForSerialization_);
+        if (version != versionForSerialization_)
+        {
+            n.d->isValid_ = false;
+            return stream;
+        }
+
+        stream >> n.d->ips_ >> n.d->hostname_ >> n.d->weight_;
+        n.d->isValid_ = true;
+
+        return stream;
+    }
+
 private:
     QSharedDataPointer<NodeData> d;
+    static constexpr quint32 versionForSerialization_ = 1;
 };
 
 } //namespace types
