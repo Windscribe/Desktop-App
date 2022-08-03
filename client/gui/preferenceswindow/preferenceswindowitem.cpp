@@ -105,7 +105,7 @@ PreferencesWindowItem::PreferencesWindowItem(QGraphicsObject *parent, Preference
     connect(splitTunnelingIpsAndHostnamesWindowItem_, SIGNAL(nativeInfoErrorMessage(QString,QString)), SIGNAL(nativeInfoErrorMessage(QString,QString)));
     connect(splitTunnelingIpsAndHostnamesWindowItem_, SIGNAL(escape()), SLOT(onIpsAndHostnameEscape()));
 
-    connect(networkWhiteListWindowItem_, SIGNAL(currentNetworkUpdated(ProtoTypes::NetworkInterface)), SLOT(onCurrentNetworkUpdated(ProtoTypes::NetworkInterface)));
+    connect(networkWhiteListWindowItem_, SIGNAL(currentNetworkUpdated(types::NetworkInterface)), SLOT(onCurrentNetworkUpdated(types::NetworkInterface)));
     updatePositions();
 }
 
@@ -242,7 +242,7 @@ void PreferencesWindowItem::setDebugLogResult(bool bSuccess)
     debugWindowItem_->setDebugLogResult(bSuccess);
 }
 
-void PreferencesWindowItem::updateNetworkState(ProtoTypes::NetworkInterface network)
+void PreferencesWindowItem::updateNetworkState(types::NetworkInterface network)
 {
     networkWhiteListWindowItem_->setCurrentNetwork(network);
     connectionWindowItem_->setCurrentNetwork(network);
@@ -583,7 +583,7 @@ void PreferencesWindowItem::onIpsAndHostnameEscape()
     setPreferencesWindowToSplitTunnelingHome();
 }
 
-void PreferencesWindowItem::onCurrentNetworkUpdated(ProtoTypes::NetworkInterface network)
+void PreferencesWindowItem::onCurrentNetworkUpdated(types::NetworkInterface network)
 {
     emit currentNetworkUpdated(network);
 }

@@ -62,7 +62,7 @@ private slots:
 
     void onEngineGotoCustomOvpnConfigModeFinished();
 
-    void onEngineNetworkChanged(ProtoTypes::NetworkInterface networkInterface);
+    void onEngineNetworkChanged(types::NetworkInterface networkInterface);
 
     void onEngineDetectionCpuUsageAfterConnected(QStringList list);
 
@@ -82,7 +82,7 @@ private slots:
     void onEngineLocationsModelPingChangedChanged(const LocationID &id, PingTime timeMs);
 
     void onMacAddrSpoofingChanged(const types::MacAddrSpoofing &macAddrSpoofing);
-    void onEngineSendUserWarning(ProtoTypes::UserWarningType userWarningType);
+    void onEngineSendUserWarning(USER_WARNING_TYPE userWarningType);
     void onEnginePacketSizeChanged(bool isAuto, int mtu);
     void onEnginePacketSizeDetectionStateChanged(bool on, bool isError);
 

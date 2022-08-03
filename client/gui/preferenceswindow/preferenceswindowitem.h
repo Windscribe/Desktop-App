@@ -53,7 +53,7 @@ public:
     void setConfirmEmailResult(bool bSuccess) override;
     void setDebugLogResult(bool bSuccess) override;
 
-    void updateNetworkState(ProtoTypes::NetworkInterface network) override;
+    void updateNetworkState(types::NetworkInterface network) override;
 
     void setPreferencesWindowToSplitTunnelingHome();
     void setPreferencesWindowToSplitTunnelingAppsHome();
@@ -82,7 +82,7 @@ signals:
     void editAccountDetailsClick() override;
     void addEmailButtonClick() override;
 
-    void currentNetworkUpdated(ProtoTypes::NetworkInterface) override;
+    void currentNetworkUpdated(types::NetworkInterface) override;
     void cycleMacAddressClick();
     void nativeInfoErrorMessage(QString title, QString desc);
     void splitTunnelingAppsAddButtonClick();
@@ -119,7 +119,7 @@ private slots:
     void onStAppsSearchEscape();
     void onIpsAndHostnameEscape();
 
-    void onCurrentNetworkUpdated(ProtoTypes::NetworkInterface network);
+    void onCurrentNetworkUpdated(types::NetworkInterface network);
 
 protected:
     void keyPressEvent(QKeyEvent *event) override;

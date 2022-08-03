@@ -33,10 +33,10 @@ void NetworkListItem::clearNetworks()
     }
 }
 
-void NetworkListItem::addNetwork(ProtoTypes::NetworkInterface network, ProtoTypes::NetworkTrustType trustType)
+void NetworkListItem::addNetwork(types::NetworkInterface network, NETWORK_TRUST_TYPE trustType)
 {
-    QString networkID = QString::fromStdString(network.network_or_ssid());
-    QString friendlyName = QString::fromStdString(network.friendly_name());
+    QString networkID = network.networkOrSSid;
+    QString friendlyName = network.friendlyName;
 
     QList<QString> selections = NetworkWhiteListShared::networkTrustTypes();
 
@@ -55,15 +55,15 @@ void NetworkListItem::addNetwork(ProtoTypes::NetworkInterface network, ProtoType
     recalcHeight();
 }
 
-ProtoTypes::NetworkWhiteList NetworkListItem::networkWhiteList()
+QVector<types::NetworkInterface> NetworkListItem::networkWhiteList()
 {
-    ProtoTypes::NetworkWhiteList entries;
+    QVector<types::NetworkInterface> entries;
     for (auto *combo : qAsConst(networks_))
     {
         // Convert friendly name to MAC address ID
-        ProtoTypes::NetworkInterface network = NetworkWhiteListShared::networkInterfaceByFriendlyName(combo->labelCaption());
-        network.set_trust_type(static_cast<ProtoTypes::NetworkTrustType>(combo->currentItem().toInt()));
-        *entries.add_networks() = network;
+        types::NetworkInterface network = NetworkWhiteListShared::networkInterfaceByFriendlyName(combo->labelCaption());
+        network.trustType = static_cast<NETWORK_TRUST_TYPE>(combo->currentItem().toInt());
+        entries << network;
     }
     return entries;
 }
@@ -82,7 +82,7 @@ void NetworkListItem::updateNetworkCombos()
         {
             ProtoTypes::NetworkTrustType trust = static_cast<ProtoTypes::NetworkTrustType>(i);
 
-            ProtoTypes::NetworkInterface network = NetworkWhiteListShared::networkInterfaceByFriendlyName(combo->labelCaption());
+            types::NetworkInterface network = NetworkWhiteListShared::networkInterfaceByFriendlyName(combo->labelCaption());
             combo->addItem(selections[i], trust);
         }
         combo->setCurrentItem(currentTrust);
@@ -95,16 +95,16 @@ void NetworkListItem::updateScaling()
     recalcHeight();
 }
 
-void NetworkListItem::setCurrentNetwork(ProtoTypes::NetworkInterface network)
+void NetworkListItem::setCurrentNetwork(types::NetworkInterface network)
 {
     currentNetwork_ = network;
 
     // update current network in the list
     for (auto *combo : qAsConst(networks_))
     {
-        if (combo->labelCaption() == QString::fromStdString(currentNetwork_.friendly_name()))
+        if (combo->labelCaption() == currentNetwork_.friendlyName)
         {
-            combo->setCurrentItem(network.trust_type());
+            combo->setCurrentItem(network.trustType);
             break;
         }
     }
@@ -123,8 +123,8 @@ void NetworkListItem::onNetworkItemChanged(QVariant data)
         removeNetworkCombo(item);
     }
 
-    ProtoTypes::NetworkInterface network = NetworkWhiteListShared::networkInterfaceByFriendlyName(item->labelCaption());
-    network.set_trust_type(static_cast<ProtoTypes::NetworkTrustType>(item->currentItem().toInt()));
+    types::NetworkInterface network = NetworkWhiteListShared::networkInterfaceByFriendlyName(item->labelCaption());
+    network.trustType =static_cast<NETWORK_TRUST_TYPE>(item->currentItem().toInt());
     emit networkItemsChanged(network);
 }
 
@@ -133,7 +133,7 @@ void NetworkListItem::recalcHeight()
     int newHeight = 0;
     for (auto *combo : qAsConst(networks_))
     {
-        if (combo->labelCaption() != QString::fromStdString(currentNetwork_.friendly_name()))
+        if (combo->labelCaption() != currentNetwork_.friendlyName)
         {
             combo->setPos(0, newHeight);
             newHeight += combo->boundingRect().height();

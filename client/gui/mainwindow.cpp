@@ -139,7 +139,7 @@ MainWindow::MainWindow() :
     qCDebug(LOG_BASIC) << "GUI pid: " << guiPid;
     backend_ = new Backend(this);
 
-    connect(backend_, SIGNAL(initFinished(ProtoTypes::InitState)), SLOT(onBackendInitFinished(ProtoTypes::InitState)));
+    connect(backend_, SIGNAL(initFinished(INIT_STATE)), SLOT(onBackendInitFinished(INIT_STATE)));
     connect(backend_, SIGNAL(initTooLong()), SLOT(onBackendInitTooLong()));
 
     connect(backend_, &Backend::loginFinished, this, &MainWindow::onBackendLoginFinished);
@@ -156,7 +156,7 @@ MainWindow::MainWindow() :
     connect(backend_, SIGNAL(firewallStateChanged(bool)), SLOT(onBackendFirewallStateChanged(bool)));
     connect(backend_, SIGNAL(confirmEmailResult(bool)), SLOT(onBackendConfirmEmailResult(bool)));
     connect(backend_, SIGNAL(debugLogResult(bool)), SLOT(onBackendDebugLogResult(bool)));
-    connect(backend_, SIGNAL(networkChanged(ProtoTypes::NetworkInterface)), SLOT(onNetworkChanged(ProtoTypes::NetworkInterface)));
+    connect(backend_, SIGNAL(networkChanged(types::NetworkInterface)), SLOT(onNetworkChanged(types::NetworkInterface)));
     connect(backend_, SIGNAL(splitTunnelingStateChanged(bool)), SLOT(onSplitTunnelingStateChanged(bool)));
     connect(backend_, SIGNAL(statisticsUpdated(quint64, quint64, bool)), SLOT(onBackendStatisticsUpdated(quint64, quint64, bool)));
     connect(backend_, SIGNAL(requestCustomOvpnConfigCredentials()), SLOT(onBackendRequestCustomOvpnConfigCredentials()));
@@ -264,7 +264,7 @@ MainWindow::MainWindow() :
     connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(loginClick()), SLOT(onPreferencesLoginClick()));
     connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(viewLogClick()), SLOT(onPreferencesViewLogClick()));
     connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(advancedParametersClicked()), SLOT(onPreferencesAdvancedParametersClicked()));
-    connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(currentNetworkUpdated(ProtoTypes::NetworkInterface)), SLOT(onCurrentNetworkUpdated(ProtoTypes::NetworkInterface)));
+    connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(currentNetworkUpdated(types::NetworkInterface)), SLOT(onCurrentNetworkUpdated(types::NetworkInterface)));
     connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(sendConfirmEmailClick()), SLOT(onPreferencesSendConfirmEmailClick()));
     connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(sendDebugLogClick()), SLOT(onPreferencesSendDebugLogClick()));
     connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(editAccountDetailsClick()), SLOT(onPreferencesEditAccountDetailsClick()));
@@ -330,16 +330,16 @@ MainWindow::MainWindow() :
     connect(mainWindowController_, SIGNAL(preferencesCollapsed()), SLOT(onPreferencesCollapsed()));
 
     // preferences changes signals
-    connect(backend_->getPreferences(), SIGNAL(firewallSettingsChanged(ProtoTypes::FirewallSettings)), SLOT(onPreferencesFirewallSettingsChanged(ProtoTypes::FirewallSettings)));
+    connect(backend_->getPreferences(), SIGNAL(firewallSettingsChanged(types::FirewallSettings)), SLOT(onPreferencesFirewallSettingsChanged(types::FirewallSettings)));
     connect(backend_->getPreferences(), SIGNAL(shareProxyGatewayChanged(ProtoTypes::ShareProxyGateway)), SLOT(onPreferencesShareProxyGatewayChanged(ProtoTypes::ShareProxyGateway)));
     connect(backend_->getPreferences(), SIGNAL(shareSecureHotspotChanged(ProtoTypes::ShareSecureHotspot)), SLOT(onPreferencesShareSecureHotspotChanged(ProtoTypes::ShareSecureHotspot)));
     connect(backend_->getPreferences(), SIGNAL(locationOrderChanged(ProtoTypes::OrderLocationType)), SLOT(onPreferencesLocationOrderChanged(ProtoTypes::OrderLocationType)));
     connect(backend_->getPreferences(), SIGNAL(splitTunnelingChanged(ProtoTypes::SplitTunneling)), SLOT(onPreferencesSplitTunnelingChanged(ProtoTypes::SplitTunneling)));
     connect(backend_->getPreferences(), SIGNAL(updateEngineSettings()), SLOT(onPreferencesUpdateEngineSettings()));
     connect(backend_->getPreferences(), SIGNAL(isLaunchOnStartupChanged(bool)), SLOT(onPreferencesLaunchOnStartupChanged(bool)));
-    connect(backend_->getPreferences(), SIGNAL(connectionSettingsChanged(ProtoTypes::ConnectionSettings)), SLOT(onPreferencesConnectionSettingsChanged(ProtoTypes::ConnectionSettings)));
+    connect(backend_->getPreferences(), SIGNAL(connectionSettingsChanged(types::ConnectionSettings)), SLOT(onPreferencesConnectionSettingsChanged(types::ConnectionSettings)));
     connect(backend_->getPreferences(), SIGNAL(isDockedToTrayChanged(bool)), SLOT(onPreferencesIsDockedToTrayChanged(bool)));
-    connect(backend_->getPreferences(), SIGNAL(updateChannelChanged(ProtoTypes::UpdateChannel)), SLOT(onPreferencesUpdateChannelChanged(ProtoTypes::UpdateChannel)));
+    connect(backend_->getPreferences(), SIGNAL(updateChannelChanged(UPDATE_CHANNEL)), SLOT(onPreferencesUpdateChannelChanged(UPDATE_CHANNEL)));
     connect(backend_->getPreferences(), SIGNAL(customConfigsPathChanged(QString)), SLOT(onPreferencesCustomConfigsPathChanged(QString)));
     connect(backend_->getPreferences(), SIGNAL(debugAdvancedParametersChanged(QString)), SLOT(onPreferencesdebugAdvancedParametersChanged(QString)));
 
@@ -489,13 +489,13 @@ void MainWindow::doClose(QCloseEvent *event, bool isFromSigTerm_mac)
     LaunchOnStartup::instance().setLaunchOnStartup(backend_->getPreferences()->isLaunchOnStartup());
 
     backend_->cleanup(WindscribeApplication::instance()->isExitWithRestart(), PersistentState::instance().isFirewallOn(),
-                      backend_->getPreferences()->firewalSettings().mode() == ProtoTypes::FIREWALL_MODE_ALWAYS_ON || isExitingAfterUpdate_,
+                      backend_->getPreferences()->firewalSettings().mode == FIREWALL_MODE_ALWAYS_ON || isExitingAfterUpdate_,
                       backend_->getPreferences()->isLaunchOnStartup());
 
     // Backend handles setting firewall state after app closes
     // This block handles initializing the firewall state on next run
     if (PersistentState::instance().isFirewallOn()  &&
-        backend_->getPreferences()->firewalSettings().mode() == ProtoTypes::FIREWALL_MODE_AUTOMATIC)
+        backend_->getPreferences()->firewalSettings().mode == FIREWALL_MODE_AUTOMATIC)
     {
         if (WindscribeApplication::instance()->isExitWithRestart())
         {
@@ -1217,7 +1217,7 @@ void MainWindow::onPreferencesdebugAdvancedParametersChanged(const QString &advP
     backend_->sendAdvancedParametersChanged();
 }
 
-void MainWindow::onPreferencesUpdateChannelChanged(const ProtoTypes::UpdateChannel updateChannel)
+void MainWindow::onPreferencesUpdateChannelChanged(UPDATE_CHANNEL updateChannel)
 {
     Q_UNUSED(updateChannel);
 
@@ -1472,11 +1472,11 @@ void MainWindow::onLocationsAddCustomConfigClicked()
     }
 }
 
-void MainWindow::onBackendInitFinished(ProtoTypes::InitState initState)
+void MainWindow::onBackendInitFinished(INIT_STATE initState)
 {
     setVariablesToInitState();
 
-    if (initState == ProtoTypes::INIT_SUCCESS)
+    if (initState == INIT_STATE_SUCCESS)
     {
         setInitialFirewallState();
 
@@ -1519,7 +1519,7 @@ void MainWindow::onBackendInitFinished(ProtoTypes::InitState initState)
             gotoLoginWindow();
         }
 
-        if (!p->connectionSettings().is_automatic())
+        if (!p->connectionSettings().isAutomatic())
         {
             mainWindowController_->getConnectWindow()->setProtocolPort(p->connectionSettings().protocol(), p->connectionSettings().port());
         }
@@ -1528,7 +1528,7 @@ void MainWindow::onBackendInitFinished(ProtoTypes::InitState initState)
         // start accepting commands from the CLI.
         localIpcServer_->start();
     }
-    else if (initState == ProtoTypes::INIT_BFE_SERVICE_NOT_STARTED)
+    else if (initState == INIT_STATE_BFE_SERVICE_NOT_STARTED)
     {
         if (QMessageBox::information(nullptr, QApplication::applicationName(), QObject::tr("Enable \"Base Filtering Engine\" service? This is required for Windscribe to function."),
                                      QMessageBox::Yes, QMessageBox::Close) == QMessageBox::Yes)
@@ -1541,18 +1541,18 @@ void MainWindow::onBackendInitFinished(ProtoTypes::InitState initState)
             return;
         }
     }
-    else if (initState == ProtoTypes::INIT_BFE_SERVICE_FAILED_TO_START)
+    else if (initState == INIT_STATE_BFE_SERVICE_FAILED_TO_START)
     {
         QMessageBox::information(nullptr, QApplication::applicationName(), QObject::tr("Failed to start \"Base Filtering Engine\" service."),
                                          QMessageBox::Close);
         QTimer::singleShot(0, this, SLOT(close()));
     }
-    else if (initState == ProtoTypes::INIT_HELPER_FAILED)
+    else if (initState == INIT_STATE_HELPER_FAILED)
     {
         QMessageBox::information(nullptr, QApplication::applicationName(), tr("Windscribe helper initialize error. Please reinstall the application or contact support."));
         QTimer::singleShot(0, this, SLOT(close()));
     }
-    else if (initState == ProtoTypes::INIT_HELPER_USER_CANCELED)
+    else if (initState == INIT_STATE_HELPER_USER_CANCELED)
     {
         // close without message box
         QTimer::singleShot(0, this, SLOT(close()));
@@ -1578,7 +1578,7 @@ void MainWindow::onBackendLoginFinished(bool /*isLoginFromSavedSettings*/)
     mainWindowController_->getPreferencesWindow()->setLoggedIn(true);
     mainWindowController_->getTwoFactorAuthWindow()->clearCurrentCredentials();
 
-    if (backend_->getPreferences()->firewalSettings().mode() == ProtoTypes::FIREWALL_MODE_ALWAYS_ON)
+    if (backend_->getPreferences()->firewalSettings().mode == FIREWALL_MODE_ALWAYS_ON)
     {
         backend_->firewallOn();
         mainWindowController_->getConnectWindow()->setFirewallAlwaysOn(true);
@@ -2020,14 +2020,14 @@ void MainWindow::onBackendFirewallStateChanged(bool isEnabled)
     PersistentState::instance().setFirewallState(isEnabled);
 }
 
-void MainWindow::onNetworkChanged(ProtoTypes::NetworkInterface network)
+void MainWindow::onNetworkChanged(types::NetworkInterface network)
 {
     qCDebug(LOG_BASIC) << "Network Changed: "
-                       << "Index: " << network.interface_index()
-                       << ", Network/SSID: " << QString::fromStdString(network.network_or_ssid())
-                       << ", MAC: " << QString::fromStdString(network.physical_address())
-                       << ", device name: " << QString::fromStdString(network.device_name())
-                       << " friendly: " << QString::fromStdString(network.friendly_name());
+                       << "Index: " << network.interfaceIndex
+                       << ", Network/SSID: " << network.networkOrSSid
+                       << ", MAC: " << network.physicalAddress
+                       << ", device name: " << network.deviceName
+                       << " friendly: " << network.friendlyName;
 
     mainWindowController_->getConnectWindow()->updateNetworkState(network);
     mainWindowController_->getPreferencesWindow()->updateNetworkState(network);
@@ -2091,7 +2091,7 @@ void MainWindow::onBackendCleanupFinished()
 
 void MainWindow::onBackendGotoCustomOvpnConfigModeFinished()
 {
-    if (backend_->getPreferences()->firewalSettings().mode() == ProtoTypes::FIREWALL_MODE_ALWAYS_ON)
+    if (backend_->getPreferences()->firewalSettings().mode == FIREWALL_MODE_ALWAYS_ON)
     {
         backend_->firewallOn();
         mainWindowController_->getConnectWindow()->setFirewallAlwaysOn(true);
@@ -2507,9 +2507,9 @@ void MainWindow::onBestLocationChanged(const LocationID &bestLocation)
     }
 }
 
-void MainWindow::onPreferencesFirewallSettingsChanged(const ProtoTypes::FirewallSettings &fm)
+void MainWindow::onPreferencesFirewallSettingsChanged(const types::FirewallSettings &fm)
 {
-    if (fm.mode() == ProtoTypes::FIREWALL_MODE_ALWAYS_ON)
+    if (fm.mode == FIREWALL_MODE_ALWAYS_ON)
     {
         mainWindowController_->getConnectWindow()->setFirewallAlwaysOn(true);
         if (!PersistentState::instance().isFirewallOn())
@@ -2595,9 +2595,9 @@ void MainWindow::onPreferencesLaunchOnStartupChanged(bool bEnabled)
     LaunchOnStartup::instance().setLaunchOnStartup(bEnabled);
 }
 
-void MainWindow::updateConnectWindowStateProtocolPortDisplay(ProtoTypes::ConnectionSettings connectionSettings)
+void MainWindow::updateConnectWindowStateProtocolPortDisplay(types::ConnectionSettings connectionSettings)
 {
-    if (connectionSettings.is_automatic())
+    if (connectionSettings.isAutomatic())
     {
 #if defined(Q_OS_LINUX)
         mainWindowController_->getConnectWindow()->setProtocolPort(ProtoTypes::PROTOCOL_UDP, 443);
@@ -2611,7 +2611,7 @@ void MainWindow::updateConnectWindowStateProtocolPortDisplay(ProtoTypes::Connect
     }
 }
 
-void MainWindow::onPreferencesConnectionSettingsChanged(ProtoTypes::ConnectionSettings connectionSettings)
+void MainWindow::onPreferencesConnectionSettingsChanged(types::ConnectionSettings connectionSettings)
 {
     if (backend_->isDisconnected())
     {
@@ -2876,7 +2876,7 @@ void MainWindow::showShutdownWindow()
     mainWindowController_->getExitWindow()->setShutdownAnimationMode(true);
 }
 
-void MainWindow::onCurrentNetworkUpdated(ProtoTypes::NetworkInterface networkInterface)
+void MainWindow::onCurrentNetworkUpdated(types::NetworkInterface networkInterface)
 {
     mainWindowController_->getConnectWindow()->updateNetworkState(networkInterface);
     backend_->handleNetworkChange(networkInterface, true);
@@ -3413,14 +3413,14 @@ void MainWindow::setInitialFirewallState()
     if (bFirewallStateOn)
     {
         backend_->firewallOn();
-        if (backend_->getPreferences()->firewalSettings().mode() == ProtoTypes::FIREWALL_MODE_ALWAYS_ON)
+        if (backend_->getPreferences()->firewalSettings().mode == FIREWALL_MODE_ALWAYS_ON)
         {
             mainWindowController_->getConnectWindow()->setFirewallAlwaysOn(true);
         }
     }
     else
     {
-        if (backend_->getPreferences()->firewalSettings().mode() == ProtoTypes::FIREWALL_MODE_ALWAYS_ON)
+        if (backend_->getPreferences()->firewalSettings().mode == FIREWALL_MODE_ALWAYS_ON)
         {
             backend_->firewallOn();
             mainWindowController_->getConnectWindow()->setFirewallAlwaysOn(true);

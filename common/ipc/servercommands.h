@@ -5,6 +5,7 @@
 #include "types/sessionstatus.h"
 #include "types/enums.h"
 #include "types/enginesettings.h"
+#include "types/portmap.h"
 
 namespace IPC
 {
@@ -104,6 +105,48 @@ public:
         return "EngineSettingsChanged";
     }
     types::EngineSettings engineSettings_;
+};
+
+class NetworkChanged : public Command
+{
+public:
+    explicit NetworkChanged(const types::NetworkInterface &networkInterface) : networkInterface_(networkInterface)  {}
+
+    std::vector<char> getData() const override   {  Q_ASSERT(false); return std::vector<char>(); }
+    std::string getStringId() const override { return getCommandStringId(); }
+    std::string getDebugString() const override
+    {
+        return "NetworkChanged debug string";
+    }
+
+    static std::string getCommandStringId()
+    {
+        return "NetworkChanged";
+    }
+    types::NetworkInterface networkInterface_;
+};
+
+class LoginFinished : public Command
+{
+public:
+    explicit LoginFinished(bool isLoginFromSettings, const types::PortMap &portMap, const QString &authHash) :
+        isLoginFromSettings_(isLoginFromSettings), portMap_(portMap), authHash_(authHash)
+    {}
+
+    std::vector<char> getData() const override   {  Q_ASSERT(false); return std::vector<char>(); }
+    std::string getStringId() const override { return getCommandStringId(); }
+    std::string getDebugString() const override
+    {
+        return "LoginFinished debug string";
+    }
+
+    static std::string getCommandStringId()
+    {
+        return "LoginFinished";
+    }
+    bool isLoginFromSettings_;
+    types::PortMap portMap_;
+    QString authHash_;
 };
 
 

@@ -81,6 +81,7 @@ set(PROJECT_SOURCES
     ${COMMON_PATH}/types/dnswhileconnectedinfo.h
     ${COMMON_PATH}/types/enginesettings.cpp
     ${COMMON_PATH}/types/enginesettings.h
+    ${COMMON_PATH}/types/guipersistentstate.h
     ${COMMON_PATH}/utils/clean_sensitive_info.cpp
     ${COMMON_PATH}/utils/clean_sensitive_info.h
     ${COMMON_PATH}/utils/executable_signature/executable_signature.cpp
@@ -113,6 +114,8 @@ set(PROJECT_SOURCES
     ${COMMON_PATH}/legacy_protobuf_support/protobuf-c/protobuf-c.h
     ${COMMON_PATH}/legacy_protobuf_support/apiinfo.pb-c.c
     ${COMMON_PATH}/legacy_protobuf_support/apiinfo.pb-c.h
+    ${COMMON_PATH}/legacy_protobuf_support/types.pb-c.c
+    ${COMMON_PATH}/legacy_protobuf_support/types.pb-c.h
 )
 
 

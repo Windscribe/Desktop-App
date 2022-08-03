@@ -17,13 +17,6 @@ QString ProtoEnumToString::toString(const QString &protoEnumName)
 
 ProtoEnumToString::ProtoEnumToString()
 {
-    map_["PROTOCOL_IKEV2"] = "IKEv2";
-    map_["PROTOCOL_UDP"] = "UDP";
-    map_["PROTOCOL_TCP"] = "TCP";
-    map_["PROTOCOL_STUNNEL"] = "Stealth";
-    map_["PROTOCOL_WSTUNNEL"] = "WStunnel";
-    map_["PROTOCOL_WIREGUARD"] = "WireGuard";
-
     map_["ORDER_LOCATION_BY_GEOGRAPHY"] = "Geography";
     map_["ORDER_LOCATION_BY_ALPHABETICALLY"] = "Alphabet";
     map_["ORDER_LOCATION_BY_LATENCY"] = "Latency";
@@ -68,12 +61,6 @@ ProtoEnumToString::ProtoEnumToString()
     map_["WINTUN_ADAPTER"] = "Wintun";
 }
 
-QString ProtoEnumToString::toString(ProtoTypes::Protocol p)
-{
-    const google::protobuf::EnumDescriptor *descriptor = ProtoTypes::Protocol_descriptor();
-    std::string name = descriptor->FindValueByNumber(p)->name();
-    return toString(QString::fromStdString(name));
-}
 
 QString ProtoEnumToString::toString(ProtoTypes::ProxySharingMode p)
 {

@@ -27,7 +27,7 @@ public:
 
     void setHoverable(bool hoverable);
     void setInternetConnectivity(bool connectivity);
-    void setProtocolPort(const ProtoTypes::Protocol &protocol, const uint port);
+    void setProtocolPort(const types::ProtocolType &protocol, const uint port);
     void setTestTunnelResult(bool success);
 
     void updateScaling() override;
@@ -52,7 +52,7 @@ private:
     ProtoTypes::ConnectState prevConnectState_;
     bool hoverable_;
     bool connectivity_;
-    ProtoTypes::Protocol protocol_;
+    types::ProtocolType protocol_;
     uint port_;
     QColor textColor_;
     double textOpacity_;

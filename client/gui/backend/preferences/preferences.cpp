@@ -233,14 +233,14 @@ void Preferences::setUpdateChannel(UPDATE_CHANNEL c)
     }
 }
 
-ProtoTypes::NetworkWhiteList Preferences::networkWhiteList()
+QVector<types::NetworkInterface> Preferences::networkWhiteList()
 {
     return PersistentState::instance().networkWhitelist();
 }
 
-void Preferences::setNetworkWhiteList(ProtoTypes::NetworkWhiteList l)
+void Preferences::setNetworkWhiteList(const QVector<types::NetworkInterface> &l)
 {
-    if (!google::protobuf::util::MessageDifferencer::Equals(PersistentState::instance().networkWhitelist(), l))
+    if (PersistentState::instance().networkWhitelist() != l)
     {
         PersistentState::instance().setNetworkWhitelist(l);
         emit networkWhiteListChanged(l);

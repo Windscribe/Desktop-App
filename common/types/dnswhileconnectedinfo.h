@@ -3,6 +3,7 @@
 
 #include <QString>
 #include <QList>
+#include <QDataStream>
 #include "enums.h"
 
 namespace types {
@@ -24,9 +25,29 @@ public:
     static QList<DNS_WHILE_CONNECTED_TYPE> allAvailableTypes();
     static QString typeToString(const DNS_WHILE_CONNECTED_TYPE &type);
 
+    friend QDataStream& operator <<(QDataStream &stream, const DnsWhileConnectedInfo &o)
+    {
+        stream << versionForSerialization_;
+        stream << o.type_ << o.ipAddress_;
+        return stream;
+    }
+    friend QDataStream& operator >>(QDataStream &stream, DnsWhileConnectedInfo &o)
+    {
+        quint32 version;
+        stream >> version;
+        Q_ASSERT(version == versionForSerialization_);
+        if (version > versionForSerialization_)
+        {
+            return stream;
+        }
+        stream >> o.type_ >> o.ipAddress_;
+        return stream;
+    }
+
 private:
     DNS_WHILE_CONNECTED_TYPE type_;
     QString ipAddress_;
+    static constexpr quint32 versionForSerialization_ = 1;
 };
 
 inline bool operator==(const DnsWhileConnectedInfo& lhs, const DnsWhileConnectedInfo& rhs)

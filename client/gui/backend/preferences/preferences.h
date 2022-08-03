@@ -54,8 +54,8 @@ public:
     UPDATE_CHANNEL updateChannel() const;
     void setUpdateChannel(UPDATE_CHANNEL c);
 
-    ProtoTypes::NetworkWhiteList networkWhiteList();
-    void setNetworkWhiteList(ProtoTypes::NetworkWhiteList l);
+    QVector<types::NetworkInterface> networkWhiteList();
+    void setNetworkWhiteList(const QVector<types::NetworkInterface> &l);
 
     //const CustomRouting &customRouting() const;
     //void setCustomRouting(const CustomRouting &cr);
@@ -181,7 +181,7 @@ signals:
 #endif
 
     void dnsWhileConnectedInfoChanged(types::DnsWhileConnectedInfo dnsWcInfo);
-    void networkWhiteListChanged(ProtoTypes::NetworkWhiteList l);
+    void networkWhiteListChanged(QVector<types::NetworkInterface> l);
     void splitTunnelingChanged(ProtoTypes::SplitTunneling st);
     void keepAliveChanged(bool b);
     void updateEngineSettings();

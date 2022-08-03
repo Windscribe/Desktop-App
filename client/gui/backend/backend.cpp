@@ -481,20 +481,17 @@ void Backend::onConnectionNewCommand(IPC::Command *command)
         qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmd->getDebugString());
         firewallStateHelper_.setFirewallStateFromEngine(cmd->getProtoObj().is_firewall_enabled());
     }
-    else if (command->getStringId() == IPCServerCommands::LoginFinished::descriptor()->full_name())
+    else if (command->getStringId() == IPC::ServerCommands::LoginFinished::getCommandStringId())
     {
-        IPC::ProtobufCommand<IPCServerCommands::LoginFinished> *cmd = static_cast<IPC::ProtobufCommand<IPCServerCommands::LoginFinished> *>(command);
+        IPC::ServerCommands::LoginFinished *cmd = static_cast<IPC::ServerCommands::LoginFinished *>(command);
 
-        if (cmd->getProtoObj().has_auth_hash())
+        if (!cmd->authHash_.isEmpty())
         {
-            accountInfo_.setAuthHash(QString::fromStdString(cmd->getProtoObj().auth_hash()));
+            accountInfo_.setAuthHash(cmd->authHash_);
         }
-        if (cmd->getProtoObj().has_array_port_map())
-        {
-            preferencesHelper_.setPortMap(cmd->getProtoObj().array_port_map());
-        }
+        preferencesHelper_.setPortMap(cmd->portMap_);
 
-        Q_EMIT loginFinished(cmd->getProtoObj().is_login_from_saved_settings());
+        Q_EMIT loginFinished(cmd->isLoginFromSettings_);
     }
     else if (command->getStringId() == IPCServerCommands::LoginStepMessage::descriptor()->full_name())
     {
@@ -619,25 +616,11 @@ void Backend::onConnectionNewCommand(IPC::Command *command)
         isCleanupFinished_ = true;
         Q_EMIT cleanupFinished();
     }
-    else if (command->getStringId() == IPCServerCommands::NetworkChanged::descriptor()->full_name())
+    else if (command->getStringId() == IPC::ServerCommands::NetworkChanged::getCommandStringId())
     {
         qCDebugMultiline(LOG_IPC) << QString::fromStdString(command->getDebugString());
-        IPC::ProtobufCommand<IPCServerCommands::NetworkChanged> *cmd = static_cast<IPC::ProtobufCommand<IPCServerCommands::NetworkChanged> *>(command);
-
-        ProtoTypes::NetworkInterface networkInterface;
-        networkInterface.set_interface_index(cmd->getProtoObj().network_interface().interface_index());
-        networkInterface.set_interface_name(cmd->getProtoObj().network_interface().interface_name());
-        networkInterface.set_interface_guid(cmd->getProtoObj().network_interface().interface_guid());
-        networkInterface.set_network_or_ssid(cmd->getProtoObj().network_interface().network_or_ssid());
-        networkInterface.set_interface_type(cmd->getProtoObj().network_interface().interface_type());
-        networkInterface.set_trust_type(cmd->getProtoObj().network_interface().trust_type());
-        networkInterface.set_active(cmd->getProtoObj().network_interface().active());
-        networkInterface.set_friendly_name(cmd->getProtoObj().network_interface().friendly_name());
-        networkInterface.set_requested(cmd->getProtoObj().network_interface().requested());
-        networkInterface.set_metric(cmd->getProtoObj().network_interface().metric());
-        networkInterface.set_physical_address(cmd->getProtoObj().network_interface().physical_address());
-        networkInterface.set_mtu(cmd->getProtoObj().network_interface().mtu());
-        handleNetworkChange(networkInterface);
+        IPC::ServerCommands::NetworkChanged *cmd = static_cast<IPC::ServerCommands::NetworkChanged *>(command);
+        handleNetworkChange(cmd->networkInterface_);
     }
     else if (command->getStringId() == IPCServerCommands::SessionDeleted::descriptor()->full_name())
     {
@@ -721,28 +704,28 @@ void Backend::abortInitialization()
 }
 
 // Assumes that duplicate network filtering occurs on Engine side
-void Backend::handleNetworkChange(ProtoTypes::NetworkInterface networkInterface, bool manual)
+void Backend::handleNetworkChange(types::NetworkInterface networkInterface, bool manual)
 {
     bool newNetwork = true;
 
     // find or assign friendly name before checking is network is the same as current network
-    QString friendlyName = QString::fromStdString(networkInterface.network_or_ssid());
+    QString friendlyName = networkInterface.networkOrSSid;
 
-    ProtoTypes::NetworkWhiteList networkListOld = PersistentState::instance().networkWhitelist();
-    for (int i = 0; i < networkListOld.networks_size(); i++)
+    QVector<types::NetworkInterface> networkListOld = PersistentState::instance().networkWhitelist();
+    for (int i = 0; i < networkListOld.size(); i++)
     {
-        if (networkListOld.networks(i).network_or_ssid() == networkInterface.network_or_ssid())
+        if (networkListOld[i].networkOrSSid== networkInterface.networkOrSSid)
         {
-            friendlyName = QString::fromStdString(networkListOld.networks(i).friendly_name());
+            friendlyName = networkListOld[i].friendlyName;
             newNetwork = false;
             break;
         }
     }
 
-    if (friendlyName == "") friendlyName = QString::fromStdString(networkInterface.network_or_ssid());
-    networkInterface.set_friendly_name(friendlyName.toStdString().c_str());
+    if (friendlyName == "") friendlyName = networkInterface.networkOrSSid;
+    networkInterface.friendlyName = friendlyName;
 
-    if (QString::fromStdString(networkInterface.network_or_ssid()) != "") // not a disconnect
+    if (networkInterface.networkOrSSid != "") // not a disconnect
     {
         // Add a new network as secured
         if (newNetwork)
@@ -757,21 +740,20 @@ void Backend::handleNetworkChange(ProtoTypes::NetworkInterface networkInterface,
 
             }
 #endif
-            ProtoTypes::NetworkInterface newEntry;
-            newEntry.CopyFrom(networkInterface);
-            *networkListOld.add_networks() = newEntry;
-
+            types::NetworkInterface newEntry;
+            newEntry = networkInterface;
+            networkListOld << newEntry;
             preferences_.setNetworkWhiteList(networkListOld);
         }
 
         // GUI-side persistent list holds trustiness
-        ProtoTypes::NetworkWhiteList networkList = PersistentState::instance().networkWhitelist();
-        ProtoTypes::NetworkInterface foundInterface;
-        for (int i = 0; i < networkList.networks_size(); i++)
+        QVector<types::NetworkInterface> networkList = PersistentState::instance().networkWhitelist();
+        types::NetworkInterface foundInterface;
+        for (int i = 0; i < networkList.size(); i++)
         {
-            if (networkList.networks(i).network_or_ssid() == networkInterface.network_or_ssid())
+            if (networkList[i].networkOrSSid == networkInterface.networkOrSSid)
             {
-                foundInterface = networkList.networks(i);
+                foundInterface = networkList[i];
                 break;
             }
         }
@@ -781,7 +763,7 @@ void Backend::handleNetworkChange(ProtoTypes::NetworkInterface networkInterface,
             // prevents brief/rare network loss during CONNECTING from triggering network change
         {
             // disconnect VPN on an unsecured network -- connect VPN on a secured network if auto-connect is on
-            if (foundInterface.trust_type() == ProtoTypes::NETWORK_UNSECURED)
+            if (foundInterface.trustType == NETWORK_TRUST_UNSECURED)
             {
                 if (!connectStateHelper_.isDisconnected())
                 {
@@ -805,9 +787,8 @@ void Backend::handleNetworkChange(ProtoTypes::NetworkInterface networkInterface,
         }
 
 		// Even if not a real network change we want to update the UI with current network info.
-        ProtoTypes::NetworkInterface protoInterface;
-        protoInterface.CopyFrom(networkInterface);
-        protoInterface.set_trust_type(foundInterface.trust_type());
+        types::NetworkInterface protoInterface = networkInterface;
+        protoInterface.trustType =foundInterface.trustType;
         Q_EMIT networkChanged(protoInterface);
 
     }
@@ -818,7 +799,7 @@ void Backend::handleNetworkChange(ProtoTypes::NetworkInterface networkInterface,
     }
 }
 
-ProtoTypes::NetworkInterface Backend::getCurrentNetworkInterface()
+types::NetworkInterface Backend::getCurrentNetworkInterface()
 {
     return currentNetworkInterface_;
 }
@@ -827,8 +808,8 @@ void Backend::cycleMacAddress()
 {
     QString macAddress = Utils::generateRandomMacAddress(); // TODO: move generation into Engine (BEWARE: mac change only occurs on preferences closing and when manual MAC cycled)
 
-    ProtoTypes::MacAddrSpoofing mas = preferences_.macAddrSpoofing();
-    mas.set_mac_address(macAddress.toStdString());
+    types::MacAddrSpoofing mas = preferences_.macAddrSpoofing();
+    mas.macAddress = macAddress;
     preferences_.setMacAddrSpoofing(mas);
 
     sendEngineSettingsIfChanged(); //  force EngineSettings update on manual MAC cycle button press
@@ -885,11 +866,11 @@ void Backend::sendMakeHostsFilesWritableWin()
 QString Backend::generateNewFriendlyName()
 {
     QList<QString> friendlyNames;
-    ProtoTypes::NetworkWhiteList whiteList = preferences_.networkWhiteList();
-    for (int i = 0; i < whiteList.networks_size(); i++)
+    QVector<types::NetworkInterface> whiteList = preferences_.networkWhiteList();
+    for (int i = 0; i < whiteList.size(); i++)
     {
-        ProtoTypes::NetworkInterface network = whiteList.networks(i);
-        friendlyNames.append(QString::fromStdString(network.friendly_name()));
+        types::NetworkInterface network = whiteList[i];
+        friendlyNames.append(network.friendlyName);
     }
 
     int newIndex = 0;

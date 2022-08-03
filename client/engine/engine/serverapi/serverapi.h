@@ -100,7 +100,7 @@ signals:
     void wgConfigsConnectAnswer(SERVER_API_RET_CODE retCode, uint userRole, bool isErrorCode, int errorCode, const QString &ipAddress, const QString &dnsAddress);
 
     void webSessionAnswer(SERVER_API_RET_CODE retCode, const QString &token, uint userRole);
-    void sendUserWarning(ProtoTypes::UserWarningType warning);
+    void sendUserWarning(USER_WARNING_TYPE warning);
 
     // need for add to firewall rules
     void hostIpsChanged(const QStringList &hostIps);

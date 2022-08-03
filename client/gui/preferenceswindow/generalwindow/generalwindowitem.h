@@ -56,7 +56,7 @@ private slots:
     void onLatencyDisplayPreferencesChanged(ProtoTypes::LatencyDisplayType l);
     void onLatencyItemChanged(QVariant o);
 
-    void onUpdateChannelPreferencesChanged(const ProtoTypes::UpdateChannel &c);
+    void onUpdateChannelPreferencesChanged(const UPDATE_CHANNEL &c);
     void onUpdateChannelItemChanged(QVariant o);
 
     void onBackgroundSettingsChanged(const ProtoTypes::BackgroundSettings &settings);

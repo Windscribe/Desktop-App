@@ -6,7 +6,7 @@
 
 void PersistentState::load()
 {
-    QSettings settings;
+    /*QSettings settings;
 
     if (settings.contains("persistentGuiSettings"))
     {
@@ -26,113 +26,113 @@ void PersistentState::load()
     censoredIp = censoredIp.mid(0, censoredIp.lastIndexOf('.')+1) + "###"; // censor last octet
     censoredState.set_last_external_ip(censoredIp.toStdString());
 
-    qCDebugMultiline(LOG_BASIC) << "Gui internal settings:" << QString::fromStdString(censoredState.DebugString());
+    qCDebugMultiline(LOG_BASIC) << "Gui internal settings:" << QString::fromStdString(censoredState.DebugString());*/
 }
 
 void PersistentState::save()
 {
-    QSettings settings;
+    /*QSettings settings;
 
     int size = (int)state_.ByteSizeLong();
     QByteArray arr(size, Qt::Uninitialized);
     state_.SerializeToArray(arr.data(), size);
 
-    settings.setValue("persistentGuiSettings", arr);
+    settings.setValue("persistentGuiSettings", arr);*/
 }
 
 void PersistentState::setFirewallState(bool bFirewallOn)
 {
-    state_.set_is_firewall_on(bFirewallOn);
+    state_.isFirewallOn = bFirewallOn;
     save();
 }
 
 bool PersistentState::isFirewallOn() const
 {
-    return state_.is_firewall_on();
+    return state_.isFirewallOn;
 }
 
 bool PersistentState::isWindowPosExists() const
 {
-    return state_.has_window_offs_x() && state_.has_window_offs_y();
+    return state_.isWindowOffsSetled();
 }
 
 void PersistentState::setWindowPos(const QPoint &windowOffs)
 {
-    state_.set_window_offs_x(windowOffs.x());
-    state_.set_window_offs_y(windowOffs.y());
+    state_.windowOffsX = windowOffs.x();
+    state_.windowOffsY = windowOffs.y();
     save();
 }
 
 QPoint PersistentState::windowPos() const
 {
-    QPoint pt(state_.window_offs_x(), state_.window_offs_y());
+    QPoint pt(state_.windowOffsX, state_.windowOffsY);
     return pt;
 }
 
 void PersistentState::setCountVisibleLocations(int cnt)
 {
-    state_.set_count_visible_locations(cnt);
+    state_.countVisibleLocations = cnt;
     save();
 }
 
 int PersistentState::countVisibleLocations() const
 {
-    return state_.count_visible_locations();
+    return state_.countVisibleLocations;
 }
 
 void PersistentState::setFirstLogin(bool bFirstRun)
 {
-    state_.set_is_first_login(bFirstRun);
+    state_.isFirstLogin = bFirstRun;
     save();
 }
 
 bool PersistentState::isFirstLogin()
 {
-    return state_.is_first_login();
+    return state_.isFirstLogin;
 }
 
 void PersistentState::setIgnoreCpuUsageWarnings(bool isIgnore)
 {
-    state_.set_is_ignore_cpu_usage_warnings(isIgnore);
+    state_.isIgnoreCpuUsageWarnings = isIgnore;
     save();
 }
 
 bool PersistentState::isIgnoreCpuUsageWarnings()
 {
-    return state_.is_ignore_cpu_usage_warnings();
+    return state_.isIgnoreCpuUsageWarnings;
 }
 
 void PersistentState::setLastLocation(const LocationID &lid)
 {
-    *state_.mutable_lastlocation() = lid.toProtobuf();
+    state_.lastLocation = lid;
     save();
 }
 
 LocationID PersistentState::lastLocation() const
 {
-    return LocationID::createFromProtoBuf(state_.lastlocation());
+    return state_.lastLocation;
 }
 
 void PersistentState::setLastExternalIp(const QString &ip)
 {
-    state_.set_last_external_ip(ip.toStdString());
+    state_.lastExternalIp = ip;
     save();
 }
 
 QString PersistentState::lastExternalIp() const
 {
-    return QString::fromStdString(state_.last_external_ip());
+    return state_.lastExternalIp;
 }
 
-void PersistentState::setNetworkWhitelist(const ProtoTypes::NetworkWhiteList &list)
+void PersistentState::setNetworkWhitelist(const QVector<types::NetworkInterface> &list)
 {
-    *state_.mutable_network_white_list() = list;
+    state_.networkWhiteList = list;
     save();
 }
 
-ProtoTypes::NetworkWhiteList PersistentState::networkWhitelist() const
+QVector<types::NetworkInterface> PersistentState::networkWhitelist() const
 {
-    return state_.network_white_list();
+    return state_.networkWhiteList;
 }
 
 PersistentState::PersistentState()
@@ -140,38 +140,3 @@ PersistentState::PersistentState()
     load();
 }
 
-void PersistentState::loadFromVersion1()
-{
-    QSettings settings("Windscribe", "Windscribe");
-    if (settings.contains("firewallChecked"))
-    {
-        state_.set_is_firewall_on(settings.value("firewallChecked").toBool());
-    }
-
-    if (settings.contains("windowGeometry"))
-    {
-        QRect windowGeometry = settings.value("windowGeometry").toRect();
-        state_.set_window_offs_x(windowGeometry.x());
-        state_.set_window_offs_y(windowGeometry.y());
-    }
-
-    if (settings.contains("firstRun"))
-    {
-        state_.set_is_first_login(settings.value("firstRun").toBool());
-    }
-
-    if (settings.contains("ignoreCpuUsageWarnings"))
-    {
-        state_.set_is_ignore_cpu_usage_warnings(settings.value("ignoreCpuUsageWarnings").toBool());
-    }
-
-    if (settings.contains("lastExternalIp"))
-    {
-        state_.set_last_external_ip(settings.value("lastExternalIp").toString().toStdString());
-    }
-
-    if (settings.contains("countVisibleLocations"))
-    {
-        state_.set_count_visible_locations(settings.value("countVisibleLocations", 7).toInt());
-    }
-}

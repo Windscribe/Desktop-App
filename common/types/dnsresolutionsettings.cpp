@@ -7,12 +7,6 @@ DnsResolutionSettings::DnsResolutionSettings() : bAutomatic_(true)
 {
 }
 
-DnsResolutionSettings::DnsResolutionSettings(const ProtoTypes::ApiResolution &d)
-{
-    bAutomatic_ = d.is_automatic();
-    manualIp_ = QString::fromStdString(d.manual_ip());
-}
-
 void DnsResolutionSettings::set(bool bAutomatic, const QString &manualIp)
 {
     bAutomatic_ = bAutomatic;
@@ -37,28 +31,25 @@ void DnsResolutionSettings::debugToLog()
     }
 }
 
-ProtoTypes::ApiResolution DnsResolutionSettings::convertToProtobuf() const
-{
-    ProtoTypes::ApiResolution drs;
-    drs.set_is_automatic(bAutomatic_);
-    drs.set_manual_ip(manualIp_.toStdString());
-    return drs;
-}
-
-bool DnsResolutionSettings::isEqual(const DnsResolutionSettings &other) const
-{
-    return bAutomatic_ == other.bAutomatic_ && manualIp_ == other.manualIp_;
-}
-
 bool DnsResolutionSettings::getIsAutomatic() const
 {
     QString manualIp = manualIp_;
     return bAutomatic_ || manualIp.trimmed().isEmpty();
 }
 
+void DnsResolutionSettings::setIsAutomatic(bool bAutomatic)
+{
+    bAutomatic_ = bAutomatic;
+}
+
 QString DnsResolutionSettings::getManualIp() const
 {
     return manualIp_;
+}
+
+void DnsResolutionSettings::setManualIp(const QString &manualIp)
+{
+    manualIp_ = manualIp;
 }
 
 } //namespace types

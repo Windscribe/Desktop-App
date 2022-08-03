@@ -12,11 +12,7 @@ class ProxySettings
 {
 public:
     ProxySettings();
-    explicit ProxySettings(const ProtoTypes::ProxySettings &p);
-
-    void readFromSettingsV1(QSettings &settings);
-
-    bool isEqual(const ProxySettings &other) const;
+    ProxySettings(PROXY_OPTION option, const QString &address, uint port, const QString &password, const QString &username);
 
     PROXY_OPTION option() const;
     void setOption(PROXY_OPTION option);
@@ -38,8 +34,6 @@ public:
     QNetworkProxy getNetworkProxy() const;
     bool isProxyEnabled() const;
 
-    ProtoTypes::ProxySettings convertToProtobuf() const;
-
     bool operator==(const ProxySettings &other) const {
         return option_ == other.option_ && address_ == other.address_ && port_ == other.port_
                && username_ == other.username_ && password_ == other.password_;
@@ -48,12 +42,33 @@ public:
         return !(*this == other);
     }
 
+    friend QDataStream& operator <<(QDataStream &stream, const ProxySettings &o)
+    {
+        stream << versionForSerialization_;
+        stream << o.option_ << o.address_ << o.port_ << o.username_ << o.password_;
+        return stream;
+    }
+    friend QDataStream& operator >>(QDataStream &stream, ProxySettings &o)
+    {
+        quint32 version;
+        stream >> version;
+        Q_ASSERT(version == versionForSerialization_);
+        if (version > versionForSerialization_)
+        {
+            return stream;
+        }
+        stream >> o.option_ >> o.address_ >> o.port_ >> o.username_ >> o.password_;
+        return stream;
+    }
+
 private:
     PROXY_OPTION option_;
     QString address_;
     uint port_;
     QString username_;
     QString password_;
+
+    static constexpr quint32 versionForSerialization_ = 1;
 };
 } //namespace types
 

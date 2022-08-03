@@ -68,49 +68,48 @@ bool EngineServer::handleCommand(IPC::Command *command)
             threadEngine_ = new QThread(this);
             engine_ = new Engine(curEngineSettings_);
             engine_->moveToThread(threadEngine_);
-            connect(threadEngine_, SIGNAL(started()), engine_, SLOT(init()));
-            connect(engine_, SIGNAL(cleanupFinished()), threadEngine_, SLOT(quit()));
-            connect(threadEngine_, SIGNAL(finished()), SLOT(onEngineCleanupFinished()));
+            connect(threadEngine_, &QThread::started, engine_, &Engine::init);
+            connect(engine_, &Engine::cleanupFinished, threadEngine_, &QThread::quit);
+            connect(threadEngine_, &QThread::finished, this,  &EngineServer::onEngineCleanupFinished);
 
-            connect(engine_, SIGNAL(initFinished(ENGINE_INIT_RET_CODE)), SLOT(onEngineInitFinished(ENGINE_INIT_RET_CODE)));
-            connect(engine_, SIGNAL(bfeEnableFinished(ENGINE_INIT_RET_CODE)), SLOT(onEngineBfeEnableFinished(ENGINE_INIT_RET_CODE)));
-            connect(engine_, SIGNAL(firewallStateChanged(bool)), SLOT(onEngineFirewallStateChanged(bool)));
+            connect(engine_, &Engine::initFinished, this, &EngineServer::onEngineInitFinished);
+            connect(engine_, &Engine::bfeEnableFinished, this, &EngineServer::onEngineBfeEnableFinished);
+            connect(engine_, &Engine::firewallStateChanged, this, &EngineServer::onEngineFirewallStateChanged);
             connect(engine_, &Engine::loginFinished, this, &EngineServer::onEngineLoginFinished);
-            connect(engine_, SIGNAL(loginStepMessage(LOGIN_MESSAGE)), SLOT(onEngineLoginMessage(LOGIN_MESSAGE)));
-            connect(engine_, SIGNAL(notificationsUpdated(QVector<types::Notification>)), SLOT(onEngineNotificationsUpdated(QVector<types::Notification>)));
-            connect(engine_, SIGNAL(checkUpdateUpdated(types::CheckUpdate)), SLOT(onEngineCheckUpdateUpdated(types::CheckUpdate)));
-            connect(engine_, SIGNAL(updateVersionChanged(uint, ProtoTypes::UpdateVersionState, ProtoTypes::UpdateVersionError)), SLOT(onEngineUpdateVersionChanged(uint, ProtoTypes::UpdateVersionState, ProtoTypes::UpdateVersionError)));
-            connect(engine_, SIGNAL(myIpUpdated(QString,bool,bool)), SLOT(onEngineMyIpUpdated(QString,bool,bool)));
-            connect(engine_, SIGNAL(sessionStatusUpdated(types::SessionStatus)), SLOT(onEngineUpdateSessionStatus(types::SessionStatus)));
-            connect(engine_, SIGNAL(sessionDeleted()), SLOT(onEngineSessionDeleted()));
-            connect(engine_->getConnectStateController(), SIGNAL(stateChanged(CONNECT_STATE, DISCONNECT_REASON, ProtoTypes::ConnectError, LocationID)),
-                    SLOT(onEngineConnectStateChanged(CONNECT_STATE, DISCONNECT_REASON, ProtoTypes::ConnectError, LocationID)));
-            connect(engine_, SIGNAL(protocolPortChanged(ProtoTypes::Protocol, uint)), SLOT(onEngineProtocolPortChanged(ProtoTypes::Protocol, uint)));
-            connect(engine_, SIGNAL(statisticsUpdated(quint64,quint64, bool)), SLOT(onEngineStatisticsUpdated(quint64,quint64, bool)));
-            connect(engine_, SIGNAL(emergencyConnected()), SLOT(onEngineEmergencyConnected()));
-            connect(engine_, SIGNAL(emergencyDisconnected()), SLOT(onEngineEmergencyDisconnected()));
-            connect(engine_, SIGNAL(emergencyConnectError(ProtoTypes::ConnectError)), SLOT(onEngineEmergencyConnectError(ProtoTypes::ConnectError)));
-            connect(engine_, SIGNAL(testTunnelResult(bool)), SLOT(onEngineTestTunnelResult(bool)));
-            connect(engine_, SIGNAL(lostConnectionToHelper()), SLOT(onEngineLostConnectionToHelper()));
-            connect(engine_, SIGNAL(proxySharingStateChanged(bool, PROXY_SHARING_TYPE)), SLOT(onEngineProxySharingStateChanged(bool, PROXY_SHARING_TYPE)));
-            connect(engine_, SIGNAL(wifiSharingStateChanged(bool, QString)), SLOT(onEngineWifiSharingStateChanged(bool, QString)));
-            connect(engine_, SIGNAL(vpnSharingConnectedWifiUsersCountChanged(int)), SLOT(onEngineConnectedWifiUsersCountChanged(int)));
-            connect(engine_, SIGNAL(vpnSharingConnectedProxyUsersCountChanged(int)), SLOT(onEngineConnectedProxyUsersCountChanged(int)));
-            connect(engine_, SIGNAL(signOutFinished()), SLOT(onEngineSignOutFinished()));
-            connect(engine_, SIGNAL(gotoCustomOvpnConfigModeFinished()), SLOT(onEngineGotoCustomOvpnConfigModeFinished()));
-            connect(engine_, SIGNAL(detectionCpuUsageAfterConnected(QStringList)), SLOT(onEngineDetectionCpuUsageAfterConnected(QStringList)));
-            connect(engine_, SIGNAL(requestUsername()), SLOT(onEngineRequestUsername()));
-            connect(engine_, SIGNAL(requestPassword()), SLOT(onEngineRequestPassword()));
-            connect(engine_, SIGNAL(networkChanged(ProtoTypes::NetworkInterface)), SLOT(onEngineNetworkChanged(ProtoTypes::NetworkInterface)));
-            connect(engine_, SIGNAL(confirmEmailFinished(bool)), SLOT(onEngineConfirmEmailFinished(bool)));
-            connect(engine_, SIGNAL(sendDebugLogFinished(bool)), SLOT(onEngineSendDebugLogFinished(bool)));
-            connect(engine_, SIGNAL(webSessionToken(ProtoTypes::WebSessionPurpose, QString)), SLOT(onEngineWebSessionToken(ProtoTypes::WebSessionPurpose, QString)));
-            connect(engine_, SIGNAL(macAddrSpoofingChanged(ProtoTypes::MacAddrSpoofing)), SLOT(onMacAddrSpoofingChanged(ProtoTypes::MacAddrSpoofing)));
-            connect(engine_, SIGNAL(sendUserWarning(ProtoTypes::UserWarningType)), SLOT(onEngineSendUserWarning(ProtoTypes::UserWarningType)));
-            connect(engine_, SIGNAL(internetConnectivityChanged(bool)), SLOT(onEngineInternetConnectivityChanged(bool)));
-            connect(engine_, SIGNAL(packetSizeChanged(bool, int)), SLOT(onEnginePacketSizeChanged(bool, int)));
-            connect(engine_, SIGNAL(packetSizeDetectionStateChanged(bool,bool)), SLOT(onEnginePacketSizeDetectionStateChanged(bool,bool)));
-            connect(engine_, SIGNAL(hostsFileBecameWritable()), SLOT(onHostsFileBecameWritable()));
+            connect(engine_, &Engine::loginStepMessage, this, &EngineServer::onEngineLoginMessage);
+            connect(engine_, &Engine::notificationsUpdated, this, &EngineServer::onEngineNotificationsUpdated);
+            connect(engine_, &Engine::checkUpdateUpdated, this, &EngineServer::onEngineCheckUpdateUpdated);
+            connect(engine_, &Engine::updateVersionChanged, this, &EngineServer::onEngineUpdateVersionChanged);
+            connect(engine_, &Engine::myIpUpdated, this, &EngineServer::onEngineMyIpUpdated);
+            connect(engine_, &Engine::sessionStatusUpdated, this, &EngineServer::onEngineUpdateSessionStatus);
+            connect(engine_, &Engine::sessionDeleted, this, &EngineServer::onEngineSessionDeleted);
+            connect(engine_->getConnectStateController(), &IConnectStateController::stateChanged, this, &EngineServer::onEngineConnectStateChanged);
+            connect(engine_, &Engine::protocolPortChanged, this, &EngineServer::onEngineProtocolPortChanged);
+            connect(engine_, &Engine::statisticsUpdated, this, &EngineServer::onEngineStatisticsUpdated);
+            connect(engine_, &Engine::emergencyConnected, this, &EngineServer::onEngineEmergencyConnected);
+            connect(engine_, &Engine::emergencyDisconnected, this, &EngineServer::onEngineEmergencyDisconnected);
+            connect(engine_, &Engine::emergencyConnectError, this, &EngineServer::onEngineEmergencyConnectError);
+            connect(engine_, &Engine::testTunnelResult, this, &EngineServer::onEngineTestTunnelResult);
+            connect(engine_, &Engine::lostConnectionToHelper, this, &EngineServer::onEngineLostConnectionToHelper);
+            connect(engine_, &Engine::proxySharingStateChanged, this, &EngineServer::onEngineProxySharingStateChanged);
+            connect(engine_, &Engine::wifiSharingStateChanged, this, &EngineServer::onEngineWifiSharingStateChanged);
+            connect(engine_, &Engine::vpnSharingConnectedWifiUsersCountChanged, this, &EngineServer::onEngineConnectedWifiUsersCountChanged);
+            connect(engine_, &Engine::vpnSharingConnectedProxyUsersCountChanged, this, &EngineServer::onEngineConnectedProxyUsersCountChanged);
+            connect(engine_, &Engine::signOutFinished, this, &EngineServer::onEngineSignOutFinished);
+            connect(engine_, &Engine::gotoCustomOvpnConfigModeFinished, this, &EngineServer::onEngineGotoCustomOvpnConfigModeFinished);
+            connect(engine_, &Engine::detectionCpuUsageAfterConnected, this, &EngineServer::onEngineDetectionCpuUsageAfterConnected);
+            connect(engine_, &Engine::requestUsername, this, &EngineServer::onEngineRequestUsername);
+            connect(engine_, &Engine::requestPassword, this, &EngineServer::onEngineRequestPassword);
+            connect(engine_, &Engine::networkChanged, this, &EngineServer::onEngineNetworkChanged);
+            connect(engine_, &Engine::confirmEmailFinished, this, &EngineServer::onEngineConfirmEmailFinished);
+            connect(engine_, &Engine::sendDebugLogFinished, this, &EngineServer::onEngineSendDebugLogFinished);
+            connect(engine_, &Engine::webSessionToken, this, &EngineServer::onEngineWebSessionToken);
+            connect(engine_, &Engine::macAddrSpoofingChanged, this, &EngineServer::onMacAddrSpoofingChanged);
+            connect(engine_, &Engine::sendUserWarning, this, &EngineServer::onEngineSendUserWarning);
+            connect(engine_, &Engine::internetConnectivityChanged, this, &EngineServer::onEngineInternetConnectivityChanged);
+            connect(engine_, &Engine::packetSizeChanged, this, &EngineServer::onEnginePacketSizeChanged);
+            connect(engine_, &Engine::packetSizeDetectionStateChanged, this, &EngineServer::onEnginePacketSizeDetectionStateChanged);
+            connect(engine_, &Engine::hostsFileBecameWritable, this, &EngineServer::onHostsFileBecameWritable);
             connect(engine_, &Engine::wireGuardAtKeyLimit, this, &EngineServer::wireGuardAtKeyLimit);
             connect(this, &EngineServer::wireGuardKeyLimitUserResponse, engine_, &Engine::onWireGuardKeyLimitUserResponse);
             connect(engine_, &Engine::loginError, this, &EngineServer::onEngineLoginError);
@@ -568,28 +567,8 @@ void EngineServer::onEngineFirewallStateChanged(bool isEnabled)
 
 void EngineServer::onEngineLoginFinished(bool isLoginFromSavedSettings, const QString &authHash, const types::PortMap &portMap)
 {
-    IPC::ProtobufCommand<IPCServerCommands::LoginFinished> cmd;
-    cmd.getProtoObj().set_is_login_from_saved_settings(isLoginFromSavedSettings);
-    cmd.getProtoObj().set_auth_hash(authHash.toStdString());
+    IPC::ServerCommands::LoginFinished cmd(isLoginFromSavedSettings, portMap, authHash);
     qCDebugMultiline(LOG_IPC) << "Engine Settings Changed -- Updating client: " << QString::fromStdString(cmd.getDebugString());
-
-    ProtoTypes::ArrayPortMap arrPortMap;
-    for (int i = 0; i < portMap.getPortItemCount(); ++i)
-    {
-        const types::PortItem *portItem = portMap.getPortItemByIndex(i);
-        ProtoTypes::PortMapItem pmi;
-        pmi.set_protocol(portItem->protocol.convertToProtobuf());
-        pmi.set_heading(portItem->heading.toStdString());
-        pmi.set_use(portItem->use.toStdString());
-
-        for (int p = 0; p < portItem->ports.count(); ++p)
-        {
-            pmi.add_ports(portItem->ports[p]);
-        }
-        *arrPortMap.add_port_map_item() = pmi;
-    }
-    *cmd.getProtoObj().mutable_array_port_map() = arrPortMap;
-
     sendCmdToAllAuthorizedAndGetStateClients(&cmd, true);
 }
 
@@ -837,10 +816,9 @@ void EngineServer::onEngineGotoCustomOvpnConfigModeFinished()
     sendCmdToAllAuthorizedAndGetStateClients(&cmd, true);
 }
 
-void EngineServer::onEngineNetworkChanged(ProtoTypes::NetworkInterface networkInterface)
+void EngineServer::onEngineNetworkChanged(types::NetworkInterface networkInterface)
 {
-    IPC::ProtobufCommand<IPCServerCommands::NetworkChanged> cmd;
-    *cmd.getProtoObj().mutable_network_interface() = networkInterface;
+    IPC::ServerCommands::NetworkChanged cmd(networkInterface);
     sendCmdToAllAuthorizedAndGetStateClients(&cmd, true);
 }
 
@@ -958,10 +936,10 @@ void EngineServer::onMacAddrSpoofingChanged(const types::MacAddrSpoofing &macAdd
     sendCmdToAllAuthorizedAndGetStateClients(&cmd, true);
 }
 
-void EngineServer::onEngineSendUserWarning(ProtoTypes::UserWarningType userWarningType)
+void EngineServer::onEngineSendUserWarning(USER_WARNING_TYPE userWarningType)
 {
     IPC::ProtobufCommand<IPCServerCommands::UserWarning> cmd;
-    cmd.getProtoObj().set_type(userWarningType);
+    cmd.getProtoObj().set_type((ProtoTypes::UserWarningType)userWarningType);
     sendCmdToAllAuthorizedAndGetStateClients(&cmd, true);
 }
 

@@ -18,8 +18,8 @@ ConnectWindowItem::ConnectWindowItem(QGraphicsObject *parent, Preferences *prefe
     : ScalableGraphicsObject (parent),
       preferencesHelper_(preferencesHelper),
       networkName_(""),
-      trustType_(ProtoTypes::NETWORK_SECURED),
-      interfaceType_(ProtoTypes::NETWORK_INTERFACE_NONE),
+      trustType_(NETWORK_TRUST_SECURED),
+      interfaceType_(NETWORK_INTERFACE_NONE),
       networkActive_(false),
       connectionTime_(""),
       dataTransferred_(""),
@@ -279,11 +279,11 @@ void ConnectWindowItem::updateNotificationsState(int totalMessages, int unread)
     logoButton_->setCountState(totalMessages, unread);
 }
 
-void ConnectWindowItem::updateNetworkState(ProtoTypes::NetworkInterface network)
+void ConnectWindowItem::updateNetworkState(types::NetworkInterface network)
 {
-    ProtoTypes::NetworkTrustType trusted = network.trust_type();
-    ProtoTypes::NetworkInterfaceType type = network.interface_type();
-    bool networkActive = network.active();
+    NETWORK_TRUST_TYPE trusted = network.trustType;
+    NETWORK_INTERACE_TYPE type = network.interfaceType;
+    bool networkActive = network.active;
 
     if (trustType_ != trusted || interfaceType_ != type || networkActive_ != networkActive)
     {
@@ -321,7 +321,7 @@ void ConnectWindowItem::updateNetworkState(ProtoTypes::NetworkInterface network)
         }
     }
 
-    networkName_ = QString::fromStdString(network.friendly_name());
+    networkName_ = network.friendlyName;
     trustType_ = trusted;
     interfaceType_ = type;
     networkActive_ = networkActive;
@@ -339,7 +339,7 @@ void ConnectWindowItem::setInternetConnectivity(bool connectivity)
     connectButton_->setInternetConnectivity(connectivity);
 }
 
-void ConnectWindowItem::setProtocolPort(const ProtoTypes::Protocol &protocol, const uint port)
+void ConnectWindowItem::setProtocolPort(const types::ProtocolType &protocol, const uint port)
 {
     connectStateProtocolPort_->setProtocolPort(protocol, port);
 }

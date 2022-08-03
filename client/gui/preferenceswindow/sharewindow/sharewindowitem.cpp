@@ -45,7 +45,7 @@ void ShareWindowItem::onSecureHotspotParsPreferencesChanged(const ProtoTypes::Sh
     }
 }
 
-void ShareWindowItem::onConnectionSettingsPreferencesChanged(const ProtoTypes::ConnectionSettings &cs)
+void ShareWindowItem::onConnectionSettingsPreferencesChanged(const types::ConnectionSettings &cs)
 {
     updateIsSupported(isWifiSharingSupported_, isIkev2OrAutomaticConnectionMode(cs));
 }
@@ -63,12 +63,12 @@ void ShareWindowItem::onProxyGatewayParsPreferencesChanged(const ProtoTypes::Sha
 void ShareWindowItem::onPreferencesHelperWifiSharingSupportedChanged(bool bSupported)
 {
     isWifiSharingSupported_ = bSupported;
-    updateIsSupported(isWifiSharingSupported_, isIkev2OrAutomaticConnectionMode(preferences_->getEngineSettings().connection_settings()));
+    updateIsSupported(isWifiSharingSupported_, isIkev2OrAutomaticConnectionMode(preferences_->getEngineSettings().connectionSettings()));
 }
 
-bool ShareWindowItem::isIkev2OrAutomaticConnectionMode(const ProtoTypes::ConnectionSettings &cs) const
+bool ShareWindowItem::isIkev2OrAutomaticConnectionMode(const types::ConnectionSettings &cs) const
 {
-    return cs.protocol() == ProtoTypes::PROTOCOL_IKEV2 || cs.protocol() == ProtoTypes::PROTOCOL_WIREGUARD || cs.is_automatic();
+    return cs.protocol() == types::ProtocolType::PROTOCOL_IKEV2 || cs.protocol() == types::ProtocolType::PROTOCOL_WIREGUARD || cs.isAutomatic();
 }
 
 void ShareWindowItem::updateIsSupported(bool isWifiSharingSupported, bool isIkev2OrAutomatic)

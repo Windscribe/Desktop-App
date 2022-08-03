@@ -13,13 +13,6 @@ message CleanupFinished
 {
 }
 
-message LoginFinished
-{
-   optional bool is_login_from_saved_settings = 1;
-   optional ProtoTypes.ArrayPortMap array_port_map = 2;
-   optional string auth_hash = 3;
-}
-
 message WebSessionToken
 {
   optional ProtoTypes.WebSessionPurpose purpose = 1;
@@ -120,12 +113,6 @@ message LocationSpeedChanged
 {
   optional ProtoTypes.LocationId id = 1;              
   optional int32 pingTime = 2;   
-}
-
-message NetworkChanged
-{
-  optional uint32 cmd_uid = 1;
-  optional ProtoTypes.NetworkInterface network_interface = 2;
 }
 
 message CustomOvpnConfigModeInitFinished

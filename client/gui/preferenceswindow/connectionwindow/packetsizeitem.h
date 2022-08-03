@@ -19,7 +19,7 @@ public:
     explicit PacketSizeItem(ScalableGraphicsObject *parent);
 
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
-    void setPacketSize(const ProtoTypes::PacketSize &ps);
+    void setPacketSize(const types::PacketSize &ps);
     void setPacketSizeDetectionState(bool on);
     void showPacketSizeDetectionError(const QString &title, const QString &message);
 
@@ -27,7 +27,7 @@ public:
     bool hasItemWithFocus() override;
 
 signals:
-    void packetSizeChanged(const ProtoTypes::PacketSize &ps);
+    void packetSizeChanged(const types::PacketSize &ps);
     void detectAppropriatePacketSizeButtonClicked();
 
 private slots:
@@ -45,7 +45,7 @@ private:
     AutoManualSwitchItem *switchItem_;
     PacketSizeEditBoxItem *editBoxPacketSize_;
 
-    ProtoTypes::PacketSize curPacketSize_;
+    types::PacketSize curPacketSize_;
 
      QVariantAnimation expandEnimation_;
      bool isExpanded_;

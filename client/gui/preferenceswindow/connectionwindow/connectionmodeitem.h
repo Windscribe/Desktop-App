@@ -18,13 +18,13 @@ public:
     explicit ConnectionModeItem(ScalableGraphicsObject *parent, PreferencesHelper *preferencesHelper);
 
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
-    void setConnectionMode(const ProtoTypes::ConnectionSettings &cm);
+    void setConnectionMode(const types::ConnectionSettings &cm);
     QPointF getButtonScenePos(ConnectionModeItem::ButtonType type) const;
     bool isPortMapInitialized() const { return isPortMapInitialized_; }
 
     void updateScaling() override;
 signals:
-    void connectionlModeChanged(const ProtoTypes::ConnectionSettings &cm);
+    void connectionlModeChanged(const types::ConnectionSettings &cm);
     void buttonHoverEnter(ConnectionModeItem::ButtonType type);
     void buttonHoverLeave(ConnectionModeItem::ButtonType type);
 
@@ -53,12 +53,12 @@ private:
 
     bool isPortMapInitialized_;
 
-    ProtoTypes::ConnectionSettings curConnectionMode_;
+    types::ConnectionSettings curConnectionMode_;
 
     QVariantAnimation expandEnimation_;
     bool isExpanded_;
 
-    void updateProtocol(ProtoTypes::Protocol protocol);
+    void updateProtocol(types::ProtocolType protocol);
     void updateConnectionMode();
 
 };

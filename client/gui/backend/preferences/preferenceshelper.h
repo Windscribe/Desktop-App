@@ -4,6 +4,8 @@
 #include <QObject>
 #include <QVector>
 #include "utils/protobuf_includes.h"
+#include "types/protocoltype.h"
+#include "types/portmap.h"
 
 class PreferencesHelper : public QObject
 {
@@ -22,9 +24,9 @@ public:
 
     QVector<ProtoTypes::TapAdapterType> getAvailableTapAdapters(const QString &openVpnVersion);
 
-    void setPortMap(const ProtoTypes::ArrayPortMap &arr);
-    QVector<ProtoTypes::Protocol> getAvailableProtocols();
-    QVector<uint> getAvailablePortsForProtocol(ProtoTypes::Protocol protocol);
+    void setPortMap(const types::PortMap &portMap);
+    QVector<types::ProtocolType> getAvailableProtocols();
+    QVector<uint> getAvailablePortsForProtocol(types::ProtocolType protocol);
 
     void setWifiSharingSupported(bool bSupported);
     bool isWifiSharingSupported() const;
@@ -58,7 +60,7 @@ private:
     QStringList availableLanguageCodes_;
     QStringList availableOpenVpnVersions_;
 
-    ProtoTypes::ArrayPortMap portMap_;
+    types::PortMap portMap_;
     bool isWifiSharingSupported_;
 
     QString proxyGatewayAddress_;

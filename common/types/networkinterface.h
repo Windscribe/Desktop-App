@@ -1,6 +1,7 @@
 #ifndef TYPES_NETWORKINTERFACE_H
 #define TYPES_NETWORKINTERFACE_H
 
+#include <QDataStream>
 #include <QString>
 #include "enums.h"
 
@@ -67,6 +68,32 @@ struct NetworkInterface
     {
         return !(*this == other);
     }
+
+    friend QDataStream& operator <<(QDataStream &stream, const NetworkInterface &o)
+    {
+        stream << versionForSerialization_;
+        stream << o.interfaceIndex << o.interfaceName << o.interfaceGuid << o.networkOrSSid << o.interfaceType << o.trustType << o.active <<
+                  o.friendlyName << o.requested << o.metric << o.physicalAddress << o.mtu << o.state << o.dwType << o.deviceName <<
+                  o.connectorPresent << o.endPointInterface;
+        return stream;
+    }
+    friend QDataStream& operator >>(QDataStream &stream, NetworkInterface &o)
+    {
+        quint32 version;
+        stream >> version;
+        Q_ASSERT(version == versionForSerialization_);
+        if (version > versionForSerialization_)
+        {
+            return stream;
+        }
+        stream >> o.interfaceIndex >> o.interfaceName >> o.interfaceGuid >> o.networkOrSSid >> o.interfaceType >> o.trustType >> o.active >>
+                  o.friendlyName >> o.requested >> o.metric >> o.physicalAddress >> o.mtu >> o.state >> o.dwType >> o.deviceName >>
+                  o.connectorPresent >> o.endPointInterface;
+        return stream;
+    }
+
+private:
+    static constexpr quint32 versionForSerialization_ = 1;
 
 };
 

@@ -82,13 +82,13 @@ void PacketSizeItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *op
     Q_UNUSED(widget);
 }
 
-void PacketSizeItem::setPacketSize(const ProtoTypes::PacketSize &ps)
+void PacketSizeItem::setPacketSize(const types::PacketSize &ps)
 {
-    if(!google::protobuf::util::MessageDifferencer::Equals(curPacketSize_, ps))
+    if(curPacketSize_ != ps)
     {
         curPacketSize_ = ps;
 
-        if (curPacketSize_.is_automatic())
+        if (curPacketSize_.isAutomatic)
         {
             switchItem_->setState(AutoManualSwitchItem::AUTO);
             isExpanded_ = false;
@@ -102,10 +102,10 @@ void PacketSizeItem::setPacketSize(const ProtoTypes::PacketSize &ps)
             setHeight(EXPANDED_HEIGHT*G_SCALE);
         }
 
-        editBoxPacketSize_->setEditButtonClickable(!curPacketSize_.is_automatic());
-        if (curPacketSize_.mtu() >= 0)
+        editBoxPacketSize_->setEditButtonClickable(!curPacketSize_.isAutomatic);
+        if (curPacketSize_.mtu >= 0)
         {
-            editBoxPacketSize_->setText(QString::number(curPacketSize_.mtu()));
+            editBoxPacketSize_->setText(QString::number(curPacketSize_.mtu));
         }
         else
         {
@@ -168,7 +168,7 @@ void PacketSizeItem::onSwitchChanged(AutoManualSwitchItem::SWITCH_STATE state)
         }
         isExpanded_ = true;
 
-        curPacketSize_.set_is_automatic(false);
+        curPacketSize_.isAutomatic = false;
         emit packetSizeChanged(curPacketSize_);
     }
     else if (isExpanded_)
@@ -180,21 +180,21 @@ void PacketSizeItem::onSwitchChanged(AutoManualSwitchItem::SWITCH_STATE state)
         }
         isExpanded_ = false;
 
-        curPacketSize_.set_is_automatic(true);
+        curPacketSize_.isAutomatic = true;
         emit packetSizeChanged(curPacketSize_);
     }
-    editBoxPacketSize_->setEditButtonClickable(!curPacketSize_.is_automatic());
+    editBoxPacketSize_->setEditButtonClickable(!curPacketSize_.isAutomatic);
 }
 
 void PacketSizeItem::onEditBoxTextChanged(const QString &text)
 {
     if (text.isEmpty())
     {
-        curPacketSize_.set_mtu(-1);
+        curPacketSize_.mtu =-1;
     }
     else
     {
-        curPacketSize_.set_mtu(text.toInt());
+        curPacketSize_.mtu = text.toInt();
     }
     emit packetSizeChanged(curPacketSize_);
 }

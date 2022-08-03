@@ -24,7 +24,7 @@ GeneralWindowItem::GeneralWindowItem(ScalableGraphicsObject *parent, Preferences
     connect(preferences, SIGNAL(languageChanged(QString)), SLOT(onLanguagePreferencesChanged(QString)));
     connect(preferences, SIGNAL(locationOrderChanged(ProtoTypes::OrderLocationType)), SLOT(onLocationOrderPreferencesChanged(ProtoTypes::OrderLocationType)));
     connect(preferences, SIGNAL(latencyDisplayChanged(ProtoTypes::LatencyDisplayType)), SLOT(onLatencyDisplayPreferencesChanged(ProtoTypes::LatencyDisplayType)));
-    connect(preferences, SIGNAL(updateChannelChanged(ProtoTypes::UpdateChannel)), SLOT(onUpdateChannelPreferencesChanged(ProtoTypes::UpdateChannel)));
+    connect(preferences, SIGNAL(updateChannelChanged(UPDATE_CHANNEL)), SLOT(onUpdateChannelPreferencesChanged(UPDATE_CHANNEL)));
     connect(preferences, SIGNAL(backgroundSettingsChanged(ProtoTypes::BackgroundSettings)), SLOT(onPreferencesBackgroundSettingsChanged(ProtoTypes::BackgroundSettings)));
     connect(preferences, SIGNAL(isStartMinimizedChanged(bool)), SLOT(onStartMinimizedPreferencesChanged(bool)));
     connect(preferences, &Preferences::showLocationLoadChanged, this, &GeneralWindowItem::onShowLocationLoadPreferencesChanged);
@@ -251,14 +251,14 @@ void GeneralWindowItem::onLatencyItemChanged(QVariant o)
     preferences_->setLatencyDisplay((ProtoTypes::LatencyDisplayType)o.toInt());
 }
 
-void GeneralWindowItem::onUpdateChannelPreferencesChanged(const ProtoTypes::UpdateChannel &c)
+void GeneralWindowItem::onUpdateChannelPreferencesChanged(const UPDATE_CHANNEL &c)
 {
     comboBoxUpdateChannel_->setCurrentItem((int)c);
 }
 
 void GeneralWindowItem::onUpdateChannelItemChanged(QVariant o)
 {
-    preferences_->setUpdateChannel((ProtoTypes::UpdateChannel)o.toInt());
+    preferences_->setUpdateChannel((UPDATE_CHANNEL)o.toInt());
 }
 
 void GeneralWindowItem::onBackgroundSettingsChanged(const ProtoTypes::BackgroundSettings &settings)

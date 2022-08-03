@@ -96,8 +96,8 @@ public:
 
     const types::SessionStatus &getSessionStatus() const;
 
-    void handleNetworkChange(ProtoTypes::NetworkInterface networkInterface, bool manual=false);
-    ProtoTypes::NetworkInterface getCurrentNetworkInterface();
+    void handleNetworkChange(types::NetworkInterface networkInterface, bool manual=false);
+    types::NetworkInterface getCurrentNetworkInterface();
 
     virtual void cycleMacAddress();
     void sendDetectPacketSize();
@@ -133,7 +133,7 @@ signals:
     void emergencyConnectStateChanged(const ProtoTypes::ConnectState &connectState);
     void firewallStateChanged(bool isEnabled);
     void notificationsChanged(const ProtoTypes::ArrayApiNotification &arr);
-    void networkChanged(ProtoTypes::NetworkInterface interface);
+    void networkChanged(types::NetworkInterface interface);
     void sessionStatusChanged(const types::SessionStatus &sessionStatus);
     void checkUpdateChanged(const ProtoTypes::CheckUpdateInfo &checkUpdateInfo);
     void locationsUpdated();
@@ -192,7 +192,7 @@ private:
     bool isExternalConfigMode_;
     UpgradeModeType upgradeMode_;
 
-    ProtoTypes::NetworkInterface currentNetworkInterface_;
+    types::NetworkInterface currentNetworkInterface_;
 
     QString generateNewFriendlyName();
     void updateAccountInfo();

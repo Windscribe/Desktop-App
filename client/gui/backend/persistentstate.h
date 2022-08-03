@@ -2,6 +2,8 @@
 #define PERSISTENTSTATE_H
 
 #include "types/locationid.h"
+#include "types/networkinterface.h"
+#include "types/guipersistentstate.h"
 
 // gui internal states, persistent between the starts of the program
 class PersistentState
@@ -35,20 +37,16 @@ public:
     void setLastExternalIp(const QString &ip);
     QString lastExternalIp() const;
 
-    void setNetworkWhitelist(const ProtoTypes::NetworkWhiteList &list);
-    ProtoTypes::NetworkWhiteList networkWhitelist() const;
-
-
-
+    void setNetworkWhitelist(const QVector<types::NetworkInterface> &list);
+    QVector<types::NetworkInterface> networkWhitelist() const;
 
 
 private:
     PersistentState();
-    void loadFromVersion1();
     void load();
     void save();
 
-    ProtoTypes::GuiPersistentState state_;
+    types::GuiPersistentState state_;
 };
 
 #endif // PERSISTENTSTATE_H

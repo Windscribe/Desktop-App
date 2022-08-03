@@ -10,8 +10,8 @@ namespace types {
 class ProtocolType
 {
 public:
-    enum PROTOCOL_TYPE { PROTOCOL_UNINITIALIZED, PROTOCOL_IKEV2, PROTOCOL_OPENVPN_UDP, PROTOCOL_OPENVPN_TCP,
-                         PROTOCOL_STUNNEL, PROTOCOL_WSTUNNEL, PROTOCOL_WIREGUARD };
+    enum PROTOCOL_TYPE { PROTOCOL_UNINITIALIZED = 100000, PROTOCOL_IKEV2 = 0, PROTOCOL_OPENVPN_UDP = 1, PROTOCOL_OPENVPN_TCP = 2,
+                         PROTOCOL_STUNNEL = 3, PROTOCOL_WSTUNNEL = 4, PROTOCOL_WIREGUARD = 5};
 
     ProtocolType();
     ProtocolType(PROTOCOL_TYPE protocol);  // cppcheck-suppress noExplicitConstructor

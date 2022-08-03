@@ -26,7 +26,7 @@ public:
     virtual void setFirewallBlock(bool isFirewallBlocked) = 0;
     virtual void setTestTunnelResult(bool success) = 0;
     virtual void updateScaling() = 0;
-    virtual void setProtocolPort(const ProtoTypes::Protocol &protocol, const uint port) = 0;
+    virtual void setProtocolPort(const types::ProtocolType &protocol, const uint port) = 0;
 
 public slots:
     virtual void updateLocationInfo(LocationID id, const QString &firstName, const QString &secondName, const QString &countryCode, PingTime pingTime) = 0;
@@ -37,7 +37,7 @@ public slots:
     virtual void updateFavoriteState(LocationID id, bool isFavorite) = 0;
     virtual void updateMyIp(const QString &ip) = 0;
     virtual void updateNotificationsState(int totalMessages, int unread) = 0;
-    virtual void updateNetworkState(ProtoTypes::NetworkInterface network) = 0;
+    virtual void updateNetworkState(types::NetworkInterface network) = 0;
     virtual void setSplitTunnelingState(bool on) = 0;
     virtual void setInternetConnectivity(bool connectivity) = 0;
 

@@ -6,12 +6,12 @@ const int typeIdConnectionSettings = qRegisterMetaType<types::ConnectionSettings
 namespace types {
 
 ConnectionSettings::ConnectionSettings() :
-    protocol_(ProtocolType::PROTOCOL_IKEV2), port_(500), bAutomatic_(true), bInitialized_(true)
+    protocol_(ProtocolType::PROTOCOL_IKEV2), port_(500), bAutomatic_(true)
 {
 }
 
 ConnectionSettings::ConnectionSettings(const ProtoTypes::ConnectionSettings &s)
-    : protocol_(s.protocol()), port_(s.port()), bAutomatic_(s.is_automatic()), bInitialized_(true)
+    : protocol_(s.protocol()), port_(s.port()), bAutomatic_(s.is_automatic())
 {
 }
 
@@ -20,7 +20,12 @@ void ConnectionSettings::set(const ProtocolType &protocol, uint port, bool bAuto
     protocol_ = protocol;
     port_ = port;
     bAutomatic_ = bAutomatic;
-    bInitialized_ = true;
+}
+
+void ConnectionSettings::set(const ProtocolType &protocol, uint port)
+{
+    protocol_ = protocol;
+    port_ = port;
 }
 
 void ConnectionSettings::set(const ConnectionSettings &s)
@@ -28,7 +33,11 @@ void ConnectionSettings::set(const ConnectionSettings &s)
     protocol_ = s.protocol_;
     port_ = s.port_;
     bAutomatic_ = s.bAutomatic_;
-    bInitialized_ = s.bInitialized_;
+}
+
+void ConnectionSettings::setPort(uint port)
+{
+    port_ = port;
 }
 
 ProtocolType ConnectionSettings::protocol() const
@@ -37,16 +46,24 @@ ProtocolType ConnectionSettings::protocol() const
     return protocol_;
 }
 
+void ConnectionSettings::setProtocol(ProtocolType protocol)
+{
+    protocol_ = protocol;
+}
+
 uint ConnectionSettings::port() const
 {
-    Q_ASSERT(bInitialized_);
     return port_;
 }
 
 bool ConnectionSettings::isAutomatic() const
 {
-    Q_ASSERT(bInitialized_);
     return bAutomatic_;
+}
+
+void ConnectionSettings::setIsAutomatic(bool isAutomatic)
+{
+    bAutomatic_ = isAutomatic;
 }
 
 bool ConnectionSettings::readFromSettingsV1(QSettings &settings)
@@ -56,7 +73,6 @@ bool ConnectionSettings::readFromSettingsV1(QSettings &settings)
         protocol_ = ProtocolType(settings.value("connectionProtocol", "").toString());
         port_ = settings.value("connectionPort", 0).toUInt();
         bAutomatic_ = settings.value("connectionAutomatic", true).toBool();
-        bInitialized_ = true;
         return true;
     }
     else
@@ -64,52 +80,27 @@ bool ConnectionSettings::readFromSettingsV1(QSettings &settings)
         return false;
     }
 }
-
-bool ConnectionSettings::isInitialized() const
-{
-    return bInitialized_;
-}
-
-bool ConnectionSettings::isEqual(const ConnectionSettings &s) const
-{
-    Q_ASSERT(bInitialized_);
-    Q_ASSERT(s.bInitialized_);
-    return s.protocol_.isEqual(protocol_) && s.port_ == port_ &&
-           s.bAutomatic_ == bAutomatic_ && s.bInitialized_ == bInitialized_;
-}
-
 void ConnectionSettings::debugToLog() const
 {
-    if (bInitialized_)
-    {
-        qCDebug(LOG_BASIC) << "Connection settings automatic:" << bAutomatic_;
-        qCDebug(LOG_BASIC) << "Connection settings protocol:" << protocol_.toLongString();
-        qCDebug(LOG_BASIC) << "Connection settings port:" << port_;
-    }
+    qCDebug(LOG_BASIC) << "Connection settings automatic:" << bAutomatic_;
+    qCDebug(LOG_BASIC) << "Connection settings protocol:" << protocol_.toLongString();
+    qCDebug(LOG_BASIC) << "Connection settings port:" << port_;
 }
 
 void ConnectionSettings::logConnectionSettings() const
 {
-    if (bInitialized_)
+    if (bAutomatic_)
     {
-        if (bAutomatic_)
-        {
-            qCDebug(LOG_CONNECTION) << "Connection settings: automatic";
-        }
-        else
-        {
-            qCDebug(LOG_CONNECTION) << "Connection settings: manual " << protocol_.toLongString() << port_;
-        }
+        qCDebug(LOG_CONNECTION) << "Connection settings: automatic";
     }
     else
     {
-        qCDebug(LOG_CONNECTION) << "Connection settings not initialized!";
+        qCDebug(LOG_CONNECTION) << "Connection settings: manual " << protocol_.toLongString() << port_;
     }
 }
 
 ProtoTypes::ConnectionSettings ConnectionSettings::convertToProtobuf() const
 {
-    Q_ASSERT(bInitialized_);
     ProtoTypes::ConnectionSettings cs;
     cs.set_protocol(protocol_.convertToProtobuf());
     cs.set_port(port_);

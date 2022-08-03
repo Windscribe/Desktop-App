@@ -9,50 +9,13 @@ ProxySettings::ProxySettings(): option_(PROXY_OPTION_NONE), port_(0)
 {
 }
 
-ProxySettings::ProxySettings(const ProtoTypes::ProxySettings &p)
+ProxySettings::ProxySettings(PROXY_OPTION option, const QString &address, uint port, const QString &password, const QString &username)
 {
-    if (p.proxy_option() == ProtoTypes::PROXY_OPTION_NONE)
-    {
-        option_ = PROXY_OPTION_NONE;
-    }
-    else if (p.proxy_option() == ProtoTypes::PROXY_OPTION_AUTODETECT)
-    {
-        option_ = PROXY_OPTION_AUTODETECT;
-    }
-    else if (p.proxy_option() == ProtoTypes::PROXY_OPTION_HTTP)
-    {
-        option_ = PROXY_OPTION_HTTP;
-    }
-    else if (p.proxy_option() == ProtoTypes::PROXY_OPTION_SOCKS)
-    {
-        option_ = PROXY_OPTION_SOCKS;
-    }
-    else
-    {
-        Q_ASSERT(false);
-    }
-    address_ = QString::fromStdString(p.address());
-    port_ = p.port();
-    username_ = QString::fromStdString(p.username());
-    password_ = QString::fromStdString(p.password());
-}
-
-void ProxySettings::readFromSettingsV1(QSettings &settings)
-{
-    option_ = (PROXY_OPTION)settings.value("proxyOption", PROXY_OPTION_NONE).toInt();
-    address_ = settings.value("proxyAddress", "").toString();
-    port_ = settings.value("proxyPort", "").toUInt();
-    username_ = settings.value("proxyUsername", "").toString();
-    password_ = settings.value("proxyPassword", "").toString();
-}
-
-bool ProxySettings::isEqual(const ProxySettings &other) const
-{
-    return option_ == other.option_ &&
-           address_ == other.address_ &&
-           port_ == other.port_ &&
-           username_ == other.username_ &&
-           password_ == other.password_;
+    option_ = option;
+    address_ = address;
+    port_ = port;
+    password_ = password;
+    username_ = username;
 }
 
 PROXY_OPTION ProxySettings::option() const
@@ -179,38 +142,6 @@ QNetworkProxy ProxySettings::getNetworkProxy() const
 bool ProxySettings::isProxyEnabled() const
 {
     return (option_ == PROXY_OPTION_HTTP || option_ == PROXY_OPTION_SOCKS);
-}
-
-ProtoTypes::ProxySettings ProxySettings::convertToProtobuf() const
-{
-    ProtoTypes::ProxySettings ps;
-
-    if (option_ == PROXY_OPTION_NONE)
-    {
-        ps.set_proxy_option(ProtoTypes::PROXY_OPTION_NONE);
-    }
-    else if (option_ == PROXY_OPTION_AUTODETECT)
-    {
-        ps.set_proxy_option(ProtoTypes::PROXY_OPTION_AUTODETECT);
-    }
-    else if (option_ == PROXY_OPTION_HTTP)
-    {
-        ps.set_proxy_option(ProtoTypes::PROXY_OPTION_HTTP);
-    }
-    else if (option_ == PROXY_OPTION_SOCKS)
-    {
-        ps.set_proxy_option(ProtoTypes::PROXY_OPTION_SOCKS);
-    }
-    else
-    {
-        Q_ASSERT(false);
-    }
-
-    ps.set_address(address_.toStdString());
-    ps.set_port(port_);
-    ps.set_username(username_.toStdString());
-    ps.set_password(password_.toStdString());
-    return ps;
 }
 
 } //namespace types

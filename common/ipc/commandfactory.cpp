@@ -165,10 +165,6 @@ Command *CommandFactory::makeCommand(const std::string strId, char *buf, int siz
     {
         return new ProtobufCommand<IPCServerCommands::FirewallStateChanged>(buf, size);
     }
-    else if (strId == IPCServerCommands::LoginFinished::descriptor()->full_name())
-    {
-        return new ProtobufCommand<IPCServerCommands::LoginFinished>(buf, size);
-    }
     else if (strId == IPCServerCommands::LoginStepMessage::descriptor()->full_name())
     {
         return new ProtobufCommand<IPCServerCommands::LoginStepMessage>(buf, size);
@@ -180,10 +176,6 @@ Command *CommandFactory::makeCommand(const std::string strId, char *buf, int siz
     else if (strId == IPCServerCommands::LocationSpeedChanged::descriptor()->full_name())
     {
         return new ProtobufCommand<IPCServerCommands::LocationSpeedChanged>(buf, size);
-    }
-    else if (strId == IPCServerCommands::NetworkChanged::descriptor()->full_name())
-    {
-        return new ProtobufCommand<IPCServerCommands::NetworkChanged>(buf, size);
     }
     else if (strId == IPCServerCommands::ConfirmEmailResult::descriptor()->full_name())
     {

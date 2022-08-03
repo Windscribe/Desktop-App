@@ -24,11 +24,11 @@ DebugWindowItem::DebugWindowItem(ScalableGraphicsObject *parent, Preferences *pr
     setFlag(QGraphicsItem::ItemIsFocusable);
 
 #ifdef Q_OS_WIN
-    connect(preferences, SIGNAL(tapAdapterChanged(ProtoTypes::TapAdapterType)), SLOT(onTapAdapterPreferencesChanged(ProtoTypes::TapAdapterType)));
+    connect(preferences, SIGNAL(tapAdapterChanged(TAP_ADAPTER_TYPE)), SLOT(onTapAdapterPreferencesChanged(TAP_ADAPTER_TYPE)));
     connect(preferencesHelper, SIGNAL(ipv6StateInOSChanged(bool)), SLOT(onPreferencesIpv6InOSStateChanged(bool)));
 #endif
-    connect(preferences, SIGNAL(apiResolutionChanged(ProtoTypes::ApiResolution)), SLOT(onApiResolutionPreferencesChanged(ProtoTypes::ApiResolution)));
-    connect(preferences, SIGNAL(dnsPolicyChanged(ProtoTypes::DnsPolicy)), SLOT(onDnsPolicyPreferencesChanged(ProtoTypes::DnsPolicy)));
+    connect(preferences, SIGNAL(apiResolutionChanged(types::DnsResolutionSettings)), SLOT(onApiResolutionPreferencesChanged(types::DnsResolutionSettings)));
+    connect(preferences, SIGNAL(dnsPolicyChanged(DNS_POLICY_TYPE)), SLOT(onDnsPolicyPreferencesChanged(DNS_POLICY_TYPE)));
 #ifdef Q_OS_LINUX
     connect(preferences, SIGNAL(dnsManagerChanged(ProtoTypes::DnsManagerType)), SLOT(onDnsManagerPreferencesChanged(ProtoTypes::DnsManagerType)));
 #endif
@@ -62,7 +62,7 @@ DebugWindowItem::DebugWindowItem(ScalableGraphicsObject *parent, Preferences *pr
 
     apiResolutionItem_ = new ApiResolutionItem(this);
     apiResolutionItem_->setApiResolution(preferences->apiResolution());
-    connect(apiResolutionItem_, SIGNAL(apiResolutionChanged(ProtoTypes::ApiResolution)), SLOT(onApiResolutionChanged(ProtoTypes::ApiResolution)));
+    connect(apiResolutionItem_, SIGNAL(apiResolutionChanged(types::DnsResolutionSettings)), SLOT(onApiResolutionChanged(types::DnsResolutionSettings)));
     addItem(apiResolutionItem_);
 
     cbIgnoreSslErrors_ = new CheckBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::CheckBoxItem", "Ignore SSL Errors"), "");
@@ -155,7 +155,7 @@ void DebugWindowItem::onTapAdapterChanged(QVariant v)
         emit installTapAdapter(tapAdapter);
     }
     preferencesHelper_->setInstalledTapAdapter(tapAdapter);*/
-    preferences_->setTapAdapter((ProtoTypes::TapAdapterType)v.toInt());
+    preferences_->setTapAdapter((TAP_ADAPTER_TYPE)v.toInt());
 }
 
 void DebugWindowItem::onIPv6StateChanged(bool isChecked)
@@ -182,11 +182,11 @@ void DebugWindowItem::onIPv6StateChanged(bool isChecked)
 }
 #endif
 
-void DebugWindowItem::onApiResolutionChanged(const ProtoTypes::ApiResolution &ar)
+void DebugWindowItem::onApiResolutionChanged(const types::DnsResolutionSettings &dns)
 {
-    preferences_->setApiResolution(ar);
+    preferences_->setApiResolution(dns);
 
-    if (!ar.is_automatic()) // only scroll when opening
+    if (!dns.getIsAutomatic()) // only scroll when opening
     {
         // 93 is expanded height
         emit scrollToPosition(static_cast<int>(apiResolutionItem_->y()) + 93 );
@@ -205,7 +205,7 @@ void DebugWindowItem::onKeepAliveStateChanged(bool isChecked)
 
 void DebugWindowItem::onAppInternalDnsItemChanged(QVariant dns)
 {
-    preferences_->setDnsPolicy((ProtoTypes::DnsPolicy)dns.toInt());
+    preferences_->setDnsPolicy((DNS_POLICY_TYPE)dns.toInt());
 }
 
 #ifdef Q_OS_LINUX
@@ -281,7 +281,7 @@ void DebugWindowItem::onKeepAlivePreferencesChanged(bool b)
     cbKeepAlive_->setState(b);
 }
 
-void DebugWindowItem::onDnsPolicyPreferencesChanged(ProtoTypes::DnsPolicy d)
+void DebugWindowItem::onDnsPolicyPreferencesChanged(DNS_POLICY_TYPE d)
 {
     comboBoxAppInternalDns_->setCurrentItem((int)d);
 }
@@ -294,9 +294,9 @@ void DebugWindowItem::onDnsManagerPreferencesChanged(ProtoTypes::DnsManagerType 
 #endif
 
 
-void DebugWindowItem::onApiResolutionPreferencesChanged(const ProtoTypes::ApiResolution &ar)
+void DebugWindowItem::onApiResolutionPreferencesChanged(const types::DnsResolutionSettings &dns)
 {
-    apiResolutionItem_->setApiResolution(ar);
+    apiResolutionItem_->setApiResolution(dns);
 }
 
 #ifdef Q_OS_WIN
@@ -305,7 +305,7 @@ void DebugWindowItem::onPreferencesIpv6InOSStateChanged(bool bEnabled)
     checkBoxIPv6_->setState(bEnabled);
 }
 
-void DebugWindowItem::onTapAdapterPreferencesChanged(ProtoTypes::TapAdapterType tapAdapter)
+void DebugWindowItem::onTapAdapterPreferencesChanged(TAP_ADAPTER_TYPE tapAdapter)
 {
     comboBoxTapAdapter_->setCurrentItem((int)tapAdapter);
 }

@@ -613,12 +613,12 @@ void Engine::initPart2()
     setSettingsMacAddressSpoofing(macAddrSpoofing);
 
     connect(networkDetectionManager_, SIGNAL(onlineStateChanged(bool)), SLOT(onNetworkOnlineStateChange(bool)));
-    connect(networkDetectionManager_, SIGNAL(networkChanged(ProtoTypes::NetworkInterface)), SLOT(onNetworkChange(ProtoTypes::NetworkInterface)));
+    connect(networkDetectionManager_, SIGNAL(networkChanged(types::NetworkInterface)), SLOT(onNetworkChange(types::NetworkInterface)));
 
     macAddressController_ = CrossPlatformObjectFactory::createMacAddressController(this, networkDetectionManager_, helper_);
     macAddressController_->initMacAddrSpoofing(macAddrSpoofing);
-    connect(macAddressController_, SIGNAL(macAddrSpoofingChanged(ProtoTypes::MacAddrSpoofing)), SLOT(onMacAddressSpoofingChanged(ProtoTypes::MacAddrSpoofing)));
-    connect(macAddressController_, SIGNAL(sendUserWarning(ProtoTypes::UserWarningType)), SLOT(onMacAddressControllerSendUserWarning(ProtoTypes::UserWarningType)));
+    connect(macAddressController_, SIGNAL(macAddrSpoofingChanged(types::MacAddrSpoofing)), SLOT(onMacAddressSpoofingChanged(types::MacAddrSpoofing)));
+    connect(macAddressController_, SIGNAL(sendUserWarning(USER_WARNING_TYPE)), SLOT(onMacAddressControllerSendUserWarning(USER_WARNING_TYPE)));
 #ifdef Q_OS_MAC
     connect(macAddressController_, SIGNAL(robustMacSpoofApplied()), SLOT(onMacAddressControllerRobustMacSpoofApplied()));
 #endif
@@ -653,7 +653,7 @@ void Engine::initPart2()
     connect(serverAPI_, SIGNAL(staticIpsAnswer(SERVER_API_RET_CODE,types::StaticIps, uint)), SLOT(onStaticIpsAnswer(SERVER_API_RET_CODE,types::StaticIps, uint)), Qt::QueuedConnection);
     connect(serverAPI_, SIGNAL(serverLocationsAnswer(SERVER_API_RET_CODE, QVector<types::Location>,QStringList, uint)),
                         SLOT(onServerLocationsAnswer(SERVER_API_RET_CODE,QVector<types::Location>,QStringList, uint)), Qt::QueuedConnection);
-    connect(serverAPI_, SIGNAL(sendUserWarning(ProtoTypes::UserWarningType)), SIGNAL(sendUserWarning(ProtoTypes::UserWarningType)));
+    connect(serverAPI_, SIGNAL(sendUserWarning(USER_WARNING_TYPE)), SIGNAL(sendUserWarning(USER_WARNING_TYPE)));
 
     serverAPI_->setIgnoreSslErrors(engineSettings_.isIgnoreSslErrors());
     serverApiUserRole_ = serverAPI_->getAvailableUserRole();
@@ -1105,7 +1105,7 @@ void Engine::sendDebugLogImpl()
 #ifdef Q_OS_WIN
     if (!MergeLog::canMerge())
     {
-        Q_EMIT sendUserWarning(ProtoTypes::USER_WARNING_SEND_LOG_FILE_TOO_BIG);
+        Q_EMIT sendUserWarning(USER_WARNING_SEND_LOG_FILE_TOO_BIG);
         return;
     }
 #endif
@@ -2533,7 +2533,7 @@ void Engine::onPacketSizeControllerFinishedSizeDetection(bool isError)
     Q_EMIT packetSizeDetectionStateChanged(false, isError);
 }
 
-void Engine::onMacAddressControllerSendUserWarning(ProtoTypes::UserWarningType userWarningType)
+void Engine::onMacAddressControllerSendUserWarning(USER_WARNING_TYPE userWarningType)
 {
     Q_EMIT sendUserWarning(userWarningType);
 }

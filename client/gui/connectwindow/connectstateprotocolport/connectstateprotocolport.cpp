@@ -78,7 +78,7 @@ void ConnectStateProtocolPort::paint(QPainter *painter, const QStyleOptionGraphi
     const int separatorMinusProtocolPosX = badgePixmap_.width() + (protocolSeparatorPadding + badgeProtocolPadding)*G_SCALE;
 
     // protocol and port string
-    QString protocolString = ProtoEnumToString::instance().toString(protocol_);
+    QString protocolString = protocol_.toLongString();
     textShadowProtocol_.drawText(painter, QRect(badgePixmap_.width() + badgeProtocolPadding * G_SCALE, 0, INT_MAX, badgePixmap_.height()), Qt::AlignLeft | Qt::AlignVCenter, protocolString, &font, textColor_ );
 
     // port
@@ -212,7 +212,7 @@ void ConnectStateProtocolPort::setInternetConnectivity(bool connectivity)
     updateStateDisplay(connectState_);
 }
 
-void ConnectStateProtocolPort::setProtocolPort(const ProtoTypes::Protocol &protocol, const uint port)
+void ConnectStateProtocolPort::setProtocolPort(const types::ProtocolType &protocol, const uint port)
 {
     protocol_ = protocol;
     port_ = port;
@@ -283,7 +283,7 @@ void ConnectStateProtocolPort::recalcSize()
     QFont font = *FontManager::instance().getFont(fontDescr_);
     QFontMetrics fm(font);
 
-    const QString protocolString = ProtoEnumToString::instance().toString(protocol_);
+    const QString protocolString = protocol_.toLongString();
     const int protocolWidth = fm.horizontalAdvance(protocolString);
     const QString portString = QString::number(port_);
     const int portWidth = fm.horizontalAdvance(portString);

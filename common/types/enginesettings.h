@@ -111,11 +111,10 @@ public:
 private:
     QSharedDataPointer<EngineSettingsData> d;
 
-    /*ProtoTypes::EngineSettings engineSettings_;
-
-    SimpleCrypt simpleCrypt_;
-
-    void loadFromVersion1();*/
+    // for serialization
+    static constexpr quint64 simpleCryptKey_ = 0x4572A4ACF31A31BA;
+    static constexpr quint32 magic_ = 0xB7B1C537;
+    static constexpr quint32 versionForSerialization_ = 1;  // should increment the version if the data format is changed
 
 #if defined(Q_OS_LINUX)
     void repairEngineSettings();

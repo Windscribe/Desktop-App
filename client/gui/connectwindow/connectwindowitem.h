@@ -53,10 +53,10 @@ public slots:
     void updateFavoriteState(LocationID id, bool isFavorite) override;
     void updateMyIp(const QString &ip) override;
     void updateNotificationsState(int totalMessages, int unread) override;
-    void updateNetworkState(ProtoTypes::NetworkInterface network) override;
+    void updateNetworkState(types::NetworkInterface network) override;
     void setSplitTunnelingState(bool on) override;
     void setInternetConnectivity(bool connectivity) override;
-    void setProtocolPort(const ProtoTypes::Protocol &protocol, const uint port) override;
+    void setProtocolPort(const types::ProtocolType &protocol, const uint port) override;
 
     void onNetworkHoverEnter();
     void onNetworkHoverLeave();
@@ -113,8 +113,8 @@ private:
 
     ProtoTypes::ConnectState prevConnectState_;
     QString networkName_;
-    ProtoTypes::NetworkTrustType trustType_;
-    ProtoTypes::NetworkInterfaceType interfaceType_;
+    NETWORK_TRUST_TYPE trustType_;
+    NETWORK_INTERACE_TYPE interfaceType_;
     bool networkActive_;
 
     QString fullFirstName_;

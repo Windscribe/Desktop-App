@@ -84,17 +84,14 @@ void ConnectionModeItem::onExpandAnimationValueChanged(const QVariant &value)
 
 void ConnectionModeItem::onCurrentProtocolItemChanged(QVariant value)
 {
-    updateProtocol((ProtoTypes::Protocol)value.toInt());
-
-    curConnectionMode_.set_protocol((ProtoTypes::Protocol)comboBoxProtocol_->currentItem().toInt());
-    curConnectionMode_.set_port(comboBoxPort_->currentItem().toInt());
-
+    updateProtocol((types::ProtocolType::PROTOCOL_TYPE)value.toInt());
+    curConnectionMode_.set((types::ProtocolType::PROTOCOL_TYPE)comboBoxProtocol_->currentItem().toInt(), comboBoxPort_->currentItem().toInt());
     emit connectionlModeChanged(curConnectionMode_);
 }
 
 void ConnectionModeItem::onCurrentPortItemChanged(QVariant value)
 {
-    curConnectionMode_.set_port(value.toInt());
+    curConnectionMode_ .setPort(value.toInt());
     emit connectionlModeChanged(curConnectionMode_);
 }
 
@@ -103,15 +100,15 @@ void ConnectionModeItem::onPortMapChanged()
     comboBoxProtocol_->clear();
     comboBoxPort_->clear();
 
-    const QVector<ProtoTypes::Protocol> protocols = preferencesHelper_->getAvailableProtocols();
+    const QVector<types::ProtocolType> protocols = preferencesHelper_->getAvailableProtocols();
     if (protocols.size() > 0)
     {
         isPortMapInitialized_ = true;
         for (auto pd : protocols)
         {
-            comboBoxProtocol_->addItem(ProtoEnumToString::instance().toString(pd), (int)pd);
+            comboBoxProtocol_->addItem(pd.toLongString(), (int)pd.getType());
         }
-        comboBoxProtocol_->setCurrentItem((int)*protocols.begin());
+        comboBoxProtocol_->setCurrentItem((int)protocols.begin()->getType());
         comboBoxProtocol_->setMaxMenuItemsShowing(protocols.count());
         updateProtocol(*protocols.begin());
         comboBoxProtocol_->setClickable(true);
@@ -132,7 +129,7 @@ void ConnectionModeItem::hideOpenPopups()
     comboBoxPort_    ->hideMenu();
 }
 
-void ConnectionModeItem::updateProtocol(ProtoTypes::Protocol protocol)
+void ConnectionModeItem::updateProtocol(types::ProtocolType protocol)
 {
     comboBoxPort_->clear();
     const QVector<uint> ports = preferencesHelper_->getAvailablePortsForProtocol(protocol);
@@ -147,7 +144,7 @@ void ConnectionModeItem::updateConnectionMode()
 {
     if (isPortMapInitialized_)
     {
-        if (curConnectionMode_.is_automatic())
+        if (curConnectionMode_.isAutomatic())
         {
             switchItem_->setState(AutoManualSwitchItem::AUTO);
             isExpanded_ = false;
@@ -155,7 +152,7 @@ void ConnectionModeItem::updateConnectionMode()
         }
         else
         {
-            comboBoxProtocol_->setCurrentItem((int)curConnectionMode_.protocol());
+            comboBoxProtocol_->setCurrentItem((int)curConnectionMode_.protocol().getType());
             updateProtocol(curConnectionMode_.protocol());
             comboBoxPort_->setCurrentItem(curConnectionMode_.port());
 
@@ -174,9 +171,9 @@ void ConnectionModeItem::paint(QPainter *painter, const QStyleOptionGraphicsItem
     Q_UNUSED(widget);
 }
 
-void ConnectionModeItem::setConnectionMode(const ProtoTypes::ConnectionSettings &cm)
+void ConnectionModeItem::setConnectionMode(const types::ConnectionSettings &cm)
 {
-    if(!google::protobuf::util::MessageDifferencer::Equals(curConnectionMode_, cm))
+    if (curConnectionMode_ != cm)
     {
         curConnectionMode_ = cm;
         updateConnectionMode();
@@ -217,7 +214,7 @@ void ConnectionModeItem::onSwitchChanged(AutoManualSwitchItem::SWITCH_STATE stat
         }
         isExpanded_ = true;
 
-        curConnectionMode_.set_is_automatic(false);
+        curConnectionMode_.setIsAutomatic(false);
         emit connectionlModeChanged(curConnectionMode_);
     }
     else if (isExpanded_)
@@ -229,7 +226,7 @@ void ConnectionModeItem::onSwitchChanged(AutoManualSwitchItem::SWITCH_STATE stat
         }
         isExpanded_ = false;
 
-        curConnectionMode_.set_is_automatic(true);
+        curConnectionMode_.setIsAutomatic(true);
         emit connectionlModeChanged(curConnectionMode_);
     }
 }

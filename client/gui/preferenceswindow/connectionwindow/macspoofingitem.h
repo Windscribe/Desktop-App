@@ -18,12 +18,12 @@ public:
 
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
-    void setMacAddrSpoofing(const ProtoTypes::MacAddrSpoofing &macAddrSpoofing);
-    void setCurrentNetwork(const ProtoTypes::NetworkInterface &networkInterface);
+    void setMacAddrSpoofing(const types::MacAddrSpoofing &macAddrSpoofing);
+    void setCurrentNetwork(const types::NetworkInterface &networkInterface);
 
     void updateScaling() override;
 signals:
-    void macAddrSpoofingChanged(const ProtoTypes::MacAddrSpoofing &macAddrSpoofing);
+    void macAddrSpoofingChanged(const types::MacAddrSpoofing &macAddrSpoofing);
     void cycleMacAddressClick();
 
 private slots:
@@ -43,13 +43,13 @@ private:
     AutoRotateMacItem *autoRotateMacItem_;
     ComboBoxItem *comboBoxInterface_;
 
-    ProtoTypes::NetworkInterface curNetworkInterface_;
-    ProtoTypes::MacAddrSpoofing curMAS_;
-    QList<ProtoTypes::NetworkInterface> interfaces_;
+    types::NetworkInterface curNetworkInterface_;
+    types::MacAddrSpoofing curMAS_;
+    QList<types::NetworkInterface> interfaces_;
 
     QVariantAnimation expandEnimation_;
 
-    void updateSpoofingSelection(ProtoTypes::MacAddrSpoofing &macAddrSpoofing);
+    void updateSpoofingSelection(types::MacAddrSpoofing &macAddrSpoofing);
     void updatePositions();
 };
 

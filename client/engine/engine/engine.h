@@ -171,7 +171,7 @@ signals:
     // void engineSettingsChanged(const ProtoTypes::EngineSettings &engineSettings);
 
     void macAddrSpoofingChanged(const types::MacAddrSpoofing &macAddrSpoofing);
-    void sendUserWarning(ProtoTypes::UserWarningType userWarningType);
+    void sendUserWarning(USER_WARNING_TYPE userWarningType);
     void internetConnectivityChanged(bool connectivity);
     void packetSizeChanged(bool isAuto, int mtu);
     void packetSizeDetectionStateChanged(bool on, bool isError);
@@ -297,7 +297,7 @@ private slots:
     void onPacketSizeControllerFinishedSizeDetection(bool isError);
 
     void onMacAddressSpoofingChanged(const types::MacAddrSpoofing &macAddrSpoofing);
-    void onMacAddressControllerSendUserWarning(ProtoTypes::UserWarningType userWarningType);
+    void onMacAddressControllerSendUserWarning(USER_WARNING_TYPE userWarningType);
 #ifdef Q_OS_MAC
     void onMacAddressControllerRobustMacSpoofApplied();
 #endif

@@ -19,12 +19,12 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
 {
     setFlag(QGraphicsItem::ItemIsFocusable);
 
-    connect(preferences, SIGNAL(firewallSettingsChanged(ProtoTypes::FirewallSettings)), SLOT(onFirewallModePreferencesChanged(ProtoTypes::FirewallSettings)));
-    connect(preferences, SIGNAL(connectionSettingsChanged(ProtoTypes::ConnectionSettings)), SLOT(onConnectionModePreferencesChanged(ProtoTypes::ConnectionSettings)));
-    connect(preferences, SIGNAL(packetSizeChanged(ProtoTypes::PacketSize)), SLOT(onPacketSizePreferencesChanged(ProtoTypes::PacketSize)));
+    connect(preferences, SIGNAL(firewallSettingsChanged(types::FirewallSettings)), SLOT(onFirewallModePreferencesChanged(types::FirewallSettings)));
+    connect(preferences, SIGNAL(connectionSettingsChanged(types::ConnectionSettings)), SLOT(onConnectionModePreferencesChanged(types::ConnectionSettings)));
+    connect(preferences, SIGNAL(packetSizeChanged(types::PacketSize)), SLOT(onPacketSizePreferencesChanged(types::PacketSize)));
     connect(preferences, SIGNAL(isAllowLanTrafficChanged(bool)), SLOT(onIsAllowLanTrafficPreferencedChanged(bool)));
     connect(preferences, SIGNAL(invalidLanAddressNotification(QString)), SLOT(onInvalidLanAddressNotification(QString)));
-    connect(preferences, SIGNAL(macAddrSpoofingChanged(ProtoTypes::MacAddrSpoofing)), SLOT(onMacAddrSpoofingPreferencesChanged(ProtoTypes::MacAddrSpoofing)));
+    connect(preferences, SIGNAL(macAddrSpoofingChanged(types::MacAddrSpoofing)), SLOT(onMacAddrSpoofingPreferencesChanged(types::MacAddrSpoofing)));
     connect(preferences, SIGNAL(dnsWhileConnectedInfoChanged(types::DnsWhileConnectedInfo)), SLOT(onDnsWhileConnectedPreferencesChanged(types::DnsWhileConnectedInfo)));
     connect(preferencesHelper, SIGNAL(isFirewallBlockedChanged(bool)), SLOT(onIsFirewallBlockedChanged(bool)));
     connect(preferencesHelper, SIGNAL(isExternalConfigModeChanged(bool)), SLOT(onIsExternalConfigModeChanged(bool)));
@@ -49,7 +49,7 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
     addItem(proxySettingsItem_);
 
     firewallModeItem_ = new FirewallModeItem(this);
-    connect(firewallModeItem_, SIGNAL(firewallModeChanged(ProtoTypes::FirewallSettings)), SLOT(onFirewallModeChanged(ProtoTypes::FirewallSettings)));
+    connect(firewallModeItem_, SIGNAL(firewallModeChanged(types::FirewallSettings)), SLOT(onFirewallModeChanged(types::FirewallSettings)));
     connect(firewallModeItem_, SIGNAL(buttonHoverEnter()), SLOT(onFirewallModeHoverEnter()));
     connect(firewallModeItem_, SIGNAL(buttonHoverLeave()), SLOT(onFirewallModeHoverLeave()));
     firewallModeItem_->setFirewallMode(preferences->firewalSettings());
@@ -58,8 +58,8 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
 
     connectionModeItem_ = new ConnectionModeItem(this, preferencesHelper);
     connectionModeItem_->setConnectionMode(preferences->connectionSettings());
-    connect(connectionModeItem_, SIGNAL(connectionlModeChanged(ProtoTypes::ConnectionSettings)),
-        SLOT(onConnectionModeChanged(ProtoTypes::ConnectionSettings)));
+    connect(connectionModeItem_, SIGNAL(connectionlModeChanged(types::ConnectionSettings)),
+        SLOT(onConnectionModeChanged(types::ConnectionSettings)));
     connect(connectionModeItem_, SIGNAL(buttonHoverEnter(ConnectionModeItem::ButtonType)),
         SLOT(onConnectionModeHoverEnter(ConnectionModeItem::ButtonType)));
     connect(connectionModeItem_, SIGNAL(buttonHoverLeave(ConnectionModeItem::ButtonType)),
@@ -69,7 +69,7 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
 #ifndef Q_OS_LINUX
     packetSizeItem_ = new PacketSizeItem(this);
     packetSizeItem_->setPacketSize(preferences->packetSize());
-    connect(packetSizeItem_, SIGNAL(packetSizeChanged(ProtoTypes::PacketSize)), SLOT(onPacketSizeChanged(ProtoTypes::PacketSize)));
+    connect(packetSizeItem_, SIGNAL(packetSizeChanged(types::PacketSize)), SLOT(onPacketSizeChanged(types::PacketSize)));
     connect(packetSizeItem_, SIGNAL(detectAppropriatePacketSizeButtonClicked()), SIGNAL(detectAppropriatePacketSizeButtonClicked()));
     addItem(packetSizeItem_);
 
@@ -86,7 +86,7 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
 
 #ifndef Q_OS_LINUX
     macSpoofingItem_ = new MacSpoofingItem(this);
-    connect(macSpoofingItem_, SIGNAL(macAddrSpoofingChanged(ProtoTypes::MacAddrSpoofing)), SLOT(onMacAddrSpoofingChanged(ProtoTypes::MacAddrSpoofing)));
+    connect(macSpoofingItem_, SIGNAL(macAddrSpoofingChanged(types::MacAddrSpoofing)), SLOT(onMacAddrSpoofingChanged(types::MacAddrSpoofing)));
     connect(macSpoofingItem_, SIGNAL(cycleMacAddressClick()), SIGNAL(cycleMacAddressClick()));
     addItem(macSpoofingItem_);
 #endif
@@ -126,7 +126,7 @@ void ConnectionWindowItem::setScreen(CONNECTION_SCREEN_TYPE subScreen)
     currentScreen_ = subScreen;
 }
 
-void ConnectionWindowItem::setCurrentNetwork(const ProtoTypes::NetworkInterface &networkInterface)
+void ConnectionWindowItem::setCurrentNetwork(const types::NetworkInterface &networkInterface)
 {
     if(macSpoofingItem_) {
         macSpoofingItem_->setCurrentNetwork(networkInterface);
@@ -148,7 +148,7 @@ void ConnectionWindowItem::showPacketSizeDetectionError(const QString &title,
     }
 }
 
-void ConnectionWindowItem::onFirewallModeChanged(const ProtoTypes::FirewallSettings &fm)
+void ConnectionWindowItem::onFirewallModeChanged(const types::FirewallSettings &fm)
 {
     preferences_->setFirewallSettings(fm);
 }
@@ -201,23 +201,23 @@ void ConnectionWindowItem::onConnectionModeHoverLeave(ConnectionModeItem::Button
     TooltipController::instance().hideTooltip(TOOLTIP_ID_CONNECTION_MODE_LOGIN);
 }
 
-void ConnectionWindowItem::onConnectionModeChanged(const ProtoTypes::ConnectionSettings &cm)
+void ConnectionWindowItem::onConnectionModeChanged(const types::ConnectionSettings &cm)
 {
     preferences_->setConnectionSettings(cm);
 
-    if (!cm.is_automatic()) // only scroll when opening
+    if (!cm.isAutomatic()) // only scroll when opening
     {
         // magic number is expanded height
         emit scrollToPosition(static_cast<int>(connectionModeItem_->y()) + 50 + 43 + 43 );
     }
 }
 
-void ConnectionWindowItem::onPacketSizeChanged(const ProtoTypes::PacketSize &ps)
+void ConnectionWindowItem::onPacketSizeChanged(const types::PacketSize &ps)
 {
     preferences_->setPacketSize(ps);
 }
 
-void ConnectionWindowItem::onMacAddrSpoofingChanged(const ProtoTypes::MacAddrSpoofing &mas)
+void ConnectionWindowItem::onMacAddrSpoofingChanged(const types::MacAddrSpoofing &mas)
 {
     preferences_->setMacAddrSpoofing(mas);
 }
@@ -229,29 +229,29 @@ void ConnectionWindowItem::onKillTcpSocketsStateChanged(bool isChecked)
 }
 #endif
 
-void ConnectionWindowItem::onFirewallModePreferencesChanged(const ProtoTypes::FirewallSettings &fm)
+void ConnectionWindowItem::onFirewallModePreferencesChanged(const types::FirewallSettings &fm)
 {
     firewallModeItem_->setFirewallMode(fm);
 }
 
-void ConnectionWindowItem::onConnectionModePreferencesChanged(const ProtoTypes::ConnectionSettings &cm)
+void ConnectionWindowItem::onConnectionModePreferencesChanged(const types::ConnectionSettings &cm)
 {
     connectionModeItem_->setConnectionMode(cm);
 }
 
-void ConnectionWindowItem::onPacketSizePreferencesChanged(const ProtoTypes::PacketSize &ps)
+void ConnectionWindowItem::onPacketSizePreferencesChanged(const types::PacketSize &ps)
 {
     if(packetSizeItem_) {
         packetSizeItem_->setPacketSize(ps);
     }
 }
 
-void ConnectionWindowItem::onMacAddrSpoofingPreferencesChanged(const ProtoTypes::MacAddrSpoofing &mas)
+void ConnectionWindowItem::onMacAddrSpoofingPreferencesChanged(const types::MacAddrSpoofing &mas)
 {
     if(macSpoofingItem_) {
         macSpoofingItem_->setMacAddrSpoofing(mas);
 
-        if (mas.is_enabled()) // only scroll when opening
+        if (mas.isEnabled) // only scroll when opening
         {
             // magic number is expanded height
             emit scrollToPosition(static_cast<int>(macSpoofingItem_->y()) + 50 + 43 + 43);
