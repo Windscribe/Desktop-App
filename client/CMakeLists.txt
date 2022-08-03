@@ -88,7 +88,7 @@ elseif(UNIX)
                      ${WINDSCRIBE_BUILD_LIBS_PATH}/cares/lib
                      ${WINDSCRIBE_BUILD_LIBS_PATH}/openssl/lib
      )
-     set (OS_SPECIFIC_LIBRARIES ssl crypto cares curl protobuf libboost_serialization.a)
+     set (OS_SPECIFIC_LIBRARIES ssl crypto cares curl protobuf libboost_serialization.a libboost_filesystem.a)
 endif()
 
 qt_add_executable(Windscribe
