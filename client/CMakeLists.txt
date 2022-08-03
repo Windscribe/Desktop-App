@@ -42,7 +42,7 @@ if (WIN32)
     )
 
     set (OS_SPECIFIC_LIBRARIES psapi.lib iphlpapi.lib dnsapi.lib rasapi32.lib pdh.lib
-        libcurl cares libeay32 ssleay32
+        libcurl cares libcrypto libssl
         debug libprotobufd
         optimized libprotobuf
     )

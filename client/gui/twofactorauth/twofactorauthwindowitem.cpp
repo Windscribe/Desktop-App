@@ -227,7 +227,7 @@ void TwoFactorAuthWindowItem::updateScaling()
     updatePositions();
 }
 
-void TwoFactorAuthWindowItem::keyReleaseEvent(QKeyEvent *event)
+void TwoFactorAuthWindowItem::keyPressEvent(QKeyEvent *event)
 {
     if (event->key() == Qt::Key_Escape)
     {

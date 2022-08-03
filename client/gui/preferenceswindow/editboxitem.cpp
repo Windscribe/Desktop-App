@@ -121,7 +121,7 @@ bool EditBoxItem::lineEditHasFocus()
     return lineEdit_->hasFocus();
 }
 
-void EditBoxItem::keyReleaseEvent(QKeyEvent *event)
+void EditBoxItem::keyPressEvent(QKeyEvent *event)
 {
     if (event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter)
     {
