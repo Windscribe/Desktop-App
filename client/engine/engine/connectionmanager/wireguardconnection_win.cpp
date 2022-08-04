@@ -83,7 +83,7 @@ void WireGuardConnection::startConnect(const QString &configPathOrUrl, const QSt
     catch (std::system_error& ex)
     {
         qCDebug(LOG_CONNECTION) << ex.what();
-        emit error(ProtoTypes::ConnectError::WIREGUARD_CONNECTION_ERROR);
+        emit error(CONNECT_ERROR::WIREGUARD_CONNECTION_ERROR);
     }
 }
 
@@ -224,8 +224,8 @@ void WireGuardConnection::run()
     {
         qCDebug(LOG_CONNECTION) << ex.what();
 
-        ProtoTypes::ConnectError err = (ex.code().value() == ERROR_INVALID_IMAGE_HASH ? ProtoTypes::ConnectError::EXE_VERIFY_WIREGUARD_ERROR
-                                                                                      : ProtoTypes::ConnectError::WIREGUARD_CONNECTION_ERROR);
+        CONNECT_ERROR err = (ex.code().value() == ERROR_INVALID_IMAGE_HASH ? CONNECT_ERROR::EXE_VERIFY_WIREGUARD_ERROR
+                                                                                      : CONNECT_ERROR::WIREGUARD_CONNECTION_ERROR);
         emit error(err);
 
         onWireguardServiceStartupFailure();

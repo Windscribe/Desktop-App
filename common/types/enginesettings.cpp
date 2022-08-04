@@ -43,7 +43,7 @@ void EngineSettings::loadFromSettings()
 {
     SimpleCrypt simpleCrypt(simpleCryptKey_);
     QSettings settings;
-    /*if (settings.contains("engineSettings"))
+    if (settings.contains("engineSettings"))
     {
         QString str = settings.value("engineSettings", "").toString();
         QByteArray arr = simpleCrypt.decryptToByteArray(str);
@@ -66,7 +66,7 @@ void EngineSettings::loadFromSettings()
               d->macAddrSpoofing >> d->dnsPolicy >> d->tapAdapter >> d->customOvpnConfigsPath >> d->isKeepAliveEnabled >>
               d->dnsWhileConnectedInfo >> d->dnsManager;
     }
-    else*/ if (settings.contains("engineSettings2"))
+    else if (settings.contains("engineSettings2"))
     {
         // try load from legacy protobuf
         // todo remove this code at some point later
@@ -234,6 +234,7 @@ void EngineSettings::loadFromSettings()
 
             proto_types__engine_settings__free_unpacked(es, NULL);
         }
+        settings.remove("engineSettings2");
     }
 
     #if defined(Q_OS_LINUX)

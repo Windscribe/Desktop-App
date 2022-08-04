@@ -5,6 +5,7 @@
 #include "types/dnswhileconnectedinfo.h"
 #include "utils/protobuf_includes.h"
 #include "types/enginesettings.h"
+#include "types/splittunneling.h"
 
 // all preferences with the ability to receive signals when certain preferences are changed
 class Preferences : public QObject
@@ -114,13 +115,13 @@ public:
     bool keepAlive() const;
     void setKeepAlive(bool bEnabled);
 
-    ProtoTypes::SplitTunneling splitTunneling();
-    QList<ProtoTypes::SplitTunnelingApp> splitTunnelingApps();
-    void setSplitTunnelingApps(QList<ProtoTypes::SplitTunnelingApp> apps);
-    QList<ProtoTypes::SplitTunnelingNetworkRoute> splitTunnelingNetworkRoutes();
-    void setSplitTunnelingNetworkRoutes(QList<ProtoTypes::SplitTunnelingNetworkRoute> routes);
-    ProtoTypes::SplitTunnelingSettings splitTunnelingSettings();
-    void setSplitTunnelingSettings(ProtoTypes::SplitTunnelingSettings settings);
+    types::SplitTunneling splitTunneling();
+    QList<types::SplitTunnelingApp> splitTunnelingApps();
+    void setSplitTunnelingApps(QList<types::SplitTunnelingApp> apps);
+    QList<types::SplitTunnelingNetworkRoute> splitTunnelingNetworkRoutes();
+    void setSplitTunnelingNetworkRoutes(QList<types::SplitTunnelingNetworkRoute> routes);
+    types::SplitTunnelingSettings splitTunnelingSettings();
+    void setSplitTunnelingSettings(types::SplitTunnelingSettings settings);
 
     QString customOvpnConfigsPath() const;
     void setCustomOvpnConfigsPath(const QString &path);
@@ -182,7 +183,7 @@ signals:
 
     void dnsWhileConnectedInfoChanged(types::DnsWhileConnectedInfo dnsWcInfo);
     void networkWhiteListChanged(QVector<types::NetworkInterface> l);
-    void splitTunnelingChanged(ProtoTypes::SplitTunneling st);
+    void splitTunnelingChanged(types::SplitTunneling st);
     void keepAliveChanged(bool b);
     void updateEngineSettings();
 
@@ -191,6 +192,7 @@ signals:
 private:
     types::EngineSettings engineSettings_;
     ProtoTypes::GuiSettings guiSettings_;
+    types::SplitTunneling splitTunneling_; //todo remove
 
     bool receivingEngineSettings_;
 };

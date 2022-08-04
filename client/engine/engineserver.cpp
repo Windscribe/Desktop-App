@@ -55,7 +55,7 @@ void EngineServer::run()
 
 bool EngineServer::handleCommand(IPC::Command *command)
 {
-    if (command->getStringId() == IPCClientCommands::Init::descriptor()->full_name())
+    if (command->getStringId() == IPC::ClientCommands::Init::getCommandStringId())
     {
         qCDebug(LOG_IPC) << "Received Init";
 
@@ -122,14 +122,14 @@ bool EngineServer::handleCommand(IPC::Command *command)
 
         return true;
     }
-    else if (command->getStringId() == IPCClientCommands::EnableBfe_win::descriptor()->full_name())
+    else if (command->getStringId() == IPC::ClientCommands::EnableBfe_win::getCommandStringId())
     {
         engine_->enableBFE_win();
         return true;
     }
-    else if (command->getStringId() == IPCClientCommands::Cleanup::descriptor()->full_name())
+    else if (command->getStringId() == IPC::ClientCommands::Cleanup::getCommandStringId())
     {
-        IPC::ProtobufCommand<IPCClientCommands::Cleanup> *cleanupCmd = static_cast<IPC::ProtobufCommand<IPCClientCommands::Cleanup> *>(command);
+        IPC::ClientCommands::Cleanup *cleanupCmd = static_cast<IPC::ClientCommands::Cleanup *>(command);
 
         if (engine_ == NULL)
         {
@@ -137,15 +137,15 @@ bool EngineServer::handleCommand(IPC::Command *command)
         }
         else
         {
-            engine_->cleanup(cleanupCmd->getProtoObj().is_exit_with_restart(), cleanupCmd->getProtoObj().is_firewall_checked(),
-                             cleanupCmd->getProtoObj().is_firewall_always_on(), cleanupCmd->getProtoObj().is_launch_on_start());
+            engine_->cleanup(cleanupCmd->isExitWithRestart_, cleanupCmd->isFirewallChecked_,
+                             cleanupCmd->isFirewallAlwaysOn_, cleanupCmd->isLaunchOnStartup_);
         }
         return true;
     }
-    else if (command->getStringId() == IPCClientCommands::Firewall::descriptor()->full_name())
+    else if (command->getStringId() == IPC::ClientCommands::Firewall::getCommandStringId())
     {
-        IPC::ProtobufCommand<IPCClientCommands::Firewall> *firewallCmd = static_cast<IPC::ProtobufCommand<IPCClientCommands::Firewall> *>(command);
-        if (firewallCmd->getProtoObj().is_enable())
+        IPC::ClientCommands::Firewall *firewallCmd = static_cast<IPC::ClientCommands::Firewall *>(command);
+        if (firewallCmd->isEnable_)
         {
             engine_->firewallOn();
         }
@@ -156,31 +156,29 @@ bool EngineServer::handleCommand(IPC::Command *command)
         return true;
     }
 
-    else if (command->getStringId() == IPCClientCommands::Login::descriptor()->full_name())
+    else if (command->getStringId() == IPC::ClientCommands::Login::getCommandStringId())
     {
-        IPC::ProtobufCommand<IPCClientCommands::Login> *loginCmd = static_cast<IPC::ProtobufCommand<IPCClientCommands::Login> *>(command);
+        IPC::ClientCommands::Login *loginCmd = static_cast<IPC::ClientCommands::Login *>(command);
 
         // hide password for logging
-        IPC::ProtobufCommand<IPCClientCommands::Login> loggedCmd = *loginCmd;
-        loggedCmd.getProtoObj().set_password("*****");
-        qCDebugMultiline(LOG_IPC) << QString::fromStdString(loggedCmd.getDebugString());
+        //IPC::ProtobufCommand<IPCClientCommands::Login> loggedCmd = *loginCmd;
+        //loggedCmd.getProtoObj().set_password("*****");
+        //qCDebugMultiline(LOG_IPC) << QString::fromStdString(loggedCmd.getDebugString());
 
         // login with last login settings
-        if (loginCmd->getProtoObj().use_last_login_settings() == true)
+        if (loginCmd->useLastLoginSettings == true)
         {
             engine_->loginWithLastLoginSettings();
         }
         // login with auth hash
-        else if (!loginCmd->getProtoObj().auth_hash().empty())
+        else if (!loginCmd->authHash_.isEmpty())
         {
-            engine_->loginWithAuthHash(QString::fromStdString(loginCmd->getProtoObj().auth_hash()));
+            engine_->loginWithAuthHash(loginCmd->authHash_);
         }
         // login with username and password
-        else if (!loginCmd->getProtoObj().username().empty() && !loginCmd->getProtoObj().password().empty())
+        else if (!loginCmd->username_.isEmpty() && !loginCmd->password_.isEmpty())
         {
-            engine_->loginWithUsernameAndPassword(QString::fromStdString(loginCmd->getProtoObj().username()),
-                                                  QString::fromStdString(loginCmd->getProtoObj().password()),
-                                                  QString::fromStdString(loginCmd->getProtoObj().code2fa()));
+            engine_->loginWithUsernameAndPassword(loginCmd->username_, loginCmd->password_, loginCmd->code2fa_);
         }
         else
         {
@@ -188,10 +186,10 @@ bool EngineServer::handleCommand(IPC::Command *command)
             return false;
         }
     }
-    else if (command->getStringId() == IPCClientCommands::ApplicationActivated::descriptor()->full_name())
+    else if (command->getStringId() == IPC::ClientCommands::ApplicationActivated::getCommandStringId())
     {
-        IPC::ProtobufCommand<IPCClientCommands::ApplicationActivated> *appActivatedCmd = static_cast<IPC::ProtobufCommand<IPCClientCommands::ApplicationActivated> *>(command);
-        if (appActivatedCmd->getProtoObj().is_activated())
+        IPC::ClientCommands::ApplicationActivated *appActivatedCmd = static_cast<IPC::ClientCommands::ApplicationActivated *>(command);
+        if (appActivatedCmd->isActivated_)
         {
             engine_->applicationActivated();
         }
@@ -201,134 +199,125 @@ bool EngineServer::handleCommand(IPC::Command *command)
         }
         return true;
     }
-    else if (command->getStringId() == IPCClientCommands::Connect::descriptor()->full_name())
+    else if (command->getStringId() == IPC::ClientCommands::Connect::getCommandStringId())
     {
-        IPC::ProtobufCommand<IPCClientCommands::Connect> *connectCmd = static_cast<IPC::ProtobufCommand<IPCClientCommands::Connect> *>(command);
-        engine_->connectClick(LocationID::createFromProtoBuf(connectCmd->getProtoObj().locationdid()));
+        IPC::ClientCommands::Connect *connectCmd = static_cast<IPC::ClientCommands::Connect *>(command);
+        engine_->connectClick(connectCmd->locationId_);
         return true;
     }
-    else if (command->getStringId() == IPCClientCommands::Disconnect::descriptor()->full_name())
+    else if (command->getStringId() == IPC::ClientCommands::Disconnect::getCommandStringId())
     {
         engine_->disconnectClick();
         return true;
     }
-    else if (command->getStringId() == IPCClientCommands::StartProxySharing::descriptor()->full_name())
+    else if (command->getStringId() == IPC::ClientCommands::StartProxySharing::getCommandStringId())
     {
-        IPC::ProtobufCommand<IPCClientCommands::StartProxySharing> *cmd = static_cast<IPC::ProtobufCommand<IPCClientCommands::StartProxySharing> *>(command);
-
-        PROXY_SHARING_TYPE t = (cmd->getProtoObj().sharing_mode() == ProtoTypes::PROXY_SHARING_HTTP) ? PROXY_SHARING_HTTP : PROXY_SHARING_SOCKS;
-        engine_->startProxySharing(t);
+        IPC::ClientCommands::StartProxySharing *cmd = static_cast<IPC::ClientCommands::StartProxySharing *>(command);
+        engine_->startProxySharing(cmd->sharingMode_);
         return true;
     }
-    else if (command->getStringId() == IPCClientCommands::StopProxySharing::descriptor()->full_name())
+    else if (command->getStringId() == IPC::ClientCommands::StopProxySharing::getCommandStringId())
     {
         engine_->stopProxySharing();
         return true;
     }
-    else if (command->getStringId() == IPCClientCommands::StartWifiSharing::descriptor()->full_name())
+    else if (command->getStringId() == IPC::ClientCommands::StartWifiSharing::getCommandStringId())
     {
-        IPC::ProtobufCommand<IPCClientCommands::StartWifiSharing> *cmd = static_cast<IPC::ProtobufCommand<IPCClientCommands::StartWifiSharing> *>(command);
-        engine_->startWifiSharing(QString::fromStdString(cmd->getProtoObj().ssid()), QString::fromStdString(cmd->getProtoObj().password()));
+        IPC::ClientCommands::StartWifiSharing *cmd = static_cast<IPC::ClientCommands::StartWifiSharing *>(command);
+        engine_->startWifiSharing(cmd->ssid_, cmd->password_);
         return true;
     }
-    else if (command->getStringId() == IPCClientCommands::StopWifiSharing::descriptor()->full_name())
+    else if (command->getStringId() == IPC::ClientCommands::StopWifiSharing::getCommandStringId())
     {
         engine_->stopWifiSharing();
         return true;
     }
-    else if (command->getStringId() == IPCClientCommands::EmergencyConnect::descriptor()->full_name())
+    else if (command->getStringId() == IPC::ClientCommands::EmergencyConnect::getCommandStringId())
     {
         engine_->emergencyConnectClick();
         return true;
     }
-    else if (command->getStringId() == IPCClientCommands::EmergencyDisconnect::descriptor()->full_name())
+    else if (command->getStringId() == IPC::ClientCommands::EmergencyDisconnect::getCommandStringId())
     {
         engine_->emergencyDisconnectClick();
         return true;
     }
-    else if (command->getStringId() == IPCClientCommands::SignOut::descriptor()->full_name())
+    else if (command->getStringId() == IPC::ClientCommands::SignOut::getCommandStringId())
     {
-        IPC::ProtobufCommand<IPCClientCommands::SignOut> *cmd = static_cast<IPC::ProtobufCommand<IPCClientCommands::SignOut> *>(command);
-        engine_->signOut(cmd->getProtoObj().is_keep_firewall_on());
+        IPC::ClientCommands::SignOut *cmd = static_cast<IPC::ClientCommands::SignOut *>(command);
+        engine_->signOut(cmd->isKeepFirewallOn_);
         return true;
     }
-    else if (command->getStringId() == IPCClientCommands::SendDebugLog::descriptor()->full_name())
+    else if (command->getStringId() == IPC::ClientCommands::SendDebugLog::getCommandStringId())
     {
         engine_->sendDebugLog();
         return true;
     }
-    else if (command->getStringId() == IPCClientCommands::GetWebSessionToken::descriptor()->full_name())
+    else if (command->getStringId() == IPC::ClientCommands::GetWebSessionToken::getCommandStringId())
     {
-        IPC::ProtobufCommand<IPCClientCommands::GetWebSessionToken> cmd;
-        engine_->getWebSessionToken(cmd.getProtoObj().purpose());
+        IPC::ClientCommands::GetWebSessionToken *cmd = static_cast<IPC::ClientCommands::GetWebSessionToken *>(command);
+        engine_->getWebSessionToken(cmd->purpose_);
         return true;
     }
-    else if (command->getStringId() == IPCClientCommands::SendConfirmEmail::descriptor()->full_name())
+    else if (command->getStringId() == IPC::ClientCommands::SendConfirmEmail::getCommandStringId())
     {
         engine_->sendConfirmEmail();
         return true;
     }
-    else if (command->getStringId() == IPCClientCommands::RecordInstall::descriptor()->full_name())
+    else if (command->getStringId() == IPC::ClientCommands::RecordInstall::getCommandStringId())
     {
         engine_->recordInstall();
         return true;
     }
-    else if (command->getStringId() == IPCClientCommands::GetIpv6StateInOS::descriptor()->full_name())
+    else if (command->getStringId() == IPC::ClientCommands::GetIpv6StateInOS::getCommandStringId())
     {
-        IPC::ProtobufCommand<IPCServerCommands::Ipv6StateInOS> cmd;
-        cmd.getProtoObj().set_is_enabled(engine_->IPv6StateInOS());
+        IPC::ServerCommands::Ipv6StateInOS cmd;
+        cmd.isEnabled_ = engine_->IPv6StateInOS();
         sendCmdToAllAuthorizedAndGetStateClients(&cmd, true);
         return true;
     }
-    else if (command->getStringId() == IPCClientCommands::SetIpv6StateInOS::descriptor()->full_name())
+    else if (command->getStringId() == IPC::ClientCommands::SetIpv6StateInOS::getCommandStringId())
     {
-        IPC::ProtobufCommand<IPCClientCommands::SetIpv6StateInOS> *cmd = static_cast<IPC::ProtobufCommand<IPCClientCommands::SetIpv6StateInOS> *>(command);
-        engine_->setIPv6EnabledInOS(cmd->getProtoObj().is_enabled());
+        IPC::ClientCommands::SetIpv6StateInOS *cmd = static_cast<IPC::ClientCommands::SetIpv6StateInOS *>(command);
+        engine_->setIPv6EnabledInOS(cmd->isEnabled_);
         return true;
     }
-    else if (command->getStringId() == IPCClientCommands::SplitTunneling::descriptor()->full_name())
+    else if (command->getStringId() == IPC::ClientCommands::SplitTunneling::getCommandStringId())
     {
-        // qDebug() << "Received split tunneling command from GUI";
-        IPC::ProtobufCommand<IPCClientCommands::SplitTunneling> *cmd = static_cast<IPC::ProtobufCommand<IPCClientCommands::SplitTunneling> *>(command);
+        IPC::ClientCommands::SplitTunneling *cmd = static_cast<IPC::ClientCommands::SplitTunneling *>(command);
 
-        bool isActive = cmd->getProtoObj().split_tunneling().settings().active();
-        bool isExclude = cmd->getProtoObj().split_tunneling().settings().mode() == ProtoTypes::SPLIT_TUNNELING_MODE_EXCLUDE;
+        bool isActive = cmd->splitTunneling_.settings.active;
+        bool isExclude = cmd->splitTunneling_.settings.mode == SPLIT_TUNNELING_MODE_EXCLUDE;
 
         QStringList files;
-        for (int i = 0; i < cmd->getProtoObj().split_tunneling().apps_size(); ++i)
+        for (int i = 0; i < cmd->splitTunneling_.apps.size(); ++i)
         {
-            if (cmd->getProtoObj().split_tunneling().apps(i).active())
+            if (cmd->splitTunneling_.apps[i].active)
             {
-                files << QString::fromStdString(cmd->getProtoObj().split_tunneling().apps(i).full_name());
+                files << cmd->splitTunneling_.apps[i].fullName;
             }
         }
 
         QStringList ips;
         QStringList hosts;
-        for (int i = 0; i < cmd->getProtoObj().split_tunneling().network_routes_size(); ++i)
+        for (int i = 0; i < cmd->splitTunneling_.networkRoutes.size(); ++i)
         {
-            if (cmd->getProtoObj().split_tunneling().network_routes(i).type() == ProtoTypes::SPLIT_TUNNELING_NETWORK_ROUTE_TYPE_IP)
+            if (cmd->splitTunneling_.networkRoutes[i].type == SPLIT_TUNNELING_NETWORK_ROUTE_TYPE_IP)
             {
-                ips << QString::fromStdString(cmd->getProtoObj().split_tunneling().network_routes(i).name());
+                ips << cmd->splitTunneling_.networkRoutes[i].name;
             }
-            else if (cmd->getProtoObj().split_tunneling().network_routes(i).type() == ProtoTypes::SPLIT_TUNNELING_NETWORK_ROUTE_TYPE_HOSTNAME)
+            else if (cmd->splitTunneling_.networkRoutes[i].type == SPLIT_TUNNELING_NETWORK_ROUTE_TYPE_HOSTNAME)
             {
-                hosts << QString::fromStdString(cmd->getProtoObj().split_tunneling().network_routes(i).name());
+                hosts << cmd->splitTunneling_.networkRoutes[i].name;
             }
         }
 
         engine_->setSplitTunnelingSettings(isActive, isExclude, files, ips, hosts);
         return true;
     }
-    else if (command->getStringId() == IPCClientCommands::GotoCustomOvpnConfigMode::descriptor()->full_name())
+    else if (command->getStringId() == IPC::ClientCommands::GotoCustomOvpnConfigMode::getCommandStringId())
     {
         engine_->gotoCustomOvpnConfigMode();
-        return true;
-    }
-    else if (command->getStringId() == IPCClientCommands::GetSettings::descriptor()->full_name())
-    {
-        //IPC::Command *cmd = curEngineSettings_.transformToProtoBufCommand(command->getCmdUid());
-        //*outCommand = cmd;
         return true;
     }
     else if (command->getStringId() == IPC::ClientCommands::SetSettings::getCommandStringId())
@@ -346,72 +335,60 @@ bool EngineServer::handleCommand(IPC::Command *command)
         }
         return true;
     }
-    else if (command->getStringId() == IPCClientCommands::SetBlockConnect::descriptor()->full_name())
+    else if (command->getStringId() == IPC::ClientCommands::SetBlockConnect::getCommandStringId())
     {
-        IPC::ProtobufCommand<IPCClientCommands::SetBlockConnect> *blockConnectCmd = static_cast<IPC::ProtobufCommand<IPCClientCommands::SetBlockConnect> *>(command);
-        if (engine_->isBlockConnect() != blockConnectCmd->getProtoObj().is_block_connect())
+        IPC::ClientCommands::SetBlockConnect *blockConnectCmd = static_cast<IPC::ClientCommands::SetBlockConnect *>(command);
+        if (engine_->isBlockConnect() != blockConnectCmd->isBlockConnect_)
         {
             qCDebugMultiline(LOG_IPC) << QString::fromStdString(command->getDebugString());
-            engine_->setBlockConnect(blockConnectCmd->getProtoObj().is_block_connect());
+            engine_->setBlockConnect(blockConnectCmd->isBlockConnect_);
         }
         return true;
     }
-    else if (command->getStringId() == IPCClientCommands::ClearCredentials::descriptor()->full_name())
+    else if (command->getStringId() == IPC::ClientCommands::ClearCredentials::getCommandStringId())
     {
         engine_->clearCredentials();
         return true;
     }
-    else if (command->getStringId() == IPCClientCommands::SpeedRating::descriptor()->full_name())
+    else if (command->getStringId() == IPC::ClientCommands::SpeedRating::getCommandStringId())
     {
-        IPC::ProtobufCommand<IPCClientCommands::SpeedRating> *cmd = static_cast<IPC::ProtobufCommand<IPCClientCommands::SpeedRating> *>(command);
-        engine_->speedRating(cmd->getProtoObj().rating(), QString::fromStdString(cmd->getProtoObj().local_external_ip()));
+        IPC::ClientCommands::SpeedRating *cmd = static_cast<IPC::ClientCommands::SpeedRating *>(command);
+        engine_->speedRating(cmd->rating_, cmd->localExternalIp_);
         return true;
     }
-    else if (command->getStringId() == IPCClientCommands::ContinueWithCredentialsForOvpnConfig::descriptor()->full_name())
+    else if (command->getStringId() == IPC::ClientCommands::ContinueWithCredentialsForOvpnConfig::getCommandStringId())
     {
-        IPC::ProtobufCommand<IPCClientCommands::ContinueWithCredentialsForOvpnConfig> *cmd = static_cast<IPC::ProtobufCommand<IPCClientCommands::ContinueWithCredentialsForOvpnConfig> *>(command);
-        engine_->continueWithUsernameAndPassword(QString::fromStdString(cmd->getProtoObj().username()),
-                                                 QString::fromStdString(cmd->getProtoObj().password()), cmd->getProtoObj().is_save());
+        IPC::ClientCommands::ContinueWithCredentialsForOvpnConfig *cmd = static_cast<IPC::ClientCommands::ContinueWithCredentialsForOvpnConfig *>(command);
+        engine_->continueWithUsernameAndPassword(cmd->username_, cmd->password_, cmd->isSave_);
         return true;
     }
-    else if (command->getStringId() == IPCClientCommands::ForceCliStateUpdate::descriptor()->full_name())
-    {
-        sendFirewallStateChanged(engine_->isFirewallEnabled()); // this must happen before others
-
-        engine_->forceUpdateServerLocations();
-
-        IConnectStateController *eCSC = engine_->getConnectStateController();
-        sendConnectStateChanged(eCSC->currentState(), eCSC->disconnectReason(), eCSC->connectionError(), eCSC->locationId());
-
-        return true;
-    }
-    else if (command->getStringId() == IPCClientCommands::DetectPacketSize::descriptor()->full_name())
+    else if (command->getStringId() == IPC::ClientCommands::DetectPacketSize::getCommandStringId())
     {
         engine_->detectAppropriatePacketSize();
     }
-    else if (command->getStringId() == IPCClientCommands::UpdateVersion::descriptor()->full_name())
+    else if (command->getStringId() == IPC::ClientCommands::UpdateVersion::getCommandStringId())
     {
-        IPC::ProtobufCommand<IPCClientCommands::UpdateVersion> *cmd = static_cast<IPC::ProtobufCommand<IPCClientCommands::UpdateVersion> *>(command);
-        if (cmd->getProtoObj().cancel_download())
+        IPC::ClientCommands::UpdateVersion *cmd = static_cast<IPC::ClientCommands::UpdateVersion *>(command);
+        if (cmd->cancelDownload_)
         {
             engine_->stopUpdateVersion();
         }
         else
         {
-            engine_->updateVersion(cmd->getProtoObj().hwnd());
+            engine_->updateVersion(cmd->hwnd_);
         }
     }
-    else if (command->getStringId() == IPCClientCommands::UpdateWindowInfo::descriptor()->full_name())
+    else if (command->getStringId() == IPC::ClientCommands::UpdateWindowInfo::getCommandStringId())
     {
-        IPC::ProtobufCommand<IPCClientCommands::UpdateWindowInfo> *cmd = static_cast<IPC::ProtobufCommand<IPCClientCommands::UpdateWindowInfo> *>(command);
-        engine_->updateWindowInfo(cmd->getProtoObj().window_center_x(), cmd->getProtoObj().window_center_y());
+        IPC::ClientCommands::UpdateWindowInfo *cmd = static_cast<IPC::ClientCommands::UpdateWindowInfo *>(command);
+        engine_->updateWindowInfo(cmd->windowCenterX_, cmd->windowCenterY_);
     }
-    else if (command->getStringId() == IPCClientCommands::MakeHostsWritableWin::descriptor()->full_name()) {
+    else if (command->getStringId() == IPC::ClientCommands::MakeHostsWritableWin::getCommandStringId()) {
 #ifdef Q_OS_WIN
         engine_->makeHostsFileWritableWin();
 #endif
     }
-    else if (command->getStringId() == IPCClientCommands::AdvancedParametersChanged::descriptor()->full_name())
+    else if (command->getStringId() == IPC::ClientCommands::AdvancedParametersChanged::getCommandStringId())
     {
         engine_->updateAdvancedParams();
     }
@@ -424,14 +401,12 @@ void EngineServer::sendEngineInitReturnCode(ENGINE_INIT_RET_CODE retCode)
 {
     if (retCode == ENGINE_INIT_SUCCESS)
     {
-        connect(engine_->getLocationsModel(), SIGNAL(locationsUpdated(LocationID, QString, QSharedPointer<QVector<locationsmodel::LocationItem> >)),
-                SLOT(onEngineLocationsModelItemsUpdated(LocationID, QString, QSharedPointer<QVector<locationsmodel::LocationItem> >)));
-        connect(engine_->getLocationsModel(), SIGNAL(locationsUpdatedCliOnly(LocationID, QSharedPointer<QVector<locationsmodel::LocationItem> >)),
-                SLOT(onEngineLocationsModelItemsUpdatedCliOnly(LocationID, QSharedPointer<QVector<locationsmodel::LocationItem> >)));
+        connect(engine_->getLocationsModel(), SIGNAL(locationsUpdated(LocationID, QString, QSharedPointer<QVector<types::LocationItem> >)),
+                SLOT(onEngineLocationsModelItemsUpdated(LocationID, QString, QSharedPointer<QVector<types::LocationItem> >)));
         connect(engine_->getLocationsModel(), SIGNAL(bestLocationUpdated(LocationID)),
                 SLOT(onEngineLocationsModelBestLocationUpdated(LocationID)));
-        connect(engine_->getLocationsModel(), SIGNAL(customConfigsLocationsUpdated(QSharedPointer<QVector<locationsmodel::LocationItem> >)),
-                SLOT(onEngineLocationsModelCustomConfigItemsUpdated(QSharedPointer<QVector<locationsmodel::LocationItem> >)));
+        connect(engine_->getLocationsModel(), SIGNAL(customConfigsLocationsUpdated(QSharedPointer<QVector<types::LocationItem> >)),
+                SLOT(onEngineLocationsModelCustomConfigItemsUpdated(QSharedPointer<QVector<types::LocationItem> >)));
         connect(engine_->getLocationsModel(), SIGNAL(locationPingTimeChanged(LocationID,PingTime)),
                 SLOT(onEngineLocationsModelPingChangedChanged(LocationID,PingTime)));
 
@@ -476,8 +451,8 @@ void EngineServer::onServerCallbackAcceptFunction(IPC::IConnection *connection)
 
 void EngineServer::sendCommand(IPC::Command *command)
 {
-    if ((command->getStringId() != IPCClientCommands::Login::descriptor()->full_name()) &&
-        (command->getStringId() != IPCClientCommands::SetBlockConnect::descriptor()->full_name()))
+    if ((command->getStringId() != IPC::ClientCommands::Login::getCommandStringId()) &&
+        (command->getStringId() != IPC::ClientCommands::SetBlockConnect::getCommandStringId()))
     {
         // The SetBlockConnect command is received every minute.  handleCommand will log it if the value
         // has changed, so that we don't flood the log with this entry when the app is up for an
@@ -494,7 +469,7 @@ void EngineServer::sendCommand(IPC::Command *command)
     else
     {
         // wait for command ClientAuth for authorization of client
-        if (command->getStringId() == IPCClientCommands::ClientAuth::descriptor()->full_name())
+        if (command->getStringId() == IPC::ClientCommands::ClientAuth::getCommandStringId())
         {
             bClientAuthReceived_ = true;
             IPC::ServerCommands::AuthReply cmdReply;
@@ -531,7 +506,7 @@ void EngineServer::onConnectionStateCallback(int state, IPC::IConnection *connec
 
 void EngineServer::onEngineCleanupFinished()
 {
-    IPC::ProtobufCommand<IPCServerCommands::CleanupFinished> cmd;
+    IPC::ServerCommands::CleanupFinished cmd;
     sendCmdToAllAuthorizedAndGetStateClients(&cmd, true);
 }
 
@@ -555,8 +530,8 @@ void EngineServer::onEngineBfeEnableFinished(ENGINE_INIT_RET_CODE retCode)
 
 void EngineServer::sendFirewallStateChanged(bool isEnabled)
 {
-    IPC::ProtobufCommand<IPCServerCommands::FirewallStateChanged> cmd;
-    cmd.getProtoObj().set_is_firewall_enabled(isEnabled);
+    IPC::ServerCommands::FirewallStateChanged cmd;
+    cmd.isFirewallEnabled_ = isEnabled;
     sendCmdToAllAuthorizedAndGetStateClients(&cmd, true);
 }
 
@@ -574,37 +549,19 @@ void EngineServer::onEngineLoginFinished(bool isLoginFromSavedSettings, const QS
 
 void EngineServer::onEngineLoginError(LOGIN_RET retCode, const QString &errorMessage)
 {
-    IPC::ProtobufCommand<IPCServerCommands::LoginError> cmd;
-    cmd.getProtoObj().set_error(loginRetToProtobuf(retCode));
-    cmd.getProtoObj().set_error_message(errorMessage.toStdString());
+    IPC::ServerCommands::LoginError cmd(retCode, errorMessage);
     sendCmdToAllAuthorizedAndGetStateClients(&cmd, true);
 }
 
 void EngineServer::onEngineLoginMessage(LOGIN_MESSAGE msg)
 {
-    IPC::ProtobufCommand<IPCServerCommands::LoginStepMessage> cmd;
-    if (msg == LOGIN_MESSAGE_NONE)
-    {
-        cmd.getProtoObj().set_message(ProtoTypes::LOGIN_MESSAGE_NONE);
-    }
-    else if (msg == LOGIN_MESSAGE_TRYING_BACKUP1)
-    {
-        cmd.getProtoObj().set_message(ProtoTypes::LOGIN_MESSAGE_TRYING_BACKUP1);
-    }
-    else if (msg == LOGIN_MESSAGE_TRYING_BACKUP2)
-    {
-        cmd.getProtoObj().set_message(ProtoTypes::LOGIN_MESSAGE_TRYING_BACKUP2);
-    }
-    else
-    {
-        Q_ASSERT(false);
-    }
+    IPC::ServerCommands::LoginStepMessage cmd(msg);
     sendCmdToAllAuthorizedAndGetStateClients(&cmd, true);
 }
 
 void EngineServer::onEngineSessionDeleted()
 {
-    IPC::ProtobufCommand<IPCServerCommands::SessionDeleted> cmd;
+    IPC::ServerCommands::SessionDeleted cmd;
     sendCmdToAllAuthorizedAndGetStateClients(&cmd, true);
 }
 
@@ -616,203 +573,147 @@ void EngineServer::onEngineUpdateSessionStatus(const types::SessionStatus &sessi
 
 void EngineServer::onEngineNotificationsUpdated(const QVector<types::Notification> &notifications)
 {
-    IPC::ProtobufCommand<IPCServerCommands::NotificationsUpdated> cmd;
-
-    for (const types::Notification &n : notifications)
-    {
-        *cmd.getProtoObj().mutable_array_notifications()->add_api_notifications() = n.getProtoBuf();
-    }
+    IPC::ServerCommands::NotificationsUpdated cmd(notifications);
     sendCmdToAllAuthorizedAndGetStateClients(&cmd, false);
 }
 
 void EngineServer::onEngineCheckUpdateUpdated(const types::CheckUpdate &checkUpdate)
 {
-    IPC::ProtobufCommand<IPCServerCommands::CheckUpdateInfoUpdated> cmd;
-    *cmd.getProtoObj().mutable_check_update_info() = checkUpdate.getProtoBuf();
+    IPC::ServerCommands::CheckUpdateInfoUpdated cmd(checkUpdate);
     sendCmdToAllAuthorizedAndGetStateClients(&cmd, true);
 }
 
 void EngineServer::onEngineUpdateVersionChanged(uint progressPercent, const ProtoTypes::UpdateVersionState &state, const ProtoTypes::UpdateVersionError &error)
 {
-    IPC::ProtobufCommand<IPCServerCommands::UpdateVersionChanged> cmd;
-    cmd.getProtoObj().set_progress(progressPercent);
-    cmd.getProtoObj().set_state(state);
-    cmd.getProtoObj().set_error(error);
+    IPC::ServerCommands::UpdateVersionChanged cmd;
+    cmd.progressPercent = progressPercent;
+    cmd.state = state;
+    cmd.error = error;
     sendCmdToAllAuthorizedAndGetStateClients(&cmd, false);
 }
 
 void EngineServer::onEngineMyIpUpdated(const QString &ip, bool /*success*/, bool isDisconnected)
 {
-    // censor user IP for log
-    if (isDisconnected)
-    {
-        int index = ip.lastIndexOf('.');
-        QString censoredIp = ip.mid(0,index+1) + "###"; // censor last octet
-        IPC::ProtobufCommand<IPCServerCommands::MyIpUpdated> cmdLoggingOnly;
-        cmdLoggingOnly.getProtoObj().mutable_my_ip_info()->set_ip(censoredIp.toStdString());
-        cmdLoggingOnly.getProtoObj().mutable_my_ip_info()->set_is_disconnected_state(isDisconnected);
-        qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmdLoggingOnly.getDebugString());
-    }
-
-    IPC::ProtobufCommand<IPCServerCommands::MyIpUpdated> cmd;
-    cmd.getProtoObj().mutable_my_ip_info()->set_ip(ip.toStdString());
-    cmd.getProtoObj().mutable_my_ip_info()->set_is_disconnected_state(isDisconnected);
-
-    sendCmdToAllAuthorizedAndGetStateClients(&cmd, false); // only non-user IP
+    IPC::ServerCommands::MyIpUpdated cmd(ip, isDisconnected);
+    sendCmdToAllAuthorizedAndGetStateClients(&cmd, false);
 }
 
-void EngineServer::sendConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, ProtoTypes::ConnectError err, const LocationID &locationId)
+void EngineServer::sendConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, CONNECT_ERROR err, const LocationID &locationId)
 {
-    IPC::ProtobufCommand<IPCServerCommands::ConnectStateChanged> cmd;
-
-    //ProtoTypes::ConnectState c;
-    if (state == CONNECT_STATE_DISCONNECTED)
-    {
-        cmd.getProtoObj().mutable_connect_state()->set_connect_state_type(ProtoTypes::DISCONNECTED);
-    }
-    else if (state == CONNECT_STATE_CONNECTED)
-    {
-        cmd.getProtoObj().mutable_connect_state()->set_connect_state_type(ProtoTypes::CONNECTED);
-    }
-    else if (state == CONNECT_STATE_CONNECTING)
-    {
-        cmd.getProtoObj().mutable_connect_state()->set_connect_state_type(ProtoTypes::CONNECTING);
-    }
-    else if (state == CONNECT_STATE_DISCONNECTING)
-    {
-        cmd.getProtoObj().mutable_connect_state()->set_connect_state_type(ProtoTypes::DISCONNECTING);
-    }
-    else
-    {
-        Q_ASSERT(false);
-    }
-
-    if (state == CONNECT_STATE_DISCONNECTED)
-    {
-        cmd.getProtoObj().mutable_connect_state()->set_disconnect_reason((ProtoTypes::DisconnectReason)reason);
-        if (reason == DISCONNECTED_WITH_ERROR)
-        {
-            cmd.getProtoObj().mutable_connect_state()->set_connect_error(err);
-        }
-    }
-    else if (state == CONNECT_STATE_CONNECTED || state == CONNECT_STATE_CONNECTING)
-    {
-        if (locationId.isValid())
-        {
-            *cmd.getProtoObj().mutable_connect_state()->mutable_location() = locationId.toProtobuf();
-        }
-    }
+    IPC::ServerCommands::ConnectStateChanged cmd;
+    cmd.connectState_.connectState = state;
+    cmd.connectState_.disconnectReason = reason;
+    cmd.connectState_.connectError = err;
+    cmd.connectState_.location = locationId;
 
     sendCmdToAllAuthorizedAndGetStateClients(&cmd, true);
 }
 
-void EngineServer::onEngineConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, ProtoTypes::ConnectError err, const LocationID &locationId)
+void EngineServer::onEngineConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, CONNECT_ERROR err, const LocationID &locationId)
 {
     sendConnectStateChanged(state, reason, err, locationId);
 }
 
 void EngineServer::onEngineStatisticsUpdated(quint64 bytesIn, quint64 bytesOut, bool isTotalBytes)
 {
-    IPC::ProtobufCommand<IPCServerCommands::StatisticsUpdated> cmd;
-    cmd.getProtoObj().set_bytes_in(bytesIn);
-    cmd.getProtoObj().set_bytes_out(bytesOut);
-    cmd.getProtoObj().set_is_total_bytes(isTotalBytes);
+    IPC::ServerCommands::StatisticsUpdated cmd;
+    cmd.bytesIn_ = bytesIn;
+    cmd.bytesOut_ = bytesOut;
+    cmd.isTotalBytes_ = isTotalBytes;
     sendCmdToAllAuthorizedAndGetStateClients(&cmd, false);
 }
 
-void EngineServer::onEngineProtocolPortChanged(const ProtoTypes::Protocol &protocol, const uint port)
+void EngineServer::onEngineProtocolPortChanged(const types::ProtocolType &protocol, const uint port)
 {
-    IPC::ProtobufCommand<IPCServerCommands::ProtocolPortChanged> cmd;
-    cmd.getProtoObj().set_protocol(protocol);
-    cmd.getProtoObj().set_port(port);
+    IPC::ServerCommands::ProtocolPortChanged cmd;
+    cmd.protocol_ = protocol;
+    cmd.port_ = port;
     sendCmdToAllAuthorizedAndGetStateClients(&cmd, true);
 }
 
 void EngineServer::onEngineEmergencyConnected()
 {
-    IPC::ProtobufCommand<IPCServerCommands::EmergencyConnectStateChanged> cmd;
-    cmd.getProtoObj().mutable_emergency_connect_state()->set_connect_state_type(ProtoTypes::CONNECTED);
+    IPC::ServerCommands::EmergencyConnectStateChanged cmd;
+    cmd.emergencyConnectState_.connectState = CONNECT_STATE_CONNECTED;
     sendCmdToAllAuthorizedAndGetStateClients(&cmd, true);
 }
 
 void EngineServer::onEngineEmergencyDisconnected()
 {
-    IPC::ProtobufCommand<IPCServerCommands::EmergencyConnectStateChanged> cmd;
-    cmd.getProtoObj().mutable_emergency_connect_state()->set_connect_state_type(ProtoTypes::DISCONNECTED);
+    IPC::ServerCommands::EmergencyConnectStateChanged cmd;
+    cmd.emergencyConnectState_.connectState = CONNECT_STATE_DISCONNECTED;
     sendCmdToAllAuthorizedAndGetStateClients(&cmd, true);
 }
 
-void EngineServer::onEngineEmergencyConnectError(ProtoTypes::ConnectError err)
+void EngineServer::onEngineEmergencyConnectError(CONNECT_ERROR err)
 {
-    IPC::ProtobufCommand<IPCServerCommands::EmergencyConnectStateChanged> cmd;
-    cmd.getProtoObj().mutable_emergency_connect_state()->set_connect_state_type(ProtoTypes::DISCONNECTED);
-    cmd.getProtoObj().mutable_emergency_connect_state()->set_disconnect_reason(ProtoTypes::DISCONNECTED_WITH_ERROR);
-    cmd.getProtoObj().mutable_emergency_connect_state()->set_connect_error(err);
+    IPC::ServerCommands::EmergencyConnectStateChanged cmd;
+    cmd.emergencyConnectState_.connectState = CONNECT_STATE_DISCONNECTED;
+    cmd.emergencyConnectState_.disconnectReason = DISCONNECTED_WITH_ERROR;
+    cmd.emergencyConnectState_.connectError = err;
     sendCmdToAllAuthorizedAndGetStateClients(&cmd, true);
 }
 
 void EngineServer::onEngineTestTunnelResult(bool bSuccess)
 {
-    IPC::ProtobufCommand<IPCServerCommands::TestTunnelResult> cmd;
-    cmd.getProtoObj().set_success(bSuccess);
+    IPC::ServerCommands::TestTunnelResult cmd;
+    cmd.success_ = bSuccess;
     sendCmdToAllAuthorizedAndGetStateClients(&cmd, true);
 }
 
 void EngineServer::onEngineLostConnectionToHelper()
 {
-    IPC::ProtobufCommand<IPCServerCommands::LostConnectionToHelper> cmd;
+    IPC::ServerCommands::LostConnectionToHelper cmd;
     sendCmdToAllAuthorizedAndGetStateClients(&cmd, true);
 }
 
 void EngineServer::onEngineProxySharingStateChanged(bool bEnabled, PROXY_SHARING_TYPE proxySharingType)
 {
-    IPC::ProtobufCommand<IPCServerCommands::ProxySharingInfoChanged> cmd;
-
-    cmd.getProtoObj().mutable_proxy_sharing_info()->set_is_enabled(bEnabled);
+    IPC::ServerCommands::ProxySharingInfoChanged cmd;
+    cmd.proxySharingInfo_.isEnabled = bEnabled;
     if (bEnabled)
     {
-        cmd.getProtoObj().mutable_proxy_sharing_info()->set_mode(proxySharingType == PROXY_SHARING_HTTP ? ProtoTypes::PROXY_SHARING_HTTP : ProtoTypes::PROXY_SHARING_SOCKS);
-        cmd.getProtoObj().mutable_proxy_sharing_info()->set_address(engine_->getProxySharingAddress().toStdString());
+        cmd.proxySharingInfo_.mode = proxySharingType;
+        cmd.proxySharingInfo_.address = engine_->getProxySharingAddress();
+
     }
     sendCmdToAllAuthorizedAndGetStateClients(&cmd, true);
 }
 
 void EngineServer::onEngineWifiSharingStateChanged(bool bEnabled, const QString &ssid)
 {
-    IPC::ProtobufCommand<IPCServerCommands::WifiSharingInfoChanged> cmd;
-
-    cmd.getProtoObj().mutable_wifi_sharing_info()->set_is_enabled(bEnabled);
+    IPC::ServerCommands::WifiSharingInfoChanged cmd;
+    cmd.wifiSharingInfo_.isEnabled = bEnabled;
     if (bEnabled)
     {
-        cmd.getProtoObj().mutable_wifi_sharing_info()->set_ssid(ssid.toStdString());
+        cmd.wifiSharingInfo_.ssid = ssid;
     }
-
     sendCmdToAllAuthorizedAndGetStateClients(&cmd, true);
 }
 
 void EngineServer::onEngineConnectedWifiUsersCountChanged(int usersCount)
 {
-    IPC::ProtobufCommand<IPCServerCommands::WifiSharingInfoChanged> cmd;
-    cmd.getProtoObj().mutable_wifi_sharing_info()->set_users_count(usersCount);
+    IPC::ServerCommands::WifiSharingInfoChanged cmd;
+    cmd.wifiSharingInfo_.usersCount = usersCount;
     sendCmdToAllAuthorizedAndGetStateClients(&cmd, true);
 }
 
 void EngineServer::onEngineConnectedProxyUsersCountChanged(int usersCount)
 {
-    IPC::ProtobufCommand<IPCServerCommands::ProxySharingInfoChanged> cmd;
-    cmd.getProtoObj().mutable_proxy_sharing_info()->set_users_count(usersCount);
+    IPC::ServerCommands::ProxySharingInfoChanged cmd;
+    cmd.proxySharingInfo_.usersCount = usersCount;
     sendCmdToAllAuthorizedAndGetStateClients(&cmd, true);
 }
 
 void EngineServer::onEngineSignOutFinished()
 {
-    IPC::ProtobufCommand<IPCServerCommands::SignOutFinished> cmd;
+    IPC::ServerCommands::SignOutFinished cmd;
     sendCmdToAllAuthorizedAndGetStateClients(&cmd, true);
 }
 
 void EngineServer::onEngineGotoCustomOvpnConfigModeFinished()
 {
-    IPC::ProtobufCommand<IPCServerCommands::CustomOvpnConfigModeInitFinished> cmd;
+    IPC::ServerCommands::CustomOvpnConfigModeInitFinished cmd;
     sendCmdToAllAuthorizedAndGetStateClients(&cmd, true);
 }
 
@@ -824,17 +725,14 @@ void EngineServer::onEngineNetworkChanged(types::NetworkInterface networkInterfa
 
 void EngineServer::onEngineDetectionCpuUsageAfterConnected(QStringList list)
 {
-    IPC::ProtobufCommand<IPCServerCommands::HighCpuUsage> cmd;
-    for (const QString &p : qAsConst(list))
-    {
-        *cmd.getProtoObj().add_processes() = p.toStdString();
-    }
+    IPC::ServerCommands::HighCpuUsage cmd;
+    cmd.processes_ = list;
     sendCmdToAllAuthorizedAndGetStateClients(&cmd, true);
 }
 
 void EngineServer::onEngineRequestUsername()
 {
-    IPC::ProtobufCommand<IPCServerCommands::RequestCredentialsForOvpnConfig> cmd;
+    IPC::ServerCommands::RequestCredentialsForOvpnConfig cmd;
     sendCmdToAllAuthorizedAndGetStateClients(&cmd, true);
 }
 
@@ -845,87 +743,59 @@ void EngineServer::onEngineRequestPassword()
 
 void EngineServer::onEngineInternetConnectivityChanged(bool connectivity)
 {
-    IPC::ProtobufCommand<IPCServerCommands::InternetConnectivityChanged> cmd;
-    cmd.getProtoObj().set_connectivity(connectivity);
+    IPC::ServerCommands::InternetConnectivityChanged cmd;
+    cmd.connectivity_ = connectivity;
     sendCmdToAllAuthorizedAndGetStateClients(&cmd, true);
 }
 
 void EngineServer::onEngineSendDebugLogFinished(bool bSuccess)
 {
-    IPC::ProtobufCommand<IPCServerCommands::DebugLogResult> cmd;
-    cmd.getProtoObj().set_success(bSuccess);
+    IPC::ServerCommands::DebugLogResult cmd;
+    cmd.success_ = bSuccess;
     sendCmdToAllAuthorizedAndGetStateClients(&cmd, true);
 }
 
 void EngineServer::onEngineConfirmEmailFinished(bool bSuccess)
 {
-    IPC::ProtobufCommand<IPCServerCommands::ConfirmEmailResult> cmd;
-    cmd.getProtoObj().set_success(bSuccess);
+    IPC::ServerCommands::ConfirmEmailResult cmd;
+    cmd.success_ = bSuccess;
     sendCmdToAllAuthorizedAndGetStateClients(&cmd, true);
 }
 
-void EngineServer::onEngineWebSessionToken(ProtoTypes::WebSessionPurpose purpose, const QString &token)
+void EngineServer::onEngineWebSessionToken(WEB_SESSION_PURPOSE purpose, const QString &token)
 {
-    IPC::ProtobufCommand<IPCServerCommands::WebSessionToken> cmd;
-    cmd.getProtoObj().set_purpose(purpose);
-    cmd.getProtoObj().set_temp_session_token(token.toStdString());
+    IPC::ServerCommands::WebSessionToken cmd(purpose, token);
     sendCmdToAllAuthorizedAndGetStateClients(&cmd, true);
 }
 
-void EngineServer::onEngineLocationsModelItemsUpdated(const LocationID &bestLocation,  const QString &staticIpDeviceName, QSharedPointer<QVector<locationsmodel::LocationItem> > items)
+void EngineServer::onEngineLocationsModelItemsUpdated(const LocationID &bestLocation,  const QString &staticIpDeviceName, QSharedPointer<QVector<types::LocationItem> > items)
 {
-    IPC::ProtobufCommand<IPCServerCommands::LocationsUpdated> cmd;
-
-    *cmd.getProtoObj().mutable_best_location() = bestLocation.toProtobuf();
-    cmd.getProtoObj().set_static_ip_device_name(staticIpDeviceName.toStdString());
-
-    for (const locationsmodel::LocationItem &li : *items)
-    {
-        ProtoTypes::Location *l = cmd.getProtoObj().mutable_locations()->add_locations();
-        li.fillProtobuf(l);
-    }
-
+    IPC::ServerCommands::LocationsUpdated cmd;
+    cmd.bestLocation_ = bestLocation;
+    cmd.staticIpDeviceName_ = staticIpDeviceName;
+    cmd.locations_ = *items;
     sendCmdToAllAuthorizedAndGetStateClients(&cmd, false);
-}
-
-void EngineServer::onEngineLocationsModelItemsUpdatedCliOnly(const LocationID &bestLocation, QSharedPointer<QVector<locationsmodel::LocationItem> > items)
-{
-    IPC::ProtobufCommand<IPCServerCommands::LocationsUpdated> cmd;
-    *cmd.getProtoObj().mutable_best_location() = bestLocation.toProtobuf();
-
-    for (const locationsmodel::LocationItem &li : *items)
-    {
-        ProtoTypes::Location *l = cmd.getProtoObj().mutable_locations()->add_locations();
-        li.fillProtobuf(l);
-    }
-    ///sendCmdToAllAuthorizedAndGetStateClientsOfType(cmd, false, ProtoTypes::CLIENT_ID_CLI);
 }
 
 void EngineServer::onEngineLocationsModelBestLocationUpdated(const LocationID &bestLocation)
 {
-    IPC::ProtobufCommand<IPCServerCommands::BestLocationUpdated> cmd;
-    *cmd.getProtoObj().mutable_best_location() = bestLocation.toProtobuf();
+    IPC::ServerCommands::BestLocationUpdated cmd;
+    cmd.bestLocation_ = bestLocation;
     sendCmdToAllAuthorizedAndGetStateClients(&cmd, false);
 }
 
-void EngineServer::onEngineLocationsModelCustomConfigItemsUpdated(QSharedPointer<QVector<locationsmodel::LocationItem> > items)
+void EngineServer::onEngineLocationsModelCustomConfigItemsUpdated(QSharedPointer<QVector<types::LocationItem> > items)
 {
-    IPC::ProtobufCommand<IPCServerCommands::CustomConfigLocationsUpdated> cmd;
-
-    for (const locationsmodel::LocationItem &li : *items)
-    {
-        ProtoTypes::Location *l = cmd.getProtoObj().mutable_locations()->add_locations();
-        li.fillProtobuf(l);
-    }
-
+    IPC::ServerCommands::CustomConfigLocationsUpdated cmd;
+    cmd.locations_ = *items;
     sendCmdToAllAuthorizedAndGetStateClients(&cmd, false);
 }
 
 void EngineServer::onEngineLocationsModelPingChangedChanged(const LocationID &id, PingTime timeMs)
 {
-    IPC::ProtobufCommand<IPCServerCommands::LocationSpeedChanged> cmd;
-    *cmd.getProtoObj().mutable_id() = id.toProtobuf();
-    cmd.getProtoObj().set_pingtime(timeMs.toInt());
+    IPC::ServerCommands::LocationSpeedChanged cmd;
+    cmd.id_ = id;
+    cmd.pingTime_ = timeMs;
     sendCmdToAllAuthorizedAndGetStateClients(&cmd, false);
 }
 
@@ -938,8 +808,8 @@ void EngineServer::onMacAddrSpoofingChanged(const types::MacAddrSpoofing &macAdd
 
 void EngineServer::onEngineSendUserWarning(USER_WARNING_TYPE userWarningType)
 {
-    IPC::ProtobufCommand<IPCServerCommands::UserWarning> cmd;
-    cmd.getProtoObj().set_type((ProtoTypes::UserWarningType)userWarningType);
+    IPC::ServerCommands::UserWarning cmd;
+    cmd.type_ = userWarningType;
     sendCmdToAllAuthorizedAndGetStateClients(&cmd, true);
 }
 
@@ -957,15 +827,15 @@ void EngineServer::onEnginePacketSizeChanged(bool isAuto, int mtu)
 
 void EngineServer::onEnginePacketSizeDetectionStateChanged(bool on, bool isError)
 {
-    IPC::ProtobufCommand<IPCServerCommands::PacketSizeDetectionState> cmd;
-    cmd.getProtoObj().set_on(on);
-    cmd.getProtoObj().set_is_error(isError);
+    IPC::ServerCommands::PacketSizeDetectionState cmd;
+    cmd.on_ = on;
+    cmd.isError_ = isError;
     sendCmdToAllAuthorizedAndGetStateClients(&cmd, true);
 }
 
 void EngineServer::onHostsFileBecameWritable()
 {
-    IPC::ProtobufCommand<IPCServerCommands::HostsFileBecameWritable> cmd;
+    IPC::ServerCommands::HostsFileBecameWritable cmd;
     sendCmdToAllAuthorizedAndGetStateClients(&cmd, true);
 }
 

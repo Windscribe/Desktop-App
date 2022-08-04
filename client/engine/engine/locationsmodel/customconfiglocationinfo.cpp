@@ -54,10 +54,10 @@ void CustomConfigLocationInfo::resolveHostnames()
     }
 
     switch (config_->type()) {
-    case customconfigs::CUSTOM_CONFIG_OPENVPN:
+    case CUSTOM_CONFIG_OPENVPN:
         resolveHostnamesForOVPNConfig();
         break;
-    case customconfigs::CUSTOM_CONFIG_WIREGUARD:
+    case CUSTOM_CONFIG_WIREGUARD:
         resolveHostnamesForWireGuardConfig();
         break;
     default:
@@ -208,7 +208,7 @@ QString CustomConfigLocationInfo::getSelectedProtocol() const
 
 QString CustomConfigLocationInfo::getOvpnData() const
 {
-    if (config_->type() == customconfigs::CUSTOM_CONFIG_OPENVPN) {
+    if (config_->type() == CUSTOM_CONFIG_OPENVPN) {
         auto *config = dynamic_cast<customconfigs::OvpnCustomConfig const *>(config_.data());
         if (config)
             return config->getOvpnData();
@@ -225,7 +225,7 @@ QString CustomConfigLocationInfo::getFilename() const
 QSharedPointer<WireGuardConfig> CustomConfigLocationInfo::getWireguardCustomConfig(
     const QString &endpointIp) const
 {
-    if (config_->type() == customconfigs::CUSTOM_CONFIG_WIREGUARD) {
+    if (config_->type() == CUSTOM_CONFIG_WIREGUARD) {
         auto *config = dynamic_cast<customconfigs::WireguardCustomConfig const *>(config_.data());
         if ( config )
             return config->getWireGuardConfig(endpointIp);

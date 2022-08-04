@@ -26,10 +26,6 @@ set(PROJECT_SOURCES
     ${COMMON_PATH}/ipc/connection.h
     ${COMMON_PATH}/ipc/generated_proto/cli.pb.cc
     ${COMMON_PATH}/ipc/generated_proto/cli.pb.h
-    ${COMMON_PATH}/ipc/generated_proto/clientcommands.pb.cc
-    ${COMMON_PATH}/ipc/generated_proto/clientcommands.pb.h
-    ${COMMON_PATH}/ipc/generated_proto/servercommands.pb.cc
-    ${COMMON_PATH}/ipc/generated_proto/servercommands.pb.h
     ${COMMON_PATH}/ipc/generated_proto/types.pb.cc
     ${COMMON_PATH}/ipc/generated_proto/types.pb.h
     ${COMMON_PATH}/ipc/iconnection.h
@@ -82,6 +78,11 @@ set(PROJECT_SOURCES
     ${COMMON_PATH}/types/enginesettings.cpp
     ${COMMON_PATH}/types/enginesettings.h
     ${COMMON_PATH}/types/guipersistentstate.h
+    ${COMMON_PATH}/types/proxysharinginfo.h
+    ${COMMON_PATH}/types/wifisharinginfo.h
+    ${COMMON_PATH}/types/connectstate.h
+    ${COMMON_PATH}/types/locationitem.h
+    ${COMMON_PATH}/types/splittunneling.h
     ${COMMON_PATH}/utils/clean_sensitive_info.cpp
     ${COMMON_PATH}/utils/clean_sensitive_info.h
     ${COMMON_PATH}/utils/executable_signature/executable_signature.cpp

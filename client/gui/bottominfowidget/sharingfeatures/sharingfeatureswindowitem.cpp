@@ -10,7 +10,7 @@ namespace SharingFeatures {
 
 SharingFeaturesWindowItem::SharingFeaturesWindowItem(ScalableGraphicsObject *parent) : ScalableGraphicsObject(parent),
     isSecureHotspotEnabled_(false), isProxyGatewayEnabled_(false),
-    proxyGatewayMode_(ProtoTypes::PROXY_SHARING_HTTP), mode_(SHARE_MODE_OFF),
+    proxyGatewayMode_(PROXY_SHARING_HTTP), mode_(SHARE_MODE_OFF),
     curOpacity_(OPACITY_HIDDEN), height_(0), showingHorns_(false),
     curHornOpacity_(OPACITY_HIDDEN), HORN_POS_Y_HIDDEN(height_ - 30),
     HORN_POS_Y_SHOWING(height_)
@@ -137,7 +137,7 @@ void SharingFeaturesWindowItem::setSecureHotspotUsersCount(int usersCount)
     hotspotFeature_->setNumber(usersCount);
 }
 
-void SharingFeaturesWindowItem::setProxyGatewayFeatures(bool isEnabled, ProtoTypes::ProxySharingMode mode)
+void SharingFeaturesWindowItem::setProxyGatewayFeatures(bool isEnabled, PROXY_SHARING_TYPE mode)
 {
     if (isProxyGatewayEnabled_ != isEnabled)
     {
@@ -278,9 +278,9 @@ void SharingFeaturesWindowItem::setHotspotSSID(QString ssid)
     hotspotFeature_->setText(ssid);
 }
 
-void SharingFeaturesWindowItem::setProxyType(ProtoTypes::ProxySharingMode mode)
+void SharingFeaturesWindowItem::setProxyType(PROXY_SHARING_TYPE mode)
 {
-    QString proxyText = ProtoEnumToString::instance().toString(mode);
+    QString proxyText = PROXY_SHARING_TYPE_toString(mode);
     proxyFeature_->setText(proxyText);
 }
 

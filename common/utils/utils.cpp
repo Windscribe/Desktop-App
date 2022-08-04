@@ -184,17 +184,17 @@ QString Utils::fileNameFromFullPath(const QString &fullPath)
     }
 }
 
-QList<ProtoTypes::SplitTunnelingApp> Utils::insertionSort(QList<ProtoTypes::SplitTunnelingApp> apps)
+QList<types::SplitTunnelingApp> Utils::insertionSort(QList<types::SplitTunnelingApp> apps)
 {
-    QList<ProtoTypes::SplitTunnelingApp> sortedApps;
+    QList<types::SplitTunnelingApp> sortedApps;
 
     for (int i = 0; i < apps.length(); i++)
     {
         int insertIndex = 0;
         for (insertIndex = 0; insertIndex < sortedApps.length(); insertIndex++)
         {
-            QString loweredInsertItem = QString::fromStdString(sortedApps[insertIndex].name()).toLower();
-            if (QString::fromStdString(apps[i].name()).toLower() < loweredInsertItem)
+            QString loweredInsertItem = sortedApps[insertIndex].name.toLower();
+            if (apps[i].name.toLower() < loweredInsertItem)
             {
                 break;
             }

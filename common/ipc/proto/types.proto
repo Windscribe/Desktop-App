@@ -366,22 +366,6 @@ enum DnsManagerType
    DNS_MANAGER_NETWORK_MANAGER = 3;
 }
 
-
-message ProxySharingInfo
-{
-   optional bool is_enabled = 1;
-   optional ProxySharingMode mode = 2;
-   optional string address = 3;
-   optional int32 users_count = 4;
-}
-
-message WifiSharingInfo
-{
-   optional bool is_enabled = 1;
-   optional string ssid = 2;
-   optional int32 users_count = 3;
-}
-
 enum TapAdapterType
 {
    TAP_ADAPTER = 1;

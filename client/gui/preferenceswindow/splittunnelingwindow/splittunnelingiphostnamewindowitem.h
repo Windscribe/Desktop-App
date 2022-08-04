@@ -19,11 +19,11 @@ public:
     void setFocusOnTextEntry();
 
 signals:
-    void networkRoutesUpdated(QList<ProtoTypes::SplitTunnelingNetworkRoute> routes);
+    void networkRoutesUpdated(QList<types::SplitTunnelingNetworkRoute> routes);
     void nativeInfoErrorMessage(QString title, QString desc);
 
 private slots:
-    void onNetworkRoutesUpdated(QList<ProtoTypes::SplitTunnelingNetworkRoute> names);
+    void onNetworkRoutesUpdated(QList<types::SplitTunnelingNetworkRoute> names);
 
 private:
     Preferences *preferences_;

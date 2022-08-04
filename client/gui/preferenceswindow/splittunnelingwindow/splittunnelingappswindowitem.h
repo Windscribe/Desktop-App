@@ -16,19 +16,19 @@ public:
     explicit SplitTunnelingAppsWindowItem(ScalableGraphicsObject *parent, Preferences *preferences);
 
     QString caption();
-    QList<ProtoTypes::SplitTunnelingApp> getApps();
-    void setApps(QList<ProtoTypes::SplitTunnelingApp> apps);
-    void addAppManually(ProtoTypes::SplitTunnelingApp app);
+    QList<types::SplitTunnelingApp> getApps();
+    void setApps(QList<types::SplitTunnelingApp> apps);
+    void addAppManually(types::SplitTunnelingApp app);
     void setLoggedIn(bool able);
 
 signals:
-    void appsUpdated(QList<ProtoTypes::SplitTunnelingApp> apps);
+    void appsUpdated(QList<types::SplitTunnelingApp> apps);
     void searchButtonClicked();
     void addButtonClicked();
     void nativeInfoErrorMessage(QString title, QString desc);
 
 private slots:
-    void onAppsUpdated(QList<ProtoTypes::SplitTunnelingApp> apps);
+    void onAppsUpdated(QList<types::SplitTunnelingApp> apps);
 
 private:
     Preferences *preferences_;

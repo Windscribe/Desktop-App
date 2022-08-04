@@ -57,7 +57,7 @@ private:
 
     void setCurrentState(CONNECTION_STATUS state);
     void setCurrentStateAndEmitDisconnected(CONNECTION_STATUS state);
-    void setCurrentStateAndEmitError(CONNECTION_STATUS state, ProtoTypes::ConnectError err);
+    void setCurrentStateAndEmitError(CONNECTION_STATUS state, CONNECT_ERROR err);
     CONNECTION_STATUS getCurrentState() const;
     IHelper::ExecuteError runOpenVPN(unsigned int port, const types::ProxySettings &proxySettings, unsigned long &outCmdId);
 

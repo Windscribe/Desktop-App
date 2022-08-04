@@ -44,13 +44,13 @@ private slots:
     void onEngineCheckUpdateUpdated(const types::CheckUpdate &checkUpdate);
     void onEngineUpdateVersionChanged(uint progressPercent, const ProtoTypes::UpdateVersionState &state, const ProtoTypes::UpdateVersionError &error);
     void onEngineMyIpUpdated(const QString &ip, bool success, bool isDisconnected);
-    void onEngineConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, ProtoTypes::ConnectError err, const LocationID &locationId);
+    void onEngineConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, CONNECT_ERROR err, const LocationID &locationId);
     void onEngineStatisticsUpdated(quint64 bytesIn, quint64 bytesOut, bool isTotalBytes);
-    void onEngineProtocolPortChanged(const ProtoTypes::Protocol &protocol, const uint port);
+    void onEngineProtocolPortChanged(const types::ProtocolType &protocol, const uint port);
 
     void onEngineEmergencyConnected();
     void onEngineEmergencyDisconnected();
-    void onEngineEmergencyConnectError(ProtoTypes::ConnectError err);
+    void onEngineEmergencyConnectError(CONNECT_ERROR err);
 
     void onEngineTestTunnelResult(bool bSuccess);
     void onEngineLostConnectionToHelper();
@@ -73,12 +73,11 @@ private slots:
 
     void onEngineSendDebugLogFinished(bool bSuccess);
     void onEngineConfirmEmailFinished(bool bSuccess);
-    void onEngineWebSessionToken(ProtoTypes::WebSessionPurpose purpose, const QString &token);
+    void onEngineWebSessionToken(WEB_SESSION_PURPOSE purpose, const QString &token);
 
-    void onEngineLocationsModelItemsUpdated(const LocationID &bestLocation, const QString &staticIpDeviceName, QSharedPointer< QVector<locationsmodel::LocationItem> > items);
-    void onEngineLocationsModelItemsUpdatedCliOnly(const LocationID &bestLocation, QSharedPointer< QVector<locationsmodel::LocationItem> > items);
+    void onEngineLocationsModelItemsUpdated(const LocationID &bestLocation, const QString &staticIpDeviceName, QSharedPointer< QVector<types::LocationItem> > items);
     void onEngineLocationsModelBestLocationUpdated(const LocationID &bestLocation);
-    void onEngineLocationsModelCustomConfigItemsUpdated(QSharedPointer< QVector<locationsmodel::LocationItem> > items);
+    void onEngineLocationsModelCustomConfigItemsUpdated(QSharedPointer< QVector<types::LocationItem> > items);
     void onEngineLocationsModelPingChangedChanged(const LocationID &id, PingTime timeMs);
 
     void onMacAddrSpoofingChanged(const types::MacAddrSpoofing &macAddrSpoofing);
@@ -101,7 +100,7 @@ private:
     //void serverCallbackAcceptFunction(IPC::IConnection *connection);
     bool handleCommand(IPC::Command *command);
     void sendEngineInitReturnCode(ENGINE_INIT_RET_CODE retCode);
-    void sendConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, ProtoTypes::ConnectError err, const LocationID &locationId);
+    void sendConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, CONNECT_ERROR err, const LocationID &locationId);
 
     void sendFirewallStateChanged(bool isEnabled);
 };

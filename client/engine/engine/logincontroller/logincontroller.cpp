@@ -134,12 +134,12 @@ void LoginController::onGetApiAccessIpsFinished(SERVER_API_RET_CODE retCode, con
         }
         else
         {
-            emit finished(LOGIN_NO_API_CONNECTIVITY, apiinfo::ApiInfo(), bFromConnectedToVPNState_, QString());
+            emit finished(LOGIN_RET_NO_API_CONNECTIVITY, apiinfo::ApiInfo(), bFromConnectedToVPNState_, QString());
         }
     }
     else if (retCode == SERVER_RETURN_PROXY_AUTH_FAILED)
     {
-        emit finished(LOGIN_PROXY_AUTH_NEED, apiinfo::ApiInfo(), bFromConnectedToVPNState_, QString());
+        emit finished(LOGIN_RET_PROXY_AUTH_NEED, apiinfo::ApiInfo(), bFromConnectedToVPNState_, QString());
     }
     else // failed
     {
@@ -150,11 +150,11 @@ void LoginController::onGetApiAccessIpsFinished(SERVER_API_RET_CODE retCode, con
 
         if (isAllSslErrors())
         {
-            emit finished(LOGIN_SSL_ERROR, apiinfo::ApiInfo(), bFromConnectedToVPNState_, QString());
+            emit finished(LOGIN_RET_SSL_ERROR, apiinfo::ApiInfo(), bFromConnectedToVPNState_, QString());
         }
         else
         {
-            emit finished(LOGIN_NO_API_CONNECTIVITY, apiinfo::ApiInfo(), bFromConnectedToVPNState_, QString());
+            emit finished(LOGIN_RET_NO_API_CONNECTIVITY, apiinfo::ApiInfo(), bFromConnectedToVPNState_, QString());
         }
     }
 }
@@ -184,7 +184,7 @@ void LoginController::onAllConfigsReceived(SERVER_API_RET_CODE retCode)
         apiInfo.setStaticIps(getAllConfigsController_->staticIps_);
         apiInfo.setSessionStatus(sessionStatus_);
         apiInfo.setAuthHash(newAuthHash_);
-        emit finished(LOGIN_SUCCESS, apiInfo, bFromConnectedToVPNState_, QString());
+        emit finished(LOGIN_RET_SUCCESS, apiInfo, bFromConnectedToVPNState_, QString());
     }
     else if (retCode == SERVER_RETURN_NETWORK_ERROR || retCode == SERVER_RETURN_SSL_ERROR || retCode == SERVER_RETURN_INCORRECT_JSON)
     {
@@ -231,27 +231,27 @@ void LoginController::handleLoginOrSessionAnswer(SERVER_API_RET_CODE retCode, co
     }
     else if (retCode == SERVER_RETURN_BAD_USERNAME)
     {
-        emit finished(LOGIN_BAD_USERNAME, apiinfo::ApiInfo(), bFromConnectedToVPNState_, errorMessage);
+        emit finished(LOGIN_RET_BAD_USERNAME, apiinfo::ApiInfo(), bFromConnectedToVPNState_, errorMessage);
     }
     else if (retCode == SERVER_RETURN_MISSING_CODE2FA)
     {
-        emit finished(LOGIN_MISSING_CODE2FA, apiinfo::ApiInfo(), bFromConnectedToVPNState_, errorMessage);
+        emit finished(LOGIN_RET_MISSING_CODE2FA, apiinfo::ApiInfo(), bFromConnectedToVPNState_, errorMessage);
     }
     else if (retCode == SERVER_RETURN_BAD_CODE2FA)
     {
-        emit finished(LOGIN_BAD_CODE2FA, apiinfo::ApiInfo(), bFromConnectedToVPNState_, errorMessage);
+        emit finished(LOGIN_RET_BAD_CODE2FA, apiinfo::ApiInfo(), bFromConnectedToVPNState_, errorMessage);
     }
     else if (retCode == SERVER_RETURN_PROXY_AUTH_FAILED)
     {
-        emit finished(LOGIN_PROXY_AUTH_NEED, apiinfo::ApiInfo(), bFromConnectedToVPNState_, errorMessage);
+        emit finished(LOGIN_RET_PROXY_AUTH_NEED, apiinfo::ApiInfo(), bFromConnectedToVPNState_, errorMessage);
     }
     else if (retCode == SERVER_RETURN_ACCOUNT_DISABLED)
     {
-        emit finished(LOGIN_ACCOUNT_DISABLED, apiinfo::ApiInfo(), bFromConnectedToVPNState_, errorMessage);
+        emit finished(LOGIN_RET_ACCOUNT_DISABLED, apiinfo::ApiInfo(), bFromConnectedToVPNState_, errorMessage);
     }
     else if (retCode == SERVER_RETURN_SESSION_INVALID)
     {
-        emit finished(LOGIN_SESSION_INVALID, apiinfo::ApiInfo(), bFromConnectedToVPNState_, errorMessage);
+        emit finished(LOGIN_RET_SESSION_INVALID, apiinfo::ApiInfo(), bFromConnectedToVPNState_, errorMessage);
     }
     else
     {
@@ -342,11 +342,11 @@ void LoginController::handleNextLoginAfterFail(SERVER_API_RET_CODE retCode)
             {
                 if (isAllSslErrors())
                 {
-                    emit finished(LOGIN_SSL_ERROR, apiinfo::ApiInfo(), bFromConnectedToVPNState_, QString());
+                    emit finished(LOGIN_RET_SSL_ERROR, apiinfo::ApiInfo(), bFromConnectedToVPNState_, QString());
                 }
                 else
                 {
-                    emit finished(LOGIN_NO_API_CONNECTIVITY, apiinfo::ApiInfo(), bFromConnectedToVPNState_, QString());
+                    emit finished(LOGIN_RET_NO_API_CONNECTIVITY, apiinfo::ApiInfo(), bFromConnectedToVPNState_, QString());
                 }
             }
         }
@@ -355,11 +355,11 @@ void LoginController::handleNextLoginAfterFail(SERVER_API_RET_CODE retCode)
     {
         if (retCode == SERVER_RETURN_SSL_ERROR)
         {
-            emit finished(LOGIN_SSL_ERROR, apiinfo::ApiInfo(), bFromConnectedToVPNState_, QString());
+            emit finished(LOGIN_RET_SSL_ERROR, apiinfo::ApiInfo(), bFromConnectedToVPNState_, QString());
         }
         else
         {
-            emit finished(LOGIN_NO_API_CONNECTIVITY, apiinfo::ApiInfo(), bFromConnectedToVPNState_, QString());
+            emit finished(LOGIN_RET_NO_API_CONNECTIVITY, apiinfo::ApiInfo(), bFromConnectedToVPNState_, QString());
         }
     }
 }
@@ -414,7 +414,7 @@ void LoginController::handleNetworkConnection()
             if (waitNetworkConnectivityElapsedTimer_.elapsed() > MAX_WAIT_CONNECTIVITY_TIMEOUT)
             {
                 qCDebug(LOG_BASIC) << "No internet connectivity";
-                emit finished(LOGIN_NO_CONNECTIVITY, apiinfo::ApiInfo(), bFromConnectedToVPNState_, QString());
+                emit finished(LOGIN_RET_NO_CONNECTIVITY, apiinfo::ApiInfo(), bFromConnectedToVPNState_, QString());
             }
             else
             {

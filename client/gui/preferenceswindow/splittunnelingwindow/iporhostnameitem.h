@@ -4,6 +4,7 @@
 #include "../baseitem.h"
 #include "commongraphics/iconbutton.h"
 #include "../dividerline.h"
+#include "types/splittunneling.h"
 #include "utils/protobuf_includes.h"
 
 namespace PreferencesWindow {
@@ -12,11 +13,11 @@ class IpOrHostnameItem : public BaseItem
 {
     Q_OBJECT
 public:
-    explicit IpOrHostnameItem(ProtoTypes::SplitTunnelingNetworkRoute route, ScalableGraphicsObject *parent);
+    explicit IpOrHostnameItem(types::SplitTunnelingNetworkRoute route, ScalableGraphicsObject *parent);
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
     QString getIpOrHostnameText();
-    ProtoTypes::SplitTunnelingNetworkRoute getNetworkRoute();
+    types::SplitTunnelingNetworkRoute getNetworkRoute();
 
     void setSelected(bool selected) override;
     void updateScaling() override;
@@ -28,7 +29,7 @@ private slots:
     void onDeleteButtonHoverEnter();
 
 private:
-    ProtoTypes::SplitTunnelingNetworkRoute route_;
+    types::SplitTunnelingNetworkRoute route_;
     QString text_;
     IconButton *deleteButton_;
     DividerLine *line_;

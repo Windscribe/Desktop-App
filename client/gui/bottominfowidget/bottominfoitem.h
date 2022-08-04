@@ -29,7 +29,7 @@ public:
 
     void setSecureHotspotFeatures(bool isEnabled, const QString &ssid) override;
     void setSecureHotspotUsersCount(int usersCount) override;
-    void setProxyGatewayFeatures(bool isEnabled, ProtoTypes::ProxySharingMode mode) override;
+    void setProxyGatewayFeatures(bool isEnabled, PROXY_SHARING_TYPE mode) override;
     void setProxyGatewayUsersCount(int usersCount) override;
 
     QPixmap getCurrentPixmapShape() override;
@@ -53,7 +53,7 @@ private:
     QString secureHotspotSsid_;
 
     bool isProxyGatewayEnabled_;
-    ProtoTypes::ProxySharingMode proxyGatewayMode_;
+    PROXY_SHARING_TYPE proxyGatewayMode_;
 
     int currentUpgradePosX;
     int currentUpgradePosY;

@@ -30,7 +30,7 @@ signals:
     void ipsAndHostnamesPageClick();
 
 private slots:
-    void onSettingsChanged(ProtoTypes::SplitTunnelingSettings settings);
+    void onSettingsChanged(types::SplitTunnelingSettings settings);
 
 private:
     SPLIT_TUNNEL_SCREEN currentScreen_;

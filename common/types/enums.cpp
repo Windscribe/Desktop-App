@@ -1,7 +1,7 @@
 #include "enums.h"
 #include <QMetaType>
 
-const int typeIdOpenVpnError = qRegisterMetaType<ProtoTypes::ConnectError>("ProtoTypes::ConnectError");
+const int typeIdOpenVpnError = qRegisterMetaType<CONNECT_ERROR>("CONNECT_ERROR");
 const int typeIdProxyOption = qRegisterMetaType<PROXY_OPTION>("PROXY_OPTION");
 const int typeIdLoginRet = qRegisterMetaType<LOGIN_RET>("LOGIN_RET");
 const int typeIdLoginMessage = qRegisterMetaType<LOGIN_MESSAGE>("LOGIN_MESSAGE");
@@ -13,51 +13,51 @@ const int typeIdProxySharingType = qRegisterMetaType<PROXY_SHARING_TYPE>("PROXY_
 const int typeIdUpdateVersionState = qRegisterMetaType<ProtoTypes::Protocol>("ProtoTypes::UpdateVersionState");
 const int typeIdUpdateVersionError = qRegisterMetaType<ProtoTypes::Protocol>("ProtoTypes::UpdateVersionError");
 const int typeIdUpdateChannel = qRegisterMetaType<ProtoTypes::UpdateChannel>("ProtoTypes::UpdateChannel");
-const int typeIdWebSessionPurpose = qRegisterMetaType<ProtoTypes::WebSessionPurpose>("ProtoTypes::WebSessionPurpose");
+const int typeIdWebSessionPurpose = qRegisterMetaType<WEB_SESSION_PURPOSE>("WEB_SESSION_PURPOSE");
 
-QString loginRetToString(LOGIN_RET ret)
+QString LOGIN_RET_toString(LOGIN_RET ret)
 {
-    if (ret == LOGIN_SUCCESS)
+    if (ret == LOGIN_RET_SUCCESS)
     {
         return "SUCCESS";
     }
-    else if (ret == LOGIN_NO_API_CONNECTIVITY)
+    else if (ret == LOGIN_RET_NO_API_CONNECTIVITY)
     {
         return "NO_API_CONNECTIVITY";
     }
-    else if (ret == LOGIN_NO_CONNECTIVITY)
+    else if (ret == LOGIN_RET_NO_CONNECTIVITY)
     {
         return "NO_CONNECTIVITY";
     }
-    else if (ret == LOGIN_INCORRECT_JSON)
+    else if (ret == LOGIN_RET_INCORRECT_JSON)
     {
         return "INCORRECT_JSON";
     }
-    else if (ret == LOGIN_BAD_USERNAME)
+    else if (ret == LOGIN_RET_BAD_USERNAME)
     {
         return "BAD_USERNAME";
     }
-    else if (ret == LOGIN_PROXY_AUTH_NEED)
+    else if (ret == LOGIN_RET_PROXY_AUTH_NEED)
     {
         return "PROXY_AUTH_NEED";
     }
-    else if (ret == LOGIN_SSL_ERROR)
+    else if (ret == LOGIN_RET_SSL_ERROR)
     {
         return "SSL_ERROR";
     }
-    else if (ret == LOGIN_BAD_CODE2FA)
+    else if (ret == LOGIN_RET_BAD_CODE2FA)
     {
         return "BAD_CODE2FA";
     }
-    else if (ret == LOGIN_MISSING_CODE2FA)
+    else if (ret == LOGIN_RET_MISSING_CODE2FA)
     {
         return "MISSING_CODE2FA";
     }
-    else if (ret == LOGIN_ACCOUNT_DISABLED)
+    else if (ret == LOGIN_RET_ACCOUNT_DISABLED)
     {
         return "ACCOUNT_DISABLED";
     }
-    else if (ret == LOGIN_SESSION_INVALID)
+    else if (ret == LOGIN_RET_SESSION_INVALID)
     {
         return "SESSION_INVALID";
     }
@@ -65,59 +65,6 @@ QString loginRetToString(LOGIN_RET ret)
     {
         Q_ASSERT(false);
         return "UNKNOWN";
-    }
-}
-
-ProtoTypes::LoginError loginRetToProtobuf(LOGIN_RET ret)
-{
-    if (ret == LOGIN_SUCCESS)
-    {
-        return ProtoTypes::LOGIN_ERROR_SUCCESS;
-    }
-    else if (ret == LOGIN_NO_API_CONNECTIVITY)
-    {
-        return ProtoTypes::LOGIN_ERROR_NO_API_CONNECTIVITY;
-    }
-    else if (ret == LOGIN_NO_CONNECTIVITY)
-    {
-        return ProtoTypes::LOGIN_ERROR_NO_CONNECTIVITY;
-    }
-    else if (ret == LOGIN_INCORRECT_JSON)
-    {
-        return ProtoTypes::LOGIN_ERROR_INCORRECT_JSON;
-    }
-    else if (ret == LOGIN_BAD_USERNAME)
-    {
-        return ProtoTypes::LOGIN_ERROR_BAD_USERNAME;
-    }
-    else if (ret == LOGIN_PROXY_AUTH_NEED)
-    {
-        return ProtoTypes::LOGIN_ERROR_PROXY_AUTH_NEED;
-    }
-    else if (ret == LOGIN_SSL_ERROR)
-    {
-        return ProtoTypes::LOGIN_ERROR_SSL_ERROR;
-    }
-    else if (ret == LOGIN_BAD_CODE2FA)
-    {
-        return ProtoTypes::LOGIN_ERROR_BAD_CODE2FA;
-    }
-    else if (ret == LOGIN_MISSING_CODE2FA)
-    {
-        return ProtoTypes::LOGIN_ERROR_MISSING_CODE2FA;
-    }
-    else if (ret == LOGIN_ACCOUNT_DISABLED)
-    {
-        return ProtoTypes::LOGIN_ERROR_ACCOUNT_DISABLED;
-    }
-    else if (ret == LOGIN_SESSION_INVALID)
-    {
-        return ProtoTypes::LOGIN_ERROR_SESSION_INVALID;
-    }
-    else
-    {
-        Q_ASSERT(false);
-        return ProtoTypes::LOGIN_ERROR_SUCCESS;
     }
 }
 
@@ -145,6 +92,16 @@ QString dnsPolicyTypeToString(DNS_POLICY_TYPE d)
     }
     else
     {
+        Q_ASSERT(false);
+        return "UNKNOWN";
+    }
+}
+
+QString PROXY_SHARING_TYPE_toString(PROXY_SHARING_TYPE t)
+{
+    if (t == PROXY_SHARING_HTTP) return "HTTP";
+    else if (t == PROXY_SHARING_SOCKS) return "SOCKS";
+    else {
         Q_ASSERT(false);
         return "UNKNOWN";
     }

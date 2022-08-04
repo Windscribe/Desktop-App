@@ -82,7 +82,7 @@ void CustomConfigLocationsModel::clear()
 {
     pingInfos_.clear();
     pingIpsController_.updateIps(QVector<PingIpInfo>());
-    QSharedPointer<QVector<locationsmodel::LocationItem> > empty(new QVector<locationsmodel::LocationItem>());
+    QSharedPointer<QVector<types::LocationItem> > empty(new QVector<types::LocationItem>());
     Q_EMIT locationsUpdated(empty);
 }
 
@@ -198,11 +198,11 @@ void CustomConfigLocationsModel::startPingAndWhitelistIps()
 
 void CustomConfigLocationsModel::generateLocationsUpdated()
 {
-    QSharedPointer <QVector<LocationItem> > items(new QVector<LocationItem>());
+    QSharedPointer <QVector<types::LocationItem> > items(new QVector<types::LocationItem>());
 
     if (!pingInfos_.isEmpty())
     {
-        LocationItem item;
+        types::LocationItem item;
 
         item.id = LocationID::createTopCustomConfigsLocationId();
         item.name = QObject::tr("Custom Configs");
@@ -212,7 +212,7 @@ void CustomConfigLocationsModel::generateLocationsUpdated()
 
         for (const CustomConfigWithPingInfo &config : pingInfos_)
         {
-            CityItem city;
+            types::CityItem city;
             city.id = LocationID::createCustomConfigLocationId(config.customConfig->filename());
             city.city = config.customConfig->name();
             city.nick = config.customConfig->nick();

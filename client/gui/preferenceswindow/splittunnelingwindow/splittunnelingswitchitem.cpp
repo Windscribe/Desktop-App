@@ -62,7 +62,7 @@ void SplitTunnelingSwitchItem::paint(QPainter *painter, const QStyleOptionGraphi
     Q_UNUSED(widget);
 }
 
-void SplitTunnelingSwitchItem::setSettings(ProtoTypes::SplitTunnelingSettings settings)
+void SplitTunnelingSwitchItem::setSettings(types::SplitTunnelingSettings settings)
 {
 #ifdef Q_OS_MAC
     if (settings.active() && MacUtils::isOsVersionIsBigSur_or_greater()) {
@@ -71,8 +71,8 @@ void SplitTunnelingSwitchItem::setSettings(ProtoTypes::SplitTunnelingSettings se
     }
 #endif  // Q_OS_MAC
     settings_ = settings;
-    updateActiveUI(settings.active());
-    updateModeUI(settings.mode());
+    updateActiveUI(settings.active);
+    updateModeUI(settings.mode);
 }
 
 void SplitTunnelingSwitchItem::onActiveSwitchChanged(bool checked)
@@ -101,8 +101,8 @@ void SplitTunnelingSwitchItem::onActiveSwitchChanged(bool checked)
         checked = false;
     }
 #endif  // Q_OS_MAC
-    if (settings_.active() != checked) {
-        settings_.set_active(checked);
+    if (settings_.active != checked) {
+        settings_.active = checked;
         updateActiveUI(checked);
         emit settingsChanged(settings_);
     }
@@ -122,8 +122,8 @@ void SplitTunnelingSwitchItem::onExpandAnimationValueChanged(QVariant value)
 
 void SplitTunnelingSwitchItem::onCurrentModeChanged(QVariant value)
 {
-    ProtoTypes::SplitTunnelingMode mode = static_cast<ProtoTypes::SplitTunnelingMode>(value.toInt());
-    settings_.set_mode(mode);
+    SPLIT_TUNNELING_MODE mode = static_cast<SPLIT_TUNNELING_MODE>(value.toInt());
+    settings_.mode = mode;
     emit settingsChanged(settings_);
 }
 
@@ -209,7 +209,7 @@ void SplitTunnelingSwitchItem::updateActiveUI(bool checked)
     }
 }
 
-void SplitTunnelingSwitchItem::updateModeUI(ProtoTypes::SplitTunnelingMode mode)
+void SplitTunnelingSwitchItem::updateModeUI(SPLIT_TUNNELING_MODE mode)
 {
     if (modeComboBox_->hasItems())
     {

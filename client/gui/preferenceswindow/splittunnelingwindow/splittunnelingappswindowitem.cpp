@@ -8,7 +8,7 @@ PreferencesWindow::SplitTunnelingAppsWindowItem::SplitTunnelingAppsWindowItem(Sc
     setFlags(flags() | QGraphicsItem::ItemClipsChildrenToShape | QGraphicsItem::ItemIsFocusable);
 
     splitTunnelingAppsItem_ = new SplitTunnelingAppsItem(this);
-    connect(splitTunnelingAppsItem_, SIGNAL(appsUpdated(QList<ProtoTypes::SplitTunnelingApp>)), SLOT(onAppsUpdated(QList<ProtoTypes::SplitTunnelingApp>)));
+    connect(splitTunnelingAppsItem_, SIGNAL(appsUpdated(QList<types::SplitTunnelingApp>)), SLOT(onAppsUpdated(QList<types::SplitTunnelingApp>)));
     connect(splitTunnelingAppsItem_, SIGNAL(searchClicked()), SIGNAL(searchButtonClicked()));
     connect(splitTunnelingAppsItem_, SIGNAL(addClicked()), SIGNAL(addButtonClicked()));
     connect(splitTunnelingAppsItem_, SIGNAL(nativeInfoErrorMessage(QString, QString)), SIGNAL(nativeInfoErrorMessage(QString,QString)));
@@ -25,19 +25,19 @@ QString SplitTunnelingAppsWindowItem::caption()
     return QT_TRANSLATE_NOOP("PreferencesWindow::PreferencesWindowItem", "Apps");
 }
 
-QList<ProtoTypes::SplitTunnelingApp> SplitTunnelingAppsWindowItem::getApps()
+QList<types::SplitTunnelingApp> SplitTunnelingAppsWindowItem::getApps()
 {
     return splitTunnelingAppsItem_->getApps();
 }
 
-void SplitTunnelingAppsWindowItem::setApps(QList<ProtoTypes::SplitTunnelingApp> apps)
+void SplitTunnelingAppsWindowItem::setApps(QList<types::SplitTunnelingApp> apps)
 {
     splitTunnelingAppsItem_->setApps(apps);
 }
 
-void SplitTunnelingAppsWindowItem::addAppManually(ProtoTypes::SplitTunnelingApp app)
+void SplitTunnelingAppsWindowItem::addAppManually(types::SplitTunnelingApp app)
 {
-    QList<ProtoTypes::SplitTunnelingApp> apps = splitTunnelingAppsItem_->getApps();
+    QList<types::SplitTunnelingApp> apps = splitTunnelingAppsItem_->getApps();
     apps.append(app);
     splitTunnelingAppsItem_->setApps(apps);
     preferences_->setSplitTunnelingApps(apps);
@@ -49,7 +49,7 @@ void SplitTunnelingAppsWindowItem::setLoggedIn(bool able)
     splitTunnelingAppsItem_->setLoggedIn(able);
 }
 
-void SplitTunnelingAppsWindowItem::onAppsUpdated(QList<ProtoTypes::SplitTunnelingApp> apps)
+void SplitTunnelingAppsWindowItem::onAppsUpdated(QList<types::SplitTunnelingApp> apps)
 {
     preferences_->setSplitTunnelingApps(apps);
     emit appsUpdated(apps);

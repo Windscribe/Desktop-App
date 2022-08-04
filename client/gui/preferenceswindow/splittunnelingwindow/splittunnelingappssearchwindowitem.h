@@ -17,19 +17,19 @@ public:
     QString caption();
     void setFocusOnSearchBar();
 
-    QList<ProtoTypes::SplitTunnelingApp> getApps();
-    void setApps(QList<ProtoTypes::SplitTunnelingApp> apps);
+    QList<types::SplitTunnelingApp> getApps();
+    void setApps(QList<types::SplitTunnelingApp> apps);
     void setLoggedIn(bool loggedIn);
 
     void updateProgramList();
 
 signals:
-    void appsUpdated(QList<ProtoTypes::SplitTunnelingApp>);
+    void appsUpdated(QList<types::SplitTunnelingApp>);
     void searchModeExited();
     void nativeInfoErrorMessage(QString,QString);
 
 private slots:
-    void onAppsUpdated(QList<ProtoTypes::SplitTunnelingApp> apps);
+    void onAppsUpdated(QList<types::SplitTunnelingApp> apps);
 
 private:
     SplitTunnelingAppsSearchItem *splitTunnelingAppsSearchItem_;

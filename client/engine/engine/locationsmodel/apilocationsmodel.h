@@ -6,7 +6,7 @@
 #include "types/staticips.h"
 #include "types/locationid.h"
 #include "types/proxysettings.h"
-#include "locationitem.h"
+#include "types/locationitem.h"
 #include "pingipscontroller.h"
 #include "pingstorage.h"
 #include "bestlocation.h"
@@ -19,7 +19,7 @@ namespace locationsmodel {
 struct BestAndAllLocations {
     LocationID bestLocation;
     QString staticIpDeviceName;
-    QSharedPointer<QVector<locationsmodel::LocationItem> > locations;
+    QSharedPointer<QVector<types::LocationItem> > locations;
 };
 
 // Managing locations (generic API-locations and static IPs locations). Converts the apiinfo::Location vector to LocationItem vector.
@@ -30,15 +30,14 @@ class ApiLocationsModel : public QObject
 public:
     explicit ApiLocationsModel(QObject *parent, IConnectStateController *stateController, INetworkDetectionManager *networkDetectionManager, PingHost *pingHost);
 
-    void generateLocationsUpdatedForCliOnly();
     void setLocations(const QVector<types::Location> &locations, const types::StaticIps &staticIps);
     void clear();
 
     QSharedPointer<BaseLocationInfo> getMutableLocationInfoById(const LocationID &locationId);
 
 signals:
-    void locationsUpdated( const LocationID &bestLocation, const QString &staticIpDeviceName, QSharedPointer<QVector<locationsmodel::LocationItem> > locations);
-    void locationsUpdatedCliOnly(const LocationID &bestLocation, QSharedPointer<QVector<locationsmodel::LocationItem> > locations);
+    void locationsUpdated( const LocationID &bestLocation, const QString &staticIpDeviceName, QSharedPointer<QVector<types::LocationItem> > locations);
+    void locationsUpdatedCliOnly(const LocationID &bestLocation, QSharedPointer<QVector<types::LocationItem> > locations);
     void locationPingTimeChanged(const LocationID &id, PingTime timeMs);
     void bestLocationUpdated( const LocationID &bestLocation);
     void whitelistIpsChanged(const QStringList &ips);

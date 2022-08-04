@@ -5,6 +5,7 @@
 #include "../dividerline.h"
 #include "commongraphics/iconbutton.h"
 #include "utils/protobuf_includes.h"
+#include "types/splittunneling.h"
 
 namespace PreferencesWindow {
 
@@ -12,7 +13,7 @@ class AppSearchItem : public BaseItem
 {
     Q_OBJECT
 public:
-    AppSearchItem(ProtoTypes::SplitTunnelingApp app, QString appIconPath, ScalableGraphicsObject *parent);
+    AppSearchItem(types::SplitTunnelingApp app, QString appIconPath, ScalableGraphicsObject *parent);
     ~AppSearchItem();
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
@@ -32,7 +33,7 @@ private slots:
 
 private:
     double textOpacity_;
-    ProtoTypes::SplitTunnelingApp app_;
+    types::SplitTunnelingApp app_;
 
     QString appIcon_;
 

@@ -5,6 +5,7 @@
 #include <QGraphicsObject>
 #include "types/pingtime.h"
 #include "types/locationid.h"
+#include "types/connectstate.h"
 #include "../backend/preferences/preferences.h"
 #include "tooltips/tooltiptypes.h"
 
@@ -31,7 +32,7 @@ public:
 public slots:
     virtual void updateLocationInfo(LocationID id, const QString &firstName, const QString &secondName, const QString &countryCode, PingTime pingTime) = 0;
     virtual void updateLocationSpeed(LocationID id, PingTime speed) = 0;
-    virtual void updateConnectState(const ProtoTypes::ConnectState & newConnectState) = 0;
+    virtual void updateConnectState(const types::ConnectState & newConnectState) = 0;
     virtual void updateFirewallState(bool isFirewallEnabled) = 0;
     virtual void updateLocationsState(bool isExpanded) = 0;
     virtual void updateFavoriteState(LocationID id, bool isFavorite) = 0;

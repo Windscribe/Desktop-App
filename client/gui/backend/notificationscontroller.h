@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QSet>
 #include <QVector>
+#include "types/notification.h"
 #include "utils/protobuf_includes.h"
 
 class NotificationsController : public QObject
@@ -17,11 +18,11 @@ public:
     int totalMessages() const;
     int unreadMessages() const;
 
-    ProtoTypes::ArrayApiNotification messages() const;
+    QVector<types::Notification> messages() const;
     const QSet<qint64> &shownIds() const;
 
 public slots:
-    void updateNotifications(const ProtoTypes::ArrayApiNotification &arr);
+    void updateNotifications(const QVector<types::Notification> &arr);
     void setNotificationReaded(qint64 notificationId);
 
 signals:
@@ -29,7 +30,7 @@ signals:
     void newPopupMessage(int messageId);
 
 private:
-    ProtoTypes::ArrayApiNotification notifications_;
+    QVector<types::Notification> notifications_;
     QSet<qint64> idOfShownNotifications_;
     QVector<int> unreadPopupNotificationIds_;
 

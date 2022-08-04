@@ -32,7 +32,7 @@ void SplitTunnelingIpsAndHostnamesItem::paint(QPainter *painter, const QStyleOpt
     painter->drawText(boundingRect().adjusted(16*G_SCALE, 16*G_SCALE, -32*G_SCALE, 0), text);
 }
 
-void SplitTunnelingIpsAndHostnamesItem::setNetworkRoutes(QList<ProtoTypes::SplitTunnelingNetworkRoute> routes)
+void SplitTunnelingIpsAndHostnamesItem::setNetworkRoutes(QList<types::SplitTunnelingNetworkRoute> routes)
 {
     for (auto route : qAsConst(routes))
     {
@@ -123,7 +123,7 @@ void SplitTunnelingIpsAndHostnamesItem::focusInEvent(QFocusEvent * /*event*/)
     }
 }
 
-void SplitTunnelingIpsAndHostnamesItem::createNetworkRouteUiItem(ProtoTypes::SplitTunnelingNetworkRoute route)
+void SplitTunnelingIpsAndHostnamesItem::createNetworkRouteUiItem(types::SplitTunnelingNetworkRoute route)
 {
     IpOrHostnameItem *item = new IpOrHostnameItem(route, this);
     ipsAndHostnames_.append(item);
@@ -161,12 +161,12 @@ void SplitTunnelingIpsAndHostnamesItem::validateAndCreateNetworkRoute(QString ip
         }
         else
         {
-            ProtoTypes::SplitTunnelingNetworkRouteType type = ProtoTypes::SPLIT_TUNNELING_NETWORK_ROUTE_TYPE_HOSTNAME;
-            if (IpValidation::instance().isIpCidr(ipOrHostname)) type = ProtoTypes::SPLIT_TUNNELING_NETWORK_ROUTE_TYPE_IP;
+            SPLIT_TUNNELING_NETWORK_ROUTE_TYPE type = SPLIT_TUNNELING_NETWORK_ROUTE_TYPE_HOSTNAME;
+            if (IpValidation::instance().isIpCidr(ipOrHostname)) type = SPLIT_TUNNELING_NETWORK_ROUTE_TYPE_IP;
 
-            ProtoTypes::SplitTunnelingNetworkRoute route;
-            route.set_name(ipOrHostname.toStdString());
-            route.set_type(type);
+            types::SplitTunnelingNetworkRoute route;
+            route.name = ipOrHostname;
+            route.type = type;
 
             createNetworkRouteUiItem(route);
             emitNetworkRoutesUpdated();
@@ -298,7 +298,7 @@ void SplitTunnelingIpsAndHostnamesItem::recalcItemPositions()
 
 void SplitTunnelingIpsAndHostnamesItem::emitNetworkRoutesUpdated()
 {
-    QList<ProtoTypes::SplitTunnelingNetworkRoute> routes;
+    QList<types::SplitTunnelingNetworkRoute> routes;
 
     for (auto *item : qAsConst(ipsAndHostnames_))
     {

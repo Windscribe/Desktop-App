@@ -36,7 +36,7 @@ signals:
     void connected(const AdapterGatewayInfo &connectionAdapterInfo);
     void disconnected();
     void reconnecting();
-    void error(ProtoTypes::ConnectError err);
+    void error(CONNECT_ERROR err);
     void statisticsUpdated(quint64 bytesIn, quint64 bytesOut, bool isTotalBytes);
     void interfaceUpdated(const QString &interfaceName);  // WireGuard-specific.
 

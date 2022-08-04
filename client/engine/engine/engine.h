@@ -64,7 +64,7 @@ public:
     void sendDebugLog();
     void setIPv6EnabledInOS(bool b);
     bool IPv6StateInOS();
-    void getWebSessionToken(ProtoTypes::WebSessionPurpose purpose);
+    void getWebSessionToken(WEB_SESSION_PURPOSE purpose);
 
     types::LoginSettings getLastLoginSettings();
     QString getAuthHash();
@@ -108,8 +108,6 @@ public:
     void applicationActivated();
     void applicationDeactivated();
 
-    void forceUpdateServerLocations();
-
     void detectAppropriatePacketSize();
     void setSettingsMacAddressSpoofing(const types::MacAddrSpoofing &macAddrSpoofing);
     void setSplitTunnelingSettings(bool isActive, bool isExclude, const QStringList &files,
@@ -148,11 +146,11 @@ signals:
 
     void emergencyConnected();
     void emergencyDisconnected();
-    void emergencyConnectError(ProtoTypes::ConnectError err);
+    void emergencyConnectError(CONNECT_ERROR err);
 
     void sendDebugLogFinished(bool bSuccess);
     void confirmEmailFinished(bool bSuccess);
-    void webSessionToken(ProtoTypes::WebSessionPurpose purpose, const QString &tempSessionToken);
+    void webSessionToken(WEB_SESSION_PURPOSE purpose, const QString &tempSessionToken);
     void firewallStateChanged(bool isEnabled);
     void testTunnelResult(bool bSuccess);
     void lostConnectionToHelper();
@@ -195,7 +193,7 @@ private slots:
     void connectClickImpl(const LocationID &locationId);
     void disconnectClickImpl();
     void sendDebugLogImpl();
-    void getWebSessionTokenImpl(ProtoTypes::WebSessionPurpose purpose);
+    void getWebSessionTokenImpl(WEB_SESSION_PURPOSE purpose);
     void signOutImpl(bool keepFirewallOn);
     void signOutImplAfterDisconnect(bool keepFirewallOn);
     void continueWithUsernameAndPasswordImpl(const QString &username, const QString &password, bool bSave);
@@ -212,8 +210,6 @@ private slots:
     void setSettingsImpl(const types::EngineSettings &engineSettings);
     void updateServerConfigsImpl();
     void checkForceDisconnectNode(const QStringList &forceDisconnectNodes);
-
-    void forceUpdateServerLocationsImpl();
 
     void startProxySharingImpl(PROXY_SHARING_TYPE proxySharingType);
     void stopProxySharingImpl();
@@ -253,7 +249,7 @@ private slots:
     void onConnectionManagerConnected();
     void onConnectionManagerDisconnected(DISCONNECT_REASON reason);
     void onConnectionManagerReconnecting();
-    void onConnectionManagerError(ProtoTypes::ConnectError err);
+    void onConnectionManagerError(CONNECT_ERROR err);
     void onConnectionManagerInternetConnectivityChanged(bool connectivity);
     void onConnectionManagerStatisticsUpdated(quint64 bytesIn, quint64 bytesOut, bool isTotalBytes);
     void onConnectionManagerInterfaceUpdated(const QString &interfaceName);
@@ -280,7 +276,7 @@ private slots:
 
     void onEmergencyControllerConnected();
     void onEmergencyControllerDisconnected(DISCONNECT_REASON reason);
-    void onEmergencyControllerError(ProtoTypes::ConnectError err);
+    void onEmergencyControllerError(CONNECT_ERROR err);
 
     void onRefetchServerCredentialsFinished(bool success, const types::ServerCredentials &serverCredentials, const QString &serverConfig);
 
@@ -304,7 +300,7 @@ private slots:
 
     void stopPacketDetectionImpl();
 
-    void onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, ProtoTypes::ConnectError err, const LocationID &location);
+    void onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, CONNECT_ERROR err, const LocationID &location);
 
     void checkForAppUpdate();
 

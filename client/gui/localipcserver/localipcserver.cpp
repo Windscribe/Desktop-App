@@ -208,10 +208,10 @@ void LocalIPCServer::onConnectionStateCallback(int state, IPC::IConnection *conn
 
 }
 
-void LocalIPCServer::onBackendConnectStateChanged(const ProtoTypes::ConnectState &connectState)
+void LocalIPCServer::onBackendConnectStateChanged(const types::ConnectState &connectState)
 {
     IPC::ProtobufCommand<CliIpc::ConnectStateChanged> cmd;
-    *cmd.getProtoObj().mutable_connect_state() = connectState;
+    //todo
     sendCommand(cmd);
 }
 
@@ -246,7 +246,7 @@ void LocalIPCServer::notifyCliLoginFinished()
     sendLoginResult(true, QString());
 }
 
-void LocalIPCServer::notifyCliLoginFailed(ProtoTypes::LoginError loginError, const QString &errorMessage)
+void LocalIPCServer::notifyCliLoginFailed(LOGIN_RET loginError, const QString &errorMessage)
 {
     Q_UNUSED(loginError)
     sendLoginResult(false, errorMessage);

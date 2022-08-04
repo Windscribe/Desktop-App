@@ -47,7 +47,7 @@ public:
 public slots:
     void updateLocationInfo(LocationID id, const QString &firstName, const QString &secondName, const QString &countryCode, PingTime pingTime) override;
     void updateLocationSpeed(LocationID id, PingTime speed) override;
-    void updateConnectState(const ProtoTypes::ConnectState & newConnectState) override;
+    void updateConnectState(const types::ConnectState & newConnectState) override;
     void updateFirewallState(bool isFirewallEnabled) override;
     void updateLocationsState(bool isExpanded) override;
     void updateFavoriteState(LocationID id, bool isFavorite) override;
@@ -111,7 +111,7 @@ private:
     LocationID locationID_;
     bool favorite_;
 
-    ProtoTypes::ConnectState prevConnectState_;
+    types::ConnectState prevConnectState_;
     QString networkName_;
     NETWORK_TRUST_TYPE trustType_;
     NETWORK_INTERACE_TYPE interfaceType_;

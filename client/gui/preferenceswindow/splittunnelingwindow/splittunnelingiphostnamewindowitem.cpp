@@ -8,7 +8,7 @@ SplitTunnelingIpsAndHostnamesWindowItem::SplitTunnelingIpsAndHostnamesWindowItem
     setFlags(flags() | QGraphicsItem::ItemClipsChildrenToShape | QGraphicsItem::ItemIsFocusable);
 
     ipsAndHostnamesItem_ = new SplitTunnelingIpsAndHostnamesItem(this);
-    connect(ipsAndHostnamesItem_, SIGNAL(networkRoutesUpdated(QList<ProtoTypes::SplitTunnelingNetworkRoute>)), SLOT(onNetworkRoutesUpdated(QList<ProtoTypes::SplitTunnelingNetworkRoute>)));
+    connect(ipsAndHostnamesItem_, SIGNAL(networkRoutesUpdated(QList<types::SplitTunnelingNetworkRoute>)), SLOT(onNetworkRoutesUpdated(QList<types::SplitTunnelingNetworkRoute>)));
     connect(ipsAndHostnamesItem_, SIGNAL(nativeInfoErrorMessage(QString,QString)), SIGNAL(nativeInfoErrorMessage(QString,QString)));
     connect(ipsAndHostnamesItem_, SIGNAL(scrollToRect(QRect)), SIGNAL(scrollToRect(QRect)));
     connect(ipsAndHostnamesItem_, SIGNAL(escape()), SIGNAL(escape()));
@@ -32,7 +32,7 @@ void SplitTunnelingIpsAndHostnamesWindowItem::setFocusOnTextEntry()
     ipsAndHostnamesItem_->setFocusOnTextEntry();
 }
 
-void SplitTunnelingIpsAndHostnamesWindowItem::onNetworkRoutesUpdated(QList<ProtoTypes::SplitTunnelingNetworkRoute> routes)
+void SplitTunnelingIpsAndHostnamesWindowItem::onNetworkRoutesUpdated(QList<types::SplitTunnelingNetworkRoute> routes)
 {
     preferences_->setSplitTunnelingNetworkRoutes(routes);
     emit networkRoutesUpdated(routes); // tell other screens about change

@@ -9,51 +9,28 @@
 
 namespace types {
 
-class NotificationData : public QSharedData
+struct Notification
 {
 public:
-    NotificationData() : isInitialized_(false),
-                            id_(0),
-                            date_(0),
-                            perm_free_(0),
-                            perm_pro_(0),
-                            popup_(0) {}
-
-    NotificationData(const NotificationData &other)
-        : QSharedData(other),
-          isInitialized_(other.isInitialized_),
-          id_(other.id_),
-          title_(other.title_),
-          message_(other.message_),
-          date_(other.date_),
-          perm_free_(other.perm_free_),
-          perm_pro_(other.perm_pro_),
-          popup_(other.popup_) {}
-
-    ~NotificationData() {}
-
-    bool isInitialized_;
-    qint64 id_;
-    QString title_;
-    QString message_;
-    qint64 date_;
-    int perm_free_;
-    int perm_pro_;
-    int popup_;
-};
-
-// implicitly shared class Notification
-class Notification
-{
-public:
-    explicit Notification() : d(new NotificationData) {}
-    Notification(const Notification &other) : d (other.d) {}
+    Notification() :
+        id(0),
+        date(0),
+        permFree(0),
+        permPro(0),
+        popup(0)
+    {}
 
     bool initFromJson(const QJsonObject &json);
-    ProtoTypes::ApiNotification getProtoBuf() const;
+    bool operator==(const Notification &other) const;
+    bool operator!=(const Notification &other) const;
 
-private:
-    QSharedDataPointer<NotificationData> d;
+    qint64 id;
+    QString title;
+    QString message;
+    qint64 date;
+    int permFree;
+    int permPro;
+    int popup;
 };
 
 } //namespace types

@@ -4,6 +4,7 @@
 #include <QString>
 #include <QStringList>
 #include "types/networkinterface.h"
+#include "types/splittunneling.h"
 #include "protobuf_includes.h"
 
 #define SAFE_DELETE(x) if (x) { delete x; x = nullptr; }
@@ -27,7 +28,7 @@ namespace Utils {
     std::wstring getDirPathFromFullPath(const std::wstring &fullPath);
     QString getDirPathFromFullPath(const QString &fullPath);
     QString fileNameFromFullPath(const QString &fullPath);
-    QList<ProtoTypes::SplitTunnelingApp> insertionSort(QList<ProtoTypes::SplitTunnelingApp> apps);
+    QList<types::SplitTunnelingApp> insertionSort(QList<types::SplitTunnelingApp> apps);
     bool accessibilityPermissions();
 
     unsigned long getCurrentPid();

@@ -110,9 +110,9 @@ private slots:
     void onSplitTunnelingAppsClick();
     void onSplitTunnelingAppsSearchClick();
     void onSplitTunnelingIpsAndHostnamesClick();
-    void onAppsSearchWindowAppsUpdated(QList<ProtoTypes::SplitTunnelingApp> apps);
-    void onAppsWindowAppsUpdated(QList<ProtoTypes::SplitTunnelingApp> apps);
-    void onNetworkRoutesUpdated(QList<ProtoTypes::SplitTunnelingNetworkRoute> routes);
+    void onAppsSearchWindowAppsUpdated(QList<types::SplitTunnelingApp> apps);
+    void onAppsWindowAppsUpdated(QList<types::SplitTunnelingApp> apps);
+    void onNetworkRoutesUpdated(QList<types::SplitTunnelingNetworkRoute> routes);
     void onSearchModeExit();
 
     void onStAppsEscape();
@@ -174,7 +174,7 @@ private:
     QRectF getBottomResizeArea();
     void updateChildItemsAfterHeightChanged();
 
-    void updateSplitTunnelingAppsCount(QList<ProtoTypes::SplitTunnelingApp> apps);
+    void updateSplitTunnelingAppsCount(QList<types::SplitTunnelingApp> apps);
     void updatePositions();
 };
 

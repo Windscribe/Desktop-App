@@ -62,13 +62,6 @@ ProtoEnumToString::ProtoEnumToString()
 }
 
 
-QString ProtoEnumToString::toString(ProtoTypes::ProxySharingMode p)
-{
-    const google::protobuf::EnumDescriptor *descriptor = ProtoTypes::ProxySharingMode_descriptor();
-    std::string name = descriptor->FindValueByNumber(p)->name();
-    return toString(QString::fromStdString(name));
-}
-
 QString ProtoEnumToString::toString(ProtoTypes::OrderLocationType p)
 {
     const google::protobuf::EnumDescriptor *descriptor = ProtoTypes::OrderLocationType_descriptor();

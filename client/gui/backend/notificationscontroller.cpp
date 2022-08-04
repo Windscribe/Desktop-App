@@ -19,7 +19,7 @@ void NotificationsController::shutdown()
 
 int NotificationsController::totalMessages() const
 {
-    return notifications_.api_notifications_size();
+    return notifications_.size();
 }
 
 int NotificationsController::unreadMessages() const
@@ -27,24 +27,23 @@ int NotificationsController::unreadMessages() const
     return latestUnreadCnt_;
 }
 
-ProtoTypes::ArrayApiNotification NotificationsController::messages() const
+QVector<types::Notification> NotificationsController::messages() const
 {
-    if (notifications_.api_notifications_size() > 0)
+    if (notifications_.size() > 0)
     {
         return notifications_;
     }
     else
     {
         // generate message for empty list
-        ProtoTypes::ArrayApiNotification arr;
+        QVector<types::Notification> arr;
 
-        ProtoTypes::ApiNotification* notification = arr.add_api_notifications();
-
-        notification->set_id(0);
-        notification->set_title(QT_TR_NOOP("WELCOME TO WINDSCRIBE"));
-        notification->set_message(QT_TR_NOOP("You will find announcements and general Windscribe related news here. "
-                                             "Perhaps even delicious cake, Everyone loves cake!"));
-
+        types::Notification notification;
+        notification.id = 0;
+        notification.title = QT_TR_NOOP("WELCOME TO WINDSCRIBE");
+        notification.message = QT_TR_NOOP("You will find announcements and general Windscribe related news here. "
+                                          "Perhaps even delicious cake, Everyone loves cake!");
+        arr << notification;
         return arr;
     }
 }
@@ -65,7 +64,7 @@ void NotificationsController::checkForUnreadPopup()
     }
 }
 
-void NotificationsController::updateNotifications(const ProtoTypes::ArrayApiNotification &arr)
+void NotificationsController::updateNotifications(const QVector<types::Notification> &arr)
 {
     notifications_ = arr;
     updateState();
@@ -83,22 +82,22 @@ void NotificationsController::updateState()
     int unreaded = 0;
     unreadPopupNotificationIds_.clear();
 
-    for(int i = 0; i < notifications_.api_notifications_size(); ++i)
+    for(int i = 0; i < notifications_.size(); ++i)
     {
-        if (idOfShownNotifications_.find(notifications_.api_notifications(i).id()) == idOfShownNotifications_.end())
+        if (idOfShownNotifications_.find(notifications_[i].id) == idOfShownNotifications_.end())
         {
-            if (notifications_.api_notifications(i).popup() == 1)
+            if (notifications_[i].popup == 1)
             {
-                unreadPopupNotificationIds_.push_back(notifications_.api_notifications(i).id());
+                unreadPopupNotificationIds_.push_back(notifications_[i].id);
             }
             unreaded++;
         }
     }
 
     // updates connect window logo
-    if (latestTotal_ != notifications_.api_notifications_size() || latestUnreadCnt_ != unreaded)
+    if (latestTotal_ != notifications_.size() || latestUnreadCnt_ != unreaded)
     {
-        latestTotal_ = notifications_.api_notifications_size();
+        latestTotal_ = notifications_.size();
         latestUnreadCnt_ = unreaded;
         emit stateChanged(latestTotal_, latestUnreadCnt_);
     }
@@ -108,7 +107,7 @@ void NotificationsController::saveToSettings()
 {
     QSettings settings;
 
-    size_t size = notifications_.ByteSizeLong();
+    /*size_t size = notifications_.ByteSizeLong();
     QByteArray arr(size, Qt::Uninitialized);
     notifications_.SerializeToArray(arr.data(), (int)size);
 
@@ -119,15 +118,14 @@ void NotificationsController::saveToSettings()
         QDataStream stream(&arrShownPopups, QIODevice::WriteOnly);
         stream << idOfShownNotifications_;
     }
-    settings.setValue("idForShownPopups", arrShownPopups);
-    settings.sync();
+    settings.setValue("idForShownPopups", arrShownPopups);*/
 }
 
 void NotificationsController::readFromSettings()
 {
     QSettings settings;
 
-    if (settings.contains("notifications"))
+    /*if (settings.contains("notifications"))
     {
         QByteArray arr = settings.value("notifications").toByteArray();
         notifications_.ParseFromArray(arr.data(), arr.size());
@@ -138,7 +136,7 @@ void NotificationsController::readFromSettings()
         QByteArray arr = settings.value("idForShownPopups").toByteArray();
         QDataStream stream(&arr, QIODevice::ReadOnly);
         stream >> idOfShownNotifications_;
-    }
+    }*/
     updateState();
     checkForUnreadPopup();
 }

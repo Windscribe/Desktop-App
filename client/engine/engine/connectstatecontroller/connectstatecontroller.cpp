@@ -4,7 +4,7 @@ ConnectStateController::ConnectStateController(QObject *parent) : IConnectStateC
     state_(CONNECT_STATE_DISCONNECTED),
     prevState_(CONNECT_STATE_DISCONNECTED),
     disconnectReason_(DISCONNECTED_ITSELF),
-    err_(ProtoTypes::ConnectError::NO_CONNECT_ERROR)
+    err_(CONNECT_ERROR::NO_CONNECT_ERROR)
 {
 }
 
@@ -15,14 +15,14 @@ void ConnectStateController::setConnectedState(const LocationID &location)
     {
         prevState_ = state_;
         state_ = CONNECT_STATE_CONNECTED;
-        err_ = ProtoTypes::ConnectError::NO_CONNECT_ERROR;
+        err_ = CONNECT_ERROR::NO_CONNECT_ERROR;
         disconnectReason_ = DISCONNECTED_ITSELF;
         location_ = location;
         emit stateChanged(state_, disconnectReason_, err_, location_);
     }
 }
 
-void ConnectStateController::setDisconnectedState(DISCONNECT_REASON reason, ProtoTypes::ConnectError err)
+void ConnectStateController::setDisconnectedState(DISCONNECT_REASON reason, CONNECT_ERROR err)
 {
     QMutexLocker locker(&mutex_);
     if (state_ != CONNECT_STATE_DISCONNECTED || reason == DISCONNECTED_WITH_ERROR)
@@ -43,7 +43,7 @@ void ConnectStateController::setConnectingState(const LocationID &location)
     {
         prevState_ = state_;
         state_ = CONNECT_STATE_CONNECTING;
-        err_ = ProtoTypes::ConnectError::NO_CONNECT_ERROR;
+        err_ = CONNECT_ERROR::NO_CONNECT_ERROR;
         disconnectReason_ = DISCONNECTED_ITSELF;
         location_ = location;
         emit stateChanged(state_, disconnectReason_, err_, location_);
@@ -57,7 +57,7 @@ void ConnectStateController::setDisconnectingState()
     {
         prevState_ = state_;
         state_ = CONNECT_STATE_DISCONNECTING;
-        err_ = ProtoTypes::ConnectError::NO_CONNECT_ERROR;
+        err_ = CONNECT_ERROR::NO_CONNECT_ERROR;
         disconnectReason_ = DISCONNECTED_ITSELF;
         location_ = LocationID();   //reset
         emit stateChanged(state_, disconnectReason_, err_, location_);
@@ -82,7 +82,7 @@ DISCONNECT_REASON ConnectStateController::disconnectReason()
     return disconnectReason_;
 }
 
-ProtoTypes::ConnectError ConnectStateController::connectionError()
+CONNECT_ERROR ConnectStateController::connectionError()
 {
     QMutexLocker locker(&mutex_);
     return err_;

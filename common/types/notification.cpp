@@ -3,7 +3,7 @@
 #include <QMetaType>
 
 const int typeIdNotification = qRegisterMetaType<types::Notification>("types::Notification");
-const int typeIdNotificationArray = qRegisterMetaType<QVector<types::Notification> >("QVector<types::Notification>");
+//const int typeIdNotificationArray = qRegisterMetaType<QVector<types::Notification> >("QVector<types::Notification>");
 
 namespace types {
 
@@ -19,29 +19,31 @@ bool Notification::initFromJson(const QJsonObject &json)
         }
     }
 
-    d->id_ = json["id"].toDouble();
-    d->title_ = json["title"].toString();
-    d->message_ = json["message"].toString();
-    d->date_ = json["date"].toDouble();
-    d->perm_free_ = json["perm_free"].toInt();
-    d->perm_pro_ = json["perm_pro"].toInt();
-    d->popup_ = json["popup"].toInt();
-    d->isInitialized_ = true;
+    id = json["id"].toDouble();
+    title = json["title"].toString();
+    message = json["message"].toString();
+    date = json["date"].toDouble();
+    permFree = json["perm_free"].toInt();
+    permPro = json["perm_pro"].toInt();
+    popup = json["popup"].toInt();
 
     return true;
 }
 
-ProtoTypes::ApiNotification Notification::getProtoBuf() const
+bool Notification::operator==(const Notification &other) const
 {
-    ProtoTypes::ApiNotification ian;
-    ian.set_id(d->id_);
-    ian.set_title(d->title_.toStdString());
-    ian.set_message(d->message_.toStdString());
-    ian.set_date(d->date_);
-    ian.set_perm_free(d->perm_free_);
-    ian.set_perm_pro(d->perm_pro_);
-    ian.set_popup(d->popup_);
-    return ian;
+    return other.id == id &&
+           other.title == title &&
+           other.message == message &&
+           other.date == date &&
+           other.permFree == permFree &&
+           other.permPro == permPro &&
+           other.popup == popup;
+}
+
+bool Notification::operator!=(const Notification &other) const
+{
+    return !(*this == other);
 }
 
 

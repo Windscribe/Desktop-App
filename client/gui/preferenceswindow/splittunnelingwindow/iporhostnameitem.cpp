@@ -6,7 +6,7 @@
 
 namespace PreferencesWindow {
 
-IpOrHostnameItem::IpOrHostnameItem(ProtoTypes::SplitTunnelingNetworkRoute route, ScalableGraphicsObject *parent) : BaseItem(parent, 50)
+IpOrHostnameItem::IpOrHostnameItem(types::SplitTunnelingNetworkRoute route, ScalableGraphicsObject *parent) : BaseItem(parent, 50)
     , route_(route)
 {
     deleteButton_ = new IconButton(16, 16, "preferences/DELETE_ICON", "", this, OPACITY_UNHOVER_ICON_STANDALONE,OPACITY_FULL);
@@ -18,7 +18,7 @@ IpOrHostnameItem::IpOrHostnameItem(ProtoTypes::SplitTunnelingNetworkRoute route,
 
     line_ = new DividerLine(this, 276);
 
-    text_ = QString::fromStdString(route.name());
+    text_ = route.name;
     updateScaling();
 }
 
@@ -40,7 +40,7 @@ QString IpOrHostnameItem::getIpOrHostnameText()
     return text_;
 }
 
-ProtoTypes::SplitTunnelingNetworkRoute IpOrHostnameItem::getNetworkRoute()
+types::SplitTunnelingNetworkRoute IpOrHostnameItem::getNetworkRoute()
 {
     return route_;
 }

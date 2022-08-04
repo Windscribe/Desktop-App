@@ -487,79 +487,50 @@ void Preferences::setKeepAlive(bool bEnabled)
     }
 }
 
-ProtoTypes::SplitTunneling Preferences::splitTunneling()
+types::SplitTunneling Preferences::splitTunneling()
 {
-    return guiSettings_.split_tunneling();
+    return splitTunneling_;
 }
 
-QList<ProtoTypes::SplitTunnelingApp> Preferences::splitTunnelingApps()
+QList<types::SplitTunnelingApp> Preferences::splitTunnelingApps()
 {
-    QList<ProtoTypes::SplitTunnelingApp> apps;
-    ProtoTypes::SplitTunneling splitTunneling = guiSettings_.split_tunneling();
-    for (int i = 0; i < splitTunneling.apps_size(); i++)
-    {
-        apps.append(splitTunneling.apps(i));
-    }
-
-    return apps;
+    return splitTunneling_.apps.toList();
 }
 
-void Preferences::setSplitTunnelingApps(QList<ProtoTypes::SplitTunnelingApp> apps)
+void Preferences::setSplitTunnelingApps(QList<types::SplitTunnelingApp> apps)
 {
-    ProtoTypes::SplitTunneling st;
-    for (ProtoTypes::SplitTunnelingApp app : qAsConst(apps))
-    {
-        *st.add_apps() = app;
-    }
-
-    *st.mutable_settings() = guiSettings_.split_tunneling().settings();
-    *st.mutable_network_routes() = guiSettings_.split_tunneling().network_routes();
-
-    *guiSettings_.mutable_split_tunneling() = st;
+    //todo move to gui settings
+    types::SplitTunneling st = splitTunneling_;
+    st.apps = apps.toVector();
     saveGuiSettings();
     emit splitTunnelingChanged(st);
 }
 
-QList<ProtoTypes::SplitTunnelingNetworkRoute> Preferences::splitTunnelingNetworkRoutes()
+QList<types::SplitTunnelingNetworkRoute> Preferences::splitTunnelingNetworkRoutes()
 {
-    QList<ProtoTypes::SplitTunnelingNetworkRoute> routes;
-    ProtoTypes::SplitTunneling splitTunneling = guiSettings_.split_tunneling();
-    for (int i = 0; i < splitTunneling.network_routes_size(); i++)
-    {
-        routes.append(splitTunneling.network_routes(i));
-    }
-    return routes;
+    return splitTunneling_.networkRoutes.toList();
 }
 
-void Preferences::setSplitTunnelingNetworkRoutes(QList<ProtoTypes::SplitTunnelingNetworkRoute> routes)
+void Preferences::setSplitTunnelingNetworkRoutes(QList<types::SplitTunnelingNetworkRoute> routes)
 {
-    ProtoTypes::SplitTunneling st;
-    for (ProtoTypes::SplitTunnelingNetworkRoute app : qAsConst(routes))
-    {
-        *st.add_network_routes() = app;
-    }
-
-    *st.mutable_settings() = guiSettings_.split_tunneling().settings();
-    *st.mutable_apps() = guiSettings_.split_tunneling().apps();
-
-    *guiSettings_.mutable_split_tunneling() = st;
+    //todo move to guiSettings
+    types::SplitTunneling st = splitTunneling_;
+    st.networkRoutes = routes.toVector();
     saveGuiSettings();
     emit splitTunnelingChanged(st);
 }
 
-ProtoTypes::SplitTunnelingSettings Preferences::splitTunnelingSettings()
+types::SplitTunnelingSettings Preferences::splitTunnelingSettings()
 {
-    return guiSettings_.split_tunneling().settings();
+    //return guiSettings_.split_tunneling().settings();
+    return splitTunneling_.settings;
 }
 
-void Preferences::setSplitTunnelingSettings(ProtoTypes::SplitTunnelingSettings settings)
+void Preferences::setSplitTunnelingSettings(types::SplitTunnelingSettings settings)
 {
-    ProtoTypes::SplitTunneling st;
-    *st.mutable_settings() = settings;
-
-    *st.mutable_apps() = guiSettings_.split_tunneling().apps();
-    *st.mutable_network_routes() = guiSettings_.split_tunneling().network_routes();
-    *guiSettings_.mutable_split_tunneling() = st;
+    //todo move to guiSettings
+    types::SplitTunneling st = splitTunneling_;
+    st.settings = settings;
     saveGuiSettings();
     emit splitTunnelingChanged(st);
 }

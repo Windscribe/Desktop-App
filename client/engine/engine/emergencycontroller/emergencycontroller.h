@@ -33,7 +33,7 @@ public:
 signals:
     void connected();
     void disconnected(DISCONNECT_REASON reason);
-    void errorDuringConnection(ProtoTypes::ConnectError errorCode);
+    void errorDuringConnection(CONNECT_ERROR errorCode);
 
 private slots:
     void onDnsRequestFinished();
@@ -41,7 +41,7 @@ private slots:
     void onConnectionConnected(const AdapterGatewayInfo &connectionAdapterInfo);
     void onConnectionDisconnected();
     void onConnectionReconnecting();
-    void onConnectionError(ProtoTypes::ConnectError err);
+    void onConnectionError(CONNECT_ERROR err);
 
 private:
     enum {STATE_DISCONNECTED, STATE_CONNECTING_FROM_USER_CLICK, STATE_CONNECTED,
