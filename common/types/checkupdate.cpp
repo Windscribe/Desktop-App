@@ -19,49 +19,18 @@ bool CheckUpdate::initFromJson(QJsonObject &json, QString &outErrorMessage)
         }
     }
 
-    d->cui_.set_is_available(true); // is_available used as success indicator in gui
-    d->cui_.set_version(json["latest_version"].toString().toStdString());
-    d->cui_.set_latest_build(json["latest_build"].toInt());
-    d->cui_.set_update_channel(static_cast<ProtoTypes::UpdateChannel>(json["is_beta"].toInt()));
-    d->cui_.set_url(json["update_url"].toString().toStdString());
-    d->cui_.set_is_supported(json["supported"].toInt() == 1);
+    isAvailable = true; // is_available used as success indicator in gui
+    version = json["latest_version"].toString();
+    latestBuild = json["latest_build"].toInt();
+    updateChannel = static_cast<UPDATE_CHANNEL>(json["is_beta"].toInt());
+    url = json["update_url"].toString();
+    isSupported = (json["supported"].toInt() == 1);
 
     if (json.contains("sha256"))
     {
-        d->cui_.set_sha256(json["sha256"].toString().toStdString());
+        sha256 = json["sha256"].toString();
     }
-    d->isInitialized_ = true;
     return true;
 }
 
-void CheckUpdate::initFromProtoBuf(const ProtoTypes::CheckUpdateInfo &cui)
-{
-    d->cui_ = cui;
-    d->isInitialized_ = true;
-}
-
-ProtoTypes::CheckUpdateInfo CheckUpdate::getProtoBuf() const
-{
-    Q_ASSERT(d->isInitialized_);
-    return d->cui_;
-}
-
-QString CheckUpdate::getUrl() const
-{
-    Q_ASSERT(d->isInitialized_);
-    return QString::fromStdString(d->cui_.url());
-}
-
-QString CheckUpdate::getSha256() const
-{
-    Q_ASSERT(d->isInitialized_);
-    return QString::fromStdString(d->cui_.sha256());
-}
-
-bool CheckUpdate::isInitialized() const
-{
-    return d->isInitialized_;
-}
-
-
-} // apiinfo namespace
+} // types namespace

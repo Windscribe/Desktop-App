@@ -583,7 +583,7 @@ void EngineServer::onEngineCheckUpdateUpdated(const types::CheckUpdate &checkUpd
     sendCmdToAllAuthorizedAndGetStateClients(&cmd, true);
 }
 
-void EngineServer::onEngineUpdateVersionChanged(uint progressPercent, const ProtoTypes::UpdateVersionState &state, const ProtoTypes::UpdateVersionError &error)
+void EngineServer::onEngineUpdateVersionChanged(uint progressPercent, const UPDATE_VERSION_STATE &state, const UPDATE_VERSION_ERROR &error)
 {
     IPC::ServerCommands::UpdateVersionChanged cmd;
     cmd.progressPercent = progressPercent;

@@ -8,7 +8,6 @@
 #include "../connectionwindow/subpageitem.h"
 #include "commongraphics/iconbutton.h"
 #include "tooltips/tooltiptypes.h"
-#include "utils/protobuf_includes.h"
 #include "types/splittunneling.h"
 
 namespace PreferencesWindow {

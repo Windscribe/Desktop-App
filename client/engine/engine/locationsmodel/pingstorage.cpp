@@ -3,7 +3,6 @@
 #include <QIODevice>
 #include <QDebug>
 #include <QSettings>
-#include "utils/protobuf_includes.h"
 
 namespace  {
     struct PingDataSerializable

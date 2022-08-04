@@ -842,8 +842,8 @@ public:
     }
 
     uint progressPercent;
-    ProtoTypes::UpdateVersionState state;
-    ProtoTypes::UpdateVersionError error;
+    UPDATE_VERSION_STATE state;
+    UPDATE_VERSION_ERROR error;
 };
 
 class HostsFileBecameWritable : public Command

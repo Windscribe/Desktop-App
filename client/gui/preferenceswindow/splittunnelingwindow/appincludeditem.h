@@ -5,7 +5,6 @@
 #include "../dividerline.h"
 #include "commongraphics/iconbutton.h"
 #include "commongraphics/iconbutton.h"
-#include "utils/protobuf_includes.h"
 #include "types/splittunneling.h"
 
 namespace PreferencesWindow {

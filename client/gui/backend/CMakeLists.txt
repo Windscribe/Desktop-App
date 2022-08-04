@@ -32,8 +32,6 @@ target_sources(gui PRIVATE
     preferences/accountinfo.h
     preferences/detectlanrange.cpp
     preferences/detectlanrange.h
-    preferences/guisettingsfromver1.cpp
-    preferences/guisettingsfromver1.h
     preferences/preferences.cpp
     preferences/preferences.h
     preferences/preferenceshelper.cpp

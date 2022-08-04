@@ -4,7 +4,6 @@
 #include <QString>
 #include <QMetaType>
 #include <QHash>
-#include "utils/protobuf_includes.h"
 
 // Uniquely identifies a location among all locations (API locations, statis IPs locations, custom config locations, best location).
 class LocationID
@@ -20,7 +19,6 @@ public:
     static LocationID createBestLocationId(int id);
     static LocationID createStaticIpsLocationId(const QString &city, const QString &ip);
     static LocationID createCustomConfigLocationId(const QString &filename);
-    static LocationID createFromProtoBuf(const ProtoTypes::LocationId &lid);
 
     LocationID& operator=(LocationID rhs)
     {
@@ -51,7 +49,6 @@ public:
     LocationID bestLocationToApiLocation() const;
     LocationID apiLocationToBestLocation() const;
     LocationID toTopLevelLocation() const;
-    ProtoTypes::LocationId toProtobuf() const;
 
     QString getHashString() const;
 

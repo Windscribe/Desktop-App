@@ -212,10 +212,10 @@ void LocationsModel::updateCustomConfigLocations(const QVector<types::LocationIt
             cmi.staticIp = city.staticIp;
             cmi.isCustomConfigCorrect = city.customConfigIsCorrect;
             switch (city.customConfigType) {
-            case ProtoTypes::CustomConfigType::CUSTOM_CONFIG_OPENVPN:
+            case CUSTOM_CONFIG_OPENVPN:
                 cmi.customConfigType = "ovpn";
                 break;
-            case ProtoTypes::CustomConfigType::CUSTOM_CONFIG_WIREGUARD:
+            case CUSTOM_CONFIG_WIREGUARD:
                 cmi.customConfigType = "wg";
                 break;
             default:
@@ -257,7 +257,7 @@ BasicCitiesModel *LocationsModel::getFavoriteLocationsModel()
     return favoriteLocations_;
 }
 
-void LocationsModel::setOrderLocationsType(ProtoTypes::OrderLocationType orderLocationsType)
+void LocationsModel::setOrderLocationsType(ORDER_LOCATION_TYPE orderLocationsType)
 {
     if (orderLocationsType != orderLocationsType_)
     {

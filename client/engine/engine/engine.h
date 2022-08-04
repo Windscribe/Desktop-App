@@ -136,10 +136,10 @@ signals:
     void sessionStatusUpdated(const types::SessionStatus &sessionStatus);
     void notificationsUpdated(const QVector<types::Notification> &notifications);
     void checkUpdateUpdated(const types::CheckUpdate &checkUpdate);
-    void updateVersionChanged(uint progressPercent, const ProtoTypes::UpdateVersionState &state, const ProtoTypes::UpdateVersionError &error);
+    void updateVersionChanged(uint progressPercent, const UPDATE_VERSION_STATE &state, const UPDATE_VERSION_ERROR &error);
     void myIpUpdated(const QString &ip, bool success, bool isDisconnected);
     void statisticsUpdated(quint64 bytesIn, quint64 bytesOut, bool isTotalBytes);
-    void protocolPortChanged(const ProtoTypes::Protocol &protocol, const uint port);
+    void protocolPortChanged(const types::ProtocolType &protocol, const uint port);
 
     void requestUsername();
     void requestPassword();
@@ -254,7 +254,7 @@ private slots:
     void onConnectionManagerStatisticsUpdated(quint64 bytesIn, quint64 bytesOut, bool isTotalBytes);
     void onConnectionManagerInterfaceUpdated(const QString &interfaceName);
     void onConnectionManagerConnectingToHostname(const QString &hostname, const QString &ip, const QString &dnsServer);
-    void onConnectionManagerProtocolPortChanged(const ProtoTypes::Protocol &protocol, const uint port);
+    void onConnectionManagerProtocolPortChanged(const types::ProtocolType &protocol, const uint port);
     void onConnectionManagerTestTunnelResult(bool success, const QString & ipAddress);
     void onConnectionManagerWireGuardAtKeyLimit();
 
@@ -377,7 +377,7 @@ private:
     QString locationName_;
 
     QString lastConnectingHostname_;
-    ProtoTypes::Protocol lastConnectingProtocol_;
+    types::ProtocolType lastConnectingProtocol_;
 
     bool isNeedReconnectAfterRequestUsernameAndPassword_;
 

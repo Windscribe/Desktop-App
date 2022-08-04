@@ -2,8 +2,8 @@
 #define APPVERSION_H
 
 #include <QString>
-#include "utils/protobuf_includes.h"
 #include "windscribe_version.h"
+#include "types/enums.h"
 
 class AppVersion
 {
@@ -33,7 +33,7 @@ private:
 
     QString version_; // 2.x
     bool isStaging_;
-    ProtoTypes::UpdateChannel buildChannel_;
+    UPDATE_CHANNEL buildChannel_;
 };
 
 #endif // APPVERSION_H

@@ -94,7 +94,7 @@ signals:
     void testTunnelResult(bool success, const QString &ipAddress);
     void showFailedAutomaticConnectionMessage();
     void internetConnectivityChanged(bool connectivity);
-    void protocolPortChanged(const ProtoTypes::Protocol &protocol, const uint port);
+    void protocolPortChanged(const types::ProtocolType &protocol, const uint port);
     void wireGuardAtKeyLimit();
 
     void requestUsername(const QString &pathCustomOvpnConfig);

@@ -583,7 +583,7 @@ QVector<types::NetworkInterface> WinUtils::currentNetworkInterfaces(bool include
         {
             if (it2Row.index == ia.index)
             {
-                if (nicType == ProtoTypes::NETWORK_INTERFACE_ETH)
+                if (nicType == NETWORK_INTERFACE_ETH)
                 {
                     networkInterface.networkOrSSid = networkNameFromInterfaceGUID(it2Row.interfaceGuid);
                 }

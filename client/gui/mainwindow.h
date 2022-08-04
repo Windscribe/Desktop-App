@@ -189,7 +189,7 @@ private slots:
     void onBackendInternetConnectivityChanged(bool connectivity);
     void onBackendProtocolPortChanged(const types::ProtocolType &protocol, const uint port);
     void onBackendPacketSizeDetectionStateChanged(bool on, bool isError);
-    void onBackendUpdateVersionChanged(uint progressPercent, ProtoTypes::UpdateVersionState state, ProtoTypes::UpdateVersionError error);
+    void onBackendUpdateVersionChanged(uint progressPercent, UPDATE_VERSION_STATE state, UPDATE_VERSION_ERROR error);
     void onBackendWebSessionTokenForEditAccountDetails(const QString &tempSessionToken);
     void onBackendWebSessionTokenForAddEmail(const QString &tempSessionToken);
 
@@ -202,9 +202,9 @@ private slots:
 
     // preferences changes signals
     void onPreferencesFirewallSettingsChanged(const types::FirewallSettings &fm);
-    void onPreferencesShareProxyGatewayChanged(const ProtoTypes::ShareProxyGateway &sp);
-    void onPreferencesShareSecureHotspotChanged(const ProtoTypes::ShareSecureHotspot &ss);
-    void onPreferencesLocationOrderChanged(ProtoTypes::OrderLocationType o);
+    void onPreferencesShareProxyGatewayChanged(const types::ShareProxyGateway &sp);
+    void onPreferencesShareSecureHotspotChanged(const types::ShareSecureHotspot &ss);
+    void onPreferencesLocationOrderChanged(ORDER_LOCATION_TYPE o);
     void onPreferencesSplitTunnelingChanged(types::SplitTunneling st);
     void onPreferencesUpdateEngineSettings();
     void onPreferencesLaunchOnStartupChanged(bool bEnabled);
@@ -351,7 +351,7 @@ private:
     bool internetConnected_;
 
     bool currentlyShowingUserWarningMessage_;
-    QSet<ProtoTypes::UserWarningType> alreadyShownWarnings_;
+    QSet<USER_WARNING_TYPE> alreadyShownWarnings_;
 
     bool bGotoUpdateWindowAfterGeneralMessage_;
 

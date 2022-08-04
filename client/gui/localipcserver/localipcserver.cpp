@@ -3,6 +3,7 @@
 #include "utils/logger.h"
 #include "ipc/server.h"
 #include "ipc/protobufcommand.h"
+#include "utils/protobuf_includes.h"
 #include "backend/persistentstate.h"
 
 LocalIPCServer::LocalIPCServer(Backend *backend, QObject *parent) : QObject(parent)

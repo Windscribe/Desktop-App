@@ -15,38 +15,6 @@ ProtocolType::ProtocolType(PROTOCOL_TYPE protocol) : protocol_(protocol)
 
 }
 
-ProtocolType::ProtocolType(const ProtoTypes::Protocol &p)
-{
-    if (p == ProtoTypes::PROTOCOL_IKEV2)
-    {
-        protocol_ = PROTOCOL_IKEV2;
-    }
-    else if (p == ProtoTypes::PROTOCOL_UDP)
-    {
-        protocol_ = PROTOCOL_OPENVPN_UDP;
-    }
-    else if (p == ProtoTypes::PROTOCOL_TCP)
-    {
-        protocol_ = PROTOCOL_OPENVPN_TCP;
-    }
-    else if (p == ProtoTypes::PROTOCOL_STUNNEL)
-    {
-        protocol_ = PROTOCOL_STUNNEL;
-    }
-    else if (p == ProtoTypes::PROTOCOL_WSTUNNEL)
-    {
-        protocol_ = PROTOCOL_WSTUNNEL;
-    }
-    else if (p == ProtoTypes::PROTOCOL_WIREGUARD)
-    {
-        protocol_ = PROTOCOL_WIREGUARD;
-    }
-    else
-    {
-        Q_ASSERT(false);
-    }
-}
-
 ProtocolType::ProtocolType(const QString &strProtocol)
 {
     if (strProtocol.compare("UDP", Qt::CaseInsensitive) == 0)
@@ -169,39 +137,6 @@ QString ProtocolType::toLongString() const
     else
     {
         return "uninitialized";
-    }
-}
-
-ProtoTypes::Protocol ProtocolType::convertToProtobuf() const
-{
-    Q_ASSERT(protocol_ != PROTOCOL_UNINITIALIZED);
-    if (protocol_ == PROTOCOL_IKEV2)
-    {
-        return ProtoTypes::PROTOCOL_IKEV2;
-    }
-    else if (protocol_ == PROTOCOL_OPENVPN_UDP)
-    {
-        return ProtoTypes::PROTOCOL_UDP;
-    }
-    else if (protocol_ == PROTOCOL_OPENVPN_TCP)
-    {
-        return ProtoTypes::PROTOCOL_TCP;
-    }
-    else if (protocol_ == PROTOCOL_STUNNEL)
-    {
-        return ProtoTypes::PROTOCOL_STUNNEL;
-    }
-    else if (protocol_ == PROTOCOL_WSTUNNEL)
-    {
-        return ProtoTypes::PROTOCOL_WSTUNNEL;
-    }
-    else if (protocol_ == PROTOCOL_WIREGUARD)
-    {
-        return ProtoTypes::PROTOCOL_WIREGUARD;
-    }
-    else
-    {
-        return ProtoTypes::PROTOCOL_IKEV2;
     }
 }
 

@@ -288,11 +288,11 @@ void ConnectWindowItem::updateNetworkState(types::NetworkInterface network)
     if (trustType_ != trusted || interfaceType_ != type || networkActive_ != networkActive)
     {
         QString icon = "";
-        if (type == ProtoTypes::NETWORK_INTERFACE_WIFI)
+        if (type == NETWORK_INTERFACE_WIFI)
         {
             icon += "network/WIFI_";
         }
-        else if (type == ProtoTypes::NETWORK_INTERFACE_ETH)
+        else if (type == NETWORK_INTERFACE_ETH)
         {
             icon += "network/ETHERNET_";
         }
@@ -308,7 +308,7 @@ void ConnectWindowItem::updateNetworkState(types::NetworkInterface network)
 
         if (icon != "")
         {
-            if (trusted == ProtoTypes::NETWORK_UNSECURED)
+            if (trusted == NETWORK_TRUST_UNSECURED)
             {
                 icon += "UNSECURED";
             }

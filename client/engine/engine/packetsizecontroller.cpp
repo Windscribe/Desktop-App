@@ -5,8 +5,6 @@
 #include "utils/logger.h"
 #include "utils/ipvalidation.h"
 
-const int typeIdPacketSize = qRegisterMetaType<ProtoTypes::Protocol>("ProtoTypes::PacketSize");
-
 PacketSizeController::PacketSizeController(QObject *parent) : QObject(parent)
   , earlyStop_(false)
 {

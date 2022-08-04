@@ -3,43 +3,37 @@
 
 #include <QString>
 #include <QJsonObject>
-#include <QSharedDataPointer>
-#include "utils/protobuf_includes.h"
+#include "enums.h"
 
 namespace types {
 
-class CheckUpdateData : public QSharedData
+struct CheckUpdate
 {
-public:
-    CheckUpdateData() : isInitialized_(false) {}
-
-    CheckUpdateData(const CheckUpdateData &other)
-        : QSharedData(other),
-          isInitialized_(other.isInitialized_),
-          cui_(other.cui_) {}
-    ~CheckUpdateData() {}
-
-    bool isInitialized_;
-    ProtoTypes::CheckUpdateInfo cui_;  // only this data is saved in settings
-};
-
-// implicitly shared class CheckUpdate
-class CheckUpdate
-{
-public:
-    explicit CheckUpdate() : d(new CheckUpdateData) {}
-    CheckUpdate(const CheckUpdate &other) : d (other.d) {}
+    bool isAvailable = false;
+    QString version;
+    UPDATE_CHANNEL updateChannel = UPDATE_CHANNEL_RELEASE;
+    int latestBuild = 0;
+    QString url;
+    bool isSupported = false;
+    QString sha256;
 
     bool initFromJson(QJsonObject &json, QString &outErrorMessage);
-    void initFromProtoBuf(const ProtoTypes::CheckUpdateInfo &cui);
-    ProtoTypes::CheckUpdateInfo getProtoBuf() const;
 
-    QString getUrl() const;
-    QString getSha256() const;
-    bool isInitialized() const;
+    bool operator==(const CheckUpdate &other) const
+    {
+        return other.isAvailable == isAvailable &&
+               other.version == version &&
+               other.updateChannel == updateChannel &&
+               other.latestBuild == latestBuild &&
+               other.url == url &&
+               other.isSupported == isSupported &&
+               other.sha256 == sha256;
+    }
 
-private:
-    QSharedDataPointer<CheckUpdateData> d;
+    bool operator!=(const CheckUpdate &other) const
+    {
+        return !(*this == other);
+    }
 };
 
 } // types namespace

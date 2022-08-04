@@ -122,7 +122,7 @@ bool AutoUpdaterHelper_mac::verifyAndRun(const QString &tempInstallerFilename,
     return true;
 }
 
-ProtoTypes::UpdateVersionError AutoUpdaterHelper_mac::error()
+UPDATE_VERSION_ERROR AutoUpdaterHelper_mac::error()
 {
     return error_;
 }

@@ -33,12 +33,12 @@ QString ShareWindowItem::caption()
     return QT_TRANSLATE_NOOP("PreferencesWindow::PreferencesWindowItem", "Share");
 }
 
-void ShareWindowItem::onSecureHotspotParsChanged(const ProtoTypes::ShareSecureHotspot &ss)
+void ShareWindowItem::onSecureHotspotParsChanged(const types::ShareSecureHotspot &ss)
 {
     preferences_->setShareSecureHotspot(ss);
 }
 
-void ShareWindowItem::onSecureHotspotParsPreferencesChanged(const ProtoTypes::ShareSecureHotspot &ss)
+void ShareWindowItem::onSecureHotspotParsPreferencesChanged(const types::ShareSecureHotspot &ss)
 {
     if (secureHotspotItem_) {
         secureHotspotItem_->setSecureHotspotPars(ss);
@@ -50,12 +50,12 @@ void ShareWindowItem::onConnectionSettingsPreferencesChanged(const types::Connec
     updateIsSupported(isWifiSharingSupported_, isIkev2OrAutomaticConnectionMode(cs));
 }
 
-void ShareWindowItem::onProxyGatewayParsChanged(const ProtoTypes::ShareProxyGateway &sp)
+void ShareWindowItem::onProxyGatewayParsChanged(const types::ShareProxyGateway &sp)
 {
     preferences_->setShareProxyGateway(sp);
 }
 
-void ShareWindowItem::onProxyGatewayParsPreferencesChanged(const ProtoTypes::ShareProxyGateway &sp)
+void ShareWindowItem::onProxyGatewayParsPreferencesChanged(const types::ShareProxyGateway &sp)
 {
     proxyGatewayItem_->setProxyGatewayPars(sp);
 }

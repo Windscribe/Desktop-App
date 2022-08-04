@@ -177,8 +177,8 @@ void SplitTunnelingSwitchItem::updateScaling()
 void SplitTunnelingSwitchItem::reloadModeComboBox()
 {
     modeComboBox_->clear();
-    modeComboBox_->addItem(tr("Exclusive"), ProtoTypes::SPLIT_TUNNELING_MODE_EXCLUDE);
-    modeComboBox_->addItem(tr("Inclusive"), ProtoTypes::SPLIT_TUNNELING_MODE_INCLUDE);
+    modeComboBox_->addItem(tr("Exclusive"), SPLIT_TUNNELING_MODE_EXCLUDE);
+    modeComboBox_->addItem(tr("Inclusive"), SPLIT_TUNNELING_MODE_INCLUDE);
 }
 
 void SplitTunnelingSwitchItem::updateActiveUI(bool checked)

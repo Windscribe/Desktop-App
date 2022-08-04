@@ -181,13 +181,13 @@ void ConnectButton::setInternetConnectivity(bool online)
     {
         if (online)
         {
-            if (connectStateType_ == ProtoTypes::CONNECTED)
+            if (connectStateType_ == CONNECT_STATE_CONNECTED)
             {
                 noInternetRingOpacityAnimation_.stop();
                 startNoInternetRingAnimations(QPropertyAnimation::Backward);
                 startConnectedRingAnimations(QPropertyAnimation::Forward);
             }
-            else if (connectStateType_ == ProtoTypes::CONNECTING)
+            else if (connectStateType_ == CONNECT_STATE_CONNECTING)
             {
                 noInternetRingOpacityAnimation_.stop();
                 startNoInternetRingAnimations(QPropertyAnimation::Backward);
@@ -196,12 +196,12 @@ void ConnectButton::setInternetConnectivity(bool online)
         }
         else
         {
-            if (connectStateType_ == ProtoTypes::CONNECTED)
+            if (connectStateType_ == CONNECT_STATE_CONNECTED)
             {
                 fuzzyHideConnectedRing();
                 startNoInternetRingAnimations(QPropertyAnimation::Forward);
             }
-            else if (connectStateType_ == ProtoTypes::CONNECTING)
+            else if (connectStateType_ == CONNECT_STATE_CONNECTING)
             {
                 connectingRingOpacityAnimation_.stop();
                 startConnectingRingAnimations(QPropertyAnimation::Backward);
@@ -217,7 +217,7 @@ void ConnectButton::setSplitRouting(bool on)
 {
     splitRouting_ = on;
 
-    if (connectStateType_ == ProtoTypes::CONNECTED)
+    if (connectStateType_ == CONNECT_STATE_CONNECTED)
     {
         fuzzyHideConnectedRing();
         startConnectedRingAnimations(QPropertyAnimation::Forward);

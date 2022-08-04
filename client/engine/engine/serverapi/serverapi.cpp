@@ -1276,15 +1276,15 @@ void ServerAPI::handleCheckUpdateDnsResolve(BaseRequest *rd, bool success, const
     query.addQueryItem("app_version", AppVersion::instance().semanticVersionString());
     query.addQueryItem("version", AppVersion::instance().version());
     query.addQueryItem("build", AppVersion::instance().build());
-    if (crd->getUpdateChannel() == ProtoTypes::UPDATE_CHANNEL_BETA)
+    if (crd->getUpdateChannel() == UPDATE_CHANNEL_BETA)
     {
         query.addQueryItem("beta", "1");
     }
-    else if (crd->getUpdateChannel() == ProtoTypes::UPDATE_CHANNEL_GUINEA_PIG)
+    else if (crd->getUpdateChannel() == UPDATE_CHANNEL_GUINEA_PIG)
     {
         query.addQueryItem("beta", "2");
     }
-    else if (crd->getUpdateChannel() == ProtoTypes::UPDATE_CHANNEL_INTERNAL)
+    else if (crd->getUpdateChannel() == UPDATE_CHANNEL_INTERNAL)
     {
         query.addQueryItem("beta", "3");
     }

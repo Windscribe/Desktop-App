@@ -3,9 +3,8 @@
 
 #include <QObject>
 #include "types/dnswhileconnectedinfo.h"
-#include "utils/protobuf_includes.h"
 #include "types/enginesettings.h"
-#include "types/splittunneling.h"
+#include "types/guisettings.h"
 
 // all preferences with the ability to receive signals when certain preferences are changed
 class Preferences : public QObject
@@ -37,8 +36,8 @@ public:
     bool isShowNotifications() const;
     void setShowNotifications(bool b);
 
-    ProtoTypes::BackgroundSettings backgroundSettings() const;
-    void setBackgroundSettings(const ProtoTypes::BackgroundSettings &backgroundSettings);
+    types::BackgroundSettings backgroundSettings() const;
+    void setBackgroundSettings(const types::BackgroundSettings &backgroundSettings);
 
     bool isDockedToTray() const;
     void setDockedToTray(bool b);
@@ -46,20 +45,17 @@ public:
     const QString language() const;
     void setLanguage(const QString &lang);
 
-    ProtoTypes::OrderLocationType locationOrder() const;
-    void setLocationOrder(ProtoTypes::OrderLocationType o);
+    ORDER_LOCATION_TYPE locationOrder() const;
+    void setLocationOrder(ORDER_LOCATION_TYPE o);
 
-    ProtoTypes::LatencyDisplayType latencyDisplay() const;
-    void setLatencyDisplay(ProtoTypes::LatencyDisplayType l);
+    LATENCY_DISPLAY_TYPE latencyDisplay() const;
+    void setLatencyDisplay(LATENCY_DISPLAY_TYPE l);
 
     UPDATE_CHANNEL updateChannel() const;
     void setUpdateChannel(UPDATE_CHANNEL c);
 
     QVector<types::NetworkInterface> networkWhiteList();
     void setNetworkWhiteList(const QVector<types::NetworkInterface> &l);
-
-    //const CustomRouting &customRouting() const;
-    //void setCustomRouting(const CustomRouting &cr);
 
     const types::ProxySettings &proxySettings() const;
     void setProxySettings(const types::ProxySettings &ps);
@@ -87,11 +83,11 @@ public:
     void setKillTcpSockets(bool b);
 #endif
 
-    const ProtoTypes::ShareSecureHotspot &shareSecureHotspot() const;
-    void setShareSecureHotspot(const ProtoTypes::ShareSecureHotspot &ss);
+    const types::ShareSecureHotspot &shareSecureHotspot() const;
+    void setShareSecureHotspot(const types::ShareSecureHotspot &ss);
 
-    const ProtoTypes::ShareProxyGateway &shareProxyGateway() const;
-    void setShareProxyGateway(const ProtoTypes::ShareProxyGateway &sp);
+    const types::ShareProxyGateway &shareProxyGateway() const;
+    void setShareProxyGateway(const types::ShareProxyGateway &sp);
 
     const QString debugAdvancedParameters() const;
     void setDebugAdvancedParameters(const QString &p);
@@ -145,13 +141,13 @@ signals:
     void isAutoConnectChanged(bool b);
     void isAllowLanTrafficChanged(bool b);
     void isShowNotificationsChanged(bool b);
-    void backgroundSettingsChanged(const ProtoTypes::BackgroundSettings &backgroundSettings);
+    void backgroundSettingsChanged(const types::BackgroundSettings &backgroundSettings);
 
     void isStartMinimizedChanged(bool b);
     void isDockedToTrayChanged(bool b);
     void languageChanged(const QString &lang);
-    void locationOrderChanged(ProtoTypes::OrderLocationType o);
-    void latencyDisplayChanged(ProtoTypes::LatencyDisplayType l);
+    void locationOrderChanged(ORDER_LOCATION_TYPE o);
+    void latencyDisplayChanged(LATENCY_DISPLAY_TYPE l);
     void updateChannelChanged(UPDATE_CHANNEL c);
     void proxySettingsChanged(const types::ProxySettings &ps);
     void firewallSettingsChanged(const types::FirewallSettings &fs);
@@ -172,8 +168,8 @@ signals:
     void hideFromDockChanged(bool b);
 #endif
 
-    void shareSecureHotspotChanged(const ProtoTypes::ShareSecureHotspot &ss);
-    void shareProxyGatewayChanged(const ProtoTypes::ShareProxyGateway &sp);
+    void shareSecureHotspotChanged(const types::ShareSecureHotspot &ss);
+    void shareProxyGatewayChanged(const types::ShareProxyGateway &sp);
     void debugAdvancedParametersChanged(const QString &pars);
     void dnsPolicyChanged(DNS_POLICY_TYPE d);
 
@@ -191,8 +187,7 @@ signals:
 
 private:
     types::EngineSettings engineSettings_;
-    ProtoTypes::GuiSettings guiSettings_;
-    types::SplitTunneling splitTunneling_; //todo remove
+    types::GuiSettings guiSettings_;
 
     bool receivingEngineSettings_;
 };

@@ -18,13 +18,13 @@ public:
     QString caption();
 
 private slots:
-    void onSecureHotspotParsChanged(const ProtoTypes::ShareSecureHotspot &ss);
-    void onSecureHotspotParsPreferencesChanged(const ProtoTypes::ShareSecureHotspot &ss);
+    void onSecureHotspotParsChanged(const types::ShareSecureHotspot &ss);
+    void onSecureHotspotParsPreferencesChanged(const types::ShareSecureHotspot &ss);
 
     void onConnectionSettingsPreferencesChanged(const types::ConnectionSettings &cs);
 
-    void onProxyGatewayParsChanged(const ProtoTypes::ShareProxyGateway &sp);
-    void onProxyGatewayParsPreferencesChanged(const ProtoTypes::ShareProxyGateway &sp);
+    void onProxyGatewayParsChanged(const types::ShareProxyGateway &sp);
+    void onProxyGatewayParsPreferencesChanged(const types::ShareProxyGateway &sp);
 
     void onPreferencesHelperWifiSharingSupportedChanged(bool bSupported);
 

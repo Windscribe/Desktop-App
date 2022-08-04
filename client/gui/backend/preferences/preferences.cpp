@@ -1,7 +1,6 @@
 #include "preferences.h"
 #include "../persistentstate.h"
 #include "detectlanrange.h"
-#include "guisettingsfromver1.h"
 #include "utils/extraconfig.h"
 #include "utils/logger.h"
 #include "utils/utils.h"
@@ -20,7 +19,7 @@ Preferences::Preferences(QObject *parent) : QObject(parent)
     // ProtoTypes::ConnectionSettings has IKEv2 as default protocol in default instance.
     // But Linux doesn't support IKEv2. It is necessary to change with UDP.
     auto settings = engineSettings_.connection_settings();
-    settings.set_protocol(ProtoTypes::Protocol::PROTOCOL_UDP);
+    settings.set_protocol(types::ProtocolType::PROTOCOL_UDP);
     settings.set_port(443);
     *engineSettings_.mutable_connection_settings() = settings;
 #endif
@@ -28,31 +27,31 @@ Preferences::Preferences(QObject *parent) : QObject(parent)
 
 bool Preferences::isLaunchOnStartup() const
 {
-    return guiSettings_.is_launch_on_startup();
+    return guiSettings_.isLaunchOnStartup;
 }
 
 void Preferences::setLaunchOnStartup(bool b)
 {
-    if (guiSettings_.is_launch_on_startup() != b)
+    if (guiSettings_.isLaunchOnStartup != b)
     {
-        guiSettings_.set_is_launch_on_startup(b);
+        guiSettings_.isLaunchOnStartup = b;
         saveGuiSettings();
-        emit isLaunchOnStartupChanged(guiSettings_.is_launch_on_startup());
+        emit isLaunchOnStartupChanged(guiSettings_.isLaunchOnStartup);
     }
 }
 
 bool Preferences::isAutoConnect() const
 {
-    return guiSettings_.is_auto_connect();
+    return guiSettings_.isAutoConnect;
 }
 
 void Preferences::setAutoConnect(bool b)
 {
-    if (guiSettings_.is_auto_connect() != b)
+    if (guiSettings_.isAutoConnect != b)
     {
-        guiSettings_.set_is_auto_connect(b);
+        guiSettings_.isAutoConnect = b;
         saveGuiSettings();
-        emit isAutoConnectChanged(guiSettings_.is_auto_connect());
+        emit isAutoConnectChanged(guiSettings_.isAutoConnect);
     }
 }
 
@@ -81,14 +80,14 @@ void Preferences::setAllowLanTraffic(bool b)
 #if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
 bool Preferences::isMinimizeAndCloseToTray() const
 {
-    return QSystemTrayIcon::isSystemTrayAvailable() && guiSettings_.is_minimize_and_close_to_tray();
+    return QSystemTrayIcon::isSystemTrayAvailable() && guiSettings_.isMinimizeAndCloseToTray;
 }
 
 void Preferences::setMinimizeAndCloseToTray(bool b)
 {
-    if (guiSettings_.is_minimize_and_close_to_tray() != b)
+    if (guiSettings_.isMinimizeAndCloseToTray != b)
     {
-        guiSettings_.set_is_minimize_and_close_to_tray(b);
+        guiSettings_.isMinimizeAndCloseToTray = b;
         saveGuiSettings();
         emit minimizeAndCloseToTrayChanged(b);
     }
@@ -115,14 +114,14 @@ void Preferences::setHideFromDock(bool b)
 
 bool Preferences::isStartMinimized() const
 {
-    return guiSettings_.is_start_minimized();
+    return guiSettings_.isStartMinimized;
 }
 
 void Preferences::setStartMinimized(bool b)
 {
-    if(guiSettings_.is_start_minimized() != b)
+    if(guiSettings_.isStartMinimized != b)
     {
-        guiSettings_.set_is_start_minimized(b);
+        guiSettings_.isStartMinimized = b;
         saveGuiSettings();
         emit isStartMinimizedChanged(b);
     }
@@ -131,29 +130,29 @@ void Preferences::setStartMinimized(bool b)
 
 bool Preferences::isShowNotifications() const
 {
-    return guiSettings_.is_show_notifications();
+    return guiSettings_.isShowNotifications;
 }
 
 void Preferences::setShowNotifications(bool b)
 {
-    if (guiSettings_.is_show_notifications() != b)
+    if (guiSettings_.isShowNotifications != b)
     {
-        guiSettings_.set_is_show_notifications(b);
+        guiSettings_.isShowNotifications = b;
         saveGuiSettings();
-        emit isShowNotificationsChanged(guiSettings_.is_show_notifications());
+        emit isShowNotificationsChanged(guiSettings_.isShowNotifications);
     }
 }
 
-ProtoTypes::BackgroundSettings Preferences::backgroundSettings() const
+types::BackgroundSettings Preferences::backgroundSettings() const
 {
-    return guiSettings_.background_settings();
+    return guiSettings_.backgroundSettings;
 }
 
-void Preferences::setBackgroundSettings(const ProtoTypes::BackgroundSettings &backgroundSettings)
+void Preferences::setBackgroundSettings(const types::BackgroundSettings &backgroundSettings)
 {
-    if (!google::protobuf::util::MessageDifferencer::Equals(guiSettings_.background_settings(), backgroundSettings))
+    if (guiSettings_.backgroundSettings != backgroundSettings)
     {
-        *guiSettings_.mutable_background_settings() = backgroundSettings;
+        guiSettings_.backgroundSettings = backgroundSettings;
         saveGuiSettings();
         emit backgroundSettingsChanged(backgroundSettings);
     }
@@ -161,16 +160,16 @@ void Preferences::setBackgroundSettings(const ProtoTypes::BackgroundSettings &ba
 
 bool Preferences::isDockedToTray() const
 {
-    return guiSettings_.is_docked_to_tray();
+    return guiSettings_.isDockedToTray;
 }
 
 void Preferences::setDockedToTray(bool b)
 {
-    if (guiSettings_.is_docked_to_tray() != b)
+    if (guiSettings_.isDockedToTray != b)
     {
-        guiSettings_.set_is_docked_to_tray(b);
+        guiSettings_.isDockedToTray = b;
         saveGuiSettings();
-        emit isDockedToTrayChanged(guiSettings_.is_docked_to_tray());
+        emit isDockedToTrayChanged(guiSettings_.isDockedToTray);
     }
 }
 
@@ -188,33 +187,33 @@ void Preferences::setLanguage(const QString &lang)
     }
 }
 
-ProtoTypes::OrderLocationType Preferences::locationOrder() const
+ORDER_LOCATION_TYPE Preferences::locationOrder() const
 {
-    return guiSettings_.order_location();
+    return guiSettings_.orderLocation;
 }
 
-void Preferences::setLocationOrder(ProtoTypes::OrderLocationType o)
+void Preferences::setLocationOrder(ORDER_LOCATION_TYPE o)
 {
-    if (guiSettings_.order_location() != o)
+    if (guiSettings_.orderLocation != o)
     {
-        guiSettings_.set_order_location(o);
+        guiSettings_.orderLocation = o;
         saveGuiSettings();
-        emit locationOrderChanged(guiSettings_.order_location());
+        emit locationOrderChanged(guiSettings_.orderLocation);
     }
 }
 
-ProtoTypes::LatencyDisplayType Preferences::latencyDisplay() const
+LATENCY_DISPLAY_TYPE Preferences::latencyDisplay() const
 {
-    return guiSettings_.latency_display();
+    return guiSettings_.latencyDisplay;
 }
 
-void Preferences::setLatencyDisplay(ProtoTypes::LatencyDisplayType l)
+void Preferences::setLatencyDisplay(LATENCY_DISPLAY_TYPE l)
 {
-    if (guiSettings_.latency_display() != l)
+    if (guiSettings_.latencyDisplay != l)
     {
-        guiSettings_.set_latency_display(l);
+        guiSettings_.latencyDisplay = l;
         saveGuiSettings();
-        emit latencyDisplayChanged(guiSettings_.latency_display());
+        emit latencyDisplayChanged(guiSettings_.latencyDisplay);
     }
 }
 
@@ -368,33 +367,33 @@ void Preferences::setKillTcpSockets(bool b)
 }
 #endif
 
-const ProtoTypes::ShareSecureHotspot &Preferences::shareSecureHotspot() const
+const types::ShareSecureHotspot &Preferences::shareSecureHotspot() const
 {
-    return guiSettings_.share_secure_hotspot();
+    return guiSettings_.shareSecureHotspot;
 }
 
-void Preferences::setShareSecureHotspot(const ProtoTypes::ShareSecureHotspot &ss)
+void Preferences::setShareSecureHotspot(const types::ShareSecureHotspot &ss)
 {
-    if(!google::protobuf::util::MessageDifferencer::Equals(guiSettings_.share_secure_hotspot(), ss))
+    if(guiSettings_.shareSecureHotspot != ss)
     {
-        *guiSettings_.mutable_share_secure_hotspot() = ss;
+        guiSettings_.shareSecureHotspot = ss;
         saveGuiSettings();
-        emit shareSecureHotspotChanged(guiSettings_.share_secure_hotspot());
+        emit shareSecureHotspotChanged(guiSettings_.shareSecureHotspot);
     }
 }
 
-const ProtoTypes::ShareProxyGateway &Preferences::shareProxyGateway() const
+const types::ShareProxyGateway &Preferences::shareProxyGateway() const
 {
-    return guiSettings_.share_proxy_gateway();
+    return guiSettings_.shareProxyGateway;
 }
 
-void Preferences::setShareProxyGateway(const ProtoTypes::ShareProxyGateway &sp)
+void Preferences::setShareProxyGateway(const types::ShareProxyGateway &sp)
 {
-    if(!google::protobuf::util::MessageDifferencer::Equals(guiSettings_.share_proxy_gateway(), sp))
+    if(guiSettings_.shareProxyGateway != sp)
     {
-        *guiSettings_.mutable_share_proxy_gateway() = sp;
+        guiSettings_.shareProxyGateway = sp;
         saveGuiSettings();
-        emit shareProxyGatewayChanged(guiSettings_.share_proxy_gateway());
+        emit shareProxyGatewayChanged(guiSettings_.shareProxyGateway);
     }
 }
 
@@ -489,50 +488,52 @@ void Preferences::setKeepAlive(bool bEnabled)
 
 types::SplitTunneling Preferences::splitTunneling()
 {
-    return splitTunneling_;
+    return guiSettings_.splitTunneling;
 }
 
 QList<types::SplitTunnelingApp> Preferences::splitTunnelingApps()
 {
-    return splitTunneling_.apps.toList();
+    return guiSettings_.splitTunneling.apps.toList();
 }
 
 void Preferences::setSplitTunnelingApps(QList<types::SplitTunnelingApp> apps)
 {
-    //todo move to gui settings
-    types::SplitTunneling st = splitTunneling_;
-    st.apps = apps.toVector();
-    saveGuiSettings();
-    emit splitTunnelingChanged(st);
+    if (guiSettings_.splitTunneling.apps.toList() != apps)
+    {
+        guiSettings_.splitTunneling.apps = apps.toVector();
+        saveGuiSettings();
+        emit splitTunnelingChanged(guiSettings_.splitTunneling);
+    }
 }
 
 QList<types::SplitTunnelingNetworkRoute> Preferences::splitTunnelingNetworkRoutes()
 {
-    return splitTunneling_.networkRoutes.toList();
+    return guiSettings_.splitTunneling.networkRoutes.toList();
 }
 
 void Preferences::setSplitTunnelingNetworkRoutes(QList<types::SplitTunnelingNetworkRoute> routes)
 {
-    //todo move to guiSettings
-    types::SplitTunneling st = splitTunneling_;
-    st.networkRoutes = routes.toVector();
-    saveGuiSettings();
-    emit splitTunnelingChanged(st);
+    if (guiSettings_.splitTunneling.networkRoutes.toList() != routes)
+    {
+        guiSettings_.splitTunneling.networkRoutes = routes.toVector();
+        saveGuiSettings();
+        emit splitTunnelingChanged(guiSettings_.splitTunneling);
+    }
 }
 
 types::SplitTunnelingSettings Preferences::splitTunnelingSettings()
 {
-    //return guiSettings_.split_tunneling().settings();
-    return splitTunneling_.settings;
+    return guiSettings_.splitTunneling.settings;
 }
 
 void Preferences::setSplitTunnelingSettings(types::SplitTunnelingSettings settings)
 {
-    //todo move to guiSettings
-    types::SplitTunneling st = splitTunneling_;
-    st.settings = settings;
-    saveGuiSettings();
-    emit splitTunnelingChanged(st);
+    if (guiSettings_.splitTunneling.settings != settings)
+    {
+        guiSettings_.splitTunneling.settings = settings;
+        saveGuiSettings();
+        emit splitTunnelingChanged(guiSettings_.splitTunneling);
+    }
 }
 
 QString Preferences::customOvpnConfigsPath() const
@@ -595,18 +596,18 @@ types::EngineSettings Preferences::getEngineSettings() const
 
 void Preferences::saveGuiSettings() const
 {
-    QSettings settings;
+    /*QSettings settings;
 
     int size = (int)guiSettings_.ByteSizeLong();
     QByteArray arr(size, Qt::Uninitialized);
     guiSettings_.SerializeToArray(arr.data(), size);
 
-    settings.setValue("guiSettings", arr);
+    settings.setValue("guiSettings", arr);*/
 }
 
 void Preferences::loadGuiSettings()
 {
-    QSettings settings;
+    /*QSettings settings;
 
     if (settings.contains("guiSettings"))
     {
@@ -619,7 +620,7 @@ void Preferences::loadGuiSettings()
     {
         guiSettings_ = GuiSettingsFromVer1::read();
     }
-    qCDebugMultiline(LOG_BASIC) << "Gui settings:" << QString::fromStdString(guiSettings_.DebugString());
+    qCDebugMultiline(LOG_BASIC) << "Gui settings:" << QString::fromStdString(guiSettings_.DebugString());*/
 }
 
 void Preferences::validateAndUpdateIfNeeded()
@@ -674,15 +675,15 @@ bool Preferences::isReceivingEngineSettings() const
 
 bool Preferences::isShowLocationLoad() const
 {
-    return guiSettings_.is_show_location_health();
+    return guiSettings_.isShowLocationHealth;
 }
 
 void Preferences::setShowLocationLoad(bool b)
 {
-    if (guiSettings_.is_show_location_health() != b)
+    if (guiSettings_.isShowLocationHealth != b)
     {
-        guiSettings_.set_is_show_location_health(b);
+        guiSettings_.isShowLocationHealth = b;
         saveGuiSettings();
-        emit showLocationLoadChanged(guiSettings_.is_show_location_health());
+        emit showLocationLoadChanged(guiSettings_.isShowLocationHealth);
     }
 }

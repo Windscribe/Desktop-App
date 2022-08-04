@@ -5,7 +5,6 @@
 #include <QStringList>
 #include "types/networkinterface.h"
 #include "types/splittunneling.h"
-#include "protobuf_includes.h"
 
 #define SAFE_DELETE(x) if (x) { delete x; x = nullptr; }
 #define SAFE_DELETE_LATER(x) if (x) { x->deleteLater(); x = nullptr; }

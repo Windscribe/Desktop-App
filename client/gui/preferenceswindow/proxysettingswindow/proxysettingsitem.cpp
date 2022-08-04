@@ -2,15 +2,14 @@
 
 #include <QPainter>
 #include "graphicresources/fontmanager.h"
-#include "utils/protoenumtostring.h"
 #include "dpiscalemanager.h"
 
 namespace PreferencesWindow {
 
 static bool IsProxyOptionAllowed(int option_number) {
     // Temporarily hide Auto-detect and SOCKS proxy options in the GUI.
-    return option_number != ProtoTypes::PROXY_OPTION_AUTODETECT &&
-           option_number != ProtoTypes::PROXY_OPTION_SOCKS;
+    return option_number != PROXY_OPTION_AUTODETECT &&
+           option_number != PROXY_OPTION_SOCKS;
 }
 
 ProxySettingsItem::ProxySettingsItem(ScalableGraphicsObject *parent) : BaseItem(parent, 93),
@@ -20,7 +19,7 @@ ProxySettingsItem::ProxySettingsItem(ScalableGraphicsObject *parent) : BaseItem(
 
     comboBoxProxyType_ = new ComboBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::ComboBoxItem", "Proxy"), "", 50, Qt::transparent, 0, false);
 
-    const QList< QPair<QString, int> > types = ProtoEnumToString::instance().getEnums(ProtoTypes::ProxyOption_descriptor());
+    const QList< QPair<QString, int> > types = PROXY_OPTION_toList();
     for (const auto p : types)
     {
         if (IsProxyOptionAllowed(p.second))

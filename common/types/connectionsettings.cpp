@@ -10,11 +10,6 @@ ConnectionSettings::ConnectionSettings() :
 {
 }
 
-ConnectionSettings::ConnectionSettings(const ProtoTypes::ConnectionSettings &s)
-    : protocol_(s.protocol()), port_(s.port()), bAutomatic_(s.is_automatic())
-{
-}
-
 void ConnectionSettings::set(const ProtocolType &protocol, uint port, bool bAutomatic)
 {
     protocol_ = protocol;
@@ -97,15 +92,6 @@ void ConnectionSettings::logConnectionSettings() const
     {
         qCDebug(LOG_CONNECTION) << "Connection settings: manual " << protocol_.toLongString() << port_;
     }
-}
-
-ProtoTypes::ConnectionSettings ConnectionSettings::convertToProtobuf() const
-{
-    ProtoTypes::ConnectionSettings cs;
-    cs.set_protocol(protocol_.convertToProtobuf());
-    cs.set_port(port_);
-    cs.set_is_automatic(bAutomatic_);
-    return cs;
 }
 
 } //namespace types

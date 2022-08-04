@@ -10,7 +10,6 @@ namespace types {
 struct ConnectionSettings
 {
     ConnectionSettings();
-    explicit ConnectionSettings(const ProtoTypes::ConnectionSettings &s);
     void set(const ProtocolType &protocol, uint port, bool bAutomatic);
     void set(const ProtocolType &protocol, uint port);
     void set(const ConnectionSettings &s);
@@ -27,8 +26,6 @@ struct ConnectionSettings
 
     void debugToLog() const;
     void logConnectionSettings() const;
-
-    ProtoTypes::ConnectionSettings convertToProtobuf() const;
 
     bool operator==(const ConnectionSettings &other) const
     {

@@ -2,7 +2,6 @@
 
 #include <QPainter>
 #include "graphicresources/fontmanager.h"
-#include "utils/protoenumtostring.h"
 #include "dpiscalemanager.h"
 
 namespace PreferencesWindow {
@@ -21,7 +20,7 @@ ProxyGatewayItem::ProxyGatewayItem(ScalableGraphicsObject *parent, PreferencesHe
 
     comboBoxProxyType_ = new ComboBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::ComboBoxItem", "Proxy Type"), "", 43, QColor(16, 22, 40), 24, true);
 
-    const QList< QPair<QString, int> > allProxyTypes = ProtoEnumToString::instance().getEnums(ProtoTypes::ProxySharingMode_descriptor());
+    const QList< QPair<QString, int> > allProxyTypes = PROXY_SHARING_TYPE_toList();
     for (const auto p : allProxyTypes)
     {
         comboBoxProxyType_->addItem(p.first, p.second);
@@ -62,12 +61,12 @@ void ProxyGatewayItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
 
 }
 
-void ProxyGatewayItem::setProxyGatewayPars(const ProtoTypes::ShareProxyGateway &sp)
+void ProxyGatewayItem::setProxyGatewayPars(const types::ShareProxyGateway &sp)
 {
-    if(!google::protobuf::util::MessageDifferencer::Equals(sp_, sp))
+    if (sp_ != sp)
     {
         sp_ = sp;
-        if (sp.is_enabled())
+        if (sp.isEnabled)
         {
             checkBoxButton_->setState(true);
             setHeight(expandedHeight_);
@@ -78,7 +77,7 @@ void ProxyGatewayItem::setProxyGatewayPars(const ProtoTypes::ShareProxyGateway &
             setHeight(collapsedHeight_);
         }
 
-        comboBoxProxyType_->setCurrentItem((int)sp.proxy_sharing_mode());
+        comboBoxProxyType_->setCurrentItem((int)sp.proxySharingMode);
     }
 }
 
@@ -132,7 +131,7 @@ void ProxyGatewayItem::onCheckBoxStateChanged(bool isChecked)
         }
     }
 
-    sp_.set_is_enabled(isChecked);
+    sp_.isEnabled = isChecked;
     emit proxyGatewayParsChanged(sp_);
 }
 
@@ -143,7 +142,7 @@ void ProxyGatewayItem::onExpandAnimationValueChanged(const QVariant &value)
 
 void ProxyGatewayItem::onProxyTypeItemChanged(QVariant v)
 {
-    sp_.set_proxy_sharing_mode((ProtoTypes::ProxySharingMode)v.toInt());
+    sp_.proxySharingMode = (PROXY_SHARING_TYPE)v.toInt();
     emit proxyGatewayParsChanged(sp_);
 }
 

@@ -668,7 +668,7 @@ void Engine::initPart2()
     connect(connectionManager_, SIGNAL(interfaceUpdated(QString)), SLOT(onConnectionManagerInterfaceUpdated(QString)));
     connect(connectionManager_, SIGNAL(testTunnelResult(bool, QString)), SLOT(onConnectionManagerTestTunnelResult(bool, QString)));
     connect(connectionManager_, SIGNAL(connectingToHostname(QString, QString, QString)), SLOT(onConnectionManagerConnectingToHostname(QString, QString, QString)));
-    connect(connectionManager_, SIGNAL(protocolPortChanged(ProtoTypes::Protocol, uint)), SLOT(onConnectionManagerProtocolPortChanged(ProtoTypes::Protocol, uint)));
+    connect(connectionManager_, SIGNAL(protocolPortChanged(types::ProtocolType, uint)), SLOT(onConnectionManagerProtocolPortChanged(types::ProtocolType, uint)));
     connect(connectionManager_, SIGNAL(internetConnectivityChanged(bool)), SLOT(onConnectionManagerInternetConnectivityChanged(bool)));
     connect(connectionManager_, SIGNAL(wireGuardAtKeyLimit()), SLOT(onConnectionManagerWireGuardAtKeyLimit()));
     connect(connectionManager_, SIGNAL(requestUsername(QString)), SLOT(onConnectionManagerRequestUsername(QString)));
@@ -1128,7 +1128,7 @@ void Engine::sendDebugLogImpl()
 void Engine::getWebSessionTokenImpl(WEB_SESSION_PURPOSE purpose)
 {
     uint userRole = serverApiEditAccountDetailsUserRole_;
-    if (purpose == ProtoTypes::WEB_SESSION_PURPOSE_ADD_EMAIL) userRole = serverApiAddEmailUserRole_;
+    if (purpose == WEB_SESSION_PURPOSE_ADD_EMAIL) userRole = serverApiAddEmailUserRole_;
     serverAPI_->webSession(apiInfo_->getAuthHash(), userRole, true);
 }
 
@@ -1596,12 +1596,10 @@ void Engine::onCheckUpdateAnswer(const types::CheckUpdate &checkUpdate, bool bNe
             return;
         }
 
-        if (checkUpdate.isInitialized())
-        {
-            installerUrl_ = checkUpdate.getUrl();
-            installerHash_ = checkUpdate.getSha256();
+        installerUrl_ = checkUpdate.url;
+        installerHash_ = checkUpdate.sha256;
 
-            // testing only
+        // testing only
 //#ifdef Q_OS_LINUX
 //            if(LinuxUtils::isDeb()) {
 //                installerUrl_ = "https://nexus.int.windscribe.com/repository/client-desktop-beta/windscribe_2.3.11_beta_amd64.deb";
@@ -1614,10 +1612,9 @@ void Engine::onCheckUpdateAnswer(const types::CheckUpdate &checkUpdate, bool bNe
 //#else
 //             installerUrl_ = "https://nexus.int.windscribe.com/repository/client-desktop-beta/Windscribe_2.3.11_beta.exe";
 //#endif
-            qCDebug(LOG_BASIC) << "Installer URL: " << installerUrl_;
-            qCDebug(LOG_BASIC) << "Installer Hash: " << installerHash_;
-            Q_EMIT checkUpdateUpdated(checkUpdate);
-        }
+        qCDebug(LOG_BASIC) << "Installer URL: " << installerUrl_;
+        qCDebug(LOG_BASIC) << "Installer Hash: " << installerHash_;
+        Q_EMIT checkUpdateUpdated(checkUpdate);
     }
 }
 
@@ -2122,7 +2119,7 @@ void Engine::onConnectionManagerConnectingToHostname(const QString &hostname, co
     }
 }
 
-void Engine::onConnectionManagerProtocolPortChanged(const ProtoTypes::Protocol &protocol, const uint port)
+void Engine::onConnectionManagerProtocolPortChanged(const types::ProtocolType &protocol, const uint port)
 {
     lastConnectingProtocol_ = protocol;
     Q_EMIT protocolPortChanged(protocol, port);
@@ -2272,7 +2269,7 @@ void Engine::onDownloadHelperProgressChanged(uint progressPercent)
     if (lastDownloadProgress_ != progressPercent)
     {
         lastDownloadProgress_ = progressPercent;
-        Q_EMIT updateVersionChanged(progressPercent, ProtoTypes::UPDATE_VERSION_STATE_DOWNLOADING, ProtoTypes::UPDATE_VERSION_ERROR_NO_ERROR);
+        Q_EMIT updateVersionChanged(progressPercent, UPDATE_VERSION_STATE_DOWNLOADING, UPDATE_VERSION_ERROR_NO_ERROR);
     }
 }
 
@@ -2285,7 +2282,7 @@ void Engine::onDownloadHelperFinished(const DownloadHelper::DownloadState &state
     {
         qCDebug(LOG_DOWNLOADER) << "Removing incomplete installer";
         QFile::remove(installerPath_);
-        Q_EMIT updateVersionChanged(0, ProtoTypes::UPDATE_VERSION_STATE_DONE, ProtoTypes::UPDATE_VERSION_ERROR_DL_FAIL);
+        Q_EMIT updateVersionChanged(0, UPDATE_VERSION_STATE_DONE, UPDATE_VERSION_ERROR_DL_FAIL);
         return;
     }
     qCDebug(LOG_DOWNLOADER) << "Successful download to: " << installerPath_;
@@ -2297,7 +2294,7 @@ void Engine::onDownloadHelperFinished(const DownloadHelper::DownloadState &state
     {
         qCDebug(LOG_AUTO_UPDATER) << "Incorrect signature, removing unsigned installer: " << QString::fromStdString(sigCheck.lastError());
         QFile::remove(installerPath_);
-        Q_EMIT updateVersionChanged(0, ProtoTypes::UPDATE_VERSION_STATE_DONE, ProtoTypes::UPDATE_VERSION_ERROR_SIGN_FAIL);
+        Q_EMIT updateVersionChanged(0, UPDATE_VERSION_STATE_DONE, UPDATE_VERSION_ERROR_SIGN_FAIL);
         return;
     }
     qCDebug(LOG_AUTO_UPDATER) << "Installer signature valid";
@@ -2308,7 +2305,7 @@ void Engine::onDownloadHelperFinished(const DownloadHelper::DownloadState &state
 
     if (tempInstallerFilename == "")
     {
-        Q_EMIT updateVersionChanged(0, ProtoTypes::UPDATE_VERSION_STATE_DONE, autoUpdaterHelper_->error());
+        Q_EMIT updateVersionChanged(0, UPDATE_VERSION_STATE_DONE, autoUpdaterHelper_->error());
         return;
     }
     installerPath_ = tempInstallerFilename;
@@ -2319,7 +2316,7 @@ void Engine::onDownloadHelperFinished(const DownloadHelper::DownloadState &state
     {
         qCDebug(LOG_BASIC) << "Hash from API is empty -- cannot verify";
         if (QFile::exists(installerPath_)) QFile::remove(installerPath_);
-        emit updateVersionChanged(0, ProtoTypes::UPDATE_VERSION_STATE_DONE, ProtoTypes::UPDATE_VERSION_ERROR_API_HASH_INVALID);
+        emit updateVersionChanged(0, UPDATE_VERSION_STATE_DONE, UPDATE_VERSION_ERROR_API_HASH_INVALID);
         return;
     }
 
@@ -2327,12 +2324,12 @@ void Engine::onDownloadHelperFinished(const DownloadHelper::DownloadState &state
     {
         qCDebug(LOG_AUTO_UPDATER) << "Incorrect hash, removing installer";
         if (QFile::exists(installerPath_)) QFile::remove(installerPath_);
-        emit updateVersionChanged(0, ProtoTypes::UPDATE_VERSION_STATE_DONE, ProtoTypes::UPDATE_VERSION_ERROR_COMPARE_HASH_FAIL);
+        emit updateVersionChanged(0, UPDATE_VERSION_STATE_DONE, UPDATE_VERSION_ERROR_COMPARE_HASH_FAIL);
         return;
     }
 #endif
 
-    Q_EMIT updateVersionChanged(0, ProtoTypes::UPDATE_VERSION_STATE_RUNNING, ProtoTypes::UPDATE_VERSION_ERROR_NO_ERROR);
+    Q_EMIT updateVersionChanged(0, UPDATE_VERSION_STATE_RUNNING, UPDATE_VERSION_ERROR_NO_ERROR);
 }
 
 void Engine::updateRunInstaller(qint32 windowCenterX, qint32 windowCenterY)
@@ -2363,7 +2360,7 @@ void Engine::updateRunInstaller(qint32 windowCenterX, qint32 windowCenterY)
         DWORD lastError = GetLastError();
         qCDebug(LOG_AUTO_UPDATER) << "Can't start installer: errorCode = " << lastError;
         QFile::remove(installerPath_);
-        Q_EMIT updateVersionChanged(0, ProtoTypes::UPDATE_VERSION_STATE_DONE, ProtoTypes::UPDATE_VERSION_ERROR_START_INSTALLER_FAIL);
+        Q_EMIT updateVersionChanged(0, UPDATE_VERSION_STATE_DONE, UPDATE_VERSION_ERROR_START_INSTALLER_FAIL);
         return;
     }
 
@@ -2375,7 +2372,7 @@ void Engine::updateRunInstaller(qint32 windowCenterX, qint32 windowCenterY)
     bool verifiedAndRan = autoUpdaterHelper_->verifyAndRun(installerPath_, additionalArgs);
     if (!verifiedAndRan)
     {
-        Q_EMIT updateVersionChanged(0, ProtoTypes::UPDATE_VERSION_STATE_DONE, autoUpdaterHelper_->error());
+        Q_EMIT updateVersionChanged(0, UPDATE_VERSION_STATE_DONE, autoUpdaterHelper_->error());
         return;
     }
 #else // Linux
@@ -2384,7 +2381,7 @@ void Engine::updateRunInstaller(qint32 windowCenterX, qint32 windowCenterY)
 
     if(helper_) {
         if(!dynamic_cast<Helper_linux*>(helper_)->installUpdate(installerPath_)) {
-            emit updateVersionChanged(0, ProtoTypes::UPDATE_VERSION_STATE_DONE, ProtoTypes::UPDATE_VERSION_ERROR_START_INSTALLER_FAIL);
+            emit updateVersionChanged(0, UPDATE_VERSION_STATE_DONE, ProtoTypes::UPDATE_VERSION_ERROR_START_INSTALLER_FAIL);
             return;
         }
     }
@@ -2393,7 +2390,7 @@ void Engine::updateRunInstaller(qint32 windowCenterX, qint32 windowCenterY)
     qCDebug(LOG_AUTO_UPDATER) << "Installer valid and executed";
     installerPath_.clear();
 
-    Q_EMIT updateVersionChanged(0, ProtoTypes::UPDATE_VERSION_STATE_DONE, ProtoTypes::UPDATE_VERSION_ERROR_NO_ERROR);
+    Q_EMIT updateVersionChanged(0, UPDATE_VERSION_STATE_DONE, UPDATE_VERSION_ERROR_NO_ERROR);
 }
 
 void Engine::onEmergencyControllerConnected()

@@ -12,15 +12,12 @@ class DnsWhileConnectedInfo
 {
 public:    
     DnsWhileConnectedInfo() : type_(DNS_WHILE_CONNECTED_TYPE_ROBERT) {}
-    explicit DnsWhileConnectedInfo(ProtoTypes::DnsWhileConnectedInfo protoBufInfo);
 
     QString toString() const;
     DNS_WHILE_CONNECTED_TYPE type() const;
     void setType(DNS_WHILE_CONNECTED_TYPE type);
     QString ipAddress() const;
     void setIpAddress(const QString &ipAddr);
-
-    ProtoTypes::DnsWhileConnectedInfo toProtobuf();
 
     static QList<DNS_WHILE_CONNECTED_TYPE> allAvailableTypes();
     static QString typeToString(const DNS_WHILE_CONNECTED_TYPE &type);

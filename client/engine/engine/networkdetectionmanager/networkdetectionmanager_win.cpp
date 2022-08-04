@@ -4,8 +4,6 @@
 #include "utils/logger.h"
 #include "utils/utils.h"
 
-const int typeIdNetworkInterface = qRegisterMetaType<ProtoTypes::NetworkInterface>("ProtoTypes::NetworkInterface");
-
 NetworkDetectionManager_win::NetworkDetectionManager_win(QObject *parent, IHelper *helper) : INetworkDetectionManager (parent)
 {
     helper_ = dynamic_cast<Helper_win *>(helper);

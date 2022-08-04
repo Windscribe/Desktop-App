@@ -33,7 +33,7 @@ int FavoriteLocationsStorage::size() const
 
 void FavoriteLocationsStorage::readFromSettings()
 {
-    favoriteLocations_.clear();
+    /*favoriteLocations_.clear();
     QSettings settings;
 
     if (settings.contains("favoriteLocations"))
@@ -49,12 +49,12 @@ void FavoriteLocationsStorage::readFromSettings()
             }
         }
     }
-    isFavoriteLocationsSetModified_ = false;
+    isFavoriteLocationsSetModified_ = false;*/
 }
 
 void FavoriteLocationsStorage::writeToSettings()
 {
-    if (!isFavoriteLocationsSetModified_)
+    /*if (!isFavoriteLocationsSetModified_)
         return;
 
     ProtoTypes::ArrayLocationId arrIds;
@@ -69,5 +69,5 @@ void FavoriteLocationsStorage::writeToSettings()
 
     QSettings settings;
     settings.setValue("favoriteLocations", arr);
-    isFavoriteLocationsSetModified_ = false;
+    isFavoriteLocationsSetModified_ = false;*/
 }

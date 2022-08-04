@@ -2,7 +2,6 @@
 
 #include <QPainter>
 #include "graphicresources/fontmanager.h"
-#include "utils/protoenumtostring.h"
 #include "dpiscalemanager.h"
 
 namespace PreferencesWindow {
@@ -14,7 +13,7 @@ FirewallModeItem::FirewallModeItem(ScalableGraphicsObject *parent) : BaseItem(pa
 
     comboBoxFirewallMode_ = new ComboBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::ComboBoxItem", "Firewall Mode"), "", 50, /*QColor(255, 0, 0)*/Qt::transparent, 0, false);
 
-    const QList< QPair<QString, int> > modes = ProtoEnumToString::instance().getEnums(ProtoTypes::FirewallMode_descriptor());
+    const QList< QPair<QString, int> > modes = FIREWALL_MODE_toList();
     for (const auto v : modes)
     {
         comboBoxFirewallMode_->addItem(v.first, v.second);
@@ -26,7 +25,7 @@ FirewallModeItem::FirewallModeItem(ScalableGraphicsObject *parent) : BaseItem(pa
 
     comboBoxFirewallWhen_ = new ComboBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::ComboBoxItem", "When?"), "", 43, QColor(16, 22, 40), 24, true);
 
-    const QList< QPair<QString, int> > whens = ProtoEnumToString::instance().getEnums(ProtoTypes::FirewallWhen_descriptor());
+    const QList< QPair<QString, int> > whens = FIREWALL_WHEN_toList();
     for (const auto v : whens)
     {
         comboBoxFirewallWhen_->addItem(v.first, v.second);
@@ -144,7 +143,7 @@ void FirewallModeItem::updateScaling()
 
 void FirewallModeItem::onFirewallModeChanged(QVariant v)
 {
-    if (v.toInt() == ProtoTypes::FIREWALL_MODE_AUTOMATIC && !isExpanded_)
+    if (v.toInt() == FIREWALL_MODE_AUTOMATIC && !isExpanded_)
     {
         expandEnimation_.setDirection(QVariantAnimation::Forward);
         if (expandEnimation_.state() != QVariantAnimation::Running)

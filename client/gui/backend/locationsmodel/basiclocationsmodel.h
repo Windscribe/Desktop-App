@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QSharedPointer>
 #include "locationmodelitem.h"
+#include "types/enums.h"
 
 class BasicLocationsModel : public QObject
 {
@@ -14,7 +15,7 @@ public:
 
     virtual void update(QVector<QSharedPointer<LocationModelItem>> locations) = 0;
 
-    void setOrderLocationsType(ProtoTypes::OrderLocationType orderLocationsType);
+    void setOrderLocationsType(ORDER_LOCATION_TYPE orderLocationsType);
     void changeConnectionSpeed(LocationID id, PingTime speed);
     void setIsFavorite(LocationID id, bool isFavorite);
     void setFreeSessionStatus(bool isFreeSessionStatus);
@@ -29,7 +30,7 @@ signals:
 
 protected:
     QVector<LocationModelItem *> locations_;
-    ProtoTypes::OrderLocationType orderLocationsType_;
+    ORDER_LOCATION_TYPE orderLocationsType_;
     bool isFreeSessionStatus_;
 
     void clearLocations();

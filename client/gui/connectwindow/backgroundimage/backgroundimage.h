@@ -31,7 +31,7 @@ signals:
     void updated();
 
 private slots:
-    void onBackgroundSettingsChanged(const ProtoTypes::BackgroundSettings &backgroundSettings);
+    void onBackgroundSettingsChanged(const types::BackgroundSettings &backgroundSettings);
     void handleBackgroundsChange();
 
 private:
@@ -44,7 +44,7 @@ private:
     QString connectedCustomGradient_;
 
     Preferences *preferences_;
-    ProtoTypes::BackgroundSettings curBackgroundSettings_;
+    types::BackgroundSettings curBackgroundSettings_;
     bool isDisconnectedAndConnectedImagesTheSame_;
 
     QSharedPointer<QMovie> disconnectedMovie_;

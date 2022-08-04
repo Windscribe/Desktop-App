@@ -1,6 +1,5 @@
 #include "connectstateprotocolport.h"
 #include "graphicresources/fontmanager.h"
-#include "utils/protoenumtostring.h"
 
 #include <QFontMetrics>
 #include <QPainter>
@@ -24,10 +23,10 @@ ConnectStateProtocolPort::ConnectStateProtocolPort(ScalableGraphicsObject *paren
 {
 
 #if defined(Q_OS_LINUX)
-    protocol_ = ProtoTypes::Protocol::PROTOCOL_UDP;
+    protocol_ = types::ProtocolType::PROTOCOL_UDP;
     port_ = 443;
 #else
-    protocol_ = ProtoTypes::Protocol::PROTOCOL_IKEV2;
+    protocol_ = types::ProtocolType::PROTOCOL_IKEV2;
     port_ = 500;
 #endif
 

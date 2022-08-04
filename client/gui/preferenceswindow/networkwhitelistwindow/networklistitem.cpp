@@ -43,7 +43,7 @@ void NetworkListItem::addNetwork(types::NetworkInterface network, NETWORK_TRUST_
     ComboBoxItem *combo = new ComboBoxItem(this, friendlyName, QString(), 50, Qt::transparent, 0, true);
     for (int i = 0; i < selections.length(); i++)
     {
-        ProtoTypes::NetworkTrustType trust = static_cast<ProtoTypes::NetworkTrustType>(i);
+        NETWORK_TRUST_TYPE trust = static_cast<NETWORK_TRUST_TYPE>(i);
         combo->addItem(selections[i], trust);
     }
 
@@ -72,7 +72,7 @@ void NetworkListItem::updateNetworkCombos()
 {
     for (auto *combo : qAsConst(networks_))
     {
-        ProtoTypes::NetworkTrustType currentTrust = static_cast<ProtoTypes::NetworkTrustType>(combo->currentItem().toInt());
+        NETWORK_TRUST_TYPE currentTrust = static_cast<NETWORK_TRUST_TYPE>(combo->currentItem().toInt());
 
         combo->clear();
 
@@ -80,7 +80,7 @@ void NetworkListItem::updateNetworkCombos()
 
         for (int i = 0; i < selections.length(); i++)
         {
-            ProtoTypes::NetworkTrustType trust = static_cast<ProtoTypes::NetworkTrustType>(i);
+            NETWORK_TRUST_TYPE trust = static_cast<NETWORK_TRUST_TYPE>(i);
 
             types::NetworkInterface network = NetworkWhiteListShared::networkInterfaceByFriendlyName(combo->labelCaption());
             combo->addItem(selections[i], trust);
@@ -118,7 +118,7 @@ void NetworkListItem::onNetworkItemChanged(QVariant data)
 
     ComboBoxItem *item = dynamic_cast<ComboBoxItem *>(sender());
 
-    if (item->currentItem() == ProtoTypes::NETWORK_FORGET)
+    if (item->currentItem() == NETWORK_TRUST_FORGET)
     {
         removeNetworkCombo(item);
     }

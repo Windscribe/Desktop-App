@@ -5,7 +5,6 @@
 #include <QJsonObject>
 #include <QVector>
 #include "node.h"
-#include "utils/protobuf_includes.h"
 
 namespace types {
 

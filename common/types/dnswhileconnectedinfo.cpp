@@ -3,21 +3,6 @@
 
 namespace types {
 
-DnsWhileConnectedInfo::DnsWhileConnectedInfo(ProtoTypes::DnsWhileConnectedInfo protoBufInfo) :
-    type_(static_cast<DNS_WHILE_CONNECTED_TYPE>(protoBufInfo.type()))
-  , ipAddress_(QString::fromStdString(protoBufInfo.ip_address()))
-{
-
-}
-
-ProtoTypes::DnsWhileConnectedInfo DnsWhileConnectedInfo::toProtobuf()
-{
-    ProtoTypes::DnsWhileConnectedInfo pDns;
-    pDns.set_type(static_cast<ProtoTypes::DnsWhileConnectedType>(type_));
-    pDns.set_ip_address(ipAddress_.toStdString());
-    return pDns;
-}
-
 QString DnsWhileConnectedInfo::toString() const
 {
     return typeToString(type_);

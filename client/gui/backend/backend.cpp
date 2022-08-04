@@ -12,8 +12,6 @@
 #include <QCoreApplication>
 
 
-const int typeIdNetworkInterface = qRegisterMetaType<ProtoTypes::NetworkInterface>("ProtoTypes::NetworkInterface");
-
 Backend::Backend(QObject *parent) : QObject(parent),
     isSavedApiSettingsExists_(false),
     bLastLoginWithAuthHash_(false),

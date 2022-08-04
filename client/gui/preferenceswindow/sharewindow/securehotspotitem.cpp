@@ -58,12 +58,12 @@ void SecureHotspotItem::paint(QPainter *painter, const QStyleOptionGraphicsItem 
 
 }
 
-void SecureHotspotItem::setSecureHotspotPars(const ProtoTypes::ShareSecureHotspot &ss)
+void SecureHotspotItem::setSecureHotspotPars(const types::ShareSecureHotspot &ss)
 {
-    if(!google::protobuf::util::MessageDifferencer::Equals(ss_, ss))
+    if (ss_ != ss)
     {
         ss_ = ss;
-        if (ss.is_enabled())
+        if (ss.isEnabled)
         {
             checkBoxButton_->setState(true);
             setHeight(expandedHeight_);
@@ -74,8 +74,8 @@ void SecureHotspotItem::setSecureHotspotPars(const ProtoTypes::ShareSecureHotspo
             setHeight(collapsedHeight_);
         }
 
-        editBoxSSID_->setText(QString::fromStdString(ss.ssid()));
-        editBoxPassword_->setText(QString::fromStdString(ss.password()));
+        editBoxSSID_->setText(ss.ssid);
+        editBoxPassword_->setText(ss.password);
     }
 }
 
@@ -86,7 +86,7 @@ void SecureHotspotItem::setSupported(HOTSPOT_SUPPORT_TYPE supported)
     if (supported_ != HOTSPOT_SUPPORTED)
     {
         checkBoxButton_->setState(false);
-        ss_.set_is_enabled(false);
+        ss_.isEnabled = false;
         emit secureHotspotParsChanged(ss_);
     }
     updateCollapsedAndExpandedHeight();
@@ -127,7 +127,7 @@ void SecureHotspotItem::onCheckBoxStateChanged(bool isChecked)
         }
     }
 
-    ss_.set_is_enabled(isChecked);
+    ss_.isEnabled = isChecked;
     emit secureHotspotParsChanged(ss_);
 }
 
@@ -138,7 +138,7 @@ void SecureHotspotItem::onExpandAnimationValueChanged(const QVariant &value)
 
 void SecureHotspotItem::onSSIDChanged(const QString &text)
 {
-    ss_.set_ssid(text.toStdString());
+    ss_.ssid = text;
     emit secureHotspotParsChanged(ss_);
 }
 
@@ -146,7 +146,7 @@ void SecureHotspotItem::onPasswordChanged(const QString &password)
 {
     if (password.length() >= 8)
     {
-        ss_.set_password(password.toStdString());
+        ss_.password = password;
         emit secureHotspotParsChanged(ss_);
     }
     else
@@ -154,7 +154,7 @@ void SecureHotspotItem::onPasswordChanged(const QString &password)
         QString title = tr("Windscribe");
         QString desc = tr("Hotspot password must be at least 8 characters.");
         QMessageBox::information(g_mainWindow, title, desc);
-        editBoxPassword_->setText(QString::fromStdString(ss_.password()));
+        editBoxPassword_->setText(ss_.password);
     }
 }
 

@@ -59,9 +59,9 @@ QStringList PreferencesHelper::getAvailableOpenVpnVersions()
     return availableOpenVpnVersions_;
 }
 
-QVector<ProtoTypes::TapAdapterType> PreferencesHelper::getAvailableTapAdapters(const QString & /*openVpnVersion*/)
+QVector<TAP_ADAPTER_TYPE> PreferencesHelper::getAvailableTapAdapters(const QString & /*openVpnVersion*/)
 {
-    return QVector<ProtoTypes::TapAdapterType>() << ProtoTypes::TAP_ADAPTER << ProtoTypes::WINTUN_ADAPTER;
+    return QVector<TAP_ADAPTER_TYPE>() << TAP_ADAPTER << WINTUN_ADAPTER;
 }
 
 void PreferencesHelper::setPortMap(const types::PortMap &portMap)
@@ -81,7 +81,7 @@ QVector<types::ProtocolType> PreferencesHelper::getAvailableProtocols()
     {
 #if defined(Q_OS_LINUX)
         const auto protocol = portMap_.port_map_item(i).protocol();
-        if (protocol == ProtoTypes::Protocol::PROTOCOL_IKEV2) {
+        if (protocol == types::ProtocolType::PROTOCOL_IKEV2) {
             continue;
         }
 #elif defined(Q_OS_WINDOWS)

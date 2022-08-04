@@ -16,10 +16,10 @@ CurrentNetworkItem::CurrentNetworkItem(ScalableGraphicsObject *parent) : BaseIte
     currentNetworkCombo_->setVisible(false);
     for (int i = 0; i < selections.length(); i++)
     {
-        ProtoTypes::NetworkTrustType trust = static_cast<ProtoTypes::NetworkTrustType>(i);
+        NETWORK_TRUST_TYPE trust = static_cast<NETWORK_TRUST_TYPE>(i);
         currentNetworkCombo_->addItem(selections[i], trust);
     }
-    currentNetworkCombo_->setCurrentItem(ProtoTypes::NETWORK_SECURED);
+    currentNetworkCombo_->setCurrentItem(NETWORK_TRUST_SECURED);
     connect(currentNetworkCombo_, SIGNAL(currentItemChanged(QVariant)), SLOT(onTrustTypeChanged(QVariant)));
     updatePositions();
 }
@@ -99,12 +99,12 @@ void CurrentNetworkItem::updateReadableText()
     currentNetworkCombo_->setLabelCaption(caption);
 
     // update combo text
-    ProtoTypes::NetworkTrustType currentTrust = static_cast<ProtoTypes::NetworkTrustType>(currentNetworkCombo_->currentItem().toInt());
+    NETWORK_TRUST_TYPE currentTrust = static_cast<NETWORK_TRUST_TYPE>(currentNetworkCombo_->currentItem().toInt());
     currentNetworkCombo_->clear();
     QList<QString> selections = NetworkWhiteListShared::networkTrustTypes();
     for (int i = 0; i < selections.length(); i++)
     {
-        ProtoTypes::NetworkTrustType trust = static_cast<ProtoTypes::NetworkTrustType>(i);
+        NETWORK_TRUST_TYPE trust = static_cast<NETWORK_TRUST_TYPE>(i);
 
         types::NetworkInterface network = NetworkWhiteListShared::networkInterfaceByFriendlyName(currentNetworkCombo_->labelCaption());
         currentNetworkCombo_->addItem(selections[i], trust);

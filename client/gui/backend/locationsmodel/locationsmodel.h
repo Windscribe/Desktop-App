@@ -35,7 +35,7 @@ public:
     BasicCitiesModel *getStaticIpsLocationsModel();
     BasicCitiesModel *getFavoriteLocationsModel();
 
-    void setOrderLocationsType(ProtoTypes::OrderLocationType orderLocationsType);
+    void setOrderLocationsType(ORDER_LOCATION_TYPE orderLocationsType);
     void switchFavorite(const LocationID &id, bool isFavorite);
     void saveFavorites();
     bool getLocationInfo(const LocationID &id, LocationInfo &li);
@@ -74,7 +74,7 @@ private:
     BasicCitiesModel *favoriteLocations_;
     FavoriteLocationsStorage favoriteLocationsStorage_;
 
-    ProtoTypes::OrderLocationType orderLocationsType_;
+    ORDER_LOCATION_TYPE orderLocationsType_;
     QVector< QSharedPointer<LocationModelItem> > apiLocations_;
     LocationID bestLocationId_;
     QVector< QSharedPointer<LocationModelItem> > customConfigLocations_;

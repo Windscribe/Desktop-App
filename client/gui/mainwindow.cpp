@@ -178,8 +178,8 @@ MainWindow::MainWindow() :
     connect(backend_, SIGNAL(internetConnectivityChanged(bool)), SLOT(onBackendInternetConnectivityChanged(bool)));
     connect(backend_, SIGNAL(protocolPortChanged(types::ProtocolType, uint)), SLOT(onBackendProtocolPortChanged(types::ProtocolType, uint)));
     connect(backend_, SIGNAL(packetSizeDetectionStateChanged(bool, bool)), SLOT(onBackendPacketSizeDetectionStateChanged(bool, bool)));
-    connect(backend_, SIGNAL(updateVersionChanged(uint, ProtoTypes::UpdateVersionState, ProtoTypes::UpdateVersionError)),
-            SLOT(onBackendUpdateVersionChanged(uint, ProtoTypes::UpdateVersionState, ProtoTypes::UpdateVersionError)));
+    connect(backend_, SIGNAL(updateVersionChanged(uint, UPDATE_VERSION_STATE, UPDATE_VERSION_ERROR)),
+            SLOT(onBackendUpdateVersionChanged(uint, UPDATE_VERSION_STATE, UPDATE_VERSION_ERROR)));
     connect(backend_, SIGNAL(webSessionTokenForEditAccountDetails(QString)), SLOT(onBackendWebSessionTokenForEditAccountDetails(QString)));
     connect(backend_, SIGNAL(webSessionTokenForAddEmail(QString)), SLOT(onBackendWebSessionTokenForAddEmail(QString)));
     connect(backend_, SIGNAL(engineCrash()), SLOT(onBackendEngineCrash()));
@@ -195,7 +195,7 @@ MainWindow::MainWindow() :
     connect(locationsWindow_, SIGNAL(clearCustomConfigClicked()), SLOT(onLocationsClearCustomConfigClicked()));
     connect(locationsWindow_, SIGNAL(addCustomConfigClicked()), SLOT(onLocationsAddCustomConfigClicked()));
     locationsWindow_->setLatencyDisplay(backend_->getPreferences()->latencyDisplay());
-    locationsWindow_->connect(backend_->getPreferences(), SIGNAL(latencyDisplayChanged(ProtoTypes::LatencyDisplayType)), SLOT(setLatencyDisplay(ProtoTypes::LatencyDisplayType)) );
+    locationsWindow_->connect(backend_->getPreferences(), SIGNAL(latencyDisplayChanged(LATENCY_DISPLAY_TYPE)), SLOT(setLatencyDisplay(LATENCY_DISPLAY_TYPE)) );
     locationsWindow_->setShowLocationLoad(backend_->getPreferences()->isShowLocationLoad());
     connect(backend_->getPreferences(), &Preferences::showLocationLoadChanged, locationsWindow_, &LocationsWindow::setShowLocationLoad);
     connect(backend_->getPreferences(), &Preferences::isAutoConnectChanged, this, &MainWindow::onAutoConnectUpdated);
@@ -331,9 +331,9 @@ MainWindow::MainWindow() :
 
     // preferences changes signals
     connect(backend_->getPreferences(), SIGNAL(firewallSettingsChanged(types::FirewallSettings)), SLOT(onPreferencesFirewallSettingsChanged(types::FirewallSettings)));
-    connect(backend_->getPreferences(), SIGNAL(shareProxyGatewayChanged(ProtoTypes::ShareProxyGateway)), SLOT(onPreferencesShareProxyGatewayChanged(ProtoTypes::ShareProxyGateway)));
-    connect(backend_->getPreferences(), SIGNAL(shareSecureHotspotChanged(ProtoTypes::ShareSecureHotspot)), SLOT(onPreferencesShareSecureHotspotChanged(ProtoTypes::ShareSecureHotspot)));
-    connect(backend_->getPreferences(), SIGNAL(locationOrderChanged(ProtoTypes::OrderLocationType)), SLOT(onPreferencesLocationOrderChanged(ProtoTypes::OrderLocationType)));
+    connect(backend_->getPreferences(), SIGNAL(shareProxyGatewayChanged(types::ShareProxyGateway)), SLOT(onPreferencesShareProxyGatewayChanged(types::ShareProxyGateway)));
+    connect(backend_->getPreferences(), SIGNAL(shareSecureHotspotChanged(types::ShareSecureHotspot)), SLOT(onPreferencesShareSecureHotspotChanged(types::ShareSecureHotspot)));
+    connect(backend_->getPreferences(), SIGNAL(locationOrderChanged(ORDER_LOCATION_TYPE)), SLOT(onPreferencesLocationOrderChanged(ORDER_LOCATION_TYPE)));
     connect(backend_->getPreferences(), SIGNAL(splitTunnelingChanged(types::SplitTunneling)), SLOT(onPreferencesSplitTunnelingChanged(types::SplitTunneling)));
     connect(backend_->getPreferences(), SIGNAL(updateEngineSettings()), SLOT(onPreferencesUpdateEngineSettings()));
     connect(backend_->getPreferences(), SIGNAL(isLaunchOnStartupChanged(bool)), SLOT(onPreferencesLaunchOnStartupChanged(bool)));
@@ -764,7 +764,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
         }
         else if (event->key() == Qt::Key_H)
         {
-            /*ProtoTypes::ShareSecureHotspot ss = backend_->getShareSecureHotspot();
+            /*types::ShareSecureHotspot ss = backend_->getShareSecureHotspot();
             ss.set_is_enabled(!ss.is_enabled());
             ss.set_ssid("WifiName");
             backend_->setShareSecureHotspot(ss);
@@ -773,7 +773,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
         }
         else if (event->key() == Qt::Key_J)
         {
-            /*ProtoTypes::ShareProxyGateway sp = backend_->getShareProxyGateway();
+            /*types::ShareProxyGateway sp = backend_->getShareProxyGateway();
             sp.set_is_enabled(!sp.is_enabled());
             backend_->setShareProxyGateway(sp);
 			*/
@@ -781,12 +781,12 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
         }
         else if (event->key() == Qt::Key_P)
         {
-            /*ProtoTypes::ShareSecureHotspot ss = backend_->getShareSecureHotspot();
+            /*types::ShareSecureHotspot ss = backend_->getShareSecureHotspot();
             ss.set_is_enabled(!ss.is_enabled());
             ss.set_ssid("WifiName");
             backend_->setShareSecureHotspot(ss);
 
-            ProtoTypes::ShareProxyGateway sp = backend_->getShareProxyGateway();
+            types::ShareProxyGateway sp = backend_->getShareProxyGateway();
             sp.set_is_enabled(!sp.is_enabled());
             backend_->setShareProxyGateway(sp);
 			*/
@@ -1495,11 +1495,11 @@ void MainWindow::onBackendInitFinished(INIT_STATE initState)
 #endif
 
         // enable wifi/proxy sharing, if checked
-        if (p->shareSecureHotspot().is_enabled())
+        if (p->shareSecureHotspot().isEnabled)
         {
             onPreferencesShareSecureHotspotChanged(p->shareSecureHotspot());
         }
-        if (p->shareProxyGateway().is_enabled())
+        if (p->shareProxyGateway().isEnabled)
         {
             onPreferencesShareProxyGatewayChanged(p->shareProxyGateway());
         }
@@ -1799,7 +1799,7 @@ void MainWindow::onBackendSessionStatusChanged(const types::SessionStatus &sessi
             multipleAccountDetection_->userBecomeExpired(sessionStatus.getUsername());
 
             if ((!PersistentState::instance().lastLocation().isCustomConfigsLocation()) &&
-                (backend_->currentConnectState() == ProtoTypes::CONNECTED || backend_->currentConnectState() == ProtoTypes::CONNECTING))
+                (backend_->currentConnectState() == CONNECT_STATE_CONNECTED || backend_->currentConnectState() == CONNECT_STATE_CONNECTING))
             {
                 bDisconnectFromTrafficExceed_ = true;
                 backend_->sendDisconnect();
@@ -1857,7 +1857,7 @@ void MainWindow::onBackendSessionStatusChanged(const types::SessionStatus &sessi
     {
         blockConnect_.setBlockedBannedUser();
         if ((!PersistentState::instance().lastLocation().isCustomConfigsLocation()) &&
-            (backend_->currentConnectState() == ProtoTypes::CONNECTED || backend_->currentConnectState() == ProtoTypes::CONNECTING))
+            (backend_->currentConnectState() == CONNECT_STATE_CONNECTED || backend_->currentConnectState() == CONNECT_STATE_CONNECTING))
         {
             backend_->sendDisconnect();
         }
@@ -1878,29 +1878,29 @@ void MainWindow::onBackendSessionStatusChanged(const types::SessionStatus &sessi
 
 void MainWindow::onBackendCheckUpdateChanged(const types::CheckUpdate &checkUpdateInfo)
 {
-    if (checkUpdateInfo.getProtoBuf().is_available())
+    if (checkUpdateInfo.isAvailable)
     {
         qCDebug(LOG_BASIC) << "Update available";
-        if (!checkUpdateInfo.getProtoBuf().is_supported())
+        if (!checkUpdateInfo.isSupported)
         {
             blockConnect_.setNeedUpgrade();
         }
 
         QString betaStr;
-        betaStr = "-" + QString::number(checkUpdateInfo.getProtoBuf().latest_build());
-        if (checkUpdateInfo.getProtoBuf().update_channel() == ProtoTypes::UPDATE_CHANNEL_BETA)
+        betaStr = "-" + QString::number(checkUpdateInfo.latestBuild);
+        if (checkUpdateInfo.updateChannel == UPDATE_CHANNEL_BETA)
         {
             betaStr += "b";
         }
-        else if (checkUpdateInfo.getProtoBuf().update_channel() == ProtoTypes::UPDATE_CHANNEL_GUINEA_PIG)
+        else if (checkUpdateInfo.updateChannel == UPDATE_CHANNEL_GUINEA_PIG)
         {
             betaStr += "g";
         }
 
         //updateWidget_->setText(tr("Update available - v") + version + betaStr);
 
-        mainWindowController_->getUpdateAppItem()->setVersionAvailable(QString::fromStdString(checkUpdateInfo.getProtoBuf().version()), checkUpdateInfo.getProtoBuf().latest_build());
-        mainWindowController_->getUpdateWindow()->setVersion(QString::fromStdString(checkUpdateInfo.getProtoBuf().version()), checkUpdateInfo.getProtoBuf().latest_build());
+        mainWindowController_->getUpdateAppItem()->setVersionAvailable(checkUpdateInfo.version, checkUpdateInfo.latestBuild);
+        mainWindowController_->getUpdateWindow()->setVersion(checkUpdateInfo.version, checkUpdateInfo.latestBuild);
 
         if (!ignoreUpdateUntilNextRun_)
         {
@@ -2317,16 +2317,16 @@ void MainWindow::onBackendPacketSizeDetectionStateChanged(bool on, bool isError)
     }
 }
 
-void MainWindow::onBackendUpdateVersionChanged(uint progressPercent, ProtoTypes::UpdateVersionState state, ProtoTypes::UpdateVersionError error)
+void MainWindow::onBackendUpdateVersionChanged(uint progressPercent, UPDATE_VERSION_STATE state, UPDATE_VERSION_ERROR error)
 {
     // qDebug() << "Mainwindow::onBackendUpdateVersionChanged: " << progressPercent << ", " << state;
 
-    if (state == ProtoTypes::UPDATE_VERSION_STATE_DONE)
+    if (state == UPDATE_VERSION_STATE_DONE)
     {
 
         if (downloadRunning_) // not cancelled by user
         {
-            if (error == ProtoTypes::UPDATE_VERSION_ERROR_NO_ERROR)
+            if (error == UPDATE_VERSION_ERROR_NO_ERROR)
             {
                 isExitingAfterUpdate_ = true; // the flag for prevent firewall off for some states
 
@@ -2346,39 +2346,39 @@ void MainWindow::onBackendUpdateVersionChanged(uint progressPercent, ProtoTypes:
 
                 QString titleText = tr("Auto-Update Failed");
                 QString descText = tr("Please contact support");
-                if (error == ProtoTypes::UPDATE_VERSION_ERROR_DL_FAIL)
+                if (error == UPDATE_VERSION_ERROR_DL_FAIL)
                 {
                     descText = tr("Please try again using a different network connection.");
                 }
-                else if (error == ProtoTypes::UPDATE_VERSION_ERROR_SIGN_FAIL)
+                else if (error == UPDATE_VERSION_ERROR_SIGN_FAIL)
                 {
                     descText = tr("Can't run the downloaded installer. It does not have the correct signature.");
                 }
-                else if (error == ProtoTypes::UPDATE_VERSION_ERROR_MOUNT_FAIL)
+                else if (error == UPDATE_VERSION_ERROR_MOUNT_FAIL)
                 {
                     descText = tr("Cannot access the installer. Image mounting has failed.");
                 }
-                else if (error == ProtoTypes::UPDATE_VERSION_ERROR_DMG_HAS_NO_INSTALLER_FAIL)
+                else if (error == UPDATE_VERSION_ERROR_DMG_HAS_NO_INSTALLER_FAIL)
                 {
                     descText = tr("Downloaded image does not contain installer.");
                 }
-                else if (error == ProtoTypes::UPDATE_VERSION_ERROR_CANNOT_REMOVE_EXISTING_TEMP_INSTALLER_FAIL)
+                else if (error == UPDATE_VERSION_ERROR_CANNOT_REMOVE_EXISTING_TEMP_INSTALLER_FAIL)
                 {
                     descText = tr("Cannot overwrite a pre-existing temporary installer.");
                 }
-                else if (error == ProtoTypes::UPDATE_VERSION_ERROR_COPY_FAIL)
+                else if (error == UPDATE_VERSION_ERROR_COPY_FAIL)
                 {
                     descText = tr("Failed to copy installer to temp location.");
                 }
-                else if (error == ProtoTypes::UPDATE_VERSION_ERROR_START_INSTALLER_FAIL)
+                else if (error == UPDATE_VERSION_ERROR_START_INSTALLER_FAIL)
                 {
                     descText = tr("Auto-Updater has failed to run installer.");
                 }
-                else if (error == ProtoTypes::UPDATE_VERSION_ERROR_COMPARE_HASH_FAIL)
+                else if (error == UPDATE_VERSION_ERROR_COMPARE_HASH_FAIL)
                 {
                     descText = tr("Cannot run the downloaded installer. It does not have the expected hash.");
                 }
-                else if (error == ProtoTypes::UPDATE_VERSION_ERROR_API_HASH_INVALID)
+                else if (error == UPDATE_VERSION_ERROR_API_HASH_INVALID)
                 {
                     descText = tr("Windscribe API has returned an invalid hash for downloaded installer. Please contact support.");
                 }
@@ -2397,13 +2397,13 @@ void MainWindow::onBackendUpdateVersionChanged(uint progressPercent, ProtoTypes:
         }
         downloadRunning_ = false;
     }
-    else if (state == ProtoTypes::UPDATE_VERSION_STATE_DOWNLOADING)
+    else if (state == UPDATE_VERSION_STATE_DOWNLOADING)
     {
         // qDebug() << "Running -- updating progress";
         mainWindowController_->getUpdateAppItem()->setProgress(progressPercent);
         mainWindowController_->getUpdateWindow()->setProgress(progressPercent);
     }
-    else if (state == ProtoTypes::UPDATE_VERSION_STATE_RUNNING)
+    else if (state == UPDATE_VERSION_STATE_RUNNING)
     {
         // Send main window center coordinates from the GUI, to position the installer properly.
         const bool is_visible = isVisible() && !isMinimized();
@@ -2508,11 +2508,11 @@ void MainWindow::onPreferencesFirewallSettingsChanged(const types::FirewallSetti
     }
 }
 
-void MainWindow::onPreferencesShareProxyGatewayChanged(const ProtoTypes::ShareProxyGateway &sp)
+void MainWindow::onPreferencesShareProxyGatewayChanged(const types::ShareProxyGateway &sp)
 {
-    if (sp.is_enabled())
+    if (sp.isEnabled)
     {
-        backend_->startProxySharing((PROXY_SHARING_TYPE)sp.proxy_sharing_mode());
+        backend_->startProxySharing((PROXY_SHARING_TYPE)sp.proxySharingMode);
     }
     else
     {
@@ -2520,12 +2520,12 @@ void MainWindow::onPreferencesShareProxyGatewayChanged(const ProtoTypes::SharePr
     }
 }
 
-void MainWindow::onPreferencesShareSecureHotspotChanged(const ProtoTypes::ShareSecureHotspot &ss)
+void MainWindow::onPreferencesShareSecureHotspotChanged(const types::ShareSecureHotspot &ss)
 {
-    if (ss.is_enabled() && !ss.ssid().empty() && ss.password().length() >= 8)
+    if (ss.isEnabled && !ss.ssid.isEmpty() && ss.password.length() >= 8)
     {
-        mainWindowController_->getBottomInfoWindow()->setSecureHotspotFeatures(true, QString::fromStdString(ss.ssid()));
-        backend_->startWifiSharing(QString::fromStdString(ss.ssid()), QString::fromStdString(ss.password()));
+        mainWindowController_->getBottomInfoWindow()->setSecureHotspotFeatures(true, ss.ssid);
+        backend_->startWifiSharing(ss.ssid, ss.password);
     }
     else
     {
@@ -2534,7 +2534,7 @@ void MainWindow::onPreferencesShareSecureHotspotChanged(const ProtoTypes::ShareS
     }
 }
 
-void MainWindow::onPreferencesLocationOrderChanged(ProtoTypes::OrderLocationType o)
+void MainWindow::onPreferencesLocationOrderChanged(ORDER_LOCATION_TYPE o)
 {
     backend_->getLocationsModel()->setOrderLocationsType(o);
 }
@@ -2585,9 +2585,9 @@ void MainWindow::updateConnectWindowStateProtocolPortDisplay(types::ConnectionSe
     if (connectionSettings.isAutomatic())
     {
 #if defined(Q_OS_LINUX)
-        mainWindowController_->getConnectWindow()->setProtocolPort(ProtoTypes::PROTOCOL_UDP, 443);
+        mainWindowController_->getConnectWindow()->setProtocolPort(types::ProtocolType::PROTOCOL_UDP, 443);
 #else
-        mainWindowController_->getConnectWindow()->setProtocolPort(ProtoTypes::PROTOCOL_IKEV2, 500);
+        mainWindowController_->getConnectWindow()->setProtocolPort(types::ProtocolType::PROTOCOL_IKEV2, 500);
 #endif
     }
     else
@@ -3077,7 +3077,7 @@ void MainWindow::loadTrayMenuItems()
 {
     if (mainWindowController_->currentWindow() == MainWindowController::WINDOW_ID_CONNECT) // logged in
     {
-        if (backend_->currentConnectState() == ProtoTypes::DISCONNECTED)
+        if (backend_->currentConnectState() == CONNECT_STATE_DISCONNECTED)
         {
             trayMenu_.addAction(tr("Connect"), this, SLOT(onTrayMenuConnect()));
         }

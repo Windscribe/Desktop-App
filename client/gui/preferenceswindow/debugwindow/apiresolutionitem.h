@@ -6,7 +6,6 @@
 
 #include <QVariantAnimation>
 #include "../editboxitem.h"
-#include "utils/protobuf_includes.h"
 #include "types/dnsresolutionsettings.h"
 
 namespace PreferencesWindow {

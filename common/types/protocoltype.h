@@ -3,7 +3,6 @@
 
 #include <QString>
 #include <QDataStream>
-#include "utils/protobuf_includes.h"
 
 namespace types {
 
@@ -15,7 +14,6 @@ public:
 
     ProtocolType();
     ProtocolType(PROTOCOL_TYPE protocol);  // cppcheck-suppress noExplicitConstructor
-    ProtocolType(const ProtoTypes::Protocol &p);  // cppcheck-suppress noExplicitConstructor
     ProtocolType(const QString &strProtocol);  // cppcheck-suppress noExplicitConstructor
     PROTOCOL_TYPE getType() const;
     bool isInitialized() const;
@@ -28,8 +26,6 @@ public:
     QString toShortString() const;
     // return ikev2/udp/tcp/stealth string
     QString toLongString() const;
-
-    ProtoTypes::Protocol convertToProtobuf() const;
 
     bool operator==(const ProtocolType &other) const
     {

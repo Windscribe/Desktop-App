@@ -5,7 +5,6 @@
 #include <QPainter>
 #include "dpiscalemanager.h"
 #include "languagecontroller.h"
-#include "utils/protoenumtostring.h"
 #include "utils/logger.h"
 #include "tooltips/tooltiputil.h"
 #include "tooltips/tooltipcontroller.h"

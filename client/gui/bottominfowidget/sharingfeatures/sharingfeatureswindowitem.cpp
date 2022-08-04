@@ -3,7 +3,6 @@
 #include <QPainter>
 #include "graphicresources/fontmanager.h"
 #include "commongraphics/commongraphics.h"
-#include "utils/protoenumtostring.h"
 #include "dpiscalemanager.h"
 
 namespace SharingFeatures {

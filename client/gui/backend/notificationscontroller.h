@@ -5,7 +5,6 @@
 #include <QSet>
 #include <QVector>
 #include "types/notification.h"
-#include "utils/protobuf_includes.h"
 
 class NotificationsController : public QObject
 {

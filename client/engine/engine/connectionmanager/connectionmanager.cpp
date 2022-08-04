@@ -41,8 +41,6 @@
     #include "wireguardconnection_posix.h"
 #endif
 
-const int typeIdProtocol = qRegisterMetaType<ProtoTypes::Protocol>("ProtoTypes::Protocol");
-
 ConnectionManager::ConnectionManager(QObject *parent, IHelper *helper, INetworkDetectionManager *networkDetectionManager,
                                              ServerAPI *serverAPI, CustomOvpnAuthCredentialsStorage *customOvpnAuthCredentialsStorage) : QObject(parent),
     helper_(helper),
@@ -320,7 +318,7 @@ void ConnectionManager::onConnectionConnected(const AdapterGatewayInfo &connecti
     qCDebug(LOG_CONNECTION) << "VPN adapter and gateway:" << vpnAdapterInfo_.makeLogString();
 
     // override the DNS if we are using custom
-    if (customDnsAdapterGatewayInfo_.dnsWhileConnectedInfo.type() == ProtoTypes::DNS_WHILE_CONNECTED_TYPE_CUSTOM)
+    if (customDnsAdapterGatewayInfo_.dnsWhileConnectedInfo.type() == DNS_WHILE_CONNECTED_TYPE_CUSTOM)
     {
         QString customDnsIp = customDnsAdapterGatewayInfo_.dnsWhileConnectedInfo.ipAddress();
         customDnsAdapterGatewayInfo_.adapterInfo.setDnsServers(QStringList() << customDnsIp);
@@ -1014,7 +1012,7 @@ void ConnectionManager::doConnectPart2()
 void ConnectionManager::doConnectPart3()
 {
     qCDebug(LOG_CONNECTION) << "Connecting to IP:" << currentConnectionDescr_.ip << " protocol:" << currentConnectionDescr_.protocol.toLongString() << " port:" << currentConnectionDescr_.port;
-    Q_EMIT protocolPortChanged(currentConnectionDescr_.protocol.convertToProtobuf(), currentConnectionDescr_.port);
+    Q_EMIT protocolPortChanged(currentConnectionDescr_.protocol, currentConnectionDescr_.port);
 
     if (currentConnectionDescr_.protocol.isWireGuardProtocol())
     {

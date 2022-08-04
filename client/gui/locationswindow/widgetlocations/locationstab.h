@@ -57,7 +57,7 @@ public:
     static constexpr int COVER_LAST_ITEM_LINE = 4;
 
 public slots:
-    void setLatencyDisplay(ProtoTypes::LatencyDisplayType l);
+    void setLatencyDisplay(LATENCY_DISPLAY_TYPE l);
     void setCustomConfigsPath(QString path);
     void setShowLocationLoad(bool showLocationLoad);
 

@@ -50,17 +50,17 @@ private slots:
     void onLanguagePreferencesChanged(const QString &lang);
     void onLanguageItemChanged(QVariant lang);
 
-    void onLocationOrderPreferencesChanged(ProtoTypes::OrderLocationType o);
+    void onLocationOrderPreferencesChanged(ORDER_LOCATION_TYPE o);
     void onLocationItemChanged(QVariant o);
 
-    void onLatencyDisplayPreferencesChanged(ProtoTypes::LatencyDisplayType l);
+    void onLatencyDisplayPreferencesChanged(LATENCY_DISPLAY_TYPE l);
     void onLatencyItemChanged(QVariant o);
 
     void onUpdateChannelPreferencesChanged(const UPDATE_CHANNEL &c);
     void onUpdateChannelItemChanged(QVariant o);
 
-    void onBackgroundSettingsChanged(const ProtoTypes::BackgroundSettings &settings);
-    void onPreferencesBackgroundSettingsChanged(const ProtoTypes::BackgroundSettings &settings);
+    void onBackgroundSettingsChanged(const types::BackgroundSettings &settings);
+    void onPreferencesBackgroundSettingsChanged(const types::BackgroundSettings &settings);
 
     void onLanguageChanged();
 

@@ -3,7 +3,6 @@
 #include <QPainter>
 #include "../dividerline.h"
 #include "graphicresources/fontmanager.h"
-#include "utils/protoenumtostring.h"
 #include "dpiscalemanager.h"
 
 namespace PreferencesWindow {
@@ -26,7 +25,6 @@ ConnectionModeItem::ConnectionModeItem(ScalableGraphicsObject *parent, Preferenc
     connect(switchItem_, SIGNAL(stateChanged(AutoManualSwitchItem::SWITCH_STATE)), SLOT(onSwitchChanged(AutoManualSwitchItem::SWITCH_STATE)));
     switchItem_->setPos(0, 0);
 
-    //const QVector<ProtoTypes::Protocol> protocols = preferencesHelper->getAvailableProtocols();
     comboBoxProtocol_ = new ComboBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::ComboBoxItem", "Protocol"), "", 43, QColor(16, 22, 40), 24, true);
     comboBoxProtocol_->setPos(0, COLLAPSED_HEIGHT);
     comboBoxProtocol_->setClickable(false);

@@ -6,7 +6,6 @@
 #include <QMessageBox>
 #include "commongraphics/commongraphics.h"
 #include "languagecontroller.h"
-#include "utils/protoenumtostring.h"
 #include "dpiscalemanager.h"
 #include "tooltips/tooltipcontroller.h"
 #include "utils/logger.h"
@@ -76,7 +75,7 @@ DebugWindowItem::DebugWindowItem(ScalableGraphicsObject *parent, Preferences *pr
     addItem(cbKeepAlive_);
 
     comboBoxAppInternalDns_ = new ComboBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::ComboBoxItem", "App Internal DNS"), QString(), 50, Qt::transparent, 0, true);
-    const QList< QPair<QString, int> > dnsTypes = ProtoEnumToString::instance().getEnums(ProtoTypes::DnsPolicy_descriptor());
+    const QList< QPair<QString, int> > dnsTypes = DNS_POLICY_TYPE_toList();
     for (const auto &d : dnsTypes)
     {
         comboBoxAppInternalDns_->addItem(d.first, d.second);
@@ -88,7 +87,7 @@ DebugWindowItem::DebugWindowItem(ScalableGraphicsObject *parent, Preferences *pr
 
 #ifdef Q_OS_LINUX
     comboBoxDnsManager_ = new ComboBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::ComboBoxItem", "DNS Manager"), QString(), 50, Qt::transparent, 0, true);;
-    const QList< QPair<QString, int> > dnsManagerTypes = ProtoEnumToString::instance().getEnums(ProtoTypes::DnsManagerType_descriptor());
+    const QList< QPair<QString, int> > dnsManagerTypes = DNS_MANAGER_TYPE_toList();
     for (const auto &d : dnsManagerTypes)
     {
         comboBoxDnsManager_->addItem(d.first, d.second);
@@ -313,13 +312,13 @@ void DebugWindowItem::onTapAdapterPreferencesChanged(TAP_ADAPTER_TYPE tapAdapter
 void DebugWindowItem::updateTapAdaptersList()
 {
     comboBoxTapAdapter_->clear();
-    comboBoxTapAdapter_->addItem(ProtoEnumToString::instance().toString(ProtoTypes::TAP_ADAPTER), (int)ProtoTypes::TAP_ADAPTER);
+    comboBoxTapAdapter_->addItem( TAP_ADAPTER_TYPE_toString(TAP_ADAPTER), (int)TAP_ADAPTER);
 
     //if (comboBoxOpenVpn_->hasItems())
     {
         //if (comboBoxOpenVpn_->currentItem().toString().contains("2.5"))
         {
-            comboBoxTapAdapter_->addItem(ProtoEnumToString::instance().toString(ProtoTypes::WINTUN_ADAPTER), (int)ProtoTypes::WINTUN_ADAPTER);
+            comboBoxTapAdapter_->addItem(TAP_ADAPTER_TYPE_toString(WINTUN_ADAPTER), (int)WINTUN_ADAPTER);
         }
     }
     //comboBoxTapAdapter_->setCurrentItem((int)ProtoTypes::TAP_ADAPTER);
