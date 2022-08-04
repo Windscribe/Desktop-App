@@ -33,9 +33,9 @@ variables:
   BUILDROOT: 'build-libs'
   TMPROOT: 'temp'
   ARTIFACT_INSTALLER: 'installer.exe'
-  BUILD_WIN: 'y'
+  BUILD_WIN: 'n'
   BUILD_MAC: 'y'
-  BUILD_LINUX: 'y'
+  BUILD_LINUX: 'n'
   TEST_WIN: 'n' # tests will only run if BUILD_WIN also 'y'
   TEST_MAC: 'n' # tests will only run if BUILD_MAC also 'y'
   TEST_LINUX: 'n' # tests will only run if BUILD_LINUX also 'y'
@@ -67,7 +67,12 @@ include:
     - DEBIAN_FRONTEND=noninteractive apt-get -y update
     - DEBIAN_FRONTEND=noninteractive apt-get -y install build-essential git curl patchelf ruby-dev rpm libpam0g-dev software-properties-common libgl1-mesa-dev
     - DEBIAN_FRONTEND=noninteractive apt-get -y update
-    - DEBIAN_FRONTEND=noninteractive apt-get -y install wget autoconf libtool cmake fakeroot python
+    - DEBIAN_FRONTEND=noninteractive apt-get -y install wget autoconf libtool fakeroot python
+    # install cmake 3.23.x (default for Ubuntu 20.04 is 3.16.3)
+    - wget -qO /etc/apt/trusted.gpg.d/kitware-key.asc https://apt.kitware.com/keys/kitware-archive-latest.asc
+    - echo "deb https://apt.kitware.com/ubuntu/ focal main" | tee /etc/apt/sources.list.d/kitware.list
+    - DEBIAN_FRONTEND=noninteractive apt-get -y update
+    - DEBIAN_FRONTEND=noninteractive apt-get -y install cmake
     # Qt 6 dependencies, only necessary if we're building Qt from source.
     - DEBIAN_FRONTEND=noninteractive apt-get -y install libfontconfig1-dev libfreetype6-dev libx11-dev libx11-xcb-dev libxext-dev libxfixes-dev libxi-dev libxrender-dev libxcb1-dev libxcb-glx0-dev libxcb-keysyms1-dev libxcb-image0-dev libxcb-shm0-dev libxcb-icccm4-dev libxcb-sync0-dev libxcb-xfixes0-dev libxcb-shape0-dev libxcb-randr0-dev libxcb-render-util0-dev libxcb-util-dev libxcb-xinerama0-dev libxcb-xkb-dev libxkbcommon-dev libxkbcommon-x11-dev
     - gem i fpm -f
