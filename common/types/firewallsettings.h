@@ -3,6 +3,8 @@
 
 #include "types/enums.h"
 
+#include <QJsonObject>
+
 
 namespace types {
 
@@ -27,27 +29,21 @@ struct FirewallSettings
         return !(*this == other);
     }
 
-    friend QDataStream& operator <<(QDataStream &stream, const FirewallSettings &o)
+    QJsonObject toJsonObject() const
     {
-        stream << versionForSerialization_;
-        stream << o.mode << o.when;
-        return stream;
-    }
-    friend QDataStream& operator >>(QDataStream &stream, FirewallSettings &o)
-    {
-        quint32 version;
-        stream >> version;
-        Q_ASSERT(version == versionForSerialization_);
-        if (version > versionForSerialization_)
-        {
-            return stream;
-        }
-        stream >> o.mode >> o.when;
-        return stream;
+        QJsonObject json;
+        json["mode"] = (int)mode;
+        json["when"] = (int) when;
+        return json;
     }
 
-private:
-    static constexpr quint32 versionForSerialization_ = 1;
+    bool fromJsonObject(const QJsonObject &json)
+    {
+        if (json.contains("mode")) mode = (FIREWALL_MODE)json["mode"].toInt(FIREWALL_MODE_AUTOMATIC);
+        if (json.contains("when")) when = (FIREWALL_WHEN)json["when"].toInt(FIREWALL_WHEN_BEFORE_CONNECTION);
+        return true;
+    }
+
 };
 
 

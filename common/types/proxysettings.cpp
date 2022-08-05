@@ -144,4 +144,25 @@ bool ProxySettings::isProxyEnabled() const
     return (option_ == PROXY_OPTION_HTTP || option_ == PROXY_OPTION_SOCKS);
 }
 
+QJsonObject ProxySettings::toJsonObject() const
+{
+    QJsonObject json;
+    json["option"] = (int)option_;
+    json["address"] = address_;
+    json["port"] = (qint64)port_;
+    json["username"] = username_;
+    json["password"] = password_;
+    return json;
+}
+
+bool ProxySettings::fromJsonObject(const QJsonObject &json)
+{
+    if (json.contains("option")) option_ = (PROXY_OPTION)json["option"].toInt(PROXY_OPTION_NONE);
+    if (json.contains("address")) address_ = json["address"].toString();
+    if (json.contains("port")) port_ = json["port"].toInteger(0);
+    if (json.contains("username")) username_ = json["username"].toString();
+    if (json.contains("password")) password_ = json["password"].toString();
+    return true;
+}
+
 } //namespace types

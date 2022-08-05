@@ -11,7 +11,7 @@
 #include "utils/openssl_utils.h"
 
 
-WireGuardConfig::WireGuardConfig() : isValidSerialization_(true)
+WireGuardConfig::WireGuardConfig()
 {
 }
 
@@ -26,7 +26,6 @@ WireGuardConfig::WireGuardConfig(const QString &privateKey, const QString &ipAdd
     peer_.presharedKey = presharedKey;
     peer_.endpoint = endpoint;
     peer_.allowedIps = allowedIps;
-    isValidSerialization_ = true;
 }
 
 // static
@@ -41,6 +40,58 @@ QString WireGuardConfig::stripIpv6Address(const QStringList &addressList)
 QString WireGuardConfig::stripIpv6Address(const QString &addressList)
 {
     return stripIpv6Address(addressList.split(",", Qt::SkipEmptyParts));
+}
+
+void WireGuardConfig::writeToJson(QJsonObject &json) const
+{
+    json["version"] = versionForSerialization_;
+
+    QJsonObject clientObj;
+    clientObj["privateKey"] = client_.privateKey;
+    clientObj["publicKey"] = client_.publicKey;
+    clientObj["ipAddress"] = client_.ipAddress;
+    clientObj["dnsAddress"] = client_.dnsAddress;
+
+    QJsonObject peerObj;
+    peerObj["publicKey"] = peer_.publicKey;
+    peerObj["presharedKey"] = peer_.presharedKey;
+    peerObj["endpoint"] = peer_.endpoint;
+    peerObj["allowedIps"] = peer_.allowedIps;
+
+    json["client"] = clientObj;
+    json["peer"] = peerObj;
+}
+
+bool WireGuardConfig::fromJsonObject(const QJsonObject &json)
+{
+    if (!json.contains("version")) return false;
+    if (json["version"].toInt(INT_MAX) > versionForSerialization_) return false;
+
+    if (json.contains("client") && json["client"].isObject())
+    {
+        QJsonObject clientObj = json["client"].toObject();
+        if (clientObj.contains("privateKey")) client_.privateKey = clientObj["privateKey"].toString();
+        if (clientObj.contains("publicKey")) client_.publicKey = clientObj["publicKey"].toString();
+        if (clientObj.contains("ipAddress")) client_.ipAddress = clientObj["ipAddress"].toString();
+        if (clientObj.contains("dnsAddress")) client_.dnsAddress = clientObj["dnsAddress"].toString();
+    }
+    else {
+        return false;
+    }
+
+    if (json.contains("peer") && json["peer"].isObject())
+    {
+        QJsonObject peerObj = json["peer"].toObject();
+        if (peerObj.contains("publicKey")) peer_.publicKey = peerObj["publicKey"].toString();
+        if (peerObj.contains("presharedKey")) peer_.presharedKey = peerObj["presharedKey"].toString();
+        if (peerObj.contains("endpoint")) peer_.endpoint = peerObj["endpoint"].toString();
+        if (peerObj.contains("allowedIps")) peer_.allowedIps = peerObj["allowedIps"].toString();
+    }
+    else {
+        return false;
+    }
+
+    return true;
 }
 
 void WireGuardConfig::generateConfigFile(const QString &fileName) const
@@ -173,28 +224,13 @@ bool WireGuardConfig::haveServerGeneratedPeerParams() const
 
 QDataStream& operator <<(QDataStream &stream, const WireGuardConfig &c)
 {
-    stream << c.magic_ << c.versionForSerialization_;
     stream << c.client_.privateKey << c.client_.publicKey << c.client_.ipAddress << c.client_.dnsAddress;
     stream << c.peer_.publicKey << c.peer_.presharedKey << c.peer_.endpoint << c.peer_.allowedIps;
     return stream;
 }
 QDataStream& operator >>(QDataStream &stream, WireGuardConfig &c)
 {
-    quint32 magic, version;
-    stream >> magic;
-    if (magic != c.magic_)
-    {
-        c.isValidSerialization_ = false;
-        return stream;
-    }
-    stream >> version;
-    if (version > c.versionForSerialization_)
-    {
-        c.isValidSerialization_ = false;
-        return stream;
-    }
     stream >> c.client_.privateKey >> c.client_.publicKey >> c.client_.ipAddress >> c.client_.dnsAddress;
     stream >> c.peer_.publicKey >> c.peer_.presharedKey >> c.peer_.endpoint >> c.peer_.allowedIps;
-    c.isValidSerialization_ = true;
     return stream;
 }

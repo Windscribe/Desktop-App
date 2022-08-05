@@ -15,6 +15,8 @@ set(COMMON_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../../common)
 set(WINDSCRIBE_BUILD_LIBS_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../../build-libs)
 
 set(PROJECT_SOURCES
+    ${COMMON_PATH}/ipc/clicommands.cpp
+    ${COMMON_PATH}/ipc/clicommands.h
     ${COMMON_PATH}/ipc/clientcommands.cpp
     ${COMMON_PATH}/ipc/clientcommands.h
     ${COMMON_PATH}/ipc/command.h
@@ -22,10 +24,6 @@ set(PROJECT_SOURCES
     ${COMMON_PATH}/ipc/commandfactory.h
     ${COMMON_PATH}/ipc/connection.cpp
     ${COMMON_PATH}/ipc/connection.h
-    ${COMMON_PATH}/ipc/generated_proto/cli.pb.cc
-    ${COMMON_PATH}/ipc/generated_proto/cli.pb.h
-    ${COMMON_PATH}/ipc/generated_proto/types.pb.cc
-    ${COMMON_PATH}/ipc/generated_proto/types.pb.h
     ${COMMON_PATH}/ipc/iconnection.h
     ${COMMON_PATH}/ipc/iserver.h
     ${COMMON_PATH}/ipc/protobufcommand.h
@@ -104,7 +102,6 @@ set(PROJECT_SOURCES
     ${COMMON_PATH}/utils/mergelog.cpp
     ${COMMON_PATH}/utils/mergelog.h
     ${COMMON_PATH}/utils/multiline_message_logger.h
-    ${COMMON_PATH}/utils/protobuf_includes.h
     ${COMMON_PATH}/utils/simplecrypt.cpp
     ${COMMON_PATH}/utils/simplecrypt.h
     ${COMMON_PATH}/utils/utils.cpp
@@ -169,8 +166,6 @@ target_compile_definitions(common PRIVATE CMAKE_LIBRARY_LIBRARY
 
 target_include_directories(common PRIVATE
     ${COMMON_PATH}
-    ${WINDSCRIBE_BUILD_LIBS_PATH}/protobuf/release/include
-    ${WINDSCRIBE_BUILD_LIBS_PATH}/protobuf/include
     ${WINDSCRIBE_BUILD_LIBS_PATH}/openssl/include
     ${WINDSCRIBE_BUILD_LIBS_PATH}/boost/include
     ${CMAKE_CURRENT_SOURCE_DIR}/../gui

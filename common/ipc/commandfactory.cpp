@@ -3,7 +3,7 @@
 
 #include "commandfactory.h"
 #include "protobufcommand.h"
-#include "utils/protobuf_includes.h"
+#include "clicommands.h"
 
 namespace IPC
 {
@@ -13,67 +13,66 @@ Command *CommandFactory::makeCommand(const std::string strId, char *buf, int siz
     qDebug() << QString::fromStdString(strId);
 
     // CLI commands
-    if (strId == CliIpc::Connect::descriptor()->full_name())
+    if (strId == IPC::CliCommands::Connect::getCommandStringId())
     {
-        return new ProtobufCommand<CliIpc::Connect>(buf, size);
+        return new IPC::CliCommands::Connect(buf, size);
     }
-    else if (strId == CliIpc::ConnectToLocationAnswer::descriptor()->full_name())
+    else if (strId == IPC::CliCommands::ConnectToLocationAnswer::getCommandStringId())
     {
-        return new ProtobufCommand<CliIpc::ConnectToLocationAnswer>(buf, size);
+        return new IPC::CliCommands::ConnectToLocationAnswer(buf, size);
     }
-    else if (strId == CliIpc::ConnectStateChanged::descriptor()->full_name())
+    else if (strId == IPC::CliCommands::ConnectStateChanged::getCommandStringId())
     {
-        return new ProtobufCommand<CliIpc::ConnectStateChanged>(buf, size);
+        return new IPC::CliCommands::ConnectStateChanged(buf, size);
     }
-    else if (strId == CliIpc::Disconnect::descriptor()->full_name())
+    else if (strId == IPC::CliCommands::Disconnect::getCommandStringId())
     {
-        return new ProtobufCommand<CliIpc::Disconnect>(buf, size);
+        return new IPC::CliCommands::Disconnect(buf, size);
     }
-    else if (strId == CliIpc::AlreadyDisconnected::descriptor()->full_name())
+    else if (strId == IPC::CliCommands::AlreadyDisconnected::getCommandStringId())
     {
-        return new ProtobufCommand<CliIpc::AlreadyDisconnected>(buf, size);
+        return new IPC::CliCommands::AlreadyDisconnected(buf, size);
     }
-    else if (strId == CliIpc::ShowLocations::descriptor()->full_name())
+    else if (strId == IPC::CliCommands::ShowLocations::getCommandStringId())
     {
-        return new ProtobufCommand<CliIpc::ShowLocations>(buf, size);
+        return new IPC::CliCommands::ShowLocations(buf, size);
     }
-    else if (strId == CliIpc::LocationsShown::descriptor()->full_name())
+    else if (strId == IPC::CliCommands::LocationsShown::getCommandStringId())
     {
-        return new ProtobufCommand<CliIpc::LocationsShown>(buf, size);
+        return new IPC::CliCommands::LocationsShown(buf, size);
     }
-    else if (strId == CliIpc::GetState::descriptor()->full_name())
+    else if (strId == IPC::CliCommands::GetState::getCommandStringId())
     {
-        return new ProtobufCommand<CliIpc::GetState>(buf, size);
+        return new IPC::CliCommands::GetState(buf, size);
     }
-    else if (strId == CliIpc::State::descriptor()->full_name())
+    else if (strId == IPC::CliCommands::State::getCommandStringId())
     {
-        return new ProtobufCommand<CliIpc::State>(buf, size);
+        return new IPC::CliCommands::State(buf, size);
     }
-    else if (strId == CliIpc::Firewall::descriptor()->full_name())
+    else if (strId == IPC::CliCommands::Firewall::getCommandStringId())
     {
-        return new ProtobufCommand<CliIpc::Firewall>(buf, size);
+        return new IPC::CliCommands::Firewall(buf, size);
     }
-    else if (strId == CliIpc::FirewallStateChanged::descriptor()->full_name())
+    else if (strId == IPC::CliCommands::FirewallStateChanged::getCommandStringId())
     {
-        return new ProtobufCommand<CliIpc::FirewallStateChanged>(buf, size);
+        return new IPC::CliCommands::FirewallStateChanged(buf, size);
     }
-    else if (strId == CliIpc::Login::descriptor()->full_name())
+    else if (strId == IPC::CliCommands::Login::getCommandStringId())
     {
-        return new ProtobufCommand<CliIpc::Login>(buf, size);
+        return new IPC::CliCommands::Login(buf, size);
     }
-    else if (strId == CliIpc::LoginResult::descriptor()->full_name())
+    else if (strId == IPC::CliCommands::LoginResult::getCommandStringId())
     {
-        return new ProtobufCommand<CliIpc::LoginResult>(buf, size);
+        return new IPC::CliCommands::LoginResult(buf, size);
     }
-    else if (strId == CliIpc::SignOut::descriptor()->full_name())
+    else if (strId == IPC::CliCommands::SignOut::getCommandStringId())
     {
-        return new ProtobufCommand<CliIpc::SignOut>(buf, size);
+        return new IPC::CliCommands::SignOut(buf, size);
     }
-    else if (strId == CliIpc::SignedOut::descriptor()->full_name())
+    else if (strId == IPC::CliCommands::SignedOut::getCommandStringId())
     {
-        return new ProtobufCommand<CliIpc::SignedOut>(buf, size);
+        return new IPC::CliCommands::SignedOut(buf, size);
     }
-
 
     Q_ASSERT(false);
     return NULL;

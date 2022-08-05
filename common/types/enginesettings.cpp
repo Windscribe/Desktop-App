@@ -3,6 +3,9 @@
 #include "utils/logger.h"
 #include "utils/winutils.h"
 
+#include <QJsonDocument>
+#include <QJsonObject>
+
 extern "C" {
     #include "legacy_protobuf_support/types.pb-c.h"
 }
@@ -22,51 +25,52 @@ EngineSettings::EngineSettings() : d(new EngineSettingsData)
 void EngineSettings::saveToSettings()
 {
     SimpleCrypt simpleCrypt(simpleCryptKey_);
-
-    QByteArray arr;
-    {
-        QDataStream ds(&arr, QIODevice::WriteOnly);
-        ds.setVersion(QDataStream::Qt_6_2);
-        ds << magic_;
-        ds << versionForSerialization_;
-        ds << d->language << d->updateChannel << d->isIgnoreSslErrors << d->isCloseTcpSockets << d->isAllowLanTraffic <<
-              d->firewallSettings << d->connectionSettings << d->dnsResolutionSettings << d->proxySettings << d->packetSize <<
-              d->macAddrSpoofing << d->dnsPolicy << d->tapAdapter << d->customOvpnConfigsPath << d->isKeepAliveEnabled <<
-              d->dnsWhileConnectedInfo << d->dnsManager;
-    }
-
+    QJsonDocument doc;
+    doc.setObject(toJsonObject());
+    QByteArray arr = doc.toJson();
     QSettings settings;
     settings.setValue("engineSettings", simpleCrypt.encryptToString(arr));
 }
 
 void EngineSettings::loadFromSettings()
 {
+    bool bLoaded = false;
     SimpleCrypt simpleCrypt(simpleCryptKey_);
+
     QSettings settings;
     if (settings.contains("engineSettings"))
     {
         QString str = settings.value("engineSettings", "").toString();
         QByteArray arr = simpleCrypt.decryptToByteArray(str);
-        QDataStream ds(&arr, QIODevice::ReadOnly);
-        ds.setVersion(QDataStream::Qt_6_2);
+        QJsonDocument doc = QJsonDocument::fromJson(arr);
 
-        quint32 magic, version;
-        ds >> magic;
-        if (magic != magic_)
+        if (!doc.isNull() && doc.isObject())
         {
-            return;
+            const QJsonObject &obj = doc.object();
+            if (obj.contains("version") && obj["version"].toInt(INT_MAX) <= versionForSerialization_)
+            {
+                if (obj.contains("language")) d->language = obj["language"].toString("en");
+                if (obj.contains("updateChannel")) d->updateChannel = (UPDATE_CHANNEL)obj["updateChannel"].toInt(UPDATE_CHANNEL_RELEASE);
+                if (obj.contains("isIgnoreSslErrors")) d->isIgnoreSslErrors = obj["isIgnoreSslErrors"].toBool(false);
+                if (obj.contains("isCloseTcpSockets")) d->isCloseTcpSockets = obj["isCloseTcpSockets"].toBool(true);
+                if (obj.contains("isAllowLanTraffic")) d->isAllowLanTraffic = obj["isAllowLanTraffic"].toBool(false);
+                if (obj.contains("firewallSettings")) d->firewallSettings.fromJsonObject(obj["firewallSettings"].toObject());
+                if (obj.contains("connectionSettings")) d->connectionSettings.fromJsonObject(obj["connectionSettings"].toObject());
+                if (obj.contains("dnsResolutionSettings")) d->dnsResolutionSettings.fromJsonObject(obj["dnsResolutionSettings"].toObject());
+                if (obj.contains("proxySettings")) d->proxySettings.fromJsonObject(obj["proxySettings"].toObject());
+                if (obj.contains("packetSize")) d->packetSize.fromJsonObject(obj["packetSize"].toObject());
+                if (obj.contains("macAddrSpoofing")) d->macAddrSpoofing.fromJsonObject(obj["macAddrSpoofing"].toObject());
+                if (obj.contains("dnsPolicy")) d->dnsPolicy = (DNS_POLICY_TYPE)obj["dnsPolicy"].toInt(DNS_TYPE_OS_DEFAULT);
+                if (obj.contains("tapAdapter")) d->tapAdapter = (TAP_ADAPTER_TYPE)obj["tapAdapter"].toInt(WINTUN_ADAPTER);
+                if (obj.contains("customOvpnConfigsPath")) d->customOvpnConfigsPath = obj["customOvpnConfigsPath"].toString();
+                if (obj.contains("isKeepAliveEnabled")) d->isKeepAliveEnabled = obj["isKeepAliveEnabled"].toBool(false);
+                if (obj.contains("dnsWhileConnectedInfo")) d->dnsWhileConnectedInfo.fromJsonObject(obj["dnsWhileConnectedInfo"].toObject());
+                if (obj.contains("dnsManager")) d->dnsManager = (DNS_MANAGER_TYPE)obj["dnsManager"].toInt(DNS_MANAGER_AUTOMATIC);
+                bLoaded = true;
+            }
         }
-        ds >> version;
-        if (version > versionForSerialization_)
-        {
-            return;
-        }
-        ds >> d->language >> d->updateChannel >> d->isIgnoreSslErrors >> d->isCloseTcpSockets >> d->isAllowLanTraffic >>
-              d->firewallSettings >> d->connectionSettings >> d->dnsResolutionSettings >> d->proxySettings >> d->packetSize >>
-              d->macAddrSpoofing >> d->dnsPolicy >> d->tapAdapter >> d->customOvpnConfigsPath >> d->isKeepAliveEnabled >>
-              d->dnsWhileConnectedInfo >> d->dnsManager;
     }
-    else if (settings.contains("engineSettings2"))
+    if (!bLoaded && settings.contains("engineSettings2"))
     {
         // try load from legacy protobuf
         // todo remove this code at some point later
@@ -241,7 +245,7 @@ void EngineSettings::loadFromSettings()
             repairEngineSettings();
     #endif
 
-    qCDebugMultiline(LOG_BASIC) << "Engine settings debug info: todo";
+    printDebugInfo();
 }
 
 QString EngineSettings::language() const
@@ -443,6 +447,36 @@ bool EngineSettings::operator==(const EngineSettings &other) const
 bool EngineSettings::operator!=(const EngineSettings &other) const
 {
     return !(*this == other);
+}
+
+QJsonObject EngineSettings::toJsonObject() const
+{
+    QJsonObject obj;
+    obj["version"] = versionForSerialization_;
+    obj["language"] = d->language;
+    obj["updateChannel"] = (int)d->updateChannel;
+    obj["isIgnoreSslErrors"] = d->isIgnoreSslErrors;
+    obj["isCloseTcpSockets"] = d->isCloseTcpSockets;
+    obj["isAllowLanTraffic"] = d->isAllowLanTraffic;
+    obj["firewallSettings"] = d->firewallSettings.toJsonObject();
+    obj["connectionSettings"] = d->connectionSettings.toJsonObject();
+    obj["dnsResolutionSettings"] = d->dnsResolutionSettings.toJsonObject();
+    obj["proxySettings"] = d->proxySettings.toJsonObject();
+    obj["packetSize"] = d->packetSize.toJsonObject();
+    obj["macAddrSpoofing"] = d->macAddrSpoofing.toJsonObject();
+    obj["dnsPolicy"] = (int)d->dnsPolicy;
+    obj["tapAdapter"] = (int)d->tapAdapter;
+    obj["customOvpnConfigsPath"] = d->customOvpnConfigsPath;
+    obj["isKeepAliveEnabled"] = d->isKeepAliveEnabled;
+    obj["dnsWhileConnectedInfo"] = d->dnsWhileConnectedInfo.toJsonObject();
+    return obj;
+}
+
+void EngineSettings::printDebugInfo() const
+{
+    QJsonDocument doc(toJsonObject());
+    QString strJson(doc.toJson(QJsonDocument::Compact));
+    qCDebug(LOG_BASIC).noquote() << QString("Engine settings: %1").arg(strJson);
 }
 
 

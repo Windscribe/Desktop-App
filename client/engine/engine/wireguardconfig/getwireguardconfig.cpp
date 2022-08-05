@@ -1,6 +1,7 @@
 #include "getwireguardconfig.h"
 #include "engine/serverapi/serverapi.h"
 #include "engine/apiinfo/apiinfo.h"
+#include <QJsonDocument>
 
 extern "C" {
     #include "legacy_protobuf_support/apiinfo.pb-c.h"
@@ -209,22 +210,26 @@ WireGuardConfig GetWireGuardConfig::readWireGuardConfigFromSettings()
         if (!s.isEmpty())
         {
             QByteArray arr = simpleCrypt_.decryptToByteArray(s);
-            QDataStream ds(&arr, QIODevice::ReadOnly);
             WireGuardConfig wgConfig;
-            ds >> wgConfig;
-
-            if (!wgConfig.isValidSerialization())
+            QJsonDocument doc = QJsonDocument::fromJson(arr);
+            if (!doc.isNull() && doc.isObject())
             {
-                // try load from legacy protobuf
-                // todo remove this code at some point later
-                ProtoApiInfo__WireGuardConfig *wgc = proto_api_info__wire_guard_config__unpack(NULL, arr.size(), (const uint8_t *)arr.data());
-                if (wgc)
+
+                if (wgConfig.fromJsonObject(doc.object()))
                 {
-                    wgConfig.setKeyPair(QString::fromStdString(wgc->public_key), QString::fromStdString(wgc->private_key));
-                    wgConfig.setPeerPresharedKey(QString::fromStdString(wgc->preshared_key));
-                    wgConfig.setPeerAllowedIPs(QString::fromStdString(wgc->allowed_ips));
-                    proto_api_info__wire_guard_config__free_unpacked(wgc, NULL);
+                    return wgConfig;
                 }
+            }
+
+            // try load from legacy protobuf
+            // todo remove this code at some point later
+            ProtoApiInfo__WireGuardConfig *wgc = proto_api_info__wire_guard_config__unpack(NULL, arr.size(), (const uint8_t *)arr.data());
+            if (wgc)
+            {
+                wgConfig.setKeyPair(QString::fromStdString(wgc->public_key), QString::fromStdString(wgc->private_key));
+                wgConfig.setPeerPresharedKey(QString::fromStdString(wgc->preshared_key));
+                wgConfig.setPeerAllowedIPs(QString::fromStdString(wgc->allowed_ips));
+                proto_api_info__wire_guard_config__free_unpacked(wgc, NULL);
             }
 
             return wgConfig;
@@ -235,11 +240,11 @@ WireGuardConfig GetWireGuardConfig::readWireGuardConfigFromSettings()
 
 void GetWireGuardConfig::writeWireGuardConfigToSettings(const WireGuardConfig &wgConfig)
 {
-    QByteArray arr;
-    {
-        QDataStream ds(&arr, QIODevice::WriteOnly);
-        ds << wgConfig;
-    }
+    QJsonDocument doc;
+    QJsonObject obj;
+    wgConfig.writeToJson(obj);
+    doc.setObject(obj);
+    QByteArray arr = doc.toJson();
     QSettings settings;
     settings.setValue(KEY_WIREGUARD_CONFIG, simpleCrypt_.encryptToString(arr));
 }

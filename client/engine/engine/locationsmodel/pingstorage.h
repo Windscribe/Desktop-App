@@ -41,9 +41,10 @@ private:
 
     QString settingsKeyName_;
 
+    static constexpr int versionForSerialization_ = 1;  // should increment the version if the data format is changed
+
     void saveToSettings();
     void loadFromSettings();
-
 };
 
 } //namespace locationsmodel

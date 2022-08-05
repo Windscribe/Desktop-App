@@ -31,6 +31,21 @@ void DnsResolutionSettings::debugToLog()
     }
 }
 
+QJsonObject DnsResolutionSettings::toJsonObject() const
+{
+    QJsonObject json;
+    json["isAutomatic"] = bAutomatic_;
+    json["manualIp"] = manualIp_;
+    return json;
+}
+
+bool DnsResolutionSettings::fromJsonObject(const QJsonObject &json)
+{
+    if (json.contains("isAutomatic")) bAutomatic_ = json["isAutomatic"].toBool(true);
+    if (json.contains("manualIp")) manualIp_ = json["manualIp"].toString();
+    return true;
+}
+
 bool DnsResolutionSettings::getIsAutomatic() const
 {
     QString manualIp = manualIp_;

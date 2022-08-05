@@ -3,6 +3,8 @@
 
 #include "types/enums.h"
 
+#include <QJsonObject>
+
 
 namespace types {
 
@@ -14,7 +16,7 @@ struct PacketSize
     {}
 
     bool isAutomatic;
-    qint32 mtu;
+    int mtu;
 
     bool operator==(const PacketSize &other) const
     {
@@ -26,28 +28,20 @@ struct PacketSize
         return !(*this == other);
     }
 
-    friend QDataStream& operator <<(QDataStream &stream, const PacketSize &o)
+    QJsonObject toJsonObject() const
     {
-        stream << versionForSerialization_;
-        stream << o.isAutomatic << o.mtu;
-        return stream;
-    }
-    friend QDataStream& operator >>(QDataStream &stream, PacketSize &o)
-    {
-        quint32 version;
-        stream >> version;
-        Q_ASSERT(version == versionForSerialization_);
-        if (version > versionForSerialization_)
-        {
-            return stream;
-        }
-        stream >> o.isAutomatic >> o.mtu;
-        return stream;
+        QJsonObject json;
+        json["isAutomatic"] = isAutomatic;
+        json["mtu"] = mtu;
+        return json;
     }
 
-private:
-    static constexpr quint32 versionForSerialization_ = 1;
-
+    bool fromJsonObject(const QJsonObject &json)
+    {
+        if (json.contains("isAutomatic")) isAutomatic = json["isAutomatic"].toInt(true);
+        if (json.contains("mtu")) mtu = json["mtu"].toInt(-1);
+        return true;
+    }
 };
 
 

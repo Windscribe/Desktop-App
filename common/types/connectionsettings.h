@@ -1,6 +1,7 @@
 #ifndef TYPES_CONNECTIONSETTINGS_H
 #define TYPES_CONNECTIONSETTINGS_H
 
+#include <QJsonObject>
 #include <QSettings>
 #include <QString>
 #include "protocoltype.h"
@@ -39,23 +40,21 @@ struct ConnectionSettings
         return !(*this == other);
     }
 
-    friend QDataStream& operator <<(QDataStream &stream, const ConnectionSettings &o)
+    QJsonObject toJsonObject() const
     {
-        stream << versionForSerialization_;
-        stream << o.protocol_ << o.port_ << o.bAutomatic_;
-        return stream;
+        QJsonObject json;
+        json["protocol"] = (int)protocol_.getType();
+        json["port"] = (qint64)port_;
+        json["isAutomatic"] = bAutomatic_;
+        return json;
     }
-    friend QDataStream& operator >>(QDataStream &stream, ConnectionSettings &o)
+
+    bool fromJsonObject(const QJsonObject &json)
     {
-        quint32 version;
-        stream >> version;
-        Q_ASSERT(version == versionForSerialization_);
-        if (version > versionForSerialization_)
-        {
-            return stream;
-        }
-        stream >> o.protocol_ >> o.port_ >> o.bAutomatic_;
-        return stream;
+        if (json.contains("protocol")) protocol_ = (ProtocolType::PROTOCOL_TYPE)json["protocol"].toInt(ProtocolType::PROTOCOL_IKEV2);
+        if (json.contains("port")) port_ = json["port"].toInteger(500);
+        if (json.contains("isAutomatic")) bAutomatic_ = json["isAutomatic"].toBool(true);
+        return true;
     }
 
 

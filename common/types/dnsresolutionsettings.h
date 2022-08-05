@@ -2,6 +2,7 @@
 #define TYPES_DNSRESOLUTIONSETTINGS_H
 
 #include <QDataStream>
+#include <QJsonObject>
 #include <QString>
 
 namespace types {
@@ -18,6 +19,9 @@ public:
     void setManualIp(const QString &manualIp);
     void debugToLog();
 
+    QJsonObject toJsonObject() const;
+    bool fromJsonObject(const QJsonObject &json);
+
     bool operator==(const DnsResolutionSettings &other) const
     {
         return other.bAutomatic_ == bAutomatic_ &&
@@ -29,30 +33,9 @@ public:
         return !(*this == other);
     }
 
-    friend QDataStream& operator <<(QDataStream &stream, const DnsResolutionSettings &o)
-    {
-        stream << versionForSerialization_;
-        stream << o.bAutomatic_ << o.manualIp_;
-        return stream;
-    }
-    friend QDataStream& operator >>(QDataStream &stream, DnsResolutionSettings &o)
-    {
-        quint32 version;
-        stream >> version;
-        Q_ASSERT(version == versionForSerialization_);
-        if (version > versionForSerialization_)
-        {
-            return stream;
-        }
-        stream >> o.bAutomatic_ >> o.manualIp_;
-        return stream;
-    }
-
-
 private:
     bool bAutomatic_;
     QString manualIp_;
-    static constexpr quint32 versionForSerialization_ = 1;
 };
 
 } //namespace types

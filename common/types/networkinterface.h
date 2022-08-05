@@ -2,9 +2,9 @@
 #define TYPES_NETWORKINTERFACE_H
 
 #include <QDataStream>
+#include <QJsonObject>
 #include <QString>
 #include "enums.h"
-
 
 namespace types {
 
@@ -25,7 +25,12 @@ struct NetworkInterface
         endPointInterface(false)
     {}
 
-    qint32 interfaceIndex;
+    explicit NetworkInterface(const QJsonObject &json)
+    {
+        fromJsonObject(json);
+    }
+
+    int interfaceIndex;
     QString interfaceName;
     QString interfaceGuid;
     QString networkOrSSid;
@@ -34,11 +39,11 @@ struct NetworkInterface
     bool active;
     QString friendlyName;
     bool requested;
-    qint32 metric;
+    int metric;
     QString physicalAddress;
-    qint32 mtu;
-    qint32 state;
-    qint32 dwType;
+    int mtu;
+    int state;
+    int dwType;
     QString deviceName;
     bool connectorPresent;
     bool endPointInterface;
@@ -69,31 +74,50 @@ struct NetworkInterface
         return !(*this == other);
     }
 
-    friend QDataStream& operator <<(QDataStream &stream, const NetworkInterface &o)
+    QJsonObject toJsonObject() const
     {
-        stream << versionForSerialization_;
-        stream << o.interfaceIndex << o.interfaceName << o.interfaceGuid << o.networkOrSSid << o.interfaceType << o.trustType << o.active <<
-                  o.friendlyName << o.requested << o.metric << o.physicalAddress << o.mtu << o.state << o.dwType << o.deviceName <<
-                  o.connectorPresent << o.endPointInterface;
-        return stream;
-    }
-    friend QDataStream& operator >>(QDataStream &stream, NetworkInterface &o)
-    {
-        quint32 version;
-        stream >> version;
-        Q_ASSERT(version == versionForSerialization_);
-        if (version > versionForSerialization_)
-        {
-            return stream;
-        }
-        stream >> o.interfaceIndex >> o.interfaceName >> o.interfaceGuid >> o.networkOrSSid >> o.interfaceType >> o.trustType >> o.active >>
-                  o.friendlyName >> o.requested >> o.metric >> o.physicalAddress >> o.mtu >> o.state >> o.dwType >> o.deviceName >>
-                  o.connectorPresent >> o.endPointInterface;
-        return stream;
+        QJsonObject json;
+        json["interfaceIndex"] = interfaceIndex;
+        json["interfaceName"] = interfaceName;
+        json["interfaceGuid"] = interfaceGuid;
+        json["networkOrSSid"] = networkOrSSid;
+        json["interfaceType"] = (int)interfaceType;
+        json["trustType"] = (int)trustType;
+        json["active"] = active;
+        json["friendlyName"] = friendlyName;
+        json["requested"] = requested;
+        json["metric"] = metric;
+        json["physicalAddress"] = physicalAddress;
+        json["mtu"] = mtu;
+        json["state"] = state;
+        json["dwType"] = dwType;
+        json["deviceName"] = deviceName;
+        json["connectorPresent"] = connectorPresent;
+        json["endPointInterface"] = endPointInterface;
+        return json;
     }
 
-private:
-    static constexpr quint32 versionForSerialization_ = 1;
+    bool fromJsonObject(const QJsonObject &json)
+    {
+        if (json.contains("interfaceIndex")) interfaceIndex = json["interfaceIndex"].toInt(-1);
+        if (json.contains("interfaceName")) interfaceName = json["interfaceName"].toString();
+        if (json.contains("interfaceGuid")) interfaceGuid = json["interfaceGuid"].toString();
+        if (json.contains("networkOrSSid")) networkOrSSid = json["networkOrSSid"].toString();
+        if (json.contains("interfaceType")) interfaceType = (NETWORK_INTERACE_TYPE)json["interfaceType"].toInt(NETWORK_INTERFACE_NONE);
+        if (json.contains("trustType")) trustType = (NETWORK_TRUST_TYPE)json["trustType"].toInt(NETWORK_TRUST_SECURED);
+        if (json.contains("active")) active = json["active"].toBool(false);
+        if (json.contains("friendlyName")) friendlyName = json["friendlyName"].toString();
+        if (json.contains("requested")) requested = json["requested"].toBool(false);
+        if (json.contains("metric")) metric = json["metric"].toInt(100);
+        if (json.contains("physicalAddress")) physicalAddress = json["physicalAddress"].toString();
+        if (json.contains("mtu")) mtu = json["mtu"].toInt(1470);
+        if (json.contains("state")) state = json["state"].toInt(0);
+        if (json.contains("dwType")) dwType = json["dwType"].toInt(0);
+        if (json.contains("deviceName")) deviceName = json["deviceName"].toString();
+        if (json.contains("connectorPresent")) connectorPresent = json["connectorPresent"].toBool(false);
+        if (json.contains("endPointInterface")) endPointInterface = json["endPointInterface"].toBool(false);
+        return true;
+    }
 
 };
 

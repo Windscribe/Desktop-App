@@ -1,6 +1,7 @@
 #ifndef TYPES_MACADDRSPOOFING_H
 #define TYPES_MACADDRSPOOFING_H
 
+#include <QJsonArray>
 #include <QString>
 #include "networkinterface.h"
 
@@ -33,28 +34,40 @@ struct MacAddrSpoofing
         return !(*this == other);
     }
 
-    friend QDataStream& operator <<(QDataStream &stream, const MacAddrSpoofing &o)
+    QJsonObject toJsonObject() const
     {
-        stream << versionForSerialization_;
-        stream << o.isEnabled << o.macAddress << o.isAutoRotate << o.selectedNetworkInterface << o.networkInterfaces;
-        return stream;
-    }
-    friend QDataStream& operator >>(QDataStream &stream, MacAddrSpoofing &o)
-    {
-        quint32 version;
-        stream >> version;
-        Q_ASSERT(version == versionForSerialization_);
-        if (version > versionForSerialization_)
-        {
-            return stream;
+        QJsonObject json;
+        json["isEnabled"] = isEnabled;
+        json["macAddress"] = macAddress;
+        json["isAutoRotate"] = isAutoRotate;
+        json["selectedNetworkInterface"] = selectedNetworkInterface.toJsonObject();
+
+        QJsonArray arr;
+        for (const auto &it : networkInterfaces) {
+            arr << it.toJsonObject();
         }
-        stream >> o.isEnabled >> o.macAddress >> o.isAutoRotate >> o.selectedNetworkInterface >> o.networkInterfaces;
-        return stream;
+        json["networkInterfaces"] = arr;
+        return json;
     }
 
-private:
-    static constexpr quint32 versionForSerialization_ = 1;
+    bool fromJsonObject(const QJsonObject &json)
+    {
+        if (json.contains("isEnabled")) isEnabled = json["isEnabled"].toBool(false);
+        if (json.contains("macAddress")) macAddress = json["macAddress"].toString();
+        if (json.contains("isAutoRotate")) isAutoRotate = json["isAutoRotate"].toBool(false);
+        if (json.contains("selectedNetworkInterface")) selectedNetworkInterface.fromJsonObject(json["selectedNetworkInterface"].toObject());
+        if (json.contains("networkInterfaces"))
+        {
+            QJsonArray arr = json["selectedNetworkInterface"].toArray();
+            for (const auto it : arr)
+            {
+                NetworkInterface ni(it.toObject());
+                networkInterfaces << ni;
+            }
+        }
 
+        return true;
+    }
 };
 
 
