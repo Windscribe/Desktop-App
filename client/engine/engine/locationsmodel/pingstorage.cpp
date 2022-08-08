@@ -1,21 +1,11 @@
 #include "pingstorage.h"
+
 #include <QDataStream>
 #include <QIODevice>
 #include <QSettings>
-#include <QCborMap>
-#include <QCborArray>
 
-namespace  {
-    enum CBOR_FIELDS {
-        CBOR_VERSION = 0,
-        CBOR_CUR_ITERATION = 1,
-        CBOR_PINGS = 2,
-        CBOR_IP = 3,
-        CBOR_PING_TIME = 4,
-        CBOR_ITERATION = 5,
-        CBOR_FROM_DISCONNECTED_STATE = 6
-    };
-}
+#include "utils/simplecrypt.h"
+#include "types/global_consts.h"
 
 namespace locationsmodel {
 
@@ -60,7 +50,6 @@ void PingStorage::updateNodes(const QStringList &ips)
             hash_[ip] = PingData();
         }
     }
-
 }
 
 void PingStorage::setNodePing(const QString &nodeIp, PingTime timeMs, bool fromDisconnectedState)
@@ -115,25 +104,21 @@ void PingStorage::getState(bool &isAllNodesHaveCurIteration, bool &isAllNodesInD
 
 void PingStorage::saveToSettings()
 {
-    QCborMap map;
-    map[CBOR_VERSION] = versionForSerialization_;
-    map[CBOR_CUR_ITERATION] = curIteration_;
-
-    QCborArray cborArr;
-    for (auto it = hash_.begin(); it != hash_.end(); ++it)
+    QByteArray arr;
     {
-        QCborMap item;
-        item[CBOR_IP] = it.key();
-        item[CBOR_PING_TIME] = it.value().timeMs_.toInt();
-        item[CBOR_ITERATION] = it.value().iteration_;
-        item[CBOR_FROM_DISCONNECTED_STATE] = it.value().fromDisconnectedState_;
-        cborArr << item;
+        QDataStream ds(&arr, QIODevice::WriteOnly);
+        ds << magic_;
+        ds << versionForSerialization_;
+        ds << curIteration_;
+        ds << hash_.size();
+        for (auto it = hash_.begin(); it != hash_.end(); ++it)
+        {
+            ds << it.key() << it.value().timeMs_.toInt() << it.value().iteration_ << it.value().fromDisconnectedState_;
+        }
     }
-    map[CBOR_PINGS] = cborArr;
-
-    QByteArray arr = map.toCborValue().toCbor();
     QSettings settings;
-    settings.setValue(settingsKeyName_, arr);
+    SimpleCrypt simpleCrypt(SIMPLE_CRYPT_KEY);
+    settings.setValue(settingsKeyName_, simpleCrypt.encryptToString(arr));
 }
 
 void PingStorage::loadFromSettings()
@@ -141,22 +126,41 @@ void PingStorage::loadFromSettings()
     QSettings settings;
     if (settings.contains(settingsKeyName_))
     {
-        QByteArray arr = settings.value(settingsKeyName_).toByteArray();
-        QCborValue val = QCborValue::fromCbor(arr);
-        if (!val.isInvalid() && val.isMap())
+        SimpleCrypt simpleCrypt(SIMPLE_CRYPT_KEY);
+        QString str = settings.value(settingsKeyName_).toString();
+        QByteArray arr = simpleCrypt.decryptToByteArray(str);
+
+        QDataStream ds(&arr, QIODevice::ReadOnly);
+        quint32 magic, version;
+        ds >> magic;
+        if (magic == magic_)
         {
-            QCborMap map = val.toMap();
-            if (map.contains(CBOR_VERSION) && map[CBOR_VERSION].toInteger(INT_MAX) <= versionForSerialization_)
+            ds >> version;
+            if (version <= versionForSerialization_)
             {
-                curIteration_ = map[CBOR_CUR_ITERATION].toInteger();
-                QCborArray cborArr = map[CBOR_PINGS].toArray();
-                for (const auto &it : cborArr)
+                ds >> curIteration_;
+                qsizetype hashSize;
+                ds >> hashSize;
+
+                for (qsizetype i = 0; i < hashSize; ++i)
                 {
+                    QString key;
+                    int timeMs;
+                    quint32 iteration;
+                    bool fromDisconnectedState;
+
+                    ds >> key >> timeMs >> iteration >> fromDisconnectedState;
                     PingData pd;
-                    pd.timeMs_ = it[CBOR_PING_TIME].toInteger(PingTime::NO_PING_INFO);
-                    pd.iteration_ = it[CBOR_ITERATION].toInteger();
-                    pd.fromDisconnectedState_ = it[CBOR_FROM_DISCONNECTED_STATE].toBool();
-                    hash_[it[CBOR_IP].toString()] = pd;
+                    pd.timeMs_ = timeMs;
+                    pd.iteration_ = iteration;
+                    pd.fromDisconnectedState_ = fromDisconnectedState;
+
+                    hash_[key] = pd;
+                }
+
+                if (ds.status() != QDataStream::Ok)
+                {
+                    hash_.clear();
                 }
             }
         }

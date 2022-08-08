@@ -1,8 +1,9 @@
 #ifndef TYPES_SPLITTUNNELING_H
 #define TYPES_SPLITTUNNELING_H
 
-#include "types/enums.h"
+#include <QVector>
 
+#include "types/enums.h"
 
 namespace types {
 
@@ -22,6 +23,28 @@ struct SplitTunnelingSettings
     {
         return !(*this == other);
     }
+
+    friend QDataStream& operator <<(QDataStream &stream, const SplitTunnelingSettings &o)
+    {
+        stream << versionForSerialization_;
+        stream << o.active << o.mode;
+        return stream;
+    }
+
+    friend QDataStream& operator >>(QDataStream &stream, SplitTunnelingSettings &o)
+    {
+        quint32 version;
+        stream >> version;
+        if (version > o.versionForSerialization_) {
+            stream.setStatus(QDataStream::ReadCorruptData);
+            return stream;
+        }
+        stream >> o.active >> o.mode;
+        return stream;
+    }
+
+private:
+    static constexpr quint32 versionForSerialization_ = 1;  // should increment the version if the data format is changed
 };
 
 struct SplitTunnelingNetworkRoute
@@ -39,6 +62,28 @@ struct SplitTunnelingNetworkRoute
     {
         return !(*this == other);
     }
+
+    friend QDataStream& operator <<(QDataStream &stream, const SplitTunnelingNetworkRoute &o)
+    {
+        stream << versionForSerialization_;
+        stream << o.type << o.name;
+        return stream;
+    }
+
+    friend QDataStream& operator >>(QDataStream &stream, SplitTunnelingNetworkRoute &o)
+    {
+        quint32 version;
+        stream >> version;
+        if (version > o.versionForSerialization_) {
+            stream.setStatus(QDataStream::ReadCorruptData);
+            return stream;
+        }
+        stream >> o.type >> o.name;
+        return stream;
+    }
+
+private:
+    static constexpr quint32 versionForSerialization_ = 1;  // should increment the version if the data format is changed
 };
 
 struct SplitTunnelingApp
@@ -60,6 +105,28 @@ struct SplitTunnelingApp
     {
         return !(*this == other);
     }
+
+    friend QDataStream& operator <<(QDataStream &stream, const SplitTunnelingApp &o)
+    {
+        stream << versionForSerialization_;
+        stream << o.type << o.name << o.fullName << o.active;
+        return stream;
+    }
+
+    friend QDataStream& operator >>(QDataStream &stream, SplitTunnelingApp &o)
+    {
+        quint32 version;
+        stream >> version;
+        if (version > o.versionForSerialization_) {
+            stream.setStatus(QDataStream::ReadCorruptData);
+            return stream;
+        }
+        stream >> o.type >> o.name >> o.fullName >> o.active;
+        return stream;
+    }
+
+private:
+    static constexpr quint32 versionForSerialization_ = 1;  // should increment the version if the data format is changed
 };
 
 
@@ -80,6 +147,29 @@ struct SplitTunneling
     {
         return !(*this == other);
     }
+
+    friend QDataStream& operator <<(QDataStream &stream, const SplitTunneling &o)
+    {
+        stream << versionForSerialization_;
+        stream << o.settings << o.apps << o.networkRoutes;
+        return stream;
+    }
+
+    friend QDataStream& operator >>(QDataStream &stream, SplitTunneling &o)
+    {
+        quint32 version;
+        stream >> version;
+        if (version > o.versionForSerialization_) {
+            stream.setStatus(QDataStream::ReadCorruptData);
+            return stream;
+        }
+        stream >> o.settings >> o.apps >> o.networkRoutes;
+        return stream;
+    }
+
+private:
+    static constexpr quint32 versionForSerialization_ = 1;  // should increment the version if the data format is changed
+
 };
 
 

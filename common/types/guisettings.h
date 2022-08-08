@@ -49,6 +49,34 @@ struct GuiSettings
     {
         return !(*this == other);
     }
+
+    friend QDataStream& operator <<(QDataStream &stream, const GuiSettings &o)
+    {
+        stream << versionForSerialization_;
+        stream << o.isLaunchOnStartup << o.isAutoConnect << o.isHideFromDock << o.isShowNotifications << o.orderLocation << o.latencyDisplay <<
+                  o.shareSecureHotspot << o.shareProxyGateway << o.splitTunneling << o.isDockedToTray << o.isMinimizeAndCloseToTray <<
+                  o.backgroundSettings << o.isStartMinimized << o.isShowLocationHealth;
+        return stream;
+    }
+
+    friend QDataStream& operator >>(QDataStream &stream, GuiSettings &o)
+    {
+        quint32 version;
+        stream >> version;
+        if (version > o.versionForSerialization_)
+        {
+            stream.setStatus(QDataStream::ReadCorruptData);
+            return stream;
+        }
+        stream >> o.isLaunchOnStartup >> o.isAutoConnect >> o.isHideFromDock >> o.isShowNotifications >> o.orderLocation >> o.latencyDisplay >>
+                  o.shareSecureHotspot >> o.shareProxyGateway >> o.splitTunneling >> o.isDockedToTray >> o.isMinimizeAndCloseToTray >>
+                  o.backgroundSettings >> o.isStartMinimized >> o.isShowLocationHealth;
+        return stream;
+    }
+
+private:
+    static constexpr quint32 versionForSerialization_ = 1;  // should increment the version if the data format is changed
+
 };
 
 

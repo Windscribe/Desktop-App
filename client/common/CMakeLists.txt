@@ -117,6 +117,10 @@ set(PROJECT_SOURCES
     ${COMMON_PATH}/legacy_protobuf_support/apiinfo.pb-c.h
     ${COMMON_PATH}/legacy_protobuf_support/types.pb-c.c
     ${COMMON_PATH}/legacy_protobuf_support/types.pb-c.h
+    ${COMMON_PATH}/legacy_protobuf_support/legacy_protobuf.cpp
+    ${COMMON_PATH}/legacy_protobuf_support/legacy_protobuf.h
+    ${COMMON_PATH}/legacy_protobuf_support/types.pb-c.h
+
 )
 
 

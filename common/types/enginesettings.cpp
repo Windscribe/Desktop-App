@@ -3,10 +3,7 @@
 #include "utils/logger.h"
 #include "utils/winutils.h"
 #include "types/global_consts.h"
-
-extern "C" {
-    #include "legacy_protobuf_support/types.pb-c.h"
-}
+#include "legacy_protobuf_support/legacy_protobuf.h"
 
 const int typeIdEngineSettings = qRegisterMetaType<types::EngineSettings>("types::EngineSettings");
 
@@ -75,169 +72,11 @@ void EngineSettings::loadFromSettings()
         // todo remove this code at some point later
         QString str = settings.value("engineSettings2", "").toString();
         QByteArray arr = simpleCrypt.decryptToByteArray(str);
-        ProtoTypes__EngineSettings *es = proto_types__engine_settings__unpack(NULL, arr.size(), (const uint8_t *)arr.data());
-        if (es)
+        if (LegacyProtobufSupport::loadEngineSettings(arr, *this))
         {
-            d->language = es->language;
-            if (es->has_update_channel) d->updateChannel = (UPDATE_CHANNEL)es->update_channel;
-            if (es->has_is_ignore_ssl_errors) d->isIgnoreSslErrors = es->is_ignore_ssl_errors;
-            if (es->has_is_close_tcp_sockets) d->isCloseTcpSockets = es->is_close_tcp_sockets;
-            if (es->has_is_allow_lan_traffic) d->isAllowLanTraffic = es->is_allow_lan_traffic;
-
-            if (es->firewall_settings)
-            {
-                if (es->firewall_settings->has_mode) d->firewallSettings.mode = (FIREWALL_MODE)es->firewall_settings->mode;
-                if (es->firewall_settings->has_when)  d->firewallSettings.when = (FIREWALL_WHEN)es->firewall_settings->when;
-            }
-
-            if (es->connection_settings)
-            {
-                if (es->connection_settings->has_is_automatic) d->connectionSettings.isAutomatic = es->connection_settings->is_automatic;
-                if (es->connection_settings->has_port) d->connectionSettings.port = es->connection_settings->port;
-                if (es->connection_settings->has_protocol) d->connectionSettings.protocol = (PROTOCOL)es->connection_settings->protocol;
-            }
-
-            if (es->api_resolution)
-            {
-                if (es->api_resolution->has_is_automatic) d->dnsResolutionSettings.setIsAutomatic(es->api_resolution->is_automatic);
-                d->dnsResolutionSettings.set(es->api_resolution->is_automatic, es->api_resolution->manual_ip);
-            }
-
-            if (es->proxy_settings)
-            {
-                d->proxySettings.setAddress(es->proxy_settings->address);
-                d->proxySettings.setUsername(es->proxy_settings->username);
-                d->proxySettings.setPassword(es->proxy_settings->password);
-                if (es->proxy_settings->has_port) d->proxySettings.setPort(es->proxy_settings->port);
-                if (es->proxy_settings->has_proxy_option) d->proxySettings.setOption((PROXY_OPTION)es->proxy_settings->proxy_option);
-            }
-
-            if (es->packet_size)
-            {
-                if (es->packet_size->has_is_automatic) d->packetSize.isAutomatic = es->packet_size->is_automatic;
-                if (es->packet_size->has_mtu) d->packetSize.mtu = es->packet_size->mtu;
-            }
-
-            if (es->mac_addr_spoofing)
-            {
-                if (es->mac_addr_spoofing->has_is_enabled) d->macAddrSpoofing.isEnabled = es->mac_addr_spoofing->is_enabled;
-                d->macAddrSpoofing.macAddress = es->mac_addr_spoofing->mac_address;
-                if (es->mac_addr_spoofing->has_is_auto_rotate) d->macAddrSpoofing.isAutoRotate = es->mac_addr_spoofing->is_auto_rotate;
-
-
-                // NetworkInterface
-                if (es->mac_addr_spoofing->selected_network_interface)
-                {
-                    if (es->mac_addr_spoofing->selected_network_interface->has_interface_index) {
-                        d->macAddrSpoofing.selectedNetworkInterface.interfaceIndex = es->mac_addr_spoofing->selected_network_interface->interface_index;
-                    }
-                    d->macAddrSpoofing.selectedNetworkInterface.interfaceName = es->mac_addr_spoofing->selected_network_interface->interface_name;
-                    d->macAddrSpoofing.selectedNetworkInterface.interfaceGuid = es->mac_addr_spoofing->selected_network_interface->interface_guid;
-                    d->macAddrSpoofing.selectedNetworkInterface.networkOrSSid = es->mac_addr_spoofing->selected_network_interface->network_or_ssid;
-                    if (es->mac_addr_spoofing->selected_network_interface->has_interface_type) {
-                        d->macAddrSpoofing.selectedNetworkInterface.interfaceType = (NETWORK_INTERACE_TYPE)es->mac_addr_spoofing->selected_network_interface->interface_type;
-                    }
-                    if (es->mac_addr_spoofing->selected_network_interface->has_trust_type) {
-                        d->macAddrSpoofing.selectedNetworkInterface.trustType = (NETWORK_TRUST_TYPE)es->mac_addr_spoofing->selected_network_interface->trust_type;
-                    }
-                    if (es->mac_addr_spoofing->selected_network_interface->has_active) {
-                        d->macAddrSpoofing.selectedNetworkInterface.active = es->mac_addr_spoofing->selected_network_interface->active;
-                    }
-                    d->macAddrSpoofing.selectedNetworkInterface.friendlyName = es->mac_addr_spoofing->selected_network_interface->friendly_name;
-                    if (es->mac_addr_spoofing->selected_network_interface->has_requested) {
-                        d->macAddrSpoofing.selectedNetworkInterface.requested = es->mac_addr_spoofing->selected_network_interface->requested;
-                    }
-                    if (es->mac_addr_spoofing->selected_network_interface->has_metric) {
-                        d->macAddrSpoofing.selectedNetworkInterface.metric = es->mac_addr_spoofing->selected_network_interface->metric;
-                    }
-                    d->macAddrSpoofing.selectedNetworkInterface.physicalAddress = es->mac_addr_spoofing->selected_network_interface->physical_address;
-                    if (es->mac_addr_spoofing->selected_network_interface->has_mtu) {
-                        d->macAddrSpoofing.selectedNetworkInterface.mtu = es->mac_addr_spoofing->selected_network_interface->mtu;
-                    }
-                    if (es->mac_addr_spoofing->selected_network_interface->has_state) {
-                        d->macAddrSpoofing.selectedNetworkInterface.state = es->mac_addr_spoofing->selected_network_interface->state;
-                    }
-                    if (es->mac_addr_spoofing->selected_network_interface->has_dw_type) {
-                        d->macAddrSpoofing.selectedNetworkInterface.dwType = es->mac_addr_spoofing->selected_network_interface->dw_type;
-                    }
-                    d->macAddrSpoofing.selectedNetworkInterface.deviceName = es->mac_addr_spoofing->selected_network_interface->device_name;
-                    if (es->mac_addr_spoofing->selected_network_interface->has_connector_present) {
-                        d->macAddrSpoofing.selectedNetworkInterface.connectorPresent = es->mac_addr_spoofing->selected_network_interface->connector_present;
-                    }
-                    if (es->mac_addr_spoofing->selected_network_interface->has_end_point_interface) {
-                        d->macAddrSpoofing.selectedNetworkInterface.endPointInterface = es->mac_addr_spoofing->selected_network_interface->end_point_interface;
-                    }
-                }
-
-                if (es->mac_addr_spoofing->network_interfaces)
-                {
-                    d->macAddrSpoofing.networkInterfaces.clear();
-                    for (size_t i = 0; i < es->mac_addr_spoofing->network_interfaces->n_networks; ++i)
-                    {
-                        NetworkInterface networkInterface;
-                        ProtoTypes__NetworkInterface *ni = es->mac_addr_spoofing->network_interfaces->networks[i];
-
-                        if (ni->has_interface_index) {
-                            networkInterface.interfaceIndex = ni->interface_index;
-                        }
-                        networkInterface.interfaceName = ni->interface_name;
-                        networkInterface.interfaceGuid = ni->interface_guid;
-                        networkInterface.networkOrSSid = ni->network_or_ssid;
-                        if (ni->has_interface_type) {
-                            networkInterface.interfaceType = (NETWORK_INTERACE_TYPE)ni->interface_type;
-                        }
-                        if (ni->has_trust_type) {
-                            networkInterface.trustType = (NETWORK_TRUST_TYPE)ni->trust_type;
-                        }
-                        if (ni->has_active) {
-                            networkInterface.active = ni->active;
-                        }
-                        networkInterface.friendlyName = ni->friendly_name;
-                        if (ni->has_requested) {
-                            networkInterface.requested = ni->requested;
-                        }
-                        if (ni->has_metric) {
-                            networkInterface.metric = ni->metric;
-                        }
-                        networkInterface.physicalAddress = ni->physical_address;
-                        if (ni->has_mtu) {
-                            networkInterface.mtu = ni->mtu;
-                        }
-                        if (ni->has_state) {
-                            networkInterface.state = ni->state;
-                        }
-                        if (ni->has_dw_type) {
-                            networkInterface.dwType = ni->dw_type;
-                        }
-                        networkInterface.deviceName = ni->device_name;
-                        if (ni->has_connector_present) {
-                            networkInterface.connectorPresent = ni->connector_present;
-                        }
-                        if (ni->has_end_point_interface) {
-                            networkInterface.endPointInterface = ni->end_point_interface;
-                        }
-
-                        d->macAddrSpoofing.networkInterfaces << networkInterface;
-                    }
-                }
-            }
-
-            if (es->has_dns_policy) d->dnsPolicy = (DNS_POLICY_TYPE)es->dns_policy;
-            if (es->has_tap_adapter) d->tapAdapter = (TAP_ADAPTER_TYPE)es->tap_adapter;
-            d->customOvpnConfigsPath = es->customovpnconfigspath;
-            if (es->has_is_keep_alive_enabled) d->isKeepAliveEnabled = es->is_keep_alive_enabled;
-
-            if (es->dns_while_connected_info)
-            {
-                if (es->dns_while_connected_info->has_type) d->dnsWhileConnectedInfo.setType((DNS_WHILE_CONNECTED_TYPE)es->dns_while_connected_info->type);
-                d->dnsWhileConnectedInfo.setIpAddress(es->dns_while_connected_info->ip_address);
-            }
-
-            if (es->has_dns_manager) d->dnsManager = (DNS_MANAGER_TYPE)es->dns_manager;
-
-            proto_types__engine_settings__free_unpacked(es, NULL);
             bLoaded = true;
         }
+
         settings.remove("engineSettings2");
     }
 

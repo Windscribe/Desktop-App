@@ -1,16 +1,21 @@
 #include "preferences.h"
+
+#include <QSettings>
+#include <QSystemTrayIcon>
+
 #include "../persistentstate.h"
 #include "detectlanrange.h"
 #include "utils/extraconfig.h"
 #include "utils/logger.h"
 #include "utils/utils.h"
 #include "utils/ipvalidation.h"
-#include <QSettings>
-#include <QSystemTrayIcon>
+#include "types/global_consts.h"
+#include "legacy_protobuf_support/legacy_protobuf.h"
 
 #if defined(Q_OS_WINDOWS)
 #include "utils/winutils.h"
 #endif
+
 
 Preferences::Preferences(QObject *parent) : QObject(parent)
   , receivingEngineSettings_(false)
@@ -579,16 +584,6 @@ void Preferences::setEngineSettings(const types::EngineSettings &es)
     receivingEngineSettings_ = false;
 }
 
-/*void Preferences::setGuiSettings(const ProtoTypes::GuiSettings &gs)
-{
-    setLaunchOnStartup(gs.is_launch_on_startup());
-    setAutoConnect(gs.is_auto_connect());
-    setHideFromDockOrMinimizeToTray(gs.is_hide_from_dock_or_minimize_to_tray());
-    setShowNotifications(gs.is_show_notifications());
-    setLocationOrder(gs.order_location());
-    setLatencyDisplay(gs.latency_display());
-}*/
-
 types::EngineSettings Preferences::getEngineSettings() const
 {
     return engineSettings_;
@@ -596,31 +591,62 @@ types::EngineSettings Preferences::getEngineSettings() const
 
 void Preferences::saveGuiSettings() const
 {
-    /*QSettings settings;
+    QByteArray arr;
+    {
+        QDataStream ds(&arr, QIODevice::WriteOnly);
+        ds << magic_;
+        ds << versionForSerialization_;
+        ds << guiSettings_;
+    }
 
-    int size = (int)guiSettings_.ByteSizeLong();
-    QByteArray arr(size, Qt::Uninitialized);
-    guiSettings_.SerializeToArray(arr.data(), size);
-
-    settings.setValue("guiSettings", arr);*/
+    QSettings settings;
+    SimpleCrypt simpleCrypt(SIMPLE_CRYPT_KEY);
+    settings.setValue("guiSettings", simpleCrypt.encryptToString(arr));
 }
 
 void Preferences::loadGuiSettings()
 {
-    /*QSettings settings;
+    bool bLoaded = false;
+    SimpleCrypt simpleCrypt(SIMPLE_CRYPT_KEY);
 
+    QSettings settings;
     if (settings.contains("guiSettings"))
     {
-        QByteArray arr = settings.value("guiSettings").toByteArray();
-        guiSettings_.ParseFromArray(arr.data(), arr.size());
+        QString str = settings.value("guiSettings").toString();
+        QByteArray arr = simpleCrypt.decryptToByteArray(str);
+
+        QDataStream ds(&arr, QIODevice::ReadOnly);
+
+        quint32 magic, version;
+        ds >> magic;
+        if (magic == magic_)
+        {
+            ds >> version;
+            if (version <= versionForSerialization_)
+            {
+                ds >> guiSettings_;
+                if (ds.status() == QDataStream::Ok)
+                {
+                    bLoaded = true;
+                }
+            }
+        }
     }
-    // if can't load from version 2
-    // then try load from version 1
-    else
+    if (!bLoaded)
     {
-        guiSettings_ = GuiSettingsFromVer1::read();
+        // try load from legacy protobuf
+        // todo remove this code at some point later
+        QByteArray arr = settings.value("guiSettings").toByteArray();
+        bLoaded = LegacyProtobufSupport::loadGuiSettings(arr, guiSettings_);
     }
-    qCDebugMultiline(LOG_BASIC) << "Gui settings:" << QString::fromStdString(guiSettings_.DebugString());*/
+
+    if (!bLoaded)
+    {
+        guiSettings_ = types::GuiSettings();    // reset to defaults
+    }
+
+
+    /*qCDebugMultiline(LOG_BASIC) << "Gui settings:" << QString::fromStdString(guiSettings_.DebugString());*/
 }
 
 void Preferences::validateAndUpdateIfNeeded()

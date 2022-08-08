@@ -41,7 +41,10 @@ private:
 
     QString settingsKeyName_;
 
+    // for serialization
+    static constexpr quint32 magic_ = 0x734AB2AE;
     static constexpr int versionForSerialization_ = 1;  // should increment the version if the data format is changed
+
 
     void saveToSettings();
     void loadFromSettings();

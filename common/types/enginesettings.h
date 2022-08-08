@@ -14,6 +14,8 @@
 #include "types/dnswhileconnectedinfo.h"
 #include "utils/simplecrypt.h"
 
+class LegacyProtobufSupport;
+
 namespace types {
 
 struct EngineSettingsData : public QSharedData
@@ -108,6 +110,8 @@ public:
     bool operator!=(const EngineSettings &other) const;
 
     friend QDebug operator<<(QDebug dbg, const EngineSettings &es);
+
+    friend LegacyProtobufSupport;
 
 private:
     QSharedDataPointer<EngineSettingsData> d;

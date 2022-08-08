@@ -20,6 +20,29 @@ struct ShareProxyGateway
     {
         return !(*this == other);
     }
+
+    friend QDataStream& operator <<(QDataStream &stream, const ShareProxyGateway &o)
+    {
+        stream << versionForSerialization_;
+        stream << o.isEnabled << o.proxySharingMode;
+        return stream;
+    }
+
+    friend QDataStream& operator >>(QDataStream &stream, ShareProxyGateway &o)
+    {
+        quint32 version;
+        stream >> version;
+        if (version > o.versionForSerialization_)
+        {
+            stream.setStatus(QDataStream::ReadCorruptData);
+            return stream;
+        }
+        stream >> o.isEnabled >> o.proxySharingMode;
+        return stream;
+    }
+
+private:
+    static constexpr quint32 versionForSerialization_ = 1;  // should increment the version if the data format is changed
 };
 
 

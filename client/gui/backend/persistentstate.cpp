@@ -5,10 +5,7 @@
 #include "utils/logger.h"
 #include "utils/simplecrypt.h"
 #include "types/global_consts.h"
-
-extern "C" {
-    #include "legacy_protobuf_support/types.pb-c.h"
-}
+#include "legacy_protobuf_support/legacy_protobuf.h"
 
 void PersistentState::load()
 {
@@ -42,74 +39,11 @@ void PersistentState::load()
     if (!bLoaded && settings.contains("persistentGuiSettings"))
     {
         QByteArray arr = settings.value("persistentGuiSettings").toByteArray();
-        ProtoTypes__GuiPersistentState *gs = proto_types__gui_persistent_state__unpack(NULL, arr.size(), (const uint8_t *)arr.data());
-        if (gs)
-        {
-            if (gs->has_is_firewall_on) state_.isFirewallOn = gs->is_firewall_on;
-            if (gs->has_window_offs_x) state_.windowOffsX = gs->window_offs_x;
-            if (gs->has_window_offs_y) state_.windowOffsY = gs->window_offs_y;
-            if (gs->has_count_visible_locations) state_.countVisibleLocations = gs->count_visible_locations;
-            if (gs->has_is_first_login) state_.isFirstLogin = gs->is_first_login;
-            if (gs->has_is_ignore_cpu_usage_warnings) state_.isIgnoreCpuUsageWarnings = gs->is_ignore_cpu_usage_warnings;
-            if (gs->lastlocation && gs->lastlocation->has_id && gs->lastlocation->has_type) {
-                state_.lastLocation = LocationID(gs->lastlocation->id, gs->lastlocation->type, gs->lastlocation->city);
-            }
-            state_.lastExternalIp = gs->last_external_ip;
-
-            if (gs->network_white_list)
-            {
-                state_.networkWhiteList.clear();
-                for (int i = 0; i < gs->network_white_list->n_networks; i++)
-                {
-                    types::NetworkInterface networkInterface;
-
-                    ProtoTypes__NetworkInterface *ni = gs->network_white_list->networks[i];
-
-                    if (ni->has_interface_index) {
-                        networkInterface.interfaceIndex = ni->interface_index;
-                    }
-                    networkInterface.interfaceName = ni->interface_name;
-                    networkInterface.interfaceGuid = ni->interface_guid;
-                    networkInterface.networkOrSSid = ni->network_or_ssid;
-                    if (ni->has_interface_type) {
-                        networkInterface.interfaceType = (NETWORK_INTERACE_TYPE)ni->interface_type;
-                    }
-                    if (ni->has_trust_type) {
-                        networkInterface.trustType = (NETWORK_TRUST_TYPE)ni->trust_type;
-                    }
-                    if (ni->has_active) {
-                        networkInterface.active = ni->active;
-                    }
-                    networkInterface.friendlyName = ni->friendly_name;
-                    if (ni->has_requested) {
-                        networkInterface.requested = ni->requested;
-                    }
-                    if (ni->has_metric) {
-                        networkInterface.metric = ni->metric;
-                    }
-                    networkInterface.physicalAddress = ni->physical_address;
-                    if (ni->has_mtu) {
-                        networkInterface.mtu = ni->mtu;
-                    }
-                    if (ni->has_state) {
-                        networkInterface.state = ni->state;
-                    }
-                    if (ni->has_dw_type) {
-                        networkInterface.dwType = ni->dw_type;
-                    }
-                    networkInterface.deviceName = ni->device_name;
-                    if (ni->has_connector_present) {
-                        networkInterface.connectorPresent = ni->connector_present;
-                    }
-                    if (ni->has_end_point_interface) {
-                        networkInterface.endPointInterface = ni->end_point_interface;
-                    }
-
-                    state_.networkWhiteList << networkInterface;
-                }
-            }
-            proto_types__gui_persistent_state__free_unpacked(gs, NULL);
-        }
+        bLoaded = LegacyProtobufSupport::loadGuiPersistentState(arr, state_);
+    }
+    if (!bLoaded)
+    {
+        state_ = types::GuiPersistentState(); // reset to defaults
     }
     // remove the legacy key of settings
     settings.remove("persistentGuiSettings");
