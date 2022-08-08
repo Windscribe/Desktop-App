@@ -17,24 +17,11 @@ struct CheckUpdate
     bool isSupported = false;
     QString sha256;
 
-    bool initFromJson(QJsonObject &json, QString &outErrorMessage);
-
-    bool operator==(const CheckUpdate &other) const
-    {
-        return other.isAvailable == isAvailable &&
-               other.version == version &&
-               other.updateChannel == updateChannel &&
-               other.latestBuild == latestBuild &&
-               other.url == url &&
-               other.isSupported == isSupported &&
-               other.sha256 == sha256;
-    }
-
-    bool operator!=(const CheckUpdate &other) const
-    {
-        return !(*this == other);
-    }
+    bool operator==(const CheckUpdate &other) const;
+    bool operator!=(const CheckUpdate &other) const;
+    static CheckUpdate createFromApiJson(QJsonObject &json, bool &outSuccess, QString &outErrorMessage);
 };
+
 
 } // types namespace
 

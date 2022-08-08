@@ -1,11 +1,30 @@
 #include "locationid.h"
 
+#include <QCborMap>
+
 const int typeIdLocationId = qRegisterMetaType<LocationID>("LocationID");
 
 QString LocationID::getHashString() const
 {
     Q_ASSERT(type_ != INVALID_LOCATION);
     return QString::number(id_) + QString::number(type_) + city_;
+}
+
+QJsonObject LocationID::toJsonObject() const
+{
+    QJsonObject json;
+    json["type"] = type_;
+    json["id"] = id_;
+    json["city"] = city_;
+    return json;
+}
+
+bool LocationID::fromJsonObject(const QJsonObject &json)
+{
+    if (json.contains("type")) type_ = json["type"].toInt(INVALID_LOCATION);
+    if (json.contains("id")) id_ = json["id"].toInt();
+    if (json.contains("city")) city_ = json["city"].toString();
+    return json.contains("type") && json.contains("id") && json.contains("city");
 }
 
 LocationID LocationID::createTopApiLocationId(int id)

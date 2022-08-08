@@ -45,4 +45,29 @@ QString ServerCredentials::passwordForIkev2() const
     return passwordIkev2_;
 }
 
+QDataStream& operator <<(QDataStream &stream, const ServerCredentials &s)
+{
+    Q_ASSERT(s.bInitialized_);
+    stream << s.versionForSerialization_;
+    stream << s.usernameOpenVpn_ << s.passwordOpenVpn_ << s.usernameIkev2_ << s.passwordIkev2_;
+    return stream;
+}
+
+QDataStream& operator >>(QDataStream &stream, ServerCredentials &s)
+{
+    quint32 version;
+    stream >> version;
+    if (version > s.versionForSerialization_)
+    {
+        stream.setStatus(QDataStream::ReadCorruptData);
+        s.bInitialized_ = false;
+        return stream;
+    }
+
+    stream >> s.usernameOpenVpn_ >> s.passwordOpenVpn_ >> s.usernameIkev2_ >> s.passwordIkev2_;
+    s.bInitialized_ = true;
+
+    return stream;
+}
+
 } //namespace types

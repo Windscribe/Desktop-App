@@ -19,6 +19,7 @@
 #include "openvpnversioncontroller.h"
 #include "openvpnversioncontroller.h"
 #include "getdeviceid.h"
+#include "types/global_consts.h"
 
 // For testing merge log functionality
 //#include <QStandardPaths>
@@ -668,7 +669,7 @@ void Engine::initPart2()
     connect(connectionManager_, SIGNAL(interfaceUpdated(QString)), SLOT(onConnectionManagerInterfaceUpdated(QString)));
     connect(connectionManager_, SIGNAL(testTunnelResult(bool, QString)), SLOT(onConnectionManagerTestTunnelResult(bool, QString)));
     connect(connectionManager_, SIGNAL(connectingToHostname(QString, QString, QString)), SLOT(onConnectionManagerConnectingToHostname(QString, QString, QString)));
-    connect(connectionManager_, SIGNAL(protocolPortChanged(types::ProtocolType, uint)), SLOT(onConnectionManagerProtocolPortChanged(types::ProtocolType, uint)));
+    connect(connectionManager_, SIGNAL(protocolPortChanged(PROTOCOL, uint)), SLOT(onConnectionManagerProtocolPortChanged(PROTOCOL, uint)));
     connect(connectionManager_, SIGNAL(internetConnectivityChanged(bool)), SLOT(onConnectionManagerInternetConnectivityChanged(bool)));
     connect(connectionManager_, SIGNAL(wireGuardAtKeyLimit()), SLOT(onConnectionManagerWireGuardAtKeyLimit()));
     connect(connectionManager_, SIGNAL(requestUsername(QString)), SLOT(onConnectionManagerRequestUsername(QString)));
@@ -759,7 +760,7 @@ void Engine::onInitializeHelper(INIT_HELPER_RET ret)
 #endif
 
     // turn off split tunneling (for case the state remains from the last launch)
-    helper_->sendConnectStatus(false, engineSettings_.isCloseTcpSockets(), engineSettings_.isAllowLanTraffic(), AdapterGatewayInfo(), AdapterGatewayInfo(), QString(), types::ProtocolType());
+    helper_->sendConnectStatus(false, engineSettings_.isCloseTcpSockets(), engineSettings_.isAllowLanTraffic(), AdapterGatewayInfo(), AdapterGatewayInfo(), QString(), PROTOCOL());
     helper_->setSplitTunnelingSettings(false, false, false, QStringList(), QStringList(), QStringList());
 
 
@@ -861,7 +862,7 @@ void Engine::cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool is
     // turn off split tunneling
     if (helper_)
     {
-        helper_->sendConnectStatus(false, engineSettings_.isCloseTcpSockets(), engineSettings_.isAllowLanTraffic(), AdapterGatewayInfo(), AdapterGatewayInfo(), QString(), types::ProtocolType());
+        helper_->sendConnectStatus(false, engineSettings_.isCloseTcpSockets(), engineSettings_.isAllowLanTraffic(), AdapterGatewayInfo(), AdapterGatewayInfo(), QString(), PROTOCOL());
         helper_->setSplitTunnelingSettings(false, false, false, QStringList(), QStringList(), QStringList());
     }
 
@@ -1272,7 +1273,7 @@ void Engine::setSettingsImpl(const types::EngineSettings &engineSettings)
     bool isAllowLanTrafficChanged = engineSettings_.isAllowLanTraffic() != engineSettings.isAllowLanTraffic();
     bool isUpdateChannelChanged = engineSettings_.updateChannel() != engineSettings.updateChannel();
     bool isLanguageChanged = engineSettings_.language() != engineSettings.language();
-    bool isProtocolChanged = !engineSettings_.connectionSettings().protocol().isEqual(engineSettings.connectionSettings().protocol());
+    bool isProtocolChanged = engineSettings_.connectionSettings().protocol != engineSettings.connectionSettings().protocol;
     bool isCloseTcpSocketsChanged = engineSettings_.isCloseTcpSockets() != engineSettings.isCloseTcpSockets();
     bool isDnsPolicyChanged = engineSettings_.dnsPolicy() != engineSettings.dnsPolicy();
     bool isCustomOvpnConfigsPathChanged = engineSettings_.customOvpnConfigsPath() != engineSettings.customOvpnConfigsPath();
@@ -1326,15 +1327,15 @@ void Engine::setSettingsImpl(const types::EngineSettings &engineSettings)
             }
             else if (isProtocolChanged)
             {
-                if (engineSettings_.connectionSettings().protocol().isOpenVpnProtocol())
+                if (engineSettings_.connectionSettings().protocol.isOpenVpnProtocol())
                 {
                     qCDebug(LOG_BASIC) << "Protocol changed to openvpn -> update server locations";
                 }
-                else if (engineSettings_.connectionSettings().protocol().isIkev2Protocol())
+                else if (engineSettings_.connectionSettings().protocol.isIkev2Protocol())
                 {
                     qCDebug(LOG_BASIC) << "Protocol changed to ikev -> update server locations";
                 }
-                else if (engineSettings_.connectionSettings().protocol().isWireGuardProtocol())
+                else if (engineSettings_.connectionSettings().protocol.isWireGuardProtocol())
                 {
                     qCDebug(LOG_BASIC) << "Protocol changed to wireguard -> update server locations";
                 }
@@ -1344,7 +1345,7 @@ void Engine::setSettingsImpl(const types::EngineSettings &engineSettings)
                 }
             }
             serverAPI_->serverLocations(apiInfo_->getAuthHash(), engineSettings_.language(), serverApiUserRole_, true, ss.getRevisionHash(),
-                                        ss.isPremium(), engineSettings_.connectionSettings().protocol(), ss.getAlc());
+                                        ss.isPremium(), engineSettings_.connectionSettings().protocol, ss.getAlc());
         }
     }
 
@@ -1705,11 +1706,11 @@ void Engine::onUpdateServerResources()
         if (isDisconnected || (isConnected && !connectionManager_->currentProtocol().isOpenVpnProtocol()))
         {
             serverAPI_->serverConfigs(authHash, serverApiUserRole_, true);
-            serverAPI_->serverCredentials(authHash, serverApiUserRole_, types::ProtocolType::PROTOCOL_OPENVPN_UDP, true);
+            serverAPI_->serverCredentials(authHash, serverApiUserRole_, PROTOCOL::OPENVPN_UDP, true);
         }
 
         if (isDisconnected || (isConnected && !connectionManager_->currentProtocol().isIkev2Protocol())) {
-            serverAPI_->serverCredentials(authHash, serverApiUserRole_, types::ProtocolType::PROTOCOL_IKEV2, true);
+            serverAPI_->serverCredentials(authHash, serverApiUserRole_, PROTOCOL::IKEV2, true);
         }
 
         serverAPI_->serverLocations(authHash, engineSettings_.language(), serverApiUserRole_, true, ss.getRevisionHash(), ss.isPremium(),
@@ -2119,7 +2120,7 @@ void Engine::onConnectionManagerConnectingToHostname(const QString &hostname, co
     }
 }
 
-void Engine::onConnectionManagerProtocolPortChanged(const types::ProtocolType &protocol, const uint port)
+void Engine::onConnectionManagerProtocolPortChanged(const PROTOCOL &protocol, const uint port)
 {
     lastConnectingProtocol_ = protocol;
     Q_EMIT protocolPortChanged(protocol, port);
@@ -2648,7 +2649,7 @@ void Engine::startLoginController(const types::LoginSettings &loginSettings, boo
 {
     Q_ASSERT(loginController_ == NULL);
     Q_ASSERT(loginState_ == LOGIN_IN_PROGRESS);
-    loginController_ = new LoginController(this, helper_, networkDetectionManager_, serverAPI_, engineSettings_.language(), engineSettings_.connectionSettings().protocol());
+    loginController_ = new LoginController(this, helper_, networkDetectionManager_, serverAPI_, engineSettings_.language(), engineSettings_.connectionSettings().protocol);
     connect(loginController_, &LoginController::finished, this, &Engine::onLoginControllerFinished);
     connect(loginController_, &LoginController::readyForNetworkRequests, this, &Engine::onReadyForNetworkRequests);
     connect(loginController_, &LoginController::stepMessage, this, &Engine::onLoginControllerStepMessage);
@@ -2696,7 +2697,7 @@ void Engine::updateSessionStatus()
             prevSessionStatus_.getAlc() != ss.getAlc() || (prevSessionStatus_.getStatus() != 1 && ss.getStatus() == 1))
         {
             serverAPI_->serverLocations(apiInfo_->getAuthHash(), engineSettings_.language(), serverApiUserRole_, true,
-                                        ss.getRevisionHash(), ss.isPremium(), engineSettings_.connectionSettings().protocol(), ss.getAlc());
+                                        ss.getRevisionHash(), ss.isPremium(), engineSettings_.connectionSettings().protocol, ss.getAlc());
         }
 
         if (prevSessionStatus_.getBillingPlanId() != ss.getBillingPlanId())
@@ -2937,7 +2938,7 @@ void Engine::onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON /*reas
     {
         if (state != CONNECT_STATE_CONNECTED)
         {
-            helper_->sendConnectStatus(false, engineSettings_.isCloseTcpSockets(), engineSettings_.isAllowLanTraffic(), AdapterGatewayInfo(), AdapterGatewayInfo(), QString(), types::ProtocolType());
+            helper_->sendConnectStatus(false, engineSettings_.isCloseTcpSockets(), engineSettings_.isAllowLanTraffic(), AdapterGatewayInfo(), AdapterGatewayInfo(), QString(), PROTOCOL());
         }
     }
 }

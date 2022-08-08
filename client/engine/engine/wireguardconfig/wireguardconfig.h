@@ -2,8 +2,6 @@
 #define WIREGUARDCONFIG_H
 
 #include <QString>
-#include <QJsonObject>
-
 
 class WireGuardConfig
 {
@@ -44,9 +42,6 @@ public:
     friend QDataStream& operator <<(QDataStream &stream, const WireGuardConfig &c);
     friend QDataStream& operator >>(QDataStream &stream, WireGuardConfig &c);
 
-    void writeToJson(QJsonObject &json) const;
-    bool fromJsonObject(const QJsonObject &json);
-
 private:
     struct {
         QString privateKey;
@@ -61,7 +56,8 @@ private:
         QString allowedIps;
     } peer_;
 
-    static constexpr int versionForSerialization_ = 1;  // should increment the version if the data format is changed
+    // for serialization
+    static constexpr quint32 versionForSerialization_ = 1;  // should increment the version if the data format is changed
 };
 
 #endif // WIREGUARDCONFIG_H

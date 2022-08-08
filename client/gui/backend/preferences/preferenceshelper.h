@@ -3,7 +3,6 @@
 
 #include <QObject>
 #include <QVector>
-#include "types/protocoltype.h"
 #include "types/portmap.h"
 #include "types/enums.h"
 
@@ -25,8 +24,8 @@ public:
     QVector<TAP_ADAPTER_TYPE> getAvailableTapAdapters(const QString &openVpnVersion);
 
     void setPortMap(const types::PortMap &portMap);
-    QVector<types::ProtocolType> getAvailableProtocols();
-    QVector<uint> getAvailablePortsForProtocol(types::ProtocolType protocol);
+    QVector<PROTOCOL> getAvailableProtocols();
+    QVector<uint> getAvailablePortsForProtocol(PROTOCOL protocol);
 
     void setWifiSharingSupported(bool bSupported);
     bool isWifiSharingSupported() const;

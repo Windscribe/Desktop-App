@@ -176,7 +176,7 @@ MainWindow::MainWindow() :
     connect(backend_, SIGNAL(highCpuUsage(QStringList)), SLOT(onBackendHighCpuUsage(QStringList)));
     connect(backend_, SIGNAL(userWarning(USER_WARNING_TYPE)), SLOT(onBackendUserWarning(USER_WARNING_TYPE)));
     connect(backend_, SIGNAL(internetConnectivityChanged(bool)), SLOT(onBackendInternetConnectivityChanged(bool)));
-    connect(backend_, SIGNAL(protocolPortChanged(types::ProtocolType, uint)), SLOT(onBackendProtocolPortChanged(types::ProtocolType, uint)));
+    connect(backend_, SIGNAL(protocolPortChanged(PROTOCOL, uint)), SLOT(onBackendProtocolPortChanged(PROTOCOL, uint)));
     connect(backend_, SIGNAL(packetSizeDetectionStateChanged(bool, bool)), SLOT(onBackendPacketSizeDetectionStateChanged(bool, bool)));
     connect(backend_, SIGNAL(updateVersionChanged(uint, UPDATE_VERSION_STATE, UPDATE_VERSION_ERROR)),
             SLOT(onBackendUpdateVersionChanged(uint, UPDATE_VERSION_STATE, UPDATE_VERSION_ERROR)));
@@ -1519,9 +1519,9 @@ void MainWindow::onBackendInitFinished(INIT_STATE initState)
             gotoLoginWindow();
         }
 
-        if (!p->connectionSettings().isAutomatic())
+        if (!p->connectionSettings().isAutomatic)
         {
-            mainWindowController_->getConnectWindow()->setProtocolPort(p->connectionSettings().protocol(), p->connectionSettings().port());
+            mainWindowController_->getConnectWindow()->setProtocolPort(p->connectionSettings().protocol, p->connectionSettings().port);
         }
 
         // Start the IPC server last to give the above commands time to finish before we
@@ -2301,7 +2301,7 @@ void MainWindow::onBackendInternetConnectivityChanged(bool connectivity)
     internetConnected_ = connectivity;
 }
 
-void MainWindow::onBackendProtocolPortChanged(const types::ProtocolType &protocol, const uint port)
+void MainWindow::onBackendProtocolPortChanged(const PROTOCOL &protocol, const uint port)
 {
     mainWindowController_->getConnectWindow()->setProtocolPort(protocol, port);
 }
@@ -2582,17 +2582,17 @@ void MainWindow::onPreferencesLaunchOnStartupChanged(bool bEnabled)
 
 void MainWindow::updateConnectWindowStateProtocolPortDisplay(types::ConnectionSettings connectionSettings)
 {
-    if (connectionSettings.isAutomatic())
+    if (connectionSettings.isAutomatic)
     {
 #if defined(Q_OS_LINUX)
-        mainWindowController_->getConnectWindow()->setProtocolPort(types::ProtocolType::PROTOCOL_UDP, 443);
+        mainWindowController_->getConnectWindow()->setProtocolPort(PROTOCOL_TYPE_UDP, 443);
 #else
-        mainWindowController_->getConnectWindow()->setProtocolPort(types::ProtocolType::PROTOCOL_IKEV2, 500);
+        mainWindowController_->getConnectWindow()->setProtocolPort(PROTOCOL::IKEV2, 500);
 #endif
     }
     else
     {
-        mainWindowController_->getConnectWindow()->setProtocolPort(connectionSettings.protocol(), connectionSettings.port());
+        mainWindowController_->getConnectWindow()->setProtocolPort(connectionSettings.protocol, connectionSettings.port);
     }
 }
 

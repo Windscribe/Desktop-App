@@ -67,4 +67,13 @@ void DnsResolutionSettings::setManualIp(const QString &manualIp)
     manualIp_ = manualIp;
 }
 
+QDebug operator<<(QDebug dbg, const DnsResolutionSettings &ds)
+{
+    QDebugStateSaver saver(dbg);
+    dbg.nospace();
+    dbg << "{isAutomatic:" << ds.bAutomatic_ << "; ";
+    dbg << "manualIp:" << ds.manualIp_ << "}";
+    return dbg;
+}
+
 } //namespace types

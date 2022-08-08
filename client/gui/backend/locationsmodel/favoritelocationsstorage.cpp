@@ -1,6 +1,7 @@
 #include "favoritelocationsstorage.h"
 
 #include <QDataStream>
+#include <QJsonArray>
 #include <QSettings>
 
 void FavoriteLocationsStorage::addToFavorites(const LocationID &locationId)
@@ -33,41 +34,54 @@ int FavoriteLocationsStorage::size() const
 
 void FavoriteLocationsStorage::readFromSettings()
 {
-    /*favoriteLocations_.clear();
+    favoriteLocations_.clear();
     QSettings settings;
 
     if (settings.contains("favoriteLocations"))
     {
         QByteArray buf = settings.value("favoriteLocations").toByteArray();
-
-        ProtoTypes::ArrayLocationId arrIds;
-        if (arrIds.ParseFromArray(buf.data(), buf.size()))
+        QCborValue cbor = QCborValue::fromCbor(buf);
+        if (!cbor.isInvalid() && cbor.isMap())
         {
-            for (int i = 0; i < arrIds.ids_size(); ++i)
+            const QJsonObject &obj = cbor.toJsonValue().toObject();
+            if (obj.contains("version") && obj["version"].toInt(INT_MAX) <= versionForSerialization_)
             {
-                favoriteLocations_.insert(LocationID::createFromProtoBuf(arrIds.ids(i)));
+                if (obj.contains("locations") && obj["locations"].isArray())
+                {
+                    QJsonArray arr = obj["locations"].toArray();
+                    for (const auto &it: arr)
+                    {
+                        LocationID lid;
+                        if (lid.fromJsonObject(it.toObject()))
+                        {
+                            favoriteLocations_.insert(lid);
+                        }
+                    }
+                }
             }
         }
     }
-    isFavoriteLocationsSetModified_ = false;*/
+    isFavoriteLocationsSetModified_ = false;
 }
 
 void FavoriteLocationsStorage::writeToSettings()
 {
-    /*if (!isFavoriteLocationsSetModified_)
+    if (!isFavoriteLocationsSetModified_)
         return;
 
-    ProtoTypes::ArrayLocationId arrIds;
+    QJsonObject json;
+    json["version"] = versionForSerialization_;
+    QJsonArray arrJson;
     for (const LocationID &lid : favoriteLocations_)
     {
-        *arrIds.add_ids() = lid.toProtobuf();
+        arrJson << lid.toJsonObject();
     }
+    json["locations"] = arrJson;
 
-    size_t size = arrIds.ByteSizeLong();
-    QByteArray arr(size, Qt::Uninitialized);
-    arrIds.SerializeToArray(arr.data(), (int)size);
+    QCborValue cbor = QCborValue::fromJsonValue(json);
+    QByteArray arr = cbor.toCbor();
 
     QSettings settings;
     settings.setValue("favoriteLocations", arr);
-    isFavoriteLocationsSetModified_ = false;*/
+    isFavoriteLocationsSetModified_ = false;
 }

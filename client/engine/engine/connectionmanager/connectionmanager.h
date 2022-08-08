@@ -11,7 +11,6 @@
 
 #include "iconnection.h"
 #include "testvpntunnel.h"
-#include "types/protocoltype.h"
 #include "engine/wireguardconfig/wireguardconfig.h"
 #include "engine/wireguardconfig/getwireguardconfiginloop.h"
 #include "connsettingspolicy/baseconnsettingspolicy.h"
@@ -81,7 +80,7 @@ public:
     void startTunnelTests();
     bool isAllowFirewallAfterConnection() const;
 
-    types::ProtocolType currentProtocol() const;
+    PROTOCOL currentProtocol() const;
 
 signals:
     void connected();
@@ -94,7 +93,7 @@ signals:
     void testTunnelResult(bool success, const QString &ipAddress);
     void showFailedAutomaticConnectionMessage();
     void internetConnectivityChanged(bool connectivity);
-    void protocolPortChanged(const types::ProtocolType &protocol, const uint port);
+    void protocolPortChanged(const PROTOCOL &protocol, const uint port);
     void wireGuardAtKeyLimit();
 
     void requestUsername(const QString &pathCustomOvpnConfig);
@@ -175,7 +174,7 @@ private:
     bool bLastIsOnline_;
     bool bWakeSignalReceived_;
 
-    types::ProtocolType currentProtocol_;
+    PROTOCOL currentProtocol_;
 
     CurrentConnectionDescr currentConnectionDescr_;
 
@@ -200,7 +199,7 @@ private:
     void doMacRestoreProcedures();
     void startReconnectionTimer();
     void waitForNetworkConnectivity();
-    void recreateConnector(types::ProtocolType protocol);
+    void recreateConnector(PROTOCOL protocol);
     void restoreConnectionAfterWakeUp();
 };
 

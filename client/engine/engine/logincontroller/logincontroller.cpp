@@ -10,7 +10,7 @@
 
 LoginController::LoginController(QObject *parent,  IHelper *helper,
                                  INetworkDetectionManager *networkDetectionManager, ServerAPI *serverAPI,
-                                 const QString &language, types::ProtocolType protocol) : QObject(parent),
+                                 const QString &language, PROTOCOL protocol) : QObject(parent),
     helper_(helper), serverAPI_(serverAPI),
     getApiAccessIps_(NULL), networkDetectionManager_(networkDetectionManager), language_(language),
     protocol_(protocol), bFromConnectedToVPNState_(false), getAllConfigsController_(NULL),
@@ -19,7 +19,7 @@ LoginController::LoginController(QObject *parent,  IHelper *helper,
     connect(serverAPI_, &ServerAPI::loginAnswer, this, &LoginController::onLoginAnswer, Qt::QueuedConnection);
     connect(serverAPI_, &ServerAPI::sessionAnswer, this, &LoginController::onSessionAnswer, Qt::QueuedConnection);
     connect(serverAPI_, SIGNAL(serverConfigsAnswer(SERVER_API_RET_CODE,QString, uint)), SLOT(onServerConfigsAnswer(SERVER_API_RET_CODE,QString, uint)), Qt::QueuedConnection);
-    connect(serverAPI_, SIGNAL(serverCredentialsAnswer(SERVER_API_RET_CODE,QString,QString, types::ProtocolType, uint)), SLOT(onServerCredentialsAnswer(SERVER_API_RET_CODE,QString,QString, types::ProtocolType, uint)), Qt::QueuedConnection);
+    connect(serverAPI_, SIGNAL(serverCredentialsAnswer(SERVER_API_RET_CODE,QString,QString, PROTOCOL, uint)), SLOT(onServerCredentialsAnswer(SERVER_API_RET_CODE,QString,QString, PROTOCOL, uint)), Qt::QueuedConnection);
     connect(serverAPI_, SIGNAL(portMapAnswer(SERVER_API_RET_CODE, types::PortMap, uint)), SLOT(onPortMapAnswer(SERVER_API_RET_CODE, types::PortMap, uint)), Qt::QueuedConnection);
 
     connect(serverAPI_, SIGNAL(serverLocationsAnswer(SERVER_API_RET_CODE,QVector<types::Location>,QStringList, uint)),
@@ -81,7 +81,7 @@ void LoginController::onServerLocationsAnswer(SERVER_API_RET_CODE retCode, const
     }
 }
 
-void LoginController::onServerCredentialsAnswer(SERVER_API_RET_CODE retCode, const QString &radiusUsername, const QString &radiusPassword, types::ProtocolType protocol, uint userRole)
+void LoginController::onServerCredentialsAnswer(SERVER_API_RET_CODE retCode, const QString &radiusUsername, const QString &radiusPassword, PROTOCOL protocol, uint userRole)
 {
     if (userRole == serverApiUserRole_)
     {
@@ -370,11 +370,11 @@ void LoginController::getAllConfigs()
     getAllConfigsController_ = new GetAllConfigsController(this);
     connect(getAllConfigsController_, SIGNAL(allConfigsReceived(SERVER_API_RET_CODE)), SLOT(onAllConfigsReceived(SERVER_API_RET_CODE)));
     serverAPI_->serverConfigs(newAuthHash_, serverApiUserRole_, false);
-    serverAPI_->serverCredentials(newAuthHash_, serverApiUserRole_, types::ProtocolType::PROTOCOL_OPENVPN_UDP, false);
+    serverAPI_->serverCredentials(newAuthHash_, serverApiUserRole_, PROTOCOL::OPENVPN_UDP, false);
 
     if (!loginSettings_.getServerCredentials().isInitialized())
     {
-        serverAPI_->serverCredentials(newAuthHash_, serverApiUserRole_, types::ProtocolType::PROTOCOL_IKEV2, false);
+        serverAPI_->serverCredentials(newAuthHash_, serverApiUserRole_, PROTOCOL::IKEV2, false);
     }
     else
     {

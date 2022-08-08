@@ -15,6 +15,7 @@
 #include "engine/networkdetectionmanager/inetworkdetectionmanager.h"
 #include "utils/extraconfig.h"
 #include "utils/ipvalidation.h"
+#include "types/global_consts.h"
 
 #include "connsettingspolicy/autoconnsettingspolicy.h"
 #include "connsettingspolicy/manualconnsettingspolicy.h"
@@ -135,7 +136,7 @@ void ConnectionManager::clickConnect(const QString &ovpnConfig, const types::Ser
     // API or static ips locations
     else
     {
-        if (connectionSettings.isAutomatic())
+        if (connectionSettings.isAutomatic)
         {
             connSettingsPolicy_.reset(new AutoConnSettingsPolicy(bli, portMap, proxySettings.isProxyEnabled()));
         }
@@ -874,7 +875,7 @@ void ConnectionManager::doConnectPart2()
     if (currentConnectionDescr_.connectionNodeType == CONNECTION_NODE_DEFAULT ||
             currentConnectionDescr_.connectionNodeType == CONNECTION_NODE_STATIC_IPS)
     {
-        if (currentConnectionDescr_.protocol.getType() == types::ProtocolType::PROTOCOL_STUNNEL)
+        if (currentConnectionDescr_.protocol == PROTOCOL::STUNNEL)
         {
             bool bStunnelConfigSuccess = stunnelManager_->setConfig(currentConnectionDescr_.ip, currentConnectionDescr_.port);
             if (!bStunnelConfigSuccess)
@@ -913,7 +914,7 @@ void ConnectionManager::doConnectPart2()
             }
 
             uint portForStunnelOrWStunnel = currentConnectionDescr_.protocol.isStunnelOrWStunnelProtocol() ?
-                        (currentConnectionDescr_.protocol.getType() == types::ProtocolType::PROTOCOL_STUNNEL ? stunnelManager_->getStunnelPort() : wstunnelManager_->getPort()) : 0;
+                        (currentConnectionDescr_.protocol == PROTOCOL::STUNNEL ? stunnelManager_->getStunnelPort() : wstunnelManager_->getPort()) : 0;
 
             const bool blockOutsideDnsOption = !IpValidation::instance().isLocalIp(getCustomDnsIp());
             const bool bOvpnSuccess = makeOVPNFile_->generate(lastOvpnConfig_, currentConnectionDescr_.ip, currentConnectionDescr_.protocol,
@@ -926,7 +927,7 @@ void ConnectionManager::doConnectPart2()
                 return;
             }
 
-            if (currentConnectionDescr_.protocol.getType() == types::ProtocolType::PROTOCOL_STUNNEL)
+            if (currentConnectionDescr_.protocol == PROTOCOL::STUNNEL)
             {
                 if(!stunnelManager_->runProcess())
                 {
@@ -937,7 +938,7 @@ void ConnectionManager::doConnectPart2()
                     return;
                 }
             }
-            else if (currentConnectionDescr_.protocol.getType() == types::ProtocolType::PROTOCOL_WSTUNNEL)
+            else if (currentConnectionDescr_.protocol == PROTOCOL::WSTUNNEL)
             {
                 if (!wstunnelManager_->runProcess(currentConnectionDescr_.ip, currentConnectionDescr_.port, false))
                 {
@@ -1028,9 +1029,9 @@ void ConnectionManager::doConnectPart3()
     if (currentConnectionDescr_.connectionNodeType == CONNECTION_NODE_CUSTOM_CONFIG)
     {
         if (currentConnectionDescr_.protocol.isWireGuardProtocol())
-            recreateConnector(types::ProtocolType::PROTOCOL_WIREGUARD);
+            recreateConnector(PROTOCOL::WIREGUARD);
         else
-            recreateConnector(types::ProtocolType::PROTOCOL_OPENVPN_UDP);
+            recreateConnector(PROTOCOL::OPENVPN_UDP);
 
         connector_->startConnect(makeOVPNFileFromCustom_->path(), "", "", usernameForCustomOvpn_,
                                  passwordForCustomOvpn_, lastProxySettings_,
@@ -1052,7 +1053,7 @@ void ConnectionManager::doConnectPart3()
                 password = lastServerCredentials_.passwordForOpenVpn();
             }
 
-            recreateConnector(types::ProtocolType::PROTOCOL_OPENVPN_UDP);
+            recreateConnector(PROTOCOL::OPENVPN_UDP);
             connector_->startConnect(makeOVPNFile_->path(), "", "", username, password, lastProxySettings_, nullptr, false, connSettingsPolicy_->isAutomaticMode());
         }
         else if (currentConnectionDescr_.protocol.isIkev2Protocol())
@@ -1069,7 +1070,7 @@ void ConnectionManager::doConnectPart3()
                 password = lastServerCredentials_.passwordForIkev2();
             }
 
-            recreateConnector(types::ProtocolType::PROTOCOL_IKEV2);
+            recreateConnector(PROTOCOL::IKEV2);
             connector_->startConnect(currentConnectionDescr_.hostname, currentConnectionDescr_.ip, currentConnectionDescr_.hostname, username, password, lastProxySettings_,
                                      nullptr, ExtraConfig::instance().isUseIkev2Compression(), connSettingsPolicy_->isAutomaticMode());
         }
@@ -1078,7 +1079,7 @@ void ConnectionManager::doConnectPart3()
             QString endpointAndPort = QString("%1:%2").arg(currentConnectionDescr_.ip).arg(currentConnectionDescr_.port);
             wireGuardConfig_.setPeerPublicKey(currentConnectionDescr_.wgPeerPublicKey);
             wireGuardConfig_.setPeerEndpoint(endpointAndPort);
-            recreateConnector(types::ProtocolType::PROTOCOL_WIREGUARD);
+            recreateConnector(PROTOCOL::WIREGUARD);
             connector_->startConnect(QString(), currentConnectionDescr_.ip,
                 currentConnectionDescr_.dnsHostName, QString(), QString(), lastProxySettings_,
                 &wireGuardConfig_, false, connSettingsPolicy_->isAutomaticMode());
@@ -1134,14 +1135,14 @@ void ConnectionManager::waitForNetworkConnectivity()
     timerWaitNetworkConnectivity_.start(1000);
 }
 
-void ConnectionManager::recreateConnector(types::ProtocolType protocol)
+void ConnectionManager::recreateConnector(PROTOCOL protocol)
 {
-    if (!currentProtocol_.isInitialized())
+    if (currentProtocol_ == PROTOCOL::UNINITIALIZED)
     {
         Q_ASSERT(connector_ == NULL);
     }
 
-    if (!currentProtocol_.isEqual(protocol))
+    if (currentProtocol_ != protocol)
     {
         SAFE_DELETE_LATER(connector_);
 
@@ -1355,7 +1356,7 @@ bool ConnectionManager::isAllowFirewallAfterConnection() const
         && connector_->isAllowFirewallAfterCustomConfigConnection();
 }
 
-types::ProtocolType ConnectionManager::currentProtocol() const
+PROTOCOL ConnectionManager::currentProtocol() const
 {
     return currentProtocol_;
 }

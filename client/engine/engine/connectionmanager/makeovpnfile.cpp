@@ -28,7 +28,7 @@ MakeOVPNFile::~MakeOVPNFile()
     file_.remove();
 }
 
-bool MakeOVPNFile::generate(const QString &ovpnData, const QString &ip, const types::ProtocolType &protocol, uint port,
+bool MakeOVPNFile::generate(const QString &ovpnData, const QString &ip, PROTOCOL protocol, uint port,
                             uint portForStunnelOrWStunnel, int mss, const QString &defaultGateway, const QString &openVpnX509, bool blockOutsideDnsOption)
 {
 #ifndef Q_OS_MAC
@@ -72,7 +72,7 @@ bool MakeOVPNFile::generate(const QString &ovpnData, const QString &ip, const ty
 
 #endif
 
-    if (protocol.getType() == types::ProtocolType::PROTOCOL_OPENVPN_UDP)
+    if (protocol == PROTOCOL::OPENVPN_UDP)
     {
         if (!bExtraContainsRemote)
         {
@@ -91,7 +91,7 @@ bool MakeOVPNFile::generate(const QString &ovpnData, const QString &ip, const ty
             file_.write(str.toLocal8Bit());
         }
     }
-    else if (protocol.getType() == types::ProtocolType::PROTOCOL_OPENVPN_TCP)
+    else if (protocol == PROTOCOL::OPENVPN_TCP)
     {
         if (!bExtraContainsRemote)
         {

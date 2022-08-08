@@ -46,7 +46,7 @@ private slots:
     void onEngineMyIpUpdated(const QString &ip, bool success, bool isDisconnected);
     void onEngineConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, CONNECT_ERROR err, const LocationID &locationId);
     void onEngineStatisticsUpdated(quint64 bytesIn, quint64 bytesOut, bool isTotalBytes);
-    void onEngineProtocolPortChanged(const types::ProtocolType &protocol, const uint port);
+    void onEngineProtocolPortChanged(const PROTOCOL &protocol, const uint port);
 
     void onEngineEmergencyConnected();
     void onEngineEmergencyDisconnected();

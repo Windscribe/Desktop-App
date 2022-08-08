@@ -21,6 +21,8 @@ public:
 private:
     QSet<LocationID> favoriteLocations_;
     bool isFavoriteLocationsSetModified_ = false;
+
+    static constexpr int versionForSerialization_ = 1;  // should increment the version if the data format is changed
 };
 
 #endif // FAVORITELOCATIONSSTORAGE_H

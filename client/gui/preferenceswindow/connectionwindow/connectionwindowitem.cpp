@@ -204,7 +204,7 @@ void ConnectionWindowItem::onConnectionModeChanged(const types::ConnectionSettin
 {
     preferences_->setConnectionSettings(cm);
 
-    if (!cm.isAutomatic()) // only scroll when opening
+    if (!cm.isAutomatic) // only scroll when opening
     {
         // magic number is expanded height
         emit scrollToPosition(static_cast<int>(connectionModeItem_->y()) + 50 + 43 + 43 );

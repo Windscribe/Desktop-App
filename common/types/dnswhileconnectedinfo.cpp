@@ -67,5 +67,12 @@ bool DnsWhileConnectedInfo::fromJsonObject(const QJsonObject &json)
     return true;
 }
 
+QDebug operator<<(QDebug dbg, const DnsWhileConnectedInfo &ds)
+{
+    QDebugStateSaver saver(dbg);
+    dbg.nospace();
+    dbg << "{type:" << ds.type_ << "}";
+    return dbg;
+}
 
 } // types namespace

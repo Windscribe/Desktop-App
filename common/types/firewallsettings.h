@@ -44,6 +44,16 @@ struct FirewallSettings
         return true;
     }
 
+    friend QDebug operator<<(QDebug dbg, const FirewallSettings &fs)
+    {
+        QDebugStateSaver saver(dbg);
+        dbg.nospace();
+        dbg << "{mode:" << FIREWALL_MODE_toString(fs.mode) << "; ";
+        dbg << "when:" << FIREWALL_WHEN_toString(fs.when) << "}";
+        return dbg;
+    }
+
+
 };
 
 

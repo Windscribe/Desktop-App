@@ -20,7 +20,7 @@ signals:
 
 private slots:
     void onTimerWaitServerAPIReady();
-    void onServerCredentialsAnswer(SERVER_API_RET_CODE retCode, const QString &radiusUsername, const QString &radiusPassword, types::ProtocolType protocol, uint userRole);
+    void onServerCredentialsAnswer(SERVER_API_RET_CODE retCode, const QString &radiusUsername, const QString &radiusPassword, PROTOCOL protocol, uint userRole);
     void onServerConfigsAnswer(SERVER_API_RET_CODE retCode, const QString &config, uint userRole);
 
 private:

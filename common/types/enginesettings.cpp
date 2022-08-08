@@ -2,6 +2,7 @@
 #include "ipc/protobufcommand.h"
 #include "utils/logger.h"
 #include "utils/winutils.h"
+#include "types/global_consts.h"
 
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -24,10 +25,9 @@ EngineSettings::EngineSettings() : d(new EngineSettingsData)
 
 void EngineSettings::saveToSettings()
 {
-    SimpleCrypt simpleCrypt(simpleCryptKey_);
-    QJsonDocument doc;
-    doc.setObject(toJsonObject());
-    QByteArray arr = doc.toJson();
+    SimpleCrypt simpleCrypt(SIMPLE_CRYPT_KEY);
+    QCborValue cbor = QCborValue::fromJsonValue(toJsonObject());
+    QByteArray arr = cbor.toCbor();
     QSettings settings;
     settings.setValue("engineSettings", simpleCrypt.encryptToString(arr));
 }
@@ -35,18 +35,19 @@ void EngineSettings::saveToSettings()
 void EngineSettings::loadFromSettings()
 {
     bool bLoaded = false;
-    SimpleCrypt simpleCrypt(simpleCryptKey_);
+    SimpleCrypt simpleCrypt(SIMPLE_CRYPT_KEY);
 
     QSettings settings;
     if (settings.contains("engineSettings"))
     {
         QString str = settings.value("engineSettings", "").toString();
         QByteArray arr = simpleCrypt.decryptToByteArray(str);
-        QJsonDocument doc = QJsonDocument::fromJson(arr);
 
-        if (!doc.isNull() && doc.isObject())
+        QCborValue cbor = QCborValue::fromCbor(arr);
+
+        if (!cbor.isInvalid() && cbor.isMap())
         {
-            const QJsonObject &obj = doc.object();
+            const QJsonObject &obj = cbor.toJsonValue().toObject();
             if (obj.contains("version") && obj["version"].toInt(INT_MAX) <= versionForSerialization_)
             {
                 if (obj.contains("language")) d->language = obj["language"].toString("en");
@@ -93,9 +94,9 @@ void EngineSettings::loadFromSettings()
 
             if (es->connection_settings)
             {
-                if (es->connection_settings->has_is_automatic) d->connectionSettings.setIsAutomatic(es->connection_settings->is_automatic);
-                if (es->connection_settings->has_port) d->connectionSettings.setPort(es->connection_settings->port);
-                if (es->connection_settings->has_protocol) d->connectionSettings.setProtocol((ProtocolType::PROTOCOL_TYPE)es->connection_settings->protocol);
+                if (es->connection_settings->has_is_automatic) d->connectionSettings.isAutomatic = es->connection_settings->is_automatic;
+                if (es->connection_settings->has_port) d->connectionSettings.port = es->connection_settings->port;
+                if (es->connection_settings->has_protocol) d->connectionSettings.protocol = (PROTOCOL)es->connection_settings->protocol;
             }
 
             if (es->api_resolution)
@@ -245,7 +246,6 @@ void EngineSettings::loadFromSettings()
             repairEngineSettings();
     #endif
 
-    printDebugInfo();
 }
 
 QString EngineSettings::language() const
@@ -472,26 +472,45 @@ QJsonObject EngineSettings::toJsonObject() const
     return obj;
 }
 
-void EngineSettings::printDebugInfo() const
+QDebug operator<<(QDebug dbg, const EngineSettings &es)
 {
-    QJsonDocument doc(toJsonObject());
-    QString strJson(doc.toJson(QJsonDocument::Compact));
-    qCDebug(LOG_BASIC).noquote() << QString("Engine settings: %1").arg(strJson);
-}
+    QDebugStateSaver saver(dbg);
+    dbg.nospace();
+    dbg << "{language:" << es.d->language << "; ";
+    dbg << "updateChannel:" << UPDATE_CHANNEL_toString(es.d->updateChannel) << "; ";
+    dbg << "isIgnoreSslErrors:" << es.d->isIgnoreSslErrors << "; ";
+    dbg << "isCloseTcpSockets:" << es.d->isCloseTcpSockets << "; ";
+    dbg << "isAllowLanTraffic:" << es.d->isAllowLanTraffic << "; ";
+    dbg << "firewallSettings: " << es.d->firewallSettings << "; ";
+    dbg << "connectionSettings: " << es.d->connectionSettings << "; ";
+    dbg << "dnsResolutionSettings: " << es.d->dnsResolutionSettings << "; ";
+    dbg << "proxySettings: " << es.d->proxySettings << "; ";
+    dbg << "packetSize: " << es.d->packetSize << "; ";
+    dbg << "macAddrSpoofing: " << es.d->macAddrSpoofing << "; ";
+    dbg << "dnsPolicy: " << DNS_POLICY_TYPE_ToString(es.d->dnsPolicy) << "; ";
+#ifdef Q_OS_WIN
+    dbg << "tapAdapter: " << TAP_ADAPTER_TYPE_toString(es.d->tapAdapter) << "; ";
+#endif
+    dbg << "customOvpnConfigsPath: " << (es.d->customOvpnConfigsPath.isEmpty() ? "empty" : "settled") << "; ";
+    dbg << "isKeepAliveEnabled:" << es.d->isKeepAliveEnabled << "; ";
+    dbg << "dnsWhileConnectedInfo:" << es.d->dnsWhileConnectedInfo << "; ";
+    dbg << "dnsManager:" << DNS_MANAGER_TYPE_toString(es.d->dnsManager) << "}";
 
+    return dbg;
+}
 
 #if defined(Q_OS_LINUX)
 void EngineSettings::repairEngineSettings()
 {
     // IKEv2 is disabled on linux but is default protocol in ProtoTypes::ConnectionSettings.
     // UDP should be default on Linux.
-    if(engineSettings_.has_connection_settings() && engineSettings_.connection_settings().protocol() == types::ProtocolType::PROTOCOL_IKEV2) {
-        engineSettings_.mutable_connection_settings()->set_protocol(types::ProtocolType::PROTOCOL_UDP);
+    if(engineSettings_.has_connection_settings() && engineSettings_.connection_settings().protocol() == PROTOCOL::IKEV2) {
+        engineSettings_.mutable_connection_settings()->set_protocol(PROTOCOL_TYPE_UDP);
         engineSettings_.mutable_connection_settings()->set_port(443);
     }
     else if(!engineSettings_.has_connection_settings()) {
         auto settings = engineSettings_.connection_settings();
-        settings.set_protocol(types::ProtocolType::PROTOCOL_UDP);
+        settings.set_protocol(PROTOCOL_TYPE_UDP);
         settings.set_port(443);
         *engineSettings_.mutable_connection_settings() = settings;
     }

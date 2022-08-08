@@ -2,6 +2,7 @@
 #define IHELPER_H
 
 #include <QThread>
+#include "types/enums.h"
 
 class SplitTunnelingNetworkInfo;
 class WireGuardConfig;
@@ -10,7 +11,6 @@ class AdapterGatewayInfo;
 namespace types
 {
     struct WireGuardStatus;
-    class ProtocolType;
 }
 
 // basic helper class for execute root commands
@@ -40,7 +40,7 @@ public:
                                    const QStringList &files, const QStringList &ips,
                                    const QStringList &hosts) = 0;
     virtual void sendConnectStatus(bool isConnected, bool isCloseTcpSocket, bool isKeepLocalSocket, const AdapterGatewayInfo &defaultAdapter, const AdapterGatewayInfo &vpnAdapter,
-                           const QString &connectedIp, const types::ProtocolType &protocol) = 0;
+                           const QString &connectedIp, const PROTOCOL &protocol) = 0;
     virtual bool setCustomDnsWhileConnected(bool isIkev2, unsigned long ifIndex, const QString &overrideDnsIpAddress) = 0;
 
     // WireGuard functions

@@ -70,23 +70,23 @@ void PreferencesHelper::setPortMap(const types::PortMap &portMap)
     emit portMapChanged();
 }
 
-QVector<types::ProtocolType> PreferencesHelper::getAvailableProtocols()
+QVector<PROTOCOL> PreferencesHelper::getAvailableProtocols()
 {
 #if defined(Q_OS_WINDOWS)
     bool is32bit = !WinUtils::isWindows64Bit();
 #endif
 
-    QVector<types::ProtocolType> p;
+    QVector<PROTOCOL> p;
     for (auto it : portMap_.const_items())
     {
 #if defined(Q_OS_LINUX)
         const auto protocol = portMap_.port_map_item(i).protocol();
-        if (protocol == types::ProtocolType::PROTOCOL_IKEV2) {
+        if (protocol == PROTOCOL::IKEV2) {
             continue;
         }
 #elif defined(Q_OS_WINDOWS)
         const auto protocol = it.protocol;
-        if (is32bit && ((protocol == types::ProtocolType::PROTOCOL_WIREGUARD) || (protocol == types::ProtocolType::PROTOCOL_WSTUNNEL)))
+        if (is32bit && ((protocol == PROTOCOL::WIREGUARD) || (protocol == PROTOCOL::WSTUNNEL)))
         {
             continue;
         }
@@ -96,7 +96,7 @@ QVector<types::ProtocolType> PreferencesHelper::getAvailableProtocols()
     return p;
 }
 
-QVector<uint> PreferencesHelper::getAvailablePortsForProtocol(types::ProtocolType protocol)
+QVector<uint> PreferencesHelper::getAvailablePortsForProtocol(PROTOCOL protocol)
 {
     QVector<uint> v;
     for (auto it : portMap_.const_items())

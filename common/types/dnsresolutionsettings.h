@@ -33,6 +33,8 @@ public:
         return !(*this == other);
     }
 
+    friend QDebug operator<<(QDebug dbg, const DnsResolutionSettings &ds);
+
 private:
     bool bAutomatic_;
     QString manualIp_;

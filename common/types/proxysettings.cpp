@@ -68,39 +68,6 @@ void ProxySettings::setPassword(const QString &password)
     password_ = password;
 }
 
-void ProxySettings::debugToLog()
-{
-    switch (option_)
-    {
-        case PROXY_OPTION_NONE:
-            qCDebug(LOG_BASIC) << "Proxy option: none";
-            break;
-        case PROXY_OPTION_AUTODETECT:
-            qCDebug(LOG_BASIC) << "Proxy option: autodetect";
-            break;
-        case PROXY_OPTION_HTTP:
-            qCDebug(LOG_BASIC) << "Proxy option: https";
-            break;
-        case PROXY_OPTION_SOCKS:
-            qCDebug(LOG_BASIC) << "Proxy option: socks";
-            break;
-        default:
-            Q_ASSERT(false);
-    }
-
-    qCDebug(LOG_BASIC) << "Proxy address:" << address_;
-    qCDebug(LOG_BASIC) << "Proxy port:" << port_;
-    if (!username_.isEmpty())
-        qCDebug(LOG_BASIC) << "Proxy username: setted";
-    else
-        qCDebug(LOG_BASIC) << "Proxy username: empty";
-
-    if (!password_.isEmpty())
-        qCDebug(LOG_BASIC) << "Proxy password: setted";
-    else
-        qCDebug(LOG_BASIC) << "Proxy password: empty";
-}
-
 QNetworkProxy ProxySettings::getNetworkProxy() const
 {
     QNetworkProxy proxy;
@@ -163,6 +130,18 @@ bool ProxySettings::fromJsonObject(const QJsonObject &json)
     if (json.contains("username")) username_ = json["username"].toString();
     if (json.contains("password")) password_ = json["password"].toString();
     return true;
+}
+
+QDebug operator<<(QDebug dbg, const ProxySettings &ps)
+{
+    QDebugStateSaver saver(dbg);
+    dbg.nospace();
+    dbg << "{option:" << PROXY_OPTION_toString(ps.option_) << "; ";
+    dbg << "address:" << ps.address_ << "; ";
+    dbg << "port:" << ps.port_ << "; ";
+    dbg << "username:" << (ps.username_.isEmpty() ? "empty" : "settled") << "; ";
+    dbg << "password:" << (ps.password_.isEmpty() ? "empty" : "settled") << "}";
+    return dbg;
 }
 
 } //namespace types

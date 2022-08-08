@@ -4,32 +4,19 @@
 #include <QJsonArray>
 #include <QSharedDataPointer>
 #include <QVector>
-#include <qstring.h>
-#include "protocoltype.h"
+#include "types/enums.h"
 
 namespace types {
 
 struct PortItem
 {
-    ProtocolType protocol;
+    PROTOCOL protocol = PROTOCOL::UNINITIALIZED;
     QString heading;
     QString use;
     QVector<uint> ports;
 
-    friend QDataStream& operator <<(QDataStream& stream, const PortItem& p)
-    {
-        stream << versionForSerialization_;
-        stream << p.protocol << p.heading << p.use << p.ports;
-        return stream;
-    }
-    friend QDataStream& operator >>(QDataStream& stream, PortItem& p)
-    {
-        quint32 version;
-        stream >> version;
-        Q_ASSERT(version == versionForSerialization_);
-        stream >> p.protocol >> p.heading >> p.use >> p.ports;
-        return stream;
-    }
+    friend QDataStream& operator <<(QDataStream& stream, const PortItem& p);
+    friend QDataStream& operator >>(QDataStream& stream, PortItem& p);
 
 private:
     static constexpr quint32 versionForSerialization_ = 1;
@@ -61,28 +48,16 @@ public:
     int getPortItemCount() const;
     const PortItem *getPortItemByIndex(int ind) const;
     const PortItem *getPortItemByHeading(const QString &heading) const;
-    const PortItem *getPortItemByProtocolType(const ProtocolType &protocol) const;
-    int getUseIpInd(const ProtocolType &connectionProtocol) const;
+    const PortItem *getPortItemByProtocolType(const PROTOCOL &protocol) const;
+    int getUseIpInd(PROTOCOL connectionProtocol) const;
 
     QVector<PortItem> &items();
     const QVector<PortItem> &const_items() const;
 
     PortMap& operator=(const PortMap&) = default;
 
-    friend QDataStream& operator <<(QDataStream& stream, const PortMap& p)
-    {
-        stream << versionForSerialization_;
-        stream << p.d->items_;
-        return stream;
-    }
-    friend QDataStream& operator >>(QDataStream& stream, PortMap& p)
-    {
-        quint32 version;
-        stream >> version;
-        Q_ASSERT(version == versionForSerialization_);
-        stream >> p.d->items_;
-        return stream;
-    }
+    friend QDataStream& operator <<(QDataStream& stream, const PortMap& p);
+    friend QDataStream& operator >>(QDataStream& stream, PortMap& p);
 
 
 private:

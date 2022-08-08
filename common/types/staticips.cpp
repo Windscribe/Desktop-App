@@ -115,6 +115,17 @@ QStringList StaticIps::getAllPingIps() const
     return ret;
 }
 
+bool StaticIps::operator==(const StaticIps &other) const
+{
+    return d->deviceName_ == other.d->deviceName_ &&
+            d->ips_ == other.d->ips_;
+}
+
+bool StaticIps::operator!=(const StaticIps &other) const
+{
+    return !operator==(other);
+}
+
 QString StaticIpPortsVector::getAsStringWithDelimiters() const
 {
     QString ret;
@@ -136,4 +147,102 @@ bool operator==(const StaticIpPortDescr &l, const StaticIpPortDescr &r)
     return l.extPort == r.extPort && l.intPort == r.intPort;
 }
 
+QDataStream& operator <<(QDataStream& stream, const StaticIps& s)
+{
+    stream << s.versionForSerialization_;
+    stream << s.d->deviceName_ << s.d->ips_;
+    return stream;
+}
+
+QDataStream& operator >>(QDataStream& stream, StaticIps& s)
+{
+    quint32 version;
+    stream >> version;
+    if (version > s.versionForSerialization_)
+    {
+        stream.setStatus(QDataStream::ReadCorruptData);
+        return stream;
+    }
+    stream >> s.d->deviceName_ >> s.d->ips_;
+    return stream;
+}
+
+StaticIpPortsVector StaticIpDescr::getAllStaticIpIntPorts() const
+{
+    StaticIpPortsVector ret;
+    for (const StaticIpPortDescr &portDescr : ports)
+    {
+        ret << portDescr.intPort;
+    }
+    return ret;
+}
+
+bool StaticIpDescr::operator==(const StaticIpDescr &other) const
+{
+    return id == other.id &&
+           ipId == other.ipId &&
+           staticIp == other.staticIp &&
+           type == other.type &&
+           name == other.name &&
+           countryCode == other.countryCode &&
+           shortName == other.shortName &&
+           cityName == other.cityName &&
+           serverId == other.serverId &&
+           nodeIPs == other.nodeIPs &&
+           hostname == other.hostname &&
+           dnsHostname == other.dnsHostname &&
+           username == other.username &&
+           password == other.password &&
+           wgIp == other.wgIp &&
+           wgPubKey == other.wgPubKey &&
+           ovpnX509 == other.ovpnX509 &&
+            ports == other.ports;
+}
+
+bool StaticIpDescr::operator!=(const StaticIpDescr &other) const
+{
+    return !operator==(other);
+}
+
+QDataStream& operator <<(QDataStream& stream, const StaticIpDescr& s)
+{
+    stream << s.versionForSerialization_;
+    stream << s.id << s.ipId << s.staticIp << s.type << s.name << s.countryCode << s.shortName << s.cityName << s.serverId << s.nodeIPs
+           << s.hostname << s.dnsHostname << s.username << s.password << s.wgIp << s.wgPubKey << s.ovpnX509 << s.ports;
+    return stream;
+}
+
+QDataStream& operator >>(QDataStream& stream, StaticIpDescr& s)
+{
+    quint32 version;
+    stream >> version;
+    if (version > s.versionForSerialization_)
+    {
+        stream.setStatus(QDataStream::ReadCorruptData);
+        return stream;
+    }
+    stream >> s.id >> s.ipId >> s.staticIp >> s.type >> s.name >> s.countryCode >> s.shortName >> s.cityName >> s.serverId >> s.nodeIPs
+           >> s.hostname >> s.dnsHostname >> s.username >> s.password >> s.wgIp >> s.wgPubKey >> s.ovpnX509 >> s.ports;
+    return stream;
+}
+
+QDataStream& operator <<(QDataStream& stream, const StaticIpPortDescr& s)
+{
+    stream << s.versionForSerialization_;
+    stream << s.extPort << s.intPort;
+    return stream;
+}
+
+QDataStream& operator >>(QDataStream& stream, StaticIpPortDescr& s)
+{
+    quint32 version;
+    stream >> version;
+    if (version > s.versionForSerialization_)
+    {
+        stream.setStatus(QDataStream::ReadCorruptData);
+        return stream;
+    }
+    stream >> s.extPort >> s.intPort;
+    return stream;
+}
 } //namespace types

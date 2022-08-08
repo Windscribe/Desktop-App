@@ -4,7 +4,6 @@
 #include <QString>
 #include <QSharedDataPointer>
 #include <QSharedData>
-#include "types/protocoltype.h"
 #include "types/enums.h"
 #include "types/connectionsettings.h"
 #include "types/dnsresolutionsettings.h"
@@ -108,20 +107,21 @@ public:
     bool operator==(const EngineSettings &other) const;
     bool operator!=(const EngineSettings &other) const;
 
+    friend QDebug operator<<(QDebug dbg, const EngineSettings &es);
+
 private:
     QSharedDataPointer<EngineSettingsData> d;
 
     // for serialization
-    static constexpr quint64 simpleCryptKey_ = 0x4572A4ACF31A31BA;
     static constexpr int versionForSerialization_ = 1;  // should increment the version if the data format is changed
 
     QJsonObject toJsonObject() const;
-    void printDebugInfo() const;
 
 #if defined(Q_OS_LINUX)
     void repairEngineSettings();
 #endif
 };
+
 
 } // types namespace
 

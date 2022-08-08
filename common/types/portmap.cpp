@@ -19,7 +19,12 @@ bool PortMap::initFromJson(const QJsonArray &jsonArray)
             return false;
         }
 
-        portItem.protocol = ProtocolType(obj["heading"].toString());
+        portItem.protocol = PROTOCOL::fromString(obj["heading"].toString());
+        if (portItem.protocol == PROTOCOL::UNINITIALIZED)
+        {
+            return false;
+        }
+
         portItem.heading = obj["heading"].toString();
         portItem.use = obj["use"].toString();
 
@@ -66,11 +71,11 @@ const PortItem *PortMap::getPortItemByHeading(const QString &heading) const
     return NULL;
 }
 
-const PortItem *PortMap::getPortItemByProtocolType(const ProtocolType &protocol) const
+const PortItem *PortMap::getPortItemByProtocolType(const PROTOCOL &protocol) const
 {
     for (const PortItem &portItem : d->items_)
     {
-        if (portItem.protocol.isEqual(protocol))
+        if (portItem.protocol == protocol)
         {
             return &portItem;
         }
@@ -78,11 +83,11 @@ const PortItem *PortMap::getPortItemByProtocolType(const ProtocolType &protocol)
     return NULL;
 }
 
-int PortMap::getUseIpInd(const ProtocolType &connectionProtocol) const
+int PortMap::getUseIpInd(PROTOCOL connectionProtocol) const
 {
     for (const PortItem &portItem : d->items_)
     {
-        if (portItem.protocol.isEqual(connectionProtocol))
+        if (portItem.protocol == connectionProtocol)
         {
             if (portItem.use == "ip")
                 return 0;
@@ -112,6 +117,48 @@ QVector<PortItem> &PortMap::items()
 const QVector<PortItem> &PortMap::const_items() const
 {
     return d->items_;
+}
+
+QDataStream& operator <<(QDataStream& stream, const PortItem& p)
+{
+    stream << p.versionForSerialization_;
+    stream << p.protocol.toInt() << p.heading << p.use << p.ports;
+    return stream;
+}
+
+QDataStream& operator >>(QDataStream& stream, PortItem& p)
+{
+    quint32 version;
+    stream >> version;
+    if (version > p.versionForSerialization_)
+    {
+        stream.setStatus(QDataStream::ReadCorruptData);
+        return stream;
+    }
+    int proto;
+    stream >> proto >> p.heading >> p.use >> p.ports;
+    p.protocol = proto;
+    return stream;
+}
+
+QDataStream& operator <<(QDataStream& stream, const PortMap& p)
+{
+    stream << p.versionForSerialization_;
+    stream << p.d->items_;
+    return stream;
+}
+
+QDataStream& operator >>(QDataStream& stream, PortMap& p)
+{
+    quint32 version;
+    stream >> version;
+    if (version > p.versionForSerialization_)
+    {
+        stream.setStatus(QDataStream::ReadCorruptData);
+        return stream;
+    }
+    stream >> p.d->items_;
+    return stream;
 }
 
 } //namespace types

@@ -150,7 +150,7 @@ class ServerLocationsRequest : public AuthenticatedRequest
 public:
     ServerLocationsRequest(const QString &authhash, const QString &language,
                            const QString &revision, bool isPro,
-                           types::ProtocolType protocol, QStringList alcList, const QString &hostname,
+                           PROTOCOL protocol, QStringList alcList, const QString &hostname,
                            int replyType, uint timeout, uint userRole)
         : AuthenticatedRequest(authhash, hostname, replyType, timeout, userRole),
           language_(language), revision_(revision), isPro_(isPro),
@@ -159,29 +159,29 @@ public:
     const QString &getLanguage() const { return language_; }
     const QString &getRevision() const { return revision_; }
     bool getIsPro() const { return isPro_; }
-    types::ProtocolType getProtocol() const { return protocol_; }
+    PROTOCOL getProtocol() const { return protocol_; }
     const QStringList &getAlcList() const { return alcList_; }
 
 private:
     QString language_;
     QString revision_;
     bool isPro_;
-    types::ProtocolType protocol_;
+    PROTOCOL protocol_;
     QStringList alcList_;
 };
 
 class ServerCredentialsRequest : public AuthenticatedRequest
 {
 public:
-    ServerCredentialsRequest(const QString &authhash, types::ProtocolType protocol,
+    ServerCredentialsRequest(const QString &authhash, PROTOCOL protocol,
                              const QString &hostname, int replyType, uint timeout, uint userRole)
         : AuthenticatedRequest(authhash, hostname, replyType, timeout, userRole),
           protocol_(protocol) {}
 
-    types::ProtocolType getProtocol() const { return protocol_; }
+    PROTOCOL getProtocol() const { return protocol_; }
 
 private:
-    types::ProtocolType protocol_;
+    PROTOCOL protocol_;
 };
 
 class CheckUpdateRequest : public ServerAPI::BaseRequest
@@ -592,7 +592,7 @@ void ServerAPI::session(const QString &authHash, uint userRole, bool isNeedCheck
 }
 
 void ServerAPI::serverLocations(const QString &authHash, const QString &language, uint userRole, bool isNeedCheckRequestsEnabled,
-                                const QString &revision, bool isPro, types::ProtocolType protocol, const QStringList &alcList)
+                                const QString &revision, bool isPro, PROTOCOL protocol, const QStringList &alcList)
 {
     if (isNeedCheckRequestsEnabled && !bIsRequestsEnabled_)
     {
@@ -627,7 +627,7 @@ void ServerAPI::serverLocations(const QString &authHash, const QString &language
         std::move(alcList), hostname, REPLY_SERVER_LOCATIONS, NETWORK_TIMEOUT, userRole));
 }
 
-void ServerAPI::serverCredentials(const QString &authHash, uint userRole, types::ProtocolType protocol, bool isNeedCheckRequestsEnabled)
+void ServerAPI::serverCredentials(const QString &authHash, uint userRole, PROTOCOL protocol, bool isNeedCheckRequestsEnabled)
 {
     if (isNeedCheckRequestsEnabled && !bIsRequestsEnabled_)
     {
@@ -2284,9 +2284,10 @@ void ServerAPI::handleCheckUpdateCurl(BaseRequest *rd, bool success)
             return;
         }
 
-        types::CheckUpdate cu;
         QString err;
-        if (!cu.initFromJson(jsonData,err))
+        bool outSuccess;
+        types::CheckUpdate cu = types::CheckUpdate::createFromApiJson(jsonData, outSuccess, err);
+        if (!outSuccess)
         {
             qCDebug(LOG_SERVER_API) << err;
             emit checkUpdateAnswer(types::CheckUpdate(), false, userRole);

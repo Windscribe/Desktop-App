@@ -47,8 +47,8 @@ public:
     void login(const QString &username, const QString &password, const QString &code2fa, uint userRole, bool isNeedCheckRequestsEnabled);
     void session(const QString &authHash, uint userRole, bool isNeedCheckRequestsEnabled);
     void serverLocations(const QString &authHash, const QString &language, uint userRole, bool isNeedCheckRequestsEnabled,
-                         const QString &revision, bool isPro, types::ProtocolType protocol, const QStringList &alcList);
-    void serverCredentials(const QString &authHash, uint userRole, types::ProtocolType protocol, bool isNeedCheckRequestsEnabled);
+                         const QString &revision, bool isPro, PROTOCOL protocol, const QStringList &alcList);
+    void serverCredentials(const QString &authHash, uint userRole, PROTOCOL protocol, bool isNeedCheckRequestsEnabled);
     void deleteSession(const QString &authHash, uint userRole, bool isNeedCheckRequestsEnabled);
     void serverConfigs(const QString &authHash, uint userRole, bool isNeedCheckRequestsEnabled);
     void portMap(const QString &authHash, uint userRole, bool isNeedCheckRequestsEnabled);
@@ -85,7 +85,7 @@ signals:
     void serverLocationsAnswer(SERVER_API_RET_CODE retCode, const QVector<types::Location> &serverLocations,
                                QStringList forceDisconnectNodes, uint userRole);
     void serverCredentialsAnswer(SERVER_API_RET_CODE retCode, const QString &radiusUsername,
-                                 const QString &radiusPassword, types::ProtocolType protocol, uint userRole);
+                                 const QString &radiusPassword, PROTOCOL protocol, uint userRole);
     void serverConfigsAnswer(SERVER_API_RET_CODE retCode, const QString &config, uint userRole);
     void portMapAnswer(SERVER_API_RET_CODE retCode, const types::PortMap &portMap, uint userRole);
     void myIPAnswer(const QString &ip, bool success, bool isDisconnected, uint userRole);

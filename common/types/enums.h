@@ -3,10 +3,8 @@
 
 #include <QString>
 
-const int MTU_OFFSET_OPENVPN = 40;
-const int MTU_OFFSET_IKEV2 = 80;
-const int MTU_OFFSET_WG = 80;
-
+// Basic enumerations
+// When adding a new enum, increase the number. Do not delete unused enums, just mark it as deprecated, since they are used in serialization
 
 enum PROXY_OPTION {
     PROXY_OPTION_NONE = 0,
@@ -15,7 +13,48 @@ enum PROXY_OPTION {
     PROXY_OPTION_SOCKS = 3
 };
 
-enum INIT_HELPER_RET { INIT_HELPER_SUCCESS, INIT_HELPER_FAILED, INIT_HELPER_USER_CANCELED };
+enum INIT_HELPER_RET {
+    INIT_HELPER_SUCCESS = 0,
+    INIT_HELPER_FAILED = 1,
+    INIT_HELPER_USER_CANCELED =2
+};
+
+class PROTOCOL
+{
+public:
+    enum TYPE {
+        IKEV2 = 0,
+        OPENVPN_UDP = 1,
+        OPENVPN_TCP = 2,
+        STUNNEL = 3,
+        WSTUNNEL = 4,
+        WIREGUARD = 5,
+        UNINITIALIZED = 100000
+    };
+
+    PROTOCOL() : value_(UNINITIALIZED) {}
+    PROTOCOL(TYPE a) : value_(a) {}
+    PROTOCOL(int a) : value_((TYPE)a) {}
+
+    // Prevent usage: if(PROTOCOL)
+    explicit operator bool() const = delete;
+
+    bool operator==(PROTOCOL a) const { return value_ == a.value_; }
+    bool operator!=(PROTOCOL a) const { return value_ != a.value_; }
+
+    // utils functions
+    int toInt() const { return (int)value_; }
+    QString toShortString() const;
+    QString toLongString() const;
+    bool isOpenVpnProtocol() const;
+    bool isStunnelOrWStunnelProtocol() const;
+    bool isIkev2Protocol() const;
+    bool isWireGuardProtocol() const;
+    static PROTOCOL fromString(const QString &strProtocol);
+
+private:
+    TYPE value_;
+};
 
 enum LOGIN_RET {
     LOGIN_RET_SUCCESS = 0,
@@ -253,7 +292,7 @@ enum UPDATE_VERSION_ERROR
 };
 
 
-// utils functions for enums
+// utils for enums
 QString LOGIN_RET_toString(LOGIN_RET ret);
 QString DNS_POLICY_TYPE_ToString(DNS_POLICY_TYPE d);
 QList< QPair<QString, int> > DNS_POLICY_TYPE_toList();
@@ -283,6 +322,7 @@ QList< QPair<QString, int> > UPDATE_CHANNEL_toList();
 
 QString DNS_MANAGER_TYPE_toString(DNS_MANAGER_TYPE t);
 QList< QPair<QString, int> > DNS_MANAGER_TYPE_toList();
+
 #endif // TYPES_ENUMS_H
 
 

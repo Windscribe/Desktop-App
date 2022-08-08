@@ -26,6 +26,8 @@ public:
     QJsonObject toJsonObject() const;
     bool fromJsonObject(const QJsonObject &json);
 
+    friend QDebug operator<<(QDebug dbg, const DnsWhileConnectedInfo &ds);
+
 private:
     DNS_WHILE_CONNECTED_TYPE type_;
     QString ipAddress_;

@@ -339,7 +339,7 @@ void ConnectWindowItem::setInternetConnectivity(bool connectivity)
     connectButton_->setInternetConnectivity(connectivity);
 }
 
-void ConnectWindowItem::setProtocolPort(const types::ProtocolType &protocol, const uint port)
+void ConnectWindowItem::setProtocolPort(const PROTOCOL &protocol, const uint port)
 {
     connectStateProtocolPort_->setProtocolPort(protocol, port);
 }

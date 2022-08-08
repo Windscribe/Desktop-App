@@ -27,8 +27,7 @@ public:
 class Node
 {
 public:
-    explicit Node() : d(new NodeData) {}
-    Node(const Node &other) : d (other.d) { }
+    Node() : d(new NodeData) {}
 
     bool initFromJson(QJsonObject &obj);
 
@@ -37,46 +36,11 @@ public:
     QString getIp(int ind) const;
     int getWeight() const;
 
-    bool operator== (const Node &other) const
-    {
-        return d->ips_ == other.d->ips_ &&
-               d->hostname_ == other.d->hostname_ &&
-               d->weight_ == other.d->weight_ &&
-               d->forceDisconnect_ == other.d->forceDisconnect_ &&
-               d->isValid_ == other.d->isValid_;
-    }
+    bool operator== (const Node &other) const;
+    bool operator!= (const Node &other) const;
 
-    bool operator!= (const Node &other) const
-    {
-        return !operator==(other);
-    }
-
-    friend QDataStream& operator <<(QDataStream &stream, const Node &n)
-    {
-        Q_ASSERT(n.d->isValid_);
-        stream << versionForSerialization_;
-
-        // forceDisconnect_ does not require serialization
-        stream << n.d->ips_ << n.d->hostname_ << n.d->weight_;
-
-        return stream;
-    }
-    friend QDataStream& operator >>(QDataStream &stream, Node &n)
-    {
-        quint32 version;
-        stream >> version;
-        Q_ASSERT(version == versionForSerialization_);
-        if (version != versionForSerialization_)
-        {
-            n.d->isValid_ = false;
-            return stream;
-        }
-
-        stream >> n.d->ips_ >> n.d->hostname_ >> n.d->weight_;
-        n.d->isValid_ = true;
-
-        return stream;
-    }
+    friend QDataStream& operator <<(QDataStream &stream, const Node &n);
+    friend QDataStream& operator >>(QDataStream &stream, Node &n);
 
 private:
     QSharedDataPointer<NodeData> d;

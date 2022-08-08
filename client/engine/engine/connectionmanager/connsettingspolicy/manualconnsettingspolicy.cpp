@@ -49,10 +49,10 @@ CurrentConnectionDescr ManualConnSettingsPolicy::getCurrentConnectionSettings() 
 {
     CurrentConnectionDescr ccd;
     ccd.connectionNodeType = CONNECTION_NODE_DEFAULT;
-    ccd.protocol = connectionSettings_.protocol();
-    ccd.port = connectionSettings_.port();
+    ccd.protocol = connectionSettings_.protocol;
+    ccd.port = connectionSettings_.port;
 
-    int useIpInd = portMap_.getUseIpInd(connectionSettings_.protocol());
+    int useIpInd = portMap_.getUseIpInd(connectionSettings_.protocol);
     ccd.ip = locationInfo_->getIpForSelectedNode(useIpInd);
     ccd.hostname = locationInfo_->getHostnameForSelectedNode();
     ccd.dnsHostName = locationInfo_->getDnsName();
@@ -68,7 +68,7 @@ CurrentConnectionDescr ManualConnSettingsPolicy::getCurrentConnectionSettings() 
         ccd.staticIpPorts = locationInfo_->getStaticIpPorts();
 
         // for static ip with wireguard protocol override id to wg_ip
-        if (ccd.protocol.getType() == types::ProtocolType::PROTOCOL_WIREGUARD )
+        if (ccd.protocol == PROTOCOL::WIREGUARD )
         {
             ccd.ip = locationInfo_->getWgIpForSelectedNode();
         }

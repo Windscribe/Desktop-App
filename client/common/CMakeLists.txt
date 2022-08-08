@@ -51,6 +51,7 @@ set(PROJECT_SOURCES
     ${COMMON_PATH}/types/group.h
     ${COMMON_PATH}/types/guipersistentstate.h
     ${COMMON_PATH}/types/guisettings.h
+    ${COMMON_PATH}/types/global_consts.h
     ${COMMON_PATH}/types/location.cpp
     ${COMMON_PATH}/types/location.h
     ${COMMON_PATH}/types/locationid.cpp
@@ -69,8 +70,6 @@ set(PROJECT_SOURCES
     ${COMMON_PATH}/types/pingtime.h
     ${COMMON_PATH}/types/portmap.cpp
     ${COMMON_PATH}/types/portmap.h
-    ${COMMON_PATH}/types/protocoltype.cpp
-    ${COMMON_PATH}/types/protocoltype.h
     ${COMMON_PATH}/types/proxysettings.cpp
     ${COMMON_PATH}/types/proxysettings.h
     ${COMMON_PATH}/types/proxysharinginfo.h

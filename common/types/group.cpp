@@ -73,5 +73,55 @@ bool Group::initFromJson(QJsonObject &obj, QStringList &forceDisconnectNodes)
     return true;
 }
 
+bool Group::operator==(const Group &other) const
+{
+    return d->id_ == other.d->id_ &&
+           d->city_ == other.d->city_ &&
+           d->nick_ == other.d->nick_ &&
+           d->pro_ == other.d->pro_ &&
+           d->pingIp_ == other.d->pingIp_ &&
+           d->wg_pubkey_ == other.d->wg_pubkey_ &&
+           d->ovpn_x509_ == other.d->ovpn_x509_ &&
+           d->link_speed_ == other.d->link_speed_ &&
+           d->health_ == other.d->health_ &&
+           d->dnsHostName_ == other.d->dnsHostName_ &&
+           d->nodes_ == other.d->nodes_ &&
+            d->isValid_ == other.d->isValid_;
+}
+
+bool Group::operator!=(const Group &other) const
+{
+    return !operator==(other);
+}
+
+QDataStream& operator <<(QDataStream& stream, const Group& g)
+{
+    Q_ASSERT(g.d->isValid_);
+    stream << g.versionForSerialization_;
+    stream << g.d->id_ << g.d->city_ << g.d->nick_ << g.d->pro_ << g.d->pingIp_ << g.d->wg_pubkey_ << g.d->ovpn_x509_ << g.d->link_speed_ <<
+              g.d->health_ << g.d->dnsHostName_ << g.d->nodes_;
+
+    return stream;
+}
+
+QDataStream& operator >>(QDataStream& stream, Group& g)
+{
+    quint32 version;
+    stream >> version;
+    if (version > g.versionForSerialization_)
+    {
+        stream.setStatus(QDataStream::ReadCorruptData);
+        g.d->isValid_ = false;
+        return stream;
+    }
+
+    stream >> g.d->id_ >> g.d->city_ >> g.d->nick_ >> g.d->pro_ >> g.d->pingIp_ >> g.d->wg_pubkey_ >> g.d->ovpn_x509_ >> g.d->link_speed_ >>
+              g.d->health_ >> g.d->dnsHostName_ >> g.d->nodes_;
+
+    g.d->isValid_ = true;
+
+    return stream;
+}
+
 
 } // namespace types

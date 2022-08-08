@@ -7,7 +7,6 @@
 #include <QVector>
 #include <curl/curl.h>
 #include "types/enums.h"
-#include "types/protocoltype.h"
 
 class CurlRequest
 {

@@ -82,14 +82,15 @@ void ConnectionModeItem::onExpandAnimationValueChanged(const QVariant &value)
 
 void ConnectionModeItem::onCurrentProtocolItemChanged(QVariant value)
 {
-    updateProtocol((types::ProtocolType::PROTOCOL_TYPE)value.toInt());
-    curConnectionMode_.set((types::ProtocolType::PROTOCOL_TYPE)comboBoxProtocol_->currentItem().toInt(), comboBoxPort_->currentItem().toInt());
+    updateProtocol((PROTOCOL)value.toInt());
+    curConnectionMode_.protocol = (PROTOCOL)comboBoxProtocol_->currentItem().toInt();
+    curConnectionMode_.port = comboBoxPort_->currentItem().toInt();
     emit connectionlModeChanged(curConnectionMode_);
 }
 
 void ConnectionModeItem::onCurrentPortItemChanged(QVariant value)
 {
-    curConnectionMode_ .setPort(value.toInt());
+    curConnectionMode_.port = value.toInt();
     emit connectionlModeChanged(curConnectionMode_);
 }
 
@@ -98,15 +99,15 @@ void ConnectionModeItem::onPortMapChanged()
     comboBoxProtocol_->clear();
     comboBoxPort_->clear();
 
-    const QVector<types::ProtocolType> protocols = preferencesHelper_->getAvailableProtocols();
+    const QVector<PROTOCOL> protocols = preferencesHelper_->getAvailableProtocols();
     if (protocols.size() > 0)
     {
         isPortMapInitialized_ = true;
         for (auto pd : protocols)
         {
-            comboBoxProtocol_->addItem(pd.toLongString(), (int)pd.getType());
+            comboBoxProtocol_->addItem(pd.toLongString(), pd.toInt());
         }
-        comboBoxProtocol_->setCurrentItem((int)protocols.begin()->getType());
+        comboBoxProtocol_->setCurrentItem(protocols.begin()->toInt());
         comboBoxProtocol_->setMaxMenuItemsShowing(protocols.count());
         updateProtocol(*protocols.begin());
         comboBoxProtocol_->setClickable(true);
@@ -127,7 +128,7 @@ void ConnectionModeItem::hideOpenPopups()
     comboBoxPort_    ->hideMenu();
 }
 
-void ConnectionModeItem::updateProtocol(types::ProtocolType protocol)
+void ConnectionModeItem::updateProtocol(PROTOCOL protocol)
 {
     comboBoxPort_->clear();
     const QVector<uint> ports = preferencesHelper_->getAvailablePortsForProtocol(protocol);
@@ -142,7 +143,7 @@ void ConnectionModeItem::updateConnectionMode()
 {
     if (isPortMapInitialized_)
     {
-        if (curConnectionMode_.isAutomatic())
+        if (curConnectionMode_.isAutomatic)
         {
             switchItem_->setState(AutoManualSwitchItem::AUTO);
             isExpanded_ = false;
@@ -150,9 +151,9 @@ void ConnectionModeItem::updateConnectionMode()
         }
         else
         {
-            comboBoxProtocol_->setCurrentItem((int)curConnectionMode_.protocol().getType());
-            updateProtocol(curConnectionMode_.protocol());
-            comboBoxPort_->setCurrentItem(curConnectionMode_.port());
+            comboBoxProtocol_->setCurrentItem(curConnectionMode_.protocol.toInt());
+            updateProtocol(curConnectionMode_.protocol);
+            comboBoxPort_->setCurrentItem(curConnectionMode_.port);
 
             switchItem_->setState(AutoManualSwitchItem::MANUAL);
             isExpanded_ = true;
@@ -212,7 +213,7 @@ void ConnectionModeItem::onSwitchChanged(AutoManualSwitchItem::SWITCH_STATE stat
         }
         isExpanded_ = true;
 
-        curConnectionMode_.setIsAutomatic(false);
+        curConnectionMode_.isAutomatic = false;
         emit connectionlModeChanged(curConnectionMode_);
     }
     else if (isExpanded_)
@@ -224,7 +225,7 @@ void ConnectionModeItem::onSwitchChanged(AutoManualSwitchItem::SWITCH_STATE stat
         }
         isExpanded_ = false;
 
-        curConnectionMode_.setIsAutomatic(true);
+        curConnectionMode_.isAutomatic = true;
         emit connectionlModeChanged(curConnectionMode_);
     }
 }

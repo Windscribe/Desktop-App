@@ -61,48 +61,11 @@ public:
 
     QStringList getAllPingIps() const;
 
-    bool operator == (const Location &other) const
-    {
-        return d->id_ == other.d->id_ &&
-               d->name_ == other.d->name_ &&
-               d->countryCode_ == other.d->countryCode_ &&
-               d->premiumOnly_ == other.d->premiumOnly_ &&
-               d->p2p_ == other.d->p2p_ &&
-               d->dnsHostName_ == other.d->dnsHostName_ &&
-               d->groups_ == other.d->groups_ &&
-               d->isValid_ == other.d->isValid_;
-    }
+    bool operator == (const Location &other) const;
+    bool operator != (const Location &other) const;
 
-    bool operator != (const Location &other) const
-    {
-        return !operator==(other);
-    }
-
-    friend QDataStream& operator <<(QDataStream& stream, const Location& l)
-    {
-        Q_ASSERT(l.d->isValid_);
-        stream << versionForSerialization_;
-
-        stream << l.d->id_ << l.d->name_ << l.d->countryCode_ << l.d->premiumOnly_ << l.d->p2p_ << l.d->dnsHostName_ << l.d->groups_;
-        return stream;
-    }
-    friend QDataStream& operator >>(QDataStream& stream, Location& l)
-    {
-        quint32 version;
-        stream >> version;
-        Q_ASSERT(version == versionForSerialization_);
-        if (version != versionForSerialization_)
-        {
-            l.d->isValid_ = false;
-            return stream;
-        }
-
-        stream >> l.d->id_ >> l.d->name_ >> l.d->countryCode_ >> l.d->premiumOnly_ >> l.d->p2p_ >> l.d->dnsHostName_ >> l.d->groups_;
-        l.d->isValid_ = true;
-
-        return stream;
-    }
-
+    friend QDataStream& operator <<(QDataStream& stream, const Location& l);
+    friend QDataStream& operator >>(QDataStream& stream, Location& l);
 
 private:
     QSharedDataPointer<LocationData> d;

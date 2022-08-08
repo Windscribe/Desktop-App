@@ -51,6 +51,11 @@ private:
     void setWireGuardPeerInfo(const QString &presharedKey, const QString &allowedIPs);
     WireGuardConfig readWireGuardConfigFromSettings();
     void writeWireGuardConfigToSettings(const WireGuardConfig &wgConfig);
+
+    // for serialization
+    static constexpr quint32 magic_ = 0xFB12A73D;
+    static constexpr quint32 versionForSerialization_ = 1;  // should increment the version if the data format is changed
+
 };
 
 #endif // GETWIREGUARDCONFIG_H

@@ -3,10 +3,11 @@
 #include <QSettings>
 #include "utils/logger.h"
 #include "utils/utils.h"
+#include "types/global_consts.h"
 
 namespace apiinfo {
 
-ApiInfo::ApiInfo() : simpleCrypt_(0x4572A4ACF31A31BA), threadId_(QThread::currentThreadId())
+ApiInfo::ApiInfo() : simpleCrypt_(SIMPLE_CRYPT_KEY), threadId_(QThread::currentThreadId())
 {
 }
 
@@ -125,7 +126,6 @@ void ApiInfo::saveToSettings()
     QByteArray arr;
     {
         QDataStream ds(&arr, QIODevice::WriteOnly);
-        ds.setVersion(QDataStream::Qt_6_2);
         ds << magic_;
         ds << versionForSerialization_;
         ds << sessionStatus_ << locations_ << serverCredentials_ << ovpnConfig_ << portMap_ << staticIps_;
@@ -166,7 +166,6 @@ bool ApiInfo::loadFromSettings()
     {
         QByteArray arr = simpleCrypt_.decryptToByteArray(s);
         QDataStream ds(&arr, QIODevice::ReadOnly);
-        ds.setVersion(QDataStream::Qt_6_2);
 
         quint32 magic, version;
         ds >> magic;
@@ -180,14 +179,14 @@ bool ApiInfo::loadFromSettings()
             return false;
         }
         ds >> sessionStatus_ >> locations_ >> serverCredentials_ >> ovpnConfig_ >> portMap_ >> staticIps_;
-        forceDisconnectNodes_.clear();
-        sessionStatus_.setRevisionHash(settings.value("revisionHash", "").toString());
-        return true;
+        if (ds.status() == QDataStream::Ok)
+        {
+            forceDisconnectNodes_.clear();
+            sessionStatus_.setRevisionHash(settings.value("revisionHash", "").toString());
+            return true;
+        }
     }
-    else
-    {
-        return false;
-    }
+    return false;
 }
 
 void ApiInfo::mergeWindflixLocations()

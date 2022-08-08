@@ -68,6 +68,23 @@ struct MacAddrSpoofing
 
         return true;
     }
+
+    friend QDebug operator<<(QDebug dbg, const MacAddrSpoofing &m)
+    {
+        QDebugStateSaver saver(dbg);
+        dbg.nospace();
+        dbg << "{isEnabled:" << m.isEnabled << "; ";
+        dbg << "macAddress:" << m.macAddress << "; ";
+        dbg << "selectedNetworkInterface:" << m.selectedNetworkInterface << "; ";
+        dbg << "networkInterfaces:{";
+        for (const auto &i : m.networkInterfaces)
+        {
+            dbg << i;
+        }
+
+        dbg << "}";
+        return dbg;
+    }
 };
 
 

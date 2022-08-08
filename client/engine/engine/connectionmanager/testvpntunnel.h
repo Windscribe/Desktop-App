@@ -7,7 +7,6 @@
 #include <QTime>
 #include <QVector>
 #include "types/enums.h"
-#include "types/protocoltype.h"
 
 #if defined(Q_OS_WINDOWS)
 #include <windows.h>
@@ -29,7 +28,7 @@ public:
     virtual ~TestVPNTunnel();
 
 public slots:
-    void startTests(const types::ProtocolType &protocol);
+    void startTests(const PROTOCOL &protocol);
     void stopTests();
 
 signals:
@@ -65,7 +64,7 @@ private:
     QVector<uint> timeouts_;
 
     bool doWin32TunnelTest_;
-    types::ProtocolType protocol_;
+    PROTOCOL protocol_;
 
     #if defined(Q_OS_WINDOWS)
     typedef DNS_STATUS WINAPI DnsQueryEx_T(PDNS_QUERY_REQUEST pQueryRequest, PDNS_QUERY_RESULT pQueryResults, PDNS_QUERY_CANCEL pCancelHandle);

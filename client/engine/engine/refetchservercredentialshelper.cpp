@@ -51,7 +51,7 @@ void RefetchServerCredentialsHelper::onTimerWaitServerAPIReady()
 }
 
 void RefetchServerCredentialsHelper::onServerCredentialsAnswer(SERVER_API_RET_CODE retCode, const QString &radiusUsername, const QString &radiusPassword,
-                                                               types::ProtocolType protocol, uint userRole)
+                                                               PROTOCOL protocol, uint userRole)
 {
     if (userRole == serverApiUserRole_)
     {
@@ -105,8 +105,8 @@ void RefetchServerCredentialsHelper::fetchServerCredentials()
     radiusUsernameIkev2_.clear();
     serverConfig_.clear();
     serverAPI_->serverConfigs(authHash_, serverApiUserRole_, true);
-    serverAPI_->serverCredentials(authHash_, serverApiUserRole_, types::ProtocolType::PROTOCOL_OPENVPN_UDP, true);
-    serverAPI_->serverCredentials(authHash_, serverApiUserRole_, types::ProtocolType::PROTOCOL_IKEV2, true);
+    serverAPI_->serverCredentials(authHash_, serverApiUserRole_, PROTOCOL::OPENVPN_UDP, true);
+    serverAPI_->serverCredentials(authHash_, serverApiUserRole_, PROTOCOL::IKEV2, true);
 }
 
 void RefetchServerCredentialsHelper::checkFinished()

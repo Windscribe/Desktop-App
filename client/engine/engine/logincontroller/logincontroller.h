@@ -22,7 +22,7 @@ class LoginController : public QObject
     Q_OBJECT
 public:
     explicit LoginController(QObject *parent, IHelper *helper, INetworkDetectionManager *networkDetectionManager, ServerAPI *serverAPI,
-                             const QString &language, types::ProtocolType protocol);
+                             const QString &language, PROTOCOL protocol);
     virtual ~LoginController();
 
     void startLoginProcess(const types::LoginSettings &loginSettings, const types::DnsResolutionSettings &dnsResolutionSettings, bool bFromConnectedToVPNState);
@@ -36,7 +36,7 @@ private slots:
     void onLoginAnswer(SERVER_API_RET_CODE retCode, const types::SessionStatus &sessionStatus, const QString &authHash, uint userRole, const QString &errorMessage);
     void onSessionAnswer(SERVER_API_RET_CODE retCode, const types::SessionStatus &sessionStatus, uint userRole);
     void onServerLocationsAnswer(SERVER_API_RET_CODE retCode, const QVector<types::Location> &serverLocations, QStringList forceDisconnectNodes, uint userRole);
-    void onServerCredentialsAnswer(SERVER_API_RET_CODE retCode, const QString &radiusUsername, const QString &radiusPassword, types::ProtocolType protocol, uint userRole);
+    void onServerCredentialsAnswer(SERVER_API_RET_CODE retCode, const QString &radiusUsername, const QString &radiusPassword, PROTOCOL protocol, uint userRole);
     void onServerConfigsAnswer(SERVER_API_RET_CODE retCode, const QString &config, uint userRole);
     void onPortMapAnswer(SERVER_API_RET_CODE retCode, const types::PortMap &portMap, uint userRole);
     void onStaticIpsAnswer(SERVER_API_RET_CODE retCode, const types::StaticIps &staticIps, uint userRole);
@@ -64,7 +64,7 @@ private:
     GetApiAccessIps *getApiAccessIps_;
     INetworkDetectionManager *networkDetectionManager_;
     QString language_;
-    types::ProtocolType protocol_;
+    PROTOCOL protocol_;
 
     types::LoginSettings loginSettings_;
     QString newAuthHash_;

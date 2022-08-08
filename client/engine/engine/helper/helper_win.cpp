@@ -11,7 +11,6 @@
 #include "engine/openvpnversioncontroller.h"
 #include "engine/wireguardconfig/wireguardconfig.h"
 #include "types/wireguardtypes.h"
-#include "types/protocoltype.h"
 #include "engine/connectionmanager/adaptergatewayinfo.h"
 #include "utils/win32handle.h"
 
@@ -194,7 +193,7 @@ bool Helper_win::setSplitTunnelingSettings(bool isActive, bool isExclude, bool i
 }
 
 void Helper_win::sendConnectStatus(bool isConnected, bool isCloseTcpSocket, bool isKeepLocalSocket, const AdapterGatewayInfo &defaultAdapter, const AdapterGatewayInfo &vpnAdapter,
-                                   const QString &connectedIp, const types::ProtocolType &protocol)
+                                   const QString &connectedIp, const PROTOCOL &protocol)
 {
     QMutexLocker locker(&mutex_);
 

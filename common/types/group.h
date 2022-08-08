@@ -42,7 +42,6 @@ public:
 
     QVector<Node> nodes_;
 
-
     // internal state
     bool isValid_;
 };
@@ -74,56 +73,11 @@ public:
     void setOverrideDnsHostName(const QString &dnsHostName) { d->dnsHostName_ = dnsHostName; }
     QString getDnsHostName() const { Q_ASSERT(d->isValid_); return d->dnsHostName_; }
 
+    bool operator== (const Group &other) const;
+    bool operator!= (const Group &other) const;
 
-    bool operator== (const Group &other) const
-    {
-        return d->id_ == other.d->id_ &&
-               d->city_ == other.d->city_ &&
-               d->nick_ == other.d->nick_ &&
-               d->pro_ == other.d->pro_ &&
-               d->pingIp_ == other.d->pingIp_ &&
-               d->wg_pubkey_ == other.d->wg_pubkey_ &&
-               d->ovpn_x509_ == other.d->ovpn_x509_ &&
-               d->link_speed_ == other.d->link_speed_ &&
-               d->health_ == other.d->health_ &&
-               d->dnsHostName_ == other.d->dnsHostName_ &&
-               d->nodes_ == other.d->nodes_ &&
-               d->isValid_ == other.d->isValid_;
-    }
-
-    bool operator!= (const Group &other) const
-    {
-        return !operator==(other);
-    }
-
-    friend QDataStream& operator <<(QDataStream& stream, const Group& g)
-    {
-        Q_ASSERT(g.d->isValid_);
-        stream << versionForSerialization_;
-
-        stream << g.d->id_ << g.d->city_ << g.d->nick_ << g.d->pro_ << g.d->pingIp_ << g.d->wg_pubkey_ << g.d->ovpn_x509_ << g.d->link_speed_ <<
-                  g.d->health_ << g.d->dnsHostName_ << g.d->nodes_;
-
-        return stream;
-    }
-    friend QDataStream& operator >>(QDataStream& stream, Group& g)
-    {
-        quint32 version;
-        stream >> version;
-        Q_ASSERT(version == versionForSerialization_);
-        if (version != versionForSerialization_)
-        {
-            g.d->isValid_ = false;
-            return stream;
-        }
-
-        stream >> g.d->id_ >> g.d->city_ >> g.d->nick_ >> g.d->pro_ >> g.d->pingIp_ >> g.d->wg_pubkey_ >> g.d->ovpn_x509_ >> g.d->link_speed_ >>
-                  g.d->health_ >> g.d->dnsHostName_ >> g.d->nodes_;
-
-        g.d->isValid_ = true;
-
-        return stream;
-    }
+    friend QDataStream& operator <<(QDataStream& stream, const Group& g);
+    friend QDataStream& operator >>(QDataStream& stream, Group& g);
 
 
 private:

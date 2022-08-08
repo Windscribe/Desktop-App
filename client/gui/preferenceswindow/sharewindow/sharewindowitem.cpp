@@ -68,7 +68,7 @@ void ShareWindowItem::onPreferencesHelperWifiSharingSupportedChanged(bool bSuppo
 
 bool ShareWindowItem::isIkev2OrAutomaticConnectionMode(const types::ConnectionSettings &cs) const
 {
-    return cs.protocol() == types::ProtocolType::PROTOCOL_IKEV2 || cs.protocol() == types::ProtocolType::PROTOCOL_WIREGUARD || cs.isAutomatic();
+    return cs.protocol == PROTOCOL::IKEV2 || cs.protocol == PROTOCOL::WIREGUARD || cs.isAutomatic;
 }
 
 void ShareWindowItem::updateIsSupported(bool isWifiSharingSupported, bool isIkev2OrAutomatic)

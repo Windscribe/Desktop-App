@@ -69,9 +69,8 @@ private:
     QDateTime ovpnConfigSetTimestamp_;
 
     // for serialization
-    static constexpr quint32 magic_ = 0xB4B0C537;
+    static constexpr quint32 magic_ = 0x7605A2AE;
     static constexpr quint32 versionForSerialization_ = 1;  // should increment the version if the data format is changed
-
 };
 
 } //namespace apiinfo

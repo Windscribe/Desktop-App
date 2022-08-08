@@ -58,7 +58,7 @@ private:
     QVariantAnimation expandEnimation_;
     bool isExpanded_;
 
-    void updateProtocol(types::ProtocolType protocol);
+    void updateProtocol(PROTOCOL protocol);
     void updateConnectionMode();
 
 };

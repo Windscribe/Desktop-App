@@ -798,7 +798,7 @@ public:
     {
         return "ServerCommand::ProtocolPortChanged";
     }
-    types::ProtocolType protocol_;
+    PROTOCOL protocol_;
     uint port_;
 };
 

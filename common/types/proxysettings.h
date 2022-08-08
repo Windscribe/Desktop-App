@@ -30,8 +30,6 @@ public:
     QString getPassword() const;
     void setPassword(const QString &password);
 
-    void debugToLog();
-
     QNetworkProxy getNetworkProxy() const;
     bool isProxyEnabled() const;
 
@@ -45,6 +43,8 @@ public:
 
     QJsonObject toJsonObject() const;
     bool fromJsonObject(const QJsonObject &json);
+
+    friend QDebug operator<<(QDebug dbg, const ProxySettings &ps);
 
 private:
     PROXY_OPTION option_;

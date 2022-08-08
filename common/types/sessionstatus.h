@@ -71,40 +71,15 @@ public:
 
     QString debugString() const;
 
-    friend QDataStream& operator <<(QDataStream& stream, const SessionStatus& ss)
-    {
-        Q_ASSERT(ss.d->isInitialized_);
-        stream << versionForSerialization_;
-
-        stream << ss.d->is_premium_ << ss.d->status_ << ss.d->rebill_ << ss.d->billing_plan_id_ << ss.d->premium_expire_date_ << ss.d->traffic_used_ << ss.d->traffic_max_
-               << ss.d->username_ << ss.d->user_id_ << ss.d->email_ << ss.d->email_status_ << ss.d->static_ips_ << ss.d->alc_;
-
-        return stream;
-    }
-    friend QDataStream& operator >>(QDataStream& stream, SessionStatus& ss)
-    {
-        quint32 version;
-        stream >> version;
-        Q_ASSERT(version == versionForSerialization_);
-        if (version != versionForSerialization_)
-        {
-            ss.d->isInitialized_ = false;
-            return stream;
-        }
-
-        stream >> ss.d->is_premium_ >> ss.d->status_ >> ss.d->rebill_ >> ss.d->billing_plan_id_ >> ss.d->premium_expire_date_ >> ss.d->traffic_used_ >> ss.d->traffic_max_
-               >> ss.d->username_ >> ss.d->user_id_ >> ss.d->email_ >> ss.d->email_status_ >> ss.d->static_ips_ >> ss.d->alc_;
-        ss.d->revisionHash_.clear();
-        ss.d->staticIpsUpdateDevices_.clear();
-        ss.d->isInitialized_ = true;
-
-        return stream;
-    }
+    friend QDataStream& operator <<(QDataStream& stream, const SessionStatus& ss);
+    friend QDataStream& operator >>(QDataStream& stream, SessionStatus& ss);
 
 private:
     QSharedDataPointer<SessionStatusData> d;
     static constexpr quint32 versionForSerialization_ = 1;
 };
+
+
 
 } //namespace types
 

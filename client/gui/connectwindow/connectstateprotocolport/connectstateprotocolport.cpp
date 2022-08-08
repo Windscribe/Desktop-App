@@ -23,10 +23,10 @@ ConnectStateProtocolPort::ConnectStateProtocolPort(ScalableGraphicsObject *paren
 {
 
 #if defined(Q_OS_LINUX)
-    protocol_ = types::ProtocolType::PROTOCOL_UDP;
+    protocol_ = PROTOCOL_TYPE_UDP;
     port_ = 443;
 #else
-    protocol_ = types::ProtocolType::PROTOCOL_IKEV2;
+    protocol_ = PROTOCOL::IKEV2;
     port_ = 500;
 #endif
 
@@ -211,7 +211,7 @@ void ConnectStateProtocolPort::setInternetConnectivity(bool connectivity)
     updateStateDisplay(connectState_);
 }
 
-void ConnectStateProtocolPort::setProtocolPort(const types::ProtocolType &protocol, const uint port)
+void ConnectStateProtocolPort::setProtocolPort(const PROTOCOL &protocol, const uint port)
 {
     protocol_ = protocol;
     port_ = port;

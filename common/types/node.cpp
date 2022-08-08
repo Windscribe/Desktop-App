@@ -55,4 +55,44 @@ int Node::getWeight() const
     return d->weight_;
 }
 
+bool Node::operator==(const Node &other) const
+{
+    return d->ips_ == other.d->ips_ &&
+           d->hostname_ == other.d->hostname_ &&
+           d->weight_ == other.d->weight_ &&
+           d->forceDisconnect_ == other.d->forceDisconnect_ &&
+            d->isValid_ == other.d->isValid_;
+}
+
+bool Node::operator!=(const Node &other) const
+{
+    return !operator==(other);
+}
+
+QDataStream& operator <<(QDataStream &stream, const Node &n)
+{
+    Q_ASSERT(n.d->isValid_);
+    stream << n.versionForSerialization_;
+    // forceDisconnect_ does not require serialization
+    stream << n.d->ips_ << n.d->hostname_ << n.d->weight_;
+    return stream;
+}
+
+QDataStream& operator >>(QDataStream &stream, Node &n)
+{
+    quint32 version;
+    stream >> version;
+    if (version > n.versionForSerialization_)
+    {
+        stream.setStatus(QDataStream::ReadCorruptData);
+        n.d->isValid_ = false;
+        return stream;
+    }
+
+    stream >> n.d->ips_ >> n.d->hostname_ >> n.d->weight_;
+    n.d->isValid_ = true;
+    return stream;
+}
+
+
 } //namespace types

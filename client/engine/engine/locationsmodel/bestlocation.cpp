@@ -50,11 +50,11 @@ void BestLocation::saveToSettings()
 {
     if (isValid_)
     {
-        QByteArray arr;
-        {
-            QDataStream ds(&arr, QIODevice::WriteOnly);
-            ds << magic_ << versionForSerialization_ << id_;
-        }
+        QJsonObject json;
+        json["version"] = versionForSerialization_;
+        json["location"] = id_.toJsonObject();
+        QCborValue cbor = QCborValue::fromJsonValue(json);
+        QByteArray arr = cbor.toCbor();
         QSettings settings;
         settings.setValue("bestLocation", arr);
     }
@@ -66,20 +66,18 @@ void BestLocation::loadFromSettings()
     if (settings.contains("bestLocation"))
     {
         QByteArray arr = settings.value("bestLocation").toByteArray();
-        QDataStream ds(&arr, QIODevice::ReadOnly);
-        quint32 magic, version;
-        ds >> magic;
-        if (magic != magic_)
+        QCborValue cbor = QCborValue::fromCbor(arr);
+        if (!cbor.isInvalid() && cbor.isMap())
         {
-            return;
+            const QJsonObject &obj = cbor.toJsonValue().toObject();
+            if (obj.contains("version") && obj["version"].toInt(INT_MAX) <= versionForSerialization_)
+            {
+                if (id_.fromJsonObject(obj["location"].toObject()))
+                {
+                    isValid_ = true;
+                }
+            }
         }
-        ds >> version;
-        if (version > versionForSerialization_)
-        {
-            return;
-        }
-        ds >> id_;
-        isValid_ = true;
     }
 }
 

@@ -18,29 +18,8 @@ public:
     QString usernameForIkev2() const;
     QString passwordForIkev2() const;
 
-    friend QDataStream& operator <<(QDataStream &stream, const ServerCredentials &s)
-    {
-        Q_ASSERT(s.bInitialized_);
-        stream << versionForSerialization_;
-        stream << s.usernameOpenVpn_ << s.passwordOpenVpn_ << s.usernameIkev2_ << s.passwordIkev2_;
-        return stream;
-    }
-    friend QDataStream& operator >>(QDataStream &stream, ServerCredentials &s)
-    {
-        quint32 version;
-        stream >> version;
-        Q_ASSERT(version == versionForSerialization_);
-        if (version != versionForSerialization_)
-        {
-            s.bInitialized_ = false;
-            return stream;
-        }
-
-        stream >> s.usernameOpenVpn_ >> s.passwordOpenVpn_ >> s.usernameIkev2_ >> s.passwordIkev2_;
-        s.bInitialized_ = true;
-
-        return stream;
-    }
+    friend QDataStream& operator <<(QDataStream &stream, const ServerCredentials &s);
+    friend QDataStream& operator >>(QDataStream &stream, ServerCredentials &s);
 
 private:
     bool bInitialized_;
@@ -48,6 +27,7 @@ private:
     QString passwordOpenVpn_;
     QString usernameIkev2_;
     QString passwordIkev2_;
+
     static constexpr quint32 versionForSerialization_ = 1;
 
 };

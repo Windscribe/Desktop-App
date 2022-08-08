@@ -119,6 +119,15 @@ struct NetworkInterface
         return true;
     }
 
+    friend QDebug operator<<(QDebug dbg, const NetworkInterface &ni)
+    {
+        QDebugStateSaver saver(dbg);
+        dbg.nospace();
+        dbg << "{friendlyName:" << ni.friendlyName << "; ";
+        dbg << "networkOrSSid:" << ni.networkOrSSid << "}";
+        return dbg;
+    }
+
 };
 
 

@@ -42,6 +42,15 @@ struct PacketSize
         if (json.contains("mtu")) mtu = json["mtu"].toInt(-1);
         return true;
     }
+
+    friend QDebug operator<<(QDebug dbg, const PacketSize &ps)
+    {
+        QDebugStateSaver saver(dbg);
+        dbg.nospace();
+        dbg << "{isAutomatic:" << ps.isAutomatic << "; ";
+        dbg << "mtu:" << ps.mtu << "}";
+        return dbg;
+    }
 };
 
 

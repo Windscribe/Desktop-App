@@ -19,7 +19,7 @@ Preferences::Preferences(QObject *parent) : QObject(parent)
     // ProtoTypes::ConnectionSettings has IKEv2 as default protocol in default instance.
     // But Linux doesn't support IKEv2. It is necessary to change with UDP.
     auto settings = engineSettings_.connection_settings();
-    settings.set_protocol(types::ProtocolType::PROTOCOL_UDP);
+    settings.set_protocol(PROTOCOL_TYPE_UDP);
     settings.set_port(443);
     *engineSettings_.mutable_connection_settings() = settings;
 #endif
@@ -653,10 +653,11 @@ void Preferences::validateAndUpdateIfNeeded()
     #if defined(Q_OS_WINDOWS)
     types::ConnectionSettings connSettings = engineSettings_.connectionSettings();
     if (!WinUtils::isWindows64Bit() &&
-        ((connSettings.protocol() == types::ProtocolType::PROTOCOL_WSTUNNEL) ||
-         (connSettings.protocol() == types::ProtocolType::PROTOCOL_WIREGUARD)))
+        ((connSettings.protocol == PROTOCOL::WSTUNNEL) ||
+         (connSettings.protocol == PROTOCOL::WIREGUARD)))
     {
-        connSettings.set(types::ProtocolType::PROTOCOL_IKEV2, 500, connSettings.isAutomatic());
+        connSettings.protocol = PROTOCOL::IKEV2;
+        connSettings.port = 500;
         engineSettings_.setConnectionSettings(connSettings);
         emit connectionSettingsChanged(engineSettings_.connectionSettings());
         emit reportErrorToUser("WireGuard and WStunnel Not Supported", "The WireGuard and WStunnel protocols are no longer supported on 32-bit Windows. The 'Connection Mode' protocol has been changed to IKEv2.");

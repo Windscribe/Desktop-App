@@ -1,17 +1,19 @@
 #include "getwireguardconfig.h"
 #include "engine/serverapi/serverapi.h"
 #include "engine/apiinfo/apiinfo.h"
-#include <QJsonDocument>
+#include "types/global_consts.h"
 
 extern "C" {
     #include "legacy_protobuf_support/apiinfo.pb-c.h"
+
+#include <QDataStream>
 }
 
 const QString GetWireGuardConfig::KEY_WIREGUARD_CONFIG = "wireguardConfig";
 
 GetWireGuardConfig::GetWireGuardConfig(QObject *parent, ServerAPI *serverAPI, uint serverApiUserRole) : QObject(parent), serverAPI_(serverAPI),
     serverApiUserRole_(serverApiUserRole),
-    isRequestAlreadyInProgress_(false), simpleCrypt_(0x4572A4ACF31A31BA)
+    isRequestAlreadyInProgress_(false), simpleCrypt_(SIMPLE_CRYPT_KEY)
 {
     connect(serverAPI_, &ServerAPI::wgConfigsInitAnswer, this, &GetWireGuardConfig::onWgConfigsInitAnswer, Qt::QueuedConnection);
     connect(serverAPI_, &ServerAPI::wgConfigsConnectAnswer, this, &GetWireGuardConfig::onWgConfigsConnectAnswer, Qt::QueuedConnection);
@@ -210,26 +212,38 @@ WireGuardConfig GetWireGuardConfig::readWireGuardConfigFromSettings()
         if (!s.isEmpty())
         {
             QByteArray arr = simpleCrypt_.decryptToByteArray(s);
-            WireGuardConfig wgConfig;
-            QJsonDocument doc = QJsonDocument::fromJson(arr);
-            if (!doc.isNull() && doc.isObject())
-            {
+            QDataStream ds(&arr, QIODevice::ReadOnly);
 
-                if (wgConfig.fromJsonObject(doc.object()))
+            quint32 magic, version;
+            ds >> magic;
+            if (magic == magic_)
+            {
+                ds >> version;
+                if (version <= versionForSerialization_)
                 {
-                    return wgConfig;
+                    WireGuardConfig wgConfig;
+                    ds >> wgConfig;
+                    if (ds.status() == QDataStream::Ok)
+                    {
+                        return wgConfig;
+                    }
                 }
             }
 
-            // try load from legacy protobuf
-            // todo remove this code at some point later
-            ProtoApiInfo__WireGuardConfig *wgc = proto_api_info__wire_guard_config__unpack(NULL, arr.size(), (const uint8_t *)arr.data());
-            if (wgc)
+            WireGuardConfig wgConfig;
             {
-                wgConfig.setKeyPair(QString::fromStdString(wgc->public_key), QString::fromStdString(wgc->private_key));
-                wgConfig.setPeerPresharedKey(QString::fromStdString(wgc->preshared_key));
-                wgConfig.setPeerAllowedIPs(QString::fromStdString(wgc->allowed_ips));
-                proto_api_info__wire_guard_config__free_unpacked(wgc, NULL);
+                SimpleCrypt simpleCryptLegacy(0x4572A4ACF31A31BA);
+                QByteArray arr = simpleCryptLegacy.decryptToByteArray(s);
+                // try load from legacy protobuf
+                // todo remove this code at some point later
+                ProtoApiInfo__WireGuardConfig *wgc = proto_api_info__wire_guard_config__unpack(NULL, arr.size(), (const uint8_t *)arr.data());
+                if (wgc)
+                {
+                    wgConfig.setKeyPair(QString::fromStdString(wgc->public_key), QString::fromStdString(wgc->private_key));
+                    wgConfig.setPeerPresharedKey(QString::fromStdString(wgc->preshared_key));
+                    wgConfig.setPeerAllowedIPs(QString::fromStdString(wgc->allowed_ips));
+                    proto_api_info__wire_guard_config__free_unpacked(wgc, NULL);
+                }
             }
 
             return wgConfig;
@@ -240,11 +254,13 @@ WireGuardConfig GetWireGuardConfig::readWireGuardConfigFromSettings()
 
 void GetWireGuardConfig::writeWireGuardConfigToSettings(const WireGuardConfig &wgConfig)
 {
-    QJsonDocument doc;
-    QJsonObject obj;
-    wgConfig.writeToJson(obj);
-    doc.setObject(obj);
-    QByteArray arr = doc.toJson();
+    QByteArray arr;
+    {
+        QDataStream ds(&arr, QIODevice::WriteOnly);
+        ds << magic_;
+        ds << versionForSerialization_;
+        ds << wgConfig;
+    }
     QSettings settings;
     settings.setValue(KEY_WIREGUARD_CONFIG, simpleCrypt_.encryptToString(arr));
 }
