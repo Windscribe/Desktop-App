@@ -121,7 +121,7 @@ HEADERS += \
     $$COMMON_PATH/ipc/command.h \
     $$COMMON_PATH/ipc/commandfactory.h \
     $$COMMON_PATH/ipc/connection.h \
-    $$COMMON_PATH/ipc/generated_proto/clicommands.h \
+    $$COMMON_PATH/ipc/clicommands.h \
     $$COMMON_PATH/ipc/iconnection.h \
     $$COMMON_PATH/ipc/iserver.h \
     $$COMMON_PATH/ipc/protobufcommand.h \

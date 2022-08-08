@@ -143,20 +143,6 @@ def get_project_folder(subdir_name):
     return os.path.normpath(os.path.join(pathhelper.ROOT_DIR, subdir_name))
 
 
-def generate_protobuf():
-    proto_root = iutl.GetDependencyBuildRoot("protobuf")
-    if not proto_root:
-        raise iutl.InstallError("Protobuf is not installed.")
-    msg.Info("Generating Protobuf...")
-    proto_gen = os.path.join(pathhelper.COMMON_DIR, "ipc", "proto", "generate_proto")
-    if utl.GetCurrentOS() == "win32":
-        proto_gen = proto_gen + ".bat"
-        iutl.RunCommand([proto_gen, os.path.join(proto_root, "release", "bin")], shell=True)
-    else:
-        proto_gen = proto_gen + ".sh"
-        iutl.RunCommand([proto_gen, os.path.join(proto_root, "bin")], shell=True)
-
-
 def copy_file(filename, srcdir, dstdir, strip_first_dir=False):
     parts = filename.split("->")
     srcfilename = parts[0].strip()
@@ -760,7 +746,6 @@ def build_all(win_cert_password):
     fix_build_libs_rpaths(configdata)
 
     # Build the components.
-    generate_protobuf()
     with utl.PushDir(temp_dir):
         if arghelper.build_app():
             if configdata["targets"][CURRENT_OS]:
