@@ -219,8 +219,6 @@ lib_files_linux:
   openssl: 
     - lib/libcrypto.so.1.1 -> lib/libcrypto.so.1.1
     - lib/libssl.so.1.1 -> lib/libssl.so.1.1
-  protobuf:
-    - lib/libprotobuf.so.32 -> lib/libprotobuf.so.32
   openvpn:
     - openvpn -> windscribeopenvpn
   stunnel:

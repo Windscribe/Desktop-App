@@ -57,7 +57,7 @@ private slots:
     void onKeepAlivePreferencesChanged(bool b);
     void onDnsPolicyPreferencesChanged(DNS_POLICY_TYPE d);
 #ifdef Q_OS_LINUX
-    void onDnsManagerPreferencesChanged(ProtoTypes::DnsManagerType d);
+    void onDnsManagerPreferencesChanged(DNS_MANAGER_TYPE d);
 #endif
     void onApiResolutionPreferencesChanged(const types::DnsResolutionSettings &dns);
 

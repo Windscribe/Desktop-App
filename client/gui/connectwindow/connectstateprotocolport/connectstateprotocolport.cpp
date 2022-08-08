@@ -23,7 +23,7 @@ ConnectStateProtocolPort::ConnectStateProtocolPort(ScalableGraphicsObject *paren
 {
 
 #if defined(Q_OS_LINUX)
-    protocol_ = PROTOCOL_TYPE_UDP;
+    protocol_ = PROTOCOL::OPENVPN_UDP;
     port_ = 443;
 #else
     protocol_ = PROTOCOL::IKEV2;

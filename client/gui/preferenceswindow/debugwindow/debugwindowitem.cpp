@@ -29,7 +29,7 @@ DebugWindowItem::DebugWindowItem(ScalableGraphicsObject *parent, Preferences *pr
     connect(preferences, SIGNAL(apiResolutionChanged(types::DnsResolutionSettings)), SLOT(onApiResolutionPreferencesChanged(types::DnsResolutionSettings)));
     connect(preferences, SIGNAL(dnsPolicyChanged(DNS_POLICY_TYPE)), SLOT(onDnsPolicyPreferencesChanged(DNS_POLICY_TYPE)));
 #ifdef Q_OS_LINUX
-    connect(preferences, SIGNAL(dnsManagerChanged(ProtoTypes::DnsManagerType)), SLOT(onDnsManagerPreferencesChanged(ProtoTypes::DnsManagerType)));
+    connect(preferences, SIGNAL(dnsManagerChanged(DNS_MANAGER_TYPE)), SLOT(onDnsManagerPreferencesChanged(DNS_MANAGER_TYPE)));
 #endif
     connect(preferences, SIGNAL(isIgnoreSslErrorsChanged(bool)), SLOT(onIgnoreSslErrorsPreferencesChanged(bool)));
     connect(preferences, SIGNAL(keepAliveChanged(bool)), SLOT(onKeepAlivePreferencesChanged(bool)));
@@ -210,7 +210,7 @@ void DebugWindowItem::onAppInternalDnsItemChanged(QVariant dns)
 #ifdef Q_OS_LINUX
 void DebugWindowItem::onDnsManagerItemChanged(QVariant dns)
 {
-    preferences_->setDnsManager((ProtoTypes::DnsManagerType)dns.toInt());
+    preferences_->setDnsManager((DNS_MANAGER_TYPE)dns.toInt());
 }
 #endif
 
@@ -286,7 +286,7 @@ void DebugWindowItem::onDnsPolicyPreferencesChanged(DNS_POLICY_TYPE d)
 }
 
 #ifdef Q_OS_LINUX
-void DebugWindowItem::onDnsManagerPreferencesChanged(ProtoTypes::DnsManagerType d)
+void DebugWindowItem::onDnsManagerPreferencesChanged(DNS_MANAGER_TYPE d)
 {
     comboBoxDnsManager_->setCurrentItem((int)d);
 }

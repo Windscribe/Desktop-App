@@ -80,7 +80,7 @@ QVector<PROTOCOL> PreferencesHelper::getAvailableProtocols()
     for (auto it : portMap_.const_items())
     {
 #if defined(Q_OS_LINUX)
-        const auto protocol = portMap_.port_map_item(i).protocol();
+        const auto protocol = it.protocol;
         if (protocol == PROTOCOL::IKEV2) {
             continue;
         }

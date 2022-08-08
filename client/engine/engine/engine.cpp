@@ -98,7 +98,7 @@ Engine::Engine(const types::EngineSettings &engineSettings) : QObject(nullptr),
     emergencyConnectStateController_ = new ConnectStateController(nullptr);
     OpenVpnVersionController::instance().setUseWinTun(engineSettings.isUseWintun());
 #ifdef Q_OS_LINUX
-    DnsScripts_linux::instance().setDnsManager(engineSettings.getDnsManager());
+    DnsScripts_linux::instance().setDnsManager(engineSettings.dnsManager());
 #endif
 }
 
@@ -1282,7 +1282,7 @@ void Engine::setSettingsImpl(const types::EngineSettings &engineSettings)
     engineSettings_ = engineSettings;
 
 #ifdef Q_OS_LINUX
-    DnsScripts_linux::instance().setDnsManager(engineSettings.getDnsManager());
+    DnsScripts_linux::instance().setDnsManager(engineSettings.dnsManager());
 #endif
 
     if (isDnsPolicyChanged)
@@ -2381,7 +2381,7 @@ void Engine::updateRunInstaller(qint32 windowCenterX, qint32 windowCenterY)
 
     if(helper_) {
         if(!dynamic_cast<Helper_linux*>(helper_)->installUpdate(installerPath_)) {
-            emit updateVersionChanged(0, UPDATE_VERSION_STATE_DONE, ProtoTypes::UPDATE_VERSION_ERROR_START_INSTALLER_FAIL);
+            emit updateVersionChanged(0, UPDATE_VERSION_STATE_DONE, UPDATE_VERSION_ERROR_START_INSTALLER_FAIL);
             return;
         }
     }

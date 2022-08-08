@@ -203,14 +203,6 @@ def fix_build_libs_rpaths(configdata):
                     raise iutl.InstallError("Cannot fix {} rpath, installation not found at {}".format(build_lib_name, build_lib_root))
                 for binary_name in binaries_to_patch:
                     fix_rpath_macos(os.path.join(build_lib_root, binary_name))
-    elif CURRENT_OS == "linux":
-        protobuf_root = iutl.GetDependencyBuildRoot("protobuf")
-        if not os.path.exists(protobuf_root):
-            raise iutl.InstallError("Cannot fix protobuf rpath, protobuf installation not found at " + protobuf_root)
-        msg.Print("Patching protobuf rpaths...")
-        iutl.RunCommand(["patchelf", "--set-rpath", "$ORIGIN/../lib", "{}/bin/protoc".format(protobuf_root)])
-        iutl.RunCommand(["patchelf", "--set-rpath", "$ORIGIN/../lib", "{}/lib/libprotoc.so".format(protobuf_root)])
-
 
 def apply_mac_deploy_fixes(appname, fixlist):
     # Special deploy fixes for Mac.

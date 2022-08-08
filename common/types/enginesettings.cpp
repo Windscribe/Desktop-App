@@ -323,15 +323,9 @@ void EngineSettings::repairEngineSettings()
 {
     // IKEv2 is disabled on linux but is default protocol in ProtoTypes::ConnectionSettings.
     // UDP should be default on Linux.
-    if(engineSettings_.has_connection_settings() && engineSettings_.connection_settings().protocol() == PROTOCOL::IKEV2) {
-        engineSettings_.mutable_connection_settings()->set_protocol(PROTOCOL_TYPE_UDP);
-        engineSettings_.mutable_connection_settings()->set_port(443);
-    }
-    else if(!engineSettings_.has_connection_settings()) {
-        auto settings = engineSettings_.connection_settings();
-        settings.set_protocol(PROTOCOL_TYPE_UDP);
-        settings.set_port(443);
-        *engineSettings_.mutable_connection_settings() = settings;
+    if(d->connectionSettings.protocol == PROTOCOL::IKEV2) {
+        d->connectionSettings.protocol = PROTOCOL::OPENVPN_UDP;
+        d->connectionSettings.port = 443;
     }
 }
 #endif

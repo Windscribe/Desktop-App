@@ -100,8 +100,8 @@ public:
     void setDnsPolicy(DNS_POLICY_TYPE d);
 
 #ifdef Q_OS_LINUX
-    ProtoTypes::DnsManagerType dnsManager() const;
-    void setDnsManager(ProtoTypes::DnsManagerType d);
+    DNS_MANAGER_TYPE dnsManager() const;
+    void setDnsManager(DNS_MANAGER_TYPE d);
 #endif
 
 
@@ -172,7 +172,7 @@ signals:
     void dnsPolicyChanged(DNS_POLICY_TYPE d);
 
 #if defined(Q_OS_LINUX)
-    void dnsManagerChanged(ProtoTypes::DnsManagerType d);
+    void dnsManagerChanged(DNS_MANAGER_TYPE d);
 #endif
 
     void dnsWhileConnectedInfoChanged(types::DnsWhileConnectedInfo dnsWcInfo);

@@ -23,10 +23,10 @@ Preferences::Preferences(QObject *parent) : QObject(parent)
 #if defined(Q_OS_LINUX)
     // ProtoTypes::ConnectionSettings has IKEv2 as default protocol in default instance.
     // But Linux doesn't support IKEv2. It is necessary to change with UDP.
-    auto settings = engineSettings_.connection_settings();
-    settings.set_protocol(PROTOCOL_TYPE_UDP);
-    settings.set_port(443);
-    *engineSettings_.mutable_connection_settings() = settings;
+    auto settings = engineSettings_.connectionSettings();
+    settings.protocol = PROTOCOL::OPENVPN_UDP;
+    settings.port = 443;
+    engineSettings_.setConnectionSettings(settings);
 #endif
 }
 
@@ -446,15 +446,15 @@ void Preferences::setDnsPolicy(DNS_POLICY_TYPE d)
 }
 
 #ifdef Q_OS_LINUX
-ProtoTypes::DnsManagerType Preferences::dnsManager() const
+DNS_MANAGER_TYPE Preferences::dnsManager() const
 {
-    return engineSettings_.dns_manager();
+    return engineSettings_.dnsManager();
 }
-void Preferences::setDnsManager(ProtoTypes::DnsManagerType d)
+void Preferences::setDnsManager(DNS_MANAGER_TYPE d)
 {
-    if (engineSettings_.dns_manager() != d)
+    if (engineSettings_.dnsManager() != d)
     {
-        engineSettings_.set_dns_manager(d);
+        engineSettings_.setDnsManager(d);
         emit dnsManagerChanged(d);
         emit updateEngineSettings();
     }

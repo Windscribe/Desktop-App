@@ -2585,7 +2585,7 @@ void MainWindow::updateConnectWindowStateProtocolPortDisplay(types::ConnectionSe
     if (connectionSettings.isAutomatic)
     {
 #if defined(Q_OS_LINUX)
-        mainWindowController_->getConnectWindow()->setProtocolPort(PROTOCOL_TYPE_UDP, 443);
+        mainWindowController_->getConnectWindow()->setProtocolPort(PROTOCOL::OPENVPN_UDP, 443);
 #else
         mainWindowController_->getConnectWindow()->setProtocolPort(PROTOCOL::IKEV2, 500);
 #endif
