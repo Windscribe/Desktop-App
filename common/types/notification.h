@@ -10,26 +10,24 @@ namespace types {
 
 struct Notification
 {
-public:
-    Notification() :
-        id(0),
-        date(0),
-        permFree(0),
-        permPro(0),
-        popup(0)
-    {}
+    qint64 id = 0;
+    QString title;
+    QString message;
+    qint64 date = 0;
+    int permFree = 0;
+    int permPro = 0;
+    int popup = 0;
 
     bool initFromJson(const QJsonObject &json);
     bool operator==(const Notification &other) const;
     bool operator!=(const Notification &other) const;
 
-    qint64 id;
-    QString title;
-    QString message;
-    qint64 date;
-    int permFree;
-    int permPro;
-    int popup;
+    friend QDataStream& operator <<(QDataStream &stream, const Notification &o);
+    friend QDataStream& operator >>(QDataStream &stream, Notification &o);
+
+private:
+    static constexpr quint32 versionForSerialization_ = 1;  // should increment the version if the data format is changed
+
 };
 
 } //namespace types

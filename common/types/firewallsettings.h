@@ -29,20 +29,26 @@ struct FirewallSettings
         return !(*this == other);
     }
 
-    QJsonObject toJsonObject() const
+    friend QDataStream& operator <<(QDataStream &stream, const FirewallSettings &o)
     {
-        QJsonObject json;
-        json["mode"] = (int)mode;
-        json["when"] = (int) when;
-        return json;
+        stream << versionForSerialization_;
+        stream << o.mode << o.when;
+        return stream;
     }
 
-    bool fromJsonObject(const QJsonObject &json)
+    friend QDataStream& operator >>(QDataStream &stream, FirewallSettings &o)
     {
-        if (json.contains("mode")) mode = (FIREWALL_MODE)json["mode"].toInt(FIREWALL_MODE_AUTOMATIC);
-        if (json.contains("when")) when = (FIREWALL_WHEN)json["when"].toInt(FIREWALL_WHEN_BEFORE_CONNECTION);
-        return true;
+        quint32 version;
+        stream >> version;
+        if (version > o.versionForSerialization_)
+        {
+            stream.setStatus(QDataStream::ReadCorruptData);
+            return stream;
+        }
+        stream >> o.mode >> o.when;
+        return stream;
     }
+
 
     friend QDebug operator<<(QDebug dbg, const FirewallSettings &fs)
     {
@@ -53,6 +59,8 @@ struct FirewallSettings
         return dbg;
     }
 
+private:
+    static constexpr quint32 versionForSerialization_ = 1;  // should increment the version if the data format is changed
 
 };
 

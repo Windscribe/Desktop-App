@@ -1,8 +1,12 @@
 #include "favoritelocationsstorage.h"
 
 #include <QDataStream>
-#include <QJsonArray>
+#include <QDataStream>
+#include <QIODevice>
 #include <QSettings>
+
+#include "utils/simplecrypt.h"
+#include "types/global_consts.h"
 
 void FavoriteLocationsStorage::addToFavorites(const LocationID &locationId)
 {
@@ -39,24 +43,23 @@ void FavoriteLocationsStorage::readFromSettings()
 
     if (settings.contains("favoriteLocations"))
     {
-        QByteArray buf = settings.value("favoriteLocations").toByteArray();
-        QCborValue cbor = QCborValue::fromCbor(buf);
-        if (!cbor.isInvalid() && cbor.isMap())
+        SimpleCrypt simpleCrypt(SIMPLE_CRYPT_KEY);
+        QString str = settings.value("favoriteLocations", "").toString();
+        QByteArray arr = simpleCrypt.decryptToByteArray(str);
+
+        QDataStream ds(&arr, QIODevice::ReadOnly);
+
+        quint32 magic, version;
+        ds >> magic;
+        if (magic == magic_)
         {
-            const QJsonObject &obj = cbor.toJsonValue().toObject();
-            if (obj.contains("version") && obj["version"].toInt(INT_MAX) <= versionForSerialization_)
+            ds >> version;
+            if (version <= versionForSerialization_)
             {
-                if (obj.contains("locations") && obj["locations"].isArray())
+                ds >> favoriteLocations_;
+                if (ds.status() != QDataStream::Ok)
                 {
-                    QJsonArray arr = obj["locations"].toArray();
-                    for (const auto &it: arr)
-                    {
-                        LocationID lid;
-                        if (lid.fromJsonObject(it.toObject()))
-                        {
-                            favoriteLocations_.insert(lid);
-                        }
-                    }
+                    favoriteLocations_.clear();
                 }
             }
         }
@@ -69,19 +72,16 @@ void FavoriteLocationsStorage::writeToSettings()
     if (!isFavoriteLocationsSetModified_)
         return;
 
-    QJsonObject json;
-    json["version"] = versionForSerialization_;
-    QJsonArray arrJson;
-    for (const LocationID &lid : favoriteLocations_)
+    QByteArray arr;
     {
-        arrJson << lid.toJsonObject();
+        QDataStream ds(&arr, QIODevice::WriteOnly);
+        ds << magic_;
+        ds << versionForSerialization_;
+        ds << favoriteLocations_;
     }
-    json["locations"] = arrJson;
-
-    QCborValue cbor = QCborValue::fromJsonValue(json);
-    QByteArray arr = cbor.toCbor();
-
     QSettings settings;
-    settings.setValue("favoriteLocations", arr);
+    SimpleCrypt simpleCrypt(SIMPLE_CRYPT_KEY);
+    settings.setValue("favoriteLocations", simpleCrypt.encryptToString(arr));
+
     isFavoriteLocationsSetModified_ = false;
 }

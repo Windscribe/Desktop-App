@@ -28,20 +28,26 @@ struct PacketSize
         return !(*this == other);
     }
 
-    QJsonObject toJsonObject() const
+    friend QDataStream& operator <<(QDataStream &stream, const PacketSize &o)
     {
-        QJsonObject json;
-        json["isAutomatic"] = isAutomatic;
-        json["mtu"] = mtu;
-        return json;
+        stream << versionForSerialization_;
+        stream << o.isAutomatic << o.mtu;
+        return stream;
     }
 
-    bool fromJsonObject(const QJsonObject &json)
+    friend QDataStream& operator >>(QDataStream &stream, PacketSize &o)
     {
-        if (json.contains("isAutomatic")) isAutomatic = json["isAutomatic"].toInt(true);
-        if (json.contains("mtu")) mtu = json["mtu"].toInt(-1);
-        return true;
+        quint32 version;
+        stream >> version;
+        if (version > o.versionForSerialization_)
+        {
+            stream.setStatus(QDataStream::ReadCorruptData);
+            return stream;
+        }
+        stream >> o.isAutomatic >> o.mtu;
+        return stream;
     }
+
 
     friend QDebug operator<<(QDebug dbg, const PacketSize &ps)
     {
@@ -51,6 +57,9 @@ struct PacketSize
         dbg << "mtu:" << ps.mtu << "}";
         return dbg;
     }
+
+private:
+    static constexpr quint32 versionForSerialization_ = 1;  // should increment the version if the data format is changed
 };
 
 

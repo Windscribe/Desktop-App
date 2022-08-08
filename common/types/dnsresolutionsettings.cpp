@@ -31,21 +31,6 @@ void DnsResolutionSettings::debugToLog()
     }
 }
 
-QJsonObject DnsResolutionSettings::toJsonObject() const
-{
-    QJsonObject json;
-    json["isAutomatic"] = bAutomatic_;
-    json["manualIp"] = manualIp_;
-    return json;
-}
-
-bool DnsResolutionSettings::fromJsonObject(const QJsonObject &json)
-{
-    if (json.contains("isAutomatic")) bAutomatic_ = json["isAutomatic"].toBool(true);
-    if (json.contains("manualIp")) manualIp_ = json["manualIp"].toString();
-    return true;
-}
-
 bool DnsResolutionSettings::getIsAutomatic() const
 {
     QString manualIp = manualIp_;
@@ -65,6 +50,27 @@ QString DnsResolutionSettings::getManualIp() const
 void DnsResolutionSettings::setManualIp(const QString &manualIp)
 {
     manualIp_ = manualIp;
+}
+
+QDataStream& operator <<(QDataStream &stream, const DnsResolutionSettings &o)
+{
+    stream << o.versionForSerialization_;
+    stream << o.bAutomatic_ << o.manualIp_;
+    return stream;
+
+}
+QDataStream& operator >>(QDataStream &stream, DnsResolutionSettings &o)
+{
+    quint32 version;
+    stream >> version;
+    if (version > o.versionForSerialization_)
+    {
+        stream.setStatus(QDataStream::ReadCorruptData);
+        return stream;
+    }
+    stream >> o.bAutomatic_ >> o.manualIp_;
+    return stream;
+
 }
 
 QDebug operator<<(QDebug dbg, const DnsResolutionSettings &ds)

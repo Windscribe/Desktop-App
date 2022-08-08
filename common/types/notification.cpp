@@ -3,7 +3,6 @@
 #include <QMetaType>
 
 const int typeIdNotification = qRegisterMetaType<types::Notification>("types::Notification");
-//const int typeIdNotificationArray = qRegisterMetaType<QVector<types::Notification> >("QVector<types::Notification>");
 
 namespace types {
 
@@ -45,6 +44,27 @@ bool Notification::operator!=(const Notification &other) const
 {
     return !(*this == other);
 }
+
+QDataStream& operator <<(QDataStream &stream, const Notification &o)
+{
+    stream << o.versionForSerialization_;
+    stream << o.id << o.title << o.message << o.date << o.permFree << o.permPro << o.popup;
+    return stream;
+}
+
+QDataStream& operator >>(QDataStream &stream, Notification &o)
+{
+    quint32 version;
+    stream >> version;
+    if (version > o.versionForSerialization_)
+    {
+        stream.setStatus(QDataStream::ReadCorruptData);
+        return stream;
+    }
+    stream >> o.id >> o.title >> o.message >> o.date >> o.permFree >> o.permPro >> o.popup;
+    return stream;
+}
+
 
 
 } // namespace types

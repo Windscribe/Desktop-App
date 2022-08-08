@@ -122,7 +122,7 @@ const QVector<PortItem> &PortMap::const_items() const
 QDataStream& operator <<(QDataStream& stream, const PortItem& p)
 {
     stream << p.versionForSerialization_;
-    stream << p.protocol.toInt() << p.heading << p.use << p.ports;
+    stream << p.protocol << p.heading << p.use << p.ports;
     return stream;
 }
 
@@ -135,9 +135,7 @@ QDataStream& operator >>(QDataStream& stream, PortItem& p)
         stream.setStatus(QDataStream::ReadCorruptData);
         return stream;
     }
-    int proto;
-    stream >> proto >> p.heading >> p.use >> p.ports;
-    p.protocol = proto;
+    stream >> p.protocol >> p.heading >> p.use >> p.ports;
     return stream;
 }
 

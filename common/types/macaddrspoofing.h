@@ -34,40 +34,26 @@ struct MacAddrSpoofing
         return !(*this == other);
     }
 
-    QJsonObject toJsonObject() const
+    friend QDataStream& operator <<(QDataStream &stream, const MacAddrSpoofing &o)
     {
-        QJsonObject json;
-        json["isEnabled"] = isEnabled;
-        json["macAddress"] = macAddress;
-        json["isAutoRotate"] = isAutoRotate;
-        json["selectedNetworkInterface"] = selectedNetworkInterface.toJsonObject();
-
-        QJsonArray arr;
-        for (const auto &it : networkInterfaces) {
-            arr << it.toJsonObject();
-        }
-        json["networkInterfaces"] = arr;
-        return json;
+        stream << versionForSerialization_;
+        stream << o.isEnabled << o.macAddress << o.isAutoRotate << o.selectedNetworkInterface << o.networkInterfaces;
+        return stream;
     }
 
-    bool fromJsonObject(const QJsonObject &json)
+    friend QDataStream& operator >>(QDataStream &stream, MacAddrSpoofing &o)
     {
-        if (json.contains("isEnabled")) isEnabled = json["isEnabled"].toBool(false);
-        if (json.contains("macAddress")) macAddress = json["macAddress"].toString();
-        if (json.contains("isAutoRotate")) isAutoRotate = json["isAutoRotate"].toBool(false);
-        if (json.contains("selectedNetworkInterface")) selectedNetworkInterface.fromJsonObject(json["selectedNetworkInterface"].toObject());
-        if (json.contains("networkInterfaces"))
+        quint32 version;
+        stream >> version;
+        if (version > o.versionForSerialization_)
         {
-            QJsonArray arr = json["selectedNetworkInterface"].toArray();
-            for (const auto it : arr)
-            {
-                NetworkInterface ni(it.toObject());
-                networkInterfaces << ni;
-            }
+            stream.setStatus(QDataStream::ReadCorruptData);
+            return stream;
         }
-
-        return true;
+        stream >> o.isEnabled >> o.macAddress >> o.isAutoRotate >> o.selectedNetworkInterface >> o.networkInterfaces;
+        return stream;
     }
+
 
     friend QDebug operator<<(QDebug dbg, const MacAddrSpoofing &m)
     {
@@ -85,6 +71,10 @@ struct MacAddrSpoofing
         dbg << "}";
         return dbg;
     }
+
+private:
+    static constexpr quint32 versionForSerialization_ = 1;  // should increment the version if the data format is changed
+
 };
 
 

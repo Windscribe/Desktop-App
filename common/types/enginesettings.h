@@ -113,9 +113,8 @@ private:
     QSharedDataPointer<EngineSettingsData> d;
 
     // for serialization
+    static constexpr quint32 magic_ = 0x7745C2AE;
     static constexpr int versionForSerialization_ = 1;  // should increment the version if the data format is changed
-
-    QJsonObject toJsonObject() const;
 
 #if defined(Q_OS_LINUX)
     void repairEngineSettings();

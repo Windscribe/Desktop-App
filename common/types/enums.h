@@ -323,6 +323,8 @@ QList< QPair<QString, int> > UPDATE_CHANNEL_toList();
 QString DNS_MANAGER_TYPE_toString(DNS_MANAGER_TYPE t);
 QList< QPair<QString, int> > DNS_MANAGER_TYPE_toList();
 
+QDataStream& operator <<(QDataStream &stream, const PROTOCOL &o);
+QDataStream& operator >>(QDataStream &stream, PROTOCOL &o);
 #endif // TYPES_ENUMS_H
 
 

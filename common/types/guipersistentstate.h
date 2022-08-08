@@ -1,7 +1,6 @@
 #ifndef TYPES_GUIPERSISTENTSTATE_H
 #define TYPES_GUIPERSISTENTSTATE_H
 
-#include <QJsonArray>
 #include <QString>
 #include "locationid.h"
 #include "networkinterface.h"
@@ -53,56 +52,30 @@ struct GuiPersistentState
         return !(*this == other);
     }
 
-    QJsonObject toJsonObject() const
+    friend QDataStream& operator <<(QDataStream& stream, const GuiPersistentState& o)
     {
-        QJsonObject json;
-        json["version"] = versionForSerialization_;
-        json["isFirewallOn"] = isFirewallOn;
-        json["windowOffsX"] = windowOffsX;
-        json["windowOffsY"] = windowOffsY;
-        json["countVisibleLocations"] = countVisibleLocations;
-        json["isFirstLogin"] = isFirstLogin;
-        json["isIgnoreCpuUsageWarnings"] = isIgnoreCpuUsageWarnings;
-        json["lastLocation"] = lastLocation.toJsonObject();
-        json["lastExternalIp"] = lastExternalIp;
+        stream << versionForSerialization_;
+        stream << o.isFirewallOn << o.windowOffsX << o.windowOffsY << o.countVisibleLocations <<
+                  o.isFirstLogin << o.isIgnoreCpuUsageWarnings << o.lastLocation << o.lastExternalIp <<
+                  o.networkWhiteList;
 
-        QJsonArray arr;
-        for (const auto &it : networkWhiteList)
-        {
-            arr << it.toJsonObject();
-        }
-        json["networkWhiteList"] = arr;
-        return json;
+        return stream;
     }
-    bool fromJsonObject(const QJsonObject &json)
+    friend QDataStream& operator >>(QDataStream& stream, GuiPersistentState& o)
     {
-        if (!json.contains("version") || json["version"].toInt(INT_MAX) > versionForSerialization_)
+        quint32 version;
+        stream >> version;
+        if (version > o.versionForSerialization_)
         {
-            return false;
+            stream.setStatus(QDataStream::ReadCorruptData);
+            return stream;
         }
 
-        if (json.contains("isFirewallOn")) isFirewallOn = json["isFirewallOn"].toBool(false);
-        if (json.contains("windowOffsX")) windowOffsX = json["windowOffsX"].toInt(INT_MAX);
-        if (json.contains("windowOffsY")) windowOffsY = json["windowOffsY"].toInt(INT_MAX);
-        if (json.contains("countVisibleLocations")) countVisibleLocations = json["countVisibleLocations"].toInt(7);
-        if (json.contains("isFirstLogin")) isFirstLogin = json["isFirstLogin"].toBool(true);
-        if (json.contains("isIgnoreCpuUsageWarnings")) isIgnoreCpuUsageWarnings = json["isIgnoreCpuUsageWarnings"].toBool(false);
-        if (json.contains("lastLocation")) lastLocation.fromJsonObject(json["lastLocation"].toObject());
-        if (json.contains("lastExternalIp")) lastExternalIp = json["lastExternalIp"].toString();
-        if (json.contains("networkWhiteList") && json["networkWhiteList"].isArray())
-        {
-            QJsonArray arr = json["networkWhiteList"].toArray();
-            for (const auto &it : arr)
-            {
-                types::NetworkInterface ni;
-                if (ni.fromJsonObject(it.toObject()))
-                {
-                    networkWhiteList << ni;
-                }
-            }
-        }
-        return true;
+        stream >> o.isFirewallOn >> o.windowOffsX >> o.windowOffsY >> o.countVisibleLocations >>
+                  o.isFirstLogin >> o.isIgnoreCpuUsageWarnings >> o.lastLocation >> o.lastExternalIp >> o.networkWhiteList;
+        return stream;
     }
+
 
 private:
     static constexpr int versionForSerialization_ = 1;  // should increment the version if the data format is changed

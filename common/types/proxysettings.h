@@ -41,8 +41,8 @@ public:
         return !(*this == other);
     }
 
-    QJsonObject toJsonObject() const;
-    bool fromJsonObject(const QJsonObject &json);
+    friend QDataStream& operator <<(QDataStream &stream, const ProxySettings &o);
+    friend QDataStream& operator >>(QDataStream &stream, ProxySettings &o);
 
     friend QDebug operator<<(QDebug dbg, const ProxySettings &ps);
 
@@ -52,6 +52,8 @@ private:
     uint port_;
     QString username_;
     QString password_;
+
+    static constexpr quint32 versionForSerialization_ = 1;  // should increment the version if the data format is changed
 };
 } //namespace types
 

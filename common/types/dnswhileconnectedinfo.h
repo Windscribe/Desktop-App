@@ -23,14 +23,16 @@ public:
     static QList<DNS_WHILE_CONNECTED_TYPE> allAvailableTypes();
     static QString typeToString(const DNS_WHILE_CONNECTED_TYPE &type);
 
-    QJsonObject toJsonObject() const;
-    bool fromJsonObject(const QJsonObject &json);
+    friend QDataStream& operator <<(QDataStream &stream, const DnsWhileConnectedInfo &o);
+    friend QDataStream& operator >>(QDataStream &stream, DnsWhileConnectedInfo &o);
 
     friend QDebug operator<<(QDebug dbg, const DnsWhileConnectedInfo &ds);
 
 private:
     DNS_WHILE_CONNECTED_TYPE type_;
     QString ipAddress_;
+
+    static constexpr quint32 versionForSerialization_ = 1;  // should increment the version if the data format is changed
 };
 
 inline bool operator==(const DnsWhileConnectedInfo& lhs, const DnsWhileConnectedInfo& rhs)

@@ -111,26 +111,26 @@ bool ProxySettings::isProxyEnabled() const
     return (option_ == PROXY_OPTION_HTTP || option_ == PROXY_OPTION_SOCKS);
 }
 
-QJsonObject ProxySettings::toJsonObject() const
+QDataStream& operator <<(QDataStream &stream, const ProxySettings &o)
 {
-    QJsonObject json;
-    json["option"] = (int)option_;
-    json["address"] = address_;
-    json["port"] = (qint64)port_;
-    json["username"] = username_;
-    json["password"] = password_;
-    return json;
+    stream << o.versionForSerialization_;
+    stream << o.option_ << o.address_ << o.port_ << o.username_ << o.password_;
+    return stream;
 }
 
-bool ProxySettings::fromJsonObject(const QJsonObject &json)
+QDataStream& operator >>(QDataStream &stream, ProxySettings &o)
 {
-    if (json.contains("option")) option_ = (PROXY_OPTION)json["option"].toInt(PROXY_OPTION_NONE);
-    if (json.contains("address")) address_ = json["address"].toString();
-    if (json.contains("port")) port_ = json["port"].toInteger(0);
-    if (json.contains("username")) username_ = json["username"].toString();
-    if (json.contains("password")) password_ = json["password"].toString();
-    return true;
+    quint32 version;
+    stream >> version;
+    if (version > o.versionForSerialization_)
+    {
+        stream.setStatus(QDataStream::ReadCorruptData);
+        return stream;
+    }
+    stream >> o.option_ >> o.address_ >> o.port_ >> o.username_ >> o.password_;
+    return stream;
 }
+
 
 QDebug operator<<(QDebug dbg, const ProxySettings &ps)
 {

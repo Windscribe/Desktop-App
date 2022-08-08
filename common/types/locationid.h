@@ -4,7 +4,6 @@
 #include <QString>
 #include <QMetaType>
 #include <QHash>
-#include <QJsonObject>
 
 // Uniquely identifies a location among all locations (API locations, statis IPs locations, custom config locations, best location).
 class LocationID
@@ -58,19 +57,22 @@ public:
     int id() { return id_; }
     QString city() { return city_; }
 
-    QJsonObject toJsonObject() const;
-    bool fromJsonObject(const QJsonObject &json);
-
     friend QDataStream& operator <<(QDataStream &stream, const LocationID &l)
     {
-        stream << l.toJsonObject();
+        stream << versionForSerialization_;
+        stream << l.type_ << l.id_ << l.city_;
         return stream;
     }
     friend QDataStream& operator >>(QDataStream &stream, LocationID &l)
     {
-        QJsonObject v;
-        stream >> v;
-        l.fromJsonObject(v);
+        quint32 version;
+        stream >> version;
+        if (version > l.versionForSerialization_)
+        {
+            stream.setStatus(QDataStream::ReadCorruptData);
+            return stream;
+        }
+        stream >> l.type_ >> l.id_ >> l.city_;
         return stream;
     }
 
@@ -91,6 +93,8 @@ private:
                     // for CUSTOM_OVPN_CONFIGS_LOCATION this is config filename
                     // for STATIC_IPS_LOCATION this is city + ip string
                     // for top level location - empty value
+
+    static constexpr quint32 versionForSerialization_ = 1;  // should increment the version if the data format is changed
 };
 
 inline size_t qHash(const LocationID &key, uint seed)

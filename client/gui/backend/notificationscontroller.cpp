@@ -4,7 +4,13 @@
 #include <QSettings>
 #include <algorithm>
 #include <QIODevice>
-// #include <QDebug>
+
+#include "utils/simplecrypt.h"
+#include "types/global_consts.h"
+
+extern "C" {
+    #include "legacy_protobuf_support/types.pb-c.h"
+}
 
 NotificationsController::NotificationsController(QObject *parent) : QObject(parent),
     latestTotal_(0), latestUnreadCnt_(0)
@@ -105,38 +111,81 @@ void NotificationsController::updateState()
 
 void NotificationsController::saveToSettings()
 {
-    QSettings settings;
-
-    /*size_t size = notifications_.ByteSizeLong();
-    QByteArray arr(size, Qt::Uninitialized);
-    notifications_.SerializeToArray(arr.data(), (int)size);
-
-    settings.setValue("notifications", arr);
-
-    QByteArray arrShownPopups;
+    QByteArray arr;
     {
-        QDataStream stream(&arrShownPopups, QIODevice::WriteOnly);
-        stream << idOfShownNotifications_;
+        QDataStream ds(&arr, QIODevice::WriteOnly);
+        ds << magic_;
+        ds << versionForSerialization_;
+        ds << notifications_ << idOfShownNotifications_;
     }
-    settings.setValue("idForShownPopups", arrShownPopups);*/
+    QSettings settings;
+    SimpleCrypt simpleCrypt(SIMPLE_CRYPT_KEY);
+    settings.setValue("notifications", simpleCrypt.encryptToString(arr));
 }
 
 void NotificationsController::readFromSettings()
 {
     QSettings settings;
+    SimpleCrypt simpleCrypt(SIMPLE_CRYPT_KEY);
+    bool bLoaded = false;
 
-    /*if (settings.contains("notifications"))
+    if (settings.contains("notifications"))
     {
-        QByteArray arr = settings.value("notifications").toByteArray();
-        notifications_.ParseFromArray(arr.data(), arr.size());
+        QString str = settings.value("notifications", "").toString();
+        QByteArray arr = simpleCrypt.decryptToByteArray(str);
+
+        QDataStream ds(&arr, QIODevice::ReadOnly);
+
+        quint32 magic, version;
+        ds >> magic;
+        if (magic == magic_)
+        {
+            ds >> version;
+            if (version <= versionForSerialization_)
+            {
+                ds >> notifications_ >> idOfShownNotifications_;
+                if (ds.status() == QDataStream::Ok)
+                {
+                    bLoaded = true;
+                }
+            }
+        }
+
+        if (!bLoaded)
+        {
+            // try load from legacy protobuf
+            // todo remove this code at some point later
+            QByteArray arr = settings.value("notifications").toByteArray();
+            ProtoTypes__ArrayApiNotification *a = proto_types__array_api_notification__unpack(NULL, arr.size(), (const uint8_t *)arr.data());
+            if (a)
+            {
+                for (size_t i = 0; i < a->n_api_notifications; ++i)
+                {
+                    ProtoTypes__ApiNotification *n = a->api_notifications[i];
+                    types::Notification notification;
+                    if (n->has_id) notification.id = n->id;
+                    notification.title = n->title;
+                    notification.message = n->message;
+                    if (n->has_date) notification.date = n->date;
+                    if (n->has_perm_free) notification.permFree = n->perm_free;
+                    if (n->has_perm_pro) notification.permPro = n->perm_pro;
+                    if (n->has_popup) notification.popup = n->popup;
+
+                    notifications_ << notification;
+                }
+                proto_types__array_api_notification__free_unpacked(a, NULL);
+            }
+
+            if (settings.contains("idForShownPopups"))
+            {
+                QByteArray arr = settings.value("idForShownPopups").toByteArray();
+                QDataStream stream(&arr, QIODevice::ReadOnly);
+                stream >> idOfShownNotifications_;
+                settings.remove("idForShownPopups");
+            }
+        }
     }
 
-    if (settings.contains("idForShownPopups"))
-    {
-        QByteArray arr = settings.value("idForShownPopups").toByteArray();
-        QDataStream stream(&arr, QIODevice::ReadOnly);
-        stream >> idOfShownNotifications_;
-    }*/
     updateState();
     checkForUnreadPopup();
 }

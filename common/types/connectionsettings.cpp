@@ -22,6 +22,26 @@ void ConnectionSettings::logConnectionSettings() const
     }
 }
 
+QDataStream& operator <<(QDataStream &stream, const ConnectionSettings &o)
+{
+    stream << o.versionForSerialization_;
+    stream << o.protocol << o.port << o.isAutomatic;
+    return stream;
+}
+
+QDataStream& operator >>(QDataStream &stream, ConnectionSettings &o)
+{
+    quint32 version;
+    stream >> version;
+    if (version > o.versionForSerialization_)
+    {
+        stream.setStatus(QDataStream::ReadCorruptData);
+        return stream;
+    }
+    stream >> o.protocol >> o.port >> o.isAutomatic;
+    return stream;
+}
+
 QDebug operator<<(QDebug dbg, const ConnectionSettings &cs)
 {
     QDebugStateSaver saver(dbg);

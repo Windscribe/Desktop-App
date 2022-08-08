@@ -33,6 +33,7 @@ private:
     LocationID id_;
 
     // for serialization
+    static constexpr quint32 magic_ = 0x77AACBAE;
     static constexpr int versionForSerialization_ = 1;  // should increment the version if the data format is changed
 };
 

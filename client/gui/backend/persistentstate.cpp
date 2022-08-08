@@ -1,6 +1,5 @@
 #include "persistentstate.h"
 
-#include <QJsonDocument>
 #include <QRect>
 #include <QSettings>
 #include "utils/logger.h"
@@ -15,115 +14,120 @@ void PersistentState::load()
 {
     QSettings settings;
     bool bLoaded = false;
-    if (settings.contains("persistentGuiSettings"))
+    if (settings.contains("guiPersistentState"))
     {
         SimpleCrypt simpleCrypt(SIMPLE_CRYPT_KEY);
-        QString str = settings.value("persistentGuiSettings", "").toString();
+        QString str = settings.value("guiPersistentState", "").toString();
         QByteArray arr = simpleCrypt.decryptToByteArray(str);
 
-        QCborValue cbor = QCborValue::fromCbor(arr);
-        if (!cbor.isInvalid() && cbor.isMap())
-        {
-            const QJsonObject &obj = cbor.toJsonValue().toObject();
-            if (state_.fromJsonObject(obj))
-            {
-               bLoaded = true;
-            }
-        }
-        if (!bLoaded)
-        {
-            // try load from legacy protobuf
-            // todo remove this code at some point later
-            QByteArray arr = settings.value("persistentGuiSettings").toByteArray();
-            ProtoTypes__GuiPersistentState *gs = proto_types__gui_persistent_state__unpack(NULL, arr.size(), (const uint8_t *)arr.data());
-            if (gs)
-            {
-                if (gs->has_is_firewall_on) state_.isFirewallOn = gs->is_firewall_on;
-                if (gs->has_window_offs_x) state_.windowOffsX = gs->window_offs_x;
-                if (gs->has_window_offs_y) state_.windowOffsY = gs->window_offs_y;
-                if (gs->has_count_visible_locations) state_.countVisibleLocations = gs->count_visible_locations;
-                if (gs->has_is_first_login) state_.isFirstLogin = gs->is_first_login;
-                if (gs->has_is_ignore_cpu_usage_warnings) state_.isIgnoreCpuUsageWarnings = gs->is_ignore_cpu_usage_warnings;
-                if (gs->lastlocation && gs->lastlocation->has_id && gs->lastlocation->has_type) {
-                    state_.lastLocation = LocationID(gs->lastlocation->id, gs->lastlocation->type, gs->lastlocation->city);
-                }
-                state_.lastExternalIp = gs->last_external_ip;
+        QDataStream ds(&arr, QIODevice::ReadOnly);
 
-                if (gs->network_white_list)
+        quint32 magic, version;
+        ds >> magic;
+        if (magic == magic_)
+        {
+            ds >> version;
+            if (version <= versionForSerialization_)
+            {
+                ds >> state_;
+                if (ds.status() == QDataStream::Ok)
                 {
-                    state_.networkWhiteList.clear();
-                    for (int i = 0; i < gs->network_white_list->n_networks; i++)
-                    {
-                        types::NetworkInterface networkInterface;
-
-                        ProtoTypes__NetworkInterface *ni = gs->network_white_list->networks[i];
-
-                        if (ni->has_interface_index) {
-                            networkInterface.interfaceIndex = ni->interface_index;
-                        }
-                        networkInterface.interfaceName = ni->interface_name;
-                        networkInterface.interfaceGuid = ni->interface_guid;
-                        networkInterface.networkOrSSid = ni->network_or_ssid;
-                        if (ni->has_interface_type) {
-                            networkInterface.interfaceType = (NETWORK_INTERACE_TYPE)ni->interface_type;
-                        }
-                        if (ni->has_trust_type) {
-                            networkInterface.trustType = (NETWORK_TRUST_TYPE)ni->trust_type;
-                        }
-                        if (ni->has_active) {
-                            networkInterface.active = ni->active;
-                        }
-                        networkInterface.friendlyName = ni->friendly_name;
-                        if (ni->has_requested) {
-                            networkInterface.requested = ni->requested;
-                        }
-                        if (ni->has_metric) {
-                            networkInterface.metric = ni->metric;
-                        }
-                        networkInterface.physicalAddress = ni->physical_address;
-                        if (ni->has_mtu) {
-                            networkInterface.mtu = ni->mtu;
-                        }
-                        if (ni->has_state) {
-                            networkInterface.state = ni->state;
-                        }
-                        if (ni->has_dw_type) {
-                            networkInterface.dwType = ni->dw_type;
-                        }
-                        networkInterface.deviceName = ni->device_name;
-                        if (ni->has_connector_present) {
-                            networkInterface.connectorPresent = ni->connector_present;
-                        }
-                        if (ni->has_end_point_interface) {
-                            networkInterface.endPointInterface = ni->end_point_interface;
-                        }
-
-                        state_.networkWhiteList << networkInterface;
-                    }
+                    bLoaded = true;
                 }
-                proto_types__gui_persistent_state__free_unpacked(gs, NULL);
             }
         }
     }
+    // try load from legacy protobuf
+    // todo remove this code at some point later
+    if (!bLoaded && settings.contains("persistentGuiSettings"))
+    {
+        QByteArray arr = settings.value("persistentGuiSettings").toByteArray();
+        ProtoTypes__GuiPersistentState *gs = proto_types__gui_persistent_state__unpack(NULL, arr.size(), (const uint8_t *)arr.data());
+        if (gs)
+        {
+            if (gs->has_is_firewall_on) state_.isFirewallOn = gs->is_firewall_on;
+            if (gs->has_window_offs_x) state_.windowOffsX = gs->window_offs_x;
+            if (gs->has_window_offs_y) state_.windowOffsY = gs->window_offs_y;
+            if (gs->has_count_visible_locations) state_.countVisibleLocations = gs->count_visible_locations;
+            if (gs->has_is_first_login) state_.isFirstLogin = gs->is_first_login;
+            if (gs->has_is_ignore_cpu_usage_warnings) state_.isIgnoreCpuUsageWarnings = gs->is_ignore_cpu_usage_warnings;
+            if (gs->lastlocation && gs->lastlocation->has_id && gs->lastlocation->has_type) {
+                state_.lastLocation = LocationID(gs->lastlocation->id, gs->lastlocation->type, gs->lastlocation->city);
+            }
+            state_.lastExternalIp = gs->last_external_ip;
 
-    // Censor User Ip from log
-    types::GuiPersistentState censoredState = state_;
-    QString censoredIp = censoredState.lastExternalIp;
-    censoredIp = censoredIp.mid(0, censoredIp.lastIndexOf('.')+1) + "###"; // censor last octet
-    censoredState.lastExternalIp = censoredIp;
+            if (gs->network_white_list)
+            {
+                state_.networkWhiteList.clear();
+                for (int i = 0; i < gs->network_white_list->n_networks; i++)
+                {
+                    types::NetworkInterface networkInterface;
 
-    QJsonDocument doc(censoredState.toJsonObject());
-    QString strJson(doc.toJson(QJsonDocument::Compact));
-    qCDebug(LOG_BASIC).noquote() << QString("Gui internal settings: %1").arg(strJson);
+                    ProtoTypes__NetworkInterface *ni = gs->network_white_list->networks[i];
+
+                    if (ni->has_interface_index) {
+                        networkInterface.interfaceIndex = ni->interface_index;
+                    }
+                    networkInterface.interfaceName = ni->interface_name;
+                    networkInterface.interfaceGuid = ni->interface_guid;
+                    networkInterface.networkOrSSid = ni->network_or_ssid;
+                    if (ni->has_interface_type) {
+                        networkInterface.interfaceType = (NETWORK_INTERACE_TYPE)ni->interface_type;
+                    }
+                    if (ni->has_trust_type) {
+                        networkInterface.trustType = (NETWORK_TRUST_TYPE)ni->trust_type;
+                    }
+                    if (ni->has_active) {
+                        networkInterface.active = ni->active;
+                    }
+                    networkInterface.friendlyName = ni->friendly_name;
+                    if (ni->has_requested) {
+                        networkInterface.requested = ni->requested;
+                    }
+                    if (ni->has_metric) {
+                        networkInterface.metric = ni->metric;
+                    }
+                    networkInterface.physicalAddress = ni->physical_address;
+                    if (ni->has_mtu) {
+                        networkInterface.mtu = ni->mtu;
+                    }
+                    if (ni->has_state) {
+                        networkInterface.state = ni->state;
+                    }
+                    if (ni->has_dw_type) {
+                        networkInterface.dwType = ni->dw_type;
+                    }
+                    networkInterface.deviceName = ni->device_name;
+                    if (ni->has_connector_present) {
+                        networkInterface.connectorPresent = ni->connector_present;
+                    }
+                    if (ni->has_end_point_interface) {
+                        networkInterface.endPointInterface = ni->end_point_interface;
+                    }
+
+                    state_.networkWhiteList << networkInterface;
+                }
+            }
+            proto_types__gui_persistent_state__free_unpacked(gs, NULL);
+        }
+    }
+    // remove the legacy key of settings
+    settings.remove("persistentGuiSettings");
 }
 
 void PersistentState::save()
 {
+    QByteArray arr;
+    {
+        QDataStream ds(&arr, QIODevice::WriteOnly);
+        ds << magic_;
+        ds << versionForSerialization_;
+        ds << state_;
+    }
+
     SimpleCrypt simpleCrypt(SIMPLE_CRYPT_KEY);
-    QCborValue cbor = QCborValue::fromJsonValue(state_.toJsonObject());
-    QByteArray arr = cbor.toCbor();
     QSettings settings;
-    settings.setValue("persistentGuiSettings", simpleCrypt.encryptToString(arr));
+    settings.setValue("guiPersistentState", simpleCrypt.encryptToString(arr));
 }
 
 void PersistentState::setFirewallState(bool bFirewallOn)

@@ -52,20 +52,26 @@ QString DnsWhileConnectedInfo::typeToString(const DNS_WHILE_CONNECTED_TYPE &type
     }
 }
 
-QJsonObject DnsWhileConnectedInfo::toJsonObject() const
+QDataStream& operator <<(QDataStream &stream, const DnsWhileConnectedInfo &o)
 {
-    QJsonObject json;
-    json["type"] = (int)type_;
-    json["ipAddress"] = ipAddress_;
-    return json;
+    stream << o.versionForSerialization_;
+    stream << o.type_ << o.ipAddress_;
+    return stream;
 }
 
-bool DnsWhileConnectedInfo::fromJsonObject(const QJsonObject &json)
+QDataStream& operator >>(QDataStream &stream, DnsWhileConnectedInfo &o)
 {
-    if (json.contains("type")) type_ = (DNS_WHILE_CONNECTED_TYPE)json["type"].toInt(DNS_WHILE_CONNECTED_TYPE_ROBERT);
-    if (json.contains("ipAddress")) ipAddress_ = json["ipAddress"].toString();
-    return true;
+    quint32 version;
+    stream >> version;
+    if (version > o.versionForSerialization_)
+    {
+        stream.setStatus(QDataStream::ReadCorruptData);
+        return stream;
+    }
+    stream >> o.type_ >> o.ipAddress_;
+    return stream;
 }
+
 
 QDebug operator<<(QDebug dbg, const DnsWhileConnectedInfo &ds)
 {

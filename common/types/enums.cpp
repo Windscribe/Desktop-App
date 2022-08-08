@@ -370,3 +370,17 @@ PROTOCOL PROTOCOL::fromString(const QString &strProtocol)
         return UNINITIALIZED;
     }
 }
+
+QDataStream& operator <<(QDataStream &stream, const PROTOCOL &o)
+{
+    stream << o.toInt();
+    return stream;
+}
+
+QDataStream& operator >>(QDataStream &stream, PROTOCOL &o)
+{
+    int v;
+    stream >> v;
+    o = (PROTOCOL)v;
+    return stream;
+}

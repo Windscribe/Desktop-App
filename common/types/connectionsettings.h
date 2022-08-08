@@ -29,24 +29,13 @@ struct ConnectionSettings
         return !(*this == other);
     }
 
-    QJsonObject toJsonObject() const
-    {
-        QJsonObject json;
-        json["protocol"] = protocol.toInt();
-        json["port"] = (qint64)port;
-        json["isAutomatic"] = isAutomatic;
-        return json;
-    }
-
-    bool fromJsonObject(const QJsonObject &json)
-    {
-        if (json.contains("protocol")) protocol = json["protocol"].toInt(PROTOCOL::IKEV2);
-        if (json.contains("port")) port = json["port"].toInteger(500);
-        if (json.contains("isAutomatic")) isAutomatic = json["isAutomatic"].toBool(true);
-        return true;
-    }
+    friend QDataStream& operator <<(QDataStream &stream, const ConnectionSettings &o);
+    friend QDataStream& operator >>(QDataStream &stream, ConnectionSettings &o);
 
     friend QDebug operator<<(QDebug dbg, const ConnectionSettings &cs);
+
+private:
+    static constexpr quint32 versionForSerialization_ = 1;  // should increment the version if the data format is changed
 
 };
 
