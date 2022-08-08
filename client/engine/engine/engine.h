@@ -16,7 +16,7 @@
 #include "engine/vpnshare/vpnsharecontroller.h"
 #include "engine/emergencycontroller/emergencycontroller.h"
 #include "getmyipcontroller.h"
-#include "enginesettings.h"
+#include "types/enginesettings.h"
 #include "sessionstatustimer.h"
 #include "engine/customconfigs/customconfigs.h"
 #include "engine/customconfigs/customovpnauthcredentialsstorage.h"
@@ -39,10 +39,10 @@ class Engine : public QObject
 {
     Q_OBJECT
 public:
-    explicit Engine(const EngineSettings &engineSettings);
+    explicit Engine(const types::EngineSettings &engineSettings);
     virtual ~Engine();
 
-    void setSettings(const EngineSettings &engineSettings);
+    void setSettings(const types::EngineSettings &engineSettings);
 
     void cleanup(bool isExitWithRestart, bool isFirewallChecked, bool isFirewallAlwaysOn, bool isLaunchOnStart);
     bool isCleanupFinished();
@@ -64,9 +64,9 @@ public:
     void sendDebugLog();
     void setIPv6EnabledInOS(bool b);
     bool IPv6StateInOS();
-    void getWebSessionToken(ProtoTypes::WebSessionPurpose purpose);
+    void getWebSessionToken(WEB_SESSION_PURPOSE purpose);
 
-    LoginSettings getLastLoginSettings();
+    types::LoginSettings getLastLoginSettings();
     QString getAuthHash();
     void clearCredentials();
 
@@ -108,10 +108,8 @@ public:
     void applicationActivated();
     void applicationDeactivated();
 
-    void forceUpdateServerLocations();
-
     void detectAppropriatePacketSize();
-    void setSettingsMacAddressSpoofing(const ProtoTypes::MacAddrSpoofing &macAddrSpoofing);
+    void setSettingsMacAddressSpoofing(const types::MacAddrSpoofing &macAddrSpoofing);
     void setSplitTunnelingSettings(bool isActive, bool isExclude, const QStringList &files,
                                    const QStringList &ips, const QStringList &hosts);
 
@@ -131,28 +129,28 @@ signals:
     void initFinished(ENGINE_INIT_RET_CODE retCode);
     void bfeEnableFinished(ENGINE_INIT_RET_CODE retCode);
     void cleanupFinished();
-    void loginFinished(bool isLoginFromSavedSettings, const QString &authHash, const apiinfo::PortMap &portMap);
+    void loginFinished(bool isLoginFromSavedSettings, const QString &authHash, const types::PortMap &portMap);
     void loginStepMessage(LOGIN_MESSAGE msg);
     void loginError(LOGIN_RET retCode, const QString &errorMessage);
     void sessionDeleted();
-    void sessionStatusUpdated(const apiinfo::SessionStatus &sessionStatus);
-    void notificationsUpdated(const QVector<apiinfo::Notification> &notifications);
-    void checkUpdateUpdated(const apiinfo::CheckUpdate &checkUpdate);
-    void updateVersionChanged(uint progressPercent, const ProtoTypes::UpdateVersionState &state, const ProtoTypes::UpdateVersionError &error);
+    void sessionStatusUpdated(const types::SessionStatus &sessionStatus);
+    void notificationsUpdated(const QVector<types::Notification> &notifications);
+    void checkUpdateUpdated(const types::CheckUpdate &checkUpdate);
+    void updateVersionChanged(uint progressPercent, const UPDATE_VERSION_STATE &state, const UPDATE_VERSION_ERROR &error);
     void myIpUpdated(const QString &ip, bool success, bool isDisconnected);
     void statisticsUpdated(quint64 bytesIn, quint64 bytesOut, bool isTotalBytes);
-    void protocolPortChanged(const ProtoTypes::Protocol &protocol, const uint port);
+    void protocolPortChanged(const PROTOCOL &protocol, const uint port);
 
     void requestUsername();
     void requestPassword();
 
     void emergencyConnected();
     void emergencyDisconnected();
-    void emergencyConnectError(ProtoTypes::ConnectError err);
+    void emergencyConnectError(CONNECT_ERROR err);
 
     void sendDebugLogFinished(bool bSuccess);
     void confirmEmailFinished(bool bSuccess);
-    void webSessionToken(ProtoTypes::WebSessionPurpose purpose, const QString &tempSessionToken);
+    void webSessionToken(WEB_SESSION_PURPOSE purpose, const QString &tempSessionToken);
     void firewallStateChanged(bool isEnabled);
     void testTunnelResult(bool bSuccess);
     void lostConnectionToHelper();
@@ -167,11 +165,11 @@ signals:
 
     void detectionCpuUsageAfterConnected(const QStringList processesList);
 
-    void networkChanged(ProtoTypes::NetworkInterface networkInterface);
+    void networkChanged(types::NetworkInterface networkInterface);
     // void engineSettingsChanged(const ProtoTypes::EngineSettings &engineSettings);
 
-    void macAddrSpoofingChanged(const ProtoTypes::MacAddrSpoofing &macAddrSpoofing);
-    void sendUserWarning(ProtoTypes::UserWarningType userWarningType);
+    void macAddrSpoofingChanged(const types::MacAddrSpoofing &macAddrSpoofing);
+    void sendUserWarning(USER_WARNING_TYPE userWarningType);
     void internetConnectivityChanged(bool connectivity);
     void packetSizeChanged(bool isAuto, int mtu);
     void packetSizeDetectionStateChanged(bool on, bool isError);
@@ -195,7 +193,7 @@ private slots:
     void connectClickImpl(const LocationID &locationId);
     void disconnectClickImpl();
     void sendDebugLogImpl();
-    void getWebSessionTokenImpl(ProtoTypes::WebSessionPurpose purpose);
+    void getWebSessionTokenImpl(WEB_SESSION_PURPOSE purpose);
     void signOutImpl(bool keepFirewallOn);
     void signOutImplAfterDisconnect(bool keepFirewallOn);
     void continueWithUsernameAndPasswordImpl(const QString &username, const QString &password, bool bSave);
@@ -209,11 +207,9 @@ private slots:
     void firewallOnImpl();
     void firewallOffImpl();
     void speedRatingImpl(int rating, const QString &localExternalIp);
-    void setSettingsImpl(const EngineSettings &engineSettings);
+    void setSettingsImpl(const types::EngineSettings &engineSettings);
     void updateServerConfigsImpl();
     void checkForceDisconnectNode(const QStringList &forceDisconnectNodes);
-
-    void forceUpdateServerLocationsImpl();
 
     void startProxySharingImpl(PROXY_SHARING_TYPE proxySharingType);
     void stopProxySharingImpl();
@@ -224,7 +220,7 @@ private slots:
     void applicationActivatedImpl();
     void applicationDeactivatedImpl();
 
-    void setSettingsMacAddressSpoofingImpl(const ProtoTypes::MacAddrSpoofing &macAddrSpoofing);
+    void setSettingsMacAddressSpoofingImpl(const types::MacAddrSpoofing &macAddrSpoofing);
     void setSplitTunnelingSettingsImpl(bool isActive, bool isExclude, const QStringList &files,
                                        const QStringList &ips, const QStringList &hosts);
 
@@ -232,19 +228,19 @@ private slots:
     void onReadyForNetworkRequests();
     void onLoginControllerStepMessage(LOGIN_MESSAGE msg);
 
-    void onServerLocationsAnswer(SERVER_API_RET_CODE retCode, const QVector<apiinfo::Location> &serverLocations,
+    void onServerLocationsAnswer(SERVER_API_RET_CODE retCode, const QVector<types::Location> &serverLocations,
                                  QStringList forceDisconnectNodes, uint userRole);
 
-    void onSessionAnswer(SERVER_API_RET_CODE retCode, const apiinfo::SessionStatus &sessionStatus, uint userRole);
-    void onNotificationsAnswer(SERVER_API_RET_CODE retCode, const QVector<apiinfo::Notification> &notifications, uint userRole);
+    void onSessionAnswer(SERVER_API_RET_CODE retCode, const types::SessionStatus &sessionStatus, uint userRole);
+    void onNotificationsAnswer(SERVER_API_RET_CODE retCode, const QVector<types::Notification> &notifications, uint userRole);
     void onServerConfigsAnswer(SERVER_API_RET_CODE retCode, const QString &config, uint userRole);
-    void onCheckUpdateAnswer(const apiinfo::CheckUpdate &checkUpdate, bool bNetworkErrorOccured, uint userRole);
+    void onCheckUpdateAnswer(const types::CheckUpdate &checkUpdate, bool bNetworkErrorOccured, uint userRole);
     void onHostIPsChanged(const QStringList &hostIps);
     void onWhitelistedIPsChanged(const QSet<QString> &ips);
     void onMyIpAnswer(const QString &ip, bool success, bool isDisconnected);
     void onDebugLogAnswer(SERVER_API_RET_CODE retCode, uint userRole);
     void onConfirmEmailAnswer(SERVER_API_RET_CODE retCode, uint userRole);
-    void onStaticIpsAnswer(SERVER_API_RET_CODE retCode, const apiinfo::StaticIps &staticIps, uint userRole);
+    void onStaticIpsAnswer(SERVER_API_RET_CODE retCode, const types::StaticIps &staticIps, uint userRole);
     void onWebSessionAnswer(SERVER_API_RET_CODE retCode, const QString &token, uint userRole);
 
     void onUpdateServerResources();
@@ -253,12 +249,12 @@ private slots:
     void onConnectionManagerConnected();
     void onConnectionManagerDisconnected(DISCONNECT_REASON reason);
     void onConnectionManagerReconnecting();
-    void onConnectionManagerError(ProtoTypes::ConnectError err);
+    void onConnectionManagerError(CONNECT_ERROR err);
     void onConnectionManagerInternetConnectivityChanged(bool connectivity);
     void onConnectionManagerStatisticsUpdated(quint64 bytesIn, quint64 bytesOut, bool isTotalBytes);
     void onConnectionManagerInterfaceUpdated(const QString &interfaceName);
     void onConnectionManagerConnectingToHostname(const QString &hostname, const QString &ip, const QString &dnsServer);
-    void onConnectionManagerProtocolPortChanged(const ProtoTypes::Protocol &protocol, const uint port);
+    void onConnectionManagerProtocolPortChanged(const PROTOCOL &protocol, const uint port);
     void onConnectionManagerTestTunnelResult(bool success, const QString & ipAddress);
     void onConnectionManagerWireGuardAtKeyLimit();
 
@@ -280,9 +276,9 @@ private slots:
 
     void onEmergencyControllerConnected();
     void onEmergencyControllerDisconnected(DISCONNECT_REASON reason);
-    void onEmergencyControllerError(ProtoTypes::ConnectError err);
+    void onEmergencyControllerError(CONNECT_ERROR err);
 
-    void onRefetchServerCredentialsFinished(bool success, const apiinfo::ServerCredentials &serverCredentials, const QString &serverConfig);
+    void onRefetchServerCredentialsFinished(bool success, const types::ServerCredentials &serverCredentials, const QString &serverConfig);
 
     void getNewNotifications();
 
@@ -292,19 +288,19 @@ private slots:
     void onLocationsModelWhitelistCustomConfigIpsChanged(const QStringList &ips);
 
     void onNetworkOnlineStateChange(bool isOnline);
-    void onNetworkChange(const ProtoTypes::NetworkInterface &networkInterface);
+    void onNetworkChange(const types::NetworkInterface &networkInterface);
     void onPacketSizeControllerPacketSizeChanged(bool isAuto, int mtu);
     void onPacketSizeControllerFinishedSizeDetection(bool isError);
 
-    void onMacAddressSpoofingChanged(const ProtoTypes::MacAddrSpoofing &macAddrSpoofing);
-    void onMacAddressControllerSendUserWarning(ProtoTypes::UserWarningType userWarningType);
+    void onMacAddressSpoofingChanged(const types::MacAddrSpoofing &macAddrSpoofing);
+    void onMacAddressControllerSendUserWarning(USER_WARNING_TYPE userWarningType);
 #ifdef Q_OS_MAC
     void onMacAddressControllerRobustMacSpoofApplied();
 #endif
 
     void stopPacketDetectionImpl();
 
-    void onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, ProtoTypes::ConnectError err, const LocationID &location);
+    void onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, CONNECT_ERROR err, const LocationID &location);
 
     void checkForAppUpdate();
 
@@ -317,7 +313,7 @@ private:
     void updateProxySettings();
     bool verifyContentsSha256(const QString &filename, const QString &compareHash);
 
-    EngineSettings engineSettings_;
+    types::EngineSettings engineSettings_;
     IHelper *helper_;
     FirewallController *firewallController_;
     NetworkAccessManager *networkAccessManager_;
@@ -351,7 +347,7 @@ private:
     LOGIN_STATE loginState_;
     FirewallExceptions firewallExceptions_;
 
-    LoginSettings loginSettings_;
+    types::LoginSettings loginSettings_;
     QRecursiveMutex loginSettingsMutex_;
 
     QTimer *updateServerResourcesTimer_;
@@ -371,8 +367,8 @@ private:
 
     QMutex mutex_;
 
-    apiinfo::SessionStatus prevSessionStatus_;
-    apiinfo::SessionStatus prevSessionForLogging_;
+    types::SessionStatus prevSessionStatus_;
+    types::SessionStatus prevSessionForLogging_;
 
     std::atomic<bool> isBlockConnect_;
     std::atomic<bool> isCleanupFinished_;
@@ -381,20 +377,20 @@ private:
     QString locationName_;
 
     QString lastConnectingHostname_;
-    ProtoTypes::Protocol lastConnectingProtocol_;
+    PROTOCOL lastConnectingProtocol_;
 
     bool isNeedReconnectAfterRequestUsernameAndPassword_;
 
     bool online_;
 
-    ProtoTypes::PacketSize packetSize_;
+    types::PacketSize packetSize_;
     QThread *packetSizeControllerThread_;
     bool runningPacketDetection_;
 
     enum {UPDATE_SERVER_RESOURCES_PERIOD = 24 * 60 * 60 * 1000}; // 24 hours
     enum {NOTIFICATIONS_UPDATE_PERIOD = 60 * 60 * 1000}; // 1 hour
 
-    void startLoginController(const LoginSettings &loginSettings, bool bFromConnectedState);
+    void startLoginController(const types::LoginSettings &loginSettings, bool bFromConnectedState);
     void updateSessionStatus();
     void updateServerLocations();
     void updateFirewallSettings();
@@ -412,7 +408,7 @@ private:
 
     bool overrideUpdateChannelWithInternal_;
     bool bPrevNetworkInterfaceInitialized_;
-    ProtoTypes::NetworkInterface prevNetworkInterface_;
+    types::NetworkInterface prevNetworkInterface_;
 };
 
 #endif // ENGINE_H

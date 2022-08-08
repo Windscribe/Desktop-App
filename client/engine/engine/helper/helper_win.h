@@ -30,14 +30,14 @@ public:
                                    const QStringList &files, const QStringList &ips,
                                    const QStringList &hosts) override;
     void sendConnectStatus(bool isConnected, bool isCloseTcpSocket, bool isKeepLocalSocket, const AdapterGatewayInfo &defaultAdapter, const AdapterGatewayInfo &vpnAdapter,
-                           const QString &connectedIp, const ProtocolType &protocol) override;
+                           const QString &connectedIp, const PROTOCOL &protocol) override;
     bool setCustomDnsWhileConnected(bool isIkev2, unsigned long ifIndex, const QString &overrideDnsIpAddress) override;
 
      // WireGuard functions
     IHelper::ExecuteError startWireGuard(const QString &exeName, const QString &deviceName) override;
     bool stopWireGuard() override;
     bool configureWireGuard(const WireGuardConfig &config) override;
-    bool getWireGuardStatus(WireGuardStatus *status) override;
+    bool getWireGuardStatus(types::WireGuardStatus *status) override;
     void setDefaultWireGuardDeviceName(const QString &deviceName) override;
 
     // Windows specific functions

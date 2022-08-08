@@ -1,17 +1,21 @@
 #include "preferences.h"
+
+#include <QSettings>
+#include <QSystemTrayIcon>
+
 #include "../persistentstate.h"
 #include "detectlanrange.h"
-#include "guisettingsfromver1.h"
 #include "utils/extraconfig.h"
 #include "utils/logger.h"
 #include "utils/utils.h"
 #include "utils/ipvalidation.h"
-#include <QSettings>
-#include <QSystemTrayIcon>
+#include "types/global_consts.h"
+#include "legacy_protobuf_support/legacy_protobuf.h"
 
 #if defined(Q_OS_WINDOWS)
 #include "utils/winutils.h"
 #endif
+
 
 Preferences::Preferences(QObject *parent) : QObject(parent)
   , receivingEngineSettings_(false)
@@ -19,51 +23,51 @@ Preferences::Preferences(QObject *parent) : QObject(parent)
 #if defined(Q_OS_LINUX)
     // ProtoTypes::ConnectionSettings has IKEv2 as default protocol in default instance.
     // But Linux doesn't support IKEv2. It is necessary to change with UDP.
-    auto settings = engineSettings_.connection_settings();
-    settings.set_protocol(ProtoTypes::Protocol::PROTOCOL_UDP);
-    settings.set_port(443);
-    *engineSettings_.mutable_connection_settings() = settings;
+    auto settings = engineSettings_.connectionSettings();
+    settings.protocol = PROTOCOL::OPENVPN_UDP;
+    settings.port = 443;
+    engineSettings_.setConnectionSettings(settings);
 #endif
 }
 
 bool Preferences::isLaunchOnStartup() const
 {
-    return guiSettings_.is_launch_on_startup();
+    return guiSettings_.isLaunchOnStartup;
 }
 
 void Preferences::setLaunchOnStartup(bool b)
 {
-    if (guiSettings_.is_launch_on_startup() != b)
+    if (guiSettings_.isLaunchOnStartup != b)
     {
-        guiSettings_.set_is_launch_on_startup(b);
+        guiSettings_.isLaunchOnStartup = b;
         saveGuiSettings();
-        emit isLaunchOnStartupChanged(guiSettings_.is_launch_on_startup());
+        emit isLaunchOnStartupChanged(guiSettings_.isLaunchOnStartup);
     }
 }
 
 bool Preferences::isAutoConnect() const
 {
-    return guiSettings_.is_auto_connect();
+    return guiSettings_.isAutoConnect;
 }
 
 void Preferences::setAutoConnect(bool b)
 {
-    if (guiSettings_.is_auto_connect() != b)
+    if (guiSettings_.isAutoConnect != b)
     {
-        guiSettings_.set_is_auto_connect(b);
+        guiSettings_.isAutoConnect = b;
         saveGuiSettings();
-        emit isAutoConnectChanged(guiSettings_.is_auto_connect());
+        emit isAutoConnectChanged(guiSettings_.isAutoConnect);
     }
 }
 
 bool Preferences::isAllowLanTraffic() const
 {
-    return engineSettings_.is_allow_lan_traffic();
+    return engineSettings_.isAllowLanTraffic();
 }
 
 void Preferences::setAllowLanTraffic(bool b)
 {
-    if (engineSettings_.is_allow_lan_traffic() != b)
+    if (engineSettings_.isAllowLanTraffic() != b)
     {
         const auto address = Utils::getLocalIP();
         if (b && !DetectLanRange::isRfcLanRange(address)) {
@@ -72,8 +76,8 @@ void Preferences::setAllowLanTraffic(bool b)
             emit invalidLanAddressNotification(address);
         }
 
-        engineSettings_.set_is_allow_lan_traffic(b);
-        emit isAllowLanTrafficChanged(engineSettings_.is_allow_lan_traffic());
+        engineSettings_.setIsAllowLanTraffic(b);
+        emit isAllowLanTrafficChanged(engineSettings_.isAllowLanTraffic());
         emit updateEngineSettings();
     }
 }
@@ -81,14 +85,14 @@ void Preferences::setAllowLanTraffic(bool b)
 #if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
 bool Preferences::isMinimizeAndCloseToTray() const
 {
-    return QSystemTrayIcon::isSystemTrayAvailable() && guiSettings_.is_minimize_and_close_to_tray();
+    return QSystemTrayIcon::isSystemTrayAvailable() && guiSettings_.isMinimizeAndCloseToTray;
 }
 
 void Preferences::setMinimizeAndCloseToTray(bool b)
 {
-    if (guiSettings_.is_minimize_and_close_to_tray() != b)
+    if (guiSettings_.isMinimizeAndCloseToTray != b)
     {
-        guiSettings_.set_is_minimize_and_close_to_tray(b);
+        guiSettings_.isMinimizeAndCloseToTray = b;
         saveGuiSettings();
         emit minimizeAndCloseToTrayChanged(b);
     }
@@ -97,16 +101,16 @@ void Preferences::setMinimizeAndCloseToTray(bool b)
 #elif defined Q_OS_MAC
 bool Preferences::isHideFromDock() const
 {
-    return guiSettings_.is_hide_from_dock();
+    return guiSettings_.isHideFromDock;
 }
 
 void Preferences::setHideFromDock(bool b)
 {
-    if (guiSettings_.is_hide_from_dock() != b)
+    if (guiSettings_.isHideFromDock != b)
     {
-        guiSettings_.set_is_hide_from_dock(b);
+        guiSettings_.isHideFromDock = b;
         saveGuiSettings();
-        emit hideFromDockChanged(guiSettings_.is_hide_from_dock());
+        emit hideFromDockChanged(guiSettings_.isHideFromDock);
     }
 }
 #elif defined Q_OS_LINUX
@@ -115,14 +119,14 @@ void Preferences::setHideFromDock(bool b)
 
 bool Preferences::isStartMinimized() const
 {
-    return guiSettings_.is_start_minimized();
+    return guiSettings_.isStartMinimized;
 }
 
 void Preferences::setStartMinimized(bool b)
 {
-    if(guiSettings_.is_start_minimized() != b)
+    if(guiSettings_.isStartMinimized != b)
     {
-        guiSettings_.set_is_start_minimized(b);
+        guiSettings_.isStartMinimized = b;
         saveGuiSettings();
         emit isStartMinimizedChanged(b);
     }
@@ -131,29 +135,29 @@ void Preferences::setStartMinimized(bool b)
 
 bool Preferences::isShowNotifications() const
 {
-    return guiSettings_.is_show_notifications();
+    return guiSettings_.isShowNotifications;
 }
 
 void Preferences::setShowNotifications(bool b)
 {
-    if (guiSettings_.is_show_notifications() != b)
+    if (guiSettings_.isShowNotifications != b)
     {
-        guiSettings_.set_is_show_notifications(b);
+        guiSettings_.isShowNotifications = b;
         saveGuiSettings();
-        emit isShowNotificationsChanged(guiSettings_.is_show_notifications());
+        emit isShowNotificationsChanged(guiSettings_.isShowNotifications);
     }
 }
 
-ProtoTypes::BackgroundSettings Preferences::backgroundSettings() const
+types::BackgroundSettings Preferences::backgroundSettings() const
 {
-    return guiSettings_.background_settings();
+    return guiSettings_.backgroundSettings;
 }
 
-void Preferences::setBackgroundSettings(const ProtoTypes::BackgroundSettings &backgroundSettings)
+void Preferences::setBackgroundSettings(const types::BackgroundSettings &backgroundSettings)
 {
-    if (!google::protobuf::util::MessageDifferencer::Equals(guiSettings_.background_settings(), backgroundSettings))
+    if (guiSettings_.backgroundSettings != backgroundSettings)
     {
-        *guiSettings_.mutable_background_settings() = backgroundSettings;
+        guiSettings_.backgroundSettings = backgroundSettings;
         saveGuiSettings();
         emit backgroundSettingsChanged(backgroundSettings);
     }
@@ -161,194 +165,192 @@ void Preferences::setBackgroundSettings(const ProtoTypes::BackgroundSettings &ba
 
 bool Preferences::isDockedToTray() const
 {
-    return guiSettings_.is_docked_to_tray();
+    return guiSettings_.isDockedToTray;
 }
 
 void Preferences::setDockedToTray(bool b)
 {
-    if (guiSettings_.is_docked_to_tray() != b)
+    if (guiSettings_.isDockedToTray != b)
     {
-        guiSettings_.set_is_docked_to_tray(b);
+        guiSettings_.isDockedToTray = b;
         saveGuiSettings();
-        emit isDockedToTrayChanged(guiSettings_.is_docked_to_tray());
+        emit isDockedToTrayChanged(guiSettings_.isDockedToTray);
     }
 }
 
 const QString Preferences::language() const
 {
-    return QString::fromStdString(engineSettings_.language());
+    return engineSettings_.language();
 }
 
 void Preferences::setLanguage(const QString &lang)
 {
-    if (QString::fromStdString(engineSettings_.language()) != lang)
+    if (engineSettings_.language() != lang)
     {
-        engineSettings_.set_language(lang.toStdString());
+        engineSettings_.setLanguage(lang);
         emit languageChanged(lang);
     }
 }
 
-ProtoTypes::OrderLocationType Preferences::locationOrder() const
+ORDER_LOCATION_TYPE Preferences::locationOrder() const
 {
-    return guiSettings_.order_location();
+    return guiSettings_.orderLocation;
 }
 
-void Preferences::setLocationOrder(ProtoTypes::OrderLocationType o)
+void Preferences::setLocationOrder(ORDER_LOCATION_TYPE o)
 {
-    if (guiSettings_.order_location() != o)
+    if (guiSettings_.orderLocation != o)
     {
-        guiSettings_.set_order_location(o);
+        guiSettings_.orderLocation = o;
         saveGuiSettings();
-        emit locationOrderChanged(guiSettings_.order_location());
+        emit locationOrderChanged(guiSettings_.orderLocation);
     }
 }
 
-ProtoTypes::LatencyDisplayType Preferences::latencyDisplay() const
+LATENCY_DISPLAY_TYPE Preferences::latencyDisplay() const
 {
-    return guiSettings_.latency_display();
+    return guiSettings_.latencyDisplay;
 }
 
-void Preferences::setLatencyDisplay(ProtoTypes::LatencyDisplayType l)
+void Preferences::setLatencyDisplay(LATENCY_DISPLAY_TYPE l)
 {
-    if (guiSettings_.latency_display() != l)
+    if (guiSettings_.latencyDisplay != l)
     {
-        guiSettings_.set_latency_display(l);
+        guiSettings_.latencyDisplay = l;
         saveGuiSettings();
-        emit latencyDisplayChanged(guiSettings_.latency_display());
+        emit latencyDisplayChanged(guiSettings_.latencyDisplay);
     }
 }
 
-ProtoTypes::UpdateChannel Preferences::updateChannel() const
+UPDATE_CHANNEL Preferences::updateChannel() const
 {
-    return engineSettings_.update_channel();
+    return engineSettings_.updateChannel();
 }
 
-void Preferences::setUpdateChannel(ProtoTypes::UpdateChannel c)
+void Preferences::setUpdateChannel(UPDATE_CHANNEL c)
 {
-    if (engineSettings_.update_channel() != c)
+    if (engineSettings_.updateChannel() != c)
     {
-        engineSettings_.set_update_channel(c);
-        emit updateChannelChanged(engineSettings_.update_channel());
+        engineSettings_.setUpdateChannel(c);
+        emit updateChannelChanged(engineSettings_.updateChannel());
         emit updateEngineSettings();
     }
 }
 
-ProtoTypes::NetworkWhiteList Preferences::networkWhiteList()
+QVector<types::NetworkInterface> Preferences::networkWhiteList()
 {
     return PersistentState::instance().networkWhitelist();
 }
 
-void Preferences::setNetworkWhiteList(ProtoTypes::NetworkWhiteList l)
+void Preferences::setNetworkWhiteList(const QVector<types::NetworkInterface> &l)
 {
-    if (!google::protobuf::util::MessageDifferencer::Equals(PersistentState::instance().networkWhitelist(), l))
+    if (PersistentState::instance().networkWhitelist() != l)
     {
         PersistentState::instance().setNetworkWhitelist(l);
         emit networkWhiteListChanged(l);
     }
 }
 
-const ProtoTypes::ProxySettings &Preferences::proxySettings() const
+const types::ProxySettings &Preferences::proxySettings() const
 {
-    return engineSettings_.proxy_settings();
+    return engineSettings_.proxySettings();
 }
 
-void Preferences::setProxySettings(const ProtoTypes::ProxySettings &ps)
+void Preferences::setProxySettings(const types::ProxySettings &ps)
 {
-    if(!google::protobuf::util::MessageDifferencer::Equals(engineSettings_.proxy_settings(), ps))
+    if (engineSettings_.proxySettings() != ps)
     {
-        *engineSettings_.mutable_proxy_settings() = ps;
-        emit proxySettingsChanged(engineSettings_.proxy_settings());
+        engineSettings_.setProxySettings(ps);
+        emit proxySettingsChanged(engineSettings_.proxySettings());
         emit updateEngineSettings();
     }
 }
 
-const ProtoTypes::FirewallSettings &Preferences::firewalSettings() const
+const types::FirewallSettings &Preferences::firewalSettings() const
 {
-    return engineSettings_.firewall_settings();
+    return engineSettings_.firewallSettings();
 }
 
-void Preferences::setFirewallSettings(const ProtoTypes::FirewallSettings &fm)
+void Preferences::setFirewallSettings(const types::FirewallSettings &fs)
 {
-    if(!google::protobuf::util::MessageDifferencer::Equals(engineSettings_.firewall_settings(), fm))
+    if(engineSettings_.firewallSettings() != fs)
     {
-        *engineSettings_.mutable_firewall_settings() = fm;
-        emit firewallSettingsChanged(engineSettings_.firewall_settings());
+        engineSettings_.setFirewallSettings(fs);
+        emit firewallSettingsChanged(engineSettings_.firewallSettings());
         emit updateEngineSettings();
     }
 }
 
-const ProtoTypes::ConnectionSettings &Preferences::connectionSettings() const
+const types::ConnectionSettings &Preferences::connectionSettings() const
 {
-    return engineSettings_.connection_settings();
+    return engineSettings_.connectionSettings();
 }
 
-void Preferences::setConnectionSettings(const ProtoTypes::ConnectionSettings &cm)
+void Preferences::setConnectionSettings(const types::ConnectionSettings &cs)
 {
-    if(!google::protobuf::util::MessageDifferencer::Equals(engineSettings_.connection_settings(), cm))
+    if (engineSettings_.connectionSettings() != cs)
     {
-        *engineSettings_.mutable_connection_settings() = cm;
-        emit connectionSettingsChanged(engineSettings_.connection_settings());
+        engineSettings_.setConnectionSettings(cs);
+        emit connectionSettingsChanged(engineSettings_.connectionSettings());
         emit updateEngineSettings();
     }
 }
 
-const ProtoTypes::ApiResolution &Preferences::apiResolution() const
+const types::DnsResolutionSettings &Preferences::apiResolution() const
 {
-    return engineSettings_.api_resolution();
+    return engineSettings_.dnsResolutionSettings();
 }
 
-void Preferences::setApiResolution(const ProtoTypes::ApiResolution &ar)
+void Preferences::setApiResolution(const types::DnsResolutionSettings &s)
 {
-    if(!google::protobuf::util::MessageDifferencer::Equals(engineSettings_.api_resolution(), ar))
+    if(engineSettings_.dnsResolutionSettings() != s)
     {
-        *engineSettings_.mutable_api_resolution() = ar;
-        emit apiResolutionChanged(engineSettings_.api_resolution());
+        engineSettings_.setDnsResolutionSettings(s);
+        emit apiResolutionChanged(engineSettings_.dnsResolutionSettings());
         emit updateEngineSettings();
     }
 }
 
-const ProtoTypes::PacketSize &Preferences::packetSize() const
+const types::PacketSize &Preferences::packetSize() const
 {
-    return engineSettings_.packet_size();
+    return engineSettings_.packetSize();
 }
 
-void Preferences::setPacketSize(const ProtoTypes::PacketSize &ps)
+void Preferences::setPacketSize(const types::PacketSize &ps)
 {
-    if(!google::protobuf::util::MessageDifferencer::Equals(engineSettings_.packet_size(), ps))
+    if(engineSettings_.packetSize() != ps)
     {
-        *engineSettings_.mutable_packet_size() = ps;
-        emit packetSizeChanged(engineSettings_.packet_size());
+        engineSettings_.setPacketSize(ps);
+        emit packetSizeChanged(engineSettings_.packetSize());
         emit updateEngineSettings();
     }
 }
 
-const ProtoTypes::MacAddrSpoofing &Preferences::macAddrSpoofing() const
+const types::MacAddrSpoofing &Preferences::macAddrSpoofing() const
 {
-    return engineSettings_.mac_addr_spoofing();
+    return engineSettings_.macAddrSpoofing();
 }
 
-void Preferences::setMacAddrSpoofing(const ProtoTypes::MacAddrSpoofing &mas)
+void Preferences::setMacAddrSpoofing(const types::MacAddrSpoofing &mas)
 {
-    // qDebug() << "Preferences::SetMacAddrSpoofing()";
-    if(!google::protobuf::util::MessageDifferencer::Equals(engineSettings_.mac_addr_spoofing(), mas))
+    if(engineSettings_.macAddrSpoofing() != mas)
     {
-        // qDebug() << "Actually updating GUI copy of engine settings with mac_addr_spoofing";
-        *engineSettings_.mutable_mac_addr_spoofing() = mas;
-        emit macAddrSpoofingChanged(engineSettings_.mac_addr_spoofing());
+        engineSettings_.setMacAddrSpoofing(mas);
+        emit macAddrSpoofingChanged(engineSettings_.macAddrSpoofing());
     }
 }
 
 bool Preferences::isIgnoreSslErrors() const
 {
-    return engineSettings_.is_ignore_ssl_errors();
+    return engineSettings_.isIgnoreSslErrors();
 }
 
 void Preferences::setIgnoreSslErrors(bool b)
 {
-    if (engineSettings_.is_ignore_ssl_errors() != b)
+    if (engineSettings_.isIgnoreSslErrors() != b)
     {
-        engineSettings_.set_is_ignore_ssl_errors(b);
-        emit isIgnoreSslErrorsChanged(engineSettings_.is_ignore_ssl_errors());
+        engineSettings_.setIsIgnoreSslErrors(b);
+        emit isIgnoreSslErrorsChanged(engineSettings_.isIgnoreSslErrors());
         emit updateEngineSettings();
     }
 }
@@ -356,47 +358,47 @@ void Preferences::setIgnoreSslErrors(bool b)
 #if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
 bool Preferences::isKillTcpSockets() const
 {
-    return engineSettings_.is_close_tcp_sockets();
+    return engineSettings_.isCloseTcpSockets();
 }
 
 void Preferences::setKillTcpSockets(bool b)
 {
-    if (engineSettings_.is_close_tcp_sockets() != b)
+    if (engineSettings_.isCloseTcpSockets() != b)
     {
-        engineSettings_.set_is_close_tcp_sockets(b);
-        emit isKillTcpSocketsChanged(engineSettings_.is_close_tcp_sockets());
+        engineSettings_.setIsCloseTcpSockets(b);
+        emit isKillTcpSocketsChanged(engineSettings_.isCloseTcpSockets());
         emit updateEngineSettings();
     }
 }
 #endif
 
-const ProtoTypes::ShareSecureHotspot &Preferences::shareSecureHotspot() const
+const types::ShareSecureHotspot &Preferences::shareSecureHotspot() const
 {
-    return guiSettings_.share_secure_hotspot();
+    return guiSettings_.shareSecureHotspot;
 }
 
-void Preferences::setShareSecureHotspot(const ProtoTypes::ShareSecureHotspot &ss)
+void Preferences::setShareSecureHotspot(const types::ShareSecureHotspot &ss)
 {
-    if(!google::protobuf::util::MessageDifferencer::Equals(guiSettings_.share_secure_hotspot(), ss))
+    if(guiSettings_.shareSecureHotspot != ss)
     {
-        *guiSettings_.mutable_share_secure_hotspot() = ss;
+        guiSettings_.shareSecureHotspot = ss;
         saveGuiSettings();
-        emit shareSecureHotspotChanged(guiSettings_.share_secure_hotspot());
+        emit shareSecureHotspotChanged(guiSettings_.shareSecureHotspot);
     }
 }
 
-const ProtoTypes::ShareProxyGateway &Preferences::shareProxyGateway() const
+const types::ShareProxyGateway &Preferences::shareProxyGateway() const
 {
-    return guiSettings_.share_proxy_gateway();
+    return guiSettings_.shareProxyGateway;
 }
 
-void Preferences::setShareProxyGateway(const ProtoTypes::ShareProxyGateway &sp)
+void Preferences::setShareProxyGateway(const types::ShareProxyGateway &sp)
 {
-    if(!google::protobuf::util::MessageDifferencer::Equals(guiSettings_.share_proxy_gateway(), sp))
+    if(guiSettings_.shareProxyGateway != sp)
     {
-        *guiSettings_.mutable_share_proxy_gateway() = sp;
+        guiSettings_.shareProxyGateway = sp;
         saveGuiSettings();
-        emit shareProxyGatewayChanged(guiSettings_.share_proxy_gateway());
+        emit shareProxyGatewayChanged(guiSettings_.shareProxyGateway);
     }
 }
 
@@ -412,64 +414,63 @@ void Preferences::setDebugAdvancedParameters(const QString &p)
 }
 
 #ifdef Q_OS_WIN
-ProtoTypes::TapAdapterType Preferences::tapAdapter() const
+TAP_ADAPTER_TYPE Preferences::tapAdapter() const
 {
-    return engineSettings_.tap_adapter();
+    return engineSettings_.tapAdapter();
 }
 
-void Preferences::setTapAdapter(ProtoTypes::TapAdapterType tapAdapter)
+void Preferences::setTapAdapter(TAP_ADAPTER_TYPE tapAdapter)
 {
-    if (engineSettings_.tap_adapter() != tapAdapter)
+    if (engineSettings_.tapAdapter() != tapAdapter)
     {
-        engineSettings_.set_tap_adapter(tapAdapter);
+        engineSettings_.setTapAdapter(tapAdapter);
         emit tapAdapterChanged(tapAdapter);
         emit updateEngineSettings();
     }
 }
 #endif
 
-ProtoTypes::DnsPolicy Preferences::dnsPolicy() const
+DNS_POLICY_TYPE Preferences::dnsPolicy() const
 {
-    return engineSettings_.dns_policy();
+    return engineSettings_.dnsPolicy();
 }
 
-void Preferences::setDnsPolicy(ProtoTypes::DnsPolicy d)
+void Preferences::setDnsPolicy(DNS_POLICY_TYPE d)
 {
-    if (engineSettings_.dns_policy() != d)
+    if (engineSettings_.dnsPolicy() != d)
     {
-        engineSettings_.set_dns_policy(d);
+        engineSettings_.setDnsPolicy(d);
         emit dnsPolicyChanged(d);
         emit updateEngineSettings();
     }
 }
 
 #ifdef Q_OS_LINUX
-ProtoTypes::DnsManagerType Preferences::dnsManager() const
+DNS_MANAGER_TYPE Preferences::dnsManager() const
 {
-    return engineSettings_.dns_manager();
+    return engineSettings_.dnsManager();
 }
-void Preferences::setDnsManager(ProtoTypes::DnsManagerType d)
+void Preferences::setDnsManager(DNS_MANAGER_TYPE d)
 {
-    if (engineSettings_.dns_manager() != d)
+    if (engineSettings_.dnsManager() != d)
     {
-        engineSettings_.set_dns_manager(d);
+        engineSettings_.setDnsManager(d);
         emit dnsManagerChanged(d);
         emit updateEngineSettings();
     }
 }
 #endif
 
-DnsWhileConnectedInfo Preferences::dnsWhileConnectedInfo() const
+types::DnsWhileConnectedInfo Preferences::dnsWhileConnectedInfo() const
 {
-   return DnsWhileConnectedInfo(engineSettings_.dns_while_connected_info());
+   return engineSettings_.dnsWhileConnectedInfo();
 }
 
-void Preferences::setDnsWhileConnectedInfo(DnsWhileConnectedInfo d)
+void Preferences::setDnsWhileConnectedInfo(types::DnsWhileConnectedInfo d)
 {
-    ProtoTypes::DnsWhileConnectedInfo protoDNS = d.toProtobuf();
-    if (!google::protobuf::util::MessageDifferencer::Equals(engineSettings_.dns_while_connected_info(), protoDNS))
+    if (engineSettings_.dnsWhileConnectedInfo() != d)
     {
-        *engineSettings_.mutable_dns_while_connected_info() = protoDNS;
+        engineSettings_.setDnsWhileConnectedInfo(d);
         emit dnsWhileConnectedInfoChanged(d);
         emit updateEngineSettings();
     }
@@ -477,181 +478,175 @@ void Preferences::setDnsWhileConnectedInfo(DnsWhileConnectedInfo d)
 
 bool Preferences::keepAlive() const
 {
-    return engineSettings_.is_keep_alive_enabled();
+    return engineSettings_.isKeepAliveEnabled();
 }
 
 void Preferences::setKeepAlive(bool bEnabled)
 {
-    if (engineSettings_.is_keep_alive_enabled() != bEnabled)
+    if (engineSettings_.isKeepAliveEnabled() != bEnabled)
     {
-        engineSettings_.set_is_keep_alive_enabled(bEnabled);
+        engineSettings_.setIsKeepAliveEnabled(bEnabled);
         emit keepAliveChanged(bEnabled);
         emit updateEngineSettings();
     }
 }
 
-ProtoTypes::SplitTunneling Preferences::splitTunneling()
+types::SplitTunneling Preferences::splitTunneling()
 {
-    return guiSettings_.split_tunneling();
+    return guiSettings_.splitTunneling;
 }
 
-QList<ProtoTypes::SplitTunnelingApp> Preferences::splitTunnelingApps()
+QList<types::SplitTunnelingApp> Preferences::splitTunnelingApps()
 {
-    QList<ProtoTypes::SplitTunnelingApp> apps;
-    ProtoTypes::SplitTunneling splitTunneling = guiSettings_.split_tunneling();
-    for (int i = 0; i < splitTunneling.apps_size(); i++)
+    return guiSettings_.splitTunneling.apps.toList();
+}
+
+void Preferences::setSplitTunnelingApps(QList<types::SplitTunnelingApp> apps)
+{
+    if (guiSettings_.splitTunneling.apps.toList() != apps)
     {
-        apps.append(splitTunneling.apps(i));
+        guiSettings_.splitTunneling.apps = apps.toVector();
+        saveGuiSettings();
+        emit splitTunnelingChanged(guiSettings_.splitTunneling);
     }
-
-    return apps;
 }
 
-void Preferences::setSplitTunnelingApps(QList<ProtoTypes::SplitTunnelingApp> apps)
+QList<types::SplitTunnelingNetworkRoute> Preferences::splitTunnelingNetworkRoutes()
 {
-    ProtoTypes::SplitTunneling st;
-    for (ProtoTypes::SplitTunnelingApp app : qAsConst(apps))
+    return guiSettings_.splitTunneling.networkRoutes.toList();
+}
+
+void Preferences::setSplitTunnelingNetworkRoutes(QList<types::SplitTunnelingNetworkRoute> routes)
+{
+    if (guiSettings_.splitTunneling.networkRoutes.toList() != routes)
     {
-        *st.add_apps() = app;
+        guiSettings_.splitTunneling.networkRoutes = routes.toVector();
+        saveGuiSettings();
+        emit splitTunnelingChanged(guiSettings_.splitTunneling);
     }
-
-    *st.mutable_settings() = guiSettings_.split_tunneling().settings();
-    *st.mutable_network_routes() = guiSettings_.split_tunneling().network_routes();
-
-    *guiSettings_.mutable_split_tunneling() = st;
-    saveGuiSettings();
-    emit splitTunnelingChanged(st);
 }
 
-QList<ProtoTypes::SplitTunnelingNetworkRoute> Preferences::splitTunnelingNetworkRoutes()
+types::SplitTunnelingSettings Preferences::splitTunnelingSettings()
 {
-    QList<ProtoTypes::SplitTunnelingNetworkRoute> routes;
-    ProtoTypes::SplitTunneling splitTunneling = guiSettings_.split_tunneling();
-    for (int i = 0; i < splitTunneling.network_routes_size(); i++)
+    return guiSettings_.splitTunneling.settings;
+}
+
+void Preferences::setSplitTunnelingSettings(types::SplitTunnelingSettings settings)
+{
+    if (guiSettings_.splitTunneling.settings != settings)
     {
-        routes.append(splitTunneling.network_routes(i));
+        guiSettings_.splitTunneling.settings = settings;
+        saveGuiSettings();
+        emit splitTunnelingChanged(guiSettings_.splitTunneling);
     }
-    return routes;
-}
-
-void Preferences::setSplitTunnelingNetworkRoutes(QList<ProtoTypes::SplitTunnelingNetworkRoute> routes)
-{
-    ProtoTypes::SplitTunneling st;
-    for (ProtoTypes::SplitTunnelingNetworkRoute app : qAsConst(routes))
-    {
-        *st.add_network_routes() = app;
-    }
-
-    *st.mutable_settings() = guiSettings_.split_tunneling().settings();
-    *st.mutable_apps() = guiSettings_.split_tunneling().apps();
-
-    *guiSettings_.mutable_split_tunneling() = st;
-    saveGuiSettings();
-    emit splitTunnelingChanged(st);
-}
-
-ProtoTypes::SplitTunnelingSettings Preferences::splitTunnelingSettings()
-{
-    return guiSettings_.split_tunneling().settings();
-}
-
-void Preferences::setSplitTunnelingSettings(ProtoTypes::SplitTunnelingSettings settings)
-{
-    ProtoTypes::SplitTunneling st;
-    *st.mutable_settings() = settings;
-
-    *st.mutable_apps() = guiSettings_.split_tunneling().apps();
-    *st.mutable_network_routes() = guiSettings_.split_tunneling().network_routes();
-    *guiSettings_.mutable_split_tunneling() = st;
-    saveGuiSettings();
-    emit splitTunnelingChanged(st);
 }
 
 QString Preferences::customOvpnConfigsPath() const
 {
-    return QString::fromStdString(engineSettings_.customovpnconfigspath());
+    return engineSettings_.customOvpnConfigsPath();
 }
 
 void Preferences::setCustomOvpnConfigsPath(const QString &path)
 {
-    if (QString::fromStdString(engineSettings_.customovpnconfigspath()) != path)
+    if (engineSettings_.customOvpnConfigsPath() != path)
     {
-        engineSettings_.set_customovpnconfigspath(path.toStdString());
+        engineSettings_.setCustomOvpnConfigsPath(path);
         emit customConfigsPathChanged(path);
     }
 }
 
-void Preferences::setEngineSettings(const ProtoTypes::EngineSettings &es)
+void Preferences::setEngineSettings(const types::EngineSettings &es)
 {
     receivingEngineSettings_ = true;
-    setLanguage(QString::fromStdString(es.language()));
-    setUpdateChannel(es.update_channel());
-    setIgnoreSslErrors(es.is_ignore_ssl_errors());
+    setLanguage(es.language());
+    setUpdateChannel(es.updateChannel());
+    setIgnoreSslErrors(es.isIgnoreSslErrors());
 #if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
-    setKillTcpSockets(es.is_close_tcp_sockets());
+    setKillTcpSockets(es.isCloseTcpSockets());
 #endif
 #if defined(Q_OS_WIN)
-    setTapAdapter(es.tap_adapter());
+    setTapAdapter(es.tapAdapter());
 #endif
-    setAllowLanTraffic(es.is_allow_lan_traffic());
-    setFirewallSettings(es.firewall_settings());
-    setConnectionSettings(es.connection_settings());
-    setApiResolution(es.api_resolution());
-    setProxySettings(es.proxy_settings());
-    setPacketSize(es.packet_size());
-    setMacAddrSpoofing(es.mac_addr_spoofing());
-    setDnsPolicy(es.dns_policy());
-    setKeepAlive(es.is_keep_alive_enabled());
-    setCustomOvpnConfigsPath(QString::fromStdString(es.customovpnconfigspath()));
-    setDnsWhileConnectedInfo(DnsWhileConnectedInfo(es.dns_while_connected_info()));
+    setAllowLanTraffic(es.isAllowLanTraffic());
+    setFirewallSettings(es.firewallSettings());
+    setConnectionSettings(es.connectionSettings());
+    setApiResolution(es.dnsResolutionSettings());
+    setProxySettings(es.proxySettings());
+    setPacketSize(es.packetSize());
+    setMacAddrSpoofing(es.macAddrSpoofing());
+    setDnsPolicy(es.dnsPolicy());
+    setKeepAlive(es.isKeepAliveEnabled());
+    setCustomOvpnConfigsPath(es.customOvpnConfigsPath());
+    setDnsWhileConnectedInfo(es.dnsWhileConnectedInfo());
 #ifdef Q_OS_LINUX
-    setDnsManager(es.dns_manager());
+    setDnsManager(es.dnsManager());
 #endif
     receivingEngineSettings_ = false;
 }
 
-/*void Preferences::setGuiSettings(const ProtoTypes::GuiSettings &gs)
-{
-    setLaunchOnStartup(gs.is_launch_on_startup());
-    setAutoConnect(gs.is_auto_connect());
-    setHideFromDockOrMinimizeToTray(gs.is_hide_from_dock_or_minimize_to_tray());
-    setShowNotifications(gs.is_show_notifications());
-    setLocationOrder(gs.order_location());
-    setLatencyDisplay(gs.latency_display());
-}*/
-
-ProtoTypes::EngineSettings Preferences::getEngineSettings() const
+types::EngineSettings Preferences::getEngineSettings() const
 {
     return engineSettings_;
 }
 
 void Preferences::saveGuiSettings() const
 {
+    QByteArray arr;
+    {
+        QDataStream ds(&arr, QIODevice::WriteOnly);
+        ds << magic_;
+        ds << versionForSerialization_;
+        ds << guiSettings_;
+    }
+
     QSettings settings;
-
-    int size = (int)guiSettings_.ByteSizeLong();
-    QByteArray arr(size, Qt::Uninitialized);
-    guiSettings_.SerializeToArray(arr.data(), size);
-
-    settings.setValue("guiSettings", arr);
+    SimpleCrypt simpleCrypt(SIMPLE_CRYPT_KEY);
+    settings.setValue("guiSettings", simpleCrypt.encryptToString(arr));
 }
 
 void Preferences::loadGuiSettings()
 {
-    QSettings settings;
+    bool bLoaded = false;
+    SimpleCrypt simpleCrypt(SIMPLE_CRYPT_KEY);
 
+    QSettings settings;
     if (settings.contains("guiSettings"))
     {
-        QByteArray arr = settings.value("guiSettings").toByteArray();
-        guiSettings_.ParseFromArray(arr.data(), arr.size());
+        QString str = settings.value("guiSettings").toString();
+        QByteArray arr = simpleCrypt.decryptToByteArray(str);
+
+        QDataStream ds(&arr, QIODevice::ReadOnly);
+
+        quint32 magic, version;
+        ds >> magic;
+        if (magic == magic_)
+        {
+            ds >> version;
+            if (version <= versionForSerialization_)
+            {
+                ds >> guiSettings_;
+                if (ds.status() == QDataStream::Ok)
+                {
+                    bLoaded = true;
+                }
+            }
+        }
     }
-    // if can't load from version 2
-    // then try load from version 1
-    else
+    if (!bLoaded)
     {
-        guiSettings_ = GuiSettingsFromVer1::read();
+        // try load from legacy protobuf
+        // todo remove this code at some point later
+        QByteArray arr = settings.value("guiSettings").toByteArray();
+        bLoaded = LegacyProtobufSupport::loadGuiSettings(arr, guiSettings_);
     }
-    qCDebugMultiline(LOG_BASIC) << "Gui settings:" << QString::fromStdString(guiSettings_.DebugString());
+
+    if (!bLoaded)
+    {
+        guiSettings_ = types::GuiSettings();    // reset to defaults
+    }
+
+
+    /*qCDebugMultiline(LOG_BASIC) << "Gui settings:" << QString::fromStdString(guiSettings_.DebugString());*/
 }
 
 void Preferences::validateAndUpdateIfNeeded()
@@ -659,35 +654,38 @@ void Preferences::validateAndUpdateIfNeeded()
     bool is_update_needed = false;
 
     // Reset API resolution to automatic if the ip address hasn't been specified.
-    if (!engineSettings_.api_resolution().is_automatic() &&
-        engineSettings_.api_resolution().manual_ip().empty()) {
-        engineSettings_.mutable_api_resolution()->set_is_automatic(true);
-        emit apiResolutionChanged(engineSettings_.api_resolution());
+    if (!engineSettings_.dnsResolutionSettings().getIsAutomatic() &&
+        engineSettings_.dnsResolutionSettings().getManualIp().isEmpty())
+    {
+        types::DnsResolutionSettings ds = engineSettings_.dnsResolutionSettings();
+        ds.set(true, ds.getManualIp());
+        engineSettings_.setDnsResolutionSettings(ds);
+        emit apiResolutionChanged(engineSettings_.dnsResolutionSettings());
         is_update_needed = true;
     }
 
-    if (engineSettings_.dns_while_connected_info().type() == ProtoTypes::DNS_WHILE_CONNECTED_TYPE_CUSTOM &&
-            !IpValidation::instance().isIp(QString::fromStdString(engineSettings_.dns_while_connected_info().ip_address())))
+    if (engineSettings_.dnsWhileConnectedInfo().type() == DNS_WHILE_CONNECTED_TYPE_CUSTOM &&
+            !IpValidation::instance().isIp(engineSettings_.dnsWhileConnectedInfo().ipAddress()))
     {
-        ProtoTypes::DnsWhileConnectedInfo protoDns;
-        protoDns.set_type(ProtoTypes::DNS_WHILE_CONNECTED_TYPE_ROBERT);
-        protoDns.set_ip_address("");
-        *engineSettings_.mutable_dns_while_connected_info() = protoDns;
-        emit dnsWhileConnectedInfoChanged(DnsWhileConnectedInfo(engineSettings_.dns_while_connected_info()));
+        types::DnsWhileConnectedInfo dns;
+        dns.setType(DNS_WHILE_CONNECTED_TYPE_ROBERT);
+        dns.setIpAddress("");
+        engineSettings_.setDnsWhileConnectedInfo(dns);
+        emit dnsWhileConnectedInfoChanged(engineSettings_.dnsWhileConnectedInfo());
         emit reportErrorToUser("Invalid DNS Settings", "'DNS while connected' was not configured with a valid IP Address. DNS was reverted to ROBERT (default).");
         is_update_needed = true;
     }
 
     #if defined(Q_OS_WINDOWS)
-    ProtoTypes::ConnectionSettings connSettings = engineSettings_.connection_settings();
+    types::ConnectionSettings connSettings = engineSettings_.connectionSettings();
     if (!WinUtils::isWindows64Bit() &&
-        ((connSettings.protocol() == ProtoTypes::Protocol::PROTOCOL_WSTUNNEL) ||
-         (connSettings.protocol() == ProtoTypes::Protocol::PROTOCOL_WIREGUARD)))
+        ((connSettings.protocol == PROTOCOL::WSTUNNEL) ||
+         (connSettings.protocol == PROTOCOL::WIREGUARD)))
     {
-        connSettings.set_protocol(ProtoTypes::Protocol::PROTOCOL_IKEV2);
-        connSettings.set_port(500);
-        *engineSettings_.mutable_connection_settings() = connSettings;
-        emit connectionSettingsChanged(engineSettings_.connection_settings());
+        connSettings.protocol = PROTOCOL::IKEV2;
+        connSettings.port = 500;
+        engineSettings_.setConnectionSettings(connSettings);
+        emit connectionSettingsChanged(engineSettings_.connectionSettings());
         emit reportErrorToUser("WireGuard and WStunnel Not Supported", "The WireGuard and WStunnel protocols are no longer supported on 32-bit Windows. The 'Connection Mode' protocol has been changed to IKEv2.");
         is_update_needed = true;
     }
@@ -704,15 +702,15 @@ bool Preferences::isReceivingEngineSettings() const
 
 bool Preferences::isShowLocationLoad() const
 {
-    return guiSettings_.is_show_location_health();
+    return guiSettings_.isShowLocationHealth;
 }
 
 void Preferences::setShowLocationLoad(bool b)
 {
-    if (guiSettings_.is_show_location_health() != b)
+    if (guiSettings_.isShowLocationHealth != b)
     {
-        guiSettings_.set_is_show_location_health(b);
+        guiSettings_.isShowLocationHealth = b;
         saveGuiSettings();
-        emit showLocationLoadChanged(guiSettings_.is_show_location_health());
+        emit showLocationLoadChanged(guiSettings_.isShowLocationHealth);
     }
 }

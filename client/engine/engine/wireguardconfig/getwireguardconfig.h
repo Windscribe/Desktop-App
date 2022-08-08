@@ -2,7 +2,7 @@
 #define GETWIREGUARDCONFIG_H
 
 #include <QObject>
-#include "engine/types/types.h"
+#include "types/enums.h"
 #include "wireguardconfig.h"
 #include "utils/simplecrypt.h"
 
@@ -49,8 +49,13 @@ private:
     void setWireGuardKeyPair(const QString &publicKey, const QString &privateKey);
     bool getWireGuardPeerInfo(QString &presharedKey, QString &allowedIPs);
     void setWireGuardPeerInfo(const QString &presharedKey, const QString &allowedIPs);
-    ProtoApiInfo::WireGuardConfig readWireGuardConfigFromSettings();
-    void writeWireGuardConfigToSettings(const ProtoApiInfo::WireGuardConfig &wgConfig);
+    WireGuardConfig readWireGuardConfigFromSettings();
+    void writeWireGuardConfigToSettings(const WireGuardConfig &wgConfig);
+
+    // for serialization
+    static constexpr quint32 magic_ = 0xFB12A73D;
+    static constexpr quint32 versionForSerialization_ = 1;  // should increment the version if the data format is changed
+
 };
 
 #endif // GETWIREGUARDCONFIG_H

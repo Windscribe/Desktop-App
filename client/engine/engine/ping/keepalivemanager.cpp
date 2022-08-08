@@ -8,7 +8,7 @@
 KeepAliveManager::KeepAliveManager(QObject *parent, IConnectStateController *stateController) : QObject(parent),
     isEnabled_(false), curConnectState_(CONNECT_STATE_DISCONNECTED), pingHostIcmp_(this, stateController)
 {
-    connect(stateController, SIGNAL(stateChanged(CONNECT_STATE,DISCONNECT_REASON,ProtoTypes::ConnectError,LocationID)), SLOT(onConnectStateChanged(CONNECT_STATE,DISCONNECT_REASON,ProtoTypes::ConnectError,LocationID)));
+    connect(stateController, SIGNAL(stateChanged(CONNECT_STATE,DISCONNECT_REASON,CONNECT_ERROR,LocationID)), SLOT(onConnectStateChanged(CONNECT_STATE,DISCONNECT_REASON,CONNECT_ERROR,LocationID)));
     connect(&timer_, SIGNAL(timeout()), SLOT(onTimer()));
     connect(&pingHostIcmp_, SIGNAL(pingFinished(bool,int,QString,bool)), SLOT(onPingFinished(bool,int,QString,bool)));
 }
@@ -28,7 +28,7 @@ void KeepAliveManager::setEnabled(bool isEnabled)
     }
 }
 
-void KeepAliveManager::onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, ProtoTypes::ConnectError err, const LocationID &location)
+void KeepAliveManager::onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, CONNECT_ERROR err, const LocationID &location)
 {
     Q_UNUSED(reason);
     Q_UNUSED(err);

@@ -3,12 +3,13 @@
 
 #include <QObject>
 #include <QTimer>
-#include "engine/apiinfo/apiinfo.h"
-#include "engine/apiinfo/notification.h"
-#include "engine/apiinfo/portmap.h"
-#include "engine/apiinfo/staticips.h"
-#include "engine/apiinfo/checkupdate.h"
-#include "engine/proxy/proxysettings.h"
+#include "types/notification.h"
+#include "types/portmap.h"
+#include "types/staticips.h"
+#include "types/checkupdate.h"
+#include "types/proxysettings.h"
+#include "types/sessionstatus.h"
+#include "types/location.h"
 #include "dnscache.h"
 #include "curlnetworkmanager.h"
 
@@ -29,7 +30,7 @@ public:
 
     uint getAvailableUserRole();
 
-    void setProxySettings(const ProxySettings &proxySettings);
+    void setProxySettings(const types::ProxySettings &proxySettings);
     void disableProxy();
     void enableProxy();
 
@@ -46,8 +47,8 @@ public:
     void login(const QString &username, const QString &password, const QString &code2fa, uint userRole, bool isNeedCheckRequestsEnabled);
     void session(const QString &authHash, uint userRole, bool isNeedCheckRequestsEnabled);
     void serverLocations(const QString &authHash, const QString &language, uint userRole, bool isNeedCheckRequestsEnabled,
-                         const QString &revision, bool isPro, ProtocolType protocol, const QStringList &alcList);
-    void serverCredentials(const QString &authHash, uint userRole, ProtocolType protocol, bool isNeedCheckRequestsEnabled);
+                         const QString &revision, bool isPro, PROTOCOL protocol, const QStringList &alcList);
+    void serverCredentials(const QString &authHash, uint userRole, PROTOCOL protocol, bool isNeedCheckRequestsEnabled);
     void deleteSession(const QString &authHash, uint userRole, bool isNeedCheckRequestsEnabled);
     void serverConfigs(const QString &authHash, uint userRole, bool isNeedCheckRequestsEnabled);
     void portMap(const QString &authHash, uint userRole, bool isNeedCheckRequestsEnabled);
@@ -57,7 +58,7 @@ public:
 
     void myIP(bool isDisconnected, uint userRole, bool isNeedCheckRequestsEnabled);
 
-    void checkUpdate(const ProtoTypes::UpdateChannel updateChannel, uint userRole, bool isNeedCheckRequestsEnabled);
+    void checkUpdate(UPDATE_CHANNEL updateChannel, uint userRole, bool isNeedCheckRequestsEnabled);
     void debugLog(const QString &username, const QString &strLog, uint userRole, bool isNeedCheckRequestsEnabled);
     void speedRating(const QString &authHash, const QString &speedRatingHostname, const QString &ip, int rating,
                      uint userRole, bool isNeedCheckRequestsEnabled);
@@ -78,28 +79,28 @@ public:
 
 signals:
     void accessIpsAnswer(SERVER_API_RET_CODE retCode, const QStringList &hosts, uint userRole);
-    void loginAnswer(SERVER_API_RET_CODE retCode, const apiinfo::SessionStatus &sessionStatus, const QString &authHash,
+    void loginAnswer(SERVER_API_RET_CODE retCode, const types::SessionStatus &sessionStatus, const QString &authHash,
                      uint userRole, const QString &errorMessage);
-    void sessionAnswer(SERVER_API_RET_CODE retCode, const apiinfo::SessionStatus &sessionStatus, uint userRole);
-    void serverLocationsAnswer(SERVER_API_RET_CODE retCode, const QVector<apiinfo::Location> &serverLocations,
+    void sessionAnswer(SERVER_API_RET_CODE retCode, const types::SessionStatus &sessionStatus, uint userRole);
+    void serverLocationsAnswer(SERVER_API_RET_CODE retCode, const QVector<types::Location> &serverLocations,
                                QStringList forceDisconnectNodes, uint userRole);
     void serverCredentialsAnswer(SERVER_API_RET_CODE retCode, const QString &radiusUsername,
-                                 const QString &radiusPassword, ProtocolType protocol, uint userRole);
+                                 const QString &radiusPassword, PROTOCOL protocol, uint userRole);
     void serverConfigsAnswer(SERVER_API_RET_CODE retCode, const QString &config, uint userRole);
-    void portMapAnswer(SERVER_API_RET_CODE retCode, const apiinfo::PortMap &portMap, uint userRole);
+    void portMapAnswer(SERVER_API_RET_CODE retCode, const types::PortMap &portMap, uint userRole);
     void myIPAnswer(const QString &ip, bool success, bool isDisconnected, uint userRole);
-    void checkUpdateAnswer(const apiinfo::CheckUpdate &checkUpdate, bool bNetworkErrorOccured, uint userRole);
+    void checkUpdateAnswer(const types::CheckUpdate &checkUpdate, bool bNetworkErrorOccured, uint userRole);
     void debugLogAnswer(SERVER_API_RET_CODE retCode, uint userRole);
     void confirmEmailAnswer(SERVER_API_RET_CODE retCode, uint userRole);
-    void staticIpsAnswer(SERVER_API_RET_CODE retCode, const apiinfo::StaticIps &staticIps, uint userRole);
+    void staticIpsAnswer(SERVER_API_RET_CODE retCode, const types::StaticIps &staticIps, uint userRole);
     void pingTestAnswer(SERVER_API_RET_CODE retCode, const QString &data);
-    void notificationsAnswer(SERVER_API_RET_CODE retCode, QVector<apiinfo::Notification> notifications, uint userRole);
+    void notificationsAnswer(SERVER_API_RET_CODE retCode, QVector<types::Notification> notifications, uint userRole);
 
     void wgConfigsInitAnswer(SERVER_API_RET_CODE retCode, uint userRole, bool isErrorCode, int errorCode, const QString &presharedKey, const QString &allowedIps);
     void wgConfigsConnectAnswer(SERVER_API_RET_CODE retCode, uint userRole, bool isErrorCode, int errorCode, const QString &ipAddress, const QString &dnsAddress);
 
     void webSessionAnswer(SERVER_API_RET_CODE retCode, const QString &token, uint userRole);
-    void sendUserWarning(ProtoTypes::UserWarningType warning);
+    void sendUserWarning(USER_WARNING_TYPE warning);
 
     // need for add to firewall rules
     void hostIpsChanged(const QStringList &hostIps);

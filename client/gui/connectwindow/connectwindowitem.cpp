@@ -18,8 +18,8 @@ ConnectWindowItem::ConnectWindowItem(QGraphicsObject *parent, Preferences *prefe
     : ScalableGraphicsObject (parent),
       preferencesHelper_(preferencesHelper),
       networkName_(""),
-      trustType_(ProtoTypes::NETWORK_SECURED),
-      interfaceType_(ProtoTypes::NETWORK_INTERFACE_NONE),
+      trustType_(NETWORK_TRUST_SECURED),
+      interfaceType_(NETWORK_INTERFACE_NONE),
       networkActive_(false),
       connectionTime_(""),
       dataTransferred_(""),
@@ -225,17 +225,17 @@ void ConnectWindowItem::updateLocationSpeed(LocationID id, PingTime speed)
         serverRatingIndicator_->setPingTime(speed);
 }
 
-void ConnectWindowItem::updateConnectState(const ProtoTypes::ConnectState &newConnectState)
+void ConnectWindowItem::updateConnectState(const types::ConnectState &newConnectState)
 {
-    if (!google::protobuf::util::MessageDifferencer::Equals(newConnectState, prevConnectState_))
+    if (newConnectState != prevConnectState_)
     {
-        middleItem_->setIsSecured(newConnectState.connect_state_type() == ProtoTypes::CONNECTED);
+        middleItem_->setIsSecured(newConnectState.connectState == CONNECT_STATE_CONNECTED);
 
-        firewallButton_->setDisabled(isFirewallBlocked_ || (newConnectState.connect_state_type() == ProtoTypes::CONNECTING || newConnectState.connect_state_type() == ProtoTypes::DISCONNECTING));
+        firewallButton_->setDisabled(isFirewallBlocked_ || (newConnectState.connectState == CONNECT_STATE_CONNECTING || newConnectState.connectState == CONNECT_STATE_DISCONNECTING));
 
-        background_->onConnectStateChanged(newConnectState.connect_state_type(), prevConnectState_.connect_state_type());
-        connectButton_->onConnectStateChanged(newConnectState.connect_state_type(), prevConnectState_.connect_state_type());
-        serverRatingIndicator_->onConnectStateChanged(newConnectState.connect_state_type(), prevConnectState_.connect_state_type());
+        background_->onConnectStateChanged(newConnectState.connectState, prevConnectState_.connectState);
+        connectButton_->onConnectStateChanged(newConnectState.connectState, prevConnectState_.connectState);
+        serverRatingIndicator_->onConnectStateChanged(newConnectState.connectState, prevConnectState_.connectState);
         connectStateProtocolPort_->onConnectStateChanged(newConnectState, prevConnectState_);
 
         prevConnectState_ = newConnectState;
@@ -279,20 +279,20 @@ void ConnectWindowItem::updateNotificationsState(int totalMessages, int unread)
     logoButton_->setCountState(totalMessages, unread);
 }
 
-void ConnectWindowItem::updateNetworkState(ProtoTypes::NetworkInterface network)
+void ConnectWindowItem::updateNetworkState(types::NetworkInterface network)
 {
-    ProtoTypes::NetworkTrustType trusted = network.trust_type();
-    ProtoTypes::NetworkInterfaceType type = network.interface_type();
-    bool networkActive = network.active();
+    NETWORK_TRUST_TYPE trusted = network.trustType;
+    NETWORK_INTERACE_TYPE type = network.interfaceType;
+    bool networkActive = network.active;
 
     if (trustType_ != trusted || interfaceType_ != type || networkActive_ != networkActive)
     {
         QString icon = "";
-        if (type == ProtoTypes::NETWORK_INTERFACE_WIFI)
+        if (type == NETWORK_INTERFACE_WIFI)
         {
             icon += "network/WIFI_";
         }
-        else if (type == ProtoTypes::NETWORK_INTERFACE_ETH)
+        else if (type == NETWORK_INTERFACE_ETH)
         {
             icon += "network/ETHERNET_";
         }
@@ -308,7 +308,7 @@ void ConnectWindowItem::updateNetworkState(ProtoTypes::NetworkInterface network)
 
         if (icon != "")
         {
-            if (trusted == ProtoTypes::NETWORK_UNSECURED)
+            if (trusted == NETWORK_TRUST_UNSECURED)
             {
                 icon += "UNSECURED";
             }
@@ -321,7 +321,7 @@ void ConnectWindowItem::updateNetworkState(ProtoTypes::NetworkInterface network)
         }
     }
 
-    networkName_ = QString::fromStdString(network.friendly_name());
+    networkName_ = network.friendlyName;
     trustType_ = trusted;
     interfaceType_ = type;
     networkActive_ = networkActive;
@@ -339,7 +339,7 @@ void ConnectWindowItem::setInternetConnectivity(bool connectivity)
     connectButton_->setInternetConnectivity(connectivity);
 }
 
-void ConnectWindowItem::setProtocolPort(const ProtoTypes::Protocol &protocol, const uint port)
+void ConnectWindowItem::setProtocolPort(const PROTOCOL &protocol, const uint port)
 {
     connectStateProtocolPort_->setProtocolPort(protocol, port);
 }
@@ -387,7 +387,7 @@ void ConnectWindowItem::onNetworkHoverLeave()
 
 void ConnectWindowItem::onConnectStateTextHoverEnter()
 {
-    if (prevConnectState_.connect_state_type() == ProtoTypes::CONNECTED || prevConnectState_.connect_state_type() == ProtoTypes::DISCONNECTED)
+    if (prevConnectState_.connectState == CONNECT_STATE_CONNECTED || prevConnectState_.connectState == CONNECT_STATE_DISCONNECTED)
     {
         if (connectionTime_ != "") // only show if connection has been started at least once
         {
@@ -398,7 +398,7 @@ void ConnectWindowItem::onConnectStateTextHoverEnter()
             int posX = globalPt.x() + 16 * G_SCALE;
             int posY = globalPt.y() - 3 * G_SCALE;
 
-            if (prevConnectState_.connect_state_type() == ProtoTypes::DISCONNECTED)
+            if (prevConnectState_.connectState == CONNECT_STATE_DISCONNECTED)
             {
                 QString text = QT_TRANSLATE_NOOP("CommonWidgets::ToolTipWidget", "Connection to Windscribe has been terminated. ") +
                         dataTransferred_ + QT_TRANSLATE_NOOP("CommonWidgets::ToolTipWidget", " transferred in ") +
@@ -563,7 +563,7 @@ void ConnectWindowItem::onFirstOrSecondNameHoverLeave()
 
 void ConnectWindowItem::onServerRatingIndicatorHoverEnter()
 {
-    if (prevConnectState_.connect_state_type() == ProtoTypes::CONNECTED)
+    if (prevConnectState_.connectState == CONNECT_STATE_CONNECTED)
     {
         QGraphicsView *view = scene()->views().first();
         QPoint globalPt = view->mapToGlobal(serverRatingIndicator_->scenePos().toPoint());

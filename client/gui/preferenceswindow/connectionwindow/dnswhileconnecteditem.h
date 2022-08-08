@@ -6,7 +6,7 @@
 #include "../comboboxitem.h"
 #include "../editboxitem.h"
 #include "../dividerline.h"
-#include "backend/types/dnswhileconnectedinfo.h"
+#include "types/dnswhileconnectedinfo.h"
 
 #include <QVariantAnimation>
 
@@ -19,13 +19,13 @@ public:
     explicit DnsWhileConnectedItem(ScalableGraphicsObject *parent);
 
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
-    void setDNSWhileConnected(const DnsWhileConnectedInfo &dns);
+    void setDNSWhileConnected(const types::DnsWhileConnectedInfo &dns);
 
     void updateScaling() override;
     bool hasItemWithFocus() override;
 
 signals:
-    void dnsWhileConnectedInfoChanged(const DnsWhileConnectedInfo &dns);
+    void dnsWhileConnectedInfoChanged(const types::DnsWhileConnectedInfo &dns);
 
 private slots:
     void onDNSWhileConnectedModeChanged(QVariant v);
@@ -49,9 +49,9 @@ private:
     QVariantAnimation expandEnimation_;
     bool isExpanded_;
 
-    DnsWhileConnectedInfo curDNSWhileConnected_;
+    types::DnsWhileConnectedInfo curDNSWhileConnected_;
 
-    void updateHeight(DnsWhileConnectedInfo::DNS_WHILE_CONNECTED_TYPE type);
+    void updateHeight(DNS_WHILE_CONNECTED_TYPE type);
     void setHeightAndLinePos(int height);
 };
 

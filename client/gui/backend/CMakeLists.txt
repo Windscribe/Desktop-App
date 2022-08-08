@@ -5,7 +5,6 @@ target_sources(gui PRIVATE
     connectstatehelper.h
     firewallstatehelper.cpp
     firewallstatehelper.h
-    ibackend.h
     locationsmodel/alllocationsmodel.cpp
     locationsmodel/alllocationsmodel.h
     locationsmodel/basiccitiesmodel.cpp
@@ -33,14 +32,10 @@ target_sources(gui PRIVATE
     preferences/accountinfo.h
     preferences/detectlanrange.cpp
     preferences/detectlanrange.h
-    preferences/guisettingsfromver1.cpp
-    preferences/guisettingsfromver1.h
     preferences/preferences.cpp
     preferences/preferences.h
     preferences/preferenceshelper.cpp
     preferences/preferenceshelper.h
-    types/dnswhileconnectedinfo.cpp
-    types/dnswhileconnectedinfo.h
     types/upgrademodetype.cpp
     types/upgrademodetype.h
 )

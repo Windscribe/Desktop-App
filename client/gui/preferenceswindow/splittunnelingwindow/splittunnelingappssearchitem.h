@@ -14,8 +14,8 @@ public:
     explicit SplitTunnelingAppsSearchItem(ScalableGraphicsObject * parent);
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
-    QList<ProtoTypes::SplitTunnelingApp> getApps();
-    void setApps(QList<ProtoTypes::SplitTunnelingApp> apps);
+    QList<types::SplitTunnelingApp> getApps();
+    void setApps(QList<types::SplitTunnelingApp> apps);
     void setFocusOnSearchBar();
     void setLoggedIn(bool loggedIn);
 
@@ -26,7 +26,7 @@ public:
     bool hasItemWithFocus() override;
 
 signals:
-    void appsUpdated(QList<ProtoTypes::SplitTunnelingApp> apps);
+    void appsUpdated(QList<types::SplitTunnelingApp> apps);
     void searchModeExited();
     void nativeInfoErrorMessage(QString,QString);
     void scrollToRect(QRect r);
@@ -46,20 +46,20 @@ private:
     bool loggedIn_;
     SearchLineEditItem *searchLineEditItem_;
 
-    QList<ProtoTypes::SplitTunnelingApp> apps_;
-    QList<ProtoTypes::SplitTunnelingApp> filteredAppItems(QString filterString);
-    ProtoTypes::SplitTunnelingApp *appByName(QString appName);
+    QList<types::SplitTunnelingApp> apps_;
+    QList<types::SplitTunnelingApp> filteredAppItems(QString filterString);
+    types::SplitTunnelingApp *appByName(QString appName);
 
     QList<QSharedPointer<AppSearchItem>> drawnApps_;
     void updateDrawBasedOnFilterText(QString filterText);
-    void drawItemsAndUpdateHeight(int baseHeight, QList<ProtoTypes::SplitTunnelingApp> itemsToDraw);
+    void drawItemsAndUpdateHeight(int baseHeight, QList<types::SplitTunnelingApp> itemsToDraw);
     void updateItemsPosAndUpdateHeight();
 
-    void removeAppFromApps(ProtoTypes::SplitTunnelingApp app);
+    void removeAppFromApps(types::SplitTunnelingApp app);
 
-    QList<ProtoTypes::SplitTunnelingApp> systemApps_;
+    QList<types::SplitTunnelingApp> systemApps_;
     void updateSystemApps();
-    QList<ProtoTypes::SplitTunnelingApp> activeAndSystemApps();
+    QList<types::SplitTunnelingApp> activeAndSystemApps();
     void emitNotLoggedInErrorMessage();
 
     int selectableIndex(ClickableGraphicsObject *object);

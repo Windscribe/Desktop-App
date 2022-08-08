@@ -39,7 +39,7 @@ public:
 
     QString getStaticIpUsername() const;
     QString getStaticIpPassword() const;
-    apiinfo::StaticIpPortsVector getStaticIpPorts() const;
+    types::StaticIpPortsVector getStaticIpPorts() const;
 
 public slots:
     //void locationChanged(const LocationID &locationId, const QVector<ServerNode> &nodes, const QString &dnsHostName);

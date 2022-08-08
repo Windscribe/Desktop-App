@@ -27,7 +27,7 @@ void FavoriteCitiesModel::update(QVector<QSharedPointer<LocationModelItem>> loca
     emit itemsUpdated(favoriteCities_);
 }
 
-void FavoriteCitiesModel::setOrderLocationsType(ProtoTypes::OrderLocationType orderLocationsType)
+void FavoriteCitiesModel::setOrderLocationsType(ORDER_LOCATION_TYPE orderLocationsType)
 {
     orderLocationsType_ = orderLocationsType;
     sort(favoriteCities_);

@@ -41,7 +41,7 @@ void PingHost_ICMP_mac::clearPings()
     waitingPingsQueue_.clear();
 }
 
-void PingHost_ICMP_mac::setProxySettings(const ProxySettings &proxySettings)
+void PingHost_ICMP_mac::setProxySettings(const types::ProxySettings &proxySettings)
 {
     //todo
     Q_UNUSED(proxySettings);

@@ -5,7 +5,7 @@
 #include <QPropertyAnimation>
 #include "commongraphics/clickablegraphicsobject.h"
 #include "commongraphics/imageitem.h"
-#include "utils/protobuf_includes.h"
+#include "types/connectstate.h"
 
 namespace ConnectWindow {
 
@@ -18,7 +18,7 @@ public:
     QRectF boundingRect() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
-    void onConnectStateChanged(ProtoTypes::ConnectStateType newConnectState, ProtoTypes::ConnectStateType prevConnectState);
+    void onConnectStateChanged(CONNECT_STATE newConnectState, CONNECT_STATE prevConnectState);
     void setInternetConnectivity(bool online);
     void setSplitRouting(bool on);
 
@@ -32,7 +32,7 @@ private slots:
     void onConnectingRingOpacityAnimationValueChanged(const QVariant &value);
 
 private:
-    ProtoTypes::ConnectStateType connectStateType_;
+    CONNECT_STATE connectStateType_;
 
     ImageItem *svgItemButton_;
     ImageItem *svgItemConnectedRing_;

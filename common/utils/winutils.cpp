@@ -501,9 +501,9 @@ QString processExecutablePath( DWORD processID )
 }
 
 
-const ProtoTypes::NetworkInterface WinUtils::currentNetworkInterface()
+types::NetworkInterface WinUtils::currentNetworkInterface()
 {
-    ProtoTypes::NetworkInterface curNetworkInterface;
+    types::NetworkInterface curNetworkInterface;
 
     IfTable2Row row = lowestMetricNonWindscribeIfTableRow();
     if (!row.valid)
@@ -512,13 +512,13 @@ const ProtoTypes::NetworkInterface WinUtils::currentNetworkInterface()
         return curNetworkInterface;
     }
 
-    ProtoTypes::NetworkInterfaces interfaces = currentNetworkInterfaces(true);
+    QVector<types::NetworkInterface> interfaces = currentNetworkInterfaces(true);
 
-    for (int i = 0; i < interfaces.networks_size(); i++)
+    for (int i = 0; i < interfaces.size(); i++)
     {
-        ProtoTypes::NetworkInterface network = interfaces.networks(i);
+        types::NetworkInterface network = interfaces[i];
 
-        if (network.interface_index() == static_cast<int>(row.index))
+        if (network.interfaceIndex == static_cast<int>(row.index))
         {
             curNetworkInterface = network;
             break;
@@ -533,15 +533,15 @@ const ProtoTypes::NetworkInterface WinUtils::currentNetworkInterface()
     return curNetworkInterface;
 }
 
-ProtoTypes::NetworkInterfaces WinUtils::currentNetworkInterfaces(bool includeNoInterface)
+QVector<types::NetworkInterface> WinUtils::currentNetworkInterfaces(bool includeNoInterface)
 {
-    ProtoTypes::NetworkInterfaces networkInterfaces;
+    QVector<types::NetworkInterface> networkInterfaces;
 
     // Add "No Interface" selection
     if (includeNoInterface)
     {
-        ProtoTypes::NetworkInterface noInterfaceSelection = Utils::noNetworkInterface();
-        *networkInterfaces.add_networks() = noInterfaceSelection;
+        types::NetworkInterface noInterfaceSelection = Utils::noNetworkInterface();
+        networkInterfaces << noInterfaceSelection;
     }
 
     const QList<IpAdapter> ipAdapters = getIpAdapterTable();
@@ -553,28 +553,27 @@ ProtoTypes::NetworkInterfaces WinUtils::currentNetworkInterfaces(bool includeNoI
 
     for (const IpAdapter &ia: ipAdapters)  // IpAdapters holds list of live adapters
     {
-        ProtoTypes::NetworkInterface networkInterface;
-        networkInterface.set_interface_index(ia.index);
-        networkInterface.set_interface_guid(ia.guid.toStdString());
-        networkInterface.set_physical_address(ia.physicalAddress.toStdString());
+        types::NetworkInterface networkInterface;
+        networkInterface.interfaceIndex = ia.index;
+        networkInterface.interfaceGuid = ia.guid;
+        networkInterface.physicalAddress = ia.physicalAddress;
 
-        ProtoTypes::NetworkInterfaceType nicType =
-            ProtoTypes::NetworkInterfaceType::NETWORK_INTERFACE_NONE;
+        NETWORK_INTERACE_TYPE nicType = NETWORK_INTERFACE_NONE;
 
         for (const IfTableRow &itRow: ifTable)
         {
             if (itRow.index == static_cast<int>(ia.index))
             {
-                nicType = (ProtoTypes::NetworkInterfaceType) itRow.type;
-                networkInterface.set_mtu(itRow.mtu);
-                networkInterface.set_interface_type(nicType);
-                networkInterface.set_active(itRow.connected);
-                networkInterface.set_dw_type(itRow.dwType);
-                networkInterface.set_device_name(itRow.interfaceName.toStdString());
+                nicType = itRow.type;
+                networkInterface.mtu = itRow.mtu;
+                networkInterface.interfaceType = nicType;
+                networkInterface.active = itRow.connected;
+                networkInterface.dwType = itRow.dwType;
+                networkInterface.deviceName = itRow.interfaceName;
 
-                if (nicType == ProtoTypes::NETWORK_INTERFACE_WIFI)
+                if (nicType == NETWORK_INTERFACE_WIFI)
                 {
-                    networkInterface.set_network_or_ssid(ssidFromInterfaceGUID(itRow.guidName).toStdString());
+                    networkInterface.networkOrSSid = ssidFromInterfaceGUID(itRow.guidName);
                 }
                 break;
             }
@@ -584,12 +583,12 @@ ProtoTypes::NetworkInterfaces WinUtils::currentNetworkInterfaces(bool includeNoI
         {
             if (it2Row.index == ia.index)
             {
-                if (nicType == ProtoTypes::NETWORK_INTERFACE_ETH)
+                if (nicType == NETWORK_INTERFACE_ETH)
                 {
-                    networkInterface.set_network_or_ssid(networkNameFromInterfaceGUID(it2Row.interfaceGuid).toStdString());
+                    networkInterface.networkOrSSid = networkNameFromInterfaceGUID(it2Row.interfaceGuid);
                 }
-                networkInterface.set_connector_present(it2Row.connectorPresent);
-                networkInterface.set_end_point_interface(it2Row.endPointInterface);
+                networkInterface.connectorPresent = it2Row.connectorPresent;
+                networkInterface.endPointInterface = it2Row.endPointInterface;
                 break;
             }
         }
@@ -598,7 +597,7 @@ ProtoTypes::NetworkInterfaces WinUtils::currentNetworkInterfaces(bool includeNoI
         {
             if (ipfRow.index == ia.index)
             {
-                networkInterface.set_metric(ipfRow.metric);
+                networkInterface.metric = ipfRow.metric;
                 break;
             }
         }
@@ -607,18 +606,18 @@ ProtoTypes::NetworkInterfaces WinUtils::currentNetworkInterfaces(bool includeNoI
         {
             if (aa.index == ia.index)
             {
-                networkInterface.set_interface_name(aa.friendlyName.toStdString());
+                networkInterface.interfaceName = aa.friendlyName;
             }
         }
 
         // Filter out virtual physical adapters, but keep virtual adapters that act as Ethernet
         // network bridges (e.g. Hyper-V virtual switches on the host side).
-        if (networkInterface.dw_type() != IF_TYPE_PPP &&
-            !networkInterface.end_point_interface() &&
-            (networkInterface.interface_type() == ProtoTypes::NETWORK_INTERFACE_ETH
-                || networkInterface.connector_present()))
+        if (networkInterface.dwType != IF_TYPE_PPP &&
+            !networkInterface.endPointInterface &&
+            (networkInterface.interfaceType == NETWORK_INTERFACE_ETH
+                || networkInterface.connectorPresent))
         {
-            *networkInterfaces.add_networks() = networkInterface;
+            networkInterfaces << networkInterface;
         }
     }
 
@@ -797,18 +796,18 @@ QList<QString> WinUtils::interfaceSubkeys(QString keyPath)
     return result;
 }
 
-ProtoTypes::NetworkInterface WinUtils::interfaceByIndex(int index, bool &success)
+types::NetworkInterface WinUtils::interfaceByIndex(int index, bool &success)
 {
-    ProtoTypes::NetworkInterface result;
+    types::NetworkInterface result;
     success = false;
 
-    ProtoTypes::NetworkInterfaces nis = currentNetworkInterfaces(true);
+    QVector<types::NetworkInterface> nis = currentNetworkInterfaces(true);
 
-    for (int i = 0; i < nis.networks_size(); i++)
+    for (int i = 0; i < nis.size(); i++)
     {
-        ProtoTypes::NetworkInterface ni = nis.networks(i);
+        types::NetworkInterface ni = nis[i];
 
-        if (ni.interface_index() == index)
+        if (ni.interfaceIndex == index)
         {
             result = ni;
             success = true;
@@ -877,18 +876,18 @@ QList<IfTableRow> WinUtils::getIfTable()
 
         for (DWORD i = 0; i < pIfTable->dwNumEntries; i++)
         {
-            ProtoTypes::NetworkInterfaceType nicType = ProtoTypes::NETWORK_INTERFACE_NONE;
+            NETWORK_INTERACE_TYPE nicType = NETWORK_INTERFACE_NONE;
             if (pIfTable->table[i].dwType == IF_TYPE_ETHERNET_CSMACD)
             {
-                nicType = ProtoTypes::NETWORK_INTERFACE_ETH;
+                nicType = NETWORK_INTERFACE_ETH;
             }
             else if (pIfTable->table[i].dwType == IF_TYPE_IEEE80211)
             {
-                nicType = ProtoTypes::NETWORK_INTERFACE_WIFI;
+                nicType = NETWORK_INTERFACE_WIFI;
             }
             else if (pIfTable->table[i].dwType == IF_TYPE_PPP)
             {
-                nicType = ProtoTypes::NETWORK_INTERFACE_PPP;
+                nicType = NETWORK_INTERFACE_PPP;
             }
 
 //            qDebug() << "Index: " << pIfTable->table[i].dwIndex << ", State: " << pIfTable->table[i].dwOperStatus;

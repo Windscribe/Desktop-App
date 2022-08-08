@@ -26,7 +26,7 @@ public:
     QRectF boundingRect() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
-    void setState(ProtoTypes::ConnectState state) override;
+    void setState(types::ConnectState state) override;
     void setClickable(bool isClickable) override;
 
     void updateScaling() override;
@@ -63,7 +63,7 @@ private slots:
     void onDockedModeChanged(bool bIsDockedToTray);
 
 private:
-    ProtoTypes::ConnectState state_;
+    types::ConnectState state_;
     bool errorConnecting_;
 
     void startSpinnerAnimation();

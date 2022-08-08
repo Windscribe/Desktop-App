@@ -1,7 +1,6 @@
 #include "firewallcontroller_linux.h"
 #include <QStandardPaths>
 #include "utils/logger.h"
-#include "utils/utils.h"
 #include <QDir>
 #include "engine/helper/ihelper.h"
 
@@ -92,7 +91,7 @@ bool FirewallController_linux::firewallActualState()
     return exitCode == 0;
 }
 
-bool FirewallController_linux::whitelistPorts(const apiinfo::StaticIpPortsVector &ports)
+bool FirewallController_linux::whitelistPorts(const types::StaticIpPortsVector &ports)
 {
     Q_UNUSED(ports);
     return true;
@@ -119,7 +118,7 @@ void FirewallController_linux::enableFirewallOnBoot(bool bEnable)
     //nothing todo for Linux
 }
 
-bool FirewallController_linux::firewallOnImpl(const QString &ip, bool bAllowLanTraffic, const apiinfo::StaticIpPortsVector &ports)
+bool FirewallController_linux::firewallOnImpl(const QString &ip, bool bAllowLanTraffic, const types::StaticIpPortsVector &ports)
 {
     // TODO: this is need for Linux?
     Q_UNUSED(ports);

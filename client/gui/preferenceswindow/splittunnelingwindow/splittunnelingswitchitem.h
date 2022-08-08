@@ -8,7 +8,7 @@
 #include "../connectionwindow/subpageitem.h"
 #include "commongraphics/iconbutton.h"
 #include "tooltips/tooltiptypes.h"
-#include "utils/protobuf_includes.h"
+#include "types/splittunneling.h"
 
 namespace PreferencesWindow {
 
@@ -19,7 +19,7 @@ public:
     explicit SplitTunnelingSwitchItem(ScalableGraphicsObject *parent);
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
-    void setSettings(ProtoTypes::SplitTunnelingSettings settings);
+    void setSettings(types::SplitTunnelingSettings settings);
     void setClickable(bool clickable) override;
 
     void setAppsCount(int count);
@@ -28,7 +28,7 @@ public:
     void updateScaling() override;
 
 signals:
-    void settingsChanged(ProtoTypes::SplitTunnelingSettings settings);
+    void settingsChanged(types::SplitTunnelingSettings settings);
     void appsPageClick();
     void ipsAndHostnamesPageClick();
 
@@ -41,7 +41,7 @@ private slots:
     void onModeInfoHoverLeave();
 
 private:
-    ProtoTypes::SplitTunnelingSettings settings_;
+    types::SplitTunnelingSettings settings_;
     CheckBoxItem *activeCheckBox_;
     ComboBoxItem *modeComboBox_;
     SubPageItem *appsSubPageItem_;
@@ -56,7 +56,7 @@ private:
 
     void reloadModeComboBox();
     void updateActiveUI(bool checked);
-    void updateModeUI(ProtoTypes::SplitTunnelingMode mode);
+    void updateModeUI(SPLIT_TUNNELING_MODE mode);
 
     void updatePositions();
 

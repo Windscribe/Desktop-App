@@ -5,6 +5,7 @@
 #include "basiclocationsmodel.h"
 #include "basiccitiesmodel.h"
 #include "favoritelocationsstorage.h"
+#include "types/locationitem.h"
 #include "ipc/protobufcommand.h"
 
 class LocationsModel : public QObject
@@ -24,17 +25,17 @@ public:
     explicit LocationsModel(QObject *parent = nullptr);
     virtual ~LocationsModel();
 
-    void updateApiLocations(const ProtoTypes::LocationId &bestLocation, const QString &staticIpDeviceName,
-                            const ProtoTypes::ArrayLocations &locations);
-    void updateBestLocation(const ProtoTypes::LocationId &bestLocation);
-    void updateCustomConfigLocations(const ProtoTypes::ArrayLocations &locations);
+    void updateApiLocations(const LocationID &bestLocation, const QString &staticIpDeviceName,
+                            const QVector<types::LocationItem> &locations);
+    void updateBestLocation(const LocationID &bestLocation);
+    void updateCustomConfigLocations(const QVector<types::LocationItem> &locations);
 
     BasicLocationsModel *getAllLocationsModel();
     BasicCitiesModel *getConfiguredLocationsModel();
     BasicCitiesModel *getStaticIpsLocationsModel();
     BasicCitiesModel *getFavoriteLocationsModel();
 
-    void setOrderLocationsType(ProtoTypes::OrderLocationType orderLocationsType);
+    void setOrderLocationsType(ORDER_LOCATION_TYPE orderLocationsType);
     void switchFavorite(const LocationID &id, bool isFavorite);
     void saveFavorites();
     bool getLocationInfo(const LocationID &id, LocationInfo &li);
@@ -73,7 +74,7 @@ private:
     BasicCitiesModel *favoriteLocations_;
     FavoriteLocationsStorage favoriteLocationsStorage_;
 
-    ProtoTypes::OrderLocationType orderLocationsType_;
+    ORDER_LOCATION_TYPE orderLocationsType_;
     QVector< QSharedPointer<LocationModelItem> > apiLocations_;
     LocationID bestLocationId_;
     QVector< QSharedPointer<LocationModelItem> > customConfigLocations_;

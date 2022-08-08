@@ -2,7 +2,7 @@
 #define NETWORKREQUEST_H
 
 #include <QUrl>
-#include "engine/proxy/proxysettings.h"
+#include "types/proxysettings.h"
 
 class NetworkRequest
 {
@@ -28,14 +28,14 @@ public:
     void setIgnoreSslErrors(bool bIgnore);
     bool isIgnoreSslErrors() const;
 
-    void setProxySettings(const ProxySettings &proxySettings);
-    const ProxySettings &proxySettings() const;
+    void setProxySettings(const types::ProxySettings &proxySettings);
+    const types::ProxySettings &proxySettings() const;
 
 private:
     QUrl url_;
     int timeout_;
     bool bUseDnsCache_;
-    ProxySettings proxySettings_;
+    types::ProxySettings proxySettings_;
     bool bIgnoreSslErrors_;
     QString header_;
     QStringList dnsServers_;

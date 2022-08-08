@@ -34,8 +34,6 @@ endif()
 
 if (WIN32)
     link_directories(${WINDSCRIBE_BUILD_LIBS_PATH}/boost/lib
-                     ${WINDSCRIBE_BUILD_LIBS_PATH}/protobuf/debug/lib
-                     ${WINDSCRIBE_BUILD_LIBS_PATH}/protobuf/release/lib
                      ${WINDSCRIBE_BUILD_LIBS_PATH}/curl/lib
                      ${WINDSCRIBE_BUILD_LIBS_PATH}/cares/dll_x64/lib
                      ${WINDSCRIBE_BUILD_LIBS_PATH}/openssl/lib
@@ -43,8 +41,6 @@ if (WIN32)
 
     set (OS_SPECIFIC_LIBRARIES psapi.lib iphlpapi.lib dnsapi.lib rasapi32.lib pdh.lib
         libcurl cares libeay32 ssleay32
-        debug libprotobufd
-        optimized libprotobuf
     )
     list(APPEND PROJECT_SOURCES client.rc)
     # Generate debug information (symbol files) for Windows (release build only)
@@ -53,13 +49,12 @@ if (WIN32)
 
 elseif(APPLE)
     link_directories(${WINDSCRIBE_BUILD_LIBS_PATH}/boost/lib
-                     ${WINDSCRIBE_BUILD_LIBS_PATH}/protobuf/lib
                      ${WINDSCRIBE_BUILD_LIBS_PATH}/curl/lib
                      ${WINDSCRIBE_BUILD_LIBS_PATH}/cares/lib
                      ${WINDSCRIBE_BUILD_LIBS_PATH}/openssl/lib
     )
     set (OS_SPECIFIC_LIBRARIES
-        ssl crypto cares curl protobuf libboost_serialization.a
+        ssl crypto cares curl libboost_serialization.a
         "-framework Foundation"
         "-framework AppKit"
         "-framework CoreFoundation"
@@ -83,12 +78,11 @@ elseif(APPLE)
 
 elseif(UNIX)
     link_directories(${WINDSCRIBE_BUILD_LIBS_PATH}/boost/lib
-                     ${WINDSCRIBE_BUILD_LIBS_PATH}/protobuf/lib
                      ${WINDSCRIBE_BUILD_LIBS_PATH}/curl/lib
                      ${WINDSCRIBE_BUILD_LIBS_PATH}/cares/lib
                      ${WINDSCRIBE_BUILD_LIBS_PATH}/openssl/lib
      )
-     set (OS_SPECIFIC_LIBRARIES ssl crypto cares curl protobuf libboost_serialization.a)
+     set (OS_SPECIFIC_LIBRARIES ssl crypto cares curl libboost_serialization.a)
 endif()
 
 qt_add_executable(Windscribe
@@ -139,8 +133,6 @@ target_include_directories(Windscribe PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/engine
     ${CMAKE_CURRENT_SOURCE_DIR}/gui
     ${CMAKE_CURRENT_SOURCE_DIR}/../common
-    ${WINDSCRIBE_BUILD_LIBS_PATH}/protobuf/release/include
-    ${WINDSCRIBE_BUILD_LIBS_PATH}/protobuf/include
 )
 
 set_target_properties(Windscribe PROPERTIES

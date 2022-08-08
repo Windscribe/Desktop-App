@@ -3,7 +3,7 @@
 
 #include <QDebug>
 #include <QString>
-#include "utils/protobuf_includes.h"
+#include "types/enums.h"
 
 // TODO: convert unsigned long to int where appropriate
 // TODO: simplify these types 
@@ -30,15 +30,15 @@ struct IfTableRow
     QString guidName;
     QString interfaceName;
     QString physicalAddress;
-    ProtoTypes::NetworkInterfaceType type;
+    NETWORK_INTERACE_TYPE type;
     int dwType;
     int mtu;
     bool connected;
     int state;
     bool valid;
 
-    IfTableRow() : index(-1), guidName(""), interfaceName(""), physicalAddress(""), type(ProtoTypes::NETWORK_INTERFACE_NONE), dwType(0), mtu(0), connected(false), state(0), valid(false) {}
-    IfTableRow(int ind, QString n, QString intName, QString physAddress,  ProtoTypes::NetworkInterfaceType typ, int dwType, int mtu, bool connected, int state) :
+    IfTableRow() : index(-1), guidName(""), interfaceName(""), physicalAddress(""), type(NETWORK_INTERFACE_NONE), dwType(0), mtu(0), connected(false), state(0), valid(false) {}
+    IfTableRow(int ind, QString n, QString intName, QString physAddress,  NETWORK_INTERACE_TYPE typ, int dwType, int mtu, bool connected, int state) :
         index(ind), guidName(truncateGUID(n)), interfaceName(intName), physicalAddress(physAddress), type(typ), dwType(dwType), mtu(mtu), connected(connected), state(state), valid(true) {}
 
     void print()

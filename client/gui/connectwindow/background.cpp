@@ -148,11 +148,11 @@ void Background::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
     }
 }
 
-void Background::onConnectStateChanged(ProtoTypes::ConnectStateType newConnectState, ProtoTypes::ConnectStateType prevConnectState)
+void Background::onConnectStateChanged(CONNECT_STATE newConnectState, CONNECT_STATE prevConnectState)
 {
     Q_UNUSED(prevConnectState);
 
-    if (newConnectState == ProtoTypes::CONNECTING || newConnectState == ProtoTypes::DISCONNECTING)
+    if (newConnectState == CONNECT_STATE_CONNECTING || newConnectState == CONNECT_STATE_DISCONNECTING)
     {
         if (!qFuzzyCompare(opacityConnecting_, 1.0))
         {
@@ -182,7 +182,7 @@ void Background::onConnectStateChanged(ProtoTypes::ConnectStateType newConnectSt
                 opacityConnectedAnimation_.stop();
         }
     }
-    else if (newConnectState == ProtoTypes::CONNECTED)
+    else if (newConnectState == CONNECT_STATE_CONNECTED)
     {
         if (!qFuzzyCompare(opacityConnected_, 1.0))
         {
@@ -212,7 +212,7 @@ void Background::onConnectStateChanged(ProtoTypes::ConnectStateType newConnectSt
                 opacityConnectingAnimation_.stop();
         }
     }
-    else if (newConnectState == ProtoTypes::DISCONNECTED)
+    else if (newConnectState == CONNECT_STATE_DISCONNECTED)
     {
         if (!qFuzzyIsNull(opacityConnecting_))
         {
@@ -243,7 +243,7 @@ void Background::onConnectStateChanged(ProtoTypes::ConnectStateType newConnectSt
         }
     }
 
-    backgroundImage_.setIsConnected(newConnectState == ProtoTypes::CONNECTED);
+    backgroundImage_.setIsConnected(newConnectState == CONNECT_STATE_CONNECTED);
 }
 
 void Background::onLocationSelected(const QString &countryCode)

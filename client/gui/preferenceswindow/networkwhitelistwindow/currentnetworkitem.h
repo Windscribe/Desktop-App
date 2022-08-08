@@ -4,7 +4,7 @@
 #include <QGraphicsObject>
 #include "../baseitem.h"
 #include "../comboboxitem.h"
-#include "utils/protobuf_includes.h"
+#include "types/networkinterface.h"
 
 namespace PreferencesWindow {
 
@@ -17,23 +17,23 @@ public:
     virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR) override;
 
     void setComboVisible(bool visible);
-    void setNetworkInterface(ProtoTypes::NetworkInterface network);
-    void setNetworkInterface(ProtoTypes::NetworkInterface network, ProtoTypes::NetworkTrustType newTrustType);
+    void setNetworkInterface(types::NetworkInterface network);
+    void setNetworkInterface(types::NetworkInterface network, NETWORK_TRUST_TYPE newTrustType);
 
-    ProtoTypes::NetworkInterface currentNetworkInterface();
+    types::NetworkInterface currentNetworkInterface();
     void hideOpenPopups() override;
     void updateReadableText();
 
     void updateScaling() override;
 
 signals:
-    void currentNetworkTrustChanged(ProtoTypes::NetworkInterface network);
+    void currentNetworkTrustChanged(types::NetworkInterface network);
 
 private slots:
     void onTrustTypeChanged(const QVariant &value);
 
 private:
-    ProtoTypes::NetworkInterface networkInterface_;
+    types::NetworkInterface networkInterface_;
 
     ComboBoxItem * currentNetworkCombo_;
 

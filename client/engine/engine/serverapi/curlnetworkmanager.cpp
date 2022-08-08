@@ -131,7 +131,7 @@ bool CurlNetworkManager::isCurlSslError(CURLcode curlCode)
     }
 }
 
-void CurlNetworkManager::setProxySettings(const ProxySettings &proxySettings)
+void CurlNetworkManager::setProxySettings(const types::ProxySettings &proxySettings)
 {
     QMutexLocker lock(&mutexAccess_);
     proxySettings_ = proxySettings;

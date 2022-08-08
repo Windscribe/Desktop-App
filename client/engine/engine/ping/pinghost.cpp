@@ -20,9 +20,9 @@ void PingHost::clearPings()
     QMetaObject::invokeMethod(this, "clearPingsImpl");
 }
 
-void PingHost::setProxySettings(const ProxySettings &proxySettings)
+void PingHost::setProxySettings(const types::ProxySettings &proxySettings)
 {
-    QMetaObject::invokeMethod(this, "setProxySettingsImpl", Q_ARG(ProxySettings, proxySettings));
+    QMetaObject::invokeMethod(this, "setProxySettingsImpl", Q_ARG(types::ProxySettings, proxySettings));
 }
 
 void PingHost::disableProxy()
@@ -57,7 +57,7 @@ void PingHost::clearPingsImpl()
     pingHostIcmp_.clearPings();
 }
 
-void PingHost::setProxySettingsImpl(const ProxySettings &proxySettings)
+void PingHost::setProxySettingsImpl(const types::ProxySettings &proxySettings)
 {
     pingHostTcp_.setProxySettings(proxySettings);
     pingHostIcmp_.setProxySettings(proxySettings);

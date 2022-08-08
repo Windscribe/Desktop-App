@@ -27,11 +27,11 @@ QString AppVersion::fullVersionString() const
 {
     if (isStaging_)
     {
-        if (buildChannel_ == ProtoTypes::UPDATE_CHANNEL_BETA)
+        if (buildChannel_ == UPDATE_CHANNEL_BETA)
         {
             return "v" + semanticVersionString() + " (Beta) (Staging)";
         }
-        else if (buildChannel_ == ProtoTypes::UPDATE_CHANNEL_GUINEA_PIG)
+        else if (buildChannel_ == UPDATE_CHANNEL_GUINEA_PIG)
         {
             return "v" + semanticVersionString() + " (Guinea Pig) (Staging)";
         }
@@ -42,11 +42,11 @@ QString AppVersion::fullVersionString() const
     }
     else
     {
-        if (buildChannel_ == ProtoTypes::UPDATE_CHANNEL_BETA)
+        if (buildChannel_ == UPDATE_CHANNEL_BETA)
         {
             return "v" + semanticVersionString() + " (Beta)";
         }
-        else if (buildChannel_ == ProtoTypes::UPDATE_CHANNEL_GUINEA_PIG)
+        else if (buildChannel_ == UPDATE_CHANNEL_GUINEA_PIG)
         {
             return "v" + semanticVersionString() + " (Guinea Pig)";
         }
@@ -66,11 +66,11 @@ AppVersion::AppVersion() :
     version_(QString::asprintf("%d.%d", WINDSCRIBE_MAJOR_VERSION, WINDSCRIBE_MINOR_VERSION)),
     isStaging_(false),
 #ifdef WINDSCRIBE_IS_BETA
-    buildChannel_(ProtoTypes::UPDATE_CHANNEL_BETA)
+    buildChannel_(UPDATE_CHANNEL_BETA)
 #elif defined WINDSCRIBE_IS_GUINEA_PIG
-    buildChannel_(ProtoTypes::UPDATE_CHANNEL_GUINEA_PIG)
+    buildChannel_(UPDATE_CHANNEL_GUINEA_PIG)
 #else
-    buildChannel_(ProtoTypes::UPDATE_CHANNEL_RELEASE)
+    buildChannel_(UPDATE_CHANNEL_RELEASE)
 #endif
 {
 }

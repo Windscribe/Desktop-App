@@ -12,7 +12,7 @@ NetworkWhiteListWindowItem::NetworkWhiteListWindowItem(ScalableGraphicsObject *p
     addItem(textItem_);
 
     currentNetworkItem_ = new CurrentNetworkItem(this);
-    connect(currentNetworkItem_, SIGNAL(currentNetworkTrustChanged(ProtoTypes::NetworkInterface)), SLOT(onCurrentNetworkTrustChanged(ProtoTypes::NetworkInterface)));
+    connect(currentNetworkItem_, SIGNAL(currentNetworkTrustChanged(types::NetworkInterface)), SLOT(onCurrentNetworkTrustChanged(types::NetworkInterface)));
     addItem(currentNetworkItem_);
 
     comboListLabelItem_ = new TextItem(this, tr("OTHER NETWORKS"), 30);
@@ -20,10 +20,10 @@ NetworkWhiteListWindowItem::NetworkWhiteListWindowItem(ScalableGraphicsObject *p
 
     networkListItem_ = new NetworkListItem(this);
     addItem(networkListItem_);
-    connect(networkListItem_, SIGNAL(networkItemsChanged(ProtoTypes::NetworkInterface)), SLOT(onNetworkListChanged(ProtoTypes::NetworkInterface)));
+    connect(networkListItem_, SIGNAL(networkItemsChanged(types::NetworkInterface)), SLOT(onNetworkListChanged(types::NetworkInterface)));
 
     connect(&LanguageController::instance(), SIGNAL(languageChanged()), SLOT(onLanguageChanged()));
-    connect(preferences, SIGNAL(networkWhiteListChanged(ProtoTypes::NetworkWhiteList)), SLOT(onNetworkWhiteListPreferencesChanged(ProtoTypes::NetworkWhiteList)));
+    connect(preferences, SIGNAL(networkWhiteListChanged(QVector<types::NetworkInterface>)), SLOT(onNetworkWhiteListPreferencesChanged(QVector<types::NetworkInterface>)));
 
     addNetworks(preferences_->networkWhiteList());
 }
@@ -33,19 +33,19 @@ QString NetworkWhiteListWindowItem::caption()
     return QT_TRANSLATE_NOOP("PreferencesWindow::PreferencesWindowItem", "Network Whitelist");
 }
 
-void NetworkWhiteListWindowItem::setCurrentNetwork(ProtoTypes::NetworkInterface networkInterface)
+void NetworkWhiteListWindowItem::setCurrentNetwork(types::NetworkInterface networkInterface)
 {
     // update CURRENT NETWORK
-    if (networkInterface.interface_type() == ProtoTypes::NETWORK_INTERFACE_NONE)
+    if (networkInterface.interfaceType == NETWORK_INTERFACE_NONE)
     {
-        ProtoTypes::NetworkInterface currentInterface = currentNetworkItem_->currentNetworkInterface();
-        networkInterface.set_trust_type(currentInterface.trust_type());
+        types::NetworkInterface currentInterface = currentNetworkItem_->currentNetworkInterface();
+        networkInterface.trustType = currentInterface.trustType;
         currentNetworkItem_->setNetworkInterface(networkInterface);
         currentNetworkItem_->setComboVisible(false);
     }
     else
     {
-        ProtoTypes::NetworkTrustType trust = trustTypeFromPreferences(networkInterface);
+        NETWORK_TRUST_TYPE trust = trustTypeFromPreferences(networkInterface);
         currentNetworkItem_->setNetworkInterface(networkInterface, trust);
         currentNetworkItem_->setComboVisible(true);
     }
@@ -63,48 +63,48 @@ void NetworkWhiteListWindowItem::clearNetworks()
 
 void NetworkWhiteListWindowItem::initNetworks()
 {
-    ProtoTypes::NetworkInterface network1;
-    network1.set_network_or_ssid("Test Network 1");
-    network1.set_active(false);
-    network1.set_interface_type(ProtoTypes::NETWORK_INTERFACE_WIFI);
+    types::NetworkInterface network1;
+    network1.networkOrSSid = "Test Network 1";
+    network1.active = false;
+    network1.interfaceType = NETWORK_INTERFACE_WIFI;
 
-    ProtoTypes::NetworkInterface network2;
-    network2.set_network_or_ssid("Test Network 2");
-    network2.set_active(false);
-    network2.set_interface_type(ProtoTypes::NETWORK_INTERFACE_WIFI);
+    types::NetworkInterface network2;
+    network2.networkOrSSid = "Test Network 2";
+    network2.active = false;
+    network2.interfaceType = NETWORK_INTERFACE_WIFI;
 
-    ProtoTypes::NetworkInterface network3;
-    network3.set_network_or_ssid("Test Network 3");
-    network3.set_active(false);
-    network3.set_interface_type(ProtoTypes::NETWORK_INTERFACE_WIFI);
+    types::NetworkInterface network3;
+    network3.networkOrSSid = "Test Network 3";
+    network3.active = false;
+    network3.interfaceType = NETWORK_INTERFACE_WIFI;
 
     addNetwork( network1 );
     addNetwork( network2 );
     addNetwork( network3 );
 }
 
-void NetworkWhiteListWindowItem::addNetwork(ProtoTypes::NetworkInterface network, const ProtoTypes::NetworkTrustType networkTrust)
+void NetworkWhiteListWindowItem::addNetwork(types::NetworkInterface network, const NETWORK_TRUST_TYPE networkTrust)
 {
     networkListItem_->addNetwork(network, networkTrust);
     updateDescription();
 }
 
-void NetworkWhiteListWindowItem::addNetwork(ProtoTypes::NetworkInterface networkEntry)
+void NetworkWhiteListWindowItem::addNetwork(types::NetworkInterface networkEntry)
 {
-    addNetwork(networkEntry, networkEntry.trust_type());
+    addNetwork(networkEntry, networkEntry.trustType);
 }
 
-void NetworkWhiteListWindowItem::addNetworks(ProtoTypes::NetworkWhiteList list)
+void NetworkWhiteListWindowItem::addNetworks(QVector<types::NetworkInterface> list)
 {
-    for (int i = 0; i < list.networks_size(); i++)
+    for (int i = 0; i < list.size(); i++)
     {
-        addNetwork(list.networks(i));
+        addNetwork(list[i]);
     }
 }
 
 void NetworkWhiteListWindowItem::updateDescription()
 {
-    if (networkListItem_->networkWhiteList().networks_size() >= 1)
+    if (networkListItem_->networkWhiteList().size() >= 1)
     {
         textItem_->setText(tr("Windscribe will auto-disconnect when you join an unsecured wifi network"));
     }
@@ -116,16 +116,16 @@ void NetworkWhiteListWindowItem::updateDescription()
 
 void NetworkWhiteListWindowItem::addNewlyFoundNetworks()
 {
-    ProtoTypes::NetworkWhiteList nwl = networkListItem_->networkWhiteList();
-    ProtoTypes::NetworkWhiteList newList = preferences_->networkWhiteList();
+    QVector<types::NetworkInterface> nwl = networkListItem_->networkWhiteList();
+    QVector<types::NetworkInterface> newList = preferences_->networkWhiteList();
 
-    QList<ProtoTypes::NetworkInterface> adds;
-    for (int i = 0; i < newList.networks_size(); i++)
+    QList<types::NetworkInterface> adds;
+    for (int i = 0; i < newList.size(); i++)
     {
         bool found = false;
-        for (int j = 0; j < nwl.networks_size(); j++)
+        for (int j = 0; j < nwl.size(); j++)
         {
-            if (newList.networks(i).network_or_ssid() == nwl.networks(j).network_or_ssid())
+            if (newList[i].networkOrSSid == nwl[j].networkOrSSid)
             {
                 found = true;
                 break;
@@ -134,13 +134,13 @@ void NetworkWhiteListWindowItem::addNewlyFoundNetworks()
 
         if (!found)
         {
-            adds.append(newList.networks(i));
+            adds.append(newList[i]);
         }
     }
 
-    for (ProtoTypes::NetworkInterface network : qAsConst(adds))
+    for (types::NetworkInterface network : qAsConst(adds))
     {
-        networkListItem_->addNetwork(network, ProtoTypes::NETWORK_SECURED);
+        networkListItem_->addNetwork(network, NETWORK_TRUST_SECURED);
     }
 }
 
@@ -150,7 +150,7 @@ void NetworkWhiteListWindowItem::updateScaling()
 
 }
 
-void NetworkWhiteListWindowItem::onNetworkWhiteListPreferencesChanged(ProtoTypes::NetworkWhiteList list)
+void NetworkWhiteListWindowItem::onNetworkWhiteListPreferencesChanged(QVector<types::NetworkInterface> list)
 {
     Q_UNUSED(list);
     addNewlyFoundNetworks();
@@ -164,22 +164,22 @@ void NetworkWhiteListWindowItem::onLanguageChanged()
     updateDescription();
 }
 
-void NetworkWhiteListWindowItem::onNetworkListChanged(ProtoTypes::NetworkInterface network)
+void NetworkWhiteListWindowItem::onNetworkListChanged(types::NetworkInterface network)
 {
     Q_UNUSED(network);
     updateDescription();
     preferences_->setNetworkWhiteList(networkListItem_->networkWhiteList());
 }
 
-void NetworkWhiteListWindowItem::onCurrentNetworkTrustChanged(ProtoTypes::NetworkInterface network)
+void NetworkWhiteListWindowItem::onCurrentNetworkTrustChanged(types::NetworkInterface network)
 {
     // update preferences with new trust state
-    ProtoTypes::NetworkWhiteList entries = networkListItem_->networkWhiteList();
-    for (int i = 0; i < entries.networks_size(); i++)
+    QVector<types::NetworkInterface> entries = networkListItem_->networkWhiteList();
+    for (int i = 0; i < entries.size(); i++)
     {
-        if (entries.networks(i).network_or_ssid() == network.network_or_ssid())
+        if (entries[i].networkOrSSid == network.networkOrSSid)
         {
-            entries.mutable_networks(i)->set_trust_type(network.trust_type());
+            entries[i].trustType = network.trustType;
             break;
         }
     }
@@ -188,16 +188,16 @@ void NetworkWhiteListWindowItem::onCurrentNetworkTrustChanged(ProtoTypes::Networ
     emit currentNetworkUpdated(network);
 }
 
-ProtoTypes::NetworkTrustType NetworkWhiteListWindowItem::trustTypeFromPreferences(ProtoTypes::NetworkInterface network)
+NETWORK_TRUST_TYPE NetworkWhiteListWindowItem::trustTypeFromPreferences(types::NetworkInterface network)
 {
-    ProtoTypes::NetworkTrustType trustType = ProtoTypes::NETWORK_SECURED;
+    NETWORK_TRUST_TYPE trustType = NETWORK_TRUST_SECURED;
 
-    ProtoTypes::NetworkWhiteList list = preferences_->networkWhiteList();
-    for (int i = 0; i < list.networks_size(); i++)
+    QVector<types::NetworkInterface> list = preferences_->networkWhiteList();
+    for (int i = 0; i < list.size(); i++)
     {
-        if (network.network_or_ssid() == list.networks(i).network_or_ssid())
+        if (network.networkOrSSid == list[i].networkOrSSid)
         {
-            trustType = list.networks(i).trust_type();
+            trustType = list[i].trustType;
             break;
         }
     }

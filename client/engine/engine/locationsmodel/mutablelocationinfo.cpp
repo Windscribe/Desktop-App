@@ -146,7 +146,7 @@ QString MutableLocationInfo::getStaticIpPassword() const
     }
 }
 
-apiinfo::StaticIpPortsVector MutableLocationInfo::getStaticIpPorts() const
+types::StaticIpPortsVector MutableLocationInfo::getStaticIpPorts() const
 {
     Q_ASSERT(locationId_.isStaticIpsLocation());
     if (selectedNode_ >= 0 && selectedNode_ < nodes_.count())
@@ -156,7 +156,7 @@ apiinfo::StaticIpPortsVector MutableLocationInfo::getStaticIpPorts() const
     else
     {
         Q_ASSERT(false);
-        return apiinfo::StaticIpPortsVector();
+        return types::StaticIpPortsVector();
     }
 }
 

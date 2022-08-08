@@ -18,12 +18,12 @@ public:
     explicit ProxyGatewayItem(ScalableGraphicsObject *parent, PreferencesHelper *preferencesHelper);
 
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR) override;
-    void setProxyGatewayPars(const ProtoTypes::ShareProxyGateway &sp);
+    void setProxyGatewayPars(const types::ShareProxyGateway &sp);
 
     void updateScaling() override;
 
 signals:
-    void proxyGatewayParsChanged(const ProtoTypes::ShareProxyGateway &sp);
+    void proxyGatewayParsChanged(const types::ShareProxyGateway &sp);
 
 private slots:
     void onCheckBoxStateChanged(bool isChecked);
@@ -49,7 +49,7 @@ private:
     ComboBoxItem *comboBoxProxyType_;
     ProxyIpAddressItem *proxyIpAddressItem_;
 
-    ProtoTypes::ShareProxyGateway sp_;
+    types::ShareProxyGateway sp_;
     DividerLine *line_;
 
     QString descriptionText_;

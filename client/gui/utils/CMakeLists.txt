@@ -6,8 +6,6 @@ target_sources(gui PRIVATE
     interfaceutils.h
     makecustomshadow.cpp
     makecustomshadow.h
-    protoenumtostring.cpp
-    protoenumtostring.h
     shadowmanager.cpp
     shadowmanager.h
     textshadow.cpp

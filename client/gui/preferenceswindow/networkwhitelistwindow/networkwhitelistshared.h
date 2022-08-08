@@ -3,14 +3,14 @@
 
 #include <QList>
 #include <QString>
-#include "utils/protobuf_includes.h"
+#include "types/networkinterface.h"
 
 namespace NetworkWhiteListShared
 {
     QList<QString> networkTrustTypes();
     QList<QString> networkTrustTypesWithoutForget();
 
-    ProtoTypes::NetworkInterface networkInterfaceByFriendlyName(QString friendlyName);
+    types::NetworkInterface networkInterfaceByFriendlyName(QString friendlyName);
 }
 
 

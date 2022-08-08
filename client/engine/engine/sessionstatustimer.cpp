@@ -54,7 +54,7 @@ void SessionStatusTimer::onTimer()
     }
 }
 
-void SessionStatusTimer::onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON /*reason*/, ProtoTypes::ConnectError /*err*/, const LocationID & /*location*/)
+void SessionStatusTimer::onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON /*reason*/, CONNECT_ERROR /*err*/, const LocationID & /*location*/)
 {
     isConnected_ = (state == CONNECT_STATE_CONNECTED);
 }

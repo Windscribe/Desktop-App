@@ -35,22 +35,22 @@ private slots:
     void onEngineInitFinished(ENGINE_INIT_RET_CODE retCode);
     void onEngineBfeEnableFinished(ENGINE_INIT_RET_CODE retCode);
     void onEngineFirewallStateChanged(bool isEnabled);
-    void onEngineLoginFinished(bool isLoginFromSavedSettings, const QString &authHash, const apiinfo::PortMap &portMap);
+    void onEngineLoginFinished(bool isLoginFromSavedSettings, const QString &authHash, const types::PortMap &portMap);
     void onEngineLoginError(LOGIN_RET retCode, const QString &errorMessage);
     void onEngineLoginMessage(LOGIN_MESSAGE msg);
     void onEngineSessionDeleted();
-    void onEngineUpdateSessionStatus(const apiinfo::SessionStatus &sessionStatus);
-    void onEngineNotificationsUpdated(const QVector<apiinfo::Notification> &notifications);
-    void onEngineCheckUpdateUpdated(const apiinfo::CheckUpdate &checkUpdate);
-    void onEngineUpdateVersionChanged(uint progressPercent, const ProtoTypes::UpdateVersionState &state, const ProtoTypes::UpdateVersionError &error);
+    void onEngineUpdateSessionStatus(const types::SessionStatus &sessionStatus);
+    void onEngineNotificationsUpdated(const QVector<types::Notification> &notifications);
+    void onEngineCheckUpdateUpdated(const types::CheckUpdate &checkUpdate);
+    void onEngineUpdateVersionChanged(uint progressPercent, const UPDATE_VERSION_STATE &state, const UPDATE_VERSION_ERROR &error);
     void onEngineMyIpUpdated(const QString &ip, bool success, bool isDisconnected);
-    void onEngineConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, ProtoTypes::ConnectError err, const LocationID &locationId);
+    void onEngineConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, CONNECT_ERROR err, const LocationID &locationId);
     void onEngineStatisticsUpdated(quint64 bytesIn, quint64 bytesOut, bool isTotalBytes);
-    void onEngineProtocolPortChanged(const ProtoTypes::Protocol &protocol, const uint port);
+    void onEngineProtocolPortChanged(const PROTOCOL &protocol, const uint port);
 
     void onEngineEmergencyConnected();
     void onEngineEmergencyDisconnected();
-    void onEngineEmergencyConnectError(ProtoTypes::ConnectError err);
+    void onEngineEmergencyConnectError(CONNECT_ERROR err);
 
     void onEngineTestTunnelResult(bool bSuccess);
     void onEngineLostConnectionToHelper();
@@ -62,7 +62,7 @@ private slots:
 
     void onEngineGotoCustomOvpnConfigModeFinished();
 
-    void onEngineNetworkChanged(ProtoTypes::NetworkInterface networkInterface);
+    void onEngineNetworkChanged(types::NetworkInterface networkInterface);
 
     void onEngineDetectionCpuUsageAfterConnected(QStringList list);
 
@@ -73,16 +73,15 @@ private slots:
 
     void onEngineSendDebugLogFinished(bool bSuccess);
     void onEngineConfirmEmailFinished(bool bSuccess);
-    void onEngineWebSessionToken(ProtoTypes::WebSessionPurpose purpose, const QString &token);
+    void onEngineWebSessionToken(WEB_SESSION_PURPOSE purpose, const QString &token);
 
-    void onEngineLocationsModelItemsUpdated(const LocationID &bestLocation, const QString &staticIpDeviceName, QSharedPointer< QVector<locationsmodel::LocationItem> > items);
-    void onEngineLocationsModelItemsUpdatedCliOnly(const LocationID &bestLocation, QSharedPointer< QVector<locationsmodel::LocationItem> > items);
+    void onEngineLocationsModelItemsUpdated(const LocationID &bestLocation, const QString &staticIpDeviceName, QSharedPointer< QVector<types::LocationItem> > items);
     void onEngineLocationsModelBestLocationUpdated(const LocationID &bestLocation);
-    void onEngineLocationsModelCustomConfigItemsUpdated(QSharedPointer< QVector<locationsmodel::LocationItem> > items);
+    void onEngineLocationsModelCustomConfigItemsUpdated(QSharedPointer< QVector<types::LocationItem> > items);
     void onEngineLocationsModelPingChangedChanged(const LocationID &id, PingTime timeMs);
 
-    void onMacAddrSpoofingChanged(const ProtoTypes::MacAddrSpoofing &macAddrSpoofing);
-    void onEngineSendUserWarning(ProtoTypes::UserWarningType userWarningType);
+    void onMacAddrSpoofingChanged(const types::MacAddrSpoofing &macAddrSpoofing);
+    void onEngineSendUserWarning(USER_WARNING_TYPE userWarningType);
     void onEnginePacketSizeChanged(bool isAuto, int mtu);
     void onEnginePacketSizeDetectionStateChanged(bool on, bool isError);
 
@@ -93,7 +92,7 @@ private:
 
     Engine *engine_;
     QThread *threadEngine_;
-    EngineSettings curEngineSettings_;
+    types::EngineSettings curEngineSettings_;
 
     bool bClientAuthReceived_;
     QHash<IPC::IConnection *, ClientConnectionDescr> connections_;
@@ -101,7 +100,7 @@ private:
     //void serverCallbackAcceptFunction(IPC::IConnection *connection);
     bool handleCommand(IPC::Command *command);
     void sendEngineInitReturnCode(ENGINE_INIT_RET_CODE retCode);
-    void sendConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, ProtoTypes::ConnectError err, const LocationID &locationId);
+    void sendConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, CONNECT_ERROR err, const LocationID &locationId);
 
     void sendFirewallStateChanged(bool isEnabled);
 };

@@ -1,7 +1,12 @@
 #include "favoritelocationsstorage.h"
 
 #include <QDataStream>
+#include <QDataStream>
+#include <QIODevice>
 #include <QSettings>
+
+#include "utils/simplecrypt.h"
+#include "types/global_consts.h"
 
 void FavoriteLocationsStorage::addToFavorites(const LocationID &locationId)
 {
@@ -38,14 +43,24 @@ void FavoriteLocationsStorage::readFromSettings()
 
     if (settings.contains("favoriteLocations"))
     {
-        QByteArray buf = settings.value("favoriteLocations").toByteArray();
+        SimpleCrypt simpleCrypt(SIMPLE_CRYPT_KEY);
+        QString str = settings.value("favoriteLocations", "").toString();
+        QByteArray arr = simpleCrypt.decryptToByteArray(str);
 
-        ProtoTypes::ArrayLocationId arrIds;
-        if (arrIds.ParseFromArray(buf.data(), buf.size()))
+        QDataStream ds(&arr, QIODevice::ReadOnly);
+
+        quint32 magic, version;
+        ds >> magic;
+        if (magic == magic_)
         {
-            for (int i = 0; i < arrIds.ids_size(); ++i)
+            ds >> version;
+            if (version <= versionForSerialization_)
             {
-                favoriteLocations_.insert(LocationID::createFromProtoBuf(arrIds.ids(i)));
+                ds >> favoriteLocations_;
+                if (ds.status() != QDataStream::Ok)
+                {
+                    favoriteLocations_.clear();
+                }
             }
         }
     }
@@ -57,17 +72,16 @@ void FavoriteLocationsStorage::writeToSettings()
     if (!isFavoriteLocationsSetModified_)
         return;
 
-    ProtoTypes::ArrayLocationId arrIds;
-    for (const LocationID &lid : favoriteLocations_)
+    QByteArray arr;
     {
-        *arrIds.add_ids() = lid.toProtobuf();
+        QDataStream ds(&arr, QIODevice::WriteOnly);
+        ds << magic_;
+        ds << versionForSerialization_;
+        ds << favoriteLocations_;
     }
-
-    size_t size = arrIds.ByteSizeLong();
-    QByteArray arr(size, Qt::Uninitialized);
-    arrIds.SerializeToArray(arr.data(), (int)size);
-
     QSettings settings;
-    settings.setValue("favoriteLocations", arr);
+    SimpleCrypt simpleCrypt(SIMPLE_CRYPT_KEY);
+    settings.setValue("favoriteLocations", simpleCrypt.encryptToString(arr));
+
     isFavoriteLocationsSetModified_ = false;
 }

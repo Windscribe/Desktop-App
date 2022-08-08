@@ -24,7 +24,7 @@ public:
     virtual void setConfirmEmailResult(bool bSuccess) = 0;
     virtual void setDebugLogResult(bool bSuccess) = 0;
 
-    virtual void updateNetworkState(ProtoTypes::NetworkInterface network) = 0;
+    virtual void updateNetworkState(types::NetworkInterface network) = 0;
 
     virtual void addApplicationManually(QString filename) = 0;
 
@@ -50,7 +50,7 @@ signals:
     virtual void editAccountDetailsClick() = 0;
     virtual void addEmailButtonClick() = 0;
 
-    virtual void currentNetworkUpdated(ProtoTypes::NetworkInterface) = 0;
+    virtual void currentNetworkUpdated(types::NetworkInterface) = 0;
 
     virtual void advancedParametersClicked() = 0;
 

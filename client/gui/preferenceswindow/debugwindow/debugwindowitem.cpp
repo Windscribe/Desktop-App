@@ -6,7 +6,6 @@
 #include <QMessageBox>
 #include "commongraphics/commongraphics.h"
 #include "languagecontroller.h"
-#include "utils/protoenumtostring.h"
 #include "dpiscalemanager.h"
 #include "tooltips/tooltipcontroller.h"
 #include "utils/logger.h"
@@ -24,13 +23,13 @@ DebugWindowItem::DebugWindowItem(ScalableGraphicsObject *parent, Preferences *pr
     setFlag(QGraphicsItem::ItemIsFocusable);
 
 #ifdef Q_OS_WIN
-    connect(preferences, SIGNAL(tapAdapterChanged(ProtoTypes::TapAdapterType)), SLOT(onTapAdapterPreferencesChanged(ProtoTypes::TapAdapterType)));
+    connect(preferences, SIGNAL(tapAdapterChanged(TAP_ADAPTER_TYPE)), SLOT(onTapAdapterPreferencesChanged(TAP_ADAPTER_TYPE)));
     connect(preferencesHelper, SIGNAL(ipv6StateInOSChanged(bool)), SLOT(onPreferencesIpv6InOSStateChanged(bool)));
 #endif
-    connect(preferences, SIGNAL(apiResolutionChanged(ProtoTypes::ApiResolution)), SLOT(onApiResolutionPreferencesChanged(ProtoTypes::ApiResolution)));
-    connect(preferences, SIGNAL(dnsPolicyChanged(ProtoTypes::DnsPolicy)), SLOT(onDnsPolicyPreferencesChanged(ProtoTypes::DnsPolicy)));
+    connect(preferences, SIGNAL(apiResolutionChanged(types::DnsResolutionSettings)), SLOT(onApiResolutionPreferencesChanged(types::DnsResolutionSettings)));
+    connect(preferences, SIGNAL(dnsPolicyChanged(DNS_POLICY_TYPE)), SLOT(onDnsPolicyPreferencesChanged(DNS_POLICY_TYPE)));
 #ifdef Q_OS_LINUX
-    connect(preferences, SIGNAL(dnsManagerChanged(ProtoTypes::DnsManagerType)), SLOT(onDnsManagerPreferencesChanged(ProtoTypes::DnsManagerType)));
+    connect(preferences, SIGNAL(dnsManagerChanged(DNS_MANAGER_TYPE)), SLOT(onDnsManagerPreferencesChanged(DNS_MANAGER_TYPE)));
 #endif
     connect(preferences, SIGNAL(isIgnoreSslErrorsChanged(bool)), SLOT(onIgnoreSslErrorsPreferencesChanged(bool)));
     connect(preferences, SIGNAL(keepAliveChanged(bool)), SLOT(onKeepAlivePreferencesChanged(bool)));
@@ -62,7 +61,7 @@ DebugWindowItem::DebugWindowItem(ScalableGraphicsObject *parent, Preferences *pr
 
     apiResolutionItem_ = new ApiResolutionItem(this);
     apiResolutionItem_->setApiResolution(preferences->apiResolution());
-    connect(apiResolutionItem_, SIGNAL(apiResolutionChanged(ProtoTypes::ApiResolution)), SLOT(onApiResolutionChanged(ProtoTypes::ApiResolution)));
+    connect(apiResolutionItem_, SIGNAL(apiResolutionChanged(types::DnsResolutionSettings)), SLOT(onApiResolutionChanged(types::DnsResolutionSettings)));
     addItem(apiResolutionItem_);
 
     cbIgnoreSslErrors_ = new CheckBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::CheckBoxItem", "Ignore SSL Errors"), "");
@@ -76,7 +75,7 @@ DebugWindowItem::DebugWindowItem(ScalableGraphicsObject *parent, Preferences *pr
     addItem(cbKeepAlive_);
 
     comboBoxAppInternalDns_ = new ComboBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::ComboBoxItem", "App Internal DNS"), QString(), 50, Qt::transparent, 0, true);
-    const QList< QPair<QString, int> > dnsTypes = ProtoEnumToString::instance().getEnums(ProtoTypes::DnsPolicy_descriptor());
+    const QList< QPair<QString, int> > dnsTypes = DNS_POLICY_TYPE_toList();
     for (const auto &d : dnsTypes)
     {
         comboBoxAppInternalDns_->addItem(d.first, d.second);
@@ -88,7 +87,7 @@ DebugWindowItem::DebugWindowItem(ScalableGraphicsObject *parent, Preferences *pr
 
 #ifdef Q_OS_LINUX
     comboBoxDnsManager_ = new ComboBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::ComboBoxItem", "DNS Manager"), QString(), 50, Qt::transparent, 0, true);;
-    const QList< QPair<QString, int> > dnsManagerTypes = ProtoEnumToString::instance().getEnums(ProtoTypes::DnsManagerType_descriptor());
+    const QList< QPair<QString, int> > dnsManagerTypes = DNS_MANAGER_TYPE_toList();
     for (const auto &d : dnsManagerTypes)
     {
         comboBoxDnsManager_->addItem(d.first, d.second);
@@ -155,7 +154,7 @@ void DebugWindowItem::onTapAdapterChanged(QVariant v)
         emit installTapAdapter(tapAdapter);
     }
     preferencesHelper_->setInstalledTapAdapter(tapAdapter);*/
-    preferences_->setTapAdapter((ProtoTypes::TapAdapterType)v.toInt());
+    preferences_->setTapAdapter((TAP_ADAPTER_TYPE)v.toInt());
 }
 
 void DebugWindowItem::onIPv6StateChanged(bool isChecked)
@@ -182,11 +181,11 @@ void DebugWindowItem::onIPv6StateChanged(bool isChecked)
 }
 #endif
 
-void DebugWindowItem::onApiResolutionChanged(const ProtoTypes::ApiResolution &ar)
+void DebugWindowItem::onApiResolutionChanged(const types::DnsResolutionSettings &dns)
 {
-    preferences_->setApiResolution(ar);
+    preferences_->setApiResolution(dns);
 
-    if (!ar.is_automatic()) // only scroll when opening
+    if (!dns.getIsAutomatic()) // only scroll when opening
     {
         // 93 is expanded height
         emit scrollToPosition(static_cast<int>(apiResolutionItem_->y()) + 93 );
@@ -205,13 +204,13 @@ void DebugWindowItem::onKeepAliveStateChanged(bool isChecked)
 
 void DebugWindowItem::onAppInternalDnsItemChanged(QVariant dns)
 {
-    preferences_->setDnsPolicy((ProtoTypes::DnsPolicy)dns.toInt());
+    preferences_->setDnsPolicy((DNS_POLICY_TYPE)dns.toInt());
 }
 
 #ifdef Q_OS_LINUX
 void DebugWindowItem::onDnsManagerItemChanged(QVariant dns)
 {
-    preferences_->setDnsManager((ProtoTypes::DnsManagerType)dns.toInt());
+    preferences_->setDnsManager((DNS_MANAGER_TYPE)dns.toInt());
 }
 #endif
 
@@ -281,22 +280,22 @@ void DebugWindowItem::onKeepAlivePreferencesChanged(bool b)
     cbKeepAlive_->setState(b);
 }
 
-void DebugWindowItem::onDnsPolicyPreferencesChanged(ProtoTypes::DnsPolicy d)
+void DebugWindowItem::onDnsPolicyPreferencesChanged(DNS_POLICY_TYPE d)
 {
     comboBoxAppInternalDns_->setCurrentItem((int)d);
 }
 
 #ifdef Q_OS_LINUX
-void DebugWindowItem::onDnsManagerPreferencesChanged(ProtoTypes::DnsManagerType d)
+void DebugWindowItem::onDnsManagerPreferencesChanged(DNS_MANAGER_TYPE d)
 {
     comboBoxDnsManager_->setCurrentItem((int)d);
 }
 #endif
 
 
-void DebugWindowItem::onApiResolutionPreferencesChanged(const ProtoTypes::ApiResolution &ar)
+void DebugWindowItem::onApiResolutionPreferencesChanged(const types::DnsResolutionSettings &dns)
 {
-    apiResolutionItem_->setApiResolution(ar);
+    apiResolutionItem_->setApiResolution(dns);
 }
 
 #ifdef Q_OS_WIN
@@ -305,7 +304,7 @@ void DebugWindowItem::onPreferencesIpv6InOSStateChanged(bool bEnabled)
     checkBoxIPv6_->setState(bEnabled);
 }
 
-void DebugWindowItem::onTapAdapterPreferencesChanged(ProtoTypes::TapAdapterType tapAdapter)
+void DebugWindowItem::onTapAdapterPreferencesChanged(TAP_ADAPTER_TYPE tapAdapter)
 {
     comboBoxTapAdapter_->setCurrentItem((int)tapAdapter);
 }
@@ -313,13 +312,13 @@ void DebugWindowItem::onTapAdapterPreferencesChanged(ProtoTypes::TapAdapterType 
 void DebugWindowItem::updateTapAdaptersList()
 {
     comboBoxTapAdapter_->clear();
-    comboBoxTapAdapter_->addItem(ProtoEnumToString::instance().toString(ProtoTypes::TAP_ADAPTER), (int)ProtoTypes::TAP_ADAPTER);
+    comboBoxTapAdapter_->addItem( TAP_ADAPTER_TYPE_toString(TAP_ADAPTER), (int)TAP_ADAPTER);
 
     //if (comboBoxOpenVpn_->hasItems())
     {
         //if (comboBoxOpenVpn_->currentItem().toString().contains("2.5"))
         {
-            comboBoxTapAdapter_->addItem(ProtoEnumToString::instance().toString(ProtoTypes::WINTUN_ADAPTER), (int)ProtoTypes::WINTUN_ADAPTER);
+            comboBoxTapAdapter_->addItem(TAP_ADAPTER_TYPE_toString(WINTUN_ADAPTER), (int)WINTUN_ADAPTER);
         }
     }
     //comboBoxTapAdapter_->setCurrentItem((int)ProtoTypes::TAP_ADAPTER);

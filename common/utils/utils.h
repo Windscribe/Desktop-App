@@ -3,7 +3,8 @@
 
 #include <QString>
 #include <QStringList>
-#include "protobuf_includes.h"
+#include "types/networkinterface.h"
+#include "types/splittunneling.h"
 
 #define SAFE_DELETE(x) if (x) { delete x; x = nullptr; }
 #define SAFE_DELETE_LATER(x) if (x) { x->deleteLater(); x = nullptr; }
@@ -26,7 +27,7 @@ namespace Utils {
     std::wstring getDirPathFromFullPath(const std::wstring &fullPath);
     QString getDirPathFromFullPath(const QString &fullPath);
     QString fileNameFromFullPath(const QString &fullPath);
-    QList<ProtoTypes::SplitTunnelingApp> insertionSort(QList<ProtoTypes::SplitTunnelingApp> apps);
+    QList<types::SplitTunnelingApp> insertionSort(QList<types::SplitTunnelingApp> apps);
     bool accessibilityPermissions();
 
     unsigned long getCurrentPid();
@@ -36,10 +37,10 @@ namespace Utils {
     QString formatMacAddress(QString macAddress);
 
     // Network
-    ProtoTypes::NetworkInterface noNetworkInterface();
-    bool sameNetworkInterface(const ProtoTypes::NetworkInterface &interface1, const ProtoTypes::NetworkInterface &interface2);
-    ProtoTypes::NetworkInterface interfaceByName(const ProtoTypes::NetworkInterfaces &interfaces, const QString &interfaceName);
-    const ProtoTypes::NetworkInterfaces interfacesExceptOne(const ProtoTypes::NetworkInterfaces &interfaces, const ProtoTypes::NetworkInterface &exceptInterface);    
+    types::NetworkInterface noNetworkInterface();
+    bool sameNetworkInterface(const types::NetworkInterface &interface1, const types::NetworkInterface &interface2);
+    types::NetworkInterface interfaceByName(const QVector<types::NetworkInterface> &interfaces, const QString &interfaceName);
+    QVector<types::NetworkInterface> interfacesExceptOne(const QVector<types::NetworkInterface> &interfaces, const types::NetworkInterface &exceptInterface);
 
     bool pingWithMtu(const QString &url, int mtu);
     QString getLocalIP();

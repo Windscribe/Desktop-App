@@ -925,9 +925,9 @@ int LocationsTab::unscaledHeightOfItemViewport()
     return LOCATION_ITEM_HEIGHT * countOfVisibleItemSlots_;
 }
 
-void LocationsTab::setLatencyDisplay(ProtoTypes::LatencyDisplayType l)
+void LocationsTab::setLatencyDisplay(LATENCY_DISPLAY_TYPE l)
 {
-    bool isShowLatencyInMs = (l == ProtoTypes::LATENCY_DISPLAY_MS);
+    bool isShowLatencyInMs = (l == LATENCY_DISPLAY_MS);
     if (isShowLatencyInMs != widgetAllLocations_->isShowLatencyInMs())
     {
         widgetAllLocations_       ->setShowLatencyInMs(isShowLatencyInMs);

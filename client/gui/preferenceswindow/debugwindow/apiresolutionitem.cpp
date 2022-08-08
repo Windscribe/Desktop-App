@@ -49,14 +49,14 @@ void ApiResolutionItem::paint(QPainter *painter, const QStyleOptionGraphicsItem 
     Q_UNUSED(widget);
 }
 
-void ApiResolutionItem::setApiResolution(const ProtoTypes::ApiResolution &ar)
+void ApiResolutionItem::setApiResolution(const types::DnsResolutionSettings &dns)
 {
-    if(!google::protobuf::util::MessageDifferencer::Equals(curApiResolution_, ar))
+    if(curApiResolution_ != dns)
     {
-        curApiResolution_ = ar;
+        curApiResolution_ = dns;
         expandEnimation_.stop();
 
-        if (ar.is_automatic())
+        if (dns.getIsAutomatic())
         {
             switchItem_->setState(AutoManualSwitchItem::AUTO);
             isExpanded_ = false;
@@ -64,7 +64,7 @@ void ApiResolutionItem::setApiResolution(const ProtoTypes::ApiResolution &ar)
         }
         else
         {
-            editBoxIP_->setText(QString::fromStdString(ar.manual_ip()));
+            editBoxIP_->setText(dns.getManualIp());
             switchItem_->setState(AutoManualSwitchItem::MANUAL);
             isExpanded_ = true;
             setHeight(EXPANDED_HEIGHT*G_SCALE);
@@ -95,7 +95,7 @@ void ApiResolutionItem::onSwitchChanged(AutoManualSwitchItem::SWITCH_STATE state
         }
         isExpanded_ = true;
 
-        curApiResolution_.set_is_automatic(false);
+        curApiResolution_.set(false, curApiResolution_.getManualIp());
         emit apiResolutionChanged(curApiResolution_);
     }
     else if (isExpanded_)
@@ -107,14 +107,14 @@ void ApiResolutionItem::onSwitchChanged(AutoManualSwitchItem::SWITCH_STATE state
         }
         isExpanded_ = false;
 
-        curApiResolution_.set_is_automatic(true);
+        curApiResolution_.set(true, curApiResolution_.getManualIp());
         emit apiResolutionChanged(curApiResolution_);
     }
 }
 
 void ApiResolutionItem::onIPChanged(const QString &text)
 {
-    curApiResolution_.set_manual_ip(text.trimmed().toStdString());
+    curApiResolution_.set(curApiResolution_.getIsAutomatic(), text.trimmed());
     emit apiResolutionChanged(curApiResolution_);
 }
 

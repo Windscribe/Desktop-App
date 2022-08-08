@@ -8,7 +8,7 @@
 
 namespace PreferencesWindow {
 
-AppIncludedItem::AppIncludedItem(ProtoTypes::SplitTunnelingApp app, QString iconPath, ScalableGraphicsObject *parent) : BaseItem (parent, 50)
+AppIncludedItem::AppIncludedItem(types::SplitTunnelingApp app, QString iconPath, ScalableGraphicsObject *parent) : BaseItem (parent, 50)
     , appIcon_(iconPath), app_(app)
 {
     deleteButton_ = new IconButton(16, 16, "preferences/DELETE_ICON", "", this, OPACITY_UNHOVER_ICON_STANDALONE,OPACITY_FULL);
@@ -59,12 +59,12 @@ void AppIncludedItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *o
     painter->setPen(Qt::white);
     painter->setFont(*FontManager::instance().getFont(12, false));
     QRect textRect(40*G_SCALE, 13*G_SCALE, 200*G_SCALE, 50*G_SCALE);
-    painter->drawText(textRect, QString::fromStdString(app_.name()));
+    painter->drawText(textRect, app_.name);
 }
 
 QString AppIncludedItem::getName()
 {
-    return QString::fromStdString(app_.name());
+    return app_.name;
 }
 
 QString AppIncludedItem::getAppIcon()

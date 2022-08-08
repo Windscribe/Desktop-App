@@ -13,14 +13,14 @@ public:
     explicit SplitTunnelingItem(ScalableGraphicsObject *parent);
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
-    void setSettings(ProtoTypes::SplitTunnelingSettings settings);
+    void setSettings(types::SplitTunnelingSettings settings);
     void setAppsCount(int count);
     void setIpsAndHostnamesCount(int count);
 
     void updateScaling() override;
 
 signals:
-    void settingsChanged(ProtoTypes::SplitTunnelingSettings settings);
+    void settingsChanged(types::SplitTunnelingSettings settings);
     void appsPageClick();
     void ipsAndHostnamesPageClick();
 

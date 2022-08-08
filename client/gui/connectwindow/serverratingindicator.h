@@ -3,8 +3,8 @@
 
 #include <QGraphicsObject>
 #include "types/pingtime.h"
+#include "types/connectstate.h"
 #include "commongraphics/clickablegraphicsobject.h"
-#include "utils/protobuf_includes.h"
 #include "utils/imagewithshadow.h"
 
 namespace ConnectWindow {
@@ -18,7 +18,7 @@ public:
     QRectF boundingRect() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
-    void onConnectStateChanged(ProtoTypes::ConnectStateType newConnectState, ProtoTypes::ConnectStateType prevConnectState);
+    void onConnectStateChanged(CONNECT_STATE newConnectState, CONNECT_STATE prevConnectState);
 
     void setPingTime(const PingTime &pingTime);
 
@@ -30,7 +30,7 @@ signals:
 private:
     int width_;
     int height_;
-    ProtoTypes::ConnectStateType connectState_;
+    CONNECT_STATE connectState_;
     PingTime pingTime_;
 
     QScopedPointer<ImageWithShadow> pingOnFull_;
