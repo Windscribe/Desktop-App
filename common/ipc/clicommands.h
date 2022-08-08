@@ -5,6 +5,7 @@
 #include "types/enginesettings.h"
 #include "types/locationid.h"
 #include "types/splittunneling.h"
+#include "types/connectstate.h"
 
 namespace IPC
 {
@@ -16,12 +17,19 @@ class Connect : public Command
 {
 public:
     Connect() {}
-    explicit Connect(char *buf, int size) {}
+    explicit Connect(char *buf, int size)
+    {
+        QByteArray arr(buf, size);
+        QDataStream ds(&arr, QIODevice::ReadOnly);
+        ds >> location_;
+    }
 
     std::vector<char> getData() const override
     {
-        Q_ASSERT(false);
-        return std::vector<char>();
+        QByteArray arr;
+        QDataStream ds(&arr, QIODevice::WriteOnly);
+        ds << location_;
+        return std::vector<char>(arr.begin(), arr.end());
     }
 
     std::string getStringId() const override { return getCommandStringId(); }
@@ -42,7 +50,6 @@ public:
 
     std::vector<char> getData() const override
     {
-        Q_ASSERT(false);
         return std::vector<char>();
     }
 
@@ -62,7 +69,6 @@ public:
 
     std::vector<char> getData() const override
     {
-        Q_ASSERT(false);
         return std::vector<char>();
     }
 
@@ -78,12 +84,19 @@ class Firewall : public Command
 {
 public:
     Firewall() {}
-    explicit Firewall(char *buf, int size) {}
+    explicit Firewall(char *buf, int size)
+    {
+        QByteArray arr(buf, size);
+        QDataStream ds(&arr, QIODevice::ReadOnly);
+        ds >> isEnable_;
+    }
 
     std::vector<char> getData() const override
     {
-        Q_ASSERT(false);
-        return std::vector<char>();
+        QByteArray arr;
+        QDataStream ds(&arr, QIODevice::WriteOnly);
+        ds << isEnable_;
+        return std::vector<char>(arr.begin(), arr.end());
     }
 
     std::string getStringId() const override { return getCommandStringId(); }
@@ -104,7 +117,6 @@ public:
 
     std::vector<char> getData() const override
     {
-        Q_ASSERT(false);
         return std::vector<char>();
     }
 
@@ -120,12 +132,19 @@ class Login : public Command
 {
 public:
     Login() {}
-    explicit Login(char *buf, int size) {}
+    explicit Login(char *buf, int size)
+    {
+        QByteArray arr(buf, size);
+        QDataStream ds(&arr, QIODevice::ReadOnly);
+        ds >> username_ >> password_ >> code2fa_;
+    }
 
     std::vector<char> getData() const override
     {
-        Q_ASSERT(false);
-        return std::vector<char>();
+        QByteArray arr;
+        QDataStream ds(&arr, QIODevice::WriteOnly);
+        ds << username_ << password_ << code2fa_;
+        return std::vector<char>(arr.begin(), arr.end());
     }
 
     std::string getStringId() const override { return getCommandStringId(); }
@@ -144,12 +163,19 @@ class SignOut : public Command
 {
 public:
     SignOut() {}
-    explicit SignOut(char *buf, int size) {}
+    explicit SignOut(char *buf, int size)
+    {
+        QByteArray arr(buf, size);
+        QDataStream ds(&arr, QIODevice::ReadOnly);
+        ds >> isKeepFirewallOn_;
+    }
 
     std::vector<char> getData() const override
     {
-        Q_ASSERT(false);
-        return std::vector<char>();
+        QByteArray arr;
+        QDataStream ds(&arr, QIODevice::WriteOnly);
+        ds << isKeepFirewallOn_;
+        return std::vector<char>(arr.begin(), arr.end());
     }
 
     std::string getStringId() const override { return getCommandStringId(); }
@@ -166,12 +192,19 @@ class ConnectToLocationAnswer : public Command
 {
 public:
     ConnectToLocationAnswer() {}
-    explicit ConnectToLocationAnswer(char *buf, int size) {}
+    explicit ConnectToLocationAnswer(char *buf, int size)
+    {
+        QByteArray arr(buf, size);
+        QDataStream ds(&arr, QIODevice::ReadOnly);
+        ds >> isSuccess_ >> location_;
+    }
 
     std::vector<char> getData() const override
     {
-        Q_ASSERT(false);
-        return std::vector<char>();
+        QByteArray arr;
+        QDataStream ds(&arr, QIODevice::WriteOnly);
+        ds << isSuccess_ << location_;
+        return std::vector<char>(arr.begin(), arr.end());
     }
 
     std::string getStringId() const override { return getCommandStringId(); }
@@ -189,12 +222,19 @@ class ConnectStateChanged : public Command
 {
 public:
     ConnectStateChanged() {}
-    explicit ConnectStateChanged(char *buf, int size) {}
+    explicit ConnectStateChanged(char *buf, int size)
+    {
+        QByteArray arr(buf, size);
+        QDataStream ds(&arr, QIODevice::ReadOnly);
+        ds >> connectState;
+    }
 
     std::vector<char> getData() const override
     {
-        Q_ASSERT(false);
-        return std::vector<char>();
+        QByteArray arr;
+        QDataStream ds(&arr, QIODevice::WriteOnly);
+        ds << connectState;
+        return std::vector<char>(arr.begin(), arr.end());
     }
 
     std::string getStringId() const override { return getCommandStringId(); }
@@ -203,18 +243,27 @@ public:
         return "CliCommands::ConnectStateChanged debug string";
     }
     static std::string getCommandStringId() { return "CliCommands::ConnectStateChanged";  }
+
+    types::ConnectState connectState;
 };
 
 class FirewallStateChanged : public Command
 {
 public:
     FirewallStateChanged() {}
-    explicit FirewallStateChanged(char *buf, int size) {}
+    explicit FirewallStateChanged(char *buf, int size)
+    {
+        QByteArray arr(buf, size);
+        QDataStream ds(&arr, QIODevice::ReadOnly);
+        ds >> isFirewallEnabled_ >> isFirewallAlwaysOn_;
+    }
 
     std::vector<char> getData() const override
     {
-        Q_ASSERT(false);
-        return std::vector<char>();
+        QByteArray arr;
+        QDataStream ds(&arr, QIODevice::WriteOnly);
+        ds << isFirewallEnabled_ << isFirewallAlwaysOn_;
+        return std::vector<char>(arr.begin(), arr.end());
     }
 
     std::string getStringId() const override { return getCommandStringId(); }
@@ -236,7 +285,6 @@ public:
 
     std::vector<char> getData() const override
     {
-        Q_ASSERT(false);
         return std::vector<char>();
     }
 
@@ -256,7 +304,6 @@ public:
 
     std::vector<char> getData() const override
     {
-        Q_ASSERT(false);
         return std::vector<char>();
     }
 
@@ -272,12 +319,19 @@ class State : public Command
 {
 public:
     State() {}
-    explicit State(char *buf, int size) {}
+    explicit State(char *buf, int size)
+    {
+        QByteArray arr(buf, size);
+        QDataStream ds(&arr, QIODevice::ReadOnly);
+        ds >> isLoggedIn_ >> waitingForLoginInfo_;
+    }
 
     std::vector<char> getData() const override
     {
-        Q_ASSERT(false);
-        return std::vector<char>();
+        QByteArray arr;
+        QDataStream ds(&arr, QIODevice::WriteOnly);
+        ds << isLoggedIn_ << waitingForLoginInfo_;
+        return std::vector<char>(arr.begin(), arr.end());
     }
 
     std::string getStringId() const override { return getCommandStringId(); }
@@ -295,12 +349,19 @@ class LoginResult : public Command
 {
 public:
     LoginResult() {}
-    explicit LoginResult(char *buf, int size) {}
+    explicit LoginResult(char *buf, int size)
+    {
+        QByteArray arr(buf, size);
+        QDataStream ds(&arr, QIODevice::ReadOnly);
+        ds >> isLoggedIn_ >> loginError_;
+    }
 
     std::vector<char> getData() const override
     {
-        Q_ASSERT(false);
-        return std::vector<char>();
+        QByteArray arr;
+        QDataStream ds(&arr, QIODevice::WriteOnly);
+        ds << isLoggedIn_ << loginError_;
+        return std::vector<char>(arr.begin(), arr.end());
     }
 
     std::string getStringId() const override { return getCommandStringId(); }
@@ -322,7 +383,6 @@ public:
 
     std::vector<char> getData() const override
     {
-        Q_ASSERT(false);
         return std::vector<char>();
     }
 

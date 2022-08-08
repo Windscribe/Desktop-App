@@ -26,6 +26,29 @@ struct ConnectState
     {
         return !(*this == other);
     }
+
+    friend QDataStream& operator <<(QDataStream &stream, const ConnectState &o)
+    {
+        stream << versionForSerialization_;
+        stream << o.connectState << o.disconnectReason << o.connectError << o.location;
+        return stream;
+    }
+
+    friend QDataStream& operator >>(QDataStream &stream, ConnectState &o)
+    {
+        quint32 version;
+        stream >> version;
+        if (version > o.versionForSerialization_)
+        {
+            stream.setStatus(QDataStream::ReadCorruptData);
+            return stream;
+        }
+        stream >> o.connectState >> o.disconnectReason >> o.connectError >> o.location;
+        return stream;
+    }
+
+private:
+    static constexpr quint32 versionForSerialization_ = 1;  // should increment the version if the data format is changed
 };
 
 

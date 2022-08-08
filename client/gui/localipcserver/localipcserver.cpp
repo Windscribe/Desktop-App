@@ -210,7 +210,7 @@ void LocalIPCServer::onConnectionStateCallback(int state, IPC::IConnection *conn
 void LocalIPCServer::onBackendConnectStateChanged(const types::ConnectState &connectState)
 {
     IPC::CliCommands::ConnectStateChanged cmd;
-    //todo
+    cmd.connectState = connectState;
     sendCommand(cmd);
 }
 
