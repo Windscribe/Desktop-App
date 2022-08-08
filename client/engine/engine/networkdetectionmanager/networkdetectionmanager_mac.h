@@ -11,15 +11,15 @@ class NetworkDetectionManager_mac : public INetworkDetectionManager
 public:
     NetworkDetectionManager_mac(QObject *parent, IHelper *helper);
     ~NetworkDetectionManager_mac() override;
-    void getCurrentNetworkInterface(ProtoTypes::NetworkInterface &networkInterface) override;
+    void getCurrentNetworkInterface(types::NetworkInterface &networkInterface) override;
     bool isOnline() override;
 
 signals:
-    void networkListChanged(const ProtoTypes::NetworkInterfaces &networkInterfaces);
-    void primaryAdapterUp(const ProtoTypes::NetworkInterface &currentAdapter);
-    void primaryAdapterDown(const ProtoTypes::NetworkInterface &lastAdapter);
-    void primaryAdapterChanged(const ProtoTypes::NetworkInterface &currentAdapter);
-    void primaryAdapterNetworkLostOrChanged(const ProtoTypes::NetworkInterface &currentAdapter);
+    void networkListChanged(const QVector<types::NetworkInterface> &networkInterfaces);
+    void primaryAdapterUp(const types::NetworkInterface &currentAdapter);
+    void primaryAdapterDown(const types::NetworkInterface &lastAdapter);
+    void primaryAdapterChanged(const types::NetworkInterface &currentAdapter);
+    void primaryAdapterNetworkLostOrChanged(const types::NetworkInterface &currentAdapter);
     void wifiAdapterChanged(bool wifiAdapterUp);
 
 private slots:
@@ -30,11 +30,11 @@ private:
     bool lastWifiAdapterUp_;
     bool lastIsOnlineState_;
     QMutex mutex_;
-    ProtoTypes::NetworkInterface lastNetworkInterface_;
-    ProtoTypes::NetworkInterfaces lastNetworkList_;
+    types::NetworkInterface lastNetworkInterface_;
+    QVector<types::NetworkInterface> lastNetworkList_;
 
-    bool isWifiAdapterUp(const ProtoTypes::NetworkInterfaces &networkList);
-    const ProtoTypes::NetworkInterface currentNetworkInterfaceFromNetworkList(const ProtoTypes::NetworkInterfaces &networkList);
+    bool isWifiAdapterUp(const QVector<types::NetworkInterface> &networkList);
+    const types::NetworkInterface currentNetworkInterfaceFromNetworkList(const QVector<types::NetworkInterface> &networkList);
 
     bool isOnlineImpl();
 

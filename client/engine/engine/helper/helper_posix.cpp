@@ -8,17 +8,16 @@
 #include <QCoreApplication>
 #include <QThread>
 #include <QDateTime>
-#include "utils/utils.h"
+#include "types/wireguardtypes.h"
 #include "engine/tempscripts_mac.h"
 #include "../openvpnversioncontroller.h"
 #include "installhelper_mac.h"
-#include "../../../../backend/posix_common/helper_commands_serialize.h"
 #include "engine/wireguardconfig/wireguardconfig.h"
-#include "engine/types/wireguardtypes.h"
+#include "types/wireguardtypes.h"
 #include "engine/connectionmanager/adaptergatewayinfo.h"
-#include "engine/types/protocoltype.h"
 #include "utils/macutils.h"
 #include "utils/executable_signature/executable_signature.h"
+#include "../../../../backend/posix_common/helper_commands_serialize.h"
 
 #ifdef Q_OS_LINUX
     #include "utils/dnsscripts_linux.h"
@@ -187,7 +186,7 @@ bool Helper_posix::setSplitTunnelingSettings(bool isActive, bool isExclude,
 }
 
 void Helper_posix::sendConnectStatus(bool isConnected, bool isCloseTcpSocket, bool isKeepLocalSocket, const AdapterGatewayInfo &defaultAdapter, const AdapterGatewayInfo &vpnAdapter,
-                                   const QString &connectedIp, const ProtocolType &protocol)
+                                   const QString &connectedIp, const PROTOCOL &protocol)
 {
     Q_UNUSED(isCloseTcpSocket);
     Q_UNUSED(isKeepLocalSocket);
@@ -449,12 +448,12 @@ bool Helper_posix::configureWireGuard(const WireGuardConfig &config)
     return answerCmd.executed != 0;
 }
 
-bool Helper_posix::getWireGuardStatus(WireGuardStatus *status)
+bool Helper_posix::getWireGuardStatus(types::WireGuardStatus *status)
 {
     QMutexLocker locker(&mutex_);
 
     if (status) {
-        status->state = WireGuardState::NONE;
+        status->state = types::WireGuardState::NONE;
         status->errorCode = 0;
         status->bytesReceived = status->bytesTransmitted = 0;
     }
@@ -477,23 +476,23 @@ bool Helper_posix::getWireGuardStatus(WireGuardStatus *status)
     switch (answerCmd.cmdId) {
     default:
     case WIREGUARD_STATE_NONE:
-        status->state = WireGuardState::NONE;
+        status->state = types::WireGuardState::NONE;
         break;
     case WIREGUARD_STATE_ERROR:
-        status->state = WireGuardState::FAILURE;
+        status->state = types::WireGuardState::FAILURE;
         status->errorCode = answerCmd.customInfoValue[0];
         break;
     case WIREGUARD_STATE_STARTING:
-        status->state = WireGuardState::STARTING;
+        status->state = types::WireGuardState::STARTING;
         break;
     case WIREGUARD_STATE_LISTENING:
-        status->state = WireGuardState::LISTENING;
+        status->state = types::WireGuardState::LISTENING;
         break;
     case WIREGUARD_STATE_CONNECTING:
-        status->state = WireGuardState::CONNECTING;
+        status->state = types::WireGuardState::CONNECTING;
         break;
     case WIREGUARD_STATE_ACTIVE:
-        status->state = WireGuardState::ACTIVE;
+        status->state = types::WireGuardState::ACTIVE;
         status->bytesReceived = answerCmd.customInfoValue[0];
         status->bytesTransmitted = answerCmd.customInfoValue[1];
         break;

@@ -8,7 +8,6 @@
 #include "utils/mergelog.h"
 #include "utils/extraconfig.h"
 #include "utils/ipvalidation.h"
-#include "utils/executable_signature/executable_signature.h"
 #include "connectionmanager/connectionmanager.h"
 #include "connectionmanager/finishactiveconnections.h"
 #include "proxy/proxyservercontroller.h"
@@ -600,7 +599,7 @@ void Engine::initPart2()
     types::MacAddrSpoofing macAddrSpoofing = engineSettings_.macAddrSpoofing();
     //todo refactor
 #ifdef Q_OS_MAC
-    *macAddrSpoofing.mutable_network_interfaces() = NetworkUtils_mac::currentNetworkInterfaces(true);
+    macAddrSpoofing.networkInterfaces = NetworkUtils_mac::currentNetworkInterfaces(true);
 #elif defined Q_OS_WIN
     macAddrSpoofing.networkInterfaces = WinUtils::currentNetworkInterfaces(true);
 #elif define Q_OS_LINUX

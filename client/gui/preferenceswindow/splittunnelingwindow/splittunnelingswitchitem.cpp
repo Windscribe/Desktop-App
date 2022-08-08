@@ -2,7 +2,6 @@
 
 #include <QGraphicsScene>
 #include <QGraphicsView>
-#include "utils/logger.h"
 #include "graphicresources/fontmanager.h"
 #include "dpiscalemanager.h"
 #include "tooltips/tooltipcontroller.h"
@@ -65,8 +64,8 @@ void SplitTunnelingSwitchItem::paint(QPainter *painter, const QStyleOptionGraphi
 void SplitTunnelingSwitchItem::setSettings(types::SplitTunnelingSettings settings)
 {
 #ifdef Q_OS_MAC
-    if (settings.active() && MacUtils::isOsVersionIsBigSur_or_greater()) {
-        settings.set_active(false);
+    if (settings.active && MacUtils::isOsVersionIsBigSur_or_greater()) {
+        settings.active = false;
         emit settingsChanged(settings);
     }
 #endif  // Q_OS_MAC

@@ -1487,7 +1487,7 @@ void MainWindow::onBackendInitFinished(INIT_STATE initState)
 
         // disable firewall for Mac when split tunneling is active
 #ifdef Q_OS_MAC
-        if (p->splitTunneling().settings().active())
+        if (p->splitTunneling().settings.active)
         {
             backend_->getPreferencesHelper()->setBlockFirewall(true);
             mainWindowController_->getConnectWindow()->setFirewallBlock(true);
@@ -2543,14 +2543,14 @@ void MainWindow::onPreferencesSplitTunnelingChanged(types::SplitTunneling st)
 {
     // turn off and disable firewall for Mac when split tunneling is active
 #ifdef Q_OS_MAC
-    if (st.settings().active())
+    if (st.settings.active)
     {
         if (backend_->isFirewallEnabled())
         {
             backend_->firewallOff();
         }
-        ProtoTypes::FirewallSettings firewallSettings;
-        firewallSettings.set_mode(ProtoTypes::FIREWALL_MODE_MANUAL);
+        types::FirewallSettings firewallSettings;
+        firewallSettings.mode = FIREWALL_MODE_MANUAL;
         backend_->getPreferences()->setFirewallSettings(firewallSettings);
         backend_->getPreferencesHelper()->setBlockFirewall(true);
         mainWindowController_->getConnectWindow()->setFirewallBlock(true);

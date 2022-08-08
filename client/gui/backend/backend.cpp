@@ -2,8 +2,6 @@
 
 #include "utils/logger.h"
 #include "utils/utils.h"
-#include "ipc/connection.h"
-#include "ipc/protobufcommand.h"
 #include "ipc/servercommands.h"
 #include "ipc/clientcommands.h"
 #include "utils/utils.h"
@@ -674,10 +672,10 @@ void Backend::handleNetworkChange(types::NetworkInterface networkInterface, bool
 
 #ifdef Q_OS_MAC
             // generate friendly name for MacOS Ethernet
-            if (networkInterface.interface_type() == ProtoTypes::NETWORK_INTERFACE_ETH)
+            if (networkInterface.interfaceType == NETWORK_INTERFACE_ETH)
             {
                 friendlyName = generateNewFriendlyName();
-                networkInterface.set_friendly_name(friendlyName.toStdString().c_str());
+                networkInterface.friendlyName = friendlyName;
 
             }
 #endif

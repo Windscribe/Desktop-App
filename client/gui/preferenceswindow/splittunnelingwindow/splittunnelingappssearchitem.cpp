@@ -348,9 +348,9 @@ void SplitTunnelingAppsSearchItem::updateSystemApps()
             QString name = QFileInfo(f).fileName();
 
             types::SplitTunnelingApp app;
-            app.set_name(name.toStdString());
-            app.set_type(ProtoTypes::SPLIT_TUNNELING_APP_TYPE_SYSTEM);
-            app.set_full_name(binPath.toStdString());
+            app.name = name;
+            app.type = SPLIT_TUNNELING_APP_TYPE_SYSTEM;
+            app.fullName = binPath;
             systemApps_.append(app);
         }
     }

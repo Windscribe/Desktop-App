@@ -101,16 +101,16 @@ void Preferences::setMinimizeAndCloseToTray(bool b)
 #elif defined Q_OS_MAC
 bool Preferences::isHideFromDock() const
 {
-    return guiSettings_.is_hide_from_dock();
+    return guiSettings_.isHideFromDock;
 }
 
 void Preferences::setHideFromDock(bool b)
 {
-    if (guiSettings_.is_hide_from_dock() != b)
+    if (guiSettings_.isHideFromDock != b)
     {
-        guiSettings_.set_is_hide_from_dock(b);
+        guiSettings_.isHideFromDock = b;
         saveGuiSettings();
-        emit hideFromDockChanged(guiSettings_.is_hide_from_dock());
+        emit hideFromDockChanged(guiSettings_.isHideFromDock);
     }
 }
 #elif defined Q_OS_LINUX

@@ -16,7 +16,7 @@ public:
     bool firewallOff() override;
     bool firewallActualState() override;
 
-    bool whitelistPorts(const apiinfo::StaticIpPortsVector &ports) override;
+    bool whitelistPorts(const types::StaticIpPortsVector &ports) override;
     bool deleteWhitelistPorts() override;
 
     void setInterfaceToSkip_posix(const QString &interfaceToSkip) override;
@@ -27,7 +27,7 @@ private:
     QString interfaceToSkip_;
     bool forceUpdateInterfaceToSkip_;
     QMutex mutex_;
-    bool firewallOnImpl(const QString &ip, bool bAllowLanTraffic, const apiinfo::StaticIpPortsVector &ports);
+    bool firewallOnImpl(const QString &ip, bool bAllowLanTraffic, const types::StaticIpPortsVector &ports);
 };
 
 #endif // FIREWALLCONTROLLER_MAC_H

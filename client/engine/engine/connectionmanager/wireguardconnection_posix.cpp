@@ -1,11 +1,10 @@
 #include "wireguardconnection_posix.h"
 #include "utils/crashhandler.h"
 #include "utils/logger.h"
-#include "utils/utils.h"
 #include "engine/helper/ihelper.h"
-#include "engine/types/types.h"
+#include "types/enums.h"
 #include "engine/wireguardconfig/wireguardconfig.h"
-#include "engine/types/wireguardtypes.h"
+#include "types/wireguardtypes.h"
 #include "engine/helper/helper_posix.h"
 
 class WireGuardConnectionImpl
@@ -17,7 +16,7 @@ public:
     void connect();
     void configure();
     void disconnect();
-    bool getStatus(WireGuardStatus *status);
+    bool getStatus(types::WireGuardStatus *status);
     bool stopWireGuard();
 
     QString getAdapterName() const { return adapterName_; }
@@ -59,13 +58,13 @@ void WireGuardConnectionImpl::connect()
             // don't bother another attempt if signature is invalid
             if (err == IHelper::EXECUTE_VERIFY_ERROR)
             {
-                host_->setError(ProtoTypes::ConnectError::EXE_VERIFY_WIREGUARD_ERROR);
+                host_->setError(EXE_VERIFY_WIREGUARD_ERROR);
                 return;
             }
             if (retry >= 2)
             {
                 qCDebug(LOG_WIREGUARD) << "Can't start WireGuard after" << retry << "retries";
-                host_->setError(ProtoTypes::ConnectError::WIREGUARD_CONNECTION_ERROR);
+                host_->setError(WIREGUARD_CONNECTION_ERROR);
                 return;
             }
             ++retry;
@@ -83,7 +82,7 @@ void WireGuardConnectionImpl::configure()
     // Configure the client and the peer.
     if (!host_->helper_->configureWireGuard(config_)) {
         qCDebug(LOG_WIREGUARD) << "Failed to configure WireGuard";
-        host_->setError(ProtoTypes::ConnectError::WIREGUARD_CONNECTION_ERROR);
+        host_->setError(WIREGUARD_CONNECTION_ERROR);
     }
 }
 
@@ -94,7 +93,7 @@ void WireGuardConnectionImpl::disconnect()
     host_->setCurrentStateAndEmitSignal(WireGuardConnection::ConnectionState::DISCONNECTED);
 }
 
-bool WireGuardConnectionImpl::getStatus(WireGuardStatus *status)
+bool WireGuardConnectionImpl::getStatus(types::WireGuardStatus *status)
 {
     return isStarted_ && host_->helper_->getWireGuardStatus(status);
 }
@@ -139,7 +138,7 @@ WireGuardConnection::~WireGuardConnection()
 
 void WireGuardConnection::startConnect(const QString &configPathOrUrl, const QString &ip,
                                        const QString &dnsHostName, const QString &username,
-                                       const QString &password, const ProxySettings &proxySettings,
+                                       const QString &password, const types::ProxySettings &proxySettings,
                                        const WireGuardConfig *wireGuardConfig,
                                        bool isEnableIkev2Compression, bool isAutomaticConnectionMode)
 {
@@ -216,7 +215,7 @@ QString WireGuardConnection::getWireGuardAdapterName()
 
 void WireGuardConnection::run()
 {
-    WireGuardStatus status;
+    types::WireGuardStatus status;
     quint64 bytesReceived = 0;
     quint64 bytesTransmitted = 0;
     bool is_configured = false;
@@ -238,18 +237,18 @@ void WireGuardConnection::run()
                 break;
             }
             switch (status.state) {
-            case WireGuardState::NONE:
+            case types::WireGuardState::NONE:
                 // Not initialized.
                 break;
-            case WireGuardState::FAILURE:
+            case types::WireGuardState::FAILURE:
                 // Error state.
                 qCDebug(LOG_WIREGUARD) << "WireGuard daemon error";
                 do_stop_thread_ = true;
                 break;
-            case WireGuardState::STARTING:
+            case types::WireGuardState::STARTING:
                 // Daemon is warming up, we have no other option that wait.
                 break;
-            case WireGuardState::LISTENING:
+            case types::WireGuardState::LISTENING:
                 // Accepting configuration.
                 if (!is_configured) {
                     qCDebug(LOG_WIREGUARD) << "Configuring WireGuard...";
@@ -258,11 +257,11 @@ void WireGuardConnection::run()
                     emit interfaceUpdated(pimpl_->getAdapterName());
                 }
                 break;
-            case WireGuardState::CONNECTING:
+            case types::WireGuardState::CONNECTING:
                 // Connecting (waiting for a handshake).
                 next_status_check_ms = 250u;
                 break;
-            case WireGuardState::ACTIVE:
+            case types::WireGuardState::ACTIVE:
             {
                 if (!is_connected) {
                     qCDebug(LOG_WIREGUARD) << "WireGuard daemon reported successful handshake";
@@ -327,7 +326,7 @@ void WireGuardConnection::setCurrentStateAndEmitSignal(ConnectionState state)
     }
 }
 
-void WireGuardConnection::setError(ProtoTypes::ConnectError err)
+void WireGuardConnection::setError(CONNECT_ERROR err)
 {
     QMutexLocker locker(&current_state_mutex_);
     current_state_ = ConnectionState::DISCONNECTED;

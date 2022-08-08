@@ -89,7 +89,7 @@ bool FirewallController_mac::firewallActualState()
     }
 }
 
-bool FirewallController_mac::whitelistPorts(const apiinfo::StaticIpPortsVector &ports)
+bool FirewallController_mac::whitelistPorts(const types::StaticIpPortsVector &ports)
 {
     QMutexLocker locker(&mutex_);
     FirewallController::whitelistPorts(ports);
@@ -105,10 +105,10 @@ bool FirewallController_mac::whitelistPorts(const apiinfo::StaticIpPortsVector &
 
 bool FirewallController_mac::deleteWhitelistPorts()
 {
-    return whitelistPorts(apiinfo::StaticIpPortsVector());
+    return whitelistPorts(types::StaticIpPortsVector());
 }
 
-bool FirewallController_mac::firewallOnImpl(const QString &ip, bool bAllowLanTraffic, const apiinfo::StaticIpPortsVector &ports )
+bool FirewallController_mac::firewallOnImpl(const QString &ip, bool bAllowLanTraffic, const types::StaticIpPortsVector &ports )
 {
     QString pfConfigFilePath = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
     QDir dir(pfConfigFilePath);
