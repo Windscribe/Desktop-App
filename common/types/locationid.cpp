@@ -63,6 +63,6 @@ LocationID LocationID::apiLocationToBestLocation() const
 
 LocationID LocationID::toTopLevelLocation() const
 {
-    Q_ASSERT(type_ == API_LOCATION || type_ == BEST_LOCATION);      // applicable only for API locations and best location
+    //Q_ASSERT(type_ == API_LOCATION || type_ == BEST_LOCATION);      // applicable only for API locations and best location
     return LocationID(type_, id_, QString());
 }

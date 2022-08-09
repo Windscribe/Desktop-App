@@ -44,7 +44,7 @@ void LocationsModel::updateApiLocations(const LocationID &bestLocation, const QS
         lmi->initialInd_ = i;
         lmi->id = location.id;
         lmi->title = location.name;
-        lmi->isShowP2P = (location.p2p == 0);
+        lmi->isShowP2P = location.isP2P;
         lmi->countryCode = location.countryCode.toLower();
         lmi->isPremiumOnly = location.isPremiumOnly;
         lmi->is10gbps = false;
@@ -67,7 +67,7 @@ void LocationsModel::updateApiLocations(const LocationID &bestLocation, const QS
             cmi.staticIpCountryCode = city.staticIpCountryCode;
             cmi.staticIpType = city.staticIpType;
             cmi.staticIp = city.staticIp;
-            cmi.linkSpeed = city.link_speed;
+            cmi.linkSpeed = city.linkSpeed;
 
             // Engine is using -1 to indicate to us that the load (health) value was invalid/missing,
             // and therefore this location should be excluded when calculating the region's average
@@ -94,7 +94,7 @@ void LocationsModel::updateApiLocations(const LocationID &bestLocation, const QS
                 lmiBestLocation->countryCode = lmi->countryCode;
                 lmiBestLocation->isShowP2P = lmi->isShowP2P;
                 lmiBestLocation->isPremiumOnly = lmi->isPremiumOnly;
-                lmiBestLocation->is10gbps = (city.link_speed == 10000);
+                lmiBestLocation->is10gbps = (city.linkSpeed == 10000);
                 lmiBestLocation->locationLoad = cmi.locationLoad;
 
                 apiLocations_.insert(0, lmiBestLocation);
@@ -188,7 +188,7 @@ void LocationsModel::updateCustomConfigLocations(const QVector<types::LocationIt
         lmi->initialInd_ = i;
         lmi->id = location.id;
         lmi->title = location.name;
-        lmi->isShowP2P = (location.p2p == 0);
+        lmi->isShowP2P = location.isP2P;
         lmi->countryCode = location.countryCode.toLower();
         lmi->isPremiumOnly = location.isPremiumOnly;
         lmi->is10gbps = false;

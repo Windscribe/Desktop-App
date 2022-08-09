@@ -323,7 +323,7 @@ BestAndAllLocations ApiLocationsModel::generateLocationsUpdated()
         item.name = l.getName();
         item.countryCode = l.getCountryCode();
         item.isPremiumOnly = l.isPremiumOnly();
-        item.p2p = l.getP2P();
+        item.isP2P = l.getP2P() == 0;
 
         for (int i = 0; i < l.groupsCount(); ++i)
         {
@@ -335,7 +335,7 @@ BestAndAllLocations ApiLocationsModel::generateLocationsUpdated()
             city.isPro = group.isPro();
             city.pingTimeMs = pingStorage_.getNodeSpeed(group.getPingIp());
             city.isDisabled = group.isDisabled();
-            city.link_speed = group.getLinkSpeed();
+            city.linkSpeed = group.getLinkSpeed();
             city.health = group.getHealth();
             item.cities << city;
 
@@ -383,7 +383,7 @@ BestAndAllLocations ApiLocationsModel::generateLocationsUpdated()
         item.name = QObject::tr("Static IPs");
         item.countryCode = "STATIC_IPS";
         item.isPremiumOnly = false;
-        item.p2p = 1;
+        item.isP2P = false;
         ball.staticIpDeviceName = staticIps_.getDeviceName();
 
         for (int i = 0; i < staticIps_.getIpsCount(); ++i)

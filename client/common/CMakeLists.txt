@@ -56,6 +56,7 @@ set(PROJECT_SOURCES
     ${COMMON_PATH}/types/location.h
     ${COMMON_PATH}/types/locationid.cpp
     ${COMMON_PATH}/types/locationid.h
+    ${COMMON_PATH}/types/locationitem.cpp
     ${COMMON_PATH}/types/locationitem.h
     ${COMMON_PATH}/types/loginsettings.cpp
     ${COMMON_PATH}/types/loginsettings.h

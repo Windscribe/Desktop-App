@@ -26,8 +26,11 @@ struct CityItem
     bool customConfigIsCorrect = false;
     QString customConfigErrorMessage;
 
-    int link_speed = 100;
+    int linkSpeed = 100;
     int health = 0;
+
+    bool operator==(const CityItem &other) const;
+    bool operator!=(const CityItem &other) const;
 };
 
 struct LocationItem
@@ -36,8 +39,11 @@ struct LocationItem
     QString name;
     QString countryCode;
     bool isPremiumOnly = false;
-    int p2p = 0;
+    bool isP2P = false;
     QVector<CityItem> cities;
+
+    bool operator==(const LocationItem &other) const;
+    bool operator!=(const LocationItem &other) const;
 };
 
 

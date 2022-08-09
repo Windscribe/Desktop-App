@@ -19,20 +19,17 @@ public:
     // return connection speed from 0 to 3
     int toConnectionSpeed() const;
 
-    bool operator==(const int &other) const
+    bool operator==(const PingTime &other) const
     {
-        return other == timeMs_;
+        return other.timeMs_ == timeMs_;
     }
 
     bool operator!=(const PingTime &other) const
     {
-        return other.timeMs_ != timeMs_;
+        return !(*this == other);
     }
 
-    int toInt() const
-    {
-        return timeMs_;
-    }
+    int toInt() const  {  return timeMs_;  }
 
     friend QDataStream& operator <<(QDataStream& stream, const PingTime& p)
     {
