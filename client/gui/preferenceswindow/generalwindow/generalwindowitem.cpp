@@ -1,7 +1,6 @@
 #include "generalwindowitem.h"
 
 #include "../dividerline.h"
-#include "utils/protoenumtostring.h"
 #include "utils/logger.h"
 #include <QPainter>
 #include <QSystemTrayIcon>
@@ -22,10 +21,10 @@ GeneralWindowItem::GeneralWindowItem(ScalableGraphicsObject *parent, Preferences
     connect(preferences, SIGNAL(isShowNotificationsChanged(bool)), SLOT(onIsShowNotificationsPreferencesChanged(bool)));
     connect(preferences, SIGNAL(isDockedToTrayChanged(bool)), SLOT(onIsDockedToTrayPreferencesChanged(bool)));
     connect(preferences, SIGNAL(languageChanged(QString)), SLOT(onLanguagePreferencesChanged(QString)));
-    connect(preferences, SIGNAL(locationOrderChanged(ProtoTypes::OrderLocationType)), SLOT(onLocationOrderPreferencesChanged(ProtoTypes::OrderLocationType)));
-    connect(preferences, SIGNAL(latencyDisplayChanged(ProtoTypes::LatencyDisplayType)), SLOT(onLatencyDisplayPreferencesChanged(ProtoTypes::LatencyDisplayType)));
-    connect(preferences, SIGNAL(updateChannelChanged(ProtoTypes::UpdateChannel)), SLOT(onUpdateChannelPreferencesChanged(ProtoTypes::UpdateChannel)));
-    connect(preferences, SIGNAL(backgroundSettingsChanged(ProtoTypes::BackgroundSettings)), SLOT(onPreferencesBackgroundSettingsChanged(ProtoTypes::BackgroundSettings)));
+    connect(preferences, SIGNAL(locationOrderChanged(ORDER_LOCATION_TYPE)), SLOT(onLocationOrderPreferencesChanged(ORDER_LOCATION_TYPE)));
+    connect(preferences, SIGNAL(latencyDisplayChanged(LATENCY_DISPLAY_TYPE)), SLOT(onLatencyDisplayPreferencesChanged(LATENCY_DISPLAY_TYPE)));
+    connect(preferences, SIGNAL(updateChannelChanged(UPDATE_CHANNEL)), SLOT(onUpdateChannelPreferencesChanged(UPDATE_CHANNEL)));
+    connect(preferences, SIGNAL(backgroundSettingsChanged(types::BackgroundSettings)), SLOT(onPreferencesBackgroundSettingsChanged(types::BackgroundSettings)));
     connect(preferences, SIGNAL(isStartMinimizedChanged(bool)), SLOT(onStartMinimizedPreferencesChanged(bool)));
     connect(preferences, &Preferences::showLocationLoadChanged, this, &GeneralWindowItem::onShowLocationLoadPreferencesChanged);
 
@@ -75,7 +74,7 @@ GeneralWindowItem::GeneralWindowItem(ScalableGraphicsObject *parent, Preferences
 
     backgroundSettingsItem_ = new BackgroundSettingsItem(this);
     backgroundSettingsItem_->setBackgroundSettings(preferences->backgroundSettings());
-    connect(backgroundSettingsItem_, SIGNAL(backgroundSettingsChanged(ProtoTypes::BackgroundSettings)), SLOT(onBackgroundSettingsChanged(ProtoTypes::BackgroundSettings)));
+    connect(backgroundSettingsItem_, SIGNAL(backgroundSettingsChanged(types::BackgroundSettings)), SLOT(onBackgroundSettingsChanged(types::BackgroundSettings)));
     addItem(backgroundSettingsItem_);
 
     checkBoxDockedToTray_ = new CheckBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::CheckBoxItem", "Docked"), QString());
@@ -95,7 +94,7 @@ GeneralWindowItem::GeneralWindowItem(ScalableGraphicsObject *parent, Preferences
 
     comboBoxLocationOrder_ = new ComboBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::ComboBoxItem", "Location Order"), QString(), 50, Qt::transparent, 0, true);
 
-    const QList< QPair<QString, int> > allOrderTypes = ProtoEnumToString::instance().getEnums(ProtoTypes::OrderLocationType_descriptor());
+    const QList< QPair<QString, int> > allOrderTypes = ORDER_LOCATION_TYPE_toList();
     for (const auto o : allOrderTypes)
     {
         comboBoxLocationOrder_->addItem(o.first, o.second);
@@ -105,7 +104,7 @@ GeneralWindowItem::GeneralWindowItem(ScalableGraphicsObject *parent, Preferences
     addItem(comboBoxLocationOrder_);
 
     comboBoxLatencyDisplay_ = new ComboBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::ComboBoxItem", "Latency Display"), QString(), 50, Qt::transparent, 0, true);
-    const QList< QPair<QString, int> > allLatencyTypes = ProtoEnumToString::instance().getEnums(ProtoTypes::LatencyDisplayType_descriptor());
+    const QList< QPair<QString, int> > allLatencyTypes = LATENCY_DISPLAY_TYPE_toList();
 
     for (const auto l : allLatencyTypes)
     {
@@ -121,7 +120,7 @@ GeneralWindowItem::GeneralWindowItem(ScalableGraphicsObject *parent, Preferences
     addItem(checkBoxShowLocationLoad_);
 
     comboBoxUpdateChannel_ = new ComboBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::ComboBoxItem", "Update Channel"), QString(), 50, Qt::transparent, 0, true);
-    const QList< QPair<QString, int> > allUpdateChannelTypes = ProtoEnumToString::instance().getEnums(ProtoTypes::UpdateChannel_descriptor());
+    const QList< QPair<QString, int> > allUpdateChannelTypes = UPDATE_CHANNEL_toList();
     for (const auto u : allUpdateChannelTypes)
     {
         if (u.first != "Internal") // don't display internal channel -- this will be specified by advanced parameters
@@ -231,42 +230,42 @@ void GeneralWindowItem::onLanguageItemChanged(QVariant lang)
     preferences_->setLanguage(lang.toString());
 }
 
-void GeneralWindowItem::onLocationOrderPreferencesChanged(ProtoTypes::OrderLocationType o)
+void GeneralWindowItem::onLocationOrderPreferencesChanged(ORDER_LOCATION_TYPE o)
 {
     comboBoxLocationOrder_->setCurrentItem((int)o);
 }
 
 void GeneralWindowItem::onLocationItemChanged(QVariant o)
 {
-    preferences_->setLocationOrder((ProtoTypes::OrderLocationType)o.toInt());
+    preferences_->setLocationOrder((ORDER_LOCATION_TYPE)o.toInt());
 }
 
-void GeneralWindowItem::onLatencyDisplayPreferencesChanged(ProtoTypes::LatencyDisplayType l)
+void GeneralWindowItem::onLatencyDisplayPreferencesChanged(LATENCY_DISPLAY_TYPE l)
 {
     comboBoxLatencyDisplay_->setCurrentItem((int)l);
 }
 
 void GeneralWindowItem::onLatencyItemChanged(QVariant o)
 {
-    preferences_->setLatencyDisplay((ProtoTypes::LatencyDisplayType)o.toInt());
+    preferences_->setLatencyDisplay((LATENCY_DISPLAY_TYPE)o.toInt());
 }
 
-void GeneralWindowItem::onUpdateChannelPreferencesChanged(const ProtoTypes::UpdateChannel &c)
+void GeneralWindowItem::onUpdateChannelPreferencesChanged(const UPDATE_CHANNEL &c)
 {
     comboBoxUpdateChannel_->setCurrentItem((int)c);
 }
 
 void GeneralWindowItem::onUpdateChannelItemChanged(QVariant o)
 {
-    preferences_->setUpdateChannel((ProtoTypes::UpdateChannel)o.toInt());
+    preferences_->setUpdateChannel((UPDATE_CHANNEL)o.toInt());
 }
 
-void GeneralWindowItem::onBackgroundSettingsChanged(const ProtoTypes::BackgroundSettings &settings)
+void GeneralWindowItem::onBackgroundSettingsChanged(const types::BackgroundSettings &settings)
 {
     preferences_->setBackgroundSettings(settings);
 }
 
-void GeneralWindowItem::onPreferencesBackgroundSettingsChanged(const ProtoTypes::BackgroundSettings &settings)
+void GeneralWindowItem::onPreferencesBackgroundSettingsChanged(const types::BackgroundSettings &settings)
 {
     backgroundSettingsItem_->setBackgroundSettings(settings);
 }

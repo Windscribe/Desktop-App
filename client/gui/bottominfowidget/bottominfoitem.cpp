@@ -12,7 +12,7 @@ BottomInfoItem::BottomInfoItem(QGraphicsObject *parent) : ScalableGraphicsObject
     upgradeWidgetItem_(NULL),
     isSecureHotspotEnabled_(false),
     isProxyGatewayEnabled_(false),
-    proxyGatewayMode_(ProtoTypes::PROXY_SHARING_HTTP)
+    proxyGatewayMode_(PROXY_SHARING_HTTP)
 {
     setFlag(ItemHasNoContents, false);
 
@@ -119,7 +119,7 @@ void BottomInfoItem::setSecureHotspotUsersCount(int usersCount)
     }
 }
 
-void BottomInfoItem::setProxyGatewayFeatures(bool isEnabled, ProtoTypes::ProxySharingMode mode)
+void BottomInfoItem::setProxyGatewayFeatures(bool isEnabled, PROXY_SHARING_TYPE mode)
 {
     isProxyGatewayEnabled_ = isEnabled;
     proxyGatewayMode_ = mode;

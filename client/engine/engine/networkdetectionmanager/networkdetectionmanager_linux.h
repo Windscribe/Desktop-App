@@ -13,7 +13,7 @@ class NetworkDetectionManager_linux : public INetworkDetectionManager
 public:
     NetworkDetectionManager_linux(QObject *parent, IHelper *helper);
     ~NetworkDetectionManager_linux() override;
-    void getCurrentNetworkInterface(ProtoTypes::NetworkInterface &networkInterface) override;
+    void getCurrentNetworkInterface(types::NetworkInterface &networkInterface) override;
     bool isOnline() override;
 
 private slots:
@@ -21,11 +21,11 @@ private slots:
 
 private:
     bool isOnline_;
-    ProtoTypes::NetworkInterface networkInterface_;
+    types::NetworkInterface networkInterface_;
 
     void updateNetworkInfo(bool bWithEmitSignal);
     QString getDefaultRouteInterface(bool &isOnline);
-    void getInterfacePars(const QString &ifname, ProtoTypes::NetworkInterface &outNetworkInterface);
+    void getInterfacePars(const QString &ifname, types::NetworkInterface &outNetworkInterface);
     QString getMacAddressByIfName(const QString &ifname);
     bool isActiveByIfName(const QString &ifname);
     bool checkWirelessByIfName(const QString &ifname);

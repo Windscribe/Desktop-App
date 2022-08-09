@@ -1,13 +1,9 @@
 #include "network_utils_mac.h"
-#include "../logger.h"
 #include "../utils.h"
-#include "../macutils.h"
-#include "names.h"
 #include <QFile>
 #include <QProcess>
 #include <QDir>
 #include <QCoreApplication>
-#include <google/protobuf/repeated_field.h>
 #include <semaphore.h>
 
 #include <ifaddrs.h>
@@ -85,17 +81,16 @@ QMap<QString, int> currentHardwareInterfaceIndexes()
     return result;
 }
 
-ProtoTypes::NetworkInterfaces currentlyUpNetInterfaces()
+QVector<types::NetworkInterface> currentlyUpNetInterfaces()
 {
-    auto isUp = [](const ProtoTypes::NetworkInterface &ni)
+    auto isUp = [](const types::NetworkInterface &ni)
     {
-        return NetworkUtils_mac::isAdapterUp(QString::fromStdString(ni.interface_name()));
+        return NetworkUtils_mac::isAdapterUp(ni.interfaceName);
     };
 
-    ProtoTypes::NetworkInterfaces interfaces = NetworkUtils_mac::currentNetworkInterfaces(false);
-    ProtoTypes::NetworkInterfaces upInterfaces;
-    std::copy_if(interfaces.networks().begin(), interfaces.networks().end(),
-                 google::protobuf::RepeatedFieldBackInserter(upInterfaces.mutable_networks()), isUp);
+    QVector<types::NetworkInterface> interfaces = NetworkUtils_mac::currentNetworkInterfaces(false);
+    QVector<types::NetworkInterface> upInterfaces;
+    std::copy_if(interfaces.begin(), interfaces.end(), std::back_inserter(upInterfaces), isUp);
     return upInterfaces;
 }
 
@@ -133,14 +128,14 @@ QString NetworkUtils_mac::lastConnectedNetworkInterfaceName()
     return ifname;
 }
 
-ProtoTypes::NetworkInterfaces NetworkUtils_mac::currentNetworkInterfaces(bool includeNoInterface)
+QVector<types::NetworkInterface> NetworkUtils_mac::currentNetworkInterfaces(bool includeNoInterface)
 {
-    ProtoTypes::NetworkInterfaces networkInterfaces;
+    QVector<types::NetworkInterface> networkInterfaces;
 
     // Add "No Interface" selection
     if (includeNoInterface)
     {
-        *networkInterfaces.add_networks() = Utils::noNetworkInterface();
+        networkInterfaces << Utils::noNetworkInterface();
     }
 
     const QList<QString> hwInterfaces = currentNetworkHwInterfaces();
@@ -148,33 +143,33 @@ ProtoTypes::NetworkInterfaces NetworkUtils_mac::currentNetworkInterfaces(bool in
 
     for (const QString &interfaceName : hwInterfaces)
     {
-        ProtoTypes::NetworkInterface networkInterface;
+        types::NetworkInterface networkInterface;
 
         int index = 0;
         if (interfaceIndexes.contains(interfaceName)) index = interfaceIndexes[interfaceName];
-        networkInterface.set_interface_index(index);
-        networkInterface.set_interface_name(interfaceName.toStdString());
+        networkInterface.interfaceIndex = index;
+        networkInterface.interfaceName = interfaceName;
 
         bool wifi = isWifiAdapter(interfaceName);
         QString macAddress = macAddressFromInterfaceName(interfaceName);
-        networkInterface.set_physical_address(macAddress.toStdString());
+        networkInterface.physicalAddress = macAddress;
 
         if (wifi)
         {
-            networkInterface.set_interface_type(ProtoTypes::NETWORK_INTERFACE_WIFI);
+            networkInterface.interfaceType = NETWORK_INTERFACE_WIFI;
             QString ssid = ssidOfInterface(interfaceName);
-            networkInterface.set_network_or_ssid(ssid.toStdString());
+            networkInterface.networkOrSSid = ssid;
         }
         else // Eth
         {
-            networkInterface.set_interface_type(ProtoTypes::NETWORK_INTERFACE_ETH);
-            networkInterface.set_network_or_ssid(macAddress.toStdString());
+            networkInterface.interfaceType = NETWORK_INTERFACE_ETH;
+            networkInterface.networkOrSSid = macAddress;
         }
 
-        networkInterface.set_active(isAdapterActive(interfaceName));
-        *networkInterfaces.add_networks() = networkInterface;
+        networkInterface.active = isAdapterActive(interfaceName);
+        networkInterfaces << networkInterface;
 
-        // TODO: The following fields should be removeable from ProtoTypes::NetworkInterface:
+        // TODO: The following fields should be removeable from types::NetworkInterface:
         // interface_guid
         // state
         // metric
@@ -194,17 +189,17 @@ QString NetworkUtils_mac::trueMacAddress(const QString &interfaceName)
     return Utils::execCmd(cmdGetTrueMAC).trimmed();
 }
 
-ProtoTypes::NetworkInterfaces NetworkUtils_mac::currentSpoofedInterfaces()
+QVector<types::NetworkInterface> NetworkUtils_mac::currentSpoofedInterfaces()
 {
-    ProtoTypes::NetworkInterfaces spoofed;
-    ProtoTypes::NetworkInterfaces currentInterfaces = currentlyUpNetInterfaces();
-    for (const ProtoTypes::NetworkInterface &ii : currentInterfaces.networks())
+    QVector<types::NetworkInterface> spoofed;
+    QVector<types::NetworkInterface> currentInterfaces = currentlyUpNetInterfaces();
+    for (const types::NetworkInterface &ii : currentInterfaces)
     {
-        const QString &interfaceName = QString::fromStdString(ii.interface_name());
+        const QString &interfaceName = ii.interfaceName;
 
         if (isInterfaceSpoofed(interfaceName))
         {
-            *spoofed.add_networks() = ii;
+            spoofed << ii;
         }
     }
 
@@ -239,12 +234,12 @@ bool NetworkUtils_mac::isAdapterUp(const QString &networkInterfaceName)
     }
 }
 
-const ProtoTypes::NetworkInterface NetworkUtils_mac::currentNetworkInterface()
+const types::NetworkInterface NetworkUtils_mac::currentNetworkInterface()
 {
-    ProtoTypes::NetworkInterfaces ni = currentNetworkInterfaces(false);
-    if (ni.networks_size() > 0)
+    QVector<types::NetworkInterface> ni = currentNetworkInterfaces(false);
+    if (ni.size() > 0)
     {
-        return ni.networks(0);
+        return ni[0];
     }
 
     return Utils::noNetworkInterface();

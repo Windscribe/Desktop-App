@@ -1,8 +1,8 @@
 #ifndef BASECONNSETTINGSPOLICY_H
 #define BASECONNSETTINGSPOLICY_H
 
-#include "engine/apiinfo/staticips.h"
-#include "engine/apiinfo/portmap.h"
+#include "types/staticips.h"
+#include "types/portmap.h"
 #include "engine/wireguardconfig/wireguardconfig.h"
 
 enum CONNECTION_NODE_TYPE {
@@ -19,7 +19,7 @@ struct CurrentConnectionDescr
     // fields for CONNECTION_NODE_DEFAULT
     QString ip;
     uint port = 0;
-    ProtocolType protocol;
+    PROTOCOL protocol;
     QString hostname;
     QString dnsHostName;
     QString verifyX509name;
@@ -37,7 +37,7 @@ struct CurrentConnectionDescr
     // fields for static ips
     QString username;
     QString password;
-    apiinfo::StaticIpPortsVector staticIpPorts;
+    types::StaticIpPortsVector staticIpPorts;
 };
 
 // helper class for ConnectionManager

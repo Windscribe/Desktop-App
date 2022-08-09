@@ -2,7 +2,7 @@
 #define FIREWALLCONTROLLER_H
 
 #include <QObject>
-#include "engine/apiinfo/staticips.h"
+#include "types/staticips.h"
 
 class IHelper;
 
@@ -20,7 +20,7 @@ public:
     virtual bool firewallOff();
     virtual bool firewallActualState() = 0;
 
-    virtual bool whitelistPorts(const apiinfo::StaticIpPortsVector &ports);
+    virtual bool whitelistPorts(const types::StaticIpPortsVector &ports);
     virtual bool deleteWhitelistPorts();
 
     // Mac/Linux specific functions
@@ -34,7 +34,7 @@ protected:
     QString latestIp_;
     bool latestAllowLanTraffic_;
     bool latestEnabledState_;
-    apiinfo::StaticIpPortsVector latestStaticIpPorts_;
+    types::StaticIpPortsVector latestStaticIpPorts_;
     bool bInitialized_;
     bool bStateChanged_;
 };

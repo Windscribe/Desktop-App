@@ -65,8 +65,6 @@ endif(WIN32)
 target_include_directories(gui PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/../engine
     ${CMAKE_CURRENT_SOURCE_DIR}/../../common
-    ${WINDSCRIBE_BUILD_LIBS_PATH}/protobuf/release/include
-    ${WINDSCRIBE_BUILD_LIBS_PATH}/protobuf/include
     ${WINDSCRIBE_BUILD_LIBS_PATH}/boost/include
     ${WINDSCRIBE_BUILD_LIBS_PATH}/curl/include
     ${WINDSCRIBE_BUILD_LIBS_PATH}/cares/dll_x64/include

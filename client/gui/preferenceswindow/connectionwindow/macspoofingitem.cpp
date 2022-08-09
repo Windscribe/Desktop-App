@@ -49,27 +49,27 @@ void MacSpoofingItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *o
     //painter->fillRect(bottomHalfRect, QBrush(QColor(255, 0 , 0)));
 }
 
-void MacSpoofingItem::setMacAddrSpoofing(const ProtoTypes::MacAddrSpoofing &macAddrSpoofing)
+void MacSpoofingItem::setMacAddrSpoofing(const types::MacAddrSpoofing &macAddrSpoofing)
 {
-    if(!google::protobuf::util::MessageDifferencer::Equals(curMAS_, macAddrSpoofing))
+    if(curMAS_ != macAddrSpoofing)
     {
         curMAS_ = macAddrSpoofing;
         updateSpoofingSelection(curMAS_);
 
-        if (macAddrSpoofing.is_enabled())
+        if (macAddrSpoofing.isEnabled)
         {
             checkBoxEnable_->setState(true);
             setHeight(EXPANDED_HEIGHT*G_SCALE);
-            macAddressItem_->setMacAddress(QString::fromStdString(macAddrSpoofing.mac_address()));
+            macAddressItem_->setMacAddress(macAddrSpoofing.macAddress);
         }
         else
         {
             checkBoxEnable_->setState(false);
             setHeight(COLLAPSED_HEIGHT*G_SCALE);
-            macAddressItem_->setMacAddress(QString::fromStdString(macAddrSpoofing.mac_address()));
+            macAddressItem_->setMacAddress(macAddrSpoofing.macAddress);
         }
 
-        if (macAddrSpoofing.is_auto_rotate())
+        if (macAddrSpoofing.isAutoRotate)
         {
             autoRotateMacItem_->setState(true);
         }
@@ -80,7 +80,7 @@ void MacSpoofingItem::setMacAddrSpoofing(const ProtoTypes::MacAddrSpoofing &macA
     }
 }
 
-void MacSpoofingItem::setCurrentNetwork(const ProtoTypes::NetworkInterface &networkInterface)
+void MacSpoofingItem::setCurrentNetwork(const types::NetworkInterface &networkInterface)
 {
     curNetworkInterface_ = networkInterface;
 }
@@ -103,7 +103,7 @@ void MacSpoofingItem::onCheckBoxStateChanged(bool isChecked)
             expandEnimation_.start();
         }
 
-        curMAS_.set_is_enabled(true);
+        curMAS_.isEnabled = true;
         qCDebug(LOG_USER) << "Enabled MAC Spoofing";
         emit macAddrSpoofingChanged(curMAS_);
     }
@@ -114,7 +114,7 @@ void MacSpoofingItem::onCheckBoxStateChanged(bool isChecked)
         {
             expandEnimation_.start();
         }
-        curMAS_.set_is_enabled(false);
+        curMAS_.isEnabled = false;
         qCDebug(LOG_USER) << "Disabled MAC Spoofing";
         emit macAddrSpoofingChanged(curMAS_);
     }
@@ -123,7 +123,7 @@ void MacSpoofingItem::onCheckBoxStateChanged(bool isChecked)
 void MacSpoofingItem::onAutoRotateMacStateChanged(bool isChecked)
 {
     qCDebug(LOG_USER) << "Changed Auto-Rotate: " << isChecked;
-    curMAS_.set_is_auto_rotate(isChecked);
+    curMAS_.isAutoRotate = isChecked;
     emit macAddrSpoofingChanged(curMAS_);
 }
 
@@ -136,26 +136,24 @@ void MacSpoofingItem::onInterfaceItemChanged(const QVariant &value)
 {
     int interfaceIndex = value.toInt();
 
-    ProtoTypes::MacAddrSpoofing newMAS;
-
-    for (int i = 0; i < curMAS_.network_interfaces().networks_size(); i++)
+    for (int i = 0; i < curMAS_.networkInterfaces.size(); i++)
     {
-        if (curMAS_.network_interfaces().networks(i).interface_index() == interfaceIndex)
+        if (curMAS_.networkInterfaces[i].interfaceIndex == interfaceIndex)
         {
-            *curMAS_.mutable_selected_network_interface() = curMAS_.network_interfaces().networks(i);
+            curMAS_.selectedNetworkInterface = curMAS_.networkInterfaces[i];
             break;
         }
     }
 
-    qCDebug(LOG_USER) << "Changed MAC Spoof Interface Selection: " << QString::fromStdString(curMAS_.selected_network_interface().interface_name());
+    qCDebug(LOG_USER) << "Changed MAC Spoof Interface Selection: " << curMAS_.selectedNetworkInterface.interfaceName;
     emit macAddrSpoofingChanged(curMAS_);
 }
 
 void MacSpoofingItem::onCycleMacAddressClick()
 {
-    if (curNetworkInterface_.interface_index() == curMAS_.selected_network_interface().interface_index())
+    if (curNetworkInterface_.interfaceIndex == curMAS_.selectedNetworkInterface.interfaceIndex)
     {
-        if (curNetworkInterface_.interface_index() != -1)
+        if (curNetworkInterface_.interfaceIndex != -1)
         {
             emit cycleMacAddressClick();
         }
@@ -172,26 +170,24 @@ void MacSpoofingItem::onCycleMacAddressClick()
     }
 }
 
-void MacSpoofingItem::updateSpoofingSelection(ProtoTypes::MacAddrSpoofing &macAddrSpoofing)
+void MacSpoofingItem::updateSpoofingSelection(types::MacAddrSpoofing &macAddrSpoofing)
 {
     QString adapters = "";
     comboBoxInterface_->clear();
-    for (int i = 0; i < macAddrSpoofing.network_interfaces().networks_size(); i++)
+    for (int i = 0; i < macAddrSpoofing.networkInterfaces.size(); i++)
     {
-        ProtoTypes::NetworkInterface interface = macAddrSpoofing.network_interfaces().networks(i);
-        comboBoxInterface_->addItem(QString::fromStdString(interface.interface_name()), interface.interface_index());
+        types::NetworkInterface interface = macAddrSpoofing.networkInterfaces[i];
+        comboBoxInterface_->addItem(interface.interfaceName, interface.interfaceIndex);
 
-        adapters += QString::fromStdString(interface.interface_name());
+        adapters += interface.interfaceName;
 
-        if (i < macAddrSpoofing.network_interfaces().networks_size() - 1) adapters += ", ";
+        if (i < macAddrSpoofing.networkInterfaces.size() - 1) adapters += ", ";
     }
 
     qCDebug(LOG_BASIC) << "Updating Spoofing adapter dropdown with: " << adapters;
-    qCDebug(LOG_BASIC) << "Spoofing selection: " << QString::fromStdString(macAddrSpoofing.selected_network_interface().interface_name());
+    qCDebug(LOG_BASIC) << "Spoofing selection: " << macAddrSpoofing.selectedNetworkInterface.interfaceName;
 
-    comboBoxInterface_->setCurrentItem(macAddrSpoofing.selected_network_interface().interface_index());
-    *macAddrSpoofing.mutable_selected_network_interface() = macAddrSpoofing.selected_network_interface();
-
+    comboBoxInterface_->setCurrentItem(macAddrSpoofing.selectedNetworkInterface.interfaceIndex);
 }
 
 void MacSpoofingItem::updatePositions()

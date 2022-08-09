@@ -17,8 +17,8 @@ public:
     ~SplitTunnelingAppsItem();
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
-    QList<ProtoTypes::SplitTunnelingApp> getApps();
-    void setApps(QList<ProtoTypes::SplitTunnelingApp> processNames);
+    QList<types::SplitTunnelingApp> getApps();
+    void setApps(QList<types::SplitTunnelingApp> processNames);
     void setLoggedIn(bool loggedIn);
 
     void attemptDelete(AppIncludedItem *appItem);
@@ -30,7 +30,7 @@ signals:
     void escape();
     void searchClicked();
     void addClicked();
-    void appsUpdated(QList<ProtoTypes::SplitTunnelingApp> apps);
+    void appsUpdated(QList<types::SplitTunnelingApp> apps);
     void nativeInfoErrorMessage(QString title, QString desc);
     void scrollToRect(QRect r);
 
@@ -51,14 +51,14 @@ private:
     IconButton *addButton_;
     DividerLine *dividerLine_;
 
-    QList<ProtoTypes::SplitTunnelingApp> apps_; // only active apps
+    QList<types::SplitTunnelingApp> apps_; // only active apps
     QList<QSharedPointer<AppIncludedItem>> drawnApps_;
 
     void drawItemsAndUpdateHeight();
     void updateItemsPosAndUpdateHeight();
-    ProtoTypes::SplitTunnelingApp *appByName(QString appName);
+    types::SplitTunnelingApp *appByName(QString appName);
 
-    void removeAppFromApps(ProtoTypes::SplitTunnelingApp app);
+    void removeAppFromApps(types::SplitTunnelingApp app);
     void emitNotLoggedInErrorMessage();
 
     int selectableIndex(ClickableGraphicsObject *object);

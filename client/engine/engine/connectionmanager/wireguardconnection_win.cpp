@@ -7,7 +7,7 @@
 
 #include "adapterutils_win.h"
 #include "engine/wireguardconfig/wireguardconfig.h"
-#include "engine/types/wireguardtypes.h"
+#include "types/wireguardtypes.h"
 #include "utils/crashhandler.h"
 #include "utils/logger.h"
 
@@ -41,7 +41,7 @@ WireGuardConnection::~WireGuardConnection()
 
 void WireGuardConnection::startConnect(const QString &configPathOrUrl, const QString &ip,
                                        const QString &dnsHostName, const QString &username,
-                                       const QString &password, const ProxySettings &proxySettings,
+                                       const QString &password, const types::ProxySettings &proxySettings,
                                        const WireGuardConfig *wireGuardConfig,
                                        bool isEnableIkev2Compression, bool isAutomaticConnectionMode)
 {
@@ -83,7 +83,7 @@ void WireGuardConnection::startConnect(const QString &configPathOrUrl, const QSt
     catch (std::system_error& ex)
     {
         qCDebug(LOG_CONNECTION) << ex.what();
-        emit error(ProtoTypes::ConnectError::WIREGUARD_CONNECTION_ERROR);
+        emit error(CONNECT_ERROR::WIREGUARD_CONNECTION_ERROR);
     }
 }
 
@@ -224,8 +224,8 @@ void WireGuardConnection::run()
     {
         qCDebug(LOG_CONNECTION) << ex.what();
 
-        ProtoTypes::ConnectError err = (ex.code().value() == ERROR_INVALID_IMAGE_HASH ? ProtoTypes::ConnectError::EXE_VERIFY_WIREGUARD_ERROR
-                                                                                      : ProtoTypes::ConnectError::WIREGUARD_CONNECTION_ERROR);
+        CONNECT_ERROR err = (ex.code().value() == ERROR_INVALID_IMAGE_HASH ? CONNECT_ERROR::EXE_VERIFY_WIREGUARD_ERROR
+                                                                                      : CONNECT_ERROR::WIREGUARD_CONNECTION_ERROR);
         emit error(err);
 
         onWireguardServiceStartupFailure();
@@ -282,10 +282,10 @@ void WireGuardConnection::onGetWireguardStats()
     // access the API provided by the wireguard-nt kernel driver instance created by the
     // wireguard service.
 
-    WireGuardStatus status;
+    types::WireGuardStatus status;
     if (helper_->getWireGuardStatus(&status))
     {
-        if (status.state == WireGuardState::ACTIVE)
+        if (status.state == types::WireGuardState::ACTIVE)
         {
             if (!connectedSignalEmited_ && status.lastHandshake > 0)
             {

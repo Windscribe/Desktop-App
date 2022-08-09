@@ -6,12 +6,12 @@
 #include <QVector>
 #include <QSet>
 #include <QMap>
-#include "portmap.h"
-#include "servercredentials.h"
+#include "types/portmap.h"
+#include "types/servercredentials.h"
 #include "utils/simplecrypt.h"
-#include "location.h"
-#include "staticips.h"
-#include "sessionstatus.h"
+#include "types/location.h"
+#include "types/staticips.h"
+#include "types/sessionstatus.h"
 
 namespace apiinfo {
 
@@ -20,17 +20,17 @@ class ApiInfo
 public:
     explicit ApiInfo();
 
-    SessionStatus getSessionStatus() const;
-    void setSessionStatus(const SessionStatus &value);
+    types::SessionStatus getSessionStatus() const;
+    void setSessionStatus(const types::SessionStatus &value);
 
-    void setLocations(const QVector<Location> &value);
-    QVector<Location> getLocations() const;
+    void setLocations(const QVector<types::Location> &value);
+    QVector<types::Location> getLocations() const;
 
     QStringList getForceDisconnectNodes() const;
     void setForceDisconnectNodes(const QStringList &value);
 
-    void setServerCredentials(const ServerCredentials &serverCredentials);
-    ServerCredentials getServerCredentials() const;
+    void setServerCredentials(const types::ServerCredentials &serverCredentials);
+    types::ServerCredentials getServerCredentials() const;
 
     QString getOvpnConfig() const;
     void setOvpnConfig(const QString &value);
@@ -40,11 +40,11 @@ public:
     static QString getAuthHash();
     static void setAuthHash(const QString &authHash);
 
-    PortMap getPortMap() const;
-    void setPortMap(const PortMap &portMap);
+    types::PortMap getPortMap() const;
+    void setPortMap(const types::PortMap &portMap);
 
-    void setStaticIps(const StaticIps &value);
-    StaticIps getStaticIps() const;
+    void setStaticIps(const types::StaticIps &value);
+    types::StaticIps getStaticIps() const;
 
     bool loadFromSettings();
     void saveToSettings();
@@ -53,13 +53,13 @@ public:
 private:
     void mergeWindflixLocations();
 
-    SessionStatus sessionStatus_;
-    QVector<Location> locations_;
+    types::SessionStatus sessionStatus_;
+    QVector<types::Location> locations_;
     QStringList forceDisconnectNodes_;
-    ServerCredentials serverCredentials_;
+    types::ServerCredentials serverCredentials_;
     QString ovpnConfig_;
-    PortMap portMap_;
-    StaticIps staticIps_;
+    types::PortMap portMap_;
+    types::StaticIps staticIps_;
 
     SimpleCrypt simpleCrypt_;
 
@@ -67,6 +67,10 @@ private:
     Qt::HANDLE threadId_;
 
     QDateTime ovpnConfigSetTimestamp_;
+
+    // for serialization
+    static constexpr quint32 magic_ = 0x7605A2AE;
+    static constexpr quint32 versionForSerialization_ = 1;  // should increment the version if the data format is changed
 };
 
 } //namespace apiinfo

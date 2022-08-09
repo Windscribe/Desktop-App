@@ -17,13 +17,13 @@ public:
     explicit ProxySettingsItem(ScalableGraphicsObject *parent);
 
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR) override;
-    void setProxySettings(const ProtoTypes::ProxySettings &ps);
+    void setProxySettings(const types::ProxySettings &ps);
 
     void updateScaling() override;
     bool hasItemWithFocus() override;
 
 signals:
-    void proxySettingsChanged(const ProtoTypes::ProxySettings &ps);
+    void proxySettingsChanged(const types::ProxySettings &ps);
 
 private slots:
     void onProxyTypeChanged(QVariant v);
@@ -47,7 +47,7 @@ private:
     QVariantAnimation expandEnimation_;
     bool isExpanded_;
     int curUnscaledHeight_;
-    ProtoTypes::ProxySettings curProxySettings_;
+    types::ProxySettings curProxySettings_;
     EditBoxItem *editBoxAddress_;
     EditBoxItem *editBoxPort_;
     EditBoxItem *editBoxUsername_;

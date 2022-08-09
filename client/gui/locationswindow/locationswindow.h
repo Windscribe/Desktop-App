@@ -29,7 +29,7 @@ public:
     GuiLocations::LocationsTab::LocationTabEnum currentTab();
 
 public slots:
-    void setLatencyDisplay(ProtoTypes::LatencyDisplayType l);
+    void setLatencyDisplay(LATENCY_DISPLAY_TYPE l);
     void setCustomConfigsPath(QString path);
     void onLanguageChanged();
     void setShowLocationLoad(bool showLocationLoad);

@@ -24,21 +24,20 @@ QList<QString> networkTrustTypesWithoutForget()
 }
 
 
-ProtoTypes::NetworkInterface networkInterfaceByFriendlyName(QString friendlyName)
+types::NetworkInterface networkInterfaceByFriendlyName(QString friendlyName)
 {
-    ProtoTypes::NetworkInterface network;
+    types::NetworkInterface network;
 
-    QString foundNetworkId = "";
-    ProtoTypes::NetworkWhiteList networkListOld = PersistentState::instance().networkWhitelist();
-    for (int i = 0; i < networkListOld.networks_size(); i++)
+    QVector<types::NetworkInterface> networkListOld = PersistentState::instance().networkWhitelist();
+    for (int i = 0; i < networkListOld.size(); i++)
     {
-        if (networkListOld.networks(i).friendly_name() == friendlyName.toStdString())
+        if (networkListOld[i].friendlyName == friendlyName)
         {
-            network.set_friendly_name(friendlyName.toStdString());
-            network.set_interface_type(networkListOld.networks(i).interface_type());
-            network.set_network_or_ssid(networkListOld.networks(i).network_or_ssid());
-            network.set_trust_type(networkListOld.networks(i).trust_type());
-            network.set_active(networkListOld.networks(i).active());
+            network.friendlyName = friendlyName;
+            network.interfaceType = networkListOld[i].interfaceType;
+            network.networkOrSSid =  networkListOld[i].networkOrSSid;
+            network.trustType = networkListOld[i].trustType;
+            network.active = networkListOld[i].active;
             break;
         }
     }

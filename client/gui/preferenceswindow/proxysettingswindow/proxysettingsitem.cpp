@@ -2,15 +2,14 @@
 
 #include <QPainter>
 #include "graphicresources/fontmanager.h"
-#include "utils/protoenumtostring.h"
 #include "dpiscalemanager.h"
 
 namespace PreferencesWindow {
 
 static bool IsProxyOptionAllowed(int option_number) {
     // Temporarily hide Auto-detect and SOCKS proxy options in the GUI.
-    return option_number != ProtoTypes::PROXY_OPTION_AUTODETECT &&
-           option_number != ProtoTypes::PROXY_OPTION_SOCKS;
+    return option_number != PROXY_OPTION_AUTODETECT &&
+           option_number != PROXY_OPTION_SOCKS;
 }
 
 ProxySettingsItem::ProxySettingsItem(ScalableGraphicsObject *parent) : BaseItem(parent, 93),
@@ -20,7 +19,7 @@ ProxySettingsItem::ProxySettingsItem(ScalableGraphicsObject *parent) : BaseItem(
 
     comboBoxProxyType_ = new ComboBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::ComboBoxItem", "Proxy"), "", 50, Qt::transparent, 0, false);
 
-    const QList< QPair<QString, int> > types = ProtoEnumToString::instance().getEnums(ProtoTypes::ProxyOption_descriptor());
+    const QList< QPair<QString, int> > types = PROXY_OPTION_toList();
     for (const auto p : types)
     {
         if (IsProxyOptionAllowed(p.second))
@@ -60,36 +59,36 @@ void ProxySettingsItem::onExpandAnimationValueChanged(const QVariant &value)
 
 void ProxySettingsItem::onAddressChanged(const QString &text)
 {
-    if (QString::fromStdString(curProxySettings_.address()) != text)
+    if (curProxySettings_.address() != text)
     {
-        curProxySettings_.set_address(text.toStdString());
+        curProxySettings_.setAddress(text);
         emit proxySettingsChanged(curProxySettings_);
     }
 }
 
 void ProxySettingsItem::onPortChanged(const QString &text)
 {
-    if (QString::number(curProxySettings_.port()) != text)
+    if (QString::number(curProxySettings_.getPort()) != text)
     {
-        curProxySettings_.set_port(text.toInt());
+        curProxySettings_.setPort(text.toInt());
         emit proxySettingsChanged(curProxySettings_);
     }
 }
 
 void ProxySettingsItem::onUsernameChanged(const QString &text)
 {
-    if (QString::fromStdString(curProxySettings_.username()) != text)
+    if (curProxySettings_.getUsername() != text)
     {
-        curProxySettings_.set_username(text.toStdString());
+        curProxySettings_.setUsername(text);
         emit proxySettingsChanged(curProxySettings_);
     }
 }
 
 void ProxySettingsItem::onPasswordChanged(const QString &text)
 {
-    if (QString::fromStdString(curProxySettings_.password()) != text)
+    if (curProxySettings_.getPassword() != text)
     {
-        curProxySettings_.set_password(text.toStdString());
+        curProxySettings_.setPassword(text);
         emit proxySettingsChanged(curProxySettings_);
     }
 }
@@ -146,16 +145,16 @@ void ProxySettingsItem::paint(QPainter *painter, const QStyleOptionGraphicsItem 
     painter->drawText(bottomHalfRect, tr("If your network has a LAN proxy, configure it here."));
 }
 
-void ProxySettingsItem::setProxySettings(const ProtoTypes::ProxySettings &ps)
+void ProxySettingsItem::setProxySettings(const types::ProxySettings &ps)
 {
-    if(!google::protobuf::util::MessageDifferencer::Equals(curProxySettings_, ps))
+    if(curProxySettings_ != ps)
     {
         curProxySettings_ = ps;
-        int current_proxy_option = curProxySettings_.proxy_option();
+        int current_proxy_option = curProxySettings_.option();
         if (!IsProxyOptionAllowed(current_proxy_option))
-            current_proxy_option = ProtoTypes::PROXY_OPTION_NONE;
+            current_proxy_option = PROXY_OPTION_NONE;
 
-        if (current_proxy_option == ProtoTypes::PROXY_OPTION_HTTP || current_proxy_option == ProtoTypes::PROXY_OPTION_SOCKS)
+        if (current_proxy_option == PROXY_OPTION_HTTP || current_proxy_option == PROXY_OPTION_SOCKS)
         {
             isExpanded_ = true;
             onExpandAnimationValueChanged(EXPANDED_HEIGHT);
@@ -167,17 +166,17 @@ void ProxySettingsItem::setProxySettings(const ProtoTypes::ProxySettings &ps)
         }
         comboBoxProxyType_->setCurrentItem(current_proxy_option);
 
-        editBoxAddress_->setText(QString::fromStdString(curProxySettings_.address()));
-        if (curProxySettings_.port() == 0)
+        editBoxAddress_->setText(curProxySettings_.address());
+        if (curProxySettings_.getPort() == 0)
         {
             editBoxPort_->setText("");
         }
         else
         {
-            editBoxPort_->setText(QString::number(curProxySettings_.port()));
+            editBoxPort_->setText(QString::number(curProxySettings_.getPort()));
         }
-        editBoxUsername_->setText(QString::fromStdString(curProxySettings_.username()));
-        editBoxPassword_->setText(QString::fromStdString(curProxySettings_.password()));
+        editBoxUsername_->setText(curProxySettings_.getUsername());
+        editBoxPassword_->setText(curProxySettings_.getPassword());
     }
 }
 
@@ -200,9 +199,9 @@ void ProxySettingsItem::onProxyTypeChanged(QVariant v)
 {
     int new_proxy_option = v.toInt();
     if (!IsProxyOptionAllowed(new_proxy_option))
-        new_proxy_option = ProtoTypes::PROXY_OPTION_NONE;
+        new_proxy_option = PROXY_OPTION_NONE;
 
-    if ((new_proxy_option == ProtoTypes::PROXY_OPTION_HTTP || new_proxy_option == ProtoTypes::PROXY_OPTION_SOCKS)  && !isExpanded_)
+    if ((new_proxy_option == PROXY_OPTION_HTTP || new_proxy_option == PROXY_OPTION_SOCKS)  && !isExpanded_)
     {
         expandEnimation_.setDirection(QVariantAnimation::Forward);
         if (expandEnimation_.state() != QVariantAnimation::Running)
@@ -211,7 +210,7 @@ void ProxySettingsItem::onProxyTypeChanged(QVariant v)
         }
         isExpanded_ = true;
     }
-    else if ((new_proxy_option == ProtoTypes::PROXY_OPTION_NONE || new_proxy_option == ProtoTypes::PROXY_OPTION_AUTODETECT) && isExpanded_)
+    else if ((new_proxy_option == PROXY_OPTION_NONE || new_proxy_option == PROXY_OPTION_AUTODETECT) && isExpanded_)
     {
         expandEnimation_.setDirection(QVariantAnimation::Backward);
         if (expandEnimation_.state() != QVariantAnimation::Running)
@@ -221,9 +220,9 @@ void ProxySettingsItem::onProxyTypeChanged(QVariant v)
         isExpanded_ = false;
     }
 
-    if ((int)curProxySettings_.proxy_option() != new_proxy_option)
+    if ((int)curProxySettings_.option() != new_proxy_option)
     {
-        curProxySettings_.set_proxy_option((ProtoTypes::ProxyOption)new_proxy_option);
+        curProxySettings_.setOption((PROXY_OPTION)new_proxy_option);
         emit proxySettingsChanged(curProxySettings_);
     }
 }

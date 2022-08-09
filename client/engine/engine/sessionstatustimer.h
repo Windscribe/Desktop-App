@@ -23,7 +23,7 @@ signals:
 
 private slots:
     void onTimer();
-    void onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, ProtoTypes::ConnectError err, const LocationID &location);
+    void onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, CONNECT_ERROR err, const LocationID &location);
 
 private:
     static constexpr int TIMER_INTERVAL = 60000;

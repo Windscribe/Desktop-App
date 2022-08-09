@@ -3,7 +3,7 @@
 
 #include "../baseitem.h"
 #include "../comboboxitem.h"
-#include "utils/protobuf_includes.h"
+#include "types/networkinterface.h"
 
 namespace PreferencesWindow {
 
@@ -17,22 +17,22 @@ public:
     void hideOpenPopups() override;
 
     void clearNetworks();
-    void addNetwork(ProtoTypes::NetworkInterface network, ProtoTypes::NetworkTrustType trustType);
-    void setCurrentNetwork(ProtoTypes::NetworkInterface network);
-    ProtoTypes::NetworkWhiteList networkWhiteList();
+    void addNetwork(types::NetworkInterface network, NETWORK_TRUST_TYPE trustType);
+    void setCurrentNetwork(types::NetworkInterface network);
+    QVector<types::NetworkInterface> networkWhiteList();
 
     void updateNetworkCombos();
     void updateScaling() override;
 
 signals:
-    void networkItemsChanged(ProtoTypes::NetworkInterface network);
+    void networkItemsChanged(types::NetworkInterface network);
 
 private slots:
     void onNetworkItemChanged(QVariant data);
 
 private:
     QList<ComboBoxItem *> networks_;
-    ProtoTypes::NetworkInterface currentNetwork_;
+    types::NetworkInterface currentNetwork_;
 
     void recalcHeight();
     void removeNetworkCombo(ComboBoxItem *combo);

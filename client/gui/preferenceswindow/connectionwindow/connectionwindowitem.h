@@ -30,7 +30,7 @@ public:
 
     CONNECTION_SCREEN_TYPE getScreen();
     void setScreen(CONNECTION_SCREEN_TYPE subScreen);
-    void setCurrentNetwork(const ProtoTypes::NetworkInterface &networkInterface);
+    void setCurrentNetwork(const types::NetworkInterface &networkInterface);
     void setPacketSizeDetectionState(bool on);
     void showPacketSizeDetectionError(const QString &title, const QString &message);
 
@@ -42,22 +42,22 @@ signals:
     void detectAppropriatePacketSizeButtonClicked();
 
 private slots:
-    void onFirewallModeChanged(const ProtoTypes::FirewallSettings &fm);
+    void onFirewallModeChanged(const types::FirewallSettings &fm);
     void onFirewallModeHoverEnter();
     void onFirewallModeHoverLeave();
-    void onConnectionModeChanged(const ProtoTypes::ConnectionSettings &cm);
+    void onConnectionModeChanged(const types::ConnectionSettings &cm);
     void onConnectionModeHoverEnter(ConnectionModeItem::ButtonType type);
     void onConnectionModeHoverLeave(ConnectionModeItem::ButtonType type);
-    void onPacketSizeChanged(const ProtoTypes::PacketSize &ps);
-    void onMacAddrSpoofingChanged(const ProtoTypes::MacAddrSpoofing &mas);
+    void onPacketSizeChanged(const types::PacketSize &ps);
+    void onMacAddrSpoofingChanged(const types::MacAddrSpoofing &mas);
     void onIsAllowLanTrafficClicked(bool b);
     void onAllowLanTrafficButtonHoverLeave();
-    void onDnsWhileConnectedItemChanged(DnsWhileConnectedInfo dns);
+    void onDnsWhileConnectedItemChanged(types::DnsWhileConnectedInfo dns);
 
-    void onFirewallModePreferencesChanged(const ProtoTypes::FirewallSettings &fm);
-    void onConnectionModePreferencesChanged(const ProtoTypes::ConnectionSettings &cm);
-    void onPacketSizePreferencesChanged(const ProtoTypes::PacketSize &ps);
-    void onMacAddrSpoofingPreferencesChanged(const ProtoTypes::MacAddrSpoofing &mas);
+    void onFirewallModePreferencesChanged(const types::FirewallSettings &fm);
+    void onConnectionModePreferencesChanged(const types::ConnectionSettings &cm);
+    void onPacketSizePreferencesChanged(const types::PacketSize &ps);
+    void onMacAddrSpoofingPreferencesChanged(const types::MacAddrSpoofing &mas);
     void onIsAllowLanTrafficPreferencedChanged(bool b);
     void onInvalidLanAddressNotification(QString address);
     void onIsFirewallBlockedChanged(bool bFirewallBlocked);
@@ -67,7 +67,7 @@ private slots:
     void onKillTcpSocketsStateChanged(bool isChecked);
 #endif
 
-    void onDnsWhileConnectedPreferencesChanged(const DnsWhileConnectedInfo &dns);
+    void onDnsWhileConnectedPreferencesChanged(const types::DnsWhileConnectedInfo &dns);
 
     void onLanguageChanged();
 

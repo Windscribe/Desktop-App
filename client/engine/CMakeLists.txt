@@ -34,8 +34,6 @@ target_compile_definitions(engine PRIVATE CMAKE_LIBRARY_LIBRARY
 
 target_include_directories(engine PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/../../common
-    ${WINDSCRIBE_BUILD_LIBS_PATH}/protobuf/release/include
-    ${WINDSCRIBE_BUILD_LIBS_PATH}/protobuf/include
     ${WINDSCRIBE_BUILD_LIBS_PATH}/boost/include
     ${WINDSCRIBE_BUILD_LIBS_PATH}/curl/include
     ${WINDSCRIBE_BUILD_LIBS_PATH}/cares/dll_x64/include

@@ -22,7 +22,7 @@ public:
 
     void setSecureHotspotFeatures(bool isEnabled, const QString &ssid);
     void setSecureHotspotUsersCount(int usersCount);
-    void setProxyGatewayFeatures(bool isEnabled, ProtoTypes::ProxySharingMode mode);
+    void setProxyGatewayFeatures(bool isEnabled, PROXY_SHARING_TYPE mode);
     void setProxyGatewayUsersCount(int usersCount);
 
     virtual void animateHornDisplay(bool show);
@@ -52,7 +52,7 @@ private slots:
 
 private:
     void setHotspotSSID(QString ssid);
-    void setProxyType(ProtoTypes::ProxySharingMode mode);
+    void setProxyType(PROXY_SHARING_TYPE mode);
 
     enum SHARE_MODE { SHARE_MODE_OFF, SHARE_MODE_HOTSPOT, SHARE_MODE_PROXY, SHARE_MODE_BOTH };
 
@@ -63,7 +63,7 @@ private:
     QString secureHotspotSsid_;
 
     bool isProxyGatewayEnabled_;
-    ProtoTypes::ProxySharingMode proxyGatewayMode_;
+    PROXY_SHARING_TYPE proxyGatewayMode_;
     //ProtoTypes::WifiSharingInfo hotspot_;
     //ProtoTypes::ProxySharingInfo gateway_;
 

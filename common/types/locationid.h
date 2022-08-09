@@ -4,7 +4,6 @@
 #include <QString>
 #include <QMetaType>
 #include <QHash>
-#include "utils/protobuf_includes.h"
 
 // Uniquely identifies a location among all locations (API locations, statis IPs locations, custom config locations, best location).
 class LocationID
@@ -12,6 +11,7 @@ class LocationID
 public:
 
     LocationID() : type_(INVALID_LOCATION), id_(0) {}
+    LocationID(int type, int id, const QString &city) : type_(type), id_(id), city_(city) {}
 
     static LocationID createTopApiLocationId(int id);
     static LocationID createTopStaticLocationId();
@@ -20,7 +20,6 @@ public:
     static LocationID createBestLocationId(int id);
     static LocationID createStaticIpsLocationId(const QString &city, const QString &ip);
     static LocationID createCustomConfigLocationId(const QString &filename);
-    static LocationID createFromProtoBuf(const ProtoTypes::LocationId &lid);
 
     LocationID& operator=(LocationID rhs)
     {
@@ -51,13 +50,31 @@ public:
     LocationID bestLocationToApiLocation() const;
     LocationID apiLocationToBestLocation() const;
     LocationID toTopLevelLocation() const;
-    ProtoTypes::LocationId toProtobuf() const;
 
     QString getHashString() const;
 
     int type() { return type_; }
     int id() { return id_; }
     QString city() { return city_; }
+
+    friend QDataStream& operator <<(QDataStream &stream, const LocationID &l)
+    {
+        stream << versionForSerialization_;
+        stream << l.type_ << l.id_ << l.city_;
+        return stream;
+    }
+    friend QDataStream& operator >>(QDataStream &stream, LocationID &l)
+    {
+        quint32 version;
+        stream >> version;
+        if (version > l.versionForSerialization_)
+        {
+            stream.setStatus(QDataStream::ReadCorruptData);
+            return stream;
+        }
+        stream >> l.type_ >> l.id_ >> l.city_;
+        return stream;
+    }
 
 private:
     static constexpr int INVALID_LOCATION = 0;
@@ -76,6 +93,8 @@ private:
                     // for CUSTOM_OVPN_CONFIGS_LOCATION this is config filename
                     // for STATIC_IPS_LOCATION this is city + ip string
                     // for top level location - empty value
+
+    static constexpr quint32 versionForSerialization_ = 1;  // should increment the version if the data format is changed
 };
 
 inline size_t qHash(const LocationID &key, uint seed)

@@ -7,7 +7,7 @@ namespace ConnectWindow {
 
 ServerRatingIndicator::ServerRatingIndicator(ScalableGraphicsObject *parent)
     : ClickableGraphicsObject(parent), width_(0), height_(0),
-      connectState_(ProtoTypes::DISCONNECTED), pingTime_(PingTime::PING_FAILED)
+      connectState_(CONNECT_STATE_DISCONNECTED), pingTime_(PingTime::PING_FAILED)
 {
     setClickable(true);
 }
@@ -25,7 +25,7 @@ void ServerRatingIndicator::paint(QPainter *painter, const QStyleOptionGraphicsI
     qreal initOpacity = painter->opacity();
 
     //painter->fillRect(boundingRect(), QBrush(QColor(0, 255, 255)));
-    if (connectState_ == ProtoTypes::CONNECTED)
+    if (connectState_ == CONNECT_STATE_CONNECTED)
     {
         painter->setOpacity(1.0);
         if (pingTime_.toConnectionSpeed() == 0)
@@ -74,7 +74,7 @@ void ServerRatingIndicator::paint(QPainter *painter, const QStyleOptionGraphicsI
     }
 }
 
-void ServerRatingIndicator::onConnectStateChanged(ProtoTypes::ConnectStateType newConnectState, ProtoTypes::ConnectStateType prevConnectState)
+void ServerRatingIndicator::onConnectStateChanged(CONNECT_STATE newConnectState, CONNECT_STATE prevConnectState)
 {
     Q_UNUSED(prevConnectState);
 

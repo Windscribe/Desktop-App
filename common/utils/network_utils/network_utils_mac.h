@@ -2,7 +2,7 @@
 
 #include <QString>
 #include <QList>
-#include "utils/protobuf_includes.h"
+#include "types/networkinterface.h"
 
 namespace NetworkUtils_mac
 {
@@ -16,9 +16,9 @@ namespace NetworkUtils_mac
     bool isWifiAdapter(const QString &networkInterface);
     bool isAdapterUp(const QString &networkInterfaceName);
 
-    const ProtoTypes::NetworkInterface currentNetworkInterface();
-    ProtoTypes::NetworkInterfaces currentNetworkInterfaces(bool includeNoInterface);
-    ProtoTypes::NetworkInterfaces currentSpoofedInterfaces();
+    const types::NetworkInterface currentNetworkInterface();
+    QVector<types::NetworkInterface> currentNetworkInterfaces(bool includeNoInterface);
+    QVector<types::NetworkInterface> currentSpoofedInterfaces();
 
     bool isInterfaceSpoofed(const QString &interfaceName);
     bool checkMacAddr(const QString& interfaceName, const QString& macAddr);

@@ -8,7 +8,7 @@
 
 namespace PreferencesWindow {
 
-AppSearchItem::AppSearchItem(ProtoTypes::SplitTunnelingApp app, QString appIconPath, ScalableGraphicsObject *parent) : BaseItem (parent, 50*G_SCALE)
+AppSearchItem::AppSearchItem(types::SplitTunnelingApp app, QString appIconPath, ScalableGraphicsObject *parent) : BaseItem (parent, 50*G_SCALE)
     , textOpacity_(OPACITY_UNHOVER_TEXT)
     , app_(app)
     , appIcon_(appIconPath)
@@ -69,17 +69,17 @@ void AppSearchItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opt
     painter->setOpacity(textOpacity_ * initOpacity);
     painter->setPen(Qt::white);
     painter->setFont(*FontManager::instance().getFont(12, false));
-    painter->drawText(boundingRect().adjusted(40*G_SCALE, 13*G_SCALE, -48*G_SCALE, -18*G_SCALE), QString::fromStdString(app_.name()));
+    painter->drawText(boundingRect().adjusted(40*G_SCALE, 13*G_SCALE, -48*G_SCALE, -18*G_SCALE), app_.name);
 }
 
 QString AppSearchItem::getName()
 {
-    return QString::fromStdString(app_.name());
+    return app_.name;
 }
 
 QString AppSearchItem::getFullName()
 {
-    return QString::fromStdString(app_.full_name());
+    return app_.fullName;
 }
 
 QString AppSearchItem::getAppIcon()
@@ -89,7 +89,7 @@ QString AppSearchItem::getAppIcon()
 
 void AppSearchItem::updateIcons()
 {
-    if (app_.active())
+    if (app_.active)
     {
         enabledIcon_ = "preferences/GREEN_CHECKMARK_ICON";
         enabledIconOpacity_ = OPACITY_FULL;

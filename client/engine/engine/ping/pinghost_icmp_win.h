@@ -4,7 +4,7 @@
 #include <QObject>
 #include "Engine/ConnectStateController/iconnectstatecontroller.h"
 #include "Utils/boost_includes.h"
-#include "Engine/Proxy/proxysettings.h"
+#include "types/proxysettings.h"
 #include <QQueue>
 #include <QMap>
 #include <QMutex>
@@ -22,7 +22,7 @@ public:
     void addHostForPing(const QString &ip);
     void clearPings();
 
-    void setProxySettings(const ProxySettings &proxySettings);
+    void setProxySettings(const types::ProxySettings &proxySettings);
     void disableProxy();
     void enableProxy();
 

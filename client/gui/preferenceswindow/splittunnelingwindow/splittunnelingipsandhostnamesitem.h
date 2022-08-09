@@ -14,7 +14,7 @@ public:
     explicit SplitTunnelingIpsAndHostnamesItem(ScalableGraphicsObject *parent);
     virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR) override;
 
-    void setNetworkRoutes(QList<ProtoTypes::SplitTunnelingNetworkRoute> routes);
+    void setNetworkRoutes(QList<types::SplitTunnelingNetworkRoute> routes);
     void setLoggedIn(bool loggedIn);
     void setFocusOnTextEntry();
 
@@ -25,7 +25,7 @@ public:
 
 signals:
     void escape();
-    void networkRoutesUpdated(QList<ProtoTypes::SplitTunnelingNetworkRoute> routes);
+    void networkRoutesUpdated(QList<types::SplitTunnelingNetworkRoute> routes);
     void nativeInfoErrorMessage(QString title, QString desc);
     void scrollToRect(QRect r);
 
@@ -47,7 +47,7 @@ private:
     QList<IpOrHostnameItem *> sortedIpsAndHostnames_;
 
     void validateAndCreateNetworkRoute(QString ipOrHostname);
-    void createNetworkRouteUiItem(ProtoTypes::SplitTunnelingNetworkRoute ipOrHostname);
+    void createNetworkRouteUiItem(types::SplitTunnelingNetworkRoute ipOrHostname);
 
     IpOrHostnameItem *itemByName(QString ipOrHostname) const;
     void recalcHeight();

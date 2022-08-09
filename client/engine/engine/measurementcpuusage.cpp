@@ -9,7 +9,7 @@ MeasurementCpuUsage::MeasurementCpuUsage(QObject *parent, IHelper *helper, IConn
 {
     helper_ = dynamic_cast<Helper_win *>(helper);
     Q_ASSERT(helper_);
-    connect(connectStateController, SIGNAL(stateChanged(CONNECT_STATE, DISCONNECT_REASON, ProtoTypes::ConnectError, LocationID)), SLOT(onConnectStateChanged(CONNECT_STATE, DISCONNECT_REASON, ProtoTypes::ConnectError, LocationID)));
+    connect(connectStateController, SIGNAL(stateChanged(CONNECT_STATE, DISCONNECT_REASON, CONNECT_ERROR, LocationID)), SLOT(onConnectStateChanged(CONNECT_STATE, DISCONNECT_REASON, CONNECT_ERROR, LocationID)));
     connect(&timer_, SIGNAL(timeout()), SLOT(onTimer()));
 
     if (PdhOpenQuery(NULL, 0, &hQuery_) == ERROR_SUCCESS)
@@ -47,7 +47,7 @@ void MeasurementCpuUsage::setEnabled(bool bEnabled)
     }
 }
 
-void MeasurementCpuUsage::onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON /*reason*/, ProtoTypes::ConnectError /*err*/, const LocationID & /*location*/)
+void MeasurementCpuUsage::onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON /*reason*/, CONNECT_ERROR /*err*/, const LocationID & /*location*/)
 {
     if (bEnabled_)
     {

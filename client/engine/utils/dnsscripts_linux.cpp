@@ -4,7 +4,7 @@
 
 QString DnsScripts_linux::scriptPath()
 {
-    if (dnsManager_ == ProtoTypes::DNS_MANAGER_AUTOMATIC)
+    if (dnsManager_ == DNS_MANAGER_AUTOMATIC)
     {
         SCRIPT_TYPE scriptType = detectScript();
         if (scriptType == SYSTEMD_RESOLVED)
@@ -25,15 +25,15 @@ QString DnsScripts_linux::scriptPath()
             return "";
         }
     }
-    else if (dnsManager_ == ProtoTypes::DNS_MANAGER_RESOLV_CONF)
+    else if (dnsManager_ == DNS_MANAGER_RESOLV_CONF)
     {
         return "/etc/windscribe/update-resolv-conf";
     }
-    else if (dnsManager_ == ProtoTypes::DNS_MANAGER_SYSTEMD_RESOLVED)
+    else if (dnsManager_ == DNS_MANAGER_SYSTEMD_RESOLVED)
     {
         return "/etc/windscribe/update-systemd-resolved";
     }
-    else if (dnsManager_ == ProtoTypes::DNS_MANAGER_NETWORK_MANAGER)
+    else if (dnsManager_ == DNS_MANAGER_NETWORK_MANAGER)
     {
         return "/etc/windscribe/update-network-manager";
     }
@@ -44,12 +44,12 @@ QString DnsScripts_linux::scriptPath()
     }
 }
 
-void DnsScripts_linux::setDnsManager(ProtoTypes::DnsManagerType d)
+void DnsScripts_linux::setDnsManager(DNS_MANAGER_TYPE d)
 {
     dnsManager_ = d;
 }
 
-DnsScripts_linux::DnsScripts_linux() : dnsManager_(ProtoTypes::DNS_MANAGER_AUTOMATIC)
+DnsScripts_linux::DnsScripts_linux() : dnsManager_(DNS_MANAGER_AUTOMATIC)
 {
 }
 

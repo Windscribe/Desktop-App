@@ -20,13 +20,13 @@ public:
     explicit SecureHotspotItem(ScalableGraphicsObject *parent);
 
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR) override;
-    void setSecureHotspotPars(const ProtoTypes::ShareSecureHotspot &ss);
+    void setSecureHotspotPars(const types::ShareSecureHotspot &ss);
     void setSupported(HOTSPOT_SUPPORT_TYPE supported);
 
     void updateScaling() override;
     bool hasItemWithFocus() override;
 signals:
-    void secureHotspotParsChanged(const ProtoTypes::ShareSecureHotspot &ss);
+    void secureHotspotParsChanged(const types::ShareSecureHotspot &ss);
 
 private slots:
     void onCheckBoxStateChanged(bool isChecked);
@@ -48,7 +48,7 @@ private:
     EditBoxItem *editBoxSSID_;
     EditBoxItem *editBoxPassword_;
 
-    ProtoTypes::ShareSecureHotspot ss_;
+    types::ShareSecureHotspot ss_;
     DividerLine *line_;
 
     QString descriptionText_;

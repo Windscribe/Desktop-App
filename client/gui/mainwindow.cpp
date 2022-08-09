@@ -139,7 +139,7 @@ MainWindow::MainWindow() :
     qCDebug(LOG_BASIC) << "GUI pid: " << guiPid;
     backend_ = new Backend(this);
 
-    connect(backend_, SIGNAL(initFinished(ProtoTypes::InitState)), SLOT(onBackendInitFinished(ProtoTypes::InitState)));
+    connect(backend_, SIGNAL(initFinished(INIT_STATE)), SLOT(onBackendInitFinished(INIT_STATE)));
     connect(backend_, SIGNAL(initTooLong()), SLOT(onBackendInitTooLong()));
 
     connect(backend_, &Backend::loginFinished, this, &MainWindow::onBackendLoginFinished);
@@ -148,38 +148,38 @@ MainWindow::MainWindow() :
 
     connect(backend_, SIGNAL(signOutFinished()), SLOT(onBackendSignOutFinished()));
 
-    connect(backend_, SIGNAL(sessionStatusChanged(ProtoTypes::SessionStatus)), SLOT(onBackendSessionStatusChanged(ProtoTypes::SessionStatus)));
-    connect(backend_, SIGNAL(checkUpdateChanged(ProtoTypes::CheckUpdateInfo)), SLOT(onBackendCheckUpdateChanged(ProtoTypes::CheckUpdateInfo)));
+    connect(backend_, SIGNAL(sessionStatusChanged(types::SessionStatus)), SLOT(onBackendSessionStatusChanged(types::SessionStatus)));
+    connect(backend_, SIGNAL(checkUpdateChanged(types::CheckUpdate)), SLOT(onBackendCheckUpdateChanged(types::CheckUpdate)));
     connect(backend_, SIGNAL(myIpChanged(QString, bool)), SLOT(onBackendMyIpChanged(QString, bool)));
-    connect(backend_, SIGNAL(connectStateChanged(ProtoTypes::ConnectState)), SLOT(onBackendConnectStateChanged(ProtoTypes::ConnectState)));
-    connect(backend_, SIGNAL(emergencyConnectStateChanged(ProtoTypes::ConnectState)), SLOT(onBackendEmergencyConnectStateChanged(ProtoTypes::ConnectState)));
+    connect(backend_, SIGNAL(connectStateChanged(types::ConnectState)), SLOT(onBackendConnectStateChanged(types::ConnectState)));
+    connect(backend_, SIGNAL(emergencyConnectStateChanged(types::ConnectState)), SLOT(onBackendEmergencyConnectStateChanged(types::ConnectState)));
     connect(backend_, SIGNAL(firewallStateChanged(bool)), SLOT(onBackendFirewallStateChanged(bool)));
     connect(backend_, SIGNAL(confirmEmailResult(bool)), SLOT(onBackendConfirmEmailResult(bool)));
     connect(backend_, SIGNAL(debugLogResult(bool)), SLOT(onBackendDebugLogResult(bool)));
-    connect(backend_, SIGNAL(networkChanged(ProtoTypes::NetworkInterface)), SLOT(onNetworkChanged(ProtoTypes::NetworkInterface)));
+    connect(backend_, SIGNAL(networkChanged(types::NetworkInterface)), SLOT(onNetworkChanged(types::NetworkInterface)));
     connect(backend_, SIGNAL(splitTunnelingStateChanged(bool)), SLOT(onSplitTunnelingStateChanged(bool)));
     connect(backend_, SIGNAL(statisticsUpdated(quint64, quint64, bool)), SLOT(onBackendStatisticsUpdated(quint64, quint64, bool)));
     connect(backend_, SIGNAL(requestCustomOvpnConfigCredentials()), SLOT(onBackendRequestCustomOvpnConfigCredentials()));
-    notificationsController_.connect(backend_,SIGNAL(notificationsChanged(ProtoTypes::ArrayApiNotification)), SLOT(updateNotifications(ProtoTypes::ArrayApiNotification)));
+    notificationsController_.connect(backend_,SIGNAL(notificationsChanged(QVector<types::Notification>)), SLOT(updateNotifications(QVector<types::Notification>)));
 
 #ifdef Q_OS_MAC
     WidgetUtils_mac::allowMinimizeForFramelessWindow(this);
 #endif
 
-    connect(backend_, SIGNAL(proxySharingInfoChanged(ProtoTypes::ProxySharingInfo)), SLOT(onBackendProxySharingInfoChanged(ProtoTypes::ProxySharingInfo)));
-    connect(backend_, SIGNAL(wifiSharingInfoChanged(ProtoTypes::WifiSharingInfo)), SLOT(onBackendWifiSharingInfoChanged(ProtoTypes::WifiSharingInfo)));
+    connect(backend_, SIGNAL(proxySharingInfoChanged(types::ProxySharingInfo)), SLOT(onBackendProxySharingInfoChanged(types::ProxySharingInfo)));
+    connect(backend_, SIGNAL(wifiSharingInfoChanged(types::WifiSharingInfo)), SLOT(onBackendWifiSharingInfoChanged(types::WifiSharingInfo)));
     connect(backend_, SIGNAL(cleanupFinished()), SLOT(onBackendCleanupFinished()));
     connect(backend_, SIGNAL(gotoCustomOvpnConfigModeFinished()), SLOT(onBackendGotoCustomOvpnConfigModeFinished()));
     connect(backend_, SIGNAL(sessionDeleted()), SLOT(onBackendSessionDeleted()));
     connect(backend_, SIGNAL(testTunnelResult(bool)), SLOT(onBackendTestTunnelResult(bool)));
     connect(backend_, SIGNAL(lostConnectionToHelper()), SLOT(onBackendLostConnectionToHelper()));
     connect(backend_, SIGNAL(highCpuUsage(QStringList)), SLOT(onBackendHighCpuUsage(QStringList)));
-    connect(backend_, SIGNAL(userWarning(ProtoTypes::UserWarningType)), SLOT(onBackendUserWarning(ProtoTypes::UserWarningType)));
+    connect(backend_, SIGNAL(userWarning(USER_WARNING_TYPE)), SLOT(onBackendUserWarning(USER_WARNING_TYPE)));
     connect(backend_, SIGNAL(internetConnectivityChanged(bool)), SLOT(onBackendInternetConnectivityChanged(bool)));
-    connect(backend_, SIGNAL(protocolPortChanged(ProtoTypes::Protocol, uint)), SLOT(onBackendProtocolPortChanged(ProtoTypes::Protocol, uint)));
+    connect(backend_, SIGNAL(protocolPortChanged(PROTOCOL, uint)), SLOT(onBackendProtocolPortChanged(PROTOCOL, uint)));
     connect(backend_, SIGNAL(packetSizeDetectionStateChanged(bool, bool)), SLOT(onBackendPacketSizeDetectionStateChanged(bool, bool)));
-    connect(backend_, SIGNAL(updateVersionChanged(uint, ProtoTypes::UpdateVersionState, ProtoTypes::UpdateVersionError)),
-            SLOT(onBackendUpdateVersionChanged(uint, ProtoTypes::UpdateVersionState, ProtoTypes::UpdateVersionError)));
+    connect(backend_, SIGNAL(updateVersionChanged(uint, UPDATE_VERSION_STATE, UPDATE_VERSION_ERROR)),
+            SLOT(onBackendUpdateVersionChanged(uint, UPDATE_VERSION_STATE, UPDATE_VERSION_ERROR)));
     connect(backend_, SIGNAL(webSessionTokenForEditAccountDetails(QString)), SLOT(onBackendWebSessionTokenForEditAccountDetails(QString)));
     connect(backend_, SIGNAL(webSessionTokenForAddEmail(QString)), SLOT(onBackendWebSessionTokenForAddEmail(QString)));
     connect(backend_, SIGNAL(engineCrash()), SLOT(onBackendEngineCrash()));
@@ -195,7 +195,7 @@ MainWindow::MainWindow() :
     connect(locationsWindow_, SIGNAL(clearCustomConfigClicked()), SLOT(onLocationsClearCustomConfigClicked()));
     connect(locationsWindow_, SIGNAL(addCustomConfigClicked()), SLOT(onLocationsAddCustomConfigClicked()));
     locationsWindow_->setLatencyDisplay(backend_->getPreferences()->latencyDisplay());
-    locationsWindow_->connect(backend_->getPreferences(), SIGNAL(latencyDisplayChanged(ProtoTypes::LatencyDisplayType)), SLOT(setLatencyDisplay(ProtoTypes::LatencyDisplayType)) );
+    locationsWindow_->connect(backend_->getPreferences(), SIGNAL(latencyDisplayChanged(LATENCY_DISPLAY_TYPE)), SLOT(setLatencyDisplay(LATENCY_DISPLAY_TYPE)) );
     locationsWindow_->setShowLocationLoad(backend_->getPreferences()->isShowLocationLoad());
     connect(backend_->getPreferences(), &Preferences::showLocationLoadChanged, locationsWindow_, &LocationsWindow::setShowLocationLoad);
     connect(backend_->getPreferences(), &Preferences::isAutoConnectChanged, this, &MainWindow::onAutoConnectUpdated);
@@ -264,7 +264,7 @@ MainWindow::MainWindow() :
     connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(loginClick()), SLOT(onPreferencesLoginClick()));
     connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(viewLogClick()), SLOT(onPreferencesViewLogClick()));
     connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(advancedParametersClicked()), SLOT(onPreferencesAdvancedParametersClicked()));
-    connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(currentNetworkUpdated(ProtoTypes::NetworkInterface)), SLOT(onCurrentNetworkUpdated(ProtoTypes::NetworkInterface)));
+    connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(currentNetworkUpdated(types::NetworkInterface)), SLOT(onCurrentNetworkUpdated(types::NetworkInterface)));
     connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(sendConfirmEmailClick()), SLOT(onPreferencesSendConfirmEmailClick()));
     connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(sendDebugLogClick()), SLOT(onPreferencesSendDebugLogClick()));
     connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(editAccountDetailsClick()), SLOT(onPreferencesEditAccountDetailsClick()));
@@ -330,16 +330,16 @@ MainWindow::MainWindow() :
     connect(mainWindowController_, SIGNAL(preferencesCollapsed()), SLOT(onPreferencesCollapsed()));
 
     // preferences changes signals
-    connect(backend_->getPreferences(), SIGNAL(firewallSettingsChanged(ProtoTypes::FirewallSettings)), SLOT(onPreferencesFirewallSettingsChanged(ProtoTypes::FirewallSettings)));
-    connect(backend_->getPreferences(), SIGNAL(shareProxyGatewayChanged(ProtoTypes::ShareProxyGateway)), SLOT(onPreferencesShareProxyGatewayChanged(ProtoTypes::ShareProxyGateway)));
-    connect(backend_->getPreferences(), SIGNAL(shareSecureHotspotChanged(ProtoTypes::ShareSecureHotspot)), SLOT(onPreferencesShareSecureHotspotChanged(ProtoTypes::ShareSecureHotspot)));
-    connect(backend_->getPreferences(), SIGNAL(locationOrderChanged(ProtoTypes::OrderLocationType)), SLOT(onPreferencesLocationOrderChanged(ProtoTypes::OrderLocationType)));
-    connect(backend_->getPreferences(), SIGNAL(splitTunnelingChanged(ProtoTypes::SplitTunneling)), SLOT(onPreferencesSplitTunnelingChanged(ProtoTypes::SplitTunneling)));
+    connect(backend_->getPreferences(), SIGNAL(firewallSettingsChanged(types::FirewallSettings)), SLOT(onPreferencesFirewallSettingsChanged(types::FirewallSettings)));
+    connect(backend_->getPreferences(), SIGNAL(shareProxyGatewayChanged(types::ShareProxyGateway)), SLOT(onPreferencesShareProxyGatewayChanged(types::ShareProxyGateway)));
+    connect(backend_->getPreferences(), SIGNAL(shareSecureHotspotChanged(types::ShareSecureHotspot)), SLOT(onPreferencesShareSecureHotspotChanged(types::ShareSecureHotspot)));
+    connect(backend_->getPreferences(), SIGNAL(locationOrderChanged(ORDER_LOCATION_TYPE)), SLOT(onPreferencesLocationOrderChanged(ORDER_LOCATION_TYPE)));
+    connect(backend_->getPreferences(), SIGNAL(splitTunnelingChanged(types::SplitTunneling)), SLOT(onPreferencesSplitTunnelingChanged(types::SplitTunneling)));
     connect(backend_->getPreferences(), SIGNAL(updateEngineSettings()), SLOT(onPreferencesUpdateEngineSettings()));
     connect(backend_->getPreferences(), SIGNAL(isLaunchOnStartupChanged(bool)), SLOT(onPreferencesLaunchOnStartupChanged(bool)));
-    connect(backend_->getPreferences(), SIGNAL(connectionSettingsChanged(ProtoTypes::ConnectionSettings)), SLOT(onPreferencesConnectionSettingsChanged(ProtoTypes::ConnectionSettings)));
+    connect(backend_->getPreferences(), SIGNAL(connectionSettingsChanged(types::ConnectionSettings)), SLOT(onPreferencesConnectionSettingsChanged(types::ConnectionSettings)));
     connect(backend_->getPreferences(), SIGNAL(isDockedToTrayChanged(bool)), SLOT(onPreferencesIsDockedToTrayChanged(bool)));
-    connect(backend_->getPreferences(), SIGNAL(updateChannelChanged(ProtoTypes::UpdateChannel)), SLOT(onPreferencesUpdateChannelChanged(ProtoTypes::UpdateChannel)));
+    connect(backend_->getPreferences(), SIGNAL(updateChannelChanged(UPDATE_CHANNEL)), SLOT(onPreferencesUpdateChannelChanged(UPDATE_CHANNEL)));
     connect(backend_->getPreferences(), SIGNAL(customConfigsPathChanged(QString)), SLOT(onPreferencesCustomConfigsPathChanged(QString)));
     connect(backend_->getPreferences(), SIGNAL(debugAdvancedParametersChanged(QString)), SLOT(onPreferencesdebugAdvancedParametersChanged(QString)));
 
@@ -489,13 +489,13 @@ void MainWindow::doClose(QCloseEvent *event, bool isFromSigTerm_mac)
     LaunchOnStartup::instance().setLaunchOnStartup(backend_->getPreferences()->isLaunchOnStartup());
 
     backend_->cleanup(WindscribeApplication::instance()->isExitWithRestart(), PersistentState::instance().isFirewallOn(),
-                      backend_->getPreferences()->firewalSettings().mode() == ProtoTypes::FIREWALL_MODE_ALWAYS_ON || isExitingAfterUpdate_,
+                      backend_->getPreferences()->firewalSettings().mode == FIREWALL_MODE_ALWAYS_ON || isExitingAfterUpdate_,
                       backend_->getPreferences()->isLaunchOnStartup());
 
     // Backend handles setting firewall state after app closes
     // This block handles initializing the firewall state on next run
     if (PersistentState::instance().isFirewallOn()  &&
-        backend_->getPreferences()->firewalSettings().mode() == ProtoTypes::FIREWALL_MODE_AUTOMATIC)
+        backend_->getPreferences()->firewalSettings().mode == FIREWALL_MODE_AUTOMATIC)
     {
         if (WindscribeApplication::instance()->isExitWithRestart())
         {
@@ -764,7 +764,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
         }
         else if (event->key() == Qt::Key_H)
         {
-            /*ProtoTypes::ShareSecureHotspot ss = backend_->getShareSecureHotspot();
+            /*types::ShareSecureHotspot ss = backend_->getShareSecureHotspot();
             ss.set_is_enabled(!ss.is_enabled());
             ss.set_ssid("WifiName");
             backend_->setShareSecureHotspot(ss);
@@ -773,7 +773,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
         }
         else if (event->key() == Qt::Key_J)
         {
-            /*ProtoTypes::ShareProxyGateway sp = backend_->getShareProxyGateway();
+            /*types::ShareProxyGateway sp = backend_->getShareProxyGateway();
             sp.set_is_enabled(!sp.is_enabled());
             backend_->setShareProxyGateway(sp);
 			*/
@@ -781,12 +781,12 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
         }
         else if (event->key() == Qt::Key_P)
         {
-            /*ProtoTypes::ShareSecureHotspot ss = backend_->getShareSecureHotspot();
+            /*types::ShareSecureHotspot ss = backend_->getShareSecureHotspot();
             ss.set_is_enabled(!ss.is_enabled());
             ss.set_ssid("WifiName");
             backend_->setShareSecureHotspot(ss);
 
-            ProtoTypes::ShareProxyGateway sp = backend_->getShareProxyGateway();
+            types::ShareProxyGateway sp = backend_->getShareProxyGateway();
             sp.set_is_enabled(!sp.is_enabled());
             backend_->setShareProxyGateway(sp);
 			*/
@@ -1085,7 +1085,7 @@ void MainWindow::onPreferencesViewLogClick()
 #ifdef Q_OS_WIN
     if (!MergeLog::canMerge())
     {
-        showUserWarning(ProtoTypes::USER_WARNING_VIEW_LOG_FILE_TOO_BIG);
+        showUserWarning(USER_WARNING_VIEW_LOG_FILE_TOO_BIG);
         return;
     }
 #endif
@@ -1217,7 +1217,7 @@ void MainWindow::onPreferencesdebugAdvancedParametersChanged(const QString &advP
     backend_->sendAdvancedParametersChanged();
 }
 
-void MainWindow::onPreferencesUpdateChannelChanged(const ProtoTypes::UpdateChannel updateChannel)
+void MainWindow::onPreferencesUpdateChannelChanged(UPDATE_CHANNEL updateChannel)
 {
     Q_UNUSED(updateChannel);
 
@@ -1472,11 +1472,11 @@ void MainWindow::onLocationsAddCustomConfigClicked()
     }
 }
 
-void MainWindow::onBackendInitFinished(ProtoTypes::InitState initState)
+void MainWindow::onBackendInitFinished(INIT_STATE initState)
 {
     setVariablesToInitState();
 
-    if (initState == ProtoTypes::INIT_SUCCESS)
+    if (initState == INIT_STATE_SUCCESS)
     {
         setInitialFirewallState();
 
@@ -1487,7 +1487,7 @@ void MainWindow::onBackendInitFinished(ProtoTypes::InitState initState)
 
         // disable firewall for Mac when split tunneling is active
 #ifdef Q_OS_MAC
-        if (p->splitTunneling().settings().active())
+        if (p->splitTunneling().settings.active)
         {
             backend_->getPreferencesHelper()->setBlockFirewall(true);
             mainWindowController_->getConnectWindow()->setFirewallBlock(true);
@@ -1495,11 +1495,11 @@ void MainWindow::onBackendInitFinished(ProtoTypes::InitState initState)
 #endif
 
         // enable wifi/proxy sharing, if checked
-        if (p->shareSecureHotspot().is_enabled())
+        if (p->shareSecureHotspot().isEnabled)
         {
             onPreferencesShareSecureHotspotChanged(p->shareSecureHotspot());
         }
-        if (p->shareProxyGateway().is_enabled())
+        if (p->shareProxyGateway().isEnabled)
         {
             onPreferencesShareProxyGatewayChanged(p->shareProxyGateway());
         }
@@ -1519,16 +1519,16 @@ void MainWindow::onBackendInitFinished(ProtoTypes::InitState initState)
             gotoLoginWindow();
         }
 
-        if (!p->connectionSettings().is_automatic())
+        if (!p->connectionSettings().isAutomatic)
         {
-            mainWindowController_->getConnectWindow()->setProtocolPort(p->connectionSettings().protocol(), p->connectionSettings().port());
+            mainWindowController_->getConnectWindow()->setProtocolPort(p->connectionSettings().protocol, p->connectionSettings().port);
         }
 
         // Start the IPC server last to give the above commands time to finish before we
         // start accepting commands from the CLI.
         localIpcServer_->start();
     }
-    else if (initState == ProtoTypes::INIT_BFE_SERVICE_NOT_STARTED)
+    else if (initState == INIT_STATE_BFE_SERVICE_NOT_STARTED)
     {
         if (QMessageBox::information(nullptr, QApplication::applicationName(), QObject::tr("Enable \"Base Filtering Engine\" service? This is required for Windscribe to function."),
                                      QMessageBox::Yes, QMessageBox::Close) == QMessageBox::Yes)
@@ -1541,18 +1541,18 @@ void MainWindow::onBackendInitFinished(ProtoTypes::InitState initState)
             return;
         }
     }
-    else if (initState == ProtoTypes::INIT_BFE_SERVICE_FAILED_TO_START)
+    else if (initState == INIT_STATE_BFE_SERVICE_FAILED_TO_START)
     {
         QMessageBox::information(nullptr, QApplication::applicationName(), QObject::tr("Failed to start \"Base Filtering Engine\" service."),
                                          QMessageBox::Close);
         QTimer::singleShot(0, this, SLOT(close()));
     }
-    else if (initState == ProtoTypes::INIT_HELPER_FAILED)
+    else if (initState == INIT_STATE_HELPER_FAILED)
     {
         QMessageBox::information(nullptr, QApplication::applicationName(), tr("Windscribe helper initialize error. Please reinstall the application or contact support."));
         QTimer::singleShot(0, this, SLOT(close()));
     }
-    else if (initState == ProtoTypes::INIT_HELPER_USER_CANCELED)
+    else if (initState == INIT_STATE_HELPER_USER_CANCELED)
     {
         // close without message box
         QTimer::singleShot(0, this, SLOT(close()));
@@ -1578,7 +1578,7 @@ void MainWindow::onBackendLoginFinished(bool /*isLoginFromSavedSettings*/)
     mainWindowController_->getPreferencesWindow()->setLoggedIn(true);
     mainWindowController_->getTwoFactorAuthWindow()->clearCurrentCredentials();
 
-    if (backend_->getPreferences()->firewalSettings().mode() == ProtoTypes::FIREWALL_MODE_ALWAYS_ON)
+    if (backend_->getPreferences()->firewalSettings().mode == FIREWALL_MODE_ALWAYS_ON)
     {
         backend_->firewallOn();
         mainWindowController_->getConnectWindow()->setFirewallAlwaysOn(true);
@@ -1611,29 +1611,29 @@ void MainWindow::onBackendLoginFinished(bool /*isLoginFromSavedSettings*/)
     {
         backend_->recordInstall();
         // open first start URL
-        QString curUserId = QString::fromStdString(backend_->getSessionStatus().user_id());
+        QString curUserId = backend_->getSessionStatus().getUserId();
         QDesktopServices::openUrl(QUrl( QString("https://%1/installed/desktop?%2").arg(HardcodedSettings::instance().serverUrl()).arg(curUserId)));
     }
     PersistentState::instance().setFirstLogin(false);
 }
 
-void MainWindow::onBackendLoginStepMessage(ProtoTypes::LoginMessage msg)
+void MainWindow::onBackendLoginStepMessage(LOGIN_MESSAGE msg)
 {
     QString additionalMessage;
-    if (msg == ProtoTypes::LOGIN_MESSAGE_TRYING_BACKUP1)
+    if (msg == LOGIN_MESSAGE_TRYING_BACKUP1)
     {
         additionalMessage = tr("Trying Backup Endpoints 1/2");
     }
-    else if (msg == ProtoTypes::LOGIN_MESSAGE_TRYING_BACKUP2)
+    else if (msg == LOGIN_MESSAGE_TRYING_BACKUP2)
     {
         additionalMessage = tr("Trying Backup Endpoints 2/2");
     }
     mainWindowController_->getLoggingInWindow()->setAdditionalMessage(additionalMessage);
 }
 
-void MainWindow::onBackendLoginError(ProtoTypes::LoginError loginError, const QString &errorMessage)
+void MainWindow::onBackendLoginError(LOGIN_RET loginError, const QString &errorMessage)
 {
-    if (loginError == ProtoTypes::LOGIN_ERROR_BAD_USERNAME)
+    if (loginError == LOGIN_RET_BAD_USERNAME)
     {
         if (backend_->isLastLoginWithAuthHash())
         {
@@ -1656,17 +1656,17 @@ void MainWindow::onBackendLoginError(ProtoTypes::LoginError loginError, const QS
             gotoLoginWindow();
         }
     }
-    else if (loginError == ProtoTypes::LOGIN_ERROR_BAD_CODE2FA ||
-             loginError == ProtoTypes::LOGIN_ERROR_MISSING_CODE2FA)
+    else if (loginError == LOGIN_RET_BAD_CODE2FA ||
+             loginError == LOGIN_RET_MISSING_CODE2FA)
     {
-        const bool is_missing_code2fa = (loginError == ProtoTypes::LOGIN_ERROR_MISSING_CODE2FA);
+        const bool is_missing_code2fa = (loginError == LOGIN_RET_MISSING_CODE2FA);
         mainWindowController_->getTwoFactorAuthWindow()->setErrorMessage(
             is_missing_code2fa ? ITwoFactorAuthWindow::ERR_MSG_NO_CODE
                                : ITwoFactorAuthWindow::ERR_MSG_INVALID_CODE);
         mainWindowController_->getTwoFactorAuthWindow()->setLoginMode(true);
         mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_TWO_FACTOR_AUTH);
     }
-    else if (loginError == ProtoTypes::LOGIN_ERROR_NO_CONNECTIVITY)
+    else if (loginError == LOGIN_RET_NO_CONNECTIVITY)
     {
         if (!isLoginOkAndConnectWindowVisible_)
         {
@@ -1681,7 +1681,7 @@ void MainWindow::onBackendLoginError(ProtoTypes::LoginError loginError, const QS
             backend_->loginWithLastLoginSettings();
         }
     }
-    else if (loginError == ProtoTypes::LOGIN_ERROR_NO_API_CONNECTIVITY)
+    else if (loginError == LOGIN_RET_NO_API_CONNECTIVITY)
     {
         if (!isLoginOkAndConnectWindowVisible_)
         {
@@ -1691,7 +1691,7 @@ void MainWindow::onBackendLoginError(ProtoTypes::LoginError loginError, const QS
             gotoLoginWindow();
         }
     }
-    else if (loginError == ProtoTypes::LOGIN_ERROR_INCORRECT_JSON)
+    else if (loginError == LOGIN_RET_INCORRECT_JSON)
     {
         if (!isLoginOkAndConnectWindowVisible_)
         {
@@ -1704,7 +1704,7 @@ void MainWindow::onBackendLoginError(ProtoTypes::LoginError loginError, const QS
             backToLoginWithErrorMessage(ILoginWindow::ERR_MSG_INVALID_API_RESPONCE, QString());
         }
     }
-    else if (loginError == ProtoTypes::LOGIN_ERROR_PROXY_AUTH_NEED)
+    else if (loginError == LOGIN_RET_PROXY_AUTH_NEED)
     {
         if (!isLoginOkAndConnectWindowVisible_)
         {
@@ -1717,7 +1717,7 @@ void MainWindow::onBackendLoginError(ProtoTypes::LoginError loginError, const QS
             backToLoginWithErrorMessage(ILoginWindow::ERR_MSG_PROXY_REQUIRES_AUTH, QString());
         }
     }
-    else if (loginError == ProtoTypes::LOGIN_ERROR_SSL_ERROR)
+    else if (loginError == LOGIN_RET_SSL_ERROR)
     {
         int res = QMessageBox::information(nullptr, QApplication::applicationName(),
                                            tr("We detected that SSL requests may be intercepted on your network. This could be due to a firewall configured on your computer, or Windscribe being blocking by your network administrator. Ignore SSL errors?"),
@@ -1743,7 +1743,7 @@ void MainWindow::onBackendLoginError(ProtoTypes::LoginError loginError, const QS
             }
         }
     }
-    else if (loginError == ProtoTypes::LOGIN_ERROR_ACCOUNT_DISABLED)
+    else if (loginError == LOGIN_RET_ACCOUNT_DISABLED)
     {
         if (!isLoginOkAndConnectWindowVisible_)
         {
@@ -1756,7 +1756,7 @@ void MainWindow::onBackendLoginError(ProtoTypes::LoginError loginError, const QS
             backToLoginWithErrorMessage(ILoginWindow::ERR_MSG_ACCOUNT_DISABLED, errorMessage);
         }
     }
-    else if (loginError == ProtoTypes::LOGIN_ERROR_SESSION_INVALID)
+    else if (loginError == LOGIN_RET_SESSION_INVALID)
     {
         if (!isLoginOkAndConnectWindowVisible_)
         {
@@ -1771,35 +1771,35 @@ void MainWindow::onBackendLoginError(ProtoTypes::LoginError loginError, const QS
     }
 }
 
-void MainWindow::onBackendSessionStatusChanged(const ProtoTypes::SessionStatus &sessionStatus)
+void MainWindow::onBackendSessionStatusChanged(const types::SessionStatus &sessionStatus)
 {
     //bFreeSessionStatus_ = sessionStatus->isPremium == 0;
     blockConnect_.setNotBlocking();
-    int status = sessionStatus.status();
+    qint32 status = sessionStatus.getStatus();
     // multiple account abuse detection
     QString entryUsername;
     bool bEntryIsPresent = multipleAccountDetection_->entryIsPresent(entryUsername);
-    if (bEntryIsPresent && (!sessionStatus.is_premium()) && sessionStatus.alc_size() == 0 && sessionStatus.status() == 1 && entryUsername != QString::fromStdString(sessionStatus.username()))
+    if (bEntryIsPresent && (!sessionStatus.isPremium()) && sessionStatus.getAlc().size() == 0 && sessionStatus.getStatus() == 1 && entryUsername != sessionStatus.getUsername())
     {
         status = 2;
         //qCDebug(LOG_BASIC) << "Abuse detection: User session status was changed to 2. Original username:" << entryUsername;
         blockConnect_.setBlockedMultiAccount(entryUsername);
     }
-    else if (bEntryIsPresent && entryUsername == QString::fromStdString(sessionStatus.username()) && sessionStatus.status() == 1)
+    else if (bEntryIsPresent && entryUsername == sessionStatus.getUsername() && sessionStatus.getStatus() == 1)
     {
         multipleAccountDetection_->removeEntry();
     }
 
     // free account
-    if (!sessionStatus.is_premium())
+    if (!sessionStatus.isPremium())
     {
         if (status == 2)
         {
             // write entry into registry expired_user = username
-            multipleAccountDetection_->userBecomeExpired(QString::fromStdString(sessionStatus.username()));
+            multipleAccountDetection_->userBecomeExpired(sessionStatus.getUsername());
 
             if ((!PersistentState::instance().lastLocation().isCustomConfigsLocation()) &&
-                (backend_->currentConnectState() == ProtoTypes::CONNECTED || backend_->currentConnectState() == ProtoTypes::CONNECTING))
+                (backend_->currentConnectState() == CONNECT_STATE_CONNECTED || backend_->currentConnectState() == CONNECT_STATE_CONNECTING))
             {
                 bDisconnectFromTrafficExceed_ = true;
                 backend_->sendDisconnect();
@@ -1814,7 +1814,7 @@ void MainWindow::onBackendSessionStatusChanged(const ProtoTypes::SessionStatus &
         }
         else
         {
-            if (sessionStatus.traffic_max() == -1)
+            if (sessionStatus.getTrafficMax() == -1)
             {
                 mainWindowController_->getBottomInfoWindow()->setDataRemaining(-1, -1);
             }
@@ -1822,20 +1822,20 @@ void MainWindow::onBackendSessionStatusChanged(const ProtoTypes::SessionStatus &
             {
                 if (backend_->getPreferences()->isShowNotifications())
                 {
-                    freeTrafficNotificationController_->updateTrafficInfo(sessionStatus.traffic_used(), sessionStatus.traffic_max());
+                    freeTrafficNotificationController_->updateTrafficInfo(sessionStatus.getTrafficUsed(), sessionStatus.getTrafficMax());
                 }
 
-                mainWindowController_->getBottomInfoWindow()->setDataRemaining(sessionStatus.traffic_used(), sessionStatus.traffic_max());
+                mainWindowController_->getBottomInfoWindow()->setDataRemaining(sessionStatus.getTrafficUsed(), sessionStatus.getTrafficMax());
             }
         }
     }
     // premium account
     else
     {
-        if (sessionStatus.rebill() == 0)
+        if (sessionStatus.getRebill() == 0)
         {
             QDate curDate = QDateTime::currentDateTimeUtc().date();
-            QDate expireDate = QDate::fromString(QString::fromStdString(sessionStatus.premium_expire_date()), "yyyy-MM-dd");
+            QDate expireDate = QDate::fromString(sessionStatus.getPremiumExpireDate(), "yyyy-MM-dd");
 
             int days = curDate.daysTo(expireDate);
             if (days >= 0 && days <= 5)
@@ -1857,7 +1857,7 @@ void MainWindow::onBackendSessionStatusChanged(const ProtoTypes::SessionStatus &
     {
         blockConnect_.setBlockedBannedUser();
         if ((!PersistentState::instance().lastLocation().isCustomConfigsLocation()) &&
-            (backend_->currentConnectState() == ProtoTypes::CONNECTED || backend_->currentConnectState() == ProtoTypes::CONNECTING))
+            (backend_->currentConnectState() == CONNECT_STATE_CONNECTED || backend_->currentConnectState() == CONNECT_STATE_CONNECTING))
         {
             backend_->sendDisconnect();
         }
@@ -1876,31 +1876,31 @@ void MainWindow::onBackendSessionStatusChanged(const ProtoTypes::SessionStatus &
     isPrevSessionStatusInitialized_ = true;
 }
 
-void MainWindow::onBackendCheckUpdateChanged(const ProtoTypes::CheckUpdateInfo &checkUpdateInfo)
+void MainWindow::onBackendCheckUpdateChanged(const types::CheckUpdate &checkUpdateInfo)
 {
-    if (checkUpdateInfo.is_available())
+    if (checkUpdateInfo.isAvailable)
     {
         qCDebug(LOG_BASIC) << "Update available";
-        if (!checkUpdateInfo.is_supported())
+        if (!checkUpdateInfo.isSupported)
         {
             blockConnect_.setNeedUpgrade();
         }
 
         QString betaStr;
-        betaStr = "-" + QString::number(checkUpdateInfo.latest_build());
-        if (checkUpdateInfo.update_channel() == ProtoTypes::UPDATE_CHANNEL_BETA)
+        betaStr = "-" + QString::number(checkUpdateInfo.latestBuild);
+        if (checkUpdateInfo.updateChannel == UPDATE_CHANNEL_BETA)
         {
             betaStr += "b";
         }
-        else if (checkUpdateInfo.update_channel() == ProtoTypes::UPDATE_CHANNEL_GUINEA_PIG)
+        else if (checkUpdateInfo.updateChannel == UPDATE_CHANNEL_GUINEA_PIG)
         {
             betaStr += "g";
         }
 
         //updateWidget_->setText(tr("Update available - v") + version + betaStr);
 
-        mainWindowController_->getUpdateAppItem()->setVersionAvailable(QString::fromStdString(checkUpdateInfo.version()), checkUpdateInfo.latest_build());
-        mainWindowController_->getUpdateWindow()->setVersion(QString::fromStdString(checkUpdateInfo.version()), checkUpdateInfo.latest_build());
+        mainWindowController_->getUpdateAppItem()->setVersionAvailable(checkUpdateInfo.version, checkUpdateInfo.latestBuild);
+        mainWindowController_->getUpdateWindow()->setVersion(checkUpdateInfo.version, checkUpdateInfo.latestBuild);
 
         if (!ignoreUpdateUntilNextRun_)
         {
@@ -1932,14 +1932,14 @@ void MainWindow::onBackendMyIpChanged(QString ip, bool isFromDisconnectedState)
     }
 }
 
-void MainWindow::onBackendConnectStateChanged(const ProtoTypes::ConnectState &connectState)
+void MainWindow::onBackendConnectStateChanged(const types::ConnectState &connectState)
 {  
     mainWindowController_->getConnectWindow()->updateConnectState(connectState);
 
-    if (connectState.has_location())
+    if (connectState.location.isValid())
     {
         // if connecting/connected location not equal current selected location, then change current selected location and update in GUI
-        LocationID connectStateLocationId = LocationID::createFromProtoBuf(connectState.location());
+        LocationID connectStateLocationId = connectState.location;
         if (PersistentState::instance().lastLocation() != connectStateLocationId)
         {
             PersistentState::instance().setLastLocation( connectStateLocationId );
@@ -1951,12 +1951,12 @@ void MainWindow::onBackendConnectStateChanged(const ProtoTypes::ConnectState &co
         }
     }
 
-    if (connectState.connect_state_type() == ProtoTypes::DISCONNECTED)
+    if (connectState.connectState == CONNECT_STATE_DISCONNECTED)
     {
         updateConnectWindowStateProtocolPortDisplay(backend_->getPreferences()->connectionSettings());
     }
 
-    if (connectState.connect_state_type() == ProtoTypes::CONNECTED)
+    if (connectState.connectState == CONNECT_STATE_CONNECTED)
     {
         bytesTransferred_ = 0;
         connectionElapsedTimer_.start();
@@ -1979,13 +1979,13 @@ void MainWindow::onBackendConnectStateChanged(const ProtoTypes::ConnectState &co
             }
         }
     }
-    else if (connectState.connect_state_type() == ProtoTypes::CONNECTING || connectState.connect_state_type() == ProtoTypes::DISCONNECTING)
+    else if (connectState.connectState == CONNECT_STATE_CONNECTING || connectState.connectState == CONNECT_STATE_DISCONNECTING)
     {
         updateAppIconType(AppIconType::CONNECTING);
         updateTrayIconType(AppIconType::CONNECTING);
         mainWindowController_->clearServerRatingsTooltipState();
     }
-    else if (connectState.connect_state_type() == ProtoTypes::DISCONNECTED)
+    else if (connectState.connectState == CONNECT_STATE_DISCONNECTED)
     {
         // Ensure the icon has been updated, as QSystemTrayIcon::showMessage displays this icon
         // in the notification window on Windows.
@@ -2001,17 +2001,17 @@ void MainWindow::onBackendConnectStateChanged(const ProtoTypes::ConnectState &co
             bNotificationConnectedShowed_ = false;
         }
 
-        if (connectState.disconnect_reason() == ProtoTypes::DISCONNECTED_WITH_ERROR)
+        if (connectState.disconnectReason == DISCONNECTED_WITH_ERROR)
         {
             handleDisconnectWithError(connectState);
         }
     }
 }
 
-void MainWindow::onBackendEmergencyConnectStateChanged(const ProtoTypes::ConnectState &connectState)
+void MainWindow::onBackendEmergencyConnectStateChanged(const types::ConnectState &connectState)
 {
     mainWindowController_->getEmergencyConnectWindow()->setState(connectState);
-    mainWindowController_->getLoginWindow()->setEmergencyConnectState(connectState.connect_state_type() == ProtoTypes::CONNECTED);
+    mainWindowController_->getLoginWindow()->setEmergencyConnectState(connectState.connectState == CONNECT_STATE_CONNECTED);
 }
 
 void MainWindow::onBackendFirewallStateChanged(bool isEnabled)
@@ -2020,14 +2020,14 @@ void MainWindow::onBackendFirewallStateChanged(bool isEnabled)
     PersistentState::instance().setFirewallState(isEnabled);
 }
 
-void MainWindow::onNetworkChanged(ProtoTypes::NetworkInterface network)
+void MainWindow::onNetworkChanged(types::NetworkInterface network)
 {
     qCDebug(LOG_BASIC) << "Network Changed: "
-                       << "Index: " << network.interface_index()
-                       << ", Network/SSID: " << QString::fromStdString(network.network_or_ssid())
-                       << ", MAC: " << QString::fromStdString(network.physical_address())
-                       << ", device name: " << QString::fromStdString(network.device_name())
-                       << " friendly: " << QString::fromStdString(network.friendly_name());
+                       << "Index: " << network.interfaceIndex
+                       << ", Network/SSID: " << network.networkOrSSid
+                       << ", MAC: " << network.physicalAddress
+                       << ", device name: " << network.deviceName
+                       << " friendly: " << network.friendlyName;
 
     mainWindowController_->getConnectWindow()->updateNetworkState(network);
     mainWindowController_->getPreferencesWindow()->updateNetworkState(network);
@@ -2091,7 +2091,7 @@ void MainWindow::onBackendCleanupFinished()
 
 void MainWindow::onBackendGotoCustomOvpnConfigModeFinished()
 {
-    if (backend_->getPreferences()->firewalSettings().mode() == ProtoTypes::FIREWALL_MODE_ALWAYS_ON)
+    if (backend_->getPreferences()->firewalSettings().mode == FIREWALL_MODE_ALWAYS_ON)
     {
         backend_->firewallOn();
         mainWindowController_->getConnectWindow()->setFirewallAlwaysOn(true);
@@ -2152,49 +2152,34 @@ void MainWindow::onBackendStatisticsUpdated(quint64 bytesIn, quint64 bytesOut, b
     mainWindowController_->getConnectWindow()->setConnectionTimeAndData(getConnectionTime(), getConnectionTransferred());
 }
 
-void MainWindow::onBackendProxySharingInfoChanged(const ProtoTypes::ProxySharingInfo &psi)
+void MainWindow::onBackendProxySharingInfoChanged(const types::ProxySharingInfo &psi)
 {
-    if (psi.has_address())
+    backend_->getPreferencesHelper()->setProxyGatewayAddress(psi.address);
+
+    if (psi.isEnabled)
     {
-        backend_->getPreferencesHelper()->setProxyGatewayAddress(QString::fromStdString(psi.address()));
+        mainWindowController_->getBottomInfoWindow()->setProxyGatewayFeatures(true, psi.mode);
+    }
+    else
+    {
+        mainWindowController_->getBottomInfoWindow()->setProxyGatewayFeatures(false, PROXY_SHARING_HTTP);
     }
 
-    if (psi.has_is_enabled())
-    {
-        if (psi.is_enabled())
-        {
-            mainWindowController_->getBottomInfoWindow()->setProxyGatewayFeatures(true, psi.mode());
-        }
-        else
-        {
-            mainWindowController_->getBottomInfoWindow()->setProxyGatewayFeatures(false, ProtoTypes::PROXY_SHARING_HTTP);
-        }
-    }
-
-    if (psi.has_users_count())
-    {
-        mainWindowController_->getBottomInfoWindow()->setProxyGatewayUsersCount(psi.users_count());
-    }
+    mainWindowController_->getBottomInfoWindow()->setProxyGatewayUsersCount(psi.usersCount);
 }
 
-void MainWindow::onBackendWifiSharingInfoChanged(const ProtoTypes::WifiSharingInfo &wsi)
+void MainWindow::onBackendWifiSharingInfoChanged(const types::WifiSharingInfo &wsi)
 {
-    if (wsi.has_is_enabled())
+    if (wsi.isEnabled)
     {
-        if (wsi.is_enabled())
-        {
-            mainWindowController_->getBottomInfoWindow()->setSecureHotspotFeatures(true, QString::fromStdString(wsi.ssid()));
-        }
-        else
-        {
-            mainWindowController_->getBottomInfoWindow()->setSecureHotspotFeatures(false, "");
-        }
+        mainWindowController_->getBottomInfoWindow()->setSecureHotspotFeatures(true, wsi.ssid);
+    }
+    else
+    {
+        mainWindowController_->getBottomInfoWindow()->setSecureHotspotFeatures(false, "");
     }
 
-    if (wsi.has_users_count())
-    {
-        mainWindowController_->getBottomInfoWindow()->setSecureHotspotUsersCount(wsi.users_count());
-    }
+    mainWindowController_->getBottomInfoWindow()->setSecureHotspotUsersCount(wsi.usersCount);
 }
 
 void MainWindow::onBackendRequestCustomOvpnConfigCredentials()
@@ -2269,26 +2254,26 @@ void MainWindow::onBackendHighCpuUsage(const QStringList &processesList)
     }
 }
 
-void MainWindow::showUserWarning(ProtoTypes::UserWarningType userWarningType)
+void MainWindow::showUserWarning(USER_WARNING_TYPE userWarningType)
 {
     QString titleText;
     QString descText;
-    if (userWarningType == ProtoTypes::USER_WARNING_MAC_SPOOFING_FAILURE_HARD)
+    if (userWarningType == USER_WARNING_MAC_SPOOFING_FAILURE_HARD)
     {
         titleText = tr("MAC Spoofing Failed");
         descText = tr("Your network adapter does not support MAC spoofing. Try a different adapter.");
     }
-    else if (userWarningType == ProtoTypes::USER_WARNING_MAC_SPOOFING_FAILURE_SOFT)
+    else if (userWarningType == USER_WARNING_MAC_SPOOFING_FAILURE_SOFT)
     {
         titleText = tr("MAC Spoofing Failed");
         descText = tr("Could not spoof MAC address, try updating your OS to the latest version.");
     }
-    else if (userWarningType == ProtoTypes::USER_WARNING_SEND_LOG_FILE_TOO_BIG)
+    else if (userWarningType == USER_WARNING_SEND_LOG_FILE_TOO_BIG)
     {
         titleText = tr("Logs too large to send");
         descText = tr("Could not send logs to Windscribe, they are too big. Either re-send after replicating the issue or manually compressing and sending to support.");
     }
-    else if (userWarningType == ProtoTypes::USER_WARNING_VIEW_LOG_FILE_TOO_BIG)
+    else if (userWarningType == USER_WARNING_VIEW_LOG_FILE_TOO_BIG)
     {
         titleText = tr("Logs too large to view");
         descText = tr("Could not view the logs because they are too big. You may want to try viewing manually.");
@@ -2305,7 +2290,7 @@ void MainWindow::showUserWarning(ProtoTypes::UserWarningType userWarningType)
     }
 }
 
-void MainWindow::onBackendUserWarning(ProtoTypes::UserWarningType userWarningType)
+void MainWindow::onBackendUserWarning(USER_WARNING_TYPE userWarningType)
 {
     showUserWarning(userWarningType);
 }
@@ -2316,7 +2301,7 @@ void MainWindow::onBackendInternetConnectivityChanged(bool connectivity)
     internetConnected_ = connectivity;
 }
 
-void MainWindow::onBackendProtocolPortChanged(const ProtoTypes::Protocol &protocol, const uint port)
+void MainWindow::onBackendProtocolPortChanged(const PROTOCOL &protocol, const uint port)
 {
     mainWindowController_->getConnectWindow()->setProtocolPort(protocol, port);
 }
@@ -2332,16 +2317,16 @@ void MainWindow::onBackendPacketSizeDetectionStateChanged(bool on, bool isError)
     }
 }
 
-void MainWindow::onBackendUpdateVersionChanged(uint progressPercent, ProtoTypes::UpdateVersionState state, ProtoTypes::UpdateVersionError error)
+void MainWindow::onBackendUpdateVersionChanged(uint progressPercent, UPDATE_VERSION_STATE state, UPDATE_VERSION_ERROR error)
 {
     // qDebug() << "Mainwindow::onBackendUpdateVersionChanged: " << progressPercent << ", " << state;
 
-    if (state == ProtoTypes::UPDATE_VERSION_STATE_DONE)
+    if (state == UPDATE_VERSION_STATE_DONE)
     {
 
         if (downloadRunning_) // not cancelled by user
         {
-            if (error == ProtoTypes::UPDATE_VERSION_ERROR_NO_ERROR)
+            if (error == UPDATE_VERSION_ERROR_NO_ERROR)
             {
                 isExitingAfterUpdate_ = true; // the flag for prevent firewall off for some states
 
@@ -2361,39 +2346,39 @@ void MainWindow::onBackendUpdateVersionChanged(uint progressPercent, ProtoTypes:
 
                 QString titleText = tr("Auto-Update Failed");
                 QString descText = tr("Please contact support");
-                if (error == ProtoTypes::UPDATE_VERSION_ERROR_DL_FAIL)
+                if (error == UPDATE_VERSION_ERROR_DL_FAIL)
                 {
                     descText = tr("Please try again using a different network connection.");
                 }
-                else if (error == ProtoTypes::UPDATE_VERSION_ERROR_SIGN_FAIL)
+                else if (error == UPDATE_VERSION_ERROR_SIGN_FAIL)
                 {
                     descText = tr("Can't run the downloaded installer. It does not have the correct signature.");
                 }
-                else if (error == ProtoTypes::UPDATE_VERSION_ERROR_MOUNT_FAIL)
+                else if (error == UPDATE_VERSION_ERROR_MOUNT_FAIL)
                 {
                     descText = tr("Cannot access the installer. Image mounting has failed.");
                 }
-                else if (error == ProtoTypes::UPDATE_VERSION_ERROR_DMG_HAS_NO_INSTALLER_FAIL)
+                else if (error == UPDATE_VERSION_ERROR_DMG_HAS_NO_INSTALLER_FAIL)
                 {
                     descText = tr("Downloaded image does not contain installer.");
                 }
-                else if (error == ProtoTypes::UPDATE_VERSION_ERROR_CANNOT_REMOVE_EXISTING_TEMP_INSTALLER_FAIL)
+                else if (error == UPDATE_VERSION_ERROR_CANNOT_REMOVE_EXISTING_TEMP_INSTALLER_FAIL)
                 {
                     descText = tr("Cannot overwrite a pre-existing temporary installer.");
                 }
-                else if (error == ProtoTypes::UPDATE_VERSION_ERROR_COPY_FAIL)
+                else if (error == UPDATE_VERSION_ERROR_COPY_FAIL)
                 {
                     descText = tr("Failed to copy installer to temp location.");
                 }
-                else if (error == ProtoTypes::UPDATE_VERSION_ERROR_START_INSTALLER_FAIL)
+                else if (error == UPDATE_VERSION_ERROR_START_INSTALLER_FAIL)
                 {
                     descText = tr("Auto-Updater has failed to run installer.");
                 }
-                else if (error == ProtoTypes::UPDATE_VERSION_ERROR_COMPARE_HASH_FAIL)
+                else if (error == UPDATE_VERSION_ERROR_COMPARE_HASH_FAIL)
                 {
                     descText = tr("Cannot run the downloaded installer. It does not have the expected hash.");
                 }
-                else if (error == ProtoTypes::UPDATE_VERSION_ERROR_API_HASH_INVALID)
+                else if (error == UPDATE_VERSION_ERROR_API_HASH_INVALID)
                 {
                     descText = tr("Windscribe API has returned an invalid hash for downloaded installer. Please contact support.");
                 }
@@ -2412,13 +2397,13 @@ void MainWindow::onBackendUpdateVersionChanged(uint progressPercent, ProtoTypes:
         }
         downloadRunning_ = false;
     }
-    else if (state == ProtoTypes::UPDATE_VERSION_STATE_DOWNLOADING)
+    else if (state == UPDATE_VERSION_STATE_DOWNLOADING)
     {
         // qDebug() << "Running -- updating progress";
         mainWindowController_->getUpdateAppItem()->setProgress(progressPercent);
         mainWindowController_->getUpdateWindow()->setProgress(progressPercent);
     }
-    else if (state == ProtoTypes::UPDATE_VERSION_STATE_RUNNING)
+    else if (state == UPDATE_VERSION_STATE_RUNNING)
     {
         // Send main window center coordinates from the GUI, to position the installer properly.
         const bool is_visible = isVisible() && !isMinimized();
@@ -2507,9 +2492,9 @@ void MainWindow::onBestLocationChanged(const LocationID &bestLocation)
     }
 }
 
-void MainWindow::onPreferencesFirewallSettingsChanged(const ProtoTypes::FirewallSettings &fm)
+void MainWindow::onPreferencesFirewallSettingsChanged(const types::FirewallSettings &fm)
 {
-    if (fm.mode() == ProtoTypes::FIREWALL_MODE_ALWAYS_ON)
+    if (fm.mode == FIREWALL_MODE_ALWAYS_ON)
     {
         mainWindowController_->getConnectWindow()->setFirewallAlwaysOn(true);
         if (!PersistentState::instance().isFirewallOn())
@@ -2523,11 +2508,11 @@ void MainWindow::onPreferencesFirewallSettingsChanged(const ProtoTypes::Firewall
     }
 }
 
-void MainWindow::onPreferencesShareProxyGatewayChanged(const ProtoTypes::ShareProxyGateway &sp)
+void MainWindow::onPreferencesShareProxyGatewayChanged(const types::ShareProxyGateway &sp)
 {
-    if (sp.is_enabled())
+    if (sp.isEnabled)
     {
-        backend_->startProxySharing(sp.proxy_sharing_mode());
+        backend_->startProxySharing((PROXY_SHARING_TYPE)sp.proxySharingMode);
     }
     else
     {
@@ -2535,12 +2520,12 @@ void MainWindow::onPreferencesShareProxyGatewayChanged(const ProtoTypes::SharePr
     }
 }
 
-void MainWindow::onPreferencesShareSecureHotspotChanged(const ProtoTypes::ShareSecureHotspot &ss)
+void MainWindow::onPreferencesShareSecureHotspotChanged(const types::ShareSecureHotspot &ss)
 {
-    if (ss.is_enabled() && !ss.ssid().empty() && ss.password().length() >= 8)
+    if (ss.isEnabled && !ss.ssid.isEmpty() && ss.password.length() >= 8)
     {
-        mainWindowController_->getBottomInfoWindow()->setSecureHotspotFeatures(true, QString::fromStdString(ss.ssid()));
-        backend_->startWifiSharing(QString::fromStdString(ss.ssid()), QString::fromStdString(ss.password()));
+        mainWindowController_->getBottomInfoWindow()->setSecureHotspotFeatures(true, ss.ssid);
+        backend_->startWifiSharing(ss.ssid, ss.password);
     }
     else
     {
@@ -2549,23 +2534,23 @@ void MainWindow::onPreferencesShareSecureHotspotChanged(const ProtoTypes::ShareS
     }
 }
 
-void MainWindow::onPreferencesLocationOrderChanged(ProtoTypes::OrderLocationType o)
+void MainWindow::onPreferencesLocationOrderChanged(ORDER_LOCATION_TYPE o)
 {
     backend_->getLocationsModel()->setOrderLocationsType(o);
 }
 
-void MainWindow::onPreferencesSplitTunnelingChanged(ProtoTypes::SplitTunneling st)
+void MainWindow::onPreferencesSplitTunnelingChanged(types::SplitTunneling st)
 {
     // turn off and disable firewall for Mac when split tunneling is active
 #ifdef Q_OS_MAC
-    if (st.settings().active())
+    if (st.settings.active)
     {
         if (backend_->isFirewallEnabled())
         {
             backend_->firewallOff();
         }
-        ProtoTypes::FirewallSettings firewallSettings;
-        firewallSettings.set_mode(ProtoTypes::FIREWALL_MODE_MANUAL);
+        types::FirewallSettings firewallSettings;
+        firewallSettings.mode = FIREWALL_MODE_MANUAL;
         backend_->getPreferences()->setFirewallSettings(firewallSettings);
         backend_->getPreferencesHelper()->setBlockFirewall(true);
         mainWindowController_->getConnectWindow()->setFirewallBlock(true);
@@ -2595,23 +2580,23 @@ void MainWindow::onPreferencesLaunchOnStartupChanged(bool bEnabled)
     LaunchOnStartup::instance().setLaunchOnStartup(bEnabled);
 }
 
-void MainWindow::updateConnectWindowStateProtocolPortDisplay(ProtoTypes::ConnectionSettings connectionSettings)
+void MainWindow::updateConnectWindowStateProtocolPortDisplay(types::ConnectionSettings connectionSettings)
 {
-    if (connectionSettings.is_automatic())
+    if (connectionSettings.isAutomatic)
     {
 #if defined(Q_OS_LINUX)
-        mainWindowController_->getConnectWindow()->setProtocolPort(ProtoTypes::PROTOCOL_UDP, 443);
+        mainWindowController_->getConnectWindow()->setProtocolPort(PROTOCOL::OPENVPN_UDP, 443);
 #else
-        mainWindowController_->getConnectWindow()->setProtocolPort(ProtoTypes::PROTOCOL_IKEV2, 500);
+        mainWindowController_->getConnectWindow()->setProtocolPort(PROTOCOL::IKEV2, 500);
 #endif
     }
     else
     {
-        mainWindowController_->getConnectWindow()->setProtocolPort(connectionSettings.protocol(), connectionSettings.port());
+        mainWindowController_->getConnectWindow()->setProtocolPort(connectionSettings.protocol, connectionSettings.port);
     }
 }
 
-void MainWindow::onPreferencesConnectionSettingsChanged(ProtoTypes::ConnectionSettings connectionSettings)
+void MainWindow::onPreferencesConnectionSettingsChanged(types::ConnectionSettings connectionSettings)
 {
     if (backend_->isDisconnected())
     {
@@ -2876,7 +2861,7 @@ void MainWindow::showShutdownWindow()
     mainWindowController_->getExitWindow()->setShutdownAnimationMode(true);
 }
 
-void MainWindow::onCurrentNetworkUpdated(ProtoTypes::NetworkInterface networkInterface)
+void MainWindow::onCurrentNetworkUpdated(types::NetworkInterface networkInterface)
 {
     mainWindowController_->getConnectWindow()->updateNetworkState(networkInterface);
     backend_->handleNetworkChange(networkInterface, true);
@@ -3092,7 +3077,7 @@ void MainWindow::loadTrayMenuItems()
 {
     if (mainWindowController_->currentWindow() == MainWindowController::WINDOW_ID_CONNECT) // logged in
     {
-        if (backend_->currentConnectState() == ProtoTypes::DISCONNECTED)
+        if (backend_->currentConnectState() == CONNECT_STATE_DISCONNECTED)
         {
             trayMenu_.addAction(tr("Connect"), this, SLOT(onTrayMenuConnect()));
         }
@@ -3191,7 +3176,7 @@ void MainWindow::onLocationsTrayMenuLocationSelected(int type, QString locationT
         return;
     }
 
-    const bool is_premium = backend_->getSessionStatus().is_premium();
+    const bool is_premium = backend_->getSessionStatus().isPremium();
     if (cityIndex >= 0) {
         for (const auto &city : lmi->cities) {
             if (cityIndex--)
@@ -3413,14 +3398,14 @@ void MainWindow::setInitialFirewallState()
     if (bFirewallStateOn)
     {
         backend_->firewallOn();
-        if (backend_->getPreferences()->firewalSettings().mode() == ProtoTypes::FIREWALL_MODE_ALWAYS_ON)
+        if (backend_->getPreferences()->firewalSettings().mode == FIREWALL_MODE_ALWAYS_ON)
         {
             mainWindowController_->getConnectWindow()->setFirewallAlwaysOn(true);
         }
     }
     else
     {
-        if (backend_->getPreferences()->firewalSettings().mode() == ProtoTypes::FIREWALL_MODE_ALWAYS_ON)
+        if (backend_->getPreferences()->firewalSettings().mode == FIREWALL_MODE_ALWAYS_ON)
         {
             backend_->firewallOn();
             mainWindowController_->getConnectWindow()->setFirewallAlwaysOn(true);
@@ -3432,24 +3417,24 @@ void MainWindow::setInitialFirewallState()
     }
 }
 
-void MainWindow::handleDisconnectWithError(const ProtoTypes::ConnectState &connectState)
+void MainWindow::handleDisconnectWithError(const types::ConnectState &connectState)
 {
-    Q_ASSERT(connectState.disconnect_reason() == ProtoTypes::DISCONNECTED_WITH_ERROR);
+    Q_ASSERT(connectState.disconnectReason == DISCONNECTED_WITH_ERROR);
 
     QString msg;
-    if (connectState.connect_error() == ProtoTypes::NO_OPENVPN_SOCKET)
+    if (connectState.connectError == NO_OPENVPN_SOCKET)
     {
         msg = tr("Can't connect to openvpn process.");
     }
-    else if (connectState.connect_error() == ProtoTypes::CANT_RUN_OPENVPN)
+    else if (connectState.connectError == CANT_RUN_OPENVPN)
     {
         msg = tr("Can't start openvpn process.");
     }
-    else if (connectState.connect_error() == ProtoTypes::COULD_NOT_FETCH_CREDENTAILS)
+    else if (connectState.connectError == COULD_NOT_FETCH_CREDENTAILS)
     {
          msg = tr("Couldn't fetch server credentials. Please try again later.");
     }
-    else if (connectState.connect_error() == ProtoTypes::LOCATION_NOT_EXIST || connectState.connect_error() == ProtoTypes::LOCATION_NO_ACTIVE_NODES)
+    else if (connectState.connectError == LOCATION_NOT_EXIST || connectState.connectError == LOCATION_NO_ACTIVE_NODES)
     {
         if (!PersistentState::instance().lastLocation().isBestLocation())
         {
@@ -3471,15 +3456,15 @@ void MainWindow::handleDisconnectWithError(const ProtoTypes::ConnectState &conne
         }
         return;
     }
-    else if (connectState.connect_error() == ProtoTypes::ALL_TAP_IN_USE)
+    else if (connectState.connectError == ALL_TAP_IN_USE)
     {
         msg = tr("All TAP-Windows adapters on this system are currently in use.");
     }
-    else if (connectState.connect_error() == ProtoTypes::IKEV_FAILED_SET_ENTRY_WIN || connectState.connect_error() == ProtoTypes::IKEV_NOT_FOUND_WIN)
+    else if (connectState.connectError == IKEV_FAILED_SET_ENTRY_WIN || connectState.connectError == IKEV_NOT_FOUND_WIN)
     {
         msg = tr("IKEv2 connection failed. Please send a debug log and open a support ticket. You can switch to UDP or TCP connection modes in the mean time.");
     }
-    else if (connectState.connect_error() == ProtoTypes::IKEV_FAILED_MODIFY_HOSTS_WIN)
+    else if (connectState.connectError == IKEV_FAILED_MODIFY_HOSTS_WIN)
     {
         QMessageBox msgBox;
         const auto* yesButton = msgBox.addButton(tr("Fix Issue"), QMessageBox::YesRole);
@@ -3494,32 +3479,32 @@ void MainWindow::handleDisconnectWithError(const ProtoTypes::ConnectState &conne
         }
         return;
     }
-    else if (connectState.connect_error() == ProtoTypes::IKEV_NETWORK_EXTENSION_NOT_FOUND_MAC)
+    else if (connectState.connectError == IKEV_NETWORK_EXTENSION_NOT_FOUND_MAC)
     {
         msg = tr("Failed to load the network extension framework.");
     }
-    else if (connectState.connect_error() == ProtoTypes::IKEV_FAILED_SET_KEYCHAIN_MAC)
+    else if (connectState.connectError == IKEV_FAILED_SET_KEYCHAIN_MAC)
     {
         msg = tr("Failed set password to keychain.");
     }
-    else if (connectState.connect_error() == ProtoTypes::IKEV_FAILED_START_MAC)
+    else if (connectState.connectError == IKEV_FAILED_START_MAC)
     {
         msg = tr("Failed to start IKEv2 connection.");
     }
-    else if (connectState.connect_error() == ProtoTypes::IKEV_FAILED_LOAD_PREFERENCES_MAC)
+    else if (connectState.connectError == IKEV_FAILED_LOAD_PREFERENCES_MAC)
     {
         msg = tr("Failed to load IKEv2 preferences.");
     }
-    else if (connectState.connect_error() == ProtoTypes::IKEV_FAILED_SAVE_PREFERENCES_MAC)
+    else if (connectState.connectError == IKEV_FAILED_SAVE_PREFERENCES_MAC)
     {
         msg = tr("Failed to create IKEv2 Profile. Please connect again and select \"Allow\".");
     }
-    else if (connectState.connect_error() == ProtoTypes::WIREGUARD_CONNECTION_ERROR)
+    else if (connectState.connectError == WIREGUARD_CONNECTION_ERROR)
     {
         msg = tr("Failed to setup WireGuard connection.");
     }
 #ifdef Q_OS_WIN
-    else if (connectState.connect_error() == ProtoTypes::NO_INSTALLED_TUN_TAP)
+    else if (connectState.connectError == NO_INSTALLED_TUN_TAP)
     {
        /* msg = tr("There are no TAP adapters installed. Attempt to install now?");
         //activateAndSetSkipFocus();
@@ -3536,7 +3521,7 @@ void MainWindow::handleDisconnectWithError(const ProtoTypes::ConnectState &conne
         return;
     }
 #endif
-    else if (connectState.connect_error() == ProtoTypes::CONNECTION_BLOCKED)
+    else if (connectState.connectError == CONNECTION_BLOCKED)
     {
         if (blockConnect_.isBlockedExceedTraffic()) {
             mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_UPGRADE);
@@ -3544,7 +3529,7 @@ void MainWindow::handleDisconnectWithError(const ProtoTypes::ConnectState &conne
         }
         msg = blockConnect_.message();
     }
-    else if (connectState.connect_error() == ProtoTypes::CANNOT_OPEN_CUSTOM_CONFIG)
+    else if (connectState.connectError == CANNOT_OPEN_CUSTOM_CONFIG)
     {
         const LocationID bestLocation{backend_->getLocationsModel()->getBestLocationId()};
         if (bestLocation.isValid()) {
@@ -3559,33 +3544,33 @@ void MainWindow::handleDisconnectWithError(const ProtoTypes::ConnectState &conne
 
         msg = tr("Failed to setup custom openvpn configuration.");
     }
-    else if(connectState.connect_error() == ProtoTypes::WINTUN_DRIVER_REINSTALLATION_ERROR)
+    else if(connectState.connectError == WINTUN_DRIVER_REINSTALLATION_ERROR)
     {
         msg = tr("Wintun driver fatal error. Failed to reinstall it automatically. Please try to reinstall it manually.");
     }
-    else if(connectState.connect_error() == ProtoTypes::TAP_DRIVER_REINSTALLATION_ERROR)
+    else if(connectState.connectError == TAP_DRIVER_REINSTALLATION_ERROR)
     {
         msg = tr("Tap driver Fatal error. Failed to reinstall it automatically. Please try to reinstall it manually.");
     }
-    else if (connectState.connect_error() == ProtoTypes::EXE_VERIFY_WSTUNNEL_ERROR)
+    else if (connectState.connectError == EXE_VERIFY_WSTUNNEL_ERROR)
     {
         msg = tr("WSTunnel binary failed verification. Please re-install windscribe from trusted source.");
     }
-    else if (connectState.connect_error() == ProtoTypes::EXE_VERIFY_STUNNEL_ERROR)
+    else if (connectState.connectError == EXE_VERIFY_STUNNEL_ERROR)
     {
         msg = tr("STunnel binary failed verification. Please re-install windscribe from trusted source.");
     }
-    else if (connectState.connect_error() == ProtoTypes::EXE_VERIFY_WIREGUARD_ERROR)
+    else if (connectState.connectError == EXE_VERIFY_WIREGUARD_ERROR)
     {
         msg = tr("Wireguard binary failed verification. Please re-install windscribe from trusted source.");
     }
-    else if (connectState.connect_error() == ProtoTypes::EXE_VERIFY_OPENVPN_ERROR)
+    else if (connectState.connectError == EXE_VERIFY_OPENVPN_ERROR)
     {
         msg = tr("OpenVPN binary failed verification. Please re-install windscribe from trusted source.");
     }
     else
     {
-         msg = tr("Error during connection (%1)").arg(QString::number(connectState.connect_error()));
+         msg = tr("Error during connection (%1)").arg(QString::number(connectState.connectError));
     }
 
     QMessageBox::information(nullptr, QApplication::applicationName(), msg);

@@ -26,7 +26,7 @@ BackgroundImage::BackgroundImage(QObject *parent, Preferences *preferences) : QO
     connect(&imageChanger_, SIGNAL(updated()), SIGNAL(updated()));
     connect(&connectingGradientChanger_, SIGNAL(updated()), SIGNAL(updated()));
     connect(&connectedGradientChanger_, SIGNAL(updated()), SIGNAL(updated()));
-    connect(preferences_, SIGNAL(backgroundSettingsChanged(const ProtoTypes::BackgroundSettings &)), SLOT(onBackgroundSettingsChanged(const ProtoTypes::BackgroundSettings &)));
+    connect(preferences_, SIGNAL(backgroundSettingsChanged(const types::BackgroundSettings &)), SLOT(onBackgroundSettingsChanged(const types::BackgroundSettings &)));
     onBackgroundSettingsChanged(preferences_->backgroundSettings());
 }
 
@@ -51,7 +51,7 @@ QPixmap *BackgroundImage::currentConnectedPixmap()
 
 void BackgroundImage::changeFlag(const QString &countryCode)
 {
-    if (curBackgroundSettings_.background_type() == ProtoTypes::BackgroundType::BACKGROUND_TYPE_COUNTRY_FLAGS)
+    if (curBackgroundSettings_.backgroundType == BACKGROUND_TYPE_COUNTRY_FLAGS)
     {
         if (countryCode_.isEmpty())
         {
@@ -76,7 +76,7 @@ void BackgroundImage::setIsConnected(bool isConnected)
     if (isConnected_ != isConnected)
     {
         isConnected_ = isConnected;
-        if (curBackgroundSettings_.background_type() == ProtoTypes::BackgroundType::BACKGROUND_TYPE_CUSTOM && !isDisconnectedAndConnectedImagesTheSame_)
+        if (curBackgroundSettings_.backgroundType == BACKGROUND_TYPE_CUSTOM && !isDisconnectedAndConnectedImagesTheSame_)
         {
             if (isConnected_)
             {
@@ -95,7 +95,7 @@ void BackgroundImage::updateScaling()
     handleBackgroundsChange();
 }
 
-void BackgroundImage::onBackgroundSettingsChanged(const ProtoTypes::BackgroundSettings &backgroundSettings)
+void BackgroundImage::onBackgroundSettingsChanged(const types::BackgroundSettings &backgroundSettings)
 {
     curBackgroundSettings_ = backgroundSettings;
     handleBackgroundsChange();
@@ -103,10 +103,10 @@ void BackgroundImage::onBackgroundSettingsChanged(const ProtoTypes::BackgroundSe
 
 void BackgroundImage::handleBackgroundsChange()
 {
-    if (curBackgroundSettings_.background_type() == ProtoTypes::BackgroundType::BACKGROUND_TYPE_CUSTOM)
+    if (curBackgroundSettings_.backgroundType == BACKGROUND_TYPE_CUSTOM)
     {
-        QString disconnectedPath = QString::fromStdString(curBackgroundSettings_.background_image_disconnected());
-        QString connectedPath = QString::fromStdString(curBackgroundSettings_.background_image_connected());
+        QString disconnectedPath = curBackgroundSettings_.backgroundImageDisconnected;
+        QString connectedPath = curBackgroundSettings_.backgroundImageConnected;
         isDisconnectedAndConnectedImagesTheSame_ = (disconnectedPath.compare(connectedPath, Qt::CaseInsensitive) == 0);
 
         if (disconnectedPath.isEmpty())
@@ -161,14 +161,14 @@ void BackgroundImage::handleBackgroundsChange()
             safeChangeToConnectedImage(false);
         }
     }
-    else if (curBackgroundSettings_.background_type() == ProtoTypes::BackgroundType::BACKGROUND_TYPE_NONE)
+    else if (curBackgroundSettings_.backgroundType == BACKGROUND_TYPE_NONE)
     {
         QSharedPointer<IndependentPixmap> indPix = ImageResourcesSvg::instance().getScaledFlag(
             "noflag", WIDTH * G_SCALE, 176 * G_SCALE);
         imageChanger_.setImage(indPix, false);
         switchConnectGradient(false);
     }
-    else if (curBackgroundSettings_.background_type() == ProtoTypes::BackgroundType::BACKGROUND_TYPE_COUNTRY_FLAGS)
+    else if (curBackgroundSettings_.backgroundType == BACKGROUND_TYPE_COUNTRY_FLAGS)
     {
         QSharedPointer<IndependentPixmap> indPix = ImageResourcesSvg::instance().getScaledFlag(
             (countryCode_.isEmpty() ? "noflag" : countryCode_), WIDTH * G_SCALE, 176 * G_SCALE);

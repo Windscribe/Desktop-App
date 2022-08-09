@@ -18,7 +18,7 @@ public:
     ~WireGuardConnection() override;
 
     void startConnect(const QString &configPathOrUrl, const QString &ip, const QString &dnsHostName,
-                      const QString &username, const QString &password, const ProxySettings &proxySettings,
+                      const QString &username, const QString &password, const types::ProxySettings &proxySettings,
                       const WireGuardConfig *wireGuardConfig, bool isEnableIkev2Compression, bool isAutomaticConnectionMode) override;
     void startDisconnect() override;
     bool isDisconnected() const override;
@@ -45,7 +45,7 @@ private:
     ConnectionState getCurrentState() const;
     void setCurrentState(ConnectionState state);
     void setCurrentStateAndEmitSignal(ConnectionState state);
-    void setError(ProtoTypes::ConnectError err);
+    void setError(CONNECT_ERROR err);
     bool checkForKernelModule();
 
     IHelper *helper_;

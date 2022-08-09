@@ -29,12 +29,12 @@ void SplitTunnelingAppsSearchItem::paint(QPainter *painter, const QStyleOptionGr
     Q_UNUSED(widget);
 }
 
-QList<ProtoTypes::SplitTunnelingApp> SplitTunnelingAppsSearchItem::getApps()
+QList<types::SplitTunnelingApp> SplitTunnelingAppsSearchItem::getApps()
 {
     return apps_;
 }
 
-void SplitTunnelingAppsSearchItem::setApps(QList<ProtoTypes::SplitTunnelingApp> apps)
+void SplitTunnelingAppsSearchItem::setApps(QList<types::SplitTunnelingApp> apps)
 {
     apps_ = apps;
 
@@ -118,23 +118,23 @@ void SplitTunnelingAppsSearchItem::onSearchTextChanged(QString text)
 void SplitTunnelingAppsSearchItem::toggleAppItemActive(AppSearchItem *item)
 {
     QString appName = item->getName();
-    ProtoTypes::SplitTunnelingApp *existingApp = appByName(appName);
+    types::SplitTunnelingApp *existingApp = appByName(appName);
 
     if (existingApp) // USER or active system
     {
-        if (existingApp->active())
+        if (existingApp->active)
         {
-            existingApp->set_active(!existingApp->active());
+            existingApp->active = !existingApp->active;
             removeAppFromApps(*existingApp);
         }
     }
     else // inactive SYSTEM pressed
     {
-        ProtoTypes::SplitTunnelingApp app;
-        app.set_name(appName.toStdString());
-        app.set_type(ProtoTypes::SPLIT_TUNNELING_APP_TYPE_SYSTEM);
-        app.set_active(true);
-        app.set_full_name(item->getFullName().toStdString());
+        types::SplitTunnelingApp app;
+        app.name = appName;
+        app.type = SPLIT_TUNNELING_APP_TYPE_SYSTEM;
+        app.active = true;
+        app.fullName = item->getFullName();
         apps_.append(app);
     }
 
@@ -216,14 +216,14 @@ void SplitTunnelingAppsSearchItem::onSearchBoxFocusIn()
     searchLineEditItem_->setSelected(true);
 }
 
-QList<ProtoTypes::SplitTunnelingApp> SplitTunnelingAppsSearchItem::filteredAppItems(QString filterString)
+QList<types::SplitTunnelingApp> SplitTunnelingAppsSearchItem::filteredAppItems(QString filterString)
 {
-    QList<ProtoTypes::SplitTunnelingApp> apps;
+    QList<types::SplitTunnelingApp> apps;
 
     const auto appList = activeAndSystemApps();
     for (auto app : appList)
     {
-        if (QString::fromStdString(app.name()).toLower().contains(filterString.toLower()))
+        if (app.name.toLower().contains(filterString.toLower()))
         {
             apps.append(app);
         }
@@ -232,15 +232,15 @@ QList<ProtoTypes::SplitTunnelingApp> SplitTunnelingAppsSearchItem::filteredAppIt
     return apps;
 }
 
-ProtoTypes::SplitTunnelingApp *SplitTunnelingAppsSearchItem::appByName(QString appName)
+types::SplitTunnelingApp *SplitTunnelingAppsSearchItem::appByName(QString appName)
 {
-    ProtoTypes::SplitTunnelingApp *found = nullptr;
+    types::SplitTunnelingApp *found = nullptr;
 
     for (int i = 0; i < apps_.length(); i++)
     {
-        ProtoTypes::SplitTunnelingApp *app = &apps_[i];
+        types::SplitTunnelingApp *app = &apps_[i];
 
-        if (app->name() == appName.toStdString())
+        if (app->name == appName)
         {
             found = app;
             break;
@@ -263,14 +263,14 @@ void SplitTunnelingAppsSearchItem::updateDrawBasedOnFilterText(QString filterTex
     }
 }
 
-void SplitTunnelingAppsSearchItem::drawItemsAndUpdateHeight(int baseHeight, QList<ProtoTypes::SplitTunnelingApp> itemsToDraw)
+void SplitTunnelingAppsSearchItem::drawItemsAndUpdateHeight(int baseHeight, QList<types::SplitTunnelingApp> itemsToDraw)
 {
     drawnApps_.clear();
 
     int height = baseHeight*G_SCALE;
     for (auto app : qAsConst(itemsToDraw))
     {
-        QString iconPath = QString::fromStdString(app.full_name());
+        QString iconPath = app.fullName;
 
 #ifdef Q_OS_WIN
         iconPath = WinUtils::iconPathFromBinPath(iconPath);
@@ -306,11 +306,11 @@ void SplitTunnelingAppsSearchItem::updateItemsPosAndUpdateHeight()
     setHeight(height);
 }
 
-void SplitTunnelingAppsSearchItem::removeAppFromApps(ProtoTypes::SplitTunnelingApp app)
+void SplitTunnelingAppsSearchItem::removeAppFromApps(types::SplitTunnelingApp app)
 {
     for (int i = 0; i < apps_.length(); i++)
     {
-        if (apps_[i].name() == app.name())
+        if (apps_[i].name == app.name)
         {
             apps_.removeAt(i);
         }
@@ -331,10 +331,10 @@ void SplitTunnelingAppsSearchItem::updateSystemApps()
             QFile f(exePath);
             QString name = QFileInfo(f).fileName();
 
-            ProtoTypes::SplitTunnelingApp app;
-            app.set_name(name.toStdString());
-            app.set_type(ProtoTypes::SPLIT_TUNNELING_APP_TYPE_SYSTEM);
-            app.set_full_name(exePath.toStdString());
+            types::SplitTunnelingApp app;
+            app.name = name;
+            app.type = SPLIT_TUNNELING_APP_TYPE_SYSTEM;
+            app.fullName = exePath;
             systemApps_.append(app);
         }
     }
@@ -347,10 +347,10 @@ void SplitTunnelingAppsSearchItem::updateSystemApps()
             QFile f(binPath);
             QString name = QFileInfo(f).fileName();
 
-            ProtoTypes::SplitTunnelingApp app;
-            app.set_name(name.toStdString());
-            app.set_type(ProtoTypes::SPLIT_TUNNELING_APP_TYPE_SYSTEM);
-            app.set_full_name(binPath.toStdString());
+            types::SplitTunnelingApp app;
+            app.name = name;
+            app.type = SPLIT_TUNNELING_APP_TYPE_SYSTEM;
+            app.fullName = binPath;
             systemApps_.append(app);
         }
     }
@@ -360,9 +360,9 @@ void SplitTunnelingAppsSearchItem::updateSystemApps()
 #endif
 }
 
-QList<ProtoTypes::SplitTunnelingApp> SplitTunnelingAppsSearchItem::activeAndSystemApps()
+QList<types::SplitTunnelingApp> SplitTunnelingAppsSearchItem::activeAndSystemApps()
 {
-    QList<ProtoTypes::SplitTunnelingApp> activeAndSystemApps;
+    QList<types::SplitTunnelingApp> activeAndSystemApps;
 
     const auto sortedApps = Utils::insertionSort(apps_);
     for (auto app : sortedApps)
@@ -374,9 +374,9 @@ QList<ProtoTypes::SplitTunnelingApp> SplitTunnelingAppsSearchItem::activeAndSyst
     for (auto systemApp : sortedSystemApps)
     {
         bool found = false;
-        for (const ProtoTypes::SplitTunnelingApp &app: qAsConst(activeAndSystemApps))
+        for (const types::SplitTunnelingApp &app: qAsConst(activeAndSystemApps))
         {
-            if (app.name() == systemApp.name())
+            if (app.name == systemApp.name)
             {
                 found = true;
                 break;

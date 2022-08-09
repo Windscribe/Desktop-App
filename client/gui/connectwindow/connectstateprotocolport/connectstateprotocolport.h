@@ -11,6 +11,7 @@
 #include "utils/imagewithshadow.h"
 #include "connectionbadgedots.h"
 #include "badgepixmap.h"
+#include "types/connectstate.h"
 
 namespace ConnectWindow {
 
@@ -23,11 +24,11 @@ public:
     QRectF boundingRect() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR) override;
 
-    void onConnectStateChanged(ProtoTypes::ConnectState newConnectState, ProtoTypes::ConnectState prevConnectState);
+    void onConnectStateChanged(const types::ConnectState &newConnectState, const types::ConnectState &prevConnectState);
 
     void setHoverable(bool hoverable);
     void setInternetConnectivity(bool connectivity);
-    void setProtocolPort(const ProtoTypes::Protocol &protocol, const uint port);
+    void setProtocolPort(const PROTOCOL &protocol, const uint port);
     void setTestTunnelResult(bool success);
 
     void updateScaling() override;
@@ -48,11 +49,11 @@ private:
     ConnectionBadgeDots * connectionBadgeDots_;
 
     FontDescr fontDescr_;
-    ProtoTypes::ConnectState connectState_;
-    ProtoTypes::ConnectState prevConnectState_;
+    types::ConnectState connectState_;
+    types::ConnectState prevConnectState_;
     bool hoverable_;
     bool connectivity_;
-    ProtoTypes::Protocol protocol_;
+    PROTOCOL protocol_;
     uint port_;
     QColor textColor_;
     double textOpacity_;
@@ -70,7 +71,7 @@ private:
     int width_;
     int height_;
     void recalcSize();
-    void updateStateDisplay(ProtoTypes::ConnectState newConnectState);
+    void updateStateDisplay(const types::ConnectState &newConnectState);
 
     static constexpr int badgeProtocolPadding = 10;
     static constexpr int protocolSeparatorPadding = 7;

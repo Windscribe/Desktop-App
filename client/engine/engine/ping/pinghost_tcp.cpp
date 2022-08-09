@@ -33,7 +33,7 @@ void PingHost_TCP::clearPings()
     waitingPingsQueue_.clear();
 }
 
-void PingHost_TCP::setProxySettings(const ProxySettings &proxySettings)
+void PingHost_TCP::setProxySettings(const types::ProxySettings &proxySettings)
 {
     proxySettings_ = proxySettings;
 }

@@ -141,7 +141,7 @@ TestVPNTunnel::~TestVPNTunnel()
     #endif
 }
 
-void TestVPNTunnel::startTests(const ProtocolType &protocol)
+void TestVPNTunnel::startTests(const PROTOCOL &protocol)
 {
     qCDebug(LOG_CONNECTION) << "TestVPNTunnel::startTests()";
 

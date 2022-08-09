@@ -143,20 +143,6 @@ def get_project_folder(subdir_name):
     return os.path.normpath(os.path.join(pathhelper.ROOT_DIR, subdir_name))
 
 
-def generate_protobuf():
-    proto_root = iutl.GetDependencyBuildRoot("protobuf")
-    if not proto_root:
-        raise iutl.InstallError("Protobuf is not installed.")
-    msg.Info("Generating Protobuf...")
-    proto_gen = os.path.join(pathhelper.COMMON_DIR, "ipc", "proto", "generate_proto")
-    if utl.GetCurrentOS() == "win32":
-        proto_gen = proto_gen + ".bat"
-        iutl.RunCommand([proto_gen, os.path.join(proto_root, "release", "bin")], shell=True)
-    else:
-        proto_gen = proto_gen + ".sh"
-        iutl.RunCommand([proto_gen, os.path.join(proto_root, "bin")], shell=True)
-
-
 def copy_file(filename, srcdir, dstdir, strip_first_dir=False):
     parts = filename.split("->")
     srcfilename = parts[0].strip()
@@ -217,14 +203,6 @@ def fix_build_libs_rpaths(configdata):
                     raise iutl.InstallError("Cannot fix {} rpath, installation not found at {}".format(build_lib_name, build_lib_root))
                 for binary_name in binaries_to_patch:
                     fix_rpath_macos(os.path.join(build_lib_root, binary_name))
-    elif CURRENT_OS == "linux":
-        protobuf_root = iutl.GetDependencyBuildRoot("protobuf")
-        if not os.path.exists(protobuf_root):
-            raise iutl.InstallError("Cannot fix protobuf rpath, protobuf installation not found at " + protobuf_root)
-        msg.Print("Patching protobuf rpaths...")
-        iutl.RunCommand(["patchelf", "--set-rpath", "$ORIGIN/../lib", "{}/bin/protoc".format(protobuf_root)])
-        iutl.RunCommand(["patchelf", "--set-rpath", "$ORIGIN/../lib", "{}/lib/libprotoc.so".format(protobuf_root)])
-
 
 def apply_mac_deploy_fixes(appname, fixlist):
     # Special deploy fixes for Mac.
@@ -758,7 +736,6 @@ def build_all(win_cert_password):
     fix_build_libs_rpaths(configdata)
 
     # Build the components.
-    generate_protobuf()
     with utl.PushDir(temp_dir):
         if arghelper.build_app():
             if configdata["targets"][CURRENT_OS]:

@@ -27,9 +27,9 @@ public:
     void updateScaling();
 
 public slots:
-    virtual void setMessages(const ProtoTypes::ArrayApiNotification &arr,
+    virtual void setMessages(const QVector<types::Notification> &arr,
                              const QSet<qint64> &shownIds);
-    virtual void setMessagesWithCurrentOverride(const ProtoTypes::ArrayApiNotification &arr,
+    virtual void setMessagesWithCurrentOverride(const QVector<types::Notification> &arr,
                                                 const QSet<qint64> &shownIds,
                                                 int overrideCurrentMessageId);
 
@@ -64,7 +64,7 @@ private:
     QString windowTitle_;
     QString messageTitle_;
 
-    ProtoTypes::ArrayApiNotification messages_;
+    QVector<types::Notification> messages_;
     QSet<qint64> shownIds_;
 
     int curMessageInd_;

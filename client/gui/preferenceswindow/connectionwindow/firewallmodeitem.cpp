@@ -2,7 +2,6 @@
 
 #include <QPainter>
 #include "graphicresources/fontmanager.h"
-#include "utils/protoenumtostring.h"
 #include "dpiscalemanager.h"
 
 namespace PreferencesWindow {
@@ -14,24 +13,24 @@ FirewallModeItem::FirewallModeItem(ScalableGraphicsObject *parent) : BaseItem(pa
 
     comboBoxFirewallMode_ = new ComboBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::ComboBoxItem", "Firewall Mode"), "", 50, /*QColor(255, 0, 0)*/Qt::transparent, 0, false);
 
-    const QList< QPair<QString, int> > modes = ProtoEnumToString::instance().getEnums(ProtoTypes::FirewallMode_descriptor());
+    const QList< QPair<QString, int> > modes = FIREWALL_MODE_toList();
     for (const auto v : modes)
     {
         comboBoxFirewallMode_->addItem(v.first, v.second);
     }
-    comboBoxFirewallMode_->setCurrentItem(curFirewallMode_.mode());
+    comboBoxFirewallMode_->setCurrentItem(curFirewallMode_.mode);
     connect(comboBoxFirewallMode_, SIGNAL(currentItemChanged(QVariant)), SLOT(onFirewallModeChanged(QVariant)));
     connect(comboBoxFirewallMode_, SIGNAL(buttonHoverEnter()), SIGNAL(buttonHoverEnter()));
     connect(comboBoxFirewallMode_, SIGNAL(buttonHoverLeave()), SIGNAL(buttonHoverLeave()));
 
     comboBoxFirewallWhen_ = new ComboBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::ComboBoxItem", "When?"), "", 43, QColor(16, 22, 40), 24, true);
 
-    const QList< QPair<QString, int> > whens = ProtoEnumToString::instance().getEnums(ProtoTypes::FirewallWhen_descriptor());
+    const QList< QPair<QString, int> > whens = FIREWALL_WHEN_toList();
     for (const auto v : whens)
     {
         comboBoxFirewallWhen_->addItem(v.first, v.second);
     }
-    comboBoxFirewallWhen_->setCurrentItem(curFirewallMode_.when());
+    comboBoxFirewallWhen_->setCurrentItem(curFirewallMode_.when);
 
 
     connect(comboBoxFirewallWhen_, SIGNAL(currentItemChanged(QVariant)), SLOT(onFirewallWhenChanged(QVariant)));
@@ -103,12 +102,12 @@ void FirewallModeItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
     painter->drawText(bottomHalfRect, tr("Firewall is handled automatically by Windscribe's connection status."));
 }
 
-void FirewallModeItem::setFirewallMode(const ProtoTypes::FirewallSettings &fm)
+void FirewallModeItem::setFirewallMode(const types::FirewallSettings &fm)
 {
-    if(!google::protobuf::util::MessageDifferencer::Equals(curFirewallMode_, fm))
+    if (curFirewallMode_ != fm)
     {
         curFirewallMode_ = fm;
-        if (curFirewallMode_.mode() == ProtoTypes::FIREWALL_MODE_AUTOMATIC)
+        if (curFirewallMode_.mode == FIREWALL_MODE_AUTOMATIC)
         {
             isExpanded_ = true;
             onExpandAnimationValueChanged(EXPANDED_HEIGHT);
@@ -118,8 +117,8 @@ void FirewallModeItem::setFirewallMode(const ProtoTypes::FirewallSettings &fm)
             isExpanded_ = false;
             onExpandAnimationValueChanged(COLLAPSED_HEIGHT);
         }
-        comboBoxFirewallMode_->setCurrentItem(curFirewallMode_.mode());
-        comboBoxFirewallWhen_->setCurrentItem(curFirewallMode_.when());
+        comboBoxFirewallMode_->setCurrentItem(curFirewallMode_.mode);
+        comboBoxFirewallWhen_->setCurrentItem(curFirewallMode_.when);
     }
 }
 
@@ -144,7 +143,7 @@ void FirewallModeItem::updateScaling()
 
 void FirewallModeItem::onFirewallModeChanged(QVariant v)
 {
-    if (v.toInt() == ProtoTypes::FIREWALL_MODE_AUTOMATIC && !isExpanded_)
+    if (v.toInt() == FIREWALL_MODE_AUTOMATIC && !isExpanded_)
     {
         expandEnimation_.setDirection(QVariantAnimation::Forward);
         if (expandEnimation_.state() != QVariantAnimation::Running)
@@ -163,18 +162,18 @@ void FirewallModeItem::onFirewallModeChanged(QVariant v)
         isExpanded_ = false;
     }
 
-    if (curFirewallMode_.mode() != v.toInt())
+    if (curFirewallMode_.mode != v.toInt())
     {
-        curFirewallMode_.set_mode((ProtoTypes::FirewallMode)v.toInt());
+        curFirewallMode_.mode = ((FIREWALL_MODE)v.toInt());
         emit firewallModeChanged(curFirewallMode_);
     }
 }
 
 void FirewallModeItem::onFirewallWhenChanged(QVariant v)
 {
-    if (curFirewallMode_.when() != v.toInt())
+    if (curFirewallMode_.when != v.toInt())
     {
-        curFirewallMode_.set_when((ProtoTypes::FirewallWhen)v.toInt());
+        curFirewallMode_.when = ((FIREWALL_WHEN)v.toInt());
         emit firewallModeChanged(curFirewallMode_);
     }
 }

@@ -17,11 +17,11 @@ public:
     explicit BackgroundSettingsItem(ScalableGraphicsObject *parent);
 
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR) override;
-    void setBackgroundSettings(const ProtoTypes::BackgroundSettings &settings);
+    void setBackgroundSettings(const types::BackgroundSettings &settings);
     void updateScaling() override;
 
 signals:
-    void backgroundSettingsChanged(const ProtoTypes::BackgroundSettings &settings);
+    void backgroundSettingsChanged(const types::BackgroundSettings &settings);
 
 private slots:
     void onBackgroundModeChanged(QVariant v);
@@ -47,7 +47,7 @@ private:
     bool isExpanded_;
     qreal curDescrTextOpacity_;
 
-    ProtoTypes::BackgroundSettings curBackgroundSettings_;
+    types::BackgroundSettings curBackgroundSettings_;
 
     DividerLine *dividerLine_;
 

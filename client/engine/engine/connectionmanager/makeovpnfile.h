@@ -1,7 +1,7 @@
 #ifndef MAKEOVPNFILE_H
 #define MAKEOVPNFILE_H
 #include <QTemporaryFile>
-#include "engine/types/protocoltype.h"
+#include "types/enums.h"
 
 class MakeOVPNFile
 {
@@ -9,7 +9,7 @@ public:
     MakeOVPNFile();
     virtual ~MakeOVPNFile();
 
-    bool generate(const QString &ovpnData, const QString &ip, const ProtocolType &protocol, uint port,
+    bool generate(const QString &ovpnData, const QString &ip, PROTOCOL protocol, uint port,
                   uint portForStunnelOrWStunnel, int mss, const QString &defaultGateway, const QString &openVpnX509,
                   bool blockOutsideDnsOption = true);
     QString path() { return path_; }

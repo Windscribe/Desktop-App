@@ -1,12 +1,19 @@
 #include "getwireguardconfig.h"
 #include "engine/serverapi/serverapi.h"
-#include "utils/protobuf_includes.h"
+#include "engine/apiinfo/apiinfo.h"
+#include "types/global_consts.h"
+
+extern "C" {
+    #include "legacy_protobuf_support/apiinfo.pb-c.h"
+
+#include <QDataStream>
+}
 
 const QString GetWireGuardConfig::KEY_WIREGUARD_CONFIG = "wireguardConfig";
 
 GetWireGuardConfig::GetWireGuardConfig(QObject *parent, ServerAPI *serverAPI, uint serverApiUserRole) : QObject(parent), serverAPI_(serverAPI),
     serverApiUserRole_(serverApiUserRole),
-    isRequestAlreadyInProgress_(false), simpleCrypt_(0x4572A4ACF31A31BA)
+    isRequestAlreadyInProgress_(false), simpleCrypt_(SIMPLE_CRYPT_KEY)
 {
     connect(serverAPI_, &ServerAPI::wgConfigsInitAnswer, this, &GetWireGuardConfig::onWgConfigsInitAnswer, Qt::QueuedConnection);
     connect(serverAPI_, &ServerAPI::wgConfigsConnectAnswer, this, &GetWireGuardConfig::onWgConfigsConnectAnswer, Qt::QueuedConnection);
@@ -159,11 +166,11 @@ void GetWireGuardConfig::submitWireGuardInitRequest(bool generateKeyPair)
 
 bool GetWireGuardConfig::getWireGuardKeyPair(QString &publicKey, QString &privateKey)
 {
-    ProtoApiInfo::WireGuardConfig wgConfig = readWireGuardConfigFromSettings();
-    if (!wgConfig.public_key().empty() && !wgConfig.private_key().empty())
+    WireGuardConfig wgConfig = readWireGuardConfigFromSettings();
+    if (!wgConfig.clientPublicKey().isEmpty() && !wgConfig.clientPrivateKey().isEmpty())
     {
-        publicKey = QString::fromStdString(wgConfig.public_key());
-        privateKey = QString::fromStdString(wgConfig.private_key());
+        publicKey = wgConfig.clientPublicKey();
+        privateKey = wgConfig.clientPrivateKey();
         return true;
     }
     return false;
@@ -171,19 +178,18 @@ bool GetWireGuardConfig::getWireGuardKeyPair(QString &publicKey, QString &privat
 
 void GetWireGuardConfig::setWireGuardKeyPair(const QString &publicKey, const QString &privateKey)
 {
-    ProtoApiInfo::WireGuardConfig wgConfig = readWireGuardConfigFromSettings();
-    wgConfig.set_public_key(publicKey.toStdString());
-    wgConfig.set_private_key(privateKey.toStdString());
+    WireGuardConfig wgConfig = readWireGuardConfigFromSettings();
+    wgConfig.setKeyPair(publicKey, privateKey);
     writeWireGuardConfigToSettings(wgConfig);
 }
 
 bool GetWireGuardConfig::getWireGuardPeerInfo(QString &presharedKey, QString &allowedIPs)
 {
-    ProtoApiInfo::WireGuardConfig wgConfig = readWireGuardConfigFromSettings();
-    if (!wgConfig.preshared_key().empty() && !wgConfig.allowed_ips().empty())
+    WireGuardConfig wgConfig = readWireGuardConfigFromSettings();
+    if (!wgConfig.peerPresharedKey().isEmpty() && !wgConfig.peerAllowedIps().isEmpty())
     {
-        presharedKey = QString::fromStdString(wgConfig.preshared_key());
-        allowedIPs = QString::fromStdString(wgConfig.allowed_ips());
+        presharedKey = wgConfig.peerPresharedKey();
+        allowedIPs = wgConfig.peerAllowedIps();
         return true;
     }
     return false;
@@ -191,13 +197,13 @@ bool GetWireGuardConfig::getWireGuardPeerInfo(QString &presharedKey, QString &al
 
 void GetWireGuardConfig::setWireGuardPeerInfo(const QString &presharedKey, const QString &allowedIPs)
 {
-    ProtoApiInfo::WireGuardConfig wgConfig = readWireGuardConfigFromSettings();
-    wgConfig.set_preshared_key(presharedKey.toStdString());
-    wgConfig.set_allowed_ips(allowedIPs.toStdString());
+    WireGuardConfig wgConfig = readWireGuardConfigFromSettings();
+    wgConfig.setPeerPresharedKey(presharedKey);
+    wgConfig.setPeerAllowedIPs(allowedIPs);
     writeWireGuardConfigToSettings(wgConfig);
 }
 
-ProtoApiInfo::WireGuardConfig GetWireGuardConfig::readWireGuardConfigFromSettings()
+WireGuardConfig GetWireGuardConfig::readWireGuardConfigFromSettings()
 {
     QSettings settings;
     if (settings.contains(KEY_WIREGUARD_CONFIG))
@@ -206,22 +212,56 @@ ProtoApiInfo::WireGuardConfig GetWireGuardConfig::readWireGuardConfigFromSetting
         if (!s.isEmpty())
         {
             QByteArray arr = simpleCrypt_.decryptToByteArray(s);
-            ProtoApiInfo::WireGuardConfig wgConfig;
-            if (wgConfig.ParseFromArray(arr.data(), arr.size()))
+            QDataStream ds(&arr, QIODevice::ReadOnly);
+
+            quint32 magic, version;
+            ds >> magic;
+            if (magic == magic_)
             {
-                return wgConfig;
+                ds >> version;
+                if (version <= versionForSerialization_)
+                {
+                    WireGuardConfig wgConfig;
+                    ds >> wgConfig;
+                    if (ds.status() == QDataStream::Ok)
+                    {
+                        return wgConfig;
+                    }
+                }
             }
+
+            WireGuardConfig wgConfig;
+            {
+                SimpleCrypt simpleCryptLegacy(0x4572A4ACF31A31BA);
+                QByteArray arr = simpleCryptLegacy.decryptToByteArray(s);
+                // try load from legacy protobuf
+                // todo remove this code at some point later
+                ProtoApiInfo__WireGuardConfig *wgc = proto_api_info__wire_guard_config__unpack(NULL, arr.size(), (const uint8_t *)arr.data());
+                if (wgc)
+                {
+                    wgConfig.setKeyPair(QString::fromStdString(wgc->public_key), QString::fromStdString(wgc->private_key));
+                    wgConfig.setPeerPresharedKey(QString::fromStdString(wgc->preshared_key));
+                    wgConfig.setPeerAllowedIPs(QString::fromStdString(wgc->allowed_ips));
+                    proto_api_info__wire_guard_config__free_unpacked(wgc, NULL);
+                }
+            }
+
+            return wgConfig;
         }
     }
-    return ProtoApiInfo::WireGuardConfig();
+    return WireGuardConfig();
 }
 
-void GetWireGuardConfig::writeWireGuardConfigToSettings(const ProtoApiInfo::WireGuardConfig &wgConfig)
+void GetWireGuardConfig::writeWireGuardConfigToSettings(const WireGuardConfig &wgConfig)
 {
+    QByteArray arr;
+    {
+        QDataStream ds(&arr, QIODevice::WriteOnly);
+        ds << magic_;
+        ds << versionForSerialization_;
+        ds << wgConfig;
+    }
     QSettings settings;
-    size_t size = wgConfig.ByteSizeLong();
-    QByteArray arr(size, Qt::Uninitialized);
-    wgConfig.SerializeToArray(arr.data(), size);
     settings.setValue(KEY_WIREGUARD_CONFIG, simpleCrypt_.encryptToString(arr));
 }
 

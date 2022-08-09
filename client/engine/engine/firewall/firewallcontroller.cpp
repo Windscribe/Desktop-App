@@ -39,7 +39,7 @@ bool FirewallController::firewallOff()
     return true;
 }
 
-bool FirewallController::whitelistPorts(const apiinfo::StaticIpPortsVector &ports)
+bool FirewallController::whitelistPorts(const types::StaticIpPortsVector &ports)
 {
     if (!bInitialized_)
     {
@@ -57,7 +57,7 @@ bool FirewallController::whitelistPorts(const apiinfo::StaticIpPortsVector &port
 bool FirewallController::deleteWhitelistPorts()
 {
     // the same logic as in whitelistPorts with empty static ip ports vector
-    return whitelistPorts(apiinfo::StaticIpPortsVector());
+    return whitelistPorts(types::StaticIpPortsVector());
 }
 
 bool FirewallController::isStateChanged()

@@ -5,14 +5,12 @@
 #include "utils/logger.h"
 #include "utils/ipvalidation.h"
 
-const int typeIdPacketSize = qRegisterMetaType<ProtoTypes::Protocol>("ProtoTypes::PacketSize");
-
 PacketSizeController::PacketSizeController(QObject *parent) : QObject(parent)
   , earlyStop_(false)
 {
 }
 
-void PacketSizeController::setPacketSize(const ProtoTypes::PacketSize &packetSize)
+void PacketSizeController::setPacketSize(const types::PacketSize &packetSize)
 {
     QMutexLocker locker(&mutex_);
     setPacketSizeImpl(packetSize);
@@ -30,12 +28,12 @@ void PacketSizeController::earlyStop()
     earlyStop_ = true;
 }
 
-void PacketSizeController::setPacketSizeImpl(const ProtoTypes::PacketSize &packetSize)
+void PacketSizeController::setPacketSizeImpl(const types::PacketSize &packetSize)
 {
-    if (!google::protobuf::util::MessageDifferencer::Equals(packetSize, packetSize_))
+    if (packetSize != packetSize_)
     {
         packetSize_ = packetSize;
-        emit packetSizeChanged(packetSize.is_automatic(), packetSize.mtu());
+        emit packetSizeChanged(packetSize.isAutomatic, packetSize.mtu);
     }
 }
 
@@ -53,9 +51,9 @@ void PacketSizeController::detectAppropriatePacketSizeImpl(const QString &hostna
     if (mtu > 0)
     {
         qCDebug(LOG_PACKET_SIZE) << "Found mtu: " << mtu;
-        ProtoTypes::PacketSize packetSize;
-        packetSize.set_is_automatic(packetSize_.is_automatic());
-        packetSize.set_mtu(mtu);
+        types::PacketSize packetSize;
+        packetSize.isAutomatic = packetSize_.isAutomatic;
+        packetSize.mtu = mtu;
         setPacketSizeImpl(packetSize);
     }
 

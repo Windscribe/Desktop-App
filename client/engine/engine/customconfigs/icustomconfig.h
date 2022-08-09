@@ -2,7 +2,7 @@
 #define ICUSTOMCONFIG_H
 
 #include <QStringList>
-#include "customconfigtype.h"
+#include "types/enums.h"
 
 namespace customconfigs {
 

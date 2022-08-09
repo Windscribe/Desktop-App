@@ -6,20 +6,20 @@
 #endif
 #include <QHostInfo>
 
-bool ProxyServerController::updateProxySettings(const ProxySettings &proxySettings)
+bool ProxyServerController::updateProxySettings(const types::ProxySettings &proxySettings)
 {
-    ProxySettings newProxySettings;
+    types::ProxySettings newProxySettings;
 
     if (proxySettings.option() == PROXY_OPTION_AUTODETECT)
     {
         bool bSuccess = false;
 #ifdef Q_OS_WIN
-        ProxySettings autoProxySettings = AutoDetectProxy_win::detect(bSuccess);
+        types::ProxySettings autoProxySettings = AutoDetectProxy_win::detect(bSuccess);
 #elif defined Q_OS_MAC
-        ProxySettings autoProxySettings = AutoDetectProxy_mac::detect(bSuccess);
+        types::ProxySettings autoProxySettings = AutoDetectProxy_mac::detect(bSuccess);
 #elif defined Q_OS_LINUX
         //todo linux
-        ProxySettings autoProxySettings;
+        types::ProxySettings autoProxySettings;
 #endif
         if (!bSuccess)
         {
@@ -62,7 +62,7 @@ bool ProxyServerController::updateProxySettings(const ProxySettings &proxySettin
     return isModified;
 }
 
-const ProxySettings &ProxyServerController::getCurrentProxySettings()
+const types::ProxySettings &ProxyServerController::getCurrentProxySettings()
 {
     Q_ASSERT(bInitialized_);
     return proxySettings_;

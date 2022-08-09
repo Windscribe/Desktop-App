@@ -1,8 +1,11 @@
 #include "pingstorage.h"
+
 #include <QDataStream>
-#include <QDebug>
+#include <QIODevice>
 #include <QSettings>
-#include "utils/protobuf_includes.h"
+
+#include "utils/simplecrypt.h"
+#include "types/global_consts.h"
 
 namespace locationsmodel {
 
@@ -47,7 +50,6 @@ void PingStorage::updateNodes(const QStringList &ips)
             hash_[ip] = PingData();
         }
     }
-
 }
 
 void PingStorage::setNodePing(const QString &nodeIp, PingTime timeMs, bool fromDisconnectedState)
@@ -102,23 +104,21 @@ void PingStorage::getState(bool &isAllNodesHaveCurIteration, bool &isAllNodesInD
 
 void PingStorage::saveToSettings()
 {
-    ProtoApiInfo::PingStorage storage;
-
-    storage.set_cur_iteration(curIteration_);
-    for (auto it = hash_.begin(); it != hash_.end(); ++it)
+    QByteArray arr;
     {
-        ProtoApiInfo::PingData *pingData = storage.add_pings();
-        pingData->set_ip(it.key().toStdString());
-        pingData->set_pingtime(it.value().timeMs_.toInt());
-        pingData->set_iteration(it.value().iteration_);
-        pingData->set_from_disconnected_state(it.value().fromDisconnectedState_);
+        QDataStream ds(&arr, QIODevice::WriteOnly);
+        ds << magic_;
+        ds << versionForSerialization_;
+        ds << curIteration_;
+        ds << hash_.size();
+        for (auto it = hash_.begin(); it != hash_.end(); ++it)
+        {
+            ds << it.key() << it.value().timeMs_.toInt() << it.value().iteration_ << it.value().fromDisconnectedState_;
+        }
     }
-    size_t size = storage.ByteSizeLong();
-    QByteArray arr(size, Qt::Uninitialized);
-    storage.SerializeToArray(arr.data(), size);
-
     QSettings settings;
-    settings.setValue(settingsKeyName_, arr);
+    SimpleCrypt simpleCrypt(SIMPLE_CRYPT_KEY);
+    settings.setValue(settingsKeyName_, simpleCrypt.encryptToString(arr));
 }
 
 void PingStorage::loadFromSettings()
@@ -126,19 +126,42 @@ void PingStorage::loadFromSettings()
     QSettings settings;
     if (settings.contains(settingsKeyName_))
     {
-        QByteArray arr = settings.value(settingsKeyName_).toByteArray();
-        ProtoApiInfo::PingStorage storage;
-        if (storage.ParseFromArray(arr.data(), arr.size()))
+        SimpleCrypt simpleCrypt(SIMPLE_CRYPT_KEY);
+        QString str = settings.value(settingsKeyName_).toString();
+        QByteArray arr = simpleCrypt.decryptToByteArray(str);
+
+        QDataStream ds(&arr, QIODevice::ReadOnly);
+        quint32 magic, version;
+        ds >> magic;
+        if (magic == magic_)
         {
-            hash_.clear();
-            curIteration_ = storage.cur_iteration();
-            for (int i = 0; i < storage.pings_size(); ++i)
+            ds >> version;
+            if (version <= versionForSerialization_)
             {
-                PingData pd;
-                pd.timeMs_ = storage.pings(i).pingtime();
-                pd.iteration_ = storage.pings(i).iteration();
-                pd.fromDisconnectedState_ = storage.pings(i).from_disconnected_state();
-                hash_[QString::fromStdString(storage.pings(i).ip())] = pd;
+                ds >> curIteration_;
+                qsizetype hashSize;
+                ds >> hashSize;
+
+                for (qsizetype i = 0; i < hashSize; ++i)
+                {
+                    QString key;
+                    int timeMs;
+                    quint32 iteration;
+                    bool fromDisconnectedState;
+
+                    ds >> key >> timeMs >> iteration >> fromDisconnectedState;
+                    PingData pd;
+                    pd.timeMs_ = timeMs;
+                    pd.iteration_ = iteration;
+                    pd.fromDisconnectedState_ = fromDisconnectedState;
+
+                    hash_[key] = pd;
+                }
+
+                if (ds.status() != QDataStream::Ok)
+                {
+                    hash_.clear();
+                }
             }
         }
     }

@@ -24,15 +24,6 @@ INCLUDEPATH += $$COMMON_PATH
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 win32{
-    CONFIG(release, debug|release){
-        INCLUDEPATH += $$BUILD_LIBS_PATH/protobuf/release/include
-        LIBS += -L$$BUILD_LIBS_PATH/protobuf/release/lib -llibprotobuf
-    }
-    CONFIG(debug, debug|release){
-        INCLUDEPATH += $$BUILD_LIBS_PATH/protobuf/debug/include
-        LIBS += -L$$BUILD_LIBS_PATH/protobuf/debug/lib -llibprotobufd
-    }
-
     LIBS += -luser32
     LIBS += -lAdvapi32
     LIBS += -lIphlpapi
@@ -76,9 +67,6 @@ macx {
     LIBS += -framework Security
     LIBS += -framework SystemConfiguration
 
-    INCLUDEPATH += $$BUILD_LIBS_PATH/protobuf/include
-    LIBS += -L$$BUILD_LIBS_PATH/protobuf/lib -lprotobuf
-
     SOURCES += \
         $$COMMON_PATH/utils/network_utils/network_utils_mac.cpp
 
@@ -96,25 +84,18 @@ linux {
     INCLUDEPATH += $$BUILD_LIBS_PATH/openssl/include
     LIBS += -L$$BUILD_LIBS_PATH/openssl/lib -lssl -lcrypto
 
-    INCLUDEPATH += $$BUILD_LIBS_PATH/protobuf/include
-    LIBS += -L$$BUILD_LIBS_PATH/protobuf/lib -lprotobuf
-
     SOURCES += \
         $$COMMON_PATH/utils/linuxutils.cpp
 
     HEADERS += \
         $$COMMON_PATH/utils/linuxutils.h
-
 }
 
 SOURCES += \
         ../../common/utils/ipvalidation.cpp \
         $$COMMON_PATH/ipc/commandfactory.cpp \
         $$COMMON_PATH/ipc/connection.cpp \
-        $$COMMON_PATH/ipc/generated_proto/clientcommands.pb.cc \
-        $$COMMON_PATH/ipc/generated_proto/servercommands.pb.cc \
-        $$COMMON_PATH/ipc/generated_proto/cli.pb.cc \
-        $$COMMON_PATH/ipc/generated_proto/types.pb.cc \
+        $$COMMON_PATH/ipc/clicommands.cpp \
         $$COMMON_PATH/ipc/server.cpp \
         $$COMMON_PATH/types/locationid.cpp \
         $$COMMON_PATH/utils/extraconfig.cpp \
@@ -140,10 +121,7 @@ HEADERS += \
     $$COMMON_PATH/ipc/command.h \
     $$COMMON_PATH/ipc/commandfactory.h \
     $$COMMON_PATH/ipc/connection.h \
-    $$COMMON_PATH/ipc/generated_proto/clientcommands.pb.h \
-    $$COMMON_PATH/ipc/generated_proto/servercommands.pb.h \
-    $$COMMON_PATH/ipc/generated_proto/cli.pb.h \
-    $$COMMON_PATH/ipc/generated_proto/types.pb.h \
+    $$COMMON_PATH/ipc/clicommands.h \
     $$COMMON_PATH/ipc/iconnection.h \
     $$COMMON_PATH/ipc/iserver.h \
     $$COMMON_PATH/ipc/protobufcommand.h \

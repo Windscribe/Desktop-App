@@ -1,6 +1,10 @@
 #include "bestlocation.h"
 
+#include <QIODevice>
 #include <QSettings>
+
+#include "utils/simplecrypt.h"
+#include "types/global_consts.h"
 
 namespace locationsmodel {
 
@@ -49,16 +53,17 @@ void BestLocation::saveToSettings()
 {
     if (isValid_)
     {
-        ProtoApiInfo::BestLocation b;
-
-        *b.mutable_location_id() = id_.toProtobuf();
-
-        size_t size = b.ByteSizeLong();
-        QByteArray arr(size, Qt::Uninitialized);
-        b.SerializeToArray(arr.data(), size);
+        QByteArray arr;
+        {
+            QDataStream ds(&arr, QIODevice::WriteOnly);
+            ds << magic_;
+            ds << versionForSerialization_;
+            ds << id_;
+        }
 
         QSettings settings;
-        settings.setValue("bestLocation", arr);
+        SimpleCrypt simpleCrypt(SIMPLE_CRYPT_KEY);
+        settings.setValue("bestLocation", simpleCrypt.encryptToString(arr));
     }
 }
 
@@ -67,12 +72,25 @@ void BestLocation::loadFromSettings()
     QSettings settings;
     if (settings.contains("bestLocation"))
     {
-        QByteArray arr = settings.value("bestLocation").toByteArray();
-        ProtoApiInfo::BestLocation b;
-        if (b.ParseFromArray(arr.data(), arr.size()))
+        SimpleCrypt simpleCrypt(SIMPLE_CRYPT_KEY);
+        QString str = settings.value("bestLocation", "").toString();
+        QByteArray arr = simpleCrypt.decryptToByteArray(str);
+
+        QDataStream ds(&arr, QIODevice::ReadOnly);
+
+        quint32 magic, version;
+        ds >> magic;
+        if (magic == magic_)
         {
-            isValid_ = true;
-            id_ = LocationID::createFromProtoBuf(b.location_id());
+            ds >> version;
+            if (version <= versionForSerialization_)
+            {
+                ds >> id_;
+                if (ds.status() == QDataStream::Ok)
+                {
+                    isValid_ = true;
+                }
+            }
         }
     }
 }

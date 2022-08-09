@@ -13,8 +13,6 @@ target_sources(engine PRIVATE
     enginelocationsmodel.h
     failedpinglogcontroller.cpp
     failedpinglogcontroller.h
-    locationitem.cpp
-    locationitem.h
     locationnode.h
     mutablelocationinfo.cpp
     mutablelocationinfo.h

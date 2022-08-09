@@ -42,7 +42,7 @@ void PingHost_ICMP_win::clearPings()
     waitingPingsQueue_.clear();
 }
 
-void PingHost_ICMP_win::setProxySettings(const ProxySettings & /*proxySettings*/)
+void PingHost_ICMP_win::setProxySettings(const types::ProxySettings & /*proxySettings*/)
 {
     //todo
 }

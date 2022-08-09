@@ -5,7 +5,7 @@
 #include "../dividerline.h"
 #include "commongraphics/iconbutton.h"
 #include "commongraphics/iconbutton.h"
-#include "utils/protobuf_includes.h"
+#include "types/splittunneling.h"
 
 namespace PreferencesWindow {
 
@@ -13,7 +13,7 @@ class AppIncludedItem : public BaseItem
 {
     Q_OBJECT
 public:
-    explicit AppIncludedItem(ProtoTypes::SplitTunnelingApp app, QString iconPath, ScalableGraphicsObject *parent);
+    explicit AppIncludedItem(types::SplitTunnelingApp app, QString iconPath, ScalableGraphicsObject *parent);
     ~AppIncludedItem();
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR) override;
 
@@ -31,7 +31,7 @@ private slots:
 
 private:
     QString appIcon_;
-    ProtoTypes::SplitTunnelingApp app_;
+    types::SplitTunnelingApp app_;
     IconButton *deleteButton_;
 
     DividerLine *line_;

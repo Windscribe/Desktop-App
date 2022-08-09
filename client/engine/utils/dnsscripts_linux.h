@@ -1,9 +1,8 @@
 #ifndef DNS_SCRIPTS_LINUX_H
 #define DNS_SCRIPTS_LINUX_H
 
+#include "types/enums.h"
 #include <QString>
-#include "utils/protobuf_includes.h"
-
 
 class IHelper;
 class QWidget;
@@ -20,13 +19,13 @@ public:
 
     QString scriptPath();
 
-    void setDnsManager(ProtoTypes::DnsManagerType d);
+    void setDnsManager(DNS_MANAGER_TYPE d);
 
 private:
     DnsScripts_linux();
 
     enum SCRIPT_TYPE { SYSTEMD_RESOLVED, RESOLV_CONF, NETWORK_MANAGER };
-    ProtoTypes::DnsManagerType dnsManager_;
+    DNS_MANAGER_TYPE dnsManager_;
     SCRIPT_TYPE detectScript();
     QString getSymlink(const QString &path);
 };

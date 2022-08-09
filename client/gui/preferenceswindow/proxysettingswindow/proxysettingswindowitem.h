@@ -17,8 +17,8 @@ public:
     QString caption();
 
 private slots:
-    void onProxySettingsPreferencesChanged(const ProtoTypes::ProxySettings &ps);
-    void onProxySettingsChanged(const ProtoTypes::ProxySettings &ps);
+    void onProxySettingsPreferencesChanged(const types::ProxySettings &ps);
+    void onProxySettingsChanged(const types::ProxySettings &ps);
 
 private:
     Preferences *preferences_;

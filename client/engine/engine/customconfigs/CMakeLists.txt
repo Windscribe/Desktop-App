@@ -3,8 +3,6 @@ target_sources(engine PRIVATE
     customconfigs.h
     customconfigsdirwatcher.cpp
     customconfigsdirwatcher.h
-    customconfigtype.cpp
-    customconfigtype.h
     customovpnauthcredentialsstorage.cpp
     customovpnauthcredentialsstorage.h
     icustomconfig.h
