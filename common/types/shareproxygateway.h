@@ -3,6 +3,8 @@
 
 #include "types/enums.h"
 
+#include <QDebug>
+
 namespace types {
 
 struct ShareProxyGateway
@@ -40,6 +42,16 @@ struct ShareProxyGateway
         stream >> o.isEnabled >> o.proxySharingMode;
         return stream;
     }
+
+    friend QDebug operator<<(QDebug dbg, const ShareProxyGateway &s)
+    {
+        QDebugStateSaver saver(dbg);
+        dbg.nospace();
+        dbg << "{isEnabled:" << s.isEnabled << "; ";
+        dbg << "proxySharingMode:" << PROXY_SHARING_TYPE_toString(s.proxySharingMode) << "}";
+        return dbg;
+    }
+
 
 private:
     static constexpr quint32 versionForSerialization_ = 1;  // should increment the version if the data format is changed

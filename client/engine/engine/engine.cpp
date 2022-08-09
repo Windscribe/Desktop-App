@@ -8,6 +8,7 @@
 #include "utils/mergelog.h"
 #include "utils/extraconfig.h"
 #include "utils/ipvalidation.h"
+#include "utils/executable_signature/executable_signature.h"
 #include "connectionmanager/connectionmanager.h"
 #include "connectionmanager/finishactiveconnections.h"
 #include "proxy/proxyservercontroller.h"

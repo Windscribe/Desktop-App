@@ -646,7 +646,7 @@ void Preferences::loadGuiSettings()
     }
 
 
-    /*qCDebugMultiline(LOG_BASIC) << "Gui settings:" << QString::fromStdString(guiSettings_.DebugString());*/
+    qCDebug(LOG_BASIC) << "Gui settings" << guiSettings_;
 }
 
 void Preferences::validateAndUpdateIfNeeded()

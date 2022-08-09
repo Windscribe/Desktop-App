@@ -58,14 +58,11 @@ bool EngineServer::handleCommand(IPC::Command *command)
 {
     if (command->getStringId() == IPC::ClientCommands::Init::getCommandStringId())
     {
-        qCDebug(LOG_IPC) << "Received Init";
-
         // Q_ASSERT(engine_ == NULL);
         // Q_ASSERT(threadEngine_ == NULL);
 
         if (engine_ == NULL && threadEngine_ == NULL)
         {
-            qCDebug(LOG_IPC) << "Building engine";
             threadEngine_ = new QThread(this);
             engine_ = new Engine(curEngineSettings_);
             engine_->moveToThread(threadEngine_);
@@ -341,7 +338,7 @@ bool EngineServer::handleCommand(IPC::Command *command)
         IPC::ClientCommands::SetBlockConnect *blockConnectCmd = static_cast<IPC::ClientCommands::SetBlockConnect *>(command);
         if (engine_->isBlockConnect() != blockConnectCmd->isBlockConnect_)
         {
-            qCDebugMultiline(LOG_IPC) << QString::fromStdString(command->getDebugString());
+            //qCDebugMultiline(LOG_IPC) << QString::fromStdString(command->getDebugString());
             engine_->setBlockConnect(blockConnectCmd->isBlockConnect_);
         }
         return true;
@@ -452,13 +449,14 @@ void EngineServer::onServerCallbackAcceptFunction(IPC::IConnection *connection)
 
 void EngineServer::sendCommand(IPC::Command *command)
 {
+    // commands from GUI side
     if ((command->getStringId() != IPC::ClientCommands::Login::getCommandStringId()) &&
         (command->getStringId() != IPC::ClientCommands::SetBlockConnect::getCommandStringId()))
     {
         // The SetBlockConnect command is received every minute.  handleCommand will log it if the value
         // has changed, so that we don't flood the log with this entry when the app is up for an
         // extended period of time.
-        qCDebugMultiline(LOG_IPC) << QString::fromStdString(command->getDebugString());
+        //qCDebugMultiline(LOG_IPC) << QString::fromStdString(command->getDebugString());
     }
 
 
@@ -544,7 +542,7 @@ void EngineServer::onEngineFirewallStateChanged(bool isEnabled)
 void EngineServer::onEngineLoginFinished(bool isLoginFromSavedSettings, const QString &authHash, const types::PortMap &portMap)
 {
     IPC::ServerCommands::LoginFinished cmd(isLoginFromSavedSettings, portMap, authHash);
-    qCDebugMultiline(LOG_IPC) << "Engine Settings Changed -- Updating client: " << QString::fromStdString(cmd.getDebugString());
+    //qCDebugMultiline(LOG_IPC) << "Engine Settings Changed -- Updating client: " << QString::fromStdString(cmd.getDebugString());
     sendCmdToAllAuthorizedAndGetStateClients(&cmd, true);
 }
 
@@ -842,9 +840,9 @@ void EngineServer::onHostsFileBecameWritable()
 
 void EngineServer::sendCmdToAllAuthorizedAndGetStateClients(IPC::Command *cmd, bool bWithLog)
 {
-    if (bWithLog) {
-        qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmd->getDebugString());
-    }
+    //if (bWithLog) {
+    //    qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmd->getDebugString());
+    //}
 
     Q_EMIT emitCommand(cmd);
 

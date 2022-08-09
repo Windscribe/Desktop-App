@@ -2,6 +2,7 @@
 #define TYPES_SPLITTUNNELING_H
 
 #include <QVector>
+#include <qdebug.h>
 
 #include "types/enums.h"
 
@@ -43,6 +44,16 @@ struct SplitTunnelingSettings
         return stream;
     }
 
+    friend QDebug operator<<(QDebug dbg, const SplitTunnelingSettings &s)
+    {
+        QDebugStateSaver saver(dbg);
+        dbg.nospace();
+        dbg << "{active:" << s.active << "; ";
+        dbg << "mode:" << SPLIT_TUNNELING_MODE_toString(s.mode) << "}";
+        return dbg;
+    }
+
+
 private:
     static constexpr quint32 versionForSerialization_ = 1;  // should increment the version if the data format is changed
 };
@@ -80,6 +91,15 @@ struct SplitTunnelingNetworkRoute
         }
         stream >> o.type >> o.name;
         return stream;
+    }
+
+    friend QDebug operator<<(QDebug dbg, const SplitTunnelingNetworkRoute &s)
+    {
+        QDebugStateSaver saver(dbg);
+        dbg.nospace();
+        dbg << "{type:" << (int)s.type << "; ";
+        dbg << "name:" << s.name << "}";
+        return dbg;
     }
 
 private:
@@ -125,6 +145,17 @@ struct SplitTunnelingApp
         return stream;
     }
 
+    friend QDebug operator<<(QDebug dbg, const SplitTunnelingApp &s)
+    {
+        QDebugStateSaver saver(dbg);
+        dbg.nospace();
+        dbg << "{type:" << (int)s.type << "; ";
+        dbg << "name:" << s.name << "; ";
+        dbg << "fullName:" << s.fullName << "; ";
+        dbg << "active:" << s.active << "}";
+        return dbg;
+    }
+
 private:
     static constexpr quint32 versionForSerialization_ = 1;  // should increment the version if the data format is changed
 };
@@ -166,6 +197,17 @@ struct SplitTunneling
         stream >> o.settings >> o.apps >> o.networkRoutes;
         return stream;
     }
+
+    friend QDebug operator<<(QDebug dbg, const SplitTunneling &s)
+    {
+        QDebugStateSaver saver(dbg);
+        dbg.nospace();
+        dbg << "{settings:" << s.settings << "; ";
+        dbg << "apps:" << s.apps << "; ";
+        dbg << "networkRoutes:" << s.networkRoutes << "}";
+        return dbg;
+    }
+
 
 private:
     static constexpr quint32 versionForSerialization_ = 1;  // should increment the version if the data format is changed

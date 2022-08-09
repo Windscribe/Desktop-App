@@ -1,6 +1,7 @@
 #ifndef TYPES_GUISETTINGS_H
 #define TYPES_GUISETTINGS_H
 
+#include <QDebug>
 #include <QString>
 #include "enums.h"
 #include "sharesecurehotspot.h"
@@ -72,6 +73,29 @@ struct GuiSettings
                   o.shareSecureHotspot >> o.shareProxyGateway >> o.splitTunneling >> o.isDockedToTray >> o.isMinimizeAndCloseToTray >>
                   o.backgroundSettings >> o.isStartMinimized >> o.isShowLocationHealth;
         return stream;
+    }
+
+    friend QDebug operator<<(QDebug dbg, const GuiSettings &gs)
+    {
+        QDebugStateSaver saver(dbg);
+        dbg.nospace();
+        dbg << "{isLaunchOnStartup:" << gs.isLaunchOnStartup << "; ";
+        dbg << "isAutoConnect:" << gs.isAutoConnect << "; ";
+        dbg << "isHideFromDock:" << gs.isHideFromDock << "; ";
+        dbg << "isShowNotifications:" << gs.isShowNotifications << "; ";
+        dbg << "orderLocation:" << ORDER_LOCATION_TYPE_toString(gs.orderLocation) << "; ";
+        dbg << "latencyDisplay:" << LATENCY_DISPLAY_TYPE_toString(gs.latencyDisplay) << "; ";
+        dbg << "shareSecureHotspot:" << gs.shareSecureHotspot << "; ";
+        dbg << "shareProxyGateway:" << gs.shareProxyGateway << "; ";
+        dbg << "splitTunneling:" << gs.splitTunneling << "; ";
+        dbg << "isDockedToTray:" << gs.isDockedToTray << "; ";
+        dbg << "isMinimizeAndCloseToTray:" << gs.isMinimizeAndCloseToTray << "; ";
+        dbg << "backgroundSettings:" << gs.backgroundSettings << "; ";
+        dbg << "isStartMinimized:" << gs.isStartMinimized << "; ";
+        dbg << "isShowLocationHealth:" << gs.isShowLocationHealth << "}";
+
+        return dbg;
+
     }
 
 private:

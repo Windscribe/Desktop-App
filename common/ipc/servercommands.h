@@ -143,7 +143,7 @@ public:
     std::string getStringId() const override { return getCommandStringId(); }
     std::string getDebugString() const override
     {
-        return "ServerCommand::LoginFinished debug string";
+        return QString("ServerCommand::LoginFinished isLoginFromSettings %1").arg(isLoginFromSettings_).toStdString();
     }
 
     static std::string getCommandStringId()
@@ -571,7 +571,7 @@ public:
     std::string getStringId() const override { return getCommandStringId(); }
     std::string getDebugString() const override
     {
-        return "ServerCommand::Ipv6StateInOS debug string";
+        return QString("ServerCommand::Ipv6StateInOS isEnabled: %1").arg(isEnabled_).toStdString();
     }
 
     static std::string getCommandStringId()

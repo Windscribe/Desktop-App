@@ -33,27 +33,6 @@ struct ProxySharingInfo
         return !(*this == other);
     }
 
-    /*friend QDataStream& operator <<(QDataStream &stream, const ProxySharingInfo &o)
-    {
-        stream << versionForSerialization_;
-        stream << o.mode << o.when;
-        return stream;
-    }
-    friend QDataStream& operator >>(QDataStream &stream, ProxySharingInfo &o)
-    {
-        quint32 version;
-        stream >> version;
-        Q_ASSERT(version == versionForSerialization_);
-        if (version > versionForSerialization_)
-        {
-            return stream;
-        }
-        stream >> o.mode >> o.when;
-        return stream;
-    }*/
-
-private:
-    //static constexpr quint32 versionForSerialization_ = 1;
 };
 
 

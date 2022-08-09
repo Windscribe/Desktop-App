@@ -30,7 +30,7 @@ public:
 
     std::string getDebugString() const override
     {
-        return "ClientCommand::SetSettings debug string";
+        return "GUI::SetSettings debug string";
     }
 
     static std::string getCommandStringId()
@@ -418,7 +418,7 @@ public:
     std::string getStringId() const override { return getCommandStringId(); }
     std::string getDebugString() const override
     {
-        return "ClientCommand::SetBlockConnect debug string";
+        return QString("ClientCommand::SetBlockConnect: %1").arg(isBlockConnect_).toStdString();
     }
 
     static std::string getCommandStringId()

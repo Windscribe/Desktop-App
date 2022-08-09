@@ -4,6 +4,7 @@
 #include "types/enums.h"
 
 #include <QDataStream>
+#include <QDebug>
 
 
 namespace types {
@@ -45,6 +46,17 @@ struct ShareSecureHotspot
         stream >> o.isEnabled >> o.password;
         return stream;
     }
+
+    friend QDebug operator<<(QDebug dbg, const ShareSecureHotspot &s)
+    {
+        QDebugStateSaver saver(dbg);
+        dbg.nospace();
+        dbg << "{isEnabled:" << s.isEnabled << "; ";
+        dbg << "ssid:" << (s.ssid.isEmpty() ? "empty" : "settled") << "; ";
+        dbg << "password:" << (s.password.isEmpty() ? "empty" : "settled") << "}";
+        return dbg;
+    }
+
 
 private:
     static constexpr quint32 versionForSerialization_ = 1;  // should increment the version if the data format is changed

@@ -37,19 +37,7 @@ QList<DNS_WHILE_CONNECTED_TYPE> DnsWhileConnectedInfo::allAvailableTypes()
 
 QString DnsWhileConnectedInfo::typeToString(const DNS_WHILE_CONNECTED_TYPE &type)
 {
-    if (type == DNS_WHILE_CONNECTED_TYPE_ROBERT)
-    {
-        return QObject::tr("R.O.B.E.R.T.");
-    }
-    else if (type == DNS_WHILE_CONNECTED_TYPE_CUSTOM)
-    {
-        return QObject::tr("Custom");
-    }
-    else
-    {
-        Q_ASSERT(false);
-        return "";
-    }
+    return DNS_WHILE_CONNECTED_TYPE_toString(type);
 }
 
 QDataStream& operator <<(QDataStream &stream, const DnsWhileConnectedInfo &o)
@@ -77,7 +65,7 @@ QDebug operator<<(QDebug dbg, const DnsWhileConnectedInfo &ds)
 {
     QDebugStateSaver saver(dbg);
     dbg.nospace();
-    dbg << "{type:" << ds.type_ << "}";
+    dbg << "{type:" << DNS_WHILE_CONNECTED_TYPE_toString(ds.type_) << "}";
     return dbg;
 }
 

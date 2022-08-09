@@ -384,3 +384,31 @@ QDataStream& operator >>(QDataStream &stream, PROTOCOL &o)
     o = (PROTOCOL)v;
     return stream;
 }
+
+QString DNS_WHILE_CONNECTED_TYPE_toString(DNS_WHILE_CONNECTED_TYPE t)
+{
+    if (t == DNS_WHILE_CONNECTED_TYPE_ROBERT) {
+        return "R.O.B.E.R.T.";
+    }
+    else if (t == DNS_WHILE_CONNECTED_TYPE_CUSTOM) {
+        return "Custom";
+    }
+    else {
+        Q_ASSERT(false);
+        return "unknown";
+    }
+}
+
+QString SPLIT_TUNNELING_MODE_toString(SPLIT_TUNNELING_MODE t)
+{
+    if (t == SPLIT_TUNNELING_MODE_EXCLUDE) {
+        return "Exclude";
+    }
+    else if (t == SPLIT_TUNNELING_MODE_INCLUDE) {
+        return "Include";
+    }
+    else {
+        Q_ASSERT(false);
+        return "unknown";
+    }
+}

@@ -3,6 +3,8 @@
 
 #include "types/enums.h"
 
+#include <QDebug>
+
 namespace types {
 
 struct BackgroundSettings
@@ -41,6 +43,16 @@ struct BackgroundSettings
         }
         stream >> o.backgroundType >> o.backgroundImageDisconnected >> o.backgroundImageConnected;
         return stream;
+    }
+
+    friend QDebug operator<<(QDebug dbg, const BackgroundSettings &s)
+    {
+        QDebugStateSaver saver(dbg);
+        dbg.nospace();
+        dbg << "{backgroundType:" << s.backgroundType << "; ";
+        dbg << "backgroundImageDisconnected:" << (s.backgroundImageDisconnected.isEmpty() ? "empty" : "settled") << "; ";
+        dbg << "backgroundImageConnected:" << (s.backgroundImageConnected.isEmpty() ? "empty" : "settled") << "}";
+        return dbg;
     }
 
 private:
