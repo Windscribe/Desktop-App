@@ -16,10 +16,10 @@ CurrentNetworkItem::CurrentNetworkItem(ScalableGraphicsObject *parent) : BaseIte
     currentNetworkCombo_->setVisible(false);
     for (int i = 0; i < selections.length(); i++)
     {
-        ProtoTypes::NetworkTrustType trust = static_cast<ProtoTypes::NetworkTrustType>(i);
+        NETWORK_TRUST_TYPE trust = static_cast<NETWORK_TRUST_TYPE>(i);
         currentNetworkCombo_->addItem(selections[i], trust);
     }
-    currentNetworkCombo_->setCurrentItem(ProtoTypes::NETWORK_SECURED);
+    currentNetworkCombo_->setCurrentItem(NETWORK_TRUST_SECURED);
     connect(currentNetworkCombo_, SIGNAL(currentItemChanged(QVariant)), SLOT(onTrustTypeChanged(QVariant)));
     updatePositions();
 }
@@ -56,17 +56,17 @@ void CurrentNetworkItem::setComboVisible(bool visible)
     currentNetworkCombo_->setVisible(visible);
 }
 
-void CurrentNetworkItem::setNetworkInterface(ProtoTypes::NetworkInterface network)
+void CurrentNetworkItem::setNetworkInterface(types::NetworkInterface network)
 {
-    setNetworkInterface(network, network.trust_type());
+    setNetworkInterface(network, network.trustType);
 }
 
-void CurrentNetworkItem::setNetworkInterface(ProtoTypes::NetworkInterface network, ProtoTypes::NetworkTrustType newTrustType)
+void CurrentNetworkItem::setNetworkInterface(types::NetworkInterface network, NETWORK_TRUST_TYPE newTrustType)
 {
     networkInterface_ = network;
-    networkInterface_.set_trust_type(newTrustType);
+    networkInterface_.trustType = newTrustType;
 
-    QString caption = QString::fromStdString(network.friendly_name());
+    QString caption = network.friendlyName;
     if (caption == "") caption = tr("No Network Info");
 
     currentNetworkCombo_->setLabelCaption(caption);
@@ -74,7 +74,7 @@ void CurrentNetworkItem::setNetworkInterface(ProtoTypes::NetworkInterface networ
     update();
 }
 
-ProtoTypes::NetworkInterface CurrentNetworkItem::currentNetworkInterface()
+types::NetworkInterface CurrentNetworkItem::currentNetworkInterface()
 {
     return networkInterface_;
 }
@@ -94,19 +94,19 @@ void CurrentNetworkItem::updateScaling()
 void CurrentNetworkItem::updateReadableText()
 {
     // update caption
-    QString caption = QString::fromStdString(networkInterface_.friendly_name());
+    QString caption = networkInterface_.friendlyName;
     if (caption == "") caption = tr("No Network Info");
     currentNetworkCombo_->setLabelCaption(caption);
 
     // update combo text
-    ProtoTypes::NetworkTrustType currentTrust = static_cast<ProtoTypes::NetworkTrustType>(currentNetworkCombo_->currentItem().toInt());
+    NETWORK_TRUST_TYPE currentTrust = static_cast<NETWORK_TRUST_TYPE>(currentNetworkCombo_->currentItem().toInt());
     currentNetworkCombo_->clear();
     QList<QString> selections = NetworkWhiteListShared::networkTrustTypes();
     for (int i = 0; i < selections.length(); i++)
     {
-        ProtoTypes::NetworkTrustType trust = static_cast<ProtoTypes::NetworkTrustType>(i);
+        NETWORK_TRUST_TYPE trust = static_cast<NETWORK_TRUST_TYPE>(i);
 
-        ProtoTypes::NetworkInterface network = NetworkWhiteListShared::networkInterfaceByFriendlyName(currentNetworkCombo_->labelCaption());
+        types::NetworkInterface network = NetworkWhiteListShared::networkInterfaceByFriendlyName(currentNetworkCombo_->labelCaption());
         currentNetworkCombo_->addItem(selections[i], trust);
     }
     currentNetworkCombo_->setCurrentItem(currentTrust);
@@ -114,8 +114,8 @@ void CurrentNetworkItem::updateReadableText()
 
 void CurrentNetworkItem::onTrustTypeChanged(const QVariant & /*value*/)
 {
-    ProtoTypes::NetworkInterface network = NetworkWhiteListShared::networkInterfaceByFriendlyName(currentNetworkCombo_->labelCaption());
-    network.set_trust_type(static_cast<ProtoTypes::NetworkTrustType>(currentNetworkCombo_->currentItem().toInt()));
+    types::NetworkInterface network = NetworkWhiteListShared::networkInterfaceByFriendlyName(currentNetworkCombo_->labelCaption());
+    network.trustType = static_cast<NETWORK_TRUST_TYPE>(currentNetworkCombo_->currentItem().toInt());
     emit currentNetworkTrustChanged(network);
 }
 

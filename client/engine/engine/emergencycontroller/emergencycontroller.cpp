@@ -8,6 +8,7 @@
 #include <QFile>
 #include <QCoreApplication>
 #include "utils/extraconfig.h"
+#include "types/global_consts.h"
 
 #include <random>
 
@@ -36,7 +37,7 @@ EmergencyController::EmergencyController(QObject *parent, IHelper *helper) : QOb
      connect(connector_, SIGNAL(connected(AdapterGatewayInfo)), SLOT(onConnectionConnected(AdapterGatewayInfo)), Qt::QueuedConnection);
      connect(connector_, SIGNAL(disconnected()), SLOT(onConnectionDisconnected()), Qt::QueuedConnection);
      connect(connector_, SIGNAL(reconnecting()), SLOT(onConnectionReconnecting()), Qt::QueuedConnection);
-     connect(connector_, SIGNAL(error(ProtoTypes::ConnectError)), SLOT(onConnectionError(ProtoTypes::ConnectError)), Qt::QueuedConnection);
+     connect(connector_, SIGNAL(error(CONNECT_ERROR)), SLOT(onConnectionError(CONNECT_ERROR)), Qt::QueuedConnection);
 
      makeOVPNFile_ = new MakeOVPNFile();
 }
@@ -47,7 +48,7 @@ EmergencyController::~EmergencyController()
     SAFE_DELETE(makeOVPNFile_);
 }
 
-void EmergencyController::clickConnect(const ProxySettings &proxySettings)
+void EmergencyController::clickConnect(const types::ProxySettings &proxySettings)
 {
     Q_ASSERT(state_ == STATE_DISCONNECTED);
     state_= STATE_CONNECTING_FROM_USER_CLICK;
@@ -130,7 +131,7 @@ const AdapterGatewayInfo &EmergencyController::getVpnAdapterInfo() const
     return vpnAdapterInfo_;
 }
 
-void EmergencyController::setPacketSize(ProtoTypes::PacketSize ps)
+void EmergencyController::setPacketSize(types::PacketSize ps)
 {
     packetSize_ = ps;
 }
@@ -217,7 +218,7 @@ void EmergencyController::onConnectionDisconnected()
             }
             else
             {
-                Q_EMIT errorDuringConnection(ProtoTypes::ConnectError::EMERGENCY_FAILED_CONNECT);
+                Q_EMIT errorDuringConnection(CONNECT_ERROR::EMERGENCY_FAILED_CONNECT);
                 state_ = STATE_DISCONNECTED;
             }
             break;
@@ -245,27 +246,27 @@ void EmergencyController::onConnectionReconnecting()
     }
 }
 
-void EmergencyController::onConnectionError(ProtoTypes::ConnectError err)
+void EmergencyController::onConnectionError(CONNECT_ERROR err)
 {
     qCDebug(LOG_EMERGENCY_CONNECT) << "EmergencyController::onConnectionError(), err =" << err;
 
     connector_->startDisconnect();
-    if (err == ProtoTypes::ConnectError::AUTH_ERROR
-            || err == ProtoTypes::ConnectError::CANT_RUN_OPENVPN
-            || err == ProtoTypes::ConnectError::NO_OPENVPN_SOCKET
-            || err == ProtoTypes::ConnectError::NO_INSTALLED_TUN_TAP
-            || err == ProtoTypes::ConnectError::ALL_TAP_IN_USE)
+    if (err == CONNECT_ERROR::AUTH_ERROR
+            || err == CONNECT_ERROR::CANT_RUN_OPENVPN
+            || err == CONNECT_ERROR::NO_OPENVPN_SOCKET
+            || err == CONNECT_ERROR::NO_INSTALLED_TUN_TAP
+            || err == CONNECT_ERROR::ALL_TAP_IN_USE)
     {
         // Q_EMIT error in disconnected event
         state_ = STATE_ERROR_DURING_CONNECTION;
     }
-    else if (err == ProtoTypes::ConnectError::UDP_CANT_ASSIGN
-             || err == ProtoTypes::ConnectError::UDP_NO_BUFFER_SPACE
-             || err == ProtoTypes::ConnectError::UDP_NETWORK_DOWN
-             || err == ProtoTypes::ConnectError::WINTUN_OVER_CAPACITY
-             || err == ProtoTypes::ConnectError::TCP_ERROR
-             || err == ProtoTypes::ConnectError::CONNECTED_ERROR
-             || err == ProtoTypes::ConnectError::INITIALIZATION_SEQUENCE_COMPLETED_WITH_ERRORS)
+    else if (err == CONNECT_ERROR::UDP_CANT_ASSIGN
+             || err == CONNECT_ERROR::UDP_NO_BUFFER_SPACE
+             || err == CONNECT_ERROR::UDP_NETWORK_DOWN
+             || err == CONNECT_ERROR::WINTUN_OVER_CAPACITY
+             || err == CONNECT_ERROR::TCP_ERROR
+             || err == CONNECT_ERROR::CONNECTED_ERROR
+             || err == CONNECT_ERROR::INITIALIZATION_SEQUENCE_COMPLETED_WITH_ERRORS)
     {
         if (state_ == STATE_CONNECTED)
         {
@@ -321,13 +322,13 @@ void EmergencyController::doConnect()
     attempts_.removeFirst();
 
     int mss = 0;
-    if (!packetSize_.is_automatic())
+    if (!packetSize_.isAutomatic)
     {
         bool advParamsOpenVpnExists = false;
         int openVpnOffset = ExtraConfig::instance().getMtuOffsetOpenVpn(advParamsOpenVpnExists);
         if (!advParamsOpenVpnExists) openVpnOffset = MTU_OFFSET_OPENVPN;
 
-        mss = packetSize_.mtu() - openVpnOffset;
+        mss = packetSize_.mtu - openVpnOffset;
 
         if (mss <= 0)
         {
@@ -345,7 +346,7 @@ void EmergencyController::doConnect()
     }
 
 
-    bool bOvpnSuccess = makeOVPNFile_->generate(ovpnConfig_, attempt.ip, attempt.protocol, attempt.port, 0, mss, defaultAdapterInfo_.gateway(), "");
+    bool bOvpnSuccess = makeOVPNFile_->generate(ovpnConfig_, attempt.ip, PROTOCOL::fromString(attempt.protocol), attempt.port, 0, mss, defaultAdapterInfo_.gateway(), "");
     if (!bOvpnSuccess )
     {
         qCDebug(LOG_EMERGENCY_CONNECT) << "Failed create ovpn config";

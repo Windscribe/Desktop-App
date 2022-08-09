@@ -8,7 +8,7 @@
 #include "curlrequest.h"
 #include "engine/networkaccessmanager/certmanager.h"
 #include "engine/networkaccessmanager/curlinitcontroller.h"
-#include "engine/proxy/proxysettings.h"
+#include "types/proxysettings.h"
 
 // comment, if no need log file from curl
 //#define MAKE_CURL_LOG_FILE      1
@@ -29,7 +29,7 @@ public:
 
     bool isCurlSslError(CURLcode curlCode);
 
-    void setProxySettings(const ProxySettings &proxySettings);
+    void setProxySettings(const types::ProxySettings &proxySettings);
     void setProxyEnabled(bool bEnabled);
 
 
@@ -47,7 +47,7 @@ private:
     QMutex mutexQueue_;
     QWaitCondition waitCondition_;
     bool bNeedFinish_;
-    ProxySettings proxySettings_;
+    types::ProxySettings proxySettings_;
     bool bProxyEnabled_;
 
     QMutex mutexAccess_;

@@ -47,16 +47,16 @@ public:
 public slots:
     void updateLocationInfo(LocationID id, const QString &firstName, const QString &secondName, const QString &countryCode, PingTime pingTime) override;
     void updateLocationSpeed(LocationID id, PingTime speed) override;
-    void updateConnectState(const ProtoTypes::ConnectState & newConnectState) override;
+    void updateConnectState(const types::ConnectState & newConnectState) override;
     void updateFirewallState(bool isFirewallEnabled) override;
     void updateLocationsState(bool isExpanded) override;
     void updateFavoriteState(LocationID id, bool isFavorite) override;
     void updateMyIp(const QString &ip) override;
     void updateNotificationsState(int totalMessages, int unread) override;
-    void updateNetworkState(ProtoTypes::NetworkInterface network) override;
+    void updateNetworkState(types::NetworkInterface network) override;
     void setSplitTunnelingState(bool on) override;
     void setInternetConnectivity(bool connectivity) override;
-    void setProtocolPort(const ProtoTypes::Protocol &protocol, const uint port) override;
+    void setProtocolPort(const PROTOCOL &protocol, const uint port) override;
 
     void onNetworkHoverEnter();
     void onNetworkHoverLeave();
@@ -111,10 +111,10 @@ private:
     LocationID locationID_;
     bool favorite_;
 
-    ProtoTypes::ConnectState prevConnectState_;
+    types::ConnectState prevConnectState_;
     QString networkName_;
-    ProtoTypes::NetworkTrustType trustType_;
-    ProtoTypes::NetworkInterfaceType interfaceType_;
+    NETWORK_TRUST_TYPE trustType_;
+    NETWORK_INTERACE_TYPE interfaceType_;
     bool networkActive_;
 
     QString fullFirstName_;

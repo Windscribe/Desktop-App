@@ -1,7 +1,7 @@
 #ifndef PROXYSERVERCONTROLLER_H
 #define PROXYSERVERCONTROLLER_H
 
-#include "proxysettings.h"
+#include "types/proxysettings.h"
 
 // contains current proxy settings, autodetect proxy settings if need
 class ProxyServerController
@@ -13,13 +13,13 @@ public:
         return s;
     }
 
-    bool updateProxySettings(const ProxySettings &proxySettings);
-    const ProxySettings &getCurrentProxySettings();
+    bool updateProxySettings(const types::ProxySettings &proxySettings);
+    const types::ProxySettings &getCurrentProxySettings();
 
 private:
     ProxyServerController();
 
-    ProxySettings proxySettings_;
+    types::ProxySettings proxySettings_;
     bool bInitialized_;
 };
 

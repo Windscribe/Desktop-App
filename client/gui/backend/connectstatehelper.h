@@ -2,7 +2,7 @@
 #define CONNECTSTATEHELPER_H
 
 #include <QObject>
-#include "utils/protobuf_includes.h"
+#include "types/connectstate.h"
 
 class ConnectStateHelper : public QObject
 {
@@ -12,17 +12,17 @@ public:
 
     void connectClickFromUser();
     void disconnectClickFromUser();
-    void setConnectStateFromEngine(const ProtoTypes::ConnectState &connectState);
+    void setConnectStateFromEngine(const types::ConnectState &connectState);
     bool isDisconnected() const;
-    ProtoTypes::ConnectState currentConnectState() const;
+    types::ConnectState currentConnectState() const;
 
 signals:
-    void connectStateChanged(const ProtoTypes::ConnectState &connectState);
+    void connectStateChanged(const types::ConnectState &connectState);
 
 private:
     bool bInternalDisconnecting_;
     bool isDisconnected_;
-    ProtoTypes::ConnectState curState_;
+    types::ConnectState curState_;
 };
 
 #endif // CONNECTSTATEHELPER_H

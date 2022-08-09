@@ -2,7 +2,6 @@
 
 #include <QRegularExpression>
 
-#include "utils/macutils.h"
 #include "utils/utils.h"
 #include "utils/logger.h"
 #include <sys/socket.h>
@@ -11,7 +10,7 @@
 #include <unistd.h>
 #include <linux/wireless.h>
 
-const int typeIdNetworkInterface = qRegisterMetaType<ProtoTypes::NetworkInterface>("ProtoTypes::NetworkInterface");
+const int typeIdNetworkInterface = qRegisterMetaType<types::NetworkInterface>("types::NetworkInterface");
 
 NetworkDetectionManager_linux::NetworkDetectionManager_linux(QObject *parent, IHelper *helper) : INetworkDetectionManager (parent)
 {
@@ -29,7 +28,7 @@ NetworkDetectionManager_linux::~NetworkDetectionManager_linux()
 {
 }
 
-void NetworkDetectionManager_linux::getCurrentNetworkInterface(ProtoTypes::NetworkInterface &networkInterface)
+void NetworkDetectionManager_linux::getCurrentNetworkInterface(types::NetworkInterface &networkInterface)
 {
     networkInterface = networkInterface_;
 }
@@ -57,13 +56,13 @@ void NetworkDetectionManager_linux::updateNetworkInfo(bool bWithEmitSignal)
     }
 
 
-    ProtoTypes::NetworkInterface newNetworkInterface = Utils::noNetworkInterface();
+    types::NetworkInterface newNetworkInterface = Utils::noNetworkInterface();
     if (!ifname.isEmpty())
     {
         getInterfacePars(ifname, newNetworkInterface);
     }
 
-    if (!google::protobuf::util::MessageDifferencer::Equals(newNetworkInterface, networkInterface_))
+    if (newNetworkInterface != networkInterface_)
     {
         networkInterface_ = newNetworkInterface;
         if (bWithEmitSignal)
@@ -110,42 +109,42 @@ QString NetworkDetectionManager_linux::getDefaultRouteInterface(bool &isOnline)
     return QString();
 }
 
-void NetworkDetectionManager_linux::getInterfacePars(const QString &ifname, ProtoTypes::NetworkInterface &outNetworkInterface)
+void NetworkDetectionManager_linux::getInterfacePars(const QString &ifname, types::NetworkInterface &outNetworkInterface)
 {
-    outNetworkInterface.set_interface_name(ifname.toStdString().c_str());
-    outNetworkInterface.set_interface_index(if_nametoindex(ifname.toStdString().c_str()));
+    outNetworkInterface.interfaceName = ifname;
+    outNetworkInterface.interfaceIndex = if_nametoindex(ifname.toStdString().c_str());
     QString macAddress = getMacAddressByIfName(ifname);
-    outNetworkInterface.set_physical_address(macAddress.toStdString().c_str());
+    outNetworkInterface.physicalAddress = macAddress;
 
     bool isWifi = checkWirelessByIfName(ifname);
     if (isWifi)
     {
-        outNetworkInterface.set_interface_type(ProtoTypes::NETWORK_INTERFACE_WIFI);
+        outNetworkInterface.interfaceType = NETWORK_INTERFACE_WIFI;
         QString friendlyName = getFriendlyNameByIfName(ifname);
         if (!friendlyName.isEmpty())
         {
-            outNetworkInterface.set_network_or_ssid(friendlyName.toStdString().c_str());
+            outNetworkInterface.networkOrSSid = friendlyName;
         }
         else
         {
-            outNetworkInterface.set_network_or_ssid(macAddress.toStdString().c_str());
+            outNetworkInterface.networkOrSSid = macAddress;
         }
     }
     else
     {
-        outNetworkInterface.set_interface_type(ProtoTypes::NETWORK_INTERFACE_ETH);
+        outNetworkInterface.interfaceType = NETWORK_INTERFACE_ETH;
         QString friendlyName = getFriendlyNameByIfName(ifname);
         if (!friendlyName.isEmpty())
         {
-            outNetworkInterface.set_network_or_ssid(friendlyName.toStdString().c_str());
+            outNetworkInterface.networkOrSSid = friendlyName;
         }
         else
         {
-            outNetworkInterface.set_network_or_ssid(macAddress.toStdString().c_str());
+            outNetworkInterface.networkOrSSid = macAddress;
         }
     }
 
-    outNetworkInterface.set_active(isActiveByIfName(ifname));
+    outNetworkInterface.active = isActiveByIfName(ifname);
 }
 
 QString NetworkDetectionManager_linux::getMacAddressByIfName(const QString &ifname)

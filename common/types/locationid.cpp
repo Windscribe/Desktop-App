@@ -43,11 +43,6 @@ LocationID LocationID::createCustomConfigLocationId(const QString &filename)
     return LocationID(CUSTOM_CONFIGS_LOCATION, 0, filename);
 }
 
-LocationID LocationID::createFromProtoBuf(const ProtoTypes::LocationId &lid)
-{
-    return LocationID(lid.type(), lid.id(), QString::fromStdString(lid.city()));
-}
-
 bool LocationID::isTopLevelLocation() const
 {
     Q_ASSERT(type_ != INVALID_LOCATION);
@@ -70,13 +65,4 @@ LocationID LocationID::toTopLevelLocation() const
 {
     Q_ASSERT(type_ == API_LOCATION || type_ == BEST_LOCATION);      // applicable only for API locations and best location
     return LocationID(type_, id_, QString());
-}
-
-ProtoTypes::LocationId LocationID::toProtobuf() const
-{
-    ProtoTypes::LocationId lid;
-    lid.set_type(type_);
-    lid.set_id(id_);
-    lid.set_city(city_.toStdString());
-    return lid;
 }

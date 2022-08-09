@@ -100,7 +100,7 @@ GuiLocations::LocationsTab::LocationTabEnum LocationsWindow::currentTab()
     return locationsTab_->currentTab();
 }
 
-void LocationsWindow::setLatencyDisplay(ProtoTypes::LatencyDisplayType l)
+void LocationsWindow::setLatencyDisplay(LATENCY_DISPLAY_TYPE l)
 {
     locationsTab_->setLatencyDisplay(l);
 }

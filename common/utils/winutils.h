@@ -4,6 +4,7 @@
 #include <QString>
 #include <QMap>
 
+#include "types/networkinterface.h"
 #include "networktypes.h"
 
 namespace WinUtils
@@ -37,10 +38,10 @@ namespace WinUtils
     bool regGetCurrentUserRegistryDword(QString keyPath, QString propertyName, int &dwordValue);
 
     // Network
-    const ProtoTypes::NetworkInterface currentNetworkInterface();
-    ProtoTypes::NetworkInterfaces currentNetworkInterfaces(bool includeNoInterface);
+    types::NetworkInterface currentNetworkInterface();
+    QVector<types::NetworkInterface> currentNetworkInterfaces(bool includeNoInterface);
 
-    ProtoTypes::NetworkInterface interfaceByIndex(int index, bool &success);
+    types::NetworkInterface interfaceByIndex(int index, bool &success);
     IfTable2Row lowestMetricNonWindscribeIfTableRow();
     IfTableRow ifRowByIndex(int index);
     IfTable2Row ifTable2RowByIndex(int index);

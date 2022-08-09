@@ -13,7 +13,7 @@ SplitTunnelingWindowItem::SplitTunnelingWindowItem(ScalableGraphicsObject *paren
     splitTunnelingItem_ = new SplitTunnelingItem(this);
     connect(splitTunnelingItem_, SIGNAL(ipsAndHostnamesPageClick()), SIGNAL(ipsAndHostnamesPageClick()));
     connect(splitTunnelingItem_, SIGNAL(appsPageClick()), SIGNAL(appsPageClick()));
-    connect(splitTunnelingItem_, SIGNAL(settingsChanged(ProtoTypes::SplitTunnelingSettings)), SLOT(onSettingsChanged(ProtoTypes::SplitTunnelingSettings)));
+    connect(splitTunnelingItem_, SIGNAL(settingsChanged(types::SplitTunnelingSettings)), SLOT(onSettingsChanged(types::SplitTunnelingSettings)));
 
     addItem(splitTunnelingItem_);
     splitTunnelingItem_->setSettings(preferences->splitTunnelingSettings());
@@ -47,7 +47,7 @@ void SplitTunnelingWindowItem::setNetworkRoutesCount(int count)
     splitTunnelingItem_->setIpsAndHostnamesCount(count);
 }
 
-void SplitTunnelingWindowItem::onSettingsChanged(ProtoTypes::SplitTunnelingSettings settings)
+void SplitTunnelingWindowItem::onSettingsChanged(types::SplitTunnelingSettings settings)
 {
     preferences_->setSplitTunnelingSettings(settings);
 }

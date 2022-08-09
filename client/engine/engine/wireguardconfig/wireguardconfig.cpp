@@ -159,7 +159,7 @@ bool WireGuardConfig::haveKeyPair() const
     return !client_.privateKey.isEmpty() && !client_.publicKey.isEmpty();
 }
 
-void WireGuardConfig::setKeyPair(QString& publicKey, QString& privateKey)
+void WireGuardConfig::setKeyPair(const QString &publicKey, const QString &privateKey)
 {
     client_.publicKey  = publicKey;
     client_.privateKey = privateKey;
@@ -168,4 +168,26 @@ void WireGuardConfig::setKeyPair(QString& publicKey, QString& privateKey)
 bool WireGuardConfig::haveServerGeneratedPeerParams() const
 {
     return !peer_.presharedKey.isEmpty() && !peer_.allowedIps.isEmpty();
+}
+
+QDataStream& operator <<(QDataStream &stream, const WireGuardConfig &c)
+{
+    stream << c.versionForSerialization_;
+    stream << c.client_.privateKey << c.client_.publicKey << c.client_.ipAddress << c.client_.dnsAddress;
+    stream << c.peer_.publicKey << c.peer_.presharedKey << c.peer_.endpoint << c.peer_.allowedIps;
+    return stream;
+}
+QDataStream& operator >>(QDataStream &stream, WireGuardConfig &c)
+{
+    quint32 version;
+    stream >> version;
+    if (version > c.versionForSerialization_)
+    {
+        stream.setStatus(QDataStream::ReadCorruptData);
+        return stream;
+    }
+
+    stream >> c.client_.privateKey >> c.client_.publicKey >> c.client_.ipAddress >> c.client_.dnsAddress;
+    stream >> c.peer_.publicKey >> c.peer_.presharedKey >> c.peer_.endpoint >> c.peer_.allowedIps;
+    return stream;
 }

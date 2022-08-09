@@ -23,7 +23,7 @@ public:
     void addHostForPing(const QString &ip, PING_TYPE pingType);
     void clearPings();
 
-    void setProxySettings(const ProxySettings &proxySettings);
+    void setProxySettings(const types::ProxySettings &proxySettings);
     void disableProxy();
     void enableProxy();
 
@@ -34,7 +34,7 @@ private slots:
     void addHostForPingImpl(const QString &ip, PingHost::PING_TYPE pingType);
     void clearPingsImpl();
 
-    void setProxySettingsImpl(const ProxySettings &proxySettings);
+    void setProxySettingsImpl(const types::ProxySettings &proxySettings);
     void disableProxyImpl();
     void enableProxyImpl();
 

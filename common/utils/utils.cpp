@@ -184,17 +184,17 @@ QString Utils::fileNameFromFullPath(const QString &fullPath)
     }
 }
 
-QList<ProtoTypes::SplitTunnelingApp> Utils::insertionSort(QList<ProtoTypes::SplitTunnelingApp> apps)
+QList<types::SplitTunnelingApp> Utils::insertionSort(QList<types::SplitTunnelingApp> apps)
 {
-    QList<ProtoTypes::SplitTunnelingApp> sortedApps;
+    QList<types::SplitTunnelingApp> sortedApps;
 
     for (int i = 0; i < apps.length(); i++)
     {
         int insertIndex = 0;
         for (insertIndex = 0; insertIndex < sortedApps.length(); insertIndex++)
         {
-            QString loweredInsertItem = QString::fromStdString(sortedApps[insertIndex].name()).toLower();
-            if (QString::fromStdString(apps[i].name()).toLower() < loweredInsertItem)
+            QString loweredInsertItem = sortedApps[insertIndex].name.toLower();
+            if (apps[i].name.toLower() < loweredInsertItem)
             {
                 break;
             }
@@ -252,50 +252,49 @@ bool Utils::isGuiAlreadyRunning()
 #endif
 }
 
-bool Utils::sameNetworkInterface(const ProtoTypes::NetworkInterface &interface1, const ProtoTypes::NetworkInterface &interface2)
+bool Utils::sameNetworkInterface(const types::NetworkInterface &interface1, const types::NetworkInterface &interface2)
 {
-    if (interface1.interface_index() != interface2.interface_index())      return false;
-    else if (interface1.interface_name() != interface2.interface_name())   return false;
-    else if (interface1.interface_guid() != interface2.interface_guid())   return false;
-    else if (interface1.network_or_ssid() != interface2.network_or_ssid()) return false;
-    else if (interface1.friendly_name() != interface2.friendly_name())     return false;
+    if (interface1.interfaceIndex != interface2.interfaceIndex)      return false;
+    else if (interface1.interfaceName != interface2.interfaceName)   return false;
+    else if (interface1.interfaceGuid != interface2.interfaceGuid)   return false;
+    else if (interface1.networkOrSSid != interface2.networkOrSSid)   return false;
+    else if (interface1.friendlyName != interface2.friendlyName)     return false;
     return true;
 }
 
-ProtoTypes::NetworkInterface Utils::noNetworkInterface()
+types::NetworkInterface Utils::noNetworkInterface()
 {
-    ProtoTypes::NetworkInterface iff;
-    iff.set_interface_name(QString(QObject::tr("No Interface")).toStdString());
-    iff.set_interface_index(NO_INTERFACE_INDEX);
-    iff.set_interface_type(ProtoTypes::NETWORK_INTERFACE_NONE);
+    types::NetworkInterface iff;
+    iff.interfaceName = QObject::tr("No Interface");
+    iff.interfaceIndex = NO_INTERFACE_INDEX;
+    iff.interfaceType = NETWORK_INTERFACE_NONE;
     return iff;
 }
 
-ProtoTypes::NetworkInterface Utils::interfaceByName(const ProtoTypes::NetworkInterfaces &interfaces, const QString &interfaceName)
+types::NetworkInterface Utils::interfaceByName(const QVector<types::NetworkInterface> &interfaces, const QString &interfaceName)
 {
-    auto sameInterfaceName = [&interfaceName](const ProtoTypes::NetworkInterface &ni)
+    auto sameInterfaceName = [&interfaceName](const types::NetworkInterface &ni)
     {
-        return QString::fromStdString(ni.interface_name()) == interfaceName;
+        return (ni.interfaceName == interfaceName);
     };
 
-    auto it = std::find_if(interfaces.networks().begin(), interfaces.networks().end(), sameInterfaceName);
-    if (it == interfaces.networks().end())
+    auto it = std::find_if(interfaces.begin(), interfaces.end(), sameInterfaceName);
+    if (it == interfaces.end())
     {
         return noNetworkInterface();
     }
     return *it;
 }
 
-const ProtoTypes::NetworkInterfaces Utils::interfacesExceptOne(const ProtoTypes::NetworkInterfaces &interfaces, const ProtoTypes::NetworkInterface &exceptInterface)
+QVector<types::NetworkInterface> Utils::interfacesExceptOne(const QVector<types::NetworkInterface> &interfaces, const types::NetworkInterface &exceptInterface)
 {
-    auto differentInterfaceName = [&exceptInterface](const ProtoTypes::NetworkInterface &ni)
+    auto differentInterfaceName = [&exceptInterface](const types::NetworkInterface &ni)
     {
-        return ni.interface_name() != exceptInterface.interface_name();
+        return ni.interfaceName != exceptInterface.interfaceName;
     };
 
-    ProtoTypes::NetworkInterfaces resultInterfaces;
-    std::copy_if(interfaces.networks().begin(), interfaces.networks().end(),
-                 google::protobuf::RepeatedFieldBackInserter(resultInterfaces.mutable_networks()), differentInterfaceName);
+    QVector<types::NetworkInterface> resultInterfaces;
+    std::copy_if(interfaces.begin(), interfaces.end(),  std::back_inserter(resultInterfaces), differentInterfaceName);
     return resultInterfaces;
 }
 

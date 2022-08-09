@@ -26,53 +26,53 @@ LocationsModel::~LocationsModel()
     favoriteLocationsStorage_.writeToSettings();
 }
 
-void LocationsModel::updateApiLocations(const ProtoTypes::LocationId &bestLocation, const QString &staticIpDeviceName,
-                                        const ProtoTypes::ArrayLocations &locations)
+void LocationsModel::updateApiLocations(const LocationID &bestLocation, const QString &staticIpDeviceName,
+                                        const QVector<types::LocationItem> &locations)
 {
     apiLocations_.clear();
 
     bool isBestLocationInserted = false;
-    bestLocationId_ = LocationID::createFromProtoBuf(bestLocation);
+    bestLocationId_ = bestLocation;
     numStaticIPLocations_ = numStaticIPLocationCities_ = 0;
 
-    int cnt = locations.locations_size();
+    int cnt = locations.size();
     for (int i = 0; i < cnt; ++i)
     {
-        const ProtoTypes::Location &location = locations.locations(i);
+        const types::LocationItem &location = locations[i];
 
         QSharedPointer<LocationModelItem> lmi(new LocationModelItem());
         lmi->initialInd_ = i;
-        lmi->id = LocationID::createFromProtoBuf(location.id());
-        lmi->title = QString::fromStdString(location.name());
-        lmi->isShowP2P = location.is_p2p_supported();
-        lmi->countryCode = QString::fromStdString(location.country_code()).toLower();
-        lmi->isPremiumOnly = location.is_premium_only();
+        lmi->id = location.id;
+        lmi->title = location.name;
+        lmi->isShowP2P = (location.p2p == 0);
+        lmi->countryCode = location.countryCode.toLower();
+        lmi->isPremiumOnly = location.isPremiumOnly;
         lmi->is10gbps = false;
 
         qreal locationLoadSum = 0.0;
         int locationLoadCount = 0;
 
-        for (int c = 0; c < location.cities_size(); ++c)
+        for (int c = 0; c < location.cities.size(); ++c)
         {
-            const ProtoTypes::City &city = location.cities(c);
+            const types::CityItem &city = location.cities[c];
             CityModelItem cmi;
-            cmi.id = LocationID::createFromProtoBuf(city.id());
-            cmi.city = QString::fromStdString(city.name());
-            cmi.nick = QString::fromStdString(city.nick());
-            cmi.countryCode = lmi->id.isStaticIpsLocation() ? QString::fromStdString(city.static_ip_country_code()) : lmi->countryCode;
-            cmi.pingTimeMs = city.ping_time();
-            cmi.bShowPremiumStarOnly = city.is_premium_only();
+            cmi.id = city.id;
+            cmi.city = city.city;
+            cmi.nick = city.nick;
+            cmi.countryCode = lmi->id.isStaticIpsLocation() ? city.staticIpCountryCode : lmi->countryCode;
+            cmi.pingTimeMs = city.pingTimeMs;
+            cmi.bShowPremiumStarOnly = city.isPro;
             cmi.isFavorite = favoriteLocationsStorage_.isFavorite(cmi.id);
-            cmi.isDisabled = city.is_disabled();
-            cmi.staticIpCountryCode = QString::fromStdString(city.static_ip_country_code());
-            cmi.staticIpType = QString::fromStdString(city.static_ip_type());
-            cmi.staticIp = QString::fromStdString(city.static_ip());
-            cmi.linkSpeed = city.link_speed();
+            cmi.isDisabled = city.isDisabled;
+            cmi.staticIpCountryCode = city.staticIpCountryCode;
+            cmi.staticIpType = city.staticIpType;
+            cmi.staticIp = city.staticIp;
+            cmi.linkSpeed = city.link_speed;
 
             // Engine is using -1 to indicate to us that the load (health) value was invalid/missing,
             // and therefore this location should be excluded when calculating the region's average
             // load value.
-            cmi.locationLoad = city.health();
+            cmi.locationLoad = city.health;
             if (cmi.locationLoad >= 0 && cmi.locationLoad <= 100)
             {
                 locationLoadSum += cmi.locationLoad;
@@ -94,7 +94,7 @@ void LocationsModel::updateApiLocations(const ProtoTypes::LocationId &bestLocati
                 lmiBestLocation->countryCode = lmi->countryCode;
                 lmiBestLocation->isShowP2P = lmi->isShowP2P;
                 lmiBestLocation->isPremiumOnly = lmi->isPremiumOnly;
-                lmiBestLocation->is10gbps = (city.link_speed() == 10000);
+                lmiBestLocation->is10gbps = (city.link_speed == 10000);
                 lmiBestLocation->locationLoad = cmi.locationLoad;
 
                 apiLocations_.insert(0, lmiBestLocation);
@@ -131,9 +131,9 @@ void LocationsModel::updateApiLocations(const ProtoTypes::LocationId &bestLocati
     emit bestLocationChanged(bestLocationId_);
 }
 
-void LocationsModel::updateBestLocation(const ProtoTypes::LocationId &bestLocation)
+void LocationsModel::updateBestLocation(const LocationID &bestLocation)
 {
-    LocationID bestLocationId = LocationID::createFromProtoBuf(bestLocation);
+    LocationID bestLocationId = bestLocation;
     if (bestLocationId == bestLocationId_)
     {
         return;
@@ -175,54 +175,54 @@ void LocationsModel::updateBestLocation(const ProtoTypes::LocationId &bestLocati
     }
 }
 
-void LocationsModel::updateCustomConfigLocations(const ProtoTypes::ArrayLocations &locations)
+void LocationsModel::updateCustomConfigLocations(const QVector<types::LocationItem> &locations)
 {
     customConfigLocations_.clear();
 
-    int cnt = locations.locations_size();
+    int cnt = locations.size();
     for (int i = 0; i < cnt; ++i)
     {
-        const ProtoTypes::Location &location = locations.locations(i);
+        const types::LocationItem &location = locations[i];
 
         QSharedPointer<LocationModelItem> lmi(new LocationModelItem());
         lmi->initialInd_ = i;
-        lmi->id = LocationID::createFromProtoBuf(location.id());
-        lmi->title = QString::fromStdString(location.name());
-        lmi->isShowP2P = location.is_p2p_supported();
-        lmi->countryCode = QString::fromStdString(location.country_code()).toLower();
-        lmi->isPremiumOnly = location.is_premium_only();
+        lmi->id = location.id;
+        lmi->title = location.name;
+        lmi->isShowP2P = (location.p2p == 0);
+        lmi->countryCode = location.countryCode.toLower();
+        lmi->isPremiumOnly = location.isPremiumOnly;
         lmi->is10gbps = false;
         lmi->locationLoad = 0;
 
-        int cities_cnt = location.cities_size();
+        int cities_cnt = location.cities.size();
         for (int c = 0; c < cities_cnt; ++c)
         {
-            const ProtoTypes::City &city = location.cities(c);
+            const types::CityItem &city = location.cities[c];
             CityModelItem cmi;
-            cmi.id = LocationID::createFromProtoBuf(city.id());
-            cmi.city = QString::fromStdString(city.name());
-            cmi.nick = QString::fromStdString(city.nick());
-            cmi.countryCode = lmi->id.isStaticIpsLocation() ? QString::fromStdString(city.static_ip_country_code()) : lmi->countryCode;
-            cmi.pingTimeMs = city.ping_time();
-            cmi.bShowPremiumStarOnly = city.is_premium_only();
+            cmi.id = city.id;
+            cmi.city = city.city;
+            cmi.nick = city.nick;
+            cmi.countryCode = lmi->id.isStaticIpsLocation() ? city.staticIpCountryCode : lmi->countryCode;
+            cmi.pingTimeMs = city.pingTimeMs;
+            cmi.bShowPremiumStarOnly = city.isPro;
             cmi.isFavorite = favoriteLocationsStorage_.isFavorite(cmi.id);
-            cmi.isDisabled = city.is_disabled();
-            cmi.staticIpCountryCode = QString::fromStdString(city.static_ip_country_code());
-            cmi.staticIpType = QString::fromStdString(city.static_ip_type());
-            cmi.staticIp = QString::fromStdString(city.static_ip());
-            cmi.isCustomConfigCorrect = city.custom_config_is_correct();
-            switch (city.custom_config_type()) {
-            case ProtoTypes::CustomConfigType::CUSTOM_CONFIG_OPENVPN:
+            cmi.isDisabled = city.isDisabled;
+            cmi.staticIpCountryCode = city.staticIpCountryCode;
+            cmi.staticIpType = city.staticIpType;
+            cmi.staticIp = city.staticIp;
+            cmi.isCustomConfigCorrect = city.customConfigIsCorrect;
+            switch (city.customConfigType) {
+            case CUSTOM_CONFIG_OPENVPN:
                 cmi.customConfigType = "ovpn";
                 break;
-            case ProtoTypes::CustomConfigType::CUSTOM_CONFIG_WIREGUARD:
+            case CUSTOM_CONFIG_WIREGUARD:
                 cmi.customConfigType = "wg";
                 break;
             default:
                 Q_ASSERT(false);
                 break;
             }
-            cmi.customConfigErrorMessage = QString::fromStdString(city.custom_config_error_message());
+            cmi.customConfigErrorMessage = city.customConfigErrorMessage;
             cmi.linkSpeed = 0;
             cmi.locationLoad = 0;
             lmi->cities << cmi;
@@ -257,7 +257,7 @@ BasicCitiesModel *LocationsModel::getFavoriteLocationsModel()
     return favoriteLocations_;
 }
 
-void LocationsModel::setOrderLocationsType(ProtoTypes::OrderLocationType orderLocationsType)
+void LocationsModel::setOrderLocationsType(ORDER_LOCATION_TYPE orderLocationsType)
 {
     if (orderLocationsType != orderLocationsType_)
     {

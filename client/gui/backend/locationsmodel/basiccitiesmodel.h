@@ -5,6 +5,7 @@
 #include <QSharedPointer>
 #include "locationmodelitem.h"
 #include "types/locationid.h"
+#include "types/enums.h"
 
 class BasicCitiesModel : public QObject
 {
@@ -15,7 +16,7 @@ public:
 
     virtual void update(QVector<QSharedPointer<LocationModelItem> > locations) = 0;
 
-    virtual void setOrderLocationsType(ProtoTypes::OrderLocationType orderLocationsType);
+    virtual void setOrderLocationsType(ORDER_LOCATION_TYPE orderLocationsType);
     void changeConnectionSpeed(const LocationID &id, const PingTime &speed);
     virtual void setIsFavorite(const LocationID &id, bool isFavorite);
     virtual void setFreeSessionStatus(bool isFreeSessionStatus);
@@ -31,7 +32,7 @@ signals:
 
 protected:
     QVector<CityModelItem *> cities_;
-    ProtoTypes::OrderLocationType orderLocationsType_;
+    ORDER_LOCATION_TYPE orderLocationsType_;
     bool isFreeSessionStatus_;
 
     void clearCities();

@@ -2,6 +2,7 @@
 #define COMMAND_H
 
 #include <vector>
+#include <string>
 
 namespace IPC
 {

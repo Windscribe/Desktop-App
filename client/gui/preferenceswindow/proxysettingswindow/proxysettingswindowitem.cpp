@@ -9,11 +9,11 @@ ProxySettingsWindowItem::ProxySettingsWindowItem(ScalableGraphicsObject *parent,
 {
     setFlag(QGraphicsItem::ItemIsFocusable);
 
-    connect(preferences, SIGNAL(proxySettingsChanged(ProtoTypes::ProxySettings)), SLOT(onProxySettingsPreferencesChanged(ProtoTypes::ProxySettings)));
+    connect(preferences, &Preferences::proxySettingsChanged, this, &ProxySettingsWindowItem::onProxySettingsPreferencesChanged);
 
     proxySettingsItem_ = new ProxySettingsItem(this);
     proxySettingsItem_->setProxySettings(preferences->proxySettings());
-    connect(proxySettingsItem_, SIGNAL(proxySettingsChanged(ProtoTypes::ProxySettings)), SLOT(onProxySettingsChanged(ProtoTypes::ProxySettings)));
+    connect(proxySettingsItem_, &ProxySettingsItem::proxySettingsChanged, this,  &ProxySettingsWindowItem::onProxySettingsChanged);
     addItem(proxySettingsItem_);
 }
 
@@ -22,12 +22,12 @@ QString ProxySettingsWindowItem::caption()
     return QT_TRANSLATE_NOOP("PreferencesWindow::PreferencesWindowItem", "Proxy Settings");
 }
 
-void ProxySettingsWindowItem::onProxySettingsPreferencesChanged(const ProtoTypes::ProxySettings &ps)
+void ProxySettingsWindowItem::onProxySettingsPreferencesChanged(const types::ProxySettings &ps)
 {
     proxySettingsItem_->setProxySettings(ps);
 }
 
-void ProxySettingsWindowItem::onProxySettingsChanged(const ProtoTypes::ProxySettings &ps)
+void ProxySettingsWindowItem::onProxySettingsChanged(const types::ProxySettings &ps)
 {
     preferences_->setProxySettings(ps);
 }

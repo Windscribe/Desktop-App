@@ -27,13 +27,13 @@ private slots:
     void onConnectionCommandCallback(IPC::Command *command, IPC::IConnection *connection);
     void onConnectionStateCallback(int state, IPC::IConnection *connection);
 
-    void onBackendConnectStateChanged(const ProtoTypes::ConnectState &connectState);
+    void onBackendConnectStateChanged(const types::ConnectState &connectState);
     void onBackendFirewallStateChanged(bool isEnabled);
     void onBackendLoginFinished(bool isLoginFromSavedSettings);
     void onBackendSignOutFinished();
     void notifyCliSignOutFinished();
     void notifyCliLoginFinished();
-    void notifyCliLoginFailed(ProtoTypes::LoginError loginError, const QString &errorMessage);
+    void notifyCliLoginFailed(LOGIN_RET loginError, const QString &errorMessage);
 
 private:
     Backend *backend_;

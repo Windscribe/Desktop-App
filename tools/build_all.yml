@@ -219,8 +219,6 @@ lib_files_linux:
   openssl: 
     - lib/libcrypto.so.1.1 -> lib/libcrypto.so.1.1
     - lib/libssl.so.1.1 -> lib/libssl.so.1.1
-  protobuf:
-    - lib/libprotobuf.so.32 -> lib/libprotobuf.so.32
   openvpn:
     - openvpn -> windscribeopenvpn
   stunnel:
@@ -314,9 +312,6 @@ macdeployfixes:
       Contents/Helpers/libssl.1.1.dylib:
         openssl:
           - lib/libcrypto.1.1.dylib -> libcrypto.1.1.dylib
-      Contents/MacOS/windscribe-cli:
-        protobuf:
-          - lib/libprotobuf.32.dylib -> ../Frameworks/libprotobuf.32.dylib
     entitlements:
       entitlements_binary: Contents/MacOS/Windscribe
       entitlements_file: client/engine/mac/windscribe_engine.entitlements
@@ -334,10 +329,6 @@ files_fix_rpath_macos:
       - lib/libcares.2.dylib
     curl:
       - lib/libcurl.4.dylib
-    protobuf:
-      - bin/protoc
-      - lib/libprotoc.32.dylib
-      - lib/libprotobuf.32.dylib
     openvpn:
       - openvpn
     stunnel:

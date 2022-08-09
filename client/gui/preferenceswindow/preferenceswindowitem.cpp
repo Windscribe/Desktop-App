@@ -92,20 +92,20 @@ PreferencesWindowItem::PreferencesWindowItem(QGraphicsObject *parent, Preference
     connect(splitTunnelingWindowItem_, SIGNAL(ipsAndHostnamesPageClick()), SLOT(onSplitTunnelingIpsAndHostnamesClick()));
     connect(splitTunnelingAppsWindowItem_, SIGNAL(searchButtonClicked()), SLOT(onSplitTunnelingAppsSearchClick()));
     connect(splitTunnelingAppsWindowItem_, SIGNAL(addButtonClicked()), SIGNAL(splitTunnelingAppsAddButtonClick()));
-    connect(splitTunnelingAppsWindowItem_, SIGNAL(appsUpdated(QList<ProtoTypes::SplitTunnelingApp>)), SLOT(onAppsWindowAppsUpdated(QList<ProtoTypes::SplitTunnelingApp>)));
+    connect(splitTunnelingAppsWindowItem_, SIGNAL(appsUpdated(QList<types::SplitTunnelingApp>)), SLOT(onAppsWindowAppsUpdated(QList<types::SplitTunnelingApp>)));
     connect(splitTunnelingAppsWindowItem_, SIGNAL(nativeInfoErrorMessage(QString,QString)), SIGNAL(nativeInfoErrorMessage(QString,QString)));
     connect(splitTunnelingAppsWindowItem_, SIGNAL(escape()), SLOT(onStAppsEscape()));
 
-    connect(splitTunnelingAppsSearchWindowItem_, SIGNAL(appsUpdated(QList<ProtoTypes::SplitTunnelingApp>)), SLOT(onAppsSearchWindowAppsUpdated(QList<ProtoTypes::SplitTunnelingApp>)));
+    connect(splitTunnelingAppsSearchWindowItem_, SIGNAL(appsUpdated(QList<types::SplitTunnelingApp>)), SLOT(onAppsSearchWindowAppsUpdated(QList<types::SplitTunnelingApp>)));
     connect(splitTunnelingAppsSearchWindowItem_, SIGNAL(searchModeExited()), SLOT(onSearchModeExit()));
     connect(splitTunnelingAppsSearchWindowItem_, SIGNAL(nativeInfoErrorMessage(QString,QString)), SIGNAL(nativeInfoErrorMessage(QString,QString)));
     connect(splitTunnelingAppsSearchWindowItem_, SIGNAL(escape()), SLOT(onStAppsSearchEscape()));
 
-    connect(splitTunnelingIpsAndHostnamesWindowItem_, SIGNAL(networkRoutesUpdated(QList<ProtoTypes::SplitTunnelingNetworkRoute>)), SLOT(onNetworkRoutesUpdated(QList<ProtoTypes::SplitTunnelingNetworkRoute>)));
+    connect(splitTunnelingIpsAndHostnamesWindowItem_, SIGNAL(networkRoutesUpdated(QList<types::SplitTunnelingNetworkRoute>)), SLOT(onNetworkRoutesUpdated(QList<types::SplitTunnelingNetworkRoute>)));
     connect(splitTunnelingIpsAndHostnamesWindowItem_, SIGNAL(nativeInfoErrorMessage(QString,QString)), SIGNAL(nativeInfoErrorMessage(QString,QString)));
     connect(splitTunnelingIpsAndHostnamesWindowItem_, SIGNAL(escape()), SLOT(onIpsAndHostnameEscape()));
 
-    connect(networkWhiteListWindowItem_, SIGNAL(currentNetworkUpdated(ProtoTypes::NetworkInterface)), SLOT(onCurrentNetworkUpdated(ProtoTypes::NetworkInterface)));
+    connect(networkWhiteListWindowItem_, SIGNAL(currentNetworkUpdated(types::NetworkInterface)), SLOT(onCurrentNetworkUpdated(types::NetworkInterface)));
     updatePositions();
 }
 
@@ -242,7 +242,7 @@ void PreferencesWindowItem::setDebugLogResult(bool bSuccess)
     debugWindowItem_->setDebugLogResult(bSuccess);
 }
 
-void PreferencesWindowItem::updateNetworkState(ProtoTypes::NetworkInterface network)
+void PreferencesWindowItem::updateNetworkState(types::NetworkInterface network)
 {
     networkWhiteListWindowItem_->setCurrentNetwork(network);
     connectionWindowItem_->setCurrentNetwork(network);
@@ -454,15 +454,15 @@ void PreferencesWindowItem::setPreferencesWindowToSplitTunnelingAppsSearch()
 
 void PreferencesWindowItem::addApplicationManually(QString filename)
 {
-    QList<ProtoTypes::SplitTunnelingApp> apps = splitTunnelingAppsWindowItem_->getApps();
+    QList<types::SplitTunnelingApp> apps = splitTunnelingAppsWindowItem_->getApps();
 
     QString friendlyName = Utils::fileNameFromFullPath(filename);
 
-    ProtoTypes::SplitTunnelingApp app;
-    app.set_name(friendlyName.toStdString());
-    app.set_active(true);
-    app.set_type(ProtoTypes::SPLIT_TUNNELING_APP_TYPE_USER);
-    app.set_full_name(filename.toStdString());
+    types::SplitTunnelingApp app;
+    app.name = friendlyName;
+    app.active = true;
+    app.type = SPLIT_TUNNELING_APP_TYPE_USER;
+    app.fullName = filename;
     apps.append(app);
 
     updateSplitTunnelingAppsCount(apps);
@@ -522,12 +522,12 @@ void PreferencesWindowItem::onSplitTunnelingIpsAndHostnamesClick()
     splitTunnelingIpsAndHostnamesWindowItem_->setFocusOnTextEntry();
 }
 
-void PreferencesWindowItem::updateSplitTunnelingAppsCount(QList<ProtoTypes::SplitTunnelingApp> apps)
+void PreferencesWindowItem::updateSplitTunnelingAppsCount(QList<types::SplitTunnelingApp> apps)
 {
     int activeApps = 0;
-    for (ProtoTypes::SplitTunnelingApp app : qAsConst(apps))
+    for (types::SplitTunnelingApp app : qAsConst(apps))
     {
-        if (app.active()) activeApps++;
+        if (app.active) activeApps++;
     }
     splitTunnelingWindowItem_->setAppsCount(activeApps);
 }
@@ -546,19 +546,19 @@ void PreferencesWindowItem::updatePositions()
     scrollAreaItem_->setPos(50*G_SCALE, 83*G_SCALE);
 }
 
-void PreferencesWindowItem::onAppsSearchWindowAppsUpdated(QList<ProtoTypes::SplitTunnelingApp> apps)
+void PreferencesWindowItem::onAppsSearchWindowAppsUpdated(QList<types::SplitTunnelingApp> apps)
 {
     updateSplitTunnelingAppsCount(apps);
     splitTunnelingAppsWindowItem_->setApps(apps);
 }
 
-void PreferencesWindowItem::onAppsWindowAppsUpdated(QList<ProtoTypes::SplitTunnelingApp> apps)
+void PreferencesWindowItem::onAppsWindowAppsUpdated(QList<types::SplitTunnelingApp> apps)
 {
     updateSplitTunnelingAppsCount(apps);
     splitTunnelingAppsSearchWindowItem_->setApps(apps);
 }
 
-void PreferencesWindowItem::onNetworkRoutesUpdated(QList<ProtoTypes::SplitTunnelingNetworkRoute> routes)
+void PreferencesWindowItem::onNetworkRoutesUpdated(QList<types::SplitTunnelingNetworkRoute> routes)
 {
     splitTunnelingWindowItem_->setNetworkRoutesCount(routes.count());
 }
@@ -583,7 +583,7 @@ void PreferencesWindowItem::onIpsAndHostnameEscape()
     setPreferencesWindowToSplitTunnelingHome();
 }
 
-void PreferencesWindowItem::onCurrentNetworkUpdated(ProtoTypes::NetworkInterface network)
+void PreferencesWindowItem::onCurrentNetworkUpdated(types::NetworkInterface network)
 {
     emit currentNetworkUpdated(network);
 }

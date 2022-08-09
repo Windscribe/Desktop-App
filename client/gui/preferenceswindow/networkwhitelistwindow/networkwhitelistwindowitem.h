@@ -20,13 +20,13 @@ public:
 
     QString caption();
 
-    void setCurrentNetwork(ProtoTypes::NetworkInterface networkInterface);
+    void setCurrentNetwork(types::NetworkInterface networkInterface);
 
     void clearNetworks();
     void initNetworks();
-    void addNetwork(ProtoTypes::NetworkInterface network, const ProtoTypes::NetworkTrustType networkTrust);
-    void addNetwork(ProtoTypes::NetworkInterface networkEntry);
-    void addNetworks(ProtoTypes::NetworkWhiteList list);
+    void addNetwork(types::NetworkInterface network, const NETWORK_TRUST_TYPE networkTrust);
+    void addNetwork(types::NetworkInterface networkEntry);
+    void addNetworks(QVector<types::NetworkInterface> list);
 
     void updateDescription();
     void addNewlyFoundNetworks();
@@ -34,13 +34,13 @@ public:
     void updateScaling() override;
 
 signals:
-    void currentNetworkUpdated(ProtoTypes::NetworkInterface);
+    void currentNetworkUpdated(types::NetworkInterface);
 
 private slots:
-    void onNetworkWhiteListPreferencesChanged(ProtoTypes::NetworkWhiteList l);
+    void onNetworkWhiteListPreferencesChanged(QVector<types::NetworkInterface> l);
     void onLanguageChanged();
-    void onNetworkListChanged(ProtoTypes::NetworkInterface network);
-    void onCurrentNetworkTrustChanged(ProtoTypes::NetworkInterface network);
+    void onNetworkListChanged(types::NetworkInterface network);
+    void onCurrentNetworkTrustChanged(types::NetworkInterface network);
 
 private:
     Preferences *preferences_;
@@ -50,7 +50,7 @@ private:
     TextItem *comboListLabelItem_;
     NetworkListItem *networkListItem_;
 
-    ProtoTypes::NetworkTrustType trustTypeFromPreferences(ProtoTypes::NetworkInterface networkName);
+    NETWORK_TRUST_TYPE trustTypeFromPreferences(types::NetworkInterface networkName);
 
     const QString NO_NETWORKS_DETECTED = QT_TR_NOOP("No Networks Detected.\nConnect to a network first");
 };

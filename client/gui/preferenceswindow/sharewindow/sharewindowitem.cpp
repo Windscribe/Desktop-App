@@ -33,29 +33,29 @@ QString ShareWindowItem::caption()
     return QT_TRANSLATE_NOOP("PreferencesWindow::PreferencesWindowItem", "Share");
 }
 
-void ShareWindowItem::onSecureHotspotParsChanged(const ProtoTypes::ShareSecureHotspot &ss)
+void ShareWindowItem::onSecureHotspotParsChanged(const types::ShareSecureHotspot &ss)
 {
     preferences_->setShareSecureHotspot(ss);
 }
 
-void ShareWindowItem::onSecureHotspotParsPreferencesChanged(const ProtoTypes::ShareSecureHotspot &ss)
+void ShareWindowItem::onSecureHotspotParsPreferencesChanged(const types::ShareSecureHotspot &ss)
 {
     if (secureHotspotItem_) {
         secureHotspotItem_->setSecureHotspotPars(ss);
     }
 }
 
-void ShareWindowItem::onConnectionSettingsPreferencesChanged(const ProtoTypes::ConnectionSettings &cs)
+void ShareWindowItem::onConnectionSettingsPreferencesChanged(const types::ConnectionSettings &cs)
 {
     updateIsSupported(isWifiSharingSupported_, isIkev2OrAutomaticConnectionMode(cs));
 }
 
-void ShareWindowItem::onProxyGatewayParsChanged(const ProtoTypes::ShareProxyGateway &sp)
+void ShareWindowItem::onProxyGatewayParsChanged(const types::ShareProxyGateway &sp)
 {
     preferences_->setShareProxyGateway(sp);
 }
 
-void ShareWindowItem::onProxyGatewayParsPreferencesChanged(const ProtoTypes::ShareProxyGateway &sp)
+void ShareWindowItem::onProxyGatewayParsPreferencesChanged(const types::ShareProxyGateway &sp)
 {
     proxyGatewayItem_->setProxyGatewayPars(sp);
 }
@@ -63,12 +63,12 @@ void ShareWindowItem::onProxyGatewayParsPreferencesChanged(const ProtoTypes::Sha
 void ShareWindowItem::onPreferencesHelperWifiSharingSupportedChanged(bool bSupported)
 {
     isWifiSharingSupported_ = bSupported;
-    updateIsSupported(isWifiSharingSupported_, isIkev2OrAutomaticConnectionMode(preferences_->getEngineSettings().connection_settings()));
+    updateIsSupported(isWifiSharingSupported_, isIkev2OrAutomaticConnectionMode(preferences_->getEngineSettings().connectionSettings()));
 }
 
-bool ShareWindowItem::isIkev2OrAutomaticConnectionMode(const ProtoTypes::ConnectionSettings &cs) const
+bool ShareWindowItem::isIkev2OrAutomaticConnectionMode(const types::ConnectionSettings &cs) const
 {
-    return cs.protocol() == ProtoTypes::PROTOCOL_IKEV2 || cs.protocol() == ProtoTypes::PROTOCOL_WIREGUARD || cs.is_automatic();
+    return cs.protocol == PROTOCOL::IKEV2 || cs.protocol == PROTOCOL::WIREGUARD || cs.isAutomatic;
 }
 
 void ShareWindowItem::updateIsSupported(bool isWifiSharingSupported, bool isIkev2OrAutomatic)

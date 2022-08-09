@@ -59,53 +59,53 @@ QStringList PreferencesHelper::getAvailableOpenVpnVersions()
     return availableOpenVpnVersions_;
 }
 
-QVector<ProtoTypes::TapAdapterType> PreferencesHelper::getAvailableTapAdapters(const QString & /*openVpnVersion*/)
+QVector<TAP_ADAPTER_TYPE> PreferencesHelper::getAvailableTapAdapters(const QString & /*openVpnVersion*/)
 {
-    return QVector<ProtoTypes::TapAdapterType>() << ProtoTypes::TAP_ADAPTER << ProtoTypes::WINTUN_ADAPTER;
+    return QVector<TAP_ADAPTER_TYPE>() << TAP_ADAPTER << WINTUN_ADAPTER;
 }
 
-void PreferencesHelper::setPortMap(const ProtoTypes::ArrayPortMap &arr)
+void PreferencesHelper::setPortMap(const types::PortMap &portMap)
 {
-    portMap_ = arr;
+    portMap_ = portMap;
     emit portMapChanged();
 }
 
-QVector<ProtoTypes::Protocol> PreferencesHelper::getAvailableProtocols()
+QVector<PROTOCOL> PreferencesHelper::getAvailableProtocols()
 {
 #if defined(Q_OS_WINDOWS)
     bool is32bit = !WinUtils::isWindows64Bit();
 #endif
 
-    QVector<ProtoTypes::Protocol> p;
-    for (int i = 0; i < portMap_.port_map_item_size(); ++i)
+    QVector<PROTOCOL> p;
+    for (auto it : portMap_.const_items())
     {
 #if defined(Q_OS_LINUX)
-        const auto protocol = portMap_.port_map_item(i).protocol();
-        if (protocol == ProtoTypes::Protocol::PROTOCOL_IKEV2) {
+        const auto protocol = it.protocol;
+        if (protocol == PROTOCOL::IKEV2) {
             continue;
         }
 #elif defined(Q_OS_WINDOWS)
-        const auto protocol = portMap_.port_map_item(i).protocol();
-        if (is32bit && ((protocol == ProtoTypes::Protocol::PROTOCOL_WIREGUARD) || (protocol == ProtoTypes::Protocol::PROTOCOL_WSTUNNEL)))
+        const auto protocol = it.protocol;
+        if (is32bit && ((protocol == PROTOCOL::WIREGUARD) || (protocol == PROTOCOL::WSTUNNEL)))
         {
             continue;
         }
 #endif
-        p << portMap_.port_map_item(i).protocol();
+        p << it.protocol;
     }
     return p;
 }
 
-QVector<uint> PreferencesHelper::getAvailablePortsForProtocol(ProtoTypes::Protocol protocol)
+QVector<uint> PreferencesHelper::getAvailablePortsForProtocol(PROTOCOL protocol)
 {
     QVector<uint> v;
-    for (int i = 0; i < portMap_.port_map_item_size(); ++i)
+    for (auto it : portMap_.const_items())
     {
-        if (portMap_.port_map_item(i).protocol() == protocol)
+        if (it.protocol == protocol)
         {
-            for (int p = 0; p < portMap_.port_map_item(i).ports_size(); ++p)
+            for (int p = 0; p < it.ports.size(); ++p)
             {
-                v << portMap_.port_map_item(i).ports(p);
+                v << it.ports[p];
             }
         }
     }

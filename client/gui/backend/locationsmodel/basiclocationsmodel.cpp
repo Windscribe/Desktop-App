@@ -1,7 +1,7 @@
 #include "basiclocationsmodel.h"
 #include "sortlocationsalgorithms.h"
 
-BasicLocationsModel::BasicLocationsModel(QObject *parent) : QObject(parent), orderLocationsType_(ProtoTypes::ORDER_LOCATION_BY_GEOGRAPHY),
+BasicLocationsModel::BasicLocationsModel(QObject *parent) : QObject(parent), orderLocationsType_(ORDER_LOCATION_BY_GEOGRAPHY),
     isFreeSessionStatus_(false)
 {
 
@@ -12,7 +12,7 @@ BasicLocationsModel::~BasicLocationsModel()
     clearLocations();
 }
 
-void BasicLocationsModel::setOrderLocationsType(ProtoTypes::OrderLocationType orderLocationsType)
+void BasicLocationsModel::setOrderLocationsType(ORDER_LOCATION_TYPE orderLocationsType)
 {
     orderLocationsType_ = orderLocationsType;
     sort();
@@ -78,15 +78,15 @@ void BasicLocationsModel::clearLocations()
 
 void BasicLocationsModel::sort()
 {
-    if (orderLocationsType_ == ProtoTypes::ORDER_LOCATION_BY_GEOGRAPHY)
+    if (orderLocationsType_ == ORDER_LOCATION_BY_GEOGRAPHY)
     {
         std::sort(locations_.begin(), locations_.end(), SortLocationsAlgorithms::lessThanByGeography);
     }
-    else if (orderLocationsType_ == ProtoTypes::ORDER_LOCATION_BY_ALPHABETICALLY)
+    else if (orderLocationsType_ == ORDER_LOCATION_BY_ALPHABETICALLY)
     {
         std::sort(locations_.begin(), locations_.end(), SortLocationsAlgorithms::lessThanByAlphabetically);
     }
-    else if (orderLocationsType_ == ProtoTypes::ORDER_LOCATION_BY_LATENCY)
+    else if (orderLocationsType_ == ORDER_LOCATION_BY_LATENCY)
     {
         std::sort(locations_.begin(), locations_.end(), SortLocationsAlgorithms::lessThanByLatency);
     }

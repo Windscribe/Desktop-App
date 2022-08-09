@@ -4,7 +4,8 @@
 #include <QHostInfo>
 #include <QObject>
 #include "engine/helper/ihelper.h"
-#include "engine/types/types.h"
+#include "types/enums.h"
+#include "types/packetsize.h"
 #include "engine/connectionmanager/iconnection.h"
 #include "engine/connectionmanager/makeovpnfile.h"
 
@@ -20,19 +21,19 @@ public:
     explicit EmergencyController(QObject *parent, IHelper *helper);
     virtual ~EmergencyController();
 
-    void clickConnect(const ProxySettings &proxySettings);
+    void clickConnect(const types::ProxySettings &proxySettings);
     void clickDisconnect();
     bool isDisconnected();
     void blockingDisconnect();
 
     const AdapterGatewayInfo &getVpnAdapterInfo() const;
 
-    void setPacketSize(ProtoTypes::PacketSize ps);
+    void setPacketSize(types::PacketSize ps);
 
 signals:
     void connected();
     void disconnected(DISCONNECT_REASON reason);
-    void errorDuringConnection(ProtoTypes::ConnectError errorCode);
+    void errorDuringConnection(CONNECT_ERROR errorCode);
 
 private slots:
     void onDnsRequestFinished();
@@ -40,7 +41,7 @@ private slots:
     void onConnectionConnected(const AdapterGatewayInfo &connectionAdapterInfo);
     void onConnectionDisconnected();
     void onConnectionReconnecting();
-    void onConnectionError(ProtoTypes::ConnectError err);
+    void onConnectionError(CONNECT_ERROR err);
 
 private:
     enum {STATE_DISCONNECTED, STATE_CONNECTING_FROM_USER_CLICK, STATE_CONNECTED,
@@ -50,7 +51,7 @@ private:
     QByteArray ovpnConfig_;
     IConnection *connector_;
     MakeOVPNFile *makeOVPNFile_;
-    ProxySettings proxySettings_;
+    types::ProxySettings proxySettings_;
 
     struct CONNECT_ATTEMPT_INFO
     {
@@ -63,7 +64,7 @@ private:
     QString lastIp_;
     uint serverApiUserRole_;
     int state_;
-    ProtoTypes::PacketSize packetSize_;
+    types::PacketSize packetSize_;
 
     AdapterGatewayInfo defaultAdapterInfo_;
     AdapterGatewayInfo vpnAdapterInfo_;

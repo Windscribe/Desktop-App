@@ -1,8 +1,6 @@
 target_sources(engine PRIVATE
     proxyservercontroller.cpp
     proxyservercontroller.h
-    proxysettings.cpp
-    proxysettings.h
 )
 
 if (WIN32)

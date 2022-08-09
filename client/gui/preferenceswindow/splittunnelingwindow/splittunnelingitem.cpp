@@ -11,7 +11,7 @@ SplitTunnelingItem::SplitTunnelingItem(ScalableGraphicsObject *parent) : BaseIte
     setFlags(flags() | QGraphicsItem::ItemClipsChildrenToShape);
 
     splitTunnelingSwitchItem_ = new SplitTunnelingSwitchItem(this);
-    connect(splitTunnelingSwitchItem_, SIGNAL(settingsChanged(ProtoTypes::SplitTunnelingSettings)), SIGNAL(settingsChanged(ProtoTypes::SplitTunnelingSettings)));
+    connect(splitTunnelingSwitchItem_, SIGNAL(settingsChanged(types::SplitTunnelingSettings)), SIGNAL(settingsChanged(types::SplitTunnelingSettings)));
     connect(splitTunnelingSwitchItem_, SIGNAL(appsPageClick()), SIGNAL(appsPageClick()));
     connect(splitTunnelingSwitchItem_, SIGNAL(ipsAndHostnamesPageClick()), SIGNAL(ipsAndHostnamesPageClick()));
 
@@ -40,7 +40,7 @@ void SplitTunnelingItem::paint(QPainter *painter, const QStyleOptionGraphicsItem
 #endif
 }
 
-void SplitTunnelingItem::setSettings(ProtoTypes::SplitTunnelingSettings settings)
+void SplitTunnelingItem::setSettings(types::SplitTunnelingSettings settings)
 {
     splitTunnelingSwitchItem_->setSettings(settings);
 }

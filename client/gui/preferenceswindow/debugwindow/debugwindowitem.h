@@ -40,7 +40,7 @@ signals:
     void setIpv6StateInOS(bool bEnabled, bool bRestartNow);
 #endif
 private slots:
-    void onApiResolutionChanged(const ProtoTypes::ApiResolution &ar);
+    void onApiResolutionChanged(const types::DnsResolutionSettings &dns);
     void onIgnoreSslErrorsStateChanged(bool isChecked);
     void onKeepAliveStateChanged(bool isChecked);
     void onAppInternalDnsItemChanged(QVariant dns);
@@ -55,11 +55,11 @@ private slots:
 
     void onIgnoreSslErrorsPreferencesChanged(bool b);
     void onKeepAlivePreferencesChanged(bool b);
-    void onDnsPolicyPreferencesChanged(ProtoTypes::DnsPolicy d);
+    void onDnsPolicyPreferencesChanged(DNS_POLICY_TYPE d);
 #ifdef Q_OS_LINUX
-    void onDnsManagerPreferencesChanged(ProtoTypes::DnsManagerType d);
+    void onDnsManagerPreferencesChanged(DNS_MANAGER_TYPE d);
 #endif
-    void onApiResolutionPreferencesChanged(const ProtoTypes::ApiResolution &ar);
+    void onApiResolutionPreferencesChanged(const types::DnsResolutionSettings &dns);
 
     void onLanguageChanged();
 
@@ -67,7 +67,7 @@ private slots:
     void onIPv6StateChanged(bool isChecked);
     void onPreferencesIpv6InOSStateChanged(bool bEnabled);
     void onTapAdapterChanged(QVariant v);
-    void onTapAdapterPreferencesChanged(ProtoTypes::TapAdapterType tapAdapter);
+    void onTapAdapterPreferencesChanged(TAP_ADAPTER_TYPE tapAdapter);
 #endif
 
 protected:

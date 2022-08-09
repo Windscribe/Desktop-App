@@ -30,19 +30,19 @@ void ConfiguredCitiesModel::update(QVector<QSharedPointer<LocationModelItem>> lo
 void ConfiguredCitiesModel::sort(QVector<CityModelItem *> &cities)
 {
     // ORDER_LOCATION_BY_GEOGRAPHY ---> Sort by the order how cities came from engine.
-    if (orderLocationsType_ == ProtoTypes::ORDER_LOCATION_BY_GEOGRAPHY)
+    if (orderLocationsType_ == ORDER_LOCATION_BY_GEOGRAPHY)
     {
         std::sort(cities.begin(), cities.end(), [](const CityModelItem* item1, const CityModelItem* item2){
             return item1->initialInd_ < item2->initialInd_;
         });
     }
-    else if (orderLocationsType_ == ProtoTypes::ORDER_LOCATION_BY_ALPHABETICALLY)
+    else if (orderLocationsType_ == ORDER_LOCATION_BY_ALPHABETICALLY)
     {
         std::sort(cities.begin(), cities.end(), [](const CityModelItem* item1, const CityModelItem* item2){
             return item1->city.toLower() < item2->city.toLower();
         });
     }
-    else if (orderLocationsType_ == ProtoTypes::ORDER_LOCATION_BY_LATENCY)
+    else if (orderLocationsType_ == ORDER_LOCATION_BY_LATENCY)
     {
         /// @todo Create global constants for 200 and 2000.
         auto calcPing = [](const CityModelItem* item) {

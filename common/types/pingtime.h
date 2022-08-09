@@ -1,6 +1,8 @@
 #ifndef LOCATIONSMODEL_PINGTIME_H
 #define LOCATIONSMODEL_PINGTIME_H
 
+#include <QDataStream>
+
 class PingTime
 {
 public:
@@ -32,8 +34,24 @@ public:
         return timeMs_;
     }
 
+    friend QDataStream& operator <<(QDataStream& stream, const PingTime& p)
+    {
+        stream << versionForSerialization_;
+        stream << p.timeMs_;
+        return stream;
+    }
+    friend QDataStream& operator >>(QDataStream& stream, PingTime& p)
+    {
+        quint32 version;
+        stream >> version;
+        Q_ASSERT(version == versionForSerialization_);
+        stream >> p.timeMs_;
+        return stream;
+    }
+
 private:
     int timeMs_;
+    static constexpr quint32 versionForSerialization_ = 1;
 };
 
 #endif // LOCATIONSMODEL_PINGTIME_H

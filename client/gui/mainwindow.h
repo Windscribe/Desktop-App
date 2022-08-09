@@ -21,6 +21,7 @@
 #include "systemtray/locationstraymenunative.h"
 #include "systemtray/locationstraymenuwidget.h"
 #include "dialogs/advancedparametersdialog.h"
+#include "types/checkupdate.h"
 
 #if defined(Q_OS_MAC)
 #define USE_LOCATIONS_TRAY_MENU_NATIVE
@@ -37,7 +38,7 @@ public:
     virtual bool eventFilter(QObject *watched, QEvent *event);
 
     void doClose(QCloseEvent *event = NULL, bool isFromSigTerm_mac = false);
-    void updateConnectWindowStateProtocolPortDisplay(ProtoTypes::ConnectionSettings connectionSettings);
+    void updateConnectWindowStateProtocolPortDisplay(types::ConnectionSettings connectionSettings);
     bool isActiveState() const { return activeState_; }
     QRect trayIconRect();
     void showAfterLaunch();
@@ -155,21 +156,21 @@ private slots:
     void onLanguageChanged();
 
     // backend state signals
-    void onBackendInitFinished(ProtoTypes::InitState initState);
+    void onBackendInitFinished(INIT_STATE initState);
     void onBackendInitTooLong();
 
     //void onBackendLoginInfoChanged(const ProtoTypes::LoginInfo &loginInfo);
     void onBackendLoginFinished(bool isLoginFromSavedSettings);
-    void onBackendLoginStepMessage(ProtoTypes::LoginMessage msg);
-    void onBackendLoginError(ProtoTypes::LoginError loginError, const QString &errorMessage);
+    void onBackendLoginStepMessage(LOGIN_MESSAGE msg);
+    void onBackendLoginError(LOGIN_RET loginError, const QString &errorMessage);
 
-    void onBackendSessionStatusChanged(const ProtoTypes::SessionStatus &sessionStatus);
-    void onBackendCheckUpdateChanged(const ProtoTypes::CheckUpdateInfo &checkUpdateInfo);
+    void onBackendSessionStatusChanged(const types::SessionStatus &sessionStatus);
+    void onBackendCheckUpdateChanged(const types::CheckUpdate &checkUpdateInfo);
     void onBackendMyIpChanged(QString ip, bool isFromDisconnectedState);
-    void onBackendConnectStateChanged(const ProtoTypes::ConnectState &connectState);
-    void onBackendEmergencyConnectStateChanged(const ProtoTypes::ConnectState &connectState);
+    void onBackendConnectStateChanged(const types::ConnectState &connectState);
+    void onBackendEmergencyConnectStateChanged(const types::ConnectState &connectState);
     void onBackendFirewallStateChanged(bool isEnabled);
-    void onNetworkChanged(ProtoTypes::NetworkInterface network);
+    void onNetworkChanged(types::NetworkInterface network);
     void onSplitTunnelingStateChanged(bool isActive);
     void onBackendSignOutFinished();
     void onBackendCleanupFinished();
@@ -177,18 +178,18 @@ private slots:
     void onBackendConfirmEmailResult(bool bSuccess);
     void onBackendDebugLogResult(bool bSuccess);
     void onBackendStatisticsUpdated(quint64 bytesIn, quint64 bytesOut, bool isTotalBytes);
-    void onBackendProxySharingInfoChanged(const ProtoTypes::ProxySharingInfo &psi);
-    void onBackendWifiSharingInfoChanged(const ProtoTypes::WifiSharingInfo &wsi);
+    void onBackendProxySharingInfoChanged(const types::ProxySharingInfo &psi);
+    void onBackendWifiSharingInfoChanged(const types::WifiSharingInfo &wsi);
     void onBackendRequestCustomOvpnConfigCredentials();
     void onBackendSessionDeleted();
     void onBackendTestTunnelResult(bool success);
     void onBackendLostConnectionToHelper();
     void onBackendHighCpuUsage(const QStringList &processesList);
-    void onBackendUserWarning(ProtoTypes::UserWarningType userWarningType);
+    void onBackendUserWarning(USER_WARNING_TYPE userWarningType);
     void onBackendInternetConnectivityChanged(bool connectivity);
-    void onBackendProtocolPortChanged(const ProtoTypes::Protocol &protocol, const uint port);
+    void onBackendProtocolPortChanged(const PROTOCOL &protocol, const uint port);
     void onBackendPacketSizeDetectionStateChanged(bool on, bool isError);
-    void onBackendUpdateVersionChanged(uint progressPercent, ProtoTypes::UpdateVersionState state, ProtoTypes::UpdateVersionError error);
+    void onBackendUpdateVersionChanged(uint progressPercent, UPDATE_VERSION_STATE state, UPDATE_VERSION_ERROR error);
     void onBackendWebSessionTokenForEditAccountDetails(const QString &tempSessionToken);
     void onBackendWebSessionTokenForAddEmail(const QString &tempSessionToken);
 
@@ -200,16 +201,16 @@ private slots:
     void onBestLocationChanged(const LocationID &bestLocation);
 
     // preferences changes signals
-    void onPreferencesFirewallSettingsChanged(const ProtoTypes::FirewallSettings &fm);
-    void onPreferencesShareProxyGatewayChanged(const ProtoTypes::ShareProxyGateway &sp);
-    void onPreferencesShareSecureHotspotChanged(const ProtoTypes::ShareSecureHotspot &ss);
-    void onPreferencesLocationOrderChanged(ProtoTypes::OrderLocationType o);
-    void onPreferencesSplitTunnelingChanged(ProtoTypes::SplitTunneling st);
+    void onPreferencesFirewallSettingsChanged(const types::FirewallSettings &fm);
+    void onPreferencesShareProxyGatewayChanged(const types::ShareProxyGateway &sp);
+    void onPreferencesShareSecureHotspotChanged(const types::ShareSecureHotspot &ss);
+    void onPreferencesLocationOrderChanged(ORDER_LOCATION_TYPE o);
+    void onPreferencesSplitTunnelingChanged(types::SplitTunneling st);
     void onPreferencesUpdateEngineSettings();
     void onPreferencesLaunchOnStartupChanged(bool bEnabled);
-    void onPreferencesConnectionSettingsChanged(ProtoTypes::ConnectionSettings connectionSettings);
+    void onPreferencesConnectionSettingsChanged(types::ConnectionSettings connectionSettings);
     void onPreferencesIsDockedToTrayChanged(bool isDocked);
-    void onPreferencesUpdateChannelChanged(const ProtoTypes::UpdateChannel updateChannel);
+    void onPreferencesUpdateChannelChanged(UPDATE_CHANNEL updateChannel);
 
     void onPreferencesReportErrorToUser(const QString &title, const QString &desc);
 
@@ -235,7 +236,7 @@ private slots:
 
     void showShutdownWindow();
 
-    void onCurrentNetworkUpdated(ProtoTypes::NetworkInterface networkInterface);
+    void onCurrentNetworkUpdated(types::NetworkInterface networkInterface);
     void onAutoConnectUpdated(bool on);
 
     void onTrayActivated(QSystemTrayIcon::ActivationReason reason);
@@ -338,7 +339,7 @@ private:
     QString getConnectionTime();
     QString getConnectionTransferred();
     void setInitialFirewallState();
-    void handleDisconnectWithError(const ProtoTypes::ConnectState &connectState);
+    void handleDisconnectWithError(const types::ConnectState &connectState);
     void setVariablesToInitState();
 
     void openStaticIpExternalWindow();
@@ -350,7 +351,7 @@ private:
     bool internetConnected_;
 
     bool currentlyShowingUserWarningMessage_;
-    QSet<ProtoTypes::UserWarningType> alreadyShownWarnings_;
+    QSet<USER_WARNING_TYPE> alreadyShownWarnings_;
 
     bool bGotoUpdateWindowAfterGeneralMessage_;
 
@@ -395,7 +396,7 @@ private:
     void cleanupLogViewerWindow();
 
     QRect guessTrayIconLocationOnScreen(QScreen *screen);
-    void showUserWarning(ProtoTypes::UserWarningType userWarningType);
+    void showUserWarning(USER_WARNING_TYPE userWarningType);
     void openBrowserToMyAccountWithToken(const QString &tempSessionToken);
 };
 

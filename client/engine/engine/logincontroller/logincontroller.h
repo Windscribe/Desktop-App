@@ -6,8 +6,9 @@
 #include "engine/serverapi/serverapi.h"
 #include "getallconfigscontroller.h"
 #include "getapiaccessips.h"
-#include "engine/types/dnsresolutionsettings.h"
-#include "engine/types/loginsettings.h"
+#include "types/dnsresolutionsettings.h"
+#include "types/loginsettings.h"
+#include "engine/apiinfo/apiinfo.h"
 #include "engine/networkdetectionmanager/inetworkdetectionmanager.h"
 
 //class IFirewallController;
@@ -21,10 +22,10 @@ class LoginController : public QObject
     Q_OBJECT
 public:
     explicit LoginController(QObject *parent, IHelper *helper, INetworkDetectionManager *networkDetectionManager, ServerAPI *serverAPI,
-                             const QString &language, ProtocolType protocol);
+                             const QString &language, PROTOCOL protocol);
     virtual ~LoginController();
 
-    void startLoginProcess(const LoginSettings &loginSettings, const DnsResolutionSettings &dnsResolutionSettings, bool bFromConnectedToVPNState);
+    void startLoginProcess(const types::LoginSettings &loginSettings, const types::DnsResolutionSettings &dnsResolutionSettings, bool bFromConnectedToVPNState);
 
 signals:
     void readyForNetworkRequests();
@@ -32,13 +33,13 @@ signals:
     void finished(LOGIN_RET retCode, const apiinfo::ApiInfo &apiInfo, bool bFromConnectedToVPNState, const QString &errorMessage);
 
 private slots:
-    void onLoginAnswer(SERVER_API_RET_CODE retCode, const apiinfo::SessionStatus &sessionStatus, const QString &authHash, uint userRole, const QString &errorMessage);
-    void onSessionAnswer(SERVER_API_RET_CODE retCode, const apiinfo::SessionStatus &sessionStatus, uint userRole);
-    void onServerLocationsAnswer(SERVER_API_RET_CODE retCode, const QVector<apiinfo::Location> &serverLocations, QStringList forceDisconnectNodes, uint userRole);
-    void onServerCredentialsAnswer(SERVER_API_RET_CODE retCode, const QString &radiusUsername, const QString &radiusPassword, ProtocolType protocol, uint userRole);
+    void onLoginAnswer(SERVER_API_RET_CODE retCode, const types::SessionStatus &sessionStatus, const QString &authHash, uint userRole, const QString &errorMessage);
+    void onSessionAnswer(SERVER_API_RET_CODE retCode, const types::SessionStatus &sessionStatus, uint userRole);
+    void onServerLocationsAnswer(SERVER_API_RET_CODE retCode, const QVector<types::Location> &serverLocations, QStringList forceDisconnectNodes, uint userRole);
+    void onServerCredentialsAnswer(SERVER_API_RET_CODE retCode, const QString &radiusUsername, const QString &radiusPassword, PROTOCOL protocol, uint userRole);
     void onServerConfigsAnswer(SERVER_API_RET_CODE retCode, const QString &config, uint userRole);
-    void onPortMapAnswer(SERVER_API_RET_CODE retCode, const apiinfo::PortMap &portMap, uint userRole);
-    void onStaticIpsAnswer(SERVER_API_RET_CODE retCode, const apiinfo::StaticIps &staticIps, uint userRole);
+    void onPortMapAnswer(SERVER_API_RET_CODE retCode, const types::PortMap &portMap, uint userRole);
+    void onStaticIpsAnswer(SERVER_API_RET_CODE retCode, const types::StaticIps &staticIps, uint userRole);
 
     void onGetApiAccessIpsFinished(SERVER_API_RET_CODE retCode, const QStringList &hosts);
 
@@ -63,18 +64,18 @@ private:
     GetApiAccessIps *getApiAccessIps_;
     INetworkDetectionManager *networkDetectionManager_;
     QString language_;
-    ProtocolType protocol_;
+    PROTOCOL protocol_;
 
-    LoginSettings loginSettings_;
+    types::LoginSettings loginSettings_;
     QString newAuthHash_;
 
-    DnsResolutionSettings dnsResolutionSettings_;
+    types::DnsResolutionSettings dnsResolutionSettings_;
     bool bFromConnectedToVPNState_;
 
     QElapsedTimer loginElapsedTimer_;
     QElapsedTimer waitNetworkConnectivityElapsedTimer_;
 
-    apiinfo::SessionStatus sessionStatus_;
+    types::SessionStatus sessionStatus_;
 
     GetAllConfigsController *getAllConfigsController_;
     LOGIN_STEP loginStep_;
@@ -83,7 +84,7 @@ private:
     QStringList ipsForStep3_;
 
     void getApiInfoFromSettings();
-    void handleLoginOrSessionAnswer(SERVER_API_RET_CODE retCode, const apiinfo::SessionStatus &sessionStatus, const QString &authHash, const QString &errorMessage);
+    void handleLoginOrSessionAnswer(SERVER_API_RET_CODE retCode, const types::SessionStatus &sessionStatus, const QString &authHash, const QString &errorMessage);
     void makeLoginRequest(const QString &hostname);
     void makeApiAccessRequest();
     QString selectRandomIpForStep3();

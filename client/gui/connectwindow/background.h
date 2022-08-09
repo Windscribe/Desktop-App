@@ -5,7 +5,6 @@
 #include <QPropertyAnimation>
 #include <QTimer>
 #include "commongraphics/scalablegraphicsobject.h"
-#include "utils/protobuf_includes.h"
 #include "backgroundimage/backgroundimage.h"
 #include "utils/imagewithshadow.h"
 
@@ -23,7 +22,7 @@ public:
     QRectF boundingRect() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
-    void onConnectStateChanged(ProtoTypes::ConnectStateType newConnectState, ProtoTypes::ConnectStateType prevConnectState);
+    void onConnectStateChanged(CONNECT_STATE newConnectState, CONNECT_STATE prevConnectState);
     void onLocationSelected(const QString &countryCode);
     void setDarkMode(bool dark);
     QPixmap getShadowPixmap();

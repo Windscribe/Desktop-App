@@ -159,7 +159,7 @@ IKEv2Connection_mac::~IKEv2Connection_mac()
 
 }
 
-void IKEv2Connection_mac::startConnect(const QString &configPathOrUrl, const QString &ip, const QString &dnsHostName, const QString &username, const QString &password, const ProxySettings &proxySettings, const WireGuardConfig *wireGuardConfig, bool isEnableIkev2Compression, bool isAutomaticConnectionMode)
+void IKEv2Connection_mac::startConnect(const QString &configPathOrUrl, const QString &ip, const QString &dnsHostName, const QString &username, const QString &password, const types::ProxySettings &proxySettings, const WireGuardConfig *wireGuardConfig, bool isEnableIkev2Compression, bool isAutomaticConnectionMode)
 {
     Q_UNUSED(configPathOrUrl);
     Q_UNUSED(proxySettings);
@@ -181,7 +181,7 @@ void IKEv2Connection_mac::startConnect(const QString &configPathOrUrl, const QSt
     if (!setKeyChain(username, password))
     {
         state_ = STATE_DISCONNECTED;
-        emit error(ProtoTypes::ConnectError::IKEV_FAILED_SET_KEYCHAIN_MAC);
+        emit error(IKEV_FAILED_SET_KEYCHAIN_MAC);
         mutexLocal.unlock();
         return;
     }
@@ -200,7 +200,7 @@ void IKEv2Connection_mac::startConnect(const QString &configPathOrUrl, const QSt
         {
             qCDebug(LOG_IKEV2) << "Load vpn preferences failed:" << QString::fromNSString(err.localizedDescription);
             state_ = STATE_DISCONNECTED;
-            emit error(ProtoTypes::ConnectError::IKEV_FAILED_LOAD_PREFERENCES_MAC);
+            emit error(IKEV_FAILED_LOAD_PREFERENCES_MAC);
             waitConditionLocal.wakeAll();
             mutexLocal.unlock();
         }
@@ -249,7 +249,7 @@ void IKEv2Connection_mac::startConnect(const QString &configPathOrUrl, const QSt
                 {
                     qCDebug(LOG_IKEV2) << "Save vpn preferences failed:" << QString::fromNSString(err.localizedDescription);
                     state_ = STATE_DISCONNECTED;
-                    emit error(ProtoTypes::ConnectError::IKEV_FAILED_SAVE_PREFERENCES_MAC);
+                    emit error(IKEV_FAILED_SAVE_PREFERENCES_MAC);
                     waitConditionLocal.wakeAll();
                     mutexLocal.unlock();
                 }
@@ -263,7 +263,7 @@ void IKEv2Connection_mac::startConnect(const QString &configPathOrUrl, const QSt
                         {
                             qCDebug(LOG_IKEV2) << "load vpn preferences failed:" << QString::fromNSString(err.localizedDescription);
                             state_ = STATE_DISCONNECTED;
-                            emit error(ProtoTypes::ConnectError::IKEV_FAILED_SAVE_PREFERENCES_MAC);
+                            emit error(IKEV_FAILED_SAVE_PREFERENCES_MAC);
                             waitConditionLocal.wakeAll();
                             mutexLocal.unlock();
                         }
@@ -285,7 +285,7 @@ void IKEv2Connection_mac::startConnect(const QString &configPathOrUrl, const QSt
                         {
                             qCDebug(LOG_IKEV2) << "Error staring ikev2 connection:" << QString::fromNSString(startError.localizedDescription);
                             state_ = STATE_DISCONNECTED;
-                            emit error(ProtoTypes::ConnectError::IKEV_FAILED_START_MAC);
+                            emit error(IKEV_FAILED_START_MAC);
                         }
                         waitConditionLocal.wakeAll();
                         mutexLocal.unlock();
@@ -407,13 +407,13 @@ void IKEv2Connection_mac::handleNotificationImpl(int status)
         {
             [[NSNotificationCenter defaultCenter] removeObserver: (id)notificationId_ name: (NSString *)NEVPNStatusDidChangeNotification object: manager.connection];
             state_ = STATE_DISCONNECTED;
-            emit error(ProtoTypes::ConnectError::IKEV_FAILED_TO_CONNECT);
+            emit error(IKEV_FAILED_TO_CONNECT);
         }
         else if (state_ != STATE_DISCONNECTED)
         {
             if (state_ == STATE_DISCONNECTING_AUTH_ERROR)
             {
-                emit error(ProtoTypes::ConnectError::AUTH_ERROR);
+                emit error(AUTH_ERROR);
             }
 
             [[NSNotificationCenter defaultCenter] removeObserver: (id)notificationId_ name: (NSString *)NEVPNStatusDidChangeNotification object: manager.connection];

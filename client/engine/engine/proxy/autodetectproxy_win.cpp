@@ -3,9 +3,9 @@
 #include <QNetworkProxy>
 #include "utils/hardcodedsettings.h"
 
-ProxySettings AutoDetectProxy_win::detect(bool &bSuccessfully)
+types::ProxySettings AutoDetectProxy_win::detect(bool &bSuccessfully)
 {
-    ProxySettings proxySettings;
+    types::ProxySettings proxySettings;
     bSuccessfully = false;
 
     QNetworkProxyQuery npq(QUrl("https://"+ HardcodedSettings::instance().serverUrl()));

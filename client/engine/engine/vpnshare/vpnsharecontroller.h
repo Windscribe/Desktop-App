@@ -6,7 +6,7 @@
 #include "httpproxyserver/httpproxyserver.h"
 #include "socksproxyserver/socksproxyserver.h"
 #include "engine/helper/ihelper.h"
-#include "engine/types/types.h"
+#include "types/enums.h"
 
 #ifdef Q_OS_WIN
     #include "WifiSharing/wifisharing.h"

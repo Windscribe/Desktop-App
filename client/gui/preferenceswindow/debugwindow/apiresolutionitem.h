@@ -6,7 +6,7 @@
 
 #include <QVariantAnimation>
 #include "../editboxitem.h"
-#include "utils/protobuf_includes.h"
+#include "types/dnsresolutionsettings.h"
 
 namespace PreferencesWindow {
 
@@ -17,13 +17,13 @@ public:
     explicit ApiResolutionItem(ScalableGraphicsObject *parent);
 
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
-    void setApiResolution(const ProtoTypes::ApiResolution &ar);
+    void setApiResolution(const types::DnsResolutionSettings &dns);
 
     void updateScaling() override;
     bool hasItemWithFocus() override;
 
 signals:
-    void apiResolutionChanged(const ProtoTypes::ApiResolution &ar);
+    void apiResolutionChanged(const types::DnsResolutionSettings &dns);
 
 private slots:
     void onSwitchChanged(AutoManualSwitchItem::SWITCH_STATE state);
@@ -37,7 +37,7 @@ private:
     AutoManualSwitchItem *switchItem_;
     EditBoxItem *editBoxIP_;
 
-    ProtoTypes::ApiResolution curApiResolution_;
+    types::DnsResolutionSettings curApiResolution_;
 
 
     QVariantAnimation expandEnimation_;

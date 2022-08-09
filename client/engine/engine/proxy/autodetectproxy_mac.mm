@@ -5,10 +5,10 @@
 #import <SystemConfiguration/SystemConfiguration.h>
 
 
-ProxySettings AutoDetectProxy_mac::detect(bool &bSuccessfully)
+types::ProxySettings AutoDetectProxy_mac::detect(bool &bSuccessfully)
 {
     bSuccessfully = true;
-    ProxySettings proxySettings;
+    types::ProxySettings proxySettings;
     proxySettings.setOption(PROXY_OPTION_NONE);
 
     CFDictionaryRef proxiesDict = CFNetworkCopySystemProxySettings();

@@ -6,8 +6,7 @@
 #include <QStringList>
 #include <QVector>
 #include <curl/curl.h>
-#include "../types/types.h"
-#include "../types/protocoltype.h"
+#include "types/enums.h"
 
 class CurlRequest
 {

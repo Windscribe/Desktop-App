@@ -133,7 +133,7 @@ void NewsFeedWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem
 
     // Num Pages Text
     painter->setFont(*FontManager::instance().getFont(14, true));
-    QString numberOfTotalPages = QString("%1 of %2").arg(messages_.api_notifications_size() - curMessageInd_).arg(messages_.api_notifications_size());
+    QString numberOfTotalPages = QString("%1 of %2").arg(messages_.size() - curMessageInd_).arg(messages_.size());
     painter->drawText(130*G_SCALE, 272*G_SCALE, numberOfTotalPages);
 
     // Vertical line
@@ -149,7 +149,7 @@ void NewsFeedWindowItem::updateScaling()
     updatePositions();
 }
 
-void NewsFeedWindowItem::setMessagesWithCurrentOverride(const ProtoTypes::ArrayApiNotification &arr,
+void NewsFeedWindowItem::setMessagesWithCurrentOverride(const QVector<types::Notification> &arr,
                                                         const QSet<qint64> &shownIds,
                                                         int overrideCurrentMessageId)
 {
@@ -162,10 +162,10 @@ void NewsFeedWindowItem::setMessagesWithCurrentOverride(const ProtoTypes::ArrayA
     }
 }
 
-void NewsFeedWindowItem::setMessages(const ProtoTypes::ArrayApiNotification &arr,
+void NewsFeedWindowItem::setMessages(const QVector<types::Notification> &arr,
                                      const QSet<qint64> &shownIds)
 {
-    Q_ASSERT(arr.api_notifications_size() > 0);
+    Q_ASSERT(arr.size() > 0);
 
     messages_ = arr;
     shownIds_ = shownIds;
@@ -173,9 +173,9 @@ void NewsFeedWindowItem::setMessages(const ProtoTypes::ArrayApiNotification &arr
     bool bFinded = false;
     if (messageIdIsInitialized_)
     {
-        for (int i = 0; i < arr.api_notifications_size(); ++i)
+        for (int i = 0; i < arr.size(); ++i)
         {
-            if (arr.api_notifications(i).id() == curMessageId_)
+            if (arr[i].id == curMessageId_)
             {
                 curMessageInd_ = i;
                 bFinded = true;
@@ -187,7 +187,7 @@ void NewsFeedWindowItem::setMessages(const ProtoTypes::ArrayApiNotification &arr
     if (!bFinded)
     {
         curMessageInd_ = 0;
-        curMessageId_ = messages_.api_notifications(0).id();
+        curMessageId_ = messages_[0].id;
         messageIdIsInitialized_ = true;
         if (isVisible())
         {
@@ -235,10 +235,10 @@ void NewsFeedWindowItem::onBackArrowButtonClicked()
 
 void NewsFeedWindowItem::onLeftClick()
 {
-    if (curMessageInd_ < (messages_.api_notifications_size() - 1))
+    if (curMessageInd_ < (messages_.size() - 1))
     {
         curMessageInd_++;
-        curMessageId_ = messages_.api_notifications(curMessageInd_).id();
+        curMessageId_ = messages_[curMessageInd_].id;
         updateCurrentMessage();
         setCurrentMessageRead();
     }
@@ -249,7 +249,7 @@ void NewsFeedWindowItem::onRightClick()
     if (curMessageInd_ > 0)
     {
         curMessageInd_--;
-        curMessageId_ = messages_.api_notifications(curMessageInd_).id();
+        curMessageId_ = messages_[curMessageInd_].id;
         updateCurrentMessage();
         setCurrentMessageRead();
     }
@@ -267,12 +267,12 @@ void NewsFeedWindowItem::onDockedModeChanged(bool bIsDockedToTray)
 void NewsFeedWindowItem::setCurrentMessageToFirstUnread()
 {
     qint64 curMessageDate = 0;
-    for (int i = 0; i < messages_.api_notifications_size(); ++i) {
-        const auto &notification = messages_.api_notifications(i);
-        if (notification.date() >= curMessageDate && !shownIds_.contains(notification.id())) {
+    for (int i = 0; i < messages_.size(); ++i) {
+        const auto &notification = messages_[i];
+        if (notification.date >= curMessageDate && !shownIds_.contains(notification.id)) {
             curMessageInd_ = i;
-            curMessageId_ = notification.id();
-            curMessageDate = notification.date();
+            curMessageId_ = notification.id;
+            curMessageDate = notification.date;
         }
     }
 }
@@ -285,8 +285,8 @@ void NewsFeedWindowItem::setCurrentMessageRead()
 
 void NewsFeedWindowItem::updateCurrentMessage()
 {
-    messageTitle_ = QString::fromStdString(messages_.api_notifications(curMessageInd_).title());
-    messageItem_->setMessage(QString::fromStdString(messages_.api_notifications(curMessageInd_).message()));
+    messageTitle_ = messages_[curMessageInd_].title;
+    messageItem_->setMessage(messages_[curMessageInd_].message);
     update();
     updateLeftRightArrowClickability();
 }
@@ -304,7 +304,7 @@ void NewsFeedWindowItem::updateLeftRightArrowClickability()
         rightArrowButton_->setClickable(true);
     }
 
-    if (curMessageInd_ == messages_.api_notifications_size() - 1) // last
+    if (curMessageInd_ == messages_.size() - 1) // last
     {
         leftArrowButton_->setClickable(false);
         leftArrowButton_->animateOpacityChange(OPACITY_UNHOVER_ICON_STANDALONE, ANIMATION_SPEED_FAST);

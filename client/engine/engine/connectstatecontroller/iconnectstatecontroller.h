@@ -3,7 +3,7 @@
 
 #include <QObject>
 #include <QTimer>
-#include "engine/types/types.h"
+#include "types/enums.h"
 #include "types/locationid.h"
 
 class IConnectStateController : public QObject
@@ -17,11 +17,11 @@ public:
     virtual CONNECT_STATE prevState() = 0;
 
     virtual DISCONNECT_REASON disconnectReason() = 0;
-    virtual ProtoTypes::ConnectError connectionError() = 0;
+    virtual CONNECT_ERROR connectionError() = 0;
     virtual const LocationID& locationId() = 0;
 
 signals:
-    void stateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, ProtoTypes::ConnectError err, const LocationID &location);
+    void stateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, CONNECT_ERROR err, const LocationID &location);
 };
 
 #endif // ICONNECTSTATECONTROLLER_H

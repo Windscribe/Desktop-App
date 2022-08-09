@@ -14,7 +14,7 @@ void FirewallExceptions::setWhiteListedIPs(const QSet<QString> &ips)
     whitelistedIPs_ = ips;
 }
 
-void FirewallExceptions::setProxyIP(const ProxySettings &proxySettings)
+void FirewallExceptions::setProxyIP(const types::ProxySettings &proxySettings)
 {
     if (proxySettings.option() == PROXY_OPTION_NONE)
     {

@@ -70,12 +70,12 @@ void SplitTunnelingAppsItem::paint(QPainter *painter, const QStyleOptionGraphics
     }
 }
 
-QList<ProtoTypes::SplitTunnelingApp> SplitTunnelingAppsItem::getApps()
+QList<types::SplitTunnelingApp> SplitTunnelingAppsItem::getApps()
 {
     return apps_;
 }
 
-void SplitTunnelingAppsItem::setApps(QList<ProtoTypes::SplitTunnelingApp> apps)
+void SplitTunnelingAppsItem::setApps(QList<types::SplitTunnelingApp> apps)
 {
     apps_ = apps;
     drawItemsAndUpdateHeight();
@@ -162,8 +162,8 @@ void SplitTunnelingAppsItem::attemptDelete(AppIncludedItem *appItem)
         {
             int index = selectableIndex(appItem);
 
-            ProtoTypes::SplitTunnelingApp *app = appByName(appItem->getName());
-            app->set_active(false);
+            types::SplitTunnelingApp *app = appByName(appItem->getName());
+            app->active = false;
             disconnect(appItem);
             removeAppFromApps(*app);
             drawItemsAndUpdateHeight();
@@ -246,7 +246,7 @@ void SplitTunnelingAppsItem::drawItemsAndUpdateHeight()
     const auto sortedApps = Utils::insertionSort(apps_);
     for (auto app : sortedApps)
     {
-        QString iconPath = QString::fromStdString(app.full_name());
+        QString iconPath = app.fullName;
 
 #ifdef Q_OS_WIN
         iconPath = WinUtils::iconPathFromBinPath(iconPath);
@@ -288,15 +288,15 @@ void SplitTunnelingAppsItem::updateItemsPosAndUpdateHeight()
     setHeight(height);
 }
 
-ProtoTypes::SplitTunnelingApp *SplitTunnelingAppsItem::appByName(QString appName)
+types::SplitTunnelingApp *SplitTunnelingAppsItem::appByName(QString appName)
 {
-    ProtoTypes::SplitTunnelingApp *found = nullptr;
+    types::SplitTunnelingApp *found = nullptr;
 
     for (int i = 0; i < apps_.length(); i++)
     {
-        ProtoTypes::SplitTunnelingApp *app = &apps_[i];
+        types::SplitTunnelingApp *app = &apps_[i];
 
-        if (app->name() == appName.toStdString())
+        if (app->name == appName)
         {
             found = app;
             break;
@@ -306,11 +306,11 @@ ProtoTypes::SplitTunnelingApp *SplitTunnelingAppsItem::appByName(QString appName
     return found;
 }
 
-void SplitTunnelingAppsItem::removeAppFromApps(ProtoTypes::SplitTunnelingApp app)
+void SplitTunnelingAppsItem::removeAppFromApps(types::SplitTunnelingApp app)
 {
     for (int i = 0; i < apps_.length(); i++)
     {
-        if (apps_[i].name() == app.name())
+        if (apps_[i].name == app.name)
         {
             apps_.removeAt(i);
         }

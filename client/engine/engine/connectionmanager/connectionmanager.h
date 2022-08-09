@@ -11,14 +11,15 @@
 
 #include "iconnection.h"
 #include "testvpntunnel.h"
-#include "engine/types/protocoltype.h"
 #include "engine/wireguardconfig/wireguardconfig.h"
 #include "engine/wireguardconfig/getwireguardconfiginloop.h"
 #include "connsettingspolicy/baseconnsettingspolicy.h"
 #include "engine/customconfigs/customovpnauthcredentialsstorage.h"
-#include "engine/apiinfo/servercredentials.h"
+#include "types/servercredentials.h"
 #include "engine/locationsmodel/baselocationinfo.h"
-#include "engine/types/connectionsettings.h"
+#include "types/connectionsettings.h"
+#include "types/packetsize.h"
+#include "types/dnswhileconnectedinfo.h"
 
 #ifdef Q_OS_MAC
     #include "restorednsmanager_mac.h"
@@ -39,9 +40,9 @@ public:
                                ServerAPI *serverAPI, CustomOvpnAuthCredentialsStorage *customOvpnAuthCredentialsStorage);
     ~ConnectionManager() override;
 
-    void clickConnect(const QString &ovpnConfig, const apiinfo::ServerCredentials &serverCredentials,
+    void clickConnect(const QString &ovpnConfig, const types::ServerCredentials &serverCredentials,
                       QSharedPointer<locationsmodel::BaseLocationInfo> bli,
-                      const ConnectionSettings &connectionSettings, const apiinfo::PortMap &portMap, const ProxySettings &proxySettings,
+                      const types::ConnectionSettings &connectionSettings, const types::PortMap &portMap, const types::ProxySettings &proxySettings,
                       bool bEmitAuthError, const QString &customConfigPath);
 
     void clickDisconnect();
@@ -54,11 +55,11 @@ public:
 
     struct CustomDnsAdapterGatewayInfo {
         AdapterGatewayInfo adapterInfo;
-        ProtoTypes::DnsWhileConnectedInfo dnsWhileConnectedInfo;
+        types::DnsWhileConnectedInfo dnsWhileConnectedInfo;
     };
     const CustomDnsAdapterGatewayInfo &getCustomDnsAdapterGatewayInfo() const;
     QString getCustomDnsIp() const;
-    void setDnsWhileConnectedInfo(const ProtoTypes::DnsWhileConnectedInfo &info);
+    void setDnsWhileConnectedInfo(const types::DnsWhileConnectedInfo &info);
 
     void removeIkev2ConnectionFromOS();
 
@@ -69,30 +70,30 @@ public:
     QString getCustomOvpnConfigFileName();
 
     bool isStaticIpsLocation() const;
-    apiinfo::StaticIpPortsVector getStatisIps();
+    types::StaticIpPortsVector getStatisIps();
 
     void onWireGuardKeyLimitUserResponse(bool deleteOldestKey);
 
     void setMss(int mss);
-    void setPacketSize(ProtoTypes::PacketSize ps);
+    void setPacketSize(types::PacketSize ps);
 
     void startTunnelTests();
     bool isAllowFirewallAfterConnection() const;
 
-    ProtocolType currentProtocol() const;
+    PROTOCOL currentProtocol() const;
 
 signals:
     void connected();
     void connectingToHostname(const QString &hostname, const QString &ip, const QString &dnsServer);
     void disconnected(DISCONNECT_REASON reason);
-    void errorDuringConnection(ProtoTypes::ConnectError errorCode);
+    void errorDuringConnection(CONNECT_ERROR errorCode);
     void reconnecting();
     void statisticsUpdated(quint64 bytesIn, quint64 bytesOut, bool isTotalBytes);
     void interfaceUpdated(const QString &interfaceName);  // WireGuard-specific.
     void testTunnelResult(bool success, const QString &ipAddress);
     void showFailedAutomaticConnectionMessage();
     void internetConnectivityChanged(bool connectivity);
-    void protocolPortChanged(const ProtoTypes::Protocol &protocol, const uint port);
+    void protocolPortChanged(const PROTOCOL &protocol, const uint port);
     void wireGuardAtKeyLimit();
 
     void requestUsername(const QString &pathCustomOvpnConfig);
@@ -102,7 +103,7 @@ private slots:
     void onConnectionConnected(const AdapterGatewayInfo &connectionAdapterInfo);
     void onConnectionDisconnected();
     void onConnectionReconnecting();
-    void onConnectionError(ProtoTypes::ConnectError err);
+    void onConnectionError(CONNECT_ERROR err);
     void onConnectionStatisticsUpdated(quint64 bytesIn, quint64 bytesOut, bool isTotalBytes);
     void onConnectionInterfaceUpdated(const QString &interfaceName);
 
@@ -149,8 +150,8 @@ private:
     QString lastIp_;
 
     QString lastOvpnConfig_;
-    apiinfo::ServerCredentials lastServerCredentials_;
-    ProxySettings lastProxySettings_;
+    types::ServerCredentials lastServerCredentials_;
+    types::ProxySettings lastProxySettings_;
     bool bEmitAuthError_;
 
     QString customConfigPath_;
@@ -164,7 +165,7 @@ private:
     bool bNeedResetTap_;
     bool bIgnoreConnectionErrorsForOpenVpn_;
     bool bWasSuccessfullyConnectionAttempt_;
-    ProtoTypes::ConnectError latestConnectionError_;
+    CONNECT_ERROR latestConnectionError_;
 
     QTimer timerReconnection_;
     enum { MAX_RECONNECTION_TIME = 60 * 60 * 1000 };  // 1 hour
@@ -173,14 +174,14 @@ private:
     bool bLastIsOnline_;
     bool bWakeSignalReceived_;
 
-    ProtocolType currentProtocol_;
+    PROTOCOL currentProtocol_;
 
     CurrentConnectionDescr currentConnectionDescr_;
 
     QString usernameForCustomOvpn_;     // can be empty
     QString passwordForCustomOvpn_;     // can be empty
 
-    ProtoTypes::PacketSize packetSize_;
+    types::PacketSize packetSize_;
 
     WireGuardConfig wireGuardConfig_;
     GetWireGuardConfigInLoop *getWireGuardConfigInLoop_;
@@ -198,7 +199,7 @@ private:
     void doMacRestoreProcedures();
     void startReconnectionTimer();
     void waitForNetworkConnectivity();
-    void recreateConnector(ProtocolType protocol);
+    void recreateConnector(PROTOCOL protocol);
     void restoreConnectionAfterWakeUp();
 };
 

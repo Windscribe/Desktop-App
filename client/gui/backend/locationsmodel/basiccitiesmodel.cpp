@@ -1,6 +1,6 @@
 #include "basiccitiesmodel.h"
 
-BasicCitiesModel::BasicCitiesModel(QObject *parent) : QObject(parent), orderLocationsType_(ProtoTypes::ORDER_LOCATION_BY_GEOGRAPHY), isFreeSessionStatus_(false)
+BasicCitiesModel::BasicCitiesModel(QObject *parent) : QObject(parent), orderLocationsType_(ORDER_LOCATION_BY_GEOGRAPHY), isFreeSessionStatus_(false)
 {
 
 }
@@ -10,7 +10,7 @@ BasicCitiesModel::~BasicCitiesModel()
     clearCities();
 }
 
-void BasicCitiesModel::setOrderLocationsType(ProtoTypes::OrderLocationType orderLocationsType)
+void BasicCitiesModel::setOrderLocationsType(ORDER_LOCATION_TYPE orderLocationsType)
 {
     orderLocationsType_ = orderLocationsType;
     sort(cities_);
