@@ -213,7 +213,7 @@ bool PacketSizeEditBoxItem::lineEditHasFocus()
     return lineEdit_->hasFocus();
 }
 
-void PacketSizeEditBoxItem::keyReleaseEvent(QKeyEvent *event)
+void PacketSizeEditBoxItem::keyPressEvent(QKeyEvent *event)
 {
     if (event->key() == Qt::Key_Escape)
     {

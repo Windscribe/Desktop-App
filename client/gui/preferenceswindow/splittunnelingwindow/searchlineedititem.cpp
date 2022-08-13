@@ -103,7 +103,7 @@ void SearchLineEditItem::focusInEvent(QFocusEvent * /*event*/)
     emit focusIn();
 }
 
-void SearchLineEditItem::keyReleaseEvent(QKeyEvent *event)
+void SearchLineEditItem::keyPressEvent(QKeyEvent *event)
 {
     if (event->key() == Qt::Key_Escape)
     {

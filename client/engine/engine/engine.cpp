@@ -34,6 +34,7 @@
     #include "engine/taputils/tapinstall_win.h"
     #include "engine/adaptermetricscontroller_win.h"
     #include "helper/helper_win.h"
+    #include "utils/executable_signature/executable_signature.h"
 #elif defined Q_OS_MAC
     #include "ipv6controller_mac.h"
     #include "utils/network_utils/network_utils_mac.h"

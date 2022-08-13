@@ -69,7 +69,7 @@ bool NewIpOrHostnameItem::lineEditHasFocus()
     return lineEdit_->hasFocus();
 }
 
-void NewIpOrHostnameItem::keyReleaseEvent(QKeyEvent *event)
+void NewIpOrHostnameItem::keyPressEvent(QKeyEvent *event)
 {
     if (event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter)
     {
