@@ -2,6 +2,8 @@
 #include <QApplication>
 #include "dpiscalemanager.h"
 
+#include "utils/logger.h"
+
 #ifdef Q_OS_MAC
 #include "utils/macutils.h"
 #endif
@@ -33,7 +35,10 @@ IconManager::IconManager()
 #if defined(Q_OS_MAC)
     const bool isDoublePixelRatio = DpiScaleManager::instance().curDevicePixelRatio() >= 2;
     for (int i = 0; i < NUM_ICON_TYPES; ++i) {
-        QPixmap p(kIconPaths[i]);
+        QPixmap p;
+        if (!p.load(kIconPaths[i])) {
+            qCDebug(LOG_BASIC) << "IconManager failed to load: " << kIconPaths[i];
+        }
         if (isDoublePixelRatio)
             p.setDevicePixelRatio(2);
         QIcon icon = QIcon(p);
@@ -42,7 +47,11 @@ IconManager::IconManager()
     }
 #else // windows and linux
     for (int i = 0; i < NUM_ICON_TYPES; ++i) {
-        icons_[i] = QIcon(kIconPaths[i]);
+        QIcon ico(kIconPaths[i]);
+        if (ico.isNull()) {
+            qCDebug(LOG_BASIC) << "IconManager failed to load: " << kIconPaths[i];
+        }
+        icons_[i] = ico;
     }
 #endif
 }
