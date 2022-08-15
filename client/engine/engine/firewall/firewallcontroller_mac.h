@@ -28,6 +28,20 @@ private:
     bool forceUpdateInterfaceToSkip_;
     QMutex mutex_;
     bool firewallOnImpl(const QString &ip, bool bAllowLanTraffic, const types::StaticIpPortsVector &ports);
+    void updateIPs();
+
+    struct StateFromPfctl
+    {
+        bool isEnabled;
+        bool isWindscribeIpsTableFound;
+        QString ips;
+        bool isAllowLanTrafficAnchorFound;
+        QString allowLanTrafficAnchor;
+    };
+
+    void getCurrentFirewallStateFromPfctl(bool &outEnabled, QString &outIps, QString &outRules);
+    QStringList lanTrafficRules() const;
+
 };
 
 #endif // FIREWALLCONTROLLER_MAC_H
