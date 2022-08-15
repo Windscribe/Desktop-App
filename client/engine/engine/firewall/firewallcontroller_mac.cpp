@@ -51,7 +51,7 @@ bool FirewallController_mac::firewallOn(const QSet<QString> &ips, bool bAllowLan
         QString pfConfigFilePath = generatePfConfFile(ips, bAllowLanTraffic, interfaceToSkip_);
         if (!pfConfigFilePath.isEmpty())
         {
-            helper_->executeRootCommand("pfctl -v -f \"" + pfConfigFilePath + "\"");
+            helper_->executeRootCommand("pfctl -v -F all -f \"" + pfConfigFilePath + "\"");
             helper_->executeRootCommand("pfctl -e");
             windscribeIps_ = ips;
             isAllowLanTraffic_ = bAllowLanTraffic;
@@ -64,12 +64,14 @@ bool FirewallController_mac::firewallOn(const QSet<QString> &ips, bool bAllowLan
     }
     else
     {
+        bool isChangedSomething = false;
         if (ips != windscribeIps_)
         {
             QString pfTableFilePath =  generateTableFile(ips);
             if (!pfTableFilePath.isEmpty())
             {
                 helper_->executeRootCommand("pfctl -T load -f \"" + pfTableFilePath + "\"");
+                isChangedSomething = true;
                 windscribeIps_ = ips;
             }
             else
@@ -84,12 +86,18 @@ bool FirewallController_mac::firewallOn(const QSet<QString> &ips, bool bAllowLan
             if (!filePath.isEmpty())
             {
                 helper_->executeRootCommand("pfctl -a windscribe_lan_traffic -f \"" + filePath + "\"");
+                isChangedSomething = true;
                 isAllowLanTraffic_ = bAllowLanTraffic;
             }
             else
             {
                 qCDebug(LOG_FIREWALL_CONTROLLER) << "Fatal error: can't create file" << filePath;
             }
+        }
+        if (isChangedSomething)
+        {
+            // kill states of current connections
+            helper_->executeRootCommand("pfctl -k 0.0.0.0/0");
         }
     }
 
