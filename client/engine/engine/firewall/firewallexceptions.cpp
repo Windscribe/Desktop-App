@@ -84,7 +84,7 @@ void FirewallExceptions::setCustomConfigPingIps(const QStringList &listIps)
     customConfigsPingIPs_ = listIps;
 }
 
-QString FirewallExceptions::getIPAddressesForFirewall() const
+QSet<QString> FirewallExceptions::getIPAddressesForFirewall() const
 {
     //Q_ASSERT(QApplication::instance()->thread() == QThread::currentThread());
 
@@ -187,10 +187,10 @@ QString FirewallExceptions::getIPAddressesForFirewall() const
         }
     }
 
-    return ipList.getFirewallString();
+    return ipList.get();
 }
 
-QString FirewallExceptions::getIPAddressesForFirewallForConnectedState(const QString &connectedIp) const
+QSet<QString> FirewallExceptions::getIPAddressesForFirewallForConnectedState(const QString &connectedIp) const
 {
     UniqueIpList ipList;
     ipList.add("127.0.0.1");
@@ -199,7 +199,7 @@ QString FirewallExceptions::getIPAddressesForFirewallForConnectedState(const QSt
     {
         ipList.add(remoteIP_);
     }
-    return ipList.getFirewallString();
+    return ipList.get();
 }
 
 FirewallExceptions::FirewallExceptions(): dnsPolicyType_(DNS_TYPE_OPEN_DNS)

@@ -14,14 +14,25 @@ FirewallController_win::~FirewallController_win()
 
 }
 
-bool FirewallController_win::firewallOn(const QString &ip, bool bAllowLanTraffic)
+bool FirewallController_win::firewallOn(const QSet<QString> &ips, bool bAllowLanTraffic)
 {
     QMutexLocker locker(&mutex_);
-    FirewallController::firewallOn(ip, bAllowLanTraffic);
+    FirewallController::firewallOn(ips, bAllowLanTraffic);
     if (isStateChanged())
     {
-        qCDebug(LOG_FIREWALL_CONTROLLER) << "firewall enabled with ips count:" << countIps(ip);
-        return helper_win_->firewallOn(ip, bAllowLanTraffic);
+        QString ipStr;
+        for (const QString &ip : ips)
+        {
+           ipStr += ip + ";";
+        }
+
+         if (ipStr.endsWith(";"))
+         {
+            ipStr = ipStr.remove(ipStr.length() - 1, 1);
+         }
+
+        qCDebug(LOG_FIREWALL_CONTROLLER) << "firewall enabled with ips count:" << ips.count();
+        return helper_win_->firewallOn(ipStr, bAllowLanTraffic);
     }
     else
     {
@@ -72,5 +83,4 @@ void FirewallController_win::enableFirewallOnBoot(bool bEnable)
 {
     Q_UNUSED(bEnable);
     //nothing todo for Windows
-
 }

@@ -8,7 +8,7 @@ class UniqueIpList
 {
 public:
     void add(const QString &ip);
-    QString getFirewallString() const;
+    QSet<QString> get() const;
 
 private:
     QSet<QString> set_;

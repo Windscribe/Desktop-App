@@ -1076,8 +1076,7 @@ void Engine::connectClickImpl(const LocationID &locationId)
         if (!bFirewallStateOn)
         {
             qCDebug(LOG_BASIC) << "Automatic enable firewall before connection";
-            QString ips = firewallExceptions_.getIPAddressesForFirewall();
-            firewallController_->firewallOn(ips, engineSettings_.isAllowLanTraffic());
+            firewallController_->firewallOn(firewallExceptions_.getIPAddressesForFirewall() , engineSettings_.isAllowLanTraffic());
             Q_EMIT firewallStateChanged(true);
         }
     }
@@ -1767,7 +1766,7 @@ void Engine::onConnectionManagerConnected()
             if (!firewallController_->firewallActualState())
             {
                 qCDebug(LOG_BASIC) << "Automatic enable firewall after connection";
-                QString ips = firewallExceptions_.getIPAddressesForFirewallForConnectedState(connectionManager_->getLastConnectedIp());
+                QSet<QString> ips = firewallExceptions_.getIPAddressesForFirewallForConnectedState(connectionManager_->getLastConnectedIp());
                 firewallController_->firewallOn(ips, engineSettings_.isAllowLanTraffic());
                 Q_EMIT firewallStateChanged(true);
                 isFirewallAlreadyEnabled = true;
@@ -2914,8 +2913,7 @@ void Engine::doDisconnectRestoreStuff()
 
     if (firewallController_->firewallActualState())
     {
-        QString ips = firewallExceptions_.getIPAddressesForFirewall();
-        firewallController_->firewallOn(ips, engineSettings_.isAllowLanTraffic());
+        firewallController_->firewallOn(firewallExceptions_.getIPAddressesForFirewall(), engineSettings_.isAllowLanTraffic());
     }
 
 #ifdef Q_OS_WIN

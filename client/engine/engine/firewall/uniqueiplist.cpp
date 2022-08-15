@@ -9,18 +9,7 @@ void UniqueIpList::add(const QString &ip)
     }
 }
 
-QString UniqueIpList::getFirewallString() const
+QSet<QString> UniqueIpList::get() const
 {
-    QString ret;
-    for (const QString &ip : set_)
-    {
-        ret += ip + ";";
-    }
-
-    if (ret.endsWith(";"))
-    {
-        ret = ret.remove(ret.length() - 1, 1);
-    }
-
-    return ret;
+    return set_;
 }
