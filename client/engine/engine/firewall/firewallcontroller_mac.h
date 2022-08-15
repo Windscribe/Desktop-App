@@ -36,19 +36,21 @@ private:
         bool isBasicWindscribeRulesCorrect;
         QSet<QString> windscribeIps;
         QString interfaceToSkip;
+        bool isAllowLanTraffic;
     };
 
     bool isFirewallEnabled_;
     QSet<QString> windscribeIps_;
     QString interfaceToSkip_;
+    bool isAllowLanTraffic_;
 
     QStringList lanTrafficRules() const;
-
     void getFirewallStateFromPfctl(FirewallState &outState);
     void checkInternalVsPfctlState();
     QString generatePfConfFile(const QSet<QString> &ips, bool bAllowLanTraffic, const QString &interfaceToSkip);
     QString generateTableFile(const QSet<QString> &ips);
     QString generateInterfaceToSkipAnchorFile(const QString &interfaceToSkip);
+    QString generateLanTrafficAnchorFile(bool bAllowLanTraffic);
 };
 
 #endif // FIREWALLCONTROLLER_MAC_H

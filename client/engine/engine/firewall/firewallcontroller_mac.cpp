@@ -5,7 +5,7 @@
 #include <QCoreApplication>
 
 FirewallController_mac::FirewallController_mac(QObject *parent, IHelper *helper) :
-    FirewallController(parent), forceUpdateInterfaceToSkip_(false)
+    FirewallController(parent), forceUpdateInterfaceToSkip_(false), isFirewallEnabled_(false), isAllowLanTraffic_(false)
 {
     helper_ = dynamic_cast<Helper_mac *>(helper);
 
@@ -22,9 +22,13 @@ FirewallController_mac::FirewallController_mac(QObject *parent, IHelper *helper)
     else if (firewallState.isEnabled && firewallState.isBasicWindscribeRulesCorrect)
     {
         windscribeIps_ = firewallState.windscribeIps;
-        qCDebug(LOG_FIREWALL_CONTROLLER) << "Warning: the firewall was enabled at the start, but windscribe_ips table not found or empty.";
-        Q_ASSERT(false);
+        if (windscribeIps_.isEmpty())
+        {
+            qCDebug(LOG_FIREWALL_CONTROLLER) << "Warning: the firewall was enabled at the start, but windscribe_ips table not found or empty.";
+            Q_ASSERT(false);
+        }
         interfaceToSkip_ = firewallState.interfaceToSkip;
+        isAllowLanTraffic_ = firewallState.isAllowLanTraffic;
         isFirewallEnabled_ = true;
     }
     else
@@ -50,6 +54,7 @@ bool FirewallController_mac::firewallOn(const QSet<QString> &ips, bool bAllowLan
             helper_->executeRootCommand("pfctl -v -f \"" + pfConfigFilePath + "\"");
             helper_->executeRootCommand("pfctl -e");
             windscribeIps_ = ips;
+            isAllowLanTraffic_ = bAllowLanTraffic;
             isFirewallEnabled_ = true;
         }
         else
@@ -73,7 +78,19 @@ bool FirewallController_mac::firewallOn(const QSet<QString> &ips, bool bAllowLan
             }
         }
 
-        // todo allow lan traffic
+        if (bAllowLanTraffic != isAllowLanTraffic_)
+        {
+            QString filePath =  generateLanTrafficAnchorFile(bAllowLanTraffic);
+            if (!filePath.isEmpty())
+            {
+                helper_->executeRootCommand("pfctl -a windscribe_lan_traffic -f \"" + filePath + "\"");
+                isAllowLanTraffic_ = bAllowLanTraffic;
+            }
+            else
+            {
+                qCDebug(LOG_FIREWALL_CONTROLLER) << "Fatal error: can't create file" << filePath;
+            }
+        }
     }
 
     return true;
@@ -363,6 +380,13 @@ void FirewallController_mac::getFirewallStateFromPfctl(FirewallState &outState)
             }
         }
     }
+    // read anchor windscribe_lan_traffic rules
+    outState.isAllowLanTraffic = false;
+    output = helper_->executeRootCommand("pfctl -a windscribe_lan_traffic -s rules").trimmed();
+    if (!output.isEmpty())
+    {
+        outState.isAllowLanTraffic = true;
+    }
 }
 
 
@@ -409,7 +433,20 @@ QString FirewallController_mac::generatePfConfFile(const QSet<QString> &ips, boo
     pf += "pass out quick inet proto udp from 0.0.0.0 to 255.255.255.255 port = 67\n";
     pf += "pass in quick proto udp from any to any port = 68\n";
 
-    /*rules << "anchor windscribe_lan_traffic all";*/
+    if (bAllowLanTraffic)
+    {
+        pf += "anchor windscribe_lan_traffic all {\n";
+        const QStringList rules = lanTrafficRules();
+        for (auto &r : rules)
+        {
+            pf += r + "\n";
+        }
+        pf += "}\n";
+    }
+    else
+    {
+        pf += "anchor windscribe_lan_traffic all\n";
+    }
 
     QFile f(pfConfigFilePath);
     if (f.open(QIODevice::WriteOnly))
@@ -468,6 +505,38 @@ QString FirewallController_mac::generateInterfaceToSkipAnchorFile(const QString 
     {
         pf += "pass out quick on " + interfaceToSkip + " inet from any to any\n";
         pf += "pass in quick on " + interfaceToSkip + " inet from any to any\n";
+    }
+
+    QFile f(pfConfigFilePath);
+    if (f.open(QIODevice::WriteOnly))
+    {
+        QTextStream ts(&f);
+        ts << pf;
+        f.close();
+
+        return pfConfigFilePath;
+    }
+    else
+    {
+        return QString();
+    }
+}
+
+QString FirewallController_mac::generateLanTrafficAnchorFile(bool bAllowLanTraffic)
+{
+    QString pfConfigFilePath = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
+    QDir dir(pfConfigFilePath);
+    dir.mkpath(pfConfigFilePath);
+    pfConfigFilePath += "/lan_anchor.conf";
+
+    QString pf = "";
+    if (bAllowLanTraffic)
+    {
+        const QStringList rules = lanTrafficRules();
+        for (auto &r : rules)
+        {
+            pf += r + "\n";
+        }
     }
 
     QFile f(pfConfigFilePath);
