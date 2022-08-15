@@ -3,7 +3,7 @@
 
 #include <QWidget>
 
-namespace GuiLocations {
+namespace gui_location {
 
 class CursorUpdateHelper
 {
@@ -21,6 +21,6 @@ private:
     Qt::CursorShape currentCursor_;
 };
 
-} // namespace GuiLocations
+} // namespace gui_location
 
 #endif // CURSORUPDATEHELPER_H

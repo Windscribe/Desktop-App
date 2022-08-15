@@ -10,9 +10,9 @@
 #include <QPainter>
 #include <QtMath>
 
-namespace gui {
+namespace gui_location {
 
-void gui::CityItemDelegate::paint(QPainter *painter, const ItemStyleOption &option, const QModelIndex &index) const
+void CityItemDelegate::paint(QPainter *painter, const ItemStyleOption &option, const QModelIndex &index) const
 {
     painter->save();
 
@@ -24,10 +24,10 @@ void gui::CityItemDelegate::paint(QPainter *painter, const ItemStyleOption &opti
     // background
     painter->fillRect(option.rect, FontManager::instance().getMidnightColor());
 
-    LocationID lid = qvariant_cast<LocationID>(index.data(gui::LOCATION_ID));
+    LocationID lid = qvariant_cast<LocationID>(index.data(LOCATION_ID));
     if (lid.isStaticIpsLocation())
     {
-        QString staticIpType = index.data(gui::STATIC_IP_TYPE).toString();
+        QString staticIpType = index.data(STATIC_IP_TYPE).toString();
         // static ip icon
         QSharedPointer<IndependentPixmap> datacenterPixmap;
         if (staticIpType.compare("dc", Qt::CaseInsensitive) == 0)
@@ -51,7 +51,7 @@ void gui::CityItemDelegate::paint(QPainter *painter, const ItemStyleOption &opti
 
         // static ip text
         // qDebug() << "Drawing static location";
-        QString staticIp = index.data(gui::STATIC_IP).toString();
+        QString staticIp = index.data(STATIC_IP).toString();
         painter->setOpacity(0.5);
         painter->setPen(Qt::white);
         painter->setFont(*FontManager::instance().getFont(13, false));
@@ -60,7 +60,7 @@ void gui::CityItemDelegate::paint(QPainter *painter, const ItemStyleOption &opti
         QRect rc( option.rect.width() - textWidth - 44*G_SCALE,  option.rect.top(), textWidth, option.rect.height());
         painter->drawText(rc, Qt::AlignVCenter | Qt::AlignLeft, staticIp);
     }
-    else if (index.data(gui::IS_SHOW_AS_PREMIUM).toBool())
+    else if (index.data(IS_SHOW_AS_PREMIUM).toBool())
     {
         // pro star
         QSharedPointer<IndependentPixmap> premiumStarPixmap = ImageResourcesSvg::instance().getIndependentPixmap("locations/PRO_CITY_STAR");
@@ -69,7 +69,7 @@ void gui::CityItemDelegate::paint(QPainter *painter, const ItemStyleOption &opti
     }
     else if (lid.isCustomConfigsLocation())
     {
-        QString type = index.data(gui::CUSTOM_CONFIG_TYPE).toString();
+        QString type = index.data(CUSTOM_CONFIG_TYPE).toString();
         if (!type.isEmpty())
         {
             QSharedPointer<IndependentPixmap> configPixmap = ImageResourcesSvg::instance().getIndependentPixmap(
@@ -85,7 +85,7 @@ void gui::CityItemDelegate::paint(QPainter *painter, const ItemStyleOption &opti
     else // fav
     {
         QSharedPointer<IndependentPixmap> favIcon;
-        if (index.data(gui::IS_FAVORITE).toBool() == true) {
+        if (index.data(IS_FAVORITE).toBool() == true) {
             favIcon = ImageResourcesSvg::instance().getIndependentPixmap("locations/FAV_ICON_SELECTED");
         }
         else  {
@@ -100,7 +100,7 @@ void gui::CityItemDelegate::paint(QPainter *painter, const ItemStyleOption &opti
     painter->setPen(Qt::white);
 
     QFont *fontCaption = FontManager::instance().getFont(16, true);
-    QString caption = CommonGraphics::maybeTruncatedText(index.data(gui::NAME).toString(),
+    QString caption = CommonGraphics::maybeTruncatedText(index.data(NAME).toString(),
                                                               *fontCaption,
                                                               static_cast<int>(CITY_CAPTION_MAX_WIDTH * G_SCALE));
     painter->setFont(*fontCaption);
@@ -112,7 +112,7 @@ void gui::CityItemDelegate::paint(QPainter *painter, const ItemStyleOption &opti
     // city text for non-static and non-custom views only
     if (!lid.isStaticIpsLocation() && !lid.isCustomConfigsLocation())
     {
-        QString nickname = index.data(gui::NICKNAME).toString();
+        QString nickname = index.data(NICKNAME).toString();
         QFont *fontNickname = FontManager::instance().getFont(16, false);
         painter->setFont(*fontNickname);
         QFontMetrics fm(*fontNickname);
@@ -123,7 +123,7 @@ void gui::CityItemDelegate::paint(QPainter *painter, const ItemStyleOption &opti
     }
 
     // only show disabled locations to pro users
-    bool disabled = index.data(gui::IS_SHOW_AS_PREMIUM).toBool() ? false : index.data(gui::IS_DISABLED).toBool();
+    bool disabled = index.data(IS_SHOW_AS_PREMIUM).toBool() ? false : index.data(IS_DISABLED).toBool();
     if (disabled)
     {
         QSharedPointer<IndependentPixmap> consIcon = ImageResourcesSvg::instance().getIndependentPixmap("locations/UNDER_CONSTRUCTION_ICON");
@@ -133,7 +133,7 @@ void gui::CityItemDelegate::paint(QPainter *painter, const ItemStyleOption &opti
                        painter);
     }
     // is broken custom config?
-    else if (lid.isCustomConfigsLocation() && !index.data(gui::IS_CUSTOM_CONFIG_CORRECT).toBool())
+    else if (lid.isCustomConfigsLocation() && !index.data(IS_CUSTOM_CONFIG_CORRECT).toBool())
     {
         QSharedPointer<IndependentPixmap> errorIcon = ImageResourcesSvg::instance().getIndependentPixmap("locations/ERROR_ICON");
         errorIcon->draw(left_offs + option.rect.width() - errorIcon->width() - LOCATION_ITEM_MARGIN * G_SCALE,
@@ -156,7 +156,7 @@ void gui::CityItemDelegate::paint(QPainter *painter, const ItemStyleOption &opti
 
         // draw latency text
         QFont font = *FontManager::instance().getFont(11, false);
-        QString latencyText = QString::number(index.data(gui::PING_TIME).toInt());
+        QString latencyText = QString::number(index.data(PING_TIME).toInt());
         painter->setBrush(Qt::white);
         painter->setPen(Qt::white);
         painter->setFont(font);
@@ -169,7 +169,7 @@ void gui::CityItemDelegate::paint(QPainter *painter, const ItemStyleOption &opti
     // show ping icon
     else
     {
-        PingTime pingTime = index.data(gui::PING_TIME).toInt();
+        PingTime pingTime = index.data(PING_TIME).toInt();
         QSharedPointer<IndependentPixmap> pingIcon = ImageResourcesSvg::instance().getIndependentPixmap(pingIconNameString(pingTime.toConnectionSpeed()));
         int scaledX = option.rect.width() - pingIcon->width() - LOCATION_ITEM_MARGIN * G_SCALE;
         int scaledY = (option.rect.height() - pingIcon->height()) / 2 - 1*G_SCALE;
@@ -178,7 +178,7 @@ void gui::CityItemDelegate::paint(QPainter *painter, const ItemStyleOption &opti
     }
 
     // 10gbps icon
-    if (index.data(gui::IS_10GBPS).toBool())
+    if (index.data(IS_10GBPS).toBool())
     {
         painter->setOpacity(OPACITY_FULL);
         QSharedPointer<IndependentPixmap> tenGbpsPixmap = ImageResourcesSvg::instance().getIndependentPixmap("locations/10_GBPS_ICON");
@@ -199,7 +199,7 @@ void gui::CityItemDelegate::paint(QPainter *painter, const ItemStyleOption &opti
 
     if (option.isShowLocationLoad())
     {
-        int locationLoad = index.data(gui::LOAD).toInt();
+        int locationLoad = index.data(LOAD).toInt();
         if (locationLoad > 0)
         {
             Qt::GlobalColor penColor;
@@ -226,27 +226,27 @@ void gui::CityItemDelegate::paint(QPainter *painter, const ItemStyleOption &opti
     painter->restore();
 }
 
-QSize gui::CityItemDelegate::sizeHint(const QModelIndex &/*index*/) const
+QSize CityItemDelegate::sizeHint(const QModelIndex &/*index*/) const
 {
     return QSize(WINDOW_WIDTH * G_SCALE, LOCATION_ITEM_HEIGHT * G_SCALE);
 }
 
-bool gui::CityItemDelegate::isForbiddenCursor(const QModelIndex &index) const
+bool CityItemDelegate::isForbiddenCursor(const QModelIndex &index) const
 {
-    LocationID lid = qvariant_cast<LocationID>(index.data(gui::LOCATION_ID));
-    if (lid.isCustomConfigsLocation() && !index.data(gui::IS_CUSTOM_CONFIG_CORRECT).toBool())
+    LocationID lid = qvariant_cast<LocationID>(index.data(LOCATION_ID));
+    if (lid.isCustomConfigsLocation() && !index.data(IS_CUSTOM_CONFIG_CORRECT).toBool())
     {
         return true;
     }
     else
     {
-        return index.data(gui::IS_SHOW_AS_PREMIUM).toBool() ? false : index.data(gui::IS_DISABLED).toBool();
+        return index.data(IS_SHOW_AS_PREMIUM).toBool() ? false : index.data(IS_DISABLED).toBool();
     }
 }
 
-int gui::CityItemDelegate::isInClickableArea(const QModelIndex &index, const QPoint &point) const
+int CityItemDelegate::isInClickableArea(const QModelIndex &index, const QPoint &point) const
 {
-    LocationID lid = qvariant_cast<LocationID>(index.data(gui::LOCATION_ID));
+    LocationID lid = qvariant_cast<LocationID>(index.data(LOCATION_ID));
     if (lid.isStaticIpsLocation() || lid.isCustomConfigsLocation()) {
         return -1;
     }
@@ -260,12 +260,12 @@ int gui::CityItemDelegate::isInClickableArea(const QModelIndex &index, const QPo
     return -1;
 }
 
-int gui::CityItemDelegate::isInTooltipArea(const QModelIndex &index, const QPoint &point) const
+int CityItemDelegate::isInTooltipArea(const QModelIndex &index, const QPoint &point) const
 {
     return -1;
 }
 
-QString gui::CityItemDelegate::pingIconNameString(int connectionSpeedIndex) const
+QString CityItemDelegate::pingIconNameString(int connectionSpeedIndex) const
 {
     if (connectionSpeedIndex == 0)
     {
@@ -286,4 +286,4 @@ QString gui::CityItemDelegate::pingIconNameString(int connectionSpeedIndex) cons
     Q_ASSERT(false);
 }
 
-} // namespace gui
+} // namespace gui_location

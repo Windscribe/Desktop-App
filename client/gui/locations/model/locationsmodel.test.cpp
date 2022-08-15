@@ -6,8 +6,21 @@
 
 void TestLocationsModel::init()
 {
-    testLocations_ = TestData::createBasicTestData();
-    customConfigLocation_ = TestData::createBasicCustomConfigTestData();
+    {
+        QFile file(":data/tests/locationsmodel/original.json");
+        file.open(QIODevice::ReadOnly);
+        QVERIFY(file.isOpen());
+        QByteArray arr = file.readAll();
+        testLocations_ = types::LocationItem::loadLocationsFromJson(arr);
+        QVERIFY(!testLocations_.isEmpty());
+    }
+    {
+        QFile file(":data/tests/locationsmodel/custom_config.json");
+        file.open(QIODevice::ReadOnly);
+        QVERIFY(file.isOpen());
+        QByteArray arr = file.readAll();
+        customConfigLocation_ = types::LocationItem::loadLocationFromJson(arr);
+    }
 
     locationsModel_.reset(new gui::LocationsModel());
     tester1_.reset(new QAbstractItemModelTester(locationsModel_.get(), QAbstractItemModelTester::FailureReportingMode::QtTest, this));
@@ -32,23 +45,30 @@ void TestLocationsModel::testBasic()
     QVERIFY(isModelsCorrect(bestLocation_, testLocations_, customConfigLocation_) == true);
 
     {
-        QModelIndex ind = locationsModel_->getIndexByLocationId(LocationID::createTopApiLocationId(2));
+        QModelIndex ind = locationsModel_->getIndexByLocationId(LocationID::createTopApiLocationId(63));
         QVERIFY(ind.isValid());
         QVERIFY(ind.data(gui::IS_TOP_LEVEL_LOCATION).toBool() == true);
         QVERIFY(ind.data(gui::IS_SHOW_AS_PREMIUM).toBool() == false);
         QVERIFY(ind.data(gui::IS_10GBPS).toBool() == false);
-        QVERIFY(ind.data(gui::LOAD).toInt() == 40);
-        QVERIFY(ind.data(gui::PING_TIME).toInt() == 203);
+        QVERIFY(ind.data(gui::LOAD).toInt() == 14);
+        QVERIFY(ind.data(gui::PING_TIME).toInt() == 224);
     }
 
     {
-        QModelIndex ind = locationsModel_->getIndexByLocationId(LocationID::createApiLocationId(1, "City2", "Nick2"));
+        QModelIndex ind = locationsModel_->getIndexByLocationId(LocationID::createApiLocationId(112, "Lima", "Amaru"));
         QVERIFY(ind.isValid());
         QVERIFY(ind.data(gui::IS_TOP_LEVEL_LOCATION).toBool() == false);
         QVERIFY(ind.data(gui::IS_SHOW_AS_PREMIUM).toBool() == false);
         QVERIFY(ind.data(gui::IS_10GBPS).toBool() == true);
-        QVERIFY(ind.data(gui::LOAD).toInt() == 80);
-        QVERIFY(ind.data(gui::PING_TIME).toInt() == 55);
+        QVERIFY(ind.data(gui::LOAD).toInt() == 3);
+        QVERIFY(ind.data(gui::PING_TIME).toInt() == 257);
+    }
+
+    {
+        QModelIndex ind = locationsModel_->getIndexByLocationId(LocationID::createTopApiLocationId(56));
+        QVERIFY(ind.isValid());
+        QVERIFY(ind.data(gui::LOAD).toInt() == 8);
+        QVERIFY(ind.data(gui::PING_TIME).toInt() == 810);
     }
 
     {
@@ -57,7 +77,7 @@ void TestLocationsModel::testBasic()
     }
 
     {
-        QModelIndex ind = locationsModel_->getIndexByLocationId(LocationID::createStaticIpsLocationId("City2", "Nick2"));
+        QModelIndex ind = locationsModel_->getIndexByLocationId(LocationID::createStaticIpsLocationId("Toronto", "206.223.183.201"));
         QVERIFY(ind.isValid());
     }
 }
@@ -65,24 +85,47 @@ void TestLocationsModel::testBasic()
 void TestLocationsModel::testBestLocation()
 {
     {
-        bestLocation_ = LocationID::createApiLocationId(2, "City2", "Nick2").apiLocationToBestLocation();
+        QSignalSpy spyChanged(locationsModel_.get(), &QAbstractItemModel::dataChanged);
+        QSignalSpy spyRemoved(locationsModel_.get(), &QAbstractItemModel::rowsRemoved);
+        QSignalSpy spyInserted(locationsModel_.get(), &QAbstractItemModel::rowsInserted);
+
+        bestLocation_ = LocationID::createApiLocationId(63, "Vancouver", "Vansterdam").apiLocationToBestLocation();
         locationsModel_->updateBestLocation(bestLocation_);
         QVERIFY(isModelsCorrect(bestLocation_, testLocations_, customConfigLocation_) == true);
 
+        QCOMPARE(spyChanged.count(), 0);
+        QCOMPARE(spyRemoved.count(), 0);
+        QCOMPARE(spyInserted.count(), 1);
+        QList<QVariant> arguments = spyInserted.takeFirst();
+
+        QModelIndex newItem = locationsModel_->index(arguments.at(1).toInt(), 0, arguments.at(0).toModelIndex());
+        QVERIFY(arguments.at(1).toInt() == arguments.at(2).toInt());
+
+
         QModelIndex indBestLocation = locationsModel_->getIndexByLocationId(bestLocation_);
+        QVERIFY(indBestLocation == newItem);
         QVERIFY(indBestLocation.isValid());
         QModelIndex indBestLocation2 = locationsModel_->getBestLocationIndex();
         QVERIFY(indBestLocation == indBestLocation2);
 
         QVERIFY(indBestLocation.data(gui::NAME).toString() == "Best Location");
-        QVERIFY(indBestLocation.data(gui::COUNTRY_CODE).toString() == "au");
+        QVERIFY(indBestLocation.data(gui::COUNTRY_CODE).toString() == "ca");
         QVERIFY(indBestLocation.data(gui::IS_10GBPS).toBool() == true);
         QVERIFY(qvariant_cast<LocationID>(indBestLocation.data(gui::LOCATION_ID)) == bestLocation_);
     }
 
     {
+        QSignalSpy spyChanged(locationsModel_.get(), &QAbstractItemModel::dataChanged);
+        QSignalSpy spyRemoved(locationsModel_.get(), &QAbstractItemModel::rowsRemoved);
+        QSignalSpy spyInserted(locationsModel_.get(), &QAbstractItemModel::rowsInserted);
+
         bestLocation_ = LocationID::createApiLocationId(1, "City3", "Nick3").apiLocationToBestLocation();
         locationsModel_->updateBestLocation(bestLocation_);
+
+        QCOMPARE(spyChanged.count(), 0);
+        QCOMPARE(spyRemoved.count(), 1);
+        QCOMPARE(spyInserted.count(), 0);
+
         QVERIFY(isModelsCorrect(bestLocation_, testLocations_, customConfigLocation_) == false);
 
         QModelIndex indBestLocation = locationsModel_->getIndexByLocationId(bestLocation_);
@@ -95,17 +138,17 @@ void TestLocationsModel::testBestLocation()
 void TestLocationsModel::testCustomConfig()
 {
     {
-        QModelIndex ind = locationsModel_->getIndexByLocationId(LocationID::createCustomConfigLocationId("aaa.ovpn"));
+        QModelIndex ind = locationsModel_->getIndexByLocationId(LocationID::createCustomConfigLocationId("wg0.conf"));
         QVERIFY(ind.isValid());
-        QVERIFY(ind.data(gui::CUSTOM_CONFIG_TYPE).toString() == "ovpn");
+        QVERIFY(ind.data(gui::CUSTOM_CONFIG_TYPE).toString() == "wg");
         QVERIFY(ind.data(gui::IS_CUSTOM_CONFIG_CORRECT).toBool() == true);
     }
     {
-        QModelIndex ind = locationsModel_->getIndexByLocationId(LocationID::createCustomConfigLocationId("bbb.conf"));
+        QModelIndex ind = locationsModel_->getIndexByLocationId(LocationID::createCustomConfigLocationId("test.conf"));
         QVERIFY(ind.isValid());
         QVERIFY(ind.data(gui::CUSTOM_CONFIG_TYPE).toString() == "wg");
         QVERIFY(ind.data(gui::IS_CUSTOM_CONFIG_CORRECT).toBool() == false);
-        QVERIFY(ind.data(gui::CUSTOM_CONFIG_ERROR_MESSAGE).toString() == "error msg");
+        QVERIFY(ind.data(gui::CUSTOM_CONFIG_ERROR_MESSAGE).toString() == "Missing \"Address\" in the \"Interface\" section");
     }
     {
         QModelIndex ind = locationsModel_->getIndexByLocationId(LocationID::createCustomConfigLocationId("bbb2.conf"));
@@ -115,30 +158,36 @@ void TestLocationsModel::testCustomConfig()
 
 void TestLocationsModel::testConnectionSpeed()
 {
-    bestLocation_ = LocationID::createApiLocationId(1, "City2", "Nick2").apiLocationToBestLocation();
+    bestLocation_ = LocationID::createApiLocationId(65, "Dallas", "BBQ").apiLocationToBestLocation();
     locationsModel_->updateBestLocation(bestLocation_);
 
     {
-        QModelIndex ind = locationsModel_->getIndexByLocationId(LocationID::createTopApiLocationId(1));
-        QVERIFY(ind.data(gui::PING_TIME).toInt() == 102);
+        QModelIndex ind = locationsModel_->getIndexByLocationId(LocationID::createTopApiLocationId(65));
+        QVERIFY(ind.data(gui::PING_TIME).toInt() == 181);
     }
     {
-        QModelIndex ind = locationsModel_->getIndexByLocationId(LocationID::createApiLocationId(1, "City2", "Nick2"));
-        QVERIFY(ind.data(gui::PING_TIME).toInt() == 55);
+        QModelIndex ind = locationsModel_->getIndexByLocationId(LocationID::createApiLocationId(65, "Atlanta", "Piedmont"));
+        QVERIFY(ind.data(gui::PING_TIME).toInt() == 173);
     }
     {
         QModelIndex ind = locationsModel_->getBestLocationIndex();
-        QVERIFY(ind.data(gui::PING_TIME).toInt() == 55);
+        QVERIFY(ind.data(gui::PING_TIME).toInt() == 176);
     }
 
-    locationsModel_->changeConnectionSpeed(LocationID::createApiLocationId(1, "City2", "Nick2"), 500);
+    QSignalSpy spyChanged(locationsModel_.get(), &QAbstractItemModel::dataChanged);
+    QSignalSpy spyRemoved(locationsModel_.get(), &QAbstractItemModel::rowsRemoved);
+    QSignalSpy spyInserted(locationsModel_.get(), &QAbstractItemModel::rowsInserted);
+    locationsModel_->changeConnectionSpeed(LocationID::createApiLocationId(65, "Dallas", "BBQ"), 500);
+    QCOMPARE(spyChanged.count(), 3);
+    QCOMPARE(spyRemoved.count(), 0);
+    QCOMPARE(spyInserted.count(), 0);
 
     {
-        QModelIndex ind = locationsModel_->getIndexByLocationId(LocationID::createTopApiLocationId(1));
-        QVERIFY(ind.data(gui::PING_TIME).toInt() == 325);
+        QModelIndex ind = locationsModel_->getIndexByLocationId(LocationID::createTopApiLocationId(65));
+        QVERIFY(ind.data(gui::PING_TIME).toInt() == 221);
     }
     {
-        QModelIndex ind = locationsModel_->getIndexByLocationId(LocationID::createApiLocationId(1, "City2", "Nick2"));
+        QModelIndex ind = locationsModel_->getIndexByLocationId(LocationID::createApiLocationId(65, "Dallas", "BBQ"));
         QVERIFY(ind.data(gui::PING_TIME).toInt() == 500);
     }
     {
@@ -147,9 +196,9 @@ void TestLocationsModel::testConnectionSpeed()
     }
 
     {
-        QModelIndex ind = locationsModel_->getIndexByLocationId(LocationID::createCustomConfigLocationId("aaa.ovpn"));
-        QVERIFY(ind.data(gui::PING_TIME).toInt() == -2);
-        locationsModel_->changeConnectionSpeed(LocationID::createCustomConfigLocationId("aaa.ovpn"), 1500);
+        QModelIndex ind = locationsModel_->getIndexByLocationId(LocationID::createCustomConfigLocationId("server.ovpn"));
+        QVERIFY(ind.data(gui::PING_TIME).toInt() == -1);
+        locationsModel_->changeConnectionSpeed(LocationID::createCustomConfigLocationId("server.ovpn"), 1500);
         QVERIFY(ind.data(gui::PING_TIME).toInt() == 1500);
     }
 }
@@ -162,7 +211,7 @@ void TestLocationsModel::testAddCountry()
         l.id = LocationID::createTopApiLocationId(5);
         l.countryCode = "JP";
         l.isPremiumOnly = true;
-        l.isP2P = true;
+        l.isNoP2P = true;
         TestData::addCity(&l, 1, 200, false, false, 10000, 100);
         TestData::addCity(&l, 2, 222, false, false, 10000, 100);
         testLocations_ << l;
@@ -271,7 +320,7 @@ bool TestLocationsModel::isCountryEqual(const QModelIndex &miCountry, const type
     if (miCountry.data(gui::NAME).toString() !=  l.name) return false;
     if (qvariant_cast<LocationID>(miCountry.data(gui::LOCATION_ID)) != l.id) return false;
     if (miCountry.data(gui::COUNTRY_CODE).toString() !=  l.countryCode.toLower()) return false;
-    if (miCountry.data(gui::IS_SHOW_P2P).toBool() !=  l.isP2P) return false;
+    if (miCountry.data(gui::IS_SHOW_P2P).toBool() !=  l.isNoP2P) return false;
 
     int citiesCount = miCountry.model()->rowCount(miCountry);
     if (citiesCount != l.cities.size()) return false;

@@ -7,7 +7,7 @@
 #include "iitemdelegate.h"
 #include "cursorupdatehelper.h"
 
-namespace gui {
+namespace gui_location {
 
 // widget where items of QAbstractItemModel are drawn, supports animated expansion
 // supports tree with one level of children or list
@@ -32,7 +32,7 @@ protected:
     void mouseReleaseEvent(QMouseEvent *event) override;
 
 private:
-    QScopedPointer<GuiLocations::CursorUpdateHelper> cursorUpdateHelper_;
+    QScopedPointer<CursorUpdateHelper> cursorUpdateHelper_;
     QVector<QPersistentModelIndex> items_;
     QSet<QPersistentModelIndex> expandedItems_;
 
@@ -59,7 +59,7 @@ private:
 
 };
 
-} // namespace gui
+} // namespace gui_location
 
 
 #endif // GUI_LOCATIONS_EXPANDABLE_ITEMS_WIDGET_H

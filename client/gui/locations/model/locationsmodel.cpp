@@ -2,7 +2,7 @@
 #include "../locationsmodel_roles.h"
 #include <QDebug>
 
-namespace gui {
+namespace gui_location {
 
 LocationsModel::LocationsModel(QObject *parent) : QAbstractItemModel(parent), isFreeSessionStatus_(false)
 {
@@ -552,7 +552,7 @@ QVariant LocationsModel::dataForLocation(int row, int role) const
     }
     else if (role == IS_SHOW_P2P)
     {
-        return locations_[row]->location().isP2P;
+        return locations_[row]->location().isNoP2P;
     }
     else if (role == IS_SHOW_AS_PREMIUM)
     {
@@ -774,4 +774,4 @@ void LocationsModel::findCityChanges(const types::LocationItem &l1, const types:
     }
 }
 
-} //namespace gui
+} //namespace gui_location

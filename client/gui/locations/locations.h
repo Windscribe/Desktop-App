@@ -11,7 +11,7 @@
 
 #include <QTimer>
 
-namespace gui {
+namespace gui_location {
 
 // Contains the model of locations and proxy models for various list views
 class Locations : public QObject
@@ -70,7 +70,7 @@ private:
     QHash<LocationID, PingTime> connectionSpeeds_;
 };
 
-} //namespace gui
+} //namespace gui_location
 
 
 #endif // GUI_LOCATIONS_LOCATIONS_H

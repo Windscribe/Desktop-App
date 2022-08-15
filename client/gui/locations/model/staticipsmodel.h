@@ -3,7 +3,7 @@
 
 #include <QSortFilterProxyModel>
 
-namespace gui {
+namespace gui_location {
 
 class StaticIpsModel : public QSortFilterProxyModel
 {
@@ -15,7 +15,7 @@ protected:
     bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const override;
 };
 
-} //namespace gui
+} //namespace gui_location
 
 
 #endif // GUI_LOCATIONS_STATICIPSMODEL_H

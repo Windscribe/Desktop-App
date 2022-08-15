@@ -2,7 +2,7 @@
 #define CITYITEMLISTWIDGET_H
 
 #include <QWidget>
-#include "cursorupdatehelper.h"
+#include "../../locations/view/cursorupdatehelper.h"
 #include "itemwidgetcity.h"
 
 namespace GuiLocations {
@@ -49,7 +49,7 @@ private slots:
 
 private:
     int height_;
-    std::unique_ptr<CursorUpdateHelper> cursorUpdateHelper_;
+    std::unique_ptr<gui_locations::CursorUpdateHelper> cursorUpdateHelper_;
     QVector<ItemWidgetCity *> itemWidgets_;
     IItemWidget *lastAccentedItemWidget_;
     QVector<IItemWidget *> recentlyAccentedWidgets_;

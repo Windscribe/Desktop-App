@@ -1,6 +1,6 @@
 #include "citiesmodel.h"
 
-namespace gui {
+namespace gui_location {
 
 CitiesModel::CitiesModel(QObject *parent) : QAbstractProxyModel(parent),
     isBeginRemoveRowsCalled_(false)
@@ -267,5 +267,5 @@ QModelIndex CitiesModel::findPrev(QAbstractItemModel *model, const QModelIndex &
     }
 }
 
-} //namespace gui
+} //namespace gui_location
 

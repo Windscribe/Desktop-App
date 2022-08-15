@@ -5,8 +5,6 @@ target_sources(gui PRIVATE
     widgetlocations/backgroundpixmapanimation.h
     widgetlocations/configfooterinfo.cpp
     widgetlocations/configfooterinfo.h
-    widgetlocations/cursorupdatehelper.cpp
-    widgetlocations/cursorupdatehelper.h
     widgetlocations/footertopstrip.cpp
     widgetlocations/footertopstrip.h
     widgetlocations/iitemwidget.h

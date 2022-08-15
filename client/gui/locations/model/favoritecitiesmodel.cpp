@@ -2,7 +2,7 @@
 #include "../locationsmodel_roles.h"
 #include "types/locationid.h"
 
-namespace gui {
+namespace gui_location {
 
 FavoriteCitiesModel::FavoriteCitiesModel(QObject *parent) : QSortFilterProxyModel(parent)
 {
@@ -11,7 +11,7 @@ FavoriteCitiesModel::FavoriteCitiesModel(QObject *parent) : QSortFilterProxyMode
 bool FavoriteCitiesModel::filterAcceptsRow(int source_row, const QModelIndex &source_parent) const
 {
     QModelIndex mi = sourceModel()->index(source_row, 0, source_parent);
-    QVariant v = sourceModel()->data(mi, gui::LOCATION_ID);
+    QVariant v = sourceModel()->data(mi, LOCATION_ID);
     LocationID lid = qvariant_cast<LocationID>(v);
     if (lid.isCustomConfigsLocation() || lid.isStaticIpsLocation())
     {
@@ -19,10 +19,10 @@ bool FavoriteCitiesModel::filterAcceptsRow(int source_row, const QModelIndex &so
     }
     else
     {
-        return sourceModel()->data(mi, gui::IS_FAVORITE).toBool();
+        return sourceModel()->data(mi, IS_FAVORITE).toBool();
     }
 }
 
 
 
-} //namespace gui
+} //namespace gui_location

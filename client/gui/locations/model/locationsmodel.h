@@ -7,7 +7,7 @@
 #include "types/locationid.h"
 #include "types/pingtime.h"
 
-namespace gui {
+namespace gui_location {
 
 /*  It is an implementation of the locations model based on QAbstractItemModel
     The structure is a simple unsorted tree. Only the best location is always added to the top of the list,
@@ -83,7 +83,7 @@ private:
             location_.name = "Best Location";
             location_.id = bestLocation;
             location_.countryCode = l.countryCode;
-            location_.isP2P = l.isP2P;
+            location_.isNoP2P = l.isNoP2P;
             location_.isPremiumOnly = l.isPremiumOnly;
             is10gbps_ = (city.linkSpeed == 10000);
             if (city.health >= 0 && city.health <= 100)
@@ -193,7 +193,7 @@ private:
             location_.name = l.name;
             location_.countryCode = l.countryCode;
             location_.isPremiumOnly = l.isPremiumOnly;
-            location_.isP2P = l.isP2P;
+            location_.isNoP2P = l.isNoP2P;
         }
 
 
@@ -261,7 +261,7 @@ private:
 
 };
 
-} //namespace gui
+} //namespace gui_location
 
 
 #endif // GUI_LOCATIONS_LOCATIONSMODEL_H

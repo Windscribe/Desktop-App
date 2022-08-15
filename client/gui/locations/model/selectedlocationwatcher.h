@@ -5,7 +5,7 @@
 #include "types/locationid.h"
 #include "types/pingtime.h"
 
-namespace gui {
+namespace gui_location {
 
 // Monitors any changes in the selected item
 class SelectedLocationWatcher : public QObject
@@ -44,7 +44,7 @@ private:
     void fillData();
 };
 
-} //namespace gui
+} //namespace gui_location
 
 
 #endif // GUI_LOCATIONS_SELECTEDLOCATIONWATCHER_H

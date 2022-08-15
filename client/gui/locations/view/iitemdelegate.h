@@ -5,7 +5,7 @@
 #include <QAbstractItemModel>
 #include <QStyleOption>
 
-namespace gui {
+namespace gui_location {
 
 class ItemStyleOption : public QStyleOption
 {
@@ -63,7 +63,7 @@ public:
     virtual int isInTooltipArea(const QModelIndex &index, const QPoint &point) const = 0;
 };
 
-} // namespace gui
+} // namespace gui_location
 
 
 #endif // GUI_LOCATIONS_IITEMDELEGATE_H

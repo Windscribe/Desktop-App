@@ -3,7 +3,7 @@
 #include "locations/model/locationsmodel.h"
 #include <QDebug>
 
-namespace gui {
+namespace gui_location {
 
 SelectedLocationWatcher::SelectedLocationWatcher(QObject *parent, QAbstractItemModel *model) : QObject(parent),
     model_(model), isIndexSettled_(false)
@@ -39,8 +39,8 @@ SelectedLocationWatcher::SelectedLocationWatcher(QObject *parent, QAbstractItemM
 
 bool SelectedLocationWatcher::setSelectedLocation(const LocationID &lid)
 {
-    Q_ASSERT(dynamic_cast<gui::LocationsModel *>(model_) != nullptr);
-    selIndex_ = static_cast<gui::LocationsModel *>(model_)->getIndexByLocationId(lid);
+    Q_ASSERT(dynamic_cast<LocationsModel *>(model_) != nullptr);
+    selIndex_ = static_cast<LocationsModel *>(model_)->getIndexByLocationId(lid);
     if (selIndex_.isValid())
     {
         isIndexSettled_ = true;
@@ -77,13 +77,13 @@ void SelectedLocationWatcher::fillData()
 {
     if (isIndexSettled_ && selIndex_.isValid())
     {
-        LocationID extractedLid = qvariant_cast<LocationID>(selIndex_.data(gui::LOCATION_ID));
+        LocationID extractedLid = qvariant_cast<LocationID>(selIndex_.data(LOCATION_ID));
         id_ = extractedLid;
-        firstName_ = selIndex_.data(gui::NAME).toString();
-        secondName_ = selIndex_.data(gui::NICKNAME).toString();
-        countryCode_ = selIndex_.data(gui::COUNTRY_CODE).toString();
-        pingTime_ = selIndex_.data(gui::PING_TIME).toInt();
+        firstName_ = selIndex_.data(NAME).toString();
+        secondName_ = selIndex_.data(NICKNAME).toString();
+        countryCode_ = selIndex_.data(COUNTRY_CODE).toString();
+        pingTime_ = selIndex_.data(PING_TIME).toInt();
     }
 }
 
-} //namespace gui
+} //namespace gui_location

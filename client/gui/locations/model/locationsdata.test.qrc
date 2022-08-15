@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file>../../../../data/tests/locationsmodel/original.json</file>
+        <file>../../../../data/tests/locationsmodel/custom_config.json</file>
+    </qresource>
+</RCC>

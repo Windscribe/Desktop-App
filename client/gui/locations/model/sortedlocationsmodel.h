@@ -4,7 +4,7 @@
 #include <QSortFilterProxyModel>
 #include "types/enums.h"
 
-namespace gui {
+namespace gui_location {
 
 // The model that sorts LocationsModel depending on the selected sorting algorithm
 class SortedLocationsModel : public QSortFilterProxyModel
@@ -26,6 +26,6 @@ private:
     bool lessThanByLatency(const QModelIndex &left, const QModelIndex &right) const;
 };
 
-} //namespace gui
+} //namespace gui_location
 
 #endif // GUI_LOCATIONS_SORTEDLOCATIONSMODEL_H

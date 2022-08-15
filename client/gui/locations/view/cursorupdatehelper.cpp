@@ -4,7 +4,7 @@
 #include "utils/macutils.h"
 #endif
 
-namespace GuiLocations {
+namespace gui_location {
 
 CursorUpdateHelper::CursorUpdateHelper(QWidget *widget)
     : widget_(widget), currentCursor_(Qt::PointingHandCursor)
@@ -44,4 +44,4 @@ void CursorUpdateHelper::applyCurrentCursor()
     MacUtils::invalidateCursorRects(id);
 #endif
 }
-} // namespace GuiLocations
+} // namespace gui_location

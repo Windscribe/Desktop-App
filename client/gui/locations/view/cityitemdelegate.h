@@ -3,7 +3,7 @@
 
 #include "iitemdelegate.h"
 
-namespace gui {
+namespace gui_location {
 
 class CityItemDelegate : public IItemDelegate
 {
@@ -23,7 +23,7 @@ private:
     QString pingIconNameString(int connectionSpeedIndex) const;
 };
 
-} // namespace gui
+} // namespace gui_location
 
 
 #endif // GUI_LOCATIONS_CITYITEMDELEGATE_H

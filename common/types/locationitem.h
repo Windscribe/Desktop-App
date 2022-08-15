@@ -39,12 +39,22 @@ struct LocationItem
     QString name;
     QString countryCode;
     bool isPremiumOnly = false;
-    bool isP2P = false;
+    bool isNoP2P = false;
     QVector<CityItem> cities;
 
     bool operator==(const LocationItem &other) const;
     bool operator!=(const LocationItem &other) const;
+
+    // utils functions
+    static QVector<LocationItem> loadLocationsFromJson(const QByteArray &arr);
+    static LocationItem loadLocationFromJson(const QByteArray &arr);
+
+private:
+    static LocationItem locationFromJsonObject(const QJsonObject &obj);
+
 };
+
+
 
 
 } //namespace types

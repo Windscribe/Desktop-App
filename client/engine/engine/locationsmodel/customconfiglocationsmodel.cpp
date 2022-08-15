@@ -208,7 +208,7 @@ void CustomConfigLocationsModel::generateLocationsUpdated()
         item.name = QObject::tr("Custom Configs");
         item.countryCode = "noflag";
         item.isPremiumOnly = false;
-        item.isP2P = false;
+        item.isNoP2P = false;
 
         for (const CustomConfigWithPingInfo &config : pingInfos_)
         {

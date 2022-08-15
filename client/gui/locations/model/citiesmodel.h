@@ -3,7 +3,7 @@
 
 #include <QAbstractProxyModel>
 
-namespace gui {
+namespace gui_location {
 
 // Transforms LocationsModel to a linear list of cities (excluding countries)
 class CitiesModel : public QAbstractProxyModel
@@ -42,6 +42,6 @@ private:
     QModelIndex findPrev(QAbstractItemModel *model, const QModelIndex &parent, int row);
 };
 
-} //namespace gui
+} //namespace gui_location
 
 #endif // GUI_LOCATIONS_CITIESMODEL_H

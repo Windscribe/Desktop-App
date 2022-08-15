@@ -1,7 +1,7 @@
 #include "locations.h"
 #include "locationsmodel_roles.h"
 
-namespace gui {
+namespace gui_location {
 
 Locations::Locations(QObject *parent) : QObject(parent)
 {
@@ -89,7 +89,7 @@ LocationID Locations::getBestLocationId() const
     QModelIndex mi = locationsModel_->getBestLocationIndex();
     if (mi.isValid())
     {
-        return qvariant_cast<LocationID>(mi.data(gui::LOCATION_ID));
+        return qvariant_cast<LocationID>(mi.data(LOCATION_ID));
     }
     return LocationID();
 }
@@ -148,4 +148,4 @@ void Locations::onChangeConnectionSpeedTimer()
 
 
 
-} //namespace gui
+} //namespace gui_location

@@ -44,7 +44,7 @@ void LocationsModel::updateApiLocations(const LocationID &bestLocation, const QS
         lmi->initialInd_ = i;
         lmi->id = location.id;
         lmi->title = location.name;
-        lmi->isShowP2P = location.isP2P;
+        lmi->isShowP2P = location.isNoP2P;
         lmi->countryCode = location.countryCode.toLower();
         lmi->isPremiumOnly = location.isPremiumOnly;
         lmi->is10gbps = false;
@@ -188,7 +188,7 @@ void LocationsModel::updateCustomConfigLocations(const QVector<types::LocationIt
         lmi->initialInd_ = i;
         lmi->id = location.id;
         lmi->title = location.name;
-        lmi->isShowP2P = location.isP2P;
+        lmi->isShowP2P = location.isNoP2P;
         lmi->countryCode = location.countryCode.toLower();
         lmi->isPremiumOnly = location.isPremiumOnly;
         lmi->is10gbps = false;

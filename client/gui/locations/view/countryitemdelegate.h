@@ -3,7 +3,7 @@
 
 #include "iitemdelegate.h"
 
-namespace gui {
+namespace gui_location {
 
 class CountryItemDelegate : public IItemDelegate
 {
@@ -17,7 +17,7 @@ public:
     int isInTooltipArea(const QModelIndex &index, const QPoint &point) const override;
 };
 
-} // namespace gui
+} // namespace gui_location
 
 
 #endif // GUI_LOCATIONS_COUNTRYITEMDELEGATE_H

@@ -1,7 +1,7 @@
 #include "sortedcitiesmodel.h"
 #include "../locationsmodel_roles.h"
 
-namespace gui {
+namespace gui_location {
 
 SortedCitiesModel::SortedCitiesModel(QObject *parent) : QSortFilterProxyModel(parent),
     orderLocationsType_(ORDER_LOCATION_BY_GEOGRAPHY)
@@ -65,4 +65,4 @@ bool SortedCitiesModel::lessThanByLatency(const QModelIndex &left, const QModelI
     }
 }
 
-} //namespace gui
+} //namespace gui_location

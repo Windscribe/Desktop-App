@@ -3,7 +3,7 @@
 
 #include "iitemdelegate.h"
 
-namespace gui {
+namespace gui_location {
 
 enum { TOOLTIP_P2P_RECT = 0, CLICKABLE_FAVORITE_RECT};
 

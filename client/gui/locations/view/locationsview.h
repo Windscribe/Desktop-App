@@ -7,7 +7,7 @@
 #include "countryitemdelegate.h"
 #include "cityitemdelegate.h"
 
-namespace gui {
+namespace gui_location {
 
 class LocationsView : public QScrollArea
 {
@@ -38,7 +38,7 @@ private:
 
 };
 
-} // namespace gui
+} // namespace gui_location
 
 
 #endif // GUI_LOCATIONS_LOCATIONSVIEW_H

@@ -3,7 +3,7 @@
 
 #include <QObject>
 
-namespace gui {
+namespace gui_location {
 
 // Roles for LocationsModel items
 enum ROLES { LOCATION_ID = Qt::UserRole,    // location and city
@@ -30,7 +30,7 @@ enum ROLES { LOCATION_ID = Qt::UserRole,    // location and city
              CUSTOM_CONFIG_ERROR_MESSAGE   // city only
            };
 
-} //namespace gui
+} //namespace gui_location
 
 
 #endif // LOCATIONSMODEL_ROLES_H

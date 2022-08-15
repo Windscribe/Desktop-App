@@ -323,7 +323,7 @@ BestAndAllLocations ApiLocationsModel::generateLocationsUpdated()
         item.name = l.getName();
         item.countryCode = l.getCountryCode();
         item.isPremiumOnly = l.isPremiumOnly();
-        item.isP2P = l.getP2P() == 0;
+        item.isNoP2P = l.getP2P() == 0;
 
         for (int i = 0; i < l.groupsCount(); ++i)
         {
@@ -383,7 +383,7 @@ BestAndAllLocations ApiLocationsModel::generateLocationsUpdated()
         item.name = QObject::tr("Static IPs");
         item.countryCode = "STATIC_IPS";
         item.isPremiumOnly = false;
-        item.isP2P = false;
+        item.isNoP2P = false;
         ball.staticIpDeviceName = staticIps_.getDeviceName();
 
         for (int i = 0; i < staticIps_.getIpsCount(); ++i)

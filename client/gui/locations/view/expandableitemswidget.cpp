@@ -6,10 +6,10 @@
 #include <QPainter>
 #include <QDebug>
 
-namespace gui {
+namespace gui_location {
 
 ExpandableItemsWidget::ExpandableItemsWidget(QWidget *parent) : QWidget(parent)
-  , cursorUpdateHelper_(new GuiLocations::CursorUpdateHelper(this))
+  , cursorUpdateHelper_(new CursorUpdateHelper(this))
   , model_(nullptr)
   , expandableItemDelegate_(nullptr)
   , nonexpandableItemDelegate_(nullptr)
@@ -189,7 +189,7 @@ void ExpandableItemsWidget::mouseReleaseEvent(QMouseEvent *event)
                 {
                     if (clickableId == CLICKABLE_FAVORITE_RECT)
                     {
-                        model_->setData(mousePressedInd_, !mousePressedInd_.data(gui::IS_FAVORITE).toBool(), gui::IS_FAVORITE);
+                        model_->setData(mousePressedInd_, !mousePressedInd_.data(IS_FAVORITE).toBool(), IS_FAVORITE);
                     }
                 }
             }
@@ -316,5 +316,5 @@ void ExpandableItemsWidget::updateWidgetSize()
 
 
 
-} // namespace gui
+} // namespace gui_location
 

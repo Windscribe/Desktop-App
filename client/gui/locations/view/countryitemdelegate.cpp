@@ -8,9 +8,9 @@
 #include <QPainter>
 #include <QtMath>
 
-namespace gui {
+namespace gui_location {
 
-void gui::CountryItemDelegate::paint(QPainter *painter, const ItemStyleOption &option, const QModelIndex &index) const
+void CountryItemDelegate::paint(QPainter *painter, const ItemStyleOption &option, const QModelIndex &index) const
 {
     painter->save();
 
@@ -21,7 +21,7 @@ void gui::CountryItemDelegate::paint(QPainter *painter, const ItemStyleOption &o
     int top_offs = option.rect.top();
 
     // flag
-    QSharedPointer<IndependentPixmap> flag = ImageResourcesSvg::instance().getFlag(index.data(gui::COUNTRY_CODE).toString());
+    QSharedPointer<IndependentPixmap> flag = ImageResourcesSvg::instance().getFlag(index.data(COUNTRY_CODE).toString());
     if (flag)
     {
         const int pixmapFlagHeight = flag->height();
@@ -29,7 +29,7 @@ void gui::CountryItemDelegate::paint(QPainter *painter, const ItemStyleOption &o
     }
 
     // pro star
-    if (index.data(gui::IS_SHOW_AS_PREMIUM).toBool())
+    if (index.data(IS_SHOW_AS_PREMIUM).toBool())
     {
         QSharedPointer<IndependentPixmap> proRegionStar = ImageResourcesSvg::instance().getIndependentPixmap("locations/PRO_REGION_STAR_LIGHT");
         proRegionStar->draw(left_offs + 8 * G_SCALE, top_offs + (option.rect.height() - 16*G_SCALE) / 2 - 9*G_SCALE, painter);
@@ -46,7 +46,7 @@ void gui::CountryItemDelegate::paint(QPainter *painter, const ItemStyleOption &o
     painter->drawText(rc, Qt::AlignLeft | Qt::AlignVCenter, index.data().toString());
 
     // p2p icon
-    if (index.data(gui::IS_SHOW_P2P).toBool())
+    if (index.data(IS_SHOW_P2P).toBool())
     {
         painter->setOpacity(OPACITY_HALF);
 
@@ -58,11 +58,11 @@ void gui::CountryItemDelegate::paint(QPainter *painter, const ItemStyleOption &o
         p->draw(left_offs + p2pr.x(), top_offs + p2pr.y(), painter);
     }
 
-    LocationID lid = qvariant_cast<LocationID>(index.data(gui::LOCATION_ID));
+    LocationID lid = qvariant_cast<LocationID>(index.data(LOCATION_ID));
     if (lid.isBestLocation())
     {
         // 10gbps icon
-        if (index.data(gui::IS_10GBPS).toBool())
+        if (index.data(IS_10GBPS).toBool())
         {
             painter->setOpacity(OPACITY_FULL);
             QSharedPointer<IndependentPixmap> tenGbpsPixmap = ImageResourcesSvg::instance().getIndependentPixmap("locations/10_GBPS_ICON");
@@ -103,7 +103,7 @@ void gui::CountryItemDelegate::paint(QPainter *painter, const ItemStyleOption &o
 
     if (option.isShowLocationLoad())
     {
-        int locationLoad = index.data(gui::LOAD).toInt();
+        int locationLoad = index.data(LOAD).toInt();
         if (locationLoad > 0)
         {
             Qt::GlobalColor penColor;
@@ -149,19 +149,19 @@ void gui::CountryItemDelegate::paint(QPainter *painter, const ItemStyleOption &o
     painter->restore();
 }
 
-QSize gui::CountryItemDelegate::sizeHint(const QModelIndex &index) const
+QSize CountryItemDelegate::sizeHint(const QModelIndex &index) const
 {
     return QSize(WINDOW_WIDTH * G_SCALE, LOCATION_ITEM_HEIGHT * G_SCALE);
 }
 
-bool gui::CountryItemDelegate::isForbiddenCursor(const QModelIndex &index) const
+bool CountryItemDelegate::isForbiddenCursor(const QModelIndex &index) const
 {
     if (!index.isValid())
     {
         return false;
     }
 
-    LocationID lid = qvariant_cast<LocationID>(index.data(gui::LOCATION_ID));
+    LocationID lid = qvariant_cast<LocationID>(index.data(LOCATION_ID));
     if (!lid.isBestLocation())
     {
         // if no child items
@@ -170,14 +170,14 @@ bool gui::CountryItemDelegate::isForbiddenCursor(const QModelIndex &index) const
     return false;
 }
 
-int gui::CountryItemDelegate::isInClickableArea(const QModelIndex &index, const QPoint &point) const
+int CountryItemDelegate::isInClickableArea(const QModelIndex &index, const QPoint &point) const
 {
     return -1;
 }
 
-int gui::CountryItemDelegate::isInTooltipArea(const QModelIndex &index, const QPoint &point) const
+int CountryItemDelegate::isInTooltipArea(const QModelIndex &index, const QPoint &point) const
 {
     return -1;
 }
 
-} // namespace gui
+} // namespace gui_location

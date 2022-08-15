@@ -25,7 +25,7 @@ QVector<types::LocationItem> TestData::createBasicTestData()
         l.id = LocationID::createTopApiLocationId(1);
         l.countryCode = "FR";
         l.isPremiumOnly = false;
-        l.isP2P = false;
+        l.isNoP2P = false;
 
         addCity(&l, 1, 150, false, false, 10000, 50);
         addCity(&l, 2, 55, true, false, 10000, 80);
@@ -38,7 +38,7 @@ QVector<types::LocationItem> TestData::createBasicTestData()
         l.id = LocationID::createTopApiLocationId(2);
         l.countryCode = "AU";
         l.isPremiumOnly = true;
-        l.isP2P = false;
+        l.isNoP2P = false;
 
         addCity(&l, 1, 400, false, false, 1000, 50);
         addCity(&l, 2, -2, false, true, 10000, -1);
@@ -53,7 +53,7 @@ QVector<types::LocationItem> TestData::createBasicTestData()
         l.id = LocationID::createTopApiLocationId(3);
         l.countryCode = "GB";
         l.isPremiumOnly = false;
-        l.isP2P = true;
+        l.isNoP2P = true;
         locations << l;
     }
 
@@ -63,7 +63,7 @@ QVector<types::LocationItem> TestData::createBasicTestData()
         l.id = LocationID::createTopApiLocationId(4);
         l.countryCode = "NL";
         l.isPremiumOnly = true;
-        l.isP2P = true;
+        l.isNoP2P = true;
         addCity(&l, 1, 400, false, false, 10000, -1);
         locations << l;
     }
@@ -73,7 +73,7 @@ QVector<types::LocationItem> TestData::createBasicTestData()
         l.name = "Static IPS";
         l.id = LocationID::createTopStaticLocationId();
         l.isPremiumOnly = false;
-        l.isP2P = false;
+        l.isNoP2P = false;
 
         addCity(&l, 1, 120, false, false, 500, 100);
         addCity(&l, 2, 340, false, false, 10000, 80);
@@ -92,7 +92,7 @@ QVector<types::LocationItem> TestData::createTestDataWithDeletedCities()
         l.id = LocationID::createTopApiLocationId(1);
         l.countryCode = "FR";
         l.isPremiumOnly = false;
-        l.isP2P = false;
+        l.isNoP2P = false;
 
         addCity(&l, 1, 150, false, false, 10000, 50);
         //addCity(l, 2, 55, true, false, 10000, 80);
@@ -105,7 +105,7 @@ QVector<types::LocationItem> TestData::createTestDataWithDeletedCities()
         l.id = LocationID::createTopApiLocationId(2);
         l.countryCode = "AU";
         l.isPremiumOnly = true;
-        l.isP2P = false;
+        l.isNoP2P = false;
 
         //addCity(l, 1, 400, false, false, 1000, 50);
         addCity(&l, 2, -2, false, true, 10000, -1);
@@ -120,7 +120,7 @@ QVector<types::LocationItem> TestData::createTestDataWithDeletedCities()
         l.id = LocationID::createTopApiLocationId(3);
         l.countryCode = "GB";
         l.isPremiumOnly = false;
-        l.isP2P = true;
+        l.isNoP2P = true;
         locations << l;
     }
 
@@ -130,7 +130,7 @@ QVector<types::LocationItem> TestData::createTestDataWithDeletedCities()
         l.id = LocationID::createTopApiLocationId(4);
         l.countryCode = "NL";
         l.isPremiumOnly = true;
-        l.isP2P = true;
+        l.isNoP2P = true;
         addCity(&l, 1, 400, false, false, 10000, -1);
         locations << l;
     }
@@ -139,7 +139,7 @@ QVector<types::LocationItem> TestData::createTestDataWithDeletedCities()
         l.name = "Static IPS";
         l.id = LocationID::createTopStaticLocationId();
         l.isPremiumOnly = false;
-        l.isP2P = false;
+        l.isNoP2P = false;
 
         addCity(&l, 1, 120, false, false, 500, 100);
         addCity(&l, 2, 340, false, false, 10000, 80);
@@ -159,7 +159,7 @@ QVector<types::LocationItem> TestData::createTestDataWithDeletedCountries()
         l.id = LocationID::createTopApiLocationId(2);
         l.countryCode = "AU";
         l.isPremiumOnly = true;
-        l.isP2P = false;
+        l.isNoP2P = false;
 
         addCity(&l, 1, 400, false, false, 1000, 50);
         addCity(&l, 2, -2, false, true, 10000, -1);
@@ -174,7 +174,7 @@ QVector<types::LocationItem> TestData::createTestDataWithDeletedCountries()
         l.id = LocationID::createTopApiLocationId(3);
         l.countryCode = "GB";
         l.isPremiumOnly = false;
-        l.isP2P = true;
+        l.isNoP2P = true;
         locations << l;
     }
 
@@ -184,7 +184,7 @@ QVector<types::LocationItem> TestData::createTestDataWithDeletedCountries()
         l.id = LocationID::createTopApiLocationId(4);
         l.countryCode = "NL";
         l.isPremiumOnly = true;
-        l.isP2P = true;
+        l.isNoP2P = true;
 
         addCity(&l, 1, 400, false, false, 10000, -1);
         locations << l;
@@ -202,7 +202,7 @@ QVector<types::LocationItem> TestData::createTestDataWithChangedCities()
         l.id = LocationID::createTopApiLocationId(1);
         l.countryCode = "FR";
         l.isPremiumOnly = false;
-        l.isP2P = false;
+        l.isNoP2P = false;
 
         addCity(&l, 1, 150, false, false, 10000, 50);
         addCity(&l, 2, 55, true, false, 10000, 80);
@@ -215,7 +215,7 @@ QVector<types::LocationItem> TestData::createTestDataWithChangedCities()
         l.id = LocationID::createTopApiLocationId(2);
         l.countryCode = "GB";
         l.isPremiumOnly = true;
-        l.isP2P = false;
+        l.isNoP2P = false;
 
         addCity(&l, 1, 23, false, false, 55, 50);
         addCity(&l, 2, 56, false, true, 44, -1);
@@ -230,7 +230,7 @@ QVector<types::LocationItem> TestData::createTestDataWithChangedCities()
         l.id = LocationID::createTopApiLocationId(3);
         l.countryCode = "GB";
         l.isPremiumOnly = false;
-        l.isP2P = true;
+        l.isNoP2P = true;
         locations << l;
     }
 
@@ -240,7 +240,7 @@ QVector<types::LocationItem> TestData::createTestDataWithChangedCities()
         l.id = LocationID::createTopApiLocationId(4);
         l.countryCode = "NL";
         l.isPremiumOnly = true;
-        l.isP2P = true;
+        l.isNoP2P = true;
         addCity(&l, 1, 555, true, false, 10000, -1);
         locations << l;
     }
@@ -250,7 +250,7 @@ QVector<types::LocationItem> TestData::createTestDataWithChangedCities()
         l.name = "Static IPS";
         l.id = LocationID::createTopStaticLocationId();
         l.isPremiumOnly = false;
-        l.isP2P = false;
+        l.isNoP2P = false;
 
         addCity(&l, 1, 120, false, false, 55, 100);
         addCity(&l, 2, 340, false, false, 10000, 50);
@@ -268,7 +268,7 @@ QVector<types::LocationItem> TestData::createTestDataWithChangedCities2()
         l.id = LocationID::createTopApiLocationId(1);
         l.countryCode = "FR";
         l.isPremiumOnly = false;
-        l.isP2P = false;
+        l.isNoP2P = false;
 
         addCity(&l, 1, 150, false, false, 10000, 50);
         addCity(&l, 2, 55, true, false, 10000, 80);
@@ -281,7 +281,7 @@ QVector<types::LocationItem> TestData::createTestDataWithChangedCities2()
         l.id = LocationID::createTopApiLocationId(2);
         l.countryCode = "AU";
         l.isPremiumOnly = true;
-        l.isP2P = false;
+        l.isNoP2P = false;
 
         addCity(&l, 4, -2, false, true, 10000, -1);
         addCity(&l, 5, -2, false, true, 10000, -1);
@@ -297,7 +297,7 @@ QVector<types::LocationItem> TestData::createTestDataWithChangedCities2()
         l.id = LocationID::createTopApiLocationId(3);
         l.countryCode = "GB";
         l.isPremiumOnly = false;
-        l.isP2P = true;
+        l.isNoP2P = true;
         locations << l;
     }
 
@@ -307,7 +307,7 @@ QVector<types::LocationItem> TestData::createTestDataWithChangedCities2()
         l.id = LocationID::createTopApiLocationId(4);
         l.countryCode = "NL";
         l.isPremiumOnly = true;
-        l.isP2P = true;
+        l.isNoP2P = true;
 
         addCity(&l, 1, 400, false, false, 10000, -1);
         locations << l;
@@ -318,7 +318,7 @@ QVector<types::LocationItem> TestData::createTestDataWithChangedCities2()
         l.name = "Static IPS";
         l.id = LocationID::createTopStaticLocationId();
         l.isPremiumOnly = false;
-        l.isP2P = false;
+        l.isNoP2P = false;
 
         addCity(&l, 1, 120, false, false, 500, 100);
         addCity(&l, 2, 340, false, false, 10000, 80);
@@ -334,7 +334,7 @@ types::LocationItem TestData::createBasicCustomConfigTestData()
     l.name = "CustomConfigs";
     l.id = LocationID::createTopCustomConfigsLocationId();
     l.isPremiumOnly = false;
-    l.isP2P = false;
+    l.isNoP2P = false;
 
     {
         types::CityItem city;
