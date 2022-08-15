@@ -9,30 +9,18 @@ namespace types {
 
 struct GuiPersistentState
 {
-    GuiPersistentState() :
-        isFirewallOn(false),
-        windowOffsX(INT_MAX),
-        windowOffsY(INT_MAX),
-        countVisibleLocations(7),
-        isFirstLogin(true),
-        isIgnoreCpuUsageWarnings(false),
-        lastExternalIp("N/A")
-    {}
+    GuiPersistentState() {};
 
-    bool isFirewallOn;
-    qint32 windowOffsX;
-    qint32 windowOffsY;
-    qint32 countVisibleLocations;
-    bool isFirstLogin;
-    bool isIgnoreCpuUsageWarnings;
+    bool isFirewallOn = false;
+    qint32 windowOffsX = INT_MAX; // deprecated
+    qint32 windowOffsY = INT_MAX; // deprecated
+    qint32 countVisibleLocations = 7;
+    bool isFirstLogin = true;
+    bool isIgnoreCpuUsageWarnings = false;
     LocationID lastLocation;
-    QString lastExternalIp;
+    QString lastExternalIp = "N/A";
     QVector<types::NetworkInterface> networkWhiteList;
-
-    bool isWindowOffsSetled() const
-    {
-        return windowOffsX != INT_MAX && windowOffsY != INT_MAX;
-    }
+    QByteArray appGeometry;
 
     bool operator==(const GuiPersistentState &other) const
     {
@@ -44,7 +32,8 @@ struct GuiPersistentState
                other.isIgnoreCpuUsageWarnings == isIgnoreCpuUsageWarnings &&
                other.lastLocation == lastLocation &&
                other.lastExternalIp == lastExternalIp &&
-               other.networkWhiteList == networkWhiteList;
+               other.networkWhiteList == networkWhiteList &&
+               other.appGeometry == appGeometry;
     }
 
     bool operator!=(const GuiPersistentState &other) const
@@ -57,7 +46,7 @@ struct GuiPersistentState
         stream << versionForSerialization_;
         stream << o.isFirewallOn << o.windowOffsX << o.windowOffsY << o.countVisibleLocations <<
                   o.isFirstLogin << o.isIgnoreCpuUsageWarnings << o.lastLocation << o.lastExternalIp <<
-                  o.networkWhiteList;
+                  o.networkWhiteList << o.appGeometry;
 
         return stream;
     }
@@ -72,13 +61,14 @@ struct GuiPersistentState
         }
 
         stream >> o.isFirewallOn >> o.windowOffsX >> o.windowOffsY >> o.countVisibleLocations >>
-                  o.isFirstLogin >> o.isIgnoreCpuUsageWarnings >> o.lastLocation >> o.lastExternalIp >> o.networkWhiteList;
+                  o.isFirstLogin >> o.isIgnoreCpuUsageWarnings >> o.lastLocation >> o.lastExternalIp >>
+                  o.networkWhiteList >> o.appGeometry;
         return stream;
     }
 
 
 private:
-    static constexpr int versionForSerialization_ = 1;  // should increment the version if the data format is changed
+    static constexpr int versionForSerialization_ = 2;  // should increment the version if the data format is changed
 };
 
 

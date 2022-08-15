@@ -43,7 +43,6 @@ This repo contains the complete source code for the Windscribe 2.0 app. This inc
     - lzo.zip
     - openssl.zip
     - openvpn_2_5_4.zip
-    - protobuf.zip
     - qt.zip
     - stunnel.zip
     - wireguard.zip
@@ -99,7 +98,6 @@ You will find the application logs in C:/Users/USER/AppData/Local/Windscribe/Win
     - lzo.zip
     - openssl.zip
     - openvpn_2_5_4.zip
-    - protobuf.zip
     - qt.zip
     - stunnel.zip
     - wireguard.zip
@@ -146,7 +144,6 @@ Build process tested on Ubuntu 20.04/ZorinOS 16 (gcc 9.3.0).
     - lzo.zip
     - openssl.zip
     - openvpn_2_5_4.zip
-    - protobuf.zip
     - qt.zip
     - stunnel.zip
     - wireguard.zip
