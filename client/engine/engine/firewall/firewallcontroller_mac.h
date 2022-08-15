@@ -12,7 +12,7 @@ public:
     explicit FirewallController_mac(QObject *parent, IHelper *helper);
     ~FirewallController_mac() override;
 
-    bool firewallOn(const QString &ip, bool bAllowLanTraffic) override;
+    bool firewallOn(const QSet<QString> &ips, bool bAllowLanTraffic) override;
     bool firewallOff() override;
     bool firewallActualState() override;
 
@@ -24,24 +24,31 @@ public:
 
 private:
     Helper_mac *helper_;
-    QString interfaceToSkip_;
     bool forceUpdateInterfaceToSkip_;
     QMutex mutex_;
     bool firewallOnImpl(const QString &ip, bool bAllowLanTraffic, const types::StaticIpPortsVector &ports);
+    void firewallOffImpl();
     void updateIPs();
 
-    struct StateFromPfctl
+    struct FirewallState
     {
         bool isEnabled;
-        bool isWindscribeIpsTableFound;
-        QString ips;
-        bool isAllowLanTrafficAnchorFound;
-        QString allowLanTrafficAnchor;
+        bool isBasicWindscribeRulesCorrect;
+        QSet<QString> windscribeIps;
+        QString interfaceToSkip;
     };
 
-    void getCurrentFirewallStateFromPfctl(bool &outEnabled, QString &outIps, QString &outRules);
+    bool isFirewallEnabled_;
+    QSet<QString> windscribeIps_;
+    QString interfaceToSkip_;
+
     QStringList lanTrafficRules() const;
 
+    void getFirewallStateFromPfctl(FirewallState &outState);
+    void checkInternalVsPfctlState();
+    QString generatePfConfFile(const QSet<QString> &ips, bool bAllowLanTraffic, const QString &interfaceToSkip);
+    QString generateTableFile(const QSet<QString> &ips);
+    QString generateInterfaceToSkipAnchorFile(const QString &interfaceToSkip);
 };
 
 #endif // FIREWALLCONTROLLER_MAC_H
