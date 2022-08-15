@@ -30,7 +30,6 @@ public:
 
 protected:
     bool isStateChanged();
-    int countIps(const QString &ips);
 
     QSet<QString> latestIps_;
     bool latestAllowLanTraffic_;

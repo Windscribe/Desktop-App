@@ -64,8 +64,3 @@ bool FirewallController::isStateChanged()
 {
     return bStateChanged_;
 }
-
-int FirewallController::countIps(const QString &ips)
-{
-    return ips.count(';') + 1;
-}
