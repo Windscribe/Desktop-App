@@ -752,6 +752,45 @@ public:
     }
 };
 
+class GetRobertFilters: public Command
+{
+public:
+    explicit GetRobertFilters()
+    {}
+
+    std::vector<char> getData() const override   {  Q_ASSERT(false); return std::vector<char>(); }
+    std::string getStringId() const override { return getCommandStringId(); }
+    std::string getDebugString() const override
+    {
+        return "ClientCommand::GetRobertFilters debug string";
+    }
+
+    static std::string getCommandStringId()
+    {
+        return "ClientCommand::GetRobertFilters";
+    }
+};
+
+class SetRobertFilter: public Command
+{
+public:
+    explicit SetRobertFilter()
+    {}
+
+    std::vector<char> getData() const override   {  Q_ASSERT(false); return std::vector<char>(); }
+    std::string getStringId() const override { return getCommandStringId(); }
+    std::string getDebugString() const override
+    {
+        return "ClientCommand::SetRobertFilter debug string";
+    }
+
+    static std::string getCommandStringId()
+    {
+        return "ClientCommand::SetRobertFilter";
+    }
+
+    types::RobertFilter filter_;
+};
 
 } // namespace ClientCommands
 } // namespace IPC

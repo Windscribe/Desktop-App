@@ -4,6 +4,11 @@
 #include <QGraphicsView>
 #include <QPainter>
 #include "dpiscalemanager.h"
+#include "utils/hardcodedsettings.h"
+#include "commongraphics/baseitem.h"
+#include "graphicresources/fontmanager.h"
+#include "graphicresources/imageresourcessvg.h"
+#include "graphicresources/independentpixmap.h"
 #include "languagecontroller.h"
 #include "utils/logger.h"
 #include "tooltips/tooltiputil.h"
@@ -11,92 +16,134 @@
 
 namespace PreferencesWindow {
 
-ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Preferences *preferences, PreferencesHelper *preferencesHelper) : BasePage(parent)
-    , preferences_(preferences)
-    , preferencesHelper_(preferencesHelper)
-    , currentScreen_(CONNECTION_SCREEN_HOME)
+ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Preferences *preferences, PreferencesHelper *preferencesHelper)
+  : CommonGraphics::BasePage(parent), preferences_(preferences), preferencesHelper_(preferencesHelper), currentScreen_(CONNECTION_SCREEN_HOME)
 {
     setFlag(QGraphicsItem::ItemIsFocusable);
+    setSpacerHeight(PREFERENCES_MARGIN);
 
-    connect(preferences, SIGNAL(firewallSettingsChanged(types::FirewallSettings)), SLOT(onFirewallModePreferencesChanged(types::FirewallSettings)));
-    connect(preferences, SIGNAL(connectionSettingsChanged(types::ConnectionSettings)), SLOT(onConnectionModePreferencesChanged(types::ConnectionSettings)));
-    connect(preferences, SIGNAL(packetSizeChanged(types::PacketSize)), SLOT(onPacketSizePreferencesChanged(types::PacketSize)));
-    connect(preferences, SIGNAL(isAllowLanTrafficChanged(bool)), SLOT(onIsAllowLanTrafficPreferencedChanged(bool)));
-    connect(preferences, SIGNAL(invalidLanAddressNotification(QString)), SLOT(onInvalidLanAddressNotification(QString)));
-    connect(preferences, SIGNAL(macAddrSpoofingChanged(types::MacAddrSpoofing)), SLOT(onMacAddrSpoofingPreferencesChanged(types::MacAddrSpoofing)));
-    connect(preferences, SIGNAL(dnsWhileConnectedInfoChanged(types::DnsWhileConnectedInfo)), SLOT(onDnsWhileConnectedPreferencesChanged(types::DnsWhileConnectedInfo)));
-    connect(preferencesHelper, SIGNAL(isFirewallBlockedChanged(bool)), SLOT(onIsFirewallBlockedChanged(bool)));
-    connect(preferencesHelper, SIGNAL(isExternalConfigModeChanged(bool)), SLOT(onIsExternalConfigModeChanged(bool)));
-#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
-    connect(preferences, SIGNAL(isKillTcpSocketsChanged(bool)), SLOT(onKillTcpSocketsPreferencesChanged(bool)));
-#endif
+    connect(preferences, &Preferences::splitTunnelingChanged, this, &ConnectionWindowItem::onSplitTunnelingPreferencesChanged);
+    connect(preferences, &Preferences::firewallSettingsChanged, this, &ConnectionWindowItem::onFirewallPreferencesChanged);
+    connect(preferences, &Preferences::connectionSettingsChanged, this, &ConnectionWindowItem::onConnectionModePreferencesChanged);
+    connect(preferences, &Preferences::packetSizeChanged, this, &ConnectionWindowItem::onPacketSizePreferencesChanged);
+    connect(preferences, &Preferences::isAllowLanTrafficChanged, this, &ConnectionWindowItem::onIsAllowLanTrafficPreferencesChanged);
+    connect(preferences, &Preferences::invalidLanAddressNotification, this, &ConnectionWindowItem::onInvalidLanAddressNotification);
+    connect(preferences, &Preferences::macAddrSpoofingChanged, this, &ConnectionWindowItem::onMacAddrSpoofingPreferencesChanged);
+    connect(preferences, &Preferences::connectedDnsInfoChanged, this, &ConnectionWindowItem::onConnectedDnsPreferencesChanged);
+    connect(preferences_, &Preferences::shareSecureHotspotChanged, this, &ConnectionWindowItem::onSecureHotspotPreferencesChanged);
+    connect(preferences_, &Preferences::shareProxyGatewayChanged, this, &ConnectionWindowItem::onProxyGatewayPreferencesChanged);
+    connect(preferences_, &Preferences::connectionSettingsChanged, this, &ConnectionWindowItem::onConnectionSettingsPreferencesChanged);
+    connect(preferencesHelper, &PreferencesHelper::wifiSharingSupportedChanged, this, &ConnectionWindowItem::onPreferencesHelperWifiSharingSupportedChanged);
+    connect(preferencesHelper, &PreferencesHelper::isFirewallBlockedChanged, this, &ConnectionWindowItem::onIsFirewallBlockedChanged);
+    connect(preferencesHelper, &PreferencesHelper::isExternalConfigModeChanged, this, &ConnectionWindowItem::onIsExternalConfigModeChanged);
+    connect(preferencesHelper, &PreferencesHelper::proxyGatewayAddressChanged, this, &ConnectionWindowItem::onProxyGatewayAddressChanged);
+    connect(preferences, &Preferences::isTerminateSocketsChanged, this, &ConnectionWindowItem::onTerminateSocketsPreferencesChanged);
 
-    connect(&LanguageController::instance(), SIGNAL(languageChanged()), SLOT(onLanguageChanged()));
+    connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &ConnectionWindowItem::onLanguageChanged);
 
-    networkWhitelistItem_ = new SubPageItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::SubPageItem","Network Whitelist"), true);
-    connect(networkWhitelistItem_, SIGNAL(clicked()), SIGNAL(networkWhitelistPageClick()));
-    addItem(networkWhitelistItem_);
+    subpagesGroup_ = new PreferenceGroup(this);
 
-#ifndef Q_OS_LINUX
-    splitTunnelingItem_ = new SubPageItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::SubPageItem","Split Tunneling"), true);
-    connect(splitTunnelingItem_, SIGNAL(clicked()), SIGNAL(splitTunnelingPageClick()));
-    addItem(splitTunnelingItem_);
-#endif
-
-    proxySettingsItem_ = new SubPageItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::SubPageItem","Proxy Settings"), true);
-    connect(proxySettingsItem_, SIGNAL(clicked()), SIGNAL(proxySettingsPageClick()));
-    addItem(proxySettingsItem_);
-
-    firewallModeItem_ = new FirewallModeItem(this);
-    connect(firewallModeItem_, SIGNAL(firewallModeChanged(types::FirewallSettings)), SLOT(onFirewallModeChanged(types::FirewallSettings)));
-    connect(firewallModeItem_, SIGNAL(buttonHoverEnter()), SLOT(onFirewallModeHoverEnter()));
-    connect(firewallModeItem_, SIGNAL(buttonHoverLeave()), SLOT(onFirewallModeHoverLeave()));
-    firewallModeItem_->setFirewallMode(preferences->firewalSettings());
-    firewallModeItem_->setFirewallBlock(preferencesHelper->isFirewallBlocked());
-    addItem(firewallModeItem_);
-
-    connectionModeItem_ = new ConnectionModeItem(this, preferencesHelper);
-    connectionModeItem_->setConnectionMode(preferences->connectionSettings());
-    connect(connectionModeItem_, SIGNAL(connectionlModeChanged(types::ConnectionSettings)),
-        SLOT(onConnectionModeChanged(types::ConnectionSettings)));
-    connect(connectionModeItem_, SIGNAL(buttonHoverEnter(ConnectionModeItem::ButtonType)),
-        SLOT(onConnectionModeHoverEnter(ConnectionModeItem::ButtonType)));
-    connect(connectionModeItem_, SIGNAL(buttonHoverLeave(ConnectionModeItem::ButtonType)),
-        SLOT(onConnectionModeHoverLeave(ConnectionModeItem::ButtonType)));
-    addItem(connectionModeItem_);
+    networkOptionsItem_ = new LinkItem(subpagesGroup_, LinkItem::LinkType::SUBPAGE_LINK, QT_TRANSLATE_NOOP("PreferencesWindow::LinkItem","Network Options"));
+    connect(networkOptionsItem_, &LinkItem::clicked, this, &ConnectionWindowItem::networkOptionsPageClick);
+    subpagesGroup_->addItem(networkOptionsItem_);
 
 #ifndef Q_OS_LINUX
-    packetSizeItem_ = new PacketSizeItem(this);
-    packetSizeItem_->setPacketSize(preferences->packetSize());
-    connect(packetSizeItem_, SIGNAL(packetSizeChanged(types::PacketSize)), SLOT(onPacketSizeChanged(types::PacketSize)));
-    connect(packetSizeItem_, SIGNAL(detectAppropriatePacketSizeButtonClicked()), SIGNAL(detectAppropriatePacketSizeButtonClicked()));
-    addItem(packetSizeItem_);
-
-    dnsWhileConnectedItem_ = new DnsWhileConnectedItem(this);
-    connect(dnsWhileConnectedItem_, SIGNAL(dnsWhileConnectedInfoChanged(types::DnsWhileConnectedInfo)), SLOT(onDnsWhileConnectedItemChanged(types::DnsWhileConnectedInfo)));
-    addItem(dnsWhileConnectedItem_);
+    splitTunnelingItem_ = new LinkItem(subpagesGroup_, LinkItem::LinkType::SUBPAGE_LINK, QT_TRANSLATE_NOOP("PreferencesWindow::LinkItem","Split Tunneling"));
+    connect(splitTunnelingItem_, &LinkItem::clicked, this, &ConnectionWindowItem::splitTunnelingPageClick);
+    onSplitTunnelingPreferencesChanged(preferences->splitTunneling());
+    subpagesGroup_->addItem(splitTunnelingItem_);
 #endif
 
-    checkBoxAllowLanTraffic_ = new CheckBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::CheckBoxItem", "Allow LAN Traffic"), QString());
+    proxySettingsItem_ = new LinkItem(subpagesGroup_, LinkItem::LinkType::SUBPAGE_LINK, QT_TRANSLATE_NOOP("PreferencesWindow::LinkItem","Proxy Settings"));
+    connect(proxySettingsItem_, &LinkItem::clicked, this, &ConnectionWindowItem::proxySettingsPageClick);
+    subpagesGroup_->addItem(proxySettingsItem_);
+
+    addItem(subpagesGroup_);
+
+    firewallGroup_ = new FirewallGroup(this,
+                                       tr("Choose whether to toggle to firewall manually, let Windscribe do it for you, or to have it always turned on."),
+                                       QString("https://%1/features/firewall").arg(HardcodedSettings::instance().serverUrl()));
+    connect(firewallGroup_, &FirewallGroup::firewallPreferencesChanged, this, &ConnectionWindowItem::onFirewallPreferencesChangedByUser);
+    firewallGroup_->setFirewallSettings(preferences->firewallSettings());
+    firewallGroup_->setBlock(preferencesHelper->isFirewallBlocked());
+    addItem(firewallGroup_);
+
+    connectionModeGroup_ = new ProtocolGroup(this,
+                                             preferencesHelper,
+                                             tr("Connection Mode"),
+                                             "preferences/CONNECTION_MODE",
+                                             ProtocolGroup::SelectionType::COMBO_BOX,
+                                             tr("Choose whether to let Windscribe automatically pick a protocol / port combination most optimal for your setup, or to manually do it yourself."),
+                                             QString("https://%1/features/flexible-connectivity").arg(HardcodedSettings::instance().serverUrl()));
+    connectionModeGroup_->setConnectionSettings(preferences->connectionSettings());
+    connect(connectionModeGroup_, &ProtocolGroup::connectionModePreferencesChanged, this, &ConnectionWindowItem::onConnectionModePreferencesChangedByUser);
+    addItem(connectionModeGroup_);
+
+#ifndef Q_OS_LINUX
+    packetSizeGroup_ = new PacketSizeGroup(this,
+                                           tr("Choose whether to let Windscribe decide the MTU for your connection, or to manually override."),
+                                           QString("https://%1/features/packet-size").arg(HardcodedSettings::instance().serverUrl()));
+    packetSizeGroup_->setPacketSizeSettings(preferences->packetSize());
+    connect(packetSizeGroup_, &PacketSizeGroup::packetSizeChanged, this, &ConnectionWindowItem::onPacketSizePreferencesChangedByUser);
+    connect(packetSizeGroup_, &PacketSizeGroup::detectPacketSize, this, &ConnectionWindowItem::detectPacketSize);
+    addItem(packetSizeGroup_);
+
+    connectedDnsGroup_ = new ConnectedDnsGroup(this,
+                                               tr("Choose to use ROBERT or a DNS resolver of your choice while connected to Windscribe."),
+                                               QString("https://%1/features/flexible-dns").arg(HardcodedSettings::instance().serverUrl()));
+    connectedDnsGroup_->setConnectedDnsInfo(preferences->connectedDnsInfo());
+    connect(connectedDnsGroup_, &ConnectedDnsGroup::connectedDnsInfoChanged, this, &ConnectionWindowItem::onConnectedDnsPreferencesChangedByUser);
+    addItem(connectedDnsGroup_);
+#endif
+
+    allowLanTrafficGroup_ = new PreferenceGroup(this,
+                                                tr("Choose whether to allow access to resources on the same network (like file servers, printers, media boxes, etc.) while connected to Windscribe."),
+                                                QString("https://%1/features/lan-traffic").arg(HardcodedSettings::instance().serverUrl()));
+    checkBoxAllowLanTraffic_ = new CheckBoxItem(allowLanTrafficGroup_, QT_TRANSLATE_NOOP("PreferencesWindow::CheckBoxItem", "Allow LAN Traffic"), QString());
+    checkBoxAllowLanTraffic_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/ALLOW_LAN_TRAFFIC"));
     checkBoxAllowLanTraffic_->setState(preferences->isAllowLanTraffic());
-    connect(checkBoxAllowLanTraffic_, SIGNAL(stateChanged(bool)), SLOT(onIsAllowLanTrafficClicked(bool)));
-    connect(checkBoxAllowLanTraffic_, SIGNAL(buttonHoverLeave()), SLOT(onAllowLanTrafficButtonHoverLeave()));
-    addItem(checkBoxAllowLanTraffic_);
+    connect(checkBoxAllowLanTraffic_, &CheckBoxItem::stateChanged, this, &ConnectionWindowItem::onIsAllowLanTrafficPreferencesChangedByUser);
+    connect(checkBoxAllowLanTraffic_, &CheckBoxItem::buttonHoverLeave, this, &ConnectionWindowItem::onAllowLanTrafficButtonHoverLeave);
+    allowLanTrafficGroup_->addItem(checkBoxAllowLanTraffic_);
+    addItem(allowLanTrafficGroup_);
 
 #ifndef Q_OS_LINUX
-    macSpoofingItem_ = new MacSpoofingItem(this);
-    connect(macSpoofingItem_, SIGNAL(macAddrSpoofingChanged(types::MacAddrSpoofing)), SLOT(onMacAddrSpoofingChanged(types::MacAddrSpoofing)));
-    connect(macSpoofingItem_, SIGNAL(cycleMacAddressClick()), SIGNAL(cycleMacAddressClick()));
-    addItem(macSpoofingItem_);
+    macSpoofingGroup_ = new MacSpoofingGroup(this,
+                                             tr("Spoof your device's physical address (MAC address)."),
+                                             QString("https://%1/features/mac-spoofing").arg(HardcodedSettings::instance().serverUrl()));
+    connect(macSpoofingGroup_, &MacSpoofingGroup::macAddrSpoofingChanged, this, &ConnectionWindowItem::onMacAddrSpoofingPreferencesChangedByUser);
+    connect(macSpoofingGroup_, &MacSpoofingGroup::cycleMacAddressClick, this, &ConnectionWindowItem::cycleMacAddressClick);
+    macSpoofingGroup_->setMacSpoofingSettings(preferences->macAddrSpoofing());
+    addItem(macSpoofingGroup_);
 #endif
 
 #if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
-    cbKillTcp_ = new CheckBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::CheckBoxItem", "Kill TCP Sockets After Connection"), "");
-    cbKillTcp_->setState(preferences->isKillTcpSockets());
-    connect(cbKillTcp_, SIGNAL(stateChanged(bool)), SLOT(onKillTcpSocketsStateChanged(bool)));
-    addItem(cbKillTcp_);
+    terminateSocketsGroup_ = new PreferenceGroup(this,
+                                                 tr("Close all active TCP sockets when the VPN tunnel is established."),
+                                                 QString("https://%1/features/tcp-socket-termination").arg(HardcodedSettings::instance().serverUrl()));
+    terminateSocketsItem_ = new CheckBoxItem(terminateSocketsGroup_, QT_TRANSLATE_NOOP("PreferencesWindow::CheckBoxItem", "Terminate Sockets"), QString());
+    terminateSocketsItem_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/TERMINATE_SOCKETS"));
+    terminateSocketsItem_->setState(preferences->isTerminateSockets());
+    connect(terminateSocketsItem_, &CheckBoxItem::stateChanged, this, &ConnectionWindowItem::onTerminateSocketsPreferencesChangedByUser);
+    terminateSocketsGroup_->addItem(terminateSocketsItem_);
+    addItem(terminateSocketsGroup_);
 #endif
 
+#ifndef Q_OS_LINUX
+    secureHotspotGroup_ = new SecureHotspotGroup(this,
+                                                 "",
+                                                 QString("https://%1/features/secure-hotspot").arg(HardcodedSettings::instance().serverUrl()));
+    connect(secureHotspotGroup_, &SecureHotspotGroup::secureHotspotPreferencesChanged, this, &ConnectionWindowItem::onSecureHotspotPreferencesChangedByUser);
+    secureHotspotGroup_->setSecureHotspotSettings(preferences->shareSecureHotspot());
+    addItem(secureHotspotGroup_);
+#endif
+
+    proxyGatewayGroup_ = new ProxyGatewayGroup(this,
+                                               tr("Configure your TV, gaming console, or other devices that support proxy servers."),
+                                               QString("https://%1/features/proxy-gateway").arg(HardcodedSettings::instance().serverUrl()));
+    connect(proxyGatewayGroup_, &ProxyGatewayGroup::proxyGatewayPreferencesChanged, this, &ConnectionWindowItem::onProxyGatewayPreferencesChangedByUser);
+    proxyGatewayGroup_->setProxyGatewaySettings(preferences->shareProxyGateway());
+    addItem(proxyGatewayGroup_);
 }
 
 QString ConnectionWindowItem::caption()
@@ -106,13 +153,7 @@ QString ConnectionWindowItem::caption()
 
 void ConnectionWindowItem::updateScaling()
 {
-    BasePage::updateScaling();
-    if(packetSizeItem_) {
-        packetSizeItem_->updateScaling();
-    }
-    if(dnsWhileConnectedItem_) {
-        dnsWhileConnectedItem_->updateScaling();
-    }
+    CommonGraphics::BasePage::updateScaling();
 }
 
 CONNECTION_SCREEN_TYPE ConnectionWindowItem::getScreen()
@@ -127,147 +168,111 @@ void ConnectionWindowItem::setScreen(CONNECTION_SCREEN_TYPE subScreen)
 
 void ConnectionWindowItem::setCurrentNetwork(const types::NetworkInterface &networkInterface)
 {
-    if(macSpoofingItem_) {
-        macSpoofingItem_->setCurrentNetwork(networkInterface);
-    }
+#ifndef Q_OS_LINUX
+    macSpoofingGroup_->setCurrentNetwork(networkInterface);
+#endif
 }
 
 void ConnectionWindowItem::setPacketSizeDetectionState(bool on)
 {
-    if(packetSizeItem_) {
-        packetSizeItem_->setPacketSizeDetectionState(on);
-    }
+#ifndef Q_OS_LINUX
+    packetSizeGroup_->setPacketSizeDetectionState(on);
+#endif
 }
 
 void ConnectionWindowItem::showPacketSizeDetectionError(const QString &title,
                                                         const QString &message)
 {
-    if(packetSizeItem_) {
-        packetSizeItem_->showPacketSizeDetectionError(title, message);
-    }
+#ifndef Q_OS_LINUX
+    packetSizeGroup_->showPacketSizeDetectionError(title, message);
+#endif
 }
 
-void ConnectionWindowItem::onFirewallModeChanged(const types::FirewallSettings &fm)
+void ConnectionWindowItem::onFirewallPreferencesChangedByUser(const types::FirewallSettings &fm)
 {
     preferences_->setFirewallSettings(fm);
 }
 
-void ConnectionWindowItem::onFirewallModeHoverEnter()
-{
-    if (!preferencesHelper_->isFirewallBlocked())
-        return;
-
-    QGraphicsView *view = scene()->views().first();
-    QPoint globalPt = view->mapToGlobal(view->mapFromScene(firewallModeItem_->getButtonScenePos()));
-
-    TooltipInfo ti(TOOLTIP_TYPE_DESCRIPTIVE, TOOLTIP_ID_FIREWALL_BLOCKED);
-    ti.tailtype = TOOLTIP_TAIL_BOTTOM;
-    ti.tailPosPercent = 0.5;
-    ti.x = globalPt.x() + 8 * G_SCALE;
-    ti.y = globalPt.y() - 4 * G_SCALE;
-    ti.width = 200 * G_SCALE;
-    TooltipUtil::getFirewallBlockedTooltipInfo(&ti.title, &ti.desc);
-    TooltipController::instance().showTooltipDescriptive(ti);
-}
-
-void ConnectionWindowItem::onFirewallModeHoverLeave()
-{
-    TooltipController::instance().hideTooltip(TOOLTIP_ID_FIREWALL_BLOCKED);
-}
-
-void ConnectionWindowItem::onConnectionModeHoverEnter(ConnectionModeItem::ButtonType type)
-{
-    if (connectionModeItem_->isPortMapInitialized())
-        return;
-
-    QGraphicsView *view = scene()->views().first();
-    QPoint globalPt =
-        view->mapToGlobal(view->mapFromScene(connectionModeItem_->getButtonScenePos(type)));
-
-    TooltipInfo ti(TOOLTIP_TYPE_DESCRIPTIVE, TOOLTIP_ID_CONNECTION_MODE_LOGIN);
-    ti.tailtype = TOOLTIP_TAIL_BOTTOM;
-    ti.tailPosPercent = 0.5;
-    ti.x = globalPt.x() + 8 * G_SCALE;
-    ti.y = globalPt.y() - 4 * G_SCALE;
-    ti.width = 200 * G_SCALE;
-    ti.title = tr("Not Logged In");
-    ti.desc = tr("Please login to modify connection settings.");
-    TooltipController::instance().showTooltipDescriptive(ti);
-}
-
-void ConnectionWindowItem::onConnectionModeHoverLeave(ConnectionModeItem::ButtonType /*type*/)
-{
-    TooltipController::instance().hideTooltip(TOOLTIP_ID_CONNECTION_MODE_LOGIN);
-}
-
-void ConnectionWindowItem::onConnectionModeChanged(const types::ConnectionSettings &cm)
+void ConnectionWindowItem::onConnectionModePreferencesChangedByUser(const types::ConnectionSettings &cm)
 {
     preferences_->setConnectionSettings(cm);
-
-    if (!cm.isAutomatic) // only scroll when opening
-    {
-        // magic number is expanded height
-        emit scrollToPosition(static_cast<int>(connectionModeItem_->y()) + 50 + 43 + 43 );
-    }
 }
 
-void ConnectionWindowItem::onPacketSizeChanged(const types::PacketSize &ps)
+void ConnectionWindowItem::onPacketSizePreferencesChangedByUser(const types::PacketSize &ps)
 {
+#ifndef Q_OS_LINUX
     preferences_->setPacketSize(ps);
-}
-
-void ConnectionWindowItem::onMacAddrSpoofingChanged(const types::MacAddrSpoofing &mas)
-{
-    preferences_->setMacAddrSpoofing(mas);
-}
-
-#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
-void ConnectionWindowItem::onKillTcpSocketsStateChanged(bool isChecked)
-{
-    preferences_->setKillTcpSockets(isChecked);
-}
 #endif
+}
 
-void ConnectionWindowItem::onFirewallModePreferencesChanged(const types::FirewallSettings &fm)
+void ConnectionWindowItem::onMacAddrSpoofingPreferencesChangedByUser(const types::MacAddrSpoofing &mas)
 {
-    firewallModeItem_->setFirewallMode(fm);
+#ifndef Q_OS_LINUX
+    preferences_->setMacAddrSpoofing(mas);
+#endif
+}
+
+void ConnectionWindowItem::onTerminateSocketsPreferencesChangedByUser(bool isChecked)
+{
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
+    preferences_->setTerminateSockets(isChecked);
+#endif
+}
+
+void ConnectionWindowItem::onSplitTunnelingPreferencesChanged(const types::SplitTunneling &st)
+{
+#ifndef Q_OS_LINUX
+    QString splitTunnelStatus;
+
+    if (st.settings.active)
+    {
+        switch(st.settings.mode)
+        {
+            case SPLIT_TUNNELING_MODE_EXCLUDE:
+                splitTunnelStatus = tr("Exclusive");
+                break;
+            case SPLIT_TUNNELING_MODE_INCLUDE:
+                splitTunnelStatus = tr("Inclusive");
+                break;
+        }
+    }
+    else
+    {
+        splitTunnelStatus = tr("Off");
+    }
+    splitTunnelingItem_->setLinkText(splitTunnelStatus);
+#endif
+}
+
+void ConnectionWindowItem::onFirewallPreferencesChanged(const types::FirewallSettings &fm)
+{
+    firewallGroup_->setFirewallSettings(fm);
 }
 
 void ConnectionWindowItem::onConnectionModePreferencesChanged(const types::ConnectionSettings &cm)
 {
-    connectionModeItem_->setConnectionMode(cm);
+    connectionModeGroup_->setConnectionSettings(cm);
 }
 
 void ConnectionWindowItem::onPacketSizePreferencesChanged(const types::PacketSize &ps)
 {
-    if(packetSizeItem_) {
-        packetSizeItem_->setPacketSize(ps);
-    }
+#ifndef Q_OS_LINUX
+    packetSizeGroup_->setPacketSizeSettings(ps);
+#endif
 }
 
 void ConnectionWindowItem::onMacAddrSpoofingPreferencesChanged(const types::MacAddrSpoofing &mas)
 {
-    if(macSpoofingItem_) {
-        macSpoofingItem_->setMacAddrSpoofing(mas);
-
-        if (mas.isEnabled) // only scroll when opening
-        {
-            // magic number is expanded height
-            emit scrollToPosition(static_cast<int>(macSpoofingItem_->y()) + 50 + 43 + 43);
-        }
-    }
-}
-
-#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
-void ConnectionWindowItem::onKillTcpSocketsPreferencesChanged(bool b)
-{
-    cbKillTcp_->setState(b);
-}
+#ifndef Q_OS_LINUX
+    macSpoofingGroup_->setMacSpoofingSettings(mas);
 #endif
+}
 
-void ConnectionWindowItem::onIsAllowLanTrafficPreferencedChanged(bool b)
+void ConnectionWindowItem::onTerminateSocketsPreferencesChanged(bool b)
 {
-    checkBoxAllowLanTraffic_->setState(b);
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
+    terminateSocketsItem_->setState(b);
+#endif
 }
 
 void ConnectionWindowItem::onInvalidLanAddressNotification(QString address)
@@ -308,25 +313,31 @@ void ConnectionWindowItem::onAllowLanTrafficButtonHoverLeave()
 
 void ConnectionWindowItem::onIsFirewallBlockedChanged(bool bFirewallBlocked)
 {
-    firewallModeItem_->setFirewallBlock(bFirewallBlocked);
+    firewallGroup_->setBlock(bFirewallBlocked);
 }
 
 void ConnectionWindowItem::onIsExternalConfigModeChanged(bool bIsExternalConfigMode)
 {
-    connectionModeItem_->setVisible(!bIsExternalConfigMode);
+    connectionModeGroup_->setVisible(!bIsExternalConfigMode);
+    CommonGraphics::BaseItem *spacer = item(indexOf(connectionModeGroup_) + 1);
+    spacer->setVisible(!bIsExternalConfigMode);
 }
 
-void ConnectionWindowItem::onDnsWhileConnectedPreferencesChanged(const types::DnsWhileConnectedInfo &dns)
+void ConnectionWindowItem::onConnectedDnsPreferencesChanged(const types::ConnectedDnsInfo &dns)
 {
-    if(dnsWhileConnectedItem_) {
-        dnsWhileConnectedItem_->setDNSWhileConnected(dns);
+#ifndef Q_OS_LINUX
+    connectedDnsGroup_->setConnectedDnsInfo(dns);
+#endif
+}
 
-        if (dns.type() == DNS_WHILE_CONNECTED_TYPE_CUSTOM)
-        {
-            // magic number is expanded height
-            emit scrollToPosition(static_cast<int>(dnsWhileConnectedItem_->y()) + 50 + 43);
-        }
-    }
+void ConnectionWindowItem::onProxyGatewayAddressChanged(const QString &address)
+{
+    proxyGatewayGroup_->setProxyGatewayAddress(address);
+}
+
+void ConnectionWindowItem::onIsAllowLanTrafficPreferencesChanged(bool b)
+{
+    checkBoxAllowLanTraffic_->setState(b);
 }
 
 void ConnectionWindowItem::onLanguageChanged()
@@ -334,22 +345,84 @@ void ConnectionWindowItem::onLanguageChanged()
 
 }
 
-void ConnectionWindowItem::onIsAllowLanTrafficClicked(bool b)
+void ConnectionWindowItem::onIsAllowLanTrafficPreferencesChangedByUser(bool b)
 {
     preferences_->setAllowLanTraffic(b);
 }
 
-void ConnectionWindowItem::onDnsWhileConnectedItemChanged(types::DnsWhileConnectedInfo dns)
+void ConnectionWindowItem::onConnectedDnsPreferencesChangedByUser(const types::ConnectedDnsInfo &dns)
 {
-    preferences_->setDnsWhileConnectedInfo(dns);
+#ifndef Q_OS_LINUX
+    preferences_->setConnectedDnsInfo(dns);
+#endif
 }
 
 void ConnectionWindowItem::hideOpenPopups()
 {
     // qCDebug(LOG_PREFERENCES) << "Hiding Connection popups";
 
-    BasePage::hideOpenPopups();
+    CommonGraphics::BasePage::hideOpenPopups();
 }
 
+void ConnectionWindowItem::onSecureHotspotPreferencesChangedByUser(const types::ShareSecureHotspot &ss)
+{
+#ifndef Q_OS_LINUX
+    preferences_->setShareSecureHotspot(ss);
+#endif
+}
+
+void ConnectionWindowItem::onSecureHotspotPreferencesChanged(const types::ShareSecureHotspot &ss)
+{
+#ifndef Q_OS_LINUX
+    secureHotspotGroup_->setSecureHotspotSettings(ss);
+#endif
+}
+
+void ConnectionWindowItem::onConnectionSettingsPreferencesChanged(const types::ConnectionSettings &cs)
+{
+    updateIsSupported(isWifiSharingSupported_, isIkev2OrAutomaticConnectionMode(cs));
+}
+
+void ConnectionWindowItem::onProxyGatewayPreferencesChangedByUser(const types::ShareProxyGateway &sp)
+{
+    preferences_->setShareProxyGateway(sp);
+}
+
+void ConnectionWindowItem::onProxyGatewayPreferencesChanged(const types::ShareProxyGateway &sp)
+{
+    proxyGatewayGroup_->setProxyGatewaySettings(sp);
+}
+
+void ConnectionWindowItem::onPreferencesHelperWifiSharingSupportedChanged(bool bSupported)
+{
+    isWifiSharingSupported_ = bSupported;
+    updateIsSupported(isWifiSharingSupported_, isIkev2OrAutomaticConnectionMode(preferences_->getEngineSettings().connectionSettings()));
+}
+
+bool ConnectionWindowItem::isIkev2OrAutomaticConnectionMode(const types::ConnectionSettings &cs) const
+{
+    return cs.protocol == PROTOCOL::IKEV2 || cs.protocol == PROTOCOL::WIREGUARD || cs.isAutomatic;
+}
+
+void ConnectionWindowItem::updateIsSupported(bool isWifiSharingSupported, bool isIkev2OrAutomatic)
+{
+#ifndef Q_OS_LINUX
+    if (secureHotspotGroup_)
+    {
+        if (!isWifiSharingSupported)
+        {
+            secureHotspotGroup_->setSupported(SecureHotspotGroup::HOTSPOT_NOT_SUPPORTED);
+        }
+        else if (isIkev2OrAutomatic)
+        {
+            secureHotspotGroup_->setSupported(SecureHotspotGroup::HOTSPOT_NOT_SUPPORTED_BY_IKEV2);
+        }
+        else
+        {
+            secureHotspotGroup_->setSupported(SecureHotspotGroup::HOTSPOT_SUPPORTED);
+        }
+    }
+#endif
+}
 
 } // namespace PreferencesWindow

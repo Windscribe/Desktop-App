@@ -3,13 +3,13 @@
 
 #include <QFocusEvent>
 #include <QGraphicsProxyWidget>
-#include "../baseitem.h"
+#include "commongraphics/baseitem.h"
 #include "commongraphics/iconbutton.h"
 #include "commonwidgets/custommenulineedit.h"
 
 namespace PreferencesWindow {
 
-class SearchLineEditItem : public BaseItem
+class SearchLineEditItem : public CommonGraphics::BaseItem
 {
     Q_OBJECT
 public:
@@ -18,7 +18,8 @@ public:
 
     void hideButtons();
     void showButtons();
-    QString getText();
+    QString text();
+    void setText(QString text);
 
     void setFocusOnSearchBar();
     void setSelected(bool selected) override;
@@ -29,8 +30,8 @@ public:
 signals:
     void searchModeExited();
     void textChanged(QString text);
-    void enterPressed();
     void focusIn();
+    void enterPressed();
 
 protected:
     void focusInEvent(QFocusEvent *event) override;
@@ -44,6 +45,9 @@ private slots:
     void onSearchIconOpacityChanged(const QVariant & value);
 
 private:
+    static constexpr int VERTICAL_DIVIDER_MARGIN_Y = 12;
+    static constexpr int VERTICAL_DIVIDER_HEIGHT = 24;
+
     double searchIconOpacity_;
     QGraphicsProxyWidget *proxyWidget_;
     CommonWidgets::CustomMenuLineEdit *lineEdit_;
@@ -51,7 +55,6 @@ private:
     bool editing_;
     IconButton *clearTextButton_;
     IconButton *closeButton_;
-    DividerLine *line_;
 
     void exitSearchMode();
 

@@ -62,14 +62,14 @@ void NetworkDetectionManager_mac::onNetworkStateChanged()
                 emit primaryAdapterChanged(networkInterface);
             }
         }
-        else if (networkInterface.networkOrSSid != lastNetworkInterface_.networkOrSSid)
+        else if (networkInterface.networkOrSsid != lastNetworkInterface_.networkOrSsid)
         {
             qCDebug(LOG_BASIC) << "Primary Network Changed: "
                                << networkInterface.interfaceName
-                               << " : " << networkInterface.networkOrSSid;
+                               << " : " << networkInterface.networkOrSsid;
 
             // if network change or adapter down (no comeup)
-            if (lastNetworkInterface_.networkOrSSid != "")
+            if (lastNetworkInterface_.networkOrSsid != "")
             {
                 qCDebug(LOG_BASIC) << "Primary Adapter Network changed or lost";
                 emit primaryAdapterNetworkLostOrChanged(networkInterface);

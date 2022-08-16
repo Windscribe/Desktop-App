@@ -22,7 +22,7 @@ public:
 
 public slots:
     void updateNotifications(const QVector<types::Notification> &arr);
-    void setNotificationReaded(qint64 notificationId);
+    void setNotificationRead(qint64 notificationId);
 
 signals:
     void stateChanged(int totalMessages, int unread);

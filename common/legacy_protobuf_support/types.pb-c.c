@@ -998,43 +998,43 @@ void   proto_types__mac_addr_spoofing__free_unpacked
   protobuf_c_message_free_unpacked ((ProtobufCMessage*)message, allocator);
 }
 void   proto_types__dns_while_connected_info__init
-                     (ProtoTypes__DnsWhileConnectedInfo         *message)
+                     (ProtoTypes__ConnectedDnsInfo         *message)
 {
-  static const ProtoTypes__DnsWhileConnectedInfo init_value = PROTO_TYPES__DNS_WHILE_CONNECTED_INFO__INIT;
+  static const ProtoTypes__ConnectedDnsInfo init_value = PROTO_TYPES__DNS_WHILE_CONNECTED_INFO__INIT;
   *message = init_value;
 }
 size_t proto_types__dns_while_connected_info__get_packed_size
-                     (const ProtoTypes__DnsWhileConnectedInfo *message)
+                     (const ProtoTypes__ConnectedDnsInfo *message)
 {
   assert(message->base.descriptor == &proto_types__dns_while_connected_info__descriptor);
   return protobuf_c_message_get_packed_size ((const ProtobufCMessage*)(message));
 }
 size_t proto_types__dns_while_connected_info__pack
-                     (const ProtoTypes__DnsWhileConnectedInfo *message,
+                     (const ProtoTypes__ConnectedDnsInfo *message,
                       uint8_t       *out)
 {
   assert(message->base.descriptor == &proto_types__dns_while_connected_info__descriptor);
   return protobuf_c_message_pack ((const ProtobufCMessage*)message, out);
 }
 size_t proto_types__dns_while_connected_info__pack_to_buffer
-                     (const ProtoTypes__DnsWhileConnectedInfo *message,
+                     (const ProtoTypes__ConnectedDnsInfo *message,
                       ProtobufCBuffer *buffer)
 {
   assert(message->base.descriptor == &proto_types__dns_while_connected_info__descriptor);
   return protobuf_c_message_pack_to_buffer ((const ProtobufCMessage*)message, buffer);
 }
-ProtoTypes__DnsWhileConnectedInfo *
+ProtoTypes__ConnectedDnsInfo *
        proto_types__dns_while_connected_info__unpack
                      (ProtobufCAllocator  *allocator,
                       size_t               len,
                       const uint8_t       *data)
 {
-  return (ProtoTypes__DnsWhileConnectedInfo *)
+  return (ProtoTypes__ConnectedDnsInfo *)
      protobuf_c_message_unpack (&proto_types__dns_while_connected_info__descriptor,
                                 allocator, len, data);
 }
 void   proto_types__dns_while_connected_info__free_unpacked
-                     (ProtoTypes__DnsWhileConnectedInfo *message,
+                     (ProtoTypes__ConnectedDnsInfo *message,
                       ProtobufCAllocator *allocator)
 {
   if(!message)
@@ -3470,7 +3470,7 @@ const ProtobufCMessageDescriptor proto_types__mac_addr_spoofing__descriptor =
   NULL,NULL,NULL    /* reserved[123] */
 };
 char proto_types__dns_while_connected_info__ip_address__default_value[] = "";
-static const ProtoTypes__DnsWhileConnectedType proto_types__dns_while_connected_info__type__default_value = PROTO_TYPES__DNS_WHILE_CONNECTED_TYPE__DNS_WHILE_CONNECTED_TYPE_ROBERT;
+static const ProtoTypes__DnsWhileConnectedType proto_types__dns_while_connected_info__type__default_value = PROTO_TYPES__CONNECTED_DNS_TYPE__CONNECTED_DNS_TYPE_ROBERT;
 static const ProtobufCFieldDescriptor proto_types__dns_while_connected_info__field_descriptors[2] =
 {
   {
@@ -3478,8 +3478,8 @@ static const ProtobufCFieldDescriptor proto_types__dns_while_connected_info__fie
     1,
     PROTOBUF_C_LABEL_OPTIONAL,
     PROTOBUF_C_TYPE_ENUM,
-    offsetof(ProtoTypes__DnsWhileConnectedInfo, has_type),
-    offsetof(ProtoTypes__DnsWhileConnectedInfo, type),
+    offsetof(ProtoTypes__ConnectedDnsInfo, has_type),
+    offsetof(ProtoTypes__ConnectedDnsInfo, type),
     &proto_types__dns_while_connected_type__descriptor,
     &proto_types__dns_while_connected_info__type__default_value,
     0,             /* flags */
@@ -3491,7 +3491,7 @@ static const ProtobufCFieldDescriptor proto_types__dns_while_connected_info__fie
     PROTOBUF_C_LABEL_OPTIONAL,
     PROTOBUF_C_TYPE_STRING,
     0,   /* quantifier_offset */
-    offsetof(ProtoTypes__DnsWhileConnectedInfo, ip_address),
+    offsetof(ProtoTypes__ConnectedDnsInfo, ip_address),
     NULL,
     &proto_types__dns_while_connected_info__ip_address__default_value,
     0,             /* flags */
@@ -3510,11 +3510,11 @@ static const ProtobufCIntRange proto_types__dns_while_connected_info__number_ran
 const ProtobufCMessageDescriptor proto_types__dns_while_connected_info__descriptor =
 {
   PROTOBUF_C__MESSAGE_DESCRIPTOR_MAGIC,
-  "ProtoTypes.DnsWhileConnectedInfo",
-  "DnsWhileConnectedInfo",
-  "ProtoTypes__DnsWhileConnectedInfo",
+  "ProtoTypes.ConnectedDnsInfo",
+  "ConnectedDnsInfo",
+  "ProtoTypes__ConnectedDnsInfo",
   "ProtoTypes",
-  sizeof(ProtoTypes__DnsWhileConnectedInfo),
+  sizeof(ProtoTypes__ConnectedDnsInfo),
   2,
   proto_types__dns_while_connected_info__field_descriptors,
   proto_types__dns_while_connected_info__field_indices_by_name,
@@ -5547,16 +5547,16 @@ const ProtobufCEnumDescriptor proto_types__dns_policy__descriptor =
 };
 static const ProtobufCEnumValue proto_types__dns_while_connected_type__enum_values_by_number[2] =
 {
-  { "DNS_WHILE_CONNECTED_TYPE_ROBERT", "PROTO_TYPES__DNS_WHILE_CONNECTED_TYPE__DNS_WHILE_CONNECTED_TYPE_ROBERT", 0 },
-  { "DNS_WHILE_CONNECTED_TYPE_CUSTOM", "PROTO_TYPES__DNS_WHILE_CONNECTED_TYPE__DNS_WHILE_CONNECTED_TYPE_CUSTOM", 1 },
+  { "CONNECTED_DNS_TYPE_ROBERT", "PROTO_TYPES__CONNECTED_DNS_TYPE__CONNECTED_DNS_TYPE_ROBERT", 0 },
+  { "CONNECTED_DNS_TYPE_CUSTOM", "PROTO_TYPES__CONNECTED_DNS_TYPE__CONNECTED_DNS_TYPE_CUSTOM", 1 },
 };
 static const ProtobufCIntRange proto_types__dns_while_connected_type__value_ranges[] = {
 {0, 0},{0, 2}
 };
 static const ProtobufCEnumValueIndex proto_types__dns_while_connected_type__enum_values_by_name[2] =
 {
-  { "DNS_WHILE_CONNECTED_TYPE_CUSTOM", 1 },
-  { "DNS_WHILE_CONNECTED_TYPE_ROBERT", 0 },
+  { "CONNECTED_DNS_TYPE_CUSTOM", 1 },
+  { "CONNECTED_DNS_TYPE_ROBERT", 0 },
 };
 const ProtobufCEnumDescriptor proto_types__dns_while_connected_type__descriptor =
 {
@@ -5981,7 +5981,7 @@ const ProtobufCEnumDescriptor proto_types__update_version_error__descriptor =
 };
 static const ProtobufCEnumValue proto_types__web_session_purpose__enum_values_by_number[2] =
 {
-  { "WEB_SESSION_PURPOSE_EDIT_ACCOUNT_DETAILS", "PROTO_TYPES__WEB_SESSION_PURPOSE__WEB_SESSION_PURPOSE_EDIT_ACCOUNT_DETAILS", 0 },
+  { "WEB_SESSION_PURPOSE_MANAGE_ACCOUNT", "PROTO_TYPES__WEB_SESSION_PURPOSE__WEB_SESSION_PURPOSE_MANAGE_ACCOUNT", 0 },
   { "WEB_SESSION_PURPOSE_ADD_EMAIL", "PROTO_TYPES__WEB_SESSION_PURPOSE__WEB_SESSION_PURPOSE_ADD_EMAIL", 1 },
 };
 static const ProtobufCIntRange proto_types__web_session_purpose__value_ranges[] = {
@@ -5990,7 +5990,7 @@ static const ProtobufCIntRange proto_types__web_session_purpose__value_ranges[] 
 static const ProtobufCEnumValueIndex proto_types__web_session_purpose__enum_values_by_name[2] =
 {
   { "WEB_SESSION_PURPOSE_ADD_EMAIL", 1 },
-  { "WEB_SESSION_PURPOSE_EDIT_ACCOUNT_DETAILS", 0 },
+  { "WEB_SESSION_PURPOSE_MANAGE_ACCOUNT", 0 },
 };
 const ProtobufCEnumDescriptor proto_types__web_session_purpose__descriptor =
 {

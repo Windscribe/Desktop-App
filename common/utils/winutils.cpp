@@ -573,7 +573,7 @@ QVector<types::NetworkInterface> WinUtils::currentNetworkInterfaces(bool include
 
                 if (nicType == NETWORK_INTERFACE_WIFI)
                 {
-                    networkInterface.networkOrSSid = ssidFromInterfaceGUID(itRow.guidName);
+                    networkInterface.networkOrSsid = ssidFromInterfaceGUID(itRow.guidName);
                 }
                 break;
             }
@@ -585,7 +585,7 @@ QVector<types::NetworkInterface> WinUtils::currentNetworkInterfaces(bool include
             {
                 if (nicType == NETWORK_INTERFACE_ETH)
                 {
-                    networkInterface.networkOrSSid = networkNameFromInterfaceGUID(it2Row.interfaceGuid);
+                    networkInterface.networkOrSsid = networkNameFromInterfaceGUID(it2Row.interfaceGuid);
                 }
                 networkInterface.connectorPresent = it2Row.connectorPresent;
                 networkInterface.endPointInterface = it2Row.endPointInterface;

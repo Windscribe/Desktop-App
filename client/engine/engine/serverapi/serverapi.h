@@ -10,6 +10,7 @@
 #include "types/proxysettings.h"
 #include "types/sessionstatus.h"
 #include "types/location.h"
+#include "types/robertfilter.h"
 #include "dnscache.h"
 #include "curlnetworkmanager.h"
 
@@ -70,6 +71,9 @@ public:
 
     void notifications(const QString &authHash, uint userRole, bool isNeedCheckRequestsEnabled);
 
+    void getRobertFilters(const QString &authHash, uint userRole, bool isNeedCheckRequestsEnabled);
+    void setRobertFilter(const QString &authHash, uint userRole, bool isNeedCheckRequestsEnabled, const types::RobertFilter &filter);
+
     void wgConfigsInit(const QString &authHash, uint userRole, bool isNeedCheckRequestsEnabled, const QString &clientPublicKey, bool deleteOldestKey);
     void wgConfigsConnect(const QString &authHash, uint userRole, bool isNeedCheckRequestsEnabled, const QString &clientPublicKey, const QString &serverName, const QString &deviceId);
 
@@ -101,6 +105,8 @@ signals:
 
     void webSessionAnswer(SERVER_API_RET_CODE retCode, const QString &token, uint userRole);
     void sendUserWarning(USER_WARNING_TYPE warning);
+    void getRobertFiltersAnswer(SERVER_API_RET_CODE retCode, const QVector<types::RobertFilter> &robertFilters, uint userRole);
+    void setRobertFilterAnswer(SERVER_API_RET_CODE retCode, uint userRole);
 
     // need for add to firewall rules
     void hostIpsChanged(const QStringList &hostIps);
@@ -139,6 +145,8 @@ private:
         REPLY_WIREGUARD_INIT,
         REPLY_WIREGUARD_CONNECT,
         REPLY_WEB_SESSION,
+        REPLY_GET_ROBERT_FILTERS,
+        REPLY_SET_ROBERT_FILTER,
         NUM_REPLY_TYPES
     };
 
@@ -179,6 +187,8 @@ private:
     void handleWgConfigsConnectDnsResolve(BaseRequest *rd, bool success, const QStringList &ips);
 
     void handleWebSessionDnsResolve(BaseRequest *rd, bool success, const QStringList &ips);
+    void handleGetRobertFiltersDnsResolve(BaseRequest *rd, bool success, const QStringList &ips);
+    void handleSetRobertFilterDnsResolve(BaseRequest *rd, bool success, const QStringList &ips);
 
     void handleAccessIpsCurl(BaseRequest *rd, bool success);
     void handleSessionReplyCurl(BaseRequest *rd, bool success);
@@ -199,6 +209,8 @@ private:
     void handleWgConfigsInitCurl(BaseRequest *rd, bool success);
     void handleWgConfigsConnectCurl(BaseRequest *rd, bool success);
     void handleWebSessionCurl(BaseRequest *rd, bool success);
+    void handleGetRobertFiltersCurl(BaseRequest *rd, bool success);
+    void handleSetRobertFilterCurl(BaseRequest *rd, bool success);
 
     CurlNetworkManager curlNetworkManager_;
     IConnectStateController *connectStateController_;

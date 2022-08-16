@@ -3,17 +3,18 @@
 #include <QGraphicsSceneMouseEvent>
 #include <QPainter>
 #include <QCursor>
+#include "commongraphics/commongraphics.h"
 #include "graphicresources/imageresourcessvg.h"
 #include "dpiscalemanager.h"
 
 namespace PreferencesWindow {
 
 CheckBoxButton::CheckBoxButton(ScalableGraphicsObject *parent) : ClickableGraphicsObject(parent),
-    curOpacity_(0.0), isChecked_(false)
+    animationProgress_(0.0), isChecked_(false), enabled_(true)
 {
     setAcceptHoverEvents(true);
 
-    connect(&opacityAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onOpacityChanged(QVariant)));
+    connect(&opacityAnimation_, &QVariantAnimation::valueChanged, this, &CheckBoxButton::onOpacityChanged);
     opacityAnimation_.setStartValue(0.0);
     opacityAnimation_.setEndValue(1.0);
     opacityAnimation_.setDuration(150);
@@ -23,7 +24,7 @@ CheckBoxButton::CheckBoxButton(ScalableGraphicsObject *parent) : ClickableGraphi
 
 QRectF CheckBoxButton::boundingRect() const
 {
-    return QRectF(0, 0, 30*G_SCALE, 16*G_SCALE);
+    return QRectF(0, 0, 40*G_SCALE, 22*G_SCALE);
 }
 
 void CheckBoxButton::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
@@ -31,23 +32,28 @@ void CheckBoxButton::paint(QPainter *painter, const QStyleOptionGraphicsItem *op
     Q_UNUSED(option);
     Q_UNUSED(widget);
 
-    qreal initialOpacity = painter->opacity();
+    painter->setOpacity(1.0);
+    if (!enabled_)
+    {
+        painter->setOpacity(OPACITY_HALF);
+    }
 
-    QSharedPointer<IndependentPixmap> pixmapGreen = ImageResourcesSvg::instance().getIndependentPixmap("preferences/GREEN_TOGGLE_BG");
-    QSharedPointer<IndependentPixmap> pixmapWhite = ImageResourcesSvg::instance().getIndependentPixmap("preferences/WHITE_TOGGLE_BG");
-    QSharedPointer<IndependentPixmap> pixmapButton = ImageResourcesSvg::instance().getIndependentPixmap("preferences/TOGGLE_BUTTON_BLACK");
+    painter->setRenderHint(QPainter::Antialiasing);
+    // At 100%, this would be R85 G255 B138
+    QColor bgColor = QColor(255-170*animationProgress_, 255, 255-117*animationProgress_);
+    painter->setBrush(bgColor);
+    painter->setPen(bgColor);
+    painter->setPen(Qt::SolidLine);
+    painter->drawRoundedRect(boundingRect().toRect(), TOGGLE_RADIUS*G_SCALE, TOGGLE_RADIUS*G_SCALE);
 
-    pixmapWhite->draw(0, 0, painter);
+    int w1 = BUTTON_OFFSET*G_SCALE;
+    int w2 = static_cast<int>(boundingRect().width() - BUTTON_WIDTH*G_SCALE - BUTTON_OFFSET*G_SCALE);
+    int curW = static_cast<int>((w2 - w1)*animationProgress_ + w1);
 
-    painter->setOpacity(curOpacity_ * initialOpacity);
-    pixmapGreen->draw(0, 0, painter);
-
-    painter->setOpacity(1.0 * initialOpacity);
-
-    int w1 = 2*G_SCALE;
-    int w2 = static_cast<int>(boundingRect().width() - pixmapButton->width() - 2*G_SCALE);
-    int curW = static_cast<int>((w2 - w1)*curOpacity_ + w1);
-    pixmapButton->draw(curW, static_cast<int>((boundingRect().height() - pixmapButton->height()) / 2), painter);
+    QColor fgColor = QColor(24, 34, 47);
+    painter->setBrush(fgColor);
+    painter->setPen(Qt::NoPen);
+    painter->drawEllipse(QRect(curW, BUTTON_OFFSET*G_SCALE, BUTTON_WIDTH*G_SCALE, BUTTON_HEIGHT*G_SCALE));
 }
 
 void CheckBoxButton::setState(bool isChecked)
@@ -57,11 +63,11 @@ void CheckBoxButton::setState(bool isChecked)
         isChecked_ = isChecked;
         if (isChecked)
         {
-            curOpacity_ = 1.0;
+            animationProgress_= 1.0;
         }
         else
         {
-            curOpacity_ = 0.0;
+            animationProgress_ = 0.0;
         }
         update();
     }
@@ -121,7 +127,14 @@ void CheckBoxButton::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
 
 void CheckBoxButton::onOpacityChanged(const QVariant &value)
 {
-    curOpacity_ = value.toDouble();
+    animationProgress_ = value.toDouble();
+    update();
+}
+
+void CheckBoxButton::setEnabled(bool enabled)
+{
+    ClickableGraphicsObject::setEnabled(enabled);
+    enabled_ = enabled;
     update();
 }
 

@@ -33,8 +33,7 @@ void DnsResolutionSettings::debugToLog()
 
 bool DnsResolutionSettings::getIsAutomatic() const
 {
-    QString manualIp = manualIp_;
-    return bAutomatic_ || manualIp.trimmed().isEmpty();
+    return bAutomatic_;
 }
 
 void DnsResolutionSettings::setIsAutomatic(bool bAutomatic)

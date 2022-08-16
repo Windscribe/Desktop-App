@@ -28,7 +28,7 @@ struct NetworkInterface
     int interfaceIndex;
     QString interfaceName;
     QString interfaceGuid;
-    QString networkOrSSid;
+    QString networkOrSsid;
     NETWORK_INTERACE_TYPE interfaceType;
     NETWORK_TRUST_TYPE trustType;
     bool active;
@@ -48,7 +48,7 @@ struct NetworkInterface
         return other.interfaceIndex == interfaceIndex &&
                other.interfaceName == interfaceName &&
                other.interfaceGuid == interfaceGuid &&
-               other.networkOrSSid == networkOrSSid &&
+               other.networkOrSsid == networkOrSsid &&
                other.interfaceType == interfaceType &&
                other.trustType == trustType &&
                other.active == active &&
@@ -73,7 +73,7 @@ struct NetworkInterface
     friend QDataStream& operator <<(QDataStream &stream, const NetworkInterface &o)
     {
         stream << versionForSerialization_;
-        stream << o.interfaceIndex << o.interfaceName << o.interfaceGuid << o.networkOrSSid << o.interfaceType << o.trustType << o.active <<
+        stream << o.interfaceIndex << o.interfaceName << o.interfaceGuid << o.networkOrSsid << o.interfaceType << o.trustType << o.active <<
                   o.friendlyName << o.requested << o.metric << o.physicalAddress << o.mtu << o.state << o.dwType << o.deviceName <<
                   o.connectorPresent << o.endPointInterface;
         return stream;
@@ -88,7 +88,7 @@ struct NetworkInterface
            stream.setStatus(QDataStream::ReadCorruptData);
            return stream;
        }
-       stream >> o.interfaceIndex >> o.interfaceName >> o.interfaceGuid >> o.networkOrSSid >> o.interfaceType >> o.trustType >> o.active >>
+       stream >> o.interfaceIndex >> o.interfaceName >> o.interfaceGuid >> o.networkOrSsid >> o.interfaceType >> o.trustType >> o.active >>
                  o.friendlyName >> o.requested >> o.metric >> o.physicalAddress >> o.mtu >> o.state >> o.dwType >> o.deviceName >>
                  o.connectorPresent >> o.endPointInterface;
        return stream;
@@ -100,7 +100,7 @@ struct NetworkInterface
         QDebugStateSaver saver(dbg);
         dbg.nospace();
         dbg << "{friendlyName:" << ni.friendlyName << "; ";
-        dbg << "networkOrSSid:" << ni.networkOrSSid << "}";
+        dbg << "networkOrSsid:" << ni.networkOrSsid << "}";
         return dbg;
     }
 

@@ -1,15 +1,14 @@
-#ifndef SPLITTUNNELINGAPPWINDOWITEM_H
-#define SPLITTUNNELINGAPPWINDOWITEM_H
+#ifndef SPLITTUNNELINGAPPSWINDOWITEM_H
+#define SPLITTUNNELINGAPPSWINDOWITEM_H
 
-#include "preferenceswindow/basepage.h"
+#include "commongraphics/basepage.h"
 #include "backend/preferences/preferences.h"
 #include "backend/preferences/preferenceshelper.h"
-#include "splittunnelingappsitem.h"
-#include "splittunnelingappssearchitem.h"
+#include "splittunnelingappsgroup.h"
 
 namespace PreferencesWindow {
 
-class SplitTunnelingAppsWindowItem : public BasePage
+class SplitTunnelingAppsWindowItem : public CommonGraphics::BasePage
 {
     Q_OBJECT
 public:
@@ -19,23 +18,24 @@ public:
     QList<types::SplitTunnelingApp> getApps();
     void setApps(QList<types::SplitTunnelingApp> apps);
     void addAppManually(types::SplitTunnelingApp app);
-    void setLoggedIn(bool able);
+
+    void setLoggedIn(bool loggedIn);
 
 signals:
     void appsUpdated(QList<types::SplitTunnelingApp> apps);
     void searchButtonClicked();
     void addButtonClicked();
-    void nativeInfoErrorMessage(QString title, QString desc);
+    void escape();
 
 private slots:
     void onAppsUpdated(QList<types::SplitTunnelingApp> apps);
 
 private:
     Preferences *preferences_;
-    SplitTunnelingAppsItem *splitTunnelingAppsItem_;
-
+    PreferenceGroup *desc_;
+    SplitTunnelingAppsGroup *splitTunnelingAppsGroup_;
 };
 
 }
 
-#endif // SPLITTUNNELINGAPPWINDOWITEM_H
+#endif // SPLITTUNNELINGAPPSWINDOWITEM_H

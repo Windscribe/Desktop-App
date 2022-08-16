@@ -152,7 +152,7 @@ void serialize(Archive & ar, CMD_CONNECT_STATUS & a, const unsigned int version)
 {
     UNREFERENCED_PARAMETER(version);
     ar & a.isConnected;
-	ar & a.isCloseTcpSocket;
+	ar & a.isTerminateSocket;
 	ar & a.isKeepLocalSocket;
     ar & a.protocol;
 
@@ -164,7 +164,7 @@ void serialize(Archive & ar, CMD_CONNECT_STATUS & a, const unsigned int version)
 }
 
 template<class Archive>
-void serialize(Archive & ar, CMD_DNS_WHILE_CONNECTED & g, const unsigned int version)
+void serialize(Archive & ar, CMD_CONNECTED_DNS & g, const unsigned int version)
 {
         UNREFERENCED_PARAMETER(version);
         ar & g.ifIndex;

@@ -11,7 +11,7 @@
 #include "types/firewallsettings.h"
 #include "types/packetsize.h"
 #include "types/macaddrspoofing.h"
-#include "types/dnswhileconnectedinfo.h"
+#include "types/connecteddnsinfo.h"
 #include "utils/simplecrypt.h"
 
 class LegacyProtobufSupport;
@@ -24,7 +24,7 @@ struct EngineSettingsData : public QSharedData
         language("en"),
         updateChannel(UPDATE_CHANNEL_RELEASE),
         isIgnoreSslErrors(false),
-        isCloseTcpSockets(true),
+        isTerminateSockets(true),
         isAllowLanTraffic(false),
         dnsPolicy(DNS_TYPE_OS_DEFAULT),
         tapAdapter(WINTUN_ADAPTER),
@@ -35,7 +35,7 @@ struct EngineSettingsData : public QSharedData
     QString language;
     UPDATE_CHANNEL updateChannel;
     bool isIgnoreSslErrors;
-    bool isCloseTcpSockets;
+    bool isTerminateSockets;
     bool isAllowLanTraffic;
     types::FirewallSettings firewallSettings;
     types::ConnectionSettings connectionSettings;
@@ -47,7 +47,7 @@ struct EngineSettingsData : public QSharedData
     TAP_ADAPTER_TYPE tapAdapter;
     QString customOvpnConfigsPath;
     bool isKeepAliveEnabled;
-    types::DnsWhileConnectedInfo dnsWhileConnectedInfo;
+    types::ConnectedDnsInfo connectedDnsInfo;
     DNS_MANAGER_TYPE dnsManager;
 };
 
@@ -68,8 +68,8 @@ public:
 
     bool isIgnoreSslErrors() const;
     void setIsIgnoreSslErrors(bool ignore);
-    bool isCloseTcpSockets() const;
-    void setIsCloseTcpSockets(bool close);
+    bool isTerminateSockets() const;
+    void setIsTerminateSockets(bool close);
     bool isAllowLanTraffic() const;
     void setIsAllowLanTraffic(bool isAllowLanTraffic);
 
@@ -92,8 +92,8 @@ public:
     void setPacketSize(const types::PacketSize &packetSize);
     UPDATE_CHANNEL updateChannel() const;
     void setUpdateChannel(UPDATE_CHANNEL channel);
-    const types::DnsWhileConnectedInfo &dnsWhileConnectedInfo() const;
-    void setDnsWhileConnectedInfo(const types::DnsWhileConnectedInfo &info);
+    const types::ConnectedDnsInfo &connectedDnsInfo() const;
+    void setConnectedDnsInfo(const types::ConnectedDnsInfo &info);
 
     bool isUseWintun() const;
     TAP_ADAPTER_TYPE tapAdapter() const;

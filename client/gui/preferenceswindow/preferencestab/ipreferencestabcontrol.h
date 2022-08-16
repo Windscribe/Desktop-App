@@ -4,7 +4,16 @@
 #include <QGraphicsObject>
 
 enum PREFERENCES_TAB_TYPE
-{ TAB_GENERAL, TAB_ACCOUNT, TAB_CONNECTION, TAB_SHARE, TAB_DEBUG, TAB_UNDEFINED };
+{
+    TAB_GENERAL,
+    TAB_ACCOUNT,
+    TAB_CONNECTION,
+    TAB_ROBERT,
+    TAB_ADVANCED,
+    TAB_HELP,
+    TAB_ABOUT,
+    TAB_UNDEFINED
+};
 
 class IPreferencesTabControl
 {
@@ -22,7 +31,6 @@ public:
 
 signals:
     virtual void currentTabChanged(PREFERENCES_TAB_TYPE tab) = 0;
-    virtual void helpClick() = 0;
     virtual void signOutClick() = 0;
     virtual void loginClick() = 0;
     virtual void quitClick() = 0;

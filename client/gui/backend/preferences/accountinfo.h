@@ -31,6 +31,12 @@ public:
     bool isPremium() const;
     void setIsPremium(bool isPremium);
 
+    qint64 trafficUsed() const;
+    void setTrafficUsed(qint64 used);
+
+    QString lastReset() const;
+    void setLastReset(const QString &lastReset);
+
 signals:
     void usernameChanged(const QString &username);
     void emailChanged(const QString &email);
@@ -39,6 +45,8 @@ signals:
     void expireDateChanged(const QString &date);
     void authHashChanged(const QString &authHash);
     void isPremiumChanged(bool isPremium);
+    void trafficUsedChanged(qint64 used);
+    void lastResetChanged(const QString &date);
 
 private:
     QString username_;
@@ -48,6 +56,8 @@ private:
     QString expireDate_;
     QString authHash_;
     bool isPremium_;
+    qint64 trafficUsed_;
+    QString lastReset_;
 };
 
 #endif // ACCOUNTINFO_H

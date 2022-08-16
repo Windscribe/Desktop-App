@@ -12,6 +12,7 @@
 #include "types/proxysharinginfo.h"
 #include "types/wifisharinginfo.h"
 #include "types/locationitem.h"
+#include "types/robertfilter.h"
 
 namespace IPC
 {
@@ -301,6 +302,49 @@ public:
     }
 
     QVector<types::Notification> notifications_;
+};
+
+class RobertFiltersUpdated : public Command
+{
+public:
+    explicit RobertFiltersUpdated(bool success, const QVector<types::RobertFilter> &filters) : success_(success), filters_(filters)
+    {}
+
+    std::vector<char> getData() const override   {  Q_ASSERT(false); return std::vector<char>(); }
+    std::string getStringId() const override { return getCommandStringId(); }
+    std::string getDebugString() const override
+    {
+        return "ServerCommand::RobertFiltersUpdated debug string";
+    }
+
+    static std::string getCommandStringId()
+    {
+        return "ServerCommand::RobertFiltersUpdated";
+    }
+
+    bool success_;
+    QVector<types::RobertFilter> filters_;
+};
+
+class SetRobertFilterFinished : public Command
+{
+public:
+    explicit SetRobertFilterFinished(bool success) : success_(success)
+    {}
+
+    std::vector<char> getData() const override   {  Q_ASSERT(false); return std::vector<char>(); }
+    std::string getStringId() const override { return getCommandStringId(); }
+    std::string getDebugString() const override
+    {
+        return "ServerCommand::SetRobertFilterFinished debug string";
+    }
+
+    static std::string getCommandStringId()
+    {
+        return "ServerCommand::SetRobertFilterFinished";
+    }
+
+    bool success_;
 };
 
 class CheckUpdateInfoUpdated : public Command

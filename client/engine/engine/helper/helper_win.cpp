@@ -192,14 +192,14 @@ bool Helper_win::setSplitTunnelingSettings(bool isActive, bool isExclude, bool i
     return mpr.exitCode;
 }
 
-void Helper_win::sendConnectStatus(bool isConnected, bool isCloseTcpSocket, bool isKeepLocalSocket, const AdapterGatewayInfo &defaultAdapter, const AdapterGatewayInfo &vpnAdapter,
+void Helper_win::sendConnectStatus(bool isConnected, bool isTerminateSocket, bool isKeepLocalSocket, const AdapterGatewayInfo &defaultAdapter, const AdapterGatewayInfo &vpnAdapter,
                                    const QString &connectedIp, const PROTOCOL &protocol)
 {
     QMutexLocker locker(&mutex_);
 
     CMD_CONNECT_STATUS cmd;
     cmd.isConnected = isConnected;
-    cmd.isCloseTcpSocket = isCloseTcpSocket;
+    cmd.isTerminateSocket = isTerminateSocket;
     cmd.isKeepLocalSocket = isKeepLocalSocket;
 
     if (isConnected)
@@ -258,7 +258,7 @@ bool Helper_win::setCustomDnsWhileConnected(bool isIkev2, unsigned long ifIndex,
 
     QMutexLocker locker(&mutex_);
 
-    CMD_DNS_WHILE_CONNECTED cmd;
+    CMD_CONNECTED_DNS cmd;
     cmd.ifIndex = ifIndex;
     cmd.szDnsIpAddress = overrideDnsIpAddress.toStdWString();
 
@@ -266,7 +266,7 @@ bool Helper_win::setCustomDnsWhileConnected(bool isIkev2, unsigned long ifIndex,
     boost::archive::text_oarchive oa(stream, boost::archive::no_header);
     oa << cmd;
 
-    MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_DNS_WHILE_CONNECTED, stream.str());
+    MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_CONNECTED_DNS, stream.str());
     return mpr.exitCode == 0;
 }
 

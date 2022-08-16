@@ -1,19 +1,17 @@
-#ifndef APPITEM_H
-#define APPITEM_H
+#ifndef APPSEARCHITEM_H
+#define APPSEARCHITEM_H
 
-#include "../baseitem.h"
-#include "../dividerline.h"
+#include "commongraphics/baseitem.h"
 #include "commongraphics/iconbutton.h"
 #include "types/splittunneling.h"
 
 namespace PreferencesWindow {
 
-class AppSearchItem : public BaseItem
+class AppSearchItem : public CommonGraphics::BaseItem
 {
     Q_OBJECT
 public:
     AppSearchItem(types::SplitTunnelingApp app, QString appIconPath, ScalableGraphicsObject *parent);
-    ~AppSearchItem();
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
     QString getName();
@@ -27,23 +25,19 @@ public:
     void updateScaling() override;
 
 private slots:
-    void onTextOpacityChanged(const QVariant &value);
+    void onOpacityChanged(const QVariant &value);
     void onHoverEnter();
+    void onHoverLeave();
 
 private:
-    double textOpacity_;
+    double opacity_;
     types::SplitTunnelingApp app_;
 
     QString appIcon_;
 
-    double enabledIconOpacity_;
-    QString enabledIcon_;
-
-    DividerLine *line_;
-
-    QVariantAnimation textOpacityAnimation_;
+    QVariantAnimation opacityAnimation_;
 
 };
 
 }
-#endif // APPITEM_H
+#endif // APPSEARCHITEM_H

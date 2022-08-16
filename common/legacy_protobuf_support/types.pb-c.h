@@ -37,7 +37,7 @@ typedef struct ProtoTypes__ShareSecureHotspot ProtoTypes__ShareSecureHotspot;
 typedef struct ProtoTypes__ShareProxyGateway ProtoTypes__ShareProxyGateway;
 typedef struct ProtoTypes__PacketSize ProtoTypes__PacketSize;
 typedef struct ProtoTypes__MacAddrSpoofing ProtoTypes__MacAddrSpoofing;
-typedef struct ProtoTypes__DnsWhileConnectedInfo ProtoTypes__DnsWhileConnectedInfo;
+typedef struct ProtoTypes__ConnectedDnsInfo ProtoTypes__ConnectedDnsInfo;
 typedef struct ProtoTypes__EngineSettings ProtoTypes__EngineSettings;
 typedef struct ProtoTypes__ProxySharingInfo ProtoTypes__ProxySharingInfo;
 typedef struct ProtoTypes__WifiSharingInfo ProtoTypes__WifiSharingInfo;
@@ -223,9 +223,9 @@ typedef enum _ProtoTypes__DnsPolicy {
     PROTOBUF_C__FORCE_ENUM_TO_BE_INT_SIZE(PROTO_TYPES__DNS_POLICY)
 } ProtoTypes__DnsPolicy;
 typedef enum _ProtoTypes__DnsWhileConnectedType {
-  PROTO_TYPES__DNS_WHILE_CONNECTED_TYPE__DNS_WHILE_CONNECTED_TYPE_ROBERT = 0,
-  PROTO_TYPES__DNS_WHILE_CONNECTED_TYPE__DNS_WHILE_CONNECTED_TYPE_CUSTOM = 1
-    PROTOBUF_C__FORCE_ENUM_TO_BE_INT_SIZE(PROTO_TYPES__DNS_WHILE_CONNECTED_TYPE)
+  PROTO_TYPES__CONNECTED_DNS_TYPE__CONNECTED_DNS_TYPE_ROBERT = 0,
+  PROTO_TYPES__CONNECTED_DNS_TYPE__CONNECTED_DNS_TYPE_CUSTOM = 1
+    PROTOBUF_C__FORCE_ENUM_TO_BE_INT_SIZE(PROTO_TYPES__CONNECTED_DNS_TYPE)
 } ProtoTypes__DnsWhileConnectedType;
 typedef enum _ProtoTypes__DnsManagerType {
   PROTO_TYPES__DNS_MANAGER_TYPE__DNS_MANAGER_AUTOMATIC = 0,
@@ -317,7 +317,7 @@ typedef enum _ProtoTypes__UpdateVersionError {
     PROTOBUF_C__FORCE_ENUM_TO_BE_INT_SIZE(PROTO_TYPES__UPDATE_VERSION_ERROR)
 } ProtoTypes__UpdateVersionError;
 typedef enum _ProtoTypes__WebSessionPurpose {
-  PROTO_TYPES__WEB_SESSION_PURPOSE__WEB_SESSION_PURPOSE_EDIT_ACCOUNT_DETAILS = 0,
+  PROTO_TYPES__WEB_SESSION_PURPOSE__WEB_SESSION_PURPOSE_MANAGE_ACCOUNT = 0,
   PROTO_TYPES__WEB_SESSION_PURPOSE__WEB_SESSION_PURPOSE_ADD_EMAIL = 1
     PROTOBUF_C__FORCE_ENUM_TO_BE_INT_SIZE(PROTO_TYPES__WEB_SESSION_PURPOSE)
 } ProtoTypes__WebSessionPurpose;
@@ -709,7 +709,7 @@ struct  ProtoTypes__MacAddrSpoofing
     , 0, 0, NULL, 0, 0, NULL, NULL }
 
 
-struct  ProtoTypes__DnsWhileConnectedInfo
+struct  ProtoTypes__ConnectedDnsInfo
 {
   ProtobufCMessage base;
   protobuf_c_boolean has_type;
@@ -719,7 +719,7 @@ struct  ProtoTypes__DnsWhileConnectedInfo
 extern char proto_types__dns_while_connected_info__ip_address__default_value[];
 #define PROTO_TYPES__DNS_WHILE_CONNECTED_INFO__INIT \
  { PROTOBUF_C_MESSAGE_INIT (&proto_types__dns_while_connected_info__descriptor) \
-    , 0, PROTO_TYPES__DNS_WHILE_CONNECTED_TYPE__DNS_WHILE_CONNECTED_TYPE_ROBERT, proto_types__dns_while_connected_info__ip_address__default_value }
+    , 0, PROTO_TYPES__CONNECTED_DNS_TYPE__CONNECTED_DNS_TYPE_ROBERT, proto_types__dns_while_connected_info__ip_address__default_value }
 
 
 /*
@@ -757,7 +757,7 @@ struct  ProtoTypes__EngineSettings
   char *customovpnconfigspath;
   protobuf_c_boolean has_is_keep_alive_enabled;
   protobuf_c_boolean is_keep_alive_enabled;
-  ProtoTypes__DnsWhileConnectedInfo *dns_while_connected_info;
+  ProtoTypes__ConnectedDnsInfo *dns_while_connected_info;
   protobuf_c_boolean has_dns_manager;
   ProtoTypes__DnsManagerType dns_manager;
 };
@@ -1425,24 +1425,24 @@ ProtoTypes__MacAddrSpoofing *
 void   proto_types__mac_addr_spoofing__free_unpacked
                      (ProtoTypes__MacAddrSpoofing *message,
                       ProtobufCAllocator *allocator);
-/* ProtoTypes__DnsWhileConnectedInfo methods */
+/* ProtoTypes__ConnectedDnsInfo methods */
 void   proto_types__dns_while_connected_info__init
-                     (ProtoTypes__DnsWhileConnectedInfo         *message);
+                     (ProtoTypes__ConnectedDnsInfo         *message);
 size_t proto_types__dns_while_connected_info__get_packed_size
-                     (const ProtoTypes__DnsWhileConnectedInfo   *message);
+                     (const ProtoTypes__ConnectedDnsInfo   *message);
 size_t proto_types__dns_while_connected_info__pack
-                     (const ProtoTypes__DnsWhileConnectedInfo   *message,
+                     (const ProtoTypes__ConnectedDnsInfo   *message,
                       uint8_t             *out);
 size_t proto_types__dns_while_connected_info__pack_to_buffer
-                     (const ProtoTypes__DnsWhileConnectedInfo   *message,
+                     (const ProtoTypes__ConnectedDnsInfo   *message,
                       ProtobufCBuffer     *buffer);
-ProtoTypes__DnsWhileConnectedInfo *
+ProtoTypes__ConnectedDnsInfo *
        proto_types__dns_while_connected_info__unpack
                      (ProtobufCAllocator  *allocator,
                       size_t               len,
                       const uint8_t       *data);
 void   proto_types__dns_while_connected_info__free_unpacked
-                     (ProtoTypes__DnsWhileConnectedInfo *message,
+                     (ProtoTypes__ConnectedDnsInfo *message,
                       ProtobufCAllocator *allocator);
 /* ProtoTypes__EngineSettings methods */
 void   proto_types__engine_settings__init
@@ -1778,8 +1778,8 @@ typedef void (*ProtoTypes__PacketSize_Closure)
 typedef void (*ProtoTypes__MacAddrSpoofing_Closure)
                  (const ProtoTypes__MacAddrSpoofing *message,
                   void *closure_data);
-typedef void (*ProtoTypes__DnsWhileConnectedInfo_Closure)
-                 (const ProtoTypes__DnsWhileConnectedInfo *message,
+typedef void (*ProtoTypes__ConnectedDnsInfo_Closure)
+                 (const ProtoTypes__ConnectedDnsInfo *message,
                   void *closure_data);
 typedef void (*ProtoTypes__EngineSettings_Closure)
                  (const ProtoTypes__EngineSettings *message,

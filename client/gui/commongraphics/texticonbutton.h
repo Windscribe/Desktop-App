@@ -24,6 +24,8 @@ public:
     const QString text();
     void setText(QString text);
 
+    void setVerticalOffset(int offset);
+
     int getWidth();
     int getHeight();
 
@@ -51,7 +53,6 @@ private:
     int height_;
 
     int spacerWidth_;
-    QString spacer();
 
     QString iconPath_;
     QString text_;
@@ -60,13 +61,10 @@ private:
     double curIconOpacity_;
 
     FontDescr fontDescr_;
+    int yOffset_;
 
     QVariantAnimation textOpacityAnimation_;
     QVariantAnimation iconOpacityAnimation_;
-
-    static constexpr int MARGIN_X = 0;
-    static constexpr int MARGIN_Y = 0;
-    static constexpr int PIXMAP_WIDTH = 16;
 };
 
 }

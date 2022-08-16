@@ -185,10 +185,10 @@ bool Helper_posix::setSplitTunnelingSettings(bool isActive, bool isExclude,
     return true;
 }
 
-void Helper_posix::sendConnectStatus(bool isConnected, bool isCloseTcpSocket, bool isKeepLocalSocket, const AdapterGatewayInfo &defaultAdapter, const AdapterGatewayInfo &vpnAdapter,
+void Helper_posix::sendConnectStatus(bool isConnected, bool isTerminateSocket, bool isKeepLocalSocket, const AdapterGatewayInfo &defaultAdapter, const AdapterGatewayInfo &vpnAdapter,
                                    const QString &connectedIp, const PROTOCOL &protocol)
 {
-    Q_UNUSED(isCloseTcpSocket);
+    Q_UNUSED(isTerminateSocket);
     Q_UNUSED(isKeepLocalSocket);
     QMutexLocker locker(&mutex_);
 
