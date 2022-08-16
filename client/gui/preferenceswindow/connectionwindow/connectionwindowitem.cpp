@@ -61,7 +61,7 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
     addItem(subpagesGroup_);
 
     firewallGroup_ = new FirewallGroup(this,
-                                       tr("Choose whether to toggle to firewall manually, let Windscribe do it for you, or to have it always turned on."),
+                                       tr("Control the firewall manually, let Windscribe do it for you, or have it always turned on."),
                                        QString("https://%1/features/firewall").arg(HardcodedSettings::instance().serverUrl()));
     connect(firewallGroup_, &FirewallGroup::firewallPreferencesChanged, this, &ConnectionWindowItem::onFirewallPreferencesChangedByUser);
     firewallGroup_->setFirewallSettings(preferences->firewallSettings());
@@ -73,7 +73,7 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
                                              tr("Connection Mode"),
                                              "preferences/CONNECTION_MODE",
                                              ProtocolGroup::SelectionType::COMBO_BOX,
-                                             tr("Choose whether to let Windscribe automatically pick a protocol / port combination most optimal for your setup, or to manually do it yourself."),
+                                             tr("Automatically determine the optimal protocol & port for your setup, or select one yourself."),
                                              QString("https://%1/features/flexible-connectivity").arg(HardcodedSettings::instance().serverUrl()));
     connectionModeGroup_->setConnectionSettings(preferences->connectionSettings());
     connect(connectionModeGroup_, &ProtocolGroup::connectionModePreferencesChanged, this, &ConnectionWindowItem::onConnectionModePreferencesChangedByUser);
@@ -81,7 +81,7 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
 
 #ifndef Q_OS_LINUX
     packetSizeGroup_ = new PacketSizeGroup(this,
-                                           tr("Choose whether to let Windscribe decide the MTU for your connection, or to manually override."),
+                                           tr("Automatically determine the MTU for your connection, or manually override."),
                                            QString("https://%1/features/packet-size").arg(HardcodedSettings::instance().serverUrl()));
     packetSizeGroup_->setPacketSizeSettings(preferences->packetSize());
     connect(packetSizeGroup_, &PacketSizeGroup::packetSizeChanged, this, &ConnectionWindowItem::onPacketSizePreferencesChangedByUser);
@@ -97,7 +97,7 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
 #endif
 
     allowLanTrafficGroup_ = new PreferenceGroup(this,
-                                                tr("Choose whether to allow access to resources on the same network (like file servers, printers, media boxes, etc.) while connected to Windscribe."),
+                                                tr("Allow access to local file servers, printers and media boxes while connected to Windscribe."),
                                                 QString("https://%1/features/lan-traffic").arg(HardcodedSettings::instance().serverUrl()));
     checkBoxAllowLanTraffic_ = new CheckBoxItem(allowLanTrafficGroup_, QT_TRANSLATE_NOOP("PreferencesWindow::CheckBoxItem", "Allow LAN Traffic"), QString());
     checkBoxAllowLanTraffic_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/ALLOW_LAN_TRAFFIC"));
