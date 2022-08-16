@@ -9,7 +9,8 @@
 
 namespace GeneralMessage {
 
-GeneralMessageWindowItem::GeneralMessageWindowItem(bool errorMode, QGraphicsObject *parent) : ScalableGraphicsObject(parent)
+GeneralMessageWindowItem::GeneralMessageWindowItem(Preferences *preferences, bool errorMode, QGraphicsObject *parent)
+  : ScalableGraphicsObject(parent), preferences_(preferences), height_(WINDOW_HEIGHT)
 {
     setFlag(QGraphicsItem::ItemIsFocusable);
 
@@ -25,10 +26,11 @@ GeneralMessageWindowItem::GeneralMessageWindowItem(bool errorMode, QGraphicsObje
 
     QString acceptText = QT_TRANSLATE_NOOP("CommonGraphics::BubbleButtonDark", "Ok");
 
-    acceptButton_ = new CommonGraphics::BubbleButtonDark(this, 108, 40, 20, 20);
-    connect(acceptButton_, SIGNAL(clicked()), this, SLOT(onAcceptClick()));
-    acceptButton_->setText(acceptText);
+    connect(preferences_, &Preferences::appSkinChanged, this, &GeneralMessageWindowItem::onAppSkinChanged);
 
+    acceptButton_ = new CommonGraphics::BubbleButtonDark(this, 108, 40, 20, 20);
+    connect(acceptButton_, &CommonGraphics::BubbleButtonDark::clicked, this, &GeneralMessageWindowItem::onAcceptClick);
+    acceptButton_->setText(acceptText);
 
     curTitleText_ = "General Message Title";
     curDescriptionText_ = "General Message Description";
@@ -45,17 +47,34 @@ GeneralMessageWindowItem::GeneralMessageWindowItem(bool errorMode, QGraphicsObje
 
 QRectF GeneralMessageWindowItem::boundingRect() const
 {
-    return QRectF(0, 0, WINDOW_WIDTH * G_SCALE, WINDOW_HEIGHT * G_SCALE);
+    return QRectF(0, 0, WINDOW_WIDTH*G_SCALE, height_*G_SCALE);
 }
 
 void GeneralMessageWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem * /*option*/, QWidget * /*widget*/)
 {
     qreal initialOpacity = painter->opacity();
 
-    // background:
-    painter->setOpacity(curBackgroundOpacity_ * initialOpacity);
-    QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap(background_);
-    p->draw(0, 0, painter);
+    // background
+    if (preferences_->appSkin() == APP_SKIN_VAN_GOGH)
+    {
+        painter->setPen(Qt::NoPen);
+#ifdef Q_OS_MAC
+        QPainterPath path;
+        path.addRoundedRect(boundingRect().toRect(), 5*G_SCALE, 5*G_SCALE);
+        painter->fillPath(path, QColor(2, 13, 28));
+#else
+        painter->fillRect(boundingRect().toRect(), QColor(2, 13, 28));
+#endif
+        painter->setPen(Qt::SolidLine);
+    }
+    else
+    {
+        painter->setOpacity(curBackgroundOpacity_ * initialOpacity);
+        QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap(background_);
+        p->draw(0, 0, painter);
+    }
+
+    int yOffset = preferences_->appSkin() == APP_SKIN_VAN_GOGH ? -28*G_SCALE : 0;
 
     // title
     painter->setOpacity(curTitleOpacity_ * initialOpacity);
@@ -64,7 +83,7 @@ void GeneralMessageWindowItem::paint(QPainter *painter, const QStyleOptionGraphi
     QFont titleFont = *FontManager::instance().getFont(24, true);
     painter->setFont(titleFont);
 
-    QRectF titleRect(0, TITLE_POS_Y * G_SCALE, WINDOW_WIDTH * G_SCALE, CommonGraphics::textHeight(titleFont));
+    QRectF titleRect(0, (TITLE_POS_Y + yOffset)*G_SCALE, WINDOW_WIDTH*G_SCALE, CommonGraphics::textHeight(titleFont));
     painter->drawText(titleRect, Qt::AlignCenter, tr(curTitleText_.toStdString().c_str()));
 
     // main description
@@ -73,9 +92,9 @@ void GeneralMessageWindowItem::paint(QPainter *painter, const QStyleOptionGraphi
     painter->setFont(descFont);
     painter->setPen(Qt::white);
 
-    QRect descRect = CommonGraphics::idealRect(0,0, DESCRIPTION_WIDTH_MIN * G_SCALE, (WINDOW_WIDTH - 32)  * G_SCALE, 3, tr(curDescriptionText_.toStdString().c_str()), descFont, Qt::TextWordWrap);
-    painter->drawText(CommonGraphics::centeredOffset(WINDOW_WIDTH * G_SCALE, descRect.width()), DESCRIPTION_POS_Y * G_SCALE - descRect.height()/2,
-                      descRect.width(), WINDOW_HEIGHT * G_SCALE,
+    QRect descRect = CommonGraphics::idealRect(0,0, DESCRIPTION_WIDTH_MIN*G_SCALE, (WINDOW_WIDTH - 32)*G_SCALE, 3, tr(curDescriptionText_.toStdString().c_str()), descFont, Qt::TextWordWrap);
+    painter->drawText(CommonGraphics::centeredOffset(WINDOW_WIDTH*G_SCALE, descRect.width()), (DESCRIPTION_POS_Y + yOffset)*G_SCALE - descRect.height()/2,
+                      descRect.width(), height_*G_SCALE,
                       Qt::AlignHCenter | Qt::TextWordWrap, tr(curDescriptionText_.toStdString().c_str()));
 }
 
@@ -105,9 +124,13 @@ void GeneralMessageWindowItem::setErrorMode(bool error)
 void GeneralMessageWindowItem::updateScaling()
 {
     ScalableGraphicsObject::updateScaling();
+}
 
+void GeneralMessageWindowItem::updatePositions()
+{
     const int acceptPosX = CommonGraphics::centeredOffset(WINDOW_WIDTH * G_SCALE, acceptButton_->boundingRect().width());
-    acceptButton_->setPos(acceptPosX, ACCEPT_BUTTON_POS_Y * G_SCALE);
+    int yOffset = preferences_->appSkin() == APP_SKIN_VAN_GOGH ? -28*G_SCALE : 0;
+    acceptButton_->setPos(acceptPosX, (ACCEPT_BUTTON_POS_Y + yOffset)*G_SCALE);
 }
 
 void GeneralMessageWindowItem::keyPressEvent(QKeyEvent *event)
@@ -127,5 +150,17 @@ void GeneralMessageWindowItem::onAcceptClick()
     emit acceptClick();
 }
 
+void GeneralMessageWindowItem::onAppSkinChanged(APP_SKIN s)
+{
+    Q_UNUSED(s);
+    update();
+}
+
+void GeneralMessageWindowItem::setHeight(int height)
+{
+    prepareGeometryChange();
+    height_ = height;
+    updatePositions();
+}
 
 }

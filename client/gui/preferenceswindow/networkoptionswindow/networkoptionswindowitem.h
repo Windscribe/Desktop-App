@@ -48,8 +48,6 @@ private slots:
     void updateShownItems();
 
 private:
-    NETWORK_TRUST_TYPE trustTypeFromPreferences(types::NetworkInterface networkName);
-
     Preferences *preferences_;
 
     PreferenceGroup *desc_;

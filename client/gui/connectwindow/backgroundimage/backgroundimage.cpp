@@ -11,22 +11,13 @@ namespace ConnectWindow {
 BackgroundImage::BackgroundImage(QObject *parent, Preferences *preferences) : QObject(parent), preferences_(preferences), isDisconnectedAndConnectedImagesTheSame_(false),
     imageChanger_(this, ANIMATION_DURATION), connectingGradientChanger_(this, ANIMATION_DURATION), connectedGradientChanger_(this, ANIMATION_DURATION), isConnected_(false)
 {
-#ifdef Q_OS_WIN
-    connectingGradient_ = "background/WIN_TOP_GRADIENT_BG_CONNECTING";
-    connectedGradient_ = "background/WIN_TOP_GRADIENT_BG_CONNECTED";
-    connectingCustomGradient_ = "background/WIN_TOP_GRADIENT_BG_CONNECTING_CUSTOM";
-    connectedCustomGradient_ = "background/WIN_TOP_GRADIENT_BG_CONNECTED_CUSTOM";
-#else
-    connectingGradient_ = "background/MAC_TOP_GRADIENT_BG_CONNECTING";
-    connectedGradient_ = "background/MAC_TOP_GRADIENT_BG_CONNECTED";
-    connectingCustomGradient_ = "background/MAC_TOP_GRADIENT_BG_CONNECTING_CUSTOM";
-    connectedCustomGradient_ = "background/MAC_TOP_GRADIENT_BG_CONNECTED_CUSTOM";
-#endif
+    updateImages();
 
-    connect(&imageChanger_, SIGNAL(updated()), SIGNAL(updated()));
-    connect(&connectingGradientChanger_, SIGNAL(updated()), SIGNAL(updated()));
-    connect(&connectedGradientChanger_, SIGNAL(updated()), SIGNAL(updated()));
-    connect(preferences_, SIGNAL(backgroundSettingsChanged(const types::BackgroundSettings &)), SLOT(onBackgroundSettingsChanged(const types::BackgroundSettings &)));
+    connect(&imageChanger_, &ImageChanger::updated, this, &BackgroundImage::updated);
+    connect(&connectingGradientChanger_, &SimpleImageChanger::updated, this, &BackgroundImage::updated);
+    connect(&connectedGradientChanger_, &SimpleImageChanger::updated, this, &BackgroundImage::updated);
+    connect(preferences_, &Preferences::backgroundSettingsChanged, this, &BackgroundImage::onBackgroundSettingsChanged);
+    connect(preferences_, &Preferences::appSkinChanged, this, &BackgroundImage::onAppSkinChanged);
     onBackgroundSettingsChanged(preferences_->backgroundSettings());
 }
 
@@ -213,6 +204,7 @@ void BackgroundImage::safeChangeToConnectedImage(bool bShowPrevChangeAnimation)
 
 void BackgroundImage::switchConnectGradient(bool isCustomBackground)
 {
+    isCustomBackground_ = isCustomBackground;
     if (isCustomBackground)
     {
         connectingGradientChanger_.setImage(ImageResourcesSvg::instance().getIndependentPixmap(connectingCustomGradient_), true);
@@ -225,6 +217,46 @@ void BackgroundImage::switchConnectGradient(bool isCustomBackground)
     }
 }
 
+void BackgroundImage::updateImages()
+{
+#ifdef Q_OS_MAC
+    if (preferences_->appSkin() == APP_SKIN_VAN_GOGH)
+    {
+        connectingGradient_ = "background/MAC_TOP_GRADIENT_BG_CONNECTING_VAN_GOGH";
+        connectedGradient_ = "background/MAC_TOP_GRADIENT_BG_CONNECTED_VAN_GOGH";
+        connectingCustomGradient_ = "background/MAC_TOP_GRADIENT_BG_CONNECTING_CUSTOM_VAN_GOGH";
+        connectedCustomGradient_ = "background/MAC_TOP_GRADIENT_BG_CONNECTED_CUSTOM_VAN_GOGH";
+    }
+    else
+    {
+        connectingGradient_ = "background/MAC_TOP_GRADIENT_BG_CONNECTING";
+        connectedGradient_ = "background/MAC_TOP_GRADIENT_BG_CONNECTED";
+        connectingCustomGradient_ = "background/MAC_TOP_GRADIENT_BG_CONNECTING_CUSTOM";
+        connectedCustomGradient_ = "background/MAC_TOP_GRADIENT_BG_CONNECTED_CUSTOM";
+    }
+#else
+    if (preferences_->appSkin() == APP_SKIN_VAN_GOGH)
+    {
+        connectingGradient_ = "background/WIN_TOP_GRADIENT_BG_CONNECTING_VAN_GOGH";
+        connectedGradient_ = "background/WIN_TOP_GRADIENT_BG_CONNECTED_VAN_GOGH";
+        connectingCustomGradient_ = "background/WIN_TOP_GRADIENT_BG_CONNECTING_CUSTOM_VAN_GOGH";
+        connectedCustomGradient_ = "background/WIN_TOP_GRADIENT_BG_CONNECTED_CUSTOM_VAN_GOGH";
+    }
+    else
+    {
+        connectingGradient_ = "background/WIN_TOP_GRADIENT_BG_CONNECTING";
+        connectedGradient_ = "background/WIN_TOP_GRADIENT_BG_CONNECTED";
+        connectingCustomGradient_ = "background/WIN_TOP_GRADIENT_BG_CONNECTING_CUSTOM";
+        connectedCustomGradient_ = "background/WIN_TOP_GRADIENT_BG_CONNECTED_CUSTOM";
+    }
+#endif
+    switchConnectGradient(isCustomBackground_);
+}
 
+void BackgroundImage::onAppSkinChanged(APP_SKIN s)
+{
+    Q_UNUSED(s);
+    updateImages();
+}
 
 } //namespace ConnectWindow

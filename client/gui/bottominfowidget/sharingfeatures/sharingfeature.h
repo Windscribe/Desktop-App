@@ -4,8 +4,8 @@
 #include <QGraphicsObject>
 #include <QFont>
 #include <QVariantAnimation>
+#include "commongraphics/dividerline.h"
 #include "commongraphics/texticonbutton.h"
-#include "preferenceswindow/dividerline.h"
 #include "commongraphics/verticaldividerline.h"
 
 namespace SharingFeatures {

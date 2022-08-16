@@ -37,6 +37,8 @@ public:
     virtual void setRobertFilters(const QVector<types::RobertFilter> &filters) = 0;
     virtual void setRobertFiltersError() = 0;
 
+    virtual void setScrollOffset(int offset) = 0;
+
 signals:
     virtual void escape() = 0;
     virtual void signOutClick() = 0;

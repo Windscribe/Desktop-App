@@ -42,7 +42,9 @@ public:
 
     void clickConnect(const QString &ovpnConfig, const types::ServerCredentials &serverCredentials,
                       QSharedPointer<locationsmodel::BaseLocationInfo> bli,
-                      const types::ConnectionSettings &connectionSettings, const types::PortMap &portMap, const types::ProxySettings &proxySettings,
+                      const types::ConnectionSettings &networkConnectionSettings,
+                      const types::ConnectionSettings &connectionSettings,
+                      const types::PortMap &portMap, const types::ProxySettings &proxySettings,
                       bool bEmitAuthError, const QString &customConfigPath);
 
     void clickDisconnect();

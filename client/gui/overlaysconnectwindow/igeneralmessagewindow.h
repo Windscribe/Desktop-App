@@ -15,6 +15,7 @@ public:
 
     virtual void setErrorMode(bool error) = 0;
     virtual void updateScaling() = 0;
+    virtual void setHeight(int height) = 0;
 
 signals:
     virtual void acceptClick() = 0;

@@ -28,6 +28,7 @@ private slots:
     void onAutoSecureChanged(bool b);
     void onForgetClicked();
     void onNetworkWhitelistChanged(QVector<types::NetworkInterface> l);
+    void onPreferredProtocolChanged(const types::ConnectionSettings &settings);
 
 private:
     void updateForgetGroup();

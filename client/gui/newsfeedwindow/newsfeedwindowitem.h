@@ -18,7 +18,7 @@ class NewsFeedWindowItem : public ScalableGraphicsObject, public INewsFeedWindow
     Q_OBJECT
     Q_INTERFACES(INewsFeedWindow)
 public:
-    explicit NewsFeedWindowItem(QGraphicsObject *parent, PreferencesHelper *preferencesHelper);
+    explicit NewsFeedWindowItem(QGraphicsObject *parent, Preferences *preferences, PreferencesHelper *preferencesHelper);
 
     QGraphicsObject *getGraphicsObject() override;
 
@@ -54,12 +54,15 @@ private slots:
     void onBackArrowButtonClicked();
     void onResizeStarted();
     void onResizeChange(int y);
+    void onAppSkinChanged(APP_SKIN s);
 
 private:
     static constexpr int BOTTOM_AREA_HEIGHT = 16;
     static constexpr int MIN_HEIGHT = 502;
-    static constexpr int BOTTOM_RESIZE_ORIGIN_X = 167;
+    static constexpr int BOTTOM_RESIZE_ORIGIN_X = 155;
     static constexpr int BOTTOM_RESIZE_OFFSET_Y = 13;
+
+    Preferences *preferences_;
 
     int curHeight_;
     double curScale_;

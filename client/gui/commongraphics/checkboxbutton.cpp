@@ -32,7 +32,7 @@ void CheckBoxButton::paint(QPainter *painter, const QStyleOptionGraphicsItem *op
     Q_UNUSED(option);
     Q_UNUSED(widget);
 
-    painter->setOpacity(1.0);
+    painter->setOpacity(OPACITY_FULL);
     if (!enabled_)
     {
         painter->setOpacity(OPACITY_HALF);
@@ -42,8 +42,7 @@ void CheckBoxButton::paint(QPainter *painter, const QStyleOptionGraphicsItem *op
     // At 100%, this would be R85 G255 B138
     QColor bgColor = QColor(255-170*animationProgress_, 255, 255-117*animationProgress_);
     painter->setBrush(bgColor);
-    painter->setPen(bgColor);
-    painter->setPen(Qt::SolidLine);
+    painter->setPen(Qt::NoPen);
     painter->drawRoundedRect(boundingRect().toRect(), TOGGLE_RADIUS*G_SCALE, TOGGLE_RADIUS*G_SCALE);
 
     int w1 = BUTTON_OFFSET*G_SCALE;
@@ -53,7 +52,7 @@ void CheckBoxButton::paint(QPainter *painter, const QStyleOptionGraphicsItem *op
     QColor fgColor = QColor(24, 34, 47);
     painter->setBrush(fgColor);
     painter->setPen(Qt::NoPen);
-    painter->drawEllipse(QRect(curW, BUTTON_OFFSET*G_SCALE, BUTTON_WIDTH*G_SCALE, BUTTON_HEIGHT*G_SCALE));
+    painter->drawEllipse(QRectF(curW, boundingRect().height()/2 - BUTTON_HEIGHT/2*G_SCALE, BUTTON_WIDTH*G_SCALE, BUTTON_HEIGHT*G_SCALE));
 }
 
 void CheckBoxButton::setState(bool isChecked)

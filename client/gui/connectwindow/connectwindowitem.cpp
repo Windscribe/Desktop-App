@@ -16,6 +16,7 @@ namespace ConnectWindow {
 
 ConnectWindowItem::ConnectWindowItem(QGraphicsObject *parent, Preferences *preferences, PreferencesHelper *preferencesHelper)
     : ScalableGraphicsObject (parent),
+      preferences_(preferences),
       preferencesHelper_(preferencesHelper),
       networkName_(""),
       trustType_(NETWORK_TRUST_SECURED),
@@ -111,6 +112,7 @@ ConnectWindowItem::ConnectWindowItem(QGraphicsObject *parent, Preferences *prefe
 
     connect(preferencesHelper, SIGNAL(isDockedModeChanged(bool)), this,
             SLOT(onDockedModeChanged(bool)));
+    connect(preferences, &Preferences::appSkinChanged, this, &ConnectWindowItem::onAppSkinChanged);
 
     QFont descFont = *FontManager::instance().getFont(11, false);
 
@@ -602,34 +604,60 @@ void ConnectWindowItem::onServerRatingIndicatorHoverLeave()
 
 void ConnectWindowItem::updatePositions()
 {
-#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
-    int closePosY = WINDOW_WIDTH*G_SCALE - closeButton_->boundingRect().width() - WINDOW_MARGIN*G_SCALE;
-    closeButton_->setPos(closePosY, 14*G_SCALE);
-    minimizeButton_->setPos(closePosY - minimizeButton_->boundingRect().width() - 26*G_SCALE, 14*G_SCALE);
-#else
-    int rightMostPosX = static_cast<int>(boundingRect().width()) - static_cast<int>(closeButton_->boundingRect().width()) - 8*G_SCALE;
-    int middlePosX = rightMostPosX - static_cast<int>(closeButton_->boundingRect().width()) - 8*G_SCALE;
-    closeButton_->setPos(rightMostPosX, 8*G_SCALE);
-    minimizeButton_->setPos(middlePosX, 8*G_SCALE);
-#endif
-    connectButton_->setPos(235*G_SCALE, 50*G_SCALE);
-
-    connectStateProtocolPort_->setPos(16*G_SCALE, 90*G_SCALE);
-
     cityName1Text_->recalcBoundingRect();
-    cityName1Text_->setPos(14*G_SCALE, 112*G_SCALE);
-
     cityName2Text_->recalcBoundingRect();
-    cityName2Text_->setPos(16*G_SCALE, 155*G_SCALE);
 
-    preferencesButton_->setPos(WINDOW_MARGIN*G_SCALE, 45*G_SCALE);
-    locationsButton_->setPos(93*G_SCALE, 242*G_SCALE);
-    serverRatingIndicator_->setPos(296*G_SCALE, 153*G_SCALE);
-    networkTrustButton_->setPos(boundingRect().width() - 100*G_SCALE, 156*G_SCALE);
-    middleItem_->setPos(0, 208*G_SCALE);
-    firewallButton_->setPos(16*G_SCALE, 276*G_SCALE);
-    firewallInfo_->setPos(35*G_SCALE, 241*G_SCALE);
-    logoButton_->setPos(56*G_SCALE, 34*G_SCALE);
+    if (preferences_->appSkin() == APP_SKIN_VAN_GOGH)
+    {
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
+        int closePosY = WINDOW_WIDTH*G_SCALE - closeButton_->boundingRect().width() - WINDOW_MARGIN*G_SCALE;
+        closeButton_->setPos(closePosY, 14*G_SCALE);
+        minimizeButton_->setPos(closePosY - minimizeButton_->boundingRect().width() - 26*G_SCALE, 14*G_SCALE);
+#else
+        int rightMostPosX = static_cast<int>(boundingRect().width()) - static_cast<int>(closeButton_->boundingRect().width()) - 8*G_SCALE;
+        int middlePosX = rightMostPosX - static_cast<int>(closeButton_->boundingRect().width()) - 8*G_SCALE;
+        closeButton_->setPos(rightMostPosX, 8*G_SCALE);
+        minimizeButton_->setPos(middlePosX, 8*G_SCALE);
+#endif
+        preferencesButton_->setPos(22*G_SCALE, 16*G_SCALE);
+        logoButton_->setPos(64*G_SCALE, 8*G_SCALE);
+        connectButton_->setPos(235*G_SCALE, 34*G_SCALE);
+        connectStateProtocolPort_->setPos(16*G_SCALE, 68*G_SCALE);
+        cityName1Text_->setPos(14*G_SCALE, 90*G_SCALE);
+        cityName2Text_->setPos(16*G_SCALE, 131*G_SCALE);
+        locationsButton_->setPos(93*G_SCALE, 216*G_SCALE);
+        networkTrustButton_->setPos(234*G_SCALE, 132*G_SCALE);
+        serverRatingIndicator_->setPos(296*G_SCALE, 129*G_SCALE);
+        middleItem_->setPos(0, 182*G_SCALE);
+        firewallButton_->setPos(16*G_SCALE, 224*G_SCALE);
+        firewallInfo_->setPos(82*G_SCALE, 184*G_SCALE);
+    }
+    else
+    {
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
+        int closePosY = WINDOW_WIDTH*G_SCALE - closeButton_->boundingRect().width() - WINDOW_MARGIN*G_SCALE;
+        closeButton_->setPos(closePosY, 14*G_SCALE);
+        minimizeButton_->setPos(closePosY - minimizeButton_->boundingRect().width() - 26*G_SCALE, 14*G_SCALE);
+#else
+        int rightMostPosX = static_cast<int>(boundingRect().width()) - static_cast<int>(closeButton_->boundingRect().width()) - 8*G_SCALE;
+        int middlePosX = rightMostPosX - static_cast<int>(closeButton_->boundingRect().width()) - 8*G_SCALE;
+        closeButton_->setPos(rightMostPosX, 8*G_SCALE);
+        minimizeButton_->setPos(middlePosX, 8*G_SCALE);
+#endif
+
+        preferencesButton_->setPos(22*G_SCALE, 45*G_SCALE);
+        logoButton_->setPos(64*G_SCALE, 37*G_SCALE);
+        connectButton_->setPos(235*G_SCALE, 50*G_SCALE);
+        connectStateProtocolPort_->setPos(16*G_SCALE, 90*G_SCALE);
+        cityName1Text_->setPos(14*G_SCALE, 112*G_SCALE);
+        cityName2Text_->setPos(16*G_SCALE, 155*G_SCALE);
+        locationsButton_->setPos(93*G_SCALE, 242*G_SCALE);
+        serverRatingIndicator_->setPos(296*G_SCALE, 153*G_SCALE);
+        networkTrustButton_->setPos(boundingRect().width() - 100*G_SCALE, 156*G_SCALE);
+        middleItem_->setPos(0, 208*G_SCALE);
+        firewallButton_->setPos(16*G_SCALE, 276*G_SCALE);
+        firewallInfo_->setPos(35*G_SCALE, 241*G_SCALE);
+    }
 }
 
 void ConnectWindowItem::updateShortenedText()
@@ -642,6 +670,17 @@ void ConnectWindowItem::updateShortenedText()
     QString shortenedSecondName =
         CommonGraphics::truncatedText(fullSecondName_, cityName2Text_->getFont(), 175 * G_SCALE);
     cityName2Text_->setText(shortenedSecondName);
+}
+
+void ConnectWindowItem::onAppSkinChanged(APP_SKIN s)
+{
+    Q_UNUSED(s);
+    updatePositions();
+}
+
+void ConnectWindowItem::setCornerColor(QColor color)
+{
+    background_->setCornerColor(color);
 }
 
 } //namespace ConnectWindow

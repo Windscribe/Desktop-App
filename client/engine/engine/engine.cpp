@@ -2860,6 +2860,9 @@ void Engine::doConnect(bool bEmitAuthError)
     CheckAdapterEnable::enableIfNeed(helper_, "Windscribe VPN");
 #endif
 
+    types::NetworkInterface networkInterface;
+    networkDetectionManager_->getCurrentNetworkInterface(networkInterface);
+
     if (!apiInfo_.isNull())
     {
         if ((!apiInfo_->getServerCredentials().isInitialized() || apiInfo_->ovpnConfigRefetchRequired()) && !locationId_.isCustomConfigsLocation())
@@ -2886,18 +2889,21 @@ void Engine::doConnect(bool bEmitAuthError)
             qCDebug(LOG_BASIC) << "Connecting to" << locationName_;
 
             connectionManager_->clickConnect(apiInfo_->getOvpnConfig(), apiInfo_->getServerCredentials(), bli,
+                engineSettings_.networkPreferredProtocols()[networkInterface.networkOrSsid],
                 engineSettings_.connectionSettings(), apiInfo_->getPortMap(),
-                ProxyServerController::instance().getCurrentProxySettings(), bEmitAuthError, engineSettings_.customOvpnConfigsPath());
+                ProxyServerController::instance().getCurrentProxySettings(),
+                bEmitAuthError, engineSettings_.customOvpnConfigsPath());
         }
     }
     // for custom configs without login
     else
     {
         qCDebug(LOG_BASIC) << "Connecting to" << locationName_;
-
         connectionManager_->clickConnect("", types::ServerCredentials(), bli,
+            engineSettings_.networkPreferredProtocols()[networkInterface.networkOrSsid],
             engineSettings_.connectionSettings(), types::PortMap(),
-            ProxyServerController::instance().getCurrentProxySettings(), bEmitAuthError, engineSettings_.customOvpnConfigsPath());
+            ProxyServerController::instance().getCurrentProxySettings(),
+            bEmitAuthError, engineSettings_.customOvpnConfigsPath());
     }
 }
 

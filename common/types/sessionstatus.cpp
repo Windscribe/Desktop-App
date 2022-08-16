@@ -200,9 +200,10 @@ bool SessionStatus::isChangedForLogging(const SessionStatus &session) const
 
 QString SessionStatus::debugString() const
 {
-    return QString("[SessionStatus] { is_premium: %1; status: %2; rebill: %3; billing_plan_id: %4; premium_expire_date: %5; traffic_used: %6;"
-                   "traffic_max: %7; email_status: %8; static_ips: %9; alc_count: %10 }").arg(d->is_premium_).arg(d->status_).arg(d->rebill_).arg(d->billing_plan_id_)
-                    .arg(d->premium_expire_date_).arg(d->traffic_used_).arg(d->traffic_max_).arg(d->email_status_).arg(d->static_ips_).arg(d->alc_.count());
+    return QString("[SessionStatus] { is_premium: %1; status: %2; rebill: %3; billing_plan_id: %4; premium_expire_date: %5; traffic_used: %6; "
+                   "traffic_max: %7; email_status: %8; static_ips: %9; alc_count: %10; last_reset_date: %11 }").arg(d->is_premium_).arg(d->status_)
+                    .arg(d->rebill_).arg(d->billing_plan_id_).arg(d->premium_expire_date_).arg(d->traffic_used_).arg(d->traffic_max_)
+                    .arg(d->email_status_).arg(d->static_ips_).arg(d->alc_.count()).arg(d->last_reset_date_);
 }
 
 qint32 SessionStatus::getStatus() const

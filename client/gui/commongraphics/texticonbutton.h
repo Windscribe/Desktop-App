@@ -26,6 +26,7 @@ public:
 
     void setVerticalOffset(int offset);
 
+    void setMaxWidth(int width);
     int getWidth();
     int getHeight();
 
@@ -50,6 +51,7 @@ private:
     void recalcHeight();
 
     int width_;
+    int maxWidth_;
     int height_;
 
     int spacerWidth_;

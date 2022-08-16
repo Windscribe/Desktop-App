@@ -57,7 +57,7 @@ void EntryItem::setAccented(bool accented)
     }
 }
 
-bool EntryItem::expanded()
+bool EntryItem::isExpanded() const
 {
     return expanded_;
 }
@@ -255,6 +255,25 @@ void EntryItem::onHoverLeave()
     {
         setAccented(false);
     }
+}
+
+int EntryItem::id() const
+{
+    return item_.id;
+}
+
+void EntryItem::setItem(const types::Notification &item)
+{
+    item_ = item;
+    delete messageItem_;
+    messageItem_ = new MessageItem(this, boundingRect().width(), item_.message);
+    updatePositions();
+    update();
+}
+
+bool EntryItem::isRead() const
+{
+    return read_;
 }
 
 } // namespace NewsFeedWindow

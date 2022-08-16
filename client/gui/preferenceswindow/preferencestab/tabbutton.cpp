@@ -73,7 +73,9 @@ void TabButton::setSelected(bool selected)
 
     if (selected)
     {
-        onHoverEnter();
+        // update the opacity but don't show tooltip
+        startAnAnimation<double>(iconOpacityAnimation_, iconOpacity_, OPACITY_FULL, ANIMATION_SPEED_FAST);
+        startAnAnimation<double>(circleOpacityAnimation_, circleOpacity_, OPACITY_FULL, ANIMATION_SPEED_FAST);
     }
     else if (!stickySelection_)
     {
@@ -141,6 +143,11 @@ void TabButton::showTooltip()
 void TabButton::hideTooltip()
 {
     TooltipController::instance().hideTooltip(TOOLTIP_ID_PREFERENCES_TAB_INFO);
+}
+
+PREFERENCES_TAB_TYPE TabButton::tab()
+{
+    return type_;
 }
 
 } // namespace PreferencesWindow

@@ -7,7 +7,7 @@
 
 namespace NetworkOptionsShared
 {
-    types::NetworkInterface networkInterfaceByFriendlyName(QString friendlyName);
+    types::NetworkInterface networkInterfaceByName(QString networkOrSsid);
     const char *trustTypeToString(NETWORK_TRUST_TYPE type);
 }
 

@@ -38,6 +38,7 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
     connect(preferencesHelper, &PreferencesHelper::isExternalConfigModeChanged, this, &ConnectionWindowItem::onIsExternalConfigModeChanged);
     connect(preferencesHelper, &PreferencesHelper::proxyGatewayAddressChanged, this, &ConnectionWindowItem::onProxyGatewayAddressChanged);
     connect(preferences, &Preferences::isTerminateSocketsChanged, this, &ConnectionWindowItem::onTerminateSocketsPreferencesChanged);
+    connect(preferences, &Preferences::isAutoConnectChanged, this, &ConnectionWindowItem::onIsAutoConnectPreferencesChanged);
 
     connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &ConnectionWindowItem::onLanguageChanged);
 
@@ -95,6 +96,14 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
     connect(connectedDnsGroup_, &ConnectedDnsGroup::connectedDnsInfoChanged, this, &ConnectionWindowItem::onConnectedDnsPreferencesChangedByUser);
     addItem(connectedDnsGroup_);
 #endif
+
+    autoConnectGroup_ = new PreferenceGroup(this, tr("Connects to last used location when the app launches or joins a network."));
+    checkBoxAutoConnect_ = new CheckBoxItem(autoConnectGroup_, QT_TRANSLATE_NOOP("PreferencesWindow::CheckBoxItem", "Auto-Connect"), QString());
+    checkBoxAutoConnect_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/AUTOCONNECT"));
+    checkBoxAutoConnect_->setState(preferences->isAutoConnect());
+    connect(checkBoxAutoConnect_, &CheckBoxItem::stateChanged, this, &ConnectionWindowItem::onIsAutoConnectPreferencesChangedByUser);
+    autoConnectGroup_->addItem(checkBoxAutoConnect_);
+    addItem(autoConnectGroup_);
 
     allowLanTrafficGroup_ = new PreferenceGroup(this,
                                                 tr("Allow access to local file servers, printers and media boxes while connected to Windscribe."),
@@ -423,6 +432,16 @@ void ConnectionWindowItem::updateIsSupported(bool isWifiSharingSupported, bool i
         }
     }
 #endif
+}
+
+void ConnectionWindowItem::onIsAutoConnectPreferencesChangedByUser(bool on)
+{
+    preferences_->setAutoConnect(on);
+}
+
+void ConnectionWindowItem::onIsAutoConnectPreferencesChanged(bool b)
+{
+    checkBoxAutoConnect_->setState(b);
 }
 
 } // namespace PreferencesWindow

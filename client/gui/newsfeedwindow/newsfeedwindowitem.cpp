@@ -10,8 +10,9 @@
 namespace NewsFeedWindow {
 
 NewsFeedWindowItem::NewsFeedWindowItem(QGraphicsObject *parent,
+                                       Preferences *preferences,
                                        PreferencesHelper *preferencesHelper)
-    : ScalableGraphicsObject(parent), curScale_(1.0)
+    : ScalableGraphicsObject(parent), preferences_(preferences), curScale_(1.0)
 {
     Q_ASSERT(preferencesHelper);
     setFlags(QGraphicsObject::ItemIsFocusable);
@@ -29,10 +30,12 @@ NewsFeedWindowItem::NewsFeedWindowItem(QGraphicsObject *parent,
 #endif
     footerColor_ = FontManager::instance().getCharcoalColor();
 
+    connect(preferences, &Preferences::appSkinChanged, this, &NewsFeedWindowItem::onAppSkinChanged);
+
     escapeButton_ = new CommonGraphics::EscapeButton(this);
     connect(escapeButton_, &CommonGraphics::EscapeButton::clicked, this, &NewsFeedWindowItem::onBackArrowButtonClicked);
 
-    backArrowButton_ = new IconButton(20, 24, "login/BACK_ARROW", "", this);
+    backArrowButton_ = new IconButton(32, 32, "BACK_ARROW", "", this);
     connect(backArrowButton_, &IconButton::clicked, this, &NewsFeedWindowItem::onBackArrowButtonClicked);
 
     contentItem_ = new NewsContentItem(this, WINDOW_WIDTH - 32);
@@ -47,6 +50,8 @@ NewsFeedWindowItem::NewsFeedWindowItem(QGraphicsObject *parent,
     connect(bottomResizeItem_, &CommonGraphics::ResizeBar::resizeFinished, this, &NewsFeedWindowItem::resizeFinished);
 
     updatePositions();
+    // trigger app skin change in case we start in van gogh mode
+    onAppSkinChanged(preferences_->appSkin());
 }
 
 QRectF NewsFeedWindowItem::boundingRect() const
@@ -60,20 +65,35 @@ void NewsFeedWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem
     qreal initialOpacity = painter->opacity();
     painter->fillRect(boundingRect().adjusted(0, 286*G_SCALE, 0, -7*G_SCALE), QBrush(QColor(2, 13, 28)));
 
+    QRect rcCaption;
     // base background
-    QSharedPointer<IndependentPixmap> pixmapBaseBackground = ImageResourcesSvg::instance().getIndependentPixmap(backgroundBase_);
-    pixmapBaseBackground->draw(0, 0, painter);
-    QSharedPointer<IndependentPixmap> pixmapHeader = ImageResourcesSvg::instance().getIndependentPixmap(backgroundHeader_);
-    pixmapHeader->draw(0, 27 * G_SCALE, painter);
+    if (preferences_->appSkin() == APP_SKIN_VAN_GOGH)
+    {
+        QPainterPath path;
+        path.addRoundedRect(boundingRect().toRect(), 5*G_SCALE, 5*G_SCALE);
+        painter->setPen(Qt::NoPen);
+        painter->fillPath(path, QColor(2, 13, 28));
+        painter->setPen(Qt::SolidLine);
+        QSharedPointer<IndependentPixmap> pixmapHeader = ImageResourcesSvg::instance().getIndependentPixmap(backgroundHeader_);
+        pixmapHeader->draw(0, 0, painter);
+        rcCaption = QRect(64 * G_SCALE, 2*G_SCALE, 200 * G_SCALE, 56 * G_SCALE);
+    }
+    else
+    {
+        QSharedPointer<IndependentPixmap> pixmapBaseBackground = ImageResourcesSvg::instance().getIndependentPixmap(backgroundBase_);
+        pixmapBaseBackground->draw(0, 0, painter);
+        QSharedPointer<IndependentPixmap> pixmapHeader = ImageResourcesSvg::instance().getIndependentPixmap(backgroundHeader_);
+        pixmapHeader->draw(0, 27 * G_SCALE, painter);
+        rcCaption = QRect(64 * G_SCALE, 30 * G_SCALE, 200 * G_SCALE, 56 * G_SCALE);
+    }
 
     // draw page caption
-    QRect rcCaption(56 * G_SCALE, 30 * G_SCALE, 200 * G_SCALE, 56 * G_SCALE);
     painter->setPen(Qt::white);
     QFont *font = FontManager::instance().getFont(16, true);
     painter->setFont(*font);
     painter->drawText(rcCaption, Qt::AlignLeft | Qt::AlignVCenter, tr("News Feed"));
 
-   // bottom-most background
+    // bottom-most background
     painter->setOpacity(initialOpacity);
     if (roundedFooter_)
     {
@@ -129,13 +149,21 @@ void NewsFeedWindowItem::onBackArrowButtonClicked()
 
 void NewsFeedWindowItem::updatePositions()
 {
-    escapeButton_->setPos(WINDOW_WIDTH*G_SCALE - escapeButton_->boundingRect().width() - 16 * G_SCALE, 16 * G_SCALE);
+    bottomResizeItem_->setPos(BOTTOM_RESIZE_ORIGIN_X*G_SCALE, curHeight_ - BOTTOM_RESIZE_OFFSET_Y*G_SCALE);
+    escapeButton_->setPos(WINDOW_WIDTH*G_SCALE - escapeButton_->boundingRect().width() - 16*G_SCALE, 16*G_SCALE);
 
-    backArrowButton_->setPos(16 * G_SCALE, 45 * G_SCALE);
-    bottomResizeItem_->setPos(BOTTOM_RESIZE_ORIGIN_X * G_SCALE, curHeight_ - BOTTOM_RESIZE_OFFSET_Y * G_SCALE);
-
-    scrollAreaItem_->setHeight(curHeight_ - 102 * G_SCALE);
-    scrollAreaItem_->setPos(0, 83 * G_SCALE);
+    if (preferences_->appSkin() == APP_SKIN_VAN_GOGH)
+    {
+        backArrowButton_->setPos(16*G_SCALE, 12*G_SCALE);
+        scrollAreaItem_->setPos(0, 55*G_SCALE);
+        scrollAreaItem_->setHeight(curHeight_ - 74*G_SCALE);
+    }
+    else
+    {
+        backArrowButton_->setPos(16*G_SCALE, 40 * G_SCALE);
+        scrollAreaItem_->setPos(0, 83*G_SCALE);
+        scrollAreaItem_->setHeight(curHeight_ - 102*G_SCALE);
+    }
 }
 
 QGraphicsObject *NewsFeedWindowItem::getGraphicsObject()
@@ -179,8 +207,15 @@ void NewsFeedWindowItem::onResizeChange(int y)
 
 void NewsFeedWindowItem::updateChildItemsAfterHeightChanged()
 {
-    bottomResizeItem_->setPos(boundingRect().width()/2 - bottomResizeItem_->boundingRect().width()/2, curHeight_ - BOTTOM_RESIZE_OFFSET_Y * G_SCALE);
-    scrollAreaItem_->setHeight(curHeight_ - 102 * G_SCALE);
+    bottomResizeItem_->setPos(BOTTOM_RESIZE_ORIGIN_X*G_SCALE, curHeight_ - BOTTOM_RESIZE_OFFSET_Y*G_SCALE);
+    if (preferences_->appSkin() == APP_SKIN_VAN_GOGH)
+    {
+        scrollAreaItem_->setHeight(curHeight_ - 74 * G_SCALE);
+    }
+    else
+    {
+        scrollAreaItem_->setHeight(curHeight_ - 102 * G_SCALE);
+    }
 }
 
 QRectF NewsFeedWindowItem::getBottomResizeArea()
@@ -191,6 +226,20 @@ QRectF NewsFeedWindowItem::getBottomResizeArea()
 void NewsFeedWindowItem::updateRead()
 {
     contentItem_->updateRead();
+}
+
+void NewsFeedWindowItem::onAppSkinChanged(APP_SKIN s)
+{
+    if (s == APP_SKIN_ALPHA)
+    {
+        escapeButton_->setTextPosition(CommonGraphics::EscapeButton::TEXT_POSITION_BOTTOM);
+    }
+    else if (s == APP_SKIN_VAN_GOGH)
+    {
+        escapeButton_->setTextPosition(CommonGraphics::EscapeButton::TEXT_POSITION_LEFT);
+    }
+    updatePositions();
+    update();
 }
 
 } // namespace NewsFeedWindow

@@ -6,7 +6,7 @@
 #include <QFont>
 #include "sharingfeature.h"
 #include "backend/preferences/preferences.h"
-#include "preferenceswindow/dividerline.h"
+#include "commongraphics/dividerline.h"
 
 namespace SharingFeatures {
 
@@ -14,7 +14,7 @@ class SharingFeaturesWindowItem : public ScalableGraphicsObject
 {
     Q_OBJECT
 public:
-    explicit SharingFeaturesWindowItem(ScalableGraphicsObject * parent = nullptr);
+    explicit SharingFeaturesWindowItem(Preferences *preferences, ScalableGraphicsObject * parent = nullptr);
 
     virtual QGraphicsObject *getGraphicsObject() { return this; }
     QRectF boundingRect() const override;
@@ -49,6 +49,7 @@ signals:
 private slots:
     void onHornPosChanged(const QVariant &value);
     void onHornOpacityChanged(const QVariant &value);
+    void onAppSkinChanged(APP_SKIN s);
 
 private:
     void setHotspotSSID(QString ssid);
@@ -59,6 +60,8 @@ private:
     void updateModedFeatures(SHARE_MODE mode);
     void setMode(SHARE_MODE mode);
 
+    Preferences *preferences_;
+
     bool isSecureHotspotEnabled_;
     QString secureHotspotSsid_;
 
@@ -67,8 +70,8 @@ private:
     //ProtoTypes::WifiSharingInfo hotspot_;
     //ProtoTypes::ProxySharingInfo gateway_;
 
-    PreferencesWindow::DividerLine *dividerLine_;
-    PreferencesWindow::DividerLine *dividerLine2_;
+    CommonGraphics::DividerLine *dividerLine_;
+    CommonGraphics::DividerLine *dividerLine2_;
 
     QString headerText_;
     SHARE_MODE mode_;
@@ -79,6 +82,8 @@ private:
     int height_;
 
     const QString TEXT_SHARING_FEATURES = QT_TR_NOOP("Sharing Features");
+    const QString TEXT_PROXY_GATEWAY = QT_TR_NOOP("Proxy Gateway");
+    const QString TEXT_SECURE_HOTSPOT = QT_TR_NOOP("Secure Hotspot");
 
     void recalcHeight();
 

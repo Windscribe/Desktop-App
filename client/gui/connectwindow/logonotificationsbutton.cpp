@@ -38,10 +38,10 @@ void LogoNotificationsButton::paint(QPainter *painter, const QStyleOptionGraphic
 
     // LOGO
     QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap("LOGO");
-    p->draw(0, 10*G_SCALE, painter);
+    p->draw(0, 7*G_SCALE, painter);
 
     const int notificationXOffset = 120*G_SCALE;
-    QFont *font = FontManager::instance().getFont(10, true);
+    QFont *font = FontManager::instance().getFont(9, true);
 
     if (unread_ > 0 || hovered_)
     {
@@ -51,20 +51,18 @@ void LogoNotificationsButton::paint(QPainter *painter, const QStyleOptionGraphic
         painter->setBrush(backgroundFillColor_);
         painter->setPen(backgroundOutlineColor_);
         int numberWidth = CommonGraphics::textWidth(numNotifications_, *font);
-        painter->drawRoundedRect(QRect(notificationXOffset, 0, numberWidth + MARGIN*2*G_SCALE, CommonGraphics::textHeight(*font) + 2*G_SCALE)
-                                 , 3*G_SCALE, 3*G_SCALE);
+        painter->drawEllipse(QRect(notificationXOffset, 0, 14*G_SCALE, 14*G_SCALE));
 
         // notification number
         painter->setOpacity(initOpacity);
         painter->setPen(numberColor_);
         if (unread_ > 0)
         {
-            painter->drawText(notificationXOffset + MARGIN*G_SCALE, CommonGraphics::textHeight(*font) - 2*G_SCALE, QString::number(unread_));
+            painter->drawText(QRect(notificationXOffset, 0, 14*G_SCALE, 14*G_SCALE), Qt::AlignVCenter | Qt::AlignHCenter, QString::number(unread_));
         }
         else
         {
-            painter->drawText(notificationXOffset + MARGIN*G_SCALE, CommonGraphics::textHeight(*font) - 2*G_SCALE, numNotifications_);
-
+            painter->drawText(QRect(notificationXOffset, 0, 14*G_SCALE, 14*G_SCALE), Qt::AlignVCenter | Qt::AlignHCenter, numNotifications_);
         }
     }
 }

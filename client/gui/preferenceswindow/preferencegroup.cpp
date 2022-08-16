@@ -4,10 +4,10 @@
 #include <QPainter>
 #include <QUrl>
 #include "commongraphics/commongraphics.h"
+#include "commongraphics/dividerline.h"
 #include "graphicresources/fontmanager.h"
 #include "graphicresources/imageresourcessvg.h"
 #include "utils/logger.h"
-#include "dividerline.h"
 #include "dpiscalemanager.h"
 
 namespace PreferencesWindow {
@@ -88,7 +88,8 @@ void PreferenceGroup::paint(QPainter *painter, const QStyleOptionGraphicsItem *o
                          ICON_WIDTH*G_SCALE,
                          ICON_HEIGHT*G_SCALE,
                          painter);
-        QFont *font = FontManager::instance().getFont(10, false);
+        QFont *font = FontManager::instance().getFont(10.5, false);
+        font->setWeight(QFont::Medium);
         painter->setFont(*font);
         painter->drawText(boundingRect().adjusted((2*PREFERENCES_MARGIN+ICON_WIDTH)*G_SCALE,
                                                   boundingRect().height() + descVMargin - descHeight_,
@@ -100,10 +101,11 @@ void PreferenceGroup::paint(QPainter *painter, const QStyleOptionGraphicsItem *o
     {
         painter->setPen(Qt::white);
         painter->setOpacity(OPACITY_HALF);
-        QFont *font = FontManager::instance().getFont(10, false);
+        QFont *font = FontManager::instance().getFont(10.5, false);
+        font->setWeight(QFont::Medium);
         painter->setFont(*font);
         painter->drawText(boundingRect().adjusted(PREFERENCES_MARGIN*G_SCALE,
-                                                  boundingRect().height() + descVMargin*G_SCALE - descHeight_,
+                                                  boundingRect().height() + descVMargin - descHeight_,
                                                   -descRightMargin_,
                                                   -(DESCRIPTION_MARGIN + borderWidth_)*G_SCALE),
                           desc_);
@@ -116,7 +118,7 @@ void PreferenceGroup::addItem(CommonGraphics::BaseItem *item)
 
     if (!items_.empty())
     {
-        DividerLine *line = new DividerLine(this);
+        CommonGraphics::DividerLine *line = new CommonGraphics::DividerLine(this);
         connect(line, &BaseItem::heightChanged, this, &PreferenceGroup::updatePositions);
         connect(line, &BaseItem::hidden, this, &PreferenceGroup::onHidden);
         if (firstVisibleItem() < 0)
@@ -235,20 +237,24 @@ void PreferenceGroup::updatePositions()
         {
             if (!errorDesc_.isEmpty())
             {
-                QFontMetrics metrics(*FontManager::instance().getFont(10, false));
+                QFont *font = FontManager::instance().getFont(10.5, false);
+                font->setWeight(QFont::Medium);
+                QFontMetrics metrics(*font);
                 descHeight_ = metrics.boundingRect(boundingRect().adjusted((2*PREFERENCES_MARGIN + ICON_WIDTH)*G_SCALE, 0, -descRightMargin_, 0).toRect(),
-                                                Qt::AlignLeft | Qt::TextWordWrap,
-                                                errorDesc_).height() + descVMargin;
+                                                  Qt::AlignLeft | Qt::TextWordWrap,
+                                                  errorDesc_).height() + descVMargin;
             }
         }
         else
         {
             if (!desc_.isEmpty())
             {
-                QFontMetrics metrics(*FontManager::instance().getFont(10, false));
+                QFont *font = FontManager::instance().getFont(10.5, false);
+                font->setWeight(QFont::Medium);
+                QFontMetrics metrics(*font);
                 descHeight_ = metrics.boundingRect(boundingRect().adjusted(PREFERENCES_MARGIN*G_SCALE, 0, -descRightMargin_, 0).toRect(),
-                                                Qt::AlignLeft | Qt::TextWordWrap,
-                                                desc_).height() + descVMargin;
+                                                  Qt::AlignLeft | Qt::TextWordWrap,
+                                                  desc_).height() + descVMargin;
             }
         }
     }

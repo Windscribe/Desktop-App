@@ -32,7 +32,7 @@ CredentialsWindowItem::CredentialsWindowItem(QGraphicsObject *parent, Preference
     setFlag(QGraphicsItem::ItemIsFocusable);
 
     // Header Region:
-    backButton_ = new IconButton(16,16, "login/BACK_ARROW", "", this);
+    backButton_ = new IconButton(32, 32, "BACK_ARROW", "", this);
     connect(backButton_, SIGNAL(clicked()), SLOT(onBackClick()));
 
     curLoginTextOpacity_ = OPACITY_HIDDEN;
@@ -563,7 +563,7 @@ void CredentialsWindowItem::updatePositions()
     firewallTurnOffButton_->setPos((LOGIN_WIDTH - 8 - firewallTurnOffButton_->getWidth())*G_SCALE, 0);
 #endif
 
-    backButton_->setPos(8*G_SCALE, 36*G_SCALE);
+    backButton_->setPos(16*G_SCALE, 36*G_SCALE);
 
     int bottom_button_y = LOGIN_HEIGHT*G_SCALE - settingsButton_->boundingRect().width() - WINDOW_MARGIN*G_SCALE;
     int window_center_x_offset = WINDOW_WIDTH/2*G_SCALE - settingsButton_->boundingRect().width()/2;

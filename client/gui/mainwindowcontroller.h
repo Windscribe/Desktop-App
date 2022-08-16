@@ -145,12 +145,16 @@ private slots:
     void onTooltipControllerSendServerRatingUp();
     void onTooltipControllerSendServerRatingDown();
 
+    void onAppSkinChanged(APP_SKIN s);
+    void onVanGoghAnimationProgressChanged(QVariant value);
+
 private:
     WINDOW_ID curWindow_;
     WINDOW_ID windowBeforeExit_; // here save prev window before show exit window
 
     QWidget *mainWindow_;
     ShadowManager *shadowManager_;
+    Preferences *preferences_;
     PreferencesHelper *preferencesHelper_;
 
     QGraphicsView *view_;
@@ -195,6 +199,8 @@ private:
     static constexpr int HIDE_BOTTOM_INFO_ANIMATION_DURATION = 150;
     static constexpr int BOTTOM_INFO_POS_Y_SHOWING = 287;
     static constexpr int BOTTOM_INFO_POS_Y_HIDING = 295;
+    static constexpr int BOTTOM_INFO_POS_Y_VAN_GOGH = 264;
+    static constexpr int UPDATE_WIDGET_HEIGHT = 28;
 
     enum CHILD_WINDOW_STATE { CHILD_WINDOW_STATE_EXPANDED, CHILD_WINDOW_STATE_COLLAPSED, CHILD_WINDOW_STATE_ANIMATING };
     CHILD_WINDOW_STATE preferencesState_;
@@ -212,6 +218,9 @@ private:
 
     // function used in onExpandLocationsAnimationGroupFinished for to do some actions after animation finished
     std::function<void()> functionOnAnimationFinished_;
+
+    QVariantAnimation vanGoghUpdateWidgetAnimation_;
+    double vanGoghUpdateWidgetAnimationProgress_;
 
     void gotoInitializationWindow();
     void gotoLoginWindow();
@@ -271,6 +280,8 @@ private:
 
     int childWindowShadowOffsetY();
     int initWindowInitHeight_;
+
+    int locationsYOffset();
 
 #ifdef Q_OS_MAC
     void invalidateShadow_mac_impl();

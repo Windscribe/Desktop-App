@@ -3,6 +3,7 @@
 
 #include <QGraphicsObject>
 #include "igeneralmessagewindow.h"
+#include "backend/preferences/preferences.h"
 #include "commongraphics/bubblebuttondark.h"
 
 namespace GeneralMessage {
@@ -12,7 +13,7 @@ class GeneralMessageWindowItem : public ScalableGraphicsObject, public IGeneralM
     Q_OBJECT
     Q_INTERFACES(IGeneralMessageWindow)
 public:
-    explicit GeneralMessageWindowItem(bool errorMode, QGraphicsObject *parent = nullptr);
+    explicit GeneralMessageWindowItem(Preferences *preferences, bool errorMode, QGraphicsObject *parent = nullptr);
 
     QGraphicsObject *getGraphicsObject() override { return this; }
 
@@ -24,6 +25,7 @@ public:
     void setErrorMode(bool error) override;
 
     void updateScaling() override;
+    void setHeight(int height) override;
 
 signals:
     void acceptClick() override;
@@ -33,8 +35,12 @@ protected:
 
 private slots:
     void onAcceptClick();
+    void onAppSkinChanged(APP_SKIN s);
 
 private:
+    void updatePositions();
+
+    Preferences *preferences_;
     CommonGraphics::BubbleButtonDark *acceptButton_;
 
     QString curTitleText_;
@@ -55,7 +61,7 @@ private:
     static constexpr int ACCEPT_BUTTON_POS_Y = 200;
 
     QString background_;
-
+    int height_;
 };
 
 }

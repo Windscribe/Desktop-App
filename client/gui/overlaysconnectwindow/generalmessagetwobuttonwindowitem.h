@@ -27,6 +27,7 @@ public:
     void setRejectText(const QString text) override;
 
     void setBackgroundShapedToConnectWindow(bool shapedToConnectWindow) override;
+    void setHeight(int height) override;
     void setShutdownAnimationMode(bool isShutdownAnimationMode) override;
 
     void clearSelection() override;
@@ -55,20 +56,18 @@ private slots:
     void onSpinnerRotationFinished();
 
 private:
+    void updatePositions();
+
     QString title_;
     QString titleShuttingDown_;
     QString icon_;
-
-    static constexpr int RECT_ICON_POS_Y = 48;
-    static constexpr int RECT_TITLE_POS_Y = 120;
-    static constexpr int RECT_ACCEPT_BUTTON_POS_Y = 172;
-    static constexpr int RECT_REJECT_BUTTON_POS_Y = 224;
 
     static constexpr int SHAPED_ICON_POS_Y = 58;
     static constexpr int SHAPED_TITLE_POS_Y = 120;
     static constexpr int SHAPED_ACCEPT_BUTTON_POS_Y = 167;
     static constexpr int SHAPED_REJECT_BUTTON_POS_Y = 219;
 
+    int height_;
     int titlePosY_;
     int iconPosY_;
 

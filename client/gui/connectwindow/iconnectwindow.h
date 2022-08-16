@@ -6,7 +6,7 @@
 #include "types/pingtime.h"
 #include "types/locationid.h"
 #include "types/connectstate.h"
-#include "../backend/preferences/preferences.h"
+#include "backend/preferences/preferences.h"
 #include "tooltips/tooltiptypes.h"
 
 // abstract interface for login window
@@ -28,6 +28,7 @@ public:
     virtual void setTestTunnelResult(bool success) = 0;
     virtual void updateScaling() = 0;
     virtual void setProtocolPort(const PROTOCOL &protocol, const uint port) = 0;
+    virtual void setCornerColor(QColor color) = 0;
 
 public slots:
     virtual void updateLocationInfo(LocationID id, const QString &firstName, const QString &secondName, const QString &countryCode, PingTime pingTime) = 0;

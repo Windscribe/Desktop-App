@@ -31,6 +31,7 @@ const int LOGIN_BUTTON_POS_Y                 = 232;
 
 const double OPACITY_HIDDEN                  = 0.0;
 const double OPACITY_DIVIDER_LINE            = 0.05;
+const double OPACITY_DIVIDER_LINE_BRIGHT     = 0.15;
 const double OPACITY_QUARTER                 = 0.25;
 const double OPACITY_THIRD                   = 0.3;
 const double OPACITY_HALF                    = 0.5;

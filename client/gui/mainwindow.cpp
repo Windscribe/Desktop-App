@@ -185,7 +185,7 @@ MainWindow::MainWindow() :
     notificationsController_.connect(backend_, &Backend::notificationsChanged, &notificationsController_, &NotificationsController::updateNotifications);
     connect(this, &MainWindow::wireGuardKeyLimitUserResponse, backend_, &Backend::wireGuardKeyLimitUserResponse);
 
-    locationsWindow_ = new LocationsWindow(this, backend_->getLocationsModel());
+    locationsWindow_ = new LocationsWindow(this, backend_->getPreferences(), backend_->getLocationsModel());
     connect(locationsWindow_, &LocationsWindow::selected, this, &MainWindow::onLocationSelected);
     connect(locationsWindow_, &LocationsWindow::clickedOnPremiumStarCity, this, &MainWindow::onClickedOnPremiumStarCity);
     connect(locationsWindow_, &LocationsWindow::switchFavorite, this, &MainWindow::onLocationSwitchFavorite);
@@ -334,10 +334,11 @@ MainWindow::MainWindow() :
     connect(backend_->getPreferences(), &Preferences::updateEngineSettings, this, &MainWindow::onPreferencesUpdateEngineSettings);
     connect(backend_->getPreferences(), &Preferences::isLaunchOnStartupChanged, this, &MainWindow::onPreferencesLaunchOnStartupChanged);
     connect(backend_->getPreferences(), &Preferences::connectionSettingsChanged, this, &MainWindow::onPreferencesConnectionSettingsChanged);
+    connect(backend_->getPreferences(), &Preferences::networkPreferredProtocolsChanged, this, &MainWindow::onPreferencesNetworkPreferredProtocolsChanged);
     connect(backend_->getPreferences(), &Preferences::isDockedToTrayChanged, this, &MainWindow::onPreferencesIsDockedToTrayChanged);
     connect(backend_->getPreferences(), &Preferences::updateChannelChanged, this, &MainWindow::onPreferencesUpdateChannelChanged);
     connect(backend_->getPreferences(), &Preferences::customConfigsPathChanged, this, &MainWindow::onPreferencesCustomConfigsPathChanged);
-    connect(backend_->getPreferences(), &Preferences::debugAdvancedParametersChanged, this, &MainWindow::onPreferencesdebugAdvancedParametersChanged);
+    connect(backend_->getPreferences(), &Preferences::debugAdvancedParametersChanged, this, &MainWindow::onPreferencesAdvancedParametersChanged);
     connect(backend_->getPreferences(), &Preferences::reportErrorToUser, this, &MainWindow::onPreferencesReportErrorToUser);
 #ifdef Q_OS_MAC
     connect(backend_->getPreferences(), &Preferences::hideFromDockChanged, this, &MainWindow::onPreferencesHideFromDockChanged);
@@ -1207,7 +1208,7 @@ void MainWindow::onPreferencesCustomConfigsPathChanged(QString path)
     locationsWindow_->setCustomConfigsPath(path);
 }
 
-void MainWindow::onPreferencesdebugAdvancedParametersChanged(const QString &advParams)
+void MainWindow::onPreferencesAdvancedParametersChanged(const QString &advParams)
 {
     Q_UNUSED(advParams);
     backend_->sendAdvancedParametersChanged();
@@ -1515,10 +1516,7 @@ void MainWindow::onBackendInitFinished(INIT_STATE initState)
             gotoLoginWindow();
         }
 
-        if (!p->connectionSettings().isAutomatic)
-        {
-            mainWindowController_->getConnectWindow()->setProtocolPort(p->connectionSettings().protocol, p->connectionSettings().port);
-        }
+        updateConnectWindowStateProtocolPortDisplay();
 
         // Start the IPC server last to give the above commands time to finish before we
         // start accepting commands from the CLI.
@@ -1949,7 +1947,7 @@ void MainWindow::onBackendConnectStateChanged(const types::ConnectState &connect
 
     if (connectState.connectState == CONNECT_STATE_DISCONNECTED)
     {
-        updateConnectWindowStateProtocolPortDisplay(backend_->getPreferences()->connectionSettings());
+        updateConnectWindowStateProtocolPortDisplay();
     }
 
     if (connectState.connectState == CONNECT_STATE_CONNECTED)
@@ -2027,6 +2025,8 @@ void MainWindow::onNetworkChanged(types::NetworkInterface network)
 
     mainWindowController_->getConnectWindow()->updateNetworkState(network);
     mainWindowController_->getPreferencesWindow()->updateNetworkState(network);
+    curNetwork_ = network;
+    updateConnectWindowStateProtocolPortDisplay();
 }
 
 void MainWindow::onSplitTunnelingStateChanged(bool isActive)
@@ -2613,9 +2613,15 @@ void MainWindow::onPreferencesLaunchOnStartupChanged(bool bEnabled)
     LaunchOnStartup::instance().setLaunchOnStartup(bEnabled);
 }
 
-void MainWindow::updateConnectWindowStateProtocolPortDisplay(types::ConnectionSettings connectionSettings)
+void MainWindow::updateConnectWindowStateProtocolPortDisplay()
 {
-    if (connectionSettings.isAutomatic)
+    if (!backend_->getPreferences()->networkPreferredProtocol(curNetwork_.networkOrSsid).isAutomatic)
+    {
+        mainWindowController_->getConnectWindow()->setProtocolPort(backend_->getPreferences()->networkPreferredProtocol(curNetwork_.networkOrSsid).protocol,
+                                                                   backend_->getPreferences()->networkPreferredProtocol(curNetwork_.networkOrSsid).port);
+
+    }
+    else if (backend_->getPreferences()->connectionSettings().isAutomatic)
     {
 #if defined(Q_OS_LINUX)
         mainWindowController_->getConnectWindow()->setProtocolPort(PROTOCOL::OPENVPN_UDP, 443);
@@ -2625,15 +2631,28 @@ void MainWindow::updateConnectWindowStateProtocolPortDisplay(types::ConnectionSe
     }
     else
     {
-        mainWindowController_->getConnectWindow()->setProtocolPort(connectionSettings.protocol, connectionSettings.port);
+        mainWindowController_->getConnectWindow()->setProtocolPort(backend_->getPreferences()->connectionSettings().protocol,
+                                                                   backend_->getPreferences()->connectionSettings().port);
     }
 }
 
 void MainWindow::onPreferencesConnectionSettingsChanged(types::ConnectionSettings connectionSettings)
 {
+    Q_UNUSED(connectionSettings);
+
     if (backend_->isDisconnected())
     {
-        updateConnectWindowStateProtocolPortDisplay(connectionSettings);
+        updateConnectWindowStateProtocolPortDisplay();
+    }
+}
+
+void MainWindow::onPreferencesNetworkPreferredProtocolsChanged(QMap<QString, types::ConnectionSettings> p)
+{
+    Q_UNUSED(p);
+
+    if (backend_->isDisconnected())
+    {
+        updateConnectWindowStateProtocolPortDisplay();
     }
 }
 

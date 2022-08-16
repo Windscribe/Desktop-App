@@ -7,28 +7,30 @@
 
 namespace SharingFeatures {
 
-SharingFeaturesWindowItem::SharingFeaturesWindowItem(ScalableGraphicsObject *parent) : ScalableGraphicsObject(parent),
-    isSecureHotspotEnabled_(false), isProxyGatewayEnabled_(false),
-    proxyGatewayMode_(PROXY_SHARING_HTTP), mode_(SHARE_MODE_OFF),
-    curOpacity_(OPACITY_HIDDEN), height_(0), showingHorns_(false),
-    curHornOpacity_(OPACITY_HIDDEN), HORN_POS_Y_HIDDEN(height_ - 30),
-    HORN_POS_Y_SHOWING(height_)
+SharingFeaturesWindowItem::SharingFeaturesWindowItem(Preferences *preferences, ScalableGraphicsObject *parent)
+  : ScalableGraphicsObject(parent), preferences_(preferences), isSecureHotspotEnabled_(false), isProxyGatewayEnabled_(false),
+    proxyGatewayMode_(PROXY_SHARING_HTTP), mode_(SHARE_MODE_OFF), curOpacity_(OPACITY_HIDDEN), height_(0), showingHorns_(false),
+    curHornOpacity_(OPACITY_HIDDEN), HORN_POS_Y_HIDDEN(height_ - 30), HORN_POS_Y_SHOWING(height_)
 {
     headerText_ = TEXT_SHARING_FEATURES;
     curHornPosY_ = HORN_POS_Y_HIDDEN;
 
-    connect(&hornPosYAnimation_, SIGNAL(valueChanged(QVariant)), this, SLOT(onHornPosChanged(QVariant)));
-    connect(&hornOpacityAnimation_, SIGNAL(valueChanged(QVariant)), this, SLOT(onHornOpacityChanged(QVariant)));
+    connect(preferences, &Preferences::appSkinChanged, this, &SharingFeaturesWindowItem::onAppSkinChanged);
+
+    connect(&hornPosYAnimation_, &QVariantAnimation::valueChanged, this, &SharingFeaturesWindowItem::onHornPosChanged);
+    connect(&hornOpacityAnimation_, &QVariantAnimation::valueChanged, this, &SharingFeaturesWindowItem::onHornOpacityChanged);
 
     hotspotFeature_ = new SharingFeature("", "sharingfeatures/SECURE_HOTSPOT_ICON", this);
     proxyFeature_ = new SharingFeature("", "sharingfeatures/COMBINED_SHAPE", this);
     setProxyType(proxyGatewayMode_);
 
-    connect(hotspotFeature_, SIGNAL(clicked()), SIGNAL(clickedHotSpot()));
-    connect(proxyFeature_, SIGNAL(clicked()), SIGNAL(clickedProxy()));
+    connect(hotspotFeature_, &SharingFeature::clicked, this, &SharingFeaturesWindowItem::clickedHotSpot);
+    connect(proxyFeature_, &SharingFeature::clicked, this, &SharingFeaturesWindowItem::clickedProxy);
 
-    dividerLine_ = new PreferencesWindow::DividerLine(this);
-    dividerLine2_ = new PreferencesWindow::DividerLine(this);
+    dividerLine_ = new CommonGraphics::DividerLine(this, (WINDOW_WIDTH - 8)*G_SCALE);
+    dividerLine_->setOpacity(OPACITY_DIVIDER_LINE_BRIGHT);
+    dividerLine2_ = new CommonGraphics::DividerLine(this, (WINDOW_WIDTH - 8)*G_SCALE);
+    dividerLine2_->setOpacity(OPACITY_DIVIDER_LINE_BRIGHT);
     updateScaling();
 }
 
@@ -74,12 +76,26 @@ void SharingFeaturesWindowItem::paint(QPainter *painter, const QStyleOptionGraph
     const int margin = 16*G_SCALE;
 
     // header text
-    QFont *font = FontManager::instance().getFont(16, true);
-    painter->setFont(*font);
-    painter->setPen(Qt::white);
-
-    int headerTextWidth = CommonGraphics::textWidth(tr(headerText_.toStdString().c_str()), *font);
-    painter->drawText(WIDTH*G_SCALE - headerTextWidth - margin, HEADER_HEIGHT/2*G_SCALE + CommonGraphics::textHeight(*font)/4, tr(headerText_.toStdString().c_str()));
+    if (preferences_->appSkin() == APP_SKIN_VAN_GOGH)
+    {
+        QFont *font = FontManager::instance().getFont(12, true);
+        qreal oldLetterSpacing = font->letterSpacing();
+        font->setLetterSpacing(QFont::AbsoluteSpacing, 2);
+        painter->setFont(*font);
+        painter->setPen(Qt::white);
+        painter->setOpacity(OPACITY_HALF);
+        painter->drawText(boundingRect().adjusted(24*G_SCALE, 16*G_SCALE, 0, 0), Qt::AlignLeft, tr(headerText_.toUpper().toStdString().c_str()));
+        font->setLetterSpacing(QFont::AbsoluteSpacing, oldLetterSpacing);
+    }
+    else
+    {
+        QFont *font = FontManager::instance().getFont(16, true);
+        painter->setOpacity(OPACITY_FULL);
+        painter->setFont(*font);
+        painter->setPen(Qt::white);
+        int headerTextWidth = CommonGraphics::textWidth(tr(headerText_.toStdString().c_str()), *font);
+        painter->drawText(WIDTH*G_SCALE - headerTextWidth - margin, HEADER_HEIGHT/2*G_SCALE + CommonGraphics::textHeight(*font)/4, tr(headerText_.toStdString().c_str()));
+    }
 
     // horns:
     painter->setOpacity(curHornOpacity_ * initOpacity);
@@ -182,7 +198,7 @@ void SharingFeaturesWindowItem::updateModedFeatures(SHARE_MODE mode)
     QString newText = TEXT_SHARING_FEATURES;
     if (mode == SHARE_MODE_PROXY)
     {
-        newText  = QT_TR_NOOP("Proxy Gateway");
+        newText  = TEXT_PROXY_GATEWAY;
 
         curOpacity_ = OPACITY_FULL;
 
@@ -198,7 +214,7 @@ void SharingFeaturesWindowItem::updateModedFeatures(SHARE_MODE mode)
     }
     else if (mode == SHARE_MODE_HOTSPOT)
     {
-        newText = QT_TR_NOOP("Secure Hotspot");
+        newText = TEXT_SECURE_HOTSPOT;
 
         curOpacity_ = OPACITY_FULL;
 
@@ -426,8 +442,14 @@ void SharingFeaturesWindowItem::recalcHeight()
 
 void SharingFeaturesWindowItem::updatePositions()
 {
-    dividerLine_->setPos(24*G_SCALE, HEADER_HEIGHT*G_SCALE);
-    dividerLine2_->setPos(24*G_SCALE, (HEADER_HEIGHT + SharingFeature::HEIGHT)*G_SCALE);
+    dividerLine_->setPos(8*G_SCALE, HEADER_HEIGHT*G_SCALE);
+    dividerLine2_->setPos(8*G_SCALE, (HEADER_HEIGHT + SharingFeature::HEIGHT)*G_SCALE);
+}
+
+void SharingFeaturesWindowItem::onAppSkinChanged(APP_SKIN s)
+{
+    Q_UNUSED(s);
+    update();
 }
 
 }

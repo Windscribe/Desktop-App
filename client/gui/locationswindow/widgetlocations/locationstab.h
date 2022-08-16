@@ -9,6 +9,7 @@
 #include "widgetcities.h"
 #include "widgetlocations.h"
 #include "backend/locationsmodel/locationsmodel.h"
+#include "backend/preferences/preferences.h"
 #include "staticipdeviceinfo.h"
 #include "configfooterinfo.h"
 #include "commonwidgets/custommenulineedit.h"
@@ -20,7 +21,7 @@ class LocationsTab : public QWidget
 {
     Q_OBJECT
 public:
-    explicit LocationsTab(QWidget *parent, LocationsModel *locationsModel);
+    explicit LocationsTab(QWidget *parent, Preferences *preferences, LocationsModel *locationsModel);
 
     int unscaledHeightOfItemViewport();
     void setCountVisibleItemSlots(int cnt);
@@ -93,8 +94,11 @@ private slots:
     void onSearchTypingDelayTimerTimeout();
     void onSearchLineEditTextChanged(QString text);
     void onSearchLineEditFocusOut();
-private:
 
+    void onAppSkinChanged(APP_SKIN s);
+
+private:
+    Preferences *preferences_;
 
     IWidgetLocationsInfo *currentWidgetLocations();
     IWidgetLocationsInfo *locationWidgetByEnum(LocationTabEnum tabEnum);
@@ -119,6 +123,7 @@ private:
     static constexpr int TOP_TAB_MARGIN = 15;
     static constexpr double TAB_OPACITY_DIM = 0.5;
     static constexpr int SEARCH_BUTTON_POS_ANIMATION_DURATION = 200;
+    static constexpr int FIRST_TAB_ICON_POS_X_VAN_GOGH = 24;
     static constexpr int FIRST_TAB_ICON_POS_X = 106;
     static constexpr int LAST_TAB_ICON_POS_X = 300;
 

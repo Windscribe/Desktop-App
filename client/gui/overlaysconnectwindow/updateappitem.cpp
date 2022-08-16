@@ -9,28 +9,27 @@
 
 namespace UpdateApp {
 
-UpdateAppItem::UpdateAppItem(QGraphicsObject *parent) : ScalableGraphicsObject(parent),
-    mode_(UPDATE_APP_ITEM_MODE_PROMPT), curVersionText_(""), curBackgroundOpacity_(OPACITY_FULL),
-    curVersionOpacity_(OPACITY_FULL), curProgressBackgroundOpacity_(OPACITY_HIDDEN),
-    curProgressForegroundOpacity_(OPACITY_HIDDEN), curProgressBarPos_(0)
+UpdateAppItem::UpdateAppItem(Preferences *preferences, QGraphicsObject *parent) : ScalableGraphicsObject(parent),
+    preferences_(preferences), mode_(UPDATE_APP_ITEM_MODE_PROMPT), curVersionText_(""), curBackgroundOpacity_(OPACITY_FULL), curVersionOpacity_(OPACITY_FULL),
+    curProgressBackgroundOpacity_(OPACITY_HIDDEN), curProgressForegroundOpacity_(OPACITY_HIDDEN), curProgressBarPos_(0)
 {
     QString updateText = QT_TRANSLATE_NOOP("CommonGraphics::TextButton", "UPDATE");
     updateButton_ = new CommonGraphics::TextButton(updateText, FontDescr(11, true, 105),
                                                    Qt::white, true, this, 15);
-
-    connect(updateButton_, SIGNAL(clicked()), SLOT(onUpdateClick()));
+    connect(updateButton_, &CommonGraphics::TextButton::clicked, this, &UpdateAppItem::onUpdateClick);
 
     updateButton_->animateShow(ANIMATION_SPEED_FAST);
 
+    connect(preferences_, &Preferences::appSkinChanged, this, &UpdateAppItem::onAppSkinChanged);
+
     // Update button text-hover-button (hideable)
-    connect(&backgroundOpacityAnimation_        , SIGNAL(valueChanged(QVariant)), this, SLOT(onBackgroundOpacityChanged(QVariant)));
-    connect(&versionOpacityAnimation_           , SIGNAL(valueChanged(QVariant)), this, SLOT(onVersionOpacityChanged(QVariant)));
-    connect(&progressForegroundOpacityAnimation_, SIGNAL(valueChanged(QVariant)), this, SLOT(onProgressForegroundOpacityChanged(QVariant)));
-    connect(&progressBackgroundOpacityAnimation_, SIGNAL(valueChanged(QVariant)), this, SLOT(onProgressBackgroundOpacityChanged(QVariant)));
+    connect(&backgroundOpacityAnimation_, &QVariantAnimation::valueChanged, this, &UpdateAppItem::onBackgroundOpacityChanged);
+    connect(&versionOpacityAnimation_, &QVariantAnimation::valueChanged, this, &UpdateAppItem::onVersionOpacityChanged);
+    connect(&progressForegroundOpacityAnimation_, &QVariantAnimation::valueChanged, this, &UpdateAppItem::onProgressForegroundOpacityChanged);
+    connect(&progressBackgroundOpacityAnimation_, &QVariantAnimation::valueChanged, this, &UpdateAppItem::onProgressBackgroundOpacityChanged);
+    connect(&progressBarPosChangeAnimation_, &QVariantAnimation::valueChanged, this, &UpdateAppItem::onProgressBarPosChanged);
 
-    connect(&progressBarPosChangeAnimation_, SIGNAL(valueChanged(QVariant)), this, SLOT(onProgressBarPosChanged(QVariant)));
-
-    connect(&LanguageController::instance(), SIGNAL(languageChanged()), SLOT(onLanguageChanged()));
+    connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &UpdateAppItem::onLanguageChanged);
     updatePositions();
 }
 
@@ -41,7 +40,14 @@ QGraphicsObject *UpdateAppItem::getGraphicsObject()
 
 QRectF UpdateAppItem::boundingRect() const
 {
-    return QRectF(0, 0, WIDTH*G_SCALE, HEIGHT*G_SCALE);
+    if (preferences_->appSkin() == APP_SKIN_VAN_GOGH)
+    {
+        return QRectF(0, 0, WIDTH_VAN_GOGH*G_SCALE, HEIGHT*G_SCALE);
+    }
+    else
+    {
+        return QRectF(0, 0, WIDTH*G_SCALE, HEIGHT*G_SCALE);
+    }
 }
 
 void UpdateAppItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
@@ -58,8 +64,11 @@ void UpdateAppItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opt
     painter->setBrush(FontManager::instance().getMidnightColor());
     painter->setPen(FontManager::instance().getMidnightColor());
     painter->setOpacity(curBackgroundOpacity_ * initOpacity);
-    QRectF rect(1*G_SCALE, 1*G_SCALE, (WIDTH-2)*G_SCALE, (HEIGHT - 2)*G_SCALE);
-    painter->drawRoundedRect(rect, 10, 100, Qt::RelativeSize);
+    QRectF rect(1*G_SCALE,
+                1*G_SCALE,
+                preferences_->appSkin() == APP_SKIN_VAN_GOGH ? (WIDTH_VAN_GOGH-2)*G_SCALE : (WIDTH-2)*G_SCALE,
+                (HEIGHT - 2)*G_SCALE);
+    painter->drawRoundedRect(rect, 12*G_SCALE, 12*G_SCALE);
     painter->restore();
 
     // icon
@@ -86,7 +95,7 @@ void UpdateAppItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opt
     int xRadius = 6;
     int yRadius = 100;
     int endPosXOffset = 13;
-    int barWidth = WIDTH - endPosXOffset;
+    int barWidth = preferences_->appSkin() == APP_SKIN_VAN_GOGH ? (WIDTH_VAN_GOGH - endPosXOffset) : (WIDTH - endPosXOffset);
 
     // background progress bar (rounded rect)
     painter->setOpacity(curProgressBackgroundOpacity_ * initOpacity);
@@ -132,16 +141,17 @@ void UpdateAppItem::setProgress(int value)
 
 QPixmap UpdateAppItem::getCurrentPixmapShape()
 {
-    QPixmap pixmap(WIDTH*G_SCALE, HEIGHT*G_SCALE);
+    int width = preferences_->appSkin() == APP_SKIN_VAN_GOGH ? WIDTH_VAN_GOGH : WIDTH;
+    QPixmap pixmap(width*G_SCALE, HEIGHT*G_SCALE);
     pixmap.fill(Qt::transparent);
 
     QPainter painter(&pixmap);
-    painter.setClipRect(0, 0, WIDTH*G_SCALE, HEIGHT / 2 * G_SCALE);
+    painter.setClipRect(0, 0, width*G_SCALE, HEIGHT / 2 * G_SCALE);
     painter.setRenderHint(QPainter::Antialiasing);
     painter.setBrush(FontManager::instance().getMidnightColor());
     painter.setPen(FontManager::instance().getMidnightColor());
 
-    QRectF rect(1*G_SCALE, 1*G_SCALE, (WIDTH - 2)*G_SCALE, (HEIGHT - 2)*G_SCALE);
+    QRectF rect(1*G_SCALE, 1*G_SCALE, (width - 2)*G_SCALE, (HEIGHT - 2)*G_SCALE);
     painter.drawRoundedRect(rect, 10, 100, Qt::RelativeSize);
     painter.end();
 
@@ -208,7 +218,8 @@ void UpdateAppItem::onLanguageChanged()
 {
     updateButton_->recalcBoundingRect();
 
-    int updatePosX = WIDTH - updateButton_->boundingRect().width() - 15;
+    int width = preferences_->appSkin() == APP_SKIN_VAN_GOGH ? WIDTH_VAN_GOGH : WIDTH;
+    int updatePosX = width - updateButton_->boundingRect().width() - 15;
     updateButton_->setPos(updatePosX, 0);
     update();
 }
@@ -234,9 +245,17 @@ void UpdateAppItem::animateTransitionToVersion()
 void UpdateAppItem::updatePositions()
 {
     updateButton_->recalcBoundingRect();
-    int updatePosX = WIDTH*G_SCALE - updateButton_->boundingRect().width();
-    int updatePosY = (HEIGHT*G_SCALE - updateButton_->boundingRect().height()) / 2 - (G_SCALE+0.5);
+    int width = preferences_->appSkin() == APP_SKIN_VAN_GOGH ? WIDTH_VAN_GOGH : WIDTH;
+    int updatePosX = width*G_SCALE - updateButton_->boundingRect().width();
+    int updatePosY = (HEIGHT*G_SCALE - updateButton_->boundingRect().height()) / 2;
     updateButton_->setPos(updatePosX, updatePosY);
+}
+
+void UpdateAppItem::onAppSkinChanged(APP_SKIN s)
+{
+    Q_UNUSED(s);
+    updatePositions();
+    update();
 }
 
 } // namespace UpdateApp

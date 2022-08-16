@@ -111,8 +111,10 @@ ConnectionManager::~ConnectionManager()
 
 void ConnectionManager::clickConnect(const QString &ovpnConfig, const types::ServerCredentials &serverCredentials,
                                          QSharedPointer<locationsmodel::BaseLocationInfo> bli,
+                                         const types::ConnectionSettings &networkConnectionSettings,
                                          const types::ConnectionSettings &connectionSettings,
-                                         const types::PortMap &portMap, const types::ProxySettings &proxySettings, bool bEmitAuthError, const QString &customConfigPath)
+                                         const types::PortMap &portMap, const types::ProxySettings &proxySettings,
+                                         bool bEmitAuthError, const QString &customConfigPath)
 {
     Q_ASSERT(state_ == STATE_DISCONNECTED);
 
@@ -136,7 +138,11 @@ void ConnectionManager::clickConnect(const QString &ovpnConfig, const types::Ser
     // API or static ips locations
     else
     {
-        if (connectionSettings.isAutomatic)
+        if (!networkConnectionSettings.isAutomatic)
+        {
+            connSettingsPolicy_.reset(new ManualConnSettingsPolicy(bli, networkConnectionSettings, portMap));
+        }
+        else if (connectionSettings.isAutomatic)
         {
             connSettingsPolicy_.reset(new AutoConnSettingsPolicy(bli, portMap, proxySettings.isProxyEnabled()));
         }

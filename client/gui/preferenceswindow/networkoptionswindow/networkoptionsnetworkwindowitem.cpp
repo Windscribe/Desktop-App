@@ -27,6 +27,7 @@ NetworkOptionsNetworkWindowItem::NetworkOptionsNetworkWindowItem(ScalableGraphic
                                                 "preferences/PREFERRED_PROTOCOL",
                                                 ProtocolGroup::SelectionType::TOGGLE_SWITCH,
                                                 tr("Choose whether to connect using the recommended tunneling protocol, or to specify a protocol of your choice."), "");
+    connect(preferredProtocolGroup_, &ProtocolGroup::connectionModePreferencesChanged, this, &NetworkOptionsNetworkWindowItem::onPreferredProtocolChanged);
     addItem(preferredProtocolGroup_);
 
     forgetGroup_ = new PreferenceGroup(this);
@@ -43,8 +44,7 @@ void NetworkOptionsNetworkWindowItem::setNetwork(types::NetworkInterface network
 {
     network_ = network;
     autoSecureCheckBox_->setState(network.trustType == NETWORK_TRUST_SECURED);
-
-    // TODO per-network connection mode
+    preferredProtocolGroup_->setConnectionSettings(preferences_->networkPreferredProtocol(network_.networkOrSsid));
 
     updateForgetGroup();
 }
@@ -54,15 +54,16 @@ void NetworkOptionsNetworkWindowItem::onAutoSecureChanged(bool value)
     network_.trustType = (value ? NETWORK_TRUST_SECURED : NETWORK_TRUST_UNSECURED);
 
     QVector<types::NetworkInterface> list = preferences_->networkWhiteList();
+    QVector<types::NetworkInterface> out;
     for (types::NetworkInterface interface : list)
     {
-        if (interface.friendlyName == network_.friendlyName)
+        if (interface.networkOrSsid == network_.networkOrSsid)
         {
             interface.trustType = network_.trustType;
         }
-        list << interface;
+        out << interface;
     }
-    preferences_->setNetworkWhiteList(list);
+    preferences_->setNetworkWhiteList(out);
 }
 
 void NetworkOptionsNetworkWindowItem::onNetworkWhitelistChanged(QVector<types::NetworkInterface> list)
@@ -83,7 +84,7 @@ void NetworkOptionsNetworkWindowItem::onForgetClicked()
     QVector<types::NetworkInterface> list = preferences_->networkWhiteList();
     for (types::NetworkInterface interface : list)
     {
-        if (interface.friendlyName == network_.friendlyName)
+        if (interface.networkOrSsid == network_.networkOrSsid)
         {
             continue;
         }
@@ -109,6 +110,11 @@ void NetworkOptionsNetworkWindowItem::updateForgetGroup()
     {
         forgetGroup_->show(false);
     }
+}
+
+void NetworkOptionsNetworkWindowItem::onPreferredProtocolChanged(const types::ConnectionSettings &settings)
+{
+    preferences_->setNetworkPreferredProtocol(network_.networkOrSsid, settings);
 }
 
 } // namespace PreferencesWindow

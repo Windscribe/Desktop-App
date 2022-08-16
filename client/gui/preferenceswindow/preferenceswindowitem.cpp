@@ -6,18 +6,19 @@
 #include <QCursor>
 #include <QGraphicsSceneMouseEvent>
 #include "utils/utils.h"
+#include "utils/logger.h"
 #include "dpiscalemanager.h"
 
 namespace PreferencesWindow {
 
 
 PreferencesWindowItem::PreferencesWindowItem(QGraphicsObject *parent, Preferences *preferences, PreferencesHelper *preferencesHelper, AccountInfo *accountInfo) : ScalableGraphicsObject(parent),
-    curScale_(1.0), isShowSubPage_(false), loggedIn_(false)
+    preferences_(preferences), curScale_(1.0), isShowSubPage_(false), loggedIn_(false)
 {
     setFlags(QGraphicsObject::ItemIsFocusable);
     installEventFilter(this);
 
-    curHeight_ = (MIN_HEIGHT - 100);
+    curHeight_ = preferences_->appSkin() == APP_SKIN_VAN_GOGH ? (MIN_HEIGHT_VAN_GOGH - 100) : (MIN_HEIGHT - 100);
 
 #if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     backgroundBase_ = "background/WIN_TOP_BG";
@@ -30,6 +31,8 @@ PreferencesWindowItem::PreferencesWindowItem(QGraphicsObject *parent, Preference
 #endif
     footerColor_ = FontManager::instance().getCharcoalColor();
 
+    connect(preferences, &Preferences::appSkinChanged, this, &PreferencesWindowItem::onAppSkinChanged);
+
     escapeButton_ = new CommonGraphics::EscapeButton(this);
     connect(escapeButton_, &CommonGraphics::EscapeButton::clicked, this, &PreferencesWindowItem::escape);
 
@@ -39,7 +42,7 @@ PreferencesWindowItem::PreferencesWindowItem(QGraphicsObject *parent, Preference
     connect(dynamic_cast<QObject*>(tabControlItem_), SIGNAL(loginClick()), SIGNAL(loginClick()));
     connect(dynamic_cast<QObject*>(tabControlItem_), SIGNAL(quitClick()), SIGNAL(quitAppClick()));
 
-    backArrowButton_ = new IconButton(20, 24, "login/BACK_ARROW", "", this);
+    backArrowButton_ = new IconButton(32, 32, "BACK_ARROW", "", this);
     connect(backArrowButton_, &IconButton::clicked, this, &PreferencesWindowItem::onBackArrowButtonClicked);
 
     bottomResizeItem_ = new CommonGraphics::ResizeBar(this);
@@ -103,7 +106,11 @@ PreferencesWindowItem::PreferencesWindowItem(QGraphicsObject *parent, Preference
     connect(networkOptionsWindowItem_, &NetworkOptionsWindowItem::currentNetworkUpdated, this, &PreferencesWindowItem::onCurrentNetworkUpdated);
     connect(networkOptionsWindowItem_, &NetworkOptionsWindowItem::networkClicked, this, &PreferencesWindowItem::onNetworkOptionsNetworkClick);
     connect(networkOptionsNetworkWindowItem_, &NetworkOptionsNetworkWindowItem::escape, this, &PreferencesWindowItem::onNetworkEscape);
+
     updatePositions();
+    // trigger app skin change in case we start in van gogh mode
+    onAppSkinChanged(preferences_->appSkin());
+
 }
 
 PreferencesWindowItem::~PreferencesWindowItem()
@@ -142,14 +149,29 @@ void PreferencesWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsI
     qreal initialOpacity = painter->opacity();
     painter->fillRect(boundingRect().adjusted(0, 286*G_SCALE, 0, -7*G_SCALE), QBrush(QColor(2, 13, 28)));
 
+    QRect rcCaption;
     // base background
-    QSharedPointer<IndependentPixmap> pixmapBaseBackground = ImageResourcesSvg::instance().getIndependentPixmap(backgroundBase_);
-    pixmapBaseBackground->draw(0, 0, painter);
-    QSharedPointer<IndependentPixmap> pixmapHeader = ImageResourcesSvg::instance().getIndependentPixmap(backgroundHeader_);
-    pixmapHeader->draw(0, 27*G_SCALE, painter);
+    if (preferences_->appSkin() == APP_SKIN_VAN_GOGH)
+    {
+        QPainterPath path;
+        path.addRoundedRect(boundingRect().toRect(), 5*G_SCALE, 5*G_SCALE);
+        painter->setPen(Qt::NoPen);
+        painter->fillPath(path, QColor(2, 13, 28));
+        painter->setPen(Qt::SolidLine);
+        QSharedPointer<IndependentPixmap> pixmapHeader = ImageResourcesSvg::instance().getIndependentPixmap(backgroundHeader_);
+        pixmapHeader->draw(0, 0, painter);
+        rcCaption = QRect(64*G_SCALE, 2*G_SCALE, 200*G_SCALE, 56*G_SCALE);
+    }
+    else
+    {
+        QSharedPointer<IndependentPixmap> pixmapBaseBackground = ImageResourcesSvg::instance().getIndependentPixmap(backgroundBase_);
+        pixmapBaseBackground->draw(0, 0, painter);
+        QSharedPointer<IndependentPixmap> pixmapHeader = ImageResourcesSvg::instance().getIndependentPixmap(backgroundHeader_);
+        pixmapHeader->draw(0, 27*G_SCALE, painter);
+        rcCaption = QRect(64*G_SCALE, 30*G_SCALE, 200*G_SCALE, 56*G_SCALE);
+    }
 
     // draw page caption
-    QRect rcCaption(56*G_SCALE, 30*G_SCALE, 200*G_SCALE, 56*G_SCALE);
     //painter->fillRect(rcCaption, QBrush(QColor(255, 45, 61)));
     painter->setPen(Qt::white);
     QFont *font = FontManager::instance().getFont(16, true);
@@ -174,7 +196,7 @@ void PreferencesWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsI
 
 int PreferencesWindowItem::recommendedHeight()
 {
-    return MIN_HEIGHT;
+    return preferences_->appSkin() == APP_SKIN_VAN_GOGH ? MIN_HEIGHT_VAN_GOGH : MIN_HEIGHT;
 }
 
 void PreferencesWindowItem::setHeight(int height)
@@ -182,6 +204,8 @@ void PreferencesWindowItem::setHeight(int height)
     prepareGeometryChange();
     curHeight_ = height;
     updateChildItemsAfterHeightChanged();
+    updatePositions();
+    update();
 }
 
 void PreferencesWindowItem::setCurrentTab(PREFERENCES_TAB_TYPE tab)
@@ -251,7 +275,9 @@ void PreferencesWindowItem::onResizeStarted()
 
 void PreferencesWindowItem::onResizeChange(int y)
 {
-    if ((heightAtResizeStart_ + y) >= MIN_HEIGHT*G_SCALE)
+    int min = preferences_->appSkin() == APP_SKIN_VAN_GOGH ? MIN_HEIGHT_VAN_GOGH*G_SCALE : MIN_HEIGHT*G_SCALE;
+
+    if ((heightAtResizeStart_ + y) >= min)
     {
         prepareGeometryChange();
         curHeight_ = heightAtResizeStart_ + y;
@@ -536,16 +562,25 @@ void PreferencesWindowItem::updateSplitTunnelingAppsCount(QList<types::SplitTunn
 
 void PreferencesWindowItem::updatePositions()
 {
+    bottomResizeItem_->setPos(BOTTOM_RESIZE_ORIGIN_X*G_SCALE, curHeight_ - BOTTOM_RESIZE_OFFSET_Y*G_SCALE);
     escapeButton_->setPos(WINDOW_WIDTH*G_SCALE - escapeButton_->boundingRect().width() - 16*G_SCALE, 16*G_SCALE);
 
-    tabControlItem_->getGraphicsObject()->setPos(0, 82*G_SCALE);
-    tabControlItem_->setHeight(curHeight_ - 99*G_SCALE);
-
-    backArrowButton_->setPos(16*G_SCALE, 45*G_SCALE);
-    bottomResizeItem_->setPos(BOTTOM_RESIZE_ORIGIN_X*G_SCALE, curHeight_ - BOTTOM_RESIZE_OFFSET_Y*G_SCALE);
-
-    scrollAreaItem_->setHeight(curHeight_  - 102*G_SCALE);
-    scrollAreaItem_->setPos(TAB_AREA_WIDTH*G_SCALE, 83*G_SCALE);
+    if (preferences_->appSkin() == APP_SKIN_VAN_GOGH)
+    {
+        tabControlItem_->getGraphicsObject()->setPos(0, 54*G_SCALE);
+        backArrowButton_->setPos(16*G_SCALE, 12*G_SCALE);
+        scrollAreaItem_->setPos(TAB_AREA_WIDTH*G_SCALE, 55*G_SCALE);
+        tabControlItem_->setHeight(curHeight_ - 71*G_SCALE);
+        scrollAreaItem_->setHeight(curHeight_ - 74*G_SCALE);
+    }
+    else
+    {
+        tabControlItem_->getGraphicsObject()->setPos(0, 82*G_SCALE);
+        backArrowButton_->setPos(16*G_SCALE, 40*G_SCALE);
+        scrollAreaItem_->setPos(TAB_AREA_WIDTH*G_SCALE, 83*G_SCALE);
+        tabControlItem_->setHeight(curHeight_ - 99*G_SCALE);
+        scrollAreaItem_->setHeight(curHeight_ - 102*G_SCALE);
+    }
 }
 
 void PreferencesWindowItem::onAppsWindowAppsUpdated(QList<types::SplitTunnelingApp> apps)
@@ -605,14 +640,23 @@ void PreferencesWindowItem::setShowSubpageMode(bool isShowSubPage)
 
 QRectF PreferencesWindowItem::getBottomResizeArea()
 {
-    return QRectF(0, curHeight_ - BOTTOM_AREA_HEIGHT*G_SCALE, boundingRect().width(), BOTTOM_AREA_HEIGHT*G_SCALE );
+    return QRectF(0, curHeight_ - BOTTOM_AREA_HEIGHT*G_SCALE, boundingRect().width(), BOTTOM_AREA_HEIGHT*G_SCALE);
 }
 
 void PreferencesWindowItem::updateChildItemsAfterHeightChanged()
 {
-    tabControlItem_->setHeight(curHeight_  - 99*G_SCALE);
-    bottomResizeItem_->setPos(boundingRect().width()/2 - bottomResizeItem_->boundingRect().width()/2, curHeight_ - BOTTOM_RESIZE_OFFSET_Y * G_SCALE);
-    scrollAreaItem_->setHeight(curHeight_  - 102*G_SCALE);
+    bottomResizeItem_->setPos(BOTTOM_RESIZE_ORIGIN_X*G_SCALE, curHeight_ - BOTTOM_RESIZE_OFFSET_Y*G_SCALE);
+
+    if (preferences_->appSkin() == APP_SKIN_VAN_GOGH)
+    {
+        tabControlItem_->setHeight(curHeight_ - 71*G_SCALE);
+        scrollAreaItem_->setHeight(curHeight_ - 74*G_SCALE);
+    }
+    else
+    {
+        tabControlItem_->setHeight(curHeight_ - 99*G_SCALE);
+        scrollAreaItem_->setHeight(curHeight_ - 102*G_SCALE);
+    }
 }
 
 void PreferencesWindowItem::setRobertFilters(const QVector<types::RobertFilter> &filters)
@@ -623,6 +667,25 @@ void PreferencesWindowItem::setRobertFilters(const QVector<types::RobertFilter> 
 void PreferencesWindowItem::setRobertFiltersError()
 {
     robertWindowItem_->setError(true);
+}
+
+void PreferencesWindowItem::onAppSkinChanged(APP_SKIN s)
+{
+    if (s == APP_SKIN_ALPHA)
+    {
+        escapeButton_->setTextPosition(CommonGraphics::EscapeButton::TEXT_POSITION_BOTTOM);
+    }
+    else if (s == APP_SKIN_VAN_GOGH)
+    {
+        escapeButton_->setTextPosition(CommonGraphics::EscapeButton::TEXT_POSITION_LEFT);
+    }
+    updatePositions();
+    update();
+}
+
+void PreferencesWindowItem::setScrollOffset(int offset)
+{
+    scrollAreaItem_->setScrollPos(offset);
 }
 
 } // namespace PreferencesWindow
