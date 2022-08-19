@@ -18,7 +18,7 @@ extern QWidget *g_mainWindow;
 namespace GuiLocations {
 
 
-LocationsTab::LocationsTab(QWidget *parent, LocationsModel *locationsModel) : QWidget(parent)
+LocationsTab::LocationsTab(QWidget *parent, gui_locations::LocationsModelManager *locationsModelManager) : QWidget(parent)
   , curTab_(LOCATION_TAB_ALL_LOCATIONS)
   , tabPress_(LOCATION_TAB_NONE)
   , filterText_("")
@@ -67,25 +67,25 @@ LocationsTab::LocationsTab(QWidget *parent, LocationsModel *locationsModel) : QW
     curWhiteLinePos_ = (rcAllLocationsIcon_.center().x() + 1) * G_SCALE;
     connect(&whiteLineAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onWhiteLinePosChanged(QVariant)));
 
-    widgetAllLocations_ = new GuiLocations::WidgetLocations(this, "All");
+    widgetAllLocations_ = new gui_locations::LocationsView(this);
 
-    widgetConfiguredLocations_ = new GuiLocations::WidgetCities(this, "Configs", 6);
-    widgetConfiguredLocations_->setEmptyListDisplayIcon("locations/FOLDER_ICON_BIG");
-    connect(widgetConfiguredLocations_, SIGNAL(emptyListButtonClicked()),
-                                        SLOT(onAddCustomConfigClicked()));
+    widgetConfiguredLocations_ = new gui_locations::LocationsView(this);
+    //widgetConfiguredLocations_->setEmptyListDisplayIcon("locations/FOLDER_ICON_BIG");
+    //connect(widgetConfiguredLocations_, SIGNAL(emptyListButtonClicked()),
+    //                                    SLOT(onAddCustomConfigClicked()));
     widgetConfiguredLocations_->hide();
 
-    widgetStaticIpsLocations_ = new GuiLocations::WidgetCities(this, "Static IP", 6);
-    widgetStaticIpsLocations_->setEmptyListDisplayIcon("locations/STATIC_IP_ICON_BIG");
-    widgetStaticIpsLocations_->setEmptyListDisplayText(tr("You don't have any Static IPs"), 120);
-    widgetStaticIpsLocations_->setEmptyListButtonText(tr("Buy"));
-    connect(widgetStaticIpsLocations_, SIGNAL(emptyListButtonClicked()),
-                                       SIGNAL(addStaticIpClicked()));
+    widgetStaticIpsLocations_ = new gui_locations::LocationsView(this);
+    //widgetStaticIpsLocations_->setEmptyListDisplayIcon("locations/STATIC_IP_ICON_BIG");
+    //widgetStaticIpsLocations_->setEmptyListDisplayText(tr("You don't have any Static IPs"), 120);
+    //widgetStaticIpsLocations_->setEmptyListButtonText(tr("Buy"));
+    //connect(widgetStaticIpsLocations_, SIGNAL(emptyListButtonClicked()),
+    //                                   SIGNAL(addStaticIpClicked()));
     widgetStaticIpsLocations_->hide();
 
-    widgetFavoriteLocations_ = new GuiLocations::WidgetCities(this, "Favourites");
-    widgetFavoriteLocations_->setEmptyListDisplayIcon("locations/BROKEN_HEART_ICON");
-    widgetFavoriteLocations_->setEmptyListDisplayText(tr("Nothing to see here..."), 120);
+    widgetFavoriteLocations_ = new gui_locations::LocationsView(this);
+    //widgetFavoriteLocations_->setEmptyListDisplayIcon("locations/BROKEN_HEART_ICON");
+    //widgetFavoriteLocations_->setEmptyListDisplayText(tr("Nothing to see here..."), 120);
     widgetFavoriteLocations_->hide();
 
     staticIPDeviceInfo_ = new StaticIPDeviceInfo(this);
@@ -98,9 +98,6 @@ LocationsTab::LocationsTab(QWidget *parent, LocationsModel *locationsModel) : QW
             SIGNAL(clearCustomConfigClicked()));
     connect(configFooterInfo_, SIGNAL(addCustomConfigClicked()), SLOT(onAddCustomConfigClicked()));
 
-    widgetSearchLocations_ = new GuiLocations::WidgetLocations(this, "Search");
-    widgetSearchLocations_->hide();
-
     updateLocationWidgetsGeometry(unscaledHeightOfItemViewport());
 
     connect(widgetAllLocations_, SIGNAL(selected(LocationID)), SIGNAL(selected(LocationID)));
@@ -108,19 +105,11 @@ LocationsTab::LocationsTab(QWidget *parent, LocationsModel *locationsModel) : QW
     connect(widgetConfiguredLocations_, SIGNAL(selected(LocationID)), SIGNAL(selected(LocationID)));
     connect(widgetStaticIpsLocations_, SIGNAL(selected(LocationID)), SIGNAL(selected(LocationID)));
     connect(widgetFavoriteLocations_, SIGNAL(selected(LocationID)), SIGNAL(selected(LocationID)));
-    connect(widgetSearchLocations_, SIGNAL(selected(LocationID)), SIGNAL(selected(LocationID)));
 
-    connect(widgetAllLocations_, SIGNAL(switchFavorite(LocationID,bool)), SIGNAL(switchFavorite(LocationID,bool)));
-    connect(widgetConfiguredLocations_, SIGNAL(switchFavorite(LocationID,bool)), SIGNAL(switchFavorite(LocationID,bool)));
-    connect(widgetStaticIpsLocations_, SIGNAL(switchFavorite(LocationID,bool)), SIGNAL(switchFavorite(LocationID,bool)));
-    connect(widgetFavoriteLocations_, SIGNAL(switchFavorite(LocationID,bool)), SIGNAL(switchFavorite(LocationID,bool)));
-    connect(widgetSearchLocations_, SIGNAL(switchFavorite(LocationID,bool)), SIGNAL(switchFavorite(LocationID,bool)));
-
-    widgetAllLocations_->setModel(locationsModel->getAllLocationsModel());
-    widgetConfiguredLocations_->setModel(locationsModel->getConfiguredLocationsModel());
-    widgetStaticIpsLocations_->setModel(locationsModel->getStaticIpsLocationsModel());
-    widgetFavoriteLocations_->setModel(locationsModel->getFavoriteLocationsModel());
-    widgetSearchLocations_->setModel(locationsModel->getAllLocationsModel());
+    widgetAllLocations_->setModel(locationsModelManager->sortedLocationsProxyModel());
+    widgetConfiguredLocations_->setModel(locationsModelManager->customConfigsProxyModel());
+    widgetStaticIpsLocations_->setModel(locationsModelManager->staticIpsProxyModel());
+    widgetFavoriteLocations_->setModel(locationsModelManager->favoriteCitiesProxyModel());
 
     searchTypingDelayTimer_.setSingleShot(true);
     searchTypingDelayTimer_.setInterval(100);
@@ -130,7 +119,7 @@ LocationsTab::LocationsTab(QWidget *parent, LocationsModel *locationsModel) : QW
     delayShowIconsTimer_.setInterval(SEARCH_BUTTON_POS_ANIMATION_DURATION+100);
     connect(&delayShowIconsTimer_, SIGNAL(timeout()), SLOT(onDelayShowIconsTimerTimeout()));
 
-    connect(locationsModel, SIGNAL(deviceNameChanged(QString)), SLOT(onDeviceNameChanged(QString)));
+    connect(locationsModelManager, SIGNAL(deviceNameChanged(QString)), SLOT(onDeviceNameChanged(QString)));
 
     updateCustomConfigsEmptyListVisibility();
 }
@@ -144,7 +133,6 @@ void LocationsTab::setCountVisibleItemSlots(int cnt)
         widgetConfiguredLocations_->setCountViewportItems(countOfVisibleItemSlots_-1);
         widgetStaticIpsLocations_->setCountViewportItems(countOfVisibleItemSlots_-1);
         widgetFavoriteLocations_->setCountViewportItems(countOfVisibleItemSlots_);
-        widgetSearchLocations_->setCountViewportItems(countOfVisibleItemSlots_);
         updateRibbonVisibility();
         updateLocationWidgetsGeometry(unscaledHeightOfItemViewport());
     }
@@ -269,25 +257,25 @@ void LocationsTab::changeTab(LocationTabEnum newTab, bool animateChange)
     {
         endWhiteLinePos = rcConfiguredLocationsIcon_.center().x();
         onClickConfiguredLocations();
-        if (lastTab_ == LOCATION_TAB_SEARCH_LOCATIONS) widgetSearchLocations_->setFilterString("");
+        ///if (lastTab_ == LOCATION_TAB_SEARCH_LOCATIONS) widgetSearchLocations_->setFilterString("");
     }
     else if (curTab_ == LOCATION_TAB_STATIC_IPS_LOCATIONS)
     {
         endWhiteLinePos = rcStaticIpsLocationsIcon_.center().x();
         onClickStaticIpsLocations();
-        if (lastTab_ == LOCATION_TAB_SEARCH_LOCATIONS) widgetSearchLocations_->setFilterString("");
+        ///if (lastTab_ == LOCATION_TAB_SEARCH_LOCATIONS) widgetSearchLocations_->setFilterString("");
     }
     else if (curTab_ == LOCATION_TAB_FAVORITE_LOCATIONS)
     {
         endWhiteLinePos = rcFavoriteLocationsIcon_.center().x();
         onClickFavoriteLocations();
-        if (lastTab_ == LOCATION_TAB_SEARCH_LOCATIONS) widgetSearchLocations_->setFilterString("");
+        ///if (lastTab_ == LOCATION_TAB_SEARCH_LOCATIONS) widgetSearchLocations_->setFilterString("");
     }
     else if (curTab_ == LOCATION_TAB_ALL_LOCATIONS)
     {
         endWhiteLinePos = rcAllLocationsIcon_.center().x();
         onClickAllLocations();
-        if (lastTab_ == LOCATION_TAB_SEARCH_LOCATIONS) widgetSearchLocations_->setFilterString("");
+        ///if (lastTab_ == LOCATION_TAB_SEARCH_LOCATIONS) widgetSearchLocations_->setFilterString("");
     }
     else if (curTab_ == LOCATION_TAB_SEARCH_LOCATIONS)
     {
@@ -389,11 +377,10 @@ bool LocationsTab::eventFilter(QObject *object, QEvent *event)
 
 void LocationsTab::onClickAllLocations()
 {
-    widgetAllLocations_->startAnimationWithPixmap(this->grab(QRect(0, TAB_HEADER_HEIGHT* G_SCALE, width(), height() - TAB_HEADER_HEIGHT* G_SCALE)));
+    ///widgetAllLocations_->startAnimationWithPixmap(this->grab(QRect(0, TAB_HEADER_HEIGHT* G_SCALE, width(), height() - TAB_HEADER_HEIGHT* G_SCALE)));
     widgetConfiguredLocations_->hide();
     widgetStaticIpsLocations_->hide();
     widgetFavoriteLocations_->hide();
-    widgetSearchLocations_->hide();
     widgetAllLocations_->show();
     widgetAllLocations_->raise();
     updateRibbonVisibility();
@@ -401,11 +388,10 @@ void LocationsTab::onClickAllLocations()
 
 void LocationsTab::onClickConfiguredLocations()
 {
-    widgetConfiguredLocations_->startAnimationWithPixmap(this->grab(QRect(0, TAB_HEADER_HEIGHT* G_SCALE, width(), height() - TAB_HEADER_HEIGHT* G_SCALE)));
+    ///widgetConfiguredLocations_->startAnimationWithPixmap(this->grab(QRect(0, TAB_HEADER_HEIGHT* G_SCALE, width(), height() - TAB_HEADER_HEIGHT* G_SCALE)));
     widgetAllLocations_->hide();
     widgetStaticIpsLocations_->hide();
     widgetFavoriteLocations_->hide();
-    widgetSearchLocations_->hide();
     widgetConfiguredLocations_->show();
     widgetConfiguredLocations_->raise();
     updateRibbonVisibility();
@@ -413,11 +399,10 @@ void LocationsTab::onClickConfiguredLocations()
 
 void LocationsTab::onClickStaticIpsLocations()
 {
-    widgetStaticIpsLocations_->startAnimationWithPixmap(this->grab(QRect(0, TAB_HEADER_HEIGHT* G_SCALE, width(), height() - TAB_HEADER_HEIGHT* G_SCALE)));
+    ///widgetStaticIpsLocations_->startAnimationWithPixmap(this->grab(QRect(0, TAB_HEADER_HEIGHT* G_SCALE, width(), height() - TAB_HEADER_HEIGHT* G_SCALE)));
     widgetAllLocations_->hide();
     widgetConfiguredLocations_->hide();
     widgetFavoriteLocations_->hide();
-    widgetSearchLocations_->hide();
     widgetStaticIpsLocations_->show();
     widgetStaticIpsLocations_->raise();
     updateRibbonVisibility();
@@ -425,11 +410,10 @@ void LocationsTab::onClickStaticIpsLocations()
 
 void LocationsTab::onClickFavoriteLocations()
 {
-    widgetFavoriteLocations_->startAnimationWithPixmap(this->grab(QRect(0, TAB_HEADER_HEIGHT* G_SCALE, width(), height() - TAB_HEADER_HEIGHT* G_SCALE)));
+    ///widgetFavoriteLocations_->startAnimationWithPixmap(this->grab(QRect(0, TAB_HEADER_HEIGHT* G_SCALE, width(), height() - TAB_HEADER_HEIGHT* G_SCALE)));
     widgetAllLocations_->hide();
     widgetConfiguredLocations_->hide();
     widgetStaticIpsLocations_->hide();
-    widgetSearchLocations_->hide();
     widgetFavoriteLocations_->show();
     widgetFavoriteLocations_->raise();
     updateRibbonVisibility();
@@ -437,20 +421,14 @@ void LocationsTab::onClickFavoriteLocations()
 
 void LocationsTab::onClickSearchLocations()
 {
-    widgetSearchLocations_->startAnimationWithPixmap(this->grab(QRect(0, TAB_HEADER_HEIGHT* G_SCALE, width(), height() - TAB_HEADER_HEIGHT* G_SCALE)));
-    widgetConfiguredLocations_->hide();
-    widgetStaticIpsLocations_->hide();
-    widgetFavoriteLocations_->hide();
-    widgetAllLocations_->hide();
-    widgetSearchLocations_->show();
-    widgetSearchLocations_->raise();
-    updateRibbonVisibility();
+    // the same as onClickAllLocations()
+    onClickAllLocations();
 }
 
 void LocationsTab::switchToTabAndRestoreCursorToAccentedItem(LocationTabEnum locationTab)
 {
     // get target locations previously accented item
-    LocationID previousSelectedLocId;
+    /*LocationID previousSelectedLocId;
     IWidgetLocationsInfo *locWidget = locationWidgetByEnum(locationTab);
     if (locWidget)
     {
@@ -478,7 +456,7 @@ void LocationsTab::switchToTabAndRestoreCursorToAccentedItem(LocationTabEnum loc
         {
             locWidget->centerCursorOnItem(previousSelectedLocId);
         }
-    }
+    }*/
 }
 
 void LocationsTab::onWhiteLinePosChanged(const QVariant &value)
@@ -544,7 +522,7 @@ void LocationsTab::onDelayShowIconsTimerTimeout()
 void LocationsTab::onSearchTypingDelayTimerTimeout()
 {
     // qCDebug(LOG_LOCATION_LIST) << "Setting filter with typed: " << filterText_;
-    widgetSearchLocations_->setFilterString(filterText_);
+    ///widgetSearchLocations_->setFilterString(filterText_);
 }
 
 void LocationsTab::onSearchLineEditTextChanged(QString text)
@@ -559,7 +537,7 @@ void LocationsTab::onSearchLineEditFocusOut()
     focusOutTimer_.restart();
 }
 
-IWidgetLocationsInfo *LocationsTab::currentWidgetLocations()
+/*IWidgetLocationsInfo *LocationsTab::currentWidgetLocations()
 {
     return locationWidgetByEnum(curTab_);
 }
@@ -572,7 +550,7 @@ IWidgetLocationsInfo *LocationsTab::locationWidgetByEnum(LocationsTab::LocationT
     if (tabEnum == LOCATION_TAB_CONFIGURED_LOCATIONS) return widgetConfiguredLocations_;
     if (tabEnum == LOCATION_TAB_SEARCH_LOCATIONS)     return widgetSearchLocations_;
     return nullptr;
-}
+}*/
 
 void LocationsTab::drawTabRegion(QPainter &painter, const QRect &rc)
 {
@@ -641,7 +619,7 @@ bool LocationsTab::isWhiteAnimationActive()
 
 void LocationsTab::passEventToLocationWidget(QKeyEvent *event)
 {
-    IWidgetLocationsInfo * curWidgetLoc = currentWidgetLocations();
+    /*IWidgetLocationsInfo * curWidgetLoc = currentWidgetLocations();
     if (curWidgetLoc != nullptr)
     {
         if (curWidgetLoc->hasAccentItem())
@@ -652,7 +630,7 @@ void LocationsTab::passEventToLocationWidget(QKeyEvent *event)
         {
             curWidgetLoc->accentFirstItem();
         }
-    }
+    }*/
 }
 
 void LocationsTab::handleKeyReleaseEvent(QKeyEvent *event)
@@ -779,10 +757,10 @@ void LocationsTab::updateIconRectsAndLine()
     updateTabIconRects();
 
     // update white line pos
-    if      (currentWidgetLocations() == widgetAllLocations_)        curWhiteLinePos_ = (rcAllLocationsIcon_.center().x() + 1*G_SCALE)        ;
-    else if (currentWidgetLocations() == widgetConfiguredLocations_) curWhiteLinePos_ = (rcConfiguredLocationsIcon_.center().x() + 1*G_SCALE) ;
-    else if (currentWidgetLocations() == widgetStaticIpsLocations_)  curWhiteLinePos_ = (rcStaticIpsLocationsIcon_.center().x() + 1*G_SCALE)  ;
-    else if (currentWidgetLocations() == widgetFavoriteLocations_)   curWhiteLinePos_ = (rcFavoriteLocationsIcon_.center().x() + 1*G_SCALE)   ;
+    if (curTab_ == LOCATION_TAB_ALL_LOCATIONS)                  curWhiteLinePos_ = (rcAllLocationsIcon_.center().x() + 1*G_SCALE);
+    else if (curTab_ == LOCATION_TAB_CONFIGURED_LOCATIONS)      curWhiteLinePos_ = (rcConfiguredLocationsIcon_.center().x() + 1*G_SCALE);
+    else if (curTab_ == LOCATION_TAB_STATIC_IPS_LOCATIONS)      curWhiteLinePos_ = (rcStaticIpsLocationsIcon_.center().x() + 1*G_SCALE);
+    else if (curTab_ == LOCATION_TAB_FAVORITE_LOCATIONS)        curWhiteLinePos_ = (rcFavoriteLocationsIcon_.center().x() + 1*G_SCALE);
     // not drawing line for widgetSearchLocations_
 
     update();
@@ -804,7 +782,6 @@ void LocationsTab::updateLocationWidgetsGeometry(int newHeight)
     widgetFavoriteLocations_->setGeometry(   0, scaledTabHeaderHeight, scaledWidth, scaledHeight);
     widgetStaticIpsLocations_->setGeometry(  0, scaledTabHeaderHeight, scaledWidth, scaledHeight - ribbonHeight);
     widgetConfiguredLocations_->setGeometry( 0, scaledTabHeaderHeight, scaledWidth, scaledHeight - ribbonHeight);
-    widgetSearchLocations_->setGeometry(     0, scaledTabHeaderHeight, scaledWidth, scaledHeight);
 
     // ribbon geometry
     staticIPDeviceInfo_->setGeometry( 0, scaledHeight - ribbonOffset, scaledWidth, ribbonHeight);
@@ -815,12 +792,11 @@ void LocationsTab::updateLocationWidgetsGeometry(int newHeight)
 
 void LocationsTab::updateScaling()
 {
-    widgetAllLocations_->       updateScaling();
-    widgetFavoriteLocations_->  updateScaling();
-    widgetStaticIpsLocations_-> updateScaling();
+    widgetAllLocations_->updateScaling();
+    widgetFavoriteLocations_->updateScaling();
+    widgetStaticIpsLocations_->updateScaling();
     widgetConfiguredLocations_->updateScaling();
-    widgetSearchLocations_->    updateScaling();
-    configFooterInfo_->         updateScaling();
+    configFooterInfo_->updateScaling();
 
     searchButton_->setGeometry(searchButtonPosUnscaled_ * G_SCALE, TOP_TAB_MARGIN * G_SCALE, 16*G_SCALE, 16*G_SCALE);
     searchCancelButton_->setGeometry(LAST_TAB_ICON_POS_X * G_SCALE, TOP_TAB_MARGIN * G_SCALE, 16*G_SCALE, 16*G_SCALE);
@@ -832,7 +808,7 @@ void LocationsTab::updateScaling()
 
 void LocationsTab::updateLanguage()
 {
-    widgetFavoriteLocations_->setEmptyListDisplayText(tr("Nothing to see here"));
+    //widgetFavoriteLocations_->setEmptyListDisplayText(tr("Nothing to see here"));
 }
 
 void LocationsTab::showSearchTab()
@@ -908,11 +884,11 @@ void LocationsTab::hideSearchTabWithoutAnimation()
 
 void LocationsTab::setMuteAccentChanges(bool mute)
 {
-    widgetAllLocations_       ->setMuteAccentChanges(mute);
+    /*widgetAllLocations_       ->setMuteAccentChanges(mute);
     widgetConfiguredLocations_->setMuteAccentChanges(mute);
     widgetStaticIpsLocations_ ->setMuteAccentChanges(mute);
     widgetFavoriteLocations_  ->setMuteAccentChanges(mute);
-    widgetSearchLocations_    ->setMuteAccentChanges(mute);
+    widgetSearchLocations_    ->setMuteAccentChanges(mute);*/
 }
 
 LocationsTab::LocationTabEnum LocationsTab::currentTab()
@@ -928,26 +904,18 @@ int LocationsTab::unscaledHeightOfItemViewport()
 void LocationsTab::setLatencyDisplay(LATENCY_DISPLAY_TYPE l)
 {
     bool isShowLatencyInMs = (l == LATENCY_DISPLAY_MS);
-    if (isShowLatencyInMs != widgetAllLocations_->isShowLatencyInMs())
-    {
-        widgetAllLocations_       ->setShowLatencyInMs(isShowLatencyInMs);
-        widgetConfiguredLocations_->setShowLatencyInMs(isShowLatencyInMs);
-        widgetStaticIpsLocations_ ->setShowLatencyInMs(isShowLatencyInMs);
-        widgetFavoriteLocations_  ->setShowLatencyInMs(isShowLatencyInMs);
-        widgetSearchLocations_    ->setShowLatencyInMs(isShowLatencyInMs);
-    }
+    widgetAllLocations_->setShowLatencyInMs(isShowLatencyInMs);
+    widgetConfiguredLocations_->setShowLatencyInMs(isShowLatencyInMs);
+    widgetStaticIpsLocations_->setShowLatencyInMs(isShowLatencyInMs);
+    widgetFavoriteLocations_->setShowLatencyInMs(isShowLatencyInMs);
 }
 
 void LocationsTab::setShowLocationLoad(bool showLocationLoad)
 {
-    if (showLocationLoad != widgetAllLocations_->isShowLocationLoad())
-    {
-        widgetAllLocations_       ->setShowLocationLoad(showLocationLoad);
-        widgetConfiguredLocations_->setShowLocationLoad(showLocationLoad);
-        widgetStaticIpsLocations_ ->setShowLocationLoad(showLocationLoad);
-        widgetFavoriteLocations_  ->setShowLocationLoad(showLocationLoad);
-        widgetSearchLocations_    ->setShowLocationLoad(showLocationLoad);
-    }
+    widgetAllLocations_->setShowLocationLoad(showLocationLoad);
+    widgetConfiguredLocations_->setShowLocationLoad(showLocationLoad);
+    widgetStaticIpsLocations_->setShowLocationLoad(showLocationLoad);
+    widgetFavoriteLocations_->setShowLocationLoad(showLocationLoad);
 }
 
 void LocationsTab::setCustomConfigsPath(QString path)
@@ -974,7 +942,7 @@ void LocationsTab::rectHoverEnter(QRect buttonRect, QString text, int offsetX, i
 
 void LocationsTab::updateCustomConfigsEmptyListVisibility()
 {
-    Q_ASSERT(configFooterInfo_ != nullptr);
+    /*Q_ASSERT(configFooterInfo_ != nullptr);
     if (configFooterInfo_->text().isEmpty()) {
         widgetConfiguredLocations_->setEmptyListDisplayText(
             tr("Choose the directory that contains custom configs you wish to display here"), 160);
@@ -983,12 +951,12 @@ void LocationsTab::updateCustomConfigsEmptyListVisibility()
         widgetConfiguredLocations_->setEmptyListDisplayText(
             tr("The selected directory contains no custom configs"), 160);
         widgetConfiguredLocations_->setEmptyListButtonText(QString());
-    }
+    }*/
 }
 
 void LocationsTab::updateRibbonVisibility()
 {
-    auto *current_widget_locations = currentWidgetLocations();
+    /*auto *current_widget_locations = currentWidgetLocations();
     const bool is_location_list_empty = current_widget_locations->countViewportItems() <= 1;
 
     isRibbonVisible_ = false;
@@ -1023,7 +991,7 @@ void LocationsTab::updateRibbonVisibility()
     }
 
     if (currentLocationListHeight_ != 0)
-        updateLocationWidgetsGeometry(currentLocationListHeight_);
+        updateLocationWidgetsGeometry(currentLocationListHeight_);*/
 }
 
 } // namespace GuiLocations

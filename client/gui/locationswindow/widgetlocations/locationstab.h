@@ -6,9 +6,9 @@
 #include <QWidget>
 #include <QVariantAnimation>
 #include <QTimer>
-#include "widgetcities.h"
-#include "widgetlocations.h"
-#include "backend/locationsmodel/locationsmodel.h"
+#include <QElapsedTimer>
+#include "locations/locationsmodel_manager.h"
+#include "locations/view/locationsview.h"
 #include "staticipdeviceinfo.h"
 #include "configfooterinfo.h"
 #include "commonwidgets/custommenulineedit.h"
@@ -20,7 +20,7 @@ class LocationsTab : public QWidget
 {
     Q_OBJECT
 public:
-    explicit LocationsTab(QWidget *parent, LocationsModel *locationsModel);
+    explicit LocationsTab(QWidget *parent, gui_locations::LocationsModelManager *locationsModelManager);
 
     int unscaledHeightOfItemViewport();
     void setCountVisibleItemSlots(int cnt);
@@ -72,7 +72,6 @@ protected:
 signals:
     void selected(LocationID id);
     void clickedOnPremiumStarCity();
-    void switchFavorite(LocationID id, bool isFavorite);
     void addStaticIpClicked();
     void clearCustomConfigClicked();
     void addCustomConfigClicked();
@@ -95,14 +94,12 @@ private slots:
     void onSearchLineEditFocusOut();
 private:
 
-
-    IWidgetLocationsInfo *currentWidgetLocations();
-    IWidgetLocationsInfo *locationWidgetByEnum(LocationTabEnum tabEnum);
-    GuiLocations::WidgetLocations *widgetAllLocations_;
-    GuiLocations::WidgetCities *widgetConfiguredLocations_;
-    GuiLocations::WidgetCities *widgetStaticIpsLocations_;
-    GuiLocations::WidgetCities *widgetFavoriteLocations_;
-    GuiLocations::WidgetLocations *widgetSearchLocations_;
+    //IWidgetLocationsInfo *currentWidgetLocations();
+    //IWidgetLocationsInfo *locationWidgetByEnum(LocationTabEnum tabEnum);
+    gui_locations::LocationsView *widgetAllLocations_;
+    gui_locations::LocationsView *widgetConfiguredLocations_;
+    gui_locations::LocationsView *widgetStaticIpsLocations_;
+    gui_locations::LocationsView *widgetFavoriteLocations_;
 
     // ribbons
     StaticIPDeviceInfo *staticIPDeviceInfo_;

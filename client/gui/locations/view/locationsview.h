@@ -1,5 +1,4 @@
-#ifndef GUI_LOCATIONS_LOCATIONSVIEW_H
-#define GUI_LOCATIONS_LOCATIONSVIEW_H
+#pragma once
 
 #include <QScrollArea>
 #include <QAbstractItemModel>
@@ -7,7 +6,7 @@
 #include "countryitemdelegate.h"
 #include "cityitemdelegate.h"
 
-namespace gui_location {
+namespace gui_locations {
 
 class LocationsView : public QScrollArea
 {
@@ -38,7 +37,5 @@ private:
 
 };
 
-} // namespace gui_location
+} // namespace gui_locations
 
-
-#endif // GUI_LOCATIONS_LOCATIONSVIEW_H

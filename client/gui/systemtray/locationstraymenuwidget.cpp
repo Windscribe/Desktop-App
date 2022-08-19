@@ -97,14 +97,14 @@ void LocationsTrayMenuWidget::handleMouseWheel()
     updateBackground_mac();
 }
 
-void LocationsTrayMenuWidget::setLocationsModel(LocationsModel *locationsModel)
+void LocationsTrayMenuWidget::setLocationsModel(QAbstractItemModel *locationsModel)
 {
-    connect(locationsModel->getAllLocationsModel(), SIGNAL(itemsUpdated(QVector<LocationModelItem*>)), SLOT(onItemsUpdated(QVector<LocationModelItem *>)));
+    /*connect(locationsModel->getAllLocationsModel(), SIGNAL(itemsUpdated(QVector<LocationModelItem*>)), SLOT(onItemsUpdated(QVector<LocationModelItem *>)));
     connect(locationsModel->getAllLocationsModel(), SIGNAL(connectionSpeedChanged(LocationID,PingTime)), SLOT(onConnectionSpeedChanged(LocationID,PingTime)));
     connect(locationsModel->getAllLocationsModel(), SIGNAL(freeSessionStatusChanged(bool)), SLOT(onSessionStatusChanged(bool)));
     connect(locationsModel->getFavoriteLocationsModel(), SIGNAL(itemsUpdated(QVector<CityModelItem*>)), SLOT(onFavoritesUpdated(QVector<CityModelItem *>)));
     connect(locationsModel->getStaticIpsLocationsModel(), SIGNAL(itemsUpdated(QVector<CityModelItem*>)), SLOT(onStaticIpsUpdated(QVector<CityModelItem *>)));
-    connect(locationsModel->getConfiguredLocationsModel(), SIGNAL(itemsUpdated(QVector<CityModelItem*>)), SLOT(onCustomConfigsUpdated(QVector<CityModelItem *>)));
+    connect(locationsModel->getConfiguredLocationsModel(), SIGNAL(itemsUpdated(QVector<CityModelItem*>)), SLOT(onCustomConfigsUpdated(QVector<CityModelItem *>)));*/
 }
 
 void LocationsTrayMenuWidget::setFontForItems(const QFont &font)
@@ -240,7 +240,7 @@ void LocationsTrayMenuWidget::updateShortenedTexts()
     }
 }
 
-void LocationsTrayMenuWidget::onItemsUpdated(QVector<LocationModelItem *> items)
+/*void LocationsTrayMenuWidget::onItemsUpdated(QVector<LocationModelItem *> items)
 {
     if (locationType_ != LOCATIONS_TRAY_MENU_TYPE_GENERIC)
         return;
@@ -426,7 +426,7 @@ void LocationsTrayMenuWidget::onCustomConfigsUpdated(QVector<CityModelItem*> ite
     updateShortenedTexts();
     updateButtonsState();
     updateBackground_mac();
-}
+}*/
 
 void LocationsTrayMenuWidget::onSessionStatusChanged(bool bFreeSessionStatus)
 {

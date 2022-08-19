@@ -3,11 +3,11 @@
 
 #include <QHostInfo>
 #include <QObject>
-#include "types/location.h"
-#include "types/staticips.h"
+#include "engine/apiinfo/location.h"
+#include "engine/apiinfo/staticips.h"
 #include "types/locationid.h"
 #include "types/proxysettings.h"
-#include "types/locationitem.h"
+#include "types/location.h"
 #include "pingipscontroller.h"
 #include "pingstorage.h"
 #include "bestlocation.h"
@@ -32,7 +32,7 @@ public:
     QSharedPointer<BaseLocationInfo> getMutableLocationInfoById(const LocationID &locationId);
 
 signals:
-    void locationsUpdated( QSharedPointer<QVector<types::LocationItem> > locations);
+    void locationsUpdated( QSharedPointer<types::Location> location);
     void locationPingTimeChanged(const LocationID &id, PingTime timeMs);
 
     void whitelistIpsChanged(const QStringList &ips);

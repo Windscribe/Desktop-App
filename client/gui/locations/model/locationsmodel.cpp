@@ -2,7 +2,211 @@
 #include "../locationsmodel_roles.h"
 #include <QDebug>
 
-namespace gui_location {
+namespace {
+
+// vector with hash to speed up search
+class LocationVector : public QVector<types::Location>
+{
+public:
+    LocationVector(const QVector<types::Location> &locations) : QVector<types::Location>(locations)
+    {
+        for (int i = 0; i < locations.size(); i++)
+        {
+            map[locations[i].id] = i;
+        }
+    }
+
+    QHash<LocationID, int> map;
+};
+
+class CityVector : public QVector<types::City>
+{
+public:
+    CityVector(const QVector<types::City> &cities) : QVector<types::City>(cities)
+    {
+        for (int i = 0; i < cities.size(); i++)
+        {
+            map[cities[i].id] = i;
+        }
+    }
+
+    QHash<LocationID, int> map;
+};
+
+
+// utils functions
+QVector<int> findRemovedLocations(const QVector<gui_locations::LocationItem *> &original, const LocationVector &changed)
+{
+    QVector<int> v;
+    for (int ind = 0; ind < original.size(); ++ind)
+    {
+        LocationID lid = original[ind]->location().id;
+        // skip the best location and custom configs location
+        if (lid.isBestLocation() || lid.isCustomConfigsLocation())
+        {
+            continue;
+        }
+
+        if (!changed.map.contains(original[ind]->location().id))
+        {
+            v << ind;
+        }
+    }
+    return v;
+}
+
+QVector<int> findNewLocations(const QHash<LocationID, gui_locations::LocationItem *> &mapLocations, const LocationVector &changed)
+{
+    QVector<int> v;
+    for (int ind = 0; ind < changed.size(); ++ind)
+    {
+        if (!mapLocations.contains(changed[ind].id))
+        {
+            v << ind;
+        }
+    }
+    return v;
+}
+
+QVector<QPair<int, types::Location> > findChangedLocations(const QVector<gui_locations::LocationItem *> &original, const LocationVector &changed)
+{
+    QVector<QPair<int, types::Location> > v;
+    for (int ind = 0; ind < original.size(); ++ind)
+    {
+        LocationID lid = original[ind]->location().id;
+        // skip the best location and custom configs location
+        if (lid.isBestLocation() || lid.isCustomConfigsLocation())
+        {
+            continue;
+        }
+
+        auto it = changed.map.find(lid);
+        if (it != changed.map.end())
+        {
+            if (original[ind]->location() != changed[it.value()])
+            {
+                v << qMakePair(ind, changed[it.value()]);
+            }
+        }
+        else
+        {
+            Q_ASSERT(false);
+        }
+    }
+    return v;
+}
+
+QVector<int> findMovedLocations(const QVector<gui_locations::LocationItem *> &original, const LocationVector &changed, bool &outFound)
+{
+    outFound = false;
+    QVector<int> v;
+    for (int ind = 0; ind < original.size(); ++ind)
+    {
+        LocationID lid = original[ind]->location().id;
+        // skip the best location and custom configs location
+        if (lid.isBestLocation() || lid.isCustomConfigsLocation())
+        {
+            v << ind;
+            continue;
+        }
+
+        auto it = changed.map.find(lid);
+        if (it != changed.map.end())
+        {
+            if (ind != it.value())
+            {
+                outFound = true;
+            }
+            v << it.value();
+        }
+        else
+        {
+            Q_ASSERT(false);
+        }
+    }
+
+    return v;
+}
+
+QVector<int> findRemovedCities(const QVector<types::City> &original, const CityVector &changed)
+{
+    QVector<int> v;
+    for (int ind = 0; ind < original.size(); ++ind)
+    {
+        if (!changed.map.contains(original[ind].id))
+        {
+            v << ind;
+        }
+    }
+    return v;
+}
+
+QVector<int> findNewCities(const QVector<types::City> &original, const CityVector &changed)
+{
+    QVector<int> v;
+    for (int ind = 0; ind < changed.size(); ++ind)
+    {
+        LocationID lid = changed[ind].id;
+        if (std::find_if(original.begin(), original.end(),
+                     [&](const types::City &city) {
+                        return lid == city.id;
+                    }) == std::end(original))
+        {
+            v << ind;
+        }
+    }
+    return v;
+}
+
+QVector<QPair<int, types::City> > findChangedCities(const QVector<types::City> &original, const CityVector &changed)
+{
+    Q_ASSERT(original.size() == changed.size());
+    QVector<QPair<int, types::City> > v;
+    for (int ind = 0; ind < original.size(); ++ind)
+    {
+        auto it = changed.map.find(original[ind].id);
+        if (it != changed.map.end())
+        {
+            if (original[ind] != changed[it.value()])
+            {
+                v << qMakePair(ind, changed[it.value()]);
+            }
+        }
+        else
+        {
+            Q_ASSERT(false);
+        }
+    }
+    return v;
+}
+
+QVector<int> findMovedCities(const QVector<types::City> &original, const CityVector &changed, bool &outFound)
+{
+    Q_ASSERT(original.size() == changed.size());
+    outFound = false;
+    QVector<int> v;
+    for (int ind = 0; ind < original.size(); ++ind)
+    {
+        auto it = changed.map.find(original[ind].id);
+        if (it != changed.map.end())
+        {
+            if (ind != it.value())
+            {
+                outFound = true;
+            }
+            v << it.value();
+        }
+        else
+        {
+            Q_ASSERT(false);
+        }
+    }
+
+    return v;
+}
+} // namespace
+
+namespace gui_locations {
 
 LocationsModel::LocationsModel(QObject *parent) : QAbstractItemModel(parent), isFreeSessionStatus_(false)
 {
@@ -17,162 +221,82 @@ LocationsModel::~LocationsModel()
     delete root_;
 }
 
-void LocationsModel::updateLocations(const LocationID &bestLocation, const QVector<types::LocationItem> &locations)
+void LocationsModel::updateLocations(const LocationID &bestLocation, const QVector<types::Location> &newLocations)
 {
     if (locations_.empty())
     {
         // just copy the list if the first update
         beginResetModel();
         int i = 0;
-        for (const auto &l : locations)
+        for (const auto &l : newLocations)
         {
-            LocationWrapper *li = new LocationWrapper(l, i);
+            LocationItem *li = new LocationItem(l);
             locations_ << li;
             mapLocations_[l.id] = li;
             i++;
         }
-        updateBestLocation(bestLocation);
         endResetModel();
+        updateBestLocation(bestLocation);
     }
     else
     {
-        // compare lists and find new, updated and removed locations
-        QVector<int> newLocationsInd;
-        QVector<int> changedLocationsInd;
-        QSet<LocationID> existsLocationsLID;
+        const LocationVector newLocationsVector(newLocations);
 
-        for (int i = 0; i < locations.size(); ++i)
+        QVector<int> removedInds = findRemovedLocations(locations_, newLocationsVector);
+        for (int i = removedInds.size() - 1; i >= 0; i--)
         {
-            LocationID lid = locations[i].id;
-
-            auto it = mapLocations_.find(lid);
-            if (it == mapLocations_.end())
-            {
-                newLocationsInd << i;
-            }
-            else
-            {
-                LocationWrapper lw(locations[i], i);
-                if (lw != *(it.value()))
-                {
-                    changedLocationsInd << i;
-                }
-                existsLocationsLID << lid;
-            }
+            int removedInd = removedInds[i];
+            beginRemoveRows(QModelIndex(), removedInd, removedInd);
+            mapLocations_.remove(locations_[removedInd]->location().id);
+            delete (locations_[removedInd]);
+            locations_.removeAt(removedInd);
+            endRemoveRows();
         }
 
-        QVector<LocationID> removedLocationsLID;
-        for (int i = 0; i < locations_.size(); ++i)
+        QVector<int> newInds = findNewLocations(mapLocations_, newLocationsVector);
+        int bestLocationOffs = 0;
+        if (locations_.size() > 0 && locations_[0]->location().id.isBestLocation())
         {
-            LocationID lid = locations_[i]->location().id;
-            // the best location and custom configs location here is not taken into account
-            if (lid.isBestLocation() || lid.isCustomConfigsLocation())
-            {
-                continue;
-            }
-            if (!existsLocationsLID.contains(lid))
-            {
-                removedLocationsLID << lid;
-            }
+            bestLocationOffs = 1;
         }
-
-        // make changes for changed locations
-        if (!changedLocationsInd.isEmpty())
+        for (auto i : newInds)
         {
-            for (auto locationInd : qAsConst(changedLocationsInd))
-            {
-                LocationID lid = locations[locationInd].id;
-
-                auto it = mapLocations_.find(lid);
-                Q_ASSERT(it != mapLocations_.end());
-                if (it != mapLocations_.end())
-                {
-                    int ind = locations_.indexOf(it.value());
-                    Q_ASSERT(ind != -1);
-                    QModelIndex rootIndex = index(ind, 0);
-
-                    QVector<int> newCitiesInd, removedCitiesInd;
-                    QVector< QPair<int, int> > changedCities;
-                    findCityChanges(it.value()->location(), locations[locationInd], newCitiesInd, removedCitiesInd, changedCities);
-
-                    if (!changedCities.isEmpty())
-                    {
-                        for (auto i : changedCities)
-                        {
-                            it.value()->updateCity(i.first, locations[locationInd].cities[i.second]);
-
-                            QModelIndex topLeftIndex = index(i.first, 0, rootIndex);
-                            QModelIndex bottomRightIndex = index(i.first, 0, rootIndex);
-                            emit dataChanged(topLeftIndex, bottomRightIndex);
-                        }
-                    }
-
-                    if (!removedCitiesInd.isEmpty())
-                    {
-                        for (int i = removedCitiesInd.size() - 1; i >= 0; --i)
-                        {
-                            beginRemoveRows(rootIndex, removedCitiesInd[i], removedCitiesInd[i]);
-                            it.value()->removeCity(removedCitiesInd[i]);
-                            endRemoveRows();
-                        }
-                    }
-
-                    if (!newCitiesInd.isEmpty())
-                    {
-                        beginInsertRows(rootIndex, it.value()->location().cities.size(), it.value()->location().cities.size() + newCitiesInd.size() - 1);
-                        for (auto i : newCitiesInd)
-                        {
-                            it.value()->addCity(locations[locationInd].cities[i]);
-                        }
-                        endInsertRows();
-                    }
-
-                    if (ind != -1)
-                    {
-                        it.value()->updateLocationInfoOnly(locations[locationInd], locationInd);
-                        emit dataChanged(rootIndex, rootIndex);
-                    }
-                }
-            }
-        }
-
-        // make changes for new locations
-        if (!newLocationsInd.isEmpty())
-        {
-            beginInsertRows(QModelIndex(), locations_.size(), locations_.size() + newLocationsInd.size() - 1);
-
-            for (auto ind : qAsConst(newLocationsInd))
-            {
-                LocationWrapper *li = new LocationWrapper(locations[ind], ind);
-                locations_ << li;
-                mapLocations_[li->location().id] = li;
-            }
-
+            beginInsertRows(QModelIndex(), i + bestLocationOffs, i + bestLocationOffs);
+            LocationItem *li = new LocationItem(newLocationsVector[i]);
+            mapLocations_[li->location().id] = li;
+            locations_.insert(i + bestLocationOffs, li);
             endInsertRows();
         }
 
-        // make changes for removed locations
-        if (!removedLocationsLID.isEmpty())
+        QVector<QPair<int, types::Location> > changedInds = findChangedLocations(locations_, newLocationsVector);
+        for (const auto &i : changedInds)
         {
-            for (auto lid : qAsConst(removedLocationsLID))
+            handleChangedLocation(i.first, i.second);
+        }
+
+        bool isFoundMovedLocations;
+        QVector<int> movedLocationsInds = findMovedLocations(locations_, newLocationsVector, isFoundMovedLocations);
+        if (isFoundMovedLocations)
+        {
+            // Selection sort algorithm
+            for (int i = 0; i < movedLocationsInds.size(); i++)
             {
-                auto it = locations_.begin();
-                while (it != locations_.end())
+                int minz = movedLocationsInds[i];
+                int ind = i;
+                for (int j = i + 1; j < movedLocationsInds.size(); j++)
                 {
-                    LocationID curLid = (*it)->location().id;
-                    if (curLid == lid)
+                    if (movedLocationsInds[j] < minz)
                     {
-                        int indexOf = locations_.indexOf(*it);
-                        beginRemoveRows(QModelIndex(), indexOf, indexOf);
-                        mapLocations_.remove(lid);
-                        delete (*it);
-                        it = locations_.erase(it);
-                        endRemoveRows();
+                        minz = movedLocationsInds[j];
+                        ind = j;
                     }
-                    else
-                    {
-                        ++it;
-                    }
+                }
+                if (i != ind)
+                {
+                    beginMoveRows(QModelIndex(), ind, ind, QModelIndex(), i);
+                    movedLocationsInds.move(ind, i);
+                    locations_.move(ind, i);
+                    endMoveRows();
                 }
             }
         }
@@ -187,25 +311,25 @@ void LocationsModel::updateBestLocation(const LocationID &bestLocation)
     if (locations_.isEmpty()) {
         return;
     }
-    LocationWrapper *blw = findAndCreateBestLocation(bestLocation);
+    LocationItem *liBestLocation = findAndCreateBestLocationItem(bestLocation);
     LocationID firstLocationId = locations_[0]->location().id;
     if (firstLocationId.isBestLocation())
     {
-        if (blw)
+        if (liBestLocation)
         {
             // change the best location only if it has actually changed
-            if (*blw != *locations_[0])
+            if (*liBestLocation != *locations_[0])
             {
                 delete locations_[0];
                 mapLocations_.remove(firstLocationId);
-                locations_[0] = blw;
-                mapLocations_[blw->location().id] = blw;
+                locations_[0] = liBestLocation;
+                mapLocations_[liBestLocation->location().id] = liBestLocation;
 
                 emit dataChanged(index(0, 0), index(0, 0));
             }
             else
             {
-                delete blw;
+                delete liBestLocation;
             }
         }
         else
@@ -221,51 +345,50 @@ void LocationsModel::updateBestLocation(const LocationID &bestLocation)
     else
     {
         // insert the best location to the top of the list
-        if (blw)
+        if (liBestLocation)
         {
             beginInsertRows(QModelIndex(), 0, 0);
-            locations_.insert(0, blw);
-            LocationID bestLocationLid = blw->location().id;
-            mapLocations_[bestLocationLid] = blw;
+            locations_.insert(0, liBestLocation);
+            mapLocations_[liBestLocation->location().id] = liBestLocation;
             endInsertRows();
         }
     }
 }
 
-void LocationsModel::updateCustomConfigLocation(const types::LocationItem &location)
+void LocationsModel::updateCustomConfigLocation(const types::Location &location)
 {
-    Q_ASSERT(location.id.isCustomConfigsLocation());
-
     // check if the custom location already inserted in the list
     LocationID lid = LocationID::createTopCustomConfigsLocationId();
     auto it = mapLocations_.find(lid);
     if (it != mapLocations_.end())
     {
-        // update custom config location
-        LocationWrapper new_cc(location, CUSTOM_CONFIG_INTERNAL_IND);
-        if (new_cc != *it.value())
+        Q_ASSERT(locations_[locations_.size() - 1] == it.value());
+        if (location.id.isValid())
         {
-            *it.value() = new_cc;
-
-            int ind = locations_.indexOf(it.value());
-            Q_ASSERT(ind != -1);
-
-            QModelIndex topLeftIndex = index(ind, 0);
-            emit dataChanged(topLeftIndex, topLeftIndex);
-            int childCount = rowCount(topLeftIndex);
-            QModelIndex topLeftChildIndex = index(0, 0, topLeftIndex);
-            QModelIndex bottomRightChildIndex = index(childCount - 1, 0, topLeftIndex);
-            emit dataChanged(topLeftChildIndex, bottomRightChildIndex);
+            Q_ASSERT(location.id.isCustomConfigsLocation());
+            handleChangedLocation(locations_.size() - 1, location);
+        }
+        else
+        {
+            beginRemoveRows(QModelIndex(), locations_.size() - 1, locations_.size() - 1);
+            mapLocations_.remove(lid);
+            delete locations_[locations_.size() - 1];
+            locations_.remove(locations_.size() - 1);
+            endRemoveRows();
         }
     }
     else
     {
-        // Insert custom config location
-        beginInsertRows(QModelIndex(), locations_.size(), locations_.size());
-        LocationWrapper *li = new LocationWrapper(location, CUSTOM_CONFIG_INTERNAL_IND);
-        locations_ << li;
-        mapLocations_[lid] = li;
-        endInsertRows();
+        if (location.id.isValid())
+        {
+            Q_ASSERT(location.id.isCustomConfigsLocation());
+            // Insert custom config location to the end
+            beginInsertRows(QModelIndex(), locations_.size(), locations_.size());
+            LocationItem *li = new LocationItem(location);
+            locations_ << li;
+            mapLocations_[lid] = li;
+            endInsertRows();
+        }
     }
 }
 
@@ -282,8 +405,7 @@ void LocationsModel::changeConnectionSpeed(LocationID id, PingTime speed)
             {
                 if (it.value()->location().cities[c].id == id)
                 {
-                    it.value()->setPingTimeForCity(c, speed.toInt());
-                    it.value()->recalcAveragePing();
+                    it.value()->setPingTimeForCity(c, speed);
                     QModelIndex locationModelInd = index(ind, 0);
                     emit dataChanged(locationModelInd, locationModelInd);
                     QModelIndex cityModelInd = index(c, 0, locationModelInd);
@@ -299,7 +421,7 @@ void LocationsModel::changeConnectionSpeed(LocationID id, PingTime speed)
         // update speed for best location
         if (!id.isCustomConfigsLocation() && !id.isStaticIpsLocation() && locations_[0]->location().id == id.apiLocationToBestLocation())
         {
-            locations_[0]->setAveragePing(speed.toInt());
+            locations_[0]->setPingTimeForCity(0, speed);
             emit dataChanged(index(0, 0), index(0, 0));
         }
     }
@@ -340,7 +462,7 @@ QVariant LocationsModel::data(const QModelIndex &index, int role) const
     }
     else
     {
-        return dataForCity((LocationWrapper *)index.internalPointer(), index.row(), role);
+        return dataForCity((LocationItem *)index.internalPointer(), index.row(), role);
     }
 }
 
@@ -363,7 +485,7 @@ QModelIndex LocationsModel::index(int row, int column, const QModelIndex &parent
         Q_ASSERT(parent.internalPointer() != nullptr);
         if ((int *)parent.internalPointer() == root_ && parent.row() >= 0 && parent.row() < locations_.size())
         {
-            LocationWrapper *li = locations_[parent.row()];
+            LocationItem *li = locations_[parent.row()];
             if (row >= 0 && row < li->location().cities.size()  && column == 0)
             {
                 return createIndex(row, column, (void *)li);
@@ -385,7 +507,7 @@ QModelIndex LocationsModel::parent(const QModelIndex &index) const
         return QModelIndex();
     }
 
-    LocationWrapper *li = (LocationWrapper *)index.internalPointer();
+    LocationItem *li = (LocationItem *)index.internalPointer();
     int ind = locations_.indexOf(li);
     Q_ASSERT(ind != -1);
     if (ind != -1)
@@ -440,8 +562,8 @@ bool LocationsModel::setData(const QModelIndex &index, const QVariant &value, in
         }
         else
         {
-            LocationWrapper *lw = (LocationWrapper *)index.internalPointer();
-            LocationID lid = lw->location().cities[index.row()].id;
+            LocationItem *li = (LocationItem *)index.internalPointer();
+            LocationID lid = li->location().cities[index.row()].id;
             if (value.toBool() == true)
             {
                 favoriteLocationsStorage_.addToFavorites(lid);
@@ -481,10 +603,10 @@ QModelIndex LocationsModel::getIndexByLocationId(const LocationID &id) const
             }
             else
             {
-                LocationWrapper *lw = it.value();
-                for (int c = 0; c < lw->location().cities.size(); ++c)
+                LocationItem *li = it.value();
+                for (int c = 0; c < li->location().cities.size(); ++c)
                 {
-                    if (lw->location().cities[c].id == id)
+                    if (li->location().cities[c].id == id)
                     {
                         QModelIndex locationModelInd = index(ind, 0);
                         QModelIndex cityModelInd = index(c, 0, locationModelInd);
@@ -500,12 +622,12 @@ QModelIndex LocationsModel::getIndexByLocationId(const LocationID &id) const
 
 QModelIndex LocationsModel::getBestLocationIndex() const
 {
-    for (QHash<LocationID, LocationWrapper *>::const_iterator it = mapLocations_.constBegin(); it != mapLocations_.constEnd(); ++it)
+    // best location always on top
+    if (locations_.size() > 0)
     {
-        if (it.key().isBestLocation())
+        if (locations_[0]->location().id.isBestLocation())
         {
-            int ind = locations_.indexOf(it.value());
-            return index (ind, 0);
+            return index(0, 0);
         }
     }
     return QModelIndex();
@@ -531,10 +653,6 @@ QVariant LocationsModel::dataForLocation(int row, int role) const
     else if (role == NICKNAME)
     {
         return locations_[row]->nickname();
-    }
-    else if (role == INITITAL_INDEX)
-    {
-        return locations_[row]->initialInd();
     }
     else if (role == LOCATION_ID)
     {
@@ -574,17 +692,13 @@ QVariant LocationsModel::dataForLocation(int row, int role) const
     return QVariant();
 }
 
-QVariant LocationsModel::dataForCity(LocationWrapper *l, int row, int role) const
+QVariant LocationsModel::dataForCity(LocationItem *l, int row, int role) const
 {
     if (role == Qt::DisplayRole)
     {
         LocationID lid = l->location().cities[row].id;
         bool bFavorite = favoriteLocationsStorage_.isFavorite(lid);
         return l->location().cities[row].city + " - " + l->location().cities[row].nick + " - " + QString::number(l->location().cities[row].pingTimeMs.toInt()) + " - " + QString::number(bFavorite);
-    }
-    else if (role == INITITAL_INDEX)
-    {
-        return row;
     }
     else if (role == LOCATION_ID)
     {
@@ -707,7 +821,71 @@ void LocationsModel::clearLocations()
     mapLocations_.clear();
 }
 
-LocationsModel::LocationWrapper *LocationsModel::findAndCreateBestLocation(const LocationID &bestLocation)
+void LocationsModel::handleChangedLocation(int ind, const types::Location &newLocation)
+{
+    QModelIndex rootIndex = index(ind, 0);
+    LocationItem *li = locations_[ind];
+
+    const CityVector cityVector(newLocation.cities);
+
+    QVector<int> removedCitiesInds = findRemovedCities(li->location().cities, cityVector);
+    for (int i = removedCitiesInds.size() - 1; i >= 0; i--)
+    {
+        int removedCityInd = removedCitiesInds[i];
+        beginRemoveRows(rootIndex, removedCityInd, removedCityInd);
+        li->removeCityAtInd(removedCityInd);
+        endRemoveRows();
+    }
+
+    QVector<int> newCitiesInds = findNewCities(li->location().cities, cityVector);
+    for (auto i : newCitiesInds)
+    {
+        beginInsertRows(rootIndex, i, i);
+        li->insertCityAtInd(i, cityVector[i]);
+        endInsertRows();
+    }
+
+    Q_ASSERT(li->location().cities.size() == newLocation.cities.size());
+    QVector<QPair<int, types::City> > changedCitiesInds = findChangedCities(li->location().cities, cityVector);
+    for (const auto &i : changedCitiesInds)
+    {
+        li->updateCityAtInd(i.first, i.second);
+        QModelIndex cityInd = index(i.first, 0, rootIndex);
+        emit dataChanged(cityInd, cityInd);
+    }
+
+    bool isMovedCitiesFound;
+    QVector<int> movedCitiesInds = findMovedCities(li->location().cities, cityVector, isMovedCitiesFound);
+    if (isMovedCitiesFound)
+    {
+        // Selection sort algorithm
+        for (int i = 0; i < movedCitiesInds.size(); i++)
+        {
+            int minz = movedCitiesInds[i];
+            int ind = i;
+            for (int j = i + 1; j < movedCitiesInds.size(); j++)
+            {
+                if (movedCitiesInds[j] < minz)
+                {
+                    minz = movedCitiesInds[j];
+                    ind = j;
+                }
+            }
+            if (i != ind)
+            {
+                beginMoveRows(rootIndex, ind, ind, rootIndex, i);
+                movedCitiesInds.move(ind, i);
+                li->moveCity(ind, i);
+                endMoveRows();
+            }
+        }
+    }
+
+    li->updateLocation(newLocation);
+    emit dataChanged(rootIndex, rootIndex);
+}
+
+LocationItem *LocationsModel::findAndCreateBestLocationItem(const LocationID &bestLocation)
 {
     if (!bestLocation.isValid()) {
         return nullptr;
@@ -716,62 +894,18 @@ LocationsModel::LocationWrapper *LocationsModel::findAndCreateBestLocation(const
     auto it = mapLocations_.find(bestLocation.bestLocationToApiLocation().toTopLevelLocation());
     if (it != mapLocations_.end())
     {
-        LocationWrapper *lw = it.value();
-        for (int c = 0; c < lw->location().cities.size(); ++c)
+        LocationItem *li = it.value();
+        for (int c = 0; c < li->location().cities.size(); ++c)
         {
-            LocationID cityLid = lw->location().cities[c].id;
+            LocationID cityLid = li->location().cities[c].id;
             if (bestLocation == cityLid.apiLocationToBestLocation())
             {
-                LocationWrapper *blw = new LocationWrapper(bestLocation, lw->location(), c);
-                return blw;
+                LocationItem *liBestLocation = new LocationItem(bestLocation, li->location(), c);
+                return liBestLocation;
             }
         }
     }
-
     return nullptr;
 }
 
-void LocationsModel::findCityChanges(const types::LocationItem &l1, const types::LocationItem &l2, QVector<int> &newCitiesInd,
-                                     QVector<int> &removedCitiesInd, QVector<QPair<int, int> > &changedCities)
-{
-    // todo: I think it can be optimized together with the search for changes in locations
-    QSet<int> foundedIndexes;
-
-    for (int i1 = 0; i1 < l1.cities.size(); ++i1)
-    {
-        bool bFound = false;
-        int foundInd;
-        for (int i2 = 0; i2 < l2.cities.size(); ++i2)
-        {
-            if (l1.cities[i1].id == l2.cities[i2].id)
-            {
-                bFound = true;
-                foundInd = i2;
-                foundedIndexes.insert(i2);
-                break;
-            }
-        }
-
-        if (bFound)
-        {
-            if (l1.cities[i1] != l2.cities[foundInd])
-            {
-                changedCities << qMakePair(i1, foundInd);
-            }
-        }
-        else
-        {
-            removedCitiesInd << i1;
-        }
-    }
-
-    for (int i2 = 0; i2 < l2.cities.size(); ++i2)
-    {
-        if (!foundedIndexes.contains(i2))
-        {
-            newCitiesInd << i2;
-        }
-    }
-}
-
-} //namespace gui_location
+} //namespace gui_locations

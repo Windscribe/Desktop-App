@@ -8,7 +8,8 @@
 #include "locationstraymenutypes.h"
 #include "locationstraymenuitemdelegate.h"
 #include "locationstraymenubutton.h"
-#include "../backend/locationsmodel/locationsmodel.h"
+#include "types/locationid.h"
+#include "types/pingtime.h"
 
 class LocationsTrayMenuWidget : public QWidget
 {
@@ -43,7 +44,7 @@ public:
     void handleMouseMove();
     void handleMouseWheel();
 
-    void setLocationsModel(LocationsModel *locationsModel);
+    void setLocationsModel(QAbstractItemModel *locationsModel);
     void setFontForItems(const QFont &font);
 
     static constexpr int USER_ROLE_FLAGS = Qt::UserRole + 1;
@@ -68,10 +69,10 @@ private slots:
     void onScrollUpClick();
     void onScrollDownClick();
 
-    void onItemsUpdated(QVector<LocationModelItem*> items);
+    /*void onItemsUpdated(QVector<LocationModelItem*> items);
     void onFavoritesUpdated(QVector<CityModelItem*> items);
     void onStaticIpsUpdated(QVector<CityModelItem*> items);
-    void onCustomConfigsUpdated(QVector<CityModelItem*> items);
+    void onCustomConfigsUpdated(QVector<CityModelItem*> items);*/
     void onSessionStatusChanged(bool bFreeSessionStatus);
     void onConnectionSpeedChanged(LocationID id, PingTime timeMs);
 

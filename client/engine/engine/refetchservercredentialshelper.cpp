@@ -36,7 +36,7 @@ void RefetchServerCredentialsHelper::putFail()
     }
     else
     {
-        emit finished(false, types::ServerCredentials(), QString());
+        emit finished(false, apiinfo::ServerCredentials(), QString());
     }
     refetchServerCredentialsState_++;
 }
@@ -120,7 +120,7 @@ void RefetchServerCredentialsHelper::checkFinished()
             if (!radiusUsernameOpenVpn_.isEmpty() && !radiusPasswordOpenVpn_.isEmpty() &&
                 !radiusUsernameIkev2_.isEmpty() && !radiusPasswordIkev2_.isEmpty() && !serverConfig_.isEmpty())
             {
-                emit finished(true, types::ServerCredentials(radiusUsernameOpenVpn_, radiusPasswordOpenVpn_, radiusUsernameIkev2_, radiusPasswordIkev2_), serverConfig_);
+                emit finished(true, apiinfo::ServerCredentials(radiusUsernameOpenVpn_, radiusPasswordOpenVpn_, radiusUsernameIkev2_, radiusPasswordIkev2_), serverConfig_);
             }
             else
             {

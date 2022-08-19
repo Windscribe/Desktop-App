@@ -119,7 +119,7 @@ if (APPLE)
     if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../backend/mac/provisioning_profile/embedded.provisionprofile")
         add_custom_command(TARGET Windscribe POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
                            "${CMAKE_CURRENT_SOURCE_DIR}/../backend/mac/provisioning_profile/embedded.provisionprofile" $<TARGET_FILE_DIR:Windscribe>/../embedded.provisionprofile)
-    endif()
+        endif()
 
     add_custom_command(TARGET Windscribe POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
                        ${CMAKE_CURRENT_SOURCE_DIR}/../installer/mac/binaries/windscribe-cli $<TARGET_FILE_DIR:Windscribe>/windscribe-cli)

@@ -1,0 +1,113 @@
+{
+  "id": {
+    "type": 3,
+    "id": 0,
+    "city": ""
+  },
+  "name": "Custom Configs",
+  "country_code": "noflag",
+  "is_premium_only": false,
+  "is_p2p_supported": false,
+  "cities": [
+    {
+      "id": {
+        "type": 3,
+        "id": 0,
+        "city": "ba11.nordvpn.com.udp1194.ovpn"
+      },
+      "name": "ba11.nordvpn.com.udp1194",
+      "nick": "ngs.ru",
+      "ping_time": -2,
+      "is_premium_only": true,
+      "is_disabled": false,
+      "static_ip_country_code": "",
+      "static_ip_type": "",
+      "static_ip": "",
+      "custom_config_type": "CUSTOM_CONFIG_OPENVPN",
+      "custom_config_is_correct": true,
+      "custom_config_error_message": "",
+      "link_speed": 100,
+      "health": 0
+    },
+    {
+      "id": {
+        "type": 3,
+        "id": 0,
+        "city": "wg0.conf"
+      },
+      "name": "wg0",
+      "nick": "107.161.86.132",
+      "ping_time": 257,
+      "is_premium_only": true,
+      "is_disabled": false,
+      "static_ip_country_code": "",
+      "static_ip_type": "",
+      "static_ip": "",
+      "custom_config_type": "CUSTOM_CONFIG_WIREGUARD",
+      "custom_config_is_correct": true,
+      "custom_config_error_message": "",
+      "link_speed": 100,
+      "health": 0
+    },
+    {
+      "id": {
+        "type": 3,
+        "id": 0,
+        "city": "mullvad_at_vie.ovpn"
+      },
+      "name": "mullvad_at_vie",
+      "nick": "at-vie-002.mullvad.net",
+      "ping_time": -2,
+      "is_premium_only": true,
+      "is_disabled": false,
+      "static_ip_country_code": "",
+      "static_ip_type": "",
+      "static_ip": "",
+      "custom_config_type": "CUSTOM_CONFIG_OPENVPN",
+      "custom_config_is_correct": true,
+      "custom_config_error_message": "",
+      "link_speed": 100,
+      "health": 0
+    },
+    {
+      "id": {
+        "type": 3,
+        "id": 0,
+        "city": "server.ovpn"
+      },
+      "name": "server",
+      "nick": "",
+      "ping_time": -1,
+      "is_premium_only": true,
+      "is_disabled": false,
+      "static_ip_country_code": "",
+      "static_ip_type": "",
+      "static_ip": "",
+      "custom_config_type": "CUSTOM_CONFIG_OPENVPN",
+      "custom_config_is_correct": false,
+      "custom_config_error_message": "Can't find remote host command",
+      "link_speed": 10,
+      "health": 0
+    },
+    {
+      "id": {
+        "type": 3,
+        "id": 0,
+        "city": "test.conf"
+      },
+      "name": "test",
+      "nick": "107.161.86.132",
+      "ping_time": 222,
+      "is_premium_only": true,
+      "is_disabled": true,
+      "static_ip_country_code": "",
+      "static_ip_type": "",
+      "static_ip": "",
+      "custom_config_type": "CUSTOM_CONFIG_WIREGUARD",
+      "custom_config_is_correct": false,
+      "custom_config_error_message": "Missing \"Address\" in the \"Interface\" section",
+      "link_speed": 100,
+      "health": 0
+    }
+  ]
+}

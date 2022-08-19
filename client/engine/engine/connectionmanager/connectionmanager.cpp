@@ -109,7 +109,7 @@ ConnectionManager::~ConnectionManager()
     SAFE_DELETE(getWireGuardConfigInLoop_);
 }
 
-void ConnectionManager::clickConnect(const QString &ovpnConfig, const types::ServerCredentials &serverCredentials,
+void ConnectionManager::clickConnect(const QString &ovpnConfig, const apiinfo::ServerCredentials &serverCredentials,
                                          QSharedPointer<locationsmodel::BaseLocationInfo> bli,
                                          const types::ConnectionSettings &connectionSettings,
                                          const types::PortMap &portMap, const types::ProxySettings &proxySettings, bool bEmitAuthError, const QString &customConfigPath)
@@ -1317,7 +1317,7 @@ bool ConnectionManager::isStaticIpsLocation() const
     return currentConnectionDescr_.connectionNodeType == CONNECTION_NODE_STATIC_IPS;
 }
 
-types::StaticIpPortsVector ConnectionManager::getStatisIps()
+apiinfo::StaticIpPortsVector ConnectionManager::getStatisIps()
 {
     Q_ASSERT(isStaticIpsLocation());
     return currentConnectionDescr_.staticIpPorts;

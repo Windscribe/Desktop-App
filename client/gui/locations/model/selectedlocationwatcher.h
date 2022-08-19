@@ -1,11 +1,10 @@
-#ifndef GUI_LOCATIONS_SELECTEDLOCATIONWATCHER_H
-#define GUI_LOCATIONS_SELECTEDLOCATIONWATCHER_H
+#pragma once
 
 #include <QAbstractItemModel>
 #include "types/locationid.h"
 #include "types/pingtime.h"
 
-namespace gui_location {
+namespace gui_locations {
 
 // Monitors any changes in the selected item
 class SelectedLocationWatcher : public QObject
@@ -44,7 +43,5 @@ private:
     void fillData();
 };
 
-} //namespace gui_location
+} //namespace gui_locations
 
-
-#endif // GUI_LOCATIONS_SELECTEDLOCATIONWATCHER_H

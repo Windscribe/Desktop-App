@@ -4,8 +4,10 @@
 #include <QHash>
 #include <QMenu>
 #include <QVector>
+#include <QAbstractItemModel>
 #include "locationstraymenutypes.h"
-#include "../backend/locationsmodel/locationsmodel.h"
+#include "types/locationid.h"
+#include "types/pingtime.h"
 
 class LocationsTrayMenuNative : public QMenu
 {
@@ -14,7 +16,7 @@ public:
     explicit LocationsTrayMenuNative(QWidget *parent = nullptr);
 
     void setMenuType(LocationsTrayMenuType type);
-    void setLocationsModel(LocationsModel *locationsModel);
+    void setLocationsModel(QAbstractItemModel *locationsModel);
 
 signals:
     void locationSelected(int type, QString locationTitle, int cityIndex);
@@ -22,10 +24,10 @@ signals:
 private slots:
     void onMenuActionTriggered(QAction *action);
     void onSubmenuActionTriggered(QAction *action);
-    void onItemsUpdated(QVector<LocationModelItem*> items);
-    void onFavoritesUpdated(QVector<CityModelItem*> items);
-    void onStaticIpsUpdated(QVector<CityModelItem*> items);
-    void onCustomConfigsUpdated(QVector<CityModelItem*> items);
+    //void onItemsUpdated(QVector<LocationModelItem*> items);
+    //void onFavoritesUpdated(QVector<CityModelItem*> items);
+    //void onStaticIpsUpdated(QVector<CityModelItem*> items);
+    //void onCustomConfigsUpdated(QVector<CityModelItem*> items);
     void onSessionStatusChanged(bool bFreeSessionStatus);
     void onConnectionSpeedChanged(LocationID id, PingTime timeMs);
 

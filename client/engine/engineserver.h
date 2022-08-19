@@ -75,9 +75,9 @@ private slots:
     void onEngineConfirmEmailFinished(bool bSuccess);
     void onEngineWebSessionToken(WEB_SESSION_PURPOSE purpose, const QString &token);
 
-    void onEngineLocationsModelItemsUpdated(const LocationID &bestLocation, const QString &staticIpDeviceName, QSharedPointer< QVector<types::LocationItem> > items);
+    void onEngineLocationsModelItemsUpdated(const LocationID &bestLocation, const QString &staticIpDeviceName, QSharedPointer< QVector<types::Location> > items);
     void onEngineLocationsModelBestLocationUpdated(const LocationID &bestLocation);
-    void onEngineLocationsModelCustomConfigItemsUpdated(QSharedPointer< QVector<types::LocationItem> > items);
+    void onEngineLocationsModelCustomConfigItemsUpdated(QSharedPointer<types::Location> item);
     void onEngineLocationsModelPingChangedChanged(const LocationID &id, PingTime timeMs);
 
     void onMacAddrSpoofingChanged(const types::MacAddrSpoofing &macAddrSpoofing);

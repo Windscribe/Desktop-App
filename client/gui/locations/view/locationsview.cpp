@@ -4,7 +4,7 @@
 
 #include <QPainter>
 
-namespace gui_location {
+namespace gui_locations {
 
 LocationsView::LocationsView(QWidget *parent) : QScrollArea(parent)
   //, model_(nullptr)
@@ -63,5 +63,5 @@ void LocationsView::paintEvent(QPaintEvent */*event*/)
 
 
 
-} // namespace gui_location
+} // namespace gui_locations
 

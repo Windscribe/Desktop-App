@@ -15,7 +15,7 @@
 #include "engine/wireguardconfig/getwireguardconfiginloop.h"
 #include "connsettingspolicy/baseconnsettingspolicy.h"
 #include "engine/customconfigs/customovpnauthcredentialsstorage.h"
-#include "types/servercredentials.h"
+#include "engine/apiinfo/servercredentials.h"
 #include "engine/locationsmodel/baselocationinfo.h"
 #include "types/connectionsettings.h"
 #include "types/packetsize.h"
@@ -40,7 +40,7 @@ public:
                                ServerAPI *serverAPI, CustomOvpnAuthCredentialsStorage *customOvpnAuthCredentialsStorage);
     ~ConnectionManager() override;
 
-    void clickConnect(const QString &ovpnConfig, const types::ServerCredentials &serverCredentials,
+    void clickConnect(const QString &ovpnConfig, const apiinfo::ServerCredentials &serverCredentials,
                       QSharedPointer<locationsmodel::BaseLocationInfo> bli,
                       const types::ConnectionSettings &connectionSettings, const types::PortMap &portMap, const types::ProxySettings &proxySettings,
                       bool bEmitAuthError, const QString &customConfigPath);
@@ -70,7 +70,7 @@ public:
     QString getCustomOvpnConfigFileName();
 
     bool isStaticIpsLocation() const;
-    types::StaticIpPortsVector getStatisIps();
+    apiinfo::StaticIpPortsVector getStatisIps();
 
     void onWireGuardKeyLimitUserResponse(bool deleteOldestKey);
 
@@ -150,7 +150,7 @@ private:
     QString lastIp_;
 
     QString lastOvpnConfig_;
-    types::ServerCredentials lastServerCredentials_;
+    apiinfo::ServerCredentials lastServerCredentials_;
     types::ProxySettings lastProxySettings_;
     bool bEmitAuthError_;
 

@@ -2,8 +2,8 @@
 #define ENGINELOCATIONSMODEL_H
 
 #include <QObject>
-#include "types/location.h"
-#include "types/staticips.h"
+#include "engine/apiinfo/location.h"
+#include "engine/apiinfo/staticips.h"
 #include "types/locationid.h"
 #include "types/proxysettings.h"
 #include "pingipscontroller.h"
@@ -24,7 +24,7 @@ public:
     explicit LocationsModel(QObject *parent, IConnectStateController *stateController, INetworkDetectionManager *networkDetectionManager);
     ~LocationsModel() override;
 
-    void setApiLocations(const QVector<types::Location> &locations, const types::StaticIps &staticIps);
+    void setApiLocations(const QVector<apiinfo::Location> &locations, const apiinfo::StaticIps &staticIps);
     void setCustomConfigLocations(const QVector<QSharedPointer<const customconfigs::ICustomConfig>> &customConfigs);
     void clear();
 
@@ -35,8 +35,8 @@ public:
     QSharedPointer<BaseLocationInfo> getMutableLocationInfoById(const LocationID &locationId);
 
 signals:
-    void locationsUpdated(const LocationID &bestLocation, const QString &staticIpDeviceName, QSharedPointer<QVector<types::LocationItem> > locations);
-    void customConfigsLocationsUpdated(QSharedPointer<QVector<types::LocationItem> > locations);
+    void locationsUpdated(const LocationID &bestLocation, const QString &staticIpDeviceName, QSharedPointer<QVector<types::Location> > locations);
+    void customConfigsLocationsUpdated(QSharedPointer<types::Location > location);
     void bestLocationUpdated(const LocationID &bestLocation);
     void locationPingTimeChanged(const LocationID &id, PingTime timeMs);
 

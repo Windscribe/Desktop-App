@@ -1,0 +1,1447 @@
+{
+  "locations": [
+    {
+      "id": {
+        "type": 1,
+        "id": 69,
+        "city": ""
+      },
+      "name": "Austria",
+      "country_code": "AT",
+      "is_premium_only": true,
+      "is_p2p_supported": false,
+      "cities": [
+        {
+          "id": {
+            "type": 1,
+            "id": 69,
+            "city": "Vienna - Hofburg"
+          },
+          "name": "Vienna",
+          "nick": "Hofburg",
+          "ping_time": 1202,
+          "is_premium_only": true,
+          "is_disabled": false,
+          "static_ip_country_code": "",
+          "static_ip_type": "",
+          "static_ip": "",
+          "custom_config_type": "CUSTOM_CONFIG_OPENVPN",
+          "custom_config_is_correct": false,
+          "custom_config_error_message": "",
+          "link_speed": 1000,
+          "health": 10
+        },
+        {
+          "id": {
+            "type": 1,
+            "id": 69,
+            "city": "Vienna - Boltzmann"
+          },
+          "name": "Vienna",
+          "nick": "Boltzmann",
+          "ping_time": 87,
+          "is_premium_only": true,
+          "is_disabled": false,
+          "static_ip_country_code": "",
+          "static_ip_type": "",
+          "static_ip": "",
+          "custom_config_type": "CUSTOM_CONFIG_OPENVPN",
+          "custom_config_is_correct": false,
+          "custom_config_error_message": "",
+          "link_speed": 10000,
+          "health": 3
+        }
+      ]
+    },
+    {
+      "id": {
+        "type": 1,
+        "id": 7,
+        "city": ""
+      },
+      "name": "Canada East",
+      "country_code": "CA",
+      "is_premium_only": false,
+      "is_p2p_supported": false,
+      "cities": [
+        {
+          "id": {
+            "type": 1,
+            "id": 7,
+            "city": "Toronto - Comfort Zone"
+          },
+          "name": "Toronto",
+          "nick": "Comfort Zone",
+          "ping_time": 160,
+          "is_premium_only": true,
+          "is_disabled": false,
+          "static_ip_country_code": "",
+          "static_ip_type": "",
+          "static_ip": "",
+          "custom_config_type": "CUSTOM_CONFIG_OPENVPN",
+          "custom_config_is_correct": false,
+          "custom_config_error_message": "",
+          "link_speed": 10000,
+          "health": 4
+        },
+        {
+          "id": {
+            "type": 1,
+            "id": 7,
+            "city": "Montreal - Expo 67"
+          },
+          "name": "Montreal",
+          "nick": "Expo 67",
+          "ping_time": 161,
+          "is_premium_only": true,
+          "is_disabled": false,
+          "static_ip_country_code": "",
+          "static_ip_type": "",
+          "static_ip": "",
+          "custom_config_type": "CUSTOM_CONFIG_OPENVPN",
+          "custom_config_is_correct": false,
+          "custom_config_error_message": "",
+          "link_speed": 1000,
+          "health": 16
+        },
+        {
+          "id": {
+            "type": 1,
+            "id": 7,
+            "city": "Toronto - The 6"
+          },
+          "name": "Toronto",
+          "nick": "The 6",
+          "ping_time": 176,
+          "is_premium_only": true,
+          "is_disabled": false,
+          "static_ip_country_code": "",
+          "static_ip_type": "",
+          "static_ip": "",
+          "custom_config_type": "CUSTOM_CONFIG_OPENVPN",
+          "custom_config_is_correct": false,
+          "custom_config_error_message": "",
+          "link_speed": 1000,
+          "health": 24
+        },
+        {
+          "id": {
+            "type": 1,
+            "id": 7,
+            "city": "Montreal - Bagel Poutine"
+          },
+          "name": "Montreal",
+          "nick": "Bagel Poutine",
+          "ping_time": 156,
+          "is_premium_only": true,
+          "is_disabled": false,
+          "static_ip_country_code": "",
+          "static_ip_type": "",
+          "static_ip": "",
+          "custom_config_type": "CUSTOM_CONFIG_OPENVPN",
+          "custom_config_is_correct": false,
+          "custom_config_error_message": "",
+          "link_speed": 1000,
+          "health": 17
+        },
+        {
+          "id": {
+            "type": 1,
+            "id": 7,
+            "city": "Halifax - Crosby"
+          },
+          "name": "Halifax",
+          "nick": "Crosby",
+          "ping_time": 172,
+          "is_premium_only": true,
+          "is_disabled": false,
+          "static_ip_country_code": "",
+          "static_ip_type": "",
+          "static_ip": "",
+          "custom_config_type": "CUSTOM_CONFIG_OPENVPN",
+          "custom_config_is_correct": false,
+          "custom_config_error_message": "",
+          "link_speed": 1000,
+          "health": 38
+        },
+        {
+          "id": {
+            "type": 1,
+            "id": 7,
+            "city": "Toronto - Mansbridge"
+          },
+          "name": "Toronto",
+          "nick": "Mansbridge",
+          "ping_time": 174,
+          "is_premium_only": true,
+          "is_disabled": false,
+          "static_ip_country_code": "",
+          "static_ip_type": "",
+          "static_ip": "",
+          "custom_config_type": "CUSTOM_CONFIG_OPENVPN",
+          "custom_config_is_correct": false,
+          "custom_config_error_message": "",
+          "link_speed": 1000,
+          "health": 12
+        }
+      ]
+    },
+    {
+      "id": {
+        "type": 1,
+        "id": 63,
+        "city": ""
+      },
+      "name": "Canada West",
+      "country_code": "CA",
+      "is_premium_only": false,
+      "is_p2p_supported": true,
+      "cities": [
+        {
+          "id": {
+            "type": 1,
+            "id": 63,
+            "city": "Vancouver - Vansterdam"
+          },
+          "name": "Vancouver",
+          "nick": "Vansterdam",
+          "ping_time": 222,
+          "is_premium_only": true,
+          "is_disabled": false,
+          "static_ip_country_code": "",
+          "static_ip_type": "",
+          "static_ip": "",
+          "custom_config_type": "CUSTOM_CONFIG_OPENVPN",
+          "custom_config_is_correct": false,
+          "custom_config_error_message": "",
+          "link_speed": 10000,
+          "health": 21
+        },
+        {
+          "id": {
+            "type": 1,
+            "id": 63,
+            "city": "Vancouver - Granville"
+          },
+          "name": "Vancouver",
+          "nick": "Granville",
+          "ping_time": 233,
+          "is_premium_only": true,
+          "is_disabled": false,
+          "static_ip_country_code": "",
+          "static_ip_type": "",
+          "static_ip": "",
+          "custom_config_type": "CUSTOM_CONFIG_OPENVPN",
+          "custom_config_is_correct": false,
+          "custom_config_error_message": "",
+          "link_speed": 1000,
+          "health": 9
+        },
+        {
+          "id": {
+            "type": 1,
+            "id": 63,
+            "city": "Vancouver - Stanley"
+          },
+          "name": "Vancouver",
+          "nick": "Stanley",
+          "ping_time": 219,
+          "is_premium_only": true,
+          "is_disabled": false,
+          "static_ip_country_code": "",
+          "static_ip_type": "",
+          "static_ip": "",
+          "custom_config_type": "CUSTOM_CONFIG_OPENVPN",
+          "custom_config_is_correct": false,
+          "custom_config_error_message": "",
+          "link_speed": 1000,
+          "health": 11
+        }
+      ]
+    },
+    {
+      "id": {
+        "type": 1,
+        "id": 108,
+        "city": ""
+      },
+      "name": "Fake Antarctica",
+      "country_code": "AQ",
+      "is_premium_only": true,
+      "is_p2p_supported": false,
+      "cities": [
+        {
+          "id": {
+            "type": 1,
+            "id": 108,
+            "city": "Troll - Station"
+          },
+          "name": "Troll",
+          "nick": "Station",
+          "ping_time": 165,
+          "is_premium_only": true,
+          "is_disabled": false,
+          "static_ip_country_code": "",
+          "static_ip_type": "",
+          "static_ip": "",
+          "custom_config_type": "CUSTOM_CONFIG_OPENVPN",
+          "custom_config_is_correct": false,
+          "custom_config_error_message": "",
+          "link_speed": 10000,
+          "health": 1
+        }
+      ]
+    },
+    {
+      "id": {
+        "type": 1,
+        "id": 56,
+        "city": ""
+      },
+      "name": "India",
+      "country_code": "IN",
+      "is_premium_only": true,
+      "is_p2p_supported": true,
+      "cities": [
+        {
+          "id": {
+            "type": 1,
+            "id": 56,
+            "city": "Pune - Mutha"
+          },
+          "name": "Pune",
+          "nick": "Mutha",
+          "ping_time": -1,
+          "is_premium_only": true,
+          "is_disabled": false,
+          "static_ip_country_code": "",
+          "static_ip_type": "",
+          "static_ip": "",
+          "custom_config_type": "CUSTOM_CONFIG_OPENVPN",
+          "custom_config_is_correct": false,
+          "custom_config_error_message": "",
+          "link_speed": 1000,
+          "health": 4
+        },
+        {
+          "id": {
+            "type": 1,
+            "id": 56,
+            "city": "Mumbai - Mahim"
+          },
+          "name": "Mumbai",
+          "nick": "Mahim",
+          "ping_time": 231,
+          "is_premium_only": true,
+          "is_disabled": false,
+          "static_ip_country_code": "",
+          "static_ip_type": "",
+          "static_ip": "",
+          "custom_config_type": "CUSTOM_CONFIG_OPENVPN",
+          "custom_config_is_correct": false,
+          "custom_config_error_message": "",
+          "link_speed": 1000,
+          "health": -1
+        },
+        {
+          "id": {
+            "type": 1,
+            "id": 56,
+            "city": "MumbaiTest - MahimTest"
+          },
+          "name": "MumbaiTest",
+          "nick": "MahimTest",
+          "ping_time": -2,
+          "is_premium_only": true,
+          "is_disabled": false,
+          "static_ip_country_code": "",
+          "static_ip_type": "",
+          "static_ip": "",
+          "custom_config_type": "CUSTOM_CONFIG_OPENVPN",
+          "custom_config_is_correct": false,
+          "custom_config_error_message": "",
+          "link_speed": 1000,
+          "health": 12
+        }
+      ]
+    },
+    {
+      "id": {
+        "type": 1,
+        "id": 112,
+        "city": ""
+      },
+      "name": "Peru",
+      "country_code": "PE",
+      "is_premium_only": true,
+      "is_p2p_supported": false,
+      "cities": [
+        {
+          "id": {
+            "type": 1,
+            "id": 112,
+            "city": "Lima - Amaru"
+          },
+          "name": "Lima",
+          "nick": "Amaru",
+          "ping_time": 257,
+          "is_premium_only": true,
+          "is_disabled": false,
+          "static_ip_country_code": "",
+          "static_ip_type": "",
+          "static_ip": "",
+          "custom_config_type": "CUSTOM_CONFIG_OPENVPN",
+          "custom_config_is_correct": false,
+          "custom_config_error_message": "",
+          "link_speed": 10000,
+          "health": 3
+        }
+      ]
+    },
+    {
+      "id": {
+        "type": 1,
+        "id": 42,
+        "city": ""
+      },
+      "name": "Russia",
+      "country_code": "RU",
+      "is_premium_only": true,
+      "is_p2p_supported": true,
+      "cities": [
+        {
+          "id": {
+            "type": 1,
+            "id": 42,
+            "city": "Saint Petersburg - Shnur"
+          },
+          "name": "Saint Petersburg",
+          "nick": "Shnur",
+          "ping_time": 61,
+          "is_premium_only": true,
+          "is_disabled": false,
+          "static_ip_country_code": "",
+          "static_ip_type": "",
+          "static_ip": "",
+          "custom_config_type": "CUSTOM_CONFIG_OPENVPN",
+          "custom_config_is_correct": false,
+          "custom_config_error_message": "",
+          "link_speed": 1000,
+          "health": 10
+        },
+        {
+          "id": {
+            "type": 1,
+            "id": 42,
+            "city": "Moscow - Goodbye Lenin"
+          },
+          "name": "Moscow",
+          "nick": "Goodbye Lenin",
+          "ping_time": 50,
+          "is_premium_only": true,
+          "is_disabled": false,
+          "static_ip_country_code": "",
+          "static_ip_type": "",
+          "static_ip": "",
+          "custom_config_type": "CUSTOM_CONFIG_OPENVPN",
+          "custom_config_is_correct": false,
+          "custom_config_error_message": "",
+          "link_speed": 1000,
+          "health": 21
+        },
+        {
+          "id": {
+            "type": 1,
+            "id": 42,
+            "city": "Saint Petersburg - Hermitage"
+          },
+          "name": "Saint Petersburg",
+          "nick": "Hermitage",
+          "ping_time": 46,
+          "is_premium_only": true,
+          "is_disabled": false,
+          "static_ip_country_code": "",
+          "static_ip_type": "",
+          "static_ip": "",
+          "custom_config_type": "CUSTOM_CONFIG_OPENVPN",
+          "custom_config_is_correct": false,
+          "custom_config_error_message": "",
+          "link_speed": 1000,
+          "health": 34
+        }
+      ]
+    },
+    {
+      "id": {
+        "type": 4,
+        "id": 0,
+        "city": ""
+      },
+      "name": "Static IPs",
+      "country_code": "STATIC_IPS",
+      "is_premium_only": false,
+      "is_p2p_supported": false,
+      "cities": [
+        {
+          "id": {
+            "type": 4,
+            "id": 0,
+            "city": "Frankfurt - 193.176.87.171"
+          },
+          "name": "Frankfurt",
+          "nick": "",
+          "ping_time": 88,
+          "is_premium_only": true,
+          "is_disabled": false,
+          "static_ip_country_code": "de",
+          "static_ip_type": "dc",
+          "static_ip": "193.176.87.171",
+          "custom_config_type": "CUSTOM_CONFIG_OPENVPN",
+          "custom_config_is_correct": false,
+          "custom_config_error_message": "",
+          "link_speed": 100,
+          "health": 0
+        },
+        {
+          "id": {
+            "type": 4,
+            "id": 0,
+            "city": "Toronto - 206.223.183.201"
+          },
+          "name": "Toronto",
+          "nick": "",
+          "ping_time": 162,
+          "is_premium_only": true,
+          "is_disabled": false,
+          "static_ip_country_code": "ca",
+          "static_ip_type": "res",
+          "static_ip": "206.223.183.201",
+          "custom_config_type": "CUSTOM_CONFIG_OPENVPN",
+          "custom_config_is_correct": false,
+          "custom_config_error_message": "",
+          "link_speed": 100,
+          "health": 0
+        }
+      ]
+    },
+    {
+      "id": {
+        "type": 1,
+        "id": 65,
+        "city": ""
+      },
+      "name": "US Central",
+      "country_code": "US",
+      "is_premium_only": false,
+      "is_p2p_supported": false,
+      "cities": [
+        {
+          "id": {
+            "type": 1,
+            "id": 65,
+            "city": "Atlanta - Mountain"
+          },
+          "name": "Atlanta",
+          "nick": "Mountain",
+          "ping_time": 164,
+          "is_premium_only": true,
+          "is_disabled": false,
+          "static_ip_country_code": "",
+          "static_ip_type": "",
+          "static_ip": "",
+          "custom_config_type": "CUSTOM_CONFIG_OPENVPN",
+          "custom_config_is_correct": false,
+          "custom_config_error_message": "",
+          "link_speed": 1000,
+          "health": 16
+        },
+        {
+          "id": {
+            "type": 1,
+            "id": 65,
+            "city": "Dallas - Ranch"
+          },
+          "name": "Dallas",
+          "nick": "Ranch",
+          "ping_time": 173,
+          "is_premium_only": true,
+          "is_disabled": false,
+          "static_ip_country_code": "",
+          "static_ip_type": "",
+          "static_ip": "",
+          "custom_config_type": "CUSTOM_CONFIG_OPENVPN",
+          "custom_config_is_correct": false,
+          "custom_config_error_message": "",
+          "link_speed": 1000,
+          "health": 10
+        },
+        {
+          "id": {
+            "type": 1,
+            "id": 65,
+            "city": "Dallas - BBQ"
+          },
+          "name": "Dallas",
+          "nick": "BBQ",
+          "ping_time": 176,
+          "is_premium_only": true,
+          "is_disabled": false,
+          "static_ip_country_code": "",
+          "static_ip_type": "",
+          "static_ip": "",
+          "custom_config_type": "CUSTOM_CONFIG_OPENVPN",
+          "custom_config_is_correct": false,
+          "custom_config_error_message": "",
+          "link_speed": 1000,
+          "health": 23
+        },
+        {
+          "id": {
+            "type": 1,
+            "id": 65,
+            "city": "Denver - Hops"
+          },
+          "name": "Denver",
+          "nick": "Hops",
+          "ping_time": 192,
+          "is_premium_only": true,
+          "is_disabled": false,
+          "static_ip_country_code": "",
+          "static_ip_type": "",
+          "static_ip": "",
+          "custom_config_type": "CUSTOM_CONFIG_OPENVPN",
+          "custom_config_is_correct": false,
+          "custom_config_error_message": "",
+          "link_speed": 1000,
+          "health": 18
+        },
+        {
+          "id": {
+            "type": 1,
+            "id": 65,
+            "city": "Dallas - Ammo"
+          },
+          "name": "Dallas",
+          "nick": "Ammo",
+          "ping_time": 193,
+          "is_premium_only": true,
+          "is_disabled": false,
+          "static_ip_country_code": "",
+          "static_ip_type": "",
+          "static_ip": "",
+          "custom_config_type": "CUSTOM_CONFIG_OPENVPN",
+          "custom_config_is_correct": false,
+          "custom_config_error_message": "",
+          "link_speed": 1000,
+          "health": 31
+        },
+        {
+          "id": {
+            "type": 1,
+            "id": 65,
+            "city": "Kansas City - Glinda"
+          },
+          "name": "Kansas City",
+          "nick": "Glinda",
+          "ping_time": 176,
+          "is_premium_only": true,
+          "is_disabled": false,
+          "static_ip_country_code": "",
+          "static_ip_type": "",
+          "static_ip": "",
+          "custom_config_type": "CUSTOM_CONFIG_OPENVPN",
+          "custom_config_is_correct": false,
+          "custom_config_error_message": "",
+          "link_speed": 1000,
+          "health": 22
+        },
+        {
+          "id": {
+            "type": 1,
+            "id": 65,
+            "city": "Atlanta - Piedmont"
+          },
+          "name": "Atlanta",
+          "nick": "Piedmont",
+          "ping_time": 173,
+          "is_premium_only": true,
+          "is_disabled": false,
+          "static_ip_country_code": "",
+          "static_ip_type": "",
+          "static_ip": "",
+          "custom_config_type": "CUSTOM_CONFIG_OPENVPN",
+          "custom_config_is_correct": false,
+          "custom_config_error_message": "",
+          "link_speed": 1000,
+          "health": 37
+        },
+        {
+          "id": {
+            "type": 1,
+            "id": 65,
+            "city": "Denver - Barley"
+          },
+          "name": "Denver",
+          "nick": "Barley",
+          "ping_time": 202,
+          "is_premium_only": true,
+          "is_disabled": false,
+          "static_ip_country_code": "",
+          "static_ip_type": "",
+          "static_ip": "",
+          "custom_config_type": "CUSTOM_CONFIG_OPENVPN",
+          "custom_config_is_correct": false,
+          "custom_config_error_message": "",
+          "link_speed": 1000,
+          "health": 22
+        }
+      ]
+    },
+    {
+      "id": {
+        "type": 1,
+        "id": 1,
+        "city": ""
+      },
+      "name": "US East",
+      "country_code": "US",
+      "is_premium_only": false,
+      "is_p2p_supported": false,
+      "cities": [
+        {
+          "id": {
+            "type": 1,
+            "id": 1,
+            "city": "Philadelphia - Cheese"
+          },
+          "name": "Philadelphia",
+          "nick": "Cheese",
+          "ping_time": 144,
+          "is_premium_only": true,
+          "is_disabled": false,
+          "static_ip_country_code": "",
+          "static_ip_type": "",
+          "static_ip": "",
+          "custom_config_type": "CUSTOM_CONFIG_OPENVPN",
+          "custom_config_is_correct": false,
+          "custom_config_error_message": "",
+          "link_speed": 1000,
+          "health": 20
+        },
+        {
+          "id": {
+            "type": 1,
+            "id": 1,
+            "city": "Miami - Snow"
+          },
+          "name": "Miami",
+          "nick": "Snow",
+          "ping_time": 184,
+          "is_premium_only": true,
+          "is_disabled": false,
+          "static_ip_country_code": "",
+          "static_ip_type": "",
+          "static_ip": "",
+          "custom_config_type": "CUSTOM_CONFIG_OPENVPN",
+          "custom_config_is_correct": false,
+          "custom_config_error_message": "",
+          "link_speed": 1000,
+          "health": 15
+        },
+        {
+          "id": {
+            "type": 1,
+            "id": 1,
+            "city": "Boston - MIT"
+          },
+          "name": "Boston",
+          "nick": "MIT",
+          "ping_time": 163,
+          "is_premium_only": true,
+          "is_disabled": false,
+          "static_ip_country_code": "",
+          "static_ip_type": "",
+          "static_ip": "",
+          "custom_config_type": "CUSTOM_CONFIG_OPENVPN",
+          "custom_config_is_correct": false,
+          "custom_config_error_message": "",
+          "link_speed": 10000,
+          "health": 6
+        },
+        {
+          "id": {
+            "type": 1,
+            "id": 1,
+            "city": "Chicago - The L"
+          },
+          "name": "Chicago",
+          "nick": "The L",
+          "ping_time": 184,
+          "is_premium_only": true,
+          "is_disabled": false,
+          "static_ip_country_code": "",
+          "static_ip_type": "",
+          "static_ip": "",
+          "custom_config_type": "CUSTOM_CONFIG_OPENVPN",
+          "custom_config_is_correct": false,
+          "custom_config_error_message": "",
+          "link_speed": 1000,
+          "health": 21
+        },
+        {
+          "id": {
+            "type": 1,
+            "id": 1,
+            "city": "Chicago - Cub"
+          },
+          "name": "Chicago",
+          "nick": "Cub",
+          "ping_time": 164,
+          "is_premium_only": true,
+          "is_disabled": false,
+          "static_ip_country_code": "",
+          "static_ip_type": "",
+          "static_ip": "",
+          "custom_config_type": "CUSTOM_CONFIG_OPENVPN",
+          "custom_config_is_correct": false,
+          "custom_config_error_message": "",
+          "link_speed": 1000,
+          "health": 25
+        },
+        {
+          "id": {
+            "type": 1,
+            "id": 1,
+            "city": "Miami - Vice"
+          },
+          "name": "Miami",
+          "nick": "Vice",
+          "ping_time": 174,
+          "is_premium_only": true,
+          "is_disabled": false,
+          "static_ip_country_code": "",
+          "static_ip_type": "",
+          "static_ip": "",
+          "custom_config_type": "CUSTOM_CONFIG_OPENVPN",
+          "custom_config_is_correct": false,
+          "custom_config_error_message": "",
+          "link_speed": 1000,
+          "health": 18
+        },
+        {
+          "id": {
+            "type": 1,
+            "id": 1,
+            "city": "New York - Empire"
+          },
+          "name": "New York",
+          "nick": "Empire",
+          "ping_time": 152,
+          "is_premium_only": true,
+          "is_disabled": false,
+          "static_ip_country_code": "",
+          "static_ip_type": "",
+          "static_ip": "",
+          "custom_config_type": "CUSTOM_CONFIG_OPENVPN",
+          "custom_config_is_correct": false,
+          "custom_config_error_message": "",
+          "link_speed": 1000,
+          "health": 17
+        },
+        {
+          "id": {
+            "type": 1,
+            "id": 1,
+            "city": "Washington DC - Precedent"
+          },
+          "name": "Washington DC",
+          "nick": "Precedent",
+          "ping_time": 144,
+          "is_premium_only": true,
+          "is_disabled": false,
+          "static_ip_country_code": "",
+          "static_ip_type": "",
+          "static_ip": "",
+          "custom_config_type": "CUSTOM_CONFIG_OPENVPN",
+          "custom_config_is_correct": false,
+          "custom_config_error_message": "",
+          "link_speed": 1000,
+          "health": 20
+        },
+        {
+          "id": {
+            "type": 1,
+            "id": 1,
+            "city": "Cleveland - Brown"
+          },
+          "name": "Cleveland",
+          "nick": "Brown",
+          "ping_time": 157,
+          "is_premium_only": true,
+          "is_disabled": false,
+          "static_ip_country_code": "",
+          "static_ip_type": "",
+          "static_ip": "",
+          "custom_config_type": "CUSTOM_CONFIG_OPENVPN",
+          "custom_config_is_correct": false,
+          "custom_config_error_message": "",
+          "link_speed": 1000,
+          "health": 14
+        },
+        {
+          "id": {
+            "type": 1,
+            "id": 1,
+            "city": "Detroit - Coney Dog"
+          },
+          "name": "Detroit",
+          "nick": "Coney Dog",
+          "ping_time": 160,
+          "is_premium_only": true,
+          "is_disabled": false,
+          "static_ip_country_code": "",
+          "static_ip_type": "",
+          "static_ip": "",
+          "custom_config_type": "CUSTOM_CONFIG_OPENVPN",
+          "custom_config_is_correct": false,
+          "custom_config_error_message": "",
+          "link_speed": 1000,
+          "health": 17
+        },
+        {
+          "id": {
+            "type": 1,
+            "id": 1,
+            "city": "Chicago - Wrigley"
+          },
+          "name": "Chicago",
+          "nick": "Wrigley",
+          "ping_time": 176,
+          "is_premium_only": true,
+          "is_disabled": false,
+          "static_ip_country_code": "",
+          "static_ip_type": "",
+          "static_ip": "",
+          "custom_config_type": "CUSTOM_CONFIG_OPENVPN",
+          "custom_config_is_correct": false,
+          "custom_config_error_message": "",
+          "link_speed": 1000,
+          "health": 29
+        },
+        {
+          "id": {
+            "type": 1,
+            "id": 1,
+            "city": "Orlando - Tofu Driver"
+          },
+          "name": "Orlando",
+          "nick": "Tofu Driver",
+          "ping_time": 194,
+          "is_premium_only": true,
+          "is_disabled": false,
+          "static_ip_country_code": "",
+          "static_ip_type": "",
+          "static_ip": "",
+          "custom_config_type": "CUSTOM_CONFIG_OPENVPN",
+          "custom_config_is_correct": false,
+          "custom_config_error_message": "",
+          "link_speed": 1000,
+          "health": 22
+        },
+        {
+          "id": {
+            "type": 1,
+            "id": 1,
+            "city": "Philadelphia - Fresh Prince"
+          },
+          "name": "Philadelphia",
+          "nick": "Fresh Prince",
+          "ping_time": 171,
+          "is_premium_only": true,
+          "is_disabled": false,
+          "static_ip_country_code": "",
+          "static_ip_type": "",
+          "static_ip": "",
+          "custom_config_type": "CUSTOM_CONFIG_OPENVPN",
+          "custom_config_is_correct": false,
+          "custom_config_error_message": "",
+          "link_speed": 1000,
+          "health": 12
+        },
+        {
+          "id": {
+            "type": 1,
+            "id": 1,
+            "city": "South Bend - Hawkins"
+          },
+          "name": "South Bend",
+          "nick": "Hawkins",
+          "ping_time": 161,
+          "is_premium_only": true,
+          "is_disabled": false,
+          "static_ip_country_code": "",
+          "static_ip_type": "",
+          "static_ip": "",
+          "custom_config_type": "CUSTOM_CONFIG_OPENVPN",
+          "custom_config_is_correct": false,
+          "custom_config_error_message": "",
+          "link_speed": 1000,
+          "health": 8
+        },
+        {
+          "id": {
+            "type": 1,
+            "id": 1,
+            "city": "Charlotte - Earnhardt"
+          },
+          "name": "Charlotte",
+          "nick": "Earnhardt",
+          "ping_time": 181,
+          "is_premium_only": true,
+          "is_disabled": false,
+          "static_ip_country_code": "",
+          "static_ip_type": "",
+          "static_ip": "",
+          "custom_config_type": "CUSTOM_CONFIG_OPENVPN",
+          "custom_config_is_correct": false,
+          "custom_config_error_message": "",
+          "link_speed": 1000,
+          "health": 22
+        },
+        {
+          "id": {
+            "type": 1,
+            "id": 1,
+            "city": "New Jersey - Situation"
+          },
+          "name": "New Jersey",
+          "nick": "Situation",
+          "ping_time": 188,
+          "is_premium_only": true,
+          "is_disabled": false,
+          "static_ip_country_code": "",
+          "static_ip_type": "",
+          "static_ip": "",
+          "custom_config_type": "CUSTOM_CONFIG_OPENVPN",
+          "custom_config_is_correct": false,
+          "custom_config_error_message": "",
+          "link_speed": 1000,
+          "health": 13
+        },
+        {
+          "id": {
+            "type": 1,
+            "id": 1,
+            "city": "Miami - Florida Man"
+          },
+          "name": "Miami",
+          "nick": "Florida Man",
+          "ping_time": 181,
+          "is_premium_only": true,
+          "is_disabled": false,
+          "static_ip_country_code": "",
+          "static_ip_type": "",
+          "static_ip": "",
+          "custom_config_type": "CUSTOM_CONFIG_OPENVPN",
+          "custom_config_is_correct": false,
+          "custom_config_error_message": "",
+          "link_speed": 1000,
+          "health": 25
+        },
+        {
+          "id": {
+            "type": 1,
+            "id": 1,
+            "city": "New York - Grand Central"
+          },
+          "name": "New York",
+          "nick": "Grand Central",
+          "ping_time": 144,
+          "is_premium_only": true,
+          "is_disabled": false,
+          "static_ip_country_code": "",
+          "static_ip_type": "",
+          "static_ip": "",
+          "custom_config_type": "CUSTOM_CONFIG_OPENVPN",
+          "custom_config_is_correct": false,
+          "custom_config_error_message": "",
+          "link_speed": 10000,
+          "health": 6
+        },
+        {
+          "id": {
+            "type": 1,
+            "id": 1,
+            "city": "New York - Insomnia"
+          },
+          "name": "New York",
+          "nick": "Insomnia",
+          "ping_time": 148,
+          "is_premium_only": true,
+          "is_disabled": false,
+          "static_ip_country_code": "",
+          "static_ip_type": "",
+          "static_ip": "",
+          "custom_config_type": "CUSTOM_CONFIG_OPENVPN",
+          "custom_config_is_correct": false,
+          "custom_config_error_message": "",
+          "link_speed": 1000,
+          "health": 14
+        },
+        {
+          "id": {
+            "type": 1,
+            "id": 1,
+            "city": "New York - Gotham"
+          },
+          "name": "New York",
+          "nick": "Gotham",
+          "ping_time": 142,
+          "is_premium_only": true,
+          "is_disabled": false,
+          "static_ip_country_code": "",
+          "static_ip_type": "",
+          "static_ip": "",
+          "custom_config_type": "CUSTOM_CONFIG_OPENVPN",
+          "custom_config_is_correct": false,
+          "custom_config_error_message": "",
+          "link_speed": 1000,
+          "health": 38
+        },
+        {
+          "id": {
+            "type": 1,
+            "id": 1,
+            "city": "Buffalo - Bill"
+          },
+          "name": "Buffalo",
+          "nick": "Bill",
+          "ping_time": 158,
+          "is_premium_only": true,
+          "is_disabled": false,
+          "static_ip_country_code": "",
+          "static_ip_type": "",
+          "static_ip": "",
+          "custom_config_type": "CUSTOM_CONFIG_OPENVPN",
+          "custom_config_is_correct": false,
+          "custom_config_error_message": "",
+          "link_speed": 1000,
+          "health": 22
+        },
+        {
+          "id": {
+            "type": 1,
+            "id": 1,
+            "city": "New York - Radiohall"
+          },
+          "name": "New York",
+          "nick": "Radiohall",
+          "ping_time": 148,
+          "is_premium_only": true,
+          "is_disabled": false,
+          "static_ip_country_code": "",
+          "static_ip_type": "",
+          "static_ip": "",
+          "custom_config_type": "CUSTOM_CONFIG_OPENVPN",
+          "custom_config_is_correct": false,
+          "custom_config_error_message": "",
+          "link_speed": 1000,
+          "health": 10
+        }
+      ]
+    },
+    {
+      "id": {
+        "type": 1,
+        "id": 4,
+        "city": ""
+      },
+      "name": "US West",
+      "country_code": "US",
+      "is_premium_only": false,
+      "is_p2p_supported": false,
+      "cities": [
+        {
+          "id": {
+            "type": 1,
+            "id": 4,
+            "city": "Seattle - Cornell"
+          },
+          "name": "Seattle",
+          "nick": "Cornell",
+          "ping_time": 204,
+          "is_premium_only": true,
+          "is_disabled": false,
+          "static_ip_country_code": "",
+          "static_ip_type": "",
+          "static_ip": "",
+          "custom_config_type": "CUSTOM_CONFIG_OPENVPN",
+          "custom_config_is_correct": false,
+          "custom_config_error_message": "",
+          "link_speed": 1000,
+          "health": 10
+        },
+        {
+          "id": {
+            "type": 1,
+            "id": 4,
+            "city": "Los Angeles - Dogg"
+          },
+          "name": "Los Angeles",
+          "nick": "Dogg",
+          "ping_time": 202,
+          "is_premium_only": true,
+          "is_disabled": false,
+          "static_ip_country_code": "",
+          "static_ip_type": "",
+          "static_ip": "",
+          "custom_config_type": "CUSTOM_CONFIG_OPENVPN",
+          "custom_config_is_correct": false,
+          "custom_config_error_message": "",
+          "link_speed": 1000,
+          "health": 13
+        },
+        {
+          "id": {
+            "type": 1,
+            "id": 4,
+            "city": "Los Angeles - Cube"
+          },
+          "name": "Los Angeles",
+          "nick": "Cube",
+          "ping_time": 212,
+          "is_premium_only": true,
+          "is_disabled": false,
+          "static_ip_country_code": "",
+          "static_ip_type": "",
+          "static_ip": "",
+          "custom_config_type": "CUSTOM_CONFIG_OPENVPN",
+          "custom_config_is_correct": false,
+          "custom_config_error_message": "",
+          "link_speed": 1000,
+          "health": 6
+        },
+        {
+          "id": {
+            "type": 1,
+            "id": 4,
+            "city": "Los Angeles - Eazy"
+          },
+          "name": "Los Angeles",
+          "nick": "Eazy",
+          "ping_time": 208,
+          "is_premium_only": true,
+          "is_disabled": false,
+          "static_ip_country_code": "",
+          "static_ip_type": "",
+          "static_ip": "",
+          "custom_config_type": "CUSTOM_CONFIG_OPENVPN",
+          "custom_config_is_correct": false,
+          "custom_config_error_message": "",
+          "link_speed": 1000,
+          "health": 27
+        },
+        {
+          "id": {
+            "type": 1,
+            "id": 4,
+            "city": "Las Vegas - Casino"
+          },
+          "name": "Las Vegas",
+          "nick": "Casino",
+          "ping_time": 212,
+          "is_premium_only": true,
+          "is_disabled": false,
+          "static_ip_country_code": "",
+          "static_ip_type": "",
+          "static_ip": "",
+          "custom_config_type": "CUSTOM_CONFIG_OPENVPN",
+          "custom_config_is_correct": false,
+          "custom_config_error_message": "",
+          "link_speed": 1000,
+          "health": 24
+        },
+        {
+          "id": {
+            "type": 1,
+            "id": 4,
+            "city": "Los Angeles - Pac"
+          },
+          "name": "Los Angeles",
+          "nick": "Pac",
+          "ping_time": 201,
+          "is_premium_only": true,
+          "is_disabled": false,
+          "static_ip_country_code": "",
+          "static_ip_type": "",
+          "static_ip": "",
+          "custom_config_type": "CUSTOM_CONFIG_OPENVPN",
+          "custom_config_is_correct": false,
+          "custom_config_error_message": "",
+          "link_speed": 1000,
+          "health": 5
+        },
+        {
+          "id": {
+            "type": 1,
+            "id": 4,
+            "city": "Los Angeles - Lamar"
+          },
+          "name": "Los Angeles",
+          "nick": "Lamar",
+          "ping_time": 215,
+          "is_premium_only": true,
+          "is_disabled": false,
+          "static_ip_country_code": "",
+          "static_ip_type": "",
+          "static_ip": "",
+          "custom_config_type": "CUSTOM_CONFIG_OPENVPN",
+          "custom_config_is_correct": false,
+          "custom_config_error_message": "",
+          "link_speed": 10000,
+          "health": 1
+        },
+        {
+          "id": {
+            "type": 1,
+            "id": 4,
+            "city": "San Jose - Santana"
+          },
+          "name": "San Jose",
+          "nick": "Santana",
+          "ping_time": 219,
+          "is_premium_only": true,
+          "is_disabled": false,
+          "static_ip_country_code": "",
+          "static_ip_type": "",
+          "static_ip": "",
+          "custom_config_type": "CUSTOM_CONFIG_OPENVPN",
+          "custom_config_is_correct": false,
+          "custom_config_error_message": "",
+          "link_speed": 1000,
+          "health": 6
+        },
+        {
+          "id": {
+            "type": 1,
+            "id": 4,
+            "city": "Bend - Oregon Trail"
+          },
+          "name": "Bend",
+          "nick": "Oregon Trail",
+          "ping_time": 216,
+          "is_premium_only": true,
+          "is_disabled": false,
+          "static_ip_country_code": "",
+          "static_ip_type": "",
+          "static_ip": "",
+          "custom_config_type": "CUSTOM_CONFIG_OPENVPN",
+          "custom_config_is_correct": false,
+          "custom_config_error_message": "",
+          "link_speed": 1000,
+          "health": 14
+        },
+        {
+          "id": {
+            "type": 1,
+            "id": 4,
+            "city": "San Francisco - Sanitation"
+          },
+          "name": "San Francisco",
+          "nick": "Sanitation",
+          "ping_time": 222,
+          "is_premium_only": true,
+          "is_disabled": false,
+          "static_ip_country_code": "",
+          "static_ip_type": "",
+          "static_ip": "",
+          "custom_config_type": "CUSTOM_CONFIG_OPENVPN",
+          "custom_config_is_correct": false,
+          "custom_config_error_message": "",
+          "link_speed": 1000,
+          "health": 18
+        },
+        {
+          "id": {
+            "type": 1,
+            "id": 4,
+            "city": "Phoenix - Floatie"
+          },
+          "name": "Phoenix",
+          "nick": "Floatie",
+          "ping_time": 203,
+          "is_premium_only": true,
+          "is_disabled": false,
+          "static_ip_country_code": "",
+          "static_ip_type": "",
+          "static_ip": "",
+          "custom_config_type": "CUSTOM_CONFIG_OPENVPN",
+          "custom_config_is_correct": false,
+          "custom_config_error_message": "",
+          "link_speed": 1000,
+          "health": 12
+        },
+        {
+          "id": {
+            "type": 1,
+            "id": 4,
+            "city": "Seattle - Hendrix"
+          },
+          "name": "Seattle",
+          "nick": "Hendrix",
+          "ping_time": 219,
+          "is_premium_only": true,
+          "is_disabled": false,
+          "static_ip_country_code": "",
+          "static_ip_type": "",
+          "static_ip": "",
+          "custom_config_type": "CUSTOM_CONFIG_OPENVPN",
+          "custom_config_is_correct": false,
+          "custom_config_error_message": "",
+          "link_speed": 1000,
+          "health": 26
+        },
+        {
+          "id": {
+            "type": 1,
+            "id": 4,
+            "city": "Seattle - Cobain"
+          },
+          "name": "Seattle",
+          "nick": "Cobain",
+          "ping_time": 216,
+          "is_premium_only": true,
+          "is_disabled": false,
+          "static_ip_country_code": "",
+          "static_ip_type": "",
+          "static_ip": "",
+          "custom_config_type": "CUSTOM_CONFIG_OPENVPN",
+          "custom_config_is_correct": false,
+          "custom_config_error_message": "",
+          "link_speed": 1000,
+          "health": 14
+        },
+        {
+          "id": {
+            "type": 1,
+            "id": 4,
+            "city": "Santa Clara - Inside"
+          },
+          "name": "Santa Clara",
+          "nick": "Inside",
+          "ping_time": 223,
+          "is_premium_only": true,
+          "is_disabled": false,
+          "static_ip_country_code": "",
+          "static_ip_type": "",
+          "static_ip": "",
+          "custom_config_type": "CUSTOM_CONFIG_OPENVPN",
+          "custom_config_is_correct": false,
+          "custom_config_error_message": "",
+          "link_speed": 1000,
+          "health": 9
+        }
+      ]
+    }
+  ]
+}

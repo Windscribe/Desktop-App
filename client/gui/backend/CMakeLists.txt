@@ -5,25 +5,6 @@ target_sources(gui PRIVATE
     connectstatehelper.h
     firewallstatehelper.cpp
     firewallstatehelper.h
-    locationsmodel/alllocationsmodel.cpp
-    locationsmodel/alllocationsmodel.h
-    locationsmodel/basiccitiesmodel.cpp
-    locationsmodel/basiccitiesmodel.h
-    locationsmodel/basiclocationsmodel.cpp
-    locationsmodel/basiclocationsmodel.h
-    locationsmodel/configuredcitiesmodel.cpp
-    locationsmodel/configuredcitiesmodel.h
-    locationsmodel/favoritecitiesmodel.cpp
-    locationsmodel/favoritecitiesmodel.h
-    locationsmodel/favoritelocationsstorage.cpp
-    locationsmodel/favoritelocationsstorage.h
-    locationsmodel/locationmodelitem.h
-    locationsmodel/locationsmodel.cpp
-    locationsmodel/locationsmodel.h
-    locationsmodel/sortlocationsalgorithms.cpp
-    locationsmodel/sortlocationsalgorithms.h
-    locationsmodel/staticipscitiesmodel.cpp
-    locationsmodel/staticipscitiesmodel.h
     notificationscontroller.cpp
     notificationscontroller.h
     persistentstate.cpp

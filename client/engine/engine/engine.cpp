@@ -155,7 +155,7 @@ void Engine::loginWithAuthHash(const QString &authHash)
 
     {
         QMutexLocker lockerLoginSettings(&loginSettingsMutex_);
-        loginSettings_ = types::LoginSettings(authHash);
+        loginSettings_ = LoginSettings(authHash);
     }
     loginState_ = LOGIN_IN_PROGRESS;
     QMetaObject::invokeMethod(this, "loginImpl", Q_ARG(bool, false));
@@ -169,7 +169,7 @@ void Engine::loginWithUsernameAndPassword(const QString &username, const QString
 
     {
         QMutexLocker lockerLoginSettings(&loginSettingsMutex_);
-        loginSettings_ = types::LoginSettings(username, password, code2fa);
+        loginSettings_ = LoginSettings(username, password, code2fa);
     }
     loginState_ = LOGIN_IN_PROGRESS;
     QMetaObject::invokeMethod(this, "loginImpl", Q_ARG(bool, false));
@@ -253,7 +253,7 @@ void Engine::getWebSessionToken(WEB_SESSION_PURPOSE purpose)
     QMetaObject::invokeMethod(this, "getWebSessionTokenImpl", Q_ARG(WEB_SESSION_PURPOSE, purpose));
 }
 
-types::LoginSettings Engine::getLastLoginSettings()
+LoginSettings Engine::getLastLoginSettings()
 {
     QMutexLocker lockerLoginSettings(&loginSettingsMutex_);
     return loginSettings_;
@@ -646,9 +646,9 @@ void Engine::initPart2()
     connect(serverAPI_, SIGNAL(debugLogAnswer(SERVER_API_RET_CODE,uint)), SLOT(onDebugLogAnswer(SERVER_API_RET_CODE,uint)));
     connect(serverAPI_, SIGNAL(confirmEmailAnswer(SERVER_API_RET_CODE,uint)), SLOT(onConfirmEmailAnswer(SERVER_API_RET_CODE,uint)));
     connect(serverAPI_, SIGNAL(webSessionAnswer(SERVER_API_RET_CODE, QString, uint)), SLOT(onWebSessionAnswer(SERVER_API_RET_CODE, QString, uint)));
-    connect(serverAPI_, SIGNAL(staticIpsAnswer(SERVER_API_RET_CODE,types::StaticIps, uint)), SLOT(onStaticIpsAnswer(SERVER_API_RET_CODE,types::StaticIps, uint)), Qt::QueuedConnection);
-    connect(serverAPI_, SIGNAL(serverLocationsAnswer(SERVER_API_RET_CODE, QVector<types::Location>,QStringList, uint)),
-                        SLOT(onServerLocationsAnswer(SERVER_API_RET_CODE,QVector<types::Location>,QStringList, uint)), Qt::QueuedConnection);
+    connect(serverAPI_, SIGNAL(staticIpsAnswer(SERVER_API_RET_CODE,apiinfo::StaticIps, uint)), SLOT(onStaticIpsAnswer(SERVER_API_RET_CODE,apiinfo::StaticIps, uint)), Qt::QueuedConnection);
+    connect(serverAPI_, SIGNAL(serverLocationsAnswer(SERVER_API_RET_CODE, QVector<apiinfo::Location>,QStringList, uint)),
+                        SLOT(onServerLocationsAnswer(SERVER_API_RET_CODE,QVector<apiinfo::Location>,QStringList, uint)), Qt::QueuedConnection);
     connect(serverAPI_, SIGNAL(sendUserWarning(USER_WARNING_TYPE)), SIGNAL(sendUserWarning(USER_WARNING_TYPE)));
 
     serverAPI_->setIgnoreSslErrors(engineSettings_.isIgnoreSslErrors());
@@ -975,7 +975,7 @@ void Engine::clearCredentialsImpl()
 {
     if (!apiInfo_.isNull())
     {
-        apiInfo_->setServerCredentials(types::ServerCredentials());
+        apiInfo_->setServerCredentials(apiinfo::ServerCredentials());
     }
 }
 
@@ -1516,7 +1516,7 @@ void Engine::onLoginControllerStepMessage(LOGIN_MESSAGE msg)
     Q_EMIT loginStepMessage(msg);
 }
 
-void Engine::onServerLocationsAnswer(SERVER_API_RET_CODE retCode, const QVector<types::Location> &serverLocations, QStringList forceDisconnectNodes, uint userRole)
+void Engine::onServerLocationsAnswer(SERVER_API_RET_CODE retCode, const QVector<apiinfo::Location> &serverLocations, QStringList forceDisconnectNodes, uint userRole)
 {
     if (userRole == serverApiUserRole_)
     {
@@ -1654,7 +1654,7 @@ void Engine::onConfirmEmailAnswer(SERVER_API_RET_CODE retCode, uint userRole)
     }
 }
 
-void Engine::onStaticIpsAnswer(SERVER_API_RET_CODE retCode, const types::StaticIps &staticIps, uint userRole)
+void Engine::onStaticIpsAnswer(SERVER_API_RET_CODE retCode, const apiinfo::StaticIps &staticIps, uint userRole)
 {
     if (userRole == serverApiUserRole_)
     {
@@ -2427,7 +2427,7 @@ void Engine::onEmergencyControllerError(CONNECT_ERROR err)
     Q_EMIT emergencyConnectError(err);
 }
 
-void Engine::onRefetchServerCredentialsFinished(bool success, const types::ServerCredentials &serverCredentials, const QString &serverConfig)
+void Engine::onRefetchServerCredentialsFinished(bool success, const apiinfo::ServerCredentials &serverCredentials, const QString &serverConfig)
 {
     bool bFromAuthError = refetchServerCredentialsHelper_->property("fromAuthError").isValid();
     refetchServerCredentialsHelper_->deleteLater();
@@ -2645,7 +2645,7 @@ void Engine::setSplitTunnelingSettingsImpl(bool isActive, bool isExclude, const 
                                        files, ips, hosts);
 }
 
-void Engine::startLoginController(const types::LoginSettings &loginSettings, bool bFromConnectedState)
+void Engine::startLoginController(const LoginSettings &loginSettings, bool bFromConnectedState)
 {
     Q_ASSERT(loginController_ == NULL);
     Q_ASSERT(loginState_ == LOGIN_IN_PROGRESS);
@@ -2688,7 +2688,7 @@ void Engine::updateSessionStatus()
             else
             {
                 // set empty list of static ips
-                apiInfo_->setStaticIps(types::StaticIps());
+                apiInfo_->setStaticIps(apiinfo::StaticIps());
                 updateServerLocations();
             }
         }
@@ -2856,7 +2856,7 @@ void Engine::doConnect(bool bEmitAuthError)
     {
         qCDebug(LOG_BASIC) << "Connecting to" << locationName_;
 
-        connectionManager_->clickConnect("", types::ServerCredentials(), bli,
+        connectionManager_->clickConnect("", apiinfo::ServerCredentials(), bli,
             engineSettings_.connectionSettings(), types::PortMap(),
             ProxyServerController::instance().getCurrentProxySettings(), bEmitAuthError, engineSettings_.customOvpnConfigsPath());
     }

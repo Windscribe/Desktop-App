@@ -10,7 +10,7 @@
 #include <QPainter>
 #include <QtMath>
 
-namespace gui_location {
+namespace gui_locations {
 
 void CityItemDelegate::paint(QPainter *painter, const ItemStyleOption &option, const QModelIndex &index) const
 {
@@ -286,4 +286,4 @@ QString CityItemDelegate::pingIconNameString(int connectionSpeedIndex) const
     Q_ASSERT(false);
 }
 
-} // namespace gui_location
+} // namespace gui_locations

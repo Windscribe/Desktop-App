@@ -3,7 +3,7 @@
 #include "locations/model/locationsmodel.h"
 #include <QDebug>
 
-namespace gui_location {
+namespace gui_locations {
 
 SelectedLocationWatcher::SelectedLocationWatcher(QObject *parent, QAbstractItemModel *model) : QObject(parent),
     model_(model), isIndexSettled_(false)
@@ -86,4 +86,4 @@ void SelectedLocationWatcher::fillData()
     }
 }
 
-} //namespace gui_location
+} //namespace gui_locations

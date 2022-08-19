@@ -8,7 +8,7 @@
 #include <QPainter>
 #include <QtMath>
 
-namespace gui_location {
+namespace gui_locations {
 
 void CountryItemDelegate::paint(QPainter *painter, const ItemStyleOption &option, const QModelIndex &index) const
 {
@@ -180,4 +180,4 @@ int CountryItemDelegate::isInTooltipArea(const QModelIndex &index, const QPoint 
     return -1;
 }
 
-} // namespace gui_location
+} // namespace gui_locations

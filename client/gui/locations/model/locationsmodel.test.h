@@ -5,7 +5,7 @@
 #include <QTest>
 #include <QAbstractItemModelTester>
 #include "locationsmodel.h"
-#include "citiesmodel.h"
+#include "proxymodels/cities_proxymodel.h"
 
 // tests for classes LocationsModel and CitiesModel
 // CitiesModel depends on class LocationsModel data so it makes sense to test them together
@@ -21,33 +21,31 @@ private slots:
     void testBestLocation();
     void testCustomConfig();
     void testConnectionSpeed();
-    void testAddCountry();
-    void testAddCity();
-    void testDeleteCity();
-    void testDeleteCountry();
-    void testChangedCities();
-    void testChangedCities2();
+    void testAddDeleteCountry();
+    void testAddDeleteCity();
+    void testChangedOrder();
+    void testChangedCaptions();
     void testFreeSessionStatusChange();
 
 private:
-    QVector<types::LocationItem> testLocations_;
+    QVector<types::Location> testOriginal_;
     LocationID bestLocation_;
-    types::LocationItem customConfigLocation_;
+    types::Location customConfigLocation_;
 
-    QScopedPointer<gui::LocationsModel> locationsModel_;
+    QScopedPointer<gui_locations::LocationsModel> locationsModel_;
     QScopedPointer<QAbstractItemModelTester> tester1_;
-    QScopedPointer<gui::CitiesModel> citiesModel_;
+    QScopedPointer<gui_locations::CitiesProxyModel> citiesModel_;
     QScopedPointer<QAbstractItemModelTester> tester2_;
 
-    bool isModelsCorrect(const LocationID &bestLocation, const QVector<types::LocationItem> &locations,
-                         const types::LocationItem &customConfigLocation);
+    bool isModelsCorrect(const LocationID &bestLocation, const QVector<types::Location> &locations,
+                         const types::Location &customConfigLocation);
 
-    bool isLocationsModelEqualTo(const LocationID &bestLocation, const QVector<types::LocationItem> &locations,
-                                 const types::LocationItem &customConfigLocation);
-    bool isCountryEqual(const QModelIndex &miCountry,  const types::LocationItem &l);
-    bool isCityEqual(const QModelIndex &miCity,  const types::CityItem &city);
+    bool isLocationsModelEqualTo(const LocationID &bestLocation, const QVector<types::Location> &locations,
+                                 const types::Location &customConfigLocation);
+    bool isCountryEqual(const QModelIndex &miCountry,  const types::Location &l);
+    bool isCityEqual(const QModelIndex &miCity,  const types::City &city);
 
-    bool isCitiesModelEqualTo(const QVector<types::LocationItem> &locations, const types::LocationItem &customConfigLocation);
+    bool isCitiesModelEqualTo(const QVector<types::Location> &locations, const types::Location &customConfigLocation);
 
 };
 

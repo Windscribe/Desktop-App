@@ -1,5 +1,4 @@
-#ifndef GUI_LOCATIONS_EXPANDABLE_ITEMS_WIDGET_H
-#define GUI_LOCATIONS_EXPANDABLE_ITEMS_WIDGET_H
+#pragma once
 
 #include <QWidget>
 #include <QAbstractItemModel>
@@ -7,7 +6,7 @@
 #include "iitemdelegate.h"
 #include "cursorupdatehelper.h"
 
-namespace gui_location {
+namespace gui_locations {
 
 // widget where items of QAbstractItemModel are drawn, supports animated expansion
 // supports tree with one level of children or list
@@ -59,7 +58,5 @@ private:
 
 };
 
-} // namespace gui_location
+} // namespace gui_locations
 
-
-#endif // GUI_LOCATIONS_EXPANDABLE_ITEMS_WIDGET_H

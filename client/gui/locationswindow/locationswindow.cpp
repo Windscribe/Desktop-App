@@ -10,13 +10,13 @@
 
 #include <QDebug>
 
-LocationsWindow::LocationsWindow(QWidget *parent, LocationsModel *locationsModel) : QWidget(parent)
+LocationsWindow::LocationsWindow(QWidget *parent, gui_locations::LocationsModelManager *locationsModelManager) : QWidget(parent)
   , locationsTabHeightUnscaled_(LOCATIONS_TAB_HEIGHT_INIT)
   , bDragPressed_(false)
 {
     setMouseTracking(true);
 
-    locationsTab_ = new GuiLocations::LocationsTab(this, locationsModel);
+    locationsTab_ = new GuiLocations::LocationsTab(this, locationsModelManager);
     locationsTab_->setGeometry(0, 0, WINDOW_WIDTH * G_SCALE, qCeil(locationsTabHeightUnscaled_ * G_SCALE));
 
     footerTopStrip_ = new GuiLocations::FooterTopStrip(this);

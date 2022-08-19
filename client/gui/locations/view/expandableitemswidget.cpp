@@ -6,7 +6,7 @@
 #include <QPainter>
 #include <QDebug>
 
-namespace gui_location {
+namespace gui_locations {
 
 ExpandableItemsWidget::ExpandableItemsWidget(QWidget *parent) : QWidget(parent)
   , cursorUpdateHelper_(new CursorUpdateHelper(this))
@@ -316,5 +316,5 @@ void ExpandableItemsWidget::updateWidgetSize()
 
 
 
-} // namespace gui_location
+} // namespace gui_locations
 

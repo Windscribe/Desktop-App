@@ -1,14 +1,12 @@
-#ifndef LOCATIONSMODEL_ROLES_H
-#define LOCATIONSMODEL_ROLES_H
+#pragma once
 
 #include <QObject>
 
-namespace gui_location {
+namespace gui_locations {
 
 // Roles for LocationsModel items
 enum ROLES { LOCATION_ID = Qt::UserRole,    // location and city
              IS_TOP_LEVEL_LOCATION,         // location and city
-             INITITAL_INDEX,                // location and city
              COUNTRY_CODE,                  // location and city
              IS_SHOW_P2P,                   // location only
              IS_SHOW_AS_PREMIUM,            // location and city
@@ -30,7 +28,5 @@ enum ROLES { LOCATION_ID = Qt::UserRole,    // location and city
              CUSTOM_CONFIG_ERROR_MESSAGE   // city only
            };
 
-} //namespace gui_location
+} //namespace gui_locations
 
-
-#endif // LOCATIONSMODEL_ROLES_H

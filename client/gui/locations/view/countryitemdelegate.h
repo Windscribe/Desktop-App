@@ -1,9 +1,8 @@
-#ifndef GUI_LOCATIONS_COUNTRYITEMDELEGATE_H
-#define GUI_LOCATIONS_COUNTRYITEMDELEGATE_H
+#pragma once
 
 #include "iitemdelegate.h"
 
-namespace gui_location {
+namespace gui_locations {
 
 class CountryItemDelegate : public IItemDelegate
 {
@@ -17,7 +16,5 @@ public:
     int isInTooltipArea(const QModelIndex &index, const QPoint &point) const override;
 };
 
-} // namespace gui_location
+} // namespace gui_locations
 
-
-#endif // GUI_LOCATIONS_COUNTRYITEMDELEGATE_H

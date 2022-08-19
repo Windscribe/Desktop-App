@@ -5,11 +5,16 @@
 #include "widgetlocations/locationstab.h"
 #include "widgetlocations/footertopstrip.h"
 
+namespace gui_locations
+{
+    class LocationsModelManager;
+}
+
 class LocationsWindow : public QWidget
 {
     Q_OBJECT
 public:
-    explicit LocationsWindow(QWidget *parent, LocationsModel *locationsModel);
+    explicit LocationsWindow(QWidget *parent, gui_locations::LocationsModelManager *locationsModelManager);
 
     int tabAndFooterHeight() const;
 

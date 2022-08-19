@@ -25,14 +25,14 @@ void ApiInfo::setSessionStatus(const types::SessionStatus &value)
     settings.setValue("userId", sessionStatus_.getUserId());    // need for uninstaller program for open post uninstall webpage
 }
 
-void ApiInfo::setLocations(const QVector<types::Location> &value)
+void ApiInfo::setLocations(const QVector<apiinfo::Location> &value)
 {
     Q_ASSERT(threadId_ == QThread::currentThreadId());
     locations_ = value;
     mergeWindflixLocations();
 }
 
-QVector<types::Location> ApiInfo::getLocations() const
+QVector<apiinfo::Location> ApiInfo::getLocations() const
 {
     Q_ASSERT(threadId_ == QThread::currentThreadId());
     return locations_;
@@ -50,13 +50,13 @@ void ApiInfo::setForceDisconnectNodes(const QStringList &value)
     forceDisconnectNodes_ = value;
 }
 
-void ApiInfo::setServerCredentials(const types::ServerCredentials &serverCredentials)
+void ApiInfo::setServerCredentials(const ServerCredentials &serverCredentials)
 {
     Q_ASSERT(threadId_ == QThread::currentThreadId());
     serverCredentials_ = serverCredentials;
 }
 
-types::ServerCredentials ApiInfo::getServerCredentials() const
+ServerCredentials ApiInfo::getServerCredentials() const
 {
     Q_ASSERT(threadId_ == QThread::currentThreadId());
     return serverCredentials_;
@@ -108,13 +108,13 @@ void ApiInfo::setPortMap(const types::PortMap &portMap)
     portMap_ = portMap;
 }
 
-void ApiInfo::setStaticIps(const types::StaticIps &value)
+void ApiInfo::setStaticIps(const StaticIps &value)
 {
     Q_ASSERT(threadId_ == QThread::currentThreadId());
     staticIps_ = value;
 }
 
-types::StaticIps ApiInfo::getStaticIps() const
+StaticIps ApiInfo::getStaticIps() const
 {
     Q_ASSERT(threadId_ == QThread::currentThreadId());
     return staticIps_;
@@ -193,10 +193,10 @@ void ApiInfo::mergeWindflixLocations()
 {
     // Build a new list of server locations to merge, removing them from the old list.
     // Currently we merge all WindFlix locations into the corresponding global locations.
-    QVector<types::Location> locationsToMerge;
-    QMutableVectorIterator<types::Location> it(locations_);
+    QVector<apiinfo::Location> locationsToMerge;
+    QMutableVectorIterator<apiinfo::Location> it(locations_);
     while (it.hasNext()) {
-        types::Location &location = it.next();
+        apiinfo::Location &location = it.next();
         if (location.getName().startsWith("WINDFLIX")) {
             locationsToMerge.append(location);
             it.remove();
@@ -206,24 +206,24 @@ void ApiInfo::mergeWindflixLocations()
         return;
 
     // Map city names to locations for faster lookups.
-    QHash<QString, types::Location *> location_hash;
+    QHash<QString, apiinfo::Location *> location_hash;
     for (auto &location: locations_) {
         for (int i = 0; i < location.groupsCount(); ++i)
         {
-            const types::Group group = location.getGroup(i);
+            const apiinfo::Group group = location.getGroup(i);
             location_hash.insert(location.getCountryCode() + group.getCity(), &location);
         }
     }
 
     // Merge the locations.
-    QMutableVectorIterator<types::Location> itm(locationsToMerge);
+    QMutableVectorIterator<apiinfo::Location> itm(locationsToMerge);
     while (itm.hasNext()) {
-        types::Location &location = itm.next();
+        apiinfo::Location &location = itm.next();
         const auto country_code = location.getCountryCode();
 
         for (int i = 0; i < location.groupsCount(); ++i)
         {
-            types::Group group = location.getGroup(i);
+            apiinfo::Group group = location.getGroup(i);
             group.setOverrideDnsHostName(location.getDnsHostName());
 
             auto target = location_hash.find(country_code + group.getCity());

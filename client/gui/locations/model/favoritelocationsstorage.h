@@ -1,11 +1,10 @@
-#ifndef GUI_LOCATIONS_FAVORITELOCATIONSSTORAGE_H
-#define GUI_LOCATIONS_FAVORITELOCATIONSSTORAGE_H
+#pragma once
 
 #include <QObject>
 #include <QSet>
 #include "types/locationid.h"
 
-namespace gui_location {
+namespace gui_locations {
 
 class FavoriteLocationsStorage : public QObject
 {
@@ -27,6 +26,5 @@ private:
     static constexpr int versionForSerialization_ = 1;  // should increment the version if the data format is changed
 };
 
-} //namespace gui_location
+} //namespace gui_locations
 
-#endif // GUI_LOCATIONS_FAVORITELOCATIONSSTORAGE_H

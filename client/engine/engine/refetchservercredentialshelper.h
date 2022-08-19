@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QTimer>
 #include "engine/serverapi/serverapi.h"
-#include "types/servercredentials.h"
+#include "engine/apiinfo/servercredentials.h"
 
 class RefetchServerCredentialsHelper : public QObject
 {
@@ -16,7 +16,7 @@ public:
     void startRefetch();
 
 signals:
-    void finished(bool success, const types::ServerCredentials &serverCredentials, const QString &serverConfig);
+    void finished(bool success, const apiinfo::ServerCredentials &serverCredentials, const QString &serverConfig);
 
 private slots:
     void onTimerWaitServerAPIReady();

@@ -1,9 +1,8 @@
-#ifndef GUI_LOCATIONS_CITYITEMDELEGATE_H
-#define GUI_LOCATIONS_CITYITEMDELEGATE_H
+#pragma once
 
 #include "iitemdelegate.h"
 
-namespace gui_location {
+namespace gui_locations {
 
 class CityItemDelegate : public IItemDelegate
 {
@@ -23,7 +22,5 @@ private:
     QString pingIconNameString(int connectionSpeedIndex) const;
 };
 
-} // namespace gui_location
+} // namespace gui_locations
 
-
-#endif // GUI_LOCATIONS_CITYITEMDELEGATE_H

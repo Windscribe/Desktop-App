@@ -11,7 +11,7 @@
 #include "types/connectstate.h"
 #include "types/proxysharinginfo.h"
 #include "types/wifisharinginfo.h"
-#include "types/locationitem.h"
+#include "types/location.h"
 
 namespace IPC
 {
@@ -372,7 +372,7 @@ public:
         return "ServerCommand::LocationsUpdated";
     }
     LocationID bestLocation_;
-    QVector<types::LocationItem> locations_;
+    QVector<types::Location> locations_;
     QString staticIpDeviceName_;
 };
 
@@ -393,7 +393,7 @@ public:
     {
         return "ServerCommand::CustomConfigLocationsUpdated";
     }
-    QVector<types::LocationItem> locations_;
+    types::Location location_;
 };
 
 

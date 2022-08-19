@@ -7,7 +7,7 @@
 #include "utils/simplecrypt.h"
 #include "types/global_consts.h"
 
-namespace gui_location {
+namespace gui_locations {
 
 void FavoriteLocationsStorage::addToFavorites(const LocationID &locationId)
 {
@@ -84,4 +84,4 @@ void FavoriteLocationsStorage::writeToSettings()
     isFavoriteLocationsSetModified_ = false;
 }
 
-} //namespace gui_location
+} //namespace gui_locations

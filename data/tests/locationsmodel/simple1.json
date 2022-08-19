@@ -1,0 +1,263 @@
+{
+  "locations": [
+    {
+      "id": {
+        "type": 1,
+        "id": 7,
+        "city": ""
+      },
+      "name": "Canada East",
+      "country_code": "CA",
+      "is_premium_only": false,
+      "is_p2p_supported": false,
+      "cities": [
+        {
+          "id": {
+            "type": 1,
+            "id": 7,
+            "city": "Toronto - Comfort Zone"
+          },
+          "name": "Toronto",
+          "nick": "Comfort Zone",
+          "ping_time": 160,
+          "is_premium_only": true,
+          "is_disabled": false,
+          "static_ip_country_code": "",
+          "static_ip_type": "",
+          "static_ip": "",
+          "custom_config_type": "CUSTOM_CONFIG_OPENVPN",
+          "custom_config_is_correct": false,
+          "custom_config_error_message": "",
+          "link_speed": 10000,
+          "health": 4
+        },
+        {
+          "id": {
+            "type": 1,
+            "id": 7,
+            "city": "Montreal - Expo 67"
+          },
+          "name": "Montreal",
+          "nick": "Expo 67",
+          "ping_time": 161,
+          "is_premium_only": true,
+          "is_disabled": false,
+          "static_ip_country_code": "",
+          "static_ip_type": "",
+          "static_ip": "",
+          "custom_config_type": "CUSTOM_CONFIG_OPENVPN",
+          "custom_config_is_correct": false,
+          "custom_config_error_message": "",
+          "link_speed": 1000,
+          "health": 16
+        },
+        {
+          "id": {
+            "type": 1,
+            "id": 7,
+            "city": "Toronto - The 6"
+          },
+          "name": "Toronto",
+          "nick": "The 6",
+          "ping_time": 176,
+          "is_premium_only": true,
+          "is_disabled": false,
+          "static_ip_country_code": "",
+          "static_ip_type": "",
+          "static_ip": "",
+          "custom_config_type": "CUSTOM_CONFIG_OPENVPN",
+          "custom_config_is_correct": false,
+          "custom_config_error_message": "",
+          "link_speed": 1000,
+          "health": 24
+        },
+        {
+          "id": {
+            "type": 1,
+            "id": 7,
+            "city": "Montreal - Bagel Poutine"
+          },
+          "name": "Montreal",
+          "nick": "Bagel Poutine",
+          "ping_time": 156,
+          "is_premium_only": true,
+          "is_disabled": false,
+          "static_ip_country_code": "",
+          "static_ip_type": "",
+          "static_ip": "",
+          "custom_config_type": "CUSTOM_CONFIG_OPENVPN",
+          "custom_config_is_correct": false,
+          "custom_config_error_message": "",
+          "link_speed": 1000,
+          "health": 17
+        },
+        {
+          "id": {
+            "type": 1,
+            "id": 7,
+            "city": "Halifax - Crosby"
+          },
+          "name": "Halifax",
+          "nick": "Crosby",
+          "ping_time": 172,
+          "is_premium_only": true,
+          "is_disabled": false,
+          "static_ip_country_code": "",
+          "static_ip_type": "",
+          "static_ip": "",
+          "custom_config_type": "CUSTOM_CONFIG_OPENVPN",
+          "custom_config_is_correct": false,
+          "custom_config_error_message": "",
+          "link_speed": 1000,
+          "health": 38
+        },
+        {
+          "id": {
+            "type": 1,
+            "id": 7,
+            "city": "Toronto - Mansbridge"
+          },
+          "name": "Toronto",
+          "nick": "Mansbridge",
+          "ping_time": 174,
+          "is_premium_only": true,
+          "is_disabled": false,
+          "static_ip_country_code": "",
+          "static_ip_type": "",
+          "static_ip": "",
+          "custom_config_type": "CUSTOM_CONFIG_OPENVPN",
+          "custom_config_is_correct": false,
+          "custom_config_error_message": "",
+          "link_speed": 1000,
+          "health": 12
+        }
+      ]
+    },
+    {
+      "id": {
+        "type": 1,
+        "id": 69,
+        "city": ""
+      },
+      "name": "Austria",
+      "country_code": "AT",
+      "is_premium_only": true,
+      "is_p2p_supported": false,
+      "cities": [
+        {
+          "id": {
+            "type": 1,
+            "id": 69,
+            "city": "Vienna - Hofburg"
+          },
+          "name": "Vienna",
+          "nick": "Hofburg",
+          "ping_time": 1202,
+          "is_premium_only": true,
+          "is_disabled": false,
+          "static_ip_country_code": "",
+          "static_ip_type": "",
+          "static_ip": "",
+          "custom_config_type": "CUSTOM_CONFIG_OPENVPN",
+          "custom_config_is_correct": false,
+          "custom_config_error_message": "",
+          "link_speed": 1000,
+          "health": 10
+        },
+        {
+          "id": {
+            "type": 1,
+            "id": 69,
+            "city": "Vienna - Boltzmann"
+          },
+          "name": "Vienna",
+          "nick": "Boltzmann",
+          "ping_time": 87,
+          "is_premium_only": true,
+          "is_disabled": false,
+          "static_ip_country_code": "",
+          "static_ip_type": "",
+          "static_ip": "",
+          "custom_config_type": "CUSTOM_CONFIG_OPENVPN",
+          "custom_config_is_correct": false,
+          "custom_config_error_message": "",
+          "link_speed": 10000,
+          "health": 3
+        }
+      ]
+    },
+    {
+      "id": {
+        "type": 1,
+        "id": 56,
+        "city": ""
+      },
+      "name": "India",
+      "country_code": "IN",
+      "is_premium_only": true,
+      "is_p2p_supported": true,
+      "cities": [
+        {
+          "id": {
+            "type": 1,
+            "id": 56,
+            "city": "Pune - Mutha"
+          },
+          "name": "Pune",
+          "nick": "Mutha",
+          "ping_time": -1,
+          "is_premium_only": true,
+          "is_disabled": false,
+          "static_ip_country_code": "",
+          "static_ip_type": "",
+          "static_ip": "",
+          "custom_config_type": "CUSTOM_CONFIG_OPENVPN",
+          "custom_config_is_correct": false,
+          "custom_config_error_message": "",
+          "link_speed": 1000,
+          "health": 4
+        },
+        {
+          "id": {
+            "type": 1,
+            "id": 56,
+            "city": "Mumbai - Mahim"
+          },
+          "name": "Mumbai",
+          "nick": "Mahim",
+          "ping_time": 231,
+          "is_premium_only": true,
+          "is_disabled": false,
+          "static_ip_country_code": "",
+          "static_ip_type": "",
+          "static_ip": "",
+          "custom_config_type": "CUSTOM_CONFIG_OPENVPN",
+          "custom_config_is_correct": false,
+          "custom_config_error_message": "",
+          "link_speed": 1000,
+          "health": -1
+        },
+        {
+          "id": {
+            "type": 1,
+            "id": 56,
+            "city": "MumbaiTest - MahimTest"
+          },
+          "name": "MumbaiTest",
+          "nick": "MahimTest",
+          "ping_time": -2,
+          "is_premium_only": true,
+          "is_disabled": false,
+          "static_ip_country_code": "",
+          "static_ip_type": "",
+          "static_ip": "",
+          "custom_config_type": "CUSTOM_CONFIG_OPENVPN",
+          "custom_config_is_correct": false,
+          "custom_config_error_message": "",
+          "link_speed": 1000,
+          "health": 12
+        }
+      ]
+    }
+  ]
+}

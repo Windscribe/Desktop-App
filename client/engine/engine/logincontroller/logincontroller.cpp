@@ -22,10 +22,10 @@ LoginController::LoginController(QObject *parent,  IHelper *helper,
     connect(serverAPI_, SIGNAL(serverCredentialsAnswer(SERVER_API_RET_CODE,QString,QString, PROTOCOL, uint)), SLOT(onServerCredentialsAnswer(SERVER_API_RET_CODE,QString,QString, PROTOCOL, uint)), Qt::QueuedConnection);
     connect(serverAPI_, SIGNAL(portMapAnswer(SERVER_API_RET_CODE, types::PortMap, uint)), SLOT(onPortMapAnswer(SERVER_API_RET_CODE, types::PortMap, uint)), Qt::QueuedConnection);
 
-    connect(serverAPI_, SIGNAL(serverLocationsAnswer(SERVER_API_RET_CODE,QVector<types::Location>,QStringList, uint)),
-                            SLOT(onServerLocationsAnswer(SERVER_API_RET_CODE, QVector<types::Location>,QStringList, uint)), Qt::QueuedConnection);
+    connect(serverAPI_, SIGNAL(serverLocationsAnswer(SERVER_API_RET_CODE,QVector<apiinfo::Location>,QStringList, uint)),
+                            SLOT(onServerLocationsAnswer(SERVER_API_RET_CODE, QVector<apiinfo::Location>,QStringList, uint)), Qt::QueuedConnection);
 
-    connect(serverAPI_, SIGNAL(staticIpsAnswer(SERVER_API_RET_CODE, types::StaticIps, uint)), SLOT(onStaticIpsAnswer(SERVER_API_RET_CODE, types::StaticIps, uint)), Qt::QueuedConnection);
+    connect(serverAPI_, SIGNAL(staticIpsAnswer(SERVER_API_RET_CODE, apiinfo::StaticIps, uint)), SLOT(onStaticIpsAnswer(SERVER_API_RET_CODE, apiinfo::StaticIps, uint)), Qt::QueuedConnection);
 
     serverApiUserRole_ = serverAPI_->getAvailableUserRole();
 }
@@ -34,7 +34,7 @@ LoginController::~LoginController()
 {
 }
 
-void LoginController::startLoginProcess(const types::LoginSettings &loginSettings, const types::DnsResolutionSettings &dnsResolutionSettings, bool bFromConnectedToVPNState)
+void LoginController::startLoginProcess(const LoginSettings &loginSettings, const types::DnsResolutionSettings &dnsResolutionSettings, bool bFromConnectedToVPNState)
 {
     if (loginSettings.isAuthHashLogin())
     {
@@ -73,7 +73,7 @@ void LoginController::onSessionAnswer(SERVER_API_RET_CODE retCode, const types::
     }
 }
 
-void LoginController::onServerLocationsAnswer(SERVER_API_RET_CODE retCode, const QVector<types::Location> &serverLocations, QStringList forceDisconnectNodes, uint userRole)
+void LoginController::onServerLocationsAnswer(SERVER_API_RET_CODE retCode, const QVector<apiinfo::Location> &serverLocations, QStringList forceDisconnectNodes, uint userRole)
 {
     if (userRole == serverApiUserRole_)
     {
@@ -112,7 +112,7 @@ void LoginController::onPortMapAnswer(SERVER_API_RET_CODE retCode, const types::
     }
 }
 
-void LoginController::onStaticIpsAnswer(SERVER_API_RET_CODE retCode, const types::StaticIps &staticIps, uint userRole)
+void LoginController::onStaticIpsAnswer(SERVER_API_RET_CODE retCode, const apiinfo::StaticIps &staticIps, uint userRole)
 {
     if (userRole == serverApiUserRole_)
     {
@@ -390,7 +390,7 @@ void LoginController::getAllConfigs()
     }
     else
     {
-        getAllConfigsController_->putStaticIpsAnswer(SERVER_RETURN_SUCCESS, types::StaticIps());
+        getAllConfigsController_->putStaticIpsAnswer(SERVER_RETURN_SUCCESS, apiinfo::StaticIps());
     }
 }
 

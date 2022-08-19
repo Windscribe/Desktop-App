@@ -187,7 +187,7 @@ MainWindow::MainWindow() :
     connect(backend_, &Backend::wireGuardAtKeyLimit, this, &MainWindow::onWireGuardAtKeyLimit);
     connect(this, &MainWindow::wireGuardKeyLimitUserResponse, backend_, &Backend::wireGuardKeyLimitUserResponse);
 
-    locationsWindow_ = new LocationsWindow(this, backend_->getLocationsModel());
+    locationsWindow_ = new LocationsWindow(this, backend_-);
     connect(locationsWindow_, SIGNAL(selected(LocationID)), SLOT(onLocationSelected(LocationID)));
     connect(locationsWindow_, SIGNAL(clickedOnPremiumStarCity()), SLOT(onClickedOnPremiumStarCity()));
     connect(locationsWindow_, SIGNAL(switchFavorite(LocationID,bool)), SLOT(onLocationSwitchFavorite(LocationID,bool)));

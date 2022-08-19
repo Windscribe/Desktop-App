@@ -1,13 +1,11 @@
-#ifndef GUI_LOCATIONS_CLICKABLEANDTOOLTIPRECTS_H
-#define GUI_LOCATIONS_CLICKABLEANDTOOLTIPRECTS_H
+#pragma once
 
 #include "iitemdelegate.h"
 
-namespace gui_location {
+namespace gui_locations {
 
 enum { TOOLTIP_P2P_RECT = 0, CLICKABLE_FAVORITE_RECT};
 
 } // namespace gui
 
 
-#endif // GUI_LOCATIONS_CLICKABLEANDTOOLTIPRECTS_H

@@ -18,14 +18,14 @@ void LocationsTrayMenuNative::setMenuType(LocationsTrayMenuType type)
         disconnect(this, SIGNAL(triggered(QAction*)), this, SLOT(onMenuActionTriggered(QAction*)));
 }
 
-void LocationsTrayMenuNative::setLocationsModel(LocationsModel *locationsModel)
+void LocationsTrayMenuNative::setLocationsModel(QAbstractItemModel *locationsModel)
 {
-    connect(locationsModel->getAllLocationsModel(), SIGNAL(itemsUpdated(QVector<LocationModelItem*>)), SLOT(onItemsUpdated(QVector<LocationModelItem *>)));
-    connect(locationsModel->getAllLocationsModel(), SIGNAL(connectionSpeedChanged(LocationID,PingTime)), SLOT(onConnectionSpeedChanged(LocationID,PingTime)));
-    connect(locationsModel->getAllLocationsModel(), SIGNAL(freeSessionStatusChanged(bool)), SLOT(onSessionStatusChanged(bool)));
-    connect(locationsModel->getFavoriteLocationsModel(), SIGNAL(itemsUpdated(QVector<CityModelItem*>)), SLOT(onFavoritesUpdated(QVector<CityModelItem *>)));
-    connect(locationsModel->getStaticIpsLocationsModel(), SIGNAL(itemsUpdated(QVector<CityModelItem*>)), SLOT(onStaticIpsUpdated(QVector<CityModelItem *>)));
-    connect(locationsModel->getConfiguredLocationsModel(), SIGNAL(itemsUpdated(QVector<CityModelItem*>)), SLOT(onCustomConfigsUpdated(QVector<CityModelItem *>)));
+    /*connect(locations->getAllLocationsModel(), SIGNAL(itemsUpdated(QVector<LocationModelItem*>)), SLOT(onItemsUpdated(QVector<LocationModelItem *>)));
+    connect(locations->getAllLocationsModel(), SIGNAL(connectionSpeedChanged(LocationID,PingTime)), SLOT(onConnectionSpeedChanged(LocationID,PingTime)));
+    connect(locations->getAllLocationsModel(), SIGNAL(freeSessionStatusChanged(bool)), SLOT(onSessionStatusChanged(bool)));
+    connect(locations->getFavoriteLocationsModel(), SIGNAL(itemsUpdated(QVector<CityModelItem*>)), SLOT(onFavoritesUpdated(QVector<CityModelItem *>)));
+    connect(locations->getStaticIpsLocationsModel(), SIGNAL(itemsUpdated(QVector<CityModelItem*>)), SLOT(onStaticIpsUpdated(QVector<CityModelItem *>)));
+    connect(locations->getConfiguredLocationsModel(), SIGNAL(itemsUpdated(QVector<CityModelItem*>)), SLOT(onCustomConfigsUpdated(QVector<CityModelItem *>)));*/
 }
 
 void LocationsTrayMenuNative::onMenuActionTriggered(QAction *action)
@@ -47,7 +47,7 @@ void LocationsTrayMenuNative::onSubmenuActionTriggered(QAction *action)
     emit locationSelected(locationType_, action->whatsThis(), menu->actions().indexOf(action));
 }
 
-void LocationsTrayMenuNative::onItemsUpdated(QVector<LocationModelItem *> items)
+/*void LocationsTrayMenuNative::onItemsUpdated(QVector<LocationModelItem *> items)
 {
     if (locationType_ != LOCATIONS_TRAY_MENU_TYPE_GENERIC)
         return;
@@ -171,7 +171,7 @@ void LocationsTrayMenuNative::onCustomConfigsUpdated(QVector<CityModelItem*> ite
     }
 
     rebuildMenu();
-}
+}*/
 
 void LocationsTrayMenuNative::onSessionStatusChanged(bool bFreeSessionStatus)
 {

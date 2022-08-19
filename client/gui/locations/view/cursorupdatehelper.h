@@ -1,9 +1,8 @@
-#ifndef CURSORUPDATEHELPER_H
-#define CURSORUPDATEHELPER_H
+#pragma once
 
 #include <QWidget>
 
-namespace gui_location {
+namespace gui_locations {
 
 class CursorUpdateHelper
 {
@@ -21,6 +20,5 @@ private:
     Qt::CursorShape currentCursor_;
 };
 
-} // namespace gui_location
+} // namespace gui_locations
 
-#endif // CURSORUPDATEHELPER_H

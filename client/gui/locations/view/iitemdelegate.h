@@ -1,11 +1,10 @@
-#ifndef GUI_LOCATIONS_IITEMDELEGATE_H
-#define GUI_LOCATIONS_IITEMDELEGATE_H
+#pragma once
 
 #include <QWidget>
 #include <QAbstractItemModel>
 #include <QStyleOption>
 
-namespace gui_location {
+namespace gui_locations {
 
 class ItemStyleOption : public QStyleOption
 {
@@ -63,7 +62,6 @@ public:
     virtual int isInTooltipArea(const QModelIndex &index, const QPoint &point) const = 0;
 };
 
-} // namespace gui_location
+} // namespace gui_locations
 
 
-#endif // GUI_LOCATIONS_IITEMDELEGATE_H

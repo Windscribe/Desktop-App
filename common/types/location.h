@@ -1,78 +1,59 @@
-#ifndef TYPES_LOCATION_H
-#define TYPES_LOCATION_H
+#pragma once
 
-#include <QVector>
-#include <QJsonObject>
-#include <QSharedPointer>
-#include "group.h"
+#include "enums.h"
+#include "locationid.h"
+#include "pingtime.h"
 
 namespace types {
 
-class LocationData : public QSharedData
+struct City
 {
-public:
-    LocationData() : id_(0), premiumOnly_(0), p2p_(0),
-        isValid_(false) {}
+    LocationID id;
+    QString city;
+    QString nick;
+    PingTime pingTimeMs;
+    bool isPro = false;
+    bool isDisabled = false;
 
-    LocationData(const LocationData &other)
-        : QSharedData(other),
-          id_(other.id_),
-          name_(other.name_),
-          countryCode_(other.countryCode_),
-          premiumOnly_(other.premiumOnly_),
-          p2p_(other.p2p_),
-          dnsHostName_(other.dnsHostName_),
-          groups_(other.groups_),
-          isValid_(other.isValid_) {}
-    ~LocationData() {}
+    // specific for static IP location
+    QString staticIpCountryCode;
+    QString staticIpType;
+    QString staticIp;
 
-    int id_;
-    QString name_;
-    QString countryCode_;
-    int premiumOnly_;
-    int p2p_;
-    QString dnsHostName_;
+    // specific for custom config location
+    CUSTOM_CONFIG_TYPE customConfigType = CUSTOM_CONFIG_OPENVPN;
+    bool customConfigIsCorrect = false;
+    QString customConfigErrorMessage;
 
-    QVector<Group> groups_;
+    int linkSpeed = 100;
+    int health = 0;
 
-    // internal state
-    bool isValid_;
+    bool operator==(const City &other) const;
+    bool operator!=(const City &other) const;
 };
 
-// implicitly shared class Location
-class Location
+struct Location
 {
-public:
-    explicit Location() : d(new LocationData) {}
-    Location(const Location &other) : d (other.d) {}
+    LocationID id;
+    QString name;
+    QString countryCode;
+    bool isPremiumOnly = false;
+    bool isNoP2P = false;
+    QVector<City> cities;
 
-    bool initFromJson(const QJsonObject &obj, QStringList &forceDisconnectNodes);
+    bool operator==(const Location &other) const;
+    bool operator!=(const Location &other) const;
 
-    int getId() const { Q_ASSERT(d->isValid_); return d->id_; }
-    QString getName() const { Q_ASSERT(d->isValid_); return d->name_; }
-    QString getCountryCode() const { Q_ASSERT(d->isValid_); return d->countryCode_; }
-    QString getDnsHostName() const { Q_ASSERT(d->isValid_); return d->dnsHostName_; }
-    bool isPremiumOnly() const { Q_ASSERT(d->isValid_); return d->premiumOnly_; }
-    int getP2P() const { Q_ASSERT(d->isValid_); return d->p2p_; }
-
-    int groupsCount() const { Q_ASSERT(d->isValid_); return d->groups_.count(); }
-    Group getGroup(int ind) const { Q_ASSERT(d->isValid_); return d->groups_.at(ind); }
-    void addGroup(const Group &group) { Q_ASSERT(d->isValid_); d->groups_.append(group); }
-
-    QStringList getAllPingIps() const;
-
-    bool operator == (const Location &other) const;
-    bool operator != (const Location &other) const;
-
-    friend QDataStream& operator <<(QDataStream& stream, const Location& l);
-    friend QDataStream& operator >>(QDataStream& stream, Location& l);
+    // utils functions
+    static QVector<Location> loadLocationsFromJson(const QByteArray &arr);
+    static Location loadLocationFromJson(const QByteArray &arr);
 
 private:
-    QSharedDataPointer<LocationData> d;
-    static constexpr quint32 versionForSerialization_ = 1;
+    static Location locationFromJsonObject(const QJsonObject &obj);
+
 };
+
+
 
 
 } //namespace types
-
-#endif // TYPES_LOCATION_H
