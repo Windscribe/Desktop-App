@@ -42,7 +42,7 @@ private slots:
 
 private:
     void updatePositions();
-    void updateProtocol(PROTOCOL protocol);
+    void updatePorts(PROTOCOL protocol);
     void updateMode();
     PreferencesHelper *preferencesHelper_;
 

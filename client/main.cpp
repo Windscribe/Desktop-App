@@ -14,7 +14,6 @@
 #include "gui/application/singleappinstance.h"
 
 #ifdef Q_OS_WIN
-    #include "gui/utils/scaleutils_win.h"
     #include "utils/crashhandler.h"
     #include "utils/installedantiviruses_win.h"
     #include "engine/taputils/tapinstall_win.h"
@@ -27,10 +26,10 @@
     #include <signal.h>
 #endif
 
-#if (QT_VERSION != QT_VERSION_CHECK(6, 2, 4))
+#if (QT_VERSION != QT_VERSION_CHECK(6, 3, 1))
 // The installer/uninstaller, and winutils.h, use the 'QtWindowIcon' identifier in the
 // FindWindow API.  Unfortunately, said icon is named after the Qt6 version, so we'll
-// need to update all references to 'Qt624QWindowIcon' to the new version name when the
+// need to update all references to 'Qt631QWindowIcon' to the new version name when the
 // Qt version changes.
 #error Code fixup required due to Qt version change.  Please see comment above.
 #endif
@@ -115,6 +114,11 @@ int main(int argc, char *argv[])
 #endif
 
     qputenv("QT_EVENT_DISPATCHER_CORE_FOUNDATION", "1");
+
+    #ifdef Q_OS_WIN
+    // Fixes blurry text and graphics on Windows when a high-DPI display is set to a fractional scaling value (e.g. 150%).
+    QGuiApplication::setHighDpiScaleFactorRoundingPolicy(Qt::HighDpiScaleFactorRoundingPolicy::RoundPreferFloor);
+    #endif
 
     WindscribeApplication a(argc, argv);
 

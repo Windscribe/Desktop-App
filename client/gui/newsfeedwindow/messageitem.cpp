@@ -23,6 +23,7 @@ MessageItem::MessageItem(QGraphicsObject *parent, int width, QString msg) : Scal
     textBrowser_->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     textBrowser_->setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
     textBrowser_->installEventFilter(this);
+    textBrowser_->setContextMenuPolicy(Qt::NoContextMenu);
 
     QTextDocument *doc = textBrowser_->document();
     doc->setHtml(msg_);

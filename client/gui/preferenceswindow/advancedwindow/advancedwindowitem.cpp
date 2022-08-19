@@ -61,7 +61,7 @@ AdvancedWindowItem::AdvancedWindowItem(ScalableGraphicsObject *parent, Preferenc
     addItem(ipv6Group_);
 #endif
 
-    apiResolutionGroup_ = new ApiResolutionGroup(this, "Resolve API address automatically, or override to use an IP address (usually provided by the Support team, in cases where API resolution fails).", "");
+    apiResolutionGroup_ = new ApiResolutionGroup(this, "Resolve server API address automatically, or use an IP address provided by the Support team.");
     apiResolutionGroup_->setApiResolution(preferences->apiResolution());
     connect(apiResolutionGroup_, &ApiResolutionGroup::apiResolutionChanged, this, &AdvancedWindowItem::onApiResolutionChanged);
     addItem(apiResolutionGroup_);
@@ -82,7 +82,7 @@ AdvancedWindowItem::AdvancedWindowItem(ScalableGraphicsObject *parent, Preferenc
     keepAliveGroup_->addItem(cbKeepAlive_);
     addItem(keepAliveGroup_);
 
-    internalDnsGroup_ = new PreferenceGroup(this, "Choose what DNS resolver / service the app should use for its internal use (to resolve hostnames of servers, API, etc.)", "");
+    internalDnsGroup_ = new PreferenceGroup(this, "Windscribe uses this DNS server to resolve addresses outside the VPN.");
     comboBoxAppInternalDns_ = new ComboBoxItem(internalDnsGroup_, QT_TRANSLATE_NOOP("PreferencesWindow::ComboBoxItem", "App Internal DNS"), QString());
     comboBoxAppInternalDns_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/INTERNAL_DNS"));
     const QList< QPair<QString, int> > dnsTypes = DNS_POLICY_TYPE_toList();

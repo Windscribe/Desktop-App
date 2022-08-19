@@ -94,7 +94,8 @@ struct GuiSettings
         dbg << "isMinimizeAndCloseToTray:" << gs.isMinimizeAndCloseToTray << "; ";
         dbg << "backgroundSettings:" << gs.backgroundSettings << "; ";
         dbg << "isStartMinimized:" << gs.isStartMinimized << "; ";
-        dbg << "isShowLocationHealth:" << gs.isShowLocationHealth << "}";
+        dbg << "isShowLocationHealth:" << gs.isShowLocationHealth << "; ";
+        dbg << "isAutoSecureNetworks:" << gs.isAutoSecureNetworks << "}";
 
         return dbg;
 

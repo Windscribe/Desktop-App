@@ -57,8 +57,6 @@ void ProtocolGroup::setConnectionSettings(const types::ConnectionSettings &cm)
     {
         checkBoxEnable_->setState(!settings_.isAutomatic);
     }
-    protocolItem_->setCurrentItem(settings_.protocol.toInt());
-    portItem_->setCurrentItem(settings_.port);
     updateMode();
 }
 
@@ -77,7 +75,7 @@ void ProtocolGroup::onPortMapChanged()
         }
         protocolItem_->setCurrentItem(protocols.begin()->toInt());
         protocolItem_->setMaxMenuItemsShowing(protocols.count());
-        updateProtocol(*protocols.begin());
+        updatePorts(*protocols.begin());
         protocolItem_->setClickable(true);
         portItem_->setClickable(true);
     }
@@ -106,7 +104,7 @@ void ProtocolGroup::onCheckBoxStateChanged(bool isChecked)
 
 void ProtocolGroup::onProtocolChanged(QVariant value)
 {
-    updateProtocol(PROTOCOL(value.toInt()));
+    updatePorts(PROTOCOL(value.toInt()));
 
     settings_.protocol = PROTOCOL(protocolItem_->currentItem().toInt());
     settings_.port = portItem_->currentItem().toInt();
@@ -128,11 +126,13 @@ void ProtocolGroup::updateMode()
     else if (isPortMapInitialized_)
     {
         showItems(indexOf(protocolItem_), indexOf(portItem_));
-        updateProtocol(settings_.protocol.toInt());
+        updatePorts(settings_.protocol.toInt());
+        protocolItem_->setCurrentItem(settings_.protocol.toInt());
+        portItem_->setCurrentItem(settings_.port);
     }
 }
 
-void ProtocolGroup::updateProtocol(PROTOCOL protocol)
+void ProtocolGroup::updatePorts(PROTOCOL protocol)
 {
     portItem_->clear();
 
