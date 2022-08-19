@@ -4,6 +4,7 @@
 #include <QSequentialAnimationGroup>
 #include <QScreen>
 #include <QWindow>
+
 #include "loginwindow/loginwindowitem.h"
 #include "loginwindow/logginginwindowitem.h"
 #include "loginwindow/initwindowitem.h"
@@ -285,34 +286,42 @@ void MainWindowController::updateMaskForGraphicsView()
 
 void MainWindowController::setWindowPosFromPersistent()
 {
-    if (PersistentState::instance().isWindowPosExists())
-    {
-        bool pointInExistingScreen = false;
-        QPoint lastAppPt = PersistentState::instance().windowPos();
-        const auto screenList = qApp->screens();
-        for (QScreen *screen : screenList)
-        {
-            if (screen->geometry().contains(lastAppPt))
-            {
-                pointInExistingScreen = true;
-                break;
-            }
-        }
+    // Leaving this here and active to debug future issues for customers.  I verfied no
+    // startup cost is incurred, even on slow hardware.
+    for (auto screen : qApp->screens()) {
+        qCDebug(LOG_BASIC) << "setWindowPosFromPersistent() - screen" << screen->name() << "- geometry" << screen->geometry() << "- virtualGeometry" << screen->virtualGeometry();
+    }
 
-        if (pointInExistingScreen)
-        {
-            QPoint pt = PersistentState::instance().windowPos();
-            mainWindow_->setGeometry(pt.x(), pt.y(), mainWindow_->width(), mainWindow_->height());
-        }
-        else
-        {
-            centerMainGeometryAndUpdateView();
-        }
-    }
-    else
+    if (PersistentState::instance().haveAppGeometry())
     {
-        centerMainGeometryAndUpdateView();
+        if (mainWindow_->restoreGeometry(PersistentState::instance().appGeometry()))
+        {
+            qCDebug(LOG_BASIC) << "setWindowPosFromPersistent() - restored app geometry:" << mainWindow_->geometry();
+
+            // Qt's restoreGeometry may restore the app onto a display that is no longer attached. According to the Qt
+            // documentation, it is supposed to take detached displays into account, and appears to do a pretty good
+            // job most of the time.  I did encounter sporadic occasions on a Windows laptop where Qt would restore
+            // the app offscreen when the app was on an external display and the display was no longer attached (see
+            // QTBUG-77385).  The check below should catch this edge case.  Note that we are using virtualGeometry()
+            // here rather than geometry() due to the issues noted in ticket #411.
+            for (auto screen : qApp->screens())
+            {
+                if (screen->virtualGeometry().contains(mainWindow_->pos())) {
+                    return;
+                }
+            }
+
+            qCDebug(LOG_BASIC) << "setWindowPosFromPersistent() - did not locate a display containing restored app position:" << mainWindow_->pos();
+        }
+        else {
+            qCDebug(LOG_BASIC) << "setWindowPosFromPersistent() - restoreGeometry failed";
+        }
     }
+    else {
+        qCDebug(LOG_BASIC) << "setWindowPosFromPersistent() - saved app geometry was not found";
+    }
+
+    centerMainGeometryAndUpdateView();
 }
 
 void MainWindowController::setIsDockedToTray(bool isDocked)
@@ -3131,6 +3140,7 @@ void MainWindowController::centerMainGeometryAndUpdateView()
         QScreen *primaryScreen = qApp->primaryScreen();
         if (primaryScreen)
         {
+            qCDebug(LOG_BASIC) << "centerMainGeometryAndUpdateView() - screen" << primaryScreen->name() << "geometry" << primaryScreen->geometry();
             int screenWidth = primaryScreen->geometry().width();
             int screenHeight = primaryScreen->geometry().height();
             mainWindow_->setGeometry((screenWidth - widthWithShadow) / 2, (screenHeight - heightWithShadow) / 2, widthWithShadow, heightWithShadow);

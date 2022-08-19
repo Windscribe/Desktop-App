@@ -116,8 +116,10 @@ int main(int argc, char *argv[])
     qputenv("QT_EVENT_DISPATCHER_CORE_FOUNDATION", "1");
 
     #ifdef Q_OS_WIN
-    // Fixes blurry text and graphics on Windows when a high-DPI display is set to a fractional scaling value (e.g. 150%).
-    QGuiApplication::setHighDpiScaleFactorRoundingPolicy(Qt::HighDpiScaleFactorRoundingPolicy::RoundPreferFloor);
+    // Fixes fuzzy text and graphics on Windows when a display is set to a fractional scaling value (e.g. 150%).
+    // Warning: I tried Round and RoundPreferFloor on Qt 6.2.4 and 6.3.1, but they produce strange clipping
+    // behavior when one minimizes the app, changes the display's scale, then restores the app.
+    QGuiApplication::setHighDpiScaleFactorRoundingPolicy(Qt::HighDpiScaleFactorRoundingPolicy::Floor);
     #endif
 
     WindscribeApplication a(argc, argv);

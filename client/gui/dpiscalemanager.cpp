@@ -115,7 +115,7 @@ QRect DpiScaleManager::curScreenGeometry() const
 {
     // Due to a Qt bug in Windows, the screen geometry is incorrect when onLogicalDotsPerInchChanged is called.
     // QScreen::geometry() and QScreen::availableGeometry() will return the geometry of the screen as it was
-    // BEFORE the DPI change.  For example, if you change the scaling factor on a 1080P display from 150% to
+    // BEFORE the scale change.  For example, if we change the scaling factor on a 1080P display from 150% to
     // the recommended non-scaled 100%, calling QScreen::geometry() in onLogicalDotsPerInchChanged gives us
     // the geometry of the display at the 150% scale factor.
     // Therefore, we'll delay getting the geometry until someone actually requires it, and we're only going
