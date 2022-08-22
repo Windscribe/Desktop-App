@@ -202,9 +202,9 @@ void LocationsModel::changeConnectionSpeed(LocationID id, PingTime speed)
                 {
                     it.value()->setPingTimeForCity(c, speed);
                     QModelIndex locationModelInd = index(ind, 0);
-                    emit dataChanged(locationModelInd, locationModelInd);
+                    emit dataChanged(locationModelInd, locationModelInd, QList<int>() << PING_TIME);
                     QModelIndex cityModelInd = index(c, 0, locationModelInd);
-                    emit dataChanged(cityModelInd, cityModelInd);
+                    emit dataChanged(cityModelInd, cityModelInd, QList<int>() << PING_TIME);
                     break;
                 }
             }
@@ -217,7 +217,7 @@ void LocationsModel::changeConnectionSpeed(LocationID id, PingTime speed)
         if (!id.isCustomConfigsLocation() && !id.isStaticIpsLocation() && locations_[0]->location().id == id.apiLocationToBestLocation())
         {
             locations_[0]->setPingTimeForCity(0, speed);
-            emit dataChanged(index(0, 0), index(0, 0));
+            emit dataChanged(index(0, 0), index(0, 0), QList<int>() << PING_TIME);
         }
     }
 }
@@ -355,7 +355,7 @@ bool LocationsModel::setData(const QModelIndex &index, const QVariant &value, in
             {
                 favoriteLocationsStorage_.removeFromFavorites(lid);
             }
-            emit dataChanged(index, index);
+            emit dataChanged(index, index, QList<int>() << IS_FAVORITE);
             return true;
         }
     }
@@ -453,7 +453,7 @@ QVariant LocationsModel::dataForLocation(int row, int role) const
 {
     if (role == Qt::DisplayRole)
     {
-        return locations_[row]->location().name + " - " + locations_[row]->location().countryCode + " - " + QString::number(locations_[row]->averagePing()) + " - " + QString::number(isFreeSessionStatus_);
+        return locations_[row]->location().name;
     }
     else if (role == IS_TOP_LEVEL_LOCATION)
     {
@@ -505,9 +505,12 @@ QVariant LocationsModel::dataForCity(LocationItem *l, int row, int role) const
 {
     if (role == Qt::DisplayRole)
     {
-        LocationID lid = l->location().cities[row].id;
-        bool bFavorite = favoriteLocationsStorage_.isFavorite(lid);
-        return l->location().cities[row].city + " - " + l->location().cities[row].nick + " - " + QString::number(l->location().cities[row].pingTimeMs.toInt()) + " - " + QString::number(bFavorite);
+        if (l->location().cities[row].id.isStaticIpsLocation()) {
+            return l->location().cities[row].city + " - " + l->location().cities[row].staticIp;
+        }
+        else  {
+            return l->location().cities[row].city + " - " + l->location().cities[row].nick;
+        }
     }
     else if (role == LOCATION_ID)
     {

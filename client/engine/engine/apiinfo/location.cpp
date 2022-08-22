@@ -6,6 +6,7 @@
 #include <QJsonArray>
 
 const int typeIdApiLocation = qRegisterMetaType<apiinfo::Location>("apiinfo::Location");
+const int typeIdApiLocationVector = qRegisterMetaType<QVector<apiinfo::Location>>("QVector<apiinfo::Location>");
 
 namespace apiinfo {
 
