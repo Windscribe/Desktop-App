@@ -48,6 +48,12 @@ bool DpiScaleManager::setMainWindow(QWidget *mainWindow)
     connect(qApp, &QGuiApplication::screenAdded, this, &DpiScaleManager::onScreenAdded);
 
     QScreen *screen = mainWindow_->screen();
+
+    if (screen == nullptr) {
+        qCDebug(LOG_BASIC) << "DpiScaleManager::setMainWindow - WARNING mainWindow_->screen() is null";
+        return false;
+    }
+
     curGeometry_ = GetGeometryForScreen(screen);
 
     if (screen->logicalDotsPerInch() != curDPI_ || !qFuzzyCompare(curDevicePixelRatio_, screen->devicePixelRatio()))
