@@ -41,9 +41,8 @@ public slots:
 
 signals:
     void heightChanged();
-    void selected(LocationID id);
+    void selected(const LocationID &lid);
     void clickedOnPremiumStarCity();
-    void switchFavorite(LocationID id, bool isFavorite);
     void addStaticIpClicked();
     void clearCustomConfigClicked();
     void addCustomConfigClicked();

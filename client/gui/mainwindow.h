@@ -22,6 +22,7 @@
 #include "systemtray/locationstraymenuwidget.h"
 #include "dialogs/advancedparametersdialog.h"
 #include "types/checkupdate.h"
+#include "locations/model/selectedlocation.h"
 
 #if defined(Q_OS_MAC)
 #define USE_LOCATIONS_TRAY_MENU_NATIVE
@@ -146,9 +147,8 @@ private slots:
     void onExitWindowReject();
 
     // locations window signals
-    void onLocationSelected(LocationID id);
+    void onLocationSelected(const LocationID &lid);
     void onClickedOnPremiumStarCity();
-    void onLocationSwitchFavorite(LocationID id, bool isFavorite);
     void onLocationsAddStaticIpClicked();
     void onLocationsClearCustomConfigClicked();
     void onLocationsAddCustomConfigClicked();
@@ -194,11 +194,8 @@ private slots:
     void onBackendWebSessionTokenForAddEmail(const QString &tempSessionToken);
 
     void onBackendEngineCrash();
-    void onBackendLocationsUpdated();
 
     void onNotificationControllerNewPopupMessage(int messageId);
-
-    void onBestLocationChanged(const LocationID &bestLocation);
 
     // preferences changes signals
     void onPreferencesFirewallSettingsChanged(const types::FirewallSettings &fm);
@@ -247,7 +244,7 @@ private slots:
     void onTrayMenuHelpMe();
     void onTrayMenuQuit();
     void onTrayMenuAboutToShow();
-    void onLocationsTrayMenuLocationSelected(int type, QString locationTitle, int cityIndex);
+    void onLocationsTrayMenuLocationSelected(const LocationID &lid);
 
     void onFreeTrafficNotification(const QString &message);
     void onNativeInfoErrorMessage(QString title, QString desc);
@@ -266,6 +263,10 @@ private slots:
     void onAdvancedParametersCancelClick();
 
     void onWireGuardAtKeyLimit();
+
+    // Selected location signals
+    void onSelectedLocationChanged();
+    void onSelectedLocationRemoved();
 
 private:
     void gotoLoginWindow();
@@ -331,6 +332,8 @@ private:
     bool isInitializationAborted_;
     bool isLoginOkAndConnectWindowVisible_;
     static constexpr int TIME_BEFORE_SHOW_SHUTDOWN_WINDOW = 1500;   // ms
+
+    QScopedPointer<gui_locations::SelectedLocation> selectedLocation_;
 
     void hideSupplementaryWidgets();
 

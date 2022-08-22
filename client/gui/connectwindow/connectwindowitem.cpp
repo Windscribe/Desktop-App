@@ -204,25 +204,16 @@ void ConnectWindowItem::updateScaling()
     updatePositions();
 }
 
-void ConnectWindowItem::updateLocationInfo(LocationID id, const QString &firstName, const QString &secondName, const QString &countryCode, PingTime pingTime)
+void ConnectWindowItem::updateLocationInfo(const QString &firstName, const QString &secondName, const QString &countryCode, PingTime pingTime)
 {
-    // qDebug() << "updateLocationInfo:" << countryCode;
-    locationID_ = id;
-
-    fullFirstName_ = firstName;
-    fullSecondName_ = secondName;
-
+    if (fullFirstName_ != firstName || fullSecondName_ != secondName)
+    {
+        fullFirstName_ = firstName;
+        fullSecondName_ = secondName;
+        updateShortenedText();
+    }
     background_->onLocationSelected(countryCode);
     serverRatingIndicator_->setPingTime(pingTime);
-    updateShortenedText();
-
-    //updateFavoriteState(id, isFavorite);  // todo: remove it?
-}
-
-void ConnectWindowItem::updateLocationSpeed(LocationID id, PingTime speed)
-{
-    if (locationID_ == id)
-        serverRatingIndicator_->setPingTime(speed);
 }
 
 void ConnectWindowItem::updateConnectState(const types::ConnectState &newConnectState)
@@ -251,23 +242,6 @@ void ConnectWindowItem::updateLocationsState(bool isExpanded)
 {
     locationsButton_->onLocationsExpandStateChanged(isExpanded);
 }
-
-void ConnectWindowItem::updateFavoriteState(LocationID id, bool isFavorite)
-{
-    if (id == locationID_)
-    {
-        favorite_ = isFavorite;
-        if (isFavorite)
-        {
-            //favoriteButton_->setIcon("FAV_SELECTED");
-        }
-        else
-        {
-            //favoriteButton_->setIcon("FAV_DESELECTED");
-        }
-    }
-}
-
 
 void ConnectWindowItem::updateMyIp(const QString &ip)
 {

@@ -54,9 +54,8 @@ public:
     QModelIndex	index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
     QModelIndex	parent(const QModelIndex &index) const override;
     int	rowCount(const QModelIndex &parent = QModelIndex()) const override;
-    Qt::ItemFlags flags(const QModelIndex &index) const override;
-
     bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
+    Qt::ItemFlags flags(const QModelIndex &index) const override;
 
     QModelIndex getIndexByLocationId(const LocationID &id) const;
     QModelIndex getBestLocationIndex() const;
@@ -64,6 +63,9 @@ public:
     // Could be region name, country code, server name
     // for example "Toronto", "The Six", "CA", "Canada East" would all be valid
     QModelIndex getIndexByFilter(const QString &strFilter) const;
+
+    // the client of the class must explicitly save locations  if required
+    void saveFavoriteLocations();
 
 signals:
     void deviceNameChanged(const QString &deviceName);

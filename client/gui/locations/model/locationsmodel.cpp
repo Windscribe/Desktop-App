@@ -1,210 +1,6 @@
 #include "locationsmodel.h"
+#include "locationsmodel_utils.h"
 #include "../locationsmodel_roles.h"
-#include <QDebug>
-
-namespace {
-
-// vector with hash to speed up search
-class LocationVector : public QVector<types::Location>
-{
-public:
-    LocationVector(const QVector<types::Location> &locations) : QVector<types::Location>(locations)
-    {
-        for (int i = 0; i < locations.size(); i++)
-        {
-            map[locations[i].id] = i;
-        }
-    }
-
-    QHash<LocationID, int> map;
-};
-
-class CityVector : public QVector<types::City>
-{
-public:
-    CityVector(const QVector<types::City> &cities) : QVector<types::City>(cities)
-    {
-        for (int i = 0; i < cities.size(); i++)
-        {
-            map[cities[i].id] = i;
-        }
-    }
-
-    QHash<LocationID, int> map;
-};
-
-
-// utils functions
-QVector<int> findRemovedLocations(const QVector<gui_locations::LocationItem *> &original, const LocationVector &changed)
-{
-    QVector<int> v;
-    for (int ind = 0; ind < original.size(); ++ind)
-    {
-        LocationID lid = original[ind]->location().id;
-        // skip the best location and custom configs location
-        if (lid.isBestLocation() || lid.isCustomConfigsLocation())
-        {
-            continue;
-        }
-
-        if (!changed.map.contains(original[ind]->location().id))
-        {
-            v << ind;
-        }
-    }
-    return v;
-}
-
-QVector<int> findNewLocations(const QHash<LocationID, gui_locations::LocationItem *> &mapLocations, const LocationVector &changed)
-{
-    QVector<int> v;
-    for (int ind = 0; ind < changed.size(); ++ind)
-    {
-        if (!mapLocations.contains(changed[ind].id))
-        {
-            v << ind;
-        }
-    }
-    return v;
-}
-
-QVector<QPair<int, types::Location> > findChangedLocations(const QVector<gui_locations::LocationItem *> &original, const LocationVector &changed)
-{
-    QVector<QPair<int, types::Location> > v;
-    for (int ind = 0; ind < original.size(); ++ind)
-    {
-        LocationID lid = original[ind]->location().id;
-        // skip the best location and custom configs location
-        if (lid.isBestLocation() || lid.isCustomConfigsLocation())
-        {
-            continue;
-        }
-
-        auto it = changed.map.find(lid);
-        if (it != changed.map.end())
-        {
-            if (original[ind]->location() != changed[it.value()])
-            {
-                v << qMakePair(ind, changed[it.value()]);
-            }
-        }
-        else
-        {
-            Q_ASSERT(false);
-        }
-    }
-    return v;
-}
-
-QVector<int> findMovedLocations(const QVector<gui_locations::LocationItem *> &original, const LocationVector &changed, bool &outFound)
-{
-    outFound = false;
-    QVector<int> v;
-    for (int ind = 0; ind < original.size(); ++ind)
-    {
-        LocationID lid = original[ind]->location().id;
-        // skip the best location and custom configs location
-        if (lid.isBestLocation() || lid.isCustomConfigsLocation())
-        {
-            v << ind;
-            continue;
-        }
-
-        auto it = changed.map.find(lid);
-        if (it != changed.map.end())
-        {
-            if (ind != it.value())
-            {
-                outFound = true;
-            }
-            v << it.value();
-        }
-        else
-        {
-            Q_ASSERT(false);
-        }
-    }
-
-    return v;
-}
-
-QVector<int> findRemovedCities(const QVector<types::City> &original, const CityVector &changed)
-{
-    QVector<int> v;
-    for (int ind = 0; ind < original.size(); ++ind)
-    {
-        if (!changed.map.contains(original[ind].id))
-        {
-            v << ind;
-        }
-    }
-    return v;
-}
-
-QVector<int> findNewCities(const QVector<types::City> &original, const CityVector &changed)
-{
-    QVector<int> v;
-    for (int ind = 0; ind < changed.size(); ++ind)
-    {
-        LocationID lid = changed[ind].id;
-        if (std::find_if(original.begin(), original.end(),
-                     [&](const types::City &city) {
-                        return lid == city.id;
-                    }) == std::end(original))
-        {
-            v << ind;
-        }
-    }
-    return v;
-}
-
-QVector<QPair<int, types::City> > findChangedCities(const QVector<types::City> &original, const CityVector &changed)
-{
-    Q_ASSERT(original.size() == changed.size());
-    QVector<QPair<int, types::City> > v;
-    for (int ind = 0; ind < original.size(); ++ind)
-    {
-        auto it = changed.map.find(original[ind].id);
-        if (it != changed.map.end())
-        {
-            if (original[ind] != changed[it.value()])
-            {
-                v << qMakePair(ind, changed[it.value()]);
-            }
-        }
-        else
-        {
-            Q_ASSERT(false);
-        }
-    }
-    return v;
-}
-
-QVector<int> findMovedCities(const QVector<types::City> &original, const CityVector &changed, bool &outFound)
-{
-    Q_ASSERT(original.size() == changed.size());
-    outFound = false;
-    QVector<int> v;
-    for (int ind = 0; ind < original.size(); ++ind)
-    {
-        auto it = changed.map.find(original[ind].id);
-        if (it != changed.map.end())
-        {
-            if (ind != it.value())
-            {
-                outFound = true;
-            }
-            v << it.value();
-        }
-        else
-        {
-            Q_ASSERT(false);
-        }
-    }
-
-    return v;
-}
-} // namespace
 
 namespace gui_locations {
 
@@ -216,7 +12,6 @@ LocationsModel::LocationsModel(QObject *parent) : QAbstractItemModel(parent), is
 
 LocationsModel::~LocationsModel()
 {
-    favoriteLocationsStorage_.writeToSettings();
     clearLocations();
     delete root_;
 }
@@ -240,9 +35,9 @@ void LocationsModel::updateLocations(const LocationID &bestLocation, const QVect
     }
     else
     {
-        const LocationVector newLocationsVector(newLocations);
+        const utils::LocationsVector newLocationsVector(newLocations);
 
-        QVector<int> removedInds = findRemovedLocations(locations_, newLocationsVector);
+        QVector<int> removedInds = utils::findRemovedLocations(locations_, newLocationsVector);
         for (int i = removedInds.size() - 1; i >= 0; i--)
         {
             int removedInd = removedInds[i];
@@ -253,7 +48,7 @@ void LocationsModel::updateLocations(const LocationID &bestLocation, const QVect
             endRemoveRows();
         }
 
-        QVector<int> newInds = findNewLocations(mapLocations_, newLocationsVector);
+        QVector<int> newInds = utils::findNewLocations(mapLocations_, newLocationsVector);
         int bestLocationOffs = 0;
         if (locations_.size() > 0 && locations_[0]->location().id.isBestLocation())
         {
@@ -268,33 +63,33 @@ void LocationsModel::updateLocations(const LocationID &bestLocation, const QVect
             endInsertRows();
         }
 
-        QVector<QPair<int, types::Location> > changedInds = findChangedLocations(locations_, newLocationsVector);
+        QVector<QPair<int, int> > changedInds = utils::findChangedLocations(locations_, newLocationsVector);
         for (const auto &i : changedInds)
         {
-            handleChangedLocation(i.first, i.second);
+            handleChangedLocation(i.first, newLocationsVector[i.second]);
         }
 
         bool isFoundMovedLocations;
-        QVector<int> movedLocationsInds = findMovedLocations(locations_, newLocationsVector, isFoundMovedLocations);
+        QVector<int> locationsInds = utils::findMovedLocations(locations_, newLocationsVector, isFoundMovedLocations);
         if (isFoundMovedLocations)
         {
             // Selection sort algorithm
-            for (int i = 0; i < movedLocationsInds.size(); i++)
+            for (int i = 0; i < locationsInds.size(); i++)
             {
-                int minz = movedLocationsInds[i];
+                int minz = locationsInds[i];
                 int ind = i;
-                for (int j = i + 1; j < movedLocationsInds.size(); j++)
+                for (int j = i + 1; j < locationsInds.size(); j++)
                 {
-                    if (movedLocationsInds[j] < minz)
+                    if (locationsInds[j] < minz)
                     {
-                        minz = movedLocationsInds[j];
+                        minz = locationsInds[j];
                         ind = j;
                     }
                 }
                 if (i != ind)
                 {
                     beginMoveRows(QModelIndex(), ind, ind, QModelIndex(), i);
-                    movedLocationsInds.move(ind, i);
+                    locationsInds.move(ind, i);
                     locations_.move(ind, i);
                     endMoveRows();
                 }
@@ -535,18 +330,6 @@ int LocationsModel::rowCount(const QModelIndex &parent) const
     return 0;
 }
 
-Qt::ItemFlags LocationsModel::flags(const QModelIndex &index) const
-{
-    if (!index.parent().isValid())
-    {
-        return Qt::NoItemFlags;
-    }
-    else
-    {
-        return Qt::ItemNeverHasChildren;
-    }
-}
-
 bool LocationsModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
     if (role == IS_FAVORITE)
@@ -577,6 +360,27 @@ bool LocationsModel::setData(const QModelIndex &index, const QVariant &value, in
         }
     }
     return false;
+}
+
+Qt::ItemFlags LocationsModel::flags(const QModelIndex &index) const
+{
+    bool isItemEnabled;
+    LocationID lid = qvariant_cast<LocationID>(index.data(LOCATION_ID));
+    if (lid.isTopLevelLocation()) {
+        isItemEnabled = rowCount(index) > 0;
+    }
+    else if (lid.isCustomConfigsLocation()) {
+        isItemEnabled = index.data(IS_CUSTOM_CONFIG_CORRECT).toBool();
+    }
+    else {
+        isItemEnabled = !index.data(IS_DISABLED).toBool() &&  !index.data(IS_SHOW_AS_PREMIUM).toBool();
+    }
+    if (isItemEnabled) {
+        return Qt::ItemIsSelectable | Qt::ItemIsEnabled;
+    }
+    else {
+        return Qt::ItemIsSelectable;
+    }
 }
 
 QModelIndex LocationsModel::getIndexByLocationId(const LocationID &id) const
@@ -640,11 +444,20 @@ QModelIndex LocationsModel::getIndexByFilter(const QString &strFilter) const
     return QModelIndex();
 }
 
+void LocationsModel::saveFavoriteLocations()
+{
+    favoriteLocationsStorage_.writeToSettings();
+}
+
 QVariant LocationsModel::dataForLocation(int row, int role) const
 {
     if (role == Qt::DisplayRole)
     {
         return locations_[row]->location().name + " - " + locations_[row]->location().countryCode + " - " + QString::number(locations_[row]->averagePing()) + " - " + QString::number(isFreeSessionStatus_);
+    }
+    else if (role == IS_TOP_LEVEL_LOCATION)
+    {
+        return true;
     }
     else if (role == NAME)
     {
@@ -659,10 +472,6 @@ QVariant LocationsModel::dataForLocation(int row, int role) const
         QVariant stored;
         stored.setValue(locations_[row]->location().id);
         return stored;
-    }
-    else if (role == IS_TOP_LEVEL_LOCATION)
-    {
-        return true;
     }
     else if (role == COUNTRY_CODE)
     {
@@ -826,9 +635,9 @@ void LocationsModel::handleChangedLocation(int ind, const types::Location &newLo
     QModelIndex rootIndex = index(ind, 0);
     LocationItem *li = locations_[ind];
 
-    const CityVector cityVector(newLocation.cities);
+    const utils::CitiesVector citiesVector(newLocation.cities);
 
-    QVector<int> removedCitiesInds = findRemovedCities(li->location().cities, cityVector);
+    QVector<int> removedCitiesInds = utils::findRemovedCities(li->location().cities, citiesVector);
     for (int i = removedCitiesInds.size() - 1; i >= 0; i--)
     {
         int removedCityInd = removedCitiesInds[i];
@@ -837,16 +646,16 @@ void LocationsModel::handleChangedLocation(int ind, const types::Location &newLo
         endRemoveRows();
     }
 
-    QVector<int> newCitiesInds = findNewCities(li->location().cities, cityVector);
+    QVector<int> newCitiesInds = utils::findNewCities(li->location().cities, citiesVector);
     for (auto i : newCitiesInds)
     {
         beginInsertRows(rootIndex, i, i);
-        li->insertCityAtInd(i, cityVector[i]);
+        li->insertCityAtInd(i, citiesVector[i]);
         endInsertRows();
     }
 
     Q_ASSERT(li->location().cities.size() == newLocation.cities.size());
-    QVector<QPair<int, types::City> > changedCitiesInds = findChangedCities(li->location().cities, cityVector);
+    QVector<QPair<int, types::City> > changedCitiesInds = utils::findChangedCities(li->location().cities, citiesVector);
     for (const auto &i : changedCitiesInds)
     {
         li->updateCityAtInd(i.first, i.second);
@@ -855,26 +664,26 @@ void LocationsModel::handleChangedLocation(int ind, const types::Location &newLo
     }
 
     bool isMovedCitiesFound;
-    QVector<int> movedCitiesInds = findMovedCities(li->location().cities, cityVector, isMovedCitiesFound);
+    QVector<int> citiesInds = utils::findMovedCities(li->location().cities, citiesVector, isMovedCitiesFound);
     if (isMovedCitiesFound)
     {
         // Selection sort algorithm
-        for (int i = 0; i < movedCitiesInds.size(); i++)
+        for (int i = 0; i < citiesInds.size(); i++)
         {
-            int minz = movedCitiesInds[i];
+            int minz = citiesInds[i];
             int ind = i;
-            for (int j = i + 1; j < movedCitiesInds.size(); j++)
+            for (int j = i + 1; j < citiesInds.size(); j++)
             {
-                if (movedCitiesInds[j] < minz)
+                if (citiesInds[j] < minz)
                 {
-                    minz = movedCitiesInds[j];
+                    minz = citiesInds[j];
                     ind = j;
                 }
             }
             if (i != ind)
             {
                 beginMoveRows(rootIndex, ind, ind, rootIndex, i);
-                movedCitiesInds.move(ind, i);
+                citiesInds.move(ind, i);
                 li->moveCity(ind, i);
                 endMoveRows();
             }

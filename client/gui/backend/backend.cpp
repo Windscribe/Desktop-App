@@ -460,7 +460,6 @@ void Backend::onConnectionNewCommand(IPC::Command *command)
         IPC::ServerCommands::LocationsUpdated *cmd = static_cast<IPC::ServerCommands::LocationsUpdated *>(command);
         locationsModelManager_->updateLocations(cmd->bestLocation_, cmd->locations_);
         locationsModelManager_->updateDeviceName(cmd->staticIpDeviceName_);
-        Q_EMIT locationsUpdated();
     }
     else if (command->getStringId() == IPC::ServerCommands::BestLocationUpdated::getCommandStringId())
     {
@@ -471,7 +470,6 @@ void Backend::onConnectionNewCommand(IPC::Command *command)
     {
         IPC::ServerCommands::CustomConfigLocationsUpdated *cmd = static_cast<IPC::ServerCommands::CustomConfigLocationsUpdated *>(command);
         locationsModelManager_->updateCustomConfigLocation(cmd->location_);
-        Q_EMIT locationsUpdated();
     }
     else if (command->getStringId() == IPC::ServerCommands::LocationSpeedChanged::getCommandStringId())
     {

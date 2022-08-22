@@ -135,7 +135,6 @@ signals:
     void networkChanged(types::NetworkInterface interface);
     void sessionStatusChanged(const types::SessionStatus &sessionStatus);
     void checkUpdateChanged(const types::CheckUpdate &checkUpdateInfo);
-    void locationsUpdated();
     void splitTunnelingStateChanged(bool isActive);
 
     void confirmEmailResult(bool bSuccess);

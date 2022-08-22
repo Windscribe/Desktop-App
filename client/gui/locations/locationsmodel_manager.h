@@ -45,6 +45,8 @@ public:
     int getNumStaticIPLocations() const;
     int getNumCustomConfigLocations() const;
 
+    void saveFavoriteLocations();
+
 signals:
     void deviceNameChanged(const QString &deviceName);
 

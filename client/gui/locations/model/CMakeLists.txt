@@ -15,10 +15,12 @@ target_sources(gui PRIVATE
     favoritelocationsstorage.h
     locationsmodel.cpp
     locationsmodel.h
+    locationsmodel_utils.cpp
+    locationsmodel_utils.h
     locationitem.cpp
     locationitem.h
-    selectedlocationwatcher.cpp
-    selectedlocationwatcher.h
+    selectedlocation.cpp
+    selectedlocation.h
 )
 
 # unit tests

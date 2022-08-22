@@ -6,58 +6,109 @@
 #include <QApplication>
 #include <QVBoxLayout>
 #include <QScreen>
+#include <QSortFilterProxyModel>
 #include "commongraphics/commongraphics.h"
 #include "locationstraymenuscalemanager.h"
+#include "locations/locationsmodel_roles.h"
 
 #ifdef Q_OS_MAC
 #include "utils/widgetutils_mac.h"
 #endif
 
-LocationsTrayMenuWidget::LocationsTrayMenuWidget(LocationsTrayMenuType type, QWidget *parent) :
+namespace
+{
+// exclude the best location from locations list
+class LocationsWithoutBestLocationProxyModel : public QSortFilterProxyModel
+{
+    Q_OBJECT
+public:
+    explicit LocationsWithoutBestLocationProxyModel(QObject *parent) : QSortFilterProxyModel(parent) {}
+
+protected:
+    bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const override
+    {
+        QModelIndex mi = sourceModel()->index(source_row, 0, source_parent);
+        QVariant v = sourceModel()->data(mi, gui_locations::LOCATION_ID);
+        LocationID lid = qvariant_cast<LocationID>(v);
+        return !lid.isBestLocation();
+    }
+};
+#include "locationstraymenuwidget.moc"
+}
+
+class LocationsTrayMenuWidget::LocationsTrayMenuWidgetSubmenu : public QMenu
+{
+public:
+    explicit LocationsTrayMenuWidgetSubmenu(LocationsTrayMenuWidget *host)
+        : QMenu(host), host_(host) {}
+
+    void mouseMoveEvent(QMouseEvent *event) override
+    {
+        QMenu::mouseMoveEvent(event);
+        if (!geometry().contains(QCursor::pos()))
+            host_->handleMouseMove();
+    }
+    void wheelEvent(QWheelEvent *event) override
+    {
+        QMenu::wheelEvent(event);
+        if (!geometry().contains(QCursor::pos()))
+            host_->handleMouseWheel();
+    }
+private:
+    LocationsTrayMenuWidget *host_;
+};
+
+LocationsTrayMenuWidget::LocationsTrayMenuWidget(QWidget *parent, QAbstractItemModel *model) :
     QWidget(parent)
-  , locationType_(type)
-  , bIsFreeSession_(false)
   , currentSubmenu_(nullptr)
   , visibleItemsCount_(20)
 {
-    upButton_ = new LocationsTrayMenuButton();
-    listWidget_ = new QListWidget();
-    listWidget_->setMouseTracking(true);
-    listWidget_->setStyleSheet("background-color: rgba(255, 255, 255, 0);\nborder-top: none;\nborder-bottom: none;");
-    listWidget_->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    listWidget_->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    listWidget_->setResizeMode(QListView::Adjust);
-    connect(listWidget_, SIGNAL(itemClicked(QListWidgetItem*)),
-            SLOT(onListWidgetItemTriggered(QListWidgetItem*)));
+    LocationsWithoutBestLocationProxyModel *modelWithoutBestLocation = new LocationsWithoutBestLocationProxyModel(this);
+    modelWithoutBestLocation->setSourceModel(model);
 
+    listView_ = new QListView();
+    listView_->setMouseTracking(true);
+    listView_->setStyleSheet("background-color: rgba(255, 255, 255, 0);\nborder-top: none;\nborder-bottom: none;");
+    listView_->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    listView_->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    listView_->setResizeMode(QListView::Adjust);
+    locationsTrayMenuItemDelegate_ = new LocationsTrayMenuItemDelegate(this);
+    listView_->setItemDelegate(locationsTrayMenuItemDelegate_);
+    listView_->viewport()->installEventFilter(this);
+    listView_->setModel(modelWithoutBestLocation);
+    connect(listView_, &QListView::clicked, this, &LocationsTrayMenuWidget::onListViewClicked);
+
+    upButton_ = new LocationsTrayMenuButton();
     downButton_ = new LocationsTrayMenuButton();
     downButton_->setType(1);
-    connect(upButton_, SIGNAL(clicked()), SLOT(onScrollUpClick()));
-    connect(downButton_, SIGNAL(clicked()), SLOT(onScrollDownClick()));
+    connect(upButton_, &LocationsTrayMenuButton::clicked, this, &LocationsTrayMenuWidget::onScrollUpClick);
+    connect(downButton_, &LocationsTrayMenuButton::clicked, this, &LocationsTrayMenuWidget::onScrollDownClick);
 
     QVBoxLayout *widgetLayout = new QVBoxLayout();
     widgetLayout->addWidget(upButton_);
-    widgetLayout->addWidget(listWidget_);
+    widgetLayout->addWidget(listView_);
     widgetLayout->addWidget(downButton_);
     widgetLayout->setContentsMargins(0, 0, 0, 0);
     widgetLayout->setSpacing(0);
     setLayout(widgetLayout);
 
-    recalcSize();
+    // These signals must be connected after listView_->setModel(modelWithoutBestLocation) since the order of slot calls matters here
+    connect(modelWithoutBestLocation, &QAbstractItemModel::modelReset, this, &LocationsTrayMenuWidget::onModelChanged);
+    connect(modelWithoutBestLocation, &QAbstractItemModel::rowsInserted, this, &LocationsTrayMenuWidget::onModelChanged);
+    connect(modelWithoutBestLocation, &QAbstractItemModel::rowsRemoved, this, &LocationsTrayMenuWidget::onModelChanged);
 
-    locationsTrayMenuItemDelegate_ = new LocationsTrayMenuItemDelegate(this);
-    listWidget_->setItemDelegate(locationsTrayMenuItemDelegate_);
-    listWidget_->viewport()->installEventFilter(this);
+    recalcSize();
 }
 
-LocationsTrayMenuWidget::~LocationsTrayMenuWidget()
+void LocationsTrayMenuWidget::setFontForItems(const QFont &font)
 {
-
+    locationsTrayMenuItemDelegate_->setFontForItems(font);
+    recalcSize();
 }
 
 bool LocationsTrayMenuWidget::eventFilter(QObject *watched, QEvent *event)
 {
-    if (watched == listWidget_->viewport()) {
+    if (watched == listView_->viewport()) {
         switch (event->type()) {
         case QEvent::Wheel:
             handleMouseWheel();
@@ -71,13 +122,12 @@ bool LocationsTrayMenuWidget::eventFilter(QObject *watched, QEvent *event)
                 currentSubmenu_->close();
                 currentSubmenu_ = nullptr;
             }
-            listWidget_->clearSelection();
+            listView_->clearSelection();
             break;
         default:
             break;
         }
     }
-
     return QWidget::eventFilter(watched, event);
 }
 
@@ -97,59 +147,29 @@ void LocationsTrayMenuWidget::handleMouseWheel()
     updateBackground_mac();
 }
 
-void LocationsTrayMenuWidget::setLocationsModel(QAbstractItemModel *locationsModel)
+void LocationsTrayMenuWidget::onListViewClicked(const QModelIndex &index)
 {
-    /*connect(locationsModel->getAllLocationsModel(), SIGNAL(itemsUpdated(QVector<LocationModelItem*>)), SLOT(onItemsUpdated(QVector<LocationModelItem *>)));
-    connect(locationsModel->getAllLocationsModel(), SIGNAL(connectionSpeedChanged(LocationID,PingTime)), SLOT(onConnectionSpeedChanged(LocationID,PingTime)));
-    connect(locationsModel->getAllLocationsModel(), SIGNAL(freeSessionStatusChanged(bool)), SLOT(onSessionStatusChanged(bool)));
-    connect(locationsModel->getFavoriteLocationsModel(), SIGNAL(itemsUpdated(QVector<CityModelItem*>)), SLOT(onFavoritesUpdated(QVector<CityModelItem *>)));
-    connect(locationsModel->getStaticIpsLocationsModel(), SIGNAL(itemsUpdated(QVector<CityModelItem*>)), SLOT(onStaticIpsUpdated(QVector<CityModelItem *>)));
-    connect(locationsModel->getConfiguredLocationsModel(), SIGNAL(itemsUpdated(QVector<CityModelItem*>)), SLOT(onCustomConfigsUpdated(QVector<CityModelItem *>)));*/
-}
-
-void LocationsTrayMenuWidget::setFontForItems(const QFont &font)
-{
-    locationsTrayMenuItemDelegate_->setFontForItems(font);
-    recalcSize();
-    updateShortenedTexts();
-}
-
-void LocationsTrayMenuWidget::onListWidgetItemTriggered(QListWidgetItem *item)
-{
-    Q_ASSERT(item);
-   const bool isEnabled = item->data(USER_ROLE_FLAGS).toInt() & ITEM_FLAG_IS_ENABLED;
-   if (!isEnabled)
-       return;
-   // Ignore if there is a submenu.
-    auto it = menuMap_.find(item);
-    if (it != menuMap_.end())
-        return;
-    emit locationSelected(locationType_, item->data(USER_ROLE_TITLE).toString(), -1);
+    if (index.isValid() && (index.flags() & Qt::ItemIsEnabled)) {
+        emit locationSelected( qvariant_cast<LocationID>(index.data(gui_locations::LOCATION_ID)));
+    }
 }
 
 void LocationsTrayMenuWidget::onSubmenuActionTriggered(QAction *action)
 {
     Q_ASSERT(currentSubmenu_ && action);
-    if (!currentSubmenu_ || !action)
+    if (!currentSubmenu_ || !action) {
         return;
-    QModelIndex ind = listWidget_->currentIndex();
-    if (!ind.isValid())
-        return;
-    QListWidgetItem *item = listWidget_->item(ind.row());
-    bool bIsSelectable = item->data(USER_ROLE_FLAGS).toInt() & ITEM_FLAG_IS_ENABLED;
-    if (!bIsSelectable)
-        return;
-    emit locationSelected(locationType_, item->data(USER_ROLE_TITLE).toString(),
-                          currentSubmenu_->actions().indexOf(action));
+    }
+    emit locationSelected(qvariant_cast<LocationID>(action->data()));
 }
 
 void LocationsTrayMenuWidget::updateTableViewSelection()
 {
-    QPoint pt = listWidget_->viewport()->mapFromGlobal(QCursor::pos());
-    QModelIndex ind = listWidget_->indexAt(pt);
+    QPoint pt = listView_->viewport()->mapFromGlobal(QCursor::pos());
+    QModelIndex ind = listView_->indexAt(pt);
     if (ind.isValid() && ind.column() == 0)
     {
-        listWidget_->setCurrentIndex(ind);
+        listView_->setCurrentIndex(ind);
     }
     updateButtonsState();
     updateBackground_mac();
@@ -157,10 +177,10 @@ void LocationsTrayMenuWidget::updateTableViewSelection()
 
 void LocationsTrayMenuWidget::onScrollUpClick()
 {
-    int ind = listWidget_->currentRow();
+    int ind = listView_->currentIndex().row();
     if (ind > 0)
     {
-        listWidget_->setCurrentRow(ind - 1);
+        listView_->setCurrentIndex(listView_->model()->index(ind - 1, 0));
     }
     updateButtonsState();
     updateBackground_mac();
@@ -168,25 +188,22 @@ void LocationsTrayMenuWidget::onScrollUpClick()
 
 void LocationsTrayMenuWidget::onScrollDownClick()
 {
-    int ind = listWidget_->currentRow();
-    if (ind < (listWidget_->count() - 1))
+    int ind = listView_->currentIndex().row();
+    if (ind < (listView_->model()->rowCount() - 1))
     {
-        listWidget_->setCurrentRow(ind + 1);
+        listView_->setCurrentIndex(listView_->model()->index(ind + 1, 0));
     }
     updateButtonsState();
     updateBackground_mac();
 }
 
-void LocationsTrayMenuWidget::clearItems()
+void LocationsTrayMenuWidget::onModelChanged()
 {
-    map_.clear();
-    listWidget_->clear();
-
-    qDeleteAll(menuMap_);
-    menuMap_.clear();
-
-    downButton_->setVisible(false);
-    upButton_->setVisible(false);
+    recalcSize();
+    updateButtonsState();
+    updateTableViewSelection();
+    updateSubmenuForSelection();
+    updateBackground_mac();
 }
 
 void LocationsTrayMenuWidget::recalcSize()
@@ -195,7 +212,7 @@ void LocationsTrayMenuWidget::recalcSize()
     QSize sz;
     sz = QApplication::style()->sizeFromContents(QStyle::CT_MenuItem, &opt, sz);
     const int scaledItemHeight = sz.height() * LocationsTrayMenuScaleManager::instance().scale();
-    visibleItemsCount_ = listWidget_->count();
+    visibleItemsCount_ = listView_->model()->rowCount();
     if (visibleItemsCount_ < 1)
         visibleItemsCount_ = 1;
 
@@ -208,324 +225,71 @@ void LocationsTrayMenuWidget::recalcSize()
             visibleItemsCount_ = maxItemCount;
     }
 
+
     int maxWidth = 190 * LocationsTrayMenuScaleManager::instance().scale(); // set initial mimimum size
     // if the size of any item exceeds maxWidth, then will increase maxWidth
-    for (int i = 0; i < listWidget_->count(); ++i)
+    for (int i = 0; i < listView_->model()->rowCount(); ++i)
     {
-        QListWidgetItem *item = listWidget_->item(i);
-        int width = locationsTrayMenuItemDelegate_->calcWidth(item->text(), item->data(LocationsTrayMenuWidget::USER_ROLE_COUNTRY_CODE).toString(),
-                                                  item->data(LocationsTrayMenuWidget::USER_ROLE_FLAGS).toInt());
+        int width = locationsTrayMenuItemDelegate_->calcWidth(listView_->model()->index(i, 0));
         if (width > maxWidth)
         {
             maxWidth = width;
         }
     }
 
-    listWidget_->setFixedSize(maxWidth, scaledItemHeight * visibleItemsCount_);
-}
-
-void LocationsTrayMenuWidget::updateShortenedTexts()
-{
-    // Only custom config names are shortened, for now.
-    if (locationType_ != LOCATIONS_TRAY_MENU_TYPE_CUSTOM_CONFIGS)
-        return;
-
-    for (int ind = 0; ind < listWidget_->count(); ++ind) {
-        QListWidgetItem *item = listWidget_->item(ind);
-        QString itemName = CommonGraphics::truncatedText(
-            item->data(USER_ROLE_ORIGINAL_NAME).toString(),
-            locationsTrayMenuItemDelegate_->getFontForItems(),
-            listWidget_->width()- 30 * LocationsTrayMenuScaleManager::instance().scale());
-        item->setText(itemName);
-    }
-}
-
-/*void LocationsTrayMenuWidget::onItemsUpdated(QVector<LocationModelItem *> items)
-{
-    if (locationType_ != LOCATIONS_TRAY_MENU_TYPE_GENERIC)
-        return;
-
-    clearItems();
-
-    for (const LocationModelItem *item: qAsConst(items))
-    {
-        if (item->id.isCustomConfigsLocation())
-        {
-            continue;
-        }
-
-        QString itemName = item->title;
-        const QVector<CityModelItem> cities = item->cities;
-
-        if (cities.count() > 0)
-        {
-            bool containsAtLeastOneNonProCity = false;
-            for (const CityModelItem &city: cities)
-            {
-                if (!city.bShowPremiumStarOnly)
-                {
-                    containsAtLeastOneNonProCity = true;
-                    break;
-                }
-            }
-
-            if (!containsAtLeastOneNonProCity && bIsFreeSession_)
-            {
-                itemName += " (Pro)";
-            }
-
-            QListWidgetItem *listItem = new QListWidgetItem(itemName);
-            listWidget_->addItem(listItem);
-
-            int itemFlags = ITEM_FLAG_IS_VALID | ITEM_FLAG_HAS_SUBMENU;
-            if (containsAtLeastOneNonProCity || !bIsFreeSession_)
-            {
-                const auto connectionSpeed = PingTime(item->calcAveragePing()).toConnectionSpeed();
-                if (connectionSpeed != 0)
-                    itemFlags |= ITEM_FLAG_IS_ENABLED;
-            }
-            if (!containsAtLeastOneNonProCity)
-                itemFlags |= ITEM_FLAG_IS_PREMIUM_ONLY;
-            if (!item->countryCode.isEmpty())
-                itemFlags |= ITEM_FLAG_HAS_COUNTRY;
-
-            listItem->setData(USER_ROLE_FLAGS, itemFlags);
-            listItem->setData(USER_ROLE_TITLE, item->title);
-            listItem->setData(USER_ROLE_ORIGINAL_NAME, item->title);
-            listItem->setData(USER_ROLE_COUNTRY_CODE, item->countryCode);
-
-            auto *submenu = new LocationsTrayMenuWidgetSubmenu(this);
-            QVector<bool> cityProInfo(cities.count());
-            for (int i = 0; i < cities.count(); ++i) {
-                const auto &city = cities[i];
-                QString cityName = city.makeTitle();
-                QString visibleName = cityName;
-                cityProInfo[i] = city.bShowPremiumStarOnly;
-                bool isEnabled = !city.bShowPremiumStarOnly || !bIsFreeSession_;
-                if (!isEnabled)
-                    visibleName += " (Pro)";
-                auto *action = submenu->addAction(visibleName);
-                action->setObjectName(cityName);
-                action->setEnabled(isEnabled);
-            }
-            connect(submenu, SIGNAL(triggered(QAction*)), SLOT(onSubmenuActionTriggered(QAction*)));
-            listItem->setData(USER_ROLE_CITY_INFO, QVariant::fromValue(cityProInfo));
-
-            map_[item->id] = listItem;
-            menuMap_[listItem] = submenu;
-        }
-    }
-
-    recalcSize();
-    updateButtonsState();
-    updateBackground_mac();
-}
-
-void LocationsTrayMenuWidget::onFavoritesUpdated(QVector<CityModelItem*> items)
-{
-    if (locationType_ != LOCATIONS_TRAY_MENU_TYPE_FAVORITES)
-        return;
-
-    clearItems();
-
-    for (const CityModelItem *item : qAsConst(items))
-    {
-        if (item->city.isEmpty())
-            continue;
-
-        QString itemTitle = item->makeTitle();
-        QString itemName = itemTitle;
-        int itemFlags = ITEM_FLAG_IS_VALID;
-        if (item->bShowPremiumStarOnly && bIsFreeSession_) {
-            itemName += " (Pro)";
-            itemFlags |= ITEM_FLAG_IS_PREMIUM_ONLY;
-        } else {
-            if (item->pingTimeMs != 0)
-                itemFlags |= ITEM_FLAG_IS_ENABLED;
-        }
-        if (!item->countryCode.isEmpty())
-            itemFlags |= ITEM_FLAG_HAS_COUNTRY;
-
-        QListWidgetItem *listItem = new QListWidgetItem(itemName);
-        listWidget_->addItem(listItem);
-
-        listItem->setData(USER_ROLE_FLAGS, itemFlags);
-        listItem->setData(USER_ROLE_TITLE, itemTitle);
-        listItem->setData(USER_ROLE_ORIGINAL_NAME, itemName);
-        listItem->setData(USER_ROLE_COUNTRY_CODE, item->countryCode);
-
-        map_[item->id] = listItem;
-    }
-
-    recalcSize();
-    updateButtonsState();
-    updateBackground_mac();
-}
-
-void LocationsTrayMenuWidget::onStaticIpsUpdated(QVector<CityModelItem*> items)
-{
-    if (locationType_ != LOCATIONS_TRAY_MENU_TYPE_STATIC_IPS)
-        return;
-
-    clearItems();
-
-    for (const CityModelItem *item : qAsConst(items))
-    {
-        if (item->staticIp.isEmpty())
-            continue;
-
-        const QString itemName = item->makeTitle();
-        QListWidgetItem *listItem = new QListWidgetItem(itemName);
-        listWidget_->addItem(listItem);
-
-        int itemFlags = ITEM_FLAG_IS_ENABLED | ITEM_FLAG_IS_VALID;
-        if (!item->countryCode.isEmpty())
-            itemFlags |= ITEM_FLAG_HAS_COUNTRY;
-
-        listItem->setData(USER_ROLE_FLAGS, itemFlags);
-        listItem->setData(USER_ROLE_TITLE, itemName);
-        listItem->setData(USER_ROLE_ORIGINAL_NAME, itemName);
-        listItem->setData(USER_ROLE_COUNTRY_CODE, item->countryCode);
-
-        map_[item->id] = listItem;
-    }
-
-    recalcSize();
-    updateButtonsState();
-    updateBackground_mac();
-}
-
-void LocationsTrayMenuWidget::onCustomConfigsUpdated(QVector<CityModelItem*> items)
-{
-    if (locationType_ != LOCATIONS_TRAY_MENU_TYPE_CUSTOM_CONFIGS)
-        return;
-
-    clearItems();
-
-    for (const CityModelItem *item : qAsConst(items))
-    {
-        if (item->city.isEmpty())
-            continue;
-
-        const QString itemName = item->makeTitle();
-        QListWidgetItem *listItem = new QListWidgetItem(itemName);
-        listWidget_->addItem(listItem);
-
-        int itemFlags = 0;
-        if (!item->isDisabled && item->isCustomConfigCorrect)
-            itemFlags |= ITEM_FLAG_IS_ENABLED | ITEM_FLAG_IS_VALID;
-
-        listItem->setData(USER_ROLE_FLAGS, itemFlags);
-        listItem->setData(USER_ROLE_TITLE, itemName);
-        listItem->setData(USER_ROLE_ORIGINAL_NAME, itemName);
-
-        map_[item->id] = listItem;
-    }
-
-    recalcSize();
-    updateShortenedTexts();
-    updateButtonsState();
-    updateBackground_mac();
-}*/
-
-void LocationsTrayMenuWidget::onSessionStatusChanged(bool bFreeSessionStatus)
-{
-    bIsFreeSession_ = bFreeSessionStatus;
-
-    if (locationType_ != LOCATIONS_TRAY_MENU_TYPE_GENERIC &&
-        locationType_ != LOCATIONS_TRAY_MENU_TYPE_FAVORITES)
-        return;
-
-    for (int ind = 0; ind < listWidget_->count(); ++ind)
-    {
-        QListWidgetItem *item = listWidget_->item(ind);
-
-        QString itemName = item->data(USER_ROLE_ORIGINAL_NAME).toString();
-        int flags = item->data(USER_ROLE_FLAGS).toInt();
-
-        if ((flags & ITEM_FLAG_IS_PREMIUM_ONLY) && bIsFreeSession_) {
-            itemName += " (Pro)";
-            flags &= ~ITEM_FLAG_IS_ENABLED;
-        } else if (flags & ITEM_FLAG_IS_VALID) {
-            flags |= ITEM_FLAG_IS_ENABLED;
-        }
-        item->setText(itemName);
-        item->setData(USER_ROLE_FLAGS, flags);
-
-        auto *submenu = menuMap_[item];
-        if (submenu) {
-            const auto cityProInfo = item->data(USER_ROLE_CITY_INFO).value<QVector<bool>>();
-            for (int i = 0; i < submenu->actions().count(); ++i) {
-                auto *action = submenu->actions().at(i);
-                QString visibleName = action->objectName();
-                bool isEnabled = !cityProInfo[i] || !bIsFreeSession_;
-                if (!isEnabled)
-                    visibleName += " (Pro)";
-                action->setText(visibleName);
-                action->setEnabled(isEnabled);
-            }
-        }
-    }
-}
-
-void LocationsTrayMenuWidget::onConnectionSpeedChanged(LocationID id, PingTime timeMs)
-{
-    if (locationType_ != LOCATIONS_TRAY_MENU_TYPE_GENERIC &&
-        locationType_ != LOCATIONS_TRAY_MENU_TYPE_FAVORITES)
-        return;
-
-    auto it = map_.find(id);
-    if (it != map_.end())
-    {
-        QListWidgetItem *item = it.value();
-        int flags = item->data(USER_ROLE_FLAGS).toInt();
-        if ((flags & ITEM_FLAG_IS_VALID) && timeMs.toConnectionSpeed() != 0)
-            flags |= ITEM_FLAG_IS_ENABLED;
-        else
-            flags &= ~ITEM_FLAG_IS_ENABLED;
-        item->setData(USER_ROLE_FLAGS, flags);
-    }
+    listView_->setFixedSize(maxWidth, scaledItemHeight * visibleItemsCount_);
 }
 
 void LocationsTrayMenuWidget::updateSubmenuForSelection()
 {
-    LocationsTrayMenuWidgetSubmenu *submenu = nullptr;
-    QPoint popupPosition;
-    QModelIndex ind = listWidget_->currentIndex();
-    if (ind.isValid()) {
-        const QListWidgetItem *item = listWidget_->item(ind.row());
-        const bool isEnabled = item->data(USER_ROLE_FLAGS).toInt() & ITEM_FLAG_IS_ENABLED;
-        if (isEnabled) {
-            auto it = menuMap_.find(item);
-            if (it != menuMap_.end())
-                submenu = it.value();
+    QPersistentModelIndex curIndex = listView_->currentIndex();
+    if (currentIndexForSubmenu_ != curIndex)
+    {
+        if (currentSubmenu_) {
+            delete currentSubmenu_;
+            currentSubmenu_ = nullptr;
+            currentIndexForSubmenu_ = QPersistentModelIndex();
         }
-        const auto rc = listWidget_->visualItemRect(item);
-        popupPosition = listWidget_->viewport()->mapToGlobal(rc.topRight());
-    }
-    if (currentSubmenu_ != submenu) {
-        if (currentSubmenu_)
-            currentSubmenu_->close();
-        if (submenu) {
-            submenu->popup(popupPosition);
+        if (curIndex.isValid() && curIndex.data(gui_locations::IS_TOP_LEVEL_LOCATION).toBool())
+        {
+            int citiesCount = curIndex.model()->rowCount(curIndex);
+            if (citiesCount > 0)
+            {
+                auto *submenu = new LocationsTrayMenuWidgetSubmenu(this);
+                for (int i = 0; i < citiesCount; ++i)
+                {
+                    QModelIndex cityInd = curIndex.model()->index(i, 0, curIndex);
+                    QString cityName = cityInd.data().toString();
+                    bool isShowAsPremium = cityInd.data(gui_locations::IS_SHOW_AS_PREMIUM).toBool();
+                    if (isShowAsPremium)
+                    {
+                        cityName += " (Pro)";
+                    }
+                    auto *action = submenu->addAction(cityName);
+                    action->setEnabled(!isShowAsPremium && !cityInd.data(gui_locations::IS_DISABLED).toBool());
+                    action->setData(cityInd.data(gui_locations::LOCATION_ID));
+                }
+                connect(submenu, &LocationsTrayMenuWidgetSubmenu::triggered,  this, &LocationsTrayMenuWidget::onSubmenuActionTriggered);
+                currentSubmenu_ = submenu;
+                const auto rc = listView_->visualRect(curIndex);
+                QPoint popupPosition = listView_->viewport()->mapToGlobal(rc.topRight());
+                currentSubmenu_->popup(popupPosition);
+                currentIndexForSubmenu_ = curIndex;
+            }
         }
-        currentSubmenu_ = submenu;
-    }
-    else if (currentSubmenu_ && !currentSubmenu_->isVisible()) {
-        currentSubmenu_->popup(popupPosition);
     }
 }
 
 void LocationsTrayMenuWidget::updateButtonsState()
 {
-    QModelIndex ind = listWidget_->indexAt(QPoint(2,2));
+    QModelIndex ind = listView_->indexAt(QPoint(2,2));
     if (ind.isValid())
     {
         upButton_->setEnabled(ind.row() != 0);
-        downButton_->setEnabled((ind.row() + visibleItemsCount_) < (listWidget_->count()));
+        downButton_->setEnabled((ind.row() + visibleItemsCount_) < (listView_->model()->rowCount()));
     }
 
-    const bool kAllowScrolling = listWidget_->count() > visibleItemsCount_;
+    const bool kAllowScrolling = listView_->model()->rowCount() > visibleItemsCount_;
     upButton_->setVisible(kAllowScrolling);
     downButton_->setVisible(kAllowScrolling);
 }

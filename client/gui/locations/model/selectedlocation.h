@@ -6,41 +6,46 @@
 
 namespace gui_locations {
 
-// Monitors any changes in the selected item
-class SelectedLocationWatcher : public QObject
+// Utils class, make a location selected and monitor its changes when there are corresponding changes in the model
+
+class SelectedLocation : public QObject
 {
     Q_OBJECT
 public:
-    explicit SelectedLocationWatcher(QObject *parent, QAbstractItemModel *model);
-    bool setSelectedLocation(const LocationID &lid);
+    explicit SelectedLocation(QAbstractItemModel *model);
 
-    bool isCorrect() const;
+    void set(const LocationID &lid);
+    bool isValid() const { return isValid_; }
 
     LocationID locationdId() const { return id_; }
+    LocationID prevLocationdId() const { return prevId_; }
     QString firstName() const { return firstName_; }
     QString secondName() const { return secondName_; }
     QString countryCode() const { return countryCode_; }
     PingTime pingTime() const { return pingTime_; }
 
 signals:
-    void itemChanged();
-    void itemRemoved();
+    void changed();
+    void removed();
 
 private slots:
+    void checkForRemove();
     void onDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles = QVector<int>());
 
 private:
     QAbstractItemModel *model_;
-    bool isIndexSettled_;
+    bool isValid_;
     QPersistentModelIndex selIndex_;
 
     LocationID id_;
+    LocationID prevId_;
     QString firstName_;
     QString secondName_;
     QString countryCode_;
     PingTime pingTime_;
 
     void fillData();
+    void setInvalid();
 };
 
 } //namespace gui_locations

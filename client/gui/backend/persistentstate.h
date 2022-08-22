@@ -40,11 +40,11 @@ public:
     void setNetworkWhitelist(const QVector<types::NetworkInterface> &list);
     QVector<types::NetworkInterface> networkWhitelist() const;
 
+    void save();
 
 private:
     PersistentState();
     void load();
-    void save();
 
     types::GuiPersistentState state_;
 

@@ -6,7 +6,7 @@ namespace gui_locations {
 
 // Roles for LocationsModel items
 enum ROLES { LOCATION_ID = Qt::UserRole,    // location and city
-             IS_TOP_LEVEL_LOCATION,         // location and city
+             IS_TOP_LEVEL_LOCATION,         // true for a location and false for a city
              COUNTRY_CODE,                  // location and city
              IS_SHOW_P2P,                   // location only
              IS_SHOW_AS_PREMIUM,            // location and city
@@ -20,8 +20,8 @@ enum ROLES { LOCATION_ID = Qt::UserRole,    // location and city
              STATIC_IP_TYPE,                // city only
              STATIC_IP,                     // city only
 
-             IS_DISABLED,                   // city only
              LINK_SPEED,                    // city only
+             IS_DISABLED,                   // city only
 
              IS_CUSTOM_CONFIG_CORRECT,      // city only
              CUSTOM_CONFIG_TYPE,            // city only

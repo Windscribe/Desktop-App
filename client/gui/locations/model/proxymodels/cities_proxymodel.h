@@ -34,7 +34,6 @@ private slots:
 
 private:
     QVector<QPersistentModelIndex> items_;
-    //QHash<QModelIndex, int> mapFromSourceModel_;
     bool isBeginRemoveRowsCalled_;
     bool isBeginMoveRowsCalled_;
     QVector<QMetaObject::Connection> sourceConnections_;

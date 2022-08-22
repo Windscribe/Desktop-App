@@ -24,7 +24,6 @@ LocationsWindow::LocationsWindow(QWidget *parent, gui_locations::LocationsModelM
 
     connect(locationsTab_, SIGNAL(selected(LocationID)), SIGNAL(selected(LocationID)));
     connect(locationsTab_, SIGNAL(clickedOnPremiumStarCity()), SIGNAL(clickedOnPremiumStarCity()));
-    connect(locationsTab_, SIGNAL(switchFavorite(LocationID,bool)), SIGNAL(switchFavorite(LocationID,bool)));
     connect(locationsTab_, SIGNAL(addStaticIpClicked()), SIGNAL(addStaticIpClicked()));
     connect(locationsTab_, SIGNAL(clearCustomConfigClicked()), SIGNAL(clearCustomConfigClicked()));
     connect(locationsTab_, SIGNAL(addCustomConfigClicked()), SIGNAL(addCustomConfigClicked()));

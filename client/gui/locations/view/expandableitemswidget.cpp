@@ -269,11 +269,9 @@ QPersistentModelIndex ExpandableItemsWidget::detectSelectedItem(const QPoint &pt
 IItemDelegate *ExpandableItemsWidget::delegateForItem(const QPersistentModelIndex &ind)
 {
     // Is it an expandable item?
-    // Qt::ItemNeverHasChildren flag must be set in the model for non expandable items
-    if ((ind.flags() != Qt::ItemNeverHasChildren)) {
+    if (ind.data(IS_TOP_LEVEL_LOCATION).toBool()) {
         return expandableItemDelegate_;
     }
-    // a non expandable item
     else {
         return nonexpandableItemDelegate_;
     }

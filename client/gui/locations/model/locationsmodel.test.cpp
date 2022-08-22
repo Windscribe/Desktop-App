@@ -46,7 +46,6 @@ void TestLocationsModel::testBasic()
     {
         QModelIndex ind = locationsModel_->getIndexByLocationId(LocationID::createTopApiLocationId(63));
         QVERIFY(ind.isValid());
-        QVERIFY(ind.data(gui_locations::IS_TOP_LEVEL_LOCATION).toBool() == true);
         QVERIFY(ind.data(gui_locations::IS_SHOW_AS_PREMIUM).toBool() == false);
         QVERIFY(ind.data(gui_locations::IS_10GBPS).toBool() == false);
         QVERIFY(ind.data(gui_locations::LOAD).toInt() == 14);
@@ -56,7 +55,6 @@ void TestLocationsModel::testBasic()
     {
         QModelIndex ind = locationsModel_->getIndexByLocationId(LocationID::createApiLocationId(112, "Lima", "Amaru"));
         QVERIFY(ind.isValid());
-        QVERIFY(ind.data(gui_locations::IS_TOP_LEVEL_LOCATION).toBool() == false);
         QVERIFY(ind.data(gui_locations::IS_SHOW_AS_PREMIUM).toBool() == false);
         QVERIFY(ind.data(gui_locations::IS_10GBPS).toBool() == true);
         QVERIFY(ind.data(gui_locations::LOAD).toInt() == 3);

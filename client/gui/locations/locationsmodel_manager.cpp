@@ -147,6 +147,11 @@ int LocationsModelManager::getNumCustomConfigLocations() const
     return 0;
 }
 
+void LocationsModelManager::saveFavoriteLocations()
+{
+    locationsModel_->saveFavoriteLocations();
+}
+
 void LocationsModelManager::onChangeConnectionSpeedTimer()
 {
     for (QHash<LocationID, PingTime>::const_iterator it = connectionSpeeds_.constBegin(); it != connectionSpeeds_.constEnd(); ++it)
