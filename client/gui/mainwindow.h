@@ -244,6 +244,7 @@ private slots:
     void onTrayMenuHelpMe();
     void onTrayMenuQuit();
     void onTrayMenuAboutToShow();
+    void onTrayMenuAboutToHide();
     void onLocationsTrayMenuLocationSelected(const LocationID &lid);
 
     void onFreeTrafficNotification(const QString &message);
@@ -288,7 +289,7 @@ private:
 #ifndef Q_OS_LINUX
 
 #if defined(USE_LOCATIONS_TRAY_MENU_NATIVE)
-    LocationsTrayMenuNative locationsMenu_[LOCATIONS_TRAY_MENU_NUM_TYPES];
+    QVector<QSharedPointer<LocationsTrayMenuNative> > locationsMenu_;
 #else
     QMenu locationsMenu_[LOCATIONS_TRAY_MENU_NUM_TYPES];
     QWidgetAction *listWidgetAction_[LOCATIONS_TRAY_MENU_NUM_TYPES];
@@ -360,7 +361,7 @@ private:
 
     void activateAndShow();
     void deactivateAndHide();
-    void loadTrayMenuItems();
+    void createTrayMenuItems();
 
     bool backendAppActiveState_;
     void setBackendAppActiveState(bool state);
