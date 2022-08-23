@@ -1047,6 +1047,7 @@ void MainWindow::onPreferencesSignOutClick()
     QApplication::setOverrideCursor(Qt::WaitCursor);
     setEnabled(false);
     signOutReason_ = SIGN_OUT_FROM_MENU;
+    selectedLocation_->clear();
     backend_->signOut(false);
 }
 
@@ -2192,6 +2193,7 @@ void MainWindow::onBackendSessionDeleted()
     QApplication::setOverrideCursor(Qt::WaitCursor);
     setEnabled(false);
     signOutReason_ = SIGN_OUT_SESSION_EXPIRED;
+    selectedLocation_->clear();
     backend_->signOut(true);
 }
 
@@ -3104,6 +3106,8 @@ void MainWindow::createTrayMenuItems()
 
 void MainWindow::onTrayMenuAboutToShow()
 {
+    trayMenu_.clear();
+
 #ifdef Q_OS_MAC
     if (!backend_->getPreferences()->isDockedToTray())
     {
@@ -3112,12 +3116,6 @@ void MainWindow::onTrayMenuAboutToShow()
 #else
     createTrayMenuItems();
 #endif
-}
-
-void MainWindow::onTrayMenuAboutToHide()
-{
-    trayMenu_.clear();
-    locationsMenu_.clear();
 }
 
 void MainWindow::onLocationsTrayMenuLocationSelected(const LocationID &lid)
@@ -3237,6 +3235,7 @@ void MainWindow::backToLoginWithErrorMessage(ILoginWindow::ERROR_MESSAGE_TYPE er
     signOutMessageType_ = errorMessageType;
     signOutReason_ = SIGN_OUT_WITH_MESSAGE;
     signOutErrorMessage_ = errorMessage;
+    selectedLocation_->clear();
     backend_->signOut(false);
 }
 
@@ -3246,7 +3245,6 @@ void MainWindow::setupTrayIcon()
 
     trayIcon_.setContextMenu(&trayMenu_);
     connect(&trayMenu_, SIGNAL(aboutToShow()), SLOT(onTrayMenuAboutToShow()));
-    connect(&trayMenu_, SIGNAL(aboutToHide()), SLOT(onTrayMenuAboutToHide()));
 
     updateAppIconType(AppIconType::DISCONNECTED);
     updateTrayIconType(AppIconType::DISCONNECTED);
@@ -3608,8 +3606,8 @@ void MainWindow::onSelectedLocationRemoved()
         LocationID bestLocation = backend_->locationsModelManager()->getBestLocationId();
         Q_ASSERT(bestLocation.isValid());
         selectedLocation_->set(bestLocation);
-        PersistentState::instance().setLastLocation(selectedLocation_->locationdId());
         Q_ASSERT(selectedLocation_->isValid());
+        PersistentState::instance().setLastLocation(selectedLocation_->locationdId());
         mainWindowController_->getConnectWindow()->updateLocationInfo(selectedLocation_->firstName(), selectedLocation_->secondName(),
                                                                       selectedLocation_->countryCode(), selectedLocation_->pingTime());
     }

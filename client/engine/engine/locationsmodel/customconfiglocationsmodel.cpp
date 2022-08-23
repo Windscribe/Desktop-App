@@ -215,7 +215,7 @@ void CustomConfigLocationsModel::generateLocationsUpdated()
             city.city = config.customConfig->name();
             city.nick = config.customConfig->nick();
             city.pingTimeMs = config.getPing();
-            city.isPro = true;
+            city.isPro = false;
             city.isDisabled = false;
 
             city.customConfigType = config.customConfig->type();

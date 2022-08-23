@@ -24,9 +24,9 @@
 #include "types/checkupdate.h"
 #include "locations/model/selectedlocation.h"
 
-#if defined(Q_OS_MAC)
+//#if defined(Q_OS_MAC)
 #define USE_LOCATIONS_TRAY_MENU_NATIVE
-#endif
+//#endif
 
 class MainWindow : public QWidget
 {
@@ -244,7 +244,6 @@ private slots:
     void onTrayMenuHelpMe();
     void onTrayMenuQuit();
     void onTrayMenuAboutToShow();
-    void onTrayMenuAboutToHide();
     void onLocationsTrayMenuLocationSelected(const LocationID &lid);
 
     void onFreeTrafficNotification(const QString &message);

@@ -418,7 +418,7 @@ bool TestLocationsModel::isCityEqual(const QModelIndex &miCity, const types::Cit
     if (miCity.data(gui_locations::IS_CUSTOM_CONFIG_CORRECT).toBool() != city.customConfigIsCorrect) return false;
     if (miCity.data(gui_locations::CUSTOM_CONFIG_ERROR_MESSAGE).toString() !=  city.customConfigErrorMessage) return false;
 
-    if (miCity.data(gui_locations::LINK_SPEED).toInt() !=  city.linkSpeed) return false;
+    if (miCity.data(gui_locations::IS_10GBPS).toInt() !=  city.is10Gbps) return false;
 
     return true;
 }

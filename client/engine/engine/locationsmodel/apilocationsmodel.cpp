@@ -335,7 +335,7 @@ BestAndAllLocations ApiLocationsModel::generateLocationsUpdated()
             city.isPro = group.isPro();
             city.pingTimeMs = pingStorage_.getNodeSpeed(group.getPingIp());
             city.isDisabled = group.isDisabled();
-            city.linkSpeed = group.getLinkSpeed();
+            city.is10Gbps = (group.getLinkSpeed() == 10000);
             city.health = group.getHealth();
             item.cities << city;
 

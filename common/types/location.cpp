@@ -20,7 +20,7 @@ bool City::operator==(const City &other) const
            other.customConfigType == customConfigType &&
            other.customConfigIsCorrect == customConfigIsCorrect &&
            other.customConfigErrorMessage == customConfigErrorMessage &&
-           other.linkSpeed == linkSpeed &&
+           other.is10Gbps == is10Gbps &&
            other.health == health;
 }
 
@@ -95,7 +95,7 @@ Location Location::locationFromJsonObject(const QJsonObject &obj)
         city.customConfigType = (objCity["custom_config_type"].toString() == "CUSTOM_CONFIG_OPENVPN" ? CUSTOM_CONFIG_OPENVPN : CUSTOM_CONFIG_WIREGUARD);
         city.customConfigIsCorrect = objCity["custom_config_is_correct"].toBool();
         city.customConfigErrorMessage = objCity["custom_config_error_message"].toString();
-        city.linkSpeed = objCity["link_speed"].toInt();
+        city.is10Gbps = (objCity["link_speed"].toInt() == 10000);
         city.health = objCity["health"].toInt();
         location.cities << city;
     }

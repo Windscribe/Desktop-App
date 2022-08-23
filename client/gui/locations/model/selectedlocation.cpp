@@ -27,6 +27,11 @@ void SelectedLocation::set(const LocationID &lid)
     }
 }
 
+void SelectedLocation::clear()
+{
+    setInvalid();
+}
+
 void SelectedLocation::checkForRemove()
 {
     if (isValid_)
@@ -41,6 +46,10 @@ void SelectedLocation::checkForRemove()
 
 void SelectedLocation::onDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &/*roles*/)
 {
+    if (!topLeft.isValid() || !bottomRight.isValid())
+    {
+        return;
+    }
     Q_ASSERT(topLeft.parent() == bottomRight.parent());
     Q_ASSERT(topLeft.column() == 0);
     Q_ASSERT(bottomRight.column() == 0);

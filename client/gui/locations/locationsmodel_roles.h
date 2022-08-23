@@ -16,12 +16,10 @@ enum ROLES { LOCATION_ID = Qt::UserRole,    // location and city
              NICKNAME,                      // city only and best location
              PING_TIME,                     // location and city (for latency calc average ping)
              IS_FAVORITE,                   // city only
+             IS_DISABLED,                   // city and location, the location is disabled if it has no cities
 
              STATIC_IP_TYPE,                // city only
              STATIC_IP,                     // city only
-
-             LINK_SPEED,                    // city only
-             IS_DISABLED,                   // city only
 
              IS_CUSTOM_CONFIG_CORRECT,      // city only
              CUSTOM_CONFIG_TYPE,            // city only

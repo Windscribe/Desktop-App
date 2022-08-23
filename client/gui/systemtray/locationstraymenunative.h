@@ -18,7 +18,6 @@ signals:
 
 private slots:
     void onMenuActionTriggered(QAction *action);
-    void onSubmenuActionTriggered(QAction *action);
 
 private:
     void buildMenu(QAbstractItemModel *model);

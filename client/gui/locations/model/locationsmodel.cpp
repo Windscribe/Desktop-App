@@ -385,6 +385,10 @@ Qt::ItemFlags LocationsModel::flags(const QModelIndex &index) const
 
 QModelIndex LocationsModel::getIndexByLocationId(const LocationID &id) const
 {
+    if (!id.isValid()) {
+        return QModelIndex();
+    }
+
     if (id.isBestLocation())
     {
         auto it = mapLocations_.find(id);
@@ -497,6 +501,15 @@ QVariant LocationsModel::dataForLocation(int row, int role) const
     {
         return locations_[row]->averagePing();
     }
+    else if (role == IS_DISABLED)
+    {
+        if (locations_[row]->location().id.isBestLocation()) {
+            return false;
+        }
+        else {
+            return locations_[row]->location().cities.isEmpty();
+        }
+    }
 
     return QVariant();
 }
@@ -536,7 +549,7 @@ QVariant LocationsModel::dataForCity(LocationItem *l, int row, int role) const
     }
     else if (role == IS_10GBPS)
     {
-        return (l->location().cities[row].linkSpeed == 10000);
+        return l->location().cities[row].is10Gbps;
     }
     else if (role == LOAD)
     {
@@ -591,10 +604,6 @@ QVariant LocationsModel::dataForCity(LocationItem *l, int row, int role) const
     else if (role == IS_DISABLED)
     {
         return l->location().cities[row].isDisabled;
-    }
-    else if (role == LINK_SPEED)
-    {
-        return l->location().cities[row].linkSpeed;
     }
     else if (role == IS_CUSTOM_CONFIG_CORRECT)
     {

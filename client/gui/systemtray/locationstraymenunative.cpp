@@ -10,25 +10,15 @@ LocationsTrayMenuNative::LocationsTrayMenuNative(QWidget *parent, QAbstractItemM
     // we do not need to rebuild the menu when the model changes because the menu will rebuild again when the menu is shown again
     // if something changes while the menu is being displayed, it is not critical
     buildMenu(model);
+    connect(this, &QMenu::triggered, this, &LocationsTrayMenuNative::onMenuActionTriggered);
 }
 
 void LocationsTrayMenuNative::onMenuActionTriggered(QAction *action)
 {
-    /*Q_ASSERT(action);
+    Q_ASSERT(action);
     if (!action || !action->isEnabled())
         return;
-    emit locationSelected(locationType_, action->whatsThis(), -1);*/
-}
-
-void LocationsTrayMenuNative::onSubmenuActionTriggered(QAction *action)
-{
-    /*Q_ASSERT(action);
-    if (!action || !action->isEnabled())
-        return;
-    const auto *menu = qobject_cast<QMenu*>(action->parentWidget());
-    if (!menu || !menu->isEnabled())
-        return;
-    emit locationSelected(locationType_, action->whatsThis(), menu->actions().indexOf(action));*/
+    emit locationSelected(qvariant_cast<LocationID>(action->data()));
 }
 
 void LocationsTrayMenuNative::buildMenu(QAbstractItemModel *model)
@@ -50,17 +40,29 @@ void LocationsTrayMenuNative::buildMenu(QAbstractItemModel *model)
             flag = ImageResourcesSvg::instance().getScaledFlag(countryCode, 20 * G_SCALE, 10 * G_SCALE, flags);
         }
 
+        QString rootVisibleName = mi.data().toString();
+        bool bRootShowAsPremium = mi.data(gui_locations::IS_SHOW_AS_PREMIUM).toBool();
+        if (bRootShowAsPremium) {
+            rootVisibleName += " (Pro)";
+        }
+
         int childsCount = model->rowCount(mi);
-        if (childsCount == 0)
+        if (childsCount == 0 || bRootShowAsPremium)
         {
-            QAction *action = addAction(mi.data().toString());
+            QAction *action = addAction(rootVisibleName);
             if (flag) {
                 action->setIcon(flag->getIcon());
             }
+
+            QVariant stored;
+            stored.setValue(lid);
+            action->setData(stored);
+            action->setEnabled(!bRootShowAsPremium && !mi.data(gui_locations::IS_DISABLED).toBool());
         }
         else
         {
             QMenu *subMenu = addMenu(mi.data().toString());
+            subMenu->setEnabled(!mi.data(gui_locations::IS_DISABLED).toBool());
             if (flag) {
                 subMenu->setIcon(flag->getIcon());
             }
@@ -75,6 +77,7 @@ void LocationsTrayMenuNative::buildMenu(QAbstractItemModel *model)
                 QAction *cityAction = subMenu->addAction(visibleName);
                 cityAction->setEnabled(!cityMi.data(gui_locations::IS_DISABLED).toBool());
                 cityAction->setData(cityMi.data(gui_locations::LOCATION_ID));
+                connect(subMenu, &QMenu::triggered, this, &LocationsTrayMenuNative::onMenuActionTriggered);
             }
         }
     }

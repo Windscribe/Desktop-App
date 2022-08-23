@@ -17,7 +17,7 @@ LocationItem::LocationItem(const LocationID &bestLocation, const types::Location
     location_.isPremiumOnly = l.isPremiumOnly;
 
     types::City city = l.cities[cityInd];
-    is10gbps_ = (city.linkSpeed == 10000);
+    is10gbps_ = city.is10Gbps;
     if (city.health >= 0 && city.health <= 100)
     {
         load_ = city.health;

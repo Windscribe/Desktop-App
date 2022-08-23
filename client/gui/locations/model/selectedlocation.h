@@ -15,6 +15,7 @@ public:
     explicit SelectedLocation(QAbstractItemModel *model);
 
     void set(const LocationID &lid);
+    void clear();
     bool isValid() const { return isValid_; }
 
     LocationID locationdId() const { return id_; }

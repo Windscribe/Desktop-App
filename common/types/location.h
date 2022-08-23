@@ -25,8 +25,8 @@ struct City
     bool customConfigIsCorrect = false;
     QString customConfigErrorMessage;
 
-    int linkSpeed = 100;
-    int health = 0;
+    bool is10Gbps = false;
+    int health = 0;     // correct values [0..100]
 
     bool operator==(const City &other) const;
     bool operator!=(const City &other) const;

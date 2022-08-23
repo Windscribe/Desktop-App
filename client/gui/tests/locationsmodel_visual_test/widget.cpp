@@ -272,7 +272,7 @@ QVector<types::Location> Widget::generateRandomLocations()
                 city.pingTimeMs = Utils::generateIntegerRandom(0, 1900);
                 city.isPro = (Utils::generateIntegerRandom(0, 1) == 1);
                 city.isDisabled = (Utils::generateIntegerRandom(0, 1) == 1);
-                city.linkSpeed = Utils::generateIntegerRandom(0, 100);
+                city.is10Gbps = (Utils::generateIntegerRandom(0, 5) == 1);
                 city.health = Utils::generateIntegerRandom(0, 100);
                 location.cities << city;
             }
