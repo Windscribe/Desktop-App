@@ -1,12 +1,14 @@
 target_sources(gui PRIVATE
+    locationstraymenu.cpp
+    locationstraymenu.h
     locationstraymenubutton.cpp
-    locationstraymenuitemdelegate.cpp
-    locationstraymenuwidget.cpp
-    locationstraymenunative.cpp
-    locationstraymenuscalemanager.cpp
     locationstraymenubutton.h
+    locationstraymenuitemdelegate.cpp
     locationstraymenuitemdelegate.h
-    locationstraymenuwidget.h
+    locationstraymenunative.cpp
     locationstraymenunative.h
+    locationstraymenuscalemanager.cpp
     locationstraymenuscalemanager.h
+    locationstraymenuwidget.cpp
+    locationstraymenuwidget.h
 )

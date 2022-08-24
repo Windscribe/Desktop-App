@@ -17,16 +17,15 @@
 #include "freetrafficnotificationcontroller.h"
 #include "graphicresources/iconmanager.h"
 #include "guitest.h"
-#include "systemtray/locationstraymenutypes.h"
 #include "systemtray/locationstraymenunative.h"
-#include "systemtray/locationstraymenuwidget.h"
+#include "systemtray/locationstraymenu.h"
 #include "dialogs/advancedparametersdialog.h"
 #include "types/checkupdate.h"
 #include "locations/model/selectedlocation.h"
 
-//#if defined(Q_OS_MAC)
+#if defined(Q_OS_MAC)
 #define USE_LOCATIONS_TRAY_MENU_NATIVE
-//#endif
+#endif
 
 class MainWindow : public QWidget
 {
@@ -290,9 +289,7 @@ private:
 #if defined(USE_LOCATIONS_TRAY_MENU_NATIVE)
     QVector<QSharedPointer<LocationsTrayMenuNative> > locationsMenu_;
 #else
-    QMenu locationsMenu_[LOCATIONS_TRAY_MENU_NUM_TYPES];
-    QWidgetAction *listWidgetAction_[LOCATIONS_TRAY_MENU_NUM_TYPES];
-    LocationsTrayMenuWidget *locationsTrayMenuWidget_[LOCATIONS_TRAY_MENU_NUM_TYPES];
+    QVector<QSharedPointer<LocationsTrayMenu> > locationsMenu_;
 #endif
 
 #endif

@@ -60,13 +60,6 @@ MainWindow::MainWindow() :
     backend_(NULL),
     logViewerWindow_(nullptr),
     advParametersWindow_(nullptr),
-#ifndef Q_OS_LINUX
-    locationsMenu_(),
-#if !defined(USE_LOCATIONS_TRAY_MENU_NATIVE)
-    listWidgetAction_(),
-    locationsTrayMenuWidget_(),
-#endif
-#endif
     currentAppIconType_(AppIconType::DISCONNECTED),
     trayIcon_(),
     bNotificationConnectedShowed_(false),
@@ -3046,6 +3039,8 @@ void MainWindow::createTrayMenuItems()
         trayMenu_.addSeparator();
 
 #ifndef Q_OS_LINUX
+
+#ifdef USE_LOCATIONS_TRAY_MENU_NATIVE
         if (backend_->locationsModelManager()->sortedLocationsProxyModel()->rowCount() > 0) {
             QSharedPointer<LocationsTrayMenuNative> menu(new LocationsTrayMenuNative(nullptr, backend_->locationsModelManager()->sortedLocationsProxyModel()));
             menu->setTitle(tr("Locations"));
@@ -3074,8 +3069,38 @@ void MainWindow::createTrayMenuItems()
             connect(menu.get(), &LocationsTrayMenuNative::locationSelected, this, &MainWindow::onLocationsTrayMenuLocationSelected);
             locationsMenu_.append(menu);
         }
-        trayMenu_.addSeparator();
+#else
+        if (backend_->locationsModelManager()->sortedLocationsProxyModel()->rowCount() > 0) {
+            QSharedPointer<LocationsTrayMenu> menu(new LocationsTrayMenu(backend_->locationsModelManager()->sortedLocationsProxyModel(), trayMenu_.font()));
+            menu->setTitle(tr("Locations"));
+            trayMenu_.addMenu(menu.get());
+            connect(menu.get(), &LocationsTrayMenu::locationSelected, this, &MainWindow::onLocationsTrayMenuLocationSelected);
+            locationsMenu_.append(menu);
+        }
+        if (backend_->locationsModelManager()->favoriteCitiesProxyModel()->rowCount() > 0) {
+            QSharedPointer<LocationsTrayMenu> menu(new LocationsTrayMenu(backend_->locationsModelManager()->favoriteCitiesProxyModel(), trayMenu_.font()));
+            menu->setTitle(tr("Favourites"));
+            trayMenu_.addMenu(menu.get());
+            connect(menu.get(), &LocationsTrayMenu::locationSelected, this, &MainWindow::onLocationsTrayMenuLocationSelected);
+            locationsMenu_.append(menu);
+        }
+        if (backend_->locationsModelManager()->staticIpsProxyModel()->rowCount() > 0) {
+            QSharedPointer<LocationsTrayMenu> menu(new LocationsTrayMenu(backend_->locationsModelManager()->staticIpsProxyModel(), trayMenu_.font()));
+            menu->setTitle(tr("Static IPs"));
+            trayMenu_.addMenu(menu.get());
+            connect(menu.get(), &LocationsTrayMenu::locationSelected, this, &MainWindow::onLocationsTrayMenuLocationSelected);
+            locationsMenu_.append(menu);
+        }
+        if (backend_->locationsModelManager()->customConfigsProxyModel()->rowCount() > 0) {
+            QSharedPointer<LocationsTrayMenu> menu(new LocationsTrayMenu(backend_->locationsModelManager()->customConfigsProxyModel(), trayMenu_.font()));
+            menu->setTitle(tr("Configured"));
+            trayMenu_.addMenu(menu.get());
+            connect(menu.get(), &LocationsTrayMenu::locationSelected, this, &MainWindow::onLocationsTrayMenuLocationSelected);
+            locationsMenu_.append(menu);
+        }
 #endif
+#endif
+        trayMenu_.addSeparator();
     }
 
 #if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
@@ -3093,13 +3118,6 @@ void MainWindow::createTrayMenuItems()
 #ifndef Q_OS_LINUX
 #if !defined(USE_LOCATIONS_TRAY_MENU_NATIVE)
     LocationsTrayMenuScaleManager::instance().setTrayIconGeometry(trayIcon_.geometry());
-    for (int i = 0; i < LOCATIONS_TRAY_MENU_NUM_TYPES; ++i) {
-        locationsTrayMenuWidget_[i]->setFontForItems(trayMenu_.font());
-        // Force geometry update of the menu, because widget size could have been changed.
-        // Send the resize event, so it will make the menu to rebuild its size based on items.
-        QResizeEvent resizeEvent(locationsTrayMenuWidget_[i]->size(), locationsMenu_[i].size());
-        qApp->sendEvent(&locationsMenu_[i], &resizeEvent);
-    }
 #endif
 #endif
 }
@@ -3107,6 +3125,7 @@ void MainWindow::createTrayMenuItems()
 void MainWindow::onTrayMenuAboutToShow()
 {
     trayMenu_.clear();
+    locationsMenu_.clear();
 
 #ifdef Q_OS_MAC
     if (!backend_->getPreferences()->isDockedToTray())

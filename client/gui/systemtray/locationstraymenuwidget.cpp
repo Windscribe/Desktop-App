@@ -15,27 +15,6 @@
 #include "utils/widgetutils_mac.h"
 #endif
 
-namespace
-{
-// exclude the best location from locations list
-class LocationsWithoutBestLocationProxyModel : public QSortFilterProxyModel
-{
-    Q_OBJECT
-public:
-    explicit LocationsWithoutBestLocationProxyModel(QObject *parent) : QSortFilterProxyModel(parent) {}
-
-protected:
-    bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const override
-    {
-        QModelIndex mi = sourceModel()->index(source_row, 0, source_parent);
-        QVariant v = sourceModel()->data(mi, gui_locations::LOCATION_ID);
-        LocationID lid = qvariant_cast<LocationID>(v);
-        return !lid.isBestLocation();
-    }
-};
-#include "locationstraymenuwidget.moc"
-}
-
 class LocationsTrayMenuWidget::LocationsTrayMenuWidgetSubmenu : public QMenu
 {
 public:
@@ -58,14 +37,11 @@ private:
     LocationsTrayMenuWidget *host_;
 };
 
-LocationsTrayMenuWidget::LocationsTrayMenuWidget(QWidget *parent, QAbstractItemModel *model) :
+LocationsTrayMenuWidget::LocationsTrayMenuWidget(QWidget *parent, QAbstractItemModel *model, const QFont &font) :
     QWidget(parent)
   , currentSubmenu_(nullptr)
   , visibleItemsCount_(20)
 {
-    LocationsWithoutBestLocationProxyModel *modelWithoutBestLocation = new LocationsWithoutBestLocationProxyModel(this);
-    modelWithoutBestLocation->setSourceModel(model);
-
     listView_ = new QListView();
     listView_->setMouseTracking(true);
     listView_->setStyleSheet("background-color: rgba(255, 255, 255, 0);\nborder-top: none;\nborder-bottom: none;");
@@ -73,9 +49,10 @@ LocationsTrayMenuWidget::LocationsTrayMenuWidget(QWidget *parent, QAbstractItemM
     listView_->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     listView_->setResizeMode(QListView::Adjust);
     locationsTrayMenuItemDelegate_ = new LocationsTrayMenuItemDelegate(this);
+    locationsTrayMenuItemDelegate_->setFontForItems(font);
     listView_->setItemDelegate(locationsTrayMenuItemDelegate_);
     listView_->viewport()->installEventFilter(this);
-    listView_->setModel(modelWithoutBestLocation);
+    listView_->setModel(model);
     connect(listView_, &QListView::clicked, this, &LocationsTrayMenuWidget::onListViewClicked);
 
     upButton_ = new LocationsTrayMenuButton();
@@ -93,17 +70,12 @@ LocationsTrayMenuWidget::LocationsTrayMenuWidget(QWidget *parent, QAbstractItemM
     setLayout(widgetLayout);
 
     // These signals must be connected after listView_->setModel(modelWithoutBestLocation) since the order of slot calls matters here
-    connect(modelWithoutBestLocation, &QAbstractItemModel::modelReset, this, &LocationsTrayMenuWidget::onModelChanged);
-    connect(modelWithoutBestLocation, &QAbstractItemModel::rowsInserted, this, &LocationsTrayMenuWidget::onModelChanged);
-    connect(modelWithoutBestLocation, &QAbstractItemModel::rowsRemoved, this, &LocationsTrayMenuWidget::onModelChanged);
+    connect(model, &QAbstractItemModel::modelReset, this, &LocationsTrayMenuWidget::onModelChanged);
+    connect(model, &QAbstractItemModel::rowsInserted, this, &LocationsTrayMenuWidget::onModelChanged);
+    connect(model, &QAbstractItemModel::rowsRemoved, this, &LocationsTrayMenuWidget::onModelChanged);
+    connect(model, &QAbstractItemModel::layoutChanged, this, &LocationsTrayMenuWidget::onModelChanged);
 
-    recalcSize();
-}
-
-void LocationsTrayMenuWidget::setFontForItems(const QFont &font)
-{
-    locationsTrayMenuItemDelegate_->setFontForItems(font);
-    recalcSize();
+    onModelChanged();
 }
 
 bool LocationsTrayMenuWidget::eventFilter(QObject *watched, QEvent *event)

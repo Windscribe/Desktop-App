@@ -24,12 +24,18 @@ void LocationsTrayMenuItemDelegate::paint(QPainter *painter, const QStyleOptionV
         return;
 
     QString text = index.model()->data(index, Qt::DisplayRole).toString();
+
+    if (index.data(gui_locations::IS_SHOW_AS_PREMIUM).toBool())
+    {
+        text += " (Pro)";
+    }
+
     bool bEnabled = index.flags() & Qt::ItemIsEnabled;
     QSharedPointer<IndependentPixmap> flag = nullptr;
-    LocationID lid = qvariant_cast<LocationID>(index.model()->data(index, gui_locations::LOCATION_ID));
+    LocationID lid = qvariant_cast<LocationID>(index.data(gui_locations::LOCATION_ID));
     if (!lid.isCustomConfigsLocation()) {
         flag = ImageResourcesSvg::instance().getScaledFlag(
-            index.model()->data(index, gui_locations::COUNTRY_CODE).toString(),
+            index.data(gui_locations::COUNTRY_CODE).toString(),
             20 * LocationsTrayMenuScaleManager::instance().scale(), 10 * LocationsTrayMenuScaleManager::instance().scale(), bEnabled ? 0 : ImageResourcesSvg::IMAGE_FLAG_GRAYED);
     }
     QRect rc = option.rect;
@@ -69,7 +75,7 @@ void LocationsTrayMenuItemDelegate::paint(QPainter *painter, const QStyleOptionV
     painter->setFont(font_);
     painter->drawText(rc, text, to);
 
-    if (index.data(gui_locations::IS_TOP_LEVEL_LOCATION).toBool())
+    if (index.model()->rowCount(index) > 0)
     {
         QStyleOption ao(option);
         ao.rect.setLeft(ao.rect.right() - 20 * LocationsTrayMenuScaleManager::instance().scale());
@@ -112,7 +118,7 @@ int LocationsTrayMenuItemDelegate::calcWidth(const QModelIndex & index) const
     QRect rc = fm.boundingRect(text);
     width += rc.width();
 
-    if (index.data(gui_locations::IS_TOP_LEVEL_LOCATION).toBool())
+    if (index.model()->rowCount(index) > 0)
     {
         width += 20 * LocationsTrayMenuScaleManager::instance().scale();
     }

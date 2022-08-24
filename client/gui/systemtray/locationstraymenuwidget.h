@@ -12,9 +12,8 @@ class LocationsTrayMenuWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit LocationsTrayMenuWidget(QWidget *parent, QAbstractItemModel *model);
+    explicit LocationsTrayMenuWidget(QWidget *parent, QAbstractItemModel *model, const QFont &font);
 
-    void setFontForItems(const QFont &font);
     bool eventFilter(QObject *watched, QEvent *event) override;
 
 signals:
