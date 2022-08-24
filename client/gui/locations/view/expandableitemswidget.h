@@ -21,8 +21,7 @@ public:
 
     // does not take ownership of model or delegates
     void setModel(QAbstractItemModel *model);
-    void setItemDelegateForExpandableItem(IItemDelegate *itemDelegate);
-    void setItemDelegateForNonExpandableItem(IItemDelegate *itemDelegate);
+    void setItemDelegate(IItemDelegate *itemDelegateExpandableItem, IItemDelegate *itemDelegateNonExpandableItem);
 
 protected:
     void paintEvent(QPaintEvent *event) override;
@@ -41,9 +40,6 @@ private:
 
     QPersistentModelIndex selectedInd_;
 
-    int curWidth_;
-    int curHeight_;
-
     bool bMousePressed_;
     QPersistentModelIndex mousePressedInd_;
     int mousePressedClickableId_;
@@ -54,7 +50,7 @@ private:
     QPersistentModelIndex detectSelectedItem(const QPoint &pt, QRect *outputRect = nullptr);
     IItemDelegate *delegateForItem(const QPersistentModelIndex &ind);
     bool isExpandableItem(const QPersistentModelIndex &ind);
-    void updateWidgetSize();
+    void updateHeight();
 
 };
 

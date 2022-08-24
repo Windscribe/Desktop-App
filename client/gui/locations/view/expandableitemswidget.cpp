@@ -13,8 +13,6 @@ ExpandableItemsWidget::ExpandableItemsWidget(QWidget *parent) : QWidget(parent)
   , model_(nullptr)
   , expandableItemDelegate_(nullptr)
   , nonexpandableItemDelegate_(nullptr)
-  , curWidth_(0)
-  , curHeight_(0)
   , bMousePressed_(false)
   , mousePressedClickableId_(-1)
 {
@@ -65,21 +63,17 @@ void ExpandableItemsWidget::setModel(QAbstractItemModel *model)
     updateItemsList();
 }
 
-void ExpandableItemsWidget::setItemDelegateForExpandableItem(IItemDelegate *itemDelegate)
+void ExpandableItemsWidget::setItemDelegate(IItemDelegate *itemDelegateExpandableItem, IItemDelegate *itemDelegateNonExpandableItem)
 {
-    expandableItemDelegate_ = itemDelegate;
-}
-
-void ExpandableItemsWidget::setItemDelegateForNonExpandableItem(IItemDelegate *itemDelegate)
-{
-    nonexpandableItemDelegate_ = itemDelegate;
+    expandableItemDelegate_ = itemDelegateExpandableItem;
+    nonexpandableItemDelegate_ = itemDelegateNonExpandableItem;
 }
 
 void ExpandableItemsWidget::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
     QRect bkgd(0, 0, geometry().width(), geometry().height());
-    painter.fillRect(bkgd, QColor(255, 0, 0));
+    painter.fillRect(bkgd, QColor(255, 255, 0));
 
     int top = 0;
     for (auto it : qAsConst(items_))
@@ -87,7 +81,7 @@ void ExpandableItemsWidget::paintEvent(QPaintEvent *event)
         IItemDelegate *delegate = delegateForItem(it);
 
         int curItemHeight = delegate->sizeHint(it).height();
-        QRect rcItem(0, top, curWidth_, curItemHeight);
+        QRect rcItem(0, top, size().width(), curItemHeight);
 
         bool isExpanded = expandedItems_.contains(it);
         ItemStyleOption opt(rcItem, it == selectedInd_ ? 1.0 : 0.0, isExpanded, true, false);
@@ -103,7 +97,7 @@ void ExpandableItemsWidget::paintEvent(QPaintEvent *event)
             while (childInd.isValid())
             {
                 int curChildItemHeight = nonexpandableItemDelegate_->sizeHint(childInd).height();
-                QRect rcChildItem(0, top, curWidth_, curChildItemHeight);
+                QRect rcChildItem(0, top, size().width(), curChildItemHeight);
 
                 ItemStyleOption opt(rcChildItem, childInd == selectedInd_ ? 1.0 : 0.0, false, true, false);
                 nonexpandableItemDelegate_->paint(&painter, opt, childInd);
@@ -178,7 +172,7 @@ void ExpandableItemsWidget::mouseReleaseEvent(QMouseEvent *event)
                         expandedItems_.insert(mousePressedInd_);
                     }
                 }
-                updateWidgetSize();
+                updateHeight();
                 update();
             }
             else    // non expandable item
@@ -212,7 +206,7 @@ void ExpandableItemsWidget::updateItemsList()
         items_ << mi;
     }
 
-    updateWidgetSize();
+    updateHeight();
     update();
 }
 
@@ -231,7 +225,7 @@ QPersistentModelIndex ExpandableItemsWidget::detectSelectedItem(const QPoint &pt
     for (auto it : qAsConst(items_))
     {
         int curItemHeight = delegateForItem(it)->sizeHint(it).height();
-        QRect rcItem = QRect(0, top, curWidth_, curItemHeight);
+        QRect rcItem = QRect(0, top, size().width(), curItemHeight);
         if (rcItem.contains(pt))
         {
             if (outputRect) {
@@ -248,7 +242,7 @@ QPersistentModelIndex ExpandableItemsWidget::detectSelectedItem(const QPoint &pt
             while (childInd.isValid())
             {
                 int curChildItemHeight = nonexpandableItemDelegate_->sizeHint(childInd).height();
-                QRect rcChildItem(0, top, curWidth_, curChildItemHeight);
+                QRect rcChildItem(0, top, size().width(), curChildItemHeight);
                 if (rcChildItem.contains(pt))
                 {
                     if (outputRect) {
@@ -282,17 +276,16 @@ bool ExpandableItemsWidget::isExpandableItem(const QPersistentModelIndex &ind)
     return ind.flags() != Qt::ItemNeverHasChildren;
 }
 
-void ExpandableItemsWidget::updateWidgetSize()
+void ExpandableItemsWidget::updateHeight()
 {
-    curWidth_ = 0;
-    curHeight_ = 0;
+    // Updating only height
+    int curHeight = 0;
 
     for (auto it : qAsConst(items_))
     {
         QSize sz = delegateForItem(it)->sizeHint(it);
         int curItemHeight = sz.height();
-        curHeight_ += curItemHeight;
-        curWidth_ = sz.width();
+        curHeight += curItemHeight;
 
         if (expandedItems_.contains(it))
         {
@@ -301,13 +294,13 @@ void ExpandableItemsWidget::updateWidgetSize()
             while (childInd.isValid())
             {
                 int curChildItemHeight = nonexpandableItemDelegate_->sizeHint(childInd).height();
-                curHeight_ += curChildItemHeight;
+                curHeight += curChildItemHeight;
                 row++;
                 childInd = it.model()->index(row, 0, it);
             }
         }
     }
-    resize(curWidth_, curHeight_);
+    resize(size().width(), curHeight);
 }
 
 

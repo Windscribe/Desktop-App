@@ -11,5 +11,7 @@ target_sources(gui PRIVATE
     iitemdelegate.h
     locationsview.cpp
     locationsview.h
+    scrollbar.cpp
+    scrollbar.h
 )
 

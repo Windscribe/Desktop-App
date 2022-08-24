@@ -5,6 +5,7 @@
 #include "expandableitemswidget.h"
 #include "countryitemdelegate.h"
 #include "cityitemdelegate.h"
+#include "scrollbar.h"
 
 namespace gui_locations {
 
@@ -24,6 +25,7 @@ public:
 
 protected:
     void paintEvent(QPaintEvent *event) override;
+    void resizeEvent(QResizeEvent *event) override;
 
 signals:
 
@@ -31,9 +33,12 @@ private slots:
 
 
 private:
+    const int SCROLL_BAR_WIDTH = 10;
     ExpandableItemsWidget *widget_;
     CountryItemDelegate *countryItemDelegate_;  // todo move outside class
     CityItemDelegate *cityItemDelegate_;        // todo move outside class
+    ScrollBar *scrollBar_;
+
 
 };
 
