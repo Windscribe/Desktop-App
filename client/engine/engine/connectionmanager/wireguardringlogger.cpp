@@ -133,13 +133,18 @@ void WireguardRingLogger::process(int index)
     const char* msgData = (const char*)data + WG_LOG_TIMESTAMP_SIZE;
     size_t msgLen = qstrnlen(msgData, WG_LOG_MESSAGE_SIZE);
 
-    if (msgLen > 0) {
+    if (msgLen > 0)
+    {
         QDateTime dt = QDateTime::fromMSecsSinceEpoch(timestamp / 1000000, Qt::UTC);
         QByteArray message(msgData, msgLen);
         qCDebug(LOG_WIREGUARD()) << dt.toString("ddMMyy hh:mm:ss:zzz") << message;
 
         if (!tunnelRunning_ && message.contains("Keypair 1 created for peer 1")) {
             tunnelRunning_ = true;
+        }
+
+        if (message.startsWith("Handshake for peer") && message.contains("did not complete after")) {
+            handshakeFailed_ = true;
         }
     }
 }
@@ -149,6 +154,8 @@ void WireguardRingLogger::getNewLogEntries()
     if (!mapWireguardRinglogFile()) {
         return;
     }
+
+    handshakeFailed_ = false;
 
     /* On the first pass, scan all log messages. */
     if (ringLogIndex_ < 0)

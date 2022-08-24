@@ -64,6 +64,8 @@ namespace WinUtils
     bool pingWithMtu(const QString &url, int mtu);
     QString getLocalIP();
 
+    std::optional<bool> haveInternetConnectivity();
+
     bool authorizeWithUac();
     bool isWindows64Bit();
     unsigned long Win32GetErrorString(unsigned long errorCode, wchar_t *buffer, unsigned long bufferSize);
