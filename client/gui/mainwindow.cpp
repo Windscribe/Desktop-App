@@ -514,6 +514,7 @@ void MainWindow::doClose(QCloseEvent *event, bool isFromSigTerm_mac)
 
     PersistentState::instance().setAppGeometry(this->saveGeometry());
 
+
     // Shutdown notification controller here, and not in a destructor. Otherwise, sometimes we won't
     // be able to shutdown properly, because the destructor may not be called. On the Windows
     // platform, when the user logs off, the system terminates the process after Qt closes all top
