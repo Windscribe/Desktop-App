@@ -13,7 +13,6 @@ class ScrollBar : public QScrollBar
 public:
     explicit ScrollBar(QWidget *parent = nullptr);
     void forceSetValue(int value); // sets the value and updates the target - avoids wheeling bugs where target is outdated
-
     bool dragging();
     void updateCustomStyleSheet();
 
@@ -31,11 +30,11 @@ protected:
     void leaveEvent(QEvent *event) override;
     void resizeEvent(QResizeEvent *event) override;
 
-
 private slots:
     void onScrollAnimationValueChanged(const QVariant &value);
     void onScollTimerTick();
     void onOpacityAnimationValueChanged(const QVariant &value);
+
 private:
     const double SCROLL_SPEED_FRACTION = 0.5;
     const int MINIMUM_DURATION = 200;

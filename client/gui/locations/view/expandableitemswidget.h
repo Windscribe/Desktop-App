@@ -3,6 +3,7 @@
 #include <QWidget>
 #include <QAbstractItemModel>
 #include <QSet>
+#include <QVariantAnimation>
 #include "iitemdelegate.h"
 #include "cursorupdatehelper.h"
 
@@ -29,21 +30,28 @@ protected:
     void mousePressEvent(QMouseEvent *event) override;
     void mouseReleaseEvent(QMouseEvent *event) override;
 
+private slots:
+    void onExpandingAnimationValueChanged(const QVariant &value);
+    void onExpandingAnimationFinished();
+
 private:
     QScopedPointer<CursorUpdateHelper> cursorUpdateHelper_;
+
     QVector<QPersistentModelIndex> items_;
     QSet<QPersistentModelIndex> expandedItems_;
+    QPersistentModelIndex selectedInd_;
+
+    QPersistentModelIndex expandingItem_;
+    int expandingCurrentHeight_;
+    QVariantAnimation expandingAnimation_;
 
     QAbstractItemModel *model_;
     IItemDelegate *expandableItemDelegate_;
     IItemDelegate *nonexpandableItemDelegate_;
 
-    QPersistentModelIndex selectedInd_;
-
     bool bMousePressed_;
-    QPersistentModelIndex mousePressedInd_;
+    QPersistentModelIndex mousePressedItem_;
     int mousePressedClickableId_;
-
 
     void updateItemsList();
     void sortItemsListByRow();
@@ -51,6 +59,7 @@ private:
     IItemDelegate *delegateForItem(const QPersistentModelIndex &ind);
     bool isExpandableItem(const QPersistentModelIndex &ind);
     void updateHeight();
+    int calcHeightOfChildItems(const QPersistentModelIndex &ind);
 
 };
 

@@ -125,7 +125,6 @@ void ScrollBar::wheelEvent(QWheelEvent * event)
 
 void ScrollBar::paintEvent(QPaintEvent *event)
 {
-
     // background
     QPainter painter(this);
     painter.setOpacity(curOpacity_);
@@ -307,7 +306,6 @@ void ScrollBar::animateScroll(int target, int animationSpeedFraction)
 
 const QString ScrollBar::customStyleSheet()
 {
-
     // hover region is bigger than drawing region
     QString css = QString( "QScrollBar:vertical { margin: %1px %2 %3px %4px; ")
                     .arg(qCeil(0))   // top margin
@@ -316,7 +314,7 @@ const QString ScrollBar::customStyleSheet()
                     .arg(qCeil(0));  // left
     // body (visible region)
     css += QString("border: none; background: rgba(0,0,0,0); width: %1px; padding: %2 %3 %4 %5; }")
-                    .arg(size().width() - customPaddingWidth())  // width
+                    .arg(geometry().width())  // width
                     .arg(0)           // padding top
                     .arg(customPaddingWidth()) // padding right
                     .arg(0)           // padding bottom
