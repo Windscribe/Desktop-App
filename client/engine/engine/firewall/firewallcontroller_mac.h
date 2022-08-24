@@ -42,7 +42,7 @@ private:
     QSet<QString> windscribeIps_;
     QString interfaceToSkip_;
     bool isAllowLanTraffic_;
-    types::StaticIpPortsVector staticIpPorts_;
+    apiinfo::StaticIpPortsVector staticIpPorts_;
 
     QTemporaryFile tempFile_;
 
