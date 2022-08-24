@@ -44,7 +44,7 @@ if (WIN32)
     )
 
     set (OS_SPECIFIC_LIBRARIES psapi.lib iphlpapi.lib dnsapi.lib rasapi32.lib pdh.lib
-        libcurl cares libeay32 ssleay32
+        libcurl cares libcrypto libssl
     )
     list(APPEND PROJECT_SOURCES client.rc)
     # Generate debug information (symbol files) for Windows (release build only)
@@ -86,7 +86,7 @@ elseif(UNIX)
                      ${WINDSCRIBE_BUILD_LIBS_PATH}/cares/lib
                      ${WINDSCRIBE_BUILD_LIBS_PATH}/openssl/lib
      )
-     set (OS_SPECIFIC_LIBRARIES ssl crypto cares curl libboost_serialization.a)
+     set (OS_SPECIFIC_LIBRARIES ssl crypto cares curl libboost_serialization.a libboost_filesystem.a)
 endif()
 
 qt_add_executable(Windscribe

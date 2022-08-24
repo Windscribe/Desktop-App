@@ -36,6 +36,4 @@ target_sources(gui PRIVATE
     middleitem.h
     serverratingindicator.cpp
     serverratingindicator.h
-    wifiname.cpp
-    wifiname.h
 )

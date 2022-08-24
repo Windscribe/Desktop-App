@@ -95,7 +95,7 @@ void NetworkDetectionManager_win::onNetworkChanged()
     if (curNetworkInterface_.active != newNetworkInterface.active
         || !Utils::sameNetworkInterface(curNetworkInterface_, newNetworkInterface))
     {
-        const QString name = newNetworkInterface.networkOrSSid;
+        const QString name = newNetworkInterface.networkOrSsid;
         if (name != "Unidentified network" && name != "Identifying...")
         {
             // if still online: Don't send the NoInterface since this can happen during

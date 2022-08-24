@@ -32,6 +32,7 @@ public:
     int getWidth() const;
     void setText(QString text);
     QString text() const;
+    void setColor(QColor color);
 
     void setCurrentOpacity(double opacity);
     void setUnhoverOpacity(double unhoverOpacity);

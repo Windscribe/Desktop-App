@@ -20,19 +20,19 @@ FirewallController_linux::~FirewallController_linux()
 {
 }
 
-bool FirewallController_linux::firewallOn(const QString &ip, bool bAllowLanTraffic)
+bool FirewallController_linux::firewallOn(const QSet<QString> &ips, bool bAllowLanTraffic)
 {
     QMutexLocker locker(&mutex_);
-    FirewallController::firewallOn(ip, bAllowLanTraffic);
+    FirewallController::firewallOn(ips, bAllowLanTraffic);
     if (isStateChanged())
     {
-        qCDebug(LOG_FIREWALL_CONTROLLER) << "firewall enabled with ips count:" << countIps(ip);
-        return firewallOnImpl(ip, bAllowLanTraffic, latestStaticIpPorts_);
+        qCDebug(LOG_FIREWALL_CONTROLLER) << "firewall enabled with ips count:" << ips.count();
+        return firewallOnImpl(ips, bAllowLanTraffic, latestStaticIpPorts_);
     }
     else if (forceUpdateInterfaceToSkip_)
     {
         qCDebug(LOG_FIREWALL_CONTROLLER) << "firewall changed due to interface-to-skip update";
-        return firewallOnImpl(ip, bAllowLanTraffic, latestStaticIpPorts_);
+        return firewallOnImpl(ips, bAllowLanTraffic, latestStaticIpPorts_);
     }
     else
     {
@@ -118,7 +118,7 @@ void FirewallController_linux::enableFirewallOnBoot(bool bEnable)
     //nothing todo for Linux
 }
 
-bool FirewallController_linux::firewallOnImpl(const QString &ip, bool bAllowLanTraffic, const types::StaticIpPortsVector &ports)
+bool FirewallController_linux::firewallOnImpl(const QSet<QString> &ips, bool bAllowLanTraffic, const types::StaticIpPortsVector &ports)
 {
     // TODO: this is need for Linux?
     Q_UNUSED(ports);
@@ -152,8 +152,7 @@ bool FirewallController_linux::firewallOnImpl(const QString &ip, bool bAllowLanT
                 stream << "-A windscribe_output -o " + interfaceToSkip_ + " -j ACCEPT -m comment --comment " + comment_ + "\n";
             }
 
-            const QStringList ips = ip.split(';');
-            for (auto &i : ips)
+            for (const auto &i : ips)
             {
                 stream << "-A windscribe_input -s " + i + "/32 -j ACCEPT -m comment --comment " + comment_ + "\n";
                 stream << "-A windscribe_output -d " + i + "/32 -j ACCEPT -m comment --comment " + comment_ + "\n";

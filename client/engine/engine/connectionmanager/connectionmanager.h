@@ -19,7 +19,7 @@
 #include "engine/locationsmodel/baselocationinfo.h"
 #include "types/connectionsettings.h"
 #include "types/packetsize.h"
-#include "types/dnswhileconnectedinfo.h"
+#include "types/connecteddnsinfo.h"
 
 #ifdef Q_OS_MAC
     #include "restorednsmanager_mac.h"
@@ -55,11 +55,11 @@ public:
 
     struct CustomDnsAdapterGatewayInfo {
         AdapterGatewayInfo adapterInfo;
-        types::DnsWhileConnectedInfo dnsWhileConnectedInfo;
+        types::ConnectedDnsInfo connectedDnsInfo;
     };
     const CustomDnsAdapterGatewayInfo &getCustomDnsAdapterGatewayInfo() const;
     QString getCustomDnsIp() const;
-    void setDnsWhileConnectedInfo(const types::DnsWhileConnectedInfo &info);
+    void setConnectedDnsInfo(const types::ConnectedDnsInfo &info);
 
     void removeIkev2ConnectionFromOS();
 

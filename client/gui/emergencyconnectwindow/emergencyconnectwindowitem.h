@@ -7,9 +7,9 @@
 #include "emergencyconnectwindow/iemergencyconnectwindow.h"
 #include "commongraphics/bubblebuttonbright.h"
 #include "commongraphics/bubblebuttondark.h"
+#include "commongraphics/escapebutton.h"
 #include "commongraphics/iconbutton.h"
 #include "textlinkbutton.h"
-#include "preferenceswindow/escapebutton.h"
 
 namespace EmergencyConnectWindow {
 
@@ -82,7 +82,7 @@ private:
     CommonGraphics::BubbleButtonDark *connectButton_;
     CommonGraphics::BubbleButtonBright *disconnectButton_;
 
-    PreferencesWindow::EscapeButton *escButton_;
+    CommonGraphics::EscapeButton *escButton_;
     TextLinkButton *textLinkButton_;
 
     double curTitleOpacity_;

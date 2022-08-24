@@ -364,6 +364,11 @@ bool LocationsModel::setData(const QModelIndex &index, const QVariant &value, in
 
 Qt::ItemFlags LocationsModel::flags(const QModelIndex &index) const
 {
+    if (!index.isValid())
+    {
+        return Qt::NoItemFlags;
+    }
+
     bool isItemEnabled;
     LocationID lid = qvariant_cast<LocationID>(index.data(LOCATION_ID));
     if (lid.isTopLevelLocation()) {

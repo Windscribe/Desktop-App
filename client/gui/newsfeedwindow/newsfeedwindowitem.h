@@ -4,11 +4,12 @@
 #include <QTextBrowser>
 #include "../backend/backend.h"
 #include "commongraphics/scalablegraphicsobject.h"
-#include "newsfeedwindow/inewsfeedwindow.h"
+#include "commongraphics/resizebar.h"
+#include "commongraphics/escapebutton.h"
 #include "commongraphics/iconbutton.h"
-#include "preferenceswindow/escapebutton.h"
-#include "newsfeedwindow/scrollablemessage.h"
-
+#include "commongraphics/scrollarea.h"
+#include "newsfeedwindow/inewsfeedwindow.h"
+#include "newsfeedwindow/newscontentitem.h"
 
 namespace NewsFeedWindow {
 
@@ -19,76 +20,64 @@ class NewsFeedWindowItem : public ScalableGraphicsObject, public INewsFeedWindow
 public:
     explicit NewsFeedWindowItem(QGraphicsObject *parent, PreferencesHelper *preferencesHelper);
 
-    QGraphicsObject *getGraphicsObject() { return this; }
-    virtual QRectF boundingRect() const;
-    virtual void setClickable(bool isClickable);
+    QGraphicsObject *getGraphicsObject() override;
 
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR);
-    void updateScaling();
+    int recommendedHeight() override;
+    void setHeight(int height) override;
 
-public slots:
+    void setScrollBarVisibility(bool on) override;
+
+    QRectF boundingRect() const override;
+    void setClickable(bool isClickable) override;
+
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR) override;
+    void updateScaling() override;
+
+    void updateRead() override;
+
     virtual void setMessages(const QVector<types::Notification> &arr,
-                             const QSet<qint64> &shownIds);
+                             const QSet<qint64> &shownIds) override;
     virtual void setMessagesWithCurrentOverride(const QVector<types::Notification> &arr,
                                                 const QSet<qint64> &shownIds,
-                                                int overrideCurrentMessageId);
+                                                int overrideCurrentMessageId) override;
 
 signals:
-    void messageReaded(qint64 messageId);
-    void escClick();
-    void closeClick();
-    void minimizeClick();
+    void messageRead(qint64 messageId) override;
+    void escClick() override;
+    void sizeChanged() override;
+    void resizeFinished() override;
 
 protected:
-    bool eventFilter(QObject *watching, QEvent *event);
-    void keyPressEvent(QKeyEvent *event);
+    void keyPressEvent(QKeyEvent *event) override;
 
 private slots:
     void onBackArrowButtonClicked();
-    void onLeftClick();
-    void onRightClick();
-    void onDockedModeChanged(bool bIsDockedToTray);
+    void onResizeStarted();
+    void onResizeChange(int y);
 
 private:
-    void setCurrentMessageToFirstUnread();
-    void setCurrentMessageRead();
-    void updateCurrentMessage();
-    void updateLeftRightArrowClickability();
+    static constexpr int BOTTOM_AREA_HEIGHT = 16;
+    static constexpr int MIN_HEIGHT = 502;
+    static constexpr int BOTTOM_RESIZE_ORIGIN_X = 167;
+    static constexpr int BOTTOM_RESIZE_OFFSET_Y = 13;
 
-    void updatePositions();
-
-    ScrollableMessage * messageItem_;
-
-    static constexpr int MARGIN = 16;
-
-    QString windowTitle_;
-    QString messageTitle_;
-
-    QVector<types::Notification> messages_;
-    QSet<qint64> shownIds_;
-
-    int curMessageInd_;
-    qint64 curMessageId_;
-    bool messageIdIsInitialized_;
-
-    QString mainBackground_;
-    QString headerBackground_;
-
-    double curBackgroundOpacity_;
-    double curHeaderBackgroundOpacity_;
-
-    double curMessageOpacity_;
-    double curMessageTitleOpacity_;
-    double curDefaultOpacity_;
+    int curHeight_;
+    double curScale_;
+    int heightAtResizeStart_;
+    QString backgroundBase_;
+    QString backgroundHeader_;
+    bool roundedFooter_;
+    QColor footerColor_;
 
     IconButton *backArrowButton_;
-    IconButton *leftArrowButton_;
-    IconButton *rightArrowButton_;
+    CommonGraphics::ResizeBar *bottomResizeItem_;
+    CommonGraphics::EscapeButton *escapeButton_;
+    CommonGraphics::ScrollArea *scrollAreaItem_;
+    NewsContentItem *contentItem_;
 
-    IconButton *minimizeButton_;
-    IconButton *closeButton_;
-
-    QString locationButtonBG_;
+    QRectF getBottomResizeArea();
+    void updateChildItemsAfterHeightChanged();
+    void updatePositions();
 };
 
 }

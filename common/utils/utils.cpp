@@ -257,7 +257,7 @@ bool Utils::sameNetworkInterface(const types::NetworkInterface &interface1, cons
     if (interface1.interfaceIndex != interface2.interfaceIndex)      return false;
     else if (interface1.interfaceName != interface2.interfaceName)   return false;
     else if (interface1.interfaceGuid != interface2.interfaceGuid)   return false;
-    else if (interface1.networkOrSSid != interface2.networkOrSSid)   return false;
+    else if (interface1.networkOrSsid != interface2.networkOrSsid)   return false;
     else if (interface1.friendlyName != interface2.friendlyName)     return false;
     return true;
 }

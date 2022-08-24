@@ -35,13 +35,13 @@ set(PROJECT_SOURCES
     ${COMMON_PATH}/types/backgroundsettings.h
     ${COMMON_PATH}/types/checkupdate.cpp
     ${COMMON_PATH}/types/checkupdate.h
+    ${COMMON_PATH}/types/connecteddnsinfo.cpp
+    ${COMMON_PATH}/types/connecteddnsinfo.h
     ${COMMON_PATH}/types/connectionsettings.cpp
     ${COMMON_PATH}/types/connectionsettings.h
     ${COMMON_PATH}/types/connectstate.h
     ${COMMON_PATH}/types/dnsresolutionsettings.cpp
     ${COMMON_PATH}/types/dnsresolutionsettings.h
-    ${COMMON_PATH}/types/dnswhileconnectedinfo.cpp
-    ${COMMON_PATH}/types/dnswhileconnectedinfo.h
     ${COMMON_PATH}/types/enginesettings.cpp
     ${COMMON_PATH}/types/enginesettings.h
     ${COMMON_PATH}/types/enums.cpp
@@ -66,6 +66,8 @@ set(PROJECT_SOURCES
     ${COMMON_PATH}/types/proxysettings.cpp
     ${COMMON_PATH}/types/proxysettings.h
     ${COMMON_PATH}/types/proxysharinginfo.h
+    ${COMMON_PATH}/types/robertfilter.cpp
+    ${COMMON_PATH}/types/robertfilter.h
     ${COMMON_PATH}/types/sessionstatus.cpp
     ${COMMON_PATH}/types/sessionstatus.h
     ${COMMON_PATH}/types/shareproxygateway.h

@@ -2,11 +2,11 @@
 #define COMBOBOXITEM_H
 
 #include <QGraphicsProxyWidget>
-#include "baseitem.h"
-#include "dividerline.h"
 #include "commonwidgets/combomenuwidget.h"
+#include "commongraphics/baseitem.h"
 #include "commongraphics/texticonbutton.h"
 #include "graphicresources/fontdescr.h"
+#include "graphicresources/independentpixmap.h"
 
 namespace PreferencesWindow {
 
@@ -35,13 +35,12 @@ private:
 };
 
 
-class ComboBoxItem : public BaseItem
+class ComboBoxItem : public CommonGraphics::BaseItem
 {
     Q_OBJECT
 public:
-    explicit ComboBoxItem(ScalableGraphicsObject *parent, const QString &caption, const QString &tooltip, int height, QColor fillColor, int captionOffsX, bool bShowDividerLine, QString id = "");
+    explicit ComboBoxItem(ScalableGraphicsObject *parent, const QString &caption, const QString &tooltip);
     ~ComboBoxItem() override;
-
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
     bool hasItems();
@@ -68,6 +67,8 @@ public:
 
     void updateScaling() override;
 
+    void setIcon(QSharedPointer<IndependentPixmap> icon);
+
 signals:
     void currentItemChanged(QVariant value);
     void buttonHoverEnter();
@@ -78,25 +79,23 @@ private slots:
     void onMenuItemSelected(QString text, QVariant data);
     void onMenuHidden();
     void onMenuSizeChanged(int width, int height);
-
-    void onButtonWidthChanged(int newWidth);
+    void updatePositions();
 
 private:
     QString strCaption_;
     QString strTooltip_;
     QColor fillColor_;
     int captionOffsX_;
-    int initialHeight_;
 
     FontDescr captionFont_;
 
-    DividerLine *dividerLine_;
     CommonGraphics::TextIconButton *button_;
 
     QList<ComboBoxItemDescr> items_;
     ComboBoxItemDescr curItem_;
     CommonWidgets::ComboMenuWidget *menu_;
 
+    QSharedPointer<IndependentPixmap> icon_;
 };
 
 } // namespace PreferencesWindow

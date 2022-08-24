@@ -2,6 +2,7 @@
 #define FIREWALLCONTROLLER_H
 
 #include <QObject>
+#include <QSet>
 #include "engine/apiinfo/staticips.h"
 
 class IHelper;
@@ -16,7 +17,7 @@ public:
     virtual ~FirewallController() {}
 
     // this function also uses for change firewall ips, then it is already enabled
-    virtual bool firewallOn(const QString &ip, bool bAllowLanTraffic);
+    virtual bool firewallOn(const QSet<QString> &ips, bool bAllowLanTraffic);
     virtual bool firewallOff();
     virtual bool firewallActualState() = 0;
 
@@ -29,9 +30,8 @@ public:
 
 protected:
     bool isStateChanged();
-    int countIps(const QString &ips);
 
-    QString latestIp_;
+    QSet<QString> latestIps_;
     bool latestAllowLanTraffic_;
     bool latestEnabledState_;
     apiinfo::StaticIpPortsVector latestStaticIpPorts_;

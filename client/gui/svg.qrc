@@ -1,8 +1,10 @@
 <RCC>
     <qresource prefix="/">
+        <file>svg/BACK_ARROW.svg</file>
         <file>svg/BADGE_ICON.svg</file>
         <file>svg/BOTTOM_BG.svg</file>
         <file>svg/BOTTOMLEFT_HORIZ_DIVIDER.svg</file>
+        <file>svg/ESC_BUTTON.svg</file>
         <file>svg/FAV_DESELECTED.svg</file>
         <file>svg/FAV_SELECTED.svg</file>
         <file>svg/FRWRD_ARROW_WHITE.svg</file>
@@ -155,7 +157,6 @@
         <file>svg/login/EMERGENCY_ICON_DISABLED.svg</file>
         <file>svg/emergencyconnect/EMERGENCY_CONNECT_ICON.svg</file>
         <file>svg/emergencyconnect/BIG_SPINNER.svg</file>
-        <file>svg/emergencyconnect/ESC_BUTTON.svg</file>
         <file>svg/MAC_CLOSE_DEFAULT.svg</file>
         <file>svg/MAC_CLOSE_HOVER.svg</file>
         <file>svg/MAC_EMPTY_DEFAULT.svg</file>
@@ -164,32 +165,85 @@
         <file>svg/MAC_MINIMIZE_DEFAULT.svg</file>
         <file>svg/MAC_MINIMIZE_HOVER.svg</file>
         <file>svg/MAC_RESIZE_HOVER.svg</file>
+        <file>svg/preferences/ABOUT_ICON.svg</file>
         <file>svg/preferences/ACCOUNT_ICON.svg</file>
-        <file>svg/preferences/CONNECTION_ICON.svg</file>
-        <file>svg/preferences/DEBUG_ICON.svg</file>
-        <file>svg/preferences/GENERAL_ICON.svg</file>
-        <file>svg/preferences/HELP_ICON.svg</file>
-        <file>svg/preferences/QUIT_ICON.svg</file>
-        <file>svg/preferences/SHARING_ICON.svg</file>
-        <file>svg/preferences/SIGN_OUT_ICON.svg</file>
-        <file>svg/preferences/GREEN_TOGGLE_BG.svg</file>
-        <file>svg/preferences/TOGGLE_BUTTON_BLACK.svg</file>
-        <file>svg/preferences/WHITE_TOGGLE_BG.svg</file>
-        <file>svg/preferences/ESC_BUTTON.svg</file>
+        <file>svg/preferences/ADVANCED_ICON.svg</file>
+        <file>svg/preferences/ADS.svg</file>
+        <file>svg/preferences/ALLOW_LAN_TRAFFIC.svg</file>
+        <file>svg/preferences/API_RESOLUTION.svg</file>
+        <file>svg/preferences/APP_BACKGROUND.svg</file>
+        <file>svg/preferences/AUTOCONNECT.svg</file>
+        <file>svg/preferences/AUTODETECT_ICON.svg</file>
+        <file>svg/preferences/AUTOSECURE.svg</file>
+        <file>svg/preferences/AUTOSECURE_NETWORKS.svg</file>
+        <file>svg/preferences/CLEAR_ICON.svg</file>
+        <file>svg/preferences/CLOSE_ICON.svg</file>
         <file>svg/preferences/CNTXT_MENU_ICON.svg</file>
+        <file>svg/preferences/COMMUNITY_SUPPORT.svg</file>
+        <file>svg/preferences/CONFIRM_ICON.svg</file>
+        <file>svg/preferences/CONNECTED_DNS.svg</file>
+        <file>svg/preferences/CONNECTION_ICON.svg</file>
+        <file>svg/preferences/CONNECTION_MODE.svg</file>
+        <file>svg/preferences/COPY_ICON.svg</file>
+        <file>svg/preferences/CRYPTO.svg</file>
+        <file>svg/preferences/DNS_MANAGER.svg</file>
+        <file>svg/preferences/DELETE_ICON.svg</file>
+        <file>svg/preferences/DOCKED.svg</file>
+        <file>svg/preferences/EDIT_ICON.svg</file>
+        <file>svg/preferences/ERROR.svg</file>
+        <file>svg/preferences/EXTERNAL_LINK_ICON.svg</file>
+        <file>svg/preferences/FAKE_NEWS.svg</file>
+        <file>svg/preferences/FIREWALL_MODE.svg</file>
+        <file>svg/preferences/FRWRD_ARROW_WHITE_ICON.svg</file>
+        <file>svg/preferences/GAMBLING.svg</file>
+        <file>svg/preferences/GENERAL_ICON.svg</file>
+        <file>svg/preferences/GREEN_CHECKMARK_ICON.svg</file>
+        <file>svg/preferences/HELP_ICON.svg</file>
+        <file>svg/preferences/HIDE_FROM_DOCK.svg</file>
+        <file>svg/preferences/IGNORE_SSL_ERRORS.svg</file>
+        <file>svg/preferences/INFO_ICON.svg</file>
+        <file>svg/preferences/INFO_WHITE_ICON.svg</file>
+        <file>svg/preferences/INFO_YELLOW_ICON.svg</file>
+        <file>svg/preferences/INTERNAL_DNS.svg</file>
+        <file>svg/preferences/IPV6.svg</file>
+        <file>svg/preferences/KEEPALIVE.svg</file>
+        <file>svg/preferences/KNOWLEDGE_BASE.svg</file>
+        <file>svg/preferences/LANGUAGE.svg</file>
+        <file>svg/preferences/LATENCY_DISPLAY.svg</file>
+        <file>svg/preferences/LAUNCH_AT_STARTUP.svg</file>
+        <file>svg/preferences/LOCATION_LOAD.svg</file>
+        <file>svg/preferences/LOCATION_ORDER.svg</file>
+        <file>svg/preferences/MAC_SPOOFING.svg</file>
+        <file>svg/preferences/MAGNIFYING_GLASS.svg</file>
+        <file>svg/preferences/MALWARE.svg</file>
+        <file>svg/preferences/MINIMIZE_AND_CLOSE_TO_TRAY.svg</file>
+        <file>svg/preferences/OTHER_VPNS.svg</file>
+        <file>svg/preferences/PACKET_SIZE.svg</file>
+        <file>svg/preferences/PORN.svg</file>
+        <file>svg/preferences/PREFERRED_PROTOCOL.svg</file>
+        <file>svg/preferences/PROXY.svg</file>
+        <file>svg/preferences/PROXY_GATEWAY.svg</file>
+        <file>svg/preferences/QUIT_ICON.svg</file>
+        <file>svg/preferences/ROBERT_ICON.svg</file>
+        <file>svg/preferences/SECURE_HOTSPOT.svg</file>
+        <file>svg/preferences/SEND_LOG.svg</file>
+        <file>svg/preferences/SEND_TICKET.svg</file>
+        <file>svg/preferences/SHOW_NOTIFICATIONS.svg</file>
+        <file>svg/preferences/SIGN_OUT_ICON.svg</file>
+        <file>svg/preferences/SOCIAL_NETWORKS.svg</file>
+        <file>svg/preferences/SPLIT_TUNNELING.svg</file>
+        <file>svg/preferences/START_MINIMIZED.svg</file>
+        <file>svg/preferences/TAP_DRIVER.svg</file>
+        <file>svg/preferences/TALK_TO_GARRY.svg</file>
+        <file>svg/preferences/TERMINATE_SOCKETS.svg</file>
+        <file>svg/preferences/UNDO_ICON.svg</file>
+        <file>svg/preferences/UNKNOWN_FILTER.svg</file>
+        <file>svg/preferences/UPDATE_CHANNEL.svg</file>
+        <file>svg/preferences/VIEW_LOG.svg</file>
+        <file>svg/preferences/WHITE_QUESTION_MARK_ICON.svg</file>
+        <file>svg/preferences/WHITE_CHECKMARK_ICON.svg</file>
         <file>svg/newsfeed/LEFT_ARROW.svg</file>
         <file>svg/newsfeed/RIGHT_ARROW.svg</file>
-        <file>svg/preferences/INFO_YELLOW_ICON.svg</file>
-        <file>svg/preferences/EXTERNAL_LINK_ICON.svg</file>
-        <file>svg/preferences/EDIT_ICON.svg</file>
-        <file>svg/preferences/CONFIRM_ICON.svg</file>
-        <file>svg/preferences/UNDO_ICON.svg</file>
-        <file>svg/preferences/COPY_ICON.svg</file>
-        <file>svg/preferences/VIEW_LOG_ICON.svg</file>
-        <file>svg/preferences/SEND_LOG_ICON.svg</file>
-        <file>svg/preferences/DELETE_ICON.svg</file>
-        <file>svg/preferences/FRWRD_ARROW_WHITE_ICON.svg</file>
-        <file>svg/preferences/AUTODETECT_ICON.svg</file>
         <file>svg/update/LOCATION_BUTTON_BG.svg</file>
         <file>svg/update/TOP_LEFT_HEADER_BG.svg</file>
         <file>svg/update/UPDATING_SPINNER.svg</file>
@@ -251,11 +305,6 @@
         <file>svg/locations/UNDER_CONSTRUCTION_ICON.svg</file>
         <file>svg/flags/cy.svg</file>
         <file>svg/flags/aq.svg</file>
-        <file>svg/preferences/CLEAR_ICON.svg</file>
-        <file>svg/preferences/CLOSE_ICON.svg</file>
-        <file>svg/preferences/WHITE_QUESTION_MARK_ICON.svg</file>
-        <file>svg/preferences/GREEN_CHECKMARK_ICON.svg</file>
-        <file>svg/preferences/WHITE_CHECKMARK_ICON.svg</file>
         <file>svg/flags/mk.svg</file>
         <file>svg/flags/ge.svg</file>
         <file>svg/locations/BROKEN_HEART_ICON.svg</file>

@@ -6,9 +6,9 @@
 #include "../backend/backend.h"
 #include "itwofactorauthwindow.h"
 #include "twofactorauthokbutton.h"
+#include "commongraphics/escapebutton.h"
 #include "commongraphics/iconbutton.h"
 #include "loginwindow/usernamepasswordentry.h"
-#include "preferenceswindow/escapebutton.h"
 
 namespace TwoFactorAuthWindow {
 
@@ -40,7 +40,7 @@ signals:
     void closeClick() override;
 
 protected:
-    void keyReleaseEvent(QKeyEvent *event) override;
+    void keyPressEvent(QKeyEvent *event) override;
 
 private slots:
     void onEscClicked();
@@ -57,7 +57,7 @@ private slots:
 private:
     void updatePositions();
 
-    PreferencesWindow::EscapeButton *escButton_;
+    CommonGraphics::EscapeButton *escButton_;
     TwoFactorAuthOkButton *okButton_;
 
     IconButton *closeButton_;

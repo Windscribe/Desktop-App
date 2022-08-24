@@ -27,6 +27,7 @@ struct GuiSettings
     BackgroundSettings backgroundSettings;
     bool isStartMinimized = false;
     bool isShowLocationHealth = false;
+    bool isAutoSecureNetworks = false;
 
     bool operator==(const GuiSettings &other) const
     {
@@ -43,7 +44,8 @@ struct GuiSettings
                other.isMinimizeAndCloseToTray == isMinimizeAndCloseToTray &&
                other.backgroundSettings == backgroundSettings &&
                other.isStartMinimized == isStartMinimized &&
-               other.isShowLocationHealth == isShowLocationHealth;
+               other.isShowLocationHealth == isShowLocationHealth &&
+               other.isAutoSecureNetworks == isAutoSecureNetworks;
     }
 
     bool operator!=(const GuiSettings &other) const
@@ -56,7 +58,7 @@ struct GuiSettings
         stream << versionForSerialization_;
         stream << o.isLaunchOnStartup << o.isAutoConnect << o.isHideFromDock << o.isShowNotifications << o.orderLocation << o.latencyDisplay <<
                   o.shareSecureHotspot << o.shareProxyGateway << o.splitTunneling << o.isDockedToTray << o.isMinimizeAndCloseToTray <<
-                  o.backgroundSettings << o.isStartMinimized << o.isShowLocationHealth;
+                  o.backgroundSettings << o.isStartMinimized << o.isShowLocationHealth << o.isAutoSecureNetworks;
         return stream;
     }
 
@@ -71,7 +73,7 @@ struct GuiSettings
         }
         stream >> o.isLaunchOnStartup >> o.isAutoConnect >> o.isHideFromDock >> o.isShowNotifications >> o.orderLocation >> o.latencyDisplay >>
                   o.shareSecureHotspot >> o.shareProxyGateway >> o.splitTunneling >> o.isDockedToTray >> o.isMinimizeAndCloseToTray >>
-                  o.backgroundSettings >> o.isStartMinimized >> o.isShowLocationHealth;
+                  o.backgroundSettings >> o.isStartMinimized >> o.isShowLocationHealth >> o.isAutoSecureNetworks;
         return stream;
     }
 
@@ -92,7 +94,8 @@ struct GuiSettings
         dbg << "isMinimizeAndCloseToTray:" << gs.isMinimizeAndCloseToTray << "; ";
         dbg << "backgroundSettings:" << gs.backgroundSettings << "; ";
         dbg << "isStartMinimized:" << gs.isStartMinimized << "; ";
-        dbg << "isShowLocationHealth:" << gs.isShowLocationHealth << "}";
+        dbg << "isShowLocationHealth:" << gs.isShowLocationHealth << "; ";
+        dbg << "isAutoSecureNetworks:" << gs.isAutoSecureNetworks << "}";
 
         return dbg;
 

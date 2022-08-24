@@ -63,6 +63,20 @@ void AccountInfo::setPlan(qint64 plan)
     }
 }
 
+qint64 AccountInfo::trafficUsed() const
+{
+    return trafficUsed_;
+}
+
+void AccountInfo::setTrafficUsed(qint64 used)
+{
+    if (trafficUsed_ != used)
+    {
+        trafficUsed_ = used;
+        emit trafficUsedChanged(trafficUsed_);
+    }
+}
+
 QString AccountInfo::expireDate() const
 {
     return expireDate_;
@@ -74,6 +88,20 @@ void AccountInfo::setExpireDate(const QString &resetDate)
     {
         expireDate_ = resetDate;
         emit expireDateChanged(expireDate_);
+    }
+}
+
+QString AccountInfo::lastReset() const
+{
+    return lastReset_;
+}
+
+void AccountInfo::setLastReset(const QString &lastReset)
+{
+    if (lastReset_ != lastReset)
+    {
+        lastReset_ = lastReset;
+        emit lastResetChanged(lastReset_);
     }
 }
 

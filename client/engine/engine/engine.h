@@ -65,6 +65,8 @@ public:
     void setIPv6EnabledInOS(bool b);
     bool IPv6StateInOS();
     void getWebSessionToken(WEB_SESSION_PURPOSE purpose);
+    void getRobertFilters();
+    void setRobertFilter(const types::RobertFilter &filter);
 
     LoginSettings getLastLoginSettings();
     QString getAuthHash();
@@ -140,6 +142,8 @@ signals:
     void myIpUpdated(const QString &ip, bool success, bool isDisconnected);
     void statisticsUpdated(quint64 bytesIn, quint64 bytesOut, bool isTotalBytes);
     void protocolPortChanged(const PROTOCOL &protocol, const uint port);
+    void robertFiltersUpdated(bool success, const QVector<types::RobertFilter> &filters);
+    void setRobertFilterFinished(bool success);
 
     void requestUsername();
     void requestPassword();
@@ -242,6 +246,8 @@ private slots:
     void onConfirmEmailAnswer(SERVER_API_RET_CODE retCode, uint userRole);
     void onStaticIpsAnswer(SERVER_API_RET_CODE retCode, const apiinfo::StaticIps &staticIps, uint userRole);
     void onWebSessionAnswer(SERVER_API_RET_CODE retCode, const QString &token, uint userRole);
+    void onGetRobertFiltersAnswer(SERVER_API_RET_CODE retCode, const QVector<types::RobertFilter> &filters, uint userRole);
+    void onSetRobertFilterAnswer(SERVER_API_RET_CODE retCode, uint userRole);
 
     void onUpdateServerResources();
     void onUpdateSessionStatusTimer();
@@ -321,8 +327,9 @@ private:
     ConnectionManager *connectionManager_;
     ConnectStateController *connectStateController_;
     uint serverApiUserRole_;
-    uint serverApiEditAccountDetailsUserRole_;
+    uint serverApiManageAccountUserRole_;
     uint serverApiAddEmailUserRole_;
+    uint serverApiManageRobertRulesRole_;
     GetMyIPController *getMyIPController_;
     VpnShareController *vpnShareController_;
     EmergencyController *emergencyController_;

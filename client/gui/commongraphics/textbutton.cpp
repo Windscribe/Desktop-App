@@ -19,7 +19,7 @@ TextButton::TextButton(QString text, const FontDescr &fd, QColor color, bool bSe
         textShadow_.reset(new TextShadow());
     }
 
-    connect(&textOpacityAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onTextHoverOpacityChanged(QVariant)));
+    connect(&textOpacityAnimation_, &QVariantAnimation::valueChanged, this, &TextButton::onTextHoverOpacityChanged);
 
     // Direct constructor call to ClickableGraphicsObject::setCursor() crashes due to "pure virtual function call" for some reason only in this class...
     setClickable(bSetClickable);
@@ -57,6 +57,11 @@ void TextButton::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
 double TextButton::getOpacity() const
 {
     return curTextOpacity_;
+}
+
+void TextButton::setColor(QColor color)
+{
+    color_ = color;
 }
 
 void TextButton::quickSetOpacity(double opacity)

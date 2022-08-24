@@ -69,13 +69,17 @@ public:
     void recordInstall();
     void sendConfirmEmail();
     void sendDebugLog();
-    void getWebSessionTokenForEditAccountDetails();
+    void getWebSessionTokenForManageAccount();
     void getWebSessionTokenForAddEmail();
+    void getWebSessionTokenForManageRobertRules();
 
     void speedRating(int rating, const QString &localExternalIp);
 
     void setBlockConnect(bool isBlockConnect);
     void clearCredentials();
+
+    void getRobertFilters();
+    void setRobertFilter(const types::RobertFilter &filter);
 
     bool isAppCanClose() const;
 
@@ -132,6 +136,8 @@ signals:
     void emergencyConnectStateChanged(const types::ConnectState &connectState);
     void firewallStateChanged(bool isEnabled);
     void notificationsChanged(const QVector<types::Notification> &arr);
+    void robertFiltersChanged(bool success, const QVector<types::RobertFilter> &arr);
+    void setRobertFilterResult(bool success);
     void networkChanged(types::NetworkInterface interface);
     void sessionStatusChanged(const types::SessionStatus &sessionStatus);
     void checkUpdateChanged(const types::CheckUpdate &checkUpdateInfo);
@@ -143,8 +149,9 @@ signals:
 
     void proxySharingInfoChanged(const types::ProxySharingInfo &psi);
     void wifiSharingInfoChanged(const types::WifiSharingInfo &wsi);
-    void webSessionTokenForEditAccountDetails(const QString &temp_session_token);
+    void webSessionTokenForManageAccount(const QString &temp_session_token);
     void webSessionTokenForAddEmail(const QString &temp_session_token);
+    void webSessionTokenForManageRobertRules(const QString &temp_session_token);
 
     void requestCustomOvpnConfigCredentials();
 

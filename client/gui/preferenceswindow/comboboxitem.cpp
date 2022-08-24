@@ -8,37 +8,34 @@
 #include <QGraphicsScene>
 #include <QGraphicsView>
 #include <QKeyEvent>
-#include "utils/makecustomshadow.h"
-#include "languagecontroller.h"
-#include "dpiscalemanager.h"
 #include "utils/logger.h"
+#include "utils/makecustomshadow.h"
+#include "dpiscalemanager.h"
+#include "languagecontroller.h"
+#include "preferencesconst.h"
 
 namespace PreferencesWindow {
 
-ComboBoxItem::ComboBoxItem(ScalableGraphicsObject *parent, const QString &caption, const QString &tooltip, int height, QColor fillColor, int captionOffsX, bool bShowDividerLine, QString id) : BaseItem(parent, height, id),
-    strCaption_(caption), strTooltip_(tooltip), fillColor_(fillColor), captionOffsX_(captionOffsX),
-    captionFont_(12, true), dividerLine_(NULL)
+ComboBoxItem::ComboBoxItem(ScalableGraphicsObject *parent, const QString &caption, const QString &tooltip)
+  : CommonGraphics::BaseItem(parent, PREFERENCE_GROUP_ITEM_HEIGHT*G_SCALE), strCaption_(caption), strTooltip_(tooltip),
+    captionFont_(12, true), icon_(nullptr)
 {
-    initialHeight_ = height;
+    connect(this, &ComboBoxItem::heightChanged, this, &ComboBoxItem::updatePositions);
 
     button_ = new CommonGraphics::TextIconButton(8, caption, "preferences/CNTXT_MENU_ICON", this, false);
     button_->setClickable(true);
-    connect(button_, SIGNAL(clicked()), SLOT(onMenuOpened()));
+    connect(button_, &CommonGraphics::TextIconButton::clicked, this, &ComboBoxItem::onMenuOpened);
     button_->setFont(FontDescr(12, false));
-    connect(button_, SIGNAL(widthChanged(int)), this, SLOT(onButtonWidthChanged(int)));
-    connect(button_, SIGNAL(hoverEnter()), SIGNAL(buttonHoverEnter()));
-    connect(button_, SIGNAL(hoverLeave()), SIGNAL(buttonHoverLeave()));
+    connect(button_, &CommonGraphics::TextIconButton::widthChanged, this, &ComboBoxItem::updatePositions);
+    connect(button_, &CommonGraphics::TextIconButton::hoverEnter, this, &ComboBoxItem::buttonHoverEnter);
+    connect(button_, &CommonGraphics::TextIconButton::hoverLeave, this, &ComboBoxItem::buttonHoverLeave);
 
     menu_ = new CommonWidgets::ComboMenuWidget();
-    connect(menu_, SIGNAL(itemClicked(QString,QVariant)), SLOT(onMenuItemSelected(QString, QVariant)));
-    connect(menu_, SIGNAL(hidden()), SLOT(onMenuHidden()));
-    connect(menu_, SIGNAL(sizeChanged(int, int)), SLOT(onMenuSizeChanged(int,int)));
+    connect(menu_, &CommonWidgets::ComboMenuWidget::itemClicked, this, &ComboBoxItem::onMenuItemSelected);
+    connect(menu_, &CommonWidgets::ComboMenuWidget::hidden, this, &ComboBoxItem::onMenuHidden);
+    connect(menu_, &CommonWidgets::ComboMenuWidget::sizeChanged, this, &ComboBoxItem::onMenuSizeChanged);
 
-    if (bShowDividerLine)
-    {
-        dividerLine_ = new DividerLine(this, 276);
-        dividerLine_->setPos(24, height - dividerLine_->boundingRect().height());
-    }
+    updateScaling();
 }
 
 ComboBoxItem::~ComboBoxItem()
@@ -53,16 +50,22 @@ void ComboBoxItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
     Q_UNUSED(widget);
     Q_UNUSED(option);
 
-    if (fillColor_ != Qt::transparent)
-    {
-        painter->fillRect(boundingRect().adjusted(24*G_SCALE, 0, 0, 0), QBrush(fillColor_));
-    }
-
     QFont *font = FontManager::instance().getFont(captionFont_);
     painter->setFont(*font);
-    painter->setPen(QColor(255, 255, 255));
+    painter->setPen(Qt::white);
 
-    painter->drawText(boundingRect().adjusted((16 + captionOffsX_)*G_SCALE, 0, 0, -3*G_SCALE), Qt::AlignVCenter, tr(strCaption_.toStdString().c_str()));
+    int xOffset = PREFERENCES_MARGIN*G_SCALE;
+    if (icon_)
+    {
+        xOffset = (2*PREFERENCES_MARGIN + ICON_WIDTH)*G_SCALE;
+        icon_->draw(PREFERENCES_MARGIN*G_SCALE, PREFERENCES_MARGIN*G_SCALE, ICON_WIDTH*G_SCALE, ICON_HEIGHT*G_SCALE, painter);
+    }
+    painter->drawText(boundingRect().adjusted(xOffset,
+                                              PREFERENCES_MARGIN*G_SCALE,
+                                              -PREFERENCES_MARGIN*G_SCALE,
+                                              -PREFERENCES_MARGIN*G_SCALE),
+                      Qt::AlignLeft,
+                      strCaption_);
 }
 
 bool ComboBoxItem::hasItems()
@@ -75,7 +78,6 @@ void ComboBoxItem::addItem(const QString &caption, const QVariant &userValue)
     items_ << ComboBoxItemDescr(caption, userValue);
 
     menu_->addItem(caption, userValue);
-
 }
 
 void ComboBoxItem::removeItem(const QVariant &value)
@@ -197,16 +199,15 @@ void ComboBoxItem::setClickable(bool clickable)
 
 void ComboBoxItem::updateScaling()
 {
-    BaseItem::updateScaling();
-    setHeight(initialHeight_*G_SCALE);
-
-    button_->setPos(boundingRect().width()  - button_->boundingRect().width() - 12*G_SCALE, (boundingRect().height() - 3*G_SCALE - button_->boundingRect().height()) / 2);
-
-    if (dividerLine_)
-    {
-        dividerLine_->setPos(24*G_SCALE, initialHeight_*G_SCALE - dividerLine_->boundingRect().height());
-    }
+    CommonGraphics::BaseItem::updateScaling();
+    setHeight(PREFERENCE_GROUP_ITEM_HEIGHT*G_SCALE);
     menu_->updateScaling();
+    updatePositions();
+}
+
+void ComboBoxItem::updatePositions()
+{
+    button_->setPos(boundingRect().width() - button_->boundingRect().width() - PREFERENCES_MARGIN*G_SCALE, PREFERENCES_MARGIN*G_SCALE);
 }
 
 void ComboBoxItem::onMenuOpened()
@@ -304,11 +305,9 @@ void ComboBoxItem::onMenuSizeChanged(int width, int height)
     menu_->setGeometry(menu_->geometry().x(), menu_->geometry().y(), width, height);
 }
 
-void ComboBoxItem::onButtonWidthChanged(int newWidth)
+void ComboBoxItem::setIcon(QSharedPointer<IndependentPixmap> icon)
 {
-    Q_UNUSED(newWidth);
-
-    button_->setPos(boundingRect().width()  - button_->boundingRect().width() - 12*G_SCALE, (boundingRect().height() - 3*G_SCALE - button_->boundingRect().height()) / 2);
+    icon_ = icon;
 }
 
 } // namespace PreferencesWindow

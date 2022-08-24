@@ -1,17 +1,18 @@
 #ifndef SPLITTUNNELINGWINDOWITEM_H
 #define SPLITTUNNELINGWINDOWITEM_H
 
-#include "../basepage.h"
+#include "commongraphics/basepage.h"
 #include "backend/preferences/preferences.h"
 #include "backend/preferences/preferenceshelper.h"
-#include "../checkboxitem.h"
-#include "splittunnelingitem.h"
+#include "preferenceswindow/checkboxitem.h"
+#include "preferenceswindow/preferencegroup.h"
+#include "splittunnelinggroup.h"
 
 enum SPLIT_TUNNEL_SCREEN { SPLIT_TUNNEL_SCREEN_HOME, SPLIT_TUNNEL_SCREEN_APPS, SPLIT_TUNNEL_SCREEN_APPS_SEARCH, SPLIT_TUNNEL_SCREEN_IPS_AND_HOSTNAMES };
 
 namespace PreferencesWindow {
 
-class SplitTunnelingWindowItem : public BasePage
+class SplitTunnelingWindowItem : public CommonGraphics::BasePage
 {
     Q_OBJECT
 public:
@@ -24,10 +25,11 @@ public:
 
     void setAppsCount(int count);
     void setNetworkRoutesCount(int count);
+    void setLoggedIn(bool loggedIn);
 
 signals:
     void appsPageClick();
-    void ipsAndHostnamesPageClick();
+    void addressesPageClick();
 
 private slots:
     void onSettingsChanged(types::SplitTunnelingSettings settings);
@@ -35,7 +37,9 @@ private slots:
 private:
     SPLIT_TUNNEL_SCREEN currentScreen_;
     Preferences *preferences_;
-    SplitTunnelingItem *splitTunnelingItem_;
+    PreferenceGroup *desc_;
+    QString descText_;
+    SplitTunnelingGroup *splitTunnelingGroup_;
 };
 
 } // namespace PreferencesWindow

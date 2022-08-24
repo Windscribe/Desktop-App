@@ -1,10 +1,10 @@
 #include "selectimageitem.h"
 
-#include <QPainter>
-#include "../basepage.h"
-#include "graphicresources/fontmanager.h"
 #include <QFileDialog>
-#include <time.h>
+#include <QPainter>
+#include "commongraphics/basepage.h"
+#include "graphicresources/fontmanager.h"
+#include "preferenceswindow/preferencesconst.h"
 #include "utils/utils.h"
 #include "dpiscalemanager.h"
 #include "showingdialogstate.h"
@@ -13,27 +13,15 @@ extern QWidget *g_mainWindow;
 
 namespace PreferencesWindow {
 
-SelectImageItem::SelectImageItem(ScalableGraphicsObject *parent, const QString &caption, bool bShowDividerLine) :
-    ScalableGraphicsObject(parent),
-    caption_(caption),
-    dividerLine_(nullptr)
+SelectImageItem::SelectImageItem(ScalableGraphicsObject *parent, const QString &caption)
+  : CommonGraphics::BaseItem(parent, SELECT_IMAGE_HEIGHT*G_SCALE), caption_(caption)
 {
-    if (bShowDividerLine)
-    {
-        dividerLine_ = new DividerLine(this, 264);
-    }
-
-    btnOpen_ = new IconButton(16, 16, "locations/EDIT_ICON", "", this);
-    connect(btnOpen_, SIGNAL(clicked()), SLOT(onOpenClick()));
+    btnOpen_ = new IconButton(ICON_WIDTH, ICON_HEIGHT, "preferences/EDIT_ICON", "", this);
+    connect(btnOpen_, &IconButton::clicked, this, &SelectImageItem::onOpenClick);
 
     path_ = "filename1.png";
 
     updatePositions();
-}
-
-QRectF SelectImageItem::boundingRect() const
-{
-    return QRectF(0, 0, PAGE_WIDTH*G_SCALE, (BODY_HEIGHT + TITLE_HEIGHT)*G_SCALE);
 }
 
 void SelectImageItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
@@ -41,35 +29,46 @@ void SelectImageItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *o
     Q_UNUSED(option);
     Q_UNUSED(widget);
 
-    qreal initOpacity = painter->opacity();
-    painter->setOpacity(0.5 * initOpacity);
-
-    // draw caption
-    QFont *font = FontManager::instance().getFont(12, true);
+    // caption
+    QFont *font = FontManager::instance().getFont(12, false);
     painter->setFont(*font);
-    painter->setPen(QColor(255, 255, 255));
+    painter->setPen(Qt::white);
+    painter->setOpacity(OPACITY_FULL);
 
-    QRectF rcText = boundingRect().adjusted(24*G_SCALE, 0, -16*G_SCALE, -BODY_HEIGHT*G_SCALE);
-    painter->drawText(rcText, Qt::AlignLeft | Qt::AlignVCenter, caption_);
-    font = FontManager::instance().getFont(11, false);
-    painter->setFont(*font);
-    painter->drawText(rcText, Qt::AlignRight | Qt::AlignVCenter, "664x274");
+    painter->drawText(boundingRect().adjusted(PREFERENCES_MARGIN*G_SCALE,
+                                              SELECT_IMAGE_MARGIN_Y*G_SCALE,
+                                              -(2*PREFERENCES_MARGIN + ICON_WIDTH)*G_SCALE,
+                                              -SELECT_IMAGE_MARGIN_Y*G_SCALE),
+                      Qt::AlignLeft,
+                      caption_);
 
-
-    painter->setOpacity(initOpacity);
-
-    // draw background for the path
-    painter->fillRect(boundingRect().adjusted(24*G_SCALE, TITLE_HEIGHT*G_SCALE, 0, 0), QBrush(QColor(16, 22, 40)));
-
-    // draw the path
-    font = FontManager::instance().getFont(12, false);
-    painter->setFont(*font);
-    painter->setPen(QColor(255, 255, 255));
-
-    rcText = boundingRect().adjusted((24 + 8)*G_SCALE, TITLE_HEIGHT*G_SCALE, -16*G_SCALE*2 -8*G_SCALE, -3*G_SCALE);
+    // (664x274) (at 50% opacity)
     QFontMetrics fm(*font);
-    QString elidedPath = fm.elidedText(filenameForShow_, Qt::ElideRight, rcText.width());
-    painter->drawText(rcText, Qt::AlignLeft | Qt::AlignVCenter, elidedPath);
+    int textWidth = fm.horizontalAdvance(caption_);
+    int textHeight = fm.height();
+
+    painter->setOpacity(OPACITY_HALF);
+    painter->drawText(boundingRect().adjusted(PREFERENCES_MARGIN*G_SCALE + textWidth,
+                                              SELECT_IMAGE_MARGIN_Y*G_SCALE,
+                                              -(2*PREFERENCES_MARGIN + ICON_WIDTH)*G_SCALE,
+                                              -SELECT_IMAGE_MARGIN_Y*G_SCALE),
+                      Qt::AlignLeft,
+                      " (664x274)");
+
+    // path 
+    QRectF rcText = boundingRect().adjusted(PREFERENCES_MARGIN*G_SCALE,
+                                            SELECT_IMAGE_MARGIN_Y*G_SCALE + textHeight,
+                                            -(2*PREFERENCES_MARGIN + ICON_WIDTH)*G_SCALE,
+                                            -SELECT_IMAGE_MARGIN_Y*G_SCALE);
+    if (filenameForShow_.isEmpty())
+    {
+        painter->drawText(rcText, Qt::AlignLeft | Qt::AlignVCenter, tr("[no selection]"));
+    }
+    else
+    {
+        QString elidedPath = fm.elidedText(filenameForShow_, Qt::ElideRight, rcText.width());
+        painter->drawText(rcText, Qt::AlignLeft | Qt::AlignVCenter, elidedPath);
+    }
 }
 
 void SelectImageItem::setPath(const QString &path)
@@ -83,6 +82,7 @@ void SelectImageItem::setPath(const QString &path)
 void SelectImageItem::updateScaling()
 {
     ScalableGraphicsObject::updateScaling();
+    setHeight(SELECT_IMAGE_HEIGHT*G_SCALE);
     updatePositions();
 }
 
@@ -107,16 +107,8 @@ void SelectImageItem::onOpenClick()
 
 void SelectImageItem::updatePositions()
 {
-    if (dividerLine_)
-    {
-        dividerLine_->setPos(24*G_SCALE, (BODY_HEIGHT+TITLE_HEIGHT-3)*G_SCALE);
-    }
-
-    int dividerHeight = 2*G_SCALE;
-
-    QRectF rcBody = boundingRect().adjusted(0, TITLE_HEIGHT*G_SCALE, 0, 0);
-    btnOpen_->setPos(rcBody.width() - btnOpen_->boundingRect().width() - 16*G_SCALE,
-                       (rcBody.height() - dividerHeight - btnOpen_->boundingRect().height()) / 2 + TITLE_HEIGHT*G_SCALE);
+    btnOpen_->setPos(boundingRect().width() - (PREFERENCES_MARGIN + ICON_WIDTH)*G_SCALE, 
+                     (SELECT_IMAGE_HEIGHT - ICON_HEIGHT)/2*G_SCALE);
 }
 
 } // namespace PreferencesWindow

@@ -22,7 +22,7 @@ void VersionInfoItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *o
 
     QFont *font = FontManager::instance().getFont(12, true);
     painter->setFont(*font);
-    painter->setPen(QColor(255, 255, 255));
+    painter->setPen(Qt::white);
     painter->drawText(boundingRect().adjusted(16*G_SCALE, 0, 0, 0), Qt::AlignVCenter, strCaption_);
 
     QFont *font2 = FontManager::instance().getFont(12, false);

@@ -43,7 +43,6 @@ public:
         WINDOW_ID_EMERGENCY,
         WINDOW_ID_EXTERNAL_CONFIG,
         WINDOW_ID_TWO_FACTOR_AUTH,
-        WINDOW_ID_NOTIFICATIONS,
         WINDOW_ID_UPDATE,
         WINDOW_ID_UPGRADE,
         WINDOW_ID_GENERAL_MESSAGE,
@@ -73,6 +72,9 @@ public:
 
     void expandPreferences();
     void collapsePreferences();
+
+    void expandNewsFeed();
+    void collapseNewsFeed();
 
     void showUpdateWidget();
     void hideUpdateWidget();
@@ -132,8 +134,10 @@ private slots:
 
     void onLocationsWindowHeightChanged();
 
-    void onPreferencesWindowResize();
-    void onPreferencesWindowResizeFinished();
+    void onPreferencesResize();
+    void onPreferencesResizeFinished();
+    void onNewsFeedResize();
+    void onNewsFeedResizeFinished();
 
     void onBottomInfoHeightChanged();
     void onBottomInfoPosChanged();
@@ -184,16 +188,19 @@ private:
     static constexpr int REVEAL_CONNECT_ANIMATION_DURATION = 300;
     static constexpr int REVEAL_LOGIN_ANIMATION_DURATION = 300;
     static constexpr int SCREEN_SWITCH_OPACITY_ANIMATION_DURATION = 150;
-    static constexpr int EXPAND_PREFERENCES_OPACITY_DURATION = 200;
+    static constexpr int EXPAND_CHILD_WINDOW_OPACITY_DURATION = 200;
     static constexpr int EXPAND_PREFERENCES_RESIZE_DURATION = 250;
+    static constexpr int EXPAND_NEWS_FEED_RESIZE_DURATION = 200;
     static constexpr int EXPAND_ANIMATION_DURATION = 250;
     static constexpr int HIDE_BOTTOM_INFO_ANIMATION_DURATION = 150;
     static constexpr int BOTTOM_INFO_POS_Y_SHOWING = 287;
     static constexpr int BOTTOM_INFO_POS_Y_HIDING = 295;
 
-    enum PREFERENCES_STATE { PREFERENCES_STATE_EXPANDED, PREFERENCES_STATE_COLLAPSED, PREFERENCES_STATE_ANIMATING };
-    PREFERENCES_STATE preferencesState_;
+    enum CHILD_WINDOW_STATE { CHILD_WINDOW_STATE_EXPANDED, CHILD_WINDOW_STATE_COLLAPSED, CHILD_WINDOW_STATE_ANIMATING };
+    CHILD_WINDOW_STATE preferencesState_;
+    CHILD_WINDOW_STATE newsFeedState_;
     int preferencesWindowHeight_;
+    int newsFeedWindowHeight_;
 
     bool isAtomicAnimationActive_;      // animation which cannot be interrupted is active
     QQueue<WINDOW_ID> queueWindowChanges_;
@@ -247,7 +254,8 @@ private:
     void setMaskForGraphicsView();
     void clearMaskForGraphicsView();
 
-    int lastPreferencesHeight_;
+    int lastPreferencesWindowHeight_;
+    int lastNewsFeedWindowHeight_;
     int locationWindowHeightScaled_; // Previously there were issues dynamically grabbing locationsWindow height... keeping a cache somehow helped. Not sure if the original issue persists
 
     void keepWindowInsideScreenCoordinates();
@@ -261,7 +269,7 @@ private:
 
     qreal locationsShadowOpacity_;
 
-    int preferencesShadowOffsetY();
+    int childWindowShadowOffsetY();
     int initWindowInitHeight_;
 
 #ifdef Q_OS_MAC

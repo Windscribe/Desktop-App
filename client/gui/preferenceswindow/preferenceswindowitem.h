@@ -4,26 +4,28 @@
 #include <QGraphicsObject>
 #include <QGraphicsView>
 #include "ipreferenceswindow.h"
-#include "bottomresizeitem.h"
-#include "scrollareaitem.h"
-#include "generalwindow/generalwindowitem.h"
+#include "aboutwindow/aboutwindowitem.h"
 #include "accountwindow/accountwindowitem.h"
+#include "advancedwindow/advancedparameterswindowitem.h"
+#include "advancedwindow/advancedwindowitem.h"
 #include "connectionwindow/connectionwindowitem.h"
-#include "sharewindow/sharewindowitem.h"
-#include "debugwindow/debugwindowitem.h"
-#include "networkwhitelistwindow/networkwhitelistwindowitem.h"
-#include "splittunnelingwindow/splittunnelingwindowitem.h"
-#include "splittunnelingwindow/splittunnelingiphostnamewindowitem.h"
-#include "splittunnelingwindow/splittunnelingappswindowitem.h"
-#include "splittunnelingwindow/splittunnelingappssearchwindowitem.h"
+#include "generalwindow/generalwindowitem.h"
+#include "helpwindow/helpwindowitem.h"
+#include "networkoptionswindow/networkoptionswindowitem.h"
+#include "networkoptionswindow/networkoptionsnetworkwindowitem.h"
 #include "proxysettingswindow/proxysettingswindowitem.h"
-#include "debugwindow/advancedparameterswindowitem.h"
-#include "escapebutton.h"
+#include "robertwindow/robertwindowitem.h"
+#include "splittunnelingwindow/splittunnelingwindowitem.h"
+#include "splittunnelingwindow/splittunnelingaddresseswindowitem.h"
+#include "splittunnelingwindow/splittunnelingappswindowitem.h"
 #include "../backend/preferences/preferences.h"
 #include "../backend/preferences/accountinfo.h"
-#include "preferencestab/ipreferencestabcontrol.h"
+#include "commongraphics/resizebar.h"
+#include "commongraphics/escapebutton.h"
 #include "commongraphics/iconbutton.h"
 #include "commongraphics/scalablegraphicsobject.h"
+#include "commongraphics/scrollarea.h"
+#include "preferencestab/ipreferencestabcontrol.h"
 
 namespace PreferencesWindow {
 
@@ -51,7 +53,7 @@ public:
 
     void setLoggedIn(bool loggedIn) override;
     void setConfirmEmailResult(bool bSuccess) override;
-    void setDebugLogResult(bool bSuccess) override;
+    void setSendLogResult(bool bSuccess) override;
 
     void updateNetworkState(types::NetworkInterface network) override;
 
@@ -61,14 +63,15 @@ public:
     void addApplicationManually(QString filename) override;
 
     void updateScaling() override;
-    void updatePageSpecific() override;
 
     void setPacketSizeDetectionState(bool on) override;
     void showPacketSizeDetectionError(const QString &title, const QString &message) override;
 
+    void setRobertFilters(const QVector<types::RobertFilter> &filters) override;
+    void setRobertFiltersError() override;
+
 signals:
     void escape() override;
-    void helpClick() override;
     void signOutClick() override;
     void loginClick() override;
     void quitAppClick() override;
@@ -78,17 +81,20 @@ signals:
     void viewLogClick() override;
     void sendConfirmEmailClick() override;
     void sendDebugLogClick() override;
-    void noAccountLoginClick() override;
-    void editAccountDetailsClick() override;
+    void accountLoginClick() override;
+    void manageAccountClick() override;
     void addEmailButtonClick() override;
+    void manageRobertRulesClick() override;
 
     void currentNetworkUpdated(types::NetworkInterface) override;
     void cycleMacAddressClick();
-    void nativeInfoErrorMessage(QString title, QString desc);
     void splitTunnelingAppsAddButtonClick();
-    void detectAppropriatePacketSizeButtonClicked();
+    void detectPacketSizeClick();
 
     void advancedParametersClicked() override;
+
+    void getRobertFilters();
+    void setRobertFilter(const types::RobertFilter &filter);
 
 #ifdef Q_OS_WIN
     void setIpv6StateInOS(bool bEnabled, bool bRestartNow) override;
@@ -101,23 +107,21 @@ private slots:
 
     void onBackArrowButtonClicked();
 
-    void onNetworkWhitelistPageClick();
+    void onNetworkOptionsPageClick();
+    void onNetworkOptionsNetworkClick(types::NetworkInterface network);
     void onSplitTunnelingPageClick();
     void onProxySettingsPageClick();
 
     void onAdvParametersClick();
 
     void onSplitTunnelingAppsClick();
-    void onSplitTunnelingAppsSearchClick();
-    void onSplitTunnelingIpsAndHostnamesClick();
-    void onAppsSearchWindowAppsUpdated(QList<types::SplitTunnelingApp> apps);
+    void onSplitTunnelingAddressesClick();
     void onAppsWindowAppsUpdated(QList<types::SplitTunnelingApp> apps);
-    void onNetworkRoutesUpdated(QList<types::SplitTunnelingNetworkRoute> routes);
-    void onSearchModeExit();
+    void onAddressesUpdated(QList<types::SplitTunnelingNetworkRoute> addresses);
 
     void onStAppsEscape();
-    void onStAppsSearchEscape();
     void onIpsAndHostnameEscape();
+    void onNetworkEscape();
 
     void onCurrentNetworkUpdated(types::NetworkInterface network);
 
@@ -127,37 +131,41 @@ protected:
 private:
     void changeTab(PREFERENCES_TAB_TYPE tab);
 
-    static constexpr int BOTTOM_AREA_HEIGHT = 17;
-    static constexpr int MIN_HEIGHT = 502;
+    static constexpr int BOTTOM_AREA_HEIGHT = 16;
+    static constexpr int MIN_HEIGHT = 554;
 
     static constexpr int BOTTOM_RESIZE_ORIGIN_X = 167;
     static constexpr int BOTTOM_RESIZE_OFFSET_Y = 13;
 
-    BottomResizeItem *bottomResizeItem_;
+    static constexpr int SCROLL_AREA_WIDTH = 268;
+    static constexpr int TAB_AREA_WIDTH = 64;
+
     int curHeight_;
     double curScale_;
     int heightAtResizeStart_;
 
     IconButton *backArrowButton_;
 
-    EscapeButton *escapeButton_;
+    CommonGraphics::ResizeBar *bottomResizeItem_;
+    CommonGraphics::EscapeButton *escapeButton_;
 
     IPreferencesTabControl *tabControlItem_;
-    ScrollAreaItem *scrollAreaItem_;
+    CommonGraphics::ScrollArea *scrollAreaItem_;
     GeneralWindowItem *generalWindowItem_;
     AccountWindowItem *accountWindowItem_;
     ConnectionWindowItem *connectionWindowItem_;
-    ShareWindowItem *shareWindowItem_;
-    DebugWindowItem *debugWindowItem_;
+    RobertWindowItem *robertWindowItem_;
+    AdvancedWindowItem *advancedWindowItem_;
+    HelpWindowItem *helpWindowItem_;
+    AboutWindowItem *aboutWindowItem_;
 
     // sub screens
-    // AdvancedParametersWindowItem *advancedParametersWindowItem_;
-    NetworkWhiteListWindowItem *networkWhiteListWindowItem_;
+    NetworkOptionsWindowItem *networkOptionsWindowItem_;
+    NetworkOptionsNetworkWindowItem *networkOptionsNetworkWindowItem_;
     ProxySettingsWindowItem *proxySettingsWindowItem_;
     SplitTunnelingWindowItem *splitTunnelingWindowItem_;
     SplitTunnelingAppsWindowItem *splitTunnelingAppsWindowItem_;
-    SplitTunnelingAppsSearchWindowItem *splitTunnelingAppsSearchWindowItem_;
-    SplitTunnelingIpsAndHostnamesWindowItem *splitTunnelingIpsAndHostnamesWindowItem_;
+    SplitTunnelingAddressesWindowItem *splitTunnelingAddressesWindowItem_;
 
     bool isShowSubPage_;
     QString pageCaption_;
@@ -176,6 +184,8 @@ private:
 
     void updateSplitTunnelingAppsCount(QList<types::SplitTunnelingApp> apps);
     void updatePositions();
+
+    bool loggedIn_;
 };
 
 } // namespace PreferencesWindow

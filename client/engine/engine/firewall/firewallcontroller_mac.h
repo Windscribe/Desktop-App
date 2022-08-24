@@ -5,15 +5,16 @@
 #include "engine/helper/helper_mac.h"
 #include "engine/apiinfo/staticips.h"
 
+#include <QTemporaryFile>
+
 //thread safe
 class FirewallController_mac : public FirewallController
 {
     Q_OBJECT
 public:
     explicit FirewallController_mac(QObject *parent, IHelper *helper);
-    ~FirewallController_mac() override;
 
-    bool firewallOn(const QString &ip, bool bAllowLanTraffic) override;
+    bool firewallOn(const QSet<QString> &ips, bool bAllowLanTraffic) override;
     bool firewallOff() override;
     bool firewallActualState() override;
 
@@ -25,10 +26,32 @@ public:
 
 private:
     Helper_mac *helper_;
-    QString interfaceToSkip_;
-    bool forceUpdateInterfaceToSkip_;
     QMutex mutex_;
-    bool firewallOnImpl(const QString &ip, bool bAllowLanTraffic, const apiinfo::StaticIpPortsVector &ports);
+
+    struct FirewallState
+    {
+        bool isEnabled;
+        bool isBasicWindscribeRulesCorrect;
+        QSet<QString> windscribeIps;
+        QString interfaceToSkip;
+        bool isAllowLanTraffic;
+        bool isStaticIpPortsEmpty;
+    };
+
+    bool isFirewallEnabled_;
+    QSet<QString> windscribeIps_;
+    QString interfaceToSkip_;
+    bool isAllowLanTraffic_;
+    types::StaticIpPortsVector staticIpPorts_;
+
+    QTemporaryFile tempFile_;
+
+    void firewallOffImpl();
+    QStringList lanTrafficRules() const;
+    void getFirewallStateFromPfctl(FirewallState &outState);
+    bool checkInternalVsPfctlState();
+    QString generatePfConfFile(const QSet<QString> &ips, bool bAllowLanTraffic, const QString &interfaceToSkip);
+    bool generateTableFile(QTemporaryFile &tempFile, const QSet<QString> &ips);
 };
 
 #endif // FIREWALLCONTROLLER_MAC_H

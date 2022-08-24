@@ -24,7 +24,7 @@ TwoFactorAuthWindowItem::TwoFactorAuthWindowItem(QGraphicsObject *parent,
     okButton_->setClickable(false);
     connect(okButton_, SIGNAL(clicked()), this, SLOT(onButtonClicked()));
 
-    escButton_ = new PreferencesWindow::EscapeButton(this);
+    escButton_ = new CommonGraphics::EscapeButton(this);
     connect(escButton_, SIGNAL(clicked()), SLOT(onEscClicked()));
 
 #if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
@@ -227,7 +227,7 @@ void TwoFactorAuthWindowItem::updateScaling()
     updatePositions();
 }
 
-void TwoFactorAuthWindowItem::keyReleaseEvent(QKeyEvent *event)
+void TwoFactorAuthWindowItem::keyPressEvent(QKeyEvent *event)
 {
     if (event->key() == Qt::Key_Escape)
     {

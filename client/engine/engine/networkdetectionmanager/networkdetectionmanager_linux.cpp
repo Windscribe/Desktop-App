@@ -123,11 +123,11 @@ void NetworkDetectionManager_linux::getInterfacePars(const QString &ifname, type
         QString friendlyName = getFriendlyNameByIfName(ifname);
         if (!friendlyName.isEmpty())
         {
-            outNetworkInterface.networkOrSSid = friendlyName;
+            outNetworkInterface.networkOrSsid = friendlyName;
         }
         else
         {
-            outNetworkInterface.networkOrSSid = macAddress;
+            outNetworkInterface.networkOrSsid = macAddress;
         }
     }
     else
@@ -136,11 +136,11 @@ void NetworkDetectionManager_linux::getInterfacePars(const QString &ifname, type
         QString friendlyName = getFriendlyNameByIfName(ifname);
         if (!friendlyName.isEmpty())
         {
-            outNetworkInterface.networkOrSSid = friendlyName;
+            outNetworkInterface.networkOrSsid = friendlyName;
         }
         else
         {
-            outNetworkInterface.networkOrSSid = macAddress;
+            outNetworkInterface.networkOrSsid = macAddress;
         }
     }
 

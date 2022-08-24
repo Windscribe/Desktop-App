@@ -111,6 +111,8 @@ bool EngineServer::handleCommand(IPC::Command *command)
             connect(engine_, &Engine::wireGuardAtKeyLimit, this, &EngineServer::wireGuardAtKeyLimit);
             connect(this, &EngineServer::wireGuardKeyLimitUserResponse, engine_, &Engine::onWireGuardKeyLimitUserResponse);
             connect(engine_, &Engine::loginError, this, &EngineServer::onEngineLoginError);
+            connect(engine_, &Engine::robertFiltersUpdated, this, &EngineServer::onEngineRobertFiltersUpdated);
+            connect(engine_, &Engine::setRobertFilterFinished, this, &EngineServer::onEngineSetRobertFilterFinished);
             threadEngine_->start(QThread::LowPriority);
         }
         else
@@ -255,6 +257,18 @@ bool EngineServer::handleCommand(IPC::Command *command)
     {
         IPC::ClientCommands::GetWebSessionToken *cmd = static_cast<IPC::ClientCommands::GetWebSessionToken *>(command);
         engine_->getWebSessionToken(cmd->purpose_);
+        return true;
+    }
+    else if (command->getStringId() == IPC::ClientCommands::GetRobertFilters::getCommandStringId())
+    {
+        IPC::ClientCommands::GetRobertFilters *cmd = static_cast<IPC::ClientCommands::GetRobertFilters*>(command);
+        engine_->getRobertFilters();
+        return true;
+    }
+    else if (command->getStringId() == IPC::ClientCommands::SetRobertFilter::getCommandStringId())
+    {
+        IPC::ClientCommands::SetRobertFilter *cmd = static_cast<IPC::ClientCommands::SetRobertFilter*>(command);
+        engine_->setRobertFilter(cmd->filter_);
         return true;
     }
     else if (command->getStringId() == IPC::ClientCommands::SendConfirmEmail::getCommandStringId())
@@ -624,6 +638,18 @@ void EngineServer::onEngineProtocolPortChanged(const PROTOCOL &protocol, const u
     cmd.protocol_ = protocol;
     cmd.port_ = port;
     sendCmdToAllAuthorizedAndGetStateClients(&cmd, true);
+}
+
+void EngineServer::onEngineRobertFiltersUpdated(bool success, const QVector<types::RobertFilter> &filters)
+{
+    IPC::ServerCommands::RobertFiltersUpdated cmd(success, filters);
+    sendCmdToAllAuthorizedAndGetStateClients(&cmd, false);
+}
+
+void EngineServer::onEngineSetRobertFilterFinished(bool success)
+{
+    IPC::ServerCommands::SetRobertFilterFinished cmd(success);
+    sendCmdToAllAuthorizedAndGetStateClients(&cmd, false);
 }
 
 void EngineServer::onEngineEmergencyConnected()

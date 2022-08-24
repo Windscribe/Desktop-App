@@ -41,6 +41,9 @@ bool SessionStatus::initFromJson(QJsonObject &json, QString &outErrorMessage)
     if (json.contains("premium_expiry_date")) {
         d->premium_expire_date_ = json["premium_expiry_date"].toString();
     }
+    if (json.contains("last_reset")) {
+        d->last_reset_date_ = json["last_reset"].toString();
+    }
 
     d->alc_.clear();
     if (json.contains("alc"))
@@ -149,6 +152,12 @@ qint32 SessionStatus::getBillingPlanId() const
     return d->billing_plan_id_;
 }
 
+QString SessionStatus::getLastResetDate() const
+{
+    Q_ASSERT(d->isInitialized_);
+    return d->last_reset_date_;
+}
+
 QString SessionStatus::getPremiumExpireDate() const
 {
     Q_ASSERT(d->isInitialized_);
@@ -181,7 +190,8 @@ bool SessionStatus::isChangedForLogging(const SessionStatus &session) const
         d->email_ != session.d->email_ ||
         d->email_status_ != session.d->email_status_ ||
         d->static_ips_ != session.d->static_ips_ ||
-        d->alc_ != session.d->alc_)
+        d->alc_ != session.d->alc_ ||
+        d->last_reset_date_ != session.d->last_reset_date_)
     {
         return  true;
     }
@@ -218,7 +228,7 @@ QDataStream& operator <<(QDataStream& stream, const SessionStatus& ss)
     Q_ASSERT(ss.d->isInitialized_);
     stream << ss.versionForSerialization_;
     stream << ss.d->is_premium_ << ss.d->status_ << ss.d->rebill_ << ss.d->billing_plan_id_ << ss.d->premium_expire_date_ << ss.d->traffic_used_ << ss.d->traffic_max_
-           << ss.d->username_ << ss.d->user_id_ << ss.d->email_ << ss.d->email_status_ << ss.d->static_ips_ << ss.d->alc_;
+           << ss.d->username_ << ss.d->user_id_ << ss.d->email_ << ss.d->email_status_ << ss.d->static_ips_ << ss.d->alc_ << ss.d->last_reset_date_;
     return stream;
 }
 
@@ -234,7 +244,7 @@ QDataStream& operator >>(QDataStream& stream, SessionStatus& ss)
     }
 
     stream >> ss.d->is_premium_ >> ss.d->status_ >> ss.d->rebill_ >> ss.d->billing_plan_id_ >> ss.d->premium_expire_date_ >> ss.d->traffic_used_ >> ss.d->traffic_max_
-           >> ss.d->username_ >> ss.d->user_id_ >> ss.d->email_ >> ss.d->email_status_ >> ss.d->static_ips_ >> ss.d->alc_;
+           >> ss.d->username_ >> ss.d->user_id_ >> ss.d->email_ >> ss.d->email_status_ >> ss.d->static_ips_ >> ss.d->alc_ >> ss.d->last_reset_date_;
     ss.d->revisionHash_.clear();
     ss.d->staticIpsUpdateDevices_.clear();
     ss.d->isInitialized_ = true;

@@ -4,43 +4,35 @@
 #include <QLineEdit>
 #include "graphicresources/fontmanager.h"
 #include "graphicresources/imageresourcessvg.h"
+#include "preferenceswindow/preferencesconst.h"
 #include "languagecontroller.h"
-#include "../dividerline.h"
 #include "dpiscalemanager.h"
 
 namespace PreferencesWindow {
 
-SearchLineEditItem::SearchLineEditItem(ScalableGraphicsObject *parent) : BaseItem(parent, 50)
-    , searchIconOpacity_(OPACITY_UNHOVER_ICON_STANDALONE)
-    , editing_(false)
+SearchLineEditItem::SearchLineEditItem(ScalableGraphicsObject *parent)
+  : BaseItem(parent, PREFERENCE_GROUP_ITEM_HEIGHT*G_SCALE), searchIconOpacity_(OPACITY_HALF), editing_(false)
 {
-    closeButton_ = new IconButton(16, 16, "preferences/CLOSE_ICON", "", this, OPACITY_UNHOVER_ICON_STANDALONE,OPACITY_FULL);
-    closeButton_->setUnhoverOpacity(OPACITY_UNHOVER_ICON_STANDALONE);
-    closeButton_->setHoverOpacity(OPACITY_FULL);
-    connect(closeButton_, SIGNAL(clicked()), SLOT(onCancelClicked()));
+    closeButton_ = new IconButton(ICON_WIDTH, ICON_HEIGHT, "preferences/CLOSE_ICON", "", this, OPACITY_HALF, OPACITY_FULL);
+    connect(closeButton_, &IconButton::clicked, this, &SearchLineEditItem::onCancelClicked);
 
-    clearTextButton_ = new IconButton(16, 16, "preferences/CLEAR_ICON", "", this,OPACITY_UNHOVER_ICON_STANDALONE,OPACITY_FULL);
-    clearTextButton_->setUnhoverOpacity(OPACITY_UNHOVER_ICON_STANDALONE);
-    clearTextButton_->setHoverOpacity(OPACITY_FULL);
-    connect(clearTextButton_, SIGNAL(clicked()), SLOT(onClearTextClicked()));
+    clearTextButton_ = new IconButton(ICON_WIDTH, ICON_HEIGHT, "preferences/CLEAR_ICON", "", this, OPACITY_HALF, OPACITY_FULL);
+    connect(clearTextButton_, &IconButton::clicked, this, &SearchLineEditItem::onClearTextClicked);
 
     QString placeHolderText = tr("Search");
     lineEdit_ = new CommonWidgets::CustomMenuLineEdit();
     lineEdit_->setPlaceholderText(placeHolderText);
-    lineEdit_->setFont(*FontManager::instance().getFont(14, false));
+    lineEdit_->setFont(*FontManager::instance().getFont(12, false));
     lineEdit_->setStyleSheet("background: transparent; color: rgb(135, 138, 147)");
     lineEdit_->setFrame(false);
-    connect(lineEdit_, SIGNAL(focusIn()), SIGNAL(focusIn()));
-
-    connect(lineEdit_, SIGNAL(textChanged(QString)), SLOT(onLineEditTextChanged(QString)));
-    connect(&LanguageController::instance(), SIGNAL(languageChanged()), SLOT(onLanguageChanged()));
+    connect(lineEdit_, &CommonWidgets::CustomMenuLineEdit::focusIn, this, &SearchLineEditItem::focusIn);
+    connect(lineEdit_, &CommonWidgets::CustomMenuLineEdit::textChanged, this, &SearchLineEditItem::onLineEditTextChanged);
+    connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &SearchLineEditItem::onLanguageChanged);
 
     proxyWidget_ = new QGraphicsProxyWidget(this);
     proxyWidget_->setWidget(lineEdit_);
 
-    line_ = new DividerLine(this, 276);
-
-    connect(&searchIconOpacityAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onSearchIconOpacityChanged(QVariant)));
+    connect(&searchIconOpacityAnimation_, &QVariantAnimation::valueChanged, this, &SearchLineEditItem::onSearchIconOpacityChanged);
     updatePositions();
 }
 
@@ -50,11 +42,13 @@ void SearchLineEditItem::paint(QPainter *painter, const QStyleOptionGraphicsItem
     Q_UNUSED(option);
     Q_UNUSED(widget);
 
-    qreal initOpacity = painter->opacity();
+    painter->setOpacity(searchIconOpacity_);
+    QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap("preferences/MAGNIFYING_GLASS");
+    p->draw(PREFERENCES_MARGIN*G_SCALE, PREFERENCES_MARGIN*G_SCALE, APP_ICON_WIDTH*G_SCALE, APP_ICON_HEIGHT*G_SCALE, painter);
 
-    painter->setOpacity(searchIconOpacity_ * initOpacity);
-    QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap("preferences/VIEW_LOG_ICON");
-    p->draw(16*G_SCALE, 14*G_SCALE, painter);
+    // vertical divider
+    painter->setOpacity(OPACITY_DIVIDER_LINE);
+    painter->fillRect(boundingRect().width() - (1.5*PREFERENCES_MARGIN + ICON_WIDTH)*G_SCALE, VERTICAL_DIVIDER_MARGIN_Y*G_SCALE, 1*G_SCALE, VERTICAL_DIVIDER_HEIGHT*G_SCALE, Qt::white);
 }
 
 void SearchLineEditItem::hideButtons()
@@ -67,9 +61,14 @@ void SearchLineEditItem::showButtons()
     clearTextButton_->show();
 }
 
-QString SearchLineEditItem::getText()
+QString SearchLineEditItem::text()
 {
     return lineEdit_->text();
+}
+
+void SearchLineEditItem::setText(QString text)
+{
+    return lineEdit_->setText(text);
 }
 
 void SearchLineEditItem::setFocusOnSearchBar()
@@ -82,14 +81,14 @@ void SearchLineEditItem::setSelected(bool selected)
     selected_ = selected;
 
     double targetOpacity = OPACITY_FULL;
-    if (!selected) targetOpacity = OPACITY_UNHOVER_ICON_STANDALONE;
+    if (!selected) targetOpacity = OPACITY_HALF;
     startAnAnimation<double>(searchIconOpacityAnimation_, searchIconOpacity_, targetOpacity, ANIMATION_SPEED_FAST);
 }
 
 void SearchLineEditItem::updateScaling()
 {
     BaseItem::updateScaling();
-    setHeight(50*G_SCALE);
+    setHeight(PREFERENCE_GROUP_ITEM_HEIGHT*G_SCALE);
     updatePositions();
 }
 
@@ -103,7 +102,7 @@ void SearchLineEditItem::focusInEvent(QFocusEvent * /*event*/)
     emit focusIn();
 }
 
-void SearchLineEditItem::keyReleaseEvent(QKeyEvent *event)
+void SearchLineEditItem::keyPressEvent(QKeyEvent *event)
 {
     if (event->key() == Qt::Key_Escape)
     {
@@ -115,10 +114,6 @@ void SearchLineEditItem::keyReleaseEvent(QKeyEvent *event)
         {
             lineEdit_->setText("");
         }
-    }
-    else if (event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return)
-    {
-        emit enterPressed();
     }
 }
 
@@ -158,11 +153,10 @@ void SearchLineEditItem::exitSearchMode()
 
 void SearchLineEditItem::updatePositions()
 {
-    closeButton_->setPos(boundingRect().width() - 32*G_SCALE, boundingRect().height()/2 - 12*G_SCALE);
-    clearTextButton_->setPos(boundingRect().width() - 58*G_SCALE, boundingRect().height()/2 - 12*G_SCALE);
-    lineEdit_->setFont(*FontManager::instance().getFont(14, false));
-    lineEdit_->setGeometry(40*G_SCALE, 2*G_SCALE, 178*G_SCALE, 40*G_SCALE);
-    line_->setPos(24*G_SCALE, 43*G_SCALE);
+    closeButton_->setPos(boundingRect().width() - (PREFERENCES_MARGIN + ICON_WIDTH)*G_SCALE, PREFERENCES_MARGIN*G_SCALE);
+    clearTextButton_->setPos(boundingRect().width() - (2*PREFERENCES_MARGIN + 2*ICON_WIDTH + 1)*G_SCALE, PREFERENCES_MARGIN*G_SCALE);
+    lineEdit_->setFont(*FontManager::instance().getFont(12, false));
+    lineEdit_->setGeometry((PREFERENCES_MARGIN + APP_ICON_MARGIN_X + APP_ICON_WIDTH)*G_SCALE, PREFERENCES_MARGIN*G_SCALE, 128*G_SCALE, ICON_HEIGHT*G_SCALE);
 }
 
 }

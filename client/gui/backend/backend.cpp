@@ -178,7 +178,7 @@ bool Backend::isFirewallEnabled()
 
 bool Backend::isFirewallAlwaysOn()
 {
-    return getPreferences()->firewalSettings().mode == FIREWALL_MODE_ALWAYS_ON;
+    return getPreferences()->firewallSettings().mode == FIREWALL_MODE_ALWAYS_ON;
 }
 
 void Backend::emergencyConnectClick()
@@ -275,10 +275,10 @@ void Backend::sendDebugLog()
     engineServer_->sendCommand(&cmd);
 }
 
-void Backend::getWebSessionTokenForEditAccountDetails()
+void Backend::getWebSessionTokenForManageAccount()
 {
     IPC::ClientCommands::GetWebSessionToken cmd;
-    cmd.purpose_ = WEB_SESSION_PURPOSE_EDIT_ACCOUNT_DETAILS;
+    cmd.purpose_ = WEB_SESSION_PURPOSE_MANAGE_ACCOUNT;
     //qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
     engineServer_->sendCommand(&cmd);
 }
@@ -287,6 +287,14 @@ void Backend::getWebSessionTokenForAddEmail()
 {
     IPC::ClientCommands::GetWebSessionToken cmd;
     cmd.purpose_ = WEB_SESSION_PURPOSE_ADD_EMAIL;
+    //qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
+    engineServer_->sendCommand(&cmd);
+}
+
+void Backend::getWebSessionTokenForManageRobertRules()
+{
+    IPC::ClientCommands::GetWebSessionToken cmd;
+    cmd.purpose_ = WEB_SESSION_PURPOSE_MANAGE_ROBERT_RULES;
     //qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
     engineServer_->sendCommand(&cmd);
 }
@@ -311,6 +319,19 @@ void Backend::clearCredentials()
 {
     IPC::ClientCommands::ClearCredentials cmd;
     //qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
+    engineServer_->sendCommand(&cmd);
+}
+
+void Backend::getRobertFilters()
+{
+    IPC::ClientCommands::GetRobertFilters cmd;
+    engineServer_->sendCommand(&cmd);
+}
+
+void Backend::setRobertFilter(const types::RobertFilter &filter)
+{
+    IPC::ClientCommands::SetRobertFilter cmd;
+    cmd.filter_ = filter;
     engineServer_->sendCommand(&cmd);
 }
 
@@ -616,14 +637,28 @@ void Backend::onConnectionNewCommand(IPC::Command *command)
     else if (command->getStringId() == IPC::ServerCommands::WebSessionToken::getCommandStringId())
     {
         IPC::ServerCommands::WebSessionToken *cmd = static_cast<IPC::ServerCommands::WebSessionToken *>(command);
-        if (cmd->purpose_ == WEB_SESSION_PURPOSE_EDIT_ACCOUNT_DETAILS)
+        if (cmd->purpose_ == WEB_SESSION_PURPOSE_MANAGE_ACCOUNT)
         {
-            Q_EMIT webSessionTokenForEditAccountDetails(cmd->tempSessionToken_);
+            Q_EMIT webSessionTokenForManageAccount(cmd->tempSessionToken_);
         }
         else if (cmd->purpose_ == WEB_SESSION_PURPOSE_ADD_EMAIL)
         {
             Q_EMIT webSessionTokenForAddEmail(cmd->tempSessionToken_);
         }
+        else if (cmd->purpose_ == WEB_SESSION_PURPOSE_MANAGE_ROBERT_RULES)
+        {
+            Q_EMIT webSessionTokenForManageRobertRules(cmd->tempSessionToken_);
+        }
+    }
+    else if (command->getStringId() == IPC::ServerCommands::RobertFiltersUpdated::getCommandStringId())
+    {
+        IPC::ServerCommands::RobertFiltersUpdated *cmd = static_cast<IPC::ServerCommands::RobertFiltersUpdated *>(command);
+        Q_EMIT robertFiltersChanged(cmd->success_, cmd->filters_);
+    }
+    else if (command->getStringId() == IPC::ServerCommands::SetRobertFilterFinished::getCommandStringId())
+    {
+        IPC::ServerCommands::SetRobertFilterFinished *cmd = static_cast<IPC::ServerCommands::SetRobertFilterFinished *>(command);
+        Q_EMIT setRobertFilterResult(cmd->success_);
     }
 }
 
@@ -647,12 +682,12 @@ void Backend::handleNetworkChange(types::NetworkInterface networkInterface, bool
     bool newNetwork = true;
 
     // find or assign friendly name before checking is network is the same as current network
-    QString friendlyName = networkInterface.networkOrSSid;
+    QString friendlyName = networkInterface.networkOrSsid;
 
     QVector<types::NetworkInterface> networkListOld = PersistentState::instance().networkWhitelist();
     for (int i = 0; i < networkListOld.size(); i++)
     {
-        if (networkListOld[i].networkOrSSid== networkInterface.networkOrSSid)
+        if (networkListOld[i].networkOrSsid== networkInterface.networkOrSsid)
         {
             friendlyName = networkListOld[i].friendlyName;
             newNetwork = false;
@@ -660,10 +695,10 @@ void Backend::handleNetworkChange(types::NetworkInterface networkInterface, bool
         }
     }
 
-    if (friendlyName == "") friendlyName = networkInterface.networkOrSSid;
+    if (friendlyName == "") friendlyName = networkInterface.networkOrSsid;
     networkInterface.friendlyName = friendlyName;
 
-    if (networkInterface.networkOrSSid != "") // not a disconnect
+    if (networkInterface.networkOrSsid != "") // not a disconnect
     {
         // Add a new network as secured
         if (newNetwork)
@@ -680,6 +715,14 @@ void Backend::handleNetworkChange(types::NetworkInterface networkInterface, bool
 #endif
             types::NetworkInterface newEntry;
             newEntry = networkInterface;
+            if (preferences_.isAutoSecureNetworks())
+            {
+                newEntry.trustType = NETWORK_TRUST_SECURED;
+            }
+            else
+            {
+                newEntry.trustType = NETWORK_TRUST_UNSECURED;
+            }
             networkListOld << newEntry;
             preferences_.setNetworkWhiteList(networkListOld);
         }
@@ -689,7 +732,7 @@ void Backend::handleNetworkChange(types::NetworkInterface networkInterface, bool
         types::NetworkInterface foundInterface;
         for (int i = 0; i < networkList.size(); i++)
         {
-            if (networkList[i].networkOrSSid == networkInterface.networkOrSSid)
+            if (networkList[i].networkOrSsid == networkInterface.networkOrSsid)
             {
                 foundInterface = networkList[i];
                 break;
@@ -828,7 +871,9 @@ void Backend::updateAccountInfo()
     accountInfo_.setNeedConfirmEmail(latestSessionStatus_.getEmailStatus() == 0);
     accountInfo_.setUsername(latestSessionStatus_.getUsername());
     accountInfo_.setExpireDate(latestSessionStatus_.getPremiumExpireDate());
+    accountInfo_.setLastReset(latestSessionStatus_.getLastResetDate());
     accountInfo_.setPlan(latestSessionStatus_.getTrafficMax());
+    accountInfo_.setTrafficUsed(latestSessionStatus_.getTrafficUsed());
     accountInfo_.setIsPremium(latestSessionStatus_.isPremium());
 }
 

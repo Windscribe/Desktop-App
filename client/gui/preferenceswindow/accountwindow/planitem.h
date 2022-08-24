@@ -1,13 +1,12 @@
 #ifndef PLANITEM_H
 #define PLANITEM_H
 
-#include "../baseitem.h"
+#include "commongraphics/baseitem.h"
 #include "commongraphics/textbutton.h"
-#include "../dividerline.h"
 
 namespace PreferencesWindow {
 
-class PlanItem : public BaseItem
+class PlanItem : public CommonGraphics::BaseItem
 {
     Q_OBJECT
 public:
@@ -17,6 +16,7 @@ public:
 
     void setPlan(qint64 plan);
     void setIsPremium(bool isPremium);
+    bool isPremium();
 
     void updateScaling() override;
 
@@ -31,7 +31,6 @@ private:
     qint64 planBytes_;
     bool isPremium_;
     QString planStr_;
-    DividerLine *dividerLine_;
 
     void generatePlanString();
     void updateTextButtonPos();

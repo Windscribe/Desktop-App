@@ -22,6 +22,7 @@
 #include "dialogs/advancedparametersdialog.h"
 #include "types/checkupdate.h"
 #include "locations/model/selectedlocation.h"
+#include "types/robertfilter.h"
 
 #if defined(Q_OS_MAC)
 #define USE_LOCATIONS_TRAY_MENU_NATIVE
@@ -95,17 +96,17 @@ private slots:
     void onPreferencesEscapeClick();
     void onPreferencesSignOutClick();
     void onPreferencesLoginClick();
-    void onPreferencesHelpClick();
     void onPreferencesViewLogClick();
     void onPreferencesSendConfirmEmailClick();
     void onPreferencesSendDebugLogClick();
-    void onPreferencesEditAccountDetailsClick();
+    void onPreferencesManageAccountClick();
     void onPreferencesAddEmailButtonClick();
+    void onPreferencesManageRobertRulesClick();
     void onPreferencesQuitAppClick();
-    void onPreferencesNoAccountLoginClick();
+    void onPreferencesAccountLoginClick();
     void onPreferencesSetIpv6StateInOS(bool bEnabled, bool bRestartNow);
 	void onPreferencesCycleMacAddressClick();
-    void onPreferencesWindowDetectAppropriatePacketSizeButtonClicked();
+    void onPreferencesWindowDetectPacketSizeClick();
     void onPreferencesAdvancedParametersClicked();
     void onPreferencesCustomConfigsPathChanged(QString path);
     void onPreferencesdebugAdvancedParametersChanged(const QString &advParams);
@@ -158,7 +159,6 @@ private slots:
     void onBackendInitFinished(INIT_STATE initState);
     void onBackendInitTooLong();
 
-    //void onBackendLoginInfoChanged(const ProtoTypes::LoginInfo &loginInfo);
     void onBackendLoginFinished(bool isLoginFromSavedSettings);
     void onBackendLoginStepMessage(LOGIN_MESSAGE msg);
     void onBackendLoginError(LOGIN_RET loginError, const QString &errorMessage);
@@ -189,8 +189,11 @@ private slots:
     void onBackendProtocolPortChanged(const PROTOCOL &protocol, const uint port);
     void onBackendPacketSizeDetectionStateChanged(bool on, bool isError);
     void onBackendUpdateVersionChanged(uint progressPercent, UPDATE_VERSION_STATE state, UPDATE_VERSION_ERROR error);
-    void onBackendWebSessionTokenForEditAccountDetails(const QString &tempSessionToken);
+    void onBackendWebSessionTokenForManageAccount(const QString &tempSessionToken);
     void onBackendWebSessionTokenForAddEmail(const QString &tempSessionToken);
+    void onBackendWebSessionTokenForManageRobertRules(const QString &tempSessionToken);
+    void onBackendRobertFiltersChanged(bool success, const QVector<types::RobertFilter> &filters);
+    void onBackendSetRobertFilterResult(bool success);
 
     void onBackendEngineCrash();
 
@@ -207,6 +210,8 @@ private slots:
     void onPreferencesConnectionSettingsChanged(types::ConnectionSettings connectionSettings);
     void onPreferencesIsDockedToTrayChanged(bool isDocked);
     void onPreferencesUpdateChannelChanged(UPDATE_CHANNEL updateChannel);
+    void onPreferencesGetRobertFilters();
+    void onPreferencesSetRobertFilter(const types::RobertFilter &filter);
 
     void onPreferencesReportErrorToUser(const QString &title, const QString &desc);
 

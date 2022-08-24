@@ -5,20 +5,18 @@
 #include <QGraphicsProxyWidget>
 #include <QRegularExpressionValidator>
 #include <QTimer>
+#include "commongraphics/baseitem.h"
 #include "commongraphics/iconbutton.h"
 #include "commonwidgets/custommenulineedit.h"
-#include "../dividerline.h"
 
 namespace PreferencesWindow {
 
-class PacketSizeEditBoxItem : public ScalableGraphicsObject
+class PacketSizeEditBoxItem : public CommonGraphics::BaseItem
 {
     Q_OBJECT
-
 public:
-    explicit PacketSizeEditBoxItem(ScalableGraphicsObject *parent, const QString &caption, const QString &editPrompt, bool isDrawFullBottomDivider, const QString &additionalButtonIcon);
+    explicit PacketSizeEditBoxItem(ScalableGraphicsObject *parent, const QString &caption, const QString &editPrompt);
 
-    QRectF boundingRect() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
     void setText(const QString &text);
@@ -27,19 +25,19 @@ public:
     void updateScaling() override;
     void setEditButtonClickable(bool clickable);
 
-    void setAdditionalButtonBusyState(bool on);
-    void setAdditionalButtonSelectedState(bool selected);
+    void setDetectButtonBusyState(bool on);
+    void setDetectButtonSelectedState(bool selected);
 
     bool lineEditHasFocus();
 
 signals:
     void textChanged(const QString &text);
-    void additionalButtonClicked();
-    void additionalButtonHoverEnter();
-    void additionalButtonHoverLeave();
+    void detectButtonClicked();
+    void detectButtonHoverEnter();
+    void detectButtonHoverLeave();
 
 protected:
-    void keyReleaseEvent(QKeyEvent *event) override;
+    void keyPressEvent(QKeyEvent *event) override;
 
 private slots:
     void onEditClick();
@@ -58,17 +56,16 @@ private:
     QString text_;
     QString editPlaceholderText_;
 
-    IconButton *btnEdit_;
-    IconButton *btnAdditional_;
-    IconButton *btnConfirm_;
-    IconButton *btnUndo_;
+    IconButton *editButton_;
+    IconButton *detectButton_;
+    IconButton *confirmButton_;
+    IconButton *undoButton_;
     bool isEditMode_;
 
     QGraphicsProxyWidget *proxyWidget_;
     CommonWidgets::CustomMenuLineEdit *lineEdit_;
-    DividerLine *line_;
 
-    bool additionalButtonBusy_;
+    bool detectButtonBusy_;
     double busySpinnerOpacity_;
     int busySpinnerRotation_;
     int spinnerPosX_;
@@ -77,8 +74,8 @@ private:
     QVariantAnimation busySpinnerRotationAnimation_;
     QTimer busySpinnerTimer_;
 
-    double additionalButtonOpacity_;
-    QVariantAnimation additionalButtonOpacityAnimation_;
+    double detectButtonOpacity_;
+    QVariantAnimation detectButtonOpacityAnimation_;
 
     void updatePositions();
 
