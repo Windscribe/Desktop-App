@@ -18,7 +18,7 @@ int UninstallPrev::executeStep()
 {
     if (state_ == 0)
     {
-        std::wstring classNameIcon = L"Qt624QWindowIcon";
+        std::wstring classNameIcon = L"Qt631QWindowIcon";
         const std::wstring wsGuiIcon = L"Windscribe";
         HWND hwnd = FindWindow(classNameIcon.c_str(), wsGuiIcon.c_str());
         if (hwnd == NULL)

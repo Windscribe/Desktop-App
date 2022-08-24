@@ -49,7 +49,7 @@ std::wstring ApplicationInfo::getUpdateUrl() const
 bool ApplicationInfo::appIsRunning()
 {
     bool result = true;
-    std::wstring classNameIcon = L"Qt624QWindowIcon";
+    std::wstring classNameIcon = L"Qt631QWindowIcon";
     const std::wstring wsGuiIcon = L"Windscribe";
 
     HWND hwnd = FindWindow(classNameIcon.c_str(), wsGuiIcon.c_str());

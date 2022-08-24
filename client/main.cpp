@@ -14,7 +14,6 @@
 #include "gui/application/singleappinstance.h"
 
 #ifdef Q_OS_WIN
-    #include "gui/utils/scaleutils_win.h"
     #include "utils/crashhandler.h"
     #include "utils/installedantiviruses_win.h"
     #include "engine/taputils/tapinstall_win.h"
@@ -27,10 +26,10 @@
     #include <signal.h>
 #endif
 
-#if (QT_VERSION != QT_VERSION_CHECK(6, 2, 4))
+#if (QT_VERSION != QT_VERSION_CHECK(6, 3, 1))
 // The installer/uninstaller, and winutils.h, use the 'QtWindowIcon' identifier in the
 // FindWindow API.  Unfortunately, said icon is named after the Qt6 version, so we'll
-// need to update all references to 'Qt624QWindowIcon' to the new version name when the
+// need to update all references to 'Qt631QWindowIcon' to the new version name when the
 // Qt version changes.
 #error Code fixup required due to Qt version change.  Please see comment above.
 #endif
@@ -115,6 +114,13 @@ int main(int argc, char *argv[])
 #endif
 
     qputenv("QT_EVENT_DISPATCHER_CORE_FOUNDATION", "1");
+
+    #ifdef Q_OS_WIN
+    // Fixes fuzzy text and graphics on Windows when a display is set to a fractional scaling value (e.g. 150%).
+    // Warning: I tried Round and RoundPreferFloor on Qt 6.2.4 and 6.3.1, but they produce strange clipping
+    // behavior when one minimizes the app, changes the display's scale, then restores the app.
+    QGuiApplication::setHighDpiScaleFactorRoundingPolicy(Qt::HighDpiScaleFactorRoundingPolicy::Floor);
+    #endif
 
     WindscribeApplication a(argc, argv);
 

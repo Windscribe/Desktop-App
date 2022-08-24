@@ -18,26 +18,15 @@ public:
         return s;
     }
 
-    bool setMainWindow(QWidget *mainWindow);    // return true if DPI is changed
-
-
-
     inline double curScale() const
     {
         return curScale_;
     }
 
-    inline int curDevicePixelRatio() const
-    {
-        return curDevicePixelRatio_;
-    }
-
-    inline QRect curScreenGeometry() const
-    {
-        return curGeometry_;
-    }
-
+    int curDevicePixelRatio() const;
+    QRect curScreenGeometry() const;
     double scaleOfScreen(const QScreen *screen) const;
+    bool setMainWindow(QWidget *mainWindow);    // return true if DPI is changed
 
 signals:
     void scaleChanged(double newScale);
@@ -47,6 +36,7 @@ signals:
 private slots:
     void onWindowScreenChanged(QScreen *screen);
     void onLogicalDotsPerInchChanged(qreal dpi);
+    void onScreenAdded(QScreen *screen);
 
 private:
     explicit DpiScaleManager();
@@ -54,11 +44,12 @@ private:
 private:
     static constexpr int LOWEST_LDPI = 96;
     double curScale_;
-    int curDevicePixelRatio_;
-    int curDPI_;
+    qreal curDevicePixelRatio_;
+    qreal curDPI_;
     QRect curGeometry_;
     QWidget *mainWindow_;
 
+    void update(QScreen *screen);
 };
 
 #endif // DPISCALEMANAGER_H

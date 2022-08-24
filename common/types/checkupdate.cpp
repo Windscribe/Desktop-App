@@ -43,10 +43,12 @@ CheckUpdate CheckUpdate::createFromApiJson(QJsonObject &json, bool &outSuccess, 
     c.url = json["update_url"].toString();
     c.isSupported = (json["supported"].toInt() == 1);
 
-    if (json.contains("sha256"))
-    {
+    if (json.contains("sha256")) {
         c.sha256 = json["sha256"].toString();
     }
+
+    outSuccess = true;
+
     return c;
 }
 
