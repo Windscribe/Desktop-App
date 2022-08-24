@@ -8,12 +8,11 @@ class CityItemDelegate : public IItemDelegate
 {
 
 public:
-    virtual ~CityItemDelegate() {};
+    virtual ~CityItemDelegate() {}
     void paint(QPainter *painter, const ItemStyleOption &option, const QModelIndex &index) const override;
-    QSize sizeHint(const QModelIndex &index) const override;
     bool isForbiddenCursor(const QModelIndex &index) const override;
 
-    int isInClickableArea(const QModelIndex &index, const QPoint &point) const override;
+    int isInClickableArea(const QModelIndex &index, const QPoint &point, const QRect &itemRect) const override;
     int isInTooltipArea(const QModelIndex &index, const QPoint &point) const override;
 
 private:

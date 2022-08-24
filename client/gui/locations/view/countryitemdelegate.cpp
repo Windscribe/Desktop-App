@@ -149,11 +149,6 @@ void CountryItemDelegate::paint(QPainter *painter, const ItemStyleOption &option
     painter->restore();
 }
 
-QSize CountryItemDelegate::sizeHint(const QModelIndex &index) const
-{
-    return QSize(WINDOW_WIDTH * G_SCALE, LOCATION_ITEM_HEIGHT * G_SCALE);
-}
-
 bool CountryItemDelegate::isForbiddenCursor(const QModelIndex &index) const
 {
     if (!index.isValid())
@@ -170,7 +165,7 @@ bool CountryItemDelegate::isForbiddenCursor(const QModelIndex &index) const
     return false;
 }
 
-int CountryItemDelegate::isInClickableArea(const QModelIndex &index, const QPoint &point) const
+int CountryItemDelegate::isInClickableArea(const QModelIndex &index, const QPoint &point, const QRect &itemRect) const
 {
     return -1;
 }

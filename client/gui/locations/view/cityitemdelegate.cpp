@@ -226,11 +226,6 @@ void CityItemDelegate::paint(QPainter *painter, const ItemStyleOption &option, c
     painter->restore();
 }
 
-QSize CityItemDelegate::sizeHint(const QModelIndex &/*index*/) const
-{
-    return QSize(WINDOW_WIDTH * G_SCALE, LOCATION_ITEM_HEIGHT * G_SCALE);
-}
-
 bool CityItemDelegate::isForbiddenCursor(const QModelIndex &index) const
 {
     LocationID lid = qvariant_cast<LocationID>(index.data(LOCATION_ID));
@@ -244,7 +239,7 @@ bool CityItemDelegate::isForbiddenCursor(const QModelIndex &index) const
     }
 }
 
-int CityItemDelegate::isInClickableArea(const QModelIndex &index, const QPoint &point) const
+int CityItemDelegate::isInClickableArea(const QModelIndex &index, const QPoint &point, const QRect &itemRect) const
 {
     LocationID lid = qvariant_cast<LocationID>(index.data(LOCATION_ID));
     if (lid.isStaticIpsLocation() || lid.isCustomConfigsLocation()) {
@@ -252,7 +247,7 @@ int CityItemDelegate::isInClickableArea(const QModelIndex &index, const QPoint &
     }
 
     QSharedPointer<IndependentPixmap> favIcon = ImageResourcesSvg::instance().getIndependentPixmap("locations/FAV_ICON_SELECTED");
-    QRect rc(24*G_SCALE, (sizeHint(index).height() - favIcon->height()) / 2, favIcon->width(), favIcon->height());
+    QRect rc(24*G_SCALE, (itemRect.height() - favIcon->height()) / 2, favIcon->width(), favIcon->height());
     if (rc.contains(point))
     {
         return CLICKABLE_FAVORITE_RECT;

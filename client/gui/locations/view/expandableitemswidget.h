@@ -23,6 +23,7 @@ public:
     // does not take ownership of model or delegates
     void setModel(QAbstractItemModel *model);
     void setItemDelegate(IItemDelegate *itemDelegateExpandableItem, IItemDelegate *itemDelegateNonExpandableItem);
+    void setItemHeight(int height);
 
 protected:
     void paintEvent(QPaintEvent *event) override;
@@ -30,12 +31,19 @@ protected:
     void mousePressEvent(QMouseEvent *event) override;
     void mouseReleaseEvent(QMouseEvent *event) override;
 
+signals:
+    void notifyMustBeVisible(int topItemIndex, int bottomItemIndex);
+    void notifyExpandingAnimationFinished();
+
 private slots:
     void onExpandingAnimationValueChanged(const QVariant &value);
     void onExpandingAnimationFinished();
 
 private:
+    const int EXPANDING_ANIMATION_DURATION = 200;
     QScopedPointer<CursorUpdateHelper> cursorUpdateHelper_;
+
+    int itemHeight_;
 
     QVector<QPersistentModelIndex> items_;
     QSet<QPersistentModelIndex> expandedItems_;
@@ -60,6 +68,7 @@ private:
     bool isExpandableItem(const QPersistentModelIndex &ind);
     void updateHeight();
     int calcHeightOfChildItems(const QPersistentModelIndex &ind);
+    int getOffsForItem(const QPersistentModelIndex &ind);
 
 };
 

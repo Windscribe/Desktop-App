@@ -37,6 +37,8 @@ private slots:
     void onScrollBarStopScroll(bool lastScrollDirectionUp);
     void onScrollAnimationValueChanged(const QVariant &value);
     void onScrollAnimationFinished();
+    void onNotifyMustBeVisible(int topItemIndex, int bottomItemIndex);
+    void onNotifyExpandingAnimationFinished();
 
 
 private:

@@ -51,13 +51,12 @@ class IItemDelegate
 {
 
 public:
-    virtual ~IItemDelegate() {};
+    virtual ~IItemDelegate() {}
     virtual void paint(QPainter *painter, const ItemStyleOption &option, const QModelIndex &index) const = 0;
-    virtual QSize sizeHint(const QModelIndex &index) const = 0;
     virtual bool isForbiddenCursor(const QModelIndex &index) const = 0;
 
     // return -1 if point not in clickable area, otherwise, the ID of clickable area
-    virtual int isInClickableArea(const QModelIndex &index, const QPoint &point) const = 0;
+    virtual int isInClickableArea(const QModelIndex &index, const QPoint &point, const QRect &itemRect) const = 0;
     // return -1 if point not in tooltip area, otherwise, the ID of tooltip area
     virtual int isInTooltipArea(const QModelIndex &index, const QPoint &point) const = 0;
 };
