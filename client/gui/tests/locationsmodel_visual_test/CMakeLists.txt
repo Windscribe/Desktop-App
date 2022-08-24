@@ -9,7 +9,7 @@ set(PROJECT_SOURCES
 )
 
 add_executable(locationsmodel_visual_test ${PROJECT_SOURCES} )
-target_link_libraries(locationsmodel_visual_test PRIVATE Qt${QT_VERSION_MAJOR}::Widgets  Qt${QT_VERSION_MAJOR}::Test common gui engine ${OS_SPECIFIC_LIBRARIES})
+target_link_libraries(locationsmodel_visual_test PRIVATE Qt${QT_VERSION_MAJOR}::Widgets  Qt${QT_VERSION_MAJOR}::Test gui engine common ${OS_SPECIFIC_LIBRARIES})
 
 target_include_directories(locationsmodel_visual_test PRIVATE
     ${PROJECT_DIRECTORY}/gui

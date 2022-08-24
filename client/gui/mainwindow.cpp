@@ -3158,8 +3158,9 @@ void MainWindow::createTrayMenuItems()
 void MainWindow::onTrayMenuAboutToShow()
 {
     trayMenu_.clear();
+#ifndef Q_OS_LINUX
     locationsMenu_.clear();
-
+#endif
 #ifdef Q_OS_MAC
     if (!backend_->getPreferences()->isDockedToTray())
     {
