@@ -18,10 +18,6 @@ public:
     void setFirewallState(bool bFirewallOn);
     bool isFirewallOn() const;
 
-    bool isWindowPosExists() const;
-    void setWindowPos(const QPoint &windowOffs);
-    QPoint windowPos() const;
-
     void setCountVisibleLocations(int cnt);
     int countVisibleLocations() const;
 
@@ -40,6 +36,10 @@ public:
     void setNetworkWhitelist(const QVector<types::NetworkInterface> &list);
     QVector<types::NetworkInterface> networkWhitelist() const;
 
+    bool haveAppGeometry() const;
+    void setAppGeometry(const QByteArray& geometry);
+    const QByteArray& appGeometry() const;
+
     void save();
 
 private:
@@ -50,7 +50,7 @@ private:
 
     // for serialization
     static constexpr quint32 magic_ = 0x8845C2AE;
-    static constexpr int versionForSerialization_ = 1;  // should increment the version if the data format is changed
+    static constexpr int versionForSerialization_ = 2;  // should increment the version if the data format is changed
 };
 
 #endif // PERSISTENTSTATE_H

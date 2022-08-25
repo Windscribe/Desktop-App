@@ -503,7 +503,8 @@ void MainWindow::doClose(QCloseEvent *event, bool isFromSigTerm_mac)
     }
     qCDebug(LOG_BASIC) << "Firewall on next startup: " << PersistentState::instance().isFirewallOn();
 
-    PersistentState::instance().setWindowPos(this->pos());
+    PersistentState::instance().setAppGeometry(this->saveGeometry());
+
 
     // Shutdown notification controller here, and not in a destructor. Otherwise, sometimes we won't
     // be able to shutdown properly, because the destructor may not be called. On the Windows

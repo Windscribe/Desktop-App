@@ -2,7 +2,7 @@
 
 #include <QRect>
 #include <QSettings>
-#include "utils/logger.h"
+
 #include "utils/simplecrypt.h"
 #include "types/global_consts.h"
 #include "legacy_protobuf_support/legacy_protobuf.h"
@@ -74,23 +74,6 @@ bool PersistentState::isFirewallOn() const
     return state_.isFirewallOn;
 }
 
-bool PersistentState::isWindowPosExists() const
-{
-    return state_.isWindowOffsSetled();
-}
-
-void PersistentState::setWindowPos(const QPoint &windowOffs)
-{
-    state_.windowOffsX = windowOffs.x();
-    state_.windowOffsY = windowOffs.y();
-}
-
-QPoint PersistentState::windowPos() const
-{
-    QPoint pt(state_.windowOffsX, state_.windowOffsY);
-    return pt;
-}
-
 void PersistentState::setCountVisibleLocations(int cnt)
 {
     state_.countVisibleLocations = cnt;
@@ -156,3 +139,18 @@ PersistentState::PersistentState()
     load();
 }
 
+bool PersistentState::haveAppGeometry() const
+{
+    return !state_.appGeometry.isEmpty();
+}
+
+void PersistentState::setAppGeometry(const QByteArray &geometry)
+{
+    state_.appGeometry = geometry;
+    save();
+}
+
+const QByteArray& PersistentState::appGeometry() const
+{
+    return state_.appGeometry;
+}

@@ -1277,7 +1277,7 @@ void Engine::speedRatingImpl(int rating, const QString &localExternalIp)
 
 void Engine::setSettingsImpl(const types::EngineSettings &engineSettings)
 {
-    qCDebug(LOG_BASIC) << "Engine::";
+    qCDebug(LOG_BASIC) << "Engine::setSettingsImpl";
 
     bool isAllowLanTrafficChanged = engineSettings_.isAllowLanTraffic() != engineSettings.isAllowLanTraffic();
     bool isUpdateChannelChanged = engineSettings_.updateChannel() != engineSettings.updateChannel();

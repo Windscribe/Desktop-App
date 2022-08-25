@@ -1,3 +1,13 @@
+2.5.3 (24/08/2022)
+* Preferences UI cleanup. #122
+* Notifications screen re-work. #274
+* Fixed escape and enter keys not working in settings edit boxes. #401
+* Fixed display scaling issues. #402
+* Fixed missing macOS system tray icon. #405
+* Fixed incorrect app position during launch on multi-monitor setups. #411
+* Fixed potential firewall leak on macOS. #416
+
+
 2.5.2 (28/07/2022)
 * Slow startup on macOS after initial install, upgrade, or reboot. #53
 * Only run Apple macOS notarization process in CI for tagged builds. #82
