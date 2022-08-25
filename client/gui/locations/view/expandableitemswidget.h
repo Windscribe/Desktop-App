@@ -25,6 +25,9 @@ public:
     void setItemDelegate(IItemDelegate *itemDelegateExpandableItem, IItemDelegate *itemDelegateNonExpandableItem);
     void setItemHeight(int height);
 
+    void setShowLatencyInMs(bool isShowLatencyInMs);
+    void setShowLocationLoad(bool isShowLocationLoad);
+
 protected:
     void paintEvent(QPaintEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
@@ -33,7 +36,6 @@ protected:
 
 signals:
     void notifyMustBeVisible(int topItemIndex, int bottomItemIndex);
-    void notifyExpandingAnimationFinished();
 
 private slots:
     void onExpandingAnimationValueChanged(const QVariant &value);
@@ -44,8 +46,11 @@ private:
     QScopedPointer<CursorUpdateHelper> cursorUpdateHelper_;
 
     int itemHeight_;
+    bool isShowLatencyInMs_;
+    bool isShowLocationLoad_;
 
     QVector<QPersistentModelIndex> items_;
+    QHash<QPersistentModelIndex, QSharedPointer<IItemCacheData>> itemsCacheData_;
     QSet<QPersistentModelIndex> expandedItems_;
     QPersistentModelIndex selectedInd_;
 
@@ -61,7 +66,7 @@ private:
     QPersistentModelIndex mousePressedItem_;
     int mousePressedClickableId_;
 
-    void updateItemsList();
+    void resetItemsList();
     void sortItemsListByRow();
     QPersistentModelIndex detectSelectedItem(const QPoint &pt, QRect *outputRect = nullptr);
     IItemDelegate *delegateForItem(const QPersistentModelIndex &ind);

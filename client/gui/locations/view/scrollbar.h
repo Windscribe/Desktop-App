@@ -58,6 +58,7 @@ private:
 
     const QString customStyleSheet();
     int customPaddingWidth();
+    int adjustValueMultipleStep(int value);
 
     double curOpacity_;
     QVariantAnimation opacityAnimation_;

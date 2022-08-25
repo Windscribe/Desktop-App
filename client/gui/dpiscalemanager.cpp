@@ -79,7 +79,7 @@ void DpiScaleManager::onWindowScreenChanged(QScreen *screen)
         Q_ASSERT(qFuzzyCompare(curDevicePixelRatio_, 1.0) || qFuzzyCompare(curDevicePixelRatio_, 2.0));
         emit scaleChanged(curScale_);
     }
-    qCDebug(LOG_BASIC) << "DpiScaleManager :: new screen: " << screen;
+    qCDebug(LOG_BASIC) << "DpiScaleManager :: new screen: " << screen << ";DPI =" << screen->devicePixelRatio();
     curGeometry_ = GetGeometryForScreen(screen);
     emit newScreen(screen);
 }

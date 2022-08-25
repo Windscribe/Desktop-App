@@ -2,11 +2,13 @@
 
 #include <QPainter>
 #include <QtMath>
+
+#include "backend/persistentstate.h"
 #include "commongraphics/commongraphics.h"
-#include "graphicresources/imageresourcessvg.h"
-#include "languagecontroller.h"
 #include "dpiscalemanager.h"
 #include "graphicresources/fontmanager.h"
+#include "graphicresources/imageresourcessvg.h"
+#include "languagecontroller.h"
 
 #include <QDebug>
 
@@ -29,6 +31,8 @@ LocationsWindow::LocationsWindow(QWidget *parent, gui_locations::LocationsModelM
     connect(locationsTab_, SIGNAL(addCustomConfigClicked()), SIGNAL(addCustomConfigClicked()));
 
     connect(&LanguageController::instance(), SIGNAL(languageChanged()), SLOT(onLanguageChanged()));
+
+    setCountVisibleItemSlots(PersistentState::instance().countVisibleLocations());
 }
 
 int LocationsWindow::tabAndFooterHeight() const
@@ -43,7 +47,7 @@ void LocationsWindow::setCountVisibleItemSlots(int cnt)
     locationsTabHeightUnscaled_ = locationsTab_->unscaledHeightOfItemViewport() + GuiLocations::LocationsTab::TAB_HEADER_HEIGHT;
     locationsTab_->setGeometry(0, 0, WINDOW_WIDTH * G_SCALE, qCeil(locationsTabHeightUnscaled_ * G_SCALE));
     updateFooterOverlayGeo();
-
+    PersistentState::instance().setCountVisibleLocations(getCountVisibleItems());
     emit heightChanged();
 }
 

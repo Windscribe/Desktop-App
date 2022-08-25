@@ -1,16 +1,48 @@
 #include "countryitemdelegate.h"
-#include "dpiscalemanager.h"
+
+#include <QPainter>
+#include <QStaticText>
+#include <QtMath>
+
 #include "../locationsmodel_roles.h"
+#include "commongraphics/commongraphics.h"
+#include "dpiscalemanager.h"
 #include "graphicresources/fontmanager.h"
 #include "graphicresources/imageresourcessvg.h"
-#include "commongraphics/commongraphics.h"
 #include "types/locationid.h"
-#include <QPainter>
-#include <QtMath>
 
 namespace gui_locations {
 
-void CountryItemDelegate::paint(QPainter *painter, const ItemStyleOption &option, const QModelIndex &index) const
+// The text is drawn in QPixmap to speed up subsequent drawings
+// The reason for this is that drawing text is quite slow and it speeds up significantly
+class CountryItemDelegateCache : public IItemCacheData
+{
+public:
+    explicit CountryItemDelegateCache(const QString &text, const QFont &font)
+    {
+        QFontMetrics fm(font);
+        QRect rcText = fm.boundingRect(text);
+        QPixmap pixmap(rcText.width()*2, rcText.height()*2);
+        pixmap.setDevicePixelRatio(2);
+        pixmap.fill(FontManager::instance().getMidnightColor());
+        {
+            QPainter painter(&pixmap);
+            painter.setPen(Qt::white);
+            painter.setFont(font);
+            painter.drawText(QRect(0, 0, rcText.width() + 1, rcText.height() + 1), text);
+        }
+        pixmap_ = pixmap;
+        //pixmap_.save("c:/1/aaa.png");
+    }
+
+    const QPixmap & getPixmap() const { return pixmap_; }
+
+private:
+    QPixmap pixmap_;
+};
+
+
+void CountryItemDelegate::paint(QPainter *painter, const ItemStyleOption &option, const QModelIndex &index, const IItemCacheData *cacheData) const
 {
     painter->save();
 
@@ -38,12 +70,24 @@ void CountryItemDelegate::paint(QPainter *painter, const ItemStyleOption &option
     double textOpacity = OPACITY_UNHOVER_TEXT + (OPACITY_FULL - OPACITY_UNHOVER_TEXT) * option.selectedOpacity();
 
     // text
-    painter->setOpacity(textOpacity);
-    painter->setPen(Qt::white);
-    painter->setFont(*FontManager::instance().getFont(16, true));
+    const CountryItemDelegateCache *countryItemDelegateCache = static_cast<const CountryItemDelegateCache *>(cacheData);
+    //QFontMetrics fm(*FontManager::instance().getFont(16, true));
+    //QRect rcText = fm.boundingRect(index.data().toString());
+    //QPixmap pixmap(rcText.width(), rcText.height());
+    //{
+    //    QPainter p(&pixmap);
+    //    p.drawText();
+    //}
+    //QPixmap pixmap()
+
+    painter->setOpacity(textOpacity );
+    //painter->setPen(Qt::white);
+    //painter->setFont(*FontManager::instance().getFont(16, true));
     QRect rc = option.rect;
     rc.adjust(64*G_SCALE, 0, 0, 0);
-    painter->drawText(rc, Qt::AlignLeft | Qt::AlignVCenter, index.data().toString());
+    painter->drawPixmap(rc.left(), rc.top() + (rc.height() - countryItemDelegateCache->getPixmap().size().height()) / 2, countryItemDelegateCache->getPixmap());
+    //painter->drawStaticText(rc.left(), rc.top() + (rc.height() - countryItemDelegateCache->get().size().height()) / 2 , countryItemDelegateCache->get());
+    //painter->drawText(rc, Qt::AlignLeft | Qt::AlignVCenter, index.data().toString());*/
 
     // p2p icon
     if (index.data(IS_SHOW_P2P).toBool())
@@ -147,6 +191,11 @@ void CountryItemDelegate::paint(QPainter *painter, const ItemStyleOption &option
     }
 
     painter->restore();
+}
+
+IItemCacheData *CountryItemDelegate::createCacheData(const QModelIndex &index) const
+{
+    return new CountryItemDelegateCache(index.data().toString(), *FontManager::instance().getFont(16, true));
 }
 
 bool CountryItemDelegate::isForbiddenCursor(const QModelIndex &index) const

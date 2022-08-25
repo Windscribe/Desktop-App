@@ -12,7 +12,7 @@
 
 namespace gui_locations {
 
-void CityItemDelegate::paint(QPainter *painter, const ItemStyleOption &option, const QModelIndex &index) const
+void CityItemDelegate::paint(QPainter *painter, const ItemStyleOption &option, const QModelIndex &index, const IItemCacheData *cacheData) const
 {
     painter->save();
 
@@ -224,6 +224,11 @@ void CityItemDelegate::paint(QPainter *painter, const ItemStyleOption &option, c
     }
 
     painter->restore();
+}
+
+IItemCacheData *CityItemDelegate::createCacheData(const QModelIndex &index) const
+{
+    return nullptr;
 }
 
 bool CityItemDelegate::isForbiddenCursor(const QModelIndex &index) const

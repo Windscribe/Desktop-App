@@ -30,7 +30,6 @@ LocationsView::LocationsView(QWidget *parent) : QScrollArea(parent)
     widget_->setItemDelegate(countryItemDelegate_, cityItemDelegate_);
     widget_->setItemHeight(qCeil(LOCATION_ITEM_HEIGHT * G_SCALE));
     connect(widget_, &ExpandableItemsWidget::notifyMustBeVisible, this, &LocationsView::onNotifyMustBeVisible);
-    connect(widget_, &ExpandableItemsWidget::notifyExpandingAnimationFinished, this, &LocationsView::onNotifyExpandingAnimationFinished);
 
     connect(&scrollAnimation_, &QVariantAnimation::valueChanged, this, &LocationsView::onScrollAnimationValueChanged);
     connect(&scrollAnimation_, &QVariantAnimation::finished, this, &LocationsView::onScrollAnimationFinished);
@@ -49,19 +48,14 @@ void LocationsView::setModel(QAbstractItemModel *model)
     widget_->setModel(model);
 }
 
-void LocationsView::setCountViewportItems(int cnt)
-{
-    //todo
-}
-
 void LocationsView::setShowLatencyInMs(bool isShowLatencyInMs)
 {
-    //todo
+    widget_->setShowLatencyInMs(isShowLatencyInMs);
 }
 
 void LocationsView::setShowLocationLoad(bool isShowLocationLoad)
 {
-    //todo
+    widget_->setShowLocationLoad(isShowLocationLoad);
 }
 
 void LocationsView::updateScaling()
@@ -214,14 +208,12 @@ void LocationsView::onScrollAnimationValueChanged(const QVariant &value)
 void LocationsView::onScrollAnimationFinished()
 {
     updateScrollBarWithView();
-    //onNotifyExpandingAnimationFinished();
 }
 
 void LocationsView::onNotifyMustBeVisible(int topItemIndex, int bottomItemIndex)
 {
     int countVisibleItems = geometry().height() / qCeil(LOCATION_ITEM_HEIGHT * G_SCALE);
     int currentTopItemInd = -lastScrollPos_ /  qCeil(LOCATION_ITEM_HEIGHT * G_SCALE);
-
 
     if (bottomItemIndex >= (currentTopItemInd + countVisibleItems))
     {
@@ -232,13 +224,6 @@ void LocationsView::onNotifyMustBeVisible(int topItemIndex, int bottomItemIndex)
         }
         startAnimationScrollByPosition(-newPos*qCeil(LOCATION_ITEM_HEIGHT * G_SCALE), scrollAnimation_);
     }
-}
-
-void LocationsView::onNotifyExpandingAnimationFinished()
-{
-    // move the scroll if the top item is not aligned
-    int currentTopItemInd = -lastScrollPos_ /  qCeil(LOCATION_ITEM_HEIGHT * G_SCALE);
-    startAnimationScrollByPosition(-currentTopItemInd*qCeil(LOCATION_ITEM_HEIGHT * G_SCALE), scrollAnimation_);
 }
 
 void LocationsView::startAnimationScrollByPosition(int positionValue, QVariantAnimation &animation)

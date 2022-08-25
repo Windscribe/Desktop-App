@@ -118,8 +118,7 @@ void ScrollBar::wheelEvent(QWheelEvent * event)
 
     if (stepVector != 0)
     {
-        // qDebug() << "Scrolling: " << targetValue_ + stepVector;
-        animateScroll(targetValue_ + stepVector, SCROLL_SPEED_FRACTION);
+        animateScroll(adjustValueMultipleStep(targetValue_ + stepVector), SCROLL_SPEED_FRACTION);
     }
 }
 
@@ -180,7 +179,7 @@ void ScrollBar::mousePressEvent(QMouseEvent *event)
     else if (mouseBelowHandlePos)
     {
         // scroll down
-        int proposedValue = value () + pageStep();
+        int proposedValue = adjustValueMultipleStep(value () + pageStep());
         if (proposedValue <= maximum())
         {
             forceSetValue(proposedValue);
@@ -193,7 +192,7 @@ void ScrollBar::mousePressEvent(QMouseEvent *event)
     else
     {
         // scroll up
-        int proposedValue = value() - pageStep();
+        int proposedValue = adjustValueMultipleStep(value() - pageStep());
         if (proposedValue >= 0)
         {
             forceSetValue(proposedValue);
@@ -205,9 +204,8 @@ void ScrollBar::mousePressEvent(QMouseEvent *event)
     }
 }
 
-void ScrollBar::mouseReleaseEvent(QMouseEvent * /*event*/)
+void ScrollBar::mouseReleaseEvent(QMouseEvent */*event*/)
 {
-    // qDebug() << "mouse release";
     pressed_ = false;
 }
 
@@ -218,7 +216,7 @@ void ScrollBar::mouseMoveEvent(QMouseEvent *event)
         int diffPx = event->pos().y() - lastCursorPos_;
         int diffIncrements = diffPx/(singleStep()*magicRatio());
 
-        int proposedValue = diffIncrements*singleStep() + lastValue_;
+        int proposedValue = adjustValueMultipleStep(diffIncrements*singleStep() + lastValue_);
         if (proposedValue >= 0 && proposedValue <= maximum())
         {
             if (proposedValue != value())
@@ -333,6 +331,16 @@ const QString ScrollBar::customStyleSheet()
 int ScrollBar::customPaddingWidth()
 {
     return 2 * G_SCALE;
+}
+
+int ScrollBar::adjustValueMultipleStep(int value)
+{
+    // the position must be a multiple of a step, so that the top item is always exactly at the top
+    if ((value % singleStep()) == 0) {
+        return value;
+    }
+    int adjustedValue = std::round((double)(value) / (double)singleStep()) * singleStep();
+    return adjustedValue;
 }
 
 } // namespace gui_locations

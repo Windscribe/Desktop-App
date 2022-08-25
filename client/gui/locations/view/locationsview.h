@@ -18,7 +18,6 @@ public:
     ~LocationsView() override;
 
     void setModel(QAbstractItemModel *model);
-    void setCountViewportItems(int cnt);
     void setShowLatencyInMs(bool isShowLatencyInMs);
     void setShowLocationLoad(bool isShowLocationLoad);
     void updateScaling();
@@ -38,8 +37,6 @@ private slots:
     void onScrollAnimationValueChanged(const QVariant &value);
     void onScrollAnimationFinished();
     void onNotifyMustBeVisible(int topItemIndex, int bottomItemIndex);
-    void onNotifyExpandingAnimationFinished();
-
 
 private:
     const int SCROLL_BAR_WIDTH = 8;

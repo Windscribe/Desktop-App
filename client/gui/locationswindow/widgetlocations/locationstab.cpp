@@ -129,10 +129,10 @@ void LocationsTab::setCountVisibleItemSlots(int cnt)
     if (cnt != countOfVisibleItemSlots_)
     {
         countOfVisibleItemSlots_ = cnt;
-        widgetAllLocations_->setCountViewportItems(countOfVisibleItemSlots_);
-        widgetConfiguredLocations_->setCountViewportItems(countOfVisibleItemSlots_-1);
-        widgetStaticIpsLocations_->setCountViewportItems(countOfVisibleItemSlots_-1);
-        widgetFavoriteLocations_->setCountViewportItems(countOfVisibleItemSlots_);
+        //widgetAllLocations_->setCountViewportItems(countOfVisibleItemSlots_);
+        //widgetConfiguredLocations_->setCountViewportItems(countOfVisibleItemSlots_-1);
+        //widgetStaticIpsLocations_->setCountViewportItems(countOfVisibleItemSlots_-1);
+        //widgetFavoriteLocations_->setCountViewportItems(countOfVisibleItemSlots_);
         updateRibbonVisibility();
         updateLocationWidgetsGeometry(unscaledHeightOfItemViewport());
     }

@@ -6,12 +6,18 @@
 #include <QPainter>
 #include <QDebug>
 #include <QRegion>
+#include <QElapsedTimer>
+
+long g_cntFrames = 0;
+qint64 g_time = 0;
 
 namespace gui_locations {
 
 ExpandableItemsWidget::ExpandableItemsWidget(QWidget *parent) : QWidget(parent)
   , cursorUpdateHelper_(new CursorUpdateHelper(this))
   , itemHeight_(0)
+  , isShowLatencyInMs_(false)
+  , isShowLocationLoad_(false)
   , model_(nullptr)
   , expandableItemDelegate_(nullptr)
   , nonexpandableItemDelegate_(nullptr)
@@ -19,38 +25,35 @@ ExpandableItemsWidget::ExpandableItemsWidget(QWidget *parent) : QWidget(parent)
   , mousePressedClickableId_(-1)
 {
     setMouseTracking(true);
-
     connect(&expandingAnimation_, &QVariantAnimation::valueChanged, this, &ExpandableItemsWidget::onExpandingAnimationValueChanged);
     connect(&expandingAnimation_, &QVariantAnimation::finished, this, &ExpandableItemsWidget::onExpandingAnimationFinished);
-
 }
 
 ExpandableItemsWidget::~ExpandableItemsWidget()
 {
+    qDebug() << (double)g_time / (double)g_cntFrames;
 }
 
 void ExpandableItemsWidget::setModel(QAbstractItemModel *model)
 {
+    Q_ASSERT(model_ == nullptr);    // currently, the setup of the model is supported only once
     model_ = model;
 
-    // todo remove prev signals
-    connect(model_, &QAbstractItemModel::modelReset,
-                [=]()
-        {
-            updateItemsList();
-        });
+    connect(model_, &QAbstractItemModel::modelReset, [=]()  { resetItemsList();  });
 
-    connect(model_, &QAbstractItemModel::rowsInserted,
+    /*connect(model_, &QAbstractItemModel::rowsInserted,
                 [=]()
         {
-            updateItemsList();
+            //updateItemsList();
         });
 
     connect(model_, &QAbstractItemModel::rowsRemoved,
                 [=]()
         {
-            updateItemsList();
+            //updateItemsList();
         });
+
+    connect(model_, &QAbstractItemModel::rowsMoved, [=]() { Q_ASSERT(false); });
 
     connect(model_, &QAbstractItemModel::dataChanged,
                 [=]()
@@ -64,9 +67,9 @@ void ExpandableItemsWidget::setModel(QAbstractItemModel *model)
             sortItemsListByRow();
             update();
         });
+    */
 
-
-    updateItemsList();
+    resetItemsList();
 }
 
 void ExpandableItemsWidget::setItemDelegate(IItemDelegate *itemDelegateExpandableItem, IItemDelegate *itemDelegateNonExpandableItem)
@@ -82,54 +85,66 @@ void ExpandableItemsWidget::setItemHeight(int height)
     update();
 }
 
+void ExpandableItemsWidget::setShowLatencyInMs(bool isShowLatencyInMs)
+{
+    isShowLatencyInMs_ = isShowLatencyInMs;
+    update();
+}
+
+void ExpandableItemsWidget::setShowLocationLoad(bool isShowLocationLoad)
+{
+    isShowLocationLoad_ = isShowLocationLoad;
+    update();
+}
+
 void ExpandableItemsWidget::paintEvent(QPaintEvent *event)
 {
-    QPainter painter(this);
-    QRect bkgd(0, 0, geometry().width(), geometry().height());
-    painter.fillRect(bkgd, QColor(255, 255, 0));
+    QElapsedTimer elapsed;
+    elapsed.start();
 
-    int top = 0;
+    QPainter painter(this);
+
+    int topOffs = 0;
     for (const auto &it : qAsConst(items_))
     {
         IItemDelegate *delegate = delegateForItem(it);
-
-        QRect rcItem(0, top, size().width(), itemHeight_);
+        QRect rcItem(0, topOffs, size().width(), itemHeight_);
 
         bool isExpanded = expandedItems_.contains(it);
-
         double expandedProgress;
-        if (it == expandingItem_)
-        {
+        if (it == expandingItem_) {
             expandedProgress = (double)expandingAnimation_.currentTime() / (double)expandingAnimation_.totalDuration();
         }
-        else
-        {
+        else {
             expandedProgress = isExpanded ? 1.0 : 0.0;
         }
 
-        ItemStyleOption opt(rcItem, it == selectedInd_ ? 1.0 : 0.0, expandedProgress, true, false);
-        delegate->paint(&painter, opt, it);
-        top += itemHeight_;
+        //if (rcItem.intersects(event->rect()))
+        {
+            ItemStyleOption opt(rcItem, it == selectedInd_ ? 1.0 : 0.0, expandedProgress, isShowLocationLoad_, isShowLatencyInMs_);
+            delegate->paint(&painter, opt, it, itemsCacheData_[it].get());
+        }
+        topOffs += itemHeight_;
 
         // draw child items if this item is expanded
         if (isExpanded)
         {
             if (it == expandingItem_)
             {
-                painter.setClipRect(QRect(0, top, size().width(), expandingCurrentHeight_));
+                painter.setClipRect(QRect(0, topOffs, size().width(), expandingCurrentHeight_));
             }
             int row = 0;
             int overallHeight = 0;
             QModelIndex childInd = it.model()->index(row, 0, it);
             while (childInd.isValid())
             {
-                QRect rcChildItem(0, top + overallHeight, size().width(), itemHeight_);
-
-                ItemStyleOption opt(rcChildItem, childInd == selectedInd_ ? 1.0 : 0.0, false, true, false);
-                nonexpandableItemDelegate_->paint(&painter, opt, childInd);
-                //top += curChildItemHeight;
+                QRect rcChildItem(0, topOffs + overallHeight, size().width(), itemHeight_);
+                //if (rcChildItem.intersects(event->rect()))
+                {
+                    ItemStyleOption opt(rcChildItem, childInd == selectedInd_ ? 1.0 : 0.0, false, isShowLocationLoad_, isShowLatencyInMs_);
+                    nonexpandableItemDelegate_->paint(&painter, opt, childInd, itemsCacheData_[childInd].get());
+                }
                 overallHeight += itemHeight_;
-
                 row++;
                 childInd = it.model()->index(row, 0, it);
             }
@@ -137,14 +152,16 @@ void ExpandableItemsWidget::paintEvent(QPaintEvent *event)
             if (it == expandingItem_)
             {
                 painter.setClipping(false);
-                top += expandingCurrentHeight_;
+                topOffs += expandingCurrentHeight_;
             }
             else
             {
-                top += overallHeight;
+                topOffs += overallHeight;
             }
         }
     }
+    g_time += elapsed.elapsed();
+    g_cntFrames++;
 }
 
 void ExpandableItemsWidget::mouseMoveEvent(QMouseEvent *event)
@@ -269,15 +286,29 @@ void ExpandableItemsWidget::onExpandingAnimationFinished()
     //emit notifyExpandingAnimationFinished();
 }
 
-void ExpandableItemsWidget::updateItemsList()
+void ExpandableItemsWidget::resetItemsList()
 {
+    if (expandingAnimation_.state() == QAbstractAnimation::Running)
+    {
+        expandingAnimation_.stop();
+        expandingItem_ = QModelIndex();
+        selectedInd_ = QModelIndex();
+    }
+
     items_.clear();
+    itemsCacheData_.clear();
     expandedItems_.clear();
-    int rows_cnt = model_->rowCount();
-    for (int i = 0; i < rows_cnt; ++i)
+    for (int i = 0, rows_cnt = model_->rowCount(); i < rows_cnt; ++i)
     {
         QModelIndex mi = model_->index(i, 0);
         items_ << mi;
+        itemsCacheData_[mi] = QSharedPointer<IItemCacheData>(delegateForItem(mi)->createCacheData(mi));
+
+        for (int c = 0, childs_cnt = model_->rowCount(mi); c < childs_cnt; ++c )
+        {
+            QModelIndex childMi = model_->index(c, 0, mi);
+            itemsCacheData_[childMi] = QSharedPointer<IItemCacheData>(delegateForItem(childMi)->createCacheData(childMi));
+        }
     }
 
     updateHeight();
@@ -350,13 +381,10 @@ bool ExpandableItemsWidget::isExpandableItem(const QPersistentModelIndex &ind)
 
 void ExpandableItemsWidget::updateHeight()
 {
-    // Updating only height
     int curHeight = 0;
-
     for (const auto &it : qAsConst(items_))
     {
         curHeight += itemHeight_;
-
         if (expandedItems_.contains(it))
         {
             if (it == expandingItem_)
