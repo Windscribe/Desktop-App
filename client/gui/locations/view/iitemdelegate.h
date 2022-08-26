@@ -59,6 +59,7 @@ public:
     virtual ~IItemDelegate() {}
     virtual void paint(QPainter *painter, const ItemStyleOption &option, const QModelIndex &index, const IItemCacheData *cacheData) const = 0;
     virtual IItemCacheData *createCacheData(const QModelIndex &index) const = 0;
+    virtual void updateCacheData(const QModelIndex &index, IItemCacheData *cacheData) const = 0;
     virtual bool isForbiddenCursor(const QModelIndex &index) const = 0;
 
     // return -1 if point not in clickable area, otherwise, the ID of clickable area

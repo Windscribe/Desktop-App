@@ -7,8 +7,9 @@ IndependentPixmap::IndependentPixmap(const QPixmap &pixmap): pixmap_(pixmap)
 {
 }
 
-IndependentPixmap::~IndependentPixmap()
+bool IndependentPixmap::isNull() const
 {
+    return pixmap_.isNull();
 }
 
 QSize IndependentPixmap::originalPixmapSize() const

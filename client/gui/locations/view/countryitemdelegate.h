@@ -10,6 +10,7 @@ public:
     virtual ~CountryItemDelegate() {}
     void paint(QPainter *painter, const ItemStyleOption &option, const QModelIndex &index, const IItemCacheData *cacheData) const override;
     IItemCacheData *createCacheData(const QModelIndex &index) const override;
+    void updateCacheData(const QModelIndex &index, IItemCacheData *cacheData) const override;
     bool isForbiddenCursor(const QModelIndex &index) const override;
 
     int isInClickableArea(const QModelIndex &index, const QPoint &point, const QRect &itemRect) const override;

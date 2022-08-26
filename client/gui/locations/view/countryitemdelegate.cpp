@@ -12,18 +12,17 @@
 #include "types/locationid.h"
 #include "textpixmap.h"
 
-namespace gui_locations {
+namespace  {
 
-class CountryItemDelegateCache : public IItemCacheData
+class CountryItemDelegateCache : public gui_locations::IItemCacheData, public gui_locations::TextPixmaps
 {
 public:
-    explicit CountryItemDelegateCache(const QString &text, const QFont &font) :
-        textPixmap_(text, font, DpiScaleManager::instance().curDevicePixelRatio()) { }
-    const IndependentPixmap * getPixmap() const { return textPixmap_.getPixmap(); }
-private:
-    TextPixmap textPixmap_;
+    static constexpr int kCaptionId = 0;
 };
 
+}
+
+namespace gui_locations {
 
 void CountryItemDelegate::paint(QPainter *painter, const ItemStyleOption &option, const QModelIndex &index, const IItemCacheData *cacheData) const
 {
@@ -53,11 +52,12 @@ void CountryItemDelegate::paint(QPainter *painter, const ItemStyleOption &option
     double textOpacity = OPACITY_UNHOVER_TEXT + (OPACITY_FULL - OPACITY_UNHOVER_TEXT) * option.selectedOpacity();
 
     // text
-    const CountryItemDelegateCache *countryItemDelegateCache = static_cast<const CountryItemDelegateCache *>(cacheData);
+    const CountryItemDelegateCache *cache = static_cast<const CountryItemDelegateCache *>(cacheData);
     painter->setOpacity(textOpacity );
     QRect rc = option.rect;
     rc.adjust(64*G_SCALE, 0, 0, 0);
-    countryItemDelegateCache->getPixmap()->draw(rc.left(), rc.top() + (rc.height() - countryItemDelegateCache->getPixmap()->height()) / 2, painter);
+    IndependentPixmap pixmap = cache->pixmap(CountryItemDelegateCache::kCaptionId);
+    pixmap.draw(rc.left(), rc.top() + (rc.height() - pixmap.height()) / 2, painter);
 
     // p2p icon
     if (index.data(kIsShowP2P).toBool())
@@ -165,7 +165,15 @@ void CountryItemDelegate::paint(QPainter *painter, const ItemStyleOption &option
 
 IItemCacheData *CountryItemDelegate::createCacheData(const QModelIndex &index) const
 {
-    return new CountryItemDelegateCache(index.data().toString(), *FontManager::instance().getFont(16, true));
+    CountryItemDelegateCache *cache = new CountryItemDelegateCache();
+    cache->add(CountryItemDelegateCache::kCaptionId, index.data().toString(), *FontManager::instance().getFont(16, true), DpiScaleManager::instance().curDevicePixelRatio());
+    return cache;
+}
+
+void CountryItemDelegate::updateCacheData(const QModelIndex &index, IItemCacheData *cacheData) const
+{
+    CountryItemDelegateCache *cache = static_cast<CountryItemDelegateCache *>(cacheData);
+    cache->updateIfTextChanged(CountryItemDelegateCache::kCaptionId, index.data().toString(), *FontManager::instance().getFont(16, true), DpiScaleManager::instance().curDevicePixelRatio());
 }
 
 bool CountryItemDelegate::isForbiddenCursor(const QModelIndex &index) const

@@ -12,8 +12,11 @@
 class IndependentPixmap
 {
 public:
+    IndependentPixmap() {}
     explicit IndependentPixmap(const QPixmap &pixmap);
-    virtual ~IndependentPixmap();
+    virtual ~IndependentPixmap() {}
+
+    bool isNull() const;
 
     QSize originalPixmapSize() const;
 

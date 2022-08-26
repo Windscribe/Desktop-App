@@ -13,37 +13,20 @@
 #include "types/pingtime.h"
 #include "textpixmap.h"
 
-namespace gui_locations {
+namespace  {
 
-class CityItemDelegateCache : public IItemCacheData
+class CityItemDelegateCache : public gui_locations::IItemCacheData, public gui_locations::TextPixmaps
 {
 public:
-    explicit CityItemDelegateCache(const QString &city, const QFont &fontCity, const QString &nick, const QFont &fontNick, const QString &staticIp, const QFont &fontStaticIp)
-    {
-        if (!city.isEmpty()) {
-            cityTextPixmap_.reset(new TextPixmap(city, fontCity, DpiScaleManager::instance().curDevicePixelRatio()));
-        }
-        if (!nick.isEmpty())
-        {
-            cityTextPixmap_.reset(new TextPixmap(nick, fontNick, DpiScaleManager::instance().curDevicePixelRatio()));
-        }
-        if (!staticIp.isEmpty())
-        {
-            cityTextPixmap_.reset(new TextPixmap(staticIp, fontStaticIp, DpiScaleManager::instance().curDevicePixelRatio()));
-        }
-    }
-
-    const IndependentPixmap * getCityPixmap() const { return cityTextPixmap_ != nullptr ? cityTextPixmap_->getPixmap() : nullptr; }
-    const IndependentPixmap * getNickPixmap() const { return nickTextPixmap_ != nullptr ? nickTextPixmap_->getPixmap() : nullptr; }
-    const IndependentPixmap * getStaticIpPixmap() const { return staticIpTextPixmap_ != nullptr ? staticIpTextPixmap_->getPixmap() : nullptr; }
-
-private:
-    QScopedPointer<TextPixmap> cityTextPixmap_;
-    QScopedPointer<TextPixmap> nickTextPixmap_;
-    QScopedPointer<TextPixmap> staticIpTextPixmap_;
+    enum {
+          kCityId = 0,
+          kNickId,
+          kStaticIpId
+    };
 };
+}
 
-
+namespace gui_locations {
 
 void CityItemDelegate::paint(QPainter *painter, const ItemStyleOption &option, const QModelIndex &index, const IItemCacheData *cacheData) const
 {
@@ -53,6 +36,8 @@ void CityItemDelegate::paint(QPainter *painter, const ItemStyleOption &option, c
     int left_offs = option.rect.left();
     int top_offs = option.rect.top();
     double textOpacity = OPACITY_HALF + (OPACITY_FULL - OPACITY_HALF) * option.selectedOpacity();
+
+    const CityItemDelegateCache *cache = static_cast<const CityItemDelegateCache *>(cacheData);
 
     // background
     painter->fillRect(option.rect, FontManager::instance().getMidnightColor());
@@ -83,15 +68,11 @@ void CityItemDelegate::paint(QPainter *painter, const ItemStyleOption &option, c
         }
 
         // static ip text
-        // qDebug() << "Drawing static location";
-        QString staticIp = index.data(kStaticIp).toString();
         painter->setOpacity(0.5);
-        painter->setPen(Qt::white);
-        painter->setFont(*FontManager::instance().getFont(13, false));
-        QFontMetrics fm(*FontManager::instance().getFont(13, false));
-        int textWidth = fm.horizontalAdvance(staticIp);
-        QRect rc( option.rect.width() - textWidth - 44*G_SCALE,  option.rect.top(), textWidth, option.rect.height());
-        painter->drawText(rc, Qt::AlignVCenter | Qt::AlignLeft, staticIp);
+        IndependentPixmap pixmapStaticIp = cache->pixmap(CityItemDelegateCache::kStaticIpId);
+        Q_ASSERT(!pixmapStaticIp.isNull());
+        QRect rc( option.rect.width() - pixmapStaticIp.width() - 44*G_SCALE,  option.rect.top(), pixmapStaticIp.width(), option.rect.height());
+        pixmapStaticIp.draw(rc.left(), rc.top() + (rc.height() -  pixmapStaticIp.height()) / 2, painter);
     }
     else if (index.data(kIsShowAsPremium).toBool())
     {
@@ -130,29 +111,18 @@ void CityItemDelegate::paint(QPainter *painter, const ItemStyleOption &option, c
 
     // text
     painter->setOpacity(textOpacity);
-    painter->setPen(Qt::white);
-
-    QFont *fontCaption = FontManager::instance().getFont(16, true);
-    QString caption = CommonGraphics::maybeTruncatedText(index.data(kName).toString(),
-                                                              *fontCaption,
-                                                              static_cast<int>(CITY_CAPTION_MAX_WIDTH * G_SCALE));
-    painter->setFont(*fontCaption);
-    QFontMetrics fm(*fontCaption);
-    int textWidth = fm.horizontalAdvance(caption);
-    QRect rcCaption( left_offs + LOCATION_ITEM_MARGIN * G_SCALE * 2 + LOCATION_ITEM_FLAG_WIDTH * G_SCALE,  option.rect.top(), textWidth, option.rect.height());
-    painter->drawText(rcCaption, Qt::AlignVCenter | Qt::AlignLeft, caption);
+    IndependentPixmap pixmapCaption = cache->pixmap(CityItemDelegateCache::kCityId);
+    Q_ASSERT(!pixmapCaption.isNull());
+    QRect rcCaption( left_offs + LOCATION_ITEM_MARGIN * G_SCALE * 2 + LOCATION_ITEM_FLAG_WIDTH * G_SCALE,  option.rect.top(), pixmapCaption.width(), option.rect.height());
+    pixmapCaption.draw(rcCaption.left(), rcCaption.top() + (rcCaption.height() -  pixmapCaption.height()) / 2, painter);
 
     // city text for non-static and non-custom views only
     if (!lid.isStaticIpsLocation() && !lid.isCustomConfigsLocation())
     {
-        QString nickname = index.data(kNick).toString();
-        QFont *fontNickname = FontManager::instance().getFont(16, false);
-        painter->setFont(*fontNickname);
-        QFontMetrics fm(*fontNickname);
-        int nickNameWidth = fm.horizontalAdvance(nickname);
-
-        QRect rc( rcCaption.left() + rcCaption.width() +  8*G_SCALE,  option.rect.top(), nickNameWidth, option.rect.height());
-        painter->drawText(rc, Qt::AlignVCenter | Qt::AlignLeft, nickname);
+        IndependentPixmap pixmapNick = cache->pixmap(CityItemDelegateCache::kNickId);
+        Q_ASSERT(!pixmapNick.isNull());
+        QRect rc( rcCaption.left() + rcCaption.width() +  8*G_SCALE,  option.rect.top(), pixmapNick.width(), option.rect.height());
+        pixmapNick.draw(rc.left(), rc.top() + (rc.height() -  pixmapNick.height()) / 2, painter);
     }
 
     // only show disabled locations to pro users
@@ -261,9 +231,26 @@ void CityItemDelegate::paint(QPainter *painter, const ItemStyleOption &option, c
 
 IItemCacheData *CityItemDelegate::createCacheData(const QModelIndex &index) const
 {
-    //return new CityItemDelegateCache(index.data())
+    CityItemDelegateCache *cache = new CityItemDelegateCache();
 
-    return nullptr;
+    QString cityCaption = CommonGraphics::maybeTruncatedText(index.data(kName).toString(),
+                                                              *FontManager::instance().getFont(16, true),
+                                                              static_cast<int>(CITY_CAPTION_MAX_WIDTH * G_SCALE));
+    cache->add(CityItemDelegateCache::kCityId, cityCaption, *FontManager::instance().getFont(16, true), DpiScaleManager::instance().curDevicePixelRatio());
+    cache->add(CityItemDelegateCache::kNickId, index.data(kNick).toString(), *FontManager::instance().getFont(16, false), DpiScaleManager::instance().curDevicePixelRatio());
+    cache->add(CityItemDelegateCache::kStaticIpId, index.data(kStaticIp).toString(), *FontManager::instance().getFont(13, false), DpiScaleManager::instance().curDevicePixelRatio());
+    return cache;
+}
+
+void CityItemDelegate::updateCacheData(const QModelIndex &index, IItemCacheData *cacheData) const
+{
+    CityItemDelegateCache *cache = static_cast<CityItemDelegateCache *>(cacheData);
+    QString cityCaption = CommonGraphics::maybeTruncatedText(index.data(kName).toString(),
+                                                              *FontManager::instance().getFont(16, true),
+                                                              static_cast<int>(CITY_CAPTION_MAX_WIDTH * G_SCALE));
+    cache->updateIfTextChanged(CityItemDelegateCache::kCityId, cityCaption, *FontManager::instance().getFont(16, true), DpiScaleManager::instance().curDevicePixelRatio());
+    cache->updateIfTextChanged(CityItemDelegateCache::kNickId, index.data(kNick).toString(), *FontManager::instance().getFont(16, false), DpiScaleManager::instance().curDevicePixelRatio());
+    cache->updateIfTextChanged(CityItemDelegateCache::kStaticIpId, index.data(kStaticIp).toString(), *FontManager::instance().getFont(13, false), DpiScaleManager::instance().curDevicePixelRatio());
 }
 
 bool CityItemDelegate::isForbiddenCursor(const QModelIndex &index) const
