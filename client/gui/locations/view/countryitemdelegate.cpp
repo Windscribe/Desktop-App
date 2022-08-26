@@ -10,35 +10,18 @@
 #include "graphicresources/fontmanager.h"
 #include "graphicresources/imageresourcessvg.h"
 #include "types/locationid.h"
+#include "textpixmap.h"
 
 namespace gui_locations {
 
-// The text is drawn in QPixmap to speed up subsequent drawings
-// The reason for this is that drawing text is quite slow and it speeds up significantly
 class CountryItemDelegateCache : public IItemCacheData
 {
 public:
-    explicit CountryItemDelegateCache(const QString &text, const QFont &font)
-    {
-        QFontMetrics fm(font);
-        QRect rcText = fm.boundingRect(text);
-        QPixmap pixmap(rcText.width()*2, rcText.height()*2);
-        pixmap.setDevicePixelRatio(2);
-        pixmap.fill(FontManager::instance().getMidnightColor());
-        {
-            QPainter painter(&pixmap);
-            painter.setPen(Qt::white);
-            painter.setFont(font);
-            painter.drawText(QRect(0, 0, rcText.width() + 1, rcText.height() + 1), text);
-        }
-        pixmap_ = pixmap;
-        //pixmap_.save("c:/1/aaa.png");
-    }
-
-    const QPixmap & getPixmap() const { return pixmap_; }
-
+    explicit CountryItemDelegateCache(const QString &text, const QFont &font) :
+        textPixmap_(text, font, DpiScaleManager::instance().curDevicePixelRatio()) { }
+    const IndependentPixmap * getPixmap() const { return textPixmap_.getPixmap(); }
 private:
-    QPixmap pixmap_;
+    TextPixmap textPixmap_;
 };
 
 
@@ -53,7 +36,7 @@ void CountryItemDelegate::paint(QPainter *painter, const ItemStyleOption &option
     int top_offs = option.rect.top();
 
     // flag
-    QSharedPointer<IndependentPixmap> flag = ImageResourcesSvg::instance().getFlag(index.data(COUNTRY_CODE).toString());
+    QSharedPointer<IndependentPixmap> flag = ImageResourcesSvg::instance().getFlag(index.data(kCountryCode).toString());
     if (flag)
     {
         const int pixmapFlagHeight = flag->height();
@@ -61,7 +44,7 @@ void CountryItemDelegate::paint(QPainter *painter, const ItemStyleOption &option
     }
 
     // pro star
-    if (index.data(IS_SHOW_AS_PREMIUM).toBool())
+    if (index.data(kIsShowAsPremium).toBool())
     {
         QSharedPointer<IndependentPixmap> proRegionStar = ImageResourcesSvg::instance().getIndependentPixmap("locations/PRO_REGION_STAR_LIGHT");
         proRegionStar->draw(left_offs + 8 * G_SCALE, top_offs + (option.rect.height() - 16*G_SCALE) / 2 - 9*G_SCALE, painter);
@@ -71,26 +54,13 @@ void CountryItemDelegate::paint(QPainter *painter, const ItemStyleOption &option
 
     // text
     const CountryItemDelegateCache *countryItemDelegateCache = static_cast<const CountryItemDelegateCache *>(cacheData);
-    //QFontMetrics fm(*FontManager::instance().getFont(16, true));
-    //QRect rcText = fm.boundingRect(index.data().toString());
-    //QPixmap pixmap(rcText.width(), rcText.height());
-    //{
-    //    QPainter p(&pixmap);
-    //    p.drawText();
-    //}
-    //QPixmap pixmap()
-
     painter->setOpacity(textOpacity );
-    //painter->setPen(Qt::white);
-    //painter->setFont(*FontManager::instance().getFont(16, true));
     QRect rc = option.rect;
     rc.adjust(64*G_SCALE, 0, 0, 0);
-    painter->drawPixmap(rc.left(), rc.top() + (rc.height() - countryItemDelegateCache->getPixmap().size().height()) / 2, countryItemDelegateCache->getPixmap());
-    //painter->drawStaticText(rc.left(), rc.top() + (rc.height() - countryItemDelegateCache->get().size().height()) / 2 , countryItemDelegateCache->get());
-    //painter->drawText(rc, Qt::AlignLeft | Qt::AlignVCenter, index.data().toString());*/
+    countryItemDelegateCache->getPixmap()->draw(rc.left(), rc.top() + (rc.height() - countryItemDelegateCache->getPixmap()->height()) / 2, painter);
 
     // p2p icon
-    if (index.data(IS_SHOW_P2P).toBool())
+    if (index.data(kIsShowP2P).toBool())
     {
         painter->setOpacity(OPACITY_HALF);
 
@@ -102,11 +72,11 @@ void CountryItemDelegate::paint(QPainter *painter, const ItemStyleOption &option
         p->draw(left_offs + p2pr.x(), top_offs + p2pr.y(), painter);
     }
 
-    LocationID lid = qvariant_cast<LocationID>(index.data(LOCATION_ID));
+    LocationID lid = qvariant_cast<LocationID>(index.data(kLocationId));
     if (lid.isBestLocation())
     {
         // 10gbps icon
-        if (index.data(IS_10GBPS).toBool())
+        if (index.data(kIs10Gbps).toBool())
         {
             painter->setOpacity(OPACITY_FULL);
             QSharedPointer<IndependentPixmap> tenGbpsPixmap = ImageResourcesSvg::instance().getIndependentPixmap("locations/10_GBPS_ICON");
@@ -147,7 +117,7 @@ void CountryItemDelegate::paint(QPainter *painter, const ItemStyleOption &option
 
     if (option.isShowLocationLoad())
     {
-        int locationLoad = index.data(LOAD).toInt();
+        int locationLoad = index.data(kLoad).toInt();
         if (locationLoad > 0)
         {
             Qt::GlobalColor penColor;
@@ -205,7 +175,7 @@ bool CountryItemDelegate::isForbiddenCursor(const QModelIndex &index) const
         return false;
     }
 
-    LocationID lid = qvariant_cast<LocationID>(index.data(LOCATION_ID));
+    LocationID lid = qvariant_cast<LocationID>(index.data(kLocationId));
     if (!lid.isBestLocation())
     {
         // if no child items

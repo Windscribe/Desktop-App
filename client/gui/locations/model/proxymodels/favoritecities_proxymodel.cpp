@@ -11,7 +11,7 @@ FavoriteCitiesProxyModel::FavoriteCitiesProxyModel(QObject *parent) : QSortFilte
 bool FavoriteCitiesProxyModel::filterAcceptsRow(int source_row, const QModelIndex &source_parent) const
 {
     QModelIndex mi = sourceModel()->index(source_row, 0, source_parent);
-    QVariant v = sourceModel()->data(mi, LOCATION_ID);
+    QVariant v = sourceModel()->data(mi, kLocationId);
     LocationID lid = qvariant_cast<LocationID>(v);
     if (lid.isCustomConfigsLocation() || lid.isStaticIpsLocation())
     {
@@ -19,7 +19,7 @@ bool FavoriteCitiesProxyModel::filterAcceptsRow(int source_row, const QModelInde
     }
     else
     {
-        return sourceModel()->data(mi, IS_FAVORITE).toBool();
+        return sourceModel()->data(mi, kIsFavorite).toBool();
     }
 }
 

@@ -25,17 +25,17 @@ void LocationsTrayMenuItemDelegate::paint(QPainter *painter, const QStyleOptionV
 
     QString text = index.model()->data(index, Qt::DisplayRole).toString();
 
-    if (index.data(gui_locations::IS_SHOW_AS_PREMIUM).toBool())
+    if (index.data(gui_locations::kIsShowAsPremium).toBool())
     {
         text += " (Pro)";
     }
 
     bool bEnabled = index.flags() & Qt::ItemIsEnabled;
     QSharedPointer<IndependentPixmap> flag = nullptr;
-    LocationID lid = qvariant_cast<LocationID>(index.data(gui_locations::LOCATION_ID));
+    LocationID lid = qvariant_cast<LocationID>(index.data(gui_locations::kLocationId));
     if (!lid.isCustomConfigsLocation()) {
         flag = ImageResourcesSvg::instance().getScaledFlag(
-            index.data(gui_locations::COUNTRY_CODE).toString(),
+            index.data(gui_locations::kCountryCode).toString(),
             20 * LocationsTrayMenuScaleManager::instance().scale(), 10 * LocationsTrayMenuScaleManager::instance().scale(), bEnabled ? 0 : ImageResourcesSvg::IMAGE_FLAG_GRAYED);
     }
     QRect rc = option.rect;
@@ -99,10 +99,10 @@ QSize LocationsTrayMenuItemDelegate::sizeHint(const QStyleOptionViewItem &option
 int LocationsTrayMenuItemDelegate::calcWidth(const QModelIndex & index) const
 {
     QSharedPointer<IndependentPixmap> flag = nullptr;
-    LocationID lid = qvariant_cast<LocationID>(index.model()->data(index, gui_locations::LOCATION_ID));
+    LocationID lid = qvariant_cast<LocationID>(index.model()->data(index, gui_locations::kLocationId));
     if (!lid.isCustomConfigsLocation()) {
         flag = ImageResourcesSvg::instance().getScaledFlag(
-            index.model()->data(index, gui_locations::COUNTRY_CODE).toString(),
+            index.model()->data(index, gui_locations::kCountryCode).toString(),
             20 * LocationsTrayMenuScaleManager::instance().scale(), 10 * LocationsTrayMenuScaleManager::instance().scale(), 0);
     }
 

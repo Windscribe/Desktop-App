@@ -26,7 +26,7 @@ int IndependentPixmap::height() const
     return pixmap_.height() / pixmap_.devicePixelRatio();
 }
 
-void IndependentPixmap::draw(int x, int y, QPainter *painter)
+void IndependentPixmap::draw(int x, int y, QPainter *painter) const
 {
     painter->drawPixmap(x, y, pixmap_);
 }

@@ -202,9 +202,9 @@ void LocationsModel::changeConnectionSpeed(LocationID id, PingTime speed)
                 {
                     it.value()->setPingTimeForCity(c, speed);
                     QModelIndex locationModelInd = index(ind, 0);
-                    emit dataChanged(locationModelInd, locationModelInd, QList<int>() << PING_TIME);
+                    emit dataChanged(locationModelInd, locationModelInd, QList<int>() << kPingTime);
                     QModelIndex cityModelInd = index(c, 0, locationModelInd);
-                    emit dataChanged(cityModelInd, cityModelInd, QList<int>() << PING_TIME);
+                    emit dataChanged(cityModelInd, cityModelInd, QList<int>() << kPingTime);
                     break;
                 }
             }
@@ -217,7 +217,7 @@ void LocationsModel::changeConnectionSpeed(LocationID id, PingTime speed)
         if (!id.isCustomConfigsLocation() && !id.isStaticIpsLocation() && locations_[0]->location().id == id.apiLocationToBestLocation())
         {
             locations_[0]->setPingTimeForCity(0, speed);
-            emit dataChanged(index(0, 0), index(0, 0), QList<int>() << PING_TIME);
+            emit dataChanged(index(0, 0), index(0, 0), QList<int>() << kPingTime);
         }
     }
 }
@@ -332,7 +332,7 @@ int LocationsModel::rowCount(const QModelIndex &parent) const
 
 bool LocationsModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
-    if (role == IS_FAVORITE)
+    if (role == kIsFavorite)
     {
         if (!index.isValid())
         {
@@ -355,7 +355,7 @@ bool LocationsModel::setData(const QModelIndex &index, const QVariant &value, in
             {
                 favoriteLocationsStorage_.removeFromFavorites(lid);
             }
-            emit dataChanged(index, index, QList<int>() << IS_FAVORITE);
+            emit dataChanged(index, index, QList<int>() << kIsFavorite);
             return true;
         }
     }
@@ -370,15 +370,15 @@ Qt::ItemFlags LocationsModel::flags(const QModelIndex &index) const
     }
 
     bool isItemEnabled;
-    LocationID lid = qvariant_cast<LocationID>(index.data(LOCATION_ID));
+    LocationID lid = qvariant_cast<LocationID>(index.data(kLocationId));
     if (lid.isTopLevelLocation()) {
         isItemEnabled = rowCount(index) > 0;
     }
     else if (lid.isCustomConfigsLocation()) {
-        isItemEnabled = index.data(IS_CUSTOM_CONFIG_CORRECT).toBool();
+        isItemEnabled = index.data(kIsCustomConfigCorrect).toBool();
     }
     else {
-        isItemEnabled = !index.data(IS_DISABLED).toBool() &&  !index.data(IS_SHOW_AS_PREMIUM).toBool();
+        isItemEnabled = !index.data(kIsDisabled).toBool() &&  !index.data(kIsShowAsPremium).toBool();
     }
     if (isItemEnabled) {
         return Qt::ItemIsSelectable | Qt::ItemIsEnabled;
@@ -464,49 +464,49 @@ QVariant LocationsModel::dataForLocation(int row, int role) const
     {
         return locations_[row]->location().name;
     }
-    else if (role == IS_TOP_LEVEL_LOCATION)
+    else if (role == kIsTopLevelLocation)
     {
         return true;
     }
-    else if (role == NAME)
+    else if (role == kName)
     {
         return locations_[row]->location().name;
     }
-    else if (role == NICKNAME)
+    else if (role == kNick)
     {
         return locations_[row]->nickname();
     }
-    else if (role == LOCATION_ID)
+    else if (role == kLocationId)
     {
         QVariant stored;
         stored.setValue(locations_[row]->location().id);
         return stored;
     }
-    else if (role == COUNTRY_CODE)
+    else if (role == kCountryCode)
     {
         return locations_[row]->location().countryCode.toLower();
     }
-    else if (role == IS_SHOW_P2P)
+    else if (role == kIsShowP2P)
     {
         return locations_[row]->location().isNoP2P;
     }
-    else if (role == IS_SHOW_AS_PREMIUM)
+    else if (role == kIsShowAsPremium)
     {
         return locations_[row]->location().isPremiumOnly && isFreeSessionStatus_;
     }
-    else if (role == IS_10GBPS)
+    else if (role == kIs10Gbps)
     {
         return locations_[row]->is10gbps();
     }
-    else if (role == LOAD)
+    else if (role == kLoad)
     {
         return locations_[row]->load();
     }
-    else if (role == PING_TIME)
+    else if (role == kPingTime)
     {
         return locations_[row]->averagePing();
     }
-    else if (role == IS_DISABLED)
+    else if (role == kIsDisabled)
     {
         if (locations_[row]->location().id.isBestLocation()) {
             return false;
@@ -530,17 +530,17 @@ QVariant LocationsModel::dataForCity(LocationItem *l, int row, int role) const
             return l->location().cities[row].city + " - " + l->location().cities[row].nick;
         }
     }
-    else if (role == LOCATION_ID)
+    else if (role == kLocationId)
     {
         QVariant stored;
         stored.setValue(l->location().cities[row].id);
         return stored;
     }
-    else if (role == IS_TOP_LEVEL_LOCATION)
+    else if (role == kIsTopLevelLocation)
     {
         return false;
     }
-    else if (role == COUNTRY_CODE)
+    else if (role == kCountryCode)
     {
         LocationID lid = l->location().cities[row].id;
         if (lid.isStaticIpsLocation())
@@ -552,11 +552,11 @@ QVariant LocationsModel::dataForCity(LocationItem *l, int row, int role) const
             return l->location().countryCode.toLower();
         }
     }
-    else if (role == IS_10GBPS)
+    else if (role == kIs10Gbps)
     {
         return l->location().cities[row].is10Gbps;
     }
-    else if (role == LOAD)
+    else if (role == kLoad)
     {
         // Engine is using -1 to indicate to us that the load (health) value was invalid/missing
         int cityHealth = l->location().cities[row].health;
@@ -569,11 +569,11 @@ QVariant LocationsModel::dataForCity(LocationItem *l, int row, int role) const
             return 0;
         }
     }
-    else if (role == NAME)
+    else if (role == kName)
     {
         return l->location().cities[row].city;
     }
-    else if (role == NICKNAME)
+    else if (role == kNick)
     {
         LocationID lid = l->location().cities[row].id;
         if (lid.isStaticIpsLocation())
@@ -585,36 +585,36 @@ QVariant LocationsModel::dataForCity(LocationItem *l, int row, int role) const
             return l->location().cities[row].nick;
         }
     }
-    else if (role == PING_TIME)
+    else if (role == kPingTime)
     {
         return l->location().cities[row].pingTimeMs.toInt();
     }
-    else if (role == IS_SHOW_AS_PREMIUM)
+    else if (role == kIsShowAsPremium)
     {
         return l->location().cities[row].isPro && isFreeSessionStatus_;
     }
-    else if (role == IS_FAVORITE)
+    else if (role == kIsFavorite)
     {
         LocationID lid = l->location().cities[row].id;
         return favoriteLocationsStorage_.isFavorite(lid);
     }
-    else if (role == STATIC_IP_TYPE)
+    else if (role == kStaticIpType)
     {
         return l->location().cities[row].staticIpType;
     }
-    else if (role == STATIC_IP)
+    else if (role == kStaticIp)
     {
         return l->location().cities[row].staticIp;
     }
-    else if (role == IS_DISABLED)
+    else if (role == kIsDisabled)
     {
         return l->location().cities[row].isDisabled;
     }
-    else if (role == IS_CUSTOM_CONFIG_CORRECT)
+    else if (role == kIsCustomConfigCorrect)
     {
         return l->location().cities[row].customConfigIsCorrect;
     }
-    else if (role == CUSTOM_CONFIG_TYPE)
+    else if (role == kCustomConfigType)
     {
         if (l->location().cities[row].customConfigType == CUSTOM_CONFIG_OPENVPN)
         {
@@ -629,7 +629,7 @@ QVariant LocationsModel::dataForCity(LocationItem *l, int row, int role) const
             Q_ASSERT(false);
         }
     }
-    else if (role == CUSTOM_CONFIG_ERROR_MESSAGE)
+    else if (role == kCustomConfigErrorMessage)
     {
         return l->location().cities[row].customConfigErrorMessage;
     }

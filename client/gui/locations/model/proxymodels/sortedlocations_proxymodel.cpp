@@ -42,7 +42,7 @@ bool SortedLocationsProxyModel::lessThan(const QModelIndex &left, const QModelIn
 bool SortedLocationsProxyModel::filterAcceptsRow(int source_row, const QModelIndex &source_parent) const
 {
     QModelIndex mi = sourceModel()->index(source_row, 0, source_parent);
-    QVariant v = sourceModel()->data(mi, LOCATION_ID);
+    QVariant v = sourceModel()->data(mi, kLocationId);
     LocationID lid = qvariant_cast<LocationID>(v);
     return !lid.isStaticIpsLocation() && !lid.isCustomConfigsLocation();
 }
@@ -51,7 +51,7 @@ bool SortedLocationsProxyModel::lessThanByGeography(const QModelIndex &left, con
 {
     // If it is a country then sort by index
     // the right index can not be checked, since it must correspond to the same type as the left one.
-    LocationID leftLid = qvariant_cast<LocationID>(sourceModel()->data(left, LOCATION_ID));
+    LocationID leftLid = qvariant_cast<LocationID>(sourceModel()->data(left, kLocationId));
     if (leftLid.isTopLevelLocation())
     {
         return left.row() < right.row();
@@ -65,8 +65,8 @@ bool SortedLocationsProxyModel::lessThanByGeography(const QModelIndex &left, con
 
 bool SortedLocationsProxyModel::lessThanByAlphabetically(const QModelIndex &left, const QModelIndex &right) const
 {
-    LocationID leftLid = qvariant_cast<LocationID>(sourceModel()->data(left, LOCATION_ID));
-    LocationID rightLid = qvariant_cast<LocationID>(sourceModel()->data(right, LOCATION_ID));
+    LocationID leftLid = qvariant_cast<LocationID>(sourceModel()->data(left, kLocationId));
+    LocationID rightLid = qvariant_cast<LocationID>(sourceModel()->data(right, kLocationId));
 
     // keep the best location on top
     if (leftLid.isBestLocation() && !rightLid.isBestLocation())
@@ -83,8 +83,8 @@ bool SortedLocationsProxyModel::lessThanByAlphabetically(const QModelIndex &left
 
 bool SortedLocationsProxyModel::lessThanByLatency(const QModelIndex &left, const QModelIndex &right) const
 {
-    LocationID leftLid = qvariant_cast<LocationID>(sourceModel()->data(left, LOCATION_ID));
-    LocationID rightLid = qvariant_cast<LocationID>(sourceModel()->data(right, LOCATION_ID));
+    LocationID leftLid = qvariant_cast<LocationID>(sourceModel()->data(left, kLocationId));
+    LocationID rightLid = qvariant_cast<LocationID>(sourceModel()->data(right, kLocationId));
 
     // keep the best location on top
     if (leftLid.isBestLocation() && !rightLid.isBestLocation())
@@ -96,8 +96,8 @@ bool SortedLocationsProxyModel::lessThanByLatency(const QModelIndex &left, const
         return false;
     }
 
-    int leftLatency = sourceModel()->data(left, PING_TIME).toInt();
-    int rightLatency = sourceModel()->data(right, PING_TIME).toInt();
+    int leftLatency = sourceModel()->data(left, kPingTime).toInt();
+    int rightLatency = sourceModel()->data(right, kPingTime).toInt();
     if (leftLatency == rightLatency)
     {
         return sourceModel()->data(left).toString() < sourceModel()->data(right).toString();

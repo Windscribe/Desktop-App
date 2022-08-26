@@ -13,5 +13,7 @@ target_sources(gui PRIVATE
     locationsview.h
     scrollbar.cpp
     scrollbar.h
+    textpixmap.cpp
+    textpixmap.h
 )
 

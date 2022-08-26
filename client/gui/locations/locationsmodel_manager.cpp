@@ -100,7 +100,7 @@ LocationID LocationsModelManager::getBestLocationId() const
     QModelIndex mi = locationsModel_->getBestLocationIndex();
     if (mi.isValid())
     {
-        return qvariant_cast<LocationID>(mi.data(LOCATION_ID));
+        return qvariant_cast<LocationID>(mi.data(Roles::kLocationId));
     }
     return LocationID();
 }

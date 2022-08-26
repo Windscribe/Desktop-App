@@ -43,8 +43,8 @@ bool SortedCitiesProxyModel::lessThanByAlphabetically(const QModelIndex &left, c
 
 bool SortedCitiesProxyModel::lessThanByLatency(const QModelIndex &left, const QModelIndex &right) const
 {
-    int leftLatency = sourceModel()->data(left, PING_TIME).toInt();
-    int rightLatency = sourceModel()->data(right, PING_TIME).toInt();
+    int leftLatency = sourceModel()->data(left, kPingTime).toInt();
+    int rightLatency = sourceModel()->data(right, kPingTime).toInt();
     if (leftLatency == rightLatency)
     {
         return sourceModel()->data(left).toString() < sourceModel()->data(right).toString();

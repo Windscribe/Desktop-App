@@ -70,13 +70,13 @@ void SelectedLocation::fillData()
 {
     Q_ASSERT(isValid_);
     Q_ASSERT(selIndex_.isValid());
-    LocationID extractedLid = qvariant_cast<LocationID>(selIndex_.data(LOCATION_ID));
+    LocationID extractedLid = qvariant_cast<LocationID>(selIndex_.data((int)Roles::kLocationId));
     prevId_ = id_;
     id_ = extractedLid;
-    firstName_ = selIndex_.data(NAME).toString();
-    secondName_ = selIndex_.data(NICKNAME).toString();
-    countryCode_ = selIndex_.data(COUNTRY_CODE).toString();
-    pingTime_ = selIndex_.data(PING_TIME).toInt();
+    firstName_ = selIndex_.data(Roles::kName).toString();
+    secondName_ = selIndex_.data(Roles::kNick).toString();
+    countryCode_ = selIndex_.data(Roles::kCountryCode).toString();
+    pingTime_ = selIndex_.data(Roles::kPingTime).toInt();
 }
 
 void SelectedLocation::setInvalid()

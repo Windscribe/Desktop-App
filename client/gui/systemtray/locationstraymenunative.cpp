@@ -28,8 +28,8 @@ void LocationsTrayMenuNative::buildMenu(QAbstractItemModel *model)
     for (int r = 0; r < rowCount; ++r)
     {
         QModelIndex mi = model->index(r, 0);
-        QString countryCode = mi.data(gui_locations::COUNTRY_CODE).toString();
-        LocationID lid = qvariant_cast<LocationID>(mi.data(gui_locations::LOCATION_ID));
+        QString countryCode = mi.data(gui_locations::kCountryCode).toString();
+        LocationID lid = qvariant_cast<LocationID>(mi.data(gui_locations::kLocationId));
         QSharedPointer<IndependentPixmap> flag;
         if (!lid.isCustomConfigsLocation() && !countryCode.isEmpty()) {
 #if defined(Q_OS_MAC)
@@ -41,7 +41,7 @@ void LocationsTrayMenuNative::buildMenu(QAbstractItemModel *model)
         }
 
         QString rootVisibleName = mi.data().toString();
-        bool bRootShowAsPremium = mi.data(gui_locations::IS_SHOW_AS_PREMIUM).toBool();
+        bool bRootShowAsPremium = mi.data(gui_locations::kIsShowAsPremium).toBool();
         if (bRootShowAsPremium) {
             rootVisibleName += " (Pro)";
         }
@@ -57,12 +57,12 @@ void LocationsTrayMenuNative::buildMenu(QAbstractItemModel *model)
             QVariant stored;
             stored.setValue(lid);
             action->setData(stored);
-            action->setEnabled(!bRootShowAsPremium && !mi.data(gui_locations::IS_DISABLED).toBool());
+            action->setEnabled(!bRootShowAsPremium && !mi.data(gui_locations::kIsDisabled).toBool());
         }
         else
         {
             QMenu *subMenu = addMenu(mi.data().toString());
-            subMenu->setEnabled(!mi.data(gui_locations::IS_DISABLED).toBool());
+            subMenu->setEnabled(!mi.data(gui_locations::kIsDisabled).toBool());
             if (flag) {
                 subMenu->setIcon(flag->getIcon());
             }
@@ -71,12 +71,12 @@ void LocationsTrayMenuNative::buildMenu(QAbstractItemModel *model)
             {
                 QModelIndex cityMi = model->index(cityInd, 0, mi);
                 QString visibleName = cityMi.data().toString();
-                if (cityMi.data(gui_locations::IS_SHOW_AS_PREMIUM).toBool()) {
+                if (cityMi.data(gui_locations::kIsShowAsPremium).toBool()) {
                     visibleName += " (Pro)";
                 }
                 QAction *cityAction = subMenu->addAction(visibleName);
-                cityAction->setEnabled(!cityMi.data(gui_locations::IS_DISABLED).toBool());
-                cityAction->setData(cityMi.data(gui_locations::LOCATION_ID));
+                cityAction->setEnabled(!cityMi.data(gui_locations::kIsDisabled).toBool());
+                cityAction->setData(cityMi.data(gui_locations::kLocationId));
                 connect(subMenu, &QMenu::triggered, this, &LocationsTrayMenuNative::onMenuActionTriggered);
             }
         }

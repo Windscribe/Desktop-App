@@ -122,7 +122,7 @@ void LocationsTrayMenuWidget::handleMouseWheel()
 void LocationsTrayMenuWidget::onListViewClicked(const QModelIndex &index)
 {
     if (index.isValid() && (index.flags() & Qt::ItemIsEnabled)) {
-        emit locationSelected( qvariant_cast<LocationID>(index.data(gui_locations::LOCATION_ID)));
+        emit locationSelected( qvariant_cast<LocationID>(index.data(gui_locations::kLocationId)));
     }
 }
 
@@ -222,7 +222,7 @@ void LocationsTrayMenuWidget::updateSubmenuForSelection()
             currentSubmenu_ = nullptr;
             currentIndexForSubmenu_ = QPersistentModelIndex();
         }
-        if (curIndex.isValid() && curIndex.data(gui_locations::IS_TOP_LEVEL_LOCATION).toBool())
+        if (curIndex.isValid() && curIndex.data(gui_locations::kIsTopLevelLocation).toBool())
         {
             int citiesCount = curIndex.model()->rowCount(curIndex);
             if (citiesCount > 0)
@@ -232,14 +232,14 @@ void LocationsTrayMenuWidget::updateSubmenuForSelection()
                 {
                     QModelIndex cityInd = curIndex.model()->index(i, 0, curIndex);
                     QString cityName = cityInd.data().toString();
-                    bool isShowAsPremium = cityInd.data(gui_locations::IS_SHOW_AS_PREMIUM).toBool();
+                    bool isShowAsPremium = cityInd.data(gui_locations::kIsShowAsPremium).toBool();
                     if (isShowAsPremium)
                     {
                         cityName += " (Pro)";
                     }
                     auto *action = submenu->addAction(cityName);
-                    action->setEnabled(!isShowAsPremium && !cityInd.data(gui_locations::IS_DISABLED).toBool());
-                    action->setData(cityInd.data(gui_locations::LOCATION_ID));
+                    action->setEnabled(!isShowAsPremium && !cityInd.data(gui_locations::kIsDisabled).toBool());
+                    action->setData(cityInd.data(gui_locations::kLocationId));
                 }
                 connect(submenu, &LocationsTrayMenuWidgetSubmenu::triggered,  this, &LocationsTrayMenuWidget::onSubmenuActionTriggered);
                 currentSubmenu_ = submenu;

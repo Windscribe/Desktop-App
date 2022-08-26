@@ -255,7 +255,7 @@ void ExpandableItemsWidget::mouseReleaseEvent(QMouseEvent *event)
                 {
                     if (clickableId == CLICKABLE_FAVORITE_RECT)
                     {
-                        model_->setData(mousePressedItem_, !mousePressedItem_.data(IS_FAVORITE).toBool(), IS_FAVORITE);
+                        model_->setData(mousePressedItem_, !mousePressedItem_.data(kIsFavorite).toBool(), kIsFavorite);
                     }
                 }
             }
@@ -376,7 +376,7 @@ IItemDelegate *ExpandableItemsWidget::delegateForItem(const QPersistentModelInde
 
 bool ExpandableItemsWidget::isExpandableItem(const QPersistentModelIndex &ind)
 {
-    return ind.data(gui_locations::IS_TOP_LEVEL_LOCATION).toBool();
+    return ind.data(gui_locations::kIsTopLevelLocation).toBool();
 }
 
 void ExpandableItemsWidget::updateHeight()
