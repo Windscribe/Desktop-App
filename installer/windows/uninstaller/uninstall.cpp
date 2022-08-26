@@ -409,21 +409,11 @@ void Uninstaller::RunSecondPhase()
 
 bool Uninstaller::InitializeUninstall()
 {
-	if (isSilent_)
-	{
+	if (isSilent_) {
 		return true;
 	}
 
-    std::wstring classNameIcon = L"Qt631QWindowIcon";
-	const std::wstring wsGuiIcon = L"Windscribe";
-	HWND hwnd = FindWindow(classNameIcon.c_str(), wsGuiIcon.c_str());
-
-	if (hwnd == NULL)
-	{
-		// Check if the old Qt 5.12 app is running.
-		classNameIcon = L"Qt5QWindowIcon";
-		hwnd = FindWindow(classNameIcon.c_str(), wsGuiIcon.c_str());
-	}
+    HWND hwnd = ApplicationInfo::getAppMainWindowHandle();
 
 	while (hwnd)
 	{
@@ -435,7 +425,7 @@ bool Uninstaller::InitializeUninstall()
 			return false;
 		}
 
-		hwnd = FindWindow(classNameIcon.c_str(), wsGuiIcon.c_str());
+        hwnd = ApplicationInfo::getAppMainWindowHandle();
 	}
 
 	return true;
