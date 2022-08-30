@@ -67,15 +67,15 @@ LocationsTab::LocationsTab(QWidget *parent, gui_locations::LocationsModelManager
     curWhiteLinePos_ = (rcAllLocationsIcon_.center().x() + 1) * G_SCALE;
     connect(&whiteLineAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onWhiteLinePosChanged(QVariant)));
 
-    widgetAllLocations_ = new gui_locations::LocationsView(this);
+    widgetAllLocations_ = new gui_locations::LocationsView(this, locationsModelManager->sortedLocationsProxyModel());
 
-    widgetConfiguredLocations_ = new gui_locations::LocationsView(this);
+    widgetConfiguredLocations_ = new gui_locations::LocationsView(this, locationsModelManager->customConfigsProxyModel());
     //widgetConfiguredLocations_->setEmptyListDisplayIcon("locations/FOLDER_ICON_BIG");
     //connect(widgetConfiguredLocations_, SIGNAL(emptyListButtonClicked()),
     //                                    SLOT(onAddCustomConfigClicked()));
     widgetConfiguredLocations_->hide();
 
-    widgetStaticIpsLocations_ = new gui_locations::LocationsView(this);
+    widgetStaticIpsLocations_ = new gui_locations::LocationsView(this, locationsModelManager->staticIpsProxyModel());
     //widgetStaticIpsLocations_->setEmptyListDisplayIcon("locations/STATIC_IP_ICON_BIG");
     //widgetStaticIpsLocations_->setEmptyListDisplayText(tr("You don't have any Static IPs"), 120);
     //widgetStaticIpsLocations_->setEmptyListButtonText(tr("Buy"));
@@ -83,7 +83,7 @@ LocationsTab::LocationsTab(QWidget *parent, gui_locations::LocationsModelManager
     //                                   SIGNAL(addStaticIpClicked()));
     widgetStaticIpsLocations_->hide();
 
-    widgetFavoriteLocations_ = new gui_locations::LocationsView(this);
+    widgetFavoriteLocations_ = new gui_locations::LocationsView(this, locationsModelManager->favoriteCitiesProxyModel());
     //widgetFavoriteLocations_->setEmptyListDisplayIcon("locations/BROKEN_HEART_ICON");
     //widgetFavoriteLocations_->setEmptyListDisplayText(tr("Nothing to see here..."), 120);
     widgetFavoriteLocations_->hide();
@@ -105,11 +105,6 @@ LocationsTab::LocationsTab(QWidget *parent, gui_locations::LocationsModelManager
     connect(widgetConfiguredLocations_, SIGNAL(selected(LocationID)), SIGNAL(selected(LocationID)));
     connect(widgetStaticIpsLocations_, SIGNAL(selected(LocationID)), SIGNAL(selected(LocationID)));
     connect(widgetFavoriteLocations_, SIGNAL(selected(LocationID)), SIGNAL(selected(LocationID)));
-
-    widgetAllLocations_->setModel(locationsModelManager->sortedLocationsProxyModel());
-    widgetConfiguredLocations_->setModel(locationsModelManager->customConfigsProxyModel());
-    widgetStaticIpsLocations_->setModel(locationsModelManager->staticIpsProxyModel());
-    widgetFavoriteLocations_->setModel(locationsModelManager->favoriteCitiesProxyModel());
 
     searchTypingDelayTimer_.setSingleShot(true);
     searchTypingDelayTimer_.setInterval(100);

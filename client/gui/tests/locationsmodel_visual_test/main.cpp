@@ -7,6 +7,7 @@
 
 int main(int argc, char *argv[])
 {
+    QGuiApplication::setHighDpiScaleFactorRoundingPolicy(Qt::HighDpiScaleFactorRoundingPolicy::Floor);
     QApplication a(argc, argv);
 
     Q_INIT_RESOURCE(engine);

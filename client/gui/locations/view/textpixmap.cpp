@@ -8,14 +8,14 @@ TextPixmap::TextPixmap(const QString &text, const QFont &font, qreal devicePixel
     {
         QFontMetrics fm(font);
         QRect rcText = fm.boundingRect(text);
-        QPixmap pixmap(rcText.width()*devicePixelRatio, rcText.height()*devicePixelRatio);
+        QPixmap pixmap(fm.horizontalAdvance(text)*devicePixelRatio, rcText.height()*devicePixelRatio);
         pixmap.setDevicePixelRatio(devicePixelRatio);
         pixmap.fill(Qt::transparent);
         {
             QPainter painter(&pixmap);
             painter.setPen(Qt::white);      // for current needs, we use only white color
             painter.setFont(font);
-            painter.drawText(QRect(0, 0, rcText.width() + 1, rcText.height() + 1), text);
+            painter.drawText(QRect(0, 0, rcText.width(), rcText.height()), Qt::AlignLeft, text);
         }
         pixmap_ = IndependentPixmap(pixmap);
     }

@@ -31,7 +31,6 @@ void LocationsModel::updateLocations(const LocationID &bestLocation, const QVect
             i++;
         }
         endResetModel();
-        updateBestLocation(bestLocation);
     }
     else
     {
@@ -95,10 +94,8 @@ void LocationsModel::updateLocations(const LocationID &bestLocation, const QVect
                 }
             }
         }
-
-        // check for the best location change
-        updateBestLocation(bestLocation);
     }
+    updateBestLocation(bestLocation);
 }
 
 void LocationsModel::updateBestLocation(const LocationID &bestLocation)

@@ -4,6 +4,7 @@
 #include <QElapsedTimer>
 #include <QTimer>
 #include <QVariantAnimation>
+#include <QPropertyAnimation>
 
 namespace gui_locations {
 
@@ -12,56 +13,31 @@ class ScrollBar : public QScrollBar
     Q_OBJECT
 public:
     explicit ScrollBar(QWidget *parent = nullptr);
-    void forceSetValue(int value); // sets the value and updates the target - avoids wheeling bugs where target is outdated
-    bool dragging();
     void updateCustomStyleSheet();
 
-signals:
-    void handleDragged(int valuePos);
-    void stopScroll(bool lastScrollUp);
+public slots:
+    void setValue(int value, bool bWithoutAnimation = false);
 
 protected:
-    void wheelEvent(QWheelEvent *event) override;
     void paintEvent(QPaintEvent *event) override;
-    void mousePressEvent(QMouseEvent *event) override;
-    void mouseReleaseEvent(QMouseEvent *event) override;
-    void mouseMoveEvent(QMouseEvent *event) override;
     void enterEvent(QEnterEvent *event) override;
     void leaveEvent(QEvent *event) override;
     void resizeEvent(QResizeEvent *event) override;
 
 private slots:
-    void onScrollAnimationValueChanged(const QVariant &value);
-    void onScollTimerTick();
     void onOpacityAnimationValueChanged(const QVariant &value);
 
 private:
     const double SCROLL_SPEED_FRACTION = 0.5;
     const int MINIMUM_DURATION = 200;
-    int targetValue_;
-    int startValue_;
-
-    int animationDuration_;
-    QElapsedTimer scrollElapsedTimer_;
-    QTimer scrollTimer_;
-    int lastCursorPos_;
-    int lastValue_;
-    bool lastScrollDirectionUp_;
-
-    int trackpadDeltaSum_;
-    int trackPadScrollDelta_;
-
-    bool pressed_;
-
-    double magicRatio() const;
-    void animateScroll(int target, int animationSpeedFraction);
-
-    const QString customStyleSheet();
-    int customPaddingWidth();
-    int adjustValueMultipleStep(int value);
-
+    static constexpr int kScrollAnimationDiration = 800;
     double curOpacity_;
     QVariantAnimation opacityAnimation_;
+    QPropertyAnimation anim_;
+    int targetValue_;
+
+    QString customStyleSheet();
+    int customPaddingWidth();
 };
 
 } // namespace gui_locations

@@ -4,122 +4,27 @@
 #include <QPainter>
 #include <QStyleOption>
 #include <qmath.h>
+#include <QScroller>
+#include <QDateTime>
 #include "dpiscalemanager.h"
 #include "graphicresources/fontmanager.h"
 #include "commongraphics/commongraphics.h"
-
 
 namespace gui_locations {
 
 ScrollBar::ScrollBar(QWidget *parent) : QScrollBar(parent)
   , targetValue_(0)
-  , lastCursorPos_(0)
-  , lastScrollDirectionUp_(false)
-  , trackpadDeltaSum_(0)
-  , trackPadScrollDelta_(0)
-  , pressed_(false)
   , curOpacity_(OPACITY_HALF)
 {
-    scrollTimer_.setInterval(1);
-    connect(&scrollTimer_, SIGNAL(timeout()), SLOT(onScollTimerTick()));
+    anim_.setTargetObject(this);
+    anim_.setPropertyName("value");
+    anim_.setEasingCurve(QEasingCurve::OutQuint);
+    anim_.setDuration(kScrollAnimationDiration);
+
     setStyleSheet(customStyleSheet());
 
     opacityAnimation_.setDuration(250);
     connect(&opacityAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onOpacityAnimationValueChanged(QVariant)));
-}
-
-void ScrollBar::wheelEvent(QWheelEvent * event)
-{
-//    qDebug() << event->source()
-//             << ", wheel event delta: " << event->angleDelta()
-//             << ", pixDelta: " << event->pixelDelta()
-//             << ", delta: " << event->delta()
-//             << ", globalPos: " << event->globalPos() // cursor pos
-//             << ", phase: " << event->phase();
-
-	// Note: Windows10 trackpad does not appear to generate Synthesized system events so this block will only run on Mac
-	// On Windows the trackpad event will run same block as mouse wheel (below)
-    int stepVector = 0;
-    if (event->source() == Qt::MouseEventSynthesizedBySystem) // touchpad scroll and flick
-    {
-        if (event->phase() == Qt::ScrollBegin)
-        {
-            trackPadScrollDelta_ = 0;
-        }
-        else if (event->phase() == Qt::ScrollUpdate) //  trackpad drag
-        {
-            trackPadScrollDelta_ += event->angleDelta().y();
-            lastScrollDirectionUp_  = event->angleDelta().y() > 0;
-        }
-        else if (event->phase() == Qt::ScrollMomentum) // trackpad gesture/flick
-        {
-            trackPadScrollDelta_ += event->angleDelta().y();
-            lastScrollDirectionUp_  = event->angleDelta().y() > 0;
-        }
-        else if (event->phase() == Qt::ScrollEnd) // remove finger from trackpad
-        {
-            if (trackPadScrollDelta_ == 0)
-            {
-                // we can stop the animation from proceeding, but can't update the scrollbar properly -- signal scrollarea for that
-                scrollTimer_.stop();
-                emit stopScroll(lastScrollDirectionUp_);
-                return;
-            }
-        }
-
-        if (trackPadScrollDelta_ > singleStep())
-        {
-            int diff = trackPadScrollDelta_ - singleStep();
-            stepVector = -singleStep();
-            trackPadScrollDelta_ = diff;
-        }
-        else if (trackPadScrollDelta_ < -singleStep())
-        {
-            int diff = trackPadScrollDelta_ + singleStep();
-            stepVector = singleStep();
-            trackPadScrollDelta_ = diff;
-        }
-    }
-    else // mouse wheel or trackpad drag
-    {
-
-        // Some Windows trackpads send multple small deltas instead of one single large delta (like mouse scroll)
-        // "Phase" data does not indicate anything helpful, all are "NoScrollPhase", unlike MacOS phase seen above
-        // So we track scrolling until it accumulates to similar delta
-        int change = event->angleDelta().y();
-        lastScrollDirectionUp_  = event->angleDelta().y() > 0;
-        if (abs(change) != 120 ) // must be trackpad
-        {
-            change += trackpadDeltaSum_;
-        }
-        else
-        {
-            // if someone starts using mouse (or +/- 120 trackpad) to scoll then clear accumulation
-            trackpadDeltaSum_ = 0;
-        }
-
-        if (change > singleStep())
-        {
-            // qDebug() << "Wheel Up";
-            stepVector = -singleStep();
-            trackpadDeltaSum_ = change - singleStep();
-        }
-        else if (change < -singleStep()) // angle delta can be 0
-        {
-            // qDebug() << "Wheel Down";
-            stepVector = singleStep();
-            trackpadDeltaSum_ = change + singleStep();
-        }
-        else
-        {
-            trackpadDeltaSum_ = change;
-        }
-    }
-
-    if (stepVector != 0)
-    {
-        animateScroll(adjustValueMultipleStep(targetValue_ + stepVector), SCROLL_SPEED_FRACTION);
-    }
 }
 
 void ScrollBar::paintEvent(QPaintEvent *event)
@@ -128,7 +33,6 @@ void ScrollBar::paintEvent(QPaintEvent *event)
     QPainter painter(this);
     painter.setOpacity(curOpacity_);
     QRect bkgd(0,0, geometry().width(), geometry().height());
-    // qDebug() << "Painting scrollbar: " << bkgd;
     painter.fillRect(bkgd, FontManager::instance().getCarbonBlackColor());
 
     // background without padded region
@@ -146,88 +50,23 @@ void ScrollBar::paintEvent(QPaintEvent *event)
     QScrollBar::paintEvent(event);
 }
 
-void ScrollBar::forceSetValue(int val)
-{
-    // qDebug() << "Forcing: " << value() <<  " -> " << val;
-    scrollTimer_.stop();
-    trackpadDeltaSum_= 0;
-    targetValue_ = val;
-    setValue(val);
-}
-
-bool ScrollBar::dragging()
-{
-    return pressed_;
-}
-
 void ScrollBar::updateCustomStyleSheet()
 {
     setStyleSheet(customStyleSheet());
     update();
 }
 
-void ScrollBar::mousePressEvent(QMouseEvent *event)
+void ScrollBar::setValue(int value, bool bWithoutAnimation)
 {
-    bool mouseBelowHandlePos = event->pos().y() > value()*magicRatio();
-    if (mouseBelowHandlePos && event->pos().y() < (value() + pageStep())*magicRatio()) // click in handle
-    {
-        // qDebug() << "Mouse press in handle";
-        lastCursorPos_ = event->pos().y();
-        lastValue_ = value();
-        pressed_ = true;
+    if (bWithoutAnimation) {
+        anim_.stop();
+        QScrollBar::setValue(value);
+    } else {
+        anim_.stop();
+        anim_.setStartValue((double)this->value());
+        anim_.setEndValue((double)value);
+        anim_.start();
     }
-    else if (mouseBelowHandlePos)
-    {
-        // scroll down
-        int proposedValue = adjustValueMultipleStep(value () + pageStep());
-        if (proposedValue <= maximum())
-        {
-            forceSetValue(proposedValue);
-        }
-        else
-        {
-            forceSetValue(maximum());
-        }
-    }
-    else
-    {
-        // scroll up
-        int proposedValue = adjustValueMultipleStep(value() - pageStep());
-        if (proposedValue >= 0)
-        {
-            forceSetValue(proposedValue);
-        }
-        else
-        {
-            forceSetValue(0);
-        }
-    }
-}
-
-void ScrollBar::mouseReleaseEvent(QMouseEvent */*event*/)
-{
-    pressed_ = false;
-}
-
-void ScrollBar::mouseMoveEvent(QMouseEvent *event)
-{
-    if (pressed_)
-    {
-        int diffPx = event->pos().y() - lastCursorPos_;
-        int diffIncrements = diffPx/(singleStep()*magicRatio());
-
-        int proposedValue = adjustValueMultipleStep(diffIncrements*singleStep() + lastValue_);
-        if (proposedValue >= 0 && proposedValue <= maximum())
-        {
-            if (proposedValue != value())
-            {
-                forceSetValue(proposedValue);
-                emit handleDragged(proposedValue);
-            }
-        }
-    }
-
-    QScrollBar::mouseMoveEvent(event);
 }
 
 void ScrollBar::enterEvent(QEnterEvent *event)
@@ -254,55 +93,13 @@ void ScrollBar::resizeEvent(QResizeEvent *event)
     updateCustomStyleSheet();
 }
 
-void ScrollBar::onScrollAnimationValueChanged(const QVariant &value)
-{
-    setValue(value.toInt());
-}
-
-void ScrollBar::onScollTimerTick()
-{
-    double durationFraction = (double) scrollElapsedTimer_.elapsed() / animationDuration_;
-    if (durationFraction > 1)
-    {
-        // qDebug() << "Stopping timer with target: " << targetValue_;
-        scrollTimer_.stop();
-        setValue(targetValue_);
-        return;
-    }
-
-    int curValue = startValue_ + durationFraction * (targetValue_ - startValue_);
-    // qDebug() << "Setting value: " << curValue;
-    setValue(curValue);
-}
-
 void ScrollBar::onOpacityAnimationValueChanged(const QVariant &value)
 {
     curOpacity_ = value.toDouble();
     update();
 }
 
-double ScrollBar::magicRatio() const
-{
-    return static_cast<double>(geometry().height())/(maximum()+pageStep());
-}
-
-void ScrollBar::animateScroll(int target, int animationSpeedFraction)
-{
-    startValue_ = value();
-    targetValue_ = target;
-
-    if (targetValue_ > maximum()) targetValue_ = maximum();
-    if (targetValue_ < minimum()) targetValue_ = minimum();
-
-    int diffPx = targetValue_ - startValue_;
-    animationDuration_ = qAbs(diffPx) * animationSpeedFraction;
-    if (animationDuration_ < MINIMUM_DURATION) animationDuration_ = MINIMUM_DURATION;
-
-    scrollElapsedTimer_.start();
-    scrollTimer_.start();
-}
-
-const QString ScrollBar::customStyleSheet()
+QString ScrollBar::customStyleSheet()
 {
     // hover region is bigger than drawing region
     QString css = QString( "QScrollBar:vertical { margin: %1px %2 %3px %4px; ")
@@ -331,16 +128,6 @@ const QString ScrollBar::customStyleSheet()
 int ScrollBar::customPaddingWidth()
 {
     return 2 * G_SCALE;
-}
-
-int ScrollBar::adjustValueMultipleStep(int value)
-{
-    // the position must be a multiple of a step, so that the top item is always exactly at the top
-    if ((value % singleStep()) == 0) {
-        return value;
-    }
-    int adjustedValue = std::round((double)(value) / (double)singleStep()) * singleStep();
-    return adjustedValue;
 }
 
 } // namespace gui_locations

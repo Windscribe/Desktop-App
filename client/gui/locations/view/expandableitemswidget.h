@@ -17,11 +17,10 @@ class ExpandableItemsWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit ExpandableItemsWidget(QWidget *parent = nullptr);
+    explicit ExpandableItemsWidget(QWidget *parent, QAbstractItemModel *model);
     ~ExpandableItemsWidget() override;
 
-    // does not take ownership of model or delegates
-    void setModel(QAbstractItemModel *model);
+    // does not take ownership of delegates
     void setItemDelegate(IItemDelegate *itemDelegateExpandableItem, IItemDelegate *itemDelegateNonExpandableItem);
     void setItemHeight(int height);
 
@@ -35,14 +34,15 @@ protected:
     void mouseReleaseEvent(QMouseEvent *event) override;
 
 signals:
-    void notifyMustBeVisible(int topItemIndex, int bottomItemIndex);
+    void ensureVisible(int top, int bottom);
+    void expandingAnimationStarted();
 
 private slots:
     void onExpandingAnimationValueChanged(const QVariant &value);
     void onExpandingAnimationFinished();
 
 private:
-    const int EXPANDING_ANIMATION_DURATION = 200;
+    static constexpr int kExpandingAnimationDuration = 200*10;
     QScopedPointer<CursorUpdateHelper> cursorUpdateHelper_;
 
     int itemHeight_;
@@ -66,6 +66,10 @@ private:
     QPersistentModelIndex mousePressedItem_;
     int mousePressedClickableId_;
 
+    bool isAnimationJustStarted_ = false;
+
+
+    void setModel(QAbstractItemModel *model);
     void resetItemsList();
     void sortItemsListByRow();
     QPersistentModelIndex detectSelectedItem(const QPoint &pt, QRect *outputRect = nullptr);
@@ -74,6 +78,11 @@ private:
     void updateHeight();
     int calcHeightOfChildItems(const QPersistentModelIndex &ind);
     int getOffsForItem(const QPersistentModelIndex &ind);
+    void initCacheDataForChilds(const QPersistentModelIndex &parentInd);
+    void clearCacheDataForChilds(const QPersistentModelIndex &parentInd);
+
+    void updateExpandingAnimationParams();
+    void setupExpandingAnimation(QAbstractAnimation::Direction direction, int startValue, int endValue, int duration);
 
 };
 

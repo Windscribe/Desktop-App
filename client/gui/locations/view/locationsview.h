@@ -2,10 +2,12 @@
 
 #include <QScrollArea>
 #include <QAbstractItemModel>
+
 #include "expandableitemswidget.h"
 #include "countryitemdelegate.h"
 #include "cityitemdelegate.h"
 #include "scrollbar.h"
+#include "types/locationid.h"
 
 namespace gui_locations {
 
@@ -14,7 +16,7 @@ class LocationsView : public QScrollArea
     Q_OBJECT
 
 public:
-    explicit LocationsView(QWidget *parent);
+    explicit LocationsView(QWidget *parent, QAbstractItemModel *model);
     ~LocationsView() override;
 
     void setModel(QAbstractItemModel *model);
@@ -27,34 +29,30 @@ public:
 protected:
     void paintEvent(QPaintEvent *event) override;
     void resizeEvent(QResizeEvent *event) override;
-    void scrollContentsBy(int dx, int dy) override;
+
 
 signals:
+     void selected(const LocationID &lid);
 
 private slots:
-    void onScrollBarHandleDragged(int valuePos);
-    void onScrollBarStopScroll(bool lastScrollDirectionUp);
-    void onScrollAnimationValueChanged(const QVariant &value);
-    void onScrollAnimationFinished();
-    void onNotifyMustBeVisible(int topItemIndex, int bottomItemIndex);
+    void onEnsureVisible(int top, int bottom);
+    void onScrollBarActionTriggered(int action);
 
 private:
-    const int SCROLL_BAR_WIDTH = 8;
-    const int PROGRAMMATIC_SCROLL_ANIMATION_DURATION = 300;
+    static constexpr int SCROLL_BAR_WIDTH = 8;
+    static constexpr int PROGRAMMATIC_SCROLL_ANIMATION_DURATION = 300*2;
 
     ExpandableItemsWidget *widget_;
     CountryItemDelegate *countryItemDelegate_;  // todo move outside class
     CityItemDelegate *cityItemDelegate_;        // todo move outside class
     ScrollBar *scrollBar_;
-    int animationScollTarget_;
-    int lastScrollPos_;
-    QVariantAnimation scrollAnimation_;
+    int lastScrollTargetPos_;
 
+    // when we start the scroll animation we have to forbid the expanding animation
+    // so that we don't have animation collisions
+    bool isExpandingAnimationForbidden_;
 
-    void startAnimationScrollByPosition(int positionValue, QVariantAnimation &animation);
-    int nextPositionIncrement(int value);
-    int previousPositionIncrement(int value);
-    void updateScrollBarWithView();
+    void adjustPosBetweenMinAndMax(int &pos);
 };
 
 } // namespace gui_locations

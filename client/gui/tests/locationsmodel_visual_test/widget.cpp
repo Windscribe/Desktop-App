@@ -113,11 +113,10 @@ Widget::Widget(QWidget *parent)
     customConfigModel->setSourceModel(sortedCitiesModel);
     ui->listViewCustomConfig->setModel(customConfigModel);
 
-    locationsView_ = new gui_locations::LocationsView(this);
+    locationsView_ = new gui_locations::LocationsView(this, sortedLocationsModel);
+    locationsView_->setFixedSize(508, 400);
+    locationsView_->updateScaling();
     ui->verticalLayout_6->addWidget(locationsView_);
-    locationsView_->setModel(sortedLocationsModel);
-
-
 
 
     locationsModel_->updateLocations(LocationID(), testOriginal_);
