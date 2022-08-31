@@ -289,7 +289,9 @@ void MainWindowController::setWindowPosFromPersistent()
     // Leaving this here and active to debug future issues for customers.  I verfied no
     // startup cost is incurred, even on slow hardware.
     for (auto screen : qApp->screens()) {
-        qCDebug(LOG_BASIC) << "setWindowPosFromPersistent() - screen" << screen->name() << "- geometry" << screen->geometry() << "- virtualGeometry" << screen->virtualGeometry();
+        qCDebug(LOG_BASIC) << "setWindowPosFromPersistent() - screen" << screen->name() << "- geometry" << screen->geometry()
+                           << "- virtualGeometry" << screen->virtualGeometry() << "- logicalDotsPerInch" << screen->logicalDotsPerInch()
+                           << "- devicePixelRatio" << screen->devicePixelRatio();
     }
 
     if (PersistentState::instance().haveAppGeometry())

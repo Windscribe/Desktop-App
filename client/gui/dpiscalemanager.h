@@ -42,13 +42,15 @@ private:
     explicit DpiScaleManager();
 
 private:
-    static constexpr int LOWEST_LDPI = 96;
+    static constexpr int kLowestLDPI = 96;
     double curScale_;
     qreal curDevicePixelRatio_;
     qreal curDPI_;
     QRect curGeometry_;
     QWidget *mainWindow_;
+    QMetaObject::Connection screenChangedConnection_;
 
+    void setScale();
     void update(QScreen *screen);
 };
 

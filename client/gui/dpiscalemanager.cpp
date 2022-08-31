@@ -1,7 +1,9 @@
 #include "dpiscalemanager.h"
+
+#include <QApplication>
 #include <QWidget>
 #include <QWindow>
-#include <QApplication>
+
 #include "utils/logger.h"
 
 static QRect GetGeometryForScreen(const QScreen *screen)
@@ -20,14 +22,7 @@ DpiScaleManager::DpiScaleManager()
       mainWindow_(nullptr)
 {
     curDPI_ = qApp->primaryScreen()->logicalDotsPerInch();
-
-#ifdef Q_OS_WIN
-    curScale_ = (double)curDPI_ / (double)LOWEST_LDPI;
-#else
-    // for Mac curScale always == 1
-    curScale_ = 1;
-#endif
-
+    setScale();
     curGeometry_ = GetGeometryForScreen(qApp->primaryScreen());
     curDevicePixelRatio_ = qApp->primaryScreen()->devicePixelRatio();
     qCDebug(LOG_BASIC) << "DpiScaleManager::constructor -> DPI:" << curDPI_ << "; scale:" << curScale_ << "; devicePixelRatio:" << curDevicePixelRatio_;
@@ -36,7 +31,9 @@ DpiScaleManager::DpiScaleManager()
 bool DpiScaleManager::setMainWindow(QWidget *mainWindow)
 {
     mainWindow_ = mainWindow;
-    connect(mainWindow->window()->windowHandle(), &QWindow::screenChanged, this, &DpiScaleManager::onWindowScreenChanged);
+
+    disconnect(screenChangedConnection_);
+    screenChangedConnection_ = connect(mainWindow->window()->windowHandle(), &QWindow::screenChanged, this, &DpiScaleManager::onWindowScreenChanged);
 
     for (QScreen *screen : qApp->screens()) {
         connect(screen, &QScreen::logicalDotsPerInchChanged, this, &DpiScaleManager::onLogicalDotsPerInchChanged);
@@ -59,13 +56,7 @@ bool DpiScaleManager::setMainWindow(QWidget *mainWindow)
     if (screen->logicalDotsPerInch() != curDPI_ || !qFuzzyCompare(curDevicePixelRatio_, screen->devicePixelRatio()))
     {
         curDPI_ = screen->logicalDotsPerInch();
-    #ifdef Q_OS_WIN
-        curScale_ = (double)curDPI_ / (double)LOWEST_LDPI;
-    #else
-        // for Mac curScale always == 1
-        curScale_ = 1;
-    #endif
-
+        setScale();
         curDevicePixelRatio_ = screen->devicePixelRatio();
         qCDebug(LOG_BASIC) << "DpiScaleManager::setMainWindow -> DPI:" << curDPI_ << "; scale:" << curScale_ << "; devicePixelRatio:" << curDevicePixelRatio_;
         return  true;
@@ -77,23 +68,25 @@ bool DpiScaleManager::setMainWindow(QWidget *mainWindow)
 
 double DpiScaleManager::scaleOfScreen(const QScreen *screen) const
 {
-    qreal scale;
 #ifdef Q_OS_WIN
-    const qreal dpi = screen->logicalDotsPerInch();
-    scale = (double)dpi / (double)LOWEST_LDPI;
+    qreal scale = screen->logicalDotsPerInch() / kLowestLDPI;
 #else
-    // for Mac curScale always == 1
+    // for Mac scale always == 1
     Q_UNUSED(screen);
-    scale = 1;
+    qreal scale = 1;
 #endif
     return scale;
 }
 
 void DpiScaleManager::onWindowScreenChanged(QScreen *screen)
 {
-    qCDebug(LOG_BASIC) << "DpiScaleManager::onScreenChanged - new screen: " << screen;
+    qCDebug(LOG_BASIC) << "DpiScaleManager::onWindowScreenChanged - new screen: " << screen;
+    // This slot was being called infinitely, until an app crash due to stack overflow, on Windows
+    // if the user very slowly dragged the app between screens under certain scaling conditions.
+    disconnect(screenChangedConnection_);
     update(screen);
     emit newScreen(screen);
+    screenChangedConnection_ = connect(mainWindow_->window()->windowHandle(), &QWindow::screenChanged, this, &DpiScaleManager::onWindowScreenChanged);
 }
 
 void DpiScaleManager::onLogicalDotsPerInchChanged(qreal dpi)
@@ -144,12 +137,20 @@ void DpiScaleManager::update(QScreen *screen)
     qCDebug(LOG_BASIC) << "DpiScaleManager::update - DPI, devicePixelRatio" << screen->logicalDotsPerInch() << screen->devicePixelRatio();
     if (screen->logicalDotsPerInch() != curDPI_ || !qFuzzyCompare(curDevicePixelRatio_, screen->devicePixelRatio()))
     {
-#ifdef Q_OS_WIN
         curDPI_ = screen->logicalDotsPerInch();
-        curScale_ = (double)curDPI_ / (double)LOWEST_LDPI;
-#endif
+        setScale();
         curDevicePixelRatio_ = screen->devicePixelRatio();
         emit scaleChanged(curScale_);
     }
     curGeometry_ = GetGeometryForScreen(screen);
+}
+
+void DpiScaleManager::setScale()
+{
+#ifdef Q_OS_WIN
+    curScale_ = curDPI_ / kLowestLDPI;
+#else
+    // for Mac curScale always == 1
+    curScale_ = 1;
+#endif
 }
