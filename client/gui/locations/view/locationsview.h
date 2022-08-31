@@ -35,12 +35,13 @@ signals:
      void selected(const LocationID &lid);
 
 private slots:
-    void onEnsureVisible(int top, int bottom);
     void onScrollBarActionTriggered(int action);
 
+    void onExpandingAnimationStarted(int top, int height);
+    void onExpandingAnimationProgress(qreal progress);
+
 private:
-    static constexpr int SCROLL_BAR_WIDTH = 8;
-    static constexpr int PROGRAMMATIC_SCROLL_ANIMATION_DURATION = 300*2;
+    static constexpr int kScrollBarWidth = 8;
 
     ExpandableItemsWidget *widget_;
     CountryItemDelegate *countryItemDelegate_;  // todo move outside class
@@ -48,11 +49,18 @@ private:
     ScrollBar *scrollBar_;
     int lastScrollTargetPos_;
 
+    struct {
+        int top = 0;
+        int height = 0;
+        int topItemInvisiblePart = 0;
+    } expandingAnimationParams_;
+
     // when we start the scroll animation we have to forbid the expanding animation
     // so that we don't have animation collisions
     bool isExpandingAnimationForbidden_;
 
     void adjustPosBetweenMinAndMax(int &pos);
+    void ensureVisible(int top, int bottom);
 };
 
 } // namespace gui_locations

@@ -27,22 +27,27 @@ public:
     void setShowLatencyInMs(bool isShowLatencyInMs);
     void setShowLocationLoad(bool isShowLocationLoad);
 
+    void updateSelectedItem();
+
 protected:
     void paintEvent(QPaintEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
     void mousePressEvent(QMouseEvent *event) override;
     void mouseReleaseEvent(QMouseEvent *event) override;
+    void leaveEvent(QEvent *event) override;
 
 signals:
-    void ensureVisible(int top, int bottom);
-    void expandingAnimationStarted();
+    // the expanding items should be visible so sending these signals to LocationsView
+    // to update the scroll position.
+    void expandingAnimationStarted(int top, int height);
+    void expandingAnimationProgress(qreal progress);        // progress from 0 to 1
 
 private slots:
     void onExpandingAnimationValueChanged(const QVariant &value);
     void onExpandingAnimationFinished();
 
 private:
-    static constexpr int kExpandingAnimationDuration = 200*10;
+    static constexpr int kExpandingAnimationDuration = 200;
     QScopedPointer<CursorUpdateHelper> cursorUpdateHelper_;
 
     int itemHeight_;
@@ -52,7 +57,9 @@ private:
     QVector<QPersistentModelIndex> items_;
     QHash<QPersistentModelIndex, QSharedPointer<IItemCacheData>> itemsCacheData_;
     QSet<QPersistentModelIndex> expandedItems_;
+
     QPersistentModelIndex selectedInd_;
+    QRect selectedIndRect_;
 
     QPersistentModelIndex expandingItem_;
     int expandingCurrentHeight_;
@@ -68,10 +75,10 @@ private:
 
     bool isAnimationJustStarted_ = false;
 
+    QSet<int> hoveringToolTips_;
 
     void setModel(QAbstractItemModel *model);
     void resetItemsList();
-    void sortItemsListByRow();
     QPersistentModelIndex detectSelectedItem(const QPoint &pt, QRect *outputRect = nullptr);
     IItemDelegate *delegateForItem(const QPersistentModelIndex &ind);
     bool isExpandableItem(const QPersistentModelIndex &ind);
@@ -83,7 +90,7 @@ private:
 
     void updateExpandingAnimationParams();
     void setupExpandingAnimation(QAbstractAnimation::Direction direction, int startValue, int endValue, int duration);
-
+    void closeAndClearAllActiveTooltips(const QPersistentModelIndex &modelIndex);
 };
 
 } // namespace gui_locations

@@ -47,14 +47,14 @@ void ExpandableItemsWidget::setModel(QAbstractItemModel *model)
     });
 
     connect(model_, &QAbstractItemModel::rowsInserted, [this](const QModelIndex &parent, int first, int last) {
-        Q_ASSERT(first == last);   // not supported more than one item
         if (!parent.isValid()) {
-            QModelIndex mi = model_->index(first, 0);
-            items_.insert(first, mi);
-            itemsCacheData_[mi] = QSharedPointer<IItemCacheData>(delegateForItem(mi)->createCacheData(mi));
-            initCacheDataForChilds(mi);
-        }
-        else {
+            for (int i = first; i <= last; ++i) {
+                QModelIndex mi = model_->index(i, 0);
+                items_.insert(i, mi);
+                itemsCacheData_[mi] = QSharedPointer<IItemCacheData>(delegateForItem(mi)->createCacheData(mi));
+                initCacheDataForChilds(mi);
+            }
+        } else {
             Q_ASSERT(items_.indexOf(parent) != -1);
             initCacheDataForChilds(parent);
         }
@@ -64,19 +64,24 @@ void ExpandableItemsWidget::setModel(QAbstractItemModel *model)
     });
 
     connect(model_, &QAbstractItemModel::rowsAboutToBeRemoved, [this](const QModelIndex &parent, int first, int last) {
-        Q_ASSERT(first == last);   // not supported more than one item
-        if (!parent.isValid())
-            clearCacheDataForChilds(model_->index(first, 0));
+        if (!parent.isValid()) {
+            for (int i = first; i <= last; ++i)
+                clearCacheDataForChilds(model_->index(i, 0));
+        }
         else {
-            QPersistentModelIndex childInd = model_->index(first, 0, parent);
-            itemsCacheData_.remove(childInd);
+            for (int i = first; i <= last; ++i) {
+                QPersistentModelIndex childInd = model_->index(i, 0, parent);
+                itemsCacheData_.remove(childInd);
+            }
         }
     });
     connect(model_, &QAbstractItemModel::rowsRemoved, [this](const QModelIndex &parent, int first, int last) {
-        Q_ASSERT(first == last);   // not supported more than one item
         if (!parent.isValid()) {
-            itemsCacheData_.remove(items_[first]);
-            items_.remove(first);
+            for (int i = first; i <= last; ++i) {
+                itemsCacheData_.remove(items_[i]);
+            }
+            Q_ASSERT(last >= (first));
+            items_.remove(first, last - first + 1);
         }
         updateExpandingAnimationParams();
         updateHeight();
@@ -93,8 +98,7 @@ void ExpandableItemsWidget::setModel(QAbstractItemModel *model)
         }
         Q_ASSERT(topLeft.parent() == bottomRight.parent());
         // update cache data
-        for (int i = topLeft.row(); i <= bottomRight.row(); ++i)
-        {
+        for (int i = topLeft.row(); i <= bottomRight.row(); ++i) {
             QPersistentModelIndex mi = model_->index(i, 0, topLeft.parent());
             delegateForItem(mi)->updateCacheData(mi, itemsCacheData_[mi].get());
         }
@@ -137,84 +141,17 @@ void ExpandableItemsWidget::setShowLocationLoad(bool isShowLocationLoad)
     update();
 }
 
-void ExpandableItemsWidget::paintEvent(QPaintEvent *event)
+void ExpandableItemsWidget::updateSelectedItem()
 {
-    QElapsedTimer elapsed;
-    elapsed.start();
-
-    QPainter painter(this);
-
-    int topOffs = 0;
-    for (const auto &it : qAsConst(items_))
-    {
-        IItemDelegate *delegate = delegateForItem(it);
-        QRect rcItem(0, topOffs, size().width(), itemHeight_);
-
-        bool isExpanded = expandedItems_.contains(it);
-        double expandedProgress;
-        if (it == expandingItem_) {
-            expandedProgress = (double)expandingCurrentHeight_ / (double)expandingAnimation_.endValue().toInt();
-        }
-        else {
-            expandedProgress = isExpanded ? 1.0 : 0.0;
-        }
-
-        //if (rcItem.intersects(event->rect()))
-        {
-            ItemStyleOption opt(rcItem, it == selectedInd_ ? 1.0 : 0.0, expandedProgress, isShowLocationLoad_, isShowLatencyInMs_);
-            delegate->paint(&painter, opt, it, itemsCacheData_[it].get());
-        }
-        topOffs += itemHeight_;
-
-        // draw child items if this item is expanded
-        if (isExpanded)
-        {
-            if (it == expandingItem_)
-            {
-                painter.setClipRect(QRect(0, topOffs, size().width(), expandingCurrentHeight_));
-            }
-            int row = 0;
-            int overallHeight = 0;
-            QModelIndex childInd = it.model()->index(row, 0, it);
-            while (childInd.isValid())
-            {
-                QRect rcChildItem(0, topOffs + overallHeight, size().width(), itemHeight_);
-                //if (rcChildItem.intersects(event->rect()))
-                {
-                    ItemStyleOption opt(rcChildItem, childInd == selectedInd_ ? 1.0 : 0.0, false, isShowLocationLoad_, isShowLatencyInMs_);
-                    nonexpandableItemDelegate_->paint(&painter, opt, childInd, itemsCacheData_[childInd].get());
-                }
-                overallHeight += itemHeight_;
-                row++;
-                childInd = it.model()->index(row, 0, it);
-            }
-
-            if (it == expandingItem_)
-            {
-                painter.setClipping(false);
-                topOffs += expandingCurrentHeight_;
-            }
-            else
-            {
-                topOffs += overallHeight;
-            }
-        }
-    }
-    g_time += elapsed.elapsed();
-    g_cntFrames++;
-}
-
-void ExpandableItemsWidget::mouseMoveEvent(QMouseEvent *event)
-{
-    if (bMousePressed_) {
-        return;
-    }
-
-    QPersistentModelIndex sel = detectSelectedItem(event->pos());
+    QPoint localCursorPos = mapFromGlobal(QCursor::pos());
+    QPersistentModelIndex sel = detectSelectedItem(localCursorPos, &selectedIndRect_);
     if (sel != selectedInd_)
     {
-        selectedInd_ = sel;
+        // close tooltips for prev selected item
+        if (selectedInd_.isValid())
+            closeAndClearAllActiveTooltips(selectedInd_);
 
+        selectedInd_ = sel;
         if (selectedInd_.isValid() && delegateForItem(selectedInd_)->isForbiddenCursor(selectedInd_))
         {
             cursorUpdateHelper_->setForbiddenCursor();
@@ -226,6 +163,94 @@ void ExpandableItemsWidget::mouseMoveEvent(QMouseEvent *event)
 
         update();
     }
+
+    // update tooltips
+    if (selectedInd_.isValid()) {
+        ItemStyleOption opt(this, selectedIndRect_, 1.0, 0, isShowLocationLoad_, isShowLatencyInMs_);
+        int tooltipId = delegateForItem(selectedInd_)->isInTooltipArea(opt, selectedInd_, localCursorPos, itemsCacheData_[selectedInd_].get());
+        if (tooltipId == (int)TooltipRect::kNone) {
+            closeAndClearAllActiveTooltips(selectedInd_);
+        } else {
+
+            // no need to do an increment here
+            for (auto it = hoveringToolTips_.begin(); it != hoveringToolTips_.end(); /*it++*/) {
+                if (*it != (int)tooltipId) {
+                    delegateForItem(selectedInd_)->tooltipLeaveEvent(*it);
+                    it = hoveringToolTips_.erase(it);
+                } else {
+                    ++it;
+                }
+             }
+
+            if (!hoveringToolTips_.contains(tooltipId)) {
+                delegateForItem(selectedInd_)->tooltipEnterEvent(opt, selectedInd_, tooltipId, itemsCacheData_[selectedInd_].get());
+                hoveringToolTips_.insert(tooltipId);
+            }
+        }
+    }
+}
+
+void ExpandableItemsWidget::paintEvent(QPaintEvent *event)
+{
+    QElapsedTimer elapsed;
+    elapsed.start();
+
+    QPainter painter(this);
+
+    int topOffs = 0;
+    for (const auto &it : qAsConst(items_)) {
+        IItemDelegate *delegate = delegateForItem(it);
+        QRect rcItem(0, topOffs, size().width(), itemHeight_);
+
+        bool isExpanded = expandedItems_.contains(it);
+        double expandedProgress;
+        if (it == expandingItem_)
+            expandedProgress = (double)expandingCurrentHeight_ / (double)expandingAnimation_.endValue().toInt();
+        else
+            expandedProgress = isExpanded ? 1.0 : 0.0;
+
+        if (rcItem.intersects(event->rect())) {
+            ItemStyleOption opt(this, rcItem, it == selectedInd_ ? 1.0 : 0.0, expandedProgress, isShowLocationLoad_, isShowLatencyInMs_);
+            delegate->paint(&painter, opt, it, itemsCacheData_[it].get());
+        }
+        topOffs += itemHeight_;
+
+        // draw child items if this item is expanded
+        if (isExpanded) {
+            if (it == expandingItem_)
+                painter.setClipRect(QRect(0, topOffs, size().width(), expandingCurrentHeight_));
+            int row = 0;
+            int overallHeight = 0;
+            QModelIndex childInd = it.model()->index(row, 0, it);
+            while (childInd.isValid()) {
+                QRect rcChildItem(0, topOffs + overallHeight, size().width(), itemHeight_);
+                if (rcChildItem.intersects(event->rect())) {
+                    ItemStyleOption opt(this, rcChildItem, childInd == selectedInd_ ? 1.0 : 0.0, false, isShowLocationLoad_, isShowLatencyInMs_);
+                    nonexpandableItemDelegate_->paint(&painter, opt, childInd, itemsCacheData_[childInd].get());
+                }
+                overallHeight += itemHeight_;
+                row++;
+                childInd = it.model()->index(row, 0, it);
+            }
+
+            if (it == expandingItem_) {
+                painter.setClipping(false);
+                topOffs += expandingCurrentHeight_;
+            }
+            else {
+                topOffs += overallHeight;
+            }
+        }
+    }
+    g_time += elapsed.elapsed();
+    g_cntFrames++;
+}
+
+void ExpandableItemsWidget::mouseMoveEvent(QMouseEvent *event)
+{
+    if (bMousePressed_)
+        return;
+    updateSelectedItem();
     QWidget::mouseMoveEvent(event);
 }
 
@@ -237,7 +262,8 @@ void ExpandableItemsWidget::mousePressEvent(QMouseEvent *event)
         mousePressedItem_ = detectSelectedItem(event->pos(), &rcItem);
         if (mousePressedItem_.isValid())
         {
-            mousePressedClickableId_ = delegateForItem(mousePressedItem_)->isInClickableArea(mousePressedItem_, event->pos() - rcItem.topLeft(), rcItem);
+            ItemStyleOption opt(this, rcItem, 1.0, 0, isShowLocationLoad_, isShowLatencyInMs_);
+            mousePressedClickableId_ = delegateForItem(mousePressedItem_)->isInClickableArea(opt, mousePressedItem_, event->pos());
             bMousePressed_ = true;
         }
     }
@@ -247,22 +273,18 @@ void ExpandableItemsWidget::mousePressEvent(QMouseEvent *event)
 
 void ExpandableItemsWidget::mouseReleaseEvent(QMouseEvent *event)
 {
-    if (event->button() == Qt::LeftButton && bMousePressed_)
-    {
+    if (event->button() == Qt::LeftButton && bMousePressed_) {
         QRect rcItem;
-        if (mousePressedItem_ == detectSelectedItem(event->pos(), &rcItem))
-        {
-            if (isExpandableItem(mousePressedItem_))
-            {
-                if (expandingAnimation_.state() != QAbstractAnimation::Running)
-                {
-                    emit expandingAnimationStarted();
+        if (mousePressedItem_ == detectSelectedItem(event->pos(), &rcItem)) {
+            if (isExpandableItem(mousePressedItem_)) {
+                if (expandingAnimation_.state() != QAbstractAnimation::Running) {
 
                     if (expandedItems_.contains(mousePressedItem_))
                     {
                         expandingItem_ = mousePressedItem_;
                         expandingCurrentHeight_ = calcHeightOfChildItems(expandingItem_);
                         setupExpandingAnimation(QAbstractAnimation::Backward, 0, expandingCurrentHeight_, kExpandingAnimationDuration);
+                        emit expandingAnimationStarted(0, 0);        // top, bottom values are not needed when collapsing
                         expandingAnimation_.start();
                     }
                     else
@@ -273,6 +295,8 @@ void ExpandableItemsWidget::mouseReleaseEvent(QMouseEvent *event)
                         expandingCurrentHeight_ = 0;
                         int heightOfChilds = calcHeightOfChildItems(expandingItem_);
                         setupExpandingAnimation(QAbstractAnimation::Forward, 0, heightOfChilds, kExpandingAnimationDuration);
+                        int offs = getOffsForItem(expandingItem_);
+                        emit expandingAnimationStarted(offs, heightOfChilds);
                         expandingAnimation_.start();
                     }
 
@@ -283,10 +307,11 @@ void ExpandableItemsWidget::mouseReleaseEvent(QMouseEvent *event)
             else    // non expandable item
             {
                 // todo city click
-                int clickableId = delegateForItem(mousePressedItem_)->isInClickableArea(mousePressedItem_, event->pos() - rcItem.topLeft(), rcItem);
+                ItemStyleOption opt(this, rcItem, 1.0, 0, isShowLocationLoad_, isShowLatencyInMs_);
+                int clickableId = delegateForItem(mousePressedItem_)->isInClickableArea(opt, mousePressedItem_, event->pos());
                 if (clickableId != -1 && clickableId == mousePressedClickableId_)
                 {
-                    if (clickableId == CLICKABLE_FAVORITE_RECT)
+                    if (clickableId == (int)ClickableRect::kFavorite)
                     {
                         model_->setData(mousePressedItem_, !mousePressedItem_.data(kIsFavorite).toBool(), kIsFavorite);
                     }
@@ -300,30 +325,23 @@ void ExpandableItemsWidget::mouseReleaseEvent(QMouseEvent *event)
     QWidget::mouseReleaseEvent(event);
 }
 
+void ExpandableItemsWidget::leaveEvent(QEvent *event)
+{
+    if (selectedInd_.isValid())
+        closeAndClearAllActiveTooltips(selectedInd_);
+    QWidget::leaveEvent(event);
+}
+
 void ExpandableItemsWidget::onExpandingAnimationValueChanged(const QVariant &value)
 {
     expandingCurrentHeight_ = value.toInt();
     updateHeight();
     update();
 
-    // the expanding items should be visible so sending the signal to LocationsView
-    // to update the scroll position
+    // Makes sense only for expanding.
     if (expandingAnimation_.direction() == QAbstractAnimation::Forward) {
-
-        int offs = getOffsForItem(expandingItem_);
-
-        if (isAnimationJustStarted_) {
-            isAnimationJustStarted_ = false;
-            if (expandingCurrentHeight_ != 0)
-            {
-                int g = 0;
-            }
-        }
-
-
-        emit ensureVisible(offs, offs + expandingCurrentHeight_ + itemHeight_);
+        emit expandingAnimationProgress((qreal)expandingAnimation_.currentTime() / (qreal)expandingAnimation_.duration());
     }
-
 }
 
 void ExpandableItemsWidget::onExpandingAnimationFinished()
@@ -359,15 +377,6 @@ void ExpandableItemsWidget::resetItemsList()
 
     updateHeight();
     update();
-}
-
-void ExpandableItemsWidget::sortItemsListByRow()
-{
-    std::sort(items_.begin(), items_.end(),
-        [](const QPersistentModelIndex & a, const QPersistentModelIndex & b) -> bool
-    {
-        return a.row() < b.row();
-    });
 }
 
 QPersistentModelIndex ExpandableItemsWidget::detectSelectedItem(const QPoint &pt, QRect *outputRect)
@@ -414,8 +423,7 @@ IItemDelegate *ExpandableItemsWidget::delegateForItem(const QPersistentModelInde
     // Is it an expandable item?
     if (isExpandableItem(ind)) {
         return expandableItemDelegate_;
-    }
-    else {
+    } else {
         return nonexpandableItemDelegate_;
     }
 }
@@ -481,8 +489,7 @@ void ExpandableItemsWidget::clearCacheDataForChilds(const QPersistentModelIndex 
 
 void ExpandableItemsWidget::updateExpandingAnimationParams()
 {
-    //FIXME:
-    /*if (expandingAnimation_.state() != QAbstractAnimation::Running)
+    if (expandingAnimation_.state() != QAbstractAnimation::Running)
         return;
 
     // check if expanding item is deleted
@@ -492,42 +499,35 @@ void ExpandableItemsWidget::updateExpandingAnimationParams()
         return;
     }
 
-
-    int heightOfChilds = calcHeightOfChildItems(expandingItem_);
     int endValue = expandingAnimation_.endValue().toInt();
+    int heightOfChilds = calcHeightOfChildItems(expandingItem_);
+    if (heightOfChilds != endValue) {
+        int curTime = expandingAnimation_.currentTime();
 
-    if (expandingAnimation_.direction() == QAbstractAnimation::Forward) {
-        if (heightOfChilds != endValue) {
-            double progress = (double)expandingAnimation_.currentTime() / (double)expandingAnimation_.totalDuration();
+        if (expandingAnimation_.direction() == QAbstractAnimation::Forward) {
             int curValue = expandingAnimation_.currentValue().toInt();
-
             expandingAnimation_.stop();
-            if (curValue > heightOfChilds)
+
+            if (curValue >= heightOfChilds) {
                 expandingItem_ = QModelIndex();
-            else
-            {
-                expandingAnimation_.setStartValue(curValue);
+            } else {
                 expandingCurrentHeight_ = curValue;
-                expandingAnimation_.setEndValue(heightOfChilds);
-                expandingAnimation_.setDuration(kExpandingAnimationDuration * (1.0 - progress));
-                expandingAnimation_.start();
+                setupExpandingAnimation(QAbstractAnimation::Forward, curValue, heightOfChilds, kExpandingAnimationDuration - curTime);
+
                 int offs = getOffsForItem(expandingItem_);
+                emit expandingAnimationStarted(offs, heightOfChilds);
+
+                expandingAnimation_.start();
             }
-        }
-    }
-    else { // QAbstractAnimation::Backward
-        if (heightOfChilds != endValue) {
-            double progress = (double)expandingAnimation_.currentTime() / (double)expandingAnimation_.totalDuration();
+        } else { // QAbstractAnimation::Backward
             int newCurValue = expandingAnimation_.currentValue().toInt() < heightOfChilds ? expandingAnimation_.currentValue().toInt() : heightOfChilds;
 
             expandingAnimation_.stop();
-            expandingAnimation_.setStartValue(0);
             expandingCurrentHeight_ = newCurValue;
-            expandingAnimation_.setEndValue(newCurValue);
-            expandingAnimation_.setDuration(kExpandingAnimationDuration * progress);
+            setupExpandingAnimation(QAbstractAnimation::Backward, 0, newCurValue, kExpandingAnimationDuration - curTime);
             expandingAnimation_.start();
         }
-    }*/
+    }
 }
 
 void ExpandableItemsWidget::setupExpandingAnimation(QAbstractAnimation::Direction direction, int startValue, int endValue, int duration)
@@ -537,6 +537,15 @@ void ExpandableItemsWidget::setupExpandingAnimation(QAbstractAnimation::Directio
     expandingAnimation_.setStartValue(startValue);
     expandingAnimation_.setEndValue(endValue);
     expandingAnimation_.setDuration(duration);
+}
+
+void ExpandableItemsWidget::closeAndClearAllActiveTooltips(const QPersistentModelIndex &modelIndex)
+{
+    Q_ASSERT(modelIndex.isValid());
+    for (auto id : qAsConst(hoveringToolTips_)) {
+        delegateForItem(modelIndex)->tooltipLeaveEvent(id);
+    }
+    hoveringToolTips_.clear();
 }
 
 

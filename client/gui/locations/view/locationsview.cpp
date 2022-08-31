@@ -24,6 +24,12 @@ LocationsView::LocationsView(QWidget *parent, QAbstractItemModel *model) : QScro
         lastScrollTargetPos_ = value;
     });
     connect(scrollBar_, &ScrollBar::actionTriggered, this, &LocationsView::onScrollBarActionTriggered);
+    connect(scrollBar_, &ScrollBar::rangeChanged, [this](int min, int max) {
+        adjustPosBetweenMinAndMax(lastScrollTargetPos_);
+    });
+    connect(scrollBar_, &ScrollBar::valueChanged, [this]() {
+        widget_->updateSelectedItem();
+    });
 
     scrollBar_->setSingleStep(qCeil(LOCATION_ITEM_HEIGHT * G_SCALE));
 
@@ -34,10 +40,8 @@ LocationsView::LocationsView(QWidget *parent, QAbstractItemModel *model) : QScro
     cityItemDelegate_ = new CityItemDelegate();
     widget_->setItemDelegate(countryItemDelegate_, cityItemDelegate_);
     widget_->setItemHeight(qCeil(LOCATION_ITEM_HEIGHT * G_SCALE));
-    connect(widget_, &ExpandableItemsWidget::ensureVisible, this, &LocationsView::onEnsureVisible);
-    connect(widget_, &ExpandableItemsWidget::expandingAnimationStarted, [this]() {
-        isExpandingAnimationForbidden_ = false;
-    });
+    connect(widget_, &ExpandableItemsWidget::expandingAnimationStarted, this, &LocationsView::onExpandingAnimationStarted);
+    connect(widget_, &ExpandableItemsWidget::expandingAnimationProgress, this, &LocationsView::onExpandingAnimationProgress);
 }
 
 LocationsView::~LocationsView()
@@ -88,19 +92,17 @@ void LocationsView::resizeEvent(QResizeEvent *event)
 {
     QScrollArea::resizeEvent(event);
     widget_->setFixedWidth(size().width());
-    scrollBar_->setFixedWidth(SCROLL_BAR_WIDTH * G_SCALE);
+    scrollBar_->setFixedWidth(kScrollBarWidth * G_SCALE);
 }
 
 
-void LocationsView::onEnsureVisible(int top, int bottom)
+void LocationsView::ensureVisible(int top, int bottom)
 {
-    if (!isExpandingAnimationForbidden_)
-    {
-        if (bottom > (lastScrollTargetPos_ + viewport()->height())) {
-            lastScrollTargetPos_ = qMin(bottom - viewport()->height(), scrollBar_->maximum());
-            lastScrollTargetPos_ = qMin(lastScrollTargetPos_, top);
-            scrollBar_->setValue(lastScrollTargetPos_, true);
-        }
+    if (bottom > (lastScrollTargetPos_ + viewport()->height())) {
+        lastScrollTargetPos_ = qMin(bottom - viewport()->height(), scrollBar_->maximum());
+        lastScrollTargetPos_ = qMin(lastScrollTargetPos_, top);
+        adjustPosBetweenMinAndMax(lastScrollTargetPos_);
+        scrollBar_->setValue(lastScrollTargetPos_, true);
     }
 }
 
@@ -124,6 +126,25 @@ void LocationsView::onScrollBarActionTriggered(int action)
     }
 }
 
+void LocationsView::onExpandingAnimationStarted(int top, int height)
+{
+    isExpandingAnimationForbidden_ = false;
+    expandingAnimationParams_.top = top;
+    expandingAnimationParams_.height = height;
+    int topItemInvisiblePart = (top + qCeil(LOCATION_ITEM_HEIGHT * G_SCALE)) - (lastScrollTargetPos_ + viewport()->height());
+    expandingAnimationParams_.topItemInvisiblePart = topItemInvisiblePart > 0 ? topItemInvisiblePart : 0;
+}
+
+void LocationsView::onExpandingAnimationProgress(qreal progress)
+{
+    if (!isExpandingAnimationForbidden_)
+    {
+        int topItemVisibleHeight = qCeil(LOCATION_ITEM_HEIGHT * G_SCALE) - expandingAnimationParams_.topItemInvisiblePart;
+        ensureVisible(expandingAnimationParams_.top, (expandingAnimationParams_.height + expandingAnimationParams_.topItemInvisiblePart) * progress
+                                                      + expandingAnimationParams_.top + topItemVisibleHeight);
+    }
+}
+
 void LocationsView::adjustPosBetweenMinAndMax(int &pos)
 {
     if (pos < 0)
@@ -131,7 +152,6 @@ void LocationsView::adjustPosBetweenMinAndMax(int &pos)
     if (pos > scrollBar_->maximum())
         pos = scrollBar_->maximum();
 }
-
 
 } // namespace gui_locations
 

@@ -11,8 +11,6 @@
 #include "tooltips/tooltipcontroller.h"
 #include "utils/logger.h"
 
-// #include <QDebug>
-
 extern QWidget *g_mainWindow;
 
 namespace GuiLocations {
@@ -70,6 +68,7 @@ LocationsTab::LocationsTab(QWidget *parent, gui_locations::LocationsModelManager
     widgetAllLocations_ = new gui_locations::LocationsView(this, locationsModelManager->sortedLocationsProxyModel());
 
     widgetConfiguredLocations_ = new gui_locations::LocationsView(this, locationsModelManager->customConfigsProxyModel());
+    // FIXME:
     //widgetConfiguredLocations_->setEmptyListDisplayIcon("locations/FOLDER_ICON_BIG");
     //connect(widgetConfiguredLocations_, SIGNAL(emptyListButtonClicked()),
     //                                    SLOT(onAddCustomConfigClicked()));
@@ -124,10 +123,6 @@ void LocationsTab::setCountVisibleItemSlots(int cnt)
     if (cnt != countOfVisibleItemSlots_)
     {
         countOfVisibleItemSlots_ = cnt;
-        //widgetAllLocations_->setCountViewportItems(countOfVisibleItemSlots_);
-        //widgetConfiguredLocations_->setCountViewportItems(countOfVisibleItemSlots_-1);
-        //widgetStaticIpsLocations_->setCountViewportItems(countOfVisibleItemSlots_-1);
-        //widgetFavoriteLocations_->setCountViewportItems(countOfVisibleItemSlots_);
         updateRibbonVisibility();
         updateLocationWidgetsGeometry(unscaledHeightOfItemViewport());
     }
@@ -165,9 +160,6 @@ void LocationsTab::paintEvent(QPaintEvent *event)
     QPainter painter(this);
     QRect bkgd(0,0,geometry().width(), geometry().height());
     painter.fillRect(bkgd, FontManager::instance().getMidnightColor());
-
-    // qDebug() << "LocationsTab::paintEvent - geo: " << geometry();
-
     drawTabRegion(painter, QRect(0, 0, width(), TAB_HEADER_HEIGHT * G_SCALE));
 
 }
@@ -492,13 +484,11 @@ void LocationsTab::onSearchButtonHoverLeave()
 
 void LocationsTab::onSearchButtonClicked()
 {
-    // qCDebug(LOG_USER) << "Search clicked";
     showSearchTab();
 }
 
 void LocationsTab::onSearchCancelButtonClicked()
 {
-    // qCDebug(LOG_USER) << "Search cancel clicked";
     hideSearchTab();
 }
 
@@ -522,7 +512,6 @@ void LocationsTab::onSearchTypingDelayTimerTimeout()
 
 void LocationsTab::onSearchLineEditTextChanged(QString text)
 {
-    // qCDebug(LOG_USER) << "User changed text in search: " << text;
     filterText_ = text;
     searchTypingDelayTimer_.start();
 }
@@ -951,33 +940,28 @@ void LocationsTab::updateCustomConfigsEmptyListVisibility()
 
 void LocationsTab::updateRibbonVisibility()
 {
-    /*auto *current_widget_locations = currentWidgetLocations();
-    const bool is_location_list_empty = current_widget_locations->countViewportItems() <= 1;
+    //const bool is_location_list_empty = current_widget_locations->countViewportItems() <= 1;
 
     isRibbonVisible_ = false;
 
-    if (current_widget_locations == widgetStaticIpsLocations_)
+    if (curTab_ == LOCATION_TAB_STATIC_IPS_LOCATIONS)
     {
         configFooterInfo_->hide();
-        if (is_location_list_empty) {
-            staticIPDeviceInfo_->hide();
-        } else {
-            staticIPDeviceInfo_->show();
-            staticIPDeviceInfo_->raise();
-            isRibbonVisible_ = true;
-        }
+        staticIPDeviceInfo_->show();
+        staticIPDeviceInfo_->raise();
+        isRibbonVisible_ = true;
     }
-    else if (current_widget_locations == widgetConfiguredLocations_)
+    else if (curTab_ == LOCATION_TAB_CONFIGURED_LOCATIONS)
     {
         staticIPDeviceInfo_->hide();
-        const bool is_custom_configs_dir_set = !configFooterInfo_->text().isEmpty();
-        if (!is_custom_configs_dir_set) {
-            configFooterInfo_->hide();
-        } else {
+        //const bool is_custom_configs_dir_set = !configFooterInfo_->text().isEmpty();
+        //if (!is_custom_configs_dir_set) {
+        //    configFooterInfo_->hide();
+        //} else {
             configFooterInfo_->show();
             configFooterInfo_->raise();
             isRibbonVisible_ = true;
-        }
+        //}
     }
     else
     {
@@ -986,7 +970,7 @@ void LocationsTab::updateRibbonVisibility()
     }
 
     if (currentLocationListHeight_ != 0)
-        updateLocationWidgetsGeometry(currentLocationListHeight_);*/
+        updateLocationWidgetsGeometry(currentLocationListHeight_);
 }
 
 } // namespace GuiLocations

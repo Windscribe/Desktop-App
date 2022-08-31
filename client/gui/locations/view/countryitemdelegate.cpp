@@ -11,6 +11,9 @@
 #include "graphicresources/imageresourcessvg.h"
 #include "types/locationid.h"
 #include "textpixmap.h"
+#include "clickableandtooltiprects.h"
+#include "tooltips/tooltiptypes.h"
+#include "tooltips/tooltipcontroller.h"
 
 namespace  {
 
@@ -179,27 +182,66 @@ void CountryItemDelegate::updateCacheData(const QModelIndex &index, IItemCacheDa
 bool CountryItemDelegate::isForbiddenCursor(const QModelIndex &index) const
 {
     if (!index.isValid())
-    {
         return false;
-    }
 
     LocationID lid = qvariant_cast<LocationID>(index.data(kLocationId));
     if (!lid.isBestLocation())
-    {
-        // if no child items
-        return (!index.model()->index(0, 0, index).isValid());
-    }
+        return (!index.model()->index(0, 0, index).isValid());  // if no child items
+
     return false;
 }
 
-int CountryItemDelegate::isInClickableArea(const QModelIndex &index, const QPoint &point, const QRect &itemRect) const
+int CountryItemDelegate::isInClickableArea(const ItemStyleOption &option, const QModelIndex &index, const QPoint &point) const
 {
-    return -1;
+    return (int)ClickableRect::kNone;
 }
 
-int CountryItemDelegate::isInTooltipArea(const QModelIndex &index, const QPoint &point) const
+int CountryItemDelegate::isInTooltipArea(const ItemStyleOption &option, const QModelIndex &index, const QPoint &point, const IItemCacheData *cacheData) const
 {
-    return -1;
+    // p2p icon
+    if (index.data(kIsShowP2P).toBool()) {
+        if (p2pRect(option.rect).contains(point)) {
+            return (int)TooltipRect::kP2P;
+        }
+    }
+
+    return (int)TooltipRect::kNone;
+}
+
+void CountryItemDelegate::tooltipEnterEvent(const ItemStyleOption &option, const QModelIndex &index, int tooltipId, const IItemCacheData *cacheData) const
+{
+    Q_ASSERT(dynamic_cast<QWidget *>(option.styleObject) != nullptr);
+    if (tooltipId == (int)TooltipRect::kP2P) {
+        QWidget *widget = static_cast<QWidget *>(option.styleObject);
+        QRect rc = p2pRect(option.rect);
+        QPoint pt = widget->mapToGlobal(QPoint(rc.center().x(), rc.top() - 3*G_SCALE));
+        TooltipInfo ti(TOOLTIP_TYPE_BASIC, TOOLTIP_ID_LOCATIONS_P2P);
+        ti.x = pt.x();
+        ti.y = pt.y();
+        ti.title = widget->tr("File Sharing Frowned Upon");
+        ti.tailtype = TOOLTIP_TAIL_BOTTOM;
+        ti.tailPosPercent = 0.5;
+        TooltipController::instance().showTooltipBasic(ti);
+    } else {
+        Q_ASSERT(false);
+    }
+}
+
+void CountryItemDelegate::tooltipLeaveEvent(int tooltipId) const
+{
+    if (tooltipId == (int)TooltipRect::kP2P)
+        TooltipController::instance().hideTooltip(TOOLTIP_ID_LOCATIONS_P2P);
+    else
+        Q_ASSERT(false);
+}
+
+QRect CountryItemDelegate::p2pRect(const QRect &itemRect) const
+{
+    QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap("locations/NO_P2P_ICON");
+    return QRect(itemRect.width() - 65*G_SCALE + itemRect.left(),
+                (itemRect.height() - p->height()) / 2 + itemRect.top(),
+                 p->width(),
+                 p->height());
 }
 
 } // namespace gui_locations

@@ -9,12 +9,13 @@ namespace gui_locations {
 class ItemStyleOption : public QStyleOption
 {
 public:
-    explicit ItemStyleOption(const QRect &rc, double selectedOpacity, double expandedProgress, bool isShowLocationLoad, bool isShowLatencyInMs) :
+    explicit ItemStyleOption(QObject *object, const QRect &rc, double selectedOpacity, double expandedProgress, bool isShowLocationLoad, bool isShowLatencyInMs) :
         selectedOpacity_(selectedOpacity),
         expandedProgress_(expandedProgress),
         isShowLocationLoad_(isShowLocationLoad),
         isShowLatencyInMs_(isShowLatencyInMs)
     {
+        styleObject = object;
         rect = rc;
     }
 
@@ -63,9 +64,13 @@ public:
     virtual bool isForbiddenCursor(const QModelIndex &index) const = 0;
 
     // return -1 if point not in clickable area, otherwise, the ID of clickable area
-    virtual int isInClickableArea(const QModelIndex &index, const QPoint &point, const QRect &itemRect) const = 0;
+    virtual int isInClickableArea(const ItemStyleOption &option, const QModelIndex &index, const QPoint &point) const = 0;
     // return -1 if point not in tooltip area, otherwise, the ID of tooltip area
-    virtual int isInTooltipArea(const QModelIndex &index, const QPoint &point) const = 0;
+    virtual int isInTooltipArea(const ItemStyleOption &option, const QModelIndex &index, const QPoint &point, const IItemCacheData *cacheData) const = 0;
+
+    virtual void tooltipEnterEvent(const ItemStyleOption &option, const QModelIndex &index, int tooltipId, const IItemCacheData *cacheData) const = 0;
+    virtual void tooltipLeaveEvent(int tooltipId) const = 0;
+
 };
 
 } // namespace gui_locations

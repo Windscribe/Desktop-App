@@ -13,8 +13,15 @@ public:
     void updateCacheData(const QModelIndex &index, IItemCacheData *cacheData) const override;
     bool isForbiddenCursor(const QModelIndex &index) const override;
 
-    int isInClickableArea(const QModelIndex &index, const QPoint &point, const QRect &itemRect) const override;
-    int isInTooltipArea(const QModelIndex &index, const QPoint &point) const override;
+    int isInClickableArea(const ItemStyleOption &option, const QModelIndex &index, const QPoint &point) const override;
+    int isInTooltipArea(const ItemStyleOption &option, const QModelIndex &index, const QPoint &point, const IItemCacheData *cacheData) const override;
+
+    void tooltipEnterEvent(const ItemStyleOption &option, const QModelIndex &index, int tooltipId, const IItemCacheData *cacheData) const override;
+    void tooltipLeaveEvent(int tooltipId) const override;
+
+private:
+    QRect p2pRect(const QRect &itemRect) const;
+
 };
 
 } // namespace gui_locations
