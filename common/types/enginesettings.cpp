@@ -82,6 +82,7 @@ void EngineSettings::loadFromSettings()
 
     if (!bLoaded)
     {
+        qCDebug(LOG_BASIC) << "Could not load engine settings -- resetting to defaults";
         *this = EngineSettings();   // reset to defaults
     }
 
