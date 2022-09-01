@@ -3,6 +3,8 @@ target_sources(gui PRIVATE
     locationswindow.h
     widgetlocations/configfooterinfo.cpp
     widgetlocations/configfooterinfo.h
+    widgetlocations/emptylistwidget.cpp
+    widgetlocations/emptylistwidget.h
     widgetlocations/footertopstrip.cpp
     widgetlocations/footertopstrip.h
     widgetlocations/locationstab.cpp
@@ -13,4 +15,6 @@ target_sources(gui PRIVATE
     widgetlocations/staticipdeviceinfo.h
     widgetlocations/widgetlocationssizes.cpp
     widgetlocations/widgetlocationssizes.h
+    widgetlocations/widgetswitcher.cpp
+    widgetlocations/widgetswitcher.h
 )

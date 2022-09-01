@@ -23,6 +23,7 @@ public:
     void setShowLatencyInMs(bool isShowLatencyInMs);
     void setShowLocationLoad(bool isShowLocationLoad);
     void updateScaling();
+    bool isEmptyList() const { return widget_->isEmptyList(); }
 
     bool eventFilter(QObject *object, QEvent *event) override;
 
@@ -30,9 +31,9 @@ protected:
     void paintEvent(QPaintEvent *event) override;
     void resizeEvent(QResizeEvent *event) override;
 
-
 signals:
      void selected(const LocationID &lid);
+     void emptyListStateChanged(bool isEmptyList);
 
 private slots:
     void onScrollBarActionTriggered(int action);

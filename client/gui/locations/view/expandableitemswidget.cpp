@@ -16,6 +16,7 @@ namespace gui_locations {
 
 ExpandableItemsWidget::ExpandableItemsWidget(QWidget *parent, QAbstractItemModel *model) : QWidget(parent)
   , cursorUpdateHelper_(new CursorUpdateHelper(this))
+  , isEmptyList_(true)
   , itemHeight_(0)
   , isShowLatencyInMs_(false)
   , isShowLocationLoad_(false)
@@ -100,6 +101,9 @@ void ExpandableItemsWidget::setModel(QAbstractItemModel *model)
         // update cache data
         for (int i = topLeft.row(); i <= bottomRight.row(); ++i) {
             QPersistentModelIndex mi = model_->index(i, 0, topLeft.parent());
+            Q_ASSERT(mi.isValid());
+            Q_ASSERT(itemsCacheData_.contains(mi));
+            // FIXME: sometimes itemsCacheData_[mi] not found
             delegateForItem(mi)->updateCacheData(mi, itemsCacheData_[mi].get());
         }
         update();
@@ -446,6 +450,18 @@ void ExpandableItemsWidget::updateHeight()
         }
     }
     resize(size().width(), curHeight);
+
+    if (curHeight == 0) {
+        if (isEmptyList_ == false) {
+            isEmptyList_ = true;
+            emit emptyListStateChanged(true);
+        }
+    } else {
+        if (isEmptyList_ == true) {
+            isEmptyList_ = false;
+            emit emptyListStateChanged(false);
+        }
+    }
 }
 
 int ExpandableItemsWidget::calcHeightOfChildItems(const QPersistentModelIndex &ind)

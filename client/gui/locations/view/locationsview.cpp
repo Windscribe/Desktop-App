@@ -42,6 +42,9 @@ LocationsView::LocationsView(QWidget *parent, QAbstractItemModel *model) : QScro
     widget_->setItemHeight(qCeil(LOCATION_ITEM_HEIGHT * G_SCALE));
     connect(widget_, &ExpandableItemsWidget::expandingAnimationStarted, this, &LocationsView::onExpandingAnimationStarted);
     connect(widget_, &ExpandableItemsWidget::expandingAnimationProgress, this, &LocationsView::onExpandingAnimationProgress);
+    connect(widget_, &ExpandableItemsWidget::emptyListStateChanged, [this](bool isEmptyList) {
+       emit  emptyListStateChanged(isEmptyList);
+    });
 }
 
 LocationsView::~LocationsView()

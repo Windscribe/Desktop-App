@@ -7,11 +7,13 @@
 #include <QVariantAnimation>
 #include <QTimer>
 #include <QElapsedTimer>
+
 #include "locations/locationsmodel_manager.h"
-#include "locations/view/locationsview.h"
 #include "staticipdeviceinfo.h"
 #include "configfooterinfo.h"
 #include "commonwidgets/custommenulineedit.h"
+#include "widgetswitcher.h"
+
 
 namespace GuiLocations {
 
@@ -94,12 +96,10 @@ private slots:
     void onSearchLineEditFocusOut();
 private:
 
-    //IWidgetLocationsInfo *currentWidgetLocations();
-    //IWidgetLocationsInfo *locationWidgetByEnum(LocationTabEnum tabEnum);
-    gui_locations::LocationsView *widgetAllLocations_;
-    gui_locations::LocationsView *widgetConfiguredLocations_;
-    gui_locations::LocationsView *widgetStaticIpsLocations_;
-    gui_locations::LocationsView *widgetFavoriteLocations_;
+    WidgetSwitcher *widgetAllLocations_;
+    WidgetSwitcher *widgetConfiguredLocations_;
+    WidgetSwitcher *widgetStaticIpsLocations_;
+    WidgetSwitcher *widgetFavoriteLocations_;
 
     // ribbons
     StaticIPDeviceInfo *staticIPDeviceInfo_;

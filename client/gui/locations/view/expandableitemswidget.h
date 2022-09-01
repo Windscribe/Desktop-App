@@ -29,6 +29,8 @@ public:
 
     void updateSelectedItem();
 
+    bool isEmptyList() const { return isEmptyList_; }
+
 protected:
     void paintEvent(QPaintEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
@@ -42,6 +44,8 @@ signals:
     void expandingAnimationStarted(int top, int height);
     void expandingAnimationProgress(qreal progress);        // progress from 0 to 1
 
+    void emptyListStateChanged(bool isEmptyList);
+
 private slots:
     void onExpandingAnimationValueChanged(const QVariant &value);
     void onExpandingAnimationFinished();
@@ -49,6 +53,8 @@ private slots:
 private:
     static constexpr int kExpandingAnimationDuration = 200;
     QScopedPointer<CursorUpdateHelper> cursorUpdateHelper_;
+
+    bool isEmptyList_;
 
     int itemHeight_;
     bool isShowLatencyInMs_;

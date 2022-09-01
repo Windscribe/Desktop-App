@@ -65,26 +65,44 @@ LocationsTab::LocationsTab(QWidget *parent, gui_locations::LocationsModelManager
     curWhiteLinePos_ = (rcAllLocationsIcon_.center().x() + 1) * G_SCALE;
     connect(&whiteLineAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onWhiteLinePosChanged(QVariant)));
 
-    widgetAllLocations_ = new gui_locations::LocationsView(this, locationsModelManager->sortedLocationsProxyModel());
+    // all locations
+    gui_locations::LocationsView *viewAllLocations = new gui_locations::LocationsView(this, locationsModelManager->sortedLocationsProxyModel());
+    EmptyListWidget *emptyListWidgetAllLocations = new EmptyListWidget(this);
+    emptyListWidgetAllLocations->setText(tr("No locations"), 120);
+    widgetAllLocations_ = new WidgetSwitcher(this, viewAllLocations, emptyListWidgetAllLocations);
 
-    widgetConfiguredLocations_ = new gui_locations::LocationsView(this, locationsModelManager->customConfigsProxyModel());
-    // FIXME:
-    //widgetConfiguredLocations_->setEmptyListDisplayIcon("locations/FOLDER_ICON_BIG");
-    //connect(widgetConfiguredLocations_, SIGNAL(emptyListButtonClicked()),
-    //                                    SLOT(onAddCustomConfigClicked()));
+    // custom configs
+    gui_locations::LocationsView * viewConfiguredLocations = new gui_locations::LocationsView(this, locationsModelManager->customConfigsProxyModel());
+    EmptyListWidget *emptyListWidgetConfigured = new EmptyListWidget(this);
+    emptyListWidgetConfigured->setIcon("locations/FOLDER_ICON_BIG");
+    connect(emptyListWidgetConfigured, &EmptyListWidget::clicked, [this]() {
+        emit addCustomConfigClicked();
+    });
+    widgetConfiguredLocations_ = new WidgetSwitcher(this, viewConfiguredLocations, emptyListWidgetConfigured);
     widgetConfiguredLocations_->hide();
 
-    widgetStaticIpsLocations_ = new gui_locations::LocationsView(this, locationsModelManager->staticIpsProxyModel());
-    //widgetStaticIpsLocations_->setEmptyListDisplayIcon("locations/STATIC_IP_ICON_BIG");
-    //widgetStaticIpsLocations_->setEmptyListDisplayText(tr("You don't have any Static IPs"), 120);
-    //widgetStaticIpsLocations_->setEmptyListButtonText(tr("Buy"));
-    //connect(widgetStaticIpsLocations_, SIGNAL(emptyListButtonClicked()),
-    //                                   SIGNAL(addStaticIpClicked()));
+    // static IPs
+    gui_locations::LocationsView *viewStaticIpsLocations_ = new gui_locations::LocationsView(this, locationsModelManager->staticIpsProxyModel());
+    EmptyListWidget *emptyListWidgetStaticIps = new EmptyListWidget(this);
+    emptyListWidgetStaticIps->setIcon("locations/STATIC_IP_ICON_BIG");
+    emptyListWidgetStaticIps->setText(tr("You don't have any Static IPs"), 120);
+    emptyListWidgetStaticIps->setButton(tr("Buy"));
+    emptyListWidgetStaticIps->hide();
+    connect(emptyListWidgetStaticIps, &EmptyListWidget::clicked, [this]() {
+        emit addStaticIpClicked();
+    });
+    widgetStaticIpsLocations_ = new WidgetSwitcher(this, viewStaticIpsLocations_, emptyListWidgetStaticIps);
     widgetStaticIpsLocations_->hide();
+    connect(widgetStaticIpsLocations_, &WidgetSwitcher::widgetsSwicthed, [this]() {
+        updateRibbonVisibility();
+    });
 
-    widgetFavoriteLocations_ = new gui_locations::LocationsView(this, locationsModelManager->favoriteCitiesProxyModel());
-    //widgetFavoriteLocations_->setEmptyListDisplayIcon("locations/BROKEN_HEART_ICON");
-    //widgetFavoriteLocations_->setEmptyListDisplayText(tr("Nothing to see here..."), 120);
+    // favorites
+    gui_locations::LocationsView *viewFavoriteLocations_ = new gui_locations::LocationsView(this, locationsModelManager->favoriteCitiesProxyModel());
+    EmptyListWidget *emptyListWidgetFavorites = new EmptyListWidget(this);
+    emptyListWidgetFavorites->setIcon("locations/BROKEN_HEART_ICON");
+    emptyListWidgetFavorites->setText(tr("Nothing to see here..."), 120);
+    widgetFavoriteLocations_ = new WidgetSwitcher(this, viewFavoriteLocations_, emptyListWidgetFavorites);
     widgetFavoriteLocations_->hide();
 
     staticIPDeviceInfo_ = new StaticIPDeviceInfo(this);
@@ -95,15 +113,17 @@ LocationsTab::LocationsTab(QWidget *parent, gui_locations::LocationsModelManager
     configFooterInfo_->hide();
     connect(configFooterInfo_, SIGNAL(clearCustomConfigClicked()),
             SIGNAL(clearCustomConfigClicked()));
-    connect(configFooterInfo_, SIGNAL(addCustomConfigClicked()), SLOT(onAddCustomConfigClicked()));
+    connect(configFooterInfo_, SIGNAL(addCustomConfigClicked()), SIGNAL(addCustomConfigClicked()));
+
 
     updateLocationWidgetsGeometry(unscaledHeightOfItemViewport());
 
-    connect(widgetAllLocations_, SIGNAL(selected(LocationID)), SIGNAL(selected(LocationID)));
+    //FIXME:
+    /*connect(widgetAllLocations_, SIGNAL(selected(LocationID)), SIGNAL(selected(LocationID)));
     connect(widgetAllLocations_, SIGNAL(clickedOnPremiumStarCity()), SIGNAL(clickedOnPremiumStarCity()));
     connect(widgetConfiguredLocations_, SIGNAL(selected(LocationID)), SIGNAL(selected(LocationID)));
     connect(widgetStaticIpsLocations_, SIGNAL(selected(LocationID)), SIGNAL(selected(LocationID)));
-    connect(widgetFavoriteLocations_, SIGNAL(selected(LocationID)), SIGNAL(selected(LocationID)));
+    connect(widgetFavoriteLocations_, SIGNAL(selected(LocationID)), SIGNAL(selected(LocationID)));*/
 
     searchTypingDelayTimer_.setSingleShot(true);
     searchTypingDelayTimer_.setInterval(100);
@@ -888,18 +908,18 @@ int LocationsTab::unscaledHeightOfItemViewport()
 void LocationsTab::setLatencyDisplay(LATENCY_DISPLAY_TYPE l)
 {
     bool isShowLatencyInMs = (l == LATENCY_DISPLAY_MS);
-    widgetAllLocations_->setShowLatencyInMs(isShowLatencyInMs);
-    widgetConfiguredLocations_->setShowLatencyInMs(isShowLatencyInMs);
-    widgetStaticIpsLocations_->setShowLatencyInMs(isShowLatencyInMs);
-    widgetFavoriteLocations_->setShowLatencyInMs(isShowLatencyInMs);
+    widgetAllLocations_->locationsView()->setShowLatencyInMs(isShowLatencyInMs);
+    widgetConfiguredLocations_->locationsView()->setShowLatencyInMs(isShowLatencyInMs);
+    widgetStaticIpsLocations_->locationsView()->setShowLatencyInMs(isShowLatencyInMs);
+    widgetFavoriteLocations_->locationsView()->setShowLatencyInMs(isShowLatencyInMs);
 }
 
 void LocationsTab::setShowLocationLoad(bool showLocationLoad)
 {
-    widgetAllLocations_->setShowLocationLoad(showLocationLoad);
-    widgetConfiguredLocations_->setShowLocationLoad(showLocationLoad);
-    widgetStaticIpsLocations_->setShowLocationLoad(showLocationLoad);
-    widgetFavoriteLocations_->setShowLocationLoad(showLocationLoad);
+    widgetAllLocations_->locationsView()->setShowLocationLoad(showLocationLoad);
+    widgetConfiguredLocations_->locationsView()->setShowLocationLoad(showLocationLoad);
+    widgetStaticIpsLocations_->locationsView()->setShowLocationLoad(showLocationLoad);
+    widgetFavoriteLocations_->locationsView()->setShowLocationLoad(showLocationLoad);
 }
 
 void LocationsTab::setCustomConfigsPath(QString path)
@@ -926,42 +946,45 @@ void LocationsTab::rectHoverEnter(QRect buttonRect, QString text, int offsetX, i
 
 void LocationsTab::updateCustomConfigsEmptyListVisibility()
 {
-    /*Q_ASSERT(configFooterInfo_ != nullptr);
+    Q_ASSERT(configFooterInfo_ != nullptr);
     if (configFooterInfo_->text().isEmpty()) {
-        widgetConfiguredLocations_->setEmptyListDisplayText(
+        widgetConfiguredLocations_->emptyListWidget()->setText(
             tr("Choose the directory that contains custom configs you wish to display here"), 160);
-        widgetConfiguredLocations_->setEmptyListButtonText(tr("Choose"));
+        widgetConfiguredLocations_->emptyListWidget()->setButton(tr("Choose"));
     } else {
-        widgetConfiguredLocations_->setEmptyListDisplayText(
+        widgetConfiguredLocations_->emptyListWidget()->setText(
             tr("The selected directory contains no custom configs"), 160);
-        widgetConfiguredLocations_->setEmptyListButtonText(QString());
-    }*/
+        widgetConfiguredLocations_->emptyListWidget()->setButton(QString());
+    }
 }
 
 void LocationsTab::updateRibbonVisibility()
 {
-    //const bool is_location_list_empty = current_widget_locations->countViewportItems() <= 1;
-
     isRibbonVisible_ = false;
 
     if (curTab_ == LOCATION_TAB_STATIC_IPS_LOCATIONS)
     {
         configFooterInfo_->hide();
-        staticIPDeviceInfo_->show();
-        staticIPDeviceInfo_->raise();
-        isRibbonVisible_ = true;
+
+        if (widgetStaticIpsLocations_->locationsView()->isEmptyList()) {
+            staticIPDeviceInfo_->hide();
+        } else {
+            staticIPDeviceInfo_->show();
+            staticIPDeviceInfo_->raise();
+            isRibbonVisible_ = true;
+        }
     }
     else if (curTab_ == LOCATION_TAB_CONFIGURED_LOCATIONS)
     {
         staticIPDeviceInfo_->hide();
-        //const bool is_custom_configs_dir_set = !configFooterInfo_->text().isEmpty();
-        //if (!is_custom_configs_dir_set) {
-        //    configFooterInfo_->hide();
-        //} else {
+        const bool is_custom_configs_dir_set = !configFooterInfo_->text().isEmpty();
+        if (!is_custom_configs_dir_set) {
+            configFooterInfo_->hide();
+        } else {
             configFooterInfo_->show();
             configFooterInfo_->raise();
             isRibbonVisible_ = true;
-        //}
+        }
     }
     else
     {
