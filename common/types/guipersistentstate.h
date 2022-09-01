@@ -50,6 +50,7 @@ struct GuiPersistentState
 
         return stream;
     }
+
     friend QDataStream& operator >>(QDataStream& stream, GuiPersistentState& o)
     {
         quint32 version;
@@ -62,7 +63,12 @@ struct GuiPersistentState
 
         stream >> o.isFirewallOn >> o.windowOffsX >> o.windowOffsY >> o.countVisibleLocations >>
                   o.isFirstLogin >> o.isIgnoreCpuUsageWarnings >> o.lastLocation >> o.lastExternalIp >>
-                  o.networkWhiteList >> o.appGeometry;
+                  o.networkWhiteList;
+
+        if (version >= 2) {
+            stream >> o.appGeometry;
+        }
+
         return stream;
     }
 
