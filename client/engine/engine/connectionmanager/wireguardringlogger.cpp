@@ -143,7 +143,7 @@ void WireguardRingLogger::process(int index)
             tunnelRunning_ = true;
         }
 
-        if (message.startsWith("Handshake for peer") && message.contains("did not complete after")) {
+        if (message.contains("Handshake for peer") && message.contains("did not complete after")) {
             handshakeFailed_ = true;
         }
     }

@@ -1601,11 +1601,11 @@ std::optional<bool> WinUtils::haveInternetConnectivity()
     res = mgr->GetConnectivity(&connectivity);
 
     if (res != S_OK) {
-        qCDebug(LOG_BASIC) << "WinUtils::haveInternetConnectivity() INetworkListManager::GetConnectivity failed" << HRESULT_CODE(res);
+        qCDebug(LOG_BASIC) << "WinUtils::haveInternetConnectivity() GetConnectivity failed" << HRESULT_CODE(res);
         return std::nullopt;
     }
 
-    qCDebug(LOG_BASIC) << "**JDRM** INetworkListManager::GetConnectivity returned" << connectivity;
+    qCDebug(LOG_BASIC) << "WinUtils::haveInternetConnectivity() GetConnectivity returned" << connectivity;
 
     if ((connectivity & NLM_CONNECTIVITY_IPV4_INTERNET) || (connectivity & NLM_CONNECTIVITY_IPV6_INTERNET)) {
         return true;

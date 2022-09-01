@@ -273,7 +273,7 @@ void WireGuardConnection::onGetWireguardLogUpdates()
 
         // We must rely on the WireGuard service log to detect handshake failures.  The service itself does
         // not provide a mechanism for detecting such a failure.
-        if (wireguardLog_->handshakeFailed()) {
+        if (wireguardLog_->isTunnelRunning() && wireguardLog_->handshakeFailed()) {
             onWireguardHandshakeFailure();
         }
     }
@@ -336,15 +336,15 @@ void WireGuardConnection::onWireguardHandshakeFailure()
     if (*haveInternet)
     {
         types::WireGuardStatus status;
-        if (helper_->getWireGuardStatus(&status) && (status.lastHandshake > 0))
+        if (helper_->getWireGuardStatus(&status) && (status.state == types::WireGuardState::ACTIVE) && (status.lastHandshake > 0))
         {
             // The handshake should occur every ~2 minutes.  After 3 minutes, the server will discard our key
             // information and will silently reject anything we send to it until we make another wgconfig API call.
-            QDateTime lastHandshake = QDateTime::fromMSecsSinceEpoch(status.lastHandshake / 1000000, Qt::UTC);
+            QDateTime lastHandshake = QDateTime::fromSecsSinceEpoch((status.lastHandshake / 10000000) - 11644473600LL, Qt::UTC);
             qint64 secsTo = lastHandshake.secsTo(QDateTime::currentDateTimeUtc());
-            qCDebug(LOG_CONNECTION) << "**JDRM** last handshake at, secsTo" << lastHandshake.toString(Qt::ISODate) << secsTo;
+
             if (secsTo >= 3*60) {
-                qCDebug(LOG_CONNECTION) << secsTo << "seconds have passed since the last successful WireGuard handshake, shutting down the tunnel.";
+                qCDebug(LOG_CONNECTION) << secsTo << "seconds have passed since the last WireGuard handshake, shutting down the tunnel.";
                 quit();
             }
         }

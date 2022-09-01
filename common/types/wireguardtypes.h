@@ -19,7 +19,7 @@ struct WireGuardStatus
 {
     WireGuardState state;
     quint32 errorCode;
-    quint64 lastHandshake;
+    quint64 lastHandshake; /* On Windows: time of the last handshake, in 100ns intervals since 1601-01-01 UTC */
     quint64 bytesTransmitted;
     quint64 bytesReceived;
 };

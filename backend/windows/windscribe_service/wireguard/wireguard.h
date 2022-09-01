@@ -45,7 +45,7 @@ typedef _declspec(align(8)) struct _WG_IOCTL_PEER
 	SOCKADDR_INET Endpoint;
 	ULONG64 TxBytes;
 	ULONG64 RxBytes;
-	ULONG64 LastHandshake;
+	ULONG64 LastHandshake; /* Time of the last handshake, in 100ns intervals since 1601-01-01 UTC */
 	ULONG AllowedIPsCount;
 } WG_IOCTL_PEER;
 
