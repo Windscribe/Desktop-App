@@ -75,6 +75,10 @@ bool SessionStatus::initFromJson(QJsonObject &json, QString &outErrorMessage)
             }
         }
     }
+    else
+    {
+        d->static_ips_ = 0;
+    }
 
     d->isInitialized_ = true;
     return true;

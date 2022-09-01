@@ -34,7 +34,6 @@ std::vector<std::wstring> getOSDefaultDnsServers_NMCLI()
     }
 
     const QStringList lines = strReply.split('\n', Qt::SkipEmptyParts);
-    qCDebug(LOG_FIREWALL_CONTROLLER) << "Get OS default DNS list (nmcli output):" << lines;
     for (auto &it : lines)
     {
         const QStringList pars = it.split(QRegularExpression("\\s+"), Qt::SkipEmptyParts);
@@ -70,7 +69,6 @@ std::vector<std::wstring> getOSDefaultDnsServers_Resolvectl()
     }
 
     const QStringList lines = strReply.split('\n', Qt::SkipEmptyParts);
-    qCDebug(LOG_FIREWALL_CONTROLLER) << "Get OS default DNS list (resolvectl output):" << lines;
     for (auto &it : lines)
     {
         const QStringList pars = it.split(":", Qt::SkipEmptyParts);
