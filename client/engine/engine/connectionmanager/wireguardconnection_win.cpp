@@ -344,13 +344,13 @@ void WireGuardConnection::onWireguardHandshakeFailure()
             qint64 secsTo = lastHandshake.secsTo(QDateTime::currentDateTimeUtc());
 
             if (secsTo >= 3*60) {
-                qCDebug(LOG_CONNECTION) << secsTo << "seconds have passed since the last WireGuard handshake, shutting down the tunnel.";
+                qCDebug(LOG_CONNECTION) << secsTo << "seconds have passed since the last WireGuard handshake, disconnecting the tunnel.";
                 quit();
             }
         }
     }
     else {
-        qCDebug(LOG_CONNECTION) << "The WireGuard service reported a handshake failure and Windows reports no Internet connectivity, shutting down the tunnel.";
+        qCDebug(LOG_CONNECTION) << "The WireGuard service reported a handshake failure and Windows reports no Internet connectivity, disconnecting the tunnel.";
         quit();
     }
 }
