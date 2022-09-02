@@ -62,31 +62,21 @@ void ExpandableItemsWidget::setModel(QAbstractItemModel *model)
         updateExpandingAnimationParams();
         updateHeight();
         update();
+        debugAssertCheckInternalData();
     });
 
-    connect(model_, &QAbstractItemModel::rowsAboutToBeRemoved, [this](const QModelIndex &parent, int first, int last) {
-        if (!parent.isValid()) {
-            for (int i = first; i <= last; ++i)
-                clearCacheDataForChilds(model_->index(i, 0));
-        }
-        else {
-            for (int i = first; i <= last; ++i) {
-                QPersistentModelIndex childInd = model_->index(i, 0, parent);
-                itemsCacheData_.remove(childInd);
-            }
-        }
-    });
     connect(model_, &QAbstractItemModel::rowsRemoved, [this](const QModelIndex &parent, int first, int last) {
+        removeCacheDataForInvalidIndexes();
+        removeInvalidExpandedIndexes();
+
         if (!parent.isValid()) {
-            for (int i = first; i <= last; ++i) {
-                itemsCacheData_.remove(items_[i]);
-            }
             Q_ASSERT(last >= (first));
             items_.remove(first, last - first + 1);
         }
         updateExpandingAnimationParams();
         updateHeight();
         update();
+        debugAssertCheckInternalData();
     });
 
     connect(model_, &QAbstractItemModel::rowsMoved, [this]() {
@@ -110,11 +100,22 @@ void ExpandableItemsWidget::setModel(QAbstractItemModel *model)
     });
 
     connect(model_, &QAbstractItemModel::layoutChanged, [this]() {
-        // sort items by row
-        std::sort(items_.begin(), items_.end(), [](const QPersistentModelIndex & a, const QPersistentModelIndex & b) -> bool {
-            return a.row() < b.row();
-        });
+        removeCacheDataForInvalidIndexes();
+        removeInvalidExpandedIndexes();
+        items_.clear();
+        for (int i = 0, rows_cnt = model_->rowCount(); i < rows_cnt; ++i) {
+            QModelIndex mi = model_->index(i, 0);
+            items_ << mi;
+            if (!itemsCacheData_.contains(mi))
+                itemsCacheData_[mi] = QSharedPointer<IItemCacheData>(delegateForItem(mi)->createCacheData(mi));
+
+            initCacheDataForChilds(mi);
+        }
+
+        updateExpandingAnimationParams();
+        updateHeight();
         update();
+        debugAssertCheckInternalData();
     });
 
     resetItemsList();
@@ -192,6 +193,25 @@ void ExpandableItemsWidget::updateSelectedItem()
             }
         }
     }
+}
+
+void ExpandableItemsWidget::expandAll()
+{
+    stopExpandingAnimation();
+    expandedItems_.clear();
+    for (const auto &it : items_)
+        expandedItems_.insert(it);
+
+    updateHeight();
+    update();
+}
+
+void ExpandableItemsWidget::collapseAll()
+{
+    stopExpandingAnimation();
+    expandedItems_.clear();
+    updateHeight();
+    update();
 }
 
 void ExpandableItemsWidget::paintEvent(QPaintEvent *event)
@@ -361,12 +381,8 @@ void ExpandableItemsWidget::onExpandingAnimationFinished()
 
 void ExpandableItemsWidget::resetItemsList()
 {
-    if (expandingAnimation_.state() == QAbstractAnimation::Running)
-    {
-        expandingAnimation_.stop();
-        expandingItem_ = QModelIndex();
-        selectedInd_ = QModelIndex();
-    }
+    stopExpandingAnimation();
+    selectedInd_ = QModelIndex();
 
     items_.clear();
     itemsCacheData_.clear();
@@ -381,16 +397,15 @@ void ExpandableItemsWidget::resetItemsList()
 
     updateHeight();
     update();
+    debugAssertCheckInternalData();
 }
 
 QPersistentModelIndex ExpandableItemsWidget::detectSelectedItem(const QPoint &pt, QRect *outputRect)
 {
     int top = 0;
-    for (auto it : qAsConst(items_))
-    {
+    for (auto it : qAsConst(items_)) {
         QRect rcItem = QRect(0, top, size().width(), itemHeight_);
-        if (rcItem.contains(pt))
-        {
+        if (rcItem.contains(pt)) {
             if (outputRect) {
                 *outputRect = rcItem;
             }
@@ -398,15 +413,12 @@ QPersistentModelIndex ExpandableItemsWidget::detectSelectedItem(const QPoint &pt
         }
         top += itemHeight_;
 
-        if (expandedItems_.contains(it))
-        {
+        if (expandedItems_.contains(it)) {
             int row = 0;
             QModelIndex childInd = it.model()->index(row, 0, it);
-            while (childInd.isValid())
-            {
+            while (childInd.isValid()) {
                 QRect rcChildItem(0, top, size().width(), itemHeight_);
-                if (rcChildItem.contains(pt))
-                {
+                if (rcChildItem.contains(pt)) {
                     if (outputRect) {
                         *outputRect = rcChildItem;
                     }
@@ -417,7 +429,6 @@ QPersistentModelIndex ExpandableItemsWidget::detectSelectedItem(const QPoint &pt
                 childInd = it.model()->index(row, 0, it);
             }
         }
-
     }
     return QPersistentModelIndex();
 }
@@ -425,11 +436,10 @@ QPersistentModelIndex ExpandableItemsWidget::detectSelectedItem(const QPoint &pt
 IItemDelegate *ExpandableItemsWidget::delegateForItem(const QPersistentModelIndex &ind)
 {
     // Is it an expandable item?
-    if (isExpandableItem(ind)) {
+    if (isExpandableItem(ind))
         return expandableItemDelegate_;
-    } else {
+    else
         return nonexpandableItemDelegate_;
-    }
 }
 
 bool ExpandableItemsWidget::isExpandableItem(const QPersistentModelIndex &ind)
@@ -488,7 +498,9 @@ void ExpandableItemsWidget::initCacheDataForChilds(const QPersistentModelIndex &
     for (int c = 0, childs_cnt = model_->rowCount(parentInd); c < childs_cnt; ++c )
     {
         QModelIndex childMi = model_->index(c, 0, parentInd);
-        itemsCacheData_[childMi] = QSharedPointer<IItemCacheData>(delegateForItem(childMi)->createCacheData(childMi));
+        if (!itemsCacheData_.contains(childMi)) {
+            itemsCacheData_[childMi] = QSharedPointer<IItemCacheData>(delegateForItem(childMi)->createCacheData(childMi));
+        }
     }
 }
 
@@ -562,6 +574,69 @@ void ExpandableItemsWidget::closeAndClearAllActiveTooltips(const QPersistentMode
         delegateForItem(modelIndex)->tooltipLeaveEvent(id);
     }
     hoveringToolTips_.clear();
+}
+
+void ExpandableItemsWidget::removeInvalidExpandedIndexes()
+{
+    // remove expanded items for invalid indexes
+    for (auto it = expandedItems_.begin(); it != expandedItems_.end(); /*it++*/) {
+        if (!it->isValid())
+            it = expandedItems_.erase(it);
+        else
+            ++it;
+    }
+}
+
+void ExpandableItemsWidget::removeCacheDataForInvalidIndexes()
+{
+    // remove cache data for invalid indexes
+    for (auto it = itemsCacheData_.begin(); it != itemsCacheData_.end(); /*it++*/) {
+        if (!it.key().isValid())
+            it = itemsCacheData_.erase(it);
+        else
+            ++it;
+    }
+}
+
+void ExpandableItemsWidget::debugAssertCheckInternalData()
+{
+#ifdef QT_DEBUG
+    int cnt = 0;
+    for (int r = 0, cntRows = model_->rowCount(); r < cntRows; ++r) {
+        QModelIndex parentMi = model_->index(r, 0);
+        Q_ASSERT(itemsCacheData_.contains(parentMi));
+        cnt++;
+
+        for (int c = 0, cntChildRows = model_->rowCount(parentMi); c < cntChildRows; ++c) {
+            QModelIndex childMi = model_->index(c, 0, parentMi);
+            Q_ASSERT(itemsCacheData_.contains(childMi));
+            cnt++;
+        }
+    }
+    Q_ASSERT(cnt == itemsCacheData_.count());
+
+    for (auto it : items_) {
+        Q_ASSERT(it.isValid());
+    }
+
+    for (auto it : expandedItems_) {
+        Q_ASSERT(it.isValid());
+    }
+
+    if (expandingAnimation_.state() == QAbstractAnimation::Running)
+    {
+        Q_ASSERT(expandingItem_.isValid());
+    }
+
+#endif
+}
+
+void ExpandableItemsWidget::stopExpandingAnimation()
+{
+    if (expandingAnimation_.state() == QAbstractAnimation::Running) {
+        expandingAnimation_.stop();
+        expandingItem_ = QModelIndex();
+    }
 }
 
 

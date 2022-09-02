@@ -95,17 +95,18 @@ private slots:
     void onSearchLineEditTextChanged(QString text);
     void onSearchLineEditFocusOut();
 private:
+    gui_locations::LocationsModelManager *locationsModelManager_;
 
     WidgetSwitcher *widgetAllLocations_;
     WidgetSwitcher *widgetConfiguredLocations_;
     WidgetSwitcher *widgetStaticIpsLocations_;
     WidgetSwitcher *widgetFavoriteLocations_;
+    WidgetSwitcher *widgetSearchLocations_;
 
     // ribbons
     StaticIPDeviceInfo *staticIPDeviceInfo_;
     ConfigFooterInfo *configFooterInfo_;
 
-    //Backend &backend_;
     LocationTabEnum curTab_;
     LocationTabEnum lastTab_;
     LocationTabEnum tabPress_;

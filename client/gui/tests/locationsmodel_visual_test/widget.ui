@@ -115,6 +115,9 @@
      <item row="1" column="1">
       <layout class="QVBoxLayout" name="verticalLayout_6">
        <item>
+        <widget class="QLineEdit" name="lineEdit"/>
+       </item>
+       <item>
         <widget class="QLabel" name="label_6">
          <property name="text">
           <string>WidgetLocations</string>

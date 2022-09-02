@@ -25,6 +25,7 @@ public:
 
     QAbstractItemModel *locationsModel() { return locationsModel_; }
     QAbstractItemModel *sortedLocationsProxyModel() { return sortedLocationsProxyModel_; }
+    QAbstractItemModel *filterLocationsProxyModel() { return filterLocationsProxyModel_; }
     QAbstractItemModel *favoriteCitiesProxyModel() { return favoriteCitiesProxyModel_; }
     QAbstractItemModel *staticIpsProxyModel() { return staticIpsProxyModel_; }
     QAbstractItemModel *customConfigsProxyModel() { return customConfigsProxyModel_; }
@@ -40,10 +41,8 @@ public:
     LocationID findGenericLocationByTitle(const QString &title) const;
     LocationID findCustomConfigLocationByTitle(const QString &title) const;
 
-    int getNumGenericLocations() const;
-    int getNumFavoriteLocations() const;
-    int getNumStaticIPLocations() const;
-    int getNumCustomConfigLocations() const;
+    // Sets filtering to filterLocationsProxyModel_
+    void setFilterString(const QString &filterString);
 
     void saveFavoriteLocations();
 
@@ -56,6 +55,7 @@ private slots:
 private:
     LocationsModel *locationsModel_;
     SortedLocationsProxyModel *sortedLocationsProxyModel_;
+    SortedLocationsProxyModel *filterLocationsProxyModel_;
     SortedCitiesProxyModel *sortedCitiesProxyModel_;
     QAbstractProxyModel *citiesProxyModel_;
     QAbstractProxyModel *favoriteCitiesProxyModel_;

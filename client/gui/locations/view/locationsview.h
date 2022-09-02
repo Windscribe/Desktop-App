@@ -25,6 +25,10 @@ public:
     void updateScaling();
     bool isEmptyList() const { return widget_->isEmptyList(); }
 
+    void expandAll() { widget_->expandAll(); }
+    void collapseAll() { widget_->collapseAll(); }
+    void scrollToTop();
+
     bool eventFilter(QObject *object, QEvent *event) override;
 
 protected:

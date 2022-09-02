@@ -18,6 +18,14 @@ void SortedLocationsProxyModel::setLocationOrder(ORDER_LOCATION_TYPE orderLocati
     }
 }
 
+void SortedLocationsProxyModel::setFilter(const QString &filter)
+{
+    if (filter != filter_) {
+        filter_ = filter;
+        invalidate();
+    }
+}
+
 bool SortedLocationsProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
 {
     if (orderLocationsType_ == ORDER_LOCATION_BY_GEOGRAPHY)
@@ -44,7 +52,35 @@ bool SortedLocationsProxyModel::filterAcceptsRow(int source_row, const QModelInd
     QModelIndex mi = sourceModel()->index(source_row, 0, source_parent);
     QVariant v = sourceModel()->data(mi, kLocationId);
     LocationID lid = qvariant_cast<LocationID>(v);
-    return !lid.isStaticIpsLocation() && !lid.isCustomConfigsLocation();
+    if (lid.isStaticIpsLocation() || lid.isCustomConfigsLocation())
+        return false;
+
+    if (filter_.isEmpty())
+        return true;
+
+    //  filtering by search string
+    if (!source_parent.isValid()) {   // country
+        QModelIndex mi = sourceModel()->index(source_row, 0, source_parent);
+        if (mi.data().toString().contains(filter_, Qt::CaseInsensitive))
+            return true;
+
+        for (int i = 0, cnt = sourceModel()->rowCount(mi); i < cnt; ++i) {
+            QModelIndex childMi = sourceModel()->index(i, 0, mi);
+            if (childMi.data().toString().contains(filter_, Qt::CaseInsensitive))
+                return true;
+        }
+
+    } else {    // city
+        if (source_parent.data().toString().contains(filter_, Qt::CaseInsensitive))
+            return true;
+
+        QModelIndex childMi = sourceModel()->index(source_row, 0, source_parent);
+        if (childMi.data().toString().contains(filter_, Qt::CaseInsensitive))
+            return true;
+    }
+
+    return false;
+
 }
 
 bool SortedLocationsProxyModel::lessThanByGeography(const QModelIndex &left, const QModelIndex &right) const

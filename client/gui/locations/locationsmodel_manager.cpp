@@ -17,6 +17,10 @@ LocationsModelManager::LocationsModelManager(QObject *parent) : QObject(parent)
     sortedLocationsProxyModel_->setSourceModel(locationsModel_);
     sortedLocationsProxyModel_->sort(0);
 
+    filterLocationsProxyModel_ = new SortedLocationsProxyModel(this);
+    filterLocationsProxyModel_->setSourceModel(locationsModel_);
+    filterLocationsProxyModel_->sort(0);
+
     citiesProxyModel_ = new CitiesProxyModel(this);
     citiesProxyModel_->setSourceModel(locationsModel_);
 
@@ -72,6 +76,7 @@ void LocationsModelManager::setLocationOrder(ORDER_LOCATION_TYPE orderLocationTy
 {
     sortedLocationsProxyModel_->setLocationOrder(orderLocationType);
     sortedCitiesProxyModel_->setLocationOrder(orderLocationType);
+    filterLocationsProxyModel_->setLocationOrder(orderLocationType);
 }
 
 void LocationsModelManager::setFreeSessionStatus(bool isFreeSessionStatus)
@@ -123,28 +128,9 @@ LocationID LocationsModelManager::findCustomConfigLocationByTitle(const QString 
     return LocationID();
 }
 
-int LocationsModelManager::getNumGenericLocations() const
+void LocationsModelManager::setFilterString(const QString &filterString)
 {
-    Q_ASSERT(false);
-    return 0;
-}
-
-int LocationsModelManager::getNumFavoriteLocations() const
-{
-    Q_ASSERT(false);
-    return 0;
-}
-
-int LocationsModelManager::getNumStaticIPLocations() const
-{
-    Q_ASSERT(false);
-    return 0;
-}
-
-int LocationsModelManager::getNumCustomConfigLocations() const
-{
-    Q_ASSERT(false);
-    return 0;
+    filterLocationsProxyModel_->setFilter(filterString);
 }
 
 void LocationsModelManager::saveFavoriteLocations()

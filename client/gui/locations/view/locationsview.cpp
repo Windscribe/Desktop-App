@@ -69,6 +69,12 @@ void LocationsView::updateScaling()
     scrollBar_->updateCustomStyleSheet();
 }
 
+void LocationsView::scrollToTop()
+{
+    lastScrollTargetPos_ = 0;
+    scrollBar_->setValue(lastScrollTargetPos_, true);
+}
+
 bool LocationsView::eventFilter(QObject *object, QEvent *event)
 {
     if (object == scrollBar_ && event->type() == QEvent::Wheel)

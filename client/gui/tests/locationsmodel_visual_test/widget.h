@@ -4,6 +4,7 @@
 #include <QWidget>
 #include "../../locations/model/locationsmodel.h"
 #include "../../locations/view/locationsview.h"
+#include "locations/model/proxymodels/sortedlocations_proxymodel.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class Widget; }
@@ -22,6 +23,7 @@ private:
     Ui::Widget *ui;
 
     gui_locations::LocationsModel *locationsModel_;
+    gui_locations::SortedLocationsProxyModel *sortedLocationsModel_;
 
     QVector<types::Location> currentLocations_;
     QVector<types::Location> testOriginal_;
@@ -42,5 +44,6 @@ private:
 
     void updateLocations(const LocationID &bestLocation, const QVector<types::Location> &newLocations);
     QVector<types::Location> generateRandomLocations();
+
 };
 #endif // WIDGET_H

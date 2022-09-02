@@ -3,7 +3,6 @@
 #include <QClipboard>
 #include <QFile>
 #include "utils/utils.h"
-#include "locations/model/proxymodels/sortedlocations_proxymodel.h"
 #include "locations/model/proxymodels/cities_proxymodel.h"
 #include "locations/model/proxymodels/sortedcities_proxymodel.h"
 #include "locations/model/proxymodels/staticips_proxymodel.h"
@@ -89,10 +88,10 @@ Widget::Widget(QWidget *parent)
     new QAbstractItemModelTester(locationsModel_, QAbstractItemModelTester::FailureReportingMode::Fatal, this);
     ui->treeViewLocations->setModel(locationsModel_);
 
-    gui_locations::SortedLocationsProxyModel *sortedLocationsModel = new gui_locations::SortedLocationsProxyModel(this);
-    sortedLocationsModel->setSourceModel(locationsModel_);
-    sortedLocationsModel->sort(0);
-    ui->treeViewSortedLocations->setModel(sortedLocationsModel);
+    sortedLocationsModel_ = new gui_locations::SortedLocationsProxyModel(this);
+    sortedLocationsModel_->setSourceModel(locationsModel_);
+    sortedLocationsModel_->sort(0);
+    ui->treeViewSortedLocations->setModel(sortedLocationsModel_);
 
     gui_locations::CitiesProxyModel *citiesModel = new gui_locations::CitiesProxyModel(this);
     new QAbstractItemModelTester(citiesModel, QAbstractItemModelTester::FailureReportingMode::Fatal, this);
@@ -113,15 +112,25 @@ Widget::Widget(QWidget *parent)
     customConfigModel->setSourceModel(sortedCitiesModel);
     ui->listViewCustomConfig->setModel(customConfigModel);
 
-    locationsView_ = new gui_locations::LocationsView(this, sortedLocationsModel);
-    locationsView_->setFixedSize(508, 400);
-    locationsView_->updateScaling();
-    ui->verticalLayout_6->addWidget(locationsView_);
+    //filterProxyModel_ = new gui_locations::FilterProxyModel(this);
+    //filterProxyModel_->setSourceModel(sortedLocationsModel);
+
+//    locationsView_ = new gui_locations::LocationsView(this, filterProxyModel_);
+//    locationsView_->setFixedSize(508, 450);
+//    locationsView_->updateScaling();
+//    ui->verticalLayout_6->addWidget(locationsView_);
+
+    //filterProxyModel_->setFilter("Ca");
+    //ui->treeViewSortedLocations->setModel(filterProxyModel_);
 
 
     locationsModel_->updateLocations(LocationID(), testOriginal_);
     locationsModel_->updateCustomConfigLocation(customConfigLocation_);
     currentLocations_ = testOriginal_;
+
+    connect(ui->lineEdit, &QLineEdit::textChanged, [this](const QString &text) {
+       sortedLocationsModel_->setFilter(text);
+    });
 
 
     connect(ui->btnOriginal, &QPushButton::clicked,
@@ -231,9 +240,23 @@ Widget::Widget(QWidget *parent)
     connect(ui->cbSort, &QComboBox::currentIndexChanged,
             [=](int index)
     {
-        sortedLocationsModel->setLocationOrder((ORDER_LOCATION_TYPE)index);
+        sortedLocationsModel_->setLocationOrder((ORDER_LOCATION_TYPE)index);
         sortedCitiesModel->setLocationOrder((ORDER_LOCATION_TYPE)index);
     });
+
+    QTimer *timer = new QTimer(this);
+    connect(timer, &QTimer::timeout, [this] {
+        int i = Utils::generateIntegerRandom(0, 6);
+        if (i == 0) updateLocations(LocationID(), testOriginal_);
+        else if (i == 1) updateLocations(LocationID(), testDeletedLocations_);
+        else if (i == 2) updateLocations(LocationID(), testDeletedCities_);
+        else if (i == 3) updateLocations(LocationID(), testChangedLocationsCaptions_);
+        else if (i == 4) updateLocations(LocationID(), testChangedCitiesCaptions_);
+        else if (i == 5) updateLocations(LocationID(), testChangedLocationsOrder_);
+        else if (i == 6) updateLocations(LocationID(), testChangedCitiesOrder_);
+
+    });
+    timer->start(100);
 }
 
 Widget::~Widget()

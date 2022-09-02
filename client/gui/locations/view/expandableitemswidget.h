@@ -29,6 +29,9 @@ public:
 
     void updateSelectedItem();
 
+    void expandAll();
+    void collapseAll();
+
     bool isEmptyList() const { return isEmptyList_; }
 
 protected:
@@ -97,6 +100,11 @@ private:
     void updateExpandingAnimationParams();
     void setupExpandingAnimation(QAbstractAnimation::Direction direction, int startValue, int endValue, int duration);
     void closeAndClearAllActiveTooltips(const QPersistentModelIndex &modelIndex);
+
+    void removeInvalidExpandedIndexes();
+    void removeCacheDataForInvalidIndexes();
+    void debugAssertCheckInternalData();   // for debug purposes
+    void stopExpandingAnimation();
 };
 
 } // namespace gui_locations
