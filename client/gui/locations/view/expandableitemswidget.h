@@ -11,7 +11,6 @@ namespace gui_locations {
 
 // widget where items of QAbstractItemModel are drawn, supports animated expansion
 // supports tree with one level of children or list
-// the size of the widget changes through the setMinimumSize() function
 class ExpandableItemsWidget : public QWidget
 {
     Q_OBJECT
@@ -42,10 +41,8 @@ protected:
     void leaveEvent(QEvent *event) override;
 
 signals:
-    // the expanding items should be visible so sending these signals to LocationsView
-    // to update the scroll position.
+    // the expanding items should be visible so send this signal to LocationsView to update the scroll position.
     void expandingAnimationStarted(int top, int height);
-    void expandingAnimationProgress(qreal progress);        // progress from 0 to 1
 
     void emptyListStateChanged(bool isEmptyList);
 

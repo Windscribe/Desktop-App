@@ -16,15 +16,19 @@ ScrollBar::ScrollBar(QWidget *parent) : QScrollBar(parent)
   , targetValue_(0)
   , curOpacity_(OPACITY_HALF)
 {
-    anim_.setTargetObject(this);
-    anim_.setPropertyName("value");
-    anim_.setEasingCurve(QEasingCurve::OutQuint);
-    anim_.setDuration(kScrollAnimationDiration);
-
-    setStyleSheet(customStyleSheet());
+    scrollAnimation_.setEasingCurve(QEasingCurve::OutQuint);
+    scrollAnimation_.setDuration(kScrollAnimationDiration);
+    connect(&scrollAnimation_, &QVariantAnimation::valueChanged, [this](const QVariant &value) {
+        this->setValue(value.toInt());
+    });
 
     opacityAnimation_.setDuration(250);
-    connect(&opacityAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onOpacityAnimationValueChanged(QVariant)));
+    connect(&opacityAnimation_, &QVariantAnimation::valueChanged,[this](const QVariant &value) {
+        curOpacity_ = value.toDouble();
+        update();
+    });
+
+    setStyleSheet(customStyleSheet());
 }
 
 void ScrollBar::paintEvent(QPaintEvent *event)
@@ -56,17 +60,32 @@ void ScrollBar::updateCustomStyleSheet()
     update();
 }
 
-void ScrollBar::setValue(int value, bool bWithoutAnimation)
+void ScrollBar::setValueWithAnimation(int value)
 {
-    if (bWithoutAnimation) {
-        anim_.stop();
-        QScrollBar::setValue(value);
-    } else {
-        anim_.stop();
-        anim_.setStartValue((double)this->value());
-        anim_.setEndValue((double)value);
-        anim_.start();
-    }
+    scrollAnimation_.stop();
+    scrollAnimation_.setStartValue((double)this->value());
+    scrollAnimation_.setEndValue((double)value);
+    targetValue_ = value;
+    scrollAnimation_.start();
+}
+
+void ScrollBar::setValueWithoutAnimation(int value)
+{
+    scrollAnimation_.stop();
+    targetValue_ = value;
+    QScrollBar::setValue(value);
+}
+
+void ScrollBar::scrollDx(int delta)
+{
+    if (scrollAnimation_.state() == QAbstractAnimation::Running)
+        targetValue_ += delta;
+    else
+        targetValue_ = this->value() + delta;
+
+    targetValue_ = qMax(targetValue_, this->minimum());
+    targetValue_ = qMin(targetValue_, this->maximum());
+    setValueWithAnimation(targetValue_);
 }
 
 void ScrollBar::enterEvent(QEnterEvent *event)
@@ -91,12 +110,6 @@ void ScrollBar::resizeEvent(QResizeEvent *event)
 {
     QScrollBar::resizeEvent(event);
     updateCustomStyleSheet();
-}
-
-void ScrollBar::onOpacityAnimationValueChanged(const QVariant &value)
-{
-    curOpacity_ = value.toDouble();
-    update();
 }
 
 QString ScrollBar::customStyleSheet()

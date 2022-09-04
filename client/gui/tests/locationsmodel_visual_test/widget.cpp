@@ -112,17 +112,10 @@ Widget::Widget(QWidget *parent)
     customConfigModel->setSourceModel(sortedCitiesModel);
     ui->listViewCustomConfig->setModel(customConfigModel);
 
-    //filterProxyModel_ = new gui_locations::FilterProxyModel(this);
-    //filterProxyModel_->setSourceModel(sortedLocationsModel);
-
-//    locationsView_ = new gui_locations::LocationsView(this, filterProxyModel_);
-//    locationsView_->setFixedSize(508, 450);
-//    locationsView_->updateScaling();
-//    ui->verticalLayout_6->addWidget(locationsView_);
-
-    //filterProxyModel_->setFilter("Ca");
-    //ui->treeViewSortedLocations->setModel(filterProxyModel_);
-
+    locationsView_ = new gui_locations::LocationsView(this, sortedLocationsModel_);
+    locationsView_->setFixedSize(508, 450);
+    locationsView_->updateScaling();
+    ui->verticalLayout_6->addWidget(locationsView_);
 
     locationsModel_->updateLocations(LocationID(), testOriginal_);
     locationsModel_->updateCustomConfigLocation(customConfigLocation_);
@@ -256,7 +249,7 @@ Widget::Widget(QWidget *parent)
         else if (i == 6) updateLocations(LocationID(), testChangedCitiesOrder_);
 
     });
-    timer->start(100);
+    //timer->start(100);
 }
 
 Widget::~Widget()

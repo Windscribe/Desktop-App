@@ -8,6 +8,7 @@
 
 namespace gui_locations {
 
+// Scroll bar with the custom style and and support for smooth scrolling animation
 class ScrollBar : public QScrollBar
 {
     Q_OBJECT
@@ -16,7 +17,9 @@ public:
     void updateCustomStyleSheet();
 
 public slots:
-    void setValue(int value, bool bWithoutAnimation = false);
+    void setValueWithAnimation(int value);
+    void setValueWithoutAnimation(int value);
+    void scrollDx(int delta);
 
 protected:
     void paintEvent(QPaintEvent *event) override;
@@ -24,17 +27,13 @@ protected:
     void leaveEvent(QEvent *event) override;
     void resizeEvent(QResizeEvent *event) override;
 
-private slots:
-    void onOpacityAnimationValueChanged(const QVariant &value);
-
 private:
-    const double SCROLL_SPEED_FRACTION = 0.5;
-    const int MINIMUM_DURATION = 200;
     static constexpr int kScrollAnimationDiration = 800;
-    double curOpacity_;
-    QVariantAnimation opacityAnimation_;
-    QPropertyAnimation anim_;
+    QVariantAnimation scrollAnimation_;
     int targetValue_;
+
+    QVariantAnimation opacityAnimation_;
+    double curOpacity_;
 
     QString customStyleSheet();
     int customPaddingWidth();

@@ -446,9 +446,10 @@ void LocationsTab::onClickSearchLocations()
     widgetStaticIpsLocations_->hide();
     widgetFavoriteLocations_->hide();
     widgetAllLocations_->hide();
+    widgetSearchLocations_->locationsView()->collapseAll();
+    widgetSearchLocations_->locationsView()->scrollToTop();
     widgetSearchLocations_->show();
     widgetSearchLocations_->raise();
-    widgetSearchLocations_->locationsView()->scrollToTop();
     updateRibbonVisibility();
 }
 

@@ -41,9 +41,7 @@ signals:
 
 private slots:
     void onScrollBarActionTriggered(int action);
-
     void onExpandingAnimationStarted(int top, int height);
-    void onExpandingAnimationProgress(qreal progress);
 
 private:
     static constexpr int kScrollBarWidth = 8;
@@ -52,19 +50,7 @@ private:
     CountryItemDelegate *countryItemDelegate_;  // todo move outside class
     CityItemDelegate *cityItemDelegate_;        // todo move outside class
     ScrollBar *scrollBar_;
-    int lastScrollTargetPos_;
 
-    struct {
-        int top = 0;
-        int height = 0;
-        int topItemInvisiblePart = 0;
-    } expandingAnimationParams_;
-
-    // when we start the scroll animation we have to forbid the expanding animation
-    // so that we don't have animation collisions
-    bool isExpandingAnimationForbidden_;
-
-    void adjustPosBetweenMinAndMax(int &pos);
     void ensureVisible(int top, int bottom);
 };
 

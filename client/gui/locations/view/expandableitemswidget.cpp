@@ -216,6 +216,7 @@ void ExpandableItemsWidget::collapseAll()
 
 void ExpandableItemsWidget::paintEvent(QPaintEvent *event)
 {
+    //FIXME: remove
     QElapsedTimer elapsed;
     elapsed.start();
 
@@ -284,11 +285,36 @@ void ExpandableItemsWidget::mousePressEvent(QMouseEvent *event)
     {
         QRect rcItem;
         mousePressedItem_ = detectSelectedItem(event->pos(), &rcItem);
-        if (mousePressedItem_.isValid())
-        {
+        if (mousePressedItem_.isValid()) {
             ItemStyleOption opt(this, rcItem, 1.0, 0, isShowLocationLoad_, isShowLatencyInMs_);
             mousePressedClickableId_ = delegateForItem(mousePressedItem_)->isInClickableArea(opt, mousePressedItem_, event->pos());
-            bMousePressed_ = true;
+
+            if (isExpandableItem(mousePressedItem_)) {
+                if (expandingAnimation_.state() != QAbstractAnimation::Running) {
+                    if (expandedItems_.contains(mousePressedItem_)) {
+                        expandingItem_ = mousePressedItem_;
+                        expandingCurrentHeight_ = calcHeightOfChildItems(expandingItem_);
+                        setupExpandingAnimation(QAbstractAnimation::Backward, 0, expandingCurrentHeight_, kExpandingAnimationDuration);
+                        emit expandingAnimationStarted(0, 0);        // top, bottom values are not needed when collapsing
+                        expandingAnimation_.start();
+                    } else {
+                        isAnimationJustStarted_ = true;
+                        expandedItems_.insert(mousePressedItem_);
+                        expandingItem_ = mousePressedItem_;
+                        expandingCurrentHeight_ = 0;
+                        int heightOfChilds = calcHeightOfChildItems(expandingItem_);
+                        setupExpandingAnimation(QAbstractAnimation::Forward, 0, heightOfChilds, kExpandingAnimationDuration);
+                        int offs = getOffsForItem(expandingItem_);
+                        emit expandingAnimationStarted(offs, heightOfChilds);
+                        expandingAnimation_.start();
+                    }
+                    updateHeight();
+                    update();
+                }
+            }
+            else {
+                bMousePressed_ = true;
+            }
         }
     }
 
@@ -301,32 +327,7 @@ void ExpandableItemsWidget::mouseReleaseEvent(QMouseEvent *event)
         QRect rcItem;
         if (mousePressedItem_ == detectSelectedItem(event->pos(), &rcItem)) {
             if (isExpandableItem(mousePressedItem_)) {
-                if (expandingAnimation_.state() != QAbstractAnimation::Running) {
-
-                    if (expandedItems_.contains(mousePressedItem_))
-                    {
-                        expandingItem_ = mousePressedItem_;
-                        expandingCurrentHeight_ = calcHeightOfChildItems(expandingItem_);
-                        setupExpandingAnimation(QAbstractAnimation::Backward, 0, expandingCurrentHeight_, kExpandingAnimationDuration);
-                        emit expandingAnimationStarted(0, 0);        // top, bottom values are not needed when collapsing
-                        expandingAnimation_.start();
-                    }
-                    else
-                    {
-                        isAnimationJustStarted_ = true;
-                        expandedItems_.insert(mousePressedItem_);
-                        expandingItem_ = mousePressedItem_;
-                        expandingCurrentHeight_ = 0;
-                        int heightOfChilds = calcHeightOfChildItems(expandingItem_);
-                        setupExpandingAnimation(QAbstractAnimation::Forward, 0, heightOfChilds, kExpandingAnimationDuration);
-                        int offs = getOffsForItem(expandingItem_);
-                        emit expandingAnimationStarted(offs, heightOfChilds);
-                        expandingAnimation_.start();
-                    }
-
-                    updateHeight();
-                    update();
-                }
+                Q_ASSERT(false);    // The expanding/collapsing must have already been processed in mousePressEvent
             }
             else    // non expandable item
             {
@@ -361,11 +362,6 @@ void ExpandableItemsWidget::onExpandingAnimationValueChanged(const QVariant &val
     expandingCurrentHeight_ = value.toInt();
     updateHeight();
     update();
-
-    // Makes sense only for expanding.
-    if (expandingAnimation_.direction() == QAbstractAnimation::Forward) {
-        emit expandingAnimationProgress((qreal)expandingAnimation_.currentTime() / (qreal)expandingAnimation_.duration());
-    }
 }
 
 void ExpandableItemsWidget::onExpandingAnimationFinished()
@@ -615,11 +611,11 @@ void ExpandableItemsWidget::debugAssertCheckInternalData()
     }
     Q_ASSERT(cnt == itemsCacheData_.count());
 
-    for (auto it : items_) {
+    for (const auto &it : items_) {
         Q_ASSERT(it.isValid());
     }
 
-    for (auto it : expandedItems_) {
+    for (const auto &it : expandedItems_) {
         Q_ASSERT(it.isValid());
     }
 
