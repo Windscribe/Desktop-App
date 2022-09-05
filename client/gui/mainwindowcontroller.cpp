@@ -602,17 +602,6 @@ void MainWindowController::hideAllToolTips()
     TooltipController::instance().hideAllTooltips();
 }
 
-void MainWindowController::handleKeyReleaseEvent(QKeyEvent *event)
-{
-    // qDebug() << "MainWindowController::handleKeyReleaseEvent";
-    locationsWindow_->handleKeyReleaseEvent(event);
-}
-
-void MainWindowController::handleKeyPressEvent(QKeyEvent *event)
-{
-    locationsWindow_->handleKeyPressEvent(event);
-}
-
 void MainWindowController::onExpandLocationsListAnimationFinished()
 {
     locationsWindow_->setMuteAccentChanges(false);

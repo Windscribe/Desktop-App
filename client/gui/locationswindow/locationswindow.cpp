@@ -1,5 +1,6 @@
 #include "locationswindow.h"
 
+#include <QApplication>
 #include <QPainter>
 #include <QtMath>
 
@@ -61,16 +62,6 @@ void LocationsWindow::setOnlyConfigTabVisible(bool onlyConfig)
     locationsTab_->setOnlyConfigTabVisible(onlyConfig);
 }
 
-void LocationsWindow::handleKeyReleaseEvent(QKeyEvent *event)
-{
-    locationsTab_->handleKeyReleaseEvent(event);
-}
-
-void LocationsWindow::handleKeyPressEvent(QKeyEvent *event)
-{
-    locationsTab_->handleKeyPressEvent(event);
-}
-
 void LocationsWindow::updateLocationsTabGeometry()
 {
     locationsTab_->setGeometry(0, 0, WINDOW_WIDTH * G_SCALE, qCeil(locationsTabHeightUnscaled_ * G_SCALE));
@@ -100,6 +91,16 @@ void LocationsWindow::hideSearchTabWithoutAnimation()
 GuiLocations::LocationsTab::LocationTabEnum LocationsWindow::currentTab()
 {
     return locationsTab_->currentTab();
+}
+
+void LocationsWindow::keyPressEvent(QKeyEvent *event)
+{
+    QApplication::sendEvent(locationsTab_, event);
+}
+
+void LocationsWindow::keyReleaseEvent(QKeyEvent *event)
+{
+    QApplication::sendEvent(locationsTab_, event);
 }
 
 void LocationsWindow::setLatencyDisplay(LATENCY_DISPLAY_TYPE l)

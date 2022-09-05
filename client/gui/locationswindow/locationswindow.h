@@ -23,15 +23,16 @@ public:
 
     void setOnlyConfigTabVisible(bool onlyConfig);
 
-    void handleKeyReleaseEvent(QKeyEvent *event);
-    void handleKeyPressEvent(QKeyEvent *event);
-
     void updateLocationsTabGeometry();
     void updateScaling();
 
     void setMuteAccentChanges(bool mute);
     void hideSearchTabWithoutAnimation();
     GuiLocations::LocationsTab::LocationTabEnum currentTab();
+
+protected:
+    void keyPressEvent(QKeyEvent *event) override;
+    void keyReleaseEvent(QKeyEvent *event) override;
 
 public slots:
     void setLatencyDisplay(LATENCY_DISPLAY_TYPE l);

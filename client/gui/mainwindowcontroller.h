@@ -102,9 +102,7 @@ public:
     IUpgradeWindow *getUpgradeWindow() { return upgradeAccountWindow_; }
     IGeneralMessageWindow *getGeneralMessageWindow() { return generalMessageWindow_; }
     IGeneralMessageTwoButtonWindow *getExitWindow() { return exitWindow_; }
-
-    void handleKeyReleaseEvent(QKeyEvent *event);
-    void handleKeyPressEvent(QKeyEvent *event);
+    QWidget *getLocationsWindow() { return locationsWindow_; }
 
     void hideLocationsWindow();
 
