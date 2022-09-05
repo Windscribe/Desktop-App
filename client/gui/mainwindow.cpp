@@ -787,7 +787,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
     {
         if(event->key() != Qt::Key_Escape || event->key() != Qt::Key_Space)
         {
-            mainWindowController_->handleKeyPressEvent(event);
+            QApplication::sendEvent(mainWindowController_->getLocationsWindow(), event);
         }
     }
 
@@ -807,7 +807,7 @@ void MainWindow::keyReleaseEvent(QKeyEvent *event)
         else
         {
             // qCDebug(LOG_BASIC) << "Pass keyEvent to locations";
-            mainWindowController_->handleKeyReleaseEvent(event);
+            QApplication::sendEvent(mainWindowController_->getLocationsWindow(), event);
         }
     }
     else if (mainWindowController_->currentWindow() == MainWindowController::WINDOW_ID_CONNECT

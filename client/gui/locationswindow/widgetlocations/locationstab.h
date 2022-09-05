@@ -29,9 +29,6 @@ public:
     int getCountVisibleItems();
     void setOnlyConfigTabVisible(bool onlyConfig);
 
-    void handleKeyReleaseEvent(QKeyEvent *event);
-    void handleKeyPressEvent(QKeyEvent *event);
-
     void updateIconRectsAndLine();
     void updateLocationWidgetsGeometry(int newHeight);
     void updateScaling();
@@ -70,6 +67,8 @@ protected:
     void mouseReleaseEvent(QMouseEvent *event) override;
     void leaveEvent(QEvent *event)             override;
     bool eventFilter(QObject *object, QEvent *event) override;
+    void keyPressEvent(QKeyEvent *event) override;
+    void keyReleaseEvent(QKeyEvent *event) override;
 
 signals:
     void selected(LocationID id);
