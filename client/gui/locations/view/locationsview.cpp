@@ -72,8 +72,12 @@ bool LocationsView::eventFilter(QObject *object, QEvent *event)
     if (object == scrollBar_ && event->type() == QEvent::Wheel)
     {
         QWheelEvent *wheelEvent = static_cast<QWheelEvent *>(event);
-        scrollBar_->scrollDx(-wheelEvent->angleDelta().y());
-        return true;
+        // We process only real events from the mouse.
+        // The event can also be from the touchpad - in this case, let's let it be processed in the ScrollBar.
+        if (wheelEvent->source() == Qt::MouseEventNotSynthesized) {
+            scrollBar_->scrollDx(-wheelEvent->angleDelta().y()/2);
+            return true;
+        }
     }
 
     return QScrollArea::eventFilter(object, event);
@@ -89,7 +93,7 @@ void LocationsView::paintEvent(QPaintEvent */*event*/)
 void LocationsView::resizeEvent(QResizeEvent *event)
 {
     QScrollArea::resizeEvent(event);
-    widget_->setFixedWidth(size().width());
+    widget_->setFixedWidth(size().width() - kScrollBarWidth * G_SCALE);
     scrollBar_->setFixedWidth(kScrollBarWidth * G_SCALE);
 }
 
