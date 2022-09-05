@@ -106,8 +106,6 @@ LocationsTab::LocationsTab(QWidget *parent, gui_locations::LocationsModelManager
     widgetFavoriteLocations_->hide();
 
     // search locations
-    //filterProxyModel_ = new gui_locations::FilterProxyModel(this);
-    //filterProxyModel_->setSourceModel(locationsModelManager->sortedLocationsProxyModel());
     gui_locations::LocationsView *viewSearchLocations = new gui_locations::LocationsView(this, locationsModelManager->filterLocationsProxyModel());
     EmptyListWidget *emptyListWidgetSearchLocations = new EmptyListWidget(this);
     emptyListWidgetSearchLocations->setText(tr("No locations found"), 120);
@@ -268,54 +266,35 @@ void LocationsTab::changeTab(LocationTabEnum newTab, bool animateChange)
 
     updateTabIconRects();
 
-    // qCDebug(LOG_LOCATION_LIST) << "Tab Transition: " << lastTab_ << " -> " << curTab_;
     int endWhiteLinePos;
-    if (curTab_ == LOCATION_TAB_CONFIGURED_LOCATIONS)
-    {
+    if (curTab_ == LOCATION_TAB_CONFIGURED_LOCATIONS) {
         endWhiteLinePos = rcConfiguredLocationsIcon_.center().x();
         onClickConfiguredLocations();
-        ///if (lastTab_ == LOCATION_TAB_SEARCH_LOCATIONS) widgetSearchLocations_->setFilterString("");
-    }
-    else if (curTab_ == LOCATION_TAB_STATIC_IPS_LOCATIONS)
-    {
+    } else if (curTab_ == LOCATION_TAB_STATIC_IPS_LOCATIONS) {
         endWhiteLinePos = rcStaticIpsLocationsIcon_.center().x();
         onClickStaticIpsLocations();
-        ///if (lastTab_ == LOCATION_TAB_SEARCH_LOCATIONS) widgetSearchLocations_->setFilterString("");
-    }
-    else if (curTab_ == LOCATION_TAB_FAVORITE_LOCATIONS)
-    {
+    } else if (curTab_ == LOCATION_TAB_FAVORITE_LOCATIONS) {
         endWhiteLinePos = rcFavoriteLocationsIcon_.center().x();
         onClickFavoriteLocations();
-        ///if (lastTab_ == LOCATION_TAB_SEARCH_LOCATIONS) widgetSearchLocations_->setFilterString("");
-    }
-    else if (curTab_ == LOCATION_TAB_ALL_LOCATIONS)
-    {
+    } else if (curTab_ == LOCATION_TAB_ALL_LOCATIONS) {
         endWhiteLinePos = rcAllLocationsIcon_.center().x();
         onClickAllLocations();
-        ///if (lastTab_ == LOCATION_TAB_SEARCH_LOCATIONS) widgetSearchLocations_->setFilterString("");
-    }
-    else if (curTab_ == LOCATION_TAB_SEARCH_LOCATIONS)
-    {
+    } else if (curTab_ == LOCATION_TAB_SEARCH_LOCATIONS) {
         // no line movement for search locations tab, it is hidden
         endWhiteLinePos = curWhiteLinePos_;
         onClickSearchLocations();
-    }
-    else
-    {
+    } else {
         endWhiteLinePos = 0;
         Q_ASSERT(false);
     }
 
-    if (animateChange)
-    {
+    if (animateChange) {
         whiteLineAnimation_.stop();
         whiteLineAnimation_.setStartValue(curWhiteLinePos_);
         whiteLineAnimation_.setEndValue(endWhiteLinePos + 2);
         whiteLineAnimation_.setDuration(ANIMATION_DURATION);
         whiteLineAnimation_.start();
-    }
-    else
-    {
+    } else {
         curWhiteLinePos_ = endWhiteLinePos+2;
     }
 
@@ -461,7 +440,7 @@ void LocationsTab::switchToTabAndRestoreCursorToAccentedItem(LocationTabEnum loc
     if (locWidget)
     {
         previousSelectedLocId = locWidget->accentedItemLocationId();
-    }
+    }*/
 
     // qCDebug(LOG_USER) << "Key press tab selection";
     if (locationTab == LOCATION_TAB_SEARCH_LOCATIONS) // going to search tab
@@ -478,7 +457,7 @@ void LocationsTab::switchToTabAndRestoreCursorToAccentedItem(LocationTabEnum loc
     }
 
     // move cursor to previously selected accent item
-    if (previousSelectedLocId.isValid())
+    /*if (previousSelectedLocId.isValid())
     {
         if (locWidget->cursorInViewport())
         {
@@ -650,7 +629,6 @@ void LocationsTab::passEventToLocationWidget(QKeyEvent *event)
 
 void LocationsTab::handleKeyReleaseEvent(QKeyEvent *event)
 {
-    // qDebug() << "LocationsTab::handleKeyReleaseEvent";
     TooltipController::instance().hideAllTooltips();
 
     if (event->key() == Qt::Key_Right)

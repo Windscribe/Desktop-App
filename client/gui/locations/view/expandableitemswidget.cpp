@@ -290,26 +290,28 @@ void ExpandableItemsWidget::mousePressEvent(QMouseEvent *event)
             mousePressedClickableId_ = delegateForItem(mousePressedItem_)->isInClickableArea(opt, mousePressedItem_, event->pos());
 
             if (isExpandableItem(mousePressedItem_)) {
-                if (expandingAnimation_.state() != QAbstractAnimation::Running) {
-                    if (expandedItems_.contains(mousePressedItem_)) {
-                        expandingItem_ = mousePressedItem_;
-                        expandingCurrentHeight_ = calcHeightOfChildItems(expandingItem_);
-                        setupExpandingAnimation(QAbstractAnimation::Backward, 0, expandingCurrentHeight_, kExpandingAnimationDuration);
-                        emit expandingAnimationStarted(0, 0);        // top, bottom values are not needed when collapsing
-                        expandingAnimation_.start();
-                    } else {
-                        isAnimationJustStarted_ = true;
-                        expandedItems_.insert(mousePressedItem_);
-                        expandingItem_ = mousePressedItem_;
-                        expandingCurrentHeight_ = 0;
-                        int heightOfChilds = calcHeightOfChildItems(expandingItem_);
-                        setupExpandingAnimation(QAbstractAnimation::Forward, 0, heightOfChilds, kExpandingAnimationDuration);
-                        int offs = getOffsForItem(expandingItem_);
-                        emit expandingAnimationStarted(offs, heightOfChilds);
-                        expandingAnimation_.start();
+                if (model_->rowCount(mousePressedItem_) > 0) {      // is item has children?
+                    if (expandingAnimation_.state() != QAbstractAnimation::Running) {
+                        if (expandedItems_.contains(mousePressedItem_)) {
+                            expandingItem_ = mousePressedItem_;
+                            expandingCurrentHeight_ = calcHeightOfChildItems(expandingItem_);
+                            setupExpandingAnimation(QAbstractAnimation::Backward, 0, expandingCurrentHeight_, kExpandingAnimationDuration);
+                            emit expandingAnimationStarted(0, 0);        // top, bottom values are not needed when collapsing
+                            expandingAnimation_.start();
+                        } else {
+                            isAnimationJustStarted_ = true;
+                            expandedItems_.insert(mousePressedItem_);
+                            expandingItem_ = mousePressedItem_;
+                            expandingCurrentHeight_ = 0;
+                            int heightOfChilds = calcHeightOfChildItems(expandingItem_);
+                            setupExpandingAnimation(QAbstractAnimation::Forward, 0, heightOfChilds, kExpandingAnimationDuration);
+                            int offs = getOffsForItem(expandingItem_);
+                            emit expandingAnimationStarted(offs, heightOfChilds);
+                            expandingAnimation_.start();
+                        }
+                        updateHeight();
+                        update();
                     }
-                    updateHeight();
-                    update();
                 }
             }
             else {
