@@ -19,7 +19,7 @@ bool FavoriteCitiesProxyModel::filterAcceptsRow(int source_row, const QModelInde
     }
     else
     {
-        return sourceModel()->data(mi, kIsFavorite).toBool();
+        return sourceModel()->data(mi, kIsFavorite).toBool() && !sourceModel()->data(mi, kIsShowAsPremium).toBool();
     }
 }
 

@@ -38,8 +38,6 @@ public:
     void hideSearchTab();
     void hideSearchTabWithoutAnimation();
 
-    void setMuteAccentChanges(bool mute);
-
     bool handleKeyPressEvent(QKeyEvent *event);
 
     enum LocationTabEnum {
@@ -93,6 +91,10 @@ private slots:
     void onSearchTypingDelayTimerTimeout();
     void onSearchLineEditTextChanged(QString text);
     void onSearchLineEditFocusOut();
+
+    void onLocationSelected(const LocationID &lid);
+    void onClickedOnPremiumStarCity();
+
 private:
     gui_locations::LocationsModelManager *locationsModelManager_;
 

@@ -68,12 +68,16 @@ LocationsTab::LocationsTab(QWidget *parent, gui_locations::LocationsModelManager
 
     // all locations
     gui_locations::LocationsView *viewAllLocations = new gui_locations::LocationsView(this, locationsModelManager->sortedLocationsProxyModel());
+    connect(viewAllLocations, &gui_locations::LocationsView::selected, this, &LocationsTab::onLocationSelected);
+    connect(viewAllLocations, &gui_locations::LocationsView::clickedOnPremiumStarCity, this, &LocationsTab::onClickedOnPremiumStarCity);
     EmptyListWidget *emptyListWidgetAllLocations = new EmptyListWidget(this);
     emptyListWidgetAllLocations->setText(tr("No locations"), 120);
     widgetAllLocations_ = new WidgetSwitcher(this, viewAllLocations, emptyListWidgetAllLocations);
 
     // custom configs
     gui_locations::LocationsView * viewConfiguredLocations = new gui_locations::LocationsView(this, locationsModelManager->customConfigsProxyModel());
+    connect(viewConfiguredLocations, &gui_locations::LocationsView::selected, this, &LocationsTab::onLocationSelected);
+    connect(viewConfiguredLocations, &gui_locations::LocationsView::clickedOnPremiumStarCity, this, &LocationsTab::onClickedOnPremiumStarCity);
     EmptyListWidget *emptyListWidgetConfigured = new EmptyListWidget(this);
     emptyListWidgetConfigured->setIcon("locations/FOLDER_ICON_BIG");
     connect(emptyListWidgetConfigured, &EmptyListWidget::clicked, [this]() {
@@ -84,6 +88,8 @@ LocationsTab::LocationsTab(QWidget *parent, gui_locations::LocationsModelManager
 
     // static IPs
     gui_locations::LocationsView *viewStaticIpsLocations_ = new gui_locations::LocationsView(this, locationsModelManager->staticIpsProxyModel());
+    connect(viewStaticIpsLocations_, &gui_locations::LocationsView::selected, this, &LocationsTab::onLocationSelected);
+    connect(viewStaticIpsLocations_, &gui_locations::LocationsView::clickedOnPremiumStarCity, this, &LocationsTab::onClickedOnPremiumStarCity);
     EmptyListWidget *emptyListWidgetStaticIps = new EmptyListWidget(this);
     emptyListWidgetStaticIps->setIcon("locations/STATIC_IP_ICON_BIG");
     emptyListWidgetStaticIps->setText(tr("You don't have any Static IPs"), 120);
@@ -100,6 +106,8 @@ LocationsTab::LocationsTab(QWidget *parent, gui_locations::LocationsModelManager
 
     // favorites
     gui_locations::LocationsView *viewFavoriteLocations_ = new gui_locations::LocationsView(this, locationsModelManager->favoriteCitiesProxyModel());
+    connect(viewFavoriteLocations_, &gui_locations::LocationsView::selected, this, &LocationsTab::onLocationSelected);
+    connect(viewFavoriteLocations_, &gui_locations::LocationsView::clickedOnPremiumStarCity, this, &LocationsTab::onClickedOnPremiumStarCity);
     EmptyListWidget *emptyListWidgetFavorites = new EmptyListWidget(this);
     emptyListWidgetFavorites->setIcon("locations/BROKEN_HEART_ICON");
     emptyListWidgetFavorites->setText(tr("Nothing to see here..."), 120);
@@ -108,11 +116,12 @@ LocationsTab::LocationsTab(QWidget *parent, gui_locations::LocationsModelManager
 
     // search locations
     gui_locations::LocationsView *viewSearchLocations = new gui_locations::LocationsView(this, locationsModelManager->filterLocationsProxyModel());
+    connect(viewSearchLocations, &gui_locations::LocationsView::selected, this, &LocationsTab::onLocationSelected);
+    connect(viewSearchLocations, &gui_locations::LocationsView::clickedOnPremiumStarCity, this, &LocationsTab::onClickedOnPremiumStarCity);
     EmptyListWidget *emptyListWidgetSearchLocations = new EmptyListWidget(this);
     emptyListWidgetSearchLocations->setText(tr("No locations found"), 120);
     widgetSearchLocations_ = new WidgetSwitcher(this, viewSearchLocations, emptyListWidgetSearchLocations);
     widgetSearchLocations_->hide();
-    //filterProxyModel_->setFilter("Ca");
 
     staticIPDeviceInfo_ = new StaticIPDeviceInfo(this);
     connect(staticIPDeviceInfo_, SIGNAL(addStaticIpClicked()), SIGNAL(addStaticIpClicked()));
@@ -124,15 +133,7 @@ LocationsTab::LocationsTab(QWidget *parent, gui_locations::LocationsModelManager
             SIGNAL(clearCustomConfigClicked()));
     connect(configFooterInfo_, SIGNAL(addCustomConfigClicked()), SIGNAL(addCustomConfigClicked()));
 
-
     updateLocationWidgetsGeometry(unscaledHeightOfItemViewport());
-
-    //FIXME:
-    /*connect(widgetAllLocations_, SIGNAL(selected(LocationID)), SIGNAL(selected(LocationID)));
-    connect(widgetAllLocations_, SIGNAL(clickedOnPremiumStarCity()), SIGNAL(clickedOnPremiumStarCity()));
-    connect(widgetConfiguredLocations_, SIGNAL(selected(LocationID)), SIGNAL(selected(LocationID)));
-    connect(widgetStaticIpsLocations_, SIGNAL(selected(LocationID)), SIGNAL(selected(LocationID)));
-    connect(widgetFavoriteLocations_, SIGNAL(selected(LocationID)), SIGNAL(selected(LocationID)));*/
 
     searchTypingDelayTimer_.setSingleShot(true);
     searchTypingDelayTimer_.setInterval(100);
@@ -196,7 +197,6 @@ void LocationsTab::paintEvent(QPaintEvent *event)
 void LocationsTab::mouseMoveEvent(QMouseEvent *event)
 {
     QPoint pt = QCursor::pos();
-
     pt = mapFromGlobal(pt);
 
     const int addMargin = 5*G_SCALE;
@@ -327,7 +327,6 @@ void LocationsTab::leaveEvent(QEvent *event)
 
 bool LocationsTab::eventFilter(QObject *object, QEvent *event)
 {
-    // qDebug() << "LocationsTab::eventFilter";
     if (object == searchLineEdit_)
     {
         if (event->type() == QEvent::KeyRelease)
@@ -430,15 +429,6 @@ void LocationsTab::onClickSearchLocations()
 
 void LocationsTab::switchToTabAndRestoreCursorToAccentedItem(LocationTabEnum locationTab)
 {
-    // get target locations previously accented item
-    /*LocationID previousSelectedLocId;
-    IWidgetLocationsInfo *locWidget = locationWidgetByEnum(locationTab);
-    if (locWidget)
-    {
-        previousSelectedLocId = locWidget->accentedItemLocationId();
-    }*/
-
-    // qCDebug(LOG_USER) << "Key press tab selection";
     if (locationTab == LOCATION_TAB_SEARCH_LOCATIONS) // going to search tab
     {
         showSearchTab(); // this will handle changeTab(..)
@@ -452,15 +442,6 @@ void LocationsTab::switchToTabAndRestoreCursorToAccentedItem(LocationTabEnum loc
         changeTab(locationTab);
     }
     getCurrentWidget()->locationsView()->updateSelected();
-
-    // move cursor to previously selected accent item
-    /*if (previousSelectedLocId.isValid())
-    {
-        if (locWidget->cursorInViewport())
-        {
-            locWidget->centerCursorOnItem(previousSelectedLocId);
-        }
-    }*/
 }
 
 void LocationsTab::onWhiteLinePosChanged(const QVariant &value)
@@ -543,6 +524,16 @@ void LocationsTab::onSearchLineEditFocusOut()
     focusOutTimer_.restart();
 }
 
+void LocationsTab::onLocationSelected(const LocationID &lid)
+{
+    emit selected(lid);
+}
+
+void LocationsTab::onClickedOnPremiumStarCity()
+{
+    emit clickedOnPremiumStarCity();
+}
+
 void LocationsTab::drawTabRegion(QPainter &painter, const QRect &rc)
 {
     painter.fillRect(rc, QBrush(tabBackgroundColor_));
@@ -613,21 +604,6 @@ void LocationsTab::passEventToLocationWidget(QKeyEvent *event)
     WidgetSwitcher *curWidget = getCurrentWidget();
     if (curWidget)
         curWidget->locationsView()->handleKeyPressEvent(event);
-
-    //QApplication::sendEvent(locationsTab_, event);
-
-    /*IWidgetLocationsInfo * curWidgetLoc = currentWidgetLocations();
-    if (curWidgetLoc != nullptr)
-    {
-        if (curWidgetLoc->hasAccentItem())
-        {
-            curWidgetLoc->handleKeyEvent(event);
-        }
-        else
-        {
-            curWidgetLoc->accentFirstItem();
-        }
-    }*/
 }
 
 WidgetSwitcher *LocationsTab::getCurrentWidget() const
@@ -736,7 +712,6 @@ void LocationsTab::updateScaling()
 
 void LocationsTab::updateLanguage()
 {
-    //widgetFavoriteLocations_->setEmptyListDisplayText(tr("Nothing to see here"));
 }
 
 void LocationsTab::showSearchTab()
@@ -808,15 +783,6 @@ void LocationsTab::hideSearchTabWithoutAnimation()
 
         searchTabSelected_ = false;
     }
-}
-
-void LocationsTab::setMuteAccentChanges(bool mute)
-{
-    /*widgetAllLocations_       ->setMuteAccentChanges(mute);
-    widgetConfiguredLocations_->setMuteAccentChanges(mute);
-    widgetStaticIpsLocations_ ->setMuteAccentChanges(mute);
-    widgetFavoriteLocations_  ->setMuteAccentChanges(mute);
-    widgetSearchLocations_    ->setMuteAccentChanges(mute);*/
 }
 
 bool LocationsTab::handleKeyPressEvent(QKeyEvent *event)

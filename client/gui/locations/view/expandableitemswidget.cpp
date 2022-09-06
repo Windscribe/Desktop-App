@@ -234,6 +234,11 @@ int ExpandableItemsWidget::selectItemByOffs(int offs)
             newSelectedItemInd = qMin(newSelectedItemInd, visibleItems.count() - 1);
             newSelectedItemInd = qMax(newSelectedItemInd, 0);
             selectedInd_ = visibleItems[newSelectedItemInd];
+            if (selectedInd_.isValid() && delegateForItem(selectedInd_)->isForbiddenCursor(selectedInd_)) {
+                cursorUpdateHelper_->setForbiddenCursor();
+            } else {
+                cursorUpdateHelper_->setPointingHandCursor();
+            }
             update();
             return newSelectedItemInd * itemHeight_;
         }
@@ -258,6 +263,24 @@ void ExpandableItemsWidget::collapseAll()
     expandedItems_.clear();
     updateHeight();
     update();
+}
+
+void ExpandableItemsWidget::doActionOnSelectedItem()
+{
+    if (!selectedInd_.isValid())
+        return;
+
+    if (isExpandableItem(selectedInd_) && model_->rowCount(selectedInd_) > 0) {
+        expandItem(selectedInd_);
+    }
+    else {
+        if (!delegateForItem(selectedInd_)->isForbiddenCursor(selectedInd_)) {
+            emit selected(qvariant_cast<LocationID>(selectedInd_.data(gui_locations::kLocationId)));
+        }
+        else if (selectedInd_.data(kIsShowAsPremium).toBool()) {
+            emit clickedOnPremiumStarCity();
+        }
+    }
 }
 
 void ExpandableItemsWidget::paintEvent(QPaintEvent *event)
@@ -335,30 +358,8 @@ void ExpandableItemsWidget::mousePressEvent(QMouseEvent *event)
             ItemStyleOption opt(this, rcItem, 1.0, 0, isShowLocationLoad_, isShowLatencyInMs_);
             mousePressedClickableId_ = delegateForItem(mousePressedItem_)->isInClickableArea(opt, mousePressedItem_, event->pos());
 
-            if (isExpandableItem(mousePressedItem_)) {
-                if (model_->rowCount(mousePressedItem_) > 0) {      // is item has children?
-                    if (expandingAnimation_.state() != QAbstractAnimation::Running) {
-                        if (expandedItems_.contains(mousePressedItem_)) {
-                            expandingItem_ = mousePressedItem_;
-                            expandingCurrentHeight_ = calcHeightOfChildItems(expandingItem_);
-                            setupExpandingAnimation(QAbstractAnimation::Backward, 0, expandingCurrentHeight_, kExpandingAnimationDuration);
-                            emit expandingAnimationStarted(0, 0);        // top, bottom values are not needed when collapsing
-                            expandingAnimation_.start();
-                        } else {
-                            isAnimationJustStarted_ = true;
-                            expandedItems_.insert(mousePressedItem_);
-                            expandingItem_ = mousePressedItem_;
-                            expandingCurrentHeight_ = 0;
-                            int heightOfChilds = calcHeightOfChildItems(expandingItem_);
-                            setupExpandingAnimation(QAbstractAnimation::Forward, 0, heightOfChilds, kExpandingAnimationDuration);
-                            int offs = getOffsForTopLevelItem(expandingItem_);
-                            emit expandingAnimationStarted(offs, heightOfChilds);
-                            expandingAnimation_.start();
-                        }
-                        updateHeight();
-                        update();
-                    }
-                }
+            if (isExpandableItem(mousePressedItem_) && model_->rowCount(mousePressedItem_) > 0) {
+                expandItem(mousePressedItem_);
             }
             else {
                 bMousePressed_ = true;
@@ -374,7 +375,13 @@ void ExpandableItemsWidget::mouseReleaseEvent(QMouseEvent *event)
     if (event->button() == Qt::LeftButton && bMousePressed_) {
         QRect rcItem;
         if (mousePressedItem_ == detectSelectedItem(event->pos(), &rcItem)) {
-            if (isExpandableItem(mousePressedItem_)) {
+            /*if (isExpandableItem(mousePressedItem_) && model_->rowCount(mousePressedItem_) == 0) {
+                // Best location click
+                LocationID lid = qvariant_cast<LocationID>(mousePressedItem_.data(gui_locations::kLocationId));
+                Q_ASSERT(lid.isBestLocation());
+                emit selected(lid);
+            }
+            else*/ if (isExpandableItem(mousePressedItem_) && model_->rowCount(mousePressedItem_) > 0) {
                 Q_ASSERT(false);    // The expanding/collapsing must have already been processed in mousePressEvent
             }
             else    // non expandable item
@@ -388,6 +395,11 @@ void ExpandableItemsWidget::mouseReleaseEvent(QMouseEvent *event)
                     {
                         model_->setData(mousePressedItem_, !mousePressedItem_.data(kIsFavorite).toBool(), kIsFavorite);
                     }
+                } else if (clickableId == -1 && !delegateForItem(mousePressedItem_)->isForbiddenCursor(mousePressedItem_)) {
+                    emit selected(qvariant_cast<LocationID>(mousePressedItem_.data(gui_locations::kLocationId)));
+                }
+                else if (clickableId == -1 && mousePressedItem_.data(kIsShowAsPremium).toBool()) {
+                    emit clickedOnPremiumStarCity();
                 }
             }
         }
@@ -680,6 +692,35 @@ void ExpandableItemsWidget::stopExpandingAnimation()
     if (expandingAnimation_.state() == QAbstractAnimation::Running) {
         expandingAnimation_.stop();
         expandingItem_ = QModelIndex();
+    }
+}
+
+void ExpandableItemsWidget::expandItem(const QPersistentModelIndex &ind)
+{
+    Q_ASSERT(isExpandableItem(ind));
+    if (model_->rowCount(ind) == 0) // is item has children?
+        return;
+
+    if (expandingAnimation_.state() != QAbstractAnimation::Running) {
+        if (expandedItems_.contains(ind)) {
+            expandingItem_ = ind;
+            expandingCurrentHeight_ = calcHeightOfChildItems(expandingItem_);
+            setupExpandingAnimation(QAbstractAnimation::Backward, 0, expandingCurrentHeight_, kExpandingAnimationDuration);
+            emit expandingAnimationStarted(0, 0);        // top, bottom values are not needed when collapsing
+            expandingAnimation_.start();
+        } else {
+            isAnimationJustStarted_ = true;
+            expandedItems_.insert(ind);
+            expandingItem_ = ind;
+            expandingCurrentHeight_ = 0;
+            int heightOfChilds = calcHeightOfChildItems(expandingItem_);
+            setupExpandingAnimation(QAbstractAnimation::Forward, 0, heightOfChilds, kExpandingAnimationDuration);
+            int offs = getOffsForTopLevelItem(expandingItem_);
+            emit expandingAnimationStarted(offs, heightOfChilds);
+            expandingAnimation_.start();
+        }
+        updateHeight();
+        update();
     }
 }
 

@@ -26,7 +26,6 @@ public:
     void updateLocationsTabGeometry();
     void updateScaling();
 
-    void setMuteAccentChanges(bool mute);
     void hideSearchTabWithoutAnimation();
     GuiLocations::LocationsTab::LocationTabEnum currentTab();
 

@@ -464,7 +464,6 @@ void MainWindowController::expandLocations()
     functionOnAnimationFinished_ = NULL;
 
     connectWindow_->updateLocationsState(true);
-    locationsWindow_->setMuteAccentChanges(true);
 
     updateExpandAnimationParameters();
     expandLocationsAnimationGroup_->setDirection(QAbstractAnimation::Forward);
@@ -497,7 +496,6 @@ void MainWindowController::collapseLocations()
     functionOnAnimationFinished_ = NULL;
 
     connectWindow_->updateLocationsState(false);
-    locationsWindow_->setMuteAccentChanges(true);
     if (locationsWindow_->currentTab() == GuiLocations::LocationsTab::LOCATION_TAB_SEARCH_LOCATIONS)
     {
         locationsWindow_->hideSearchTabWithoutAnimation();
@@ -604,7 +602,6 @@ void MainWindowController::hideAllToolTips()
 
 void MainWindowController::onExpandLocationsListAnimationFinished()
 {
-    locationsWindow_->setMuteAccentChanges(false);
     if (expandLocationsListAnimation_->direction() == QAbstractAnimation::Backward)
     {
         locationListAnimationState_ = LOCATION_LIST_ANIMATION_COLLAPSED;

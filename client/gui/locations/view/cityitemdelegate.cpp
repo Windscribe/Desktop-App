@@ -264,7 +264,7 @@ bool CityItemDelegate::isForbiddenCursor(const QModelIndex &index) const
     }
     else
     {
-        return index.data(kIsShowAsPremium).toBool() ? false : index.data(kIsDisabled).toBool();
+        return index.data(kIsShowAsPremium).toBool() ? true : index.data(kIsDisabled).toBool();
     }
 }
 
@@ -272,6 +272,9 @@ int CityItemDelegate::isInClickableArea(const ItemStyleOption &option, const QMo
 {
     LocationID lid = qvariant_cast<LocationID>(index.data(kLocationId));
     if (lid.isStaticIpsLocation() || lid.isCustomConfigsLocation()) {
+        return -1;
+    }
+    if (index.data(kIsShowAsPremium).toBool()) {
         return -1;
     }
 

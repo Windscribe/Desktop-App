@@ -78,11 +78,6 @@ void LocationsWindow::updateScaling()
     updateFooterOverlayGeo();
 }
 
-void LocationsWindow::setMuteAccentChanges(bool mute)
-{
-    locationsTab_->setMuteAccentChanges(mute);
-}
-
 void LocationsWindow::hideSearchTabWithoutAnimation()
 {
     locationsTab_->hideSearchTabWithoutAnimation();

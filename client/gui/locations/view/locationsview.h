@@ -40,6 +40,7 @@ protected:
 
 signals:
      void selected(const LocationID &lid);
+     void clickedOnPremiumStarCity();
      void emptyListStateChanged(bool isEmptyList);
 
 private slots:

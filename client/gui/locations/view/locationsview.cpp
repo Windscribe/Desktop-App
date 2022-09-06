@@ -39,8 +39,15 @@ LocationsView::LocationsView(QWidget *parent, QAbstractItemModel *model) : QScro
     connect(widget_, &ExpandableItemsWidget::expandingAnimationStarted, this, &LocationsView::onExpandingAnimationStarted);
     //connect(widget_, &ExpandableItemsWidget::expandingAnimationProgress, this, &LocationsView::onExpandingAnimationProgress);
     connect(widget_, &ExpandableItemsWidget::emptyListStateChanged, [this](bool isEmptyList) {
-       emit  emptyListStateChanged(isEmptyList);
+       emit emptyListStateChanged(isEmptyList);
     });
+    connect(widget_, &ExpandableItemsWidget::selected, [this](const LocationID &lid) {
+       emit selected(lid);
+    });
+    connect(widget_, &ExpandableItemsWidget::clickedOnPremiumStarCity, [this]() {
+       emit clickedOnPremiumStarCity();
+    });
+
 }
 
 LocationsView::~LocationsView()
@@ -94,6 +101,11 @@ bool LocationsView::eventFilter(QObject *object, QEvent *event)
 
 bool LocationsView::handleKeyPressEvent(QKeyEvent *event)
 {
+    if (event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return) {
+        widget_->doActionOnSelectedItem();
+        return true;
+    }
+
     int scrollOffs = 0;
     if (event->key() == Qt::Key_Up) {
         scrollOffs = -1;
@@ -118,6 +130,7 @@ bool LocationsView::handleKeyPressEvent(QKeyEvent *event)
         if (isCursorInList()) {
            moveCursorToItem(pos);
         }
+        return true;
     }
 
     return false;

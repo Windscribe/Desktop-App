@@ -6,6 +6,7 @@
 #include <QVariantAnimation>
 #include "iitemdelegate.h"
 #include "cursorupdatehelper.h"
+#include "types/locationid.h"
 
 namespace gui_locations {
 
@@ -37,7 +38,7 @@ public:
     void collapseAll();
 
     bool isEmptyList() const { return isEmptyList_; }
-
+    void doActionOnSelectedItem();
 
 protected:
     void paintEvent(QPaintEvent *event) override;
@@ -47,9 +48,12 @@ protected:
     void leaveEvent(QEvent *event) override;
 
 signals:
+    void selected(const LocationID &lid);
+    void clickedOnPremiumStarCity();
+    void emptyListStateChanged(bool isEmptyList);
+
     // the expanding items should be visible so send this signal to LocationsView to update the scroll position.
     void expandingAnimationStarted(int top, int height);
-    void emptyListStateChanged(bool isEmptyList);
 
 private slots:
     void onExpandingAnimationValueChanged(const QVariant &value);
@@ -107,6 +111,7 @@ private:
     void removeCacheDataForInvalidIndexes();
     void debugAssertCheckInternalData();   // for debug purposes
     void stopExpandingAnimation();
+    void expandItem(const QPersistentModelIndex &ind);
 };
 
 } // namespace gui_locations
