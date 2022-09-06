@@ -13,7 +13,7 @@
 namespace PreferencesWindow {
 
 GeneralWindowItem::GeneralWindowItem(ScalableGraphicsObject *parent, Preferences *preferences, PreferencesHelper *preferencesHelper) : CommonGraphics::BasePage(parent),
-    preferences_(preferences)
+    preferences_(preferences), currentScreen_(GENERAL_SCREEN_HOME)
 {
     setFlag(QGraphicsItem::ItemIsFocusable);
     setSpacerHeight(PREFERENCES_MARGIN);
@@ -171,6 +171,7 @@ GeneralWindowItem::GeneralWindowItem(ScalableGraphicsObject *parent, Preferences
     versionGroup_ = new PreferenceGroup(this);
     versionGroup_->setDrawBackground(false);
     versionInfoItem_ = new VersionInfoItem(versionGroup_, tr("Version"), preferencesHelper->buildVersion());
+    connect(versionInfoItem_, &ClickableGraphicsObject::clicked, this, &GeneralWindowItem::changelogPageClicked);
     versionGroup_->addItem(versionInfoItem_);
     addItem(versionGroup_);
 }
@@ -178,6 +179,16 @@ GeneralWindowItem::GeneralWindowItem(ScalableGraphicsObject *parent, Preferences
 QString GeneralWindowItem::caption()
 {
     return QT_TRANSLATE_NOOP("PreferencesWindow::PreferencesWindowItem", "General");
+}
+
+GENERAL_SCREEN_TYPE GeneralWindowItem::getScreen()
+{
+    return currentScreen_;
+}
+
+void GeneralWindowItem::setScreen(GENERAL_SCREEN_TYPE subScreen)
+{
+    currentScreen_ = subScreen;
 }
 
 void GeneralWindowItem::onIsLaunchOnStartupClicked(bool isChecked)
