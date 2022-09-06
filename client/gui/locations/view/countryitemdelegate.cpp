@@ -105,7 +105,7 @@ void CountryItemDelegate::paint(QPainter *painter, const ItemStyleOption &option
 
     // bottom lines
     int left = left_offs + static_cast<int>(24 * G_SCALE);
-    int right = left_offs + static_cast<int>(option.rect.width());
+    int right = left_offs + static_cast<int>(option.rect.width() - 2 * G_SCALE);
     int bottom = top_offs + option.rect.height() - 1; // 1 is not scaled since we want bottom-most pixel inside geometry
     painter->setOpacity(1.0);
 

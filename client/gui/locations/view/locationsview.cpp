@@ -127,8 +127,7 @@ void LocationsView::paintEvent(QPaintEvent */*event*/)
 {
     QPainter painter(viewport());
     QRect bkgd(0,0,geometry().width(), geometry().height());
-    //painter.fillRect(bkgd, FontManager::instance().getMidnightColor());
-    painter.fillRect(bkgd, Qt::green);
+    painter.fillRect(bkgd, FontManager::instance().getMidnightColor());
 }
 
 void LocationsView::resizeEvent(QResizeEvent *event)

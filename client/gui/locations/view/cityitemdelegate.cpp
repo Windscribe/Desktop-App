@@ -73,14 +73,14 @@ void CityItemDelegate::paint(QPainter *painter, const ItemStyleOption &option, c
         painter->setOpacity(0.5);
         IndependentPixmap pixmapStaticIp = cache->pixmap(CityItemDelegateCache::kStaticIpId);
         Q_ASSERT(!pixmapStaticIp.isNull());
-        QRect rc( option.rect.width() - pixmapStaticIp.width() - 44*G_SCALE,  option.rect.top(), pixmapStaticIp.width(), option.rect.height());
+        QRect rc( option.rect.width() - pixmapStaticIp.width() - 38*G_SCALE,  option.rect.top(), pixmapStaticIp.width(), option.rect.height());
         pixmapStaticIp.draw(rc.left(), rc.top() + (rc.height() -  pixmapStaticIp.height()) / 2, painter);
     }
     else if (index.data(kIsShowAsPremium).toBool())
     {
         // pro star
         QSharedPointer<IndependentPixmap> premiumStarPixmap = ImageResourcesSvg::instance().getIndependentPixmap("locations/PRO_CITY_STAR");
-        premiumStarPixmap->draw(left_offs + LOCATION_ITEM_MARGIN * G_SCALE,
+        premiumStarPixmap->draw(left_offs + LOCATION_ITEM_MARGIN * 2 * G_SCALE,
                                 top_offs + (option.rect.height() - premiumStarPixmap->height()) / 2, painter);
     }
     else if (lid.isCustomConfigsLocation())
@@ -92,7 +92,7 @@ void CityItemDelegate::paint(QPainter *painter, const ItemStyleOption &option, c
                 QString("locations/%1_ICON").arg(type.toUpper()));
             if (configPixmap) {
                 painter->setOpacity(textOpacity);
-                configPixmap->draw(left_offs + LOCATION_ITEM_MARGIN * G_SCALE,
+                configPixmap->draw(left_offs + LOCATION_ITEM_MARGIN * 2 * G_SCALE,
                                    top_offs + (option.rect.height() - configPixmap->height()) / 2, painter);
             }
         }
@@ -115,7 +115,7 @@ void CityItemDelegate::paint(QPainter *painter, const ItemStyleOption &option, c
     painter->setOpacity(textOpacity);
     IndependentPixmap pixmapCaption = cache->pixmap(CityItemDelegateCache::kCityId);
     Q_ASSERT(!pixmapCaption.isNull());
-    QRect rcCaption( left_offs + LOCATION_ITEM_MARGIN * G_SCALE * 2 + LOCATION_ITEM_FLAG_WIDTH * G_SCALE,  option.rect.top(), pixmapCaption.width(), option.rect.height());
+    QRect rcCaption( left_offs + LOCATION_ITEM_MARGIN * G_SCALE * 4 + LOCATION_ITEM_FLAG_WIDTH * G_SCALE,  option.rect.top(), pixmapCaption.width(), option.rect.height());
     pixmapCaption.draw(rcCaption.left(), rcCaption.top() + (rcCaption.height() -  pixmapCaption.height()) / 2, painter);
 
     // city text for non-static and non-custom views only
@@ -150,7 +150,7 @@ void CityItemDelegate::paint(QPainter *painter, const ItemStyleOption &option, c
         // draw bubble
         int latencyRectWidth = 33;
         int latencyRectHeight = 20;
-        int scaledX = option.rect.width() - (latencyRectWidth + 8) * G_SCALE;
+        int scaledX = option.rect.width() - ((latencyRectWidth + 2) * G_SCALE);
         int scaledY = (option.rect.height() - (latencyRectHeight * G_SCALE)) / 2 - 1*G_SCALE;
         QRect latencyRect(left_offs + scaledX, top_offs + scaledY,
                           latencyRectWidth * G_SCALE, latencyRectHeight *G_SCALE);
@@ -193,7 +193,7 @@ void CityItemDelegate::paint(QPainter *painter, const ItemStyleOption &option, c
     // background line
     // TODO: lines drawn like this do not scale -- fix
     int left = left_offs + static_cast<int>(24 * G_SCALE);
-    int right = left_offs + static_cast<int>(option.rect.width() - 8*G_SCALE);
+    int right = left_offs + static_cast<int>(option.rect.width() - 2*G_SCALE);
     int bottom = top_offs + option.rect.height() - 1; // 1 is not scaled since we want bottom-most pixel inside geometry
     QPen pen(QColor(0x29, 0x2E, 0x3E));
     pen.setWidth(1);
@@ -405,7 +405,7 @@ QRect CityItemDelegate::captionRect(const QRect &itemRect, const IItemCacheData 
 {
     const CityItemDelegateCache *cache = static_cast<const CityItemDelegateCache *>(cacheData);
     IndependentPixmap pixmapCaption = cache->pixmap(CityItemDelegateCache::kCityId);
-    return QRect(itemRect.left() + LOCATION_ITEM_MARGIN * G_SCALE * 2 + LOCATION_ITEM_FLAG_WIDTH * G_SCALE,
+    return QRect(itemRect.left() + LOCATION_ITEM_MARGIN * G_SCALE * 4 + LOCATION_ITEM_FLAG_WIDTH * G_SCALE,
                  itemRect.top() + (itemRect.height() - pixmapCaption.height()) / 2,
                  pixmapCaption.width(), pixmapCaption.height());
 }
