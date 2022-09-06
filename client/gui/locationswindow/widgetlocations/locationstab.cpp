@@ -3,6 +3,7 @@
 #include <QMessageBox>
 #include <QPainter>
 #include <QtMath>
+
 #include "graphicresources/imageresourcessvg.h"
 #include "commongraphics/commongraphics.h"
 #include "graphicresources/fontmanager.h"
@@ -259,6 +260,20 @@ void LocationsTab::mousePressEvent(QMouseEvent *event)
     }
 }
 
+void LocationsTab::mouseReleaseEvent(QMouseEvent *event)
+{
+    if (event->button() == Qt::LeftButton)
+    {
+        if (curTabMouseOver_ != LOCATION_TAB_NONE &&  curTabMouseOver_ != curTab_ && tabPress_ == curTabMouseOver_)
+        {
+            // Currently this should only handle non-search icons
+            // qCDebug(LOG_USER) << "Clicked tab: " << curTabMouseOver_;
+            changeTab(curTabMouseOver_);
+        }
+    }
+}
+
+
 void LocationsTab::changeTab(LocationTabEnum newTab, bool animateChange)
 {
     lastTab_ = curTab_;
@@ -301,18 +316,6 @@ void LocationsTab::changeTab(LocationTabEnum newTab, bool animateChange)
     update();
 }
 
-void LocationsTab::mouseReleaseEvent(QMouseEvent *event)
-{
-    if (event->button() == Qt::LeftButton)
-    {
-        if (curTabMouseOver_ != LOCATION_TAB_NONE &&  curTabMouseOver_ != curTab_ && tabPress_ == curTabMouseOver_)
-        {
-            // Currently this should only handle non-search icons
-            // qCDebug(LOG_USER) << "Clicked tab: " << curTabMouseOver_;
-            changeTab(curTabMouseOver_);
-        }
-    }
-}
 
 void LocationsTab::leaveEvent(QEvent *event)
 {
@@ -331,19 +334,7 @@ bool LocationsTab::eventFilter(QObject *object, QEvent *event)
         {
             // qDebug() << "Filtered KeyRelease from search line edit";
             QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
-            if (keyEvent->key() == Qt::Key_Enter || keyEvent->key() == Qt::Key_Return)
-            {
-                passEventToLocationWidget(keyEvent);
-            }
-            else if (keyEvent->key() == Qt::Key_Down)
-            {
-                passEventToLocationWidget(keyEvent);
-            }
-            else if (keyEvent->key() == Qt::Key_Up)
-            {
-                passEventToLocationWidget(keyEvent);
-            }
-            else if (keyEvent->key() == Qt::Key_Escape)
+            if (keyEvent->key() == Qt::Key_Escape)
             {
                 if (searchLineEdit_->text() == "")
                 {
@@ -364,100 +355,16 @@ bool LocationsTab::eventFilter(QObject *object, QEvent *event)
             if (keyEvent->key() == Qt::Key_Up ||
                 keyEvent->key() == Qt::Key_Down)
             {
+                passEventToLocationWidget(keyEvent);
                 return true;
+            }
+            else if (keyEvent->key() == Qt::Key_PageDown || keyEvent->key() == Qt::Key_PageUp
+                     || keyEvent->key() == Qt::Key_Enter || keyEvent->key() == Qt::Key_Return) {
+                passEventToLocationWidget(keyEvent);
             }
         }
     }
     return QWidget::eventFilter(object, event);
-}
-
-void LocationsTab::keyPressEvent(QKeyEvent *event)
-{
-    // let the release handle these
-    if (event->key() == Qt::Key_Right  ||
-        event->key() == Qt::Key_Left   ||
-        event->key() == Qt::Key_Up     ||
-        event->key() == Qt::Key_Down   ||
-        event->key() == Qt::Key_Tab    ||
-        event->key() == Qt::Key_Return ||
-        event->key() == Qt::Key_Enter )
-    {
-        return;
-    }
-
-    // block non-chars
-    if ((event->key() & Qt::Key_Escape) == Qt::Key_Escape)
-    {
-        return;
-    }
-
-    // set locations tab to search screen
-    if (curTab_ != LOCATION_TAB_SEARCH_LOCATIONS)
-    {
-        if (event->key() != Qt::Key_Space) // prevent space from triggering search when intention is to close locations tray
-        {
-            switchToTabAndRestoreCursorToAccentedItem(LOCATION_TAB_SEARCH_LOCATIONS);
-
-            // Adding text to search text must be handled in the keyPress instead of keyRelease because
-            // during focus transition from locationsTab -> searchLineEdit: mainWindow no longer fires keyReleaseEvents
-            // while searchLineEdit has not yet picked up the focus (it uses keyPressEvents too)
-            // qDebug() << "Appending text: " << event->text();
-            searchLineEdit_->appendText(event->text());
-            searchLineEdit_->setFocus();
-        }
-    }
-    else
-    {
-        searchLineEdit_->appendText(event->text());
-        searchLineEdit_->setFocus();
-    }
-}
-
-void LocationsTab::keyReleaseEvent(QKeyEvent *event)
-{
-    TooltipController::instance().hideAllTooltips();
-
-    if (event->key() == Qt::Key_Right)
-    {
-        if (showAllTabs_)
-        {
-            int curTabInt = static_cast<int>(curTab_);
-            if (curTabInt < LOCATION_TAB_LAST)
-            {
-                curTabInt++;
-                switchToTabAndRestoreCursorToAccentedItem(static_cast<LocationTabEnum>(curTabInt));
-            }
-        }
-    }
-    else if (event->key() == Qt::Key_Left)
-    {
-        if (showAllTabs_)
-        {
-            int curTabInt = static_cast<int>(curTab_);
-            if (curTabInt > LOCATION_TAB_FIRST)
-            {
-                curTabInt--;
-                switchToTabAndRestoreCursorToAccentedItem(static_cast<LocationTabEnum>(curTabInt));
-            }
-        }
-    }
-    else if (event->key() == Qt::Key_Tab)
-    {
-        // bring focus back into search line edit when focus is elsewhere
-        // Strage behaviour on Mac (at least) -- issue probably exists in event system
-        // can't see to use searchLineEdit_->hasFocus() -- always false
-        if (focusOutTimer_.elapsed() > 200)
-        {
-            searchLineEdit_->setFocus();
-        }
-    }
-    else if (event->key() == Qt::Key_Up ||
-             event->key() == Qt::Key_Down ||
-             event->key() == Qt::Key_Return ||
-             event->key() == Qt::Key_Enter )
-    {
-        passEventToLocationWidget(event);
-    }
 }
 
 void LocationsTab::onClickAllLocations()
@@ -544,6 +451,7 @@ void LocationsTab::switchToTabAndRestoreCursorToAccentedItem(LocationTabEnum loc
     {
         changeTab(locationTab);
     }
+    getCurrentWidget()->locationsView()->updateSelected();
 
     // move cursor to previously selected accent item
     /*if (previousSelectedLocId.isValid())
@@ -702,6 +610,12 @@ bool LocationsTab::isWhiteAnimationActive()
 
 void LocationsTab::passEventToLocationWidget(QKeyEvent *event)
 {
+    WidgetSwitcher *curWidget = getCurrentWidget();
+    if (curWidget)
+        curWidget->locationsView()->handleKeyPressEvent(event);
+
+    //QApplication::sendEvent(locationsTab_, event);
+
     /*IWidgetLocationsInfo * curWidgetLoc = currentWidgetLocations();
     if (curWidgetLoc != nullptr)
     {
@@ -714,6 +628,25 @@ void LocationsTab::passEventToLocationWidget(QKeyEvent *event)
             curWidgetLoc->accentFirstItem();
         }
     }*/
+}
+
+WidgetSwitcher *LocationsTab::getCurrentWidget() const
+{
+    switch (curTab_) {
+        case LOCATION_TAB_ALL_LOCATIONS:
+            return widgetAllLocations_;
+        case LOCATION_TAB_FAVORITE_LOCATIONS:
+            return widgetFavoriteLocations_;
+        case LOCATION_TAB_STATIC_IPS_LOCATIONS:
+            return widgetStaticIpsLocations_;
+        case LOCATION_TAB_CONFIGURED_LOCATIONS:
+            return widgetConfiguredLocations_;
+        case LOCATION_TAB_SEARCH_LOCATIONS:
+            return widgetSearchLocations_;
+        default:
+            Q_ASSERT(false);
+            return nullptr;
+    }
 }
 
 void LocationsTab::updateTabIconRects()
@@ -884,6 +817,83 @@ void LocationsTab::setMuteAccentChanges(bool mute)
     widgetStaticIpsLocations_ ->setMuteAccentChanges(mute);
     widgetFavoriteLocations_  ->setMuteAccentChanges(mute);
     widgetSearchLocations_    ->setMuteAccentChanges(mute);*/
+}
+
+bool LocationsTab::handleKeyPressEvent(QKeyEvent *event)
+{
+    TooltipController::instance().hideAllTooltips();
+
+    if (event->key() == Qt::Key_Right)
+    {
+        if (showAllTabs_)
+        {
+            int curTabInt = static_cast<int>(curTab_);
+            if (curTabInt < LOCATION_TAB_LAST)
+            {
+                curTabInt++;
+                switchToTabAndRestoreCursorToAccentedItem(static_cast<LocationTabEnum>(curTabInt));
+            }
+        }
+        return true;
+    }
+    else if (event->key() == Qt::Key_Left)
+    {
+        if (showAllTabs_)
+        {
+            int curTabInt = static_cast<int>(curTab_);
+            if (curTabInt > LOCATION_TAB_FIRST)
+            {
+                curTabInt--;
+                switchToTabAndRestoreCursorToAccentedItem(static_cast<LocationTabEnum>(curTabInt));
+            }
+        }
+        return true;
+    }
+    else if (event->key() == Qt::Key_Tab)
+    {
+        // bring focus back into search line edit when focus is elsewhere
+        // Strage behaviour on Mac (at least) -- issue probably exists in event system
+        // can't see to use searchLineEdit_->hasFocus() -- always false
+        if (focusOutTimer_.elapsed() > 200)
+        {
+            searchLineEdit_->setFocus();
+        }
+        return true;
+    }
+    else if (event->key() == Qt::Key_Up ||
+             event->key() == Qt::Key_Down ||
+             event->key() == Qt::Key_PageDown ||
+             event->key() == Qt::Key_PageUp ||
+             event->key() == Qt::Key_Return ||
+             event->key() == Qt::Key_Enter )
+    {
+        passEventToLocationWidget(event);
+        return true;
+    }
+
+    // set locations tab to search screen
+    if (curTab_ != LOCATION_TAB_SEARCH_LOCATIONS)
+    {
+        if (event->key() != Qt::Key_Space) // prevent space from triggering search when intention is to close locations tray
+        {
+            switchToTabAndRestoreCursorToAccentedItem(LOCATION_TAB_SEARCH_LOCATIONS);
+
+            // Adding text to search text must be handled in the keyPress instead of keyRelease because
+            // during focus transition from locationsTab -> searchLineEdit: mainWindow no longer fires keyReleaseEvents
+            // while searchLineEdit has not yet picked up the focus (it uses keyPressEvents too)
+            // qDebug() << "Appending text: " << event->text();
+            searchLineEdit_->appendText(event->text());
+            searchLineEdit_->setFocus();
+            return true;
+        }
+    }
+    else
+    {
+        searchLineEdit_->appendText(event->text());
+        searchLineEdit_->setFocus();
+        return true;
+    }
+    return false;
 }
 
 LocationsTab::LocationTabEnum LocationsTab::currentTab()

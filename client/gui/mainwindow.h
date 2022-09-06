@@ -44,6 +44,8 @@ public:
     QRect trayIconRect();
     void showAfterLaunch();
 
+    bool handleKeyPressEvent(QKeyEvent *event);
+
 protected:
     bool event(QEvent *event);
     void closeEvent(QCloseEvent *event);
@@ -52,8 +54,6 @@ protected:
     virtual void mousePressEvent(QMouseEvent *event);
     virtual void mouseReleaseEvent(QMouseEvent *event);
 
-    virtual void keyPressEvent(QKeyEvent *event);
-    virtual void keyReleaseEvent(QKeyEvent *event);
 
     virtual void paintEvent(QPaintEvent *event);
 

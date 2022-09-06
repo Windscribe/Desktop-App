@@ -40,6 +40,8 @@ public:
 
     void setMuteAccentChanges(bool mute);
 
+    bool handleKeyPressEvent(QKeyEvent *event);
+
     enum LocationTabEnum {
         LOCATION_TAB_NONE = 0,
         LOCATION_TAB_ALL_LOCATIONS,
@@ -67,8 +69,6 @@ protected:
     void mouseReleaseEvent(QMouseEvent *event) override;
     void leaveEvent(QEvent *event)             override;
     bool eventFilter(QObject *object, QEvent *event) override;
-    void keyPressEvent(QKeyEvent *event) override;
-    void keyReleaseEvent(QKeyEvent *event) override;
 
 signals:
     void selected(LocationID id);
@@ -171,6 +171,7 @@ private:
     QVariantAnimation searchButtonPosAnimation_;
     void updateTabIconRects();
     void passEventToLocationWidget(QKeyEvent *event);
+    WidgetSwitcher *getCurrentWidget() const;
 };
 
 } // namespace GuiLocations

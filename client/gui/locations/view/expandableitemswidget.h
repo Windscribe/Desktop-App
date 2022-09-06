@@ -26,7 +26,12 @@ public:
     void setShowLatencyInMs(bool isShowLatencyInMs);
     void setShowLocationLoad(bool isShowLocationLoad);
 
-    void updateSelectedItem();
+    void selectFirstItemIfNoSelected();
+
+    void updateSelectedItemByCursorPos();
+    // select an item that is offset from the current one
+    // returns the upper coordinate of the new selected item
+    int selectItemByOffs(int offs);
 
     void expandAll();
     void collapseAll();
@@ -44,7 +49,6 @@ protected:
 signals:
     // the expanding items should be visible so send this signal to LocationsView to update the scroll position.
     void expandingAnimationStarted(int top, int height);
-
     void emptyListStateChanged(bool isEmptyList);
 
 private slots:
@@ -91,7 +95,7 @@ private:
     bool isExpandableItem(const QPersistentModelIndex &ind);
     void updateHeight();
     int calcHeightOfChildItems(const QPersistentModelIndex &ind);
-    int getOffsForItem(const QPersistentModelIndex &ind);
+    int getOffsForTopLevelItem(const QPersistentModelIndex &ind);
     void initCacheDataForChilds(const QPersistentModelIndex &parentInd);
     void clearCacheDataForChilds(const QPersistentModelIndex &parentInd);
 

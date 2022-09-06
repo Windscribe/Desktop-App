@@ -14,6 +14,7 @@ namespace gui_locations {
 LocationsView::LocationsView(QWidget *parent, QAbstractItemModel *model) : QScrollArea(parent)
 {
     setFrameStyle(QFrame::NoFrame);
+    setFocusPolicy(Qt::NoFocus);
 
     // scrollbar
     scrollBar_ = new ScrollBar(this);
@@ -21,7 +22,9 @@ LocationsView::LocationsView(QWidget *parent, QAbstractItemModel *model) : QScro
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     connect(scrollBar_, &ScrollBar::actionTriggered, this, &LocationsView::onScrollBarActionTriggered);
     connect(scrollBar_, &ScrollBar::valueChanged, [this]() {
-        widget_->updateSelectedItem();
+        if (isCursorInList()) {
+            widget_->updateSelectedItemByCursorPos();
+        }
     });
 
     scrollBar_->setSingleStep(qCeil(LOCATION_ITEM_HEIGHT * G_SCALE));
@@ -67,6 +70,12 @@ void LocationsView::scrollToTop()
     scrollBar_->setValueWithoutAnimation(0);
 }
 
+void LocationsView::updateSelected()
+{
+    if (isCursorInList())
+        widget_->updateSelectedItemByCursorPos();
+}
+
 bool LocationsView::eventFilter(QObject *object, QEvent *event)
 {
     if (object == scrollBar_ && event->type() == QEvent::Wheel)
@@ -75,7 +84,7 @@ bool LocationsView::eventFilter(QObject *object, QEvent *event)
         // We process only real events from the mouse.
         // The event can also be from the touchpad - in this case, let's let it be processed in the ScrollBar.
         if (wheelEvent->source() == Qt::MouseEventNotSynthesized) {
-            scrollBar_->scrollDx(-wheelEvent->angleDelta().y()/2);
+            scrollBar_->scrollDx(-wheelEvent->angleDelta().y());
             return true;
         }
     }
@@ -83,11 +92,43 @@ bool LocationsView::eventFilter(QObject *object, QEvent *event)
     return QScrollArea::eventFilter(object, event);
 }
 
+bool LocationsView::handleKeyPressEvent(QKeyEvent *event)
+{
+    int scrollOffs = 0;
+    if (event->key() == Qt::Key_Up) {
+        scrollOffs = -1;
+    } else if (event->key() == Qt::Key_Down) {
+        scrollOffs = 1;
+    }
+    else if (event->key() == Qt::Key_PageUp) {
+        scrollOffs = -viewport()->height() / qCeil(LOCATION_ITEM_HEIGHT * G_SCALE);
+    }
+    else if (event->key() == Qt::Key_PageDown) {
+        scrollOffs = viewport()->height() / qCeil(LOCATION_ITEM_HEIGHT * G_SCALE);
+    }
+
+    if (scrollOffs != 0) {
+        int pos = widget_->selectItemByOffs(scrollOffs);
+
+        QScrollArea::ensureVisible(0, pos, 0, 0);
+        QScrollArea::ensureVisible(0, pos, 0, 0);
+        QScrollArea::ensureVisible(0, pos + qCeil(LOCATION_ITEM_HEIGHT * G_SCALE), 0, 0);
+        QScrollArea::ensureVisible(0, pos + qCeil(LOCATION_ITEM_HEIGHT * G_SCALE), 0, 0);
+
+        if (isCursorInList()) {
+           moveCursorToItem(pos);
+        }
+    }
+
+    return false;
+}
+
 void LocationsView::paintEvent(QPaintEvent */*event*/)
 {
     QPainter painter(viewport());
     QRect bkgd(0,0,geometry().width(), geometry().height());
-    painter.fillRect(bkgd, FontManager::instance().getMidnightColor());
+    //painter.fillRect(bkgd, FontManager::instance().getMidnightColor());
+    painter.fillRect(bkgd, Qt::green);
 }
 
 void LocationsView::resizeEvent(QResizeEvent *event)
@@ -97,7 +138,6 @@ void LocationsView::resizeEvent(QResizeEvent *event)
     scrollBar_->setFixedWidth(kScrollBarWidth * G_SCALE);
 }
 
-
 void LocationsView::ensureVisible(int top, int bottom)
 {
     if (bottom > (scrollBar_->value() + viewport()->height())) {
@@ -105,6 +145,21 @@ void LocationsView::ensureVisible(int top, int bottom)
         newPos = qMin(newPos, top);
         scrollBar_->setValueWithAnimation(newPos);
     }
+}
+
+bool LocationsView::isCursorInList()
+{
+    const QPoint widgetPos = geometry().topLeft();
+    const QPoint widgetPosGlobal = this->mapToGlobal(widgetPos);
+    const QRect widgetRectGlobal(widgetPosGlobal.x(), widgetPosGlobal.y(), widget_->geometry().width(), geometry().height());
+    return widgetRectGlobal.contains(QCursor::pos());
+}
+
+void LocationsView::moveCursorToItem(int top)
+{
+    const QPoint globalItemPos = mapToGlobal(QPoint(0, top - scrollBar_->value()));
+    //const QRect globalItemRect(globalItemPos.x(), globalItemPos.y(), widget_->geometry().width(), qCeil(LOCATION_ITEM_HEIGHT * G_SCALE));
+    QCursor::setPos(QCursor::pos().x(), globalItemPos.y() + qCeil(LOCATION_ITEM_HEIGHT * G_SCALE) / 2);
 }
 
 void LocationsView::onScrollBarActionTriggered(int action)

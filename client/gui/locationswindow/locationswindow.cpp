@@ -93,14 +93,9 @@ GuiLocations::LocationsTab::LocationTabEnum LocationsWindow::currentTab()
     return locationsTab_->currentTab();
 }
 
-void LocationsWindow::keyPressEvent(QKeyEvent *event)
+bool LocationsWindow::handleKeyPressEvent(QKeyEvent *event)
 {
-    QApplication::sendEvent(locationsTab_, event);
-}
-
-void LocationsWindow::keyReleaseEvent(QKeyEvent *event)
-{
-    QApplication::sendEvent(locationsTab_, event);
+    return locationsTab_->handleKeyPressEvent(event);
 }
 
 void LocationsWindow::setLatencyDisplay(LATENCY_DISPLAY_TYPE l)

@@ -30,9 +30,7 @@ public:
     void hideSearchTabWithoutAnimation();
     GuiLocations::LocationsTab::LocationTabEnum currentTab();
 
-protected:
-    void keyPressEvent(QKeyEvent *event) override;
-    void keyReleaseEvent(QKeyEvent *event) override;
+    bool handleKeyPressEvent(QKeyEvent *event);
 
 public slots:
     void setLatencyDisplay(LATENCY_DISPLAY_TYPE l);

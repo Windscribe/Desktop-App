@@ -668,146 +668,14 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *event)
     }
 }
 
-void MainWindow::keyPressEvent(QKeyEvent *event)
+bool MainWindow::handleKeyPressEvent(QKeyEvent *event)
 {
-#ifdef QT_DEBUG
-    if (event->modifiers() & Qt::ControlModifier)
-    {
-        if (event->key() == Qt::Key_L)
-        {
-            gotoLoginWindow();
-        }
-        else if (event->key() == Qt::Key_E)
-        {
-            mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_EMERGENCY);
-        }
-        else if (event->key() == Qt::Key_Q)
-        {
-            mainWindowController_->expandPreferences();
-        }
-        else if (event->key() == Qt::Key_W)
-        {
-            collapsePreferences();
-        }
-        else if (event->key() == Qt::Key_A)
-        {
-            mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_LOGGING_IN);
-        }
-        else if (event->key() == Qt::Key_C)
-        {
-            mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_CONNECT);
-        }
-        else if (event->key() == Qt::Key_I)
-        {
-            mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_INITIALIZATION);
-        }
-        else if (event->key() == Qt::Key_Z)
-        {
-            mainWindowController_->expandLocations();
-        }
-        else if (event->key() == Qt::Key_X)
-        {
-            mainWindowController_->collapseLocations();
-        }
-        else if (event->key() == Qt::Key_N)
-        {
-            mainWindowController_->getNewsFeedWindow()->setMessages(
-                notificationsController_.messages(), notificationsController_.shownIds());
-            mainWindowController_->expandNewsFeed();
-        }
-        else if (event->key() == Qt::Key_V)
-        {
-            mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_EXTERNAL_CONFIG);
-        }
-        else if (event->key() == Qt::Key_O)
-        {
-            mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_UPGRADE);
-        }
-        else if (event->key() == Qt::Key_B)
-        {
-            mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_UPDATE);
-        }
-        else if (event->key() == Qt::Key_M)
-        {
-            mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_GENERAL_MESSAGE);
-        }
-        else if (event->key() == Qt::Key_D)
-        {
-            mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_EXIT);
-        }
-        else if (event->key() == Qt::Key_F)
-        {
-            mainWindowController_->changeWindow(MainWindowController::WINDOW_CMD_CLOSE_EXIT);
-        }
-        else if (event->key() == Qt::Key_U)
-        {
-            mainWindowController_->showUpdateWidget();
-        }
-        else if (event->key() == Qt::Key_Y)
-        {
-            mainWindowController_->hideUpdateWidget();
-        }
-        else if (event->key() == Qt::Key_G)
-        {
-        }
-        else if (event->key() == Qt::Key_H)
-        {
-            /*types::ShareSecureHotspot ss = backend_->getShareSecureHotspot();
-            ss.set_is_enabled(!ss.is_enabled());
-            ss.set_ssid("WifiName");
-            backend_->setShareSecureHotspot(ss);
-            */
-            mainWindowController_->getBottomInfoWindow()->setDaysRemaining(-1);
-        }
-        else if (event->key() == Qt::Key_J)
-        {
-            /*types::ShareProxyGateway sp = backend_->getShareProxyGateway();
-            sp.set_is_enabled(!sp.is_enabled());
-            backend_->setShareProxyGateway(sp);
-			*/
-            mainWindowController_->getBottomInfoWindow()->setDaysRemaining(3);
-        }
-        else if (event->key() == Qt::Key_P)
-        {
-            /*types::ShareSecureHotspot ss = backend_->getShareSecureHotspot();
-            ss.set_is_enabled(!ss.is_enabled());
-            ss.set_ssid("WifiName");
-            backend_->setShareSecureHotspot(ss);
-
-            types::ShareProxyGateway sp = backend_->getShareProxyGateway();
-            sp.set_is_enabled(!sp.is_enabled());
-            backend_->setShareProxyGateway(sp);
-			*/
-        }
-    }
-#endif
-    // for feeding chars to searchbar when mainwindow has focus
-    // qDebug() << "MainWindow::keyPressEvent";
-    if (mainWindowController_->isLocationsExpanded())
-    {
-        if(event->key() != Qt::Key_Escape || event->key() != Qt::Key_Space)
-        {
-            QApplication::sendEvent(mainWindowController_->getLocationsWindow(), event);
-        }
-    }
-
-    QWidget::keyPressEvent(event);
-}
-
-void MainWindow::keyReleaseEvent(QKeyEvent *event)
-{
-    // qDebug() << "MainWindow::keyReleaseEvent";
     if (mainWindowController_->isLocationsExpanded())
     {
         if(event->key() == Qt::Key_Escape || event->key() == Qt::Key_Space)
         {
-            // qCDebug(LOG_USER) << "Collapsing Locations [key]";
             mainWindowController_->collapseLocations();
-        }
-        else
-        {
-            // qCDebug(LOG_BASIC) << "Pass keyEvent to locations";
-            QApplication::sendEvent(mainWindowController_->getLocationsWindow(), event);
+            return true;
         }
     }
     else if (mainWindowController_->currentWindow() == MainWindowController::WINDOW_ID_CONNECT
@@ -815,16 +683,17 @@ void MainWindow::keyReleaseEvent(QKeyEvent *event)
     {
         if (event->key() == Qt::Key_Down || event->key() == Qt::Key_Space)
         {
-            // qCDebug(LOG_USER) << "Expanding Locations [key]";
             mainWindowController_->expandLocations();
+            return true;
         }
         else if (event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return)
         {
             onConnectWindowConnectClick();
+            return true;
         }
     }
 
-    QWidget::keyReleaseEvent(event);
+    return false;
 }
 
 void MainWindow::paintEvent(QPaintEvent *event)

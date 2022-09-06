@@ -28,12 +28,15 @@ public:
     void expandAll() { widget_->expandAll(); }
     void collapseAll() { widget_->collapseAll(); }
     void scrollToTop();
+    void updateSelected();
 
     bool eventFilter(QObject *object, QEvent *event) override;
+    bool handleKeyPressEvent(QKeyEvent *event);
 
 protected:
     void paintEvent(QPaintEvent *event) override;
     void resizeEvent(QResizeEvent *event) override;
+
 
 signals:
      void selected(const LocationID &lid);
@@ -52,6 +55,8 @@ private:
     ScrollBar *scrollBar_;
 
     void ensureVisible(int top, int bottom);
+    bool isCursorInList();
+    void moveCursorToItem(int top);
 };
 
 } // namespace gui_locations

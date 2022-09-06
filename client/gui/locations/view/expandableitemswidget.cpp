@@ -146,7 +146,7 @@ void ExpandableItemsWidget::setShowLocationLoad(bool isShowLocationLoad)
     update();
 }
 
-void ExpandableItemsWidget::updateSelectedItem()
+void ExpandableItemsWidget::updateSelectedItemByCursorPos()
 {
     QPoint localCursorPos = mapFromGlobal(QCursor::pos());
     QPersistentModelIndex sel = detectSelectedItem(localCursorPos, &selectedIndRect_);
@@ -193,6 +193,52 @@ void ExpandableItemsWidget::updateSelectedItem()
             }
         }
     }
+}
+
+int ExpandableItemsWidget::selectItemByOffs(int offs)
+{
+    // if no selected item, then select first one
+    if (!selectedInd_.isValid()) {
+        if (items_.count() > 0) {
+            selectedInd_ = items_[0];
+            update();
+        }
+    } else {
+        QVector<QPersistentModelIndex> visibleItems;
+        int selectedItemInd = -1;
+
+        for (const auto &it : qAsConst(items_)) {
+            if (it == selectedInd_) {
+                selectedItemInd = visibleItems.count();
+            }
+            visibleItems << it;
+            const bool isExpanded = expandedItems_.contains(it);
+            if (isExpanded) {
+                int row = 0;
+                QModelIndex childInd = it.model()->index(row, 0, it);
+                while (childInd.isValid()) {
+                    if (childInd == selectedInd_) {
+                        selectedItemInd = visibleItems.count();
+                    }
+                    visibleItems << childInd;
+                    row++;
+                    childInd = it.model()->index(row, 0, it);
+                }
+            }
+        }
+        if (selectedItemInd == -1) {
+            Q_ASSERT(false);
+            return 0;
+        } else {
+            int newSelectedItemInd = selectedItemInd + offs;
+            newSelectedItemInd = qMin(newSelectedItemInd, visibleItems.count() - 1);
+            newSelectedItemInd = qMax(newSelectedItemInd, 0);
+            selectedInd_ = visibleItems[newSelectedItemInd];
+            update();
+            return newSelectedItemInd * itemHeight_;
+        }
+    }
+    return 0;
 }
 
 void ExpandableItemsWidget::expandAll()
@@ -275,7 +321,7 @@ void ExpandableItemsWidget::mouseMoveEvent(QMouseEvent *event)
 {
     if (bMousePressed_)
         return;
-    updateSelectedItem();
+    updateSelectedItemByCursorPos();
     QWidget::mouseMoveEvent(event);
 }
 
@@ -305,7 +351,7 @@ void ExpandableItemsWidget::mousePressEvent(QMouseEvent *event)
                             expandingCurrentHeight_ = 0;
                             int heightOfChilds = calcHeightOfChildItems(expandingItem_);
                             setupExpandingAnimation(QAbstractAnimation::Forward, 0, heightOfChilds, kExpandingAnimationDuration);
-                            int offs = getOffsForItem(expandingItem_);
+                            int offs = getOffsForTopLevelItem(expandingItem_);
                             emit expandingAnimationStarted(offs, heightOfChilds);
                             expandingAnimation_.start();
                         }
@@ -477,7 +523,7 @@ int ExpandableItemsWidget::calcHeightOfChildItems(const QPersistentModelIndex &i
     return model_->rowCount(ind) * itemHeight_;
 }
 
-int ExpandableItemsWidget::getOffsForItem(const QPersistentModelIndex &ind)
+int ExpandableItemsWidget::getOffsForTopLevelItem(const QPersistentModelIndex &ind)
 {
     int top = 0;
     for (const auto &it : qAsConst(items_)) {
@@ -540,7 +586,7 @@ void ExpandableItemsWidget::updateExpandingAnimationParams()
                 expandingCurrentHeight_ = curValue;
                 setupExpandingAnimation(QAbstractAnimation::Forward, curValue, heightOfChilds, kExpandingAnimationDuration - curTime);
 
-                int offs = getOffsForItem(expandingItem_);
+                int offs = getOffsForTopLevelItem(expandingItem_);
                 emit expandingAnimationStarted(offs, heightOfChilds);
 
                 expandingAnimation_.start();

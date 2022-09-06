@@ -42,7 +42,7 @@ void CountryItemDelegate::paint(QPainter *painter, const ItemStyleOption &option
     if (flag)
     {
         const int pixmapFlagHeight = flag->height();
-        flag->draw(left_offs + LOCATION_ITEM_MARGIN*G_SCALE, top_offs + (option.rect.height() - pixmapFlagHeight) / 2, painter);
+        flag->draw(left_offs + LOCATION_ITEM_MARGIN*2*G_SCALE, top_offs + (option.rect.height() - pixmapFlagHeight) / 2, painter);
     }
 
     // pro star
@@ -52,9 +52,9 @@ void CountryItemDelegate::paint(QPainter *painter, const ItemStyleOption &option
         proRegionStar->draw(left_offs + 8 * G_SCALE, top_offs + (option.rect.height() - 16*G_SCALE) / 2 - 9*G_SCALE, painter);
     }
 
-    double textOpacity = OPACITY_UNHOVER_TEXT + (OPACITY_FULL - OPACITY_UNHOVER_TEXT) * option.selectedOpacity();
 
     // text
+    double textOpacity = OPACITY_UNHOVER_TEXT + (OPACITY_FULL - OPACITY_UNHOVER_TEXT) * option.selectedOpacity();
     const CountryItemDelegateCache *cache = static_cast<const CountryItemDelegateCache *>(cacheData);
     painter->setOpacity(textOpacity );
     QRect rc = option.rect;
@@ -68,7 +68,7 @@ void CountryItemDelegate::paint(QPainter *painter, const ItemStyleOption &option
         painter->setOpacity(OPACITY_HALF);
 
         QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap("locations/NO_P2P_ICON");
-        QRect p2pr = QRect(option.rect.width() - 65*G_SCALE,
+        QRect p2pr = QRect(option.rect.width() - 57*G_SCALE,
                            (option.rect.height() - p->height()) / 2,
                            p->width(),
                            p->height());
@@ -105,7 +105,7 @@ void CountryItemDelegate::paint(QPainter *painter, const ItemStyleOption &option
 
     // bottom lines
     int left = left_offs + static_cast<int>(24 * G_SCALE);
-    int right = left_offs + static_cast<int>(option.rect.width() - 8*G_SCALE);
+    int right = left_offs + static_cast<int>(option.rect.width());
     int bottom = top_offs + option.rect.height() - 1; // 1 is not scaled since we want bottom-most pixel inside geometry
     painter->setOpacity(1.0);
 
@@ -238,7 +238,7 @@ void CountryItemDelegate::tooltipLeaveEvent(int tooltipId) const
 QRect CountryItemDelegate::p2pRect(const QRect &itemRect) const
 {
     QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap("locations/NO_P2P_ICON");
-    return QRect(itemRect.width() - 65*G_SCALE + itemRect.left(),
+    return QRect(itemRect.width() - 57*G_SCALE + itemRect.left(),
                 (itemRect.height() - p->height()) / 2 + itemRect.top(),
                  p->width(),
                  p->height());

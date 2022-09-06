@@ -64,7 +64,7 @@ MainWindowController::MainWindowController(QWidget *parent, LocationsWindow *loc
 
     view_ = new QGraphicsView(mainWindow_);
     scene_ = new QGraphicsScene(mainWindow_);
-
+    view_->installEventFilter(this);
     view_->setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform | QPainter::TextAntialiasing);
 
     loginWindow_ = new LoginWindow::LoginWindowItem(nullptr, preferencesHelper);
@@ -1269,6 +1269,23 @@ void MainWindowController::hideLocationsWindow()
 void MainWindowController::clearServerRatingsTooltipState()
 {
     TooltipController::instance().clearServerRatings();
+}
+
+bool MainWindowController::eventFilter(QObject *watched, QEvent *event)
+{
+    // Since the locations window has no focus, we have to send keyboard events there when the list of locations is expanded
+    // Also, we first need to send an event to the main window, since it contains some logic for keyboard processing
+    // It's a bit confusing - we  should do refactoring with control focuses
+    if (watched == view_ && (event->type() == QEvent::KeyPress /*|| event->type() == QEvent::KeyRelease*/)) {
+        const bool bLocationsExpanded = isLocationsExpanded();
+        if (static_cast<MainWindow *>(mainWindow_)->handleKeyPressEvent(static_cast<QKeyEvent *>(event))) {
+            return true;
+        }
+        if (bLocationsExpanded && locationsWindow_->handleKeyPressEvent(static_cast<QKeyEvent *>(event))) {
+            return true;
+        }
+    }
+    return QObject::eventFilter(watched, event);
 }
 
 #ifdef Q_OS_MAC

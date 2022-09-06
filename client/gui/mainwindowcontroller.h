@@ -108,6 +108,8 @@ public:
 
     void clearServerRatingsTooltipState();
 
+    bool eventFilter(QObject *watched, QEvent *event) override;
+
 #ifdef Q_OS_MAC
     void updateNativeShadowIfNeeded();
 #endif
