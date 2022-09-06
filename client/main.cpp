@@ -117,8 +117,9 @@ int main(int argc, char *argv[])
 
     #ifdef Q_OS_WIN
     // Fixes fuzzy text and graphics on Windows when a display is set to a fractional scaling value (e.g. 150%).
-    // Warning: I tried Round and RoundPreferFloor on Qt 6.2.4 and 6.3.1, but they produce strange clipping
-    // behavior when one minimizes the app, changes the display's scale, then restores the app.
+    // Warning: I tried Floor, Round, RoundPreferFloor, and Ceil on Qt 6.2.4 and 6.3.1, and they all produce
+    // strange clipping behavior when one minimizes the app, changes the display's scale, then restores the app.
+    // Using the Floor setting, at least on Windows 10, appeared to minimize this behavior.
     QGuiApplication::setHighDpiScaleFactorRoundingPolicy(Qt::HighDpiScaleFactorRoundingPolicy::Floor);
     #endif
 
