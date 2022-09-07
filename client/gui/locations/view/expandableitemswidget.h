@@ -92,6 +92,12 @@ private:
 
     QSet<int> hoveringToolTips_;
 
+    struct ItemRect {
+        QPersistentModelIndex modelIndex;
+        QRect rc;
+        bool isExpanded;
+    };
+
     void setModel(QAbstractItemModel *model);
     void resetItemsList();
     QPersistentModelIndex detectSelectedItem(const QPoint &pt, QRect *outputRect = nullptr);
@@ -112,6 +118,7 @@ private:
     void debugAssertCheckInternalData();   // for debug purposes
     void stopExpandingAnimation();
     void expandItem(const QPersistentModelIndex &ind);
+    QVector<ItemRect> getItemRects();
 };
 
 } // namespace gui_locations

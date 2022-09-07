@@ -204,36 +204,16 @@ int ExpandableItemsWidget::selectItemByOffs(int offs)
             update();
         }
     } else {
-        QVector<QPersistentModelIndex> visibleItems;
-        int selectedItemInd = -1;
-
-        for (const auto &it : qAsConst(items_)) {
-            if (it == selectedInd_) {
-                selectedItemInd = visibleItems.count();
-            }
-            visibleItems << it;
-            const bool isExpanded = expandedItems_.contains(it);
-            if (isExpanded) {
-                int row = 0;
-                QModelIndex childInd = it.model()->index(row, 0, it);
-                while (childInd.isValid()) {
-                    if (childInd == selectedInd_) {
-                        selectedItemInd = visibleItems.count();
-                    }
-                    visibleItems << childInd;
-                    row++;
-                    childInd = it.model()->index(row, 0, it);
-                }
-            }
-        }
-        if (selectedItemInd == -1) {
+        QVector<ItemRect> items = getItemRects();
+        auto it = std::find_if(items.begin(), items.end(), [this](const ItemRect &item) { return item.modelIndex == selectedInd_;});
+        if (it == items.end()) {
             Q_ASSERT(false);
             return 0;
         } else {
-            int newSelectedItemInd = selectedItemInd + offs;
-            newSelectedItemInd = qMin(newSelectedItemInd, visibleItems.count() - 1);
+            int newSelectedItemInd = it - items.begin()  + offs;
+            newSelectedItemInd = qMin(newSelectedItemInd, items.count() - 1);
             newSelectedItemInd = qMax(newSelectedItemInd, 0);
-            selectedInd_ = visibleItems[newSelectedItemInd];
+            selectedInd_ = items[newSelectedItemInd].modelIndex;
             if (selectedInd_.isValid() && delegateForItem(selectedInd_)->isForbiddenCursor(selectedInd_)) {
                 cursorUpdateHelper_->setForbiddenCursor();
             } else {
@@ -290,52 +270,22 @@ void ExpandableItemsWidget::paintEvent(QPaintEvent *event)
     elapsed.start();
 
     QPainter painter(this);
-
-    int topOffs = 0;
-    for (const auto &it : qAsConst(items_)) {
-        IItemDelegate *delegate = delegateForItem(it);
-        QRect rcItem(0, topOffs, size().width(), itemHeight_);
-
-        bool isExpanded = expandedItems_.contains(it);
+    QVector<ItemRect> items = getItemRects();
+    for (const auto &item : qAsConst(items)) {
+        IItemDelegate *delegate = delegateForItem(item.modelIndex);
         double expandedProgress;
-        if (it == expandingItem_)
+        if (item.modelIndex == expandingItem_)
             expandedProgress = (double)expandingCurrentHeight_ / (double)expandingAnimation_.endValue().toInt();
         else
-            expandedProgress = isExpanded ? 1.0 : 0.0;
+            expandedProgress = item.isExpanded ? 1.0 : 0.0;
 
-        if (rcItem.intersects(event->rect())) {
-            ItemStyleOption opt(this, rcItem, it == selectedInd_ ? 1.0 : 0.0, expandedProgress, isShowLocationLoad_, isShowLatencyInMs_);
-            delegate->paint(&painter, opt, it, itemsCacheData_[it].get());
-        }
-        topOffs += itemHeight_;
-
-        // draw child items if this item is expanded
-        if (isExpanded) {
-            if (it == expandingItem_)
-                painter.setClipRect(QRect(0, topOffs, size().width(), expandingCurrentHeight_));
-            int row = 0;
-            int overallHeight = 0;
-            QModelIndex childInd = it.model()->index(row, 0, it);
-            while (childInd.isValid()) {
-                QRect rcChildItem(0, topOffs + overallHeight, size().width(), itemHeight_);
-                if (rcChildItem.intersects(event->rect())) {
-                    ItemStyleOption opt(this, rcChildItem, childInd == selectedInd_ ? 1.0 : 0.0, false, isShowLocationLoad_, isShowLatencyInMs_);
-                    nonexpandableItemDelegate_->paint(&painter, opt, childInd, itemsCacheData_[childInd].get());
-                }
-                overallHeight += itemHeight_;
-                row++;
-                childInd = it.model()->index(row, 0, it);
-            }
-
-            if (it == expandingItem_) {
-                painter.setClipping(false);
-                topOffs += expandingCurrentHeight_;
-            }
-            else {
-                topOffs += overallHeight;
-            }
+        if (item.rc.intersects(event->rect())) {
+            QRect fullItemRect(item.rc.left(), item.rc.top(), item.rc.width(), itemHeight_);
+            ItemStyleOption opt(this, fullItemRect, item.modelIndex == selectedInd_ ? 1.0 : 0.0, expandedProgress, isShowLocationLoad_, isShowLatencyInMs_);
+            delegate->paint(&painter, opt, item.modelIndex, itemsCacheData_[item.modelIndex].get());
         }
     }
+
     g_time += elapsed.elapsed();
     g_cntFrames++;
 }
@@ -458,34 +408,16 @@ void ExpandableItemsWidget::resetItemsList()
 
 QPersistentModelIndex ExpandableItemsWidget::detectSelectedItem(const QPoint &pt, QRect *outputRect)
 {
-    int top = 0;
-    for (auto it : qAsConst(items_)) {
-        QRect rcItem = QRect(0, top, size().width(), itemHeight_);
-        if (rcItem.contains(pt)) {
+    QVector<ItemRect> items = getItemRects();
+    for (const auto &item : qAsConst(items)) {
+        if (item.rc.contains(pt)) {
             if (outputRect) {
-                *outputRect = rcItem;
+                *outputRect = item.rc;
             }
-            return it;
-        }
-        top += itemHeight_;
-
-        if (expandedItems_.contains(it)) {
-            int row = 0;
-            QModelIndex childInd = it.model()->index(row, 0, it);
-            while (childInd.isValid()) {
-                QRect rcChildItem(0, top, size().width(), itemHeight_);
-                if (rcChildItem.contains(pt)) {
-                    if (outputRect) {
-                        *outputRect = rcChildItem;
-                    }
-                    return childInd;
-                }
-                top += itemHeight_;
-                row++;
-                childInd = it.model()->index(row, 0, it);
-            }
+            return item.modelIndex;
         }
     }
+
     return QPersistentModelIndex();
 }
 
@@ -724,6 +656,43 @@ void ExpandableItemsWidget::expandItem(const QPersistentModelIndex &ind)
     }
 }
 
+QVector<ExpandableItemsWidget::ItemRect> ExpandableItemsWidget::getItemRects()
+{
+    QVector<ItemRect> result;
+    result.reserve(items_.count() * 3);
+    int top = 0;
+
+    for (const auto &it : qAsConst(items_)) {
+        bool isExpandedItem = expandedItems_.contains(it);
+        QRect rcItem = QRect(0, top, size().width(), itemHeight_);
+        result << ItemRect{it, rcItem, isExpandedItem};
+        top += itemHeight_;
+
+        if (isExpandedItem) {
+            int childsCount = it.model()->rowCount(it);
+            int expandedHeight = (it == expandingItem_) ? expandingCurrentHeight_:  childsCount * itemHeight_;
+
+            for (int row = 0; row < childsCount; row++)
+            {
+                QModelIndex childInd = it.model()->index(row, 0, it);
+                int curItemHeight = expandedHeight >= itemHeight_ ? itemHeight_ : expandedHeight;
+                if (curItemHeight == 0)
+                    break;
+
+                QRect rcChildItem(0, top, size().width(), curItemHeight);
+                result << ItemRect{childInd, rcChildItem, false};
+
+                top += curItemHeight;
+                expandedHeight -= curItemHeight;
+                if (expandedHeight == 0)
+                    break;
+                if (expandedHeight < 0)
+                    Q_ASSERT(false);
+            }
+        }
+    }
+    return result;
+}
 
 } // namespace gui_locations
 

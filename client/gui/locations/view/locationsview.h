@@ -51,8 +51,8 @@ private:
     static constexpr int kScrollBarWidth = 8;
 
     ExpandableItemsWidget *widget_;
-    CountryItemDelegate *countryItemDelegate_;  // todo move outside class
-    CityItemDelegate *cityItemDelegate_;        // todo move outside class
+    CountryItemDelegate *countryItemDelegate_;
+    CityItemDelegate *cityItemDelegate_;
     ScrollBar *scrollBar_;
 
     void ensureVisible(int top, int bottom);

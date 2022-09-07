@@ -26,6 +26,12 @@ LocationsView::LocationsView(QWidget *parent, QAbstractItemModel *model) : QScro
             widget_->updateSelectedItemByCursorPos();
         }
     });
+    connect(scrollBar_, &ScrollBar::rangeChanged, [this]() {
+        if (isCursorInList()) {
+            widget_->updateSelectedItemByCursorPos();
+        }
+    });
+
 
     scrollBar_->setSingleStep(qCeil(LOCATION_ITEM_HEIGHT * G_SCALE));
 
@@ -121,12 +127,8 @@ bool LocationsView::handleKeyPressEvent(QKeyEvent *event)
 
     if (scrollOffs != 0) {
         int pos = widget_->selectItemByOffs(scrollOffs);
-
-        QScrollArea::ensureVisible(0, pos, 0, 0);
         QScrollArea::ensureVisible(0, pos, 0, 0);
         QScrollArea::ensureVisible(0, pos + qCeil(LOCATION_ITEM_HEIGHT * G_SCALE), 0, 0);
-        QScrollArea::ensureVisible(0, pos + qCeil(LOCATION_ITEM_HEIGHT * G_SCALE), 0, 0);
-
         if (isCursorInList()) {
            moveCursorToItem(pos);
         }
