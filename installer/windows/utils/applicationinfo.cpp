@@ -1,5 +1,18 @@
 #include "applicationinfo.h"
+
+#include <memory>
+#include <string>
+
+#include "logger.h"
+#include "path.h"
+#include "../../../common/utils/win32handle.h"
 #include "../../../common/version/windscribe_version.h"
+
+class EnumWindowInfo
+{
+public:
+	HWND appMainWindow = NULL;
+};
 
 ApplicationInfo::ApplicationInfo()
 {
@@ -46,51 +59,63 @@ std::wstring ApplicationInfo::getUpdateUrl() const
 	return updateURL;
 }
 
-bool ApplicationInfo::appIsRunning()
+static BOOL CALLBACK
+FindAppWindowHandleProc(HWND hwnd, LPARAM lParam)
 {
-    bool result = true;
-    std::wstring classNameIcon = L"Qt631QWindowIcon";
-    const std::wstring wsGuiIcon = L"Windscribe";
+    DWORD processID = 0;
+    ::GetWindowThreadProcessId(hwnd, &processID);
 
-    HWND hwnd = FindWindow(classNameIcon.c_str(), wsGuiIcon.c_str());
-    if (hwnd == NULL)
-    {
-        // Check if the old Qt 5.12 app is running.
-        classNameIcon = L"Qt5QWindowIcon";
-        hwnd = FindWindow(classNameIcon.c_str(), wsGuiIcon.c_str());
+    if (processID == 0) {
+        Log::instance().out(L"FindAppWindowHandleProc GetWindowThreadProcessId failed %lu", ::GetLastError());
+        return TRUE;
     }
 
-    if (hwnd != NULL)
+    WinUtils::Win32Handle hProcess(::OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, processID));
+    if (!hProcess.isValid())
     {
-        while (true)
-        {
-            int msgboxID = MessageBox(
-                nullptr,
-                static_cast<LPCWSTR>(L"Close Windscribe to continue. Please note, your connection will not be protected while the application is off.'"),
-                static_cast<LPCWSTR>(L"Windscribe"),
-                MB_ICONINFORMATION | MB_RETRYCANCEL);
+        if (::GetLastError() != ERROR_ACCESS_DENIED) {
+            Log::instance().out(L"FindAppWindowHandleProc OpenProcess failed %lu", ::GetLastError());
+        }
+        return TRUE;
+    }
 
-            if (msgboxID == IDCANCEL)
-            {
-                // user clicked Cancel
-                result = true;
-                break;
-            }
-            else
-            {
-                hwnd = FindWindow(classNameIcon.c_str(), wsGuiIcon.c_str());
-                if (hwnd == NULL)
-                {
-                    result = false;
-                    break;
-                }
-            }
+    TCHAR imageName[MAX_PATH];
+    DWORD pathLen = sizeof(imageName) / sizeof(imageName[0]);
+    BOOL result = ::QueryFullProcessImageName(hProcess.getHandle(), 0, imageName, &pathLen);
+
+    if (result == FALSE) {
+        Log::instance().out(L"FindAppWindowHandleProc QueryFullProcessImageName failed %lu", ::GetLastError());
+        return TRUE;
+    }
+
+    std::wstring exeName = Path::PathExtractName(std::wstring(imageName, pathLen));
+
+    if (_wcsicmp(exeName.c_str(), L"windscribe.exe") == 0)
+    {
+        TCHAR buffer[128];
+        int resultLen = ::GetWindowText(hwnd, buffer, sizeof(buffer) / sizeof(buffer[0]));
+
+        if (resultLen > 0 && (_wcsicmp(buffer, L"windscribe") == 0))
+        {
+            EnumWindowInfo* pWindowInfo = (EnumWindowInfo*)lParam;
+            pWindowInfo->appMainWindow = hwnd;
+            return FALSE;
         }
     }
-    else
-    {
-        result = false;
-    }
 
-    return result;
+    return TRUE;
+}
+
+HWND ApplicationInfo::getAppMainWindowHandle()
+{
+    // Previously, we used FindWindow("Qt5QWindowIcon", "Windscribe") to find one of the app's
+    // top-level window handles.  In Qt 6, the window class name became "QtNNNQWindowIcon, where
+    // NNN is the Qt version (e.g. Qt631QWindowIcon).  This made it untenable to continue using
+    // the FindWindow API as we change Qt versions, since we would have to search for all prior
+    // Qt window class names.
+
+    auto pWindowInfo = std::make_unique<EnumWindowInfo>();
+    ::EnumWindows((WNDENUMPROC)FindAppWindowHandleProc, (LPARAM)pWindowInfo.get());
+
+	return pWindowInfo->appMainWindow;
 }

@@ -9,6 +9,10 @@
 
 namespace WinUtils
 {
+    #if (QT_VERSION != QT_VERSION_CHECK(6, 3, 1))
+    #error Code fixup required due to Qt version change.  Please update classNameIcon below.
+    #endif
+
     const std::wstring classNameIcon = L"Qt631QWindowIcon";
     const std::wstring classNameIconDebug = L"Qt631dQWindowIcon";
     const std::wstring wsGuiIcon = L"Windscribe";

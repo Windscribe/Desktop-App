@@ -18,15 +18,8 @@ int UninstallPrev::executeStep()
 {
     if (state_ == 0)
     {
-        std::wstring classNameIcon = L"Qt631QWindowIcon";
-        const std::wstring wsGuiIcon = L"Windscribe";
-        HWND hwnd = FindWindow(classNameIcon.c_str(), wsGuiIcon.c_str());
-        if (hwnd == NULL)
-        {
-            // Check if the old Qt 5.12 app is running.
-            classNameIcon = L"Qt5QWindowIcon";
-            hwnd = FindWindow(classNameIcon.c_str(), wsGuiIcon.c_str());
-        }
+        HWND hwnd = ApplicationInfo::getAppMainWindowHandle();
+
         if (hwnd)
         {
             Log::instance().out(L"Windscribe is running - sending close");
@@ -37,7 +30,7 @@ int UninstallPrev::executeStep()
         while (hwnd)
         {
             SendMessage(hwnd, WM_CLOSE, 0, 0);
-            hwnd = FindWindow(classNameIcon.c_str(), wsGuiIcon.c_str());
+            hwnd = ApplicationInfo::getAppMainWindowHandle();
             Sleep(10);
         }
         Sleep(1000);
