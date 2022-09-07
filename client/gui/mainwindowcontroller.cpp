@@ -3526,9 +3526,12 @@ void MainWindowController::onAppSkinChanged(APP_SKIN s)
         generalMessageWindow_->setHeight(WINDOW_HEIGHT);
     }
 
-    updateMainAndViewGeometry(true);
-    updateLocationsWindowAndTabGeometryStatic();
-    updateBottomInfoWindowVisibilityAndPos();
+    if (curWindow_ != WINDOW_ID_UNITIALIZED)
+    {
+        updateMainAndViewGeometry(true);
+        updateLocationsWindowAndTabGeometryStatic();
+        updateBottomInfoWindowVisibilityAndPos();
+    }
 }
 
 void MainWindowController::onVanGoghAnimationProgressChanged(QVariant value)
@@ -3545,9 +3548,12 @@ void MainWindowController::onVanGoghAnimationProgressChanged(QVariant value)
     generalMessageWindow_->getGraphicsObject()->setPos(0, yOffset*G_SCALE);
 
     // update shadows etc
-    updateMainAndViewGeometry(true);
-    updateLocationsWindowAndTabGeometryStatic();
-    updateBottomInfoWindowVisibilityAndPos();
+    if (curWindow_ != WINDOW_ID_UNITIALIZED)
+    {
+        updateMainAndViewGeometry(true);
+        updateLocationsWindowAndTabGeometryStatic();
+        updateBottomInfoWindowVisibilityAndPos();
+    }
 }
 
 int MainWindowController::locationsYOffset()
