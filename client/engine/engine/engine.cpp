@@ -3,6 +3,7 @@
 #include <QCoreApplication>
 #include <QDir>
 #include <QCryptographicHash>
+#include "utils/ws_assert.h"
 #include "utils/utils.h"
 #include "utils/logger.h"
 #include "utils/mergelog.h"
@@ -144,15 +145,15 @@ bool Engine::isInitialized()
 void Engine::enableBFE_win()
 {
     QMutexLocker locker(&mutex_);
-    Q_ASSERT(bInitialized_);
+    WS_ASSERT(bInitialized_);
     QMetaObject::invokeMethod(this, "enableBFE_winImpl");
 }
 
 void Engine::loginWithAuthHash(const QString &authHash)
 {
     QMutexLocker locker(&mutex_);
-    Q_ASSERT(bInitialized_);
-    //Q_ASSERT(loginState_ != LOGIN_IN_PROGRESS);
+    WS_ASSERT(bInitialized_);
+    //WS_ASSERT(loginState_ != LOGIN_IN_PROGRESS);
 
     {
         QMutexLocker lockerLoginSettings(&loginSettingsMutex_);
@@ -165,8 +166,8 @@ void Engine::loginWithAuthHash(const QString &authHash)
 void Engine::loginWithUsernameAndPassword(const QString &username, const QString &password, const QString &code2fa)
 {
     QMutexLocker locker(&mutex_);
-    Q_ASSERT(bInitialized_);
-    Q_ASSERT(loginState_ != LOGIN_IN_PROGRESS);
+    WS_ASSERT(bInitialized_);
+    WS_ASSERT(loginState_ != LOGIN_IN_PROGRESS);
 
     {
         QMutexLocker lockerLoginSettings(&loginSettingsMutex_);
@@ -179,8 +180,8 @@ void Engine::loginWithUsernameAndPassword(const QString &username, const QString
 void Engine::loginWithLastLoginSettings()
 {
     QMutexLocker locker(&mutex_);
-    Q_ASSERT(bInitialized_);
-    Q_ASSERT(loginState_ != LOGIN_IN_PROGRESS);
+    WS_ASSERT(bInitialized_);
+    WS_ASSERT(loginState_ != LOGIN_IN_PROGRESS);
 
     loginState_ = LOGIN_IN_PROGRESS;
     QMetaObject::invokeMethod(this, "loginImpl", Q_ARG(bool, true));
@@ -272,20 +273,20 @@ void Engine::clearCredentials()
 
 locationsmodel::LocationsModel *Engine::getLocationsModel()
 {
-    Q_ASSERT(locationsModel_ != NULL);
+    WS_ASSERT(locationsModel_ != NULL);
     return locationsModel_;
 }
 
 IConnectStateController *Engine::getConnectStateController()
 {
-    Q_ASSERT(connectStateController_ != NULL);
+    WS_ASSERT(connectStateController_ != NULL);
     return connectStateController_;
 }
 
 bool Engine::isFirewallEnabled()
 {
     QMutexLocker locker(&mutex_);
-    Q_ASSERT(bInitialized_);
+    WS_ASSERT(bInitialized_);
     if (bInitialized_)
     {
         return firewallController_->firewallActualState();
@@ -299,7 +300,7 @@ bool Engine::isFirewallEnabled()
 bool Engine::firewallOn()
 {
     QMutexLocker locker(&mutex_);
-    Q_ASSERT(bInitialized_);
+    WS_ASSERT(bInitialized_);
     QMetaObject::invokeMethod(this, "firewallOnImpl");
     return true;
 }
@@ -307,7 +308,7 @@ bool Engine::firewallOn()
 bool Engine::firewallOff()
 {
     QMutexLocker locker(&mutex_);
-    Q_ASSERT(bInitialized_);
+    WS_ASSERT(bInitialized_);
     QMetaObject::invokeMethod(this, "firewallOffImpl");
     return true;
 }
@@ -415,7 +416,7 @@ bool Engine::isEmergencyDisconnected()
 bool Engine::isWifiSharingSupported()
 {
     QMutexLocker locker(&mutex_);
-    Q_ASSERT(bInitialized_);
+    WS_ASSERT(bInitialized_);
     if (bInitialized_)
     {
         return vpnShareController_->isWifiSharingSupported();
@@ -429,7 +430,7 @@ bool Engine::isWifiSharingSupported()
 void Engine::startWifiSharing(const QString &ssid, const QString &password)
 {
     QMutexLocker locker(&mutex_);
-    Q_ASSERT(bInitialized_);
+    WS_ASSERT(bInitialized_);
     if (bInitialized_)
     {
         QMetaObject::invokeMethod(this, "startWifiSharingImpl", Q_ARG(QString, ssid), Q_ARG(QString, password));
@@ -439,7 +440,7 @@ void Engine::startWifiSharing(const QString &ssid, const QString &password)
 void Engine::stopWifiSharing()
 {
     QMutexLocker locker(&mutex_);
-    Q_ASSERT(bInitialized_);
+    WS_ASSERT(bInitialized_);
     if (bInitialized_)
     {
         QMetaObject::invokeMethod(this, "stopWifiSharingImpl");
@@ -449,7 +450,7 @@ void Engine::stopWifiSharing()
 void Engine::startProxySharing(PROXY_SHARING_TYPE proxySharingType)
 {
     QMutexLocker locker(&mutex_);
-    Q_ASSERT(bInitialized_);
+    WS_ASSERT(bInitialized_);
     if (bInitialized_)
     {
         QMetaObject::invokeMethod(this, "startProxySharingImpl", Q_ARG(PROXY_SHARING_TYPE, proxySharingType));
@@ -459,7 +460,7 @@ void Engine::startProxySharing(PROXY_SHARING_TYPE proxySharingType)
 void Engine::stopProxySharing()
 {
     QMutexLocker locker(&mutex_);
-    Q_ASSERT(bInitialized_);
+    WS_ASSERT(bInitialized_);
     if (bInitialized_)
     {
         QMetaObject::invokeMethod(this, "stopProxySharingImpl");
@@ -469,7 +470,7 @@ void Engine::stopProxySharing()
 QString Engine::getProxySharingAddress()
 {
     QMutexLocker locker(&mutex_);
-    Q_ASSERT(bInitialized_);
+    WS_ASSERT(bInitialized_);
     if (bInitialized_)
     {
         return vpnShareController_->getProxySharingAddress();
@@ -483,7 +484,7 @@ QString Engine::getProxySharingAddress()
 QString Engine::getSharingCaption()
 {
     QMutexLocker locker(&mutex_);
-    Q_ASSERT(bInitialized_);
+    WS_ASSERT(bInitialized_);
     if (bInitialized_)
     {
         return vpnShareController_->getCurrentCaption();
@@ -791,7 +792,7 @@ void Engine::onInitializeHelper(INIT_HELPER_RET ret)
     }
     else
     {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
     }
 }
 
@@ -1350,7 +1351,7 @@ void Engine::setSettingsImpl(const types::EngineSettings &engineSettings)
                 }
                 else
                 {
-                    Q_ASSERT(false);
+                    WS_ASSERT(false);
                 }
             }
             serverAPI_->serverLocations(apiInfo_->getAuthHash(), engineSettings_.language(), serverApiUserRole_, true, ss.getRevisionHash(),
@@ -1396,7 +1397,7 @@ void Engine::onLoginControllerFinished(LOGIN_RET retCode, const apiinfo::ApiInfo
     qCDebug(LOG_BASIC) << "onLoginControllerFinished, retCode =" << LOGIN_RET_toString(retCode) << ";bFromConnectedToVPNState ="
                        << bFromConnectedToVPNState << ";errorMessage =" << errorMessage;
 
-    Q_ASSERT(loginState_ != LOGIN_FINISHED);
+    WS_ASSERT(loginState_ != LOGIN_FINISHED);
     if (retCode == LOGIN_RET_SUCCESS)
     {
         if (!emergencyController_->isDisconnected())
@@ -1420,7 +1421,7 @@ void Engine::onLoginControllerFinished(LOGIN_RET retCode, const apiinfo::ApiInfo
         }
         else
         {
-            Q_ASSERT(!curRevisionHash.isEmpty());
+            WS_ASSERT(!curRevisionHash.isEmpty());
             if (curRevisionHash != prevSessionStatus_.getRevisionHash())
             {
                 prevSessionStatus_.setRevisionHash(curRevisionHash);
@@ -1496,7 +1497,7 @@ void Engine::onLoginControllerFinished(LOGIN_RET retCode, const apiinfo::ApiInfo
     }
     else
     {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
     }
 
     loginController_->deleteLater(); // delete LoginController object
@@ -2035,7 +2036,7 @@ void Engine::onConnectionManagerError(CONNECT_ERROR err)
             }
             else
             {
-                Q_ASSERT(false);
+                WS_ASSERT(false);
             }
         }
 
@@ -2679,15 +2680,15 @@ void Engine::setSettingsMacAddressSpoofingImpl(const types::MacAddrSpoofing &mac
 
 void Engine::setSplitTunnelingSettingsImpl(bool isActive, bool isExclude, const QStringList &files, const QStringList &ips, const QStringList &hosts)
 {
-    Q_ASSERT(helper_ != NULL);
+    WS_ASSERT(helper_ != NULL);
     helper_->setSplitTunnelingSettings(isActive, isExclude, engineSettings_.isAllowLanTraffic(),
                                        files, ips, hosts);
 }
 
 void Engine::startLoginController(const LoginSettings &loginSettings, bool bFromConnectedState)
 {
-    Q_ASSERT(loginController_ == NULL);
-    Q_ASSERT(loginState_ == LOGIN_IN_PROGRESS);
+    WS_ASSERT(loginController_ == NULL);
+    WS_ASSERT(loginState_ == LOGIN_IN_PROGRESS);
     loginController_ = new LoginController(this, helper_, networkDetectionManager_, serverAPI_, engineSettings_.language(), engineSettings_.connectionSettings().protocol);
     connect(loginController_, &LoginController::finished, this, &Engine::onLoginControllerFinished);
     connect(loginController_, &LoginController::readyForNetworkRequests, this, &Engine::onReadyForNetworkRequests);

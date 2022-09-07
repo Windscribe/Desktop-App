@@ -1,6 +1,7 @@
 #include "apiinfo.h"
 #include <QThread>
 #include <QSettings>
+#include "utils/ws_assert.h"
 #include "utils/logger.h"
 #include "utils/utils.h"
 #include "types/global_consts.h"
@@ -13,13 +14,13 @@ ApiInfo::ApiInfo() : simpleCrypt_(SIMPLE_CRYPT_KEY), threadId_(QThread::currentT
 
 types::SessionStatus ApiInfo::getSessionStatus() const
 {
-    Q_ASSERT(threadId_ == QThread::currentThreadId());
+    WS_ASSERT(threadId_ == QThread::currentThreadId());
     return sessionStatus_;
 }
 
 void ApiInfo::setSessionStatus(const types::SessionStatus &value)
 {
-    Q_ASSERT(threadId_ == QThread::currentThreadId());
+    WS_ASSERT(threadId_ == QThread::currentThreadId());
     sessionStatus_ = value;
     QSettings settings;
     settings.setValue("userId", sessionStatus_.getUserId());    // need for uninstaller program for open post uninstall webpage
@@ -27,50 +28,50 @@ void ApiInfo::setSessionStatus(const types::SessionStatus &value)
 
 void ApiInfo::setLocations(const QVector<apiinfo::Location> &value)
 {
-    Q_ASSERT(threadId_ == QThread::currentThreadId());
+    WS_ASSERT(threadId_ == QThread::currentThreadId());
     locations_ = value;
     mergeWindflixLocations();
 }
 
 QVector<apiinfo::Location> ApiInfo::getLocations() const
 {
-    Q_ASSERT(threadId_ == QThread::currentThreadId());
+    WS_ASSERT(threadId_ == QThread::currentThreadId());
     return locations_;
 }
 
 QStringList ApiInfo::getForceDisconnectNodes() const
 {
-    Q_ASSERT(threadId_ == QThread::currentThreadId());
+    WS_ASSERT(threadId_ == QThread::currentThreadId());
     return forceDisconnectNodes_;
 }
 
 void ApiInfo::setForceDisconnectNodes(const QStringList &value)
 {
-    Q_ASSERT(threadId_ == QThread::currentThreadId());
+    WS_ASSERT(threadId_ == QThread::currentThreadId());
     forceDisconnectNodes_ = value;
 }
 
 void ApiInfo::setServerCredentials(const ServerCredentials &serverCredentials)
 {
-    Q_ASSERT(threadId_ == QThread::currentThreadId());
+    WS_ASSERT(threadId_ == QThread::currentThreadId());
     serverCredentials_ = serverCredentials;
 }
 
 ServerCredentials ApiInfo::getServerCredentials() const
 {
-    Q_ASSERT(threadId_ == QThread::currentThreadId());
+    WS_ASSERT(threadId_ == QThread::currentThreadId());
     return serverCredentials_;
 }
 
 QString ApiInfo::getOvpnConfig() const
 {
-    Q_ASSERT(threadId_ == QThread::currentThreadId());
+    WS_ASSERT(threadId_ == QThread::currentThreadId());
     return ovpnConfig_;
 }
 
 void ApiInfo::setOvpnConfig(const QString &value)
 {
-    Q_ASSERT(threadId_ == QThread::currentThreadId());
+    WS_ASSERT(threadId_ == QThread::currentThreadId());
     ovpnConfig_ = value;
     ovpnConfigSetTimestamp_ = QDateTime::currentDateTimeUtc();
 }
@@ -98,31 +99,31 @@ void ApiInfo::setAuthHash(const QString &authHash)
 
 types::PortMap ApiInfo::getPortMap() const
 {
-    Q_ASSERT(threadId_ == QThread::currentThreadId());
+    WS_ASSERT(threadId_ == QThread::currentThreadId());
     return portMap_;
 }
 
 void ApiInfo::setPortMap(const types::PortMap &portMap)
 {
-    Q_ASSERT(threadId_ == QThread::currentThreadId());
+    WS_ASSERT(threadId_ == QThread::currentThreadId());
     portMap_ = portMap;
 }
 
 void ApiInfo::setStaticIps(const StaticIps &value)
 {
-    Q_ASSERT(threadId_ == QThread::currentThreadId());
+    WS_ASSERT(threadId_ == QThread::currentThreadId());
     staticIps_ = value;
 }
 
 StaticIps ApiInfo::getStaticIps() const
 {
-    Q_ASSERT(threadId_ == QThread::currentThreadId());
+    WS_ASSERT(threadId_ == QThread::currentThreadId());
     return staticIps_;
 }
 
 void ApiInfo::saveToSettings()
 {
-    Q_ASSERT(threadId_ == QThread::currentThreadId());
+    WS_ASSERT(threadId_ == QThread::currentThreadId());
     QByteArray arr;
     {
         QDataStream ds(&arr, QIODevice::WriteOnly);
@@ -159,7 +160,7 @@ void ApiInfo::removeFromSettings()
 
 bool ApiInfo::loadFromSettings()
 {
-    Q_ASSERT(threadId_ == QThread::currentThreadId());
+    WS_ASSERT(threadId_ == QThread::currentThreadId());
     QSettings settings;
     QString s = settings.value("apiInfo", "").toString();
     if (!s.isEmpty())
@@ -227,7 +228,7 @@ void ApiInfo::mergeWindflixLocations()
             group.setOverrideDnsHostName(location.getDnsHostName());
 
             auto target = location_hash.find(country_code + group.getCity());
-            Q_ASSERT(target != location_hash.end());
+            WS_ASSERT(target != location_hash.end());
             if (target != location_hash.end())
             {
                 target.value()->addGroup(group);

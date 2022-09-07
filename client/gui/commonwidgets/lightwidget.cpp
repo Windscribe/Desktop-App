@@ -2,6 +2,8 @@
 
 #include "../dpiscalemanager.h"
 #include "../commongraphics/commongraphics.h"
+#include "utils/ws_assert.h"
+
 LightWidget::LightWidget(QObject *parent) : QObject(parent)
   , font_(QFont())
   , rect_(QRect())
@@ -59,19 +61,19 @@ const QFont &LightWidget::font()
 
 int LightWidget::truncatedTextWidth(int maxWidth)
 {
-    Q_ASSERT(font_ != QFont());
+    WS_ASSERT(font_ != QFont());
     return CommonGraphics::textWidth(CommonGraphics::maybeTruncatedText(text_, font_, maxWidth), font_);
 }
 
 int LightWidget::textWidth()
 {
-    Q_ASSERT(font_ != QFont());
+    WS_ASSERT(font_ != QFont());
     return CommonGraphics::textWidth(text_, font_);
 }
 
 int LightWidget::textHeight()
 {
-    Q_ASSERT(font_ != QFont());
+    WS_ASSERT(font_ != QFont());
     return CommonGraphics::textHeight(font_);
 }
 

@@ -2,6 +2,7 @@
 
 #include <QJsonObject>
 #include <QMetaType>
+#include "utils/ws_assert.h"
 
 const int typeIdPortMap = qRegisterMetaType<types::PortMap>("types::PortMap");
 
@@ -48,7 +49,7 @@ int PortMap::getPortItemCount() const
 
 const PortItem *PortMap::getPortItemByIndex(int ind) const
 {
-    Q_ASSERT(ind >= 0 && ind < d->items_.count());
+    WS_ASSERT(ind >= 0 && ind < d->items_.count());
     if (ind >= 0 && ind < d->items_.count())
     {
         return &d->items_[ind];
@@ -100,12 +101,12 @@ int PortMap::getUseIpInd(PROTOCOL connectionProtocol) const
                 return 0;
             else
             {
-                Q_ASSERT(false);
+                WS_ASSERT(false);
                 return -1;
             }
         }
     }
-    Q_ASSERT(false);
+    WS_ASSERT(false);
     return -1;
 }
 

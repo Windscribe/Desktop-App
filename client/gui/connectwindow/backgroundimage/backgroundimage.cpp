@@ -1,4 +1,5 @@
 #include "backgroundimage.h"
+#include "utils/ws_assert.h"
 #include "utils/utils.h"
 #include "dpiscalemanager.h"
 #include "graphicresources/imageresourcessvg.h"
@@ -168,7 +169,7 @@ void BackgroundImage::handleBackgroundsChange()
     }
     else
     {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
     }
 }
 

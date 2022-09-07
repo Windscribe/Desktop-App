@@ -5,6 +5,7 @@
     #include "autodetectproxy_mac.h"
 #endif
 #include <QHostInfo>
+#include "utils/ws_assert.h"
 
 bool ProxyServerController::updateProxySettings(const types::ProxySettings &proxySettings)
 {
@@ -64,7 +65,7 @@ bool ProxyServerController::updateProxySettings(const types::ProxySettings &prox
 
 const types::ProxySettings &ProxyServerController::getCurrentProxySettings()
 {
-    Q_ASSERT(bInitialized_);
+    WS_ASSERT(bInitialized_);
     return proxySettings_;
 }
 

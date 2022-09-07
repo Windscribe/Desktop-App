@@ -6,12 +6,12 @@
 #include <QFontDatabase>
 #include <QColor>
 #include <QFontMetrics>
+#include "utils/ws_assert.h"
 #include "dpiscalemanager.h"
-
 
 QFont *FontManager::getFontWithCustomScale(double scale, double size, bool isBold, int stretch, qreal letterSpacing)
 {
-    Q_ASSERT(QApplication::instance()->thread() == QThread::currentThread());
+    WS_ASSERT(QApplication::instance()->thread() == QThread::currentThread());
 
     QString key = QString::number(size);
     if (isBold)

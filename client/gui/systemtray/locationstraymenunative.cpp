@@ -1,5 +1,6 @@
 #include "locationstraymenunative.h"
 #include "graphicresources/imageresourcessvg.h"
+#include "utils/ws_assert.h"
 #include "dpiscalemanager.h"
 #include "locations/locationsmodel_roles.h"
 
@@ -15,7 +16,7 @@ LocationsTrayMenuNative::LocationsTrayMenuNative(QWidget *parent, QAbstractItemM
 
 void LocationsTrayMenuNative::onMenuActionTriggered(QAction *action)
 {
-    Q_ASSERT(action);
+    WS_ASSERT(action);
     if (!action || !action->isEnabled())
         return;
     emit locationSelected(qvariant_cast<LocationID>(action->data()));

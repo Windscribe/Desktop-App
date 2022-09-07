@@ -5,6 +5,7 @@
 #include <QVector>
 #include "engine/apiinfo/node.h"
 #include "engine/apiinfo/staticips.h"
+#include "utils/ws_assert.h"
 
 namespace locationsmodel {
 
@@ -15,17 +16,17 @@ public:
     virtual ~BaseNode() {}
 
 
-    virtual QString getIp(int /*ind*/) const { Q_ASSERT(false); return ""; }
-    virtual QString getHostname() const { Q_ASSERT(false); return ""; }
-    virtual int getWeight() const {  Q_ASSERT(false); return 1; }
+    virtual QString getIp(int /*ind*/) const { WS_ASSERT(false); return ""; }
+    virtual QString getHostname() const { WS_ASSERT(false); return ""; }
+    virtual int getWeight() const {  WS_ASSERT(false); return 1; }
 
-    virtual QString getWgPubKey() const { Q_ASSERT(false); return ""; }
-    virtual QString getWgIp() const { Q_ASSERT(false); return ""; }
+    virtual QString getWgPubKey() const { WS_ASSERT(false); return ""; }
+    virtual QString getWgIp() const { WS_ASSERT(false); return ""; }
 
-    virtual QString getStaticIpDnsName() const { Q_ASSERT(false); return ""; }
-    virtual QString getStaticIpUsername() const { Q_ASSERT(false); return ""; }
-    virtual QString getStaticIpPassword() const { Q_ASSERT(false); return ""; }
-    virtual apiinfo::StaticIpPortsVector getStaticIpPorts() const { Q_ASSERT(false); return apiinfo::StaticIpPortsVector(); }
+    virtual QString getStaticIpDnsName() const { WS_ASSERT(false); return ""; }
+    virtual QString getStaticIpUsername() const { WS_ASSERT(false); return ""; }
+    virtual QString getStaticIpPassword() const { WS_ASSERT(false); return ""; }
+    virtual apiinfo::StaticIpPortsVector getStaticIpPorts() const { WS_ASSERT(false); return apiinfo::StaticIpPortsVector(); }
 };
 
 
@@ -35,7 +36,7 @@ public:
     explicit ApiLocationNode(const QStringList &ips, const QString &hostname, int weight, const QString &wg_pubkey)
         : hostname_(hostname), wg_pubkey_(wg_pubkey), weight_(weight)
     {
-        Q_ASSERT(ips.count() == 3);
+        WS_ASSERT(ips.count() == 3);
         ips_[0] = ips[0];
         ips_[1] = ips[1];
         ips_[2] = ips[2];
@@ -44,7 +45,7 @@ public:
 
     QString getIp(int ind) const override
     {
-        Q_ASSERT(ind >= 0 && ind < 3);
+        WS_ASSERT(ind >= 0 && ind < 3);
         return ips_[ind];
     }
     QString getHostname() const override

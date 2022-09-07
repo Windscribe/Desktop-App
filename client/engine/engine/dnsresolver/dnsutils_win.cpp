@@ -6,6 +6,7 @@
     #include <windows.h>
     #include <iphlpapi.h>
 #endif
+#include "utils/ws_assert.h"
 
 namespace DnsUtils
 {
@@ -69,7 +70,7 @@ std::vector<std::wstring> getOSDefaultDnsServers()
         pCurrAddresses = pCurrAddresses->Next;
     }
 #else
-    Q_ASSERT(false);
+    WS_ASSERT(false);
 #endif
 
     return dnsServers;

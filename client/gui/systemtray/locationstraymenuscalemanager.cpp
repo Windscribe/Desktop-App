@@ -1,12 +1,12 @@
 #include "locationstraymenuscalemanager.h"
 #include <QApplication>
 #include <QScreen>
-
+#include "utils/ws_assert.h"
 
 void LocationsTrayMenuScaleManager::setTrayIconGeometry(const QRect &geometry)
 {
     screen_ = qApp->screenAt(geometry.topLeft());
-    Q_ASSERT(screen_ != nullptr);
+    WS_ASSERT(screen_ != nullptr);
     if (!screen_)
     {
         screen_ = qApp->primaryScreen();

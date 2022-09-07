@@ -4,6 +4,7 @@
 #include "commandfactory.h"
 #include "protobufcommand.h"
 #include "clicommands.h"
+#include "utils/ws_assert.h"
 
 namespace IPC
 {
@@ -74,7 +75,7 @@ Command *CommandFactory::makeCommand(const std::string strId, char *buf, int siz
         return new IPC::CliCommands::SignedOut(buf, size);
     }
 
-    Q_ASSERT(false);
+    WS_ASSERT(false);
     return NULL;
 }
 

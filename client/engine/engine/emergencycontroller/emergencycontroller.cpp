@@ -1,4 +1,5 @@
 #include "emergencycontroller.h"
+#include "utils/ws_assert.h"
 #include "utils/logger.h"
 #include "utils/utils.h"
 #include "engine/connectionmanager/openvpnconnection.h"
@@ -50,7 +51,7 @@ EmergencyController::~EmergencyController()
 
 void EmergencyController::clickConnect(const types::ProxySettings &proxySettings)
 {
-    Q_ASSERT(state_ == STATE_DISCONNECTED);
+    WS_ASSERT(state_ == STATE_DISCONNECTED);
     state_= STATE_CONNECTING_FROM_USER_CLICK;
 
     proxySettings_ = proxySettings;
@@ -65,7 +66,7 @@ void EmergencyController::clickConnect(const types::ProxySettings &proxySettings
 
 void EmergencyController::clickDisconnect()
 {
-    Q_ASSERT(state_ == STATE_CONNECTING_FROM_USER_CLICK || state_ == STATE_CONNECTED  ||
+    WS_ASSERT(state_ == STATE_CONNECTING_FROM_USER_CLICK || state_ == STATE_CONNECTED  ||
              state_ == STATE_DISCONNECTING_FROM_USER_CLICK || state_ == STATE_DISCONNECTED);
 
     if (state_ != STATE_DISCONNECTING_FROM_USER_CLICK)
@@ -127,7 +128,7 @@ void EmergencyController::blockingDisconnect()
 
 const AdapterGatewayInfo &EmergencyController::getVpnAdapterInfo() const
 {
-    Q_ASSERT(state_ == STATE_CONNECTED); // make sense only in connected state
+    WS_ASSERT(state_ == STATE_CONNECTED); // make sense only in connected state
     return vpnAdapterInfo_;
 }
 
@@ -139,7 +140,7 @@ void EmergencyController::setPacketSize(types::PacketSize ps)
 void EmergencyController::onDnsRequestFinished()
 {
     DnsRequest *dnsRequest = qobject_cast<DnsRequest *>(sender());
-    Q_ASSERT(dnsRequest != nullptr);
+    WS_ASSERT(dnsRequest != nullptr);
 
     attempts_.clear();
 
@@ -223,7 +224,7 @@ void EmergencyController::onConnectionDisconnected()
             }
             break;
         default:
-            Q_ASSERT(false);
+            WS_ASSERT(false);
     }
 }
 
@@ -242,7 +243,7 @@ void EmergencyController::onConnectionReconnecting()
             connector_->startDisconnect();
             break;
         default:
-            Q_ASSERT(false);
+            WS_ASSERT(false);
     }
 }
 
@@ -317,7 +318,7 @@ void EmergencyController::doConnect()
     defaultAdapterInfo_ = AdapterGatewayInfo::detectAndCreateDefaultAdaperInfo();
     qCDebug(LOG_CONNECTION) << "Default adapter and gateway:" << defaultAdapterInfo_.makeLogString();
 
-    Q_ASSERT(!attempts_.empty());
+    WS_ASSERT(!attempts_.empty());
     CONNECT_ATTEMPT_INFO attempt = attempts_[0];
     attempts_.removeFirst();
 
@@ -350,7 +351,7 @@ void EmergencyController::doConnect()
     if (!bOvpnSuccess )
     {
         qCDebug(LOG_EMERGENCY_CONNECT) << "Failed create ovpn config";
-        Q_ASSERT(false);
+        WS_ASSERT(false);
         return;
     }
 

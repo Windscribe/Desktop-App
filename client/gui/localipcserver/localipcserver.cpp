@@ -1,4 +1,5 @@
 #include "localipcserver.h"
+#include "utils/ws_assert.h"
 #include "utils/utils.h"
 #include "utils/logger.h"
 #include "ipc/server.h"
@@ -29,7 +30,7 @@ LocalIPCServer::~LocalIPCServer()
 
 void LocalIPCServer::start()
 {
-    Q_ASSERT(server_ == nullptr);
+    WS_ASSERT(server_ == nullptr);
     server_ = new IPC::Server();
     connect(dynamic_cast<QObject*>(server_), SIGNAL(newConnection(IPC::IConnection *)), SLOT(onServerCallbackAcceptFunction(IPC::IConnection *)));
 

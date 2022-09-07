@@ -1,8 +1,7 @@
 #include "imagewithshadow.h"
 #include "dpiscalemanager.h"
 #include "graphicresources/imageresourcessvg.h"
-#include <math.h>
-
+#include "utils/ws_assert.h"
 #include <math.h>
 
 ImageWithShadow::ImageWithShadow(const QString &originalName, const QString &shadowName): originalName_(originalName), shadowName_(shadowName)
@@ -12,19 +11,19 @@ ImageWithShadow::ImageWithShadow(const QString &originalName, const QString &sha
 
 void ImageWithShadow::draw(QPainter *painter, int x, int y)
 {
-    Q_ASSERT(!pixmap_.isNull());
+    WS_ASSERT(!pixmap_.isNull());
     painter->drawPixmap(x, y, pixmap_);
 }
 
 int ImageWithShadow::width() const
 {
-    Q_ASSERT(!pixmap_.isNull());
+    WS_ASSERT(!pixmap_.isNull());
     return pixmap_.width() / DpiScaleManager::instance().curDevicePixelRatio();
 }
 
 int ImageWithShadow::height() const
 {
-    Q_ASSERT(!pixmap_.isNull());
+    WS_ASSERT(!pixmap_.isNull());
     return pixmap_.height() / DpiScaleManager::instance().curDevicePixelRatio();
 }
 
@@ -33,8 +32,8 @@ void ImageWithShadow::updatePixmap()
     const int SHADOW_OFFSET = ceil(G_SCALE);
     QSharedPointer<IndependentPixmap> originalImg = ImageResourcesSvg::instance().getIndependentPixmap(originalName_);
     QSharedPointer<IndependentPixmap> shadowImg = ImageResourcesSvg::instance().getIndependentPixmap(shadowName_);
-    Q_ASSERT(originalImg->width() == shadowImg->width());
-    Q_ASSERT(originalImg->height() == shadowImg->height());
+    WS_ASSERT(originalImg->width() == shadowImg->width());
+    WS_ASSERT(originalImg->height() == shadowImg->height());
 
 
     QSize sz = originalImg->originalPixmapSize();

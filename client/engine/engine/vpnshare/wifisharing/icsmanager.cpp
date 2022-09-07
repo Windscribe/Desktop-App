@@ -2,7 +2,8 @@
 #include <QCoreApplication>
 #include <QDir>
 #include <QStandardPaths>
-#include "Utils/logger.h"
+#include "utils/ws_assert.h"
+#include "utils/logger.h"
 
 #define WINDSCRIBE_UPDATE_ICS_EVENT_NAME L"Global\\WindscribeUpdateIcsEvent1034"
 
@@ -10,7 +11,7 @@ IcsManager::IcsManager(QObject *parent, IHelper *helper) : QThread(parent),
     bNeedFinish_(false), isUpdateIcsCmdInProgress_(false), cmdIdInProgress_(0), hWaitFunc_(0)
 {
     helper_ = dynamic_cast<Helper_win *>(helper);
-    Q_ASSERT(helper_);
+    WS_ASSERT(helper_);
     QString strPath = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
     QDir dir(strPath);
     dir.mkpath(strPath);
@@ -30,7 +31,7 @@ bool IcsManager::isSupportedIcs()
 {
     if (!helper_->isHelperConnected())
     {
-        //Q_ASSERT(false);
+        //WS_ASSERT(false);
         return false;
     }
     return helper_->isSupportedICS();
@@ -40,7 +41,7 @@ bool IcsManager::startIcs()
 {
     if (!helper_->isHelperConnected())
     {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
         return false;
     }
 
@@ -72,7 +73,7 @@ bool IcsManager::stopIcs()
 {
     if (!helper_->isHelperConnected())
     {
-        //Q_ASSERT(false);
+        //WS_ASSERT(false);
         return false;
     }
 
@@ -111,7 +112,7 @@ bool IcsManager::changeIcsSettings(const GUID &publicGuid, const GUID &privateGu
 {
     if (!helper_->isHelperConnected())
     {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
         return false;
     }
 

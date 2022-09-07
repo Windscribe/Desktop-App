@@ -10,6 +10,7 @@
 #include "commongraphics/commongraphics.h"
 #include "locationstraymenuscalemanager.h"
 #include "locations/locationsmodel_roles.h"
+#include "utils/ws_assert.h"
 
 #ifdef Q_OS_MAC
 #include "utils/widgetutils_mac.h"
@@ -128,7 +129,7 @@ void LocationsTrayMenuWidget::onListViewClicked(const QModelIndex &index)
 
 void LocationsTrayMenuWidget::onSubmenuActionTriggered(QAction *action)
 {
-    Q_ASSERT(currentSubmenu_ && action);
+    WS_ASSERT(currentSubmenu_ && action);
     if (!currentSubmenu_ || !action) {
         return;
     }

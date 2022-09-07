@@ -5,6 +5,7 @@
 #include "graphicresources/fontmanager.h"
 #include "graphicresources/imageresourcessvg.h"
 #include "commongraphics/commongraphics.h"
+#include "utils/ws_assert.h"
 #include "dpiscalemanager.h"
 
 namespace NewsFeedWindow {
@@ -14,7 +15,7 @@ NewsFeedWindowItem::NewsFeedWindowItem(QGraphicsObject *parent,
                                        PreferencesHelper *preferencesHelper)
     : ScalableGraphicsObject(parent), preferences_(preferences), curScale_(1.0)
 {
-    Q_ASSERT(preferencesHelper);
+    WS_ASSERT(preferencesHelper);
     setFlags(QGraphicsObject::ItemIsFocusable);
 
     curHeight_ = (MIN_HEIGHT - 100);

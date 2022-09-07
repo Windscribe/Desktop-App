@@ -1,5 +1,6 @@
 #include "bfe_service_win.h"
 #include "engine/helper/helper_win.h"
+#include "utils/ws_assert.h"
 #include "utils/winutils.h"
 #include <windows.h>
 #include "utils/logger.h"
@@ -14,7 +15,7 @@ bool BFE_Service_win::isBFEEnabled()
 void BFE_Service_win::enableBFE(IHelper *helper)
 {
     Helper_win *helper_win = dynamic_cast<Helper_win *>(helper);
-    Q_ASSERT(helper_win);
+    WS_ASSERT(helper_win);
     QString strLog = helper_win->enableBFE();
     qCDebug(LOG_BASIC) << "Enable BFE; Answer:" << strLog;
 }

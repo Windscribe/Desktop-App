@@ -1,5 +1,6 @@
 #include "getallconfigscontroller.h"
 #include <QThread>
+#include "utils/ws_assert.h"
 
 GetAllConfigsController::GetAllConfigsController(QObject *parent) : QObject(parent), bServerLocationsAnswerReceived_(false), bServerCredentialsAnswerOpenVpnReceived_(false),
     bServerCredentialsAnswerIkev2Received_(false),
@@ -103,7 +104,7 @@ void GetAllConfigsController::handleComplete()
         }
         else
         {
-            Q_ASSERT(false);
+            WS_ASSERT(false);
         }
     }
 }

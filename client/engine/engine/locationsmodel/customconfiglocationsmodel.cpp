@@ -3,6 +3,7 @@
 #include <QFile>
 #include <QTextStream>
 
+#include "utils/ws_assert.h"
 #include "utils/logger.h"
 #include "utils/ipvalidation.h"
 #include "customconfiglocationinfo.h"
@@ -88,7 +89,7 @@ void CustomConfigLocationsModel::clear()
 
 QSharedPointer<BaseLocationInfo> CustomConfigLocationsModel::getMutableLocationInfoById(const LocationID &locationId)
 {
-    Q_ASSERT(locationId.isCustomConfigsLocation());
+    WS_ASSERT(locationId.isCustomConfigsLocation());
 
     for (const CustomConfigWithPingInfo &config : pingInfos_)
     {
@@ -123,7 +124,7 @@ void CustomConfigLocationsModel::onNeedIncrementPingIteration()
 void CustomConfigLocationsModel::onDnsRequestFinished()
 {
     DnsRequest *dnsRequest = qobject_cast<DnsRequest *>(sender());
-    Q_ASSERT(dnsRequest != nullptr);
+    WS_ASSERT(dnsRequest != nullptr);
 
     for (auto it = pingInfos_.begin(); it != pingInfos_.end(); ++it)
     {

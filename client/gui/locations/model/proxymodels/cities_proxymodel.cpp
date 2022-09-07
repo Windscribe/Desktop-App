@@ -1,4 +1,5 @@
 #include "cities_proxymodel.h"
+#include "utils/ws_assert.h"
 
 namespace gui_locations {
 
@@ -46,7 +47,7 @@ QModelIndex CitiesProxyModel::mapFromSource(const QModelIndex &sourceIndex) cons
            return QModelIndex();
 
     int ind = items_.indexOf(sourceIndex);
-    Q_ASSERT(ind != -1);
+    WS_ASSERT(ind != -1);
     return createIndex(ind, 0);
 }
 
@@ -54,7 +55,7 @@ QModelIndex CitiesProxyModel::mapToSource(const QModelIndex &proxyIndex) const
 {
     if (!proxyIndex.isValid())
            return QModelIndex();
-    Q_ASSERT(proxyIndex.row() >= 0 && proxyIndex.row() < items_.count() && proxyIndex.column() == 0);
+    WS_ASSERT(proxyIndex.row() >= 0 && proxyIndex.row() < items_.count() && proxyIndex.column() == 0);
     return items_[proxyIndex.row()];
 }
 
@@ -99,7 +100,7 @@ void CitiesProxyModel::onModelReset()
 
 void CitiesProxyModel::onDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles)
 {
-    Q_ASSERT(topLeft.parent() == bottomRight.parent());
+    WS_ASSERT(topLeft.parent() == bottomRight.parent());
     if (topLeft.parent().isValid())
     {
         QModelIndex topLeftSelf = mapFromSource(topLeft);
@@ -110,7 +111,7 @@ void CitiesProxyModel::onDataChanged(const QModelIndex &topLeft, const QModelInd
 
 void CitiesProxyModel::onRowsInserted(const QModelIndex &parent, int first, int last)
 {
-    Q_ASSERT(first == last);        // supported only one insertion
+    WS_ASSERT(first == last);        // supported only one insertion
 
     if (!parent.isValid())
     {
@@ -138,7 +139,7 @@ void CitiesProxyModel::onRowsInserted(const QModelIndex &parent, int first, int 
 
 void CitiesProxyModel::onRowsAboutToBeRemoved(const QModelIndex &parent, int first, int last)
 {
-    Q_ASSERT(first == last);        // supported only one removal
+    WS_ASSERT(first == last);        // supported only one removal
 
     if (!parent.isValid())
     {
@@ -172,8 +173,8 @@ void CitiesProxyModel::onRowsRemoved(const QModelIndex &/*parent*/, int /*first*
 
 void CitiesProxyModel::onRowsAboutToBeMoved(const QModelIndex &sourceParent, int sourceStart, int sourceEnd, const QModelIndex &destinationParent, int destinationRow)
 {
-    Q_ASSERT(sourceParent == destinationParent);
-    Q_ASSERT(sourceStart == sourceEnd);        // supported only one item move
+    WS_ASSERT(sourceParent == destinationParent);
+    WS_ASSERT(sourceStart == sourceEnd);        // supported only one item move
 
     if (!sourceParent.isValid())
     {
@@ -245,7 +246,7 @@ int CitiesProxyModel::findInternalIndex(const QModelIndex &parent, int row)
         }
         cnt += sourceModel()->rowCount(mi);
     }
-    Q_ASSERT(false);
+    WS_ASSERT(false);
     return -1;
 }
 

@@ -1,4 +1,5 @@
 #include "manualconnsettingspolicy.h"
+#include "utils/ws_assert.h"
 #include "utils/logger.h"
 
 ManualConnSettingsPolicy::ManualConnSettingsPolicy(
@@ -7,8 +8,8 @@ ManualConnSettingsPolicy::ManualConnSettingsPolicy(
         locationInfo_(qSharedPointerDynamicCast<locationsmodel::MutableLocationInfo>(bli)),
         portMap_(portMap), connectionSettings_(connectionSettings), failedManualModeCounter_(0)
 {
-    Q_ASSERT(!locationInfo_.isNull());
-    Q_ASSERT(!locationInfo_->locationId().isCustomConfigsLocation());
+    WS_ASSERT(!locationInfo_.isNull());
+    WS_ASSERT(!locationInfo_->locationId().isCustomConfigsLocation());
 }
 
 void ManualConnSettingsPolicy::reset()

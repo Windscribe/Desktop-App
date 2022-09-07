@@ -1,4 +1,5 @@
 #include "pinghost_icmp_mac.h"
+#include "utils/ws_assert.h"
 #include "utils/ipvalidation.h"
 #include "utils/utils.h"
 #include "utils/logger.h"
@@ -80,7 +81,7 @@ void PingHost_ICMP_mac::onProcessFinished(int exitCode, QProcess::ExitStatus exi
                 else
                 {
                     qCDebug(LOG_PING) << "Something incorrect in ping utility output:" << line;
-                    Q_ASSERT(false);
+                    WS_ASSERT(false);
                 }
                 break;
             }
@@ -124,7 +125,7 @@ void PingHost_ICMP_mac::processNextPings()
     if (pingingHosts_.count() < MAX_PARALLEL_PINGS && !waitingPingsQueue_.isEmpty())
     {
         QString ip = waitingPingsQueue_.dequeue();
-        Q_ASSERT(IpValidation::instance().isIp(ip));
+        WS_ASSERT(IpValidation::instance().isIp(ip));
 
 
         PingInfo *pingInfo = new PingInfo();

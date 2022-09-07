@@ -4,6 +4,7 @@
 #include <QDebug>
 #include <QCoreApplication>
 #include <openssl/ssl.h>
+#include "utils/ws_assert.h"
 //#include "utils/crashhandler.h"
 #include "utils/logger.h"
 #include <QStandardPaths>
@@ -256,7 +257,7 @@ void CurlNetworkManager2::run()
                 }
                 else
                 {
-                    Q_ASSERT(false);
+                    WS_ASSERT(false);
                 }
             }
         } while(m);
@@ -302,7 +303,7 @@ void CurlNetworkManager2::handleRequest(quint64 id)
 CurlReply *CurlNetworkManager2::invokeRequest(CurlReply::REQUEST_TYPE type, const NetworkRequest &request, const QStringList &ips, const QByteArray &data /*= QByteArray*/)
 {
     CurlReply *reply = new CurlReply(this, request, ips, type, data, this);
-    Q_ASSERT(!activeRequests_.contains(reply->id()));
+    WS_ASSERT(!activeRequests_.contains(reply->id()));
     activeRequests_[reply->id()] = reply;
     QMetaObject::invokeMethod(this, "handleRequest", Qt::QueuedConnection, Q_ARG(quint64, reply->id()));
     return reply;
@@ -341,7 +342,7 @@ CURL *CurlNetworkManager2::makeRequest(CurlReply *curlReply)
     }
     else
     {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
         return NULL;
     }
 }
@@ -490,7 +491,7 @@ bool CurlNetworkManager2::setupResolveHosts(CurlReply *curlReply, CURL *curl)
     }
     else
     {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
     }
     return true;
 }

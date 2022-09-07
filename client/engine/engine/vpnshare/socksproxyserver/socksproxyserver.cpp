@@ -1,4 +1,5 @@
 #include "socksproxyserver.h"
+#include "utils/ws_assert.h"
 #include "utils/logger.h"
 
 namespace SocksProxyServer {
@@ -17,7 +18,7 @@ SocksProxyServer::~SocksProxyServer()
 
 bool SocksProxyServer::startServer(quint16 port)
 {
-    Q_ASSERT(!isListening());
+    WS_ASSERT(!isListening());
 
     if (listen(QHostAddress::AnyIPv4, port))
     {

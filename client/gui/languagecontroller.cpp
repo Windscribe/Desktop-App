@@ -1,6 +1,7 @@
 #include "languagecontroller.h"
 
 #include <QApplication>
+#include "utils/ws_assert.h"
 #include "utils/logger.h"
 
 void LanguageController::setLanguage(const QString &language)
@@ -26,7 +27,7 @@ void LanguageController::setLanguage(const QString &language)
 #elif defined Q_OS_LINUX
         //todo linux
         QString filename;
-        Q_ASSERT(false);
+        WS_ASSERT(false);
 #endif
 
             if (translator_.load(filename))

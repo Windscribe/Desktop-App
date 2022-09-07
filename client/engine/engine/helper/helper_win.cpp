@@ -1,6 +1,7 @@
 #include "utils/boost_includes.h"
 #include "utils/executable_signature/executable_signature.h"
 #include "helper_win.h"
+#include "utils/ws_assert.h"
 #include "utils/crashhandler.h"
 #include "utils/logger.h"
 #include <QDir>
@@ -53,8 +54,8 @@ Helper_win::~Helper_win()
 void Helper_win::startInstallHelper()
 {
     initVariables();
-    Q_ASSERT(schSCManager_ == NULL);
-    Q_ASSERT(schService_ == NULL);
+    WS_ASSERT(schSCManager_ == NULL);
+    WS_ASSERT(schService_ == NULL);
 
     helperLabel_ = "WindscribeService";
 
@@ -222,7 +223,7 @@ void Helper_win::sendConnectStatus(bool isConnected, bool isTerminateSocket, boo
         }
         else
         {
-            Q_ASSERT(false);
+            WS_ASSERT(false);
         }
 
         auto fillAdapterInfo = [](const AdapterGatewayInfo &a, ADAPTER_GATEWAY_INFO &out)
@@ -1015,7 +1016,7 @@ int Helper_win::debugGetActiveUnblockingCmdCount()
 {
     QMutexLocker locker(&mutex_);
     MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_GET_UNBLOCKING_CMD_COUNT, std::string());
-    Q_ASSERT(mpr.exitCode == 0);
+    WS_ASSERT(mpr.exitCode == 0);
     return mpr.exitCode;
 }
 
@@ -1062,7 +1063,7 @@ bool Helper_win::firewallActualState()
 {
     QMutexLocker locker(&mutex_);
     MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_FIREWALL_STATUS, std::string());
-    Q_ASSERT(mpr.success);
+    WS_ASSERT(mpr.success);
     return mpr.exitCode == 1;
 }
 

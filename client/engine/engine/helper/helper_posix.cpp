@@ -15,6 +15,7 @@
 #include "engine/wireguardconfig/wireguardconfig.h"
 #include "types/wireguardtypes.h"
 #include "engine/connectionmanager/adaptergatewayinfo.h"
+#include "utils/ws_assert.h"
 #include "utils/macutils.h"
 #include "utils/executable_signature/executable_signature.h"
 #include "../../../../backend/posix_common/helper_commands_serialize.h"
@@ -33,7 +34,7 @@ Helper_posix::Helper_posix(QObject *parent) : IHelper(parent), bIPV6State_(true)
   , ep_(SOCK_PATH), bHelperConnectedEmitted_(false)
   , curState_(STATE_INIT), bNeedFinish_(false), firstConnectToHelperErrorReported_(false)
 {
-    Q_ASSERT(g_this_ == NULL);
+    WS_ASSERT(g_this_ == NULL);
     g_this_ = this;
 }
 
@@ -220,7 +221,7 @@ void Helper_posix::sendConnectStatus(bool isConnected, bool isTerminateSocket, b
         }
         else
         {
-            Q_ASSERT(false);
+            WS_ASSERT(false);
         }
 
         auto fillAdapterInfo = [](const AdapterGatewayInfo &a, ADAPTER_GATEWAY_INFO &out)
@@ -356,7 +357,7 @@ IHelper::ExecuteError Helper_posix::startWireGuard(const QString &exeName, const
     if (!exeName.isEmpty())
         cmd.exePath = (QCoreApplication::applicationDirPath() + "/" + exeName).toStdString();
 #else
-    Q_ASSERT(false);
+    WS_ASSERT(false);
 #endif
     cmd.deviceName = deviceName.toStdString();
 

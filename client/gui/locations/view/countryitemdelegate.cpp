@@ -210,7 +210,7 @@ int CountryItemDelegate::isInTooltipArea(const ItemStyleOption &option, const QM
 
 void CountryItemDelegate::tooltipEnterEvent(const ItemStyleOption &option, const QModelIndex &index, int tooltipId, const IItemCacheData *cacheData) const
 {
-    Q_ASSERT(dynamic_cast<QWidget *>(option.styleObject) != nullptr);
+    WS_ASSERT(dynamic_cast<QWidget *>(option.styleObject) != nullptr);
     if (tooltipId == (int)TooltipRect::kP2P) {
         QWidget *widget = static_cast<QWidget *>(option.styleObject);
         QRect rc = p2pRect(option.rect);
@@ -223,7 +223,7 @@ void CountryItemDelegate::tooltipEnterEvent(const ItemStyleOption &option, const
         ti.tailPosPercent = 0.5;
         TooltipController::instance().showTooltipBasic(ti);
     } else {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
     }
 }
 
@@ -232,7 +232,7 @@ void CountryItemDelegate::tooltipLeaveEvent(int tooltipId) const
     if (tooltipId == (int)TooltipRect::kP2P)
         TooltipController::instance().hideTooltip(TOOLTIP_ID_LOCATIONS_P2P);
     else
-        Q_ASSERT(false);
+        WS_ASSERT(false);
 }
 
 QRect CountryItemDelegate::p2pRect(const QRect &itemRect) const

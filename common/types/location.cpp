@@ -3,6 +3,7 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include "utils/ws_assert.h"
 
 namespace types {
 
@@ -48,9 +49,9 @@ QVector<Location> Location::loadLocationsFromJson(const QByteArray &arr)
 {
     QVector<Location> locations;
     QJsonDocument doc = QJsonDocument::fromJson(arr);
-    Q_ASSERT(doc.isObject());
+    WS_ASSERT(doc.isObject());
     QJsonArray jsonArr = doc.object()["locations"].toArray();
-    Q_ASSERT(!jsonArr.isEmpty());
+    WS_ASSERT(!jsonArr.isEmpty());
     for (const auto &item : jsonArr)
     {
         locations << locationFromJsonObject(item.toObject());
@@ -62,7 +63,7 @@ QVector<Location> Location::loadLocationsFromJson(const QByteArray &arr)
 Location Location::loadLocationFromJson(const QByteArray &arr)
 {
     QJsonDocument doc = QJsonDocument::fromJson(arr);
-    Q_ASSERT(doc.isObject());
+    WS_ASSERT(doc.isObject());
     return locationFromJsonObject(doc.object());
 }
 
@@ -102,7 +103,4 @@ Location Location::locationFromJsonObject(const QJsonObject &obj)
     return location;
 }
 
-
-
-} //namespace types
-
+} // namespace types

@@ -2,6 +2,7 @@
 #define DIALOGGETUSERNAMEPASSWORD_H
 
 #include <QDialog>
+#include "utils/ws_assert.h"
 
 namespace Ui {
 class DialogGetUsernamePassword;
@@ -15,7 +16,7 @@ public:
     explicit DialogGetUsernamePassword(QWidget *parent, bool isRequestUsername);
     ~DialogGetUsernamePassword();
 
-    QString username() { Q_ASSERT(isRequestUsername_); return username_; }
+    QString username() { WS_ASSERT(isRequestUsername_); return username_; }
     QString password() { return password_; }
     bool isNeedSave() { return isSave_; }
 

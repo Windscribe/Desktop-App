@@ -1,4 +1,5 @@
 #include "vpnsharecontroller.h"
+#include "utils/ws_assert.h"
 #include "utils/utils.h"
 #include <QElapsedTimer>
 #include "engine/connectionmanager/availableport.h"
@@ -71,7 +72,7 @@ void VpnShareController::startProxySharing(PROXY_SHARING_TYPE proxyType)
     }
     else
     {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
     }
 }
 
@@ -111,7 +112,7 @@ QString VpnShareController::getProxySharingAddress()
     {
         return Utils::getLocalIP() + ":" + QString::number(socksProxyServer_->serverPort());
     }
-    Q_ASSERT(false);
+    WS_ASSERT(false);
     return "Unknown";
 }
 

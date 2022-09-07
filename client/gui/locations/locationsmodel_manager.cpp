@@ -96,7 +96,7 @@ QModelIndex LocationsModelManager::getIndexByFilter(const QString &strFilter) co
 
 LocationID LocationsModelManager::findLocationByFilter(const QString &strFilter) const
 {
-    Q_ASSERT(false);
+    WS_ASSERT(false);
     return LocationID();
 }
 
@@ -112,19 +112,19 @@ LocationID LocationsModelManager::getBestLocationId() const
 
 LocationID LocationsModelManager::getFirstValidCustomConfigLocationId() const
 {
-    Q_ASSERT(false);
+    WS_ASSERT(false);
     return LocationID();
 }
 
 LocationID LocationsModelManager::findGenericLocationByTitle(const QString &title) const
 {
-    Q_ASSERT(false);
+    WS_ASSERT(false);
     return LocationID();
 }
 
 LocationID LocationsModelManager::findCustomConfigLocationByTitle(const QString &title) const
 {
-    Q_ASSERT(false);
+    WS_ASSERT(false);
     return LocationID();
 }
 

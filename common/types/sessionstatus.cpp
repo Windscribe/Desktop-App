@@ -1,6 +1,7 @@
 #include "sessionstatus.h"
 #include <QJsonArray>
 #include <QMetaType>
+#include "utils/ws_assert.h"
 
 const int typeIdSessionStatus = qRegisterMetaType<types::SessionStatus>("types::SessionStatus");
 
@@ -86,85 +87,85 @@ bool SessionStatus::initFromJson(QJsonObject &json, QString &outErrorMessage)
 
 int SessionStatus::getStaticIpsCount() const
 {
-    Q_ASSERT(d->isInitialized_);
+    WS_ASSERT(d->isInitialized_);
     return d->static_ips_;
 }
 
 bool SessionStatus::isContainsStaticDeviceId(const QString &deviceId) const
 {
-    Q_ASSERT(d->isInitialized_);
+    WS_ASSERT(d->isInitialized_);
     return d->staticIpsUpdateDevices_.contains(deviceId);
 }
 
 QString SessionStatus::getRevisionHash() const
 {
-    Q_ASSERT(d->isInitialized_ && !d->revisionHash_.isEmpty());
+    WS_ASSERT(d->isInitialized_ && !d->revisionHash_.isEmpty());
     return d->revisionHash_;
 }
 
 void SessionStatus::setRevisionHash(const QString &revisionHash)
 {
-    Q_ASSERT(d->isInitialized_);
+    WS_ASSERT(d->isInitialized_);
     d->revisionHash_ = revisionHash;
 }
 
 bool SessionStatus::isPremium() const
 {
-    Q_ASSERT(d->isInitialized_);
+    WS_ASSERT(d->isInitialized_);
     return d->is_premium_;
 }
 
 QStringList SessionStatus::getAlc() const
 {
-    Q_ASSERT(d->isInitialized_);
+    WS_ASSERT(d->isInitialized_);
     return d->alc_;
 }
 
 QString SessionStatus::getUsername() const
 {
-    Q_ASSERT(d->isInitialized_);
+    WS_ASSERT(d->isInitialized_);
     return d->username_;
 }
 
 QString SessionStatus::getUserId() const
 {
-    Q_ASSERT(d->isInitialized_);
+    WS_ASSERT(d->isInitialized_);
     return d->user_id_;
 }
 
 QString SessionStatus::getEmail() const
 {
-    Q_ASSERT(d->isInitialized_);
+    WS_ASSERT(d->isInitialized_);
     return d->email_;
 }
 
 qint32 SessionStatus::getEmailStatus() const
 {
-    Q_ASSERT(d->isInitialized_);
+    WS_ASSERT(d->isInitialized_);
     return d->email_status_;
 }
 
 qint32 SessionStatus::getRebill() const
 {
-    Q_ASSERT(d->isInitialized_);
+    WS_ASSERT(d->isInitialized_);
     return d->rebill_;
 }
 
 qint32 SessionStatus::getBillingPlanId() const
 {
-    Q_ASSERT(d->isInitialized_);
+    WS_ASSERT(d->isInitialized_);
     return d->billing_plan_id_;
 }
 
 QString SessionStatus::getLastResetDate() const
 {
-    Q_ASSERT(d->isInitialized_);
+    WS_ASSERT(d->isInitialized_);
     return d->last_reset_date_;
 }
 
 QString SessionStatus::getPremiumExpireDate() const
 {
-    Q_ASSERT(d->isInitialized_);
+    WS_ASSERT(d->isInitialized_);
     return d->premium_expire_date_;
 }
 
@@ -212,25 +213,25 @@ QString SessionStatus::debugString() const
 
 qint32 SessionStatus::getStatus() const
 {
-    Q_ASSERT(d->isInitialized_);
+    WS_ASSERT(d->isInitialized_);
     return d->status_;
 }
 
 qint64 SessionStatus::getTrafficUsed() const
 {
-    Q_ASSERT(d->isInitialized_);
+    WS_ASSERT(d->isInitialized_);
     return d->traffic_used_;
 }
 
 qint64 SessionStatus::getTrafficMax() const
 {
-    Q_ASSERT(d->isInitialized_);
+    WS_ASSERT(d->isInitialized_);
     return d->traffic_max_;
 }
 
 QDataStream& operator <<(QDataStream& stream, const SessionStatus& ss)
 {
-    Q_ASSERT(ss.d->isInitialized_);
+    WS_ASSERT(ss.d->isInitialized_);
     stream << ss.versionForSerialization_;
     stream << ss.d->is_premium_ << ss.d->status_ << ss.d->rebill_ << ss.d->billing_plan_id_ << ss.d->premium_expire_date_ << ss.d->traffic_used_ << ss.d->traffic_max_
            << ss.d->username_ << ss.d->user_id_ << ss.d->email_ << ss.d->email_status_ << ss.d->static_ips_ << ss.d->alc_ << ss.d->last_reset_date_;

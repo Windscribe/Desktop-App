@@ -8,6 +8,7 @@
 #import <Foundation/Foundation.h>
 #include <QWaitCondition>
 
+#include "utils/ws_assert.h"
 #include "utils/logger.h"
 #include "utils/macutils.h"
 #include "utils/network_utils/network_utils_mac.h"
@@ -173,7 +174,7 @@ void IKEv2Connection_mac::startConnect(const QString &configPathOrUrl, const QSt
 
     mutexLocal.lock();
 
-    Q_ASSERT(state_ == STATE_DISCONNECTED);
+    WS_ASSERT(state_ == STATE_DISCONNECTED);
 
     isPrevConnectionStatusInitialized_ = false;
     state_ = STATE_START_CONNECT;
@@ -335,7 +336,7 @@ bool IKEv2Connection_mac::isDisconnected() const
 void IKEv2Connection_mac::continueWithUsernameAndPassword(const QString &username, const QString &password)
 {
     // nothing todo for ikev2
-    Q_ASSERT(false);
+    WS_ASSERT(false);
     Q_UNUSED(username);
     Q_UNUSED(password);
 }
@@ -343,7 +344,7 @@ void IKEv2Connection_mac::continueWithUsernameAndPassword(const QString &usernam
 void IKEv2Connection_mac::continueWithPassword(const QString &password)
 {
     // nothing todo for ikev2
-    Q_ASSERT(false);
+    WS_ASSERT(false);
     Q_UNUSED(password);
 }
 

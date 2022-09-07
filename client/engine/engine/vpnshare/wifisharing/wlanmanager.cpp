@@ -1,5 +1,6 @@
 #include "wlanmanager.h"
-#include "Utils/logger.h"
+#include "utils/ws_assert.h"
+#include "utils/logger.h"
 
 WlanManager::WlanManager(QObject *parent) : QObject(parent),
     bDllFuncsLoaded_(false),
@@ -341,7 +342,7 @@ VOID WINAPI WlanManager::wlanNotificationCallback(PWLAN_NOTIFICATION_DATA pNotif
     }
     else
     {
-        //Q_ASSERT(false);
+        //WS_ASSERT(false);
         qCDebug(LOG_WLAN_MANAGER) << "wlanNotificationCallback, NotificationCode =" << pNotifData->NotificationCode;
     }
 }
@@ -363,7 +364,7 @@ void WlanManager::safeCloseHandle()
 QString WlanManager::makeDebugString_wlan_hosted_network_state_change(PWLAN_NOTIFICATION_DATA pNotifData)
 {
     WLAN_HOSTED_NETWORK_STATE_CHANGE *stateChange = (WLAN_HOSTED_NETWORK_STATE_CHANGE *)pNotifData->pData;
-    Q_ASSERT(pNotifData->dwDataSize == sizeof(WLAN_HOSTED_NETWORK_STATE_CHANGE));
+    WS_ASSERT(pNotifData->dwDataSize == sizeof(WLAN_HOSTED_NETWORK_STATE_CHANGE));
     QString ret = "wlan_hosted_network_state_change;";
     ret += "OldState=" + WLAN_HOSTED_NETWORK_STATE_to_string(stateChange->OldState);
     ret += ";NewState=" + WLAN_HOSTED_NETWORK_STATE_to_string(stateChange->NewState);

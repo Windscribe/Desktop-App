@@ -1,4 +1,5 @@
 #include "node.h"
+#include "utils/ws_assert.h"
 
 namespace apiinfo {
 
@@ -31,27 +32,27 @@ bool Node::initFromJson(QJsonObject &obj)
 
 QString Node::getHostname() const
 {
-    Q_ASSERT(d->isValid_);
+    WS_ASSERT(d->isValid_);
     return d->hostname_;
 }
 
 bool Node::isForceDisconnect() const
 {
-    Q_ASSERT(d->isValid_);
+    WS_ASSERT(d->isValid_);
     return d->forceDisconnect_ == 1;
 }
 
 QString Node::getIp(int ind) const
 {
-    Q_ASSERT(d->isValid_);
-    Q_ASSERT(ind >= 0 && ind <= 2);
-    Q_ASSERT(d->ips_.size() == 3);
+    WS_ASSERT(d->isValid_);
+    WS_ASSERT(ind >= 0 && ind <= 2);
+    WS_ASSERT(d->ips_.size() == 3);
     return d->ips_[ind];
 }
 
 int Node::getWeight() const
 {
-    Q_ASSERT(d->isValid_);
+    WS_ASSERT(d->isValid_);
     return d->weight_;
 }
 
@@ -71,7 +72,7 @@ bool Node::operator!=(const Node &other) const
 
 QDataStream& operator <<(QDataStream &stream, const Node &n)
 {
-    Q_ASSERT(n.d->isValid_);
+    WS_ASSERT(n.d->isValid_);
     stream << n.versionForSerialization_;
     // forceDisconnect_ does not require serialization
     stream << n.d->ips_ << n.d->hostname_ << n.d->weight_;

@@ -5,6 +5,7 @@
 #include <QPainter>
 #include <QCursor>
 #include <QGraphicsSceneMouseEvent>
+#include "utils/ws_assert.h"
 #include "utils/utils.h"
 #include "utils/logger.h"
 #include "dpiscalemanager.h"
@@ -354,7 +355,7 @@ void PreferencesWindowItem::changeTab(PREFERENCES_TAB_TYPE tab)
     }
     else
     {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
     }
 }
 

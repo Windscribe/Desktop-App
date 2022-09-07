@@ -98,6 +98,7 @@ set(PROJECT_SOURCES
     ${COMMON_PATH}/utils/utils.h
     ${COMMON_PATH}/utils/widgetutils.cpp
     ${COMMON_PATH}/utils/widgetutils.h
+    ${COMMON_PATH}/utils/ws_assert.h
     ${COMMON_PATH}/version/appversion.cpp
     ${COMMON_PATH}/version/appversion.h
     ${COMMON_PATH}/version/windscribe_version.h

@@ -2,7 +2,7 @@
 
 #include <QFile>
 #include <QTextStream>
-
+#include "utils/ws_assert.h"
 
 namespace
 {
@@ -27,7 +27,7 @@ LogData::LogData() : timestampCounter_(0)
 
 QPair<int, int> LogData::getDataSizeForType(LogDataType type) const
 {
-    Q_ASSERT(type < NUM_LOG_TYPES || type == LOG_TYPE_MIXED);
+    WS_ASSERT(type < NUM_LOG_TYPES || type == LOG_TYPE_MIXED);
     if (type < NUM_LOG_TYPES)
         return typeInfo_[type];
     QPair<int, int> result;
@@ -64,7 +64,7 @@ bool LogData::save(const QString &filename) const
 
 void LogData::clearDataByLogType(LogDataType type)
 {
-    Q_ASSERT(type < NUM_LOG_TYPES || type == LOG_TYPE_MIXED);
+    WS_ASSERT(type < NUM_LOG_TYPES || type == LOG_TYPE_MIXED);
     bool updated = false;
     if (type == LOG_TYPE_MIXED) {
         typeInfo_.clear();
@@ -112,7 +112,7 @@ void LogData::addLines(QStringList lines, LogDataType type, quint32 index,
     if (lines.empty())
         return;
 
-    Q_ASSERT(type < NUM_LOG_TYPES || type == LOG_TYPE_MIXED);
+    WS_ASSERT(type < NUM_LOG_TYPES || type == LOG_TYPE_MIXED);
     const int kCurrentYearOffset = QDateTime::currentDateTime().date().year() - 1900;
     QDateTime range[2];
     if (data_.isEmpty())
@@ -146,22 +146,22 @@ void LogData::processLine(const QString &line, LogDataType type, quint32 index, 
     // Verify type.
     QString processingLine;
     if (line.startsWith("G [")) {
-        Q_ASSERT(type == LOG_TYPE_MIXED);
+        WS_ASSERT(type == LOG_TYPE_MIXED);
         processingLine = line.mid(2);
         type = LOG_TYPE_GUI;
     } else if (line.startsWith("E [")) {
-        Q_ASSERT(type == LOG_TYPE_MIXED);
+        WS_ASSERT(type == LOG_TYPE_MIXED);
         type = LOG_TYPE_ENGINE;
         processingLine = line.mid(2);
     } else if (line.startsWith("S [")) {
-        Q_ASSERT(type == LOG_TYPE_MIXED);
+        WS_ASSERT(type == LOG_TYPE_MIXED);
         type = LOG_TYPE_SERVICE;
         processingLine = line.mid(2);
     } else if (line.startsWith("===") || line.startsWith("---")) {
         type = LOG_TYPE_AUX;
         processingLine = line;
     } else {
-        Q_ASSERT(type != LOG_TYPE_MIXED);
+        WS_ASSERT(type != LOG_TYPE_MIXED);
         processingLine = line;
     }
 

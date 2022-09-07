@@ -1,10 +1,11 @@
 #include "locationid.h"
+#include "utils/ws_assert.h"
 
 const int typeIdLocationId = qRegisterMetaType<LocationID>("LocationID");
 
 QString LocationID::getHashString() const
 {
-    Q_ASSERT(type_ != INVALID_LOCATION);
+    WS_ASSERT(type_ != INVALID_LOCATION);
     return QString::number(id_) + QString::number(type_) + city_;
 }
 
@@ -45,24 +46,24 @@ LocationID LocationID::createCustomConfigLocationId(const QString &filename)
 
 bool LocationID::isTopLevelLocation() const
 {
-    Q_ASSERT(type_ != INVALID_LOCATION);
+    WS_ASSERT(type_ != INVALID_LOCATION);
     return city_.isEmpty();
 }
 
 LocationID LocationID::bestLocationToApiLocation() const
 {
-    Q_ASSERT(type_ == BEST_LOCATION);
+    WS_ASSERT(type_ == BEST_LOCATION);
     return LocationID(API_LOCATION, id_, city_);
 }
 
 LocationID LocationID::apiLocationToBestLocation() const
 {
-    Q_ASSERT(type_ == API_LOCATION);
+    WS_ASSERT(type_ == API_LOCATION);
     return LocationID(BEST_LOCATION, id_, city_);
 }
 
 LocationID LocationID::toTopLevelLocation() const
 {
-    //Q_ASSERT(type_ == API_LOCATION || type_ == BEST_LOCATION);      // applicable only for API locations and best location
+    //WS_ASSERT(type_ == API_LOCATION || type_ == BEST_LOCATION);      // applicable only for API locations and best location
     return LocationID(type_, id_, QString());
 }

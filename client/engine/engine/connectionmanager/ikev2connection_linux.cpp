@@ -1,5 +1,6 @@
 #include "ikev2connection_linux.h"
 #include <QCoreApplication>
+#include "utils/ws_assert.h"
 
 IKEv2Connection_linux::IKEv2Connection_linux(QObject *parent, IHelper *helper) : IConnection(parent)
 {
@@ -27,14 +28,14 @@ bool IKEv2Connection_linux::isDisconnected() const
 void IKEv2Connection_linux::continueWithUsernameAndPassword(const QString &/*username*/, const QString &/*password*/)
 {
     // nothing todo for ikev2
-    Q_ASSERT(false);
+    WS_ASSERT(false);
 }
 
 
 void IKEv2Connection_linux::continueWithPassword(const QString & /*password*/)
 {
     // nothing todo for ikev2
-    Q_ASSERT(false);
+    WS_ASSERT(false);
 }
 
 void IKEv2Connection_linux::fakeImpl()

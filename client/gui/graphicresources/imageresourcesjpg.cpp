@@ -4,6 +4,7 @@
 #include <QPainter>
 #include <QApplication>
 #include <QScreen>
+#include "utils/ws_assert.h"
 #include "utils/crashhandler.h"
 #include "utils/logger.h"
 #include "dpiscalemanager.h"
@@ -57,7 +58,7 @@ QSharedPointer<IndependentPixmap> ImageResourcesJpg::getIndependentPixmap(const 
         }
         else
         {
-            Q_ASSERT(false);
+            WS_ASSERT(false);
             return nullptr;
         }
     }
@@ -88,8 +89,8 @@ bool ImageResourcesJpg::loadFromResourceWithCustomSize(const QString &name, int 
         return false;
     }
 
-    Q_ASSERT(img.width() == fd.width);
-    Q_ASSERT(img.height() == fd.height);
+    WS_ASSERT(img.width() == fd.width);
+    WS_ASSERT(img.height() == fd.height);
 
     QPixmap pixmap(QSize(width, height) * DpiScaleManager::instance().curDevicePixelRatio());
     pixmap.fill(Qt::transparent);
@@ -106,7 +107,7 @@ bool ImageResourcesJpg::parseFileName(const QString &filename, QString &outName,
     int indDefis = filename.lastIndexOf('_');
     if (indDefis == -1)
     {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
         return false;
     }
     outName = filename.mid(0, indDefis);
@@ -114,7 +115,7 @@ bool ImageResourcesJpg::parseFileName(const QString &filename, QString &outName,
     int ind1 = filename.indexOf('x', indDefis);
     if (ind1 == -1)
     {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
         return false;
     }
 
@@ -123,7 +124,7 @@ bool ImageResourcesJpg::parseFileName(const QString &filename, QString &outName,
     outWidth = widthStr.toInt(&bOk);
     if (!bOk)
     {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
         return false;
     }
 
@@ -131,7 +132,7 @@ bool ImageResourcesJpg::parseFileName(const QString &filename, QString &outName,
     outHeight = heightStr.toInt(&bOk);
     if (!bOk)
     {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
         return false;
     }
 

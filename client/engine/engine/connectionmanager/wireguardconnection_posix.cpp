@@ -1,4 +1,5 @@
 #include "wireguardconnection_posix.h"
+#include "utils/ws_assert.h"
 #include "utils/crashhandler.h"
 #include "utils/logger.h"
 #include "engine/helper/ihelper.h"
@@ -77,7 +78,7 @@ void WireGuardConnectionImpl::connect()
 
 void WireGuardConnectionImpl::configure()
 {
-    Q_ASSERT(isStarted_);
+    WS_ASSERT(isStarted_);
 
     // Configure the client and the peer.
     if (!host_->helper_->configureWireGuard(config_)) {

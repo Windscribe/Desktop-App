@@ -1,6 +1,7 @@
 #include "httpproxyconnection.h"
 #include <QThread>
 #include <QHostAddress>
+#include "utils/ws_assert.h"
 #include "utils/logger.h"
 
 namespace HttpProxyServer {
@@ -102,7 +103,7 @@ void HttpProxyConnection::onSocketReadyRead()
     }
     else
     {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
     }
 }
 
@@ -137,7 +138,7 @@ void HttpProxyConnection::onExternalSocketConnected()
             /*long contentLength = requestParser_.getRequest().getContentLength();
             if (contentLength > 0)
             {
-                Q_ASSERT(contentLength == extraContent_.size());
+                WS_ASSERT(contentLength == extraContent_.size());
                 writeAllSocketExternal_->write(extraContent_);
             }
             else
@@ -154,7 +155,7 @@ void HttpProxyConnection::onExternalSocketConnected()
     }
     else
     {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
     }
 }
 
@@ -210,7 +211,7 @@ void HttpProxyConnection::onExternalSocketReadyRead()
     }
     else
     {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
     }
 }
 

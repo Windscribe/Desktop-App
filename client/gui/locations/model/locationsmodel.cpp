@@ -154,10 +154,10 @@ void LocationsModel::updateCustomConfigLocation(const types::Location &location)
     auto it = mapLocations_.find(lid);
     if (it != mapLocations_.end())
     {
-        Q_ASSERT(locations_[locations_.size() - 1] == it.value());
+        WS_ASSERT(locations_[locations_.size() - 1] == it.value());
         if (location.id.isValid())
         {
-            Q_ASSERT(location.id.isCustomConfigsLocation());
+            WS_ASSERT(location.id.isCustomConfigsLocation());
             handleChangedLocation(locations_.size() - 1, location);
         }
         else
@@ -173,7 +173,7 @@ void LocationsModel::updateCustomConfigLocation(const types::Location &location)
     {
         if (location.id.isValid())
         {
-            Q_ASSERT(location.id.isCustomConfigsLocation());
+            WS_ASSERT(location.id.isCustomConfigsLocation());
             // Insert custom config location to the end
             beginInsertRows(QModelIndex(), locations_.size(), locations_.size());
             LocationItem *li = new LocationItem(location);
@@ -190,7 +190,7 @@ void LocationsModel::changeConnectionSpeed(LocationID id, PingTime speed)
     if (it != mapLocations_.end())
     {
         int ind = locations_.indexOf(it.value());
-        Q_ASSERT(ind != -1);
+        WS_ASSERT(ind != -1);
         if (ind != -1)
         {
             for (int c = 0; c < it.value()->location().cities.size(); ++c)
@@ -274,7 +274,7 @@ QModelIndex LocationsModel::index(int row, int column, const QModelIndex &parent
     }
     else
     {
-        Q_ASSERT(parent.internalPointer() != nullptr);
+        WS_ASSERT(parent.internalPointer() != nullptr);
         if ((int *)parent.internalPointer() == root_ && parent.row() >= 0 && parent.row() < locations_.size())
         {
             LocationItem *li = locations_[parent.row()];
@@ -301,7 +301,7 @@ QModelIndex LocationsModel::parent(const QModelIndex &index) const
 
     LocationItem *li = (LocationItem *)index.internalPointer();
     int ind = locations_.indexOf(li);
-    Q_ASSERT(ind != -1);
+    WS_ASSERT(ind != -1);
     if (ind != -1)
     {
         return createIndex(ind, 0, (void *)root_);
@@ -446,7 +446,7 @@ QModelIndex LocationsModel::getBestLocationIndex() const
 QModelIndex LocationsModel::getIndexByFilter(const QString &strFilter) const
 {
     //todo
-    Q_ASSERT(false);
+    WS_ASSERT(false);
     return QModelIndex();
 }
 
@@ -623,7 +623,7 @@ QVariant LocationsModel::dataForCity(LocationItem *l, int row, int role) const
         }
         else
         {
-            Q_ASSERT(false);
+            WS_ASSERT(false);
         }
     }
     else if (role == kCustomConfigErrorMessage)
@@ -668,7 +668,7 @@ void LocationsModel::handleChangedLocation(int ind, const types::Location &newLo
         endInsertRows();
     }
 
-    Q_ASSERT(li->location().cities.size() == newLocation.cities.size());
+    WS_ASSERT(li->location().cities.size() == newLocation.cities.size());
     QVector<QPair<int, types::City> > changedCitiesInds = utils::findChangedCities(li->location().cities, citiesVector);
     for (const auto &i : changedCitiesInds)
     {

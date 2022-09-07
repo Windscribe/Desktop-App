@@ -1,6 +1,7 @@
 #include "loginwindowitem.h"
 
 #include <QPainter>
+#include "utils/ws_assert.h"
 #include "dpiscalemanager.h"
 
 namespace LoginWindow {
@@ -8,7 +9,7 @@ namespace LoginWindow {
 LoginWindowItem::LoginWindowItem(QGraphicsObject *parent, PreferencesHelper *preferencesHelper)
     : ScalableGraphicsObject(parent), isWelcomeScreen_(true)
 {
-    Q_ASSERT(preferencesHelper);
+    WS_ASSERT(preferencesHelper);
     setFlag(QGraphicsItem::ItemIsFocusable);
 
     welcomeWindowItem_ = new WelcomeWindowItem(this, preferencesHelper);

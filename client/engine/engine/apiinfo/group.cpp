@@ -1,5 +1,6 @@
 #include "group.h"
 #include <QJsonArray>
+#include "utils/ws_assert.h"
 
 namespace apiinfo {
 
@@ -96,7 +97,7 @@ bool Group::operator!=(const Group &other) const
 
 QDataStream& operator <<(QDataStream& stream, const Group& g)
 {
-    Q_ASSERT(g.d->isValid_);
+    WS_ASSERT(g.d->isValid_);
     stream << g.versionForSerialization_;
     stream << g.d->id_ << g.d->city_ << g.d->nick_ << g.d->pro_ << g.d->pingIp_ << g.d->wg_pubkey_ << g.d->ovpn_x509_ << g.d->link_speed_ <<
               g.d->health_ << g.d->dnsHostName_ << g.d->nodes_;

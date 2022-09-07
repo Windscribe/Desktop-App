@@ -1,6 +1,7 @@
 #include "preventmultipleinstances_win.h"
 
 #include <QtGlobal>
+#include "utils/ws_assert.h"
 
 PreventMultipleInstances_win::PreventMultipleInstances_win() : hMutexCurrentApp_(NULL)
 {
@@ -14,7 +15,7 @@ PreventMultipleInstances_win::~PreventMultipleInstances_win()
 
 bool PreventMultipleInstances_win::lock()
 {
-    Q_ASSERT(!hMutexCurrentApp_);
+    WS_ASSERT(!hMutexCurrentApp_);
     if (hMutexCurrentApp_)
         return true;
 

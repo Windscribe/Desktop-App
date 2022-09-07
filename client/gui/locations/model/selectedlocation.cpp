@@ -7,8 +7,8 @@ namespace gui_locations {
 SelectedLocation::SelectedLocation(QAbstractItemModel *model) : QObject(model),
     model_(model), isValid_(false)
 {
-    Q_ASSERT(model != nullptr);
-    Q_ASSERT(dynamic_cast<LocationsModel *>(model) != nullptr);
+    WS_ASSERT(model != nullptr);
+    WS_ASSERT(dynamic_cast<LocationsModel *>(model) != nullptr);
 
     connect(model_, &QAbstractItemModel::modelReset, this, &SelectedLocation::checkForRemove);
     connect(model_, &QAbstractItemModel::rowsRemoved, this, &SelectedLocation::checkForRemove);
@@ -50,9 +50,9 @@ void SelectedLocation::onDataChanged(const QModelIndex &topLeft, const QModelInd
     {
         return;
     }
-    Q_ASSERT(topLeft.parent() == bottomRight.parent());
-    Q_ASSERT(topLeft.column() == 0);
-    Q_ASSERT(bottomRight.column() == 0);
+    WS_ASSERT(topLeft.parent() == bottomRight.parent());
+    WS_ASSERT(topLeft.column() == 0);
+    WS_ASSERT(bottomRight.column() == 0);
     if (isValid_ && selIndex_.isValid())
     {
         if (selIndex_.parent() == topLeft.parent())
@@ -68,8 +68,8 @@ void SelectedLocation::onDataChanged(const QModelIndex &topLeft, const QModelInd
 
 void SelectedLocation::fillData()
 {
-    Q_ASSERT(isValid_);
-    Q_ASSERT(selIndex_.isValid());
+    WS_ASSERT(isValid_);
+    WS_ASSERT(selIndex_.isValid());
     LocationID extractedLid = qvariant_cast<LocationID>(selIndex_.data((int)Roles::kLocationId));
     prevId_ = id_;
     id_ = extractedLid;

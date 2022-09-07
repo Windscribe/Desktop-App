@@ -1,4 +1,5 @@
 #include "connecteduserscounter.h"
+#include "utils/ws_assert.h"
 
 ConnectedUsersCounter::ConnectedUsersCounter(QObject *parent) : QObject(parent)
 {
@@ -32,7 +33,7 @@ void ConnectedUsersCounter::userDiconnected(const QString &hostname)
     }
     else
     {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
     }
     checkUsersCount();
 }

@@ -2,7 +2,7 @@
 
 #include <QIODevice>
 #include <QSettings>
-
+#include "utils/ws_assert.h"
 #include "utils/simplecrypt.h"
 #include "types/global_consts.h"
 
@@ -25,7 +25,7 @@ bool BestLocation::isValid() const
 
 LocationID BestLocation::getId() const
 {
-    Q_ASSERT(isValid_);
+    WS_ASSERT(isValid_);
     return id_;
 }
 
@@ -39,13 +39,13 @@ void BestLocation::set(const LocationID &id, bool isDetectedFromThisAppStart, bo
 
 bool BestLocation::isDetectedFromThisAppStart() const
 {
-    Q_ASSERT(isValid_);
+    WS_ASSERT(isValid_);
     return isDetectedFromThisAppStart_;
 }
 
 bool BestLocation::isDetectedWithDisconnectedIps() const
 {
-    Q_ASSERT(isValid_);
+    WS_ASSERT(isValid_);
     return isDetectedWithDisconnectedIps_;
 }
 

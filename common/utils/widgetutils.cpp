@@ -2,7 +2,8 @@
 
 #include <QGuiApplication>
 #include <QDebug>
-#include "utils/logger.h"
+#include "ws_assert.h"
+#include "logger.h"
 
 #ifdef Q_OS_WIN
     #include "widgetutils_win.h"
@@ -30,7 +31,7 @@ QPixmap WidgetUtils::extractProgramIcon(QString filePath)
     return WidgetUtils_mac::extractProgramIcon(filePath);
 #elif defined Q_OS_LINUX
     //todo linux
-    Q_ASSERT(false);
+    WS_ASSERT(false);
     Q_UNUSED(filePath);
     return QPixmap();
 #endif 

@@ -1,7 +1,6 @@
 #include "textshadow.h"
+#include "utils/ws_assert.h"
 #include "dpiscalemanager.h"
-#include <math.h>
-
 #include <math.h>
 
 TextShadow::TextShadow() : shadowColor_(0x02, 0x0D, 0x1C, 128), lastFlags_(0)
@@ -24,13 +23,13 @@ void TextShadow::drawText(QPainter *painter, const QRect &rect, int flags, const
 
 int TextShadow::width() const
 {
-    Q_ASSERT(!pixmap_.isNull());
+    WS_ASSERT(!pixmap_.isNull());
     return pixmap_.width() / pixmap_.devicePixelRatio();
 }
 
 int TextShadow::height() const
 {
-    Q_ASSERT(!pixmap_.isNull());
+    WS_ASSERT(!pixmap_.isNull());
     return pixmap_.height() / pixmap_.devicePixelRatio();
 }
 

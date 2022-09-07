@@ -1,6 +1,7 @@
 #include "firewallexceptions.h"
 #include "uniqueiplist.h"
 #include <QThread>
+#include "utils/ws_assert.h"
 #include "utils/hardcodedsettings.h"
 #include "utils/logger.h"
 #include "engine/dnsresolver/dnsutils.h"
@@ -27,7 +28,7 @@ void FirewallExceptions::setProxyIP(const types::ProxySettings &proxySettings)
     }
     else
     {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
     }
 }
 
@@ -87,7 +88,7 @@ void FirewallExceptions::setCustomConfigPingIps(const QStringList &listIps)
 
 QSet<QString> FirewallExceptions::getIPAddressesForFirewall() const
 {
-    //Q_ASSERT(QApplication::instance()->thread() == QThread::currentThread());
+    //WS_ASSERT(QApplication::instance()->thread() == QThread::currentThread());
 
     UniqueIpList ipList;
     ipList.add("127.0.0.1");

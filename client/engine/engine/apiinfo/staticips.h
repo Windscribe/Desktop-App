@@ -3,6 +3,7 @@
 #include <QSharedPointer>
 #include <QString>
 #include <QVector>
+#include "utils/ws_assert.h"
 
 namespace apiinfo {
 
@@ -47,7 +48,7 @@ struct StaticIpDescr
     QString ovpnX509;
     QVector<StaticIpPortDescr> ports;
 
-    const QString& getPingIp() const { Q_ASSERT(!nodeIPs.isEmpty()); return nodeIPs[0]; }
+    const QString& getPingIp() const { WS_ASSERT(!nodeIPs.isEmpty()); return nodeIPs[0]; }
 
     StaticIpPortsVector getAllStaticIpIntPorts() const;
 
@@ -88,7 +89,7 @@ public:
 
     const QString &getDeviceName() const { return d->deviceName_; }
     int getIpsCount() const { return d->ips_.count(); }
-    const StaticIpDescr &getIp(int ind) const { Q_ASSERT(ind >= 0 && ind < d->ips_.count()); return d->ips_[ind]; }
+    const StaticIpDescr &getIp(int ind) const { WS_ASSERT(ind >= 0 && ind < d->ips_.count()); return d->ips_[ind]; }
 
     QStringList getAllPingIps() const;
 

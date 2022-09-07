@@ -3,6 +3,7 @@
 #include <QApplication>
 #include <QKeyEvent>
 #include <QTimer>
+#include "utils/ws_assert.h"
 #include "utils/utils.h"
 
 GuiTest::GuiTest(QWidget *parent) : QObject(parent),
@@ -557,7 +558,7 @@ QVector<GuiTest::CMD_ID> GuiTest::getTransitions(const GuiTest::TCurState &s)
     auto it = transitions_.find(s);
     if (it == transitions_.end())
     {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
     }
     return *it;
 }
@@ -584,7 +585,7 @@ GuiTest::CMD_ID GuiTest::qtKeyToCmdId(Qt::Key k)
             return it->first;
         }
     }
-    Q_ASSERT(false);
+    WS_ASSERT(false);
     return CMD_ID_INITIALIZATION;
 }
 
@@ -597,6 +598,6 @@ Qt::Key GuiTest::cmdIdToQtKey(GuiTest::CMD_ID id)
             return it->second;
         }
     }
-    Q_ASSERT(false);
+    WS_ASSERT(false);
     return Qt::Key_Z;
 }

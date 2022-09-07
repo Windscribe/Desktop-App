@@ -1,6 +1,7 @@
 #include "servercredentials.h"
 
 #include <QDataStream>
+#include "utils/ws_assert.h"
 
 namespace apiinfo {
 
@@ -23,31 +24,31 @@ bool ServerCredentials::isInitialized() const
 
 QString ServerCredentials::usernameForOpenVpn() const
 {
-    Q_ASSERT(bInitialized_);
+    WS_ASSERT(bInitialized_);
     return usernameOpenVpn_;
 }
 
 QString ServerCredentials::passwordForOpenVpn() const
 {
-    Q_ASSERT(bInitialized_);
+    WS_ASSERT(bInitialized_);
     return passwordOpenVpn_;
 }
 
 QString ServerCredentials::usernameForIkev2() const
 {
-    Q_ASSERT(bInitialized_);
+    WS_ASSERT(bInitialized_);
     return usernameIkev2_;
 }
 
 QString ServerCredentials::passwordForIkev2() const
 {
-    Q_ASSERT(bInitialized_);
+    WS_ASSERT(bInitialized_);
     return passwordIkev2_;
 }
 
 QDataStream& operator <<(QDataStream &stream, const ServerCredentials &s)
 {
-    Q_ASSERT(s.bInitialized_);
+    WS_ASSERT(s.bInitialized_);
     stream << s.versionForSerialization_;
     stream << s.usernameOpenVpn_ << s.passwordOpenVpn_ << s.usernameIkev2_ << s.passwordIkev2_;
     return stream;

@@ -4,6 +4,7 @@
 #include "tooltipbasic.h"
 #include "tooltipdescriptive.h"
 #include "dpiscalemanager.h"
+#include "utils/ws_assert.h"
 #include "utils/logger.h"
 
 #include <QDebug>
@@ -76,7 +77,7 @@ void TooltipController::showTooltipInteractive(TooltipId id, int x, int y, int d
     else
     {
         qCDebug(LOG_BASIC) << "Tooltip ID is not interactive: " << id;
-        Q_ASSERT(false);
+        WS_ASSERT(false);
     }
 }
 

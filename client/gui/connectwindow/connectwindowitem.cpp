@@ -6,6 +6,7 @@
 #include <QGraphicsScene>
 #include <QGraphicsView>
 #include "graphicresources/fontmanager.h"
+#include "utils/ws_assert.h"
 #include "utils/logger.h"
 #include "dpiscalemanager.h"
 #include "tooltips/tooltiputil.h"
@@ -27,7 +28,7 @@ ConnectWindowItem::ConnectWindowItem(QGraphicsObject *parent, Preferences *prefe
       isFirewallAlwaysOn_(false),
       isFirewallBlocked_(false)
 {
-    Q_ASSERT(preferencesHelper_);
+    WS_ASSERT(preferencesHelper_);
     background_ = new Background(this, preferences);
 
 #if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
