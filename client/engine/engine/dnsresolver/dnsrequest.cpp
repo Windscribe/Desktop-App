@@ -48,8 +48,11 @@ void DnsRequest::lookupBlocked()
 void DnsRequest::onResolved(const QStringList &ips, int aresErrorCode)
 {
     aresErrorCode_ = aresErrorCode;
-    qCDebug(LOG_DNS_RESOLVER) << "Resolved " << hostname_ << ": " << ips << aresErrorCode;
     ips_ = ips;
+    if (isError())
+    {
+        qCDebug(LOG_DNS_RESOLVER) << "Could not resolve" << hostname_ << "(servers:" << dnsServers_ << "):" << aresErrorCode;
+    }
     emit finished();
 }
 

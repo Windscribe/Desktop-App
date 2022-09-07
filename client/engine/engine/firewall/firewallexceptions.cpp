@@ -2,6 +2,7 @@
 #include "uniqueiplist.h"
 #include <QThread>
 #include "utils/hardcodedsettings.h"
+#include "utils/logger.h"
 #include "engine/dnsresolver/dnsutils.h"
 
 void FirewallExceptions::setHostIPs(const QStringList &hostIPs)
@@ -99,6 +100,7 @@ QSet<QString> FirewallExceptions::getIPAddressesForFirewall() const
         {
             ipList.add(QString::fromStdWString(*it));
         }
+        qCDebug(LOG_FIREWALL_CONTROLLER) << "Get OS default DNS list:" << ipList.get();
     }
     else if (dnsPolicyType_ == DNS_TYPE_OPEN_DNS)
     {
