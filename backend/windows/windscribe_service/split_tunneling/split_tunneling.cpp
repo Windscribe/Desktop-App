@@ -90,14 +90,7 @@ void SplitTunneling::updateState()
 		{
 			Ip4AddressAndMask ipAddress(connectStatus_.defaultAdapter.adapterIp.c_str());
 			redirectIp = ipAddress.ipNetworkOrder();
-			if (connectStatus_.protocol == CMD_PROTOCOL_OPENVPN || connectStatus_.protocol == CMD_PROTOCOL_STUNNEL_OR_WSTUNNEL)
-			{
-			    hostnamesManager_.enable(connectStatus_.defaultAdapter.gatewayIp, connectStatus_.defaultAdapter.ifIndex);
-			}
-			else if ((connectStatus_.protocol == CMD_PROTOCOL_IKEV2 || connectStatus_.protocol == CMD_PROTOCOL_WIREGUARD))
-			{
-			    hostnamesManager_.enable(connectStatus_.defaultAdapter.adapterIp, connectStatus_.defaultAdapter.ifIndex);
-			}
+			hostnamesManager_.enable(connectStatus_.defaultAdapter.gatewayIp, connectStatus_.defaultAdapter.ifIndex);
 		}
 		else
 		{
@@ -105,15 +98,7 @@ void SplitTunneling::updateState()
 		
 			Ip4AddressAndMask ipAddress(connectStatus_.vpnAdapter.adapterIp.c_str());
 			redirectIp = ipAddress.ipNetworkOrder();	
-
-			if (connectStatus_.protocol == CMD_PROTOCOL_OPENVPN || connectStatus_.protocol == CMD_PROTOCOL_STUNNEL_OR_WSTUNNEL)
-			{
-				hostnamesManager_.enable(connectStatus_.vpnAdapter.gatewayIp, connectStatus_.vpnAdapter.ifIndex);
-			}
-			else if ((connectStatus_.protocol == CMD_PROTOCOL_IKEV2 || connectStatus_.protocol == CMD_PROTOCOL_WIREGUARD))
-			{
-				hostnamesManager_.enable(connectStatus_.vpnAdapter.adapterIp, connectStatus_.vpnAdapter.ifIndex);
-			}
+			hostnamesManager_.enable(connectStatus_.vpnAdapter.gatewayIp, connectStatus_.vpnAdapter.ifIndex);
 		}
 
 		firewallFilter_.setSplitTunnelingAppsIds(appsIds, isExclude_);
