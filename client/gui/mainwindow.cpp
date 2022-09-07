@@ -416,7 +416,12 @@ void MainWindow::showAfterLaunch()
     #endif
 
     if (backend_ && backend_->getPreferences()->isStartMinimized()) {
+        #ifdef Q_OS_WIN
+        show();
+        QTimer::singleShot(50, this, &MainWindow::onMinimizeClick);
+        #else
         showMinimized();
+        #endif
         return;
     }
     #if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
