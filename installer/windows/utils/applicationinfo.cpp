@@ -79,24 +79,23 @@ FindAppWindowHandleProc(HWND hwnd, LPARAM lParam)
         return TRUE;
     }
 
-    DWORD pathLen = MAX_PATH;
-    std::unique_ptr< TCHAR[] > imageName(new TCHAR[pathLen]);
-    BOOL result = ::QueryFullProcessImageName(hProcess.getHandle(), 0, imageName.get(), &pathLen);
+    TCHAR imageName[MAX_PATH];
+    DWORD pathLen = sizeof(imageName) / sizeof(imageName[0]);
+    BOOL result = ::QueryFullProcessImageName(hProcess.getHandle(), 0, imageName, &pathLen);
 
     if (result == FALSE) {
         Log::instance().out(L"FindAppWindowHandleProc QueryFullProcessImageName failed %lu", ::GetLastError());
         return TRUE;
     }
 
-    std::wstring exeName = Path::PathExtractName(std::wstring(imageName.get(), pathLen));
+    std::wstring exeName = Path::PathExtractName(std::wstring(imageName, pathLen));
 
     if (_wcsicmp(exeName.c_str(), L"windscribe.exe") == 0)
     {
-        int bufferLen = 128;
-        std::unique_ptr< TCHAR[] > buffer(new TCHAR[bufferLen]);
-        int resultLen = ::GetWindowText(hwnd, buffer.get(), bufferLen);
+        TCHAR buffer[128];
+        int resultLen = ::GetWindowText(hwnd, buffer, sizeof(buffer) / sizeof(buffer[0]));
 
-        if (resultLen > 0 && (_wcsicmp(buffer.get(), L"windscribe") == 0))
+        if (resultLen > 0 && (_wcsicmp(buffer, L"windscribe") == 0))
         {
             EnumWindowInfo* pWindowInfo = (EnumWindowInfo*)lParam;
             pWindowInfo->appMainWindow = hwnd;
@@ -115,7 +114,7 @@ HWND ApplicationInfo::getAppMainWindowHandle()
     // the FindWindow API as we change Qt versions, since we would have to search for all prior
     // Qt window class names.
 
-    std::unique_ptr< EnumWindowInfo > pWindowInfo(new EnumWindowInfo);
+    auto pWindowInfo = std::make_unique<EnumWindowInfo>();
     ::EnumWindows((WNDENUMPROC)FindAppWindowHandleProc, (LPARAM)pWindowInfo.get());
 
 	return pWindowInfo->appMainWindow;
