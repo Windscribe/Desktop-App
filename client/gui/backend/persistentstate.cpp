@@ -3,6 +3,7 @@
 #include <QRect>
 #include <QSettings>
 
+#include "utils/logger.h"
 #include "utils/simplecrypt.h"
 #include "types/global_consts.h"
 #include "legacy_protobuf_support/legacy_protobuf.h"
@@ -11,7 +12,18 @@ void PersistentState::load()
 {
     QSettings settings;
     bool bLoaded = false;
-    if (settings.contains("guiPersistentState"))
+    // try load from legacy protobuf
+    // todo remove this code at some point later
+    if (settings.contains("persistentGuiSettings"))
+    {
+        QByteArray arr = settings.value("persistentGuiSettings").toByteArray();
+        bLoaded = LegacyProtobufSupport::loadGuiPersistentState(arr, state_);
+        if (bLoaded)
+        {
+            settings.remove("persistentGuiSettings");
+        }
+    }
+    if (!bLoaded && settings.contains("guiPersistentState"))
     {
         SimpleCrypt simpleCrypt(SIMPLE_CRYPT_KEY);
         QString str = settings.value("guiPersistentState", "").toString();
@@ -34,15 +46,9 @@ void PersistentState::load()
             }
         }
     }
-    // try load from legacy protobuf
-    // todo remove this code at some point later
-    if (!bLoaded && settings.contains("persistentGuiSettings"))
-    {
-        QByteArray arr = settings.value("persistentGuiSettings").toByteArray();
-        bLoaded = LegacyProtobufSupport::loadGuiPersistentState(arr, state_);
-    }
     if (!bLoaded)
     {
+        qCDebug(LOG_BASIC) << "Could not load GUI persistent state -- resetting to defaults";
         state_ = types::GuiPersistentState(); // reset to defaults
     }
     // remove the legacy key of settings

@@ -616,7 +616,7 @@ void Preferences::saveGuiSettings() const
 
     QSettings settings;
     SimpleCrypt simpleCrypt(SIMPLE_CRYPT_KEY);
-    settings.setValue("guiSettings", simpleCrypt.encryptToString(arr));
+    settings.setValue("guiSettings2", simpleCrypt.encryptToString(arr));
 }
 
 void Preferences::loadGuiSettings()
@@ -627,7 +627,18 @@ void Preferences::loadGuiSettings()
     QSettings settings;
     if (settings.contains("guiSettings"))
     {
-        QString str = settings.value("guiSettings").toString();
+        // try load from legacy protobuf
+        // todo remove this code at some point later
+        QByteArray arr = settings.value("guiSettings").toByteArray();
+        bLoaded = LegacyProtobufSupport::loadGuiSettings(arr, guiSettings_);
+        if (bLoaded)
+        {
+            settings.remove("guiSettings");
+        }
+    }
+    if (!bLoaded && settings.contains("guiSettings2"))
+    {
+        QString str = settings.value("guiSettings2").toString();
         QByteArray arr = simpleCrypt.decryptToByteArray(str);
 
         QDataStream ds(&arr, QIODevice::ReadOnly);
@@ -647,16 +658,10 @@ void Preferences::loadGuiSettings()
             }
         }
     }
-    if (!bLoaded)
-    {
-        // try load from legacy protobuf
-        // todo remove this code at some point later
-        QByteArray arr = settings.value("guiSettings").toByteArray();
-        bLoaded = LegacyProtobufSupport::loadGuiSettings(arr, guiSettings_);
-    }
 
     if (!bLoaded)
     {
+        qCDebug(LOG_BASIC) << "Could not load GUI settings -- resetting to defaults";
         guiSettings_ = types::GuiSettings();    // reset to defaults
     }
 
