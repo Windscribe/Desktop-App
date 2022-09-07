@@ -21,13 +21,16 @@ public:
 
     void updateScaling() override;
 
-    bool expanded();
+    bool isExpanded() const;
     int collapsedHeight();
     int expandedHeight();
     void setExpanded(bool expanded, bool read = true);
 
+    void setItem(const types::Notification &item);
     void setAccented(bool accented);
+    bool isRead() const;
     void setRead(bool read);
+    int id() const;
 
 signals:
     void messageRead(qint64 id);

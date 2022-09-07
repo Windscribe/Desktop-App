@@ -9,7 +9,7 @@ class LocationsWindow : public QWidget
 {
     Q_OBJECT
 public:
-    explicit LocationsWindow(QWidget *parent, LocationsModel *locationsModel);
+    explicit LocationsWindow(QWidget *parent, Preferences *preferences, LocationsModel *locationsModel);
 
     int tabAndFooterHeight() const;
 

@@ -293,6 +293,11 @@ enum UPDATE_VERSION_ERROR
     UPDATE_VERSION_ERROR_API_HASH_INVALID = 10
 };
 
+enum APP_SKIN
+{
+    APP_SKIN_ALPHA = 0,
+    APP_SKIN_VAN_GOGH = 1
+};
 
 // utils for enums
 QString LOGIN_RET_toString(LOGIN_RET ret);
@@ -327,6 +332,9 @@ QList< QPair<QString, int> > UPDATE_CHANNEL_toList();
 
 QString DNS_MANAGER_TYPE_toString(DNS_MANAGER_TYPE t);
 QList< QPair<QString, int> > DNS_MANAGER_TYPE_toList();
+
+QString APP_SKIN_toString(APP_SKIN s);
+QList< QPair<QString, int> > APP_SKIN_toList();
 
 QDataStream& operator <<(QDataStream &stream, const PROTOCOL &o);
 QDataStream& operator >>(QDataStream &stream, PROTOCOL &o);

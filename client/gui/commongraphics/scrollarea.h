@@ -20,6 +20,7 @@ public:
     void setItem(BasePage *item);
 
     void setHeight(int height);
+    void setScrollPos(int amt);
 
     void setScrollBarVisibility(bool on);
 
@@ -64,7 +65,7 @@ private:
 
     bool scrollBarVisible_ = false;
 
-    const int TRACKPAD_DELTA_THRESHOLD = 50;
+    const int TRACKPAD_DELTA_THRESHOLD = 120;
     int trackpadDeltaSum_;
 
     int scaledThreshold();

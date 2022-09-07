@@ -18,8 +18,8 @@
 #include "splittunnelingwindow/splittunnelingwindowitem.h"
 #include "splittunnelingwindow/splittunnelingaddresseswindowitem.h"
 #include "splittunnelingwindow/splittunnelingappswindowitem.h"
-#include "../backend/preferences/preferences.h"
-#include "../backend/preferences/accountinfo.h"
+#include "backend/preferences/preferences.h"
+#include "backend/preferences/accountinfo.h"
 #include "commongraphics/resizebar.h"
 #include "commongraphics/escapebutton.h"
 #include "commongraphics/iconbutton.h"
@@ -69,6 +69,8 @@ public:
 
     void setRobertFilters(const QVector<types::RobertFilter> &filters) override;
     void setRobertFiltersError() override;
+
+    void setScrollOffset(int offset) override;
 
 signals:
     void escape() override;
@@ -125,6 +127,8 @@ private slots:
 
     void onCurrentNetworkUpdated(types::NetworkInterface network);
 
+    void onAppSkinChanged(APP_SKIN s);
+
 protected:
     void keyPressEvent(QKeyEvent *event) override;
 
@@ -133,12 +137,15 @@ private:
 
     static constexpr int BOTTOM_AREA_HEIGHT = 16;
     static constexpr int MIN_HEIGHT = 554;
+    static constexpr int MIN_HEIGHT_VAN_GOGH = 526;
 
-    static constexpr int BOTTOM_RESIZE_ORIGIN_X = 167;
+    static constexpr int BOTTOM_RESIZE_ORIGIN_X = 155;
     static constexpr int BOTTOM_RESIZE_OFFSET_Y = 13;
 
     static constexpr int SCROLL_AREA_WIDTH = 268;
     static constexpr int TAB_AREA_WIDTH = 64;
+
+    Preferences *preferences_;
 
     int curHeight_;
     double curScale_;

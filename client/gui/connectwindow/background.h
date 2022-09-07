@@ -26,6 +26,7 @@ public:
     void onLocationSelected(const QString &countryCode);
     void setDarkMode(bool dark);
     QPixmap getShadowPixmap();
+    void setCornerColor(QColor color);
 
     void updateScaling() override;
 
@@ -36,6 +37,10 @@ private:
     static constexpr int ANIMATION_DURATION = 600;
     static constexpr int WIDTH = 332;
     static constexpr int HEIGHT = 316;
+    static constexpr int VAN_GOGH_HEIGHT = 264;
+
+    Preferences *preferences_;
+
     qreal opacityConnecting_;
     qreal opacityConnected_;
     qreal opacityDisconnected_;
@@ -52,8 +57,9 @@ private:
     QString bottomFrameBG_      ;
 
     QString bottomLeftHorizDivider_;
-
     QScopedPointer<ImageWithShadow> midRightVertDivider_;
+
+    QColor cornerColor_;
 
     qreal opacityConnecting();
     void setOpacityConnecting(qreal v);

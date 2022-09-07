@@ -9,9 +9,8 @@
 #include "languagecontroller.h"
 #include "dpiscalemanager.h"
 
-UpdateWindowItem::UpdateWindowItem(ScalableGraphicsObject *parent) :
-    ScalableGraphicsObject(parent),
-    downloading_(false)
+UpdateWindowItem::UpdateWindowItem(Preferences *preferences, ScalableGraphicsObject *parent) :
+    ScalableGraphicsObject(parent), preferences_(preferences), downloading_(false), height_(WINDOW_HEIGHT)
 {
     setFlag(QGraphicsItem::ItemIsFocusable);
 
@@ -26,18 +25,20 @@ UpdateWindowItem::UpdateWindowItem(ScalableGraphicsObject *parent) :
     curVersion_ = "2.0";
     curTitleText_ = QString("v") + curVersion_;
 
-    connect(&titleOpacityAnimation_, SIGNAL(valueChanged(QVariant)), this, SLOT(onTitleOpacityChange(QVariant)));
-    connect(&lowerTitleOpacityAnimation_, SIGNAL(valueChanged(QVariant)), this, SLOT(onLowerTitleOpacityChange(QVariant)));
-    connect(&descriptionOpacityAnimation_, SIGNAL(valueChanged(QVariant)), this, SLOT(onDescriptionOpacityChange(QVariant)));
-    connect(&lowerDescriptionOpacityAnimation_, SIGNAL(valueChanged(QVariant)), this, SLOT(onLowerDescriptionOpacityChange(QVariant)));
-    connect(&spinnerOpacityAnimation_, SIGNAL(valueChanged(QVariant)), this, SLOT(onSpinnerOpacityChange(QVariant)));
-    connect(&spinnerRotationAnimation_, SIGNAL(valueChanged(QVariant)), this, SLOT(onSpinnerRotationChange(QVariant)));
+    connect(preferences_, &Preferences::appSkinChanged, this, &UpdateWindowItem::onAppSkinChanged);
 
-    connect(&LanguageController::instance(), SIGNAL(languageChanged()), SLOT(onLanguageChanged()));
+    connect(&titleOpacityAnimation_, &QVariantAnimation::valueChanged, this, &UpdateWindowItem::onTitleOpacityChange);
+    connect(&lowerTitleOpacityAnimation_, &QVariantAnimation::valueChanged, this, &UpdateWindowItem::onLowerTitleOpacityChange);
+    connect(&descriptionOpacityAnimation_, &QVariantAnimation::valueChanged, this, &UpdateWindowItem::onDescriptionOpacityChange);
+    connect(&lowerDescriptionOpacityAnimation_, &QVariantAnimation::valueChanged, this, &UpdateWindowItem::onLowerDescriptionOpacityChange);
+    connect(&spinnerOpacityAnimation_, &QVariantAnimation::valueChanged, this, &UpdateWindowItem::onSpinnerOpacityChange);
+    connect(&spinnerRotationAnimation_, &QVariantAnimation::valueChanged, this, &UpdateWindowItem::onSpinnerRotationChange);
+
+    connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &UpdateWindowItem::onLanguageChanged);
 
     // accept
     acceptButton_ = new CommonGraphics::BubbleButtonBright(this, 128, 40, 20, 20);
-    connect(acceptButton_, SIGNAL(clicked()), this, SLOT(onAcceptClick()));
+    connect(acceptButton_, &CommonGraphics::BubbleButtonBright::clicked, this, &UpdateWindowItem::onAcceptClick);
     QString updateText = QT_TRANSLATE_NOOP("CommonGraphics::BubbleButtonBright", "Update");
     acceptButton_->setText(updateText);
 
@@ -46,7 +47,7 @@ UpdateWindowItem::UpdateWindowItem(ScalableGraphicsObject *parent) :
     double cancelOpacity = OPACITY_UNHOVER_TEXT;
     cancelButton_ = new CommonGraphics::TextButton(cancelText, FontDescr(16, false),
                                                    Qt::white, true, this);
-    connect(cancelButton_, SIGNAL(clicked()), this, SLOT(onCancelClick()));
+    connect(cancelButton_, &CommonGraphics::TextButton::clicked, this, &UpdateWindowItem::onCancelClick);
     cancelButton_->quickSetOpacity(cancelOpacity);
 
     updatePositions();
@@ -54,7 +55,7 @@ UpdateWindowItem::UpdateWindowItem(ScalableGraphicsObject *parent) :
 
 QRectF UpdateWindowItem::boundingRect() const
 {
-    return QRectF(0, 0, WINDOW_WIDTH * G_SCALE, WINDOW_HEIGHT * G_SCALE);
+    return QRectF(0, 0, WINDOW_WIDTH*G_SCALE, height_*G_SCALE);
 }
 
 void UpdateWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
@@ -64,17 +65,32 @@ void UpdateWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
 
     qreal initialOpacity = painter->opacity();
 
-    // background:
-#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
-    const QString background = "background/WIN_MAIN_BG";
+    // background
+    if (preferences_->appSkin() == APP_SKIN_VAN_GOGH)
+    {
+        painter->setPen(Qt::NoPen);
+#ifdef Q_OS_MAC
+        QPainterPath path;
+        path.addRoundedRect(boundingRect().toRect(), 5*G_SCALE, 5*G_SCALE);
+        painter->fillPath(path, QColor(2, 13, 28));
 #else
-    const QString background = "background/MAC_MAIN_BG";
+        painter->fillRect(boundingRect().toRect(), QColor(2, 13, 28));
 #endif
-    painter->setOpacity(OPACITY_FULL * initialOpacity);
-    QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap(background);
-    p->draw(0, 0, painter);
+        painter->setPen(Qt::SolidLine);
+    }
+    else
+    {
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
+        const QString background = "background/WIN_MAIN_BG";
+#else
+        const QString background = "background/MAC_MAIN_BG";
+#endif
+        painter->setOpacity(OPACITY_FULL * initialOpacity);
+        QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap(background);
+        p->draw(0, 0, painter);
+    }
 
-    // Text:
+    int yOffset = preferences_->appSkin() == APP_SKIN_VAN_GOGH ? -28*G_SCALE : 0;
 
     // title
     painter->setOpacity(curTitleOpacity_ * initialOpacity);
@@ -83,12 +99,12 @@ void UpdateWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
     QFont titleFont = *FontManager::instance().getFont(24, true);
     painter->setFont(titleFont);
 
-    QRectF titleRect(0, TITLE_POS_Y * G_SCALE, WINDOW_WIDTH * G_SCALE, CommonGraphics::textHeight(titleFont));
+    QRectF titleRect(0, (TITLE_POS_Y + yOffset)*G_SCALE, WINDOW_WIDTH*G_SCALE, CommonGraphics::textHeight(titleFont));
     painter->drawText(titleRect, Qt::AlignCenter, tr(curTitleText_.toStdString().c_str()));
 
     painter->setOpacity(curLowerTitleOpacity_ * initialOpacity);
     painter->setFont(*FontManager::instance().getFont(24, false));
-    QRectF lowerTitleRect(0, TITLE_POS_Y * G_SCALE, WINDOW_WIDTH * G_SCALE, CommonGraphics::textHeight(titleFont));
+    QRectF lowerTitleRect(0, (TITLE_POS_Y + yOffset)*G_SCALE, WINDOW_WIDTH*G_SCALE, CommonGraphics::textHeight(titleFont));
 
     const QString lowerTitleText = tr("Updating ");
     int widthUpdating = CommonGraphics::textWidth(lowerTitleText, *FontManager::instance().getFont(24, false));
@@ -98,10 +114,10 @@ void UpdateWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
 
     int widthTotal = widthUpdating + widthPercent;
     int posX = CommonGraphics::centeredOffset(WINDOW_WIDTH * G_SCALE, widthTotal);
-    painter->drawText(posX, TITLE_POS_Y * G_SCALE + CommonGraphics::textHeight(titleFont),lowerTitleText);
+    painter->drawText(posX, (TITLE_POS_Y + yOffset)*G_SCALE + CommonGraphics::textHeight(titleFont),lowerTitleText);
 
     painter->setFont(titleFont);
-    painter->drawText(posX + widthUpdating, TITLE_POS_Y * G_SCALE + CommonGraphics::textHeight(titleFont), progressPercent);
+    painter->drawText(posX + widthUpdating, (TITLE_POS_Y + yOffset)*G_SCALE + CommonGraphics::textHeight(titleFont), progressPercent);
 
     // main description
     painter->setOpacity(curDescriptionOpacity_ * initialOpacity);
@@ -111,30 +127,30 @@ void UpdateWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
 
     const QString descText = tr("You're about to update Windscribe. "
                                 "The application will terminate the active connection and restart automatically.");
-    int width = CommonGraphics::idealWidthOfTextRect(DESCRIPTION_WIDTH_MIN * G_SCALE, WINDOW_WIDTH * G_SCALE, 3,
+    int width = CommonGraphics::idealWidthOfTextRect(DESCRIPTION_WIDTH_MIN*G_SCALE, WINDOW_WIDTH*G_SCALE, 3,
                                                      descText, descFont);
-    painter->drawText(CommonGraphics::centeredOffset(WINDOW_WIDTH * G_SCALE, width), DESCRIPTION_POS_Y * G_SCALE,
-                      width, WINDOW_HEIGHT * G_SCALE,
+    painter->drawText(CommonGraphics::centeredOffset(WINDOW_WIDTH*G_SCALE, width), (DESCRIPTION_POS_Y + yOffset)*G_SCALE,
+                      width, height_*G_SCALE,
                       Qt::AlignHCenter | Qt::TextWordWrap, descText);
-
 
     // lower description
     painter->setOpacity(curLowerDescriptionOpacity_ * initialOpacity);
     const QString lowerDescText = tr("Your update is in progress, hang in there...");
-    int lowerDescWidth = CommonGraphics::idealWidthOfTextRect(LOWER_DESCRIPTION_WIDTH_MIN * G_SCALE,
+    int lowerDescWidth = CommonGraphics::idealWidthOfTextRect((LOWER_DESCRIPTION_POS_Y + yOffset)*G_SCALE,
                                                               WINDOW_WIDTH * G_SCALE, 2,
                                                               lowerDescText, descFont);
-    painter->drawText(CommonGraphics::centeredOffset(WINDOW_WIDTH * G_SCALE, lowerDescWidth), LOWER_DESCRIPTION_POS_Y * G_SCALE,
-                      lowerDescWidth, WINDOW_HEIGHT * G_SCALE,
+    painter->drawText(CommonGraphics::centeredOffset(WINDOW_WIDTH*G_SCALE, lowerDescWidth),
+                      (LOWER_DESCRIPTION_POS_Y + yOffset)*G_SCALE,
+                      lowerDescWidth, height_*G_SCALE,
                       Qt::AlignHCenter | Qt::TextWordWrap, lowerDescText);
 
 	// spinner
     painter->setOpacity(spinnerOpacity_ * initialOpacity);
-    const int spinnerPosX = CommonGraphics::centeredOffset(WINDOW_WIDTH * G_SCALE, SPINNER_HALF_WIDTH * 2 * G_SCALE);
-    painter->translate(spinnerPosX+SPINNER_HALF_WIDTH * G_SCALE, SPINNER_POS_Y * G_SCALE+SPINNER_HALF_HEIGHT * G_SCALE);
+    const int spinnerPosX = CommonGraphics::centeredOffset(WINDOW_WIDTH*G_SCALE, SPINNER_HALF_WIDTH*2*G_SCALE);
+    painter->translate(spinnerPosX + SPINNER_HALF_WIDTH*G_SCALE, (SPINNER_POS_Y + yOffset)*G_SCALE + SPINNER_HALF_HEIGHT*G_SCALE);
     painter->rotate(spinnerRotation_);
     QSharedPointer<IndependentPixmap> pSpinner = ImageResourcesSvg::instance().getIndependentPixmap("update/UPDATING_SPINNER");
-    pSpinner->draw(-SPINNER_HALF_WIDTH * G_SCALE,-SPINNER_HALF_HEIGHT * G_SCALE, painter);
+    pSpinner->draw(-SPINNER_HALF_WIDTH*G_SCALE, -SPINNER_HALF_HEIGHT*G_SCALE, painter);
 }
 
 void UpdateWindowItem::setClickable(bool isClickable)
@@ -323,19 +339,34 @@ void UpdateWindowItem::onLanguageChanged()
     cancelButton_->setText(cancelButtonText());
     cancelButton_->recalcBoundingRect();
 
-    int cancelPosX = CommonGraphics::centeredOffset(WINDOW_WIDTH * G_SCALE, cancelButton_->getWidth());
-    cancelButton_->setPos(cancelPosX, CANCEL_BUTTON_POS_Y * G_SCALE);
+    int cancelPosX = CommonGraphics::centeredOffset(WINDOW_WIDTH*G_SCALE, cancelButton_->boundingRect().width());
+    int yOffset = preferences_->appSkin() == APP_SKIN_VAN_GOGH ? -28*G_SCALE : 0;
+    cancelButton_->setPos(cancelPosX, CANCEL_BUTTON_POS_Y + yOffset);
 }
 
 void UpdateWindowItem::updatePositions()
 {
+    int yOffset = preferences_->appSkin() == APP_SKIN_VAN_GOGH ? -28*G_SCALE : 0;
+
     acceptButton_->updateScaling();
-    int acceptPosX = CommonGraphics::centeredOffset(WINDOW_WIDTH * G_SCALE, acceptButton_->boundingRect().width());
-    acceptButton_->setPos(acceptPosX, ACCEPT_BUTTON_POS_Y * G_SCALE);
+    int acceptPosX = CommonGraphics::centeredOffset(WINDOW_WIDTH*G_SCALE, acceptButton_->boundingRect().width());
+    acceptButton_->setPos(acceptPosX, ACCEPT_BUTTON_POS_Y + yOffset);
 
     cancelButton_->updateScaling();
     cancelButton_->recalcBoundingRect();
-    int cancelPosX = CommonGraphics::centeredOffset(WINDOW_WIDTH * G_SCALE, cancelButton_->getWidth());
-    cancelButton_->setPos(cancelPosX, CANCEL_BUTTON_POS_Y * G_SCALE);
+    int cancelPosX = CommonGraphics::centeredOffset(WINDOW_WIDTH*G_SCALE, cancelButton_->boundingRect().width());
+    cancelButton_->setPos(cancelPosX, CANCEL_BUTTON_POS_Y + yOffset);
 }
 
+void UpdateWindowItem::onAppSkinChanged(APP_SKIN s)
+{
+    Q_UNUSED(s);
+    update();
+}
+
+void UpdateWindowItem::setHeight(int height)
+{
+    prepareGeometryChange();
+    height_ = height;
+    updatePositions();
+}

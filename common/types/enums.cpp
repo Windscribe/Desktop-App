@@ -412,3 +412,25 @@ QString SPLIT_TUNNELING_MODE_toString(SPLIT_TUNNELING_MODE t)
         return "unknown";
     }
 }
+
+QList<QPair<QString, int> > APP_SKIN_toList()
+{
+    QList<QPair<QString, int> > l;
+    l << qMakePair(APP_SKIN_toString(APP_SKIN_ALPHA), APP_SKIN_ALPHA);
+    l << qMakePair(APP_SKIN_toString(APP_SKIN_VAN_GOGH), APP_SKIN_VAN_GOGH);
+    return l;
+}
+
+QString APP_SKIN_toString(APP_SKIN s)
+{
+    if (s == APP_SKIN_ALPHA) {
+        return "Alpha";
+    }
+    else if (s == APP_SKIN_VAN_GOGH) {
+        return "Van Gogh";
+    }
+    else {
+        Q_ASSERT(false);
+        return "unknown";
+    }
+}

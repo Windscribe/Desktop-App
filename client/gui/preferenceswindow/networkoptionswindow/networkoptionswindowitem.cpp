@@ -60,13 +60,13 @@ void NetworkOptionsWindowItem::setCurrentNetwork(types::NetworkInterface network
     currentNetwork_ = network;
     currentNetworkGroup_->clearItems(true);
 
-    if (network.interfaceType != NETWORK_INTERFACE_NONE && !network.friendlyName.isEmpty())
+    if (!network.networkOrSsid.isEmpty())
     {
-        currentNetworkItem_ = new LinkItem(currentNetworkGroup_, LinkItem::LinkType::SUBPAGE_LINK, network.friendlyName);
+        currentNetworkItem_ = new LinkItem(currentNetworkGroup_, LinkItem::LinkType::SUBPAGE_LINK, network.networkOrSsid);
         connect(currentNetworkItem_, &LinkItem::clicked, this, &NetworkOptionsWindowItem::onCurrentNetworkClicked);
         currentNetworkGroup_->addItem(currentNetworkItem_);
         currentNetworkGroup_->hideItems(indexOf(placeholderItem_), -1, PreferenceGroup::DISPLAY_FLAGS::FLAG_NO_ANIMATION);
-        QString linkText = tr(NetworkOptionsShared::trustTypeToString(trustTypeFromPreferences(network)));
+        QString linkText = tr(NetworkOptionsShared::trustTypeToString(network.trustType));
         currentNetworkItem_->setLinkText(linkText);
 
         otherNetworksGroup_->setCurrentNetwork(network);
@@ -136,20 +136,6 @@ void NetworkOptionsWindowItem::onLanguageChanged()
 {
     currentNetworkTitle_->setTitle(tr("CURRENT NETWORK"));
     otherNetworksTitle_->setTitle(tr("OTHER NETWORKS"));
-}
-
-NETWORK_TRUST_TYPE NetworkOptionsWindowItem::trustTypeFromPreferences(types::NetworkInterface network)
-{
-    QVector<types::NetworkInterface> list = preferences_->networkWhiteList();
-    for (types::NetworkInterface interface : list)
-    {
-        if (network.networkOrSsid == interface.networkOrSsid)
-        {
-            return interface.trustType;
-        }
-    }
-
-    return preferences_->isAutoSecureNetworks() ? NETWORK_TRUST_SECURED : NETWORK_TRUST_UNSECURED;
 }
 
 NETWORK_OPTIONS_SCREEN NetworkOptionsWindowItem::getScreen()

@@ -49,6 +49,7 @@ struct EngineSettingsData : public QSharedData
     bool isKeepAliveEnabled;
     types::ConnectedDnsInfo connectedDnsInfo;
     DNS_MANAGER_TYPE dnsManager;
+    QMap<QString, types::ConnectionSettings> networkPreferredProtocols;
 };
 
 
@@ -94,6 +95,8 @@ public:
     void setUpdateChannel(UPDATE_CHANNEL channel);
     const types::ConnectedDnsInfo &connectedDnsInfo() const;
     void setConnectedDnsInfo(const types::ConnectedDnsInfo &info);
+    const QMap<QString, types::ConnectionSettings> &networkPreferredProtocols() const;
+    void setNetworkPreferredProtocols(const QMap<QString, types::ConnectionSettings> &settings);
 
     bool isUseWintun() const;
     TAP_ADAPTER_TYPE tapAdapter() const;
@@ -118,7 +121,7 @@ private:
 
     // for serialization
     static constexpr quint32 magic_ = 0x7745C2AE;
-    static constexpr int versionForSerialization_ = 1;  // should increment the version if the data format is changed
+    static constexpr int versionForSerialization_ = 2;  // should increment the version if the data format is changed
 
 #if defined(Q_OS_LINUX)
     void repairEngineSettings();

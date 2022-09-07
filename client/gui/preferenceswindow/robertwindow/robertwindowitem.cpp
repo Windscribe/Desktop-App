@@ -30,7 +30,7 @@ RobertWindowItem::RobertWindowItem(ScalableGraphicsObject *parent, Preferences *
 
     // Below items for case when not logged in
     loginPrompt_ = new QGraphicsTextItem(this);
-    loginPrompt_->setPlainText(tr("Login to view or change R.O.B.E.R.T preferences."));
+    loginPrompt_->setPlainText(tr("Login to view or change R.O.B.E.R.T preferences"));
     loginPrompt_->setFont(*FontManager::instance().getFont(14, false));
     loginPrompt_->setDefaultTextColor(Qt::white);
     loginPrompt_->setTextWidth(125);

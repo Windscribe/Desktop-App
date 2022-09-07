@@ -12,6 +12,7 @@
 #include "externalconfig/externalconfigwindowitem.h"
 #include "twofactorauth/twofactorauthwindowitem.h"
 #include "connectwindow/connectwindowitem.h"
+#include "graphicresources/fontmanager.h"
 #include "preferenceswindow/preferenceswindowitem.h"
 #include "overlaysconnectwindow/updateappitem.h"
 #include "overlaysconnectwindow/updatewindowitem.h"
@@ -36,6 +37,7 @@ MainWindowController::MainWindowController(QWidget *parent, LocationsWindow *loc
                                            Preferences *preferences, AccountInfo *accountInfo) : QObject(parent),
     curWindow_(WINDOW_ID_UNITIALIZED),
     mainWindow_(parent),
+    preferences_(preferences),
     preferencesHelper_(preferencesHelper),
     locationsWindow_(locationsWindow),
     CLOSING_WINDSCRIBE(QT_TR_NOOP("Closing Windscribe")),
@@ -52,7 +54,8 @@ MainWindowController::MainWindowController(QWidget *parent, LocationsWindow *loc
     lastNewsFeedWindowHeight_(0),
     locationWindowHeightScaled_(0),
     locationsShadowOpacity_(0.0),
-    initWindowInitHeight_(WINDOW_HEIGHT)
+    initWindowInitHeight_(WINDOW_HEIGHT),
+    vanGoghUpdateWidgetAnimationProgress_(0)
 {
 #ifdef Q_OS_WIN
     preferencesHelper->setIsDockedToTray(false);
@@ -75,16 +78,16 @@ MainWindowController::MainWindowController(QWidget *parent, LocationsWindow *loc
     externalConfigWindow_ = new ExternalConfigWindow::ExternalConfigWindowItem(nullptr, preferencesHelper);
     twoFactorAuthWindow_ = new TwoFactorAuthWindow::TwoFactorAuthWindowItem(nullptr, preferencesHelper);
     preferencesWindow_ = new PreferencesWindow::PreferencesWindowItem(NULL, preferences, preferencesHelper, accountInfo);
-    updateWindow_ = new UpdateWindowItem();
-    upgradeAccountWindow_ = new UpgradeWindow::UpgradeWindowItem();
-    bottomInfoWindow_ = new SharingFeatures::BottomInfoItem();
-    generalMessageWindow_ = new GeneralMessage::GeneralMessageWindowItem(false);
+    updateWindow_ = new UpdateWindowItem(preferences);
+    upgradeAccountWindow_ = new UpgradeWindow::UpgradeWindowItem(preferences);
+    bottomInfoWindow_ = new SharingFeatures::BottomInfoItem(preferences);
+    generalMessageWindow_ = new GeneralMessage::GeneralMessageWindowItem(preferences, false);
     exitWindow_ = new GeneralMessage::GeneralMessageTwoButtonWindowItem(tr(CLOSING_WINDSCRIBE.toStdString().c_str()),
                                                                         "SHUTDOWN_ICON",
                                                                         tr(CLOSE_ACCEPT.toStdString().c_str()), tr(CLOSE_REJECT.toStdString().c_str()));
 
-    updateAppItem_ = new UpdateApp::UpdateAppItem();
-    newsFeedWindow_ = new NewsFeedWindow::NewsFeedWindowItem(nullptr, preferencesHelper);
+    updateAppItem_ = new UpdateApp::UpdateAppItem(preferences);
+    newsFeedWindow_ = new NewsFeedWindow::NewsFeedWindowItem(nullptr, preferences, preferencesHelper);
 
     scene_->addItem(loginWindow_->getGraphicsObject());
     scene_->addItem(loggingInWindow_->getGraphicsObject());
@@ -127,6 +130,7 @@ MainWindowController::MainWindowController(QWidget *parent, LocationsWindow *loc
     connect(dynamic_cast<QObject*>(preferencesWindow_), SIGNAL(resizeFinished()), SLOT(onPreferencesResizeFinished()));
     connect(dynamic_cast<QObject*>(newsFeedWindow_), SIGNAL(sizeChanged()), SLOT(onNewsFeedResize()));
     connect(dynamic_cast<QObject*>(newsFeedWindow_), SIGNAL(resizeFinished()), SLOT(onNewsFeedResizeFinished()));
+    connect(preferences_, &Preferences::appSkinChanged, this, &MainWindowController::onAppSkinChanged);
 
     preferencesWindowHeight_ = preferencesWindow_->recommendedHeight();
     newsFeedWindowHeight_ = newsFeedWindow_->recommendedHeight();
@@ -136,7 +140,14 @@ MainWindowController::MainWindowController(QWidget *parent, LocationsWindow *loc
 
     locationsWindow_->hide();
 
-    shadowManager_->addPixmap(connectWindow_->getShadowPixmap(), 0, 0, ShadowManager::SHAPE_ID_CONNECT_WINDOW, false);
+    if (preferences_->appSkin() == APP_SKIN_VAN_GOGH)
+    {
+        shadowManager_->addRectangle(connectWindow_->getGraphicsObject()->boundingRect().toRect(), ShadowManager::SHAPE_ID_CONNECT_WINDOW, false);
+    }
+    else
+    {
+        shadowManager_->addPixmap(connectWindow_->getShadowPixmap(), 0, 0, ShadowManager::SHAPE_ID_CONNECT_WINDOW, false);
+    }
     shadowManager_->addRectangle(QRect(0, 0, 0, 0), ShadowManager::SHAPE_ID_LOCATIONS, false);
     shadowManager_->addRectangle(loginWindow_->getGraphicsObject()->boundingRect().toRect(), ShadowManager::SHAPE_ID_LOGIN_WINDOW, false);
     shadowManager_->addRectangle(initWindow_->getGraphicsObject()->boundingRect().toRect(), ShadowManager::SHAPE_ID_INIT_WINDOW, false);
@@ -147,7 +158,12 @@ MainWindowController::MainWindowController(QWidget *parent, LocationsWindow *loc
     connect(&TooltipController::instance(), SIGNAL(sendServerRatingUp()), SLOT(onTooltipControllerSendServerRatingUp()));
     connect(&TooltipController::instance(), SIGNAL(sendServerRatingDown()), SLOT(onTooltipControllerSendServerRatingDown()));
 
+    connect(&vanGoghUpdateWidgetAnimation_, &QVariantAnimation::valueChanged, this, &MainWindowController::onVanGoghAnimationProgressChanged);
+
     updateExpandAnimationParameters();
+
+    // update window heights if we start in van gogh mode
+    onAppSkinChanged(preferences_->appSkin());
 }
 
 void MainWindowController::updateScaling()
@@ -160,13 +176,13 @@ void MainWindowController::updateLocationsWindowAndTabGeometry()
 {
     //locationsWindow_->updateLocationsTabGeometry();
     locationsWindow_->setGeometry(shadowManager_->getShadowMargin(),
-                                  connectWindow_->getGraphicsObject()->boundingRect().height() - LOCATIONS_WINDOW_TOP_OFFS * G_SCALE + shadowManager_->getShadowMargin(),
+                                  connectWindow_->getGraphicsObject()->boundingRect().height() + locationsYOffset() + shadowManager_->getShadowMargin(),
                                   LOCATIONS_WINDOW_WIDTH * G_SCALE,
                                   locationWindowHeightScaled_);
 
     shadowManager_->changeRectangleSize(ShadowManager::SHAPE_ID_LOCATIONS,
                                         QRect(0,
-                                              connectWindow_->getGraphicsObject()->boundingRect().height() - LOCATIONS_WINDOW_TOP_OFFS * G_SCALE,
+                                              connectWindow_->getGraphicsObject()->boundingRect().height() + locationsYOffset(),
                                               LOCATIONS_WINDOW_WIDTH * G_SCALE,
                                               (locationsWindow_->geometry().height())));
 
@@ -203,7 +219,7 @@ void MainWindowController::updateLocationsWindowAndTabGeometryStatic()
 
     locationsWindow_->updateLocationsTabGeometry();
     locationsWindow_->setGeometry(shadowManager_->getShadowMargin(),
-                                  connectWindow_->getGraphicsObject()->boundingRect().height() - LOCATIONS_WINDOW_TOP_OFFS * G_SCALE + shadowManager_->getShadowMargin(),
+                                  connectWindow_->getGraphicsObject()->boundingRect().height() + locationsYOffset() + shadowManager_->getShadowMargin(),
                                   LOCATIONS_WINDOW_WIDTH * G_SCALE,
                                   height * G_SCALE);
 
@@ -211,11 +227,18 @@ void MainWindowController::updateLocationsWindowAndTabGeometryStatic()
 
     shadowManager_->removeObject(ShadowManager::SHAPE_ID_CONNECT_WINDOW);
     QPixmap shadow = connectWindow_->getShadowPixmap();
-    shadowManager_->addPixmap(shadow, 0, 0, ShadowManager::SHAPE_ID_CONNECT_WINDOW, shouldShowConnectBackground());
+    if (preferences_->appSkin() == APP_SKIN_VAN_GOGH)
+    {
+        shadowManager_->addRectangle(connectWindow_->getGraphicsObject()->boundingRect().toRect(), ShadowManager::SHAPE_ID_CONNECT_WINDOW, shouldShowConnectBackground());
+    }
+    else
+    {
+        shadowManager_->addPixmap(shadow, 0, 0, ShadowManager::SHAPE_ID_CONNECT_WINDOW, shouldShowConnectBackground());
+    }
 
     shadowManager_->changeRectangleSize(ShadowManager::SHAPE_ID_LOCATIONS,
                                         QRect(0,
-                                              connectWindow_->getGraphicsObject()->boundingRect().height() - LOCATIONS_WINDOW_TOP_OFFS * G_SCALE,
+                                              connectWindow_->getGraphicsObject()->boundingRect().height() + locationsYOffset(),
                                               LOCATIONS_WINDOW_WIDTH * G_SCALE,
                                               (locationsWindow_->geometry().height())));
 
@@ -474,6 +497,7 @@ void MainWindowController::expandLocations()
     {
         expandLocationsAnimationGroup_->start();
     }
+    connectWindow_->setCornerColor(QColor(14, 25, 38));
 }
 
 void MainWindowController::collapseLocations()
@@ -517,6 +541,8 @@ void MainWindowController::collapseLocations()
     {
         expandLocationsAnimationGroup_->start();
     }
+
+    connectWindow_->setCornerColor(Qt::transparent);
 }
 
 bool MainWindowController::isLocationsExpanded() const
@@ -566,6 +592,12 @@ void MainWindowController::showUpdateWidget()
         QPixmap shadow = updateAppItem_->getCurrentPixmapShape();
         shadowManager_->addPixmap(shadow, 0, 0, ShadowManager::SHAPE_ID_UPDATE_WIDGET, true);
         invalidateShadow_mac();
+        if (preferences_->appSkin() == APP_SKIN_VAN_GOGH)
+        {
+            startAnAnimation(vanGoghUpdateWidgetAnimation_, vanGoghUpdateWidgetAnimationProgress_, 1.0, ANIMATION_SPEED_FAST);
+            // trigger resizes
+            onAppSkinChanged(preferences_->appSkin());
+        }
     }
 }
 
@@ -576,6 +608,12 @@ void MainWindowController::hideUpdateWidget()
         updateAppItem_->getGraphicsObject()->hide();
         shadowManager_->removeObject(ShadowManager::SHAPE_ID_UPDATE_WIDGET);
         invalidateShadow_mac();
+        if (preferences_->appSkin() == APP_SKIN_VAN_GOGH)
+        {
+            startAnAnimation(vanGoghUpdateWidgetAnimation_, vanGoghUpdateWidgetAnimationProgress_, 0.0, ANIMATION_SPEED_FAST);
+            // trigger resizes
+            onAppSkinChanged(preferences_->appSkin());
+        }
     }
 }
 
@@ -625,10 +663,9 @@ void MainWindowController::onExpandLocationsListAnimationFinished()
     }
     else
     {
-
         shadowManager_->changeRectangleSize(ShadowManager::SHAPE_ID_LOCATIONS,
                                             QRect(0,
-                                                  connectWindow_->getGraphicsObject()->boundingRect().height() - LOCATIONS_WINDOW_TOP_OFFS *G_SCALE ,
+                                                  connectWindow_->getGraphicsObject()->boundingRect().height() + locationsYOffset(),
                                                   LOCATIONS_WINDOW_WIDTH * G_SCALE,
                                                   (locationsWindow_->geometry().height())));
         locationListAnimationState_ = LOCATION_LIST_ANIMATION_EXPANDED;
@@ -706,7 +743,7 @@ void MainWindowController::onLocationsWindowHeightChanged() // manual resizing
 
     shadowManager_->changeRectangleSize(ShadowManager::SHAPE_ID_LOCATIONS,
                                         QRect(0,
-                                              connectWindow_->getGraphicsObject()->boundingRect().height() - LOCATIONS_WINDOW_TOP_OFFS * G_SCALE,
+                                              connectWindow_->getGraphicsObject()->boundingRect().height() + locationsYOffset(),
                                               LOCATIONS_WINDOW_WIDTH * G_SCALE,
                                               (locationsWindow_->geometry().height())));
 
@@ -1273,7 +1310,7 @@ void MainWindowController::hideLocationsWindow()
 {
     locationsWindow_->updateLocationsTabGeometry();
     locationsWindow_->setGeometry(shadowManager_->getShadowMargin(),
-                                  scene_->height() - LOCATIONS_WINDOW_TOP_OFFS * G_SCALE + shadowManager_->getShadowMargin(),
+                                  scene_->height() + locationsYOffset() + shadowManager_->getShadowMargin(),
                                   LOCATIONS_WINDOW_WIDTH * G_SCALE,
                                   0);
     locationsWindow_->show();
@@ -1904,7 +1941,15 @@ void MainWindowController::gotoExitWindow()
 
     if (curWindow_ == WINDOW_ID_CONNECT)
     {
-        exitWindow_->setBackgroundShapedToConnectWindow(true);
+        if (preferences_->appSkin() == APP_SKIN_VAN_GOGH)
+        {
+            exitWindow_->setHeight(connectWindow_->getGraphicsObject()->boundingRect().height()/G_SCALE);
+        }
+        else
+        {
+            exitWindow_->setHeight(LOGIN_HEIGHT);
+        }
+        exitWindow_->setBackgroundShapedToConnectWindow(preferences_->appSkin() == APP_SKIN_ALPHA);
 
         TooltipController::instance().hideAllTooltips();
         connectWindow_->setClickable(false);
@@ -1912,22 +1957,26 @@ void MainWindowController::gotoExitWindow()
     }
     else if (curWindow_ == WINDOW_ID_LOGIN)
     {
+        exitWindow_->setHeight(LOGIN_HEIGHT);
         exitWindow_->setBackgroundShapedToConnectWindow(false);
         TooltipController::instance().hideAllTooltips();
         loginWindow_->setClickable(false);
     }
     else if (curWindow_ == WINDOW_ID_EMERGENCY)
     {
+        exitWindow_->setHeight(LOGIN_HEIGHT);
         exitWindow_->setBackgroundShapedToConnectWindow(false);
         emergencyConnectWindow_->setClickable(false);
     }
     else if (curWindow_ == WINDOW_ID_EXTERNAL_CONFIG)
     {
+        exitWindow_->setHeight(LOGIN_HEIGHT);
         exitWindow_->setBackgroundShapedToConnectWindow(false);
         externalConfigWindow_->setClickable(false);
     }
     else if (curWindow_ == WINDOW_ID_TWO_FACTOR_AUTH)
     {
+        exitWindow_->setHeight(LOGIN_HEIGHT);
         exitWindow_->setBackgroundShapedToConnectWindow(false);
         twoFactorAuthWindow_->setClickable(false);
     }
@@ -3074,7 +3123,7 @@ void MainWindowController::getGraphicsRegionWidthAndHeight(int &width, int &heig
         {
             width = connectWindow_->getGraphicsObject()->boundingRect().width();
             height = connectWindow_->getGraphicsObject()->boundingRect().height();
-            addHeightToGeometry = (locationWindowHeightScaled_ - LOCATIONS_WINDOW_TOP_OFFS * G_SCALE); // locationWindowHeight_ instead of locationWindow_->expandedHeight() because bug where expandedHeight updates too early so the slide doesn't increment
+            addHeightToGeometry = locationWindowHeightScaled_ - locationsYOffset();
             if (addHeightToGeometry < 0 ) addHeightToGeometry = 0;
         }
     }
@@ -3087,7 +3136,7 @@ void MainWindowController::getGraphicsRegionWidthAndHeight(int &width, int &heig
 
             if (locationListAnimationState_ != LOCATION_LIST_ANIMATION_COLLAPSED) // Animating
             {
-                addHeightToGeometry = (locationWindowHeightScaled_ - LOCATIONS_WINDOW_TOP_OFFS * G_SCALE); // locationWindowHeight_ instead of locationWindow_->expandedHeight() because bug where expandedHeight updates too early so the slide doesn't increment
+                addHeightToGeometry = locationWindowHeightScaled_ + locationsYOffset();
                 if (addHeightToGeometry < 0 ) addHeightToGeometry = 0;
             }
         }
@@ -3118,6 +3167,8 @@ void MainWindowController::getGraphicsRegionWidthAndHeight(int &width, int &heig
     {
         Q_ASSERT(false);
     }
+
+    height += preferences_->appSkin() == APP_SKIN_VAN_GOGH ? (UPDATE_WIDGET_HEIGHT * vanGoghUpdateWidgetAnimationProgress_)*G_SCALE : 0;
 }
 
 void MainWindowController::centerMainGeometryAndUpdateView()
@@ -3128,7 +3179,7 @@ void MainWindowController::centerMainGeometryAndUpdateView()
 
     int shadowSize = shadowManager_->getShadowMargin();
     int widthWithShadow = width +  shadowSize * 2;
-    int heightWithShadow = height + shadowSize  * 2 + addHeightToGeometry;
+    int heightWithShadow = height + shadowSize * 2 + addHeightToGeometry;
 
     QWindow *window = mainWindow_->window()->windowHandle();
     if (window)
@@ -3164,7 +3215,7 @@ void MainWindowController::updateMainAndViewGeometry(bool updateShadow)
 
     int shadowSize = shadowManager_->getShadowMargin();
     int widthWithShadow = width +  shadowSize * 2;
-    int heightWithShadow = height + shadowSize  * 2 + addHeightToGeometry;
+    int heightWithShadow = height + shadowSize * 2 + addHeightToGeometry;
 
     QRect geo = QRect(mainWindow_->pos().x(), mainWindow_->pos().y(), widthWithShadow, heightWithShadow);
 
@@ -3277,6 +3328,14 @@ void MainWindowController::updateBottomInfoWindowVisibilityAndPos(bool forceColl
             bottomInfoWindow_->getGraphicsObject()->hide();
             bottomInfoWindow_->setClickable(false);
             shadowManager_->removeObject(ShadowManager::SHAPE_ID_BOTTOM_INFO);
+            if (expandLocationsAnimationGroup_->state() != QAbstractAnimation::Stopped || locationListAnimationState_ != LOCATION_LIST_ANIMATION_COLLAPSED)
+            {
+                connectWindow_->setCornerColor(QColor(14, 25, 38));
+            }
+            else
+            {
+                connectWindow_->setCornerColor(Qt::transparent);
+            }
         }
         else
         {
@@ -3299,6 +3358,7 @@ void MainWindowController::updateBottomInfoWindowVisibilityAndPos(bool forceColl
             bottomInfoWindow_->getGraphicsObject()->show();
 
             bottomInfoWindow_->getGraphicsObject()->stackBefore(connectWindow_->getGraphicsObject());
+            connectWindow_->setCornerColor(FontManager::instance().getMidnightColor());
         }
         updateMainAndViewGeometry(false);
     }
@@ -3307,17 +3367,28 @@ void MainWindowController::updateBottomInfoWindowVisibilityAndPos(bool forceColl
 // calc position of bottom info window, depending isBottomInfoWindowCollapsed state
 QPoint MainWindowController::getCoordsOfBottomInfoWindow(bool isBottomInfoWindowCollapsed) const
 {
+    const int yOffset = UPDATE_WIDGET_HEIGHT * vanGoghUpdateWidgetAnimationProgress_;
     const int LEFT_OFFS_WHEN_SHARING_FEATURES_VISIBLE = 0;
     const int TOP_OFFS_WHEN_SHARING_FEATURES_VISIBLE = BOTTOM_INFO_POS_Y_SHOWING*G_SCALE;
-    const int LEFT_OFFS_WHEN_SHARING_FEATURES_HIDE = 100*G_SCALE;
-    const int TOP_OFFS_WHEN_SHARING_FEATURES_HIDE = BOTTOM_INFO_POS_Y_HIDING*G_SCALE;
+    const int LEFT_OFFS_WHEN_SHARING_FEATURES_HIDDEN = 100*G_SCALE;
+    const int TOP_OFFS_WHEN_SHARING_FEATURES_HIDDEN = BOTTOM_INFO_POS_Y_HIDING*G_SCALE;
+    const int TOP_OFFS_WHEN_SHARING_FEATURES_HIDDEN_VAN_GOGH = (BOTTOM_INFO_POS_Y_VAN_GOGH + 8 + yOffset)*G_SCALE;
+    const int TOP_OFFS_WHEN_SHARING_FEATURES_VISIBLE_VAN_GOGH = (BOTTOM_INFO_POS_Y_VAN_GOGH + yOffset)*G_SCALE;
 
     Q_ASSERT(bottomInfoWindow_->isUpgradeWidgetVisible() || bottomInfoWindow_->isSharingFeatureVisible());
 
     QPoint pt;
-    if (bottomInfoWindow_->isUpgradeWidgetVisible() && !bottomInfoWindow_->isSharingFeatureVisible())
+    if (preferences_->appSkin() == APP_SKIN_VAN_GOGH && bottomInfoWindow_->isUpgradeWidgetVisible() && !bottomInfoWindow_->isSharingFeatureVisible())
     {
-        pt = QPoint(LEFT_OFFS_WHEN_SHARING_FEATURES_HIDE, TOP_OFFS_WHEN_SHARING_FEATURES_HIDE);
+        pt = QPoint(0, TOP_OFFS_WHEN_SHARING_FEATURES_HIDDEN_VAN_GOGH);
+    }
+    else if (preferences_->appSkin() == APP_SKIN_VAN_GOGH)
+    {
+        pt = QPoint(0, TOP_OFFS_WHEN_SHARING_FEATURES_VISIBLE_VAN_GOGH);
+    }
+    else if (bottomInfoWindow_->isUpgradeWidgetVisible() && !bottomInfoWindow_->isSharingFeatureVisible())
+    {
+        pt = QPoint(LEFT_OFFS_WHEN_SHARING_FEATURES_HIDDEN, TOP_OFFS_WHEN_SHARING_FEATURES_HIDDEN);
     }
     else
     {
@@ -3327,12 +3398,12 @@ QPoint MainWindowController::getCoordsOfBottomInfoWindow(bool isBottomInfoWindow
     if (isBottomInfoWindowCollapsed)
     {
         int bottomInfoWindowEdge = pt.y() + bottomInfoWindow_->getGraphicsObject()->boundingRect().height();
-        int bottomConnectEdge = 290*G_SCALE;
+        int bottomConnectEdge = preferences_->appSkin() == APP_SKIN_VAN_GOGH ? (264 + yOffset)*G_SCALE : 290*G_SCALE;
         int moveHeight = bottomInfoWindowEdge - bottomConnectEdge;
         pt.setY(pt.y() - moveHeight);
     }
 
-    return  pt;
+    return pt;
 }
 
 bool MainWindowController::isBottomInfoCollapsed() const
@@ -3385,4 +3456,109 @@ void MainWindowController::keepWindowInsideScreenCoordinates()
        rcWindow.moveBottom(rcScreen.bottom());
        mainWindow_->setGeometry(rcWindow);
     }
+}
+
+void MainWindowController::onAppSkinChanged(APP_SKIN s)
+{
+    // if turning Van Gogh mode on, and the update banner is visible, we shift everything down to accommodate the banner
+    vanGoghUpdateWidgetAnimationProgress_ = (s == APP_SKIN_VAN_GOGH && updateAppItem_->getGraphicsObject()->isVisible()) ? 1.0 : 0.0;
+    onVanGoghAnimationProgressChanged(vanGoghUpdateWidgetAnimationProgress_);
+
+    // we also take into account the offset to remove it from the height
+    int yOffset = 0;
+    if (s == APP_SKIN_VAN_GOGH && updateAppItem_->getGraphicsObject()->isVisible())
+    {
+        yOffset = UPDATE_WIDGET_HEIGHT;
+    }
+
+    // determine news feed window height
+    if (newsFeedWindowHeight_ - yOffset < newsFeedWindow_->recommendedHeight())
+    {
+        newsFeedWindowHeight_ = newsFeedWindow_->recommendedHeight();
+    }
+    else
+    {
+        newsFeedWindowHeight_ -= yOffset;
+    }
+    newsFeedWindow_->setHeight(newsFeedWindowHeight_);
+
+    // determine preferences window height
+    int preferencesWindowHeightOld = preferencesWindowHeight_;
+    if (preferencesWindowHeight_ - yOffset < preferencesWindow_->recommendedHeight())
+    {
+        preferencesWindowHeight_ = preferencesWindow_->recommendedHeight();
+    }
+    else
+    {
+        preferencesWindowHeight_ -= yOffset;
+    }
+
+    preferencesWindow_->setHeight(preferencesWindowHeight_);
+    // if preferences is open, update shadows and scroll etc
+    if (preferencesState_ == CHILD_WINDOW_STATE_EXPANDED)
+    {
+        updateMainAndViewGeometry(false);
+        shadowManager_->changeRectangleSize(ShadowManager::SHAPE_ID_PREFERENCES,
+                                            QRect(0, childWindowShadowOffsetY(), preferencesWindow_->getGraphicsObject()->boundingRect().width(),
+                                                  preferencesWindow_->getGraphicsObject()->boundingRect().height() - childWindowShadowOffsetY()));
+        invalidateShadow_mac();
+        keepWindowInsideScreenCoordinates();
+
+        int scrollOffset = 2*UPDATE_WIDGET_HEIGHT;
+        if (s != APP_SKIN_VAN_GOGH && !updateAppItem_->getGraphicsObject()->isVisible())
+        {
+            scrollOffset = 0;
+        }
+        preferencesWindow_->setScrollOffset(scrollOffset);
+    }
+
+    // update window heights
+    if (s == APP_SKIN_VAN_GOGH)
+    {
+        updateWindow_->setHeight(connectWindow_->getGraphicsObject()->boundingRect().height()/G_SCALE);
+        upgradeAccountWindow_->setHeight(connectWindow_->getGraphicsObject()->boundingRect().height()/G_SCALE);
+        generalMessageWindow_->setHeight(connectWindow_->getGraphicsObject()->boundingRect().height()/G_SCALE);
+    }
+    else
+    {
+        updateWindow_->setHeight(WINDOW_HEIGHT);
+        upgradeAccountWindow_->setHeight(WINDOW_HEIGHT);
+        generalMessageWindow_->setHeight(WINDOW_HEIGHT);
+    }
+
+    updateMainAndViewGeometry(true);
+    updateLocationsWindowAndTabGeometryStatic();
+    updateBottomInfoWindowVisibilityAndPos();
+}
+
+void MainWindowController::onVanGoghAnimationProgressChanged(QVariant value)
+{
+    vanGoghUpdateWidgetAnimationProgress_ = value.toDouble();
+    int yOffset = UPDATE_WIDGET_HEIGHT * vanGoghUpdateWidgetAnimationProgress_;
+
+    connectWindow_->getGraphicsObject()->setPos(0, yOffset*G_SCALE);
+    newsFeedWindow_->getGraphicsObject()->setPos(0, yOffset*G_SCALE);
+    preferencesWindow_->getGraphicsObject()->setPos(0, yOffset*G_SCALE);
+    exitWindow_->getGraphicsObject()->setPos(0, yOffset*G_SCALE);
+    updateWindow_->getGraphicsObject()->setPos(0, yOffset*G_SCALE);
+    upgradeAccountWindow_->getGraphicsObject()->setPos(0, yOffset*G_SCALE);
+    generalMessageWindow_->getGraphicsObject()->setPos(0, yOffset*G_SCALE);
+
+    // update shadows etc
+    updateMainAndViewGeometry(true);
+    updateLocationsWindowAndTabGeometryStatic();
+    updateBottomInfoWindowVisibilityAndPos();
+}
+
+int MainWindowController::locationsYOffset()
+{
+    if (preferences_->appSkin() == APP_SKIN_VAN_GOGH)
+    {
+        if (updateAppItem_->getGraphicsObject()->isVisible())
+        {
+            return UPDATE_WIDGET_HEIGHT * vanGoghUpdateWidgetAnimationProgress_;
+        }
+        return 0;
+    }
+    return -LOCATIONS_WINDOW_TOP_OFFS*G_SCALE;
 }

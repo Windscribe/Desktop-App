@@ -115,7 +115,6 @@
         <file>svg/locations/RES_IP_ICON.svg</file>
         <file>svg/WINDOWS_MINIMIZE_ICON.svg</file>
         <file>svg/background/FLAG_GRADIENT.svg</file>
-        <file>svg/login/BACK_ARROW.svg</file>
         <file>svg/login/BADGE_ICON.svg</file>
         <file>svg/login/CONFIG_ICON.svg</file>
         <file>svg/login/DISABLED_LOGIN_ICON.svg</file>
@@ -172,6 +171,7 @@
         <file>svg/preferences/ALLOW_LAN_TRAFFIC.svg</file>
         <file>svg/preferences/API_RESOLUTION.svg</file>
         <file>svg/preferences/APP_BACKGROUND.svg</file>
+        <file>svg/preferences/APP_SKIN.svg</file>
         <file>svg/preferences/AUTOCONNECT.svg</file>
         <file>svg/preferences/AUTODETECT_ICON.svg</file>
         <file>svg/preferences/AUTOSECURE.svg</file>
@@ -277,15 +277,23 @@
         <file>svg/background/WIN_MAIN_BG.svg</file>
         <file>svg/background/WIN_MASK_TOP_GRADIENT_CONNECTED.svg</file>
         <file>svg/background/WIN_TOP_GRADIENT_BG_CONNECTED.svg</file>
+        <file>svg/background/WIN_TOP_GRADIENT_BG_CONNECTED_VAN_GOGH.svg</file>
         <file>svg/background/WIN_TOP_GRADIENT_BG_CONNECTING.svg</file>
+        <file>svg/background/WIN_TOP_GRADIENT_BG_CONNECTING_VAN_GOGH.svg</file>
         <file>svg/background/WIN_TOP_GRADIENT_BG_CONNECTED_CUSTOM.svg</file>
+        <file>svg/background/WIN_TOP_GRADIENT_BG_CONNECTED_CUSTOM_VAN_GOGH.svg</file>
         <file>svg/background/WIN_TOP_GRADIENT_BG_CONNECTING_CUSTOM.svg</file>
+        <file>svg/background/WIN_TOP_GRADIENT_BG_CONNECTING_CUSTOM_VAN_GOGH.svg</file>
         <file>svg/background/MAC_LOCATION_BUTTON_BG_BRIGHT.svg</file>
         <file>svg/background/MAC_LOCATION_BUTTON_BG_DARK.svg</file>
         <file>svg/background/MAC_TOP_GRADIENT_BG_CONNECTED.svg</file>
+        <file>svg/background/MAC_TOP_GRADIENT_BG_CONNECTED_VAN_GOGH.svg</file>
         <file>svg/background/MAC_TOP_GRADIENT_BG_CONNECTING.svg</file>
+        <file>svg/background/MAC_TOP_GRADIENT_BG_CONNECTING_VAN_GOGH.svg</file>
         <file>svg/background/MAC_TOP_GRADIENT_BG_CONNECTED_CUSTOM.svg</file>
+        <file>svg/background/MAC_TOP_GRADIENT_BG_CONNECTED_CUSTOM_VAN_GOGH.svg</file>
         <file>svg/background/MAC_TOP_GRADIENT_BG_CONNECTING_CUSTOM.svg</file>
+        <file>svg/background/MAC_TOP_GRADIENT_BG_CONNECTING_CUSTOM_VAN_GOGH.svg</file>
         <file>svg/background/WIN_HEADER_BG_CONNECTED.svg</file>
         <file>svg/background/WIN_HEADER_BG_DISCONNECTED.svg</file>
         <file>svg/background/MAC_HEADER_BG_CONNECTED.svg</file>

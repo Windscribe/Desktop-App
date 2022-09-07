@@ -251,6 +251,33 @@ void Preferences::setNetworkWhiteList(const QVector<types::NetworkInterface> &l)
     }
 }
 
+const types::ConnectionSettings Preferences::networkPreferredProtocol(QString networkOrSsid) const
+{
+    return engineSettings_.networkPreferredProtocols()[networkOrSsid];
+}
+
+void Preferences::setNetworkPreferredProtocols(const QMap<QString, types::ConnectionSettings> &preferredProtocols)
+{
+    if (engineSettings_.networkPreferredProtocols() != preferredProtocols)
+    {
+        engineSettings_.setNetworkPreferredProtocols(preferredProtocols);
+        emit networkPreferredProtocolsChanged(engineSettings_.networkPreferredProtocols());
+        emit updateEngineSettings();
+    }
+}
+
+void Preferences::setNetworkPreferredProtocol(QString networkOrSsid, const types::ConnectionSettings &settings)
+{
+    QMap<QString, types::ConnectionSettings> map = engineSettings_.networkPreferredProtocols();
+    if (map[networkOrSsid] != settings)
+    {
+        map[networkOrSsid] = settings;
+        engineSettings_.setNetworkPreferredProtocols(map);
+        emit networkPreferredProtocolsChanged(engineSettings_.networkPreferredProtocols());
+        emit updateEngineSettings();
+    }
+}
+
 bool Preferences::isAutoSecureNetworks()
 {
     return guiSettings_.isAutoSecureNetworks;
@@ -506,6 +533,21 @@ void Preferences::setKeepAlive(bool bEnabled)
     }
 }
 
+APP_SKIN Preferences::appSkin() const
+{
+    return guiSettings_.appSkin;
+}
+
+void Preferences::setAppSkin(APP_SKIN appSkin)
+{
+    if (guiSettings_.appSkin != appSkin)
+    {
+        guiSettings_.appSkin = appSkin;
+        saveGuiSettings();
+        emit appSkinChanged(guiSettings_.appSkin);
+    }
+}
+
 types::SplitTunneling Preferences::splitTunneling()
 {
     return guiSettings_.splitTunneling;
@@ -596,6 +638,7 @@ void Preferences::setEngineSettings(const types::EngineSettings &es)
 #ifdef Q_OS_LINUX
     setDnsManager(es.dnsManager());
 #endif
+    setNetworkPreferredProtocols(es.networkPreferredProtocols());
     receivingEngineSettings_ = false;
 }
 

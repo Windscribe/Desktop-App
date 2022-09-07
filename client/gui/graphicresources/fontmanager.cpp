@@ -9,7 +9,7 @@
 #include "dpiscalemanager.h"
 
 
-QFont *FontManager::getFontWithCustomScale(double scale, int size, bool isBold, int stretch, qreal letterSpacing)
+QFont *FontManager::getFontWithCustomScale(double scale, double size, bool isBold, int stretch, qreal letterSpacing)
 {
     Q_ASSERT(QApplication::instance()->thread() == QThread::currentThread());
 
@@ -45,7 +45,7 @@ QFont *FontManager::getFontWithCustomScale(double scale, int size, bool isBold, 
     }
 }
 
-QFont *FontManager::getFont(int size, bool isBold, int stretch, qreal letterSpacing)
+QFont *FontManager::getFont(double size, bool isBold, int stretch, qreal letterSpacing)
 {
     return getFontWithCustomScale(G_SCALE, size, isBold, stretch, letterSpacing);
 }
@@ -55,7 +55,7 @@ QFont *FontManager::getFont(const FontDescr &fd)
     return getFont(fd.size(), fd.isBold(), fd.stretch(), fd.letterSpacing());
 }
 
-QString FontManager::getFontStyleSheet(int size, bool isBold)
+QString FontManager::getFontStyleSheet(double size, bool isBold)
 {
     QString s = QString("font-family: IBM Plex Sans;font-size: %1px").arg(size*G_SCALE);
 

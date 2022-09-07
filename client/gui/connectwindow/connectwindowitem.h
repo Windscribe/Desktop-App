@@ -4,7 +4,7 @@
 #include <QGraphicsObject>
 #include <QTimer>
 #include "background.h"
-#include "../backend/backend.h"
+#include "backend/backend.h"
 #include "connectbutton.h"
 #include "connectstateprotocolport/connectstateprotocolport.h"
 #include "locationsbutton.h"
@@ -40,6 +40,7 @@ public:
     void setFirewallAlwaysOn(bool isFirewallAlwaysOn) override;
     void setFirewallBlock(bool isFirewallBlocked) override;
     void setTestTunnelResult(bool success) override;
+    void setCornerColor(QColor color) override;
 
     void updateScaling() override;
 
@@ -84,7 +85,11 @@ signals:
     void networkButtonClick();
     void splitTunnelingButtonClick();
 
+private slots:
+    void onAppSkinChanged(APP_SKIN s);
+
 private:
+    Preferences *preferences_;
     PreferencesHelper *preferencesHelper_;
     IconButton *minimizeButton_;
     IconButton *closeButton_;

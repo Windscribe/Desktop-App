@@ -84,7 +84,17 @@ PREFERENCES_TAB_TYPE PreferencesTabControlItem::currentTab()
 
 void PreferencesTabControlItem::setCurrentTab(PREFERENCES_TAB_TYPE tab)
 {
-    curTab_ = tab;
+    for (TabButton *btn : buttonList_)
+    {
+        if (btn->tab() == tab)
+        {
+            fadeOtherButtons(btn);
+            btn->setStickySelection(true);
+            btn->setSelected(true);
+            curTab_ = tab;
+            return;
+        }
+    }
 }
 
 QRectF PreferencesTabControlItem::boundingRect() const

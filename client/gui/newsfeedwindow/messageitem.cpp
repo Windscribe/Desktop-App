@@ -73,7 +73,15 @@ bool MessageItem::eventFilter(QObject *watching, QEvent *event)
     // QTBUG-3259: QGraphicsProxyWidget doesn't listen to widget's cursor changes.
     // Doesn't seem it's gonna be fixed, so propagate cursor changes manually.
     if (watching == textBrowser_ && event->type() == QEvent::CursorChange)
+    {
         proxyWidget_->setCursor(textBrowser_->viewport()->cursor());
+    }
+
+    if (watching == textBrowser_ && event->type() == QEvent::Wheel)
+    {
+        event->ignore();
+        return true;
+    }
 
     return false;
 }

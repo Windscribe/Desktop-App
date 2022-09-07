@@ -27,7 +27,8 @@ struct GuiSettings
     BackgroundSettings backgroundSettings;
     bool isStartMinimized = false;
     bool isShowLocationHealth = false;
-    bool isAutoSecureNetworks = false;
+    bool isAutoSecureNetworks = true;
+    APP_SKIN appSkin = APP_SKIN_ALPHA;
 
     bool operator==(const GuiSettings &other) const
     {
@@ -45,7 +46,8 @@ struct GuiSettings
                other.backgroundSettings == backgroundSettings &&
                other.isStartMinimized == isStartMinimized &&
                other.isShowLocationHealth == isShowLocationHealth &&
-               other.isAutoSecureNetworks == isAutoSecureNetworks;
+               other.isAutoSecureNetworks == isAutoSecureNetworks &&
+               other.appSkin == appSkin;
     }
 
     bool operator!=(const GuiSettings &other) const
@@ -58,7 +60,7 @@ struct GuiSettings
         stream << versionForSerialization_;
         stream << o.isLaunchOnStartup << o.isAutoConnect << o.isHideFromDock << o.isShowNotifications << o.orderLocation << o.latencyDisplay <<
                   o.shareSecureHotspot << o.shareProxyGateway << o.splitTunneling << o.isDockedToTray << o.isMinimizeAndCloseToTray <<
-                  o.backgroundSettings << o.isStartMinimized << o.isShowLocationHealth << o.isAutoSecureNetworks;
+                  o.backgroundSettings << o.isStartMinimized << o.isShowLocationHealth << o.isAutoSecureNetworks << o.appSkin;
         return stream;
     }
 
@@ -74,6 +76,10 @@ struct GuiSettings
         stream >> o.isLaunchOnStartup >> o.isAutoConnect >> o.isHideFromDock >> o.isShowNotifications >> o.orderLocation >> o.latencyDisplay >>
                   o.shareSecureHotspot >> o.shareProxyGateway >> o.splitTunneling >> o.isDockedToTray >> o.isMinimizeAndCloseToTray >>
                   o.backgroundSettings >> o.isStartMinimized >> o.isShowLocationHealth >> o.isAutoSecureNetworks;
+        if (version >= 2)
+        {
+            stream >> o.appSkin;
+        }
         return stream;
     }
 
@@ -95,14 +101,15 @@ struct GuiSettings
         dbg << "backgroundSettings:" << gs.backgroundSettings << "; ";
         dbg << "isStartMinimized:" << gs.isStartMinimized << "; ";
         dbg << "isShowLocationHealth:" << gs.isShowLocationHealth << "; ";
-        dbg << "isAutoSecureNetworks:" << gs.isAutoSecureNetworks << "}";
+        dbg << "isAutoSecureNetworks:" << gs.isAutoSecureNetworks << "; ";
+        dbg << "appSkin:" << APP_SKIN_toString(gs.appSkin) << "}";
 
         return dbg;
 
     }
 
 private:
-    static constexpr quint32 versionForSerialization_ = 1;  // should increment the version if the data format is changed
+    static constexpr quint32 versionForSerialization_ = 2;  // should increment the version if the data format is changed
 
 };
 

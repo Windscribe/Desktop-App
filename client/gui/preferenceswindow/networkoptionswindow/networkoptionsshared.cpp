@@ -6,12 +6,12 @@
 namespace NetworkOptionsShared
 {
 
-types::NetworkInterface networkInterfaceByFriendlyName(QString friendlyName)
+types::NetworkInterface networkInterfaceByName(QString networkOrSsid)
 {
     QVector<types::NetworkInterface> list = PersistentState::instance().networkWhitelist();
     for (types::NetworkInterface interface : list)
     {
-        if (interface.friendlyName == friendlyName)
+        if (interface.networkOrSsid == networkOrSsid)
         {
             return interface;
         }

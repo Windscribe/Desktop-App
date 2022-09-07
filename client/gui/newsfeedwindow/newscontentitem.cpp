@@ -30,7 +30,20 @@ void NewsContentItem::setMessages(const QVector<types::Notification> &arr,
                                   const QSet<qint64> &shownIds)
 {
     setMessagesInternal(arr, shownIds, -1);
+}
 
+EntryItem *NewsContentItem::findEntry(int id)
+{
+    QList<CommonGraphics::BaseItem *> entries = items();
+    for (int i = 0; i < entries.size(); i++)
+    {
+        EntryItem *entry = static_cast<EntryItem *>(entries[i]);
+        if (id == entry->id())
+        {
+            return entry;
+        }
+    }
+    return nullptr;
 }
 
 void NewsContentItem::setMessagesInternal(const QVector<types::Notification> &arr,
@@ -38,18 +51,28 @@ void NewsContentItem::setMessagesInternal(const QVector<types::Notification> &ar
                                           int id)
 {
     bool seenUnread = false;
-    clearItems();
+    QList<int> ids;
 
     for (int i = 0; i < arr.size(); i++)
     {
-        EntryItem *item = new EntryItem(this, arr[i], width_);
-        connect(item, &EntryItem::messageRead, this, &NewsContentItem::messageRead);
-        connect(item, &EntryItem::scrollToItem, this, &NewsContentItem::onScrollToItem);
-        addItem(item);
+        ids << arr[i].id;
+
+        EntryItem *entry = findEntry(arr[i].id);
+        if (entry != nullptr)
+        {
+            entry->setItem(arr[i]);
+        }
+        else
+        {
+            entry = new EntryItem(this, arr[i], width_);
+            connect(entry, &EntryItem::messageRead, this, &NewsContentItem::messageRead);
+            connect(entry, &EntryItem::scrollToItem, this, &NewsContentItem::onScrollToItem);
+            addItem(entry);
+        }
 
         if (shownIds.contains(arr[i].id))
         {
-            item->setRead(true);
+            entry->setRead(true);
         }
 
         // Expand the panel if there is only one item, if the specific id was requested, or if it's the first unread
@@ -58,8 +81,19 @@ void NewsContentItem::setMessagesInternal(const QVector<types::Notification> &ar
             (!seenUnread && !shownIds.contains(arr[i].id)))
         {
             // don't mark it as read, yet
-            item->setExpanded(true, false);
+            entry->setExpanded(true, false);
             seenUnread = true;
+        }
+    }
+
+    // remove any items not in the ids list since they ahve been deleted.
+    QList<CommonGraphics::BaseItem *> entries = items();
+    for (int i = 0; i < entries.size(); i++)
+    {
+        EntryItem *entry = static_cast<EntryItem *>(entries[i]);
+        if (!ids.contains(entry->id()))
+        {
+            removeItem(entry);
         }
     }
 }
@@ -68,13 +102,26 @@ void NewsContentItem::updateRead()
 {
     QList<CommonGraphics::BaseItem *> entries = items();
 
+    // find the first unread message, expand it without animation and scroll to it
     for (int i = 0; i < entries.size(); i++)
     {
         EntryItem *entry = static_cast<EntryItem *>(entries[i]);
-        if (entry->expanded())
+        if (entry->isExpanded() && !entry->isRead())
+        {
+            entry->setRead(true);
+            scrollToItem(entry);
+            return;
+        }
+    }
+
+    // if no such messages were found, scroll to the first expanded message
+    for (int i = 0; i < entries.size(); i++)
+    {
+        EntryItem *entry = static_cast<EntryItem *>(entries[i]);
+        if (entry->isExpanded())
         {
             scrollToItem(entry);
-            entry->setRead(true);
+            return;
         }
     }
 }

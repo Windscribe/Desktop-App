@@ -48,13 +48,15 @@ void EditBoxItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
     if (!isEditMode_)
     {
         QFont *font = FontManager::instance().getFont(12, false);
+        QFontMetrics fm(*font);
+        QString caption = tr(caption_.toStdString().c_str());
         painter->setFont(*font);
         painter->setPen(Qt::white);
         painter->drawText(boundingRect().adjusted(PREFERENCES_MARGIN*G_SCALE,
                                                   PREFERENCES_MARGIN*G_SCALE,
                                                   -(2*PREFERENCES_MARGIN + ICON_WIDTH)*G_SCALE,
                                                   -PREFERENCES_MARGIN*G_SCALE),
-                          Qt::AlignLeft, tr(caption_.toStdString().c_str()));
+                          Qt::AlignLeft, caption);
 
         painter->setOpacity(OPACITY_HALF);
         QString t;
@@ -71,11 +73,14 @@ void EditBoxItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
             t = text_;
         }
 
-        painter->drawText(boundingRect().adjusted(PREFERENCES_MARGIN*G_SCALE, 
+        painter->drawText(boundingRect().adjusted((2*PREFERENCES_MARGIN + fm.horizontalAdvance(caption))*G_SCALE,
                                                   PREFERENCES_MARGIN*G_SCALE,
                                                   -(2*PREFERENCES_MARGIN + ICON_WIDTH)*G_SCALE,
                                                   -PREFERENCES_MARGIN),
-                          Qt::AlignRight, t);
+                          Qt::AlignRight,
+                          fm.elidedText(t,
+                                        Qt::ElideRight,
+                                        boundingRect().width() - (5*PREFERENCES_MARGIN + 2*ICON_WIDTH + fm.horizontalAdvance(caption))*G_SCALE));
     }
 }
 

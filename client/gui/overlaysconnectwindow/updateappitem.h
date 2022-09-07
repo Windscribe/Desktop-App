@@ -4,6 +4,7 @@
 #include <QGraphicsObject>
 #include <QVariantAnimation>
 #include "iupdateappitem.h"
+#include "backend/preferences/preferences.h"
 #include "commongraphics/textbutton.h"
 
 namespace UpdateApp {
@@ -13,7 +14,7 @@ class UpdateAppItem : public ScalableGraphicsObject, public IUpdateAppItem
     Q_OBJECT
     Q_INTERFACES(IUpdateAppItem)
 public:
-    explicit UpdateAppItem(QGraphicsObject *parent = nullptr);
+    explicit UpdateAppItem(Preferences *preferences, QGraphicsObject *parent = nullptr);
 
     QGraphicsObject *getGraphicsObject() override;
 
@@ -36,8 +37,8 @@ private slots:
     void onVersionOpacityChanged(const QVariant &value);
     void onProgressForegroundOpacityChanged(const QVariant &value);
     void onProgressBackgroundOpacityChanged(const QVariant &value);
-
     void onProgressBarPosChanged(const QVariant &value);
+    void onAppSkinChanged(APP_SKIN s);
 
     void onUpdateClick();
 
@@ -47,11 +48,14 @@ private:
     void animateTransitionToProgress();
     void animateTransitionToVersion();
 
+    Preferences *preferences_;
+
     CommonGraphics::TextButton *updateButton_;
     UpdateAppItemMode mode_;
     QString curVersionText_;
 
     static constexpr int WIDTH = 230;
+    static constexpr int WIDTH_VAN_GOGH = 332;
     static constexpr int HEIGHT = 20;
 
     double curBackgroundOpacity_;

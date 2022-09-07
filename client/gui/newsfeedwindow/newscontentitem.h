@@ -36,6 +36,7 @@ private:
                              const QSet<qint64> &shownIds,
                              int id);
     void scrollToItem(EntryItem *item, bool expanded = false);
+    EntryItem *findEntry(int id);
 
     int width_;
 };

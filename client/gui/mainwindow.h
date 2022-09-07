@@ -39,7 +39,6 @@ public:
     virtual bool eventFilter(QObject *watched, QEvent *event);
 
     void doClose(QCloseEvent *event = NULL, bool isFromSigTerm_mac = false);
-    void updateConnectWindowStateProtocolPortDisplay(types::ConnectionSettings connectionSettings);
     bool isActiveState() const { return activeState_; }
     QRect trayIconRect();
     void showAfterLaunch();
@@ -109,7 +108,7 @@ private slots:
     void onPreferencesWindowDetectPacketSizeClick();
     void onPreferencesAdvancedParametersClicked();
     void onPreferencesCustomConfigsPathChanged(QString path);
-    void onPreferencesdebugAdvancedParametersChanged(const QString &advParams);
+    void onPreferencesAdvancedParametersChanged(const QString &advParams);
 
     // emergency window signals
     void onEmergencyConnectClick();
@@ -212,6 +211,7 @@ private slots:
     void onPreferencesUpdateEngineSettings();
     void onPreferencesLaunchOnStartupChanged(bool bEnabled);
     void onPreferencesConnectionSettingsChanged(types::ConnectionSettings connectionSettings);
+    void onPreferencesNetworkPreferredProtocolsChanged(QMap<QString, types::ConnectionSettings> p);
     void onPreferencesIsDockedToTrayChanged(bool isDocked);
     void onPreferencesUpdateChannelChanged(UPDATE_CHANNEL updateChannel);
     void onPreferencesGetRobertFilters();
@@ -360,6 +360,8 @@ private:
 
     bool bGotoUpdateWindowAfterGeneralMessage_;
 
+    types::NetworkInterface curNetwork_;
+
     void activateAndShow();
     void deactivateAndHide();
     void loadTrayMenuItems();
@@ -403,6 +405,7 @@ private:
     QRect guessTrayIconLocationOnScreen(QScreen *screen);
     void showUserWarning(USER_WARNING_TYPE userWarningType);
     void openBrowserToMyAccountWithToken(const QString &tempSessionToken);
+    void updateConnectWindowStateProtocolPortDisplay();
 };
 
 #endif // MAINWINDOW_H

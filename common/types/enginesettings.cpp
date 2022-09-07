@@ -27,7 +27,7 @@ void EngineSettings::saveToSettings()
         ds << d->language << d->updateChannel << d->isIgnoreSslErrors << d->isTerminateSockets << d->isAllowLanTraffic <<
               d->firewallSettings << d->connectionSettings << d->dnsResolutionSettings << d->proxySettings << d->packetSize <<
               d->macAddrSpoofing << d->dnsPolicy << d->tapAdapter << d->customOvpnConfigsPath << d->isKeepAliveEnabled <<
-              d->connectedDnsInfo << d->dnsManager;
+              d->connectedDnsInfo << d->dnsManager << d->networkPreferredProtocols;
     }
 
     QSettings settings;
@@ -53,16 +53,17 @@ void EngineSettings::loadFromSettings()
         if (magic == magic_)
         {
             ds >> version;
-            if (version <= versionForSerialization_)
+            ds >> d->language >> d->updateChannel >> d->isIgnoreSslErrors >> d->isTerminateSockets >> d->isAllowLanTraffic >>
+                    d->firewallSettings >> d->connectionSettings >> d->dnsResolutionSettings >> d->proxySettings >> d->packetSize >>
+                    d->macAddrSpoofing >> d->dnsPolicy >> d->tapAdapter >> d->customOvpnConfigsPath >> d->isKeepAliveEnabled >>
+                    d->connectedDnsInfo >> d->dnsManager;
+            if (version >= 2)
             {
-                ds >> d->language >> d->updateChannel >> d->isIgnoreSslErrors >> d->isTerminateSockets >> d->isAllowLanTraffic >>
-                      d->firewallSettings >> d->connectionSettings >> d->dnsResolutionSettings >> d->proxySettings >> d->packetSize >>
-                      d->macAddrSpoofing >> d->dnsPolicy >> d->tapAdapter >> d->customOvpnConfigsPath >> d->isKeepAliveEnabled >>
-                      d->connectedDnsInfo >> d->dnsManager;
-                if (ds.status() == QDataStream::Ok)
-                {
-                    bLoaded = true;
-                }
+                ds >> d->networkPreferredProtocols;
+            }
+            if (ds.status() == QDataStream::Ok)
+            {
+                bLoaded = true;
             }
         }
     }
@@ -266,6 +267,16 @@ void EngineSettings::setPacketSize(const PacketSize &packetSize)
     d->packetSize = packetSize;
 }
 
+const QMap<QString, types::ConnectionSettings> &EngineSettings::networkPreferredProtocols() const
+{
+    return d->networkPreferredProtocols;
+}
+
+void EngineSettings::setNetworkPreferredProtocols(const QMap<QString, types::ConnectionSettings> &preferredProtocols)
+{
+    d->networkPreferredProtocols = preferredProtocols;
+}
+
 bool EngineSettings::operator==(const EngineSettings &other) const
 {
     return  other.d->language == d->language &&
@@ -284,7 +295,8 @@ bool EngineSettings::operator==(const EngineSettings &other) const
             other.d->customOvpnConfigsPath == d->customOvpnConfigsPath &&
             other.d->isKeepAliveEnabled == d->isKeepAliveEnabled &&
             other.d->connectedDnsInfo == d->connectedDnsInfo &&
-            other.d->dnsManager == d->dnsManager;
+            other.d->dnsManager == d->dnsManager &&
+            other.d->networkPreferredProtocols == d->networkPreferredProtocols;
 }
 
 bool EngineSettings::operator!=(const EngineSettings &other) const
@@ -314,7 +326,8 @@ QDebug operator<<(QDebug dbg, const EngineSettings &es)
     dbg << "customOvpnConfigsPath: " << (es.d->customOvpnConfigsPath.isEmpty() ? "empty" : "settled") << "; ";
     dbg << "isKeepAliveEnabled:" << es.d->isKeepAliveEnabled << "; ";
     dbg << "connectedDnsInfo:" << es.d->connectedDnsInfo << "; ";
-    dbg << "dnsManager:" << DNS_MANAGER_TYPE_toString(es.d->dnsManager) << "}";
+    dbg << "dnsManager:" << DNS_MANAGER_TYPE_toString(es.d->dnsManager) << "; ";
+    dbg << "networkPreferredProtocols:" << es.d->networkPreferredProtocols << "}";
 
     return dbg;
 }

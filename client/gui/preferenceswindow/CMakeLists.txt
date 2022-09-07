@@ -41,8 +41,6 @@ target_sources(gui PRIVATE
     connectionwindow/proxyipaddressitem.h
     connectionwindow/securehotspotgroup.cpp
     connectionwindow/securehotspotgroup.h
-    dividerline.cpp
-    dividerline.h
     editboxitem.cpp
     editboxitem.h
     generalwindow/backgroundsettingsgroup.cpp

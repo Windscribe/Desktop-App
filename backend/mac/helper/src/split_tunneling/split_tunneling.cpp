@@ -34,7 +34,7 @@ void SplitTunneling::setSplitTunnelingParams(bool isActive, bool isExclude, cons
 {
     std::lock_guard<std::mutex> guard(mutex_);
     
-    LOG("isSplitTunnelingActive: %d, prisExcludeotocol: %d", isActive, isExclude);
+    LOG("isSplitTunnelingActive: %d, isExclude: %d", isActive, isExclude);
         
     isSplitTunnelActive_ = isActive;
     isExclude_ = isExclude;

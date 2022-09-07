@@ -54,7 +54,6 @@
     [fillColor setStroke];
     [fillColor setFill];
     NSBezierPath* roundedPath = [NSBezierPath bezierPathWithRoundedRect:frame xRadius:16 yRadius:16];
-    [roundedPath stroke];
     [roundedPath fill];
     
     [[NSGraphicsContext currentContext] restoreGraphicsState];
@@ -65,7 +64,7 @@
     NSColor *textColor = [NSColor colorWithCalibratedRed: 0.0 green: 0.03 blue: 0.1 alpha: 1];
     NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithAttributedString:title];
     [attributedString addAttribute:NSForegroundColorAttributeName value:textColor range:NSMakeRange(0, [title length])];
-    [attributedString drawInRect: NSMakeRect(frame.origin.x, frame.origin.y - 2, frame.size.width, frame.size.height)];
+    [attributedString drawInRect: NSMakeRect(frame.origin.x, frame.origin.y, frame.size.width, frame.size.height)];
     return frame;
 }
 

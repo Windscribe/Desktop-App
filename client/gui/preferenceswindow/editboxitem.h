@@ -6,7 +6,6 @@
 #include <QRegularExpressionValidator>
 #include "commongraphics/iconbutton.h"
 #include "commonwidgets/custommenulineedit.h"
-#include "dividerline.h"
 
 namespace PreferencesWindow {
 

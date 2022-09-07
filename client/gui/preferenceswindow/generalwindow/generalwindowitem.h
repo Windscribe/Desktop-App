@@ -26,9 +26,6 @@ private slots:
     void onIsLaunchOnStartupClicked(bool isChecked);
     void onIsLaunchOnStartupPreferencesChanged(bool b);
 
-    void onIsAutoConnectClicked(bool isChecked);
-    void onIsAutoConnectPreferencesChanged(bool b);
-
     void onStartMinimizedPreferencesChanged(bool b);
     void onStartMinimizedClicked(bool b);
 
@@ -68,6 +65,9 @@ private slots:
     void onShowLocationLoadPreferencesChanged(bool b);
     void onShowLocationLoadClicked(bool b);
 
+    void onAppSkinPreferencesChanged(APP_SKIN s);
+    void onAppSkinChanged(QVariant value);
+
 signals:
     void languageChanged();
 
@@ -79,8 +79,6 @@ private:
 
     PreferenceGroup *launchOnStartGroup_;
     CheckBoxItem *checkBoxLaunchOnStart_;
-    PreferenceGroup *autoConnectGroup_;
-    CheckBoxItem *checkBoxAutoConnect_;
     PreferenceGroup *showNotificationsGroup_;
     CheckBoxItem *checkBoxShowNotifications_;
     BackgroundSettingsGroup *backgroundSettingsGroup_;
@@ -99,6 +97,8 @@ private:
     CheckBoxItem *checkBoxHideFromDock_;
 #endif
 
+    PreferenceGroup *appSkinGroup_;
+    ComboBoxItem *appSkinItem_;
     PreferenceGroup *languageGroup_;
     ComboBoxItem *comboBoxLanguage_;
     PreferenceGroup *locationOrderGroup_;

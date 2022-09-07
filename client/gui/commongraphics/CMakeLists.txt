@@ -13,6 +13,8 @@ target_sources(gui PRIVATE
     clickablegraphicsobject.h
     commongraphics.cpp
     commongraphics.h
+    dividerline.cpp
+    dividerline.h
     escapebutton.cpp
     escapebutton.h
     iconbutton.cpp

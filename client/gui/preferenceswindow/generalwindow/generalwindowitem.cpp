@@ -19,7 +19,6 @@ GeneralWindowItem::GeneralWindowItem(ScalableGraphicsObject *parent, Preferences
     setSpacerHeight(PREFERENCES_MARGIN);
 
     connect(preferences, &Preferences::isLaunchOnStartupChanged, this, &GeneralWindowItem::onIsLaunchOnStartupPreferencesChanged);
-    connect(preferences, &Preferences::isAutoConnectChanged, this, &GeneralWindowItem::onIsAutoConnectPreferencesChanged);
     connect(preferences, &Preferences::isShowNotificationsChanged, this, &GeneralWindowItem::onIsShowNotificationsPreferencesChanged);
     connect(preferences, &Preferences::isDockedToTrayChanged, this, &GeneralWindowItem::onIsDockedToTrayPreferencesChanged);
     connect(preferences, &Preferences::languageChanged, this, &GeneralWindowItem::onLanguagePreferencesChanged);
@@ -29,6 +28,7 @@ GeneralWindowItem::GeneralWindowItem(ScalableGraphicsObject *parent, Preferences
     connect(preferences, &Preferences::backgroundSettingsChanged, this, &GeneralWindowItem::onPreferencesBackgroundSettingsChanged);
     connect(preferences, &Preferences::isStartMinimizedChanged, this, &GeneralWindowItem::onStartMinimizedPreferencesChanged);
     connect(preferences, &Preferences::showLocationLoadChanged, this, &GeneralWindowItem::onShowLocationLoadPreferencesChanged);
+    connect(preferences, &Preferences::appSkinChanged, this, &GeneralWindowItem::onAppSkinPreferencesChanged);
 
 #if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     connect(preferences, &Preferences::minimizeAndCloseToTrayChanged, this, &GeneralWindowItem::onMinimizeAndCloseToTrayPreferencesChanged);
@@ -43,14 +43,6 @@ GeneralWindowItem::GeneralWindowItem(ScalableGraphicsObject *parent, Preferences
     connect(checkBoxLaunchOnStart_, &CheckBoxItem::stateChanged, this, &GeneralWindowItem::onIsLaunchOnStartupClicked);
     launchOnStartGroup_->addItem(checkBoxLaunchOnStart_);
     addItem(launchOnStartGroup_);
-
-    autoConnectGroup_ = new PreferenceGroup(this, tr("Connects to last used location when the app launches or joins a network."));
-    checkBoxAutoConnect_ = new CheckBoxItem(autoConnectGroup_, QT_TRANSLATE_NOOP("PreferencesWindow::CheckBoxItem", "Auto-Connect"), QString());
-    checkBoxAutoConnect_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/AUTOCONNECT"));
-    checkBoxAutoConnect_->setState(preferences->isAutoConnect());
-    connect(checkBoxAutoConnect_, &CheckBoxItem::stateChanged, this, &GeneralWindowItem::onIsAutoConnectClicked);
-    autoConnectGroup_->addItem(checkBoxAutoConnect_);
-    addItem(autoConnectGroup_);
 
     startMinimizedGroup_ = new PreferenceGroup(this, tr("Launch Windscribe in a minimized state."));
     checkBoxStartMinimized_ = new CheckBoxItem(startMinimizedGroup_, QT_TRANSLATE_NOOP("Preferences::CheckBoxStartMinimized", "Start Minimized"), QString());
@@ -143,6 +135,19 @@ GeneralWindowItem::GeneralWindowItem(ScalableGraphicsObject *parent, Preferences
     languageGroup_->addItem(comboBoxLanguage_);
     addItem(languageGroup_);
 
+    appSkinGroup_ = new PreferenceGroup(this, tr("Choose between the classic GUI or the \"earless\" alternative GUI."));
+    appSkinItem_ = new ComboBoxItem(appSkinGroup_, QT_TRANSLATE_NOOP("PreferencesWindow::ComboBoxItem", "App Skin"), QString());
+    appSkinItem_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/APP_SKIN"));
+    const QList< QPair<QString, int> > allAppSkins = APP_SKIN_toList();
+    for (const auto l : allAppSkins)
+    {
+        appSkinItem_->addItem(l.first, l.second);
+    }
+    appSkinItem_->setCurrentItem(preferences->appSkin());
+    connect(appSkinItem_, &ComboBoxItem::currentItemChanged, this, &GeneralWindowItem::onAppSkinChanged);
+    appSkinGroup_->addItem(appSkinItem_);
+    addItem(appSkinGroup_);
+
     backgroundSettingsGroup_ = new BackgroundSettingsGroup(this, tr("Customize the background of the main app screen."));
     backgroundSettingsGroup_->setBackgroundSettings(preferences->backgroundSettings());
     connect(backgroundSettingsGroup_, &BackgroundSettingsGroup::backgroundSettingsChanged, this, &GeneralWindowItem::onBackgroundSettingsChanged);
@@ -188,16 +193,6 @@ void GeneralWindowItem::onIsLaunchOnStartupClicked(bool isChecked)
 void GeneralWindowItem::onIsLaunchOnStartupPreferencesChanged(bool b)
 {
     checkBoxLaunchOnStart_->setState(b);
-}
-
-void GeneralWindowItem::onIsAutoConnectClicked(bool isChecked)
-{
-    preferences_->setAutoConnect(isChecked);
-}
-
-void GeneralWindowItem::onIsAutoConnectPreferencesChanged(bool b)
-{
-    checkBoxAutoConnect_->setState(b);
 }
 
 void GeneralWindowItem::onStartMinimizedPreferencesChanged(bool b)
@@ -363,6 +358,16 @@ void GeneralWindowItem::onShowLocationLoadClicked(bool b)
 void GeneralWindowItem::onShowLocationLoadPreferencesChanged(bool b)
 {
     checkBoxShowLocationLoad_->setState(b);
+}
+
+void GeneralWindowItem::onAppSkinChanged(QVariant value)
+{
+    preferences_->setAppSkin((APP_SKIN)value.toInt());
+}
+
+void GeneralWindowItem::onAppSkinPreferencesChanged(APP_SKIN s)
+{
+    appSkinItem_->setCurrentItem(s);
 }
 
 } // namespace PreferencesWindow

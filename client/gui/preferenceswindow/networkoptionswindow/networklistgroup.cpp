@@ -15,13 +15,13 @@ NetworkListGroup::NetworkListGroup(ScalableGraphicsObject *parent, const QString
 
 void NetworkListGroup::addNetwork(types::NetworkInterface network, NETWORK_TRUST_TYPE trustType)
 {
-    LinkItem *item = new LinkItem(this, LinkItem::LinkType::SUBPAGE_LINK, network.friendlyName);
+    LinkItem *item = new LinkItem(this, LinkItem::LinkType::SUBPAGE_LINK, network.networkOrSsid);
     connect(item, &LinkItem::clicked, this, &NetworkListGroup::onNetworkClicked);
     QString trust(tr(NetworkOptionsShared::trustTypeToString(trustType)));
     item->setLinkText(trust);
     addItem(item);
 
-    networks_[network.friendlyName] = network;
+    networks_[network.networkOrSsid] = network;
     updateDisplay();
 }
 
@@ -29,19 +29,19 @@ void NetworkListGroup::removeNetwork(types::NetworkInterface network)
 {
     QList<BaseItem *> list = items();
 
-    networks_.remove(network.friendlyName);
+    networks_.remove(network.networkOrSsid);
 
     for (BaseItem *i: items())
     {
         LinkItem *item = static_cast<LinkItem *>(i);
-        if (network.friendlyName == item->title())
+        if (network.networkOrSsid == item->title())
         {
             hideItems(indexOf(item), -1, DISPLAY_FLAGS::FLAG_DELETE_AFTER);
             break;
         }
     }
 
-    if (currentNetwork_ == network.friendlyName)
+    if (currentNetwork_ == network.networkOrSsid)
     {
         currentNetwork_ = "";
     }
@@ -67,7 +67,7 @@ void NetworkListGroup::setCurrentNetwork(types::NetworkInterface network, NETWOR
 {
     bool found = false;
 
-    if (network.interfaceType != NETWORK_INTERFACE_NONE && !network.friendlyName.isEmpty())
+    if (!network.networkOrSsid.isEmpty())
     {
         for (auto name : networks_.keys())
         {
@@ -82,7 +82,7 @@ void NetworkListGroup::setCurrentNetwork(types::NetworkInterface network, NETWOR
         {
             addNetwork(network, type);
         }
-        currentNetwork_ = network.friendlyName;
+        currentNetwork_ = network.networkOrSsid;
     }
     else
     {
@@ -97,7 +97,7 @@ void NetworkListGroup::setTrustType(types::NetworkInterface network, NETWORK_TRU
     {
         LinkItem *i = static_cast<LinkItem *>(item);
 
-        if (i->title() == network.friendlyName)
+        if (i->title() == network.networkOrSsid)
         {
             QString trust(tr(NetworkOptionsShared::trustTypeToString(type)));
             i->setLinkText(trust);
@@ -118,7 +118,7 @@ void NetworkListGroup::clear()
 void NetworkListGroup::onNetworkClicked()
 {
     LinkItem *item = static_cast<LinkItem *>(sender());
-    emit networkClicked(NetworkOptionsShared::networkInterfaceByFriendlyName(item->title())); 
+    emit networkClicked(NetworkOptionsShared::networkInterfaceByName(item->title())); 
 }
 
 void NetworkListGroup::updateNetworks(QVector<types::NetworkInterface> list)
@@ -154,7 +154,7 @@ void NetworkListGroup::updateNetworks(QVector<types::NetworkInterface> list)
     for (types::NetworkInterface interface : list)
     {
         bool found = false;
-        if (interface.friendlyName.isEmpty())
+        if (interface.networkOrSsid.isEmpty())
         {
             continue;
         }

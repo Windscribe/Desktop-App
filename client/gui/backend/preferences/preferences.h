@@ -57,6 +57,10 @@ public:
     QVector<types::NetworkInterface> networkWhiteList();
     void setNetworkWhiteList(const QVector<types::NetworkInterface> &l);
 
+    const types::ConnectionSettings networkPreferredProtocol(QString networkOrSsid) const;
+    void setNetworkPreferredProtocol(QString networkOrSsid, const types::ConnectionSettings &preferredProtocol);
+    void setNetworkPreferredProtocols(const QMap<QString, types::ConnectionSettings> &preferredProtocols);
+
     const types::ProxySettings &proxySettings() const;
     void setProxySettings(const types::ProxySettings &ps);
 
@@ -112,6 +116,9 @@ public:
 
     bool keepAlive() const;
     void setKeepAlive(bool bEnabled);
+
+    APP_SKIN appSkin() const;
+    void setAppSkin(APP_SKIN s);
 
     types::SplitTunneling splitTunneling();
     QList<types::SplitTunnelingApp> splitTunnelingApps();
@@ -169,9 +176,10 @@ signals:
     void debugAdvancedParametersChanged(const QString &pars);
     void dnsPolicyChanged(DNS_POLICY_TYPE d);
     void dnsManagerChanged(DNS_MANAGER_TYPE d);
-
+    void appSkinChanged(APP_SKIN s);
     void connectedDnsInfoChanged(types::ConnectedDnsInfo dnsWcInfo);
     void networkWhiteListChanged(QVector<types::NetworkInterface> l);
+    void networkPreferredProtocolsChanged(QMap<QString, types::ConnectionSettings> p);
     void splitTunnelingChanged(types::SplitTunneling st);
     void keepAliveChanged(bool b);
     void updateEngineSettings();

@@ -207,6 +207,15 @@ void ComboBoxItem::updateScaling()
 
 void ComboBoxItem::updatePositions()
 {
+    QFont *font = FontManager::instance().getFont(captionFont_);
+    QFontMetrics fm(*font);
+
+    int used = 2*PREFERENCES_MARGIN*G_SCALE + fm.horizontalAdvance(strCaption_);
+    if (icon_)
+    {
+        used = (3*PREFERENCES_MARGIN + ICON_WIDTH)*G_SCALE + fm.horizontalAdvance(strCaption_);
+    }
+    button_->setMaxWidth(boundingRect().width() - used);
     button_->setPos(boundingRect().width() - button_->boundingRect().width() - PREFERENCES_MARGIN*G_SCALE, PREFERENCES_MARGIN*G_SCALE);
 }
 

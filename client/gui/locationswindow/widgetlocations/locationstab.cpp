@@ -17,8 +17,8 @@ extern QWidget *g_mainWindow;
 
 namespace GuiLocations {
 
-
-LocationsTab::LocationsTab(QWidget *parent, LocationsModel *locationsModel) : QWidget(parent)
+LocationsTab::LocationsTab(QWidget *parent, Preferences *preferences, LocationsModel *locationsModel) : QWidget(parent)
+  , preferences_(preferences)
   , curTab_(LOCATION_TAB_ALL_LOCATIONS)
   , tabPress_(LOCATION_TAB_NONE)
   , filterText_("")
@@ -33,22 +33,24 @@ LocationsTab::LocationsTab(QWidget *parent, LocationsModel *locationsModel) : QW
     setMouseTracking(true);
     curCursorShape_ = Qt::ArrowCursor;
 
+    connect(preferences_, &Preferences::appSkinChanged, this, &LocationsTab::onAppSkinChanged);
+
     searchButtonPosUnscaled_ = LAST_TAB_ICON_POS_X;
     searchButton_ = new CommonWidgets::IconButtonWidget("locations/SEARCH_ICON", this);
     searchButton_->setUnhoverHoverOpacity(TAB_OPACITY_DIM, TAB_OPACITY_DIM);
-    connect(searchButton_, SIGNAL(clicked()), SLOT(onSearchButtonClicked()));
-    connect(searchButton_, SIGNAL(hoverEnter()), SLOT(onSearchButtonHoverEnter()));
-    connect(searchButton_, SIGNAL(hoverLeave()), SLOT(onSearchButtonHoverLeave()));
+    connect(searchButton_, &CommonWidgets::IconButtonWidget::clicked, this, &LocationsTab::onSearchButtonClicked);
+    connect(searchButton_, &CommonWidgets::IconButtonWidget::hoverEnter, this, &LocationsTab::onSearchButtonHoverEnter);
+    connect(searchButton_, &CommonWidgets::IconButtonWidget::hoverLeave, this, &LocationsTab::onSearchButtonHoverLeave);
     searchButton_->move(searchButtonPosUnscaled_ * G_SCALE, TOP_TAB_MARGIN * G_SCALE);
 
     searchButtonPosAnimation_.setDuration(SEARCH_BUTTON_POS_ANIMATION_DURATION);
-    searchButtonPosAnimation_.setStartValue(FIRST_TAB_ICON_POS_X); // keep animation unaware of scaling
+    searchButtonPosAnimation_.setStartValue(preferences_->appSkin() == APP_SKIN_VAN_GOGH ? FIRST_TAB_ICON_POS_X_VAN_GOGH : FIRST_TAB_ICON_POS_X); // keep animation unaware of scaling
     searchButtonPosAnimation_.setEndValue(LAST_TAB_ICON_POS_X);
-    connect(&searchButtonPosAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onSearchButtonPosAnimationValueChanged(QVariant)));
+    connect(&searchButtonPosAnimation_, &QVariantAnimation::valueChanged, this, &LocationsTab::onSearchButtonPosAnimationValueChanged);
 
     searchCancelButton_ = new CommonWidgets::IconButtonWidget("locations/SEARCH_CANCEL_ICON", this);
     searchCancelButton_->setUnhoverHoverOpacity(TAB_OPACITY_DIM, OPACITY_FULL);
-    connect(searchCancelButton_, SIGNAL(clicked()), SLOT(onSearchCancelButtonClicked()));
+    connect(searchCancelButton_, &CommonWidgets::IconButtonWidget::clicked, this, &LocationsTab::onSearchCancelButtonClicked);
     searchCancelButton_->move(LAST_TAB_ICON_POS_X * G_SCALE, TOP_TAB_MARGIN * G_SCALE);
     searchCancelButton_->hide();
 
@@ -57,30 +59,28 @@ LocationsTab::LocationsTab(QWidget *parent, LocationsModel *locationsModel) : QW
     searchLineEdit_->setStyleSheet("background: transparent; color: rgb(135, 138, 147)");
     searchLineEdit_->setFrame(false);
     searchLineEdit_->installEventFilter(this);
-    connect(searchLineEdit_, SIGNAL(textChanged(QString)), SLOT(onSearchLineEditTextChanged(QString)));
-    connect(searchLineEdit_, SIGNAL(focusOut()), SLOT(onSearchLineEditFocusOut()));
+    connect(searchLineEdit_, &CommonWidgets::CustomMenuLineEdit::textChanged, this, &LocationsTab::onSearchLineEditTextChanged);
+    connect(searchLineEdit_, &CommonWidgets::CustomMenuLineEdit::focusOut, this, &LocationsTab::onSearchLineEditFocusOut);
 
     searchLineEdit_->hide();
 
     updateIconRectsAndLine();
 
     curWhiteLinePos_ = (rcAllLocationsIcon_.center().x() + 1) * G_SCALE;
-    connect(&whiteLineAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onWhiteLinePosChanged(QVariant)));
+    connect(&whiteLineAnimation_, &QVariantAnimation::valueChanged, this, &LocationsTab::onWhiteLinePosChanged);
 
     widgetAllLocations_ = new GuiLocations::WidgetLocations(this, "All");
 
     widgetConfiguredLocations_ = new GuiLocations::WidgetCities(this, "Configs", 6);
     widgetConfiguredLocations_->setEmptyListDisplayIcon("locations/FOLDER_ICON_BIG");
-    connect(widgetConfiguredLocations_, SIGNAL(emptyListButtonClicked()),
-                                        SLOT(onAddCustomConfigClicked()));
+    connect(widgetConfiguredLocations_, &GuiLocations::WidgetCities::emptyListButtonClicked, this, &LocationsTab::onAddCustomConfigClicked);
     widgetConfiguredLocations_->hide();
 
     widgetStaticIpsLocations_ = new GuiLocations::WidgetCities(this, "Static IP", 6);
     widgetStaticIpsLocations_->setEmptyListDisplayIcon("locations/STATIC_IP_ICON_BIG");
     widgetStaticIpsLocations_->setEmptyListDisplayText(tr("You don't have any Static IPs"), 120);
     widgetStaticIpsLocations_->setEmptyListButtonText(tr("Buy"));
-    connect(widgetStaticIpsLocations_, SIGNAL(emptyListButtonClicked()),
-                                       SIGNAL(addStaticIpClicked()));
+    connect(widgetStaticIpsLocations_, &GuiLocations::WidgetCities::emptyListButtonClicked, this, &LocationsTab::addStaticIpClicked);
     widgetStaticIpsLocations_->hide();
 
     widgetFavoriteLocations_ = new GuiLocations::WidgetCities(this, "Favourites");
@@ -89,32 +89,31 @@ LocationsTab::LocationsTab(QWidget *parent, LocationsModel *locationsModel) : QW
     widgetFavoriteLocations_->hide();
 
     staticIPDeviceInfo_ = new StaticIPDeviceInfo(this);
-    connect(staticIPDeviceInfo_, SIGNAL(addStaticIpClicked()), SIGNAL(addStaticIpClicked()));
+    connect(staticIPDeviceInfo_, &StaticIPDeviceInfo::addStaticIpClicked, this, &LocationsTab::addStaticIpClicked);
     staticIPDeviceInfo_->hide();
 
     configFooterInfo_ = new ConfigFooterInfo(this);
     configFooterInfo_->hide();
-    connect(configFooterInfo_, SIGNAL(clearCustomConfigClicked()),
-            SIGNAL(clearCustomConfigClicked()));
-    connect(configFooterInfo_, SIGNAL(addCustomConfigClicked()), SLOT(onAddCustomConfigClicked()));
+    connect(configFooterInfo_, &ConfigFooterInfo::clearCustomConfigClicked, this, &LocationsTab::clearCustomConfigClicked);
+    connect(configFooterInfo_, &ConfigFooterInfo::addCustomConfigClicked, this, &LocationsTab::onAddCustomConfigClicked);
 
     widgetSearchLocations_ = new GuiLocations::WidgetLocations(this, "Search");
     widgetSearchLocations_->hide();
 
     updateLocationWidgetsGeometry(unscaledHeightOfItemViewport());
 
-    connect(widgetAllLocations_, SIGNAL(selected(LocationID)), SIGNAL(selected(LocationID)));
-    connect(widgetAllLocations_, SIGNAL(clickedOnPremiumStarCity()), SIGNAL(clickedOnPremiumStarCity()));
-    connect(widgetConfiguredLocations_, SIGNAL(selected(LocationID)), SIGNAL(selected(LocationID)));
-    connect(widgetStaticIpsLocations_, SIGNAL(selected(LocationID)), SIGNAL(selected(LocationID)));
-    connect(widgetFavoriteLocations_, SIGNAL(selected(LocationID)), SIGNAL(selected(LocationID)));
-    connect(widgetSearchLocations_, SIGNAL(selected(LocationID)), SIGNAL(selected(LocationID)));
+    connect(widgetAllLocations_, &GuiLocations::WidgetLocations::selected, this, &LocationsTab::selected);
+    connect(widgetAllLocations_, &GuiLocations::WidgetLocations::clickedOnPremiumStarCity, this, &LocationsTab::clickedOnPremiumStarCity);
+    connect(widgetConfiguredLocations_, &GuiLocations::WidgetCities::selected, this, &LocationsTab::selected);
+    connect(widgetStaticIpsLocations_, &GuiLocations::WidgetCities::selected, this, &LocationsTab::selected);
+    connect(widgetFavoriteLocations_, &GuiLocations::WidgetCities::selected, this, &LocationsTab::selected);
+    connect(widgetSearchLocations_, &GuiLocations::WidgetLocations::selected, this, &LocationsTab::selected);
 
-    connect(widgetAllLocations_, SIGNAL(switchFavorite(LocationID,bool)), SIGNAL(switchFavorite(LocationID,bool)));
-    connect(widgetConfiguredLocations_, SIGNAL(switchFavorite(LocationID,bool)), SIGNAL(switchFavorite(LocationID,bool)));
-    connect(widgetStaticIpsLocations_, SIGNAL(switchFavorite(LocationID,bool)), SIGNAL(switchFavorite(LocationID,bool)));
-    connect(widgetFavoriteLocations_, SIGNAL(switchFavorite(LocationID,bool)), SIGNAL(switchFavorite(LocationID,bool)));
-    connect(widgetSearchLocations_, SIGNAL(switchFavorite(LocationID,bool)), SIGNAL(switchFavorite(LocationID,bool)));
+    connect(widgetAllLocations_, &GuiLocations::WidgetLocations::switchFavorite, this, &LocationsTab::switchFavorite);
+    connect(widgetConfiguredLocations_, &GuiLocations::WidgetCities::switchFavorite, this, &LocationsTab::switchFavorite);
+    connect(widgetStaticIpsLocations_, &GuiLocations::WidgetCities::switchFavorite, this, &LocationsTab::switchFavorite);
+    connect(widgetFavoriteLocations_, &GuiLocations::WidgetCities::switchFavorite, this, &LocationsTab::switchFavorite);
+    connect(widgetSearchLocations_, &GuiLocations::WidgetLocations::switchFavorite, this, &LocationsTab::switchFavorite);
 
     widgetAllLocations_->setModel(locationsModel->getAllLocationsModel());
     widgetConfiguredLocations_->setModel(locationsModel->getConfiguredLocationsModel());
@@ -124,13 +123,13 @@ LocationsTab::LocationsTab(QWidget *parent, LocationsModel *locationsModel) : QW
 
     searchTypingDelayTimer_.setSingleShot(true);
     searchTypingDelayTimer_.setInterval(100);
-    connect(&searchTypingDelayTimer_, SIGNAL(timeout()), SLOT(onSearchTypingDelayTimerTimeout()));
+    connect(&searchTypingDelayTimer_, &QTimer::timeout, this, &LocationsTab::onSearchTypingDelayTimerTimeout);
 
     delayShowIconsTimer_.setSingleShot(true);
     delayShowIconsTimer_.setInterval(SEARCH_BUTTON_POS_ANIMATION_DURATION+100);
-    connect(&delayShowIconsTimer_, SIGNAL(timeout()), SLOT(onDelayShowIconsTimerTimeout()));
+    connect(&delayShowIconsTimer_, &QTimer::timeout, this, &LocationsTab::onDelayShowIconsTimerTimeout);
 
-    connect(locationsModel, SIGNAL(deviceNameChanged(QString)), SLOT(onDeviceNameChanged(QString)));
+    connect(locationsModel, &LocationsModel::deviceNameChanged, this, &LocationsTab::onDeviceNameChanged);
 
     updateCustomConfigsEmptyListVisibility();
 }
@@ -186,7 +185,6 @@ void LocationsTab::paintEvent(QPaintEvent *event)
     // qDebug() << "LocationsTab::paintEvent - geo: " << geometry();
 
     drawTabRegion(painter, QRect(0, 0, width(), TAB_HEADER_HEIGHT * G_SCALE));
-
 }
 
 void LocationsTab::mouseMoveEvent(QMouseEvent *event)
@@ -305,7 +303,7 @@ void LocationsTab::changeTab(LocationTabEnum newTab, bool animateChange)
     {
         whiteLineAnimation_.stop();
         whiteLineAnimation_.setStartValue(curWhiteLinePos_);
-        whiteLineAnimation_.setEndValue(endWhiteLinePos + 2);
+        whiteLineAnimation_.setEndValue(endWhiteLinePos + 1);
         whiteLineAnimation_.setDuration(ANIMATION_DURATION);
         whiteLineAnimation_.start();
     }
@@ -750,28 +748,43 @@ void LocationsTab::updateTabIconRects()
     searchButton_->move(searchButtonPosUnscaled_ * G_SCALE, TOP_TAB_MARGIN * G_SCALE);
     searchCancelButton_->move(LAST_TAB_ICON_POS_X * G_SCALE, TOP_TAB_MARGIN * G_SCALE);
 
-    int totalWidthForFirst4TabsWithSpacing = LAST_TAB_ICON_POS_X - FIRST_TAB_ICON_POS_X;
-    int iconWidths = 16 + 16 + 16 + 18;
-    int totalSpacing = totalWidthForFirst4TabsWithSpacing - iconWidths;
-    int eachSpacing = totalSpacing/4;
+    int pos[4] = { 0, 0, 0, 0 };
 
-    int secondPos = FIRST_TAB_ICON_POS_X + eachSpacing + 16;
-    int thirdPos = secondPos + eachSpacing + 16;
-    int fourthPos = thirdPos + eachSpacing + 16;
-    rcAllLocationsIcon_.       setRect(FIRST_TAB_ICON_POS_X * G_SCALE, TOP_TAB_MARGIN * G_SCALE, 16 * G_SCALE, 16 * G_SCALE);
-    rcFavoriteLocationsIcon_.  setRect(secondPos * G_SCALE, TOP_TAB_MARGIN * G_SCALE, 16 * G_SCALE, 14 * G_SCALE);
-    rcStaticIpsLocationsIcon_. setRect(thirdPos * G_SCALE, TOP_TAB_MARGIN * G_SCALE, 16 * G_SCALE, 16 * G_SCALE);
+    int totalWidthForFirst4TabsWithSpacing;
+    if (preferences_->appSkin() == APP_SKIN_VAN_GOGH)
+    {
+        pos[0] = FIRST_TAB_ICON_POS_X_VAN_GOGH;
+        pos[1] = pos[0] + 48;
+        pos[2] = pos[1] + 48;
+        pos[3] = pos[2] + 48;
+    }
+    else
+    {
+        totalWidthForFirst4TabsWithSpacing = LAST_TAB_ICON_POS_X - FIRST_TAB_ICON_POS_X;
+        int iconWidths = 16 + 16 + 16 + 18;
+        int totalSpacing = totalWidthForFirst4TabsWithSpacing - iconWidths;
+        int eachSpacing = totalSpacing/4;
 
+        pos[0] = FIRST_TAB_ICON_POS_X;
+        pos[1] = pos[0] + eachSpacing + 16;
+        pos[2] = pos[1] + eachSpacing + 16;
+        pos[3] = pos[2] + eachSpacing + 16;
+    }
+
+    rcAllLocationsIcon_.       setRect(pos[0]*G_SCALE, TOP_TAB_MARGIN*G_SCALE, 16*G_SCALE, 16*G_SCALE);
+    rcFavoriteLocationsIcon_.  setRect(pos[1]*G_SCALE, TOP_TAB_MARGIN*G_SCALE, 16*G_SCALE, 14*G_SCALE);
+    rcStaticIpsLocationsIcon_. setRect(pos[2]*G_SCALE, TOP_TAB_MARGIN*G_SCALE, 16*G_SCALE, 16*G_SCALE);
     if (showAllTabs_)
     {
-        rcConfiguredLocationsIcon_.setRect(fourthPos * G_SCALE, TOP_TAB_MARGIN * G_SCALE, 18 * G_SCALE, 16 * G_SCALE);
+        rcConfiguredLocationsIcon_.setRect(pos[3]*G_SCALE, TOP_TAB_MARGIN*G_SCALE, 18*G_SCALE, 16*G_SCALE);
         searchButton_->show();
     }
     else
     {
-        rcConfiguredLocationsIcon_.setRect(LAST_TAB_ICON_POS_X * G_SCALE, TOP_TAB_MARGIN * G_SCALE, 18 * G_SCALE, 16 * G_SCALE);
+        rcConfiguredLocationsIcon_.setRect(LAST_TAB_ICON_POS_X*G_SCALE, TOP_TAB_MARGIN*G_SCALE, 18*G_SCALE, 16*G_SCALE);
         searchButton_->hide();
     }
+
 }
 
 void LocationsTab::updateIconRectsAndLine()
@@ -825,8 +838,9 @@ void LocationsTab::updateScaling()
     searchButton_->setGeometry(searchButtonPosUnscaled_ * G_SCALE, TOP_TAB_MARGIN * G_SCALE, 16*G_SCALE, 16*G_SCALE);
     searchCancelButton_->setGeometry(LAST_TAB_ICON_POS_X * G_SCALE, TOP_TAB_MARGIN * G_SCALE, 16*G_SCALE, 16*G_SCALE);
     searchLineEdit_->setFont(*FontManager::instance().getFont(14, false));
-    searchLineEdit_->setGeometry((FIRST_TAB_ICON_POS_X + 32)*G_SCALE, 2*G_SCALE,
-                                 (LAST_TAB_ICON_POS_X - FIRST_TAB_ICON_POS_X - 32) *G_SCALE,
+    searchLineEdit_->setGeometry(((preferences_->appSkin() == APP_SKIN_VAN_GOGH ? FIRST_TAB_ICON_POS_X_VAN_GOGH : FIRST_TAB_ICON_POS_X) + 32)*G_SCALE,
+                                 2*G_SCALE,
+                                 (LAST_TAB_ICON_POS_X - (preferences_->appSkin() == APP_SKIN_VAN_GOGH ? FIRST_TAB_ICON_POS_X_VAN_GOGH : FIRST_TAB_ICON_POS_X) - 32)*G_SCALE,
                                  40*G_SCALE);
 }
 
@@ -849,6 +863,7 @@ void LocationsTab::showSearchTab()
         QTimer::singleShot(100, [this]()
         {
             searchButtonPosAnimation_.stop();
+            searchButtonPosAnimation_.setStartValue(preferences_->appSkin() == APP_SKIN_VAN_GOGH ? FIRST_TAB_ICON_POS_X_VAN_GOGH : FIRST_TAB_ICON_POS_X);
             searchButtonPosAnimation_.setDirection(QAbstractAnimation::Backward);
             searchButtonPosAnimation_.start();
 
@@ -1026,5 +1041,11 @@ void LocationsTab::updateRibbonVisibility()
         updateLocationWidgetsGeometry(currentLocationListHeight_);
 }
 
-} // namespace GuiLocations
+void LocationsTab::onAppSkinChanged(APP_SKIN s)
+{
+    Q_UNUSED(s);
+    updateScaling();
+    updateIconRectsAndLine();
+}
 
+} // namespace GuiLocations

@@ -69,6 +69,8 @@ void PacketSizeEditBoxItem::paint(QPainter *painter, const QStyleOptionGraphicsI
     {
         // caption text
         QFont *font = FontManager::instance().getFont(12, false);
+        QFontMetrics fm(*font);
+        QString caption = tr(caption_.toStdString().c_str());
         painter->setFont(*font);
         painter->setPen(Qt::white);
         painter->drawText(boundingRect().adjusted(PREFERENCES_MARGIN*G_SCALE,
@@ -76,7 +78,7 @@ void PacketSizeEditBoxItem::paint(QPainter *painter, const QStyleOptionGraphicsI
                                                   -(3*PREFERENCES_MARGIN + 2*ICON_WIDTH)*G_SCALE,
                                                   -PREFERENCES_MARGIN*G_SCALE),
                           Qt::AlignLeft,
-                          tr(caption_.toStdString().c_str()));
+                          caption);
 
         // user text box
         painter->setOpacity(OPACITY_HALF);
@@ -90,12 +92,14 @@ void PacketSizeEditBoxItem::paint(QPainter *painter, const QStyleOptionGraphicsI
             t = "--";
         }
 
-        painter->drawText(boundingRect().adjusted(PREFERENCES_MARGIN*G_SCALE,
+        painter->drawText(boundingRect().adjusted((2*PREFERENCES_MARGIN + fm.horizontalAdvance(caption))*G_SCALE,
                                                   PREFERENCES_MARGIN*G_SCALE,
                                                   -(3*PREFERENCES_MARGIN + 2*ICON_WIDTH)*G_SCALE,
                                                   -PREFERENCES_MARGIN*G_SCALE),
                           Qt::AlignRight,
-                          t);
+                          fm.elidedText(t,
+                                        Qt::ElideRight,
+                                        boundingRect().width() - (4*PREFERENCES_MARGIN + ICON_WIDTH + fm.horizontalAdvance(caption))*G_SCALE));
 
         // spinner
         painter->setOpacity(busySpinnerOpacity_);

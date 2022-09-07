@@ -26,6 +26,8 @@ public:
     void setSelected(bool selected) override;
     void setText(QString text);
 
+    PREFERENCES_TAB_TYPE tab();
+
     static constexpr int BUTTON_WIDTH = 32;
     static constexpr int BUTTON_HEIGHT = 32;
 

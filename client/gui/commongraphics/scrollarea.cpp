@@ -135,7 +135,13 @@ void ScrollArea::onPageHeightChange(int newHeight)
     }
 
     updateScrollBarByHeight();
+}
 
+void ScrollArea::setScrollPos(int amt)
+{
+    curItem_->setY(curItem_->y() + amt*G_SCALE);
+    updateScrollBarByItem();
+    update();
 }
 
 void ScrollArea::onPageScrollToPosition(int itemPos)
