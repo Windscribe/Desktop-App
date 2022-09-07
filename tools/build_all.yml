@@ -198,8 +198,14 @@ lib_files_linux:
     - lib/libQt6Network.so.6 -> lib/libQt6Network.so.6
     - lib/libQt6OpenGL.so.6 -> lib/libQt6OpenGL.so.6
     - lib/libQt6Svg.so.6 -> lib/libQt6Svg.so.6
+    - lib/libQt6WaylandClient.so.6 -> lib/libQt6WaylandClient.so.6
+    - lib/libQt6WaylandEglClientHwIntegration.so.6 -> lib/libQt6WaylandEglClientHwIntegration.so.6
+    - lib/libQt6WlShellIntegration.so.6 -> lib/libQt6WlShellIntegration.so.6
     - lib/libQt6Widgets.so.6 -> lib/libQt6Widgets.so.6
     - lib/libQt6XcbQpa.so.6 -> lib/libQt6XcbQpa.so.6
+    - plugins/platforms/libqwayland-generic.so -> plugins/platforms/libqwayland-generic.so
+    - plugins/platforms/libqwayland-egl.so -> plugins/platforms/libqwayland-egl.so
+    - plugins/platforms/libqxcb.so -> plugins/platforms/libqxcb.so
     - plugins/platforminputcontexts/libcomposeplatforminputcontextplugin.so -> plugins/platforminputcontexts/libcomposeplatforminputcontextplugin.so
     - plugins/platforminputcontexts/libibusplatforminputcontextplugin.so -> plugins/platforminputcontexts/libibusplatforminputcontextplugin.so
     - plugins/imageformats/libqico.so -> plugins/imageformats/libqico.so
@@ -209,6 +215,9 @@ lib_files_linux:
     - plugins/networkinformation/libqnetworkmanager.so -> plugins/networkinformation/libqnetworkmanager.so
     - plugins/platforms/libqxcb.so -> plugins/platforms/libqxcb.so
     - plugins/tls/libqopensslbackend.so -> plugins/tls/libqopensslbackend.so
+    - plugins/wayland-graphics-integration-client/libqt-plugin-wayland-egl.so -> plugins/wayland-graphics-integration-client/libqt-plugin-wayland-egl.so
+    - plugins/wayland-decoration-client/libbradient.so -> plugins/wayland-decoration-client/libbradient.so
+    - plugins/wayland-shell-integration/libxdg-shell.so -> plugins/wayland-shell-integration/libxdg-shell.so
     - plugins/xcbglintegrations/libqxcb-egl-integration.so -> plugins/xcbglintegrations/libqxcb-egl-integration.so
     - plugins/xcbglintegrations/libqxcb-glx-integration.so -> plugins/xcbglintegrations/libqxcb-glx-integration.so
 
