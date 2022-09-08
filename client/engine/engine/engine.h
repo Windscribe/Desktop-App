@@ -68,7 +68,7 @@ public:
     void getRobertFilters();
     void setRobertFilter(const types::RobertFilter &filter);
 
-    types::LoginSettings getLastLoginSettings();
+    LoginSettings getLastLoginSettings();
     QString getAuthHash();
     void clearCredentials();
 
@@ -232,7 +232,7 @@ private slots:
     void onReadyForNetworkRequests();
     void onLoginControllerStepMessage(LOGIN_MESSAGE msg);
 
-    void onServerLocationsAnswer(SERVER_API_RET_CODE retCode, const QVector<types::Location> &serverLocations,
+    void onServerLocationsAnswer(SERVER_API_RET_CODE retCode, const QVector<apiinfo::Location> &serverLocations,
                                  QStringList forceDisconnectNodes, uint userRole);
 
     void onSessionAnswer(SERVER_API_RET_CODE retCode, const types::SessionStatus &sessionStatus, uint userRole);
@@ -244,7 +244,7 @@ private slots:
     void onMyIpAnswer(const QString &ip, bool success, bool isDisconnected);
     void onDebugLogAnswer(SERVER_API_RET_CODE retCode, uint userRole);
     void onConfirmEmailAnswer(SERVER_API_RET_CODE retCode, uint userRole);
-    void onStaticIpsAnswer(SERVER_API_RET_CODE retCode, const types::StaticIps &staticIps, uint userRole);
+    void onStaticIpsAnswer(SERVER_API_RET_CODE retCode, const apiinfo::StaticIps &staticIps, uint userRole);
     void onWebSessionAnswer(SERVER_API_RET_CODE retCode, const QString &token, uint userRole);
     void onGetRobertFiltersAnswer(SERVER_API_RET_CODE retCode, const QVector<types::RobertFilter> &filters, uint userRole);
     void onSetRobertFilterAnswer(SERVER_API_RET_CODE retCode, uint userRole);
@@ -284,7 +284,7 @@ private slots:
     void onEmergencyControllerDisconnected(DISCONNECT_REASON reason);
     void onEmergencyControllerError(CONNECT_ERROR err);
 
-    void onRefetchServerCredentialsFinished(bool success, const types::ServerCredentials &serverCredentials, const QString &serverConfig);
+    void onRefetchServerCredentialsFinished(bool success, const apiinfo::ServerCredentials &serverCredentials, const QString &serverConfig);
 
     void getNewNotifications();
 
@@ -354,7 +354,7 @@ private:
     LOGIN_STATE loginState_;
     FirewallExceptions firewallExceptions_;
 
-    types::LoginSettings loginSettings_;
+    LoginSettings loginSettings_;
     QRecursiveMutex loginSettingsMutex_;
 
     QTimer *updateServerResourcesTimer_;
@@ -397,7 +397,7 @@ private:
     enum {UPDATE_SERVER_RESOURCES_PERIOD = 24 * 60 * 60 * 1000}; // 24 hours
     enum {NOTIFICATIONS_UPDATE_PERIOD = 60 * 60 * 1000}; // 1 hour
 
-    void startLoginController(const types::LoginSettings &loginSettings, bool bFromConnectedState);
+    void startLoginController(const LoginSettings &loginSettings, bool bFromConnectedState);
     void updateSessionStatus();
     void updateServerLocations();
     void updateFirewallSettings();

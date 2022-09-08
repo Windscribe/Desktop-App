@@ -3,7 +3,7 @@
 
 #include <QObject>
 #include <QSet>
-#include "types/staticips.h"
+#include "engine/apiinfo/staticips.h"
 
 class IHelper;
 
@@ -21,7 +21,7 @@ public:
     virtual bool firewallOff();
     virtual bool firewallActualState() = 0;
 
-    virtual bool whitelistPorts(const types::StaticIpPortsVector &ports);
+    virtual bool whitelistPorts(const apiinfo::StaticIpPortsVector &ports);
     virtual bool deleteWhitelistPorts();
 
     // Mac/Linux specific functions
@@ -34,7 +34,7 @@ protected:
     QSet<QString> latestIps_;
     bool latestAllowLanTraffic_;
     bool latestEnabledState_;
-    types::StaticIpPortsVector latestStaticIpPorts_;
+    apiinfo::StaticIpPortsVector latestStaticIpPorts_;
     bool bInitialized_;
     bool bStateChanged_;
 };

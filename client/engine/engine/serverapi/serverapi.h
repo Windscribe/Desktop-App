@@ -5,11 +5,11 @@
 #include <QTimer>
 #include "types/notification.h"
 #include "types/portmap.h"
-#include "types/staticips.h"
+#include "engine/apiinfo/staticips.h"
 #include "types/checkupdate.h"
 #include "types/proxysettings.h"
 #include "types/sessionstatus.h"
-#include "types/location.h"
+#include "engine/apiinfo/location.h"
 #include "types/robertfilter.h"
 #include "dnscache.h"
 #include "curlnetworkmanager.h"
@@ -86,7 +86,7 @@ signals:
     void loginAnswer(SERVER_API_RET_CODE retCode, const types::SessionStatus &sessionStatus, const QString &authHash,
                      uint userRole, const QString &errorMessage);
     void sessionAnswer(SERVER_API_RET_CODE retCode, const types::SessionStatus &sessionStatus, uint userRole);
-    void serverLocationsAnswer(SERVER_API_RET_CODE retCode, const QVector<types::Location> &serverLocations,
+    void serverLocationsAnswer(SERVER_API_RET_CODE retCode, const QVector<apiinfo::Location> &serverLocations,
                                QStringList forceDisconnectNodes, uint userRole);
     void serverCredentialsAnswer(SERVER_API_RET_CODE retCode, const QString &radiusUsername,
                                  const QString &radiusPassword, PROTOCOL protocol, uint userRole);
@@ -96,7 +96,7 @@ signals:
     void checkUpdateAnswer(const types::CheckUpdate &checkUpdate, bool bNetworkErrorOccured, uint userRole);
     void debugLogAnswer(SERVER_API_RET_CODE retCode, uint userRole);
     void confirmEmailAnswer(SERVER_API_RET_CODE retCode, uint userRole);
-    void staticIpsAnswer(SERVER_API_RET_CODE retCode, const types::StaticIps &staticIps, uint userRole);
+    void staticIpsAnswer(SERVER_API_RET_CODE retCode, const apiinfo::StaticIps &staticIps, uint userRole);
     void pingTestAnswer(SERVER_API_RET_CODE retCode, const QString &data);
     void notificationsAnswer(SERVER_API_RET_CODE retCode, QVector<types::Notification> notifications, uint userRole);
 

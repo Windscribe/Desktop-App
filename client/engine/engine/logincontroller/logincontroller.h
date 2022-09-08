@@ -7,7 +7,7 @@
 #include "getallconfigscontroller.h"
 #include "getapiaccessips.h"
 #include "types/dnsresolutionsettings.h"
-#include "types/loginsettings.h"
+#include "loginsettings.h"
 #include "engine/apiinfo/apiinfo.h"
 #include "engine/networkdetectionmanager/inetworkdetectionmanager.h"
 
@@ -25,7 +25,7 @@ public:
                              const QString &language, PROTOCOL protocol);
     virtual ~LoginController();
 
-    void startLoginProcess(const types::LoginSettings &loginSettings, const types::DnsResolutionSettings &dnsResolutionSettings, bool bFromConnectedToVPNState);
+    void startLoginProcess(const LoginSettings &loginSettings, const types::DnsResolutionSettings &dnsResolutionSettings, bool bFromConnectedToVPNState);
 
 signals:
     void readyForNetworkRequests();
@@ -35,11 +35,11 @@ signals:
 private slots:
     void onLoginAnswer(SERVER_API_RET_CODE retCode, const types::SessionStatus &sessionStatus, const QString &authHash, uint userRole, const QString &errorMessage);
     void onSessionAnswer(SERVER_API_RET_CODE retCode, const types::SessionStatus &sessionStatus, uint userRole);
-    void onServerLocationsAnswer(SERVER_API_RET_CODE retCode, const QVector<types::Location> &serverLocations, QStringList forceDisconnectNodes, uint userRole);
+    void onServerLocationsAnswer(SERVER_API_RET_CODE retCode, const QVector<apiinfo::Location> &serverLocations, QStringList forceDisconnectNodes, uint userRole);
     void onServerCredentialsAnswer(SERVER_API_RET_CODE retCode, const QString &radiusUsername, const QString &radiusPassword, PROTOCOL protocol, uint userRole);
     void onServerConfigsAnswer(SERVER_API_RET_CODE retCode, const QString &config, uint userRole);
     void onPortMapAnswer(SERVER_API_RET_CODE retCode, const types::PortMap &portMap, uint userRole);
-    void onStaticIpsAnswer(SERVER_API_RET_CODE retCode, const types::StaticIps &staticIps, uint userRole);
+    void onStaticIpsAnswer(SERVER_API_RET_CODE retCode, const apiinfo::StaticIps &staticIps, uint userRole);
 
     void onGetApiAccessIpsFinished(SERVER_API_RET_CODE retCode, const QStringList &hosts);
 
@@ -66,7 +66,7 @@ private:
     QString language_;
     PROTOCOL protocol_;
 
-    types::LoginSettings loginSettings_;
+    LoginSettings loginSettings_;
     QString newAuthHash_;
 
     types::DnsResolutionSettings dnsResolutionSettings_;

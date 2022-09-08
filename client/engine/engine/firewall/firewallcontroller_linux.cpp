@@ -91,7 +91,7 @@ bool FirewallController_linux::firewallActualState()
     return exitCode == 0;
 }
 
-bool FirewallController_linux::whitelistPorts(const types::StaticIpPortsVector &ports)
+bool FirewallController_linux::whitelistPorts(const apiinfo::StaticIpPortsVector &ports)
 {
     Q_UNUSED(ports);
     return true;
@@ -118,7 +118,7 @@ void FirewallController_linux::enableFirewallOnBoot(bool bEnable)
     //nothing todo for Linux
 }
 
-bool FirewallController_linux::firewallOnImpl(const QSet<QString> &ips, bool bAllowLanTraffic, const types::StaticIpPortsVector &ports)
+bool FirewallController_linux::firewallOnImpl(const QSet<QString> &ips, bool bAllowLanTraffic, const apiinfo::StaticIpPortsVector &ports)
 {
     // TODO: this is need for Linux?
     Q_UNUSED(ports);

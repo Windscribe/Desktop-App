@@ -1,103 +1,108 @@
 #include "location.h"
 
-#include <QDataStream>
-#include <QJsonObject>
-#include <QJsonValue>
 #include <QJsonArray>
-
-const int typeIdLocation = qRegisterMetaType<types::Location>("types::Location");
-const int typeIdLocations = qRegisterMetaType<QVector<types::Location>>("QVector<types::Location>");
+#include <QJsonDocument>
+#include <QJsonObject>
 
 namespace types {
 
-
-bool Location::initFromJson(const QJsonObject &obj, QStringList &forceDisconnectNodes)
+bool City::operator==(const City &other) const
 {
-    if (!obj.contains("id") || !obj.contains("name") || !obj.contains("country_code") ||
-            !obj.contains("premium_only") || !obj.contains("p2p") || !obj.contains("groups"))
+    return other.id == id &&
+           other.city == city &&
+           other.nick == nick &&
+           other.pingTimeMs == pingTimeMs &&
+           other.isPro == isPro &&
+           other.isDisabled == isDisabled &&
+           other.staticIpCountryCode == staticIpCountryCode &&
+           other.staticIpType == staticIpType &&
+           other.staticIp == staticIp &&
+           other.customConfigType == customConfigType &&
+           other.customConfigIsCorrect == customConfigIsCorrect &&
+           other.customConfigErrorMessage == customConfigErrorMessage &&
+           other.is10Gbps == is10Gbps &&
+           other.health == health;
+}
+
+bool City::operator!=(const City &other) const
+{
+    return !(*this == other);
+}
+
+bool Location::operator==(const Location &other) const
+{
+    return other.id == id &&
+           other.name == name &&
+           other.countryCode == countryCode &&
+           other.isPremiumOnly == isPremiumOnly &&
+           other.isNoP2P == isNoP2P &&
+           other.cities == cities;
+}
+
+bool Location::operator!=(const Location &other) const
+{
+    return !(*this == other);
+}
+
+QVector<Location> Location::loadLocationsFromJson(const QByteArray &arr)
+{
+    QVector<Location> locations;
+    QJsonDocument doc = QJsonDocument::fromJson(arr);
+    Q_ASSERT(doc.isObject());
+    QJsonArray jsonArr = doc.object()["locations"].toArray();
+    Q_ASSERT(!jsonArr.isEmpty());
+    for (const auto &item : jsonArr)
     {
-        d->isValid_ = false;
-        return false;
+        locations << locationFromJsonObject(item.toObject());
     }
 
-    d->id_ = obj["id"].toInt();
-    d->name_ = obj["name"].toString();
-    d->countryCode_ = obj["country_code"].toString();
-    d->premiumOnly_ = obj["premium_only"].toInt();
-    d->p2p_ = obj["p2p"].toInt();
-    if (obj.contains("dns_hostname"))
+    return locations;
+}
+
+Location Location::loadLocationFromJson(const QByteArray &arr)
+{
+    QJsonDocument doc = QJsonDocument::fromJson(arr);
+    Q_ASSERT(doc.isObject());
+    return locationFromJsonObject(doc.object());
+}
+
+Location Location::locationFromJsonObject(const QJsonObject &obj)
+{
+    Location location;
+    location.id = LocationID(obj["id"].toObject()["type"].toInt(),
+                             obj["id"].toObject()["id"].toInt(),
+                             obj["id"].toObject()["city"].toString());
+    location.name = obj["name"].toString();
+    location.countryCode = obj["country_code"].toString();
+    location.isPremiumOnly = obj["is_premium_only"].toBool();
+    location.isNoP2P = !obj["is_p2p_supported"].toBool();
+
+    for (const auto &c : obj["cities"].toArray())
     {
-        d->dnsHostName_ = obj["dns_hostname"].toString();
+        City city;
+        QJsonObject objCity = c.toObject();
+        city.id = LocationID(objCity["id"].toObject()["type"].toInt(),
+                objCity["id"].toObject()["id"].toInt(),
+                objCity["id"].toObject()["city"].toString());
+        city.city = objCity["name"].toString();
+        city.nick = objCity["nick"].toString();
+        city.pingTimeMs = objCity["ping_time"].toInt();
+        city.isPro = objCity["is_premium_only"].toBool();
+        city.isDisabled = objCity["is_disabled"].toBool();
+        city.staticIpCountryCode = objCity["static_ip_country_code"].toString();
+        city.staticIpType = objCity["static_ip_type"].toString();
+        city.staticIp = objCity["static_ip"].toString();
+        city.customConfigType = (objCity["custom_config_type"].toString() == "CUSTOM_CONFIG_OPENVPN" ? CUSTOM_CONFIG_OPENVPN : CUSTOM_CONFIG_WIREGUARD);
+        city.customConfigIsCorrect = objCity["custom_config_is_correct"].toBool();
+        city.customConfigErrorMessage = objCity["custom_config_error_message"].toString();
+        city.is10Gbps = (objCity["link_speed"].toInt() == 10000);
+        city.health = objCity["health"].toInt();
+        location.cities << city;
     }
-
-    const auto groupsArray = obj["groups"].toArray();
-    for (const QJsonValue &serverGroupValue : groupsArray)
-    {
-        QJsonObject objServerGroup = serverGroupValue.toObject();
-
-        Group group;
-        if (!group.initFromJson(objServerGroup, forceDisconnectNodes))
-        {
-            d->isValid_ = false;
-            return false;
-        }
-        d->groups_ << group;
-    }
-
-    d->isValid_ = true;
-    return true;
+    return location;
 }
 
-QStringList Location::getAllPingIps() const
-{
-    Q_ASSERT(d->isValid_);
-    QStringList ips;
-    for (const Group &g : d->groups_)
-    {
-        ips << g.getPingIp();
-    }
-    return ips;
-}
 
-bool Location::operator ==(const Location &other) const
-{
-    return d->id_ == other.d->id_ &&
-           d->name_ == other.d->name_ &&
-           d->countryCode_ == other.d->countryCode_ &&
-           d->premiumOnly_ == other.d->premiumOnly_ &&
-           d->p2p_ == other.d->p2p_ &&
-           d->dnsHostName_ == other.d->dnsHostName_ &&
-           d->groups_ == other.d->groups_ &&
-           d->isValid_ == other.d->isValid_;
-}
 
-bool Location::operator !=(const Location &other) const
-{
-    return !operator==(other);
-}
+} //namespace types
 
-QDataStream& operator <<(QDataStream& stream, const Location& l)
-{
-    Q_ASSERT(l.d->isValid_);
-    stream << l.versionForSerialization_;
-    stream << l.d->id_ << l.d->name_ << l.d->countryCode_ << l.d->premiumOnly_ << l.d->p2p_ << l.d->dnsHostName_ << l.d->groups_;
-    return stream;
-}
-
-QDataStream& operator >>(QDataStream& stream, Location& l)
-{
-    quint32 version;
-    stream >> version;
-    if (version > l.versionForSerialization_)
-    {
-        stream.setStatus(QDataStream::ReadCorruptData);
-        l.d->isValid_ = false;
-        return stream;
-    }
-    stream >> l.d->id_ >> l.d->name_ >> l.d->countryCode_ >> l.d->premiumOnly_ >> l.d->p2p_ >> l.d->dnsHostName_ >> l.d->groups_;
-    l.d->isValid_ = true;
-
-    return stream;
-}
-
-} // namespace types

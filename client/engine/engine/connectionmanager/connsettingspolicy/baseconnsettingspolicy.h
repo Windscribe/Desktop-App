@@ -1,7 +1,7 @@
 #ifndef BASECONNSETTINGSPOLICY_H
 #define BASECONNSETTINGSPOLICY_H
 
-#include "types/staticips.h"
+#include "engine/apiinfo/staticips.h"
 #include "types/portmap.h"
 #include "engine/wireguardconfig/wireguardconfig.h"
 
@@ -37,7 +37,7 @@ struct CurrentConnectionDescr
     // fields for static ips
     QString username;
     QString password;
-    types::StaticIpPortsVector staticIpPorts;
+    apiinfo::StaticIpPortsVector staticIpPorts;
 };
 
 // helper class for ConnectionManager

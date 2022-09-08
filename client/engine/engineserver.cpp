@@ -413,14 +413,10 @@ void EngineServer::sendEngineInitReturnCode(ENGINE_INIT_RET_CODE retCode)
 {
     if (retCode == ENGINE_INIT_SUCCESS)
     {
-        connect(engine_->getLocationsModel(), SIGNAL(locationsUpdated(LocationID, QString, QSharedPointer<QVector<types::LocationItem> >)),
-                SLOT(onEngineLocationsModelItemsUpdated(LocationID, QString, QSharedPointer<QVector<types::LocationItem> >)));
-        connect(engine_->getLocationsModel(), SIGNAL(bestLocationUpdated(LocationID)),
-                SLOT(onEngineLocationsModelBestLocationUpdated(LocationID)));
-        connect(engine_->getLocationsModel(), SIGNAL(customConfigsLocationsUpdated(QSharedPointer<QVector<types::LocationItem> >)),
-                SLOT(onEngineLocationsModelCustomConfigItemsUpdated(QSharedPointer<QVector<types::LocationItem> >)));
-        connect(engine_->getLocationsModel(), SIGNAL(locationPingTimeChanged(LocationID,PingTime)),
-                SLOT(onEngineLocationsModelPingChangedChanged(LocationID,PingTime)));
+        connect(engine_->getLocationsModel(), &locationsmodel::LocationsModel::locationsUpdated, this,  &EngineServer::onEngineLocationsModelItemsUpdated);
+        connect(engine_->getLocationsModel(), &locationsmodel::LocationsModel::bestLocationUpdated, this, &EngineServer::onEngineLocationsModelBestLocationUpdated);
+        connect(engine_->getLocationsModel(), &locationsmodel::LocationsModel::customConfigsLocationsUpdated, this, &EngineServer::onEngineLocationsModelCustomConfigItemsUpdated);
+        connect(engine_->getLocationsModel(), &locationsmodel::LocationsModel::locationPingTimeChanged, this, &EngineServer::onEngineLocationsModelPingChangedChanged);
 
         IPC::ServerCommands::InitFinished cmd(INIT_STATE_SUCCESS, curEngineSettings_, OpenVpnVersionController::instance().getAvailableOpenVpnVersions(),
                                               engine_->isWifiSharingSupported(), engine_->isApiSavedSettingsExists(), engine_->getAuthHash());
@@ -793,7 +789,7 @@ void EngineServer::onEngineWebSessionToken(WEB_SESSION_PURPOSE purpose, const QS
     sendCmdToAllAuthorizedAndGetStateClients(&cmd, true);
 }
 
-void EngineServer::onEngineLocationsModelItemsUpdated(const LocationID &bestLocation,  const QString &staticIpDeviceName, QSharedPointer<QVector<types::LocationItem> > items)
+void EngineServer::onEngineLocationsModelItemsUpdated(const LocationID &bestLocation,  const QString &staticIpDeviceName, QSharedPointer<QVector<types::Location> > items)
 {
     IPC::ServerCommands::LocationsUpdated cmd;
     cmd.bestLocation_ = bestLocation;
@@ -809,10 +805,10 @@ void EngineServer::onEngineLocationsModelBestLocationUpdated(const LocationID &b
     sendCmdToAllAuthorizedAndGetStateClients(&cmd, false);
 }
 
-void EngineServer::onEngineLocationsModelCustomConfigItemsUpdated(QSharedPointer<QVector<types::LocationItem> > items)
+void EngineServer::onEngineLocationsModelCustomConfigItemsUpdated(QSharedPointer<types::Location> item)
 {
     IPC::ServerCommands::CustomConfigLocationsUpdated cmd;
-    cmd.locations_ = *items;
+    cmd.location_ = *item;
     sendCmdToAllAuthorizedAndGetStateClients(&cmd, false);
 }
 

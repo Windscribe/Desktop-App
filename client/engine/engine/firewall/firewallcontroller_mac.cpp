@@ -191,38 +191,9 @@ bool FirewallController_mac::firewallActualState()
     }
 
     return isFirewallEnabled_;
-
-
-    /*if (helper_->currentState() != IHelper::STATE_CONNECTED)
-    {
-        Q_ASSERT(false);
-        qCDebug(LOG_FIREWALL_CONTROLLER) << "FATAL error: helper state is not connected";
-        return false;
-    }
-
-    // Additionally check the table "windscribe_ips", which will indicate that the firewall is enabled by our program.
-    QString tableReport = helper_->executeRootCommand("pfctl -t windscribe_ips -T show");
-    QString report = helper_->executeRootCommand("pfctl -si");
-    if (report.indexOf("Status: Enabled") != -1)
-    {
-        if (tableReport.isEmpty())
-        {
-            qCDebug(LOG_FIREWALL_CONTROLLER) << "FATAL error: firewall enabled, but windscribe_ips table doesn't exist. Probably 3rd party software intervention.";
-        }
-
-        return true;
-    }
-    else
-    {
-        if (!tableReport.isEmpty())
-        {
-            qCDebug(LOG_FIREWALL_CONTROLLER) << "FATAL error: firewall disabled, but windscribe_ips table exists.";
-        }
-        return false;
-    }*/
 }
 
-bool FirewallController_mac::whitelistPorts(const types::StaticIpPortsVector &ports)
+bool FirewallController_mac::whitelistPorts(const apiinfo::StaticIpPortsVector &ports)
 {
     QMutexLocker locker(&mutex_);
     if (!checkInternalVsPfctlState())
@@ -264,7 +235,7 @@ bool FirewallController_mac::whitelistPorts(const types::StaticIpPortsVector &po
 
 bool FirewallController_mac::deleteWhitelistPorts()
 {
-    return whitelistPorts(types::StaticIpPortsVector());
+    return whitelistPorts(apiinfo::StaticIpPortsVector());
 }
 
 void FirewallController_mac::firewallOffImpl()

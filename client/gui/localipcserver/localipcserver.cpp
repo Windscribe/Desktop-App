@@ -79,11 +79,11 @@ void LocalIPCServer::onConnectionCommandCallback(IPC::Command *command, IPC::ICo
         }
         else if (locationStr == "best")
         {
-            lid = backend_->getLocationsModel()->getBestLocationId();
+            lid = backend_->locationsModelManager()->getBestLocationId();
         }
         else
         {
-            lid = backend_->getLocationsModel()->findLocationByFilter(locationStr);
+            lid = backend_->locationsModelManager()->findLocationByFilter(locationStr);
         }
 
         IPC::CliCommands::ConnectToLocationAnswer cmd_send;

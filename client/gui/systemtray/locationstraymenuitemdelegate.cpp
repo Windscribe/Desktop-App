@@ -1,20 +1,16 @@
 #include "locationstraymenuitemdelegate.h"
-#include "locationstraymenuwidget.h"
-#include "locationstraymenuscalemanager.h"
-#include "graphicresources/imageresourcessvg.h"
 
 #include <QPainter>
 #include <QApplication>
-#include <QDebug>
+
+#include "locationstraymenuscalemanager.h"
+#include "graphicresources/imageresourcessvg.h"
+#include "commongraphics/commongraphics.h"
+#include "locations/locationsmodel_roles.h"
+#include "types/locationid.h"
 
 LocationsTrayMenuItemDelegate::LocationsTrayMenuItemDelegate(QObject *parent) : QItemDelegate(parent)
 {
-
-}
-
-LocationsTrayMenuItemDelegate::~LocationsTrayMenuItemDelegate()
-{
-
 }
 
 void LocationsTrayMenuItemDelegate::setFontForItems(const QFont &font)
@@ -28,13 +24,18 @@ void LocationsTrayMenuItemDelegate::paint(QPainter *painter, const QStyleOptionV
         return;
 
     QString text = index.model()->data(index, Qt::DisplayRole).toString();
-    const int flags = index.model()->data(index, LocationsTrayMenuWidget::USER_ROLE_FLAGS).toInt();
-    const bool bEnabled = flags & LocationsTrayMenuWidget::ITEM_FLAG_IS_ENABLED;
-    QSharedPointer<IndependentPixmap> flag = nullptr;
 
-    if (flags & LocationsTrayMenuWidget::ITEM_FLAG_HAS_COUNTRY) {
+    if (index.data(gui_locations::kIsShowAsPremium).toBool())
+    {
+        text += " (Pro)";
+    }
+
+    bool bEnabled = index.flags() & Qt::ItemIsEnabled;
+    QSharedPointer<IndependentPixmap> flag = nullptr;
+    LocationID lid = qvariant_cast<LocationID>(index.data(gui_locations::kLocationId));
+    if (!lid.isCustomConfigsLocation()) {
         flag = ImageResourcesSvg::instance().getScaledFlag(
-            index.model()->data(index, LocationsTrayMenuWidget::USER_ROLE_COUNTRY_CODE).toString(),
+            index.data(gui_locations::kCountryCode).toString(),
             20 * LocationsTrayMenuScaleManager::instance().scale(), 10 * LocationsTrayMenuScaleManager::instance().scale(), bEnabled ? 0 : ImageResourcesSvg::IMAGE_FLAG_GRAYED);
     }
     QRect rc = option.rect;
@@ -67,13 +68,15 @@ void LocationsTrayMenuItemDelegate::paint(QPainter *painter, const QStyleOptionV
             bEnabled ? QPalette::Active : QPalette::Disabled, QPalette::Text));
     }
 
+    text = CommonGraphics::maybeTruncatedText(text, font_, static_cast<int>(CITY_CAPTION_MAX_WIDTH * LocationsTrayMenuScaleManager::instance().scale()));
     rc.setLeft(rc.left() + leftOffs);
     QTextOption to;
     to.setAlignment(Qt::AlignVCenter);
     painter->setFont(font_);
     painter->drawText(rc, text, to);
 
-    if (flags & LocationsTrayMenuWidget::ITEM_FLAG_HAS_SUBMENU) {
+    if (index.model()->rowCount(index) > 0)
+    {
         QStyleOption ao(option);
         ao.rect.setLeft(ao.rect.right() - 20 * LocationsTrayMenuScaleManager::instance().scale());
         ao.palette.setCurrentColorGroup(bEnabled ? QPalette::Active : QPalette::Disabled);
@@ -93,11 +96,13 @@ QSize LocationsTrayMenuItemDelegate::sizeHint(const QStyleOptionViewItem &option
     return sz;
 }
 
-int LocationsTrayMenuItemDelegate::calcWidth(const QString &text, const QString &country, int flags) const
+int LocationsTrayMenuItemDelegate::calcWidth(const QModelIndex & index) const
 {
     QSharedPointer<IndependentPixmap> flag = nullptr;
-    if (flags & LocationsTrayMenuWidget::ITEM_FLAG_HAS_COUNTRY) {
-        flag = ImageResourcesSvg::instance().getScaledFlag( country,
+    LocationID lid = qvariant_cast<LocationID>(index.model()->data(index, gui_locations::kLocationId));
+    if (!lid.isCustomConfigsLocation()) {
+        flag = ImageResourcesSvg::instance().getScaledFlag(
+            index.model()->data(index, gui_locations::kCountryCode).toString(),
             20 * LocationsTrayMenuScaleManager::instance().scale(), 10 * LocationsTrayMenuScaleManager::instance().scale(), 0);
     }
 
@@ -107,11 +112,13 @@ int LocationsTrayMenuItemDelegate::calcWidth(const QString &text, const QString 
         width += flag->width() + 10 * LocationsTrayMenuScaleManager::instance().scale();
     }
 
+    QString text = index.model()->data(index, Qt::DisplayRole).toString();
+    text = CommonGraphics::maybeTruncatedText(text, font_, static_cast<int>(CITY_CAPTION_MAX_WIDTH * LocationsTrayMenuScaleManager::instance().scale()));
     QFontMetrics fm(font_);
     QRect rc = fm.boundingRect(text);
     width += rc.width();
 
-    if (flags & LocationsTrayMenuWidget::ITEM_FLAG_HAS_SUBMENU)
+    if (index.model()->rowCount(index) > 0)
     {
         width += 20 * LocationsTrayMenuScaleManager::instance().scale();
     }

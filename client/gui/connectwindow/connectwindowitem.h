@@ -45,12 +45,10 @@ public:
     void updateScaling() override;
 
 public slots:
-    void updateLocationInfo(LocationID id, const QString &firstName, const QString &secondName, const QString &countryCode, PingTime pingTime) override;
-    void updateLocationSpeed(LocationID id, PingTime speed) override;
+    void updateLocationInfo(const QString &firstName, const QString &secondName, const QString &countryCode, PingTime pingTime) override;
     void updateConnectState(const types::ConnectState & newConnectState) override;
     void updateFirewallState(bool isFirewallEnabled) override;
     void updateLocationsState(bool isExpanded) override;
-    void updateFavoriteState(LocationID id, bool isFavorite) override;
     void updateMyIp(const QString &ip) override;
     void updateNotificationsState(int totalMessages, int unread) override;
     void updateNetworkState(types::NetworkInterface network) override;
@@ -111,9 +109,6 @@ private:
     IconButton *networkTrustButton_;
 
     LogoNotificationsButton *logoButton_;
-
-    LocationID locationID_;
-    bool favorite_;
 
     types::ConnectState prevConnectState_;
     QString networkName_;

@@ -1,5 +1,4 @@
-#ifndef APIINFO_H
-#define APIINFO_H
+#pragma once
 
 #include <QDate>
 #include <QFile>
@@ -7,10 +6,10 @@
 #include <QSet>
 #include <QMap>
 #include "types/portmap.h"
-#include "types/servercredentials.h"
+#include "servercredentials.h"
 #include "utils/simplecrypt.h"
-#include "types/location.h"
-#include "types/staticips.h"
+#include "location.h"
+#include "staticips.h"
 #include "types/sessionstatus.h"
 
 namespace apiinfo {
@@ -23,14 +22,14 @@ public:
     types::SessionStatus getSessionStatus() const;
     void setSessionStatus(const types::SessionStatus &value);
 
-    void setLocations(const QVector<types::Location> &value);
-    QVector<types::Location> getLocations() const;
+    void setLocations(const QVector<apiinfo::Location> &value);
+    QVector<apiinfo::Location> getLocations() const;
 
     QStringList getForceDisconnectNodes() const;
     void setForceDisconnectNodes(const QStringList &value);
 
-    void setServerCredentials(const types::ServerCredentials &serverCredentials);
-    types::ServerCredentials getServerCredentials() const;
+    void setServerCredentials(const ServerCredentials &serverCredentials);
+    ServerCredentials getServerCredentials() const;
 
     QString getOvpnConfig() const;
     void setOvpnConfig(const QString &value);
@@ -43,8 +42,8 @@ public:
     types::PortMap getPortMap() const;
     void setPortMap(const types::PortMap &portMap);
 
-    void setStaticIps(const types::StaticIps &value);
-    types::StaticIps getStaticIps() const;
+    void setStaticIps(const StaticIps &value);
+    StaticIps getStaticIps() const;
 
     bool loadFromSettings();
     void saveToSettings();
@@ -54,12 +53,12 @@ private:
     void mergeWindflixLocations();
 
     types::SessionStatus sessionStatus_;
-    QVector<types::Location> locations_;
+    QVector<Location> locations_;
     QStringList forceDisconnectNodes_;
-    types::ServerCredentials serverCredentials_;
+    ServerCredentials serverCredentials_;
     QString ovpnConfig_;
     types::PortMap portMap_;
-    types::StaticIps staticIps_;
+    StaticIps staticIps_;
 
     SimpleCrypt simpleCrypt_;
 
@@ -75,4 +74,3 @@ private:
 
 } //namespace apiinfo
 
-#endif // APIINFO_H

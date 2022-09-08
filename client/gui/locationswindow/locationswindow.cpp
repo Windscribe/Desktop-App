@@ -1,22 +1,24 @@
 #include "locationswindow.h"
 
+#include <QApplication>
 #include <QPainter>
 #include <QtMath>
+
+#include "backend/persistentstate.h"
 #include "commongraphics/commongraphics.h"
-#include "graphicresources/imageresourcessvg.h"
-#include "languagecontroller.h"
 #include "dpiscalemanager.h"
 #include "graphicresources/fontmanager.h"
+#include "languagecontroller.h"
 
 #include <QDebug>
 
-LocationsWindow::LocationsWindow(QWidget *parent, Preferences *preferences, LocationsModel *locationsModel) : QWidget(parent)
+LocationsWindow::LocationsWindow(QWidget *parent, Preferences *preferences, gui_locations::LocationsModelManager *locationsModelManager) : QWidget(parent)
   , locationsTabHeightUnscaled_(LOCATIONS_TAB_HEIGHT_INIT)
   , bDragPressed_(false)
 {
     setMouseTracking(true);
 
-    locationsTab_ = new GuiLocations::LocationsTab(this, preferences, locationsModel);
+    locationsTab_ = new GuiLocations::LocationsTab(this, preferences, locationsModelManager);
     locationsTab_->setGeometry(0, 0, WINDOW_WIDTH * G_SCALE, qCeil(locationsTabHeightUnscaled_ * G_SCALE));
 
     footerTopStrip_ = new GuiLocations::FooterTopStrip(this);
@@ -24,12 +26,13 @@ LocationsWindow::LocationsWindow(QWidget *parent, Preferences *preferences, Loca
 
     connect(locationsTab_, SIGNAL(selected(LocationID)), SIGNAL(selected(LocationID)));
     connect(locationsTab_, SIGNAL(clickedOnPremiumStarCity()), SIGNAL(clickedOnPremiumStarCity()));
-    connect(locationsTab_, SIGNAL(switchFavorite(LocationID,bool)), SIGNAL(switchFavorite(LocationID,bool)));
     connect(locationsTab_, SIGNAL(addStaticIpClicked()), SIGNAL(addStaticIpClicked()));
     connect(locationsTab_, SIGNAL(clearCustomConfigClicked()), SIGNAL(clearCustomConfigClicked()));
     connect(locationsTab_, SIGNAL(addCustomConfigClicked()), SIGNAL(addCustomConfigClicked()));
 
     connect(&LanguageController::instance(), SIGNAL(languageChanged()), SLOT(onLanguageChanged()));
+
+    setCountVisibleItemSlots(PersistentState::instance().countVisibleLocations());
 }
 
 int LocationsWindow::tabAndFooterHeight() const
@@ -44,7 +47,7 @@ void LocationsWindow::setCountVisibleItemSlots(int cnt)
     locationsTabHeightUnscaled_ = locationsTab_->unscaledHeightOfItemViewport() + GuiLocations::LocationsTab::TAB_HEADER_HEIGHT;
     locationsTab_->setGeometry(0, 0, WINDOW_WIDTH * G_SCALE, qCeil(locationsTabHeightUnscaled_ * G_SCALE));
     updateFooterOverlayGeo();
-
+    PersistentState::instance().setCountVisibleLocations(getCountVisibleItems());
     emit heightChanged();
 }
 
@@ -56,17 +59,6 @@ int LocationsWindow::getCountVisibleItems()
 void LocationsWindow::setOnlyConfigTabVisible(bool onlyConfig)
 {
     locationsTab_->setOnlyConfigTabVisible(onlyConfig);
-}
-
-void LocationsWindow::handleKeyReleaseEvent(QKeyEvent *event)
-{
-    // qDebug() << "LocationsWindow::handleKeyReleaseEvent";
-    locationsTab_->handleKeyReleaseEvent(event);
-}
-
-void LocationsWindow::handleKeyPressEvent(QKeyEvent *event)
-{
-    locationsTab_->handleKeyPressEvent(event);
 }
 
 void LocationsWindow::updateLocationsTabGeometry()
@@ -85,11 +77,6 @@ void LocationsWindow::updateScaling()
     updateFooterOverlayGeo();
 }
 
-void LocationsWindow::setMuteAccentChanges(bool mute)
-{
-    locationsTab_->setMuteAccentChanges(mute);
-}
-
 void LocationsWindow::hideSearchTabWithoutAnimation()
 {
     locationsTab_->hideSearchTabWithoutAnimation();
@@ -98,6 +85,11 @@ void LocationsWindow::hideSearchTabWithoutAnimation()
 GuiLocations::LocationsTab::LocationTabEnum LocationsWindow::currentTab()
 {
     return locationsTab_->currentTab();
+}
+
+bool LocationsWindow::handleKeyPressEvent(QKeyEvent *event)
+{
+    return locationsTab_->handleKeyPressEvent(event);
 }
 
 void LocationsWindow::setLatencyDisplay(LATENCY_DISPLAY_TYPE l)

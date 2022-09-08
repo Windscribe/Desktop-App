@@ -1,7 +1,7 @@
 #ifndef FONTMANAGER_H
 #define FONTMANAGER_H
 
-#include <QMap>
+#include <QHash>
 #include <QSharedPointer>
 #include <QColor>
 #include "fontdescr.h"
@@ -44,7 +44,7 @@ private:
     FontManager();
     ~FontManager();
 
-    QMap<QString, QFont *> fonts_;
+    QHash<QString, QFont *> fonts_;
 
     void clearFontMap();
 };

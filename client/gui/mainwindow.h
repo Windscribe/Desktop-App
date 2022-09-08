@@ -17,11 +17,11 @@
 #include "freetrafficnotificationcontroller.h"
 #include "graphicresources/iconmanager.h"
 #include "guitest.h"
-#include "systemtray/locationstraymenutypes.h"
 #include "systemtray/locationstraymenunative.h"
-#include "systemtray/locationstraymenuwidget.h"
+#include "systemtray/locationstraymenu.h"
 #include "dialogs/advancedparametersdialog.h"
 #include "types/checkupdate.h"
+#include "locations/model/selectedlocation.h"
 #include "types/robertfilter.h"
 
 #if defined(Q_OS_MAC)
@@ -43,6 +43,8 @@ public:
     QRect trayIconRect();
     void showAfterLaunch();
 
+    bool handleKeyPressEvent(QKeyEvent *event);
+
 protected:
     bool event(QEvent *event);
     void closeEvent(QCloseEvent *event);
@@ -51,8 +53,6 @@ protected:
     virtual void mousePressEvent(QMouseEvent *event);
     virtual void mouseReleaseEvent(QMouseEvent *event);
 
-    virtual void keyPressEvent(QKeyEvent *event);
-    virtual void keyReleaseEvent(QKeyEvent *event);
 
     virtual void paintEvent(QPaintEvent *event);
 
@@ -146,9 +146,8 @@ private slots:
     void onExitWindowReject();
 
     // locations window signals
-    void onLocationSelected(LocationID id);
+    void onLocationSelected(const LocationID &lid);
     void onClickedOnPremiumStarCity();
-    void onLocationSwitchFavorite(LocationID id, bool isFavorite);
     void onLocationsAddStaticIpClicked();
     void onLocationsClearCustomConfigClicked();
     void onLocationsAddCustomConfigClicked();
@@ -196,11 +195,8 @@ private slots:
     void onBackendSetRobertFilterResult(bool success);
 
     void onBackendEngineCrash();
-    void onBackendLocationsUpdated();
 
     void onNotificationControllerNewPopupMessage(int messageId);
-
-    void onBestLocationChanged(const LocationID &bestLocation);
 
     // preferences changes signals
     void onPreferencesFirewallSettingsChanged(const types::FirewallSettings &fm);
@@ -252,7 +248,7 @@ private slots:
     void onTrayMenuHelpMe();
     void onTrayMenuQuit();
     void onTrayMenuAboutToShow();
-    void onLocationsTrayMenuLocationSelected(int type, QString locationTitle, int cityIndex);
+    void onLocationsTrayMenuLocationSelected(const LocationID &lid);
 
     void onFreeTrafficNotification(const QString &message);
     void onNativeInfoErrorMessage(QString title, QString desc);
@@ -271,6 +267,10 @@ private slots:
     void onAdvancedParametersCancelClick();
 
     void onWireGuardAtKeyLimit();
+
+    // Selected location signals
+    void onSelectedLocationChanged();
+    void onSelectedLocationRemoved();
 
 private:
     void gotoLoginWindow();
@@ -292,11 +292,9 @@ private:
 #ifndef Q_OS_LINUX
 
 #if defined(USE_LOCATIONS_TRAY_MENU_NATIVE)
-    LocationsTrayMenuNative locationsMenu_[LOCATIONS_TRAY_MENU_NUM_TYPES];
+    QVector<QSharedPointer<LocationsTrayMenuNative> > locationsMenu_;
 #else
-    QMenu locationsMenu_[LOCATIONS_TRAY_MENU_NUM_TYPES];
-    QWidgetAction *listWidgetAction_[LOCATIONS_TRAY_MENU_NUM_TYPES];
-    LocationsTrayMenuWidget *locationsTrayMenuWidget_[LOCATIONS_TRAY_MENU_NUM_TYPES];
+    QVector<QSharedPointer<LocationsTrayMenu> > locationsMenu_;
 #endif
 
 #endif
@@ -337,6 +335,8 @@ private:
     bool isLoginOkAndConnectWindowVisible_;
     static constexpr int TIME_BEFORE_SHOW_SHUTDOWN_WINDOW = 1500;   // ms
 
+    QScopedPointer<gui_locations::SelectedLocation> selectedLocation_;
+
     void hideSupplementaryWidgets();
 
     void backToLoginWithErrorMessage(ILoginWindow::ERROR_MESSAGE_TYPE errorMessageType, const QString &errorMessage);
@@ -364,7 +364,7 @@ private:
 
     void activateAndShow();
     void deactivateAndHide();
-    void loadTrayMenuItems();
+    void createTrayMenuItems();
 
     bool backendAppActiveState_;
     void setBackendAppActiveState(bool state);

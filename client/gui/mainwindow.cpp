@@ -60,13 +60,6 @@ MainWindow::MainWindow() :
     backend_(NULL),
     logViewerWindow_(nullptr),
     advParametersWindow_(nullptr),
-#ifndef Q_OS_LINUX
-    locationsMenu_(),
-#if !defined(USE_LOCATIONS_TRAY_MENU_NATIVE)
-    listWidgetAction_(),
-    locationsTrayMenuWidget_(),
-#endif
-#endif
     currentAppIconType_(AppIconType::DISCONNECTED),
     trayIcon_(),
     bNotificationConnectedShowed_(false),
@@ -178,20 +171,19 @@ MainWindow::MainWindow() :
     connect(backend_, &Backend::webSessionTokenForAddEmail, this, &MainWindow::onBackendWebSessionTokenForAddEmail);
     connect(backend_, &Backend::webSessionTokenForManageRobertRules, this, &MainWindow::onBackendWebSessionTokenForManageRobertRules);
     connect(backend_, &Backend::engineCrash, this, &MainWindow::onBackendEngineCrash);
-    connect(backend_, &Backend::locationsUpdated, this, &MainWindow::onBackendLocationsUpdated);
     connect(backend_, &Backend::wireGuardAtKeyLimit, this, &MainWindow::onWireGuardAtKeyLimit);
     connect(backend_, &Backend::robertFiltersChanged, this, &MainWindow::onBackendRobertFiltersChanged);
     connect(backend_, &Backend::setRobertFilterResult, this, &MainWindow::onBackendSetRobertFilterResult);
     notificationsController_.connect(backend_, &Backend::notificationsChanged, &notificationsController_, &NotificationsController::updateNotifications);
     connect(this, &MainWindow::wireGuardKeyLimitUserResponse, backend_, &Backend::wireGuardKeyLimitUserResponse);
 
-    locationsWindow_ = new LocationsWindow(this, backend_->getPreferences(), backend_->getLocationsModel());
+    locationsWindow_ = new LocationsWindow(this, backend_->getPreferences(), backend_->locationsModelManager());
     connect(locationsWindow_, &LocationsWindow::selected, this, &MainWindow::onLocationSelected);
     connect(locationsWindow_, &LocationsWindow::clickedOnPremiumStarCity, this, &MainWindow::onClickedOnPremiumStarCity);
-    connect(locationsWindow_, &LocationsWindow::switchFavorite, this, &MainWindow::onLocationSwitchFavorite);
     connect(locationsWindow_, &LocationsWindow::addStaticIpClicked, this, &MainWindow::onLocationsAddStaticIpClicked);
     connect(locationsWindow_, &LocationsWindow::clearCustomConfigClicked, this, &MainWindow::onLocationsClearCustomConfigClicked);
     connect(locationsWindow_, &LocationsWindow::addCustomConfigClicked, this, &MainWindow::onLocationsAddCustomConfigClicked);
+
     locationsWindow_->setLatencyDisplay(backend_->getPreferences()->latencyDisplay());
     locationsWindow_->connect(backend_->getPreferences(), &Preferences::latencyDisplayChanged, locationsWindow_, &LocationsWindow::setLatencyDisplay);
     locationsWindow_->setShowLocationLoad(backend_->getPreferences()->isShowLocationLoad());
@@ -208,12 +200,8 @@ MainWindow::MainWindow() :
     mainWindowController_->getConnectWindow()->updateMyIp(PersistentState::instance().lastExternalIp());
     mainWindowController_->getConnectWindow()->updateNotificationsState(notificationsController_.totalMessages(), notificationsController_.unreadMessages());
     dynamic_cast<QObject*>(mainWindowController_->getConnectWindow())->connect(&notificationsController_, SIGNAL(stateChanged(int, int)), SLOT(updateNotificationsState(int, int)));
-    dynamic_cast<QObject*>(mainWindowController_->getConnectWindow())->connect(
-        backend_->getLocationsModel(), SIGNAL(locationSpeedChanged(LocationID, PingTime)),
-        SLOT(updateLocationSpeed(LocationID, PingTime)));
-    connect(&notificationsController_, &NotificationsController::newPopupMessage, this, &MainWindow::onNotificationControllerNewPopupMessage);
 
-    connect(backend_->getLocationsModel(), &LocationsModel::bestLocationChanged, this, &MainWindow::onBestLocationChanged);
+    connect(&notificationsController_, &NotificationsController::newPopupMessage, this, &MainWindow::onNotificationControllerNewPopupMessage);
 
     connect(dynamic_cast<QObject*>(mainWindowController_->getNewsFeedWindow()), SIGNAL(messageRead(qint64)),
             &notificationsController_, SLOT(setNotificationRead(qint64)));
@@ -363,7 +351,10 @@ MainWindow::MainWindow() :
 
     setupTrayIcon();
 
-    backend_->getLocationsModel()->setOrderLocationsType(backend_->getPreferences()->locationOrder());
+    backend_->locationsModelManager()->setLocationOrder(backend_->getPreferences()->locationOrder());
+    selectedLocation_.reset(new gui_locations::SelectedLocation(backend_->locationsModelManager()->locationsModel()));
+    connect(selectedLocation_.get(), &gui_locations::SelectedLocation::changed, this, &MainWindow::onSelectedLocationChanged);
+    connect(selectedLocation_.get(), &gui_locations::SelectedLocation::removed, this, &MainWindow::onSelectedLocationRemoved);
 
     connect(&DpiScaleManager::instance(), &DpiScaleManager::scaleChanged, this, &MainWindow::onScaleChanged);
     connect(&DpiScaleManager::instance(), &DpiScaleManager::newScreen, this, &MainWindow::onDpiScaleManagerNewScreen);
@@ -524,8 +515,9 @@ void MainWindow::doClose(QCloseEvent *event, bool isFromSigTerm_mac)
     // objects.
     notificationsController_.shutdown();
 
-    // Save favorites here for the reason above.
-    backend_->getLocationsModel()->saveFavorites();
+    // Save favorites and persistent state here for the reason above.
+    PersistentState::instance().save();
+    backend_->locationsModelManager()->saveFavoriteLocations();
 
     if (WindscribeApplication::instance()->isExitWithRestart() || isFromSigTerm_mac)
     {
@@ -682,146 +674,14 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *event)
     }
 }
 
-void MainWindow::keyPressEvent(QKeyEvent *event)
+bool MainWindow::handleKeyPressEvent(QKeyEvent *event)
 {
-#ifdef QT_DEBUG
-    if (event->modifiers() & Qt::ControlModifier)
-    {
-        if (event->key() == Qt::Key_L)
-        {
-            gotoLoginWindow();
-        }
-        else if (event->key() == Qt::Key_E)
-        {
-            mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_EMERGENCY);
-        }
-        else if (event->key() == Qt::Key_Q)
-        {
-            mainWindowController_->expandPreferences();
-        }
-        else if (event->key() == Qt::Key_W)
-        {
-            collapsePreferences();
-        }
-        else if (event->key() == Qt::Key_A)
-        {
-            mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_LOGGING_IN);
-        }
-        else if (event->key() == Qt::Key_C)
-        {
-            mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_CONNECT);
-        }
-        else if (event->key() == Qt::Key_I)
-        {
-            mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_INITIALIZATION);
-        }
-        else if (event->key() == Qt::Key_Z)
-        {
-            mainWindowController_->expandLocations();
-        }
-        else if (event->key() == Qt::Key_X)
-        {
-            mainWindowController_->collapseLocations();
-        }
-        else if (event->key() == Qt::Key_N)
-        {
-            mainWindowController_->getNewsFeedWindow()->setMessages(
-                notificationsController_.messages(), notificationsController_.shownIds());
-            mainWindowController_->expandNewsFeed();
-        }
-        else if (event->key() == Qt::Key_V)
-        {
-            mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_EXTERNAL_CONFIG);
-        }
-        else if (event->key() == Qt::Key_O)
-        {
-            mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_UPGRADE);
-        }
-        else if (event->key() == Qt::Key_B)
-        {
-            mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_UPDATE);
-        }
-        else if (event->key() == Qt::Key_M)
-        {
-            mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_GENERAL_MESSAGE);
-        }
-        else if (event->key() == Qt::Key_D)
-        {
-            mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_EXIT);
-        }
-        else if (event->key() == Qt::Key_F)
-        {
-            mainWindowController_->changeWindow(MainWindowController::WINDOW_CMD_CLOSE_EXIT);
-        }
-        else if (event->key() == Qt::Key_U)
-        {
-            mainWindowController_->showUpdateWidget();
-        }
-        else if (event->key() == Qt::Key_Y)
-        {
-            mainWindowController_->hideUpdateWidget();
-        }
-        else if (event->key() == Qt::Key_G)
-        {
-        }
-        else if (event->key() == Qt::Key_H)
-        {
-            /*types::ShareSecureHotspot ss = backend_->getShareSecureHotspot();
-            ss.set_is_enabled(!ss.is_enabled());
-            ss.set_ssid("WifiName");
-            backend_->setShareSecureHotspot(ss);
-            */
-            mainWindowController_->getBottomInfoWindow()->setDaysRemaining(-1);
-        }
-        else if (event->key() == Qt::Key_J)
-        {
-            /*types::ShareProxyGateway sp = backend_->getShareProxyGateway();
-            sp.set_is_enabled(!sp.is_enabled());
-            backend_->setShareProxyGateway(sp);
-			*/
-            mainWindowController_->getBottomInfoWindow()->setDaysRemaining(3);
-        }
-        else if (event->key() == Qt::Key_P)
-        {
-            /*types::ShareSecureHotspot ss = backend_->getShareSecureHotspot();
-            ss.set_is_enabled(!ss.is_enabled());
-            ss.set_ssid("WifiName");
-            backend_->setShareSecureHotspot(ss);
-
-            types::ShareProxyGateway sp = backend_->getShareProxyGateway();
-            sp.set_is_enabled(!sp.is_enabled());
-            backend_->setShareProxyGateway(sp);
-			*/
-        }
-    }
-#endif
-    // for feeding chars to searchbar when mainwindow has focus
-    // qDebug() << "MainWindow::keyPressEvent";
-    if (mainWindowController_->isLocationsExpanded())
-    {
-        if(event->key() != Qt::Key_Escape || event->key() != Qt::Key_Space)
-        {
-            mainWindowController_->handleKeyPressEvent(event);
-        }
-    }
-
-    QWidget::keyPressEvent(event);
-}
-
-void MainWindow::keyReleaseEvent(QKeyEvent *event)
-{
-    // qDebug() << "MainWindow::keyReleaseEvent";
     if (mainWindowController_->isLocationsExpanded())
     {
         if(event->key() == Qt::Key_Escape || event->key() == Qt::Key_Space)
         {
-            // qCDebug(LOG_USER) << "Collapsing Locations [key]";
             mainWindowController_->collapseLocations();
-        }
-        else
-        {
-            // qCDebug(LOG_BASIC) << "Pass keyEvent to locations";
-            mainWindowController_->handleKeyReleaseEvent(event);
+            return true;
         }
     }
     else if (mainWindowController_->currentWindow() == MainWindowController::WINDOW_ID_CONNECT
@@ -829,16 +689,17 @@ void MainWindow::keyReleaseEvent(QKeyEvent *event)
     {
         if (event->key() == Qt::Key_Down || event->key() == Qt::Key_Space)
         {
-            // qCDebug(LOG_USER) << "Expanding Locations [key]";
             mainWindowController_->expandLocations();
+            return true;
         }
         else if (event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return)
         {
             onConnectWindowConnectClick();
+            return true;
         }
     }
 
-    QWidget::keyReleaseEvent(event);
+    return false;
 }
 
 void MainWindow::paintEvent(QPaintEvent *event)
@@ -963,7 +824,15 @@ void MainWindow::onConnectWindowConnectClick()
     if (backend_->isDisconnected())
     {
         mainWindowController_->collapseLocations();
-        backend_->sendConnect(PersistentState::instance().lastLocation());
+        if (!selectedLocation_->isValid())
+        {
+            LocationID bestLocation = backend_->locationsModelManager()->getBestLocationId();
+            Q_ASSERT(bestLocation.isValid());
+            selectedLocation_->set(bestLocation);
+            PersistentState::instance().setLastLocation(selectedLocation_->locationdId());
+            Q_ASSERT(selectedLocation_->isValid());
+        }
+        backend_->sendConnect(selectedLocation_->locationdId());
     }
     else
     {  
@@ -1043,6 +912,7 @@ void MainWindow::onPreferencesSignOutClick()
     QApplication::setOverrideCursor(Qt::WaitCursor);
     setEnabled(false);
     signOutReason_ = SIGN_OUT_FROM_MENU;
+    selectedLocation_->clear();
     backend_->signOut(false);
 }
 
@@ -1373,39 +1243,28 @@ void MainWindow::onExitWindowReject()
     }
 }
 
-void MainWindow::onLocationSelected(LocationID id)
+void MainWindow::onLocationSelected(const LocationID &lid)
 {
-    qCDebug(LOG_USER) << "Location selected:" << id.getHashString();
+    qCDebug(LOG_USER) << "Location selected:" << lid.getHashString();
 
-    LocationsModel::LocationInfo li;
-    if (backend_->getLocationsModel()->getLocationInfo(id, li))
+    selectedLocation_->set(lid);
+    PersistentState::instance().setLastLocation(selectedLocation_->locationdId());
+    if (selectedLocation_->isValid())
     {
-        mainWindowController_->getConnectWindow()->updateLocationInfo(li.id, li.firstName, li.secondName, li.countryCode, li.pingTime);
+        mainWindowController_->getConnectWindow()->updateLocationInfo(selectedLocation_->firstName(), selectedLocation_->secondName(),
+                                                                      selectedLocation_->countryCode(), selectedLocation_->pingTime());
         mainWindowController_->collapseLocations();
-        PersistentState::instance().setLastLocation(id);
-        backend_->sendConnect(id);
+        backend_->sendConnect(lid);
+    }
+    else
+    {
+        Q_ASSERT(false);
     }
 }
 
 void MainWindow::onClickedOnPremiumStarCity()
 {
     openUpgradeExternalWindow();
-}
-
-void MainWindow::onLocationSwitchFavorite(LocationID id, bool isFavorite)
-{
-    backend_->getLocationsModel()->switchFavorite(id, isFavorite);
-    mainWindowController_->getConnectWindow()->updateFavoriteState(id, isFavorite);
-
-    // Also switch favorite flag for the alternate location id; i.e. find the best location with the
-    // same city name, if we are currently processing a generic location, and vice versa.
-    LocationID altLocationId = id.isBestLocation() ? id.bestLocationToApiLocation() : id.apiLocationToBestLocation();
-    LocationsModel::LocationInfo li;
-    if (backend_->getLocationsModel()->getLocationInfo(altLocationId, li))
-    {
-        backend_->getLocationsModel()->switchFavorite(altLocationId, isFavorite);
-        mainWindowController_->getConnectWindow()->updateFavoriteState(altLocationId, isFavorite);
-    }
 }
 
 void MainWindow::onLocationsAddStaticIpClicked()
@@ -1585,22 +1444,21 @@ void MainWindow::onBackendLoginFinished(bool /*isLoginFromSavedSettings*/)
 
     if (!isLoginOkAndConnectWindowVisible_)
     {
-        // choose latest location
-        LocationsModel::LocationInfo li;
-        if (PersistentState::instance().lastLocation().isValid() && backend_->getLocationsModel()->getLocationInfo(PersistentState::instance().lastLocation(), li))
+        // choose latest saved location
+        selectedLocation_->set(PersistentState::instance().lastLocation());
+        if (!selectedLocation_->isValid())
         {
-            mainWindowController_->getConnectWindow()->updateLocationInfo(li.id, li.firstName, li.secondName, li.countryCode, li.pingTime);
-        }
-        else
-        {
-            LocationID bestLocation = backend_->getLocationsModel()->getBestLocationId();
-            if (backend_->getLocationsModel()->getLocationInfo(bestLocation, li))
+            LocationID bestLocation = backend_->locationsModelManager()->getBestLocationId();
+            Q_ASSERT(bestLocation.isValid());
+            if (!bestLocation.isValid())
             {
-                PersistentState::instance().setLastLocation(bestLocation);
-                mainWindowController_->getConnectWindow()->updateLocationInfo(li.id, li.firstName, li.secondName, li.countryCode, li.pingTime);
+                qCDebug(LOG_BASIC) << "Fatal error: MainWindow::onBackendLoginFinished, Q_ASSERT(bestLocation.isValid());";
             }
+            selectedLocation_->set(bestLocation);
+            PersistentState::instance().setLastLocation(selectedLocation_->locationdId());
         }
-
+        mainWindowController_->getConnectWindow()->updateLocationInfo(selectedLocation_->firstName(), selectedLocation_->secondName(),
+                                                                      selectedLocation_->countryCode(), selectedLocation_->pingTime());
         mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_CONNECT);
         isLoginOkAndConnectWindowVisible_ = true;
     }
@@ -1797,7 +1655,7 @@ void MainWindow::onBackendSessionStatusChanged(const types::SessionStatus &sessi
             // write entry into registry expired_user = username
             multipleAccountDetection_->userBecomeExpired(sessionStatus.getUsername());
 
-            if ((!PersistentState::instance().lastLocation().isCustomConfigsLocation()) &&
+            if ((!selectedLocation_->locationdId().isCustomConfigsLocation()) &&
                 (backend_->currentConnectState() == CONNECT_STATE_CONNECTED || backend_->currentConnectState() == CONNECT_STATE_CONNECTING))
             {
                 bDisconnectFromTrafficExceed_ = true;
@@ -1855,7 +1713,7 @@ void MainWindow::onBackendSessionStatusChanged(const types::SessionStatus &sessi
     if (status == 3)
     {
         blockConnect_.setBlockedBannedUser();
-        if ((!PersistentState::instance().lastLocation().isCustomConfigsLocation()) &&
+        if ((!selectedLocation_->locationdId().isCustomConfigsLocation()) &&
             (backend_->currentConnectState() == CONNECT_STATE_CONNECTED || backend_->currentConnectState() == CONNECT_STATE_CONNECTING))
         {
             backend_->sendDisconnect();
@@ -1923,10 +1781,9 @@ void MainWindow::onBackendMyIpChanged(QString ip, bool isFromDisconnectedState)
     }
     else
     {
-        LocationsModel::LocationInfo li;
-        if (backend_->getLocationsModel()->getLocationInfo(PersistentState::instance().lastLocation(), li))
+        if (selectedLocation_->isValid())
         {
-            updateTrayTooltip(tr("Connected to ") + li.firstName + "-" + li.secondName + "\n" + ip);
+            updateTrayTooltip(tr("Connected to ") + selectedLocation_->firstName() + "-" + selectedLocation_->secondName() + "\n" + ip);
         }
     }
 }
@@ -1938,14 +1795,18 @@ void MainWindow::onBackendConnectStateChanged(const types::ConnectState &connect
     if (connectState.location.isValid())
     {
         // if connecting/connected location not equal current selected location, then change current selected location and update in GUI
-        LocationID connectStateLocationId = connectState.location;
-        if (PersistentState::instance().lastLocation() != connectStateLocationId)
+        if (selectedLocation_->locationdId() != connectState.location)
         {
-            PersistentState::instance().setLastLocation( connectStateLocationId );
-            LocationsModel::LocationInfo li;
-            if (backend_->getLocationsModel()->getLocationInfo(PersistentState::instance().lastLocation(), li))
+            selectedLocation_->set(connectState.location);
+            PersistentState::instance().setLastLocation(selectedLocation_->locationdId());
+            if (selectedLocation_->isValid())
             {
-                mainWindowController_->getConnectWindow()->updateLocationInfo(li.id, li.firstName, li.secondName, li.countryCode, li.pingTime);
+                mainWindowController_->getConnectWindow()->updateLocationInfo(selectedLocation_->firstName(), selectedLocation_->secondName(),
+                                                                                      selectedLocation_->countryCode(), selectedLocation_->pingTime());
+            }
+            else {
+                qCDebug(LOG_BASIC) << "Fatal error: MainWindow::onBackendConnectStateChanged, Q_ASSERT(selectedLocation_.isValid());";
+                Q_ASSERT(false);
             }
         }
     }
@@ -1969,10 +1830,9 @@ void MainWindow::onBackendConnectStateChanged(const types::ConnectState &connect
         {
             if (!bNotificationConnectedShowed_)
             {
-                LocationsModel::LocationInfo li;
-                if (backend_->getLocationsModel()->getLocationInfo(PersistentState::instance().lastLocation(), li))
+                if (selectedLocation_->isValid())
                 {
-                    trayIcon_.showMessage("Windscribe", tr("You are now connected to Windscribe (%1).").arg(li.firstName + "-" + li.secondName));
+                    trayIcon_.showMessage("Windscribe", tr("You are now connected to Windscribe (%1).").arg(selectedLocation_->firstName() + "-" + selectedLocation_->secondName()));
                     bNotificationConnectedShowed_ = true;
                 }
             }
@@ -2102,26 +1962,20 @@ void MainWindow::onBackendGotoCustomOvpnConfigModeFinished()
     {
         // Choose latest location if it's a custom config location; first valid custom config
         // location otherwise.
-        LocationsModel::LocationInfo li;
-        const LocationID lastLocation{PersistentState::instance().lastLocation()};
-        if (lastLocation.isCustomConfigsLocation() &&
-            backend_->getLocationsModel()->getLocationInfo(lastLocation, li))
+        selectedLocation_->set(PersistentState::instance().lastLocation());
+        if (selectedLocation_->isValid() && selectedLocation_->locationdId().isCustomConfigsLocation())
         {
-            mainWindowController_->getConnectWindow()->updateLocationInfo(
-                li.id, li.firstName, li.secondName, li.countryCode, li.pingTime);
+            mainWindowController_->getConnectWindow()->updateLocationInfo(selectedLocation_->firstName(), selectedLocation_->secondName(),
+                                                                                  selectedLocation_->countryCode(), selectedLocation_->pingTime());
         }
         else
         {
-            const LocationID bestLocation{
-                backend_->getLocationsModel()->getFirstValidCustomConfigLocationId()};
-            if (bestLocation.isValid() &&
-                backend_->getLocationsModel()->getLocationInfo(bestLocation, li))
-            {
-                PersistentState::instance().setLastLocation(bestLocation);
-            }
-            // |li| can be empty here, so this will reset current location.
-            mainWindowController_->getConnectWindow()->updateLocationInfo(
-                li.id, li.firstName, li.secondName, li.countryCode, li.pingTime);
+            LocationID firstValidCustomLocation = backend_->locationsModelManager()->getFirstValidCustomConfigLocationId();
+            selectedLocation_->set(firstValidCustomLocation);
+            PersistentState::instance().setLastLocation(selectedLocation_->locationdId());
+            // |selectedLocation_| can be empty (nopt valid) here, so this will reset current location.
+            mainWindowController_->getConnectWindow()->updateLocationInfo(selectedLocation_->firstName(), selectedLocation_->secondName(),
+                                                                                  selectedLocation_->countryCode(), selectedLocation_->pingTime());
         }
 
         mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_CONNECT);
@@ -2203,6 +2057,7 @@ void MainWindow::onBackendSessionDeleted()
     QApplication::setOverrideCursor(Qt::WaitCursor);
     setEnabled(false);
     signOutReason_ = SIGN_OUT_SESSION_EXPIRED;
+    selectedLocation_->clear();
     backend_->signOut(true);
 }
 
@@ -2489,45 +2344,11 @@ void MainWindow::onBackendEngineCrash()
     mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_INITIALIZATION);
 }
 
-void MainWindow::onBackendLocationsUpdated()
-{
-    const auto currentLocation{ PersistentState::instance().lastLocation() };
-    if (!currentLocation.isCustomConfigsLocation())
-        return;
-
-    // Update custom config location info, because user could have selected another config path.
-    LocationsModel::LocationInfo li;
-    backend_->getLocationsModel()->getLocationInfo(currentLocation, li);
-    mainWindowController_->getConnectWindow()->updateLocationInfo(
-        li.id, li.firstName, li.secondName, li.countryCode, li.pingTime);
-}
-
 void MainWindow::onNotificationControllerNewPopupMessage(int messageId)
 {
     mainWindowController_->getNewsFeedWindow()->setMessagesWithCurrentOverride(
         notificationsController_.messages(), notificationsController_.shownIds(), messageId);
     mainWindowController_->expandNewsFeed();
-}
-
-void MainWindow::onBestLocationChanged(const LocationID &bestLocation)
-{
-    Q_UNUSED(bestLocation);
-    if (PersistentState::instance().lastLocation().isValid() &&  PersistentState::instance().lastLocation().isBestLocation())
-    {
-        if (backend_->isDisconnected())
-        {
-            PersistentState::instance().setLastLocation(bestLocation);
-        }
-        else
-        {
-            PersistentState::instance().setLastLocation(PersistentState::instance().lastLocation().bestLocationToApiLocation());
-        }
-        LocationsModel::LocationInfo li;
-        if (backend_->getLocationsModel()->getLocationInfo(PersistentState::instance().lastLocation(), li))
-        {
-            mainWindowController_->getConnectWindow()->updateLocationInfo(li.id, li.firstName, li.secondName, li.countryCode, li.pingTime);
-        }
-    }
 }
 
 void MainWindow::onPreferencesFirewallSettingsChanged(const types::FirewallSettings &fm)
@@ -2574,7 +2395,7 @@ void MainWindow::onPreferencesShareSecureHotspotChanged(const types::ShareSecure
 
 void MainWindow::onPreferencesLocationOrderChanged(ORDER_LOCATION_TYPE o)
 {
-    backend_->getLocationsModel()->setOrderLocationsType(o);
+    backend_->locationsModelManager()->setLocationOrder(o);
 }
 
 void MainWindow::onPreferencesSplitTunnelingChanged(types::SplitTunneling st)
@@ -3130,7 +2951,7 @@ void MainWindow::onMainWindowControllerSendServerRatingDown()
     backend_->speedRating(0, PersistentState::instance().lastExternalIp());
 }
 
-void MainWindow::loadTrayMenuItems()
+void MainWindow::createTrayMenuItems()
 {
     if (mainWindowController_->currentWindow() == MainWindowController::WINDOW_ID_CONNECT) // logged in
     {
@@ -3145,18 +2966,68 @@ void MainWindow::loadTrayMenuItems()
         trayMenu_.addSeparator();
 
 #ifndef Q_OS_LINUX
-        const auto *lm = backend_->getLocationsModel();
-        if (lm->getNumGenericLocations() > 0)
-            trayMenu_.addMenu(&locationsMenu_[LOCATIONS_TRAY_MENU_TYPE_GENERIC]);
-        if (lm->getNumFavoriteLocations() > 0)
-            trayMenu_.addMenu(&locationsMenu_[LOCATIONS_TRAY_MENU_TYPE_FAVORITES]);
-        if (lm->getNumStaticIPLocations() > 0)
-            trayMenu_.addMenu(&locationsMenu_[LOCATIONS_TRAY_MENU_TYPE_STATIC_IPS]);
-        if (lm->getNumCustomConfigLocations() > 0)
-            trayMenu_.addMenu(&locationsMenu_[LOCATIONS_TRAY_MENU_TYPE_CUSTOM_CONFIGS]);
 
-        trayMenu_.addSeparator();
+#ifdef USE_LOCATIONS_TRAY_MENU_NATIVE
+        if (backend_->locationsModelManager()->sortedLocationsProxyModel()->rowCount() > 0) {
+            QSharedPointer<LocationsTrayMenuNative> menu(new LocationsTrayMenuNative(nullptr, backend_->locationsModelManager()->sortedLocationsProxyModel()));
+            menu->setTitle(tr("Locations"));
+            trayMenu_.addMenu(menu.get());
+            connect(menu.get(), &LocationsTrayMenuNative::locationSelected, this, &MainWindow::onLocationsTrayMenuLocationSelected);
+            locationsMenu_.append(menu);
+        }
+        if (backend_->locationsModelManager()->favoriteCitiesProxyModel()->rowCount() > 0) {
+            QSharedPointer<LocationsTrayMenuNative> menu(new LocationsTrayMenuNative(nullptr, backend_->locationsModelManager()->favoriteCitiesProxyModel()));
+            menu->setTitle(tr("Favourites"));
+            trayMenu_.addMenu(menu.get());
+            connect(menu.get(), &LocationsTrayMenuNative::locationSelected, this, &MainWindow::onLocationsTrayMenuLocationSelected);
+            locationsMenu_.append(menu);
+        }
+        if (backend_->locationsModelManager()->staticIpsProxyModel()->rowCount() > 0) {
+            QSharedPointer<LocationsTrayMenuNative> menu(new LocationsTrayMenuNative(nullptr, backend_->locationsModelManager()->staticIpsProxyModel()));
+            menu->setTitle(tr("Static IPs"));
+            trayMenu_.addMenu(menu.get());
+            connect(menu.get(), &LocationsTrayMenuNative::locationSelected, this, &MainWindow::onLocationsTrayMenuLocationSelected);
+            locationsMenu_.append(menu);
+        }
+        if (backend_->locationsModelManager()->customConfigsProxyModel()->rowCount() > 0) {
+            QSharedPointer<LocationsTrayMenuNative> menu(new LocationsTrayMenuNative(nullptr, backend_->locationsModelManager()->customConfigsProxyModel()));
+            menu->setTitle(tr("Configured"));
+            trayMenu_.addMenu(menu.get());
+            connect(menu.get(), &LocationsTrayMenuNative::locationSelected, this, &MainWindow::onLocationsTrayMenuLocationSelected);
+            locationsMenu_.append(menu);
+        }
+#else
+        if (backend_->locationsModelManager()->sortedLocationsProxyModel()->rowCount() > 0) {
+            QSharedPointer<LocationsTrayMenu> menu(new LocationsTrayMenu(backend_->locationsModelManager()->sortedLocationsProxyModel(), trayMenu_.font()));
+            menu->setTitle(tr("Locations"));
+            trayMenu_.addMenu(menu.get());
+            connect(menu.get(), &LocationsTrayMenu::locationSelected, this, &MainWindow::onLocationsTrayMenuLocationSelected);
+            locationsMenu_.append(menu);
+        }
+        if (backend_->locationsModelManager()->favoriteCitiesProxyModel()->rowCount() > 0) {
+            QSharedPointer<LocationsTrayMenu> menu(new LocationsTrayMenu(backend_->locationsModelManager()->favoriteCitiesProxyModel(), trayMenu_.font()));
+            menu->setTitle(tr("Favourites"));
+            trayMenu_.addMenu(menu.get());
+            connect(menu.get(), &LocationsTrayMenu::locationSelected, this, &MainWindow::onLocationsTrayMenuLocationSelected);
+            locationsMenu_.append(menu);
+        }
+        if (backend_->locationsModelManager()->staticIpsProxyModel()->rowCount() > 0) {
+            QSharedPointer<LocationsTrayMenu> menu(new LocationsTrayMenu(backend_->locationsModelManager()->staticIpsProxyModel(), trayMenu_.font()));
+            menu->setTitle(tr("Static IPs"));
+            trayMenu_.addMenu(menu.get());
+            connect(menu.get(), &LocationsTrayMenu::locationSelected, this, &MainWindow::onLocationsTrayMenuLocationSelected);
+            locationsMenu_.append(menu);
+        }
+        if (backend_->locationsModelManager()->customConfigsProxyModel()->rowCount() > 0) {
+            QSharedPointer<LocationsTrayMenu> menu(new LocationsTrayMenu(backend_->locationsModelManager()->customConfigsProxyModel(), trayMenu_.font()));
+            menu->setTitle(tr("Configured"));
+            trayMenu_.addMenu(menu.get());
+            connect(menu.get(), &LocationsTrayMenu::locationSelected, this, &MainWindow::onLocationsTrayMenuLocationSelected);
+            locationsMenu_.append(menu);
+        }
 #endif
+#endif
+        trayMenu_.addSeparator();
     }
 
 #if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
@@ -3174,36 +3045,28 @@ void MainWindow::loadTrayMenuItems()
 #ifndef Q_OS_LINUX
 #if !defined(USE_LOCATIONS_TRAY_MENU_NATIVE)
     LocationsTrayMenuScaleManager::instance().setTrayIconGeometry(trayIcon_.geometry());
-    for (int i = 0; i < LOCATIONS_TRAY_MENU_NUM_TYPES; ++i) {
-        locationsTrayMenuWidget_[i]->setFontForItems(trayMenu_.font());
-        // Force geometry update of the menu, because widget size could have been changed.
-        // Send the resize event, so it will make the menu to rebuild its size based on items.
-        QResizeEvent resizeEvent(locationsTrayMenuWidget_[i]->size(), locationsMenu_[i].size());
-        qApp->sendEvent(&locationsMenu_[i], &resizeEvent);
-    }
 #endif
 #endif
 }
 
 void MainWindow::onTrayMenuAboutToShow()
 {
-    // qDebug() << "Tray menu about to show";
-
     trayMenu_.clear();
+#ifndef Q_OS_LINUX
+    locationsMenu_.clear();
+#endif
 #ifdef Q_OS_MAC
     if (!backend_->getPreferences()->isDockedToTray())
     {
-        loadTrayMenuItems();
+        createTrayMenuItems();
     }
 #else
-    loadTrayMenuItems();
+    createTrayMenuItems();
 #endif
 }
 
-void MainWindow::onLocationsTrayMenuLocationSelected(int type, QString locationTitle, int cityIndex)
+void MainWindow::onLocationsTrayMenuLocationSelected(const LocationID &lid)
 {
-    Q_ASSERT(type >= 0 && type < LOCATIONS_TRAY_MENU_NUM_TYPES);
-
    // close menu
 #ifdef Q_OS_WIN
     trayMenu_.close();
@@ -3212,65 +3075,9 @@ void MainWindow::onLocationsTrayMenuLocationSelected(int type, QString locationT
         listWidgetAction_[type]->trigger(); // close doesn't work by default on mac
     #endif
 #endif
-
-    const LocationsModel *lm = backend_->getLocationsModel();
-    if (type != LOCATIONS_TRAY_MENU_TYPE_GENERIC) {
-        auto id = (type == LOCATIONS_TRAY_MENU_TYPE_CUSTOM_CONFIGS)
-            ? lm->findCustomConfigLocationByTitle(locationTitle)
-            : lm->findGenericLocationByTitle(locationTitle);
-        if (id.isValid())
-            onLocationSelected(id);
-        return;
-    }
-
-    const auto lmi = lm->getLocationModelItemByTitle(locationTitle);
-    if (!lmi) {
-        qCDebug(LOG_BASIC) << "Couldn't find city by that region (" << locationTitle << ")";
-        return;
-    }
-    if (lmi->id.isStaticIpsLocation() || lmi->id.isCustomConfigsLocation()) {
-        qCDebug(LOG_BASIC) << "StaticIPs/CustomConfig region (" << locationTitle << ")";
-        return;
-    }
-
-    const bool is_premium = backend_->getSessionStatus().isPremium();
-    if (cityIndex >= 0) {
-        for (const auto &city : lmi->cities) {
-            if (cityIndex--)
-                continue;
-            if (is_premium || !city.bShowPremiumStarOnly)
-                onLocationSelected(city.id);
-            break;
-        }
-        return;
-    }
-
-    // Count valid cities.
-    int city_count = 0;
-    if (is_premium) {
-        city_count = lmi->cities.count();
-    } else for (const auto &city : lmi->cities) {
-        if (!city.bShowPremiumStarOnly)
-            ++city_count;
-    }
-    if (!city_count) {
-        qCDebug(LOG_BASIC) << "No valid cities in the region (" << locationTitle << ")";
-        return;
-    }
-
-    // connect to random node in region
-    int number = Utils::generateIntegerRandom(1, city_count);
-    qCDebug(LOG_BASIC) << "Connecting to city " << number << "/" << city_count
-                       << " in the region (" << locationTitle << ")";
-    for (const auto &city : lmi->cities) {
-        if (!is_premium && city.bShowPremiumStarOnly)
-            continue;
-        if (!--number) {
-            onLocationSelected(city.id);
-            break;
-        }
-    }
+    onLocationSelected(lid);
 }
+
 
 void MainWindow::onScaleChanged()
 {
@@ -3375,6 +3182,7 @@ void MainWindow::backToLoginWithErrorMessage(ILoginWindow::ERROR_MESSAGE_TYPE er
     signOutMessageType_ = errorMessageType;
     signOutReason_ = SIGN_OUT_WITH_MESSAGE;
     signOutErrorMessage_ = errorMessage;
+    selectedLocation_->clear();
     backend_->signOut(false);
 }
 
@@ -3384,33 +3192,6 @@ void MainWindow::setupTrayIcon()
 
     trayIcon_.setContextMenu(&trayMenu_);
     connect(&trayMenu_, &QMenu::aboutToShow, this, &MainWindow::onTrayMenuAboutToShow);
-
-#ifndef Q_OS_LINUX
-    const QString kLocationTrayMenuNames[] = {
-      tr("Locations"),   // LOCATIONS_TRAY_MENU_TYPE_GENERIC
-      tr("Favourites"),  // LOCATIONS_TRAY_MENU_TYPE_FAVORITES
-      tr("Static IPs"),  // LOCATIONS_TRAY_MENU_TYPE_STATIC_IPS
-      tr("Configured"),  // LOCATIONS_TRAY_MENU_TYPE_CUSTOM_CONFIGS
-    };
-
-    for (int i = 0; i < LOCATIONS_TRAY_MENU_NUM_TYPES; ++i) {
-        locationsMenu_[i].setTitle(kLocationTrayMenuNames[i]);
-#if defined(USE_LOCATIONS_TRAY_MENU_NATIVE)
-        locationsMenu_[i].setMenuType(static_cast<LocationsTrayMenuType>(i));
-        locationsMenu_[i].setLocationsModel(backend_->getLocationsModel());
-        connect(&locationsMenu_[i], &LocationsTrayMenuNative::locationSelected, this, &MainWindow::onLocationsTrayMenuLocationSelected);
-#else  // USE_LOCATIONS_TRAY_MENU_NATIVE
-        locationsTrayMenuWidget_[i] = new LocationsTrayMenuWidget(
-            static_cast<LocationsTrayMenuType>(i), &locationsMenu_[i]);
-        locationsTrayMenuWidget_[i]->setLocationsModel(backend_->getLocationsModel());
-        listWidgetAction_[i] = new QWidgetAction(&locationsMenu_[i]);
-        listWidgetAction_[i]->setDefaultWidget(locationsTrayMenuWidget_[i]);
-        locationsMenu_[i].addAction(listWidgetAction_[i]);
-        connect(locationsTrayMenuWidget_[i], &LocationsTrayMenuWidget::locationSelected, this, &MainWindow::onLocationsTrayMenuLocationSelected);
-#endif  // USE_LOCATIONS_TRAY_MENU_NATIVE
-    }
-
-#endif
 
     updateAppIconType(AppIconType::DISCONNECTED);
     updateTrayIconType(AppIconType::DISCONNECTED);
@@ -3490,19 +3271,15 @@ void MainWindow::handleDisconnectWithError(const types::ConnectState &connectSta
     }
     else if (connectState.connectError == LOCATION_NOT_EXIST || connectState.connectError == LOCATION_NO_ACTIVE_NODES)
     {
-        if (!PersistentState::instance().lastLocation().isBestLocation())
+        qCDebug(LOG_BASIC) << "Location not exist or no active nodes, try connect to best location";
+        LocationID bestLocation = backend_->locationsModelManager()->getBestLocationId();
+        selectedLocation_->set(bestLocation);
+        PersistentState::instance().setLastLocation(selectedLocation_->locationdId());
+        if (selectedLocation_->isValid())
         {
-            qCDebug(LOG_BASIC) << "Location not exist or no active nodes, try connect to best location";
-            const LocationID bestLocation{backend_->getLocationsModel()->getBestLocationId()};
-            if (bestLocation.isValid()) {
-                PersistentState::instance().setLastLocation(bestLocation);
-                LocationsModel::LocationInfo li;
-                if (backend_->getLocationsModel()->getLocationInfo(PersistentState::instance().lastLocation(), li))
-                {
-                    mainWindowController_->getConnectWindow()->updateLocationInfo(li.id, li.firstName, li.secondName, li.countryCode, li.pingTime);
-                }
-                onConnectWindowConnectClick();
-            }
+            mainWindowController_->getConnectWindow()->updateLocationInfo(selectedLocation_->firstName(), selectedLocation_->secondName(),
+                                                                                  selectedLocation_->countryCode(), selectedLocation_->pingTime());
+            onConnectWindowConnectClick();
         }
         else
         {
@@ -3585,17 +3362,14 @@ void MainWindow::handleDisconnectWithError(const types::ConnectState &connectSta
     }
     else if (connectState.connectError == CANNOT_OPEN_CUSTOM_CONFIG)
     {
-        const LocationID bestLocation{backend_->getLocationsModel()->getBestLocationId()};
-        if (bestLocation.isValid()) {
-            PersistentState::instance().setLastLocation(bestLocation);
-            LocationsModel::LocationInfo li;
-            if (backend_->getLocationsModel()->getLocationInfo(
-                PersistentState::instance().lastLocation(), li)) {
-                mainWindowController_->getConnectWindow()->updateLocationInfo(
-                    li.id, li.firstName, li.secondName, li.countryCode, li.pingTime);
-            }
+        LocationID bestLocation{backend_->locationsModelManager()->getBestLocationId()};
+        if (bestLocation.isValid())
+        {
+            selectedLocation_->set(bestLocation);
+            PersistentState::instance().setLastLocation(selectedLocation_->locationdId());
+            mainWindowController_->getConnectWindow()->updateLocationInfo(selectedLocation_->firstName(), selectedLocation_->secondName(),
+                                                                                  selectedLocation_->countryCode(), selectedLocation_->pingTime());
         }
-
         msg = tr("Failed to setup custom openvpn configuration.");
     }
     else if(connectState.connectError == WINTUN_DRIVER_REINSTALLATION_ERROR)
@@ -3747,4 +3521,40 @@ void MainWindow::onWireGuardAtKeyLimit()
         QMessageBox::Ok | QMessageBox::Cancel);
 
     Q_EMIT wireGuardKeyLimitUserResponse(result == QMessageBox::Ok);
+}
+
+void MainWindow::onSelectedLocationChanged()
+{
+    Q_ASSERT(selectedLocation_->isValid());
+    // If the best location has changed and we are not disconnected, then transform the current location into a normal one.
+    if (selectedLocation_->locationdId().isBestLocation())
+    {
+        Q_ASSERT(selectedLocation_->prevLocationdId().isBestLocation());
+        if (!backend_->isDisconnected())
+        {
+            selectedLocation_->set(selectedLocation_->prevLocationdId().bestLocationToApiLocation());
+            PersistentState::instance().setLastLocation(selectedLocation_->locationdId());
+            if (!selectedLocation_->isValid())
+            {
+                // Just don't update the connect window in this case
+                return;
+            }
+        }
+    }
+    mainWindowController_->getConnectWindow()->updateLocationInfo(selectedLocation_->firstName(), selectedLocation_->secondName(),
+                                                                          selectedLocation_->countryCode(), selectedLocation_->pingTime());
+}
+
+void MainWindow::onSelectedLocationRemoved()
+{
+    if (backend_->isDisconnected())
+    {
+        LocationID bestLocation = backend_->locationsModelManager()->getBestLocationId();
+        Q_ASSERT(bestLocation.isValid());
+        selectedLocation_->set(bestLocation);
+        Q_ASSERT(selectedLocation_->isValid());
+        PersistentState::instance().setLastLocation(selectedLocation_->locationdId());
+        mainWindowController_->getConnectWindow()->updateLocationInfo(selectedLocation_->firstName(), selectedLocation_->secondName(),
+                                                                      selectedLocation_->countryCode(), selectedLocation_->pingTime());
+    }
 }

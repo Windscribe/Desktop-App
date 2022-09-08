@@ -10,7 +10,7 @@
 #include "ipc/servercommands.h"
 #include "types/locationid.h"
 #include "types/upgrademodetype.h"
-#include "locationsmodel/locationsmodel.h"
+#include "locations/locationsmodel_manager.h"
 #include "preferences/preferences.h"
 #include "preferences/preferenceshelper.h"
 #include "preferences/accountinfo.h"
@@ -88,7 +88,7 @@ public:
     void sendAdvancedParametersChanged();
     void sendEngineSettingsIfChanged();
 
-    LocationsModel *getLocationsModel();
+    gui_locations::LocationsModelManager *locationsModelManager();
 
     PreferencesHelper *getPreferencesHelper();
     Preferences *getPreferences();
@@ -141,7 +141,6 @@ signals:
     void networkChanged(types::NetworkInterface interface);
     void sessionStatusChanged(const types::SessionStatus &sessionStatus);
     void checkUpdateChanged(const types::CheckUpdate &checkUpdateInfo);
-    void locationsUpdated();
     void splitTunnelingStateChanged(bool isActive);
 
     void confirmEmailResult(bool bSuccess);
@@ -187,7 +186,7 @@ private:
 
     quint32 cmdId_;
 
-    LocationsModel *locationsModel_;
+    gui_locations::LocationsModelManager *locationsModelManager_;
 
     bool isFirewallEnabled_;
 

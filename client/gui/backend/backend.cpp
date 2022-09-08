@@ -20,7 +20,7 @@ Backend::Backend(QObject *parent) : QObject(parent),
 {
     preferences_.loadGuiSettings();
 
-    locationsModel_ = new LocationsModel(this);
+    locationsModelManager_ = new gui_locations::LocationsModelManager(this);
 
     connect(&connectStateHelper_, SIGNAL(connectStateChanged(types::ConnectState)), SIGNAL(connectStateChanged(types::ConnectState)));
     connect(&emergencyConnectStateHelper_, SIGNAL(connectStateChanged(types::ConnectState)), SIGNAL(emergencyConnectStateChanged(types::ConnectState)));
@@ -370,9 +370,9 @@ void Backend::sendEngineSettingsIfChanged()
     }
 }
 
-LocationsModel *Backend::getLocationsModel()
+gui_locations::LocationsModelManager *Backend::locationsModelManager()
 {
-    return locationsModel_;
+    return locationsModelManager_;
 }
 
 PreferencesHelper *Backend::getPreferencesHelper()
@@ -472,31 +472,30 @@ void Backend::onConnectionNewCommand(IPC::Command *command)
     {
         IPC::ServerCommands::SessionStatusUpdated *cmd = static_cast<IPC::ServerCommands::SessionStatusUpdated *>(command);
         latestSessionStatus_ = cmd->getSessionStatus();
-        locationsModel_->setFreeSessionStatus(!latestSessionStatus_.isPremium());
+        locationsModelManager_->setFreeSessionStatus(!latestSessionStatus_.isPremium());
         updateAccountInfo();
         Q_EMIT sessionStatusChanged(latestSessionStatus_);
     }
     else if (command->getStringId() == IPC::ServerCommands::LocationsUpdated::getCommandStringId())
     {
         IPC::ServerCommands::LocationsUpdated *cmd = static_cast<IPC::ServerCommands::LocationsUpdated *>(command);
-        locationsModel_->updateApiLocations(cmd->bestLocation_, cmd->staticIpDeviceName_, cmd->locations_);
-        Q_EMIT locationsUpdated();
+        locationsModelManager_->updateLocations(cmd->bestLocation_, cmd->locations_);
+        locationsModelManager_->updateDeviceName(cmd->staticIpDeviceName_);
     }
     else if (command->getStringId() == IPC::ServerCommands::BestLocationUpdated::getCommandStringId())
     {
         IPC::ServerCommands::BestLocationUpdated *cmd = static_cast<IPC::ServerCommands::BestLocationUpdated *>(command);
-        locationsModel_->updateBestLocation(cmd->bestLocation_);
+        locationsModelManager_->updateBestLocation(cmd->bestLocation_);
     }
     else if (command->getStringId() == IPC::ServerCommands::CustomConfigLocationsUpdated::getCommandStringId())
     {
         IPC::ServerCommands::CustomConfigLocationsUpdated *cmd = static_cast<IPC::ServerCommands::CustomConfigLocationsUpdated *>(command);
-        locationsModel_->updateCustomConfigLocations(cmd->locations_);
-        Q_EMIT locationsUpdated();
+        locationsModelManager_->updateCustomConfigLocation(cmd->location_);
     }
     else if (command->getStringId() == IPC::ServerCommands::LocationSpeedChanged::getCommandStringId())
     {
         IPC::ServerCommands::LocationSpeedChanged *cmd = static_cast<IPC::ServerCommands::LocationSpeedChanged *>(command);
-        locationsModel_->changeConnectionSpeed(cmd->id_, cmd->pingTime_);
+        locationsModelManager_->changeConnectionSpeed(cmd->id_, cmd->pingTime_);
     }
     else if (command->getStringId() == IPC::ServerCommands::ConnectStateChanged::getCommandStringId())
     {

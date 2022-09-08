@@ -5,5 +5,7 @@ target_sources(engine PRIVATE
     getapiaccessips.h
     logincontroller.cpp
     logincontroller.h
+    loginsettings.cpp
+    loginsettings.h
 )
 

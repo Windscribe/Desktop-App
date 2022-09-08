@@ -40,10 +40,11 @@ public:
     void setAppGeometry(const QByteArray& geometry);
     const QByteArray& appGeometry() const;
 
+    void save();
+
 private:
     PersistentState();
     void load();
-    void save();
 
     types::GuiPersistentState state_;
 

@@ -47,22 +47,15 @@ set(PROJECT_SOURCES
     ${COMMON_PATH}/types/enums.cpp
     ${COMMON_PATH}/types/enums.h
     ${COMMON_PATH}/types/firewallsettings.h
-    ${COMMON_PATH}/types/group.cpp
-    ${COMMON_PATH}/types/group.h
     ${COMMON_PATH}/types/guipersistentstate.h
     ${COMMON_PATH}/types/guisettings.h
     ${COMMON_PATH}/types/global_consts.h
-    ${COMMON_PATH}/types/location.cpp
-    ${COMMON_PATH}/types/location.h
     ${COMMON_PATH}/types/locationid.cpp
     ${COMMON_PATH}/types/locationid.h
-    ${COMMON_PATH}/types/locationitem.h
-    ${COMMON_PATH}/types/loginsettings.cpp
-    ${COMMON_PATH}/types/loginsettings.h
+    ${COMMON_PATH}/types/location.cpp
+    ${COMMON_PATH}/types/location.h
     ${COMMON_PATH}/types/macaddrspoofing.h
     ${COMMON_PATH}/types/networkinterface.h
-    ${COMMON_PATH}/types/node.cpp
-    ${COMMON_PATH}/types/node.h
     ${COMMON_PATH}/types/notification.cpp
     ${COMMON_PATH}/types/notification.h
     ${COMMON_PATH}/types/packetsize.h
@@ -75,15 +68,11 @@ set(PROJECT_SOURCES
     ${COMMON_PATH}/types/proxysharinginfo.h
     ${COMMON_PATH}/types/robertfilter.cpp
     ${COMMON_PATH}/types/robertfilter.h
-    ${COMMON_PATH}/types/servercredentials.cpp
-    ${COMMON_PATH}/types/servercredentials.h
     ${COMMON_PATH}/types/sessionstatus.cpp
     ${COMMON_PATH}/types/sessionstatus.h
     ${COMMON_PATH}/types/shareproxygateway.h
     ${COMMON_PATH}/types/sharesecurehotspot.h
     ${COMMON_PATH}/types/splittunneling.h
-    ${COMMON_PATH}/types/staticips.cpp
-    ${COMMON_PATH}/types/staticips.h
     ${COMMON_PATH}/types/wifisharinginfo.h
     ${COMMON_PATH}/types/wireguardtypes.h
     ${COMMON_PATH}/utils/clean_sensitive_info.cpp

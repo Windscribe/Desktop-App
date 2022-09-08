@@ -13,7 +13,7 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(Qt6 REQUIRED COMPONENTS Widgets Network)
+find_package(Qt6 REQUIRED COMPONENTS Widgets Network Test)
 
 # build_all.py sets this option when invoked with the '--sign' flag. Disabled by default
 OPTION(DEFINE_USE_SIGNATURE_CHECK_MACRO "Add define USE_SIGNATURE_CHECK to project" OFF)
@@ -21,7 +21,11 @@ IF(DEFINE_USE_SIGNATURE_CHECK_MACRO)
     ADD_DEFINITIONS(-DUSE_SIGNATURE_CHECK)
 ENDIF(DEFINE_USE_SIGNATURE_CHECK_MACRO)
 
+set(IS_BUILD_TESTS "1")
+
 set(WINDSCRIBE_BUILD_LIBS_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../build-libs)
+
+set(PROJECT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 
 set(PROJECT_SOURCES
         main.cpp
@@ -115,7 +119,7 @@ if (APPLE)
     if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../backend/mac/provisioning_profile/embedded.provisionprofile")
         add_custom_command(TARGET Windscribe POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
                            "${CMAKE_CURRENT_SOURCE_DIR}/../backend/mac/provisioning_profile/embedded.provisionprofile" $<TARGET_FILE_DIR:Windscribe>/../embedded.provisionprofile)
-    endif()
+        endif()
 
     add_custom_command(TARGET Windscribe POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
                        ${CMAKE_CURRENT_SOURCE_DIR}/../installer/mac/binaries/windscribe-cli $<TARGET_FILE_DIR:Windscribe>/windscribe-cli)
@@ -146,4 +150,9 @@ add_subdirectory(gui)
 add_subdirectory(common)
 
 qt_finalize_executable(Windscribe)
+
+if(DEFINED IS_BUILD_TESTS)
+    enable_testing ()
+    add_test (NAME locationsmodel.test COMMAND locationsmodel.test)
+endif (DEFINED IS_BUILD_TESTS)
 
