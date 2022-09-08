@@ -22,5 +22,7 @@ elseif(UNIX)
     target_sources(engine PRIVATE
         networkdetectionmanager_linux.cpp
         networkdetectionmanager_linux.h
+        routemonitor_linux.cpp
+        routemonitor_linux.h
     )
 endif()

@@ -1197,6 +1197,7 @@ void ConnectionManager::restoreConnectionAfterWakeUp()
         qCDebug(LOG_CONNECTION) <<
             "ConnectionManager::restoreConnectionAfterWakeUp(), reconnecting";
         state_ = STATE_WAKEUP_RECONNECTING;
+        Q_EMIT reconnecting();
         doConnect();
     }
     else

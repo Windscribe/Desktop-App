@@ -12,7 +12,7 @@
 
 const int typeIdNetworkInterface = qRegisterMetaType<types::NetworkInterface>("types::NetworkInterface");
 
-NetworkDetectionManager_linux::NetworkDetectionManager_linux(QObject *parent, IHelper *helper) : INetworkDetectionManager (parent)
+NetworkDetectionManager_linux::NetworkDetectionManager_linux(QObject *parent, IHelper *helper) : INetworkDetectionManager (parent), routeMonitor_(new RouteMonitor_linux(this))
 {
     Q_UNUSED(helper);
 
@@ -20,12 +20,13 @@ NetworkDetectionManager_linux::NetworkDetectionManager_linux(QObject *parent, IH
     getDefaultRouteInterface(isOnline_);
     updateNetworkInfo(false);
 
-    QNetworkInformation::instance()->load(QNetworkInformation::Feature::Reachability);
-    connect(QNetworkInformation::instance(), &QNetworkInformation::reachabilityChanged, this, &NetworkDetectionManager_linux::onReachabilityChanged);
+    connect(routeMonitor_, &RouteMonitor_linux::routesChanged, this, &NetworkDetectionManager_linux::onRoutesChanged);
+    routeMonitor_->start();
 }
 
 NetworkDetectionManager_linux::~NetworkDetectionManager_linux()
 {
+    SAFE_DELETE(routeMonitor_);
 }
 
 void NetworkDetectionManager_linux::getCurrentNetworkInterface(types::NetworkInterface &networkInterface)
@@ -38,9 +39,8 @@ bool NetworkDetectionManager_linux::isOnline()
     return isOnline_;
 }
 
-void NetworkDetectionManager_linux::onReachabilityChanged(QNetworkInformation::Reachability newReachability)
+void NetworkDetectionManager_linux::onRoutesChanged()
 {
-    Q_UNUSED(newReachability)
     updateNetworkInfo(true);
 }
 
