@@ -415,14 +415,10 @@ void MainWindow::showAfterLaunch()
     }
     #endif
 
+    bool showAppMinimized = false;
+
     if (backend_ && backend_->getPreferences()->isStartMinimized()) {
-        #ifdef Q_OS_WIN
-        show();
-        QTimer::singleShot(50, this, &MainWindow::onMinimizeClick);
-        #else
-        showMinimized();
-        #endif
-        return;
+        showAppMinimized = true;
     }
     #if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     else if (backend_ && backend_->getPreferences()->isMinimizeAndCloseToTray()) {
@@ -432,12 +428,25 @@ void MainWindow::showAfterLaunch()
         cmdParser.addOption(osRestartOption);
         cmdParser.process(*WindscribeApplication::instance());
         if (cmdParser.isSet(osRestartOption)) {
-            showMinimized();
-            return;
+            showAppMinimized = true;
         }
     }
     #endif
-    show();
+
+    if (showAppMinimized) {
+        #ifdef Q_OS_WIN
+        // showMinimized, as of Qt 6.3.1, on Windows does not work.  The app is displayed (shown)
+        // and all user input is disabled until ones clicks on the taskbar icon or alt-tabs back
+        // to the app.
+        show();
+        QTimer::singleShot(50, this, &MainWindow::onMinimizeClick);
+        #else
+        showMinimized();
+        #endif
+    }
+    else {
+        show();
+    }
 }
 
 bool MainWindow::eventFilter(QObject *watched, QEvent *event)

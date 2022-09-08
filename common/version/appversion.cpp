@@ -25,8 +25,6 @@ QString AppVersion::build() const
 
 QString AppVersion::fullVersionString() const
 {
-    return "v" + semanticVersionString() + " Issue 413 RC1";
-    /*
     if (isStaging_)
     {
         if (buildChannel_ == UPDATE_CHANNEL_BETA)
@@ -57,7 +55,6 @@ QString AppVersion::fullVersionString() const
             return "v" + semanticVersionString();
         }
     }
-    */
 }
 
 QString AppVersion::semanticVersionString() const
