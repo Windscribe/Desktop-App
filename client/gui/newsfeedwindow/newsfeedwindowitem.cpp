@@ -70,7 +70,11 @@ void NewsFeedWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem
     if (preferences_->appSkin() == APP_SKIN_VAN_GOGH)
     {
         QPainterPath path;
+#ifdef Q_OS_MAC
         path.addRoundedRect(boundingRect().toRect(), 5*G_SCALE, 5*G_SCALE);
+#else
+        path.addRect(boundingRect().toRect());
+#endif
         painter->setPen(Qt::NoPen);
         painter->fillPath(path, QColor(2, 13, 28));
         painter->setPen(Qt::SolidLine);

@@ -48,7 +48,7 @@ void TextIconButton::paint(QPainter *painter, const QStyleOptionGraphicsItem *op
     {
         elidedText = fm.elidedText(text_, Qt::ElideRight, availableWidth, 0);
     }
-    painter->drawText(boundingRect().adjusted(spacerWidth_, yOffset_*G_SCALE, 0, 0), Qt::AlignVCenter, elidedText);
+    painter->drawText(boundingRect().adjusted(spacerWidth_*G_SCALE, yOffset_*G_SCALE, 0, 0), Qt::AlignVCenter, elidedText);
 
     // Right Arrow
     painter->setOpacity(curIconOpacity_);
@@ -154,7 +154,7 @@ void TextIconButton::recalcWidth()
 
     QFont *font = FontManager::instance().getFont(fontDescr_);
     int newWidth = iconPixmap->width();
-    newWidth += 2*spacerWidth_;
+    newWidth += 2*spacerWidth_*G_SCALE;
     newWidth += CommonGraphics::textWidth(text_, *font);
 
     if (newWidth > maxWidth_)
