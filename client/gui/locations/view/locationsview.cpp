@@ -74,8 +74,8 @@ void LocationsView::setShowLocationLoad(bool isShowLocationLoad)
 
 void LocationsView::updateScaling()
 {
-    //todo
     scrollBar_->updateCustomStyleSheet();
+    widget_->updateScaling();
 }
 
 void LocationsView::scrollToTop()

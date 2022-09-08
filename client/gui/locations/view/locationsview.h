@@ -37,7 +37,6 @@ protected:
     void paintEvent(QPaintEvent *event) override;
     void resizeEvent(QResizeEvent *event) override;
 
-
 signals:
      void selected(const LocationID &lid);
      void clickedOnPremiumStarCity();

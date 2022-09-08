@@ -40,6 +40,8 @@ public:
     bool isEmptyList() const { return isEmptyList_; }
     void doActionOnSelectedItem();
 
+    void updateScaling();
+
 protected:
     void paintEvent(QPaintEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;

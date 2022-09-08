@@ -263,6 +263,17 @@ void ExpandableItemsWidget::doActionOnSelectedItem()
     }
 }
 
+void ExpandableItemsWidget::updateScaling()
+{
+    itemsCacheData_.clear();
+    for (int i = 0, rows_cnt = model_->rowCount(); i < rows_cnt; ++i) {
+        QModelIndex mi = model_->index(i, 0);
+        itemsCacheData_[mi] = QSharedPointer<IItemCacheData>(delegateForItem(mi)->createCacheData(mi));
+        initCacheDataForChilds(mi);
+    }
+    update();
+}
+
 void ExpandableItemsWidget::paintEvent(QPaintEvent *event)
 {
     //FIXME: remove
