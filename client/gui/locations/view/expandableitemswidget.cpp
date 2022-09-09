@@ -8,10 +8,6 @@
 #include <QRegion>
 #include <QElapsedTimer>
 
-//FIXME:
-long g_cntFrames = 0;
-qint64 g_time = 0;
-
 namespace gui_locations {
 
 ExpandableItemsWidget::ExpandableItemsWidget(QWidget *parent, QAbstractItemModel *model) : QWidget(parent)
@@ -35,7 +31,6 @@ ExpandableItemsWidget::ExpandableItemsWidget(QWidget *parent, QAbstractItemModel
 
 ExpandableItemsWidget::~ExpandableItemsWidget()
 {
-    qDebug() << (double)g_time / (double)g_cntFrames;
 }
 
 void ExpandableItemsWidget::setModel(QAbstractItemModel *model)
@@ -276,10 +271,6 @@ void ExpandableItemsWidget::updateScaling()
 
 void ExpandableItemsWidget::paintEvent(QPaintEvent *event)
 {
-    //FIXME: remove
-    QElapsedTimer elapsed;
-    elapsed.start();
-
     QPainter painter(this);
     QVector<ItemRect> items = getItemRects();
     for (const auto &item : qAsConst(items)) {
@@ -296,9 +287,6 @@ void ExpandableItemsWidget::paintEvent(QPaintEvent *event)
             delegate->paint(&painter, opt, item.modelIndex, itemsCacheData_[item.modelIndex].get());
         }
     }
-
-    g_time += elapsed.elapsed();
-    g_cntFrames++;
 }
 
 void ExpandableItemsWidget::mouseMoveEvent(QMouseEvent *event)
