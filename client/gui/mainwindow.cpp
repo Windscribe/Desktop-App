@@ -3092,7 +3092,7 @@ void MainWindow::onScaleChanged()
 void MainWindow::onDpiScaleManagerNewScreen(QScreen *screen)
 {
     Q_UNUSED(screen)
-#ifdef Q_OS_MAC
+#if defined(Q_OS_MAC)
     // There is a bug that causes the app to be drawn in strange locations under the following scenario:
     // On Mac: when laptop lid is closed/opened and app is docked
     // Instead we hide the app because an explicit click will redraw the click correctly and this should be relatively rare
@@ -3102,6 +3102,17 @@ void MainWindow::onDpiScaleManagerNewScreen(QScreen *screen)
         // qDebug() << "New scale from DpiScaleManager (docked app) - hide app";
         deactivateAndHide();
     }
+#elif defined(Q_OS_WIN)
+    // When dragging the app between displays, it occasionally does not resize itself correctly, causing portions
+    // of the app to be cut off.  Debugging showed that MainWindowController::updateMainAndViewGeometry is setting
+    // the correct app geometry, but Qt/Windows appear to be losing the resize event.  I tried calling QWidget's
+    // update(), repaint(), unpdateGeometry(), resize(), etc. here and none worked.
+    // Disabling our use of QGuiApplication::setHighDpiScaleFactorRoundingPolicy() fixes the issue.  The downside
+    // of disabling this API is that fonts and icons will be a bit blurry/jaggy on displays set to a non-integer
+    // scale factor (e.g. 150% = 1.5 scale factor).
+    QTimer::singleShot(500, this, [this]() {
+        mainWindowController_->updateScaling();
+    });
 #endif
 }
 

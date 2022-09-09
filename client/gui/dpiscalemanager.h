@@ -47,8 +47,9 @@ private:
     qreal curDevicePixelRatio_;
     qreal curDPI_;
     QRect curGeometry_;
-    QWidget *mainWindow_;
+    QWidget *mainWindow_ = nullptr;
     QMetaObject::Connection screenChangedConnection_;
+    QScreen* curScreen_;
 
     void setScale();
     void update(QScreen *screen);

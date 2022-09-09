@@ -3273,7 +3273,6 @@ void MainWindowController::updateMainAndViewGeometry(bool updateShadow)
     // qDebug() << "Updating mainwindow geo: " << geo;
     mainWindow_->setGeometry(geo);
     updateViewAndScene(width, height, shadowSize, updateShadow);
-
 }
 
 void MainWindowController::updateViewAndScene(int width, int height, int shadowSize, bool updateShadow)

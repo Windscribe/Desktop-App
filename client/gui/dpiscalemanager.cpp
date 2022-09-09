@@ -17,14 +17,13 @@ static QRect GetGeometryForScreen(const QScreen *screen)
 #endif
 }
 
-DpiScaleManager::DpiScaleManager()
-    : QObject(nullptr),
-      mainWindow_(nullptr)
+DpiScaleManager::DpiScaleManager() : QObject(nullptr)
 {
     curDPI_ = qApp->primaryScreen()->logicalDotsPerInch();
     setScale();
     curGeometry_ = GetGeometryForScreen(qApp->primaryScreen());
     curDevicePixelRatio_ = qApp->primaryScreen()->devicePixelRatio();
+    curScreen_ = qApp->primaryScreen();
     qCDebug(LOG_BASIC) << "DpiScaleManager::constructor -> DPI:" << curDPI_ << "; scale:" << curScale_ << "; devicePixelRatio:" << curDevicePixelRatio_;
 }
 
@@ -80,13 +79,18 @@ double DpiScaleManager::scaleOfScreen(const QScreen *screen) const
 
 void DpiScaleManager::onWindowScreenChanged(QScreen *screen)
 {
-    qCDebug(LOG_BASIC) << "DpiScaleManager::onWindowScreenChanged - new screen: " << screen;
-    // This slot was being called infinitely, until an app crash due to stack overflow, on Windows
-    // if the user very slowly dragged the app between screens under certain scaling conditions.
-    disconnect(screenChangedConnection_);
-    update(screen);
-    emit newScreen(screen);
-    screenChangedConnection_ = connect(mainWindow_->window()->windowHandle(), &QWindow::screenChanged, this, &DpiScaleManager::onWindowScreenChanged);
+    // Qt may queue up multiple calls to this slot with the same screen pointer
+    // on Windows when the app is dragged slowly between displays.
+    if (screen != curScreen_) {
+        curScreen_ = screen;
+        qCDebug(LOG_BASIC) << "DpiScaleManager::onWindowScreenChanged - new screen: " << screen;
+        // This slot was being called infinitely, until an app crash due to stack overflow, on Windows
+        // if the user very slowly dragged the app between screens under certain scaling conditions.
+        disconnect(screenChangedConnection_);
+        update(screen);
+        emit newScreen(screen);
+        screenChangedConnection_ = connect(mainWindow_->window()->windowHandle(), &QWindow::screenChanged, this, &DpiScaleManager::onWindowScreenChanged);
+    }
 }
 
 void DpiScaleManager::onLogicalDotsPerInchChanged(qreal dpi)
