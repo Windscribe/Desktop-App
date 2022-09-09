@@ -1,3 +1,25 @@
+2.5.4 (09/09/2022)
+* Implemented preferred protocol support per network. #49
+* Implemented Van Gogh mode. #61
+* Fixed app giving incorrect latencies and best location. #74
+* Preferences UI cleanup. #122
+* Support the Wayland compositor on Linux. #236
+* Notifications screen re-work. #274
+* Elimated unnecessary spam in the log. #380
+* Fixed hostname-level exclusive split tunneling does not work on Windows. #383
+* Fixed WireGuard connection stalls on Windows if Internet access is interrupted momentarily. #392
+* Version info entry in preferences is now clickable and will display this change log. #397
+* More display scaling fixes. #402
+* Fixed potential firewall leak on MacOS. #416
+* Substantial locations window code refactoring. #420
+* Fixed mouse wheel issues in the notifications and preferences windows. #421
+* Fixed macOS installer install button text is not centered and button is not fully round. #422
+* Fixed Windows installer bug preventing upgrades from v2.5.2. #425
+* Fixed preferences lost when upgrading from <= v2.5.2. #430
+* Fixed DNS manager feature text overlaps option text when using NetworkManager or systemd-resolved. #432
+* Log any code assert statements that are triggered in a release build. #438
+
+
 2.5.3 (24/08/2022)
 * Preferences UI cleanup. #122
 * Notifications screen re-work. #274
