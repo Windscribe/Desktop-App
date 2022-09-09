@@ -12,6 +12,9 @@
 
 namespace PreferencesWindow {
 
+enum GENERAL_SCREEN_TYPE { GENERAL_SCREEN_HOME,
+                           GENERAL_SCREEN_CHANGELOG };
+
 class GeneralWindowItem : public CommonGraphics::BasePage
 {
     Q_OBJECT
@@ -19,6 +22,8 @@ public:
     explicit GeneralWindowItem(ScalableGraphicsObject *parent, Preferences *preferences, PreferencesHelper *preferencesHelper);
 
     QString caption();
+    GENERAL_SCREEN_TYPE getScreen();
+    void setScreen(GENERAL_SCREEN_TYPE subScreen);
 
     void updateScaling() override;
 
@@ -69,6 +74,7 @@ private slots:
     void onAppSkinChanged(QVariant value);
 
 signals:
+    void changelogPageClicked();
     void languageChanged();
 
 protected:
@@ -110,6 +116,8 @@ private:
 
     PreferenceGroup *versionGroup_;
     VersionInfoItem *versionInfoItem_;
+
+    GENERAL_SCREEN_TYPE currentScreen_;
 };
 
 } // namespace PreferencesWindow
