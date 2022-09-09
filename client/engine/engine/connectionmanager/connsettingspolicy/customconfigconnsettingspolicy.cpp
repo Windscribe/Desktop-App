@@ -1,12 +1,13 @@
 #include "customconfigconnsettingspolicy.h"
+#include "utils/ws_assert.h"
 #include "utils/logger.h"
 
 CustomConfigConnSettingsPolicy::CustomConfigConnSettingsPolicy(
     QSharedPointer<locationsmodel::BaseLocationInfo> bli) :
         locationInfo_(qSharedPointerDynamicCast<locationsmodel::CustomConfigLocationInfo>(bli))
 {
-    Q_ASSERT(!locationInfo_.isNull());
-    Q_ASSERT(locationInfo_->locationId().isCustomConfigsLocation());
+    WS_ASSERT(!locationInfo_.isNull());
+    WS_ASSERT(locationInfo_->locationId().isCustomConfigsLocation());
     connect(locationInfo_.data(), SIGNAL(hostnamesResolved()), SLOT(onHostnamesResolved()));
 }
 

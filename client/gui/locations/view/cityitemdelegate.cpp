@@ -60,7 +60,7 @@ void CityItemDelegate::paint(QPainter *painter, const ItemStyleOption &option, c
         }
         else
         {
-            Q_ASSERT(false);
+            WS_ASSERT(false);
         }
 
         if (datacenterPixmap)
@@ -72,7 +72,7 @@ void CityItemDelegate::paint(QPainter *painter, const ItemStyleOption &option, c
         // static ip text
         painter->setOpacity(0.5);
         IndependentPixmap pixmapStaticIp = cache->pixmap(CityItemDelegateCache::kStaticIpId);
-        Q_ASSERT(!pixmapStaticIp.isNull());
+        WS_ASSERT(!pixmapStaticIp.isNull());
         QRect rc( option.rect.width() - pixmapStaticIp.width() - 38*G_SCALE,  option.rect.top(), pixmapStaticIp.width(), option.rect.height());
         pixmapStaticIp.draw(rc.left(), rc.top() + (rc.height() -  pixmapStaticIp.height()) / 2, painter);
     }
@@ -114,7 +114,7 @@ void CityItemDelegate::paint(QPainter *painter, const ItemStyleOption &option, c
     // text
     painter->setOpacity(textOpacity);
     IndependentPixmap pixmapCaption = cache->pixmap(CityItemDelegateCache::kCityId);
-    Q_ASSERT(!pixmapCaption.isNull());
+    WS_ASSERT(!pixmapCaption.isNull());
     QRect rcCaption( left_offs + LOCATION_ITEM_MARGIN * G_SCALE * 4 + LOCATION_ITEM_FLAG_WIDTH * G_SCALE,  option.rect.top(), pixmapCaption.width(), option.rect.height());
     pixmapCaption.draw(rcCaption.left(), rcCaption.top() + (rcCaption.height() -  pixmapCaption.height()) / 2, painter);
 
@@ -122,7 +122,7 @@ void CityItemDelegate::paint(QPainter *painter, const ItemStyleOption &option, c
     if (!lid.isStaticIpsLocation() && !lid.isCustomConfigsLocation())
     {
         IndependentPixmap pixmapNick = cache->pixmap(CityItemDelegateCache::kNickId);
-        Q_ASSERT(!pixmapNick.isNull());
+        WS_ASSERT(!pixmapNick.isNull());
         QRect rc( rcCaption.left() + rcCaption.width() +  8*G_SCALE,  option.rect.top(), pixmapNick.width(), option.rect.height());
         pixmapNick.draw(rc.left(), rc.top() + (rc.height() -  pixmapNick.height()) / 2, painter);
     }
@@ -318,7 +318,7 @@ int CityItemDelegate::isInTooltipArea(const ItemStyleOption &option, const QMode
 
 void CityItemDelegate::tooltipEnterEvent(const ItemStyleOption &option, const QModelIndex &index, int tooltipId, const IItemCacheData *cacheData) const
 {
-    Q_ASSERT(dynamic_cast<QWidget *>(option.styleObject) != nullptr);
+    WS_ASSERT(dynamic_cast<QWidget *>(option.styleObject) != nullptr);
     QWidget *widget = static_cast<QWidget *>(option.styleObject);
     if (tooltipId == (int)TooltipRect::kCustomConfigErrorMessage) {
         QString text = index.data(gui_locations::kCustomConfigErrorMessage).toString();
@@ -358,7 +358,7 @@ void CityItemDelegate::tooltipEnterEvent(const ItemStyleOption &option, const QM
         TooltipController::instance().showTooltipBasic(ti);
     } else
     {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
     }
 }
 
@@ -371,7 +371,7 @@ void CityItemDelegate::tooltipLeaveEvent(int tooltipId) const
     else if (tooltipId == (int)TooltipRect::kItemCaption)
         TooltipController::instance().hideTooltip(TOOLTIP_ID_LOCATIONS_ITEM_CAPTION);
     else
-        Q_ASSERT(false);
+        WS_ASSERT(false);
 }
 
 QString CityItemDelegate::pingIconNameString(int connectionSpeedIndex) const
@@ -392,7 +392,7 @@ QString CityItemDelegate::pingIconNameString(int connectionSpeedIndex) const
     {
         return "locations/LOCATION_PING_BARS3";
     }
-    Q_ASSERT(false);
+    WS_ASSERT(false);
 }
 
 QRect CityItemDelegate::latencyIconRect(const QRect &itemRect) const

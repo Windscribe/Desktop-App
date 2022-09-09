@@ -7,6 +7,7 @@
 #include "commongraphics/texticonbutton.h"
 #include "graphicresources/fontdescr.h"
 #include "graphicresources/independentpixmap.h"
+#include "utils/ws_assert.h"
 
 namespace PreferencesWindow {
 
@@ -17,8 +18,8 @@ struct ComboBoxItemDescr
     ComboBoxItemDescr(const QString &caption, const QVariant &userValue) :
         caption_(caption), userValue_(userValue), isInitialized_(true) {}
 
-    QString caption() const { Q_ASSERT(isInitialized_); return caption_; }
-    QVariant userValue() const { Q_ASSERT(isInitialized_); return userValue_; }
+    QString caption() const { WS_ASSERT(isInitialized_); return caption_; }
+    QVariant userValue() const { WS_ASSERT(isInitialized_); return userValue_; }
 
     bool isInitialized() const { return isInitialized_; }
     void clear() { isInitialized_ = false; }

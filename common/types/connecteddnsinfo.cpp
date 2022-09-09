@@ -1,5 +1,6 @@
 #include "connecteddnsinfo.h"
 #include <QObject>
+#include "utils/ws_assert.h"
 
 namespace types {
 
@@ -47,7 +48,7 @@ QString ConnectedDnsInfo::typeToString(const CONNECTED_DNS_TYPE &type)
     }
     else
     {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
         return "";
     }
 }

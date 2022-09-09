@@ -8,6 +8,7 @@
 #include <QGraphicsScene>
 #include <QGraphicsView>
 #include <QKeyEvent>
+#include "utils/ws_assert.h"
 #include "utils/logger.h"
 #include "utils/makecustomshadow.h"
 #include "dpiscalemanager.h"
@@ -125,7 +126,7 @@ void ComboBoxItem::setCurrentItem(QVariant value)
     else
     {
         // should not get here, this is error
-        Q_ASSERT(false);
+        WS_ASSERT(false);
         curItem_.clear();
         update();
     }

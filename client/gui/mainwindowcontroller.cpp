@@ -21,6 +21,7 @@
 #include "overlaysconnectwindow/generalmessagetwobuttonwindowitem.h"
 #include "bottominfowidget/bottominfoitem.h"
 #include "newsfeedwindow/newsfeedwindowitem.h"
+#include "utils/ws_assert.h"
 #include "utils/utils.h"
 #include "mainwindow.h"
 #include "commongraphics/commongraphics.h"
@@ -460,15 +461,15 @@ void MainWindowController::changeWindow(MainWindowController::WINDOW_ID windowId
     }
     else
     {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
     }
 }
 
 void MainWindowController::expandLocations()
 {
     // qCDebug(LOG_LOCATION_LIST) << "MainWindowController::expandLocations";
-    Q_ASSERT(curWindow_ == WINDOW_ID_CONNECT);
-    Q_ASSERT(expandLocationsAnimationGroup_ != NULL);
+    WS_ASSERT(curWindow_ == WINDOW_ID_CONNECT);
+    WS_ASSERT(expandLocationsAnimationGroup_ != NULL);
 
     // do nothing if expanding or expanded
     if (expandLocationsAnimationGroup_->direction() == QAbstractAnimation::Forward &&
@@ -502,8 +503,8 @@ void MainWindowController::expandLocations()
 void MainWindowController::collapseLocations()
 {
     // qCDebug(LOG_LOCATION_LIST) << "MainWindowController::collapseLocations";
-    Q_ASSERT(curWindow_ == WINDOW_ID_CONNECT);
-    Q_ASSERT(expandLocationsAnimationGroup_ != NULL);
+    WS_ASSERT(curWindow_ == WINDOW_ID_CONNECT);
+    WS_ASSERT(expandLocationsAnimationGroup_ != NULL);
 
     if (expandLocationsAnimationGroup_->direction() == QAbstractAnimation::Backward &&
         expandLocationsAnimationGroup_->state() == QAbstractAnimation::Running)
@@ -583,7 +584,7 @@ void MainWindowController::collapsePreferences()
 
 void MainWindowController::showUpdateWidget()
 {
-    //Q_ASSERT(curWindow_ == WINDOW_ID_CONNECT
+    //WS_ASSERT(curWindow_ == WINDOW_ID_CONNECT
     if (!updateAppItem_->getGraphicsObject()->isVisible())
     {
         updateAppItem_->getGraphicsObject()->show();
@@ -897,7 +898,7 @@ void MainWindowController::gotoInitializationWindow()
 void MainWindowController::gotoLoginWindow()
 {
     // qDebug() << "gotoLoginWindow()";
-    Q_ASSERT(curWindow_ == WINDOW_ID_UNITIALIZED
+    WS_ASSERT(curWindow_ == WINDOW_ID_UNITIALIZED
              || curWindow_ == WINDOW_ID_INITIALIZATION
              || curWindow_ == WINDOW_ID_EMERGENCY
              || curWindow_ == WINDOW_ID_LOGGING_IN
@@ -1146,7 +1147,7 @@ void MainWindowController::gotoLoginWindow()
 
 void MainWindowController::gotoEmergencyWindow()
 {
-    Q_ASSERT(curWindow_ == WINDOW_ID_LOGIN);
+    WS_ASSERT(curWindow_ == WINDOW_ID_LOGIN);
 
     curWindow_ = WINDOW_ID_EMERGENCY;
 
@@ -1179,7 +1180,7 @@ void MainWindowController::gotoEmergencyWindow()
 
 void MainWindowController::gotoLoggingInWindow()
 {
-    Q_ASSERT(curWindow_ == WINDOW_ID_LOGIN
+    WS_ASSERT(curWindow_ == WINDOW_ID_LOGIN
              || curWindow_ == WINDOW_ID_INITIALIZATION
              || curWindow_ == WINDOW_ID_EXTERNAL_CONFIG
              || curWindow_ == WINDOW_ID_TWO_FACTOR_AUTH);
@@ -1343,7 +1344,7 @@ void MainWindowController::updateNativeShadowIfNeeded()
 void MainWindowController::gotoConnectWindow()
 {
     // qDebug() << "gotoConnectWindow()";
-    Q_ASSERT(curWindow_ == WINDOW_ID_LOGGING_IN
+    WS_ASSERT(curWindow_ == WINDOW_ID_LOGGING_IN
              || curWindow_ == WINDOW_ID_INITIALIZATION
              || curWindow_ == WINDOW_ID_UPDATE
              || curWindow_ == WINDOW_ID_UPGRADE
@@ -1616,7 +1617,7 @@ void MainWindowController::gotoConnectWindow()
 
 void MainWindowController::gotoExternalConfigWindow()
 {
-    Q_ASSERT(curWindow_ == WINDOW_ID_LOGIN);
+    WS_ASSERT(curWindow_ == WINDOW_ID_LOGIN);
 
     isAtomicAnimationActive_ = true;
     curWindow_ = WINDOW_ID_EXTERNAL_CONFIG;
@@ -1651,7 +1652,7 @@ void MainWindowController::gotoExternalConfigWindow()
 
 void MainWindowController::gotoTwoFactorAuthWindow()
 {
-    Q_ASSERT(curWindow_ == WINDOW_ID_LOGIN || curWindow_ == WINDOW_ID_LOGGING_IN);
+    WS_ASSERT(curWindow_ == WINDOW_ID_LOGIN || curWindow_ == WINDOW_ID_LOGGING_IN);
 
     const auto prevWindow = curWindow_;
     curWindow_ = WINDOW_ID_TWO_FACTOR_AUTH;
@@ -1706,7 +1707,7 @@ void MainWindowController::gotoTwoFactorAuthWindow()
 
 void MainWindowController::gotoUpdateWindow()
 {
-    Q_ASSERT(curWindow_ == WINDOW_ID_CONNECT
+    WS_ASSERT(curWindow_ == WINDOW_ID_CONNECT
              || curWindow_ == WINDOW_ID_UPGRADE
              || curWindow_ == WINDOW_ID_GENERAL_MESSAGE
              || curWindow_ == WINDOW_ID_EXIT);
@@ -1836,7 +1837,7 @@ void MainWindowController::gotoUpdateWindow()
 
 void MainWindowController::gotoUpgradeWindow()
 {
-    Q_ASSERT(curWindow_ == WINDOW_ID_CONNECT);
+    WS_ASSERT(curWindow_ == WINDOW_ID_CONNECT);
 
     isAtomicAnimationActive_ = true;
     curWindow_ = WINDOW_ID_UPGRADE;
@@ -1873,7 +1874,7 @@ void MainWindowController::gotoUpgradeWindow()
 
 void MainWindowController::gotoGeneralMessageWindow()
 {
-    Q_ASSERT(curWindow_ == WINDOW_ID_CONNECT || curWindow_ == WINDOW_ID_UPDATE);
+    WS_ASSERT(curWindow_ == WINDOW_ID_CONNECT || curWindow_ == WINDOW_ID_UPDATE);
 
     isAtomicAnimationActive_ = true;
     WINDOW_ID saveCurWindow = curWindow_;
@@ -1890,7 +1891,7 @@ void MainWindowController::gotoGeneralMessageWindow()
     }
     else
     {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
     }
 
     bottomInfoWindow_->setClickable(false);
@@ -1908,7 +1909,7 @@ void MainWindowController::gotoGeneralMessageWindow()
         }
         else
         {
-            Q_ASSERT(false);
+            WS_ASSERT(false);
         }
         generalMessageWindow_->getGraphicsObject()->show();
 
@@ -1934,7 +1935,7 @@ void MainWindowController::gotoGeneralMessageWindow()
 
 void MainWindowController::gotoExitWindow()
 {
-    Q_ASSERT(curWindow_ == WINDOW_ID_CONNECT
+    WS_ASSERT(curWindow_ == WINDOW_ID_CONNECT
              || curWindow_ == WINDOW_ID_LOGIN
              || curWindow_ == WINDOW_ID_EMERGENCY
              || curWindow_ == WINDOW_ID_EXTERNAL_CONFIG
@@ -2033,7 +2034,7 @@ void MainWindowController::gotoExitWindow()
 
 void MainWindowController::closeExitWindow()
 {
-    Q_ASSERT(curWindow_ == WINDOW_ID_EXIT);
+    WS_ASSERT(curWindow_ == WINDOW_ID_EXIT);
 
     if (windowBeforeExit_ == WINDOW_ID_CONNECT)
     {
@@ -2284,7 +2285,7 @@ void MainWindowController::expandPreferencesFromConnect()
     {
         if (expandLocationsAnimationGroup_ && expandLocationsAnimationGroup_->state() == QAbstractAnimation::Running)
         {
-            Q_ASSERT(false);
+            WS_ASSERT(false);
             return;
         }
 
@@ -2432,7 +2433,7 @@ void MainWindowController::expandNewsFeed()
     {
         if (expandLocationsAnimationGroup_ && expandLocationsAnimationGroup_->state() == QAbstractAnimation::Running)
         {
-            Q_ASSERT(false);
+            WS_ASSERT(false);
             return;
         }
 
@@ -2906,7 +2907,7 @@ void MainWindowController::updateExpandAnimationParameters()
     if (expandLocationsAnimationGroup_ != NULL)
     {
         // TODO: sometimes this assert can fail
-        Q_ASSERT(expandLocationsAnimationGroup_->state() != QAbstractAnimation::Running);
+        WS_ASSERT(expandLocationsAnimationGroup_->state() != QAbstractAnimation::Running);
     }
 
     SAFE_DELETE(expandLocationsAnimationGroup_);
@@ -3168,7 +3169,7 @@ void MainWindowController::getGraphicsRegionWidthAndHeight(int &width, int &heig
     }
     else
     {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
     }
 
     height += preferences_->appSkin() == APP_SKIN_VAN_GOGH ? (UPDATE_WIDGET_HEIGHT * vanGoghUpdateWidgetAnimationProgress_)*G_SCALE : 0;
@@ -3320,7 +3321,7 @@ void MainWindowController::updateBottomInfoWindowVisibilityAndPos(bool forceColl
     if (expandLocationsAnimationGroup_ != NULL && expandLocationsAnimationGroup_->state() == QAbstractAnimation::Running)
     {
         // TODO: can fire when quickly opening locations list on app startup
-        Q_ASSERT(false);
+        WS_ASSERT(false);
     }
     else
     {
@@ -3378,7 +3379,7 @@ QPoint MainWindowController::getCoordsOfBottomInfoWindow(bool isBottomInfoWindow
     const int TOP_OFFS_WHEN_SHARING_FEATURES_HIDDEN_VAN_GOGH = (BOTTOM_INFO_POS_Y_VAN_GOGH + 8 + yOffset)*G_SCALE;
     const int TOP_OFFS_WHEN_SHARING_FEATURES_VISIBLE_VAN_GOGH = (BOTTOM_INFO_POS_Y_VAN_GOGH + yOffset)*G_SCALE;
 
-    Q_ASSERT(bottomInfoWindow_->isUpgradeWidgetVisible() || bottomInfoWindow_->isSharingFeatureVisible());
+    WS_ASSERT(bottomInfoWindow_->isUpgradeWidgetVisible() || bottomInfoWindow_->isSharingFeatureVisible());
 
     QPoint pt;
     if (preferences_->appSkin() == APP_SKIN_VAN_GOGH && bottomInfoWindow_->isUpgradeWidgetVisible() && !bottomInfoWindow_->isSharingFeatureVisible())

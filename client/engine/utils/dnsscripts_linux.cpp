@@ -1,4 +1,5 @@
 #include "dnsscripts_linux.h"
+#include "utils/ws_assert.h"
 #include "utils/logger.h"
 #include <QProcess>
 
@@ -21,7 +22,7 @@ QString DnsScripts_linux::scriptPath()
         }
         else
         {
-            Q_ASSERT(false);
+            WS_ASSERT(false);
             return "";
         }
     }
@@ -39,7 +40,7 @@ QString DnsScripts_linux::scriptPath()
     }
     else
     {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
         return "";
     }
 }

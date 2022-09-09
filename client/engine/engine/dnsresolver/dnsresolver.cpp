@@ -1,5 +1,6 @@
 #include "dnsresolver.h"
 #include "dnsutils.h"
+#include "utils/ws_assert.h"
 #include "utils/crashhandler.h"
 #include "utils/logger.h"
 
@@ -15,7 +16,7 @@ DnsResolver *DnsResolver::this_ = NULL;
 DnsResolver::DnsResolver(QObject *parent) : QThread(parent), bStopCalled_(false),
     bNeedFinish_(false)
 {
-    Q_ASSERT(this_ == NULL);
+    WS_ASSERT(this_ == NULL);
     this_ = this;
     aresLibraryInit_.init();
 
@@ -119,7 +120,7 @@ void DnsResolver::run()
             {
                 bool bSuccess = QMetaObject::invokeMethod(ri.object.get(), "onResolved",
                                           Qt::QueuedConnection, Q_ARG(QStringList, QStringList()), Q_ARG(int, ARES_ENOTINITIALIZED));
-                Q_ASSERT(bSuccess);
+                WS_ASSERT(bSuccess);
             }
         }
 
@@ -217,7 +218,7 @@ void DnsResolver::createOptionsForAresChannel(const QStringList &dnsIps, int tim
         }
         else
         {
-            Q_ASSERT(false);
+            WS_ASSERT(false);
         }
     }
 }
@@ -231,7 +232,7 @@ void DnsResolver::callback(void *arg, int status, int timeouts, hostent *host)
         //qCDebug(LOG_BASIC) << "DnsResolver::callback, request failed:" << status << timeouts;
         bool bSuccess = QMetaObject::invokeMethod(userArg->object.get(), "onResolved",
                                   Qt::QueuedConnection, Q_ARG(QStringList, QStringList()), Q_ARG(int, status));
-        Q_ASSERT(bSuccess);
+        WS_ASSERT(bSuccess);
         delete userArg;
         return;
     }
@@ -247,7 +248,7 @@ void DnsResolver::callback(void *arg, int status, int timeouts, hostent *host)
 
     bool bSuccess = QMetaObject::invokeMethod(userArg->object.get(), "onResolved",
                               Qt::QueuedConnection, Q_ARG(QStringList, addresses), Q_ARG(int, status));
-    Q_ASSERT(bSuccess);
+    WS_ASSERT(bSuccess);
 
     delete userArg;
 }

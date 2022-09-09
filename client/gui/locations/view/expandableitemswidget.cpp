@@ -40,7 +40,7 @@ ExpandableItemsWidget::~ExpandableItemsWidget()
 
 void ExpandableItemsWidget::setModel(QAbstractItemModel *model)
 {
-    Q_ASSERT(model_ == nullptr);
+    WS_ASSERT(model_ == nullptr);
     model_ = model;
 
     connect(model_, &QAbstractItemModel::modelReset, [this]()  {
@@ -56,7 +56,7 @@ void ExpandableItemsWidget::setModel(QAbstractItemModel *model)
                 initCacheDataForChilds(mi);
             }
         } else {
-            Q_ASSERT(items_.indexOf(parent) != -1);
+            WS_ASSERT(items_.indexOf(parent) != -1);
             initCacheDataForChilds(parent);
         }
         updateExpandingAnimationParams();
@@ -70,7 +70,7 @@ void ExpandableItemsWidget::setModel(QAbstractItemModel *model)
         removeInvalidExpandedIndexes();
 
         if (!parent.isValid()) {
-            Q_ASSERT(last >= (first));
+            WS_ASSERT(last >= (first));
             items_.remove(first, last - first + 1);
         }
         updateExpandingAnimationParams();
@@ -80,19 +80,19 @@ void ExpandableItemsWidget::setModel(QAbstractItemModel *model)
     });
 
     connect(model_, &QAbstractItemModel::rowsMoved, [this]() {
-        Q_ASSERT(false);  // not supported
+        WS_ASSERT(false);  // not supported
     });
 
     connect(model_, &QAbstractItemModel::dataChanged, [this](const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles) {
         if (!topLeft.isValid() || !bottomRight.isValid()) {
             return;
         }
-        Q_ASSERT(topLeft.parent() == bottomRight.parent());
+        WS_ASSERT(topLeft.parent() == bottomRight.parent());
         // update cache data
         for (int i = topLeft.row(); i <= bottomRight.row(); ++i) {
             QPersistentModelIndex mi = model_->index(i, 0, topLeft.parent());
-            Q_ASSERT(mi.isValid());
-            Q_ASSERT(itemsCacheData_.contains(mi));
+            WS_ASSERT(mi.isValid());
+            WS_ASSERT(itemsCacheData_.contains(mi));
             // FIXME: sometimes itemsCacheData_[mi] not found
             delegateForItem(mi)->updateCacheData(mi, itemsCacheData_[mi].get());
         }
@@ -207,7 +207,7 @@ int ExpandableItemsWidget::selectItemByOffs(int offs)
         QVector<ItemRect> items = getItemRects();
         auto it = std::find_if(items.begin(), items.end(), [this](const ItemRect &item) { return item.modelIndex == selectedInd_;});
         if (it == items.end()) {
-            Q_ASSERT(false);
+            WS_ASSERT(false);
             return 0;
         } else {
             int newSelectedItemInd = it - items.begin()  + offs;
@@ -339,11 +339,11 @@ void ExpandableItemsWidget::mouseReleaseEvent(QMouseEvent *event)
             /*if (isExpandableItem(mousePressedItem_) && model_->rowCount(mousePressedItem_) == 0) {
                 // Best location click
                 LocationID lid = qvariant_cast<LocationID>(mousePressedItem_.data(gui_locations::kLocationId));
-                Q_ASSERT(lid.isBestLocation());
+                WS_ASSERT(lid.isBestLocation());
                 emit selected(lid);
             }
             else*/ if (isExpandableItem(mousePressedItem_) && model_->rowCount(mousePressedItem_) > 0) {
-                Q_ASSERT(false);    // The expanding/collapsing must have already been processed in mousePressEvent
+                WS_ASSERT(false);    // The expanding/collapsing must have already been processed in mousePressEvent
             }
             else    // non expandable item
             {
@@ -488,7 +488,7 @@ int ExpandableItemsWidget::getOffsForTopLevelItem(const QPersistentModelIndex &i
         if (expandedItems_.contains(it))
             top += model_->rowCount(it) * itemHeight_;
     }
-    Q_ASSERT(false);
+    WS_ASSERT(false);
     return 0;
 }
 
@@ -509,7 +509,7 @@ void ExpandableItemsWidget::clearCacheDataForChilds(const QPersistentModelIndex 
     {
         QModelIndex childMi = model_->index(c, 0, parentInd);
         auto it = itemsCacheData_.constFind(childMi);
-        Q_ASSERT(it != itemsCacheData_.end());
+        WS_ASSERT(it != itemsCacheData_.end());
         itemsCacheData_.erase(it);
     }
 }
@@ -568,7 +568,7 @@ void ExpandableItemsWidget::setupExpandingAnimation(QAbstractAnimation::Directio
 
 void ExpandableItemsWidget::closeAndClearAllActiveTooltips(const QPersistentModelIndex &modelIndex)
 {
-    Q_ASSERT(modelIndex.isValid());
+    WS_ASSERT(modelIndex.isValid());
     for (auto id : qAsConst(hoveringToolTips_)) {
         delegateForItem(modelIndex)->tooltipLeaveEvent(id);
     }
@@ -603,28 +603,28 @@ void ExpandableItemsWidget::debugAssertCheckInternalData()
     int cnt = 0;
     for (int r = 0, cntRows = model_->rowCount(); r < cntRows; ++r) {
         QModelIndex parentMi = model_->index(r, 0);
-        Q_ASSERT(itemsCacheData_.contains(parentMi));
+        WS_ASSERT(itemsCacheData_.contains(parentMi));
         cnt++;
 
         for (int c = 0, cntChildRows = model_->rowCount(parentMi); c < cntChildRows; ++c) {
             QModelIndex childMi = model_->index(c, 0, parentMi);
-            Q_ASSERT(itemsCacheData_.contains(childMi));
+            WS_ASSERT(itemsCacheData_.contains(childMi));
             cnt++;
         }
     }
-    Q_ASSERT(cnt == itemsCacheData_.count());
+    WS_ASSERT(cnt == itemsCacheData_.count());
 
     for (const auto &it : items_) {
-        Q_ASSERT(it.isValid());
+        WS_ASSERT(it.isValid());
     }
 
     for (const auto &it : expandedItems_) {
-        Q_ASSERT(it.isValid());
+        WS_ASSERT(it.isValid());
     }
 
     if (expandingAnimation_.state() == QAbstractAnimation::Running)
     {
-        Q_ASSERT(expandingItem_.isValid());
+        WS_ASSERT(expandingItem_.isValid());
     }
 
 #endif
@@ -640,7 +640,7 @@ void ExpandableItemsWidget::stopExpandingAnimation()
 
 void ExpandableItemsWidget::expandItem(const QPersistentModelIndex &ind)
 {
-    Q_ASSERT(isExpandableItem(ind));
+    WS_ASSERT(isExpandableItem(ind));
     if (model_->rowCount(ind) == 0) // is item has children?
         return;
 
@@ -698,7 +698,7 @@ QVector<ExpandableItemsWidget::ItemRect> ExpandableItemsWidget::getItemRects()
                 if (expandedHeight == 0)
                     break;
                 if (expandedHeight < 0)
-                    Q_ASSERT(false);
+                    WS_ASSERT(false);
             }
         }
     }

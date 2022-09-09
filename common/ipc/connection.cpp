@@ -1,6 +1,7 @@
 #include "connection.h"
 #include "commandfactory.h"
 #include <QTimer>
+#include "utils/ws_assert.h"
 
 namespace IPC
 {
@@ -36,13 +37,13 @@ void Connection::connect()
 
 void Connection::close()
 {
-    Q_ASSERT(localSocket_ != NULL);
+    WS_ASSERT(localSocket_ != NULL);
     safeDeleteSocket();
 }
 
 void Connection::sendCommand(const Command &commandl)
 {
-    Q_ASSERT(localSocket_ != NULL);
+    WS_ASSERT(localSocket_ != NULL);
 
     // command structure
     // 1) (int) size of protobuf message in bytes
@@ -55,7 +56,7 @@ void Connection::sendCommand(const Command &commandl)
     std::string strId = commandl.getStringId();
     int sizeOfStringId = strId.length();
 
-    Q_ASSERT(sizeOfStringId > 0);
+    WS_ASSERT(sizeOfStringId > 0);
 
     bool isWriteBufIsEmpty = writeBuf_.isEmpty();
 

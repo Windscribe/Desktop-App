@@ -17,6 +17,7 @@
 #include "commongraphics/commongraphics.h"
 #include "backend/persistentstate.h"
 
+#include "utils/ws_assert.h"
 #include "utils/extraconfig.h"
 #include "utils/hardcodedsettings.h"
 #include "utils/utils.h"
@@ -827,10 +828,10 @@ void MainWindow::onConnectWindowConnectClick()
         if (!selectedLocation_->isValid())
         {
             LocationID bestLocation = backend_->locationsModelManager()->getBestLocationId();
-            Q_ASSERT(bestLocation.isValid());
+            WS_ASSERT(bestLocation.isValid());
             selectedLocation_->set(bestLocation);
             PersistentState::instance().setLastLocation(selectedLocation_->locationdId());
-            Q_ASSERT(selectedLocation_->isValid());
+            WS_ASSERT(selectedLocation_->isValid());
         }
         backend_->sendConnect(selectedLocation_->locationdId());
     }
@@ -1258,7 +1259,7 @@ void MainWindow::onLocationSelected(const LocationID &lid)
     }
     else
     {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
     }
 }
 
@@ -1449,10 +1450,10 @@ void MainWindow::onBackendLoginFinished(bool /*isLoginFromSavedSettings*/)
         if (!selectedLocation_->isValid())
         {
             LocationID bestLocation = backend_->locationsModelManager()->getBestLocationId();
-            Q_ASSERT(bestLocation.isValid());
+            WS_ASSERT(bestLocation.isValid());
             if (!bestLocation.isValid())
             {
-                qCDebug(LOG_BASIC) << "Fatal error: MainWindow::onBackendLoginFinished, Q_ASSERT(bestLocation.isValid());";
+                qCDebug(LOG_BASIC) << "Fatal error: MainWindow::onBackendLoginFinished, WS_ASSERT(bestLocation.isValid());";
             }
             selectedLocation_->set(bestLocation);
             PersistentState::instance().setLastLocation(selectedLocation_->locationdId());
@@ -1805,8 +1806,8 @@ void MainWindow::onBackendConnectStateChanged(const types::ConnectState &connect
                                                                                       selectedLocation_->countryCode(), selectedLocation_->pingTime());
             }
             else {
-                qCDebug(LOG_BASIC) << "Fatal error: MainWindow::onBackendConnectStateChanged, Q_ASSERT(selectedLocation_.isValid());";
-                Q_ASSERT(false);
+                qCDebug(LOG_BASIC) << "Fatal error: MainWindow::onBackendConnectStateChanged, WS_ASSERT(selectedLocation_.isValid());";
+                WS_ASSERT(false);
             }
         }
     }
@@ -1931,7 +1932,7 @@ void MainWindow::onBackendSignOutFinished()
     }
     else
     {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
         mainWindowController_->getLoginWindow()->resetState();
         mainWindowController_->getLoginWindow()->setErrorMessage(ILoginWindow::ERR_MSG_EMPTY, QString());
     }
@@ -2693,7 +2694,7 @@ void MainWindow::onReceivedOpenLocationsMessage()
     // TODO: replace this delay with something less hacky
     // There is a race condition when CLI tries to expand the locations
     // from a CLI-spawned-GUI (Win): the location foreground doesn't appear, only the location's shadow
-    // from a CLI-spawned-GUI (Mac): could fail Q_ASSERT(curWindow_ == WINDOW_ID_CONNECT) in expandLocations
+    // from a CLI-spawned-GUI (Mac): could fail WS_ASSERT(curWindow_ == WINDOW_ID_CONNECT) in expandLocations
     QTimer::singleShot(500, [this](){
         mainWindowController_->expandLocations();
         localIpcServer_->sendLocationsShown();
@@ -3254,7 +3255,7 @@ void MainWindow::setInitialFirewallState()
 
 void MainWindow::handleDisconnectWithError(const types::ConnectState &connectState)
 {
-    Q_ASSERT(connectState.disconnectReason == DISCONNECTED_WITH_ERROR);
+    WS_ASSERT(connectState.disconnectReason == DISCONNECTED_WITH_ERROR);
 
     QString msg;
     if (connectState.connectError == NO_OPENVPN_SOCKET)
@@ -3525,11 +3526,11 @@ void MainWindow::onWireGuardAtKeyLimit()
 
 void MainWindow::onSelectedLocationChanged()
 {
-    Q_ASSERT(selectedLocation_->isValid());
+    WS_ASSERT(selectedLocation_->isValid());
     // If the best location has changed and we are not disconnected, then transform the current location into a normal one.
     if (selectedLocation_->locationdId().isBestLocation())
     {
-        Q_ASSERT(selectedLocation_->prevLocationdId().isBestLocation());
+        WS_ASSERT(selectedLocation_->prevLocationdId().isBestLocation());
         if (!backend_->isDisconnected())
         {
             selectedLocation_->set(selectedLocation_->prevLocationdId().bestLocationToApiLocation());
@@ -3550,9 +3551,9 @@ void MainWindow::onSelectedLocationRemoved()
     if (backend_->isDisconnected())
     {
         LocationID bestLocation = backend_->locationsModelManager()->getBestLocationId();
-        Q_ASSERT(bestLocation.isValid());
+        WS_ASSERT(bestLocation.isValid());
         selectedLocation_->set(bestLocation);
-        Q_ASSERT(selectedLocation_->isValid());
+        WS_ASSERT(selectedLocation_->isValid());
         PersistentState::instance().setLastLocation(selectedLocation_->locationdId());
         mainWindowController_->getConnectWindow()->updateLocationInfo(selectedLocation_->firstName(), selectedLocation_->secondName(),
                                                                       selectedLocation_->countryCode(), selectedLocation_->pingTime());

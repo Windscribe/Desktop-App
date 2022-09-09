@@ -3,6 +3,7 @@
 #include "logincontroller.h"
 #include "engine/helper/ihelper.h"
 #include "engine/serverapi/serverapi.h"
+#include "utils/ws_assert.h"
 #include "utils/utils.h"
 #include "utils/hardcodedsettings.h"
 #include "engine/getdeviceid.h"
@@ -200,7 +201,7 @@ void LoginController::onAllConfigsReceived(SERVER_API_RET_CODE retCode)
     }
     else
     {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
     }
 }
 
@@ -255,7 +256,7 @@ void LoginController::handleLoginOrSessionAnswer(SERVER_API_RET_CODE retCode, co
     }
     else
     {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
     }
 }
 
@@ -276,7 +277,7 @@ void LoginController::makeLoginRequest(const QString &hostname)
 
 void LoginController::makeApiAccessRequest()
 {
-    Q_ASSERT(getApiAccessIps_ == NULL);
+    WS_ASSERT(getApiAccessIps_ == NULL);
     getApiAccessIps_ = new GetApiAccessIps(this, serverAPI_);
     connect(getApiAccessIps_, SIGNAL(finished(SERVER_API_RET_CODE,QStringList)), SLOT(onGetApiAccessIpsFinished(SERVER_API_RET_CODE,QStringList)));
     getApiAccessIps_->get();

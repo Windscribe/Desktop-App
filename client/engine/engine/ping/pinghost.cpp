@@ -1,4 +1,5 @@
 #include "pinghost.h"
+#include "utils/ws_assert.h"
 
 const int typeIdPingType = qRegisterMetaType<PingHost::PING_TYPE>("PingHost::PING_TYPE");
 
@@ -47,7 +48,7 @@ void PingHost::addHostForPingImpl(const QString &ip, PingHost::PING_TYPE pingTyp
     }
     else
     {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
     }
 }
 

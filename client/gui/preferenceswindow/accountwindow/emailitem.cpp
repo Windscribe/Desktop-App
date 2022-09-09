@@ -5,6 +5,7 @@
 #include "graphicresources/imageresourcessvg.h"
 #include "dpiscalemanager.h"
 #include "preferenceswindow/preferencesconst.h"
+#include "utils/ws_assert.h"
 
 namespace PreferencesWindow {
 
@@ -240,7 +241,7 @@ void EmailItem::setEmailSendState(EmailItem::EMAIL_SEND_STATE state)
         }
         else
         {
-            Q_ASSERT(false);
+            WS_ASSERT(false);
         }
 
         emailSendState_ = state;

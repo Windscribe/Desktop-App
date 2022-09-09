@@ -1,6 +1,7 @@
 #include <QStringRef>
 
 #include "openvpnconnection.h"
+#include "utils/ws_assert.h"
 #include "utils/crashhandler.h"
 #include "utils/logger.h"
 #include "utils/utils.h"
@@ -37,7 +38,7 @@ void OpenVPNConnection::startConnect(const QString &configPathOrUrl, const QStri
     Q_UNUSED(wireGuardConfig);
     Q_UNUSED(isEnableIkev2Compression);
     Q_UNUSED(isAutomaticConnectionMode);
-    Q_ASSERT(getCurrentState() == STATUS_DISCONNECTED);
+    WS_ASSERT(getCurrentState() == STATUS_DISCONNECTED);
 
     qCDebug(LOG_CONNECTION) << "connectOVPN";
 
@@ -143,7 +144,7 @@ IHelper::ExecuteError OpenVPNConnection::runOpenVPN(unsigned int port, const typ
     }
     else if (proxySettings.option() == PROXY_OPTION_AUTODETECT)
     {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
     }
 
     qCDebug(LOG_CONNECTION) << "OpenVPN version:" << OpenVpnVersionController::instance().getSelectedOpenVpnVersion();
@@ -163,7 +164,7 @@ IHelper::ExecuteError OpenVPNConnection::runOpenVPN(unsigned int port, const typ
     }
     else if (proxySettings.option() == PROXY_OPTION_AUTODETECT)
     {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
     }
     qCDebug(LOG_CONNECTION) << "OpenVPN version:" << OpenVpnVersionController::instance().getSelectedOpenVpnVersion();
     //qCDebug(LOG_CONNECTION) << strCommand;
@@ -454,7 +455,7 @@ void OpenVPNConnection::handleRead(const boost::system::error_code &err, size_t 
                     if (connectionAdapterInfo_.adapterIp() != windscribeAdapter.adapterIp())
                     {
                         qCDebug(LOG_CONNECTION) << "Error: Adapter IP detected from openvpn log not equal to the adapter IP from AdapterUtils_win::getWindscribeConnectedAdapterInfo()";
-                        Q_ASSERT(false);
+                        WS_ASSERT(false);
                     }
                     connectionAdapterInfo_.setAdapterName(windscribeAdapter.adapterName());
                     connectionAdapterInfo_.setAdapterIp(windscribeAdapter.adapterIp());
@@ -753,7 +754,7 @@ bool OpenVPNConnection::parseDeviceOpenedReply(const QString &reply, QString &ou
     outDeviceName = v2[2].toString();
 #endif
 
-    Q_ASSERT(outDeviceName.contains("tun"));
+    WS_ASSERT(outDeviceName.contains("tun"));
     return !outDeviceName.isEmpty();
 }
 

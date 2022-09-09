@@ -1,5 +1,6 @@
 #include "networkaccessmanager.h"
 #include "engine/dnsresolver/dnsrequest.h"
+#include "utils/ws_assert.h"
 
 std::atomic<quint64> NetworkAccessManager::nextId_(0);
 
@@ -17,36 +18,36 @@ NetworkAccessManager::~NetworkAccessManager()
 
 NetworkReply *NetworkAccessManager::get(const NetworkRequest &request)
 {
-    Q_ASSERT(QThread::currentThread() == this->thread());
+    WS_ASSERT(QThread::currentThread() == this->thread());
     return invokeHandleRequest(REQUEST_GET, request, QByteArray());
 }
 
 NetworkReply *NetworkAccessManager::post(const NetworkRequest &request, const QByteArray &data)
 {
-    Q_ASSERT(QThread::currentThread() == this->thread());
+    WS_ASSERT(QThread::currentThread() == this->thread());
     return invokeHandleRequest(REQUEST_POST, request, data);
 }
 
 NetworkReply *NetworkAccessManager::put(const NetworkRequest &request, const QByteArray &data)
 {
-    Q_ASSERT(QThread::currentThread() == this->thread());
+    WS_ASSERT(QThread::currentThread() == this->thread());
     return invokeHandleRequest(REQUEST_PUT, request, data);
 }
 
 NetworkReply *NetworkAccessManager::deleteResource(const NetworkRequest &request)
 {
-    Q_ASSERT(QThread::currentThread() == this->thread());
+    WS_ASSERT(QThread::currentThread() == this->thread());
     return invokeHandleRequest(REQUEST_DELETE, request, QByteArray());
 }
 
 void NetworkAccessManager::abort(NetworkReply *reply)
 {
-    Q_ASSERT(QThread::currentThread() == this->thread());
-    Q_ASSERT(reply->property("replyId") != QVariant::Invalid);
+    WS_ASSERT(QThread::currentThread() == this->thread());
+    WS_ASSERT(reply->property("replyId") != QVariant::Invalid);
     quint64 id = reply->property("replyId").toULongLong();
 
     auto it = activeRequests_.find(id);
-    Q_ASSERT(it != activeRequests_.end());
+    WS_ASSERT(it != activeRequests_.end());
     if (it != activeRequests_.end())
     {
         QSharedPointer<RequestData> requestData = it.value();
@@ -59,7 +60,7 @@ void NetworkAccessManager::abort(NetworkReply *reply)
 
 void NetworkAccessManager::handleRequest(quint64 id)
 {
-    Q_ASSERT(QThread::currentThread() == this->thread());
+    WS_ASSERT(QThread::currentThread() == this->thread());
 
     auto it = activeRequests_.find(id);
     if (it != activeRequests_.end())
@@ -140,7 +141,7 @@ void NetworkAccessManager::onResolved(bool success, const QStringList &ips, quin
                 }
                 else
                 {
-                    Q_ASSERT(false);
+                    WS_ASSERT(false);
                 }
 
 
@@ -184,7 +185,7 @@ NetworkReply *NetworkAccessManager::invokeHandleRequest(NetworkAccessManager::RE
     requestData->reply = reply;
     requestData->data = data;
 
-    Q_ASSERT(!activeRequests_.contains(id));
+    WS_ASSERT(!activeRequests_.contains(id));
     activeRequests_[id] = requestData;
 
     QMetaObject::invokeMethod(this, "handleRequest", Qt::QueuedConnection, Q_ARG(quint64, id));
@@ -220,7 +221,7 @@ QByteArray NetworkReply::readAll()
     }
     else
     {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
         return QByteArray();
     }
 }

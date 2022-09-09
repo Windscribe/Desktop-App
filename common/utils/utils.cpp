@@ -4,6 +4,7 @@
 #include <thread>
 #include <limits>
 #include <QDir>
+#include "ws_assert.h"
 #include "logger.h"
 
 #ifdef Q_OS_WIN
@@ -229,7 +230,7 @@ QString Utils::generateRandomMacAddress()
 
 QString Utils::formatMacAddress(QString macAddress)
 {
-    // Q_ASSERT(macAddress.length() == 12);
+    // WS_ASSERT(macAddress.length() == 12);
 
     QString formattedMac = QString("%1:%2:%3:%4:%5:%6").arg(macAddress.mid(0,2))
             .arg(macAddress.mid(2,2))
@@ -306,7 +307,7 @@ bool Utils::pingWithMtu(const QString &url, int mtu)
     return NetworkUtils_mac::pingWithMtu(url, mtu);
 #elif defined Q_OS_LINUX
     //todo linux
-    Q_ASSERT(false);
+    WS_ASSERT(false);
     Q_UNUSED(url);
     Q_UNUSED(mtu);
     return true;
@@ -429,7 +430,7 @@ QString Utils::getDirPathFromFullPath(const QString &fullPath)
     if (index < 0)
     {
         qCDebug(LOG_BASIC) << "Failed to find index of delimiter";
-        Q_ASSERT(false);
+        WS_ASSERT(false);
         return fullPath;
     }
 

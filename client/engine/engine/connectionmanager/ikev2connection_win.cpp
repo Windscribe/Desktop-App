@@ -5,6 +5,7 @@
 #include <QCoreApplication>
 #include "utils/hardcodedsettings.h"
 #include "engine/taputils/checkadapterenable.h"
+#include "utils/ws_assert.h"
 #include "utils/winutils.h"
 #include "utils/ras_service_win.h"
 #include "adapterutils_win.h"
@@ -22,15 +23,15 @@ IKEv2Connection_win::IKEv2Connection_win(QObject *parent, IHelper *helper) : ICo
     disconnectLogic_(this), cntFailedConnectionAttempts_(0)
 {
     helper_ = dynamic_cast<Helper_win *>(helper);
-    Q_ASSERT(helper_);
+    WS_ASSERT(helper_);
 
-    Q_ASSERT(this_ == NULL);
+    WS_ASSERT(this_ == NULL);
     this_ = this;
     initMapConnStates();
     timerControlConnection_.setInterval(CONTROL_TIMER_PERIOD);
     connect(&timerControlConnection_, &QTimer::timeout, this, &IKEv2Connection_win::onTimerControlConnection);
     connect(&disconnectLogic_, &IKEv2ConnectionDisconnectLogic_win::disconnected, this, &IKEv2Connection_win::onHandleDisconnectLogic);
-    Q_ASSERT(state_ == STATE_DISCONNECTED);
+    WS_ASSERT(state_ == STATE_DISCONNECTED);
 }
 
 IKEv2Connection_win::~IKEv2Connection_win()
@@ -46,7 +47,7 @@ void IKEv2Connection_win::startConnect(const QString &configPathOrUrl, const QSt
 
     QMutexLocker locker(&mutex_);
 
-    Q_ASSERT(state_ == STATE_DISCONNECTED);
+    WS_ASSERT(state_ == STATE_DISCONNECTED);
 
     initialUrl_ = configPathOrUrl;
     initialIp_ = ip;
@@ -138,13 +139,13 @@ QVector<HRASCONN> IKEv2Connection_win::getActiveWindscribeConnections()
 void IKEv2Connection_win::continueWithUsernameAndPassword(const QString & /*username*/, const QString & /*password*/)
 {
     // nothing todo for ikev2
-    Q_ASSERT(false);
+    WS_ASSERT(false);
 }
 
 void IKEv2Connection_win::continueWithPassword(const QString & /*password*/)
 {
     // nothing todo for ikev2
-    Q_ASSERT(false);
+    WS_ASSERT(false);
 }
 
 void IKEv2Connection_win::onTimerControlConnection()
@@ -187,7 +188,7 @@ void IKEv2Connection_win::onTimerControlConnection()
     }
     else
     {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
     }
 }
 
@@ -632,13 +633,13 @@ QString IKEv2Connection_win::rasConnStateToString(tagRASCONNSTATE state)
     }
     else
     {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
         return "rasConnStateToString: unknown value";
     }
 }
 
 void IKEv2Connection_win::staticRasDialFunc(HRASCONN hRasConn, UINT unMsg, RASCONNSTATE rascs, DWORD dwError, DWORD dwExtendedError)
 {
-    Q_ASSERT(this_ != NULL);
+    WS_ASSERT(this_ != NULL);
     this_->rasDialFuncCallback(hRasConn, unMsg, rascs, dwError, dwExtendedError);
 }

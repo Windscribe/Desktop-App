@@ -1,6 +1,7 @@
 #include "installedantiviruses_win.h"
 #include <comdef.h>
-#include "Utils/logger.h"
+#include "utils/ws_assert.h"
+#include "utils/logger.h"
 
 #pragma comment(lib, "wbemuuid.lib")
 
@@ -30,7 +31,7 @@ void InstalledAntiviruses_win::outToLog()
         }
         else
         {
-            Q_ASSERT(false);
+            WS_ASSERT(false);
         }
     }
 

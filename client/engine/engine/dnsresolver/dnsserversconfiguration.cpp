@@ -1,4 +1,5 @@
 #include "dnsserversconfiguration.h"
+#include "utils/ws_assert.h"
 #include "utils/hardcodedsettings.h"
 #include "utils/logger.h"
 #include <QMutexLocker>
@@ -47,7 +48,7 @@ QStringList DnsServersConfiguration::dnsPolicyTypeToStringList(DNS_POLICY_TYPE d
     }
     else
     {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
     }
     return QStringList();
 }

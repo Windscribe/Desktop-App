@@ -6,6 +6,7 @@
 #include "graphicresources/fontmanager.h"
 #include "commongraphics/commongraphics.h"
 #include "graphicresources/imageresourcessvg.h"
+#include "utils/ws_assert.h"
 #include "dpiscalemanager.h"
 #include "tooltips/tooltipcontroller.h"
 
@@ -175,7 +176,7 @@ void ConfigFooterInfo::mouseReleaseEvent(QMouseEvent * /*event*/)
 
 void ConfigFooterInfo::onIconOpacityChanged(const QVariant &value, int index)
 {
-    Q_ASSERT(index >= 0 && index < NUM_ICONS);
+    WS_ASSERT(index >= 0 && index < NUM_ICONS);
     iconButtons_[index].opacity = value.toDouble();
     update();
 }

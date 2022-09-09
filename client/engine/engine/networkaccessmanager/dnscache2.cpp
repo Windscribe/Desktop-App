@@ -1,6 +1,7 @@
 #include "dnscache2.h"
 #include <QDateTime>
 #include <QTimer>
+#include "utils/ws_assert.h"
 #include "utils/ipvalidation.h"
 #include "engine/dnsresolver/dnsrequest.h"
 
@@ -86,16 +87,16 @@ const QSet<QString> &DnsCache2::whitelistIps() const
 void DnsCache2::onDnsRequestFinished()
 {
     DnsRequest *dnsRequest = qobject_cast<DnsRequest *>(sender());
-    Q_ASSERT(dnsRequest != nullptr);
+    WS_ASSERT(dnsRequest != nullptr);
 
     bool bOk;
     quint64 requestId = dnsRequest->property("requestId").toULongLong(&bOk);
-    Q_ASSERT(bOk);
+    WS_ASSERT(bOk);
 
     qint64 startTimeMs = dnsRequest->property("startTime").toLongLong(&bOk);
-    Q_ASSERT(bOk);
+    WS_ASSERT(bOk);
     qint64 timeRequest = QDateTime::currentMSecsSinceEpoch() - startTimeMs;
-    Q_ASSERT(timeRequest >= 0);
+    WS_ASSERT(timeRequest >= 0);
 
     bool bSuccess = false;
     if (!dnsRequest->isError())

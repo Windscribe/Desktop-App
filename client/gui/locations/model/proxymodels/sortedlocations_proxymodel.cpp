@@ -42,7 +42,7 @@ bool SortedLocationsProxyModel::lessThan(const QModelIndex &left, const QModelIn
     }
     else
     {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
     }
     return true;
 }

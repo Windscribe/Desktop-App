@@ -1,9 +1,9 @@
 #include "firewallcontroller_mac.h"
 #include <QStandardPaths>
+#include "utils/ws_assert.h"
 #include "utils/logger.h"
 #include <QDir>
 #include <QCoreApplication>
-
 
 namespace {
 
@@ -79,7 +79,7 @@ FirewallController_mac::FirewallController_mac(QObject *parent, IHelper *helper)
     if (firewallState.isEnabled && !firewallState.isBasicWindscribeRulesCorrect)
     {
         qCDebug(LOG_FIREWALL_CONTROLLER) << "Warning: the firewall was enabled at the start, but not by the Windscribe program.";
-        Q_ASSERT(false);
+        WS_ASSERT(false);
         firewallOffImpl();
         isFirewallEnabled_ = false;
     }
@@ -89,7 +89,7 @@ FirewallController_mac::FirewallController_mac(QObject *parent, IHelper *helper)
         if (windscribeIps_.isEmpty())
         {
             qCDebug(LOG_FIREWALL_CONTROLLER) << "Warning: the firewall was enabled at the start, but windscribe_ips table not found or empty.";
-            Q_ASSERT(false);
+            WS_ASSERT(false);
         }
         interfaceToSkip_ = firewallState.interfaceToSkip;
         isAllowLanTraffic_ = firewallState.isAllowLanTraffic;
@@ -340,7 +340,7 @@ void FirewallController_mac::getFirewallStateFromPfctl(FirewallState &outState)
     if (!output.isEmpty())
     {
         QStringList rules = output.split("\n");
-        Q_ASSERT(rules.size() == 2);
+        WS_ASSERT(rules.size() == 2);
         if (rules.size() > 0)
         {
             QStringList words = rules[0].split(" ");
@@ -350,7 +350,7 @@ void FirewallController_mac::getFirewallStateFromPfctl(FirewallState &outState)
             }
             else
             {
-                Q_ASSERT(false);
+                WS_ASSERT(false);
             }
         }
     }

@@ -2,13 +2,14 @@
 
 #include <QThread>
 #include <QTimer>
+#include "utils/ws_assert.h"
 
 namespace HttpProxyServer {
 
 HttpProxyConnectionManager::HttpProxyConnectionManager(QObject *parent, int threadsCount, ConnectedUsersCounter *usersCounter) : QObject(parent),
     usersCounter_(usersCounter)
 {
-    Q_ASSERT(threadsCount > 0);
+    WS_ASSERT(threadsCount > 0);
     for (int i = 0; i < threadsCount; i++)
     {
         QThread *thread = new QThread(this);
@@ -63,10 +64,10 @@ void HttpProxyConnectionManager::onConnectionFinished(const QString &hostname)
     usersCounter_->userDiconnected(hostname);
     //qDebug() << "Connection finished:" << connection;
     QMap<HttpProxyConnection *, QThread *>::iterator it = connections_.find(connection);
-    Q_ASSERT(it != connections_.end());
+    WS_ASSERT(it != connections_.end());
 
     QMap<QThread *, quint32>::iterator itThread = threads_.find(it.value());
-    Q_ASSERT(itThread != threads_.end());
+    WS_ASSERT(itThread != threads_.end());
     itThread.value()--;
 
     it.key()->deleteLater();
@@ -78,7 +79,7 @@ void HttpProxyConnectionManager::onConnectionFinished(const QString &hostname)
 
 QThread *HttpProxyConnectionManager::getLessBusyThread()
 {
-    Q_ASSERT(threads_.count() > 0);
+    WS_ASSERT(threads_.count() > 0);
     quint32 min = threads_.begin().value();
     QThread *thread = threads_.begin().key();
 
@@ -98,7 +99,7 @@ void HttpProxyConnectionManager::addConnectionToThread(QThread *thread, HttpProx
     //qDebug() << "Connection started:" << connection;
     connection->moveToThread(thread);
     QTimer::singleShot(0, connection, SLOT(start()));
-    Q_ASSERT(!connections_.contains(connection));
+    WS_ASSERT(!connections_.contains(connection));
     connections_[connection] = thread;
     threads_[thread]++;
 }

@@ -10,6 +10,7 @@
 #include "dpiscalemanager.h"
 #include "tooltips/tooltiptypes.h"
 #include "tooltips/tooltipcontroller.h"
+#include "utils/ws_assert.h"
 #include "utils/logger.h"
 
 extern QWidget *g_mainWindow;
@@ -302,7 +303,7 @@ void LocationsTab::changeTab(LocationTabEnum newTab, bool animateChange)
         onClickSearchLocations();
     } else {
         endWhiteLinePos = 0;
-        Q_ASSERT(false);
+        WS_ASSERT(false);
     }
 
     if (animateChange) {
@@ -622,7 +623,7 @@ WidgetSwitcher *LocationsTab::getCurrentWidget() const
         case LOCATION_TAB_SEARCH_LOCATIONS:
             return widgetSearchLocations_;
         default:
-            Q_ASSERT(false);
+            WS_ASSERT(false);
             return nullptr;
     }
 }
@@ -934,7 +935,7 @@ void LocationsTab::rectHoverEnter(QRect buttonRect, QString text, int offsetX, i
 
 void LocationsTab::updateCustomConfigsEmptyListVisibility()
 {
-    Q_ASSERT(configFooterInfo_ != nullptr);
+    WS_ASSERT(configFooterInfo_ != nullptr);
     if (configFooterInfo_->text().isEmpty()) {
         widgetConfiguredLocations_->emptyListWidget()->setText(
             tr("Choose the directory that contains custom configs you wish to display here"), 160);

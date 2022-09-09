@@ -2,13 +2,14 @@
 #include <QVariant>
 
 #include "measurementcpuusage.h"
-#include "Utils/logger.h"
+#include "utils/ws_assert.h"
+#include "utils/logger.h"
 
 MeasurementCpuUsage::MeasurementCpuUsage(QObject *parent, IHelper *helper, IConnectStateController *connectStateController) : QObject(parent),
     bEnabled_(false)
 {
     helper_ = dynamic_cast<Helper_win *>(helper);
-    Q_ASSERT(helper_);
+    WS_ASSERT(helper_);
     connect(connectStateController, SIGNAL(stateChanged(CONNECT_STATE, DISCONNECT_REASON, CONNECT_ERROR, LocationID)), SLOT(onConnectStateChanged(CONNECT_STATE, DISCONNECT_REASON, CONNECT_ERROR, LocationID)));
     connect(&timer_, SIGNAL(timeout()), SLOT(onTimer()));
 
@@ -124,7 +125,7 @@ void MeasurementCpuUsage::startInConnectingState()
 
 void MeasurementCpuUsage::continueInConnectedState()
 {
-    Q_ASSERT(timer_.isActive());
+    WS_ASSERT(timer_.isActive());
     qDebug() << "MeasurementCpuUsage detect CPU usage in connected state";
     PdhCollectQueryData(hQuery_);
     timer_.setProperty("startedInDisconnectedState", false);

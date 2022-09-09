@@ -1,12 +1,13 @@
 #include "firewallcontroller_win.h"
 #include <QStandardPaths>
 #include <QDir>
-#include "Utils/logger.h"
+#include "utils/ws_assert.h"
+#include "utils/logger.h"
 
 FirewallController_win::FirewallController_win(QObject *parent, IHelper *helper) : FirewallController(parent)
 {
     helper_win_ = dynamic_cast<Helper_win *>(helper);
-    Q_ASSERT(helper_win_);
+    WS_ASSERT(helper_win_);
 }
 
 FirewallController_win::~FirewallController_win()

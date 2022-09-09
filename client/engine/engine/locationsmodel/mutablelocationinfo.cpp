@@ -1,5 +1,6 @@
 #include "mutablelocationinfo.h"
 
+#include "utils/ws_assert.h"
 #include "utils/logger.h"
 #include "utils/ipvalidation.h"
 #include "utils/utils.h"
@@ -37,7 +38,7 @@ QString MutableLocationInfo::getDnsName() const
         }
         else
         {
-            Q_ASSERT(false);
+            WS_ASSERT(false);
             return "";
         }
     }
@@ -76,8 +77,8 @@ int MutableLocationInfo::nodesCount() const
 
 QString MutableLocationInfo::getIpForNode(int indNode, int indIp) const
 {
-    Q_ASSERT(indNode >= 0 && indNode < nodes_.count());
-    Q_ASSERT(indIp >= 0 && indIp <= 3);
+    WS_ASSERT(indNode >= 0 && indNode < nodes_.count());
+    WS_ASSERT(indIp >= 0 && indIp <= 3);
     return nodes_[indNode]->getIp(indIp);
 }
 
@@ -87,75 +88,75 @@ void MutableLocationInfo::selectNextNode()
     selectedNode_ ++;
     if (selectedNode_ >= nodes_.count())
     {
-        Q_ASSERT(nodes_.count() > 0);
+        WS_ASSERT(nodes_.count() > 0);
         selectedNode_ = 0;
     }
 }
 
 QString MutableLocationInfo::getIpForSelectedNode(int indIp) const
 {
-    Q_ASSERT(indIp >= 0 && indIp <= 3);
-    Q_ASSERT(selectedNode_ >= 0 && selectedNode_ < nodes_.count());
+    WS_ASSERT(indIp >= 0 && indIp <= 3);
+    WS_ASSERT(selectedNode_ >= 0 && selectedNode_ < nodes_.count());
     return nodes_[selectedNode_]->getIp(indIp);
 }
 
 QString MutableLocationInfo::getHostnameForSelectedNode() const
 {
-    Q_ASSERT(selectedNode_ >= 0 && selectedNode_ < nodes_.count());
+    WS_ASSERT(selectedNode_ >= 0 && selectedNode_ < nodes_.count());
     return nodes_[selectedNode_]->getHostname();
 }
 
 QString MutableLocationInfo::getWgPubKeyForSelectedNode() const
 {
-    Q_ASSERT(selectedNode_ >= 0 && selectedNode_ < nodes_.count());
+    WS_ASSERT(selectedNode_ >= 0 && selectedNode_ < nodes_.count());
     return nodes_[selectedNode_]->getWgPubKey();
 }
 
 QString MutableLocationInfo::getWgIpForSelectedNode() const
 {
-    Q_ASSERT(locationId_.isStaticIpsLocation());
-    Q_ASSERT(selectedNode_ >= 0 && selectedNode_ < nodes_.count());
+    WS_ASSERT(locationId_.isStaticIpsLocation());
+    WS_ASSERT(selectedNode_ >= 0 && selectedNode_ < nodes_.count());
     return nodes_[selectedNode_]->getWgIp();
 }
 
 QString MutableLocationInfo::getStaticIpUsername() const
 {
-    Q_ASSERT(locationId_.isStaticIpsLocation());
+    WS_ASSERT(locationId_.isStaticIpsLocation());
     if (selectedNode_ >= 0 && selectedNode_ < nodes_.count())
     {
         return nodes_[selectedNode_]->getStaticIpUsername();
     }
     else
     {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
         return "";
     }
 }
 
 QString MutableLocationInfo::getStaticIpPassword() const
 {
-    Q_ASSERT(locationId_.isStaticIpsLocation());
+    WS_ASSERT(locationId_.isStaticIpsLocation());
     if (selectedNode_ >= 0 && selectedNode_ < nodes_.count())
     {
         return nodes_[selectedNode_]->getStaticIpPassword();
     }
     else
     {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
         return "";
     }
 }
 
 apiinfo::StaticIpPortsVector MutableLocationInfo::getStaticIpPorts() const
 {
-    Q_ASSERT(locationId_.isStaticIpsLocation());
+    WS_ASSERT(locationId_.isStaticIpsLocation());
     if (selectedNode_ >= 0 && selectedNode_ < nodes_.count())
     {
         return nodes_[selectedNode_]->getStaticIpPorts();
     }
     else
     {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
         return apiinfo::StaticIpPortsVector();
     }
 }
@@ -184,11 +185,11 @@ QString MutableLocationInfo::getLogForNode(int ind) const
 
 /*void MutableLocationInfo::locationChanged(const LocationID &locationId, const QVector<ServerNode> &nodes, const QString &dnsHostName)
 {
-    Q_ASSERT(threadHandle_ == QThread::currentThreadId());
+    WS_ASSERT(threadHandle_ == QThread::currentThreadId());
 
     if (locationId == locationId_ && nodes.count() > 0)
     {
-        Q_ASSERT(selectedNode_ != -1);
+        WS_ASSERT(selectedNode_ != -1);
         ServerNode prevSelectedNode = nodes_[selectedNode_];
 
         nodes_ = nodes;

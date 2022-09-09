@@ -1,4 +1,5 @@
 #include "httpproxyserver.h"
+#include "utils/ws_assert.h"
 #include "utils/logger.h"
 
 namespace HttpProxyServer {
@@ -17,7 +18,7 @@ HttpProxyServer::~HttpProxyServer()
 
 bool HttpProxyServer::startServer(quint16 port)
 {
-    Q_ASSERT(!isListening());
+    WS_ASSERT(!isListening());
 
     if (listen(QHostAddress::AnyIPv4, port))
     {

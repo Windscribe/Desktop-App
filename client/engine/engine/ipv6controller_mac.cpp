@@ -1,4 +1,5 @@
 #include "ipv6controller_mac.h"
+#include "utils/ws_assert.h"
 #include "utils/logger.h"
 
 void Ipv6Controller_mac::setHelper(IHelper *helper)
@@ -10,7 +11,7 @@ void Ipv6Controller_mac::disableIpv6()
 {
     if (!bIsDisabled_)
     {
-        Q_ASSERT(helper_ != NULL);
+        WS_ASSERT(helper_ != NULL);
         qCDebug(LOG_BASIC) << "Disable IPv6 for all network interfaces";
 
         const QString answer = helper_->executeRootCommand("networksetup -listallnetworkservices");
@@ -44,7 +45,7 @@ void Ipv6Controller_mac::restoreIpv6()
 {
     if (bIsDisabled_)
     {
-        Q_ASSERT(helper_ != NULL);
+        WS_ASSERT(helper_ != NULL);
         qCDebug(LOG_BASIC) << "Restore IPv6 for all network interfaces";
 
         const QString answer = helper_->executeRootCommand("networksetup -listallnetworkservices");
@@ -97,7 +98,7 @@ Ipv6Controller_mac::Ipv6Controller_mac() : bIsDisabled_(false), helper_(NULL)
 
 Ipv6Controller_mac::~Ipv6Controller_mac()
 {
-    Q_ASSERT(bIsDisabled_ == false);
+    WS_ASSERT(bIsDisabled_ == false);
 }
 
 void Ipv6Controller_mac::saveIpv6States(const QStringList &networkIntefaces)

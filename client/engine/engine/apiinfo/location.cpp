@@ -50,7 +50,7 @@ bool Location::initFromJson(const QJsonObject &obj, QStringList &forceDisconnect
 
 QStringList Location::getAllPingIps() const
 {
-    Q_ASSERT(d->isValid_);
+    WS_ASSERT(d->isValid_);
     QStringList ips;
     for (const Group &g : d->groups_)
     {
@@ -78,7 +78,7 @@ bool Location::operator !=(const Location &other) const
 
 QDataStream& operator <<(QDataStream& stream, const Location& l)
 {
-    Q_ASSERT(l.d->isValid_);
+    WS_ASSERT(l.d->isValid_);
     stream << l.versionForSerialization_;
     stream << l.d->id_ << l.d->name_ << l.d->countryCode_ << l.d->premiumOnly_ << l.d->p2p_ << l.d->dnsHostName_ << l.d->groups_;
     return stream;

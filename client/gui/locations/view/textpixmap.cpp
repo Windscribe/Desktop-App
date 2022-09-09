@@ -1,4 +1,5 @@
 #include "textpixmap.h"
+#include "utils/ws_assert.h"
 
 namespace gui_locations {
 
@@ -23,13 +24,13 @@ TextPixmap::TextPixmap(const QString &text, const QFont &font, qreal devicePixel
 
 void TextPixmaps::add(int id, const QString &text, const QFont &font, qreal devicePixelRatio)
 {
-    Q_ASSERT(!pixmaps_.contains(id));
+    WS_ASSERT(!pixmaps_.contains(id));
     pixmaps_[id] = TextPixmap(text, font, devicePixelRatio);
 }
 
 void TextPixmaps::updateIfTextChanged(int id, const QString &text, const QFont &font, qreal devicePixelRatio)
 {
-    Q_ASSERT(pixmaps_.contains(id));
+    WS_ASSERT(pixmaps_.contains(id));
     auto it = pixmaps_.find(id);
     if (it != pixmaps_.end())
     {
@@ -42,7 +43,7 @@ void TextPixmaps::updateIfTextChanged(int id, const QString &text, const QFont &
 
 IndependentPixmap TextPixmaps::pixmap(int id) const
 {
-    Q_ASSERT(pixmaps_.contains(id));
+    WS_ASSERT(pixmaps_.contains(id));
     return pixmaps_[id].pixmap();
 }
 

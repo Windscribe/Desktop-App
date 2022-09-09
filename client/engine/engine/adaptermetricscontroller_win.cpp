@@ -1,4 +1,5 @@
 #include "adaptermetricscontroller_win.h"
+#include "utils/ws_assert.h"
 #include "utils/logger.h"
 #include <WinSock2.h>
 #include <windows.h>
@@ -9,12 +10,12 @@
 void AdapterMetricsController_win::updateMetrics(const QString &adapterName, IHelper *helper)
 {
     Helper_win *helper_win = dynamic_cast<Helper_win *>(helper);
-    Q_ASSERT(helper_win);
+    WS_ASSERT(helper_win);
 
     if (adapterName.isEmpty())
     {
         qCDebug(LOG_BASIC) << "AdapterMetricsController_win::updateMetrics(), Error, adapterName is empty";
-        Q_ASSERT(false);
+        WS_ASSERT(false);
         return;
     }
 
@@ -69,7 +70,7 @@ void AdapterMetricsController_win::updateMetrics(const QString &adapterName, IHe
             tapFriendlyName = QString::fromStdWString(aa->FriendlyName);
             if (bTapAdapterFound)     // check for duplicate adapters
             {
-                Q_ASSERT(false);
+                WS_ASSERT(false);
                 qCDebug(LOG_BASIC) << "AdapterMetricsController_win::updateMetrics(), Error, two adapters with the same name found";
             }
             bTapAdapterFound = true;

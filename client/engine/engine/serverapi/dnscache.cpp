@@ -1,5 +1,6 @@
 #include "dnscache.h"
 #include <QDateTime>
+#include "utils/ws_assert.h"
 #include "utils/ipvalidation.h"
 #include "engine/dnsresolver/dnsrequest.h"
 #include "engine/dnsresolver/dnsserversconfiguration.h"
@@ -62,7 +63,7 @@ void DnsCache::resolve(const QString &hostname, int cacheTimeout, void *userData
 void DnsCache::onDnsRequestFinished()
 {
     DnsRequest *dnsRequest = qobject_cast<DnsRequest *>(sender());
-    Q_ASSERT(dnsRequest != nullptr);
+    WS_ASSERT(dnsRequest != nullptr);
 
     bool bSuccess = false;
     QStringList ips;

@@ -4,6 +4,7 @@
 #include <QDebug>
 #include <QCoreApplication>
 #include <openssl/ssl.h>
+#include "utils/ws_assert.h"
 #include "utils/crashhandler.h"
 #include "utils/logger.h"
 #include <QStandardPaths>
@@ -185,7 +186,7 @@ void CurlNetworkManager::run()
             }
             else
             {
-                Q_ASSERT(false);
+                WS_ASSERT(false);
                 emit finished(request);
             }
         }
@@ -228,7 +229,7 @@ void CurlNetworkManager::run()
                         else
                         {
                             qCDebug(LOG_CURL_MANAGER) << "Can't create curl object";
-                            Q_ASSERT(false);
+                            WS_ASSERT(false);
                             emit finished(curlRequest);
                         }
                     }
@@ -237,10 +238,10 @@ void CurlNetworkManager::run()
                         curl_off_t download;
                         if (curl_easy_getinfo(e, CURLINFO_SIZE_DOWNLOAD_T, &download) != CURLE_OK)
                         {
-                            Q_ASSERT(false);
+                            WS_ASSERT(false);
                         }
                         // check if gzip compression used
-                        //Q_ASSERT(download < 30000);
+                        //WS_ASSERT(download < 30000);
 
                         curlRequest->setCurlRetCode(m->data.result);
                         emit finished(curlRequest);
@@ -252,7 +253,7 @@ void CurlNetworkManager::run()
                 }
                 else
                 {
-                    Q_ASSERT(false);
+                    WS_ASSERT(false);
                 }
             }
         } while(m);
@@ -299,7 +300,7 @@ CURL *CurlNetworkManager::makeRequest(CurlRequest *curlRequest)
     }
     else
     {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
         return NULL;
     }
 }

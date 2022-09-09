@@ -1,5 +1,6 @@
 #include "networkdetectionmanager_win.h"
 
+#include "utils/ws_assert.h"
 #include "utils/winutils.h"
 #include "utils/logger.h"
 #include "utils/utils.h"
@@ -7,7 +8,7 @@
 NetworkDetectionManager_win::NetworkDetectionManager_win(QObject *parent, IHelper *helper) : INetworkDetectionManager (parent)
 {
     helper_ = dynamic_cast<Helper_win *>(helper);
-    Q_ASSERT(helper_);
+    WS_ASSERT(helper_);
 
     curNetworkInterface_ = WinUtils::currentNetworkInterface();
     bLastIsOnline_ = isOnlineImpl();

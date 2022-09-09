@@ -1,4 +1,5 @@
 #include "socksproxyidentreqparser.h"
+#include "utils/ws_assert.h"
 
 namespace SocksProxyServer {
 
@@ -57,7 +58,7 @@ bool SocksProxyIdentReqParser::consume(char input)
     }
     else
     {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
     }
     return false;
 }

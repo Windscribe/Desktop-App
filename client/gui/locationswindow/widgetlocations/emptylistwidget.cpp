@@ -6,6 +6,7 @@
 #include "graphicresources/imageresourcessvg.h"
 #include "dpiscalemanager.h"
 #include "commongraphics/commongraphics.h"
+#include "utils/ws_assert.h"
 
 namespace GuiLocations {
 
@@ -35,7 +36,7 @@ void EmptyListWidget::setButton(const QString &buttonText)
         delete button_;
         button_ = nullptr;
     } else {
-        Q_ASSERT(button_ == nullptr);
+        WS_ASSERT(button_ == nullptr);
         button_ = new CommonWidgets::TextButtonWidget(buttonText, this);
         button_->setFont(FontDescr(12, false));
         connect(button_, &CommonWidgets::TextButtonWidget::clicked, [this]() {

@@ -1,4 +1,5 @@
 #include "engineserver.h"
+#include "utils/ws_assert.h"
 #include "utils/utils.h"
 #include "utils/logger.h"
 #include "ipc/server.h"
@@ -39,7 +40,7 @@ EngineServer::~EngineServer()
 
 void EngineServer::run()
 {
-    Q_ASSERT(server_ == NULL);
+    WS_ASSERT(server_ == NULL);
     server_ = new IPC::Server();
     connect(dynamic_cast<QObject*>(server_), SIGNAL(newConnection(IPC::IConnection *)), SLOT(onServerCallbackAcceptFunction(IPC::IConnection *)), Qt::QueuedConnection);
 
@@ -58,8 +59,8 @@ bool EngineServer::handleCommand(IPC::Command *command)
 {
     if (command->getStringId() == IPC::ClientCommands::Init::getCommandStringId())
     {
-        // Q_ASSERT(engine_ == NULL);
-        // Q_ASSERT(threadEngine_ == NULL);
+        // WS_ASSERT(engine_ == NULL);
+        // WS_ASSERT(threadEngine_ == NULL);
 
         if (engine_ == NULL && threadEngine_ == NULL)
         {
@@ -182,7 +183,7 @@ bool EngineServer::handleCommand(IPC::Command *command)
         }
         else
         {
-            Q_ASSERT(false);
+            WS_ASSERT(false);
             return false;
         }
     }
@@ -443,7 +444,7 @@ void EngineServer::sendEngineInitReturnCode(ENGINE_INIT_RET_CODE retCode)
     }
     else
     {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
     }
 }
 
@@ -509,7 +510,7 @@ void EngineServer::onConnectionStateCallback(int state, IPC::IConnection *connec
     }
     else
     {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
     }
 }
 

@@ -4,6 +4,7 @@
 #include <QString>
 #include <QMetaType>
 #include <QHash>
+#include "utils/ws_assert.h"
 
 // Uniquely identifies a location among all locations (API locations, statis IPs locations, custom config locations, best location).
 class LocationID
@@ -44,7 +45,7 @@ public:
     inline bool isValid() const { return type_ != INVALID_LOCATION; }
     inline bool isBestLocation() const { return type_ == BEST_LOCATION; }
     inline bool isCustomConfigsLocation() const { return type_ == CUSTOM_CONFIGS_LOCATION; }
-    inline bool isStaticIpsLocation() const { Q_ASSERT(type_ != INVALID_LOCATION); return type_ == STATIC_IPS_LOCATION; }
+    inline bool isStaticIpsLocation() const { WS_ASSERT(type_ != INVALID_LOCATION); return type_ == STATIC_IPS_LOCATION; }
     bool isTopLevelLocation() const;
 
     LocationID bestLocationToApiLocation() const;

@@ -2,6 +2,7 @@
 #include <QFile>
 #include <QStandardPaths>
 #include <QDir>
+#include "utils/ws_assert.h"
 #include "utils/extraconfig.h"
 #include "utils/logger.h"
 #include "../openvpnversioncontroller.h"
@@ -129,7 +130,7 @@ bool MakeOVPNFile::generate(const QString &ovpnData, const QString &ip, PROTOCOL
     }
     else
     {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
     }
 
     if (openVpnX509 != "")

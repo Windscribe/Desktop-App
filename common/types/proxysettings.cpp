@@ -1,4 +1,5 @@
 #include "proxysettings.h"
+#include "utils/ws_assert.h"
 #include "utils/logger.h"
 
 const int typeIdProxySettings = qRegisterMetaType<types::ProxySettings>("types::ProxySettings");
@@ -81,7 +82,7 @@ QNetworkProxy ProxySettings::getNetworkProxy() const
     }
     else if (option_ == PROXY_OPTION_AUTODETECT)
     {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
     }
     else if (option_ == PROXY_OPTION_HTTP)
     {
@@ -101,7 +102,7 @@ QNetworkProxy ProxySettings::getNetworkProxy() const
     }
     else
     {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
     }
     return proxy;
 }

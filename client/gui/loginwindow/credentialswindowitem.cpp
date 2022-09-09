@@ -13,6 +13,7 @@
 #include "graphicresources/fontmanager.h"
 #include "graphicresources/imageresourcessvg.h"
 #include "languagecontroller.h"
+#include "utils/ws_assert.h"
 #include "utils/hardcodedsettings.h"
 #include "dpiscalemanager.h"
 #include "tooltips/tooltiptypes.h"
@@ -28,7 +29,7 @@ const QString SETTINGS_ICON_PATH           = "login/SETTINGS_ICON";
 CredentialsWindowItem::CredentialsWindowItem(QGraphicsObject *parent, PreferencesHelper *preferencesHelper)
     : ScalableGraphicsObject(parent)
 {
-    Q_ASSERT(preferencesHelper);
+    WS_ASSERT(preferencesHelper);
     setFlag(QGraphicsItem::ItemIsFocusable);
 
     // Header Region:
@@ -170,7 +171,7 @@ void CredentialsWindowItem::setErrorMessage(ILoginWindow::ERROR_MESSAGE_TYPE err
             curErrorText_ = errorMessage;
             break;
         default:
-            Q_ASSERT(false);
+            WS_ASSERT(false);
             break;
     }
 

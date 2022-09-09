@@ -1,4 +1,5 @@
 #include "network_utils_mac.h"
+#include "../ws_assert.h"
 #include "../utils.h"
 #include <QFile>
 #include <QProcess>
@@ -281,7 +282,7 @@ void NetworkUtils_mac::getDefaultRoute(QString &outGatewayIp, QString &outInterf
     }
     else
     {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
     }
 }
 

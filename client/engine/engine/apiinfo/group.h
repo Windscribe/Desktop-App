@@ -5,6 +5,7 @@
 #include <QVector>
 #include <QSharedDataPointer>
 #include "node.h"
+#include "utils/ws_assert.h"
 
 namespace apiinfo {
 
@@ -55,22 +56,22 @@ public:
 
     bool initFromJson(QJsonObject &obj, QStringList &forceDisconnectNodes);
 
-    int getId() const { Q_ASSERT(d->isValid_); return d->id_; }
-    QString getCity() const { Q_ASSERT(d->isValid_); return d->city_; }
-    QString getNick() const { Q_ASSERT(d->isValid_); return d->nick_; }
-    bool isPro() const { Q_ASSERT(d->isValid_); return d->pro_ != 0; }
-    bool isDisabled() const { Q_ASSERT(d->isValid_); return d->nodes_.isEmpty(); }
-    QString getPingIp() const { Q_ASSERT(d->isValid_); return d->pingIp_; }
-    QString getWgPubKey() const { Q_ASSERT(d->isValid_); return d->wg_pubkey_; }
-    QString getOvpnX509() const { Q_ASSERT(d->isValid_); return d->ovpn_x509_; }
-    int getLinkSpeed() const { Q_ASSERT(d->isValid_); return d->link_speed_; }
-    int getHealth() const { Q_ASSERT(d->isValid_); return d->health_; }
+    int getId() const { WS_ASSERT(d->isValid_); return d->id_; }
+    QString getCity() const { WS_ASSERT(d->isValid_); return d->city_; }
+    QString getNick() const { WS_ASSERT(d->isValid_); return d->nick_; }
+    bool isPro() const { WS_ASSERT(d->isValid_); return d->pro_ != 0; }
+    bool isDisabled() const { WS_ASSERT(d->isValid_); return d->nodes_.isEmpty(); }
+    QString getPingIp() const { WS_ASSERT(d->isValid_); return d->pingIp_; }
+    QString getWgPubKey() const { WS_ASSERT(d->isValid_); return d->wg_pubkey_; }
+    QString getOvpnX509() const { WS_ASSERT(d->isValid_); return d->ovpn_x509_; }
+    int getLinkSpeed() const { WS_ASSERT(d->isValid_); return d->link_speed_; }
+    int getHealth() const { WS_ASSERT(d->isValid_); return d->health_; }
 
-    int getNodesCount() const { Q_ASSERT(d->isValid_); return d->nodes_.count(); }
-    const Node &getNode(int ind) const { Q_ASSERT(d->isValid_); return d->nodes_[ind]; }
+    int getNodesCount() const { WS_ASSERT(d->isValid_); return d->nodes_.count(); }
+    const Node &getNode(int ind) const { WS_ASSERT(d->isValid_); return d->nodes_[ind]; }
 
     void setOverrideDnsHostName(const QString &dnsHostName) { d->dnsHostName_ = dnsHostName; }
-    QString getDnsHostName() const { Q_ASSERT(d->isValid_); return d->dnsHostName_; }
+    QString getDnsHostName() const { WS_ASSERT(d->isValid_); return d->dnsHostName_; }
 
     bool operator== (const Group &other) const;
     bool operator!= (const Group &other) const;

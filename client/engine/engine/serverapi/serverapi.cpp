@@ -7,6 +7,7 @@
 #include <QThread>
 #include <QUrl>
 #include <QUrlQuery>
+#include "utils/ws_assert.h"
 #include "utils/hardcodedsettings.h"
 #include "engine/openvpnversioncontroller.h"
 #include "engine/connectstatecontroller/iconnectstatecontroller.h"
@@ -493,7 +494,7 @@ void ServerAPI::submitCurlRequest(BaseRequest *request, CurlRequest::MethodType 
         return;
 
     auto *curl_request = request->getCurlRequest();
-    Q_ASSERT(curl_request != nullptr);
+    WS_ASSERT(curl_request != nullptr);
 
     // Make sure that cURL callback will be called on timeout.
     request->setWaitingHandlerType(BaseRequest::HandlerType::CURL);
@@ -633,7 +634,7 @@ void ServerAPI::serverLocations(const QString &authHash, const QString &language
         }
         else
         {
-            Q_ASSERT(false);
+            WS_ASSERT(false);
         }
         hostname = modifiedHostname;
     }
@@ -910,11 +911,11 @@ void ServerAPI::onDnsResolved(bool success, void *userData, qint64 requestStartT
     }
 
     const auto reply_type = rd->getReplyType();
-    Q_ASSERT(reply_type >= 0 && reply_type < NUM_REPLY_TYPES);
+    WS_ASSERT(reply_type >= 0 && reply_type < NUM_REPLY_TYPES);
 
     // If this request is active, call the corresponding handler.
-    Q_ASSERT(rd->isWaitingForDnsResponse());
-    Q_ASSERT(handleDnsResolveFuncTable_[reply_type] != nullptr);
+    WS_ASSERT(rd->isWaitingForDnsResponse());
+    WS_ASSERT(handleDnsResolveFuncTable_[reply_type] != nullptr);
     if (handleDnsResolveFuncTable_[reply_type])
         (this->*handleDnsResolveFuncTable_[reply_type])(rd, success, ips);
 
@@ -930,21 +931,21 @@ void ServerAPI::onCurlNetworkRequestFinished(CurlRequest *curlRequest)
 {
     // Make sure the request is pending.
     auto *rd = curlToRequestMap_.take(curlRequest);
-    Q_ASSERT(!rd || rd->isCurlRequestSubmitted());
+    WS_ASSERT(!rd || rd->isCurlRequestSubmitted());
     if (!rd || !rd->isActive()) {
         delete curlRequest;
         return;
     }
 
     const auto reply_type = rd->getReplyType();
-    Q_ASSERT(reply_type >= 0 && reply_type < NUM_REPLY_TYPES);
+    WS_ASSERT(reply_type >= 0 && reply_type < NUM_REPLY_TYPES);
 
     const auto requestTimestamp = rd->getCurlRequestTimestamp();
 
      // If this request is active, call the corresponding handler.
     if (rd->isActive()) {
-        Q_ASSERT(rd->isWaitingForCurlResponse());
-        Q_ASSERT(handleCurlReplyFuncTable_[reply_type] != nullptr);
+        WS_ASSERT(rd->isWaitingForCurlResponse());
+        WS_ASSERT(handleCurlReplyFuncTable_[reply_type] != nullptr);
         if (handleCurlReplyFuncTable_[reply_type])
             (this->*handleCurlReplyFuncTable_[reply_type])(rd, true);
     }
@@ -964,14 +965,14 @@ void ServerAPI::onCurlNetworkRequestFinished(CurlRequest *curlRequest)
 void ServerAPI::handleRequestTimeout(BaseRequest *rd)
 {
     const auto reply_type = rd->getReplyType();
-    Q_ASSERT(reply_type >= 0 && reply_type < NUM_REPLY_TYPES);
+    WS_ASSERT(reply_type >= 0 && reply_type < NUM_REPLY_TYPES);
 
     if (rd->isWaitingForCurlResponse()) {
-        Q_ASSERT(handleCurlReplyFuncTable_[reply_type] != nullptr);
+        WS_ASSERT(handleCurlReplyFuncTable_[reply_type] != nullptr);
         if (handleCurlReplyFuncTable_[reply_type])
             (this->*handleCurlReplyFuncTable_[reply_type])(rd, false);
     } else if (rd->isWaitingForDnsResponse()) {
-        Q_ASSERT(handleDnsResolveFuncTable_[reply_type] != nullptr);
+        WS_ASSERT(handleDnsResolveFuncTable_[reply_type] != nullptr);
         if (handleDnsResolveFuncTable_[reply_type])
             (this->*handleDnsResolveFuncTable_[reply_type])(rd, false, QStringList());
     }
@@ -980,7 +981,7 @@ void ServerAPI::handleRequestTimeout(BaseRequest *rd)
 void ServerAPI::handleLoginDnsResolve(BaseRequest *rd, bool success, const QStringList &ips)
 {
     auto *crd = dynamic_cast<LoginRequest*>(rd);
-    Q_ASSERT(crd);
+    WS_ASSERT(crd);
 
     if (!success) {
         qCDebug(LOG_SERVER_API) << "API request Login failed: DNS-resolution failed";
@@ -1016,7 +1017,7 @@ void ServerAPI::handleLoginDnsResolve(BaseRequest *rd, bool success, const QStri
 void ServerAPI::handleSessionDnsResolve(BaseRequest *rd, bool success, const QStringList &ips)
 {
     auto *crd = dynamic_cast<AuthenticatedRequest*>(rd);
-    Q_ASSERT(crd);
+    WS_ASSERT(crd);
 
     if (!success) {
         qCDebug(LOG_SERVER_API) << "API request Session failed: DNS-resolution failed";
@@ -1043,7 +1044,7 @@ void ServerAPI::handleServerLocationsDnsResolve(BaseRequest *rd, bool success,
                                                 const QStringList &ips)
 {
     auto *crd = dynamic_cast<ServerLocationsRequest*>(rd);
-    Q_ASSERT(crd);
+    WS_ASSERT(crd);
 
     if (!success) {
         qCDebug(LOG_SERVER_API) << "API request ServerLocations failed: DNS-resolution failed";
@@ -1083,7 +1084,7 @@ void ServerAPI::handleServerLocationsDnsResolve(BaseRequest *rd, bool success,
     }
     else
     {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
     }
     QString strIsPro = crd->getIsPro() ? "1" : "0";
     QUrl url = QUrl("https://" + modifiedHostname + "/serverlist/mob-v2/" + strIsPro + "/" + crd->getRevision());
@@ -1113,7 +1114,7 @@ void ServerAPI::handleServerCredentialsDnsResolve(BaseRequest *rd, bool success,
                                                   const QStringList &ips)
 {
     auto *crd = dynamic_cast<ServerCredentialsRequest*>(rd);
-    Q_ASSERT(crd);
+    WS_ASSERT(crd);
 
     if (!success) {
         qCDebug(LOG_SERVER_API) << "API request ServerCredentials"
@@ -1135,7 +1136,7 @@ void ServerAPI::handleServerCredentialsDnsResolve(BaseRequest *rd, bool success,
     }
     else
     {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
     }
     url.setQuery(query);
 
@@ -1147,7 +1148,7 @@ void ServerAPI::handleServerCredentialsDnsResolve(BaseRequest *rd, bool success,
 void ServerAPI::handleDeleteSessionDnsResolve(BaseRequest *rd, bool success, const QStringList &ips)
 {
     auto *crd = dynamic_cast<AuthenticatedRequest*>(rd);
-    Q_ASSERT(crd);
+    WS_ASSERT(crd);
 
     if (!success) {
         qCDebug(LOG_SERVER_API) << "API request DeleteSession failed: DNS-resolution failed";
@@ -1165,7 +1166,7 @@ void ServerAPI::handleDeleteSessionDnsResolve(BaseRequest *rd, bool success, con
 void ServerAPI::handleServerConfigsDnsResolve(BaseRequest *rd, bool success, const QStringList &ips)
 {
     auto *crd = dynamic_cast<AuthenticatedRequest*>(rd);
-    Q_ASSERT(crd);
+    WS_ASSERT(crd);
 
     if (!success) {
         qCDebug(LOG_SERVER_API) << "API request ServerConfigs failed: DNS-resolution failed";
@@ -1184,7 +1185,7 @@ void ServerAPI::handleServerConfigsDnsResolve(BaseRequest *rd, bool success, con
 void ServerAPI::handlePortMapDnsResolve(BaseRequest *rd, bool success, const QStringList &ips)
 {
     auto *crd = dynamic_cast<AuthenticatedRequest*>(rd);
-    Q_ASSERT(crd);
+    WS_ASSERT(crd);
 
     if (!success) {
         qCDebug(LOG_SERVER_API) << "API request PortMap failed: DNS-resolution failed";
@@ -1206,7 +1207,7 @@ void ServerAPI::handlePortMapDnsResolve(BaseRequest *rd, bool success, const QSt
 void ServerAPI::handleRecordInstallDnsResolve(BaseRequest *rd, bool success, const QStringList &ips)
 {
     auto *crd = dynamic_cast<GenericRequest*>(rd);
-    Q_ASSERT(crd);
+    WS_ASSERT(crd);
 
     if (!success) {
         qCDebug(LOG_SERVER_API) << "API request RecordInstall failed: DNS-resolution failed";
@@ -1238,7 +1239,7 @@ void ServerAPI::handleRecordInstallDnsResolve(BaseRequest *rd, bool success, con
 void ServerAPI::handleConfirmEmailDnsResolve(BaseRequest *rd, bool success, const QStringList &ips)
 {
     auto *crd = dynamic_cast<AuthenticatedRequest*>(rd);
-    Q_ASSERT(crd);
+    WS_ASSERT(crd);
 
     if (!success) {
         qCDebug(LOG_SERVER_API) << "API request ConfirmEmail failed: DNS-resolution failed";
@@ -1270,7 +1271,7 @@ void ServerAPI::handleConfirmEmailDnsResolve(BaseRequest *rd, bool success, cons
 void ServerAPI::handleMyIPDnsResolve(BaseRequest *rd, bool success, const QStringList &ips)
 {
     auto *crd = dynamic_cast<GetMyIpRequest*>(rd);
-    Q_ASSERT(crd);
+    WS_ASSERT(crd);
 
     if (!success) {
         emit myIPAnswer("N/A", false, crd->getIsDisconnected(), crd->getUserRole());
@@ -1294,7 +1295,7 @@ void ServerAPI::handleMyIPDnsResolve(BaseRequest *rd, bool success, const QStrin
 void ServerAPI::handleCheckUpdateDnsResolve(BaseRequest *rd, bool success, const QStringList &ips)
 {
     auto *crd = dynamic_cast<CheckUpdateRequest*>(rd);
-    Q_ASSERT(crd);
+    WS_ASSERT(crd);
 
     if (!success) {
         qCDebug(LOG_SERVER_API) << "API request CheckUpdate failed: DNS-resolution failed";
@@ -1353,7 +1354,7 @@ void ServerAPI::handleCheckUpdateDnsResolve(BaseRequest *rd, bool success, const
 void ServerAPI::handleDebugLogDnsResolve(BaseRequest *rd, bool success, const QStringList &ips)
 {
     auto *crd = dynamic_cast<DebugLogRequest*>(rd);
-    Q_ASSERT(crd);
+    WS_ASSERT(crd);
 
     if (!success) {
         qCDebug(LOG_SERVER_API) << "API request DebugLog failed: DNS-resolution failed";
@@ -1389,7 +1390,7 @@ void ServerAPI::handleDebugLogDnsResolve(BaseRequest *rd, bool success, const QS
 void ServerAPI::handleSpeedRatingDnsResolve(BaseRequest *rd, bool success, const QStringList &ips)
 {
     auto *crd = dynamic_cast<SpeedRatingRequest*>(rd);
-    Q_ASSERT(crd);
+    WS_ASSERT(crd);
 
     if (!success) {
         qCDebug(LOG_SERVER_API) << "SpeedRating request failed: DNS-resolution failed";
@@ -1418,7 +1419,7 @@ void ServerAPI::handleSpeedRatingDnsResolve(BaseRequest *rd, bool success, const
 void ServerAPI::handleNotificationsDnsResolve(BaseRequest *rd, bool success, const QStringList &ips)
 {
     auto *crd = dynamic_cast<AuthenticatedRequest*>(rd);
-    Q_ASSERT(crd);
+    WS_ASSERT(crd);
 
     if (!success) {
         qCDebug(LOG_SERVER_API) << "Notifications request failed: DNS-resolution failed";
@@ -1445,7 +1446,7 @@ void ServerAPI::handleNotificationsDnsResolve(BaseRequest *rd, bool success, con
 void ServerAPI::handleWgConfigsInitDnsResolve(BaseRequest *rd, bool success, const QStringList &ips)
 {
     auto *crd = dynamic_cast<WGConfigsInitRequest*>(rd);
-    Q_ASSERT(crd);
+    WS_ASSERT(crd);
 
     if (!success) {
         qCDebug(LOG_SERVER_API) << "WgConfigs init request failed: DNS-resolution failed";
@@ -1485,7 +1486,7 @@ void ServerAPI::handleWgConfigsInitDnsResolve(BaseRequest *rd, bool success, con
 void ServerAPI::handleWgConfigsConnectDnsResolve(BaseRequest *rd, bool success, const QStringList &ips)
 {
     auto *crd = dynamic_cast<WGConfigsConnectRequest*>(rd);
-    Q_ASSERT(crd);
+    WS_ASSERT(crd);
 
     if (!success) {
         qCDebug(LOG_SERVER_API) << "WgConfigs connect request failed: DNS-resolution failed";
@@ -1528,7 +1529,7 @@ void ServerAPI::handleWgConfigsConnectDnsResolve(BaseRequest *rd, bool success, 
 void ServerAPI::handleWebSessionDnsResolve(ServerAPI::BaseRequest *rd, bool success, const QStringList &ips)
 {
     auto *crd = dynamic_cast<AuthenticatedRequest*>(rd);
-    Q_ASSERT(crd);
+    WS_ASSERT(crd);
 
     if (!success) {
         qCDebug(LOG_SERVER_API) << "API request WebSession failed: DNS-resolution failed";
@@ -1563,7 +1564,7 @@ void ServerAPI::handleWebSessionDnsResolve(ServerAPI::BaseRequest *rd, bool succ
 void ServerAPI::handleGetRobertFiltersDnsResolve(BaseRequest *rd, bool success, const QStringList &ips)
 {
     auto *crd = dynamic_cast<AuthenticatedRequest*>(rd);
-    Q_ASSERT(crd);
+    WS_ASSERT(crd);
 
     if (!success) {
         qCDebug(LOG_SERVER_API) << "Get ROBERT filters request failed: DNS-resolution failed";
@@ -1590,7 +1591,7 @@ void ServerAPI::handleGetRobertFiltersDnsResolve(BaseRequest *rd, bool success, 
 void ServerAPI::handleSetRobertFilterDnsResolve(BaseRequest *rd, bool success, const QStringList &ips)
 {
     auto *crd = dynamic_cast<SetRobertFilterRequest*>(rd);
-    Q_ASSERT(crd);
+    WS_ASSERT(crd);
 
     if (!success) {
         qCDebug(LOG_SERVER_API) << "Set ROBERT filter request failed: DNS-resolution failed";
@@ -1620,7 +1621,7 @@ void ServerAPI::handleSetRobertFilterDnsResolve(BaseRequest *rd, bool success, c
 void ServerAPI::handleStaticIpsDnsResolve(BaseRequest *rd, bool success, const QStringList &ips)
 {
     auto *crd = dynamic_cast<StaticIpsRequest*>(rd);
-    Q_ASSERT(crd);
+    WS_ASSERT(crd);
 
     if (!success) {
         qCDebug(LOG_SERVER_API) << "StaticIps request failed: DNS-resolution failed";
@@ -1657,7 +1658,7 @@ void ServerAPI::handleStaticIpsDnsResolve(BaseRequest *rd, bool success, const Q
 void ServerAPI::handlePingTestDnsResolve(BaseRequest *rd, bool success, const QStringList &ips)
 {
     auto *crd = dynamic_cast<PingRequest*>(rd);
-    Q_ASSERT(crd);
+    WS_ASSERT(crd);
 
     if (!success) {
         if (crd->isWriteLog()) {
@@ -1974,7 +1975,7 @@ void ServerAPI::handleServerLocationsCurl(BaseRequest *rd, bool success)
     else
     {
         const auto *crd = dynamic_cast<ServerLocationsRequest*>(rd);
-        Q_ASSERT(crd);
+        WS_ASSERT(crd);
         lastLocationsLanguage_ = crd->getLanguage();
         QByteArray arr = curlRequest->getAnswer();
 
@@ -2100,7 +2101,7 @@ void ServerAPI::handleServerCredentialsCurl(BaseRequest *rd, bool success)
     CURLcode curlRetCode = success ? curlRequest->getCurlRetCode() : CURLE_OPERATION_TIMEDOUT;
 
     const auto *crd = dynamic_cast<ServerCredentialsRequest*>(rd);
-    Q_ASSERT(crd);
+    WS_ASSERT(crd);
 
     if (curlRetCode != CURLE_OK)
     {
@@ -2269,7 +2270,7 @@ void ServerAPI::handleMyIPCurl(BaseRequest *rd, bool success)
     CURLcode curlRetCode = success ? curlRequest->getCurlRetCode() : CURLE_OPERATION_TIMEDOUT;
 
     const auto *crd = dynamic_cast<GetMyIpRequest*>(rd);
-    Q_ASSERT(crd);
+    WS_ASSERT(crd);
 
     if (curlRetCode != CURLE_OK)
     {
@@ -2523,7 +2524,7 @@ void ServerAPI::handleSpeedRatingCurl(BaseRequest *rd, bool success)
 void ServerAPI::handlePingTestCurl(BaseRequest *rd, bool success)
 {
     auto *crd = dynamic_cast<PingRequest*>(rd);
-    Q_ASSERT(crd);
+    WS_ASSERT(crd);
     const auto *curlRequest = rd->getCurlRequest();
     CURLcode curlRetCode = success ? curlRequest->getCurlRetCode() : CURLE_OPERATION_TIMEDOUT;
 

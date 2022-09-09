@@ -1,5 +1,6 @@
 #include "ipvalidation.h"
 #include <QStringList>
+#include "ws_assert.h"
 
 bool IpValidation::isIp(const QString &str)
 {
@@ -141,9 +142,9 @@ void IpValidation::runTests()
     };
 
     for (size_t i = 0; i < sizeof(kValidDomainNames) / sizeof(kValidDomainNames[0]); ++i)
-        Q_ASSERT(IpValidation::instance().isDomain(QString(kValidDomainNames[i])));
+        WS_ASSERT(IpValidation::instance().isDomain(QString(kValidDomainNames[i])));
     for (size_t i = 0; i < sizeof(kInvalidDomainNames) / sizeof(kInvalidDomainNames[0]); ++i)
-        Q_ASSERT(!IpValidation::instance().isDomain(QString(kInvalidDomainNames[i])));
+        WS_ASSERT(!IpValidation::instance().isDomain(QString(kInvalidDomainNames[i])));
 }
 
 #endif  // QT_DEBUG

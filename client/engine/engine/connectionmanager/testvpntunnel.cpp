@@ -1,5 +1,6 @@
 #include "testvpntunnel.h"
 #include "engine/serverapi/serverapi.h"
+#include "utils/ws_assert.h"
 #include "utils/logger.h"
 #include "utils/ipvalidation.h"
 #include "utils/extraconfig.h"
@@ -436,7 +437,7 @@ bool TestVPNTunnel::initiateWin32TunnelTest()
         return false;
     }
 
-    Q_ASSERT(!serverTunnelTestUrl_.empty());
+    WS_ASSERT(!serverTunnelTestUrl_.empty());
 
     DNS_QUERY_REQUEST request;
     ::ZeroMemory(&request, sizeof(request));

@@ -6,6 +6,7 @@
 #include "commongraphics/commongraphics.h"
 #include "graphicresources/fontmanager.h"
 #include "graphicresources/imageresourcessvg.h"
+#include "utils/ws_assert.h"
 #include "dpiscalemanager.h"
 
 namespace TwoFactorAuthWindow
@@ -14,7 +15,7 @@ TwoFactorAuthWindowItem::TwoFactorAuthWindowItem(QGraphicsObject *parent,
                                                  PreferencesHelper *preferencesHelper)
     : ScalableGraphicsObject(parent)
 {
-    Q_ASSERT(preferencesHelper);
+    WS_ASSERT(preferencesHelper);
     setFlag(QGraphicsItem::ItemIsFocusable);
 
     curTextOpacity_ = OPACITY_FULL;
@@ -180,7 +181,7 @@ void TwoFactorAuthWindowItem::setErrorMessage(ERROR_MESSAGE_TYPE errorMessage)
         curErrorText_ = tr("Invalid 2FA code, please try again");
         break;
     default:
-        Q_ASSERT(false);
+        WS_ASSERT(false);
         break;
     }
 
@@ -287,7 +288,7 @@ void TwoFactorAuthWindowItem::onButtonClicked()
         emit loginClick(savedUsername_, savedPassword_, codeEntry_->getText());
         break;
     default:
-        Q_ASSERT(false);
+        WS_ASSERT(false);
     }
 }
 

@@ -1,5 +1,6 @@
 #include "tcpconnection.h"
 #include "commandfactory.h"
+#include "utils/ws_assert.h"
 #include "utils/logger.h"
 
 namespace IPC
@@ -24,7 +25,7 @@ TcpConnection::~TcpConnection()
 
 void TcpConnection::connect()
 {
-    Q_ASSERT(socket_ == NULL);
+    WS_ASSERT(socket_ == NULL);
     socket_ = new QTcpSocket();
     QObject::connect(socket_, SIGNAL(connected()), SLOT(onSocketConnected()));
     QObject::connect(socket_, SIGNAL(disconnected()), SLOT(onSocketDisconnected()));
@@ -37,14 +38,14 @@ void TcpConnection::connect()
 
 void TcpConnection::close()
 {
-    Q_ASSERT(socket_ != NULL);
+    WS_ASSERT(socket_ != NULL);
     socket_->close();
     safeDeleteSocket();
 }
 
 void TcpConnection::sendCommand(const Command &commandl)
 {
-    Q_ASSERT(socket_ != NULL);
+    WS_ASSERT(socket_ != NULL);
 
     // command structure
     // 1) (int) size of protobuf message in bytes
@@ -57,8 +58,8 @@ void TcpConnection::sendCommand(const Command &commandl)
     std::string strId = commandl.getStringId();
     int sizeOfStringId = strId.length();
 
-    Q_ASSERT(sizeOfBuf > 0);
-    Q_ASSERT(sizeOfStringId > 0);
+    WS_ASSERT(sizeOfBuf > 0);
+    WS_ASSERT(sizeOfStringId > 0);
 
     bool isWriteBufIsEmpty = writeBuf_.isEmpty();
 

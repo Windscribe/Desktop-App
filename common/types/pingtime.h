@@ -2,6 +2,7 @@
 #define LOCATIONSMODEL_PINGTIME_H
 
 #include <QDataStream>
+#include "utils/ws_assert.h"
 
 class PingTime
 {
@@ -41,7 +42,7 @@ public:
     {
         quint32 version;
         stream >> version;
-        Q_ASSERT(version == versionForSerialization_);
+        WS_ASSERT(version == versionForSerialization_);
         stream >> p.timeMs_;
         return stream;
     }

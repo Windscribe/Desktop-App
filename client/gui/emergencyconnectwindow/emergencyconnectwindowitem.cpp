@@ -6,6 +6,7 @@
 #include "graphicresources/fontmanager.h"
 #include "graphicresources/imageresourcessvg.h"
 #include "commongraphics/commongraphics.h"
+#include "utils/ws_assert.h"
 #include "languagecontroller.h"
 #include "dpiscalemanager.h"
 
@@ -15,7 +16,7 @@ EmergencyConnectWindowItem::EmergencyConnectWindowItem(QGraphicsObject *parent,
                                                        PreferencesHelper *preferencesHelper)
     : ScalableGraphicsObject(parent), errorConnecting_(false)
 {
-    Q_ASSERT(preferencesHelper);
+    WS_ASSERT(preferencesHelper);
     setFlag(QGraphicsItem::ItemIsFocusable);
 
     curTitleOpacity_ = OPACITY_FULL;

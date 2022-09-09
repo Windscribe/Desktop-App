@@ -2,6 +2,7 @@
 #include "engine/serverapi/serverapi.h"
 #include "engine/apiinfo/apiinfo.h"
 #include "types/global_consts.h"
+#include "utils/ws_assert.h"
 
 extern "C" {
     #include "legacy_protobuf_support/apiinfo.pb-c.h"
@@ -23,7 +24,7 @@ void GetWireGuardConfig::getWireGuardConfig(const QString &serverName, bool dele
 {
     if (isRequestAlreadyInProgress_)
     {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
         return;
     }
 

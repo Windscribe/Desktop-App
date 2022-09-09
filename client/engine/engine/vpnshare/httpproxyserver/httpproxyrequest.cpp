@@ -1,5 +1,6 @@
 #include "httpproxyrequest.h"
 
+#include "utils/ws_assert.h"
 #include "utils/logger.h"
 #include "utils/boost_includes.h"
 #include "version/appversion.h"
@@ -172,7 +173,7 @@ std::string HttpProxyRequest::processClientHeaders()
                 int len = sprintf(buf, "Via: %s, %hu.%hu %s (%s/%s)\r\n",
                         it->value.c_str(), http_version_major, http_version_minor, "Windscribe proxy", AppVersion::instance().version().toStdString().c_str(),
                         AppVersion::instance().build().toStdString().c_str());
-                Q_ASSERT((unsigned int)len < sizeof(buf));
+                WS_ASSERT((unsigned int)len < sizeof(buf));
                 ret += buf;
                 isExistViaHeader = true;
             }
@@ -188,7 +189,7 @@ std::string HttpProxyRequest::processClientHeaders()
         int len = sprintf(buf, "Via: %hu.%hu %s (%s/%s)\r\n",
                 http_version_major, http_version_minor, "Windscribe proxy", AppVersion::instance().version().toStdString().c_str(),
                 AppVersion::instance().build().toStdString().c_str());
-        Q_ASSERT((unsigned int)len < sizeof(buf));
+        WS_ASSERT((unsigned int)len < sizeof(buf));
         ret += buf;
     }
 
@@ -246,7 +247,7 @@ int HttpProxyRequest::extractUrl(const char *url, int default_port)
 void HttpProxyRequest::stripUsernamePassword (std::string &hostStr)
 {
     char *p;
-    Q_ASSERT(hostStr.length() > 0);
+    WS_ASSERT(hostStr.length() > 0);
 
     if ((p = strchr ((char *)hostStr.c_str(), '@')) == NULL)
         return;

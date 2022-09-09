@@ -1,11 +1,12 @@
 #include "sleepevents_win.h"
-#include "Utils/logger.h"
+#include "utils/ws_assert.h"
+#include "utils/logger.h"
 
 SleepEvents_win *SleepEvents_win::this_ = NULL;
 
 SleepEvents_win::SleepEvents_win(QObject *parent) : ISleepEvents(parent), hwnd_(0)
 {
-    Q_ASSERT(this_ == NULL);
+    WS_ASSERT(this_ == NULL);
     this_ = this;
     hThread_ = CreateThread(NULL, 0, hiddenWindowThread, NULL, 0, NULL);
     if (!hThread_)

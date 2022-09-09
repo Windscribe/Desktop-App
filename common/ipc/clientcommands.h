@@ -5,6 +5,7 @@
 #include "types/enginesettings.h"
 #include "types/locationid.h"
 #include "types/splittunneling.h"
+#include "utils/ws_assert.h"
 
 namespace IPC
 {
@@ -19,7 +20,7 @@ public:
 
     std::vector<char> getData() const override
     {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
         return std::vector<char>();
     }
 
@@ -53,7 +54,7 @@ public:
     explicit ClientAuth()
     {}
 
-    std::vector<char> getData() const override   {  Q_ASSERT(false); return std::vector<char>(); }
+    std::vector<char> getData() const override   {  WS_ASSERT(false); return std::vector<char>(); }
     std::string getStringId() const override { return getCommandStringId(); }
     std::string getDebugString() const override
     {
@@ -72,7 +73,7 @@ public:
     explicit ClientPing()
     {}
 
-    std::vector<char> getData() const override   {  Q_ASSERT(false); return std::vector<char>(); }
+    std::vector<char> getData() const override   {  WS_ASSERT(false); return std::vector<char>(); }
     std::string getStringId() const override { return getCommandStringId(); }
     std::string getDebugString() const override
     {
@@ -91,7 +92,7 @@ public:
     explicit GetState()
     {}
 
-    std::vector<char> getData() const override   {  Q_ASSERT(false); return std::vector<char>(); }
+    std::vector<char> getData() const override   {  WS_ASSERT(false); return std::vector<char>(); }
     std::string getStringId() const override { return getCommandStringId(); }
     std::string getDebugString() const override
     {
@@ -110,7 +111,7 @@ public:
     explicit Init()
     {}
 
-    std::vector<char> getData() const override   {  Q_ASSERT(false); return std::vector<char>(); }
+    std::vector<char> getData() const override   {  WS_ASSERT(false); return std::vector<char>(); }
     std::string getStringId() const override { return getCommandStringId(); }
     std::string getDebugString() const override
     {
@@ -129,7 +130,7 @@ public:
     explicit Cleanup()
     {}
 
-    std::vector<char> getData() const override   {  Q_ASSERT(false); return std::vector<char>(); }
+    std::vector<char> getData() const override   {  WS_ASSERT(false); return std::vector<char>(); }
     std::string getStringId() const override { return getCommandStringId(); }
     std::string getDebugString() const override
     {
@@ -153,7 +154,7 @@ public:
     explicit EnableBfe_win()
     {}
 
-    std::vector<char> getData() const override   {  Q_ASSERT(false); return std::vector<char>(); }
+    std::vector<char> getData() const override   {  WS_ASSERT(false); return std::vector<char>(); }
     std::string getStringId() const override { return getCommandStringId(); }
     std::string getDebugString() const override
     {
@@ -172,7 +173,7 @@ public:
     explicit Login()
     {}
 
-    std::vector<char> getData() const override   {  Q_ASSERT(false); return std::vector<char>(); }
+    std::vector<char> getData() const override   {  WS_ASSERT(false); return std::vector<char>(); }
     std::string getStringId() const override { return getCommandStringId(); }
     std::string getDebugString() const override
     {
@@ -198,7 +199,7 @@ public:
     explicit SignOut()
     {}
 
-    std::vector<char> getData() const override   {  Q_ASSERT(false); return std::vector<char>(); }
+    std::vector<char> getData() const override   {  WS_ASSERT(false); return std::vector<char>(); }
     std::string getStringId() const override { return getCommandStringId(); }
     std::string getDebugString() const override
     {
@@ -218,7 +219,7 @@ public:
     explicit Firewall()
     {}
 
-    std::vector<char> getData() const override   {  Q_ASSERT(false); return std::vector<char>(); }
+    std::vector<char> getData() const override   {  WS_ASSERT(false); return std::vector<char>(); }
     std::string getStringId() const override { return getCommandStringId(); }
     std::string getDebugString() const override
     {
@@ -238,7 +239,7 @@ public:
     explicit Connect()
     {}
 
-    std::vector<char> getData() const override   {  Q_ASSERT(false); return std::vector<char>(); }
+    std::vector<char> getData() const override   {  WS_ASSERT(false); return std::vector<char>(); }
     std::string getStringId() const override { return getCommandStringId(); }
     std::string getDebugString() const override
     {
@@ -259,7 +260,7 @@ public:
     explicit Disconnect()
     {}
 
-    std::vector<char> getData() const override   {  Q_ASSERT(false); return std::vector<char>(); }
+    std::vector<char> getData() const override   {  WS_ASSERT(false); return std::vector<char>(); }
     std::string getStringId() const override { return getCommandStringId(); }
     std::string getDebugString() const override
     {
@@ -278,7 +279,7 @@ public:
     explicit EmergencyConnect()
     {}
 
-    std::vector<char> getData() const override   {  Q_ASSERT(false); return std::vector<char>(); }
+    std::vector<char> getData() const override   {  WS_ASSERT(false); return std::vector<char>(); }
     std::string getStringId() const override { return getCommandStringId(); }
     std::string getDebugString() const override
     {
@@ -297,7 +298,7 @@ public:
     explicit EmergencyDisconnect()
     {}
 
-    std::vector<char> getData() const override   {  Q_ASSERT(false); return std::vector<char>(); }
+    std::vector<char> getData() const override   {  WS_ASSERT(false); return std::vector<char>(); }
     std::string getStringId() const override { return getCommandStringId(); }
     std::string getDebugString() const override
     {
@@ -317,7 +318,7 @@ public:
     explicit ApplicationActivated()
     {}
 
-    std::vector<char> getData() const override   {  Q_ASSERT(false); return std::vector<char>(); }
+    std::vector<char> getData() const override   {  WS_ASSERT(false); return std::vector<char>(); }
     std::string getStringId() const override { return getCommandStringId(); }
     std::string getDebugString() const override
     {
@@ -337,7 +338,7 @@ public:
     explicit RecordInstall()
     {}
 
-    std::vector<char> getData() const override   {  Q_ASSERT(false); return std::vector<char>(); }
+    std::vector<char> getData() const override   {  WS_ASSERT(false); return std::vector<char>(); }
     std::string getStringId() const override { return getCommandStringId(); }
     std::string getDebugString() const override
     {
@@ -356,7 +357,7 @@ public:
     explicit SendConfirmEmail()
     {}
 
-    std::vector<char> getData() const override   {  Q_ASSERT(false); return std::vector<char>(); }
+    std::vector<char> getData() const override   {  WS_ASSERT(false); return std::vector<char>(); }
     std::string getStringId() const override { return getCommandStringId(); }
     std::string getDebugString() const override
     {
@@ -375,7 +376,7 @@ public:
     explicit SendDebugLog()
     {}
 
-    std::vector<char> getData() const override   {  Q_ASSERT(false); return std::vector<char>(); }
+    std::vector<char> getData() const override   {  WS_ASSERT(false); return std::vector<char>(); }
     std::string getStringId() const override { return getCommandStringId(); }
     std::string getDebugString() const override
     {
@@ -394,7 +395,7 @@ public:
     explicit GetWebSessionToken()
     {}
 
-    std::vector<char> getData() const override   {  Q_ASSERT(false); return std::vector<char>(); }
+    std::vector<char> getData() const override   {  WS_ASSERT(false); return std::vector<char>(); }
     std::string getStringId() const override { return getCommandStringId(); }
     std::string getDebugString() const override
     {
@@ -414,7 +415,7 @@ public:
     explicit SetBlockConnect()
     {}
 
-    std::vector<char> getData() const override   {  Q_ASSERT(false); return std::vector<char>(); }
+    std::vector<char> getData() const override   {  WS_ASSERT(false); return std::vector<char>(); }
     std::string getStringId() const override { return getCommandStringId(); }
     std::string getDebugString() const override
     {
@@ -435,7 +436,7 @@ public:
     explicit ClearCredentials()
     {}
 
-    std::vector<char> getData() const override   {  Q_ASSERT(false); return std::vector<char>(); }
+    std::vector<char> getData() const override   {  WS_ASSERT(false); return std::vector<char>(); }
     std::string getStringId() const override { return getCommandStringId(); }
     std::string getDebugString() const override
     {
@@ -454,7 +455,7 @@ public:
     explicit StartWifiSharing()
     {}
 
-    std::vector<char> getData() const override   {  Q_ASSERT(false); return std::vector<char>(); }
+    std::vector<char> getData() const override   {  WS_ASSERT(false); return std::vector<char>(); }
     std::string getStringId() const override { return getCommandStringId(); }
     std::string getDebugString() const override
     {
@@ -475,7 +476,7 @@ public:
     explicit StopWifiSharing()
     {}
 
-    std::vector<char> getData() const override   {  Q_ASSERT(false); return std::vector<char>(); }
+    std::vector<char> getData() const override   {  WS_ASSERT(false); return std::vector<char>(); }
     std::string getStringId() const override { return getCommandStringId(); }
     std::string getDebugString() const override
     {
@@ -494,7 +495,7 @@ public:
     explicit StartProxySharing()
     {}
 
-    std::vector<char> getData() const override   {  Q_ASSERT(false); return std::vector<char>(); }
+    std::vector<char> getData() const override   {  WS_ASSERT(false); return std::vector<char>(); }
     std::string getStringId() const override { return getCommandStringId(); }
     std::string getDebugString() const override
     {
@@ -515,7 +516,7 @@ public:
     explicit StopProxySharing()
     {}
 
-    std::vector<char> getData() const override   {  Q_ASSERT(false); return std::vector<char>(); }
+    std::vector<char> getData() const override   {  WS_ASSERT(false); return std::vector<char>(); }
     std::string getStringId() const override { return getCommandStringId(); }
     std::string getDebugString() const override
     {
@@ -534,7 +535,7 @@ public:
     explicit SpeedRating()
     {}
 
-    std::vector<char> getData() const override   {  Q_ASSERT(false); return std::vector<char>(); }
+    std::vector<char> getData() const override   {  WS_ASSERT(false); return std::vector<char>(); }
     std::string getStringId() const override { return getCommandStringId(); }
     std::string getDebugString() const override
     {
@@ -556,7 +557,7 @@ public:
     explicit GotoCustomOvpnConfigMode()
     {}
 
-    std::vector<char> getData() const override   {  Q_ASSERT(false); return std::vector<char>(); }
+    std::vector<char> getData() const override   {  WS_ASSERT(false); return std::vector<char>(); }
     std::string getStringId() const override { return getCommandStringId(); }
     std::string getDebugString() const override
     {
@@ -575,7 +576,7 @@ public:
     explicit ContinueWithCredentialsForOvpnConfig()
     {}
 
-    std::vector<char> getData() const override   {  Q_ASSERT(false); return std::vector<char>(); }
+    std::vector<char> getData() const override   {  WS_ASSERT(false); return std::vector<char>(); }
     std::string getStringId() const override { return getCommandStringId(); }
     std::string getDebugString() const override
     {
@@ -597,7 +598,7 @@ public:
     explicit GetIpv6StateInOS()
     {}
 
-    std::vector<char> getData() const override   {  Q_ASSERT(false); return std::vector<char>(); }
+    std::vector<char> getData() const override   {  WS_ASSERT(false); return std::vector<char>(); }
     std::string getStringId() const override { return getCommandStringId(); }
     std::string getDebugString() const override
     {
@@ -616,7 +617,7 @@ public:
     explicit SetIpv6StateInOS()
     {}
 
-    std::vector<char> getData() const override   {  Q_ASSERT(false); return std::vector<char>(); }
+    std::vector<char> getData() const override   {  WS_ASSERT(false); return std::vector<char>(); }
     std::string getStringId() const override { return getCommandStringId(); }
     std::string getDebugString() const override
     {
@@ -637,7 +638,7 @@ public:
     explicit SplitTunneling()
     {}
 
-    std::vector<char> getData() const override   {  Q_ASSERT(false); return std::vector<char>(); }
+    std::vector<char> getData() const override   {  WS_ASSERT(false); return std::vector<char>(); }
     std::string getStringId() const override { return getCommandStringId(); }
     std::string getDebugString() const override
     {
@@ -658,7 +659,7 @@ public:
     explicit DetectPacketSize()
     {}
 
-    std::vector<char> getData() const override   {  Q_ASSERT(false); return std::vector<char>(); }
+    std::vector<char> getData() const override   {  WS_ASSERT(false); return std::vector<char>(); }
     std::string getStringId() const override { return getCommandStringId(); }
     std::string getDebugString() const override
     {
@@ -677,7 +678,7 @@ public:
     explicit UpdateVersion()
     {}
 
-    std::vector<char> getData() const override   {  Q_ASSERT(false); return std::vector<char>(); }
+    std::vector<char> getData() const override   {  WS_ASSERT(false); return std::vector<char>(); }
     std::string getStringId() const override { return getCommandStringId(); }
     std::string getDebugString() const override
     {
@@ -699,7 +700,7 @@ public:
     explicit UpdateWindowInfo()
     {}
 
-    std::vector<char> getData() const override   {  Q_ASSERT(false); return std::vector<char>(); }
+    std::vector<char> getData() const override   {  WS_ASSERT(false); return std::vector<char>(); }
     std::string getStringId() const override { return getCommandStringId(); }
     std::string getDebugString() const override
     {
@@ -720,7 +721,7 @@ public:
     explicit MakeHostsWritableWin()
     {}
 
-    std::vector<char> getData() const override   {  Q_ASSERT(false); return std::vector<char>(); }
+    std::vector<char> getData() const override   {  WS_ASSERT(false); return std::vector<char>(); }
     std::string getStringId() const override { return getCommandStringId(); }
     std::string getDebugString() const override
     {
@@ -739,7 +740,7 @@ public:
     explicit AdvancedParametersChanged()
     {}
 
-    std::vector<char> getData() const override   {  Q_ASSERT(false); return std::vector<char>(); }
+    std::vector<char> getData() const override   {  WS_ASSERT(false); return std::vector<char>(); }
     std::string getStringId() const override { return getCommandStringId(); }
     std::string getDebugString() const override
     {
@@ -758,7 +759,7 @@ public:
     explicit GetRobertFilters()
     {}
 
-    std::vector<char> getData() const override   {  Q_ASSERT(false); return std::vector<char>(); }
+    std::vector<char> getData() const override   {  WS_ASSERT(false); return std::vector<char>(); }
     std::string getStringId() const override { return getCommandStringId(); }
     std::string getDebugString() const override
     {
@@ -777,7 +778,7 @@ public:
     explicit SetRobertFilter()
     {}
 
-    std::vector<char> getData() const override   {  Q_ASSERT(false); return std::vector<char>(); }
+    std::vector<char> getData() const override   {  WS_ASSERT(false); return std::vector<char>(); }
     std::string getStringId() const override { return getCommandStringId(); }
     std::string getDebugString() const override
     {

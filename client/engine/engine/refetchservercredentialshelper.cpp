@@ -1,4 +1,5 @@
 #include "refetchservercredentialshelper.h"
+#include "utils/ws_assert.h"
 #include "utils/logger.h"
 
 RefetchServerCredentialsHelper::RefetchServerCredentialsHelper(QObject *parent, const QString &authHash, ServerAPI *serverAPI) : QObject(parent),
@@ -57,7 +58,7 @@ void RefetchServerCredentialsHelper::onServerCredentialsAnswer(SERVER_API_RET_CO
     {
         if (protocol.isOpenVpnProtocol())
         {
-            Q_ASSERT(!isOpenVpnProtocolReceived_);
+            WS_ASSERT(!isOpenVpnProtocolReceived_);
             isOpenVpnProtocolReceived_ = true;
             retCodeOpenVpn_ = retCode;
             radiusUsernameOpenVpn_ = radiusUsername;
@@ -65,7 +66,7 @@ void RefetchServerCredentialsHelper::onServerCredentialsAnswer(SERVER_API_RET_CO
         }
         else if (protocol.isIkev2Protocol())
         {
-            Q_ASSERT(!isIkev2ProtocolReceived_);
+            WS_ASSERT(!isIkev2ProtocolReceived_);
             isIkev2ProtocolReceived_ = true;
             retCodeIkev2_ = retCode;
             radiusUsernameIkev2_ = radiusUsername;
@@ -73,7 +74,7 @@ void RefetchServerCredentialsHelper::onServerCredentialsAnswer(SERVER_API_RET_CO
         }
         else
         {
-            Q_ASSERT(false);
+            WS_ASSERT(false);
         }
 
         checkFinished();

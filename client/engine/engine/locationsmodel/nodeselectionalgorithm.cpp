@@ -1,4 +1,5 @@
 #include "nodeselectionalgorithm.h"
+#include "utils/ws_assert.h"
 #include "utils/utils.h"
 
 namespace locationsmodel {
@@ -36,7 +37,7 @@ int NodeSelectionAlgorithm::selectRandomNodeBasedOnWeight(const QVector<QSharedP
 
 int NodeSelectionAlgorithm::getRandomEvent(QVector<double> &p)
 {
-    Q_ASSERT(p.size() > 0);
+    WS_ASSERT(p.size() > 0);
     const double eps = 1e-9;
 
     double r = Utils::generateDoubleRandom(0.0, 1.0); // generates a random number distribute in [0,1];
@@ -48,7 +49,7 @@ int NodeSelectionAlgorithm::getRandomEvent(QVector<double> &p)
             return i;
         }
     }
-    Q_ASSERT(false);
+    WS_ASSERT(false);
     return 0;
 }
 

@@ -1,6 +1,7 @@
 #include "enums.h"
 #include <QList>
 #include <QMetaType>
+#include "utils/ws_assert.h"
 
 const int typeIdOpenVpnError = qRegisterMetaType<CONNECT_ERROR>("CONNECT_ERROR");
 const int typeIdProtocol = qRegisterMetaType<PROTOCOL>("PROTOCOL");
@@ -62,7 +63,7 @@ QString LOGIN_RET_toString(LOGIN_RET ret)
     }
     else
     {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
         return "UNKNOWN";
     }
 }
@@ -91,7 +92,7 @@ QString DNS_POLICY_TYPE_ToString(DNS_POLICY_TYPE d)
     }
     else
     {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
         return "UNKNOWN";
     }
 }
@@ -101,7 +102,7 @@ QString PROXY_SHARING_TYPE_toString(PROXY_SHARING_TYPE t)
     if (t == PROXY_SHARING_HTTP) return "HTTP";
     else if (t == PROXY_SHARING_SOCKS) return "SOCKS";
     else {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
         return "UNKNOWN";
     }
 }
@@ -112,7 +113,7 @@ QString ORDER_LOCATION_TYPE_toString(ORDER_LOCATION_TYPE p)
     else if (p == ORDER_LOCATION_BY_ALPHABETICALLY) return "Alphabet";
     else if (p == ORDER_LOCATION_BY_LATENCY) return "Latency";
     else {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
         return "UNKNOWN";
     }
 }
@@ -122,7 +123,7 @@ QString LATENCY_DISPLAY_TYPE_toString(LATENCY_DISPLAY_TYPE t)
     if (t == LATENCY_DISPLAY_BARS) return "Bars";
     else if (t == LATENCY_DISPLAY_MS) return "Ms";
     else {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
         return "UNKNOWN";
     }
 }
@@ -132,7 +133,7 @@ QString TAP_ADAPTER_TYPE_toString(TAP_ADAPTER_TYPE t)
     if (t == TAP_ADAPTER) return "Windscribe VPN";
     else if (t == WINTUN_ADAPTER) return "Wintun";
     else {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
         return "UNKNOWN";
     }
 }
@@ -143,7 +144,7 @@ QString FIREWALL_MODE_toString(FIREWALL_MODE t)
     else if (t == FIREWALL_MODE_AUTOMATIC) return "Automatic";
     else if (t == FIREWALL_MODE_ALWAYS_ON) return "Always On";
     else {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
         return "UNKNOWN";
     }
 }
@@ -162,7 +163,7 @@ QString FIREWALL_WHEN_toString(FIREWALL_WHEN t)
     if (t == FIREWALL_WHEN_BEFORE_CONNECTION) return "Before Connection";
     else if (t == FIREWALL_WHEN_AFTER_CONNECTION) return "After Connection";
     else {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
         return "UNKNOWN";
     }
 }
@@ -190,7 +191,7 @@ QString PROXY_OPTION_toString(PROXY_OPTION t)
     else if (t == PROXY_OPTION_HTTP) return "HTTP";
     else if (t == PROXY_OPTION_SOCKS) return "SOCKS";
     else {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
         return "UNKNOWN";
     }
 }
@@ -241,7 +242,7 @@ QString UPDATE_CHANNEL_toString(UPDATE_CHANNEL t)
     else if (t == UPDATE_CHANNEL_GUINEA_PIG) return "Guinea Pig";
     else if (t == UPDATE_CHANNEL_INTERNAL) return "Internal";
     else {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
         return "UNKNOWN";
     }
 }
@@ -263,7 +264,7 @@ QString DNS_MANAGER_TYPE_toString(DNS_MANAGER_TYPE t)
     else if (t == DNS_MANAGER_SYSTEMD_RESOLVED) return "Systemd-resolved";
     else if (t == DNS_MANAGER_NETWORK_MANAGER) return "NetworkManager";
     else {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
         return "UNKNOWN";
     }
 }
@@ -292,7 +293,7 @@ QString PROTOCOL::toShortString() const
         return "wireguard";
     }
     else {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
         return "unknown";
     }
 }
@@ -319,7 +320,7 @@ QString PROTOCOL::toLongString() const
     }
     else
     {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
         return "unknown";
     }
 }
@@ -394,7 +395,7 @@ QString CONNECTED_DNS_TYPE_toString(CONNECTED_DNS_TYPE t)
         return "Custom";
     }
     else {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
         return "unknown";
     }
 }
@@ -408,7 +409,7 @@ QString SPLIT_TUNNELING_MODE_toString(SPLIT_TUNNELING_MODE t)
         return "Include";
     }
     else {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
         return "unknown";
     }
 }
@@ -430,7 +431,7 @@ QString APP_SKIN_toString(APP_SKIN s)
         return "Van Gogh";
     }
     else {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
         return "unknown";
     }
 }

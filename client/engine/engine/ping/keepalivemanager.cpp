@@ -1,4 +1,5 @@
 #include "keepalivemanager.h"
+#include "utils/ws_assert.h"
 #include "utils/logger.h"
 #include "utils/utils.h"
 #include "engine/dnsresolver/dnsrequest.h"
@@ -68,7 +69,7 @@ void KeepAliveManager::onTimer()
 void KeepAliveManager::onDnsRequestFinished()
 {
     DnsRequest *dnsRequest = qobject_cast<DnsRequest *>(sender());
-    Q_ASSERT(dnsRequest != nullptr);
+    WS_ASSERT(dnsRequest != nullptr);
 
     if (!dnsRequest->isError())
     {

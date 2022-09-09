@@ -15,7 +15,7 @@ public:
     const types::Location &location() const { return location_; }
     int load();
     int averagePing();
-    QString nickname() const { Q_ASSERT(location_.id.isBestLocation()); return nickname_; }
+    QString nickname() const { WS_ASSERT(location_.id.isBestLocation()); return nickname_; }
     bool is10gbps() const { return is10gbps_; }
 
 

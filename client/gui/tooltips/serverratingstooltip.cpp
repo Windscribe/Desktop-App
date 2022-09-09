@@ -4,6 +4,7 @@
 #include <QPainterPath>
 #include "commongraphics/commongraphics.h"
 #include "graphicresources/fontmanager.h"
+#include "utils/ws_assert.h"
 #include "dpiscalemanager.h"
 
 ServerRatingsTooltip::ServerRatingsTooltip(QWidget *parent) : ITooltip(parent)
@@ -77,7 +78,7 @@ void ServerRatingsTooltip::setRatingState(ServerRatingState ratingState)
     }
     else
     {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
     }
 }
 

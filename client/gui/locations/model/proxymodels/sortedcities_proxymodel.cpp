@@ -30,7 +30,7 @@ bool SortedCitiesProxyModel::lessThan(const QModelIndex &left, const QModelIndex
     }
     else
     {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
     }
     return true;
 

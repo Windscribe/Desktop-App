@@ -4,7 +4,7 @@
 #include <QFileInfo>
 #include <QMutexLocker>
 #include <QTextStream>
-
+#include "utils/ws_assert.h"
 
 LogWatcher::LogWatcher() : log_index_(0), is_watch_done_(false)
 {
@@ -101,7 +101,7 @@ void LogWatcher::run()
 
 void LogWatcher::process(const QString &filename, LogFileInfo *info)
 {
-    Q_ASSERT(!filename.isEmpty() && info);
+    WS_ASSERT(!filename.isEmpty() && info);
     auto rangeCheck = info->rangecheck;
     QFileInfo fi(filename);
     const auto current_datasize = fi.size();

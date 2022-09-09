@@ -8,6 +8,7 @@
 #include <QScopeGuard>
 
 #include "wireguardringlogger.h"
+#include "utils/ws_assert.h"
 #include "utils/logger.h"
 
 
@@ -119,8 +120,8 @@ int WireguardRingLogger::nextIndex()
 
 void WireguardRingLogger::process(int index)
 {
-    Q_ASSERT(index >= 0);
-    Q_ASSERT(index < WG_LOG_MESSAGE_RING_SIZE);
+    WS_ASSERT(index >= 0);
+    WS_ASSERT(index < WG_LOG_MESSAGE_RING_SIZE);
     size_t offset = index * (WG_LOG_TIMESTAMP_SIZE + WG_LOG_MESSAGE_SIZE);
     uchar* data = logData_ + WG_LOG_HEADER_SIZE + offset;
 

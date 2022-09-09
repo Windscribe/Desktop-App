@@ -5,6 +5,7 @@
 #include <QPainter>
 #include <QApplication>
 #include <QScreen>
+#include "utils/ws_assert.h"
 #include "utils/crashhandler.h"
 #include "utils/logger.h"
 #include "dpiscalemanager.h"
@@ -16,7 +17,7 @@ ImageResourcesSvg::ImageResourcesSvg() : QThread(nullptr), bNeedFinish_(false), 
 
 ImageResourcesSvg::~ImageResourcesSvg()
 {
-    Q_ASSERT(bFininishedGracefully_);
+    WS_ASSERT(bFininishedGracefully_);
 }
 
 void ImageResourcesSvg::clearHash()
@@ -60,7 +61,7 @@ QSharedPointer<IndependentPixmap> ImageResourcesSvg::getIndependentPixmap(const 
         }
         else
         {
-            //Q_ASSERT(false);
+            //WS_ASSERT(false);
             return nullptr;
         }
     }
@@ -83,7 +84,7 @@ QSharedPointer<IndependentPixmap> ImageResourcesSvg::getIconIndependentPixmap(co
         else
         {
             // qCDebug(LOG_BASIC) << "Failed to load Icon: " << name;
-            // Q_ASSERT(false);
+            // WS_ASSERT(false);
             return nullptr;
         }
     }
@@ -230,7 +231,7 @@ QSharedPointer<IndependentPixmap> ImageResourcesSvg::getIndependentPixmapScaled(
         }
         else
         {
-            //Q_ASSERT(false);
+            //WS_ASSERT(false);
             return nullptr;
         }
     }

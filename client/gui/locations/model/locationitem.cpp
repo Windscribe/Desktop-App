@@ -9,7 +9,7 @@ LocationItem::LocationItem(const types::Location &location) : location_(location
 
 LocationItem::LocationItem(const LocationID &bestLocation, const types::Location &l, int cityInd)
 {
-    Q_ASSERT(bestLocation.isBestLocation());
+    WS_ASSERT(bestLocation.isBestLocation());
     location_.name = "Best Location";
     location_.id = bestLocation;
     location_.countryCode = l.countryCode;
@@ -50,14 +50,14 @@ void LocationItem::insertCityAtInd(int ind, const types::City &city)
 
 void LocationItem::removeCityAtInd(int ind)
 {
-    Q_ASSERT(ind >= 0 && ind < location_.cities.size());
+    WS_ASSERT(ind >= 0 && ind < location_.cities.size());
     location_.cities.removeAt(ind);
     bNeedRecalcInternalValue_ = true;
 }
 
 void LocationItem::updateCityAtInd(int ind, const types::City &city)
 {
-    Q_ASSERT(ind >= 0 && ind < location_.cities.size());
+    WS_ASSERT(ind >= 0 && ind < location_.cities.size());
     location_.cities[ind] = city;
     bNeedRecalcInternalValue_ = true;
 }

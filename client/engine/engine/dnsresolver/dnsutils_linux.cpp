@@ -2,6 +2,7 @@
 #include <QRegularExpression>
 
 #include "dnsutils.h"
+#include "utils/ws_assert.h"
 #include "utils/logger.h"
 
 namespace DnsUtils
@@ -107,7 +108,7 @@ std::vector<std::wstring> getOSDefaultDnsServers()
     }
     else
     {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
         return std::vector<std::wstring>();
     }
 }

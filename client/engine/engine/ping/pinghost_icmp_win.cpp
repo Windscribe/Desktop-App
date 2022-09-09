@@ -1,6 +1,7 @@
 #include "pinghost_icmp_win.h"
-#include "Utils/ipvalidation.h"
-#include "Utils/utils.h"
+#include "utils/ws_assert.h"
+#include "utils/ipvalidation.h"
+#include "utils/utils.h"
 #include "icmp_header.h"
 #include "ipv4_header.h"
 
@@ -104,7 +105,7 @@ void PingHost_ICMP_win::processNextPings()
     if (pingingHosts_.count() < MAX_PARALLEL_PINGS && !waitingPingsQueue_.isEmpty())
     {
         QString ip = waitingPingsQueue_.dequeue();
-        Q_ASSERT(IpValidation::instance().isIp(ip));
+        WS_ASSERT(IpValidation::instance().isIp(ip));
 
         const char dataForSend[] = "HelloBufferBuffer";
 

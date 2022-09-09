@@ -3,13 +3,14 @@
 #ifdef Q_OS_MAC
 #include "utils/macutils.h"
 #endif
+#include "utils/ws_assert.h"
 
 namespace gui_locations {
 
 CursorUpdateHelper::CursorUpdateHelper(QWidget *widget)
     : widget_(widget), currentCursor_(Qt::PointingHandCursor)
 {
-    Q_ASSERT(widget_ != nullptr);
+    WS_ASSERT(widget_ != nullptr);
     widget_->setCursor(currentCursor_);
 }
 

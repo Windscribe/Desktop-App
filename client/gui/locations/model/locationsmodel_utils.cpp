@@ -58,7 +58,7 @@ QVector<QPair<int, int> > findChangedLocations(const QVector<gui_locations::Loca
         }
         else
         {
-            Q_ASSERT(false);
+            WS_ASSERT(false);
         }
     }
     return v;
@@ -91,7 +91,7 @@ QVector<int> findMovedLocations(const QVector<gui_locations::LocationItem *> &or
         }
         else
         {
-            Q_ASSERT(false);
+            WS_ASSERT(false);
         }
     }
 
@@ -130,7 +130,7 @@ QVector<int> findNewCities(const QVector<types::City> &original, const CitiesVec
 
 QVector<QPair<int, types::City> > findChangedCities(const QVector<types::City> &original, const CitiesVector &changed)
 {
-    Q_ASSERT(original.size() == changed.size());
+    WS_ASSERT(original.size() == changed.size());
     QVector<QPair<int, types::City> > v;
     for (int ind = 0; ind < original.size(); ++ind)
     {
@@ -144,7 +144,7 @@ QVector<QPair<int, types::City> > findChangedCities(const QVector<types::City> &
         }
         else
         {
-            Q_ASSERT(false);
+            WS_ASSERT(false);
         }
     }
     return v;
@@ -152,7 +152,7 @@ QVector<QPair<int, types::City> > findChangedCities(const QVector<types::City> &
 
 QVector<int> findMovedCities(const QVector<types::City> &original, const CitiesVector &changed, bool &outFound)
 {
-    Q_ASSERT(original.size() == changed.size());
+    WS_ASSERT(original.size() == changed.size());
     outFound = false;
     QVector<int> v;
     for (int ind = 0; ind < original.size(); ++ind)
@@ -168,7 +168,7 @@ QVector<int> findMovedCities(const QVector<types::City> &original, const CitiesV
         }
         else
         {
-            Q_ASSERT(false);
+            WS_ASSERT(false);
         }
     }
 
@@ -177,7 +177,7 @@ QVector<int> findMovedCities(const QVector<types::City> &original, const CitiesV
 
 void sortLocations(QVector<LocationItem *> &locations, QVector<int> indexes)
 {
-    Q_ASSERT(locations.size() == indexes.size());
+    WS_ASSERT(locations.size() == indexes.size());
     // Selection sort algorithm
     for (int i = 0; i < indexes.size(); i++)
     {

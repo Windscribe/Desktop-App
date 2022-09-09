@@ -2,6 +2,7 @@
 
 #include <QDataStream>
 #include <QSettings>
+#include "utils/ws_assert.h"
 #include "utils/logger.h"
 
 int AutoConnSettingsPolicy::failedIkev2Counter_ = 0;
@@ -15,8 +16,8 @@ AutoConnSettingsPolicy::AutoConnSettingsPolicy(QSharedPointer<locationsmodel::Ba
     isFailedIkev2CounterAlreadyIncremented_ = false;
     portMap_ = portMap;
     locationInfo_ = qSharedPointerDynamicCast<locationsmodel::MutableLocationInfo>(bli);
-    Q_ASSERT(!locationInfo_.isNull());
-    Q_ASSERT(!locationInfo_->locationId().isCustomConfigsLocation());
+    WS_ASSERT(!locationInfo_.isNull());
+    WS_ASSERT(!locationInfo_->locationId().isCustomConfigsLocation());
 
     // remove wstunnel and WireGuard protocols from portMap_ for automatic connection mode
     QVector<types::PortItem>::iterator it = portMap_.items().begin();
@@ -64,7 +65,7 @@ AutoConnSettingsPolicy::AutoConnSettingsPolicy(QSharedPointer<locationsmodel::Ba
 
         AttemptInfo attemptInfo;
         attemptInfo.protocol = portMap_.items()[portMapInd].protocol;
-        Q_ASSERT(portMap_.items()[portMapInd].ports.count() > 0);
+        WS_ASSERT(portMap_.items()[portMapInd].ports.count() > 0);
         attemptInfo.portMapInd = portMapInd;
         attemptInfo.changeNode = false;
 
@@ -264,7 +265,7 @@ bool AutoConnSettingsPolicy::sortPortMapFunction(const types::PortItem &p1, cons
     }
     else
     {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
     }
     return 0;
 }
