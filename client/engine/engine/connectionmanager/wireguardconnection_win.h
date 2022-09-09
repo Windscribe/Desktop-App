@@ -50,6 +50,7 @@ private:
 
 private:
     void onWireguardServiceStartupFailure() const;
+    void onWireguardHandshakeFailure();
 };
 
 #endif // WIREGUARDCONNECTION_WIN_H

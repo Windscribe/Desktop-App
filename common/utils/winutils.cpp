@@ -23,13 +23,13 @@
 
 #include <QDir>
 #include <QCoreApplication>
+#include <QScopeGuard>
 
 #include "utils.h"
 #include "logger.h"
 
 #include "../../gui/authhelper/win/ws_com/ws_com/guids.h"
 
-#include "executable_signature/executable_signature.h"
 
 #pragma comment(lib, "wlanapi.lib")
 
@@ -1228,7 +1228,7 @@ QString WinUtils::networkNameFromInterfaceGUID(QString adapterGUID)
                                 BSTR bstrName = NULL;
                                 if (pNetwork->GetName(&bstrName) == S_OK)
                                 {
-                                    result = QString::fromUtf16(reinterpret_cast<ushort*>(bstrName));
+                                    result = QString::fromWCharArray(bstrName);
                                     SysFreeString(bstrName);
                                 }
                             }
@@ -1580,3 +1580,36 @@ IfTable2Row WinUtils::ifTable2RowByIndex(int index)
     return found;
 }
 
+std::optional<bool> WinUtils::haveInternetConnectivity()
+{
+    INetworkListManager* mgr = nullptr;
+    HRESULT res = ::CoCreateInstance(CLSID_NetworkListManager, NULL, CLSCTX_ALL,
+                                     IID_INetworkListManager, reinterpret_cast<void**>(&mgr));
+    if (res != S_OK) {
+        qCDebug(LOG_BASIC) << "WinUtils::haveInternetConnectivity() could not create an INetworkListManager instance" << HRESULT_CODE(res);
+        return std::nullopt;
+    }
+
+    auto comRelease = qScopeGuard([&]
+    {
+        if (mgr != nullptr) {
+            mgr->Release();
+        }
+    });
+
+    NLM_CONNECTIVITY connectivity;
+    res = mgr->GetConnectivity(&connectivity);
+
+    if (res != S_OK) {
+        qCDebug(LOG_BASIC) << "WinUtils::haveInternetConnectivity() GetConnectivity failed" << HRESULT_CODE(res);
+        return std::nullopt;
+    }
+
+    qCDebug(LOG_BASIC) << "WinUtils::haveInternetConnectivity() GetConnectivity returned" << connectivity;
+
+    if ((connectivity & NLM_CONNECTIVITY_IPV4_INTERNET) || (connectivity & NLM_CONNECTIVITY_IPV6_INTERNET)) {
+        return true;
+    }
+
+    return false;
+}

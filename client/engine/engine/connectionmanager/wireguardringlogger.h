@@ -20,6 +20,7 @@ public:
 
     void getNewLogEntries();
 
+    bool handshakeFailed() const { return handshakeFailed_; }
     bool isTunnelRunning() const { return tunnelRunning_; }
 
 private:
@@ -28,6 +29,7 @@ private:
     int ringLogIndex_ = -1;
     quint64 startTime_ = 0; // nanoseconds
     bool tunnelRunning_ = false;
+    bool handshakeFailed_ = false;
 
 private:
     bool mapWireguardRinglogFile();

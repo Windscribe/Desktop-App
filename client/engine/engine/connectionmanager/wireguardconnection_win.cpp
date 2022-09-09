@@ -10,6 +10,7 @@
 #include "types/wireguardtypes.h"
 #include "utils/crashhandler.h"
 #include "utils/logger.h"
+#include "utils/winutils.h"
 
 // Useful code:
 // - mozilla-vpn-client\src\platforms\windows\daemon\wireguardutilswindows.cpp line 106 has code
@@ -225,7 +226,7 @@ void WireGuardConnection::run()
         qCDebug(LOG_CONNECTION) << ex.what();
 
         CONNECT_ERROR err = (ex.code().value() == ERROR_INVALID_IMAGE_HASH ? CONNECT_ERROR::EXE_VERIFY_WIREGUARD_ERROR
-                                                                                      : CONNECT_ERROR::WIREGUARD_CONNECTION_ERROR);
+                                                                           : CONNECT_ERROR::WIREGUARD_CONNECTION_ERROR);
         emit error(err);
 
         onWireguardServiceStartupFailure();
@@ -268,6 +269,12 @@ void WireGuardConnection::onGetWireguardLogUpdates()
             connectedSignalEmited_ = true;
             AdapterGatewayInfo info = AdapterUtils_win::getWireguardConnectedAdapterInfo(serviceIdentifier);
             emit connected(info);
+        }
+
+        // We must rely on the WireGuard service log to detect handshake failures.  The service itself does
+        // not provide a mechanism for detecting such a failure.
+        if (wireguardLog_->isTunnelRunning() && wireguardLog_->handshakeFailed()) {
+            onWireguardHandshakeFailure();
         }
     }
 }
@@ -315,4 +322,35 @@ QString WireGuardConnection::getWireGuardExeName()
 QString WireGuardConnection::getWireGuardAdapterName()
 {
     return QString("WireGuardTunnel");
+}
+
+void WireGuardConnection::onWireguardHandshakeFailure()
+{
+    auto haveInternet = WinUtils::haveInternetConnectivity();
+    if (!haveInternet.has_value())
+    {
+        qCDebug(LOG_CONNECTION) << "The WireGuard service reported a handshake failure, but the Internet connectivity check failed.";
+        return;
+    }
+
+    if (*haveInternet)
+    {
+        types::WireGuardStatus status;
+        if (helper_->getWireGuardStatus(&status) && (status.state == types::WireGuardState::ACTIVE) && (status.lastHandshake > 0))
+        {
+            // The handshake should occur every ~2 minutes.  After 3 minutes, the server will discard our key
+            // information and will silently reject anything we send to it until we make another wgconfig API call.
+            QDateTime lastHandshake = QDateTime::fromSecsSinceEpoch((status.lastHandshake / 10000000) - 11644473600LL, Qt::UTC);
+            qint64 secsTo = lastHandshake.secsTo(QDateTime::currentDateTimeUtc());
+
+            if (secsTo >= 3*60) {
+                qCDebug(LOG_CONNECTION) << secsTo << "seconds have passed since the last WireGuard handshake, disconnecting the tunnel.";
+                quit();
+            }
+        }
+    }
+    else {
+        qCDebug(LOG_CONNECTION) << "The WireGuard service reported a handshake failure and Windows reports no Internet connectivity, disconnecting the tunnel.";
+        quit();
+    }
 }
