@@ -80,9 +80,9 @@ void LinkItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, 
 
     int textWidth = linkTextPosX - xOffset;
     QFontMetrics fm(*font);
-    painter->drawText(boundingRect().adjusted(PREFERENCES_MARGIN*G_SCALE,
+    painter->drawText(boundingRect().adjusted(xOffset,
                                               PREFERENCES_MARGIN*G_SCALE,
-                                              -xOffset,
+                                              -PREFERENCES_MARGIN*G_SCALE,
                                               -PREFERENCES_MARGIN*G_SCALE),
                       Qt::AlignLeft,
                       fm.elidedText(title_, Qt::ElideRight, linkTextPosX - xOffset - PREFERENCES_MARGIN*G_SCALE));
