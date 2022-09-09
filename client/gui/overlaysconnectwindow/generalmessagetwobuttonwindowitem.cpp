@@ -185,8 +185,8 @@ void GeneralMessageTwoButtonWindowItem::updatePositions()
     {
         titlePosY_ = SHAPED_TITLE_POS_Y*G_SCALE;
         iconPosY_ =  SHAPED_ICON_POS_Y*G_SCALE;
-        acceptButton_->setPos(WINDOW_WIDTH/2*G_SCALE - acceptButton_->boundingRect().width()/2, SHAPED_ACCEPT_BUTTON_POS_Y);
-        rejectButton_->setPos(WINDOW_WIDTH/2*G_SCALE - rejectButton_->boundingRect().width()/2, SHAPED_REJECT_BUTTON_POS_Y);
+        acceptButton_->setPos(WINDOW_WIDTH/2*G_SCALE - acceptButton_->boundingRect().width()/2, SHAPED_ACCEPT_BUTTON_POS_Y*G_SCALE);
+        rejectButton_->setPos(WINDOW_WIDTH/2*G_SCALE - rejectButton_->boundingRect().width()/2, SHAPED_REJECT_BUTTON_POS_Y*G_SCALE);
     }
     else
     {

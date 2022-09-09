@@ -350,6 +350,20 @@ QPixmap Background::getShadowPixmap()
     tempPixmap.fill(Qt::transparent);
 
     QPainter painter(&tempPixmap);
+    if (preferences_->appSkin() == APP_SKIN_VAN_GOGH)
+    {
+        painter.setPen(Qt::NoPen);
+#ifdef Q_OS_MAC
+        QPainterPath path;
+        path.addRoundedRect(boundingRect().toRect(), 5*G_SCALE, 5*G_SCALE);
+        painter->fillPath(path, QColor(2, 13, 28));
+        painter->fillRect(boundingRect().adjusted(0, boundingRect().height() - 5*G_SCALE, 0, 0), cornerColor_);
+#else
+        painter.fillRect(boundingRect().toRect(), QColor(2, 13, 28));
+#endif
+        painter.setPen(Qt::SolidLine);
+    }
+    else
     {
         QSharedPointer<IndependentPixmap> pixmap = ImageResourcesSvg::instance().getIndependentPixmap(topFrameBG_);
         pixmap->draw(0, 0, &painter);
