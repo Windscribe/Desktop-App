@@ -15,10 +15,10 @@ target_sources(gui PRIVATE
     iconwidget.h
     lightwidget.cpp
     lightwidget.h
-    scrollareawidget.cpp
-    scrollareawidget.h
     textbuttonwidget.cpp
     textbuttonwidget.h
     verticalscrollbarwidget.cpp
     verticalscrollbarwidget.h
+    scrollbar.cpp
+    scrollbar.h
 )

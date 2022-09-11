@@ -17,16 +17,16 @@ LocationsView::LocationsView(QWidget *parent, QAbstractItemModel *model) : QScro
     setFocusPolicy(Qt::NoFocus);
 
     // scrollbar
-    scrollBar_ = new ScrollBar(this);
+    scrollBar_ = new CommonWidgets::ScrollBar(this);
     setVerticalScrollBar(scrollBar_);
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    connect(scrollBar_, &ScrollBar::actionTriggered, this, &LocationsView::onScrollBarActionTriggered);
-    connect(scrollBar_, &ScrollBar::valueChanged, [this]() {
+    connect(scrollBar_, &CommonWidgets::ScrollBar::actionTriggered, this, &LocationsView::onScrollBarActionTriggered);
+    connect(scrollBar_, &CommonWidgets::ScrollBar::valueChanged, [this]() {
         if (isCursorInList()) {
             widget_->updateSelectedItemByCursorPos();
         }
     });
-    connect(scrollBar_, &ScrollBar::rangeChanged, [this]() {
+    connect(scrollBar_, &CommonWidgets::ScrollBar::rangeChanged, [this]() {
         if (isCursorInList()) {
             widget_->updateSelectedItemByCursorPos();
         }
@@ -53,7 +53,6 @@ LocationsView::LocationsView(QWidget *parent, QAbstractItemModel *model) : QScro
     connect(widget_, &ExpandableItemsWidget::clickedOnPremiumStarCity, [this]() {
        emit clickedOnPremiumStarCity();
     });
-
 }
 
 LocationsView::~LocationsView()
@@ -87,22 +86,6 @@ void LocationsView::updateSelected()
 {
     if (isCursorInList())
         widget_->updateSelectedItemByCursorPos();
-}
-
-bool LocationsView::eventFilter(QObject *object, QEvent *event)
-{
-    if (object == scrollBar_ && event->type() == QEvent::Wheel)
-    {
-        QWheelEvent *wheelEvent = static_cast<QWheelEvent *>(event);
-        // We process only real events from the mouse.
-        // The event can also be from the touchpad - in this case, let's let it be processed in the ScrollBar.
-        if (wheelEvent->source() == Qt::MouseEventNotSynthesized) {
-            scrollBar_->scrollDx(-wheelEvent->angleDelta().y());
-            return true;
-        }
-    }
-
-    return QScrollArea::eventFilter(object, event);
 }
 
 bool LocationsView::handleKeyPressEvent(QKeyEvent *event)

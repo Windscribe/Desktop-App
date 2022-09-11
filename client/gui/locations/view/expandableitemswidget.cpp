@@ -88,7 +88,6 @@ void ExpandableItemsWidget::setModel(QAbstractItemModel *model)
             QPersistentModelIndex mi = model_->index(i, 0, topLeft.parent());
             WS_ASSERT(mi.isValid());
             WS_ASSERT(itemsCacheData_.contains(mi));
-            // FIXME: sometimes itemsCacheData_[mi] not found
             delegateForItem(mi)->updateCacheData(mi, itemsCacheData_[mi].get());
         }
         update();

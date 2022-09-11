@@ -25,14 +25,12 @@ target_sources(gui PRIVATE
     resizebar.h
     scalablegraphicsobject.cpp
     scalablegraphicsobject.h
-    scrollarea.cpp
-    scrollarea.h
     textbutton.cpp
     textbutton.h
     texticonbutton.cpp
     texticonbutton.h
     verticaldividerline.cpp
     verticaldividerline.h
-    verticalscrollbar.cpp
-    verticalscrollbar.h
+    scrollarea.cpp
+    scrollarea.h
 )

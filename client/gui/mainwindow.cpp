@@ -686,7 +686,7 @@ bool MainWindow::handleKeyPressEvent(QKeyEvent *event)
         }
     }
     else if (mainWindowController_->currentWindow() == MainWindowController::WINDOW_ID_CONNECT
-             && !mainWindowController_->preferencesVisible())
+             && !mainWindowController_->isPreferencesVisible() && !mainWindowController_->isNewsFeedVisible())
     {
         if (event->key() == Qt::Key_Down || event->key() == Qt::Key_Space)
         {
@@ -2682,7 +2682,7 @@ void MainWindow::onReceivedOpenLocationsMessage()
     activateAndShow();
 #endif
 
-    if (mainWindowController_->preferencesVisible())
+    if (mainWindowController_->isPreferencesVisible())
     {
         collapsePreferences();
     }
@@ -3035,7 +3035,7 @@ void MainWindow::createTrayMenuItems()
     trayMenu_.addAction(tr("Show/Hide"), this, SLOT(onTrayMenuShowHide()));
 #endif
 
-    if (!mainWindowController_->preferencesVisible())
+    if (!mainWindowController_->isPreferencesVisible())
     {
         trayMenu_.addAction(tr("Preferences"), this, SLOT(onTrayMenuPreferences()));
     }
@@ -3436,7 +3436,7 @@ void MainWindow::gotoExitWindow()
 {
     if (mainWindowController_->currentWindow() == MainWindowController::WINDOW_ID_EXIT)
         return;
-    isExitingFromPreferences_ = mainWindowController_->preferencesVisible();
+    isExitingFromPreferences_ = mainWindowController_->isPreferencesVisible();
     if (isExitingFromPreferences_)
         collapsePreferences();
     mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_EXIT);

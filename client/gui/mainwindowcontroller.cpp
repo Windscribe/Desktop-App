@@ -356,9 +356,14 @@ void MainWindowController::setIsDockedToTray(bool isDocked)
     updateMainAndViewGeometry(true);
 }
 
-bool MainWindowController::preferencesVisible()
+bool MainWindowController::isPreferencesVisible()
 {
     return preferencesState_ == CHILD_WINDOW_STATE_EXPANDED || preferencesState_ == CHILD_WINDOW_STATE_ANIMATING;
+}
+
+bool MainWindowController::isNewsFeedVisible()
+{
+    return newsFeedState_ == CHILD_WINDOW_STATE_EXPANDED || newsFeedState_ == CHILD_WINDOW_STATE_ANIMATING;
 }
 
 MainWindowController::WINDOW_ID MainWindowController::currentWindow()

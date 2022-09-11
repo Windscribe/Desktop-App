@@ -4,13 +4,12 @@
 #include <QPainter>
 #include <QStyleOption>
 #include <qmath.h>
-#include <QScroller>
 #include <QDateTime>
 #include "dpiscalemanager.h"
 #include "graphicresources/fontmanager.h"
 #include "commongraphics/commongraphics.h"
 
-namespace gui_locations {
+namespace CommonWidgets {
 
 ScrollBar::ScrollBar(QWidget *parent) : QScrollBar(parent)
   , targetValue_(0)
@@ -62,10 +61,14 @@ void ScrollBar::updateCustomStyleSheet()
 
 void ScrollBar::setValueWithAnimation(int value)
 {
-    scrollAnimation_.stop();
-    scrollAnimation_.setStartValue((double)this->value());
-    scrollAnimation_.setEndValue((double)value);
+    {
+        const QSignalBlocker blocker(scrollAnimation_);
+        scrollAnimation_.stop();
+        scrollAnimation_.setStartValue((double)this->value());
+        scrollAnimation_.setEndValue((double)value);
+    }
     targetValue_ = value;
+    this->setValue((double)this->value());      // This is necessary because of the peculiarities of the slider
     scrollAnimation_.start();
 }
 
@@ -112,6 +115,16 @@ void ScrollBar::resizeEvent(QResizeEvent *event)
     updateCustomStyleSheet();
 }
 
+void ScrollBar::wheelEvent(QWheelEvent *event)
+{
+    // We process only real events from the mouse.
+    // The event can also be from the touchpad - in this case, let's let it be processed in the ScrollBar.
+    if (event->source() == Qt::MouseEventNotSynthesized || event->source() == Qt::MouseEventSynthesizedByQt)
+        scrollDx(-event->angleDelta().y());
+    else
+        QScrollBar::wheelEvent(event);
+}
+
 QString ScrollBar::customStyleSheet()
 {
     // hover region is bigger than drawing region
@@ -143,4 +156,4 @@ int ScrollBar::customPaddingWidth()
     return 2 * G_SCALE;
 }
 
-} // namespace gui_locations
+} // namespace CommonWidgets
