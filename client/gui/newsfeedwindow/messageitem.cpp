@@ -36,7 +36,7 @@ MessageItem::MessageItem(QGraphicsObject *parent, int width, QString msg) : Scal
 
 QRectF MessageItem::boundingRect() const
 {
-    return QRectF(0, 0, width_, textBrowser_->height());
+    return QRectF(0, 0, width_*G_SCALE, textBrowser_->height());
 }
 
 void MessageItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
