@@ -16,9 +16,9 @@
 #include "../logger.h"
 #include "../utils.h"
 #include "../ipc/servicecommunication.h"
-#include "../../../common/utils/servicecontrolmanager.h"
-#include "../../../common/utils/win32handle.h"
-#include "../../../common/utils/wsscopeguard.h"
+#include "../../../client/common/utils/servicecontrolmanager.h"
+#include "../../../client/common/utils/win32handle.h"
+#include "../../../client/common/utils/wsscopeguard.h"
 
 static const DEVPROPKEY WG_DEVP_KEYNAME = DEVPKEY_WG_NAME;
 

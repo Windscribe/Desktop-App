@@ -31,7 +31,7 @@ set(PROJECT_SOURCES
         main.cpp
 )
 
-if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../common/utils/hardcodedsecrets.ini")
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/common/utils/hardcodedsecrets.ini")
     list(APPEND PROJECT_SOURCES secrets.qrc)
 endif()
 
@@ -124,7 +124,7 @@ if (APPLE)
     add_custom_command(TARGET Windscribe POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
                        ${CMAKE_CURRENT_SOURCE_DIR}/../installer/mac/binaries/windscribe-cli $<TARGET_FILE_DIR:Windscribe>/windscribe-cli)
     add_custom_command(TARGET Windscribe POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                       ${CMAKE_CURRENT_SOURCE_DIR}/../common/licenses/open_source_licenses.txt $<TARGET_FILE_DIR:Windscribe>/../Resources/open_source_licenses.txt)
+                       ${CMAKE_CURRENT_SOURCE_DIR}/common/licenses/open_source_licenses.txt $<TARGET_FILE_DIR:Windscribe>/../Resources/open_source_licenses.txt)
 endif (APPLE)
 
 if (WIN32)
@@ -136,7 +136,7 @@ target_link_libraries(Windscribe PRIVATE Qt6::Widgets Qt6::Network gui engine co
 target_include_directories(Windscribe PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/engine
     ${CMAKE_CURRENT_SOURCE_DIR}/gui
-    ${CMAKE_CURRENT_SOURCE_DIR}/../common
+    ${CMAKE_CURRENT_SOURCE_DIR}/common
 )
 
 set_target_properties(Windscribe PROPERTIES

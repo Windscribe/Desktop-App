@@ -1,1 +1,0 @@
-Keys must be named key.pem and key.pub to be ignored by .gitignore

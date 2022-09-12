@@ -3,7 +3,7 @@
 #include "../../../Utils/registry.h"
 #include "../../../Utils/logger.h"
 #include "../../../Utils/path.h"
-#include "../../../../../common/version/windscribe_version.h"
+#include "../../../../../client/common/version/windscribe_version.h"
 
 using namespace std;
 

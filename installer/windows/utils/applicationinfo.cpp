@@ -5,8 +5,8 @@
 
 #include "logger.h"
 #include "path.h"
-#include "../../../common/utils/win32handle.h"
-#include "../../../common/version/windscribe_version.h"
+#include "../../../client/common/utils/win32handle.h"
+#include "../../../client/common/version/windscribe_version.h"
 
 class EnumWindowInfo
 {

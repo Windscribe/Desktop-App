@@ -3,7 +3,7 @@
 
 
 #include "../../logger.h"
-#include "../../../../../common/utils/crashhandler.h"
+#include "../../../../../client/common/utils/crashhandler.h"
 
 DnsResolver *DnsResolver::this_ = NULL;
 

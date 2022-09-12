@@ -1,6 +1,6 @@
 #include "all_headers.h"
 #include "pipe_for_process.h"
-#include "../../../common/utils/crashhandler.h"
+#include "../../../client/common/utils/crashhandler.h"
 
 unsigned long PipeForProcess::pipeSerialNumber_ = 0;
 

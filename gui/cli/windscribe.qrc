@@ -1,5 +1,5 @@
 <RCC>
     <qresource prefix="/">
-	<file>../../common/utils/hardcodedsettings.ini</file>
+	<file>../../client/common/utils/hardcodedsettings.ini</file>
     </qresource>
 </RCC>

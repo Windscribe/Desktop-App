@@ -25,7 +25,7 @@
 #include "wireguard/wireguardcontroller.h"
 #include "reinstall_tun_drivers.h"
 #include <conio.h>
-#include "../../../common/utils/crashhandler.h"
+#include "../../../client/common/utils/crashhandler.h"
 
 #define SERVICE_NAME  (L"WindscribeService")
 #define SERVICE_PIPE_NAME  (L"\\\\.\\pipe\\WindscribeService")
