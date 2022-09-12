@@ -28,7 +28,6 @@ signals:
     void searchClicked();
     void addClicked();
     void appsUpdated(QList<types::SplitTunnelingApp> apps);
-    void scrollToRect(QRect r);
     void escape();
 
 protected slots:

@@ -144,6 +144,8 @@ void NewsFeedWindowItem::keyPressEvent(QKeyEvent *event)
     if (event->key() == Qt::Key_Escape)
     {
         emit escClick();
+    } else {
+        scrollAreaItem_->handleKeyPressEvent(event);
     }
 }
 

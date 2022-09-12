@@ -6,7 +6,6 @@
 #include "ipreferenceswindow.h"
 #include "aboutwindow/aboutwindowitem.h"
 #include "accountwindow/accountwindowitem.h"
-#include "advancedwindow/advancedparameterswindowitem.h"
 #include "advancedwindow/advancedwindowitem.h"
 #include "changelogwindow/changelogwindowitem.h"
 #include "connectionwindow/connectionwindowitem.h"

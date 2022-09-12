@@ -38,7 +38,6 @@ signals:
     void escape();
     void heightChanged(int newHeight);
     void scrollToPosition(int itemPos);
-    void scrollToRect(QRect r);
 
 protected:
     QList<BaseItem *> items() const;

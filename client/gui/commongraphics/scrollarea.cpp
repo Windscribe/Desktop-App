@@ -1,9 +1,10 @@
 #include "scrollarea.h"
 
+#include <QCoreApplication>
+#include <QGraphicsProxyWidget>
 #include <QPainter>
 #include "commongraphics/commongraphics.h"
 #include "dpiscalemanager.h"
-#include "utils/logger.h"
 
 // #include <QDebug>
 
@@ -14,21 +15,22 @@ ScrollArea::ScrollArea(ScalableGraphicsObject *parent, int height, int width) : 
   , height_(height)
   , width_(width)
   , curScrollBarOpacity_(OPACITY_HIDDEN)
-  , trackpadDeltaSum_(0)
 {
     setFlags(flags() | QGraphicsItem::ItemClipsChildrenToShape);
 
     const int scrollBarHeight = height_ - static_cast<int>(SCROLL_BAR_GAP*2.5*G_SCALE);
 
-    scrollBar_ = new VerticalScrollBar(scrollBarHeight, 1.0, this);
-    scrollBar_->setPos(width_*G_SCALE - SCROLL_DISTANCE_FROM_RIGHT*G_SCALE - scrollBar_->visibleWidth(), SCROLL_BAR_GAP*G_SCALE);
-    scrollBar_->setZValue(1);
-    scrollBar_->setOpacity(OPACITY_HIDDEN);
-    connect(scrollBar_, &VerticalScrollBar::moved, this, &ScrollArea::onScrollBarMoved);
-    connect(scrollBar_, &VerticalScrollBar::hoverEnter, this, &ScrollArea::onScrollBarHoverEnter);
-    connect(scrollBar_, &VerticalScrollBar::hoverLeave, this, &ScrollArea::onScrollBarHoverLeave);
+    scrollBar_ = new CommonWidgets::ScrollBar();
+    connect(scrollBar_, &CommonWidgets::ScrollBar::valueChanged, this, &ScrollArea::onScrollBarValueChanged);
+    connect(scrollBar_, &CommonWidgets::ScrollBar::actionTriggered, this, &ScrollArea::onScrollBarActionTriggered);
 
-    connect(&itemPosAnimation_, &QVariantAnimation::valueChanged, this, &ScrollArea::onItemPosYChanged);
+    scrollBarItem_ = new QGraphicsProxyWidget(this);
+    scrollBarItem_->setWidget(scrollBar_);
+
+    scrollBarItem_->setPos(width_*G_SCALE - SCROLL_DISTANCE_FROM_RIGHT*G_SCALE - static_cast<int>(6 * G_SCALE), SCROLL_BAR_GAP*G_SCALE);
+    scrollBarItem_->setZValue(1);
+    scrollBarItem_->setOpacity(OPACITY_HIDDEN);
+
     connect(&scrollBarOpacityAnimation_, &QVariantAnimation::valueChanged, this, &ScrollArea::onScrollBarOpacityChanged);
 }
 
@@ -46,8 +48,6 @@ void ScrollArea::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
 
 void ScrollArea::setItemPosY(int newPosY)
 {
-    trackpadDeltaSum_ = 0;
-
     int lowestY = height_ - static_cast<int>(curItem_->boundingRect().height());
     if (newPosY < lowestY) newPosY = lowestY;
     if (newPosY > 0) newPosY = 0;
@@ -63,8 +63,9 @@ void ScrollArea::setItem(BasePage *item)
         curItem_->hide();
         disconnect(curItem_, &BasePage::heightChanged, this, &ScrollArea::onPageHeightChange);
         disconnect(curItem_, &BasePage::scrollToPosition, this, &ScrollArea::onPageScrollToPosition);
-        disconnect(curItem_, &BasePage::scrollToRect, this, &ScrollArea::onPageScrollToRect);
     }
+
+    scrollBar_->setValueWithoutAnimation(0);
 
     item->setParentItem(this);
     item->setFocus();
@@ -72,8 +73,6 @@ void ScrollArea::setItem(BasePage *item)
     curItem_ = item;
     connect(curItem_, &BasePage::heightChanged, this, &ScrollArea::onPageHeightChange);
     connect(curItem_, &BasePage::scrollToPosition, this, &ScrollArea::onPageScrollToPosition);
-    connect(curItem_, &BasePage::scrollToRect, this, &ScrollArea::onPageScrollToRect);
-
 
     updateScrollBarByHeight();
 }
@@ -88,15 +87,8 @@ double ScrollArea::screenFraction()
     return screenFraction;
 }
 
-int ScrollArea::scaledThreshold()
-{
-    return static_cast<int>(TRACKPAD_DELTA_THRESHOLD*G_SCALE);
-}
-
 void ScrollArea::hideOpenPopups()
 {
-    // qCDebug(LOG_PREFERENCES) << "Hiding ScrollArea popups";
-
     curItem_->hideOpenPopups();
 }
 
@@ -104,22 +96,20 @@ void ScrollArea::updateScaling()
 {
     ScalableGraphicsObject::updateScaling();
 
-    scrollBar_->setPos(width_*G_SCALE - SCROLL_DISTANCE_FROM_RIGHT*G_SCALE - scrollBar_->visibleWidth(), SCROLL_BAR_GAP*G_SCALE);
+    scrollBar_->setFixedWidth(kScrollBarWidth * G_SCALE);
+    scrollBarItem_->setPos(width_*G_SCALE - SCROLL_DISTANCE_FROM_RIGHT*G_SCALE - static_cast<int>(6 * G_SCALE), SCROLL_BAR_GAP*G_SCALE);
 }
 
-void ScrollArea::onScrollBarMoved(double posPercentY)
+bool ScrollArea::handleKeyPressEvent(QKeyEvent *event)
 {
-    int newPosY = - static_cast<int>(curItem_->boundingRect().height() * posPercentY);
-    curItem_->setY(newPosY);
-    update();
+    if (event->key() == Qt::Key_Up || event->key() == Qt::Key_Down
+        || event->key() == Qt::Key_PageUp ||  event->key() == Qt::Key_PageDown) {
+        QCoreApplication::sendEvent(scrollBar_, event);
+        return true;
+    }
+    return false;
 }
 
-void ScrollArea::onItemPosYChanged(const QVariant &value)
-{
-    curItem_->setY(value.toInt());
-    updateScrollBarByItem();
-    update();
-}
 
 void ScrollArea::onPageHeightChange(int newHeight)
 {
@@ -140,71 +130,39 @@ void ScrollArea::onPageHeightChange(int newHeight)
 void ScrollArea::setScrollPos(int amt)
 {
     curItem_->setY(curItem_->y() + amt*G_SCALE);
-    updateScrollBarByItem();
     update();
 }
 
 void ScrollArea::onPageScrollToPosition(int itemPos)
 {
-    trackpadDeltaSum_ = 0;
-
-    int posWrtScrollArea = curItem_->currentPosY() + itemPos;
-
-    if (posWrtScrollArea > 0)
-    {
-        int overBy = height_ - posWrtScrollArea;
-
-        if (overBy < 0)
-        {
-            startAnAnimation(itemPosAnimation_, static_cast<int>(curItem_->y()), curItem_->currentPosY() + overBy, 200);
-        }
-    }
-    else
-    {
-        startAnAnimation<int>(itemPosAnimation_, static_cast<int>(curItem_->y()), curItem_->currentPosY() - posWrtScrollArea, 200);
-    }
+    scrollBar_->setValueWithAnimation(itemPos);
 }
 
-void ScrollArea::onPageScrollToRect(QRect r)
+void ScrollArea::onScrollBarValueChanged(int value)
 {
-    trackpadDeltaSum_ = 0;
-
-    int posWrtScrollArea = curItem_->currentPosY() + r.y();
-
-    if (posWrtScrollArea > 0) // item in or below the view
-    {
-        int overBy = height_ - posWrtScrollArea - r.height();
-
-        if (overBy < 0) // item is below the view
-        {
-            startAnAnimation(itemPosAnimation_, static_cast<int>(curItem_->y()), curItem_->currentPosY() + overBy, 200);
-        }
-    }
-    else // item is above the view
-    {
-        startAnAnimation<int>(itemPosAnimation_, static_cast<int>(curItem_->y()), curItem_->currentPosY() - posWrtScrollArea, 200);
-    }
+    curItem_->setY(-value);
+    update();
 }
 
 void ScrollArea::onScrollBarOpacityChanged(const QVariant &value)
 {
     curScrollBarOpacity_ = value.toDouble();
-    scrollBar_->setOpacity(curScrollBarOpacity_);
+    scrollBarItem_->setOpacity(curScrollBarOpacity_);
 }
 
-void ScrollArea::onScrollBarHoverEnter()
+void ScrollArea::onScrollBarActionTriggered(int action)
 {
-    if (scrollBarVisible_)
+    switch (action)
     {
-        startAnAnimation<double>(scrollBarOpacityAnimation_, curScrollBarOpacity_, OPACITY_FULL, ANIMATION_SPEED_FAST);
-    }
-}
-
-void ScrollArea::onScrollBarHoverLeave()
-{
-    if (scrollBarVisible_)
-    {
-        startAnAnimation<double>(scrollBarOpacityAnimation_, curScrollBarOpacity_, OPACITY_TWO_THIRDS, ANIMATION_SPEED_FAST);
+        case QAbstractSlider::SliderSingleStepAdd:
+        case QAbstractSlider::SliderSingleStepSub:
+        case QAbstractSlider::SliderPageStepAdd:
+        case QAbstractSlider::SliderPageStepSub:
+            scrollBar_->setValueWithAnimation(scrollBar_->sliderPosition());
+            break;
+        case QAbstractSlider::SliderMove:
+            scrollBar_->setValueWithoutAnimation(scrollBar_->sliderPosition());
+            break;
     }
 }
 
@@ -227,23 +185,17 @@ void ScrollArea::setHeight(int height)
 
 void ScrollArea::setScrollBarVisibility(bool on)
 {
-    if (on)
-    {
+    if (on) {
         scrollBarVisible_ = true;
-        if (screenFraction() < 1)
-        {
+        if (scrollBar_->maximum() != 0) {
             startAnAnimation<double>(scrollBarOpacityAnimation_, curScrollBarOpacity_, OPACITY_TWO_THIRDS, ANIMATION_SPEED_FAST);
         }
-
-    }
-    else
-    {
+        //scrollBarItem_->setOpacity(OPACITY_TWO_THIRDS);
+    } else {
         curScrollBarOpacity_ = OPACITY_HIDDEN;
-        scrollBar_->setOpacity(curScrollBarOpacity_);
-
+        scrollBarItem_->setOpacity(OPACITY_HIDDEN);
         scrollBarVisible_ = false;
     }
-
 }
 
 bool ScrollArea::hasItemWithFocus()
@@ -253,89 +205,38 @@ bool ScrollArea::hasItemWithFocus()
 
 void ScrollArea::wheelEvent(QGraphicsSceneWheelEvent *event)
 {
-//    qDebug() << "ScrollArea::wheelEvent,"
-//             << " spontaneous: " << event->spontaneous()
-//             << ", mouse buttons: " << event->buttons()
-//             << ", delta: " << event->delta()
-//             << ", scenePos: " << event->scenePos()
-//             << ", screenPos: " << event->screenPos()
-//             << ", pos: " << event->pos()
-//             << ", wheel orietnation: " << event->orientation()
-//             << ", widget: " << event->widget();
-
-    // event->delta() may have different value depending on source device
-    // mouse -> always will have a single +/- 120 value come through
-    // trackpad -> single +/-120 or many +/-smallValues (depending on device driver)
-    // Either behaviour is fine, just needs to be handled differently
-    if (abs(event->delta()) == 120) // probably mouseWheel, but some trackpads too
-    {
-        int change = scaledThreshold();
-        if (event->delta() < 0) change = -scaledThreshold();
-
-        int newY = static_cast<int>(curItem_->y() + change);
-        int lowestY = height_ - static_cast<int>(curItem_->boundingRect().height());
-        if (newY < lowestY) newY = lowestY;
-        if (newY > 0) newY = 0;
-
-        startAnAnimation(itemPosAnimation_, static_cast<int>(curItem_->y()), newY, ANIMATION_SPEED_FAST);
-    }
-    else // definitely trackpad
-    {
-        trackpadDeltaSum_ += event->delta();
-
-        int change = 0;
-        if (trackpadDeltaSum_ > scaledThreshold())
-        {
-            change = scaledThreshold();
-            trackpadDeltaSum_ -= scaledThreshold();
-        }
-        else if (trackpadDeltaSum_ < -scaledThreshold())
-        {
-            change = -scaledThreshold();
-            trackpadDeltaSum_ += scaledThreshold();
-        }
-
-        if (change != 0)
-        {
-            int newY = static_cast<int>(curItem_->y() + change);
-
-            int lowestY = height_ - static_cast<int>(curItem_->boundingRect().height());
-            if (newY < lowestY) newY = lowestY;
-            if (newY > 0) newY = 0;
-
-            startAnAnimation(itemPosAnimation_, static_cast<int>(curItem_->y()), newY, ANIMATION_SPEED_FAST);
-        }
-    }
-
+    // pass to the scrollbar
+    QWheelEvent wheelEvent(event->pos(), event->screenPos(), event->pixelDelta(), QPoint(0, event->delta()),
+                                              event->buttons(), event->modifiers(), event->phase(),
+                                              event->isInverted(), Qt::MouseEventNotSynthesized, QPointingDevice::primaryPointingDevice());
     curItem_->hideOpenPopups();
+    QCoreApplication::sendEvent(scrollBar_, &wheelEvent);
+}
+
+void ScrollArea::keyPressEvent(QKeyEvent *event)
+{
+    if (!handleKeyPressEvent(event)) {
+        QGraphicsObject::keyPressEvent(event);
+    }
 }
 
 void ScrollArea::updateScrollBarByHeight()
 {
-    trackpadDeltaSum_ = 0;
-    double sf = screenFraction();
-
-    if (scrollBarVisible_)
-    {
-        if (sf < 1)
-        {
-            scrollBar_->setOpacity(OPACITY_TWO_THIRDS);
-        }
-        else
-        {
-            scrollBar_->setOpacity(OPACITY_HIDDEN);
-        }
-    }
-
     const int scrollBarHeight = height_ - static_cast<int>(SCROLL_BAR_GAP*2.5*G_SCALE);
-    scrollBar_->setHeight(scrollBarHeight, sf);
-    updateScrollBarByItem();
-}
-
-void ScrollArea::updateScrollBarByItem()
-{
-    double posYPercent = static_cast<double>(curItem_->y()) / curItem_->boundingRect().height();
-    scrollBar_->moveBarToPercentPos(posYPercent);
+    scrollBar_->setFixedHeight(scrollBarHeight);
+    if ((curItem_->boundingRect().height() - scrollBarHeight) > 0) {
+        scrollBar_->setMinimum(0);
+        scrollBar_->setMaximum(curItem_->boundingRect().height() - scrollBarHeight);
+        scrollBar_->setPageStep(scrollBarHeight);
+        scrollBar_->setSingleStep(50*G_SCALE);
+        if (scrollBarVisible_) {
+            scrollBarItem_->setOpacity(OPACITY_TWO_THIRDS);
+        }
+    } else {
+        scrollBar_->setMinimum(0);
+        scrollBar_->setMaximum(0);
+        scrollBarItem_->setOpacity(OPACITY_HIDDEN);
+    }
 }
 
 } // namespace CommonGraphics

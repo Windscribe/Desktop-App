@@ -9,10 +9,6 @@ target_sources(gui PRIVATE
     accountwindow/emailitem.h
     accountwindow/planitem.cpp
     accountwindow/planitem.h
-    advancedwindow/advancedparametersitem.cpp
-    advancedwindow/advancedparametersitem.h
-    advancedwindow/advancedparameterswindowitem.cpp
-    advancedwindow/advancedparameterswindowitem.h
     advancedwindow/advancedwindowitem.cpp
     advancedwindow/advancedwindowitem.h
     advancedwindow/apiresolutiongroup.cpp

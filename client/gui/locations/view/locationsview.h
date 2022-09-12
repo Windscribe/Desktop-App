@@ -6,7 +6,7 @@
 #include "expandableitemswidget.h"
 #include "countryitemdelegate.h"
 #include "cityitemdelegate.h"
-#include "scrollbar.h"
+#include "commonwidgets/scrollbar.h"
 #include "types/locationid.h"
 
 namespace gui_locations {
@@ -30,7 +30,6 @@ public:
     void scrollToTop();
     void updateSelected();
 
-    bool eventFilter(QObject *object, QEvent *event) override;
     bool handleKeyPressEvent(QKeyEvent *event);
 
 protected:
@@ -52,7 +51,7 @@ private:
     ExpandableItemsWidget *widget_;
     CountryItemDelegate *countryItemDelegate_;
     CityItemDelegate *cityItemDelegate_;
-    ScrollBar *scrollBar_;
+    CommonWidgets::ScrollBar *scrollBar_;
 
     void ensureVisible(int top, int bottom);
     bool isCursorInList();

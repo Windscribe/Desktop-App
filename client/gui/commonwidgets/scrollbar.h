@@ -6,7 +6,7 @@
 #include <QVariantAnimation>
 #include <QPropertyAnimation>
 
-namespace gui_locations {
+namespace CommonWidgets {
 
 // Scroll bar with the custom style and and support for smooth scrolling animation
 class ScrollBar : public QScrollBar
@@ -26,6 +26,7 @@ protected:
     void enterEvent(QEnterEvent *event) override;
     void leaveEvent(QEvent *event) override;
     void resizeEvent(QResizeEvent *event) override;
+    void wheelEvent(QWheelEvent *event) override;
 
 private:
     static constexpr int kScrollAnimationDiration = 800;
@@ -39,4 +40,4 @@ private:
     int customPaddingWidth();
 };
 
-} // namespace gui_locations
+} // namespace CommonWidgets

@@ -1,10 +1,13 @@
 #include "preferenceswindowitem.h"
-#include "graphicresources/imageresourcessvg.h"
-#include "preferencestab/preferencestabcontrolitem.h"
-#include "graphicresources/fontmanager.h"
+
 #include <QPainter>
 #include <QCursor>
 #include <QGraphicsSceneMouseEvent>
+#include <QCoreApplication>
+
+#include "graphicresources/imageresourcessvg.h"
+#include "preferencestab/preferencestabcontrolitem.h"
+#include "graphicresources/fontmanager.h"
 #include "utils/ws_assert.h"
 #include "utils/utils.h"
 #include "utils/logger.h"
@@ -656,6 +659,8 @@ void PreferencesWindowItem::keyPressEvent(QKeyEvent *event)
                 emit escape();
             }
         }
+    } else {
+        scrollAreaItem_->handleKeyPressEvent(event);
     }
 }
 

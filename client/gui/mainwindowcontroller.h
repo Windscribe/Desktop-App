@@ -62,7 +62,8 @@ public:
     void setWindowPosFromPersistent();
     void setIsDockedToTray(bool isDocked);
 
-    bool preferencesVisible();
+    bool isPreferencesVisible();
+    bool isNewsFeedVisible();
     WINDOW_ID currentWindow();
     void changeWindow(WINDOW_ID windowId);
 

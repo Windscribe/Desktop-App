@@ -3,7 +3,8 @@
 
 #include "commongraphics/scalablegraphicsobject.h"
 #include <QGraphicsSceneWheelEvent>
-#include "commongraphics/verticalscrollbar.h"
+//#include "verticalscrollbar.h"
+#include "commonwidgets/scrollbar.h"
 #include "basepage.h"
 
 namespace CommonGraphics {
@@ -28,47 +29,41 @@ public:
     void hideOpenPopups();
     void updateScaling() override;
 
-private slots:
-    void onScrollBarMoved(double posPercentY);
-    void onItemPosYChanged(const QVariant &value);
+    bool handleKeyPressEvent(QKeyEvent *event);
 
+private slots:
     void onPageHeightChange(int newHeight);
     void onPageScrollToPosition(int itemPos);
-    void onPageScrollToRect(QRect r);
 
+    void onScrollBarValueChanged(int value);
     void onScrollBarOpacityChanged(const QVariant &value);
-    void onScrollBarHoverEnter();
-    void onScrollBarHoverLeave();
+
+    void onScrollBarActionTriggered(int action);
 
 protected:
     void wheelEvent(QGraphicsSceneWheelEvent *event) override;
+    void keyPressEvent(QKeyEvent *event) override;
 
 private:
     BasePage *curItem_;
-    VerticalScrollBar *scrollBar_;
+    CommonWidgets::ScrollBar *scrollBar_;
+    QGraphicsProxyWidget *scrollBarItem_;
 
     int height_;
     int width_;
 
+    static constexpr int kScrollBarWidth = 8;
     static constexpr int SCROLL_DISTANCE_FROM_RIGHT = 2;
     static constexpr int SCROLL_BAR_GAP = 1;
-
-    QVariantAnimation itemPosAnimation_;
 
     double curScrollBarOpacity_;
     QVariantAnimation scrollBarOpacityAnimation_;
 
     void updateScrollBarByHeight();
-    void updateScrollBarByItem();
     void setItemPosY(int newPosY);
     double screenFraction();
 
     bool scrollBarVisible_ = false;
-
-    const int TRACKPAD_DELTA_THRESHOLD = 120;
-    int trackpadDeltaSum_;
-
-    int scaledThreshold();
 };
 
 } // namespace CommonGraphics

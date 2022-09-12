@@ -1,6 +1,5 @@
 #include "newscontentitem.h"
 
-#include "utils/logger.h"
 #include <QPainter>
 
 #include "dpiscalemanager.h"
@@ -133,18 +132,7 @@ void NewsContentItem::onScrollToItem(EntryItem *item)
 
 void NewsContentItem::scrollToItem(EntryItem *item, bool expanded)
 {
-    int delta = 0;
-    if (expanded)
-    {
-        delta = item->expandedHeight() - item->collapsedHeight();
-    }
-
-    int scrollPos = item->y() + static_cast<CommonGraphics::ScrollArea *>(parentItem())->boundingRect().height() - TEXT_MARGIN*G_SCALE;
-    if (scrollPos > currentHeight() + delta)
-    {
-        scrollPos = currentHeight() + delta;
-    }
-    emit scrollToPosition(scrollPos);
+    emit scrollToPosition(item->y() - TEXT_MARGIN*G_SCALE);
 }
 
 } // namespace NewsFeedWindow
