@@ -397,7 +397,7 @@ void Preferences::setIgnoreSslErrors(bool b)
     }
 }
 
-#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
+#if defined(Q_OS_WIN)
 bool Preferences::isTerminateSockets() const
 {
     return engineSettings_.isTerminateSockets();
@@ -618,7 +618,7 @@ void Preferences::setEngineSettings(const types::EngineSettings &es)
     setLanguage(es.language());
     setUpdateChannel(es.updateChannel());
     setIgnoreSslErrors(es.isIgnoreSslErrors());
-#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
+#if defined(Q_OS_WIN)
     setTerminateSockets(es.isTerminateSockets());
 #endif
 #if defined(Q_OS_WIN)
