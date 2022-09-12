@@ -1,3 +1,13 @@
+2.5.5 (12/09/2022)
+* Fixed app does not resize correctly when dragging app between displays. #402
+* Fixed start minimized does not work on Windows. #413
+* Fixed favorite locations lost after app update. #428
+* Improved scrolling in news feed and preferences. #429
+* Removed terminate sockets network preference from the Linux app. #442
+* Fixed custom connected background image doesn't display in Van Gogh mode. #443
+* Fixed news feed messages are the wrong width at some display scales. #444
+
+
 2.5.4 (09/09/2022)
 * Implemented preferred protocol support per network. #49
 * Implemented Van Gogh mode. #61
@@ -5,7 +15,7 @@
 * Preferences UI cleanup. #122
 * Support the Wayland compositor on Linux. #236
 * Notifications screen re-work. #274
-* Elimated unnecessary spam in the log. #380
+* Eliminated unnecessary spam in the log. #380
 * Fixed hostname-level exclusive split tunneling does not work on Windows. #383
 * Fixed WireGuard connection stalls on Windows if Internet access is interrupted momentarily. #392
 * Version info entry in preferences is now clickable and will display this change log. #397
