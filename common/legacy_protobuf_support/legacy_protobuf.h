@@ -13,6 +13,8 @@ public:
     static bool loadGuiSettings(const QByteArray &arr, types::GuiSettings &out);
     static bool loadEngineSettings(const QByteArray &arr, types::EngineSettings &out);
     static bool loadGuiPersistentState(const QByteArray &arr, types::GuiPersistentState &out);
+
+    static bool loadFavoriteLocations(const QByteArray &arr, QSet<LocationID> &out);
 };
 
 

@@ -1,8 +1,9 @@
 #include "legacy_protobuf.h"
-
 extern "C" {
     #include "legacy_protobuf_support/types.pb-c.h"
 }
+
+#include "types/locationid.h"
 
 
 bool LegacyProtobufSupport::loadGuiSettings(const QByteArray &arr, types::GuiSettings &out)
@@ -316,6 +317,25 @@ bool LegacyProtobufSupport::loadGuiPersistentState(const QByteArray &arr, types:
             }
         }
         proto_types__gui_persistent_state__free_unpacked(gs, NULL);
+        return true;
+    }
+    return false;
+}
+
+bool LegacyProtobufSupport::loadFavoriteLocations(const QByteArray &arr, QSet<LocationID> &out)
+{
+    ProtoTypes__ArrayLocationId *ali = proto_types__array_location_id__unpack(NULL, arr.size(), (const uint8_t *)arr.data());
+    if (ali)
+    {
+        for (int i =0; i < ali->n_ids; ++i) {
+            if (ali->ids[i]->has_id && ali->ids[i]->has_type) {
+                LocationID lid(ali->ids[i]->type, ali->ids[i]->id, ali->ids[i]->city);
+                if (lid.isBestLocation())
+                    lid = lid.bestLocationToApiLocation();
+                out.insert(lid);
+            }
+        }
+        proto_types__array_location_id__free_unpacked(ali, NULL);
         return true;
     }
     return false;

@@ -98,7 +98,7 @@ private:
     static constexpr quint32 versionForSerialization_ = 1;  // should increment the version if the data format is changed
 };
 
-inline size_t qHash(const LocationID &key, uint seed)
+inline size_t qHash(const LocationID &key, uint seed = 0)
 {
     return qHash(key.getHashString(), seed);
 }
