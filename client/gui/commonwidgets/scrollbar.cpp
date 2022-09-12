@@ -117,9 +117,9 @@ void ScrollBar::resizeEvent(QResizeEvent *event)
 
 void ScrollBar::wheelEvent(QWheelEvent *event)
 {
-    // We process only real events from the mouse.
-    // The event can also be from the touchpad - in this case, let's let it be processed in the ScrollBar.
-    if (event->source() == Qt::MouseEventNotSynthesized || event->source() == Qt::MouseEventSynthesizedByQt)
+    // How did I figure out if event->phase() == Qt::NoScrollPhase then these are events from the mouse.
+    // Otherwise the event from the touchpad - in this case, let's let it be processed in the QScrollBar.
+    if (event->phase() == Qt::NoScrollPhase)
         scrollDx(-event->angleDelta().y());
     else
         QScrollBar::wheelEvent(event);

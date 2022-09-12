@@ -356,8 +356,8 @@ QPixmap Background::getShadowPixmap()
 #ifdef Q_OS_MAC
         QPainterPath path;
         path.addRoundedRect(boundingRect().toRect(), 5*G_SCALE, 5*G_SCALE);
-        painter->fillPath(path, QColor(2, 13, 28));
-        painter->fillRect(boundingRect().adjusted(0, boundingRect().height() - 5*G_SCALE, 0, 0), cornerColor_);
+        painter.fillPath(path, QColor(2, 13, 28));
+        painter.fillRect(boundingRect().adjusted(0, boundingRect().height() - 5*G_SCALE, 0, 0), cornerColor_);
 #else
         painter.fillRect(boundingRect().toRect(), QColor(2, 13, 28));
 #endif
