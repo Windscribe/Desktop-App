@@ -266,7 +266,7 @@ void EntryItem::setItem(const types::Notification &item)
 {
     item_ = item;
     delete messageItem_;
-    messageItem_ = new MessageItem(this, boundingRect().width(), item_.message);
+    messageItem_ = new MessageItem(this, boundingRect().width()/G_SCALE, item_.message);
     updatePositions();
     update();
 }
