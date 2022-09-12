@@ -85,7 +85,7 @@ public:
     bool isIgnoreSslErrors() const;
     void setIgnoreSslErrors(bool b);
 
-#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
+#if defined(Q_OS_WIN)
     bool isTerminateSockets() const;
     void setTerminateSockets(bool b);
 #endif

@@ -126,7 +126,7 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
     addItem(macSpoofingGroup_);
 #endif
 
-#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
+#if defined(Q_OS_WIN)
     terminateSocketsGroup_ = new PreferenceGroup(this,
                                                  tr("Close all active TCP sockets when the VPN tunnel is established."),
                                                  QString("https://%1/features/tcp-socket-termination").arg(HardcodedSettings::instance().serverUrl()));
@@ -223,7 +223,7 @@ void ConnectionWindowItem::onMacAddrSpoofingPreferencesChangedByUser(const types
 
 void ConnectionWindowItem::onTerminateSocketsPreferencesChangedByUser(bool isChecked)
 {
-#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
+#if defined(Q_OS_WIN)
     preferences_->setTerminateSockets(isChecked);
 #endif
 }
@@ -279,7 +279,7 @@ void ConnectionWindowItem::onMacAddrSpoofingPreferencesChanged(const types::MacA
 
 void ConnectionWindowItem::onTerminateSocketsPreferencesChanged(bool b)
 {
-#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
+#if defined(Q_OS_WIN)
     terminateSocketsItem_->setState(b);
 #endif
 }
