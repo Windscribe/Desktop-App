@@ -9,7 +9,7 @@
 #include "utils/crashhandler.h"
 #include "utils/logger.h"
 #include "dpiscalemanager.h"
-#include "utils/widgetutils.h"
+#include "widgetutils/widgetutils.h"
 
 ImageResourcesSvg::ImageResourcesSvg() : QThread(nullptr), bNeedFinish_(false), bFininishedGracefully_(false)
 {

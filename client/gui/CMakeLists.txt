@@ -95,5 +95,6 @@ add_subdirectory(systemtray)
 add_subdirectory(tooltips)
 add_subdirectory(twofactorauth)
 add_subdirectory(utils)
+add_subdirectory(widgetutils)
 add_subdirectory(tests)
 

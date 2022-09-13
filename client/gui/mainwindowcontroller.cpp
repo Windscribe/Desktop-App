@@ -28,7 +28,7 @@
 #include "backend/persistentstate.h"
 #include "dpiscalemanager.h"
 #include "utils/logger.h"
-#include "utils/widgetutils.h"
+#include "widgetutils/widgetutils.h"
 
 #ifdef Q_OS_MAC
     #include "utils/macutils.h"

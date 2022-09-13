@@ -20,8 +20,6 @@ target_sources(common PRIVATE
     simplecrypt.h
     utils.cpp
     utils.h
-    widgetutils.cpp
-    widgetutils.h
     ws_assert.h
 )
 
@@ -30,7 +28,6 @@ if (WIN32)
         crashdump.cpp
         crashhandler.cpp
         winutils.cpp
-        widgetutils_win.cpp
         executable_signature/executable_signature_win.cpp
         servicecontrolmanager.cpp
     )
@@ -44,8 +41,6 @@ elseif(APPLE)
         macutils.mm
         network_utils/network_utils_mac.cpp
         network_utils/network_utils_mac.h
-        widgetutils_mac.h
-        widgetutils_mac.mm
     )
 elseif(UNIX)
     target_sources(common PRIVATE

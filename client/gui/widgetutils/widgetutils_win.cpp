@@ -2,7 +2,7 @@
 
 #include <Windows.h>
 #include <shellapi.h>
-#include "winutils.h"
+#include "utils/winutils.h"
 #include <QPainter>
 #include <QDir>
 #include <QFileInfo>
