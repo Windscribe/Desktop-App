@@ -22,7 +22,7 @@
 		003EA38D242E7A2200DCF49A /* info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = info.plist; sourceTree = "<group>"; };
 		003EA38E242E7A2200DCF49A /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		003EA390242E7A2200DCF49A /* windscribelauncher.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = windscribelauncher.entitlements; sourceTree = "<group>"; };
-		88E53B35254864A20027495A /* names.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = names.h; path = ../../../common/names.h; sourceTree = "<group>"; };
+		88E53B35254864A20027495A /* names.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = names.h; path = ../../../client/common/names.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */

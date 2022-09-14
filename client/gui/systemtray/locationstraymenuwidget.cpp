@@ -13,7 +13,7 @@
 #include "utils/ws_assert.h"
 
 #ifdef Q_OS_MAC
-#include "utils/widgetutils_mac.h"
+#include "widgetutils/widgetutils_mac.h"
 #endif
 
 class LocationsTrayMenuWidget::LocationsTrayMenuWidgetSubmenu : public QMenu
