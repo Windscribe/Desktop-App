@@ -22,11 +22,11 @@ variables:
   #NEXUS_USERNAME: ""  # Set in Gitlab variables/vault
   #NEXUS_PASSWORD: ""  # Set in Gitlab variables/vault
   CODE_SIGNING_PFX_PATH: 'installer\windows\signing\code_signing.pfx'
-  CODE_SIGNING_LINUX_PATH: 'common/keys/linux'
+  CODE_SIGNING_LINUX_PATH: 'client/common/keys/linux'
   CODE_SIGNING_LINUX_PRIVATE_KEY_FILE: '$CODE_SIGNING_LINUX_PATH/key.pem'
   CODE_SIGNING_LINUX_PUBLIC_KEY_FILE: '$CODE_SIGNING_LINUX_PATH/key.pub'
   NOTARIZE_YML_PATH: 'tools/notarize.yml'
-  HARDCODED_SECRETS_PATH: 'common/utils/hardcodedsecrets.ini'
+  HARDCODED_SECRETS_PATH: 'client/common/utils/hardcodedsecrets.ini'
   CODE_SIGNING_PROVISION_PROFILE_FOLDER_PATH : 'backend/mac/provisioning_profile'
   CODE_SIGNING_PROVISION_PROFILE_PATH: '$CODE_SIGNING_PROVISION_PROFILE_FOLDER_PATH/embedded.provisionprofile'
   RUNNING_CI: 1
