@@ -4,8 +4,8 @@
 #include <comdef.h>
 #include <WbemIdl.h>
 #include <versionhelpers.h>
-#include "../../../common/utils/executable_signature/executable_signature.h"
-#include "../../../common/utils/win32handle.h"
+#include "../../../client/common/utils/executable_signature/executable_signature.h"
+#include "../../../client/common/utils/win32handle.h"
 
 #pragma comment(lib, "wbemuuid.lib")
 

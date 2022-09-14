@@ -1,5 +1,5 @@
 #include <windows.h>
-#include "../../../common/version/windscribe_version.h"
+#include "../../../client/common/version/windscribe_version.h"
 
 IDI_ICON1	ICON	DISCARDABLE	"windscribe.ico"
 

@@ -4,7 +4,7 @@
 #include "../../../Utils/applicationinfo.h"
 #include "../../../Utils/registry.h"
 #include "../../../Utils/process1.h"
-#include "../../../../../common/utils/wsscopeguard.h"
+#include "../../../../../client/common/utils/wsscopeguard.h"
 
 const std::wstring wmActivateGui = L"WindscribeAppActivate";
 

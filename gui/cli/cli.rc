@@ -1,5 +1,5 @@
 #include <windows.h>
-#include "../../common/version/windscribe_version.h"
+#include "../../client/common/version/windscribe_version.h"
 
 VS_VERSION_INFO VERSIONINFO
 	FILEVERSION WINDSCRIBE_MAJOR_VERSION, WINDSCRIBE_MINOR_VERSION, WINDSCRIBE_BUILD_VERSION, 0

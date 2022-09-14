@@ -10,7 +10,7 @@
 #include <Windows.h>
 
 #if defined(WINDSCRIBE_SERVICE)
-#include "../../backend/windows/windscribe_service/logger.h"
+#include "../../../backend/windows/windscribe_service/logger.h"
 #else
 #include "logger.h"
 #include <QStandardPaths>

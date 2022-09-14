@@ -43,16 +43,16 @@
 
 #if defined(Q_OS_WIN)
     #include "utils/winutils.h"
-    #include "utils/widgetutils_win.h"
+    #include "widgetutils/widgetutils_win.h"
     #include <windows.h>
 #elif defined(Q_OS_LINUX)
     #include "utils/authchecker_linux.h"
 #else
     #include "utils/macutils.h"
-    #include "utils/widgetutils_mac.h"
+    #include "widgetutils/widgetutils_mac.h"
     #include "utils/authchecker_mac.h"
 #endif
-#include "utils/widgetutils.h"
+#include "widgetutils/widgetutils.h"
 
 QWidget *g_mainWindow = NULL;
 

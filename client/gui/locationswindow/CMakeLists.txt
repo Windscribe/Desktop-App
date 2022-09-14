@@ -9,12 +9,8 @@ target_sources(gui PRIVATE
     widgetlocations/footertopstrip.h
     widgetlocations/locationstab.cpp
     widgetlocations/locationstab.h
-    widgetlocations/scrollbar.cpp
-    widgetlocations/scrollbar.h
     widgetlocations/staticipdeviceinfo.cpp
     widgetlocations/staticipdeviceinfo.h
-    widgetlocations/widgetlocationssizes.cpp
-    widgetlocations/widgetlocationssizes.h
     widgetlocations/widgetswitcher.cpp
     widgetlocations/widgetswitcher.h
 )

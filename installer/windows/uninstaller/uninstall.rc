@@ -1,5 +1,5 @@
 #include "resource.h"
-#include "../../../common/version/windscribe_version.h"
+#include "../../../client/common/version/windscribe_version.h"
 
 #include "winres.h"
 

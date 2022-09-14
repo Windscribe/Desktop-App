@@ -37,7 +37,7 @@ if(DEFINED IS_BUILD_TESTS)
     target_link_libraries(locationsmodel.test PRIVATE Qt6::Test gui engine common ${OS_SPECIFIC_LIBRARIES})
     target_include_directories(locationsmodel.test PRIVATE
         ${PROJECT_DIRECTORY}/gui
-        ${PROJECT_DIRECTORY}/../common
+        ${PROJECT_DIRECTORY}/common
     )
     set_target_properties( locationsmodel.test PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}" )
 

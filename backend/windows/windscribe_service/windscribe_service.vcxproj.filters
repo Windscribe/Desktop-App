@@ -144,13 +144,13 @@
     <ClInclude Include="ikev2ipsec.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\common\utils\executable_signature\executable_signature_win.h">
+    <ClInclude Include="..\..\..\client\common\utils\executable_signature\executable_signature_win.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\common\utils\crashdump.h">
+    <ClInclude Include="..\..\..\client\common\utils\crashdump.h">
       <Filter>Header Files\common</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\common\utils\crashhandler.h">
+    <ClInclude Include="..\..\..\client\common\utils\crashhandler.h">
       <Filter>Header Files\common</Filter>
     </ClInclude>
     <ClInclude Include="ip_address\ip4_address_and_mask.h">
@@ -177,7 +177,7 @@
     <ClInclude Include="split_tunneling\hostnames_manager\ares_library_init.h">
       <Filter>Header Files\split_tunneling\hostnames_manager</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\common\utils\executable_signature\executable_signature.h">
+    <ClInclude Include="..\..\..\client\common\utils\executable_signature\executable_signature.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="adapters_info.h">
@@ -275,13 +275,13 @@
     <ClCompile Include="ikev2ipsec.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\common\utils\executable_signature\executable_signature_win.cpp">
+    <ClCompile Include="..\..\..\client\common\utils\executable_signature\executable_signature_win.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\common\utils\crashdump.cpp">
+    <ClCompile Include="..\..\..\client\common\utils\crashdump.cpp">
       <Filter>Source Files\common</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\common\utils\crashhandler.cpp">
+    <ClCompile Include="..\..\..\client\common\utils\crashhandler.cpp">
       <Filter>Source Files\common</Filter>
     </ClCompile>
     <ClCompile Include="ip_address\ip4_address_and_mask.cpp">
@@ -308,10 +308,10 @@
     <ClCompile Include="split_tunneling\hostnames_manager\ares_library_init.cpp">
       <Filter>Source Files\split_tunneling\hostnames_manager</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\common\utils\executable_signature\executable_signature.cpp">
+    <ClCompile Include="..\..\..\client\common\utils\executable_signature\executable_signature.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\common\utils\servicecontrolmanager.cpp">
+    <ClCompile Include="..\..\..\client\common\utils\servicecontrolmanager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

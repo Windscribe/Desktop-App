@@ -12,7 +12,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 DEFINES += WINDSCRIBE_CLI
 TARGET = windscribe-cli
 
-COMMON_PATH = $$PWD/../../common
+COMMON_PATH = $$PWD/../../client/common
 BUILD_LIBS_PATH = $$PWD/../../build-libs
 INCLUDEPATH += $$COMMON_PATH
 
@@ -92,7 +92,7 @@ linux {
 }
 
 SOURCES += \
-        ../../common/utils/ipvalidation.cpp \
+        $$COMMON_PATH/utils/ipvalidation.cpp \
         $$COMMON_PATH/ipc/commandfactory.cpp \
         $$COMMON_PATH/ipc/connection.cpp \
         $$COMMON_PATH/ipc/clicommands.cpp \
@@ -117,7 +117,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 HEADERS += \
-    ../../common/utils/ipvalidation.h \
+    $$COMMON_PATH/utils/ipvalidation.h \
     $$COMMON_PATH/ipc/command.h \
     $$COMMON_PATH/ipc/commandfactory.h \
     $$COMMON_PATH/ipc/connection.h \
