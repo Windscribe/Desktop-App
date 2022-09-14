@@ -9,7 +9,7 @@
 
 #include "logger.h"
 
-#include "../../../common/utils/executable_signature/executable_signature.h"
+#include "../../../client/common/utils/executable_signature/executable_signature.h"
 
 // Expects symLink to reference /path/*/exe, where * can be 'self', or a pid, or
 // an exe name.
