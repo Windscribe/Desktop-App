@@ -43,7 +43,7 @@ def notarize_yml_filename_absolute():
 
 
 def hardcoded_secrets_filename_absolute():
-	return os.path.join(COMMON_DIR, "utils", HARDCODED_SECRETS_INI)
+	return os.path.join(ROOT_DIR, "client", "common", "utils", HARDCODED_SECRETS_INI)
 
 
 def notarize_script_filename_absolute():
