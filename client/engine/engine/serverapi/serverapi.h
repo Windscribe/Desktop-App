@@ -13,6 +13,7 @@
 #include "types/robertfilter.h"
 #include "dnscache.h"
 #include "curlnetworkmanager.h"
+#include "engine/networkaccessmanager/networkaccessmanager.h"
 
 #include <list>
 
@@ -44,8 +45,8 @@ public:
     void setHostname(const QString &hostname);
     QString getHostname() const;
 
-    void accessIps(const QString &hostIp, uint userRole, bool isNeedCheckRequestsEnabled);
-    void login(const QString &username, const QString &password, const QString &code2fa, uint userRole, bool isNeedCheckRequestsEnabled);
+    void accessIps(const QString &hostIp, uint userRole);
+    void login(const QString &username, const QString &password, const QString &code2fa, uint userRole);
     void session(const QString &authHash, uint userRole, bool isNeedCheckRequestsEnabled);
     void serverLocations(const QString &authHash, const QString &language, uint userRole, bool isNeedCheckRequestsEnabled,
                          const QString &revision, bool isPro, PROTOCOL protocol, const QStringList &alcList);
@@ -117,6 +118,11 @@ private slots:
     void onRequestTimer();
 
 private:
+    NetworkAccessManager *networkAccessManager_;
+    types::ProxySettings proxySettings_;
+    bool isProxyEnabled_;
+
+
     using HandleDnsResolveFunc = void (ServerAPI::*)(BaseRequest*,bool, const QStringList&);
     using HandleCurlReplyFunc = void (ServerAPI::*)(BaseRequest*, bool);
 
@@ -166,9 +172,6 @@ private:
 
     void handleRequestTimeout(BaseRequest *rd);
 
-    void handleLoginDnsResolve(BaseRequest *rd, bool success, const QStringList &ips);
-    void handleSessionDnsResolve(BaseRequest *rd, bool success, const QStringList &ips);
-    void handleServerLocationsDnsResolve(BaseRequest *rd, bool success, const QStringList &ips);
     void handleServerCredentialsDnsResolve(BaseRequest *rd, bool success, const QStringList &ips);
     void handleDeleteSessionDnsResolve(BaseRequest *rd, bool success, const QStringList &ips);
     void handleServerConfigsDnsResolve(BaseRequest *rd, bool success, const QStringList &ips);
@@ -190,9 +193,9 @@ private:
     void handleGetRobertFiltersDnsResolve(BaseRequest *rd, bool success, const QStringList &ips);
     void handleSetRobertFilterDnsResolve(BaseRequest *rd, bool success, const QStringList &ips);
 
-    void handleAccessIpsCurl(BaseRequest *rd, bool success);
-    void handleSessionReplyCurl(BaseRequest *rd, bool success);
-    void handleServerLocationsCurl(BaseRequest *rd, bool success);
+    void handleAccessIps();
+    void handleSessionReply();
+    void handleServerLocations();
     void handleServerCredentialsCurl(BaseRequest *rd, bool success);
     void handleDeleteSessionCurl(BaseRequest *rd, bool success);
     void handleServerConfigsCurl(BaseRequest *rd, bool success);
@@ -215,8 +218,6 @@ private:
     CurlNetworkManager curlNetworkManager_;
     IConnectStateController *connectStateController_;
 
-    QString lastLocationsLanguage_;
-
     DnsCache *dnsCache_;
 
     QString hostname_;
@@ -234,6 +235,8 @@ private:
     HandleDnsResolveFunc handleDnsResolveFuncTable_[NUM_REPLY_TYPES];
     HandleCurlReplyFunc handleCurlReplyFuncTable_[NUM_REPLY_TYPES];
     QTimer requestTimer_;
+
+    types::ProxySettings currentProxySettings() const;
 };
 
 #endif // SERVERAPI_H

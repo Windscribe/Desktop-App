@@ -164,7 +164,7 @@ void LoginController::tryLoginAgain()
 {
     if (!loginSettings_.isAuthHashLogin())
     {
-        serverAPI_->login(loginSettings_.username(), loginSettings_.password(), loginSettings_.code2fa(), serverApiUserRole_, false);
+        serverAPI_->login(loginSettings_.username(), loginSettings_.password(), loginSettings_.code2fa(), serverApiUserRole_);
     }
     else // AUTH_HASH
     {
@@ -267,7 +267,7 @@ void LoginController::makeLoginRequest(const QString &hostname)
     loginElapsedTimer_.start();
     if (!loginSettings_.isAuthHashLogin())
     {
-        serverAPI_->login(loginSettings_.username(), loginSettings_.password(), loginSettings_.code2fa(), serverApiUserRole_, false);
+        serverAPI_->login(loginSettings_.username(), loginSettings_.password(), loginSettings_.code2fa(), serverApiUserRole_);
     }
     else // AUTH_HASH
     {

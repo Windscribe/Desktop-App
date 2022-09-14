@@ -4,6 +4,17 @@ NetworkRequest::NetworkRequest(const QUrl &url, int timeout, bool bUseDnsCache) 
 {
 }
 
+NetworkRequest::NetworkRequest(const QUrl &url, int timeout, bool bUseDnsCache, const QStringList &dnsServers, bool isIgnoreSslErrors, const types::ProxySettings &proxySettings) :
+    url_(url),
+    timeout_(timeout),
+    bUseDnsCache_(bUseDnsCache),
+    proxySettings_(proxySettings),
+    bIgnoreSslErrors_(isIgnoreSslErrors),
+    dnsServers_(dnsServers)
+{
+
+}
+
 void NetworkRequest::setUrl(const QUrl &url)
 {
     url_ = url;

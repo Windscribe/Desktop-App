@@ -55,6 +55,6 @@ void GetApiAccessIps::makeRequestToRandomIP()
 {
     int randomInd = Utils::generateIntegerRandom(0, hardcodedIps_.count() - 1); // random number from 0 to hardcodedIps_.count() - 1
     qCDebug(LOG_BASIC) << "Make ApiAccessIps request with "  << randomInd;
-    serverAPI_->accessIps(hardcodedIps_[randomInd], serverApiUserRole_, false);
+    serverAPI_->accessIps(hardcodedIps_[randomInd], serverApiUserRole_);
     hardcodedIps_.removeAt(randomInd);
 }

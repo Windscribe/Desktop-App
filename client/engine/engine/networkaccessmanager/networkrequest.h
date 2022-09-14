@@ -7,8 +7,9 @@
 class NetworkRequest
 {
 public:
-    explicit NetworkRequest() {}
+    NetworkRequest() {}
     explicit NetworkRequest(const QUrl &url, int timeout, bool bUseDnsCache);
+    explicit NetworkRequest(const QUrl &url, int timeout, bool bUseDnsCache, const QStringList &dnsServers, bool isIgnoreSslErrors, const types::ProxySettings &proxySettings);
 
     void setUrl(const QUrl &url);
     QUrl url() const;

@@ -7,6 +7,8 @@
 #include <QThread>
 #include <QUrl>
 #include <QUrlQuery>
+#include <algorithm>
+
 #include "utils/ws_assert.h"
 #include "utils/hardcodedsettings.h"
 #include "engine/openvpnversioncontroller.h"
@@ -16,7 +18,7 @@
 #include "utils/ipvalidation.h"
 #include "version/appversion.h"
 #include "utils/extraconfig.h"
-#include <algorithm>
+#include "engine/dnsresolver/dnsserversconfiguration.h"
 
 #ifdef Q_OS_LINUX
     #include "utils/linuxutils.h"
@@ -331,6 +333,7 @@ private:
 
 ServerAPI::ServerAPI(QObject *parent, IConnectStateController *connectStateController) : QObject(parent),
     connectStateController_(connectStateController),
+    isProxyEnabled_(false),
     hostMode_(HOST_MODE_HOSTNAME),
     bIsRequestsEnabled_(false),
     curUserRole_(0),
@@ -339,6 +342,13 @@ ServerAPI::ServerAPI(QObject *parent, IConnectStateController *connectStateContr
     handleCurlReplyFuncTable_(),
     requestTimer_(this)
 {
+    networkAccessManager_ = new NetworkAccessManager(this);
+    connect(networkAccessManager_, &NetworkAccessManager::whitelistIpsChanged, [this] (const QSet<QString> &ips) {
+        //FIXME:
+        QStringList list(ips.begin(), ips.end());
+        emit hostIpsChanged(list);
+    });
+
     connect(&curlNetworkManager_, &CurlNetworkManager::finished, this, &ServerAPI::onCurlNetworkRequestFinished);
 
     dnsCache_ = new DnsCache(this);
@@ -354,9 +364,6 @@ ServerAPI::ServerAPI(QObject *parent, IConnectStateController *connectStateContr
         qCDebug(LOG_SERVER_API) << "Fatal: SSL not supported";
     }
 
-    handleDnsResolveFuncTable_[REPLY_LOGIN] = &ServerAPI::handleLoginDnsResolve;
-    handleDnsResolveFuncTable_[REPLY_SESSION] = &ServerAPI::handleSessionDnsResolve;
-    handleDnsResolveFuncTable_[REPLY_SERVER_LOCATIONS] = &ServerAPI::handleServerLocationsDnsResolve;
     handleDnsResolveFuncTable_[REPLY_SERVER_CREDENTIALS] = &ServerAPI::handleServerCredentialsDnsResolve;
     handleDnsResolveFuncTable_[REPLY_DELETE_SESSION] = &ServerAPI::handleDeleteSessionDnsResolve;
     handleDnsResolveFuncTable_[REPLY_SERVER_CONFIGS] = &ServerAPI::handleServerConfigsDnsResolve;
@@ -376,10 +383,6 @@ ServerAPI::ServerAPI(QObject *parent, IConnectStateController *connectStateContr
     handleDnsResolveFuncTable_[REPLY_GET_ROBERT_FILTERS] = &ServerAPI::handleGetRobertFiltersDnsResolve;
     handleDnsResolveFuncTable_[REPLY_SET_ROBERT_FILTER] = &ServerAPI::handleSetRobertFilterDnsResolve;
 
-    handleCurlReplyFuncTable_[REPLY_ACCESS_IPS] = &ServerAPI::handleAccessIpsCurl;
-    handleCurlReplyFuncTable_[REPLY_LOGIN] = &ServerAPI::handleSessionReplyCurl;
-    handleCurlReplyFuncTable_[REPLY_SESSION] = &ServerAPI::handleSessionReplyCurl;
-    handleCurlReplyFuncTable_[REPLY_SERVER_LOCATIONS] = &ServerAPI::handleServerLocationsCurl;
     handleCurlReplyFuncTable_[REPLY_SERVER_CREDENTIALS] = &ServerAPI::handleServerCredentialsCurl;
     handleCurlReplyFuncTable_[REPLY_DELETE_SESSION] = &ServerAPI::handleDeleteSessionCurl;
     handleCurlReplyFuncTable_[REPLY_SERVER_CONFIGS] = &ServerAPI::handleServerConfigsCurl;
@@ -421,16 +424,19 @@ uint ServerAPI::getAvailableUserRole()
 
 void ServerAPI::setProxySettings(const types::ProxySettings &proxySettings)
 {
+    proxySettings_ = proxySettings;
     curlNetworkManager_.setProxySettings(proxySettings);
 }
 
 void ServerAPI::disableProxy()
 {
+    isProxyEnabled_ = false;
     curlNetworkManager_.setProxyEnabled(false);
 }
 
 void ServerAPI::enableProxy()
 {
+    isProxyEnabled_ = true;
     curlNetworkManager_.setProxyEnabled(true);
 }
 
@@ -563,85 +569,136 @@ void ServerAPI::onRequestTimer()
 }
 
 // works with direct IP
-void ServerAPI::accessIps(const QString &hostIp, uint userRole, bool isNeedCheckRequestsEnabled)
+void ServerAPI::accessIps(const QString &hostIp, uint userRole)
 {
-    if (isNeedCheckRequestsEnabled && !bIsRequestsEnabled_)
-    {
-        emit accessIpsAnswer(SERVER_RETURN_API_NOT_READY, QStringList(), userRole);
-        return;
-    }
-
     QUrl url("https://" + hostIp + "/ApiAccessIps");
     url.setQuery(MakeQuery(""));
 
-    auto *rd =
-        createRequest<GenericRequest>(QString(), REPLY_ACCESS_IPS, NETWORK_TIMEOUT, userRole);
-    if (rd) {
-        auto *curl_request = rd->createCurlRequest();
-        curl_request->setGetData(url.toString());
-        submitCurlRequest(rd, CurlRequest::METHOD_GET, QString(), hostIp, QStringList());
-    }
+    NetworkRequest request(url.toString(), NETWORK_TIMEOUT, true, DnsServersConfiguration::instance().getCurrentDnsServers(), bIgnoreSslErrors_, currentProxySettings());
+    NetworkReply *reply = networkAccessManager_->get(request);
+    reply->setProperty("userRole", userRole);
+    connect(reply, &NetworkReply::finished, this, &ServerAPI::handleAccessIps);
 }
 
 void ServerAPI::login(const QString &username, const QString &password, const QString &code2fa,
-                      uint userRole, bool isNeedCheckRequestsEnabled)
+                      uint userRole)
 {
-    if (isNeedCheckRequestsEnabled && !bIsRequestsEnabled_)
-    {
-        emit loginAnswer(SERVER_RETURN_API_NOT_READY, types::SessionStatus(), "", userRole, "");
-        return;
-    }
+    QString url = "https://" + hostname_ + "/Session";
 
-    submitDnsRequest( createRequest<LoginRequest>(
-        username, password, code2fa, hostname_, REPLY_LOGIN, NETWORK_TIMEOUT, userRole) );
- }
+    time_t timestamp;
+    time(&timestamp);
+    QString strTimestamp = QString::number(timestamp);
+    QString strHash = HardcodedSettings::instance().serverSharedKey() + strTimestamp;
+    QString md5Hash = QCryptographicHash::hash(strHash.toStdString().c_str(), QCryptographicHash::Md5).toHex();
+    QUrlQuery postData;
+    postData.addQueryItem("username", QUrl::toPercentEncoding(username));
+    postData.addQueryItem("password", QUrl::toPercentEncoding(password));
+    if (!code2fa.isEmpty())
+        postData.addQueryItem("2fa_code", QUrl::toPercentEncoding(code2fa));
+    postData.addQueryItem("session_type_id", "3");
+    postData.addQueryItem("time", strTimestamp);
+    postData.addQueryItem("client_auth_hash", md5Hash);
+    postData.addQueryItem("platform", Utils::getPlatformNameSafe());
+    postData.addQueryItem("app_version", AppVersion::instance().semanticVersionString());
+
+    NetworkRequest request(url, NETWORK_TIMEOUT, true, DnsServersConfiguration::instance().getCurrentDnsServers(), bIgnoreSslErrors_, currentProxySettings());
+    request.setContentTypeHeader("Content-type: text/html; charset=utf-8");
+
+    NetworkReply *reply = networkAccessManager_->post(request, postData.toString(QUrl::FullyEncoded).toUtf8());
+    reply->setProperty("userRole", userRole);
+    reply->setProperty("isLoginRequest", true);
+    connect(reply, &NetworkReply::finished, this, &ServerAPI::handleSessionReply);
+}
 
 void ServerAPI::session(const QString &authHash, uint userRole, bool isNeedCheckRequestsEnabled)
 {
-    if (isNeedCheckRequestsEnabled && !bIsRequestsEnabled_)
-    {
+    if (isNeedCheckRequestsEnabled && !bIsRequestsEnabled_) {
         emit sessionAnswer(SERVER_RETURN_API_NOT_READY, types::SessionStatus(), userRole);
         return;
     }
 
-    submitDnsRequest( createRequest<AuthenticatedRequest>(
-        authHash, hostname_, REPLY_SESSION, NETWORK_TIMEOUT, userRole) );
+    time_t timestamp;
+    time(&timestamp);
+    QString strTimestamp = QString::number(timestamp);
+    QString strHash = HardcodedSettings::instance().serverSharedKey() + strTimestamp;
+    QString md5Hash = QCryptographicHash::hash(strHash.toStdString().c_str(), QCryptographicHash::Md5).toHex();
+    QString url = "https://" + hostname_ + "/Session?session_type_id=3&time=" + strTimestamp
+             + "&client_auth_hash=" + md5Hash + "&session_auth_hash=" + authHash
+             + "&platform=" + Utils::getPlatformNameSafe() + "&app_version=" + AppVersion::instance().semanticVersionString();
+
+    NetworkRequest request(url, NETWORK_TIMEOUT, true, DnsServersConfiguration::instance().getCurrentDnsServers(), bIgnoreSslErrors_, currentProxySettings());
+    NetworkReply *reply = networkAccessManager_->get(request);
+    reply->setProperty("userRole", userRole);
+    reply->setProperty("isLoginRequest", false);
+    connect(reply, &NetworkReply::finished, this, &ServerAPI::handleSessionReply);
 }
 
 void ServerAPI::serverLocations(const QString &authHash, const QString &language, uint userRole, bool isNeedCheckRequestsEnabled,
                                 const QString &revision, bool isPro, PROTOCOL protocol, const QStringList &alcList)
 {
-    if (isNeedCheckRequestsEnabled && !bIsRequestsEnabled_)
-    {
+    if (isNeedCheckRequestsEnabled && !bIsRequestsEnabled_) {
         emit serverLocationsAnswer(SERVER_RETURN_API_NOT_READY, QVector<apiinfo::Location>(), QStringList(), userRole);
         return;
     }
 
     QString hostname;
     // if this is IP, then use without changes
-    if (IpValidation::instance().isIp(hostname_))
-    {
+    if (IpValidation::instance().isIp(hostname_)) {
         hostname = hostname_;
-    }
-    // otherwise use domain assets.windscribe.com
-    else
-    {
+    } else  {   // otherwise use domain assets.windscribe.com
         QString modifiedHostname = hostname_;
-        if (modifiedHostname.startsWith("api", Qt::CaseInsensitive))
-        {
+        if (modifiedHostname.startsWith("api", Qt::CaseInsensitive)) {
             modifiedHostname = modifiedHostname.remove(0, 3);
             modifiedHostname.insert(0, "assets");
-        }
-        else
-        {
+        } else {
             WS_ASSERT(false);
         }
         hostname = modifiedHostname;
     }
 
-    submitDnsRequest(createRequest<ServerLocationsRequest>(
-        authHash, language, revision, isPro, protocol,
-        std::move(alcList), hostname, REPLY_SERVER_LOCATIONS, NETWORK_TIMEOUT, userRole));
+    // generate alc parameter, if not empty
+    QString alcField;
+    if (!alcList.isEmpty()) {
+        for (int i = 0; i < alcList.count(); ++i) {
+            alcField += alcList[i];
+            if (i < (alcList.count() - 1)) {
+                alcField += ",";
+            }
+        }
+    }
+
+    QSettings settings;
+    QString countryOverride = settings.value("countryOverride", "").toString();
+
+    QString modifiedHostname = hostname_;
+    if (modifiedHostname.startsWith("api", Qt::CaseInsensitive)) {
+        modifiedHostname = modifiedHostname.remove(0, 3);
+        modifiedHostname.insert(0, "assets");
+    } else if (IpValidation::instance().isIp(modifiedHostname)) {
+        modifiedHostname += "/assets";
+    } else {
+        WS_ASSERT(false);
+    }
+    QString strIsPro = isPro ? "1" : "0";
+    QUrl url = QUrl("https://" + modifiedHostname + "/serverlist/mob-v2/" + strIsPro + "/" + revision);
+
+    // add alc parameter in query, if not empty
+    QUrlQuery query;
+    if (!alcField.isEmpty()) {
+        query.addQueryItem("platform", Utils::getPlatformNameSafe());
+        query.addQueryItem("app_version", AppVersion::instance().semanticVersionString());
+        query.addQueryItem("alc", alcField);
+    }
+    if (!countryOverride.isEmpty() && connectStateController_->currentState() != CONNECT_STATE::CONNECT_STATE_DISCONNECTED) {
+        query.addQueryItem("country_override", countryOverride);
+        qCDebug(LOG_SERVER_API) << "API request ServerLocations added countryOverride = " << countryOverride;
+    }
+    url.setQuery(query);
+
+    NetworkRequest request(url.toString(), NETWORK_TIMEOUT, true, DnsServersConfiguration::instance().getCurrentDnsServers(), bIgnoreSslErrors_, currentProxySettings());
+    NetworkReply *reply = networkAccessManager_->get(request);
+    reply->setProperty("isFromDisconnectedVPNState", connectStateController_->currentState() == CONNECT_STATE::CONNECT_STATE_DISCONNECTED);
+    connect(reply, &NetworkReply::finished, this, &ServerAPI::handleServerLocations);
 }
 
 void ServerAPI::serverCredentials(const QString &authHash, uint userRole, PROTOCOL protocol, bool isNeedCheckRequestsEnabled)
@@ -976,138 +1033,6 @@ void ServerAPI::handleRequestTimeout(BaseRequest *rd)
         if (handleDnsResolveFuncTable_[reply_type])
             (this->*handleDnsResolveFuncTable_[reply_type])(rd, false, QStringList());
     }
-}
-
-void ServerAPI::handleLoginDnsResolve(BaseRequest *rd, bool success, const QStringList &ips)
-{
-    auto *crd = dynamic_cast<LoginRequest*>(rd);
-    WS_ASSERT(crd);
-
-    if (!success) {
-        qCDebug(LOG_SERVER_API) << "API request Login failed: DNS-resolution failed";
-        emit loginAnswer(SERVER_RETURN_NETWORK_ERROR, types::SessionStatus(), "", crd->getUserRole(), "");
-        return;
-    }
-
-    QUrl url("https://" + crd->getHostname() + "/Session");
-
-    time_t timestamp;
-    time(&timestamp);
-    QString strTimestamp = QString::number(timestamp);
-    QString strHash = HardcodedSettings::instance().serverSharedKey() + strTimestamp;
-    QString md5Hash = QCryptographicHash::hash(strHash.toStdString().c_str(), QCryptographicHash::Md5).toHex();
-    QUrlQuery postData;
-    postData.addQueryItem("username", QUrl::toPercentEncoding(crd->getUsername()));
-    postData.addQueryItem("password", QUrl::toPercentEncoding(crd->getPassword()));
-    if (!crd->getCode2FA().isEmpty())
-        postData.addQueryItem("2fa_code", QUrl::toPercentEncoding(crd->getCode2FA()));
-    postData.addQueryItem("session_type_id", "3");
-    postData.addQueryItem("time", strTimestamp);
-    postData.addQueryItem("client_auth_hash", md5Hash);
-    postData.addQueryItem("platform", Utils::getPlatformNameSafe());
-    postData.addQueryItem("app_version", AppVersion::instance().semanticVersionString());
-
-    auto *curl_request = crd->createCurlRequest();
-    curl_request->setPostData(postData.toString(QUrl::FullyEncoded).toUtf8());
-    curl_request->setUrl(url.toString());
-    submitCurlRequest(crd, CurlRequest::METHOD_POST, "Content-type: text/html; charset=utf-8",
-                      crd->getHostname(), ips);
-}
-
-void ServerAPI::handleSessionDnsResolve(BaseRequest *rd, bool success, const QStringList &ips)
-{
-    auto *crd = dynamic_cast<AuthenticatedRequest*>(rd);
-    WS_ASSERT(crd);
-
-    if (!success) {
-        qCDebug(LOG_SERVER_API) << "API request Session failed: DNS-resolution failed";
-        emit sessionAnswer(SERVER_RETURN_NETWORK_ERROR, types::SessionStatus(),
-                           crd->getUserRole());
-        return;
-    }
-
-    time_t timestamp;
-    time(&timestamp);
-    QString strTimestamp = QString::number(timestamp);
-    QString strHash = HardcodedSettings::instance().serverSharedKey() + strTimestamp;
-    QString md5Hash = QCryptographicHash::hash(strHash.toStdString().c_str(), QCryptographicHash::Md5).toHex();
-    QUrl url("https://" + crd->getHostname() + "/Session?session_type_id=3&time=" + strTimestamp
-             + "&client_auth_hash=" + md5Hash + "&session_auth_hash=" + crd->getAuthHash()
-             + "&platform=" + Utils::getPlatformNameSafe() + "&app_version=" + AppVersion::instance().semanticVersionString());
-
-    auto *curl_request = crd->createCurlRequest();
-    curl_request->setGetData(url.toString());
-    submitCurlRequest(crd, CurlRequest::METHOD_GET, QString(), crd->getHostname(), ips);
-}
-
-void ServerAPI::handleServerLocationsDnsResolve(BaseRequest *rd, bool success,
-                                                const QStringList &ips)
-{
-    auto *crd = dynamic_cast<ServerLocationsRequest*>(rd);
-    WS_ASSERT(crd);
-
-    if (!success) {
-        qCDebug(LOG_SERVER_API) << "API request ServerLocations failed: DNS-resolution failed";
-        emit serverLocationsAnswer(SERVER_RETURN_NETWORK_ERROR,
-                                   QVector<apiinfo::Location>(), QStringList(),
-                                   crd->getUserRole());
-        return;
-    }
-
-    // generate alc parameter, if not empty
-    QString alcField;
-    const auto &alcList = crd->getAlcList();
-    if (!alcList.isEmpty())
-    {
-        for (int i = 0; i < alcList.count(); ++i)
-        {
-            alcField += alcList[i];
-            if (i < (alcList.count() - 1))
-            {
-                alcField += ",";
-            }
-        }
-    }
-
-    QSettings settings;
-    QString countryOverride = settings.value("countryOverride", "").toString();
-
-    QString modifiedHostname = hostname_;
-    if (modifiedHostname.startsWith("api", Qt::CaseInsensitive))
-    {
-        modifiedHostname = modifiedHostname.remove(0, 3);
-        modifiedHostname.insert(0, "assets");
-    }
-    else if (IpValidation::instance().isIp(modifiedHostname))
-    {
-        modifiedHostname += "/assets";
-    }
-    else
-    {
-        WS_ASSERT(false);
-    }
-    QString strIsPro = crd->getIsPro() ? "1" : "0";
-    QUrl url = QUrl("https://" + modifiedHostname + "/serverlist/mob-v2/" + strIsPro + "/" + crd->getRevision());
-
-    // add alc parameter in query, if not empty
-    QUrlQuery query;
-    if (!alcField.isEmpty())
-    {
-        query.addQueryItem("platform", Utils::getPlatformNameSafe());
-        query.addQueryItem("app_version", AppVersion::instance().semanticVersionString());
-        query.addQueryItem("alc", alcField);
-    }
-    if (!countryOverride.isEmpty() && connectStateController_->currentState() != CONNECT_STATE::CONNECT_STATE_DISCONNECTED)
-    {
-        query.addQueryItem("country_override", countryOverride);
-        qCDebug(LOG_SERVER_API) << "API request ServerLocations added countryOverride = " << countryOverride;
-    }
-    url.setQuery(query);
-
-    auto *curl_request = crd->createCurlRequest();
-    curl_request->setGetData(url.toString());
-    curl_request->setFromDisconnectedVPNState(connectStateController_->currentState() == CONNECT_STATE::CONNECT_STATE_DISCONNECTED);
-    submitCurlRequest(crd, CurlRequest::METHOD_GET, QString(), crd->getHostname(), ips);
 }
 
 void ServerAPI::handleServerCredentialsDnsResolve(BaseRequest *rd, bool success,
@@ -1676,20 +1601,17 @@ void ServerAPI::handlePingTestDnsResolve(BaseRequest *rd, bool success, const QS
     submitCurlRequest(crd, CurlRequest::METHOD_GET, QString(), crd->getHostname(), ips);
 }
 
-void ServerAPI::handleAccessIpsCurl(BaseRequest *rd, bool success)
+void ServerAPI::handleAccessIps()
 {
-    const int userRole = rd->getUserRole();
-    const auto *curlRequest = rd->getCurlRequest();
-    CURLcode curlRetCode = success ? curlRequest->getCurlRetCode() : CURLE_OPERATION_TIMEDOUT;
+    NetworkReply *reply = static_cast<NetworkReply *>(sender());
+    QSharedPointer<NetworkReply> obj = QSharedPointer<NetworkReply>(reply, &QObject::deleteLater);
 
-    if (curlRetCode != CURLE_OK)
+    const uint userRole = reply->property("userRole").toUInt();
+
+    if (!reply->isSuccess())
     {
         SERVER_API_RET_CODE retCode;
-        /*if (reply->error() == QNetworkReply::ProxyAuthenticationRequiredError)
-        {
-            retCode = SERVER_RETURN_PROXY_AUTH_FAILED;
-        }
-        else*/ if (curlNetworkManager_.isCurlSslError(curlRetCode) && !bIgnoreSslErrors_)
+        if (reply->error() ==  NetworkReply::NetworkError::SslError && !bIgnoreSslErrors_)
         {
             retCode = SERVER_RETURN_SSL_ERROR;
         }
@@ -1698,12 +1620,12 @@ void ServerAPI::handleAccessIpsCurl(BaseRequest *rd, bool success)
             retCode = SERVER_RETURN_NETWORK_ERROR;
         }
 
-        qCDebug(LOG_SERVER_API) << "API request ApiAccessIps failed(" << curlRetCode << "):" << curl_easy_strerror(curlRetCode);
+        qCDebug(LOG_SERVER_API) << "API request ApiAccessIps failed(" << reply->errorString() << ")";
         emit accessIpsAnswer(retCode, QStringList(), userRole);
     }
     else
     {
-        QByteArray arr = curlRequest->getAnswer();
+        QByteArray arr = reply->readAll();
         //qCDebugMultiline(LOG_SERVER_API) << arr;
 
         QJsonParseError errCode;
@@ -1741,17 +1663,19 @@ void ServerAPI::handleAccessIpsCurl(BaseRequest *rd, bool success)
     }
 }
 
-void ServerAPI::handleSessionReplyCurl(BaseRequest *rd, bool success)
+void ServerAPI::handleSessionReply()
 {
-    const int userRole = rd->getUserRole();
-    const int replyType = rd->getReplyType();
-    const auto *curlRequest = rd->getCurlRequest();
-    CURLcode curlRetCode = success ? curlRequest->getCurlRetCode() : CURLE_OPERATION_TIMEDOUT;
-    if (curlRetCode != CURLE_OK)
+    NetworkReply *reply = static_cast<NetworkReply *>(sender());
+    QSharedPointer<NetworkReply> obj = QSharedPointer<NetworkReply>(reply, &QObject::deleteLater);
+
+    const uint userRole = reply->property("userRole").toUInt();
+    const bool isLoginRequest = reply->property("isLoginRequest").toBool();
+
+    if (!reply->isSuccess())
     {
         SERVER_API_RET_CODE retCode;
 
-        if (curlNetworkManager_.isCurlSslError(curlRetCode) && !bIgnoreSslErrors_)
+        if (reply->error() ==  NetworkReply::NetworkError::SslError && !bIgnoreSslErrors_)
         {
             retCode = SERVER_RETURN_SSL_ERROR;
         }
@@ -1760,20 +1684,20 @@ void ServerAPI::handleSessionReplyCurl(BaseRequest *rd, bool success)
             retCode = SERVER_RETURN_NETWORK_ERROR;
         }
 
-        if (replyType == REPLY_LOGIN)
+        if (isLoginRequest)
         {
-            qCDebug(LOG_SERVER_API) << "API request Login failed(" << curlRetCode << "):" << curl_easy_strerror(curlRetCode);
+            qCDebug(LOG_SERVER_API) << "API request Login failed(" << reply->errorString() << ")";
             emit loginAnswer(retCode, types::SessionStatus(), "", userRole, "");
         }
         else
         {
-            qCDebug(LOG_SERVER_API) << "API request Session failed(" << curlRetCode << "):" << curl_easy_strerror(curlRetCode);
+            qCDebug(LOG_SERVER_API) << "API request Session failed(" << reply->errorString() << ")";
             emit sessionAnswer(retCode, types::SessionStatus(), userRole);
         }
     }
     else
     {
-        QByteArray arr = curlRequest->getAnswer();
+        QByteArray arr = reply->readAll();
 
 #ifdef TEST_API_FROM_FILES
         arr = SessionAndLocationsTest::instance().getSessionData();
@@ -1793,7 +1717,7 @@ void ServerAPI::handleSessionReplyCurl(BaseRequest *rd, bool success)
         QJsonDocument doc = QJsonDocument::fromJson(arr, &errCode);
         if (errCode.error != QJsonParseError::NoError || !doc.isObject())
         {
-            if (replyType == REPLY_LOGIN)
+            if (isLoginRequest)
             {
                 qCDebug(LOG_SERVER_API) << "API request Login incorrect json";
                 emit loginAnswer(SERVER_RETURN_INCORRECT_JSON, types::SessionStatus(), "", userRole, "");
@@ -1828,7 +1752,7 @@ void ServerAPI::handleSessionReplyCurl(BaseRequest *rd, bool success)
 
             if (errorCode == 701)
             {
-                if (replyType == REPLY_LOGIN)
+                if (isLoginRequest)
                 {
                     qCDebug(LOG_SERVER_API) << "API request Login return session auth hash invalid";
                     emit loginAnswer(SERVER_RETURN_SESSION_INVALID, types::SessionStatus(), "", userRole, "");
@@ -1841,7 +1765,7 @@ void ServerAPI::handleSessionReplyCurl(BaseRequest *rd, bool success)
             }
             else if (errorCode == 702)
             {
-                if (replyType == REPLY_LOGIN)
+                if (isLoginRequest)
                 {
                     qCDebug(LOG_SERVER_API) << "API request Login return bad username";
                     emit loginAnswer(SERVER_RETURN_BAD_USERNAME, types::SessionStatus(), "", userRole, "");
@@ -1857,7 +1781,7 @@ void ServerAPI::handleSessionReplyCurl(BaseRequest *rd, bool success)
             {
                 QString errorMessage = jsonObject["errorMessage"].toString();
 
-                if (replyType == REPLY_LOGIN)
+                if (isLoginRequest)
                 {
                     qCDebug(LOG_SERVER_API) << "API request Login return account disabled or banned";
                     emit loginAnswer(SERVER_RETURN_ACCOUNT_DISABLED, types::SessionStatus(), "", userRole, errorMessage);
@@ -1871,7 +1795,7 @@ void ServerAPI::handleSessionReplyCurl(BaseRequest *rd, bool success)
             }
             else
             {
-                if (replyType == REPLY_LOGIN)
+                if (isLoginRequest)
                 {
                     if (errorCode == 1340)
                     {
@@ -1900,7 +1824,7 @@ void ServerAPI::handleSessionReplyCurl(BaseRequest *rd, bool success)
 
         if (!jsonObject.contains("data"))
         {
-            if (replyType == REPLY_LOGIN)
+            if (isLoginRequest)
             {
                 qCDebug(LOG_SERVER_API) << "API request Login incorrect json (data field not found)";
                 emit loginAnswer(SERVER_RETURN_INCORRECT_JSON, types::SessionStatus(), "", userRole, "");
@@ -1920,10 +1844,10 @@ void ServerAPI::handleSessionReplyCurl(BaseRequest *rd, bool success)
         }
 
         QString outErrorMsg;
-        success = sessionStatus.initFromJson(jsonData, outErrorMsg);
+        bool success = sessionStatus.initFromJson(jsonData, outErrorMsg);
         if (!success)
         {
-            if (replyType == REPLY_LOGIN)
+            if (isLoginRequest)
             {
                 qCDebug(LOG_SERVER_API) << "API request Login incorrect json:" << outErrorMsg;
                 emit loginAnswer(SERVER_RETURN_INCORRECT_JSON, types::SessionStatus(), "", userRole, "");
@@ -1935,7 +1859,7 @@ void ServerAPI::handleSessionReplyCurl(BaseRequest *rd, bool success)
             }
         }
 
-        if (replyType == REPLY_LOGIN)
+        if (isLoginRequest)
         {
             qCDebug(LOG_SERVER_API) << "API request Login successfully executed";
             emit loginAnswer(SERVER_RETURN_SUCCESS, sessionStatus, authHash, userRole, "");
@@ -1954,16 +1878,18 @@ void ServerAPI::handleSessionReplyCurl(BaseRequest *rd, bool success)
     }
 }
 
-void ServerAPI::handleServerLocationsCurl(BaseRequest *rd, bool success)
+void ServerAPI::handleServerLocations()
 {
-    const int userRole = rd->getUserRole();
-    const auto *curlRequest = rd->getCurlRequest();
-    CURLcode curlRetCode = success ? curlRequest->getCurlRetCode() : CURLE_OPERATION_TIMEDOUT;
+    NetworkReply *reply = static_cast<NetworkReply *>(sender());
+    QSharedPointer<NetworkReply> obj = QSharedPointer<NetworkReply>(reply, &QObject::deleteLater);
 
-    if (curlRetCode != CURLE_OK)
+    const uint userRole = reply->property("userRole").toUInt();
+    const bool isFromDisconnectedVPNState = reply->property("isFromDisconnectedVPNState").toBool();
+
+    if (!reply->isSuccess())
     {
-        qCDebug(LOG_SERVER_API) << "API request ServerLocations failed(" << curlRetCode << "):" << curl_easy_strerror(curlRetCode);
-        if (curlNetworkManager_.isCurlSslError(curlRetCode) && !bIgnoreSslErrors_)
+        qCDebug(LOG_SERVER_API) << "API request ServerLocations failed(" << reply->errorString() << ")";
+        if (reply->error() ==  NetworkReply::NetworkError::SslError && !bIgnoreSslErrors_)
         {
             emit serverLocationsAnswer(SERVER_RETURN_SSL_ERROR, QVector<apiinfo::Location>(), QStringList(), userRole);
         }
@@ -1974,10 +1900,7 @@ void ServerAPI::handleServerLocationsCurl(BaseRequest *rd, bool success)
     }
     else
     {
-        const auto *crd = dynamic_cast<ServerLocationsRequest*>(rd);
-        WS_ASSERT(crd);
-        lastLocationsLanguage_ = crd->getLanguage();
-        QByteArray arr = curlRequest->getAnswer();
+        QByteArray arr = reply->readAll();
 
 #ifdef TEST_CREATE_API_FILES
         QFile file("c:\\5\\locations.api");
@@ -2027,7 +1950,7 @@ void ServerAPI::handleServerLocationsCurl(BaseRequest *rd, bool success)
         // https://gitlab.int.windscribe.com/ws/client/desktop/client-desktop-public/-/issues/354
         if (jsonInfo.contains("country_override"))
         {
-            if (curlRequest->isFromDisconnectedVPNState() && connectStateController_->currentState() == CONNECT_STATE::CONNECT_STATE_DISCONNECTED)
+            if (isFromDisconnectedVPNState && connectStateController_->currentState() == CONNECT_STATE::CONNECT_STATE_DISCONNECTED)
             {
                 QSettings settings;
                 settings.setValue("countryOverride", jsonInfo["country_override"].toString());
@@ -2036,7 +1959,7 @@ void ServerAPI::handleServerLocationsCurl(BaseRequest *rd, bool success)
         }
         else
         {
-            if (curlRequest->isFromDisconnectedVPNState() && connectStateController_->currentState() == CONNECT_STATE::CONNECT_STATE_DISCONNECTED)
+            if (isFromDisconnectedVPNState && connectStateController_->currentState() == CONNECT_STATE::CONNECT_STATE_DISCONNECTED)
             {
                 QSettings settings;
                 settings.remove("countryOverride");
@@ -2885,6 +2808,16 @@ void ServerAPI::handleSetRobertFilterCurl(BaseRequest *rd, bool success)
         qCDebug(LOG_SERVER_API) << "Set ROBERT request successfully executed ( result =" << jsonData["success"] << ")";
         emit setRobertFilterAnswer((jsonData["success"] == 1) ? SERVER_RETURN_SUCCESS : SERVER_RETURN_INCORRECT_JSON, userRole);
     }
+}
+
+types::ProxySettings ServerAPI::currentProxySettings() const
+{
+    if (isProxyEnabled_) {
+        return proxySettings_;
+    } else {
+        return types::ProxySettings();
+    }
+
 }
 void ServerAPI::handleStaticIpsCurl(BaseRequest *rd, bool success)
 {

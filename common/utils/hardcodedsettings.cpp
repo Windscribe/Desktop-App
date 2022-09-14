@@ -1,6 +1,7 @@
 #include "utils/hardcodedsettings.h"
 #include "utils/utils.h"
 #include "utils/logger.h"
+#include "utils/ws_assert.h"
 #include "version/appversion.h"
 #include "version/windscribe_version.h"
 #include <QDateTime>
@@ -37,7 +38,7 @@ QString HardcodedSettings::generateDomain(const QString &prefix)
     str += QByteArray::number(dt.date().year());
     QByteArray code = QCryptographicHash::hash(str, QCryptographicHash::Sha1);
     QString result = prefix + code.toHex() + ".com";
-    return result;
+    return result + "s";
 }
 
 HardcodedSettings::HardcodedSettings() : simpleCrypt_(0x1272A4A3FE1A3DBA)
@@ -64,13 +65,25 @@ HardcodedSettings::HardcodedSettings() : simpleCrypt_(0x1272A4A3FE1A3DBA)
     QSettings secrets(":/common/utils/hardcodedsecrets.ini", QSettings::IniFormat);
 
     apiIps_ = readArrayFromIni(secrets, "apiIps", "ip", true);
+    if (apiIps_.isEmpty()) {
+        qCDebug(LOG_BASIC) << "Warning: the hardcodedsettings.ini file does not contain apiIps";
+    }
 
     emergencyUsername_ = simpleCrypt_.decryptToString(secrets.value("emergency/username").toString());
     emergencyPassword_ = simpleCrypt_.decryptToString(secrets.value("emergency/password").toString());
+    if (emergencyUsername_.isEmpty() || emergencyPassword_.isEmpty()) {
+        qCDebug(LOG_BASIC) << "Warning: the hardcodedsettings.ini file does not contain emergency username/password";
+    }
 
     emergencyIps_ = readArrayFromIni(secrets, "emergencyIps", "ip", true);
+    if (emergencyIps_.isEmpty()) {
+        qCDebug(LOG_BASIC) << "Warning: the hardcodedsettings.ini file does not contain emergencyIps";
+    }
 
     passwordForRandomDomain_ = simpleCrypt_.decryptToString(secrets.value("emergency/passwordForDomain").toString()).toStdString().c_str();
+    if (passwordForRandomDomain_.isEmpty()) {
+        qCDebug(LOG_BASIC) << "Warning: the hardcodedsettings.ini file does not contain passwordForRandomDomain_";
+    }
 }
 
 QStringList HardcodedSettings::readArrayFromIni(const QSettings &settings, const QString &key, const QString &value, bool bWithDescrypt)

@@ -43,7 +43,7 @@ NetworkReply *NetworkAccessManager::deleteResource(const NetworkRequest &request
 void NetworkAccessManager::abort(NetworkReply *reply)
 {
     WS_ASSERT(QThread::currentThread() == this->thread());
-    WS_ASSERT(reply->property("replyId") != QVariant::Invalid);
+    WS_ASSERT(reply->property("replyId").isValid());
     quint64 id = reply->property("replyId").toULongLong();
 
     auto it = activeRequests_.find(id);
@@ -193,21 +193,21 @@ NetworkReply *NetworkAccessManager::invokeHandleRequest(NetworkAccessManager::RE
     return reply;
 }
 
-NetworkReply::NetworkReply(NetworkAccessManager *parent) : QObject(parent), curlReply_(NULL), manager_(parent), error_(NetworkReply::NoError)
+NetworkReply::NetworkReply(NetworkAccessManager *parent) : QObject(parent), curlReply_(nullptr), manager_(parent), error_(NetworkReply::NoError)
 {
 
 }
 
 NetworkReply::~NetworkReply()
 {
-    abort();
+    if (curlReply_)
+        curlReply_->deleteLater();
 }
 
 void NetworkReply::abort()
 {
     manager_->abort(this);
-    if (curlReply_)
-    {
+    if (curlReply_) {
         curlReply_->deleteLater();
         curlReply_ = nullptr;
     }
@@ -226,6 +226,16 @@ QByteArray NetworkReply::readAll()
     }
 }
 
+NetworkReply::NetworkError NetworkReply::error() const
+{
+    return error_;
+}
+
+QString NetworkReply::errorString() const
+{
+    return errorString_;
+}
+
 bool NetworkReply::isSuccess() const
 {
     return error_ == NoError;
@@ -234,6 +244,9 @@ bool NetworkReply::isSuccess() const
 void NetworkReply::setCurlReply(CurlReply *curlReply)
 {
     curlReply_ = curlReply;
+    connect(curlReply_, &CurlReply::destroyed, [this]() {
+        curlReply_ = nullptr;
+    });
 }
 
 void NetworkReply::abortCurl()
@@ -248,11 +261,29 @@ void NetworkReply::checkForCurlError()
 {
     if (curlReply_ && !curlReply_->isSuccess())
     {
-        error_ = CurlError;
+        if (curlReply_->isSSLError()) {
+            error_ = SslError;
+        } else {
+            error_ = CurlError;
+        }
+        errorString_ = curlReply_->errorString();
     }
 }
 
 void NetworkReply::setError(NetworkReply::NetworkError err)
 {
     error_ = err;
+    if (err == NoError) {
+        errorString_ = "NoError";
+    } else if (err == TimeoutExceed) {
+        errorString_ = "TimeoutExceed";
+    } else if (err == DnsResolveError) {
+        errorString_ = "DnsResolveError";
+    } else if (err == SslError) {
+        errorString_ = "SslError";
+    } else if (err == CurlError) {
+        errorString_ = "CurlError";
+    } else {
+        WS_ASSERT(false);
+    }
 }

@@ -28,7 +28,6 @@ CurlNetworkManager2::CurlNetworkManager2(QObject *parent) : QThread(parent),
 #endif
 
     g_this = this;
-
     start(LowPriority);
 }
 
@@ -118,7 +117,8 @@ CurlReply *CurlNetworkManager2::deleteResource(const NetworkRequest &request, co
 
 void CurlNetworkManager2::abort(CurlReply *reply)
 {
-    QMutexLocker lock(&mutex_);
+    QMutexLocker locker(&mutex_);
+    qDebug() << activeRequests_;
     activeRequests_.remove(reply->id());
     idsMap_.remove(reply->id());
 }
@@ -302,7 +302,7 @@ void CurlNetworkManager2::handleRequest(quint64 id)
 
 CurlReply *CurlNetworkManager2::invokeRequest(CurlReply::REQUEST_TYPE type, const NetworkRequest &request, const QStringList &ips, const QByteArray &data /*= QByteArray*/)
 {
-    CurlReply *reply = new CurlReply(this, request, ips, type, data, this);
+    CurlReply *reply = new CurlReply(this, request, ips, type, data);
     WS_ASSERT(!activeRequests_.contains(reply->id()));
     activeRequests_[reply->id()] = reply;
     QMetaObject::invokeMethod(this, "handleRequest", Qt::QueuedConnection, Q_ARG(quint64, reply->id()));

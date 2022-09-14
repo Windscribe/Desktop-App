@@ -12,16 +12,16 @@ class NetworkAccessManager;
 class NetworkReply : public QObject
 {
     Q_OBJECT
-
-    enum NetworkError { NoError, TimeoutExceed, DnsResolveError, CurlError };
-
 public:
     explicit NetworkReply(NetworkAccessManager *parent);
     virtual ~NetworkReply();
 
+    enum NetworkError { NoError, TimeoutExceed, DnsResolveError, SslError, CurlError };
+
     void abort();
     QByteArray readAll();
     NetworkError error() const;
+    QString errorString() const;
     bool isSuccess() const;
 
 signals:
@@ -39,6 +39,7 @@ private:
     CurlReply *curlReply_;
     NetworkAccessManager *manager_;
     NetworkError error_;
+    QString errorString_;
 
     friend class NetworkAccessManager;
 };
@@ -88,7 +89,7 @@ private:
         QByteArray data;
     };
 
-    QMap<quint64, QSharedPointer<RequestData> > activeRequests_;
+    QHash<quint64, QSharedPointer<RequestData> > activeRequests_;
     CurlNetworkManager2 *curlNetworkManager_;
     DnsCache2 *dnsCache_;
 

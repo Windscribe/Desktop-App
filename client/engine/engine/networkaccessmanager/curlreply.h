@@ -28,7 +28,7 @@ signals:
 private:
     enum REQUEST_TYPE { REQUEST_GET, REQUEST_POST, REQUEST_PUT, REQUEST_DELETE};
 
-    explicit CurlReply(QObject *parent, const NetworkRequest &networkRequest, const QStringList &ips, REQUEST_TYPE requestType, const QByteArray &postData, CurlNetworkManager2 *manager);
+    explicit CurlReply(CurlNetworkManager2 *manager, const NetworkRequest &networkRequest, const QStringList &ips, REQUEST_TYPE requestType, const QByteArray &postData);
 
     const NetworkRequest &networkRequest() const;
     QStringList ips() const;
