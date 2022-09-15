@@ -1,5 +1,4 @@
-#ifndef CURLNETWORKMANAGER2_H
-#define CURLNETWORKMANAGER2_H
+#pragma once
 
 #include <QQueue>
 #include <QThread>
@@ -9,7 +8,6 @@
 #include "curlreply.h"
 #include "certmanager.h"
 #include "networkrequest.h"
-
 
 // comment, if no need log file from curl
 //#define MAKE_CURL_LOG_FILE      1
@@ -40,7 +38,7 @@ private:
     QQueue<quint64> queue_;
     QWaitCondition waitCondition_;
     bool bNeedFinish_;
-    QMap<quint64, CurlReply *> activeRequests_;
+    QHash<quint64, CurlReply *> activeRequests_;
     QMutex mutex_;
 
 #if defined(Q_OS_MAC) || defined (Q_OS_LINUX)
@@ -52,7 +50,7 @@ private:
     FILE *logFile_;
 #endif
 
-    QMap<quint64, QSharedPointer<quint64> > idsMap_;   // need for curl callback functions, we pass pointer to quint64
+    QHash<quint64, QSharedPointer<quint64> > idsHash_;   // need for curl callback functions, we pass pointer to quint64
 
     CurlReply *invokeRequest(CurlReply::REQUEST_TYPE type, const NetworkRequest &request, const QStringList &ips, const QByteArray &data = QByteArray());
 
@@ -72,4 +70,3 @@ private:
     static int progressCallback(void *id,   curl_off_t dltotal,   curl_off_t dlnow,   curl_off_t ultotal,   curl_off_t ulnow);
 };
 
-#endif // CURLNETWORKMANAGER2_H

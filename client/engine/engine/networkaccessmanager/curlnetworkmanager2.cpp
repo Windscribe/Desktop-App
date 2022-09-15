@@ -118,9 +118,8 @@ CurlReply *CurlNetworkManager2::deleteResource(const NetworkRequest &request, co
 void CurlNetworkManager2::abort(CurlReply *reply)
 {
     QMutexLocker locker(&mutex_);
-    qDebug() << activeRequests_;
     activeRequests_.remove(reply->id());
-    idsMap_.remove(reply->id());
+    idsHash_.remove(reply->id());
 }
 
 void CurlNetworkManager2::run()
@@ -128,7 +127,7 @@ void CurlNetworkManager2::run()
     //BIND_CRASH_HANDLER_FOR_THREAD();
     CURLM *multi_handle = curl_multi_init();
     int still_running = 0;
-    QMap<CURL *, quint64> map;
+    QHash<CURL *, quint64> map;
 
 #ifdef MAKE_CURL_LOG_FILE
     logFile_ = fopen(logFilePath_.toStdString().c_str(), "w+");
@@ -278,7 +277,7 @@ void CurlNetworkManager2::run()
     {
         QMutexLocker locker(&mutex_);
         activeRequests_.clear();
-        idsMap_.clear();
+        idsHash_.clear();
     }
     map.clear();
 
@@ -311,10 +310,10 @@ CurlReply *CurlNetworkManager2::invokeRequest(CurlReply::REQUEST_TYPE type, cons
 
 void CurlNetworkManager2::setIdIntoMap(quint64 id)
 {
-    auto it = idsMap_.find(id);
-    if (it == idsMap_.end())
+    auto it = idsHash_.find(id);
+    if (it == idsHash_.end())
     {
-        idsMap_[id] = QSharedPointer<quint64>(new quint64(id));
+        idsHash_[id] = QSharedPointer<quint64>(new quint64(id));
     }
     else
     {
@@ -356,14 +355,14 @@ CURL *CurlNetworkManager2::makeGetRequest(CurlReply *curlReply)
         setIdIntoMap(curlReply->id());
 
         if (curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeDataCallback) != CURLE_OK) goto failed;
-        if (curl_easy_setopt(curl, CURLOPT_WRITEDATA, idsMap_[curlReply->id()].get()) != CURLE_OK) goto failed;
+        if (curl_easy_setopt(curl, CURLOPT_WRITEDATA, idsHash_[curlReply->id()].get()) != CURLE_OK) goto failed;
         if (curl_easy_setopt(curl, CURLOPT_ACCEPT_ENCODING, "") != CURLE_OK) goto failed;
         if (curl_easy_setopt(curl, CURLOPT_URL, curlReply->networkRequest().url().toString().toStdString().c_str()) != CURLE_OK) goto failed;
         if (curl_easy_setopt(curl, CURLOPT_FRESH_CONNECT, 1) != CURLE_OK) goto failed;
         if (curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT_MS , curlReply->networkRequest().timeout()) != CURLE_OK) goto failed;
 
         if (curl_easy_setopt(curl, CURLOPT_XFERINFOFUNCTION, progressCallback) != CURLE_OK) goto failed;
-        if (curl_easy_setopt(curl, CURLOPT_XFERINFODATA, idsMap_[curlReply->id()].get()) != CURLE_OK) goto failed;
+        if (curl_easy_setopt(curl, CURLOPT_XFERINFODATA, idsHash_[curlReply->id()].get()) != CURLE_OK) goto failed;
         if (curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0) != CURLE_OK) goto failed;
 
         if (!setupResolveHosts(curlReply, curl)) goto failed;
@@ -390,7 +389,7 @@ CURL *CurlNetworkManager2::makePostRequest(CurlReply *curlReply)
         setIdIntoMap(curlReply->id());
 
         if (curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeDataCallback) != CURLE_OK) goto failed;
-        if (curl_easy_setopt(curl, CURLOPT_WRITEDATA, idsMap_[curlReply->id()].get()) != CURLE_OK) goto failed;
+        if (curl_easy_setopt(curl, CURLOPT_WRITEDATA, idsHash_[curlReply->id()].get()) != CURLE_OK) goto failed;
         if (curl_easy_setopt(curl, CURLOPT_ACCEPT_ENCODING, "") != CURLE_OK)  goto failed;
         if (curl_easy_setopt(curl, CURLOPT_URL, curlReply->networkRequest().url().toString().toStdString().c_str()) != CURLE_OK) goto failed;
         if (curl_easy_setopt(curl, CURLOPT_FRESH_CONNECT, 1) != CURLE_OK) goto failed;
@@ -406,7 +405,7 @@ CURL *CurlNetworkManager2::makePostRequest(CurlReply *curlReply)
         if (curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT_MS , curlReply->networkRequest().timeout()) != CURLE_OK) goto failed;
 
         if (curl_easy_setopt(curl, CURLOPT_XFERINFOFUNCTION, progressCallback) != CURLE_OK) goto failed;
-        if (curl_easy_setopt(curl, CURLOPT_XFERINFODATA, idsMap_[curlReply->id()].get()) != CURLE_OK) goto failed;
+        if (curl_easy_setopt(curl, CURLOPT_XFERINFODATA, idsHash_[curlReply->id()].get()) != CURLE_OK) goto failed;
         if (curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0) != CURLE_OK) goto failed;
 
         if (!setupResolveHosts(curlReply, curl)) goto failed;
@@ -452,7 +451,7 @@ CURL *CurlNetworkManager2::makeDeleteRequest(CurlReply *curlReply)
         setIdIntoMap(curlReply->id());
 
         if (curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeDataCallback) != CURLE_OK) goto failed;
-        if (curl_easy_setopt(curl, CURLOPT_WRITEDATA, idsMap_[curlReply->id()].get()) != CURLE_OK) goto failed;
+        if (curl_easy_setopt(curl, CURLOPT_WRITEDATA, idsHash_[curlReply->id()].get()) != CURLE_OK) goto failed;
 
         if (curl_easy_setopt(curl, CURLOPT_ACCEPT_ENCODING, "") != CURLE_OK) goto failed;
         if (curl_easy_setopt(curl, CURLOPT_URL, curlReply->networkRequest().url().toString().toStdString().c_str()) != CURLE_OK) goto failed;
@@ -461,7 +460,7 @@ CURL *CurlNetworkManager2::makeDeleteRequest(CurlReply *curlReply)
         if (curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT_MS , curlReply->networkRequest().timeout()) != CURLE_OK) goto failed;
 
         if (curl_easy_setopt(curl, CURLOPT_XFERINFOFUNCTION, progressCallback) != CURLE_OK) goto failed;
-        if (curl_easy_setopt(curl, CURLOPT_XFERINFODATA, idsMap_[curlReply->id()].get()) != CURLE_OK) goto failed;
+        if (curl_easy_setopt(curl, CURLOPT_XFERINFODATA, idsHash_[curlReply->id()].get()) != CURLE_OK) goto failed;
         if (curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0) != CURLE_OK) goto failed;
 
         if (!setupResolveHosts(curlReply, curl)) goto failed;

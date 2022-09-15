@@ -1,8 +1,7 @@
-#ifndef TESTCURLNETWORKMANAGER_H
-#define TESTCURLNETWORKMANAGER_H
+#pragma once
 
 #include <QObject>
-#include "networkaccessmanager/curlnetworkmanager.h"
+#include "engine/networkaccessmanager/curlnetworkmanager2.h"
 
 class TestCurlNetworkManager : public QObject
 {
@@ -13,6 +12,7 @@ public:
     ~TestCurlNetworkManager();
 
 private slots:
+    void test_delete_manager();
     void test_get();
     void test_readall_get();
     void test_incorrect_get();
@@ -44,10 +44,9 @@ private slots:
     void addMore();
 
 private:
-    CurlNetworkManager *manager_;
+    CurlNetworkManager2 *manager_;
     QSet<CurlReply *> replies_;
     int finished_;
 };
 
 
-#endif // TESTCURLNETWORKMANAGER_H

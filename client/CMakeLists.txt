@@ -156,5 +156,6 @@ if(DEFINED IS_BUILD_TESTS)
     add_test (NAME locationsmodel.test COMMAND locationsmodel.test)
     #add_test (NAME dnscache.test COMMAND dnscache.test)
     add_test (NAME dnsrequest.test COMMAND dnsrequest.test)
+    add_test (NAME curlnetworkmanager.test COMMAND curlnetworkmanager.test)
 endif (DEFINED IS_BUILD_TESTS)
 

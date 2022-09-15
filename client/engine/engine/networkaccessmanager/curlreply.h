@@ -1,5 +1,4 @@
-#ifndef CURLREPLY_H
-#define CURLREPLY_H
+#pragma once
 
 #include <QMutex>
 #include "networkrequest.h"
@@ -58,4 +57,3 @@ private:
 
 
 
-#endif // CURLREPLY_H

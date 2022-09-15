@@ -11,6 +11,13 @@ target_sources(engine PRIVATE
     dnscache2.h
     networkaccessmanager.cpp
     networkaccessmanager.h
+    networkreply.cpp
+    networkreply.h
     networkrequest.cpp
     networkrequest.h
 )
+
+if(DEFINED IS_BUILD_TESTS)
+   add_subdirectory(tests)
+endif(DEFINED IS_BUILD_TESTS)
+

@@ -53,10 +53,7 @@ void CurlReply::addCurlListForFreeLater(curl_slist *list)
 
 CurlReply::~CurlReply()
 {
-    for (struct curl_slist *list : qAsConst(curlLists_)) {
-        curl_slist_free_all(list);
-    }
-    curlLists_.clear();
+    abort();
 }
 
 void CurlReply::abort()
