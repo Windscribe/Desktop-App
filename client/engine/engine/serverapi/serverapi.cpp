@@ -375,6 +375,7 @@ ServerAPI::ServerAPI(QObject *parent, IConnectStateController *connectStateContr
     handleDnsResolveFuncTable_[REPLY_WEB_SESSION] = &ServerAPI::handleWebSessionDnsResolve;
     handleDnsResolveFuncTable_[REPLY_GET_ROBERT_FILTERS] = &ServerAPI::handleGetRobertFiltersDnsResolve;
     handleDnsResolveFuncTable_[REPLY_SET_ROBERT_FILTER] = &ServerAPI::handleSetRobertFilterDnsResolve;
+    handleDnsResolveFuncTable_[REPLY_SYNC_ROBERT] = &ServerAPI::handleSyncRobertDnsResolve;
 
     handleCurlReplyFuncTable_[REPLY_ACCESS_IPS] = &ServerAPI::handleAccessIpsCurl;
     handleCurlReplyFuncTable_[REPLY_LOGIN] = &ServerAPI::handleSessionReplyCurl;
@@ -398,6 +399,7 @@ ServerAPI::ServerAPI(QObject *parent, IConnectStateController *connectStateContr
     handleCurlReplyFuncTable_[REPLY_WEB_SESSION] = &ServerAPI::handleWebSessionCurl;
     handleCurlReplyFuncTable_[REPLY_GET_ROBERT_FILTERS] = &ServerAPI::handleGetRobertFiltersCurl;
     handleCurlReplyFuncTable_[REPLY_SET_ROBERT_FILTER] = &ServerAPI::handleSetRobertFilterCurl;
+    handleCurlReplyFuncTable_[REPLY_SYNC_ROBERT] = &ServerAPI::handleSyncRobertCurl;
 
     connect(&requestTimer_, SIGNAL(timeout()), SLOT(onRequestTimer()));
     requestTimer_.start(REQUEST_POLL_INTERVAL_MS);
@@ -888,6 +890,18 @@ void ServerAPI::setRobertFilter(const QString &authHash, uint userRole, bool isN
 
     submitDnsRequest(createRequest<SetRobertFilterRequest>(
         authHash, hostname_, REPLY_SET_ROBERT_FILTER, NETWORK_TIMEOUT, userRole, filter));
+}
+
+void ServerAPI::syncRobert(const QString &authHash, uint userRole, bool isNeedCheckRequestsEnabled)
+{
+    if (isNeedCheckRequestsEnabled && !bIsRequestsEnabled_)
+    {
+        emit syncRobertAnswer(SERVER_RETURN_API_NOT_READY, userRole);
+        return;
+    }
+
+    submitDnsRequest(createRequest<AuthenticatedRequest>(
+        authHash, hostname_, REPLY_SYNC_ROBERT, NETWORK_TIMEOUT, userRole));
 }
 
 void ServerAPI::setIgnoreSslErrors(bool bIgnore)
@@ -1616,6 +1630,32 @@ void ServerAPI::handleSetRobertFilterDnsResolve(BaseRequest *rd, bool success, c
     curl_request->setUrl(url.toString());
     submitCurlRequest(crd, CurlRequest::METHOD_PUT, "Content-type: text/html; charset=utf-8",
                       crd->getHostname(), ips);
+}
+
+void ServerAPI::handleSyncRobertDnsResolve(BaseRequest *rd, bool success, const QStringList &ips)
+{
+    auto *crd = dynamic_cast<AuthenticatedRequest*>(rd);
+    WS_ASSERT(crd);
+
+    if (!success) {
+        qCDebug(LOG_SERVER_API) << "Sync ROBERT request failed: DNS-resolution failed";
+        emit syncRobertAnswer(SERVER_RETURN_NETWORK_ERROR, crd->getUserRole());
+        return;
+    }
+
+    time_t timestamp;
+    time(&timestamp);
+    QString strTimestamp = QString::number(timestamp);
+    QString strHash = HardcodedSettings::instance().serverSharedKey() + strTimestamp;
+    QString md5Hash = QCryptographicHash::hash(strHash.toStdString().c_str(), QCryptographicHash::Md5).toHex();
+
+    QUrl url("https://" + crd->getHostname() + "/Robert/syncrobert?time=" + strTimestamp
+             + "&client_auth_hash=" + md5Hash + "&session_auth_hash=" + crd->getAuthHash()
+             + "&platform=" + Utils::getPlatformNameSafe() + "&app_version=" + AppVersion::instance().semanticVersionString());
+
+    auto *curl_request = crd->createCurlRequest();
+    curl_request->setUrl(url.toString());
+    submitCurlRequest(crd, CurlRequest::METHOD_POST, QString(), crd->getHostname(), ips);
 }
 
 void ServerAPI::handleStaticIpsDnsResolve(BaseRequest *rd, bool success, const QStringList &ips)
@@ -2886,6 +2926,47 @@ void ServerAPI::handleSetRobertFilterCurl(BaseRequest *rd, bool success)
         emit setRobertFilterAnswer((jsonData["success"] == 1) ? SERVER_RETURN_SUCCESS : SERVER_RETURN_INCORRECT_JSON, userRole);
     }
 }
+
+void ServerAPI::handleSyncRobertCurl(BaseRequest *rd, bool success)
+{
+    const int userRole = rd->getUserRole();
+    const auto *curlRequest = rd->getCurlRequest();
+    CURLcode curlRetCode = success ? curlRequest->getCurlRetCode() : CURLE_OPERATION_TIMEDOUT;
+
+    if (curlRetCode != CURLE_OK)
+    {
+        qCDebug(LOG_SERVER_API) << "Sync ROBERT request failed(" << curlRetCode << "):" << curl_easy_strerror(curlRetCode);
+        emit syncRobertAnswer(SERVER_RETURN_NETWORK_ERROR, userRole);
+    }
+    else
+    {
+        QByteArray arr = curlRequest->getAnswer();
+
+        QJsonParseError errCode;
+        QJsonDocument doc = QJsonDocument::fromJson(arr, &errCode);
+        if (errCode.error != QJsonParseError::NoError || !doc.isObject())
+        {
+            qCDebugMultiline(LOG_SERVER_API) << arr;
+            qCDebug(LOG_SERVER_API) << "Failed parse JSON for sync ROBERT";
+            emit syncRobertAnswer(SERVER_RETURN_INCORRECT_JSON, userRole);
+            return;
+        }
+
+        QJsonObject jsonObject = doc.object();
+        if (!jsonObject.contains("data"))
+        {
+            qCDebugMultiline(LOG_SERVER_API) << arr;
+            qCDebug(LOG_SERVER_API) << "Failed parse JSON for sync ROBERT";
+            emit syncRobertAnswer(SERVER_RETURN_INCORRECT_JSON, userRole);
+            return;
+        }
+
+        QJsonObject jsonData =  jsonObject["data"].toObject();
+        qCDebug(LOG_SERVER_API) << "Sync ROBERT request successfully executed ( result =" << jsonData["success"] << ")";
+        emit syncRobertAnswer((jsonData["success"] == 1) ? SERVER_RETURN_SUCCESS : SERVER_RETURN_INCORRECT_JSON, userRole);
+    }
+}
+
 void ServerAPI::handleStaticIpsCurl(BaseRequest *rd, bool success)
 {
     const int userRole = rd->getUserRole();

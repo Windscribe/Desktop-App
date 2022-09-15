@@ -793,6 +793,25 @@ public:
     types::RobertFilter filter_;
 };
 
+class SyncRobert: public Command
+{
+public:
+    explicit SyncRobert()
+    {}
+
+    std::vector<char> getData() const override   {  WS_ASSERT(false); return std::vector<char>(); }
+    std::string getStringId() const override { return getCommandStringId(); }
+    std::string getDebugString() const override
+    {
+        return "ClientCommand::SyncRobert debug string";
+    }
+
+    static std::string getCommandStringId()
+    {
+        return "ClientCommand::SyncRobert";
+    }
+};
+
 } // namespace ClientCommands
 } // namespace IPC
 

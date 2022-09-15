@@ -654,6 +654,7 @@ void Engine::initPart2()
     connect(serverAPI_, SIGNAL(sendUserWarning(USER_WARNING_TYPE)), SIGNAL(sendUserWarning(USER_WARNING_TYPE)));
     connect(serverAPI_, &ServerAPI::getRobertFiltersAnswer, this, &Engine::onGetRobertFiltersAnswer);
     connect(serverAPI_, &ServerAPI::setRobertFilterAnswer, this, &Engine::onSetRobertFilterAnswer);
+    connect(serverAPI_, &ServerAPI::syncRobertAnswer, this, &Engine::onSyncRobertAnswer);
 
     serverAPI_->setIgnoreSslErrors(engineSettings_.isIgnoreSslErrors());
     serverApiUserRole_ = serverAPI_->getAvailableUserRole();
@@ -1720,6 +1721,14 @@ void Engine::onSetRobertFilterAnswer(SERVER_API_RET_CODE retCode, uint userRole)
     }
 }
 
+void Engine::onSyncRobertAnswer(SERVER_API_RET_CODE retCode, uint userRole)
+{
+    if (userRole == serverApiUserRole_)
+    {
+        Q_EMIT syncRobertFinished(retCode == SERVER_RETURN_SUCCESS);
+    }
+}
+
 void Engine::onUpdateServerResources()
 {
     // Refresh all server resources, and check for a new app version, every 24 hours.
@@ -2491,6 +2500,11 @@ void Engine::getRobertFilters()
 void Engine::setRobertFilter(const types::RobertFilter &filter)
 {
     serverAPI_->setRobertFilter(apiInfo_->getAuthHash(), serverApiUserRole_, true, filter);
+}
+
+void Engine::syncRobert()
+{
+    serverAPI_->syncRobert(apiInfo_->getAuthHash(), serverApiUserRole_, true);
 }
 
 void Engine::onCustomConfigsChanged()

@@ -73,6 +73,7 @@ public:
 
     void getRobertFilters(const QString &authHash, uint userRole, bool isNeedCheckRequestsEnabled);
     void setRobertFilter(const QString &authHash, uint userRole, bool isNeedCheckRequestsEnabled, const types::RobertFilter &filter);
+    void syncRobert(const QString &authHash, uint userRole, bool isNeedCheckRequestsEnabled);
 
     void wgConfigsInit(const QString &authHash, uint userRole, bool isNeedCheckRequestsEnabled, const QString &clientPublicKey, bool deleteOldestKey);
     void wgConfigsConnect(const QString &authHash, uint userRole, bool isNeedCheckRequestsEnabled, const QString &clientPublicKey, const QString &serverName, const QString &deviceId);
@@ -107,6 +108,7 @@ signals:
     void sendUserWarning(USER_WARNING_TYPE warning);
     void getRobertFiltersAnswer(SERVER_API_RET_CODE retCode, const QVector<types::RobertFilter> &robertFilters, uint userRole);
     void setRobertFilterAnswer(SERVER_API_RET_CODE retCode, uint userRole);
+    void syncRobertAnswer(SERVER_API_RET_CODE retCode, uint userRole);
 
     // need for add to firewall rules
     void hostIpsChanged(const QStringList &hostIps);
@@ -147,6 +149,7 @@ private:
         REPLY_WEB_SESSION,
         REPLY_GET_ROBERT_FILTERS,
         REPLY_SET_ROBERT_FILTER,
+        REPLY_SYNC_ROBERT,
         NUM_REPLY_TYPES
     };
 
@@ -189,6 +192,7 @@ private:
     void handleWebSessionDnsResolve(BaseRequest *rd, bool success, const QStringList &ips);
     void handleGetRobertFiltersDnsResolve(BaseRequest *rd, bool success, const QStringList &ips);
     void handleSetRobertFilterDnsResolve(BaseRequest *rd, bool success, const QStringList &ips);
+    void handleSyncRobertDnsResolve(BaseRequest *rd, bool success, const QStringList &ips);
 
     void handleAccessIpsCurl(BaseRequest *rd, bool success);
     void handleSessionReplyCurl(BaseRequest *rd, bool success);
@@ -210,6 +214,7 @@ private:
     void handleWgConfigsConnectCurl(BaseRequest *rd, bool success);
     void handleWebSessionCurl(BaseRequest *rd, bool success);
     void handleGetRobertFiltersCurl(BaseRequest *rd, bool success);
+    void handleSyncRobertCurl(BaseRequest *rd, bool success);
     void handleSetRobertFilterCurl(BaseRequest *rd, bool success);
 
     CurlNetworkManager curlNetworkManager_;

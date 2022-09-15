@@ -193,6 +193,7 @@ private slots:
     void onBackendWebSessionTokenForManageRobertRules(const QString &tempSessionToken);
     void onBackendRobertFiltersChanged(bool success, const QVector<types::RobertFilter> &filters);
     void onBackendSetRobertFilterResult(bool success);
+    void onBackendSyncRobertResult(bool success);
 
     void onBackendEngineCrash();
 
