@@ -78,7 +78,7 @@ DnsScripts_linux::SCRIPT_TYPE DnsScripts_linux::detectScript()
     // check if the systemd-resolved service is running.
     {
         QProcess process;
-        process.start("systemctl is-active --quiet systemd-resolved");
+        process.startCommand("systemctl is-active --quiet systemd-resolved");
         process.waitForFinished();
         isSystemdResolvedServiceRunning = (process.exitCode() == 0);
     }
@@ -147,7 +147,7 @@ DnsScripts_linux::SCRIPT_TYPE DnsScripts_linux::detectScript()
 QString DnsScripts_linux::getSymlink(const QString &path)
 {
     QProcess process;
-    process.start("readlink -f " + path);
+    process.startCommand("readlink -f " + path);
     process.waitForFinished();
     return process.readAll().trimmed();
 }
