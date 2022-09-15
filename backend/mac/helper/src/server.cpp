@@ -248,7 +248,12 @@ bool Server::readAndHandleCommand(socket_ptr sock, boost::asio::streambuf *buf, 
         outCmdAnswer.executed = 1;
         outCmdAnswer.cmdId = wireGuardController_.getStatus(&errorCode, &bytesReceived, &bytesTransmitted);
         if (outCmdAnswer.cmdId == WIREGUARD_STATE_ERROR) {
-            outCmdAnswer.customInfoValue[0] = errorCode;
+            if (errorCode) {
+                outCmdAnswer.customInfoValue[0] = errorCode;
+            } else {
+                outCmdAnswer.customInfoValue[0] = -1;
+            }
+
         } else if (outCmdAnswer.cmdId == WIREGUARD_STATE_ACTIVE) {
             outCmdAnswer.customInfoValue[0] = bytesReceived;
             outCmdAnswer.customInfoValue[1] = bytesTransmitted;

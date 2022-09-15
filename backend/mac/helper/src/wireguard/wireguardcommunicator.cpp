@@ -8,6 +8,7 @@
 #include <boost/algorithm/string/trim.hpp>
 #include <sys/socket.h>
 #include <sys/stat.h>
+#include <sys/time.h>
 #include <sys/un.h>
 
 namespace
@@ -228,8 +229,9 @@ unsigned long WireGuardCommunicator::getStatus(unsigned int *errorCode,
         std::make_pair("last_handshake_time_sec", "")
     };
     bool success = connection.getOutput(&results);
-    if (!success)
+    if (!success) {
         return WIREGUARD_STATE_STARTING;
+    }
 
     // Check for errors.
     const auto errno_value = stringToValue<unsigned int>(results["errno"]);
@@ -245,15 +247,26 @@ unsigned long WireGuardCommunicator::getStatus(unsigned int *errorCode,
 
     // Check for handshake.
     if (stringToValue<unsigned long long>(results["last_handshake_time_sec"]) > 0) {
-        if (bytesReceived)
+        struct timeval tv;
+        int rc = gettimeofday(&tv, NULL);
+        if (rc || tv.tv_sec - stringToValue<unsigned long long>(results["last_handshake_time_sec"]) > 180)
+        {
+            LOG("Time since last handshake time exceeded 3 minutes, disconnecting");
+            return WIREGUARD_STATE_ERROR;
+        }
+
+        if (bytesReceived) {
             *bytesReceived = stringToValue<unsigned long long>(results["rx_bytes"]);
-        if (bytesTransmitted)
+        }
+        if (bytesTransmitted) {
             *bytesTransmitted = stringToValue<unsigned long long>(results["tx_bytes"]);
+        }
         return WIREGUARD_STATE_ACTIVE;
     }
 
     // If endpoint is set, we are connecting, otherwise simply listening.
-    if (!results["public_key"].empty())
+    if (!results["public_key"].empty()) {
         return WIREGUARD_STATE_CONNECTING;
+    }
     return WIREGUARD_STATE_LISTENING;
 }
