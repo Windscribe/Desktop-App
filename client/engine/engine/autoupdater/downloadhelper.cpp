@@ -6,6 +6,7 @@
 #include <QDir>
 #include "names.h"
 #include "engine/networkaccessmanager/networkaccessmanager.h"
+#include "engine/networkaccessmanager/networkreply.h"
 #include "utils/utils.h"
 
 #ifdef Q_OS_LINUX

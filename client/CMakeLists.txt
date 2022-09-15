@@ -154,5 +154,7 @@ qt_finalize_executable(Windscribe)
 if(DEFINED IS_BUILD_TESTS)
     enable_testing ()
     add_test (NAME locationsmodel.test COMMAND locationsmodel.test)
+    #add_test (NAME dnscache.test COMMAND dnscache.test)
+    add_test (NAME dnsrequest.test COMMAND dnsrequest.test)
 endif (DEFINED IS_BUILD_TESTS)
 

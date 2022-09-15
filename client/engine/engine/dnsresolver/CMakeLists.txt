@@ -23,3 +23,9 @@ elseif(UNIX)
         dnsutils_linux.cpp
     )
 endif()
+
+
+if(DEFINED IS_BUILD_TESTS)
+   add_subdirectory(tests)
+endif(DEFINED IS_BUILD_TESTS)
+
