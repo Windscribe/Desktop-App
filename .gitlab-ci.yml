@@ -3,6 +3,7 @@ stages:
   - Build Tests
   - Run Tests
   - Build
+  - Build Arch Linux
   - Artifact Links
 
 # Set variables inherited by all jobs
@@ -39,7 +40,7 @@ variables:
   TEST_WIN: 'n' # tests will only run if BUILD_WIN also 'y'
   TEST_MAC: 'n' # tests will only run if BUILD_MAC also 'y'
   TEST_LINUX: 'n' # tests will only run if BUILD_LINUX also 'y'
-  BUILD_LIBS_EVERYTIME: 'n' #enable to rebuild all the libs
+  ARCH_LINUX_BUILD_PATH: '/home/build/windscribe'
 
 # pull in other yaml files
 include:
@@ -440,15 +441,74 @@ build:linux:installer:tagged:
   rules:
     - if: $BUILD_LINUX == "y" && $CI_COMMIT_TAG != null
 
+.template_archlinux_build: &template_archlinux_build
+  image: archlinux:base-devel
+  before_script:
+    - pacman -Sy --noconfirm git curl python2 nftables c-ares freetype2 hicolor-icon-theme
+
+.build_archlinux_installer_prep_build_dir:
+  script:
+    # makepkg cannot be run as root.  Set up a build folder and use the nobody user.
+    - mkdir -p ${ARCH_LINUX_BUILD_PATH}
+    - chgrp nobody ${ARCH_LINUX_BUILD_PATH}
+    - chmod g+ws ${ARCH_LINUX_BUILD_PATH}
+    - setfacl -m u::rwx,g::rwx ${ARCH_LINUX_BUILD_PATH}
+    - setfacl -d --set u::rwx,g::rwx,o::- ${ARCH_LINUX_BUILD_PATH}
+    - cp installer/linux/arch_package/* ${ARCH_LINUX_BUILD_PATH}
+    - export VERSION=$(python2 tools/base/extract.py)
+    - export VERSION_NO_SUFFIX=$(python2 tools/base/extract.py --no-suffix)
+
+.build_archlinux_installer_makepkg:
+  script:
+    # Convert Ubuntu package referenced by APP_DOWNLOAD_URL to an Arch Linux package.
+    - cd ${ARCH_LINUX_BUILD_PATH}
+    - sudo --preserve-env --user=nobody makepkg --syncdeps
+    - cd -
+
+build:archlinux:installer:
+  <<: *template_archlinux_build
+  stage: Build Arch Linux
+  variables:
+    GIT_STRATEGY: clone
+    ARTIFACT_PATH: $ARTIFACT_INSTALLER
+  script:
+    - !reference [.build_archlinux_installer_prep_build_dir, script]
+    - export APP_DOWNLOAD_URL="${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/linux/windscribe_${VERSION}_amd64.deb"
+    - !reference [.build_archlinux_installer_makepkg, script]
+    # Upload Arch Linux package to Nexus.
+    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+      --upload-file ${ARCH_LINUX_BUILD_PATH}/windscribe-$VERSION_NO_SUFFIX-1-x86_64.pkg.tar.zst
+      "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/linux/windscribe_${VERSION}_x86_64.pkg.tar.zst"
+  rules:
+    - if: $BUILD_LINUX == "y" && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH != null
+
+build:archlinux:installer:tagged:
+  <<: *template_archlinux_build
+  stage: Build Arch Linux
+  variables:
+    GIT_STRATEGY: clone
+    ARTIFACT_PATH: $ARTIFACT_INSTALLER
+  script:
+    - !reference [.build_archlinux_installer_prep_build_dir, script]
+    - export APP_DOWNLOAD_URL=${NEXUS_BASEURL}${NEXUS_PATH_ROOT}/tagged-builds/$VERSION_NO_SUFFIX/windscribe_${VERSION}_amd64.deb
+    - !reference [.build_archlinux_installer_makepkg, script]
+    # Upload Arch Linux package to Nexus.
+    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+      --upload-file ${ARCH_LINUX_BUILD_PATH}/windscribe-$VERSION_NO_SUFFIX-1-x86_64.pkg.tar.zst
+      "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}/tagged-builds/$VERSION_NO_SUFFIX/windscribe_${VERSION}_x86_64.pkg.tar.zst"
+  rules:
+    - if: $BUILD_LINUX == "y" && $CI_COMMIT_TAG != null
+
 build:artifact:links:
   tags: [win10qty6]
   stage: Artifact Links
   script:
     - Set-Variable -name VERSION -value $(python tools/base/extract.py)
+    - echo ${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/Windscribe_$VERSION.exe
+    - echo ${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/Windscribe_$VERSION.dmg
     - echo ${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/linux/windscribe_${VERSION}_amd64.deb
     - echo ${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/linux/windscribe_${VERSION}_x86_64.rpm
-    - echo ${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/Windscribe_$VERSION.dmg
-    - echo ${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/Windscribe_$VERSION.exe
+    - echo ${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/linux/windscribe_${VERSION}_x86_64.pkg.tar.zst
   rules:
     - if: $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH != null
 
@@ -458,9 +518,10 @@ build:artifact:links:tagged:
   script:
     - Set-Variable -name VERSION -value $(python tools/base/extract.py)
     - Set-Variable -name VERSION_NO_SUFFIX -value $(python tools/base/extract.py --no-suffix)
+    - echo ${NEXUS_BASEURL}${NEXUS_PATH_ROOT}/tagged-builds/$VERSION_NO_SUFFIX/Windscribe_$VERSION.exe
+    - echo ${NEXUS_BASEURL}${NEXUS_PATH_ROOT}/tagged-builds/$VERSION_NO_SUFFIX/Windscribe_$VERSION.dmg
     - echo ${NEXUS_BASEURL}${NEXUS_PATH_ROOT}/tagged-builds/$VERSION_NO_SUFFIX/windscribe_${VERSION}_amd64.deb
     - echo ${NEXUS_BASEURL}${NEXUS_PATH_ROOT}/tagged-builds/$VERSION_NO_SUFFIX/windscribe_${VERSION}_x86_64.rpm
-    - echo ${NEXUS_BASEURL}${NEXUS_PATH_ROOT}/tagged-builds/$VERSION_NO_SUFFIX/Windscribe_$VERSION.dmg
-    - echo ${NEXUS_BASEURL}${NEXUS_PATH_ROOT}/tagged-builds/$VERSION_NO_SUFFIX/Windscribe_$VERSION.exe
+    - echo ${NEXUS_BASEURL}${NEXUS_PATH_ROOT}/tagged-builds/$VERSION_NO_SUFFIX/windscribe_${VERSION}_x86_64.pkg.tar.zst
   rules:
     - if: $CI_COMMIT_TAG != null

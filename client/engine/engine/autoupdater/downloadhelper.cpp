@@ -38,11 +38,14 @@ const QString DownloadHelper::downloadInstallerPath()
     const QString path = downloadInstallerPathWithoutExtension() + ".dmg";
 #elif defined Q_OS_LINUX
     QString path;
-    if(platform_ == LinuxUtils::DEB_PLATFORM_NAME) { // if getPlatformName() fails, we should never get this far anyway
+    if (platform_ == LinuxUtils::DEB_PLATFORM_NAME) { // if getPlatformName() fails, we should never get this far anyway
         path = downloadInstallerPathWithoutExtension() + ".deb";
     }
-    else {
+    else if (platform_ == LinuxUtils::RPM_PLATFORM_NAME) {
         path = downloadInstallerPathWithoutExtension() + ".rpm";
+    }
+    else if (platform_ == LinuxUtils::ZST_PLATFORM_NAME) {
+        path = downloadInstallerPathWithoutExtension() + ".pkg.tar.zst";
     }
 #endif
     return path;
