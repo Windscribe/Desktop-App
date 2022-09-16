@@ -36,6 +36,12 @@ CurlNetworkManager2::~CurlNetworkManager2()
     bNeedFinish_ = true;
     waitCondition_.wakeAll();
     wait();
+
+    // Delete the NetworkReply children first.
+    // This is important since they have access to manager in their destructor.
+    const QList<CurlReply *> replies = findChildren<CurlReply *>();
+    for (auto it : replies)
+        delete it;
 }
 
 size_t CurlNetworkManager2::writeDataCallback(void *ptr, size_t size, size_t count, void *id)

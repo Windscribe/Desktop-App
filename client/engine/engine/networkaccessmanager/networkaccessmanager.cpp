@@ -1,5 +1,4 @@
 #include "networkaccessmanager.h"
-#include "engine/dnsresolver/dnsrequest.h"
 #include "utils/ws_assert.h"
 
 std::atomic<quint64> NetworkAccessManager::nextId_(0);
@@ -8,12 +7,19 @@ NetworkAccessManager::NetworkAccessManager(QObject *parent) : QObject(parent)
 {
     curlNetworkManager_ = new CurlNetworkManager2(this);
     dnsCache_ = new DnsCache2(this);
-    connect(dnsCache_, SIGNAL(resolved(bool,QStringList,quint64,bool, int)), SLOT(onResolved(bool,QStringList,quint64,bool, int)));
-    connect(dnsCache_, SIGNAL(whitelistIpsChanged(QSet<QString>)), SIGNAL(whitelistIpsChanged(QSet<QString>)));
+    connect(dnsCache_, &DnsCache2::resolved,  this, &NetworkAccessManager::onResolved);
+    connect(dnsCache_, &DnsCache2::whitelistIpsChanged, [this] (const QSet<QString> &ips) {
+        emit whitelistIpsChanged(ips);
+    });
 }
 
 NetworkAccessManager::~NetworkAccessManager()
 {
+    // Delete the NetworkReply children first.
+    // This is important since they have access to manager in their destructor.
+    const QList<NetworkReply *> replies = findChildren<NetworkReply *>();
+    for (auto it : replies)
+        delete it;
 }
 
 NetworkReply *NetworkAccessManager::get(const NetworkRequest &request)
@@ -47,9 +53,7 @@ void NetworkAccessManager::abort(NetworkReply *reply)
     quint64 id = reply->property("replyId").toULongLong();
 
     auto it = activeRequests_.find(id);
-    WS_ASSERT(it != activeRequests_.end());
-    if (it != activeRequests_.end())
-    {
+    if (it != activeRequests_.end()) {
         QSharedPointer<RequestData> requestData = it.value();
         requestData->reply->abortCurl();
         activeRequests_.erase(it);
@@ -63,8 +67,7 @@ void NetworkAccessManager::handleRequest(quint64 id)
     WS_ASSERT(QThread::currentThread() == this->thread());
 
     auto it = activeRequests_.find(id);
-    if (it != activeRequests_.end())
-    {
+    if (it != activeRequests_.end()) {
         QSharedPointer<RequestData> requestData = it.value();
         QString hostname = requestData->request.url().host();
         dnsCache_->resolve(hostname, requestData->id, !requestData->request.isUseDnsCache(), requestData->request.dnsServers(), requestData->request.timeout());
@@ -75,12 +78,12 @@ void NetworkAccessManager::onCurlReplyFinished()
 {
     quint64 replyId = sender()->property("replyId").toULongLong();
     auto it = activeRequests_.find(replyId);
-    if (it != activeRequests_.end())
-    {
+    if (it != activeRequests_.end()) {
         QSharedPointer<RequestData> requestData = it.value();
         requestData->reply->checkForCurlError();
         emit requestData->reply->finished();
         dnsCache_->notifyFinished(replyId);
+        activeRequests_.erase(it);
     }
 }
 
@@ -88,8 +91,7 @@ void NetworkAccessManager::onCurlProgress(qint64 bytesReceived, qint64 bytesTota
 {
     quint64 replyId = sender()->property("replyId").toULongLong();
     auto it = activeRequests_.find(replyId);
-    if (it != activeRequests_.end())
-    {
+    if (it != activeRequests_.end()) {
         QSharedPointer<RequestData> requestData = it.value();
         emit requestData->reply->progress(bytesReceived, bytesTotal);
     }
@@ -99,71 +101,54 @@ void NetworkAccessManager::onCurlReadyRead()
 {
     quint64 replyId = sender()->property("replyId").toULongLong();
     auto it = activeRequests_.find(replyId);
-    if (it != activeRequests_.end())
-    {
+    if (it != activeRequests_.end()) {
         QSharedPointer<RequestData> requestData = it.value();
         emit requestData->reply->readyRead();
     }
-
 }
 
 void NetworkAccessManager::onResolved(bool success, const QStringList &ips, quint64 id, bool bFromCache, int timeMs)
 {
     Q_UNUSED(bFromCache);
-    auto it = activeRequests_.find(id);
-    if (it != activeRequests_.end())
-    {
+    const auto it = activeRequests_.find(id);
+    if (it != activeRequests_.constEnd()) {
         QSharedPointer<RequestData> requestData = it.value();
 
-        if (success)
-        {
-            if (requestData->request.timeout() - timeMs > 0)
-            {
+        if (success) {
+            if (requestData->request.timeout() - timeMs > 0) {
                 requestData->request.setTimeout(requestData->request.timeout() - timeMs);
 
                 CurlReply *curlReply{ nullptr };
 
                 if (requestData->type == REQUEST_GET)
-                {
                     curlReply = curlNetworkManager_->get(requestData->request, ips);
-                }
                 else if (requestData->type == REQUEST_POST)
-                {
                     curlReply = curlNetworkManager_->post(requestData->request, requestData->data, ips);
-                }
                 else if (requestData->type == REQUEST_PUT)
-                {
                     curlReply = curlNetworkManager_->put(requestData->request, requestData->data, ips);
-                }
                 else if (requestData->type == REQUEST_DELETE)
-                {
                     curlReply = curlNetworkManager_->deleteResource(requestData->request, ips);
-                }
                 else
-                {
                     WS_ASSERT(false);
-                }
-
 
                 curlReply->setProperty("replyId", id);
                 requestData->reply->setCurlReply(curlReply);
 
-                connect(curlReply, SIGNAL(finished()), SLOT(onCurlReplyFinished()));
-                connect(curlReply, SIGNAL(progress(qint64,qint64)), SLOT(onCurlProgress(qint64,qint64)));
-                connect(curlReply, SIGNAL(readyRead()), SLOT(onCurlReadyRead()));
-            }
-            // timeout exceed
-            else
-            {
+                connect(curlReply, &CurlReply::finished, this, &NetworkAccessManager::onCurlReplyFinished);
+                connect(curlReply, &CurlReply::progress, this, &NetworkAccessManager::onCurlProgress);
+                connect(curlReply, &CurlReply::readyRead, this, &NetworkAccessManager::onCurlReadyRead);
+            } else {    // timeout exceed
                 requestData->reply->setError(NetworkReply::TimeoutExceed);
                 emit requestData->reply->finished();
+                activeRequests_.erase(it);
             }
-        }
-        else
-        {
+        } else {
             requestData->reply->setError(NetworkReply::DnsResolveError);
             emit requestData->reply->finished();
+            activeRequests_.erase(it);
         }
+    } else {
+        WS_ASSERT(false);
     }
 }
 
@@ -193,97 +178,3 @@ NetworkReply *NetworkAccessManager::invokeHandleRequest(NetworkAccessManager::RE
     return reply;
 }
 
-NetworkReply::NetworkReply(NetworkAccessManager *parent) : QObject(parent), curlReply_(nullptr), manager_(parent), error_(NetworkReply::NoError)
-{
-
-}
-
-NetworkReply::~NetworkReply()
-{
-    if (curlReply_)
-        curlReply_->deleteLater();
-}
-
-void NetworkReply::abort()
-{
-    manager_->abort(this);
-    if (curlReply_) {
-        curlReply_->deleteLater();
-        curlReply_ = nullptr;
-    }
-}
-
-QByteArray NetworkReply::readAll()
-{
-    if (curlReply_)
-    {
-        return curlReply_->readAll();
-    }
-    else
-    {
-        WS_ASSERT(false);
-        return QByteArray();
-    }
-}
-
-NetworkReply::NetworkError NetworkReply::error() const
-{
-    return error_;
-}
-
-QString NetworkReply::errorString() const
-{
-    return errorString_;
-}
-
-bool NetworkReply::isSuccess() const
-{
-    return error_ == NoError;
-}
-
-void NetworkReply::setCurlReply(CurlReply *curlReply)
-{
-    curlReply_ = curlReply;
-    connect(curlReply_, &CurlReply::destroyed, [this]() {
-        curlReply_ = nullptr;
-    });
-}
-
-void NetworkReply::abortCurl()
-{
-    if (curlReply_)
-    {
-        curlReply_->abort();
-    }
-}
-
-void NetworkReply::checkForCurlError()
-{
-    if (curlReply_ && !curlReply_->isSuccess())
-    {
-        if (curlReply_->isSSLError()) {
-            error_ = SslError;
-        } else {
-            error_ = CurlError;
-        }
-        errorString_ = curlReply_->errorString();
-    }
-}
-
-void NetworkReply::setError(NetworkReply::NetworkError err)
-{
-    error_ = err;
-    if (err == NoError) {
-        errorString_ = "NoError";
-    } else if (err == TimeoutExceed) {
-        errorString_ = "TimeoutExceed";
-    } else if (err == DnsResolveError) {
-        errorString_ = "DnsResolveError";
-    } else if (err == SslError) {
-        errorString_ = "SslError";
-    } else if (err == CurlError) {
-        errorString_ = "CurlError";
-    } else {
-        WS_ASSERT(false);
-    }
-}

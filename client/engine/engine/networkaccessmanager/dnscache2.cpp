@@ -68,7 +68,6 @@ void DnsCache2::resolve(const QString &hostname, quint64 id, bool bypassCache /*
 
     DnsRequest *dnsRequest = new DnsRequest(this, hostname, dnsServers, timeoutMs);
     dnsRequest->setProperty("requestId", id);
-    dnsRequest->setProperty("startTime", QDateTime::currentMSecsSinceEpoch());
     connect(dnsRequest, SIGNAL(finished()), SLOT(onDnsRequestFinished()));
     dnsRequest->lookup();
 }
@@ -93,11 +92,6 @@ void DnsCache2::onDnsRequestFinished()
     quint64 requestId = dnsRequest->property("requestId").toULongLong(&bOk);
     WS_ASSERT(bOk);
 
-    qint64 startTimeMs = dnsRequest->property("startTime").toLongLong(&bOk);
-    WS_ASSERT(bOk);
-    qint64 timeRequest = QDateTime::currentMSecsSinceEpoch() - startTimeMs;
-    WS_ASSERT(timeRequest >= 0);
-
     bool bSuccess = false;
     if (!dnsRequest->isError())
     {
@@ -108,7 +102,7 @@ void DnsCache2::onDnsRequestFinished()
         checkForNewIps();
     }
 
-    emit resolved(bSuccess, dnsRequest->ips(), requestId, false, timeRequest);
+    emit resolved(bSuccess, dnsRequest->ips(), requestId, false, dnsRequest->elapsedMs());
     dnsRequest->deleteLater();
 }
 

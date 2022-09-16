@@ -1,8 +1,8 @@
-#include "tst_networkaccessmanager.h"
+#include "networkaccessmanager.test.h"
 #include <QtTest>
 #include <QtConcurrent/QtConcurrent>
 #include <WinSock2.h>
-#include "networkaccessmanager/networkaccessmanager.h"
+#include "engine/networkaccessmanager/networkaccessmanager.h"
 
 TestNetworkAccessManager::TestNetworkAccessManager()
 {
@@ -145,3 +145,5 @@ void TestNetworkAccessManager::test_delete()
     QCOMPARE(signalFinished.count(), 1);
     QVERIFY(progressCalled > 0);
 }
+
+QTEST_MAIN(TestNetworkAccessManager)

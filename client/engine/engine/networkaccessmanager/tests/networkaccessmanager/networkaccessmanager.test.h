@@ -1,5 +1,4 @@
-#ifndef TESTNETWORKACCESSMANAGER_H
-#define TESTNETWORKACCESSMANAGER_H
+#pragma once
 
 #include <QObject>
 
@@ -19,5 +18,3 @@ private slots:
 
 };
 
-
-#endif // TESTNETWORKACCESSMANAGER_H
