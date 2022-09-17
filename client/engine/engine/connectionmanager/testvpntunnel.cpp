@@ -87,6 +87,7 @@ void TestVPNTunnel::startTestImpl()
     bRunning_ = true;
     curTest_ = 1;
     elapsed_.start();
+    elapsedOverallTimer_.start();
     cmdId_++;
     lastTimeForCallWithLog_ = QTime::currentTime();
     serverAPI_->pingTest(cmdId_, timeouts_[curTest_ - 1], true);
@@ -109,7 +110,7 @@ void TestVPNTunnel::onPingTestAnswer(SERVER_API_RET_CODE retCode, const QString 
         const QString trimmedData = data.trimmed();
         if (retCode == SERVER_RETURN_SUCCESS && IpValidation::instance().isIp(trimmedData))
         {
-            qCDebug(LOG_CONNECTION) << "Tunnel test " << QString::number(curTest_) << "successfully finished with IP:" << trimmedData;
+            qCDebug(LOG_CONNECTION) << "Tunnel test " << QString::number(curTest_) << "successfully finished with IP:" << trimmedData << ", total test time =" << elapsedOverallTimer_.elapsed();
             bRunning_ = false;
             emit testsFinished(true, trimmedData);
         }

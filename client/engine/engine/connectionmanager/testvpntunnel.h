@@ -39,6 +39,7 @@ private:
     QTime lastTimeForCallWithLog_;
     int testRetryDelay_;
     bool doCustomTunnelTest_;
+    QElapsedTimer elapsedOverallTimer_;
 
     enum {
            PING_TEST_TIMEOUT_1 = 2000,
