@@ -32,6 +32,9 @@ public:
     void setProxySettings(const types::ProxySettings &proxySettings);
     const types::ProxySettings &proxySettings() const;
 
+    void setForceRemoveFromDnsCache();
+    bool isForceRemoveFromDnsCache() const;
+
 private:
     QUrl url_;
     int timeout_;
@@ -40,6 +43,9 @@ private:
     bool bIgnoreSslErrors_;
     QString header_;
     QStringList dnsServers_;
+
+    //default false, if true then immediately removes the IP from the cache after the request is completed. This also leads to the removal of the IP from the firewall rules
+    bool bForceRemoveFromDnsCache_;
 };
 
 #endif // NETWORKREQUEST_H

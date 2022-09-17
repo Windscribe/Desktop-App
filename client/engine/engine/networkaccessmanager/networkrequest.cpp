@@ -1,6 +1,7 @@
 #include "networkrequest.h"
 
-NetworkRequest::NetworkRequest(const QUrl &url, int timeout, bool bUseDnsCache) : url_(url), timeout_(timeout), bUseDnsCache_(bUseDnsCache), bIgnoreSslErrors_(false)
+NetworkRequest::NetworkRequest(const QUrl &url, int timeout, bool bUseDnsCache) : url_(url), timeout_(timeout), bUseDnsCache_(bUseDnsCache), bIgnoreSslErrors_(false),
+    bForceRemoveFromDnsCache_(false)
 {
 }
 
@@ -10,9 +11,9 @@ NetworkRequest::NetworkRequest(const QUrl &url, int timeout, bool bUseDnsCache, 
     bUseDnsCache_(bUseDnsCache),
     proxySettings_(proxySettings),
     bIgnoreSslErrors_(isIgnoreSslErrors),
-    dnsServers_(dnsServers)
+    dnsServers_(dnsServers),
+    bForceRemoveFromDnsCache_(false)
 {
-
 }
 
 void NetworkRequest::setUrl(const QUrl &url)
@@ -83,4 +84,14 @@ void NetworkRequest::setProxySettings(const types::ProxySettings &proxySettings)
 const types::ProxySettings &NetworkRequest::proxySettings() const
 {
     return proxySettings_;
+}
+
+void NetworkRequest::setForceRemoveFromDnsCache()
+{
+    bForceRemoveFromDnsCache_ = true;
+}
+
+bool NetworkRequest::isForceRemoveFromDnsCache() const
+{
+    return bForceRemoveFromDnsCache_;
 }

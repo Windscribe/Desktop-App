@@ -43,57 +43,64 @@ public:
 
     void run() override
     {
-        // fill dns addresses
-        DnsAddrs dnsAddrs;
-        const QStringList dnsList = getDnsIps(dnsServers_);
-        dnsAddrs.reserve(dnsList.count());
-        for (const auto &dnsIp : dnsList) {
-            struct sockaddr_in sa;
-            ares_inet_pton(AF_INET, dnsIp.toStdString().c_str(), &(sa.sin_addr));
-            dnsAddrs.push_back(sa.sin_addr);
-        }
-
-        // create channel and set options
-        ares_channel channel;
-        struct ares_options options;
-        int optmask = 0;
-        createOptionsForAresChannel(timeoutMs_, options, optmask, dnsAddrs);
-        int status = ares_init_options(&channel, &options, optmask);
-        if (status != ARES_SUCCESS) {
-            qCDebug(LOG_BASIC) << "ares_init_options failed:" << QString::fromStdString(ares_strerror(status));
-            return;
-        }
-
         QElapsedTimer elapsedTimer;
         elapsedTimer.start();
-        UserArg userArg;
-        ares_gethostbyname(channel, hostname_.toStdString().c_str(), AF_INET, callback, &userArg);
 
-        // process loop
-        timeval tv;
-        while (!g_FinishAll) {
-            fd_set readers, writers;
-            FD_ZERO(&readers);
-            FD_ZERO(&writers);
-            int nfds = ares_fds(channel, &readers, &writers);
-            if (nfds == 0) {
-                break;
+        while (errorCode_ != ARES_SUCCESS && elapsedTimer.elapsed() <= timeoutMs_) {
+
+            // fill dns addresses
+            DnsAddrs dnsAddrs;
+            const QStringList dnsList = getDnsIps(dnsServers_);
+            dnsAddrs.reserve(dnsList.count());
+            for (const auto &dnsIp : dnsList) {
+                struct sockaddr_in sa;
+                ares_inet_pton(AF_INET, dnsIp.toStdString().c_str(), &(sa.sin_addr));
+                dnsAddrs.push_back(sa.sin_addr);
             }
-            timeval *tvp = ares_timeout(channel, NULL, &tv);
-            select(nfds, &readers, &writers, NULL, tvp);
-            ares_process(channel, &readers, &writers);
-        }
 
-        ips_ = userArg.ips;
-        errorCode_ = userArg.errorCode;
-        elapsedMs_ = elapsedTimer.elapsed();
+            // create channel and set options
+            ares_channel channel;
+            struct ares_options options;
+            int optmask = 0;
+            createOptionsForAresChannel(timeoutMs_, options, optmask, dnsAddrs);
+            int status = ares_init_options(&channel, &options, optmask);
+            if (status != ARES_SUCCESS) {
+                qCDebug(LOG_BASIC) << "ares_init_options failed:" << QString::fromStdString(ares_strerror(status));
+                return;
+            }
+
+            UserArg userArg;
+            ares_gethostbyname(channel, hostname_.toStdString().c_str(), AF_INET, callback, &userArg);
+
+            // process loop
+            timeval tv;
+            while (!g_FinishAll) {
+                fd_set readers, writers;
+                FD_ZERO(&readers);
+                FD_ZERO(&writers);
+                int nfds = ares_fds(channel, &readers, &writers);
+                if (nfds == 0)
+                    break;
+                timeval *tvp = ares_timeout(channel, NULL, &tv);
+                select(nfds, &readers, &writers, NULL, tvp);
+                ares_process(channel, &readers, &writers);
+                if (elapsedTimer.elapsed() > timeoutMs_) {
+                    userArg.errorCode = ARES_ETIMEOUT;
+                    break;
+                }
+            }
+            ares_destroy(channel);
+
+            ips_ = userArg.ips;
+            errorCode_ = userArg.errorCode;
+            elapsedMs_ = elapsedTimer.elapsed();
+        }
 
         if (object_) {
             bool bSuccess = QMetaObject::invokeMethod(object_.get(), "onResolved",
                             Qt::QueuedConnection, Q_ARG(QStringList, ips_), Q_ARG(int, errorCode_), Q_ARG(qint64, elapsedMs_));
             WS_ASSERT(bSuccess);
         }
-        ares_destroy(channel);
     }
 
     QStringList ips() const { return ips_; }
@@ -101,6 +108,8 @@ public:
     qint64 elapsedMs() const { return elapsedMs_; }
 
 private:
+    static constexpr int kTimeoutMs = 2000;
+    static constexpr int kTries = 1;
     QString hostname_;
     QSharedPointer<QObject> object_;
     QStringList dnsServers_;
@@ -133,12 +142,12 @@ private:
 
         if (dnsAddrs.isEmpty()) {
             optmask = ARES_OPT_TRIES | ARES_OPT_TIMEOUTMS;
-            options.tries = 1;
-            options.timeout = timeoutMs;
+            options.tries = kTries;
+            options.timeout = kTimeoutMs;
         } else {
             optmask = ARES_OPT_TRIES | ARES_OPT_SERVERS | ARES_OPT_TIMEOUTMS;
-            options.tries = 1;
-            options.timeout = timeoutMs;
+            options.tries = kTries;
+            options.timeout = kTimeoutMs;
             options.nservers = dnsAddrs.count();
             options.servers = &(dnsAddrs[0]);
         }

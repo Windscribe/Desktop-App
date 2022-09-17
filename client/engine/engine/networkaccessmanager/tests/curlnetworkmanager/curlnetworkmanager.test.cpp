@@ -16,7 +16,7 @@ TestCurlNetworkManager::~TestCurlNetworkManager()
 
 void TestCurlNetworkManager::test_delete_manager()
 {
-    CurlNetworkManager2 *manager = new CurlNetworkManager2(this);
+    CurlNetworkManager *manager = new CurlNetworkManager(this);
     NetworkRequest request(QUrl("https://postman-echo.com/get?foo1=bar1&foo2=bar2"), 10000, false);
     DnsRequest dnsRequest(this, request.url().host());
     dnsRequest.lookupBlocked();
@@ -45,7 +45,7 @@ void TestCurlNetworkManager::test_delete_manager()
 
 void TestCurlNetworkManager::test_get()
 {
-    CurlNetworkManager2 *manager = new CurlNetworkManager2(this);
+    CurlNetworkManager *manager = new CurlNetworkManager(this);
     NetworkRequest request(QUrl("https://postman-echo.com/get?foo1=bar1&foo2=bar2"), 10000, false);
 
     DnsRequest dnsRequest(this, request.url().host());
@@ -84,7 +84,7 @@ void TestCurlNetworkManager::test_get()
 
 void TestCurlNetworkManager::test_readall_get()
 {
-    CurlNetworkManager2 *manager = new CurlNetworkManager2(this);
+    CurlNetworkManager *manager = new CurlNetworkManager(this);
     NetworkRequest request(QUrl("https://postman-echo.com/get?foo1=bar1&foo2=bar2"), 10000, false);
 
     DnsRequest dnsRequest(this, request.url().host());
@@ -118,7 +118,7 @@ void TestCurlNetworkManager::test_readall_get()
 
 void TestCurlNetworkManager::test_incorrect_get()
 {
-    CurlNetworkManager2 *manager = new CurlNetworkManager2(this);
+    CurlNetworkManager *manager = new CurlNetworkManager(this);
     NetworkRequest request(QUrl("https://httpbin.org/get_incorrect"), 1000, false);
 
     CurlReply *reply = manager->get(request, QStringList() << "222.222.222.222");
@@ -136,7 +136,7 @@ void TestCurlNetworkManager::test_incorrect_get()
 
 void TestCurlNetworkManager::test_timeout_get()
 {
-    CurlNetworkManager2 *manager = new CurlNetworkManager2(this);
+    CurlNetworkManager *manager = new CurlNetworkManager(this);
 
     const int time1 = 1000;
     QElapsedTimer timer;
@@ -159,7 +159,7 @@ void TestCurlNetworkManager::test_timeout_get()
 
 void TestCurlNetworkManager::test_ssl_errors()
 {
-    CurlNetworkManager2 *manager = new CurlNetworkManager2(this);
+    CurlNetworkManager *manager = new CurlNetworkManager(this);
 
     NetworkRequest request(QUrl("https://expired.badssl.com/"), 10000, false);
     DnsRequest dnsRequest(this, request.url().host());
@@ -218,7 +218,7 @@ void TestCurlNetworkManager::test_ssl_errors()
 
 void TestCurlNetworkManager::test_ignore_ssl_error()
 {
-    CurlNetworkManager2 *manager = new CurlNetworkManager2(this);
+    CurlNetworkManager *manager = new CurlNetworkManager(this);
 
     NetworkRequest request(QUrl("https://expired.badssl.com/"), 10000, false);
     request.setIgnoreSslErrors(true);
@@ -240,7 +240,7 @@ void TestCurlNetworkManager::test_ignore_ssl_error()
 
 void TestCurlNetworkManager::test_iplist_get()
 {
-    CurlNetworkManager2 *manager = new CurlNetworkManager2(this);
+    CurlNetworkManager *manager = new CurlNetworkManager(this);
     NetworkRequest request(QUrl("http://neverssl.com"), 20000, false);
     request.setIgnoreSslErrors(true);
 
@@ -279,7 +279,7 @@ void TestCurlNetworkManager::test_iplist_get()
 
 void TestCurlNetworkManager::test_post()
 {
-    CurlNetworkManager2 *manager = new CurlNetworkManager2(this);
+    CurlNetworkManager *manager = new CurlNetworkManager(this);
     NetworkRequest request(QUrl("https://postman-echo.com/post?hand=wave"), 20000, false);
 
     DnsRequest dnsRequest(this, request.url().host());
@@ -319,7 +319,7 @@ void TestCurlNetworkManager::test_post()
 
 void TestCurlNetworkManager::test_put()
 {
-    CurlNetworkManager2 *manager = new CurlNetworkManager2(this);
+    CurlNetworkManager *manager = new CurlNetworkManager(this);
     NetworkRequest request(QUrl("https://postman-echo.com/put?hand=wave"), 20000, false);
 
     DnsRequest dnsRequest(this, request.url().host());
@@ -359,7 +359,7 @@ void TestCurlNetworkManager::test_put()
 
 void TestCurlNetworkManager::test_delete()
 {
-    CurlNetworkManager2 *manager = new CurlNetworkManager2(this);
+    CurlNetworkManager *manager = new CurlNetworkManager(this);
     NetworkRequest request(QUrl("https://postman-echo.com/delete?hand=wave"), 20000, false);
 
     DnsRequest dnsRequest(this, request.url().host());
@@ -413,7 +413,7 @@ void TestCurlNetworkManager::test_multi()
 void CurlTestMulti::start()
 {
     finished_ = 0;
-    manager_ = new CurlNetworkManager2(this);
+    manager_ = new CurlNetworkManager(this);
 
     NetworkRequest request(QUrl("https://postman-echo.com/get?foo1=bar1&foo2=bar2"), 5000, false);
     DnsRequest dnsRequest(NULL, request.url().host());

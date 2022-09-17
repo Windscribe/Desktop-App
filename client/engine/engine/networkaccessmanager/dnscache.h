@@ -5,14 +5,14 @@
 #include <QObject>
 #include <QHostInfo>
 
-class DnsCache2 : public QObject
+class DnsCache : public QObject
 {
     Q_OBJECT
 public:
     class Usages;
 
-    explicit DnsCache2(QObject *parent, int cacheTimeoutMs = 60000, int reviewCacheIntervalMs = 1000);
-    virtual ~DnsCache2();
+    explicit DnsCache(QObject *parent, int cacheTimeoutMs = 60000, int reviewCacheIntervalMs = 1000);
+    virtual ~DnsCache();
 
     void resolve(const QString &hostname, quint64 id, bool bypassCache = false, const QStringList &dnsServers = QStringList(), int timeoutMs = 5000);
     void notifyFinished(quint64 id);

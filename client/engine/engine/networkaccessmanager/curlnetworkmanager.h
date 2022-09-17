@@ -13,12 +13,12 @@
 //#define MAKE_CURL_LOG_FILE      1
 
 // Implementing queries with curl library. Don't use it directly, use NetworkAccessManager instead.
-class CurlNetworkManager2 : public QThread
+class CurlNetworkManager : public QThread
 {
     Q_OBJECT
 public:
-    explicit CurlNetworkManager2(QObject *parent = 0);
-    virtual ~CurlNetworkManager2();
+    explicit CurlNetworkManager(QObject *parent = 0);
+    virtual ~CurlNetworkManager();
     CurlReply *get(const NetworkRequest &request, const QStringList &ips);
     CurlReply *post(const NetworkRequest &request, const QByteArray &data, const QStringList &ips);
     CurlReply *put(const NetworkRequest &request, const QByteArray &data, const QStringList &ips);

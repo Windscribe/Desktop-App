@@ -1,7 +1,7 @@
 #pragma once
 
 #include <QObject>
-#include "engine/networkaccessmanager/curlnetworkmanager2.h"
+#include "engine/networkaccessmanager/curlnetworkmanager.h"
 
 class TestCurlNetworkManager : public QObject
 {
@@ -44,7 +44,7 @@ private slots:
     void addMore();
 
 private:
-    CurlNetworkManager2 *manager_;
+    CurlNetworkManager *manager_;
     QSet<CurlReply *> replies_;
     int finished_;
 };

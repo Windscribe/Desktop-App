@@ -239,8 +239,7 @@ private slots:
     void onNotificationsAnswer(SERVER_API_RET_CODE retCode, const QVector<types::Notification> &notifications, uint userRole);
     void onServerConfigsAnswer(SERVER_API_RET_CODE retCode, const QString &config, uint userRole);
     void onCheckUpdateAnswer(const types::CheckUpdate &checkUpdate, bool bNetworkErrorOccured, uint userRole);
-    void onHostIPsChanged(const QStringList &hostIps);
-    void onWhitelistedIPsChanged(const QSet<QString> &ips);
+    void onHostIPsChanged(const QSet<QString> &hostIps);
     void onMyIpAnswer(const QString &ip, bool success, bool isDisconnected);
     void onDebugLogAnswer(SERVER_API_RET_CODE retCode, uint userRole);
     void onConfirmEmailAnswer(SERVER_API_RET_CODE retCode, uint userRole);
@@ -287,6 +286,9 @@ private slots:
     void onRefetchServerCredentialsFinished(bool success, const apiinfo::ServerCredentials &serverCredentials, const QString &serverConfig);
 
     void getNewNotifications();
+    void getRobertFiltersImpl();
+    void setRobertFilterImpl(const types::RobertFilter &filter);
+
 
     void onCustomConfigsChanged();
 

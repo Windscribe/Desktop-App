@@ -9,8 +9,7 @@ class FirewallExceptions
 public:
     FirewallExceptions();
 
-    void setHostIPs(const QStringList &hostIPs);
-    void setWhiteListedIPs(const QSet<QString> &ips);
+    void setHostIPs(const QSet<QString> &hostIPs);
     void setProxyIP(const types::ProxySettings &proxySettings);
 
     void setCustomRemoteIp(const QString &remoteIP, bool &bChanged);
@@ -27,8 +26,7 @@ public:
     QSet<QString> getIPAddressesForFirewallForConnectedState(const QString &connectedIp) const;
 
 private:
-    QStringList hostIPs_;
-    QSet<QString> whitelistedIPs_;
+    QSet<QString> hostIPs_;
     QString proxyIP_;
     QString remoteIP_;
     QStringList locationsPingIPs_;

@@ -1,5 +1,4 @@
-#ifndef TESTVPNTUNNEL_H
-#define TESTVPNTUNNEL_H
+#pragma once
 
 #include <QElapsedTimer>
 #include <QObject>
@@ -8,16 +7,7 @@
 #include <QVector>
 #include "types/enums.h"
 
-#if defined(Q_OS_WINDOWS)
-#include <windows.h>
-#include <WinDNS.h>
-#endif
-
 class ServerAPI;
-
-#if defined(Q_OS_WINDOWS)
-class DnsQueryContext;
-#endif
 
 // do set of tests after VPN tunnel is established
 class TestVPNTunnel : public QObject
@@ -40,12 +30,6 @@ private slots:
     void startTestImpl();
     void onTestsSkipped();
 
-    #if defined(Q_OS_WINDOWS)
-    bool initiateWin32TunnelTest();
-    void onWin32DnsQueryCompleted();
-    void onWin32DnsQueryTimeout();
-    #endif
-
 private:
     ServerAPI *serverAPI_;
     bool bRunning_;
@@ -63,23 +47,6 @@ private:
        };
     QVector<uint> timeouts_;
 
-    bool doWin32TunnelTest_;
     PROTOCOL protocol_;
 
-    #if defined(Q_OS_WINDOWS)
-    typedef DNS_STATUS WINAPI DnsQueryEx_T(PDNS_QUERY_REQUEST pQueryRequest, PDNS_QUERY_RESULT pQueryResults, PDNS_QUERY_CANCEL pCancelHandle);
-    typedef DNS_STATUS WINAPI DnsCancelQuery_T(PDNS_QUERY_CANCEL pCancelHandle);
-    DnsQueryEx_T* DnsQueryEx_f;
-    DnsCancelQuery_T* DnsCancelQuery_f;
-    HMODULE dllHandle_;
-    QScopedPointer< DnsQueryContext > dnsQueryContext_;
-    std::wstring serverTunnelTestUrl_;
-    QTimer dnsQueryTimeout_;
-
-    static VOID WINAPI DnsQueryCompleteCallback(_In_ PVOID Context, _Inout_ PDNS_QUERY_RESULT QueryResults);
-
-    bool loadWinDnsApiEndpoints();
-    #endif
 };
-
-#endif // TESTVPNTUNNEL_H

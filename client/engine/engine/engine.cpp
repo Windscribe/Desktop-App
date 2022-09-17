@@ -635,13 +635,12 @@ void Engine::initPart2()
     firewallController_ = CrossPlatformObjectFactory::createFirewallController(this, helper_);
 
     networkAccessManager_ = new NetworkAccessManager(this);
-    connect(networkAccessManager_, SIGNAL(whitelistIpsChanged(QSet<QString>)), SLOT(onWhitelistedIPsChanged(QSet<QString>)));
+    connect(networkAccessManager_, &NetworkAccessManager::whitelistIpsChanged, this, &Engine::onHostIPsChanged);
 
-    serverAPI_ = new ServerAPI(this, connectStateController_);
+    serverAPI_ = new ServerAPI(this, connectStateController_, networkAccessManager_);
     connect(serverAPI_, &ServerAPI::sessionAnswer, this, &Engine::onSessionAnswer, Qt::QueuedConnection);
     connect(serverAPI_, SIGNAL(checkUpdateAnswer(types::CheckUpdate,bool,uint)),
                         SLOT(onCheckUpdateAnswer(types::CheckUpdate,bool,uint)), Qt::QueuedConnection);
-    connect(serverAPI_, SIGNAL(hostIpsChanged(QStringList)), SLOT(onHostIPsChanged(QStringList)));
     connect(serverAPI_, SIGNAL(notificationsAnswer(SERVER_API_RET_CODE,QVector<types::Notification>,uint)),
                         SLOT(onNotificationsAnswer(SERVER_API_RET_CODE,QVector<types::Notification>,uint)));
     connect(serverAPI_, SIGNAL(serverConfigsAnswer(SERVER_API_RET_CODE,QString,uint)), SLOT(onServerConfigsAnswer(SERVER_API_RET_CODE,QString,uint)));
@@ -1629,14 +1628,7 @@ void Engine::onCheckUpdateAnswer(const types::CheckUpdate &checkUpdate, bool bNe
     }
 }
 
-void Engine::onWhitelistedIPsChanged(const QSet<QString> &ips)
-{
-    qCDebug(LOG_BASIC) << "on whitelisted ips changed event:" << ips;
-    firewallExceptions_.setWhiteListedIPs(ips);
-    updateFirewallSettings();
-}
-
-void Engine::onHostIPsChanged(const QStringList &hostIps)
+void Engine::onHostIPsChanged(const QSet<QString> &hostIps)
 {
     qCDebug(LOG_BASIC) << "on host ips changed event:" << hostIps;
     firewallExceptions_.setHostIPs(hostIps);
@@ -2483,14 +2475,24 @@ void Engine::getNewNotifications()
     serverAPI_->notifications(apiInfo_->getAuthHash(), serverApiUserRole_, true);
 }
 
-void Engine::getRobertFilters()
+void Engine::getRobertFiltersImpl()
 {
     serverAPI_->getRobertFilters(apiInfo_->getAuthHash(), serverApiUserRole_, true);
 }
 
-void Engine::setRobertFilter(const types::RobertFilter &filter)
+void Engine::setRobertFilterImpl(const types::RobertFilter &filter)
 {
     serverAPI_->setRobertFilter(apiInfo_->getAuthHash(), serverApiUserRole_, true, filter);
+}
+
+void Engine::getRobertFilters()
+{
+    QMetaObject::invokeMethod(this, "getRobertFiltersImpl");
+}
+
+void Engine::setRobertFilter(const types::RobertFilter &filter)
+{
+    QMetaObject::invokeMethod(this, "setRobertFilterImpl", Q_ARG(types::RobertFilter, filter));
 }
 
 void Engine::onCustomConfigsChanged()

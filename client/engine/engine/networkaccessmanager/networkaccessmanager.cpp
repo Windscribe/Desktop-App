@@ -1,14 +1,20 @@
 #include "networkaccessmanager.h"
 #include "utils/ws_assert.h"
 
+namespace {
+std::atomic<quint64> g_countInstances = 0;
+}
+
 std::atomic<quint64> NetworkAccessManager::nextId_(0);
 
 NetworkAccessManager::NetworkAccessManager(QObject *parent) : QObject(parent)
 {
-    curlNetworkManager_ = new CurlNetworkManager2(this);
-    dnsCache_ = new DnsCache2(this);
-    connect(dnsCache_, &DnsCache2::resolved,  this, &NetworkAccessManager::onResolved);
-    connect(dnsCache_, &DnsCache2::whitelistIpsChanged, [this] (const QSet<QString> &ips) {
+    WS_ASSERT(g_countInstances == 0);       // this instance of the class is supposed to be a single instance for the entire program
+    g_countInstances++;
+    curlNetworkManager_ = new CurlNetworkManager(this);
+    dnsCache_ = new DnsCache(this);
+    connect(dnsCache_, &DnsCache::resolved,  this, &NetworkAccessManager::onResolved);
+    connect(dnsCache_, &DnsCache::whitelistIpsChanged, [this] (const QSet<QString> &ips) {
         emit whitelistIpsChanged(ips);
     });
 }
@@ -20,6 +26,7 @@ NetworkAccessManager::~NetworkAccessManager()
     const QList<NetworkReply *> replies = findChildren<NetworkReply *>();
     for (auto it : replies)
         delete it;
+    g_countInstances--;
 }
 
 NetworkReply *NetworkAccessManager::get(const NetworkRequest &request)
@@ -57,9 +64,9 @@ void NetworkAccessManager::abort(NetworkReply *reply)
         QSharedPointer<RequestData> requestData = it.value();
         requestData->reply->abortCurl();
         activeRequests_.erase(it);
+        if (requestData->request.isForceRemoveFromDnsCache())
+            dnsCache_->notifyFinished(id);
     }
-
-    dnsCache_->notifyFinished(id);
 }
 
 void NetworkAccessManager::handleRequest(quint64 id)
@@ -82,7 +89,8 @@ void NetworkAccessManager::onCurlReplyFinished()
         QSharedPointer<RequestData> requestData = it.value();
         requestData->reply->checkForCurlError();
         emit requestData->reply->finished();
-        dnsCache_->notifyFinished(replyId);
+        if (requestData->request.isForceRemoveFromDnsCache())
+            dnsCache_->notifyFinished(replyId);
         activeRequests_.erase(it);
     }
 }
@@ -147,8 +155,6 @@ void NetworkAccessManager::onResolved(bool success, const QStringList &ips, quin
             emit requestData->reply->finished();
             activeRequests_.erase(it);
         }
-    } else {
-        WS_ASSERT(false);
     }
 }
 

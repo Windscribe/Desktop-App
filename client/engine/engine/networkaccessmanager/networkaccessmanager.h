@@ -3,8 +3,8 @@
 
 #include <QObject>
 #include <QUrl>
-#include "curlnetworkmanager2.h"
-#include "dnscache2.h"
+#include "curlnetworkmanager.h"
+#include "dnscache.h"
 #include "networkreply.h"
 
 // Some simplified implementation of the QNetworkAccessManager class for our needs based on curl and cares(DnsRequest).
@@ -52,8 +52,8 @@ private:
     };
 
     QHash<quint64, QSharedPointer<RequestData> > activeRequests_;
-    CurlNetworkManager2 *curlNetworkManager_;
-    DnsCache2 *dnsCache_;
+    CurlNetworkManager *curlNetworkManager_;
+    DnsCache *dnsCache_;
 
     quint64 getNextId();
 

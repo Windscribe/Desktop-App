@@ -3,12 +3,12 @@ target_sources(engine PRIVATE
     certmanager.h
     curlinitcontroller.cpp
     curlinitcontroller.h
-    curlnetworkmanager2.cpp
-    curlnetworkmanager2.h
+    curlnetworkmanager.cpp
+    curlnetworkmanager.h
     curlreply.cpp
     curlreply.h
-    dnscache2.cpp
-    dnscache2.h
+    dnscache.cpp
+    dnscache.h
     networkaccessmanager.cpp
     networkaccessmanager.h
     networkreply.cpp

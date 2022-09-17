@@ -2,7 +2,7 @@
 #include <QCoreApplication>
 #include <QtConcurrent/QtConcurrent>
 #include <WinSock2.h>
-#include "engine/networkaccessmanager/dnscache2.h"
+#include "engine/networkaccessmanager/dnscache.h"
 
 class TestDnsCache : public QObject
 {
@@ -35,7 +35,7 @@ TestDnsCache::~TestDnsCache()
 
 void TestDnsCache::basicTest()
 {
-    DnsCache2 *dnsCache = new DnsCache2(this);
+    DnsCache *dnsCache = new DnsCache(this);
 
     {
         QSignalSpy spy(dnsCache, SIGNAL(resolved(bool, QStringList, quint64, bool, int)));
@@ -87,11 +87,11 @@ void TestDnsCache::basicTest()
 
 void TestDnsCache::testCacheTimeout()
 {
-     DnsCache2 *dnsCache = new DnsCache2(this, 3000, 10);
+     DnsCache *dnsCache = new DnsCache(this, 3000, 10);
      {
          QSignalSpy spy(dnsCache, SIGNAL(resolved(bool, QStringList, quint64, bool, int)));
 
-         QObject::connect(dnsCache, &DnsCache2::resolved, this, [=](bool success, const QStringList &ips, quint64 id, bool bFromCache, int timeMs)
+         QObject::connect(dnsCache, &DnsCache::resolved, this, [=](bool success, const QStringList &ips, quint64 id, bool bFromCache, int timeMs)
          {
              dnsCache->notifyFinished(id);
          });
@@ -120,12 +120,12 @@ void TestDnsCache::testWhitelist()
 {
     int state = 0;
 
-    DnsCache2 *dnsCache = new DnsCache2(this, 3000, 10);
-    QObject::connect(dnsCache, &DnsCache2::resolved, this, [&state, dnsCache](bool success, const QStringList &ips, quint64 id, bool bFromCache, int timeMs)
+    DnsCache *dnsCache = new DnsCache(this, 3000, 10);
+    QObject::connect(dnsCache, &DnsCache::resolved, this, [&state, dnsCache](bool success, const QStringList &ips, quint64 id, bool bFromCache, int timeMs)
     {
         state++;
     });
-    QObject::connect(dnsCache, &DnsCache2::whitelistIpsChanged, this, [&state, dnsCache](const QSet<QString> &ips)
+    QObject::connect(dnsCache, &DnsCache::whitelistIpsChanged, this, [&state, dnsCache](const QSet<QString> &ips)
     {
         if (state == 0)
         {

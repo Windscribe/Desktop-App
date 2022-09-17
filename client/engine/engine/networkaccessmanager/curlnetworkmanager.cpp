@@ -1,4 +1,4 @@
-#include "curlnetworkmanager2.h"
+#include "curlnetworkmanager.h"
 #include <curl/curl.h>
 #include <QMap>
 #include <QDebug>
@@ -9,9 +9,9 @@
 #include "utils/logger.h"
 #include <QStandardPaths>
 
-CurlNetworkManager2 *g_this = nullptr;
+CurlNetworkManager *g_this = nullptr;
 
-CurlNetworkManager2::CurlNetworkManager2(QObject *parent) : QThread(parent),
+CurlNetworkManager::CurlNetworkManager(QObject *parent) : QThread(parent),
     bNeedFinish_(false)
   #if defined(Q_OS_MAC)
     , certPath_(QCoreApplication::applicationDirPath() + "/../resources/cert.pem")
@@ -31,7 +31,7 @@ CurlNetworkManager2::CurlNetworkManager2(QObject *parent) : QThread(parent),
     start(LowPriority);
 }
 
-CurlNetworkManager2::~CurlNetworkManager2()
+CurlNetworkManager::~CurlNetworkManager()
 {
     bNeedFinish_ = true;
     waitCondition_.wakeAll();
@@ -44,7 +44,7 @@ CurlNetworkManager2::~CurlNetworkManager2()
         delete it;
 }
 
-size_t CurlNetworkManager2::writeDataCallback(void *ptr, size_t size, size_t count, void *id)
+size_t CurlNetworkManager::writeDataCallback(void *ptr, size_t size, size_t count, void *id)
 {
     QMutexLocker locker(&g_this->mutex_);
 
@@ -61,7 +61,7 @@ size_t CurlNetworkManager2::writeDataCallback(void *ptr, size_t size, size_t cou
     return size*count;
 }
 
-int CurlNetworkManager2::progressCallback(void *id,   curl_off_t dltotal,   curl_off_t dlnow,   curl_off_t ultotal,   curl_off_t ulnow)
+int CurlNetworkManager::progressCallback(void *id,   curl_off_t dltotal,   curl_off_t dlnow,   curl_off_t ultotal,   curl_off_t ulnow)
 {
     Q_UNUSED(ultotal);
     Q_UNUSED(ulnow);
@@ -81,7 +81,7 @@ int CurlNetworkManager2::progressCallback(void *id,   curl_off_t dltotal,   curl
     return 0;
 }
 
-CURLcode CurlNetworkManager2::sslctx_function(CURL *curl, void *sslctx, void *parm)
+CURLcode CurlNetworkManager::sslctx_function(CURL *curl, void *sslctx, void *parm)
 {
     Q_UNUSED(curl);
 
@@ -97,38 +97,38 @@ CURLcode CurlNetworkManager2::sslctx_function(CURL *curl, void *sslctx, void *pa
     return CURLE_OK;
 }
 
-CurlReply *CurlNetworkManager2::get(const NetworkRequest &request, const QStringList &ips)
+CurlReply *CurlNetworkManager::get(const NetworkRequest &request, const QStringList &ips)
 {
     QMutexLocker locker(&mutex_);
     return invokeRequest(CurlReply::REQUEST_GET, request, ips);
 }
 
-CurlReply *CurlNetworkManager2::post(const NetworkRequest &request, const QByteArray &data, const QStringList &ips)
+CurlReply *CurlNetworkManager::post(const NetworkRequest &request, const QByteArray &data, const QStringList &ips)
 {
     QMutexLocker locker(&mutex_);
     return invokeRequest(CurlReply::REQUEST_POST, request, ips, data);
 }
 
-CurlReply *CurlNetworkManager2::put(const NetworkRequest &request, const QByteArray &data, const QStringList &ips)
+CurlReply *CurlNetworkManager::put(const NetworkRequest &request, const QByteArray &data, const QStringList &ips)
 {
     QMutexLocker locker(&mutex_);
     return invokeRequest(CurlReply::REQUEST_PUT, request, ips, data);
 }
 
-CurlReply *CurlNetworkManager2::deleteResource(const NetworkRequest &request, const QStringList &ips)
+CurlReply *CurlNetworkManager::deleteResource(const NetworkRequest &request, const QStringList &ips)
 {
     QMutexLocker locker(&mutex_);
     return invokeRequest(CurlReply::REQUEST_DELETE, request, ips);
 }
 
-void CurlNetworkManager2::abort(CurlReply *reply)
+void CurlNetworkManager::abort(CurlReply *reply)
 {
     QMutexLocker locker(&mutex_);
     activeRequests_.remove(reply->id());
     idsHash_.remove(reply->id());
 }
 
-void CurlNetworkManager2::run()
+void CurlNetworkManager::run()
 {
     //BIND_CRASH_HANDLER_FOR_THREAD();
     CURLM *multi_handle = curl_multi_init();
@@ -294,7 +294,7 @@ void CurlNetworkManager2::run()
 #endif
 }
 
-void CurlNetworkManager2::handleRequest(quint64 id)
+void CurlNetworkManager::handleRequest(quint64 id)
 {
     QMutexLocker lock(&mutex_);
     auto it = activeRequests_.find(id);
@@ -305,7 +305,7 @@ void CurlNetworkManager2::handleRequest(quint64 id)
     }
 }
 
-CurlReply *CurlNetworkManager2::invokeRequest(CurlReply::REQUEST_TYPE type, const NetworkRequest &request, const QStringList &ips, const QByteArray &data /*= QByteArray*/)
+CurlReply *CurlNetworkManager::invokeRequest(CurlReply::REQUEST_TYPE type, const NetworkRequest &request, const QStringList &ips, const QByteArray &data /*= QByteArray*/)
 {
     CurlReply *reply = new CurlReply(this, request, ips, type, data);
     WS_ASSERT(!activeRequests_.contains(reply->id()));
@@ -314,7 +314,7 @@ CurlReply *CurlNetworkManager2::invokeRequest(CurlReply::REQUEST_TYPE type, cons
     return reply;
 }
 
-void CurlNetworkManager2::setIdIntoMap(quint64 id)
+void CurlNetworkManager::setIdIntoMap(quint64 id)
 {
     auto it = idsHash_.find(id);
     if (it == idsHash_.end())
@@ -327,7 +327,7 @@ void CurlNetworkManager2::setIdIntoMap(quint64 id)
     }
 }
 
-CURL *CurlNetworkManager2::makeRequest(CurlReply *curlReply)
+CURL *CurlNetworkManager::makeRequest(CurlReply *curlReply)
 {
     if (curlReply->requestType() == CurlReply::REQUEST_GET)
     {
@@ -352,7 +352,7 @@ CURL *CurlNetworkManager2::makeRequest(CurlReply *curlReply)
     }
 }
 
-CURL *CurlNetworkManager2::makeGetRequest(CurlReply *curlReply)
+CURL *CurlNetworkManager::makeGetRequest(CurlReply *curlReply)
 {
     CURL *curl = curl_easy_init();
 
@@ -386,7 +386,7 @@ failed:
     return NULL;
 }
 
-CURL *CurlNetworkManager2::makePostRequest(CurlReply *curlReply)
+CURL *CurlNetworkManager::makePostRequest(CurlReply *curlReply)
 {
     CURL *curl = curl_easy_init();
 
@@ -429,7 +429,7 @@ failed:
     return NULL;
 }
 
-CURL *CurlNetworkManager2::makePutRequest(CurlReply *curlReply)
+CURL *CurlNetworkManager::makePutRequest(CurlReply *curlReply)
 {
     // the same as making post, only add CURLOPT_CUSTOMREQUEST field
     CURL *curl = makePostRequest(curlReply);
@@ -448,7 +448,7 @@ CURL *CurlNetworkManager2::makePutRequest(CurlReply *curlReply)
     }
 }
 
-CURL *CurlNetworkManager2::makeDeleteRequest(CurlReply *curlReply)
+CURL *CurlNetworkManager::makeDeleteRequest(CurlReply *curlReply)
 {
     CURL *curl = curl_easy_init();
 
@@ -484,7 +484,7 @@ failed:
     return NULL;
 }
 
-bool CurlNetworkManager2::setupResolveHosts(CurlReply *curlReply, CURL *curl)
+bool CurlNetworkManager::setupResolveHosts(CurlReply *curlReply, CURL *curl)
 {
     if (!curlReply->ips().isEmpty())
     {
@@ -501,7 +501,7 @@ bool CurlNetworkManager2::setupResolveHosts(CurlReply *curlReply, CURL *curl)
     return true;
 }
 
-bool CurlNetworkManager2::setupSslVerification(CurlReply *curlReply, CURL *curl)
+bool CurlNetworkManager::setupSslVerification(CurlReply *curlReply, CURL *curl)
 {
 #if defined(Q_OS_MAC) || defined (Q_OS_LINUX)
     if (curl_easy_setopt(curl, CURLOPT_CAINFO, certPath_.toStdString().c_str()) != CURLE_OK) return false;
@@ -525,7 +525,7 @@ bool CurlNetworkManager2::setupSslVerification(CurlReply *curlReply, CURL *curl)
     return true;
 }
 
-bool CurlNetworkManager2::setupProxy(CurlReply *curlReply, CURL *curl)
+bool CurlNetworkManager::setupProxy(CurlReply *curlReply, CURL *curl)
 {
     QString proxyString;
     if (curlReply->networkRequest().proxySettings().isProxyEnabled())

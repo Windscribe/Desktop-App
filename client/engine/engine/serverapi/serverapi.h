@@ -1,8 +1,7 @@
-#ifndef SERVERAPI_H
-#define SERVERAPI_H
+#pragma once
 
 #include <QObject>
-#include <QTimer>
+
 #include "types/notification.h"
 #include "types/portmap.h"
 #include "engine/apiinfo/staticips.h"
@@ -11,11 +10,7 @@
 #include "types/sessionstatus.h"
 #include "engine/apiinfo/location.h"
 #include "types/robertfilter.h"
-#include "dnscache.h"
-#include "curlnetworkmanager.h"
 #include "engine/networkaccessmanager/networkaccessmanager.h"
-
-#include <list>
 
 class INetworkStateManager;
 class IConnectStateController;
@@ -27,7 +22,7 @@ class ServerAPI : public QObject
 public:
     class BaseRequest;
 
-    explicit ServerAPI(QObject *parent, IConnectStateController *connectStateController);
+    explicit ServerAPI(QObject *parent, IConnectStateController *connectStateController, NetworkAccessManager *networkAccessManager);
     virtual ~ServerAPI();
 
     uint getAvailableUserRole();
@@ -80,8 +75,6 @@ public:
 
     void setIgnoreSslErrors(bool bIgnore);
 
-    void onTunnelTestDnsResolve(const QStringList &ips);
-
 signals:
     void accessIpsAnswer(SERVER_API_RET_CODE retCode, const QStringList &hosts, uint userRole);
     void loginAnswer(SERVER_API_RET_CODE retCode, const types::SessionStatus &sessionStatus, const QString &authHash,
@@ -109,116 +102,39 @@ signals:
     void getRobertFiltersAnswer(SERVER_API_RET_CODE retCode, const QVector<types::RobertFilter> &robertFilters, uint userRole);
     void setRobertFilterAnswer(SERVER_API_RET_CODE retCode, uint userRole);
 
-    // need for add to firewall rules
-    void hostIpsChanged(const QStringList &hostIps);
-
-private slots:
-    void onDnsResolved(bool success, void *userData, qint64 requestStartTime, const QStringList &ips);
-    void onCurlNetworkRequestFinished(CurlRequest *curlRequest);
-    void onRequestTimer();
-
 private:
     NetworkAccessManager *networkAccessManager_;
     types::ProxySettings proxySettings_;
     bool isProxyEnabled_;
 
-
-    using HandleDnsResolveFunc = void (ServerAPI::*)(BaseRequest*,bool, const QStringList&);
-    using HandleCurlReplyFunc = void (ServerAPI::*)(BaseRequest*, bool);
-
     enum {
         GET_MY_IP_TIMEOUT = 5000,
         NETWORK_TIMEOUT = 10000,
     };
-    enum {
-        REPLY_ACCESS_IPS,
-        REPLY_LOGIN,
-        REPLY_SESSION,
-        REPLY_SERVER_LOCATIONS,
-        REPLY_SERVER_CREDENTIALS,
-        REPLY_DELETE_SESSION,
-        REPLY_SERVER_CONFIGS,
-        REPLY_PORT_MAP,
-        REPLY_MY_IP,
-        REPLY_CHECK_UPDATE,
-        REPLY_RECORD_INSTALL,
-        REPLY_DEBUG_LOG,
-        REPLY_SPEED_RATING,
-        REPLY_PING_TEST,
-        REPLY_NOTIFICATIONS,
-        REPLY_STATIC_IPS,
-        REPLY_CONFIRM_EMAIL,
-        REPLY_WIREGUARD_INIT,
-        REPLY_WIREGUARD_CONNECT,
-        REPLY_WEB_SESSION,
-        REPLY_GET_ROBERT_FILTERS,
-        REPLY_SET_ROBERT_FILTER,
-        NUM_REPLY_TYPES
-    };
-
-    template<typename RequestType, typename... RequestArgs>
-    RequestType *createRequest(RequestArgs &&... args) {
-        auto *request = new RequestType(std::forward<RequestArgs>( args )...);
-        // if (request)
-        {
-            activeRequests_.push_back(request);
-        }
-        return request;
-    }
-    void submitDnsRequest(BaseRequest *request, const QString &forceHostname = QString());
-    void submitCurlRequest(BaseRequest *request, CurlRequest::MethodType type,
-                           const QString &contentTypeHeader, const QString &hostname,
-                           const QStringList &ips);
-
-    void handleRequestTimeout(BaseRequest *rd);
-
-    void handleServerCredentialsDnsResolve(BaseRequest *rd, bool success, const QStringList &ips);
-    void handleDeleteSessionDnsResolve(BaseRequest *rd, bool success, const QStringList &ips);
-    void handleServerConfigsDnsResolve(BaseRequest *rd, bool success, const QStringList &ips);
-    void handlePortMapDnsResolve(BaseRequest *rd, bool success, const QStringList &ips);
-    void handleRecordInstallDnsResolve(BaseRequest *rd, bool success, const QStringList &ips);
-    void handleConfirmEmailDnsResolve(BaseRequest *rd, bool success, const QStringList &ips);
-    void handleMyIPDnsResolve(BaseRequest *rd, bool success, const QStringList &ips);
-    void handleCheckUpdateDnsResolve(BaseRequest *rd, bool success, const QStringList &ips);
-    void handleDebugLogDnsResolve(BaseRequest *rd, bool success, const QStringList &ips);
-    void handleSpeedRatingDnsResolve(BaseRequest *rd, bool success, const QStringList &ips);
-    void handleNotificationsDnsResolve(BaseRequest *rd, bool success, const QStringList &ips);
-    void handleStaticIpsDnsResolve(BaseRequest *rd, bool success, const QStringList &ips);
-    void handlePingTestDnsResolve(BaseRequest *rd, bool success, const QStringList &ips);
-
-    void handleWgConfigsInitDnsResolve(BaseRequest *rd, bool success, const QStringList &ips);
-    void handleWgConfigsConnectDnsResolve(BaseRequest *rd, bool success, const QStringList &ips);
-
-    void handleWebSessionDnsResolve(BaseRequest *rd, bool success, const QStringList &ips);
-    void handleGetRobertFiltersDnsResolve(BaseRequest *rd, bool success, const QStringList &ips);
-    void handleSetRobertFilterDnsResolve(BaseRequest *rd, bool success, const QStringList &ips);
 
     void handleAccessIps();
     void handleSessionReply();
     void handleServerLocations();
-    void handleServerCredentialsCurl(BaseRequest *rd, bool success);
-    void handleDeleteSessionCurl(BaseRequest *rd, bool success);
-    void handleServerConfigsCurl(BaseRequest *rd, bool success);
-    void handlePortMapCurl(BaseRequest *rd, bool success);
-    void handleMyIPCurl(BaseRequest *rd, bool success);
-    void handleCheckUpdateCurl(BaseRequest *rd, bool success);
-    void handleRecordInstallCurl(BaseRequest *rd, bool success);
-    void handleConfirmEmailCurl(BaseRequest *rd, bool success);
-    void handleDebugLogCurl(BaseRequest *rd, bool success);
-    void handleSpeedRatingCurl(BaseRequest *rd, bool success);
-    void handlePingTestCurl(BaseRequest *rd, bool success);
-    void handleNotificationsCurl(BaseRequest *rd, bool success);
-    void handleStaticIpsCurl(BaseRequest *rd, bool success);
-    void handleWgConfigsInitCurl(BaseRequest *rd, bool success);
-    void handleWgConfigsConnectCurl(BaseRequest *rd, bool success);
-    void handleWebSessionCurl(BaseRequest *rd, bool success);
-    void handleGetRobertFiltersCurl(BaseRequest *rd, bool success);
-    void handleSetRobertFilterCurl(BaseRequest *rd, bool success);
+    void handleServerCredentials();
+    void handleDeleteSession();
+    void handleServerConfigs();
+    void handlePortMap();
+    void handleMyIP();
+    void handleCheckUpdate();
+    void handleRecordInstall();
+    void handleConfirmEmail();
+    void handleDebugLog();
+    void handleSpeedRating();
+    void handlePingTest();
+    void handleNotifications();
+    void handleStaticIps();
+    void handleWgConfigsInit();
+    void handleWgConfigsConnect();
+    void handleWebSession();
+    void handleGetRobertFilters();
+    void handleSetRobertFilter();
 
-    CurlNetworkManager curlNetworkManager_;
     IConnectStateController *connectStateController_;
-
-    DnsCache *dnsCache_;
 
     QString hostname_;
     QStringList hostIps_;
@@ -230,13 +146,9 @@ private:
     uint curUserRole_;
     bool bIgnoreSslErrors_;
 
-    std::list<BaseRequest*> activeRequests_;
-    QMap<const CurlRequest*, BaseRequest*> curlToRequestMap_;
-    HandleDnsResolveFunc handleDnsResolveFuncTable_[NUM_REPLY_TYPES];
-    HandleCurlReplyFunc handleCurlReplyFuncTable_[NUM_REPLY_TYPES];
-    QTimer requestTimer_;
+    NetworkReply *myIpReply_;
+    QHash<quint64, NetworkReply *> pingTestReplies_;
 
     types::ProxySettings currentProxySettings() const;
 };
 
-#endif // SERVERAPI_H
