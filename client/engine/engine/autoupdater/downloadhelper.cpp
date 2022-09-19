@@ -197,6 +197,7 @@ void DownloadHelper::getInner(const QString url, const QString targetFilenamePat
     }
 
     NetworkRequest request(QUrl(url), 60000 * 5, true);     // timeout 5 mins
+    request.setRemoveFromWhitelistIpsAfterFinish();
 
     NetworkReply *reply = networkAccessManager_->get(request);
     replies_.insert(reply, fileAndProgess);

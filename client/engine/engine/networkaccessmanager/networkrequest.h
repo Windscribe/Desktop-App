@@ -32,8 +32,8 @@ public:
     void setProxySettings(const types::ProxySettings &proxySettings);
     const types::ProxySettings &proxySettings() const;
 
-    void setForceRemoveFromDnsCache();
-    bool isForceRemoveFromDnsCache() const;
+    void setRemoveFromWhitelistIpsAfterFinish();
+    bool isRemoveFromWhitelistIpsAfterFinish() const;
 
 private:
     QUrl url_;
@@ -44,8 +44,8 @@ private:
     QString header_;
     QStringList dnsServers_;
 
-    //default false, if true then immediately removes the IP from the cache after the request is completed. This also leads to the removal of the IP from the firewall rules
-    bool bForceRemoveFromDnsCache_;
+    //default false, if true then immediately removes the IP from the whitelist ips after the request is completed.
+    bool bRemoveFromWhitelistIpsAfterFinish_;
 };
 
 #endif // NETWORKREQUEST_H

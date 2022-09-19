@@ -194,6 +194,7 @@ void DnsResolver::lookup(const QString &hostname, QSharedPointer<QObject> object
 {
     LookupJob *job = new LookupJob(hostname, object, dnsServers, timeoutMs);
     threadPool_->start(job);
+    WS_ASSERT(threadPool_->activeThreadCount() <= threadPool_->maxThreadCount());   // in this case, we probably need to redo the logic
 }
 
 QStringList DnsResolver::lookupBlocked(const QString &hostname, const QStringList &dnsServers, int timeoutMs, int *outErrorCode)

@@ -3,8 +3,6 @@
 
 #include <QMutex>
 
-
-
 class CurlInitController
 {
 public:

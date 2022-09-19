@@ -6,6 +6,7 @@
 #include "curlnetworkmanager.h"
 #include "dnscache.h"
 #include "networkreply.h"
+#include "whitelistipsmanager.h"
 
 // Some simplified implementation of the QNetworkAccessManager class for our needs based on curl and cares(DnsRequest).
 // In particular, it has the functionality to whitelist IP addresses to firewall exceptions.
@@ -54,6 +55,7 @@ private:
     QHash<quint64, QSharedPointer<RequestData> > activeRequests_;
     CurlNetworkManager *curlNetworkManager_;
     DnsCache *dnsCache_;
+    WhitelistIpsManager *whitelistIpsManager_;
 
     quint64 getNextId();
 

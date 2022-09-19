@@ -1,6 +1,5 @@
 #include "testvpntunnel.h"
 #include "engine/serverapi/serverapi.h"
-#include "utils/ws_assert.h"
 #include "utils/logger.h"
 #include "utils/ipvalidation.h"
 #include "utils/extraconfig.h"

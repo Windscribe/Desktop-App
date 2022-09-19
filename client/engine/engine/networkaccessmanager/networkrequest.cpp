@@ -1,7 +1,7 @@
 #include "networkrequest.h"
 
 NetworkRequest::NetworkRequest(const QUrl &url, int timeout, bool bUseDnsCache) : url_(url), timeout_(timeout), bUseDnsCache_(bUseDnsCache), bIgnoreSslErrors_(false),
-    bForceRemoveFromDnsCache_(false)
+    bRemoveFromWhitelistIpsAfterFinish_(false)
 {
 }
 
@@ -12,7 +12,7 @@ NetworkRequest::NetworkRequest(const QUrl &url, int timeout, bool bUseDnsCache, 
     proxySettings_(proxySettings),
     bIgnoreSslErrors_(isIgnoreSslErrors),
     dnsServers_(dnsServers),
-    bForceRemoveFromDnsCache_(false)
+    bRemoveFromWhitelistIpsAfterFinish_(false)
 {
 }
 
@@ -86,12 +86,12 @@ const types::ProxySettings &NetworkRequest::proxySettings() const
     return proxySettings_;
 }
 
-void NetworkRequest::setForceRemoveFromDnsCache()
+void NetworkRequest::setRemoveFromWhitelistIpsAfterFinish()
 {
-    bForceRemoveFromDnsCache_ = true;
+    bRemoveFromWhitelistIpsAfterFinish_ = true;
 }
 
-bool NetworkRequest::isForceRemoveFromDnsCache() const
+bool NetworkRequest::isRemoveFromWhitelistIpsAfterFinish() const
 {
-    return bForceRemoveFromDnsCache_;
+    return bRemoveFromWhitelistIpsAfterFinish_;
 }

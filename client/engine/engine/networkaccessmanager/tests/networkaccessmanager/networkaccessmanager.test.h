@@ -15,6 +15,7 @@ private slots:
     void test_post();
     void test_put();
     void test_delete();
+    void test_whitelist();
 
 };
 

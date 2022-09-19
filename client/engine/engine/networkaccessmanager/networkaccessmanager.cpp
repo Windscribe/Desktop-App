@@ -9,12 +9,14 @@ std::atomic<quint64> NetworkAccessManager::nextId_(0);
 
 NetworkAccessManager::NetworkAccessManager(QObject *parent) : QObject(parent)
 {
-    WS_ASSERT(g_countInstances == 0);       // this instance of the class is supposed to be a single instance for the entire program
+    //WS_ASSERT(g_countInstances == 0);       // this instance of the class is supposed to be a single instance for the entire program
     g_countInstances++;
     curlNetworkManager_ = new CurlNetworkManager(this);
     dnsCache_ = new DnsCache(this);
     connect(dnsCache_, &DnsCache::resolved,  this, &NetworkAccessManager::onResolved);
-    connect(dnsCache_, &DnsCache::whitelistIpsChanged, [this] (const QSet<QString> &ips) {
+
+    whitelistIpsManager_ = new WhitelistIpsManager(this);
+    connect(whitelistIpsManager_, &WhitelistIpsManager::whitelistIpsChanged, [this](const QSet<QString> &ips) {
         emit whitelistIpsChanged(ips);
     });
 }
@@ -64,8 +66,9 @@ void NetworkAccessManager::abort(NetworkReply *reply)
         QSharedPointer<RequestData> requestData = it.value();
         requestData->reply->abortCurl();
         activeRequests_.erase(it);
-        if (requestData->request.isForceRemoveFromDnsCache())
-            dnsCache_->notifyFinished(id);
+
+        if (requestData->request.isRemoveFromWhitelistIpsAfterFinish())
+            whitelistIpsManager_->remove(requestData->request.url().host());
     }
 }
 
@@ -89,8 +92,8 @@ void NetworkAccessManager::onCurlReplyFinished()
         QSharedPointer<RequestData> requestData = it.value();
         requestData->reply->checkForCurlError();
         emit requestData->reply->finished();
-        if (requestData->request.isForceRemoveFromDnsCache())
-            dnsCache_->notifyFinished(replyId);
+        if (requestData->request.isRemoveFromWhitelistIpsAfterFinish())
+            whitelistIpsManager_->remove(requestData->request.url().host());
         activeRequests_.erase(it);
     }
 }
@@ -125,6 +128,8 @@ void NetworkAccessManager::onResolved(bool success, const QStringList &ips, quin
         if (success) {
             if (requestData->request.timeout() - timeMs > 0) {
                 requestData->request.setTimeout(requestData->request.timeout() - timeMs);
+
+                whitelistIpsManager_->add(requestData->request.url().host(), ips);
 
                 CurlReply *curlReply{ nullptr };
 

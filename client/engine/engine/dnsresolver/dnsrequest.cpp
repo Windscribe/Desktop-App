@@ -56,7 +56,7 @@ void DnsRequest::onResolved(const QStringList &ips, int aresErrorCode, qint64 el
     aresErrorCode_ = aresErrorCode;
     ips_ = ips;
     if (isError()) {
-        qCDebug(LOG_DNS_RESOLVER) << "Could not resolve" << hostname_ << "(servers:" << dnsServers_ << "):" << aresErrorCode;
+        qCDebug(LOG_NETWORK) << "Could not resolve" << hostname_ << "(servers:" << dnsServers_ << "):" << aresErrorCode;
     }
     emit finished();
 }

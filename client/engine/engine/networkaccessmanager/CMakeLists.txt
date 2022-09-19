@@ -15,6 +15,8 @@ target_sources(engine PRIVATE
     networkreply.h
     networkrequest.cpp
     networkrequest.h
+    whitelistipsmanager.cpp
+    whitelistipsmanager.h
 )
 
 if(DEFINED IS_BUILD_TESTS)

@@ -146,4 +146,50 @@ void TestNetworkAccessManager::test_delete()
     QVERIFY(progressCalled > 0);
 }
 
+void TestNetworkAccessManager::test_whitelist()
+{
+    {
+        NetworkRequest request(QUrl("https://postman-echo.com/get?foo1=bar1&foo2=bar2"), 20000, false);
+        NetworkAccessManager *manager = new NetworkAccessManager(this);
+        NetworkReply *reply = manager->get(request);
+        QObject::connect(reply, &NetworkReply::finished, this, [=] {
+            reply->deleteLater();
+        });
+
+        QSignalSpy signalWhitelist(manager, &NetworkAccessManager::whitelistIpsChanged);
+
+        QSignalSpy signalFinished(reply, SIGNAL(finished()));
+        signalFinished.wait(20000);
+
+        QCOMPARE(signalWhitelist.count(), 1);
+        QList<QVariant> arguments = signalWhitelist.takeFirst();
+        QSet<QString> set = qvariant_cast<QSet<QString> >(arguments.at(0));
+        QVERIFY(set.size() > 0);
+    }
+
+    {
+        NetworkRequest request(QUrl("https://postman-echo.com/get?foo1=bar1&foo2=bar2"), 20000, false);
+        request.setRemoveFromWhitelistIpsAfterFinish();
+        NetworkAccessManager *manager = new NetworkAccessManager(this);
+        NetworkReply *reply = manager->get(request);
+        QObject::connect(reply, &NetworkReply::finished, this, [=] {
+            reply->deleteLater();
+        });
+
+        QSignalSpy signalWhitelist(manager, &NetworkAccessManager::whitelistIpsChanged);
+
+        QSignalSpy signalFinished(reply, SIGNAL(finished()));
+        signalFinished.wait(20000);
+
+        QCOMPARE(signalWhitelist.count(), 2);
+        QList<QVariant> arguments = signalWhitelist.at(0);
+        QSet<QString> set = qvariant_cast<QSet<QString> >(arguments.at(0));
+        QVERIFY(set.size() > 0);
+
+        arguments = signalWhitelist.at(1);
+        set = qvariant_cast<QSet<QString> >(arguments.at(0));
+        QVERIFY(set.size() == 0);
+    }
+}
+
 QTEST_MAIN(TestNetworkAccessManager)
