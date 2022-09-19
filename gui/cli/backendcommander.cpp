@@ -53,7 +53,7 @@ void BackendCommander::onConnectionNewCommand(IPC::Command *command, IPC::IConne
         }
         else
         {
-            emit finished(tr("Error: Could not find server matching: \"") + cliArgs_.location() + "\"");
+            emit finished(tr("Error: Could not find server matching: \"") + cliArgs_.location() + "\" or the location is disabled");
         }
     }
     else if (bCommandSent_ && command->getStringId() == IPC::CliCommands::ConnectStateChanged::getCommandStringId())

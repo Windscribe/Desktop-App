@@ -33,13 +33,10 @@ public:
     QModelIndex getIndexByLocationId(const LocationID &id) const;
     // Could be region name, country code, server name
     // for example "Toronto", "The Six", "CA", "Canada East" would all be valid
-    QModelIndex getIndexByFilter(const QString &strFilter) const;
     LocationID findLocationByFilter(const QString &strFilter) const;
 
     LocationID getBestLocationId() const;
     LocationID getFirstValidCustomConfigLocationId() const;
-    LocationID findGenericLocationByTitle(const QString &title) const;
-    LocationID findCustomConfigLocationByTitle(const QString &title) const;
 
     // Sets filtering to filterLocationsProxyModel_
     void setFilterString(const QString &filterString);
