@@ -670,10 +670,10 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
             //event->accept();
             bMousePressed_ = true;
 
-	    if (QGuiApplication::platformName() == "wayland")
-	    {
+            if (QGuiApplication::platformName() == "wayland")
+            {
                 this->window()->windowHandle()->startSystemMove();
-	    }
+            }
         }
     }
 }
@@ -2216,6 +2216,15 @@ void MainWindow::onPreferencesSetRobertFilter(const types::RobertFilter &filter)
 void MainWindow::onBackendSetRobertFilterResult(bool success)
 {
     qCDebug(LOG_BASIC) << "Set ROBERT filter response:" << success;
+    if (success)
+    {
+        backend_->syncRobert();
+    }
+}
+
+void MainWindow::onBackendSyncRobertResult(bool success)
+{
+    qCDebug(LOG_BASIC) << "Sync ROBERT response:" << success;
 }
 
 void MainWindow::onBackendUpdateVersionChanged(uint progressPercent, UPDATE_VERSION_STATE state, UPDATE_VERSION_ERROR error)

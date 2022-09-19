@@ -67,6 +67,7 @@ public:
     void getWebSessionToken(WEB_SESSION_PURPOSE purpose);
     void getRobertFilters();
     void setRobertFilter(const types::RobertFilter &filter);
+    void syncRobert();
 
     LoginSettings getLastLoginSettings();
     QString getAuthHash();
@@ -144,6 +145,7 @@ signals:
     void protocolPortChanged(const PROTOCOL &protocol, const uint port);
     void robertFiltersUpdated(bool success, const QVector<types::RobertFilter> &filters);
     void setRobertFilterFinished(bool success);
+    void syncRobertFinished(bool success);
 
     void requestUsername();
     void requestPassword();
@@ -248,6 +250,7 @@ private slots:
     void onWebSessionAnswer(SERVER_API_RET_CODE retCode, const QString &token, uint userRole);
     void onGetRobertFiltersAnswer(SERVER_API_RET_CODE retCode, const QVector<types::RobertFilter> &filters, uint userRole);
     void onSetRobertFilterAnswer(SERVER_API_RET_CODE retCode, uint userRole);
+    void onSyncRobertAnswer(SERVER_API_RET_CODE retCode, uint userRole);
 
     void onUpdateServerResources();
     void onUpdateSessionStatusTimer();

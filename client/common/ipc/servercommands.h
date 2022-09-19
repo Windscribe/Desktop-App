@@ -348,6 +348,27 @@ public:
     bool success_;
 };
 
+class SyncRobertFinished : public Command
+{
+public:
+    explicit SyncRobertFinished(bool success) : success_(success)
+    {}
+
+    std::vector<char> getData() const override   {  WS_ASSERT(false); return std::vector<char>(); }
+    std::string getStringId() const override { return getCommandStringId(); }
+    std::string getDebugString() const override
+    {
+        return "ServerCommand::SyncRobertFinished debug string";
+    }
+
+    static std::string getCommandStringId()
+    {
+        return "ServerCommand::SyncRobertFinished";
+    }
+
+    bool success_;
+};
+
 class CheckUpdateInfoUpdated : public Command
 {
 public:

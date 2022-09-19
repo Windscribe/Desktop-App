@@ -335,6 +335,12 @@ void Backend::setRobertFilter(const types::RobertFilter &filter)
     engineServer_->sendCommand(&cmd);
 }
 
+void Backend::syncRobert()
+{
+    IPC::ClientCommands::SyncRobert cmd;
+    engineServer_->sendCommand(&cmd);
+}
+
 bool Backend::isAppCanClose() const
 {
     return isCleanupFinished_;
@@ -659,6 +665,11 @@ void Backend::onConnectionNewCommand(IPC::Command *command)
     {
         IPC::ServerCommands::SetRobertFilterFinished *cmd = static_cast<IPC::ServerCommands::SetRobertFilterFinished *>(command);
         Q_EMIT setRobertFilterResult(cmd->success_);
+    }
+    else if (command->getStringId() == IPC::ServerCommands::SyncRobertFinished::getCommandStringId())
+    {
+        IPC::ServerCommands::SyncRobertFinished *cmd = static_cast<IPC::ServerCommands::SyncRobertFinished *>(command);
+        Q_EMIT syncRobertResult(cmd->success_);
     }
 }
 
