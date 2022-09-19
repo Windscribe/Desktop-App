@@ -1,3 +1,15 @@
+2.5.6 (19/09/2022)
+* Produce Arch Linux installer package in CI build. #168
+* Support Wayland compositor on Linux. #236
+* Fixed no connectivity after waking from sleep with WireGuard on macOS. #391
+* Fixed no connectivity after waking from suspend with WireGuard and OpenVPN on Fedora 36. #376, #414, #426
+* Fixed incorrect Linux DNS manager detection on Fedora 36. #447
+* Fixed preferred protocol doesn't reconnect when wifi hopping. #448
+* Moved Auto-Connect to above Firewall Mode in Connection Preferences. #449
+* Fixed ROBERT rules do not apply from in-app toggles. #450
+* Fixed connect to a location by city/nickname/region name/ISO country code via CLI fails. #452
+
+
 2.5.5 (12/09/2022)
 * Fixed app does not resize correctly when dragging app between displays. #402
 * Fixed start minimized does not work on Windows. #413
