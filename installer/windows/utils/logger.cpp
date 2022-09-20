@@ -1,158 +1,127 @@
-﻿#include <shlobj.h>
+﻿#include "logger.h"
 
-#include <codecvt>
+#include <shlobj.h>
+
 #include <fstream>
+#include <sstream>
 
-#include "logger.h"
 
 using namespace std;
 
-
-// Need to use the same logging folder as the Qt-based GUI and engine use.
-static wstring
-GetLoggingFolder(void)
-{
-    wstring folder;
-
-    PWSTR pUnicodePath;
-    HRESULT hResult = ::SHGetKnownFolderPath(FOLDERID_LocalAppData, 0, NULL, &pUnicodePath);
-
-    if (SUCCEEDED(hResult))
-    {
-        folder = wstring(pUnicodePath);
-        folder += wstring(L"\\Windscribe\\Windscribe2");
-        ::CoTaskMemFree(pUnicodePath);
-    }
-    else {
-        Log::WSDebugMessage(_T("GetLogsFolder failed: %d"), HRESULT_CODE(hResult));
-    }
-
-    return folder;
-}
-
-
-Log::Log() : file_(NULL)
+Log::Log()
 {
 }
-
 
 Log::~Log()
 {
-	if (file_)
-	{
-		fclose(file_);
-		file_ = NULL;
-	}
+    if (file_)
+    {
+        fclose(file_);
+        file_ = NULL;
+    }
 }
 
-void Log::init(bool installing)
+void Log::init(bool installing, const wstring& installPath)
 {
-    wstring folder = GetLoggingFolder();
+    // The uninstaller logs to the system debugger so we do not leave an uninstaller log
+    // (cruft) on the user's device.
+    if (!installing) {
+        return;
+    }
 
-    // Make sure the logging folder exists.
-    if (::SHCreateDirectoryEx(NULL, folder.c_str(), NULL) != ERROR_SUCCESS)
+    // Make sure the logging folder for the installer exists so we can create the log file.
+    if (::SHCreateDirectoryEx(NULL, installPath.c_str(), NULL) != ERROR_SUCCESS)
     {
         if (::GetLastError() != ERROR_ALREADY_EXISTS)
         {
-            WSDebugMessage(_T("Logger could not create: %ls"), folder.c_str());
+            WSDebugMessage(_T("Logger could not create: %ls"), installPath.c_str());
             return;
         }
     }
 
-    const wchar_t* openMode = L"w+";
-    wstring filePath(folder);
+    wstring filePath(installPath);
+    filePath += L"\\log_installer.txt";
 
-    if (installing)
-    {
-        filePath += L"\\log_installer.txt";
-        
-        wstring prevFilePath(folder);
-        prevFilePath += L"\\prev_log_installer.txt";
+    wstring prevFilePath(installPath);
+    prevFilePath += L"\\prev_log_installer.txt";
 
-        wifstream infile(filePath);
+    wifstream infile(filePath);
 
-        if (infile.good()) {
-            ::CopyFile(filePath.c_str(), prevFilePath.c_str(), FALSE);
-        }
-
-        infile.close();
-    }
-    else
-    {
-        // Uninstall exe runs in multiple phases, so we'll append to the log file rather
-        // than create a new one.
-        const wchar_t* openMode = L"a+";
-        filePath += L"\\log_uninstaller.txt";
+    if (infile.good()) {
+        ::CopyFile(filePath.c_str(), prevFilePath.c_str(), FALSE);
     }
 
-    file_ = _wfopen(filePath.c_str(), openMode);
+    infile.close();
+
+    file_ = _wfopen(filePath.c_str(), L"w+");
     if (file_ == NULL) {
         WSDebugMessage(_T("Logger could not open: %ls"), filePath.c_str());
     }
 }
 
-
-void Log::out(const char *format, ...)
+void Log::out(const char* format, ...)
 {
+    // Using dynamic allocation here for the string buffers as the VS2019 compiler was warning
+    // about stack overflow potential.
+
     time_t rawtime;
     time(&rawtime);
-    struct tm *timeinfo = gmtime(&rawtime);
-    char buffer[256];
-    strftime(buffer, sizeof(buffer), "%d-%m %I:%M:%S", timeinfo);
+    struct tm* timeinfo = gmtime(&rawtime);
+    char timeStr[256];
+    strftime(timeStr, 256, "%d-%m %I:%M:%S", timeinfo);
 
     va_list args;
     va_start(args, format);
-    char buffer2[10000];
-    _vsnprintf(buffer2, 10000, format, args);
+    unique_ptr<char[]> logMsg(new char[10000]);
+    _vsnprintf_s(logMsg.get(), 10000, _TRUNCATE, format, args);
     va_end(args);
 
-    string strTime(buffer);
-    string str = "[" + strTime + "]\t" + string(buffer2) + "\n";
-
-    std::lock_guard<std::recursive_mutex> lock(mutex);
+    ostringstream stream;
+    stream << "[" << timeStr << "]\t" << logMsg.get() << endl;
 
     if (file_)
     {
-        fputs(str.c_str(), file_);
-        fflush(file_);
-    }
-    else
-    {
-        wstring debug = wstring_convert<codecvt_utf8<wchar_t>>().from_bytes(str);
-        WSDebugMessage(debug.c_str());
-    }
-}
-
-void Log::out(const wchar_t *format, ...)
-{
-    time_t rawtime;
-    time(&rawtime);
-    struct tm *timeinfo = gmtime(&rawtime);
-    wchar_t buffer[256];
-    wcsftime(buffer, sizeof(buffer) / sizeof(wchar_t), L"%d-%m %I:%M:%S", timeinfo);
-
-    va_list args;
-    va_start(args, format);
-    wchar_t buffer2[10000];
-    _vsnwprintf(buffer2, 10000, format, args);
-    va_end(args);
-
-    std::wstring strTime(buffer);
-    std::wstring str = L"[" + strTime + L"]\t" + std::wstring(buffer2) + L"\n";
-
-    std::lock_guard<std::recursive_mutex> lock(mutex);
-
-    if (file_)
-    {
-        fputws(str.c_str(), file_);
+        lock_guard<recursive_mutex> lock(mutex);
+        fputs(stream.str().c_str(), file_);
         fflush(file_);
     }
     else {
-        WSDebugMessage(str.c_str());
+        ::OutputDebugStringA(stream.str().c_str());
     }
 }
 
-void Log::out(const std::wstring &str)
+void Log::out(const wchar_t* format, ...)
+{
+    // Using dynamic allocation here for the string buffers as the VS2019 compiler was warning
+    // about stack overflow potential.
+
+    time_t rawtime;
+    time(&rawtime);
+    struct tm* timeinfo = gmtime(&rawtime);
+    wchar_t timeStr[256];
+    wcsftime(timeStr, 256, L"%d-%m %I:%M:%S", timeinfo);
+
+    va_list args;
+    va_start(args, format);
+    unique_ptr<wchar_t[]> logMsg(new wchar_t[10000]);
+    _vsnwprintf_s(logMsg.get(), 10000, _TRUNCATE, format, args);
+    va_end(args);
+
+    wostringstream stream;
+    stream << L"[" << timeStr << L"]\t" << logMsg.get() << endl;
+
+    if (file_)
+    {
+        lock_guard<recursive_mutex> lock(mutex);
+        fputws(stream.str().c_str(), file_);
+        fflush(file_);
+    }
+    else {
+        ::OutputDebugStringW(stream.str().c_str());
+    }
+}
+
+void Log::out(const wstring& str)
 {
     out(str.c_str());
 }
@@ -164,9 +133,7 @@ Log::WSDebugMessage(const TCHAR* format, ...)
     va_start(arg_list, format);
 
     TCHAR szMsg[1024];
-    szMsg[1023] = _T('\0');
-
-    _vsntprintf(szMsg, 1023, format, arg_list);
+    _vsntprintf_s(szMsg, 1024, _TRUNCATE, format, arg_list);
     va_end(arg_list);
 
     // Send the debug string to the debugger.

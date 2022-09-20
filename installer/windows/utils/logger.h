@@ -12,25 +12,25 @@
 class Log
 {
 public:
-	static Log &instance()
-	{
-		static Log log;
-		return log;
-	}
+    static Log& instance()
+    {
+        static Log log;
+        return log;
+    }
 
-    void init(bool installing);
-    void out(const char *format, ...);
-    void out(const wchar_t *format, ...);
-    void out(const std::wstring &str);
+    void init(bool installing, const std::wstring& installPath);
+    void out(const char* format, ...);
+    void out(const wchar_t* format, ...);
+    void out(const std::wstring& str);
 
     static void WSDebugMessage(const TCHAR* format, ...);
 
 private:
     std::recursive_mutex mutex;
-	FILE *file_;
+    FILE* file_ = NULL;
 
     Log();
-	~Log();
+    ~Log();
 };
 
 #endif

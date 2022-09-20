@@ -41,7 +41,6 @@ private:
 	FontResources *fontResources_;
 	std::unique_ptr<InstallerBase> installer_;
 	Settings settings_;
-    bool isLegacyOS_;
 
 	void installerCallback(unsigned int progress, INSTALLER_CURRENT_STATE state);
 };

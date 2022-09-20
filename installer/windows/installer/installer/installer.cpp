@@ -1,16 +1,18 @@
 #include "installer.h"
-#include <assert.h>
-#include "../../utils/logger.h"
-#include "blocks/uninstallprev.h"
+
 #include "blocks/files.h"
-#include "blocks/uninstall_info.h"
 #include "blocks/icons.h"
-#include "blocks/service.h"
+#include "blocks/install_authhelper.h"
+#include "blocks/install_splittunnel.h"
 #include "blocks/install_tap.h"
 #include "blocks/install_wintun.h"
-#include "blocks/install_splittunnel.h"
-#include "blocks/install_authhelper.h"
+#include "blocks/service.h"
 #include "blocks/ShellExecuteAsUser.h"
+#include "blocks/uninstall_info.h"
+#include "blocks/uninstallprev.h"
+
+#include "../../utils/applicationinfo.h"
+#include "../../utils/logger.h"
 
 using namespace std;
 
@@ -34,6 +36,10 @@ Installer::~Installer()
 
 void Installer::startImpl(HWND hwnd, const Settings &settings)
 {
+    Log::instance().init(true, settings.getPath());
+    Log::instance().out(L"Installing Windscribe version %s", ApplicationInfo::instance().getVersion().c_str());
+    Log::instance().out(L"Command-line args: %s", ::GetCommandLine());
+
     installPath_ = settings.getPath();
 #ifdef _WIN32
     blocks_.push_back(new UninstallPrev(settings.getFactoryReset(), 10));
@@ -44,7 +50,7 @@ void Installer::startImpl(HWND hwnd, const Settings &settings)
         blocks_.push_back(new InstallTap(installPath_, 10));
         blocks_.push_back(new InstallWinTun(installPath_, 10));
     }
-    blocks_.push_back(new InstallSplitTunnel(installPath_, 10, hwnd));
+    blocks_.push_back(new InstallSplitTunnel(installPath_, 10));
     blocks_.push_back(new UninstallInfo(installPath_, 5));
     blocks_.push_back(new Icons(installPath_, settings.getCreateShortcut(), 5));
     blocks_.push_back(new InstallAuthHelper(installPath_, 5));

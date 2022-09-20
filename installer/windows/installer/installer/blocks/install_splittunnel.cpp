@@ -1,25 +1,40 @@
 #include "install_splittunnel.h"
-#include "../../../Utils/registry.h"
-#include "../../../Utils/process1.h"
-#include "../../../Utils/path.h"
-#include "../../../Utils/logger.h"
-#include <setupapi.h>
 
-#pragma comment(lib, "Setupapi.lib")
+#include <sstream>
+
+#include "../../../Utils/logger.h"
+#include "../../../Utils/path.h"
+#include "../../../Utils/process1.h"
 
 using namespace std;
 
-InstallSplitTunnel::InstallSplitTunnel(const std::wstring &installPath, double weight, HWND hwnd) : IInstallBlock(weight, L"splittunnel")
+InstallSplitTunnel::InstallSplitTunnel(const std::wstring& installPath, double weight)
+    : IInstallBlock(weight, L"splittunnel", false),
+      installPath_(installPath)
 {
-	installPath_ = installPath;
-	hwnd_ = hwnd;
 }
 
 int InstallSplitTunnel::executeStep()
 {
-	wstring installCmd = L"DefaultInstall 132 ";
-	installCmd += Path::AddBackslash(installPath_) + L"splittunnel\\windscribesplittunnel.inf";
-	InstallHinfSection(hwnd_, NULL, installCmd.c_str(), NULL);
+    wostringstream commandLine;
+    commandLine << L"setupapi,InstallHinfSection DefaultInstall 132 " << Path::AddBackslash(installPath_) << L"splittunnel\\windscribesplittunnel.inf";
 
-	return 100;
+    auto result = Process::InstExec(L"rundll32", commandLine.str(), 60 * 1000, SW_HIDE);
+
+    if (!result.has_value()) {
+        Log::instance().out("WARNING: an error was encountered launching the split tunnel driver installer or while monitoring its progress.");
+        return -1;
+    }
+
+    if (result.value() == WAIT_TIMEOUT) {
+        Log::instance().out("WARNING: The split tunnel driver install stage timed out.");
+        return -1;
+    }
+
+    if (result.value() != NO_ERROR) {
+        Log::instance().out("WARNING: The split tunnel driver install returned a failure code (%lu).", result.value());
+        return -1;
+    }
+
+    return 100;
 }

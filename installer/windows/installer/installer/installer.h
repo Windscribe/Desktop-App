@@ -1,16 +1,11 @@
 #ifndef INSTALLER_H
 #define INSTALLER_H
 
+#include <list>
+#include <string>
+
 #include "installer_base.h"
-
-#ifdef _WIN32
 #include "iinstall_block.h"
-#endif
-#if defined __APPLE__
-#include "Installer/iinstall_block.h"
-#endif
-
-#include <list>          // std::list
 
 class Installer : public InstallerBase
 {

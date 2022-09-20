@@ -67,7 +67,8 @@ void UninstallInfo::registerUninstallInfo(const wstring &uninstallRegKeyBaseName
 
 bool UninstallInfo::setStringValue(HKEY key, const wchar_t *valueName,const wstring &data)
 {
-	LSTATUS errorCode = RegSetValueEx(key, valueName, 0, REG_SZ,  reinterpret_cast<const BYTE*>(data.c_str()), data.length()*sizeof(data[0]));
+	LSTATUS errorCode = RegSetValueEx(key, valueName, 0, REG_SZ,  reinterpret_cast<const BYTE*>(data.c_str()),
+                                      static_cast<DWORD>(data.length()*sizeof(data[0])));
 	return errorCode == ERROR_SUCCESS;
 }
 

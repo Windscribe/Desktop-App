@@ -12,133 +12,133 @@ static UINT g_FileCodePage = CP_ACP;
 #ifndef _WIN32
 //It is taken from here https://stackoverflow.com/questions/34641373/how-do-i-embed-the-contents-of-a-binary-file-in-an-executable-on-mac-os-x
 asm(
- ".global _data_start_somefile\n\t"
- ".global _data_end_somefile\n\t"
- "_data_start_somefile:\n\t"
- ".incbin \"resources/windscribe.7z\"\n\t"
- "_data_end_somefile:\n\t"
-   );
+    ".global _data_start_somefile\n\t"
+    ".global _data_end_somefile\n\t"
+    "_data_start_somefile:\n\t"
+    ".incbin \"resources/windscribe.7z\"\n\t"
+    "_data_end_somefile:\n\t"
+);
 
 extern char data_start_somefile, data_end_somefile;
 #endif
 
 using namespace std;
 
-Archive::Archive(const wstring &name)
+Archive::Archive(const wstring& name)
 {
- importantTotalUnpacked=0;
- Total=0;
- Completed=0;
- res=SZ_OK;
+    importantTotalUnpacked = 0;
+    Total = 0;
+    Completed = 0;
+    res = SZ_OK;
 
- #ifdef _WIN32
- LPCWSTR name1 = name.c_str();
+#ifdef _WIN32
+    LPCWSTR name1 = name.c_str();
 
- HRSRC hResource = FindResource(nullptr,name1, RT_RCDATA);
- if (!hResource)
-  {
+    HRSRC hResource = FindResource(nullptr, name1, RT_RCDATA);
+    if (!hResource)
+    {
 
-  }
+    }
 
- hGlobal = LoadResource(nullptr, hResource);
- if (!hGlobal)
-  {
+    hGlobal = LoadResource(nullptr, hResource);
+    if (!hGlobal)
+    {
 
-  }
-
-
- pData = static_cast<BYTE*>(LockResource(hGlobal));
- if (!pData)
-  {
-
-  }
+    }
 
 
- file_size = SizeofResource(nullptr, hResource);
- #else
- pData = (unsigned char*)&data_start_somefile;
+    pData = static_cast<BYTE*>(LockResource(hGlobal));
+    if (!pData)
+    {
 
- file_size = int(&data_end_somefile-&data_start_somefile);
- #endif
-
-
- SzArEx_Init(&db);
-
- #if defined(_WIN32) && !defined(USE_WINDOWS_FILE) && !defined(UNDER_CE)
- g_FileCodePage = AreFileApisANSI() ? CP_ACP : CP_OEMCP;
- #endif
-
- allocImp = g_Alloc;
- allocTempImp = g_Alloc;
+    }
 
 
-//We work with the file as with an array of bytes
- archiveStream.file.pData = pData;
- archiveStream.file.Position = 0;
- archiveStream.file.Length = file_size;
+    file_size = SizeofResource(nullptr, hResource);
+#else
+    pData = (unsigned char*)&data_start_somefile;
 
- FileInStream_CreateVTable1(&archiveStream);
- LookToRead2_CreateVTable(&lookStream, False);
- lookStream.buf = nullptr;
- lookStream.buf = static_cast<Byte*>(ISzAlloc_Alloc(&allocImp, kInputBufSize));
-
- if (!lookStream.buf)
- {
-  res = SZ_ERROR_MEM;
- }
- else
- {
-  lookStream.bufSize =   kInputBufSize;
-  lookStream.realStream = &archiveStream.vt;
-  LookToRead2_Init(&lookStream);
- }
+    file_size = int(&data_end_somefile - &data_start_somefile);
+#endif
 
 
- CrcGenerateTable();
+    SzArEx_Init(&db);
 
- if (res == SZ_OK)
- {
-  res = SzArEx_Open(&db, &lookStream.vt, &allocImp, &allocTempImp);
- }
+#if defined(_WIN32) && !defined(USE_WINDOWS_FILE) && !defined(UNDER_CE)
+    g_FileCodePage = AreFileApisANSI() ? CP_ACP : CP_OEMCP;
+#endif
 
- temp = nullptr;
- tempSize = 0;
+    allocImp = g_Alloc;
+    allocTempImp = g_Alloc;
 
- blockIndex = 0xFFFFFFFF;
- outBuffer = nullptr;
- outBufferSize = 0;
 
- val = 0;
- max_percent = 90;
+    //We work with the file as with an array of bytes
+    archiveStream.file.pData = pData;
+    archiveStream.file.Position = 0;
+    archiveStream.file.Length = file_size;
+
+    FileInStream_CreateVTable1(&archiveStream);
+    LookToRead2_CreateVTable(&lookStream, False);
+    lookStream.buf = nullptr;
+    lookStream.buf = static_cast<Byte*>(ISzAlloc_Alloc(&allocImp, kInputBufSize));
+
+    if (!lookStream.buf)
+    {
+        res = SZ_ERROR_MEM;
+    }
+    else
+    {
+        lookStream.bufSize = kInputBufSize;
+        lookStream.realStream = &archiveStream.vt;
+        LookToRead2_Init(&lookStream);
+    }
+
+
+    CrcGenerateTable();
+
+    if (res == SZ_OK)
+    {
+        res = SzArEx_Open(&db, &lookStream.vt, &allocImp, &allocTempImp);
+    }
+
+    temp = nullptr;
+    tempSize = 0;
+
+    blockIndex = 0xFFFFFFFF;
+    outBuffer = nullptr;
+    outBufferSize = 0;
+
+    val = 0;
+    max_percent = 90;
 }
 
 Archive::~Archive()
 {
- #ifdef _WIN32
- FreeResource(hGlobal); // done with data
- #endif
+#ifdef _WIN32
+    FreeResource(hGlobal); // done with data
+#endif
 
- SzArEx_Free(&db, &allocImp);
+    SzArEx_Free(&db, &allocImp);
 
- if(lookStream.buf!=nullptr)
- {
-  ISzAlloc_Free(&allocImp, lookStream.buf);
- }
+    if (lookStream.buf != nullptr)
+    {
+        ISzAlloc_Free(&allocImp, lookStream.buf);
+    }
 
- SzFree(nullptr, temp);
+    SzFree(nullptr, temp);
 }
 
-void Archive::Print(const char *s)
+void Archive::Print(const char* s)
 {
- #ifndef GUI
- fputs(s, stdout);
- #else
- Log::instance().trace("(archive) "+string(s));
- #endif
+#ifndef GUI
+    fputs(s, stdout);
+#else
+    Log::instance().trace("(archive) " + string(s));
+#endif
 }
 
 
-int Archive::Buf_EnsureSize(CBuf *dest, size_t size)
+int Archive::Buf_EnsureSize(CBuf* dest, size_t size)
 {
     if (dest->size >= size)
         return 1;
@@ -161,7 +161,7 @@ int Archive::Buf_EnsureSize(CBuf *dest, size_t size)
 #define _UTF8_HEAD(n, val) ((Byte)(_UTF8_START(n) + (val >> (6 * (n)))))
 #define _UTF8_CHAR(n, val) ((Byte)(0x80 + (((val) >> (6 * (n))) & 0x3F)))
 
-size_t Archive::Utf16_To_Utf8_Calc(const UInt16 *src, const UInt16 *srcLim)
+size_t Archive::Utf16_To_Utf8_Calc(const UInt16* src, const UInt16* srcLim)
 {
     size_t size = 0;
     for (;;)
@@ -197,7 +197,7 @@ size_t Archive::Utf16_To_Utf8_Calc(const UInt16 *src, const UInt16 *srcLim)
     }
 }
 
-Byte *Archive::Utf16_To_Utf8(Byte *dest, const UInt16 *src, const UInt16 *srcLim)
+Byte* Archive::Utf16_To_Utf8(Byte* dest, const UInt16* src, const UInt16* srcLim)
 {
     for (;;)
     {
@@ -244,7 +244,7 @@ Byte *Archive::Utf16_To_Utf8(Byte *dest, const UInt16 *src, const UInt16 *srcLim
     }
 }
 
-SRes Archive::Utf16_To_Utf8Buf(CBuf *dest, const UInt16 *src, size_t srcLen)
+SRes Archive::Utf16_To_Utf8Buf(CBuf* dest, const UInt16* src, size_t srcLen)
 {
     size_t destLen = Utf16_To_Utf8_Calc(src, src + srcLen);
     destLen += 1;
@@ -256,7 +256,7 @@ SRes Archive::Utf16_To_Utf8Buf(CBuf *dest, const UInt16 *src, size_t srcLen)
 
 #endif
 
-SRes Archive::Utf16_To_Char(CBuf *buf, const UInt16 *s
+SRes Archive::Utf16_To_Char(CBuf* buf, const UInt16* s
 #ifndef _USE_UTF8
     , UINT codePage
 #endif
@@ -280,7 +280,7 @@ SRes Archive::Utf16_To_Char(CBuf *buf, const UInt16 *s
                 char defaultChar = '_';
                 BOOL defUsed;
                 unsigned numChars = 0;
-                numChars = static_cast<unsigned int>(WideCharToMultiByte(codePage, 0, reinterpret_cast<LPCWSTR>(s), static_cast<int>(len), reinterpret_cast<char *>(buf->data), static_cast<int>(size), &defaultChar, &defUsed));
+                numChars = static_cast<unsigned int>(WideCharToMultiByte(codePage, 0, reinterpret_cast<LPCWSTR>(s), static_cast<int>(len), reinterpret_cast<char*>(buf->data), static_cast<int>(size), &defaultChar, &defUsed));
                 if (numChars == 0 || numChars >= size)
                     return SZ_ERROR_FAIL;
                 buf->data[numChars] = 0;
@@ -295,7 +295,7 @@ SRes Archive::Utf16_To_Char(CBuf *buf, const UInt16 *s
 
 
 
-WRes Archive::MyCreateDir(const UInt16 *name)
+WRes Archive::MyCreateDir(const UInt16* name)
 {
 #ifdef USE_WINDOWS_FILE
 
@@ -311,14 +311,14 @@ WRes Archive::MyCreateDir(const UInt16 *name)
     SRes __result__ = Utf16_To_Char(&buf, name MY_FILE_CODE_PAGE_PARAM);
     if (__result__ != 0)
     {
-     return static_cast<WRes>(__result__);
+        return static_cast<WRes>(__result__);
     }
 
     res = static_cast<WRes>(
 #ifdef _WIN32
-        _mkdir(reinterpret_cast<const char *>(buf.data))
+        _mkdir(reinterpret_cast<const char*>(buf.data))
 #else
-        mkdir(reinterpret_cast<const char *>(buf.data), 0777)
+        mkdir(reinterpret_cast<const char*>(buf.data), 0777)
 #endif
         == 0 ? 0 : errno);
     Buf_Free(&buf, &g_Alloc);
@@ -328,7 +328,7 @@ WRes Archive::MyCreateDir(const UInt16 *name)
 #endif
 }
 
-WRes Archive::OutFile_OpenUtf16(CSzFile *p, const UInt16 *name)
+WRes Archive::OutFile_OpenUtf16(CSzFile* p, const UInt16* name)
 {
 #ifdef USE_WINDOWS_FILE
     return OutFile_OpenW(p, (LPCWSTR)name);
@@ -340,18 +340,18 @@ WRes Archive::OutFile_OpenUtf16(CSzFile *p, const UInt16 *name)
     SRes __result__ = Utf16_To_Char(&buf, name MY_FILE_CODE_PAGE_PARAM);
     if (__result__ != 0)
     {
-     return static_cast<WRes>(__result__);
+        return static_cast<WRes>(__result__);
     }
 
 
-    res = OutFile_Open(p, reinterpret_cast<const char *>(buf.data));
+    res = OutFile_Open(p, reinterpret_cast<const char*>(buf.data));
     Buf_Free(&buf, &g_Alloc);
     return res;
 #endif
 }
 
 
-SRes Archive::PrintString(const UInt16 *s)
+SRes Archive::PrintString(const UInt16* s)
 {
     CBuf buf;
     SRes res;
@@ -363,13 +363,13 @@ SRes Archive::PrintString(const UInt16 *s)
     );
     if (res == SZ_OK)
     {
-     Print(reinterpret_cast<const char *>(buf.data));
+        Print(reinterpret_cast<const char*>(buf.data));
     }
     Buf_Free(&buf, &g_Alloc);
     return res;
 }
 
-void Archive::UInt64ToStr(UInt64 value, char *s, int numDigits)
+void Archive::UInt64ToStr(UInt64 value, char* s, int numDigits)
 {
     char temp[32];
     int pos = 0;
@@ -388,7 +388,7 @@ void Archive::UInt64ToStr(UInt64 value, char *s, int numDigits)
     *s = '\0';
 }
 
-char *Archive::UIntToStr(char *s, unsigned value, int numDigits)
+char* Archive::UIntToStr(char* s, unsigned value, int numDigits)
 {
     char temp[16];
     int pos = 0;
@@ -406,7 +406,7 @@ char *Archive::UIntToStr(char *s, unsigned value, int numDigits)
     return s;
 }
 
-void Archive::UIntToStr_2(char *s, unsigned value)
+void Archive::UIntToStr_2(char* s, unsigned value)
 {
     s[0] = static_cast<char>('0' + (value / 10));
     s[1] = static_cast<char>('0' + (value % 10));
@@ -416,7 +416,7 @@ void Archive::UIntToStr_2(char *s, unsigned value)
 #define PERIOD_100 (PERIOD_4 * 25 - 1)
 #define PERIOD_400 (PERIOD_100 * 4 + 1)
 
-void Archive::ConvertFileTimeToString(const CNtfsFileTime *nt, char *s)
+void Archive::ConvertFileTimeToString(const CNtfsFileTime* nt, char* s)
 {
     unsigned year, mon, hour, min, sec;
     Byte ms[] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
@@ -459,22 +459,22 @@ void Archive::PrintLF()
     Print("\n");
 }
 
-void Archive::PrintError(const char *s)
+void Archive::PrintError(const char* s)
 {
- Print("\nERROR: ");
- Print(s);
- PrintLF();
+    Print("\nERROR: ");
+    Print(s);
+    PrintLF();
 
- string s1 = s;
- last_error = wstring(s1.begin(), s1.end());
+    string s1 = s;
+    last_error = wstring(s1.begin(), s1.end());
 }
 
 wstring Archive::getLastError()
 {
- return last_error;
+    return last_error;
 }
 
-void Archive::GetAttribString(UInt32 wa, Bool isDir, char *s)
+void Archive::GetAttribString(UInt32 wa, Bool isDir, char* s)
 {
 #ifdef USE_WINDOWS_FILE
     s[0] = (char)(((wa & FILE_ATTRIBUTE_DIRECTORY) != 0 || isDir) ? 'D' : '.');
@@ -490,84 +490,84 @@ void Archive::GetAttribString(UInt32 wa, Bool isDir, char *s)
 }
 
 
-WRes Archive::File_Read1(CSzFile1 *p, void *data, size_t *size)
+WRes Archive::File_Read1(CSzFile1* p, void* data, size_t* size)
 {
-  size_t originalSize = *size;
-  if (originalSize == 0)
-    return 0;
+    size_t originalSize = *size;
+    if (originalSize == 0)
+        return 0;
 
-  memcpy(data,p->pData+p->Position,originalSize);
-  p->Position = p->Position + originalSize;
-  *size = originalSize;
-  //*size = fread(data, 1, originalSize, p->file);
+    memcpy(data, p->pData + p->Position, originalSize);
+    p->Position = p->Position + originalSize;
+    *size = originalSize;
+    //*size = fread(data, 1, originalSize, p->file);
 
-  if (*size == originalSize)
-    return 0;
+    if (*size == originalSize)
+        return 0;
 
-  //return ferror(p->file);
-  return 1;
+    //return ferror(p->file);
+    return 1;
 }
 
-SRes Archive::FileInStream_Read1(ISeekInStream *pp, void *buf, size_t *size)
+SRes Archive::FileInStream_Read1(ISeekInStream* pp, void* buf, size_t* size)
 {
- char *p0 = reinterpret_cast<char *>((pp)  - MY_offsetof(CFileInStream1, vt));
+    char* p0 = reinterpret_cast<char*>((pp)-MY_offsetof(CFileInStream1, vt));
 
- CFileInStream1 *p = reinterpret_cast<CFileInStream1 *>(p0);
+    CFileInStream1* p = reinterpret_cast<CFileInStream1*>(p0);
 
- //CFileInStream1 *p = CONTAINER_FROM_VTBL(pp, CFileInStream1, vt);
+    //CFileInStream1 *p = CONTAINER_FROM_VTBL(pp, CFileInStream1, vt);
 
- return (File_Read1(&p->file, buf, size) == 0) ? SZ_OK : SZ_ERROR_READ;
+    return (File_Read1(&p->file, buf, size) == 0) ? SZ_OK : SZ_ERROR_READ;
 }
 
 
-WRes Archive::File_Seek1(CSzFile1 *p, Int64 *pos, ESzSeek origin)
+WRes Archive::File_Seek1(CSzFile1* p, Int64* pos, ESzSeek origin)
 {
-  int moveMethod;
-  WRes res=0;
+    int moveMethod;
+    WRes res = 0;
 
-  switch (origin)
-  {
+    switch (origin)
+    {
     case SZ_SEEK_SET:
-                      moveMethod = SEEK_SET;
-                      p->Position = *pos;
-                      break;
+        moveMethod = SEEK_SET;
+        p->Position = *pos;
+        break;
     case SZ_SEEK_CUR:
-                      moveMethod = SEEK_CUR;
-                      p->Position = p->Position + *pos;
-                      *pos = p->Position;
-                      break;
+        moveMethod = SEEK_CUR;
+        p->Position = p->Position + *pos;
+        *pos = p->Position;
+        break;
 
     case SZ_SEEK_END:
-                      moveMethod = SEEK_END;
-                      p->Position = p->Length;
-                      *pos = p->Position;
+        moveMethod = SEEK_END;
+        p->Position = p->Length;
+        *pos = p->Position;
 
-                      break;
+        break;
     default: res = 1;
-  }
+    }
 
 
 
-  //res = fseek(p->file, (long)*pos, moveMethod);
-  //*pos = ftell(p->file);
+    //res = fseek(p->file, (long)*pos, moveMethod);
+    //*pos = ftell(p->file);
 
 
-  return res;
+    return res;
 }
-SRes Archive::FileInStream_Seek1(ISeekInStream *pp, Int64 *pos, ESzSeek origin)
+SRes Archive::FileInStream_Seek1(ISeekInStream* pp, Int64* pos, ESzSeek origin)
 {
-  char *p0 = reinterpret_cast<char *>((pp)  - MY_offsetof(CFileInStream1, vt));
+    char* p0 = reinterpret_cast<char*>((pp)-MY_offsetof(CFileInStream1, vt));
 
-  CFileInStream1 *p = reinterpret_cast<CFileInStream1 *>(p0);
+    CFileInStream1* p = reinterpret_cast<CFileInStream1*>(p0);
 
-  //CFileInStream1 *p = CONTAINER_FROM_VTBL(pp, CFileInStream1, vt);
-  return static_cast<SRes>(File_Seek1(&p->file, pos, origin));
+    //CFileInStream1 *p = CONTAINER_FROM_VTBL(pp, CFileInStream1, vt);
+    return static_cast<SRes>(File_Seek1(&p->file, pos, origin));
 }
 
-void Archive::FileInStream_CreateVTable1(CFileInStream1 *p)
+void Archive::FileInStream_CreateVTable1(CFileInStream1* p)
 {
-  p->vt.Read = FileInStream_Read1;
-  p->vt.Seek = FileInStream_Seek1;
+    p->vt.Read = FileInStream_Read1;
+    p->vt.Seek = FileInStream_Seek1;
 }
 
 
@@ -578,389 +578,389 @@ void Archive::FileInStream_CreateVTable1(CFileInStream1 *p)
   while (i != 0) { i--; *s++ = static_cast<char>(temp[i]); } \
   *s = 0;
 
-void Archive::ConvertUInt32ToString(UInt32 val, char *s)
+void Archive::ConvertUInt32ToString(UInt32 val, char* s)
 {
- CONVERT_INT_TO_STR(char, 16);
+    CONVERT_INT_TO_STR(char, 16);
 }
 
-void Archive::ConvertUInt64ToString(UInt64 val, char *s)
+void Archive::ConvertUInt64ToString(UInt64 val, char* s)
 {
-  if (val <= static_cast<UInt32>(0xFFFFFFFF))
-  {
-    ConvertUInt32ToString(static_cast<UInt32>(val), s);
-    return;
-  }
-  CONVERT_INT_TO_STR(char, 24);
+    if (val <= static_cast<UInt32>(0xFFFFFFFF))
+    {
+        ConvertUInt32ToString(static_cast<UInt32>(val), s);
+        return;
+    }
+    CONVERT_INT_TO_STR(char, 24);
 }
 
 
-u16string Archive::getFileName(const UInt32 &i, UInt16 *&temp, size_t &tempSize)
+u16string Archive::getFileName(const UInt32& i, UInt16*& temp, size_t& tempSize)
 {
- u16string file_name;
- size_t len = SzArEx_GetFileNameUtf16(&db, i, nullptr);
+    u16string file_name;
+    size_t len = SzArEx_GetFileNameUtf16(&db, i, nullptr);
 
- if (len > tempSize)
+    if (len > tempSize)
     {
         SzFree(nullptr, temp);
         tempSize = len;
-        temp = reinterpret_cast<UInt16 *>(SzAlloc(nullptr, tempSize * sizeof(temp[0])));
-        if (temp==nullptr)
+        temp = reinterpret_cast<UInt16*>(SzAlloc(nullptr, tempSize * sizeof(temp[0])));
+        if (temp == nullptr)
         {
-         res = SZ_ERROR_MEM;
+            res = SZ_ERROR_MEM;
         }
 
     }
 
- if(res != SZ_ERROR_MEM)
- {
-  unsigned long len1 = SzArEx_GetFileNameUtf16(&db, i, temp);
+    if (res != SZ_ERROR_MEM)
+    {
+        size_t len1 = SzArEx_GetFileNameUtf16(&db, i, temp);
 
-  file_name = u16string(reinterpret_cast<char16_t *>(temp),len1);
- }
+        file_name = u16string(reinterpret_cast<char16_t*>(temp), len1);
+    }
 
- return file_name;
+    return file_name;
 }
 
-void Archive::printPercent(const size_t &processedSize)
+void Archive::printPercent(const size_t& processedSize)
 {
-//Print percent
- char s[32];
- unsigned size;
- char c = '%';
+    //Print percent
+    char s[32];
+    unsigned size;
+    char c = '%';
 
- if (Total != 0)
- {
-  Completed += processedSize;
-  val = Completed * max_percent / Total;
- }
- ConvertUInt64ToString(val, s);
- size = static_cast<unsigned>(strlen(s));
- s[size++] = c;
- s[size] = 0;
+    if (Total != 0)
+    {
+        Completed += processedSize;
+        val = Completed * max_percent / Total;
+    }
+    ConvertUInt64ToString(val, s);
+    size = static_cast<unsigned>(strlen(s));
+    s[size++] = c;
+    s[size] = 0;
 
- Print(" (");
- Print(s);
- Print(")");
+    Print(" (");
+    Print(s);
+    Print(")");
 
 }
 
 
 UInt64 Archive::getPercent()
 {
- return val;
+    return val;
 }
 
 UInt64 Archive::getMaxPercent()
 {
- return max_percent;
+    return max_percent;
 }
 
-SRes Archive::fileList(std::list<std::wstring> &file_list)
+SRes Archive::fileList(std::list<std::wstring>& file_list)
 {
- Print("\n7z Decoder " MY_VERSION_CPU1 " : " MY_COPYRIGHT_DATE1 "\n\n");
+    Print("\n7z Decoder " MY_VERSION_CPU1 " : " MY_COPYRIGHT_DATE1 "\n\n");
 
- for(UInt32 i = 0; i < db.NumFiles; i++)
- {
-  unsigned isDir = SzArEx_IsDir(&db, i);
-
-  u16string file_name = getFileName(i, temp, tempSize);
-
-  if(file_name.empty()==true) break;
-
-  char attr[8], s[32], t[32];
-  UInt64 fileSize;
-
-  GetAttribString(SzBitWithVals_Check(&db.Attribs, i) ? db.Attribs.Vals[i] : 0, static_cast<bool>(isDir), attr);
-
-  fileSize = SzArEx_GetFileSize(&db, i);
-  UInt64ToStr(fileSize, s, 10);
-
-  if (SzBitWithVals_Check(&db.MTime, i))
-  {
-      ConvertFileTimeToString(&db.MTime.Vals[i], t);
-  }
-  else
-  {
-      size_t j;
-      for (j = 0; j < 19; j++)
-          t[j] = ' ';
-      t[j] = '\0';
-  }
-
-  Print(t);
-  Print(" ");
-  Print(attr);
-  Print(" ");
-
-  Print(s);
-
-
-  Print("  ");
-  res = PrintString(temp);
-
-  if (res != SZ_OK)
-      break;
-
-
-  file_list.push_back(wstring(file_name.begin(),file_name.end()));
-
-
-  if (isDir)
-      Print("/");
-  PrintLF();
-  continue;
-
-  }//end for (i = 0; i < db.NumFiles; i++)
-
-
- return finish();
-}
-
-
-
-void Archive::calcTotal(const std::list<std::wstring> &files, const std::list<std::wstring> &paths)
-{
- Print("\n7z Decoder " MY_VERSION_CPU1 " : " MY_COPYRIGHT_DATE1 "\n\n");
-
- this->file_list = files;
- this->path_list = paths;
-
-//Calculation of the size of the unpacked files
- for (UInt32 i = 0; i < db.NumFiles; i++)
-  {
-   UInt64 fileSize;
-   fileSize = SzArEx_GetFileSize(&db, i);
-
-   u16string file_name = getFileName(i, temp, tempSize);
-
-   if(file_name.empty()==true) break;
-
-   //We look for in the list
-    wstring  file_name1 = wstring(file_name.begin(), file_name.end());
-   if(std::find(file_list.begin(), file_list.end(), file_name1) != file_list.end())
-   {
-    importantTotalUnpacked += fileSize;
-   }
-
-  }
-
- Total = importantTotalUnpacked;	 //the size of the unpacked archive
-
-
-/*
-  if you need cache, use these 3 variables.
-  if you use external function, you can make these variable as static.
- */
- blockIndex = 0xFFFFFFFF; /* it can have any value before first call (if outBuffer = 0) */
- outBuffer = nullptr; /* it must be 0 before first call for each new archive. */
- outBufferSize = 0;  /* it can have any value before first call (if outBuffer = 0) */
-
- return;
-}
-
-
-
-SRes Archive::extractionFile(const UInt32 &i)
-{
- size_t offset = 0;
- size_t outSizeProcessed = 0;
-
- unsigned isDir = SzArEx_IsDir(&db, i);
-
- u16string file_name = getFileName(i, temp, tempSize);
-
- if(file_name.empty()==true)
- {
-  return res;
- }
-
- //The file which needs to be derived is found
- bool extract=false;
- unsigned int n=0;
- u16string source1;
-
- //We look for in the list
- wstring  file_name1 = wstring(file_name.begin(), file_name.end());
-
- for (std::list<wstring>::iterator it=file_list.begin(); it != file_list.end(); ++it)
-   {
-    if(*it==file_name1)
+    for (UInt32 i = 0; i < db.NumFiles; i++)
     {
-     extract=true;
+        unsigned isDir = SzArEx_IsDir(&db, i);
 
-     break;
-    }
-    n++;
-   }
+        u16string file_name = getFileName(i, temp, tempSize);
 
+        if (file_name.empty() == true) break;
 
- if(extract==true)
-   {
-       Print("Extracting ");
-       res = PrintString(temp);
-       if (res != SZ_OK)
-       {
-           return res;
-       }
+        char attr[8], s[32], t[32];
+        UInt64 fileSize;
 
-       if (isDir)
-       {
-           Print("/");
-       }
-       else
-       {
-           res = SzArEx_Extract(&db, &lookStream.vt, i,
-                                &blockIndex, &outBuffer, &outBufferSize,
-                                &offset, &outSizeProcessed,
-                                &allocImp, &allocTempImp);
+        GetAttribString(SzBitWithVals_Check(&db.Attribs, i) ? db.Attribs.Vals[i] : 0, static_cast<bool>(isDir), attr);
 
-           if (res != SZ_OK)
-           {
-               return res;
-           }
-       }
+        fileSize = SzArEx_GetFileSize(&db, i);
+        UInt64ToStr(fileSize, s, 10);
 
-       if(outSizeProcessed==0) return res;
+        if (SzBitWithVals_Check(&db.MTime, i))
+        {
+            ConvertFileTimeToString(&db.MTime.Vals[i], t);
+        }
+        else
+        {
+            size_t j;
+            for (j = 0; j < 19; j++)
+                t[j] = ' ';
+            t[j] = '\0';
+        }
 
-       CSzFile outFile;
-       size_t processedSize;
-       size_t j;
-       const UInt16 *destPath;
-       std::u16string  destination1;
+        Print(t);
+        Print(" ");
+        Print(attr);
+        Print(" ");
+
+        Print(s);
 
 
-       //To take file name from a path
+        Print("  ");
+        res = PrintString(temp);
 
-       std::u16string file;
-
-       file = file_name.substr(file_name.rfind('/')+1);
-
-       std::u16string str;
+        if (res != SZ_OK)
+            break;
 
 
-       std::list<wstring>::iterator it1 = path_list.begin();
-       std::advance(it1,n);
-       str = std::u16string((*it1).begin(), (*it1).end());
-
-       str.resize(str.length()+1);
-       str.back() = '/';
-
-       destination1 = str + file;
+        file_list.push_back(wstring(file_name.begin(), file_name.end()));
 
 
-       //To create folders
-       for (j = 0; j < destination1.length(); j++)
-       {
-           if ((destination1.at(j) == '/')||
-                   (destination1.at(j) == '\\'))
-           {
-               destination1.at(j) = 0;
-               MyCreateDir(reinterpret_cast<const UInt16 *>(destination1.c_str()));
-               destination1.at(j) = CHAR_PATH_SEPARATOR;
-           }
-       }
-
-
-
-
-       destPath =  reinterpret_cast<const UInt16 *>(destination1.c_str());
-
-
-       if ((isDir)&&(path_list.empty()==true))
-       {
-        MyCreateDir(destPath);
+        if (isDir)
+            Print("/");
         PrintLF();
+        continue;
+
+    }//end for (i = 0; i < db.NumFiles; i++)
+
+
+    return finish();
+}
+
+
+
+void Archive::calcTotal(const std::list<std::wstring>& files, const std::list<std::wstring>& paths)
+{
+    Print("\n7z Decoder " MY_VERSION_CPU1 " : " MY_COPYRIGHT_DATE1 "\n\n");
+
+    this->file_list = files;
+    this->path_list = paths;
+
+    //Calculation of the size of the unpacked files
+    for (UInt32 i = 0; i < db.NumFiles; i++)
+    {
+        UInt64 fileSize;
+        fileSize = SzArEx_GetFileSize(&db, i);
+
+        u16string file_name = getFileName(i, temp, tempSize);
+
+        if (file_name.empty() == true) break;
+
+        //We look for in the list
+        wstring  file_name1 = wstring(file_name.begin(), file_name.end());
+        if (std::find(file_list.begin(), file_list.end(), file_name1) != file_list.end())
+        {
+            importantTotalUnpacked += fileSize;
+        }
+
+    }
+
+    Total = importantTotalUnpacked;	 //the size of the unpacked archive
+
+
+   /*
+     if you need cache, use these 3 variables.
+     if you use external function, you can make these variable as static.
+    */
+    blockIndex = 0xFFFFFFFF; /* it can have any value before first call (if outBuffer = 0) */
+    outBuffer = nullptr; /* it must be 0 before first call for each new archive. */
+    outBufferSize = 0;  /* it can have any value before first call (if outBuffer = 0) */
+
+    return;
+}
+
+
+
+SRes Archive::extractionFile(const UInt32& i)
+{
+    size_t offset = 0;
+    size_t outSizeProcessed = 0;
+
+    unsigned isDir = SzArEx_IsDir(&db, i);
+
+    u16string file_name = getFileName(i, temp, tempSize);
+
+    if (file_name.empty() == true)
+    {
         return res;
-       }
-       else
-       {
-        if(OutFile_OpenUtf16(&outFile, destPath))
-         {
-          PrintString(destPath);
-          PrintError("can not open output file");
-          res = SZ_ERROR_FAIL;
-          return res;
-         }
-       }
+    }
 
-       processedSize = outSizeProcessed;
+    //The file which needs to be derived is found
+    bool extract = false;
+    unsigned int n = 0;
+    u16string source1;
 
-       printPercent(processedSize);
+    //We look for in the list
+    wstring  file_name1 = wstring(file_name.begin(), file_name.end());
 
-       //Saving of the unpacked file
-       if((File_Write(&outFile, outBuffer + offset, &processedSize) != 0) || (processedSize != outSizeProcessed))
-       {
-        PrintError("can not write output file");
-        res = SZ_ERROR_FAIL;
-        return res;
-       }
+    for (std::list<wstring>::iterator it = file_list.begin(); it != file_list.end(); ++it)
+    {
+        if (*it == file_name1)
+        {
+            extract = true;
+
+            break;
+        }
+        n++;
+    }
 
 
-       if(File_Close(&outFile))
-       {
-        PrintError("can not close output file");
-        res = SZ_ERROR_FAIL;
-        return res;
-       }
+    if (extract == true)
+    {
+        Print("Extracting ");
+        res = PrintString(temp);
+        if (res != SZ_OK)
+        {
+            return res;
+        }
+
+        if (isDir)
+        {
+            Print("/");
+        }
+        else
+        {
+            res = SzArEx_Extract(&db, &lookStream.vt, i,
+                &blockIndex, &outBuffer, &outBufferSize,
+                &offset, &outSizeProcessed,
+                &allocImp, &allocTempImp);
+
+            if (res != SZ_OK)
+            {
+                return res;
+            }
+        }
+
+        if (outSizeProcessed == 0) return res;
+
+        CSzFile outFile;
+        size_t processedSize;
+        size_t j;
+        const UInt16* destPath;
+        std::u16string  destination1;
 
 
-       PrintLF();
+        //To take file name from a path
 
-   }
+        std::u16string file;
 
- return res;
+        file = file_name.substr(file_name.rfind('/') + 1);
+
+        std::u16string str;
+
+
+        std::list<wstring>::iterator it1 = path_list.begin();
+        std::advance(it1, n);
+        str = std::u16string((*it1).begin(), (*it1).end());
+
+        str.resize(str.length() + 1);
+        str.back() = '/';
+
+        destination1 = str + file;
+
+
+        //To create folders
+        for (j = 0; j < destination1.length(); j++)
+        {
+            if ((destination1.at(j) == '/') ||
+                (destination1.at(j) == '\\'))
+            {
+                destination1.at(j) = 0;
+                MyCreateDir(reinterpret_cast<const UInt16*>(destination1.c_str()));
+                destination1.at(j) = CHAR_PATH_SEPARATOR;
+            }
+        }
+
+
+
+
+        destPath = reinterpret_cast<const UInt16*>(destination1.c_str());
+
+
+        if ((isDir) && (path_list.empty() == true))
+        {
+            MyCreateDir(destPath);
+            PrintLF();
+            return res;
+        }
+        else
+        {
+            if (OutFile_OpenUtf16(&outFile, destPath))
+            {
+                PrintString(destPath);
+                PrintError("can not open output file");
+                res = SZ_ERROR_FAIL;
+                return res;
+            }
+        }
+
+        processedSize = outSizeProcessed;
+
+        printPercent(processedSize);
+
+        //Saving of the unpacked file
+        if ((File_Write(&outFile, outBuffer + offset, &processedSize) != 0) || (processedSize != outSizeProcessed))
+        {
+            PrintError("can not write output file");
+            res = SZ_ERROR_FAIL;
+            return res;
+        }
+
+
+        if (File_Close(&outFile))
+        {
+            PrintError("can not close output file");
+            res = SZ_ERROR_FAIL;
+            return res;
+        }
+
+
+        PrintLF();
+
+    }
+
+    return res;
 }
 
 bool Archive::is_finish()
 {
- bool ret = false;
- if((Total>0)&&(Completed == Total))
- {
-  ret = true;
- }
+    bool ret = false;
+    if ((Total > 0) && (Completed == Total))
+    {
+        ret = true;
+    }
 
- return ret;
+    return ret;
 }
 
 SRes Archive::finish()
 {
- ISzAlloc_Free(&allocImp, outBuffer);
+    ISzAlloc_Free(&allocImp, outBuffer);
 
- if(res == SZ_OK)
- {
-  Print("\nEverything is Ok\n");
+    if (res == SZ_OK)
+    {
+        Print("\nEverything is Ok\n");
 
-  return res;
- }
+        return res;
+    }
 
- if (res == SZ_ERROR_UNSUPPORTED)
-       PrintError("decoder doesn't support this archive");
- else if (res == SZ_ERROR_MEM)
-       PrintError("can not allocate memory");
- else if (res == SZ_ERROR_CRC)
-       PrintError("CRC error");
- else
- {
-  char s[32];
-  UInt64ToStr(static_cast<UInt64>(res), s, 0);
-  PrintError(s);
- }
+    if (res == SZ_ERROR_UNSUPPORTED)
+        PrintError("decoder doesn't support this archive");
+    else if (res == SZ_ERROR_MEM)
+        PrintError("can not allocate memory");
+    else if (res == SZ_ERROR_CRC)
+        PrintError("CRC error");
+    else
+    {
+        char s[32];
+        UInt64ToStr(static_cast<UInt64>(res), s, 0);
+        PrintError(s);
+    }
 
- val =  max_percent;
+    val = max_percent;
 
- return res;
+    return res;
 }
 
 UInt32 Archive::getNumFiles()
 {
- return db.NumFiles;
+    return db.NumFiles;
 }
 
 
 
-string Archive::ConvertToString(const wstring &str)
+string Archive::ConvertToString(const wstring& str)
 {
-    const UInt16 *s = reinterpret_cast<const UInt16*>(str.c_str());
+    const UInt16* s = reinterpret_cast<const UInt16*>(str.c_str());
 
     string str1;
     CBuf buf;
@@ -973,7 +973,7 @@ string Archive::ConvertToString(const wstring &str)
     );
     if (res == SZ_OK)
     {
-     str1 = reinterpret_cast<char*>(buf.data);
+        str1 = reinterpret_cast<char*>(buf.data);
     }
     Buf_Free(&buf, &g_Alloc);
     return str1;

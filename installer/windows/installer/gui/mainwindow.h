@@ -1,23 +1,25 @@
 #pragma once
+
 #include <Windows.h>
-#include "InstallButton.h"
-#include "CloseButton.h"
-#include "MinimizeButton.h"
-#include "SettingsButton.h"
-#include "EulaButton.h"
-#include "TextItem.h"
-#include "PathControl.h"
-#include "DesktopShortcutControl.h"
-#include "FactoryResetControl.h"
-#include "EscButton.h"
+
 #include "../Installer/installer.h"
 #include "../messages.h"
+#include "CloseButton.h"
+#include "DesktopShortcutControl.h"
+#include "EscButton.h"
+#include "EulaButton.h"
+#include "FactoryResetControl.h"
+#include "InstallButton.h"
+#include "MinimizeButton.h"
+#include "PathControl.h"
+#include "SettingsButton.h"
+#include "TextItem.h"
 
 
 class MainWindow
 {
 public:
-	explicit MainWindow(bool isLegacyOS);
+	explicit MainWindow();
 	virtual ~MainWindow();
 	bool create(int windowCenterX, int windowCenterY);
 
@@ -65,7 +67,6 @@ private:
 
 	INSTALLER_CURRENT_STATE installerLastState_;
 
-    bool isLegacyOS_;
     std::wstring strInstallTitle_;
     std::wstring strInstallButtonText_;
 

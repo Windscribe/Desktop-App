@@ -21,17 +21,14 @@ Application::Application(HINSTANCE hInstance, int nCmdShow, bool isAutoUpdateMod
     hInstance_(hInstance),
     nCmdShow_(nCmdShow),
     isAutoUpdateMode_(isAutoUpdateMode),
-    isSilent_(isSilent),
-    isLegacyOS_(!IsWindows7OrGreater())
+    isSilent_(isSilent)
 {
     g_application = this;
 
     auto callback = std::bind(&Application::installerCallback, this,
                               std::placeholders::_1, std::placeholders::_2);
-    if (isLegacyOS_)
-        installer_.reset(new Downloader(callback));
-    else
-        installer_.reset(new Installer(callback));
+
+    installer_.reset(new Installer(callback));
 
     Gdiplus::GdiplusStartupInput gdiplusStartupInput;
     if (GdiplusStartup(&gdiplusToken_, &gdiplusStartupInput, nullptr) != Gdiplus::Ok)
@@ -64,7 +61,7 @@ Application::Application(HINSTANCE hInstance, int nCmdShow, bool isAutoUpdateMod
 
     imageResources_ = new ImageResources();
     fontResources_ = new FontResources();
-    mainWindow_ = new MainWindow(isLegacyOS_);
+    mainWindow_ = new MainWindow();
 }
 
 Application::~Application()
@@ -83,23 +80,19 @@ Application::~Application()
 
 bool Application::init(int windowCenterX, int windowCenterY)
 {
-    if (CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE) != S_OK)
-    {
+    if (CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE) != S_OK) {
         return false;
     }
 
-    if (gdiplusToken_ == NULL)
-    {
+    if (gdiplusToken_ == NULL) {
         return false;
     }
 
-    if (!imageResources_->init())
-    {
+    if (!imageResources_->init()) {
         return false;
     }
     
-    if (!fontResources_->init())
-    {
+    if (!fontResources_->init()) {
         return false;
     }
 

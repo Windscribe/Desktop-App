@@ -1,133 +1,115 @@
 #include "copy_and_run.h"
+
+#include <shlwapi.h>
+#include <sstream>
+
 #include "../Utils/directories_of_a_windows.h"
-#include "../Utils/redirection.h"
 #include "../Utils/logger.h"
+#include "../Utils/redirection.h"
+
+#pragma comment(lib, "Shlwapi.lib")
 
 namespace
 {
-	std::wstring intToBase32(LONG number)
-	{
-		const wchar_t *table = L"0123456789ABCDEFGHIJKLMNOPQRSTUV";
+    std::wstring intToBase32(LONG number)
+    {
+        const wchar_t* table = L"0123456789ABCDEFGHIJKLMNOPQRSTUV";
 
-		std::wstring result = L"";
-		for (int I = 0; I <= 4; I++)
-		{
-			result.insert(0, std::wstring(&table[number & 31], 1));
-			number = number >> 5;
-		}
+        std::wstring result = L"";
+        for (int I = 0; I <= 4; I++)
+        {
+            result.insert(0, std::wstring(&table[number & 31], 1));
+            number = number >> 5;
+        }
 
-		return result;
-	}
+        return result;
+    }
 
-	// Returns True if it overwrote an existing file.
-	bool generateNonRandomUniqueFilename(std::wstring path1, std::wstring &outFilename)
-	{
-		Redirection redirection;
-		long Rand, RandOrig;
-		HANDLE F;
-		bool Success;
-		std::wstring FN;
-		bool Result;
+    bool generateNonRandomUniqueFilename(std::wstring path1, std::wstring& outFilename)
+    {
+        path1 = Path::AddBackslash(path1);
 
-		Path path;
-		Directory dir;
+        long RandOrig = 0x123456;
+        long Rand = RandOrig;
 
-		path1 = path.AddBackslash(path1);
-		RandOrig = 0x123456;
-		Rand = RandOrig;
-		Success = false;
-		Result = false;
-		while (1)
-		{
-			Rand++;
-			if (Rand > 0x1FFFFFF) Rand = 0;
-			if (Rand == RandOrig)
-			{
-				//  practically impossible to go through 33 million possibilities, but check "just in case"...
-				return false;
-			}
-			FN = path1 + L"_iu" + intToBase32(Rand) + L".tmp";
-			if (dir.DirExists(FN)) continue;
-			Success = true;
-			Result = redirection.NewFileExists(FN);
+        while (true)
+        {
+            Rand++;
+            if (Rand > 0x1FFFFFF) Rand = 0;
+            if (Rand == RandOrig) {
+                //  practically impossible to go through 33 million possibilities, but check "just in case"...
+                return false;
+            }
 
-			if (Result == true)
-			{
-				F = CreateFile(FN.c_str(), GENERIC_READ | GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
-				Success = (F != INVALID_HANDLE_VALUE);
-				if (Success == true)
-				{
-					CloseHandle(F);
-				}
-			}
+            std::wstring FN = path1 + L"_iu" + intToBase32(Rand) + L".tmp";
+            if (::PathFileExists(FN.c_str()) == FALSE) {
+                outFilename = FN;
+                break;
+            }
+        }
 
-			if (Success == true)
-			{
-				break;
-			}
-		}
+        return true;
+    }
 
-		outFilename = FN;
-		return true;
-	}
+    DWORD exec(const std::wstring& filename, const std::wstring& workingDir, const std::wstring& pars)
+    {
+        std::wstring cmdLine = L"\"" + filename + L"\" " + pars;
 
-	HANDLE exec(const std::wstring &filename, const std::wstring &workingDir, const std::wstring &pars, DWORD &outProcessId)
-	{
-		std::wstring cmdLine;
-		STARTUPINFO startupInfo;
-		PROCESS_INFORMATION processInfo;
+        STARTUPINFO startupInfo;
+        ZeroMemory(&startupInfo, sizeof(startupInfo));
+        startupInfo.cb = sizeof(startupInfo);
 
-		cmdLine = L"\"" + filename + L"\" " + pars;
+        PROCESS_INFORMATION processInfo;
+        BOOL result = ::CreateProcess(nullptr, const_cast<wchar_t*>(cmdLine.c_str()), nullptr, nullptr, false, 0, nullptr,
+                                      workingDir.c_str(), &startupInfo, &processInfo);
+        if (result == FALSE) {
+            Log::instance().out("CopyAndRun::exec - CreateProcess(%s) failed (%lu)", cmdLine.c_str(), ::GetLastError());
+            return 0;
+        }
 
-		ZeroMemory(&startupInfo, sizeof(startupInfo));
-		startupInfo.cb = sizeof(startupInfo);
+        ::CloseHandle(processInfo.hThread);
+        ::CloseHandle(processInfo.hProcess);
 
-		if (CreateProcess(nullptr, const_cast<wchar_t*>(cmdLine.c_str()), nullptr, nullptr, false, 0, nullptr, workingDir.c_str(), &startupInfo, &processInfo) == false)
-		{
-			outProcessId = 0;
-			return NULL;
-		}
-
-		outProcessId = processInfo.dwProcessId;
-		CloseHandle(processInfo.hThread);
-
-		return processInfo.hProcess;
-	}
+        return processInfo.dwProcessId;
+    }
 }
 
 namespace CopyAndRun
 {
-	int runFirstPhase(const std::wstring &uninstExeFile, LPSTR lpszCmdParam)
-	{
-		DirectoriesOfAWindows dir_win;
-		std::wstring tempFile;
-		std::wstring tempWinDir = dir_win.GetTempDir();
+    int runFirstPhase(const std::wstring& uninstExeFile, LPSTR lpszCmdParam)
+    {
+        DirectoriesOfAWindows dir_win;
+        std::wstring tempFile;
+        std::wstring tempWinDir = dir_win.GetTempDir();
 
-		//{ Copy self to TEMP directory with a name like _iu14D2N.tmp. The
-		//  actual uninstallation process must be done from somewhere outside
-		//  the application directory since EXE's can't delete themselves while
-		//  they are running. }
-		if (!generateNonRandomUniqueFilename(tempWinDir, tempFile))
-		{
-			return 0;
-		}
-		if (!CopyFile(uninstExeFile.c_str(), tempFile.c_str(), false))
-		{
-			return 0;
-		}
-		// { Don't want any attribute like read-only transferred }
-		SetFileAttributes(tempFile.c_str(), FILE_ATTRIBUTE_NORMAL);
+        // Copy self to TEMP directory with a name like _iu14D2N.tmp. The
+        // actual uninstallation process must be done from somewhere outside
+        // the application directory since EXE's can't delete themselves while
+        // they are running.
+        if (!generateNonRandomUniqueFilename(tempWinDir, tempFile)) {
+            Log::instance().out("CopyAndRun::runFirstPhase generateNonRandomUniqueFilename failed");
+            return 0;
+        }
 
-		//    { Execute the copy of itself ("second phase") }
-		const int BUF_SIZE = MAX_PATH * 2;
-		wchar_t buffer[BUF_SIZE];
-		swprintf(buffer, BUF_SIZE, L"/SECONDPHASE=\"%s\" ", uninstExeFile.c_str());
-		std::string str = std::string(lpszCmdParam);
-		std::wstring str1 = std::wstring(str.begin(), str.end());
-		DWORD dwProcessId = 0;
-		Log::instance().out(L"Start process: %s", tempWinDir.c_str());
-		HANDLE processHandle = exec(tempFile, tempWinDir, std::wstring(buffer) + str1, dwProcessId);
-		CloseHandle(processHandle);
-		return dwProcessId;
-	}
+        // We should have generated a unique filename that does not exist in the target folder, 
+        // thus CopyFile should fail if the file already exists.
+        if (!CopyFile(uninstExeFile.c_str(), tempFile.c_str(), TRUE)) {
+            Log::instance().out("CopyAndRun::runFirstPhase failed to copy [%s] to [%s] (%lu)", uninstExeFile.c_str(), tempFile.c_str(), ::GetLastError());
+            return 0;
+        }
+
+        // Don't want any attribute like read-only transferred
+        ::SetFileAttributes(tempFile.c_str(), FILE_ATTRIBUTE_NORMAL);
+
+        // Execute the copy of itself ("second phase")
+        std::wstring pars;
+        {
+            std::wostringstream stream;
+            stream << L"/SECONDPHASE=\"" << uninstExeFile << L"\" " << lpszCmdParam;
+            pars = stream.str();
+        }
+
+        Log::instance().out(L"Start process: %s %s", tempFile.c_str(), pars.c_str());
+        return exec(tempFile, tempWinDir, pars);
+    }
 }

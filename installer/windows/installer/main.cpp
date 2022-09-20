@@ -5,8 +5,6 @@
 #include <algorithm>
 
 #include "gui/application.h"
-#include "../utils/applicationinfo.h"
-#include "../utils/logger.h"
 
 namespace
 {
@@ -93,10 +91,10 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
     UNREFERENCED_PARAMETER(hPrevInstance);
     SetDefaultDllDirectories(LOAD_LIBRARY_SEARCH_SYSTEM32);
 
-    if (!IsWindows8Point1OrGreater())
+    if (!IsWindows10OrGreater())
     {
         WSMessageBox(NULL, _T("Windscribe Installer"), MB_OK | MB_ICONSTOP,
-            _T("The Windscribe app can only be installed on Windows 8.1 or newer."));
+            _T("The Windscribe app can only be installed on Windows 10 or newer."));
         return 0;
     }
 
@@ -180,11 +178,8 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
         return 0;
     }
 
-    Log::instance().init(true);
-    Log::instance().out(L"Installing Windscribe version %ls", ApplicationInfo::instance().getVersion().c_str());
-    Log::instance().out(L"Command-line args: %ls", ::GetCommandLine());
-
     Application app(hInstance, nCmdShow, isUpdateMode, isSilent, noDrivers, noAutoStart, isFactoryReset, installPath);
+
     if (app.init(window_center_x, window_center_y))
         return app.exec();
     return -1;
