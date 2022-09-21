@@ -1,49 +1,36 @@
-#include "loginrequest.h"
+#include "sessionrequest.h"
 
 #include <QJsonDocument>
 
 #include "utils/logger.h"
+#include "utils/ws_assert.h"
+#include "version/appversion.h"
 
 namespace server_api {
 
-LoginRequest::LoginRequest(QObject *parent, const QString &hostname, const QString &username, const QString &password, const QString &code2fa) :
-    BaseRequest(parent, RequestType::kPost, hostname),
-    username_(username),
-    password_(password),
-    code2fa_(code2fa)
+SessionRequest::SessionRequest(QObject *parent, const QString &hostname, const QString &authHash) : BaseRequest(parent, RequestType::kGet, hostname),
+    authHash_(authHash)
 {
 }
 
-QString LoginRequest::contentTypeHeader() const
-{
-    return "Content-type: text/html; charset=utf-8";
-}
-
-QByteArray LoginRequest::postData() const
-{
-    QUrlQuery postData;
-    postData.addQueryItem("username", QUrl::toPercentEncoding(username_));
-    postData.addQueryItem("password", QUrl::toPercentEncoding(password_));
-    if (!code2fa_.isEmpty())
-        postData.addQueryItem("2fa_code", QUrl::toPercentEncoding(code2fa_));
-    postData.addQueryItem("session_type_id", "3");
-    addAuthQueryItems(postData);
-    addPlatformQueryItems(postData);
-    return postData.toString(QUrl::FullyEncoded).toUtf8();
-}
-
-QUrl LoginRequest::url() const
+QUrl SessionRequest::url() const
 {
     QUrl url("https://" + hostname_ + "/Session");
+
+    QUrlQuery query;
+    query.addQueryItem("session_type_id", "3");
+    addAuthQueryItems(query, authHash_);
+    addPlatformQueryItems(query);
+    url.setQuery(query);
     return url;
 }
 
-QString LoginRequest::name() const
+QString SessionRequest::name() const
 {
-    return "Login";
+    return "Session";
 }
 
-void LoginRequest::handle(const QByteArray &arr)
+void SessionRequest::handle(const QByteArray &arr)
 {
     QJsonParseError errCode;
     QJsonDocument doc = QJsonDocument::fromJson(arr, &errCode);
@@ -56,6 +43,7 @@ void LoginRequest::handle(const QByteArray &arr)
     QJsonObject jsonObject = doc.object();
     if (jsonObject.contains("errorCode")) {
         int errorCode = jsonObject["errorCode"].toInt();
+
         // 701 - will be returned if the supplied session_auth_hash is invalid. Any authenticated endpoint can
         //       throw this error.  This can happen if the account gets disabled, or they rotate their session
         //       secret (pressed Delete Sessions button in the My Account section).  We should terminate the
@@ -72,38 +60,30 @@ void LoginRequest::handle(const QByteArray &arr)
         if (errorCode == 701) {
             qCDebug(LOG_SERVER_API) << "API request " + name() + " return session auth hash invalid";
             setRetCode(SERVER_RETURN_SESSION_INVALID);
-        }
-        else if (errorCode == 702) {
+        } else if (errorCode == 702) {
+            // According to the server API docs, we should not get here for the session call.
+            WS_ASSERT(false);
+
             qCDebug(LOG_SERVER_API) << "API request " + name() + " return bad username";
             setRetCode(SERVER_RETURN_BAD_USERNAME);
         } else if (errorCode == 703 || errorCode == 706) {
-            errorMessage_ = jsonObject["errorMessage"].toString();
+            // According to the server API docs, we should not get here for the session call.
+            WS_ASSERT(false);
             qCDebug(LOG_SERVER_API) << "API request " + name() + " return account disabled or banned";
             setRetCode(SERVER_RETURN_ACCOUNT_DISABLED);
         } else {
-            if (errorCode == 1340) {
-                qCDebug(LOG_SERVER_API) << "API request " + name() + " return missing 2FA code";
-                setRetCode(SERVER_RETURN_MISSING_CODE2FA);
-            } else if (errorCode == 1341) {
-                qCDebug(LOG_SERVER_API) << "API request " + name() + " return invalid 2FA code";
-                setRetCode(SERVER_RETURN_BAD_CODE2FA);
-            } else  {
-                qCDebug(LOG_SERVER_API) << "API request " + name() + " return error";
-                setRetCode(SERVER_RETURN_NETWORK_ERROR);
-            }
+            qCDebug(LOG_SERVER_API) << "API request " + name() + " return error";
+            setRetCode(SERVER_RETURN_NETWORK_ERROR);
         }
         return;
     }
 
-    if (!jsonObject.contains("data")) {
+    if (!jsonObject.contains("data"))  {
         qCDebug(LOG_SERVER_API) << "API request " + name() + " incorrect json (data field not found)";
         setRetCode(SERVER_RETURN_INCORRECT_JSON);
         return;
     }
     QJsonObject jsonData =  jsonObject["data"].toObject();
-    if (jsonData.contains("session_auth_hash"))
-        authHash_ = jsonData["session_auth_hash"].toString();
-
     QString outErrorMsg;
     bool success = sessionStatus_.initFromJson(jsonData, outErrorMsg);
     if (!success) {
@@ -111,23 +91,18 @@ void LoginRequest::handle(const QByteArray &arr)
         setRetCode(SERVER_RETURN_INCORRECT_JSON);
     }
 
-    qCDebug(LOG_SERVER_API) << "API request " + name() + " successfully executed";
+    // Commented debug entry out as this request may occur every minute and we don't
+    // need to flood the log with this info.  Enabled it for staging builds to aid
+    // QA in verifying session requests are being made when they're supposed to be.
+    if (AppVersion::instance().isStaging())
+        qCDebug(LOG_SERVER_API) << "API request " + name() + " successfully executed";
+
     setRetCode(SERVER_RETURN_SUCCESS);
 }
 
-types::SessionStatus LoginRequest::sessionStatus() const
+types::SessionStatus SessionRequest::sessionStatus() const
 {
     return sessionStatus_;
-}
-
-QString LoginRequest::authHash() const
-{
-    return authHash_;
-}
-
-QString LoginRequest::errorMessage() const
-{
-    return errorMessage_;
 }
 
 } // namespace server_api {

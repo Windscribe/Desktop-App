@@ -7,14 +7,16 @@
 #include <QVector>
 #include "types/enums.h"
 
+namespace server_api {
 class ServerAPI;
+}
 
 // do set of tests after VPN tunnel is established
 class TestVPNTunnel : public QObject
 {
     Q_OBJECT
 public:
-    explicit TestVPNTunnel(QObject *parent, ServerAPI *serverAPI);
+    explicit TestVPNTunnel(QObject *parent, server_api::ServerAPI *serverAPI);
     virtual ~TestVPNTunnel();
 
 public slots:
@@ -31,7 +33,7 @@ private slots:
     void onTestsSkipped();
 
 private:
-    ServerAPI *serverAPI_;
+    server_api::ServerAPI *serverAPI_;
     bool bRunning_;
     int curTest_;
     quint64 cmdId_;

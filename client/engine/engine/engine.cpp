@@ -21,6 +21,10 @@
 #include "openvpnversioncontroller.h"
 #include "getdeviceid.h"
 #include "types/global_consts.h"
+#include "serverapi/requests/sessionrequest.h"
+#include "serverapi/requests/serverlistrequest.h"
+#include "serverapi/requests/serverconfigsrequest.h"
+#include "serverapi/requests/websessionrequest.h"
 
 // For testing merge log functionality
 //#include <QStandardPaths>
@@ -56,8 +60,6 @@ Engine::Engine(const types::EngineSettings &engineSettings) : QObject(nullptr),
     connectionManager_(nullptr),
     connectStateController_(nullptr),
     serverApiUserRole_(0),
-    serverApiManageAccountUserRole_(0),
-    serverApiAddEmailUserRole_(0),
     getMyIPController_(nullptr),
     vpnShareController_(nullptr),
     emergencyController_(nullptr),
@@ -637,27 +639,19 @@ void Engine::initPart2()
     networkAccessManager_ = new NetworkAccessManager(this);
     connect(networkAccessManager_, &NetworkAccessManager::whitelistIpsChanged, this, &Engine::onHostIPsChanged);
 
-    serverAPI_ = new ServerAPI(this, connectStateController_, networkAccessManager_);
-    connect(serverAPI_, &ServerAPI::sessionAnswer, this, &Engine::onSessionAnswer, Qt::QueuedConnection);
+    serverAPI_ = new server_api::ServerAPI(this, connectStateController_, networkAccessManager_);
     connect(serverAPI_, SIGNAL(checkUpdateAnswer(types::CheckUpdate,bool,uint)),
                         SLOT(onCheckUpdateAnswer(types::CheckUpdate,bool,uint)), Qt::QueuedConnection);
     connect(serverAPI_, SIGNAL(notificationsAnswer(SERVER_API_RET_CODE,QVector<types::Notification>,uint)),
                         SLOT(onNotificationsAnswer(SERVER_API_RET_CODE,QVector<types::Notification>,uint)));
-    connect(serverAPI_, SIGNAL(serverConfigsAnswer(SERVER_API_RET_CODE,QString,uint)), SLOT(onServerConfigsAnswer(SERVER_API_RET_CODE,QString,uint)));
     connect(serverAPI_, SIGNAL(debugLogAnswer(SERVER_API_RET_CODE,uint)), SLOT(onDebugLogAnswer(SERVER_API_RET_CODE,uint)));
-    connect(serverAPI_, SIGNAL(confirmEmailAnswer(SERVER_API_RET_CODE,uint)), SLOT(onConfirmEmailAnswer(SERVER_API_RET_CODE,uint)));
-    connect(serverAPI_, SIGNAL(webSessionAnswer(SERVER_API_RET_CODE, QString, uint)), SLOT(onWebSessionAnswer(SERVER_API_RET_CODE, QString, uint)));
     connect(serverAPI_, SIGNAL(staticIpsAnswer(SERVER_API_RET_CODE,apiinfo::StaticIps, uint)), SLOT(onStaticIpsAnswer(SERVER_API_RET_CODE,apiinfo::StaticIps, uint)), Qt::QueuedConnection);
-    connect(serverAPI_, SIGNAL(serverLocationsAnswer(SERVER_API_RET_CODE, QVector<apiinfo::Location>,QStringList, uint)),
-                        SLOT(onServerLocationsAnswer(SERVER_API_RET_CODE,QVector<apiinfo::Location>,QStringList, uint)), Qt::QueuedConnection);
     connect(serverAPI_, SIGNAL(sendUserWarning(USER_WARNING_TYPE)), SIGNAL(sendUserWarning(USER_WARNING_TYPE)));
-    connect(serverAPI_, &ServerAPI::getRobertFiltersAnswer, this, &Engine::onGetRobertFiltersAnswer);
-    connect(serverAPI_, &ServerAPI::setRobertFilterAnswer, this, &Engine::onSetRobertFilterAnswer);
+    connect(serverAPI_, &server_api::ServerAPI::getRobertFiltersAnswer, this, &Engine::onGetRobertFiltersAnswer);
+    connect(serverAPI_, &server_api::ServerAPI::setRobertFilterAnswer, this, &Engine::onSetRobertFilterAnswer);
 
     serverAPI_->setIgnoreSslErrors(engineSettings_.isIgnoreSslErrors());
     serverApiUserRole_ = serverAPI_->getAvailableUserRole();
-    serverApiManageAccountUserRole_ = serverAPI_->getAvailableUserRole();
-    serverApiAddEmailUserRole_ = serverAPI_->getAvailableUserRole();
 
     customOvpnAuthCredentialsStorage_ = new CustomOvpnAuthCredentialsStorage();
 
@@ -1032,14 +1026,19 @@ void Engine::setIgnoreSslErrorsImlp(bool bIgnoreSslErrors)
 
 void Engine::recordInstallImpl()
 {
-    serverAPI_->recordInstall(serverApiUserRole_, true);
+    server_api::BaseRequest *request = serverAPI_->recordInstall(true);
+    connect(request, &server_api::BaseRequest::finished, [this]() {
+        // nothing to do here, just delete the request object
+        QSharedPointer<server_api::BaseRequest> request(static_cast<server_api::BaseRequest *>(sender()), &QObject::deleteLater);
+    });
 }
 
 void Engine::sendConfirmEmailImpl()
 {
     if (!apiInfo_.isNull())
     {
-        serverAPI_->confirmEmail(serverApiUserRole_, apiInfo_->getAuthHash(), true);
+        server_api::BaseRequest *request = serverAPI_->confirmEmail(apiInfo_->getAuthHash(), true);
+        connect(request, &server_api::BaseRequest::finished, this, &Engine::onConfirmEmailAnswer);
     }
 }
 
@@ -1130,16 +1129,8 @@ void Engine::sendDebugLogImpl()
 
 void Engine::getWebSessionTokenImpl(WEB_SESSION_PURPOSE purpose)
 {
-    uint userRole = serverApiManageAccountUserRole_;
-    if (purpose == WEB_SESSION_PURPOSE_ADD_EMAIL)
-    {
-        userRole = serverApiAddEmailUserRole_;
-    }
-    else if (purpose == WEB_SESSION_PURPOSE_MANAGE_ROBERT_RULES)
-    {
-        userRole = serverApiManageRobertRulesRole_;
-    }
-    serverAPI_->webSession(apiInfo_->getAuthHash(), userRole, true);
+    server_api::BaseRequest *request = serverAPI_->webSession(apiInfo_->getAuthHash(), purpose, true);
+    connect(request, &server_api::BaseRequest::finished, this, &Engine::onWebSessionAnswer);
 }
 
 // function consists of two parts (first - disconnect if need, second - do other signout stuff)
@@ -1177,7 +1168,12 @@ void Engine::signOutImplAfterDisconnect(bool keepFirewallOn)
 
     if (!apiInfo_.isNull())
     {
-        serverAPI_->deleteSession(apiInfo_->getAuthHash(), serverApiUserRole_, true);
+        server_api::BaseRequest *request = serverAPI_->deleteSession(apiInfo_->getAuthHash(), true);
+        connect(request, &server_api::BaseRequest::finished, [this] {
+            // Just delete the request, without any action
+            QSharedPointer<server_api::BaseRequest> request(static_cast<server_api::BaseRequest *>(sender()), &QObject::deleteLater);
+        });
+
         apiInfo_.reset();
     }
     apiinfo::ApiInfo::removeFromSettings();
@@ -1353,8 +1349,9 @@ void Engine::setSettingsImpl(const types::EngineSettings &engineSettings)
                     WS_ASSERT(false);
                 }
             }
-            serverAPI_->serverLocations(apiInfo_->getAuthHash(), engineSettings_.language(), serverApiUserRole_, true, ss.getRevisionHash(),
+            server_api::BaseRequest *request = serverAPI_->serverLocations(engineSettings_.language(), true, ss.getRevisionHash(),
                                         ss.isPremium(), engineSettings_.connectionSettings().protocol, ss.getAlc());
+            connect(request, &server_api::BaseRequest::finished, this, &Engine::onServerLocationsAnswer);
         }
     }
 
@@ -1525,45 +1522,37 @@ void Engine::onLoginControllerStepMessage(LOGIN_MESSAGE msg)
     Q_EMIT loginStepMessage(msg);
 }
 
-void Engine::onServerLocationsAnswer(SERVER_API_RET_CODE retCode, const QVector<apiinfo::Location> &serverLocations, QStringList forceDisconnectNodes, uint userRole)
+void Engine::onServerLocationsAnswer()
 {
-    if (userRole == serverApiUserRole_)
+    QSharedPointer<server_api::ServerListRequest> request(static_cast<server_api::ServerListRequest *>(sender()), &QObject::deleteLater);
+    if (request->retCode() == SERVER_RETURN_SUCCESS)
     {
-        if (retCode == SERVER_RETURN_SUCCESS)
+        if (!request->locations().isEmpty())
         {
-            if (!serverLocations.isEmpty())
-            {
-                apiInfo_->setLocations(serverLocations);
-                apiInfo_->setForceDisconnectNodes(forceDisconnectNodes);
-                updateServerLocations();
-            }
+            apiInfo_->setLocations(request->locations());
+            apiInfo_->setForceDisconnectNodes(request->forceDisconnectNodes());
+            updateServerLocations();
         }
-        else if (retCode == SERVER_RETURN_API_NOT_READY)
-        {
-            qCDebug(LOG_BASIC) << "Request server locations failed. API not ready";
-        }
-        else
-        {
-            qCDebug(LOG_BASIC) << "Request server locations failed. Seems no internet connectivity";
-        }
+    }
+    else if (request->retCode() == SERVER_RETURN_API_NOT_READY)
+    {
+        qCDebug(LOG_BASIC) << "Request server locations failed. API not ready";
+    }
+    else
+    {
+        qCDebug(LOG_BASIC) << "Request server locations failed. Seems no internet connectivity";
     }
 }
 
-void Engine::onSessionAnswer(SERVER_API_RET_CODE retCode, const types::SessionStatus &sessionStatus, uint userRole)
+void Engine::onSessionAnswer()
 {
-    if (userRole == serverApiUserRole_)
-    {
-        if (retCode == SERVER_RETURN_SUCCESS)
-        {
-            apiInfo_->setSessionStatus(sessionStatus);
-            updateSessionStatus();
-            // updateCurrentNetworkInterface();
-        }
-        else if (retCode == SERVER_RETURN_SESSION_INVALID)
-        {
-            Q_EMIT sessionDeleted();
-        }
-     }
+    QSharedPointer<server_api::SessionRequest> request(static_cast<server_api::SessionRequest *>(sender()), &QObject::deleteLater);
+    if (request->retCode() == SERVER_RETURN_SUCCESS) {
+        apiInfo_->setSessionStatus(request->sessionStatus());
+        updateSessionStatus();
+    } else if (request->retCode() == SERVER_RETURN_SESSION_INVALID) {
+        Q_EMIT sessionDeleted();
+    }
 }
 
 void Engine::onNotificationsAnswer(SERVER_API_RET_CODE retCode, const QVector<types::Notification> &notifications, uint userRole)
@@ -1577,20 +1566,18 @@ void Engine::onNotificationsAnswer(SERVER_API_RET_CODE retCode, const QVector<ty
     }
 }
 
-void Engine::onServerConfigsAnswer(SERVER_API_RET_CODE retCode, const QString &config, uint userRole)
+void Engine::onServerConfigsAnswer()
 {
-    if (userRole == serverApiUserRole_)
+    QSharedPointer<server_api::ServerConfigsRequest> request(static_cast<server_api::ServerConfigsRequest *>(sender()), &QObject::deleteLater);
+    if (request->retCode() == SERVER_RETURN_SUCCESS)
     {
-        if (retCode == SERVER_RETURN_SUCCESS)
-        {
-            apiInfo_->setOvpnConfig(config);
-        }
-        else
-        {
-            qCDebug(LOG_BASIC) << "Failed update server configs for openvpn version change";
-            // try again with 3 sec
-            QTimer::singleShot(3000, this, SLOT(updateServerConfigs()));
-        }
+        apiInfo_->setOvpnConfig(request->ovpnConfig());
+    }
+    else
+    {
+        qCDebug(LOG_BASIC) << "Failed update server configs for openvpn version change";
+        // try again with 3 sec
+        QTimer::singleShot(3000, this, SLOT(updateServerConfigs()));
     }
 }
 
@@ -1648,12 +1635,10 @@ void Engine::onDebugLogAnswer(SERVER_API_RET_CODE retCode, uint userRole)
     }
 }
 
-void Engine::onConfirmEmailAnswer(SERVER_API_RET_CODE retCode, uint userRole)
+void Engine::onConfirmEmailAnswer()
 {
-    if (userRole == serverApiUserRole_)
-    {
-        Q_EMIT confirmEmailFinished(retCode == SERVER_RETURN_SUCCESS);
-    }
+    QSharedPointer<server_api::BaseRequest> request(static_cast<server_api::BaseRequest *>(sender()), &QObject::deleteLater);
+    Q_EMIT confirmEmailFinished(request->retCode() == SERVER_RETURN_SUCCESS);
 }
 
 void Engine::onStaticIpsAnswer(SERVER_API_RET_CODE retCode, const apiinfo::StaticIps &staticIps, uint userRole)
@@ -1677,23 +1662,11 @@ void Engine::onStaticIpsAnswer(SERVER_API_RET_CODE retCode, const apiinfo::Stati
     }
 }
 
-void Engine::onWebSessionAnswer(SERVER_API_RET_CODE retCode, const QString &token, uint userRole)
+void Engine::onWebSessionAnswer()
 {
-    if (retCode == SERVER_RETURN_SUCCESS)
-    {
-        if (userRole == serverApiManageAccountUserRole_)
-        {
-            Q_EMIT webSessionToken(WEB_SESSION_PURPOSE_MANAGE_ACCOUNT, token);
-        }
-        else if (userRole == serverApiAddEmailUserRole_)
-        {
-            Q_EMIT webSessionToken(WEB_SESSION_PURPOSE_ADD_EMAIL, token);
-        }
-        else if (userRole == serverApiManageRobertRulesRole_)
-        {
-            Q_EMIT webSessionToken(WEB_SESSION_PURPOSE_MANAGE_ROBERT_RULES, token);
-        }
-    }
+    QSharedPointer<server_api::WebSessionRequest> request(static_cast<server_api::WebSessionRequest *>(sender()), &QObject::deleteLater);
+    if (request->retCode() == SERVER_RETURN_SUCCESS)
+        Q_EMIT webSessionToken(request->purpose(), request->token());
 }
 
 void Engine::onGetRobertFiltersAnswer(SERVER_API_RET_CODE retCode, const QVector<types::RobertFilter> &filters, uint userRole)
@@ -1727,18 +1700,23 @@ void Engine::onUpdateServerResources()
 
         if (isDisconnected || (isConnected && !connectionManager_->currentProtocol().isOpenVpnProtocol()))
         {
-            serverAPI_->serverConfigs(authHash, serverApiUserRole_, true);
-            serverAPI_->serverCredentials(authHash, serverApiUserRole_, PROTOCOL::OPENVPN_UDP, true);
+            server_api::BaseRequest *request = serverAPI_->serverConfigs(authHash, true);
+            connect(request, &server_api::BaseRequest::finished, this, &Engine::onServerConfigsAnswer);
+            //FIXME:
+            //serverAPI_->serverCredentials(authHash, serverApiUserRole_, PROTOCOL::OPENVPN_UDP, true);
         }
 
         if (isDisconnected || (isConnected && !connectionManager_->currentProtocol().isIkev2Protocol())) {
-            serverAPI_->serverCredentials(authHash, serverApiUserRole_, PROTOCOL::IKEV2, true);
+            //FIXME:
+            //serverAPI_->serverCredentials(authHash, serverApiUserRole_, PROTOCOL::IKEV2, true);
         }
 
-        serverAPI_->serverLocations(authHash, engineSettings_.language(), serverApiUserRole_, true, ss.getRevisionHash(), ss.isPremium(),
+        server_api::BaseRequest *request = serverAPI_->serverLocations(engineSettings_.language(), true, ss.getRevisionHash(), ss.isPremium(),
                                     connectionManager_->currentProtocol(), ss.getAlc());
+        connect(request, &server_api::BaseRequest::finished, this, &Engine::onServerLocationsAnswer);
 
-        serverAPI_->portMap(authHash, serverApiUserRole_, true);
+        //FIXME:
+        //serverAPI_->portMap(authHash, serverApiUserRole_, true);
 
         if (ss.getStaticIpsCount() > 0) {
             serverAPI_->staticIps(authHash, GetDeviceId::instance().getDeviceId(), serverApiUserRole_, true);
@@ -1761,7 +1739,8 @@ void Engine::checkForAppUpdate()
 
 void Engine::onUpdateSessionStatusTimer()
 {
-    serverAPI_->session(apiInfo_->getAuthHash(), serverApiUserRole_, true);
+    server_api::BaseRequest *request = serverAPI_->session(apiInfo_->getAuthHash(), true);
+    connect(request, &server_api::BaseRequest::finished, this, &Engine::onSessionAnswer);
 }
 
 void Engine::onConnectionManagerConnected()
@@ -2019,7 +1998,8 @@ void Engine::onConnectionManagerError(CONNECT_ERROR err)
             if (refetchServerCredentialsHelper_ == NULL)
             {
                 // force update session status (for check blocked, banned account state)
-                serverAPI_->session(apiInfo_->getAuthHash(), serverApiUserRole_, true);
+                server_api::BaseRequest *request = serverAPI_->session(apiInfo_->getAuthHash(), true);
+                connect(request, &server_api::BaseRequest::finished, this, &Engine::onSessionAnswer);
 
                 refetchServerCredentialsHelper_ = new RefetchServerCredentialsHelper(this, apiInfo_->getAuthHash(), serverAPI_);
                 connect(refetchServerCredentialsHelper_, &RefetchServerCredentialsHelper::finished, this, &Engine::onRefetchServerCredentialsFinished);
@@ -2587,7 +2567,8 @@ void Engine::updateServerConfigsImpl()
 {
     if (!apiInfo_.isNull())
     {
-        serverAPI_->serverConfigs(apiInfo_->getAuthHash(), serverApiUserRole_, true);
+        server_api::BaseRequest *request = serverAPI_->serverConfigs(apiInfo_->getAuthHash(), true);
+        connect(request, &server_api::BaseRequest::finished, this, &Engine::onServerConfigsAnswer);
     }
 }
 
@@ -2738,8 +2719,8 @@ void Engine::updateSessionStatus()
         if (prevSessionStatus_.getRevisionHash() != ss.getRevisionHash() || prevSessionStatus_.isPremium() != ss.isPremium() ||
             prevSessionStatus_.getAlc() != ss.getAlc() || (prevSessionStatus_.getStatus() != 1 && ss.getStatus() == 1))
         {
-            serverAPI_->serverLocations(apiInfo_->getAuthHash(), engineSettings_.language(), serverApiUserRole_, true,
-                                        ss.getRevisionHash(), ss.isPremium(), engineSettings_.connectionSettings().protocol, ss.getAlc());
+            server_api::BaseRequest *request = serverAPI_->serverLocations(engineSettings_.language(),true, ss.getRevisionHash(), ss.isPremium(), engineSettings_.connectionSettings().protocol, ss.getAlc());
+            connect(request, &server_api::BaseRequest::finished, this, &Engine::onServerLocationsAnswer);
         }
 
         if (prevSessionStatus_.getBillingPlanId() != ss.getBillingPlanId())

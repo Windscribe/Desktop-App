@@ -6,7 +6,9 @@
 #include "wireguardconfig.h"
 #include "utils/simplecrypt.h"
 
+namespace server_api {
 class ServerAPI;
+}
 
 // manages the logic of getting a WireGuard config using ServerAPI (wgConfigsInit(...) and wgConfigsConnect(...) functions)
 // also saves/restores some values of WireGuard config as permanent in settings
@@ -16,7 +18,7 @@ class GetWireGuardConfig : public QObject
 {
     Q_OBJECT
 public:
-    GetWireGuardConfig(QObject *parent, ServerAPI *serverAPI, uint serverApiUserRole);
+    GetWireGuardConfig(QObject *parent, server_api::ServerAPI *serverAPI, uint serverApiUserRole);
 
     void getWireGuardConfig(const QString &serverName, bool deleteOldestKey, const QString &deviceId);
     static void removeWireGuardSettings();
@@ -31,7 +33,7 @@ private slots:
 
 private:
     static const QString KEY_WIREGUARD_CONFIG;
-    ServerAPI *serverAPI_;
+    server_api::ServerAPI *serverAPI_;
     uint serverApiUserRole_;
     WireGuardConfig wireGuardConfig_;
     QString serverName_;

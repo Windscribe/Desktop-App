@@ -12,12 +12,12 @@ extern "C" {
 
 const QString GetWireGuardConfig::KEY_WIREGUARD_CONFIG = "wireguardConfig";
 
-GetWireGuardConfig::GetWireGuardConfig(QObject *parent, ServerAPI *serverAPI, uint serverApiUserRole) : QObject(parent), serverAPI_(serverAPI),
+GetWireGuardConfig::GetWireGuardConfig(QObject *parent, server_api::ServerAPI *serverAPI, uint serverApiUserRole) : QObject(parent), serverAPI_(serverAPI),
     serverApiUserRole_(serverApiUserRole),
     isRequestAlreadyInProgress_(false), simpleCrypt_(SIMPLE_CRYPT_KEY)
 {
-    connect(serverAPI_, &ServerAPI::wgConfigsInitAnswer, this, &GetWireGuardConfig::onWgConfigsInitAnswer, Qt::QueuedConnection);
-    connect(serverAPI_, &ServerAPI::wgConfigsConnectAnswer, this, &GetWireGuardConfig::onWgConfigsConnectAnswer, Qt::QueuedConnection);
+    connect(serverAPI_, &server_api::ServerAPI::wgConfigsInitAnswer, this, &GetWireGuardConfig::onWgConfigsInitAnswer, Qt::QueuedConnection);
+    connect(serverAPI_, &server_api::ServerAPI::wgConfigsConnectAnswer, this, &GetWireGuardConfig::onWgConfigsConnectAnswer, Qt::QueuedConnection);
 }
 
 void GetWireGuardConfig::getWireGuardConfig(const QString &serverName, bool deleteOldestKey, const QString &deviceId)

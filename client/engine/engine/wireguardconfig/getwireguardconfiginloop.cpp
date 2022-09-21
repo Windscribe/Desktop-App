@@ -1,7 +1,7 @@
 #include "getwireguardconfiginloop.h"
 #include "utils/utils.h"
 
-GetWireGuardConfigInLoop::GetWireGuardConfigInLoop(QObject *parent, ServerAPI *serverAPI, uint serverApiUserRole) :
+GetWireGuardConfigInLoop::GetWireGuardConfigInLoop(QObject *parent, server_api::ServerAPI *serverAPI, uint serverApiUserRole) :
     QObject(parent), serverAPI_(serverAPI), serverApiUserRole_(serverApiUserRole), getConfig_(nullptr)
 {
     fetchWireguardConfigTimer_ = new QTimer(this);

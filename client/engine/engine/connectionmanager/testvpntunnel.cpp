@@ -5,10 +5,10 @@
 #include "utils/extraconfig.h"
 
 
-TestVPNTunnel::TestVPNTunnel(QObject *parent, ServerAPI *serverAPI) : QObject(parent),
+TestVPNTunnel::TestVPNTunnel(QObject *parent, server_api::ServerAPI *serverAPI) : QObject(parent),
     serverAPI_(serverAPI), bRunning_(false), curTest_(1), cmdId_(0), doCustomTunnelTest_(false)
 {
-    connect(serverAPI_, &ServerAPI::pingTestAnswer, this, &TestVPNTunnel::onPingTestAnswer, Qt::QueuedConnection);
+    connect(serverAPI_, &server_api::ServerAPI::pingTestAnswer, this, &TestVPNTunnel::onPingTestAnswer, Qt::QueuedConnection);
 }
 
 TestVPNTunnel::~TestVPNTunnel()

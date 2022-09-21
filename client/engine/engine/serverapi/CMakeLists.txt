@@ -3,8 +3,26 @@ target_sources(engine PRIVATE
     serverapi.h
     requests/baserequest.cpp
     requests/baserequest.h
-    requests/authenticatedrequest.cpp
-    requests/authenticatedrequest.h
     requests/loginrequest.cpp
     requests/loginrequest.h
+    requests/deletesessionrequest.cpp
+    requests/deletesessionrequest.h
+    requests/sessionrequest.cpp
+    requests/sessionrequest.h
+    requests/accessipsrequest.cpp
+    requests/accessipsrequest.h
+    requests/serverlistrequest.cpp
+    requests/serverlistrequest.h
+    requests/servercredentialsrequest.cpp
+    requests/servercredentialsrequest.h
+    requests/serverconfigsrequest.cpp
+    requests/serverconfigsrequest.h
+    requests/portmaprequest.cpp
+    requests/portmaprequest.h
+    requests/recordinstallrequest.cpp
+    requests/recordinstallrequest.h
+    requests/confirmemailrequest.cpp
+    requests/confirmemailrequest.h
+    requests/websessionrequest.cpp
+    requests/websessionrequest.h
 )

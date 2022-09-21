@@ -1,14 +1,13 @@
 #include "refetchservercredentialshelper.h"
 #include "utils/ws_assert.h"
 #include "utils/logger.h"
+#include "engine/serverapi/requests/servercredentialsrequest.h"
+#include "engine/serverapi/requests/serverconfigsrequest.h"
 
-RefetchServerCredentialsHelper::RefetchServerCredentialsHelper(QObject *parent, const QString &authHash, ServerAPI *serverAPI) : QObject(parent),
+RefetchServerCredentialsHelper::RefetchServerCredentialsHelper(QObject *parent, const QString &authHash, server_api::ServerAPI *serverAPI) : QObject(parent),
     authHash_(authHash), serverAPI_(serverAPI), refetchServerCredentialsState_(0),
     isOpenVpnProtocolReceived_(false), isIkev2ProtocolReceived_(false), isServerConfigsAnswerReceived_(false)
 {
-    connect(serverAPI_, &ServerAPI::serverCredentialsAnswer, this, &RefetchServerCredentialsHelper::onServerCredentialsAnswer, Qt::QueuedConnection);
-    connect(serverAPI_, &ServerAPI::serverConfigsAnswer, this, &RefetchServerCredentialsHelper::onServerConfigsAnswer, Qt::QueuedConnection);
-    serverApiUserRole_ = serverAPI_->getAvailableUserRole();
     connect(&timerWaitServerAPIReady_, SIGNAL(timeout()), SLOT(onTimerWaitServerAPIReady()));
 }
 
@@ -51,45 +50,41 @@ void RefetchServerCredentialsHelper::onTimerWaitServerAPIReady()
     }
 }
 
-void RefetchServerCredentialsHelper::onServerCredentialsAnswer(SERVER_API_RET_CODE retCode, const QString &radiusUsername, const QString &radiusPassword,
-                                                               PROTOCOL protocol, uint userRole)
+void RefetchServerCredentialsHelper::onServerCredentialsAnswer()
 {
-    if (userRole == serverApiUserRole_)
-    {
-        if (protocol.isOpenVpnProtocol())
-        {
-            WS_ASSERT(!isOpenVpnProtocolReceived_);
-            isOpenVpnProtocolReceived_ = true;
-            retCodeOpenVpn_ = retCode;
-            radiusUsernameOpenVpn_ = radiusUsername;
-            radiusPasswordOpenVpn_ = radiusPassword;
-        }
-        else if (protocol.isIkev2Protocol())
-        {
-            WS_ASSERT(!isIkev2ProtocolReceived_);
-            isIkev2ProtocolReceived_ = true;
-            retCodeIkev2_ = retCode;
-            radiusUsernameIkev2_ = radiusUsername;
-            radiusPasswordIkev2_ = radiusPassword;
-        }
-        else
-        {
-            WS_ASSERT(false);
-        }
+    QSharedPointer<server_api::ServerCredentialsRequest> request(static_cast<server_api::ServerCredentialsRequest *>(sender()), &QObject::deleteLater);
 
-        checkFinished();
+    if (request->protocol().isOpenVpnProtocol())
+    {
+        WS_ASSERT(!isOpenVpnProtocolReceived_);
+        isOpenVpnProtocolReceived_ = true;
+        retCodeOpenVpn_ = request->retCode();
+        radiusUsernameOpenVpn_ = request->radiusUsername();
+        radiusPasswordOpenVpn_ = request->radiusPassword();
     }
+    else if (request->protocol().isIkev2Protocol())
+    {
+        WS_ASSERT(!isIkev2ProtocolReceived_);
+        isIkev2ProtocolReceived_ = true;
+        retCodeIkev2_ = request->retCode();
+        radiusUsernameIkev2_ = request->radiusUsername();
+        radiusPasswordIkev2_ = request->radiusPassword();
+    }
+    else
+    {
+        WS_ASSERT(false);
+    }
+
+    checkFinished();
 }
 
-void RefetchServerCredentialsHelper::onServerConfigsAnswer(SERVER_API_RET_CODE retCode, const QString &config, uint userRole)
+void RefetchServerCredentialsHelper::onServerConfigsAnswer()
 {
-    if (userRole == serverApiUserRole_)
-    {
-        isServerConfigsAnswerReceived_ = true;
-        retCodeServerConfigs_ = retCode;
-        serverConfig_ = config;
-        checkFinished();
-    }
+    QSharedPointer<server_api::ServerConfigsRequest> request(static_cast<server_api::ServerConfigsRequest *>(sender()), &QObject::deleteLater);
+    isServerConfigsAnswerReceived_ = true;
+    retCodeServerConfigs_ = request->retCode();
+    serverConfig_ = request->ovpnConfig();
+    checkFinished();
 }
 
 void RefetchServerCredentialsHelper::fetchServerCredentials()
@@ -105,9 +100,19 @@ void RefetchServerCredentialsHelper::fetchServerCredentials()
     radiusUsernameIkev2_.clear();
     radiusUsernameIkev2_.clear();
     serverConfig_.clear();
-    serverAPI_->serverConfigs(authHash_, serverApiUserRole_, true);
-    serverAPI_->serverCredentials(authHash_, serverApiUserRole_, PROTOCOL::OPENVPN_UDP, true);
-    serverAPI_->serverCredentials(authHash_, serverApiUserRole_, PROTOCOL::IKEV2, true);
+    {
+        server_api::BaseRequest *request = serverAPI_->serverConfigs(authHash_, true);
+        connect(request, &server_api::BaseRequest::finished, this, &RefetchServerCredentialsHelper::onServerConfigsAnswer);
+    }
+    {
+        server_api::BaseRequest *request = serverAPI_->serverCredentials(authHash_, PROTOCOL::OPENVPN_UDP, true);
+        connect(request, &server_api::BaseRequest::finished, this, &RefetchServerCredentialsHelper::onServerCredentialsAnswer);
+    }
+    {
+        server_api::BaseRequest *request = serverAPI_->serverCredentials(authHash_, PROTOCOL::IKEV2, true);
+        connect(request, &server_api::BaseRequest::finished, this, &RefetchServerCredentialsHelper::onServerCredentialsAnswer);
+    }
+
 }
 
 void RefetchServerCredentialsHelper::checkFinished()

@@ -11,7 +11,7 @@ class RefetchServerCredentialsHelper : public QObject
     Q_OBJECT
 
 public:
-    explicit RefetchServerCredentialsHelper(QObject *parent, const QString &authHash, ServerAPI *serverAPI);
+    explicit RefetchServerCredentialsHelper(QObject *parent, const QString &authHash, server_api::ServerAPI *serverAPI);
     virtual ~RefetchServerCredentialsHelper();
     void startRefetch();
 
@@ -20,13 +20,12 @@ signals:
 
 private slots:
     void onTimerWaitServerAPIReady();
-    void onServerCredentialsAnswer(SERVER_API_RET_CODE retCode, const QString &radiusUsername, const QString &radiusPassword, PROTOCOL protocol, uint userRole);
-    void onServerConfigsAnswer(SERVER_API_RET_CODE retCode, const QString &config, uint userRole);
+    void onServerCredentialsAnswer();
+    void onServerConfigsAnswer();
 
 private:
     QString authHash_;
-    ServerAPI *serverAPI_;
-    uint serverApiUserRole_;
+    server_api::ServerAPI *serverAPI_;
     QTimer timerWaitServerAPIReady_;
     int refetchServerCredentialsState_;
     bool isOpenVpnProtocolReceived_;

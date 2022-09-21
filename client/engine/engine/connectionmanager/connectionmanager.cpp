@@ -44,7 +44,7 @@
 #endif
 
 ConnectionManager::ConnectionManager(QObject *parent, IHelper *helper, INetworkDetectionManager *networkDetectionManager,
-                                             ServerAPI *serverAPI, CustomOvpnAuthCredentialsStorage *customOvpnAuthCredentialsStorage) : QObject(parent),
+                                             server_api::ServerAPI *serverAPI, CustomOvpnAuthCredentialsStorage *customOvpnAuthCredentialsStorage) : QObject(parent),
     helper_(helper),
     networkDetectionManager_(networkDetectionManager),
     customOvpnAuthCredentialsStorage_(customOvpnAuthCredentialsStorage),

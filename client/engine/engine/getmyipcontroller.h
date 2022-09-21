@@ -6,13 +6,15 @@
 #include <QTimer>
 #include "engine/networkdetectionmanager/inetworkdetectionmanager.h"
 
-class ServerAPI;
+namespace server_api {
+    class ServerAPI;
+}
 
 class GetMyIPController : public QObject
 {
     Q_OBJECT
 public:
-    explicit GetMyIPController(QObject *parent, ServerAPI *serverAPI, INetworkDetectionManager *networkDetectionManager);
+    explicit GetMyIPController(QObject *parent, server_api::ServerAPI *serverAPI, INetworkDetectionManager *networkDetectionManager);
 
     void getIPFromConnectedState(int timeoutMs);
     void getIPFromDisconnectedState(int timeoutMs);
@@ -25,7 +27,7 @@ private slots:
     void onMyIpAnswer(const QString &ip, bool success, bool isDisconnected, uint userRole);
 
 private:
-    ServerAPI *serverAPI_;
+    server_api::ServerAPI *serverAPI_;
     INetworkDetectionManager *networkDetectionManager_;
     uint serverApiUserRole_;
 

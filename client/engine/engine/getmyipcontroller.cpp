@@ -2,7 +2,7 @@
 #include "engine/serverapi/serverapi.h"
 #include <QTimer>
 
-GetMyIPController::GetMyIPController(QObject *parent, ServerAPI *serverAPI, INetworkDetectionManager *networkDetectionManager) : QObject(parent),
+GetMyIPController::GetMyIPController(QObject *parent, server_api::ServerAPI *serverAPI, INetworkDetectionManager *networkDetectionManager) : QObject(parent),
     serverAPI_(serverAPI), networkDetectionManager_(networkDetectionManager), requestForTimerIsDisconnected_(false)
 {
     connect(serverAPI_, SIGNAL(myIPAnswer(QString,bool,bool,uint)), SLOT(onMyIpAnswer(QString,bool,bool,uint)), Qt::QueuedConnection);
