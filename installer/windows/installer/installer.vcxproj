@@ -36,6 +36,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\utils\base64codec.cpp" />
+    <ClCompile Include="..\utils\utils.cpp" />
     <ClCompile Include="..\utils\windscribepathcheck.cpp" />
     <ClCompile Include="archive\archive.cpp" />
     <ClCompile Include="archive\LZMA_SDK\C\7zAlloc.c" />

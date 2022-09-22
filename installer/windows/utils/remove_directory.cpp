@@ -1,6 +1,6 @@
 #include "remove_directory.h"
 
-#include "../utils/logger.h"
+#include "../utils/utils.h"
 
 using namespace std;
 
@@ -57,8 +57,7 @@ bool RemoveDirectory1::DelTree(const bool DisableFsRedir, const wstring Path,
                         if (FindData.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) {
                             // Malware may create a soft-link in the folder that points to a system file, thereby abusing the elevated
                             // permissions the installer/uninstaller run under to facilitate deletion of a system file.
-                            Log::instance().out(L"RemoveDirectory1::DelTree(%s) skipping deletion of suspect file [%s] that is a reparse point.", Path.c_str(), fileName.c_str());
-                            Result = false;
+                            Utils::deleteFile(BasePath + fileName);
                         }
                         else {
                             if (DeleteFileProc != nullptr)

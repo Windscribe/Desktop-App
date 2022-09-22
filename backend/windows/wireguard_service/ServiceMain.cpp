@@ -57,8 +57,13 @@ resetLogFile()
     DWORD dwAttrib = ::GetFileAttributes(logFile.c_str());
     if (dwAttrib != INVALID_FILE_ATTRIBUTES)
     {
+        // This process runs with elevated privilege and it's possible the user installed it in
+        // a user-accessible folder.  DeleteFile() will remove any potentially dangerous symbolic
+        // links created by an attacker (e.g. attacker symbolic links this log file to point at
+        // a system file).
         std::wstring prevLogFile = logFilename(true);
-        ::CopyFile(logFile.c_str(), prevLogFile.c_str(), FALSE);
+        ::DeleteFile(prevLogFile.c_str());
+        ::CopyFile(logFile.c_str(), prevLogFile.c_str(), TRUE);
         ::DeleteFile(logFile.c_str());
     }
 }
@@ -67,8 +72,17 @@ resetLogFile()
 static void
 debugOut(const char *str, ...)
 {
+    // This process runs with elevated privilege and it's possible the user installed it in
+    // a user-accessible folder.  Ensure the file is not a symbolic link before opening and
+    // writing to it.
+    std::wstring logFile = logFilename();
+    DWORD dwAttrib = ::GetFileAttributes(logFile.c_str());
+    if ((dwAttrib != INVALID_FILE_ATTRIBUTES) && (dwAttrib & FILE_ATTRIBUTE_REPARSE_POINT)) {
+        ::DeleteFile(logFile.c_str());
+    }
+
     std::ofstream ofs;
-    ofs.open(logFilename(), std::ofstream::out | std::ofstream::app);
+    ofs.open(logFile, std::ofstream::out | std::ofstream::app);
 
     if (ofs.is_open())
     {

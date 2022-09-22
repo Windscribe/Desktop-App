@@ -1,5 +1,7 @@
 #include "archive.h"
 
+#include "../../utils/utils.h"
+
 static const ISzAlloc g_Alloc = { SzAlloc, SzFree };
 
 #ifdef _WIN32
@@ -342,7 +344,6 @@ WRes Archive::OutFile_OpenUtf16(CSzFile* p, const UInt16* name)
     {
         return static_cast<WRes>(__result__);
     }
-
 
     res = OutFile_Open(p, reinterpret_cast<const char*>(buf.data));
     Buf_Free(&buf, &g_Alloc);
@@ -847,7 +848,6 @@ SRes Archive::extractionFile(const UInt32& i)
 
         destination1 = str + file;
 
-
         //To create folders
         for (j = 0; j < destination1.length(); j++)
         {
@@ -860,11 +860,7 @@ SRes Archive::extractionFile(const UInt32& i)
             }
         }
 
-
-
-
         destPath = reinterpret_cast<const UInt16*>(destination1.c_str());
-
 
         if ((isDir) && (path_list.empty() == true))
         {
@@ -874,6 +870,11 @@ SRes Archive::extractionFile(const UInt32& i)
         }
         else
         {
+            // The file we're extracting shouldn't exist, as it should have been removed by the uninstaller block.
+            // If it does exist, safely delete it just in case it is a symbolic link created by an attacker.
+            wstring fileName(destination1.begin(), destination1.end());
+            Utils::deleteFile(fileName);
+
             if (OutFile_OpenUtf16(&outFile, destPath))
             {
                 PrintString(destPath);

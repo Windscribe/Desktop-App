@@ -36,11 +36,12 @@ Installer::~Installer()
 
 void Installer::startImpl(HWND hwnd, const Settings &settings)
 {
-    Log::instance().init(true, settings.getPath());
-    Log::instance().out(L"Installing Windscribe version %s", ApplicationInfo::instance().getVersion().c_str());
+    installPath_ = settings.getPath();
+
+    Log::instance().init(true, installPath_);
+    Log::instance().out(L"Installing Windscribe version %s in %s", ApplicationInfo::instance().getVersion().c_str(), installPath_.c_str());
     Log::instance().out(L"Command-line args: %s", ::GetCommandLine());
 
-    installPath_ = settings.getPath();
 #ifdef _WIN32
     blocks_.push_back(new UninstallPrev(settings.getFactoryReset(), 10));
     blocks_.push_back(new Files(installPath_, 40));

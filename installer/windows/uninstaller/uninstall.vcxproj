@@ -47,6 +47,7 @@
     <ClCompile Include="..\Utils\registry.cpp" />
     <ClCompile Include="..\Utils\remove_directory.cpp" />
     <ClCompile Include="..\Utils\services.cpp" />
+    <ClCompile Include="..\utils\utils.cpp" />
     <ClCompile Include="..\Utils\version_os.cpp" />
     <ClCompile Include="arguments_parser.cpp" />
     <ClCompile Include="copy_and_run.cpp" />

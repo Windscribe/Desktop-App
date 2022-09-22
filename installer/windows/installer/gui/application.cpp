@@ -1,13 +1,14 @@
 #include "Application.h"
-#include "ImageResources.h"
-#include "../../Utils/applicationinfo.h"
-#include "../installer/downloader.h"
-#include "../installer/installer.h"
+
 #include <shlobj_core.h>
 #include <VersionHelpers.h>
+
+#include "ImageResources.h"
+#include "../installer/installer.h"
+#include "../../utils/applicationinfo.h"
 #include "../../utils/directory.h"
 #include "../../utils/registry.h"
-#include "../../utils/windscribepathcheck.h"
+#include "../../utils/utils.h"
 #include "../../../../../client/common/utils/wsscopeguard.h"
 
 #pragma comment(lib, "gdiplus.lib")
@@ -43,7 +44,7 @@ Application::Application(HINSTANCE hInstance, int nCmdShow, bool isAutoUpdateMod
         settings_.setPath(installPath);
     }
     else if (existingInstallFolder.empty() || !Directory::DirExists(existingInstallFolder) ||
-             WindscribePathCheck::in32BitProgramFilesFolder(existingInstallFolder))
+             Utils::in32BitProgramFilesFolder(existingInstallFolder))
     {
         // We don't have an install folder specified in the Registry, or the folder specified
         // in the Registry no longer exists, indicating the user uninstalled the app.  Or we do

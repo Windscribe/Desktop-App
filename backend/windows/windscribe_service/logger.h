@@ -25,8 +25,6 @@ private:
     FILE *file_;
     CRITICAL_SECTION cs_;
     DateTimeHelper time_helper_;
-
-    bool isFileExist(const std::wstring &fileName);
 };
 
 #endif // LOGGER_H

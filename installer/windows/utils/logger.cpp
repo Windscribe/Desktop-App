@@ -5,6 +5,7 @@
 #include <fstream>
 #include <sstream>
 
+#include "utils.h"
 
 using namespace std;
 
@@ -23,7 +24,7 @@ Log::~Log()
 
 void Log::init(bool installing, const wstring& installPath)
 {
-    // The uninstaller logs to the system debugger so we do not leave an uninstaller log
+    // The uninstaller logs to the system debugger, so we do not leave an uninstaller log
     // (cruft) on the user's device.
     if (!installing) {
         return;
@@ -39,23 +40,17 @@ void Log::init(bool installing, const wstring& installPath)
         }
     }
 
-    wstring filePath(installPath);
-    filePath += L"\\log_installer.txt";
+    wstring fileName = installPath + L"\\log_installer.txt";
 
-    wstring prevFilePath(installPath);
-    prevFilePath += L"\\prev_log_installer.txt";
+    // The log file shouldn't exist, nuke it if it does.
+    Utils::deleteFile(fileName);
 
-    wifstream infile(filePath);
-
-    if (infile.good()) {
-        ::CopyFile(filePath.c_str(), prevFilePath.c_str(), FALSE);
-    }
-
-    infile.close();
-
-    file_ = _wfopen(filePath.c_str(), L"w+");
+    // Only open the log file for writing if it doesn't exist.  If it does still exist,
+    // something truly odd is going on (PC hacked?), and we'll log to the system
+    // debugger instead.
+    file_ = _wfsopen(fileName.c_str(), L"wx", _SH_DENYWR);
     if (file_ == NULL) {
-        WSDebugMessage(_T("Logger could not open: %ls"), filePath.c_str());
+        WSDebugMessage(_T("Logger could not open: %ls"), fileName.c_str());
     }
 }
 
