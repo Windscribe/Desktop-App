@@ -17,6 +17,7 @@
 #include "engine/emergencycontroller/emergencycontroller.h"
 #include "getmyipcontroller.h"
 #include "types/enginesettings.h"
+#include "types/checkupdate.h"
 #include "sessionstatustimer.h"
 #include "engine/customconfigs/customconfigs.h"
 #include "engine/customconfigs/customovpnauthcredentialsstorage.h"
@@ -139,7 +140,7 @@ signals:
     void notificationsUpdated(const QVector<types::Notification> &notifications);
     void checkUpdateUpdated(const types::CheckUpdate &checkUpdate);
     void updateVersionChanged(uint progressPercent, const UPDATE_VERSION_STATE &state, const UPDATE_VERSION_ERROR &error);
-    void myIpUpdated(const QString &ip, bool success, bool isDisconnected);
+    void myIpUpdated(const QString &ip, bool isDisconnected);
     void statisticsUpdated(quint64 bytesIn, quint64 bytesOut, bool isTotalBytes);
     void protocolPortChanged(const PROTOCOL &protocol, const uint port);
     void robertFiltersUpdated(bool success, const QVector<types::RobertFilter> &filters);
@@ -237,12 +238,12 @@ private slots:
     void onSessionAnswer();
     void onNotificationsAnswer(SERVER_API_RET_CODE retCode, const QVector<types::Notification> &notifications, uint userRole);
     void onServerConfigsAnswer();
-    void onCheckUpdateAnswer(const types::CheckUpdate &checkUpdate, bool bNetworkErrorOccured, uint userRole);
+    void onCheckUpdateAnswer();
     void onHostIPsChanged(const QSet<QString> &hostIps);
-    void onMyIpAnswer(const QString &ip, bool success, bool isDisconnected);
-    void onDebugLogAnswer(SERVER_API_RET_CODE retCode, uint userRole);
+    void onMyIpAnswer(const QString &ip, bool isDisconnected);
+    void onDebugLogAnswer();
     void onConfirmEmailAnswer();
-    void onStaticIpsAnswer(SERVER_API_RET_CODE retCode, const apiinfo::StaticIps &staticIps, uint userRole);
+    void onStaticIpsAnswer();
     void onWebSessionAnswer();
     void onGetRobertFiltersAnswer(SERVER_API_RET_CODE retCode, const QVector<types::RobertFilter> &filters, uint userRole);
     void onSetRobertFilterAnswer(SERVER_API_RET_CODE retCode, uint userRole);

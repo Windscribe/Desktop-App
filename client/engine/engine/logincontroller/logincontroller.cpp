@@ -14,6 +14,7 @@
 #include "engine/serverapi/requests/servercredentialsrequest.h"
 #include "engine/serverapi/requests/serverconfigsrequest.h"
 #include "engine/serverapi/requests/portmaprequest.h"
+#include "engine/serverapi/requests/staticipsrequest.h"
 
 LoginController::LoginController(QObject *parent,  IHelper *helper,
                                  INetworkDetectionManager *networkDetectionManager, server_api::ServerAPI *serverAPI,
@@ -23,8 +24,6 @@ LoginController::LoginController(QObject *parent,  IHelper *helper,
     protocol_(protocol), bFromConnectedToVPNState_(false), getAllConfigsController_(NULL),
     loginStep_(LOGIN_STEP1), readyForNetworkRequestsEmitted_(false)
 {
-    connect(serverAPI_, SIGNAL(staticIpsAnswer(SERVER_API_RET_CODE, apiinfo::StaticIps, uint)), SLOT(onStaticIpsAnswer(SERVER_API_RET_CODE, apiinfo::StaticIps, uint)), Qt::QueuedConnection);
-    serverApiUserRole_ = serverAPI_->getAvailableUserRole();
 }
 
 LoginController::~LoginController()
@@ -97,12 +96,10 @@ void LoginController::onPortMapAnswer()
     getAllConfigsController_->putPortMapAnswer(request->retCode(), request->portMap());
 }
 
-void LoginController::onStaticIpsAnswer(SERVER_API_RET_CODE retCode, const apiinfo::StaticIps &staticIps, uint userRole)
+void LoginController::onStaticIpsAnswer()
 {
-    if (userRole == serverApiUserRole_)
-    {
-        getAllConfigsController_->putStaticIpsAnswer(retCode, staticIps);
-    }
+    QSharedPointer<server_api::StaticIpsRequest> request(static_cast<server_api::StaticIpsRequest *>(sender()), &QObject::deleteLater);
+    getAllConfigsController_->putStaticIpsAnswer(request->retCode(), request->staticIps());
 }
 
 void LoginController::onGetApiAccessIpsFinished(SERVER_API_RET_CODE retCode, const QStringList &hosts)
@@ -384,7 +381,8 @@ void LoginController::getAllConfigs()
 
     if (sessionStatus_.getStaticIpsCount() > 0)
     {
-        serverAPI_->staticIps(newAuthHash_, GetDeviceId::instance().getDeviceId(), serverApiUserRole_, false);
+        server_api::BaseRequest *requestStaticIps = serverAPI_->staticIps(newAuthHash_, GetDeviceId::instance().getDeviceId(), false);
+        connect(requestStaticIps, &server_api::BaseRequest::finished, this, &LoginController::onStaticIpsAnswer);
     }
     else
     {

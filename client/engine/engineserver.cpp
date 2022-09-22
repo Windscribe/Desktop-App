@@ -602,7 +602,7 @@ void EngineServer::onEngineUpdateVersionChanged(uint progressPercent, const UPDA
     sendCmdToAllAuthorizedAndGetStateClients(&cmd, false);
 }
 
-void EngineServer::onEngineMyIpUpdated(const QString &ip, bool /*success*/, bool isDisconnected)
+void EngineServer::onEngineMyIpUpdated(const QString &ip, bool isDisconnected)
 {
     IPC::ServerCommands::MyIpUpdated cmd(ip, isDisconnected);
     sendCmdToAllAuthorizedAndGetStateClients(&cmd, false);

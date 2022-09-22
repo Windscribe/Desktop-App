@@ -41,7 +41,7 @@ private slots:
     void onServerCredentialsAnswer();
     void onServerConfigsAnswer();
     void onPortMapAnswer();
-    void onStaticIpsAnswer(SERVER_API_RET_CODE retCode, const apiinfo::StaticIps &staticIps, uint userRole);
+    void onStaticIpsAnswer();
 
     void onGetApiAccessIpsFinished(SERVER_API_RET_CODE retCode, const QStringList &hosts);
 
@@ -62,7 +62,6 @@ private:
     IHelper *helper_;
     server_api::ServerAPI *serverAPI_;
 
-    uint serverApiUserRole_;
     GetApiAccessIps *getApiAccessIps_;
     INetworkDetectionManager *networkDetectionManager_;
     QString language_;

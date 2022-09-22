@@ -1,22 +1,23 @@
 #include "getmyipcontroller.h"
-#include "engine/serverapi/serverapi.h"
+
 #include <QTimer>
 
+#include "engine/serverapi/serverapi.h"
+#include "engine/serverapi/requests/myiprequest.h"
+#include "utils/utils.h"
+
 GetMyIPController::GetMyIPController(QObject *parent, server_api::ServerAPI *serverAPI, INetworkDetectionManager *networkDetectionManager) : QObject(parent),
-    serverAPI_(serverAPI), networkDetectionManager_(networkDetectionManager), requestForTimerIsDisconnected_(false)
+    serverAPI_(serverAPI), networkDetectionManager_(networkDetectionManager), requestForTimerIsDisconnected_(false),
+    curRequest_(nullptr)
 {
-    connect(serverAPI_, SIGNAL(myIPAnswer(QString,bool,bool,uint)), SLOT(onMyIpAnswer(QString,bool,bool,uint)), Qt::QueuedConnection);
-    connect(&timer_, SIGNAL(timeout()), SLOT(onTimer()));
+    connect(&timer_, &QTimer::timeout, this, &GetMyIPController::onTimer);
     timer_.setSingleShot(true);
-    serverApiUserRole_ = serverAPI_->getAvailableUserRole();
 }
 
 void GetMyIPController::getIPFromConnectedState(int timeoutMs)
 {
     if (timer_.isActive())
-    {
         timer_.stop();
-    }
 
     requestForTimerIsDisconnected_ = false;
     timer_.start(timeoutMs);
@@ -25,9 +26,7 @@ void GetMyIPController::getIPFromConnectedState(int timeoutMs)
 void GetMyIPController::getIPFromDisconnectedState(int timeoutMs)
 {
     if (timer_.isActive())
-    {
         timer_.stop();
-    }
 
     requestForTimerIsDisconnected_ = true;
     timer_.start(timeoutMs);
@@ -35,29 +34,25 @@ void GetMyIPController::getIPFromDisconnectedState(int timeoutMs)
 
 void GetMyIPController::onTimer()
 {
-    if (networkDetectionManager_->isOnline())
-    {
-        serverAPI_->myIP(requestForTimerIsDisconnected_, serverApiUserRole_, true);
-    }
-    else
-    {
+    if (networkDetectionManager_->isOnline()) {
+        SAFE_DELETE(curRequest_);
+        curRequest_ = serverAPI_->myIP(kTimeout, true);
+        curRequest_->setProperty("isFromDisconnectedState", requestForTimerIsDisconnected_);
+        connect(curRequest_, &server_api::BaseRequest::finished, this, &GetMyIPController::onMyIpAnswer);
+    } else  {
         timer_.stop();
         timer_.start(1000);
     }
 }
 
-void GetMyIPController::onMyIpAnswer(const QString &ip, bool success, bool isDisconnected, uint userRole)
+void GetMyIPController::onMyIpAnswer()
 {
-    if (userRole == serverApiUserRole_)
-    {
-        if (!success)
-        {
-            timer_.stop();
-            timer_.start(1000);
-        }
-        else
-        {
-            emit answerMyIP(ip, success, isDisconnected);
-        }
+    QSharedPointer<server_api::MyIpRequest> request(static_cast<server_api::MyIpRequest *>(sender()), &QObject::deleteLater);
+    curRequest_ = nullptr;
+    if (request->retCode() != SERVER_RETURN_SUCCESS) {
+        timer_.stop();
+        timer_.start(1000);
+    } else {
+        emit answerMyIP(request->ip(), request->property("isFromDisconnectedState").toBool());
     }
 }

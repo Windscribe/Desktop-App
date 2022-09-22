@@ -16,11 +16,10 @@ public:
     void handle(const QByteArray &arr) override;
 
     // output values
-    types::SessionStatus sessionStatus() const;
+    types::SessionStatus sessionStatus() const { return sessionStatus_; }
 
 private:
     QString authHash_;
-
     // output values
     types::SessionStatus sessionStatus_;
 };

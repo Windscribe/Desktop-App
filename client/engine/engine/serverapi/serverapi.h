@@ -3,30 +3,30 @@
 #include <QObject>
 
 #include "types/notification.h"
-#include "engine/apiinfo/staticips.h"
-#include "types/checkupdate.h"
 #include "types/proxysettings.h"
 #include "types/robertfilter.h"
 #include "engine/networkaccessmanager/networkaccessmanager.h"
 #include "requests/baserequest.h"
 
 
-class INetworkStateManager;
 class IConnectStateController;
 
 namespace server_api {
 
-// access to API endpoint
-// example of a typical usage in the calling code
-//   server_api::BaseRequest *request = serverAPI_->login(username, password, code2fa);
-//   connect(request, &server_api::BaseRequest::finished, this, &LoginController::onLoginAnswer);
-//   .....
-//  void LoginController::onLoginAnswer()
-//{
-//    QSharedPointer<server_api::LoginRequest> request(static_cast<server_api::LoginRequest *>(sender()), &QObject::deleteLater);
-//    ... some code processing request ...;
-//}
-// that is, the calling code should take care of the deletion returned server_api::BaseRequest object (preferably via deleteLater())
+/*
+Access to API endpoint.
+Example of a typical usage in the calling code
+   server_api::BaseRequest *request = serverAPI_->login(username, password, code2fa);
+   connect(request, &server_api::BaseRequest::finished, this, &LoginController::onLoginAnswer);
+   .....
+  void LoginController::onLoginAnswer()
+{
+    QSharedPointer<server_api::LoginRequest> request(static_cast<server_api::LoginRequest *>(sender()), &QObject::deleteLater);
+    ... some code processing request ...;
+}
+that is, the calling code should take care of the deletion returned server_api::BaseRequest object (preferably via deleteLater())
+*/
+
 class ServerAPI : public QObject
 {
     Q_OBJECT
@@ -63,14 +63,13 @@ public:
     BaseRequest *confirmEmail(const QString &authHash, bool isNeedCheckRequestsEnabled);
     BaseRequest *webSession(const QString authHash, WEB_SESSION_PURPOSE purpose, bool isNeedCheckRequestsEnabled);
 
-    void myIP(bool isDisconnected, uint userRole, bool isNeedCheckRequestsEnabled);
+    BaseRequest *myIP(int timeout, bool isNeedCheckRequestsEnabled);
 
-    void checkUpdate(UPDATE_CHANNEL updateChannel, uint userRole, bool isNeedCheckRequestsEnabled);
-    void debugLog(const QString &username, const QString &strLog, uint userRole, bool isNeedCheckRequestsEnabled);
-    void speedRating(const QString &authHash, const QString &speedRatingHostname, const QString &ip, int rating,
-                     uint userRole, bool isNeedCheckRequestsEnabled);
+    BaseRequest *checkUpdate(UPDATE_CHANNEL updateChannel, bool isNeedCheckRequestsEnabled);
+    BaseRequest *debugLog(const QString &username, const QString &strLog, bool isNeedCheckRequestsEnabled);
+    BaseRequest *speedRating(const QString &authHash, const QString &speedRatingHostname, const QString &ip, int rating, bool isNeedCheckRequestsEnabled);
 
-    void staticIps(const QString &authHash, const QString &deviceId, uint userRole, bool isNeedCheckRequestsEnabled);
+    BaseRequest *staticIps(const QString &authHash, const QString &deviceId, bool isNeedCheckRequestsEnabled);
 
     void pingTest(quint64 cmdId, uint timeout, bool bWriteLog);
     void cancelPingTest(quint64 cmdId);
@@ -86,10 +85,6 @@ public:
     void setIgnoreSslErrors(bool bIgnore);
 
 signals:
-    void myIPAnswer(const QString &ip, bool success, bool isDisconnected, uint userRole);
-    void checkUpdateAnswer(const types::CheckUpdate &checkUpdate, bool bNetworkErrorOccured, uint userRole);
-    void debugLogAnswer(SERVER_API_RET_CODE retCode, uint userRole);
-    void staticIpsAnswer(SERVER_API_RET_CODE retCode, const apiinfo::StaticIps &staticIps, uint userRole);
     void pingTestAnswer(SERVER_API_RET_CODE retCode, const QString &data);
     void notificationsAnswer(SERVER_API_RET_CODE retCode, QVector<types::Notification> notifications, uint userRole);
 
@@ -106,17 +101,11 @@ private:
     bool isProxyEnabled_;
 
     enum {
-        GET_MY_IP_TIMEOUT = 5000,
         NETWORK_TIMEOUT = 10000,
     };
 
-    void handleMyIP();
-    void handleCheckUpdate();
-    void handleDebugLog();
-    void handleSpeedRating();
     void handlePingTest();
     void handleNotifications();
-    void handleStaticIps();
     void handleWgConfigsInit();
     void handleWgConfigsConnect();
     void handleGetRobertFilters();
@@ -129,14 +118,10 @@ private:
     QString hostname_;
     QStringList hostIps_;
 
-    enum HOST_MODE { HOST_MODE_HOSTNAME, HOST_MODE_IPS };
-    HOST_MODE hostMode_;
-
     bool bIsRequestsEnabled_;
     uint curUserRole_;
     bool bIgnoreSslErrors_;
 
-    NetworkReply *myIpReply_;
     QHash<quint64, NetworkReply *> pingTestReplies_;
 
     types::ProxySettings currentProxySettings() const;

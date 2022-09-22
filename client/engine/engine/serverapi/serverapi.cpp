@@ -3,6 +3,7 @@
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QJsonParseError>
+#include <QPointer>
 #include <QSslSocket>
 #include <QThread>
 #include <QUrl>
@@ -30,6 +31,11 @@
 #include "requests/recordinstallrequest.h"
 #include "requests/confirmemailrequest.h"
 #include "requests/websessionrequest.h"
+#include "requests/myiprequest.h"
+#include "requests/checkupdaterequest.h"
+#include "requests/debuglogrequest.h"
+#include "requests/speedratingrequest.h"
+#include "requests/staticipsrequest.h"
 
 #ifdef Q_OS_LINUX
     #include "utils/linuxutils.h"
@@ -67,13 +73,12 @@ ServerAPI::ServerAPI(QObject *parent, IConnectStateController *connectStateContr
     connectStateController_(connectStateController),
     networkAccessManager_(networkAccessManager),
     isProxyEnabled_(false),
-    hostMode_(HOST_MODE_HOSTNAME),
     bIsRequestsEnabled_(false),
     curUserRole_(0),
-    bIgnoreSslErrors_(false),
-    myIpReply_(nullptr)
+    bIgnoreSslErrors_(false)
 {
 
+    // FIXME: move to NetworkAccessManager
     if (QSslSocket::supportsSsl())
     {
         qCDebug(LOG_SERVER_API) << "SSL version:" << QSslSocket::sslLibraryVersionString();
@@ -124,7 +129,6 @@ bool ServerAPI::isRequestsEnabled() const
 void ServerAPI::setHostname(const QString &hostname)
 {
     qCDebug(LOG_SERVER_API) << "setHostname:" << hostname;
-    hostMode_ = HOST_MODE_HOSTNAME;
     hostname_ = hostname;
 }
 
@@ -226,176 +230,51 @@ BaseRequest *ServerAPI::webSession(const QString authHash, WEB_SESSION_PURPOSE p
     return request;
 }
 
-void ServerAPI::myIP(bool isDisconnected, uint userRole, bool isNeedCheckRequestsEnabled)
+BaseRequest *ServerAPI::myIP(int timeout, bool isNeedCheckRequestsEnabled)
 {
-    // if previous myIp request not finished, mark that it should be ignored in handlers
-    SAFE_DELETE_LATER(myIpReply_);
-
-    if (isNeedCheckRequestsEnabled && !bIsRequestsEnabled_) {
-        emit myIPAnswer("N/A", false, isDisconnected, userRole);
-        return;
-    }
-
-    time_t timestamp;
-    time(&timestamp);
-    QString strTimestamp = QString::number(timestamp);
-    QString strHash = HardcodedSettings::instance().serverSharedKey() + strTimestamp;
-    QString md5Hash = QCryptographicHash::hash(strHash.toStdString().c_str(), QCryptographicHash::Md5).toHex();
-
-    QUrl url("https://" + hostname_ + "/MyIp?time=" + strTimestamp + "&client_auth_hash="
-             + md5Hash + "&platform=" + Utils::getPlatformNameSafe() + "&app_version=" + AppVersion::instance().semanticVersionString());
-
-    NetworkRequest request(url.toString(), GET_MY_IP_TIMEOUT, true, DnsServersConfiguration::instance().getCurrentDnsServers(), bIgnoreSslErrors_, currentProxySettings());
-    myIpReply_ = networkAccessManager_->get(request);
-    myIpReply_->setProperty("userRole", userRole);
-    myIpReply_->setProperty("isDisconnected", isDisconnected);
-    connect(myIpReply_, &NetworkReply::finished, this, &ServerAPI::handleMyIP);
+    MyIpRequest *request = new MyIpRequest(this, hostname_, timeout);
+    executeRequest(request, isNeedCheckRequestsEnabled);
+    return request;
 }
 
-void ServerAPI::checkUpdate(UPDATE_CHANNEL updateChannel, uint userRole, bool isNeedCheckRequestsEnabled)
+BaseRequest *ServerAPI::checkUpdate(UPDATE_CHANNEL updateChannel, bool isNeedCheckRequestsEnabled)
 {
+    CheckUpdateRequest *request = new CheckUpdateRequest(this, hostname_, updateChannel);
+
     // This check will only be useful in the case that we expand our supported linux OSes and the platform flag is not added for that OS
     if (Utils::getPlatformName().isEmpty()) {
         qCDebug(LOG_SERVER_API) << "Check update failed: platform name is empty";
-        emit checkUpdateAnswer(types::CheckUpdate(), false, userRole);
-        return;
+        QTimer::singleShot(0, this, [request] () {
+            qCDebug(LOG_SERVER_API) << "API request " + request->name() + " failed: API not ready";
+            request->setRetCode(SERVER_RETURN_SUCCESS);
+            emit request->finished();
+        });
+        return request;
     }
 
-    if (isNeedCheckRequestsEnabled && !bIsRequestsEnabled_) {
-        qCDebug(LOG_SERVER_API) << "Check update failed: API not ready";
-        emit checkUpdateAnswer(types::CheckUpdate(), true, userRole);
-        return;
-    }
-
-    time_t timestamp;
-    time(&timestamp);
-    QString strTimestamp = QString::number(timestamp);
-    QString strHash = HardcodedSettings::instance().serverSharedKey() + strTimestamp;
-    QString md5Hash = QCryptographicHash::hash(strHash.toStdString().c_str(), QCryptographicHash::Md5).toHex();
-
-    QUrl url("https://" + hostname_ + "/CheckUpdate");
-    QUrlQuery query;
-    query.addQueryItem("time", strTimestamp);
-    query.addQueryItem("client_auth_hash", md5Hash);
-    query.addQueryItem("platform", Utils::getPlatformNameSafe());
-    query.addQueryItem("app_version", AppVersion::instance().semanticVersionString());
-    query.addQueryItem("version", AppVersion::instance().version());
-    query.addQueryItem("build", AppVersion::instance().build());
-
-    if (updateChannel == UPDATE_CHANNEL_BETA)
-        query.addQueryItem("beta", "1");
-    else if (updateChannel == UPDATE_CHANNEL_GUINEA_PIG)
-        query.addQueryItem("beta", "2");
-    else if (updateChannel == UPDATE_CHANNEL_INTERNAL)
-        query.addQueryItem("beta", "3");
-
-    // add OS version and build
-    QString osVersion, osBuild;
-    Utils::getOSVersionAndBuild(osVersion, osBuild);
-
-    if (!osVersion.isEmpty())
-        query.addQueryItem("os_version", osVersion);
-
-    if (!osBuild.isEmpty())
-        query.addQueryItem("os_build", osBuild);
-
-    url.setQuery(query);
-
-    NetworkRequest request(url.toString(), NETWORK_TIMEOUT, true, DnsServersConfiguration::instance().getCurrentDnsServers(), bIgnoreSslErrors_, currentProxySettings());
-    NetworkReply *reply = networkAccessManager_->get(request);
-    reply->setProperty("userRole", userRole);
-    connect(reply, &NetworkReply::finished, this, &ServerAPI::handleCheckUpdate);
+    executeRequest(request, isNeedCheckRequestsEnabled);
+    return request;
 }
 
-void ServerAPI::debugLog(const QString &username, const QString &strLog, uint userRole, bool isNeedCheckRequestsEnabled)
+BaseRequest *ServerAPI::debugLog(const QString &username, const QString &strLog, bool isNeedCheckRequestsEnabled)
 {
-    if (isNeedCheckRequestsEnabled && !bIsRequestsEnabled_) {
-        emit debugLogAnswer(SERVER_RETURN_API_NOT_READY, userRole);
-        return;
-    }
-
-    time_t timestamp;
-    time(&timestamp);
-    QString strTimestamp = QString::number(timestamp);
-    QString strHash = HardcodedSettings::instance().serverSharedKey() + strTimestamp;
-    QString md5Hash = QCryptographicHash::hash(strHash.toStdString().c_str(), QCryptographicHash::Md5).toHex();
-
-    QUrl url("https://" + hostname_ + "/Report/applog");
-
-    QUrlQuery postData;
-    postData.addQueryItem("time", strTimestamp);
-    postData.addQueryItem("client_auth_hash", md5Hash);
-    QByteArray ba = strLog.toUtf8();
-    postData.addQueryItem("logfile", ba.toBase64());
-    if (!username.isEmpty())
-        postData.addQueryItem("username", username);
-    postData.addQueryItem("platform", Utils::getPlatformNameSafe());
-    postData.addQueryItem("app_version", AppVersion::instance().semanticVersionString());
-
-    NetworkRequest request(url.toString(), NETWORK_TIMEOUT, true, DnsServersConfiguration::instance().getCurrentDnsServers(), bIgnoreSslErrors_, currentProxySettings());
-    request.setContentTypeHeader("Content-type: application/x-www-form-urlencoded");
-    NetworkReply *reply = networkAccessManager_->post(request, postData.toString(QUrl::FullyEncoded).toUtf8());
-    reply->setProperty("userRole", userRole);
-    connect(reply, &NetworkReply::finished, this, &ServerAPI::handleDebugLog);
+    DebugLogRequest *request = new DebugLogRequest(this, hostname_, username, strLog);
+    executeRequest(request, isNeedCheckRequestsEnabled);
+    return request;
 }
 
-void ServerAPI::speedRating(const QString &authHash, const QString &speedRatingHostname, const QString &ip, int rating, uint userRole, bool isNeedCheckRequestsEnabled)
+BaseRequest *ServerAPI::speedRating(const QString &authHash, const QString &speedRatingHostname, const QString &ip, int rating, bool isNeedCheckRequestsEnabled)
 {
-    if (isNeedCheckRequestsEnabled && !bIsRequestsEnabled_) {
-        qCDebug(LOG_SERVER_API) << "SpeedRating request failed: API not ready";
-        return;
-    }
-
-    QUrl url("https://" + hostname_ + "/SpeedRating");
-    time_t timestamp;
-    time(&timestamp);
-    QString strTimestamp = QString::number(timestamp);
-    QString strHash = HardcodedSettings::instance().serverSharedKey() + strTimestamp;
-    QString md5Hash = QCryptographicHash::hash(strHash.toStdString().c_str(), QCryptographicHash::Md5).toHex();
-
-    QString str = "time=" + strTimestamp + "&client_auth_hash=" + md5Hash + "&session_auth_hash="
-                  + authHash + "&hostname=" + speedRatingHostname + "&rating="
-                  + QString::number(rating) + "&ip=" + ip
-                  + "&platform=" + Utils::getPlatformNameSafe() + "&app_version=" + AppVersion::instance().semanticVersionString();
-
-    NetworkRequest request(url.toString(), NETWORK_TIMEOUT, true, DnsServersConfiguration::instance().getCurrentDnsServers(), bIgnoreSslErrors_, currentProxySettings());
-    request.setContentTypeHeader("Content-type: text/html; charset=utf-8");
-    NetworkReply *reply = networkAccessManager_->post(request, str.toUtf8());
-    reply->setProperty("userRole", userRole);
-    connect(reply, &NetworkReply::finished, this, &ServerAPI::handleSpeedRating);
+    SpeedRatingRequest *request = new SpeedRatingRequest(this, hostname_, authHash, speedRatingHostname, ip, rating);
+    executeRequest(request, isNeedCheckRequestsEnabled);
+    return request;
 }
 
-void ServerAPI::staticIps(const QString &authHash, const QString &deviceId, uint userRole, bool isNeedCheckRequestsEnabled)
+BaseRequest *ServerAPI::staticIps(const QString &authHash, const QString &deviceId, bool isNeedCheckRequestsEnabled)
 {
-    if (isNeedCheckRequestsEnabled && !bIsRequestsEnabled_) {
-        emit staticIpsAnswer(SERVER_RETURN_API_NOT_READY, apiinfo::StaticIps(), userRole);
-        return;
-    }
-
-    time_t timestamp;
-    time(&timestamp);
-    QString strTimestamp = QString::number(timestamp);
-    QString strHash = HardcodedSettings::instance().serverSharedKey() + strTimestamp;
-    QString md5Hash = QCryptographicHash::hash(strHash.toStdString().c_str(), QCryptographicHash::Md5).toHex();
-
-#ifdef Q_OS_WIN
-    QString strOs = "win";
-#elif defined Q_OS_MAC
-    QString strOs = "mac";
-#elif defined Q_OS_LINUX
-    QString strOs = "linux";
-#endif
-
-    qDebug() << "device_id for StaticIps request:" << deviceId;
-    QUrl url("https://" + hostname_ + "/StaticIps?time=" + strTimestamp
-             + "&client_auth_hash=" + md5Hash + "&session_auth_hash=" + authHash
-             + "&device_id=" + deviceId + "&os=" + strOs
-             + "&platform=" + Utils::getPlatformNameSafe() + "&app_version=" + AppVersion::instance().semanticVersionString());
-
-    NetworkRequest request(url.toString(), NETWORK_TIMEOUT, true, DnsServersConfiguration::instance().getCurrentDnsServers(), bIgnoreSslErrors_, currentProxySettings());
-    NetworkReply *reply = networkAccessManager_->get(request);
-    reply->setProperty("userRole", userRole);
-    connect(reply, &NetworkReply::finished, this, &ServerAPI::handleStaticIps);
+    StaticIpsRequest *request = new StaticIpsRequest(this, hostname_, authHash, deviceId);
+    executeRequest(request, isNeedCheckRequestsEnabled);
+    return request;
 }
 
 void ServerAPI::pingTest(quint64 cmdId, uint timeout, bool bWriteLog)
@@ -572,177 +451,6 @@ void ServerAPI::setRobertFilter(const QString &authHash, uint userRole, bool isN
 void ServerAPI::setIgnoreSslErrors(bool bIgnore)
 {
     bIgnoreSslErrors_ = bIgnore;
-}
-
-void ServerAPI::handleMyIP()
-{
-    NetworkReply *reply = static_cast<NetworkReply *>(sender());
-    WS_ASSERT(reply == myIpReply_);
-    QSharedPointer<NetworkReply> obj = QSharedPointer<NetworkReply>(reply, &QObject::deleteLater);
-    myIpReply_ = nullptr;
-    const uint userRole = reply->property("userRole").toUInt();
-    const bool isDisconnected = reply->property("isDisconnected").toBool();
-
-    if (!reply->isSuccess()) {
-        emit myIPAnswer("N/A", false, isDisconnected, userRole);
-        return;
-    } else {
-        QByteArray arr = reply->readAll();
-
-        QJsonParseError errCode;
-        QJsonDocument doc = QJsonDocument::fromJson(arr, &errCode);
-        if (errCode.error != QJsonParseError::NoError || !doc.isObject()) {
-            qCDebugMultiline(LOG_SERVER_API) << arr;
-            qCDebug(LOG_SERVER_API) << "API request MyIP incorrect json";
-            emit myIPAnswer("N/A", false, isDisconnected, userRole);
-        }
-
-        QJsonObject jsonObject = doc.object();
-        if (!jsonObject.contains("data")) {
-            qCDebugMultiline(LOG_SERVER_API) << arr;
-            qCDebug(LOG_SERVER_API) << "API request MyIP incorrect json(data field not found)";
-            emit myIPAnswer("N/A", false, isDisconnected, userRole);
-        }
-        QJsonObject jsonData =  jsonObject["data"].toObject();
-        if (!jsonData.contains("user_ip")) {
-            qCDebugMultiline(LOG_SERVER_API) << arr;
-            qCDebug(LOG_SERVER_API) << "API request MyIP incorrect json(user_ip field not found)";
-            emit myIPAnswer("N/A", false, isDisconnected, userRole);
-        }
-        emit myIPAnswer(jsonData["user_ip"].toString(), true, isDisconnected, userRole);
-    }
-}
-
-void ServerAPI::handleCheckUpdate()
-{
-    NetworkReply *reply = static_cast<NetworkReply *>(sender());
-    QSharedPointer<NetworkReply> obj = QSharedPointer<NetworkReply>(reply, &QObject::deleteLater);
-    const uint userRole = reply->property("userRole").toUInt();
-
-    if (!reply->isSuccess()) {
-        qCDebug(LOG_SERVER_API) << "Check update failed(" << reply->errorString() << ")";
-        emit checkUpdateAnswer(types::CheckUpdate(), true, userRole);
-    } else {
-        QByteArray arr = reply->readAll();
-
-        QJsonParseError errCode;
-        QJsonDocument doc = QJsonDocument::fromJson(arr, &errCode);
-        if (errCode.error != QJsonParseError::NoError || !doc.isObject()) {
-            qCDebugMultiline(LOG_SERVER_API) << arr;
-            qCDebug(LOG_SERVER_API) << "Failed parse JSON for CheckUpdate";
-            emit checkUpdateAnswer(types::CheckUpdate(), false, userRole);
-            return;
-        }
-
-        QJsonObject jsonObject = doc.object();
-
-        if (jsonObject.contains("errorCode")) {
-            // Putting this debug line here to help us quickly troubleshoot errors returned from the
-            // server API, which hopefully should be few and far between.
-            qCDebugMultiline(LOG_SERVER_API) << arr;
-            emit checkUpdateAnswer(types::CheckUpdate(), false, userRole);
-            return;
-        }
-
-        if (!jsonObject.contains("data")) {
-            qCDebugMultiline(LOG_SERVER_API) << arr;
-            qCDebug(LOG_SERVER_API) << "Failed parse JSON for CheckUpdate";
-            emit checkUpdateAnswer(types::CheckUpdate(), false, userRole);
-            return;
-        }
-        QJsonObject jsonData =  jsonObject["data"].toObject();
-        if (!jsonData.contains("update_needed_flag")) {
-            qCDebugMultiline(LOG_SERVER_API) << arr;
-            qCDebug(LOG_SERVER_API) << "Failed parse JSON for CheckUpdate";
-            emit checkUpdateAnswer(types::CheckUpdate(), false, userRole);
-            return;
-        }
-
-        int updateNeeded = jsonData["update_needed_flag"].toInt();
-        if (updateNeeded != 1) {
-            emit checkUpdateAnswer(types::CheckUpdate(), false, userRole);
-            return;
-        }
-
-        if (!jsonData.contains("latest_version")) {
-            qCDebugMultiline(LOG_SERVER_API) << arr;
-            qCDebug(LOG_SERVER_API) << "Failed parse JSON for CheckUpdate";
-            emit checkUpdateAnswer(types::CheckUpdate(), false, userRole);
-            return;
-        }
-        if (!jsonData.contains("update_url")) {
-            qCDebugMultiline(LOG_SERVER_API) << arr;
-            qCDebug(LOG_SERVER_API) << "Failed parse JSON for CheckUpdate";
-            emit checkUpdateAnswer(types::CheckUpdate(), false, userRole);
-            return;
-        }
-
-        QString err;
-        bool outSuccess;
-        types::CheckUpdate cu = types::CheckUpdate::createFromApiJson(jsonData, outSuccess, err);
-        if (!outSuccess) {
-            qCDebug(LOG_SERVER_API) << err;
-            emit checkUpdateAnswer(types::CheckUpdate(), false, userRole);
-            return;
-        }
-
-        emit checkUpdateAnswer(cu, false, userRole);
-    }
-}
-
-void ServerAPI::handleDebugLog()
-{
-    NetworkReply *reply = static_cast<NetworkReply *>(sender());
-    QSharedPointer<NetworkReply> obj = QSharedPointer<NetworkReply>(reply, &QObject::deleteLater);
-    const uint userRole = reply->property("userRole").toUInt();
-
-    if (!reply->isSuccess()) {
-        qCDebug(LOG_SERVER_API) << "DebugLog request failed(" << reply->errorString() << ")";
-        emit debugLogAnswer(SERVER_RETURN_NETWORK_ERROR, userRole);
-    } else {
-        QByteArray arr = reply->readAll();
-
-        QJsonParseError errCode;
-        QJsonDocument doc = QJsonDocument::fromJson(arr, &errCode);
-        if (errCode.error != QJsonParseError::NoError || !doc.isObject()) {
-            qCDebugMultiline(LOG_SERVER_API) << arr;
-            qCDebug(LOG_SERVER_API) << "Failed parse JSON for Report";
-            emit debugLogAnswer(SERVER_RETURN_INCORRECT_JSON, userRole);
-            return;
-        }
-
-        QJsonObject jsonObject = doc.object();
-        if (!jsonObject.contains("data")) {
-            qCDebugMultiline(LOG_SERVER_API) << arr;
-            qCDebug(LOG_SERVER_API) << "Failed parse JSON for Report";
-            emit debugLogAnswer(SERVER_RETURN_INCORRECT_JSON, userRole);
-            return;
-        }
-        QJsonObject jsonData =  jsonObject["data"].toObject();
-        if (!jsonData.contains("success")) {
-            qCDebugMultiline(LOG_SERVER_API) << arr;
-            qCDebug(LOG_SERVER_API) << "Failed parse JSON for Report";
-            emit debugLogAnswer(SERVER_RETURN_INCORRECT_JSON, userRole);
-            return;
-        }
-
-        int is_success = jsonData["success"].toInt();
-        emit debugLogAnswer(is_success == 1 ? SERVER_RETURN_SUCCESS : SERVER_RETURN_INCORRECT_JSON, userRole);
-    }
-}
-
-void ServerAPI::handleSpeedRating()
-{
-    NetworkReply *reply = static_cast<NetworkReply *>(sender());
-    QSharedPointer<NetworkReply> obj = QSharedPointer<NetworkReply>(reply, &QObject::deleteLater);
-
-    if (!reply->isSuccess())
-        qCDebug(LOG_SERVER_API) << "SpeedRating request failed(" << reply->errorString() << ")";
-    else {
-        qCDebug(LOG_SERVER_API) << "SpeedRating request successfully executed";
-        QByteArray arr = reply->readAll();
-        qCDebugMultiline(LOG_SERVER_API) << arr;
-    }
 }
 
 void ServerAPI::handlePingTest()
@@ -1025,21 +733,22 @@ void ServerAPI::handleNetworkRequestFinished()
 {
     NetworkReply *reply = static_cast<NetworkReply *>(sender());
     QSharedPointer<NetworkReply> obj = QSharedPointer<NetworkReply>(reply, &QObject::deleteLater);
-    BaseRequest *request = static_cast<BaseRequest*>(reply->property("request").value<void*>());
+    QPointer<BaseRequest> pointerToRequest = reply->property("pointerToRequest").value<QPointer<BaseRequest> >();
+    if (pointerToRequest) {
 
-    if (!reply->isSuccess())
-    {
-        if (reply->error() ==  NetworkReply::NetworkError::SslError && !bIgnoreSslErrors_)
-            request->setRetCode(SERVER_RETURN_SSL_ERROR);
-        else
-            request->setRetCode(SERVER_RETURN_NETWORK_ERROR);
+        if (!reply->isSuccess()) {
+            if (reply->error() ==  NetworkReply::NetworkError::SslError && !bIgnoreSslErrors_)
+                pointerToRequest->setRetCode(SERVER_RETURN_SSL_ERROR);
+            else
+                pointerToRequest->setRetCode(SERVER_RETURN_NETWORK_ERROR);
 
-        qCDebug(LOG_SERVER_API) << "API request " + request->name() + " failed(" << reply->errorString() << ")";
-        emit request->finished();
-    }
-    else {
-        request->handle(reply->readAll());
-        emit request->finished();
+            qCDebug(LOG_SERVER_API) << "API request " + pointerToRequest->name() + " failed(" << reply->errorString() << ")";
+            emit pointerToRequest->finished();
+        }
+        else {
+            pointerToRequest->handle(reply->readAll());
+            emit pointerToRequest->finished();
+        }
     }
 }
 
@@ -1082,51 +791,9 @@ void ServerAPI::executeRequest(BaseRequest *request, bool isNeedCheckRequestsEna
             WS_ASSERT(false);
     }
 
-    reply->setProperty("request",  QVariant::fromValue(static_cast<void*>(request)));
+    QPointer<BaseRequest> pointerToRequest(request);
+    reply->setProperty("pointerToRequest",  QVariant::fromValue(pointerToRequest));
     connect(reply, &NetworkReply::finished, this, &ServerAPI::handleNetworkRequestFinished);
-}
-void ServerAPI::handleStaticIps()
-{
-    NetworkReply *reply = static_cast<NetworkReply *>(sender());
-    QSharedPointer<NetworkReply> obj = QSharedPointer<NetworkReply>(reply, &QObject::deleteLater);
-    const uint userRole = reply->property("userRole").toUInt();
-
-    if (!reply->isSuccess()) {
-        qCDebug(LOG_SERVER_API) << "StaticIps request failed(" << reply->errorString() << ")";
-        emit staticIpsAnswer(SERVER_RETURN_NETWORK_ERROR, apiinfo::StaticIps(), userRole);
-    } else {
-        QByteArray arr = reply->readAll();
-
-        QJsonParseError errCode;
-        QJsonDocument doc = QJsonDocument::fromJson(arr, &errCode);
-        if (errCode.error != QJsonParseError::NoError || !doc.isObject()) {
-            qCDebugMultiline(LOG_SERVER_API) << arr;
-            qCDebug(LOG_SERVER_API) << "Failed parse JSON for StaticIps";
-            emit staticIpsAnswer(SERVER_RETURN_INCORRECT_JSON, apiinfo::StaticIps(), userRole);
-            return;
-        }
-
-        QJsonObject jsonObject = doc.object();
-        if (!jsonObject.contains("data")) {
-            qCDebugMultiline(LOG_SERVER_API) << arr;
-            qCDebug(LOG_SERVER_API) << "Failed parse JSON for StaticIps";
-            emit staticIpsAnswer(SERVER_RETURN_INCORRECT_JSON, apiinfo::StaticIps(), userRole);
-            return;
-        }
-
-        QJsonObject jsonData =  jsonObject["data"].toObject();
-
-        apiinfo::StaticIps staticIps;
-        if (!staticIps.initFromJson(jsonData)) {
-            qCDebugMultiline(LOG_SERVER_API) << arr;
-            qCDebug(LOG_SERVER_API) << "Failed parse JSON for StaticIps";
-            emit staticIpsAnswer(SERVER_RETURN_INCORRECT_JSON, apiinfo::StaticIps(), userRole);
-            return;
-        }
-
-        qCDebug(LOG_SERVER_API) << "StaticIps request successfully executed";
-        emit staticIpsAnswer(SERVER_RETURN_SUCCESS, staticIps, userRole);
-    }
 }
 
 } // namespace server_api

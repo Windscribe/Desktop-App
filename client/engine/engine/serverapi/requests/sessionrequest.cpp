@@ -100,9 +100,4 @@ void SessionRequest::handle(const QByteArray &arr)
     setRetCode(SERVER_RETURN_SUCCESS);
 }
 
-types::SessionStatus SessionRequest::sessionStatus() const
-{
-    return sessionStatus_;
-}
-
 } // namespace server_api {

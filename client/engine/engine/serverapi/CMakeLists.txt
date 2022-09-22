@@ -25,4 +25,14 @@ target_sources(engine PRIVATE
     requests/confirmemailrequest.h
     requests/websessionrequest.cpp
     requests/websessionrequest.h
+    requests/myiprequest.h
+    requests/myiprequest.cpp
+    requests/checkupdaterequest.h
+    requests/checkupdaterequest.cpp
+    requests/debuglogrequest.cpp
+    requests/debuglogrequest.h
+    requests/speedratingrequest.cpp
+    requests/speedratingrequest.h
+    requests/staticipsrequest.h
+    requests/staticipsrequest.cpp
 )

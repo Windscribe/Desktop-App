@@ -25,6 +25,9 @@
 #include "serverapi/requests/serverlistrequest.h"
 #include "serverapi/requests/serverconfigsrequest.h"
 #include "serverapi/requests/websessionrequest.h"
+#include "serverapi/requests/checkupdaterequest.h"
+#include "serverapi/requests/debuglogrequest.h"
+#include "serverapi/requests/staticipsrequest.h"
 
 // For testing merge log functionality
 //#include <QStandardPaths>
@@ -640,12 +643,8 @@ void Engine::initPart2()
     connect(networkAccessManager_, &NetworkAccessManager::whitelistIpsChanged, this, &Engine::onHostIPsChanged);
 
     serverAPI_ = new server_api::ServerAPI(this, connectStateController_, networkAccessManager_);
-    connect(serverAPI_, SIGNAL(checkUpdateAnswer(types::CheckUpdate,bool,uint)),
-                        SLOT(onCheckUpdateAnswer(types::CheckUpdate,bool,uint)), Qt::QueuedConnection);
     connect(serverAPI_, SIGNAL(notificationsAnswer(SERVER_API_RET_CODE,QVector<types::Notification>,uint)),
                         SLOT(onNotificationsAnswer(SERVER_API_RET_CODE,QVector<types::Notification>,uint)));
-    connect(serverAPI_, SIGNAL(debugLogAnswer(SERVER_API_RET_CODE,uint)), SLOT(onDebugLogAnswer(SERVER_API_RET_CODE,uint)));
-    connect(serverAPI_, SIGNAL(staticIpsAnswer(SERVER_API_RET_CODE,apiinfo::StaticIps, uint)), SLOT(onStaticIpsAnswer(SERVER_API_RET_CODE,apiinfo::StaticIps, uint)), Qt::QueuedConnection);
     connect(serverAPI_, SIGNAL(sendUserWarning(USER_WARNING_TYPE)), SIGNAL(sendUserWarning(USER_WARNING_TYPE)));
     connect(serverAPI_, &server_api::ServerAPI::getRobertFiltersAnswer, this, &Engine::onGetRobertFiltersAnswer);
     connect(serverAPI_, &server_api::ServerAPI::setRobertFilterAnswer, this, &Engine::onSetRobertFilterAnswer);
@@ -677,7 +676,7 @@ void Engine::initPart2()
     connect(locationsModel_, SIGNAL(whitelistCustomConfigsIpsChanged(QStringList)), SLOT(onLocationsModelWhitelistCustomConfigIpsChanged(QStringList)));
 
     getMyIPController_ = new GetMyIPController(this, serverAPI_, networkDetectionManager_);
-    connect(getMyIPController_, SIGNAL(answerMyIP(QString,bool,bool)), SLOT(onMyIpAnswer(QString,bool,bool)));
+    connect(getMyIPController_, &GetMyIPController::answerMyIP, this, &Engine::onMyIpAnswer);
 
     vpnShareController_ = new VpnShareController(this, helper_);
     connect(vpnShareController_, SIGNAL(connectedWifiUsersChanged(int)), SIGNAL(vpnSharingConnectedWifiUsersCountChanged(int)));
@@ -1124,7 +1123,8 @@ void Engine::sendDebugLogImpl()
     }
     */
 
-    serverAPI_->debugLog(userName, log, serverApiUserRole_, true);
+    server_api::BaseRequest *request = serverAPI_->debugLog(userName, log, true);
+    connect(request, &server_api::BaseRequest::finished, this, &Engine::onDebugLogAnswer);
 }
 
 void Engine::getWebSessionTokenImpl(WEB_SESSION_PURPOSE purpose)
@@ -1169,9 +1169,9 @@ void Engine::signOutImplAfterDisconnect(bool keepFirewallOn)
     if (!apiInfo_.isNull())
     {
         server_api::BaseRequest *request = serverAPI_->deleteSession(apiInfo_->getAuthHash(), true);
-        connect(request, &server_api::BaseRequest::finished, [this] {
-            // Just delete the request, without any action
-            QSharedPointer<server_api::BaseRequest> request(static_cast<server_api::BaseRequest *>(sender()), &QObject::deleteLater);
+        connect(request, &server_api::BaseRequest::finished, [request]() {
+            // Just delete the request, without any action. We don't need a result.
+            request->deleteLater();
         });
 
         apiInfo_.reset();
@@ -1268,7 +1268,11 @@ void Engine::firewallOffImpl()
 
 void Engine::speedRatingImpl(int rating, const QString &localExternalIp)
 {
-    serverAPI_->speedRating(apiInfo_->getAuthHash(), lastConnectingHostname_, localExternalIp, rating, serverApiUserRole_, true);
+    server_api::BaseRequest *request = serverAPI_->speedRating(apiInfo_->getAuthHash(), lastConnectingHostname_, localExternalIp, rating, true);
+    connect(request, &server_api::BaseRequest::finished, [request]() {
+        // Just delete the request, without any action. We don't need a result.
+        request->deleteLater();
+    });
 }
 
 void Engine::setSettingsImpl(const types::EngineSettings &engineSettings)
@@ -1319,7 +1323,8 @@ void Engine::setSettingsImpl(const types::EngineSettings &engineSettings)
             qCDebug(LOG_BASIC) << "Overriding update channel: internal";
             channel = UPDATE_CHANNEL_INTERNAL;
         }
-        serverAPI_->checkUpdate(channel, serverApiUserRole_, true);
+        server_api::BaseRequest *request = serverAPI_->checkUpdate(channel, true);
+        connect(request, &server_api::BaseRequest::finished, this, &Engine::onCheckUpdateAnswer);
     }
     if (isLanguageChanged || isProtocolChanged)
     {
@@ -1581,38 +1586,24 @@ void Engine::onServerConfigsAnswer()
     }
 }
 
-void Engine::onCheckUpdateAnswer(const types::CheckUpdate &checkUpdate, bool bNetworkErrorOccured, uint userRole)
+void Engine::onCheckUpdateAnswer()
 {
+    QSharedPointer<server_api::CheckUpdateRequest> request(static_cast<server_api::CheckUpdateRequest *>(sender()), &QObject::deleteLater);
     qCDebug(LOG_BASIC) << "Received Check Update Answer";
 
-    if (userRole == serverApiUserRole_)
-    {
-        if (bNetworkErrorOccured)
-        {
-            QTimer::singleShot(60000, this, &Engine::checkForAppUpdate);
-            return;
-        }
+    // is a network error?
+    if (request->retCode() == SERVER_RETURN_NETWORK_ERROR || request->retCode() == SERVER_RETURN_SSL_ERROR)  {
+        QTimer::singleShot(60000, this, &Engine::checkForAppUpdate);
+        return;
+    }
 
-        installerUrl_ = checkUpdate.url;
-        installerHash_ = checkUpdate.sha256;
-
-        // testing only
-//#ifdef Q_OS_LINUX
-//            if(LinuxUtils::isDeb()) {
-//                installerUrl_ = "https://nexus.int.windscribe.com/repository/client-desktop-beta/windscribe_2.3.11_beta_amd64.deb";
-//             }
-//             else {
-//                installerUrl_ = "https://nexus.int.windscribe.com/repository/client-desktop-beta/windscribe_2.3.11_beta_x86_64.rpm";
-//             }
-//#elif defined Q_OS_MAC
-//             installerUrl_ = "https://nexus.int.windscribe.com/repository/client-desktop-beta/Windscribe_2.3.11_beta.dmg";
-//#else
-//             installerUrl_ = "https://nexus.int.windscribe.com/repository/client-desktop-beta/Windscribe_2.3.11_beta.exe";
-//#endif
+    installerUrl_ = request->checkUpdate().url;
+    installerHash_ = request->checkUpdate().sha256;
+    if (request->checkUpdate().isAvailable) {
         qCDebug(LOG_BASIC) << "Installer URL: " << installerUrl_;
         qCDebug(LOG_BASIC) << "Installer Hash: " << installerHash_;
-        Q_EMIT checkUpdateUpdated(checkUpdate);
     }
+    Q_EMIT checkUpdateUpdated(request->checkUpdate());
 }
 
 void Engine::onHostIPsChanged(const QSet<QString> &hostIps)
@@ -1622,17 +1613,19 @@ void Engine::onHostIPsChanged(const QSet<QString> &hostIps)
     updateFirewallSettings();
 }
 
-void Engine::onMyIpAnswer(const QString &ip, bool success, bool isDisconnected)
+void Engine::onMyIpAnswer(const QString &ip, bool isDisconnected)
 {
-    Q_EMIT myIpUpdated(ip, success, isDisconnected);
+    Q_EMIT myIpUpdated(ip, isDisconnected);
 }
 
-void Engine::onDebugLogAnswer(SERVER_API_RET_CODE retCode, uint userRole)
+void Engine::onDebugLogAnswer()
 {
-    if (userRole == serverApiUserRole_)
-    {
-        Q_EMIT sendDebugLogFinished(retCode == SERVER_RETURN_SUCCESS);
-    }
+    QSharedPointer<server_api::DebugLogRequest> request(static_cast<server_api::DebugLogRequest *>(sender()), &QObject::deleteLater);
+    if (request->retCode() == SERVER_RETURN_SUCCESS)
+        qCDebug(LOG_BASIC) << "DebugLog sent";
+    else
+        qCDebug(LOG_BASIC) << "DebugLog returned failed error code";
+    Q_EMIT sendDebugLogFinished(request->retCode() == SERVER_RETURN_SUCCESS);
 }
 
 void Engine::onConfirmEmailAnswer()
@@ -1641,24 +1634,23 @@ void Engine::onConfirmEmailAnswer()
     Q_EMIT confirmEmailFinished(request->retCode() == SERVER_RETURN_SUCCESS);
 }
 
-void Engine::onStaticIpsAnswer(SERVER_API_RET_CODE retCode, const apiinfo::StaticIps &staticIps, uint userRole)
+void Engine::onStaticIpsAnswer()
 {
-    if (userRole == serverApiUserRole_)
+    QSharedPointer<server_api::StaticIpsRequest> request(static_cast<server_api::StaticIpsRequest *>(sender()), &QObject::deleteLater);
+    if (request->retCode() == SERVER_RETURN_SUCCESS)
     {
-        if (retCode == SERVER_RETURN_SUCCESS)
-        {
-            apiInfo_->setStaticIps(staticIps);
-            updateServerLocations();
-        }
-        else
-        {
-            qCDebug(LOG_BASIC) << "Failed get static ips";
-            QTimer::singleShot(3000, this, [this]() {
-                if (!apiInfo_.isNull()) {
-                    serverAPI_->staticIps(apiInfo_->getAuthHash(), GetDeviceId::instance().getDeviceId(), serverApiUserRole_, true);
-                }
-            });
-        }
+        apiInfo_->setStaticIps(request->staticIps());
+        updateServerLocations();
+    }
+    else
+    {
+        qCDebug(LOG_BASIC) << "Failed get static ips";
+        QTimer::singleShot(3000, this, [this]() {
+            if (!apiInfo_.isNull()) {
+                server_api::BaseRequest *requestStaticIps = serverAPI_->staticIps(apiInfo_->getAuthHash(), GetDeviceId::instance().getDeviceId(), true);
+                connect(requestStaticIps, &server_api::BaseRequest::finished, this, &Engine::onStaticIpsAnswer);
+            }
+        });
     }
 }
 
@@ -1719,7 +1711,8 @@ void Engine::onUpdateServerResources()
         //serverAPI_->portMap(authHash, serverApiUserRole_, true);
 
         if (ss.getStaticIpsCount() > 0) {
-            serverAPI_->staticIps(authHash, GetDeviceId::instance().getDeviceId(), serverApiUserRole_, true);
+            server_api::BaseRequest *requestStaticIps = serverAPI_->staticIps(authHash, GetDeviceId::instance().getDeviceId(), true);
+            connect(requestStaticIps, &server_api::BaseRequest::finished, this, &Engine::onStaticIpsAnswer);
         }
     }
 
@@ -1734,7 +1727,8 @@ void Engine::checkForAppUpdate()
         qCDebug(LOG_BASIC) << "Overriding update channel: internal";
         channel = UPDATE_CHANNEL_INTERNAL;
     }
-    serverAPI_->checkUpdate(channel, serverApiUserRole_, true);
+    server_api::BaseRequest *request = serverAPI_->checkUpdate(channel, true);
+    connect(request, &server_api::BaseRequest::finished, this, &Engine::onCheckUpdateAnswer);
 }
 
 void Engine::onUpdateSessionStatusTimer()
@@ -2133,7 +2127,7 @@ void Engine::onConnectionManagerTestTunnelResult(bool success, const QString &ip
     Q_EMIT testTunnelResult(success); // stops protocol/port flashing
     if (!ipAddress.isEmpty())
     {
-        Q_EMIT myIpUpdated(ipAddress, success, false); // sends IP address to UI // test should only occur in connected state
+        Q_EMIT myIpUpdated(ipAddress, false); // sends IP address to UI // test should only occur in connected state
     }
 }
 
@@ -2263,7 +2257,8 @@ void Engine::updateAdvancedParamsImpl()
             qCDebug(LOG_BASIC) << "Overriding update channel: internal";
             channel = UPDATE_CHANNEL_INTERNAL;
         }
-        serverAPI_->checkUpdate(channel, serverApiUserRole_, true);
+        server_api::BaseRequest *request = serverAPI_->checkUpdate(channel, true);
+        connect(request, &server_api::BaseRequest::finished, this, &Engine::onCheckUpdateAnswer);
     }
 }
 
@@ -2706,7 +2701,8 @@ void Engine::updateSessionStatus()
         {
             if (ss.getStaticIpsCount() > 0)
             {
-                serverAPI_->staticIps(apiInfo_->getAuthHash(), GetDeviceId::instance().getDeviceId(), serverApiUserRole_, true);
+                server_api::BaseRequest *requestStaticIps = serverAPI_->staticIps(apiInfo_->getAuthHash(), GetDeviceId::instance().getDeviceId(), true);
+                connect(requestStaticIps, &server_api::BaseRequest::finished, this, &Engine::onStaticIpsAnswer);
             }
             else
             {

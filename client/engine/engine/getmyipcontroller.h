@@ -5,10 +5,7 @@
 #include <QQueue>
 #include <QTimer>
 #include "engine/networkdetectionmanager/inetworkdetectionmanager.h"
-
-namespace server_api {
-    class ServerAPI;
-}
+#include "engine/serverapi/serverapi.h"
 
 class GetMyIPController : public QObject
 {
@@ -20,16 +17,19 @@ public:
     void getIPFromDisconnectedState(int timeoutMs);
 
 signals:
-    void answerMyIP(const QString &ip, bool success, bool isDisconnected);
+    void answerMyIP(const QString &ip, bool isDisconnected);
 
 private slots:
     void onTimer();
-    void onMyIpAnswer(const QString &ip, bool success, bool isDisconnected, uint userRole);
+    void onMyIpAnswer();
 
 private:
+    static constexpr int kTimeout = 5000;
+
     server_api::ServerAPI *serverAPI_;
     INetworkDetectionManager *networkDetectionManager_;
-    uint serverApiUserRole_;
+
+    server_api::BaseRequest *curRequest_;
 
     bool requestForTimerIsDisconnected_;
     QTimer timer_;
