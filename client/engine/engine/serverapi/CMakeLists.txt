@@ -35,4 +35,16 @@ target_sources(engine PRIVATE
     requests/speedratingrequest.h
     requests/staticipsrequest.h
     requests/staticipsrequest.cpp
+    requests/pingtestrequest.cpp
+    requests/pingtestrequest.h
+    requests/notificationsrequest.cpp
+    requests/notificationsrequest.h
+    requests/getrobertfiltersrequest.cpp
+    requests/getrobertfiltersrequest.h
+    requests/setrobertfiltersrequest.cpp
+    requests/setrobertfiltersrequest.h
+    requests/wgconfigsinitrequest.h
+    requests/wgconfigsinitrequest.cpp
+    requests/wgconfigsconnectrequest.h
+    requests/wgconfigsconnectrequest.cpp
 )

@@ -9,6 +9,7 @@
 #include "networkdetectionmanager/inetworkdetectionmanager.h"
 #include "firewall/firewallcontroller.h"
 #include "serverapi/serverapi.h"
+#include "types/notification.h"
 #include "locationsmodel/enginelocationsmodel.h"
 #include "connectionmanager/connectionmanager.h"
 #include "connectstatecontroller/connectstatecontroller.h"
@@ -236,7 +237,7 @@ private slots:
     void onServerLocationsAnswer();
 
     void onSessionAnswer();
-    void onNotificationsAnswer(SERVER_API_RET_CODE retCode, const QVector<types::Notification> &notifications, uint userRole);
+    void onNotificationsAnswer();
     void onServerConfigsAnswer();
     void onCheckUpdateAnswer();
     void onHostIPsChanged(const QSet<QString> &hostIps);
@@ -245,8 +246,8 @@ private slots:
     void onConfirmEmailAnswer();
     void onStaticIpsAnswer();
     void onWebSessionAnswer();
-    void onGetRobertFiltersAnswer(SERVER_API_RET_CODE retCode, const QVector<types::RobertFilter> &filters, uint userRole);
-    void onSetRobertFilterAnswer(SERVER_API_RET_CODE retCode, uint userRole);
+    void onGetRobertFiltersAnswer();
+    void onSetRobertFilterAnswer();
 
     void onUpdateServerResources();
     void onUpdateSessionStatusTimer();
@@ -328,7 +329,6 @@ private:
     server_api::ServerAPI *serverAPI_;
     ConnectionManager *connectionManager_;
     ConnectStateController *connectStateController_;
-    uint serverApiUserRole_;
     GetMyIPController *getMyIPController_;
     VpnShareController *vpnShareController_;
     EmergencyController *emergencyController_;

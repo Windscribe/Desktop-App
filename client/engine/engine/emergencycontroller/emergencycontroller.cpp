@@ -20,7 +20,6 @@
 
 EmergencyController::EmergencyController(QObject *parent, IHelper *helper) : QObject(parent),
     helper_(helper),
-    serverApiUserRole_(0),
     state_(STATE_DISCONNECTED)
 {
     QFile file(":/resources/ovpn/emergency.ovpn");

@@ -13,7 +13,7 @@ class GetWireGuardConfigInLoop : public QObject
 {
     Q_OBJECT
 public:
-    GetWireGuardConfigInLoop(QObject *parent, server_api::ServerAPI *serverAPI, uint serverApiUserRole);
+    GetWireGuardConfigInLoop(QObject *parent, server_api::ServerAPI *serverAPI);
 
     void getWireGuardConfig(const QString &serverName, bool deleteOldestKey, const QString &deviceId);
     void stop();
@@ -28,7 +28,6 @@ private slots:
 private:
     enum {LOOP_PERIOD = 2000}; // 2 sec
     server_api::ServerAPI *serverAPI_;
-    uint serverApiUserRole_;
     GetWireGuardConfig *getConfig_;
     QTimer *fetchWireguardConfigTimer_;
     QString serverName_;

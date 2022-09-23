@@ -18,7 +18,7 @@ class GetWireGuardConfig : public QObject
 {
     Q_OBJECT
 public:
-    GetWireGuardConfig(QObject *parent, server_api::ServerAPI *serverAPI, uint serverApiUserRole);
+    GetWireGuardConfig(QObject *parent, server_api::ServerAPI *serverAPI);
 
     void getWireGuardConfig(const QString &serverName, bool deleteOldestKey, const QString &deviceId);
     static void removeWireGuardSettings();
@@ -27,14 +27,13 @@ signals:
     void getWireGuardConfigAnswer(SERVER_API_RET_CODE retCode, const WireGuardConfig &config);
 
 private slots:
-    void onWgConfigsInitAnswer(SERVER_API_RET_CODE retCode, uint userRole, bool isErrorCode, int errorCode, const QString &presharedKey, const QString &allowedIps);
-    void onWgConfigsConnectAnswer(SERVER_API_RET_CODE retCode, uint userRole, bool isErrorCode, int errorCode, const QString &ipAddress, const QString &dnsAddress);
+    void onWgConfigsInitAnswer();
+    void onWgConfigsConnectAnswer();
 
 
 private:
     static const QString KEY_WIREGUARD_CONFIG;
     server_api::ServerAPI *serverAPI_;
-    uint serverApiUserRole_;
     WireGuardConfig wireGuardConfig_;
     QString serverName_;
     bool deleteOldestKey_;

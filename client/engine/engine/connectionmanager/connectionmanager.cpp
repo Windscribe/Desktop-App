@@ -94,7 +94,7 @@ ConnectionManager::ConnectionManager(QObject *parent, IHelper *helper, INetworkD
 
     connect(&timerWaitNetworkConnectivity_, SIGNAL(timeout()), SLOT(onTimerWaitNetworkConnectivity()));
 
-    getWireGuardConfigInLoop_ = new GetWireGuardConfigInLoop(this, serverAPI, serverAPI->getAvailableUserRole());
+    getWireGuardConfigInLoop_ = new GetWireGuardConfigInLoop(this, serverAPI);
     connect(getWireGuardConfigInLoop_, &GetWireGuardConfigInLoop::getWireGuardConfigAnswer, this, &ConnectionManager::onGetWireGuardConfigAnswer);
 }
 

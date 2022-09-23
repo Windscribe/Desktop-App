@@ -2,12 +2,10 @@
 
 #include <QObject>
 
-#include "types/notification.h"
 #include "types/proxysettings.h"
 #include "types/robertfilter.h"
 #include "engine/networkaccessmanager/networkaccessmanager.h"
 #include "requests/baserequest.h"
-
 
 class IConnectStateController;
 
@@ -15,7 +13,7 @@ namespace server_api {
 
 /*
 Access to API endpoint.
-Example of a typical usage in the calling code
+Example of a typical usage in the chardalling code
    server_api::BaseRequest *request = serverAPI_->login(username, password, code2fa);
    connect(request, &server_api::BaseRequest::finished, this, &LoginController::onLoginAnswer);
    .....
@@ -34,8 +32,6 @@ public:
     explicit ServerAPI(QObject *parent, IConnectStateController *connectStateController, NetworkAccessManager *networkAccessManager);
     virtual ~ServerAPI();
 
-    uint getAvailableUserRole();
-
     // FIXME: move to NetworkAccessManager
     void setProxySettings(const types::ProxySettings &proxySettings);
     void disableProxy();
@@ -49,6 +45,8 @@ public:
     // set single hostname for make API requests
     void setHostname(const QString &hostname);
     QString getHostname() const;
+
+    void setIgnoreSslErrors(bool bIgnore);
 
     BaseRequest *accessIps(const QString &hostIp);
     BaseRequest *login(const QString &username, const QString &password, const QString &code2fa);
@@ -71,59 +69,26 @@ public:
 
     BaseRequest *staticIps(const QString &authHash, const QString &deviceId, bool isNeedCheckRequestsEnabled);
 
-    void pingTest(quint64 cmdId, uint timeout, bool bWriteLog);
-    void cancelPingTest(quint64 cmdId);
+    BaseRequest *pingTest(uint timeout, bool bWriteLog);
 
-    void notifications(const QString &authHash, uint userRole, bool isNeedCheckRequestsEnabled);
+    BaseRequest *notifications(const QString &authHash, bool isNeedCheckRequestsEnabled);
 
-    void getRobertFilters(const QString &authHash, uint userRole, bool isNeedCheckRequestsEnabled);
-    void setRobertFilter(const QString &authHash, uint userRole, bool isNeedCheckRequestsEnabled, const types::RobertFilter &filter);
+    BaseRequest *getRobertFilters(const QString &authHash, bool isNeedCheckRequestsEnabled);
+    BaseRequest *setRobertFilter(const QString &authHash, bool isNeedCheckRequestsEnabled, const types::RobertFilter &filter);
 
-    void wgConfigsInit(const QString &authHash, uint userRole, bool isNeedCheckRequestsEnabled, const QString &clientPublicKey, bool deleteOldestKey);
-    void wgConfigsConnect(const QString &authHash, uint userRole, bool isNeedCheckRequestsEnabled, const QString &clientPublicKey, const QString &serverName, const QString &deviceId);
-
-    void setIgnoreSslErrors(bool bIgnore);
-
-signals:
-    void pingTestAnswer(SERVER_API_RET_CODE retCode, const QString &data);
-    void notificationsAnswer(SERVER_API_RET_CODE retCode, QVector<types::Notification> notifications, uint userRole);
-
-    void wgConfigsInitAnswer(SERVER_API_RET_CODE retCode, uint userRole, bool isErrorCode, int errorCode, const QString &presharedKey, const QString &allowedIps);
-    void wgConfigsConnectAnswer(SERVER_API_RET_CODE retCode, uint userRole, bool isErrorCode, int errorCode, const QString &ipAddress, const QString &dnsAddress);
-
-    void sendUserWarning(USER_WARNING_TYPE warning);
-    void getRobertFiltersAnswer(SERVER_API_RET_CODE retCode, const QVector<types::RobertFilter> &robertFilters, uint userRole);
-    void setRobertFilterAnswer(SERVER_API_RET_CODE retCode, uint userRole);
+    BaseRequest *wgConfigsInit(const QString &authHash, bool isNeedCheckRequestsEnabled, const QString &clientPublicKey, bool deleteOldestKey);
+    BaseRequest *wgConfigsConnect(const QString &authHash, bool isNeedCheckRequestsEnabled, const QString &clientPublicKey, const QString &serverName, const QString &deviceId);
 
 private:
     NetworkAccessManager *networkAccessManager_;
     types::ProxySettings proxySettings_;
     bool isProxyEnabled_;
-
-    enum {
-        NETWORK_TIMEOUT = 10000,
-    };
-
-    void handlePingTest();
-    void handleNotifications();
-    void handleWgConfigsInit();
-    void handleWgConfigsConnect();
-    void handleGetRobertFilters();
-    void handleSetRobertFilter();
-
-    void handleNetworkRequestFinished();
-
     IConnectStateController *connectStateController_;
-
     QString hostname_;
-    QStringList hostIps_;
-
     bool bIsRequestsEnabled_;
-    uint curUserRole_;
     bool bIgnoreSslErrors_;
 
-    QHash<quint64, NetworkReply *> pingTestReplies_;
-
+    void handleNetworkRequestFinished();
     types::ProxySettings currentProxySettings() const;
     void executeRequest(BaseRequest *request, bool isNeedCheckRequestsEnabled);
 };

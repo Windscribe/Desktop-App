@@ -38,7 +38,7 @@ QString HardcodedSettings::generateDomain(const QString &prefix)
     str += QByteArray::number(dt.date().year());
     QByteArray code = QCryptographicHash::hash(str, QCryptographicHash::Sha1);
     QString result = prefix + code.toHex() + ".com";
-    return result + "s";
+    return result;
 }
 
 HardcodedSettings::HardcodedSettings() : simpleCrypt_(0x1272A4A3FE1A3DBA)

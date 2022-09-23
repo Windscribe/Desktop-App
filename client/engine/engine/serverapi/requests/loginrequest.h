@@ -18,9 +18,9 @@ public:
     void handle(const QByteArray &arr) override;
 
     // output values
-    types::SessionStatus sessionStatus() const;
-    QString authHash() const;
-    QString errorMessage() const;
+    types::SessionStatus sessionStatus() const { return sessionStatus_; }
+    QString authHash() const { return authHash_; }
+    QString errorMessage() const { return errorMessage_;}
 
 private:
     QString username_;
@@ -31,7 +31,6 @@ private:
     types::SessionStatus sessionStatus_;
     QString errorMessage_;
     QString authHash_;
-
 };
 
 } // namespace server_api {

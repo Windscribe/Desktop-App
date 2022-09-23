@@ -62,7 +62,6 @@ private:
     QVector<CONNECT_ATTEMPT_INFO> attempts_;
 
     QString lastIp_;
-    uint serverApiUserRole_;
     int state_;
     types::PacketSize packetSize_;
 

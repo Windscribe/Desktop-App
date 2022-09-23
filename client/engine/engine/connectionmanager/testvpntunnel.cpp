@@ -3,12 +3,14 @@
 #include "utils/logger.h"
 #include "utils/ipvalidation.h"
 #include "utils/extraconfig.h"
+#include "utils/ws_assert.h"
+#include "utils/utils.h"
+#include "engine/serverapi/requests/pingtestrequest.h"
 
 
 TestVPNTunnel::TestVPNTunnel(QObject *parent, server_api::ServerAPI *serverAPI) : QObject(parent),
-    serverAPI_(serverAPI), bRunning_(false), curTest_(1), cmdId_(0), doCustomTunnelTest_(false)
+    serverAPI_(serverAPI), bRunning_(false), curTest_(1), cmdId_(0), doCustomTunnelTest_(false), curRequest_(nullptr)
 {
-    connect(serverAPI_, &server_api::ServerAPI::pingTestAnswer, this, &TestVPNTunnel::onPingTestAnswer, Qt::QueuedConnection);
 }
 
 TestVPNTunnel::~TestVPNTunnel()
@@ -89,7 +91,10 @@ void TestVPNTunnel::startTestImpl()
     elapsedOverallTimer_.start();
     cmdId_++;
     lastTimeForCallWithLog_ = QTime::currentTime();
-    serverAPI_->pingTest(cmdId_, timeouts_[curTest_ - 1], true);
+
+    WS_ASSERT(curRequest_ == nullptr);
+    curRequest_ = serverAPI_->pingTest(timeouts_[curTest_ - 1], true);
+    connect(curRequest_, &server_api::BaseRequest::finished, this, &TestVPNTunnel::onPingTestAnswer);
 }
 
 void TestVPNTunnel::stopTests()
@@ -97,17 +102,21 @@ void TestVPNTunnel::stopTests()
     if (bRunning_)
     {
         bRunning_ = false;
-        serverAPI_->cancelPingTest(cmdId_);
+        SAFE_DELETE(curRequest_);
         qCDebug(LOG_CONNECTION) << "Tunnel tests stopped";
     }
 }
 
-void TestVPNTunnel::onPingTestAnswer(SERVER_API_RET_CODE retCode, const QString &data)
+void TestVPNTunnel::onPingTestAnswer()
 {
+    QSharedPointer<server_api::PingTestRequest> request(static_cast<server_api::PingTestRequest *>(sender()), &QObject::deleteLater);
+    WS_ASSERT(curRequest_ != nullptr);
+    curRequest_ = nullptr;
+
     if (bRunning_)
     {
-        const QString trimmedData = data.trimmed();
-        if (retCode == SERVER_RETURN_SUCCESS && IpValidation::instance().isIp(trimmedData))
+        const QString trimmedData = request->data().trimmed();
+        if (request->retCode() == SERVER_RETURN_SUCCESS && IpValidation::instance().isIp(trimmedData))
         {
             qCDebug(LOG_CONNECTION) << "Tunnel test " << QString::number(curTest_) << "successfully finished with IP:" << trimmedData << ", total test time =" << elapsedOverallTimer_.elapsed();
             bRunning_ = false;
@@ -162,11 +171,14 @@ void TestVPNTunnel::doNextPingTest()
 {
     if (bRunning_ && curTest_ >= 1 && curTest_ <= timeouts_.size())
     {
+        WS_ASSERT(curRequest_ == nullptr);
+
         cmdId_++;
 
         if (doCustomTunnelTest_)
         {
-            serverAPI_->pingTest(cmdId_, timeouts_[curTest_-1], true);
+            curRequest_ = serverAPI_->pingTest(timeouts_[curTest_ - 1], true);
+            connect(curRequest_, &server_api::BaseRequest::finished, this, &TestVPNTunnel::onPingTestAnswer);
         }
         else
         {
@@ -179,11 +191,13 @@ void TestVPNTunnel::doNextPingTest()
 
             if ((timeouts_[curTest_-1] - elapsed_.elapsed()) > 0)
             {
-                serverAPI_->pingTest(cmdId_, timeouts_[curTest_-1] - elapsed_.elapsed(), bWriteLog);
+                curRequest_ = serverAPI_->pingTest(timeouts_[curTest_-1] - elapsed_.elapsed(), bWriteLog);
+                connect(curRequest_, &server_api::BaseRequest::finished, this, &TestVPNTunnel::onPingTestAnswer);
             }
             else
             {
-                serverAPI_->pingTest(cmdId_, 100, bWriteLog);
+                curRequest_ = serverAPI_->pingTest(100, bWriteLog);
+                connect(curRequest_, &server_api::BaseRequest::finished, this, &TestVPNTunnel::onPingTestAnswer);
             }
         }
     }

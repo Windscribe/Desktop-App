@@ -6,10 +6,7 @@
 #include <QTime>
 #include <QVector>
 #include "types/enums.h"
-
-namespace server_api {
-class ServerAPI;
-}
+#include "engine/serverapi/serverapi.h"
 
 // do set of tests after VPN tunnel is established
 class TestVPNTunnel : public QObject
@@ -27,7 +24,7 @@ signals:
     void testsFinished(bool bSuccess, const QString &ipAddress);
 
 private slots:
-    void onPingTestAnswer(SERVER_API_RET_CODE retCode, const QString &data);
+    void onPingTestAnswer();
     void doNextPingTest();
     void startTestImpl();
     void onTestsSkipped();
@@ -51,5 +48,7 @@ private:
     QVector<uint> timeouts_;
 
     PROTOCOL protocol_;
+
+    server_api::BaseRequest *curRequest_;
 
 };

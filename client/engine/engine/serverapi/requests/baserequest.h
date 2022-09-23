@@ -24,8 +24,13 @@ public:
 
     RequestType requestType() const;
     int timeout() const;
+
+    bool isWriteToLog() const { return isWriteToLog_; }
+    void setNotWriteToLog() { isWriteToLog_ = false; }
+
     void setRetCode(SERVER_API_RET_CODE retCode);
     SERVER_API_RET_CODE retCode() const;
+
 
 signals:
     void finished();
@@ -40,6 +45,7 @@ private:
     bool bUseFailover_ = true;     // Use the failover algorithm for this request
     int timeout_ = 10000;          // timeout 10 sec by default
     RequestType requestType_;
+    bool isWriteToLog_ = true;
     SERVER_API_RET_CODE retCode_ = SERVER_RETURN_SUCCESS;
 };
 

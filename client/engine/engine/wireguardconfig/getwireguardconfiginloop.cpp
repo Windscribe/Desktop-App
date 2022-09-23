@@ -1,8 +1,8 @@
 #include "getwireguardconfiginloop.h"
 #include "utils/utils.h"
 
-GetWireGuardConfigInLoop::GetWireGuardConfigInLoop(QObject *parent, server_api::ServerAPI *serverAPI, uint serverApiUserRole) :
-    QObject(parent), serverAPI_(serverAPI), serverApiUserRole_(serverApiUserRole), getConfig_(nullptr)
+GetWireGuardConfigInLoop::GetWireGuardConfigInLoop(QObject *parent, server_api::ServerAPI *serverAPI) :
+    QObject(parent), serverAPI_(serverAPI), getConfig_(nullptr)
 {
     fetchWireguardConfigTimer_ = new QTimer(this);
     connect(fetchWireguardConfigTimer_, SIGNAL(timeout()), SLOT(onFetchWireGuardConfig()));
@@ -15,7 +15,7 @@ void GetWireGuardConfigInLoop::getWireGuardConfig(const QString &serverName, boo
     deleteOldestKey_ = deleteOldestKey;
     deviceId_ = deviceId;
 
-    getConfig_ = new GetWireGuardConfig(this, serverAPI_, serverApiUserRole_);
+    getConfig_ = new GetWireGuardConfig(this, serverAPI_);
     connect(getConfig_, &GetWireGuardConfig::getWireGuardConfigAnswer, this, &GetWireGuardConfigInLoop::onGetWireGuardConfigAnswer);
     onFetchWireGuardConfig();
 }

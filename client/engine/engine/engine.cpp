@@ -28,6 +28,9 @@
 #include "serverapi/requests/checkupdaterequest.h"
 #include "serverapi/requests/debuglogrequest.h"
 #include "serverapi/requests/staticipsrequest.h"
+#include "serverapi/requests/notificationsrequest.h"
+#include "serverapi/requests/getrobertfiltersrequest.h"
+#include "serverapi/requests/setrobertfiltersrequest.h"
 
 // For testing merge log functionality
 //#include <QStandardPaths>
@@ -62,7 +65,6 @@ Engine::Engine(const types::EngineSettings &engineSettings) : QObject(nullptr),
     serverAPI_(nullptr),
     connectionManager_(nullptr),
     connectStateController_(nullptr),
-    serverApiUserRole_(0),
     getMyIPController_(nullptr),
     vpnShareController_(nullptr),
     emergencyController_(nullptr),
@@ -643,14 +645,7 @@ void Engine::initPart2()
     connect(networkAccessManager_, &NetworkAccessManager::whitelistIpsChanged, this, &Engine::onHostIPsChanged);
 
     serverAPI_ = new server_api::ServerAPI(this, connectStateController_, networkAccessManager_);
-    connect(serverAPI_, SIGNAL(notificationsAnswer(SERVER_API_RET_CODE,QVector<types::Notification>,uint)),
-                        SLOT(onNotificationsAnswer(SERVER_API_RET_CODE,QVector<types::Notification>,uint)));
-    connect(serverAPI_, SIGNAL(sendUserWarning(USER_WARNING_TYPE)), SIGNAL(sendUserWarning(USER_WARNING_TYPE)));
-    connect(serverAPI_, &server_api::ServerAPI::getRobertFiltersAnswer, this, &Engine::onGetRobertFiltersAnswer);
-    connect(serverAPI_, &server_api::ServerAPI::setRobertFilterAnswer, this, &Engine::onSetRobertFilterAnswer);
-
     serverAPI_->setIgnoreSslErrors(engineSettings_.isIgnoreSslErrors());
-    serverApiUserRole_ = serverAPI_->getAvailableUserRole();
 
     customOvpnAuthCredentialsStorage_ = new CustomOvpnAuthCredentialsStorage();
 
@@ -1560,15 +1555,11 @@ void Engine::onSessionAnswer()
     }
 }
 
-void Engine::onNotificationsAnswer(SERVER_API_RET_CODE retCode, const QVector<types::Notification> &notifications, uint userRole)
+void Engine::onNotificationsAnswer()
 {
-    if (userRole == serverApiUserRole_)
-    {
-        if (retCode == SERVER_RETURN_SUCCESS)
-        {
-            Q_EMIT notificationsUpdated(notifications);
-        }
-    }
+    QSharedPointer<server_api::NotificationsRequest> request(static_cast<server_api::NotificationsRequest *>(sender()), &QObject::deleteLater);
+    if (request->retCode() == SERVER_RETURN_SUCCESS)
+        Q_EMIT notificationsUpdated(request->notifications());
 }
 
 void Engine::onServerConfigsAnswer()
@@ -1661,20 +1652,16 @@ void Engine::onWebSessionAnswer()
         Q_EMIT webSessionToken(request->purpose(), request->token());
 }
 
-void Engine::onGetRobertFiltersAnswer(SERVER_API_RET_CODE retCode, const QVector<types::RobertFilter> &filters, uint userRole)
+void Engine::onGetRobertFiltersAnswer()
 {
-    if (userRole == serverApiUserRole_)
-    {
-        Q_EMIT robertFiltersUpdated(retCode == SERVER_RETURN_SUCCESS, filters);
-    }
+    QSharedPointer<server_api::GetRobertFiltersRequest> request(static_cast<server_api::GetRobertFiltersRequest *>(sender()), &QObject::deleteLater);
+    Q_EMIT robertFiltersUpdated(request->retCode() == SERVER_RETURN_SUCCESS, request->filters());
 }
 
-void Engine::onSetRobertFilterAnswer(SERVER_API_RET_CODE retCode, uint userRole)
+void Engine::onSetRobertFilterAnswer()
 {
-    if (userRole == serverApiUserRole_)
-    {
-        Q_EMIT setRobertFilterFinished(retCode == SERVER_RETURN_SUCCESS);
-    }
+    QSharedPointer<server_api::SetRobertFiltersRequest> request(static_cast<server_api::SetRobertFiltersRequest *>(sender()), &QObject::deleteLater);
+    Q_EMIT setRobertFilterFinished(request->retCode() == SERVER_RETURN_SUCCESS);
 }
 
 void Engine::onUpdateServerResources()
@@ -2447,17 +2434,20 @@ void Engine::onRefetchServerCredentialsFinished(bool success, const apiinfo::Ser
 
 void Engine::getNewNotifications()
 {
-    serverAPI_->notifications(apiInfo_->getAuthHash(), serverApiUserRole_, true);
+    server_api::BaseRequest *request = serverAPI_->notifications(apiInfo_->getAuthHash(), true);
+    connect(request, &server_api::BaseRequest::finished, this, &Engine::onNotificationsAnswer);
 }
 
 void Engine::getRobertFiltersImpl()
 {
-    serverAPI_->getRobertFilters(apiInfo_->getAuthHash(), serverApiUserRole_, true);
+    server_api::BaseRequest *request = serverAPI_->getRobertFilters(apiInfo_->getAuthHash(), true);
+    connect(request, &server_api::BaseRequest::finished, this, &Engine::onGetRobertFiltersAnswer);
 }
 
 void Engine::setRobertFilterImpl(const types::RobertFilter &filter)
 {
-    serverAPI_->setRobertFilter(apiInfo_->getAuthHash(), serverApiUserRole_, true, filter);
+    server_api::BaseRequest *request = serverAPI_->setRobertFilter(apiInfo_->getAuthHash(), true, filter);
+    connect(request, &server_api::BaseRequest::finished, this, &Engine::onSetRobertFilterAnswer);
 }
 
 void Engine::getRobertFilters()
@@ -2721,7 +2711,8 @@ void Engine::updateSessionStatus()
 
         if (prevSessionStatus_.getBillingPlanId() != ss.getBillingPlanId())
         {
-            serverAPI_->notifications(apiInfo_->getAuthHash(), serverApiUserRole_, true);
+            server_api::BaseRequest *request = serverAPI_->notifications(apiInfo_->getAuthHash(),  true);
+            connect(request, &server_api::BaseRequest::finished, this, &Engine::onNotificationsAnswer);
             notificationsUpdateTimer_->start(NOTIFICATIONS_UPDATE_PERIOD);
         }
 

@@ -115,19 +115,4 @@ void LoginRequest::handle(const QByteArray &arr)
     setRetCode(SERVER_RETURN_SUCCESS);
 }
 
-types::SessionStatus LoginRequest::sessionStatus() const
-{
-    return sessionStatus_;
-}
-
-QString LoginRequest::authHash() const
-{
-    return authHash_;
-}
-
-QString LoginRequest::errorMessage() const
-{
-    return errorMessage_;
-}
-
 } // namespace server_api {
