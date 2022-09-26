@@ -161,7 +161,7 @@ void PreferencesTabControlItem::setInSubpage(bool inSubpage)
 void PreferencesTabControlItem::setLoggedIn(bool loggedIn)
 {
     loggedIn_ = loggedIn;
-    if (loggedIn_)
+    if (!loggedIn_)
     {
         signOutButton_->setText(tr("Login"));
     }
