@@ -6,6 +6,7 @@
 #include <QDir>
 #include "names.h"
 #include "engine/networkaccessmanager/networkaccessmanager.h"
+#include "engine/networkaccessmanager/networkreply.h"
 #include "utils/utils.h"
 
 #ifdef Q_OS_LINUX
@@ -199,6 +200,7 @@ void DownloadHelper::getInner(const QString url, const QString targetFilenamePat
     }
 
     NetworkRequest request(QUrl(url), 60000 * 5, true);     // timeout 5 mins
+    request.setRemoveFromWhitelistIpsAfterFinish();
 
     NetworkReply *reply = networkAccessManager_->get(request);
     replies_.insert(reply, fileAndProgess);

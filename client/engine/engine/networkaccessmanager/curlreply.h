@@ -1,11 +1,11 @@
-#ifndef CURLREPLY_H
-#define CURLREPLY_H
+#pragma once
 
 #include <QMutex>
+#include "types/proxysettings.h"
 #include "networkrequest.h"
 #include <curl/curl.h>
 
-class CurlNetworkManager2;
+class CurlNetworkManager;
 
 class CurlReply : public QObject
 {
@@ -28,7 +28,8 @@ signals:
 private:
     enum REQUEST_TYPE { REQUEST_GET, REQUEST_POST, REQUEST_PUT, REQUEST_DELETE};
 
-    explicit CurlReply(QObject *parent, const NetworkRequest &networkRequest, const QStringList &ips, REQUEST_TYPE requestType, const QByteArray &postData, CurlNetworkManager2 *manager);
+    explicit CurlReply(CurlNetworkManager *manager, const NetworkRequest &networkRequest,
+                       const types::ProxySettings &proxySettings, const QStringList &ips, REQUEST_TYPE requestType, const QByteArray &postData);
 
     const NetworkRequest &networkRequest() const;
     QStringList ips() const;
@@ -46,16 +47,16 @@ private:
 
     quint64 id_;
     NetworkRequest networkRequest_;
+    types::ProxySettings proxySettings_;
     QStringList ips_;
     REQUEST_TYPE requestType_;
     QByteArray postData_;
-    CurlNetworkManager2 *manager_;
+    CurlNetworkManager *manager_;
     QVector<struct curl_slist *> curlLists_;
 
 
-    friend class CurlNetworkManager2;    // CurlNetworkManager class uses private functions to store internal data
+    friend class CurlNetworkManager;    // CurlNetworkManager class uses private functions to store internal data
 };
 
 
 
-#endif // CURLREPLY_H

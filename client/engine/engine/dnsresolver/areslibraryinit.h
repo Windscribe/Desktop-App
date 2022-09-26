@@ -1,6 +1,4 @@
-#ifndef ARESLIBRARYINIT_H
-#define ARESLIBRARYINIT_H
-
+#pragma once
 
 class AresLibraryInit
 {
@@ -14,5 +12,3 @@ private:
     bool bInitialized_;
     bool bFailedInitialize_;
 };
-
-#endif // ARESLIBRARYINIT_H

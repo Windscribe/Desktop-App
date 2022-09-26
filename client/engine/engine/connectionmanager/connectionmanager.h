@@ -37,7 +37,7 @@ class ConnectionManager : public QObject
     Q_OBJECT
 public:
     explicit ConnectionManager(QObject *parent, IHelper *helper, INetworkDetectionManager *networkDetectionManager,
-                               ServerAPI *serverAPI, CustomOvpnAuthCredentialsStorage *customOvpnAuthCredentialsStorage);
+                               server_api::ServerAPI *serverAPI, CustomOvpnAuthCredentialsStorage *customOvpnAuthCredentialsStorage);
     ~ConnectionManager() override;
 
     void clickConnect(const QString &ovpnConfig, const apiinfo::ServerCredentials &serverCredentials,

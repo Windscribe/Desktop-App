@@ -3,6 +3,9 @@
 
 #include "engine/serverapi/serverapi.h"
 #include "engine/apiinfo/servercredentials.h"
+#include "engine/apiinfo/location.h"
+#include "engine/apiinfo/staticips.h"
+#include "types/portmap.h"
 
 // helper class for LoginController
 class GetAllConfigsController : public QObject

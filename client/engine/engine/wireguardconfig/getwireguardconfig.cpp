@@ -3,6 +3,8 @@
 #include "engine/apiinfo/apiinfo.h"
 #include "types/global_consts.h"
 #include "utils/ws_assert.h"
+#include "engine/serverapi/requests/wgconfigsinitrequest.h"
+#include "engine/serverapi/requests/wgconfigsconnectrequest.h"
 
 extern "C" {
     #include "legacy_protobuf_support/apiinfo.pb-c.h"
@@ -12,12 +14,9 @@ extern "C" {
 
 const QString GetWireGuardConfig::KEY_WIREGUARD_CONFIG = "wireguardConfig";
 
-GetWireGuardConfig::GetWireGuardConfig(QObject *parent, ServerAPI *serverAPI, uint serverApiUserRole) : QObject(parent), serverAPI_(serverAPI),
-    serverApiUserRole_(serverApiUserRole),
+GetWireGuardConfig::GetWireGuardConfig(QObject *parent, server_api::ServerAPI *serverAPI) : QObject(parent), serverAPI_(serverAPI),
     isRequestAlreadyInProgress_(false), simpleCrypt_(SIMPLE_CRYPT_KEY)
 {
-    connect(serverAPI_, &ServerAPI::wgConfigsInitAnswer, this, &GetWireGuardConfig::onWgConfigsInitAnswer, Qt::QueuedConnection);
-    connect(serverAPI_, &ServerAPI::wgConfigsConnectAnswer, this, &GetWireGuardConfig::onWgConfigsConnectAnswer, Qt::QueuedConnection);
 }
 
 void GetWireGuardConfig::getWireGuardConfig(const QString &serverName, bool deleteOldestKey, const QString &deviceId)
@@ -45,7 +44,8 @@ void GetWireGuardConfig::getWireGuardConfig(const QString &serverName, bool dele
         wireGuardConfig_.setKeyPair(publicKey, privateKey);
         wireGuardConfig_.setPeerPresharedKey(presharedKey);
         wireGuardConfig_.setPeerAllowedIPs(allowedIPs);
-        serverAPI_->wgConfigsConnect(apiinfo::ApiInfo::getAuthHash(), serverApiUserRole_, true, wireGuardConfig_.clientPublicKey(), serverName_, deviceId_);
+        server_api::BaseRequest *requestConfigsConnect = serverAPI_->wgConfigsConnect(apiinfo::ApiInfo::getAuthHash(), true, wireGuardConfig_.clientPublicKey(), serverName_, deviceId_);
+        connect(requestConfigsConnect, &server_api::BaseRequest::finished, this, &GetWireGuardConfig::onWgConfigsConnectAnswer);
     }
     else
     {
@@ -53,25 +53,21 @@ void GetWireGuardConfig::getWireGuardConfig(const QString &serverName, bool dele
     }
 }
 
-void GetWireGuardConfig::onWgConfigsInitAnswer(SERVER_API_RET_CODE retCode, uint userRole, bool isErrorCode, int errorCode, const QString &presharedKey, const QString &allowedIps)
+void GetWireGuardConfig::onWgConfigsInitAnswer()
 {
-    if (serverApiUserRole_ != userRole)
-    {
-        return;
-    }
+    QSharedPointer<server_api::WgConfigsInitRequest> request(static_cast<server_api::WgConfigsInitRequest *>(sender()), &QObject::deleteLater);
 
-    if (retCode != SERVER_RETURN_SUCCESS)
-    {
+    if (request->retCode() != SERVER_RETURN_SUCCESS) {
         isRequestAlreadyInProgress_ = false;
-        emit getWireGuardConfigAnswer(retCode, wireGuardConfig_);
+        emit getWireGuardConfigAnswer(request->retCode(), wireGuardConfig_);
         return;
     }
 
-    if (isErrorCode)
+    if (request->isErrorCode())
     {
         SERVER_API_RET_CODE newRetCode = SERVER_RETURN_NETWORK_ERROR;
 
-        if (errorCode == 1310) {
+        if (request->errorCode() == 1310) {
             // This error indicates the server was unable to generate the preshared key.
             // Retry the init request one time, then abort the WireGuard connection attempt.
             if (!isRetryInitRequest_) {
@@ -80,7 +76,7 @@ void GetWireGuardConfig::onWgConfigsInitAnswer(SERVER_API_RET_CODE retCode, uint
                 return;
             }
          }
-         else if (errorCode == 1313) {
+         else if (request->errorCode() == 1313) {
             // This error indicates the user has used up all of their public key slots on the server.
             // Ask them if they want to delete their oldest registered key and try again.
             newRetCode = SERVER_RETURN_WIREGUARD_KEY_LIMIT;
@@ -91,32 +87,31 @@ void GetWireGuardConfig::onWgConfigsInitAnswer(SERVER_API_RET_CODE retCode, uint
         return;
     }
 
-    wireGuardConfig_.setPeerPresharedKey(presharedKey);
-    wireGuardConfig_.setPeerAllowedIPs(WireGuardConfig::stripIpv6Address(allowedIps));
+    wireGuardConfig_.setPeerPresharedKey(request->presharedKey());
+    wireGuardConfig_.setPeerAllowedIPs(WireGuardConfig::stripIpv6Address(request->allowedIps()));
 
     // Persist the peer parameters we received.
     setWireGuardPeerInfo(wireGuardConfig_.peerPresharedKey(), wireGuardConfig_.peerAllowedIps());
 
-    serverAPI_->wgConfigsConnect(apiinfo::ApiInfo::getAuthHash(), serverApiUserRole_, true, wireGuardConfig_.clientPublicKey(), serverName_, deviceId_);
+    server_api::BaseRequest *requestConfigsConnect = serverAPI_->wgConfigsConnect(apiinfo::ApiInfo::getAuthHash(), true, wireGuardConfig_.clientPublicKey(), serverName_, deviceId_);
+    connect(requestConfigsConnect, &server_api::BaseRequest::finished, this, &GetWireGuardConfig::onWgConfigsConnectAnswer);
+
 }
 
-void GetWireGuardConfig::onWgConfigsConnectAnswer(SERVER_API_RET_CODE retCode, uint userRole, bool isErrorCode, int errorCode, const QString &ipAddress, const QString &dnsAddress)
+void GetWireGuardConfig::onWgConfigsConnectAnswer()
 {
-    if (serverApiUserRole_ != userRole)
-    {
-        return;
-    }
+    QSharedPointer<server_api::WgConfigsConnectRequest> request(static_cast<server_api::WgConfigsConnectRequest *>(sender()), &QObject::deleteLater);
 
-    if (retCode != SERVER_RETURN_SUCCESS)
+    if (request->retCode() != SERVER_RETURN_SUCCESS)
     {
         isRequestAlreadyInProgress_ = false;
-        emit getWireGuardConfigAnswer(retCode, wireGuardConfig_);
+        emit getWireGuardConfigAnswer(request->retCode(), wireGuardConfig_);
         return;
     }
 
-    if (isErrorCode)
+    if (request->isErrorCode())
     {
-        if (errorCode == 1311) {
+        if (request->errorCode() == 1311) {
             // This means all the user's public keys were nuked on the server and what we have locally is useless.
             // Discard all locally stored keys and start fresh with a new 'init' API call.  In case of an unexpected
             // API issue, guard against looping behavior where you run "init" and "connect" which returns the same error.
@@ -128,12 +123,13 @@ void GetWireGuardConfig::onWgConfigsConnectAnswer(SERVER_API_RET_CODE retCode, u
                 return;
              }
         }
-        else if (errorCode == 1312) {
+        else if (request->errorCode() == 1312) {
             // This error is returned when an interface address cannot be assigned. This is likely a major API issue,
             // since this shouldn't happen. Retry the 'connect' API once. If it fails again, abort the connection attempt.
             if (!isRetryConnectRequest_) {
                 isRetryConnectRequest_ = true;
-                serverAPI_->wgConfigsConnect(apiinfo::ApiInfo::getAuthHash(), serverApiUserRole_, true, wireGuardConfig_.clientPublicKey(), serverName_, deviceId_);
+                server_api::BaseRequest *request = serverAPI_->wgConfigsConnect(apiinfo::ApiInfo::getAuthHash(), true, wireGuardConfig_.clientPublicKey(), serverName_, deviceId_);
+                connect(request, &server_api::BaseRequest::finished, this, &GetWireGuardConfig::onWgConfigsConnectAnswer);
                 return;
             }
         }
@@ -143,8 +139,8 @@ void GetWireGuardConfig::onWgConfigsConnectAnswer(SERVER_API_RET_CODE retCode, u
         return;
     }
 
-    wireGuardConfig_.setClientIpAddress(WireGuardConfig::stripIpv6Address(ipAddress));
-    wireGuardConfig_.setClientDnsAddress(WireGuardConfig::stripIpv6Address(dnsAddress));
+    wireGuardConfig_.setClientIpAddress(WireGuardConfig::stripIpv6Address(request->ipAddress()));
+    wireGuardConfig_.setClientDnsAddress(WireGuardConfig::stripIpv6Address(request->dnsAddress()));
     isRequestAlreadyInProgress_ = false;
     emit getWireGuardConfigAnswer(SERVER_RETURN_SUCCESS, wireGuardConfig_);
 }
@@ -162,7 +158,8 @@ void GetWireGuardConfig::submitWireGuardInitRequest(bool generateKeyPair)
         // Persist the key-pair we're about to register with the server.
         setWireGuardKeyPair(wireGuardConfig_.clientPublicKey(), wireGuardConfig_.clientPrivateKey());
     }
-    serverAPI_->wgConfigsInit(apiinfo::ApiInfo::getAuthHash(), serverApiUserRole_, true, wireGuardConfig_.clientPublicKey(), deleteOldestKey_);
+    server_api::BaseRequest *request = serverAPI_->wgConfigsInit(apiinfo::ApiInfo::getAuthHash(), true, wireGuardConfig_.clientPublicKey(), deleteOldestKey_);
+    connect(request, &server_api::BaseRequest::finished, this, &GetWireGuardConfig::onWgConfigsInitAnswer);
 }
 
 bool GetWireGuardConfig::getWireGuardKeyPair(QString &publicKey, QString &privateKey)

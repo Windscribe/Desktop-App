@@ -9,18 +9,17 @@ class GetApiAccessIps : public QObject
 {
     Q_OBJECT
 public:
-    explicit GetApiAccessIps(QObject *parent, ServerAPI *serverAPI);
+    explicit GetApiAccessIps(QObject *parent, server_api::ServerAPI *serverAPI);
     void get();
 
 signals:
     void finished(SERVER_API_RET_CODE retCode, const QStringList &hosts);
 
 private slots:
-    void onAccessIpsAnswer(SERVER_API_RET_CODE retCode, const QStringList &hosts, uint userRole);
+    void onAccessIpsAnswer();
 
 private:
-    ServerAPI *serverAPI_;
-    uint serverApiUserRole_;
+    server_api::ServerAPI *serverAPI_;
     QStringList hardcodedIps_;
 
     void makeRequestToRandomIP();

@@ -6,14 +6,9 @@
 #include "utils/logger.h"
 #include "engine/dnsresolver/dnsutils.h"
 
-void FirewallExceptions::setHostIPs(const QStringList &hostIPs)
+void FirewallExceptions::setHostIPs(const QSet<QString> &hostIPs)
 {
     hostIPs_ = hostIPs;
-}
-
-void FirewallExceptions::setWhiteListedIPs(const QSet<QString> &ips)
-{
-    whitelistedIPs_ = ips;
 }
 
 void FirewallExceptions::setProxyIP(const types::ProxySettings &proxySettings)
@@ -101,7 +96,7 @@ QSet<QString> FirewallExceptions::getIPAddressesForFirewall() const
         {
             ipList.add(QString::fromStdWString(*it));
         }
-        qCDebug(LOG_FIREWALL_CONTROLLER) << "Get OS default DNS list:" << ipList.get();
+        //qCDebug(LOG_FIREWALL_CONTROLLER) << "Get OS default DNS list:" << ipList.get();
     }
     else if (dnsPolicyType_ == DNS_TYPE_OPEN_DNS)
     {
@@ -139,14 +134,6 @@ QSet<QString> FirewallExceptions::getIPAddressesForFirewall() const
     }
 
     for (const QString &s : hostIPs_)
-    {
-        if (!s.isEmpty())
-        {
-            ipList.add(s);
-        }
-    }
-
-    for (const QString &s : whitelistedIPs_)
     {
         if (!s.isEmpty())
         {

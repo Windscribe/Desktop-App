@@ -9,6 +9,7 @@
 #include "networkdetectionmanager/inetworkdetectionmanager.h"
 #include "firewall/firewallcontroller.h"
 #include "serverapi/serverapi.h"
+#include "types/notification.h"
 #include "locationsmodel/enginelocationsmodel.h"
 #include "connectionmanager/connectionmanager.h"
 #include "connectstatecontroller/connectstatecontroller.h"
@@ -17,6 +18,7 @@
 #include "engine/emergencycontroller/emergencycontroller.h"
 #include "getmyipcontroller.h"
 #include "types/enginesettings.h"
+#include "types/checkupdate.h"
 #include "sessionstatustimer.h"
 #include "engine/customconfigs/customconfigs.h"
 #include "engine/customconfigs/customovpnauthcredentialsstorage.h"
@@ -140,7 +142,7 @@ signals:
     void notificationsUpdated(const QVector<types::Notification> &notifications);
     void checkUpdateUpdated(const types::CheckUpdate &checkUpdate);
     void updateVersionChanged(uint progressPercent, const UPDATE_VERSION_STATE &state, const UPDATE_VERSION_ERROR &error);
-    void myIpUpdated(const QString &ip, bool success, bool isDisconnected);
+    void myIpUpdated(const QString &ip, bool isDisconnected);
     void statisticsUpdated(quint64 bytesIn, quint64 bytesOut, bool isTotalBytes);
     void protocolPortChanged(const PROTOCOL &protocol, const uint port);
     void robertFiltersUpdated(bool success, const QVector<types::RobertFilter> &filters);
@@ -234,23 +236,21 @@ private slots:
     void onReadyForNetworkRequests();
     void onLoginControllerStepMessage(LOGIN_MESSAGE msg);
 
-    void onServerLocationsAnswer(SERVER_API_RET_CODE retCode, const QVector<apiinfo::Location> &serverLocations,
-                                 QStringList forceDisconnectNodes, uint userRole);
+    void onServerLocationsAnswer();
 
-    void onSessionAnswer(SERVER_API_RET_CODE retCode, const types::SessionStatus &sessionStatus, uint userRole);
-    void onNotificationsAnswer(SERVER_API_RET_CODE retCode, const QVector<types::Notification> &notifications, uint userRole);
-    void onServerConfigsAnswer(SERVER_API_RET_CODE retCode, const QString &config, uint userRole);
-    void onCheckUpdateAnswer(const types::CheckUpdate &checkUpdate, bool bNetworkErrorOccured, uint userRole);
-    void onHostIPsChanged(const QStringList &hostIps);
-    void onWhitelistedIPsChanged(const QSet<QString> &ips);
-    void onMyIpAnswer(const QString &ip, bool success, bool isDisconnected);
-    void onDebugLogAnswer(SERVER_API_RET_CODE retCode, uint userRole);
-    void onConfirmEmailAnswer(SERVER_API_RET_CODE retCode, uint userRole);
-    void onStaticIpsAnswer(SERVER_API_RET_CODE retCode, const apiinfo::StaticIps &staticIps, uint userRole);
-    void onWebSessionAnswer(SERVER_API_RET_CODE retCode, const QString &token, uint userRole);
-    void onGetRobertFiltersAnswer(SERVER_API_RET_CODE retCode, const QVector<types::RobertFilter> &filters, uint userRole);
-    void onSetRobertFilterAnswer(SERVER_API_RET_CODE retCode, uint userRole);
-    void onSyncRobertAnswer(SERVER_API_RET_CODE retCode, uint userRole);
+    void onSessionAnswer();
+    void onNotificationsAnswer();
+    void onServerConfigsAnswer();
+    void onCheckUpdateAnswer();
+    void onHostIPsChanged(const QSet<QString> &hostIps);
+    void onMyIpAnswer(const QString &ip, bool isDisconnected);
+    void onDebugLogAnswer();
+    void onConfirmEmailAnswer();
+    void onStaticIpsAnswer();
+    void onWebSessionAnswer();
+    void onGetRobertFiltersAnswer();
+    void onSetRobertFilterAnswer();
+    void onSyncRobertAnswer();
 
     void onUpdateServerResources();
     void onUpdateSessionStatusTimer();
@@ -290,6 +290,10 @@ private slots:
     void onRefetchServerCredentialsFinished(bool success, const apiinfo::ServerCredentials &serverCredentials, const QString &serverConfig);
 
     void getNewNotifications();
+    void getRobertFiltersImpl();
+    void setRobertFilterImpl(const types::RobertFilter &filter);
+    void syncRobertImpl();
+
 
     void onCustomConfigsChanged();
 
@@ -326,13 +330,9 @@ private:
     IHelper *helper_;
     FirewallController *firewallController_;
     NetworkAccessManager *networkAccessManager_;
-    ServerAPI *serverAPI_;
+    server_api::ServerAPI *serverAPI_;
     ConnectionManager *connectionManager_;
     ConnectStateController *connectStateController_;
-    uint serverApiUserRole_;
-    uint serverApiManageAccountUserRole_;
-    uint serverApiAddEmailUserRole_;
-    uint serverApiManageRobertRulesRole_;
     GetMyIPController *getMyIPController_;
     VpnShareController *vpnShareController_;
     EmergencyController *emergencyController_;

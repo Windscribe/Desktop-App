@@ -1,8 +1,14 @@
 #include "curlreply.h"
-#include "curlnetworkmanager2.h"
+#include "curlnetworkmanager.h"
 
-CurlReply::CurlReply(QObject *parent, const NetworkRequest &networkRequest, const QStringList &ips, REQUEST_TYPE requestType, const QByteArray &postData, CurlNetworkManager2 *manager)
-    : QObject(parent), networkRequest_(networkRequest), ips_(ips), requestType_(requestType), postData_(postData), manager_(manager)
+CurlReply::CurlReply(CurlNetworkManager *manager, const NetworkRequest &networkRequest, const types::ProxySettings &proxySettings, const QStringList &ips, REQUEST_TYPE requestType, const QByteArray &postData)
+    : QObject(manager),
+      networkRequest_(networkRequest),
+      proxySettings_(proxySettings),
+      ips_(ips),
+      requestType_(requestType),
+      postData_(postData),
+      manager_(manager)
 {
     static std::atomic<quint64> id(0);
     id_ = id++;
@@ -59,8 +65,7 @@ CurlReply::~CurlReply()
 void CurlReply::abort()
 {
     manager_->abort(this);
-    for (struct curl_slist *list : qAsConst(curlLists_))
-    {
+    for (struct curl_slist *list : qAsConst(curlLists_)) {
         curl_slist_free_all(list);
     }
     curlLists_.clear();

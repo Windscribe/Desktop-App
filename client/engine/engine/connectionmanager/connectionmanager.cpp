@@ -44,7 +44,7 @@
 #endif
 
 ConnectionManager::ConnectionManager(QObject *parent, IHelper *helper, INetworkDetectionManager *networkDetectionManager,
-                                             ServerAPI *serverAPI, CustomOvpnAuthCredentialsStorage *customOvpnAuthCredentialsStorage) : QObject(parent),
+                                             server_api::ServerAPI *serverAPI, CustomOvpnAuthCredentialsStorage *customOvpnAuthCredentialsStorage) : QObject(parent),
     helper_(helper),
     networkDetectionManager_(networkDetectionManager),
     customOvpnAuthCredentialsStorage_(customOvpnAuthCredentialsStorage),
@@ -94,7 +94,7 @@ ConnectionManager::ConnectionManager(QObject *parent, IHelper *helper, INetworkD
 
     connect(&timerWaitNetworkConnectivity_, SIGNAL(timeout()), SLOT(onTimerWaitNetworkConnectivity()));
 
-    getWireGuardConfigInLoop_ = new GetWireGuardConfigInLoop(this, serverAPI, serverAPI->getAvailableUserRole());
+    getWireGuardConfigInLoop_ = new GetWireGuardConfigInLoop(this, serverAPI);
     connect(getWireGuardConfigInLoop_, &GetWireGuardConfigInLoop::getWireGuardConfigAnswer, this, &ConnectionManager::onGetWireGuardConfigAnswer);
 }
 

@@ -8,27 +8,22 @@
 #include "utils/hardcodedsettings.h"
 #include "engine/getdeviceid.h"
 #include "version/appversion.h"
+#include "engine/serverapi/requests/loginrequest.h"
+#include "engine/serverapi/requests/sessionrequest.h"
+#include "engine/serverapi/requests/serverlistrequest.h"
+#include "engine/serverapi/requests/servercredentialsrequest.h"
+#include "engine/serverapi/requests/serverconfigsrequest.h"
+#include "engine/serverapi/requests/portmaprequest.h"
+#include "engine/serverapi/requests/staticipsrequest.h"
 
 LoginController::LoginController(QObject *parent,  IHelper *helper,
-                                 INetworkDetectionManager *networkDetectionManager, ServerAPI *serverAPI,
+                                 INetworkDetectionManager *networkDetectionManager, server_api::ServerAPI *serverAPI,
                                  const QString &language, PROTOCOL protocol) : QObject(parent),
     helper_(helper), serverAPI_(serverAPI),
     getApiAccessIps_(NULL), networkDetectionManager_(networkDetectionManager), language_(language),
     protocol_(protocol), bFromConnectedToVPNState_(false), getAllConfigsController_(NULL),
     loginStep_(LOGIN_STEP1), readyForNetworkRequestsEmitted_(false)
 {
-    connect(serverAPI_, &ServerAPI::loginAnswer, this, &LoginController::onLoginAnswer, Qt::QueuedConnection);
-    connect(serverAPI_, &ServerAPI::sessionAnswer, this, &LoginController::onSessionAnswer, Qt::QueuedConnection);
-    connect(serverAPI_, SIGNAL(serverConfigsAnswer(SERVER_API_RET_CODE,QString, uint)), SLOT(onServerConfigsAnswer(SERVER_API_RET_CODE,QString, uint)), Qt::QueuedConnection);
-    connect(serverAPI_, SIGNAL(serverCredentialsAnswer(SERVER_API_RET_CODE,QString,QString, PROTOCOL, uint)), SLOT(onServerCredentialsAnswer(SERVER_API_RET_CODE,QString,QString, PROTOCOL, uint)), Qt::QueuedConnection);
-    connect(serverAPI_, SIGNAL(portMapAnswer(SERVER_API_RET_CODE, types::PortMap, uint)), SLOT(onPortMapAnswer(SERVER_API_RET_CODE, types::PortMap, uint)), Qt::QueuedConnection);
-
-    connect(serverAPI_, SIGNAL(serverLocationsAnswer(SERVER_API_RET_CODE,QVector<apiinfo::Location>,QStringList, uint)),
-                            SLOT(onServerLocationsAnswer(SERVER_API_RET_CODE, QVector<apiinfo::Location>,QStringList, uint)), Qt::QueuedConnection);
-
-    connect(serverAPI_, SIGNAL(staticIpsAnswer(SERVER_API_RET_CODE, apiinfo::StaticIps, uint)), SLOT(onStaticIpsAnswer(SERVER_API_RET_CODE, apiinfo::StaticIps, uint)), Qt::QueuedConnection);
-
-    serverApiUserRole_ = serverAPI_->getAvailableUserRole();
 }
 
 LoginController::~LoginController()
@@ -58,67 +53,53 @@ void LoginController::startLoginProcess(const LoginSettings &loginSettings, cons
     handleNetworkConnection();
 }
 
-void LoginController::onLoginAnswer(SERVER_API_RET_CODE retCode, const types::SessionStatus &sessionStatus, const QString &authHash, uint userRole, const QString &errorMessage)
+void LoginController::onLoginAnswer()
 {
-    if (userRole == serverApiUserRole_)
+    QSharedPointer<server_api::LoginRequest> request(static_cast<server_api::LoginRequest *>(sender()), &QObject::deleteLater);
+    handleLoginOrSessionAnswer(request->retCode(), request->sessionStatus(), request->authHash(), request->errorMessage());
+}
+
+void LoginController::onSessionAnswer()
+{
+    QSharedPointer<server_api::SessionRequest> request(static_cast<server_api::SessionRequest *>(sender()), &QObject::deleteLater);
+    handleLoginOrSessionAnswer(request->retCode(), request->sessionStatus(), loginSettings_.authHash(), QString());
+}
+
+void LoginController::onServerLocationsAnswer()
+{
+    QSharedPointer<server_api::ServerListRequest> request(static_cast<server_api::ServerListRequest *>(sender()), &QObject::deleteLater);
+    getAllConfigsController_->putServerLocationsAnswer(request->retCode(), request->locations(), request->forceDisconnectNodes());
+}
+
+void LoginController::onServerCredentialsAnswer()
+{
+    QSharedPointer<server_api::ServerCredentialsRequest> request(static_cast<server_api::ServerCredentialsRequest *>(sender()), &QObject::deleteLater);
+    if (request->protocol().isOpenVpnProtocol())
     {
-        handleLoginOrSessionAnswer(retCode, sessionStatus, authHash, errorMessage);
+        getAllConfigsController_->putServerCredentialsOpenVpnAnswer(request->retCode(), request->radiusUsername(), request->radiusPassword());
+    }
+    else if (request->protocol().isIkev2Protocol())
+    {
+        getAllConfigsController_->putServerCredentialsIkev2Answer(request->retCode(), request->radiusUsername(), request->radiusPassword());
     }
 }
 
-void LoginController::onSessionAnswer(SERVER_API_RET_CODE retCode, const types::SessionStatus &sessionStatus, uint userRole)
+void LoginController::onServerConfigsAnswer()
 {
-    if (userRole == serverApiUserRole_)
-    {
-        handleLoginOrSessionAnswer(retCode, sessionStatus, loginSettings_.authHash(), QString());
-    }
+    QSharedPointer<server_api::ServerConfigsRequest> request(static_cast<server_api::ServerConfigsRequest *>(sender()), &QObject::deleteLater);
+    getAllConfigsController_->putServerConfigsAnswer(request->retCode(), request->ovpnConfig());
 }
 
-void LoginController::onServerLocationsAnswer(SERVER_API_RET_CODE retCode, const QVector<apiinfo::Location> &serverLocations, QStringList forceDisconnectNodes, uint userRole)
+void LoginController::onPortMapAnswer()
 {
-    if (userRole == serverApiUserRole_)
-    {
-        getAllConfigsController_->putServerLocationsAnswer(retCode, serverLocations, forceDisconnectNodes);
-    }
+    QSharedPointer<server_api::PortMapRequest> request(static_cast<server_api::PortMapRequest *>(sender()), &QObject::deleteLater);
+    getAllConfigsController_->putPortMapAnswer(request->retCode(), request->portMap());
 }
 
-void LoginController::onServerCredentialsAnswer(SERVER_API_RET_CODE retCode, const QString &radiusUsername, const QString &radiusPassword, PROTOCOL protocol, uint userRole)
+void LoginController::onStaticIpsAnswer()
 {
-    if (userRole == serverApiUserRole_)
-    {
-        if (protocol.isOpenVpnProtocol())
-        {
-            getAllConfigsController_->putServerCredentialsOpenVpnAnswer(retCode, radiusUsername, radiusPassword);
-        }
-        else if (protocol.isIkev2Protocol())
-        {
-            getAllConfigsController_->putServerCredentialsIkev2Answer(retCode, radiusUsername, radiusPassword);
-        }
-    }
-}
-
-void LoginController::onServerConfigsAnswer(SERVER_API_RET_CODE retCode, const QString &config, uint userRole)
-{
-    if (userRole == serverApiUserRole_)
-    {
-        getAllConfigsController_->putServerConfigsAnswer(retCode, config);
-    }
-}
-
-void LoginController::onPortMapAnswer(SERVER_API_RET_CODE retCode, const types::PortMap &portMap, uint userRole)
-{
-    if (userRole == serverApiUserRole_)
-    {
-        getAllConfigsController_->putPortMapAnswer(retCode, portMap);
-    }
-}
-
-void LoginController::onStaticIpsAnswer(SERVER_API_RET_CODE retCode, const apiinfo::StaticIps &staticIps, uint userRole)
-{
-    if (userRole == serverApiUserRole_)
-    {
-        getAllConfigsController_->putStaticIpsAnswer(retCode, staticIps);
-    }
+    QSharedPointer<server_api::StaticIpsRequest> request(static_cast<server_api::StaticIpsRequest *>(sender()), &QObject::deleteLater);
+    getAllConfigsController_->putStaticIpsAnswer(request->retCode(), request->staticIps());
 }
 
 void LoginController::onGetApiAccessIpsFinished(SERVER_API_RET_CODE retCode, const QStringList &hosts)
@@ -164,11 +145,13 @@ void LoginController::tryLoginAgain()
 {
     if (!loginSettings_.isAuthHashLogin())
     {
-        serverAPI_->login(loginSettings_.username(), loginSettings_.password(), loginSettings_.code2fa(), serverApiUserRole_, false);
+        server_api::BaseRequest *request = serverAPI_->login(loginSettings_.username(), loginSettings_.password(), loginSettings_.code2fa());
+        connect(request, &server_api::BaseRequest::finished, this, &LoginController::onLoginAnswer);
     }
     else // AUTH_HASH
     {
-        serverAPI_->session(loginSettings_.authHash(), serverApiUserRole_, false);
+        server_api::BaseRequest *request = serverAPI_->session(loginSettings_.authHash(), false);
+        connect(request, &server_api::BaseRequest::finished, this, &LoginController::onSessionAnswer);
     }
 }
 
@@ -267,11 +250,13 @@ void LoginController::makeLoginRequest(const QString &hostname)
     loginElapsedTimer_.start();
     if (!loginSettings_.isAuthHashLogin())
     {
-        serverAPI_->login(loginSettings_.username(), loginSettings_.password(), loginSettings_.code2fa(), serverApiUserRole_, false);
+        server_api::BaseRequest *request = serverAPI_->login(loginSettings_.username(), loginSettings_.password(), loginSettings_.code2fa());
+        connect(request, &server_api::BaseRequest::finished, this, &LoginController::onLoginAnswer);
     }
     else // AUTH_HASH
     {
-        serverAPI_->session(loginSettings_.authHash(), serverApiUserRole_, false);
+        server_api::BaseRequest *request = serverAPI_->session(loginSettings_.authHash(), false);
+        connect(request, &server_api::BaseRequest::finished, this, &LoginController::onSessionAnswer);
     }
 }
 
@@ -323,7 +308,7 @@ void LoginController::handleNextLoginAfterFail(SERVER_API_RET_CODE retCode)
             loginStep_ = LOGIN_STEP2;
             //emit stepMessage(tr("Trying Backup Endpoints 1/2"));
             emit stepMessage(LOGIN_MESSAGE_TRYING_BACKUP1);
-            makeLoginRequest(HardcodedSettings::instance().generateDomain("api."));
+            makeLoginRequest(HardcodedSettings::instance().generateDomain());
         }
         else if (loginStep_ == LOGIN_STEP2)
         {
@@ -370,12 +355,17 @@ void LoginController::getAllConfigs()
     SAFE_DELETE(getAllConfigsController_);
     getAllConfigsController_ = new GetAllConfigsController(this);
     connect(getAllConfigsController_, SIGNAL(allConfigsReceived(SERVER_API_RET_CODE)), SLOT(onAllConfigsReceived(SERVER_API_RET_CODE)));
-    serverAPI_->serverConfigs(newAuthHash_, serverApiUserRole_, false);
-    serverAPI_->serverCredentials(newAuthHash_, serverApiUserRole_, PROTOCOL::OPENVPN_UDP, false);
+
+    server_api::BaseRequest *requestConfigs = serverAPI_->serverConfigs(newAuthHash_, false);
+    connect(requestConfigs, &server_api::BaseRequest::finished, this, &LoginController::onServerConfigsAnswer);
+
+    server_api::BaseRequest *requestCredentials = serverAPI_->serverCredentials(newAuthHash_, PROTOCOL::OPENVPN_UDP, false);
+    connect(requestCredentials, &server_api::BaseRequest::finished, this, &LoginController::onServerCredentialsAnswer);
 
     if (!loginSettings_.getServerCredentials().isInitialized())
     {
-        serverAPI_->serverCredentials(newAuthHash_, serverApiUserRole_, PROTOCOL::IKEV2, false);
+        server_api::BaseRequest *requestCredentials = serverAPI_->serverCredentials(newAuthHash_, PROTOCOL::IKEV2, false);
+        connect(requestCredentials, &server_api::BaseRequest::finished, this, &LoginController::onServerCredentialsAnswer);
     }
     else
     {
@@ -383,11 +373,16 @@ void LoginController::getAllConfigs()
         getAllConfigsController_->putServerCredentialsIkev2Answer(SERVER_RETURN_SUCCESS, loginSettings_.getServerCredentials().usernameForIkev2(), loginSettings_.getServerCredentials().passwordForIkev2());
     }
 
-    serverAPI_->serverLocations(newAuthHash_, language_, serverApiUserRole_, false, sessionStatus_.getRevisionHash(), sessionStatus_.isPremium(), protocol_, sessionStatus_.getAlc());
-    serverAPI_->portMap(newAuthHash_, serverApiUserRole_, false);
+    server_api::BaseRequest *requestLocations = serverAPI_->serverLocations(language_, false, sessionStatus_.getRevisionHash(), sessionStatus_.isPremium(), protocol_, sessionStatus_.getAlc());
+    connect(requestLocations, &server_api::BaseRequest::finished, this, &LoginController::onServerLocationsAnswer);
+
+    server_api::BaseRequest *requestPortMap = serverAPI_->portMap(newAuthHash_, false);
+    connect(requestPortMap, &server_api::BaseRequest::finished, this, &LoginController::onPortMapAnswer);
+
     if (sessionStatus_.getStaticIpsCount() > 0)
     {
-        serverAPI_->staticIps(newAuthHash_, GetDeviceId::instance().getDeviceId(), serverApiUserRole_, false);
+        server_api::BaseRequest *requestStaticIps = serverAPI_->staticIps(newAuthHash_, GetDeviceId::instance().getDeviceId(), false);
+        connect(requestStaticIps, &server_api::BaseRequest::finished, this, &LoginController::onStaticIpsAnswer);
     }
     else
     {
@@ -401,7 +396,7 @@ void LoginController::handleNetworkConnection()
     {
         if (dnsResolutionSettings_.getIsAutomatic())
         {
-            makeLoginRequest(HardcodedSettings::instance().serverApiUrl());
+            makeLoginRequest(HardcodedSettings::instance().serverDomain());
         }
         else
         {

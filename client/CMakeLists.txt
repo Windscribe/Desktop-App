@@ -21,7 +21,7 @@ IF(DEFINE_USE_SIGNATURE_CHECK_MACRO)
     ADD_DEFINITIONS(-DUSE_SIGNATURE_CHECK)
 ENDIF(DEFINE_USE_SIGNATURE_CHECK_MACRO)
 
-set(IS_BUILD_TESTS "1")
+#set(IS_BUILD_TESTS "1")
 
 set(WINDSCRIBE_BUILD_LIBS_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../build-libs)
 
@@ -154,5 +154,9 @@ qt_finalize_executable(Windscribe)
 if(DEFINED IS_BUILD_TESTS)
     enable_testing ()
     add_test (NAME locationsmodel.test COMMAND locationsmodel.test)
+    add_test (NAME dnsrequest.test COMMAND dnsrequest.test)
+    add_test (NAME dnscache.test COMMAND dnscache.test)
+    add_test (NAME curlnetworkmanager.test COMMAND curlnetworkmanager.test)
+    add_test (NAME networkaccessmanager.test COMMAND networkaccessmanager.test)
 endif (DEFINED IS_BUILD_TESTS)
 

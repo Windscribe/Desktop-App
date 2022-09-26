@@ -1,8 +1,10 @@
 #include "dnsresolver.h"
 #include "dnsutils.h"
 #include "utils/ws_assert.h"
-#include "utils/crashhandler.h"
 #include "utils/logger.h"
+#include "ares.h"
+
+#include <QRunnable>
 
 #if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
     #include <netinet/in.h>
@@ -11,318 +13,196 @@
     #include <sys/select.h>
 #endif
 
-DnsResolver *DnsResolver::this_ = NULL;
+namespace {
 
-DnsResolver::DnsResolver(QObject *parent) : QThread(parent), bStopCalled_(false),
-    bNeedFinish_(false)
+std::atomic_bool g_FinishAll = false;
+
+#ifdef Q_OS_WIN
+        typedef QVector<IN_ADDR> DnsAddrs;
+#else
+        typedef QVector<in_addr> DnsAddrs;
+#endif
+
+struct UserArg
 {
-    WS_ASSERT(this_ == NULL);
-    this_ = this;
-    aresLibraryInit_.init();
+    QStringList ips;
+    int errorCode = ARES_ECANCELLED;
+};
 
-    start(QThread::LowPriority);
+class LookupJob : public QRunnable
+{
+public:
+     LookupJob(const QString &hostname, QSharedPointer<QObject> object, const QStringList &dnsServers, int timeoutMs) :
+        hostname_(hostname),
+        object_(object),
+        dnsServers_(dnsServers),
+        timeoutMs_(timeoutMs),
+        elapsedMs_(0)
+    {
+    }
+
+    void run() override
+    {
+        QElapsedTimer elapsedTimer;
+        elapsedTimer.start();
+
+        while (errorCode_ != ARES_SUCCESS && elapsedTimer.elapsed() <= timeoutMs_) {
+
+            // fill dns addresses
+            DnsAddrs dnsAddrs;
+            const QStringList dnsList = getDnsIps(dnsServers_);
+            dnsAddrs.reserve(dnsList.count());
+            for (const auto &dnsIp : dnsList) {
+                struct sockaddr_in sa;
+                ares_inet_pton(AF_INET, dnsIp.toStdString().c_str(), &(sa.sin_addr));
+                dnsAddrs.push_back(sa.sin_addr);
+            }
+
+            // create channel and set options
+            ares_channel channel;
+            struct ares_options options;
+            int optmask = 0;
+            createOptionsForAresChannel(timeoutMs_, options, optmask, dnsAddrs);
+            int status = ares_init_options(&channel, &options, optmask);
+            if (status != ARES_SUCCESS) {
+                qCDebug(LOG_BASIC) << "ares_init_options failed:" << QString::fromStdString(ares_strerror(status));
+                return;
+            }
+
+            UserArg userArg;
+            ares_gethostbyname(channel, hostname_.toStdString().c_str(), AF_INET, callback, &userArg);
+
+            // process loop
+            timeval tv;
+            while (!g_FinishAll) {
+                fd_set readers, writers;
+                FD_ZERO(&readers);
+                FD_ZERO(&writers);
+                int nfds = ares_fds(channel, &readers, &writers);
+                if (nfds == 0)
+                    break;
+                timeval *tvp = ares_timeout(channel, NULL, &tv);
+                select(nfds, &readers, &writers, NULL, tvp);
+                ares_process(channel, &readers, &writers);
+                if (elapsedTimer.elapsed() > timeoutMs_) {
+                    userArg.errorCode = ARES_ETIMEOUT;
+                    break;
+                }
+            }
+            ares_destroy(channel);
+
+            ips_ = userArg.ips;
+            errorCode_ = userArg.errorCode;
+            elapsedMs_ = elapsedTimer.elapsed();
+        }
+
+        if (object_) {
+            bool bSuccess = QMetaObject::invokeMethod(object_.get(), "onResolved",
+                            Qt::QueuedConnection, Q_ARG(QStringList, ips_), Q_ARG(int, errorCode_), Q_ARG(qint64, elapsedMs_));
+            WS_ASSERT(bSuccess);
+        }
+    }
+
+    QStringList ips() const { return ips_; }
+    int errorCode() const { return errorCode_; }
+    qint64 elapsedMs() const { return elapsedMs_; }
+
+private:
+    static constexpr int kTimeoutMs = 2000;
+    static constexpr int kTries = 1;
+    QString hostname_;
+    QSharedPointer<QObject> object_;
+    QStringList dnsServers_;
+    int timeoutMs_;
+    qint64 elapsedMs_;
+
+    QStringList ips_;
+    int errorCode_ = ARES_ECANCELLED;
+
+    QStringList getDnsIps(const QStringList &ips)
+    {
+        if (ips.isEmpty()) {
+    #if defined(Q_OS_MAC)
+            QStringList osDefaultList;  // Empty by default.
+            // On Mac, don't rely on automatic OS default DNS fetch in CARES, because it reads them from
+            // the "/etc/resolv.conf", which is sometimes not available immediately after reboot.
+            // Feed the CARES with valid OS default DNS values taken from scutil.
+            const auto listDns = DnsUtils::getOSDefaultDnsServers();
+            for (auto it = listDns.cbegin(); it != listDns.cend(); ++it)
+                osDefaultList.push_back(QString::fromStdWString(*it));
+            return osDefaultList;
+    #endif
+        }
+        return ips;
+    }
+
+    void createOptionsForAresChannel(int timeoutMs, ares_options &options, int &optmask, DnsAddrs &dnsAddrs)
+    {
+        memset(&options, 0, sizeof(options));
+
+        if (dnsAddrs.isEmpty()) {
+            optmask = ARES_OPT_TRIES | ARES_OPT_TIMEOUTMS;
+            options.tries = kTries;
+            options.timeout = kTimeoutMs;
+        } else {
+            optmask = ARES_OPT_TRIES | ARES_OPT_SERVERS | ARES_OPT_TIMEOUTMS;
+            options.tries = kTries;
+            options.timeout = kTimeoutMs;
+            options.nservers = dnsAddrs.count();
+            options.servers = &(dnsAddrs[0]);
+        }
+    }
+
+    static void callback(void *arg, int status, int timeouts, struct hostent *host)
+    {
+        Q_UNUSED(timeouts);
+        UserArg *userArg = static_cast<UserArg *>(arg);
+
+        if (status == ARES_SUCCESS) {
+            QStringList addresses;
+            for (char **p = host->h_addr_list; *p; p++) {
+                char addr_buf[46] = "??";
+
+                ares_inet_ntop(host->h_addrtype, *p, addr_buf, sizeof(addr_buf));
+                addresses << QString::fromStdString(addr_buf);
+            }
+            userArg->ips = addresses;
+        } else {
+            userArg->ips.clear();
+        }
+        userArg->errorCode = status;
+    }
+};
+
+} // namespace
+
+DnsResolver::DnsResolver(QObject *parent) : QObject(parent)
+{
+    aresLibraryInit_.init();
+    threadPool_ = new QThreadPool(this);
 }
 
 DnsResolver::~DnsResolver()
 {
     qCDebug(LOG_BASIC) << "Stopping DnsResolver";
-    mutex_.lock();
-    bNeedFinish_ = true;
-    waitCondition_.wakeAll();
-    mutex_.unlock();
-    wait();
-    bStopCalled_ = true;
+    g_FinishAll = true;
+    threadPool_->waitForDone();
     qCDebug(LOG_BASIC) << "DnsResolver stopped";
-    this_ = NULL;
 }
 
 void DnsResolver::lookup(const QString &hostname, QSharedPointer<QObject> object, const QStringList &dnsServers, int timeoutMs)
 {
-    QMutexLocker locker(&mutex_);
-    REQUEST_INFO ri;
-    ri.hostname = hostname;
-    ri.object = object;
-    ri.dnsServers = dnsServers;
-    ri.timeoutMs = timeoutMs;
-    queue_.enqueue(ri);
-    waitCondition_.wakeAll();
+    LookupJob *job = new LookupJob(hostname, object, dnsServers, timeoutMs);
+    threadPool_->start(job);
+    WS_ASSERT(threadPool_->activeThreadCount() <= threadPool_->maxThreadCount());   // in this case, we probably need to redo the logic
 }
 
 QStringList DnsResolver::lookupBlocked(const QString &hostname, const QStringList &dnsServers, int timeoutMs, int *outErrorCode)
 {
-    struct ares_options options;
-    int optmask = 0;
-
-    QScopedPointer<CHANNEL_INFO> channelInfo (new CHANNEL_INFO());
-    createOptionsForAresChannel(getDnsIps(dnsServers), timeoutMs, options, optmask, channelInfo.data());
-
-    int status = ares_init_options(&(channelInfo->channel), &options, optmask);
-    if (status != ARES_SUCCESS)
-    {
-        qCDebug(LOG_BASIC) << "ares_init_options failed:" << QString::fromStdString(ares_strerror(status));
-        return QStringList();
+    LookupJob job(hostname, nullptr, dnsServers, timeoutMs);
+    job.run();
+    if (outErrorCode) {
+        *outErrorCode = job.errorCode();
     }
-
-    USER_ARG_FOR_BLOCKED userArg;
-    ares_gethostbyname(channelInfo->channel, hostname.toStdString().c_str(), AF_INET, callbackForBlocked, &userArg);
-
-    // process loop
-    timeval tv;
-    while (1)
-    {
-        fd_set readers, writers;
-        FD_ZERO(&readers);
-        FD_ZERO(&writers);
-        int nfds = ares_fds(channelInfo->channel, &readers, &writers);
-        if (nfds == 0)
-        {
-            break;
-        }
-        timeval *tvp = ares_timeout(channelInfo->channel, NULL, &tv);
-        select(nfds, &readers, &writers, NULL, tvp);
-        ares_process(channelInfo->channel, &readers, &writers);
-    }
-
-    ares_destroy(channelInfo->channel);
-    if (outErrorCode)
-    {
-        *outErrorCode = userArg.errorCode;
-    }
-    return userArg.ips;
-}
-
-void DnsResolver::run()
-{
-    BIND_CRASH_HANDLER_FOR_THREAD();
-
-    QVector<CHANNEL_INFO> channels;
-
-    while (true)
-    {
-        mutex_.lock();
-        REQUEST_INFO ri;
-        bool bExistRequest = false;
-        if (!queue_.isEmpty())
-        {
-            ri = queue_.dequeue();
-            bExistRequest = true;
-        }
-        mutex_.unlock();
-
-        if (bExistRequest)
-        {
-            CHANNEL_INFO channelInfo;
-            if (initChannel(ri, channelInfo))
-            {
-                channels << channelInfo;
-            }
-            else
-            {
-                bool bSuccess = QMetaObject::invokeMethod(ri.object.get(), "onResolved",
-                                          Qt::QueuedConnection, Q_ARG(QStringList, QStringList()), Q_ARG(int, ARES_ENOTINITIALIZED));
-                WS_ASSERT(bSuccess);
-            }
-        }
-
-        bool bExistJob = false;
-        QVector<CHANNEL_INFO>::iterator it = channels.begin();
-        while (it != channels.end())
-        {
-            if (processChannel(it->channel))
-            {
-                bExistJob = true;
-                ++it;
-            }
-            else
-            {
-                ares_destroy(it->channel);
-                it = channels.erase(it);
-            }
-        }
-
-        {
-            QMutexLocker locker(&mutex_);
-            while (!bExistJob && queue_.isEmpty() && !bNeedFinish_)
-            {
-                waitCondition_.wait(&mutex_);
-            }
-            if (bNeedFinish_)
-            {
-                break;
-            }
-        }
-    }
-
-    // remove outstanding channels
-    {
-        QMutexLocker locker(&mutex_);
-        queue_.clear();
-    }
-    QVector<CHANNEL_INFO>::iterator it = channels.begin();
-    while (it != channels.end())
-    {
-        ares_destroy(it->channel);
-        it = channels.erase(it);
-    }
-}
-
-
-QStringList DnsResolver::getDnsIps(const QStringList &ips)
-{
-    if (ips.isEmpty())
-    {
-#if defined(Q_OS_MAC)
-        QStringList osDefaultList;  // Empty by default.
-        // On Mac, don't rely on automatic OS default DNS fetch in CARES, because it reads them from
-        // the "/etc/resolv.conf", which is sometimes not available immediately after reboot.
-        // Feed the CARES with valid OS default DNS values taken from scutil.
-        const auto listDns = DnsUtils::getOSDefaultDnsServers();
-        for (auto it = listDns.cbegin(); it != listDns.cend(); ++it)
-            osDefaultList.push_back(QString::fromStdWString(*it));
-        return osDefaultList;
-#endif
-    }
-    return ips;
-}
-
-void DnsResolver::createOptionsForAresChannel(const QStringList &dnsIps, int timeoutMs, ares_options &options, int &optmask, CHANNEL_INFO *channelInfo)
-{
-    memset(&options, 0, sizeof(options));
-
-    if (dnsIps.isEmpty())
-    {
-        optmask = ARES_OPT_TRIES | ARES_OPT_TIMEOUTMS;
-        options.tries = 1;
-        options.timeout = timeoutMs;
-    }
-    else
-    {
-        optmask = ARES_OPT_TRIES | ARES_OPT_SERVERS | ARES_OPT_TIMEOUTMS;
-        options.tries = 1;
-        options.timeout = timeoutMs;
-
-        struct sockaddr_in sa;
-
-        channelInfo->dnsServers.clear();
-        channelInfo->dnsServers.reserve(dnsIps.count());
-        for (const auto &dnsIp : dnsIps)
-        {
-            ares_inet_pton(AF_INET, dnsIp.toStdString().c_str(), &(sa.sin_addr));
-            channelInfo->dnsServers.push_back(sa.sin_addr);
-        }
-
-        if (channelInfo->dnsServers.count() > 0)
-        {
-            options.nservers = channelInfo->dnsServers.count();
-            options.servers = &(channelInfo->dnsServers[0]);
-        }
-        else
-        {
-            WS_ASSERT(false);
-        }
-    }
-}
-
-void DnsResolver::callback(void *arg, int status, int timeouts, hostent *host)
-{
-    Q_UNUSED(timeouts);
-    USER_ARG *userArg = static_cast<USER_ARG *>(arg);
-    if (status != ARES_SUCCESS)
-    {
-        //qCDebug(LOG_BASIC) << "DnsResolver::callback, request failed:" << status << timeouts;
-        bool bSuccess = QMetaObject::invokeMethod(userArg->object.get(), "onResolved",
-                                  Qt::QueuedConnection, Q_ARG(QStringList, QStringList()), Q_ARG(int, status));
-        WS_ASSERT(bSuccess);
-        delete userArg;
-        return;
-    }
-
-    QStringList addresses;
-    for (char **p = host->h_addr_list; *p; p++)
-    {
-        char addr_buf[46] = "??";
-
-        ares_inet_ntop(host->h_addrtype, *p, addr_buf, sizeof(addr_buf));
-        addresses << QString::fromStdString(addr_buf);
-    }
-
-    bool bSuccess = QMetaObject::invokeMethod(userArg->object.get(), "onResolved",
-                              Qt::QueuedConnection, Q_ARG(QStringList, addresses), Q_ARG(int, status));
-    WS_ASSERT(bSuccess);
-
-    delete userArg;
-}
-
-void DnsResolver::callbackForBlocked(void *arg, int status, int timeouts, hostent *host)
-{
-    Q_UNUSED(timeouts);
-    USER_ARG_FOR_BLOCKED *userArg = static_cast<USER_ARG_FOR_BLOCKED *>(arg);
-
-    if (status == ARES_SUCCESS)
-    {
-        QStringList addresses;
-        for (char **p = host->h_addr_list; *p; p++)
-        {
-            char addr_buf[46] = "??";
-
-            ares_inet_ntop(host->h_addrtype, *p, addr_buf, sizeof(addr_buf));
-            addresses << QString::fromStdString(addr_buf);
-        }
-
-        userArg->ips = addresses;
-    }
-    else
-    {
-        userArg->ips.clear();
-    }
-    userArg->errorCode = status;
-}
-
-bool DnsResolver::processChannel(ares_channel channel)
-{
-    fd_set read_fds, write_fds;
-    int res;
-    int nfds;
-    struct timeval tvp;
-    tvp.tv_sec = 0;
-    tvp.tv_usec = 10000; // 10 ms max waiting time
-
-    FD_ZERO(&read_fds);
-    FD_ZERO(&write_fds);
-    nfds = ares_fds(channel, &read_fds, &write_fds);
-    if (nfds == 0)
-    {
-        return false;
-    }
-
-    res = select(nfds, &read_fds, &write_fds, NULL, &tvp);
-    if (res == -1)
-    {
-        return false;
-    }
-    ares_process(channel, &read_fds, &write_fds);
-    return true;
-}
-
-bool DnsResolver::initChannel(const REQUEST_INFO &ri, CHANNEL_INFO &outChannelInfo)
-{
-    struct ares_options options;
-    int optmask = 0;
-
-    createOptionsForAresChannel(getDnsIps(ri.dnsServers), ri.timeoutMs, options, optmask, &outChannelInfo);
-    int status = ares_init_options(&outChannelInfo.channel, &options, optmask);
-    if (status != ARES_SUCCESS)
-    {
-        qCDebug(LOG_BASIC) << "ares_init_options failed:" << QString::fromStdString(ares_strerror(status));
-        return false;
-    }
-    else
-    {
-        USER_ARG *userArg = new USER_ARG();
-        userArg->hostname = ri.hostname;
-        userArg->object = ri.object;
-
-        ares_gethostbyname(outChannelInfo.channel, ri.hostname.toStdString().c_str(), AF_INET, callback, userArg);
-        return true;
-    }
+    return job.ips();
 }

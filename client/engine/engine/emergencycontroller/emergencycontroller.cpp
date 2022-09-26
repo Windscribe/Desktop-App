@@ -20,7 +20,6 @@
 
 EmergencyController::EmergencyController(QObject *parent, IHelper *helper) : QObject(parent),
     helper_(helper),
-    serverApiUserRole_(0),
     state_(STATE_DISCONNECTED)
 {
     QFile file(":/resources/ovpn/emergency.ovpn");
@@ -56,7 +55,7 @@ void EmergencyController::clickConnect(const types::ProxySettings &proxySettings
 
     proxySettings_ = proxySettings;
 
-    QString hashedDomain = HardcodedSettings::instance().generateDomain("econnect.");
+    QString hashedDomain = "econnect." + HardcodedSettings::instance().generateDomain();
     qCDebug(LOG_EMERGENCY_CONNECT) << "Generated hashed domain for emergency connect:" << hashedDomain;
 
     DnsRequest *dnsRequest = new DnsRequest(this, hashedDomain, DnsServersConfiguration::instance().getCurrentDnsServers());
