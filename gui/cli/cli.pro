@@ -140,4 +140,3 @@ HEADERS += \
     backendcommander.h \
     cliarguments.h
 
-RESOURCES += windscribe.qrc
