@@ -444,7 +444,7 @@ build:linux:installer:tagged:
 .template_archlinux_build: &template_archlinux_build
   image: archlinux:base-devel
   before_script:
-    - pacman -Sy --noconfirm git curl python2 nftables c-ares freetype2 hicolor-icon-theme
+    - pacman -Sy --noconfirm git curl python nftables c-ares freetype2 hicolor-icon-theme
 
 .build_archlinux_installer_prep_build_dir:
   script:
@@ -455,8 +455,8 @@ build:linux:installer:tagged:
     - setfacl -m u::rwx,g::rwx ${ARCH_LINUX_BUILD_PATH}
     - setfacl -d --set u::rwx,g::rwx,o::- ${ARCH_LINUX_BUILD_PATH}
     - cp installer/linux/arch_package/* ${ARCH_LINUX_BUILD_PATH}
-    - export VERSION=$(python2 tools/base/extract.py)
-    - export VERSION_NO_SUFFIX=$(python2 tools/base/extract.py --no-suffix)
+    - export VERSION=$(python tools/base/extract.py)
+    - export VERSION_NO_SUFFIX=$(python tools/base/extract.py --no-suffix)
 
 .build_archlinux_installer_makepkg:
   script:
