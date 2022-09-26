@@ -1,50 +1,52 @@
 target_sources(engine PRIVATE
+    failover.cpp
+    failover.h
     serverapi.cpp
     serverapi.h
-    requests/baserequest.cpp
-    requests/baserequest.h
-    requests/loginrequest.cpp
-    requests/loginrequest.h
-    requests/deletesessionrequest.cpp
-    requests/deletesessionrequest.h
-    requests/sessionrequest.cpp
-    requests/sessionrequest.h
     requests/accessipsrequest.cpp
     requests/accessipsrequest.h
-    requests/serverlistrequest.cpp
-    requests/serverlistrequest.h
-    requests/servercredentialsrequest.cpp
-    requests/servercredentialsrequest.h
-    requests/serverconfigsrequest.cpp
-    requests/serverconfigsrequest.h
+    requests/baserequest.cpp
+    requests/baserequest.h
+    requests/checkupdaterequest.cpp
+    requests/checkupdaterequest.h
+    requests/confirmemailrequest.cpp
+    requests/confirmemailrequest.h
+    requests/debuglogrequest.cpp
+    requests/debuglogrequest.h
+    requests/deletesessionrequest.cpp
+    requests/deletesessionrequest.h
+    requests/getrobertfiltersrequest.cpp
+    requests/getrobertfiltersrequest.h
+    requests/loginrequest.cpp
+    requests/loginrequest.h
+    requests/myiprequest.cpp
+    requests/myiprequest.h
+    requests/notificationsrequest.cpp
+    requests/notificationsrequest.h
+    requests/pingtestrequest.cpp
+    requests/pingtestrequest.h
     requests/portmaprequest.cpp
     requests/portmaprequest.h
     requests/recordinstallrequest.cpp
     requests/recordinstallrequest.h
-    requests/confirmemailrequest.cpp
-    requests/confirmemailrequest.h
-    requests/websessionrequest.cpp
-    requests/websessionrequest.h
-    requests/myiprequest.h
-    requests/myiprequest.cpp
-    requests/checkupdaterequest.h
-    requests/checkupdaterequest.cpp
-    requests/debuglogrequest.cpp
-    requests/debuglogrequest.h
-    requests/speedratingrequest.cpp
-    requests/speedratingrequest.h
-    requests/staticipsrequest.h
-    requests/staticipsrequest.cpp
-    requests/pingtestrequest.cpp
-    requests/pingtestrequest.h
-    requests/notificationsrequest.cpp
-    requests/notificationsrequest.h
-    requests/getrobertfiltersrequest.cpp
-    requests/getrobertfiltersrequest.h
+    requests/serverconfigsrequest.cpp
+    requests/serverconfigsrequest.h
+    requests/servercredentialsrequest.cpp
+    requests/servercredentialsrequest.h
+    requests/serverlistrequest.cpp
+    requests/serverlistrequest.h
+    requests/sessionrequest.cpp
+    requests/sessionrequest.h
     requests/setrobertfiltersrequest.cpp
     requests/setrobertfiltersrequest.h
-    requests/wgconfigsinitrequest.h
-    requests/wgconfigsinitrequest.cpp
-    requests/wgconfigsconnectrequest.h
+    requests/speedratingrequest.cpp
+    requests/speedratingrequest.h
+    requests/staticipsrequest.cpp
+    requests/staticipsrequest.h
+    requests/websessionrequest.cpp
+    requests/websessionrequest.h
     requests/wgconfigsconnectrequest.cpp
+    requests/wgconfigsconnectrequest.h
+    requests/wgconfigsinitrequest.cpp
+    requests/wgconfigsinitrequest.h
 )

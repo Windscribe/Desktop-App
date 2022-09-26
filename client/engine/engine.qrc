@@ -1,6 +1,5 @@
 <RCC>
     <qresource prefix="/">
-	<file>../common/utils/hardcodedsettings.ini</file>
         <file>resources/ovpn/emergency.ovpn</file>
         <file alias="certs_bundle.pem">resources/cert/certs_bundle.pem</file>
         <file alias="cert.crt">resources/cert/cert.crt</file>

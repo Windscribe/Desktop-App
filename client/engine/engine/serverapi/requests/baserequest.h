@@ -8,6 +8,7 @@
 namespace server_api {
 
 enum class RequestType { kGet, kPost, kDelete, kPut };
+enum class SudomainType { kApi, kAssets, kTunnelTest };
 
 class BaseRequest : public QObject
 {
@@ -36,10 +37,9 @@ signals:
     void finished();
 
 protected:
+    QString hostname(SudomainType subdomain) const;
     void addPlatformQueryItems(QUrlQuery &urlQuery) const;
     void addAuthQueryItems(QUrlQuery &urlQuery, const QString &authHash = QString()) const;
-
-    QString hostname_;
 
 private:
     bool bUseFailover_ = true;     // Use the failover algorithm for this request
@@ -47,6 +47,7 @@ private:
     RequestType requestType_;
     bool isWriteToLog_ = true;
     SERVER_API_RET_CODE retCode_ = SERVER_RETURN_SUCCESS;
+    QString hostname_;
 };
 
 } // namespace server_api

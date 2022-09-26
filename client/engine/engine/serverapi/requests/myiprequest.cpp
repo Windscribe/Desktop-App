@@ -13,7 +13,7 @@ MyIpRequest::MyIpRequest(QObject *parent, const QString &hostname, int timeout) 
 
 QUrl MyIpRequest::url() const
 {
-    QUrl url("https://" + hostname_ + "/MyIp");
+    QUrl url("https://" + hostname(SudomainType::kApi) + "/MyIp");
     QUrlQuery query;
     addAuthQueryItems(query);
     addPlatformQueryItems(query);

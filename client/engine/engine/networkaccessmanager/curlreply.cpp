@@ -1,8 +1,14 @@
 #include "curlreply.h"
 #include "curlnetworkmanager.h"
 
-CurlReply::CurlReply(CurlNetworkManager *manager, const NetworkRequest &networkRequest, const QStringList &ips, REQUEST_TYPE requestType, const QByteArray &postData)
-    : QObject(manager), networkRequest_(networkRequest), ips_(ips), requestType_(requestType), postData_(postData), manager_(manager)
+CurlReply::CurlReply(CurlNetworkManager *manager, const NetworkRequest &networkRequest, const types::ProxySettings &proxySettings, const QStringList &ips, REQUEST_TYPE requestType, const QByteArray &postData)
+    : QObject(manager),
+      networkRequest_(networkRequest),
+      proxySettings_(proxySettings),
+      ips_(ips),
+      requestType_(requestType),
+      postData_(postData),
+      manager_(manager)
 {
     static std::atomic<quint64> id(0);
     id_ = id++;

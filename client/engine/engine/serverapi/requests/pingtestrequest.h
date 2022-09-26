@@ -8,7 +8,7 @@ class PingTestRequest : public BaseRequest
 {
     Q_OBJECT
 public:
-    explicit PingTestRequest(QObject *parent, int timeout);
+    explicit PingTestRequest(QObject *parent, const QString &hostname, int timeout);
 
     QUrl url() const override;
     QString name() const override;

@@ -5,8 +5,6 @@
 #include <QSettings>
 
 #include "utils/logger.h"
-#include "utils/ws_assert.h"
-#include "utils/ipvalidation.h"
 
 namespace server_api {
 
@@ -25,21 +23,6 @@ ServerListRequest::ServerListRequest(QObject *parent, const QString &hostname, c
 
 QUrl ServerListRequest::url() const
 {
-    QString hostname;
-    // if this is IP, then use without changes
-    if (IpValidation::instance().isIp(hostname_)) {
-        hostname = hostname_;
-    } else  {   // otherwise use domain assets.windscribe.com
-        QString modifiedHostname = hostname_;
-        if (modifiedHostname.startsWith("api", Qt::CaseInsensitive)) {
-            modifiedHostname = modifiedHostname.remove(0, 3);
-            modifiedHostname.insert(0, "assets");
-        } else {
-            WS_ASSERT(false);
-        }
-        hostname = modifiedHostname;
-    }
-
     // generate alc parameter, if not empty
     QString alcField;
     if (!alcList_.isEmpty()) {
@@ -55,17 +38,8 @@ QUrl ServerListRequest::url() const
     QSettings settings;
     QString countryOverride = settings.value("countryOverride", "").toString();
 
-    QString modifiedHostname = hostname_;
-    if (modifiedHostname.startsWith("api", Qt::CaseInsensitive)) {
-        modifiedHostname = modifiedHostname.remove(0, 3);
-        modifiedHostname.insert(0, "assets");
-    } else if (IpValidation::instance().isIp(modifiedHostname)) {
-        modifiedHostname += "/assets";
-    } else {
-        WS_ASSERT(false);
-    }
     QString strIsPro = isPro_ ? "1" : "0";
-    QUrl url = QUrl("https://" + modifiedHostname + "/serverlist/mob-v2/" + strIsPro + "/" + revision_);
+    QUrl url = QUrl("https://" + hostname(SudomainType::kAssets) + "/serverlist/mob-v2/" + strIsPro + "/" + revision_);
 
     // add alc parameter in query, if not empty
     QUrlQuery query;

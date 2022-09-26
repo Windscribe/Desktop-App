@@ -33,7 +33,7 @@ QByteArray DebugLogRequest::postData() const
 
 QUrl DebugLogRequest::url() const
 {
-    return  QUrl("https://" + hostname_ + "/Report/applog");
+    return  QUrl("https://" + hostname(SudomainType::kApi) + "/Report/applog");
 }
 
 QString DebugLogRequest::name() const

@@ -14,7 +14,7 @@ PortMapRequest::PortMapRequest(QObject *parent, const QString &hostname, const Q
 
 QUrl PortMapRequest::url() const
 {
-    QUrl url("https://" + hostname_ + "/PortMap");
+    QUrl url("https://" + hostname(SudomainType::kApi) + "/PortMap");
     QUrlQuery query;
     query.addQueryItem("version", "5");
     addAuthQueryItems(query, authHash_);

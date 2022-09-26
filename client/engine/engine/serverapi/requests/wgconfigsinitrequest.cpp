@@ -33,7 +33,7 @@ QByteArray WgConfigsInitRequest::postData() const
 
 QUrl WgConfigsInitRequest::url() const
 {
-    return QUrl("https://" + hostname_ + "/WgConfigs/init");
+    return QUrl("https://" + hostname(SudomainType::kApi) + "/WgConfigs/init");
 }
 
 QString WgConfigsInitRequest::name() const

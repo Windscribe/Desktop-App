@@ -3,7 +3,6 @@
 #include <QJsonDocument>
 
 #include "utils/logger.h"
-#include "utils/ws_assert.h"
 #include "version/appversion.h"
 #include "utils/utils.h"
 
@@ -16,7 +15,7 @@ CheckUpdateRequest::CheckUpdateRequest(QObject *parent, const QString &hostname,
 
 QUrl CheckUpdateRequest::url() const
 {
-    QUrl url("https://" + hostname_ + "/CheckUpdate");
+    QUrl url("https://" + hostname(SudomainType::kApi) + "/CheckUpdate");
 
     QUrlQuery query;
 

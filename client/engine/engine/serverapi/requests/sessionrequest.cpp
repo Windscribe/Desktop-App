@@ -15,7 +15,7 @@ SessionRequest::SessionRequest(QObject *parent, const QString &hostname, const Q
 
 QUrl SessionRequest::url() const
 {
-    QUrl url("https://" + hostname_ + "/Session");
+    QUrl url("https://" + hostname(SudomainType::kApi) + "/Session");
 
     QUrlQuery query;
     query.addQueryItem("session_type_id", "3");

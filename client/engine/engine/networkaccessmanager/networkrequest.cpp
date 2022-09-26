@@ -5,11 +5,10 @@ NetworkRequest::NetworkRequest(const QUrl &url, int timeout, bool bUseDnsCache) 
 {
 }
 
-NetworkRequest::NetworkRequest(const QUrl &url, int timeout, bool bUseDnsCache, const QStringList &dnsServers, bool isIgnoreSslErrors, const types::ProxySettings &proxySettings) :
+NetworkRequest::NetworkRequest(const QUrl &url, int timeout, bool bUseDnsCache, const QStringList &dnsServers, bool isIgnoreSslErrors) :
     url_(url),
     timeout_(timeout),
     bUseDnsCache_(bUseDnsCache),
-    proxySettings_(proxySettings),
     bIgnoreSslErrors_(isIgnoreSslErrors),
     dnsServers_(dnsServers),
     bRemoveFromWhitelistIpsAfterFinish_(false)
@@ -74,16 +73,6 @@ void NetworkRequest::setIgnoreSslErrors(bool bIgnore)
 bool NetworkRequest::isIgnoreSslErrors() const
 {
     return bIgnoreSslErrors_;
-}
-
-void NetworkRequest::setProxySettings(const types::ProxySettings &proxySettings)
-{
-    proxySettings_ = proxySettings;
-}
-
-const types::ProxySettings &NetworkRequest::proxySettings() const
-{
-    return proxySettings_;
 }
 
 void NetworkRequest::setRemoveFromWhitelistIpsAfterFinish()

@@ -26,7 +26,7 @@ QByteArray WebSessionRequest::postData() const
 
 QUrl WebSessionRequest::url() const
 {
-    return QUrl("https://" + hostname_ + "/WebSession");
+    return QUrl("https://" + hostname(SudomainType::kApi) + "/WebSession");
 }
 
 QString WebSessionRequest::name() const

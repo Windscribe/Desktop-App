@@ -308,7 +308,7 @@ void LoginController::handleNextLoginAfterFail(SERVER_API_RET_CODE retCode)
             loginStep_ = LOGIN_STEP2;
             //emit stepMessage(tr("Trying Backup Endpoints 1/2"));
             emit stepMessage(LOGIN_MESSAGE_TRYING_BACKUP1);
-            makeLoginRequest(HardcodedSettings::instance().generateDomain("api."));
+            makeLoginRequest(HardcodedSettings::instance().generateDomain());
         }
         else if (loginStep_ == LOGIN_STEP2)
         {
@@ -396,7 +396,7 @@ void LoginController::handleNetworkConnection()
     {
         if (dnsResolutionSettings_.getIsAutomatic())
         {
-            makeLoginRequest(HardcodedSettings::instance().serverApiUrl());
+            makeLoginRequest(HardcodedSettings::instance().serverDomain());
         }
         else
         {

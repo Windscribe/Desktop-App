@@ -50,6 +50,7 @@ bool NetworkReply::isSuccess() const
     return error_ == NoError;
 }
 
+
 void NetworkReply::setCurlReply(CurlReply *curlReply)
 {
     curlReply_ = curlReply;

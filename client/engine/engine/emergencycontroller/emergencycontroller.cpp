@@ -55,7 +55,7 @@ void EmergencyController::clickConnect(const types::ProxySettings &proxySettings
 
     proxySettings_ = proxySettings;
 
-    QString hashedDomain = HardcodedSettings::instance().generateDomain("econnect.");
+    QString hashedDomain = "econnect." + HardcodedSettings::instance().generateDomain();
     qCDebug(LOG_EMERGENCY_CONNECT) << "Generated hashed domain for emergency connect:" << hashedDomain;
 
     DnsRequest *dnsRequest = new DnsRequest(this, hashedDomain, DnsServersConfiguration::instance().getCurrentDnsServers());

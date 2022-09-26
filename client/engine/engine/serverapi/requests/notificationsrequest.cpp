@@ -4,8 +4,6 @@
 #include <QJsonDocument>
 
 #include "utils/logger.h"
-#include "utils/ws_assert.h"
-#include "version/appversion.h"
 
 namespace server_api {
 
@@ -16,7 +14,7 @@ NotificationsRequest::NotificationsRequest(QObject *parent, const QString &hostn
 
 QUrl NotificationsRequest::url() const
 {
-    QUrl url("https://" + hostname_ + "/Notifications");
+    QUrl url("https://" + hostname(SudomainType::kApi) + "/Notifications");
     QUrlQuery query;
     addAuthQueryItems(query, authHash_);
     addPlatformQueryItems(query);

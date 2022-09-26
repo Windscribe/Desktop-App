@@ -1843,7 +1843,7 @@ void Engine::onConnectionManagerConnected()
         qCDebug(LOG_BASIC) << "the firewall rules are added for static IPs location, ports:" << connectionManager_->getStatisIps().getAsStringWithDelimiters();
     }
 
-    serverAPI_->disableProxy();
+    networkAccessManager_->disableProxy();
     locationsModel_->disableProxy();
 
     DnsServersConfiguration::instance().setDnsServersPolicy(DNS_TYPE_OS_DEFAULT);
@@ -2386,7 +2386,7 @@ void Engine::onEmergencyControllerConnected()
     AdapterMetricsController_win::updateMetrics(emergencyController_->getVpnAdapterInfo().adapterName(), helper_);
 #endif
 
-    serverAPI_->disableProxy();
+    networkAccessManager_->disableProxy();
     DnsServersConfiguration::instance().setDnsServersPolicy(DNS_TYPE_OS_DEFAULT);
 
     emergencyConnectStateController_->setConnectedState(LocationID());
@@ -2397,7 +2397,7 @@ void Engine::onEmergencyControllerDisconnected(DISCONNECT_REASON reason)
 {
     qCDebug(LOG_BASIC) << "Engine::onEmergencyControllerDisconnected(), reason =" << reason;
 
-    serverAPI_->enableProxy();
+    networkAccessManager_->enableProxy();
     DnsServersConfiguration::instance().setDnsServersPolicy(engineSettings_.dnsPolicy());
 
     emergencyConnectStateController_->setDisconnectedState(reason, CONNECT_ERROR::NO_CONNECT_ERROR);
@@ -2915,7 +2915,7 @@ void Engine::doDisconnectRestoreStuff()
 {
     vpnShareController_->onDisconnectedFromVPNEvent();
 
-    serverAPI_->enableProxy();
+    networkAccessManager_->enableProxy();
     locationsModel_->enableProxy();
     DnsServersConfiguration::instance().setDnsServersPolicy(engineSettings_.dnsPolicy());
 
@@ -2962,7 +2962,7 @@ void Engine::updateProxySettings()
 {
     if (ProxyServerController::instance().updateProxySettings(engineSettings_.proxySettings())) {
         const auto &proxySettings = ProxyServerController::instance().getCurrentProxySettings();
-        serverAPI_->setProxySettings(proxySettings);
+        networkAccessManager_->setProxySettings(proxySettings);
         locationsModel_->setProxySettings(proxySettings);
         firewallExceptions_.setProxyIP(proxySettings);
         updateFirewallSettings();

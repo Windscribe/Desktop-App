@@ -26,7 +26,7 @@ QByteArray SetRobertFiltersRequest::postData() const
 
 QUrl SetRobertFiltersRequest::url() const
 {
-    QUrl url("https://" + hostname_ + "/Robert/filter");
+    QUrl url("https://" + hostname(SudomainType::kApi) + "/Robert/filter");
     QUrlQuery query;
     addAuthQueryItems(query, authHash_);
     addPlatformQueryItems(query);

@@ -27,11 +27,11 @@ QByteArray RecordInstallRequest::postData() const
 QUrl RecordInstallRequest::url() const
 {
 #ifdef Q_OS_WIN
-    QUrl url("https://" + hostname_ + "/RecordInstall/app/win");
+    QUrl url("https://" + hostname(SudomainType::kApi) + "/RecordInstall/app/win");
 #elif defined Q_OS_MAC
-    QUrl url("https://" + hostname_ + "/RecordInstall/app/mac");
+    QUrl url("https://" + hostname(SudomainType::kApi) + "/RecordInstall/app/mac");
 #elif defined Q_OS_LINUX
-    QUrl url("https://" + hostname_ + "/RecordInstall/app/linux");
+    QUrl url("https://" + hostname(SudomainType::kApi) + "/RecordInstall/app/linux");
 #endif
     return url;
 }

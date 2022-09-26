@@ -2,17 +2,15 @@
 
 #include <QJsonDocument>
 
-#include "utils/hardcodedsettings.h"
-
 namespace server_api {
 
-PingTestRequest::PingTestRequest(QObject *parent, int timeout) : BaseRequest(parent, RequestType::kGet, HardcodedSettings::instance().serverTunnelTestUrl(), true, timeout)
+PingTestRequest::PingTestRequest(QObject *parent, const QString &hostname, int timeout) : BaseRequest(parent, RequestType::kGet, hostname, true, timeout)
 {
 }
 
 QUrl PingTestRequest::url() const
 {
-    QUrl url("https://" + hostname_);
+    QUrl url("https://" + hostname(SudomainType::kTunnelTest));
     QUrlQuery query;
     addAuthQueryItems(query);
     addPlatformQueryItems(query);

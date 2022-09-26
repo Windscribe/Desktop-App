@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QMutex>
+#include "types/proxysettings.h"
 #include "networkrequest.h"
 #include <curl/curl.h>
 
@@ -27,7 +28,8 @@ signals:
 private:
     enum REQUEST_TYPE { REQUEST_GET, REQUEST_POST, REQUEST_PUT, REQUEST_DELETE};
 
-    explicit CurlReply(CurlNetworkManager *manager, const NetworkRequest &networkRequest, const QStringList &ips, REQUEST_TYPE requestType, const QByteArray &postData);
+    explicit CurlReply(CurlNetworkManager *manager, const NetworkRequest &networkRequest,
+                       const types::ProxySettings &proxySettings, const QStringList &ips, REQUEST_TYPE requestType, const QByteArray &postData);
 
     const NetworkRequest &networkRequest() const;
     QStringList ips() const;
@@ -45,6 +47,7 @@ private:
 
     quint64 id_;
     NetworkRequest networkRequest_;
+    types::ProxySettings proxySettings_;
     QStringList ips_;
     REQUEST_TYPE requestType_;
     QByteArray postData_;

@@ -14,7 +14,7 @@ AcessIpsRequest::AcessIpsRequest(QObject *parent, const QString &hostname) : Bas
 
 QUrl AcessIpsRequest::url() const
 {
-    QUrl url("https://" + hostname_ + "/ApiAccessIps");
+    QUrl url("https://" + hostname(SudomainType::kApi) + "/ApiAccessIps");
     QUrlQuery query;
     addAuthQueryItems(query);
     addPlatformQueryItems(query);

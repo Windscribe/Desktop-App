@@ -24,7 +24,7 @@ QByteArray ConfirmEmailRequest::postData() const
 
 QUrl ConfirmEmailRequest::url() const
 {
-    QUrl url("https://" + hostname_ + "/Users");
+    QUrl url("https://" + hostname(SudomainType::kApi) + "/Users");
     return url;
 }
 

@@ -5,6 +5,8 @@
 #include "version/appversion.h"
 #include "utils/utils.h"
 #include "utils/hardcodedsettings.h"
+#include "utils/ws_assert.h"
+#include "utils/ipvalidation.h"
 
 
 namespace server_api {
@@ -69,6 +71,23 @@ void BaseRequest::setRetCode(SERVER_API_RET_CODE retCode)
 SERVER_API_RET_CODE BaseRequest::retCode() const
 {
     return retCode_;
+}
+
+QString BaseRequest::hostname(SudomainType subdomain) const
+{
+    // if this is IP, return without change
+    if (IpValidation::instance().isIp(hostname_))
+        return hostname_;
+
+    if (subdomain == SudomainType::kApi)
+        return HardcodedSettings::instance().serverApiSubdomain() + "." + hostname_;
+    else if (subdomain == SudomainType::kAssets)
+        return HardcodedSettings::instance().serverAssetsSubdomain() + "." + hostname_;
+    else if (subdomain == SudomainType::kTunnelTest)
+        return HardcodedSettings::instance().serverTunnelTestSubdomain() + "." + hostname_;
+
+    WS_ASSERT(false);
+    return "";
 }
 
 } // namespace server_api {

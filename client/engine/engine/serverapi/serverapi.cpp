@@ -9,7 +9,6 @@
 #include "engine/connectstatecontroller/iconnectstatecontroller.h"
 #include "utils/logger.h"
 #include "utils/utils.h"
-#include "utils/ipvalidation.h"
 #include "engine/dnsresolver/dnsserversconfiguration.h"
 
 #include "requests/loginrequest.h"
@@ -44,7 +43,6 @@ namespace server_api {
 ServerAPI::ServerAPI(QObject *parent, IConnectStateController *connectStateController, NetworkAccessManager *networkAccessManager) : QObject(parent),
     connectStateController_(connectStateController),
     networkAccessManager_(networkAccessManager),
-    isProxyEnabled_(false),
     bIsRequestsEnabled_(false),
     bIgnoreSslErrors_(false)
 {
@@ -52,21 +50,6 @@ ServerAPI::ServerAPI(QObject *parent, IConnectStateController *connectStateContr
 
 ServerAPI::~ServerAPI()
 {
-}
-
-void ServerAPI::setProxySettings(const types::ProxySettings &proxySettings)
-{
-    proxySettings_ = proxySettings;
-}
-
-void ServerAPI::disableProxy()
-{
-    isProxyEnabled_ = false;
-}
-
-void ServerAPI::enableProxy()
-{
-    isProxyEnabled_ = true;
 }
 
 void ServerAPI::setRequestsEnabled(bool bEnable)
@@ -88,21 +71,7 @@ void ServerAPI::setHostname(const QString &hostname)
 
 QString ServerAPI::getHostname() const
 {
-    // if this is IP, return without change
-    if (IpValidation::instance().isIp(hostname_))
-    {
-        return hostname_;
-    }
-    // otherwise return hostname without "api." appendix
-    else
-    {
-        QString modifiedHostname = hostname_;
-        if (modifiedHostname.startsWith("api.", Qt::CaseInsensitive))
-        {
-            modifiedHostname = modifiedHostname.remove(0, 4);
-        }
-        return modifiedHostname;
-    }
+    return hostname_;
 }
 
 // works with direct IP
@@ -234,9 +203,9 @@ BaseRequest *ServerAPI::staticIps(const QString &authHash, const QString &device
 BaseRequest *ServerAPI::pingTest(uint timeout, bool bWriteLog)
 {
     if (bWriteLog)
-        qCDebug(LOG_SERVER_API) << "Do ping test to:" << HardcodedSettings::instance().serverTunnelTestUrl() << " with timeout: " << timeout;
+        qCDebug(LOG_SERVER_API) << "Do ping test with timeout: " << timeout;
 
-    PingTestRequest *request = new PingTestRequest(this, timeout);
+    PingTestRequest *request = new PingTestRequest(this, hostname_, timeout);
     if (!bWriteLog) request->setNotWriteToLog();
     executeRequest(request, false);
     return request;
@@ -297,22 +266,13 @@ void ServerAPI::handleNetworkRequestFinished()
                 pointerToRequest->setRetCode(SERVER_RETURN_NETWORK_ERROR);
 
             if (pointerToRequest->isWriteToLog())
-                qCDebug(LOG_SERVER_API) << "API request " + pointerToRequest->name() + " failed(" << reply->errorString() << ")";
+                qCDebug(LOG_SERVER_API) << "API request " + pointerToRequest->name() + " failed:" << reply->errorString();
             emit pointerToRequest->finished();
         }
         else {
             pointerToRequest->handle(reply->readAll());
             emit pointerToRequest->finished();
         }
-    }
-}
-
-types::ProxySettings ServerAPI::currentProxySettings() const
-{
-    if (isProxyEnabled_) {
-        return proxySettings_;
-    } else {
-        return types::ProxySettings();
     }
 }
 
@@ -326,8 +286,8 @@ void ServerAPI::executeRequest(BaseRequest *request, bool isNeedCheckRequestsEna
         });
         return;
     }
-
-    NetworkRequest networkRequest(request->url().toString(), request->timeout(), true, DnsServersConfiguration::instance().getCurrentDnsServers(), bIgnoreSslErrors_, currentProxySettings());
+    //FIXME: getCurrentDnsServers() move to NetworkAccessManager
+    NetworkRequest networkRequest(request->url().toString(), request->timeout(), true, DnsServersConfiguration::instance().getCurrentDnsServers(), bIgnoreSslErrors_);
     NetworkReply *reply;
     switch (request->requestType()) {
         case RequestType::kGet:

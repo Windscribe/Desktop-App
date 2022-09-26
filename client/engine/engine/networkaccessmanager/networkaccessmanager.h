@@ -1,5 +1,4 @@
-#ifndef NETWORKACCESSMANAGER_H
-#define NETWORKACCESSMANAGER_H
+#pragma once
 
 #include <QObject>
 #include <QUrl>
@@ -24,6 +23,10 @@ public:
     NetworkReply *deleteResource(const NetworkRequest &request);
 
     void abort(NetworkReply *reply);
+
+    void setProxySettings(const types::ProxySettings &proxySettings);
+    void enableProxy();
+    void disableProxy();
 
 signals:
     // need for add exception rules to firewall
@@ -50,17 +53,18 @@ private:
         NetworkRequest request;
         NetworkReply *reply;
         QByteArray data;
+        QElapsedTimer elapsedTimer_;
     };
 
     QHash<quint64, QSharedPointer<RequestData> > activeRequests_;
     CurlNetworkManager *curlNetworkManager_;
     DnsCache *dnsCache_;
     WhitelistIpsManager *whitelistIpsManager_;
+    types::ProxySettings proxySettings_;
+    bool isProxyEnabled_ = true;
 
+    types::ProxySettings currentProxySettings() const;
     quint64 getNextId();
-
     NetworkReply *invokeHandleRequest(REQUEST_TYPE type, const NetworkRequest &request, const QByteArray &data);
 };
 
-
-#endif // NETWORKACCESSMANAGER_H

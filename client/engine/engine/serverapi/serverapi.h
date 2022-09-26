@@ -2,7 +2,6 @@
 
 #include <QObject>
 
-#include "types/proxysettings.h"
 #include "types/robertfilter.h"
 #include "engine/networkaccessmanager/networkaccessmanager.h"
 #include "requests/baserequest.h"
@@ -13,7 +12,7 @@ namespace server_api {
 
 /*
 Access to API endpoint.
-Example of a typical usage in the chardalling code
+Example of a typical usage in the calling code
    server_api::BaseRequest *request = serverAPI_->login(username, password, code2fa);
    connect(request, &server_api::BaseRequest::finished, this, &LoginController::onLoginAnswer);
    .....
@@ -23,6 +22,9 @@ Example of a typical usage in the chardalling code
     ... some code processing request ...;
 }
 that is, the calling code should take care of the deletion returned server_api::BaseRequest object (preferably via deleteLater())
+
+Also this class makes a failover algorithm for all requests, which depends on the VPN connection status.
+Important: while the failover domain is not detected, requests can wait in the queue.
 */
 
 class ServerAPI : public QObject
@@ -31,11 +33,6 @@ class ServerAPI : public QObject
 public:
     explicit ServerAPI(QObject *parent, IConnectStateController *connectStateController, NetworkAccessManager *networkAccessManager);
     virtual ~ServerAPI();
-
-    // FIXME: move to NetworkAccessManager
-    void setProxySettings(const types::ProxySettings &proxySettings);
-    void disableProxy();
-    void enableProxy();
 
     // if true, then all requests works
     // if false, then only request for SERVER_API_ROLE_LOGIN_CONTROLLER and SERVER_API_ROLE_ACCESS_IPS_CONTROLLER roles works
@@ -81,15 +78,19 @@ public:
 
 private:
     NetworkAccessManager *networkAccessManager_;
-    types::ProxySettings proxySettings_;
-    bool isProxyEnabled_;
     IConnectStateController *connectStateController_;
     QString hostname_;
     bool bIsRequestsEnabled_;
     bool bIgnoreSslErrors_;
 
+    struct {
+        bool isFailoverForDisconnectedDetected_ = false;
+        QString hostnameForDisconnected_;
+        bool isFailoverForConnectedDetected_ = false;
+        QString hostnameForConnected_;
+    } failoverState_;
+
     void handleNetworkRequestFinished();
-    types::ProxySettings currentProxySettings() const;
     void executeRequest(BaseRequest *request, bool isNeedCheckRequestsEnabled);
 };
 

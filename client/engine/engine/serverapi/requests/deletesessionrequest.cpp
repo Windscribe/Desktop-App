@@ -11,7 +11,7 @@ DeleteSessionRequest::DeleteSessionRequest(QObject *parent, const QString &hostn
 
 QUrl DeleteSessionRequest::url() const
 {
-    QUrl url("https://" + hostname_ + "/Session");
+    QUrl url("https://" + hostname(SudomainType::kApi) + "/Session");
     QUrlQuery query;
     addAuthQueryItems(query, authHash_);
     addPlatformQueryItems(query);

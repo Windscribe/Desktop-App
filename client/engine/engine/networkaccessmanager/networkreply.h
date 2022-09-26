@@ -19,7 +19,7 @@ public:
     bool isSuccess() const;
 
 signals:
-    void finished();
+    void finished(int elapsedMs);
     void progress(qint64 bytesReceived, qint64 bytesTotal);
     void readyRead();
 

@@ -19,7 +19,7 @@ ServerCredentialsRequest::ServerCredentialsRequest(QObject *parent, const QStrin
 
 QUrl ServerCredentialsRequest::url() const
 {
-    QUrl url("https://" + hostname_ + "/ServerCredentials");
+    QUrl url("https://" + hostname(SudomainType::kApi) + "/ServerCredentials");
     QUrlQuery query;
     if (protocol_.isOpenVpnProtocol())
         query.addQueryItem("type", "openvpn");

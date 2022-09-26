@@ -19,10 +19,10 @@ class CurlNetworkManager : public QThread
 public:
     explicit CurlNetworkManager(QObject *parent = 0);
     virtual ~CurlNetworkManager();
-    CurlReply *get(const NetworkRequest &request, const QStringList &ips);
-    CurlReply *post(const NetworkRequest &request, const QByteArray &data, const QStringList &ips);
-    CurlReply *put(const NetworkRequest &request, const QByteArray &data, const QStringList &ips);
-    CurlReply *deleteResource(const NetworkRequest &request, const QStringList &ips);
+    CurlReply *get(const NetworkRequest &request, const QStringList &ips, const types::ProxySettings &proxySettings = types::ProxySettings());
+    CurlReply *post(const NetworkRequest &request, const QByteArray &data, const QStringList &ips, const types::ProxySettings &proxySettings = types::ProxySettings());
+    CurlReply *put(const NetworkRequest &request, const QByteArray &data, const QStringList &ips, const types::ProxySettings &proxySettings  = types::ProxySettings());
+    CurlReply *deleteResource(const NetworkRequest &request, const QStringList &ips, const types::ProxySettings &proxySettings  = types::ProxySettings());
 
     void abort(CurlReply *reply);
 
@@ -52,7 +52,7 @@ private:
 
     QHash<quint64, QSharedPointer<quint64> > idsHash_;   // need for curl callback functions, we pass pointer to quint64
 
-    CurlReply *invokeRequest(CurlReply::REQUEST_TYPE type, const NetworkRequest &request, const QStringList &ips, const QByteArray &data = QByteArray());
+    CurlReply *invokeRequest(CurlReply::REQUEST_TYPE type, const NetworkRequest &request, const QStringList &ips, const types::ProxySettings &proxySettings, const QByteArray &data = QByteArray());
 
     void setIdIntoMap(quint64 id);
     CURL *makeRequest(CurlReply *curlReply);

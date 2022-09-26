@@ -18,7 +18,7 @@ ServerConfigsRequest::ServerConfigsRequest(QObject *parent, const QString &hostn
 
 QUrl ServerConfigsRequest::url() const
 {
-    QUrl url("https://" + hostname_ + "/ServerConfigs");
+    QUrl url("https://" + hostname(SudomainType::kApi) + "/ServerConfigs");
     QUrlQuery query;
 
     query.addQueryItem("ovpn_version",

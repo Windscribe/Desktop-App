@@ -38,7 +38,7 @@ QByteArray WgConfigsConnectRequest::postData() const
 
 QUrl WgConfigsConnectRequest::url() const
 {
-    return QUrl("https://" + hostname_ + "/WgConfigs/connect");
+    return QUrl("https://" + hostname(SudomainType::kApi) + "/WgConfigs/connect");
 }
 
 QString WgConfigsConnectRequest::name() const

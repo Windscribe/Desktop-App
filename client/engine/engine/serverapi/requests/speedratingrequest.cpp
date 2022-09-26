@@ -34,7 +34,7 @@ QByteArray SpeedRatingRequest::postData() const
 
 QUrl SpeedRatingRequest::url() const
 {
-    return QUrl("https://" + hostname_ + "/SpeedRating");
+    return QUrl("https://" + hostname(SudomainType::kApi) + "/SpeedRating");
 }
 
 QString SpeedRatingRequest::name() const

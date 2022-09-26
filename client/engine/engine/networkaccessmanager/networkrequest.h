@@ -1,15 +1,13 @@
-#ifndef NETWORKREQUEST_H
-#define NETWORKREQUEST_H
+#pragma once
 
 #include <QUrl>
-#include "types/proxysettings.h"
 
 class NetworkRequest
 {
 public:
     NetworkRequest() {}
     explicit NetworkRequest(const QUrl &url, int timeout, bool bUseDnsCache);
-    explicit NetworkRequest(const QUrl &url, int timeout, bool bUseDnsCache, const QStringList &dnsServers, bool isIgnoreSslErrors, const types::ProxySettings &proxySettings);
+    explicit NetworkRequest(const QUrl &url, int timeout, bool bUseDnsCache, const QStringList &dnsServers, bool isIgnoreSslErrors);
 
     void setUrl(const QUrl &url);
     QUrl url() const;
@@ -29,9 +27,6 @@ public:
     void setIgnoreSslErrors(bool bIgnore);
     bool isIgnoreSslErrors() const;
 
-    void setProxySettings(const types::ProxySettings &proxySettings);
-    const types::ProxySettings &proxySettings() const;
-
     void setRemoveFromWhitelistIpsAfterFinish();
     bool isRemoveFromWhitelistIpsAfterFinish() const;
 
@@ -39,7 +34,6 @@ private:
     QUrl url_;
     int timeout_;
     bool bUseDnsCache_;
-    types::ProxySettings proxySettings_;
     bool bIgnoreSslErrors_;
     QString header_;
     QStringList dnsServers_;
@@ -48,4 +42,3 @@ private:
     bool bRemoveFromWhitelistIpsAfterFinish_;
 };
 
-#endif // NETWORKREQUEST_H

@@ -34,7 +34,7 @@ QByteArray LoginRequest::postData() const
 
 QUrl LoginRequest::url() const
 {
-    QUrl url("https://" + hostname_ + "/Session");
+    QUrl url("https://" + hostname(SudomainType::kApi) + "/Session");
     return url;
 }
 

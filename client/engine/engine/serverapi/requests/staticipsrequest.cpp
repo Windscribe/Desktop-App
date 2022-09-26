@@ -4,8 +4,6 @@
 #include <QJsonObject>
 
 #include "utils/logger.h"
-#include "utils/ws_assert.h"
-#include "version/appversion.h"
 
 namespace server_api {
 
@@ -17,7 +15,7 @@ StaticIpsRequest::StaticIpsRequest(QObject *parent, const QString &hostname, con
 
 QUrl StaticIpsRequest::url() const
 {
-    QUrl url("https://" + hostname_ + "/StaticIps");
+    QUrl url("https://" + hostname(SudomainType::kApi) + "/StaticIps");
 
     QUrlQuery query;
 

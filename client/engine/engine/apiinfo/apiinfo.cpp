@@ -3,7 +3,6 @@
 #include <QSettings>
 #include "utils/ws_assert.h"
 #include "utils/logger.h"
-#include "utils/utils.h"
 #include "types/global_consts.h"
 
 namespace apiinfo {

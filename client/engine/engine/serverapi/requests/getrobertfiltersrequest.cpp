@@ -14,7 +14,7 @@ GetRobertFiltersRequest::GetRobertFiltersRequest(QObject *parent, const QString 
 
 QUrl GetRobertFiltersRequest::url() const
 {
-    QUrl url("https://" + hostname_ + "/Robert/filters");
+    QUrl url("https://" + hostname(SudomainType::kApi) + "/Robert/filters");
     QUrlQuery query;
     addAuthQueryItems(query, authHash_);
     addPlatformQueryItems(query);

@@ -97,28 +97,28 @@ CURLcode CurlNetworkManager::sslctx_function(CURL *curl, void *sslctx, void *par
     return CURLE_OK;
 }
 
-CurlReply *CurlNetworkManager::get(const NetworkRequest &request, const QStringList &ips)
+CurlReply *CurlNetworkManager::get(const NetworkRequest &request, const QStringList &ips, const types::ProxySettings &proxySettings /*= types::ProxySettings()*/)
 {
     QMutexLocker locker(&mutex_);
-    return invokeRequest(CurlReply::REQUEST_GET, request, ips);
+    return invokeRequest(CurlReply::REQUEST_GET, request, ips, proxySettings);
 }
 
-CurlReply *CurlNetworkManager::post(const NetworkRequest &request, const QByteArray &data, const QStringList &ips)
+CurlReply *CurlNetworkManager::post(const NetworkRequest &request, const QByteArray &data, const QStringList &ips, const types::ProxySettings &proxySettings /*= types::ProxySettings()*/)
 {
     QMutexLocker locker(&mutex_);
-    return invokeRequest(CurlReply::REQUEST_POST, request, ips, data);
+    return invokeRequest(CurlReply::REQUEST_POST, request, ips, proxySettings, data);
 }
 
-CurlReply *CurlNetworkManager::put(const NetworkRequest &request, const QByteArray &data, const QStringList &ips)
+CurlReply *CurlNetworkManager::put(const NetworkRequest &request, const QByteArray &data, const QStringList &ips, const types::ProxySettings &proxySettings /*= types::ProxySettings()*/)
 {
     QMutexLocker locker(&mutex_);
-    return invokeRequest(CurlReply::REQUEST_PUT, request, ips, data);
+    return invokeRequest(CurlReply::REQUEST_PUT, request, ips, proxySettings, data);
 }
 
-CurlReply *CurlNetworkManager::deleteResource(const NetworkRequest &request, const QStringList &ips)
+CurlReply *CurlNetworkManager::deleteResource(const NetworkRequest &request, const QStringList &ips, const types::ProxySettings &proxySettings /*= types::ProxySettings()*/)
 {
     QMutexLocker locker(&mutex_);
-    return invokeRequest(CurlReply::REQUEST_DELETE, request, ips);
+    return invokeRequest(CurlReply::REQUEST_DELETE, request, ips, proxySettings);
 }
 
 void CurlNetworkManager::abort(CurlReply *reply)
@@ -305,9 +305,9 @@ void CurlNetworkManager::handleRequest(quint64 id)
     }
 }
 
-CurlReply *CurlNetworkManager::invokeRequest(CurlReply::REQUEST_TYPE type, const NetworkRequest &request, const QStringList &ips, const QByteArray &data /*= QByteArray*/)
+CurlReply *CurlNetworkManager::invokeRequest(CurlReply::REQUEST_TYPE type, const NetworkRequest &request, const QStringList &ips, const types::ProxySettings &proxySettings, const QByteArray &data /*= QByteArray*/)
 {
-    CurlReply *reply = new CurlReply(this, request, ips, type, data);
+    CurlReply *reply = new CurlReply(this, request, proxySettings, ips, type, data);
     WS_ASSERT(!activeRequests_.contains(reply->id()));
     activeRequests_[reply->id()] = reply;
     QMetaObject::invokeMethod(this, "handleRequest", Qt::QueuedConnection, Q_ARG(quint64, reply->id()));
@@ -528,30 +528,30 @@ bool CurlNetworkManager::setupSslVerification(CurlReply *curlReply, CURL *curl)
 bool CurlNetworkManager::setupProxy(CurlReply *curlReply, CURL *curl)
 {
     QString proxyString;
-    if (curlReply->networkRequest().proxySettings().isProxyEnabled())
+    if (curlReply->proxySettings_.isProxyEnabled())
     {
-        if (curlReply->networkRequest().proxySettings().option() == PROXY_OPTION_NONE)
+        if (curlReply->proxySettings_.option() == PROXY_OPTION_NONE)
         {
             //nothing todo
             return true;
         }
-        else if (curlReply->networkRequest().proxySettings().option() == PROXY_OPTION_HTTP)
+        else if (curlReply->proxySettings_.option() == PROXY_OPTION_HTTP)
         {
-            proxyString = "http://" + curlReply->networkRequest().proxySettings().address() + ":" + QString::number(curlReply->networkRequest().proxySettings().getPort());
+            proxyString = "http://" + curlReply->proxySettings_.address() + ":" + QString::number(curlReply->proxySettings_.getPort());
         }
-        else if (curlReply->networkRequest().proxySettings().option() == PROXY_OPTION_SOCKS)
+        else if (curlReply->proxySettings_.option() == PROXY_OPTION_SOCKS)
         {
-            proxyString = "socks5://" + curlReply->networkRequest().proxySettings().address() + ":" + QString::number(curlReply->networkRequest().proxySettings().getPort());
+            proxyString = "socks5://" + curlReply->proxySettings_.address() + ":" + QString::number(curlReply->proxySettings_.getPort());
         }
 
         if (curl_easy_setopt(curl, CURLOPT_PROXY, proxyString.toStdString().c_str()) != CURLE_OK) return false;
-        if (!curlReply->networkRequest().proxySettings().getUsername().isEmpty())
+        if (!curlReply->proxySettings_.getUsername().isEmpty())
         {
-            if (curl_easy_setopt(curl, CURLOPT_PROXYUSERNAME, curlReply->networkRequest().proxySettings().getUsername().toStdString().c_str()) != CURLE_OK) return false;
+            if (curl_easy_setopt(curl, CURLOPT_PROXYUSERNAME, curlReply->proxySettings_.getUsername().toStdString().c_str()) != CURLE_OK) return false;
         }
-        if (!curlReply->networkRequest().proxySettings().getPassword().isEmpty())
+        if (!curlReply->proxySettings_.getPassword().isEmpty())
         {
-            if (curl_easy_setopt(curl, CURLOPT_PROXYPASSWORD, curlReply->networkRequest().proxySettings().getPassword().toStdString().c_str()) != CURLE_OK) return false;
+            if (curl_easy_setopt(curl, CURLOPT_PROXYPASSWORD, curlReply->proxySettings_.getPassword().toStdString().c_str()) != CURLE_OK) return false;
         }
     }
     return true;
