@@ -43,6 +43,8 @@ target_sources(engine PRIVATE
     requests/speedratingrequest.h
     requests/staticipsrequest.cpp
     requests/staticipsrequest.h
+    requests/syncrobertrequest.cpp
+    requests/syncrobertrequest.h
     requests/websessionrequest.cpp
     requests/websessionrequest.h
     requests/wgconfigsconnectrequest.cpp

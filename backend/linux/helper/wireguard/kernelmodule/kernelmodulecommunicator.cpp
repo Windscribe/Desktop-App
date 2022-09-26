@@ -206,6 +206,13 @@ unsigned long KernelModuleCommunicator::getStatus(unsigned int *errorCode,
 
     if (device->first_peer != nullptr && device->first_peer->last_handshake_time.tv_sec > 0)
     {
+        struct timeval tv;
+        int rc = gettimeofday(&tv, NULL);
+        if (rc || tv.tv_sec - device->first_peer->last_handshake_time.tv_sec > 180)
+        {
+            Logger::instance().out("Time since last handshake time exceeded 3 minutes, disconnecting");
+            return WIREGUARD_STATE_ERROR;
+        }
         *bytesReceived = device->first_peer->rx_bytes;
         *bytesTransmitted = device->first_peer->tx_bytes;
         wg_free_device(device);

@@ -114,6 +114,7 @@ bool EngineServer::handleCommand(IPC::Command *command)
             connect(engine_, &Engine::loginError, this, &EngineServer::onEngineLoginError);
             connect(engine_, &Engine::robertFiltersUpdated, this, &EngineServer::onEngineRobertFiltersUpdated);
             connect(engine_, &Engine::setRobertFilterFinished, this, &EngineServer::onEngineSetRobertFilterFinished);
+            connect(engine_, &Engine::syncRobertFinished, this, &EngineServer::onEngineSyncRobertFinished);
             threadEngine_->start(QThread::LowPriority);
         }
         else
@@ -270,6 +271,12 @@ bool EngineServer::handleCommand(IPC::Command *command)
     {
         IPC::ClientCommands::SetRobertFilter *cmd = static_cast<IPC::ClientCommands::SetRobertFilter*>(command);
         engine_->setRobertFilter(cmd->filter_);
+        return true;
+    }
+    else if (command->getStringId() == IPC::ClientCommands::SyncRobert::getCommandStringId())
+    {
+        IPC::ClientCommands::SyncRobert *cmd = static_cast<IPC::ClientCommands::SyncRobert*>(command);
+        engine_->syncRobert();
         return true;
     }
     else if (command->getStringId() == IPC::ClientCommands::SendConfirmEmail::getCommandStringId())
@@ -650,6 +657,12 @@ void EngineServer::onEngineRobertFiltersUpdated(bool success, const QVector<type
 void EngineServer::onEngineSetRobertFilterFinished(bool success)
 {
     IPC::ServerCommands::SetRobertFilterFinished cmd(success);
+    sendCmdToAllAuthorizedAndGetStateClients(&cmd, false);
+}
+
+void EngineServer::onEngineSyncRobertFinished(bool success)
+{
+    IPC::ServerCommands::SyncRobertFinished cmd(success);
     sendCmdToAllAuthorizedAndGetStateClients(&cmd, false);
 }
 

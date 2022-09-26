@@ -80,6 +80,7 @@ public:
 
     void getRobertFilters();
     void setRobertFilter(const types::RobertFilter &filter);
+    void syncRobert();
 
     bool isAppCanClose() const;
 
@@ -138,6 +139,7 @@ signals:
     void notificationsChanged(const QVector<types::Notification> &arr);
     void robertFiltersChanged(bool success, const QVector<types::RobertFilter> &arr);
     void setRobertFilterResult(bool success);
+    void syncRobertResult(bool success);
     void networkChanged(types::NetworkInterface interface);
     void sessionStatusChanged(const types::SessionStatus &sessionStatus);
     void checkUpdateChanged(const types::CheckUpdate &checkUpdateInfo);

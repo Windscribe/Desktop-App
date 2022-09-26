@@ -40,20 +40,22 @@ bool Helper_linux::setCustomDnsWhileConnected(bool isIkev2, unsigned long ifInde
 
 bool Helper_linux::installUpdate(const QString &package) const
 {
-    int exitCode = EXIT_SUCCESS;
     QString bashCmd;
-    if(package.endsWith(".deb")) {
+    if (package.endsWith(".deb")) {
         bashCmd = QString("pkexec dpkg -i %1").arg(package);
     }
-    else if(package.endsWith(".rpm")) {
+    else if (package.endsWith(".rpm")) {
         bashCmd = QString("pkexec rpm -i --replacefiles --replacepkgs %1").arg(package);
+    }
+    else if (package.endsWith(".zst")) {
+        bashCmd = QString("pkexec pacman -U --noconfirm %1").arg(package);
     }
     else {
         return false;
     }
 
     qCDebug(LOG_BASIC) << "Installing package " << package << " with command " << bashCmd;
-    exitCode = system(bashCmd.toStdString().c_str());
+    int exitCode = system(bashCmd.toStdString().c_str());
     if (!WIFEXITED(exitCode) || WEXITSTATUS(exitCode) != 0)
     {
         qCDebug(LOG_BASIC) << "Install failed";
@@ -61,8 +63,8 @@ bool Helper_linux::installUpdate(const QString &package) const
         exitCode = system(bashCmd.toStdString().c_str());
         return false;
     }
-    else
-        return true;
+
+    return true;
 }
 
 

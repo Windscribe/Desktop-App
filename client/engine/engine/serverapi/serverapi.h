@@ -75,6 +75,7 @@ public:
 
     BaseRequest *wgConfigsInit(const QString &authHash, bool isNeedCheckRequestsEnabled, const QString &clientPublicKey, bool deleteOldestKey);
     BaseRequest *wgConfigsConnect(const QString &authHash, bool isNeedCheckRequestsEnabled, const QString &clientPublicKey, const QString &serverName, const QString &deviceId);
+    BaseRequest *syncRobert(const QString &authHash, bool isNeedCheckRequestsEnabled);
 
 private:
     NetworkAccessManager *networkAccessManager_;

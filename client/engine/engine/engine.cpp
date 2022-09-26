@@ -1664,6 +1664,12 @@ void Engine::onSetRobertFilterAnswer()
     Q_EMIT setRobertFilterFinished(request->retCode() == SERVER_RETURN_SUCCESS);
 }
 
+void Engine::onSyncRobertAnswer()
+{
+    QSharedPointer<server_api::BaseRequest> request(static_cast<server_api::BaseRequest *>(sender()), &QObject::deleteLater);
+    Q_EMIT syncRobertFinished(request->retCode() == SERVER_RETURN_SUCCESS);
+}
+
 void Engine::onUpdateServerResources()
 {
     // Refresh all server resources, and check for a new app version, every 24 hours.
@@ -2450,6 +2456,12 @@ void Engine::setRobertFilterImpl(const types::RobertFilter &filter)
     connect(request, &server_api::BaseRequest::finished, this, &Engine::onSetRobertFilterAnswer);
 }
 
+void Engine::syncRobertImpl()
+{
+    server_api::BaseRequest *request = serverAPI_->syncRobert(apiInfo_->getAuthHash(), true);
+    connect(request, &server_api::BaseRequest::finished, this, &Engine::onSyncRobertAnswer);
+}
+
 void Engine::getRobertFilters()
 {
     QMetaObject::invokeMethod(this, "getRobertFiltersImpl");
@@ -2458,6 +2470,11 @@ void Engine::getRobertFilters()
 void Engine::setRobertFilter(const types::RobertFilter &filter)
 {
     QMetaObject::invokeMethod(this, "setRobertFilterImpl", Q_ARG(types::RobertFilter, filter));
+}
+
+void Engine::syncRobert()
+{
+    QMetaObject::invokeMethod(this, "syncRobertImpl");
 }
 
 void Engine::onCustomConfigsChanged()

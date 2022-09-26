@@ -6,6 +6,7 @@
 
 #include "engine/helper/ihelper.h"
 #include "inetworkdetectionmanager.h"
+#include "routemonitor_linux.h"
 
 class NetworkDetectionManager_linux : public INetworkDetectionManager
 {
@@ -17,11 +18,12 @@ public:
     bool isOnline() override;
 
 private slots:
-    void onReachabilityChanged(QNetworkInformation::Reachability newReachability);
+    void onRoutesChanged();
 
 private:
     bool isOnline_;
     types::NetworkInterface networkInterface_;
+    RouteMonitor_linux *routeMonitor_;
 
     void updateNetworkInfo(bool bWithEmitSignal);
     QString getDefaultRouteInterface(bool &isOnline);

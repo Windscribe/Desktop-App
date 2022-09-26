@@ -33,6 +33,7 @@
 #include "requests/setrobertfiltersrequest.h"
 #include "requests/wgconfigsinitrequest.h"
 #include "requests/wgconfigsconnectrequest.h"
+#include "requests/syncrobertrequest.h"
 
 #ifdef Q_OS_LINUX
     #include "utils/linuxutils.h"
@@ -243,6 +244,13 @@ BaseRequest *ServerAPI::getRobertFilters(const QString &authHash, bool isNeedChe
 BaseRequest *ServerAPI::setRobertFilter(const QString &authHash, bool isNeedCheckRequestsEnabled, const types::RobertFilter &filter)
 {
     SetRobertFiltersRequest *request = new SetRobertFiltersRequest(this, hostname_, authHash, filter);
+    executeRequest(request, isNeedCheckRequestsEnabled);
+    return request;
+}
+
+BaseRequest *ServerAPI::syncRobert(const QString &authHash, bool isNeedCheckRequestsEnabled)
+{
+    SyncRobertRequest *request = new SyncRobertRequest(this, hostname_, authHash);
     executeRequest(request, isNeedCheckRequestsEnabled);
     return request;
 }

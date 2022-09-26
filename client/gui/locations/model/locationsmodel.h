@@ -60,10 +60,6 @@ public:
     QModelIndex getIndexByLocationId(const LocationID &id) const;
     QModelIndex getBestLocationIndex() const;
 
-    // Could be region name, country code, server name
-    // for example "Toronto", "The Six", "CA", "Canada East" would all be valid
-    QModelIndex getIndexByFilter(const QString &strFilter) const;
-
     // the client of the class must explicitly save locations  if required
     void saveFavoriteLocations();
 

@@ -443,13 +443,6 @@ QModelIndex LocationsModel::getBestLocationIndex() const
     return QModelIndex();
 }
 
-QModelIndex LocationsModel::getIndexByFilter(const QString &strFilter) const
-{
-    //todo
-    WS_ASSERT(false);
-    return QModelIndex();
-}
-
 void LocationsModel::saveFavoriteLocations()
 {
     favoriteLocationsStorage_.writeToSettings();

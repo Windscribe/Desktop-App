@@ -4,7 +4,7 @@
 #include "model/proxymodels/favoritecities_proxymodel.h"
 #include "model/proxymodels/staticips_proxymodel.h"
 #include "model/proxymodels/customconfigs_proxymodel.h"
-
+#include "utils/utils.h"
 
 namespace gui_locations {
 
@@ -89,14 +89,81 @@ QModelIndex LocationsModelManager::getIndexByLocationId(const LocationID &id) co
     return locationsModel_->getIndexByLocationId(id);
 }
 
-QModelIndex LocationsModelManager::getIndexByFilter(const QString &strFilter) const
-{
-    return locationsModel_->getIndexByFilter(strFilter);
-}
-
 LocationID LocationsModelManager::findLocationByFilter(const QString &strFilter) const
 {
-    WS_ASSERT(false);
+    QString strFilterLower = strFilter.toLower();
+
+    auto getEnabledCities = [this](const QModelIndex &mi) {
+        QList<LocationID> citiesIds;
+        for (int i = 0, rowCount = locationsModel_->rowCount(mi); i < rowCount; ++i) {
+            QModelIndex cityInd = locationsModel_->index(i, 0, mi);
+            if (!cityInd.data(kIsDisabled).toBool() && !cityInd.data(kIsShowAsPremium).toBool()) {
+                    citiesIds << qvariant_cast<LocationID>(cityInd.data(kLocationId));
+            }
+        }
+        return citiesIds;
+    };
+
+    // try find by region(location title) first
+    for (int i = 0, rowCount = locationsModel_->rowCount(); i < rowCount; ++i) {
+        QModelIndex mi = locationsModel_->index(i, 0);
+        LocationID lid = qvariant_cast<LocationID>(mi.data(kLocationId));
+        if (!lid.isBestLocation() && !lid.isStaticIpsLocation() && !lid.isCustomConfigsLocation() && mi.data().toString().toLower() == strFilterLower) {
+            QList<LocationID> citiesIds = getEnabledCities(mi);
+            if (citiesIds.length() > 0) {
+                int ind = Utils::generateIntegerRandom(0, citiesIds.length()-1);
+                return citiesIds[ind];
+            } else {
+                return LocationID();
+            }
+        }
+    }
+
+    // try find by country code
+    QList<LocationID> citiesWithCountryCode;
+    for (int i = 0, rowCount = locationsModel_->rowCount(); i < rowCount; ++i) {
+        QModelIndex mi = locationsModel_->index(i, 0);
+        LocationID lid = qvariant_cast<LocationID>(mi.data(kLocationId));
+        if (!lid.isBestLocation() && !lid.isStaticIpsLocation() && !lid.isCustomConfigsLocation() && mi.data(kCountryCode).toString().toLower() == strFilterLower) {
+            citiesWithCountryCode << getEnabledCities(mi);
+        }
+    }
+    if (citiesWithCountryCode.length() > 0) {
+        int ind = Utils::generateIntegerRandom(0, citiesWithCountryCode.length()-1);
+        return citiesWithCountryCode[ind];
+     }
+
+    // try find by city name or nickname
+    QVector<LocationID> cmiFoundCity;
+    QVector<LocationID> cmiFoundNickname;
+
+    for (int i = 0, rowCount = locationsModel_->rowCount(); i < rowCount; ++i) {
+        QModelIndex mi = locationsModel_->index(i, 0);
+        LocationID lid = qvariant_cast<LocationID>(mi.data(kLocationId));
+        if (!lid.isBestLocation() && !lid.isStaticIpsLocation() && !lid.isCustomConfigsLocation()) {
+
+            for (int c = 0, citiesCount = locationsModel_->rowCount(mi); c < citiesCount; ++c) {
+                QModelIndex cityMi = locationsModel_->index(c, 0, mi);
+
+                if (!cityMi.data(kIsDisabled).toBool() && !cityMi.data(kIsShowAsPremium).toBool()) {
+                    if (cityMi.data(kName).toString().toLower() == strFilterLower)
+                       cmiFoundCity << qvariant_cast<LocationID>(cityMi.data(kLocationId));
+                    else if (cityMi.data(kNick).toString().toLower() == strFilterLower)
+                       cmiFoundNickname << qvariant_cast<LocationID>(cityMi.data(kLocationId));
+                }
+            }
+        }
+    }
+
+    if (!cmiFoundCity.isEmpty()) {
+        int ind = Utils::generateIntegerRandom(0, cmiFoundCity.length()-1);
+        return cmiFoundCity[ind];
+    }
+
+    if (!cmiFoundNickname.isEmpty()) {
+        int ind = Utils::generateIntegerRandom(0, cmiFoundNickname.length()-1);
+        return cmiFoundNickname[ind];
+    }
     return LocationID();
 }
 
@@ -104,25 +171,12 @@ LocationID LocationsModelManager::getBestLocationId() const
 {
     QModelIndex mi = locationsModel_->getBestLocationIndex();
     if (mi.isValid())
-    {
         return qvariant_cast<LocationID>(mi.data(Roles::kLocationId));
-    }
+
     return LocationID();
 }
 
 LocationID LocationsModelManager::getFirstValidCustomConfigLocationId() const
-{
-    WS_ASSERT(false);
-    return LocationID();
-}
-
-LocationID LocationsModelManager::findGenericLocationByTitle(const QString &title) const
-{
-    WS_ASSERT(false);
-    return LocationID();
-}
-
-LocationID LocationsModelManager::findCustomConfigLocationByTitle(const QString &title) const
 {
     WS_ASSERT(false);
     return LocationID();

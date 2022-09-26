@@ -49,6 +49,7 @@ private slots:
     void onEngineProtocolPortChanged(const PROTOCOL &protocol, const uint port);
     void onEngineRobertFiltersUpdated(bool success, const QVector<types::RobertFilter> &filters);
     void onEngineSetRobertFilterFinished(bool success);
+    void onEngineSyncRobertFinished(bool success);
 
     void onEngineEmergencyConnected();
     void onEngineEmergencyDisconnected();

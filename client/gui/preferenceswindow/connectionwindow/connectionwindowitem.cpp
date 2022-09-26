@@ -61,6 +61,14 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
 
     addItem(subpagesGroup_);
 
+    autoConnectGroup_ = new PreferenceGroup(this, tr("Connects to last used location when the app launches or joins a network."));
+    checkBoxAutoConnect_ = new CheckBoxItem(autoConnectGroup_, QT_TRANSLATE_NOOP("PreferencesWindow::CheckBoxItem", "Auto-Connect"), QString());
+    checkBoxAutoConnect_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/AUTOCONNECT"));
+    checkBoxAutoConnect_->setState(preferences->isAutoConnect());
+    connect(checkBoxAutoConnect_, &CheckBoxItem::stateChanged, this, &ConnectionWindowItem::onIsAutoConnectPreferencesChangedByUser);
+    autoConnectGroup_->addItem(checkBoxAutoConnect_);
+    addItem(autoConnectGroup_);
+
     firewallGroup_ = new FirewallGroup(this,
                                        tr("Control the firewall manually, let Windscribe do it for you, or have it always turned on."),
                                        QString("https://%1/features/firewall").arg(HardcodedSettings::instance().serverUrl()));
@@ -96,14 +104,6 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
     connect(connectedDnsGroup_, &ConnectedDnsGroup::connectedDnsInfoChanged, this, &ConnectionWindowItem::onConnectedDnsPreferencesChangedByUser);
     addItem(connectedDnsGroup_);
 #endif
-
-    autoConnectGroup_ = new PreferenceGroup(this, tr("Connects to last used location when the app launches or joins a network."));
-    checkBoxAutoConnect_ = new CheckBoxItem(autoConnectGroup_, QT_TRANSLATE_NOOP("PreferencesWindow::CheckBoxItem", "Auto-Connect"), QString());
-    checkBoxAutoConnect_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/AUTOCONNECT"));
-    checkBoxAutoConnect_->setState(preferences->isAutoConnect());
-    connect(checkBoxAutoConnect_, &CheckBoxItem::stateChanged, this, &ConnectionWindowItem::onIsAutoConnectPreferencesChangedByUser);
-    autoConnectGroup_->addItem(checkBoxAutoConnect_);
-    addItem(autoConnectGroup_);
 
     allowLanTrafficGroup_ = new PreferenceGroup(this,
                                                 tr("Allow access to local file servers, printers and media boxes while connected to Windscribe."),
