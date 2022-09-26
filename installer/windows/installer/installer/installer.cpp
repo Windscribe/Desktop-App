@@ -1,4 +1,6 @@
 #include "installer.h"
+#include "settings.h"
+#include "ShellExecuteAsUser.h"
 
 #include "blocks/files.h"
 #include "blocks/icons.h"
@@ -7,12 +9,12 @@
 #include "blocks/install_tap.h"
 #include "blocks/install_wintun.h"
 #include "blocks/service.h"
-#include "blocks/ShellExecuteAsUser.h"
 #include "blocks/uninstall_info.h"
 #include "blocks/uninstallprev.h"
 
 #include "../../utils/applicationinfo.h"
 #include "../../utils/logger.h"
+#include "../../utils/utils.h"
 
 using namespace std;
 
@@ -34,46 +36,27 @@ Installer::~Installer()
     }
 }
 
-void Installer::startImpl(HWND hwnd, const Settings &settings)
+void Installer::startImpl()
 {
-    installPath_ = settings.getPath();
-
-    Log::instance().init(true, installPath_);
-    Log::instance().out(L"Installing Windscribe version %s in %s", ApplicationInfo::instance().getVersion().c_str(), installPath_.c_str());
-    Log::instance().out(L"Command-line args: %s", ::GetCommandLine());
-
-#ifdef _WIN32
-    blocks_.push_back(new UninstallPrev(settings.getFactoryReset(), 10));
-    blocks_.push_back(new Files(installPath_, 40));
-    blocks_.push_back(new Service(installPath_, 5));
-    if (settings.getInstallDrivers())
+    blocks_.push_back(new UninstallPrev(Settings::instance().getFactoryReset(), 10));
+    blocks_.push_back(new Files(40));
+    blocks_.push_back(new Service(5));
+    if (Settings::instance().getInstallDrivers())
     {
-        blocks_.push_back(new InstallTap(installPath_, 10));
-        blocks_.push_back(new InstallWinTun(installPath_, 10));
+        blocks_.push_back(new InstallTap(10));
+        blocks_.push_back(new InstallWinTun(10));
     }
-    blocks_.push_back(new InstallSplitTunnel(installPath_, 10));
-    blocks_.push_back(new UninstallInfo(installPath_, 5));
-    blocks_.push_back(new Icons(installPath_, settings.getCreateShortcut(), 5));
-    blocks_.push_back(new InstallAuthHelper(installPath_, 5));
+    blocks_.push_back(new InstallSplitTunnel(10));
+    blocks_.push_back(new UninstallInfo(5));
+    blocks_.push_back(new Icons(Settings::instance().getCreateShortcut(), 5));
+    blocks_.push_back(new InstallAuthHelper(5));
 
     for (auto block : blocks_)
         totalWork_ += block->getWeight();
-#endif
 }
 
 void Installer::executionImpl()
 {
-    // try create install directory
-    if (SHCreateDirectoryEx(NULL, installPath_.c_str(), nullptr) != ERROR_SUCCESS)
-    {
-        if (GetLastError() != ERROR_ALREADY_EXISTS)
-        {
-            strLastError_ = L"Can't create install directory";
-            callbackState_(0, STATE_FATAL_ERROR);
-            return;
-        }
-    }
-
     int overallProgress = 0;
     int prevOverallProgress = 0;
 
@@ -141,10 +124,7 @@ void Installer::executionImpl()
 
 void Installer::runLauncherImpl()
 {
- #ifdef _WIN32
-    wstring pathLauncher = installPath_ + L"\\WindscribeLauncher.exe";
+    wstring pathLauncher = Settings::instance().getPath() + L"\\WindscribeLauncher.exe";
     Log::instance().out(L"Running launcher: %ls", pathLauncher.c_str());
     ShellExecuteAsUser::shellExecuteFromExplorer(pathLauncher.c_str(), NULL, NULL, NULL, SW_RESTORE);
-    //ShellExecute(nullptr, nullptr, pathLauncher.c_str(), nullptr, nullptr, SW_RESTORE);
- #endif
 }

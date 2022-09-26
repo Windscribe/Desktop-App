@@ -7,7 +7,7 @@
 
 namespace Utils
 {
-    void deleteFile(const std::wstring fileName);
+    std::wstring defaultInstallPath();
     bool in32BitProgramFilesFolder(const std::wstring path);
 }
 

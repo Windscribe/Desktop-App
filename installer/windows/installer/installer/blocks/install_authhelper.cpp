@@ -1,12 +1,12 @@
 #include "install_authhelper.h"
+
+#include "../settings.h"
+#include "../../../Utils/logger.h"
 #include "../../../Utils/path.h"
 #include "../../../Utils/process1.h"
-#include "../../../Utils/logger.h"
 #include "../../../utils/utils.h"
 
-InstallAuthHelper::InstallAuthHelper(const std::wstring &installPath, double weight) :
-	IInstallBlock(weight, L"AuthHelper")
-	, installPath_(installPath)
+InstallAuthHelper::InstallAuthHelper(double weight) : IInstallBlock(weight, L"AuthHelper")
 {
 }
 
@@ -17,8 +17,10 @@ InstallAuthHelper::~InstallAuthHelper()
 
 int InstallAuthHelper::executeStep()
 {
+    const std::wstring& installPath = Settings::instance().getPath();
+
 	// First register the proxy stub lib
-	std::wstring authProxyStubLib = Path::AddBackslash(installPath_) + L"ws_proxy_stub.dll";
+	std::wstring authProxyStubLib = Path::AddBackslash(installPath) + L"ws_proxy_stub.dll";
 
 	// Intentionally linking via "LoadLibrary" method to reduce compile/static link time dependencies:
 	// * authhelper ws_com exports.h
@@ -57,7 +59,7 @@ int InstallAuthHelper::executeStep()
 
 
 	// Register the ws_com lib
-	std::wstring authLib = Path::AddBackslash(installPath_) + L"ws_com.dll";
+	std::wstring authLib = Path::AddBackslash(installPath) + L"ws_com.dll";
 
 	HINSTANCE hLib = LoadLibrary(authLib.c_str());
 	if (hLib == NULL)
@@ -73,7 +75,7 @@ int InstallAuthHelper::executeStep()
 	if (RegisterServerWithTargetPaths != NULL)
 	{
 
-		HRESULT result = RegisterServerWithTargetPaths(installPath_, installPath_, installPath_);
+		HRESULT result = RegisterServerWithTargetPaths(installPath, installPath, installPath);
 
 		if (FAILED(result))
 		{

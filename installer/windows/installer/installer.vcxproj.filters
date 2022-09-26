@@ -186,9 +186,6 @@
     <ClCompile Include="installer\blocks\install_splittunnel.cpp">
       <Filter>Source Files\installer\blocks</Filter>
     </ClCompile>
-    <ClCompile Include="installer\blocks\shellexecuteasuser.cpp">
-      <Filter>Source Files\installer\blocks</Filter>
-    </ClCompile>
     <ClCompile Include="installer\blocks\fixadaptername.cpp">
       <Filter>Source Files\installer\blocks</Filter>
     </ClCompile>
@@ -257,6 +254,9 @@
     </ClCompile>
     <ClCompile Include="..\utils\utils.cpp">
       <Filter>Source Files\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="installer\shellexecuteasuser.cpp">
+      <Filter>Source Files\installer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -386,16 +386,10 @@
     <ClInclude Include="installer\blocks\service.h">
       <Filter>Header Files\installer\blocks</Filter>
     </ClInclude>
-    <ClInclude Include="installer\blocks\install_tap.h">
-      <Filter>Header Files\installer</Filter>
-    </ClInclude>
     <ClInclude Include="installer\blocks\install_wintun.h">
       <Filter>Header Files\installer\blocks</Filter>
     </ClInclude>
     <ClInclude Include="installer\blocks\install_splittunnel.h">
-      <Filter>Header Files\installer\blocks</Filter>
-    </ClInclude>
-    <ClInclude Include="installer\blocks\shellexecuteasuser.h">
       <Filter>Header Files\installer\blocks</Filter>
     </ClInclude>
     <ClInclude Include="messages.h">
@@ -466,6 +460,12 @@
     </ClInclude>
     <ClInclude Include="gui\factoryresetcontrol.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="installer\blocks\install_tap.h">
+      <Filter>Header Files\installer\blocks</Filter>
+    </ClInclude>
+    <ClInclude Include="installer\shellexecuteasuser.h">
+      <Filter>Header Files\installer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

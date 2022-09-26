@@ -3,29 +3,40 @@
 #include <shlwapi.h>
 #include <shlobj_core.h>
 
+#include "applicationinfo.h"
 #include "logger.h"
 
 
+static std::wstring getProgramFilesFolder(bool get64bit)
+{
+    int csidl = (get64bit ? CSIDL_PROGRAM_FILES : CSIDL_PROGRAM_FILESX86);
+
+    TCHAR programFilesPath[MAX_PATH];
+    bool result = ::SHGetSpecialFolderPath(0, programFilesPath, csidl, FALSE);
+    if (!result) {
+        Log::WSDebugMessage(L"SHGetSpecialFolderPath(%d) failed", csidl);
+        return std::wstring();
+    }
+
+    return std::wstring(programFilesPath);
+}
+
 namespace Utils
 {
-    void deleteFile(const std::wstring fileName)
+    std::wstring defaultInstallPath()
     {
-        DWORD dwAttrib = ::GetFileAttributes(fileName.c_str());
-        if (dwAttrib != INVALID_FILE_ATTRIBUTES && !(dwAttrib & FILE_ATTRIBUTE_DIRECTORY)) {
-            // If the path points to a symbolic link, the Win32 DeleteFile API will delete the symbolic link, not the target.
-            ::DeleteFile(fileName.c_str());
-        }
+        std::wstring defaultInstallPath = getProgramFilesFolder(true) + L"\\" + ApplicationInfo::instance().getName();
+        return defaultInstallPath;
     }
 
 	// Check if 'path' is a sub-folder of the "Program Files (x86)" folder.
 	bool in32BitProgramFilesFolder(const std::wstring path)
 	{
-		TCHAR programFilesPath[MAX_PATH];
-		bool result = ::SHGetSpecialFolderPath(0, programFilesPath, CSIDL_PROGRAM_FILESX86, FALSE);
-		if (result) {
-			result = ::PathIsPrefix(programFilesPath, path.c_str());
+        std::wstring folder = getProgramFilesFolder(false);
+		if (folder.empty()) {
+            return false;
 		}
 
-		return result;
+        return ::PathIsPrefix(folder.c_str(), path.c_str());
 	}
 }

@@ -1,21 +1,21 @@
 #include "install_wintun.h"
-#include "../../../Utils/registry.h"
-#include "../../../Utils/process1.h"
-#include "../../../Utils/path.h"
-#include "../../../Utils/logger.h"
+
 #include "fixadaptername.h"
+#include "../settings.h"
+#include "../../../utils/logger.h"
+#include "../../../utils/path.h"
+#include "../../../utils/process1.h"
 
 using namespace std;
 
-InstallWinTun::InstallWinTun(const std::wstring &installPath, double weight) : IInstallBlock(weight, L"wintun", false)
+InstallWinTun::InstallWinTun(double weight) : IInstallBlock(weight, L"wintun", false)
 {
-	installPath_ = installPath;
 }
 
 int InstallWinTun::executeStep()
 {
 	unsigned long resultCode;
-	wstring wintunInstallPath = Path::AddBackslash(installPath_) + L"wintun\\tapinstall.exe";
+	wstring wintunInstallPath = Path::AddBackslash(Settings::instance().getPath()) + L"wintun\\tapinstall.exe";
 	Process process;
 	if (!process.InstExec(wintunInstallPath, L"install windtun420.inf windtun420", L"", ewWaitUntilTerminated, SW_HIDE, resultCode))
 	{

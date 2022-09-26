@@ -54,23 +54,16 @@ bool RemoveDirectory1::DelTree(const bool DisableFsRedir, const wstring Path,
 
                     if ((FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0)
                     {
-                        if (FindData.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) {
-                            // Malware may create a soft-link in the folder that points to a system file, thereby abusing the elevated
-                            // permissions the installer/uninstaller run under to facilitate deletion of a system file.
-                            Utils::deleteFile(BasePath + fileName);
-                        }
-                        else {
-                            if (DeleteFileProc != nullptr)
-                            {
-                                if (!DeleteFileProc(DisableFsRedir, BasePath + fileName)) {
-                                    Result = false;
-                                }
+                        if (DeleteFileProc != nullptr)
+                        {
+                            if (!DeleteFileProc(DisableFsRedir, BasePath + fileName)) {
+                                Result = false;
                             }
-                            else
-                            {
-                                if (!redirection.DeleteFileRedir(DisableFsRedir, BasePath + fileName)) {
-                                    Result = false;
-                                }
+                        }
+                        else
+                        {
+                            if (!redirection.DeleteFileRedir(DisableFsRedir, BasePath + fileName)) {
+                                Result = false;
                             }
                         }
                     }

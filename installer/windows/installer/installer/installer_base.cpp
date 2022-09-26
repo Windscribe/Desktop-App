@@ -1,5 +1,7 @@
 #include "installer_base.h"
+
 #include <assert.h>
+
 #include "../../Utils/Logger.h"
 
 using namespace std;
@@ -64,11 +66,11 @@ InstallerBase::~InstallerBase()
  #endif
 }
 
-void InstallerBase::start(HWND hwnd, const Settings &settings)
+void InstallerBase::start()
 {
 	isCanceled_ = false;
 	isPaused_ = false;
-    startImpl(hwnd, settings);
+    startImpl();
 
 	extract_thread = std::thread([this] { executionImpl(); });
 }

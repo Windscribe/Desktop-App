@@ -1,7 +1,5 @@
 ﻿#include "logger.h"
 
-#include <shlobj.h>
-
 #include <fstream>
 #include <sstream>
 
@@ -30,27 +28,11 @@ void Log::init(bool installing, const wstring& installPath)
         return;
     }
 
-    // Make sure the logging folder for the installer exists so we can create the log file.
-    if (::SHCreateDirectoryEx(NULL, installPath.c_str(), NULL) != ERROR_SUCCESS)
-    {
-        if (::GetLastError() != ERROR_ALREADY_EXISTS)
-        {
-            WSDebugMessage(_T("Logger could not create: %ls"), installPath.c_str());
-            return;
-        }
-    }
-
     wstring fileName = installPath + L"\\log_installer.txt";
 
-    // The log file shouldn't exist, nuke it if it does.
-    Utils::deleteFile(fileName);
-
-    // Only open the log file for writing if it doesn't exist.  If it does still exist,
-    // something truly odd is going on (PC hacked?), and we'll log to the system
-    // debugger instead.
-    file_ = _wfsopen(fileName.c_str(), L"wx", _SH_DENYWR);
+    file_ = _wfopen(fileName.c_str(), L"w");
     if (file_ == NULL) {
-        WSDebugMessage(_T("Logger could not open: %ls"), fileName.c_str());
+        WSDebugMessage(_T("Logger could not open: %s"), fileName.c_str());
     }
 }
 

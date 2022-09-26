@@ -83,11 +83,11 @@
     <ClCompile Include="installer\blocks\install_tap.cpp" />
     <ClCompile Include="installer\blocks\install_wintun.cpp" />
     <ClCompile Include="installer\blocks\service.cpp" />
-    <ClCompile Include="installer\blocks\shellexecuteasuser.cpp" />
     <ClCompile Include="installer\blocks\uninstallprev.cpp" />
     <ClCompile Include="installer\blocks\uninstall_info.cpp" />
     <ClCompile Include="installer\installer_base.cpp" />
     <ClCompile Include="installer\settings.cpp" />
+    <ClCompile Include="installer\shellexecuteasuser.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="..\utils\applicationinfo.cpp" />
     <ClCompile Include="..\utils\directories_of_a_windows.cpp" />
@@ -152,7 +152,6 @@
     <ClInclude Include="installer\blocks\install_tap.h" />
     <ClInclude Include="installer\blocks\install_wintun.h" />
     <ClInclude Include="installer\blocks\service.h" />
-    <ClInclude Include="installer\blocks\shellexecuteasuser.h" />
     <ClInclude Include="installer\blocks\uninstallprev.h" />
     <ClInclude Include="..\utils\applicationinfo.h" />
     <ClInclude Include="..\utils\directories_of_a_windows.h" />
@@ -170,6 +169,7 @@
     <ClInclude Include="installer\blocks\uninstall_info.h" />
     <ClInclude Include="installer\installer_base.h" />
     <ClInclude Include="installer\settings.h" />
+    <ClInclude Include="installer\shellexecuteasuser.h" />
     <ClInclude Include="messages.h" />
   </ItemGroup>
   <ItemGroup>

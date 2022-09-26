@@ -1,10 +1,10 @@
 #include "Application.h"
 
-#include <shlobj_core.h>
 #include <VersionHelpers.h>
 
 #include "ImageResources.h"
 #include "../installer/installer.h"
+#include "../installer/settings.h"
 #include "../../utils/applicationinfo.h"
 #include "../../utils/directory.h"
 #include "../../utils/registry.h"
@@ -37,11 +37,11 @@ Application::Application(HINSTANCE hInstance, int nCmdShow, bool isAutoUpdateMod
         gdiplusToken_ = NULL;
     }
 
-    settings_.readFromRegistry();
-    const std::wstring existingInstallFolder = settings_.getPath();
+    Settings::instance().readFromRegistry();
+    const std::wstring existingInstallFolder = Settings::instance().getPath();
 
     if (!isAutoUpdateMode_ && !installPath.empty()) {
-        settings_.setPath(installPath);
+        Settings::instance().setPath(installPath);
     }
     else if (existingInstallFolder.empty() || !Directory::DirExists(existingInstallFolder) ||
              Utils::in32BitProgramFilesFolder(existingInstallFolder))
@@ -50,15 +50,12 @@ Application::Application(HINSTANCE hInstance, int nCmdShow, bool isAutoUpdateMod
         // in the Registry no longer exists, indicating the user uninstalled the app.  Or we do
         // have an old install folder but it is referencing the 32-bit Program Files (x86) folder,
         // in which case we want to retarget the install path to the 64-bit Program Files folder.
-        TCHAR programFilesPath[MAX_PATH];
-        SHGetSpecialFolderPath(0, programFilesPath, CSIDL_PROGRAM_FILES, FALSE);
-        std::wstring defaultInstallPath = std::wstring(programFilesPath) + L"\\" + ApplicationInfo::instance().getName();
-        settings_.setPath(defaultInstallPath);
+        Settings::instance().setPath(Utils::defaultInstallPath());
     }
 
-    settings_.setInstallDrivers(!isSilent_ && !noDrivers);
-    settings_.setAutoStart(!isSilent_ && !noAutoStart);
-    settings_.setFactoryReset(isFactoryReset);
+    Settings::instance().setInstallDrivers(!isSilent_ && !noDrivers);
+    Settings::instance().setAutoStart(!isSilent_ && !noAutoStart);
+    Settings::instance().setFactoryReset(isFactoryReset);
 
     imageResources_ = new ImageResources();
     fontResources_ = new FontResources();
@@ -121,7 +118,7 @@ int Application::exec()
         DispatchMessage(&msg);
     }
 
-    settings_.writeToRegistry();
+    Settings::instance().writeToRegistry();
 
     return static_cast<int> (msg.wParam);
 }

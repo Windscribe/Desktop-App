@@ -103,4 +103,3 @@ void Settings::writeToRegistry() const
 	Registry::RegWriteStringValue(HKEY_CURRENT_USER, L"Software\\Windscribe\\Installer", L"isCreateShortcut", isCreateShortcut_ ? L"1" : L"0");
 	Registry::RegWriteStringValue(HKEY_CURRENT_USER, L"Software\\Windscribe\\Installer", L"isFactoryReset", isFactoryReset_ ? L"1" : L"0");
 }
-

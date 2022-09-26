@@ -1,7 +1,5 @@
 #include "archive.h"
 
-#include "../../utils/utils.h"
-
 static const ISzAlloc g_Alloc = { SzAlloc, SzFree };
 
 #ifdef _WIN32
@@ -870,11 +868,6 @@ SRes Archive::extractionFile(const UInt32& i)
         }
         else
         {
-            // The file we're extracting shouldn't exist, as it should have been removed by the uninstaller block.
-            // If it does exist, safely delete it just in case it is a symbolic link created by an attacker.
-            wstring fileName(destination1.begin(), destination1.end());
-            Utils::deleteFile(fileName);
-
             if (OutFile_OpenUtf16(&outFile, destPath))
             {
                 PrintString(destPath);

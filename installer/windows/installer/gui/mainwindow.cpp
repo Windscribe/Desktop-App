@@ -13,6 +13,7 @@
 #include "DPIScale.h"
 
 #include "../resource.h"
+#include "../installer/settings.h"
 #include "../../Utils/applicationinfo.h"
 #include "../../Utils/utils.h"
 #include "../../Utils/windscribepathcheck.h"
@@ -68,9 +69,9 @@ bool MainWindow::create(int windowCenterX, int windowCenterY)
     eulaButton_ = new EulaButton(this, L"Read EULA");
     pathControl_ = new PathControl(this);
     desktopShortcutControl_ = new DesktopShortcutControl(this);
-    desktopShortcutControl_->setChecked(g_application->getSettings().getCreateShortcut());
+    desktopShortcutControl_->setChecked(Settings::instance().getCreateShortcut());
     factoryResetControl_ = new FactoryResetControl(this);
-    factoryResetControl_->setChecked(g_application->getSettings().getFactoryReset());
+    factoryResetControl_->setChecked(Settings::instance().getFactoryReset());
 
     escButton_ = new EscButton(this);
 
@@ -361,7 +362,7 @@ LRESULT MainWindow::onCreate(HWND hwnd)
         yInstall - 49 * SCALE_FACTOR,
         clientRect.right - settingsOffs,
         pathControl_->getRecommendedHeight(),
-        g_application->getSettings().getPath()))
+        Settings::instance().getPath()))
     {
         return -1;
     }
@@ -517,11 +518,11 @@ void MainWindow::onInstallClick(bool isUpdating)
     InvalidateRect(hwnd_, NULL, TRUE);
     UpdateWindow(hwnd_);
 
-    g_application->getSettings().setPath(pathControl_->path());
-    g_application->getSettings().setCreateShortcut(desktopShortcutControl_->getChecked());
-    g_application->getSettings().setFactoryReset(factoryResetControl_->getChecked());
+    Settings::instance().setPath(pathControl_->path());
+    Settings::instance().setCreateShortcut(desktopShortcutControl_->getChecked());
+    Settings::instance().setFactoryReset(factoryResetControl_->getChecked());
 
-    g_application->getInstaller()->start(hwnd_, g_application->getSettings());
+    g_application->getInstaller()->start();
 }
 
 void MainWindow::onSettingsClick()
@@ -579,7 +580,7 @@ void MainWindow::onInstallerCallback(unsigned int progress, INSTALLER_CURRENT_ST
         InvalidateRect(hwnd_, NULL, TRUE);
         UpdateWindow(hwnd_);
 
-        if (g_application->getSettings().getAutoStart())
+        if (Settings::instance().getAutoStart())
             g_application->getInstaller()->runLauncher();
         DestroyWindow(hwnd_);
     }

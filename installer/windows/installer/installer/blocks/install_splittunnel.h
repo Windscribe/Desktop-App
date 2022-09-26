@@ -11,11 +11,8 @@
 class InstallSplitTunnel : public IInstallBlock
 {
 public:
-    InstallSplitTunnel(const std::wstring& installPath, double weight);
+    InstallSplitTunnel(double weight);
     int executeStep();
-
-private:
-    const std::wstring installPath_;
 };
 
 #endif // INSTALL_SPLITTUNNEL_H

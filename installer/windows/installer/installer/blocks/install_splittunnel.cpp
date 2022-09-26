@@ -2,22 +2,21 @@
 
 #include <sstream>
 
+#include "../settings.h"
 #include "../../../Utils/logger.h"
 #include "../../../Utils/path.h"
 #include "../../../Utils/process1.h"
 
 using namespace std;
 
-InstallSplitTunnel::InstallSplitTunnel(const std::wstring& installPath, double weight)
-    : IInstallBlock(weight, L"splittunnel", false),
-      installPath_(installPath)
+InstallSplitTunnel::InstallSplitTunnel(double weight) : IInstallBlock(weight, L"splittunnel", false)
 {
 }
 
 int InstallSplitTunnel::executeStep()
 {
     wostringstream commandLine;
-    commandLine << L"setupapi,InstallHinfSection DefaultInstall 132 " << Path::AddBackslash(installPath_) << L"splittunnel\\windscribesplittunnel.inf";
+    commandLine << L"setupapi,InstallHinfSection DefaultInstall 132 " << Path::AddBackslash(Settings::instance().getPath()) << L"splittunnel\\windscribesplittunnel.inf";
 
     auto result = Process::InstExec(L"rundll32", commandLine.str(), 60 * 1000, SW_HIDE);
 

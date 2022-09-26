@@ -13,22 +13,23 @@
 class Files : public IInstallBlock
 {
 public:
-	Files(const std::wstring &installPath, double weight);
+	Files(double weight);
 	virtual ~Files();
 
 	virtual int executeStep();
 
  private:
-   std::wstring installPath_;
-   Archive *archive_;
-   int state_;
-   unsigned int curFileInd_;
+   Archive *archive_ = nullptr;
+   int state_ = 0;
+   unsigned int curFileInd_ = 0;
    std::list<std::wstring> fileList_;
    std::list<std::wstring> pathList_;
+   std::wstring installPath_;
 
    bool isWin64();
    void fillPathList();
    std::wstring getFileName(const std::wstring &s);
+   int moveFiles();
 };
 
 
