@@ -58,6 +58,7 @@ void ProxyIpAddressItem::setIP(const QString &strIP)
 void ProxyIpAddressItem::updateScaling()
 {
     ScalableGraphicsObject::updateScaling();
+    setHeight(PREFERENCE_GROUP_ITEM_HEIGHT*G_SCALE);
     updatePositions();
 }
 

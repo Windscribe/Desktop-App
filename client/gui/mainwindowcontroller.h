@@ -148,6 +148,7 @@ private slots:
 
     void onAppSkinChanged(APP_SKIN s);
     void onVanGoghAnimationProgressChanged(QVariant value);
+    void onVanGoghAnimationFinished();
 
 private:
     WINDOW_ID curWindow_;

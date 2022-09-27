@@ -204,9 +204,9 @@ void DownloadHelper::getInner(const QString url, const QString targetFilenamePat
 
     NetworkReply *reply = networkAccessManager_->get(request);
     replies_.insert(reply, fileAndProgess);
-    connect(reply, SIGNAL(finished()), SLOT(onReplyFinished()));
-    connect(reply, SIGNAL(progress(qint64,qint64)), SLOT(onReplyDownloadProgress(qint64,qint64)));
-    connect(reply, SIGNAL(readyRead()), SLOT(onReplyReadyRead()));
+    connect(reply, &NetworkReply::finished, this, &DownloadHelper::onReplyFinished);
+    connect(reply, &NetworkReply::progress, this, &DownloadHelper::onReplyDownloadProgress);
+    connect(reply, &NetworkReply::readyRead, this, &DownloadHelper::onReplyReadyRead);
 }
 
 void DownloadHelper::removeAutoUpdateInstallerFiles()

@@ -55,7 +55,7 @@ private:
     static constexpr int DIVIDER_POS_X = 56;
     static constexpr int SECONDARY_ICON_POS_X = DIVIDER_POS_X + 16;
     static constexpr int USER_NUMBER_POS_X = SECONDARY_ICON_POS_X + 16 + 8;
-    static constexpr int SPACE_BETWEEN_TEXT_AND_ARROW = 3;
+    static constexpr int SPACE_BETWEEN_TEXT_AND_ARROW = 4;
 
     double curDefaultOpacity_;
 

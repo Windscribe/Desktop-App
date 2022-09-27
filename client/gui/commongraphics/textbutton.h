@@ -19,6 +19,7 @@ public:
 
     QRectF boundingRect() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
+    void updateScaling() override;
 
     double getOpacity() const;
     void quickSetOpacity(double opacity);

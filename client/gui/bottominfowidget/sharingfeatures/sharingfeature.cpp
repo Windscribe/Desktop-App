@@ -123,7 +123,7 @@ void SharingFeature::updateScaling()
 
 void SharingFeature::onTextIconWidthChanged(int newWidth)
 {
-    textIconButton_->setPos(WIDTH*G_SCALE - newWidth -16*G_SCALE, textIconButton_->getHeight() - 4*G_SCALE);
+    textIconButton_->setPos(WIDTH*G_SCALE - newWidth - 16*G_SCALE, textIconButton_->getHeight() - 4*G_SCALE);
 }
 
 void SharingFeature::updatePositions()

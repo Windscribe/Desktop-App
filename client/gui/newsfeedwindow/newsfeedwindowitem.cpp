@@ -41,7 +41,7 @@ NewsFeedWindowItem::NewsFeedWindowItem(QGraphicsObject *parent,
 
     contentItem_ = new NewsContentItem(this, WINDOW_WIDTH - 32);
 
-    scrollAreaItem_ = new CommonGraphics::ScrollArea(this, curHeight_ - 102, WINDOW_WIDTH);
+    scrollAreaItem_ = new CommonGraphics::ScrollArea(this, curHeight_ - 102*G_SCALE, WINDOW_WIDTH);
     scrollAreaItem_->setItem(contentItem_);
     connect(contentItem_, &NewsContentItem::messageRead, this, &NewsFeedWindowItem::messageRead);
 
@@ -81,15 +81,15 @@ void NewsFeedWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem
         painter->setPen(Qt::SolidLine);
         QSharedPointer<IndependentPixmap> pixmapHeader = ImageResourcesSvg::instance().getIndependentPixmap(backgroundHeader_);
         pixmapHeader->draw(0, 0, painter);
-        rcCaption = QRect(64 * G_SCALE, 2*G_SCALE, 200 * G_SCALE, 56 * G_SCALE);
+        rcCaption = QRect(64*G_SCALE, 2*G_SCALE, 200*G_SCALE, 56*G_SCALE);
     }
     else
     {
         QSharedPointer<IndependentPixmap> pixmapBaseBackground = ImageResourcesSvg::instance().getIndependentPixmap(backgroundBase_);
         pixmapBaseBackground->draw(0, 0, painter);
         QSharedPointer<IndependentPixmap> pixmapHeader = ImageResourcesSvg::instance().getIndependentPixmap(backgroundHeader_);
-        pixmapHeader->draw(0, 27 * G_SCALE, painter);
-        rcCaption = QRect(64 * G_SCALE, 30 * G_SCALE, 200 * G_SCALE, 56 * G_SCALE);
+        pixmapHeader->draw(0, 27*G_SCALE, painter);
+        rcCaption = QRect(64*G_SCALE, 30*G_SCALE, 200*G_SCALE, 56*G_SCALE);
     }
 
     // draw page caption
@@ -104,8 +104,8 @@ void NewsFeedWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem
     {
         painter->setPen(footerColor_);
         painter->setBrush(footerColor_);
-        painter->drawRoundedRect(getBottomResizeArea(), 8 * G_SCALE, 8 * G_SCALE);
-        painter->fillRect(getBottomResizeArea().adjusted(0, -2 * G_SCALE, 0, -7 * G_SCALE), QBrush(footerColor_));
+        painter->drawRoundedRect(getBottomResizeArea(), 8*G_SCALE, 8*G_SCALE);
+        painter->fillRect(getBottomResizeArea().adjusted(0, -2*G_SCALE, 0, -7*G_SCALE), QBrush(footerColor_));
     }
     else
     {
@@ -116,7 +116,7 @@ void NewsFeedWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem
 void NewsFeedWindowItem::updateScaling()
 {
     ScalableGraphicsObject::updateScaling();
-    curHeight_ = curHeight_ * (G_SCALE / curScale_);
+    curHeight_ = curHeight_*(G_SCALE/curScale_);
     curScale_ = G_SCALE;
     updatePositions();
 }
@@ -202,7 +202,7 @@ void NewsFeedWindowItem::onResizeStarted()
 
 void NewsFeedWindowItem::onResizeChange(int y)
 {
-    if ((heightAtResizeStart_ + y) >= MIN_HEIGHT * G_SCALE)
+    if ((heightAtResizeStart_ + y) >= MIN_HEIGHT*G_SCALE)
     {
         prepareGeometryChange();
         curHeight_ = heightAtResizeStart_ + y;
@@ -217,17 +217,17 @@ void NewsFeedWindowItem::updateChildItemsAfterHeightChanged()
     bottomResizeItem_->setPos(BOTTOM_RESIZE_ORIGIN_X*G_SCALE, curHeight_ - BOTTOM_RESIZE_OFFSET_Y*G_SCALE);
     if (preferences_->appSkin() == APP_SKIN_VAN_GOGH)
     {
-        scrollAreaItem_->setHeight(curHeight_ - 74 * G_SCALE);
+        scrollAreaItem_->setHeight(curHeight_ - 74*G_SCALE);
     }
     else
     {
-        scrollAreaItem_->setHeight(curHeight_ - 102 * G_SCALE);
+        scrollAreaItem_->setHeight(curHeight_ - 102*G_SCALE);
     }
 }
 
 QRectF NewsFeedWindowItem::getBottomResizeArea()
 {
-    return QRectF(0, curHeight_ - BOTTOM_AREA_HEIGHT * G_SCALE, boundingRect().width(), BOTTOM_AREA_HEIGHT * G_SCALE);
+    return QRectF(0, curHeight_ - BOTTOM_AREA_HEIGHT*G_SCALE, boundingRect().width(), BOTTOM_AREA_HEIGHT*G_SCALE);
 }
 
 void NewsFeedWindowItem::updateRead()
