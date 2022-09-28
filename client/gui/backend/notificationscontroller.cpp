@@ -81,6 +81,7 @@ void NotificationsController::setNotificationRead(qint64 notificationId)
 {
     idOfShownNotifications_.insert(notificationId);
     updateState();
+    saveToSettings();
 }
 
 void NotificationsController::updateState()
