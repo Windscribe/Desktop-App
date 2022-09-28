@@ -1,5 +1,6 @@
 #include "generalwindowitem.h"
 
+#include <QDesktopServices>
 #include <QPainter>
 #include <QSystemTrayIcon>
 #include "utils/hardcodedsettings.h"
@@ -10,10 +11,14 @@
 #include "preferenceswindow/preferencegroup.h"
 #include "utils/logger.h"
 
+#if defined Q_OS_LINUX
+    #include "utils/linuxutils.h"
+#endif
+
 namespace PreferencesWindow {
 
 GeneralWindowItem::GeneralWindowItem(ScalableGraphicsObject *parent, Preferences *preferences, PreferencesHelper *preferencesHelper) : CommonGraphics::BasePage(parent),
-    preferences_(preferences), currentScreen_(GENERAL_SCREEN_HOME)
+    preferences_(preferences)
 {
     setFlag(QGraphicsItem::ItemIsFocusable);
     setSpacerHeight(PREFERENCES_MARGIN);
@@ -176,7 +181,7 @@ GeneralWindowItem::GeneralWindowItem(ScalableGraphicsObject *parent, Preferences
     versionGroup_ = new PreferenceGroup(this);
     versionGroup_->setDrawBackground(false);
     versionInfoItem_ = new VersionInfoItem(versionGroup_, tr("Version"), preferencesHelper->buildVersion());
-    connect(versionInfoItem_, &ClickableGraphicsObject::clicked, this, &GeneralWindowItem::changelogPageClicked);
+    connect(versionInfoItem_, &ClickableGraphicsObject::clicked, this, &GeneralWindowItem::onVersionInfoClicked);
     versionGroup_->addItem(versionInfoItem_);
     addItem(versionGroup_);
 }
@@ -184,16 +189,6 @@ GeneralWindowItem::GeneralWindowItem(ScalableGraphicsObject *parent, Preferences
 QString GeneralWindowItem::caption()
 {
     return QT_TRANSLATE_NOOP("PreferencesWindow::PreferencesWindowItem", "General");
-}
-
-GENERAL_SCREEN_TYPE GeneralWindowItem::getScreen()
-{
-    return currentScreen_;
-}
-
-void GeneralWindowItem::setScreen(GENERAL_SCREEN_TYPE subScreen)
-{
-    currentScreen_ = subScreen;
 }
 
 void GeneralWindowItem::onIsLaunchOnStartupClicked(bool isChecked)
@@ -379,6 +374,31 @@ void GeneralWindowItem::onAppSkinChanged(QVariant value)
 void GeneralWindowItem::onAppSkinPreferencesChanged(APP_SKIN s)
 {
     appSkinItem_->setCurrentItem(s);
+}
+
+void GeneralWindowItem::onVersionInfoClicked()
+{
+    QString platform;
+#ifdef Q_OS_WIN
+    platform = "windows";
+#elif defined(Q_OS_MAC)
+    platform = "mac";
+#else
+    platform = LinuxUtils::getLastInstallPlatform();
+    if (platform == LinuxUtils::DEB_PLATFORM_NAME) {
+        platform = "linux_deb";
+    } else if (platform == LinuxUtils::RPM_PLATFORM_NAME) {
+        platform = "linux_rpm";
+    } else {
+        // We don't have a website changelog for zst yet, go to top page instead
+        platform = "";
+    }
+#endif
+
+    QDesktopServices::openUrl(QUrl(
+        QString("https://%1/changelog/%2")
+            .arg(HardcodedSettings::instance().serverUrl())
+            .arg(platform)));
 }
 
 } // namespace PreferencesWindow

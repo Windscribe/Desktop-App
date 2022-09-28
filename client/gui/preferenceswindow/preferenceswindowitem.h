@@ -7,7 +7,6 @@
 #include "aboutwindow/aboutwindowitem.h"
 #include "accountwindow/accountwindowitem.h"
 #include "advancedwindow/advancedwindowitem.h"
-#include "changelogwindow/changelogwindowitem.h"
 #include "connectionwindow/connectionwindowitem.h"
 #include "generalwindow/generalwindowitem.h"
 #include "helpwindow/helpwindowitem.h"
@@ -109,7 +108,6 @@ private slots:
 
     void onBackArrowButtonClicked();
 
-    void onChangelogPageClick();
     void onNetworkOptionsPageClick();
     void onNetworkOptionsNetworkClick(types::NetworkInterface network);
     void onSplitTunnelingPageClick();
@@ -168,7 +166,6 @@ private:
     AboutWindowItem *aboutWindowItem_;
 
     // sub screens
-    ChangelogWindowItem *changelogWindowItem_;
     NetworkOptionsWindowItem *networkOptionsWindowItem_;
     NetworkOptionsNetworkWindowItem *networkOptionsNetworkWindowItem_;
     ProxySettingsWindowItem *proxySettingsWindowItem_;
