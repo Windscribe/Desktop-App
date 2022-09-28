@@ -137,8 +137,8 @@ private:
     void changeTab(PREFERENCES_TAB_TYPE tab);
 
     static constexpr int BOTTOM_AREA_HEIGHT = 16;
-    static constexpr int MIN_HEIGHT = 554;
-    static constexpr int MIN_HEIGHT_VAN_GOGH = 526;
+    static constexpr int MIN_HEIGHT = 572;
+    static constexpr int MIN_HEIGHT_VAN_GOGH = 544;
 
     static constexpr int BOTTOM_RESIZE_ORIGIN_X = 155;
     static constexpr int BOTTOM_RESIZE_OFFSET_Y = 13;

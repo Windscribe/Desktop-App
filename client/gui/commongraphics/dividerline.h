@@ -10,15 +10,16 @@ class DividerLine : public CommonGraphics::BaseItem
 {
 
 public:
-    explicit DividerLine(ScalableGraphicsObject *parent, int width = PAGE_WIDTH);
+    explicit DividerLine(ScalableGraphicsObject *parent, int width = PAGE_WIDTH, int startX = 16);
     virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR);
 
     void setOpacity(double opacity);
 
-private:
     static constexpr int DIVIDER_HEIGHT = 2;
 
+private:
     double opacity_;
+    int startX_;
 };
 
 } // namespace CommonGraphics

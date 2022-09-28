@@ -48,6 +48,9 @@ PreferencesTabControlItem::PreferencesTabControlItem(ScalableGraphicsObject * pa
     };
 
     updateTopAnchoredButtonsPos();
+    
+    dividerLine_ = new CommonGraphics::DividerLine(this, 32*G_SCALE, 0);
+    dividerLine_->setOpacity(0.1);
 
     if (loggedIn_)
     {
@@ -205,7 +208,9 @@ void PreferencesTabControlItem::updateBottomAnchoredButtonPos()
 {
     int quitButtonPosY = height_ - (BUTTON_MARGIN + TabButton::BUTTON_HEIGHT)*G_SCALE;
     int signOutButtonPosY = quitButtonPosY - (BUTTON_MARGIN + TabButton::BUTTON_HEIGHT)*G_SCALE;
+    int dividerPosY = signOutButtonPosY - (BUTTON_MARGIN + CommonGraphics::DividerLine::DIVIDER_HEIGHT)*G_SCALE;
 
+    dividerLine_->setPos(0, dividerPosY);
     signOutButton_->setPos(buttonMarginX(), signOutButtonPosY);
     quitButton_->setPos(buttonMarginX(), quitButtonPosY);
 }
