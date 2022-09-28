@@ -70,7 +70,7 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
     addItem(autoConnectGroup_);
 
     firewallGroup_ = new FirewallGroup(this,
-                                       tr("Control the firewall manually, let Windscribe do it for you, or have it always turned on."),
+                                       tr("Control the mode of behavior of the Windscribe firewall."),
                                        QString("https://%1/features/firewall").arg(HardcodedSettings::instance().serverUrl()));
     connect(firewallGroup_, &FirewallGroup::firewallPreferencesChanged, this, &ConnectionWindowItem::onFirewallPreferencesChangedByUser);
     firewallGroup_->setFirewallSettings(preferences->firewallSettings());
@@ -82,7 +82,7 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
                                              tr("Connection Mode"),
                                              "preferences/CONNECTION_MODE",
                                              ProtocolGroup::SelectionType::COMBO_BOX,
-                                             tr("Automatically determine the optimal protocol & port for your setup, or select one yourself."),
+                                             tr("Automatically choose the VPN protocol, or select one manually."),
                                              QString("https://%1/features/flexible-connectivity").arg(HardcodedSettings::instance().serverUrl()));
     connectionModeGroup_->setConnectionSettings(preferences->connectionSettings());
     connect(connectionModeGroup_, &ProtocolGroup::connectionModePreferencesChanged, this, &ConnectionWindowItem::onConnectionModePreferencesChangedByUser);
@@ -98,7 +98,7 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
     addItem(packetSizeGroup_);
 
     connectedDnsGroup_ = new ConnectedDnsGroup(this,
-                                               tr("Choose to use ROBERT or a DNS resolver of your choice while connected to Windscribe."),
+                                               tr("Select the DNS server while connected to Windscribe."),
                                                QString("https://%1/features/flexible-dns").arg(HardcodedSettings::instance().serverUrl()));
     connectedDnsGroup_->setConnectedDnsInfo(preferences->connectedDnsInfo());
     connect(connectedDnsGroup_, &ConnectedDnsGroup::connectedDnsInfoChanged, this, &ConnectionWindowItem::onConnectedDnsPreferencesChangedByUser);
@@ -106,7 +106,7 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
 #endif
 
     allowLanTrafficGroup_ = new PreferenceGroup(this,
-                                                tr("Allow access to local file servers, printers and media boxes while connected to Windscribe."),
+                                                tr("Allow access to local services and printers while connected to Windscribe."),
                                                 QString("https://%1/features/lan-traffic").arg(HardcodedSettings::instance().serverUrl()));
     checkBoxAllowLanTraffic_ = new CheckBoxItem(allowLanTrafficGroup_, QT_TRANSLATE_NOOP("PreferencesWindow::CheckBoxItem", "Allow LAN Traffic"), QString());
     checkBoxAllowLanTraffic_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/ALLOW_LAN_TRAFFIC"));
