@@ -9,10 +9,10 @@ class WebSessionRequest : public BaseRequest
 {
     Q_OBJECT
 public:
-    explicit WebSessionRequest(QObject *parent,  const QString &hostname, const QString &authHash, WEB_SESSION_PURPOSE purpose);
+    explicit WebSessionRequest(QObject *parent, const QString &authHash, WEB_SESSION_PURPOSE purpose);
 
     QByteArray postData() const override;
-    QUrl url() const override;
+    QUrl url(const QString &domain) const override;
     QString name() const override;
     void handle(const QByteArray &arr) override;
 

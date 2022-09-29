@@ -7,13 +7,13 @@
 
 namespace server_api {
 
-MyIpRequest::MyIpRequest(QObject *parent, const QString &hostname, int timeout) : BaseRequest(parent, RequestType::kGet, hostname, true, timeout)
+MyIpRequest::MyIpRequest(QObject *parent, int timeout) : BaseRequest(parent, RequestType::kGet, true, timeout)
 {
 }
 
-QUrl MyIpRequest::url() const
+QUrl MyIpRequest::url(const QString &domain) const
 {
-    QUrl url("https://" + hostname(SudomainType::kApi) + "/MyIp");
+    QUrl url("https://" + hostname(domain, SudomainType::kApi) + "/MyIp");
     QUrlQuery query;
     addAuthQueryItems(query);
     addPlatformQueryItems(query);

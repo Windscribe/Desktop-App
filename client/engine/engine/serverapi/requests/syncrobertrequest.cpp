@@ -7,15 +7,15 @@
 
 namespace server_api {
 
-SyncRobertRequest::SyncRobertRequest(QObject *parent, const QString &hostname, const QString &authHash) :
-    BaseRequest(parent, RequestType::kPost, hostname),
+SyncRobertRequest::SyncRobertRequest(QObject *parent, const QString &authHash) :
+    BaseRequest(parent, RequestType::kPost),
     authHash_(authHash)
 {
 }
 
-QUrl SyncRobertRequest::url() const
+QUrl SyncRobertRequest::url(const QString &domain) const
 {
-    QUrl url("https://" + hostname(SudomainType::kApi) + "/Robert/syncrobert");
+    QUrl url("https://" + hostname(domain, SudomainType::kApi) + "/Robert/syncrobert");
     QUrlQuery query;
     addAuthQueryItems(query, authHash_);
     addPlatformQueryItems(query);

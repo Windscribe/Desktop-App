@@ -7,15 +7,15 @@
 
 namespace server_api {
 
-StaticIpsRequest::StaticIpsRequest(QObject *parent, const QString &hostname, const QString &authHash, const QString &deviceId) : BaseRequest(parent, RequestType::kGet, hostname),
+StaticIpsRequest::StaticIpsRequest(QObject *parent, const QString &authHash, const QString &deviceId) : BaseRequest(parent, RequestType::kGet),
     authHash_(authHash),
     deviceId_(deviceId)
 {
 }
 
-QUrl StaticIpsRequest::url() const
+QUrl StaticIpsRequest::url(const QString &domain) const
 {
-    QUrl url("https://" + hostname(SudomainType::kApi) + "/StaticIps");
+    QUrl url("https://" + hostname(domain, SudomainType::kApi) + "/StaticIps");
 
     QUrlQuery query;
 

@@ -7,14 +7,14 @@
 
 namespace server_api {
 
-PortMapRequest::PortMapRequest(QObject *parent, const QString &hostname, const QString &authHash) : BaseRequest(parent, RequestType::kGet, hostname),
+PortMapRequest::PortMapRequest(QObject *parent, const QString &authHash) : BaseRequest(parent, RequestType::kGet),
     authHash_(authHash)
 {
 }
 
-QUrl PortMapRequest::url() const
+QUrl PortMapRequest::url(const QString &domain) const
 {
-    QUrl url("https://" + hostname(SudomainType::kApi) + "/PortMap");
+    QUrl url("https://" + hostname(domain, SudomainType::kApi) + "/PortMap");
     QUrlQuery query;
     query.addQueryItem("version", "5");
     addAuthQueryItems(query, authHash_);

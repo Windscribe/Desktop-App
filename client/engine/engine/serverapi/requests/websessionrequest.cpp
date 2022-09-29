@@ -7,8 +7,8 @@
 
 namespace server_api {
 
-WebSessionRequest::WebSessionRequest(QObject *parent, const QString &hostname, const QString &authHash, WEB_SESSION_PURPOSE purpose) :
-    BaseRequest(parent, RequestType::kPost, hostname),
+WebSessionRequest::WebSessionRequest(QObject *parent, const QString &authHash, WEB_SESSION_PURPOSE purpose) :
+    BaseRequest(parent, RequestType::kPost),
     authHash_(authHash),
     purpose_(purpose)
 {
@@ -24,9 +24,9 @@ QByteArray WebSessionRequest::postData() const
     return postData.toString(QUrl::FullyEncoded).toUtf8();
 }
 
-QUrl WebSessionRequest::url() const
+QUrl WebSessionRequest::url(const QString &domain) const
 {
-    return QUrl("https://" + hostname(SudomainType::kApi) + "/WebSession");
+    return QUrl("https://" + hostname(domain, SudomainType::kApi) + "/WebSession");
 }
 
 QString WebSessionRequest::name() const

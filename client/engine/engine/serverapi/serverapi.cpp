@@ -13,7 +13,6 @@
 
 #include "requests/loginrequest.h"
 #include "requests/sessionrequest.h"
-#include "requests/accessipsrequest.h"
 #include "requests/serverlistrequest.h"
 #include "requests/servercredentialsrequest.h"
 #include "requests/deletesessionrequest.h"
@@ -47,6 +46,8 @@ ServerAPI::ServerAPI(QObject *parent, IConnectStateController *connectStateContr
     bIsRequestsEnabled_(false),
     bIgnoreSslErrors_(false)
 {
+    failoverConnectedMode_ = new Failover(this, networkAccessManager);
+    failoverDisconnectedMode_ = new Failover(this, networkAccessManager);
 }
 
 ServerAPI::~ServerAPI()
@@ -75,24 +76,16 @@ QString ServerAPI::getHostname() const
     return hostname_;
 }
 
-// works with direct IP
-BaseRequest *ServerAPI::accessIps(const QString &hostIp)
-{
-    AcessIpsRequest *request = new AcessIpsRequest(this, hostIp);
-    executeRequest(request, false);
-    return request;
-}
-
 BaseRequest *ServerAPI::login(const QString &username, const QString &password, const QString &code2fa)
 {
-    LoginRequest *request = new LoginRequest(this, hostname_, username, password, code2fa);
+    LoginRequest *request = new LoginRequest(this, username, password, code2fa);
     executeRequest(request, false);
     return request;
 }
 
 BaseRequest *ServerAPI::session(const QString &authHash, bool isNeedCheckRequestsEnabled)
 {
-    SessionRequest *request = new SessionRequest(this, hostname_, authHash);
+    SessionRequest *request = new SessionRequest(this, authHash);
     executeRequest(request, isNeedCheckRequestsEnabled);
     return request;
 }
@@ -100,70 +93,70 @@ BaseRequest *ServerAPI::session(const QString &authHash, bool isNeedCheckRequest
 BaseRequest *ServerAPI::serverLocations(const QString &language, bool isNeedCheckRequestsEnabled,
                                 const QString &revision, bool isPro, PROTOCOL protocol, const QStringList &alcList)
 {
-    ServerListRequest *request = new ServerListRequest(this, hostname_, language, revision, isPro, protocol, alcList, connectStateController_);
+    ServerListRequest *request = new ServerListRequest(this, language, revision, isPro, protocol, alcList, connectStateController_);
     executeRequest(request, isNeedCheckRequestsEnabled);
     return request;
 }
 
 BaseRequest *ServerAPI::serverCredentials(const QString &authHash, PROTOCOL protocol, bool isNeedCheckRequestsEnabled)
 {
-    ServerCredentialsRequest *request = new ServerCredentialsRequest(this, hostname_, authHash, protocol);
+    ServerCredentialsRequest *request = new ServerCredentialsRequest(this, authHash, protocol);
     executeRequest(request, isNeedCheckRequestsEnabled);
     return request;
 }
 
 BaseRequest *ServerAPI::deleteSession(const QString &authHash, bool isNeedCheckRequestsEnabled)
 {
-    DeleteSessionRequest *request = new DeleteSessionRequest(this, hostname_, authHash);
+    DeleteSessionRequest *request = new DeleteSessionRequest(this, authHash);
     executeRequest(request, isNeedCheckRequestsEnabled);
     return request;
 }
 
 BaseRequest *ServerAPI::serverConfigs(const QString &authHash, bool isNeedCheckRequestsEnabled)
 {
-    ServerConfigsRequest *request = new ServerConfigsRequest(this, hostname_, authHash);
+    ServerConfigsRequest *request = new ServerConfigsRequest(this, authHash);
     executeRequest(request, isNeedCheckRequestsEnabled);
     return request;
 }
 
 BaseRequest *ServerAPI::portMap(const QString &authHash, bool isNeedCheckRequestsEnabled)
 {
-    PortMapRequest *request = new PortMapRequest(this, hostname_, authHash);
+    PortMapRequest *request = new PortMapRequest(this, authHash);
     executeRequest(request, isNeedCheckRequestsEnabled);
     return request;
 }
 
 BaseRequest *ServerAPI::recordInstall(bool isNeedCheckRequestsEnabled)
 {
-    RecordInstallRequest *request = new RecordInstallRequest(this, hostname_);
+    RecordInstallRequest *request = new RecordInstallRequest(this);
     executeRequest(request, isNeedCheckRequestsEnabled);
     return request;
 }
 
 BaseRequest *ServerAPI::confirmEmail(const QString &authHash, bool isNeedCheckRequestsEnabled)
 {
-    ConfirmEmailRequest *request = new ConfirmEmailRequest(this, hostname_, authHash);
+    ConfirmEmailRequest *request = new ConfirmEmailRequest(this, authHash);
     executeRequest(request, isNeedCheckRequestsEnabled);
     return request;
 }
 
 BaseRequest *ServerAPI::webSession(const QString authHash, WEB_SESSION_PURPOSE purpose, bool isNeedCheckRequestsEnabled)
 {
-    WebSessionRequest *request = new WebSessionRequest(this, hostname_, authHash, purpose);
+    WebSessionRequest *request = new WebSessionRequest(this, authHash, purpose);
     executeRequest(request, isNeedCheckRequestsEnabled);
     return request;
 }
 
 BaseRequest *ServerAPI::myIP(int timeout, bool isNeedCheckRequestsEnabled)
 {
-    MyIpRequest *request = new MyIpRequest(this, hostname_, timeout);
+    MyIpRequest *request = new MyIpRequest(this, timeout);
     executeRequest(request, isNeedCheckRequestsEnabled);
     return request;
 }
 
 BaseRequest *ServerAPI::checkUpdate(UPDATE_CHANNEL updateChannel, bool isNeedCheckRequestsEnabled)
 {
-    CheckUpdateRequest *request = new CheckUpdateRequest(this, hostname_, updateChannel);
+    CheckUpdateRequest *request = new CheckUpdateRequest(this, updateChannel);
 
     // This check will only be useful in the case that we expand our supported linux OSes and the platform flag is not added for that OS
     if (Utils::getPlatformName().isEmpty()) {
@@ -182,21 +175,21 @@ BaseRequest *ServerAPI::checkUpdate(UPDATE_CHANNEL updateChannel, bool isNeedChe
 
 BaseRequest *ServerAPI::debugLog(const QString &username, const QString &strLog, bool isNeedCheckRequestsEnabled)
 {
-    DebugLogRequest *request = new DebugLogRequest(this, hostname_, username, strLog);
+    DebugLogRequest *request = new DebugLogRequest(this, username, strLog);
     executeRequest(request, isNeedCheckRequestsEnabled);
     return request;
 }
 
 BaseRequest *ServerAPI::speedRating(const QString &authHash, const QString &speedRatingHostname, const QString &ip, int rating, bool isNeedCheckRequestsEnabled)
 {
-    SpeedRatingRequest *request = new SpeedRatingRequest(this, hostname_, authHash, speedRatingHostname, ip, rating);
+    SpeedRatingRequest *request = new SpeedRatingRequest(this, authHash, speedRatingHostname, ip, rating);
     executeRequest(request, isNeedCheckRequestsEnabled);
     return request;
 }
 
 BaseRequest *ServerAPI::staticIps(const QString &authHash, const QString &deviceId, bool isNeedCheckRequestsEnabled)
 {
-    StaticIpsRequest *request = new StaticIpsRequest(this, hostname_, authHash, deviceId);
+    StaticIpsRequest *request = new StaticIpsRequest(this, authHash, deviceId);
     executeRequest(request, isNeedCheckRequestsEnabled);
     return request;
 }
@@ -206,7 +199,7 @@ BaseRequest *ServerAPI::pingTest(uint timeout, bool bWriteLog)
     if (bWriteLog)
         qCDebug(LOG_SERVER_API) << "Do ping test with timeout: " << timeout;
 
-    PingTestRequest *request = new PingTestRequest(this, hostname_, timeout);
+    PingTestRequest *request = new PingTestRequest(this, timeout);
     if (!bWriteLog) request->setNotWriteToLog();
     executeRequest(request, false);
     return request;
@@ -214,14 +207,14 @@ BaseRequest *ServerAPI::pingTest(uint timeout, bool bWriteLog)
 
 BaseRequest *ServerAPI::notifications(const QString &authHash, bool isNeedCheckRequestsEnabled)
 {
-    NotificationsRequest *request = new NotificationsRequest(this, hostname_, authHash);
+    NotificationsRequest *request = new NotificationsRequest(this, authHash);
     executeRequest(request, isNeedCheckRequestsEnabled);
     return request;
 }
 
 BaseRequest *ServerAPI::wgConfigsInit(const QString &authHash, bool isNeedCheckRequestsEnabled, const QString &clientPublicKey, bool deleteOldestKey)
 {
-    WgConfigsInitRequest *request = new WgConfigsInitRequest(this, hostname_, authHash, clientPublicKey, deleteOldestKey);
+    WgConfigsInitRequest *request = new WgConfigsInitRequest(this, authHash, clientPublicKey, deleteOldestKey);
     executeRequest(request, isNeedCheckRequestsEnabled);
     return request;
 }
@@ -229,28 +222,28 @@ BaseRequest *ServerAPI::wgConfigsInit(const QString &authHash, bool isNeedCheckR
 BaseRequest *ServerAPI::wgConfigsConnect(const QString &authHash, bool isNeedCheckRequestsEnabled,
                                  const QString &clientPublicKey, const QString &serverName, const QString &deviceId)
 {
-    WgConfigsConnectRequest *request = new WgConfigsConnectRequest(this, hostname_, authHash, clientPublicKey, serverName, deviceId);
+    WgConfigsConnectRequest *request = new WgConfigsConnectRequest(this, authHash, clientPublicKey, serverName, deviceId);
     executeRequest(request, isNeedCheckRequestsEnabled);
     return request;
 }
 
 BaseRequest *ServerAPI::getRobertFilters(const QString &authHash, bool isNeedCheckRequestsEnabled)
 {
-    GetRobertFiltersRequest *request = new GetRobertFiltersRequest(this, hostname_, authHash);
+    GetRobertFiltersRequest *request = new GetRobertFiltersRequest(this, authHash);
     executeRequest(request, isNeedCheckRequestsEnabled);
     return request;
 }
 
 BaseRequest *ServerAPI::setRobertFilter(const QString &authHash, bool isNeedCheckRequestsEnabled, const types::RobertFilter &filter)
 {
-    SetRobertFiltersRequest *request = new SetRobertFiltersRequest(this, hostname_, authHash, filter);
+    SetRobertFiltersRequest *request = new SetRobertFiltersRequest(this, authHash, filter);
     executeRequest(request, isNeedCheckRequestsEnabled);
     return request;
 }
 
 BaseRequest *ServerAPI::syncRobert(const QString &authHash, bool isNeedCheckRequestsEnabled)
 {
-    SyncRobertRequest *request = new SyncRobertRequest(this, hostname_, authHash);
+    SyncRobertRequest *request = new SyncRobertRequest(this, authHash);
     executeRequest(request, isNeedCheckRequestsEnabled);
     return request;
 }
@@ -295,7 +288,7 @@ void ServerAPI::executeRequest(BaseRequest *request, bool isNeedCheckRequestsEna
         return;
     }
     //FIXME: getCurrentDnsServers() move to NetworkAccessManager
-    NetworkRequest networkRequest(request->url().toString(), request->timeout(), true, DnsServersConfiguration::instance().getCurrentDnsServers(), bIgnoreSslErrors_);
+    NetworkRequest networkRequest(request->url(hostname_).toString(), request->timeout(), true, DnsServersConfiguration::instance().getCurrentDnsServers(), bIgnoreSslErrors_);
     NetworkReply *reply;
     switch (request->requestType()) {
         case RequestType::kGet:

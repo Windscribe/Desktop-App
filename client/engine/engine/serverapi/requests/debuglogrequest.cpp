@@ -7,8 +7,8 @@
 
 namespace server_api {
 
-DebugLogRequest::DebugLogRequest(QObject *parent, const QString &hostname, const QString &username, const QString &strLog) :
-    BaseRequest(parent, RequestType::kPost, hostname),
+DebugLogRequest::DebugLogRequest(QObject *parent, const QString &username, const QString &strLog) :
+    BaseRequest(parent, RequestType::kPost),
     username_(username),
     strLog_(strLog)
 {
@@ -31,9 +31,9 @@ QByteArray DebugLogRequest::postData() const
     return postData.toString(QUrl::FullyEncoded).toUtf8();
 }
 
-QUrl DebugLogRequest::url() const
+QUrl DebugLogRequest::url(const QString &domain) const
 {
-    return  QUrl("https://" + hostname(SudomainType::kApi) + "/Report/applog");
+    return  QUrl("https://" + hostname(domain, SudomainType::kApi) + "/Report/applog");
 }
 
 QString DebugLogRequest::name() const

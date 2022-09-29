@@ -8,9 +8,9 @@ class ServerCredentialsRequest : public BaseRequest
 {
     Q_OBJECT
 public:
-    explicit ServerCredentialsRequest(QObject *parent, const QString &hostname, const QString &authHash,  PROTOCOL protocol);
+    explicit ServerCredentialsRequest(QObject *parent, const QString &authHash,  PROTOCOL protocol);
 
-    QUrl url() const override;
+    QUrl url(const QString &domain) const override;
     QString name() const override;
     void handle(const QByteArray &arr) override;
 

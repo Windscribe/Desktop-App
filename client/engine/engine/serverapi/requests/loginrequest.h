@@ -9,11 +9,11 @@ class LoginRequest : public BaseRequest
 {
     Q_OBJECT
 public:
-    explicit LoginRequest(QObject *parent,  const QString &hostname, const QString &username, const QString &password, const QString &code2fa);
+    explicit LoginRequest(QObject *parent, const QString &username, const QString &password, const QString &code2fa);
 
     QString contentTypeHeader() const override;
     QByteArray postData() const override;
-    QUrl url() const override;
+    QUrl url(const QString &domain) const override;
     QString name() const override;
     void handle(const QByteArray &arr) override;
 

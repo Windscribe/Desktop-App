@@ -14,10 +14,10 @@ class BaseRequest : public QObject
 {
     Q_OBJECT
 public:
-    BaseRequest(QObject *parent, RequestType requestType, const QString &hostname);
-    explicit BaseRequest(QObject *parent, RequestType requestType, const QString &hostname, bool isUseFailover, int timeout);
+    BaseRequest(QObject *parent, RequestType requestType);
+    explicit BaseRequest(QObject *parent, RequestType requestType, bool isUseFailover, int timeout);
 
-    virtual QUrl url() const = 0;
+    virtual QUrl url(const QString &domain) const = 0;
     virtual QString contentTypeHeader() const;
     virtual QByteArray postData() const;
     virtual QString name() const = 0;
@@ -37,17 +37,16 @@ signals:
     void finished();
 
 protected:
-    QString hostname(SudomainType subdomain) const;
+    QString hostname(const QString &domain, SudomainType subdomain) const;
     void addPlatformQueryItems(QUrlQuery &urlQuery) const;
     void addAuthQueryItems(QUrlQuery &urlQuery, const QString &authHash = QString()) const;
 
 private:
     bool bUseFailover_ = true;     // Use the failover algorithm for this request
-    int timeout_ = 10000;          // timeout 10 sec by default
+    int timeout_ = 5000;          // timeout 5 sec by default
     RequestType requestType_;
     bool isWriteToLog_ = true;
     SERVER_API_RET_CODE retCode_ = SERVER_RETURN_SUCCESS;
-    QString hostname_;
 };
 
 } // namespace server_api

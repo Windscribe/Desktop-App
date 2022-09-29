@@ -8,14 +8,14 @@
 
 namespace server_api {
 
-CheckUpdateRequest::CheckUpdateRequest(QObject *parent, const QString &hostname, UPDATE_CHANNEL updateChannel) : BaseRequest(parent, RequestType::kGet, hostname),
+CheckUpdateRequest::CheckUpdateRequest(QObject *parent, UPDATE_CHANNEL updateChannel) : BaseRequest(parent, RequestType::kGet),
     updateChannel_(updateChannel)
 {
 }
 
-QUrl CheckUpdateRequest::url() const
+QUrl CheckUpdateRequest::url(const QString &domain) const
 {
-    QUrl url("https://" + hostname(SudomainType::kApi) + "/CheckUpdate");
+    QUrl url("https://" + hostname(domain, SudomainType::kApi) + "/CheckUpdate");
 
     QUrlQuery query;
 

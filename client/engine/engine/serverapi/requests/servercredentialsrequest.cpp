@@ -10,16 +10,16 @@
 
 namespace server_api {
 
-ServerCredentialsRequest::ServerCredentialsRequest(QObject *parent, const QString &hostname, const QString &authHash,  PROTOCOL protocol) :
-    BaseRequest(parent, RequestType::kGet, hostname),
+ServerCredentialsRequest::ServerCredentialsRequest(QObject *parent, const QString &authHash,  PROTOCOL protocol) :
+    BaseRequest(parent, RequestType::kGet),
     authHash_(authHash),
     protocol_(protocol)
 {
 }
 
-QUrl ServerCredentialsRequest::url() const
+QUrl ServerCredentialsRequest::url(const QString &domain) const
 {
-    QUrl url("https://" + hostname(SudomainType::kApi) + "/ServerCredentials");
+    QUrl url("https://" + hostname(domain, SudomainType::kApi) + "/ServerCredentials");
     QUrlQuery query;
     if (protocol_.isOpenVpnProtocol())
         query.addQueryItem("type", "openvpn");

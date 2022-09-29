@@ -7,8 +7,8 @@
 
 namespace server_api {
 
-WgConfigsInitRequest::WgConfigsInitRequest(QObject *parent,  const QString &hostname, const QString &authHash, const QString &clientPublicKey, bool deleteOldestKey) :
-    BaseRequest(parent, RequestType::kPost, hostname),
+WgConfigsInitRequest::WgConfigsInitRequest(QObject *parent, const QString &authHash, const QString &clientPublicKey, bool deleteOldestKey) :
+    BaseRequest(parent, RequestType::kPost),
     authHash_(authHash),
     clientPublicKey_(clientPublicKey),
     deleteOldestKey_(deleteOldestKey)
@@ -31,9 +31,9 @@ QByteArray WgConfigsInitRequest::postData() const
     return postData.toString(QUrl::FullyEncoded).toUtf8();
 }
 
-QUrl WgConfigsInitRequest::url() const
+QUrl WgConfigsInitRequest::url(const QString &domain) const
 {
-    return QUrl("https://" + hostname(SudomainType::kApi) + "/WgConfigs/init");
+    return QUrl("https://" + hostname(domain, SudomainType::kApi) + "/WgConfigs/init");
 }
 
 QString WgConfigsInitRequest::name() const

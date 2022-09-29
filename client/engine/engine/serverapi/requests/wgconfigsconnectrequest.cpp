@@ -7,9 +7,9 @@
 
 namespace server_api {
 
-WgConfigsConnectRequest::WgConfigsConnectRequest(QObject *parent,  const QString &hostname, const QString &authHash, const QString &clientPublicKey,
+WgConfigsConnectRequest::WgConfigsConnectRequest(QObject *parent, const QString &authHash, const QString &clientPublicKey,
                                                  const QString &serverName, const QString &deviceId) :
-    BaseRequest(parent, RequestType::kPost, hostname),
+    BaseRequest(parent, RequestType::kPost),
     authHash_(authHash),
     clientPublicKey_(clientPublicKey),
     serverName_(serverName),
@@ -36,9 +36,9 @@ QByteArray WgConfigsConnectRequest::postData() const
     return postData.toString(QUrl::FullyEncoded).toUtf8();
 }
 
-QUrl WgConfigsConnectRequest::url() const
+QUrl WgConfigsConnectRequest::url(const QString &domain) const
 {
-    return QUrl("https://" + hostname(SudomainType::kApi) + "/WgConfigs/connect");
+    return QUrl("https://" + hostname(domain, SudomainType::kApi) + "/WgConfigs/connect");
 }
 
 QString WgConfigsConnectRequest::name() const

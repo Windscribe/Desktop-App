@@ -51,4 +51,16 @@ target_sources(engine PRIVATE
     requests/wgconfigsconnectrequest.h
     requests/wgconfigsinitrequest.cpp
     requests/wgconfigsinitrequest.h
+    failovers/basefailover.h
+    failovers/basefailover.cpp
+    failovers/hardcodeddomainfailover.h
+    failovers/dynamicdomainfailover.h
+    failovers/dynamicdomainfailover.cpp
+    failovers/randomdomainfailover.h
+    failovers/accessipsfailover.h
+    failovers/accessipsfailover.cpp
 )
+
+if(DEFINED IS_BUILD_TESTS)
+   add_subdirectory(tests)
+endif(DEFINED IS_BUILD_TESTS)

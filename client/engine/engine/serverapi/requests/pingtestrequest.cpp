@@ -4,13 +4,13 @@
 
 namespace server_api {
 
-PingTestRequest::PingTestRequest(QObject *parent, const QString &hostname, int timeout) : BaseRequest(parent, RequestType::kGet, hostname, true, timeout)
+PingTestRequest::PingTestRequest(QObject *parent, int timeout) : BaseRequest(parent, RequestType::kGet, true, timeout)
 {
 }
 
-QUrl PingTestRequest::url() const
+QUrl PingTestRequest::url(const QString &domain) const
 {
-    QUrl url("https://" + hostname(SudomainType::kTunnelTest));
+    QUrl url("https://" + hostname(domain, SudomainType::kTunnelTest));
     QUrlQuery query;
     addAuthQueryItems(query);
     addPlatformQueryItems(query);

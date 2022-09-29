@@ -10,10 +10,10 @@ class ServerListRequest : public BaseRequest
 {
     Q_OBJECT
 public:
-    explicit ServerListRequest(QObject *parent, const QString &hostname, const QString &language, const QString &revision, bool isPro, PROTOCOL protocol,
+    explicit ServerListRequest(QObject *parent, const QString &language, const QString &revision, bool isPro, PROTOCOL protocol,
                                const QStringList &alcList, IConnectStateController *connectStateController);
 
-    QUrl url() const override;
+    QUrl url(const QString &domain) const override;
     QString name() const override;
     void handle(const QByteArray &arr) override;
 

@@ -7,14 +7,14 @@
 
 namespace server_api {
 
-NotificationsRequest::NotificationsRequest(QObject *parent, const QString &hostname, const QString &authHash) : BaseRequest(parent, RequestType::kGet, hostname),
+NotificationsRequest::NotificationsRequest(QObject *parent, const QString &authHash) : BaseRequest(parent, RequestType::kGet),
     authHash_(authHash)
 {
 }
 
-QUrl NotificationsRequest::url() const
+QUrl NotificationsRequest::url(const QString &domain) const
 {
-    QUrl url("https://" + hostname(SudomainType::kApi) + "/Notifications");
+    QUrl url("https://" + hostname(domain, SudomainType::kApi) + "/Notifications");
     QUrlQuery query;
     addAuthQueryItems(query, authHash_);
     addPlatformQueryItems(query);

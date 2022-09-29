@@ -10,15 +10,15 @@
 
 namespace server_api {
 
-ServerConfigsRequest::ServerConfigsRequest(QObject *parent, const QString &hostname, const QString &authHash) :
-    BaseRequest(parent, RequestType::kGet, hostname),
+ServerConfigsRequest::ServerConfigsRequest(QObject *parent, const QString &authHash) :
+    BaseRequest(parent, RequestType::kGet),
     authHash_(authHash)
 {
 }
 
-QUrl ServerConfigsRequest::url() const
+QUrl ServerConfigsRequest::url(const QString &domain) const
 {
-    QUrl url("https://" + hostname(SudomainType::kApi) + "/ServerConfigs");
+    QUrl url("https://" + hostname(domain, SudomainType::kApi) + "/ServerConfigs");
     QUrlQuery query;
 
     query.addQueryItem("ovpn_version",

@@ -11,14 +11,13 @@
 
 namespace server_api {
 
-BaseRequest::BaseRequest(QObject *parent, RequestType requestType, const QString &hostname) : QObject(parent),
-    requestType_(requestType), hostname_(hostname)
+BaseRequest::BaseRequest(QObject *parent, RequestType requestType) : QObject(parent),
+    requestType_(requestType)
 {
 }
 
-BaseRequest::BaseRequest(QObject *parent, RequestType requestType, const QString &hostname, bool isUseFailover, int timeout): QObject(parent),
+BaseRequest::BaseRequest(QObject *parent, RequestType requestType, bool isUseFailover, int timeout): QObject(parent),
     requestType_(requestType),
-    hostname_(hostname),
     bUseFailover_(isUseFailover),
     timeout_(timeout)
 {
@@ -73,18 +72,18 @@ SERVER_API_RET_CODE BaseRequest::retCode() const
     return retCode_;
 }
 
-QString BaseRequest::hostname(SudomainType subdomain) const
+QString BaseRequest::hostname(const QString &domain, SudomainType subdomain) const
 {
     // if this is IP, return without change
-    if (IpValidation::instance().isIp(hostname_))
-        return hostname_;
+    if (IpValidation::instance().isIp(domain))
+        return domain;
 
     if (subdomain == SudomainType::kApi)
-        return HardcodedSettings::instance().serverApiSubdomain() + "." + hostname_;
+        return HardcodedSettings::instance().serverApiSubdomain() + "." + domain;
     else if (subdomain == SudomainType::kAssets)
-        return HardcodedSettings::instance().serverAssetsSubdomain() + "." + hostname_;
+        return HardcodedSettings::instance().serverAssetsSubdomain() + "." + domain;
     else if (subdomain == SudomainType::kTunnelTest)
-        return HardcodedSettings::instance().serverTunnelTestSubdomain() + "." + hostname_;
+        return HardcodedSettings::instance().serverTunnelTestSubdomain() + "." + domain;
 
     WS_ASSERT(false);
     return "";

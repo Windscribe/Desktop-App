@@ -4,14 +4,14 @@
 
 namespace server_api {
 
-DeleteSessionRequest::DeleteSessionRequest(QObject *parent, const QString &hostname, const QString &authHash) : BaseRequest(parent, RequestType::kDelete, hostname),
+DeleteSessionRequest::DeleteSessionRequest(QObject *parent, const QString &authHash) : BaseRequest(parent, RequestType::kDelete),
     authHash_(authHash)
 {
 }
 
-QUrl DeleteSessionRequest::url() const
+QUrl DeleteSessionRequest::url(const QString &domain) const
 {
-    QUrl url("https://" + hostname(SudomainType::kApi) + "/Session");
+    QUrl url("https://" + hostname(domain, SudomainType::kApi) + "/Session");
     QUrlQuery query;
     addAuthQueryItems(query, authHash_);
     addPlatformQueryItems(query);

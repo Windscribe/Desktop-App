@@ -396,7 +396,7 @@ void LoginController::handleNetworkConnection()
     {
         if (dnsResolutionSettings_.getIsAutomatic())
         {
-            makeLoginRequest(HardcodedSettings::instance().serverDomain());
+            makeLoginRequest(HardcodedSettings::instance().serverDomains().at(0));
         }
         else
         {

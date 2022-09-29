@@ -8,9 +8,9 @@
 
 namespace server_api {
 
-ServerListRequest::ServerListRequest(QObject *parent, const QString &hostname, const QString &language, const QString &revision, bool isPro, PROTOCOL protocol,
+ServerListRequest::ServerListRequest(QObject *parent, const QString &language, const QString &revision, bool isPro, PROTOCOL protocol,
                                      const QStringList &alcList,  IConnectStateController *connectStateController) :
-    BaseRequest(parent, RequestType::kGet, hostname),
+    BaseRequest(parent, RequestType::kGet),
     language_(language),
     revision_(revision),
     isPro_(isPro),
@@ -21,7 +21,7 @@ ServerListRequest::ServerListRequest(QObject *parent, const QString &hostname, c
     isFromDisconnectedVPNState_ = (connectStateController_->currentState() == CONNECT_STATE::CONNECT_STATE_DISCONNECTED);
 }
 
-QUrl ServerListRequest::url() const
+QUrl ServerListRequest::url(const QString &domain) const
 {
     // generate alc parameter, if not empty
     QString alcField;
@@ -39,7 +39,7 @@ QUrl ServerListRequest::url() const
     QString countryOverride = settings.value("countryOverride", "").toString();
 
     QString strIsPro = isPro_ ? "1" : "0";
-    QUrl url = QUrl("https://" + hostname(SudomainType::kAssets) + "/serverlist/mob-v2/" + strIsPro + "/" + revision_);
+    QUrl url = QUrl("https://" + hostname(domain, SudomainType::kAssets) + "/serverlist/mob-v2/" + strIsPro + "/" + revision_);
 
     // add alc parameter in query, if not empty
     QUrlQuery query;

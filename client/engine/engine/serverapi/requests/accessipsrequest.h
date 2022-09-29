@@ -8,9 +8,9 @@ class AcessIpsRequest : public BaseRequest
 {
     Q_OBJECT
 public:
-    explicit AcessIpsRequest(QObject *parent, const QString &hostname);
+    explicit AcessIpsRequest(QObject *parent);
 
-    QUrl url() const override;
+    QUrl url(const QString &domain) const override;
     QString name() const override;
     void handle(const QByteArray &arr) override;
 

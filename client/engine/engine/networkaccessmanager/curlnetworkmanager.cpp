@@ -371,6 +371,12 @@ CURL *CurlNetworkManager::makeGetRequest(CurlReply *curlReply)
         if (curl_easy_setopt(curl, CURLOPT_XFERINFODATA, idsHash_[curlReply->id()].get()) != CURLE_OK) goto failed;
         if (curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0) != CURLE_OK) goto failed;
 
+        struct curl_slist *list = NULL;
+        list = curl_slist_append(list, curlReply->networkRequest().contentTypeHeader().toStdString().c_str());
+        if (list == NULL) goto failed;
+        curlReply->addCurlListForFreeLater(list);
+        if (curl_easy_setopt(curl, CURLOPT_HTTPHEADER, list) != CURLE_OK) goto failed;
+
         if (!setupResolveHosts(curlReply, curl)) goto failed;
         if (!setupSslVerification(curlReply, curl)) goto failed;
         if (!setupProxy(curlReply, curl)) goto failed;

@@ -7,14 +7,14 @@
 
 namespace server_api {
 
-GetRobertFiltersRequest::GetRobertFiltersRequest(QObject *parent, const QString &hostname, const QString &authHash) : BaseRequest(parent, RequestType::kGet, hostname),
+GetRobertFiltersRequest::GetRobertFiltersRequest(QObject *parent, const QString &authHash) : BaseRequest(parent, RequestType::kGet),
     authHash_(authHash)
 {
 }
 
-QUrl GetRobertFiltersRequest::url() const
+QUrl GetRobertFiltersRequest::url(const QString &domain) const
 {
-    QUrl url("https://" + hostname(SudomainType::kApi) + "/Robert/filters");
+    QUrl url("https://" + hostname(domain, SudomainType::kApi) + "/Robert/filters");
     QUrlQuery query;
     addAuthQueryItems(query, authHash_);
     addPlatformQueryItems(query);

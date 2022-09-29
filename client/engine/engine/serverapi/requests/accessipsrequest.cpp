@@ -8,13 +8,13 @@
 
 namespace server_api {
 
-AcessIpsRequest::AcessIpsRequest(QObject *parent, const QString &hostname) : BaseRequest(parent, RequestType::kGet, hostname)
+AcessIpsRequest::AcessIpsRequest(QObject *parent) : BaseRequest(parent, RequestType::kGet)
 {
 }
 
-QUrl AcessIpsRequest::url() const
+QUrl AcessIpsRequest::url(const QString &domain) const
 {
-    QUrl url("https://" + hostname(SudomainType::kApi) + "/ApiAccessIps");
+    QUrl url("https://" + domain + "/ApiAccessIps");
     QUrlQuery query;
     addAuthQueryItems(query);
     addPlatformQueryItems(query);

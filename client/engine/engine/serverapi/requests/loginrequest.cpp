@@ -6,8 +6,8 @@
 
 namespace server_api {
 
-LoginRequest::LoginRequest(QObject *parent, const QString &hostname, const QString &username, const QString &password, const QString &code2fa) :
-    BaseRequest(parent, RequestType::kPost, hostname),
+LoginRequest::LoginRequest(QObject *parent, const QString &username, const QString &password, const QString &code2fa) :
+    BaseRequest(parent, RequestType::kPost),
     username_(username),
     password_(password),
     code2fa_(code2fa)
@@ -32,9 +32,9 @@ QByteArray LoginRequest::postData() const
     return postData.toString(QUrl::FullyEncoded).toUtf8();
 }
 
-QUrl LoginRequest::url() const
+QUrl LoginRequest::url(const QString &domain) const
 {
-    QUrl url("https://" + hostname(SudomainType::kApi) + "/Session");
+    QUrl url("https://" + hostname(domain, SudomainType::kApi) + "/Session");
     return url;
 }
 

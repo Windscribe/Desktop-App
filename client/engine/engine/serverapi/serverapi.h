@@ -5,6 +5,7 @@
 #include "types/robertfilter.h"
 #include "engine/networkaccessmanager/networkaccessmanager.h"
 #include "requests/baserequest.h"
+#include "failover.h"
 
 class IConnectStateController;
 
@@ -45,7 +46,6 @@ public:
 
     void setIgnoreSslErrors(bool bIgnore);
 
-    BaseRequest *accessIps(const QString &hostIp);
     BaseRequest *login(const QString &username, const QString &password, const QString &code2fa);
     BaseRequest *session(const QString &authHash, bool isNeedCheckRequestsEnabled);
     BaseRequest *serverLocations(const QString &language, bool isNeedCheckRequestsEnabled,
@@ -84,12 +84,8 @@ private:
     bool bIsRequestsEnabled_;
     bool bIgnoreSslErrors_;
 
-    struct {
-        bool isFailoverForDisconnectedDetected_ = false;
-        QString hostnameForDisconnected_;
-        bool isFailoverForConnectedDetected_ = false;
-        QString hostnameForConnected_;
-    } failoverState_;
+    Failover *failoverDisconnectedMode_;
+    Failover *failoverConnectedMode_;
 
     void handleNetworkRequestFinished();
     void executeRequest(BaseRequest *request, bool isNeedCheckRequestsEnabled);

@@ -7,8 +7,8 @@
 
 namespace server_api {
 
-SpeedRatingRequest::SpeedRatingRequest(QObject *parent, const QString &hostname, const QString &authHash, const QString &speedRatingHostname, const QString &ip, int rating) :
-    BaseRequest(parent, RequestType::kPost, hostname),
+SpeedRatingRequest::SpeedRatingRequest(QObject *parent, const QString &authHash, const QString &speedRatingHostname, const QString &ip, int rating) :
+    BaseRequest(parent, RequestType::kPost),
     authHash_(authHash),
     speedRatingHostname_(speedRatingHostname),
     ip_(ip),
@@ -32,9 +32,9 @@ QByteArray SpeedRatingRequest::postData() const
     return postData.toString(QUrl::FullyEncoded).toUtf8();
 }
 
-QUrl SpeedRatingRequest::url() const
+QUrl SpeedRatingRequest::url(const QString &domain) const
 {
-    return QUrl("https://" + hostname(SudomainType::kApi) + "/SpeedRating");
+    return QUrl("https://" + hostname(domain, SudomainType::kApi) + "/SpeedRating");
 }
 
 QString SpeedRatingRequest::name() const

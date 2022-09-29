@@ -6,8 +6,8 @@
 
 namespace server_api {
 
-SetRobertFiltersRequest::SetRobertFiltersRequest(QObject *parent,  const QString &hostname, const QString &authHash, const types::RobertFilter &filter) :
-    BaseRequest(parent, RequestType::kPut, hostname),
+SetRobertFiltersRequest::SetRobertFiltersRequest(QObject *parent, const QString &authHash, const types::RobertFilter &filter) :
+    BaseRequest(parent, RequestType::kPut),
     authHash_(authHash),
     filter_(filter)
 {
@@ -24,9 +24,9 @@ QByteArray SetRobertFiltersRequest::postData() const
     return json.toUtf8();
 }
 
-QUrl SetRobertFiltersRequest::url() const
+QUrl SetRobertFiltersRequest::url(const QString &domain) const
 {
-    QUrl url("https://" + hostname(SudomainType::kApi) + "/Robert/filter");
+    QUrl url("https://" + hostname(domain, SudomainType::kApi) + "/Robert/filter");
     QUrlQuery query;
     addAuthQueryItems(query, authHash_);
     addPlatformQueryItems(query);

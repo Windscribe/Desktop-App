@@ -8,14 +8,14 @@
 
 namespace server_api {
 
-SessionRequest::SessionRequest(QObject *parent, const QString &hostname, const QString &authHash) : BaseRequest(parent, RequestType::kGet, hostname),
+SessionRequest::SessionRequest(QObject *parent, const QString &authHash) : BaseRequest(parent, RequestType::kGet),
     authHash_(authHash)
 {
 }
 
-QUrl SessionRequest::url() const
+QUrl SessionRequest::url(const QString &domain) const
 {
-    QUrl url("https://" + hostname(SudomainType::kApi) + "/Session");
+    QUrl url("https://" + hostname(domain, SudomainType::kApi) + "/Session");
 
     QUrlQuery query;
     query.addQueryItem("session_type_id", "3");

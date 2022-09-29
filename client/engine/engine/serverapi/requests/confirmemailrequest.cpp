@@ -7,8 +7,8 @@
 
 namespace server_api {
 
-ConfirmEmailRequest::ConfirmEmailRequest(QObject *parent, const QString &hostname, const QString &authHash) :
-    BaseRequest(parent, RequestType::kPost, hostname),
+ConfirmEmailRequest::ConfirmEmailRequest(QObject *parent, const QString &authHash) :
+    BaseRequest(parent, RequestType::kPost),
     authHash_(authHash)
 {
 }
@@ -22,9 +22,9 @@ QByteArray ConfirmEmailRequest::postData() const
     return postData.toString(QUrl::FullyEncoded).toUtf8();
 }
 
-QUrl ConfirmEmailRequest::url() const
+QUrl ConfirmEmailRequest::url(const QString &domain) const
 {
-    QUrl url("https://" + hostname(SudomainType::kApi) + "/Users");
+    QUrl url("https://" + hostname(domain, SudomainType::kApi) + "/Users");
     return url;
 }
 

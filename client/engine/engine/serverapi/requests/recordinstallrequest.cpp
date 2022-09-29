@@ -6,8 +6,8 @@
 
 namespace server_api {
 
-RecordInstallRequest::RecordInstallRequest(QObject *parent, const QString &hostname) :
-    BaseRequest(parent, RequestType::kPost, hostname)
+RecordInstallRequest::RecordInstallRequest(QObject *parent) :
+    BaseRequest(parent, RequestType::kPost)
 {
 }
 
@@ -24,14 +24,14 @@ QByteArray RecordInstallRequest::postData() const
     return postData.toString(QUrl::FullyEncoded).toUtf8();
 }
 
-QUrl RecordInstallRequest::url() const
+QUrl RecordInstallRequest::url(const QString &domain) const
 {
 #ifdef Q_OS_WIN
-    QUrl url("https://" + hostname(SudomainType::kApi) + "/RecordInstall/app/win");
+    QUrl url("https://" + hostname(domain, SudomainType::kApi) + "/RecordInstall/app/win");
 #elif defined Q_OS_MAC
-    QUrl url("https://" + hostname(SudomainType::kApi) + "/RecordInstall/app/mac");
+    QUrl url("https://" + hostname(domain, SudomainType::kApi) + "/RecordInstall/app/mac");
 #elif defined Q_OS_LINUX
-    QUrl url("https://" + hostname(SudomainType::kApi) + "/RecordInstall/app/linux");
+    QUrl url("https://" + hostname(domain, SudomainType::kApi) + "/RecordInstall/app/linux");
 #endif
     return url;
 }
