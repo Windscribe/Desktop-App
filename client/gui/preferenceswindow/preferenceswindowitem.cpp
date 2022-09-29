@@ -57,9 +57,6 @@ PreferencesWindowItem::PreferencesWindowItem(QGraphicsObject *parent, Preference
     scrollAreaItem_ = new CommonGraphics::ScrollArea(this, curHeight_ - 102*G_SCALE, SCROLL_AREA_WIDTH);
 
     generalWindowItem_ = new GeneralWindowItem(nullptr, preferences, preferencesHelper);
-    connect(generalWindowItem_, &GeneralWindowItem::changelogPageClicked, this, &PreferencesWindowItem::onChangelogPageClick);
-
-    changelogWindowItem_ = new ChangelogWindowItem(nullptr, preferences, preferencesHelper);
 
     accountWindowItem_ = new AccountWindowItem(nullptr, accountInfo);
     accountWindowItem_->setLoggedIn(false);
@@ -304,7 +301,6 @@ void PreferencesWindowItem::changeTab(PREFERENCES_TAB_TYPE tab)
     {
         scrollAreaItem_->setItem(generalWindowItem_);
         generalWindowItem_->updateScaling();
-        generalWindowItem_->setScreen(GENERAL_SCREEN_HOME);
         setShowSubpageMode(false);
         pageCaption_ = generalWindowItem_->caption();
         update();
@@ -421,13 +417,6 @@ void PreferencesWindowItem::moveOnePageBack()
             changeTab(tabControlItem_->currentTab());
         }
     }
-    else if (currentTab == TAB_GENERAL)
-    {
-        if (generalWindowItem_->getScreen() == GENERAL_SCREEN_CHANGELOG)
-        {
-            changeTab(tabControlItem_->currentTab());
-        }
-    }
     else //  non-connection screen
     {
         changeTab(tabControlItem_->currentTab());
@@ -444,17 +433,6 @@ void PreferencesWindowItem::onBackArrowButtonClicked()
     {
         emit escape();
     }
-}
-
-void PreferencesWindowItem::onChangelogPageClick()
-{
-    scrollAreaItem_->setItem(changelogWindowItem_);
-    changelogWindowItem_->updateScaling();
-    generalWindowItem_->setScreen(GENERAL_SCREEN_CHANGELOG);
-    setShowSubpageMode(true);
-    pageCaption_ = changelogWindowItem_->caption();
-    setFocus();
-    update();
 }
 
 void PreferencesWindowItem::onNetworkOptionsPageClick()

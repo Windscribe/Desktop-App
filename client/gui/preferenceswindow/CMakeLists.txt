@@ -13,10 +13,6 @@ target_sources(gui PRIVATE
     advancedwindow/advancedwindowitem.h
     advancedwindow/apiresolutiongroup.cpp
     advancedwindow/apiresolutiongroup.h
-    changelogwindow/changelogitem.cpp
-    changelogwindow/changelogitem.h
-    changelogwindow/changelogwindowitem.cpp
-    changelogwindow/changelogwindowitem.h
     checkboxitem.cpp
     checkboxitem.h
     comboboxitem.cpp
