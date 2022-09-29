@@ -106,7 +106,7 @@ void CheckUpdateRequest::handle(const QByteArray &arr)
 
     QString err;
     bool outSuccess;
-    types::CheckUpdate cu = types::CheckUpdate::createFromApiJson(jsonData, outSuccess, err);
+    checkUpdate_ = types::CheckUpdate::createFromApiJson(jsonData, outSuccess, err);
     if (!outSuccess) {
         qCDebug(LOG_SERVER_API) << err;
         setRetCode(SERVER_RETURN_INCORRECT_JSON);

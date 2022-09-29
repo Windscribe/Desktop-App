@@ -8,6 +8,7 @@
 #include <QPixmap>
 
 const int WINDOW_WIDTH = 332;
+const int WINDOW_HEIGHT_VAN_GOGH = 264;
 const int WINDOW_HEIGHT = 316;
 const int WINDOW_MARGIN = 16;
 

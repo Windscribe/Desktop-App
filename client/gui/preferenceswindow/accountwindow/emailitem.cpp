@@ -147,7 +147,7 @@ void EmailItem::updatePositions()
         emptyEmailButton_->setVisible(true);
         sendButton_->hide();
 
-        QFontMetrics fm(*FontManager::instance().getFont(10, false));
+        QFontMetrics fm(*FontManager::instance().getFont(12, false));
         msgHeight_ = fm.boundingRect(boundingRect().adjusted(PREFERENCES_MARGIN*G_SCALE,
                                                              0,
                                                              -PREFERENCES_MARGIN*G_SCALE,
@@ -199,6 +199,7 @@ void EmailItem::setConfirmEmailResult(bool bSuccess)
 void EmailItem::updateScaling()
 {
     BaseItem::updateScaling();
+    setHeight(PREFERENCE_GROUP_ITEM_HEIGHT*G_SCALE);
     updatePositions();
 }
 

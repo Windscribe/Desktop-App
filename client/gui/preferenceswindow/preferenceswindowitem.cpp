@@ -54,7 +54,7 @@ PreferencesWindowItem::PreferencesWindowItem(QGraphicsObject *parent, Preference
     connect(bottomResizeItem_, &CommonGraphics::ResizeBar::resizeChange, this, &PreferencesWindowItem::onResizeChange);
     connect(bottomResizeItem_, &CommonGraphics::ResizeBar::resizeFinished, this, &PreferencesWindowItem::resizeFinished);
 
-    scrollAreaItem_ = new CommonGraphics::ScrollArea(this, curHeight_ - 102, SCROLL_AREA_WIDTH);
+    scrollAreaItem_ = new CommonGraphics::ScrollArea(this, curHeight_ - 102*G_SCALE, SCROLL_AREA_WIDTH);
 
     generalWindowItem_ = new GeneralWindowItem(nullptr, preferences, preferencesHelper);
     connect(generalWindowItem_, &GeneralWindowItem::changelogPageClicked, this, &PreferencesWindowItem::onChangelogPageClick);
@@ -144,7 +144,7 @@ QGraphicsObject *PreferencesWindowItem::getGraphicsObject()
 
 QRectF PreferencesWindowItem::boundingRect() const
 {
-    return QRectF(0, 0, WINDOW_WIDTH * G_SCALE, curHeight_);
+    return QRectF(0, 0, WINDOW_WIDTH*G_SCALE, curHeight_);
 }
 
 void PreferencesWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
@@ -196,8 +196,8 @@ void PreferencesWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsI
     {
         painter->setPen(footerColor_);
         painter->setBrush(footerColor_);
-        painter->drawRoundedRect(getBottomResizeArea(), 8 * G_SCALE, 8 * G_SCALE);
-        painter->fillRect(getBottomResizeArea().adjusted(0, -2* G_SCALE, 0, -7*G_SCALE), QBrush(footerColor_));
+        painter->drawRoundedRect(getBottomResizeArea(), 8*G_SCALE, 8*G_SCALE);
+        painter->fillRect(getBottomResizeArea().adjusted(0, -2*G_SCALE, 0, -7*G_SCALE), QBrush(footerColor_));
     }
     else
     {
@@ -546,7 +546,7 @@ void PreferencesWindowItem::updateScaling()
 {
     ScalableGraphicsObject::updateScaling();
 
-    curHeight_ = curHeight_ * (G_SCALE / curScale_);
+    curHeight_ = curHeight_*(G_SCALE/curScale_);
     curScale_ = G_SCALE;
 
     updatePositions();
