@@ -101,15 +101,15 @@ void RefetchServerCredentialsHelper::fetchServerCredentials()
     radiusUsernameIkev2_.clear();
     serverConfig_.clear();
     {
-        server_api::BaseRequest *request = serverAPI_->serverConfigs(authHash_, true);
+        server_api::BaseRequest *request = serverAPI_->serverConfigs(authHash_);
         connect(request, &server_api::BaseRequest::finished, this, &RefetchServerCredentialsHelper::onServerConfigsAnswer);
     }
     {
-        server_api::BaseRequest *request = serverAPI_->serverCredentials(authHash_, PROTOCOL::OPENVPN_UDP, true);
+        server_api::BaseRequest *request = serverAPI_->serverCredentials(authHash_, PROTOCOL::OPENVPN_UDP);
         connect(request, &server_api::BaseRequest::finished, this, &RefetchServerCredentialsHelper::onServerCredentialsAnswer);
     }
     {
-        server_api::BaseRequest *request = serverAPI_->serverCredentials(authHash_, PROTOCOL::IKEV2, true);
+        server_api::BaseRequest *request = serverAPI_->serverCredentials(authHash_, PROTOCOL::IKEV2);
         connect(request, &server_api::BaseRequest::finished, this, &RefetchServerCredentialsHelper::onServerCredentialsAnswer);
     }
 

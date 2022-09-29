@@ -1020,7 +1020,7 @@ void Engine::setIgnoreSslErrorsImlp(bool bIgnoreSslErrors)
 
 void Engine::recordInstallImpl()
 {
-    server_api::BaseRequest *request = serverAPI_->recordInstall(true);
+    server_api::BaseRequest *request = serverAPI_->recordInstall();
     connect(request, &server_api::BaseRequest::finished, [this]() {
         // nothing to do here, just delete the request object
         QSharedPointer<server_api::BaseRequest> request(static_cast<server_api::BaseRequest *>(sender()), &QObject::deleteLater);
@@ -1031,7 +1031,7 @@ void Engine::sendConfirmEmailImpl()
 {
     if (!apiInfo_.isNull())
     {
-        server_api::BaseRequest *request = serverAPI_->confirmEmail(apiInfo_->getAuthHash(), true);
+        server_api::BaseRequest *request = serverAPI_->confirmEmail(apiInfo_->getAuthHash());
         connect(request, &server_api::BaseRequest::finished, this, &Engine::onConfirmEmailAnswer);
     }
 }
@@ -1118,13 +1118,13 @@ void Engine::sendDebugLogImpl()
     }
     */
 
-    server_api::BaseRequest *request = serverAPI_->debugLog(userName, log, true);
+    server_api::BaseRequest *request = serverAPI_->debugLog(userName, log);
     connect(request, &server_api::BaseRequest::finished, this, &Engine::onDebugLogAnswer);
 }
 
 void Engine::getWebSessionTokenImpl(WEB_SESSION_PURPOSE purpose)
 {
-    server_api::BaseRequest *request = serverAPI_->webSession(apiInfo_->getAuthHash(), purpose, true);
+    server_api::BaseRequest *request = serverAPI_->webSession(apiInfo_->getAuthHash(), purpose);
     connect(request, &server_api::BaseRequest::finished, this, &Engine::onWebSessionAnswer);
 }
 
@@ -1163,7 +1163,7 @@ void Engine::signOutImplAfterDisconnect(bool keepFirewallOn)
 
     if (!apiInfo_.isNull())
     {
-        server_api::BaseRequest *request = serverAPI_->deleteSession(apiInfo_->getAuthHash(), true);
+        server_api::BaseRequest *request = serverAPI_->deleteSession(apiInfo_->getAuthHash());
         connect(request, &server_api::BaseRequest::finished, [request]() {
             // Just delete the request, without any action. We don't need a result.
             request->deleteLater();
@@ -1263,7 +1263,7 @@ void Engine::firewallOffImpl()
 
 void Engine::speedRatingImpl(int rating, const QString &localExternalIp)
 {
-    server_api::BaseRequest *request = serverAPI_->speedRating(apiInfo_->getAuthHash(), lastConnectingHostname_, localExternalIp, rating, true);
+    server_api::BaseRequest *request = serverAPI_->speedRating(apiInfo_->getAuthHash(), lastConnectingHostname_, localExternalIp, rating);
     connect(request, &server_api::BaseRequest::finished, [request]() {
         // Just delete the request, without any action. We don't need a result.
         request->deleteLater();
@@ -1318,7 +1318,7 @@ void Engine::setSettingsImpl(const types::EngineSettings &engineSettings)
             qCDebug(LOG_BASIC) << "Overriding update channel: internal";
             channel = UPDATE_CHANNEL_INTERNAL;
         }
-        server_api::BaseRequest *request = serverAPI_->checkUpdate(channel, true);
+        server_api::BaseRequest *request = serverAPI_->checkUpdate(channel);
         connect(request, &server_api::BaseRequest::finished, this, &Engine::onCheckUpdateAnswer);
     }
     if (isLanguageChanged || isProtocolChanged)
@@ -1349,7 +1349,7 @@ void Engine::setSettingsImpl(const types::EngineSettings &engineSettings)
                     WS_ASSERT(false);
                 }
             }
-            server_api::BaseRequest *request = serverAPI_->serverLocations(engineSettings_.language(), true, ss.getRevisionHash(),
+            server_api::BaseRequest *request = serverAPI_->serverLocations(engineSettings_.language(), ss.getRevisionHash(),
                                         ss.isPremium(), engineSettings_.connectionSettings().protocol, ss.getAlc());
             connect(request, &server_api::BaseRequest::finished, this, &Engine::onServerLocationsAnswer);
         }
@@ -1638,7 +1638,7 @@ void Engine::onStaticIpsAnswer()
         qCDebug(LOG_BASIC) << "Failed get static ips";
         QTimer::singleShot(3000, this, [this]() {
             if (!apiInfo_.isNull()) {
-                server_api::BaseRequest *requestStaticIps = serverAPI_->staticIps(apiInfo_->getAuthHash(), GetDeviceId::instance().getDeviceId(), true);
+                server_api::BaseRequest *requestStaticIps = serverAPI_->staticIps(apiInfo_->getAuthHash(), GetDeviceId::instance().getDeviceId());
                 connect(requestStaticIps, &server_api::BaseRequest::finished, this, &Engine::onStaticIpsAnswer);
             }
         });
@@ -1685,7 +1685,7 @@ void Engine::onUpdateServerResources()
 
         if (isDisconnected || (isConnected && !connectionManager_->currentProtocol().isOpenVpnProtocol()))
         {
-            server_api::BaseRequest *request = serverAPI_->serverConfigs(authHash, true);
+            server_api::BaseRequest *request = serverAPI_->serverConfigs(authHash);
             connect(request, &server_api::BaseRequest::finished, this, &Engine::onServerConfigsAnswer);
             //FIXME:
             //serverAPI_->serverCredentials(authHash, serverApiUserRole_, PROTOCOL::OPENVPN_UDP, true);
@@ -1696,7 +1696,7 @@ void Engine::onUpdateServerResources()
             //serverAPI_->serverCredentials(authHash, serverApiUserRole_, PROTOCOL::IKEV2, true);
         }
 
-        server_api::BaseRequest *request = serverAPI_->serverLocations(engineSettings_.language(), true, ss.getRevisionHash(), ss.isPremium(),
+        server_api::BaseRequest *request = serverAPI_->serverLocations(engineSettings_.language(), ss.getRevisionHash(), ss.isPremium(),
                                     connectionManager_->currentProtocol(), ss.getAlc());
         connect(request, &server_api::BaseRequest::finished, this, &Engine::onServerLocationsAnswer);
 
@@ -1704,7 +1704,7 @@ void Engine::onUpdateServerResources()
         //serverAPI_->portMap(authHash, serverApiUserRole_, true);
 
         if (ss.getStaticIpsCount() > 0) {
-            server_api::BaseRequest *requestStaticIps = serverAPI_->staticIps(authHash, GetDeviceId::instance().getDeviceId(), true);
+            server_api::BaseRequest *requestStaticIps = serverAPI_->staticIps(authHash, GetDeviceId::instance().getDeviceId());
             connect(requestStaticIps, &server_api::BaseRequest::finished, this, &Engine::onStaticIpsAnswer);
         }
     }
@@ -1720,13 +1720,13 @@ void Engine::checkForAppUpdate()
         qCDebug(LOG_BASIC) << "Overriding update channel: internal";
         channel = UPDATE_CHANNEL_INTERNAL;
     }
-    server_api::BaseRequest *request = serverAPI_->checkUpdate(channel, true);
+    server_api::BaseRequest *request = serverAPI_->checkUpdate(channel);
     connect(request, &server_api::BaseRequest::finished, this, &Engine::onCheckUpdateAnswer);
 }
 
 void Engine::onUpdateSessionStatusTimer()
 {
-    server_api::BaseRequest *request = serverAPI_->session(apiInfo_->getAuthHash(), true);
+    server_api::BaseRequest *request = serverAPI_->session(apiInfo_->getAuthHash());
     connect(request, &server_api::BaseRequest::finished, this, &Engine::onSessionAnswer);
 }
 
@@ -1985,7 +1985,7 @@ void Engine::onConnectionManagerError(CONNECT_ERROR err)
             if (refetchServerCredentialsHelper_ == NULL)
             {
                 // force update session status (for check blocked, banned account state)
-                server_api::BaseRequest *request = serverAPI_->session(apiInfo_->getAuthHash(), true);
+                server_api::BaseRequest *request = serverAPI_->session(apiInfo_->getAuthHash());
                 connect(request, &server_api::BaseRequest::finished, this, &Engine::onSessionAnswer);
 
                 refetchServerCredentialsHelper_ = new RefetchServerCredentialsHelper(this, apiInfo_->getAuthHash(), serverAPI_);
@@ -2250,7 +2250,7 @@ void Engine::updateAdvancedParamsImpl()
             qCDebug(LOG_BASIC) << "Overriding update channel: internal";
             channel = UPDATE_CHANNEL_INTERNAL;
         }
-        server_api::BaseRequest *request = serverAPI_->checkUpdate(channel, true);
+        server_api::BaseRequest *request = serverAPI_->checkUpdate(channel);
         connect(request, &server_api::BaseRequest::finished, this, &Engine::onCheckUpdateAnswer);
     }
 }
@@ -2440,25 +2440,25 @@ void Engine::onRefetchServerCredentialsFinished(bool success, const apiinfo::Ser
 
 void Engine::getNewNotifications()
 {
-    server_api::BaseRequest *request = serverAPI_->notifications(apiInfo_->getAuthHash(), true);
+    server_api::BaseRequest *request = serverAPI_->notifications(apiInfo_->getAuthHash());
     connect(request, &server_api::BaseRequest::finished, this, &Engine::onNotificationsAnswer);
 }
 
 void Engine::getRobertFiltersImpl()
 {
-    server_api::BaseRequest *request = serverAPI_->getRobertFilters(apiInfo_->getAuthHash(), true);
+    server_api::BaseRequest *request = serverAPI_->getRobertFilters(apiInfo_->getAuthHash());
     connect(request, &server_api::BaseRequest::finished, this, &Engine::onGetRobertFiltersAnswer);
 }
 
 void Engine::setRobertFilterImpl(const types::RobertFilter &filter)
 {
-    server_api::BaseRequest *request = serverAPI_->setRobertFilter(apiInfo_->getAuthHash(), true, filter);
+    server_api::BaseRequest *request = serverAPI_->setRobertFilter(apiInfo_->getAuthHash(), filter);
     connect(request, &server_api::BaseRequest::finished, this, &Engine::onSetRobertFilterAnswer);
 }
 
 void Engine::syncRobertImpl()
 {
-    server_api::BaseRequest *request = serverAPI_->syncRobert(apiInfo_->getAuthHash(), true);
+    server_api::BaseRequest *request = serverAPI_->syncRobert(apiInfo_->getAuthHash());
     connect(request, &server_api::BaseRequest::finished, this, &Engine::onSyncRobertAnswer);
 }
 
@@ -2569,7 +2569,7 @@ void Engine::updateServerConfigsImpl()
 {
     if (!apiInfo_.isNull())
     {
-        server_api::BaseRequest *request = serverAPI_->serverConfigs(apiInfo_->getAuthHash(), true);
+        server_api::BaseRequest *request = serverAPI_->serverConfigs(apiInfo_->getAuthHash());
         connect(request, &server_api::BaseRequest::finished, this, &Engine::onServerConfigsAnswer);
     }
 }
@@ -2708,7 +2708,7 @@ void Engine::updateSessionStatus()
         {
             if (ss.getStaticIpsCount() > 0)
             {
-                server_api::BaseRequest *requestStaticIps = serverAPI_->staticIps(apiInfo_->getAuthHash(), GetDeviceId::instance().getDeviceId(), true);
+                server_api::BaseRequest *requestStaticIps = serverAPI_->staticIps(apiInfo_->getAuthHash(), GetDeviceId::instance().getDeviceId());
                 connect(requestStaticIps, &server_api::BaseRequest::finished, this, &Engine::onStaticIpsAnswer);
             }
             else
@@ -2722,13 +2722,13 @@ void Engine::updateSessionStatus()
         if (prevSessionStatus_.getRevisionHash() != ss.getRevisionHash() || prevSessionStatus_.isPremium() != ss.isPremium() ||
             prevSessionStatus_.getAlc() != ss.getAlc() || (prevSessionStatus_.getStatus() != 1 && ss.getStatus() == 1))
         {
-            server_api::BaseRequest *request = serverAPI_->serverLocations(engineSettings_.language(),true, ss.getRevisionHash(), ss.isPremium(), engineSettings_.connectionSettings().protocol, ss.getAlc());
+            server_api::BaseRequest *request = serverAPI_->serverLocations(engineSettings_.language(), ss.getRevisionHash(), ss.isPremium(), engineSettings_.connectionSettings().protocol, ss.getAlc());
             connect(request, &server_api::BaseRequest::finished, this, &Engine::onServerLocationsAnswer);
         }
 
         if (prevSessionStatus_.getBillingPlanId() != ss.getBillingPlanId())
         {
-            server_api::BaseRequest *request = serverAPI_->notifications(apiInfo_->getAuthHash(),  true);
+            server_api::BaseRequest *request = serverAPI_->notifications(apiInfo_->getAuthHash());
             connect(request, &server_api::BaseRequest::finished, this, &Engine::onNotificationsAnswer);
             notificationsUpdateTimer_->start(NOTIFICATIONS_UPDATE_PERIOD);
         }

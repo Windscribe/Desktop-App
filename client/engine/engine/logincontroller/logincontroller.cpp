@@ -150,7 +150,7 @@ void LoginController::tryLoginAgain()
     }
     else // AUTH_HASH
     {
-        server_api::BaseRequest *request = serverAPI_->session(loginSettings_.authHash(), false);
+        server_api::BaseRequest *request = serverAPI_->session(loginSettings_.authHash());
         connect(request, &server_api::BaseRequest::finished, this, &LoginController::onSessionAnswer);
     }
 }
@@ -255,7 +255,7 @@ void LoginController::makeLoginRequest(const QString &hostname)
     }
     else // AUTH_HASH
     {
-        server_api::BaseRequest *request = serverAPI_->session(loginSettings_.authHash(), false);
+        server_api::BaseRequest *request = serverAPI_->session(loginSettings_.authHash());
         connect(request, &server_api::BaseRequest::finished, this, &LoginController::onSessionAnswer);
     }
 }
@@ -356,15 +356,15 @@ void LoginController::getAllConfigs()
     getAllConfigsController_ = new GetAllConfigsController(this);
     connect(getAllConfigsController_, SIGNAL(allConfigsReceived(SERVER_API_RET_CODE)), SLOT(onAllConfigsReceived(SERVER_API_RET_CODE)));
 
-    server_api::BaseRequest *requestConfigs = serverAPI_->serverConfigs(newAuthHash_, false);
+    server_api::BaseRequest *requestConfigs = serverAPI_->serverConfigs(newAuthHash_);
     connect(requestConfigs, &server_api::BaseRequest::finished, this, &LoginController::onServerConfigsAnswer);
 
-    server_api::BaseRequest *requestCredentials = serverAPI_->serverCredentials(newAuthHash_, PROTOCOL::OPENVPN_UDP, false);
+    server_api::BaseRequest *requestCredentials = serverAPI_->serverCredentials(newAuthHash_, PROTOCOL::OPENVPN_UDP);
     connect(requestCredentials, &server_api::BaseRequest::finished, this, &LoginController::onServerCredentialsAnswer);
 
     if (!loginSettings_.getServerCredentials().isInitialized())
     {
-        server_api::BaseRequest *requestCredentials = serverAPI_->serverCredentials(newAuthHash_, PROTOCOL::IKEV2, false);
+        server_api::BaseRequest *requestCredentials = serverAPI_->serverCredentials(newAuthHash_, PROTOCOL::IKEV2);
         connect(requestCredentials, &server_api::BaseRequest::finished, this, &LoginController::onServerCredentialsAnswer);
     }
     else
@@ -373,15 +373,15 @@ void LoginController::getAllConfigs()
         getAllConfigsController_->putServerCredentialsIkev2Answer(SERVER_RETURN_SUCCESS, loginSettings_.getServerCredentials().usernameForIkev2(), loginSettings_.getServerCredentials().passwordForIkev2());
     }
 
-    server_api::BaseRequest *requestLocations = serverAPI_->serverLocations(language_, false, sessionStatus_.getRevisionHash(), sessionStatus_.isPremium(), protocol_, sessionStatus_.getAlc());
+    server_api::BaseRequest *requestLocations = serverAPI_->serverLocations(language_, sessionStatus_.getRevisionHash(), sessionStatus_.isPremium(), protocol_, sessionStatus_.getAlc());
     connect(requestLocations, &server_api::BaseRequest::finished, this, &LoginController::onServerLocationsAnswer);
 
-    server_api::BaseRequest *requestPortMap = serverAPI_->portMap(newAuthHash_, false);
+    server_api::BaseRequest *requestPortMap = serverAPI_->portMap(newAuthHash_);
     connect(requestPortMap, &server_api::BaseRequest::finished, this, &LoginController::onPortMapAnswer);
 
     if (sessionStatus_.getStaticIpsCount() > 0)
     {
-        server_api::BaseRequest *requestStaticIps = serverAPI_->staticIps(newAuthHash_, GetDeviceId::instance().getDeviceId(), false);
+        server_api::BaseRequest *requestStaticIps = serverAPI_->staticIps(newAuthHash_, GetDeviceId::instance().getDeviceId());
         connect(requestStaticIps, &server_api::BaseRequest::finished, this, &LoginController::onStaticIpsAnswer);
     }
     else

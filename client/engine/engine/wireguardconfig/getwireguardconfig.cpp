@@ -44,7 +44,7 @@ void GetWireGuardConfig::getWireGuardConfig(const QString &serverName, bool dele
         wireGuardConfig_.setKeyPair(publicKey, privateKey);
         wireGuardConfig_.setPeerPresharedKey(presharedKey);
         wireGuardConfig_.setPeerAllowedIPs(allowedIPs);
-        server_api::BaseRequest *requestConfigsConnect = serverAPI_->wgConfigsConnect(apiinfo::ApiInfo::getAuthHash(), true, wireGuardConfig_.clientPublicKey(), serverName_, deviceId_);
+        server_api::BaseRequest *requestConfigsConnect = serverAPI_->wgConfigsConnect(apiinfo::ApiInfo::getAuthHash(), wireGuardConfig_.clientPublicKey(), serverName_, deviceId_);
         connect(requestConfigsConnect, &server_api::BaseRequest::finished, this, &GetWireGuardConfig::onWgConfigsConnectAnswer);
     }
     else
@@ -93,7 +93,7 @@ void GetWireGuardConfig::onWgConfigsInitAnswer()
     // Persist the peer parameters we received.
     setWireGuardPeerInfo(wireGuardConfig_.peerPresharedKey(), wireGuardConfig_.peerAllowedIps());
 
-    server_api::BaseRequest *requestConfigsConnect = serverAPI_->wgConfigsConnect(apiinfo::ApiInfo::getAuthHash(), true, wireGuardConfig_.clientPublicKey(), serverName_, deviceId_);
+    server_api::BaseRequest *requestConfigsConnect = serverAPI_->wgConfigsConnect(apiinfo::ApiInfo::getAuthHash(), wireGuardConfig_.clientPublicKey(), serverName_, deviceId_);
     connect(requestConfigsConnect, &server_api::BaseRequest::finished, this, &GetWireGuardConfig::onWgConfigsConnectAnswer);
 
 }
@@ -128,7 +128,7 @@ void GetWireGuardConfig::onWgConfigsConnectAnswer()
             // since this shouldn't happen. Retry the 'connect' API once. If it fails again, abort the connection attempt.
             if (!isRetryConnectRequest_) {
                 isRetryConnectRequest_ = true;
-                server_api::BaseRequest *request = serverAPI_->wgConfigsConnect(apiinfo::ApiInfo::getAuthHash(), true, wireGuardConfig_.clientPublicKey(), serverName_, deviceId_);
+                server_api::BaseRequest *request = serverAPI_->wgConfigsConnect(apiinfo::ApiInfo::getAuthHash(), wireGuardConfig_.clientPublicKey(), serverName_, deviceId_);
                 connect(request, &server_api::BaseRequest::finished, this, &GetWireGuardConfig::onWgConfigsConnectAnswer);
                 return;
             }
@@ -158,7 +158,7 @@ void GetWireGuardConfig::submitWireGuardInitRequest(bool generateKeyPair)
         // Persist the key-pair we're about to register with the server.
         setWireGuardKeyPair(wireGuardConfig_.clientPublicKey(), wireGuardConfig_.clientPrivateKey());
     }
-    server_api::BaseRequest *request = serverAPI_->wgConfigsInit(apiinfo::ApiInfo::getAuthHash(), true, wireGuardConfig_.clientPublicKey(), deleteOldestKey_);
+    server_api::BaseRequest *request = serverAPI_->wgConfigsInit(apiinfo::ApiInfo::getAuthHash(), wireGuardConfig_.clientPublicKey(), deleteOldestKey_);
     connect(request, &server_api::BaseRequest::finished, this, &GetWireGuardConfig::onWgConfigsInitAnswer);
 }
 

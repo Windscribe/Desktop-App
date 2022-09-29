@@ -36,7 +36,7 @@ void GetMyIPController::onTimer()
 {
     if (networkDetectionManager_->isOnline()) {
         SAFE_DELETE(curRequest_);
-        curRequest_ = serverAPI_->myIP(kTimeout, true);
+        curRequest_ = serverAPI_->myIP(kTimeout);
         curRequest_->setProperty("isFromDisconnectedState", requestForTimerIsDisconnected_);
         connect(curRequest_, &server_api::BaseRequest::finished, this, &GetMyIPController::onMyIpAnswer);
     } else  {
