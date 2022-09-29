@@ -5,6 +5,9 @@
 #include <algorithm>
 
 #include "gui/application.h"
+#include "installer/settings.h"
+#include "../utils/applicationinfo.h"
+#include "../utils/logger.h"
 
 namespace
 {
@@ -122,8 +125,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
 	// FILE *stream;
 	// freopen_s(&stream, "CONOUT$", "w+t", stdout);
 
-    const bool isUpdateMode =
-        CheckCommandLineArgument(L"-update") || CheckCommandLineArgument(L"-q");
+    const bool isUpdateMode = CheckCommandLineArgument(L"-update") || CheckCommandLineArgument(L"-q");
     int expectedArgumentCount = isUpdateMode ? 2 : 1;
 
     int window_center_x = -1, window_center_y = -1;
@@ -178,9 +180,18 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
         return 0;
     }
 
+    Log::instance().init(true);
+    Log::instance().out(L"Installing Windscribe version " + ApplicationInfo::instance().getVersion());
+    Log::instance().out(L"Command-line args: " + std::wstring(::GetCommandLine()));
+
     Application app(hInstance, nCmdShow, isUpdateMode, isSilent, noDrivers, noAutoStart, isFactoryReset, installPath);
 
-    if (app.init(window_center_x, window_center_y))
-        return app.exec();
-    return -1;
+    int result = -1;
+    if (app.init(window_center_x, window_center_y)) {
+        result = app.exec();
+    }
+
+    Log::instance().writeFile(Settings::instance().getPath());
+
+    return result;
 }

@@ -3,6 +3,7 @@
 #include "uninstall.h"
 
 #include "../utils/applicationinfo.h"
+#include "../utils/logger.h"
 
 
 // Let's compare where the uninstall file is located with where the program was originally installed
@@ -32,6 +33,8 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpszCmdParam);
 
+    Log::instance().init(false);
+
     ArgumentsParser argumentParser;
     if (!argumentParser.parse())
     {
@@ -46,8 +49,6 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
     {
         uninstExeFile = argumentParser.getExecutablePath();
     }
-
-    Log::instance().init(false, std::wstring());
 
     if (!isSecondPhase)
     {

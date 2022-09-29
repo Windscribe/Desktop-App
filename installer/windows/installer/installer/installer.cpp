@@ -12,9 +12,7 @@
 #include "blocks/uninstall_info.h"
 #include "blocks/uninstallprev.h"
 
-#include "../../utils/applicationinfo.h"
 #include "../../utils/logger.h"
-#include "../../utils/utils.h"
 
 using namespace std;
 
@@ -69,7 +67,7 @@ void Installer::executionImpl()
         DWORD initTick = GetTickCount();
         IInstallBlock *block = *it;
 
-        Log::instance().out(L"Installing %ls...", block->getName().c_str());
+        Log::instance().out(L"Installing " + block->getName() + L"...");
 
         while (true)
         {
@@ -96,9 +94,9 @@ void Installer::executionImpl()
                 callbackState_(static_cast<unsigned int>(overallProgress), STATE_EXTRACTING);
                 ticks.push_back(GetTickCount() - initTick);
                 if (progressOfBlock < 0)
-                    Log::instance().out(L"Non-critical error installing %ls", block->getName().c_str());
+                    Log::instance().out(L"Non-critical error installing " + block->getName());
                 else
-                    Log::instance().out(L"Installed %ls", block->getName().c_str());
+                    Log::instance().out(L"Installed " + block->getName());
                 break;
             }
             // error from block?
@@ -125,6 +123,6 @@ void Installer::executionImpl()
 void Installer::runLauncherImpl()
 {
     wstring pathLauncher = Settings::instance().getPath() + L"\\WindscribeLauncher.exe";
-    Log::instance().out(L"Running launcher: %ls", pathLauncher.c_str());
+    Log::instance().out(L"Running launcher: " + pathLauncher);
     ShellExecuteAsUser::shellExecuteFromExplorer(pathLauncher.c_str(), NULL, NULL, NULL, SW_RESTORE);
 }

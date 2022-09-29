@@ -19,8 +19,7 @@ public:
 	virtual int executeStep();
 
  private:
-    bool isCreateShortcut_;
-    std::wstring uninstallExeFilename_;
+    const bool isCreateShortcut_;
     PathsToFolders pathsToFolders_;
     Redirection redirection;
  

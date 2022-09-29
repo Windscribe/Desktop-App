@@ -1,5 +1,7 @@
 #include "path.h"
 
+#include <shlwapi.h>
+
 using namespace std;
 
 wstring Path::PathExpand(const wstring Filename)
@@ -368,4 +370,9 @@ wstring Path::PathExtractExt(const wstring& s)
     }
 
     return L"";
+}
+
+bool Path::isRoot(const std::wstring& fileName)
+{
+    return ::PathIsRoot(fileName.c_str());
 }

@@ -1,9 +1,12 @@
 #pragma once
+
 #include <Windows.h>
 #include <assert.h>
-#include "MainWindow.h"
-#include "ImageResources.h"
+
 #include "FontResources.h"
+#include "ImageResources.h"
+#include "MainWindow.h"
+
 #include "../installer/installer_base.h"
 
 class Application

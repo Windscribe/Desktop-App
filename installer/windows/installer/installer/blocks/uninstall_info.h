@@ -18,8 +18,6 @@ public:
     int executeStep();
 
 private:
-    std::wstring uninstallExeFilename_;
-
     const std::wstring NEWREGSTR_VAL_UNINSTALLER_COMMANDLINE = L"UninstallString";
     const std::wstring NEWREGSTR_VAL_UNINSTALLER_DISPLAYNAME = L"DisplayName";
     const std::wstring NEWREGSTR_PATH_SETUP = L"Software\\Microsoft\\Windows\\CurrentVersion";

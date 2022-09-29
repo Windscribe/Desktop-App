@@ -1,8 +1,11 @@
 #include "files.h"
 
+#include <shlobj_core.h>
+
 #include "../settings.h"
 #include "../../../utils/applicationinfo.h"
 #include "../../../utils/directory.h"
+#include "../../../utils/logger.h"
 #include "../../../utils/path.h"
 #include "../../../utils/utils.h"
 
@@ -14,7 +17,6 @@ Files::Files(double weight) : IInstallBlock(weight, L"Files")
 
 Files::~Files()
 {
-    SAFE_DELETE(archive_);
 }
 
 int Files::executeStep()
@@ -23,12 +25,11 @@ int Files::executeStep()
     {
         // Since we're running as root, we need to ensure no malicious hackery can be done with symbolic links.
         // We'll install to the app's default, OS protected, 64-bit Program Files folder.  If the user specified
-        // a custom install folder, we'll attempt to move the files there after the file extraction is complete.
+        // a custom install folder, we'll attempt to rename the install folder to the custom folder after the
+        // file extraction is complete.
         installPath_ = Utils::defaultInstallPath();
 
-        // TODO: this should be done in the Files block, as the UninstallPrev block will nuke this folder
-        // if we're installing into the same folder as a previous install (e.g. upgrading).
-        if (::SHCreateDirectoryEx(NULL, installPath_.c_str(), nullptr) != ERROR_SUCCESS)
+        if (::SHCreateDirectoryEx(NULL, installPath_.c_str(), NULL) != ERROR_SUCCESS)
         {
             if (::GetLastError() != ERROR_ALREADY_EXISTS)
             {
@@ -37,14 +38,7 @@ int Files::executeStep()
             }
         }
 
-        // We don't start logging until we're done with the UninstallPrev block, as it will attempt to
-        // delete the log if we're installing into a folder containing a previous install.
-        Log::instance().init(true, installPath_);
-        Log::instance().out(L"Installing Windscribe version %s in %s", ApplicationInfo::instance().getVersion().c_str(), installPath_.c_str());
-        Log::instance().out(L"Command-line args: %s", ::GetCommandLine());
-
-        SAFE_DELETE(archive_);
-        archive_ = new Archive(L"Windscribe");
+        archive_.reset(new Archive(L"Windscribe"));
 
         SRes res = archive_->fileList(fileList_);
 
@@ -54,10 +48,7 @@ int Files::executeStep()
             return -1;
         }
 
-        bool win10_or_greater = IsWindows10OrGreater();
-        bool isX64 = isWin64();
-
-        fileList_.remove_if(FilterFiles(isX64, win10_or_greater));
+        fileList_.remove_if(FilterFiles(true, true));
         fillPathList();
 
         archive_->calcTotal(fileList_, pathList_);
@@ -84,23 +75,6 @@ int Files::executeStep()
     curFileInd_++;
 
     return progress;
-}
-
-
-bool Files::isWin64()
-{
-    bool is_64_bit = true;
-
-    if (FALSE == GetSystemWow64DirectoryW(nullptr, 0u))
-    {
-        const DWORD last_error = GetLastError();
-        if (ERROR_CALL_NOT_IMPLEMENTED == last_error)
-        {
-            is_64_bit = false;
-        }
-    }
-
-    return is_64_bit;
 }
 
 void Files::fillPathList()
@@ -157,13 +131,47 @@ wstring Files::getFileName(const wstring& s)
 
 int Files::moveFiles()
 {
-    wstring settingsInstallPath = Path::RemoveBackslashUnlessRoot(Settings::instance().getPath());
+    const wstring& settingsInstallPath = Settings::instance().getPath();
 
     if (Directory::caseInsensitiveStringCompare(installPath_, settingsInstallPath)) {
         return 100;
     }
 
-    return 0;
+    Log::instance().out(L"Moving installed files from [%s] to [%s]...", installPath_.c_str(), settingsInstallPath.c_str());
+
+    try
+    {
+        // Delete the target folder just in case a symlink has been created on it, and because MoveFileEx() expects it to not exist.
+        // The target folder, if it exists, is expected to be empty (i.e. we do not allow installing the app into a folder already
+        // containing other files).  RemoveDirectory will fail if the target folder is not empty.
+        if (Directory::DirExists(settingsInstallPath)) {
+            if (::RemoveDirectory(settingsInstallPath.c_str()) == FALSE) {
+                throw system_error(::GetLastError(), generic_category(), "could not remove target folder");
+            }
+        }
+        else {
+            // Ensure the target's parent folder exists or MoveFile will fail.
+            wstring parentFolder = Path::PathExtractDir(settingsInstallPath);
+            if (!parentFolder.empty() && !Path::isRoot(parentFolder) && !Directory::DirExists(parentFolder)) {
+                Log::instance().out(L"Creating parent folder %s...", parentFolder.c_str());
+                if (::SHCreateDirectoryEx(NULL, parentFolder.c_str(), NULL) != ERROR_SUCCESS) {
+                    throw system_error(::GetLastError(), generic_category(), "could not create target folder's parent");
+                }
+            }
+        }
+
+        BOOL result = ::MoveFileEx(installPath_.c_str(), settingsInstallPath.c_str(), MOVEFILE_WRITE_THROUGH);
+        if (result == FALSE) {
+            throw system_error(::GetLastError(), generic_category(), "could not move the installed files");
+        }
+    }
+    catch (system_error& ex) {
+        // Update the install path that will be used by the subsequent blocks.
+        Settings::instance().setPath(installPath_);
+        Log::instance().out("Files::moveFiles() %s (%lu)", ex.what(), ex.code());
+    }
+
+    return 100;
 }
 
 FilterFiles::FilterFiles(bool isX64, bool win10_or_greater) :

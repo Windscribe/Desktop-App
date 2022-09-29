@@ -11,7 +11,6 @@ using namespace std;
 
 UninstallInfo::UninstallInfo(double weight) : IInstallBlock(weight, L"uninstall_info")
 {
-    uninstallExeFilename_ = Path::AddBackslash(Settings::instance().getPath()) + ApplicationInfo::instance().getUninstall();
 }
 
 UninstallInfo::~UninstallInfo()
@@ -27,7 +26,8 @@ int UninstallInfo::executeStep()
 
 void UninstallInfo::registerUninstallInfo(const wstring& uninstallRegKeyBaseName)
 {
-    const std::wstring& installPath = Settings::instance().getPath();
+    const wstring& installPath = Settings::instance().getPath();
+    wstring uninstallExeFilename = Path::AddBackslash(installPath) + ApplicationInfo::instance().getUninstall();
 
     HKEY rootKey = HKEY_LOCAL_MACHINE;
 
@@ -49,8 +49,8 @@ void UninstallInfo::registerUninstallInfo(const wstring& uninstallRegKeyBaseName
     setStringValue(hUninstallKey, L"InstallLocation", Path::AddBackslash(installPath));
     setStringValue(hUninstallKey, NEWREGSTR_VAL_UNINSTALLER_DISPLAYNAME.c_str(), ApplicationInfo::instance().getName());
     setStringValue(hUninstallKey, L"DisplayIcon", Path::AddBackslash(installPath) + ApplicationInfo::instance().getName() + L".exe");
-    setStringValue(hUninstallKey, L"UninstallString", L"\"" + uninstallExeFilename_ + L"\"");
-    setStringValue(hUninstallKey, L"QuietUninstallString", L"\"" + uninstallExeFilename_ + L"\" /SILENT");
+    setStringValue(hUninstallKey, L"UninstallString", L"\"" + uninstallExeFilename + L"\"");
+    setStringValue(hUninstallKey, L"QuietUninstallString", L"\"" + uninstallExeFilename + L"\" /SILENT");
     setStringValue(hUninstallKey, L"DisplayVersion", WINDSCRIBE_VERSION_STR_UNICODE);
     setStringValue(hUninstallKey, L"Publisher", ApplicationInfo::instance().getPublisher());
     setStringValue(hUninstallKey, L"URLInfoAbout", ApplicationInfo::instance().getPublisherUrl());

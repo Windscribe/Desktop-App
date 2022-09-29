@@ -34,10 +34,7 @@ MainWindow* MainWindow::this_ = NULL;
 extern const int WINDOW_WIDTH;
 extern const int WINDOW_HEIGHT;
 
-MainWindow::MainWindow() : instalButton_(NULL), closeButton_(NULL), minimizeButton_(NULL), settingsButton_(NULL),
-eulaButton_(NULL), pathControl_(NULL), desktopShortcutControl_(NULL), factoryResetControl_(NULL), escButton_(NULL),
-backgroundBitmap_(NULL), captionItem_(NULL), bMouseLeftButtonPressed_(false),
-curBackgroundOpacity_(1.0), installerLastState_(STATE_INIT)
+MainWindow::MainWindow()
 {
     memset(&rgn_, 0, sizeof(rgn_));
     this_ = this;
@@ -589,8 +586,7 @@ void MainWindow::onInstallerCallback(unsigned int progress, INSTALLER_CURRENT_ST
         MessageBox(hwnd_, g_application->getInstaller()->getLastError().c_str(), L"Error", MB_OK | MB_ICONINFORMATION);
         if (state == STATE_FATAL_ERROR) {
             DestroyWindow(hwnd_);
-        }
-        else {
+        } else {
             g_application->getInstaller()->cancel();
             resetControls();
         }

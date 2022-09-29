@@ -38,7 +38,7 @@ Application::Application(HINSTANCE hInstance, int nCmdShow, bool isAutoUpdateMod
     }
 
     Settings::instance().readFromRegistry();
-    const std::wstring existingInstallFolder = Settings::instance().getPath();
+    const std::wstring& existingInstallFolder = Settings::instance().getPath();
 
     if (!isAutoUpdateMode_ && !installPath.empty()) {
         Settings::instance().setPath(installPath);

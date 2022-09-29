@@ -1,5 +1,7 @@
 #include "settings.h"
-#include "../../Utils/registry.h"
+
+#include "../../utils/path.h"
+#include "../../utils/registry.h"
 
 Settings::Settings() : isCreateShortcut_(true)
 {
@@ -7,7 +9,7 @@ Settings::Settings() : isCreateShortcut_(true)
 
 void Settings::setPath(const std::wstring &path)
 {
-	path_ = path;
+	path_ = Path::RemoveBackslashUnlessRoot(path);
 }
 
 std::wstring Settings::getPath() const

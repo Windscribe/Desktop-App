@@ -1,11 +1,5 @@
 #include "installer_base.h"
 
-#include <assert.h>
-
-#include "../../Utils/Logger.h"
-
-using namespace std;
-
 #ifndef GUI
 
 unsigned InstallerBase::kBreakAbortThreshold=2;
