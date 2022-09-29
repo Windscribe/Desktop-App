@@ -5,6 +5,7 @@
 #include <QTimer>
 #include "ipreferencestabcontrol.h"
 #include "tabbutton.h"
+#include "commongraphics/dividerline.h"
 #include "commongraphics/iconbutton.h"
 #include "tooltips/tooltiptypes.h"
 #include "backend/preferences/preferenceshelper.h"
@@ -54,6 +55,7 @@ private:
     TabButton *advancedButton_;
     TabButton *helpButton_;
     TabButton *aboutButton_;
+    CommonGraphics::DividerLine *dividerLine_;
     TabButton *signOutButton_;
     TabButton *quitButton_;
     QList<TabButton *> buttonList_;

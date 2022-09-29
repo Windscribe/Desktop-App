@@ -125,6 +125,7 @@ void PacketSizeEditBoxItem::setValidator(QRegularExpressionValidator *validator)
 void PacketSizeEditBoxItem::updateScaling()
 {
     ScalableGraphicsObject::updateScaling();
+    setHeight(PREFERENCE_GROUP_ITEM_HEIGHT*G_SCALE);
     updatePositions();
 }
 

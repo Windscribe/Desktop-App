@@ -8,11 +8,10 @@
 #include "commongraphics.h"
 #include "dpiscalemanager.h"
 
-
 namespace CommonGraphics {
 
 TextIconButton::TextIconButton(int spacerWidth, const QString text, const QString &imagePath, ScalableGraphicsObject *parent, bool bSetClickable)
-  : ClickableGraphicsObject(parent), width_(0), height_(0), spacerWidth_(spacerWidth), iconPath_(imagePath), text_(text),
+  : ClickableGraphicsObject(parent), width_(0), maxWidth_(-1), height_(0), spacerWidth_(spacerWidth), iconPath_(imagePath), text_(text),
     curTextOpacity_(OPACITY_HALF), curIconOpacity_(OPACITY_HALF), fontDescr_(16, true), yOffset_(0)
 {
     recalcHeight();
@@ -153,11 +152,9 @@ void TextIconButton::recalcWidth()
     QSharedPointer<IndependentPixmap> iconPixmap = ImageResourcesSvg::instance().getIndependentPixmap(iconPath_);
 
     QFont *font = FontManager::instance().getFont(fontDescr_);
-    int newWidth = iconPixmap->width();
-    newWidth += 2*spacerWidth_*G_SCALE;
-    newWidth += CommonGraphics::textWidth(text_, *font);
+    int newWidth = std::ceil(iconPixmap->width() + 2*spacerWidth_*G_SCALE + CommonGraphics::textWidth(text_, *font));
 
-    if (newWidth > maxWidth_)
+    if (maxWidth_ > 0 && newWidth > maxWidth_)
     {
         newWidth = maxWidth_;
     }

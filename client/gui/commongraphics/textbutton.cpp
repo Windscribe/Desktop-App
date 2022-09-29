@@ -32,6 +32,13 @@ QRectF TextButton::boundingRect() const
     return QRectF(0, 0, width_, height_ + MARGIN_HEIGHT*G_SCALE );
 }
 
+void TextButton::updateScaling()
+{
+    ClickableGraphicsObject::updateScaling();
+    recalcBoundingRect();
+    update();
+}
+
 void TextButton::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
     Q_UNUSED(option);

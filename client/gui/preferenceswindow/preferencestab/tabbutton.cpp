@@ -57,13 +57,14 @@ void TabButton::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
     else
     {
         painter->setOpacity(1.0);
-        icon_->draw(ICON_MARGIN*G_SCALE, ICON_MARGIN*G_SCALE, painter);
+        icon_->draw(ICON_MARGIN*G_SCALE, ICON_MARGIN*G_SCALE, ICON_WIDTH*G_SCALE, ICON_HEIGHT*G_SCALE, painter);
     }
 }
 
 void TabButton::updateScaling()
 {
     ScalableGraphicsObject::updateScaling();
+    update();
 }
 
 void TabButton::setSelected(bool selected)

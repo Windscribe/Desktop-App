@@ -90,7 +90,7 @@ void UpdateWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
         p->draw(0, 0, painter);
     }
 
-    int yOffset = preferences_->appSkin() == APP_SKIN_VAN_GOGH ? -28*G_SCALE : 0;
+    int yOffset = preferences_->appSkin() == APP_SKIN_VAN_GOGH ? -14*G_SCALE : 0;
 
     // title
     painter->setOpacity(curTitleOpacity_ * initialOpacity);
@@ -341,7 +341,7 @@ void UpdateWindowItem::onLanguageChanged()
 
     int cancelPosX = CommonGraphics::centeredOffset(WINDOW_WIDTH*G_SCALE, cancelButton_->boundingRect().width());
     int yOffset = preferences_->appSkin() == APP_SKIN_VAN_GOGH ? -28*G_SCALE : 0;
-    cancelButton_->setPos(cancelPosX, CANCEL_BUTTON_POS_Y + yOffset);
+    cancelButton_->setPos(cancelPosX, CANCEL_BUTTON_POS_Y*G_SCALE + yOffset);
 }
 
 void UpdateWindowItem::updatePositions()
@@ -350,12 +350,12 @@ void UpdateWindowItem::updatePositions()
 
     acceptButton_->updateScaling();
     int acceptPosX = CommonGraphics::centeredOffset(WINDOW_WIDTH*G_SCALE, acceptButton_->boundingRect().width());
-    acceptButton_->setPos(acceptPosX, ACCEPT_BUTTON_POS_Y + yOffset);
+    acceptButton_->setPos(acceptPosX, ACCEPT_BUTTON_POS_Y*G_SCALE + yOffset);
 
     cancelButton_->updateScaling();
     cancelButton_->recalcBoundingRect();
     int cancelPosX = CommonGraphics::centeredOffset(WINDOW_WIDTH*G_SCALE, cancelButton_->boundingRect().width());
-    cancelButton_->setPos(cancelPosX, CANCEL_BUTTON_POS_Y + yOffset);
+    cancelButton_->setPos(cancelPosX, CANCEL_BUTTON_POS_Y*G_SCALE + yOffset);
 }
 
 void UpdateWindowItem::onAppSkinChanged(APP_SKIN s)

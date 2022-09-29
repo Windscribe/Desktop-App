@@ -4,6 +4,7 @@
 #include <QSvgRenderer>
 #include <QtGlobal>
 #include <QElapsedTimer>
+#include "commongraphics/commongraphics.h"
 #include "graphicresources/imageresourcessvg.h"
 #include "graphicresources/fontmanager.h"
 #include "utils/makecustomshadow.h"
@@ -60,7 +61,7 @@ QRectF Background::boundingRect() const
 {
     if (preferences_->appSkin() == APP_SKIN_VAN_GOGH)
     {
-        return QRectF(0, 0, WIDTH*G_SCALE, VAN_GOGH_HEIGHT*G_SCALE);
+        return QRectF(0, 0, WIDTH*G_SCALE, WINDOW_HEIGHT_VAN_GOGH*G_SCALE);
     }
     else
     {
