@@ -1,21 +1,21 @@
 #include "install_tap.h"
-#include "../../../Utils/registry.h"
-#include "../../../Utils/process1.h"
-#include "../../../Utils/path.h"
-#include "../../../Utils/logger.h"
+
 #include "fixadaptername.h"
+#include "../settings.h"
+#include "../../../utils/logger.h"
+#include "../../../utils/path.h"
+#include "../../../utils/process1.h"
 
 using namespace std;
 
-InstallTap::InstallTap(const std::wstring &installPath, double weight) : IInstallBlock(weight, L"Tap", false)
+InstallTap::InstallTap(double weight) : IInstallBlock(weight, L"Tap", false)
 {
-	installPath_ = installPath;
 }
 
 int InstallTap::executeStep()
 {
 	unsigned long resultCode;
-	wstring tapInstallPath = Path::AddBackslash(installPath_) + L"tap\\tapinstall.exe";
+	wstring tapInstallPath = Path::AddBackslash(Settings::instance().getPath()) + L"tap\\tapinstall.exe";
 	Process process;
 	if (!process.InstExec(tapInstallPath, L"install OemVista.inf tapwindscribe0901", L"", ewWaitUntilTerminated, SW_HIDE, resultCode))
 	{

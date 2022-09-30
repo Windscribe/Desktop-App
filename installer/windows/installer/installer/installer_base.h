@@ -3,7 +3,6 @@
 
 #ifdef _WIN32
 #include <windows.h>
-#include "settings.h"
 #endif
 
 #if defined __APPLE__
@@ -39,7 +38,7 @@ protected:
   
     std::wstring strLastError_;
 
-    virtual void startImpl(HWND hwnd, const Settings &settings) = 0;
+    virtual void startImpl() = 0;
     virtual void executionImpl() = 0;
     virtual void runLauncherImpl() = 0;
 
@@ -60,7 +59,7 @@ public:
     static unsigned kBreakAbortThreshold;
 #endif
 
-    void start(HWND hwnd, const Settings &settings);
+    void start();
     void pause();
     void cancel();
     void resume();

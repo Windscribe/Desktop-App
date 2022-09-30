@@ -1,4 +1,7 @@
 #include "registry.h"
+
+#include <sstream>
+
 #include "logger.h"
 
 using namespace std;
@@ -161,7 +164,7 @@ bool Registry::RegWriteStringValue(HKEY H, wstring SubKeyName, wstring ValueName
             Typ = REG_EXPAND_SZ;
         else
             Typ = REG_SZ;
-        if (RegSetValueEx(K, N.c_str(), 0, Typ, reinterpret_cast<const BYTE*>(V.c_str()), (V.length() + 1) * sizeof(V[0])) == ERROR_SUCCESS)
+        if (RegSetValueEx(K, N.c_str(), 0, Typ, reinterpret_cast<const BYTE*>(V.c_str()), (DWORD)(V.length() + 1) * sizeof(V[0])) == ERROR_SUCCESS)
             ret = true;
         else
             ret = false;
@@ -292,7 +295,7 @@ wstring Registry::GetRegRootKeyName(const HKEY RootKey)
 {
     wstring Result;
 
-    switch (reinterpret_cast<unsigned long>(RootKey))
+    switch (reinterpret_cast<ULONGLONG>(RootKey))
     {
         //case (LONG)HKEY_AUTO: //InternalError('GetRegRootKeyName called for HKEY_AUTO');
     case 0x80000000: Result = L"HKEY_CLASSES_ROOT"; break;
@@ -304,10 +307,11 @@ wstring Registry::GetRegRootKeyName(const HKEY RootKey)
     case 0x80000006: Result = L"HKEY_DYN_DATA"; break;
     default:
         // { unknown - shouldn't get here }
-        wchar_t buffer[50];
-        swprintf_s(buffer, L"%x", reinterpret_cast<LONG>(RootKey));
+        wostringstream stream;
+        stream.flags(std::ios::hex);
+        stream << RootKey;
 
-        Result = buffer;
+        Result = stream.str();
     }
 
     return Result;

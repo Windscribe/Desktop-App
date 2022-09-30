@@ -276,7 +276,8 @@ void InstallButton::drawStateInstallTitle(Gdiplus::Graphics *graphics, const REC
 	StringFormat format;
 	format.SetLineAlignment(StringAlignmentCenter);
 	SolidBrush blackBrush(Color(255, 3, 9, 28));
-	graphics->DrawString(titleItem_->text(), wcslen(titleItem_->text()), titleItem_->getFont(), RectF((REAL)(TEXT_MARGIN * SCALE_FACTOR), 0.0f, (REAL)rc.right, (REAL)rc.bottom), &format, &blackBrush);
+	graphics->DrawString(titleItem_->text(), static_cast<int>(wcslen(titleItem_->text())), titleItem_->getFont(),
+                         RectF((REAL)(TEXT_MARGIN * SCALE_FACTOR), 0.0f, (REAL)rc.right, (REAL)rc.bottom), &format, &blackBrush);
 
 	// draw arrow image with 50% opacity
 	float alpha = 1.0f;
@@ -311,8 +312,9 @@ void InstallButton::drawStateWithProgress(Gdiplus::Graphics *graphics, const REC
 
 	std::wstring str = std::to_wstring(progress_) + L"%";
 
-	graphics->DrawString(str.c_str(), str.length(), g_application->getFontResources()->getFont((int)(12 * SCALE_FACTOR), false), RectF(4 * SCALE_FACTOR, 0.0f,
-		(REAL)rc.right - TEXT_MARGIN * SCALE_FACTOR - g_application->getImageResources()->getForwardArrow()->GetWidth(), (REAL)rc.bottom), &format, &blackBrush);
+	graphics->DrawString(str.c_str(), static_cast<int>(str.length()), g_application->getFontResources()->getFont((int)(12 * SCALE_FACTOR), false),
+                         RectF(4 * SCALE_FACTOR, 0.0f, (REAL)rc.right - TEXT_MARGIN * SCALE_FACTOR - g_application->getImageResources()->getForwardArrow()->GetWidth(),
+                         (REAL)rc.bottom), &format, &blackBrush);
 	/*{
 	float alpha = 1.0f;
 	ColorMatrix matrix =
