@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <random>
 #include <chrono>
+#include <QTimer>
 
 #include "failovers/hardcodeddomainfailover.h"
 #include "failovers/dynamicdomainfailover.h"
@@ -24,27 +25,29 @@ Failover::Failover(QObject *parent, NetworkAccessManager *networkAccessManager) 
 
     // Hardcoded Default Domain Endpoint
     BaseFailover *failover = new HardcodedDomainFailover(this, HardcodedSettings::instance().serverDomains().at(0));
-    connect(failover, &BaseFailover::finished, this, &Failover::onFailoverFinished);
+    // for the first failover, we make the DirectConnection for others the QueuedConnection
+    // since the first domain is immediately set in the reset() function
+    connect(failover, &BaseFailover::finished, this, &Failover::onFailoverFinished, Qt::DirectConnection);
     failovers_ << failover;
 
     // Hardcoded Backup Domain Endpoint
     failover = new HardcodedDomainFailover(this, HardcodedSettings::instance().serverDomains().at(1));
-    connect(failover, &BaseFailover::finished, this, &Failover::onFailoverFinished);
+    connect(failover, &BaseFailover::finished, this, &Failover::onFailoverFinished, Qt::QueuedConnection);
     failovers_ << failover;
 
     // Dynamic Domain Cloudflare
     failover = new DynamicDomainFailover(this, networkAccessManager, HardcodedSettings::instance().dynamicDomainsUrls().at(0), HardcodedSettings::instance().dynamicDomains().at(0));
-    connect(failover, &BaseFailover::finished, this, &Failover::onFailoverFinished);
+    connect(failover, &BaseFailover::finished, this, &Failover::onFailoverFinished, Qt::QueuedConnection);
     failovers_ << failover;
 
     // Dynamic Domain Google
     failover = new DynamicDomainFailover(this, networkAccessManager, HardcodedSettings::instance().dynamicDomainsUrls().at(1), HardcodedSettings::instance().dynamicDomains().at(0));
-    connect(failover, &BaseFailover::finished, this, &Failover::onFailoverFinished);
+    connect(failover, &BaseFailover::finished, this, &Failover::onFailoverFinished, Qt::QueuedConnection);
     failovers_ << failover;
 
     // Procedurally Generated Domain Endpoint
     failover = new RandomDomainFailover(this);
-    connect(failover, &BaseFailover::finished, this, &Failover::onFailoverFinished);
+    connect(failover, &BaseFailover::finished, this, &Failover::onFailoverFinished, Qt::QueuedConnection);
     failovers_ << failover;
 
     // Hardcoded IP Endpoints (ApiAccessIps)
@@ -52,16 +55,31 @@ Failover::Failover(QObject *parent, NetworkAccessManager *networkAccessManager) 
     const QStringList apiIps = randomizeList(HardcodedSettings::instance().apiIps());
     for (const auto & ip : apiIps) {
         failover = new AccessIpsFailover(this, networkAccessManager, ip);
-        connect(failover, &BaseFailover::finished, this, &Failover::onFailoverFinished);
+        connect(failover, &BaseFailover::finished, this, &Failover::onFailoverFinished, Qt::QueuedConnection);
         failovers_ << failover;
     }
+
+    reset();
+}
+
+QString Failover::currentHostname() const
+{
+    if (curFailoverInd_ < failovers_.size() && !curFailoverHostnames_.isEmpty() && cutFaiolverHostnameInd_ < curFailoverHostnames_.size()) {
+        qCDebug(LOG_SERVER_API) << "Failover::currentHostname:" <<  failovers_[curFailoverInd_]->name() << curFailoverHostnames_[cutFaiolverHostnameInd_].left(3);
+        return curFailoverHostnames_[cutFaiolverHostnameInd_];
+    }
+    return QString();
 }
 
 void Failover::reset()
 {
     qCDebug(LOG_SERVER_API) << "Failover::reset";
+
+    // Initialize the state to the first failover
     curFailoverInd_ = -1;
     curFailoverHostnames_.clear();
+    getNextHostname(false);
+    int g = 0;
 }
 
 void Failover::getNextHostname(bool bIgnoreSslErrors)

@@ -42,6 +42,7 @@ void TestFailover::basicTest()
     });
 
     while (true) {
+        qDebug() << "current hostname:" << failover->currentHostname();
         failover->getNextHostname(false);
         QSignalSpy spy(failover, SIGNAL(nextHostnameAnswer(server_api::FailoverRetCode, QString)));
         spy.wait(60000);
@@ -50,6 +51,7 @@ void TestFailover::basicTest()
         if (arguments.at(1).toString().isEmpty())
             break;
     };   
+    qDebug() << "current hostname:" << failover->currentHostname();
 }
 
 

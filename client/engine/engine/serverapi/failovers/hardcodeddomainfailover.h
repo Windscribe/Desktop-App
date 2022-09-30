@@ -2,8 +2,6 @@
 
 #include "basefailover.h"
 
-#include <QTimer>
-
 namespace server_api {
 
 class HardcodedDomainFailover : public BaseFailover
@@ -13,9 +11,7 @@ public:
     explicit HardcodedDomainFailover(QObject *parent, const QString &domain) : BaseFailover(parent), domain_(domain) {}
     void getHostnames(bool /*bIgnoreSslErrors*/) override
     {
-        QTimer::singleShot(0, [this]() {
-            emit finished(FailoverRetCode::kSuccess, QStringList() << domain_);
-        });
+        emit finished(FailoverRetCode::kSuccess, QStringList() << domain_);
     }
 
     QString name() const override

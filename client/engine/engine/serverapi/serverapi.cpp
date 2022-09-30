@@ -5,11 +5,10 @@
 #include <QUrlQuery>
 
 #include "utils/ws_assert.h"
-#include "utils/hardcodedsettings.h"
-#include "engine/connectstatecontroller/iconnectstatecontroller.h"
 #include "utils/logger.h"
 #include "utils/utils.h"
 #include "engine/dnsresolver/dnsserversconfiguration.h"
+#include "engine/connectstatecontroller/iconnectstatecontroller.h"
 
 #include "requests/loginrequest.h"
 #include "requests/sessionrequest.h"
@@ -45,8 +44,9 @@ ServerAPI::ServerAPI(QObject *parent, IConnectStateController *connectStateContr
     networkAccessManager_(networkAccessManager),
     bIsRequestsEnabled_(false),
     bIgnoreSslErrors_(false),
-    failoverDisconnectedModeState_(FailoverState::kInProgress),
-    failoverConnectedModeState_(FailoverState::kInProgress)
+    failoverDisconnectedModeState_(FailoverState::kUnknown),
+    failoverConnectedModeState_(FailoverState::kUnknown),
+    failoverDetection_(nullptr)
 {
     failoverConnectedMode_ = new Failover(this, networkAccessManager);
     failoverDisconnectedMode_ = new Failover(this, networkAccessManager);
@@ -249,6 +249,21 @@ BaseRequest *ServerAPI::syncRobert(const QString &authHash)
     return request;
 }
 
+void ServerAPI::onFailoverDetectionFinished(FailoverDetectionRetCode retCode)
+{
+    if (retCode == FailoverDetectionRetCode::kSuccess) {
+
+    }
+    else if (retCode == FailoverDetectionRetCode::kSslError) {
+
+    }
+    else if (retCode == FailoverDetectionRetCode::kConnectStateChanged) {
+
+    }
+
+    SAFE_DELETE(failoverDetection_);
+}
+
 void ServerAPI::setIgnoreSslErrors(bool bIgnore)
 {
     bIgnoreSslErrors_ = bIgnore;
@@ -280,16 +295,31 @@ void ServerAPI::handleNetworkRequestFinished()
 
 void ServerAPI::executeRequest(BaseRequest *request)
 {
-    /*if (isNeedCheckRequestsEnabled && !bIsRequestsEnabled_) {
+    if (currentFailoverState() == FailoverState::kUnknown) {
+        // if failover already in progress then move the request to queue
+        if (failoverDetection_ != nullptr) {
+            queueRequests_.enqueue(request);
+            return;
+        } else {
+            // start failover detection
+            failoverDetection_ = new FailoverDetection(this, networkAccessManager_, connectStateController_, request, currentFailover());
+            connect(failoverDetection_, &FailoverDetection::finished, this, &ServerAPI::onFailoverDetectionFinished);
+            failoverDetection_->start();
+            return;
+        }
+    }
+    else if (currentFailoverState() == FailoverState::kFailed) {
         QTimer::singleShot(0, this, [request] () {
             qCDebug(LOG_SERVER_API) << "API request " + request->name() + " failed: API not ready";
             request->setRetCode(SERVER_RETURN_API_NOT_READY);
             emit request->finished();
         });
         return;
-    }*/
+    }
+
+    // if we here then failover state is ready, execute the request
     //FIXME: getCurrentDnsServers() move to NetworkAccessManager
-    NetworkRequest networkRequest(request->url(hostname_).toString(), request->timeout(), true, DnsServersConfiguration::instance().getCurrentDnsServers(), bIgnoreSslErrors_);
+    NetworkRequest networkRequest(request->url(currentFailover()->currentHostname()).toString(), request->timeout(), true, DnsServersConfiguration::instance().getCurrentDnsServers(), bIgnoreSslErrors_);
     NetworkReply *reply;
     switch (request->requestType()) {
         case RequestType::kGet:
@@ -313,6 +343,22 @@ void ServerAPI::executeRequest(BaseRequest *request)
     QPointer<BaseRequest> pointerToRequest(request);
     reply->setProperty("pointerToRequest",  QVariant::fromValue(pointerToRequest));
     connect(reply, &NetworkReply::finished, this, &ServerAPI::handleNetworkRequestFinished);
+}
+
+Failover *ServerAPI::currentFailover()
+{
+    if (connectStateController_->currentState() == CONNECT_STATE_CONNECTED)
+        return failoverConnectedMode_;
+    else
+        return failoverDisconnectedMode_;
+}
+
+ServerAPI::FailoverState ServerAPI::currentFailoverState()
+{
+    if (connectStateController_->currentState() == CONNECT_STATE_CONNECTED)
+        return failoverConnectedModeState_;
+    else
+        return failoverDisconnectedModeState_;
 }
 
 } // namespace server_api

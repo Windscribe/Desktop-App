@@ -13,6 +13,8 @@ class Failover : public QObject
 public:
     explicit Failover(QObject *parent, NetworkAccessManager *networkAccessManager);
 
+    // can return an empty string if the Failover in the FailoverRetCode::kFailed state
+    QString currentHostname() const;
     void reset();
     void getNextHostname(bool bIgnoreSslErrors);
 

@@ -4,10 +4,10 @@
 
 #include "types/robertfilter.h"
 #include "engine/networkaccessmanager/networkaccessmanager.h"
+#include "engine/connectstatecontroller/iconnectstatecontroller.h"
 #include "requests/baserequest.h"
 #include "failover.h"
-
-class IConnectStateController;
+#include "failoverdetection.h"
 
 namespace server_api {
 
@@ -32,6 +32,7 @@ class ServerAPI : public QObject
 {
     Q_OBJECT
 public:
+    //FIXME: add dnsResolutionSettings_.getIsAutomatic()
     explicit ServerAPI(QObject *parent, IConnectStateController *connectStateController, NetworkAccessManager *networkAccessManager);
     virtual ~ServerAPI();
 
@@ -76,6 +77,9 @@ public:
     BaseRequest *wgConfigsConnect(const QString &authHash, const QString &clientPublicKey, const QString &serverName, const QString &deviceId);
     BaseRequest *syncRobert(const QString &authHash);
 
+private slots:
+    void onFailoverDetectionFinished(server_api::FailoverDetectionRetCode retCode);
+
 private:
     NetworkAccessManager *networkAccessManager_;
     IConnectStateController *connectStateController_;
@@ -83,16 +87,22 @@ private:
     bool bIsRequestsEnabled_;
     bool bIgnoreSslErrors_;
 
-    enum class FailoverState { kInProgress, kReady, kFailed,  };
-
+    enum class FailoverState { kUnknown, kReady, kFailed };
     Failover *failoverDisconnectedMode_;
     FailoverState failoverDisconnectedModeState_;
-
     Failover *failoverConnectedMode_;
     FailoverState failoverConnectedModeState_;
 
+    QQueue<BaseRequest *> queueRequests_;    // a queue of requests that are waiting for the failover to complete
+    FailoverDetection *failoverDetection_;
+
     void handleNetworkRequestFinished();
     void executeRequest(BaseRequest *request);
+
+    // returns Failover depending of the connected/disconnected VPN state
+    Failover *currentFailover();
+    // returns FailoverState depending of the connected/disconnected VPN state
+    FailoverState currentFailoverState();
 };
 
 } // namespace server_api
