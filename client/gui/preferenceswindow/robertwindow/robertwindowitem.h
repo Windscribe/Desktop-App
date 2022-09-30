@@ -2,6 +2,7 @@
 #define ROBERTWINDOWITEM_H
 
 #include <QSharedPointer>
+
 #include "backend/preferences/preferenceshelper.h"
 #include "backend/preferences/preferences.h"
 #include "commongraphics/basepage.h"
@@ -11,6 +12,7 @@
 #include "preferenceswindow/linkitem.h"
 #include "preferenceswindow/preferencegroup.h"
 #include "types/robertfilter.h"
+#include "loadingiconitem.h"
 #include "robertitem.h"
 
 namespace PreferencesWindow {
@@ -22,6 +24,7 @@ public:
     explicit RobertWindowItem(ScalableGraphicsObject *parent, Preferences *preferences, PreferencesHelper *preferencesHelper);
 
     QString caption() const;
+    void updateScaling() override;
 
     void setLoggedIn(bool loggedIn);
     void clearFilters();
@@ -35,12 +38,15 @@ signals:
 
 private:
     static constexpr int MESSAGE_OFFSET_Y = 85;
+    static constexpr int LOADING_ICON_SIZE = 40;
 
     void updatePositions();
     void updateVisibility();
 
     PreferenceGroup *desc_;
     QList<PreferenceGroup *> groups_;
+
+    LoadingIconItem *loadingIcon_;
 
     QGraphicsTextItem *loginPrompt_;
     CommonGraphics::BubbleButtonDark *loginButton_;

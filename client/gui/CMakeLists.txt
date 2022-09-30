@@ -40,6 +40,7 @@ set(PROJECT_SOURCES
     showingdialogstate.h
 
     # --- resources ---
+    gif.qrc
     jpg.qrc
     svg.qrc
     windscribe.qrc
