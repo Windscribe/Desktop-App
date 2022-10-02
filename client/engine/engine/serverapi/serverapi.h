@@ -1,13 +1,14 @@
 #pragma once
 
 #include <QObject>
+#include <QPointer>
 
 #include "types/robertfilter.h"
 #include "engine/networkaccessmanager/networkaccessmanager.h"
 #include "engine/connectstatecontroller/iconnectstatecontroller.h"
+#include "engine/connectstatecontroller/connectstatewatcher.h"
 #include "requests/baserequest.h"
-#include "failover.h"
-#include "failoverdetection.h"
+#include "failoverwithstate.h"
 
 namespace server_api {
 
@@ -34,7 +35,6 @@ class ServerAPI : public QObject
 public:
     //FIXME: add dnsResolutionSettings_.getIsAutomatic()
     explicit ServerAPI(QObject *parent, IConnectStateController *connectStateController, NetworkAccessManager *networkAccessManager);
-    virtual ~ServerAPI();
 
     // if true, then all requests works
     // if false, then only request for SERVER_API_ROLE_LOGIN_CONTROLLER and SERVER_API_ROLE_ACCESS_IPS_CONTROLLER roles works
@@ -78,7 +78,7 @@ public:
     BaseRequest *syncRobert(const QString &authHash);
 
 private slots:
-    void onFailoverDetectionFinished(server_api::FailoverDetectionRetCode retCode);
+    void onFailoverNextHostnameAnswer(server_api::FailoverRetCode retCode, const QString &hostname);
 
 private:
     NetworkAccessManager *networkAccessManager_;
@@ -87,22 +87,24 @@ private:
     bool bIsRequestsEnabled_;
     bool bIgnoreSslErrors_;
 
-    enum class FailoverState { kUnknown, kReady, kFailed };
-    Failover *failoverDisconnectedMode_;
-    FailoverState failoverDisconnectedModeState_;
-    Failover *failoverConnectedMode_;
-    FailoverState failoverConnectedModeState_;
+    QQueue<QPointer<BaseRequest> > queueRequests_;    // a queue of requests that are waiting for the failover to complete
 
-    QQueue<BaseRequest *> queueRequests_;    // a queue of requests that are waiting for the failover to complete
-    FailoverDetection *failoverDetection_;
+    // Current failover state. If there is no failover currently, then all are zero
+    QPointer<BaseRequest> currentFailoverRequest_;
+    FailoverWithState *failoverInProgress_;
+    ConnectStateWatcher *currentConnectStateWatcher_;
+
+    // Failovers for the connected/disconnected and their states
+    FailoverWithState *failoverDisconnectedMode_;
+    FailoverWithState *failoverConnectedMode_;
 
     void handleNetworkRequestFinished();
-    void executeRequest(BaseRequest *request);
+    void executeRequest(BaseRequest *request, bool bSkipFailoverConditions = false);
+    void executeWaitingInQueueRequests();
+    // return Failover depending of the connected/disconnected VPN state
+    FailoverWithState *currentFailover();
 
-    // returns Failover depending of the connected/disconnected VPN state
-    Failover *currentFailover();
-    // returns FailoverState depending of the connected/disconnected VPN state
-    FailoverState currentFailoverState();
+    void setErrorCodeAndEmitRequestFinished(BaseRequest *request, SERVER_API_RET_CODE retCode, const QString &errorStr);
 };
 
 } // namespace server_api

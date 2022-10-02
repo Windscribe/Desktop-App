@@ -7,6 +7,7 @@
 #include "engine/networkaccessmanager/networkaccessmanager.h"
 #include "engine/dnsresolver/dnsserversconfiguration.h"
 #include "utils/ws_assert.h"
+#include "utils/utils.h"
 
 namespace server_api {
 
@@ -18,15 +19,23 @@ void DynamicDomainFailover::getHostnames(bool bIgnoreSslErrors)
     query.addQueryItem("type", "TXT");
     url.setQuery(query);
 
+    SAFE_DELETE(connectStateWatcher_);
+    connectStateWatcher_ = new ConnectStateWatcher(this, connectStateController_);
+
     NetworkRequest networkRequest(url, 5000, true, DnsServersConfiguration::instance().getCurrentDnsServers(), bIgnoreSslErrors);
     networkRequest.setContentTypeHeader("accept: application/dns-json");
     NetworkReply *reply = networkAccessManager_->get(networkRequest);
     connect(reply, &NetworkReply::finished, [=]() {
         if (!reply->isSuccess()) {
-            if (reply->error() == NetworkReply::NetworkError::SslError && !bIgnoreSslErrors)
-                emit finished(FailoverRetCode::kSslError, QStringList());
-            else
-                emit finished(FailoverRetCode::kFailed, QStringList());
+            // if connect state changed the retrying the request
+            if (connectStateWatcher_->isVpnConnectStateChanged()) {
+                this->getHostnames(bIgnoreSslErrors);
+            } else {
+                if (reply->error() == NetworkReply::NetworkError::SslError && !bIgnoreSslErrors)
+                    emit finished(FailoverRetCode::kSslError, QStringList());
+                else
+                    emit finished(FailoverRetCode::kFailed, QStringList());
+            }
         } else {
             QString hostname = parseHostnameFromJson(reply->readAll());
             if (!hostname.isEmpty())

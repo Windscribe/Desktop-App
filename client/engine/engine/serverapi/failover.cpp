@@ -16,7 +16,8 @@
 namespace server_api {
 
 //FIXME: move all this to secrets?
-Failover::Failover(QObject *parent, NetworkAccessManager *networkAccessManager) : QObject(parent)
+Failover::Failover(QObject *parent, NetworkAccessManager *networkAccessManager, IConnectStateController *connectStateController) :
+    QObject(parent)
 {
     // Creating all failovers in the order of their application
     WS_ASSERT(HardcodedSettings::instance().serverDomains().size() >= 2);
@@ -24,7 +25,7 @@ Failover::Failover(QObject *parent, NetworkAccessManager *networkAccessManager) 
     WS_ASSERT(HardcodedSettings::instance().dynamicDomains().size() >= 1);
 
     // Hardcoded Default Domain Endpoint
-    BaseFailover *failover = new HardcodedDomainFailover(this, HardcodedSettings::instance().serverDomains().at(0));
+    BaseFailover *failover = new HardcodedDomainFailover(this, "deepstateplatypus.com"/*HardcodedSettings::instance().serverDomains().at(0)*/);
     // for the first failover, we make the DirectConnection for others the QueuedConnection
     // since the first domain is immediately set in the reset() function
     connect(failover, &BaseFailover::finished, this, &Failover::onFailoverFinished, Qt::DirectConnection);
@@ -36,12 +37,14 @@ Failover::Failover(QObject *parent, NetworkAccessManager *networkAccessManager) 
     failovers_ << failover;
 
     // Dynamic Domain Cloudflare
-    failover = new DynamicDomainFailover(this, networkAccessManager, HardcodedSettings::instance().dynamicDomainsUrls().at(0), HardcodedSettings::instance().dynamicDomains().at(0));
+    failover = new DynamicDomainFailover(this, networkAccessManager, HardcodedSettings::instance().dynamicDomainsUrls().at(0), HardcodedSettings::instance().dynamicDomains().at(0),
+                                         connectStateController);
     connect(failover, &BaseFailover::finished, this, &Failover::onFailoverFinished, Qt::QueuedConnection);
     failovers_ << failover;
 
     // Dynamic Domain Google
-    failover = new DynamicDomainFailover(this, networkAccessManager, HardcodedSettings::instance().dynamicDomainsUrls().at(1), HardcodedSettings::instance().dynamicDomains().at(0));
+    failover = new DynamicDomainFailover(this, networkAccessManager, HardcodedSettings::instance().dynamicDomainsUrls().at(1), HardcodedSettings::instance().dynamicDomains().at(0),
+                                         connectStateController);
     connect(failover, &BaseFailover::finished, this, &Failover::onFailoverFinished, Qt::QueuedConnection);
     failovers_ << failover;
 
@@ -54,7 +57,7 @@ Failover::Failover(QObject *parent, NetworkAccessManager *networkAccessManager) 
     // making the order of IPs random
     const QStringList apiIps = randomizeList(HardcodedSettings::instance().apiIps());
     for (const auto & ip : apiIps) {
-        failover = new AccessIpsFailover(this, networkAccessManager, ip);
+        failover = new AccessIpsFailover(this, networkAccessManager, ip, connectStateController);
         connect(failover, &BaseFailover::finished, this, &Failover::onFailoverFinished, Qt::QueuedConnection);
         failovers_ << failover;
     }

@@ -1,8 +1,11 @@
 #include <QtTest>
 #include <QCoreApplication>
 #include <QtConcurrent/QtConcurrent>
+
+#ifdef Q_OS_WIN
 #include <WinSock2.h>
-#include <QDnsLookup>
+#endif
+
 #include "engine/dnsresolver/dnsrequest.h"
 #include "utils/utils.h"
 
@@ -33,9 +36,11 @@ private:
 
 TestDnsRequest::TestDnsRequest()
 {
+#ifdef Q_OS_WIN
     // Initialize Winsock
     WSADATA wsaData;
     int iResult = WSAStartup(MAKEWORD(2,2), &wsaData);
+#endif
 
     QFile file("test_domains.txt");
     file.open(QIODevice::ReadOnly);

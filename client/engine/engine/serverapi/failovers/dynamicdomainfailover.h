@@ -1,6 +1,8 @@
 #pragma once
 
 #include "basefailover.h"
+#include "engine/connectstatecontroller/iconnectstatecontroller.h"
+#include "engine/connectstatecontroller/connectstatewatcher.h"
 
 namespace server_api {
 
@@ -8,10 +10,12 @@ class DynamicDomainFailover : public BaseFailover
 {
     Q_OBJECT
 public:
-    explicit DynamicDomainFailover(QObject *parent, NetworkAccessManager *networkAccessManager, const QString &urlString, const QString &domainName) :
+    explicit DynamicDomainFailover(QObject *parent, NetworkAccessManager *networkAccessManager, const QString &urlString, const QString &domainName, IConnectStateController *connectStateController) :
         BaseFailover(parent, networkAccessManager),
         urlString_(urlString),
-        domainName_(domainName)
+        domainName_(domainName),
+        connectStateController_(connectStateController),
+        connectStateWatcher_(nullptr)
     {}
 
     void getHostnames(bool bIgnoreSslErrors) override;
@@ -20,6 +24,8 @@ public:
 private:
     QString urlString_;
     QString domainName_;
+    IConnectStateController *connectStateController_;
+    ConnectStateWatcher *connectStateWatcher_;
 
     QString parseHostnameFromJson(const QByteArray &arr);
 };

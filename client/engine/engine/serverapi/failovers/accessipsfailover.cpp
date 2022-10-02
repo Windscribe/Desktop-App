@@ -9,11 +9,15 @@
 #include "engine/dnsresolver/dnsserversconfiguration.h"
 #include "engine/serverapi/requests/accessipsrequest.h"
 #include "utils/ws_assert.h"
+#include "utils/utils.h"
 
 namespace server_api {
 
 void AccessIpsFailover::getHostnames(bool bIgnoreSslErrors)
 {
+    SAFE_DELETE(connectStateWatcher_);
+    connectStateWatcher_ = new ConnectStateWatcher(this, connectStateController_);
+
     AcessIpsRequest *request = new AcessIpsRequest(this);
     WS_ASSERT(request->requestType() == RequestType::kGet);
     NetworkRequest networkRequest(request->url(ip_).toString(), request->timeout(), true, DnsServersConfiguration::instance().getCurrentDnsServers(), bIgnoreSslErrors);
@@ -39,10 +43,15 @@ void AccessIpsFailover::onNetworkRequestFinished()
     bool isIgnoreSslErrors = reply->property("bIgnoreSslErrors").toBool();
     if (pointerToRequest) {
         if (!reply->isSuccess()) {
-            if (reply->error() ==  NetworkReply::NetworkError::SslError && !isIgnoreSslErrors)
-                emit finished(FailoverRetCode::kSslError, QStringList());
-            else
-                emit finished(FailoverRetCode::kFailed, QStringList());
+            // if connect state changed the retrying the request
+            if (connectStateWatcher_->isVpnConnectStateChanged()) {
+                this->getHostnames(isIgnoreSslErrors);
+            } else {
+                if (reply->error() ==  NetworkReply::NetworkError::SslError && !isIgnoreSslErrors)
+                    emit finished(FailoverRetCode::kSslError, QStringList());
+                else
+                    emit finished(FailoverRetCode::kFailed, QStringList());
+            }
         }
         else {
             pointerToRequest->handle(reply->readAll());
@@ -54,8 +63,6 @@ void AccessIpsFailover::onNetworkRequestFinished()
         pointerToRequest->deleteLater();
     }
 }
-
-
 
 } // namespace server_api
 

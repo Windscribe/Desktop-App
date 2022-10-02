@@ -1,8 +1,7 @@
 target_sources(engine PRIVATE
     failover.cpp
     failover.h
-    failoverdetection.cpp
-    failoverdetection.h
+    failoverwithstate.h
     serverapi.cpp
     serverapi.h
     requests/accessipsrequest.cpp

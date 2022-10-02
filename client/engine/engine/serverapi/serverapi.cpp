@@ -1,6 +1,5 @@
 #include "serverapi.h"
 
-#include <QPointer>
 #include <QUrl>
 #include <QUrlQuery>
 
@@ -44,16 +43,14 @@ ServerAPI::ServerAPI(QObject *parent, IConnectStateController *connectStateContr
     networkAccessManager_(networkAccessManager),
     bIsRequestsEnabled_(false),
     bIgnoreSslErrors_(false),
-    failoverDisconnectedModeState_(FailoverState::kUnknown),
-    failoverConnectedModeState_(FailoverState::kUnknown),
-    failoverDetection_(nullptr)
+    currentFailoverRequest_(nullptr),
+    failoverInProgress_(nullptr),
+    currentConnectStateWatcher_(nullptr)
 {
-    failoverConnectedMode_ = new Failover(this, networkAccessManager);
-    failoverDisconnectedMode_ = new Failover(this, networkAccessManager);
-}
-
-ServerAPI::~ServerAPI()
-{
+    failoverConnectedMode_ = new FailoverWithState(this, networkAccessManager, connectStateController);
+    connect(failoverConnectedMode_, &Failover::nextHostnameAnswer, this, &ServerAPI::onFailoverNextHostnameAnswer);
+    failoverDisconnectedMode_ = new FailoverWithState(this, networkAccessManager, connectStateController);
+    connect(failoverDisconnectedMode_, &Failover::nextHostnameAnswer, this, &ServerAPI::onFailoverNextHostnameAnswer);
 }
 
 void ServerAPI::setRequestsEnabled(bool bEnable)
@@ -249,19 +246,11 @@ BaseRequest *ServerAPI::syncRobert(const QString &authHash)
     return request;
 }
 
-void ServerAPI::onFailoverDetectionFinished(FailoverDetectionRetCode retCode)
+void ServerAPI::onFailoverNextHostnameAnswer(FailoverRetCode retCode, const QString &hostname)
 {
-    if (retCode == FailoverDetectionRetCode::kSuccess) {
-
-    }
-    else if (retCode == FailoverDetectionRetCode::kSslError) {
-
-    }
-    else if (retCode == FailoverDetectionRetCode::kConnectStateChanged) {
-
-    }
-
-    SAFE_DELETE(failoverDetection_);
+    // try to repeat the request
+    failoverInProgress_ = currentFailover();
+    executeRequest(currentFailoverRequest_, true);
 }
 
 void ServerAPI::setIgnoreSslErrors(bool bIgnore)
@@ -274,50 +263,93 @@ void ServerAPI::handleNetworkRequestFinished()
     NetworkReply *reply = static_cast<NetworkReply *>(sender());
     QSharedPointer<NetworkReply> obj = QSharedPointer<NetworkReply>(reply, &QObject::deleteLater);
     QPointer<BaseRequest> pointerToRequest = reply->property("pointerToRequest").value<QPointer<BaseRequest> >();
-    if (pointerToRequest) {
 
-        if (!reply->isSuccess()) {
-            if (reply->error() ==  NetworkReply::NetworkError::SslError && !bIgnoreSslErrors_)
-                pointerToRequest->setRetCode(SERVER_RETURN_SSL_ERROR);
-            else
-                pointerToRequest->setRetCode(SERVER_RETURN_NETWORK_ERROR);
+    // if the request has already been deleted before completion, skip processing
+    if (!pointerToRequest) {
+        return;
+    }
 
-            if (pointerToRequest->isWriteToLog())
-                qCDebug(LOG_SERVER_API) << "API request " + pointerToRequest->name() + " failed:" << reply->errorString();
-            emit pointerToRequest->finished();
+    if (!reply->isSuccess()) {
+        if (reply->error() == NetworkReply::NetworkError::SslError && !bIgnoreSslErrors_) {
+            setErrorCodeAndEmitRequestFinished(pointerToRequest, SERVER_RETURN_SSL_ERROR, reply->errorString());
+            if (currentFailoverRequest_ == pointerToRequest) {
+                currentFailoverRequest_ = nullptr;
+                failoverInProgress_ = nullptr;
+                SAFE_DELETE(currentConnectStateWatcher_);
+                executeWaitingInQueueRequests();
+            }
+        } else {
+            if (currentFailoverRequest_ == pointerToRequest) {
+                if (!currentConnectStateWatcher_->isVpnConnectStateChanged()) {
+                    WS_ASSERT(failoverInProgress_ == currentFailover());
+                    // get next the failover hostname
+                    currentFailover()->getNextHostname(bIgnoreSslErrors_);
+                } else {
+                    currentFailoverRequest_ = nullptr;
+                    failoverInProgress_ = nullptr;
+                    SAFE_DELETE(currentConnectStateWatcher_);
+                    executeWaitingInQueueRequests();
+                }
+            } else {
+                WS_ASSERT(currentFailoverRequest_ == nullptr);
+                setErrorCodeAndEmitRequestFinished(pointerToRequest, SERVER_RETURN_NETWORK_ERROR, reply->errorString());
+            }
         }
-        else {
-            pointerToRequest->handle(reply->readAll());
-            emit pointerToRequest->finished();
+    }
+    else {  // if reply->isSuccess()
+        pointerToRequest->handle(reply->readAll());
+        emit pointerToRequest->finished();
+
+        // if for the current request we performed the failover algorithm, then set the state of failover to the kReady
+        // and execute pending requests
+        if (currentFailoverRequest_ == pointerToRequest) {
+            currentFailoverRequest_ = nullptr;
+            if (!currentConnectStateWatcher_->isVpnConnectStateChanged()) {
+                WS_ASSERT(failoverInProgress_ == currentFailover());
+                currentFailover()->setState(FailoverState::kReady);
+            }
+            failoverInProgress_ = nullptr;
+            SAFE_DELETE(currentConnectStateWatcher_);
+            executeWaitingInQueueRequests();
+        } else {
+            WS_ASSERT(currentFailoverRequest_ == nullptr);
         }
     }
 }
 
-void ServerAPI::executeRequest(BaseRequest *request)
+// execute request if the failover detected or queue
+void ServerAPI::executeRequest(BaseRequest *request, bool bSkipFailoverConditions /*= false*/)
 {
-    if (currentFailoverState() == FailoverState::kUnknown) {
-        // if failover already in progress then move the request to queue
-        if (failoverDetection_ != nullptr) {
-            queueRequests_.enqueue(request);
-            return;
-        } else {
-            // start failover detection
-            failoverDetection_ = new FailoverDetection(this, networkAccessManager_, connectStateController_, request, currentFailover());
-            connect(failoverDetection_, &FailoverDetection::finished, this, &ServerAPI::onFailoverDetectionFinished);
-            failoverDetection_->start();
+    if (!bSkipFailoverConditions) {
+        if (currentFailover()->state() == FailoverState::kUnknown) {
+            // if failover already in progress then move the request to queue
+            if (currentFailoverRequest_ != nullptr) {
+                queueRequests_.enqueue(request);
+                return;
+            } else {
+                // start failover algorithm for the request
+                currentFailoverRequest_ = request;
+                failoverInProgress_ = currentFailover();
+                currentConnectStateWatcher_ = new ConnectStateWatcher(this, connectStateController_);
+                // if the request is deleted before completion, then we show start processing the requests waiting in the queue
+                connect(request, &QObject::destroyed, [this]() {
+                    currentFailoverRequest_ = nullptr;
+                    failoverInProgress_ = nullptr;
+                    SAFE_DELETE(currentConnectStateWatcher_);
+                    executeWaitingInQueueRequests();
+                });
+            }
+        }
+        else if (currentFailover()->state() == FailoverState::kFailed) {
+            QTimer::singleShot(0, this, [request] () {
+                qCDebug(LOG_SERVER_API) << "API request " + request->name() + " failed: API not ready";
+                request->setRetCode(SERVER_RETURN_API_NOT_READY);
+                emit request->finished();
+            });
             return;
         }
     }
-    else if (currentFailoverState() == FailoverState::kFailed) {
-        QTimer::singleShot(0, this, [request] () {
-            qCDebug(LOG_SERVER_API) << "API request " + request->name() + " failed: API not ready";
-            request->setRetCode(SERVER_RETURN_API_NOT_READY);
-            emit request->finished();
-        });
-        return;
-    }
 
-    // if we here then failover state is ready, execute the request
     //FIXME: getCurrentDnsServers() move to NetworkAccessManager
     NetworkRequest networkRequest(request->url(currentFailover()->currentHostname()).toString(), request->timeout(), true, DnsServersConfiguration::instance().getCurrentDnsServers(), bIgnoreSslErrors_);
     NetworkReply *reply;
@@ -345,20 +377,32 @@ void ServerAPI::executeRequest(BaseRequest *request)
     connect(reply, &NetworkReply::finished, this, &ServerAPI::handleNetworkRequestFinished);
 }
 
-Failover *ServerAPI::currentFailover()
+void ServerAPI::executeWaitingInQueueRequests()
 {
-    if (connectStateController_->currentState() == CONNECT_STATE_CONNECTED)
-        return failoverConnectedMode_;
-    else
-        return failoverDisconnectedMode_;
+    QQueue<QPointer<BaseRequest> > queueRequests = queueRequests_;
+    queueRequests_.clear();
+    while (!queueRequests.isEmpty()) {
+        QPointer<BaseRequest> request(queueRequests.dequeue());
+        if (request)
+            executeRequest(request);
+    }
 }
 
-ServerAPI::FailoverState ServerAPI::currentFailoverState()
+FailoverWithState *ServerAPI::currentFailover()
 {
-    if (connectStateController_->currentState() == CONNECT_STATE_CONNECTED)
-        return failoverConnectedModeState_;
+    // We consider that disconnected/connecting states like no VPN connection
+    if (connectStateController_->currentState() == CONNECT_STATE_DISCONNECTED || connectStateController_->currentState() == CONNECT_STATE_CONNECTING)
+        return failoverDisconnectedMode_;
     else
-        return failoverDisconnectedModeState_;
+        return failoverConnectedMode_;
+}
+
+void ServerAPI::setErrorCodeAndEmitRequestFinished(BaseRequest *request, SERVER_API_RET_CODE retCode, const QString &errorStr)
+{
+    request->setRetCode(SERVER_RETURN_NETWORK_ERROR);
+    if (request->isWriteToLog())
+        qCDebug(LOG_SERVER_API) << "API request " + request->name() + " failed:" << errorStr;
+    emit request->finished();
 }
 
 } // namespace server_api
