@@ -16,6 +16,10 @@
 namespace server_api {
 
 //FIXME: move all this to secrets?
+
+// FIXME:     // We break the staging functionality to not try the hashed domains if the initial login fails, as the hashed domains will hit the production environment.
+//if (!AppVersion::instance().isStaging() && dnsResolutionSettings_.getIsAutomatic())
+
 Failover::Failover(QObject *parent, NetworkAccessManager *networkAccessManager, IConnectStateController *connectStateController) :
     QObject(parent)
 {
@@ -25,7 +29,7 @@ Failover::Failover(QObject *parent, NetworkAccessManager *networkAccessManager, 
     WS_ASSERT(HardcodedSettings::instance().dynamicDomains().size() >= 1);
 
     // Hardcoded Default Domain Endpoint
-    BaseFailover *failover = new HardcodedDomainFailover(this, "deepstateplatypus.com"/*HardcodedSettings::instance().serverDomains().at(0)*/);
+    BaseFailover *failover = new HardcodedDomainFailover(this, HardcodedSettings::instance().serverDomains().at(0));
     // for the first failover, we make the DirectConnection for others the QueuedConnection
     // since the first domain is immediately set in the reset() function
     connect(failover, &BaseFailover::finished, this, &Failover::onFailoverFinished, Qt::DirectConnection);
@@ -68,7 +72,7 @@ Failover::Failover(QObject *parent, NetworkAccessManager *networkAccessManager, 
 QString Failover::currentHostname() const
 {
     if (curFailoverInd_ < failovers_.size() && !curFailoverHostnames_.isEmpty() && cutFaiolverHostnameInd_ < curFailoverHostnames_.size()) {
-        qCDebug(LOG_SERVER_API) << "Failover::currentHostname:" <<  failovers_[curFailoverInd_]->name() << curFailoverHostnames_[cutFaiolverHostnameInd_].left(3);
+        //qCDebug(LOG_SERVER_API) << "Failover::currentHostname:" <<  failovers_[curFailoverInd_]->name() << curFailoverHostnames_[cutFaiolverHostnameInd_].left(3);
         return curFailoverHostnames_[cutFaiolverHostnameInd_];
     }
     return QString();

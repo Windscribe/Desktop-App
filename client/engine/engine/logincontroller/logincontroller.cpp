@@ -1,13 +1,10 @@
 #include "utils/logger.h"
 #include <QTimer>
 #include "logincontroller.h"
-#include "engine/helper/ihelper.h"
 #include "engine/serverapi/serverapi.h"
 #include "utils/ws_assert.h"
 #include "utils/utils.h"
-#include "utils/hardcodedsettings.h"
 #include "engine/getdeviceid.h"
-#include "version/appversion.h"
 #include "engine/serverapi/requests/loginrequest.h"
 #include "engine/serverapi/requests/sessionrequest.h"
 #include "engine/serverapi/requests/serverlistrequest.h"
@@ -16,21 +13,16 @@
 #include "engine/serverapi/requests/portmaprequest.h"
 #include "engine/serverapi/requests/staticipsrequest.h"
 
-LoginController::LoginController(QObject *parent,  IHelper *helper,
+LoginController::LoginController(QObject *parent,
                                  INetworkDetectionManager *networkDetectionManager, server_api::ServerAPI *serverAPI,
                                  const QString &language, PROTOCOL protocol) : QObject(parent),
-    helper_(helper), serverAPI_(serverAPI),
-    getApiAccessIps_(NULL), networkDetectionManager_(networkDetectionManager), language_(language),
-    protocol_(protocol), bFromConnectedToVPNState_(false), getAllConfigsController_(NULL),
-    loginStep_(LOGIN_STEP1), readyForNetworkRequestsEmitted_(false)
+    serverAPI_(serverAPI),
+    networkDetectionManager_(networkDetectionManager), language_(language),
+    protocol_(protocol), bFromConnectedToVPNState_(false), getAllConfigsController_(NULL)
 {
 }
 
-LoginController::~LoginController()
-{
-}
-
-void LoginController::startLoginProcess(const LoginSettings &loginSettings, const types::DnsResolutionSettings &dnsResolutionSettings, bool bFromConnectedToVPNState)
+void LoginController::startLoginProcess(const LoginSettings &loginSettings, bool bFromConnectedToVPNState)
 {
     if (loginSettings.isAuthHashLogin())
     {
@@ -41,15 +33,8 @@ void LoginController::startLoginProcess(const LoginSettings &loginSettings, cons
         qCDebug(LOG_BASIC) << "Start login process with username and password, bFromConnectedToVPNState =" << bFromConnectedToVPNState;
     }
 
-    retCodesForLoginSteps_.clear();
     loginSettings_ = loginSettings;
-
-    dnsResolutionSettings_ = dnsResolutionSettings;
     bFromConnectedToVPNState_ = bFromConnectedToVPNState;
-
-    loginStep_ = LOGIN_STEP1;
-    readyForNetworkRequestsEmitted_ = false;
-
     handleNetworkConnection();
 }
 
@@ -102,45 +87,6 @@ void LoginController::onStaticIpsAnswer()
     getAllConfigsController_->putStaticIpsAnswer(request->retCode(), request->staticIps());
 }
 
-void LoginController::onGetApiAccessIpsFinished(SERVER_API_RET_CODE retCode, const QStringList &hosts)
-{
-    qCDebug(LOG_BASIC) << "LoginController::onGetApiAccessIpsFinished, retCode=" << retCode << ", hosts=" << hosts;
-    if (retCode == SERVER_RETURN_SUCCESS)
-    {
-        if (hosts.count() > 0)
-        {
-            ipsForStep3_ = hosts;
-            //emit stepMessage(tr("Trying Backup Endpoints 2/2"));
-            emit stepMessage(LOGIN_MESSAGE_TRYING_BACKUP2);
-            makeLoginRequest(selectRandomIpForStep3());
-        }
-        else
-        {
-            emit finished(LOGIN_RET_NO_API_CONNECTIVITY, apiinfo::ApiInfo(), bFromConnectedToVPNState_, QString());
-        }
-    }
-    else if (retCode == SERVER_RETURN_PROXY_AUTH_FAILED)
-    {
-        emit finished(LOGIN_RET_PROXY_AUTH_NEED, apiinfo::ApiInfo(), bFromConnectedToVPNState_, QString());
-    }
-    else // failed
-    {
-        if (retCode == SERVER_RETURN_SSL_ERROR)
-        {
-            retCodesForLoginSteps_ << SERVER_RETURN_SSL_ERROR;
-        }
-
-        if (isAllSslErrors())
-        {
-            emit finished(LOGIN_RET_SSL_ERROR, apiinfo::ApiInfo(), bFromConnectedToVPNState_, QString());
-        }
-        else
-        {
-            emit finished(LOGIN_RET_NO_API_CONNECTIVITY, apiinfo::ApiInfo(), bFromConnectedToVPNState_, QString());
-        }
-    }
-}
-
 void LoginController::tryLoginAgain()
 {
     if (!loginSettings_.isAuthHashLogin())
@@ -172,15 +118,10 @@ void LoginController::onAllConfigsReceived(SERVER_API_RET_CODE retCode)
     }
     else if (retCode == SERVER_RETURN_NETWORK_ERROR || retCode == SERVER_RETURN_SSL_ERROR || retCode == SERVER_RETURN_INCORRECT_JSON)
     {
-        // try again
-        /*if (loginElapsedTimer_.elapsed() > MAX_WAIT_LOGIN_TIMEOUT)
-        {*/
-             handleNextLoginAfterFail(retCode);
-        /*}
+        if (retCode == SERVER_RETURN_SSL_ERROR)
+            emit finished(LOGIN_RET_SSL_ERROR, apiinfo::ApiInfo(), bFromConnectedToVPNState_, QString());
         else
-        {
-            QTimer::singleShot(1000, this, SLOT(getAllConfigs()));
-        }*/
+            emit finished(LOGIN_RET_NO_API_CONNECTIVITY, apiinfo::ApiInfo(), bFromConnectedToVPNState_, QString());
     }
     else
     {
@@ -193,24 +134,19 @@ void LoginController::handleLoginOrSessionAnswer(SERVER_API_RET_CODE retCode, co
 {
     if (retCode == SERVER_RETURN_SUCCESS)
     {
-        if (!readyForNetworkRequestsEmitted_)
-        {
-            readyForNetworkRequestsEmitted_ = true;
-            emit readyForNetworkRequests();
-        }
         sessionStatus_ = sessionStatus;
         newAuthHash_ = authHash;
         getAllConfigs();
     }
     else if (retCode == SERVER_RETURN_NETWORK_ERROR || retCode == SERVER_RETURN_INCORRECT_JSON || retCode == SERVER_RETURN_SSL_ERROR)
     {
-        if (loginElapsedTimer_.elapsed() > MAX_WAIT_LOGIN_TIMEOUT)
+        if (retCode == SERVER_RETURN_SSL_ERROR)
         {
-            handleNextLoginAfterFail(retCode);
+            emit finished(LOGIN_RET_SSL_ERROR, apiinfo::ApiInfo(), bFromConnectedToVPNState_, QString());
         }
         else
         {
-            QTimer::singleShot(1000, this, SLOT(tryLoginAgain()));
+            emit finished(LOGIN_RET_NO_API_CONNECTIVITY, apiinfo::ApiInfo(), bFromConnectedToVPNState_, QString());
         }
     }
     else if (retCode == SERVER_RETURN_BAD_USERNAME)
@@ -243,10 +179,8 @@ void LoginController::handleLoginOrSessionAnswer(SERVER_API_RET_CODE retCode, co
     }
 }
 
-void LoginController::makeLoginRequest(const QString &hostname)
+void LoginController::makeLoginRequest()
 {
-    qCDebug(LOG_BASIC) << "Try login with hostname:" << hostname;
-    serverAPI_->setHostname(hostname);
     loginElapsedTimer_.start();
     if (!loginSettings_.isAuthHashLogin())
     {
@@ -257,96 +191,6 @@ void LoginController::makeLoginRequest(const QString &hostname)
     {
         server_api::BaseRequest *request = serverAPI_->session(loginSettings_.authHash());
         connect(request, &server_api::BaseRequest::finished, this, &LoginController::onSessionAnswer);
-    }
-}
-
-void LoginController::makeApiAccessRequest()
-{
-    WS_ASSERT(getApiAccessIps_ == NULL);
-    getApiAccessIps_ = new GetApiAccessIps(this, serverAPI_);
-    connect(getApiAccessIps_, SIGNAL(finished(SERVER_API_RET_CODE,QStringList)), SLOT(onGetApiAccessIpsFinished(SERVER_API_RET_CODE,QStringList)));
-    getApiAccessIps_->get();
-}
-
-QString LoginController::selectRandomIpForStep3()
-{
-    if (ipsForStep3_.count() > 0)
-    {
-        int randomInd = Utils::generateIntegerRandom(0, ipsForStep3_.count() - 1); // random number from 0 to ipsForStep3_.count() - 1
-        QString randIp = ipsForStep3_[randomInd];
-        ipsForStep3_.removeAt(randomInd);
-        return randIp;
-    }
-    else
-    {
-        return "";
-    }
-}
-
-bool LoginController::isAllSslErrors() const
-{
-    bool bAllSslErrors = true;
-    for (SERVER_API_RET_CODE rc : retCodesForLoginSteps_)
-    {
-        if (rc != SERVER_RETURN_SSL_ERROR)
-        {
-             bAllSslErrors = false;
-             break;
-        }
-    }
-    return bAllSslErrors;
-}
-
-void LoginController::handleNextLoginAfterFail(SERVER_API_RET_CODE retCode)
-{
-    // We break the staging functionality to not try the hashed domains if the initial login fails, as the hashed domains will hit the production environment.
-    if (!AppVersion::instance().isStaging() && dnsResolutionSettings_.getIsAutomatic())
-    {
-        if (loginStep_ == LOGIN_STEP1)
-        {
-            retCodesForLoginSteps_ << retCode;
-            loginStep_ = LOGIN_STEP2;
-            //emit stepMessage(tr("Trying Backup Endpoints 1/2"));
-            emit stepMessage(LOGIN_MESSAGE_TRYING_BACKUP1);
-            makeLoginRequest(HardcodedSettings::instance().generateDomain());
-        }
-        else if (loginStep_ == LOGIN_STEP2)
-        {
-            retCodesForLoginSteps_ << retCode;
-            loginStep_ = LOGIN_STEP3;
-            makeApiAccessRequest();
-        }
-        else if (loginStep_ == LOGIN_STEP3)
-        {
-            retCodesForLoginSteps_ << retCode;
-            QString nextHostIp = selectRandomIpForStep3();
-            if (!nextHostIp.isEmpty())
-            {
-                makeLoginRequest(nextHostIp);
-            }
-            else
-            {
-                if (isAllSslErrors())
-                {
-                    emit finished(LOGIN_RET_SSL_ERROR, apiinfo::ApiInfo(), bFromConnectedToVPNState_, QString());
-                }
-                else
-                {
-                    emit finished(LOGIN_RET_NO_API_CONNECTIVITY, apiinfo::ApiInfo(), bFromConnectedToVPNState_, QString());
-                }
-            }
-        }
-    }
-    else
-    {
-        if (retCode == SERVER_RETURN_SSL_ERROR)
-        {
-            emit finished(LOGIN_RET_SSL_ERROR, apiinfo::ApiInfo(), bFromConnectedToVPNState_, QString());
-        }
-        else
-        {
-            emit finished(LOGIN_RET_NO_API_CONNECTIVITY, apiinfo::ApiInfo(), bFromConnectedToVPNState_, QString());
-        }
     }
 }
 
@@ -394,14 +238,7 @@ void LoginController::handleNetworkConnection()
 {
     if (networkDetectionManager_->isOnline())
     {
-        if (dnsResolutionSettings_.getIsAutomatic())
-        {
-            makeLoginRequest(HardcodedSettings::instance().serverDomains().at(0));
-        }
-        else
-        {
-            makeLoginRequest(dnsResolutionSettings_.getManualIp());
-        }
+        makeLoginRequest();
     }
     else
     {

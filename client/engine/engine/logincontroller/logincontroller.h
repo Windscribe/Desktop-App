@@ -1,37 +1,25 @@
-#ifndef LOGINCONTROLLER_H
-#define LOGINCONTROLLER_H
+#pragma once
 
 #include <QElapsedTimer>
 #include <QObject>
 #include "engine/serverapi/serverapi.h"
 #include "getallconfigscontroller.h"
-#include "getapiaccessips.h"
-#include "types/dnsresolutionsettings.h"
 #include "loginsettings.h"
 #include "engine/apiinfo/apiinfo.h"
 #include "engine/networkdetectionmanager/inetworkdetectionmanager.h"
 
-//class IFirewallController;
-namespace server_api {
-class ServerAPI;
-}
-class IHelper;
-
 // manage process from login to goto connection screen (when we show waiting screen) on application start,
-// set API ip/domain to serverAPI if initialization success
+// in other words, it receives and fills in all the data in apiinfo::ApiInfo
 class LoginController : public QObject
 {
     Q_OBJECT
 public:
-    explicit LoginController(QObject *parent, IHelper *helper, INetworkDetectionManager *networkDetectionManager, server_api::ServerAPI *serverAPI,
+    explicit LoginController(QObject *parent, INetworkDetectionManager *networkDetectionManager, server_api::ServerAPI *serverAPI,
                              const QString &language, PROTOCOL protocol);
-    virtual ~LoginController();
 
-    void startLoginProcess(const LoginSettings &loginSettings, const types::DnsResolutionSettings &dnsResolutionSettings, bool bFromConnectedToVPNState);
+    void startLoginProcess(const LoginSettings &loginSettings, bool bFromConnectedToVPNState);
 
 signals:
-    void readyForNetworkRequests();
-    void stepMessage(LOGIN_MESSAGE msg);
     void finished(LOGIN_RET retCode, const apiinfo::ApiInfo &apiInfo, bool bFromConnectedToVPNState, const QString &errorMessage);
 
 private slots:
@@ -43,8 +31,6 @@ private slots:
     void onPortMapAnswer();
     void onStaticIpsAnswer();
 
-    void onGetApiAccessIpsFinished(SERVER_API_RET_CODE retCode, const QStringList &hosts);
-
     void tryLoginAgain();
     void onAllConfigsReceived(SERVER_API_RET_CODE retCode);
     void getAllConfigs();
@@ -53,16 +39,9 @@ private slots:
 
 private:
     enum {MAX_WAIT_CONNECTIVITY_TIMEOUT = 20000};
-    enum {MAX_WAIT_LOGIN_TIMEOUT = 10000};
 
-    enum LOGIN_STEP {LOGIN_STEP1 = 0, LOGIN_STEP2, LOGIN_STEP3};
-
-    QVector<SERVER_API_RET_CODE> retCodesForLoginSteps_;
-
-    IHelper *helper_;
     server_api::ServerAPI *serverAPI_;
 
-    GetApiAccessIps *getApiAccessIps_;
     INetworkDetectionManager *networkDetectionManager_;
     QString language_;
     PROTOCOL protocol_;
@@ -70,7 +49,6 @@ private:
     LoginSettings loginSettings_;
     QString newAuthHash_;
 
-    types::DnsResolutionSettings dnsResolutionSettings_;
     bool bFromConnectedToVPNState_;
 
     QElapsedTimer loginElapsedTimer_;
@@ -79,19 +57,10 @@ private:
     types::SessionStatus sessionStatus_;
 
     GetAllConfigsController *getAllConfigsController_;
-    LOGIN_STEP loginStep_;
-    bool readyForNetworkRequestsEmitted_;
-
-    QStringList ipsForStep3_;
 
     void getApiInfoFromSettings();
     void handleLoginOrSessionAnswer(SERVER_API_RET_CODE retCode, const types::SessionStatus &sessionStatus, const QString &authHash, const QString &errorMessage);
-    void makeLoginRequest(const QString &hostname);
-    void makeApiAccessRequest();
-    QString selectRandomIpForStep3();
+    void makeLoginRequest();
 
-    bool isAllSslErrors() const;
     void handleNextLoginAfterFail(SERVER_API_RET_CODE retCode);
 };
-
-#endif // LOGINCONTROLLER_H

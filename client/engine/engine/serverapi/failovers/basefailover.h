@@ -7,7 +7,7 @@ class NetworkAccessManager;
 
 namespace server_api {
 
-enum class FailoverRetCode { kSuccess, kSslError, kFailed, kConnectStateChanged };
+enum class FailoverRetCode { kSuccess, kSslError, kFailed };
 
 class BaseFailover : public QObject
 {

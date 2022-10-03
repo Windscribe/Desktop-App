@@ -644,7 +644,7 @@ void Engine::initPart2()
     networkAccessManager_ = new NetworkAccessManager(this);
     connect(networkAccessManager_, &NetworkAccessManager::whitelistIpsChanged, this, &Engine::onHostIPsChanged);
 
-    serverAPI_ = new server_api::ServerAPI(this, connectStateController_, networkAccessManager_);
+    serverAPI_ = new server_api::ServerAPI(this, connectStateController_, networkAccessManager_, networkDetectionManager_);
     serverAPI_->setIgnoreSslErrors(engineSettings_.isIgnoreSslErrors());
 
     customOvpnAuthCredentialsStorage_ = new CustomOvpnAuthCredentialsStorage();
@@ -1500,10 +1500,11 @@ void Engine::onLoginControllerFinished(LOGIN_RET retCode, const apiinfo::ApiInfo
     loginController_ = NULL;
 }
 
+// FIXME: remove
 void Engine::onReadyForNetworkRequests()
 {
     qCDebug(LOG_BASIC) << "Engine::onReadyForNetworkRequests()";
-    serverAPI_->setRequestsEnabled(true);
+    //serverAPI_->setRequestsEnabled(true);
     updateServerResourcesTimer_->start(UPDATE_SERVER_RESOURCES_PERIOD);
     checkForAppUpdate();
 
@@ -1858,7 +1859,7 @@ void Engine::onConnectionManagerConnected()
     if (loginState_ == LOGIN_IN_PROGRESS)
     {
         QMutexLocker lockerLoginSettings(&loginSettingsMutex_);
-        serverAPI_->setRequestsEnabled(false);
+        //serverAPI_->setRequestsEnabled(false);
         if (loginController_)
         {
             SAFE_DELETE(loginController_);
@@ -1902,7 +1903,7 @@ void Engine::onConnectionManagerDisconnected(DISCONNECT_REASON reason)
     if (loginState_ == LOGIN_IN_PROGRESS)
     {
         QMutexLocker lockerLoginSettings(&loginSettingsMutex_);
-        serverAPI_->setRequestsEnabled(false);
+        //serverAPI_->setRequestsEnabled(false);
         if (loginController_)
         {
             SAFE_DELETE(loginController_);
@@ -2191,17 +2192,19 @@ void Engine::detectAppropriatePacketSizeImpl()
 {
     if (networkDetectionManager_->isOnline())
     {
-        if (serverAPI_->isRequestsEnabled())
+        //FIXME:
+        //if (serverAPI_->isRequestsEnabled())
         {
             qCDebug(LOG_PACKET_SIZE) << "Detecting appropriate packet size";
             runningPacketDetection_ = true;
             Q_EMIT packetSizeDetectionStateChanged(true, false);
+            // FIXME: serverAPI_->getHostname() can be not ready
             packetSizeController_->detectAppropriatePacketSize(serverAPI_->getHostname());
         }
-        else
+        /*else
         {
             qCDebug(LOG_PACKET_SIZE) << "ServerAPI not enabled for requests (working hostname not detected). Using: " << QString::number(packetSize_.mtu);
-        }
+        }*/
     }
     else
     {
@@ -2674,11 +2677,11 @@ void Engine::startLoginController(const LoginSettings &loginSettings, bool bFrom
 {
     WS_ASSERT(loginController_ == NULL);
     WS_ASSERT(loginState_ == LOGIN_IN_PROGRESS);
-    loginController_ = new LoginController(this, helper_, networkDetectionManager_, serverAPI_, engineSettings_.language(), engineSettings_.connectionSettings().protocol);
+    loginController_ = new LoginController(this, networkDetectionManager_, serverAPI_, engineSettings_.language(), engineSettings_.connectionSettings().protocol);
     connect(loginController_, &LoginController::finished, this, &Engine::onLoginControllerFinished);
-    connect(loginController_, &LoginController::readyForNetworkRequests, this, &Engine::onReadyForNetworkRequests);
-    connect(loginController_, &LoginController::stepMessage, this, &Engine::onLoginControllerStepMessage);
-    loginController_->startLoginProcess(loginSettings, engineSettings_.dnsResolutionSettings(), bFromConnectedState);
+    //connect(loginController_, &LoginController::readyForNetworkRequests, this, &Engine::onReadyForNetworkRequests);
+    //connect(loginController_, &LoginController::stepMessage, this, &Engine::onLoginControllerStepMessage);
+    loginController_->startLoginProcess(loginSettings, bFromConnectedState);
 }
 
 void Engine::updateSessionStatus()

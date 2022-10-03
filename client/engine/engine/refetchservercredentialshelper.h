@@ -19,14 +19,12 @@ signals:
     void finished(bool success, const apiinfo::ServerCredentials &serverCredentials, const QString &serverConfig);
 
 private slots:
-    void onTimerWaitServerAPIReady();
-    void onServerCredentialsAnswer();
+   void onServerCredentialsAnswer();
     void onServerConfigsAnswer();
 
 private:
     QString authHash_;
     server_api::ServerAPI *serverAPI_;
-    QTimer timerWaitServerAPIReady_;
     int refetchServerCredentialsState_;
     bool isOpenVpnProtocolReceived_;
     bool isIkev2ProtocolReceived_;

@@ -38,10 +38,11 @@
 
 namespace server_api {
 
-ServerAPI::ServerAPI(QObject *parent, IConnectStateController *connectStateController, NetworkAccessManager *networkAccessManager) : QObject(parent),
+ServerAPI::ServerAPI(QObject *parent, IConnectStateController *connectStateController, NetworkAccessManager *networkAccessManager,
+                     INetworkDetectionManager *networkDetectionManager) : QObject(parent),
     connectStateController_(connectStateController),
     networkAccessManager_(networkAccessManager),
-    bIsRequestsEnabled_(false),
+    networkDetectionManager_(networkDetectionManager),
     bIgnoreSslErrors_(false),
     currentFailoverRequest_(nullptr),
     failoverInProgress_(nullptr),
@@ -53,26 +54,9 @@ ServerAPI::ServerAPI(QObject *parent, IConnectStateController *connectStateContr
     connect(failoverDisconnectedMode_, &Failover::nextHostnameAnswer, this, &ServerAPI::onFailoverNextHostnameAnswer);
 }
 
-void ServerAPI::setRequestsEnabled(bool bEnable)
-{
-    qCDebug(LOG_SERVER_API) << "setRequestsEnabled:" << bEnable;
-    bIsRequestsEnabled_ = bEnable;
-}
-
-bool ServerAPI::isRequestsEnabled() const
-{
-    return bIsRequestsEnabled_;
-}
-
-void ServerAPI::setHostname(const QString &hostname)
-{
-    qCDebug(LOG_SERVER_API) << "setHostname:" << hostname;
-    hostname_ = hostname;
-}
-
 QString ServerAPI::getHostname() const
 {
-    return hostname_;
+    return currentFailover()->currentHostname();
 }
 
 BaseRequest *ServerAPI::login(const QString &username, const QString &password, const QString &code2fa)
@@ -248,6 +232,7 @@ BaseRequest *ServerAPI::syncRobert(const QString &authHash)
 
 void ServerAPI::onFailoverNextHostnameAnswer(FailoverRetCode retCode, const QString &hostname)
 {
+    //FIXME: different retCode
     // try to repeat the request
     failoverInProgress_ = currentFailover();
     executeRequest(currentFailoverRequest_, true);
@@ -320,6 +305,15 @@ void ServerAPI::handleNetworkRequestFinished()
 // execute request if the failover detected or queue
 void ServerAPI::executeRequest(BaseRequest *request, bool bSkipFailoverConditions /*= false*/)
 {
+    if (!networkDetectionManager_->isOnline()) {
+        QTimer::singleShot(0, this, [request] () {
+            qCDebug(LOG_SERVER_API) << "API request " + request->name() + " failed: no network connection";
+            request->setRetCode(SERVER_RETURN_NO_NETWORK_CONNECTION);
+            emit request->finished();
+        });
+        return;
+    }
+
     if (!bSkipFailoverConditions) {
         if (currentFailover()->state() == FailoverState::kUnknown) {
             // if failover already in progress then move the request to queue
@@ -388,7 +382,7 @@ void ServerAPI::executeWaitingInQueueRequests()
     }
 }
 
-FailoverWithState *ServerAPI::currentFailover()
+FailoverWithState *ServerAPI::currentFailover() const
 {
     // We consider that disconnected/connecting states like no VPN connection
     if (connectStateController_->currentState() == CONNECT_STATE_DISCONNECTED || connectStateController_->currentState() == CONNECT_STATE_CONNECTING)

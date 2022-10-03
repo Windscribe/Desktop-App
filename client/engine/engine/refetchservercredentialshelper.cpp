@@ -8,7 +8,6 @@ RefetchServerCredentialsHelper::RefetchServerCredentialsHelper(QObject *parent, 
     authHash_(authHash), serverAPI_(serverAPI), refetchServerCredentialsState_(0),
     isOpenVpnProtocolReceived_(false), isIkev2ProtocolReceived_(false), isServerConfigsAnswerReceived_(false)
 {
-    connect(&timerWaitServerAPIReady_, SIGNAL(timeout()), SLOT(onTimerWaitServerAPIReady()));
 }
 
 RefetchServerCredentialsHelper::~RefetchServerCredentialsHelper()
@@ -18,14 +17,7 @@ RefetchServerCredentialsHelper::~RefetchServerCredentialsHelper()
 void RefetchServerCredentialsHelper::startRefetch()
 {
     refetchServerCredentialsState_ = 0;
-    if (!serverAPI_->isRequestsEnabled())
-    {
-        timerWaitServerAPIReady_.start(1000);
-    }
-    else
-    {
-        fetchServerCredentials();
-    }
+    fetchServerCredentials();
 }
 
 void RefetchServerCredentialsHelper::putFail()
@@ -39,15 +31,6 @@ void RefetchServerCredentialsHelper::putFail()
         emit finished(false, apiinfo::ServerCredentials(), QString());
     }
     refetchServerCredentialsState_++;
-}
-
-void RefetchServerCredentialsHelper::onTimerWaitServerAPIReady()
-{
-    if (serverAPI_->isRequestsEnabled())
-    {
-        timerWaitServerAPIReady_.stop();
-        fetchServerCredentials();
-    }
 }
 
 void RefetchServerCredentialsHelper::onServerCredentialsAnswer()
@@ -119,30 +102,16 @@ void RefetchServerCredentialsHelper::checkFinished()
 {
     if (isOpenVpnProtocolReceived_ && isIkev2ProtocolReceived_ && isServerConfigsAnswerReceived_)
     {
-        if (retCodeOpenVpn_ != SERVER_RETURN_API_NOT_READY && retCodeIkev2_ != SERVER_RETURN_API_NOT_READY && retCodeServerConfigs_ != SERVER_RETURN_API_NOT_READY)
-        {
-            qCDebug(LOG_BASIC) << "Refetch server config and credentials, retCode =" << retCodeOpenVpn_ << "," << retCodeIkev2_ << "," << retCodeServerConfigs_ << ", refetchServerCredentialsState_ =" << refetchServerCredentialsState_;
+        qCDebug(LOG_BASIC) << "Refetch server config and credentials, retCode =" << retCodeOpenVpn_ << "," << retCodeIkev2_ << "," << retCodeServerConfigs_ << ", refetchServerCredentialsState_ =" << refetchServerCredentialsState_;
 
-            if (!radiusUsernameOpenVpn_.isEmpty() && !radiusPasswordOpenVpn_.isEmpty() &&
-                !radiusUsernameIkev2_.isEmpty() && !radiusPasswordIkev2_.isEmpty() && !serverConfig_.isEmpty())
-            {
-                emit finished(true, apiinfo::ServerCredentials(radiusUsernameOpenVpn_, radiusPasswordOpenVpn_, radiusUsernameIkev2_, radiusPasswordIkev2_), serverConfig_);
-            }
-            else
-            {
-                putFail();
-            }
+        if (!radiusUsernameOpenVpn_.isEmpty() && !radiusPasswordOpenVpn_.isEmpty() &&
+            !radiusUsernameIkev2_.isEmpty() && !radiusPasswordIkev2_.isEmpty() && !serverConfig_.isEmpty())
+        {
+            emit finished(true, apiinfo::ServerCredentials(radiusUsernameOpenVpn_, radiusPasswordOpenVpn_, radiusUsernameIkev2_, radiusPasswordIkev2_), serverConfig_);
         }
         else
         {
-            if (!serverAPI_->isRequestsEnabled())
-            {
-                timerWaitServerAPIReady_.start(1000);
-            }
-            else
-            {
-                putFail();
-            }
+            putFail();
         }
     }
 }

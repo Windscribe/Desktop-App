@@ -32,7 +32,6 @@ public:
     void setRetCode(SERVER_API_RET_CODE retCode);
     SERVER_API_RET_CODE retCode() const;
 
-
 signals:
     void finished();
 

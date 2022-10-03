@@ -7,6 +7,7 @@
 #include "engine/networkaccessmanager/networkaccessmanager.h"
 #include "engine/connectstatecontroller/iconnectstatecontroller.h"
 #include "engine/connectstatecontroller/connectstatewatcher.h"
+#include "engine/networkdetectionmanager/inetworkdetectionmanager.h"
 #include "requests/baserequest.h"
 #include "failoverwithstate.h"
 
@@ -34,17 +35,10 @@ class ServerAPI : public QObject
     Q_OBJECT
 public:
     //FIXME: add dnsResolutionSettings_.getIsAutomatic()
-    explicit ServerAPI(QObject *parent, IConnectStateController *connectStateController, NetworkAccessManager *networkAccessManager);
+    explicit ServerAPI(QObject *parent, IConnectStateController *connectStateController, NetworkAccessManager *networkAccessManager,
+                       INetworkDetectionManager *networkDetectionManager);
 
-    // if true, then all requests works
-    // if false, then only request for SERVER_API_ROLE_LOGIN_CONTROLLER and SERVER_API_ROLE_ACCESS_IPS_CONTROLLER roles works
-    void setRequestsEnabled(bool bEnable);
-    bool isRequestsEnabled() const;
-
-    // set single hostname for make API requests
-    void setHostname(const QString &hostname);
     QString getHostname() const;
-
     void setIgnoreSslErrors(bool bIgnore);
 
     BaseRequest *login(const QString &username, const QString &password, const QString &code2fa);
@@ -83,8 +77,7 @@ private slots:
 private:
     NetworkAccessManager *networkAccessManager_;
     IConnectStateController *connectStateController_;
-    QString hostname_;
-    bool bIsRequestsEnabled_;
+    INetworkDetectionManager *networkDetectionManager_;
     bool bIgnoreSslErrors_;
 
     QQueue<QPointer<BaseRequest> > queueRequests_;    // a queue of requests that are waiting for the failover to complete
@@ -102,7 +95,7 @@ private:
     void executeRequest(BaseRequest *request, bool bSkipFailoverConditions = false);
     void executeWaitingInQueueRequests();
     // return Failover depending of the connected/disconnected VPN state
-    FailoverWithState *currentFailover();
+    FailoverWithState *currentFailover() const;
 
     void setErrorCodeAndEmitRequestFinished(BaseRequest *request, SERVER_API_RET_CODE retCode, const QString &errorStr);
 };
