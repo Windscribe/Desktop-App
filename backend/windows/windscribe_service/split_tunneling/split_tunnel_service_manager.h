@@ -3,14 +3,9 @@
 class SplitTunnelServiceManager
 {
 public:
-	SplitTunnelServiceManager();
+    SplitTunnelServiceManager();
 
-	void start();
-	void stop();
-	bool isStarted() const { return bStarted_; }
-
-
-private:
-	bool bStarted_;
+    bool start() const;
+    void stop() const;
 };
 

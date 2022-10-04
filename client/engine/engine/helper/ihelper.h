@@ -37,10 +37,11 @@ public:
     virtual void suspendUnblockingCmd(unsigned long cmdId) = 0;
 
     virtual bool setSplitTunnelingSettings(bool isActive, bool isExclude, bool isKeepLocalSockets,
-                                   const QStringList &files, const QStringList &ips,
-                                   const QStringList &hosts) = 0;
-    virtual void sendConnectStatus(bool isConnected, bool isTerminateSocket, bool isKeepLocalSocket, const AdapterGatewayInfo &defaultAdapter, const AdapterGatewayInfo &vpnAdapter,
-                           const QString &connectedIp, const PROTOCOL &protocol) = 0;
+                                           const QStringList &files, const QStringList &ips,
+                                           const QStringList &hosts) = 0;
+    virtual bool sendConnectStatus(bool isConnected, bool isTerminateSocket, bool isKeepLocalSocket,
+                                   const AdapterGatewayInfo &defaultAdapter, const AdapterGatewayInfo &vpnAdapter,
+                                   const QString &connectedIp, const PROTOCOL &protocol) = 0;
     virtual bool setCustomDnsWhileConnected(bool isIkev2, unsigned long ifIndex, const QString &overrideDnsIpAddress) = 0;
 
     // WireGuard functions

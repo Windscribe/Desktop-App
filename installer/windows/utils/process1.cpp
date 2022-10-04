@@ -127,12 +127,11 @@ optional<DWORD> Process::InstExec(const wstring& appName, const wstring& command
     PROCESS_INFORMATION pi;
     ::ZeroMemory(&pi, sizeof(pi));
 
-    auto exitGuard = wsl::wsScopeGuard([&]
-        {
-            if (pi.hProcess != NULL) {
-                ::CloseHandle(pi.hProcess);
-            }
-        });
+    auto exitGuard = wsl::wsScopeGuard([&] {
+        if (pi.hProcess != NULL) {
+            ::CloseHandle(pi.hProcess);
+        }
+    });
 
     STARTUPINFO si;
     ::ZeroMemory(&si, sizeof(si));

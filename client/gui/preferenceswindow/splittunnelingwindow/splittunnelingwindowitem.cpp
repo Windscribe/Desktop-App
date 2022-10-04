@@ -1,6 +1,7 @@
 #include "splittunnelingwindowitem.h"
 
 #include <QPainter>
+
 #include "utils/hardcodedsettings.h"
 
 #ifdef Q_OS_MAC
@@ -73,6 +74,11 @@ void SplitTunnelingWindowItem::setNetworkRoutesCount(int count)
 void SplitTunnelingWindowItem::onSettingsChanged(types::SplitTunnelingSettings settings)
 {
     preferences_->setSplitTunnelingSettings(settings);
+}
+
+void SplitTunnelingWindowItem::setActive(bool active)
+{
+    splitTunnelingGroup_->setActive(active);
 }
 
 } // namespace PreferencesWindow

@@ -311,7 +311,7 @@ void Uninstaller::UninstallSplitTunnelDriver(const std::wstring& installationPat
     wostringstream commandLine;
     commandLine << L"setupapi,InstallHinfSection DefaultUninstall 132 " << Path::AddBackslash(installationPath) << L"splittunnel\\windscribesplittunnel.inf";
 
-    auto result = Process::InstExec(L"rundll32", commandLine.str(), 60 * 1000, SW_HIDE);
+    auto result = Process::InstExec(L"rundll32", commandLine.str(), 30 * 1000, SW_HIDE);
 
     if (!result.has_value()) {
         Log::instance().out("WARNING: The split tunnel driver uninstall failed to launch.");

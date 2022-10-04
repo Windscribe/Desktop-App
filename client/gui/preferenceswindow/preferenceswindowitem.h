@@ -56,9 +56,6 @@ public:
 
     void updateNetworkState(types::NetworkInterface network) override;
 
-    void setPreferencesWindowToSplitTunnelingHome();
-    void setPreferencesWindowToSplitTunnelingAppsHome();
-    void setPreferencesWindowToSplitTunnelingAppsSearch();
     void addApplicationManually(QString filename) override;
 
     void updateScaling() override;
@@ -70,6 +67,8 @@ public:
     void setRobertFiltersError() override;
 
     void setScrollOffset(int offset) override;
+
+    void setSplitTunnelingActive(bool active) override;
 
 signals:
     void escape() override;
@@ -132,8 +131,6 @@ protected:
     void keyPressEvent(QKeyEvent *event) override;
 
 private:
-    void changeTab(PREFERENCES_TAB_TYPE tab);
-
     static constexpr int BOTTOM_AREA_HEIGHT = 16;
     static constexpr int MIN_HEIGHT = 572;
     static constexpr int MIN_HEIGHT_VAN_GOGH = 544;
@@ -182,16 +179,17 @@ private:
     bool roundedFooter_;
     QColor footerColor_;
 
-    void moveOnePageBack();
-
-    void setShowSubpageMode(bool isShowSubPage);
-    QRectF getBottomResizeArea();
-    void updateChildItemsAfterHeightChanged();
-
-    void updateSplitTunnelingAppsCount(QList<types::SplitTunnelingApp> apps);
-    void updatePositions();
-
     bool loggedIn_;
+
+    void changeTab(PREFERENCES_TAB_TYPE tab);
+    QRectF getBottomResizeArea();
+    void moveOnePageBack();
+    void setPreferencesWindowToSplitTunnelingAppsHome();
+    void setPreferencesWindowToSplitTunnelingHome();
+    void setShowSubpageMode(bool isShowSubPage);
+    void updateChildItemsAfterHeightChanged();
+    void updatePositions();
+    void updateSplitTunnelingAppsCount(QList<types::SplitTunnelingApp> apps);
 };
 
 } // namespace PreferencesWindow

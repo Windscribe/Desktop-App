@@ -1,13 +1,14 @@
 #ifndef HELPER_WIN_H
 #define HELPER_WIN_H
 
-#include "ihelper.h"
-#include <QTimer>
 #include <QMutex>
+#include <QTimer>
+#include <qt_windows.h>
+
 #include <atomic>
-#include <windows.h>
+
+#include "ihelper.h"
 #include "../../../../backend/windows/windscribe_service/ipc/servicecommunication.h"
-#include "../../../../backend/windows/windscribe_service/ipc/serialize_structs.h"
 
 class Helper_win : public IHelper
 {
@@ -29,7 +30,8 @@ public:
     bool setSplitTunnelingSettings(bool isActive, bool isExclude, bool isKeepLocalSockets,
                                    const QStringList &files, const QStringList &ips,
                                    const QStringList &hosts) override;
-    void sendConnectStatus(bool isConnected, bool isTerminateSocket, bool isKeepLocalSocket, const AdapterGatewayInfo &defaultAdapter, const AdapterGatewayInfo &vpnAdapter,
+    bool sendConnectStatus(bool isConnected, bool isTerminateSocket, bool isKeepLocalSocket,
+                           const AdapterGatewayInfo &defaultAdapter, const AdapterGatewayInfo &vpnAdapter,
                            const QString &connectedIp, const PROTOCOL &protocol) override;
     bool setCustomDnsWhileConnected(bool isIkev2, unsigned long ifIndex, const QString &overrideDnsIpAddress) override;
 

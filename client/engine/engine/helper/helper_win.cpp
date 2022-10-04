@@ -1,19 +1,24 @@
-#include "utils/boost_includes.h"
-#include "utils/executable_signature/executable_signature.h"
 #include "helper_win.h"
-#include "utils/ws_assert.h"
-#include "utils/crashhandler.h"
-#include "utils/logger.h"
-#include <QDir>
+
 #include <QCoreApplication>
+#include <QDir>
 #include <QElapsedTimer>
+
 #include <sstream>
-#include "windscribeinstallhelper_win.h"
+
+#include "utils/boost_includes.h"
+
+#include "../../../../backend/windows/windscribe_service/ipc/serialize_structs.h"
+#include "engine/connectionmanager/adaptergatewayinfo.h"
 #include "engine/openvpnversioncontroller.h"
 #include "engine/wireguardconfig/wireguardconfig.h"
 #include "types/wireguardtypes.h"
-#include "engine/connectionmanager/adaptergatewayinfo.h"
+#include "utils/crashhandler.h"
+#include "utils/executable_signature/executable_signature.h"
+#include "utils/logger.h"
 #include "utils/win32handle.h"
+#include "utils/ws_assert.h"
+#include "windscribeinstallhelper_win.h"
 
 #define SERVICE_PIPE_NAME  (L"\\\\.\\pipe\\WindscribeService")
 
@@ -193,7 +198,8 @@ bool Helper_win::setSplitTunnelingSettings(bool isActive, bool isExclude, bool i
     return mpr.exitCode;
 }
 
-void Helper_win::sendConnectStatus(bool isConnected, bool isTerminateSocket, bool isKeepLocalSocket, const AdapterGatewayInfo &defaultAdapter, const AdapterGatewayInfo &vpnAdapter,
+bool Helper_win::sendConnectStatus(bool isConnected, bool isTerminateSocket, bool isKeepLocalSocket,
+                                   const AdapterGatewayInfo &defaultAdapter, const AdapterGatewayInfo &vpnAdapter,
                                    const QString &connectedIp, const PROTOCOL &protocol)
 {
     QMutexLocker locker(&mutex_);
@@ -203,26 +209,20 @@ void Helper_win::sendConnectStatus(bool isConnected, bool isTerminateSocket, boo
     cmd.isTerminateSocket = isTerminateSocket;
     cmd.isKeepLocalSocket = isKeepLocalSocket;
 
-    if (isConnected)
-    {
-        if (protocol.isStunnelOrWStunnelProtocol())
-        {
+    if (isConnected) {
+        if (protocol.isStunnelOrWStunnelProtocol()) {
             cmd.protocol = CMD_PROTOCOL_STUNNEL_OR_WSTUNNEL;
         }
-        else if (protocol.isIkev2Protocol())
-        {
+        else if (protocol.isIkev2Protocol()) {
             cmd.protocol = CMD_PROTOCOL_IKEV2;
         }
-        else if (protocol.isWireGuardProtocol())
-        {
+        else if (protocol.isWireGuardProtocol()) {
             cmd.protocol = CMD_PROTOCOL_WIREGUARD;
         }
-        else if (protocol.isOpenVpnProtocol())
-        {
+        else if (protocol.isOpenVpnProtocol()) {
             cmd.protocol = CMD_PROTOCOL_OPENVPN;
         }
-        else
-        {
+        else {
             WS_ASSERT(false);
         }
 
@@ -251,6 +251,7 @@ void Helper_win::sendConnectStatus(bool isConnected, bool isTerminateSocket, boo
     oa << cmd;
 
     MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_CONNECT_STATUS, stream.str());
+    return mpr.success;
 }
 
 bool Helper_win::setCustomDnsWhileConnected(bool isIkev2, unsigned long ifIndex, const QString &overrideDnsIpAddress)

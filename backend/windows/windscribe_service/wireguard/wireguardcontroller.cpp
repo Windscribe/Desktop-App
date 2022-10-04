@@ -1,24 +1,25 @@
-#include "../all_headers.h"
+// Have to include wireguard.h first or we'll get include conflicts in the Windows headers.
+#include "wireguard.h"
+#include "wireguardcontroller.h"
 
 #include <Cfgmgr32.h>
 #include <devguid.h>
 #include <ndisguid.h>
-#include <winioctl.h>
+#include <SetupAPI.h>
 
 #include <codecvt>
 #include <sstream>
 
+#define BOOST_AUTO_LINK_TAGGED 1
 #include <boost/filesystem/path.hpp>
 
-#include "wireguardcontroller.h"
-#include "wireguard.h"
-#include "../executecmd.h"
-#include "../logger.h"
-#include "../utils.h"
-#include "../ipc/servicecommunication.h"
 #include "../../../client/common/utils/servicecontrolmanager.h"
 #include "../../../client/common/utils/win32handle.h"
 #include "../../../client/common/utils/wsscopeguard.h"
+#include "../executecmd.h"
+#include "../ipc/servicecommunication.h"
+#include "../logger.h"
+#include "../utils.h"
 
 static const DEVPROPKEY WG_DEVP_KEYNAME = DEVPKEY_WG_NAME;
 

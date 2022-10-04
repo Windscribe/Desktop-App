@@ -698,4 +698,9 @@ void PreferencesWindowItem::setScrollOffset(int offset)
     scrollAreaItem_->setScrollPos(offset);
 }
 
+void PreferencesWindowItem::setSplitTunnelingActive(bool active)
+{
+    splitTunnelingWindowItem_->setActive(active);
+}
+
 } // namespace PreferencesWindow

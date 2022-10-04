@@ -186,41 +186,35 @@ bool Helper_posix::setSplitTunnelingSettings(bool isActive, bool isExclude,
     return true;
 }
 
-void Helper_posix::sendConnectStatus(bool isConnected, bool isTerminateSocket, bool isKeepLocalSocket, const AdapterGatewayInfo &defaultAdapter, const AdapterGatewayInfo &vpnAdapter,
-                                   const QString &connectedIp, const PROTOCOL &protocol)
+bool Helper_posix::sendConnectStatus(bool isConnected, bool isTerminateSocket, bool isKeepLocalSocket,
+                                     const AdapterGatewayInfo &defaultAdapter, const AdapterGatewayInfo &vpnAdapter,
+                                     const QString &connectedIp, const PROTOCOL &protocol)
 {
     Q_UNUSED(isTerminateSocket);
     Q_UNUSED(isKeepLocalSocket);
     QMutexLocker locker(&mutex_);
 
-    if (curState_ != STATE_CONNECTED)
-    {
-        return;
+    if (curState_ != STATE_CONNECTED) {
+        return false;
     }
 
     CMD_SEND_CONNECT_STATUS cmd;
     cmd.isConnected = isConnected;
 
-    if (isConnected)
-    {
-        if (protocol.isStunnelOrWStunnelProtocol())
-        {
+    if (isConnected) {
+        if (protocol.isStunnelOrWStunnelProtocol()) {
             cmd.protocol = CMD_PROTOCOL_STUNNEL_OR_WSTUNNEL;
         }
-        else if (protocol.isIkev2Protocol())
-        {
+        else if (protocol.isIkev2Protocol()) {
             cmd.protocol = CMD_PROTOCOL_IKEV2;
         }
-        else if (protocol.isWireGuardProtocol())
-        {
+        else if (protocol.isWireGuardProtocol()) {
             cmd.protocol = CMD_PROTOCOL_WIREGUARD;
         }
-        else if (protocol.isOpenVpnProtocol())
-        {
+        else if (protocol.isOpenVpnProtocol()) {
             cmd.protocol = CMD_PROTOCOL_OPENVPN;
         }
-        else
-        {
+        else {
             WS_ASSERT(false);
         }
 
@@ -247,20 +241,18 @@ void Helper_posix::sendConnectStatus(bool isConnected, bool isTerminateSocket, b
     boost::archive::text_oarchive oa(stream, boost::archive::no_header);
     oa << cmd;
 
-    if (!sendCmdToHelper(HELPER_CMD_SEND_CONNECT_STATUS, stream.str()))
-    {
+    if (!sendCmdToHelper(HELPER_CMD_SEND_CONNECT_STATUS, stream.str())) {
         doDisconnectAndReconnect();
-        return;
+        return false;
     }
-    else
-    {
-        CMD_ANSWER answerCmd;
-        if (!readAnswer(answerCmd))
-        {
-            doDisconnectAndReconnect();
-            return;
-        }
+
+    CMD_ANSWER answerCmd;
+    if (!readAnswer(answerCmd)) {
+        doDisconnectAndReconnect();
+        return false;
     }
+
+    return true;
 }
 
 /*bool Helper_posix::setCustomDnsWhileConnected(bool isIkev2, unsigned long ifIndex, const QString &overrideDnsIpAddress)

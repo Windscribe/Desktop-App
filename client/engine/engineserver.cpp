@@ -115,6 +115,7 @@ bool EngineServer::handleCommand(IPC::Command *command)
             connect(engine_, &Engine::robertFiltersUpdated, this, &EngineServer::onEngineRobertFiltersUpdated);
             connect(engine_, &Engine::setRobertFilterFinished, this, &EngineServer::onEngineSetRobertFilterFinished);
             connect(engine_, &Engine::syncRobertFinished, this, &EngineServer::onEngineSyncRobertFinished);
+            connect(engine_, &Engine::helperSplitTunnelingStartFailed, this, &EngineServer::helperSplitTunnelingStartFailed);
             threadEngine_->start(QThread::LowPriority);
         }
         else

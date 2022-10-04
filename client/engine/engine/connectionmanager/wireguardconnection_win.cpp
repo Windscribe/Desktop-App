@@ -11,6 +11,7 @@
 #include "utils/crashhandler.h"
 #include "utils/logger.h"
 #include "utils/winutils.h"
+#include "utils/ws_assert.h"
 
 // Useful code:
 // - mozilla-vpn-client\src\platforms\windows\daemon\wireguardutilswindows.cpp line 106 has code
@@ -55,37 +56,22 @@ void WireGuardConnection::startConnect(const QString &configPathOrUrl, const QSt
     Q_UNUSED(isEnableIkev2Compression);
     Q_UNUSED(isAutomaticConnectionMode);
 
-    try
+    WS_ASSERT(helper_ != nullptr);
+    WS_ASSERT(wireGuardConfig != nullptr);
+
+    if (isRunning())
     {
-        if (helper_ == nullptr) {
-            throw std::system_error(ERROR_INVALID_DATA, std::generic_category(),
-                std::string("WireGuardConnection::startConnect - the helper pointer is null"));
-        }
-
-        if (wireGuardConfig == nullptr) {
-            throw std::system_error(ERROR_INVALID_PARAMETER, std::generic_category(),
-                std::string("WireGuardConnection::startConnect - the WireGuard config parameter is null"));
-        }
-
-        if (isRunning())
-        {
-            stopRequested_ = true;
-            quit();
-            wait();
-        }
-
-        connectedSignalEmited_ = false;
-        stopRequested_ = false;
-        wireGuardConfig_ = wireGuardConfig;
-        serviceCtrlManager_.unblockStartStopRequests();
-
-        start(LowPriority);
+        stopRequested_ = true;
+        quit();
+        wait();
     }
-    catch (std::system_error& ex)
-    {
-        qCDebug(LOG_CONNECTION) << ex.what();
-        emit error(CONNECT_ERROR::WIREGUARD_CONNECTION_ERROR);
-    }
+
+    connectedSignalEmited_ = false;
+    stopRequested_ = false;
+    wireGuardConfig_ = wireGuardConfig;
+    serviceCtrlManager_.unblockStartStopRequests();
+
+    start(LowPriority);
 }
 
 void WireGuardConnection::startDisconnect()

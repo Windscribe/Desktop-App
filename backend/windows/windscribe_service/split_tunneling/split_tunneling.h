@@ -11,30 +11,30 @@
 class SplitTunneling
 {
 public:
-	SplitTunneling(FirewallFilter &firewallFilter, FwpmWrapper &fwmpWrapper);
-	~SplitTunneling();
+    SplitTunneling(FirewallFilter& firewallFilter, FwpmWrapper& fwmpWrapper);
+    ~SplitTunneling();
 
-	void setSettings(bool isEnabled, bool isExclude, const std::vector<std::wstring> &apps, const std::vector<std::wstring> &ips, const std::vector<std::string> &hosts);
-	void setConnectStatus(CMD_CONNECT_STATUS &connectStatus);
+    void setSettings(bool isEnabled, bool isExclude, const std::vector<std::wstring>& apps, const std::vector<std::wstring>& ips, const std::vector<std::string>& hosts);
+    bool setConnectStatus(CMD_CONNECT_STATUS& connectStatus);
 
-	static void removeAllFilters(FwpmWrapper &fwmpWrapper);
+    static void removeAllFilters(FwpmWrapper& fwmpWrapper);
 
 private:
-	FirewallFilter &firewallFilter_;
-	CalloutFilter calloutFilter_;
-	RoutesManager routesManager_;
-	HostnamesManager hostnamesManager_;
-	SplitTunnelServiceManager splitTunnelServiceManager_;
+    FirewallFilter& firewallFilter_;
+    CalloutFilter calloutFilter_;
+    RoutesManager routesManager_;
+    HostnamesManager hostnamesManager_;
+    SplitTunnelServiceManager splitTunnelServiceManager_;
 
-	AppsIds windscribeExecutablesIds_;
-	CMD_CONNECT_STATUS connectStatus_;
-	bool isSplitTunnelEnabled_;
-	bool isExclude_;
-	std::vector<std::wstring> apps_;
-	bool prevIsSplitTunnelActive_;
-	bool prevIsExclude_;
+    AppsIds windscribeExecutablesIds_;
+    CMD_CONNECT_STATUS connectStatus_;
+    bool isSplitTunnelEnabled_ = false;
+    bool isExclude_ = false;
+    std::vector<std::wstring> apps_;
+    bool prevIsSplitTunnelActive_ = false;
+    bool prevIsExclude_ = false;
 
-	void detectWindscribeExecutables();
-	void updateState();
+    void detectWindscribeExecutables();
+    bool updateState();
 };
 

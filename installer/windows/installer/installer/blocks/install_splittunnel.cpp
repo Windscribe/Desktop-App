@@ -3,9 +3,9 @@
 #include <sstream>
 
 #include "../settings.h"
-#include "../../../Utils/logger.h"
-#include "../../../Utils/path.h"
-#include "../../../Utils/process1.h"
+#include "../../../utils/logger.h"
+#include "../../../utils/path.h"
+#include "../../../utils/process1.h"
 
 using namespace std;
 
@@ -18,7 +18,7 @@ int InstallSplitTunnel::executeStep()
     wostringstream commandLine;
     commandLine << L"setupapi,InstallHinfSection DefaultInstall 132 " << Path::AddBackslash(Settings::instance().getPath()) << L"splittunnel\\windscribesplittunnel.inf";
 
-    auto result = Process::InstExec(L"rundll32", commandLine.str(), 60 * 1000, SW_HIDE);
+    auto result = Process::InstExec(L"rundll32", commandLine.str(), 30 * 1000, SW_HIDE);
 
     if (!result.has_value()) {
         Log::instance().out("WARNING: an error was encountered launching the split tunnel driver installer or while monitoring its progress.");
