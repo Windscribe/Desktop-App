@@ -284,7 +284,8 @@ void IKEv2Connection_mac::startConnect(const QString &configPathOrUrl, const QSt
                         [manager.connection startVPNTunnelAndReturnError:&startError];
                         if (startError)
                         {
-                            qCDebug(LOG_IKEV2) << "Error staring ikev2 connection:" << QString::fromNSString(startError.localizedDescription);
+                            qCDebug(LOG_IKEV2) << "Error starting ikev2 connection:" << QString::fromNSString(startError.localizedDescription);
+                            [[NSNotificationCenter defaultCenter] removeObserver: (id)notificationId_ name: (NSString *)NEVPNStatusDidChangeNotification object: manager.connection];
                             state_ = STATE_DISCONNECTED;
                             emit error(IKEV_FAILED_START_MAC);
                         }
