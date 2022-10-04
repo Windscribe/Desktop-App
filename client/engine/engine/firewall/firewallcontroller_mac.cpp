@@ -5,8 +5,6 @@
 #include <QDir>
 #include <QCoreApplication>
 
-namespace {
-
 class Anchor
 {
 public:
@@ -65,8 +63,6 @@ private:
     QString name_;
     QStringList rules_;
 };
-
-} // namespace
 
 FirewallController_mac::FirewallController_mac(QObject *parent, IHelper *helper) :
     FirewallController(parent), isFirewallEnabled_(false), isAllowLanTraffic_(false)
@@ -443,13 +439,8 @@ QString FirewallController_mac::generatePfConfFile(const QSet<QString> &ips, boo
 
     pf += "pass out quick inet from any to <windscribe_ips> \n";
 
-    // allow traffic on VPN interface
     Anchor vpnTrafficAnchor("windscribe_vpn_traffic");
-    if (!interfaceToSkip.isEmpty())
-    {
-        vpnTrafficAnchor.addRule("pass out quick on " + interfaceToSkip + " inet from any to any");
-        vpnTrafficAnchor.addRule("pass in quick on " + interfaceToSkip + " inet from any to any");
-    }
+    setVpnAnchorRules(vpnTrafficAnchor, interfaceToSkip);
     pf += vpnTrafficAnchor.getString() + "\n";
 
     // Allow Dynamic Host Configuration Protocol (DHCP)
@@ -525,11 +516,7 @@ void FirewallController_mac::setInterfaceToSkip_posix(const QString &interfaceTo
         if (interfaceToSkip_ != interfaceToSkip)
         {
             Anchor vpnTrafficAnchor("windscribe_vpn_traffic");
-            if (!interfaceToSkip.isEmpty())
-            {
-                vpnTrafficAnchor.addRule("pass out quick on " + interfaceToSkip + " inet from any to any");
-                vpnTrafficAnchor.addRule("pass in quick on " + interfaceToSkip + " inet from any to any");
-            }
+            setVpnAnchorRules(vpnTrafficAnchor, interfaceToSkip);
 
             if (vpnTrafficAnchor.generateFile(tempFile_))
             {
@@ -641,5 +628,33 @@ void FirewallController_mac::enableFirewallOnBoot(bool bEnable)
         qCDebug(LOG_BASIC) << "Execute command: "
                            << "rm " + Utils::cleanSensitiveInfo(pfBashScriptFile);
         helper_->executeRootCommand("rm \"" + pfBashScriptFile + "\"");
+    }
+}
+
+void FirewallController_mac::setVpnAnchorRules(Anchor &anchor, const QString &intf)
+{
+    if (!intf.isEmpty())
+    {
+        // Disallow RFC1918/link local/loopback traffic to go over tunnel
+        anchor.addRule("block out quick on " + intf + " inet from any to 192.168.0.0/16");
+        anchor.addRule("block in quick on " + intf + " inet from 192.168.0.0/16 to any");
+        anchor.addRule("block out quick on " + intf + " inet from any to 172.16.0.0/12");
+        anchor.addRule("block in quick on " + intf + " inet from 172.16.0.0/12 to any");
+        anchor.addRule("block out quick on " + intf + " inet from any to 169.254.0.0/16");
+        anchor.addRule("block in quick on " + intf + " inet from 169.254.0.0/16 to any");
+        // Allow reserved subnet
+        anchor.addRule("pass out quick on " + intf + " inet from any to 10.255.255.0/24");
+        anchor.addRule("pass in quick on " + intf + " inet from 10.255.255.0/24 to any");
+        // Disallow RFC1918/link local/loopback traffic to go over tunnel (cont'd)
+        anchor.addRule("block out quick on " + intf + " inet from any to 10.0.0.0/8");
+        anchor.addRule("block in quick on " + intf + " inet from 10.0.0.0/8 to any");
+        anchor.addRule("block out quick on " + intf + " inet from any to 127.0.0.0/8");
+        anchor.addRule("block in quick on " + intf + " inet from 127.0.0.0/8 to any");
+        anchor.addRule("block out quick on " + intf + " inet from any to 224.0.0.0/24");
+        anchor.addRule("block in quick on " + intf + " inet from 224.0.0.0/24 to any");
+
+        // Allow other traffic on VPN interface
+        anchor.addRule("pass out quick on " + intf + " inet from any to any");
+        anchor.addRule("pass in quick on " + intf + " inet from any to any");
     }
 }

@@ -148,6 +148,23 @@ bool FirewallController_linux::firewallOnImpl(const QSet<QString> &ips, bool bAl
 
             if (!interfaceToSkip_.isEmpty())
             {
+                // Disallow LAN addresses (except 10.255.255.0/24), link-local addresses, loopback,
+                // and local multicast addresses from going into the tunnel
+                stream << "-A windscribe_input -i " + interfaceToSkip_ + " -s 192.168.0.0/16 -j DROP -m comment --comment " + comment_ + "\n";
+                stream << "-A windscribe_output -o " + interfaceToSkip_ + " -d 192.168.0.0/16 -j DROP -m comment --comment " + comment_ + "\n";
+                stream << "-A windscribe_input -i " + interfaceToSkip_ + " -s 172.16.0.0/12 -j DROP -m comment --comment " + comment_ + "\n";
+                stream << "-A windscribe_output -o " + interfaceToSkip_ + " -d 172.16.0.0/12 -j DROP -m comment --comment " + comment_ + "\n";
+                stream << "-A windscribe_input -i " + interfaceToSkip_ + " -s 169.254.0.0/16 -j DROP -m comment --comment " + comment_ + "\n";
+                stream << "-A windscribe_output -o " + interfaceToSkip_ + " -d 169.254.0.0/16 -j DROP -m comment --comment " + comment_ + "\n";
+                stream << "-A windscribe_input -i " + interfaceToSkip_ + " -s 10.255.255.0/24 -j ACCEPT -m comment --comment " + comment_ + "\n";
+                stream << "-A windscribe_output -o " + interfaceToSkip_ + " -d 10.255.255.0/24 -j ACCEPT -m comment --comment " + comment_ + "\n";
+                stream << "-A windscribe_input -i " + interfaceToSkip_ + " -s 10.0.0.0/8 -j DROP -m comment --comment " + comment_ + "\n";
+                stream << "-A windscribe_output -o " + interfaceToSkip_ + " -d 10.0.0.0/8 -j DROP -m comment --comment " + comment_ + "\n";
+                stream << "-A windscribe_input -i " + interfaceToSkip_ + " -s 127.0.0.0/8 -j DROP -m comment --comment " + comment_ + "\n";
+                stream << "-A windscribe_output -o " + interfaceToSkip_ + " -d 127.0.0.0/8 -j DROP -m comment --comment " + comment_ + "\n";
+                stream << "-A windscribe_input -i " + interfaceToSkip_ + " -s 224.0.0.0/24 -j DROP -m comment --comment " + comment_ + "\n";
+                stream << "-A windscribe_output -o " + interfaceToSkip_ + " -d 224.0.0.0/24 -j DROP -m comment --comment " + comment_ + "\n";
+
                 stream << "-A windscribe_input -i " + interfaceToSkip_ + " -j ACCEPT -m comment --comment " + comment_ + "\n";
                 stream << "-A windscribe_output -o " + interfaceToSkip_ + " -j ACCEPT -m comment --comment " + comment_ + "\n";
             }
