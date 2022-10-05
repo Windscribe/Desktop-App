@@ -1,5 +1,7 @@
 #include "settings.h"
-#include "../../Utils/registry.h"
+
+#include "../../utils/path.h"
+#include "../../utils/registry.h"
 
 Settings::Settings() : isCreateShortcut_(true)
 {
@@ -7,7 +9,7 @@ Settings::Settings() : isCreateShortcut_(true)
 
 void Settings::setPath(const std::wstring &path)
 {
-	path_ = path;
+	path_ = Path::RemoveBackslashUnlessRoot(path);
 }
 
 std::wstring Settings::getPath() const
@@ -103,4 +105,3 @@ void Settings::writeToRegistry() const
 	Registry::RegWriteStringValue(HKEY_CURRENT_USER, L"Software\\Windscribe\\Installer", L"isCreateShortcut", isCreateShortcut_ ? L"1" : L"0");
 	Registry::RegWriteStringValue(HKEY_CURRENT_USER, L"Software\\Windscribe\\Installer", L"isFactoryReset", isFactoryReset_ ? L"1" : L"0");
 }
-

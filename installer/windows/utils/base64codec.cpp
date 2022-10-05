@@ -38,7 +38,7 @@ std::string encode(const std::string &text)
 {
     int i = 0;
     int j = 0;
-    int l = text.size();
+    size_t l = text.size();
     unsigned char char_array_4[4], char_array_3[3];
     const char *bytes_to_encode = text.c_str();
     std::string ret;
@@ -76,7 +76,7 @@ std::string decode(const std::string &code)
     int i = 0;
     int j = 0;
     int in_ = 0;
-    int l = code.size();
+    size_t l = code.size();
     unsigned char char_array_4[4], char_array_3[3];
     const char *encoded_string = code.c_str();
     std::string ret;

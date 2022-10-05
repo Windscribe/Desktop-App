@@ -8,11 +8,8 @@
 class InstallAuthHelper : public IInstallBlock
 {
 public:
-	InstallAuthHelper(const std::wstring &installPath, double weight);
+	InstallAuthHelper(double weight);
 	~InstallAuthHelper();
 	int executeStep();
-
-private:
-	std::wstring installPath_;
 };
 

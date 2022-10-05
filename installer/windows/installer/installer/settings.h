@@ -7,8 +7,13 @@
 class Settings
 {
 public:
-	explicit Settings();
-	void setPath(const std::wstring &path);
+    static Settings& instance()
+    {
+        static Settings settings;
+        return settings;
+    }
+
+    void setPath(const std::wstring &path);
 	std::wstring getPath() const;
 	void setCreateShortcut(bool create_shortcut);
 	bool getCreateShortcut() const;
@@ -28,6 +33,9 @@ private:
 	bool isInstallDrivers_;
 	bool isAutoStart_;
 	bool isFactoryReset_;
+
+    explicit Settings();
+    ~Settings() = default;
 };
 
 

@@ -35,7 +35,7 @@ void TextItem::changeText(const wchar_t *text)
 
 	PointF origin(0.0f, 0.0f);
 	RectF boundRect;
-	Status s = graphics->MeasureString(text_.c_str(), text_.length(), g_application->getFontResources()->getFont(size_, isBold_), origin, &boundRect);
+	Status s = graphics->MeasureString(text_.c_str(), static_cast<int>(text_.length()), g_application->getFontResources()->getFont(size_, isBold_), origin, &boundRect);
 
 	width_ = (int)boundRect.Width;
 	height_ = (int)boundRect.Height;
