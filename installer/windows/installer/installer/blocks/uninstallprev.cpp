@@ -1,9 +1,12 @@
+#include "uninstallprev.h"
+
 #include <shlobj_core.h>
 #include <windows.h>
-#include "uninstallprev.h"
-#include "../../../Utils/applicationinfo.h"
-#include "../../../Utils/registry.h"
-#include "../../../Utils/process1.h"
+
+#include "../../../utils/applicationinfo.h"
+#include "../../../utils/logger.h"
+#include "../../../utils/process1.h"
+#include "../../../utils/registry.h"
 #include "../../../../../client/common/utils/wsscopeguard.h"
 
 const std::wstring wmActivateGui = L"WindscribeAppActivate";

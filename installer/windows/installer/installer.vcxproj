@@ -36,6 +36,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\utils\base64codec.cpp" />
+    <ClCompile Include="..\utils\utils.cpp" />
     <ClCompile Include="..\utils\windscribepathcheck.cpp" />
     <ClCompile Include="archive\archive.cpp" />
     <ClCompile Include="archive\LZMA_SDK\C\7zAlloc.c" />
@@ -73,7 +74,6 @@
     <ClCompile Include="gui\svg\svgimage.cpp" />
     <ClCompile Include="gui\textitem.cpp" />
     <ClCompile Include="installer\blocks\install_authhelper.cpp" />
-    <ClCompile Include="installer\downloader.cpp" />
     <ClCompile Include="installer\iinstall_block.cpp" />
     <ClCompile Include="installer\installer.cpp" />
     <ClCompile Include="installer\blocks\files.cpp" />
@@ -83,11 +83,11 @@
     <ClCompile Include="installer\blocks\install_tap.cpp" />
     <ClCompile Include="installer\blocks\install_wintun.cpp" />
     <ClCompile Include="installer\blocks\service.cpp" />
-    <ClCompile Include="installer\blocks\shellexecuteasuser.cpp" />
     <ClCompile Include="installer\blocks\uninstallprev.cpp" />
     <ClCompile Include="installer\blocks\uninstall_info.cpp" />
     <ClCompile Include="installer\installer_base.cpp" />
     <ClCompile Include="installer\settings.cpp" />
+    <ClCompile Include="installer\shellexecuteasuser.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="..\utils\applicationinfo.cpp" />
     <ClCompile Include="..\utils\directories_of_a_windows.cpp" />
@@ -143,7 +143,6 @@
     <ClInclude Include="gui\svg\svgimage.h" />
     <ClInclude Include="gui\textitem.h" />
     <ClInclude Include="installer\blocks\install_authhelper.h" />
-    <ClInclude Include="installer\downloader.h" />
     <ClInclude Include="installer\iinstall_block.h" />
     <ClInclude Include="installer\installer.h" />
     <ClInclude Include="installer\blocks\files.h" />
@@ -153,7 +152,6 @@
     <ClInclude Include="installer\blocks\install_tap.h" />
     <ClInclude Include="installer\blocks\install_wintun.h" />
     <ClInclude Include="installer\blocks\service.h" />
-    <ClInclude Include="installer\blocks\shellexecuteasuser.h" />
     <ClInclude Include="installer\blocks\uninstallprev.h" />
     <ClInclude Include="..\utils\applicationinfo.h" />
     <ClInclude Include="..\utils\directories_of_a_windows.h" />
@@ -171,6 +169,7 @@
     <ClInclude Include="installer\blocks\uninstall_info.h" />
     <ClInclude Include="installer\installer_base.h" />
     <ClInclude Include="installer\settings.h" />
+    <ClInclude Include="installer\shellexecuteasuser.h" />
     <ClInclude Include="messages.h" />
   </ItemGroup>
   <ItemGroup>
@@ -321,6 +320,7 @@
       <AdditionalOptions>/permissive %(AdditionalOptions)</AdditionalOptions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <DisableSpecificWarnings>4244;4090</DisableSpecificWarnings>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -342,6 +342,7 @@
       <AdditionalOptions>/permissive %(AdditionalOptions)</AdditionalOptions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <DisableSpecificWarnings>4244;4090</DisableSpecificWarnings>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -361,6 +362,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DisableSpecificWarnings>4244;4090</DisableSpecificWarnings>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -375,6 +377,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DisableSpecificWarnings>4244;4090</DisableSpecificWarnings>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -398,6 +401,7 @@
       <AdditionalOptions>/permissive %(AdditionalOptions)</AdditionalOptions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <DisableSpecificWarnings>4244;4090</DisableSpecificWarnings>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -423,6 +427,7 @@
       <AdditionalOptions>/permissive %(AdditionalOptions)</AdditionalOptions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <DisableSpecificWarnings>4244;4090</DisableSpecificWarnings>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -446,6 +451,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DisableSpecificWarnings>4244;4090</DisableSpecificWarnings>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -466,6 +472,7 @@
       <DisableSpecificWarnings>4244;4090</DisableSpecificWarnings>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <AdditionalOptions>/permissive %(AdditionalOptions)</AdditionalOptions>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

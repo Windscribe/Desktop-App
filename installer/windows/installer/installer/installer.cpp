@@ -1,16 +1,18 @@
 #include "installer.h"
-#include <assert.h>
-#include "../../utils/logger.h"
-#include "blocks/uninstallprev.h"
+#include "settings.h"
+#include "ShellExecuteAsUser.h"
+
 #include "blocks/files.h"
-#include "blocks/uninstall_info.h"
 #include "blocks/icons.h"
-#include "blocks/service.h"
+#include "blocks/install_authhelper.h"
+#include "blocks/install_splittunnel.h"
 #include "blocks/install_tap.h"
 #include "blocks/install_wintun.h"
-#include "blocks/install_splittunnel.h"
-#include "blocks/install_authhelper.h"
-#include "blocks/ShellExecuteAsUser.h"
+#include "blocks/service.h"
+#include "blocks/uninstall_info.h"
+#include "blocks/uninstallprev.h"
+
+#include "../../utils/logger.h"
 
 using namespace std;
 
@@ -32,41 +34,27 @@ Installer::~Installer()
     }
 }
 
-void Installer::startImpl(HWND hwnd, const Settings &settings)
+void Installer::startImpl()
 {
-    installPath_ = settings.getPath();
-#ifdef _WIN32
-    blocks_.push_back(new UninstallPrev(settings.getFactoryReset(), 10));
-    blocks_.push_back(new Files(installPath_, 40));
-    blocks_.push_back(new Service(installPath_, 5));
-    if (settings.getInstallDrivers())
+    blocks_.push_back(new UninstallPrev(Settings::instance().getFactoryReset(), 10));
+    blocks_.push_back(new Files(40));
+    blocks_.push_back(new Service(5));
+    if (Settings::instance().getInstallDrivers())
     {
-        blocks_.push_back(new InstallTap(installPath_, 10));
-        blocks_.push_back(new InstallWinTun(installPath_, 10));
+        blocks_.push_back(new InstallTap(10));
+        blocks_.push_back(new InstallWinTun(10));
     }
-    blocks_.push_back(new InstallSplitTunnel(installPath_, 10, hwnd));
-    blocks_.push_back(new UninstallInfo(installPath_, 5));
-    blocks_.push_back(new Icons(installPath_, settings.getCreateShortcut(), 5));
-    blocks_.push_back(new InstallAuthHelper(installPath_, 5));
+    blocks_.push_back(new InstallSplitTunnel(10));
+    blocks_.push_back(new UninstallInfo(5));
+    blocks_.push_back(new Icons(Settings::instance().getCreateShortcut(), 5));
+    blocks_.push_back(new InstallAuthHelper(5));
 
     for (auto block : blocks_)
         totalWork_ += block->getWeight();
-#endif
 }
 
 void Installer::executionImpl()
 {
-    // try create install directory
-    if (SHCreateDirectoryEx(NULL, installPath_.c_str(), nullptr) != ERROR_SUCCESS)
-    {
-        if (GetLastError() != ERROR_ALREADY_EXISTS)
-        {
-            strLastError_ = L"Can't create install directory";
-            callbackState_(0, STATE_FATAL_ERROR);
-            return;
-        }
-    }
-
     int overallProgress = 0;
     int prevOverallProgress = 0;
 
@@ -79,7 +67,7 @@ void Installer::executionImpl()
         DWORD initTick = GetTickCount();
         IInstallBlock *block = *it;
 
-        Log::instance().out(L"Installing %ls...", block->getName().c_str());
+        Log::instance().out(L"Installing " + block->getName() + L"...");
 
         while (true)
         {
@@ -106,9 +94,9 @@ void Installer::executionImpl()
                 callbackState_(static_cast<unsigned int>(overallProgress), STATE_EXTRACTING);
                 ticks.push_back(GetTickCount() - initTick);
                 if (progressOfBlock < 0)
-                    Log::instance().out(L"Non-critical error installing %ls", block->getName().c_str());
+                    Log::instance().out(L"Non-critical error installing " + block->getName());
                 else
-                    Log::instance().out(L"Installed %ls", block->getName().c_str());
+                    Log::instance().out(L"Installed " + block->getName());
                 break;
             }
             // error from block?
@@ -134,10 +122,7 @@ void Installer::executionImpl()
 
 void Installer::runLauncherImpl()
 {
- #ifdef _WIN32
-    wstring pathLauncher = installPath_ + L"\\WindscribeLauncher.exe";
-    Log::instance().out(L"Running launcher: %ls", pathLauncher.c_str());
+    wstring pathLauncher = Settings::instance().getPath() + L"\\WindscribeLauncher.exe";
+    Log::instance().out(L"Running launcher: " + pathLauncher);
     ShellExecuteAsUser::shellExecuteFromExplorer(pathLauncher.c_str(), NULL, NULL, NULL, SW_RESTORE);
-    //ShellExecute(nullptr, nullptr, pathLauncher.c_str(), nullptr, nullptr, SW_RESTORE);
- #endif
 }

@@ -3,8 +3,6 @@
 
 #include "command.h"
 #include "types/enginesettings.h"
-#include "types/locationid.h"
-#include "types/splittunneling.h"
 #include "types/connectstate.h"
 
 namespace IPC
@@ -46,7 +44,11 @@ class Disconnect : public Command
 {
 public:
     Disconnect() {}
-    explicit Disconnect(char *buf, int size) {}
+    explicit Disconnect(char *buf, int size)
+    {
+        Q_UNUSED(buf)
+        Q_UNUSED(size)
+    }
 
     std::vector<char> getData() const override
     {
@@ -65,7 +67,11 @@ class ShowLocations : public Command
 {
 public:
     ShowLocations() {}
-    explicit ShowLocations(char *buf, int size) {}
+    explicit ShowLocations(char *buf, int size)
+    {
+        Q_UNUSED(buf)
+        Q_UNUSED(size)
+    }
 
     std::vector<char> getData() const override
     {
@@ -113,7 +119,11 @@ class GetState : public Command
 {
 public:
     GetState() {}
-    explicit GetState(char *buf, int size) {}
+    explicit GetState(char *buf, int size)
+    {
+        Q_UNUSED(buf)
+        Q_UNUSED(size)
+    }
 
     std::vector<char> getData() const override
     {
@@ -281,7 +291,11 @@ class LocationsShown : public Command
 {
 public:
     LocationsShown() {}
-    explicit LocationsShown(char *buf, int size) {}
+    explicit LocationsShown(char *buf, int size)
+    {
+        Q_UNUSED(buf)
+        Q_UNUSED(size)
+    }
 
     std::vector<char> getData() const override
     {
@@ -300,7 +314,11 @@ class AlreadyDisconnected : public Command
 {
 public:
     AlreadyDisconnected() {}
-    explicit AlreadyDisconnected(char *buf, int size) {}
+    explicit AlreadyDisconnected(char *buf, int size)
+    {
+        Q_UNUSED(buf)
+        Q_UNUSED(size)
+    }
 
     std::vector<char> getData() const override
     {
@@ -379,7 +397,11 @@ class SignedOut : public Command
 {
 public:
     SignedOut() {}
-    explicit SignedOut(char *buf, int size) {}
+    explicit SignedOut(char *buf, int size)
+    {
+        Q_UNUSED(buf)
+        Q_UNUSED(size)
+    }
 
     std::vector<char> getData() const override
     {

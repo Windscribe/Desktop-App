@@ -5,6 +5,7 @@
 #include <algorithm>
 
 #include "gui/application.h"
+#include "installer/settings.h"
 #include "../utils/applicationinfo.h"
 #include "../utils/logger.h"
 
@@ -93,10 +94,10 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
     UNREFERENCED_PARAMETER(hPrevInstance);
     SetDefaultDllDirectories(LOAD_LIBRARY_SEARCH_SYSTEM32);
 
-    if (!IsWindows8Point1OrGreater())
+    if (!IsWindows10OrGreater())
     {
         WSMessageBox(NULL, _T("Windscribe Installer"), MB_OK | MB_ICONSTOP,
-            _T("The Windscribe app can only be installed on Windows 8.1 or newer."));
+            _T("The Windscribe app can only be installed on Windows 10 or newer."));
         return 0;
     }
 
@@ -124,8 +125,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
 	// FILE *stream;
 	// freopen_s(&stream, "CONOUT$", "w+t", stdout);
 
-    const bool isUpdateMode =
-        CheckCommandLineArgument(L"-update") || CheckCommandLineArgument(L"-q");
+    const bool isUpdateMode = CheckCommandLineArgument(L"-update") || CheckCommandLineArgument(L"-q");
     int expectedArgumentCount = isUpdateMode ? 2 : 1;
 
     int window_center_x = -1, window_center_y = -1;
@@ -181,11 +181,17 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
     }
 
     Log::instance().init(true);
-    Log::instance().out(L"Installing Windscribe version %ls", ApplicationInfo::instance().getVersion().c_str());
-    Log::instance().out(L"Command-line args: %ls", ::GetCommandLine());
+    Log::instance().out(L"Installing Windscribe version " + ApplicationInfo::instance().getVersion());
+    Log::instance().out(L"Command-line args: " + std::wstring(::GetCommandLine()));
 
     Application app(hInstance, nCmdShow, isUpdateMode, isSilent, noDrivers, noAutoStart, isFactoryReset, installPath);
-    if (app.init(window_center_x, window_center_y))
-        return app.exec();
-    return -1;
+
+    int result = -1;
+    if (app.init(window_center_x, window_center_y)) {
+        result = app.exec();
+    }
+
+    Log::instance().writeFile(Settings::instance().getPath());
+
+    return result;
 }

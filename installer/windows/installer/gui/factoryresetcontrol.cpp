@@ -248,8 +248,8 @@ void FactoryResetControl::drawControl(HDC hdc)
 	Gdiplus::SolidBrush brush(Gdiplus::Color(255, 255, 255));
 	Gdiplus::StringFormat strformat;
 	strformat.SetLineAlignment(Gdiplus::StringAlignmentCenter);
-	graphics->DrawString(textItem_->text(), wcslen(textItem_->text()), textItem_->getFont(),
-		Gdiplus::RectF(0, 0, rc.right, rc.bottom), &strformat, &brush);
+	graphics->DrawString(textItem_->text(), static_cast<int>(wcslen(textItem_->text())), textItem_->getFont(),
+		                 Gdiplus::RectF(0, 0, rc.right, rc.bottom), &strformat, &brush);
 
 	// draw button
 	drawButton(graphics, rc.right - g_application->getImageResources()->getWhiteToggleBg()->GetWidth() - RIGHT_MARGIN * SCALE_FACTOR,

@@ -26,7 +26,7 @@ bool FontResources::init()
 
 		HGLOBAL mem = LoadResource(g_application->getInstance(), res);
 		void *data = LockResource(mem);
-		size_t len = SizeofResource(g_application->getInstance(), res);
+		DWORD len = SizeofResource(g_application->getInstance(), res);
 
 		Gdiplus::Status nResults = fontCollection_.AddMemoryFont(data, len);
 
@@ -48,7 +48,7 @@ bool FontResources::init()
 
 		HGLOBAL mem = LoadResource(g_application->getInstance(), res);
 		void *data = LockResource(mem);
-		size_t len = SizeofResource(g_application->getInstance(), res);
+		DWORD len = SizeofResource(g_application->getInstance(), res);
 
 		Gdiplus::Status nResults = fontCollection_.AddMemoryFont(data, len);
 

@@ -1,27 +1,25 @@
 #ifndef ICONS_H
 #define ICONS_H
 
-#include "../iinstall_block.h"
-//#include "../../Utils/logger.h"
 #include <string.h>
 #include <ShlObj.h>
-#include "../../../Utils/paths_to_folders.h"
-#include "../../../Utils/redirection.h"
+
+#include "../iinstall_block.h"
+#include "../../../utils/paths_to_folders.h"
+#include "../../../utils/redirection.h"
 
 
 //1% - Creating of the Shortcuts
 class Icons : public IInstallBlock
 {
 public:
-	Icons(const std::wstring &installPath, bool isCreateShortcut, double weight);
+	Icons(bool isCreateShortcut, double weight);
 	~Icons();
 
 	virtual int executeStep();
 
  private:
-    std::wstring installPath_;
-    bool isCreateShortcut_;
-    std::wstring uninstallExeFilename_;
+    const bool isCreateShortcut_;
     PathsToFolders pathsToFolders_;
     Redirection redirection;
  

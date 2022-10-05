@@ -1,17 +1,17 @@
 #include "icons.h"
+
 #include <versionhelpers.h>
+
+#include "../settings.h"
 #include "../../../Utils/applicationinfo.h"
-#include "../../../Utils/registry.h"
-#include "../../../Utils/path.h"
 #include "../../../Utils/directory.h"
+#include "../../../Utils/path.h"
+#include "../../../Utils/registry.h"
 
 using namespace std;
 
-Icons::Icons(const std::wstring &installPath, bool isCreateShortcut, double weight) : IInstallBlock(weight, L"icons")
+Icons::Icons(bool isCreateShortcut, double weight) : IInstallBlock(weight, L"icons"), isCreateShortcut_(isCreateShortcut)
 {
-	uninstallExeFilename_ = Path::AddBackslash(installPath) + ApplicationInfo::instance().getUninstall();
-	installPath_ = installPath;
-	isCreateShortcut_ = isCreateShortcut;
 }
 
 Icons::~Icons()
@@ -20,21 +20,24 @@ Icons::~Icons()
 
 int Icons::executeStep()
 {
-	wstring common_desktop = pathsToFolders_.GetShellFolder(true, sfDesktop, false);
+    const wstring& installPath = Settings::instance().getPath();
+    wstring uninstallExeFilename = Path::AddBackslash(installPath) + ApplicationInfo::instance().getUninstall();
+
+    wstring common_desktop = pathsToFolders_.GetShellFolder(true, sfDesktop, false);
 
 	if (isCreateShortcut_)
 	{
 		//C:\\Users\\Public\\Desktop\\Windscribe.lnk
-		CreateAnIcon(common_desktop + L"\\" + ApplicationInfo::instance().getName(), L"", Path::AddBackslash(installPath_) + L"WindscribeLauncher.exe", L"", installPath_, L"", 0, 1, 0, true);
+		CreateAnIcon(common_desktop + L"\\" + ApplicationInfo::instance().getName(), L"", Path::AddBackslash(installPath) + L"WindscribeLauncher.exe", L"", installPath, L"", 0, 1, 0, true);
 	}
 
 	wstring group = pathsToFolders_.GetShellFolder(true, sfPrograms, false);
 
 	//C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs\\Windscribe\\Uninstall Windscribe.lnk
-	CreateAnIcon(group+L"\\"+ ApplicationInfo::instance().getName() + L"\\Uninstall Windscribe",L"", uninstallExeFilename_,L"", installPath_,L"",0,1,0,false);
+	CreateAnIcon(group+L"\\"+ ApplicationInfo::instance().getName() + L"\\Uninstall Windscribe",L"", uninstallExeFilename, L"", installPath,L"",0,1,0,false);
 
 	//C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs\\Windscribe\\Windscribe.lnk
-	CreateAnIcon(group+L"\\"+ ApplicationInfo::instance().getName() + L"\\Windscribe",L"", Path::AddBackslash(installPath_) + L"\\WindscribeLauncher.exe",L"", installPath_, L"", 0, 1, 0, false);
+	CreateAnIcon(group+L"\\"+ ApplicationInfo::instance().getName() + L"\\Windscribe",L"", Path::AddBackslash(installPath) + L"\\WindscribeLauncher.exe",L"", installPath, L"", 0, 1, 0, false);
 	return 100;
 }
 

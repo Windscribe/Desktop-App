@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 class DateTimeHelper
 {
 public:
@@ -9,5 +11,5 @@ public:
     std::basic_string<T> getCurrentTimeString() const;
 
 private:
-    UINT64 init_milliseconds_;
+    unsigned long long init_milliseconds_;
 };
