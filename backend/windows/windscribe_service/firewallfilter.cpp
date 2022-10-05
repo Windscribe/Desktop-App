@@ -316,40 +316,6 @@ void FirewallFilter::addFilters(HANDLE engineHandle, const wchar_t *ip, bool bAl
         }
     }
 
-    // Add permit filter for Windscribe reserved range (10.255.255.0 - 10.255.255.255)
-    {
-        FWPM_FILTER0 filter = {0};
-        std::vector<FWPM_FILTER_CONDITION0> condition(1);
-        FWP_V4_ADDR_AND_MASK addrMask;
-        memset(&condition[0], 0, sizeof(FWPM_FILTER_CONDITION0) * 1);
-
-        filter.subLayerKey = subLayerGUID_;
-        filter.displayData.name = (wchar_t *)FIREWALL_SUBLAYER_NAMEW;
-        filter.layerKey = FWPM_LAYER_ALE_AUTH_CONNECT_V4;
-        filter.flags = FWPM_SUBLAYER_FLAG_PERSISTENT;
-        filter.action.type = FWP_ACTION_PERMIT;
-        filter.weight.type = FWP_UINT8;
-        filter.weight.uint8 = 0x04;
-        filter.filterCondition = &condition[0];
-        filter.numFilterConditions = 1;
-
-        condition[0].fieldKey = FWPM_CONDITION_IP_REMOTE_ADDRESS;
-        condition[0].matchType = FWP_MATCH_EQUAL;
-        condition[0].conditionValue.type = FWP_V4_ADDR_MASK;
-        condition[0].conditionValue.v4AddrMask = &addrMask;
-
-        Ip4AddressAndMask ipAddress("10.255.255.0/24");
-        addrMask.addr = ipAddress.ipHostOrder();
-        addrMask.mask = ipAddress.maskHostOrder();
-
-        UINT64 filterId;
-        dwFwAPiRetCode = FwpmFilterAdd0(engineHandle, &filter, NULL, &filterId);
-        if (dwFwAPiRetCode != ERROR_SUCCESS)
-        {
-            Logger::instance().out(L"Error 33 (0x%X)", dwFwAPiRetCode);
-        }
-    }
-
     // add permit filters for Local Network
     if (bAllowLocalTraffic)
     {
@@ -701,7 +667,59 @@ void FirewallFilter::addPermitFilterForAdapter(HANDLE engineHandle, NET_IFINDEX 
 {
     NET_LUID luid;
     ConvertInterfaceIndexToLuid(tapInd, &luid);
+    // Explicitly allow 10.255.255.0/24
+    addFilterForAdapterAndIpRange(engineHandle, FWP_ACTION_PERMIT, luid, Ip4AddressAndMask("10.255.255.0/24"), weight);
+    // Disallow all other private networks, link-local, loopback from going over tunnel
+    addFilterForAdapterAndIpRange(engineHandle, FWP_ACTION_BLOCK, luid, Ip4AddressAndMask("10.0.0.0/8"), weight);
+    addFilterForAdapterAndIpRange(engineHandle, FWP_ACTION_BLOCK, luid, Ip4AddressAndMask("172.16.0.0/12"), weight);
+    addFilterForAdapterAndIpRange(engineHandle, FWP_ACTION_BLOCK, luid, Ip4AddressAndMask("192.168.0.0/16"), weight);
+    addFilterForAdapterAndIpRange(engineHandle, FWP_ACTION_BLOCK, luid, Ip4AddressAndMask("169.254.0.0/16"), weight);
+    addFilterForAdapterAndIpRange(engineHandle, FWP_ACTION_BLOCK, luid, Ip4AddressAndMask("127.0.0.0/8"), weight);
+    addFilterForAdapterAndIpRange(engineHandle, FWP_ACTION_BLOCK, luid, Ip4AddressAndMask("224.0.0.0/24"), weight);
+    // Permit other traffic
     addPermitFilterForAdapter(engineHandle, luid, weight);
+}
+
+UINT64 FirewallFilter::addFilterForAdapterAndIpRange(HANDLE engineHandle, FWP_ACTION_TYPE type, NET_LUID luid, Ip4AddressAndMask range, UINT8 weight)
+{
+    UINT64 filterId = 0;
+    {
+        DWORD dwFwAPiRetCode;
+        FWP_V4_ADDR_AND_MASK addrMask;
+        FWPM_FILTER0 filter = { 0 };
+        std::vector<FWPM_FILTER_CONDITION0> condition(2);
+        memset(&condition[0], 0, sizeof(FWPM_FILTER_CONDITION0) * (2));
+
+        filter.subLayerKey = subLayerGUID_;
+        filter.displayData.name = (wchar_t *)FIREWALL_SUBLAYER_NAMEW;
+        filter.layerKey = FWPM_LAYER_ALE_AUTH_CONNECT_V4;
+        filter.action.type = type;
+        filter.flags = FWPM_SUBLAYER_FLAG_PERSISTENT;
+        filter.weight.type = FWP_UINT8;
+        filter.weight.uint8 = weight;
+        filter.filterCondition = &condition[0];
+        filter.numFilterConditions = 2;
+
+        condition[0].fieldKey = FWPM_CONDITION_IP_LOCAL_INTERFACE;
+        condition[0].matchType = FWP_MATCH_EQUAL;
+        condition[0].conditionValue.type = FWP_UINT64;
+        condition[0].conditionValue.uint64 = &luid.Value;
+        condition[1].fieldKey = FWPM_CONDITION_IP_REMOTE_ADDRESS;
+        condition[1].matchType = FWP_MATCH_EQUAL;
+        condition[1].conditionValue.type = FWP_V4_ADDR_MASK;
+        condition[1].conditionValue.v4AddrMask = &addrMask;
+
+        Ip4AddressAndMask ipAddress(range);
+        addrMask.addr = ipAddress.ipHostOrder();
+        addrMask.mask = ipAddress.maskHostOrder();
+
+        dwFwAPiRetCode = FwpmFilterAdd0(engineHandle, &filter, NULL, &filterId);
+        if (dwFwAPiRetCode != ERROR_SUCCESS)
+        {
+            Logger::instance().out(L"Error 34");
+        }
+    }
+    return filterId;
 }
 
 void FirewallFilter::addPermitFilterForAppsIds(HANDLE engineHandle, UINT8 weight)

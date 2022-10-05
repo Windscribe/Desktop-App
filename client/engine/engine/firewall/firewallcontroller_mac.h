@@ -7,6 +7,8 @@
 
 #include <QTemporaryFile>
 
+class Anchor;
+
 //thread safe
 class FirewallController_mac : public FirewallController
 {
@@ -52,6 +54,7 @@ private:
     bool checkInternalVsPfctlState();
     QString generatePfConfFile(const QSet<QString> &ips, bool bAllowLanTraffic, const QString &interfaceToSkip);
     bool generateTableFile(QTemporaryFile &tempFile, const QSet<QString> &ips);
+    void setVpnAnchorRules(Anchor &anchor, const QString &interfaceToSkip);
 };
 
 #endif // FIREWALLCONTROLLER_MAC_H
