@@ -144,6 +144,8 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
                                                  QString("https://%1/features/secure-hotspot").arg(HardcodedSettings::instance().serverUrl()));
     connect(secureHotspotGroup_, &SecureHotspotGroup::secureHotspotPreferencesChanged, this, &ConnectionWindowItem::onSecureHotspotPreferencesChangedByUser);
     secureHotspotGroup_->setSecureHotspotSettings(preferences->shareSecureHotspot());
+    updateIsSupported(preferencesHelper_->isWifiSharingSupported(),
+                      isIkev2OrAutomaticConnectionMode(preferences_->connectionSettings()));
     addItem(secureHotspotGroup_);
 #endif
 
@@ -389,7 +391,7 @@ void ConnectionWindowItem::onSecureHotspotPreferencesChanged(const types::ShareS
 
 void ConnectionWindowItem::onConnectionSettingsPreferencesChanged(const types::ConnectionSettings &cs)
 {
-    updateIsSupported(isWifiSharingSupported_, isIkev2OrAutomaticConnectionMode(cs));
+    updateIsSupported(preferencesHelper_->isWifiSharingSupported(), isIkev2OrAutomaticConnectionMode(cs));
 }
 
 void ConnectionWindowItem::onProxyGatewayPreferencesChangedByUser(const types::ShareProxyGateway &sp)
@@ -404,8 +406,7 @@ void ConnectionWindowItem::onProxyGatewayPreferencesChanged(const types::SharePr
 
 void ConnectionWindowItem::onPreferencesHelperWifiSharingSupportedChanged(bool bSupported)
 {
-    isWifiSharingSupported_ = bSupported;
-    updateIsSupported(isWifiSharingSupported_, isIkev2OrAutomaticConnectionMode(preferences_->getEngineSettings().connectionSettings()));
+    updateIsSupported(bSupported, isIkev2OrAutomaticConnectionMode(preferences_->connectionSettings()));
 }
 
 bool ConnectionWindowItem::isIkev2OrAutomaticConnectionMode(const types::ConnectionSettings &cs) const
