@@ -103,7 +103,6 @@ private:
     SecureHotspotGroup *secureHotspotGroup_;
     ProxyGatewayGroup *proxyGatewayGroup_;
 
-    bool isWifiSharingSupported_;
     bool isIkev2OrAutomaticConnectionMode(const types::ConnectionSettings &cs) const;
     void updateIsSupported(bool isWifiSharingSupported, bool isIkev2OrAutomatic);
 
