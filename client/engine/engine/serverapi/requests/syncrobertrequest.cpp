@@ -4,6 +4,7 @@
 #include <QJsonObject>
 
 #include "utils/logger.h"
+#include "engine/utils/urlquery_utils.h"
 
 namespace server_api {
 
@@ -17,8 +18,8 @@ QUrl SyncRobertRequest::url(const QString &domain) const
 {
     QUrl url("https://" + hostname(domain, SudomainType::kApi) + "/Robert/syncrobert");
     QUrlQuery query;
-    addAuthQueryItems(query, authHash_);
-    addPlatformQueryItems(query);
+    urlquery_utils::addAuthQueryItems(query, authHash_);
+    urlquery_utils::addPlatformQueryItems(query);
     url.setQuery(query);
     return url;
 }
@@ -35,7 +36,7 @@ void SyncRobertRequest::handle(const QByteArray &arr)
     if (errCode.error != QJsonParseError::NoError || !doc.isObject()) {
         qCDebugMultiline(LOG_SERVER_API) << arr;
         qCDebug(LOG_SERVER_API) << "Failed parse JSON for SyncRobert";
-        setRetCode(SERVER_RETURN_INCORRECT_JSON);
+        setNetworkRetCode(SERVER_RETURN_INCORRECT_JSON);
         return;
     }
 
@@ -43,13 +44,14 @@ void SyncRobertRequest::handle(const QByteArray &arr)
     if (!jsonObject.contains("data")) {
         qCDebugMultiline(LOG_SERVER_API) << arr;
         qCDebug(LOG_SERVER_API) << "Failed parse JSON for SyncRobert";
-        setRetCode(SERVER_RETURN_INCORRECT_JSON);
+        setNetworkRetCode(SERVER_RETURN_INCORRECT_JSON);
         return;
     }
 
     QJsonObject jsonData =  jsonObject["data"].toObject();
     qCDebug(LOG_SERVER_API) << "SyncRobert request successfully executed ( result =" << jsonData["success"] << ")";
-    setRetCode((jsonData["success"] == 1) ? SERVER_RETURN_SUCCESS : SERVER_RETURN_INCORRECT_JSON);
+    if (jsonData["success"] != 1)
+        setNetworkRetCode(SERVER_RETURN_INCORRECT_JSON);
 }
 
 } // namespace server_api {

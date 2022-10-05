@@ -9,7 +9,7 @@
 #include "utils/ws_assert.h"
 #include "utils/utils.h"
 
-namespace server_api {
+namespace failover {
 
 void DynamicDomainFailover::getHostnames(bool bIgnoreSslErrors)
 {
@@ -80,5 +80,5 @@ QString DynamicDomainFailover::parseHostnameFromJson(const QByteArray &arr)
     return jsonAnswer["data"].toString().remove("\"");  // remove quotes
 }
 
-} // namespace server_api
+} // namespace failover
 

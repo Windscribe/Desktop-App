@@ -5,6 +5,7 @@
 #include "utils/logger.h"
 #include "version/appversion.h"
 #include "utils/utils.h"
+#include "engine/utils/urlquery_utils.h"
 
 namespace server_api {
 
@@ -39,8 +40,8 @@ QUrl CheckUpdateRequest::url(const QString &domain) const
     if (!osBuild.isEmpty())
         query.addQueryItem("os_build", osBuild);
 
-    addAuthQueryItems(query);
-    addPlatformQueryItems(query);
+    urlquery_utils::addAuthQueryItems(query);
+    urlquery_utils::addPlatformQueryItems(query);
     url.setQuery(query);
     return url;
 }
@@ -57,7 +58,7 @@ void CheckUpdateRequest::handle(const QByteArray &arr)
     if (errCode.error != QJsonParseError::NoError || !doc.isObject()) {
         qCDebugMultiline(LOG_SERVER_API) << arr;
         qCDebug(LOG_SERVER_API) << "Failed parse JSON for CheckUpdate";
-        setRetCode(SERVER_RETURN_INCORRECT_JSON);
+        setNetworkRetCode(SERVER_RETURN_INCORRECT_JSON);
         return;
     }
 
@@ -67,40 +68,39 @@ void CheckUpdateRequest::handle(const QByteArray &arr)
         // Putting this debug line here to help us quickly troubleshoot errors returned from the
         // server API, which hopefully should be few and far between.
         qCDebugMultiline(LOG_SERVER_API) << arr;
-        setRetCode(SERVER_RETURN_INCORRECT_JSON);
+        setNetworkRetCode(SERVER_RETURN_INCORRECT_JSON);
         return;
     }
 
     if (!jsonObject.contains("data")) {
         qCDebugMultiline(LOG_SERVER_API) << arr;
         qCDebug(LOG_SERVER_API) << "Failed parse JSON for CheckUpdate";
-        setRetCode(SERVER_RETURN_INCORRECT_JSON);
+        setNetworkRetCode(SERVER_RETURN_INCORRECT_JSON);
         return;
     }
     QJsonObject jsonData =  jsonObject["data"].toObject();
     if (!jsonData.contains("update_needed_flag")) {
         qCDebugMultiline(LOG_SERVER_API) << arr;
         qCDebug(LOG_SERVER_API) << "Failed parse JSON for CheckUpdate";
-        setRetCode(SERVER_RETURN_INCORRECT_JSON);
+        setNetworkRetCode(SERVER_RETURN_INCORRECT_JSON);
         return;
     }
 
     int updateNeeded = jsonData["update_needed_flag"].toInt();
     if (updateNeeded != 1) {
-        setRetCode(SERVER_RETURN_SUCCESS);
         return;
     }
 
     if (!jsonData.contains("latest_version")) {
         qCDebugMultiline(LOG_SERVER_API) << arr;
         qCDebug(LOG_SERVER_API) << "Failed parse JSON for CheckUpdate";
-        setRetCode(SERVER_RETURN_INCORRECT_JSON);
+        setNetworkRetCode(SERVER_RETURN_INCORRECT_JSON);
         return;
     }
     if (!jsonData.contains("update_url")) {
         qCDebugMultiline(LOG_SERVER_API) << arr;
         qCDebug(LOG_SERVER_API) << "Failed parse JSON for CheckUpdate";
-        setRetCode(SERVER_RETURN_INCORRECT_JSON);
+        setNetworkRetCode(SERVER_RETURN_INCORRECT_JSON);
         return;
     }
 
@@ -109,11 +109,9 @@ void CheckUpdateRequest::handle(const QByteArray &arr)
     checkUpdate_ = types::CheckUpdate::createFromApiJson(jsonData, outSuccess, err);
     if (!outSuccess) {
         qCDebug(LOG_SERVER_API) << err;
-        setRetCode(SERVER_RETURN_INCORRECT_JSON);
+        setNetworkRetCode(SERVER_RETURN_INCORRECT_JSON);
         return;
     }
-
-    setRetCode(SERVER_RETURN_SUCCESS);
 }
 
 } // namespace server_api {

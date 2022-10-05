@@ -41,7 +41,7 @@ void RefetchServerCredentialsHelper::onServerCredentialsAnswer()
     {
         WS_ASSERT(!isOpenVpnProtocolReceived_);
         isOpenVpnProtocolReceived_ = true;
-        retCodeOpenVpn_ = request->retCode();
+        retCodeOpenVpn_ = request->networkRetCode();
         radiusUsernameOpenVpn_ = request->radiusUsername();
         radiusPasswordOpenVpn_ = request->radiusPassword();
     }
@@ -49,7 +49,7 @@ void RefetchServerCredentialsHelper::onServerCredentialsAnswer()
     {
         WS_ASSERT(!isIkev2ProtocolReceived_);
         isIkev2ProtocolReceived_ = true;
-        retCodeIkev2_ = request->retCode();
+        retCodeIkev2_ = request->networkRetCode();
         radiusUsernameIkev2_ = request->radiusUsername();
         radiusPasswordIkev2_ = request->radiusPassword();
     }
@@ -65,7 +65,7 @@ void RefetchServerCredentialsHelper::onServerConfigsAnswer()
 {
     QSharedPointer<server_api::ServerConfigsRequest> request(static_cast<server_api::ServerConfigsRequest *>(sender()), &QObject::deleteLater);
     isServerConfigsAnswerReceived_ = true;
-    retCodeServerConfigs_ = request->retCode();
+    retCodeServerConfigs_ = request->networkRetCode();
     serverConfig_ = request->ovpnConfig();
     checkFinished();
 }

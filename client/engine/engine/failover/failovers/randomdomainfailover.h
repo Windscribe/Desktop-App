@@ -3,7 +3,7 @@
 #include "basefailover.h"
 #include "utils/hardcodedsettings.h"
 
-namespace server_api {
+namespace failover {
 
 // Procedurally Generated Domain
 class RandomDomainFailover : public BaseFailover
@@ -23,5 +23,4 @@ public:
 
 };
 
-} // namespace server_api
-
+} // namespace failover

@@ -2,6 +2,7 @@
 
 #include <QElapsedTimer>
 #include <QObject>
+#include "engine/serverapi/requests/sessionerrorcode.h"
 #include "engine/serverapi/serverapi.h"
 #include "getallconfigscontroller.h"
 #include "loginsettings.h"
@@ -59,7 +60,7 @@ private:
     GetAllConfigsController *getAllConfigsController_;
 
     void getApiInfoFromSettings();
-    void handleLoginOrSessionAnswer(SERVER_API_RET_CODE retCode, const types::SessionStatus &sessionStatus, const QString &authHash, const QString &errorMessage);
+    void handleLoginOrSessionAnswer(SERVER_API_RET_CODE retCode, SessionErrorCode sessionErrorCode,  const types::SessionStatus &sessionStatus, const QString &authHash, const QString &errorMessage);
     void makeLoginRequest();
 
     void handleNextLoginAfterFail(SERVER_API_RET_CODE retCode);

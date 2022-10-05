@@ -2,7 +2,7 @@
 
 #include "basefailover.h"
 
-namespace server_api {
+namespace failover {
 
 class HardcodedDomainFailover : public BaseFailover
 {
@@ -24,5 +24,4 @@ private:
     QString domain_;
 };
 
-} // namespace server_api
-
+} // namespace failover

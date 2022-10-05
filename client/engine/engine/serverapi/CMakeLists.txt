@@ -1,11 +1,6 @@
 target_sources(engine PRIVATE
-    failover.cpp
-    failover.h
-    failoverwithstate.h
     serverapi.cpp
     serverapi.h
-    requests/accessipsrequest.cpp
-    requests/accessipsrequest.h
     requests/baserequest.cpp
     requests/baserequest.h
     requests/checkupdaterequest.cpp
@@ -38,6 +33,7 @@ target_sources(engine PRIVATE
     requests/serverlistrequest.h
     requests/sessionrequest.cpp
     requests/sessionrequest.h
+    requests/sessionerrorcode.h
     requests/setrobertfiltersrequest.cpp
     requests/setrobertfiltersrequest.h
     requests/speedratingrequest.cpp
@@ -52,14 +48,6 @@ target_sources(engine PRIVATE
     requests/wgconfigsconnectrequest.h
     requests/wgconfigsinitrequest.cpp
     requests/wgconfigsinitrequest.h
-    failovers/basefailover.h
-    failovers/basefailover.cpp
-    failovers/hardcodeddomainfailover.h
-    failovers/dynamicdomainfailover.h
-    failovers/dynamicdomainfailover.cpp
-    failovers/randomdomainfailover.h
-    failovers/accessipsfailover.h
-    failovers/accessipsfailover.cpp
 )
 
 if(DEFINED IS_BUILD_TESTS)

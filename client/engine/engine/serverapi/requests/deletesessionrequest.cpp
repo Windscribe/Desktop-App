@@ -1,6 +1,7 @@
 #include "deletesessionrequest.h"
 
 #include "utils/logger.h"
+#include "engine/utils/urlquery_utils.h"
 
 namespace server_api {
 
@@ -13,8 +14,8 @@ QUrl DeleteSessionRequest::url(const QString &domain) const
 {
     QUrl url("https://" + hostname(domain, SudomainType::kApi) + "/Session");
     QUrlQuery query;
-    addAuthQueryItems(query, authHash_);
-    addPlatformQueryItems(query);
+    urlquery_utils::addAuthQueryItems(query, authHash_);
+    urlquery_utils::addPlatformQueryItems(query);
     url.setQuery(query);
     return url;
 }
@@ -28,7 +29,6 @@ void DeleteSessionRequest::handle(const QByteArray &arr)
 {
     // nothing todo here
     qCDebug(LOG_SERVER_API) << "API request DeleteSession successfully executed";
-    setRetCode(SERVER_RETURN_SUCCESS);
 }
 
 } // namespace server_api {

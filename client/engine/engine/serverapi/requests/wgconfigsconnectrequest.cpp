@@ -4,6 +4,7 @@
 #include <QJsonObject>
 
 #include "utils/logger.h"
+#include "engine/utils/urlquery_utils.h"
 
 namespace server_api {
 
@@ -31,8 +32,8 @@ QByteArray WgConfigsConnectRequest::postData() const
         qDebug(LOG_SERVER_API) << "Setting device_id for WgConfigs connect request:" << deviceId_;
         postData.addQueryItem("device_id", deviceId_);
     }
-    addAuthQueryItems(postData, authHash_);
-    addPlatformQueryItems(postData);
+    urlquery_utils::addAuthQueryItems(postData, authHash_);
+    urlquery_utils::addPlatformQueryItems(postData);
     return postData.toString(QUrl::FullyEncoded).toUtf8();
 }
 
@@ -53,7 +54,7 @@ void WgConfigsConnectRequest::handle(const QByteArray &arr)
     if (errCode.error != QJsonParseError::NoError || !doc.isObject()) {
         qCDebugMultiline(LOG_SERVER_API) << arr;
         qCDebug(LOG_SERVER_API) << "Failed to parse JSON for WgConfigs connect response";
-        setRetCode(SERVER_RETURN_INCORRECT_JSON);
+        setNetworkRetCode(SERVER_RETURN_INCORRECT_JSON);
         return;
     }
 
@@ -64,14 +65,13 @@ void WgConfigsConnectRequest::handle(const QByteArray &arr)
         errorCode_ = jsonObject["errorCode"].toInt();
         isErrorCode_ = true;
         qCDebug(LOG_SERVER_API) << "WgConfigs connect failed:" << jsonObject["errorMessage"].toString() << "(" << errorCode_ << ")";
-        setRetCode(SERVER_RETURN_SUCCESS);
         return;
     }
 
     if (!jsonObject.contains("data")) {
         qCDebugMultiline(LOG_SERVER_API) << arr;
         qCDebug(LOG_SERVER_API) << "WgConfigs connect JSON is missing the 'data' element";
-        setRetCode(SERVER_RETURN_INCORRECT_JSON);
+        setNetworkRetCode(SERVER_RETURN_INCORRECT_JSON);
         return;
     }
 
@@ -79,7 +79,7 @@ void WgConfigsConnectRequest::handle(const QByteArray &arr)
     if (!jsonData.contains("success") || jsonData["success"].toInt(0) == 0) {
         qCDebugMultiline(LOG_SERVER_API) << arr;
         qCDebug(LOG_SERVER_API) << "WgConfigs connect JSON contains a missing or invalid 'success' field";
-        setRetCode(SERVER_RETURN_INCORRECT_JSON);
+        setNetworkRetCode(SERVER_RETURN_INCORRECT_JSON);
         return;
     }
 
@@ -88,12 +88,11 @@ void WgConfigsConnectRequest::handle(const QByteArray &arr)
         ipAddress_  = jsonConfig["Address"].toString();
         dnsAddress_ = jsonConfig["DNS"].toString();
         qCDebug(LOG_SERVER_API) << "WgConfigs connect request successfully executed";
-        setRetCode(SERVER_RETURN_SUCCESS);
 
     } else {
         qCDebugMultiline(LOG_SERVER_API) << arr;
         qCDebug(LOG_SERVER_API) << "WgConfigs connect 'config' entry is missing required elements";
-        setRetCode(SERVER_RETURN_INCORRECT_JSON);
+        setNetworkRetCode(SERVER_RETURN_INCORRECT_JSON);
     }
 }
 

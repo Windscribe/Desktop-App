@@ -5,6 +5,7 @@
 #include <QSettings>
 
 #include "utils/logger.h"
+#include "engine/utils/urlquery_utils.h"
 
 namespace server_api {
 
@@ -51,8 +52,8 @@ QUrl ServerListRequest::url(const QString &domain) const
         qCDebug(LOG_SERVER_API) << "API request ServerLocations added countryOverride = " << countryOverride;
     }
 
-    addAuthQueryItems(query);
-    addPlatformQueryItems(query);
+    urlquery_utils::addAuthQueryItems(query);
+    urlquery_utils::addPlatformQueryItems(query);
     url.setQuery(query);
 
     return url;
@@ -70,7 +71,7 @@ void ServerListRequest::handle(const QByteArray &arr)
     if (errCode.error != QJsonParseError::NoError || !doc.isObject()) {
         qCDebugMultiline(LOG_SERVER_API) << arr;
         qCDebug(LOG_SERVER_API) << "API request ServerLocations incorrect json";
-        setRetCode(SERVER_RETURN_INCORRECT_JSON);
+        setNetworkRetCode(SERVER_RETURN_INCORRECT_JSON);
         return;
     }
     QJsonObject jsonObject = doc.object();
@@ -78,14 +79,14 @@ void ServerListRequest::handle(const QByteArray &arr)
     if (!jsonObject.contains("info")) {
         qCDebugMultiline(LOG_SERVER_API) << arr;
         qCDebug(LOG_SERVER_API) << "API request ServerLocations incorrect json (info field not found)";
-        setRetCode(SERVER_RETURN_INCORRECT_JSON);
+        setNetworkRetCode(SERVER_RETURN_INCORRECT_JSON);
         return;
     }
 
     if (!jsonObject.contains("data")) {
         qCDebugMultiline(LOG_SERVER_API) << arr;
         qCDebug(LOG_SERVER_API) << "API request ServerLocations incorrect json (data field not found)";
-        setRetCode(SERVER_RETURN_INCORRECT_JSON);
+        setNetworkRetCode(SERVER_RETURN_INCORRECT_JSON);
         return;
     }
     // parse revision number
@@ -137,16 +138,12 @@ void ServerListRequest::handle(const QByteArray &arr)
         if (locations_.empty())  {
             qCDebugMultiline(LOG_SERVER_API) << arr;
             qCDebug(LOG_SERVER_API) << "API request ServerLocations incorrect json, no valid 'data' elements were found";
-            setRetCode(SERVER_RETURN_INCORRECT_JSON);
-        }
-        else {
-            setRetCode(SERVER_RETURN_SUCCESS);
+            setNetworkRetCode(SERVER_RETURN_INCORRECT_JSON);
         }
     }
     else
     {
         qCDebug(LOG_SERVER_API) << "API request ServerLocations successfully executed, revision not changed";
-        setRetCode(SERVER_RETURN_SUCCESS);
     }
 }
 

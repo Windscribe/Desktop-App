@@ -49,7 +49,7 @@ void GetMyIPController::onMyIpAnswer()
 {
     QSharedPointer<server_api::MyIpRequest> request(static_cast<server_api::MyIpRequest *>(sender()), &QObject::deleteLater);
     curRequest_ = nullptr;
-    if (request->retCode() != SERVER_RETURN_SUCCESS) {
+    if (request->networkRetCode() != SERVER_RETURN_SUCCESS) {
         timer_.stop();
         timer_.start(1000);
     } else {

@@ -57,15 +57,15 @@ void GetWireGuardConfig::onWgConfigsInitAnswer()
 {
     QSharedPointer<server_api::WgConfigsInitRequest> request(static_cast<server_api::WgConfigsInitRequest *>(sender()), &QObject::deleteLater);
 
-    if (request->retCode() != SERVER_RETURN_SUCCESS) {
+    if (request->networkRetCode() != SERVER_RETURN_SUCCESS) {
         isRequestAlreadyInProgress_ = false;
-        emit getWireGuardConfigAnswer(request->retCode(), wireGuardConfig_);
+        emit getWireGuardConfigAnswer(WireGuardConfigRetCode::kFailed, wireGuardConfig_);
         return;
     }
 
     if (request->isErrorCode())
     {
-        SERVER_API_RET_CODE newRetCode = SERVER_RETURN_NETWORK_ERROR;
+        WireGuardConfigRetCode newRetCode = WireGuardConfigRetCode::kFailed;
 
         if (request->errorCode() == 1310) {
             // This error indicates the server was unable to generate the preshared key.
@@ -79,7 +79,7 @@ void GetWireGuardConfig::onWgConfigsInitAnswer()
          else if (request->errorCode() == 1313) {
             // This error indicates the user has used up all of their public key slots on the server.
             // Ask them if they want to delete their oldest registered key and try again.
-            newRetCode = SERVER_RETURN_WIREGUARD_KEY_LIMIT;
+            newRetCode = WireGuardConfigRetCode::kKeyLimit;
          }
 
         isRequestAlreadyInProgress_ = false;
@@ -102,10 +102,10 @@ void GetWireGuardConfig::onWgConfigsConnectAnswer()
 {
     QSharedPointer<server_api::WgConfigsConnectRequest> request(static_cast<server_api::WgConfigsConnectRequest *>(sender()), &QObject::deleteLater);
 
-    if (request->retCode() != SERVER_RETURN_SUCCESS)
+    if (request->networkRetCode() != SERVER_RETURN_SUCCESS)
     {
         isRequestAlreadyInProgress_ = false;
-        emit getWireGuardConfigAnswer(request->retCode(), wireGuardConfig_);
+        emit getWireGuardConfigAnswer(WireGuardConfigRetCode::kFailed, wireGuardConfig_);
         return;
     }
 
@@ -135,14 +135,14 @@ void GetWireGuardConfig::onWgConfigsConnectAnswer()
         }
 
         isRequestAlreadyInProgress_ = false;
-        emit getWireGuardConfigAnswer(SERVER_RETURN_NETWORK_ERROR, wireGuardConfig_);
+        emit getWireGuardConfigAnswer(WireGuardConfigRetCode::kFailed, wireGuardConfig_);
         return;
     }
 
     wireGuardConfig_.setClientIpAddress(WireGuardConfig::stripIpv6Address(request->ipAddress()));
     wireGuardConfig_.setClientDnsAddress(WireGuardConfig::stripIpv6Address(request->dnsAddress()));
     isRequestAlreadyInProgress_ = false;
-    emit getWireGuardConfigAnswer(SERVER_RETURN_SUCCESS, wireGuardConfig_);
+    emit getWireGuardConfigAnswer(WireGuardConfigRetCode::kSuccess, wireGuardConfig_);
 }
 
 void GetWireGuardConfig::submitWireGuardInitRequest(bool generateKeyPair)
@@ -152,7 +152,7 @@ void GetWireGuardConfig::submitWireGuardInitRequest(bool generateKeyPair)
         if (!wireGuardConfig_.generateKeyPair())
         {
             isRequestAlreadyInProgress_ = false;
-            emit getWireGuardConfigAnswer(SERVER_RETURN_NETWORK_ERROR, wireGuardConfig_);
+            emit getWireGuardConfigAnswer(WireGuardConfigRetCode::kFailed, wireGuardConfig_);
             return;
         }
         // Persist the key-pair we're about to register with the server.

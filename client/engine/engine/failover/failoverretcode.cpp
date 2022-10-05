@@ -1,8 +1,7 @@
-#include "basefailover.h"
-
+#include "failoverretcode.h"
 #include "utils/ws_assert.h"
 
-namespace server_api {
+namespace failover {
 
 QDebug operator<<(QDebug dbg, const FailoverRetCode &f)
 {
@@ -24,6 +23,5 @@ QDebug operator<<(QDebug dbg, const FailoverRetCode &f)
     return dbg;
 }
 
-
-} // namespace server_api
+} // namespace failover
 

@@ -41,19 +41,19 @@ void LoginController::startLoginProcess(const LoginSettings &loginSettings, bool
 void LoginController::onLoginAnswer()
 {
     QSharedPointer<server_api::LoginRequest> request(static_cast<server_api::LoginRequest *>(sender()), &QObject::deleteLater);
-    handleLoginOrSessionAnswer(request->retCode(), request->sessionStatus(), request->authHash(), request->errorMessage());
+    handleLoginOrSessionAnswer(request->networkRetCode(), request->sessionErrorCode(), request->sessionStatus(), request->authHash(), request->errorMessage());
 }
 
 void LoginController::onSessionAnswer()
 {
     QSharedPointer<server_api::SessionRequest> request(static_cast<server_api::SessionRequest *>(sender()), &QObject::deleteLater);
-    handleLoginOrSessionAnswer(request->retCode(), request->sessionStatus(), loginSettings_.authHash(), QString());
+    handleLoginOrSessionAnswer(request->networkRetCode(), request->sessionErrorCode(), request->sessionStatus(), loginSettings_.authHash(), QString());
 }
 
 void LoginController::onServerLocationsAnswer()
 {
     QSharedPointer<server_api::ServerListRequest> request(static_cast<server_api::ServerListRequest *>(sender()), &QObject::deleteLater);
-    getAllConfigsController_->putServerLocationsAnswer(request->retCode(), request->locations(), request->forceDisconnectNodes());
+    getAllConfigsController_->putServerLocationsAnswer(request->networkRetCode(), request->locations(), request->forceDisconnectNodes());
 }
 
 void LoginController::onServerCredentialsAnswer()
@@ -61,30 +61,30 @@ void LoginController::onServerCredentialsAnswer()
     QSharedPointer<server_api::ServerCredentialsRequest> request(static_cast<server_api::ServerCredentialsRequest *>(sender()), &QObject::deleteLater);
     if (request->protocol().isOpenVpnProtocol())
     {
-        getAllConfigsController_->putServerCredentialsOpenVpnAnswer(request->retCode(), request->radiusUsername(), request->radiusPassword());
+        getAllConfigsController_->putServerCredentialsOpenVpnAnswer(request->networkRetCode(), request->radiusUsername(), request->radiusPassword());
     }
     else if (request->protocol().isIkev2Protocol())
     {
-        getAllConfigsController_->putServerCredentialsIkev2Answer(request->retCode(), request->radiusUsername(), request->radiusPassword());
+        getAllConfigsController_->putServerCredentialsIkev2Answer(request->networkRetCode(), request->radiusUsername(), request->radiusPassword());
     }
 }
 
 void LoginController::onServerConfigsAnswer()
 {
     QSharedPointer<server_api::ServerConfigsRequest> request(static_cast<server_api::ServerConfigsRequest *>(sender()), &QObject::deleteLater);
-    getAllConfigsController_->putServerConfigsAnswer(request->retCode(), request->ovpnConfig());
+    getAllConfigsController_->putServerConfigsAnswer(request->networkRetCode(), request->ovpnConfig());
 }
 
 void LoginController::onPortMapAnswer()
 {
     QSharedPointer<server_api::PortMapRequest> request(static_cast<server_api::PortMapRequest *>(sender()), &QObject::deleteLater);
-    getAllConfigsController_->putPortMapAnswer(request->retCode(), request->portMap());
+    getAllConfigsController_->putPortMapAnswer(request->networkRetCode(), request->portMap());
 }
 
 void LoginController::onStaticIpsAnswer()
 {
     QSharedPointer<server_api::StaticIpsRequest> request(static_cast<server_api::StaticIpsRequest *>(sender()), &QObject::deleteLater);
-    getAllConfigsController_->putStaticIpsAnswer(request->retCode(), request->staticIps());
+    getAllConfigsController_->putStaticIpsAnswer(request->networkRetCode(), request->staticIps());
 }
 
 void LoginController::tryLoginAgain()
@@ -129,14 +129,29 @@ void LoginController::onAllConfigsReceived(SERVER_API_RET_CODE retCode)
     }
 }
 
-void LoginController::handleLoginOrSessionAnswer(SERVER_API_RET_CODE retCode, const types::SessionStatus &sessionStatus,
+void LoginController::handleLoginOrSessionAnswer(SERVER_API_RET_CODE retCode, SessionErrorCode sessionErrorCode, const types::SessionStatus &sessionStatus,
                                                  const QString &authHash, const QString &errorMessage)
 {
     if (retCode == SERVER_RETURN_SUCCESS)
     {
-        sessionStatus_ = sessionStatus;
-        newAuthHash_ = authHash;
-        getAllConfigs();
+        if (sessionErrorCode == SessionErrorCode::kSuccess) {
+            sessionStatus_ = sessionStatus;
+            newAuthHash_ = authHash;
+            getAllConfigs();
+        } else if (sessionErrorCode == SessionErrorCode::kBadUsername) {
+            emit finished(LOGIN_RET_BAD_USERNAME, apiinfo::ApiInfo(), bFromConnectedToVPNState_, errorMessage);
+        } else if (sessionErrorCode == SessionErrorCode::kMissingCode2FA) {
+            emit finished(LOGIN_RET_MISSING_CODE2FA, apiinfo::ApiInfo(), bFromConnectedToVPNState_, errorMessage);
+        } else if (sessionErrorCode == SessionErrorCode::kBadCode2FA) {
+            emit finished(LOGIN_RET_BAD_CODE2FA, apiinfo::ApiInfo(), bFromConnectedToVPNState_, errorMessage);
+        } else if (sessionErrorCode == SessionErrorCode::kAccountDisabled) {
+            emit finished(LOGIN_RET_ACCOUNT_DISABLED, apiinfo::ApiInfo(), bFromConnectedToVPNState_, errorMessage);
+        } else if (sessionErrorCode == SessionErrorCode::kSessionInvalid) {
+            emit finished(LOGIN_RET_SESSION_INVALID, apiinfo::ApiInfo(), bFromConnectedToVPNState_, errorMessage);
+        } else {
+            WS_ASSERT(false);
+            emit finished(LOGIN_RET_NO_API_CONNECTIVITY, apiinfo::ApiInfo(), bFromConnectedToVPNState_, QString());
+        }
     }
     else if (retCode == SERVER_RETURN_NETWORK_ERROR || retCode == SERVER_RETURN_INCORRECT_JSON || retCode == SERVER_RETURN_SSL_ERROR)
     {
@@ -148,30 +163,6 @@ void LoginController::handleLoginOrSessionAnswer(SERVER_API_RET_CODE retCode, co
         {
             emit finished(LOGIN_RET_NO_API_CONNECTIVITY, apiinfo::ApiInfo(), bFromConnectedToVPNState_, QString());
         }
-    }
-    else if (retCode == SERVER_RETURN_BAD_USERNAME)
-    {
-        emit finished(LOGIN_RET_BAD_USERNAME, apiinfo::ApiInfo(), bFromConnectedToVPNState_, errorMessage);
-    }
-    else if (retCode == SERVER_RETURN_MISSING_CODE2FA)
-    {
-        emit finished(LOGIN_RET_MISSING_CODE2FA, apiinfo::ApiInfo(), bFromConnectedToVPNState_, errorMessage);
-    }
-    else if (retCode == SERVER_RETURN_BAD_CODE2FA)
-    {
-        emit finished(LOGIN_RET_BAD_CODE2FA, apiinfo::ApiInfo(), bFromConnectedToVPNState_, errorMessage);
-    }
-    else if (retCode == SERVER_RETURN_PROXY_AUTH_FAILED)
-    {
-        emit finished(LOGIN_RET_PROXY_AUTH_NEED, apiinfo::ApiInfo(), bFromConnectedToVPNState_, errorMessage);
-    }
-    else if (retCode == SERVER_RETURN_ACCOUNT_DISABLED)
-    {
-        emit finished(LOGIN_RET_ACCOUNT_DISABLED, apiinfo::ApiInfo(), bFromConnectedToVPNState_, errorMessage);
-    }
-    else if (retCode == SERVER_RETURN_SESSION_INVALID)
-    {
-        emit finished(LOGIN_RET_SESSION_INVALID, apiinfo::ApiInfo(), bFromConnectedToVPNState_, errorMessage);
     }
     else
     {

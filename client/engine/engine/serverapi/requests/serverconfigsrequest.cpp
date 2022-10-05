@@ -7,6 +7,7 @@
 
 #include "engine/openvpnversioncontroller.h"
 #include "utils/logger.h"
+#include "engine/utils/urlquery_utils.h"
 
 namespace server_api {
 
@@ -23,8 +24,8 @@ QUrl ServerConfigsRequest::url(const QString &domain) const
 
     query.addQueryItem("ovpn_version",
                        OpenVpnVersionController::instance().getSelectedOpenVpnVersion());
-    addAuthQueryItems(query, authHash_);
-    addPlatformQueryItems(query);
+    urlquery_utils::addAuthQueryItems(query, authHash_);
+    urlquery_utils::addPlatformQueryItems(query);
     url.setQuery(query);
     return url;
 }
@@ -38,7 +39,6 @@ void ServerConfigsRequest::handle(const QByteArray &arr)
 {
     qCDebug(LOG_SERVER_API) << "API request ServerConfigs successfully executed";
     ovpnConfig_ = QByteArray::fromBase64(arr);
-    setRetCode(SERVER_RETURN_SUCCESS);
 }
 
 

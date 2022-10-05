@@ -4,31 +4,32 @@
 #include "engine/connectstatecontroller/iconnectstatecontroller.h"
 #include "engine/connectstatecontroller/connectstatewatcher.h"
 
-namespace server_api {
+namespace failover {
 
-class DynamicDomainFailover : public BaseFailover
+class AccessIpsFailover : public BaseFailover
 {
     Q_OBJECT
 public:
-    explicit DynamicDomainFailover(QObject *parent, NetworkAccessManager *networkAccessManager, const QString &urlString, const QString &domainName, IConnectStateController *connectStateController) :
+    explicit AccessIpsFailover(QObject *parent, NetworkAccessManager *networkAccessManager, const QString &ip, IConnectStateController *connectStateController) :
         BaseFailover(parent, networkAccessManager),
-        urlString_(urlString),
-        domainName_(domainName),
+        ip_(ip),
         connectStateController_(connectStateController),
         connectStateWatcher_(nullptr)
     {}
-
     void getHostnames(bool bIgnoreSslErrors) override;
     QString name() const override;
 
+private slots:
+    void onNetworkRequestFinished();
+
 private:
-    QString urlString_;
-    QString domainName_;
+    static constexpr int kTimeout = 5000;          // timeout 5 sec by default
+    QString ip_;
     IConnectStateController *connectStateController_;
     ConnectStateWatcher *connectStateWatcher_;
 
-    QString parseHostnameFromJson(const QByteArray &arr);
+    QStringList handleRequest(const QByteArray &arr);
 };
 
-} // namespace server_api
+} // namespace failover
 

@@ -1,5 +1,4 @@
-#ifndef ENGINE_H
-#define ENGINE_H
+#pragma once
 
 #include <QObject>
 #include "firewall/firewallexceptions.h"
@@ -421,4 +420,3 @@ private:
     types::NetworkInterface prevNetworkInterface_;
 };
 
-#endif // ENGINE_H

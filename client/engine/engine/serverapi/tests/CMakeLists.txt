@@ -1,1 +1,2 @@
-add_subdirectory(failover)
+add_subdirectory(serverapi_test)
+add_subdirectory(serverapi_visual_test)

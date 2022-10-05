@@ -1283,13 +1283,13 @@ void ConnectionManager::onHostnamesResolved()
     doConnectPart2();
 }
 
-void ConnectionManager::onGetWireGuardConfigAnswer(SERVER_API_RET_CODE retCode, const WireGuardConfig &config)
+void ConnectionManager::onGetWireGuardConfigAnswer(WireGuardConfigRetCode retCode, const WireGuardConfig &config)
 {
-    if (retCode == SERVER_RETURN_WIREGUARD_KEY_LIMIT)
+    if (retCode == WireGuardConfigRetCode::kKeyLimit)
     {
         Q_EMIT wireGuardAtKeyLimit();
     }
-    else if (retCode == SERVER_RETURN_SUCCESS)
+    else if (retCode == WireGuardConfigRetCode::kSuccess)
     {
         wireGuardConfig_ = config;
         // If the protocol has been changed, do nothing.

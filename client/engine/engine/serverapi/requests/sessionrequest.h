@@ -2,6 +2,7 @@
 
 #include "baserequest.h"
 #include "types/sessionstatus.h"
+#include "sessionerrorcode.h"
 
 namespace server_api {
 
@@ -16,11 +17,13 @@ public:
     void handle(const QByteArray &arr) override;
 
     // output values
+    SessionErrorCode sessionErrorCode() const { return sessionErrorCode_; }
     types::SessionStatus sessionStatus() const { return sessionStatus_; }
 
 private:
     QString authHash_;
     // output values
+    SessionErrorCode sessionErrorCode_ = SessionErrorCode::kSuccess;
     types::SessionStatus sessionStatus_;
 };
 

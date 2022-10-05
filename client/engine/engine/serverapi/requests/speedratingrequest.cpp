@@ -4,6 +4,7 @@
 #include <QJsonObject>
 
 #include "utils/logger.h"
+#include "engine/utils/urlquery_utils.h"
 
 namespace server_api {
 
@@ -27,8 +28,8 @@ QByteArray SpeedRatingRequest::postData() const
     postData.addQueryItem("hostname", speedRatingHostname_);
     postData.addQueryItem("rating", QString::number(rating_));
     postData.addQueryItem("ip", ip_);
-    addAuthQueryItems(postData, authHash_);
-    addPlatformQueryItems(postData);
+    urlquery_utils::addAuthQueryItems(postData, authHash_);
+    urlquery_utils::addPlatformQueryItems(postData);
     return postData.toString(QUrl::FullyEncoded).toUtf8();
 }
 
@@ -46,7 +47,6 @@ void SpeedRatingRequest::handle(const QByteArray &arr)
 {
     qCDebug(LOG_SERVER_API) << "SpeedRating request successfully executed";
     qCDebugMultiline(LOG_SERVER_API) << arr;
-    setRetCode(SERVER_RETURN_SUCCESS);
 }
 
 } // namespace server_api {

@@ -31,6 +31,7 @@
 #include "serverapi/requests/notificationsrequest.h"
 #include "serverapi/requests/getrobertfiltersrequest.h"
 #include "serverapi/requests/setrobertfiltersrequest.h"
+#include "failover/failover.h"
 
 // For testing merge log functionality
 //#include <QStandardPaths>
@@ -644,7 +645,10 @@ void Engine::initPart2()
     networkAccessManager_ = new NetworkAccessManager(this);
     connect(networkAccessManager_, &NetworkAccessManager::whitelistIpsChanged, this, &Engine::onHostIPsChanged);
 
-    serverAPI_ = new server_api::ServerAPI(this, connectStateController_, networkAccessManager_, networkDetectionManager_);
+    // Ownership of the failovers passes to the serverAPI object (in the ServerAPI ctor)
+    serverAPI_ = new server_api::ServerAPI(this, connectStateController_, networkAccessManager_, networkDetectionManager_,
+                                           new failover::Failover(nullptr,networkAccessManager_, connectStateController_, "disconnected"),
+                                           new failover::Failover(nullptr,networkAccessManager_, connectStateController_, "connected"));
     serverAPI_->setIgnoreSslErrors(engineSettings_.isIgnoreSslErrors());
 
     customOvpnAuthCredentialsStorage_ = new CustomOvpnAuthCredentialsStorage();
@@ -1526,7 +1530,7 @@ void Engine::onLoginControllerStepMessage(LOGIN_MESSAGE msg)
 void Engine::onServerLocationsAnswer()
 {
     QSharedPointer<server_api::ServerListRequest> request(static_cast<server_api::ServerListRequest *>(sender()), &QObject::deleteLater);
-    if (request->retCode() == SERVER_RETURN_SUCCESS)
+    if (request->networkRetCode() == SERVER_RETURN_SUCCESS)
     {
         if (!request->locations().isEmpty())
         {
@@ -1535,7 +1539,7 @@ void Engine::onServerLocationsAnswer()
             updateServerLocations();
         }
     }
-    else if (request->retCode() == SERVER_RETURN_API_NOT_READY)
+    else if (request->networkRetCode() == SERVER_RETURN_API_NOT_READY)
     {
         qCDebug(LOG_BASIC) << "Request server locations failed. API not ready";
     }
@@ -1548,25 +1552,27 @@ void Engine::onServerLocationsAnswer()
 void Engine::onSessionAnswer()
 {
     QSharedPointer<server_api::SessionRequest> request(static_cast<server_api::SessionRequest *>(sender()), &QObject::deleteLater);
-    if (request->retCode() == SERVER_RETURN_SUCCESS) {
-        apiInfo_->setSessionStatus(request->sessionStatus());
-        updateSessionStatus();
-    } else if (request->retCode() == SERVER_RETURN_SESSION_INVALID) {
-        Q_EMIT sessionDeleted();
+    if (request->networkRetCode() == SERVER_RETURN_SUCCESS) {
+        if (request->sessionErrorCode() == SessionErrorCode::kSuccess) {
+            apiInfo_->setSessionStatus(request->sessionStatus());
+            updateSessionStatus();
+        } else if (request->sessionErrorCode() == SessionErrorCode::kSessionInvalid) {
+            Q_EMIT sessionDeleted();
+        }
     }
 }
 
 void Engine::onNotificationsAnswer()
 {
     QSharedPointer<server_api::NotificationsRequest> request(static_cast<server_api::NotificationsRequest *>(sender()), &QObject::deleteLater);
-    if (request->retCode() == SERVER_RETURN_SUCCESS)
+    if (request->networkRetCode() == SERVER_RETURN_SUCCESS)
         Q_EMIT notificationsUpdated(request->notifications());
 }
 
 void Engine::onServerConfigsAnswer()
 {
     QSharedPointer<server_api::ServerConfigsRequest> request(static_cast<server_api::ServerConfigsRequest *>(sender()), &QObject::deleteLater);
-    if (request->retCode() == SERVER_RETURN_SUCCESS)
+    if (request->networkRetCode() == SERVER_RETURN_SUCCESS)
     {
         apiInfo_->setOvpnConfig(request->ovpnConfig());
     }
@@ -1584,7 +1590,7 @@ void Engine::onCheckUpdateAnswer()
     qCDebug(LOG_BASIC) << "Received Check Update Answer";
 
     // is a network error?
-    if (request->retCode() == SERVER_RETURN_NETWORK_ERROR || request->retCode() == SERVER_RETURN_SSL_ERROR)  {
+    if (request->networkRetCode() == SERVER_RETURN_NETWORK_ERROR || request->networkRetCode() == SERVER_RETURN_SSL_ERROR)  {
         QTimer::singleShot(60000, this, &Engine::checkForAppUpdate);
         return;
     }
@@ -1613,23 +1619,23 @@ void Engine::onMyIpAnswer(const QString &ip, bool isDisconnected)
 void Engine::onDebugLogAnswer()
 {
     QSharedPointer<server_api::DebugLogRequest> request(static_cast<server_api::DebugLogRequest *>(sender()), &QObject::deleteLater);
-    if (request->retCode() == SERVER_RETURN_SUCCESS)
+    if (request->networkRetCode() == SERVER_RETURN_SUCCESS)
         qCDebug(LOG_BASIC) << "DebugLog sent";
     else
         qCDebug(LOG_BASIC) << "DebugLog returned failed error code";
-    Q_EMIT sendDebugLogFinished(request->retCode() == SERVER_RETURN_SUCCESS);
+    Q_EMIT sendDebugLogFinished(request->networkRetCode() == SERVER_RETURN_SUCCESS);
 }
 
 void Engine::onConfirmEmailAnswer()
 {
     QSharedPointer<server_api::BaseRequest> request(static_cast<server_api::BaseRequest *>(sender()), &QObject::deleteLater);
-    Q_EMIT confirmEmailFinished(request->retCode() == SERVER_RETURN_SUCCESS);
+    Q_EMIT confirmEmailFinished(request->networkRetCode() == SERVER_RETURN_SUCCESS);
 }
 
 void Engine::onStaticIpsAnswer()
 {
     QSharedPointer<server_api::StaticIpsRequest> request(static_cast<server_api::StaticIpsRequest *>(sender()), &QObject::deleteLater);
-    if (request->retCode() == SERVER_RETURN_SUCCESS)
+    if (request->networkRetCode() == SERVER_RETURN_SUCCESS)
     {
         apiInfo_->setStaticIps(request->staticIps());
         updateServerLocations();
@@ -1649,26 +1655,26 @@ void Engine::onStaticIpsAnswer()
 void Engine::onWebSessionAnswer()
 {
     QSharedPointer<server_api::WebSessionRequest> request(static_cast<server_api::WebSessionRequest *>(sender()), &QObject::deleteLater);
-    if (request->retCode() == SERVER_RETURN_SUCCESS)
+    if (request->networkRetCode() == SERVER_RETURN_SUCCESS)
         Q_EMIT webSessionToken(request->purpose(), request->token());
 }
 
 void Engine::onGetRobertFiltersAnswer()
 {
     QSharedPointer<server_api::GetRobertFiltersRequest> request(static_cast<server_api::GetRobertFiltersRequest *>(sender()), &QObject::deleteLater);
-    Q_EMIT robertFiltersUpdated(request->retCode() == SERVER_RETURN_SUCCESS, request->filters());
+    Q_EMIT robertFiltersUpdated(request->networkRetCode() == SERVER_RETURN_SUCCESS, request->filters());
 }
 
 void Engine::onSetRobertFilterAnswer()
 {
     QSharedPointer<server_api::SetRobertFiltersRequest> request(static_cast<server_api::SetRobertFiltersRequest *>(sender()), &QObject::deleteLater);
-    Q_EMIT setRobertFilterFinished(request->retCode() == SERVER_RETURN_SUCCESS);
+    Q_EMIT setRobertFilterFinished(request->networkRetCode() == SERVER_RETURN_SUCCESS);
 }
 
 void Engine::onSyncRobertAnswer()
 {
     QSharedPointer<server_api::BaseRequest> request(static_cast<server_api::BaseRequest *>(sender()), &QObject::deleteLater);
-    Q_EMIT syncRobertFinished(request->retCode() == SERVER_RETURN_SUCCESS);
+    Q_EMIT syncRobertFinished(request->networkRetCode() == SERVER_RETURN_SUCCESS);
 }
 
 void Engine::onUpdateServerResources()

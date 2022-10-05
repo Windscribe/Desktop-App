@@ -3,6 +3,7 @@
 #include <QJsonDocument>
 
 #include "utils/logger.h"
+#include "engine/utils/urlquery_utils.h"
 
 namespace server_api {
 
@@ -19,8 +20,8 @@ QString RecordInstallRequest::contentTypeHeader() const
 QByteArray RecordInstallRequest::postData() const
 {
     QUrlQuery postData;
-    addAuthQueryItems(postData);
-    addPlatformQueryItems(postData);
+    urlquery_utils::addAuthQueryItems(postData);
+    urlquery_utils::addPlatformQueryItems(postData);
     return postData.toString(QUrl::FullyEncoded).toUtf8();
 }
 
@@ -44,7 +45,6 @@ QString RecordInstallRequest::name() const
 void RecordInstallRequest::handle(const QByteArray &arr)
 {
     qCDebug(LOG_SERVER_API) << "RecordInstall request successfully executed";
-    setRetCode(SERVER_RETURN_SUCCESS);
 }
 
 } // namespace server_api {
