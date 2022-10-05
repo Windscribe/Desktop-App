@@ -1,8 +1,10 @@
 #include "robertwindowitem.h"
 
 #include <QTextDocument>
-#include "utils/hardcodedsettings.h"
+#include "commongraphics/scrollarea.h"
 #include "graphicresources/fontmanager.h"
+#include "utils/hardcodedsettings.h"
+#include "utils/logger.h"
 
 namespace PreferencesWindow {
 
@@ -19,6 +21,11 @@ RobertWindowItem::RobertWindowItem(ScalableGraphicsObject *parent, Preferences *
                                 tr("R.O.B.E.R.T. is a customizable server-side domain and IP blocking tool. Select the block lists you wish to apply on all your devices by toggling the switch."),
                                 QString("https://%1/features/robert").arg(HardcodedSettings::instance().serverUrl()));
     addItem(desc_);
+
+    // Loading items
+    loadingIcon_ = new LoadingIconItem(this, ":/gif/windscribe_spinner.gif", LOADING_ICON_SIZE, LOADING_ICON_SIZE);
+    loadingIcon_->setOpacity(OPACITY_HALF);
+    loadingIcon_->start();
 
     // Item for case where we could not get status from server
     errorMessage_ = new QGraphicsTextItem(this);
@@ -83,8 +90,15 @@ void RobertWindowItem::setFilters(const QVector<types::RobertFilter> &filters)
     manageRulesGroup->addItem(manageRulesItem);
     addItem(manageRulesGroup);
     groups_ << manageRulesGroup;
+
+    updateVisibility();
 }
 
+void RobertWindowItem::updateScaling()
+{
+    BasePage::updateScaling();
+    updatePositions();
+}
 
 void RobertWindowItem::updatePositions()
 {
@@ -96,6 +110,15 @@ void RobertWindowItem::updatePositions()
 
     int loginCenterX = static_cast<int>(boundingRect().width()/2 - loginButton_->boundingRect().width()/2);
     loginButton_->setPos(loginCenterX, (MESSAGE_OFFSET_Y + PREFERENCES_MARGIN)*G_SCALE + loginPrompt_->boundingRect().height());
+
+    int loadingCenterX = static_cast<int>(boundingRect().width()/2 - LOADING_ICON_SIZE*G_SCALE/2);
+    CommonGraphics::ScrollArea *p = static_cast<CommonGraphics::ScrollArea *>(parentItem());
+    int parentHeight = 0;
+    if (p)
+    {
+        parentHeight = p->boundingRect().height()/2 - (LOADING_ICON_SIZE + PREFERENCES_MARGIN)*G_SCALE/2;
+    }
+    loadingIcon_->setPos(loadingCenterX, parentHeight);
 }
 
 void RobertWindowItem::setError(bool isError)
@@ -116,17 +139,32 @@ void RobertWindowItem::updateVisibility()
         errorMessage_->setVisible(false);
         loginPrompt_->setVisible(!loggedIn_);
         loginButton_->setVisible(!loggedIn_);
+        loadingIcon_->setVisible(false);
+        loadingIcon_->stop();
     }
     else
     {
-        desc_->setVisible(!isError_);
-        for (auto group : groups_)
-        {
-            group->setVisible(!isError_);
-        }
-        errorMessage_->setVisible(isError_);
         loginPrompt_->setVisible(false);
         loginButton_->setVisible(false);
+
+        if (!isError_ && groups_.isEmpty())
+        {
+            desc_->setVisible(false);
+            errorMessage_->setVisible(false);
+            loadingIcon_->setVisible(true);
+            loadingIcon_->start();
+        }
+        else
+        {
+            desc_->setVisible(!isError_);
+            errorMessage_->setVisible(isError_);
+            loadingIcon_->setVisible(false);
+            loadingIcon_->stop();
+            for (auto group : groups_)
+            {
+                group->setVisible(!isError_);
+            }
+        }
     }
 }
 

@@ -76,6 +76,8 @@ target_sources(gui PRIVATE
     proxysettingswindow/proxysettingsgroup.h
     proxysettingswindow/proxysettingswindowitem.cpp
     proxysettingswindow/proxysettingswindowitem.h
+    robertwindow/loadingiconitem.cpp
+    robertwindow/loadingiconitem.h
     robertwindow/robertitem.cpp
     robertwindow/robertitem.h
     robertwindow/robertwindowitem.cpp
