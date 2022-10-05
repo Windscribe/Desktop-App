@@ -20,8 +20,10 @@ Logger::Logger()
         ::CopyFile(filePath.c_str(), prevFilePath.c_str(), FALSE);
     }
 
-    errno_t result = _wfopen_s(&file_, filePath.c_str(), L"w");
-    if ((result != 0) || (file_ == nullptr)) {
+    // Cannot use _wfopen_s here, as it will lock the file for exclusive access
+    // until the helper is stopped.
+    file_ = _wfsopen(filePath.c_str(), L"w", _SH_DENYWR);
+    if (file_ == nullptr) {
         debugOut("Logger could not open: %ls", filePath.c_str());
     }
 }

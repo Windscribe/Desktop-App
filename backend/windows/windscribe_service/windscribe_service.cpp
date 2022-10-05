@@ -864,7 +864,7 @@ MessagePacketResult processMessagePacket(int cmdId, const std::string &packet, I
 		CMD_CONNECT_STATUS cmdConnectStatus;
 		ia >> cmdConnectStatus;
 		Logger::instance().out(L"AA_COMMAND_CONNECT_STATUS: %d", cmdConnectStatus.isConnected);
-		splitTunnelling.setConnectStatus(cmdConnectStatus);
+        mpr.success = splitTunnelling.setConnectStatus(cmdConnectStatus);
 		g_SplitTunnelingPars.isVpnConnected = cmdConnectStatus.isConnected;
 	}
 	else if (cmdId == AA_COMMAND_CONNECTED_DNS)

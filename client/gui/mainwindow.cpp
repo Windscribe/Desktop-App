@@ -175,6 +175,7 @@ MainWindow::MainWindow() :
     connect(backend_, &Backend::wireGuardAtKeyLimit, this, &MainWindow::onWireGuardAtKeyLimit);
     connect(backend_, &Backend::robertFiltersChanged, this, &MainWindow::onBackendRobertFiltersChanged);
     connect(backend_, &Backend::setRobertFilterResult, this, &MainWindow::onBackendSetRobertFilterResult);
+    connect(backend_, &Backend::helperSplitTunnelingStartFailed, this, &MainWindow::onHelperSplitTunnelingStartFailed);
     notificationsController_.connect(backend_, &Backend::notificationsChanged, &notificationsController_, &NotificationsController::updateNotifications);
     connect(this, &MainWindow::wireGuardKeyLimitUserResponse, backend_, &Backend::wireGuardKeyLimitUserResponse);
 
@@ -3592,4 +3593,13 @@ void MainWindow::onSelectedLocationRemoved()
         mainWindowController_->getConnectWindow()->updateLocationInfo(selectedLocation_->firstName(), selectedLocation_->secondName(),
                                                                       selectedLocation_->countryCode(), selectedLocation_->pingTime());
     }
+}
+
+void MainWindow::onHelperSplitTunnelingStartFailed()
+{
+    mainWindowController_->getConnectWindow()->setSplitTunnelingState(false);
+    mainWindowController_->getPreferencesWindow()->setSplitTunnelingActive(false);
+
+    QMessageBox::warning(g_mainWindow, tr("Windscribe"),
+        tr("The split tunneling feature could not be started, and has been disabled in Preferences."));
 }

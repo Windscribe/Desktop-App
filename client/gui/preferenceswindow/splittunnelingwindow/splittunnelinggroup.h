@@ -1,14 +1,12 @@
 #ifndef SPLITTUNNELINGGROUP_H
 #define SPLITTUNNELINGGROUP_H
 
-#include "backend/preferences/preferences.h"
-#include "backend/preferences/preferenceshelper.h"
-#include "commongraphics/baseitem.h"
 #include "commongraphics/scalablegraphicsobject.h"
 #include "preferenceswindow/checkboxitem.h"
 #include "preferenceswindow/comboboxitem.h"
 #include "preferenceswindow/linkitem.h"
 #include "preferenceswindow/preferencegroup.h"
+#include "types/splittunneling.h"
 
 namespace PreferencesWindow {
 
@@ -25,6 +23,7 @@ public:
     void setAddressesCount(int count);
     void setLoggedIn(bool loggedIn);
     void setEnabled(bool enabled);
+    void setActive(bool active);
 
 signals:
     void settingsChanged(types::SplitTunnelingSettings settings);
@@ -32,7 +31,7 @@ signals:
     void addressesPageClick();
 
 private slots:
-    void onActiveSwitchChanged(bool checked);
+    void onActiveSwitchStateChanged(bool checked);
     void onCurrentModeChanged(QVariant value);
 
 private:
@@ -46,6 +45,8 @@ private:
     LinkItem *addressesLinkItem_;
 
     QVariantAnimation expandAnimation_;
+
+    void updateUIState(bool active);
 };
 
 } // namespace PreferencesWindow

@@ -1,6 +1,8 @@
 #ifndef EXECUTECMD_H
 #define EXECUTECMD_H
 
+#include <mutex>
+
 #include "ipc/servicecommunication.h"
 #include "pipe_for_process.h"
 

@@ -609,7 +609,7 @@ ServiceControlManager::isServiceInstalled(LPCSTR pszServiceName) const
         throw std::system_error(ERROR_INVALID_NAME, std::system_category(), "ServiceInstalled: the service name parameter cannot be null");
     }
 
-    SC_HANDLE hService = ::OpenServiceA(m_hSCM, pszServiceName, SERVICE_ALL_ACCESS);
+    SC_HANDLE hService = ::OpenServiceA(m_hSCM, pszServiceName, SERVICE_QUERY_STATUS);
 
     bool bInstalled = (hService != NULL);
 

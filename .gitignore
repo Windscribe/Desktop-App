@@ -1,6 +1,7 @@
 build-*
 *.user
 release/
+release64/
 release_x64/
 debug/
 temp/
