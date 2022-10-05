@@ -25,5 +25,4 @@ void startConsole();
 
 #ifdef __cplusplus
 }
-
 #endif
