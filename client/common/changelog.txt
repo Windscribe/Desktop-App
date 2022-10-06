@@ -1,3 +1,20 @@
+2.5.7 (06/10/2022)
+All:
+   * Added loading indicator to R.O.B.E.R.T. screen in Preferences. #461
+   * Added divider line above login/logout button in Preferences. #458
+   * Fixed a number of user interface bugs involving the update flow. #460
+   * Fixed incorrect tooltip on login/logout button in Preferences. #459
+   * Fixed notification read state not remembered if the user restarts/logs out of their PC before exiting the application. #365
+   * Fixed RFC1918 traffic is routed over VPN tunnel. #451
+Windows:
+   * Fixed installer privilege escalation vulnerability. #417
+   * Fixed secure hotspot feature is available when network adapter doesn't support it. #455
+   * Fixed split tunnel driver install/uninstall can be very slow. #176
+   * Removed support for Windows 8.1.
+macOS:
+   * Fixed app crash after upgrade from 2.4 to 2.5.6 when using IKEv2. #454
+
+
 2.5.6 (19/09/2022)
 * Produce Arch Linux installer package in CI build. #168
 * Support Wayland compositor on Linux. #236
