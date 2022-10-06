@@ -163,7 +163,7 @@ struct CMD_SPLIT_TUNNELING_SETTINGS
 {
     bool isActive;
     bool isExclude;     // true -> SPLIT_TUNNELING_MODE_EXCLUDE, false -> SPLIT_TUNNELING_MODE_INCLUDE
-    bool isKeepLocalSockets;
+    bool isAllowLanTraffic;
 
     std::vector<std::wstring> files;
     std::vector<std::wstring> ips;

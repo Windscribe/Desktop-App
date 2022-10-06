@@ -20,10 +20,12 @@ SplitTunneling::~SplitTunneling()
 }
 
 void SplitTunneling::setSettings(bool isEnabled, bool isExclude, const std::vector<std::wstring>& apps,
-                                 const std::vector<std::wstring>& ips, const std::vector<std::string>& hosts)
+                                 const std::vector<std::wstring>& ips, const std::vector<std::string>& hosts,
+                                 bool isAllowLanTraffic)
 {
     isSplitTunnelEnabled_ = isEnabled;
     isExclude_ = isExclude;
+    isAllowLanTraffic_ = isAllowLanTraffic;
 
     apps_ = apps;
 
@@ -103,7 +105,7 @@ bool SplitTunneling::updateState()
 
         firewallFilter_.setSplitTunnelingAppsIds(appsIds, isExclude_);
         firewallFilter_.setSplitTunnelingEnabled();
-        calloutFilter_.enable(redirectIp, appsIds);
+        calloutFilter_.enable(redirectIp, appsIds, isExclude_, isAllowLanTraffic_);
     }
     else {
         calloutFilter_.disable();

@@ -324,6 +324,7 @@ MainWindow::MainWindow() :
     connect(backend_->getPreferences(), &Preferences::shareSecureHotspotChanged, this, &MainWindow::onPreferencesShareSecureHotspotChanged);
     connect(backend_->getPreferences(), &Preferences::locationOrderChanged, this, &MainWindow::onPreferencesLocationOrderChanged);
     connect(backend_->getPreferences(), &Preferences::splitTunnelingChanged, this, &MainWindow::onPreferencesSplitTunnelingChanged);
+    connect(backend_->getPreferences(), &Preferences::isAllowLanTrafficChanged, this, &MainWindow::onPreferencesAllowLanTrafficChanged);
     connect(backend_->getPreferences(), &Preferences::updateEngineSettings, this, &MainWindow::onPreferencesUpdateEngineSettings);
     connect(backend_->getPreferences(), &Preferences::isLaunchOnStartupChanged, this, &MainWindow::onPreferencesLaunchOnStartupChanged);
     connect(backend_->getPreferences(), &Preferences::connectionSettingsChanged, this, &MainWindow::onPreferencesConnectionSettingsChanged);
@@ -2438,11 +2439,17 @@ void MainWindow::onPreferencesSplitTunnelingChanged(types::SplitTunneling st)
     backend_->sendSplitTunneling(st);
 }
 
+void MainWindow::onPreferencesAllowLanTrafficChanged(bool /*allowLanTraffic*/)
+{
+    // Changing Allow Lan Traffic may affect split tunnel behavior
+    onPreferencesSplitTunnelingChanged(backend_->getPreferences()->splitTunneling());
+}
+
 // for aggressive (dynamic) signalling of EngineSettings save
 void MainWindow::onPreferencesUpdateEngineSettings()
 {
-	// prevent SetSettings while we are currently receiving from new settigns from engine
-	// Issues with initializing certain preferences state (See ApiResolution and App Internal DNS)
+    // prevent SetSettings while we are currently receiving from new settigns from engine
+    // Issues with initializing certain preferences state (See ApiResolution and App Internal DNS)
     if (!backend_->getPreferences()->isReceivingEngineSettings()) 
     {
         backend_->sendEngineSettingsIfChanged();
