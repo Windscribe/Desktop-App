@@ -57,7 +57,7 @@ void ServerApi_test::testRequests()
         spies << QSharedPointer<QSignalSpy>(new QSignalSpy(request, SIGNAL(finished())));
     }
     {
-        server_api::BaseRequest *request = serverAPI_->serverLocations("", "df", false, PROTOCOL::OPENVPN_TCP, QStringList());
+        server_api::BaseRequest *request = serverAPI_->serverLocations("", "df", false, QStringList());
         connect(request, &server_api::BaseRequest::finished, [request]() {
             request->deleteLater();
         });
@@ -245,7 +245,7 @@ void ServerApi_test::testFailoverFailed()
         spies << QSharedPointer<QSignalSpy>(new QSignalSpy(request, SIGNAL(finished())));
     }
     {
-        server_api::BaseRequest *request = serverAPI_->serverLocations("", "df", false, PROTOCOL::OPENVPN_TCP, QStringList());
+        server_api::BaseRequest *request = serverAPI_->serverLocations("", "df", false, QStringList());
         connect(request, &server_api::BaseRequest::finished, [request]() {
             request->deleteLater();
         });
@@ -273,7 +273,7 @@ void ServerApi_test::testFailoverFailed()
     }
 
     {
-        server_api::BaseRequest *request = serverAPI_->serverLocations("", "df", false, PROTOCOL::OPENVPN_TCP, QStringList());
+        server_api::BaseRequest *request = serverAPI_->serverLocations("", "df", false, QStringList());
         connect(request, &server_api::BaseRequest::finished, [request]() {
             request->deleteLater();
         });
@@ -298,7 +298,7 @@ void ServerApi_test::testFailoverSslError()
         spies << QSharedPointer<QSignalSpy>(new QSignalSpy(request, SIGNAL(finished())));
     }
     {
-        server_api::BaseRequest *request = serverAPI_->serverLocations("", "df", false, PROTOCOL::OPENVPN_TCP, QStringList());
+        server_api::BaseRequest *request = serverAPI_->serverLocations("", "df", false, QStringList());
         connect(request, &server_api::BaseRequest::finished, [request]() {
             request->deleteLater();
         });
@@ -342,7 +342,7 @@ void ServerApi_test::testDeleteServerAPIWhileRequestsRunning()
         spies << QSharedPointer<QSignalSpy>(new QSignalSpy(request, SIGNAL(finished())));
     }
     {
-        server_api::BaseRequest *request = serverAPI_->serverLocations("", "df", false, PROTOCOL::OPENVPN_TCP, QStringList());
+        server_api::BaseRequest *request = serverAPI_->serverLocations("", "df", false, QStringList());
         connect(request, &server_api::BaseRequest::finished, [request]() {
             request->deleteLater();
         });
@@ -362,7 +362,7 @@ void ServerApi_test::testDeleteRequestsBeforeFinished()
         request->deleteLater();
     }
     {
-        server_api::BaseRequest *request = serverAPI_->serverLocations("", "df", false, PROTOCOL::OPENVPN_TCP, QStringList());
+        server_api::BaseRequest *request = serverAPI_->serverLocations("", "df", false, QStringList());
         request->deleteLater();
     }
 

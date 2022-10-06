@@ -129,24 +129,24 @@ void LoginController::onAllConfigsReceived(SERVER_API_RET_CODE retCode)
     }
 }
 
-void LoginController::handleLoginOrSessionAnswer(SERVER_API_RET_CODE retCode, SessionErrorCode sessionErrorCode, const types::SessionStatus &sessionStatus,
+void LoginController::handleLoginOrSessionAnswer(SERVER_API_RET_CODE retCode, server_api::SessionErrorCode sessionErrorCode, const types::SessionStatus &sessionStatus,
                                                  const QString &authHash, const QString &errorMessage)
 {
     if (retCode == SERVER_RETURN_SUCCESS)
     {
-        if (sessionErrorCode == SessionErrorCode::kSuccess) {
+        if (sessionErrorCode == server_api::SessionErrorCode::kSuccess) {
             sessionStatus_ = sessionStatus;
             newAuthHash_ = authHash;
             getAllConfigs();
-        } else if (sessionErrorCode == SessionErrorCode::kBadUsername) {
+        } else if (sessionErrorCode == server_api::SessionErrorCode::kBadUsername) {
             emit finished(LOGIN_RET_BAD_USERNAME, apiinfo::ApiInfo(), bFromConnectedToVPNState_, errorMessage);
-        } else if (sessionErrorCode == SessionErrorCode::kMissingCode2FA) {
+        } else if (sessionErrorCode == server_api::SessionErrorCode::kMissingCode2FA) {
             emit finished(LOGIN_RET_MISSING_CODE2FA, apiinfo::ApiInfo(), bFromConnectedToVPNState_, errorMessage);
-        } else if (sessionErrorCode == SessionErrorCode::kBadCode2FA) {
+        } else if (sessionErrorCode == server_api::SessionErrorCode::kBadCode2FA) {
             emit finished(LOGIN_RET_BAD_CODE2FA, apiinfo::ApiInfo(), bFromConnectedToVPNState_, errorMessage);
-        } else if (sessionErrorCode == SessionErrorCode::kAccountDisabled) {
+        } else if (sessionErrorCode == server_api::SessionErrorCode::kAccountDisabled) {
             emit finished(LOGIN_RET_ACCOUNT_DISABLED, apiinfo::ApiInfo(), bFromConnectedToVPNState_, errorMessage);
-        } else if (sessionErrorCode == SessionErrorCode::kSessionInvalid) {
+        } else if (sessionErrorCode == server_api::SessionErrorCode::kSessionInvalid) {
             emit finished(LOGIN_RET_SESSION_INVALID, apiinfo::ApiInfo(), bFromConnectedToVPNState_, errorMessage);
         } else {
             WS_ASSERT(false);
@@ -208,7 +208,7 @@ void LoginController::getAllConfigs()
         getAllConfigsController_->putServerCredentialsIkev2Answer(SERVER_RETURN_SUCCESS, loginSettings_.getServerCredentials().usernameForIkev2(), loginSettings_.getServerCredentials().passwordForIkev2());
     }
 
-    server_api::BaseRequest *requestLocations = serverAPI_->serverLocations(language_, sessionStatus_.getRevisionHash(), sessionStatus_.isPremium(), protocol_, sessionStatus_.getAlc());
+    server_api::BaseRequest *requestLocations = serverAPI_->serverLocations(language_, sessionStatus_.getRevisionHash(), sessionStatus_.isPremium(), sessionStatus_.getAlc());
     connect(requestLocations, &server_api::BaseRequest::finished, this, &LoginController::onServerLocationsAnswer);
 
     server_api::BaseRequest *requestPortMap = serverAPI_->portMap(newAuthHash_);

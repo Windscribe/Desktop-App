@@ -60,7 +60,7 @@ private:
     GetAllConfigsController *getAllConfigsController_;
 
     void getApiInfoFromSettings();
-    void handleLoginOrSessionAnswer(SERVER_API_RET_CODE retCode, SessionErrorCode sessionErrorCode,  const types::SessionStatus &sessionStatus, const QString &authHash, const QString &errorMessage);
+    void handleLoginOrSessionAnswer(SERVER_API_RET_CODE retCode, server_api::SessionErrorCode sessionErrorCode,  const types::SessionStatus &sessionStatus, const QString &authHash, const QString &errorMessage);
     void makeLoginRequest();
 
     void handleNextLoginAfterFail(SERVER_API_RET_CODE retCode);

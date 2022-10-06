@@ -88,9 +88,9 @@ BaseRequest *ServerAPI::session(const QString &authHash)
     return request;
 }
 
-BaseRequest *ServerAPI::serverLocations(const QString &language, const QString &revision, bool isPro, PROTOCOL protocol, const QStringList &alcList)
+BaseRequest *ServerAPI::serverLocations(const QString &language, const QString &revision, bool isPro, const QStringList &alcList)
 {
-    ServerListRequest *request = new ServerListRequest(this, language, revision, isPro, protocol, alcList, connectStateController_);
+    ServerListRequest *request = new ServerListRequest(this, language, revision, isPro, alcList, connectStateController_);
     executeRequest(request);
     return request;
 }
@@ -257,8 +257,8 @@ void ServerAPI::onFailoverNextHostnameAnswer(failover::FailoverRetCode retCode, 
         finishWaitingInQueueRequests(SERVER_RETURN_SSL_ERROR, "Failover return Ssl error");
     } else if (retCode == failover::FailoverRetCode::kFailed) {
         currentFailover()->setProperty("state", QVariant::fromValue(FailoverState::kFailed));
-        setErrorCodeAndEmitRequestFinished(currentFailoverRequest_, SERVER_RETURN_API_NOT_READY, "Failover API not ready");
-        finishWaitingInQueueRequests(SERVER_RETURN_API_NOT_READY, "Failover API not ready");
+        setErrorCodeAndEmitRequestFinished(currentFailoverRequest_, SERVER_RETURN_FAILOVER_FAILED, "Failover API not ready");
+        finishWaitingInQueueRequests(SERVER_RETURN_FAILOVER_FAILED, "Failover API not ready");
     }
 }
 
@@ -355,7 +355,7 @@ void ServerAPI::executeRequest(BaseRequest *request, bool bSkipFailoverCondition
         else if (currentFailover()->property("state").value<FailoverState>() == FailoverState::kFailed) {
             QTimer::singleShot(0, this, [request] () {
                 qCDebug(LOG_SERVER_API) << "API request " + request->name() + " failed: API not ready";
-                request->setNetworkRetCode(SERVER_RETURN_API_NOT_READY);
+                request->setNetworkRetCode(SERVER_RETURN_FAILOVER_FAILED);
                 emit request->finished();
             });
             return;

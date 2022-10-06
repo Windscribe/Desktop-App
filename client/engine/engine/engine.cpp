@@ -1354,7 +1354,7 @@ void Engine::setSettingsImpl(const types::EngineSettings &engineSettings)
                 }
             }
             server_api::BaseRequest *request = serverAPI_->serverLocations(engineSettings_.language(), ss.getRevisionHash(),
-                                        ss.isPremium(), engineSettings_.connectionSettings().protocol, ss.getAlc());
+                                        ss.isPremium(), ss.getAlc());
             connect(request, &server_api::BaseRequest::finished, this, &Engine::onServerLocationsAnswer);
         }
     }
@@ -1539,7 +1539,7 @@ void Engine::onServerLocationsAnswer()
             updateServerLocations();
         }
     }
-    else if (request->networkRetCode() == SERVER_RETURN_API_NOT_READY)
+    else if (request->networkRetCode() == SERVER_RETURN_FAILOVER_FAILED)
     {
         qCDebug(LOG_BASIC) << "Request server locations failed. API not ready";
     }
@@ -1553,10 +1553,10 @@ void Engine::onSessionAnswer()
 {
     QSharedPointer<server_api::SessionRequest> request(static_cast<server_api::SessionRequest *>(sender()), &QObject::deleteLater);
     if (request->networkRetCode() == SERVER_RETURN_SUCCESS) {
-        if (request->sessionErrorCode() == SessionErrorCode::kSuccess) {
+        if (request->sessionErrorCode() == server_api::SessionErrorCode::kSuccess) {
             apiInfo_->setSessionStatus(request->sessionStatus());
             updateSessionStatus();
-        } else if (request->sessionErrorCode() == SessionErrorCode::kSessionInvalid) {
+        } else if (request->sessionErrorCode() == server_api::SessionErrorCode::kSessionInvalid) {
             Q_EMIT sessionDeleted();
         }
     }
@@ -1703,8 +1703,7 @@ void Engine::onUpdateServerResources()
             //serverAPI_->serverCredentials(authHash, serverApiUserRole_, PROTOCOL::IKEV2, true);
         }
 
-        server_api::BaseRequest *request = serverAPI_->serverLocations(engineSettings_.language(), ss.getRevisionHash(), ss.isPremium(),
-                                    connectionManager_->currentProtocol(), ss.getAlc());
+        server_api::BaseRequest *request = serverAPI_->serverLocations(engineSettings_.language(), ss.getRevisionHash(), ss.isPremium(), ss.getAlc());
         connect(request, &server_api::BaseRequest::finished, this, &Engine::onServerLocationsAnswer);
 
         //FIXME:
@@ -2731,7 +2730,7 @@ void Engine::updateSessionStatus()
         if (prevSessionStatus_.getRevisionHash() != ss.getRevisionHash() || prevSessionStatus_.isPremium() != ss.isPremium() ||
             prevSessionStatus_.getAlc() != ss.getAlc() || (prevSessionStatus_.getStatus() != 1 && ss.getStatus() == 1))
         {
-            server_api::BaseRequest *request = serverAPI_->serverLocations(engineSettings_.language(), ss.getRevisionHash(), ss.isPremium(), engineSettings_.connectionSettings().protocol, ss.getAlc());
+            server_api::BaseRequest *request = serverAPI_->serverLocations(engineSettings_.language(), ss.getRevisionHash(), ss.isPremium(), ss.getAlc());
             connect(request, &server_api::BaseRequest::finished, this, &Engine::onServerLocationsAnswer);
         }
 

@@ -9,13 +9,12 @@
 
 namespace server_api {
 
-ServerListRequest::ServerListRequest(QObject *parent, const QString &language, const QString &revision, bool isPro, PROTOCOL protocol,
+ServerListRequest::ServerListRequest(QObject *parent, const QString &language, const QString &revision, bool isPro,
                                      const QStringList &alcList,  IConnectStateController *connectStateController) :
     BaseRequest(parent, RequestType::kGet),
     language_(language),
     revision_(revision),
     isPro_(isPro),
-    protocol_(protocol),
     alcList_(alcList),
     connectStateController_(connectStateController)
 {

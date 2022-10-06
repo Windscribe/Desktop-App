@@ -75,9 +75,9 @@ void RefetchServerCredentialsHelper::fetchServerCredentials()
     isOpenVpnProtocolReceived_ = false;
     isIkev2ProtocolReceived_ = false;
     isServerConfigsAnswerReceived_ = false;
-    retCodeOpenVpn_ = SERVER_RETURN_API_NOT_READY;
-    retCodeIkev2_ = SERVER_RETURN_API_NOT_READY;
-    retCodeServerConfigs_ = SERVER_RETURN_API_NOT_READY;
+    retCodeOpenVpn_ = SERVER_RETURN_FAILOVER_FAILED;
+    retCodeIkev2_ = SERVER_RETURN_FAILOVER_FAILED;
+    retCodeServerConfigs_ = SERVER_RETURN_FAILOVER_FAILED;
     radiusUsernameOpenVpn_.clear();
     radiusPasswordOpenVpn_.clear();
     radiusUsernameIkev2_.clear();

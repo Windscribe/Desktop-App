@@ -39,6 +39,7 @@ endif()
 
 
 add_subdirectory(apiinfo)
+add_subdirectory(apiresourcesmanager)
 add_subdirectory(autoupdater)
 add_subdirectory(connectionmanager)
 add_subdirectory(connectstatecontroller)

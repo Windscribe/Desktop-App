@@ -364,6 +364,7 @@ CURL *CurlNetworkManager::makeGetRequest(CurlReply *curlReply)
         if (curl_easy_setopt(curl, CURLOPT_WRITEDATA, idsHash_[curlReply->id()].get()) != CURLE_OK) goto failed;
         if (curl_easy_setopt(curl, CURLOPT_ACCEPT_ENCODING, "") != CURLE_OK) goto failed;
         if (curl_easy_setopt(curl, CURLOPT_URL, curlReply->networkRequest().url().toString().toStdString().c_str()) != CURLE_OK) goto failed;
+        // FIXME: maybe we don't need CURLOPT_FRESH_CONNECT?
         if (curl_easy_setopt(curl, CURLOPT_FRESH_CONNECT, 1) != CURLE_OK) goto failed;
         if (curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT_MS , curlReply->networkRequest().timeout()) != CURLE_OK) goto failed;
 

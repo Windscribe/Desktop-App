@@ -19,6 +19,7 @@ public:
     // output values
     SessionErrorCode sessionErrorCode() const { return sessionErrorCode_; }
     types::SessionStatus sessionStatus() const { return sessionStatus_; }
+    QString authHash() const { return authHash_; }
 
 private:
     QString authHash_;

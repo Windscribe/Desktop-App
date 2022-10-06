@@ -53,7 +53,7 @@ void Widget::onFetchResourcesClick()
         });
     }
     {
-        server_api::BaseRequest *request = serverAPI_->serverLocations("", "df", false, PROTOCOL::OPENVPN_TCP, QStringList());
+        server_api::BaseRequest *request = serverAPI_->serverLocations("", "df", false, QStringList());
         connect(request, &server_api::BaseRequest::finished, [request]() {
             request->deleteLater();
         });
