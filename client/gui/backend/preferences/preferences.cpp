@@ -64,8 +64,8 @@ void Preferences::setAllowLanTraffic(bool b)
         }
 
         engineSettings_.setIsAllowLanTraffic(b);
-        emit isAllowLanTrafficChanged(engineSettings_.isAllowLanTraffic());
         emit updateEngineSettings();
+        emit isAllowLanTrafficChanged(engineSettings_.isAllowLanTraffic());
     }
 }
 
@@ -219,8 +219,8 @@ void Preferences::setUpdateChannel(UPDATE_CHANNEL c)
     if (engineSettings_.updateChannel() != c)
     {
         engineSettings_.setUpdateChannel(c);
-        emit updateChannelChanged(engineSettings_.updateChannel());
         emit updateEngineSettings();
+        emit updateChannelChanged(engineSettings_.updateChannel());
     }
 }
 
@@ -248,8 +248,8 @@ void Preferences::setNetworkPreferredProtocols(const QMap<QString, types::Connec
     if (engineSettings_.networkPreferredProtocols() != preferredProtocols)
     {
         engineSettings_.setNetworkPreferredProtocols(preferredProtocols);
-        emit networkPreferredProtocolsChanged(engineSettings_.networkPreferredProtocols());
         emit updateEngineSettings();
+        emit networkPreferredProtocolsChanged(engineSettings_.networkPreferredProtocols());
     }
 }
 
@@ -260,8 +260,8 @@ void Preferences::setNetworkPreferredProtocol(QString networkOrSsid, const types
     {
         map[networkOrSsid] = settings;
         engineSettings_.setNetworkPreferredProtocols(map);
-        emit networkPreferredProtocolsChanged(engineSettings_.networkPreferredProtocols());
         emit updateEngineSettings();
+        emit networkPreferredProtocolsChanged(engineSettings_.networkPreferredProtocols());
     }
 }
 
@@ -290,8 +290,8 @@ void Preferences::setProxySettings(const types::ProxySettings &ps)
     if (engineSettings_.proxySettings() != ps)
     {
         engineSettings_.setProxySettings(ps);
-        emit proxySettingsChanged(engineSettings_.proxySettings());
         emit updateEngineSettings();
+        emit proxySettingsChanged(engineSettings_.proxySettings());
     }
 }
 
@@ -305,8 +305,8 @@ void Preferences::setFirewallSettings(const types::FirewallSettings &fs)
     if(engineSettings_.firewallSettings() != fs)
     {
         engineSettings_.setFirewallSettings(fs);
-        emit firewallSettingsChanged(engineSettings_.firewallSettings());
         emit updateEngineSettings();
+        emit firewallSettingsChanged(engineSettings_.firewallSettings());
     }
 }
 
@@ -320,8 +320,8 @@ void Preferences::setConnectionSettings(const types::ConnectionSettings &cs)
     if (engineSettings_.connectionSettings() != cs)
     {
         engineSettings_.setConnectionSettings(cs);
-        emit connectionSettingsChanged(engineSettings_.connectionSettings());
         emit updateEngineSettings();
+        emit connectionSettingsChanged(engineSettings_.connectionSettings());
     }
 }
 
@@ -335,8 +335,8 @@ void Preferences::setApiResolution(const types::ApiResolutionSettings &s)
     if(engineSettings_.apiResolutionSettings() != s)
     {
         engineSettings_.setApiResolutionSettings(s);
-        emit apiResolutionChanged(engineSettings_.apiResolutionSettings());
         emit updateEngineSettings();
+        emit apiResolutionChanged(engineSettings_.apiResolutionSettings());
     }
 }
 
@@ -350,8 +350,8 @@ void Preferences::setPacketSize(const types::PacketSize &ps)
     if(engineSettings_.packetSize() != ps)
     {
         engineSettings_.setPacketSize(ps);
-        emit packetSizeChanged(engineSettings_.packetSize());
         emit updateEngineSettings();
+        emit packetSizeChanged(engineSettings_.packetSize());
     }
 }
 
@@ -379,8 +379,8 @@ void Preferences::setIgnoreSslErrors(bool b)
     if (engineSettings_.isIgnoreSslErrors() != b)
     {
         engineSettings_.setIsIgnoreSslErrors(b);
-        emit isIgnoreSslErrorsChanged(engineSettings_.isIgnoreSslErrors());
         emit updateEngineSettings();
+        emit isIgnoreSslErrorsChanged(engineSettings_.isIgnoreSslErrors());
     }
 }
 
@@ -395,8 +395,8 @@ void Preferences::setTerminateSockets(bool b)
     if (engineSettings_.isTerminateSockets() != b)
     {
         engineSettings_.setIsTerminateSockets(b);
-        emit isTerminateSocketsChanged(engineSettings_.isTerminateSockets());
         emit updateEngineSettings();
+        emit isTerminateSocketsChanged(engineSettings_.isTerminateSockets());
     }
 }
 #endif
@@ -453,8 +453,8 @@ void Preferences::setTapAdapter(TAP_ADAPTER_TYPE tapAdapter)
     if (engineSettings_.tapAdapter() != tapAdapter)
     {
         engineSettings_.setTapAdapter(tapAdapter);
-        emit tapAdapterChanged(tapAdapter);
         emit updateEngineSettings();
+        emit tapAdapterChanged(tapAdapter);
     }
 }
 #endif
@@ -469,8 +469,8 @@ void Preferences::setDnsPolicy(DNS_POLICY_TYPE d)
     if (engineSettings_.dnsPolicy() != d)
     {
         engineSettings_.setDnsPolicy(d);
-        emit dnsPolicyChanged(d);
         emit updateEngineSettings();
+        emit dnsPolicyChanged(d);
     }
 }
 
@@ -484,8 +484,8 @@ void Preferences::setDnsManager(DNS_MANAGER_TYPE d)
     if (engineSettings_.dnsManager() != d)
     {
         engineSettings_.setDnsManager(d);
-        emit dnsManagerChanged(d);
         emit updateEngineSettings();
+        emit dnsManagerChanged(d);
     }
 }
 #endif
@@ -500,8 +500,8 @@ void Preferences::setConnectedDnsInfo(types::ConnectedDnsInfo d)
     if (engineSettings_.connectedDnsInfo() != d)
     {
         engineSettings_.setConnectedDnsInfo(d);
-        emit connectedDnsInfoChanged(d);
         emit updateEngineSettings();
+        emit connectedDnsInfoChanged(d);
     }
 }
 
@@ -515,8 +515,8 @@ void Preferences::setKeepAlive(bool bEnabled)
     if (engineSettings_.isKeepAliveEnabled() != bEnabled)
     {
         engineSettings_.setIsKeepAliveEnabled(bEnabled);
-        emit keepAliveChanged(bEnabled);
         emit updateEngineSettings();
+        emit keepAliveChanged(bEnabled);
     }
 }
 

@@ -20,10 +20,12 @@ SplitTunneling::~SplitTunneling()
 }
 
 void SplitTunneling::setSettings(bool isEnabled, bool isExclude, const std::vector<std::wstring>& apps,
-                                 const std::vector<std::wstring>& ips, const std::vector<std::string>& hosts)
+                                 const std::vector<std::wstring>& ips, const std::vector<std::string>& hosts,
+                                 bool isAllowLanTraffic)
 {
     isSplitTunnelEnabled_ = isEnabled;
     isExclude_ = isExclude;
+    isAllowLanTraffic_ = isAllowLanTraffic;
 
     apps_ = apps;
 
@@ -84,26 +86,27 @@ bool SplitTunneling::updateState()
             return false;
         }
 
-        DWORD redirectIp;
+        DWORD localIp;
+        DWORD vpnIp;
         AppsIds appsIds;
         appsIds.setFromList(apps_);
 
+        Ip4AddressAndMask localAddr(connectStatus_.defaultAdapter.adapterIp.c_str());
+        localIp = localAddr.ipNetworkOrder();
+        Ip4AddressAndMask vpnAddr(connectStatus_.vpnAdapter.adapterIp.c_str());
+        vpnIp = vpnAddr.ipNetworkOrder();
+
         if (isExclude_) {
-            Ip4AddressAndMask ipAddress(connectStatus_.defaultAdapter.adapterIp.c_str());
-            redirectIp = ipAddress.ipNetworkOrder();
             hostnamesManager_.enable(connectStatus_.defaultAdapter.gatewayIp, connectStatus_.defaultAdapter.ifIndex);
         }
         else {
             appsIds.addFrom(windscribeExecutablesIds_);
-
-            Ip4AddressAndMask ipAddress(connectStatus_.vpnAdapter.adapterIp.c_str());
-            redirectIp = ipAddress.ipNetworkOrder();
             hostnamesManager_.enable(connectStatus_.vpnAdapter.gatewayIp, connectStatus_.vpnAdapter.ifIndex);
         }
 
         firewallFilter_.setSplitTunnelingAppsIds(appsIds);
         firewallFilter_.setSplitTunnelingEnabled(isExclude_);
-        calloutFilter_.enable(redirectIp, appsIds);
+        calloutFilter_.enable(localIp, vpnIp, appsIds, isExclude_, isAllowLanTraffic_);
     }
     else {
         calloutFilter_.disable();

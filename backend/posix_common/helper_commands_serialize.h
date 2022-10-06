@@ -61,6 +61,7 @@ void serialize(Archive & ar, CMD_SPLIT_TUNNELING_SETTINGS &g, const unsigned int
     UNUSED(version);
     ar & g.isActive;
     ar & g.isExclude;
+    ar & g.isAllowLanTraffic;
     ar & g.files;
     ar & g.ips;
     ar & g.hosts;

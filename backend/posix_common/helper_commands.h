@@ -112,6 +112,7 @@ struct CMD_SET_KEYCHAIN_ITEM {
 struct CMD_SPLIT_TUNNELING_SETTINGS {
     bool isActive;
     bool isExclude;     // true -> SPLIT_TUNNELING_MODE_EXCLUDE, false -> SPLIT_TUNNELING_MODE_INCLUDE
+    bool isAllowLanTraffic;
 
     std::vector<std::string> files;
     std::vector<std::string> ips;
