@@ -208,10 +208,12 @@ bool PacketSizeEditBoxItem::lineEditHasFocus()
 
 void PacketSizeEditBoxItem::keyPressEvent(QKeyEvent *event)
 {
-    if (event->key() == Qt::Key_Escape)
-    {
+    if (event->key() == Qt::Key_Escape) {
         onUndoClick();
         parentItem()->setFocus();
+    }
+    else if (event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter) {
+        onConfirmClick();
     }
 }
 
