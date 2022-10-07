@@ -60,8 +60,12 @@ if (WIN32)
                                   _WIN32_WINNT=0x0601
                                   WIN32_LEAN_AND_MEAN
                                   PIO_APC_ROUTINE_DEFINED)
-endif(WIN32)
+endif (WIN32)
 
+if (UNIX)
+    find_package(Qt6 REQUIRED COMPONENTS DBus)
+    target_link_libraries(gui PRIVATE Qt6::DBus)
+endif (UNIX)
 
 target_include_directories(gui PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/../engine

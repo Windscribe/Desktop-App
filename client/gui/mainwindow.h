@@ -407,6 +407,7 @@ private:
     void showUserWarning(USER_WARNING_TYPE userWarningType);
     void openBrowserToMyAccountWithToken(const QString &tempSessionToken);
     void updateConnectWindowStateProtocolPortDisplay();
+    void showTrayMessage(const QString &message);
 };
 
 #endif // MAINWINDOW_H
