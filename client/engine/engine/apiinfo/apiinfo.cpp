@@ -33,13 +33,11 @@ void ApiInfo::setLocations(const QVector<apiinfo::Location> &value)
 
 QVector<apiinfo::Location> ApiInfo::getLocations() const
 {
-    WS_ASSERT(isLocationsInit_);
     return locations_;
 }
 
 QStringList ApiInfo::getForceDisconnectNodes() const
 {
-    WS_ASSERT(isForceDisconnectInit_);
     return forceDisconnectNodes_;
 }
 
@@ -89,7 +87,6 @@ void ApiInfo::setOvpnConfig(const QString &value)
 {
     isOvpnConfigInit_ = true;
     ovpnConfig_ = value;
-    ovpnConfigSetTimestamp_ = QDateTime::currentDateTimeUtc();
 }
 
 // return empty string if auth hash not exist in the settings
@@ -133,7 +130,6 @@ void ApiInfo::setStaticIps(const StaticIps &value)
 
 StaticIps ApiInfo::getStaticIps() const
 {
-    WS_ASSERT(isStaticIpsInit_);
     return staticIps_;
 }
 
@@ -262,11 +258,6 @@ void ApiInfo::mergeWindflixLocations()
         }
         itm.remove();
     }
-}
-
-bool ApiInfo::ovpnConfigRefetchRequired() const
-{
-    return ovpnConfigSetTimestamp_.isValid() && (ovpnConfigSetTimestamp_.secsTo(QDateTime::currentDateTimeUtc()) >= 60*60*24);
 }
 
 } //namespace apiinfo

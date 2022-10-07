@@ -19,22 +19,12 @@
 #include "crossplatformobjectfactory.h"
 #include "openvpnversioncontroller.h"
 #include "openvpnversioncontroller.h"
-#include "getdeviceid.h"
 #include "types/global_consts.h"
-#include "serverapi/requests/sessionrequest.h"
-#include "serverapi/requests/serverlistrequest.h"
-#include "serverapi/requests/serverconfigsrequest.h"
 #include "serverapi/requests/websessionrequest.h"
-#include "serverapi/requests/checkupdaterequest.h"
 #include "serverapi/requests/debuglogrequest.h"
-#include "serverapi/requests/staticipsrequest.h"
-#include "serverapi/requests/notificationsrequest.h"
 #include "serverapi/requests/getrobertfiltersrequest.h"
 #include "serverapi/requests/setrobertfiltersrequest.h"
 #include "failover/failover.h"
-
-// For testing merge log functionality
-//#include <QStandardPaths>
 
 #ifdef Q_OS_WIN
     #include <Objbase.h>
@@ -80,11 +70,6 @@ Engine::Engine(const types::EngineSettings &engineSettings) : QObject(nullptr),
 #endif
     inititalizeHelper_(nullptr),
     bInitialized_(false),
-    loginController_(nullptr),
-    loginState_(LOGIN_NONE),
-    updateServerResourcesTimer_(nullptr),
-    updateSessionStatusTimer_(nullptr),
-    notificationsUpdateTimer_(nullptr),
     locationsModel_(nullptr),
     refetchServerCredentialsHelper_(nullptr),
     downloadHelper_(nullptr),
@@ -157,57 +142,23 @@ void Engine::enableBFE_win()
     QMetaObject::invokeMethod(this, "enableBFE_winImpl");
 }
 
-void Engine::loginWithAuthHash(const QString &authHash)
+void Engine::loginWithAuthHash()
 {
-    QMutexLocker locker(&mutex_);
-    WS_ASSERT(bInitialized_);
-    //WS_ASSERT(loginState_ != LOGIN_IN_PROGRESS);
-
-    {
-        QMutexLocker lockerLoginSettings(&loginSettingsMutex_);
-        loginSettings_ = LoginSettings(authHash);
-    }
-    loginState_ = LOGIN_IN_PROGRESS;
-    QMetaObject::invokeMethod(this, "loginImpl", Q_ARG(bool, false));
+    QMetaObject::invokeMethod(this, [this]() {
+        loginImpl(true, QString(), QString(), QString());
+    }, Qt::QueuedConnection);
 }
 
 void Engine::loginWithUsernameAndPassword(const QString &username, const QString &password, const QString &code2fa)
 {
-    QMutexLocker locker(&mutex_);
-    WS_ASSERT(bInitialized_);
-    WS_ASSERT(loginState_ != LOGIN_IN_PROGRESS);
-
-    {
-        QMutexLocker lockerLoginSettings(&loginSettingsMutex_);
-        loginSettings_ = LoginSettings(username, password, code2fa);
-    }
-    loginState_ = LOGIN_IN_PROGRESS;
-    QMetaObject::invokeMethod(this, "loginImpl", Q_ARG(bool, false));
-}
-
-void Engine::loginWithLastLoginSettings()
-{
-    QMutexLocker locker(&mutex_);
-    WS_ASSERT(bInitialized_);
-    WS_ASSERT(loginState_ != LOGIN_IN_PROGRESS);
-
-    loginState_ = LOGIN_IN_PROGRESS;
-    QMetaObject::invokeMethod(this, "loginImpl", Q_ARG(bool, true));
+    QMetaObject::invokeMethod(this, [this, username, password, code2fa]() {
+        loginImpl(false, username, password, code2fa);
+    }, Qt::QueuedConnection);
 }
 
 bool Engine::isApiSavedSettingsExists()
 {
-    if (!apiinfo::ApiInfo::getAuthHash().isEmpty())
-    {
-        // try load ApiInfo from settings
-        apiinfo::ApiInfo apiInfo;
-        if (apiInfo.loadFromSettings())
-        {
-            return true;
-        }
-    }
-
-    return false;
+    return api_resources::ApiResourcesManager::isCanBeLoadFromSettings();
 }
 
 void Engine::signOut(bool keepFirewallOn)
@@ -263,20 +214,17 @@ void Engine::getWebSessionToken(WEB_SESSION_PURPOSE purpose)
     QMetaObject::invokeMethod(this, "getWebSessionTokenImpl", Q_ARG(WEB_SESSION_PURPOSE, purpose));
 }
 
-LoginSettings Engine::getLastLoginSettings()
-{
-    QMutexLocker lockerLoginSettings(&loginSettingsMutex_);
-    return loginSettings_;
-}
-
 QString Engine::getAuthHash()
 {
-    return apiinfo::ApiInfo::getAuthHash();
+    return api_resources::ApiResourcesManager::authHash();
 }
 
 void Engine::clearCredentials()
 {
-    QMetaObject::invokeMethod(this, "clearCredentialsImpl");
+    QMetaObject::invokeMethod(this, [this]() {
+        if (apiResourcesManager_)
+            apiResourcesManager_->clearServerCredentials();
+    }, Qt::QueuedConnection);
 }
 
 locationsmodel::LocationsModel *Engine::getLocationsModel()
@@ -373,15 +321,6 @@ void Engine::speedRating(int rating, const QString &localExternalIp)
     if (bInitialized_)
     {
         QMetaObject::invokeMethod(this, "speedRatingImpl", Q_ARG(int, rating), Q_ARG(QString, localExternalIp));
-    }
-}
-
-void Engine::updateServerConfigs()
-{
-    QMutexLocker locker(&mutex_);
-    if (bInitialized_)
-    {
-        QMetaObject::invokeMethod(this, "updateServerConfigsImpl");
     }
 }
 
@@ -505,12 +444,10 @@ QString Engine::getSharingCaption()
 
 void Engine::applicationActivated()
 {
-    QMetaObject::invokeMethod(this, "applicationActivatedImpl");
-}
-
-void Engine::applicationDeactivated()
-{
-    QMetaObject::invokeMethod(this, "applicationDeactivatedImpl");
+    QMetaObject::invokeMethod(this, [this]() {
+        if (apiResourcesManager_)
+            apiResourcesManager_->fetchSessionOnForegroundEvent();
+    }, Qt::QueuedConnection);
 }
 
 void Engine::updateCurrentInternetConnectivity()
@@ -651,6 +588,9 @@ void Engine::initPart2()
                                            new failover::Failover(nullptr,networkAccessManager_, connectStateController_, "connected"));
     serverAPI_->setIgnoreSslErrors(engineSettings_.isIgnoreSslErrors());
 
+    checkUpdateManager_ = new api_resources::CheckUpdateManager(this, serverAPI_);
+    connect(checkUpdateManager_, &api_resources::CheckUpdateManager::checkUpdateUpdated, this, &Engine::onCheckUpdateUpdated);
+
     customOvpnAuthCredentialsStorage_ = new CustomOvpnAuthCredentialsStorage();
 
     connectionManager_ = new ConnectionManager(this, helper_, networkDetectionManager_, serverAPI_, customOvpnAuthCredentialsStorage_);
@@ -693,13 +633,6 @@ void Engine::initPart2()
     customConfigs_ = new customconfigs::CustomConfigs(this);
     customConfigs_->changeDir(engineSettings_.customOvpnConfigsPath());
     connect(customConfigs_, SIGNAL(changed()), SLOT(onCustomConfigsChanged()));
-
-    updateServerResourcesTimer_ = new QTimer(this);
-    connect(updateServerResourcesTimer_, &QTimer::timeout, this, &Engine::onUpdateServerResources);
-    updateSessionStatusTimer_ = new SessionStatusTimer(this, connectStateController_);
-    connect(updateSessionStatusTimer_, SIGNAL(needUpdateRightNow()), SLOT(onUpdateSessionStatusTimer()));
-    notificationsUpdateTimer_ = new QTimer(this);
-    connect(notificationsUpdateTimer_, SIGNAL(timeout()), SLOT(getNewNotifications()));
 
     downloadHelper_ = new DownloadHelper(this, networkAccessManager_, Utils::getPlatformName());
     connect(downloadHelper_, SIGNAL(finished(DownloadHelper::DownloadState)), SLOT(onDownloadHelperFinished(DownloadHelper::DownloadState)));
@@ -799,30 +732,8 @@ void Engine::cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool is
 
     qCDebug(LOG_BASIC) << "Cleanup started";
 
-    if (loginController_)
-    {
-        SAFE_DELETE(loginController_);
-        loginState_ = LOGIN_NONE;
-    }
-
-    // stop timers
-    if (updateServerResourcesTimer_)
-    {
-        updateServerResourcesTimer_->stop();
-    }
-    if (updateSessionStatusTimer_)
-    {
-        updateSessionStatusTimer_->stop();
-    }
-    if (notificationsUpdateTimer_)
-    {
-        notificationsUpdateTimer_->stop();
-    }
-
-    if (!apiInfo_.isNull())
-    {
-        apiInfo_->saveToSettings();
-    }
+    apiResourcesManager_.reset();
+    SAFE_DELETE(checkUpdateManager_);
 
     // to skip blocking executeRootCommand() calls
     if (helper_)
@@ -954,9 +865,6 @@ void Engine::cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool is
     SAFE_DELETE(helper_);
     SAFE_DELETE(getMyIPController_);
     SAFE_DELETE(serverAPI_);
-    SAFE_DELETE(updateServerResourcesTimer_);
-    SAFE_DELETE(updateSessionStatusTimer_);
-    SAFE_DELETE(notificationsUpdateTimer_);
     SAFE_DELETE(locationsModel_);
     SAFE_DELETE(networkDetectionManager_);
     SAFE_DELETE(downloadHelper_);
@@ -964,14 +872,6 @@ void Engine::cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool is
     isCleanupFinished_ = true;
     Q_EMIT cleanupFinished();
     qCDebug(LOG_BASIC) << "Cleanup finished";
-}
-
-void Engine::clearCredentialsImpl()
-{
-    if (!apiInfo_.isNull())
-    {
-        apiInfo_->setServerCredentials(apiinfo::ServerCredentials());
-    }
 }
 
 void Engine::enableBFE_winImpl()
@@ -989,7 +889,7 @@ void Engine::enableBFE_winImpl()
 #endif
 }
 
-void Engine::loginImpl(bool bSkipLoadingFromSettings)
+/*void Engine::loginImpl(bool bSkipLoadingFromSettings)
 {
     QMutexLocker lockerLoginSettings(&loginSettingsMutex_);
 
@@ -1015,7 +915,7 @@ void Engine::loginImpl(bool bSkipLoadingFromSettings)
     }
 
     startLoginController(loginSettings_, false);
-}
+}*/
 
 void Engine::setIgnoreSslErrorsImlp(bool bIgnoreSslErrors)
 {
@@ -1033,9 +933,8 @@ void Engine::recordInstallImpl()
 
 void Engine::sendConfirmEmailImpl()
 {
-    if (!apiInfo_.isNull())
-    {
-        server_api::BaseRequest *request = serverAPI_->confirmEmail(apiInfo_->getAuthHash());
+    if (apiResourcesManager_) {
+        server_api::BaseRequest *request = serverAPI_->confirmEmail(apiResourcesManager_->authHash());
         connect(request, &server_api::BaseRequest::finished, this, &Engine::onConfirmEmailAnswer);
     }
 }
@@ -1092,10 +991,8 @@ void Engine::disconnectClickImpl()
 void Engine::sendDebugLogImpl()
 {
     QString userName;
-    if (!apiInfo_.isNull())
-    {
-        userName = apiInfo_->getSessionStatus().getUsername();
-    }
+    if (apiResourcesManager_)
+        userName = apiResourcesManager_->sessionStatus().getUsername();
 
 #ifdef Q_OS_WIN
     if (!MergeLog::canMerge())
@@ -1110,25 +1007,13 @@ void Engine::sendDebugLogImpl()
     log += "================================================================================================================================================================================================\n";
     log += MergeLog::mergeLogs(true);
 
-    /*
-    // For testing merge log functionality
-    QString path = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
-    path += "/merged_logs.txt";
-    QFile file(path);
-    if (file.open(QIODevice::WriteOnly | QIODevice::Truncate))
-    {
-        file.write(log.toLatin1());
-        file.close();
-    }
-    */
-
     server_api::BaseRequest *request = serverAPI_->debugLog(userName, log);
     connect(request, &server_api::BaseRequest::finished, this, &Engine::onDebugLogAnswer);
 }
 
 void Engine::getWebSessionTokenImpl(WEB_SESSION_PURPOSE purpose)
 {
-    server_api::BaseRequest *request = serverAPI_->webSession(apiInfo_->getAuthHash(), purpose);
+    server_api::BaseRequest *request = serverAPI_->webSession(apiResourcesManager_->authHash(), purpose);
     connect(request, &server_api::BaseRequest::finished, this, &Engine::onWebSessionAnswer);
 }
 
@@ -1148,34 +1033,22 @@ void Engine::signOutImpl(bool keepFirewallOn)
 
 void Engine::signOutImplAfterDisconnect(bool keepFirewallOn)
 {
-    if (loginController_)
-    {
-        SAFE_DELETE(loginController_);
-        loginState_ = LOGIN_NONE;
-    }
-    updateServerResourcesTimer_->stop();
-    updateSessionStatusTimer_->stop();
-    notificationsUpdateTimer_->stop();
-
     locationsModel_->clear();
-    prevSessionStatus_.clear();
-    prevSessionForLogging_.clear();
 
 #if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
     firewallController_->enableFirewallOnBoot(false);
 #endif
 
-    if (!apiInfo_.isNull())
-    {
-        server_api::BaseRequest *request = serverAPI_->deleteSession(apiInfo_->getAuthHash());
+    if (apiResourcesManager_) {
+        server_api::BaseRequest *request = serverAPI_->deleteSession(apiResourcesManager_->authHash());
         connect(request, &server_api::BaseRequest::finished, [request]() {
             // Just delete the request, without any action. We don't need a result.
             request->deleteLater();
         });
-
-        apiInfo_.reset();
     }
-    apiinfo::ApiInfo::removeFromSettings();
+    apiResourcesManager_.reset();
+    api_resources::ApiResourcesManager::removeFromSettings();
+
     GetWireGuardConfig::removeWireGuardSettings();
 
     if (!keepFirewallOn)
@@ -1224,6 +1097,8 @@ void Engine::continueWithPasswordImpl(const QString &password, bool bSave)
 void Engine::gotoCustomOvpnConfigModeImpl()
 {
     updateServerLocations();
+    getMyIPController_->getIPFromDisconnectedState(1);
+    doCheckUpdate();
     Q_EMIT gotoCustomOvpnConfigModeFinished();
 }
 
@@ -1267,7 +1142,7 @@ void Engine::firewallOffImpl()
 
 void Engine::speedRatingImpl(int rating, const QString &localExternalIp)
 {
-    server_api::BaseRequest *request = serverAPI_->speedRating(apiInfo_->getAuthHash(), lastConnectingHostname_, localExternalIp, rating);
+    server_api::BaseRequest *request = serverAPI_->speedRating(apiResourcesManager_->authHash(), lastConnectingHostname_, localExternalIp, rating);
     connect(request, &server_api::BaseRequest::finished, [request]() {
         // Just delete the request, without any action. We don't need a result.
         request->deleteLater();
@@ -1280,8 +1155,6 @@ void Engine::setSettingsImpl(const types::EngineSettings &engineSettings)
 
     bool isAllowLanTrafficChanged = engineSettings_.isAllowLanTraffic() != engineSettings.isAllowLanTraffic();
     bool isUpdateChannelChanged = engineSettings_.updateChannel() != engineSettings.updateChannel();
-    bool isLanguageChanged = engineSettings_.language() != engineSettings.language();
-    bool isProtocolChanged = engineSettings_.connectionSettings().protocol != engineSettings.connectionSettings().protocol;
     bool isTerminateSocketsChanged = engineSettings_.isTerminateSockets() != engineSettings.isTerminateSockets();
     bool isDnsPolicyChanged = engineSettings_.dnsPolicy() != engineSettings.dnsPolicy();
     bool isCustomOvpnConfigsPathChanged = engineSettings_.customOvpnConfigsPath() != engineSettings.customOvpnConfigsPath();
@@ -1315,49 +1188,7 @@ void Engine::setSettingsImpl(const types::EngineSettings &engineSettings)
     }
 
     if (isUpdateChannelChanged)
-    {
-        UPDATE_CHANNEL channel =   engineSettings_.updateChannel();
-        if (overrideUpdateChannelWithInternal_)
-        {
-            qCDebug(LOG_BASIC) << "Overriding update channel: internal";
-            channel = UPDATE_CHANNEL_INTERNAL;
-        }
-        server_api::BaseRequest *request = serverAPI_->checkUpdate(channel);
-        connect(request, &server_api::BaseRequest::finished, this, &Engine::onCheckUpdateAnswer);
-    }
-    if (isLanguageChanged || isProtocolChanged)
-    {
-        if (!apiInfo_.isNull())
-        {
-            types::SessionStatus ss = apiInfo_->getSessionStatus();
-            if (isLanguageChanged)
-            {
-                qCDebug(LOG_BASIC) << "Language changed -> update server locations";
-            }
-            else if (isProtocolChanged)
-            {
-                if (engineSettings_.connectionSettings().protocol.isOpenVpnProtocol())
-                {
-                    qCDebug(LOG_BASIC) << "Protocol changed to openvpn -> update server locations";
-                }
-                else if (engineSettings_.connectionSettings().protocol.isIkev2Protocol())
-                {
-                    qCDebug(LOG_BASIC) << "Protocol changed to ikev -> update server locations";
-                }
-                else if (engineSettings_.connectionSettings().protocol.isWireGuardProtocol())
-                {
-                    qCDebug(LOG_BASIC) << "Protocol changed to wireguard -> update server locations";
-                }
-                else
-                {
-                    WS_ASSERT(false);
-                }
-            }
-            server_api::BaseRequest *request = serverAPI_->serverLocations(engineSettings_.language(), ss.getRevisionHash(),
-                                        ss.isPremium(), ss.getAlc());
-            connect(request, &server_api::BaseRequest::finished, this, &Engine::onServerLocationsAnswer);
-        }
-    }
+        doCheckUpdate();
 
     if (isTerminateSocketsChanged)
     {
@@ -1392,216 +1223,23 @@ void Engine::setSettingsImpl(const types::EngineSettings &engineSettings)
     OpenVpnVersionController::instance().setUseWinTun(engineSettings_.isUseWintun());
 }
 
-void Engine::onLoginControllerFinished(LOGIN_RET retCode, const apiinfo::ApiInfo &apiInfo, bool bFromConnectedToVPNState, const QString &errorMessage)
-{
-    qCDebug(LOG_BASIC) << "onLoginControllerFinished, retCode =" << LOGIN_RET_toString(retCode) << ";bFromConnectedToVPNState ="
-                       << bFromConnectedToVPNState << ";errorMessage =" << errorMessage;
-
-    WS_ASSERT(loginState_ != LOGIN_FINISHED);
-    if (retCode == LOGIN_RET_SUCCESS)
-    {
-        if (!emergencyController_->isDisconnected())
-        {
-            emergencyController_->blockingDisconnect();
-            emergencyConnectStateController_->setDisconnectedState(DISCONNECTED_ITSELF, CONNECT_ERROR::NO_CONNECT_ERROR);
-            Q_EMIT emergencyDisconnected();
-
-            qCDebug(LOG_BASIC) << "Update ip after emergency connect";
-            getMyIPController_->getIPFromDisconnectedState(1);
-        }
-
-        apiInfo_.reset(new apiinfo::ApiInfo);
-        *apiInfo_ = apiInfo;
-        QString curRevisionHash = apiInfo_->getSessionStatus().getRevisionHash();
-
-        // if updateServerLocation not called in loginImpl
-        if (!prevSessionStatus_.isInitialized())
-        {
-            prevSessionStatus_ = apiInfo_->getSessionStatus();
-        }
-        else
-        {
-            WS_ASSERT(!curRevisionHash.isEmpty());
-            if (curRevisionHash != prevSessionStatus_.getRevisionHash())
-            {
-                prevSessionStatus_.setRevisionHash(curRevisionHash);
-            }
-        }
-
-        updateServerLocations();
-        updateSessionStatus();
-        getNewNotifications();
-        notificationsUpdateTimer_->start(NOTIFICATIONS_UPDATE_PERIOD);
-        updateSessionStatusTimer_->start();
-
-        if (!bFromConnectedToVPNState)
-        {
-            loginState_ = LOGIN_FINISHED;
-        }
-        updateCurrentNetworkInterfaceImpl();
-        Q_EMIT loginFinished(false, apiInfo_->getAuthHash(), apiInfo_->getPortMap());
-    }
-    else if (retCode == LOGIN_RET_NO_CONNECTIVITY)
-    {
-        loginState_ = LOGIN_NONE;
-        Q_EMIT loginError(LOGIN_RET_NO_CONNECTIVITY, QString());
-    }
-    else if (retCode == LOGIN_RET_NO_API_CONNECTIVITY)
-    {
-        loginState_ = LOGIN_NONE;
-        Q_EMIT loginError(LOGIN_RET_NO_API_CONNECTIVITY, QString());
-
-        if (bFromConnectedToVPNState)
-        {
-            qCDebug(LOG_BASIC) << "No API connectivity from connected state. Using stale API data from settings.";
-        }
-        else
-        {
-            qCDebug(LOG_BASIC) << "No API connectivity from disconnected state. Using stale API data from settings.";
-        }
-    }
-    else if (retCode == LOGIN_RET_PROXY_AUTH_NEED)
-    {
-        loginState_ = LOGIN_NONE;
-        Q_EMIT loginError(LOGIN_RET_PROXY_AUTH_NEED, QString());
-    }
-    else if (retCode == LOGIN_RET_INCORRECT_JSON)
-    {
-        loginState_ = LOGIN_NONE;
-        Q_EMIT loginError(LOGIN_RET_INCORRECT_JSON, QString());
-    }
-    else if (retCode == LOGIN_RET_SSL_ERROR)
-    {
-        if (bFromConnectedToVPNState)
-        {
-            QMutexLocker lockerLoginSettings(&loginSettingsMutex_);
-            loginController_->deleteLater(); // delete LoginController object
-            loginController_ = NULL;
-
-            loginState_ = LOGIN_IN_PROGRESS;
-            startLoginController(loginSettings_, bFromConnectedToVPNState);
-            return;
-        }
-        else
-        {
-            loginState_ = LOGIN_NONE;
-            Q_EMIT loginError(LOGIN_RET_SSL_ERROR, QString());
-        }
-    }
-    else if (retCode == LOGIN_RET_BAD_USERNAME || retCode == LOGIN_RET_BAD_CODE2FA ||
-             retCode == LOGIN_RET_MISSING_CODE2FA || retCode == LOGIN_RET_ACCOUNT_DISABLED ||
-             retCode == LOGIN_RET_SESSION_INVALID)
-    {
-        loginState_ = LOGIN_NONE;
-        Q_EMIT loginError(retCode, errorMessage);
-    }
-    else
-    {
-        WS_ASSERT(false);
-    }
-
-    loginController_->deleteLater(); // delete LoginController object
-    loginController_ = NULL;
-}
-
-// FIXME: remove
-void Engine::onReadyForNetworkRequests()
-{
-    qCDebug(LOG_BASIC) << "Engine::onReadyForNetworkRequests()";
-    //serverAPI_->setRequestsEnabled(true);
-    updateServerResourcesTimer_->start(UPDATE_SERVER_RESOURCES_PERIOD);
-    checkForAppUpdate();
-
-    if (connectionManager_->isDisconnected())
-    {
-        getMyIPController_->getIPFromDisconnectedState(1);
-    }
-    else
-    {
-        getMyIPController_->getIPFromConnectedState(1);
-    }
-}
-
 void Engine::onLoginControllerStepMessage(LOGIN_MESSAGE msg)
 {
+    //TODO:
     Q_EMIT loginStepMessage(msg);
 }
 
-void Engine::onServerLocationsAnswer()
+void Engine::onCheckUpdateUpdated(const types::CheckUpdate &checkUpdate)
 {
-    QSharedPointer<server_api::ServerListRequest> request(static_cast<server_api::ServerListRequest *>(sender()), &QObject::deleteLater);
-    if (request->networkRetCode() == SERVER_RETURN_SUCCESS)
-    {
-        if (!request->locations().isEmpty())
-        {
-            apiInfo_->setLocations(request->locations());
-            apiInfo_->setForceDisconnectNodes(request->forceDisconnectNodes());
-            updateServerLocations();
-        }
-    }
-    else if (request->networkRetCode() == SERVER_RETURN_FAILOVER_FAILED)
-    {
-        qCDebug(LOG_BASIC) << "Request server locations failed. API not ready";
-    }
-    else
-    {
-        qCDebug(LOG_BASIC) << "Request server locations failed. Seems no internet connectivity";
-    }
-}
-
-void Engine::onSessionAnswer()
-{
-    QSharedPointer<server_api::SessionRequest> request(static_cast<server_api::SessionRequest *>(sender()), &QObject::deleteLater);
-    if (request->networkRetCode() == SERVER_RETURN_SUCCESS) {
-        if (request->sessionErrorCode() == server_api::SessionErrorCode::kSuccess) {
-            apiInfo_->setSessionStatus(request->sessionStatus());
-            updateSessionStatus();
-        } else if (request->sessionErrorCode() == server_api::SessionErrorCode::kSessionInvalid) {
-            Q_EMIT sessionDeleted();
-        }
-    }
-}
-
-void Engine::onNotificationsAnswer()
-{
-    QSharedPointer<server_api::NotificationsRequest> request(static_cast<server_api::NotificationsRequest *>(sender()), &QObject::deleteLater);
-    if (request->networkRetCode() == SERVER_RETURN_SUCCESS)
-        Q_EMIT notificationsUpdated(request->notifications());
-}
-
-void Engine::onServerConfigsAnswer()
-{
-    QSharedPointer<server_api::ServerConfigsRequest> request(static_cast<server_api::ServerConfigsRequest *>(sender()), &QObject::deleteLater);
-    if (request->networkRetCode() == SERVER_RETURN_SUCCESS)
-    {
-        apiInfo_->setOvpnConfig(request->ovpnConfig());
-    }
-    else
-    {
-        qCDebug(LOG_BASIC) << "Failed update server configs for openvpn version change";
-        // try again with 3 sec
-        QTimer::singleShot(3000, this, SLOT(updateServerConfigs()));
-    }
-}
-
-void Engine::onCheckUpdateAnswer()
-{
-    QSharedPointer<server_api::CheckUpdateRequest> request(static_cast<server_api::CheckUpdateRequest *>(sender()), &QObject::deleteLater);
     qCDebug(LOG_BASIC) << "Received Check Update Answer";
 
-    // is a network error?
-    if (request->networkRetCode() == SERVER_RETURN_NETWORK_ERROR || request->networkRetCode() == SERVER_RETURN_SSL_ERROR)  {
-        QTimer::singleShot(60000, this, &Engine::checkForAppUpdate);
-        return;
-    }
-
-    installerUrl_ = request->checkUpdate().url;
-    installerHash_ = request->checkUpdate().sha256;
-    if (request->checkUpdate().isAvailable) {
+    installerUrl_ = checkUpdate.url;
+    installerHash_ = checkUpdate.sha256;
+    if (checkUpdate.isAvailable) {
         qCDebug(LOG_BASIC) << "Installer URL: " << installerUrl_;
         qCDebug(LOG_BASIC) << "Installer Hash: " << installerHash_;
     }
-    Q_EMIT checkUpdateUpdated(request->checkUpdate());
+    Q_EMIT checkUpdateUpdated(checkUpdate);
 }
 
 void Engine::onHostIPsChanged(const QSet<QString> &hostIps)
@@ -1632,26 +1270,6 @@ void Engine::onConfirmEmailAnswer()
     Q_EMIT confirmEmailFinished(request->networkRetCode() == SERVER_RETURN_SUCCESS);
 }
 
-void Engine::onStaticIpsAnswer()
-{
-    QSharedPointer<server_api::StaticIpsRequest> request(static_cast<server_api::StaticIpsRequest *>(sender()), &QObject::deleteLater);
-    if (request->networkRetCode() == SERVER_RETURN_SUCCESS)
-    {
-        apiInfo_->setStaticIps(request->staticIps());
-        updateServerLocations();
-    }
-    else
-    {
-        qCDebug(LOG_BASIC) << "Failed get static ips";
-        QTimer::singleShot(3000, this, [this]() {
-            if (!apiInfo_.isNull()) {
-                server_api::BaseRequest *requestStaticIps = serverAPI_->staticIps(apiInfo_->getAuthHash(), GetDeviceId::instance().getDeviceId());
-                connect(requestStaticIps, &server_api::BaseRequest::finished, this, &Engine::onStaticIpsAnswer);
-            }
-        });
-    }
-}
-
 void Engine::onWebSessionAnswer()
 {
     QSharedPointer<server_api::WebSessionRequest> request(static_cast<server_api::WebSessionRequest *>(sender()), &QObject::deleteLater);
@@ -1675,65 +1293,6 @@ void Engine::onSyncRobertAnswer()
 {
     QSharedPointer<server_api::BaseRequest> request(static_cast<server_api::BaseRequest *>(sender()), &QObject::deleteLater);
     Q_EMIT syncRobertFinished(request->networkRetCode() == SERVER_RETURN_SUCCESS);
-}
-
-void Engine::onUpdateServerResources()
-{
-    // Refresh all server resources, and check for a new app version, every 24 hours.
-
-    if (!apiInfo_.isNull() && apiInfo_->getSessionStatus().getStatus() == 1)
-    {
-        qCDebug(LOG_BASIC) << "24 hours have past, refreshing all server API resources.";
-
-        const types::SessionStatus ss = apiInfo_->getSessionStatus();
-        const QString authHash = apiInfo_->getAuthHash();
-        const bool isConnected = (connectStateController_->currentState() == CONNECT_STATE_CONNECTED);
-        const bool isDisconnected = (connectStateController_->currentState() == CONNECT_STATE_DISCONNECTED);
-
-        if (isDisconnected || (isConnected && !connectionManager_->currentProtocol().isOpenVpnProtocol()))
-        {
-            server_api::BaseRequest *request = serverAPI_->serverConfigs(authHash);
-            connect(request, &server_api::BaseRequest::finished, this, &Engine::onServerConfigsAnswer);
-            //FIXME:
-            //serverAPI_->serverCredentials(authHash, serverApiUserRole_, PROTOCOL::OPENVPN_UDP, true);
-        }
-
-        if (isDisconnected || (isConnected && !connectionManager_->currentProtocol().isIkev2Protocol())) {
-            //FIXME:
-            //serverAPI_->serverCredentials(authHash, serverApiUserRole_, PROTOCOL::IKEV2, true);
-        }
-
-        server_api::BaseRequest *request = serverAPI_->serverLocations(engineSettings_.language(), ss.getRevisionHash(), ss.isPremium(), ss.getAlc());
-        connect(request, &server_api::BaseRequest::finished, this, &Engine::onServerLocationsAnswer);
-
-        //FIXME:
-        //serverAPI_->portMap(authHash, serverApiUserRole_, true);
-
-        if (ss.getStaticIpsCount() > 0) {
-            server_api::BaseRequest *requestStaticIps = serverAPI_->staticIps(authHash, GetDeviceId::instance().getDeviceId());
-            connect(requestStaticIps, &server_api::BaseRequest::finished, this, &Engine::onStaticIpsAnswer);
-        }
-    }
-
-    checkForAppUpdate();
-}
-
-void Engine::checkForAppUpdate()
-{
-    UPDATE_CHANNEL channel = engineSettings_.updateChannel();
-    if (overrideUpdateChannelWithInternal_)
-    {
-        qCDebug(LOG_BASIC) << "Overriding update channel: internal";
-        channel = UPDATE_CHANNEL_INTERNAL;
-    }
-    server_api::BaseRequest *request = serverAPI_->checkUpdate(channel);
-    connect(request, &server_api::BaseRequest::finished, this, &Engine::onCheckUpdateAnswer);
-}
-
-void Engine::onUpdateSessionStatusTimer()
-{
-    server_api::BaseRequest *request = serverAPI_->session(apiInfo_->getAuthHash());
-    connect(request, &server_api::BaseRequest::finished, this, &Engine::onSessionAnswer);
 }
 
 void Engine::onConnectionManagerConnected()
@@ -1860,18 +1419,6 @@ void Engine::onConnectionManagerConnected()
 
     DnsServersConfiguration::instance().setDnsServersPolicy(DNS_TYPE_OS_DEFAULT);
 
-
-    if (loginState_ == LOGIN_IN_PROGRESS)
-    {
-        QMutexLocker lockerLoginSettings(&loginSettingsMutex_);
-        //serverAPI_->setRequestsEnabled(false);
-        if (loginController_)
-        {
-            SAFE_DELETE(loginController_);
-        }
-        startLoginController(loginSettings_, true);
-    }
-
     if (engineSettings_.isTerminateSockets())
     {
 #ifdef Q_OS_WIN
@@ -1904,18 +1451,6 @@ void Engine::onConnectionManagerDisconnected(DISCONNECT_REASON reason)
     }
 
     doDisconnectRestoreStuff();
-
-    if (loginState_ == LOGIN_IN_PROGRESS)
-    {
-        QMutexLocker lockerLoginSettings(&loginSettingsMutex_);
-        //serverAPI_->setRequestsEnabled(false);
-        if (loginController_)
-        {
-            SAFE_DELETE(loginController_);
-        }
-
-        startLoginController(loginSettings_, false);
-    }
 
 #ifdef Q_OS_WIN
     DnsInfo_win::outputDebugDnsInfo();
@@ -1988,7 +1523,8 @@ void Engine::onConnectionManagerError(CONNECT_ERROR err)
         else
         {
             // goto update server credentials and try connect again
-            if (refetchServerCredentialsHelper_ == NULL)
+            //TODO:
+            /*if (refetchServerCredentialsHelper_ == NULL)
             {
                 // force update session status (for check blocked, banned account state)
                 server_api::BaseRequest *request = serverAPI_->session(apiInfo_->getAuthHash());
@@ -2002,7 +1538,7 @@ void Engine::onConnectionManagerError(CONNECT_ERROR err)
             else
             {
                 WS_ASSERT(false);
-            }
+            }*/
         }
 
         return;
@@ -2251,15 +1787,7 @@ void Engine::updateAdvancedParamsImpl()
     if (overrideUpdateChannelWithInternal_ != newOverrideUpdateChannel)
     {
         overrideUpdateChannelWithInternal_ = newOverrideUpdateChannel;
-
-        UPDATE_CHANNEL channel =   engineSettings_.updateChannel();
-        if (overrideUpdateChannelWithInternal_)
-        {
-            qCDebug(LOG_BASIC) << "Overriding update channel: internal";
-            channel = UPDATE_CHANNEL_INTERNAL;
-        }
-        server_api::BaseRequest *request = serverAPI_->checkUpdate(channel);
-        connect(request, &server_api::BaseRequest::finished, this, &Engine::onCheckUpdateAnswer);
+        doCheckUpdate();
     }
 }
 
@@ -2427,7 +1955,8 @@ void Engine::onEmergencyControllerError(CONNECT_ERROR err)
 
 void Engine::onRefetchServerCredentialsFinished(bool success, const apiinfo::ServerCredentials &serverCredentials, const QString &serverConfig)
 {
-    bool bFromAuthError = refetchServerCredentialsHelper_->property("fromAuthError").isValid();
+    //TODO:
+    /*bool bFromAuthError = refetchServerCredentialsHelper_->property("fromAuthError").isValid();
     refetchServerCredentialsHelper_->deleteLater();
     refetchServerCredentialsHelper_ = NULL;
 
@@ -2443,30 +1972,24 @@ void Engine::onRefetchServerCredentialsFinished(bool success, const apiinfo::Ser
         qCDebug(LOG_BASIC) << "Engine::onRefetchServerCredentialsFinished, failed";
         getMyIPController_->getIPFromDisconnectedState(1);
         connectStateController_->setDisconnectedState(DISCONNECTED_WITH_ERROR, CONNECT_ERROR::COULD_NOT_FETCH_CREDENTAILS);
-    }
-}
-
-void Engine::getNewNotifications()
-{
-    server_api::BaseRequest *request = serverAPI_->notifications(apiInfo_->getAuthHash());
-    connect(request, &server_api::BaseRequest::finished, this, &Engine::onNotificationsAnswer);
+    }*/
 }
 
 void Engine::getRobertFiltersImpl()
 {
-    server_api::BaseRequest *request = serverAPI_->getRobertFilters(apiInfo_->getAuthHash());
+    server_api::BaseRequest *request = serverAPI_->getRobertFilters(apiResourcesManager_->authHash());
     connect(request, &server_api::BaseRequest::finished, this, &Engine::onGetRobertFiltersAnswer);
 }
 
 void Engine::setRobertFilterImpl(const types::RobertFilter &filter)
 {
-    server_api::BaseRequest *request = serverAPI_->setRobertFilter(apiInfo_->getAuthHash(), filter);
+    server_api::BaseRequest *request = serverAPI_->setRobertFilter(apiResourcesManager_->authHash(), filter);
     connect(request, &server_api::BaseRequest::finished, this, &Engine::onSetRobertFilterAnswer);
 }
 
 void Engine::syncRobertImpl()
 {
-    server_api::BaseRequest *request = serverAPI_->syncRobert(apiInfo_->getAuthHash());
+    server_api::BaseRequest *request = serverAPI_->syncRobert(apiResourcesManager_->authHash());
     connect(request, &server_api::BaseRequest::finished, this, &Engine::onSyncRobertAnswer);
 }
 
@@ -2573,14 +2096,6 @@ void Engine::onMacAddressControllerRobustMacSpoofApplied()
 }
 #endif
 
-void Engine::updateServerConfigsImpl()
-{
-    if (!apiInfo_.isNull())
-    {
-        server_api::BaseRequest *request = serverAPI_->serverConfigs(apiInfo_->getAuthHash());
-        connect(request, &server_api::BaseRequest::finished, this, &Engine::onServerConfigsAnswer);
-    }
-}
 
 void Engine::checkForceDisconnectNode(const QStringList & /*forceDisconnectNodes*/)
 {
@@ -2649,22 +2164,6 @@ void Engine::stopWifiSharingImpl()
     }
 }
 
-void Engine::applicationActivatedImpl()
-{
-    if (updateSessionStatusTimer_)
-    {
-        updateSessionStatusTimer_->applicationActivated();
-    }
-}
-
-void Engine::applicationDeactivatedImpl()
-{
-    if (updateSessionStatusTimer_)
-    {
-        updateSessionStatusTimer_->applicationDeactivated();
-    }
-}
-
 void Engine::setSettingsMacAddressSpoofingImpl(const types::MacAddrSpoofing &macAddrSpoofing)
 {
     engineSettings_.setMacAddrSpoofing(macAddrSpoofing);
@@ -2678,85 +2177,87 @@ void Engine::setSplitTunnelingSettingsImpl(bool isActive, bool isExclude, const 
                                        files, ips, hosts);
 }
 
-void Engine::startLoginController(const LoginSettings &loginSettings, bool bFromConnectedState)
+void Engine::onApiResourcesManagerReadyForLogin()
 {
-    WS_ASSERT(loginController_ == NULL);
-    WS_ASSERT(loginState_ == LOGIN_IN_PROGRESS);
-    loginController_ = new LoginController(this, networkDetectionManager_, serverAPI_, engineSettings_.language(), engineSettings_.connectionSettings().protocol);
-    connect(loginController_, &LoginController::finished, this, &Engine::onLoginControllerFinished);
-    //connect(loginController_, &LoginController::readyForNetworkRequests, this, &Engine::onReadyForNetworkRequests);
-    //connect(loginController_, &LoginController::stepMessage, this, &Engine::onLoginControllerStepMessage);
-    loginController_->startLoginProcess(loginSettings, bFromConnectedState);
+    qCDebug(LOG_BASIC) << "All API resources have been updated";
+    // we don't need the signal readyForLogin() anymore
+    disconnect(apiResourcesManager_.get(), &api_resources::ApiResourcesManager::readyForLogin, this, nullptr);
+
+    /*if (!emergencyController_->isDisconnected()) {
+        emergencyController_->blockingDisconnect();
+        emergencyConnectStateController_->setDisconnectedState(DISCONNECTED_ITSELF, CONNECT_ERROR::NO_CONNECT_ERROR);
+        Q_EMIT emergencyDisconnected();
+    }*/
+
+    getMyIPController_->getIPFromDisconnectedState(1);
+    /*doCheckUpdate();
+    updateCurrentNetworkInterfaceImpl();
+    Q_EMIT loginFinished(false, apiResourcesManager_->authHash(), apiResourcesManager_->portMap());*/
 }
 
-void Engine::updateSessionStatus()
+void Engine::onApiResourcesManagerLoginFailed(LOGIN_RET retCode, const QString &errorMessage)
 {
-    if (!apiInfo_.isNull())
-    {
-        types::SessionStatus ss = apiInfo_->getSessionStatus();
+    qCDebug(LOG_BASIC) << "onApiResourcesManagerLoginFailed, retCode =" << LOGIN_RET_toString(retCode) << ";errorMessage =" << errorMessage;
 
-        if (ss.isChangedForLogging(prevSessionForLogging_))
-        {
-            qCDebug(LOG_BASIC) << "update session status (changed since last call)";
-            qCDebugMultiline(LOG_BASIC) << ss.debugString();
-            prevSessionForLogging_ = ss;
-        }
-        else
-        {
-            // Commented debug entry out as this method is called every minute and we don't
-            // need to flood the log with this info.
-            //qCDebug(LOG_BASIC) << "update session status, no changes since last call";
-        }
-
-
-        Q_EMIT sessionStatusUpdated(ss);
-
-        if (prevSessionStatus_.getRevisionHash() != ss.getRevisionHash() || prevSessionStatus_.getStaticIpsCount() != ss.getStaticIpsCount() ||
-                ss.isContainsStaticDeviceId(GetDeviceId::instance().getDeviceId()))
-        {
-            if (ss.getStaticIpsCount() > 0)
-            {
-                server_api::BaseRequest *requestStaticIps = serverAPI_->staticIps(apiInfo_->getAuthHash(), GetDeviceId::instance().getDeviceId());
-                connect(requestStaticIps, &server_api::BaseRequest::finished, this, &Engine::onStaticIpsAnswer);
-            }
-            else
-            {
-                // set empty list of static ips
-                apiInfo_->setStaticIps(apiinfo::StaticIps());
-                updateServerLocations();
-            }
-        }
-
-        if (prevSessionStatus_.getRevisionHash() != ss.getRevisionHash() || prevSessionStatus_.isPremium() != ss.isPremium() ||
-            prevSessionStatus_.getAlc() != ss.getAlc() || (prevSessionStatus_.getStatus() != 1 && ss.getStatus() == 1))
-        {
-            server_api::BaseRequest *request = serverAPI_->serverLocations(engineSettings_.language(), ss.getRevisionHash(), ss.isPremium(), ss.getAlc());
-            connect(request, &server_api::BaseRequest::finished, this, &Engine::onServerLocationsAnswer);
-        }
-
-        if (prevSessionStatus_.getBillingPlanId() != ss.getBillingPlanId())
-        {
-            server_api::BaseRequest *request = serverAPI_->notifications(apiInfo_->getAuthHash());
-            connect(request, &server_api::BaseRequest::finished, this, &Engine::onNotificationsAnswer);
-            notificationsUpdateTimer_->start(NOTIFICATIONS_UPDATE_PERIOD);
-        }
-
-        prevSessionStatus_ = ss;
+    //TODO: check all errors
+    if (retCode == LOGIN_RET_NO_CONNECTIVITY) {
+        Q_EMIT loginError(LOGIN_RET_NO_CONNECTIVITY, QString());
+    } else if (retCode == LOGIN_RET_NO_API_CONNECTIVITY) {
+        Q_EMIT loginError(LOGIN_RET_NO_API_CONNECTIVITY, QString());
+    } else if (retCode == LOGIN_RET_PROXY_AUTH_NEED) {
+        Q_EMIT loginError(LOGIN_RET_PROXY_AUTH_NEED, QString());
+    } else if (retCode == LOGIN_RET_INCORRECT_JSON) {
+        Q_EMIT loginError(LOGIN_RET_INCORRECT_JSON, QString());
+    } else if (retCode == LOGIN_RET_SSL_ERROR) {
+        Q_EMIT loginError(LOGIN_RET_SSL_ERROR, QString());
+    } else if (retCode == LOGIN_RET_BAD_USERNAME || retCode == LOGIN_RET_BAD_CODE2FA ||
+             retCode == LOGIN_RET_MISSING_CODE2FA || retCode == LOGIN_RET_ACCOUNT_DISABLED ||
+             retCode == LOGIN_RET_SESSION_INVALID) {
+        Q_EMIT loginError(retCode, errorMessage);
+    } else  {
+        WS_ASSERT(false);
     }
+
+    apiResourcesManager_.reset();
+}
+
+void Engine::onApiResourcesManagerSessionDeleted()
+{
+    Q_EMIT sessionDeleted();
+}
+
+void Engine::onApiResourcesManagerSessionUpdated(const types::SessionStatus &sessionStatus)
+{
+    Q_EMIT sessionStatusUpdated(sessionStatus);
+}
+
+void Engine::onApiResourcesManagerLocationsUpdated()
+{
+    updateServerLocations();
+}
+
+void Engine::onApiResourcesManagerStaticIpsUpdated()
+{
+    updateServerLocations();
+}
+
+void Engine::onApiResourcesManagerNotificationsUpdated(const QVector<types::Notification> &notifications)
+{
+    Q_EMIT notificationsUpdated(notifications);
 }
 
 void Engine::updateServerLocations()
 {
     qCDebug(LOG_BASIC) << "Servers locations changed";
-    if (!apiInfo_.isNull())
+    if (apiResourcesManager_)
     {
-        locationsModel_->setApiLocations(apiInfo_->getLocations(), apiInfo_->getStaticIps());
+        locationsModel_->setApiLocations(apiResourcesManager_->locations(), apiResourcesManager_->staticIps());
     }
     locationsModel_->setCustomConfigLocations(customConfigs_->getConfigs());
 
-    if (!apiInfo_.isNull() && !apiInfo_->getForceDisconnectNodes().isEmpty())
+    if (apiResourcesManager_)
     {
-        checkForceDisconnectNode(apiInfo_->getForceDisconnectNodes());
+        checkForceDisconnectNode(apiResourcesManager_->forceDisconnectNodes());
     }
 }
 
@@ -2830,8 +2331,6 @@ void Engine::doConnect(bool bEmitAuthError)
         QThread::msleep(1);
     }
 
-    locationId_ = checkLocationIdExistingAndReturnNewIfNeed(locationId_);
-
     QSharedPointer<locationsmodel::BaseLocationInfo> bli = locationsModel_->getMutableLocationInfoById(locationId_);
     if (bli.isNull())
     {
@@ -2859,37 +2358,20 @@ void Engine::doConnect(bool bEmitAuthError)
     types::NetworkInterface networkInterface;
     networkDetectionManager_->getCurrentNetworkInterface(networkInterface);
 
-    if (!apiInfo_.isNull())
+    if (apiResourcesManager_)
     {
-        if ((!apiInfo_->getServerCredentials().isInitialized() || apiInfo_->ovpnConfigRefetchRequired()) && !locationId_.isCustomConfigsLocation())
+        if (!bli->locationId().isCustomConfigsLocation() && !bli->locationId().isStaticIpsLocation())
         {
-            qCDebug(LOG_BASIC) << "radius username/password empty or ovpn refetch config required, refetch server config and credentials";
-
-            if (refetchServerCredentialsHelper_ == NULL)
-            {
-                refetchServerCredentialsHelper_ = new RefetchServerCredentialsHelper(this, apiInfo_->getAuthHash(), serverAPI_);
-                connect(refetchServerCredentialsHelper_, &RefetchServerCredentialsHelper::finished, this, &Engine::onRefetchServerCredentialsFinished);
-                refetchServerCredentialsHelper_->startRefetch();
-            }
+            qCDebug(LOG_BASIC) << "radiusUsername openvpn: " << apiResourcesManager_->serverCredentials().usernameForOpenVpn();
+            qCDebug(LOG_BASIC) << "radiusUsername ikev2: " << apiResourcesManager_->serverCredentials().usernameForIkev2();
         }
-        else
-        {
-            if (!bli->locationId().isCustomConfigsLocation() && !bli->locationId().isStaticIpsLocation())
-            {
-                if (apiInfo_->getServerCredentials().isInitialized())
-                {
-                    qCDebug(LOG_BASIC) << "radiusUsername openvpn: " << apiInfo_->getServerCredentials().usernameForOpenVpn();
-                    qCDebug(LOG_BASIC) << "radiusUsername ikev2: " << apiInfo_->getServerCredentials().usernameForIkev2();
-                }
-            }
-            qCDebug(LOG_BASIC) << "Connecting to" << locationName_;
+        qCDebug(LOG_BASIC) << "Connecting to" << locationName_;
 
-            connectionManager_->clickConnect(apiInfo_->getOvpnConfig(), apiInfo_->getServerCredentials(), bli,
-                engineSettings_.networkPreferredProtocols()[networkInterface.networkOrSsid],
-                engineSettings_.connectionSettings(), apiInfo_->getPortMap(),
-                ProxyServerController::instance().getCurrentProxySettings(),
-                bEmitAuthError, engineSettings_.customOvpnConfigsPath());
-        }
+        connectionManager_->clickConnect(apiResourcesManager_->ovpnConfig(), apiResourcesManager_->serverCredentials(), bli,
+            engineSettings_.networkPreferredProtocols()[networkInterface.networkOrSsid],
+            engineSettings_.connectionSettings(), apiResourcesManager_->portMap(),
+            ProxyServerController::instance().getCurrentProxySettings(),
+            bEmitAuthError, engineSettings_.customOvpnConfigsPath());
     }
     // for custom configs without login
     else
@@ -2901,39 +2383,6 @@ void Engine::doConnect(bool bEmitAuthError)
                                         ProxyServerController::instance().getCurrentProxySettings(),
                                         bEmitAuthError, engineSettings_.customOvpnConfigsPath());
     }
-}
-
-LocationID Engine::checkLocationIdExistingAndReturnNewIfNeed(const LocationID &locationId)
-{
-    //todo
-    return locationId;
-    /*QSharedPointer<MutableLocationInfo> mli = serversModel_->getMutableLocationInfoById(locationId);
-    if (mli.isNull() || !mli->isExistSelectedNode())
-    {
-        // this is city
-        if (!locationId.getCity().isEmpty())
-        {
-            // try select another city for this location id
-            QStringList cities = serversModel_->getCitiesForLocationId(locationId.getId());
-            if (!cities.empty())
-            {
-                return LocationID(locationId.getId(), cities[0]);
-            }
-            else
-            {
-                return LocationID(LocationID::BEST_LOCATION_ID);
-            }
-        }
-        //this is country
-        else
-        {
-            return LocationID(LocationID::BEST_LOCATION_ID);
-        }
-    }
-    else
-    {
-        return locationId;
-    }*/
 }
 
 void Engine::doDisconnectRestoreStuff()
@@ -2991,8 +2440,9 @@ void Engine::updateProxySettings()
         locationsModel_->setProxySettings(proxySettings);
         firewallExceptions_.setProxyIP(proxySettings);
         updateFirewallSettings();
-        if (connectStateController_->currentState() == CONNECT_STATE_DISCONNECTED)
-            getMyIPController_->getIPFromDisconnectedState(500);
+        // TODO: is this need?
+        //if (connectStateController_->currentState() == CONNECT_STATE_DISCONNECTED)
+        //    getMyIPController_->getIPFromDisconnectedState(500);
     }
 }
 
@@ -3011,6 +2461,53 @@ bool Engine::verifyContentsSha256(const QString &filename, const QString &compar
         return true;
     }
     return false;
+}
+
+void Engine::doCheckUpdate()
+{
+    UPDATE_CHANNEL channel = engineSettings_.updateChannel();
+    if (overrideUpdateChannelWithInternal_) {
+        qCDebug(LOG_BASIC) << "Overriding update channel: internal";
+        channel = UPDATE_CHANNEL_INTERNAL;
+    }
+    checkUpdateManager_->checkUpdate(channel);
+}
+
+void Engine::loginImpl(bool isUseAuthHash, const QString &username, const QString &password, const QString &code2fa)
+{
+    WS_ASSERT(apiResourcesManager_ == nullptr);
+    apiResourcesManager_.reset(new api_resources::ApiResourcesManager(this, serverAPI_, connectStateController_));
+    connect(apiResourcesManager_.get(), &api_resources::ApiResourcesManager::readyForLogin, this, &Engine::onApiResourcesManagerReadyForLogin);
+    connect(apiResourcesManager_.get(), &api_resources::ApiResourcesManager::loginFailed, this, &Engine::onApiResourcesManagerLoginFailed);
+    connect(apiResourcesManager_.get(), &api_resources::ApiResourcesManager::sessionDeleted, this, &Engine::onApiResourcesManagerSessionDeleted);
+    connect(apiResourcesManager_.get(), &api_resources::ApiResourcesManager::sessionUpdated, this, &Engine::onApiResourcesManagerSessionUpdated);
+    connect(apiResourcesManager_.get(), &api_resources::ApiResourcesManager::locationsUpdated, this, &Engine::onApiResourcesManagerLocationsUpdated);
+    connect(apiResourcesManager_.get(), &api_resources::ApiResourcesManager::staticIpsUpdated, this, &Engine::onApiResourcesManagerStaticIpsUpdated);
+    connect(apiResourcesManager_.get(), &api_resources::ApiResourcesManager::notificationsUpdated, this, &Engine::onApiResourcesManagerNotificationsUpdated);
+
+    if (isUseAuthHash) {
+        if (apiResourcesManager_->loadFromSettings()) {
+            //FIXME:
+            if (!emergencyController_->isDisconnected()) {
+                emergencyController_->blockingDisconnect();
+                emergencyConnectStateController_->setDisconnectedState(DISCONNECTED_ITSELF, CONNECT_ERROR::NO_CONNECT_ERROR);
+                Q_EMIT emergencyDisconnected();
+            }
+
+            Q_EMIT sessionStatusUpdated(apiResourcesManager_->sessionStatus());
+            updateServerLocations();
+
+            getMyIPController_->getIPFromDisconnectedState(1);
+            doCheckUpdate();
+            updateCurrentNetworkInterfaceImpl();
+
+            Q_EMIT loginFinished(true, apiResourcesManager_->authHash(), apiResourcesManager_->portMap());
+        }
+        apiResourcesManager_->fetchAllWithAuthHash();
+    }
+    else {
+        apiResourcesManager_->login(username, password, code2fa);
+    }
 }
 
 void Engine::onWireGuardKeyLimitUserResponse(bool deleteOldestKey)

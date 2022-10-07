@@ -41,7 +41,6 @@ public:
 
     QString getOvpnConfig() const;
     void setOvpnConfig(const QString &value);
-    bool ovpnConfigRefetchRequired() const;
 
     // auth hash is stored in a separate value in QSettings
     static QString getAuthHash();
@@ -78,8 +77,6 @@ private:
     bool isStaticIpsInit_ = false;
 
     SimpleCrypt simpleCrypt_;
-
-    QDateTime ovpnConfigSetTimestamp_;
 
     // for serialization
     static constexpr quint32 magic_ = 0x7605A2AE;

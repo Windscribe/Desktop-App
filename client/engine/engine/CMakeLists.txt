@@ -13,8 +13,6 @@ target_sources(engine PRIVATE
     packetsizecontroller.h
     refetchservercredentialshelper.cpp
     refetchservercredentialshelper.h
-    sessionstatustimer.cpp
-    sessionstatustimer.h
 )
 
 if (WIN32)
@@ -39,7 +37,7 @@ endif()
 
 
 add_subdirectory(apiinfo)
-add_subdirectory(apiresourcesmanager)
+add_subdirectory(apiresources)
 add_subdirectory(autoupdater)
 add_subdirectory(connectionmanager)
 add_subdirectory(connectstatecontroller)
@@ -50,7 +48,6 @@ add_subdirectory(failover)
 add_subdirectory(firewall)
 add_subdirectory(helper)
 add_subdirectory(locationsmodel)
-add_subdirectory(logincontroller)
 add_subdirectory(macaddresscontroller)
 add_subdirectory(networkaccessmanager)
 add_subdirectory(networkdetectionmanager)

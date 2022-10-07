@@ -5,11 +5,10 @@
 #include "engine/connectstatecontroller/iconnectstatecontroller.h"
 #include "engine/serverapi/requests/sessionerrorcode.h"
 #include "types/notification.h"
-#include "types/checkupdate.h"
 
-namespace api_resources_manager {
+namespace api_resources {
 
-enum class RequestType { kSessionStatus, kLocations, kServerCredentialsOpenVPN, kServerCredentialsIkev2, kServerConfigs, kPortMap, kStaticIps, kNotifications, kCheckUpdate };
+enum class RequestType { kSessionStatus, kLocations, kServerCredentialsOpenVPN, kServerCredentialsIkev2, kServerConfigs, kPortMap, kStaticIps, kNotifications };
 
 // Manages getting and updating resources from ServerAPI according to Resource Re-fetch Schedule
 // https://hub.int.windscribe.com/en/Infrastructure/References/Client-Control-Plane-Endpoint-Failover#resource-re-fetch-schedule
@@ -23,9 +22,24 @@ public:
     void fetchAllWithAuthHash();
     void login(const QString &username, const QString &password, const QString &code2fa);
     void fetchSessionOnForegroundEvent();
-    void checkUpdate(UPDATE_CHANNEL channel);
+    void clearServerCredentials();
+    bool loadFromSettings();
 
     bool isReadyForLogin() const;
+
+    static QString authHash() { return apiinfo::ApiInfo::getAuthHash(); }
+    static bool isCanBeLoadFromSettings();
+    static void removeFromSettings() { apiinfo::ApiInfo::removeFromSettings(); }
+
+    types::SessionStatus sessionStatus() const { return apiInfo_.getSessionStatus(); }
+    types::PortMap portMap() const { return apiInfo_.getPortMap(); }
+    QVector<apiinfo::Location> locations() const { return apiInfo_.getLocations(); }
+    QStringList forceDisconnectNodes() const { return apiInfo_.getForceDisconnectNodes(); }
+    apiinfo::StaticIps staticIps() const { return apiInfo_.getStaticIps(); }
+    apiinfo::ServerCredentials serverCredentials() const { return apiInfo_.getServerCredentials(); }
+    QString ovpnConfig() const { return apiInfo_.getOvpnConfig(); }
+
+    //TODO: save to settings on every change
 
 signals:
     void readyForLogin();
@@ -33,10 +47,9 @@ signals:
 
     void sessionDeleted();
     void sessionUpdated(const types::SessionStatus &sessionStatus);
-    void locationsUpdated(const QVector<apiinfo::Location> &locations);
+    void locationsUpdated();
+    void staticIpsUpdated();
     void notificationsUpdated(const QVector<types::Notification> &notifications);
-    void staticIpsUpdated(const apiinfo::StaticIps &staticIps);
-    void checkUpdateUpdated(const types::CheckUpdate &checkUpdate);
 
 private slots:
     void onInitialSessionAnswer();
@@ -49,7 +62,6 @@ private slots:
     void onStaticIpsAnswer();
     void onNotificationsAnswer();
     void onSessionAnswer();
-    void onCheckUpdateAnswer();
 
     void onFetchTimer();
 
@@ -57,9 +69,6 @@ private:
     server_api::ServerAPI *serverAPI_;
     IConnectStateController *connectStateController_;
     apiinfo::ApiInfo apiInfo_;
-
-    UPDATE_CHANNEL updateChannel_;
-    bool isUpdateChannelInit_ = false;
 
     static constexpr int kMinute = 60 * 1000;
     static constexpr int kHour = 60 * 60 * 1000;
@@ -87,10 +96,9 @@ private:
     void fetchStaticIps(const QString &authHash);
     void fetchNotifications(const QString &authHash);
     void fetchSession(const QString &authHash);
-    void fetchCheckUpdate();
 
     void updateSessionStatus();
 
 };
 
-} // namespace api_resources_manager
+} // namespace api_resources

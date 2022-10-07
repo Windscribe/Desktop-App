@@ -9,9 +9,8 @@
 #include "engine/serverapi/requests/portmaprequest.h"
 #include "engine/serverapi/requests/staticipsrequest.h"
 #include "engine/serverapi/requests/notificationsrequest.h"
-#include "engine/serverapi/requests/checkupdaterequest.h"
 
-namespace api_resources_manager {
+namespace api_resources {
 
 ApiResourcesManager::ApiResourcesManager(QObject *parent, server_api::ServerAPI *serverAPI, IConnectStateController *connectStateController) : QObject(parent),
     serverAPI_(serverAPI), connectStateController_(connectStateController)
@@ -22,6 +21,8 @@ ApiResourcesManager::ApiResourcesManager(QObject *parent, server_api::ServerAPI 
 
 ApiResourcesManager::~ApiResourcesManager()
 {
+    //TODO:
+    apiInfo_.saveToSettings();
     for (const auto &it : requestsInProgress_)
         delete it;
     requestsInProgress_.clear();
@@ -44,7 +45,7 @@ void ApiResourcesManager::login(const QString &username, const QString &password
     requestsInProgress_[RequestType::kSessionStatus]->setProperty("username", username);
     requestsInProgress_[RequestType::kSessionStatus]->setProperty("password", password);
     requestsInProgress_[RequestType::kSessionStatus]->setProperty("code2fa", code2fa);
-    connect(requestsInProgress_[RequestType::kSessionStatus], &server_api::BaseRequest::finished, this, &ApiResourcesManager::onInitialSessionAnswer);
+    connect(requestsInProgress_[RequestType::kSessionStatus], &server_api::BaseRequest::finished, this, &ApiResourcesManager::onLoginAnswer);
 }
 
 void ApiResourcesManager::fetchSessionOnForegroundEvent()
@@ -52,16 +53,29 @@ void ApiResourcesManager::fetchSessionOnForegroundEvent()
     lastUpdateTimeMs_.remove(RequestType::kSessionStatus);
 }
 
-void ApiResourcesManager::checkUpdate(UPDATE_CHANNEL channel)
+void ApiResourcesManager::clearServerCredentials()
 {
-    updateChannel_ = channel;
-    isUpdateChannelInit_ = true;
-    fetchCheckUpdate();
+    apiInfo_.setServerCredentials(apiinfo::ServerCredentials());
+}
+
+bool ApiResourcesManager::loadFromSettings()
+{
+    return apiInfo_.loadFromSettings();
 }
 
 bool ApiResourcesManager::isReadyForLogin() const
 {
     return apiInfo_.isEverythingInit();
+}
+
+bool ApiResourcesManager::isCanBeLoadFromSettings()
+{
+    if (!apiinfo::ApiInfo::getAuthHash().isEmpty()) {
+        apiinfo::ApiInfo apiInfo;
+        if (apiInfo.loadFromSettings())
+            return true;
+    }
+    return false;
 }
 
 void ApiResourcesManager::onInitialSessionAnswer()
@@ -126,8 +140,9 @@ void ApiResourcesManager::onServerLocationsAnswer()
     QSharedPointer<server_api::ServerListRequest> request(static_cast<server_api::ServerListRequest *>(sender()), &QObject::deleteLater);
     if (request->networkRetCode() == SERVER_RETURN_SUCCESS) {
         apiInfo_.setLocations(request->locations());
+        apiInfo_.setForceDisconnectNodes(request->forceDisconnectNodes());
         lastUpdateTimeMs_[RequestType::kLocations] = QDateTime::currentMSecsSinceEpoch();
-        emit locationsUpdated(request->locations());
+        emit locationsUpdated();
         checkForReadyLogin();
     }
     requestsInProgress_.remove(RequestType::kLocations);
@@ -150,7 +165,7 @@ void ApiResourcesManager::onStaticIpsAnswer()
     if (request->networkRetCode() == SERVER_RETURN_SUCCESS) {
         apiInfo_.setStaticIps(request->staticIps());
         lastUpdateTimeMs_[RequestType::kStaticIps] = QDateTime::currentMSecsSinceEpoch();
-        emit staticIpsUpdated(request->staticIps());
+        emit staticIpsUpdated();
         checkForReadyLogin();
     }
     requestsInProgress_.remove(RequestType::kStaticIps);
@@ -179,16 +194,6 @@ void ApiResourcesManager::onSessionAnswer()
         lastUpdateTimeMs_[RequestType::kSessionStatus] = QDateTime::currentMSecsSinceEpoch();
     }
     requestsInProgress_.remove(RequestType::kSessionStatus);
-}
-
-void ApiResourcesManager::onCheckUpdateAnswer()
-{
-    QSharedPointer<server_api::CheckUpdateRequest> request(static_cast<server_api::CheckUpdateRequest *>(sender()), &QObject::deleteLater);
-    if (request->networkRetCode() == SERVER_RETURN_SUCCESS) {
-        emit checkUpdateUpdated(request->checkUpdate());
-        lastUpdateTimeMs_[RequestType::kCheckUpdate] = QDateTime::currentMSecsSinceEpoch();
-    }
-    requestsInProgress_.remove(RequestType::kCheckUpdate);
 }
 
 void ApiResourcesManager::onFetchTimer()
@@ -281,10 +286,6 @@ void ApiResourcesManager::fetchAll(const QString &authHash)
     // fetch notifications every 1 hour
     if (!lastUpdateTimeMs_.contains(RequestType::kNotifications) || (curTime - lastUpdateTimeMs_[RequestType::kNotifications]) > kHour)
         fetchNotifications(authHash);
-
-    // fetch check update every 24 hours
-    if (!lastUpdateTimeMs_.contains(RequestType::kCheckUpdate) || (curTime - lastUpdateTimeMs_[RequestType::kCheckUpdate]) > k24Hours)
-        fetchCheckUpdate();
 }
 
 void ApiResourcesManager::fetchServerConfigs(const QString &authHash)
@@ -358,14 +359,6 @@ void ApiResourcesManager::fetchSession(const QString &authHash)
     connect(requestsInProgress_[RequestType::kSessionStatus], &server_api::BaseRequest::finished, this, &ApiResourcesManager::onSessionAnswer);
 }
 
-void ApiResourcesManager::fetchCheckUpdate()
-{
-    if (requestsInProgress_.contains(RequestType::kCheckUpdate) || !isUpdateChannelInit_)
-        return;
-    requestsInProgress_[RequestType::kCheckUpdate] = serverAPI_->checkUpdate(updateChannel_);
-    connect(requestsInProgress_[RequestType::kCheckUpdate], &server_api::BaseRequest::finished, this, &ApiResourcesManager::onCheckUpdateAnswer);
-}
-
 void ApiResourcesManager::updateSessionStatus()
 {
     const types::SessionStatus ss = apiInfo_.getSessionStatus();
@@ -406,4 +399,4 @@ void ApiResourcesManager::updateSessionStatus()
 }
 
 
-} // namespace api_resources_manager
+} // namespace api_resources

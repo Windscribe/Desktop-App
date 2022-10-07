@@ -2,7 +2,6 @@
 
 #include <QObject>
 #include "firewall/firewallexceptions.h"
-#include "logincontroller/logincontroller.h"
 #include "helper/ihelper.h"
 #include "helper/initializehelper.h"
 #include "networkdetectionmanager/inetworkdetectionmanager.h"
@@ -18,7 +17,6 @@
 #include "getmyipcontroller.h"
 #include "types/enginesettings.h"
 #include "types/checkupdate.h"
-#include "sessionstatustimer.h"
 #include "engine/customconfigs/customconfigs.h"
 #include "engine/customconfigs/customovpnauthcredentialsstorage.h"
 #include <atomic>
@@ -28,6 +26,8 @@
 #include "autoupdater/downloadhelper.h"
 #include "autoupdater/autoupdaterhelper_mac.h"
 #include "networkaccessmanager/networkaccessmanager.h"
+#include "apiresources/apiresourcesmanager.h"
+#include "apiresources/checkupdatemanager.h"
 
 #ifdef Q_OS_WIN
     #include "measurementcpuusage.h"
@@ -51,10 +51,10 @@ public:
     bool isInitialized();
     void enableBFE_win();
 
-    void loginWithAuthHash(const QString &authHash);
+    void loginWithAuthHash();
     void loginWithUsernameAndPassword(const QString &username, const QString &password, const QString &code2fa);
-    void loginWithLastLoginSettings();
     bool isApiSavedSettingsExists();
+
     void signOut(bool keepFirewallOn);
 
     void gotoCustomOvpnConfigMode();
@@ -70,7 +70,6 @@ public:
     void setRobertFilter(const types::RobertFilter &filter);
     void syncRobert();
 
-    LoginSettings getLastLoginSettings();
     QString getAuthHash();
     void clearCredentials();
 
@@ -92,7 +91,6 @@ public:
 
     void speedRating(int rating, const QString &localExternalIp);  //rate current connection(0 - down, 1 - up)
 
-    void updateServerConfigs();
     void updateCurrentInternetConnectivity();
 
     // emergency connect functions
@@ -110,7 +108,6 @@ public:
     QString getSharingCaption();
 
     void applicationActivated();
-    void applicationDeactivated();
 
     void detectAppropriatePacketSize();
     void setSettingsMacAddressSpoofing(const types::MacAddrSpoofing &macAddrSpoofing);
@@ -191,9 +188,8 @@ private slots:
     void onInitializeHelper(INIT_HELPER_RET ret);
 
     void cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool isFirewallAlwaysOn, bool isLaunchOnStart);
-    void clearCredentialsImpl();
     void enableBFE_winImpl();
-    void loginImpl(bool bSkipLoadingFromSettings);
+    //void loginImpl(bool bSkipLoadingFromSettings);
     void setIgnoreSslErrorsImlp(bool bIgnoreSslErrors);
     void recordInstallImpl();
     void sendConfirmEmailImpl();
@@ -215,7 +211,6 @@ private slots:
     void firewallOffImpl();
     void speedRatingImpl(int rating, const QString &localExternalIp);
     void setSettingsImpl(const types::EngineSettings &engineSettings);
-    void updateServerConfigsImpl();
     void checkForceDisconnectNode(const QStringList &forceDisconnectNodes);
 
     void startProxySharingImpl(PROXY_SHARING_TYPE proxySharingType);
@@ -224,35 +219,31 @@ private slots:
     void startWifiSharingImpl(const QString &ssid, const QString &password);
     void stopWifiSharingImpl();
 
-    void applicationActivatedImpl();
-    void applicationDeactivatedImpl();
-
     void setSettingsMacAddressSpoofingImpl(const types::MacAddrSpoofing &macAddrSpoofing);
     void setSplitTunnelingSettingsImpl(bool isActive, bool isExclude, const QStringList &files,
                                        const QStringList &ips, const QStringList &hosts);
 
-    void onLoginControllerFinished(LOGIN_RET retCode, const apiinfo::ApiInfo &apiInfo, bool bFromConnectedToVPNState, const QString &errorMessage);
-    void onReadyForNetworkRequests();
+
+    void onApiResourcesManagerReadyForLogin();
+    void onApiResourcesManagerLoginFailed(LOGIN_RET retCode, const QString &errorMessage);
+    void onApiResourcesManagerSessionDeleted();
+    void onApiResourcesManagerSessionUpdated(const types::SessionStatus &sessionStatus);
+    void onApiResourcesManagerLocationsUpdated();
+    void onApiResourcesManagerStaticIpsUpdated();
+    void onApiResourcesManagerNotificationsUpdated(const QVector<types::Notification> &notifications);
+
+
     void onLoginControllerStepMessage(LOGIN_MESSAGE msg);
 
-    void onServerLocationsAnswer();
-
-    void onSessionAnswer();
-    void onNotificationsAnswer();
-    void onServerConfigsAnswer();
-    void onCheckUpdateAnswer();
+    void onCheckUpdateUpdated(const types::CheckUpdate &checkUpdate);
     void onHostIPsChanged(const QSet<QString> &hostIps);
     void onMyIpAnswer(const QString &ip, bool isDisconnected);
     void onDebugLogAnswer();
     void onConfirmEmailAnswer();
-    void onStaticIpsAnswer();
     void onWebSessionAnswer();
     void onGetRobertFiltersAnswer();
     void onSetRobertFilterAnswer();
     void onSyncRobertAnswer();
-
-    void onUpdateServerResources();
-    void onUpdateSessionStatusTimer();
 
     void onConnectionManagerConnected();
     void onConnectionManagerDisconnected(DISCONNECT_REASON reason);
@@ -288,7 +279,6 @@ private slots:
 
     void onRefetchServerCredentialsFinished(bool success, const apiinfo::ServerCredentials &serverCredentials, const QString &serverConfig);
 
-    void getNewNotifications();
     void getRobertFiltersImpl();
     void setRobertFilterImpl(const types::RobertFilter &filter);
     void syncRobertImpl();
@@ -313,8 +303,6 @@ private slots:
     void stopPacketDetectionImpl();
 
     void onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, CONNECT_ERROR err, const LocationID &location);
-
-    void checkForAppUpdate();
 
 #ifdef Q_OS_MAC
     void onRobustMacSpoofTimerTick();
@@ -343,6 +331,9 @@ private:
     KeepAliveManager *keepAliveManager_;
     PacketSizeController *packetSizeController_;
 
+    QScopedPointer<api_resources::ApiResourcesManager> apiResourcesManager_;    // can be null for the custom config mode or when we in the logout state
+    api_resources::CheckUpdateManager *checkUpdateManager_;
+
 #ifdef Q_OS_WIN
     MeasurementCpuUsage *measurementCpuUsage_;
 #endif
@@ -350,18 +341,9 @@ private:
     InitializeHelper *inititalizeHelper_;
     bool bInitialized_;
 
-    QScopedPointer<apiinfo::ApiInfo> apiInfo_;
-    LoginController *loginController_;
-    enum LOGIN_STATE { LOGIN_NONE, LOGIN_IN_PROGRESS, LOGIN_FINISHED};
-    LOGIN_STATE loginState_;
     FirewallExceptions firewallExceptions_;
 
-    LoginSettings loginSettings_;
     QRecursiveMutex loginSettingsMutex_;
-
-    QTimer *updateServerResourcesTimer_;
-    SessionStatusTimer *updateSessionStatusTimer_;
-    QTimer *notificationsUpdateTimer_;
 
     locationsmodel::LocationsModel *locationsModel_;
 
@@ -375,9 +357,6 @@ private:
 #endif
 
     QMutex mutex_;
-
-    types::SessionStatus prevSessionStatus_;
-    types::SessionStatus prevSessionForLogging_;
 
     std::atomic<bool> isBlockConnect_;
     std::atomic<bool> isCleanupFinished_;
@@ -396,17 +375,13 @@ private:
     QThread *packetSizeControllerThread_;
     bool runningPacketDetection_;
 
-    enum {UPDATE_SERVER_RESOURCES_PERIOD = 24 * 60 * 60 * 1000}; // 24 hours
-    enum {NOTIFICATIONS_UPDATE_PERIOD = 60 * 60 * 1000}; // 1 hour
-
-    void startLoginController(const LoginSettings &loginSettings, bool bFromConnectedState);
-    void updateSessionStatus();
+    void doCheckUpdate();
+    void loginImpl(bool isUseAuthHash, const QString &username, const QString &password, const QString &code2fa);
     void updateServerLocations();
     void updateFirewallSettings();
 
     void addCustomRemoteIpToFirewallIfNeed();
     void doConnect(bool bEmitAuthError);
-    LocationID checkLocationIdExistingAndReturnNewIfNeed(const LocationID &locationId);
     void doDisconnectRestoreStuff();
 
     uint lastDownloadProgress_;

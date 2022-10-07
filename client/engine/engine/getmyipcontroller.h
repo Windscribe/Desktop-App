@@ -7,6 +7,7 @@
 #include "engine/networkdetectionmanager/inetworkdetectionmanager.h"
 #include "engine/serverapi/serverapi.h"
 
+//TODO: move to resources manager
 class GetMyIPController : public QObject
 {
     Q_OBJECT

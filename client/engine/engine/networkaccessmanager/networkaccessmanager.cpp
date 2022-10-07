@@ -111,13 +111,15 @@ void NetworkAccessManager::handleRequest(quint64 id)
 void NetworkAccessManager::onCurlReplyFinished()
 {
     quint64 replyId = sender()->property("replyId").toULongLong();
-    auto it = activeRequests_.find(replyId);
-    if (it != activeRequests_.end()) {
+    qDebug() << "NetworkAccessManager::onCurlReplyFinished()" <<  replyId << QThread::currentThreadId();
+    auto it = activeRequests_.constFind(replyId);
+    if (it != activeRequests_.constEnd()) {
         QSharedPointer<RequestData> requestData = it.value();
         requestData->reply->checkForCurlError();
         emit requestData->reply->finished(requestData->elapsedTimer_.elapsed());
         if (requestData->request.isRemoveFromWhitelistIpsAfterFinish())
             whitelistIpsManager_->remove(requestData->request.url().host());
+
         activeRequests_.erase(it);
     }
 }
@@ -145,8 +147,8 @@ void NetworkAccessManager::onCurlReadyRead()
 void NetworkAccessManager::onResolved(bool success, const QStringList &ips, quint64 id, bool bFromCache, int timeMs)
 {
     Q_UNUSED(bFromCache);
-    const auto it = activeRequests_.find(id);
-    if (it != activeRequests_.constEnd()) {
+    auto it = activeRequests_.find(id);
+    if (it != activeRequests_.end()) {
         QSharedPointer<RequestData> requestData = it.value();
 
         if (success) {
@@ -203,6 +205,7 @@ quint64 NetworkAccessManager::getNextId()
 NetworkReply *NetworkAccessManager::invokeHandleRequest(NetworkAccessManager::REQUEST_TYPE type, const NetworkRequest &request, const QByteArray &data)
 {
     quint64 id = getNextId();
+    qDebug() << id << QThread::currentThreadId();
     NetworkReply *reply = new NetworkReply(this);
     reply->setProperty("replyId", id);
 

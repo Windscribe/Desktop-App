@@ -38,7 +38,7 @@ public:
     bool isCanLoginWithAuthHash() const;
     bool isSavedApiSettingsExists() const;
     QString getCurrentAuthHash() const;
-    void loginWithAuthHash(const QString &authHash);
+    void loginWithAuthHash();
     void loginWithLastLoginSettings();
     bool isLastLoginWithAuthHash() const;
     void signOut(bool keepFirewallOn);
@@ -175,7 +175,11 @@ signals:
 
 private:
     bool isSavedApiSettingsExists_;
+
     bool bLastLoginWithAuthHash_;
+    QString lastUsername_;
+    QString lastPassword_;
+    QString lastCode2fa_;
 
     types::SessionStatus latestSessionStatus_;
     types::EngineSettings latestEngineSettings_;

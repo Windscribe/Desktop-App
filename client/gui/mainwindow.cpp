@@ -1387,7 +1387,7 @@ void MainWindow::onBackendInitFinished(INIT_STATE initState)
                 mainWindowController_->getLoggingInWindow()->setMessage(QT_TRANSLATE_NOOP("LoginWindow::LoggingInWindowItem", "Logging you in..."));
                 mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_LOGGING_IN);
             }
-            backend_->loginWithAuthHash(backend_->getCurrentAuthHash());
+            backend_->loginWithAuthHash();
         }
         else
         {
@@ -1543,13 +1543,14 @@ void MainWindow::onBackendLoginError(LOGIN_RET loginError, const QString &errorM
         if (!isLoginOkAndConnectWindowVisible_)
         {
             //qCDebug(LOG_BASIC) << "Show no connectivity message to user.";
+            //FIXME:
+            ///mainWindowController_->getLoginWindow()->transitionToUsernameScreen();
             mainWindowController_->getLoginWindow()->setErrorMessage(ILoginWindow::ERR_MSG_NO_INTERNET_CONNECTIVITY, QString());
             mainWindowController_->getLoginWindow()->setEmergencyConnectState(false);
             gotoLoginWindow();
         }
         else
         {
-            //qCDebug(LOG_BASIC) << "No internet connectivity from connected state. Using stale API data from settings.";
             backend_->loginWithLastLoginSettings();
         }
     }
@@ -1986,11 +1987,13 @@ void MainWindow::onBackendGotoCustomOvpnConfigModeFinished()
         else
         {
             LocationID firstValidCustomLocation = backend_->locationsModelManager()->getFirstValidCustomConfigLocationId();
-            selectedLocation_->set(firstValidCustomLocation);
-            PersistentState::instance().setLastLocation(selectedLocation_->locationdId());
-            // |selectedLocation_| can be empty (nopt valid) here, so this will reset current location.
-            mainWindowController_->getConnectWindow()->updateLocationInfo(selectedLocation_->firstName(), selectedLocation_->secondName(),
-                                                                                  selectedLocation_->countryCode(), selectedLocation_->pingTime());
+            if (firstValidCustomLocation.isValid()) {
+                selectedLocation_->set(firstValidCustomLocation);
+                PersistentState::instance().setLastLocation(selectedLocation_->locationdId());
+                // |selectedLocation_| can be empty (nopt valid) here, so this will reset current location.
+                mainWindowController_->getConnectWindow()->updateLocationInfo(selectedLocation_->firstName(), selectedLocation_->secondName(),
+                                                                                      selectedLocation_->countryCode(), selectedLocation_->pingTime());
+            }
         }
 
         mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_CONNECT);

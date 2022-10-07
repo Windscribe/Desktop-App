@@ -71,13 +71,16 @@ void Backend::enableBFE_win()
 void Backend::login(const QString &username, const QString &password, const QString &code2fa)
 {
     bLastLoginWithAuthHash_ = false;
+    lastUsername_ = username;
+    lastPassword_ = password;
+    lastCode2fa_ = code2fa;
+
     IPC::ClientCommands::Login cmd;
     cmd.username_ = username;
     cmd.password_ = password;
     cmd.code2fa_ = code2fa;
-    cmd.authHash_.clear();
+    cmd.isLoginWithAuthHash_ = false;
 
-    //qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
     engineServer_->sendCommand(&cmd);
 }
 
@@ -91,12 +94,11 @@ bool Backend::isSavedApiSettingsExists() const
     return isSavedApiSettingsExists_;
 }
 
-void Backend::loginWithAuthHash(const QString &authHash)
+void Backend::loginWithAuthHash()
 {
     bLastLoginWithAuthHash_ = true;
     IPC::ClientCommands::Login cmd;
-    cmd.authHash_ = authHash;
-    //qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
+    cmd.isLoginWithAuthHash_ = true;
     engineServer_->sendCommand(&cmd);
 }
 
@@ -107,10 +109,10 @@ QString Backend::getCurrentAuthHash() const
 
 void Backend::loginWithLastLoginSettings()
 {
-    IPC::ClientCommands::Login cmd;
-    cmd.useLastLoginSettings = true;
-    //qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
-    engineServer_->sendCommand(&cmd);
+    if (bLastLoginWithAuthHash_)
+        loginWithAuthHash();
+    else
+        login(lastUsername_, lastPassword_, lastCode2fa_);
 }
 
 bool Backend::isLastLoginWithAuthHash() const

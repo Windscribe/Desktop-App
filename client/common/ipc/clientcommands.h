@@ -185,11 +185,10 @@ public:
         return "ClientCommand::Login";
     }
 
-    QString authHash_;
     QString username_;
     QString password_;
     QString code2fa_;
-    bool useLastLoginSettings = false;
+    bool isLoginWithAuthHash_ = false;
 };
 
 

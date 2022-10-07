@@ -167,38 +167,17 @@ bool EngineServer::handleCommand(IPC::Command *command)
         //loggedCmd.getProtoObj().set_password("*****");
         //qCDebugMultiline(LOG_IPC) << QString::fromStdString(loggedCmd.getDebugString());
 
-        // login with last login settings
-        if (loginCmd->useLastLoginSettings == true)
-        {
-            engine_->loginWithLastLoginSettings();
-        }
         // login with auth hash
-        else if (!loginCmd->authHash_.isEmpty())
-        {
-            engine_->loginWithAuthHash(loginCmd->authHash_);
-        }
-        // login with username and password
-        else if (!loginCmd->username_.isEmpty() && !loginCmd->password_.isEmpty())
-        {
-            engine_->loginWithUsernameAndPassword(loginCmd->username_, loginCmd->password_, loginCmd->code2fa_);
-        }
+        if (loginCmd->isLoginWithAuthHash_)
+            engine_->loginWithAuthHash();
         else
-        {
-            WS_ASSERT(false);
-            return false;
-        }
+            engine_->loginWithUsernameAndPassword(loginCmd->username_, loginCmd->password_, loginCmd->code2fa_);
     }
     else if (command->getStringId() == IPC::ClientCommands::ApplicationActivated::getCommandStringId())
     {
         IPC::ClientCommands::ApplicationActivated *appActivatedCmd = static_cast<IPC::ClientCommands::ApplicationActivated *>(command);
         if (appActivatedCmd->isActivated_)
-        {
             engine_->applicationActivated();
-        }
-        else
-        {
-            engine_->applicationDeactivated();
-        }
         return true;
     }
     else if (command->getStringId() == IPC::ClientCommands::Connect::getCommandStringId())
