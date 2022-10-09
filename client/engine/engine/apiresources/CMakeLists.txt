@@ -4,3 +4,7 @@ target_sources(engine PRIVATE
     checkupdatemanager.cpp
     checkupdatemanager.h
 )
+
+if(DEFINED IS_BUILD_TESTS)
+   add_subdirectory(tests)
+endif(DEFINED IS_BUILD_TESTS)

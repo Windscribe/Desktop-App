@@ -1,6 +1,7 @@
 #include "networkaccessmanager.h"
 
 #include <QSslSocket>
+#include <QThread>
 
 #include "utils/ws_assert.h"
 
@@ -111,7 +112,6 @@ void NetworkAccessManager::handleRequest(quint64 id)
 void NetworkAccessManager::onCurlReplyFinished()
 {
     quint64 replyId = sender()->property("replyId").toULongLong();
-    qDebug() << "NetworkAccessManager::onCurlReplyFinished()" <<  replyId << QThread::currentThreadId();
     auto it = activeRequests_.constFind(replyId);
     if (it != activeRequests_.constEnd()) {
         QSharedPointer<RequestData> requestData = it.value();
@@ -197,15 +197,10 @@ types::ProxySettings NetworkAccessManager::currentProxySettings() const
         return types::ProxySettings();
 }
 
-quint64 NetworkAccessManager::getNextId()
-{
-    return nextId_++;
-}
-
 NetworkReply *NetworkAccessManager::invokeHandleRequest(NetworkAccessManager::REQUEST_TYPE type, const NetworkRequest &request, const QByteArray &data)
 {
-    quint64 id = getNextId();
-    qDebug() << id << QThread::currentThreadId();
+    quint64 id = nextId_++;
+
     NetworkReply *reply = new NetworkReply(this);
     reply->setProperty("replyId", id);
 

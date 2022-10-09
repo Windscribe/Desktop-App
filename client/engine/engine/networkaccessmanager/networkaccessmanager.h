@@ -2,6 +2,7 @@
 
 #include <QObject>
 #include <QUrl>
+#include <QElapsedTimer>
 #include "curlnetworkmanager.h"
 #include "dnscache.h"
 #include "networkreply.h"
@@ -64,7 +65,6 @@ private:
     bool isProxyEnabled_ = true;
 
     types::ProxySettings currentProxySettings() const;
-    quint64 getNextId();
     NetworkReply *invokeHandleRequest(REQUEST_TYPE type, const NetworkRequest &request, const QByteArray &data);
 };
 

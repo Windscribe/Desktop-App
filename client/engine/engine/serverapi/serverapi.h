@@ -2,6 +2,7 @@
 
 #include <QObject>
 #include <QPointer>
+#include <QQueue>
 
 #include "types/robertfilter.h"
 #include "engine/networkaccessmanager/networkaccessmanager.h"
