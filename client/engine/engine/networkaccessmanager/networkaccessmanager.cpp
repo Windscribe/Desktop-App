@@ -112,15 +112,14 @@ void NetworkAccessManager::handleRequest(quint64 id)
 void NetworkAccessManager::onCurlReplyFinished()
 {
     quint64 replyId = sender()->property("replyId").toULongLong();
-    auto it = activeRequests_.constFind(replyId);
-    if (it != activeRequests_.constEnd()) {
+    auto it = activeRequests_.find(replyId);
+    if (it != activeRequests_.end()) {
         QSharedPointer<RequestData> requestData = it.value();
+        activeRequests_.erase(it);
         requestData->reply->checkForCurlError();
-        emit requestData->reply->finished(requestData->elapsedTimer_.elapsed());
         if (requestData->request.isRemoveFromWhitelistIpsAfterFinish())
             whitelistIpsManager_->remove(requestData->request.url().host());
-
-        activeRequests_.erase(it);
+        emit requestData->reply->finished(requestData->elapsedTimer_.elapsed());
     }
 }
 
@@ -177,14 +176,14 @@ void NetworkAccessManager::onResolved(bool success, const QStringList &ips, quin
                 connect(curlReply, &CurlReply::progress, this, &NetworkAccessManager::onCurlProgress);
                 connect(curlReply, &CurlReply::readyRead, this, &NetworkAccessManager::onCurlReadyRead);
             } else {    // timeout exceed
+                activeRequests_.erase(it);
                 requestData->reply->setError(NetworkReply::TimeoutExceed);
                 emit requestData->reply->finished(requestData->elapsedTimer_.elapsed());
-                activeRequests_.erase(it);
             }
         } else {
+            activeRequests_.erase(it);
             requestData->reply->setError(NetworkReply::DnsResolveError);
             emit requestData->reply->finished(requestData->elapsedTimer_.elapsed());
-            activeRequests_.erase(it);
         }
     }
 }
@@ -219,4 +218,3 @@ NetworkReply *NetworkAccessManager::invokeHandleRequest(NetworkAccessManager::RE
 
     return reply;
 }
-

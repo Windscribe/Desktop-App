@@ -320,7 +320,7 @@ bool CurlNetworkManagerImpl::setupResolveHosts(RequestInfo *requestInfo, const N
 bool CurlNetworkManagerImpl::setupSslVerification(RequestInfo *requestInfo, const NetworkRequest &request)
 {
 #if defined(Q_OS_MAC) || defined (Q_OS_LINUX)
-    if (curl_easy_setopt(curl, CURLOPT_CAINFO, certPath_.toStdString().c_str()) != CURLE_OK) return false;
+    if (curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_CAINFO, certPath_.toStdString().c_str()) != CURLE_OK) return false;
 #endif
     if (request.isIgnoreSslErrors())  {
         if (curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_SSL_VERIFYPEER, 0) != CURLE_OK) return false;
@@ -332,8 +332,8 @@ bool CurlNetworkManagerImpl::setupSslVerification(RequestInfo *requestInfo, cons
     }
 
 #ifdef MAKE_CURL_LOG_FILE
-    if (curl_easy_setopt(curl, CURLOPT_VERBOSE, 1) != CURLE_OK) return false;
-    if (curl_easy_setopt(curl, CURLOPT_STDERR, logFile_) != CURLE_OK) return false;
+    if (curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_VERBOSE, 1) != CURLE_OK) return false;
+    if (curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_STDERR, logFile_) != CURLE_OK) return false;
 #endif
     return true;
 }

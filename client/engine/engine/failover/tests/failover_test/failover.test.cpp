@@ -1,7 +1,7 @@
 #include <QtTest>
 #include <QCoreApplication>
 #include <QtConcurrent/QtConcurrent>
-#include <WinSock2.h>
+//#include <WinSock2.h>
 #include "engine/networkaccessmanager/networkaccessmanager.h"
 #include "engine/connectstatecontroller/iconnectstatecontroller.h"
 #include "engine/failover/failover.h"
@@ -70,9 +70,11 @@ private slots:
 
 TestFailover::TestFailover()
 {
+#ifdef Q_OS_WIN
     // Initialize Winsock
     WSADATA wsaData;
     WSAStartup(MAKEWORD(2,2), &wsaData);
+#endif
 }
 
 TestFailover::~TestFailover()
