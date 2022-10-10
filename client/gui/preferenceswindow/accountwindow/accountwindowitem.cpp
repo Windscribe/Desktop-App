@@ -8,7 +8,6 @@
 #include "graphicresources/fontmanager.h"
 #include "languagecontroller.h"
 #include "utils/hardcodedsettings.h"
-#include "utils/logger.h"
 #include "utils/utils.h"
 
 namespace PreferencesWindow {
@@ -24,7 +23,6 @@ AccountWindowItem::AccountWindowItem(ScalableGraphicsObject *parent, AccountInfo
     connect(accountInfo, &AccountInfo::isNeedConfirmEmailChanged, this, &AccountWindowItem::onIsNeedConfirmEmailChanged);
     connect(accountInfo, &AccountInfo::planChanged, this, &AccountWindowItem::onPlanChanged);
     connect(accountInfo, &AccountInfo::expireDateChanged, this, &AccountWindowItem::onExpireDateChanged);
-    connect(accountInfo, &AccountInfo::authHashChanged, this, &AccountWindowItem::onAuthHashChanged);
     connect(accountInfo, &AccountInfo::isPremiumChanged, this, &AccountWindowItem::onIsPremiumChanged);
     connect(accountInfo, &AccountInfo::trafficUsedChanged, this, &AccountWindowItem::onTrafficUsedChanged);
     connect(accountInfo, &AccountInfo::lastResetChanged, this, &AccountWindowItem::onLastResetChanged);
@@ -66,8 +64,6 @@ AccountWindowItem::AccountWindowItem(ScalableGraphicsObject *parent, AccountInfo
                                         Utils::humanReadableByteCount(accountInfo->plan() - accountInfo->trafficUsed(), false, true));
     planGroup_->addItem(dataLeftItem_);
     addItem(planGroup_);
-
-    authHash_ = accountInfo->authHash();
 
     // don't set url on this since we need to first grab the temp_session_token from the api first
     // this is because we want to obscure user auth info by POST request to API rather than QDesktopServices HTTP GET
@@ -165,11 +161,6 @@ void AccountWindowItem::onTrafficUsedChanged(qint64 used)
 {
     trafficUsed_ = used;
     dataLeftItem_->setValue2(Utils::humanReadableByteCount(qMax(0, plan_ - trafficUsed_), false, true));
-}
-
-void AccountWindowItem::onAuthHashChanged(const QString &authHash)
-{
-    authHash_ = authHash;
 }
 
 void AccountWindowItem::onUpgradeClicked()

@@ -25,9 +25,6 @@ public:
     QString expireDate() const;
     void setExpireDate(const QString &expireDate);
 
-    QString authHash() const;
-    void setAuthHash(const QString &authHash);
-
     bool isPremium() const;
     void setIsPremium(bool isPremium);
 
@@ -54,7 +51,6 @@ private:
     bool isNeedConfirmEmail_;
     qint64 planBytes_;       // -1 -> unlimited
     QString expireDate_;
-    QString authHash_;
     bool isPremium_;
     qint64 trafficUsed_;
     QString lastReset_;
