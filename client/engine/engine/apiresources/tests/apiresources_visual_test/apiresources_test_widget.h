@@ -6,6 +6,9 @@
 #include "engine/networkdetectionmanager/inetworkdetectionmanager.h"
 #include "engine/serverapi/serverapi.h"
 #include "engine/networkaccessmanager/networkaccessmanager.h"
+#include "engine/apiresources/apiresourcesmanager.h"
+#include "engine/apiresources/checkupdatemanager.h"
+#include "engine/apiresources/myipmanager.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class Widget; }
@@ -72,7 +75,6 @@ public:
     ~Widget();
 
 private slots:
-    void onFetchResourcesClick();
 
 private:
     Ui::Widget *ui;
@@ -81,6 +83,9 @@ private:
     NetworkAccessManager *accessManager_;
     server_api::ServerAPI *serverAPI_;
     QString authHash_;
+    api_resources::ApiResourcesManager *apiResourceManager_;
+    api_resources::CheckUpdateManager *checkUpdateManager_;
+    api_resources::MyIpManager *myIpManager_;
 
 };
 #endif // WIDGET_H

@@ -215,19 +215,6 @@ void Engine::getWebSessionToken(WEB_SESSION_PURPOSE purpose)
     QMetaObject::invokeMethod(this, "getWebSessionTokenImpl", Q_ARG(WEB_SESSION_PURPOSE, purpose));
 }
 
-QString Engine::getAuthHash()
-{
-    return api_resources::ApiResourcesManager::authHash();
-}
-
-void Engine::clearCredentials()
-{
-    QMetaObject::invokeMethod(this, [this]() {
-        if (apiResourcesManager_)
-            apiResourcesManager_->clearServerCredentials();
-    }, Qt::QueuedConnection);
-}
-
 locationsmodel::LocationsModel *Engine::getLocationsModel()
 {
     WS_ASSERT(locationsModel_ != NULL);
@@ -664,6 +651,7 @@ void Engine::onLostConnectionToHelper()
 
 void Engine::onInitializeHelper(INIT_HELPER_RET ret)
 {
+    bool isAuthHashExists = api_resources::ApiResourcesManager::isAuthHashExists();
     if (ret == INIT_HELPER_SUCCESS)
     {
         QMutexLocker locker(&mutex_);
@@ -697,11 +685,11 @@ void Engine::onInitializeHelper(INIT_HELPER_RET ret)
         // check BFE service status
         if (!BFE_Service_win::instance().isBFEEnabled())
         {
-            Q_EMIT initFinished(ENGINE_INIT_BFE_SERVICE_FAILED);
+            Q_EMIT initFinished(ENGINE_INIT_BFE_SERVICE_FAILED, isAuthHashExists);
         }
         else
         {
-            Q_EMIT initFinished(ENGINE_INIT_SUCCESS);
+            Q_EMIT initFinished(ENGINE_INIT_SUCCESS, isAuthHashExists);
         }
     #else
         Q_EMIT initFinished(ENGINE_INIT_SUCCESS);
@@ -709,11 +697,11 @@ void Engine::onInitializeHelper(INIT_HELPER_RET ret)
     }
     else if (ret == INIT_HELPER_FAILED)
     {
-        Q_EMIT initFinished(ENGINE_INIT_HELPER_FAILED);
+        Q_EMIT initFinished(ENGINE_INIT_HELPER_FAILED, isAuthHashExists);
     }
     else if (ret == INIT_HELPER_USER_CANCELED)
     {
-        Q_EMIT initFinished(ENGINE_INIT_HELPER_USER_CANCELED);
+        Q_EMIT initFinished(ENGINE_INIT_HELPER_USER_CANCELED, isAuthHashExists);
     }
     else
     {
@@ -878,45 +866,14 @@ void Engine::cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool is
 void Engine::enableBFE_winImpl()
 {
 #ifdef Q_OS_WIN
+
     bool bSuccess = BFE_Service_win::instance().checkAndEnableBFE(helper_);
     if (bSuccess)
-    {
-        Q_EMIT bfeEnableFinished(ENGINE_INIT_SUCCESS);
-    }
+        Q_EMIT bfeEnableFinished(ENGINE_INIT_SUCCESS, api_resources::ApiResourcesManager::isAuthHashExists());
     else
-    {
-        Q_EMIT bfeEnableFinished(ENGINE_INIT_BFE_SERVICE_FAILED);
-    }
+        Q_EMIT bfeEnableFinished(ENGINE_INIT_BFE_SERVICE_FAILED, api_resources::ApiResourcesManager::isAuthHashExists());
 #endif
 }
-
-/*void Engine::loginImpl(bool bSkipLoadingFromSettings)
-{
-    QMutexLocker lockerLoginSettings(&loginSettingsMutex_);
-
-    QString authHash = apiinfo::ApiInfo::getAuthHash();
-    if (!bSkipLoadingFromSettings && !authHash.isEmpty())
-    {
-        apiInfo_.reset(new apiinfo::ApiInfo());
-
-        // try load ApiInfo from settings
-        if (apiInfo_->loadFromSettings())
-        {
-            apiInfo_->setAuthHash(authHash);
-            loginSettings_.setServerCredentials(apiInfo_->getServerCredentials());
-
-            qCDebug(LOG_BASIC) << "ApiInfo readed from settings";
-            prevSessionStatus_ = apiInfo_->getSessionStatus();
-
-            updateSessionStatus();
-            updateServerLocations();
-            updateCurrentNetworkInterfaceImpl();
-            Q_EMIT loginFinished(true, authHash, apiInfo_->getPortMap());
-        }
-    }
-
-    startLoginController(loginSettings_, false);
-}*/
 
 void Engine::setIgnoreSslErrorsImlp(bool bIgnoreSslErrors)
 {
@@ -1041,14 +998,11 @@ void Engine::signOutImplAfterDisconnect(bool keepFirewallOn)
 #endif
 
     if (apiResourcesManager_) {
-        server_api::BaseRequest *request = serverAPI_->deleteSession(apiResourcesManager_->authHash());
-        connect(request, &server_api::BaseRequest::finished, [request]() {
-            // Just delete the request, without any action. We don't need a result.
-            request->deleteLater();
-        });
+        apiResourcesManager_->signOut();
+        apiResourcesManager_.reset();
+        api_resources::ApiResourcesManager::removeFromSettings();
     }
-    apiResourcesManager_.reset();
-    api_resources::ApiResourcesManager::removeFromSettings();
+
 
     GetWireGuardConfig::removeWireGuardSettings();
 
@@ -1226,7 +1180,7 @@ void Engine::setSettingsImpl(const types::EngineSettings &engineSettings)
 
 void Engine::onLoginControllerStepMessage(LOGIN_MESSAGE msg)
 {
-    //TODO:
+    //FIXME:
     Q_EMIT loginStepMessage(msg);
 }
 
@@ -1523,7 +1477,7 @@ void Engine::onConnectionManagerError(CONNECT_ERROR err)
         else
         {
             // goto update server credentials and try connect again
-            //TODO:
+            //FIXME:
             /*if (refetchServerCredentialsHelper_ == NULL)
             {
                 // force update session status (for check blocked, banned account state)
@@ -2183,23 +2137,23 @@ void Engine::onApiResourcesManagerReadyForLogin()
     // we don't need the signal readyForLogin() anymore
     disconnect(apiResourcesManager_.get(), &api_resources::ApiResourcesManager::readyForLogin, this, nullptr);
 
-    /*if (!emergencyController_->isDisconnected()) {
+    if (!emergencyController_->isDisconnected()) {
         emergencyController_->blockingDisconnect();
         emergencyConnectStateController_->setDisconnectedState(DISCONNECTED_ITSELF, CONNECT_ERROR::NO_CONNECT_ERROR);
         Q_EMIT emergencyDisconnected();
-    }*/
+    }
 
     myIpManager_->getIP(1);
-    /*doCheckUpdate();
+    doCheckUpdate();
     updateCurrentNetworkInterfaceImpl();
-    Q_EMIT loginFinished(false, apiResourcesManager_->authHash(), apiResourcesManager_->portMap());*/
+    Q_EMIT loginFinished(false, apiResourcesManager_->authHash(), apiResourcesManager_->portMap());
 }
 
 void Engine::onApiResourcesManagerLoginFailed(LOGIN_RET retCode, const QString &errorMessage)
 {
     qCDebug(LOG_BASIC) << "onApiResourcesManagerLoginFailed, retCode =" << LOGIN_RET_toString(retCode) << ";errorMessage =" << errorMessage;
 
-    //TODO: check all errors
+    //FIXME: check all errors
     if (retCode == LOGIN_RET_NO_CONNECTIVITY) {
         Q_EMIT loginError(LOGIN_RET_NO_CONNECTIVITY, QString());
     } else if (retCode == LOGIN_RET_NO_API_CONNECTIVITY) {
@@ -2440,7 +2394,7 @@ void Engine::updateProxySettings()
         locationsModel_->setProxySettings(proxySettings);
         firewallExceptions_.setProxyIP(proxySettings);
         updateFirewallSettings();
-        // TODO: is this need?
+        // FIXME: is this need?
         //if (connectStateController_->currentState() == CONNECT_STATE_DISCONNECTED)
         //    getMyIPController_->getIPFromDisconnectedState(500);
     }
@@ -2476,8 +2430,7 @@ void Engine::doCheckUpdate()
 void Engine::loginImpl(bool isUseAuthHash, const QString &username, const QString &password, const QString &code2fa)
 {
     WS_ASSERT(apiResourcesManager_ == nullptr);
-    apiResourcesManager_.reset(new api_resources::ApiResourcesManager(this, serverAPI_, connectStateController_));
-    connect(apiResourcesManager_.get(), &api_resources::ApiResourcesManager::readyForLogin, this, &Engine::onApiResourcesManagerReadyForLogin);
+    apiResourcesManager_.reset(new api_resources::ApiResourcesManager(this, serverAPI_, connectStateController_, networkDetectionManager_));
     connect(apiResourcesManager_.get(), &api_resources::ApiResourcesManager::loginFailed, this, &Engine::onApiResourcesManagerLoginFailed);
     connect(apiResourcesManager_.get(), &api_resources::ApiResourcesManager::sessionDeleted, this, &Engine::onApiResourcesManagerSessionDeleted);
     connect(apiResourcesManager_.get(), &api_resources::ApiResourcesManager::sessionUpdated, this, &Engine::onApiResourcesManagerSessionUpdated);
@@ -2487,7 +2440,7 @@ void Engine::loginImpl(bool isUseAuthHash, const QString &username, const QStrin
 
     if (isUseAuthHash) {
         if (apiResourcesManager_->loadFromSettings()) {
-            //FIXME:
+            //FIXME: duplicate?
             if (!emergencyController_->isDisconnected()) {
                 emergencyController_->blockingDisconnect();
                 emergencyConnectStateController_->setDisconnectedState(DISCONNECTED_ITSELF, CONNECT_ERROR::NO_CONNECT_ERROR);
@@ -2502,10 +2455,13 @@ void Engine::loginImpl(bool isUseAuthHash, const QString &username, const QStrin
             updateCurrentNetworkInterfaceImpl();
 
             Q_EMIT loginFinished(true, apiResourcesManager_->authHash(), apiResourcesManager_->portMap());
+        } else {
+            connect(apiResourcesManager_.get(), &api_resources::ApiResourcesManager::readyForLogin, this, &Engine::onApiResourcesManagerReadyForLogin);
         }
         apiResourcesManager_->fetchAllWithAuthHash();
     }
     else {
+        connect(apiResourcesManager_.get(), &api_resources::ApiResourcesManager::readyForLogin, this, &Engine::onApiResourcesManagerReadyForLogin);
         apiResourcesManager_->login(username, password, code2fa);
     }
 }

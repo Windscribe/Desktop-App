@@ -235,7 +235,6 @@ private slots:
     void onReceivedOpenLocationsMessage();
     void onConnectToLocation(const LocationID &id);
 
-
     void showShutdownWindow();
 
     void onCurrentNetworkUpdated(types::NetworkInterface networkInterface);
@@ -326,9 +325,6 @@ private:
     QSharedPointer<IMultipleAccountDetection> multipleAccountDetection_;
     BlockConnect blockConnect_;
     FreeTrafficNotificationController *freeTrafficNotificationController_;
-
-    int prevSessionStatus_;
-    bool isPrevSessionStatusInitialized_;
 
     bool bDisconnectFromTrafficExceed_;
 

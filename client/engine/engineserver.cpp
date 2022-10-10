@@ -344,11 +344,6 @@ bool EngineServer::handleCommand(IPC::Command *command)
         }
         return true;
     }
-    else if (command->getStringId() == IPC::ClientCommands::ClearCredentials::getCommandStringId())
-    {
-        engine_->clearCredentials();
-        return true;
-    }
     else if (command->getStringId() == IPC::ClientCommands::SpeedRating::getCommandStringId())
     {
         IPC::ClientCommands::SpeedRating *cmd = static_cast<IPC::ClientCommands::SpeedRating *>(command);
@@ -396,7 +391,7 @@ bool EngineServer::handleCommand(IPC::Command *command)
     return false;
 }
 
-void EngineServer::sendEngineInitReturnCode(ENGINE_INIT_RET_CODE retCode)
+void EngineServer::sendEngineInitReturnCode(ENGINE_INIT_RET_CODE retCode, bool isCanLoginWithAuthHash)
 {
     if (retCode == ENGINE_INIT_SUCCESS)
     {
@@ -406,7 +401,7 @@ void EngineServer::sendEngineInitReturnCode(ENGINE_INIT_RET_CODE retCode)
         connect(engine_->getLocationsModel(), &locationsmodel::LocationsModel::locationPingTimeChanged, this, &EngineServer::onEngineLocationsModelPingChangedChanged);
 
         IPC::ServerCommands::InitFinished cmd(INIT_STATE_SUCCESS, curEngineSettings_, OpenVpnVersionController::instance().getAvailableOpenVpnVersions(),
-                                              engine_->isWifiSharingSupported(), engine_->isApiSavedSettingsExists(), engine_->getAuthHash());
+                                              engine_->isWifiSharingSupported(), engine_->isApiSavedSettingsExists(), isCanLoginWithAuthHash);
 
         sendCmdToAllAuthorizedAndGetStateClients(&cmd, true);
 
@@ -506,16 +501,16 @@ void EngineServer::onEngineCleanupFinished()
     sendCmdToAllAuthorizedAndGetStateClients(&cmd, true);
 }
 
-void EngineServer::onEngineInitFinished(ENGINE_INIT_RET_CODE retCode)
+void EngineServer::onEngineInitFinished(ENGINE_INIT_RET_CODE retCode, bool isCanLoginWithAuthHash)
 {
-    sendEngineInitReturnCode(retCode);
+    sendEngineInitReturnCode(retCode, isCanLoginWithAuthHash);
 }
 
-void EngineServer::onEngineBfeEnableFinished(ENGINE_INIT_RET_CODE retCode)
+void EngineServer::onEngineBfeEnableFinished(ENGINE_INIT_RET_CODE retCode, bool isCanLoginWithAuthHash)
 {
     if (retCode == ENGINE_INIT_SUCCESS)
     {
-        onEngineInitFinished(ENGINE_INIT_SUCCESS);
+        onEngineInitFinished(ENGINE_INIT_SUCCESS, isCanLoginWithAuthHash);
     }
     else
     {

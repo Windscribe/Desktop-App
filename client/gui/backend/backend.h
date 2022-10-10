@@ -37,7 +37,6 @@ public:
     void login(const QString &username, const QString &password, const QString &code2fa);
     bool isCanLoginWithAuthHash() const;
     bool isSavedApiSettingsExists() const;
-    QString getCurrentAuthHash() const;
     void loginWithAuthHash();
     void loginWithLastLoginSettings();
     bool isLastLoginWithAuthHash() const;
@@ -76,7 +75,6 @@ public:
     void speedRating(int rating, const QString &localExternalIp);
 
     void setBlockConnect(bool isBlockConnect);
-    void clearCredentials();
 
     void getRobertFilters();
     void setRobertFilter(const types::RobertFilter &filter);
@@ -194,6 +192,7 @@ private:
 
     gui_locations::LocationsModelManager *locationsModelManager_;
 
+    bool isCanLoginWithAuthHash_;
     bool isFirewallEnabled_;
 
     PreferencesHelper preferencesHelper_;

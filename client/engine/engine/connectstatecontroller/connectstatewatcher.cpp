@@ -22,8 +22,6 @@ void ConnectStateWatcher::onConnectStateChanged()
         return;
 
     CONNECT_STATE curState = connectStateController_->currentState();
-    WS_ASSERT(curState != initialState_);
-
     if (initialState_ == CONNECT_STATE_DISCONNECTED)
         isVpnStateChanged_ = (curState == CONNECT_STATE_CONNECTED || curState == CONNECT_STATE_DISCONNECTING);
     else if (initialState_ == CONNECT_STATE_CONNECTING)

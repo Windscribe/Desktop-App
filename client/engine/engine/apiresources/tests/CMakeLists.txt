@@ -1,1 +1,1 @@
-add_subdirectory(apiresourcemanager_test)
+add_subdirectory(apiresources_visual_test)

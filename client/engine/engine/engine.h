@@ -70,9 +70,6 @@ public:
     void setRobertFilter(const types::RobertFilter &filter);
     void syncRobert();
 
-    QString getAuthHash();
-    void clearCredentials();
-
     locationsmodel::LocationsModel *getLocationsModel();
     IConnectStateController *getConnectStateController();
 
@@ -127,8 +124,8 @@ public slots:
     void onWireGuardKeyLimitUserResponse(bool deleteOldestKey);
 
 signals:
-    void initFinished(ENGINE_INIT_RET_CODE retCode);
-    void bfeEnableFinished(ENGINE_INIT_RET_CODE retCode);
+    void initFinished(ENGINE_INIT_RET_CODE retCode, bool isCanLoginWithAuthHash);
+    void bfeEnableFinished(ENGINE_INIT_RET_CODE retCode, bool isCanLoginWithAuthHash);
     void cleanupFinished();
     void loginFinished(bool isLoginFromSavedSettings, const QString &authHash, const types::PortMap &portMap);
     void loginStepMessage(LOGIN_MESSAGE msg);
@@ -170,7 +167,6 @@ signals:
     void detectionCpuUsageAfterConnected(const QStringList processesList);
 
     void networkChanged(types::NetworkInterface networkInterface);
-    // void engineSettingsChanged(const ProtoTypes::EngineSettings &engineSettings);
 
     void macAddrSpoofingChanged(const types::MacAddrSpoofing &macAddrSpoofing);
     void sendUserWarning(USER_WARNING_TYPE userWarningType);
@@ -189,7 +185,6 @@ private slots:
 
     void cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool isFirewallAlwaysOn, bool isLaunchOnStart);
     void enableBFE_winImpl();
-    //void loginImpl(bool bSkipLoadingFromSettings);
     void setIgnoreSslErrorsImlp(bool bIgnoreSslErrors);
     void recordInstallImpl();
     void sendConfirmEmailImpl();
@@ -223,7 +218,6 @@ private slots:
     void setSplitTunnelingSettingsImpl(bool isActive, bool isExclude, const QStringList &files,
                                        const QStringList &ips, const QStringList &hosts);
 
-
     void onApiResourcesManagerReadyForLogin();
     void onApiResourcesManagerLoginFailed(LOGIN_RET retCode, const QString &errorMessage);
     void onApiResourcesManagerSessionDeleted();
@@ -231,7 +225,6 @@ private slots:
     void onApiResourcesManagerLocationsUpdated();
     void onApiResourcesManagerStaticIpsUpdated();
     void onApiResourcesManagerNotificationsUpdated(const QVector<types::Notification> &notifications);
-
 
     void onLoginControllerStepMessage(LOGIN_MESSAGE msg);
 
@@ -343,8 +336,6 @@ private:
 
     FirewallExceptions firewallExceptions_;
 
-    QRecursiveMutex loginSettingsMutex_;
-
     locationsmodel::LocationsModel *locationsModel_;
 
     RefetchServerCredentialsHelper *refetchServerCredentialsHelper_;
@@ -394,4 +385,3 @@ private:
     bool bPrevNetworkInterfaceInitialized_;
     types::NetworkInterface prevNetworkInterface_;
 };
-

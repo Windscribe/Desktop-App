@@ -4,6 +4,7 @@
 #include "engine/apiinfo/apiinfo.h"
 #include "engine/connectstatecontroller/iconnectstatecontroller.h"
 #include "engine/serverapi/requests/sessionerrorcode.h"
+#include "engine/networkdetectionmanager/waitfornetworkconnectivity.h"
 #include "types/notification.h"
 
 namespace api_resources {
@@ -16,17 +17,21 @@ class ApiResourcesManager : public QObject
 {
     Q_OBJECT
 public:
-    explicit ApiResourcesManager(QObject *parent, server_api::ServerAPI *serverAPI, IConnectStateController *connectStateController);
+    //FIXME: add wait for network connectivity
+    explicit ApiResourcesManager(QObject *parent, server_api::ServerAPI *serverAPI, IConnectStateController *connectStateController, INetworkDetectionManager *networkDetectionManager);
     virtual ~ApiResourcesManager();
 
+    // one of these functions should be called only once for the lifetime of the object
     void fetchAllWithAuthHash();
     void login(const QString &username, const QString &password, const QString &code2fa);
+
+    void signOut();
     void fetchSessionOnForegroundEvent();
+    //FIXME: remove
     void clearServerCredentials();
     bool loadFromSettings();
 
-    bool isReadyForLogin() const;
-
+    static bool isAuthHashExists() { return !apiinfo::ApiInfo::getAuthHash().isEmpty(); }
     static QString authHash() { return apiinfo::ApiInfo::getAuthHash(); }
     static bool isCanBeLoadFromSettings();
     static void removeFromSettings() { apiinfo::ApiInfo::removeFromSettings(); }
@@ -38,8 +43,6 @@ public:
     apiinfo::StaticIps staticIps() const { return apiInfo_.getStaticIps(); }
     apiinfo::ServerCredentials serverCredentials() const { return apiInfo_.getServerCredentials(); }
     QString ovpnConfig() const { return apiInfo_.getOvpnConfig(); }
-
-    //TODO: save to settings on every change
 
 signals:
     void readyForLogin();
@@ -65,9 +68,13 @@ private slots:
 
     void onFetchTimer();
 
+    void onConnectivityOnline();
+    void onConnectivityTimeoutExpired();
+
 private:
     server_api::ServerAPI *serverAPI_;
     IConnectStateController *connectStateController_;
+    WaitForNetworkConnectivity *waitForNetworkConnectivity_;
     apiinfo::ApiInfo apiInfo_;
 
     static constexpr int kMinute = 60 * 1000;
@@ -75,19 +82,22 @@ private:
     static constexpr int k24Hours = 24 * 60 * 60 * 1000;
 
     QHash<RequestType, qint64> lastUpdateTimeMs_;
-    QHash<RequestType, server_api::BaseRequest *> requestsInProgress_;
+    QHash<RequestType, QPointer<server_api::BaseRequest>> requestsInProgress_;
     QTimer *fetchTimer_;
 
     types::SessionStatus prevSessionStatus_;
     types::SessionStatus prevSessionForLogging_;
 
-    // return true if need retry request
+    static constexpr int kWaitTimeForNoNetwork = 10000;
+
     void handleLoginOrSessionAnswer(SERVER_API_RET_CODE retCode, server_api::SessionErrorCode sessionErrorCode, const types::SessionStatus &sessionStatus,
                                                      const QString &authHash, const QString &errorMessage);
 
     void checkForReadyLogin();
-    void fetchAll(const QString &authHash);
+    void fetchAllWithAuthHashImpl();
+    void loginImpl(const QString &username, const QString &password, const QString &code2fa);
 
+    void fetchAll(const QString &authHash);
     void fetchServerConfigs(const QString &authHash);
     void fetchServerCredentialsOpenVpn(const QString &authHash);
     void fetchServerCredentialsIkev2(const QString &authHash);
@@ -99,6 +109,7 @@ private:
 
     void updateSessionStatus();
 
+    void saveApiInfoToSettings();
 };
 
 } // namespace api_resources

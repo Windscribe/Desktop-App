@@ -39,6 +39,7 @@ void CheckUpdateManager::onCheckUpdateAnswer()
 
 void CheckUpdateManager::onFetchTimer()
 {
+    SAFE_DELETE(curRequest_);
     fetchCheckUpdate();
 }
 

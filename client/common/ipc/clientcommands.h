@@ -429,25 +429,6 @@ public:
     bool isBlockConnect_;
 };
 
-class ClearCredentials : public Command
-{
-public:
-    explicit ClearCredentials()
-    {}
-
-    std::vector<char> getData() const override   {  WS_ASSERT(false); return std::vector<char>(); }
-    std::string getStringId() const override { return getCommandStringId(); }
-    std::string getDebugString() const override
-    {
-        return "ClientCommand::ClearCredentials debug string";
-    }
-
-    static std::string getCommandStringId()
-    {
-        return "ClientCommand::ClearCredentials";
-    }
-};
-
 class StartWifiSharing : public Command
 {
 public:

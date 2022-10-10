@@ -68,7 +68,6 @@ MainWindow::MainWindow() :
     bMousePressed_(false),
     bMoveEnabled_(true),
     signOutReason_(SIGN_OUT_UNDEFINED),
-    isPrevSessionStatusInitialized_(false),
     bDisconnectFromTrafficExceed_(false),
     isInitializationAborted_(false),
     isLoginOkAndConnectWindowVisible_(false),
@@ -1736,17 +1735,6 @@ void MainWindow::onBackendSessionStatusChanged(const types::SessionStatus &sessi
         }
     }
     backend_->setBlockConnect(blockConnect_.isBlocked());
-
-    if (isPrevSessionStatusInitialized_)
-    {
-        if (prevSessionStatus_ == 2 && status == 1)
-        {
-            backend_->clearCredentials();
-        }
-    }
-
-    prevSessionStatus_ = status;
-    isPrevSessionStatusInitialized_ = true;
 }
 
 void MainWindow::onBackendCheckUpdateChanged(const types::CheckUpdate &checkUpdateInfo)
@@ -1918,7 +1906,6 @@ void MainWindow::onSplitTunnelingStateChanged(bool isActive)
 void MainWindow::onBackendSignOutFinished()
 {
     loginAttemptsController_.reset();
-    isPrevSessionStatusInitialized_ = false;
     mainWindowController_->getPreferencesWindow()->setLoggedIn(false);
     isLoginOkAndConnectWindowVisible_ = false;
     backend_->getPreferencesHelper()->setIsExternalConfigMode(false);
@@ -3449,7 +3436,6 @@ void MainWindow::setVariablesToInitState()
     bNotificationConnectedShowed_ = false;
     bytesTransferred_ = 0;
     bDisconnectFromTrafficExceed_ = false;
-    isPrevSessionStatusInitialized_ = false;
     backend_->getPreferencesHelper()->setIsExternalConfigMode(false);
 }
 

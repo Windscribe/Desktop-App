@@ -12,40 +12,48 @@
 
 namespace api_resources {
 
-ApiResourcesManager::ApiResourcesManager(QObject *parent, server_api::ServerAPI *serverAPI, IConnectStateController *connectStateController) : QObject(parent),
+ApiResourcesManager::ApiResourcesManager(QObject *parent, server_api::ServerAPI *serverAPI, IConnectStateController *connectStateController, INetworkDetectionManager *networkDetectionManager) : QObject(parent),
     serverAPI_(serverAPI), connectStateController_(connectStateController)
 {
+    waitForNetworkConnectivity_ = new WaitForNetworkConnectivity(this, networkDetectionManager);
+    connect(waitForNetworkConnectivity_, &WaitForNetworkConnectivity::connectivityOnline, this, &ApiResourcesManager::onConnectivityOnline);
+    connect(waitForNetworkConnectivity_, &WaitForNetworkConnectivity::timeoutExpired, this, &ApiResourcesManager::onConnectivityTimeoutExpired);
+
     fetchTimer_ = new QTimer(this);
     connect(fetchTimer_, &QTimer::timeout, this, &ApiResourcesManager::onFetchTimer);
 }
 
 ApiResourcesManager::~ApiResourcesManager()
 {
-    //TODO:
-    apiInfo_.saveToSettings();
-    for (const auto &it : requestsInProgress_)
-        delete it;
+    for (const auto &it : requestsInProgress_) {
+        if (it)
+            delete it;
+    }
     requestsInProgress_.clear();
 }
 
 void ApiResourcesManager::fetchAllWithAuthHash()
 {
-    WS_ASSERT(!apiInfo_.getAuthHash().isEmpty());
-    WS_ASSERT(!requestsInProgress_.contains(RequestType::kSessionStatus));
-
-    requestsInProgress_[RequestType::kSessionStatus] = serverAPI_->session(apiInfo_.getAuthHash());
-    connect(requestsInProgress_[RequestType::kSessionStatus], &server_api::BaseRequest::finished, this, &ApiResourcesManager::onInitialSessionAnswer);
+    waitForNetworkConnectivity_->setProperty("isLoginWithAuthHash", true);
+    waitForNetworkConnectivity_->wait(kWaitTimeForNoNetwork);
 }
 
 void ApiResourcesManager::login(const QString &username, const QString &password, const QString &code2fa)
 {
-    WS_ASSERT(!requestsInProgress_.contains(RequestType::kSessionStatus));
+    waitForNetworkConnectivity_->setProperty("isLoginWithAuthHash", false);
+    waitForNetworkConnectivity_->setProperty("username", username);
+    waitForNetworkConnectivity_->setProperty("password", password);
+    waitForNetworkConnectivity_->setProperty("code2fa", code2fa);
+    waitForNetworkConnectivity_->wait(kWaitTimeForNoNetwork);
+}
 
-    requestsInProgress_[RequestType::kSessionStatus] = serverAPI_->login(username, password, code2fa);
-    requestsInProgress_[RequestType::kSessionStatus]->setProperty("username", username);
-    requestsInProgress_[RequestType::kSessionStatus]->setProperty("password", password);
-    requestsInProgress_[RequestType::kSessionStatus]->setProperty("code2fa", code2fa);
-    connect(requestsInProgress_[RequestType::kSessionStatus], &server_api::BaseRequest::finished, this, &ApiResourcesManager::onLoginAnswer);
+void ApiResourcesManager::signOut()
+{
+    server_api::BaseRequest *request = serverAPI_->deleteSession(apiInfo_.getAuthHash());
+    connect(request, &server_api::BaseRequest::finished, [request]() {
+        // Just delete the request, without any action. We don't need a result.
+        request->deleteLater();
+    });
 }
 
 void ApiResourcesManager::fetchSessionOnForegroundEvent()
@@ -61,11 +69,6 @@ void ApiResourcesManager::clearServerCredentials()
 bool ApiResourcesManager::loadFromSettings()
 {
     return apiInfo_.loadFromSettings();
-}
-
-bool ApiResourcesManager::isReadyForLogin() const
-{
-    return apiInfo_.isEverythingInit();
 }
 
 bool ApiResourcesManager::isCanBeLoadFromSettings()
@@ -96,7 +99,7 @@ void ApiResourcesManager::onLoginAnswer()
     QSharedPointer<server_api::LoginRequest> request(static_cast<server_api::LoginRequest *>(sender()), &QObject::deleteLater);
     if (request->networkRetCode() == SERVER_RETURN_NETWORK_ERROR) {
         // repeat the request
-        login(request->property("username").toString(), request->property("password").toString(), request->property("code2fa").toString());
+        loginImpl(request->property("username").toString(), request->property("password").toString(), request->property("code2fa").toString());
     } else {
         handleLoginOrSessionAnswer(request->networkRetCode(), request->sessionErrorCode(), request->sessionStatus(), request->authHash(), request->errorMessage());
     }
@@ -107,6 +110,7 @@ void ApiResourcesManager::onServerConfigsAnswer()
     QSharedPointer<server_api::ServerConfigsRequest> request(static_cast<server_api::ServerConfigsRequest *>(sender()), &QObject::deleteLater);
     if (request->networkRetCode() == SERVER_RETURN_SUCCESS) {
         apiInfo_.setOvpnConfig(request->ovpnConfig());
+        saveApiInfoToSettings();
         lastUpdateTimeMs_[RequestType::kServerConfigs] = QDateTime::currentMSecsSinceEpoch();
         checkForReadyLogin();
     }
@@ -118,6 +122,7 @@ void ApiResourcesManager::onServerCredentialsOpenVpnAnswer()
     QSharedPointer<server_api::ServerCredentialsRequest> request(static_cast<server_api::ServerCredentialsRequest *>(sender()), &QObject::deleteLater);
     if (request->networkRetCode() == SERVER_RETURN_SUCCESS) {
         apiInfo_.setServerCredentialsOpenVpn(request->radiusUsername(), request->radiusPassword());
+        saveApiInfoToSettings();
         lastUpdateTimeMs_[RequestType::kServerCredentialsOpenVPN] = QDateTime::currentMSecsSinceEpoch();
         checkForReadyLogin();
     }
@@ -129,6 +134,7 @@ void ApiResourcesManager::onServerCredentialsIkev2Answer()
     QSharedPointer<server_api::ServerCredentialsRequest> request(static_cast<server_api::ServerCredentialsRequest *>(sender()), &QObject::deleteLater);
     if (request->networkRetCode() == SERVER_RETURN_SUCCESS) {
         apiInfo_.setServerCredentialsIkev2(request->radiusUsername(), request->radiusPassword());
+        saveApiInfoToSettings();
         lastUpdateTimeMs_[RequestType::kServerCredentialsIkev2] = QDateTime::currentMSecsSinceEpoch();
         checkForReadyLogin();
     }
@@ -141,6 +147,7 @@ void ApiResourcesManager::onServerLocationsAnswer()
     if (request->networkRetCode() == SERVER_RETURN_SUCCESS) {
         apiInfo_.setLocations(request->locations());
         apiInfo_.setForceDisconnectNodes(request->forceDisconnectNodes());
+        saveApiInfoToSettings();
         lastUpdateTimeMs_[RequestType::kLocations] = QDateTime::currentMSecsSinceEpoch();
         emit locationsUpdated();
         checkForReadyLogin();
@@ -153,6 +160,7 @@ void ApiResourcesManager::onPortMapAnswer()
     QSharedPointer<server_api::PortMapRequest> request(static_cast<server_api::PortMapRequest *>(sender()), &QObject::deleteLater);
     if (request->networkRetCode() == SERVER_RETURN_SUCCESS) {
         apiInfo_.setPortMap(request->portMap());
+        saveApiInfoToSettings();
         lastUpdateTimeMs_[RequestType::kPortMap] = QDateTime::currentMSecsSinceEpoch();
         checkForReadyLogin();
     }
@@ -164,6 +172,7 @@ void ApiResourcesManager::onStaticIpsAnswer()
     QSharedPointer<server_api::StaticIpsRequest> request(static_cast<server_api::StaticIpsRequest *>(sender()), &QObject::deleteLater);
     if (request->networkRetCode() == SERVER_RETURN_SUCCESS) {
         apiInfo_.setStaticIps(request->staticIps());
+        saveApiInfoToSettings();
         lastUpdateTimeMs_[RequestType::kStaticIps] = QDateTime::currentMSecsSinceEpoch();
         emit staticIpsUpdated();
         checkForReadyLogin();
@@ -187,6 +196,7 @@ void ApiResourcesManager::onSessionAnswer()
     if (request->networkRetCode() == SERVER_RETURN_SUCCESS) {
         if (request->sessionErrorCode() == server_api::SessionErrorCode::kSuccess) {
             apiInfo_.setSessionStatus(request->sessionStatus());
+            saveApiInfoToSettings();
             updateSessionStatus();
         } else if (request->sessionErrorCode() == server_api::SessionErrorCode::kSessionInvalid) {
             emit sessionDeleted();
@@ -200,15 +210,32 @@ void ApiResourcesManager::onFetchTimer()
 {
      WS_ASSERT(!apiInfo_.getAuthHash().isEmpty());
      if (!apiInfo_.getAuthHash().isEmpty())
-        fetchAll(apiInfo_.getAuthHash());
+         fetchAll(apiInfo_.getAuthHash());
+}
+
+void ApiResourcesManager::onConnectivityOnline()
+{
+    if (waitForNetworkConnectivity_->property("isLoginWithAuthHash").toBool()) {
+        fetchAllWithAuthHashImpl();
+    } else {
+        loginImpl(waitForNetworkConnectivity_->property("username").toString(), waitForNetworkConnectivity_->property("passsword").toString(),
+                  waitForNetworkConnectivity_->property("code2fa").toString());
+    }
+}
+
+void ApiResourcesManager::onConnectivityTimeoutExpired()
+{
+    emit loginFailed(LOGIN_RET_NO_CONNECTIVITY, QString());
 }
 
 void ApiResourcesManager::handleLoginOrSessionAnswer(SERVER_API_RET_CODE retCode, server_api::SessionErrorCode sessionErrorCode, const types::SessionStatus &sessionStatus, const QString &authHash, const QString &errorMessage)
 {
+    //FIXME: check for ssl errors
     if (retCode == SERVER_RETURN_SUCCESS)  {
         if (sessionErrorCode == server_api::SessionErrorCode::kSuccess) {
             apiInfo_.setAuthHash(authHash);
             apiInfo_.setSessionStatus(sessionStatus);
+            saveApiInfoToSettings();
             lastUpdateTimeMs_[RequestType::kSessionStatus] = QDateTime::currentMSecsSinceEpoch();
             updateSessionStatus();
             checkForReadyLogin();
@@ -286,6 +313,26 @@ void ApiResourcesManager::fetchAll(const QString &authHash)
     // fetch notifications every 1 hour
     if (!lastUpdateTimeMs_.contains(RequestType::kNotifications) || (curTime - lastUpdateTimeMs_[RequestType::kNotifications]) > kHour)
         fetchNotifications(authHash);
+}
+
+void ApiResourcesManager::fetchAllWithAuthHashImpl()
+{
+    WS_ASSERT(!apiInfo_.getAuthHash().isEmpty());
+    WS_ASSERT(!requestsInProgress_.contains(RequestType::kSessionStatus));
+
+    requestsInProgress_[RequestType::kSessionStatus] = serverAPI_->session(apiInfo_.getAuthHash());
+    connect(requestsInProgress_[RequestType::kSessionStatus], &server_api::BaseRequest::finished, this, &ApiResourcesManager::onInitialSessionAnswer);
+}
+
+void ApiResourcesManager::loginImpl(const QString &username, const QString &password, const QString &code2fa)
+{
+    WS_ASSERT(!requestsInProgress_.contains(RequestType::kSessionStatus));
+
+    requestsInProgress_[RequestType::kSessionStatus] = serverAPI_->login(username, password, code2fa);
+    requestsInProgress_[RequestType::kSessionStatus]->setProperty("username", username);
+    requestsInProgress_[RequestType::kSessionStatus]->setProperty("password", password);
+    requestsInProgress_[RequestType::kSessionStatus]->setProperty("code2fa", code2fa);
+    connect(requestsInProgress_[RequestType::kSessionStatus], &server_api::BaseRequest::finished, this, &ApiResourcesManager::onLoginAnswer);
 }
 
 void ApiResourcesManager::fetchServerConfigs(const QString &authHash)
@@ -369,8 +416,6 @@ void ApiResourcesManager::updateSessionStatus()
         prevSessionForLogging_ = ss;
     }
 
-    emit sessionUpdated(ss);
-
     if (prevSessionStatus_.isInitialized()) {
 
         if (prevSessionStatus_.getRevisionHash() != ss.getRevisionHash() || prevSessionStatus_.isPremium() != ss.isPremium() ||
@@ -393,9 +438,21 @@ void ApiResourcesManager::updateSessionStatus()
             fetchServerCredentialsIkev2(apiInfo_.getAuthHash());
             fetchNotifications(apiInfo_.getAuthHash());
         }
+
+        if (prevSessionStatus_.getStatus() == 2 && ss.getStatus() == 1) {
+            fetchServerCredentialsOpenVpn(apiInfo_.getAuthHash());
+            fetchServerCredentialsIkev2(apiInfo_.getAuthHash());
+        }
     }
 
     prevSessionStatus_ = ss;
+    emit sessionUpdated(ss);
+}
+
+void ApiResourcesManager::saveApiInfoToSettings()
+{
+    if (apiInfo_.isEverythingInit())
+        apiInfo_.saveToSettings();
 }
 
 
