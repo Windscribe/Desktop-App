@@ -79,7 +79,7 @@ Widget::Widget(QWidget *parent)
     });
 
     connect(ui->btnFetchSession, &QPushButton::clicked, [this] {
-        apiResourceManager_->fetchSessionOnForegroundEvent();
+        apiResourceManager_->forceFetchSession();
     });
 
     connect(ui->btnCheckUpdate, &QPushButton::clicked, [this] {

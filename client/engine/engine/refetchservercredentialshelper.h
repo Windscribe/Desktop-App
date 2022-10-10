@@ -1,5 +1,4 @@
-#ifndef REFETCHSERVERCREDENTIALSHELPER_H
-#define REFETCHSERVERCREDENTIALSHELPER_H
+#pragma once
 
 #include <QObject>
 #include <QTimer>
@@ -43,4 +42,3 @@ private:
     void putFail();
 };
 
-#endif // REFETCHSERVERCREDENTIALSHELPER_H

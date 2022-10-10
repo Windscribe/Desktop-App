@@ -85,17 +85,19 @@ void RefetchServerCredentialsHelper::fetchServerCredentials()
     serverConfig_.clear();
     {
         server_api::BaseRequest *request = serverAPI_->serverConfigs(authHash_);
+        request->setParent(this);
         connect(request, &server_api::BaseRequest::finished, this, &RefetchServerCredentialsHelper::onServerConfigsAnswer);
     }
     {
         server_api::BaseRequest *request = serverAPI_->serverCredentials(authHash_, PROTOCOL::OPENVPN_UDP);
+        request->setParent(this);
         connect(request, &server_api::BaseRequest::finished, this, &RefetchServerCredentialsHelper::onServerCredentialsAnswer);
     }
     {
         server_api::BaseRequest *request = serverAPI_->serverCredentials(authHash_, PROTOCOL::IKEV2);
+        request->setParent(this);
         connect(request, &server_api::BaseRequest::finished, this, &RefetchServerCredentialsHelper::onServerCredentialsAnswer);
     }
-
 }
 
 void RefetchServerCredentialsHelper::checkFinished()

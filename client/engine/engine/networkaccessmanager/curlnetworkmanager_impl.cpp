@@ -68,7 +68,7 @@ bool CurlNetworkManagerImpl::setupBasicOptions(RequestInfo *requestInfo, const N
     if (curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_WRITEDATA, requestInfo) != CURLE_OK) return false;
     if (curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_ACCEPT_ENCODING, "") != CURLE_OK) return false;
     if (curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_URL, request.url().toString().toStdString().c_str()) != CURLE_OK) return false;
-    // FIXME: maybe we don't need CURLOPT_FRESH_CONNECT?
+
     if (curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_FRESH_CONNECT, 1) != CURLE_OK) return false;
     if (curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_CONNECTTIMEOUT_MS , request.timeout()) != CURLE_OK) return false;
 

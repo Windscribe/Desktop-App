@@ -56,19 +56,20 @@ void ApiResourcesManager::signOut()
     });
 }
 
-void ApiResourcesManager::fetchSessionOnForegroundEvent()
+void ApiResourcesManager::forceFetchSession()
 {
     lastUpdateTimeMs_.remove(RequestType::kSessionStatus);
-}
-
-void ApiResourcesManager::clearServerCredentials()
-{
-    apiInfo_.setServerCredentials(apiinfo::ServerCredentials());
 }
 
 bool ApiResourcesManager::loadFromSettings()
 {
     return apiInfo_.loadFromSettings();
+}
+
+void ApiResourcesManager::setServerCredentials(const apiinfo::ServerCredentials &serverCredentials, const QString &serverConfig)
+{
+    apiInfo_.setServerCredentials(serverCredentials);
+    apiInfo_.setOvpnConfig(serverConfig);
 }
 
 bool ApiResourcesManager::isCanBeLoadFromSettings()

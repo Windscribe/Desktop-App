@@ -17,7 +17,6 @@ class ApiResourcesManager : public QObject
 {
     Q_OBJECT
 public:
-    //FIXME: add wait for network connectivity
     explicit ApiResourcesManager(QObject *parent, server_api::ServerAPI *serverAPI, IConnectStateController *connectStateController, INetworkDetectionManager *networkDetectionManager);
     virtual ~ApiResourcesManager();
 
@@ -26,10 +25,11 @@ public:
     void login(const QString &username, const QString &password, const QString &code2fa);
 
     void signOut();
-    void fetchSessionOnForegroundEvent();
-    //FIXME: remove
-    void clearServerCredentials();
+    void forceFetchSession();
     bool loadFromSettings();
+
+    // in order to install server credentials from outside the class (from RefetchServerCredentials)
+    void setServerCredentials(const apiinfo::ServerCredentials &serverCredentials, const QString &serverConfig);
 
     static bool isAuthHashExists() { return !apiinfo::ApiInfo::getAuthHash().isEmpty(); }
     static QString authHash() { return apiinfo::ApiInfo::getAuthHash(); }

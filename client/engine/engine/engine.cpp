@@ -434,7 +434,7 @@ void Engine::applicationActivated()
 {
     QMetaObject::invokeMethod(this, [this]() {
         if (apiResourcesManager_)
-            apiResourcesManager_->fetchSessionOnForegroundEvent();
+            apiResourcesManager_->forceFetchSession();
     }, Qt::QueuedConnection);
 }
 
@@ -1477,22 +1477,18 @@ void Engine::onConnectionManagerError(CONNECT_ERROR err)
         else
         {
             // goto update server credentials and try connect again
-            //FIXME:
-            /*if (refetchServerCredentialsHelper_ == NULL)
-            {
+            if (refetchServerCredentialsHelper_ == NULL) {
                 // force update session status (for check blocked, banned account state)
-                server_api::BaseRequest *request = serverAPI_->session(apiInfo_->getAuthHash());
-                connect(request, &server_api::BaseRequest::finished, this, &Engine::onSessionAnswer);
+                apiResourcesManager_->forceFetchSession();
 
-                refetchServerCredentialsHelper_ = new RefetchServerCredentialsHelper(this, apiInfo_->getAuthHash(), serverAPI_);
+                refetchServerCredentialsHelper_ = new RefetchServerCredentialsHelper(this, apiResourcesManager_->authHash(), serverAPI_);
                 connect(refetchServerCredentialsHelper_, &RefetchServerCredentialsHelper::finished, this, &Engine::onRefetchServerCredentialsFinished);
                 refetchServerCredentialsHelper_->setProperty("fromAuthError", true);
                 refetchServerCredentialsHelper_->startRefetch();
             }
-            else
-            {
+            else  {
                 WS_ASSERT(false);
-            }*/
+            }
         }
 
         return;
@@ -1909,24 +1905,19 @@ void Engine::onEmergencyControllerError(CONNECT_ERROR err)
 
 void Engine::onRefetchServerCredentialsFinished(bool success, const apiinfo::ServerCredentials &serverCredentials, const QString &serverConfig)
 {
-    //TODO:
-    /*bool bFromAuthError = refetchServerCredentialsHelper_->property("fromAuthError").isValid();
+    bool bFromAuthError = refetchServerCredentialsHelper_->property("fromAuthError").isValid();
     refetchServerCredentialsHelper_->deleteLater();
     refetchServerCredentialsHelper_ = NULL;
 
-    if (success)
-    {
+    if (success) {
         qCDebug(LOG_BASIC) << "Engine::onRefetchServerCredentialsFinished, successfully";
-        apiInfo_->setServerCredentials(serverCredentials);
-        apiInfo_->setOvpnConfig(serverConfig);
+        apiResourcesManager_->setServerCredentials(serverCredentials, serverConfig);
         doConnect(!bFromAuthError);
-    }
-    else
-    {
+    } else {
         qCDebug(LOG_BASIC) << "Engine::onRefetchServerCredentialsFinished, failed";
-        getMyIPController_->getIPFromDisconnectedState(1);
+        myIpManager_->getIP(1);
         connectStateController_->setDisconnectedState(DISCONNECTED_WITH_ERROR, CONNECT_ERROR::COULD_NOT_FETCH_CREDENTAILS);
-    }*/
+    }
 }
 
 void Engine::getRobertFiltersImpl()
@@ -2440,7 +2431,6 @@ void Engine::loginImpl(bool isUseAuthHash, const QString &username, const QStrin
 
     if (isUseAuthHash) {
         if (apiResourcesManager_->loadFromSettings()) {
-            //FIXME: duplicate?
             if (!emergencyController_->isDisconnected()) {
                 emergencyController_->blockingDisconnect();
                 emergencyConnectStateController_->setDisconnectedState(DISCONNECTED_ITSELF, CONNECT_ERROR::NO_CONNECT_ERROR);
@@ -2449,11 +2439,9 @@ void Engine::loginImpl(bool isUseAuthHash, const QString &username, const QStrin
 
             Q_EMIT sessionStatusUpdated(apiResourcesManager_->sessionStatus());
             updateServerLocations();
-
             myIpManager_->getIP(1);
             doCheckUpdate();
             updateCurrentNetworkInterfaceImpl();
-
             Q_EMIT loginFinished(true, apiResourcesManager_->authHash(), apiResourcesManager_->portMap());
         } else {
             connect(apiResourcesManager_.get(), &api_resources::ApiResourcesManager::readyForLogin, this, &Engine::onApiResourcesManagerReadyForLogin);
