@@ -3,6 +3,8 @@ target_sources(engine PRIVATE
     apiresourcesmanager.h
     checkupdatemanager.cpp
     checkupdatemanager.h
+    myipmanager.cpp
+    myipmanager.h
 )
 
 if(DEFINED IS_BUILD_TESTS)

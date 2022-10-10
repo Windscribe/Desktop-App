@@ -8,7 +8,7 @@
 #include "engine/networkaccessmanager/networkaccessmanager.h"
 #include "engine/failover/ifailover.h"
 #include "engine/apiresources/apiresourcesmanager.h"
-#include "engine/getmyipcontroller.h"
+
 
 class ConnectStateController_moc : public IConnectStateController
 {
@@ -79,7 +79,7 @@ private:
     NetworkDetectionManager_moc *networkDetectionManager_;
     NetworkAccessManager *accessManager_;
     server_api::ServerAPI *serverAPI_;
-    GetMyIPController *getMyIPController_;
+    //GetMyIPController *getMyIPController_;
 
     QString authHash_;
     QString username_;

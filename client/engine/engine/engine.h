@@ -14,7 +14,7 @@
 #include "engine/refetchservercredentialshelper.h"
 #include "engine/vpnshare/vpnsharecontroller.h"
 #include "engine/emergencycontroller/emergencycontroller.h"
-#include "getmyipcontroller.h"
+#include "apiresources/myipmanager.h"
 #include "types/enginesettings.h"
 #include "types/checkupdate.h"
 #include "engine/customconfigs/customconfigs.h"
@@ -237,7 +237,7 @@ private slots:
 
     void onCheckUpdateUpdated(const types::CheckUpdate &checkUpdate);
     void onHostIPsChanged(const QSet<QString> &hostIps);
-    void onMyIpAnswer(const QString &ip, bool isDisconnected);
+    void onMyIpManagerIpChanged(const QString &ip, bool isFromDisconnectedState);
     void onDebugLogAnswer();
     void onConfirmEmailAnswer();
     void onWebSessionAnswer();
@@ -320,7 +320,6 @@ private:
     server_api::ServerAPI *serverAPI_;
     ConnectionManager *connectionManager_;
     ConnectStateController *connectStateController_;
-    GetMyIPController *getMyIPController_;
     VpnShareController *vpnShareController_;
     EmergencyController *emergencyController_;
     ConnectStateController *emergencyConnectStateController_;
@@ -333,6 +332,7 @@ private:
 
     QScopedPointer<api_resources::ApiResourcesManager> apiResourcesManager_;    // can be null for the custom config mode or when we in the logout state
     api_resources::CheckUpdateManager *checkUpdateManager_;
+    api_resources::MyIpManager *myIpManager_;
 
 #ifdef Q_OS_WIN
     MeasurementCpuUsage *measurementCpuUsage_;

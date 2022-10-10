@@ -5,8 +5,6 @@ target_sources(engine PRIVATE
     engine.h
     getdeviceid.cpp
     getdeviceid.h
-    getmyipcontroller.cpp
-    getmyipcontroller.h
     openvpnversioncontroller.cpp
     openvpnversioncontroller.h
     packetsizecontroller.cpp

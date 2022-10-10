@@ -56,7 +56,6 @@ Engine::Engine(const types::EngineSettings &engineSettings) : QObject(nullptr),
     serverAPI_(nullptr),
     connectionManager_(nullptr),
     connectStateController_(nullptr),
-    getMyIPController_(nullptr),
     vpnShareController_(nullptr),
     emergencyController_(nullptr),
     customConfigs_(nullptr),
@@ -65,6 +64,8 @@ Engine::Engine(const types::EngineSettings &engineSettings) : QObject(nullptr),
     macAddressController_(nullptr),
     keepAliveManager_(nullptr),
     packetSizeController_(nullptr),
+    checkUpdateManager_(nullptr),
+    myIpManager_(nullptr),
 #ifdef Q_OS_WIN
     measurementCpuUsage_(nullptr),
 #endif
@@ -591,6 +592,9 @@ void Engine::initPart2()
     checkUpdateManager_ = new api_resources::CheckUpdateManager(this, serverAPI_);
     connect(checkUpdateManager_, &api_resources::CheckUpdateManager::checkUpdateUpdated, this, &Engine::onCheckUpdateUpdated);
 
+    myIpManager_ = new api_resources::MyIpManager(this, serverAPI_, networkDetectionManager_, connectStateController_);
+    connect(myIpManager_, &api_resources::MyIpManager::myIpChanged, this, &Engine::onMyIpManagerIpChanged);
+
     customOvpnAuthCredentialsStorage_ = new CustomOvpnAuthCredentialsStorage();
 
     connectionManager_ = new ConnectionManager(this, helper_, networkDetectionManager_, serverAPI_, customOvpnAuthCredentialsStorage_);
@@ -613,9 +617,6 @@ void Engine::initPart2()
     locationsModel_ = new locationsmodel::LocationsModel(this, connectStateController_, networkDetectionManager_);
     connect(locationsModel_, SIGNAL(whitelistLocationsIpsChanged(QStringList)), SLOT(onLocationsModelWhitelistIpsChanged(QStringList)));
     connect(locationsModel_, SIGNAL(whitelistCustomConfigsIpsChanged(QStringList)), SLOT(onLocationsModelWhitelistCustomConfigIpsChanged(QStringList)));
-
-    getMyIPController_ = new GetMyIPController(this, serverAPI_, networkDetectionManager_);
-    connect(getMyIPController_, &GetMyIPController::answerMyIP, this, &Engine::onMyIpAnswer);
 
     vpnShareController_ = new VpnShareController(this, helper_);
     connect(vpnShareController_, SIGNAL(connectedWifiUsersChanged(int)), SIGNAL(vpnSharingConnectedWifiUsersCountChanged(int)));
@@ -863,7 +864,7 @@ void Engine::cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool is
     SAFE_DELETE(measurementCpuUsage_);
 #endif
     SAFE_DELETE(helper_);
-    SAFE_DELETE(getMyIPController_);
+    SAFE_DELETE(myIpManager_);
     SAFE_DELETE(serverAPI_);
     SAFE_DELETE(locationsModel_);
     SAFE_DELETE(networkDetectionManager_);
@@ -954,7 +955,7 @@ void Engine::connectClickImpl(const LocationID &locationId)
     if (isBlockConnect_ && !locationId_.isCustomConfigsLocation())
     {
         connectStateController_->setDisconnectedState(DISCONNECTED_WITH_ERROR, CONNECT_ERROR::CONNECTION_BLOCKED);
-        getMyIPController_->getIPFromDisconnectedState(1);
+        myIpManager_->getIP(1);
         return;
     }
 
@@ -1097,7 +1098,7 @@ void Engine::continueWithPasswordImpl(const QString &password, bool bSave)
 void Engine::gotoCustomOvpnConfigModeImpl()
 {
     updateServerLocations();
-    getMyIPController_->getIPFromDisconnectedState(1);
+    myIpManager_->getIP(1);
     doCheckUpdate();
     Q_EMIT gotoCustomOvpnConfigModeFinished();
 }
@@ -1249,9 +1250,9 @@ void Engine::onHostIPsChanged(const QSet<QString> &hostIps)
     updateFirewallSettings();
 }
 
-void Engine::onMyIpAnswer(const QString &ip, bool isDisconnected)
+void Engine::onMyIpManagerIpChanged(const QString &ip, bool isFromDisconnectedState)
 {
-    Q_EMIT myIpUpdated(ip, isDisconnected);
+    Q_EMIT myIpUpdated(ip, isFromDisconnectedState);
 }
 
 void Engine::onDebugLogAnswer()
@@ -1471,8 +1472,7 @@ void Engine::onConnectionManagerDisconnected(DISCONNECT_REASON reason)
     }
     else
     {
-        getMyIPController_->getIPFromDisconnectedState(1);
-
+        myIpManager_->getIP(1);
         if (reason == DISCONNECTED_BY_USER && engineSettings_.firewallSettings().mode == FIREWALL_MODE_AUTOMATIC &&
             firewallController_->firewallActualState())
         {
@@ -2189,7 +2189,7 @@ void Engine::onApiResourcesManagerReadyForLogin()
         Q_EMIT emergencyDisconnected();
     }*/
 
-    getMyIPController_->getIPFromDisconnectedState(1);
+    myIpManager_->getIP(1);
     /*doCheckUpdate();
     updateCurrentNetworkInterfaceImpl();
     Q_EMIT loginFinished(false, apiResourcesManager_->authHash(), apiResourcesManager_->portMap());*/
@@ -2335,14 +2335,14 @@ void Engine::doConnect(bool bEmitAuthError)
     if (bli.isNull())
     {
         connectStateController_->setDisconnectedState(DISCONNECTED_WITH_ERROR, CONNECT_ERROR::LOCATION_NOT_EXIST);
-        getMyIPController_->getIPFromDisconnectedState(1);
+        myIpManager_->getIP(1);
         qCDebug(LOG_BASIC) << "Engine::connectError(LOCATION_NOT_EXIST)";
         return;
     }
     if (!bli->isExistSelectedNode())
     {
         connectStateController_->setDisconnectedState(DISCONNECTED_WITH_ERROR, CONNECT_ERROR::LOCATION_NO_ACTIVE_NODES);
-        getMyIPController_->getIPFromDisconnectedState(1);
+        myIpManager_->getIP(1);
         qCDebug(LOG_BASIC) << "Engine::connectError(LOCATION_NO_ACTIVE_NODES)";
         return;
     }
@@ -2497,7 +2497,7 @@ void Engine::loginImpl(bool isUseAuthHash, const QString &username, const QStrin
             Q_EMIT sessionStatusUpdated(apiResourcesManager_->sessionStatus());
             updateServerLocations();
 
-            getMyIPController_->getIPFromDisconnectedState(1);
+            myIpManager_->getIP(1);
             doCheckUpdate();
             updateCurrentNetworkInterfaceImpl();
 
