@@ -127,7 +127,7 @@ signals:
     void bfeEnableFinished(ENGINE_INIT_RET_CODE retCode, bool isCanLoginWithAuthHash);
     void cleanupFinished();
     void loginFinished(bool isLoginFromSavedSettings, const QString &authHash, const types::PortMap &portMap);
-    void loginStepMessage(LOGIN_MESSAGE msg);
+    void tryingBackupEndpoint(int num, int cnt);
     void loginError(LOGIN_RET retCode, const QString &errorMessage);
     void sessionDeleted();
     void sessionStatusUpdated(const types::SessionStatus &sessionStatus);
@@ -226,8 +226,7 @@ private slots:
     void onApiResourcesManagerNotificationsUpdated(const QVector<types::Notification> &notifications);
     void onApiResourcesManagerServerCredentialsFetched();
 
-
-    void onLoginControllerStepMessage(LOGIN_MESSAGE msg);
+    void onFailOverTryingBackupEndpoint(int num, int cnt);
 
     void onCheckUpdateUpdated(const types::CheckUpdate &checkUpdate);
     void onHostIPsChanged(const QSet<QString> &hostIps);

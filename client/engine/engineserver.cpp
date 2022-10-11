@@ -75,7 +75,7 @@ bool EngineServer::handleCommand(IPC::Command *command)
             connect(engine_, &Engine::bfeEnableFinished, this, &EngineServer::onEngineBfeEnableFinished);
             connect(engine_, &Engine::firewallStateChanged, this, &EngineServer::onEngineFirewallStateChanged);
             connect(engine_, &Engine::loginFinished, this, &EngineServer::onEngineLoginFinished);
-            connect(engine_, &Engine::loginStepMessage, this, &EngineServer::onEngineLoginMessage);
+            connect(engine_, &Engine::tryingBackupEndpoint, this, &EngineServer::onEngineTryingBackupEndpoint);
             connect(engine_, &Engine::notificationsUpdated, this, &EngineServer::onEngineNotificationsUpdated);
             connect(engine_, &Engine::checkUpdateUpdated, this, &EngineServer::onEngineCheckUpdateUpdated);
             connect(engine_, &Engine::updateVersionChanged, this, &EngineServer::onEngineUpdateVersionChanged);
@@ -544,9 +544,11 @@ void EngineServer::onEngineLoginError(LOGIN_RET retCode, const QString &errorMes
     sendCmdToAllAuthorizedAndGetStateClients(&cmd, true);
 }
 
-void EngineServer::onEngineLoginMessage(LOGIN_MESSAGE msg)
+void EngineServer::onEngineTryingBackupEndpoint(int num, int cnt)
 {
-    IPC::ServerCommands::LoginStepMessage cmd(msg);
+    IPC::ServerCommands::LoginStepMessage cmd;
+    cmd.num = num;
+    cmd.cnt = cnt;
     sendCmdToAllAuthorizedAndGetStateClients(&cmd, true);
 }
 

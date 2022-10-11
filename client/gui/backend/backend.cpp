@@ -452,7 +452,7 @@ void Backend::onConnectionNewCommand(IPC::Command *command)
     else if (command->getStringId() == IPC::ServerCommands::LoginStepMessage::getCommandStringId())
     {
         IPC::ServerCommands::LoginStepMessage *cmd = static_cast<IPC::ServerCommands::LoginStepMessage *>(command);
-        Q_EMIT loginStepMessage(cmd->message_);
+        Q_EMIT tryingBackupEndpoint(cmd->num, cmd->cnt);
     }
     else if (command->getStringId() == IPC::ServerCommands::LoginError::getCommandStringId())
     {

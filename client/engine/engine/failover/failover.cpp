@@ -115,6 +115,8 @@ void Failover::getNextHostname(bool bIgnoreSslErrors)
         curFailoverInd_++;
         isFailoverInProgress_ = true;
         failovers_[curFailoverInd_]->getHostnames(bIgnoreSslErrors);
+        if (curFailoverInd_ >= 1)
+            emit tryingBackupEndpoint(curFailoverInd_, failovers_.count() - 1);
     } else {
         QTimer::singleShot(0, [this]() {
             qCDebug(LOG_FAILOVER) <<  QString("Failover[%1]").arg(nameForLog_) << FailoverRetCode::kSuccess <<  "manualIP" << apiResolutionSettings_.getManualIp();

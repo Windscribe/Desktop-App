@@ -427,7 +427,7 @@ failover::IFailover *ServerAPI::currentFailover() const
 
 void ServerAPI::setErrorCodeAndEmitRequestFinished(BaseRequest *request, SERVER_API_RET_CODE retCode, const QString &errorStr)
 {
-    request->setNetworkRetCode(SERVER_RETURN_NETWORK_ERROR);
+    request->setNetworkRetCode(retCode);
     if (request->isWriteToLog())
         qCDebug(LOG_SERVER_API) << "API request " + request->name() + " failed:" << errorStr;
     emit request->finished();

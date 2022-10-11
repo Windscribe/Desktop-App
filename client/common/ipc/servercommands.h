@@ -243,7 +243,7 @@ public:
 class LoginStepMessage : public Command
 {
 public:
-    explicit LoginStepMessage(LOGIN_MESSAGE message) : message_(message)
+    explicit LoginStepMessage()
     {}
 
     std::vector<char> getData() const override   {  WS_ASSERT(false); return std::vector<char>(); }
@@ -258,7 +258,8 @@ public:
         return "ServerCommand::LoginStepMessage";
     }
 
-    LOGIN_MESSAGE message_;
+    int num;
+    int cnt;
 };
 
 

@@ -139,7 +139,7 @@ MainWindow::MainWindow() :
     connect(backend_, &Backend::initFinished, this, &MainWindow::onBackendInitFinished);
     connect(backend_, &Backend::initTooLong, this, &MainWindow::onBackendInitTooLong);
     connect(backend_, &Backend::loginFinished, this, &MainWindow::onBackendLoginFinished);
-    connect(backend_, &Backend::loginStepMessage, this, &MainWindow::onBackendLoginStepMessage);
+    connect(backend_, &Backend::tryingBackupEndpoint, this, &MainWindow::onBackendTryingBackupEndpoint);
     connect(backend_, &Backend::loginError, this, &MainWindow::onBackendLoginError);
     connect(backend_, &Backend::signOutFinished, this, &MainWindow::onBackendSignOutFinished);
     connect(backend_, &Backend::sessionStatusChanged, this, &MainWindow::onBackendSessionStatusChanged);
@@ -1488,18 +1488,13 @@ void MainWindow::onBackendLoginFinished(bool /*isLoginFromSavedSettings*/)
     PersistentState::instance().setFirstLogin(false);
 }
 
-void MainWindow::onBackendLoginStepMessage(LOGIN_MESSAGE msg)
+void MainWindow::onBackendTryingBackupEndpoint(int num, int cnt)
 {
-    QString additionalMessage;
-    if (msg == LOGIN_MESSAGE_TRYING_BACKUP1)
+    if (!isLoginOkAndConnectWindowVisible_)
     {
-        additionalMessage = tr("Trying Backup Endpoints 1/2");
+        QString additionalMessage = tr("Trying Backup Endpoints %1/%2").arg(num).arg(cnt);
+        mainWindowController_->getLoggingInWindow()->setAdditionalMessage(additionalMessage);
     }
-    else if (msg == LOGIN_MESSAGE_TRYING_BACKUP2)
-    {
-        additionalMessage = tr("Trying Backup Endpoints 2/2");
-    }
-    mainWindowController_->getLoggingInWindow()->setAdditionalMessage(additionalMessage);
 }
 
 void MainWindow::onBackendLoginError(LOGIN_RET loginError, const QString &errorMessage)
@@ -1542,8 +1537,6 @@ void MainWindow::onBackendLoginError(LOGIN_RET loginError, const QString &errorM
         if (!isLoginOkAndConnectWindowVisible_)
         {
             //qCDebug(LOG_BASIC) << "Show no connectivity message to user.";
-            //FIXME:
-            ///mainWindowController_->getLoginWindow()->transitionToUsernameScreen();
             mainWindowController_->getLoginWindow()->setErrorMessage(ILoginWindow::ERR_MSG_NO_INTERNET_CONNECTIVITY, QString());
             mainWindowController_->getLoginWindow()->setEmergencyConnectState(false);
             gotoLoginWindow();

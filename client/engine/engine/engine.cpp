@@ -570,9 +570,10 @@ void Engine::initPart2()
     connect(networkAccessManager_, &NetworkAccessManager::whitelistIpsChanged, this, &Engine::onHostIPsChanged);
 
     // Ownership of the failovers passes to the serverAPI object (in the ServerAPI ctor)
-    serverAPI_ = new server_api::ServerAPI(this, connectStateController_, networkAccessManager_, networkDetectionManager_,
-                                           new failover::Failover(nullptr,networkAccessManager_, connectStateController_, "disconnected"),
-                                           new failover::Failover(nullptr,networkAccessManager_, connectStateController_, "connected"));
+    failover::IFailover *failoverDisconnected = new failover::Failover(nullptr,networkAccessManager_, connectStateController_, "disconnected");
+    connect(failoverDisconnected, &failover::IFailover::tryingBackupEndpoint, this, &Engine::onFailOverTryingBackupEndpoint);
+    failover::IFailover *failoverConnected = new failover::Failover(nullptr,networkAccessManager_, connectStateController_, "connected");
+    serverAPI_ = new server_api::ServerAPI(this, connectStateController_, networkAccessManager_, networkDetectionManager_, failoverDisconnected, failoverConnected);
     serverAPI_->setIgnoreSslErrors(engineSettings_.isIgnoreSslErrors());
     serverAPI_->setApiResolutionsSettings(engineSettings_.apiResolutionSettings());
 
@@ -1179,10 +1180,9 @@ void Engine::setSettingsImpl(const types::EngineSettings &engineSettings)
     OpenVpnVersionController::instance().setUseWinTun(engineSettings_.isUseWintun());
 }
 
-void Engine::onLoginControllerStepMessage(LOGIN_MESSAGE msg)
+void Engine::onFailOverTryingBackupEndpoint(int num, int cnt)
 {
-    //FIXME:
-    Q_EMIT loginStepMessage(msg);
+    Q_EMIT tryingBackupEndpoint(num, cnt);
 }
 
 void Engine::onCheckUpdateUpdated(const types::CheckUpdate &checkUpdate)
@@ -1674,19 +1674,10 @@ void Engine::detectAppropriatePacketSizeImpl()
 {
     if (networkDetectionManager_->isOnline())
     {
-        //FIXME:
-        //if (serverAPI_->isRequestsEnabled())
-        {
-            qCDebug(LOG_PACKET_SIZE) << "Detecting appropriate packet size";
-            runningPacketDetection_ = true;
-            Q_EMIT packetSizeDetectionStateChanged(true, false);
-            // FIXME: serverAPI_->getHostname() can be not ready
-            packetSizeController_->detectAppropriatePacketSize(serverAPI_->getHostname());
-        }
-        /*else
-        {
-            qCDebug(LOG_PACKET_SIZE) << "ServerAPI not enabled for requests (working hostname not detected). Using: " << QString::number(packetSize_.mtu);
-        }*/
+        qCDebug(LOG_PACKET_SIZE) << "Detecting appropriate packet size";
+        runningPacketDetection_ = true;
+        Q_EMIT packetSizeDetectionStateChanged(true, false);
+        packetSizeController_->detectAppropriatePacketSize(serverAPI_->getHostname());
     }
     else
     {
@@ -2118,7 +2109,6 @@ void Engine::onApiResourcesManagerLoginFailed(LOGIN_RET retCode, const QString &
 {
     qCDebug(LOG_BASIC) << "onApiResourcesManagerLoginFailed, retCode =" << LOGIN_RET_toString(retCode) << ";errorMessage =" << errorMessage;
 
-    //FIXME: check all errors
     if (retCode == LOGIN_RET_NO_CONNECTIVITY) {
         Q_EMIT loginError(LOGIN_RET_NO_CONNECTIVITY, QString());
     } else if (retCode == LOGIN_RET_NO_API_CONNECTIVITY) {
@@ -2373,7 +2363,7 @@ void Engine::updateProxySettings()
         locationsModel_->setProxySettings(proxySettings);
         firewallExceptions_.setProxyIP(proxySettings);
         updateFirewallSettings();
-        // FIXME: is this need?
+        // TODO: is this need?
         //if (connectStateController_->currentState() == CONNECT_STATE_DISCONNECTED)
         //    getMyIPController_->getIPFromDisconnectedState(500);
     }

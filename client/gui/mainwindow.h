@@ -159,7 +159,7 @@ private slots:
     void onBackendInitTooLong();
 
     void onBackendLoginFinished(bool isLoginFromSavedSettings);
-    void onBackendLoginStepMessage(LOGIN_MESSAGE msg);
+    void onBackendTryingBackupEndpoint(int num, int cnt);
     void onBackendLoginError(LOGIN_RET loginError, const QString &errorMessage);
 
     void onBackendSessionStatusChanged(const types::SessionStatus &sessionStatus);

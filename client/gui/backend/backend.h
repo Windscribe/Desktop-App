@@ -125,7 +125,7 @@ signals:
     void gotoCustomOvpnConfigModeFinished();
 
     void loginFinished(bool isLoginFromSavedSettings);
-    void loginStepMessage(LOGIN_MESSAGE msg);
+    void tryingBackupEndpoint(int num, int cnt);
     void loginError(LOGIN_RET loginError, const QString &errorMessage);
 
     void signOutFinished();

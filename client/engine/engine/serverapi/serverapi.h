@@ -35,8 +35,6 @@ class ServerAPI : public QObject
 {
     Q_OBJECT
 public:
-    //FIXME: add dnsResolutionSettings_.getIsAutomatic()
-
     // Ownership of the failoverDisconnectedMode and failoverConnectedMode passes to the serverAPI object
     explicit ServerAPI(QObject *parent, IConnectStateController *connectStateController, NetworkAccessManager *networkAccessManager,
                        INetworkDetectionManager *networkDetectionManager, failover::IFailover *failoverDisconnectedMode, failover::IFailover *failoverConnectedMode);

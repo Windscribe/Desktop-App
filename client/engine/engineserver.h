@@ -37,7 +37,7 @@ private slots:
     void onEngineFirewallStateChanged(bool isEnabled);
     void onEngineLoginFinished(bool isLoginFromSavedSettings, const QString &authHash, const types::PortMap &portMap);
     void onEngineLoginError(LOGIN_RET retCode, const QString &errorMessage);
-    void onEngineLoginMessage(LOGIN_MESSAGE msg);
+    void onEngineTryingBackupEndpoint(int num, int cnt);
     void onEngineSessionDeleted();
     void onEngineUpdateSessionStatus(const types::SessionStatus &sessionStatus);
     void onEngineNotificationsUpdated(const QVector<types::Notification> &notifications);

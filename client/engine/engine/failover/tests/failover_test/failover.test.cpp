@@ -92,6 +92,10 @@ void TestFailover::basicTest()
             qDebug() << "next hostname:" <<  hostname;
     });
 
+    connect(failover, &failover::Failover::tryingBackupEndpoint, [=](int num, int cnt) {
+        qDebug() << QString("Trying Backup Endpoints %1/%2").arg(num).arg(cnt);
+    });
+
     while (true) {
         qDebug() << "current hostname:" << failover->currentHostname();
         failover->getNextHostname(false);

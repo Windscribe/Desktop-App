@@ -254,7 +254,6 @@ void ApiResourcesManager::onConnectivityTimeoutExpired()
 
 void ApiResourcesManager::handleLoginOrSessionAnswer(SERVER_API_RET_CODE retCode, server_api::SessionErrorCode sessionErrorCode, const types::SessionStatus &sessionStatus, const QString &authHash, const QString &errorMessage)
 {
-    //FIXME: check for ssl errors
     if (retCode == SERVER_RETURN_SUCCESS)  {
         if (sessionErrorCode == server_api::SessionErrorCode::kSuccess) {
             apiInfo_.setAuthHash(authHash);

@@ -25,6 +25,7 @@ public:
 
 signals:
     void nextHostnameAnswer(failover::FailoverRetCode retCode, const QString &hostname);
+    void tryingBackupEndpoint(int num, int cnt);
 };
 
 } // namespace failover
