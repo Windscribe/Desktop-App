@@ -3050,8 +3050,8 @@ void MainWindow::createTrayMenuItems()
             locationsMenu_.append(menu);
         }
 #endif
-#endif
         trayMenu_.addSeparator();
+#endif
     }
 
 #if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
