@@ -13,10 +13,6 @@ target_sources(gui PRIVATE
     advancedwindow/advancedwindowitem.h
     advancedwindow/apiresolutiongroup.cpp
     advancedwindow/apiresolutiongroup.h
-    changelogwindow/changelogitem.cpp
-    changelogwindow/changelogitem.h
-    changelogwindow/changelogwindowitem.cpp
-    changelogwindow/changelogwindowitem.h
     checkboxitem.cpp
     checkboxitem.h
     comboboxitem.cpp
@@ -80,6 +76,8 @@ target_sources(gui PRIVATE
     proxysettingswindow/proxysettingsgroup.h
     proxysettingswindow/proxysettingswindowitem.cpp
     proxysettingswindow/proxysettingswindowitem.h
+    robertwindow/loadingiconitem.cpp
+    robertwindow/loadingiconitem.h
     robertwindow/robertitem.cpp
     robertwindow/robertitem.h
     robertwindow/robertwindowitem.cpp

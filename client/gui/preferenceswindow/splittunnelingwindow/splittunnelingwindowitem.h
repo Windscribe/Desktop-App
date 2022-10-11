@@ -1,10 +1,8 @@
 #ifndef SPLITTUNNELINGWINDOWITEM_H
 #define SPLITTUNNELINGWINDOWITEM_H
 
-#include "commongraphics/basepage.h"
 #include "backend/preferences/preferences.h"
-#include "backend/preferences/preferenceshelper.h"
-#include "preferenceswindow/checkboxitem.h"
+#include "commongraphics/basepage.h"
 #include "preferenceswindow/preferencegroup.h"
 #include "splittunnelinggroup.h"
 
@@ -26,6 +24,7 @@ public:
     void setAppsCount(int count);
     void setNetworkRoutesCount(int count);
     void setLoggedIn(bool loggedIn);
+    void setActive(bool active);
 
 signals:
     void appsPageClick();

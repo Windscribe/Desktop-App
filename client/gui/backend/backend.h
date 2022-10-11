@@ -171,6 +171,8 @@ signals:
     void wireGuardAtKeyLimit();
     void wireGuardKeyLimitUserResponse(bool deleteOldestKey);
 
+    void helperSplitTunnelingStartFailed();
+
 private:
     bool isSavedApiSettingsExists_;
 

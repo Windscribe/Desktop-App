@@ -383,6 +383,12 @@ def build_component(component, qt_root, buildenv=None, macdeployfixes=None, targ
                 generate_cmd.extend(["-DDEFINE_USE_SIGNATURE_CHECK_MACRO=ON"])
             if c_ismac:
                 generate_cmd.extend(["-DCMAKE_OSX_ARCHITECTURES=\'arm64;x86_64\'"])
+            try:
+                build_id = re.search("\d+", proc.ExecuteAndGetOutput(["git", "branch", "--show-current"], env=buildenv, shell=False)).group()
+                generate_cmd.extend(["-DDEFINE_USE_BUILD_ID_MACRO=" + build_id])
+            except Exception as e:
+                # Not on a development branch, ignore
+                pass
             msg.Info(generate_cmd)
             iutl.RunCommand(generate_cmd, env=buildenv, shell=c_iswin)
             build_cmd = ["cmake", "--build", ".", "--config Release", "--parallel " + str(multiprocessing.cpu_count())]

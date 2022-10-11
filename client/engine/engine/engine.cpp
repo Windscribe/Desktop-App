@@ -1293,9 +1293,17 @@ void Engine::onConnectionManagerConnected()
         }
     }
 
-    helper_->sendConnectStatus(true, engineSettings_.isTerminateSockets(), engineSettings_.isAllowLanTraffic(),
-                               connectionManager_->getDefaultAdapterInfo(), connectionManager_->getCustomDnsAdapterGatewayInfo().adapterInfo,
-                               connectionManager_->getLastConnectedIp(), lastConnectingProtocol_);
+    bool result = helper_->sendConnectStatus(true, engineSettings_.isTerminateSockets(), engineSettings_.isAllowLanTraffic(),
+                                             connectionManager_->getDefaultAdapterInfo(), connectionManager_->getCustomDnsAdapterGatewayInfo().adapterInfo,
+                                             connectionManager_->getLastConnectedIp(), lastConnectingProtocol_);
+    if (!result) {
+        #if defined(Q_OS_WINDOWS)
+        emit helperSplitTunnelingStartFailed();
+        #else
+        // POSIX helper does not currently report failure of split tunneling driver startup.
+        qCDebug(LOG_BASIC) << "Helper_posix::sendConnectStatus failed";
+        #endif
+    }
 
     if (firewallController_->firewallActualState() && !isFirewallAlreadyEnabled)
     {
@@ -2083,8 +2091,7 @@ void Engine::setSettingsMacAddressSpoofingImpl(const types::MacAddrSpoofing &mac
 void Engine::setSplitTunnelingSettingsImpl(bool isActive, bool isExclude, const QStringList &files, const QStringList &ips, const QStringList &hosts)
 {
     WS_ASSERT(helper_ != NULL);
-    helper_->setSplitTunnelingSettings(isActive, isExclude, engineSettings_.isAllowLanTraffic(),
-                                       files, ips, hosts);
+    helper_->setSplitTunnelingSettings(isActive, isExclude, engineSettings_.isAllowLanTraffic(), files, ips, hosts);
 }
 
 void Engine::onApiResourcesManagerReadyForLogin()

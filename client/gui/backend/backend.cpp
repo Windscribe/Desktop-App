@@ -30,6 +30,7 @@ Backend::Backend(QObject *parent) : QObject(parent),
     engineServer_ = new EngineServer(this);
     connect(engineServer_, SIGNAL(emitCommand(IPC::Command*)), SLOT(onConnectionNewCommand(IPC::Command*)));
     connect(engineServer_, &EngineServer::wireGuardAtKeyLimit, this, &Backend::wireGuardAtKeyLimit);
+    connect(engineServer_, &EngineServer::helperSplitTunnelingStartFailed, this, &Backend::helperSplitTunnelingStartFailed);
     connect(this, &Backend::wireGuardKeyLimitUserResponse, engineServer_, &EngineServer::wireGuardKeyLimitUserResponse);
 }
 

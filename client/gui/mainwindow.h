@@ -53,7 +53,6 @@ protected:
     virtual void mousePressEvent(QMouseEvent *event);
     virtual void mouseReleaseEvent(QMouseEvent *event);
 
-
     virtual void paintEvent(QPaintEvent *event);
 
 Q_SIGNALS:
@@ -194,6 +193,7 @@ private slots:
     void onBackendRobertFiltersChanged(bool success, const QVector<types::RobertFilter> &filters);
     void onBackendSetRobertFilterResult(bool success);
     void onBackendSyncRobertResult(bool success);
+    void onHelperSplitTunnelingStartFailed();
 
     void onBackendEngineCrash();
 

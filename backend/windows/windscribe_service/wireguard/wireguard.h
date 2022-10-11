@@ -7,8 +7,10 @@
 // to work with MSVC++ rather than llvm-mingw, in particular, how structure
 // alignment is specified.
 
-#ifndef _WIREGUARD_NT_H
-#define _WIREGUARD_NT_H
+#pragma once
+
+#include <WinSock2.h>
+#include <WS2tcpip.h>
 
 #define WG_KEY_LEN 32
 
@@ -73,5 +75,3 @@ typedef _declspec(align(8)) struct _WG_IOCTL_INTERFACE
 		{ 0x65726957, 0x7547, 0x7261, { 0x64, 0x4e, 0x61, 0x6d, 0x65, 0x4b, 0x65, 0x79 } }, \
 		DEVPROPID_FIRST_USABLE + 1 \
 	}
-
-#endif

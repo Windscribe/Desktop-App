@@ -27,6 +27,9 @@ QString AppVersion::fullVersionString() const
 {
     if (isStaging_)
     {
+#ifdef USE_BUILD_ID
+        return "v" + semanticVersionString() + " (#" + USE_BUILD_ID + ") (Staging)";
+#else
         if (buildChannel_ == UPDATE_CHANNEL_BETA)
         {
             return "v" + semanticVersionString() + " (Beta) (Staging)";
@@ -39,9 +42,13 @@ QString AppVersion::fullVersionString() const
         {
             return "v" + semanticVersionString() + " (Staging)";
         }
+#endif
     }
     else
     {
+#ifdef USE_BUILD_ID
+        return "v" + semanticVersionString() + " (#" + USE_BUILD_ID + ")";
+#else
         if (buildChannel_ == UPDATE_CHANNEL_BETA)
         {
             return "v" + semanticVersionString() + " (Beta)";
@@ -54,6 +61,7 @@ QString AppVersion::fullVersionString() const
         {
             return "v" + semanticVersionString();
         }
+#endif
     }
 }
 

@@ -26,6 +26,7 @@ signals:
     void emitCommand(IPC::Command *command);
     void wireGuardAtKeyLimit();
     void wireGuardKeyLimitUserResponse(bool deleteOldestKey);
+    void helperSplitTunnelingStartFailed();
 
 private slots:
     void onServerCallbackAcceptFunction(IPC::IConnection *connection);

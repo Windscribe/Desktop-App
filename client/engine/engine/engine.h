@@ -178,6 +178,8 @@ signals:
     void wireGuardAtKeyLimit();
     void initCleanup(bool isExitWithRestart, bool isFirewallChecked, bool isFirewallAlwaysOn, bool isLaunchOnStart);
 
+    void helperSplitTunnelingStartFailed();
+
 private slots:
     void onLostConnectionToHelper();
     void onInitializeHelper(INIT_HELPER_RET ret);

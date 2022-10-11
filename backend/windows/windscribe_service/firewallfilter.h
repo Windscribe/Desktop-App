@@ -38,6 +38,7 @@ private:
 	void addFilters(HANDLE engineHandle, const wchar_t *ip, bool bAllowLocalTraffic);
 	void addPermitFilterForAdapter(HANDLE engineHandle, NET_IFINDEX tapInd, UINT8 weight);
 	UINT64 addPermitFilterForAdapter(HANDLE engineHandle, NET_LUID luid, UINT8 weight);
+	UINT64 addFilterForAdapterAndIpRange(HANDLE engineHandle, FWP_ACTION_TYPE type, NET_LUID luid, Ip4AddressAndMask range, UINT8 weight);
 	
 	void addPermitFilterForAppsIds(HANDLE engineHandle, UINT8 weight);
 	void addPermitFilterForAppsIdsExclusiveMode(HANDLE engineHandle, UINT8 weight);

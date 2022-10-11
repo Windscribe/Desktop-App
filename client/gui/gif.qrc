@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>gif/windscribe_spinner.gif</file>
+    </qresource>
+</RCC>

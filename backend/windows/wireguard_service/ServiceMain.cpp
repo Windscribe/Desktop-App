@@ -6,13 +6,13 @@
 #include <codecvt>
 #include <fstream>
 #include <iomanip>
-#include <stdio.h>
+#include <cstdio>
 #include <sstream>
 
 #include "boost/filesystem/path.hpp"
 
-#include "win32handle.h"
 #include "servicecontrolmanager.h"
+#include "win32handle.h"
 
 
 // C:\Code\ThirdParty\Wireguard\wireguard-windows-0.5.3\docs\enterprise.md has useful info

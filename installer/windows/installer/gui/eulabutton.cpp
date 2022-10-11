@@ -173,7 +173,7 @@ void EulaButton::drawButton(HDC hdc)
 	format.SetLineAlignment(StringAlignmentCenter);
 	format.SetAlignment(StringAlignmentCenter);
 	SolidBrush brush(Color(bMouseTracking_ ? 204 : 128, 255, 255, 255));
-	graphics->DrawString(titleItem_->text(), wcslen(titleItem_->text()), titleItem_->getFont(), RectF(0.0f, 0.0f, (REAL)rc.right, (REAL)rc.bottom), &format, &brush);
+	graphics->DrawString(titleItem_->text(), static_cast<int>(wcslen(titleItem_->text())), titleItem_->getFont(), RectF(0.0f, 0.0f, (REAL)rc.right, (REAL)rc.bottom), &format, &brush);
 
 	delete graphics;
 

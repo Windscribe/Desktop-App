@@ -39,6 +39,8 @@ public:
 
     virtual void setScrollOffset(int offset) = 0;
 
+    virtual void setSplitTunnelingActive(bool active) = 0;
+
 signals:
     virtual void escape() = 0;
     virtual void signOutClick() = 0;

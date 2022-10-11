@@ -11,6 +11,7 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv);
 
     Q_INIT_RESOURCE(engine);
+    Q_INIT_RESOURCE(gif);
     Q_INIT_RESOURCE(jpg);
     Q_INIT_RESOURCE(svg);
     Q_INIT_RESOURCE(windscribe);

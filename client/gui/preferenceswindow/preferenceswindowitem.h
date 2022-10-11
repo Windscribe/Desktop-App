@@ -7,7 +7,6 @@
 #include "aboutwindow/aboutwindowitem.h"
 #include "accountwindow/accountwindowitem.h"
 #include "advancedwindow/advancedwindowitem.h"
-#include "changelogwindow/changelogwindowitem.h"
 #include "connectionwindow/connectionwindowitem.h"
 #include "generalwindow/generalwindowitem.h"
 #include "helpwindow/helpwindowitem.h"
@@ -57,9 +56,6 @@ public:
 
     void updateNetworkState(types::NetworkInterface network) override;
 
-    void setPreferencesWindowToSplitTunnelingHome();
-    void setPreferencesWindowToSplitTunnelingAppsHome();
-    void setPreferencesWindowToSplitTunnelingAppsSearch();
     void addApplicationManually(QString filename) override;
 
     void updateScaling() override;
@@ -71,6 +67,8 @@ public:
     void setRobertFiltersError() override;
 
     void setScrollOffset(int offset) override;
+
+    void setSplitTunnelingActive(bool active) override;
 
 signals:
     void escape() override;
@@ -109,7 +107,6 @@ private slots:
 
     void onBackArrowButtonClicked();
 
-    void onChangelogPageClick();
     void onNetworkOptionsPageClick();
     void onNetworkOptionsNetworkClick(types::NetworkInterface network);
     void onSplitTunnelingPageClick();
@@ -134,8 +131,6 @@ protected:
     void keyPressEvent(QKeyEvent *event) override;
 
 private:
-    void changeTab(PREFERENCES_TAB_TYPE tab);
-
     static constexpr int BOTTOM_AREA_HEIGHT = 16;
     static constexpr int MIN_HEIGHT = 572;
     static constexpr int MIN_HEIGHT_VAN_GOGH = 544;
@@ -168,7 +163,6 @@ private:
     AboutWindowItem *aboutWindowItem_;
 
     // sub screens
-    ChangelogWindowItem *changelogWindowItem_;
     NetworkOptionsWindowItem *networkOptionsWindowItem_;
     NetworkOptionsNetworkWindowItem *networkOptionsNetworkWindowItem_;
     ProxySettingsWindowItem *proxySettingsWindowItem_;
@@ -185,16 +179,17 @@ private:
     bool roundedFooter_;
     QColor footerColor_;
 
-    void moveOnePageBack();
-
-    void setShowSubpageMode(bool isShowSubPage);
-    QRectF getBottomResizeArea();
-    void updateChildItemsAfterHeightChanged();
-
-    void updateSplitTunnelingAppsCount(QList<types::SplitTunnelingApp> apps);
-    void updatePositions();
-
     bool loggedIn_;
+
+    void changeTab(PREFERENCES_TAB_TYPE tab);
+    QRectF getBottomResizeArea();
+    void moveOnePageBack();
+    void setPreferencesWindowToSplitTunnelingAppsHome();
+    void setPreferencesWindowToSplitTunnelingHome();
+    void setShowSubpageMode(bool isShowSubPage);
+    void updateChildItemsAfterHeightChanged();
+    void updatePositions();
+    void updateSplitTunnelingAppsCount(QList<types::SplitTunnelingApp> apps);
 };
 
 } // namespace PreferencesWindow
