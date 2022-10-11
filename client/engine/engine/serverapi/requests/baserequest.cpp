@@ -34,8 +34,15 @@ QByteArray BaseRequest::postData() const
 QString BaseRequest::hostname(const QString &domain, SudomainType subdomain) const
 {
     // if this is IP, return without change
-    if (IpValidation::instance().isIp(domain))
-        return domain;
+    if (IpValidation::instance().isIp(domain)) {
+        if (subdomain == SudomainType::kAssets) {
+            return domain + "/" + HardcodedSettings::instance().serverAssetsSubdomain();
+        } else if (subdomain == SudomainType::kTunnelTest) {
+            return domain + "/" + HardcodedSettings::instance().serverTunnelTestSubdomain();
+        } else {
+            return domain;
+        }
+    }
 
     if (subdomain == SudomainType::kApi)
         return HardcodedSettings::instance().serverApiSubdomain() + "." + domain;

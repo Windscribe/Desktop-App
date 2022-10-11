@@ -338,17 +338,17 @@ void Preferences::setConnectionSettings(const types::ConnectionSettings &cs)
     }
 }
 
-const types::DnsResolutionSettings &Preferences::apiResolution() const
+const types::ApiResolutionSettings &Preferences::apiResolution() const
 {
-    return engineSettings_.dnsResolutionSettings();
+    return engineSettings_.apiResolutionSettings();
 }
 
-void Preferences::setApiResolution(const types::DnsResolutionSettings &s)
+void Preferences::setApiResolution(const types::ApiResolutionSettings &s)
 {
-    if(engineSettings_.dnsResolutionSettings() != s)
+    if(engineSettings_.apiResolutionSettings() != s)
     {
-        engineSettings_.setDnsResolutionSettings(s);
-        emit apiResolutionChanged(engineSettings_.dnsResolutionSettings());
+        engineSettings_.setApiResolutionSettings(s);
+        emit apiResolutionChanged(engineSettings_.apiResolutionSettings());
         emit updateEngineSettings();
     }
 }
@@ -627,7 +627,7 @@ void Preferences::setEngineSettings(const types::EngineSettings &es)
     setAllowLanTraffic(es.isAllowLanTraffic());
     setFirewallSettings(es.firewallSettings());
     setConnectionSettings(es.connectionSettings());
-    setApiResolution(es.dnsResolutionSettings());
+    setApiResolution(es.apiResolutionSettings());
     setProxySettings(es.proxySettings());
     setPacketSize(es.packetSize());
     setMacAddrSpoofing(es.macAddrSpoofing());
@@ -717,13 +717,13 @@ void Preferences::validateAndUpdateIfNeeded()
     bool is_update_needed = false;
 
     // Reset API resolution to automatic if the ip address hasn't been specified.
-    if (!engineSettings_.dnsResolutionSettings().getIsAutomatic() &&
-        engineSettings_.dnsResolutionSettings().getManualIp().isEmpty())
+    if (!engineSettings_.apiResolutionSettings().getIsAutomatic() &&
+        engineSettings_.apiResolutionSettings().getManualIp().isEmpty())
     {
-        types::DnsResolutionSettings ds = engineSettings_.dnsResolutionSettings();
+        types::ApiResolutionSettings ds = engineSettings_.apiResolutionSettings();
         ds.set(true, ds.getManualIp());
-        engineSettings_.setDnsResolutionSettings(ds);
-        emit apiResolutionChanged(engineSettings_.dnsResolutionSettings());
+        engineSettings_.setApiResolutionSettings(ds);
+        emit apiResolutionChanged(engineSettings_.apiResolutionSettings());
         is_update_needed = true;
     }
 

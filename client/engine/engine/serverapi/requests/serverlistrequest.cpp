@@ -34,7 +34,7 @@ QUrl ServerListRequest::url(const QString &domain) const
         }
     }
 
-    //FIXME: countryOverride logic should be here?
+    //TODO: countryOverride logic should be here?
     QSettings settings;
     QString countryOverride = settings.value("countryOverride", "").toString();
 
@@ -96,7 +96,6 @@ void ServerListRequest::handle(const QByteArray &arr)
 
     // manage the country override flag according to the documentation
     // https://gitlab.int.windscribe.com/ws/client/desktop/client-desktop-public/-/issues/354
-    //FIXME:
     if (jsonInfo.contains("country_override")) {
         if (isFromDisconnectedVPNState_ && connectStateController_->currentState() == CONNECT_STATE::CONNECT_STATE_DISCONNECTED) {
             QSettings settings;

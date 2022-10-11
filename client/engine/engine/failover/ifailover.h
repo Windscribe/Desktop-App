@@ -2,6 +2,7 @@
 
 #include <QObject>
 #include "failoverretcode.h"
+#include "types/apiresolutionsettings.h"
 
 class NetworkAccessManager;
 class IConnectStateController;
@@ -20,6 +21,7 @@ public:
     virtual QString currentHostname() const = 0;
     virtual void reset() = 0;
     virtual void getNextHostname(bool bIgnoreSslErrors) = 0;
+    virtual void setApiResolutionSettings(const types::ApiResolutionSettings &apiResolutionSettings) = 0;
 
 signals:
     void nextHostnameAnswer(failover::FailoverRetCode retCode, const QString &hostname);

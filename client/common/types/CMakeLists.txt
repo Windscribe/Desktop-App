@@ -1,4 +1,6 @@
 target_sources(common PRIVATE
+    apiresolutionsettings.cpp
+    apiresolutionsettings.h
     backgroundsettings.h
     checkupdate.cpp
     checkupdate.h
@@ -7,8 +9,6 @@ target_sources(common PRIVATE
     connectionsettings.cpp
     connectionsettings.h
     connectstate.h
-    dnsresolutionsettings.cpp
-    dnsresolutionsettings.h
     enginesettings.cpp
     enginesettings.h
     enums.cpp

@@ -74,6 +74,13 @@ QString ServerAPI::getHostname() const
     return currentFailover()->currentHostname();
 }
 
+void ServerAPI::setApiResolutionsSettings(const types::ApiResolutionSettings &apiResolutionSettings)
+{
+    // we use it only for the disconnected mode
+    failoverDisconnectedMode_->setApiResolutionSettings(apiResolutionSettings);
+    qCDebug(LOG_SERVER_API) << "ServerAPI::setApiResolutionsSettings" << apiResolutionSettings;
+}
+
 BaseRequest *ServerAPI::login(const QString &username, const QString &password, const QString &code2fa)
 {
     LoginRequest *request = new LoginRequest(this, username, password, code2fa);
@@ -362,7 +369,7 @@ void ServerAPI::executeRequest(BaseRequest *request, bool bSkipFailoverCondition
         }
     }
 
-    //FIXME: getCurrentDnsServers() move to NetworkAccessManager
+    //TODO: getCurrentDnsServers() move to NetworkAccessManager
     NetworkRequest networkRequest(request->url(currentFailover()->currentHostname()).toString(), request->timeout(), true, DnsServersConfiguration::instance().getCurrentDnsServers(), bIgnoreSslErrors_);
     NetworkReply *reply;
     switch (request->requestType()) {

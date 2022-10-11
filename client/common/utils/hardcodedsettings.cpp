@@ -46,32 +46,32 @@ HardcodedSettings::HardcodedSettings() : simpleCrypt_(0x1272A4A3FE1A3DBA)
 
     dynamicDomainsUrls_ = readArrayFromIni(secrets, "dynamicDomainsUrls", "url", true);
     if (dynamicDomainsUrls_.isEmpty())
-        qCDebug(LOG_BASIC) << "Warning: the hardcodedsettings.ini file does not contain dynamicDomainsUrls";
+        qCDebug(LOG_BASIC) << "Warning: the hardcodedsecrets.ini file does not contain dynamicDomainsUrls";
 
     dynamicDomains_ = readArrayFromIni(secrets, "dynamicDomains", "domain", true);
     if (dynamicDomains_.isEmpty())
-        qCDebug(LOG_BASIC) << "Warning: the hardcodedsettings.ini file does not contain dynamicDomains";
+        qCDebug(LOG_BASIC) << "Warning: the hardcodedsecrets.ini file does not contain dynamicDomains";
 
     serverDomains_ = readArrayFromIni(secrets, "hardcodedDomains", "domain", true);
     if (serverDomains_.isEmpty())
-        qCDebug(LOG_BASIC) << "Warning: the hardcodedsettings.ini file does not contain hardcodedDomains";
+        qCDebug(LOG_BASIC) << "Warning: the hardcodedsecrets.ini file does not contain hardcodedDomains";
 
     apiIps_ = readArrayFromIni(secrets, "apiIps", "ip", true);
     if (apiIps_.isEmpty())
-        qCDebug(LOG_BASIC) << "Warning: the hardcodedsettings.ini file does not contain apiIps";
+        qCDebug(LOG_BASIC) << "Warning: the hardcodedsecrets.ini file does not contain apiIps";
 
     emergencyUsername_ = simpleCrypt_.decryptToString(secrets.value("emergency/username").toString());
     emergencyPassword_ = simpleCrypt_.decryptToString(secrets.value("emergency/password").toString());
     if (emergencyUsername_.isEmpty() || emergencyPassword_.isEmpty())
-        qCDebug(LOG_BASIC) << "Warning: the hardcodedsettings.ini file does not contain emergency username/password";
+        qCDebug(LOG_BASIC) << "Warning: the hardcodedsecrets.ini file does not contain emergency username/password";
 
     emergencyIps_ = readArrayFromIni(secrets, "emergencyIps", "ip", true);
     if (emergencyIps_.isEmpty())
-        qCDebug(LOG_BASIC) << "Warning: the hardcodedsettings.ini file does not contain emergencyIps";
+        qCDebug(LOG_BASIC) << "Warning: the hardcodedsecrets.ini file does not contain emergencyIps";
 
     passwordForRandomDomain_ = simpleCrypt_.decryptToString(secrets.value("emergency/passwordForDomain").toString()).toStdString().c_str();
     if (passwordForRandomDomain_.isEmpty())
-        qCDebug(LOG_BASIC) << "Warning: the hardcodedsettings.ini file does not contain passwordForRandomDomain_";
+        qCDebug(LOG_BASIC) << "Warning: the hardcodedsecrets.ini file does not contain passwordForRandomDomain_";
 }
 
 QStringList HardcodedSettings::readArrayFromIni(const QSettings &settings, const QString &key, const QString &value, bool bWithDescrypt)

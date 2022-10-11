@@ -35,7 +35,7 @@ signals:
     void setIpv6StateInOS(bool bEnabled, bool bRestartNow);
 #endif
 private slots:
-    void onApiResolutionChanged(const types::DnsResolutionSettings &dns);
+    void onApiResolutionChanged(const types::ApiResolutionSettings &dns);
     void onIgnoreSslErrorsStateChanged(bool isChecked);
     void onKeepAliveStateChanged(bool isChecked);
     void onAppInternalDnsItemChanged(QVariant dns);
@@ -49,7 +49,7 @@ private slots:
 #ifdef Q_OS_LINUX
     void onDnsManagerPreferencesChanged(DNS_MANAGER_TYPE d);
 #endif
-    void onApiResolutionPreferencesChanged(const types::DnsResolutionSettings &dns);
+    void onApiResolutionPreferencesChanged(const types::ApiResolutionSettings &dns);
 
     void onLanguageChanged();
 

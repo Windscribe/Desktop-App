@@ -178,7 +178,7 @@ LocationID LocationsModelManager::getBestLocationId() const
 
 LocationID LocationsModelManager::getFirstValidCustomConfigLocationId() const
 {
-    //FIXME:
+    //TODO:
     return LocationID();
 }
 

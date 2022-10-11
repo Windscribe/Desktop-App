@@ -30,7 +30,6 @@ public:
     QStringList getForceDisconnectNodes() const;
     void setForceDisconnectNodes(const QStringList &value);
 
-    //FIXME: remove
     void setServerCredentials(const ServerCredentials &serverCredentials);
     ServerCredentials getServerCredentials() const;
 

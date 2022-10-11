@@ -18,8 +18,10 @@ public:
 
     // can return an empty string if the Failover in the FailoverRetCode::kFailed state
     QString currentHostname() const override;
-    void reset() override;
-    void getNextHostname(bool bIgnoreSslErrors) override;
+    void reset() override;  // keep in mind that this function also emits the signal onFailoverFinished()
+    void getNextHostname(bool bIgnoreSslErrors) override;   // emits the signal onFailoverFinished()
+
+    void setApiResolutionSettings(const types::ApiResolutionSettings &apiResolutionSettings) override;
 
 private slots:
     void onFailoverFinished(FailoverRetCode retCode, const QStringList &hostnames);
@@ -32,6 +34,7 @@ private:
     int cutFaiolverHostnameInd_ = -1;
     bool isFailoverInProgress_ = false;
     bool bIgnoreSslErrors_ = false;
+    types::ApiResolutionSettings apiResolutionSettings_;
 
     QStringList randomizeList(const QStringList &list);
 };

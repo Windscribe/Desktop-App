@@ -574,6 +574,7 @@ void Engine::initPart2()
                                            new failover::Failover(nullptr,networkAccessManager_, connectStateController_, "disconnected"),
                                            new failover::Failover(nullptr,networkAccessManager_, connectStateController_, "connected"));
     serverAPI_->setIgnoreSslErrors(engineSettings_.isIgnoreSslErrors());
+    serverAPI_->setApiResolutionsSettings(engineSettings_.apiResolutionSettings());
 
     checkUpdateManager_ = new api_resources::CheckUpdateManager(this, serverAPI_);
     connect(checkUpdateManager_, &api_resources::CheckUpdateManager::checkUpdateUpdated, this, &Engine::onCheckUpdateUpdated);
@@ -1171,6 +1172,7 @@ void Engine::setSettingsImpl(const types::EngineSettings &engineSettings)
     }
 
     keepAliveManager_->setEnabled(engineSettings_.isKeepAliveEnabled());
+    serverAPI_->setApiResolutionsSettings(engineSettings_.apiResolutionSettings());
 
     updateProxySettings();
 
@@ -1198,7 +1200,7 @@ void Engine::onCheckUpdateUpdated(const types::CheckUpdate &checkUpdate)
 
 void Engine::onHostIPsChanged(const QSet<QString> &hostIps)
 {
-    qCDebug(LOG_BASIC) << "on host ips changed event:" << hostIps;
+    //qCDebug(LOG_BASIC) << "on host ips changed event:" << hostIps;    // too much spam from this
     firewallExceptions_.setHostIPs(hostIps);
     updateFirewallSettings();
 }
@@ -1381,9 +1383,8 @@ void Engine::onConnectionManagerConnected()
 #endif
     }
 
-    connectionManager_->startTunnelTests();
-
     connectStateController_->setConnectedState(locationId_);
+    connectionManager_->startTunnelTests(); // It is important that startTunnelTests() are after setConnectedState().
 }
 
 void Engine::onConnectionManagerDisconnected(DISCONNECT_REASON reason)
@@ -2417,6 +2418,7 @@ void Engine::loginImpl(bool isUseAuthHash, const QString &username, const QStrin
     connect(apiResourcesManager_.get(), &api_resources::ApiResourcesManager::notificationsUpdated, this, &Engine::onApiResourcesManagerNotificationsUpdated);
 
     if (isUseAuthHash) {
+        apiResourcesManager_->fetchAllWithAuthHash();
         if (apiResourcesManager_->loadFromSettings()) {
             if (!emergencyController_->isDisconnected()) {
                 emergencyController_->blockingDisconnect();
@@ -2433,7 +2435,6 @@ void Engine::loginImpl(bool isUseAuthHash, const QString &username, const QStrin
         } else {
             connect(apiResourcesManager_.get(), &api_resources::ApiResourcesManager::readyForLogin, this, &Engine::onApiResourcesManagerReadyForLogin);
         }
-        apiResourcesManager_->fetchAllWithAuthHash();
     }
     else {
         connect(apiResourcesManager_.get(), &api_resources::ApiResourcesManager::readyForLogin, this, &Engine::onApiResourcesManagerReadyForLogin);

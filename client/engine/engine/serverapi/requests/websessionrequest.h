@@ -4,7 +4,6 @@
 
 namespace server_api {
 
-//FIXME: check that works
 class WebSessionRequest : public BaseRequest
 {
     Q_OBJECT

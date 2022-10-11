@@ -15,11 +15,6 @@
 
 namespace failover {
 
-//FIXME: move all this to secrets?
-
-// FIXME:     // We break the staging functionality to not try the hashed domains if the initial login fails, as the hashed domains will hit the production environment.
-//if (!AppVersion::instance().isStaging() && dnsResolutionSettings_.getIsAutomatic())
-
 Failover::Failover(QObject *parent, NetworkAccessManager *networkAccessManager, IConnectStateController *connectStateController, const QString &nameForLog) :
     IFailover(parent), nameForLog_(nameForLog)
 {
@@ -35,35 +30,38 @@ Failover::Failover(QObject *parent, NetworkAccessManager *networkAccessManager, 
     connect(failover, &BaseFailover::finished, this, &Failover::onFailoverFinished, Qt::DirectConnection);
     failovers_ << failover;
 
-    // Hardcoded Backup Domain Endpoint
-    failover = new HardcodedDomainFailover(this, HardcodedSettings::instance().serverDomains().at(1));
-    connect(failover, &BaseFailover::finished, this, &Failover::onFailoverFinished, Qt::QueuedConnection);
-    failovers_ << failover;
-
-    // Dynamic Domain Cloudflare
-    failover = new DynamicDomainFailover(this, networkAccessManager, HardcodedSettings::instance().dynamicDomainsUrls().at(0), HardcodedSettings::instance().dynamicDomains().at(0),
-                                         connectStateController);
-    connect(failover, &BaseFailover::finished, this, &Failover::onFailoverFinished, Qt::QueuedConnection);
-    failovers_ << failover;
-
-    // Dynamic Domain Google
-    failover = new DynamicDomainFailover(this, networkAccessManager, HardcodedSettings::instance().dynamicDomainsUrls().at(1), HardcodedSettings::instance().dynamicDomains().at(0),
-                                         connectStateController);
-    connect(failover, &BaseFailover::finished, this, &Failover::onFailoverFinished, Qt::QueuedConnection);
-    failovers_ << failover;
-
-    // Procedurally Generated Domain Endpoint
-    failover = new RandomDomainFailover(this);
-    connect(failover, &BaseFailover::finished, this, &Failover::onFailoverFinished, Qt::QueuedConnection);
-    failovers_ << failover;
-
-    // Hardcoded IP Endpoints (ApiAccessIps)
-    // making the order of IPs random
-    const QStringList apiIps = randomizeList(HardcodedSettings::instance().apiIps());
-    for (const auto & ip : apiIps) {
-        failover = new AccessIpsFailover(this, networkAccessManager, ip, connectStateController);
+    // Don't use other failovers for the staging functionality, as the hashed domains will hit the production environment.
+    if (!AppVersion::instance().isStaging()) {
+        // Hardcoded Backup Domain Endpoint
+        failover = new HardcodedDomainFailover(this, HardcodedSettings::instance().serverDomains().at(1));
         connect(failover, &BaseFailover::finished, this, &Failover::onFailoverFinished, Qt::QueuedConnection);
         failovers_ << failover;
+
+        // Dynamic Domain Cloudflare
+        failover = new DynamicDomainFailover(this, networkAccessManager, HardcodedSettings::instance().dynamicDomainsUrls().at(0), HardcodedSettings::instance().dynamicDomains().at(0),
+                                             connectStateController);
+        connect(failover, &BaseFailover::finished, this, &Failover::onFailoverFinished, Qt::QueuedConnection);
+        failovers_ << failover;
+
+        // Dynamic Domain Google
+        failover = new DynamicDomainFailover(this, networkAccessManager, HardcodedSettings::instance().dynamicDomainsUrls().at(1), HardcodedSettings::instance().dynamicDomains().at(0),
+                                             connectStateController);
+        connect(failover, &BaseFailover::finished, this, &Failover::onFailoverFinished, Qt::QueuedConnection);
+        failovers_ << failover;
+
+        // Procedurally Generated Domain Endpoint
+        failover = new RandomDomainFailover(this);
+        connect(failover, &BaseFailover::finished, this, &Failover::onFailoverFinished, Qt::QueuedConnection);
+        failovers_ << failover;
+
+        // Hardcoded IP Endpoints (ApiAccessIps)
+        // making the order of IPs random
+        const QStringList apiIps = randomizeList(HardcodedSettings::instance().apiIps());
+        for (const auto & ip : apiIps) {
+            failover = new AccessIpsFailover(this, networkAccessManager, ip, connectStateController);
+            connect(failover, &BaseFailover::finished, this, &Failover::onFailoverFinished, Qt::QueuedConnection);
+            failovers_ << failover;
+        }
     }
 
     reset();
@@ -71,8 +69,12 @@ Failover::Failover(QObject *parent, NetworkAccessManager *networkAccessManager, 
 
 QString Failover::currentHostname() const
 {
-    if (curFailoverInd_ < failovers_.size() && !curFailoverHostnames_.isEmpty() && cutFaiolverHostnameInd_ < curFailoverHostnames_.size()) {
-        return curFailoverHostnames_[cutFaiolverHostnameInd_];
+    if (apiResolutionSettings_.getIsAutomatic() || apiResolutionSettings_.getManualIp().isEmpty()) {
+        if (curFailoverInd_ < failovers_.size() && !curFailoverHostnames_.isEmpty() && cutFaiolverHostnameInd_ < curFailoverHostnames_.size()) {
+            return curFailoverHostnames_[cutFaiolverHostnameInd_];
+        }
+    } else {
+        return apiResolutionSettings_.getManualIp();
     }
     return QString();
 }
@@ -89,29 +91,41 @@ void Failover::reset()
 
 void Failover::getNextHostname(bool bIgnoreSslErrors)
 {
-    WS_ASSERT(!isFailoverInProgress_);
-    bIgnoreSslErrors_ = bIgnoreSslErrors;
+    if (apiResolutionSettings_.getIsAutomatic() || apiResolutionSettings_.getManualIp().isEmpty()) {
+        WS_ASSERT(!isFailoverInProgress_);
+        bIgnoreSslErrors_ = bIgnoreSslErrors;
 
-    if (!curFailoverHostnames_.isEmpty() && cutFaiolverHostnameInd_ < (curFailoverHostnames_.size() - 1)) {
-        cutFaiolverHostnameInd_++;
+        if (!curFailoverHostnames_.isEmpty() && cutFaiolverHostnameInd_ < (curFailoverHostnames_.size() - 1)) {
+            cutFaiolverHostnameInd_++;
+            QTimer::singleShot(0, [this]() {
+                qCDebug(LOG_FAILOVER) <<  QString("Failover[%1]").arg(nameForLog_) << FailoverRetCode::kSuccess <<  failovers_[curFailoverInd_]->name() << curFailoverHostnames_[cutFaiolverHostnameInd_].left(3);
+                emit nextHostnameAnswer(FailoverRetCode::kSuccess, curFailoverHostnames_[cutFaiolverHostnameInd_]);
+            });
+            return;
+        }
+
+        if (curFailoverInd_ >= (failovers_.size() - 1)) {
+            QTimer::singleShot(0, [this]() {
+                qCDebug(LOG_FAILOVER) << QString("Failover[%1]").arg(nameForLog_) << FailoverRetCode::kFailed;
+                emit nextHostnameAnswer(FailoverRetCode::kFailed, QString());
+            });
+            return;
+        }
+
+        curFailoverInd_++;
+        isFailoverInProgress_ = true;
+        failovers_[curFailoverInd_]->getHostnames(bIgnoreSslErrors);
+    } else {
         QTimer::singleShot(0, [this]() {
-            qCDebug(LOG_FAILOVER) <<  QString("Failover[%1]").arg(nameForLog_) << FailoverRetCode::kSuccess <<  failovers_[curFailoverInd_]->name() << curFailoverHostnames_[cutFaiolverHostnameInd_].left(3);
-            emit nextHostnameAnswer(FailoverRetCode::kSuccess, curFailoverHostnames_[cutFaiolverHostnameInd_]);
+            qCDebug(LOG_FAILOVER) <<  QString("Failover[%1]").arg(nameForLog_) << FailoverRetCode::kSuccess <<  "manualIP" << apiResolutionSettings_.getManualIp();
+            emit nextHostnameAnswer(FailoverRetCode::kSuccess, apiResolutionSettings_.getManualIp());
         });
-        return;
     }
+}
 
-    if (curFailoverInd_ >= (failovers_.size() - 1)) {
-        QTimer::singleShot(0, [this]() {
-            qCDebug(LOG_FAILOVER) << QString("Failover[%1]").arg(nameForLog_) << FailoverRetCode::kFailed;
-            emit nextHostnameAnswer(FailoverRetCode::kFailed, QString());
-        });
-        return;
-    }
-
-    curFailoverInd_++;
-    isFailoverInProgress_ = true;
-    failovers_[curFailoverInd_]->getHostnames(bIgnoreSslErrors);
+void Failover::setApiResolutionSettings(const types::ApiResolutionSettings &apiResolutionSettings)
+{
+    apiResolutionSettings_ = apiResolutionSettings;
 }
 
 void Failover::onFailoverFinished(FailoverRetCode retCode, const QStringList &hostnames)

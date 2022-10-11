@@ -54,8 +54,6 @@ void ServerCredentialsRequest::handle(const QByteArray &arr)
 
     if (jsonObject.contains("errorCode")) {
         qCDebug(LOG_SERVER_API) << "API request ServerCredentials" << protocol_.toShortString() << "return error code:" << arr;
-        // FIXME: return SERVER_RETURN_INCORRECT_JSON?
-        WS_ASSERT(false);
         setNetworkRetCode(SERVER_RETURN_INCORRECT_JSON);
         return;
     }

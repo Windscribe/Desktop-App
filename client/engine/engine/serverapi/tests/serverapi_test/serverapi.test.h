@@ -87,6 +87,9 @@ public:
         });
         curFailover_++;
     }
+    void setApiResolutionSettings(const types::ApiResolutionSettings &apiResolutionSettings) override
+    {
+    }
 
 private:
     QVector<QPair<QString, failover::FailoverRetCode> > failovers_;

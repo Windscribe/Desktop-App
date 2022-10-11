@@ -37,14 +37,13 @@ class ServerAPI : public QObject
 public:
     //FIXME: add dnsResolutionSettings_.getIsAutomatic()
 
-    //FIXME: save successfull failover for dsiconnect mode
-
     // Ownership of the failoverDisconnectedMode and failoverConnectedMode passes to the serverAPI object
     explicit ServerAPI(QObject *parent, IConnectStateController *connectStateController, NetworkAccessManager *networkAccessManager,
                        INetworkDetectionManager *networkDetectionManager, failover::IFailover *failoverDisconnectedMode, failover::IFailover *failoverConnectedMode);
     virtual ~ServerAPI();
 
     QString getHostname() const;
+    void setApiResolutionsSettings(const types::ApiResolutionSettings &apiResolutionSettings);
     void setIgnoreSslErrors(bool bIgnore);
 
     BaseRequest *login(const QString &username, const QString &password, const QString &code2fa);

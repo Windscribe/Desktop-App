@@ -26,7 +26,7 @@ private:
     QString revision_;
     bool isPro_;
     QStringList alcList_;
-    IConnectStateController *connectStateController_; //FIXME: should be here?
+    IConnectStateController *connectStateController_;
     bool isFromDisconnectedVPNState_;
 
     // output values
