@@ -673,7 +673,7 @@ void Engine::onInitializeHelper(INIT_HELPER_RET ret)
         else
         {
             qCDebug(LOG_BASIC) << "Kext path set failed";
-            Q_EMIT initFinished(ENGINE_INIT_HELPER_FAILED);
+            Q_EMIT initFinished(ENGINE_INIT_HELPER_FAILED, isAuthHashExists);
         }
 #endif
 
@@ -693,7 +693,7 @@ void Engine::onInitializeHelper(INIT_HELPER_RET ret)
             Q_EMIT initFinished(ENGINE_INIT_SUCCESS, isAuthHashExists);
         }
     #else
-        Q_EMIT initFinished(ENGINE_INIT_SUCCESS);
+        Q_EMIT initFinished(ENGINE_INIT_SUCCESS, isAuthHashExists);
     #endif
     }
     else if (ret == INIT_HELPER_FAILED)
