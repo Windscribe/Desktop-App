@@ -34,9 +34,9 @@ NS_ASSUME_NONNULL_BEGIN
 // keepBoth == NO -> overwrite old dir
 - (void)start: (BOOL)keepBoth;
 
-
 - (void)cancel;
 - (void)runLauncher;
+- (NSString *)runProcess: (NSString *)exePath args:(NSArray *)args;
 - (void)waitForCompletion;
 - (BOOL)connectHelper;
 

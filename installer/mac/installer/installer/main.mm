@@ -1,8 +1,13 @@
 #import <Cocoa/Cocoa.h>
 
+#import <sys/types.h>
+#import <sys/sysctl.h>
+#import <mach/machine.h>
+
 #import "QuietModeHelper.h"
 #import "AppDelegate.h"
 #import "Logger.h"
+#import "../../../../client/common/version/windscribe_version.h"
 
 bool g_isUpdateMode = false;
 int g_window_center_x = INT_MAX;
@@ -60,6 +65,47 @@ bool removeLastPartOfPath(std::string &path)
         path.erase(pos);
     }
     return true;
+}
+
+void logSystemInfo()
+{
+    NSMutableString *data = [[NSMutableString alloc] init];
+    cpu_type_t type;
+    size_t size;
+    cpu_subtype_t subtype;
+    int ret1, ret2;
+
+    size = sizeof(type);
+    ret1 = sysctlbyname("hw.cputype", &type, &size, NULL, 0);
+
+    size = sizeof(subtype);
+    ret2 = sysctlbyname("hw.cpusubtype", &subtype, &size, NULL, 0);
+
+    if (ret1 != 0) {
+        [data appendString: @"Unknown"];
+    } else if (type == CPU_TYPE_X86 || type == CPU_TYPE_X86_64) {
+        if (ret2 != 0) {
+            [data appendString: @"x86 (unknown subtype)"];
+        } else if (subtype == CPU_SUBTYPE_X86_64_ALL || subtype == CPU_SUBTYPE_X86_64_H) {
+            [data appendString: @"x86_64"];
+        } else if (subtype == CPU_SUBTYPE_X86_ALL || subtype == CPU_SUBTYPE_X86_ARCH1) {
+            [data appendString: @"x86"];
+        } else {
+            [data appendString: [NSString stringWithFormat:@"x86 (unknown subtype %d)", subtype]];
+        }
+    } else if (type == CPU_TYPE_ARM) {
+        [data appendString: @"arm"];
+    } else if (type == CPU_TYPE_ARM64) {
+        [data appendString: @"arm64)"];
+    } else {
+        [data appendString: [NSString stringWithFormat:@"Unrecognized (%d)", type]];
+    }
+
+    NSProcessInfo *processInfo = [NSProcessInfo processInfo];
+
+    [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"App version: %s", WINDSCRIBE_VERSION_STR]];
+    [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"CPU architecture: %@", data]];
+    [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"MacOS version: %@", processInfo.operatingSystemVersionString]];
 }
 
 void updatePathToAppFolder(std::string &path)
@@ -132,6 +178,8 @@ int main(int argc, const char * argv[]) {
     }
     
     updatePathToAppFolder(g_path);
+
+    logSystemInfo();
     
     return NSApplicationMain(argc, argv);
 }

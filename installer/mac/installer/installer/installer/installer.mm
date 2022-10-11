@@ -90,6 +90,29 @@
     [[NSWorkspace sharedWorkspace] launchApplication: [self getFullInstallPath]];
 }
 
+-(NSString *)runProcess:(NSString*)exePath args:(NSArray *)args
+{
+    NSPipe *pipe = [[NSPipe alloc] init];
+    NSFileHandle *file = [pipe fileHandleForReading];
+
+    NSTask *task = [[NSTask alloc] init];
+    task.launchPath = exePath;
+    task.arguments = args;
+    task.standardOutput = pipe;
+    @try {
+        [task launch];
+
+        NSData *data = [file readDataToEndOfFile];
+        [file closeFile];
+        return [[NSString alloc] initWithData: data encoding: NSUTF8StringEncoding];
+    }
+    @catch (NSException *e) {
+        [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"Exception occurred %@", [e reason]]];
+        [file closeFile];
+        return nil;
+    }
+}
+
 -(void) execution
 {
     int prevOverallProgress = 0;
@@ -173,6 +196,30 @@
 
     helper_.stop();
 
+    NSString *disabledList = [self runProcess:@"/bin/launchctl" args:@[@"print-disabled", @"system"]];
+    if (disabledList == nil) {
+        NSString *errStr = @"Couldn't detect if the helper was disabled.";
+    } else {
+        if ([disabledList rangeOfString:@"\"com.windscribe.helper.macos\" => disabled"].location != NSNotFound ||
+            [disabledList rangeOfString:@"\"com.windscribe.helper.macos\" => true"].location != NSNotFound) {
+
+            // If somehow launchctl has previously disabled our helper, we won't be able to install it again.  Enable it.
+            [[Logger sharedLogger] logAndStdOut:@"Helper is disabled. Re-enabling."];
+            NSString *scriptContents = @"do shell script \"launchctl enable system/com.windscribe.helper.macos\" with administrator privileges";
+            NSAppleScript *script = [[NSAppleScript alloc] initWithSource:scriptContents];
+            NSAppleEventDescriptor *desc;
+            desc = [script executeAndReturnError:nil];
+            if (desc == nil) {
+                NSString *errStr = @"Couldn't re-enable the helper.";
+                [[Logger sharedLogger] logAndStdOut:errStr];
+                self.lastError = errStr;
+                self.currentState = STATE_ERROR;
+                [callbackObject_ performSelectorOnMainThread:callbackSelector_ withObject:self waitUntilDone:NO];
+                return;
+            }
+        }
+    }
+
     // Install new helper now that we are sure the client app has exited. Otherwise we may cause the
     // client app to hang when we pull the old helper out from under it.
     if (!InstallHelper_mac::installHelper())
@@ -246,30 +293,26 @@
     {
         [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"Executing factory reset"]];
 
-        NSMutableString *cmd = [NSMutableString stringWithString:@"rm \""];
-        [cmd appendString:NSHomeDirectory()];
-        [cmd appendString:@"/Library/Preferences/com.windscribe.Windscribe.plist\""];
-        helper_.executeRootCommand(cmd.UTF8String, bTemp);
+        // NB: do not execute these as root
+        NSMutableString *path = [NSMutableString stringWithString:NSHomeDirectory()];
+        [path appendString:@"/Library/Preferences/com.windscribe.Windscribe.plist"];
+        [self runProcess:@"/bin/rm" args:@[path]];
 
-        [cmd setString:@"rm \""];
-        [cmd appendString:NSHomeDirectory()];
-        [cmd appendString:@"/Library/Preferences/com.windscribe.Windscribe2.plist\""];
-        helper_.executeRootCommand(cmd.UTF8String, bTemp);
+        [path setString:NSHomeDirectory()];
+        [path appendString:@"/Library/Preferences/com.windscribe.Windscribe2.plist"];
+        [self runProcess:@"/bin/rm" args:@[path]];
 
-        [cmd setString:@"rm \""];
-        [cmd appendString:NSHomeDirectory()];
-        [cmd appendString:@"/Library/Preferences/com.windscribe.gui.macos.plist\""];
-        helper_.executeRootCommand(cmd.UTF8String, bTemp);
+        [path setString:NSHomeDirectory()];
+        [path appendString:@"/Library/Preferences/com.windscribe.gui.macos.plist"];
+        [self runProcess:@"/bin/rm" args:@[path]];
 
-        [cmd setString:@"rm \""];
-        [cmd appendString:NSHomeDirectory()];
-        [cmd appendString:@"/Library/Application Support/windscribe_extra.conf\""];
-        helper_.executeRootCommand(cmd.UTF8String, bTemp);
+        [path setString:NSHomeDirectory()];
+        [path appendString:@"/Library/Application Support/windscribe_extra.conf"];
+        [self runProcess:@"/bin/rm" args:@[path]];
 
-        [cmd setString:@"rm -r \""];
-        [cmd appendString:NSHomeDirectory()];
-        [cmd appendString:@"/Library/Application Support/Windscribe/Windscribe2\""];
-        helper_.executeRootCommand(cmd.UTF8String, bTemp);
+        [path setString:NSHomeDirectory()];
+        [path appendString:@"/Library/Application Support/Windscribe/Windscribe2"];
+        [self runProcess:@"/bin/rm" args:@[@"-r", path]];
     }
     
     [[Logger sharedLogger] logAndStdOut:@"Writing blocks"];
