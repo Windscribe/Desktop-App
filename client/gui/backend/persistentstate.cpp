@@ -73,6 +73,7 @@ void PersistentState::save()
 void PersistentState::setFirewallState(bool bFirewallOn)
 {
     state_.isFirewallOn = bFirewallOn;
+    save();
 }
 
 bool PersistentState::isFirewallOn() const
@@ -83,6 +84,7 @@ bool PersistentState::isFirewallOn() const
 void PersistentState::setCountVisibleLocations(int cnt)
 {
     state_.countVisibleLocations = cnt;
+    save();
 }
 
 int PersistentState::countVisibleLocations() const
@@ -93,6 +95,7 @@ int PersistentState::countVisibleLocations() const
 void PersistentState::setFirstLogin(bool bFirstRun)
 {
     state_.isFirstLogin = bFirstRun;
+    save();
 }
 
 bool PersistentState::isFirstLogin()
@@ -103,6 +106,7 @@ bool PersistentState::isFirstLogin()
 void PersistentState::setIgnoreCpuUsageWarnings(bool isIgnore)
 {
     state_.isIgnoreCpuUsageWarnings = isIgnore;
+    save();
 }
 
 bool PersistentState::isIgnoreCpuUsageWarnings()
@@ -113,6 +117,7 @@ bool PersistentState::isIgnoreCpuUsageWarnings()
 void PersistentState::setLastLocation(const LocationID &lid)
 {
     state_.lastLocation = lid;
+    save();
 }
 
 LocationID PersistentState::lastLocation() const
@@ -123,6 +128,7 @@ LocationID PersistentState::lastLocation() const
 void PersistentState::setLastExternalIp(const QString &ip)
 {
     state_.lastExternalIp = ip;
+    save();
 }
 
 QString PersistentState::lastExternalIp() const
@@ -133,6 +139,7 @@ QString PersistentState::lastExternalIp() const
 void PersistentState::setNetworkWhitelist(const QVector<types::NetworkInterface> &list)
 {
     state_.networkWhiteList = list;
+    save();
 }
 
 QVector<types::NetworkInterface> PersistentState::networkWhitelist() const
