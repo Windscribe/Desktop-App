@@ -427,10 +427,7 @@ void Backend::onConnectionNewCommand(IPC::Command *command)
                 getOpenVpnVersionsFromInitCommand(*cmd);
 
                 // WiFi sharing supported state
-                if (cmd->isWifiSharingSupported_)
-                {
-                    preferencesHelper_.setWifiSharingSupported(cmd->isWifiSharingSupported_);
-                }
+                preferencesHelper_.setWifiSharingSupported(cmd->isWifiSharingSupported_);
 
                 isSavedApiSettingsExists_ = cmd->isSavedApiSettingsExists_;
                 isCanLoginWithAuthHash_ = cmd->isCanLoginWithAuthHash_;

@@ -7,6 +7,8 @@ extern HMODULE g_hModule;
 extern long g_cServerLocks;
 extern long g_cComponents;
 
+extern void debugOut(const char* format, ...);
+
 interface IAuthHelper : public IUnknown
 {
 	virtual HRESULT STDMETHODCALLTYPE QueryInterface(REFIID riid, void** ppv) = 0;

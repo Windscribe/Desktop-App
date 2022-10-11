@@ -1526,6 +1526,7 @@ bool WinUtils::authorizeWithUac()
     {
         // CoCreateInstanceAsAdmin will return S_OK if authorization was successful
         std::cout << "Helper process is Authorized" << std::endl;
+        pThing->Release();
         result = true;
     }
 
