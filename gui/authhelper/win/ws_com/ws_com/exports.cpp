@@ -39,7 +39,8 @@ STDAPI DllGetClassObject(const CLSID &clsid, const IID &iid, void **ppv)
 
 STDAPI DllCanUnloadNow()
 {
-	if (g_cComponents == 0 && g_cServerLocks == 0)
+    //debugOut("DllCanUnloadNow - g_cComponents = %d, g_cServerLocks = %d", g_cComponents, g_cServerLocks);
+    if (g_cComponents == 0 && g_cServerLocks == 0)
 	{
 		return S_OK;
 	}
@@ -311,4 +312,3 @@ void startConsole()
 #ifdef __cplusplus
 }
 #endif
-

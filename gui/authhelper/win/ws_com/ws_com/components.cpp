@@ -185,11 +185,24 @@ void CAuthHelperFactory::StopFactories()
 
 void CAuthHelperFactory::CloseExe()
 {
+    //debugOut("CAuthHelperFactory::CloseExe()");
 	if (DllCanUnloadNow() == S_OK)
 	{
-		// std::cout << "Sending quit message" << std::endl;
-		::PostMessage(NULL, WM_QUIT, 0, 0);
+        //debugOut("CAuthHelperFactory::CloseExe() posting quit message");
+        if (::PostMessage(NULL, WM_QUIT, 0, 0) == FALSE) {
+            //debugOut("CAuthHelperFactory::CloseExe() PostMessage failed (%lu)", ::GetLastError());
+        }
 	}
 }
 
+void debugOut(const char* format, ...)
+{
+    va_list arg_list;
+    va_start(arg_list, format);
 
+    char szMsg[1024];
+    _vsnprintf_s(szMsg, 1024, _TRUNCATE, format, arg_list);
+    va_end(arg_list);
+
+    ::OutputDebugStringA(szMsg);
+}
