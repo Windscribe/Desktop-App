@@ -25,7 +25,12 @@ public:
     void login(const QString &username, const QString &password, const QString &code2fa);
 
     void signOut();
-    void forceFetchSession();
+    void fetchSession();
+
+    // start fetching the server credentials and openvpn config
+    // after they are fetched the signal serverCredentialsFetched() is emitted
+    void fetchServerCredentials();
+
     bool loadFromSettings();
 
     // in order to install server credentials from outside the class (from RefetchServerCredentials)
@@ -53,6 +58,8 @@ signals:
     void locationsUpdated();
     void staticIpsUpdated();
     void notificationsUpdated(const QVector<types::Notification> &notifications);
+
+    void serverCredentialsFetched();
 
 private slots:
     void onInitialSessionAnswer();
@@ -88,12 +95,20 @@ private:
     types::SessionStatus prevSessionStatus_;
     types::SessionStatus prevSessionForLogging_;
 
+    // internal variables for fetchServerCredentials() functionality
+    bool isFetchingServerCredentials_ = false;
+    bool isOpenVpnCredentialsReceived_;
+    bool isIkev2CredentialsReceived_;
+    bool isServerConfigsReceived_;
+
     static constexpr int kWaitTimeForNoNetwork = 10000;
 
     void handleLoginOrSessionAnswer(SERVER_API_RET_CODE retCode, server_api::SessionErrorCode sessionErrorCode, const types::SessionStatus &sessionStatus,
                                                      const QString &authHash, const QString &errorMessage);
 
     void checkForReadyLogin();
+    void checkForServerCredentialsFetchFinished();
+
     void fetchAllWithAuthHashImpl();
     void loginImpl(const QString &username, const QString &password, const QString &code2fa);
 

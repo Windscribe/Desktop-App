@@ -45,6 +45,7 @@ void GetWireGuardConfig::getWireGuardConfig(const QString &serverName, bool dele
         wireGuardConfig_.setPeerPresharedKey(presharedKey);
         wireGuardConfig_.setPeerAllowedIPs(allowedIPs);
         server_api::BaseRequest *requestConfigsConnect = serverAPI_->wgConfigsConnect(apiinfo::ApiInfo::getAuthHash(), wireGuardConfig_.clientPublicKey(), serverName_, deviceId_);
+        requestConfigsConnect->setParent(this);
         connect(requestConfigsConnect, &server_api::BaseRequest::finished, this, &GetWireGuardConfig::onWgConfigsConnectAnswer);
     }
     else
@@ -94,6 +95,7 @@ void GetWireGuardConfig::onWgConfigsInitAnswer()
     setWireGuardPeerInfo(wireGuardConfig_.peerPresharedKey(), wireGuardConfig_.peerAllowedIps());
 
     server_api::BaseRequest *requestConfigsConnect = serverAPI_->wgConfigsConnect(apiinfo::ApiInfo::getAuthHash(), wireGuardConfig_.clientPublicKey(), serverName_, deviceId_);
+    requestConfigsConnect->setParent(this);
     connect(requestConfigsConnect, &server_api::BaseRequest::finished, this, &GetWireGuardConfig::onWgConfigsConnectAnswer);
 
 }
@@ -129,6 +131,7 @@ void GetWireGuardConfig::onWgConfigsConnectAnswer()
             if (!isRetryConnectRequest_) {
                 isRetryConnectRequest_ = true;
                 server_api::BaseRequest *request = serverAPI_->wgConfigsConnect(apiinfo::ApiInfo::getAuthHash(), wireGuardConfig_.clientPublicKey(), serverName_, deviceId_);
+                request->setParent(this);
                 connect(request, &server_api::BaseRequest::finished, this, &GetWireGuardConfig::onWgConfigsConnectAnswer);
                 return;
             }
@@ -159,6 +162,7 @@ void GetWireGuardConfig::submitWireGuardInitRequest(bool generateKeyPair)
         setWireGuardKeyPair(wireGuardConfig_.clientPublicKey(), wireGuardConfig_.clientPrivateKey());
     }
     server_api::BaseRequest *request = serverAPI_->wgConfigsInit(apiinfo::ApiInfo::getAuthHash(), wireGuardConfig_.clientPublicKey(), deleteOldestKey_);
+    request->setParent(this);
     connect(request, &server_api::BaseRequest::finished, this, &GetWireGuardConfig::onWgConfigsInitAnswer);
 }
 

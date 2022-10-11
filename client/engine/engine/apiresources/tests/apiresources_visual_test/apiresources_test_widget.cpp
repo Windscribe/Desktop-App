@@ -58,6 +58,9 @@ Widget::Widget(QWidget *parent)
     connect(apiResourceManager_, &api_resources::ApiResourcesManager::notificationsUpdated, [this]() {
         qDebug() << "ApiResourcesManager::notificationsUpdated";
     });
+    connect(apiResourceManager_, &api_resources::ApiResourcesManager::serverCredentialsFetched, [this]() {
+        qDebug() << "ApiResourcesManager::serverCredentialsFetched";
+    });
 
     checkUpdateManager_ = new api_resources::CheckUpdateManager(this, serverAPI_);
     connect(checkUpdateManager_, &api_resources::CheckUpdateManager::checkUpdateUpdated, [this] () {
@@ -79,7 +82,7 @@ Widget::Widget(QWidget *parent)
     });
 
     connect(ui->btnFetchSession, &QPushButton::clicked, [this] {
-        apiResourceManager_->forceFetchSession();
+        apiResourceManager_->fetchSession();
     });
 
     connect(ui->btnCheckUpdate, &QPushButton::clicked, [this] {
@@ -87,6 +90,9 @@ Widget::Widget(QWidget *parent)
     });
     connect(ui->btnMyIp, &QPushButton::clicked, [this] {
         myIpManager_->getIP(1);
+    });
+    connect(ui->btnRefetchServerCredentials, &QPushButton::clicked, [this] {
+        apiResourceManager_->fetchServerCredentials();
     });
 
 }

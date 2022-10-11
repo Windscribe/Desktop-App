@@ -56,9 +56,26 @@ void ApiResourcesManager::signOut()
     });
 }
 
-void ApiResourcesManager::forceFetchSession()
+void ApiResourcesManager::fetchSession()
 {
     lastUpdateTimeMs_.remove(RequestType::kSessionStatus);
+}
+
+void ApiResourcesManager::fetchServerCredentials()
+{
+    WS_ASSERT(!isFetchingServerCredentials_);
+    isFetchingServerCredentials_ = true;
+    isOpenVpnCredentialsReceived_ = false;
+    isIkev2CredentialsReceived_ = false;
+    isServerConfigsReceived_ = false;
+
+    lastUpdateTimeMs_.remove(RequestType::kServerCredentialsOpenVPN);
+    lastUpdateTimeMs_.remove(RequestType::kServerCredentialsIkev2);
+    lastUpdateTimeMs_.remove(RequestType::kServerConfigs);
+
+    fetchServerCredentialsOpenVpn(apiInfo_.getAuthHash());
+    fetchServerCredentialsIkev2(apiInfo_.getAuthHash());
+    fetchServerConfigs(apiInfo_.getAuthHash());
 }
 
 bool ApiResourcesManager::loadFromSettings()
@@ -113,6 +130,8 @@ void ApiResourcesManager::onServerConfigsAnswer()
         apiInfo_.setOvpnConfig(request->ovpnConfig());
         saveApiInfoToSettings();
         lastUpdateTimeMs_[RequestType::kServerConfigs] = QDateTime::currentMSecsSinceEpoch();
+        isServerConfigsReceived_ = true;
+        checkForServerCredentialsFetchFinished();
         checkForReadyLogin();
     }
     requestsInProgress_.remove(RequestType::kServerConfigs);
@@ -125,6 +144,8 @@ void ApiResourcesManager::onServerCredentialsOpenVpnAnswer()
         apiInfo_.setServerCredentialsOpenVpn(request->radiusUsername(), request->radiusPassword());
         saveApiInfoToSettings();
         lastUpdateTimeMs_[RequestType::kServerCredentialsOpenVPN] = QDateTime::currentMSecsSinceEpoch();
+        isOpenVpnCredentialsReceived_ = true;
+        checkForServerCredentialsFetchFinished();
         checkForReadyLogin();
     }
     requestsInProgress_.remove(RequestType::kServerCredentialsOpenVPN);
@@ -137,6 +158,8 @@ void ApiResourcesManager::onServerCredentialsIkev2Answer()
         apiInfo_.setServerCredentialsIkev2(request->radiusUsername(), request->radiusPassword());
         saveApiInfoToSettings();
         lastUpdateTimeMs_[RequestType::kServerCredentialsIkev2] = QDateTime::currentMSecsSinceEpoch();
+        isIkev2CredentialsReceived_ = true;
+        checkForServerCredentialsFetchFinished();
         checkForReadyLogin();
     }
     requestsInProgress_.remove(RequestType::kServerCredentialsIkev2);
@@ -219,7 +242,7 @@ void ApiResourcesManager::onConnectivityOnline()
     if (waitForNetworkConnectivity_->property("isLoginWithAuthHash").toBool()) {
         fetchAllWithAuthHashImpl();
     } else {
-        loginImpl(waitForNetworkConnectivity_->property("username").toString(), waitForNetworkConnectivity_->property("passsword").toString(),
+        loginImpl(waitForNetworkConnectivity_->property("username").toString(), waitForNetworkConnectivity_->property("password").toString(),
                   waitForNetworkConnectivity_->property("code2fa").toString());
     }
 }
@@ -273,6 +296,14 @@ void ApiResourcesManager::checkForReadyLogin()
 {
     if (apiInfo_.isEverythingInit())
         emit readyForLogin();
+}
+
+void ApiResourcesManager::checkForServerCredentialsFetchFinished()
+{
+    if (isFetchingServerCredentials_ && isOpenVpnCredentialsReceived_ && isIkev2CredentialsReceived_ && isServerConfigsReceived_) {
+        isFetchingServerCredentials_ = false;
+        emit serverCredentialsFetched();
+    }
 }
 
 void ApiResourcesManager::fetchAll(const QString &authHash)

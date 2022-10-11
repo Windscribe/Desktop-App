@@ -149,7 +149,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>FetchSessionOnForegroundEvent</string>
+     <string>FetchSession</string>
     </property>
    </widget>
    <widget class="QLineEdit" name="edUsername">
@@ -170,6 +170,19 @@
       <width>113</width>
       <height>24</height>
      </rect>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btnRefetchServerCredentials">
+    <property name="geometry">
+     <rect>
+      <x>210</x>
+      <y>90</y>
+      <width>191</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>RefetchServerCredentials</string>
     </property>
    </widget>
   </widget>

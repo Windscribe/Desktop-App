@@ -9,8 +9,6 @@ target_sources(engine PRIVATE
     openvpnversioncontroller.h
     packetsizecontroller.cpp
     packetsizecontroller.h
-    refetchservercredentialshelper.cpp
-    refetchservercredentialshelper.h
 )
 
 if (WIN32)

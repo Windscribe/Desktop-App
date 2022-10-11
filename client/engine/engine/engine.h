@@ -11,7 +11,6 @@
 #include "locationsmodel/enginelocationsmodel.h"
 #include "connectionmanager/connectionmanager.h"
 #include "connectstatecontroller/connectstatecontroller.h"
-#include "engine/refetchservercredentialshelper.h"
 #include "engine/vpnshare/vpnsharecontroller.h"
 #include "engine/emergencycontroller/emergencycontroller.h"
 #include "apiresources/myipmanager.h"
@@ -225,6 +224,8 @@ private slots:
     void onApiResourcesManagerLocationsUpdated();
     void onApiResourcesManagerStaticIpsUpdated();
     void onApiResourcesManagerNotificationsUpdated(const QVector<types::Notification> &notifications);
+    void onApiResourcesManagerServerCredentialsFetched();
+
 
     void onLoginControllerStepMessage(LOGIN_MESSAGE msg);
 
@@ -269,8 +270,6 @@ private slots:
     void onEmergencyControllerConnected();
     void onEmergencyControllerDisconnected(DISCONNECT_REASON reason);
     void onEmergencyControllerError(CONNECT_ERROR err);
-
-    void onRefetchServerCredentialsFinished(bool success, const apiinfo::ServerCredentials &serverCredentials, const QString &serverConfig);
 
     void getRobertFiltersImpl();
     void setRobertFilterImpl(const types::RobertFilter &filter);
@@ -338,8 +337,6 @@ private:
 
     locationsmodel::LocationsModel *locationsModel_;
 
-    RefetchServerCredentialsHelper *refetchServerCredentialsHelper_;
-
     DownloadHelper *downloadHelper_;
 #ifdef Q_OS_MAC
     AutoUpdaterHelper_mac *autoUpdaterHelper_;
@@ -374,6 +371,8 @@ private:
     void addCustomRemoteIpToFirewallIfNeed();
     void doConnect(bool bEmitAuthError);
     void doDisconnectRestoreStuff();
+
+    void stopFetchingServerCredentials();
 
     uint lastDownloadProgress_;
     QString installerUrl_;

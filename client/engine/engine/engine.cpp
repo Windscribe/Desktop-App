@@ -72,7 +72,6 @@ Engine::Engine(const types::EngineSettings &engineSettings) : QObject(nullptr),
     inititalizeHelper_(nullptr),
     bInitialized_(false),
     locationsModel_(nullptr),
-    refetchServerCredentialsHelper_(nullptr),
     downloadHelper_(nullptr),
 #ifdef Q_OS_MAC
     autoUpdaterHelper_(nullptr),
@@ -434,7 +433,7 @@ void Engine::applicationActivated()
 {
     QMetaObject::invokeMethod(this, [this]() {
         if (apiResourcesManager_)
-            apiResourcesManager_->forceFetchSession();
+            apiResourcesManager_->fetchSession();
     }, Qt::QueuedConnection);
 }
 
@@ -924,7 +923,7 @@ void Engine::connectClickImpl(const LocationID &locationId)
     Ipv6Controller_mac::instance().disableIpv6();
 #endif
 
-    SAFE_DELETE(refetchServerCredentialsHelper_);
+    stopFetchingServerCredentials();
 
     if (engineSettings_.firewallSettings().mode == FIREWALL_MODE_AUTOMATIC && engineSettings_.firewallSettings().when == FIREWALL_WHEN_BEFORE_CONNECTION)
     {
@@ -941,7 +940,7 @@ void Engine::connectClickImpl(const LocationID &locationId)
 
 void Engine::disconnectClickImpl()
 {
-    SAFE_DELETE(refetchServerCredentialsHelper_);
+    stopFetchingServerCredentials();
     connectionManager_->setProperty("senderSource", QVariant());
     connectionManager_->clickDisconnect();
 }
@@ -1476,21 +1475,12 @@ void Engine::onConnectionManagerError(CONNECT_ERROR err)
         }
         else
         {
-            // goto update server credentials and try connect again
-            if (refetchServerCredentialsHelper_ == NULL) {
-                // force update session status (for check blocked, banned account state)
-                apiResourcesManager_->forceFetchSession();
-
-                refetchServerCredentialsHelper_ = new RefetchServerCredentialsHelper(this, apiResourcesManager_->authHash(), serverAPI_);
-                connect(refetchServerCredentialsHelper_, &RefetchServerCredentialsHelper::finished, this, &Engine::onRefetchServerCredentialsFinished);
-                refetchServerCredentialsHelper_->setProperty("fromAuthError", true);
-                refetchServerCredentialsHelper_->startRefetch();
-            }
-            else  {
-                WS_ASSERT(false);
-            }
+            // force update session status (for check blocked, banned account state)
+            apiResourcesManager_->fetchSession();
+            // update server credentials and try connect again after update
+            connect(apiResourcesManager_.get(), &api_resources::ApiResourcesManager::serverCredentialsFetched, this, &Engine::onApiResourcesManagerServerCredentialsFetched);
+            apiResourcesManager_->fetchServerCredentials();
         }
-
         return;
     }
     /*else if (err == IKEV_FAILED_REINSTALL_WAN_WIN)
@@ -1903,23 +1893,6 @@ void Engine::onEmergencyControllerError(CONNECT_ERROR err)
     Q_EMIT emergencyConnectError(err);
 }
 
-void Engine::onRefetchServerCredentialsFinished(bool success, const apiinfo::ServerCredentials &serverCredentials, const QString &serverConfig)
-{
-    bool bFromAuthError = refetchServerCredentialsHelper_->property("fromAuthError").isValid();
-    refetchServerCredentialsHelper_->deleteLater();
-    refetchServerCredentialsHelper_ = NULL;
-
-    if (success) {
-        qCDebug(LOG_BASIC) << "Engine::onRefetchServerCredentialsFinished, successfully";
-        apiResourcesManager_->setServerCredentials(serverCredentials, serverConfig);
-        doConnect(!bFromAuthError);
-    } else {
-        qCDebug(LOG_BASIC) << "Engine::onRefetchServerCredentialsFinished, failed";
-        myIpManager_->getIP(1);
-        connectStateController_->setDisconnectedState(DISCONNECTED_WITH_ERROR, CONNECT_ERROR::COULD_NOT_FETCH_CREDENTAILS);
-    }
-}
-
 void Engine::getRobertFiltersImpl()
 {
     server_api::BaseRequest *request = serverAPI_->getRobertFilters(apiResourcesManager_->authHash());
@@ -2191,6 +2164,13 @@ void Engine::onApiResourcesManagerNotificationsUpdated(const QVector<types::Noti
     Q_EMIT notificationsUpdated(notifications);
 }
 
+void Engine::onApiResourcesManagerServerCredentialsFetched()
+{
+    stopFetchingServerCredentials();
+    qCDebug(LOG_BASIC) << "Engine::onRefetchServerCredentialsFinished, successfully";
+    doConnect(false);
+}
+
 void Engine::updateServerLocations()
 {
     qCDebug(LOG_BASIC) << "Servers locations changed";
@@ -2359,6 +2339,13 @@ void Engine::doDisconnectRestoreStuff()
 #ifdef Q_OS_MAC
     Ipv6Controller_mac::instance().restoreIpv6();
 #endif
+}
+
+void Engine::stopFetchingServerCredentials()
+{
+    // just disconnect the signal
+    if (apiResourcesManager_)
+        disconnect(apiResourcesManager_.get(), &api_resources::ApiResourcesManager::serverCredentialsFetched, this, &Engine::onApiResourcesManagerServerCredentialsFetched);
 }
 
 void Engine::stopPacketDetectionImpl()
