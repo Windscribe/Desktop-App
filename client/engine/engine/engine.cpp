@@ -1805,8 +1805,9 @@ void Engine::updateRunInstaller(qint32 windowCenterX, qint32 windowCenterY)
     std::wstring installerPath = installerPath_.toStdWString();
 
     QString installerArgString{ "-update" };
-    if (windowCenterX != INT_MAX && windowCenterY != INT_MAX)
+    if (windowCenterX != INT_MAX && windowCenterY != INT_MAX) {
         installerArgString.append(QString(" -center %1 %2").arg(windowCenterX).arg(windowCenterY));
+    }
     std::wstring installerArgs = installerArgString.toStdWString();
 
     SHELLEXECUTEINFO shExInfo;
@@ -1817,13 +1818,11 @@ void Engine::updateRunInstaller(qint32 windowCenterX, qint32 windowCenterY)
     shExInfo.lpFile = installerPath.c_str();       // Application to start
     shExInfo.lpParameters = installerArgs.c_str();  // Additional parameters
     shExInfo.nShow = SW_SHOW;
-    if (guiWindowHandle_ != 0)
-    {
+    if (guiWindowHandle_ != 0) {
         shExInfo.hwnd = (HWND)guiWindowHandle_;
     }
 
-    if (!ShellExecuteEx(&shExInfo))
-    {
+    if (!ShellExecuteEx(&shExInfo)) {
         DWORD lastError = GetLastError();
         qCDebug(LOG_AUTO_UPDATER) << "Can't start installer: errorCode = " << lastError;
         QFile::remove(installerPath_);
@@ -1833,12 +1832,12 @@ void Engine::updateRunInstaller(qint32 windowCenterX, qint32 windowCenterY)
 
 #elif defined Q_OS_MAC
     QString additionalArgs;
-    if (windowCenterX != INT_MAX && windowCenterY != INT_MAX)
+    if (windowCenterX != INT_MAX && windowCenterY != INT_MAX) {
         additionalArgs.append(QString("-center %1 %2").arg(windowCenterX).arg(windowCenterY));
+    }
 
     bool verifiedAndRan = autoUpdaterHelper_->verifyAndRun(installerPath_, additionalArgs);
-    if (!verifiedAndRan)
-    {
+    if (!verifiedAndRan) {
         Q_EMIT updateVersionChanged(0, UPDATE_VERSION_STATE_DONE, autoUpdaterHelper_->error());
         return;
     }
@@ -1846,11 +1845,17 @@ void Engine::updateRunInstaller(qint32 windowCenterX, qint32 windowCenterY)
     Q_UNUSED(windowCenterX);
     Q_UNUSED(windowCenterY);
 
-    if(helper_) {
-        if(!dynamic_cast<Helper_linux*>(helper_)->installUpdate(installerPath_)) {
-            emit updateVersionChanged(0, UPDATE_VERSION_STATE_DONE, UPDATE_VERSION_ERROR_START_INSTALLER_FAIL);
-            return;
-        }
+    Helper_linux* helperLinux = dynamic_cast<Helper_linux*>(helper_);
+    WS_ASSERT(helperLinux != nullptr);
+
+    auto result = helperLinux->installUpdate(installerPath_);
+    if (!result.has_value()) {
+        Q_EMIT updateVersionChanged(0, UPDATE_VERSION_STATE_DONE, UPDATE_VERSION_ERROR_OTHER_FAIL);
+        return;
+    }
+    if (!result.value()) {
+        Q_EMIT updateVersionChanged(0, UPDATE_VERSION_STATE_DONE, UPDATE_VERSION_ERROR_START_INSTALLER_FAIL);
+        return;
     }
 #endif
 

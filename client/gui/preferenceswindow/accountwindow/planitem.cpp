@@ -89,7 +89,7 @@ void PlanItem::generatePlanString()
 {
     if (planBytes_ < 0)
     {
-        planStr_ = tr("Unlimited GB");
+        planStr_ = tr("Unlimited Data");
     }
     else
     {

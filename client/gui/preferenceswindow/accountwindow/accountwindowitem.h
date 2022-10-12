@@ -63,8 +63,13 @@ private:
     CommonGraphics::BubbleButtonDark *loginButton_;
     void updateWidgetPos();
 
+    QString authHash_;
     qint64 plan_;
     qint64 trafficUsed_;
+
+    bool isUnlimitedData() const;
+    void setDataLeft() const;
+    void updatePlanGroupItemVisibility();
 };
 
 } // namespace PreferencesWindow
