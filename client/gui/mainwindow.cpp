@@ -13,6 +13,10 @@
 #include <QCommandLineParser>
 #include <QScreen>
 
+#if defined(Q_OS_LINUX)
+#include <QtDBus/QtDBus>
+#endif
+
 #include "application/windscribeapplication.h"
 #include "commongraphics/commongraphics.h"
 #include "backend/persistentstate.h"
@@ -1848,7 +1852,7 @@ void MainWindow::onBackendConnectStateChanged(const types::ConnectState &connect
             {
                 if (selectedLocation_->isValid())
                 {
-                    trayIcon_.showMessage("Windscribe", tr("You are now connected to Windscribe (%1).").arg(selectedLocation_->firstName() + "-" + selectedLocation_->secondName()));
+                    showTrayMessage(tr("You are now connected to Windscribe (%1).").arg(selectedLocation_->firstName() + "-" + selectedLocation_->secondName()));
                     bNotificationConnectedShowed_ = true;
                 }
             }
@@ -1869,9 +1873,8 @@ void MainWindow::onBackendConnectStateChanged(const types::ConnectState &connect
 
         if (bNotificationConnectedShowed_)
         {
-            if (backend_->getPreferences()->isShowNotifications())
-            {
-                trayIcon_.showMessage("Windscribe", tr("Connection to Windscribe has been terminated.\n%1 transferred in %2").arg(getConnectionTransferred()).arg(getConnectionTime()));
+            if (backend_->getPreferences()->isShowNotifications()) {
+                showTrayMessage(tr("Connection to Windscribe has been terminated.\n%1 transferred in %2").arg(getConnectionTransferred(), getConnectionTime()));
             }
             bNotificationConnectedShowed_ = false;
         }
@@ -2265,6 +2268,10 @@ void MainWindow::onBackendUpdateVersionChanged(uint progressPercent, UPDATE_VERS
                 {
                     descText = tr("Can't run the downloaded installer. It does not have the correct signature.");
                 }
+                else if (error == UPDATE_VERSION_ERROR_OTHER_FAIL)
+                {
+                    descText = tr("An unexpected error occurred. Please contact support.");
+                }
                 else if (error == UPDATE_VERSION_ERROR_MOUNT_FAIL)
                 {
                     descText = tr("Cannot access the installer. Image mounting has failed.");
@@ -2283,7 +2290,7 @@ void MainWindow::onBackendUpdateVersionChanged(uint progressPercent, UPDATE_VERS
                 }
                 else if (error == UPDATE_VERSION_ERROR_START_INSTALLER_FAIL)
                 {
-                    descText = tr("Auto-Updater has failed to run installer.");
+                    descText = tr("Auto-Updater has failed to run installer. Please relaunch Windscribe and try again.");
                 }
                 else if (error == UPDATE_VERSION_ERROR_COMPARE_HASH_FAIL)
                 {
@@ -2920,7 +2927,7 @@ void MainWindow::onTrayMenuQuit()
 
 void MainWindow::onFreeTrafficNotification(const QString &message)
 {
-    trayIcon_.showMessage("Windscribe", message);
+    showTrayMessage(message);
 }
 
 void MainWindow::onNativeInfoErrorMessage(QString title, QString desc)
@@ -3602,4 +3609,40 @@ void MainWindow::onHelperSplitTunnelingStartFailed()
 
     QMessageBox::warning(g_mainWindow, tr("Windscribe"),
         tr("The split tunneling feature could not be started, and has been disabled in Preferences."));
+}
+
+void MainWindow::showTrayMessage(const QString &message)
+{
+    if (trayIcon_.isSystemTrayAvailable()) {
+        trayIcon_.showMessage(tr("Windscribe"), message);
+        return;
+    }
+
+#if defined(Q_OS_LINUX)
+    QDBusInterface dbus("org.freedesktop.Notifications", "/org/freedesktop/Notifications",
+                        "org.freedesktop.Notifications", QDBusConnection::sessionBus());
+
+    if (!dbus.isValid()) {
+        qCDebug(LOG_BASIC) << "MainWindow::showTrayMessage - could not connect to the notification manager using dbus."
+                           << (dbus.lastError().isValid() ? dbus.lastError().message() : "");
+        return;
+    }
+
+    // Leaving these here as documentation, and in case we need to use them in the future.
+    uint replacesId = 0;
+    QStringList actions;
+    QMap<QString, QVariant> hints;
+
+    // This will show the default 'information' icon.
+    const char *appIcon = "";
+
+    QDBusReply<uint> reply = dbus.call("Notify", "Windscribe VPN", replacesId, appIcon,
+                                       "Windscribe", message, actions, hints, 10000);
+    if (!reply.isValid()) {
+        qCDebug(LOG_BASIC) << "MainWindow::showTrayMessage - could not display the message."
+                           << (dbus.lastError().isValid() ? dbus.lastError().message() : "");
+    }
+#else
+    qCDebug(LOG_BASIC) << "QSystemTrayIcon reports the system tray is not available";
+#endif
 }

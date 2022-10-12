@@ -4,8 +4,6 @@
 
 #include "utils/logger.h"
 
-#include <chrono>
-#include <thread>
 
 Helper_linux::Helper_linux(QObject *parent) : Helper_posix(parent)
 {
@@ -38,7 +36,7 @@ bool Helper_linux::setCustomDnsWhileConnected(bool isIkev2, unsigned long ifInde
     return false;
 }
 
-bool Helper_linux::installUpdate(const QString &package) const
+std::optional<bool> Helper_linux::installUpdate(const QString &package) const
 {
     QString bashCmd;
     if (package.endsWith(".deb")) {
@@ -51,20 +49,17 @@ bool Helper_linux::installUpdate(const QString &package) const
         bashCmd = QString("pkexec pacman -U --noconfirm %1").arg(package);
     }
     else {
-        return false;
+        qCDebug(LOG_AUTO_UPDATER) << "Helper_linux::installUpdate unrecognized package type:" << package;
+        return std::nullopt;
     }
 
-    qCDebug(LOG_BASIC) << "Installing package " << package << " with command " << bashCmd;
+    qCDebug(LOG_AUTO_UPDATER) << "Installing package " << package << " with command " << bashCmd;
+
     int exitCode = system(bashCmd.toStdString().c_str());
-    if (!WIFEXITED(exitCode) || WEXITSTATUS(exitCode) != 0)
-    {
-        qCDebug(LOG_BASIC) << "Install failed";
-        bashCmd = QString("notify-send \"Error during update.\" \"Please relaunch Windscribe and try again.\"").arg(package);
-        exitCode = system(bashCmd.toStdString().c_str());
+    if (!WIFEXITED(exitCode) || WEXITSTATUS(exitCode) != 0) {
+        qCDebug(LOG_AUTO_UPDATER) << "Install failed with exit code" << exitCode;
         return false;
     }
 
     return true;
 }
-
-

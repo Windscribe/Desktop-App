@@ -17,7 +17,7 @@ public:
 
     bool setCustomDnsWhileConnected(bool isIkev2, unsigned long ifIndex, const QString &overrideDnsIpAddress) override;
 
-    bool installUpdate(const QString& package) const;
+    std::optional<bool> installUpdate(const QString& package) const;
 };
 
 #endif // HELPER_LINUX_H
