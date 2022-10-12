@@ -1,21 +1,24 @@
 #include "accountwindowitem.h"
 
-#include <QPainter>
 #include <QDesktopServices>
-#include <QUrl>
+#include <QPainter>
 #include <QTextDocument>
+#include <QUrl>
+
 #include "dpiscalemanager.h"
 #include "graphicresources/fontmanager.h"
 #include "languagecontroller.h"
 #include "utils/hardcodedsettings.h"
-#include "utils/logger.h"
 #include "utils/utils.h"
 
 namespace PreferencesWindow {
 
-AccountWindowItem::AccountWindowItem(ScalableGraphicsObject *parent, AccountInfo *accountInfo)
-  : CommonGraphics::BasePage(parent), plan_(accountInfo->plan()), trafficUsed_(accountInfo->trafficUsed())
+AccountWindowItem::AccountWindowItem(ScalableGraphicsObject *parent, AccountInfo *accountInfo) : CommonGraphics::BasePage(parent)
 {
+    authHash_ = accountInfo->authHash();
+    plan_ = accountInfo->plan();
+    trafficUsed_ = accountInfo->trafficUsed();
+
     setFlag(QGraphicsItem::ItemIsFocusable);
     setSpacerHeight(PREFERENCES_MARGIN);
 
@@ -48,10 +51,11 @@ AccountWindowItem::AccountWindowItem(ScalableGraphicsObject *parent, AccountInfo
     addItem(planTitle_);
 
     planGroup_ = new PreferenceGroup(this);
+
     planItem_ = new PlanItem(planGroup_);
     connect(planItem_, &PlanItem::upgradeClicked, this, &AccountWindowItem::onUpgradeClicked);
-    planItem_->setPlan(accountInfo->plan());
-    onIsPremiumChanged(accountInfo->isPremium());
+    planItem_->setIsPremium(accountInfo->isPremium());
+    planItem_->setPlan(plan_);
     planGroup_->addItem(planItem_);
 
     expireDateItem_ = new AccountDataItem(planGroup_, tr("Expires On"), accountInfo->expireDate());
@@ -61,13 +65,11 @@ AccountWindowItem::AccountWindowItem(ScalableGraphicsObject *parent, AccountInfo
                                          tr("Reset Date"),
                                          QDate::fromString(accountInfo->lastReset(), "yyyy-MM-dd").addMonths(1).toString("yyyy-MM-dd"));
     planGroup_->addItem(resetDateItem_);
-    dataLeftItem_ = new AccountDataItem(planGroup_,
-                                        tr("Data Left"),
-                                        Utils::humanReadableByteCount(accountInfo->plan() - accountInfo->trafficUsed(), false, true));
+
+    dataLeftItem_ = new AccountDataItem(planGroup_, tr("Data Left"), tr(""));
     planGroup_->addItem(dataLeftItem_);
     addItem(planGroup_);
 
-    authHash_ = accountInfo->authHash();
 
     // don't set url on this since we need to first grab the temp_session_token from the api first
     // this is because we want to obscure user auth info by POST request to API rather than QDesktopServices HTTP GET
@@ -108,12 +110,15 @@ void AccountWindowItem::setLoggedIn(bool loggedIn)
     infoGroup_->setVisible(loggedIn);
     planTitle_->setVisible(loggedIn);
     planGroup_->setVisible(loggedIn);
-    // update visibility for subitems
-    onIsPremiumChanged(planItem_->isPremium());
     manageAccountGroup_->setVisible(loggedIn);
 
     textItem_->setVisible(!loggedIn);
     loginButton_->setVisible(!loggedIn);
+
+    if (loggedIn) {
+        updatePlanGroupItemVisibility();
+        setDataLeft();
+    }
 }
 
 void AccountWindowItem::setConfirmEmailResult(bool bSuccess)
@@ -148,7 +153,8 @@ void AccountWindowItem::onPlanChanged(qint64 plan)
 {
     plan_ = plan;
     planItem_->setPlan(plan);
-    dataLeftItem_->setValue2(Utils::humanReadableByteCount(qMax(0, plan_ - trafficUsed_), false, true));
+    updatePlanGroupItemVisibility();
+    setDataLeft();
 }
 
 void AccountWindowItem::onExpireDateChanged(const QString &date)
@@ -164,7 +170,7 @@ void AccountWindowItem::onLastResetChanged(const QString &date)
 void AccountWindowItem::onTrafficUsedChanged(qint64 used)
 {
     trafficUsed_ = used;
-    dataLeftItem_->setValue2(Utils::humanReadableByteCount(qMax(0, plan_ - trafficUsed_), false, true));
+    setDataLeft();
 }
 
 void AccountWindowItem::onAuthHashChanged(const QString &authHash)
@@ -197,16 +203,38 @@ void AccountWindowItem::updateWidgetPos()
 void AccountWindowItem::onIsPremiumChanged(bool isPremium)
 {
     planItem_->setIsPremium(isPremium);
-    if (isPremium)
-    {
+    updatePlanGroupItemVisibility();
+}
+
+void AccountWindowItem::setDataLeft() const
+{
+    if (!isUnlimitedData()) {
+        dataLeftItem_->setValue2(Utils::humanReadableByteCount(qMax(0, plan_ - trafficUsed_), false, true));
+    }
+}
+
+void AccountWindowItem::updatePlanGroupItemVisibility()
+{
+    if (planItem_->isPremium()) {
         planGroup_->showItems(planGroup_->indexOf(expireDateItem_));
         planGroup_->hideItems(planGroup_->indexOf(resetDateItem_), planGroup_->indexOf(dataLeftItem_));
     }
-    else
-    {
+    else {
         planGroup_->hideItems(planGroup_->indexOf(expireDateItem_));
-        planGroup_->showItems(planGroup_->indexOf(resetDateItem_), planGroup_->indexOf(dataLeftItem_));
+        planGroup_->showItems(planGroup_->indexOf(resetDateItem_));
+
+        if (isUnlimitedData()) {
+            planGroup_->hideItems(planGroup_->indexOf(dataLeftItem_));
+        }
+        else {
+            planGroup_->showItems(planGroup_->indexOf(dataLeftItem_));
+        }
     }
+}
+
+bool AccountWindowItem::isUnlimitedData() const
+{
+    return (plan_ < 0);
 }
 
 } // namespace PreferencesWindow
