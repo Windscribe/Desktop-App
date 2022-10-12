@@ -204,7 +204,10 @@ void FirewallFilter::addFilters(HANDLE engineHandle, const wchar_t *ip, bool bAl
     // add permit filter for TAP-adapters
     for (std::vector<NET_IFINDEX>::iterator it = taps.begin(); it != taps.end(); ++it)
     {
-		addPermitFilterForAdapter(engineHandle, *it, 1);
+        NET_LUID luid;
+        ConvertInterfaceIndexToLuid(*it, &luid);
+        addBlockFiltersForAdapter(engineHandle, luid, 8);
+        addPermitFilterForAdapter(engineHandle, luid, 1);
     }
 
 	// add permit filter for splitunneling app ids and ips
@@ -663,10 +666,8 @@ UINT64 FirewallFilter::addPermitFilterForAdapter(HANDLE engineHandle, NET_LUID l
     return filterId;
 }
 
-void FirewallFilter::addPermitFilterForAdapter(HANDLE engineHandle, NET_IFINDEX tapInd, UINT8 weight)
+void FirewallFilter::addBlockFiltersForAdapter(HANDLE engineHandle, NET_LUID luid, UINT8 weight)
 {
-    NET_LUID luid;
-    ConvertInterfaceIndexToLuid(tapInd, &luid);
     // Explicitly allow 10.255.255.0/24
     addFilterForAdapterAndIpRange(engineHandle, FWP_ACTION_PERMIT, luid, Ip4AddressAndMask("10.255.255.0/24"), weight);
     // Disallow all other private networks, link-local, loopback from going over tunnel
@@ -676,8 +677,6 @@ void FirewallFilter::addPermitFilterForAdapter(HANDLE engineHandle, NET_IFINDEX 
     addFilterForAdapterAndIpRange(engineHandle, FWP_ACTION_BLOCK, luid, Ip4AddressAndMask("169.254.0.0/16"), weight);
     addFilterForAdapterAndIpRange(engineHandle, FWP_ACTION_BLOCK, luid, Ip4AddressAndMask("127.0.0.0/8"), weight);
     addFilterForAdapterAndIpRange(engineHandle, FWP_ACTION_BLOCK, luid, Ip4AddressAndMask("224.0.0.0/24"), weight);
-    // Permit other traffic
-    addPermitFilterForAdapter(engineHandle, luid, weight);
 }
 
 UINT64 FirewallFilter::addFilterForAdapterAndIpRange(HANDLE engineHandle, FWP_ACTION_TYPE type, NET_LUID luid, Ip4AddressAndMask range, UINT8 weight)
