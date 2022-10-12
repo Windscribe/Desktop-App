@@ -32,6 +32,8 @@ private slots:
     void onPasswordChanged(const QString &text);
 
 private:
+    void updateMode();
+
     ComboBoxItem *comboBoxProxyType_;
     types::ProxySettings settings_;
     EditBoxItem *editBoxAddress_;
