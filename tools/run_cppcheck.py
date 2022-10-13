@@ -38,7 +38,7 @@ def RunCppCheck():
   src_path_re = re.compile(r'(backend|common|gui)[\/](.*)')
   # Get files from pipe.
   src_files = []
-  input_files = raw_input().split() if is_quiet_mode else sys.argv[1:]
+  input_files = input().split() if is_quiet_mode else sys.argv[1:]
   for filepath in input_files:
     if filepath.startswith(src_path):
       src_files.append(filepath[src_path_offset:])

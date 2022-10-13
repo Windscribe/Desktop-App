@@ -3,7 +3,6 @@
 # Windscribe Build System
 # Copyright (c) 2020-2021, Windscribe Limited. All rights reserved.
 # ------------------------------------------------------------------------------
-from __future__ import print_function
 
 import os
 import subprocess
@@ -31,8 +30,8 @@ def ExecuteWithRealtimeOutput(command_and_args, env=None, shell=False, logOutput
       if not output and process_handle.poll() is not None:
         break
       if output:
-        file_out.write(output)
-        print(output.strip())
+        file_out.write(output.decode('utf-8'))
+        print(output.strip().decode('utf-8'))
         sys.stdout.flush()
     execute_result = process_handle.poll()
     if execute_result:
@@ -72,4 +71,4 @@ def ExecuteInPipe(command_and_args, strip_quotes=False, env=None):
 
 def ExecuteAndGetOutput(command_and_args, env=None, shell=False):
   process_handle = subprocess.Popen(command_and_args, stdout=subprocess.PIPE, env=env, shell=shell)
-  return process_handle.communicate()[0].strip()
+  return process_handle.communicate()[0].strip().decode("utf-8")

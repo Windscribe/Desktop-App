@@ -4,13 +4,18 @@
 # Copyright (c) 2020-2021, Windscribe Limited. All rights reserved.
 # ------------------------------------------------------------------------------
 # Purpose: builds Windscribe.
-import glob2
+import glob
 import os
 import re
 import subprocess
+import sys
 import time
 import zipfile
 import multiprocessing
+
+# To ensure modules in the 'base' folder can import other modules in base.
+import base.pathhelper as pathhelper
+sys.path.append(pathhelper.BASE_DIR)
 
 import base.messages as msg
 import base.process as proc
@@ -19,9 +24,6 @@ import base.extract as extract
 import base.secrethelper as secrethelper
 import deps.installutils as iutl
 from base.arghelper import *
-
-import base.pathhelper as pathhelper
-sys.path.insert(0, pathhelper.TOOLS_DIR)
 
 # Windscribe settings.
 BUILD_TITLE = "Windscribe"
@@ -65,10 +67,10 @@ def remove_empty_dirs(dirs):
 
 
 def delete_all_files(root_dir, dir_pattern):
-    dirs_to_clean = glob2.glob(root_dir + os.sep + dir_pattern + "*")
+    dirs_to_clean = glob.glob(root_dir + os.sep + dir_pattern + "*")
     for directory in dirs_to_clean:
-        remove_files(glob2.glob(directory + "*/**/*", recursive=True))
-        remove_files(glob2.glob(directory + "*/**/.*", recursive=True))
+        remove_files(glob.glob(directory + "*/**/*", recursive=True))
+        remove_files(glob.glob(directory + "*/**/.*", recursive=True))
     remove_empty_dirs(dirs_to_clean)
 
 
@@ -197,7 +199,7 @@ def fix_build_libs_rpaths(configdata):
     # need to change these rpaths to those of the machine this script is now running on.
     if CURRENT_OS == "macos":
         if "files_fix_rpath_macos" in configdata:
-            for build_lib_name, binaries_to_patch in configdata["files_fix_rpath_macos"].iteritems():
+            for build_lib_name, binaries_to_patch in configdata["files_fix_rpath_macos"].items():
                 build_lib_root = iutl.GetDependencyBuildRoot(build_lib_name)
                 if not os.path.exists(build_lib_root):
                     raise iutl.InstallError("Cannot fix {} rpath, installation not found at {}".format(build_lib_name, build_lib_root))
@@ -208,7 +210,7 @@ def apply_mac_deploy_fixes(appname, fixlist):
     # Special deploy fixes for Mac.
     # 1. copy_libs
     if "copy_libs" in fixlist:
-        for k, v in fixlist["copy_libs"].iteritems():
+        for k, v in fixlist["copy_libs"].items():
             lib_root = iutl.GetDependencyBuildRoot(k)
             if not lib_root:
                 raise iutl.InstallError("Library \"{}\" is not installed.".format(k))
@@ -222,10 +224,10 @@ def apply_mac_deploy_fixes(appname, fixlist):
     if "rpathfix" in fixlist:
         with utl.PushDir():
             msg.Info("Fixing rpaths...")
-            for f, m in fixlist["rpathfix"].iteritems():
+            for f, m in fixlist["rpathfix"].items():
                 fs = os.path.split(f)
                 os.chdir(os.path.join(appname, fs[0]))
-                for k, v in m.iteritems():
+                for k, v in m.items():
                     lib_root = iutl.GetDependencyBuildRoot(k)
                     if not lib_root:
                         raise iutl.InstallError("Library \"{}\" is not installed.".format(k))
@@ -497,7 +499,7 @@ def pack_symbols():
     symbols_archive_name = "WindscribeSymbols_{}.zip".format(extractor.app_version(True))
     zf = zipfile.ZipFile(symbols_archive_name, "w", zipfile.ZIP_DEFLATED)
     skiplen = len(BUILD_SYMBOL_FILES) + 1
-    for filename in glob2.glob(BUILD_SYMBOL_FILES + os.sep + "**"):
+    for filename in glob.glob(BUILD_SYMBOL_FILES + os.sep + "**"):
         if os.path.isdir(filename):
             continue
         filenamepartial = filename[skiplen:]
@@ -537,7 +539,7 @@ def build_installer_win32(configdata, qt_root, msvc_root, crt_root, win_cert_pas
         additional_dir = os.path.join(pathhelper.ROOT_DIR, "installer", "windows", "additional_files")
         copy_files("additional", configdata["additional_files"], additional_dir, BUILD_INSTALLER_FILES)
     if "lib_files" in configdata:
-        for k, v in configdata["lib_files"].iteritems():
+        for k, v in configdata["lib_files"].items():
             lib_root = iutl.GetDependencyBuildRoot(k)
             if not lib_root:
                 raise iutl.InstallError("Library \"{}\" is not installed.".format(k))
@@ -612,7 +614,7 @@ def build_installer_mac(configdata, qt_root):
     if "outdir" in installer_info:
         dmg_dir = os.path.join(dmg_dir, installer_info["outdir"])
     with utl.PushDir(dmg_dir):
-        iutl.RunCommand(["python", "-m", "dmgbuild", "-s",
+        iutl.RunCommand(["python3", "-m", "dmgbuild", "-s",
                          pathhelper.ROOT_DIR + "/installer/mac/dmgbuild/dmgbuild_settings.py",
                          "WindscribeInstaller",
                          "WindscribeInstaller.dmg", "-D", "app=" + installer_app_override, "-D",
@@ -637,7 +639,7 @@ def build_installer_linux(configdata, qt_root):
     # * windscribe_2.x.y_x86_64.rpm
     msg.Info("Copying lib_files_linux...")
     if "lib_files_linux" in configdata:
-        for k, v in configdata["lib_files_linux"].iteritems():
+        for k, v in configdata["lib_files_linux"].items():
             lib_root = iutl.GetDependencyBuildRoot(k)
             if not lib_root:
                 raise iutl.InstallError("Library \"{}\" is not installed.".format(k))
@@ -682,15 +684,17 @@ def build_installer_linux(configdata, qt_root):
     # which fpm currently cannot handle.
     iutl.RunCommand(["fakeroot", "dpkg-deb", "-Zxz", "--build", dest_package_path])
     
-    # create RPM from deb
-    # msg.Info("Creating RPM package...")
-    rpm_package_name = "windscribe_{}_x86_64.rpm".format(extractor.app_version(True))
-    postinst_rpm_script = os.path.join(pathhelper.ROOT_DIR, "installer", "linux", "additional_files", "postinst_rpm")
-    iutl.RunCommand(["fpm", "--after-install", postinst_rpm_script,
-                     "-s", "deb",
-                     "-p", rpm_package_name,
-                     "-t", "rpm",
-                     dest_package_path + ".deb"])
+    if arghelper.build_rpm():
+        # create RPM from deb
+        msg.Info("Creating RPM package...")
+        rpm_package_name = "windscribe_{}_x86_64.rpm".format(extractor.app_version(True))
+        postinst_rpm_script = os.path.join(pathhelper.ROOT_DIR, "installer", "linux", "additional_files", "postinst_rpm")
+        iutl.RunCommand(["fpm", "--after-install", postinst_rpm_script,
+                         "--input-type", "deb",
+                         "--package", rpm_package_name,
+                         "--output-type", "rpm",
+                         "--directories", "/opt/windscribe",
+                         dest_package_path + ".deb"])
 
 
 def build_all(win_cert_password):
@@ -767,7 +771,7 @@ def build_all(win_cert_password):
             artifact_path = os.path.join(artifact_path, installer_info["outdir"])
     else:
         artifact_path = temp_dir
-    for filename in glob2.glob(artifact_path + os.sep + "*"):
+    for filename in glob.glob(artifact_path + os.sep + "*"):
         if os.path.isdir(filename):
             continue
         filetitle = os.path.basename(filename)
