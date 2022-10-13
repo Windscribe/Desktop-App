@@ -88,8 +88,7 @@ void ProxySettingsGroup::onPasswordChanged(const QString &text)
 
 void ProxySettingsGroup::setProxySettings(const types::ProxySettings &ps)
 {
-    if(settings_ != ps)
-    {
+    if (settings_ == ps) {
         return;
     }
 
@@ -114,6 +113,8 @@ void ProxySettingsGroup::setProxySettings(const types::ProxySettings &ps)
     }
     editBoxUsername_->setText(settings_.getUsername());
     editBoxPassword_->setText(settings_.getPassword());
+
+    updateMode();
 }
 
 void ProxySettingsGroup::onProxyTypeChanged(QVariant v)
@@ -124,19 +125,19 @@ void ProxySettingsGroup::onProxyTypeChanged(QVariant v)
         newOption = PROXY_OPTION_NONE;
     }
 
-    if (newOption != settings_.option())
-    {
-        if (newOption == PROXY_OPTION_HTTP || newOption == PROXY_OPTION_SOCKS)
-        {
-            showItems(indexOf(editBoxAddress_), indexOf(editBoxPassword_));
-        }
-        else if (newOption == PROXY_OPTION_NONE || newOption == PROXY_OPTION_AUTODETECT)
-        {
-            hideItems(indexOf(editBoxAddress_), indexOf(editBoxPassword_));
-        }
-
+    if (newOption != settings_.option()) {
         settings_.setOption((PROXY_OPTION)newOption);
+        updateMode();
         emit proxySettingsChanged(settings_);
+    }
+}
+
+void ProxySettingsGroup::updateMode()
+{
+    if (settings_.option() == PROXY_OPTION_HTTP || settings_.option() == PROXY_OPTION_SOCKS) {
+        showItems(indexOf(editBoxAddress_), indexOf(editBoxPassword_));
+    } else if (settings_.option() == PROXY_OPTION_NONE || settings_.option() == PROXY_OPTION_AUTODETECT) {
+        hideItems(indexOf(editBoxAddress_), indexOf(editBoxPassword_));
     }
 }
 

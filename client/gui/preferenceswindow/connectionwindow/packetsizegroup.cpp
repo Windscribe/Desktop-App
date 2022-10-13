@@ -24,6 +24,7 @@ PacketSizeGroup::PacketSizeGroup(ScalableGraphicsObject *parent, const QString &
     addItem(packetSizeModeItem_);
 
     editBoxItem_ = new PacketSizeEditBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::ComboBoxItem", "MTU"), QT_TRANSLATE_NOOP("PreferencesWindow::ComboBoxItem", "MTU"));
+    connect(editBoxItem_, &PacketSizeEditBoxItem::textChanged, this, &PacketSizeGroup::onEditBoxTextChanged);
     connect(editBoxItem_, &PacketSizeEditBoxItem::detectButtonClicked, this, &PacketSizeGroup::detectPacketSize);
     connect(editBoxItem_, &PacketSizeEditBoxItem::detectButtonHoverEnter, this, &PacketSizeGroup::onDetectHoverEnter);
     connect(editBoxItem_, &PacketSizeEditBoxItem::detectButtonHoverLeave, this, &PacketSizeGroup::onDetectHoverLeave);
@@ -114,14 +115,22 @@ void PacketSizeGroup::onAutomaticChanged(QVariant value)
 
 void PacketSizeGroup::updateMode()
 {
-    if (settings_.isAutomatic)
-    {
+    if (settings_.isAutomatic) {
         hideItems(indexOf(editBoxItem_));
-    }
-    else
-    {
+    } else {
         showItems(indexOf(editBoxItem_));
     }
 }
+
+void PacketSizeGroup::onEditBoxTextChanged(const QString &text)
+{
+    if (text.isEmpty()) {
+        settings_.mtu = -1;
+    } else {
+        settings_.mtu = text.toInt();
+    }
+    emit packetSizeChanged(settings_);
+}
+
 
 } // namespace PreferencesWindow

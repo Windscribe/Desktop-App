@@ -29,6 +29,7 @@ signals:
 
 private slots:
     void onAutomaticChanged(QVariant value);
+    void onEditBoxTextChanged(const QString &text);
     void onDetectHoverEnter();
     void onDetectHoverLeave();
 
