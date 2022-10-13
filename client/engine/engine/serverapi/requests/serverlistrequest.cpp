@@ -5,23 +5,23 @@
 #include <QSettings>
 
 #include "utils/logger.h"
+#include "engine/utils/urlquery_utils.h"
 
 namespace server_api {
 
-ServerListRequest::ServerListRequest(QObject *parent, const QString &hostname, const QString &language, const QString &revision, bool isPro, PROTOCOL protocol,
+ServerListRequest::ServerListRequest(QObject *parent, const QString &language, const QString &revision, bool isPro,
                                      const QStringList &alcList,  IConnectStateController *connectStateController) :
-    BaseRequest(parent, RequestType::kGet, hostname),
+    BaseRequest(parent, RequestType::kGet),
     language_(language),
     revision_(revision),
     isPro_(isPro),
-    protocol_(protocol),
     alcList_(alcList),
     connectStateController_(connectStateController)
 {
     isFromDisconnectedVPNState_ = (connectStateController_->currentState() == CONNECT_STATE::CONNECT_STATE_DISCONNECTED);
 }
 
-QUrl ServerListRequest::url() const
+QUrl ServerListRequest::url(const QString &domain) const
 {
     // generate alc parameter, if not empty
     QString alcField;
@@ -34,12 +34,12 @@ QUrl ServerListRequest::url() const
         }
     }
 
-    //FIXME: countryOverride logic should be here?
+    //TODO: countryOverride logic should be here?
     QSettings settings;
     QString countryOverride = settings.value("countryOverride", "").toString();
 
     QString strIsPro = isPro_ ? "1" : "0";
-    QUrl url = QUrl("https://" + hostname(SudomainType::kAssets) + "/serverlist/mob-v2/" + strIsPro + "/" + revision_);
+    QUrl url = QUrl("https://" + hostname(domain, SudomainType::kAssets) + "/serverlist/mob-v2/" + strIsPro + "/" + revision_);
 
     // add alc parameter in query, if not empty
     QUrlQuery query;
@@ -51,8 +51,8 @@ QUrl ServerListRequest::url() const
         qCDebug(LOG_SERVER_API) << "API request ServerLocations added countryOverride = " << countryOverride;
     }
 
-    addAuthQueryItems(query);
-    addPlatformQueryItems(query);
+    urlquery_utils::addAuthQueryItems(query);
+    urlquery_utils::addPlatformQueryItems(query);
     url.setQuery(query);
 
     return url;
@@ -70,7 +70,7 @@ void ServerListRequest::handle(const QByteArray &arr)
     if (errCode.error != QJsonParseError::NoError || !doc.isObject()) {
         qCDebugMultiline(LOG_SERVER_API) << arr;
         qCDebug(LOG_SERVER_API) << "API request ServerLocations incorrect json";
-        setRetCode(SERVER_RETURN_INCORRECT_JSON);
+        setNetworkRetCode(SERVER_RETURN_INCORRECT_JSON);
         return;
     }
     QJsonObject jsonObject = doc.object();
@@ -78,14 +78,14 @@ void ServerListRequest::handle(const QByteArray &arr)
     if (!jsonObject.contains("info")) {
         qCDebugMultiline(LOG_SERVER_API) << arr;
         qCDebug(LOG_SERVER_API) << "API request ServerLocations incorrect json (info field not found)";
-        setRetCode(SERVER_RETURN_INCORRECT_JSON);
+        setNetworkRetCode(SERVER_RETURN_INCORRECT_JSON);
         return;
     }
 
     if (!jsonObject.contains("data")) {
         qCDebugMultiline(LOG_SERVER_API) << arr;
         qCDebug(LOG_SERVER_API) << "API request ServerLocations incorrect json (data field not found)";
-        setRetCode(SERVER_RETURN_INCORRECT_JSON);
+        setNetworkRetCode(SERVER_RETURN_INCORRECT_JSON);
         return;
     }
     // parse revision number
@@ -96,7 +96,6 @@ void ServerListRequest::handle(const QByteArray &arr)
 
     // manage the country override flag according to the documentation
     // https://gitlab.int.windscribe.com/ws/client/desktop/client-desktop-public/-/issues/354
-    //FIXME:
     if (jsonInfo.contains("country_override")) {
         if (isFromDisconnectedVPNState_ && connectStateController_->currentState() == CONNECT_STATE::CONNECT_STATE_DISCONNECTED) {
             QSettings settings;
@@ -137,16 +136,12 @@ void ServerListRequest::handle(const QByteArray &arr)
         if (locations_.empty())  {
             qCDebugMultiline(LOG_SERVER_API) << arr;
             qCDebug(LOG_SERVER_API) << "API request ServerLocations incorrect json, no valid 'data' elements were found";
-            setRetCode(SERVER_RETURN_INCORRECT_JSON);
-        }
-        else {
-            setRetCode(SERVER_RETURN_SUCCESS);
+            setNetworkRetCode(SERVER_RETURN_INCORRECT_JSON);
         }
     }
     else
     {
         qCDebug(LOG_SERVER_API) << "API request ServerLocations successfully executed, revision not changed";
-        setRetCode(SERVER_RETURN_SUCCESS);
     }
 }
 

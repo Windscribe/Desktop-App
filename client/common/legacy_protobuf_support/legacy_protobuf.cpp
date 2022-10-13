@@ -108,8 +108,8 @@ bool LegacyProtobufSupport::loadEngineSettings(const QByteArray &arr, types::Eng
 
     if (es->api_resolution)
     {
-        if (es->api_resolution->has_is_automatic) out.d->dnsResolutionSettings.setIsAutomatic(es->api_resolution->is_automatic);
-        out.d->dnsResolutionSettings.set(es->api_resolution->is_automatic, es->api_resolution->manual_ip);
+        if (es->api_resolution->has_is_automatic) out.d->apiResolutionSettings.setIsAutomatic(es->api_resolution->is_automatic);
+        out.d->apiResolutionSettings.set(es->api_resolution->is_automatic, es->api_resolution->manual_ip);
     }
 
     if (es->proxy_settings)

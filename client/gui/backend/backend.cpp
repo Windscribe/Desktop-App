@@ -15,6 +15,7 @@ Backend::Backend(QObject *parent) : QObject(parent),
     bLastLoginWithAuthHash_(false),
     isCleanupFinished_(false),
     cmdId_(0),
+    isCanLoginWithAuthHash_(false),
     isFirewallEnabled_(false),
     isExternalConfigMode_(false)
 {
@@ -72,19 +73,22 @@ void Backend::enableBFE_win()
 void Backend::login(const QString &username, const QString &password, const QString &code2fa)
 {
     bLastLoginWithAuthHash_ = false;
+    lastUsername_ = username;
+    lastPassword_ = password;
+    lastCode2fa_ = code2fa;
+
     IPC::ClientCommands::Login cmd;
     cmd.username_ = username;
     cmd.password_ = password;
     cmd.code2fa_ = code2fa;
-    cmd.authHash_.clear();
+    cmd.isLoginWithAuthHash_ = false;
 
-    //qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
     engineServer_->sendCommand(&cmd);
 }
 
 bool Backend::isCanLoginWithAuthHash() const
 {
-    return !accountInfo_.authHash().isEmpty();
+    return isCanLoginWithAuthHash_;
 }
 
 bool Backend::isSavedApiSettingsExists() const
@@ -92,26 +96,20 @@ bool Backend::isSavedApiSettingsExists() const
     return isSavedApiSettingsExists_;
 }
 
-void Backend::loginWithAuthHash(const QString &authHash)
+void Backend::loginWithAuthHash()
 {
     bLastLoginWithAuthHash_ = true;
     IPC::ClientCommands::Login cmd;
-    cmd.authHash_ = authHash;
-    //qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
+    cmd.isLoginWithAuthHash_ = true;
     engineServer_->sendCommand(&cmd);
-}
-
-QString Backend::getCurrentAuthHash() const
-{
-    return accountInfo_.authHash();
 }
 
 void Backend::loginWithLastLoginSettings()
 {
-    IPC::ClientCommands::Login cmd;
-    cmd.useLastLoginSettings = true;
-    //qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
-    engineServer_->sendCommand(&cmd);
+    if (bLastLoginWithAuthHash_)
+        loginWithAuthHash();
+    else
+        login(lastUsername_, lastPassword_, lastCode2fa_);
 }
 
 bool Backend::isLastLoginWithAuthHash() const
@@ -316,13 +314,6 @@ void Backend::setBlockConnect(bool isBlockConnect)
     engineServer_->sendCommand(&cmd);
 }
 
-void Backend::clearCredentials()
-{
-    IPC::ClientCommands::ClearCredentials cmd;
-    //qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
-    engineServer_->sendCommand(&cmd);
-}
-
 void Backend::getRobertFilters()
 {
     IPC::ClientCommands::GetRobertFilters cmd;
@@ -439,7 +430,7 @@ void Backend::onConnectionNewCommand(IPC::Command *command)
                 preferencesHelper_.setWifiSharingSupported(cmd->isWifiSharingSupported_);
 
                 isSavedApiSettingsExists_ = cmd->isSavedApiSettingsExists_;
-                accountInfo_.setAuthHash(cmd->authHash_);
+                isCanLoginWithAuthHash_ = cmd->isCanLoginWithAuthHash_;
             }
             Q_EMIT initFinished(cmd->initState_);
         }
@@ -453,19 +444,13 @@ void Backend::onConnectionNewCommand(IPC::Command *command)
     else if (command->getStringId() == IPC::ServerCommands::LoginFinished::getCommandStringId())
     {
         IPC::ServerCommands::LoginFinished *cmd = static_cast<IPC::ServerCommands::LoginFinished *>(command);
-
-        if (!cmd->authHash_.isEmpty())
-        {
-            accountInfo_.setAuthHash(cmd->authHash_);
-        }
         preferencesHelper_.setPortMap(cmd->portMap_);
-
         Q_EMIT loginFinished(cmd->isLoginFromSettings_);
     }
     else if (command->getStringId() == IPC::ServerCommands::LoginStepMessage::getCommandStringId())
     {
         IPC::ServerCommands::LoginStepMessage *cmd = static_cast<IPC::ServerCommands::LoginStepMessage *>(command);
-        Q_EMIT loginStepMessage(cmd->message_);
+        Q_EMIT tryingBackupEndpoint(cmd->num, cmd->cnt);
     }
     else if (command->getStringId() == IPC::ServerCommands::LoginError::getCommandStringId())
     {
@@ -524,8 +509,7 @@ void Backend::onConnectionNewCommand(IPC::Command *command)
     }
     else if (command->getStringId() == IPC::ServerCommands::SignOutFinished::getCommandStringId())
     {
-        // The engine has completed user sign out.  Clear any auth hash we may have stored.
-        accountInfo_.setAuthHash(QString());
+        // The engine has completed user sign out.
         Q_EMIT signOutFinished();
     }
     else if (command->getStringId() == IPC::ServerCommands::NotificationsUpdated::getCommandStringId())

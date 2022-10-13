@@ -158,7 +158,7 @@ private slots:
     void onBackendInitTooLong();
 
     void onBackendLoginFinished(bool isLoginFromSavedSettings);
-    void onBackendLoginStepMessage(LOGIN_MESSAGE msg);
+    void onBackendTryingBackupEndpoint(int num, int cnt);
     void onBackendLoginError(LOGIN_RET loginError, const QString &errorMessage);
 
     void onBackendSessionStatusChanged(const types::SessionStatus &sessionStatus);
@@ -234,7 +234,6 @@ private slots:
     // LocalIPCServer signals
     void onReceivedOpenLocationsMessage();
     void onConnectToLocation(const LocationID &id);
-
 
     void showShutdownWindow();
 
@@ -326,9 +325,6 @@ private:
     QSharedPointer<IMultipleAccountDetection> multipleAccountDetection_;
     BlockConnect blockConnect_;
     FreeTrafficNotificationController *freeTrafficNotificationController_;
-
-    int prevSessionStatus_;
-    bool isPrevSessionStatusInitialized_;
 
     bool bDisconnectFromTrafficExceed_;
 

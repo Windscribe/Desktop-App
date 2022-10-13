@@ -72,7 +72,6 @@ MainWindow::MainWindow() :
     bMousePressed_(false),
     bMoveEnabled_(true),
     signOutReason_(SIGN_OUT_UNDEFINED),
-    isPrevSessionStatusInitialized_(false),
     bDisconnectFromTrafficExceed_(false),
     isInitializationAborted_(false),
     isLoginOkAndConnectWindowVisible_(false),
@@ -144,7 +143,7 @@ MainWindow::MainWindow() :
     connect(backend_, &Backend::initFinished, this, &MainWindow::onBackendInitFinished);
     connect(backend_, &Backend::initTooLong, this, &MainWindow::onBackendInitTooLong);
     connect(backend_, &Backend::loginFinished, this, &MainWindow::onBackendLoginFinished);
-    connect(backend_, &Backend::loginStepMessage, this, &MainWindow::onBackendLoginStepMessage);
+    connect(backend_, &Backend::tryingBackupEndpoint, this, &MainWindow::onBackendTryingBackupEndpoint);
     connect(backend_, &Backend::loginError, this, &MainWindow::onBackendLoginError);
     connect(backend_, &Backend::signOutFinished, this, &MainWindow::onBackendSignOutFinished);
     connect(backend_, &Backend::sessionStatusChanged, this, &MainWindow::onBackendSessionStatusChanged);
@@ -1392,7 +1391,7 @@ void MainWindow::onBackendInitFinished(INIT_STATE initState)
                 mainWindowController_->getLoggingInWindow()->setMessage(QT_TRANSLATE_NOOP("LoginWindow::LoggingInWindowItem", "Logging you in..."));
                 mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_LOGGING_IN);
             }
-            backend_->loginWithAuthHash(backend_->getCurrentAuthHash());
+            backend_->loginWithAuthHash();
         }
         else
         {
@@ -1494,18 +1493,13 @@ void MainWindow::onBackendLoginFinished(bool /*isLoginFromSavedSettings*/)
     PersistentState::instance().setFirstLogin(false);
 }
 
-void MainWindow::onBackendLoginStepMessage(LOGIN_MESSAGE msg)
+void MainWindow::onBackendTryingBackupEndpoint(int num, int cnt)
 {
-    QString additionalMessage;
-    if (msg == LOGIN_MESSAGE_TRYING_BACKUP1)
+    if (!isLoginOkAndConnectWindowVisible_)
     {
-        additionalMessage = tr("Trying Backup Endpoints 1/2");
+        QString additionalMessage = tr("Trying Backup Endpoints %1/%2").arg(num).arg(cnt);
+        mainWindowController_->getLoggingInWindow()->setAdditionalMessage(additionalMessage);
     }
-    else if (msg == LOGIN_MESSAGE_TRYING_BACKUP2)
-    {
-        additionalMessage = tr("Trying Backup Endpoints 2/2");
-    }
-    mainWindowController_->getLoggingInWindow()->setAdditionalMessage(additionalMessage);
 }
 
 void MainWindow::onBackendLoginError(LOGIN_RET loginError, const QString &errorMessage)
@@ -1554,7 +1548,6 @@ void MainWindow::onBackendLoginError(LOGIN_RET loginError, const QString &errorM
         }
         else
         {
-            //qCDebug(LOG_BASIC) << "No internet connectivity from connected state. Using stale API data from settings.";
             backend_->loginWithLastLoginSettings();
         }
     }
@@ -1740,17 +1733,6 @@ void MainWindow::onBackendSessionStatusChanged(const types::SessionStatus &sessi
         }
     }
     backend_->setBlockConnect(blockConnect_.isBlocked());
-
-    if (isPrevSessionStatusInitialized_)
-    {
-        if (prevSessionStatus_ == 2 && status == 1)
-        {
-            backend_->clearCredentials();
-        }
-    }
-
-    prevSessionStatus_ = status;
-    isPrevSessionStatusInitialized_ = true;
 }
 
 void MainWindow::onBackendCheckUpdateChanged(const types::CheckUpdate &checkUpdateInfo)
@@ -1921,7 +1903,6 @@ void MainWindow::onSplitTunnelingStateChanged(bool isActive)
 void MainWindow::onBackendSignOutFinished()
 {
     loginAttemptsController_.reset();
-    isPrevSessionStatusInitialized_ = false;
     mainWindowController_->getPreferencesWindow()->setLoggedIn(false);
     isLoginOkAndConnectWindowVisible_ = false;
     backend_->getPreferencesHelper()->setIsExternalConfigMode(false);
@@ -1990,11 +1971,13 @@ void MainWindow::onBackendGotoCustomOvpnConfigModeFinished()
         else
         {
             LocationID firstValidCustomLocation = backend_->locationsModelManager()->getFirstValidCustomConfigLocationId();
-            selectedLocation_->set(firstValidCustomLocation);
-            PersistentState::instance().setLastLocation(selectedLocation_->locationdId());
-            // |selectedLocation_| can be empty (nopt valid) here, so this will reset current location.
-            mainWindowController_->getConnectWindow()->updateLocationInfo(selectedLocation_->firstName(), selectedLocation_->secondName(),
-                                                                                  selectedLocation_->countryCode(), selectedLocation_->pingTime());
+            if (firstValidCustomLocation.isValid()) {
+                selectedLocation_->set(firstValidCustomLocation);
+                PersistentState::instance().setLastLocation(selectedLocation_->locationdId());
+                // |selectedLocation_| can be empty (nopt valid) here, so this will reset current location.
+                mainWindowController_->getConnectWindow()->updateLocationInfo(selectedLocation_->firstName(), selectedLocation_->secondName(),
+                                                                                      selectedLocation_->countryCode(), selectedLocation_->pingTime());
+            }
         }
 
         mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_CONNECT);
@@ -3454,7 +3437,6 @@ void MainWindow::setVariablesToInitState()
     bNotificationConnectedShowed_ = false;
     bytesTransferred_ = 0;
     bDisconnectFromTrafficExceed_ = false;
-    isPrevSessionStatusInitialized_ = false;
     backend_->getPreferencesHelper()->setIsExternalConfigMode(false);
 }
 

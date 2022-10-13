@@ -163,7 +163,7 @@ void AdvancedWindowItem::onIPv6StateChanged(bool isChecked)
 }
 #endif
 
-void AdvancedWindowItem::onApiResolutionChanged(const types::DnsResolutionSettings &ar)
+void AdvancedWindowItem::onApiResolutionChanged(const types::ApiResolutionSettings &ar)
 {
     preferences_->setApiResolution(ar);
 }
@@ -212,7 +212,7 @@ void AdvancedWindowItem::onDnsManagerPreferencesChanged(DNS_MANAGER_TYPE d)
 }
 #endif
 
-void AdvancedWindowItem::onApiResolutionPreferencesChanged(const types::DnsResolutionSettings &ar)
+void AdvancedWindowItem::onApiResolutionPreferencesChanged(const types::ApiResolutionSettings &ar)
 {
     apiResolutionGroup_->setApiResolution(ar);
 }

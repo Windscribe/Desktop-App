@@ -26,9 +26,9 @@ void GetWireGuardConfigInLoop::stop()
     SAFE_DELETE_LATER(getConfig_);
 }
 
-void GetWireGuardConfigInLoop::onGetWireGuardConfigAnswer(SERVER_API_RET_CODE retCode, const WireGuardConfig &config)
+void GetWireGuardConfigInLoop::onGetWireGuardConfigAnswer(WireGuardConfigRetCode retCode, const WireGuardConfig &config)
 {
-    if (retCode == SERVER_RETURN_SUCCESS || retCode == SERVER_RETURN_WIREGUARD_KEY_LIMIT)
+    if (retCode == WireGuardConfigRetCode::kSuccess || retCode == WireGuardConfigRetCode::kKeyLimit)
     {
         stop();
         emit getWireGuardConfigAnswer(retCode, config);

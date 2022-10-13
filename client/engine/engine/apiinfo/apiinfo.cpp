@@ -1,5 +1,4 @@
 #include "apiinfo.h"
-#include <QThread>
 #include <QSettings>
 #include "utils/ws_assert.h"
 #include "utils/logger.h"
@@ -7,19 +6,19 @@
 
 namespace apiinfo {
 
-ApiInfo::ApiInfo() : simpleCrypt_(SIMPLE_CRYPT_KEY), threadId_(QThread::currentThreadId())
+ApiInfo::ApiInfo() : simpleCrypt_(SIMPLE_CRYPT_KEY)
 {
 }
 
 types::SessionStatus ApiInfo::getSessionStatus() const
 {
-    WS_ASSERT(threadId_ == QThread::currentThreadId());
+    WS_ASSERT(isSessionStatusInit_);
     return sessionStatus_;
 }
 
 void ApiInfo::setSessionStatus(const types::SessionStatus &value)
 {
-    WS_ASSERT(threadId_ == QThread::currentThreadId());
+    isSessionStatusInit_ = true;
     sessionStatus_ = value;
     QSettings settings;
     settings.setValue("userId", sessionStatus_.getUserId());    // need for uninstaller program for open post uninstall webpage
@@ -27,52 +26,67 @@ void ApiInfo::setSessionStatus(const types::SessionStatus &value)
 
 void ApiInfo::setLocations(const QVector<apiinfo::Location> &value)
 {
-    WS_ASSERT(threadId_ == QThread::currentThreadId());
+    isLocationsInit_ = true;
     locations_ = value;
     mergeWindflixLocations();
 }
 
 QVector<apiinfo::Location> ApiInfo::getLocations() const
 {
-    WS_ASSERT(threadId_ == QThread::currentThreadId());
     return locations_;
 }
 
 QStringList ApiInfo::getForceDisconnectNodes() const
 {
-    WS_ASSERT(threadId_ == QThread::currentThreadId());
     return forceDisconnectNodes_;
 }
 
 void ApiInfo::setForceDisconnectNodes(const QStringList &value)
 {
-    WS_ASSERT(threadId_ == QThread::currentThreadId());
+    isForceDisconnectInit_ = true;
     forceDisconnectNodes_ = value;
 }
 
 void ApiInfo::setServerCredentials(const ServerCredentials &serverCredentials)
 {
-    WS_ASSERT(threadId_ == QThread::currentThreadId());
     serverCredentials_ = serverCredentials;
 }
 
 ServerCredentials ApiInfo::getServerCredentials() const
 {
-    WS_ASSERT(threadId_ == QThread::currentThreadId());
     return serverCredentials_;
+}
+
+void ApiInfo::setServerCredentialsOpenVpn(const QString &username, const QString &password)
+{
+    serverCredentials_.setForOpenVpn(username, password);
+}
+
+void ApiInfo::setServerCredentialsIkev2(const QString &username, const QString &password)
+{
+    serverCredentials_.setForIkev2(username, password);
+}
+
+bool ApiInfo::isServerCredentialsOpenVpnInit() const
+{
+    return serverCredentials_.isOpenVpnInitialized();
+}
+
+bool ApiInfo::isServerCredentialsIkev2Init() const
+{
+    return serverCredentials_.isIkev2Initialized();
 }
 
 QString ApiInfo::getOvpnConfig() const
 {
-    WS_ASSERT(threadId_ == QThread::currentThreadId());
+    WS_ASSERT(isOvpnConfigInit_);
     return ovpnConfig_;
 }
 
 void ApiInfo::setOvpnConfig(const QString &value)
 {
-    WS_ASSERT(threadId_ == QThread::currentThreadId());
+    isOvpnConfigInit_ = true;
     ovpnConfig_ = value;
-    ovpnConfigSetTimestamp_ = QDateTime::currentDateTimeUtc();
 }
 
 // return empty string if auth hash not exist in the settings
@@ -98,31 +112,29 @@ void ApiInfo::setAuthHash(const QString &authHash)
 
 types::PortMap ApiInfo::getPortMap() const
 {
-    WS_ASSERT(threadId_ == QThread::currentThreadId());
+    WS_ASSERT(isPortMapInit_);
     return portMap_;
 }
 
 void ApiInfo::setPortMap(const types::PortMap &portMap)
 {
-    WS_ASSERT(threadId_ == QThread::currentThreadId());
+    isPortMapInit_ = true;
     portMap_ = portMap;
 }
 
 void ApiInfo::setStaticIps(const StaticIps &value)
 {
-    WS_ASSERT(threadId_ == QThread::currentThreadId());
+    isStaticIpsInit_ = true;
     staticIps_ = value;
 }
 
 StaticIps ApiInfo::getStaticIps() const
 {
-    WS_ASSERT(threadId_ == QThread::currentThreadId());
     return staticIps_;
 }
 
 void ApiInfo::saveToSettings()
 {
-    WS_ASSERT(threadId_ == QThread::currentThreadId());
     QByteArray arr;
     {
         QDataStream ds(&arr, QIODevice::WriteOnly);
@@ -157,9 +169,14 @@ void ApiInfo::removeFromSettings()
     }
 }
 
+bool ApiInfo::isEverythingInit() const
+{
+    return isSessionStatusInit_ && isLocationsInit_ && isForceDisconnectInit_  &&
+           isOvpnConfigInit_ && isPortMapInit_ && isStaticIpsInit_ && serverCredentials_.isInitialized();
+}
+
 bool ApiInfo::loadFromSettings()
 {
-    WS_ASSERT(threadId_ == QThread::currentThreadId());
     QSettings settings;
     QString s = settings.value("apiInfo", "").toString();
     if (!s.isEmpty())
@@ -183,6 +200,12 @@ bool ApiInfo::loadFromSettings()
         {
             forceDisconnectNodes_.clear();
             sessionStatus_.setRevisionHash(settings.value("revisionHash", "").toString());
+            isSessionStatusInit_ = true;
+            isLocationsInit_ = true;
+            isForceDisconnectInit_ = true;
+            isOvpnConfigInit_ = true;
+            isPortMapInit_ = true;
+            isStaticIpsInit_ = true;
             return true;
         }
     }
@@ -235,11 +258,6 @@ void ApiInfo::mergeWindflixLocations()
         }
         itm.remove();
     }
-}
-
-bool ApiInfo::ovpnConfigRefetchRequired() const
-{
-    return ovpnConfigSetTimestamp_.isValid() && (ovpnConfigSetTimestamp_.secsTo(QDateTime::currentDateTimeUtc()) >= 60*60*24);
 }
 
 } //namespace apiinfo

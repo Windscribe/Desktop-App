@@ -19,10 +19,10 @@ public:
     void stop();
 
 signals:
-    void getWireGuardConfigAnswer(SERVER_API_RET_CODE retCode, const WireGuardConfig &config);
+    void getWireGuardConfigAnswer(WireGuardConfigRetCode retCode, const WireGuardConfig &config);
 
 private slots:
-    void onGetWireGuardConfigAnswer(SERVER_API_RET_CODE retCode, const WireGuardConfig &config);
+    void onGetWireGuardConfigAnswer(WireGuardConfigRetCode retCode, const WireGuardConfig &config);
     void onFetchWireGuardConfig();
 
 private:

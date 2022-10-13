@@ -31,7 +31,7 @@ ApiResolutionGroup::ApiResolutionGroup(ScalableGraphicsObject *parent, const QSt
     editBoxIP_->setValidator(ipValidator);
 }
 
-void ApiResolutionGroup::setApiResolution(const types::DnsResolutionSettings &ar)
+void ApiResolutionGroup::setApiResolution(const types::ApiResolutionSettings &ar)
 {
     if(settings_ != ar)
     {

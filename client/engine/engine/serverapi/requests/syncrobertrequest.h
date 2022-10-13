@@ -8,9 +8,9 @@ class SyncRobertRequest : public BaseRequest
 {
     Q_OBJECT
 public:
-    explicit SyncRobertRequest(QObject *parent,  const QString &hostname, const QString &authHash);
+    explicit SyncRobertRequest(QObject *parent, const QString &authHash);
 
-    QUrl url() const override;
+    QUrl url(const QString &domain) const override;
     QString name() const override;
     void handle(const QByteArray &arr) override;
 

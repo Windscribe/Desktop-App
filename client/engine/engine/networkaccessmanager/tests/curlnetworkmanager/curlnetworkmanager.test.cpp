@@ -5,9 +5,11 @@
 
 TestCurlNetworkManager::TestCurlNetworkManager()
 {
+#ifdef Q_OS_WIN
     // Initialize Winsock
     WSADATA wsaData;
     int iResult = WSAStartup(MAKEWORD(2,2), &wsaData);
+#endif
 }
 
 TestCurlNetworkManager::~TestCurlNetworkManager()

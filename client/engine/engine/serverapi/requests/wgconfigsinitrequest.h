@@ -8,11 +8,11 @@ class WgConfigsInitRequest : public BaseRequest
 {
     Q_OBJECT
 public:
-    explicit WgConfigsInitRequest(QObject *parent,  const QString &hostname, const QString &authHash, const QString &clientPublicKey, bool deleteOldestKey);
+    explicit WgConfigsInitRequest(QObject *parent, const QString &authHash, const QString &clientPublicKey, bool deleteOldestKey);
 
     QString contentTypeHeader() const override;
     QByteArray postData() const override;
-    QUrl url() const override;
+    QUrl url(const QString &domain) const override;
     QString name() const override;
     void handle(const QByteArray &arr) override;
 

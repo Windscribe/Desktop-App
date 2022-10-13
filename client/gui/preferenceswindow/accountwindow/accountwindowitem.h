@@ -31,7 +31,6 @@ private slots:
     void onIsNeedConfirmEmailChanged(bool bNeedConfirm);
     void onPlanChanged(qint64 plan);
     void onExpireDateChanged(const QString &date);
-    void onAuthHashChanged(const QString &authHash);
     void onIsPremiumChanged(bool isPremium);
     void onTrafficUsedChanged(qint64 used);
     void onLastResetChanged(const QString &date);
@@ -59,7 +58,6 @@ private:
     AccountDataItem *dataLeftItem_;
     PreferenceGroup *manageAccountGroup_;
     LinkItem *manageAccountItem_;
-    QString authHash_;
 
     QGraphicsTextItem *textItem_;
     CommonGraphics::BubbleButtonDark *loginButton_;
@@ -67,6 +65,10 @@ private:
 
     qint64 plan_;
     qint64 trafficUsed_;
+
+    bool isUnlimitedData() const;
+    void setDataLeft() const;
+    void updatePlanGroupItemVisibility();
 };
 
 } // namespace PreferencesWindow

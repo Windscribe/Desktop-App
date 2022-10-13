@@ -36,14 +36,15 @@ SecureHotspotGroup::SecureHotspotGroup(ScalableGraphicsObject *parent, const QSt
 
 void SecureHotspotGroup::setSecureHotspotSettings(const types::ShareSecureHotspot &ss)
 {
-    if(settings_ != ss)
-    {
-        settings_ = ss;
-        checkBoxEnable_->setState(ss.isEnabled);
-        editBoxSSID_->setText(ss.ssid);
-        editBoxPassword_->setText(ss.password);
-        updateMode();
+    if (settings_ == ss) {
+        return;
     }
+
+    settings_ = ss;
+    checkBoxEnable_->setState(ss.isEnabled);
+    editBoxSSID_->setText(ss.ssid);
+    editBoxPassword_->setText(ss.password);
+    updateMode();
 }
 
 void SecureHotspotGroup::setSupported(HOTSPOT_SUPPORT_TYPE supported)

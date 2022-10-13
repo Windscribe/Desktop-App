@@ -105,20 +105,6 @@ void AccountInfo::setLastReset(const QString &lastReset)
     }
 }
 
-QString AccountInfo::authHash() const
-{
-    return authHash_;
-}
-
-void AccountInfo::setAuthHash(const QString &authHash)
-{
-    if (authHash != authHash_)
-    {
-        authHash_ = authHash;
-        emit authHashChanged(authHash_);
-    }
-}
-
 bool AccountInfo::isPremium() const
 {
     return isPremium_;

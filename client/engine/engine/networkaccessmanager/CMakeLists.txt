@@ -5,6 +5,8 @@ target_sources(engine PRIVATE
     curlinitcontroller.h
     curlnetworkmanager.cpp
     curlnetworkmanager.h
+    curlnetworkmanager_impl.cpp
+    curlnetworkmanager_impl.h
     curlreply.cpp
     curlreply.h
     dnscache.cpp

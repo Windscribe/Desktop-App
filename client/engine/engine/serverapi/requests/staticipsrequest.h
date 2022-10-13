@@ -9,9 +9,9 @@ class StaticIpsRequest : public BaseRequest
 {
     Q_OBJECT
 public:
-    explicit StaticIpsRequest(QObject *parent, const QString &hostname, const QString &authHash, const QString &deviceId);
+    explicit StaticIpsRequest(QObject *parent, const QString &authHash, const QString &deviceId);
 
-    QUrl url() const override;
+    QUrl url(const QString &domain) const override;
     QString name() const override;
     void handle(const QByteArray &arr) override;
 

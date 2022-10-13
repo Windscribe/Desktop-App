@@ -17,7 +17,10 @@ public:
         return s;
     }
 
-    QString serverDomain() const { return "windscribe.com"; }
+    QStringList serverDomains() const { return serverDomains_; }
+    QStringList dynamicDomainsUrls() const { return dynamicDomainsUrls_; }
+    QStringList dynamicDomains() const { return dynamicDomains_; }
+
     QString serverApiSubdomain() const {
         if (AppVersion::instance().isStaging()) return "api-staging";
         else return "api";
@@ -43,6 +46,9 @@ private:
     HardcodedSettings();
 
     QStringList apiIps_;
+    QStringList serverDomains_;
+    QStringList dynamicDomainsUrls_;
+    QStringList dynamicDomains_;
     QString emergencyUsername_;
     QString emergencyPassword_;
     QStringList emergencyIps_;

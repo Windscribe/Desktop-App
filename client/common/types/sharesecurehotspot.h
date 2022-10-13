@@ -30,7 +30,7 @@ struct ShareSecureHotspot
     friend QDataStream& operator <<(QDataStream &stream, const ShareSecureHotspot &o)
     {
         stream << versionForSerialization_;
-        stream << o.isEnabled << o.password;
+        stream << o.isEnabled << o.password << o.ssid;
         return stream;
     }
 
@@ -44,6 +44,10 @@ struct ShareSecureHotspot
             return stream;
         }
         stream >> o.isEnabled >> o.password;
+
+        if (version >= 2) {
+            stream >> o.ssid;
+        }
         return stream;
     }
 
@@ -59,7 +63,7 @@ struct ShareSecureHotspot
 
 
 private:
-    static constexpr quint32 versionForSerialization_ = 1;  // should increment the version if the data format is changed
+    static constexpr quint32 versionForSerialization_ = 2;  // should increment the version if the data format is changed
 
 };
 

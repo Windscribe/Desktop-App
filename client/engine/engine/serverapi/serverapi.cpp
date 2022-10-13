@@ -1,19 +1,16 @@
 #include "serverapi.h"
 
-#include <QPointer>
 #include <QUrl>
 #include <QUrlQuery>
 
 #include "utils/ws_assert.h"
-#include "utils/hardcodedsettings.h"
-#include "engine/connectstatecontroller/iconnectstatecontroller.h"
 #include "utils/logger.h"
 #include "utils/utils.h"
 #include "engine/dnsresolver/dnsserversconfiguration.h"
+#include "engine/connectstatecontroller/iconnectstatecontroller.h"
 
 #include "requests/loginrequest.h"
 #include "requests/sessionrequest.h"
-#include "requests/accessipsrequest.h"
 #include "requests/serverlistrequest.h"
 #include "requests/servercredentialsrequest.h"
 #include "requests/deletesessionrequest.h"
@@ -41,163 +38,163 @@
 
 namespace server_api {
 
-ServerAPI::ServerAPI(QObject *parent, IConnectStateController *connectStateController, NetworkAccessManager *networkAccessManager) : QObject(parent),
+enum class FailoverState { kUnknown, kReady, kFailed };
+
+ServerAPI::ServerAPI(QObject *parent, IConnectStateController *connectStateController, NetworkAccessManager *networkAccessManager,
+                     INetworkDetectionManager *networkDetectionManager, failover::IFailover *failoverDisconnectedMode, failover::IFailover *failoverConnectedMode) : QObject(parent),
     connectStateController_(connectStateController),
     networkAccessManager_(networkAccessManager),
-    bIsRequestsEnabled_(false),
-    bIgnoreSslErrors_(false)
+    networkDetectionManager_(networkDetectionManager),
+    bIgnoreSslErrors_(false),
+    currentFailoverRequest_(nullptr),
+    failoverInProgress_(nullptr),
+    currentConnectStateWatcher_(nullptr),
+    failoverDisconnectedMode_(failoverDisconnectedMode),
+    failoverConnectedMode_(failoverConnectedMode)
 {
+    failoverConnectedMode_->setParent(this);
+    failoverConnectedMode_->setProperty("state", QVariant::fromValue(FailoverState::kUnknown));
+    connect(failoverConnectedMode_, &failover::IFailover::nextHostnameAnswer, this, &ServerAPI::onFailoverNextHostnameAnswer);
+
+    failoverDisconnectedMode_->setParent(this);
+    failoverDisconnectedMode_->setProperty("state", QVariant::fromValue(FailoverState::kUnknown));
+    connect(failoverDisconnectedMode_, &failover::IFailover::nextHostnameAnswer, this, &ServerAPI::onFailoverNextHostnameAnswer);
+
+    connect(connectStateController, &IConnectStateController::stateChanged, this, &ServerAPI::onConnectStateChanged);
 }
 
 ServerAPI::~ServerAPI()
 {
-}
-
-void ServerAPI::setRequestsEnabled(bool bEnable)
-{
-    qCDebug(LOG_SERVER_API) << "setRequestsEnabled:" << bEnable;
-    bIsRequestsEnabled_ = bEnable;
-}
-
-bool ServerAPI::isRequestsEnabled() const
-{
-    return bIsRequestsEnabled_;
-}
-
-void ServerAPI::setHostname(const QString &hostname)
-{
-    qCDebug(LOG_SERVER_API) << "setHostname:" << hostname;
-    hostname_ = hostname;
+    if (currentFailoverRequest_)
+        clearCurrentFailoverRequest();
 }
 
 QString ServerAPI::getHostname() const
 {
-    return hostname_;
+    return currentFailover()->currentHostname();
 }
 
-// works with direct IP
-BaseRequest *ServerAPI::accessIps(const QString &hostIp)
+void ServerAPI::setApiResolutionsSettings(const types::ApiResolutionSettings &apiResolutionSettings)
 {
-    AcessIpsRequest *request = new AcessIpsRequest(this, hostIp);
-    executeRequest(request, false);
-    return request;
+    // we use it only for the disconnected mode
+    failoverDisconnectedMode_->setApiResolutionSettings(apiResolutionSettings);
+    qCDebug(LOG_SERVER_API) << "ServerAPI::setApiResolutionsSettings" << apiResolutionSettings;
 }
 
 BaseRequest *ServerAPI::login(const QString &username, const QString &password, const QString &code2fa)
 {
-    LoginRequest *request = new LoginRequest(this, hostname_, username, password, code2fa);
-    executeRequest(request, false);
+    LoginRequest *request = new LoginRequest(this, username, password, code2fa);
+    executeRequest(request);
     return request;
 }
 
-BaseRequest *ServerAPI::session(const QString &authHash, bool isNeedCheckRequestsEnabled)
+BaseRequest *ServerAPI::session(const QString &authHash)
 {
-    SessionRequest *request = new SessionRequest(this, hostname_, authHash);
-    executeRequest(request, isNeedCheckRequestsEnabled);
+    SessionRequest *request = new SessionRequest(this, authHash);
+    executeRequest(request);
     return request;
 }
 
-BaseRequest *ServerAPI::serverLocations(const QString &language, bool isNeedCheckRequestsEnabled,
-                                const QString &revision, bool isPro, PROTOCOL protocol, const QStringList &alcList)
+BaseRequest *ServerAPI::serverLocations(const QString &language, const QString &revision, bool isPro, const QStringList &alcList)
 {
-    ServerListRequest *request = new ServerListRequest(this, hostname_, language, revision, isPro, protocol, alcList, connectStateController_);
-    executeRequest(request, isNeedCheckRequestsEnabled);
+    ServerListRequest *request = new ServerListRequest(this, language, revision, isPro, alcList, connectStateController_);
+    executeRequest(request);
     return request;
 }
 
-BaseRequest *ServerAPI::serverCredentials(const QString &authHash, PROTOCOL protocol, bool isNeedCheckRequestsEnabled)
+BaseRequest *ServerAPI::serverCredentials(const QString &authHash, PROTOCOL protocol)
 {
-    ServerCredentialsRequest *request = new ServerCredentialsRequest(this, hostname_, authHash, protocol);
-    executeRequest(request, isNeedCheckRequestsEnabled);
+    ServerCredentialsRequest *request = new ServerCredentialsRequest(this, authHash, protocol);
+    executeRequest(request);
     return request;
 }
 
-BaseRequest *ServerAPI::deleteSession(const QString &authHash, bool isNeedCheckRequestsEnabled)
+BaseRequest *ServerAPI::deleteSession(const QString &authHash)
 {
-    DeleteSessionRequest *request = new DeleteSessionRequest(this, hostname_, authHash);
-    executeRequest(request, isNeedCheckRequestsEnabled);
+    DeleteSessionRequest *request = new DeleteSessionRequest(this, authHash);
+    executeRequest(request);
     return request;
 }
 
-BaseRequest *ServerAPI::serverConfigs(const QString &authHash, bool isNeedCheckRequestsEnabled)
+BaseRequest *ServerAPI::serverConfigs(const QString &authHash)
 {
-    ServerConfigsRequest *request = new ServerConfigsRequest(this, hostname_, authHash);
-    executeRequest(request, isNeedCheckRequestsEnabled);
+    ServerConfigsRequest *request = new ServerConfigsRequest(this, authHash);
+    executeRequest(request);
     return request;
 }
 
-BaseRequest *ServerAPI::portMap(const QString &authHash, bool isNeedCheckRequestsEnabled)
+BaseRequest *ServerAPI::portMap(const QString &authHash)
 {
-    PortMapRequest *request = new PortMapRequest(this, hostname_, authHash);
-    executeRequest(request, isNeedCheckRequestsEnabled);
+    PortMapRequest *request = new PortMapRequest(this, authHash);
+    executeRequest(request);
     return request;
 }
 
-BaseRequest *ServerAPI::recordInstall(bool isNeedCheckRequestsEnabled)
+BaseRequest *ServerAPI::recordInstall()
 {
-    RecordInstallRequest *request = new RecordInstallRequest(this, hostname_);
-    executeRequest(request, isNeedCheckRequestsEnabled);
+    RecordInstallRequest *request = new RecordInstallRequest(this);
+    executeRequest(request);
     return request;
 }
 
-BaseRequest *ServerAPI::confirmEmail(const QString &authHash, bool isNeedCheckRequestsEnabled)
+BaseRequest *ServerAPI::confirmEmail(const QString &authHash)
 {
-    ConfirmEmailRequest *request = new ConfirmEmailRequest(this, hostname_, authHash);
-    executeRequest(request, isNeedCheckRequestsEnabled);
+    ConfirmEmailRequest *request = new ConfirmEmailRequest(this, authHash);
+    executeRequest(request);
     return request;
 }
 
-BaseRequest *ServerAPI::webSession(const QString authHash, WEB_SESSION_PURPOSE purpose, bool isNeedCheckRequestsEnabled)
+BaseRequest *ServerAPI::webSession(const QString authHash, WEB_SESSION_PURPOSE purpose)
 {
-    WebSessionRequest *request = new WebSessionRequest(this, hostname_, authHash, purpose);
-    executeRequest(request, isNeedCheckRequestsEnabled);
+    WebSessionRequest *request = new WebSessionRequest(this, authHash, purpose);
+    executeRequest(request);
     return request;
 }
 
-BaseRequest *ServerAPI::myIP(int timeout, bool isNeedCheckRequestsEnabled)
+BaseRequest *ServerAPI::myIP(int timeout)
 {
-    MyIpRequest *request = new MyIpRequest(this, hostname_, timeout);
-    executeRequest(request, isNeedCheckRequestsEnabled);
+    MyIpRequest *request = new MyIpRequest(this, timeout);
+    executeRequest(request);
     return request;
 }
 
-BaseRequest *ServerAPI::checkUpdate(UPDATE_CHANNEL updateChannel, bool isNeedCheckRequestsEnabled)
+BaseRequest *ServerAPI::checkUpdate(UPDATE_CHANNEL updateChannel)
 {
-    CheckUpdateRequest *request = new CheckUpdateRequest(this, hostname_, updateChannel);
+    CheckUpdateRequest *request = new CheckUpdateRequest(this, updateChannel);
 
     // This check will only be useful in the case that we expand our supported linux OSes and the platform flag is not added for that OS
     if (Utils::getPlatformName().isEmpty()) {
         qCDebug(LOG_SERVER_API) << "Check update failed: platform name is empty";
         QTimer::singleShot(0, this, [request] () {
             qCDebug(LOG_SERVER_API) << "API request " + request->name() + " failed: API not ready";
-            request->setRetCode(SERVER_RETURN_SUCCESS);
+            request->setNetworkRetCode(SERVER_RETURN_SUCCESS);
             emit request->finished();
         });
         return request;
     }
 
-    executeRequest(request, isNeedCheckRequestsEnabled);
+    executeRequest(request);
     return request;
 }
 
-BaseRequest *ServerAPI::debugLog(const QString &username, const QString &strLog, bool isNeedCheckRequestsEnabled)
+BaseRequest *ServerAPI::debugLog(const QString &username, const QString &strLog)
 {
-    DebugLogRequest *request = new DebugLogRequest(this, hostname_, username, strLog);
-    executeRequest(request, isNeedCheckRequestsEnabled);
+    DebugLogRequest *request = new DebugLogRequest(this, username, strLog);
+    executeRequest(request);
     return request;
 }
 
-BaseRequest *ServerAPI::speedRating(const QString &authHash, const QString &speedRatingHostname, const QString &ip, int rating, bool isNeedCheckRequestsEnabled)
+BaseRequest *ServerAPI::speedRating(const QString &authHash, const QString &speedRatingHostname, const QString &ip, int rating)
 {
-    SpeedRatingRequest *request = new SpeedRatingRequest(this, hostname_, authHash, speedRatingHostname, ip, rating);
-    executeRequest(request, isNeedCheckRequestsEnabled);
+    SpeedRatingRequest *request = new SpeedRatingRequest(this, authHash, speedRatingHostname, ip, rating);
+    executeRequest(request);
     return request;
 }
 
-BaseRequest *ServerAPI::staticIps(const QString &authHash, const QString &deviceId, bool isNeedCheckRequestsEnabled)
+BaseRequest *ServerAPI::staticIps(const QString &authHash, const QString &deviceId)
 {
-    StaticIpsRequest *request = new StaticIpsRequest(this, hostname_, authHash, deviceId);
-    executeRequest(request, isNeedCheckRequestsEnabled);
+    StaticIpsRequest *request = new StaticIpsRequest(this, authHash, deviceId);
+    executeRequest(request);
     return request;
 }
 
@@ -206,53 +203,79 @@ BaseRequest *ServerAPI::pingTest(uint timeout, bool bWriteLog)
     if (bWriteLog)
         qCDebug(LOG_SERVER_API) << "Do ping test with timeout: " << timeout;
 
-    PingTestRequest *request = new PingTestRequest(this, hostname_, timeout);
+    PingTestRequest *request = new PingTestRequest(this, timeout);
     if (!bWriteLog) request->setNotWriteToLog();
-    executeRequest(request, false);
+    executeRequest(request);
     return request;
 }
 
-BaseRequest *ServerAPI::notifications(const QString &authHash, bool isNeedCheckRequestsEnabled)
+BaseRequest *ServerAPI::notifications(const QString &authHash)
 {
-    NotificationsRequest *request = new NotificationsRequest(this, hostname_, authHash);
-    executeRequest(request, isNeedCheckRequestsEnabled);
+    NotificationsRequest *request = new NotificationsRequest(this, authHash);
+    executeRequest(request);
     return request;
 }
 
-BaseRequest *ServerAPI::wgConfigsInit(const QString &authHash, bool isNeedCheckRequestsEnabled, const QString &clientPublicKey, bool deleteOldestKey)
+BaseRequest *ServerAPI::wgConfigsInit(const QString &authHash, const QString &clientPublicKey, bool deleteOldestKey)
 {
-    WgConfigsInitRequest *request = new WgConfigsInitRequest(this, hostname_, authHash, clientPublicKey, deleteOldestKey);
-    executeRequest(request, isNeedCheckRequestsEnabled);
+    WgConfigsInitRequest *request = new WgConfigsInitRequest(this, authHash, clientPublicKey, deleteOldestKey);
+    executeRequest(request);
     return request;
 }
 
-BaseRequest *ServerAPI::wgConfigsConnect(const QString &authHash, bool isNeedCheckRequestsEnabled,
+BaseRequest *ServerAPI::wgConfigsConnect(const QString &authHash,
                                  const QString &clientPublicKey, const QString &serverName, const QString &deviceId)
 {
-    WgConfigsConnectRequest *request = new WgConfigsConnectRequest(this, hostname_, authHash, clientPublicKey, serverName, deviceId);
-    executeRequest(request, isNeedCheckRequestsEnabled);
+    WgConfigsConnectRequest *request = new WgConfigsConnectRequest(this, authHash, clientPublicKey, serverName, deviceId);
+    executeRequest(request);
     return request;
 }
 
-BaseRequest *ServerAPI::getRobertFilters(const QString &authHash, bool isNeedCheckRequestsEnabled)
+BaseRequest *ServerAPI::getRobertFilters(const QString &authHash)
 {
-    GetRobertFiltersRequest *request = new GetRobertFiltersRequest(this, hostname_, authHash);
-    executeRequest(request, isNeedCheckRequestsEnabled);
+    GetRobertFiltersRequest *request = new GetRobertFiltersRequest(this, authHash);
+    executeRequest(request);
     return request;
 }
 
-BaseRequest *ServerAPI::setRobertFilter(const QString &authHash, bool isNeedCheckRequestsEnabled, const types::RobertFilter &filter)
+BaseRequest *ServerAPI::setRobertFilter(const QString &authHash, const types::RobertFilter &filter)
 {
-    SetRobertFiltersRequest *request = new SetRobertFiltersRequest(this, hostname_, authHash, filter);
-    executeRequest(request, isNeedCheckRequestsEnabled);
+    SetRobertFiltersRequest *request = new SetRobertFiltersRequest(this, authHash, filter);
+    executeRequest(request);
     return request;
 }
 
-BaseRequest *ServerAPI::syncRobert(const QString &authHash, bool isNeedCheckRequestsEnabled)
+BaseRequest *ServerAPI::syncRobert(const QString &authHash)
 {
-    SyncRobertRequest *request = new SyncRobertRequest(this, hostname_, authHash);
-    executeRequest(request, isNeedCheckRequestsEnabled);
+    SyncRobertRequest *request = new SyncRobertRequest(this, authHash);
+    executeRequest(request);
     return request;
+}
+
+void ServerAPI::onFailoverNextHostnameAnswer(failover::FailoverRetCode retCode, const QString &hostname)
+{
+    WS_ASSERT(currentFailoverRequest_ != nullptr)
+    if (retCode == failover::FailoverRetCode::kSuccess) {
+        // try to repeat the request
+        failoverInProgress_ = currentFailover();
+        executeRequest(currentFailoverRequest_, true);
+    } else if (retCode == failover::FailoverRetCode::kSslError) {
+        setErrorCodeAndEmitRequestFinished(currentFailoverRequest_, SERVER_RETURN_SSL_ERROR, "Failover return Ssl error");
+        finishWaitingInQueueRequests(SERVER_RETURN_SSL_ERROR, "Failover return Ssl error");
+    } else if (retCode == failover::FailoverRetCode::kFailed) {
+        currentFailover()->setProperty("state", QVariant::fromValue(FailoverState::kFailed));
+        setErrorCodeAndEmitRequestFinished(currentFailoverRequest_, SERVER_RETURN_FAILOVER_FAILED, "Failover API not ready");
+        finishWaitingInQueueRequests(SERVER_RETURN_FAILOVER_FAILED, "Failover API not ready");
+    }
+}
+
+void ServerAPI::onConnectStateChanged()
+{
+    if (connectStateController_->currentState() == CONNECT_STATE_CONNECTED) {
+        QSignalBlocker blocker(failoverConnectedMode_);
+        failoverConnectedMode_->reset();
+        failoverConnectedMode_->setProperty("state", QVariant::fromValue(FailoverState::kUnknown));
+    }
 }
 
 void ServerAPI::setIgnoreSslErrors(bool bIgnore)
@@ -265,37 +288,89 @@ void ServerAPI::handleNetworkRequestFinished()
     NetworkReply *reply = static_cast<NetworkReply *>(sender());
     QSharedPointer<NetworkReply> obj = QSharedPointer<NetworkReply>(reply, &QObject::deleteLater);
     QPointer<BaseRequest> pointerToRequest = reply->property("pointerToRequest").value<QPointer<BaseRequest> >();
-    if (pointerToRequest) {
 
-        if (!reply->isSuccess()) {
-            if (reply->error() ==  NetworkReply::NetworkError::SslError && !bIgnoreSslErrors_)
-                pointerToRequest->setRetCode(SERVER_RETURN_SSL_ERROR);
-            else
-                pointerToRequest->setRetCode(SERVER_RETURN_NETWORK_ERROR);
+    // if the request has already been deleted before completion, skip processing
+    if (!pointerToRequest) {
+        return;
+    }
 
-            if (pointerToRequest->isWriteToLog())
-                qCDebug(LOG_SERVER_API) << "API request " + pointerToRequest->name() + " failed:" << reply->errorString();
-            emit pointerToRequest->finished();
+    if (!reply->isSuccess()) {
+        if (reply->error() == NetworkReply::NetworkError::SslError && !bIgnoreSslErrors_) {
+            setErrorCodeAndEmitRequestFinished(pointerToRequest, SERVER_RETURN_SSL_ERROR, reply->errorString());
+            if (currentFailoverRequest_ == pointerToRequest) {
+                clearCurrentFailoverRequest();
+                executeWaitingInQueueRequests();
+            }
+        } else {
+            if (currentFailoverRequest_ == pointerToRequest) {
+                if (!currentConnectStateWatcher_->isVpnConnectStateChanged()) {
+                    WS_ASSERT(failoverInProgress_ == currentFailover());
+                    // get next the failover hostname
+                    currentFailover()->getNextHostname(bIgnoreSslErrors_);
+                } else {
+                    setErrorCodeAndEmitRequestFinished(pointerToRequest, SERVER_RETURN_NETWORK_ERROR, reply->errorString());
+                    clearCurrentFailoverRequest();
+                    executeWaitingInQueueRequests();
+                }
+            } else {
+                setErrorCodeAndEmitRequestFinished(pointerToRequest, SERVER_RETURN_NETWORK_ERROR, reply->errorString());
+            }
         }
-        else {
-            pointerToRequest->handle(reply->readAll());
-            emit pointerToRequest->finished();
+    }
+    else {  // if reply->isSuccess()
+        pointerToRequest->handle(reply->readAll());
+        emit pointerToRequest->finished();
+
+        // if for the current request we performed the failover algorithm, then set the state of failover to the kReady
+        // and execute pending requests
+        if (currentFailoverRequest_ == pointerToRequest) {
+            if (!currentConnectStateWatcher_->isVpnConnectStateChanged()) {
+                WS_ASSERT(failoverInProgress_ == currentFailover());
+                currentFailover()->setProperty("state", QVariant::fromValue(FailoverState::kReady));
+            }
+            clearCurrentFailoverRequest();
+            executeWaitingInQueueRequests();
+        } else {
+            WS_ASSERT(currentFailoverRequest_ == nullptr);
         }
     }
 }
 
-void ServerAPI::executeRequest(BaseRequest *request, bool isNeedCheckRequestsEnabled)
+// execute request if the failover detected or queue
+void ServerAPI::executeRequest(BaseRequest *request, bool bSkipFailoverConditions /*= false*/)
 {
-    if (isNeedCheckRequestsEnabled && !bIsRequestsEnabled_) {
+    if (!networkDetectionManager_->isOnline()) {
         QTimer::singleShot(0, this, [request] () {
-            qCDebug(LOG_SERVER_API) << "API request " + request->name() + " failed: API not ready";
-            request->setRetCode(SERVER_RETURN_API_NOT_READY);
+            qCDebug(LOG_SERVER_API) << "API request " + request->name() + " failed: no network connection";
+            request->setNetworkRetCode(SERVER_RETURN_NO_NETWORK_CONNECTION);
             emit request->finished();
         });
         return;
     }
-    //FIXME: getCurrentDnsServers() move to NetworkAccessManager
-    NetworkRequest networkRequest(request->url().toString(), request->timeout(), true, DnsServersConfiguration::instance().getCurrentDnsServers(), bIgnoreSslErrors_);
+
+    if (!bSkipFailoverConditions) {
+        if (currentFailover()->property("state").value<FailoverState>() == FailoverState::kUnknown) {
+            // if failover already in progress then move the request to queue
+            if (currentFailoverRequest_ != nullptr) {
+                queueRequests_.enqueue(request);
+                return;
+            } else {
+                // start failover algorithm for the request
+                setCurrentFailoverRequest(request, currentFailover());
+            }
+        }
+        else if (currentFailover()->property("state").value<FailoverState>() == FailoverState::kFailed) {
+            QTimer::singleShot(0, this, [request] () {
+                qCDebug(LOG_SERVER_API) << "API request " + request->name() + " failed: API not ready";
+                request->setNetworkRetCode(SERVER_RETURN_FAILOVER_FAILED);
+                emit request->finished();
+            });
+            return;
+        }
+    }
+
+    //TODO: getCurrentDnsServers() move to NetworkAccessManager
+    NetworkRequest networkRequest(request->url(currentFailover()->currentHostname()).toString(), request->timeout(), true, DnsServersConfiguration::instance().getCurrentDnsServers(), bIgnoreSslErrors_);
     NetworkReply *reply;
     switch (request->requestType()) {
         case RequestType::kGet:
@@ -319,6 +394,74 @@ void ServerAPI::executeRequest(BaseRequest *request, bool isNeedCheckRequestsEna
     QPointer<BaseRequest> pointerToRequest(request);
     reply->setProperty("pointerToRequest",  QVariant::fromValue(pointerToRequest));
     connect(reply, &NetworkReply::finished, this, &ServerAPI::handleNetworkRequestFinished);
+}
+
+void ServerAPI::executeWaitingInQueueRequests()
+{
+    QQueue<QPointer<BaseRequest> > queueRequests = queueRequests_;
+    queueRequests_.clear();
+    while (!queueRequests.isEmpty()) {
+        QPointer<BaseRequest> request(queueRequests.dequeue());
+        if (request)
+            executeRequest(request);
+    }
+}
+
+void ServerAPI::finishWaitingInQueueRequests(SERVER_API_RET_CODE retCode, const QString &errString)
+{
+    while (!queueRequests_.isEmpty()) {
+        QPointer<BaseRequest> request(queueRequests_.dequeue());
+        if (request)
+            setErrorCodeAndEmitRequestFinished(request, retCode, errString);
+    }
+    queueRequests_.clear();
+}
+
+failover::IFailover *ServerAPI::currentFailover() const
+{
+    if (connectStateController_->currentState() != CONNECT_STATE_CONNECTED)
+        return failoverDisconnectedMode_;
+    else
+        return failoverConnectedMode_;
+}
+
+void ServerAPI::setErrorCodeAndEmitRequestFinished(BaseRequest *request, SERVER_API_RET_CODE retCode, const QString &errorStr)
+{
+    request->setNetworkRetCode(retCode);
+    if (request->isWriteToLog())
+        qCDebug(LOG_SERVER_API) << "API request " + request->name() + " failed:" << errorStr;
+    emit request->finished();
+}
+
+void ServerAPI::setCurrentFailoverRequest(BaseRequest *request, failover::IFailover *failover)
+{
+    WS_ASSERT(currentFailoverRequest_ == nullptr);
+    WS_ASSERT(failoverInProgress_ == nullptr);
+    WS_ASSERT(currentConnectStateWatcher_ == nullptr);
+    currentFailoverRequest_ = request;
+    failoverInProgress_ = failover;
+    currentConnectStateWatcher_ = new ConnectStateWatcher(this, connectStateController_);
+    // if the request is deleted before completion, then we show start processing the requests waiting in the queue
+    connect(request, &QObject::destroyed, [this]() {
+        currentFailoverRequest_ = nullptr;
+        failoverInProgress_ = nullptr;
+        SAFE_DELETE(currentConnectStateWatcher_);
+        executeWaitingInQueueRequests();
+    });
+}
+
+void ServerAPI::clearCurrentFailoverRequest()
+{
+    WS_ASSERT(currentFailoverRequest_ != nullptr);
+    WS_ASSERT(failoverInProgress_ != nullptr);
+    WS_ASSERT(currentConnectStateWatcher_ != nullptr);
+
+    // This is necessary here, because we connected the signal QObject::destroyed below
+    // which can access the server API fields when they are already deleted
+    currentFailoverRequest_->disconnect();
+    currentFailoverRequest_ = nullptr;
+    failoverInProgress_ = nullptr;
+    SAFE_DELETE(currentConnectStateWatcher_);
 }
 
 } // namespace server_api

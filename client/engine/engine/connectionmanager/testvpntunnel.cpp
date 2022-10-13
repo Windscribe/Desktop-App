@@ -116,7 +116,7 @@ void TestVPNTunnel::onPingTestAnswer()
     if (bRunning_)
     {
         const QString trimmedData = request->data().trimmed();
-        if (request->retCode() == SERVER_RETURN_SUCCESS && IpValidation::instance().isIp(trimmedData))
+        if (request->networkRetCode() == SERVER_RETURN_SUCCESS && IpValidation::instance().isIp(trimmedData))
         {
             qCDebug(LOG_CONNECTION) << "Tunnel test " << QString::number(curTest_) << "successfully finished with IP:" << trimmedData << ", total test time =" << elapsedOverallTimer_.elapsed();
             bRunning_ = false;

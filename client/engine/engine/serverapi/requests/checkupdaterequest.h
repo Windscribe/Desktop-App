@@ -9,9 +9,9 @@ class CheckUpdateRequest : public BaseRequest
 {
     Q_OBJECT
 public:
-    explicit CheckUpdateRequest(QObject *parent, const QString &hostname, UPDATE_CHANNEL updateChannel);
+    explicit CheckUpdateRequest(QObject *parent, UPDATE_CHANNEL updateChannel);
 
-    QUrl url() const override;
+    QUrl url(const QString &domain) const override;
     QString name() const override;
     void handle(const QByteArray &arr) override;
 

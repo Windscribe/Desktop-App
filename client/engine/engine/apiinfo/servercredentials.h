@@ -17,6 +17,12 @@ public:
     QString usernameForIkev2() const;
     QString passwordForIkev2() const;
 
+    void setForOpenVpn(const QString &username, const QString &password);
+    void setForIkev2(const QString &username, const QString &password);
+
+    bool isIkev2Initialized() const;
+    bool isOpenVpnInitialized() const;
+
     friend QDataStream& operator <<(QDataStream &stream, const ServerCredentials &s);
     friend QDataStream& operator >>(QDataStream &stream, ServerCredentials &s);
 
