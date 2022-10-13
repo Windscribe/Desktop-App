@@ -75,7 +75,7 @@ bool EngineServer::handleCommand(IPC::Command *command)
             connect(engine_, &Engine::bfeEnableFinished, this, &EngineServer::onEngineBfeEnableFinished);
             connect(engine_, &Engine::firewallStateChanged, this, &EngineServer::onEngineFirewallStateChanged);
             connect(engine_, &Engine::loginFinished, this, &EngineServer::onEngineLoginFinished);
-            connect(engine_, &Engine::loginStepMessage, this, &EngineServer::onEngineLoginMessage);
+            connect(engine_, &Engine::tryingBackupEndpoint, this, &EngineServer::onEngineTryingBackupEndpoint);
             connect(engine_, &Engine::notificationsUpdated, this, &EngineServer::onEngineNotificationsUpdated);
             connect(engine_, &Engine::checkUpdateUpdated, this, &EngineServer::onEngineCheckUpdateUpdated);
             connect(engine_, &Engine::updateVersionChanged, this, &EngineServer::onEngineUpdateVersionChanged);
@@ -168,38 +168,17 @@ bool EngineServer::handleCommand(IPC::Command *command)
         //loggedCmd.getProtoObj().set_password("*****");
         //qCDebugMultiline(LOG_IPC) << QString::fromStdString(loggedCmd.getDebugString());
 
-        // login with last login settings
-        if (loginCmd->useLastLoginSettings == true)
-        {
-            engine_->loginWithLastLoginSettings();
-        }
         // login with auth hash
-        else if (!loginCmd->authHash_.isEmpty())
-        {
-            engine_->loginWithAuthHash(loginCmd->authHash_);
-        }
-        // login with username and password
-        else if (!loginCmd->username_.isEmpty() && !loginCmd->password_.isEmpty())
-        {
-            engine_->loginWithUsernameAndPassword(loginCmd->username_, loginCmd->password_, loginCmd->code2fa_);
-        }
+        if (loginCmd->isLoginWithAuthHash_)
+            engine_->loginWithAuthHash();
         else
-        {
-            WS_ASSERT(false);
-            return false;
-        }
+            engine_->loginWithUsernameAndPassword(loginCmd->username_, loginCmd->password_, loginCmd->code2fa_);
     }
     else if (command->getStringId() == IPC::ClientCommands::ApplicationActivated::getCommandStringId())
     {
         IPC::ClientCommands::ApplicationActivated *appActivatedCmd = static_cast<IPC::ClientCommands::ApplicationActivated *>(command);
         if (appActivatedCmd->isActivated_)
-        {
             engine_->applicationActivated();
-        }
-        else
-        {
-            engine_->applicationDeactivated();
-        }
         return true;
     }
     else if (command->getStringId() == IPC::ClientCommands::Connect::getCommandStringId())
@@ -366,11 +345,6 @@ bool EngineServer::handleCommand(IPC::Command *command)
         }
         return true;
     }
-    else if (command->getStringId() == IPC::ClientCommands::ClearCredentials::getCommandStringId())
-    {
-        engine_->clearCredentials();
-        return true;
-    }
     else if (command->getStringId() == IPC::ClientCommands::SpeedRating::getCommandStringId())
     {
         IPC::ClientCommands::SpeedRating *cmd = static_cast<IPC::ClientCommands::SpeedRating *>(command);
@@ -418,7 +392,7 @@ bool EngineServer::handleCommand(IPC::Command *command)
     return false;
 }
 
-void EngineServer::sendEngineInitReturnCode(ENGINE_INIT_RET_CODE retCode)
+void EngineServer::sendEngineInitReturnCode(ENGINE_INIT_RET_CODE retCode, bool isCanLoginWithAuthHash)
 {
     if (retCode == ENGINE_INIT_SUCCESS)
     {
@@ -428,7 +402,7 @@ void EngineServer::sendEngineInitReturnCode(ENGINE_INIT_RET_CODE retCode)
         connect(engine_->getLocationsModel(), &locationsmodel::LocationsModel::locationPingTimeChanged, this, &EngineServer::onEngineLocationsModelPingChangedChanged);
 
         IPC::ServerCommands::InitFinished cmd(INIT_STATE_SUCCESS, curEngineSettings_, OpenVpnVersionController::instance().getAvailableOpenVpnVersions(),
-                                              engine_->isWifiSharingSupported(), engine_->isApiSavedSettingsExists(), engine_->getAuthHash());
+                                              engine_->isWifiSharingSupported(), engine_->isApiSavedSettingsExists(), isCanLoginWithAuthHash);
 
         sendCmdToAllAuthorizedAndGetStateClients(&cmd, true);
 
@@ -528,16 +502,16 @@ void EngineServer::onEngineCleanupFinished()
     sendCmdToAllAuthorizedAndGetStateClients(&cmd, true);
 }
 
-void EngineServer::onEngineInitFinished(ENGINE_INIT_RET_CODE retCode)
+void EngineServer::onEngineInitFinished(ENGINE_INIT_RET_CODE retCode, bool isCanLoginWithAuthHash)
 {
-    sendEngineInitReturnCode(retCode);
+    sendEngineInitReturnCode(retCode, isCanLoginWithAuthHash);
 }
 
-void EngineServer::onEngineBfeEnableFinished(ENGINE_INIT_RET_CODE retCode)
+void EngineServer::onEngineBfeEnableFinished(ENGINE_INIT_RET_CODE retCode, bool isCanLoginWithAuthHash)
 {
     if (retCode == ENGINE_INIT_SUCCESS)
     {
-        onEngineInitFinished(ENGINE_INIT_SUCCESS);
+        onEngineInitFinished(ENGINE_INIT_SUCCESS, isCanLoginWithAuthHash);
     }
     else
     {
@@ -571,9 +545,11 @@ void EngineServer::onEngineLoginError(LOGIN_RET retCode, const QString &errorMes
     sendCmdToAllAuthorizedAndGetStateClients(&cmd, true);
 }
 
-void EngineServer::onEngineLoginMessage(LOGIN_MESSAGE msg)
+void EngineServer::onEngineTryingBackupEndpoint(int num, int cnt)
 {
-    IPC::ServerCommands::LoginStepMessage cmd(msg);
+    IPC::ServerCommands::LoginStepMessage cmd;
+    cmd.num = num;
+    cmd.cnt = cnt;
     sendCmdToAllAuthorizedAndGetStateClients(&cmd, true);
 }
 

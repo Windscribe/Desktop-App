@@ -1,0 +1,1 @@
+add_subdirectory(apiresources_visual_test)

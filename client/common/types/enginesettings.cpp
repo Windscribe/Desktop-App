@@ -25,7 +25,7 @@ void EngineSettings::saveToSettings()
         ds << magic_;
         ds << versionForSerialization_;
         ds << d->language << d->updateChannel << d->isIgnoreSslErrors << d->isTerminateSockets << d->isAllowLanTraffic <<
-              d->firewallSettings << d->connectionSettings << d->dnsResolutionSettings << d->proxySettings << d->packetSize <<
+              d->firewallSettings << d->connectionSettings << d->apiResolutionSettings << d->proxySettings << d->packetSize <<
               d->macAddrSpoofing << d->dnsPolicy << d->tapAdapter << d->customOvpnConfigsPath << d->isKeepAliveEnabled <<
               d->connectedDnsInfo << d->dnsManager << d->networkPreferredProtocols;
     }
@@ -54,7 +54,7 @@ void EngineSettings::loadFromSettings()
         {
             ds >> version;
             ds >> d->language >> d->updateChannel >> d->isIgnoreSslErrors >> d->isTerminateSockets >> d->isAllowLanTraffic >>
-                    d->firewallSettings >> d->connectionSettings >> d->dnsResolutionSettings >> d->proxySettings >> d->packetSize >>
+                    d->firewallSettings >> d->connectionSettings >> d->apiResolutionSettings >> d->proxySettings >> d->packetSize >>
                     d->macAddrSpoofing >> d->dnsPolicy >> d->tapAdapter >> d->customOvpnConfigsPath >> d->isKeepAliveEnabled >>
                     d->connectedDnsInfo >> d->dnsManager;
             if (version >= 2)
@@ -152,14 +152,14 @@ void EngineSettings::setConnectionSettings(const ConnectionSettings &cs)
     d->connectionSettings = cs;
 }
 
-const types::DnsResolutionSettings &EngineSettings::dnsResolutionSettings() const
+const types::ApiResolutionSettings &EngineSettings::apiResolutionSettings() const
 {
-    return d->dnsResolutionSettings;
+    return d->apiResolutionSettings;
 }
 
-void EngineSettings::setDnsResolutionSettings(const DnsResolutionSettings &drs)
+void EngineSettings::setApiResolutionSettings(const ApiResolutionSettings &drs)
 {
-    d->dnsResolutionSettings = drs;
+    d->apiResolutionSettings = drs;
 }
 
 const types::ProxySettings &EngineSettings::proxySettings() const
@@ -286,7 +286,7 @@ bool EngineSettings::operator==(const EngineSettings &other) const
             other.d->isAllowLanTraffic == d->isAllowLanTraffic &&
             other.d->firewallSettings == d->firewallSettings &&
             other.d->connectionSettings == d->connectionSettings &&
-            other.d->dnsResolutionSettings == d->dnsResolutionSettings &&
+            other.d->apiResolutionSettings == d->apiResolutionSettings &&
             other.d->proxySettings == d->proxySettings &&
             other.d->packetSize == d->packetSize &&
             other.d->macAddrSpoofing == d->macAddrSpoofing &&
@@ -315,7 +315,7 @@ QDebug operator<<(QDebug dbg, const EngineSettings &es)
     dbg << "isAllowLanTraffic:" << es.d->isAllowLanTraffic << "; ";
     dbg << "firewallSettings: " << es.d->firewallSettings << "; ";
     dbg << "connectionSettings: " << es.d->connectionSettings << "; ";
-    dbg << "dnsResolutionSettings: " << es.d->dnsResolutionSettings << "; ";
+    dbg << "dnsResolutionSettings: " << es.d->apiResolutionSettings << "; ";
     dbg << "proxySettings: " << es.d->proxySettings << "; ";
     dbg << "packetSize: " << es.d->packetSize << "; ";
     dbg << "macAddrSpoofing: " << es.d->macAddrSpoofing << "; ";

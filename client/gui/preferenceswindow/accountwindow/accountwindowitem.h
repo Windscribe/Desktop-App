@@ -31,7 +31,6 @@ private slots:
     void onIsNeedConfirmEmailChanged(bool bNeedConfirm);
     void onPlanChanged(qint64 plan);
     void onExpireDateChanged(const QString &date);
-    void onAuthHashChanged(const QString &authHash);
     void onIsPremiumChanged(bool isPremium);
     void onTrafficUsedChanged(qint64 used);
     void onLastResetChanged(const QString &date);
@@ -64,7 +63,6 @@ private:
     CommonGraphics::BubbleButtonDark *loginButton_;
     void updateWidgetPos();
 
-    QString authHash_;
     qint64 plan_;
     qint64 trafficUsed_;
 

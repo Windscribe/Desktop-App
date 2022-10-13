@@ -8,11 +8,11 @@ class RecordInstallRequest : public BaseRequest
 {
     Q_OBJECT
 public:
-    explicit RecordInstallRequest(QObject *parent,  const QString &hostname);
+    explicit RecordInstallRequest(QObject *parent);
 
     QString contentTypeHeader() const override;
     QByteArray postData() const override;
-    QUrl url() const override;
+    QUrl url(const QString &domain) const override;
     QString name() const override;
     void handle(const QByteArray &arr) override;
 };

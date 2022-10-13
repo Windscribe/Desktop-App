@@ -7,16 +7,16 @@ WhitelistIpsManager::WhitelistIpsManager(QObject *parent) : QObject(parent)
 
 void WhitelistIpsManager::add(const QString &hostname, const QStringList &ips)
 {
-    if (!hash_.contains(hostname))
-        qCDebug(LOG_NETWORK) << "Whitelist ips added" << hostname << ips;
+//    if (!hash_.contains(hostname))
+//        qCDebug(LOG_NETWORK) << "Whitelist ips added" << hostname << ips;
     hash_[hostname] = ips;
     updateIps();
 }
 
 void WhitelistIpsManager::remove(const QString &hostname)
 {
-    if (hash_.contains(hostname))
-        qCDebug(LOG_NETWORK) << "Whitelist ips removed" << hostname;
+//    if (hash_.contains(hostname))
+//        qCDebug(LOG_NETWORK) << "Whitelist ips removed" << hostname;
     hash_.remove(hostname);
     updateIps();
 }

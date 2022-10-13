@@ -14,6 +14,8 @@
 
 namespace apiinfo {
 
+// Contains data from the Server API that is minimally necessary for the program to switch from the Login screen to Connect Screen
+// It can also read and save all data in settings.
 class ApiInfo
 {
 public:
@@ -31,9 +33,13 @@ public:
     void setServerCredentials(const ServerCredentials &serverCredentials);
     ServerCredentials getServerCredentials() const;
 
+    void setServerCredentialsOpenVpn(const QString &username, const QString &password);
+    void setServerCredentialsIkev2(const QString &username, const QString &password);
+    bool isServerCredentialsOpenVpnInit() const;
+    bool isServerCredentialsIkev2Init() const;
+
     QString getOvpnConfig() const;
     void setOvpnConfig(const QString &value);
-    bool ovpnConfigRefetchRequired() const;
 
     // auth hash is stored in a separate value in QSettings
     static QString getAuthHash();
@@ -49,6 +55,8 @@ public:
     void saveToSettings();
     static void removeFromSettings();
 
+    bool isEverythingInit() const;
+
 private:
     void mergeWindflixLocations();
 
@@ -60,12 +68,14 @@ private:
     types::PortMap portMap_;
     StaticIps staticIps_;
 
+    bool isSessionStatusInit_ = false;
+    bool isLocationsInit_ = false;
+    bool isForceDisconnectInit_ = false;
+    bool isOvpnConfigInit_ = false;
+    bool isPortMapInit_ = false;
+    bool isStaticIpsInit_ = false;
+
     SimpleCrypt simpleCrypt_;
-
-    // for check thread id, access to the class must be from a single thread
-    Qt::HANDLE threadId_;
-
-    QDateTime ovpnConfigSetTimestamp_;
 
     // for serialization
     static constexpr quint32 magic_ = 0x7605A2AE;

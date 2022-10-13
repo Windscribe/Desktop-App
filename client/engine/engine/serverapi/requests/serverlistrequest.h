@@ -10,10 +10,10 @@ class ServerListRequest : public BaseRequest
 {
     Q_OBJECT
 public:
-    explicit ServerListRequest(QObject *parent, const QString &hostname, const QString &language, const QString &revision, bool isPro, PROTOCOL protocol,
+    explicit ServerListRequest(QObject *parent, const QString &language, const QString &revision, bool isPro,
                                const QStringList &alcList, IConnectStateController *connectStateController);
 
-    QUrl url() const override;
+    QUrl url(const QString &domain) const override;
     QString name() const override;
     void handle(const QByteArray &arr) override;
 
@@ -25,9 +25,8 @@ private:
     QString language_;
     QString revision_;
     bool isPro_;
-    PROTOCOL protocol_;
     QStringList alcList_;
-    IConnectStateController *connectStateController_; //FIXME: should be here?
+    IConnectStateController *connectStateController_;
     bool isFromDisconnectedVPNState_;
 
     // output values

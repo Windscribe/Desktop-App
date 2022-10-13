@@ -1,12 +1,16 @@
 #pragma once
 
 #include <QObject>
+#include <QPointer>
+#include <QQueue>
 
 #include "types/robertfilter.h"
 #include "engine/networkaccessmanager/networkaccessmanager.h"
+#include "engine/connectstatecontroller/iconnectstatecontroller.h"
+#include "engine/connectstatecontroller/connectstatewatcher.h"
+#include "engine/networkdetectionmanager/inetworkdetectionmanager.h"
 #include "requests/baserequest.h"
-
-class IConnectStateController;
+#include "engine/failover/ifailover.h"
 
 namespace server_api {
 
@@ -31,68 +35,77 @@ class ServerAPI : public QObject
 {
     Q_OBJECT
 public:
-    explicit ServerAPI(QObject *parent, IConnectStateController *connectStateController, NetworkAccessManager *networkAccessManager);
+    // Ownership of the failoverDisconnectedMode and failoverConnectedMode passes to the serverAPI object
+    explicit ServerAPI(QObject *parent, IConnectStateController *connectStateController, NetworkAccessManager *networkAccessManager,
+                       INetworkDetectionManager *networkDetectionManager, failover::IFailover *failoverDisconnectedMode, failover::IFailover *failoverConnectedMode);
     virtual ~ServerAPI();
 
-    // if true, then all requests works
-    // if false, then only request for SERVER_API_ROLE_LOGIN_CONTROLLER and SERVER_API_ROLE_ACCESS_IPS_CONTROLLER roles works
-    void setRequestsEnabled(bool bEnable);
-    bool isRequestsEnabled() const;
-
-    // set single hostname for make API requests
-    void setHostname(const QString &hostname);
     QString getHostname() const;
-
+    void setApiResolutionsSettings(const types::ApiResolutionSettings &apiResolutionSettings);
     void setIgnoreSslErrors(bool bIgnore);
 
-    BaseRequest *accessIps(const QString &hostIp);
     BaseRequest *login(const QString &username, const QString &password, const QString &code2fa);
-    BaseRequest *session(const QString &authHash, bool isNeedCheckRequestsEnabled);
-    BaseRequest *serverLocations(const QString &language, bool isNeedCheckRequestsEnabled,
-                         const QString &revision, bool isPro, PROTOCOL protocol, const QStringList &alcList);
-    BaseRequest *serverCredentials(const QString &authHash, PROTOCOL protocol, bool isNeedCheckRequestsEnabled);
-    BaseRequest *deleteSession(const QString &authHash, bool isNeedCheckRequestsEnabled);
-    BaseRequest *serverConfigs(const QString &authHash, bool isNeedCheckRequestsEnabled);
-    BaseRequest *portMap(const QString &authHash, bool isNeedCheckRequestsEnabled);
-    BaseRequest *recordInstall(bool isNeedCheckRequestsEnabled);
-    BaseRequest *confirmEmail(const QString &authHash, bool isNeedCheckRequestsEnabled);
-    BaseRequest *webSession(const QString authHash, WEB_SESSION_PURPOSE purpose, bool isNeedCheckRequestsEnabled);
+    BaseRequest *session(const QString &authHash);
+    BaseRequest *serverLocations(const QString &language, const QString &revision, bool isPro, const QStringList &alcList);
+    BaseRequest *serverCredentials(const QString &authHash, PROTOCOL protocol);
+    BaseRequest *deleteSession(const QString &authHash);
+    BaseRequest *serverConfigs(const QString &authHash);
+    BaseRequest *portMap(const QString &authHash);
+    BaseRequest *recordInstall();
+    BaseRequest *confirmEmail(const QString &authHash);
+    BaseRequest *webSession(const QString authHash, WEB_SESSION_PURPOSE purpose);
 
-    BaseRequest *myIP(int timeout, bool isNeedCheckRequestsEnabled);
+    BaseRequest *myIP(int timeout);
 
-    BaseRequest *checkUpdate(UPDATE_CHANNEL updateChannel, bool isNeedCheckRequestsEnabled);
-    BaseRequest *debugLog(const QString &username, const QString &strLog, bool isNeedCheckRequestsEnabled);
-    BaseRequest *speedRating(const QString &authHash, const QString &speedRatingHostname, const QString &ip, int rating, bool isNeedCheckRequestsEnabled);
+    BaseRequest *checkUpdate(UPDATE_CHANNEL updateChannel);
+    BaseRequest *debugLog(const QString &username, const QString &strLog);
+    BaseRequest *speedRating(const QString &authHash, const QString &speedRatingHostname, const QString &ip, int rating);
 
-    BaseRequest *staticIps(const QString &authHash, const QString &deviceId, bool isNeedCheckRequestsEnabled);
+    BaseRequest *staticIps(const QString &authHash, const QString &deviceId);
 
     BaseRequest *pingTest(uint timeout, bool bWriteLog);
 
-    BaseRequest *notifications(const QString &authHash, bool isNeedCheckRequestsEnabled);
+    BaseRequest *notifications(const QString &authHash);
 
-    BaseRequest *getRobertFilters(const QString &authHash, bool isNeedCheckRequestsEnabled);
-    BaseRequest *setRobertFilter(const QString &authHash, bool isNeedCheckRequestsEnabled, const types::RobertFilter &filter);
+    BaseRequest *getRobertFilters(const QString &authHash);
+    BaseRequest *setRobertFilter(const QString &authHash, const types::RobertFilter &filter);
 
-    BaseRequest *wgConfigsInit(const QString &authHash, bool isNeedCheckRequestsEnabled, const QString &clientPublicKey, bool deleteOldestKey);
-    BaseRequest *wgConfigsConnect(const QString &authHash, bool isNeedCheckRequestsEnabled, const QString &clientPublicKey, const QString &serverName, const QString &deviceId);
-    BaseRequest *syncRobert(const QString &authHash, bool isNeedCheckRequestsEnabled);
+    BaseRequest *wgConfigsInit(const QString &authHash, const QString &clientPublicKey, bool deleteOldestKey);
+    BaseRequest *wgConfigsConnect(const QString &authHash, const QString &clientPublicKey, const QString &serverName, const QString &deviceId);
+    BaseRequest *syncRobert(const QString &authHash);
+
+private slots:
+    void onFailoverNextHostnameAnswer(failover::FailoverRetCode retCode, const QString &hostname);
+    void onConnectStateChanged();
 
 private:
     NetworkAccessManager *networkAccessManager_;
     IConnectStateController *connectStateController_;
-    QString hostname_;
-    bool bIsRequestsEnabled_;
+    INetworkDetectionManager *networkDetectionManager_;
     bool bIgnoreSslErrors_;
 
-    struct {
-        bool isFailoverForDisconnectedDetected_ = false;
-        QString hostnameForDisconnected_;
-        bool isFailoverForConnectedDetected_ = false;
-        QString hostnameForConnected_;
-    } failoverState_;
+    QQueue<QPointer<BaseRequest> > queueRequests_;    // a queue of requests that are waiting for the failover to complete
+
+    // Current failover state. If there is no failover currently, then all are zero
+    QPointer<BaseRequest> currentFailoverRequest_;
+    failover::IFailover *failoverInProgress_;
+    ConnectStateWatcher *currentConnectStateWatcher_;
+
+    // Failovers for the connected/disconnected and their states
+    failover::IFailover *failoverDisconnectedMode_;
+    failover::IFailover *failoverConnectedMode_;
 
     void handleNetworkRequestFinished();
-    void executeRequest(BaseRequest *request, bool isNeedCheckRequestsEnabled);
+    void executeRequest(BaseRequest *request, bool bSkipFailoverConditions = false);
+    void executeWaitingInQueueRequests();
+    void finishWaitingInQueueRequests(SERVER_API_RET_CODE retCode, const QString &errString);
+    // return Failover depending of the connected/disconnected VPN state
+    failover::IFailover *currentFailover() const;
+
+    void setErrorCodeAndEmitRequestFinished(BaseRequest *request, SERVER_API_RET_CODE retCode, const QString &errorStr);
+
+    void setCurrentFailoverRequest(BaseRequest *request, failover::IFailover *failover);
+    void clearCurrentFailoverRequest();
 };
 
 } // namespace server_api

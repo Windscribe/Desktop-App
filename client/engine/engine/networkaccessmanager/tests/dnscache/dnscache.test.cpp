@@ -1,7 +1,9 @@
 #include <QtTest>
 #include <QCoreApplication>
 #include <QtConcurrent/QtConcurrent>
+#ifdef Q_OS_WIN
 #include <WinSock2.h>
+#endif
 #include "engine/networkaccessmanager/dnscache.h"
 
 class TestDnsCache : public QObject
@@ -23,9 +25,11 @@ private:
 
 TestDnsCache::TestDnsCache()
 {
+#ifdef Q_OS_WIN
     // Initialize Winsock
     WSADATA wsaData;
     WSAStartup(MAKEWORD(2,2), &wsaData);
+#endif
 }
 
 TestDnsCache::~TestDnsCache()

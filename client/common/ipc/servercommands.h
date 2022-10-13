@@ -70,9 +70,9 @@ class InitFinished : public Command
 {
 public:
     explicit InitFinished(INIT_STATE initState, const types::EngineSettings &engineSettings, const QStringList &availableOpenvpnVersions,
-                          bool isWifiSharingSupported, bool isSavedApiSettingsExists, const QString &authHash) :
+                          bool isWifiSharingSupported, bool isSavedApiSettingsExists, bool isCanLoginWithAuthHash) :
         initState_(initState), engineSettings_(engineSettings), availableOpenvpnVersions_(availableOpenvpnVersions), isWifiSharingSupported_(isWifiSharingSupported),
-        isSavedApiSettingsExists_(isSavedApiSettingsExists), authHash_(authHash)
+        isSavedApiSettingsExists_(isSavedApiSettingsExists), isCanLoginWithAuthHash_(isCanLoginWithAuthHash)
     {}
     explicit InitFinished(INIT_STATE initState) :
         initState_(initState)
@@ -93,7 +93,7 @@ public:
     QStringList availableOpenvpnVersions_;
     bool isWifiSharingSupported_;
     bool isSavedApiSettingsExists_;
-    QString authHash_;
+    bool isCanLoginWithAuthHash_;
 };
 
 class EngineSettingsChanged : public Command
@@ -243,7 +243,7 @@ public:
 class LoginStepMessage : public Command
 {
 public:
-    explicit LoginStepMessage(LOGIN_MESSAGE message) : message_(message)
+    explicit LoginStepMessage()
     {}
 
     std::vector<char> getData() const override   {  WS_ASSERT(false); return std::vector<char>(); }
@@ -258,7 +258,8 @@ public:
         return "ServerCommand::LoginStepMessage";
     }
 
-    LOGIN_MESSAGE message_;
+    int num;
+    int cnt;
 };
 
 

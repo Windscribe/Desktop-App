@@ -4,19 +4,19 @@
 #include <QJsonObject>
 
 #include "utils/logger.h"
+#include "engine/utils/urlquery_utils.h"
 
 namespace server_api {
 
-StaticIpsRequest::StaticIpsRequest(QObject *parent, const QString &hostname, const QString &authHash, const QString &deviceId) : BaseRequest(parent, RequestType::kGet, hostname),
+StaticIpsRequest::StaticIpsRequest(QObject *parent, const QString &authHash, const QString &deviceId) : BaseRequest(parent, RequestType::kGet),
     authHash_(authHash),
     deviceId_(deviceId)
 {
 }
 
-QUrl StaticIpsRequest::url() const
+QUrl StaticIpsRequest::url(const QString &domain) const
 {
-    QUrl url("https://" + hostname(SudomainType::kApi) + "/StaticIps");
-
+    QUrl url("https://" + hostname(domain, SudomainType::kApi) + "/StaticIps");
     QUrlQuery query;
 
 #ifdef Q_OS_WIN
@@ -28,8 +28,8 @@ QUrl StaticIpsRequest::url() const
 #endif
     query.addQueryItem("os", strOs);
     query.addQueryItem("device_id", deviceId_);
-    addAuthQueryItems(query, authHash_);
-    addPlatformQueryItems(query);
+    urlquery_utils::addAuthQueryItems(query, authHash_);
+    urlquery_utils::addPlatformQueryItems(query);
     url.setQuery(query);
     return url;
 }
@@ -46,7 +46,7 @@ void StaticIpsRequest::handle(const QByteArray &arr)
     if (errCode.error != QJsonParseError::NoError || !doc.isObject()) {
         qCDebugMultiline(LOG_SERVER_API) << arr;
         qCDebug(LOG_SERVER_API) << "Failed parse JSON for StaticIps";
-        setRetCode(SERVER_RETURN_INCORRECT_JSON);
+        setNetworkRetCode(SERVER_RETURN_INCORRECT_JSON);
         return;
     }
 
@@ -54,7 +54,7 @@ void StaticIpsRequest::handle(const QByteArray &arr)
     if (!jsonObject.contains("data")) {
         qCDebugMultiline(LOG_SERVER_API) << arr;
         qCDebug(LOG_SERVER_API) << "Failed parse JSON for StaticIps";
-        setRetCode(SERVER_RETURN_INCORRECT_JSON);
+        setNetworkRetCode(SERVER_RETURN_INCORRECT_JSON);
         return;
     }
 
@@ -62,12 +62,11 @@ void StaticIpsRequest::handle(const QByteArray &arr)
     if (!staticIps_.initFromJson(jsonData)) {
         qCDebugMultiline(LOG_SERVER_API) << arr;
         qCDebug(LOG_SERVER_API) << "Failed parse JSON for StaticIps";
-        setRetCode(SERVER_RETURN_INCORRECT_JSON);
+        setNetworkRetCode(SERVER_RETURN_INCORRECT_JSON);
         return;
     }
 
     qCDebug(LOG_SERVER_API) << "StaticIps request successfully executed";
-    setRetCode(SERVER_RETURN_SUCCESS);
 }
 
 } // namespace server_api {

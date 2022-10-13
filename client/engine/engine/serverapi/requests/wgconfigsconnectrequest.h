@@ -8,12 +8,12 @@ class WgConfigsConnectRequest : public BaseRequest
 {
     Q_OBJECT
 public:
-    explicit WgConfigsConnectRequest(QObject *parent,  const QString &hostname, const QString &authHash, const QString &clientPublicKey,
+    explicit WgConfigsConnectRequest(QObject *parent, const QString &authHash, const QString &clientPublicKey,
                                      const QString &serverName, const QString &deviceId);
 
     QString contentTypeHeader() const override;
     QByteArray postData() const override;
-    QUrl url() const override;
+    QUrl url(const QString &domain) const override;
     QString name() const override;
     void handle(const QByteArray &arr) override;
 

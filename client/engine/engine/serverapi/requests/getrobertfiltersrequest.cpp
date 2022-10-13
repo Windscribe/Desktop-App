@@ -4,20 +4,21 @@
 #include <QJsonDocument>
 
 #include "utils/logger.h"
+#include "engine/utils/urlquery_utils.h"
 
 namespace server_api {
 
-GetRobertFiltersRequest::GetRobertFiltersRequest(QObject *parent, const QString &hostname, const QString &authHash) : BaseRequest(parent, RequestType::kGet, hostname),
+GetRobertFiltersRequest::GetRobertFiltersRequest(QObject *parent, const QString &authHash) : BaseRequest(parent, RequestType::kGet),
     authHash_(authHash)
 {
 }
 
-QUrl GetRobertFiltersRequest::url() const
+QUrl GetRobertFiltersRequest::url(const QString &domain) const
 {
-    QUrl url("https://" + hostname(SudomainType::kApi) + "/Robert/filters");
+    QUrl url("https://" + hostname(domain, SudomainType::kApi) + "/Robert/filters");
     QUrlQuery query;
-    addAuthQueryItems(query, authHash_);
-    addPlatformQueryItems(query);
+    urlquery_utils::addAuthQueryItems(query, authHash_);
+    urlquery_utils::addPlatformQueryItems(query);
     url.setQuery(query);
     return url;
 }
@@ -34,7 +35,7 @@ void GetRobertFiltersRequest::handle(const QByteArray &arr)
     if (errCode.error != QJsonParseError::NoError || !doc.isObject()) {
         qCDebugMultiline(LOG_SERVER_API) << arr;
         qCDebug(LOG_SERVER_API) << "Failed parse JSON for get ROBERT filters";
-        setRetCode(SERVER_RETURN_INCORRECT_JSON);
+        setNetworkRetCode(SERVER_RETURN_INCORRECT_JSON);
         return;
     }
 
@@ -42,7 +43,7 @@ void GetRobertFiltersRequest::handle(const QByteArray &arr)
     if (!jsonObject.contains("data")) {
         qCDebugMultiline(LOG_SERVER_API) << arr;
         qCDebug(LOG_SERVER_API) << "Failed parse JSON for get ROBERT filters";
-        setRetCode(SERVER_RETURN_INCORRECT_JSON);
+        setNetworkRetCode(SERVER_RETURN_INCORRECT_JSON);
         return;
     }
 
@@ -55,13 +56,12 @@ void GetRobertFiltersRequest::handle(const QByteArray &arr)
         types::RobertFilter f;
         if (!f.initFromJson(obj)) {
             qCDebug(LOG_SERVER_API) << "Failed parse JSON for get ROBERT filters (not all required fields)";
-            setRetCode(SERVER_RETURN_INCORRECT_JSON);
+            setNetworkRetCode(SERVER_RETURN_INCORRECT_JSON);
             return;
         }
         filters_.push_back(f);
     }
     qCDebug(LOG_SERVER_API) << "Get ROBERT request successfully executed";
-    setRetCode(SERVER_RETURN_SUCCESS);
 }
 
 } // namespace server_api {

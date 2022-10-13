@@ -4,21 +4,22 @@
 #include <QJsonObject>
 
 #include "utils/logger.h"
+#include "engine/utils/urlquery_utils.h"
 
 namespace server_api {
 
-PortMapRequest::PortMapRequest(QObject *parent, const QString &hostname, const QString &authHash) : BaseRequest(parent, RequestType::kGet, hostname),
+PortMapRequest::PortMapRequest(QObject *parent, const QString &authHash) : BaseRequest(parent, RequestType::kGet),
     authHash_(authHash)
 {
 }
 
-QUrl PortMapRequest::url() const
+QUrl PortMapRequest::url(const QString &domain) const
 {
-    QUrl url("https://" + hostname(SudomainType::kApi) + "/PortMap");
+    QUrl url("https://" + hostname(domain, SudomainType::kApi) + "/PortMap");
     QUrlQuery query;
     query.addQueryItem("version", "5");
-    addAuthQueryItems(query, authHash_);
-    addPlatformQueryItems(query);
+    urlquery_utils::addAuthQueryItems(query, authHash_);
+    urlquery_utils::addPlatformQueryItems(query);
     url.setQuery(query);
     return url;
 }
@@ -35,7 +36,7 @@ void PortMapRequest::handle(const QByteArray &arr)
     if (errCode.error != QJsonParseError::NoError || !doc.isObject()) {
         qCDebugMultiline(LOG_SERVER_API) << arr;
         qCDebug(LOG_SERVER_API) << "API request PortMap incorrect json";
-        setRetCode(SERVER_RETURN_INCORRECT_JSON);
+        setNetworkRetCode(SERVER_RETURN_INCORRECT_JSON);
         return;
     }
 
@@ -43,26 +44,25 @@ void PortMapRequest::handle(const QByteArray &arr)
     if (!jsonObject.contains("data")) {
         qCDebugMultiline(LOG_SERVER_API) << arr;
         qCDebug(LOG_SERVER_API) << "API request PortMap incorrect json (data field not found)";
-        setRetCode(SERVER_RETURN_INCORRECT_JSON);
+        setNetworkRetCode(SERVER_RETURN_INCORRECT_JSON);
         return;
     }
     QJsonObject jsonData =  jsonObject["data"].toObject();
     if (!jsonData.contains("portmap")) {
         qCDebugMultiline(LOG_SERVER_API) << arr;
         qCDebug(LOG_SERVER_API) << "API request PortMap incorrect json (portmap field not found)";
-        setRetCode(SERVER_RETURN_INCORRECT_JSON);
+        setNetworkRetCode(SERVER_RETURN_INCORRECT_JSON);
         return;
     }
 
     QJsonArray jsonArr = jsonData["portmap"].toArray();
     if (!portMap_.initFromJson(jsonArr)) {
         qCDebug(LOG_SERVER_API) << "API request PortMap incorrect json (portmap required fields not found)";
-        setRetCode(SERVER_RETURN_INCORRECT_JSON);
+        setNetworkRetCode(SERVER_RETURN_INCORRECT_JSON);
         return;
     }
 
     qCDebug(LOG_SERVER_API) << "API request PortMap successfully executed";
-    setRetCode(SERVER_RETURN_SUCCESS);
 }
 
 

@@ -1,14 +1,18 @@
 #include "networkaccessmanager.test.h"
 #include <QtTest>
 #include <QtConcurrent/QtConcurrent>
+#ifdef Q_OS_WIN
 #include <WinSock2.h>
+#endif
 #include "engine/networkaccessmanager/networkaccessmanager.h"
 
 TestNetworkAccessManager::TestNetworkAccessManager()
 {
+#ifdef Q_OS_WIN
     // Initialize Winsock
     WSADATA wsaData;
     WSAStartup(MAKEWORD(2,2), &wsaData);
+#endif
 }
 
 TestNetworkAccessManager::~TestNetworkAccessManager()
@@ -41,7 +45,7 @@ void TestNetworkAccessManager::test_get()
         progressCalled++;
     });
 
-    QSignalSpy signalFinished(reply, SIGNAL(finished()));
+    QSignalSpy signalFinished(reply, SIGNAL(finished(int)));
     signalFinished.wait(20000);
     QCOMPARE(signalFinished.count(), 1);
     QVERIFY(progressCalled > 0);
@@ -76,7 +80,7 @@ void TestNetworkAccessManager::test_post()
         progressCalled++;
     });
 
-    QSignalSpy signalFinished(reply, SIGNAL(finished()));
+    QSignalSpy signalFinished(reply, SIGNAL(finished(int)));
     signalFinished.wait(20000);
     QCOMPARE(signalFinished.count(), 1);
     QVERIFY(progressCalled > 0);
@@ -110,7 +114,7 @@ void TestNetworkAccessManager::test_put()
         progressCalled++;
     });
 
-    QSignalSpy signalFinished(reply, SIGNAL(finished()));
+    QSignalSpy signalFinished(reply, SIGNAL(finished(int)));
     signalFinished.wait(20000);
     QCOMPARE(signalFinished.count(), 1);
     QVERIFY(progressCalled > 0);
@@ -140,7 +144,7 @@ void TestNetworkAccessManager::test_delete()
         progressCalled++;
     });
 
-    QSignalSpy signalFinished(reply, SIGNAL(finished()));
+    QSignalSpy signalFinished(reply, SIGNAL(finished(int)));
     signalFinished.wait(20000);
     QCOMPARE(signalFinished.count(), 1);
     QVERIFY(progressCalled > 0);
@@ -158,7 +162,7 @@ void TestNetworkAccessManager::test_whitelist()
 
         QSignalSpy signalWhitelist(manager, &NetworkAccessManager::whitelistIpsChanged);
 
-        QSignalSpy signalFinished(reply, SIGNAL(finished()));
+        QSignalSpy signalFinished(reply, SIGNAL(finished(int)));
         signalFinished.wait(20000);
 
         QCOMPARE(signalWhitelist.count(), 1);
@@ -178,7 +182,7 @@ void TestNetworkAccessManager::test_whitelist()
 
         QSignalSpy signalWhitelist(manager, &NetworkAccessManager::whitelistIpsChanged);
 
-        QSignalSpy signalFinished(reply, SIGNAL(finished()));
+        QSignalSpy signalFinished(reply, SIGNAL(finished(int)));
         signalFinished.wait(20000);
 
         QCOMPARE(signalWhitelist.count(), 2);

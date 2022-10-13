@@ -6,7 +6,7 @@
 #include <QSharedData>
 #include "types/enums.h"
 #include "types/connectionsettings.h"
-#include "types/dnsresolutionsettings.h"
+#include "types/apiresolutionsettings.h"
 #include "types/proxysettings.h"
 #include "types/firewallsettings.h"
 #include "types/packetsize.h"
@@ -39,7 +39,7 @@ struct EngineSettingsData : public QSharedData
     bool isAllowLanTraffic;
     types::FirewallSettings firewallSettings;
     types::ConnectionSettings connectionSettings;
-    types::DnsResolutionSettings dnsResolutionSettings;
+    types::ApiResolutionSettings apiResolutionSettings;
     types::ProxySettings proxySettings;
     types::PacketSize packetSize;
     types::MacAddrSpoofing macAddrSpoofing;
@@ -79,8 +79,8 @@ public:
     void setFirewallSettings(const types::FirewallSettings &fs);
     const types::ConnectionSettings &connectionSettings() const;
     void setConnectionSettings(const types::ConnectionSettings &cs);
-    const types::DnsResolutionSettings &dnsResolutionSettings() const;
-    void setDnsResolutionSettings(const types::DnsResolutionSettings &drs);
+    const types::ApiResolutionSettings &apiResolutionSettings() const;
+    void setApiResolutionSettings(const types::ApiResolutionSettings &drs);
     const types::ProxySettings &proxySettings() const;
     void setProxySettings(const types::ProxySettings &ps);
     DNS_POLICY_TYPE dnsPolicy() const;

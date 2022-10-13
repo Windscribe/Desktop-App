@@ -3,11 +3,12 @@
 #include <QJsonDocument>
 
 #include "utils/logger.h"
+#include "engine/utils/urlquery_utils.h"
 
 namespace server_api {
 
-RecordInstallRequest::RecordInstallRequest(QObject *parent, const QString &hostname) :
-    BaseRequest(parent, RequestType::kPost, hostname)
+RecordInstallRequest::RecordInstallRequest(QObject *parent) :
+    BaseRequest(parent, RequestType::kPost)
 {
 }
 
@@ -19,19 +20,19 @@ QString RecordInstallRequest::contentTypeHeader() const
 QByteArray RecordInstallRequest::postData() const
 {
     QUrlQuery postData;
-    addAuthQueryItems(postData);
-    addPlatformQueryItems(postData);
+    urlquery_utils::addAuthQueryItems(postData);
+    urlquery_utils::addPlatformQueryItems(postData);
     return postData.toString(QUrl::FullyEncoded).toUtf8();
 }
 
-QUrl RecordInstallRequest::url() const
+QUrl RecordInstallRequest::url(const QString &domain) const
 {
 #ifdef Q_OS_WIN
-    QUrl url("https://" + hostname(SudomainType::kApi) + "/RecordInstall/app/win");
+    QUrl url("https://" + hostname(domain, SudomainType::kApi) + "/RecordInstall/app/win");
 #elif defined Q_OS_MAC
-    QUrl url("https://" + hostname(SudomainType::kApi) + "/RecordInstall/app/mac");
+    QUrl url("https://" + hostname(domain, SudomainType::kApi) + "/RecordInstall/app/mac");
 #elif defined Q_OS_LINUX
-    QUrl url("https://" + hostname(SudomainType::kApi) + "/RecordInstall/app/linux");
+    QUrl url("https://" + hostname(domain, SudomainType::kApi) + "/RecordInstall/app/linux");
 #endif
     return url;
 }
@@ -44,7 +45,6 @@ QString RecordInstallRequest::name() const
 void RecordInstallRequest::handle(const QByteArray &arr)
 {
     qCDebug(LOG_SERVER_API) << "RecordInstall request successfully executed";
-    setRetCode(SERVER_RETURN_SUCCESS);
 }
 
 } // namespace server_api {

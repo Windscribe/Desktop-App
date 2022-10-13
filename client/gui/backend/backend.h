@@ -37,8 +37,7 @@ public:
     void login(const QString &username, const QString &password, const QString &code2fa);
     bool isCanLoginWithAuthHash() const;
     bool isSavedApiSettingsExists() const;
-    QString getCurrentAuthHash() const;
-    void loginWithAuthHash(const QString &authHash);
+    void loginWithAuthHash();
     void loginWithLastLoginSettings();
     bool isLastLoginWithAuthHash() const;
     void signOut(bool keepFirewallOn);
@@ -76,7 +75,6 @@ public:
     void speedRating(int rating, const QString &localExternalIp);
 
     void setBlockConnect(bool isBlockConnect);
-    void clearCredentials();
 
     void getRobertFilters();
     void setRobertFilter(const types::RobertFilter &filter);
@@ -127,7 +125,7 @@ signals:
     void gotoCustomOvpnConfigModeFinished();
 
     void loginFinished(bool isLoginFromSavedSettings);
-    void loginStepMessage(LOGIN_MESSAGE msg);
+    void tryingBackupEndpoint(int num, int cnt);
     void loginError(LOGIN_RET loginError, const QString &errorMessage);
 
     void signOutFinished();
@@ -177,7 +175,11 @@ signals:
 
 private:
     bool isSavedApiSettingsExists_;
+
     bool bLastLoginWithAuthHash_;
+    QString lastUsername_;
+    QString lastPassword_;
+    QString lastCode2fa_;
 
     types::SessionStatus latestSessionStatus_;
     types::EngineSettings latestEngineSettings_;
@@ -192,6 +194,7 @@ private:
 
     gui_locations::LocationsModelManager *locationsModelManager_;
 
+    bool isCanLoginWithAuthHash_;
     bool isFirewallEnabled_;
 
     PreferencesHelper preferencesHelper_;

@@ -8,11 +8,11 @@ class SpeedRatingRequest : public BaseRequest
 {
     Q_OBJECT
 public:
-    explicit SpeedRatingRequest(QObject *parent, const QString &hostname, const QString &authHash, const QString &speedRatingHostname, const QString &ip, int rating);
+    explicit SpeedRatingRequest(QObject *parent, const QString &authHash, const QString &speedRatingHostname, const QString &ip, int rating);
 
     QString contentTypeHeader() const override;
     QByteArray postData() const override;
-    QUrl url() const override;
+    QUrl url(const QString &domain) const override;
     QString name() const override;
     void handle(const QByteArray &arr) override;
 

@@ -128,7 +128,7 @@ private slots:
 
     void onHostnamesResolved();
 
-    void onGetWireGuardConfigAnswer(SERVER_API_RET_CODE retCode, const WireGuardConfig &config);
+    void onGetWireGuardConfigAnswer(WireGuardConfigRetCode retCode, const WireGuardConfig &config);
 
 private:
     enum {STATE_DISCONNECTED, STATE_CONNECTING_FROM_USER_CLICK, STATE_CONNECTED, STATE_RECONNECTING,

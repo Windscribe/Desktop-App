@@ -1,6 +1,7 @@
 #include "networkaccessmanager.h"
 
 #include <QSslSocket>
+#include <QThread>
 
 #include "utils/ws_assert.h"
 
@@ -114,11 +115,11 @@ void NetworkAccessManager::onCurlReplyFinished()
     auto it = activeRequests_.find(replyId);
     if (it != activeRequests_.end()) {
         QSharedPointer<RequestData> requestData = it.value();
+        activeRequests_.erase(it);
         requestData->reply->checkForCurlError();
-        emit requestData->reply->finished(requestData->elapsedTimer_.elapsed());
         if (requestData->request.isRemoveFromWhitelistIpsAfterFinish())
             whitelistIpsManager_->remove(requestData->request.url().host());
-        activeRequests_.erase(it);
+        emit requestData->reply->finished(requestData->elapsedTimer_.elapsed());
     }
 }
 
@@ -145,8 +146,8 @@ void NetworkAccessManager::onCurlReadyRead()
 void NetworkAccessManager::onResolved(bool success, const QStringList &ips, quint64 id, bool bFromCache, int timeMs)
 {
     Q_UNUSED(bFromCache);
-    const auto it = activeRequests_.find(id);
-    if (it != activeRequests_.constEnd()) {
+    auto it = activeRequests_.find(id);
+    if (it != activeRequests_.end()) {
         QSharedPointer<RequestData> requestData = it.value();
 
         if (success) {
@@ -175,14 +176,14 @@ void NetworkAccessManager::onResolved(bool success, const QStringList &ips, quin
                 connect(curlReply, &CurlReply::progress, this, &NetworkAccessManager::onCurlProgress);
                 connect(curlReply, &CurlReply::readyRead, this, &NetworkAccessManager::onCurlReadyRead);
             } else {    // timeout exceed
+                activeRequests_.erase(it);
                 requestData->reply->setError(NetworkReply::TimeoutExceed);
                 emit requestData->reply->finished(requestData->elapsedTimer_.elapsed());
-                activeRequests_.erase(it);
             }
         } else {
+            activeRequests_.erase(it);
             requestData->reply->setError(NetworkReply::DnsResolveError);
             emit requestData->reply->finished(requestData->elapsedTimer_.elapsed());
-            activeRequests_.erase(it);
         }
     }
 }
@@ -195,14 +196,10 @@ types::ProxySettings NetworkAccessManager::currentProxySettings() const
         return types::ProxySettings();
 }
 
-quint64 NetworkAccessManager::getNextId()
-{
-    return nextId_++;
-}
-
 NetworkReply *NetworkAccessManager::invokeHandleRequest(NetworkAccessManager::REQUEST_TYPE type, const NetworkRequest &request, const QByteArray &data)
 {
-    quint64 id = getNextId();
+    quint64 id = nextId_++;
+
     NetworkReply *reply = new NetworkReply(this);
     reply->setProperty("replyId", id);
 
@@ -221,4 +218,3 @@ NetworkReply *NetworkAccessManager::invokeHandleRequest(NetworkAccessManager::RE
 
     return reply;
 }
-

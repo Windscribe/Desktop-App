@@ -46,6 +46,30 @@ QString ServerCredentials::passwordForIkev2() const
     return passwordIkev2_;
 }
 
+void ServerCredentials::setForOpenVpn(const QString &username, const QString &password)
+{
+    bInitialized_ = true;
+    usernameOpenVpn_ = username;
+    passwordOpenVpn_ = password;
+}
+
+void ServerCredentials::setForIkev2(const QString &username, const QString &password)
+{
+    bInitialized_ = true;
+    usernameIkev2_ = username;
+    passwordIkev2_ = password;
+}
+
+bool ServerCredentials::isIkev2Initialized() const
+{
+    return bInitialized_ && !usernameIkev2_.isEmpty() && !passwordIkev2_.isEmpty();
+}
+
+bool ServerCredentials::isOpenVpnInitialized() const
+{
+    return bInitialized_ && !usernameOpenVpn_.isEmpty() && !passwordOpenVpn_.isEmpty();
+}
+
 QDataStream& operator <<(QDataStream &stream, const ServerCredentials &s)
 {
     WS_ASSERT(s.bInitialized_);

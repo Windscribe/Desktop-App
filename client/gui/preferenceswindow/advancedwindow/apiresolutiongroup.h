@@ -7,7 +7,7 @@
 #include "preferenceswindow/checkboxitem.h"
 #include "preferenceswindow/editboxitem.h"
 #include "preferenceswindow/preferencegroup.h"
-#include "types/dnsresolutionsettings.h"
+#include "types/apiresolutionsettings.h"
 
 namespace PreferencesWindow {
 
@@ -19,11 +19,11 @@ public:
                                 const QString &desc = "",
                                 const QString &descUrl = "");
 
-    void setApiResolution(const types::DnsResolutionSettings &ar);
+    void setApiResolution(const types::ApiResolutionSettings &ar);
     bool hasItemWithFocus() override;
 
 signals:
-    void apiResolutionChanged(const types::DnsResolutionSettings &ar);
+    void apiResolutionChanged(const types::ApiResolutionSettings &ar);
 
 private slots:
     void onAutomaticChanged(QVariant value);
@@ -33,7 +33,7 @@ private:
     void updateMode();
     ComboBoxItem *resolutionModeItem_;
     EditBoxItem *editBoxIP_;
-    types::DnsResolutionSettings settings_;
+    types::ApiResolutionSettings settings_;
 };
 
 } // namespace PreferencesWindow

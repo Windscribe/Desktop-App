@@ -2,13 +2,14 @@
 #define GETWIREGUARDCONFIG_H
 
 #include <QObject>
-#include "types/enums.h"
 #include "wireguardconfig.h"
 #include "utils/simplecrypt.h"
 
 namespace server_api {
 class ServerAPI;
 }
+
+enum class WireGuardConfigRetCode { kSuccess, kKeyLimit, kFailed };
 
 // manages the logic of getting a WireGuard config using ServerAPI (wgConfigsInit(...) and wgConfigsConnect(...) functions)
 // also saves/restores some values of WireGuard config as permanent in settings
@@ -24,7 +25,7 @@ public:
     static void removeWireGuardSettings();
 
 signals:
-    void getWireGuardConfigAnswer(SERVER_API_RET_CODE retCode, const WireGuardConfig &config);
+    void getWireGuardConfigAnswer(WireGuardConfigRetCode retCode, const WireGuardConfig &config);
 
 private slots:
     void onWgConfigsInitAnswer();

@@ -15,7 +15,6 @@ namespace PreferencesWindow {
 
 AccountWindowItem::AccountWindowItem(ScalableGraphicsObject *parent, AccountInfo *accountInfo) : CommonGraphics::BasePage(parent)
 {
-    authHash_ = accountInfo->authHash();
     plan_ = accountInfo->plan();
     trafficUsed_ = accountInfo->trafficUsed();
 
@@ -27,7 +26,6 @@ AccountWindowItem::AccountWindowItem(ScalableGraphicsObject *parent, AccountInfo
     connect(accountInfo, &AccountInfo::isNeedConfirmEmailChanged, this, &AccountWindowItem::onIsNeedConfirmEmailChanged);
     connect(accountInfo, &AccountInfo::planChanged, this, &AccountWindowItem::onPlanChanged);
     connect(accountInfo, &AccountInfo::expireDateChanged, this, &AccountWindowItem::onExpireDateChanged);
-    connect(accountInfo, &AccountInfo::authHashChanged, this, &AccountWindowItem::onAuthHashChanged);
     connect(accountInfo, &AccountInfo::isPremiumChanged, this, &AccountWindowItem::onIsPremiumChanged);
     connect(accountInfo, &AccountInfo::trafficUsedChanged, this, &AccountWindowItem::onTrafficUsedChanged);
     connect(accountInfo, &AccountInfo::lastResetChanged, this, &AccountWindowItem::onLastResetChanged);
@@ -69,7 +67,6 @@ AccountWindowItem::AccountWindowItem(ScalableGraphicsObject *parent, AccountInfo
     dataLeftItem_ = new AccountDataItem(planGroup_, tr("Data Left"), tr(""));
     planGroup_->addItem(dataLeftItem_);
     addItem(planGroup_);
-
 
     // don't set url on this since we need to first grab the temp_session_token from the api first
     // this is because we want to obscure user auth info by POST request to API rather than QDesktopServices HTTP GET
@@ -171,11 +168,6 @@ void AccountWindowItem::onTrafficUsedChanged(qint64 used)
 {
     trafficUsed_ = used;
     setDataLeft();
-}
-
-void AccountWindowItem::onAuthHashChanged(const QString &authHash)
-{
-    authHash_ = authHash;
 }
 
 void AccountWindowItem::onUpgradeClicked()

@@ -33,12 +33,12 @@ private slots:
     void onConnectionStateCallback(int state, IPC::IConnection *connection);
 
     void onEngineCleanupFinished();
-    void onEngineInitFinished(ENGINE_INIT_RET_CODE retCode);
-    void onEngineBfeEnableFinished(ENGINE_INIT_RET_CODE retCode);
+    void onEngineInitFinished(ENGINE_INIT_RET_CODE retCode, bool isCanLoginWithAuthHash);
+    void onEngineBfeEnableFinished(ENGINE_INIT_RET_CODE retCode, bool isCanLoginWithAuthHash);
     void onEngineFirewallStateChanged(bool isEnabled);
     void onEngineLoginFinished(bool isLoginFromSavedSettings, const QString &authHash, const types::PortMap &portMap);
     void onEngineLoginError(LOGIN_RET retCode, const QString &errorMessage);
-    void onEngineLoginMessage(LOGIN_MESSAGE msg);
+    void onEngineTryingBackupEndpoint(int num, int cnt);
     void onEngineSessionDeleted();
     void onEngineUpdateSessionStatus(const types::SessionStatus &sessionStatus);
     void onEngineNotificationsUpdated(const QVector<types::Notification> &notifications);
@@ -103,7 +103,7 @@ private:
 
     //void serverCallbackAcceptFunction(IPC::IConnection *connection);
     bool handleCommand(IPC::Command *command);
-    void sendEngineInitReturnCode(ENGINE_INIT_RET_CODE retCode);
+    void sendEngineInitReturnCode(ENGINE_INIT_RET_CODE retCode, bool isCanLoginWithAuthHash);
     void sendConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, CONNECT_ERROR err, const LocationID &locationId);
 
     void sendFirewallStateChanged(bool isEnabled);

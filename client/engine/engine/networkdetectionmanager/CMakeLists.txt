@@ -1,5 +1,7 @@
 target_sources(engine PRIVATE
-    inetworkdetectionmanager.h
+    inetworkdetectionmanager.h 
+    waitfornetworkconnectivity.cpp
+    waitfornetworkconnectivity.h
 )
 
 if (WIN32)

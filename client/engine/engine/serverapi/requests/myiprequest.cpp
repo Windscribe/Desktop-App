@@ -4,19 +4,20 @@
 #include <QJsonObject>
 
 #include "utils/logger.h"
+#include "engine/utils/urlquery_utils.h"
 
 namespace server_api {
 
-MyIpRequest::MyIpRequest(QObject *parent, const QString &hostname, int timeout) : BaseRequest(parent, RequestType::kGet, hostname, true, timeout)
+MyIpRequest::MyIpRequest(QObject *parent, int timeout) : BaseRequest(parent, RequestType::kGet, true, timeout)
 {
 }
 
-QUrl MyIpRequest::url() const
+QUrl MyIpRequest::url(const QString &domain) const
 {
-    QUrl url("https://" + hostname(SudomainType::kApi) + "/MyIp");
+    QUrl url("https://" + hostname(domain, SudomainType::kApi) + "/MyIp");
     QUrlQuery query;
-    addAuthQueryItems(query);
-    addPlatformQueryItems(query);
+    urlquery_utils::addAuthQueryItems(query);
+    urlquery_utils::addPlatformQueryItems(query);
     url.setQuery(query);
     return url;
 }
@@ -33,7 +34,7 @@ void MyIpRequest::handle(const QByteArray &arr)
     if (errCode.error != QJsonParseError::NoError || !doc.isObject()) {
         qCDebugMultiline(LOG_SERVER_API) << arr;
         qCDebug(LOG_SERVER_API) << "API request MyIP incorrect json";
-        setRetCode(SERVER_RETURN_INCORRECT_JSON);
+        setNetworkRetCode(SERVER_RETURN_INCORRECT_JSON);
         return;
     }
 
@@ -41,17 +42,16 @@ void MyIpRequest::handle(const QByteArray &arr)
     if (!jsonObject.contains("data")) {
         qCDebugMultiline(LOG_SERVER_API) << arr;
         qCDebug(LOG_SERVER_API) << "API request MyIP incorrect json(data field not found)";
-        setRetCode(SERVER_RETURN_INCORRECT_JSON);
+        setNetworkRetCode(SERVER_RETURN_INCORRECT_JSON);
         return;
     }
     QJsonObject jsonData =  jsonObject["data"].toObject();
     if (!jsonData.contains("user_ip")) {
         qCDebugMultiline(LOG_SERVER_API) << arr;
         qCDebug(LOG_SERVER_API) << "API request MyIP incorrect json(user_ip field not found)";
-        setRetCode(SERVER_RETURN_INCORRECT_JSON);
+        setNetworkRetCode(SERVER_RETURN_INCORRECT_JSON);
     }
     ip_ = jsonData["user_ip"].toString();
-    setRetCode(SERVER_RETURN_SUCCESS);
 }
 
 

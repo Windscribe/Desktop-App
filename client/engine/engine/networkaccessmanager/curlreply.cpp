@@ -1,27 +1,11 @@
 #include "curlreply.h"
 #include "curlnetworkmanager.h"
 
-CurlReply::CurlReply(CurlNetworkManager *manager, const NetworkRequest &networkRequest, const types::ProxySettings &proxySettings, const QStringList &ips, REQUEST_TYPE requestType, const QByteArray &postData)
+CurlReply::CurlReply(CurlNetworkManager *manager, quint64 id)
     : QObject(manager),
-      networkRequest_(networkRequest),
-      proxySettings_(proxySettings),
-      ips_(ips),
-      requestType_(requestType),
-      postData_(postData),
-      manager_(manager)
+      manager_(manager),
+      id_(id)
 {
-    static std::atomic<quint64> id(0);
-    id_ = id++;
-}
-
-const NetworkRequest &CurlReply::networkRequest() const
-{
-    return networkRequest_;
-}
-
-QStringList CurlReply::ips() const
-{
-    return ips_;
 }
 
 void CurlReply::appendNewData(const QByteArray &newData)
@@ -37,24 +21,9 @@ void CurlReply::setCurlErrorCode(CURLcode curlErrorCode)
     curlErrorCode_ = curlErrorCode;
 }
 
-CurlReply::REQUEST_TYPE CurlReply::requestType() const
-{
-    return requestType_;
-}
-
-const QByteArray &CurlReply::postData() const
-{
-    return postData_;
-}
-
 quint64 CurlReply::id() const
 {
     return id_;
-}
-
-void CurlReply::addCurlListForFreeLater(curl_slist *list)
-{
-    curlLists_ << list;
 }
 
 CurlReply::~CurlReply()
@@ -65,10 +34,6 @@ CurlReply::~CurlReply()
 void CurlReply::abort()
 {
     manager_->abort(this);
-    for (struct curl_slist *list : qAsConst(curlLists_)) {
-        curl_slist_free_all(list);
-    }
-    curlLists_.clear();
 }
 
 QByteArray CurlReply::readAll()

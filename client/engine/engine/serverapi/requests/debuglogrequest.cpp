@@ -4,11 +4,12 @@
 #include <QJsonObject>
 
 #include "utils/logger.h"
+#include "engine/utils/urlquery_utils.h"
 
 namespace server_api {
 
-DebugLogRequest::DebugLogRequest(QObject *parent, const QString &hostname, const QString &username, const QString &strLog) :
-    BaseRequest(parent, RequestType::kPost, hostname),
+DebugLogRequest::DebugLogRequest(QObject *parent, const QString &username, const QString &strLog) :
+    BaseRequest(parent, RequestType::kPost),
     username_(username),
     strLog_(strLog)
 {
@@ -26,14 +27,14 @@ QByteArray DebugLogRequest::postData() const
     postData.addQueryItem("logfile", ba.toBase64());
     if (!username_.isEmpty())
         postData.addQueryItem("username", username_);
-    addAuthQueryItems(postData);
-    addPlatformQueryItems(postData);
+    urlquery_utils::addAuthQueryItems(postData);
+    urlquery_utils::addPlatformQueryItems(postData);
     return postData.toString(QUrl::FullyEncoded).toUtf8();
 }
 
-QUrl DebugLogRequest::url() const
+QUrl DebugLogRequest::url(const QString &domain) const
 {
-    return  QUrl("https://" + hostname(SudomainType::kApi) + "/Report/applog");
+    return  QUrl("https://" + hostname(domain, SudomainType::kApi) + "/Report/applog");
 }
 
 QString DebugLogRequest::name() const
@@ -48,7 +49,7 @@ void DebugLogRequest::handle(const QByteArray &arr)
     if (errCode.error != QJsonParseError::NoError || !doc.isObject()) {
         qCDebugMultiline(LOG_SERVER_API) << arr;
         qCDebug(LOG_SERVER_API) << "Failed parse JSON for Report";
-        setRetCode(SERVER_RETURN_INCORRECT_JSON);
+        setNetworkRetCode(SERVER_RETURN_INCORRECT_JSON);
         return;
     }
 
@@ -56,19 +57,21 @@ void DebugLogRequest::handle(const QByteArray &arr)
     if (!jsonObject.contains("data")) {
         qCDebugMultiline(LOG_SERVER_API) << arr;
         qCDebug(LOG_SERVER_API) << "Failed parse JSON for Report";
-        setRetCode(SERVER_RETURN_INCORRECT_JSON);
+        setNetworkRetCode(SERVER_RETURN_INCORRECT_JSON);
         return;
     }
     QJsonObject jsonData =  jsonObject["data"].toObject();
     if (!jsonData.contains("success")) {
         qCDebugMultiline(LOG_SERVER_API) << arr;
         qCDebug(LOG_SERVER_API) << "Failed parse JSON for Report";
-        setRetCode(SERVER_RETURN_INCORRECT_JSON);
+        setNetworkRetCode(SERVER_RETURN_INCORRECT_JSON);
         return;
     }
 
-    int is_success = jsonData["success"].toInt();
-    setRetCode(is_success == 1 ? SERVER_RETURN_SUCCESS : SERVER_RETURN_INCORRECT_JSON);
+    if (jsonData["success"].toInt() != 1) {
+        setNetworkRetCode(SERVER_RETURN_INCORRECT_JSON);
+        return;
+    }
 }
 
 } // namespace server_api {
