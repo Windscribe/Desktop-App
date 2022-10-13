@@ -156,6 +156,7 @@ int main(int argc, char *argv[])
     qCDebug(LOG_BASIC) << "OS Version:" << Utils::getOSVersion();
     qCDebug(LOG_BASIC) << "CPU architecture:" << QSysInfo::currentCpuArchitecture();
 
+    ExtraConfig::instance().logExtraConfig();
 
 #ifdef Q_OS_WIN
     InstalledAntiviruses_win::outToLog();
