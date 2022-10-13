@@ -20,7 +20,7 @@ AutoConnSettingsPolicy::AutoConnSettingsPolicy(QSharedPointer<locationsmodel::Ba
     WS_ASSERT(!locationInfo_->locationId().isCustomConfigsLocation());
 
     // remove wstunnel and WireGuard protocols from portMap_ for automatic connection mode
-    QVector<types::PortItem>::iterator it = portMap_.items().begin();
+    /*QVector<types::PortItem>::iterator it = portMap_.items().begin();
     while (it != portMap_.items().end())
     {
         if (it->protocol == PROTOCOL::WSTUNNEL ||
@@ -32,10 +32,7 @@ AutoConnSettingsPolicy::AutoConnSettingsPolicy(QSharedPointer<locationsmodel::Ba
         {
             ++it;
         }
-    }
-
-    // sort portmap protocols in the following order: ikev2, udp, tcp, stealth
-    std::sort(portMap_.items().begin(), portMap_.items().end(), sortPortMapFunction);
+    }*/
 
     PROTOCOL lastSuccessProtocolSaved;
     QSettings settings;
@@ -226,46 +223,4 @@ void AutoConnSettingsPolicy::resolveHostnames()
 {
     // nothing todo
     emit hostnamesResolved();
-}
-
-// sort portmap protocols in the following order: ikev2, udp, tcp, stealth
-// operator<
-bool AutoConnSettingsPolicy::sortPortMapFunction(const types::PortItem &p1, const types::PortItem &p2)
-{
-    if (p1.protocol == PROTOCOL::IKEV2)
-    {
-        return true;
-    }
-    else if (p1.protocol == PROTOCOL::OPENVPN_UDP)
-    {
-        if (p2.protocol == PROTOCOL::IKEV2 || p2.protocol == PROTOCOL::OPENVPN_UDP)
-        {
-            return false;
-        }
-        else
-        {
-            return true;
-        }
-    }
-    else if (p1.protocol == PROTOCOL::OPENVPN_TCP)
-    {
-        if (p2.protocol == PROTOCOL::IKEV2 || p2.protocol == PROTOCOL::OPENVPN_UDP
-                || p2.protocol == PROTOCOL::OPENVPN_TCP)
-        {
-            return false;
-        }
-        else
-        {
-            return true;
-        }
-    }
-    else if (p1.protocol == PROTOCOL::STUNNEL)
-    {
-        return false;
-    }
-    else
-    {
-        WS_ASSERT(false);
-    }
-    return 0;
 }
