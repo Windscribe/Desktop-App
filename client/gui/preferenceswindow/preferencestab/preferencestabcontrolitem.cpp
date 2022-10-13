@@ -49,7 +49,7 @@ PreferencesTabControlItem::PreferencesTabControlItem(ScalableGraphicsObject * pa
 
     updateTopAnchoredButtonsPos();
     
-    dividerLine_ = new CommonGraphics::DividerLine(this, 32*G_SCALE, 0);
+    dividerLine_ = new CommonGraphics::DividerLine(this, 32, 0);
     dividerLine_->setOpacity(0.1);
 
     if (loggedIn_)
