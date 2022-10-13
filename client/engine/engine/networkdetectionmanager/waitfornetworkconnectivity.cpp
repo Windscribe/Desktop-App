@@ -22,6 +22,7 @@ void WaitForNetworkConnectivity::onOnlineStateChanged(bool isOnline)
     if (isOnline) {
         disconnect(networkDetectionManager_, &INetworkDetectionManager::onlineStateChanged, this, &WaitForNetworkConnectivity::onOnlineStateChanged);
         disconnect(timer_, &QTimer::timeout, this, &WaitForNetworkConnectivity::onTimer);
+        timer_->stop();
         emit connectivityOnline();
     }
 }

@@ -1484,11 +1484,13 @@ void Engine::onConnectionManagerError(CONNECT_ERROR err)
         }
         else
         {
-            // force update session status (for check blocked, banned account state)
-            apiResourcesManager_->fetchSession();
-            // update server credentials and try connect again after update
-            connect(apiResourcesManager_.get(), &api_resources::ApiResourcesManager::serverCredentialsFetched, this, &Engine::onApiResourcesManagerServerCredentialsFetched);
-            apiResourcesManager_->fetchServerCredentials();
+            if (apiResourcesManager_) {
+                // force update session status (for check blocked, banned account state)
+                apiResourcesManager_->fetchSession();
+                // update server credentials and try connect again after update
+                connect(apiResourcesManager_.get(), &api_resources::ApiResourcesManager::serverCredentialsFetched, this, &Engine::onApiResourcesManagerServerCredentialsFetched);
+                apiResourcesManager_->fetchServerCredentials();
+            }
         }
         return;
     }

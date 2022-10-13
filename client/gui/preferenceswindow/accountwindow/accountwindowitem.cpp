@@ -15,7 +15,6 @@ namespace PreferencesWindow {
 
 AccountWindowItem::AccountWindowItem(ScalableGraphicsObject *parent, AccountInfo *accountInfo) : CommonGraphics::BasePage(parent)
 {
-    authHash_ = accountInfo->authHash();
     plan_ = accountInfo->plan();
     trafficUsed_ = accountInfo->trafficUsed();
 

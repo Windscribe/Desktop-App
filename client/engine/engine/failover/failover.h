@@ -31,7 +31,7 @@ private:
     QVector<BaseFailover *> failovers_;
     int curFailoverInd_ = -1;
     QStringList curFailoverHostnames_;
-    int cutFaiolverHostnameInd_ = -1;
+    int curFaiolverHostnameInd_ = -1;
     bool isFailoverInProgress_ = false;
     bool bIgnoreSslErrors_ = false;
     types::ApiResolutionSettings apiResolutionSettings_;

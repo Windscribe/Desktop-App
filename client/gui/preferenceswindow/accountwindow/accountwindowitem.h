@@ -63,7 +63,6 @@ private:
     CommonGraphics::BubbleButtonDark *loginButton_;
     void updateWidgetPos();
 
-    QString authHash_;
     qint64 plan_;
     qint64 trafficUsed_;
 
