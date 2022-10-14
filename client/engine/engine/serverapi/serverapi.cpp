@@ -3,6 +3,7 @@
 #include <QUrl>
 #include <QUrlQuery>
 
+#include "utils/extraconfig.h"
 #include "utils/ws_assert.h"
 #include "utils/logger.h"
 #include "utils/utils.h"
@@ -318,7 +319,14 @@ void ServerAPI::handleNetworkRequestFinished()
         }
     }
     else {  // if reply->isSuccess()
-        pointerToRequest->handle(reply->readAll());
+        QByteArray serverResponse = reply->readAll();
+
+        if (ExtraConfig::instance().getLogAPIResponse()) {
+            qCDebug(LOG_SERVER_API) << pointerToRequest->name();
+            qCDebugMultiline(LOG_SERVER_API) << serverResponse;
+        }
+
+        pointerToRequest->handle(serverResponse);
         emit pointerToRequest->finished();
 
         // if for the current request we performed the failover algorithm, then set the state of failover to the kReady
