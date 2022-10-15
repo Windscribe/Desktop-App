@@ -1,11 +1,11 @@
-#ifndef HARDCODEDSETTINGS_H
-#define HARDCODEDSETTINGS_H
+#pragma once
 
+#include <QSettings>
 #include <QString>
 #include <QStringList>
-#include <QSettings>
-#include "version/appversion.h"
+
 #include "utils/simplecrypt.h"
+#include "version/appversion.h"
 
 class HardcodedSettings
 {
@@ -21,13 +21,10 @@ public:
     QStringList dynamicDomainsUrls() const { return dynamicDomainsUrls_; }
     QStringList dynamicDomains() const { return dynamicDomains_; }
 
-    QString serverApiSubdomain() const {
-        if (AppVersion::instance().isStaging()) return "api-staging";
-        else return "api";
-    }
-    QString serverAssetsSubdomain() const { return "assets"; }
+    QString serverApiSubdomain() const;
+    QString serverAssetsSubdomain() const;
     QString serverTunnelTestSubdomain() const { return "checkip"; }
-    QString serverUrl() const { return "www.windscribe.com"; }
+    QString serverUrl() const;
     QString serverSharedKey() const { return "952b4412f002315aa50751032fcaab03"; }
 
     const QStringList openDns() const;
@@ -55,7 +52,29 @@ private:
     QByteArray passwordForRandomDomain_;
 
     SimpleCrypt simpleCrypt_;
-    QStringList readArrayFromIni(const QSettings &settings, const QString &key, const QString &value, bool bWithDescrypt);
+    QStringList readArrayFromIni(const QSettings &settings, const QString &key, const QString &value, bool bWithDecrypt);
 };
 
-#endif // HARDCODEDSETTINGS_H
+inline QString HardcodedSettings::serverApiSubdomain() const
+{
+    if (AppVersion::instance().isStaging())
+        return "api-staging";
+
+    return "api";
+}
+
+inline QString HardcodedSettings::serverAssetsSubdomain() const
+{
+    if (AppVersion::instance().isStaging())
+        return "assets-staging";
+
+    return "assets";
+}
+
+inline QString HardcodedSettings::serverUrl() const
+{
+    if (AppVersion::instance().isStaging())
+        return "www-staging.windscribe.com";
+
+    return "www.windscribe.com";
+}
