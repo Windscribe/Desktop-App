@@ -1,9 +1,11 @@
-#include "utils/hardcodedsettings.h"
-#include "utils/utils.h"
-#include "utils/logger.h"
+#include "hardcodedsettings.h"
+
+#include <QCryptographicHash>
 #include <QDateTime>
 #include <QStringList>
-#include <QCryptographicHash>
+
+#include "utils/logger.h"
+#include "utils/utils.h"
 
 const QStringList HardcodedSettings::openDns() const
 {
@@ -74,7 +76,7 @@ HardcodedSettings::HardcodedSettings() : simpleCrypt_(0x1272A4A3FE1A3DBA)
         qCDebug(LOG_BASIC) << "Warning: the hardcodedsecrets.ini file does not contain passwordForRandomDomain_";
 }
 
-QStringList HardcodedSettings::readArrayFromIni(const QSettings &settings, const QString &key, const QString &value, bool bWithDescrypt)
+QStringList HardcodedSettings::readArrayFromIni(const QSettings &settings, const QString &key, const QString &value, bool bWithDecrypt)
 {
     QStringList ret;
     int ind = 1;
@@ -82,15 +84,15 @@ QStringList HardcodedSettings::readArrayFromIni(const QSettings &settings, const
     while (true) {
         QVariant v = settings.value(key + "/" + value + QString::number(ind));
         if (v.isValid()) {
-            if (bWithDescrypt)
+            if (bWithDecrypt)
                 ret << simpleCrypt_.decryptToString(v.toString());
             else
                 ret << v.toString();
             ind++;
-        } else  {
+        } else {
             break;
         }
-    };
+    }
 
     return ret;
 }
