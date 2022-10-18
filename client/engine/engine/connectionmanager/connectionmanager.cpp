@@ -124,6 +124,7 @@ void ConnectionManager::clickConnect(const QString &ovpnConfig, const apiinfo::S
     lastProxySettings_ = proxySettings;
     bEmitAuthError_ = bEmitAuthError;
     customConfigPath_ = customConfigPath;
+    bli_ = bli;
 
     bWasSuccessfullyConnectionAttempt_ = false;
 
@@ -132,29 +133,15 @@ void ConnectionManager::clickConnect(const QString &ovpnConfig, const apiinfo::S
 
     state_= STATE_CONNECTING_FROM_USER_CLICK;
 
-    if (bli->locationId().isCustomConfigsLocation())
-    {
-        connSettingsPolicy_.reset(new CustomConfigConnSettingsPolicy(bli));
+    // if we had a connector before, get rid of it.  This is because we don't want to receive events from a
+    // previous connection if a new connection has started.
+    if (connector_) {
+        currentProtocol_ = PROTOCOL::UNINITIALIZED;
+        SAFE_DELETE(connector_);
+        connector_ = NULL;
     }
-    // API or static ips locations
-    else
-    {
-        if (!networkConnectionSettings.isAutomatic)
-        {
-            connSettingsPolicy_.reset(new ManualConnSettingsPolicy(bli, networkConnectionSettings, portMap));
-        }
-        else if (connectionSettings.isAutomatic)
-        {
-            connSettingsPolicy_.reset(new AutoConnSettingsPolicy(bli, portMap, proxySettings.isProxyEnabled()));
-        }
-        else
-        {
-            connSettingsPolicy_.reset(new ManualConnSettingsPolicy(bli, connectionSettings, portMap));
-        }
-    }
-    connSettingsPolicy_->start();
 
-    connect(connSettingsPolicy_.data(), SIGNAL(hostnamesResolved()), SLOT(onHostnamesResolved()));
+    updateConnectionSettingsPolicy(networkConnectionSettings, connectionSettings, portMap, proxySettings);
 
     connSettingsPolicy_->debugLocationInfoToLog();
 
@@ -164,7 +151,7 @@ void ConnectionManager::clickConnect(const QString &ovpnConfig, const apiinfo::S
 void ConnectionManager::clickDisconnect()
 {
     WS_ASSERT(state_ == STATE_CONNECTING_FROM_USER_CLICK || state_ == STATE_CONNECTED || state_ == STATE_RECONNECTING ||
-             state_ == STATE_DISCONNECTING_FROM_USER_CLICK || state_ == STATE_WAIT_FOR_NETWORK_CONNECTIVITY || state_ == STATE_DISCONNECTED);
+              state_ == STATE_DISCONNECTING_FROM_USER_CLICK || state_ == STATE_WAIT_FOR_NETWORK_CONNECTIVITY || state_ == STATE_DISCONNECTED);
 
     timerWaitNetworkConnectivity_.stop();
     getWireGuardConfigInLoop_->stop();
@@ -347,6 +334,13 @@ void ConnectionManager::onConnectionConnected(const AdapterGatewayInfo &connecti
 
 void ConnectionManager::onConnectionDisconnected()
 {
+    if (connector_ == nullptr || static_cast<IConnection *>(sender()) != connector_) {
+        // This event came from a connector that we have retired, and we already have a new connection
+        // underway. Ignore the event
+        qCDebug(LOG_CONNECTION) << "ConnectionManager::onConnectionDisconnected(), ignored";
+        return;
+    }
+
     qCDebug(LOG_CONNECTION) << "ConnectionManager::onConnectionDisconnected(), state_ =" << state_;
 
     testVPNTunnel_->stopTests();
@@ -705,14 +699,17 @@ void ConnectionManager::onWakeMode()
     switch (state_)
     {
         case STATE_DISCONNECTED:
+            break;
         case STATE_CONNECTING_FROM_USER_CLICK:
         case STATE_CONNECTED:
         case STATE_RECONNECTING:
         case STATE_WAIT_FOR_NETWORK_CONNECTIVITY:
         case STATE_DISCONNECTING_FROM_USER_CLICK:
         case STATE_RECONNECTION_TIME_EXCEED:
-            break;
         case STATE_SLEEP_MODE_NEED_RECONNECT:
+            // We should not be in some of these above states after wake up, but in some weird cases
+            // on Mac it is possible for the network to keep changing after onSleep() which may trigger
+            // some state changes.  Regardless of the above state, we should restore connection here.
             restoreConnectionAfterWakeUp();
             break;
         default:
@@ -1367,4 +1364,67 @@ bool ConnectionManager::isAllowFirewallAfterConnection() const
 PROTOCOL ConnectionManager::currentProtocol() const
 {
     return currentProtocol_;
+}
+
+void ConnectionManager::updateConnectionSettings(
+        const types::ConnectionSettings &networkConnectionSettings,
+        const types::ConnectionSettings &connectionSettings,
+        const types::PortMap &portMap,
+        const types::ProxySettings &proxySettings)
+{
+    qCDebug(LOG_CONNECTION) << "ConnectionManager::updateConnectionSettings(), state_ =" << state_;
+
+    updateConnectionSettingsPolicy(networkConnectionSettings, connectionSettings, portMap, proxySettings);
+
+    if (connector_ == nullptr) {
+        return;
+    }
+
+    switch (state_)
+    {
+        case STATE_DISCONNECTED:
+        case STATE_DISCONNECTING_FROM_USER_CLICK:
+        case STATE_WAIT_FOR_NETWORK_CONNECTIVITY:
+        case STATE_RECONNECTION_TIME_EXCEED:
+        case STATE_SLEEP_MODE_NEED_RECONNECT:
+        case STATE_WAKEUP_RECONNECTING:
+        case STATE_AUTO_DISCONNECT:
+        case STATE_ERROR_DURING_CONNECTION:
+            break;
+        case STATE_CONNECTING_FROM_USER_CLICK:
+        case STATE_CONNECTED:
+        case STATE_RECONNECTING:
+            Q_EMIT reconnecting();
+            state_ = STATE_RECONNECTING;
+            if (!timerReconnection_.isActive()) {
+                timerReconnection_.start(MAX_RECONNECTION_TIME);
+            }
+            connector_->startDisconnect();
+        default:
+            WS_ASSERT(false);
+    }
+}
+
+void ConnectionManager::updateConnectionSettingsPolicy(
+        const types::ConnectionSettings &networkConnectionSettings,
+        const types::ConnectionSettings &connectionSettings,
+        const types::PortMap &portMap,
+        const types::ProxySettings &proxySettings)
+{
+    if (!bli_) {
+        // no active connection in progress
+        return;
+    }
+
+    if (bli_->locationId().isCustomConfigsLocation()) {
+        connSettingsPolicy_.reset(new CustomConfigConnSettingsPolicy(bli_));
+    } else if (!networkConnectionSettings.isAutomatic) {
+        connSettingsPolicy_.reset(new ManualConnSettingsPolicy(bli_, networkConnectionSettings, portMap));
+    } else if (connectionSettings.isAutomatic) {
+        connSettingsPolicy_.reset(new AutoConnSettingsPolicy(bli_, portMap, proxySettings.isProxyEnabled()));
+    } else {
+        connSettingsPolicy_.reset(new ManualConnSettingsPolicy(bli_, connectionSettings, portMap));
+    }
+    connSettingsPolicy_->start();
+    connect(connSettingsPolicy_.data(), SIGNAL(hostnamesResolved()), SLOT(onHostnamesResolved()));
 }

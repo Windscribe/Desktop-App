@@ -84,6 +84,12 @@ public:
 
     PROTOCOL currentProtocol() const;
 
+    void updateConnectionSettings(
+        const types::ConnectionSettings &networkConnectionSettings,
+        const types::ConnectionSettings &connectionSettings,
+        const types::PortMap &portMap,
+        const types::ProxySettings &proxySettings);
+
 signals:
     void connected();
     void connectingToHostname(const QString &hostname, const QString &ip, const QString &dnsServer);
@@ -193,6 +199,8 @@ private:
 
     CustomDnsAdapterGatewayInfo customDnsAdapterGatewayInfo_;
 
+    QSharedPointer<locationsmodel::BaseLocationInfo> bli_;
+
     void doConnect();
     void doConnectPart2();
     void doConnectPart3();
@@ -203,6 +211,11 @@ private:
     void waitForNetworkConnectivity();
     void recreateConnector(PROTOCOL protocol);
     void restoreConnectionAfterWakeUp();
+    void updateConnectionSettingsPolicy(
+        const types::ConnectionSettings &networkConnectionSettings,
+        const types::ConnectionSettings &connectionSettings,
+        const types::PortMap &portMap,
+        const types::ProxySettings &proxySettings);
 };
 
 #endif // CONNECTIONMANAGER_H
