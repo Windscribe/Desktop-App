@@ -2456,13 +2456,13 @@ void MainWindow::onPreferencesLaunchOnStartupChanged(bool bEnabled)
 
 void MainWindow::updateConnectWindowStateProtocolPortDisplay()
 {
-    if (!backend_->getPreferences()->networkPreferredProtocol(curNetwork_.networkOrSsid).isAutomatic)
+    if (!backend_->getPreferences()->networkPreferredProtocol(curNetwork_.networkOrSsid).isAutomatic())
     {
-        mainWindowController_->getConnectWindow()->setProtocolPort(backend_->getPreferences()->networkPreferredProtocol(curNetwork_.networkOrSsid).protocol,
-                                                                   backend_->getPreferences()->networkPreferredProtocol(curNetwork_.networkOrSsid).port);
+        mainWindowController_->getConnectWindow()->setProtocolPort(backend_->getPreferences()->networkPreferredProtocol(curNetwork_.networkOrSsid).protocol(),
+                                                                   backend_->getPreferences()->networkPreferredProtocol(curNetwork_.networkOrSsid).port());
 
     }
-    else if (backend_->getPreferences()->connectionSettings().isAutomatic)
+    else if (backend_->getPreferences()->connectionSettings().isAutomatic())
     {
         //FIXME:
 #if defined(Q_OS_LINUX)
@@ -2473,8 +2473,8 @@ void MainWindow::updateConnectWindowStateProtocolPortDisplay()
     }
     else
     {
-        mainWindowController_->getConnectWindow()->setProtocolPort(backend_->getPreferences()->connectionSettings().protocol,
-                                                                   backend_->getPreferences()->connectionSettings().port);
+        mainWindowController_->getConnectWindow()->setProtocolPort(backend_->getPreferences()->connectionSettings().protocol(),
+                                                                   backend_->getPreferences()->connectionSettings().port());
     }
 }
 

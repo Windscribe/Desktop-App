@@ -1,31 +1,57 @@
 #include "connectionsettings.h"
 #include "utils/logger.h"
+#include "utils/ws_assert.h"
 
 namespace types {
 
-void ConnectionSettings::debugToLog() const
+// init with default connection settings
+ConnectionSettings::ConnectionSettings() :
+    isAutomatic_(true)
 {
-    qCDebug(LOG_BASIC) << "Connection settings automatic:" << isAutomatic;
-    qCDebug(LOG_BASIC) << "Connection settings protocol:" << protocol.toLongString();
-    qCDebug(LOG_BASIC) << "Connection settings port:" << port;
+    // take the first supported protocol on this OS (currenty it's WireGuard 443)
+    QList<Protocol> protocols = Protocol::supportedProtocols();
+    WS_ASSERT(!protocols.isEmpty());
+    protocol_ = protocols[0];
+    port_ = Protocol::defaultPortForProtocol(protocol_);
 }
 
-void ConnectionSettings::logConnectionSettings() const
+ConnectionSettings::ConnectionSettings(Protocol protocol, uint port, bool isAutomatic) :
+    protocol_(protocol), port_(port), isAutomatic_(isAutomatic)
 {
-    if (isAutomatic)
-    {
-        qCDebug(LOG_CONNECTION) << "Connection settings: automatic";
-    }
-    else
-    {
-        qCDebug(LOG_CONNECTION) << "Connection settings: manual " << protocol.toShortString() << port;
+    checkForUnavailableProtocolAndFix();
+}
+
+void ConnectionSettings::setProtocolAndPort(Protocol protocol, uint port)
+{
+    protocol_ = protocol;
+    port_ = port;
+    checkForUnavailableProtocolAndFix();
+}
+
+void ConnectionSettings::setPort(uint port)
+{
+    port_ = port;
+}
+
+void ConnectionSettings::setIsAutomatic(bool isAutomatic)
+{
+    isAutomatic_ = isAutomatic;
+}
+
+void ConnectionSettings::checkForUnavailableProtocolAndFix()
+{
+    QList<Protocol> protocols = Protocol::supportedProtocols();
+    WS_ASSERT(!protocols.isEmpty());
+    if (!protocols.contains(protocol_)) {
+        protocol_ = protocols[0];
+        port_ = Protocol::defaultPortForProtocol(protocol_);
     }
 }
 
 QDataStream& operator <<(QDataStream &stream, const ConnectionSettings &o)
 {
     stream << o.versionForSerialization_;
-    stream << o.protocol << o.port << o.isAutomatic;
+    stream << o.protocol_ << o.port_ << o.isAutomatic_;
     return stream;
 }
 
@@ -38,7 +64,8 @@ QDataStream& operator >>(QDataStream &stream, ConnectionSettings &o)
         stream.setStatus(QDataStream::ReadCorruptData);
         return stream;
     }
-    stream >> o.protocol >> o.port >> o.isAutomatic;
+    stream >> o.protocol_ >> o.port_ >> o.isAutomatic_;
+    o.checkForUnavailableProtocolAndFix();
     return stream;
 }
 
@@ -46,9 +73,9 @@ QDebug operator<<(QDebug dbg, const ConnectionSettings &cs)
 {
     QDebugStateSaver saver(dbg);
     dbg.nospace();
-    dbg << "{isAutomatic:" << cs.isAutomatic << "; ";
-    dbg << "protocol:" << cs.protocol.toLongString() << "; ";
-    dbg << "port:" << cs.port << "}";
+    dbg << "{isAutomatic:" << cs.isAutomatic_ << "; ";
+    dbg << "protocol:" << cs.protocol_.toLongString() << "; ";
+    dbg << "port:" << cs.port_ << "}";
     return dbg;
 }
 

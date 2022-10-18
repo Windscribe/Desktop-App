@@ -37,6 +37,7 @@ public:
 
     static Protocol fromString(const QString &strProtocol);
     static QList<Protocol> supportedProtocols();
+    static uint defaultPortForProtocol(Protocol protocol);
 
 private:
     TYPE value_;

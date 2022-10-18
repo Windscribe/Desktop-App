@@ -101,9 +101,13 @@ bool LegacyProtobufSupport::loadEngineSettings(const QByteArray &arr, types::Eng
 
     if (es->connection_settings)
     {
-        if (es->connection_settings->has_is_automatic) out.d->connectionSettings.isAutomatic = es->connection_settings->is_automatic;
-        if (es->connection_settings->has_port) out.d->connectionSettings.port = es->connection_settings->port;
-        if (es->connection_settings->has_protocol) out.d->connectionSettings.protocol = (types::Protocol)es->connection_settings->protocol;
+        types::Protocol protocol;
+        uint port;
+        bool isAutomatic;
+        if (es->connection_settings->has_is_automatic) isAutomatic = es->connection_settings->is_automatic;
+        if (es->connection_settings->has_port) port = es->connection_settings->port;
+        if (es->connection_settings->has_protocol) protocol = (types::Protocol)es->connection_settings->protocol;
+        out.d->connectionSettings = types::ConnectionSettings(protocol, port, isAutomatic);
     }
 
     if (es->api_resolution)

@@ -19,7 +19,8 @@ void ManualConnSettingsPolicy::reset()
 
 void ManualConnSettingsPolicy::debugLocationInfoToLog() const
 {
-    connectionSettings_.logConnectionSettings();
+    //FIXME: check output
+    qCDebug(LOG_CONNECTION) << "Connection settings:" << connectionSettings_;
     qCDebug(LOG_CONNECTION) << locationInfo_->getLogString();
 }
 
@@ -50,10 +51,10 @@ CurrentConnectionDescr ManualConnSettingsPolicy::getCurrentConnectionSettings() 
 {
     CurrentConnectionDescr ccd;
     ccd.connectionNodeType = CONNECTION_NODE_DEFAULT;
-    ccd.protocol = connectionSettings_.protocol;
-    ccd.port = connectionSettings_.port;
+    ccd.protocol = connectionSettings_.protocol();
+    ccd.port = connectionSettings_.port();
 
-    int useIpInd = portMap_.getUseIpInd(connectionSettings_.protocol);
+    int useIpInd = portMap_.getUseIpInd(connectionSettings_.protocol());
     ccd.ip = locationInfo_->getIpForSelectedNode(useIpInd);
     ccd.hostname = locationInfo_->getHostnameForSelectedNode();
     ccd.dnsHostName = locationInfo_->getDnsName();

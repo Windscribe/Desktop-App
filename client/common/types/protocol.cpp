@@ -100,16 +100,23 @@ Protocol Protocol::fromString(const QString &strProtocol)
     }
 }
 
+// return supported protocols depending on the OS in the preferred order of use
 QList<Protocol> types::Protocol::supportedProtocols()
 {
 #if defined(Q_OS_WIN) || defined(Q_OS_MAC)
-    return QList<Protocol>() << IKEV2 << WIREGUARD << OPENVPN_UDP << OPENVPN_TCP << STUNNEL << WSTUNNEL;
+    return QList<Protocol>() << WIREGUARD << IKEV2 << OPENVPN_UDP << OPENVPN_TCP << STUNNEL << WSTUNNEL;
 #elif defined(Q_OS_LINUX)
     // Currently Linux doesn't support IKEv2
     return QList<Protocol>() << WIREGUARD << OPENVPN_UDP << OPENVPN_TCP << STUNNEL << WSTUNNEL;
 #else
     non-compiled code
-#endif
+        #endif
+}
+
+uint Protocol::defaultPortForProtocol(Protocol protocol)
+{
+    if (protocol == IKEV2) return 500;
+    else return 443;
 }
 
 QDataStream& operator <<(QDataStream &stream, const Protocol &o)

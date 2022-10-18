@@ -139,11 +139,11 @@ void ConnectionManager::clickConnect(const QString &ovpnConfig, const apiinfo::S
     // API or static ips locations
     else
     {
-        if (!networkConnectionSettings.isAutomatic)
+        if (!networkConnectionSettings.isAutomatic())
         {
             connSettingsPolicy_.reset(new ManualConnSettingsPolicy(bli, networkConnectionSettings, portMap));
         }
-        else if (connectionSettings.isAutomatic)
+        else if (connectionSettings.isAutomatic())
         {
             connSettingsPolicy_.reset(new AutoConnSettingsPolicy(bli, portMap, proxySettings.isProxyEnabled()));
         }
