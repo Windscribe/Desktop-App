@@ -69,7 +69,7 @@ CurrentConnectionDescr ManualConnSettingsPolicy::getCurrentConnectionSettings() 
         ccd.staticIpPorts = locationInfo_->getStaticIpPorts();
 
         // for static ip with wireguard protocol override id to wg_ip
-        if (ccd.protocol == PROTOCOL::WIREGUARD )
+        if (ccd.protocol == types::Protocol::WIREGUARD )
         {
             ccd.ip = locationInfo_->getWgIpForSelectedNode();
         }

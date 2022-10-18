@@ -22,11 +22,12 @@ ConnectStateProtocolPort::ConnectStateProtocolPort(ScalableGraphicsObject *paren
     , badgePixmap_(QSize(36*G_SCALE, 20*G_SCALE), 10*G_SCALE)
 {
 
+//FIXME:
 #if defined(Q_OS_LINUX)
-    protocol_ = PROTOCOL::OPENVPN_UDP;
+    protocol_ = types::Protocol::OPENVPN_UDP;
     port_ = 443;
 #else
-    protocol_ = PROTOCOL::IKEV2;
+    protocol_ = types::Protocol::IKEV2;
     port_ = 500;
 #endif
 
@@ -52,7 +53,7 @@ void ConnectStateProtocolPort::paint(QPainter *painter, const QStyleOptionGraphi
     Q_UNUSED(widget);
 
     painter->save();
-    //painter->fillRect(boundingRect(), QBrush(QColor(0, 255, 255)));
+    painter->fillRect(boundingRect(), QBrush(QColor(0, 255, 255)));
 
     qreal initOpacity = painter->opacity();
 
@@ -76,7 +77,7 @@ void ConnectStateProtocolPort::paint(QPainter *painter, const QStyleOptionGraphi
     const int posYBot = posYTop + textHeight;
     const int separatorMinusProtocolPosX = badgePixmap_.width() + (protocolSeparatorPadding + badgeProtocolPadding)*G_SCALE;
 
-    // protocol and port string
+    // types::Protocol and port string
     QString protocolString = protocol_.toLongString();
     textShadowProtocol_.drawText(painter, QRect(badgePixmap_.width() + badgeProtocolPadding * G_SCALE, 0, INT_MAX, badgePixmap_.height()), Qt::AlignLeft | Qt::AlignVCenter, protocolString, &font, textColor_ );
 
@@ -94,7 +95,6 @@ void ConnectStateProtocolPort::paint(QPainter *painter, const QStyleOptionGraphi
     painter->setPen(QColor(0x02, 0x0D, 0x1C));
     painter->drawLine(QPoint(separatorMinusProtocolPosX + textShadowProtocol_.width()+1, posYTop),
                       QPoint(separatorMinusProtocolPosX + textShadowProtocol_.width()+1, posYBot));
-
 
     painter->restore();
 }
@@ -211,7 +211,7 @@ void ConnectStateProtocolPort::setInternetConnectivity(bool connectivity)
     updateStateDisplay(connectState_);
 }
 
-void ConnectStateProtocolPort::setProtocolPort(const PROTOCOL &protocol, const uint port)
+void ConnectStateProtocolPort::setProtocolPort(const types::Protocol &protocol, const uint port)
 {
     protocol_ = protocol;
     port_ = port;

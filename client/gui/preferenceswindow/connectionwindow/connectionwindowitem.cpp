@@ -411,7 +411,7 @@ void ConnectionWindowItem::onPreferencesHelperWifiSharingSupportedChanged(bool b
 
 bool ConnectionWindowItem::isIkev2OrAutomaticConnectionMode(const types::ConnectionSettings &cs) const
 {
-    return cs.protocol == PROTOCOL::IKEV2 || cs.protocol == PROTOCOL::WIREGUARD || cs.isAutomatic;
+    return cs.protocol == types::Protocol::IKEV2 || cs.protocol == types::Protocol::WIREGUARD || cs.isAutomatic;
 }
 
 void ConnectionWindowItem::updateIsSupported(bool isWifiSharingSupported, bool isIkev2OrAutomatic)

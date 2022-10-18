@@ -34,7 +34,7 @@ AutoConnSettingsPolicy::AutoConnSettingsPolicy(QSharedPointer<locationsmodel::Ba
         }
     }*/
 
-    PROTOCOL lastSuccessProtocolSaved;
+    types::Protocol lastSuccessProtocolSaved;
     QSettings settings;
     if (settings.contains("successConnectionProtocol"))
     {
@@ -42,7 +42,7 @@ AutoConnSettingsPolicy::AutoConnSettingsPolicy(QSharedPointer<locationsmodel::Ba
         QDataStream stream(&arr, QIODevice::ReadOnly);
         QString strProtocol;
         stream >> strProtocol;
-        lastSuccessProtocolSaved = PROTOCOL::fromString(strProtocol);
+        lastSuccessProtocolSaved = types::Protocol::fromString(strProtocol);
     }
 
 
@@ -50,7 +50,7 @@ AutoConnSettingsPolicy::AutoConnSettingsPolicy(QSharedPointer<locationsmodel::Ba
     for (int portMapInd = 0; portMapInd < portMap_.items().count(); ++portMapInd)
     {
         // skip udp protocol, if proxy enabled
-        if (isProxyEnabled && portMap_.items()[portMapInd].protocol == PROTOCOL::OPENVPN_UDP)
+        if (isProxyEnabled && portMap_.items()[portMapInd].protocol == types::Protocol::OPENVPN_UDP)
         {
             continue;
         }
@@ -76,7 +76,7 @@ AutoConnSettingsPolicy::AutoConnSettingsPolicy(QSharedPointer<locationsmodel::Ba
 
     // if we have successfully saved connection settings, then use it first (move on top list)
     // but if first protocol ikev2, then use it second
-    if (lastSuccessProtocolSaved != PROTOCOL::UNINITIALIZED)
+    if (lastSuccessProtocolSaved != types::Protocol::UNINITIALIZED)
     {
         AttemptInfo firstAttemptInfo;
         bool bFound = false;
@@ -185,7 +185,7 @@ CurrentConnectionDescr AutoConnSettingsPolicy::getCurrentConnectionSettings() co
         ccd.staticIpPorts = locationInfo_->getStaticIpPorts();
 
         // for static ip with wireguard protocol override id to wg_ip
-        if (ccd.protocol == PROTOCOL::WIREGUARD )
+        if (ccd.protocol == types::Protocol::WIREGUARD )
         {
             ccd.ip = locationInfo_->getWgIpForSelectedNode();
         }

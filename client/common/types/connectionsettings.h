@@ -4,14 +4,15 @@
 #include <QJsonObject>
 #include <QSettings>
 #include <QString>
-#include "enums.h"
+#include "protocol.h"
 
 namespace types {
 
 struct ConnectionSettings
 {
-    PROTOCOL protocol = PROTOCOL::IKEV2;
-    uint    port = 500;
+    // FIXME: check where should be initialized?
+    Protocol protocol = Protocol::WIREGUARD;
+    uint    port = 443;
     bool    isAutomatic = true;
 
     void debugToLog() const;

@@ -32,7 +32,7 @@ public:
                                    const QStringList &hosts) override;
     bool sendConnectStatus(bool isConnected, bool isTerminateSocket, bool isKeepLocalSocket,
                            const AdapterGatewayInfo &defaultAdapter, const AdapterGatewayInfo &vpnAdapter,
-                           const QString &connectedIp, const PROTOCOL &protocol) override;
+                           const QString &connectedIp, const types::Protocol &protocol) override;
     bool setCustomDnsWhileConnected(bool isIkev2, unsigned long ifIndex, const QString &overrideDnsIpAddress) override;
 
      // WireGuard functions

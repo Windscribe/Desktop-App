@@ -184,7 +184,7 @@ private slots:
     void onBackendHighCpuUsage(const QStringList &processesList);
     void onBackendUserWarning(USER_WARNING_TYPE userWarningType);
     void onBackendInternetConnectivityChanged(bool connectivity);
-    void onBackendProtocolPortChanged(const PROTOCOL &protocol, const uint port);
+    void onBackendProtocolPortChanged(const types::Protocol &protocol, const uint port);
     void onBackendPacketSizeDetectionStateChanged(bool on, bool isError);
     void onBackendUpdateVersionChanged(uint progressPercent, UPDATE_VERSION_STATE state, UPDATE_VERSION_ERROR error);
     void onBackendWebSessionTokenForManageAccount(const QString &tempSessionToken);

@@ -4,7 +4,6 @@
 #include "utils/ws_assert.h"
 
 const int typeIdOpenVpnError = qRegisterMetaType<CONNECT_ERROR>("CONNECT_ERROR");
-const int typeIdProtocol = qRegisterMetaType<PROTOCOL>("PROTOCOL");
 const int typeIdProxyOption = qRegisterMetaType<PROXY_OPTION>("PROXY_OPTION");
 const int typeIdLoginRet = qRegisterMetaType<LOGIN_RET>("LOGIN_RET");
 const int typeIdLoginMessage = qRegisterMetaType<LOGIN_MESSAGE>("LOGIN_MESSAGE");
@@ -278,112 +277,6 @@ QList<QPair<QString, int> > DNS_MANAGER_TYPE_toList()
     l << qMakePair(DNS_MANAGER_TYPE_toString(DNS_MANAGER_NETWORK_MANAGER), DNS_MANAGER_NETWORK_MANAGER);
     return l;
 
-}
-
-QString PROTOCOL::toShortString() const
-{
-    if (value_ == OPENVPN_UDP || value_ == OPENVPN_TCP || value_ == STUNNEL
-        || value_ == WSTUNNEL) {
-        return "openvpn";
-    }
-    else if (value_ == IKEV2) {
-        return "ikev2";
-    }
-    else if (value_ == WIREGUARD) {
-        return "wireguard";
-    }
-    else {
-        WS_ASSERT(false);
-        return "unknown";
-    }
-}
-
-QString PROTOCOL::toLongString() const
-{
-    if (value_ == IKEV2) {
-        return "IKEv2";
-    }
-    else if (value_ == OPENVPN_UDP)  {
-        return "UDP";
-    }
-    else if (value_ == OPENVPN_TCP)  {
-        return "TCP";
-    }
-    else if (value_ == STUNNEL)  {
-        return "Stealth";
-    }
-    else if (value_ == WSTUNNEL) {
-        return "WStunnel";
-    }
-    else if (value_ == WIREGUARD)  {
-        return "WireGuard";
-    }
-    else
-    {
-        WS_ASSERT(false);
-        return "unknown";
-    }
-}
-
-bool PROTOCOL::isOpenVpnProtocol() const
-{
-    return value_ == OPENVPN_UDP || value_ == OPENVPN_TCP ||
-            value_ == STUNNEL || value_ == WSTUNNEL;
-}
-
-bool PROTOCOL::isStunnelOrWStunnelProtocol() const
-{
-    return value_ == STUNNEL || value_ == WSTUNNEL;
-}
-
-bool PROTOCOL::isIkev2Protocol() const
-{
-    return value_ == IKEV2;
-}
-
-bool PROTOCOL::isWireGuardProtocol() const
-{
-    return value_ == WIREGUARD;
-}
-
-PROTOCOL PROTOCOL::fromString(const QString &strProtocol)
-{
-    if (strProtocol.compare("UDP", Qt::CaseInsensitive) == 0) {
-        return OPENVPN_UDP;
-    }
-    else if (strProtocol.compare("TCP", Qt::CaseInsensitive) == 0) {
-        return OPENVPN_TCP;
-    }
-    else if (strProtocol.compare("Stealth", Qt::CaseInsensitive) == 0) {
-        return STUNNEL;
-    }
-    else if (strProtocol.compare("WStunnel", Qt::CaseInsensitive) == 0) {
-        return WSTUNNEL;
-    }
-    else if (strProtocol.compare("WireGuard", Qt::CaseInsensitive) == 0) {
-        return WIREGUARD;
-    }
-    else if (strProtocol.compare("IKEv2", Qt::CaseInsensitive) == 0) {
-        return IKEV2;
-    }
-    else
-    {
-        return UNINITIALIZED;
-    }
-}
-
-QDataStream& operator <<(QDataStream &stream, const PROTOCOL &o)
-{
-    stream << o.toInt();
-    return stream;
-}
-
-QDataStream& operator >>(QDataStream &stream, PROTOCOL &o)
-{
-    int v;
-    stream >> v;
-    o = (PROTOCOL)v;
-    return stream;
 }
 
 QString CONNECTED_DNS_TYPE_toString(CONNECTED_DNS_TYPE t)

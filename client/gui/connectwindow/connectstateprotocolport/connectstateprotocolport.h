@@ -12,6 +12,7 @@
 #include "connectionbadgedots.h"
 #include "badgepixmap.h"
 #include "types/connectstate.h"
+#include "types/protocol.h"
 
 namespace ConnectWindow {
 
@@ -28,7 +29,7 @@ public:
 
     void setHoverable(bool hoverable);
     void setInternetConnectivity(bool connectivity);
-    void setProtocolPort(const PROTOCOL &protocol, const uint port);
+    void setProtocolPort(const types::Protocol &protocol, const uint port);
     void setTestTunnelResult(bool success);
 
     void updateScaling() override;
@@ -53,7 +54,7 @@ private:
     types::ConnectState prevConnectState_;
     bool hoverable_;
     bool connectivity_;
-    PROTOCOL protocol_;
+    types::Protocol protocol_;
     uint port_;
     QColor textColor_;
     double textOpacity_;

@@ -19,7 +19,7 @@ struct CurrentConnectionDescr
     // fields for CONNECTION_NODE_DEFAULT
     QString ip;
     uint port = 0;
-    PROTOCOL protocol;
+    types::Protocol protocol;
     QString hostname;
     QString dnsHostName;
     QString verifyX509name;

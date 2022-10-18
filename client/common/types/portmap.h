@@ -4,13 +4,13 @@
 #include <QJsonArray>
 #include <QSharedDataPointer>
 #include <QVector>
-#include "types/enums.h"
+#include "types/protocol.h"
 
 namespace types {
 
 struct PortItem
 {
-    PROTOCOL protocol = PROTOCOL::UNINITIALIZED;
+    Protocol protocol;
     QString heading;
     QString use;
     QVector<uint> ports;
@@ -48,8 +48,8 @@ public:
     int getPortItemCount() const;
     const PortItem *getPortItemByIndex(int ind) const;
     const PortItem *getPortItemByHeading(const QString &heading) const;
-    const PortItem *getPortItemByProtocolType(const PROTOCOL &protocol) const;
-    int getUseIpInd(PROTOCOL connectionProtocol) const;
+    const PortItem *getPortItemByProtocolType(const Protocol &protocol) const;
+    int getUseIpInd(Protocol connectionProtocol) const;
 
     QVector<PortItem> &items();
     const QVector<PortItem> &const_items() const;

@@ -2,7 +2,7 @@
 #define IHELPER_H
 
 #include <QThread>
-#include "types/enums.h"
+#include "types/protocol.h"
 
 class SplitTunnelingNetworkInfo;
 class WireGuardConfig;
@@ -41,7 +41,7 @@ public:
                                            const QStringList &hosts) = 0;
     virtual bool sendConnectStatus(bool isConnected, bool isTerminateSocket, bool isKeepLocalSocket,
                                    const AdapterGatewayInfo &defaultAdapter, const AdapterGatewayInfo &vpnAdapter,
-                                   const QString &connectedIp, const PROTOCOL &protocol) = 0;
+                                   const QString &connectedIp, const types::Protocol &protocol) = 0;
     virtual bool setCustomDnsWhileConnected(bool isIkev2, unsigned long ifIndex, const QString &overrideDnsIpAddress) = 0;
 
     // WireGuard functions

@@ -4,6 +4,7 @@
 #include <QPointer>
 #include <QQueue>
 
+#include "types/protocol.h"
 #include "types/robertfilter.h"
 #include "engine/networkaccessmanager/networkaccessmanager.h"
 #include "engine/connectstatecontroller/iconnectstatecontroller.h"
@@ -47,7 +48,7 @@ public:
     BaseRequest *login(const QString &username, const QString &password, const QString &code2fa);
     BaseRequest *session(const QString &authHash);
     BaseRequest *serverLocations(const QString &language, const QString &revision, bool isPro, const QStringList &alcList);
-    BaseRequest *serverCredentials(const QString &authHash, PROTOCOL protocol);
+    BaseRequest *serverCredentials(const QString &authHash, types::Protocol protocol);
     BaseRequest *deleteSession(const QString &authHash);
     BaseRequest *serverConfigs(const QString &authHash);
     BaseRequest *portMap(const QString &authHash);

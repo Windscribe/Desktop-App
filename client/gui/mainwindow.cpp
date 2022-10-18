@@ -2159,7 +2159,7 @@ void MainWindow::onBackendInternetConnectivityChanged(bool connectivity)
     internetConnected_ = connectivity;
 }
 
-void MainWindow::onBackendProtocolPortChanged(const PROTOCOL &protocol, const uint port)
+void MainWindow::onBackendProtocolPortChanged(const types::Protocol &protocol, const uint port)
 {
     mainWindowController_->getConnectWindow()->setProtocolPort(protocol, port);
 }
@@ -2464,10 +2464,11 @@ void MainWindow::updateConnectWindowStateProtocolPortDisplay()
     }
     else if (backend_->getPreferences()->connectionSettings().isAutomatic)
     {
+        //FIXME:
 #if defined(Q_OS_LINUX)
-        mainWindowController_->getConnectWindow()->setProtocolPort(PROTOCOL::OPENVPN_UDP, 443);
+        mainWindowController_->getConnectWindow()->setProtocolPort(types::Protocol::OPENVPN_UDP, 443);
 #else
-        mainWindowController_->getConnectWindow()->setProtocolPort(PROTOCOL::IKEV2, 500);
+        mainWindowController_->getConnectWindow()->setProtocolPort(types::Protocol::IKEV2, 500);
 #endif
     }
     else

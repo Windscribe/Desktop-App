@@ -65,7 +65,7 @@ void ProtocolGroup::onPortMapChanged()
     protocolItem_->clear();
     portItem_->clear();
 
-    const QVector<PROTOCOL> protocols = preferencesHelper_->getAvailableProtocols();
+    const QVector<types::Protocol> protocols = preferencesHelper_->getAvailableProtocols();
     if (protocols.size() > 0)
     {
         isPortMapInitialized_ = true;
@@ -104,9 +104,9 @@ void ProtocolGroup::onCheckBoxStateChanged(bool isChecked)
 
 void ProtocolGroup::onProtocolChanged(QVariant value)
 {
-    updatePorts(PROTOCOL(value.toInt()));
+    updatePorts(types::Protocol(value.toInt()));
 
-    settings_.protocol = PROTOCOL(protocolItem_->currentItem().toInt());
+    settings_.protocol = types::Protocol(protocolItem_->currentItem().toInt());
     settings_.port = portItem_->currentItem().toInt();
     emit connectionModePreferencesChanged(settings_);
 }
@@ -132,7 +132,7 @@ void ProtocolGroup::updateMode()
     }
 }
 
-void ProtocolGroup::updatePorts(PROTOCOL protocol)
+void ProtocolGroup::updatePorts(types::Protocol protocol)
 {
     portItem_->clear();
 

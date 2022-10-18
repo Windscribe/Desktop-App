@@ -25,7 +25,6 @@
     #include "restorednsmanager_mac.h"
 #endif
 
-
 class INetworkDetectionManager;
 class ISleepEvents;
 class IKEv2Connection;
@@ -82,7 +81,7 @@ public:
     void startTunnelTests();
     bool isAllowFirewallAfterConnection() const;
 
-    PROTOCOL currentProtocol() const;
+    types::Protocol currentProtocol() const;
 
 signals:
     void connected();
@@ -95,7 +94,7 @@ signals:
     void testTunnelResult(bool success, const QString &ipAddress);
     void showFailedAutomaticConnectionMessage();
     void internetConnectivityChanged(bool connectivity);
-    void protocolPortChanged(const PROTOCOL &protocol, const uint port);
+    void protocolPortChanged(const types::Protocol &protocol, const uint port);
     void wireGuardAtKeyLimit();
 
     void requestUsername(const QString &pathCustomOvpnConfig);
@@ -176,7 +175,7 @@ private:
     bool bLastIsOnline_;
     bool bWakeSignalReceived_;
 
-    PROTOCOL currentProtocol_;
+    types::Protocol currentProtocol_;
 
     CurrentConnectionDescr currentConnectionDescr_;
 
@@ -201,7 +200,7 @@ private:
     void doMacRestoreProcedures();
     void startReconnectionTimer();
     void waitForNetworkConnectivity();
-    void recreateConnector(PROTOCOL protocol);
+    void recreateConnector(types::Protocol protocol);
     void restoreConnectionAfterWakeUp();
 };
 

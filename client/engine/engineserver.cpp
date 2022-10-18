@@ -617,7 +617,7 @@ void EngineServer::onEngineStatisticsUpdated(quint64 bytesIn, quint64 bytesOut, 
     sendCmdToAllAuthorizedAndGetStateClients(&cmd, false);
 }
 
-void EngineServer::onEngineProtocolPortChanged(const PROTOCOL &protocol, const uint port)
+void EngineServer::onEngineProtocolPortChanged(const types::Protocol &protocol, const uint port)
 {
     IPC::ServerCommands::ProtocolPortChanged cmd;
     cmd.protocol_ = protocol;

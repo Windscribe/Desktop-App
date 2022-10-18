@@ -378,7 +378,7 @@ void ApiResourcesManager::fetchServerCredentialsOpenVpn(const QString &authHash)
 {
     if (requestsInProgress_.contains(RequestType::kServerCredentialsOpenVPN))
         return;
-    requestsInProgress_[RequestType::kServerCredentialsOpenVPN] = serverAPI_->serverCredentials(authHash, PROTOCOL::OPENVPN_UDP);
+    requestsInProgress_[RequestType::kServerCredentialsOpenVPN] = serverAPI_->serverCredentials(authHash, types::Protocol::OPENVPN_UDP);
     connect(requestsInProgress_[RequestType::kServerCredentialsOpenVPN], &server_api::BaseRequest::finished, this, &ApiResourcesManager::onServerCredentialsOpenVpnAnswer);
 }
 
@@ -386,7 +386,7 @@ void ApiResourcesManager::fetchServerCredentialsIkev2(const QString &authHash)
 {
     if (requestsInProgress_.contains(RequestType::kServerCredentialsIkev2))
         return;
-    requestsInProgress_[RequestType::kServerCredentialsIkev2] = serverAPI_->serverCredentials(authHash, PROTOCOL::IKEV2);
+    requestsInProgress_[RequestType::kServerCredentialsIkev2] = serverAPI_->serverCredentials(authHash, types::Protocol::IKEV2);
     connect(requestsInProgress_[RequestType::kServerCredentialsIkev2], &server_api::BaseRequest::finished, this, &ApiResourcesManager::onServerCredentialsIkev2Answer);
 }
 

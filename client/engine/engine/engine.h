@@ -136,7 +136,7 @@ signals:
     void updateVersionChanged(uint progressPercent, const UPDATE_VERSION_STATE &state, const UPDATE_VERSION_ERROR &error);
     void myIpUpdated(const QString &ip, bool isDisconnected);
     void statisticsUpdated(quint64 bytesIn, quint64 bytesOut, bool isTotalBytes);
-    void protocolPortChanged(const PROTOCOL &protocol, const uint port);
+    void protocolPortChanged(const types::Protocol &protocol, const uint port);
     void robertFiltersUpdated(bool success, const QVector<types::RobertFilter> &filters);
     void setRobertFilterFinished(bool success);
     void syncRobertFinished(bool success);
@@ -248,7 +248,7 @@ private slots:
     void onConnectionManagerStatisticsUpdated(quint64 bytesIn, quint64 bytesOut, bool isTotalBytes);
     void onConnectionManagerInterfaceUpdated(const QString &interfaceName);
     void onConnectionManagerConnectingToHostname(const QString &hostname, const QString &ip, const QString &dnsServer);
-    void onConnectionManagerProtocolPortChanged(const PROTOCOL &protocol, const uint port);
+    void onConnectionManagerProtocolPortChanged(const types::Protocol &protocol, const uint port);
     void onConnectionManagerTestTunnelResult(bool success, const QString & ipAddress);
     void onConnectionManagerWireGuardAtKeyLimit();
 
@@ -354,7 +354,7 @@ private:
     QString locationName_;
 
     QString lastConnectingHostname_;
-    PROTOCOL lastConnectingProtocol_;
+    types::Protocol lastConnectingProtocol_;
 
     bool isNeedReconnectAfterRequestUsernameAndPassword_;
 

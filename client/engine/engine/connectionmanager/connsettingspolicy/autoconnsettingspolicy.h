@@ -23,7 +23,7 @@ public:
 private:
     struct AttemptInfo
     {
-        PROTOCOL protocol;
+        types::Protocol protocol;
         int portMapInd;
         bool changeNode;
     };
