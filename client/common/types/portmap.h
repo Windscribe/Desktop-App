@@ -54,6 +54,8 @@ public:
     QVector<PortItem> &items();
     const QVector<PortItem> &const_items() const;
 
+    void removeUnsupportedProtocols(const QList<Protocol> &supportedProtocols);
+
     PortMap& operator=(const PortMap&) = default;
 
     friend QDataStream& operator <<(QDataStream& stream, const PortMap& p);

@@ -19,22 +19,8 @@ AutoConnSettingsPolicy::AutoConnSettingsPolicy(QSharedPointer<locationsmodel::Ba
     WS_ASSERT(!locationInfo_.isNull());
     WS_ASSERT(!locationInfo_->locationId().isCustomConfigsLocation());
 
-    // remove wstunnel and WireGuard protocols from portMap_ for automatic connection mode
-    /*QVector<types::PortItem>::iterator it = portMap_.items().begin();
-    while (it != portMap_.items().end())
-    {
-        if (it->protocol == PROTOCOL::WSTUNNEL ||
-            it->protocol == PROTOCOL::WIREGUARD)
-        {
-            it = portMap_.items().erase(it);
-        }
-        else
-        {
-            ++it;
-        }
-    }*/
-
-    types::Protocol lastSuccessProtocolSaved;
+    // TODO: in the next task related to Protocol Failover
+    /*types::Protocol lastSuccessProtocolSaved;
     QSettings settings;
     if (settings.contains("successConnectionProtocol"))
     {
@@ -43,7 +29,7 @@ AutoConnSettingsPolicy::AutoConnSettingsPolicy(QSharedPointer<locationsmodel::Ba
         QString strProtocol;
         stream >> strProtocol;
         lastSuccessProtocolSaved = types::Protocol::fromString(strProtocol);
-    }
+    }*/
 
 
     QVector<AttemptInfo> localAttemps;
@@ -76,13 +62,13 @@ AutoConnSettingsPolicy::AutoConnSettingsPolicy(QSharedPointer<locationsmodel::Ba
 
     // if we have successfully saved connection settings, then use it first (move on top list)
     // but if first protocol ikev2, then use it second
-    if (lastSuccessProtocolSaved != types::Protocol::UNINITIALIZED)
+    if (lastSuccessProtocol_ != types::Protocol::UNINITIALIZED)
     {
         AttemptInfo firstAttemptInfo;
         bool bFound = false;
         for (int i = 0; i < localAttemps.count(); ++i)
         {
-            if (localAttemps[i].protocol == lastSuccessProtocolSaved)
+            if (localAttemps[i].protocol == lastSuccessProtocol_)
             {
                 firstAttemptInfo = localAttemps[i];
                 localAttemps.remove(i);
@@ -198,20 +184,19 @@ void AutoConnSettingsPolicy::saveCurrentSuccessfullConnectionSettings()
 {
     // reset ikev2 failed attempts counter if we connected with ikev2 successfully
     if (attemps_[curAttempt_].protocol.isIkev2Protocol())
-    {
         failedIkev2Counter_ = 0;
-    }
 
-    QSettings settings;
-    QString protocol = attemps_[curAttempt_].protocol.toLongString();
-    qCDebug(LOG_CONNECTION) << "Save latest successfully connection protocol:" << protocol;
+    lastSuccessProtocol_ = attemps_[curAttempt_].protocol;
+    qCDebug(LOG_CONNECTION) << "Save latest successfully connection protocol:" << lastSuccessProtocol_.toLongString();
 
+    // TODO: in the next task related to Protocol Failover
+    /*QSettings settings;
     QByteArray arr;
     {
         QDataStream stream(&arr, QIODevice::WriteOnly);
         stream << protocol;
     }
-    settings.setValue("successConnectionProtocol", arr);
+    settings.setValue("successConnectionProtocol", arr);*/
 }
 
 bool AutoConnSettingsPolicy::isAutomaticMode()

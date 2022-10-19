@@ -2460,16 +2460,10 @@ void MainWindow::updateConnectWindowStateProtocolPortDisplay()
     {
         mainWindowController_->getConnectWindow()->setProtocolPort(backend_->getPreferences()->networkPreferredProtocol(curNetwork_.networkOrSsid).protocol(),
                                                                    backend_->getPreferences()->networkPreferredProtocol(curNetwork_.networkOrSsid).port());
-
     }
     else if (backend_->getPreferences()->connectionSettings().isAutomatic())
     {
-        //FIXME:
-#if defined(Q_OS_LINUX)
-        mainWindowController_->getConnectWindow()->setProtocolPort(types::Protocol::OPENVPN_UDP, 443);
-#else
-        mainWindowController_->getConnectWindow()->setProtocolPort(types::Protocol::IKEV2, 500);
-#endif
+        mainWindowController_->getConnectWindow()->setProtocolPort(types::Protocol::WIREGUARD, 443);
     }
     else
     {

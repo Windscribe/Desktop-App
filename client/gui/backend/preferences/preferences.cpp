@@ -12,23 +12,9 @@
 #include "types/global_consts.h"
 #include "legacy_protobuf_support/legacy_protobuf.h"
 
-#if defined(Q_OS_WINDOWS)
-#include "utils/winutils.h"
-#endif
-
-
 Preferences::Preferences(QObject *parent) : QObject(parent)
   , receivingEngineSettings_(false)
 {
-//FIXME:
-#if defined(Q_OS_LINUX)
-    // types::ConnectionSettings has IKEv2 as default types::Protocol in default instance.
-    // But Linux doesn't support IKEv2. It is necessary to change with UDP.
-    auto settings = engineSettings_.connectionSettings();
-    settings.types::Protocol = types::Protocol::OPENVPN_UDP;
-    settings.port = 443;
-    engineSettings_.setConnectionSettings(settings);
-#endif
 }
 
 bool Preferences::isLaunchOnStartup() const

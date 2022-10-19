@@ -2,10 +2,6 @@
 #include "utils/languagesutil.h"
 #include "version/appversion.h"
 
-#if defined(Q_OS_WINDOWS)
-#include "utils/winutils.h"
-#endif
-
 PreferencesHelper::PreferencesHelper(QObject *parent) : QObject(parent),
     isWifiSharingSupported_(true), bIpv6StateInOS_(true), isFirewallBlocked_(false),
     isDockedToTray_(false), isExternalConfigMode_(false)
@@ -74,17 +70,7 @@ QVector<types::Protocol> PreferencesHelper::getAvailableProtocols()
 {
     QVector<types::Protocol> p;
     for (auto it : portMap_.const_items())
-    {
-        //FIXME:
-#if defined(Q_OS_LINUX)
-        const auto types::Protocol = it.types::Protocol;
-        if (types::Protocol == types::Protocol::IKEV2) {
-            continue;
-        }
-#elif defined(Q_OS_WINDOWS)
-#endif
         p << it.protocol;
-    }
     return p;
 }
 

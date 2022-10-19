@@ -3,9 +3,7 @@
 
 #include <QFontMetrics>
 #include <QPainter>
-#include "graphicresources/imageresourcessvg.h"
 #include "commongraphics/commongraphics.h"
-#include "languagecontroller.h"
 #include "dpiscalemanager.h"
 
 const int PROTOCOL_OPACITY_ANIMATION_DURATION = 500;
@@ -22,14 +20,8 @@ ConnectStateProtocolPort::ConnectStateProtocolPort(ScalableGraphicsObject *paren
     , badgePixmap_(QSize(36*G_SCALE, 20*G_SCALE), 10*G_SCALE)
 {
 
-//FIXME:
-#if defined(Q_OS_LINUX)
-    protocol_ = types::Protocol::OPENVPN_UDP;
+    protocol_ = types::Protocol::WIREGUARD;
     port_ = 443;
-#else
-    protocol_ = types::Protocol::IKEV2;
-    port_ = 500;
-#endif
 
     badgeFgImage_.reset(new ImageWithShadow("connection-badge/OFF", "connection-badge/OFF_SHADOW"));
     setAcceptHoverEvents(true);
@@ -53,7 +45,7 @@ void ConnectStateProtocolPort::paint(QPainter *painter, const QStyleOptionGraphi
     Q_UNUSED(widget);
 
     painter->save();
-    painter->fillRect(boundingRect(), QBrush(QColor(0, 255, 255)));
+    //painter->fillRect(boundingRect(), QBrush(QColor(0, 255, 255)));
 
     qreal initOpacity = painter->opacity();
 

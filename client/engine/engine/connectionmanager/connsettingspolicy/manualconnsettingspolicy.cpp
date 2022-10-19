@@ -19,7 +19,6 @@ void ManualConnSettingsPolicy::reset()
 
 void ManualConnSettingsPolicy::debugLocationInfoToLog() const
 {
-    //FIXME: check output
     qCDebug(LOG_CONNECTION) << "Connection settings:" << connectionSettings_;
     qCDebug(LOG_CONNECTION) << locationInfo_->getLogString();
 }

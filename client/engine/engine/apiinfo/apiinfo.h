@@ -60,6 +60,9 @@ public:
 private:
     void mergeWindflixLocations();
 
+    // remove all not supported protocols on this OS from portMap_
+    void checkPortMapForUnavailableProtocolAndFix();
+
     types::SessionStatus sessionStatus_;
     QVector<Location> locations_;
     QStringList forceDisconnectNodes_;
