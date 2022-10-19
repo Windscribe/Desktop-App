@@ -198,7 +198,7 @@
 
     NSString *disabledList = [self runProcess:@"/bin/launchctl" args:@[@"print-disabled", @"system"]];
     if (disabledList == nil) {
-        NSString *errStr = @"Couldn't detect if the helper was disabled.";
+        [[Logger sharedLogger] logAndStdOut:@"Couldn't detect if the helper was disabled."];
     } else {
         if ([disabledList rangeOfString:@"\"com.windscribe.helper.macos\" => disabled"].location != NSNotFound ||
             [disabledList rangeOfString:@"\"com.windscribe.helper.macos\" => true"].location != NSNotFound) {
@@ -380,7 +380,7 @@
 
     [[Logger sharedLogger] logAndStdOut:@"Done writing blocks"];
     
-    // create symlink for cli
+    // create symlink for cli
     [[Logger sharedLogger] logAndStdOut:@"Creating CLI symlink"];
     NSString *filepath = [NSString stringWithFormat:@"%@%@", [self getFullInstallPath], @"/Contents/MacOS/windscribe-cli"];
     NSString *sympath = @"/usr/local/bin/windscribe-cli";

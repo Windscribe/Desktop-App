@@ -1962,6 +1962,19 @@ void Engine::onNetworkOnlineStateChange(bool isOnline)
 
 void Engine::onNetworkChange(const types::NetworkInterface &networkInterface)
 {
+    if (apiResourcesManager_) {
+        connectionManager_->updateConnectionSettings(
+            engineSettings_.networkPreferredProtocols()[networkInterface.networkOrSsid],
+            engineSettings_.connectionSettings(), apiResourcesManager_->portMap(),
+            ProxyServerController::instance().getCurrentProxySettings());
+    } else {
+        connectionManager_->updateConnectionSettings(
+            engineSettings_.networkPreferredProtocols()[networkInterface.networkOrSsid],
+            engineSettings_.connectionSettings(),
+            types::PortMap(),
+            ProxyServerController::instance().getCurrentProxySettings());
+    }
+
     Q_EMIT networkChanged(networkInterface);
 }
 
