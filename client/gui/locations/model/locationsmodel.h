@@ -59,6 +59,7 @@ public:
 
     QModelIndex getIndexByLocationId(const LocationID &id) const;
     QModelIndex getBestLocationIndex() const;
+    QModelIndex getCustomConfigLocationIndex() const;
 
     // the client of the class must explicitly save locations  if required
     void saveFavoriteLocations();
