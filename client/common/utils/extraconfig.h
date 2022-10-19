@@ -1,9 +1,8 @@
-#ifndef EXTRACONFIG_H
-#define EXTRACONFIG_H
+#pragma once
 
-#include <QString>
 #include <QMutex>
 #include <QRegularExpression>
+#include <QString>
 
 // for work with windscribe_extra.conf file (additional parameters), thread-safe access
 // all ikev2 params will be prefixed with --ikev2, so you don't use them when using OpenVPN, and vise versa
@@ -18,9 +17,10 @@ public:
         return s;
     }
 
+    void logExtraConfig();
     void writeConfig(const QString &cfg);
 
-    QString getExtraConfig(bool bWithLog = true);
+    QString getExtraConfig(bool bWithLog = false);
     QString getExtraConfigForOpenVpn();
     QString getExtraConfigForIkev2();
     bool isUseIkev2Compression();
@@ -44,6 +44,8 @@ public:
     bool getOverrideUpdateChannelToInternal();
     bool getIsStaging();
 
+    bool getLogAPIResponse();
+
 private:
     ExtraConfig();
 
@@ -57,7 +59,4 @@ private:
     bool getFlagFromExtraConfigLines(const QString &flagName);
 
     bool isLegalOpenVpnCommand(const QString &command) const;
-
 };
-
-#endif // EXTRACONFIG_H

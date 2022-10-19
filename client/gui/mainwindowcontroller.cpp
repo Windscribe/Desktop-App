@@ -3483,9 +3483,9 @@ void MainWindowController::onAppSkinChanged(APP_SKIN s)
     }
 
     newsFeedWindowHeight_ = std::max(newsFeedWindowHeight_ - yOffset, newsFeedWindow_->recommendedHeight());
-    newsFeedWindow_->setHeight(newsFeedWindowHeight_);
+    newsFeedWindow_->setHeight(newsFeedWindowHeight_*G_SCALE);
     preferencesWindowHeight_ = std::max(preferencesWindowHeight_ - yOffset, preferencesWindow_->recommendedHeight());
-    preferencesWindow_->setHeight(preferencesWindowHeight_);
+    preferencesWindow_->setHeight(preferencesWindowHeight_*G_SCALE);
 
     // if preferences is open, update shadows and scroll etc
     if (preferencesState_ == CHILD_WINDOW_STATE_EXPANDED)

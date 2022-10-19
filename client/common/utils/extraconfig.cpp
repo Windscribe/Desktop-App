@@ -2,6 +2,7 @@
 
 #include <QFile>
 #include <QStandardPaths>
+
 #include "../utils/logger.h"
 
 // non-filtered windscribe-specific advanced settings will cause error when connecting with openvpn
@@ -20,21 +21,23 @@ const QString WS_TT_NO_ERROR_STR    = WS_PREFIX + "tunnel-test-no-error";
 
 const QString WS_STAGING_STR    = WS_PREFIX + "staging";
 
+const QString WS_LOG_API_RESPONSE = WS_PREFIX + "log-api-response";
+
 void ExtraConfig::writeConfig(const QString &cfg)
 {
     QMutexLocker locker(&mutex_);
     QFile file(path_);
-    if (cfg.isEmpty())
-    {
+    if (cfg.isEmpty()) {
         file.remove();
     }
-    else
-    {
-        if (file.open(QIODevice::WriteOnly))
-        {
+    else {
+        if (file.open(QIODevice::WriteOnly)) {
             file.resize(0);
             file.write(cfg.toLocal8Bit());
             file.close();
+
+            qCDebug(LOG_BASIC) << "Wrote extra config file:" << path_;
+            qCDebug(LOG_BASIC) << "Extra options:" << cfg.toLocal8Bit();
         }
     }
 }
@@ -44,22 +47,17 @@ QString ExtraConfig::getExtraConfig(bool bWithLog)
 {
     QMutexLocker locker(&mutex_);
     QFile fileExtra(path_);
-    if (fileExtra.open(QIODevice::ReadOnly))
-    {
+    if (fileExtra.exists() && fileExtra.open(QIODevice::ReadOnly)) {
         QByteArray extraArr = fileExtra.readAll();
-        if (bWithLog)
-        {
+        fileExtra.close();
+        if (bWithLog) {
             qCDebug(LOG_BASIC) << "Found extra config file:" << path_;
             qCDebug(LOG_BASIC) << "Extra options:" << extraArr;
         }
-
-        fileExtra.close();
         return extraArr;
     }
-    else
-    {
-        return "";
-    }
+
+    return "";
 }
 
 QString ExtraConfig::getExtraConfigForOpenVpn()
@@ -67,8 +65,7 @@ QString ExtraConfig::getExtraConfigForOpenVpn()
     QMutexLocker locker(&mutex_);
     QString result;
     const QStringList strs = getExtraConfig().split("\n");
-    for (const QString &line: strs)
-    {
+    for (const QString &line: strs) {
         if (isLegalOpenVpnCommand(line))
             result += line + "\n";
     }
@@ -81,11 +78,9 @@ QString ExtraConfig::getExtraConfigForIkev2()
     QString result;
     const QString strExtraConfig = getExtraConfig();
     const QStringList strs = strExtraConfig.split("\n");
-    for (const QString &line : strs)
-    {
+    for (const QString &line : strs) {
         QString lineTrimmed = line.trimmed();
-        if (lineTrimmed.startsWith("--ikev2", Qt::CaseInsensitive))
-        {
+        if (lineTrimmed.startsWith("--ikev2", Qt::CaseInsensitive)) {
             result += line + "\n";
         }
     }
@@ -104,15 +99,11 @@ QString ExtraConfig::getRemoteIpFromExtraConfig()
     QMutexLocker locker(&mutex_);
     const QString strExtraConfig = getExtraConfig(false);
     const QStringList strs = strExtraConfig.split("\n");
-    for (const QString &line : strs)
-    {
-        if (line.contains("remote", Qt::CaseInsensitive))
-        {
+    for (const QString &line : strs) {
+        if (line.contains("remote", Qt::CaseInsensitive)) {
             QStringList words = line.split(" ");
-            if (words.size() == 2)
-            {
-                if (words[0].trimmed().compare("remote", Qt::CaseInsensitive) == 0)
-                {
+            if (words.size() == 2) {
+                if (words[0].trimmed().compare("remote", Qt::CaseInsensitive) == 0) {
                     return words[1].trimmed();
                 }
             }
@@ -125,8 +116,7 @@ QString ExtraConfig::modifyVerbParameter(const QString &ovpnData, QString &strEx
 {
     QRegularExpressionMatch match;
     int indExtra = strExtraConfig.indexOf(regExp_, 0, &match);
-    if (indExtra == -1)
-    {
+    if (indExtra == -1) {
         return ovpnData;
     }
     QString verbString = strExtraConfig.mid(indExtra, match.capturedLength());
@@ -134,8 +124,7 @@ QString ExtraConfig::modifyVerbParameter(const QString &ovpnData, QString &strEx
     QString strOvpn = ovpnData;
 
     int ind = strOvpn.indexOf(regExp_, 0, &match);
-    if (ind == -1)
-    {
+    if (ind == -1) {
         return ovpnData;
     }
 
@@ -215,14 +204,18 @@ bool ExtraConfig::getIsStaging()
     return getFlagFromExtraConfigLines(WS_STAGING_STR);
 }
 
+bool ExtraConfig::getLogAPIResponse()
+{
+    return getFlagFromExtraConfigLines(WS_LOG_API_RESPONSE);
+}
+
 int ExtraConfig::getIntFromLineWithString(const QString &line, const QString &str, bool &success)
 {
     int endOfId = line.indexOf(str, Qt::CaseInsensitive) + str.length();
     int equals = line.indexOf("=", endOfId, Qt::CaseInsensitive)+1;
 
     int result = 0;
-    if (equals != -1)
-    {
+    if (equals != -1) {
         QString afterEquals = line.mid(equals).trimmed();
         result = afterEquals.toInt(&success);
     }
@@ -237,16 +230,13 @@ int ExtraConfig::getIntFromExtraConfigLines(const QString &variableName, bool &s
     const QString strExtraConfig = getExtraConfig();
     const QStringList strs = strExtraConfig.split("\n");
 
-    for (const QString &line : strs)
-    {
+    for (const QString &line : strs) {
         QString lineTrimmed = line.trimmed();
 
-        if (lineTrimmed.startsWith(variableName, Qt::CaseInsensitive))
-        {
+        if (lineTrimmed.startsWith(variableName, Qt::CaseInsensitive)) {
             int result = getIntFromLineWithString(lineTrimmed, variableName, success);
 
-            if (success)
-            {
+            if (success) {
                 return result;
             }
         }
@@ -260,11 +250,9 @@ bool ExtraConfig::getFlagFromExtraConfigLines(const QString &flagName)
     const QString strExtraConfig = getExtraConfig();
     const QStringList strs = strExtraConfig.split("\n");
 
-    for (const QString &line : strs)
-    {
+    for (const QString &line : strs) {
         QString lineTrimmed = line.trimmed();
-        if (lineTrimmed.startsWith(flagName, Qt::CaseInsensitive))
-        {
+        if (lineTrimmed.startsWith(flagName, Qt::CaseInsensitive)) {
             return true;
         }
     }
@@ -279,9 +267,10 @@ bool ExtraConfig::isLegalOpenVpnCommand(const QString &command) const
         return false;
 
     // Filter out IKEv2, mtu, and tunnel test related commands.
-    if (trimmed_command.startsWith("--ikev2", Qt::CaseInsensitive)
-        || trimmed_command.startsWith(WS_PREFIX, Qt::CaseInsensitive))
+    if (trimmed_command.startsWith("--ikev2", Qt::CaseInsensitive) ||
+        trimmed_command.startsWith(WS_PREFIX, Qt::CaseInsensitive)) {
         return false;
+    }
 
     // Filter out potentially malicious commands.
     const char *kUnsafeCommands[] = {
@@ -301,4 +290,9 @@ ExtraConfig::ExtraConfig() : path_(QStandardPaths::writableLocation(QStandardPat
                                    + "/windscribe_extra.conf"),
                              regExp_("(?m)^(?i)(verb)(\\s+)(\\d+$)")
 {
+}
+
+void ExtraConfig::logExtraConfig()
+{
+    getExtraConfig(true);
 }
