@@ -178,7 +178,17 @@ LocationID LocationsModelManager::getBestLocationId() const
 
 LocationID LocationsModelManager::getFirstValidCustomConfigLocationId() const
 {
-    //TODO:
+    QModelIndex mi = locationsModel_->getCustomConfigLocationIndex();
+    if (mi.isValid()) {
+        int cnt = locationsModel_->rowCount(mi);
+        for (int i = 0; i < cnt; ++i) {
+            QModelIndex childMi = locationsModel_->index(i, 0, mi);
+            if (childMi.data(Roles::kIsCustomConfigCorrect).toBool() && !childMi.data(Roles::kIsDisabled).toBool()) {
+                return qvariant_cast<LocationID>(childMi.data(Roles::kLocationId));
+            }
+        }
+    }
+
     return LocationID();
 }
 

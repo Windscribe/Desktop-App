@@ -443,6 +443,16 @@ QModelIndex LocationsModel::getBestLocationIndex() const
     return QModelIndex();
 }
 
+QModelIndex LocationsModel::getCustomConfigLocationIndex() const
+{
+    // the custom configs location should be at the end of the list, so we start the cycle from the end
+    for (int i = locations_.size() - 1; i >= 0; --i)
+        if (locations_[i]->location().id.isCustomConfigsLocation())
+            return index(i, 0);
+
+    return QModelIndex();
+}
+
 void LocationsModel::saveFavoriteLocations()
 {
     favoriteLocationsStorage_.writeToSettings();
