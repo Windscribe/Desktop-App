@@ -338,8 +338,6 @@ void ServerAPI::handleNetworkRequestFinished()
             }
             clearCurrentFailoverRequest();
             executeWaitingInQueueRequests();
-        } else {
-            WS_ASSERT(currentFailoverRequest_ == nullptr);
         }
     }
 }

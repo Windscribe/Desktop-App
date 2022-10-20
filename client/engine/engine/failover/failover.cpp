@@ -91,8 +91,8 @@ void Failover::reset()
 
 void Failover::getNextHostname(bool bIgnoreSslErrors)
 {
+    WS_ASSERT(!isFailoverInProgress_);
     if (apiResolutionSettings_.getIsAutomatic() || apiResolutionSettings_.getManualIp().isEmpty()) {
-        WS_ASSERT(!isFailoverInProgress_);
         bIgnoreSslErrors_ = bIgnoreSslErrors;
 
         if (!curFailoverHostnames_.isEmpty() && curFaiolverHostnameInd_ < (curFailoverHostnames_.size() - 1)) {
