@@ -254,7 +254,7 @@ void ConnectStateProtocolPort::onProtocolTestTunnelTimerTick()
     else
     {
         protocolTestTunnelTimer_.stop();
-        textOpacity_ = OPACITY_HIDDEN;
+        updateStateDisplay(connectState_);
     }
 }
 
