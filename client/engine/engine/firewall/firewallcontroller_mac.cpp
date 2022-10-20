@@ -336,16 +336,13 @@ void FirewallController_mac::getFirewallStateFromPfctl(FirewallState &outState)
     if (!output.isEmpty())
     {
         QStringList rules = output.split("\n");
-        WS_ASSERT(rules.size() == 2);
         if (rules.size() > 0)
         {
             QStringList words = rules[0].split(" ");
-            if (words.size() >= 10)
-            {
-                outState.interfaceToSkip = words[4];
-            }
-            else
-            {
+            if (words.size() >= 10) {
+                // block drop out quick on [interface name]
+                outState.interfaceToSkip = words[5];
+            } else {
                 WS_ASSERT(false);
             }
         }
