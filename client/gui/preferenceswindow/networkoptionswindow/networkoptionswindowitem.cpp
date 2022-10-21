@@ -119,13 +119,12 @@ void NetworkOptionsWindowItem::onNetworkWhitelistChanged(QVector<types::NetworkI
     {
         for (types::NetworkInterface interface : list)
         {
-            if (interface.networkOrSsid == currentNetwork_.networkOrSsid)
+            if (interface.networkOrSsid == currentNetwork_.networkOrSsid && currentNetwork_.trustType != interface.trustType)
             {
-                if (currentNetworkItem_ && currentNetworkItem_ != placeholderItem_)
-                {
-                    QString linkText = tr(NetworkOptionsShared::trustTypeToString(interface.trustType));
-                    currentNetworkItem_->setLinkText(linkText);
-                }
+                QString linkText = tr(NetworkOptionsShared::trustTypeToString(interface.trustType));
+                currentNetworkItem_->setLinkText(linkText);
+                currentNetwork_.trustType = interface.trustType;
+                emit currentNetworkUpdated(currentNetwork_);
             }
         }
     }
