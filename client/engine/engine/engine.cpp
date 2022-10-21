@@ -569,11 +569,10 @@ void Engine::initPart2()
     networkAccessManager_ = new NetworkAccessManager(this);
     connect(networkAccessManager_, &NetworkAccessManager::whitelistIpsChanged, this, &Engine::onHostIPsChanged);
 
-    // Ownership of the failovers passes to the serverAPI object (in the ServerAPI ctor)
-    failover::IFailover *failoverDisconnected = new failover::Failover(nullptr,networkAccessManager_, connectStateController_, "disconnected");
-    connect(failoverDisconnected, &failover::IFailover::tryingBackupEndpoint, this, &Engine::onFailOverTryingBackupEndpoint);
-    failover::IFailover *failoverConnected = new failover::Failover(nullptr,networkAccessManager_, connectStateController_, "connected");
-    serverAPI_ = new server_api::ServerAPI(this, connectStateController_, networkAccessManager_, networkDetectionManager_, failoverDisconnected, failoverConnected);
+    // Ownership of the failover passes to the serverAPI object (in the ServerAPI ctor)
+    failover::IFailover *failover = new failover::Failover(nullptr,networkAccessManager_, connectStateController_);
+    connect(failover, &failover::IFailover::tryingBackupEndpoint, this, &Engine::onFailOverTryingBackupEndpoint);
+    serverAPI_ = new server_api::ServerAPI(this, connectStateController_, networkAccessManager_, networkDetectionManager_, failover);
     serverAPI_->setIgnoreSslErrors(engineSettings_.isIgnoreSslErrors());
     serverAPI_->setApiResolutionsSettings(engineSettings_.apiResolutionSettings());
 

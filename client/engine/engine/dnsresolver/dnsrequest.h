@@ -3,6 +3,7 @@
 #include <QElapsedTimer>
 #include <QMutex>
 #include <QObject>
+#include <QSharedPointer>
 
 class DnsRequest : public QObject
 {
@@ -33,6 +34,9 @@ private:
     int timeoutMs_;
     int aresErrorCode_;
     qint64 elapsedMs_;
+    // this object is shared with DnsResolver object
+    // we need to store it here otherwise it may be deleted by DnsResolver before the signal finished() is emitted
+    QSharedPointer<QObject> privateDnsRequestObject_;
 };
 
 // Required for managing the lifetime of an object in shared pointer
