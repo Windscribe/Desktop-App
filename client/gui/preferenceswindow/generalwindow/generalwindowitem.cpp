@@ -160,7 +160,7 @@ GeneralWindowItem::GeneralWindowItem(ScalableGraphicsObject *parent, Preferences
 
     updateChannelGroup_ = new PreferenceGroup(this,
                                               tr("Choose to receive stable, beta, or experimental builds."),
-                                              QString("https://%1/features/update-channel").arg(HardcodedSettings::instance().serverUrl()));
+                                              QString("https://%1/features/update-channels").arg(HardcodedSettings::instance().serverUrl()));
     comboBoxUpdateChannel_ = new ComboBoxItem(updateChannelGroup_, QT_TRANSLATE_NOOP("PreferencesWindow::ComboBoxItem", "Update Channel"), QString());
     comboBoxUpdateChannel_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/UPDATE_CHANNEL"));
     const QList< QPair<QString, int> > allUpdateChannelTypes = UPDATE_CHANNEL_toList();
