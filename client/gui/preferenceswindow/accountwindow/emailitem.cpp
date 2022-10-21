@@ -147,7 +147,7 @@ void EmailItem::updatePositions()
         emptyEmailButton_->setVisible(true);
         sendButton_->hide();
 
-        QFontMetrics fm(*FontManager::instance().getFont(12, false));
+        QFontMetrics fm(*FontManager::instance().getFont(10, false));
         msgHeight_ = fm.boundingRect(boundingRect().adjusted(PREFERENCES_MARGIN*G_SCALE,
                                                              0,
                                                              -PREFERENCES_MARGIN*G_SCALE,
