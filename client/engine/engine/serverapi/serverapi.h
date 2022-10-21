@@ -35,9 +35,9 @@ class ServerAPI : public QObject
 {
     Q_OBJECT
 public:
-    // Ownership of the failoverDisconnectedMode and failoverConnectedMode passes to the serverAPI object
+    // Ownership of the failover passes to the serverAPI object
     explicit ServerAPI(QObject *parent, IConnectStateController *connectStateController, NetworkAccessManager *networkAccessManager,
-                       INetworkDetectionManager *networkDetectionManager, failover::IFailover *failoverDisconnectedMode, failover::IFailover *failoverConnectedMode);
+                       INetworkDetectionManager *networkDetectionManager, failover::IFailover *failover);
     virtual ~ServerAPI();
 
     QString getHostname() const;
@@ -76,7 +76,6 @@ public:
 
 private slots:
     void onFailoverNextHostnameAnswer(failover::FailoverRetCode retCode, const QString &hostname);
-    void onConnectStateChanged();
 
 private:
     NetworkAccessManager *networkAccessManager_;
@@ -88,24 +87,21 @@ private:
 
     // Current failover state. If there is no failover currently, then all are zero
     QPointer<BaseRequest> currentFailoverRequest_;
-    failover::IFailover *failoverInProgress_;
     ConnectStateWatcher *currentConnectStateWatcher_;
 
-    // Failovers for the connected/disconnected and their states
-    failover::IFailover *failoverDisconnectedMode_;
-    failover::IFailover *failoverConnectedMode_;
+    failover::IFailover *failover_;
+    bool isFailoverFailedLogAlreadyDone_ = false;   // log "failover failed: API not ready" only once to avoid spam
 
     void handleNetworkRequestFinished();
     void executeRequest(BaseRequest *request, bool bSkipFailoverConditions = false);
     void executeWaitingInQueueRequests();
     void finishWaitingInQueueRequests(SERVER_API_RET_CODE retCode, const QString &errString);
-    // return Failover depending of the connected/disconnected VPN state
-    failover::IFailover *currentFailover() const;
 
     void setErrorCodeAndEmitRequestFinished(BaseRequest *request, SERVER_API_RET_CODE retCode, const QString &errorStr);
 
-    void setCurrentFailoverRequest(BaseRequest *request, failover::IFailover *failover);
+    void setCurrentFailoverRequest(BaseRequest *request);
     void clearCurrentFailoverRequest();
+    bool isDisconnectedState() const;
 };
 
 } // namespace server_api

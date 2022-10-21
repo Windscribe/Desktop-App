@@ -39,10 +39,10 @@ qint64 DnsRequest::elapsedMs() const
 
 void DnsRequest::lookup()
 {
-   QSharedPointer<DnsRequestPrivate> obj = QSharedPointer<DnsRequestPrivate>(new DnsRequestPrivate, &QObject::deleteLater);
-   obj->moveToThread(this->thread());
-   connect(obj.get(), &DnsRequestPrivate::resolved, this, &DnsRequest::onResolved);
-   DnsResolver::instance().lookup(hostname_, obj.staticCast<QObject>(), dnsServers_, timeoutMs_);
+   privateDnsRequestObject_ = QSharedPointer<DnsRequestPrivate>(new DnsRequestPrivate, &QObject::deleteLater);
+   privateDnsRequestObject_->moveToThread(this->thread());
+   connect(privateDnsRequestObject_.staticCast<DnsRequestPrivate>().get(), &DnsRequestPrivate::resolved, this, &DnsRequest::onResolved);
+   DnsResolver::instance().lookup(hostname_, privateDnsRequestObject_.staticCast<QObject>(), dnsServers_, timeoutMs_);
 }
 
 void DnsRequest::lookupBlocked()
