@@ -27,12 +27,12 @@ signals:
 
 private slots:
     void onAutomaticChanged(QVariant value);
-    void onIPChanged(const QString &text);
+    void onAddressChanged(const QString &text);
 
 private:
     void updateMode();
     ComboBoxItem *resolutionModeItem_;
-    EditBoxItem *editBoxIP_;
+    EditBoxItem *editBoxAddress_;
     types::ApiResolutionSettings settings_;
 };
 

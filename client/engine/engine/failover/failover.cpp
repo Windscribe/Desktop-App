@@ -69,12 +69,12 @@ Failover::Failover(QObject *parent, NetworkAccessManager *networkAccessManager, 
 
 QString Failover::currentHostname() const
 {
-    if (apiResolutionSettings_.getIsAutomatic() || apiResolutionSettings_.getManualIp().isEmpty()) {
+    if (apiResolutionSettings_.getIsAutomatic() || apiResolutionSettings_.getManualAddress().isEmpty()) {
         if (curFailoverInd_ < failovers_.size() && !curFailoverHostnames_.isEmpty() && curFaiolverHostnameInd_ < curFailoverHostnames_.size()) {
             return curFailoverHostnames_[curFaiolverHostnameInd_];
         }
     } else {
-        return apiResolutionSettings_.getManualIp();
+        return apiResolutionSettings_.getManualAddress();
     }
     return QString();
 }
@@ -91,7 +91,7 @@ void Failover::reset()
 
 void Failover::getNextHostname(bool bIgnoreSslErrors)
 {
-    if (apiResolutionSettings_.getIsAutomatic() || apiResolutionSettings_.getManualIp().isEmpty()) {
+    if (apiResolutionSettings_.getIsAutomatic() || apiResolutionSettings_.getManualAddress().isEmpty()) {
         WS_ASSERT(!isFailoverInProgress_);
         bIgnoreSslErrors_ = bIgnoreSslErrors;
 
@@ -119,8 +119,8 @@ void Failover::getNextHostname(bool bIgnoreSslErrors)
             emit tryingBackupEndpoint(curFailoverInd_, failovers_.count() - 1);
     } else {
         QTimer::singleShot(0, [this]() {
-            qCDebug(LOG_FAILOVER) << "Failover" << FailoverRetCode::kSuccess <<  "manualIP" << apiResolutionSettings_.getManualIp();
-            emit nextHostnameAnswer(FailoverRetCode::kSuccess, apiResolutionSettings_.getManualIp());
+            qCDebug(LOG_FAILOVER) << "Failover" << FailoverRetCode::kSuccess <<  "manualAddress" << apiResolutionSettings_.getManualAddress();
+            emit nextHostnameAnswer(FailoverRetCode::kSuccess, apiResolutionSettings_.getManualAddress());
         });
     }
 }
