@@ -34,6 +34,7 @@ public:
     void setText(QString text);
     QString text() const;
     void setColor(QColor color);
+    void setMarginHeight(int height);
 
     void setCurrentOpacity(double opacity);
     void setUnhoverOpacity(double unhoverOpacity);
@@ -60,6 +61,7 @@ private:
     int width_;
     int height_;
     int addWidth_;   // HACK - allows full displaying of text in Upgrade Widget
+    int margin_;
 
     double curTextOpacity_;
     QVariantAnimation textOpacityAnimation_;
