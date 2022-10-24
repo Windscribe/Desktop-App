@@ -3,7 +3,7 @@
 
 #include <QObject>
 #include <QVariantAnimation>
-#include "../../graphicresources/independentpixmap.h"
+
 #include "backend/preferences/preferences.h"
 #include "imagechanger.h"
 #include "simpleimagechanger.h"
