@@ -17,6 +17,7 @@ PlanItem::PlanItem(ScalableGraphicsObject *parent)
     textButton_ = new CommonGraphics::TextButton(QT_TRANSLATE_NOOP("CommonGraphics::TextButton", "Pro"), FontDescr(12, false), QColor(85, 255, 138), true, this);
     connect(textButton_, &CommonGraphics::TextButton::clicked, this, &PlanItem::upgradeClicked);
     textButton_->setClickable(false);
+    textButton_->setMarginHeight(0);
     textButton_->setTextAlignment(Qt::AlignLeft);
     updateTextButtonPos();
 }

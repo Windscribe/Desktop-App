@@ -10,7 +10,7 @@
 namespace CommonGraphics {
 
 TextButton::TextButton(QString text, const FontDescr &fd, QColor color, bool bSetClickable, ScalableGraphicsObject *parent, int addWidth, bool bDrawWithShadow) : ClickableGraphicsObject(parent),
-    text_(text), color_(color), fontDescr_(fd), width_(0), height_(0), addWidth_(addWidth),
+    text_(text), color_(color), fontDescr_(fd), width_(0), height_(0), addWidth_(addWidth), margin_(MARGIN_HEIGHT),
     curTextOpacity_(OPACITY_UNHOVER_TEXT), unhoverOpacity_(OPACITY_UNHOVER_TEXT), isHovered_(false),
     textAlignment_(Qt::AlignLeft | Qt::AlignVCenter)
 {
@@ -29,7 +29,7 @@ TextButton::TextButton(QString text, const FontDescr &fd, QColor color, bool bSe
 
 QRectF TextButton::boundingRect() const
 {
-    return QRectF(0, 0, width_, height_ + MARGIN_HEIGHT*G_SCALE );
+    return QRectF(0, 0, width_, height_ + margin_*G_SCALE );
 }
 
 void TextButton::updateScaling()
@@ -69,6 +69,11 @@ double TextButton::getOpacity() const
 void TextButton::setColor(QColor color)
 {
     color_ = color;
+}
+
+void TextButton::setMarginHeight(int height)
+{
+    margin_ = height;
 }
 
 void TextButton::quickSetOpacity(double opacity)
