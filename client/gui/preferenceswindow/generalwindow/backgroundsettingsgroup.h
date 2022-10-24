@@ -1,11 +1,9 @@
-#ifndef BACKGROUNDSETTINGSITEM_H
-#define BACKGROUNDSETTINGSITEM_H
+#pragma once
 
-#include "backend/preferences/preferences.h"
 #include "preferenceswindow/comboboxitem.h"
 #include "preferenceswindow/preferencegroup.h"
 #include "selectimageitem.h"
-#include <QVariantAnimation>
+#include "types/backgroundsettings.h"
 
 namespace PreferencesWindow {
 
@@ -44,5 +42,3 @@ private:
 };
 
 } // namespace PreferencesWindow
-
-#endif // BACKGROUNDSETTINGSITEM_H
