@@ -61,7 +61,7 @@ AdvancedWindowItem::AdvancedWindowItem(ScalableGraphicsObject *parent, Preferenc
     addItem(ipv6Group_);
 #endif
 
-    apiResolutionGroup_ = new ApiResolutionGroup(this, "Resolve server API address automatically, or use an IP address provided by the Support team.");
+    apiResolutionGroup_ = new ApiResolutionGroup(this, "Resolve server API address automatically, or use one provided by the Support team.");
     apiResolutionGroup_->setApiResolution(preferences->apiResolution());
     connect(apiResolutionGroup_, &ApiResolutionGroup::apiResolutionChanged, this, &AdvancedWindowItem::onApiResolutionChanged);
     addItem(apiResolutionGroup_);

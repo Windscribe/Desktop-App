@@ -7,10 +7,10 @@ ApiResolutionSettings::ApiResolutionSettings() : bAutomatic_(true)
 {
 }
 
-void ApiResolutionSettings::set(bool bAutomatic, const QString &manualIp)
+void ApiResolutionSettings::set(bool bAutomatic, const QString &manualAddress)
 {
     bAutomatic_ = bAutomatic;
-    manualIp_ = manualIp;
+    manualAddress_ = manualAddress;
 }
 
 bool ApiResolutionSettings::getIsAutomatic() const
@@ -23,20 +23,20 @@ void ApiResolutionSettings::setIsAutomatic(bool bAutomatic)
     bAutomatic_ = bAutomatic;
 }
 
-QString ApiResolutionSettings::getManualIp() const
+QString ApiResolutionSettings::getManualAddress() const
 {
-    return manualIp_;
+    return manualAddress_;
 }
 
-void ApiResolutionSettings::setManualIp(const QString &manualIp)
+void ApiResolutionSettings::setManualAddress(const QString &manualAddress)
 {
-    manualIp_ = manualIp;
+    manualAddress_ = manualAddress;
 }
 
 QDataStream& operator <<(QDataStream &stream, const ApiResolutionSettings &o)
 {
     stream << o.versionForSerialization_;
-    stream << o.bAutomatic_ << o.manualIp_;
+    stream << o.bAutomatic_ << o.manualAddress_;
     return stream;
 
 }
@@ -48,7 +48,7 @@ QDataStream& operator >>(QDataStream &stream, ApiResolutionSettings &o)
         stream.setStatus(QDataStream::ReadCorruptData);
         return stream;
     }
-    stream >> o.bAutomatic_ >> o.manualIp_;
+    stream >> o.bAutomatic_ >> o.manualAddress_;
     return stream;
 
 }
@@ -58,7 +58,7 @@ QDebug operator<<(QDebug dbg, const ApiResolutionSettings &ds)
     QDebugStateSaver saver(dbg);
     dbg.nospace();
     dbg << "{isAutomatic:" << ds.bAutomatic_ << "; ";
-    dbg << "manualIp:" << ds.manualIp_ << "}";
+    dbg << "manualAddress:" << ds.manualAddress_ << "}";
     return dbg;
 }
 
