@@ -92,7 +92,7 @@ void Failover::reset()
 void Failover::getNextHostname(bool bIgnoreSslErrors)
 {
     WS_ASSERT(!isFailoverInProgress_);
-    if (apiResolutionSettings_.getIsAutomatic() || apiResolutionSettings_.getManualIp().isEmpty()) {
+    if (apiResolutionSettings_.getIsAutomatic() || apiResolutionSettings_.getManualAddress().isEmpty()) {
         bIgnoreSslErrors_ = bIgnoreSslErrors;
 
         if (!curFailoverHostnames_.isEmpty() && curFaiolverHostnameInd_ < (curFailoverHostnames_.size() - 1)) {
