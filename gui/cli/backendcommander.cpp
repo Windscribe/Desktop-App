@@ -1,13 +1,12 @@
 #include "backendcommander.h"
 
-#include "utils/utils.h"
-#include "utils/logger.h"
-#include "types/locationid.h"
-#include "ipc/connection.h"
-#include "ipc/protobufcommand.h"
-#include "ipc/clicommands.h"
-
 #include <QTimer>
+
+#include "ipc/clicommands.h"
+#include "ipc/connection.h"
+#include "types/locationid.h"
+#include "utils/logger.h"
+#include "utils/utils.h"
 
 BackendCommander::BackendCommander(const CliArguments &cliArgs) : QObject()
     , cliArgs_(cliArgs)
@@ -40,7 +39,7 @@ void BackendCommander::onConnectionNewCommand(IPC::Command *command, IPC::IConne
 {
     if (bCommandSent_ && command->getStringId() == IPC::CliCommands::LocationsShown::getCommandStringId())
     {
-        emit finished(tr("Viewing Locations..."));
+        emit finished(0, tr("Viewing Locations..."));
     }
     else if (bCommandSent_ && command->getStringId() == IPC::CliCommands::ConnectToLocationAnswer::getCommandStringId())
     {
@@ -53,7 +52,7 @@ void BackendCommander::onConnectionNewCommand(IPC::Command *command, IPC::IConne
         }
         else
         {
-            emit finished(tr("Error: Could not find server matching: \"") + cliArgs_.location() + "\" or the location is disabled");
+            emit finished(1, tr("Error: Could not find server matching: \"") + cliArgs_.location() + "\" or the location is disabled");
         }
     }
     else if (bCommandSent_ && command->getStringId() == IPC::CliCommands::ConnectStateChanged::getCommandStringId())
@@ -77,18 +76,18 @@ void BackendCommander::onConnectionNewCommand(IPC::Command *command, IPC::IConne
                     {
                         locationConnectedTo = cmd->connectState.location.city();
                     }
-                    emit finished(tr("Connected to ") + locationConnectedTo);
+                    emit finished(0, tr("Connected to ") + locationConnectedTo);
                 }
             }
             else if (cmd->connectState.connectState == CONNECT_STATE_DISCONNECTED)
             {
-                emit finished(tr("Disconnected"));
+                emit finished(0, tr("Disconnected"));
             }
         }
     }
     else if (bCommandSent_ && command->getStringId() == IPC::CliCommands::AlreadyDisconnected::getCommandStringId())
     {
-        emit finished(tr("Already Disconnected"));
+        emit finished(0, tr("Already Disconnected"));
     }
     else if (command->getStringId() == IPC::CliCommands::State::getCommandStringId())
     {
@@ -101,27 +100,27 @@ void BackendCommander::onConnectionNewCommand(IPC::Command *command, IPC::IConne
         {
             if (cmd->isFirewallAlwaysOn_)
             {
-                emit finished(tr("Firewall is in Always On mode and cannot be changed"));
+                emit finished(0, tr("Firewall is in Always On mode and cannot be changed"));
             }
             else
             {
-                emit finished(tr("Firewall is ON"));
+                emit finished(0, tr("Firewall is ON"));
             }
         }
         else
         {
-            emit finished(tr("Firewall is OFF"));
+            emit finished(0, tr("Firewall is OFF"));
         }
     }
     else if (bCommandSent_ && command->getStringId() == IPC::CliCommands::SignedOut::getCommandStringId())
     {
-        emit finished(tr("Signed out"));
+        emit finished(0, tr("Signed out"));
     }
     else if (bCommandSent_ && command->getStringId() == IPC::CliCommands::LoginResult::getCommandStringId())
     {
         IPC::CliCommands::LoginResult *cmd = static_cast<IPC::CliCommands::LoginResult *>(command);
         if (cmd->isLoggedIn_) {
-            emit finished(tr("login successful"));
+            emit finished(0, tr("login successful"));
         }
         else
         {
@@ -129,7 +128,7 @@ void BackendCommander::onConnectionNewCommand(IPC::Command *command, IPC::IConne
             if (!cmd->loginError_.isEmpty()) {
                 errorMessage += tr(". %1").arg(cmd->loginError_);
             }
-            emit finished(errorMessage);
+            emit finished(1, errorMessage);
         }
     }
 }
@@ -146,7 +145,7 @@ void BackendCommander::onConnectionStateChanged(int state, IPC::IConnection * /*
     else if (state == IPC::CONNECTION_DISCONNECTED)
     {
         qCDebug(LOG_BASIC) << "Disconnected from GUI server";
-        emit finished("");
+        emit finished(0, "");
     }
     else if (state == IPC::CONNECTION_ERROR)
     {
@@ -155,7 +154,7 @@ void BackendCommander::onConnectionStateChanged(int state, IPC::IConnection * /*
             if (connectingTimer_.isValid() && connectingTimer_.elapsed() > MAX_WAIT_TIME_MS)
             {
                 connectingTimer_.invalidate();
-                emit finished("Aborting: Gui did not start in time");
+                emit finished(1, "Aborting: Gui did not start in time");
             }
             else
             {
@@ -166,7 +165,7 @@ void BackendCommander::onConnectionStateChanged(int state, IPC::IConnection * /*
         }
         else
         {
-            emit finished("Aborting: IPC communication error");
+            emit finished(1, "Aborting: IPC communication error");
         }
     }
 }
@@ -234,7 +233,7 @@ void BackendCommander::onStateResponse(IPC::Command *command)
     if (cmd->isLoggedIn_)
     {
         if (cliArgs_.cliCommand() == CLI_COMMAND_LOGIN) {
-            emit finished(tr("The application is already logged in"));
+            emit finished(0, tr("The application is already logged in"));
         }
         else {
             sendCommand();
@@ -262,14 +261,14 @@ void BackendCommander::onStateResponse(IPC::Command *command)
         else if (cliArgs_.cliCommand() == CLI_COMMAND_SIGN_OUT && cmd->waitingForLoginInfo_)
         {
             loggedInTimer_.invalidate();
-            emit finished(tr("The application is already signed out"));
+            emit finished(0, tr("The application is already signed out"));
         }
         else
         {
             if (loggedInTimer_.isValid() && loggedInTimer_.elapsed() > MAX_LOGIN_TIME_MS)
             {
                 loggedInTimer_.invalidate();
-                emit finished("Aborting: GUI did not login in time");
+                emit finished(1, "Aborting: GUI did not login in time");
             }
             else
             {
