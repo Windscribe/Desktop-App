@@ -1,11 +1,11 @@
-#ifndef BACKENDCOMMANDER_H
-#define BACKENDCOMMANDER_H
+#pragma once
 
 #include <QElapsedTimer>
 #include <QObject>
+
 #include "cliarguments.h"
-#include "ipc/iconnection.h"
 #include "ipc/command.h"
+#include "ipc/iconnection.h"
 
 class BackendCommander : public QObject
 {
@@ -17,7 +17,7 @@ public:
     void initAndSend(bool isGuiAlreadyRunning);
 
 signals:
-    void finished(const QString &errorMsg);
+    void finished(int returnCode, const QString &errorMsg);
     void report(const QString &msg);
 
 private slots:
@@ -43,5 +43,3 @@ private:
 
     void onStateResponse(IPC::Command *command);
 };
-
-#endif // BACKENDCOMMANDER_H

@@ -1,17 +1,16 @@
 #include <QCoreApplication>
-
+#include <QDateTime>
 #include <QObject>
 #include <QProcess>
-#include <QDateTime>
+
 #include <iostream>
+
 #include "backendcommander.h"
 #include "cliarguments.h"
 #include "utils/logger.h"
 #include "utils/utils.h"
 
-#ifdef Q_OS_WIN
-    #include "Windows.h"
-#else
+#ifndef Q_OS_WIN
     #include <semaphore.h>
     #include <time.h>
     #include <unistd.h>
@@ -51,7 +50,7 @@ int main(int argc, char *argv[])
         qCDebug(LOG_BASIC) << "CLI args fail: Couldn't determine appropriate command from arguments";
         QString output = QObject::tr("There appears to be an issue with the provided arguments. Try 'windscribe-cli help' to see available options");
         std::cout << output.toStdString() << std::endl;
-        return 0;
+        return 1;
     }
     else if (cliArgs.cliCommand() == CLI_COMMAND_HELP)
     {
@@ -73,11 +72,11 @@ int main(int argc, char *argv[])
 
     BackendCommander *backendCommander = new BackendCommander(cliArgs);
 
-    QObject::connect(backendCommander, &BackendCommander::finished, [&](const QString &msg) {
+    QObject::connect(backendCommander, &BackendCommander::finished, [&](int returnCode, const QString &msg) {
         logAndCout(msg);
         backendCommander->deleteLater();
         backendCommander = nullptr;
-        a.quit();
+        a.exit(returnCode);
     });
 
     QObject::connect(backendCommander, &BackendCommander::report, [&](const QString &msg) {
@@ -132,4 +131,3 @@ void logAndCout(const QString &str)
     qCDebug(LOG_BASIC) << str;
     std::cout << str.toStdString() << std::endl;
 }
-
