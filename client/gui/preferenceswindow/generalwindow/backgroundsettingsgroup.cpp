@@ -1,9 +1,8 @@
 #include "backgroundsettingsgroup.h"
 
 #include <QPainter>
-#include "graphicresources/fontmanager.h"
+
 #include "graphicresources/imageresourcessvg.h"
-#include "dpiscalemanager.h"
 
 namespace PreferencesWindow {
 
@@ -13,7 +12,7 @@ BackgroundSettingsGroup::BackgroundSettingsGroup(ScalableGraphicsObject *parent,
     setFlags(flags() | QGraphicsItem::ItemIsFocusable);
 
     comboBoxMode_ = new ComboBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::BackgroundSettingsGroup", "Background"), "");
-    comboBoxMode_->addItem(tr("Country flags"), BACKGROUND_TYPE_COUNTRY_FLAGS);
+    comboBoxMode_->addItem(tr("Country Flags"), BACKGROUND_TYPE_COUNTRY_FLAGS);
     comboBoxMode_->addItem(tr("None"), BACKGROUND_TYPE_NONE);
     comboBoxMode_->addItem(tr("Custom"), BACKGROUND_TYPE_CUSTOM);
     comboBoxMode_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/APP_BACKGROUND"));
@@ -55,8 +54,7 @@ void BackgroundSettingsGroup::hideOpenPopups()
 
 void BackgroundSettingsGroup::setBackgroundSettings(const types::BackgroundSettings &settings)
 {
-    if(settings_ != settings)
-    {
+    if (settings_ != settings) {
         settings_ = settings;
         comboBoxMode_->setCurrentItem(settings_.backgroundType);
         imageItemDisconnected_->setPath(settings_.backgroundImageDisconnected);
@@ -67,8 +65,7 @@ void BackgroundSettingsGroup::setBackgroundSettings(const types::BackgroundSetti
 
 void BackgroundSettingsGroup::onBackgroundModeChanged(QVariant v)
 {
-    if (settings_.backgroundType != v.toInt())
-    {
+    if (settings_.backgroundType != v.toInt()) {
         settings_.backgroundType = (BACKGROUND_TYPE)v.toInt();
         updateMode();
         emit backgroundSettingsChanged(settings_);
@@ -77,13 +74,11 @@ void BackgroundSettingsGroup::onBackgroundModeChanged(QVariant v)
 
 void BackgroundSettingsGroup::updateMode()
 {
-    if (settings_.backgroundType == BACKGROUND_TYPE_CUSTOM)
-    {
+    if (settings_.backgroundType == BACKGROUND_TYPE_CUSTOM) {
         showItems(indexOf(imageItemDisconnected_));
         showItems(indexOf(imageItemConnected_));
     }
-    else
-    {
+    else {
         hideItems(indexOf(imageItemDisconnected_));
         hideItems(indexOf(imageItemConnected_));
     }
