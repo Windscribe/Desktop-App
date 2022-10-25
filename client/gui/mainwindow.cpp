@@ -3248,7 +3248,7 @@ QString MainWindow::getConnectionTime()
 
 QString MainWindow::getConnectionTransferred()
 {
-    return Utils::humanReadableByteCount(bytesTransferred_, true);
+    return Utils::humanReadableByteCount(bytesTransferred_, true, true);
 }
 
 void MainWindow::setInitialFirewallState()
