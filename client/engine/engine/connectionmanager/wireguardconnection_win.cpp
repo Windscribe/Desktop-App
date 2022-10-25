@@ -54,7 +54,6 @@ void WireGuardConnection::startConnect(const QString &configPathOrUrl, const QSt
     Q_UNUSED(password);
     Q_UNUSED(proxySettings);
     Q_UNUSED(isEnableIkev2Compression);
-    Q_UNUSED(isAutomaticConnectionMode);
 
     WS_ASSERT(helper_ != nullptr);
     WS_ASSERT(wireGuardConfig != nullptr);
@@ -67,6 +66,7 @@ void WireGuardConnection::startConnect(const QString &configPathOrUrl, const QSt
     }
 
     connectedSignalEmited_ = false;
+    isAutomaticConnectionMode_ = isAutomaticConnectionMode;
     stopRequested_ = false;
     wireGuardConfig_ = wireGuardConfig;
     serviceCtrlManager_.unblockStartStopRequests();
@@ -179,6 +179,14 @@ void WireGuardConnection::run()
         connect(timerGetWireguardLogUpdates.data(), &QTimer::timeout, this, &WireGuardConnection::onGetWireguardLogUpdates);
         timerGetWireguardLogUpdates->start(250);
 
+        QScopedPointer< QTimer > timerTimeoutForAutomatic;
+        if (isAutomaticConnectionMode_) {
+            timerTimeoutForAutomatic .reset(new QTimer);
+            timerTimeoutForAutomatic->setSingleShot(true);
+            connect(timerTimeoutForAutomatic.data(), &QTimer::timeout, this, &WireGuardConnection::onAutomaticConnectionTimeout);
+            timerTimeoutForAutomatic->start(kTimeoutForAutomatic);
+        }
+
         if (!stopRequested_) {
             exec();
         }
@@ -289,6 +297,14 @@ void WireGuardConnection::onGetWireguardStats()
 
             emit statisticsUpdated(status.bytesReceived, status.bytesTransmitted, true);
         }
+    }
+}
+
+void WireGuardConnection::onAutomaticConnectionTimeout()
+{
+    if (!connectedSignalEmited_) {
+        emit error(CONNECT_ERROR::STATE_TIMEOUT_FOR_AUTOMATIC);
+        quit();
     }
 }
 

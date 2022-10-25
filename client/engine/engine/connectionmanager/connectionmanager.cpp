@@ -522,7 +522,7 @@ void ConnectionManager::onConnectionError(CONNECT_ERROR err)
             || err == CONNECT_ERROR::NO_OPENVPN_SOCKET
             || err == CONNECT_ERROR::NO_INSTALLED_TUN_TAP
             || err == CONNECT_ERROR::ALL_TAP_IN_USE
-            || err == CONNECT_ERROR::WIREGUARD_CONNECTION_ERROR
+            || (!connSettingsPolicy_->isAutomaticMode() && err == CONNECT_ERROR::WIREGUARD_CONNECTION_ERROR)
             || err == CONNECT_ERROR::WINTUN_DRIVER_REINSTALLATION_ERROR
             || err == CONNECT_ERROR::TAP_DRIVER_REINSTALLATION_ERROR
             || err == CONNECT_ERROR::WINTUN_FATAL_ERROR)
@@ -541,7 +541,7 @@ void ConnectionManager::onConnectionError(CONNECT_ERROR err)
                                                             || err == CONNECT_ERROR::IKEV_FAILED_LOAD_PREFERENCES_MAC
                                                             || err == CONNECT_ERROR::IKEV_FAILED_SAVE_PREFERENCES_MAC))
             || (!connSettingsPolicy_->isAutomaticMode() && err == CONNECT_ERROR::EXE_VERIFY_OPENVPN_ERROR)
-            || (!connSettingsPolicy_->isAutomaticMode() && err == CONNECT_ERROR::EXE_VERIFY_WIREGUARD_ERROR))
+            || err == CONNECT_ERROR::EXE_VERIFY_WIREGUARD_ERROR)
     {
         // immediately stop trying to connect
         state_ = STATE_DISCONNECTED;
@@ -549,7 +549,8 @@ void ConnectionManager::onConnectionError(CONNECT_ERROR err)
         getWireGuardConfigInLoop_->stop();
         Q_EMIT errorDuringConnection(err);
     }
-    else if (err == CONNECT_ERROR::UDP_CANT_ASSIGN
+    else if (err == CONNECT_ERROR::STATE_TIMEOUT_FOR_AUTOMATIC
+             || err == CONNECT_ERROR::UDP_CANT_ASSIGN
              || err == CONNECT_ERROR::UDP_NO_BUFFER_SPACE
              || err == CONNECT_ERROR::UDP_NETWORK_DOWN
              || err == CONNECT_ERROR::WINTUN_OVER_CAPACITY
@@ -557,6 +558,7 @@ void ConnectionManager::onConnectionError(CONNECT_ERROR err)
              || err == CONNECT_ERROR::CONNECTED_ERROR
              || err == CONNECT_ERROR::INITIALIZATION_SEQUENCE_COMPLETED_WITH_ERRORS
              || err == CONNECT_ERROR::IKEV_FAILED_TO_CONNECT
+             || err == CONNECT_ERROR::WIREGUARD_CONNECTION_ERROR
              || (connSettingsPolicy_->isAutomaticMode() && (err == CONNECT_ERROR::IKEV_NOT_FOUND_WIN
                                                             || err == CONNECT_ERROR::IKEV_FAILED_SET_ENTRY_WIN
                                                             || err == CONNECT_ERROR::IKEV_FAILED_MODIFY_HOSTS_WIN))

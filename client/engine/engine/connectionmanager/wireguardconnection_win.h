@@ -39,14 +39,18 @@ private Q_SLOTS:
     void onCheckServiceRunning();
     void onGetWireguardLogUpdates();
     void onGetWireguardStats();
+    void onAutomaticConnectionTimeout();
 
 private:
+    static constexpr int kTimeoutForAutomatic = 20000;  // 20 secs timeout for the automatic connection mode
+
     Helper_win* const helper_;
     const WireGuardConfig* wireGuardConfig_ = nullptr;
     wsl::ServiceControlManager serviceCtrlManager_;
     QScopedPointer< wsl::WireguardRingLogger > wireguardLog_;
     bool connectedSignalEmited_ = false;
     std::atomic<bool> stopRequested_;
+    bool isAutomaticConnectionMode_;
 
 private:
     void onWireguardServiceStartupFailure() const;
