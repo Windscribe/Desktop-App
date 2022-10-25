@@ -73,14 +73,14 @@ void EditBoxItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
             t = text_;
         }
 
-        painter->drawText(boundingRect().adjusted((2*PREFERENCES_MARGIN + fm.horizontalAdvance(caption))*G_SCALE,
+        painter->drawText(boundingRect().adjusted((2*PREFERENCES_MARGIN*G_SCALE) + fm.horizontalAdvance(caption),
                                                   PREFERENCES_MARGIN*G_SCALE,
                                                   -(2*PREFERENCES_MARGIN + ICON_WIDTH)*G_SCALE,
                                                   -PREFERENCES_MARGIN),
                           Qt::AlignRight,
                           fm.elidedText(t,
                                         Qt::ElideRight,
-                                        boundingRect().width() - (5*PREFERENCES_MARGIN + 2*ICON_WIDTH + fm.horizontalAdvance(caption))*G_SCALE));
+                                        boundingRect().width() - (4*PREFERENCES_MARGIN + ICON_WIDTH)*G_SCALE - fm.horizontalAdvance(caption)));
     }
 }
 

@@ -11,16 +11,16 @@ class ApiResolutionSettings
 public:
     explicit ApiResolutionSettings();
 
-    void set(bool bAutomatic, const QString &manualIp);
+    void set(bool bAutomatic, const QString &manualAddress);
     bool getIsAutomatic() const;
     void setIsAutomatic(bool bAutomatic);
-    QString getManualIp() const;
-    void setManualIp(const QString &manualIp);
+    QString getManualAddress() const;
+    void setManualAddress(const QString &manualAddress);
 
     bool operator==(const ApiResolutionSettings &other) const
     {
         return other.bAutomatic_ == bAutomatic_ &&
-               other.manualIp_ == manualIp_;
+               other.manualAddress_ == manualAddress_;
     }
 
     bool operator!=(const ApiResolutionSettings &other) const
@@ -35,7 +35,7 @@ public:
 
 private:
     bool bAutomatic_;
-    QString manualIp_;
+    QString manualAddress_;
 
     static constexpr quint32 versionForSerialization_ = 1;  // should increment the version if the data format is changed
 };

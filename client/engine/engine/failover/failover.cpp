@@ -15,8 +15,8 @@
 
 namespace failover {
 
-Failover::Failover(QObject *parent, NetworkAccessManager *networkAccessManager, IConnectStateController *connectStateController, const QString &nameForLog) :
-    IFailover(parent), nameForLog_(nameForLog)
+Failover::Failover(QObject *parent, NetworkAccessManager *networkAccessManager, IConnectStateController *connectStateController) :
+    IFailover(parent)
 {
     // Creating all failovers in the order of their application
     WS_ASSERT(HardcodedSettings::instance().serverDomains().size() >= 2);
@@ -69,19 +69,19 @@ Failover::Failover(QObject *parent, NetworkAccessManager *networkAccessManager, 
 
 QString Failover::currentHostname() const
 {
-    if (apiResolutionSettings_.getIsAutomatic() || apiResolutionSettings_.getManualIp().isEmpty()) {
+    if (apiResolutionSettings_.getIsAutomatic() || apiResolutionSettings_.getManualAddress().isEmpty()) {
         if (curFailoverInd_ < failovers_.size() && !curFailoverHostnames_.isEmpty() && curFaiolverHostnameInd_ < curFailoverHostnames_.size()) {
             return curFailoverHostnames_[curFaiolverHostnameInd_];
         }
     } else {
-        return apiResolutionSettings_.getManualIp();
+        return apiResolutionSettings_.getManualAddress();
     }
     return QString();
 }
 
 void Failover::reset()
 {
-    qCDebug(LOG_FAILOVER) << QString("Failover[%1] reset").arg(nameForLog_);
+    qCDebug(LOG_FAILOVER) << "Failover reset";
 
     // Initialize the state to the first failover
     curFailoverInd_ = -1;
@@ -98,7 +98,7 @@ void Failover::getNextHostname(bool bIgnoreSslErrors)
         if (!curFailoverHostnames_.isEmpty() && curFaiolverHostnameInd_ < (curFailoverHostnames_.size() - 1)) {
             curFaiolverHostnameInd_++;
             QTimer::singleShot(0, [this]() {
-                qCDebug(LOG_FAILOVER) <<  QString("Failover[%1]").arg(nameForLog_) << FailoverRetCode::kSuccess <<  failovers_[curFailoverInd_]->name() << curFailoverHostnames_[curFaiolverHostnameInd_].left(3);
+                qCDebug(LOG_FAILOVER) <<  "Failover" << FailoverRetCode::kSuccess <<  failovers_[curFailoverInd_]->name() << curFailoverHostnames_[curFaiolverHostnameInd_].left(3);
                 emit nextHostnameAnswer(FailoverRetCode::kSuccess, curFailoverHostnames_[curFaiolverHostnameInd_]);
             });
             return;
@@ -106,7 +106,7 @@ void Failover::getNextHostname(bool bIgnoreSslErrors)
 
         if (curFailoverInd_ >= (failovers_.size() - 1)) {
             QTimer::singleShot(0, [this]() {
-                qCDebug(LOG_FAILOVER) << QString("Failover[%1]").arg(nameForLog_) << FailoverRetCode::kFailed;
+                qCDebug(LOG_FAILOVER) << "Failover" << FailoverRetCode::kFailed;
                 emit nextHostnameAnswer(FailoverRetCode::kFailed, QString());
             });
             return;
@@ -119,8 +119,8 @@ void Failover::getNextHostname(bool bIgnoreSslErrors)
             emit tryingBackupEndpoint(curFailoverInd_, failovers_.count() - 1);
     } else {
         QTimer::singleShot(0, [this]() {
-            qCDebug(LOG_FAILOVER) <<  QString("Failover[%1]").arg(nameForLog_) << FailoverRetCode::kSuccess <<  "manualIP" << apiResolutionSettings_.getManualIp();
-            emit nextHostnameAnswer(FailoverRetCode::kSuccess, apiResolutionSettings_.getManualIp());
+            qCDebug(LOG_FAILOVER) << "Failover" << FailoverRetCode::kSuccess <<  "manualAddress" << apiResolutionSettings_.getManualAddress();
+            emit nextHostnameAnswer(FailoverRetCode::kSuccess, apiResolutionSettings_.getManualAddress());
         });
     }
 }
@@ -140,11 +140,11 @@ void Failover::onFailoverFinished(FailoverRetCode retCode, const QStringList &ho
 
     if (retCode == FailoverRetCode::kSuccess) {
         WS_ASSERT(curFailoverHostnames_.size() >= 1);
-        qCDebug(LOG_FAILOVER) << QString("Failover[%1]").arg(nameForLog_) << FailoverRetCode::kSuccess <<  failovers_[curFailoverInd_]->name() << curFailoverHostnames_[curFaiolverHostnameInd_].left(3);
+        qCDebug(LOG_FAILOVER) << "Failover" << FailoverRetCode::kSuccess <<  failovers_[curFailoverInd_]->name() << curFailoverHostnames_[curFaiolverHostnameInd_].left(3);
         emit nextHostnameAnswer(FailoverRetCode::kSuccess, curFailoverHostnames_[curFaiolverHostnameInd_]);
     }
     else if (retCode == FailoverRetCode::kSslError) {
-        qCDebug(LOG_FAILOVER) << QString("Failover[%1]").arg(nameForLog_) <<  failovers_[curFailoverInd_]->name() << FailoverRetCode::kSslError;
+        qCDebug(LOG_FAILOVER) << "Failover" <<  failovers_[curFailoverInd_]->name() << FailoverRetCode::kSslError;
         emit nextHostnameAnswer(FailoverRetCode::kSslError, QString());
     }
     else if (retCode == FailoverRetCode::kFailed) {

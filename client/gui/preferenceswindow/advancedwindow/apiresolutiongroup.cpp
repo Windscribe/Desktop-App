@@ -20,15 +20,10 @@ ApiResolutionGroup::ApiResolutionGroup(ScalableGraphicsObject *parent, const QSt
     connect(resolutionModeItem_, &ComboBoxItem::currentItemChanged, this, &ApiResolutionGroup::onAutomaticChanged);
     addItem(resolutionModeItem_);
 
-    editBoxIP_ = new EditBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::EditBoxItem", "IP Address"), QT_TRANSLATE_NOOP("PreferencesWindow::EditBoxItem", "Enter IP"));
-    connect(editBoxIP_, &EditBoxItem::textChanged, this, &ApiResolutionGroup::onIPChanged);
-    addItem(editBoxIP_);
-    hideItems(indexOf(editBoxIP_));
-
-    QString ipRange = "(?:[0-1]?[0-9]?[0-9]|2[0-4][0-9]|25[0-5])";
-    QRegularExpression ipRegex ("^" + ipRange + "\\." + ipRange + "\\." + ipRange + "\\." + ipRange + "$");
-    QRegularExpressionValidator *ipValidator = new QRegularExpressionValidator(ipRegex, this);
-    editBoxIP_->setValidator(ipValidator);
+    editBoxAddress_ = new EditBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::EditBoxItem", "Address"), QT_TRANSLATE_NOOP("PreferencesWindow::EditBoxItem", "Enter IP or Hostname"));
+    connect(editBoxAddress_, &EditBoxItem::textChanged, this, &ApiResolutionGroup::onAddressChanged);
+    addItem(editBoxAddress_);
+    hideItems(indexOf(editBoxAddress_));
 }
 
 void ApiResolutionGroup::setApiResolution(const types::ApiResolutionSettings &ar)
@@ -37,14 +32,14 @@ void ApiResolutionGroup::setApiResolution(const types::ApiResolutionSettings &ar
     {
         settings_ = ar;
         resolutionModeItem_->setCurrentItem(settings_.getIsAutomatic() ? 0 : 1);
-        editBoxIP_->setText(settings_.getManualIp());
+        editBoxAddress_->setText(settings_.getManualAddress());
         updateMode();
     }
 }
 
 bool ApiResolutionGroup::hasItemWithFocus()
 {
-    return editBoxIP_->lineEditHasFocus();
+    return editBoxAddress_->lineEditHasFocus();
 }
 
 void ApiResolutionGroup::onAutomaticChanged(QVariant value)
@@ -54,9 +49,9 @@ void ApiResolutionGroup::onAutomaticChanged(QVariant value)
     emit apiResolutionChanged(settings_);
 }
 
-void ApiResolutionGroup::onIPChanged(const QString &text)
+void ApiResolutionGroup::onAddressChanged(const QString &text)
 {
-    settings_.setManualIp(text.trimmed());
+    settings_.setManualAddress(text.trimmed());
     emit apiResolutionChanged(settings_);
 }
 
@@ -64,11 +59,11 @@ void ApiResolutionGroup::updateMode()
 {
     if (settings_.getIsAutomatic())
     {
-        hideItems(indexOf(editBoxIP_));
+        hideItems(indexOf(editBoxAddress_));
     }
     else
     {
-        showItems(indexOf(editBoxIP_));
+        showItems(indexOf(editBoxAddress_));
     }
 }
 

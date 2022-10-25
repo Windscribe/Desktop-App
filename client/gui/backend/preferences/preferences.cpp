@@ -705,10 +705,10 @@ void Preferences::validateAndUpdateIfNeeded()
 
     // Reset API resolution to automatic if the ip address hasn't been specified.
     if (!engineSettings_.apiResolutionSettings().getIsAutomatic() &&
-        engineSettings_.apiResolutionSettings().getManualIp().isEmpty())
+        engineSettings_.apiResolutionSettings().getManualAddress().isEmpty())
     {
         types::ApiResolutionSettings ds = engineSettings_.apiResolutionSettings();
-        ds.set(true, ds.getManualIp());
+        ds.set(true, ds.getManualAddress());
         engineSettings_.setApiResolutionSettings(ds);
         emit apiResolutionChanged(engineSettings_.apiResolutionSettings());
         is_update_needed = true;

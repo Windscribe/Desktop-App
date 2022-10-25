@@ -14,7 +14,7 @@ class Failover : public IFailover
 {
     Q_OBJECT
 public:
-    explicit Failover(QObject *parent, NetworkAccessManager *networkAccessManager, IConnectStateController *connectStateController, const QString &nameForLog);
+    explicit Failover(QObject *parent, NetworkAccessManager *networkAccessManager, IConnectStateController *connectStateController);
 
     // can return an empty string if the Failover in the FailoverRetCode::kFailed state
     QString currentHostname() const override;
@@ -27,7 +27,6 @@ private slots:
     void onFailoverFinished(FailoverRetCode retCode, const QStringList &hostnames);
 
 private:
-    QString nameForLog_;
     QVector<BaseFailover *> failovers_;
     int curFailoverInd_ = -1;
     QStringList curFailoverHostnames_;

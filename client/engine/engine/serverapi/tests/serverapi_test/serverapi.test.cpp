@@ -34,7 +34,7 @@ void ServerApi_test::testRequests()
     failovers << qMakePair("windscribe.com", failover::FailoverRetCode::kSuccess);
     failovers << qMakePair("d571d4e00ea4765529703412b1045ba8079d9d87.com", failover::FailoverRetCode::kSuccess);
     QScopedPointer<server_api::ServerAPI> serverAPI_(new server_api::ServerAPI(this, connectStateController_, accessManager_, networkDetectionManager_,
-                                                                              new Failover_moc(this, failovers), new Failover_moc(this, failovers)));
+                                                                              new Failover_moc(this, failovers)));
     serverAPI_->getHostname();
 
     {
@@ -235,7 +235,7 @@ void ServerApi_test::testFailoverFailed()
     failovers << qMakePair("windscribe.com", failover::FailoverRetCode::kFailed);
     failovers << qMakePair("d571d4e00ea4765529703412b1045ba8079d9d87.com", failover::FailoverRetCode::kFailed);
     QScopedPointer<server_api::ServerAPI> serverAPI_(new server_api::ServerAPI(this, connectStateController_, accessManager_, networkDetectionManager_,
-                                                                              new Failover_moc(this, failovers), new Failover_moc(this, failovers)));
+                                                                              new Failover_moc(this, failovers)));
     QList<QSharedPointer<QSignalSpy> > spies;
     {
         server_api::BaseRequest *request = serverAPI_->session(authHash_);
@@ -288,7 +288,7 @@ void ServerApi_test::testFailoverSslError()
     failovers << qMakePair("windscribe.com", failover::FailoverRetCode::kSslError);
     failovers << qMakePair("d571d4e00ea4765529703412b1045ba8079d9d87.com", failover::FailoverRetCode::kSslError);
     QScopedPointer<server_api::ServerAPI> serverAPI_(new server_api::ServerAPI(this, connectStateController_, accessManager_, networkDetectionManager_,
-                                                                              new Failover_moc(this, failovers), new Failover_moc(this, failovers)));
+                                                                              new Failover_moc(this, failovers)));
     QList<QSharedPointer<QSignalSpy> > spies;
     {
         server_api::BaseRequest *request = serverAPI_->session(authHash_);
@@ -332,7 +332,7 @@ void ServerApi_test::testDeleteServerAPIWhileRequestsRunning()
     failovers << qMakePair("windscribe.com", failover::FailoverRetCode::kSuccess);
     failovers << qMakePair("d571d4e00ea4765529703412b1045ba8079d9d87.com", failover::FailoverRetCode::kSuccess);
     QScopedPointer<server_api::ServerAPI> serverAPI_(new server_api::ServerAPI(this, connectStateController_, accessManager_, networkDetectionManager_,
-                                                                              new Failover_moc(this, failovers), new Failover_moc(this, failovers)));
+                                                                              new Failover_moc(this, failovers)));
     QList<QSharedPointer<QSignalSpy> > spies;
     {
         server_api::BaseRequest *request = serverAPI_->session(authHash_);
@@ -356,7 +356,7 @@ void ServerApi_test::testDeleteRequestsBeforeFinished()
     failovers << qMakePair("windscribe.com", failover::FailoverRetCode::kSuccess);
     failovers << qMakePair("d571d4e00ea4765529703412b1045ba8079d9d87.com", failover::FailoverRetCode::kSuccess);
     QScopedPointer<server_api::ServerAPI> serverAPI_(new server_api::ServerAPI(this, connectStateController_, accessManager_, networkDetectionManager_,
-                                                                              new Failover_moc(this, failovers), new Failover_moc(this, failovers)));
+                                                                              new Failover_moc(this, failovers)));
     {
         server_api::BaseRequest *request = serverAPI_->session(authHash_);
         request->deleteLater();

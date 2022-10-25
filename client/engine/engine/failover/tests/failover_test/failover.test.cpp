@@ -85,7 +85,7 @@ void TestFailover::basicTest()
 {
     ConnectStateController_moc *connectStateController = new ConnectStateController_moc(this);
     NetworkAccessManager *accessManager = new  NetworkAccessManager(this);
-    failover::Failover *failover = new failover::Failover(this, accessManager, connectStateController, "disconnected");
+    failover::Failover *failover = new failover::Failover(this, accessManager, connectStateController);
 
     connect(failover, &failover::Failover::nextHostnameAnswer, [=](failover::FailoverRetCode retCode, const QString &hostname) {
         if (retCode == failover::FailoverRetCode::kSuccess)

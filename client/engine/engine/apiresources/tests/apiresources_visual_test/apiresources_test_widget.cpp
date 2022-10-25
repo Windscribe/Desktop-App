@@ -33,8 +33,7 @@ Widget::Widget(QWidget *parent)
     accessManager_ = new NetworkAccessManager(this);
 
     serverAPI_ = new server_api::ServerAPI(this, connectStateController_, accessManager_, networkDetectionManager_,
-                                           new failover::Failover(nullptr,accessManager_, connectStateController_, "disconnected"),
-                                           new failover::Failover(nullptr,accessManager_, connectStateController_, "connected"));
+                                           new failover::Failover(nullptr,accessManager_, connectStateController_));
 
     apiResourceManager_ = new api_resources::ApiResourcesManager(this, serverAPI_, connectStateController_, networkDetectionManager_);
     connect(apiResourceManager_, &api_resources::ApiResourcesManager::readyForLogin, [this] {

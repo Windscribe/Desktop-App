@@ -21,6 +21,7 @@ EmailItem::EmailItem(ScalableGraphicsObject *parent)
     sendButton_->setTextAlignment(Qt::AlignLeft);
     sendButton_->setUnhoverOpacity(OPACITY_FULL);
     sendButton_->setCurrentOpacity(OPACITY_FULL);
+    sendButton_->setMarginHeight(0);
     connect(sendButton_, &CommonGraphics::TextButton::clicked, this, &EmailItem::sendEmailClick);
     connect(sendButton_, &CommonGraphics::TextButton::clicked, this, &EmailItem::onSendEmailClick);
 
@@ -31,6 +32,7 @@ EmailItem::EmailItem(ScalableGraphicsObject *parent)
                                                        this);
     connect(emptyEmailButton_, &CommonGraphics::TextButton::clicked, this, &EmailItem::emptyEmailButtonClick);
     emptyEmailButton_->setClickable(false);
+    emptyEmailButton_->setMarginHeight(0);
     emptyEmailButton_->hide();
 
     connect(this, &EmailItem::visibleChanged, this, &EmailItem::onVisibleChanged);
@@ -147,7 +149,7 @@ void EmailItem::updatePositions()
         emptyEmailButton_->setVisible(true);
         sendButton_->hide();
 
-        QFontMetrics fm(*FontManager::instance().getFont(12, false));
+        QFontMetrics fm(*FontManager::instance().getFont(10, false));
         msgHeight_ = fm.boundingRect(boundingRect().adjusted(PREFERENCES_MARGIN*G_SCALE,
                                                              0,
                                                              -PREFERENCES_MARGIN*G_SCALE,

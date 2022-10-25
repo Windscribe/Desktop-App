@@ -92,14 +92,14 @@ void PacketSizeEditBoxItem::paint(QPainter *painter, const QStyleOptionGraphicsI
             t = "--";
         }
 
-        painter->drawText(boundingRect().adjusted((2*PREFERENCES_MARGIN + fm.horizontalAdvance(caption))*G_SCALE,
+        painter->drawText(boundingRect().adjusted((2*PREFERENCES_MARGIN*G_SCALE) + fm.horizontalAdvance(caption),
                                                   PREFERENCES_MARGIN*G_SCALE,
                                                   -(3*PREFERENCES_MARGIN + 2*ICON_WIDTH)*G_SCALE,
                                                   -PREFERENCES_MARGIN*G_SCALE),
                           Qt::AlignRight,
                           fm.elidedText(t,
                                         Qt::ElideRight,
-                                        boundingRect().width() - (4*PREFERENCES_MARGIN + ICON_WIDTH + fm.horizontalAdvance(caption))*G_SCALE));
+                                        boundingRect().width() - (5*PREFERENCES_MARGIN + 2*ICON_WIDTH)*G_SCALE - fm.horizontalAdvance(caption)));
 
         // spinner
         painter->setOpacity(busySpinnerOpacity_);
@@ -303,12 +303,12 @@ void PacketSizeEditBoxItem::updatePositions()
     if (!proxyWidget_->isVisible()) // workaround Qt bug (setGeometry not working when proxyWidget_ is not visible)
     {
         proxyWidget_->show();
-        lineEdit_->setGeometry(PREFERENCES_MARGIN*G_SCALE, PREFERENCES_MARGIN, 180*G_SCALE, ICON_HEIGHT*G_SCALE);
+        lineEdit_->setGeometry(PREFERENCES_MARGIN*G_SCALE, PREFERENCES_MARGIN*G_SCALE, 180*G_SCALE, ICON_HEIGHT*G_SCALE);
         proxyWidget_->hide();
     }
     else
     {
-        lineEdit_->setGeometry(PREFERENCES_MARGIN*G_SCALE, PREFERENCES_MARGIN, 180*G_SCALE, ICON_HEIGHT*G_SCALE);
+        lineEdit_->setGeometry(PREFERENCES_MARGIN*G_SCALE, PREFERENCES_MARGIN*G_SCALE, 180*G_SCALE, ICON_HEIGHT*G_SCALE);
     }
 }
 
