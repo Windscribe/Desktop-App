@@ -57,6 +57,9 @@ bool MakeOVPNFile::generate(const QString &ovpnData, const QString &ip, types::P
     file_.write( newOvpnData.toLocal8Bit());
 
     QString str;
+    // set timeout 30 sec according to this: https://www.notion.so/windscribe/Data-Plane-VPN-Protocol-Failover-Refresh-48ed7aea1a244617b327c3a7d816a902
+    str = "\r\n--connect-timeout 30\r\n";
+    file_.write(str.toLocal8Bit());
 
 #ifdef Q_OS_WIN
 
@@ -70,10 +73,6 @@ bool MakeOVPNFile::generate(const QString &ovpnData, const QString &ip, types::P
         str = "\r\nwindows-driver wintun\r\n";
         file_.write(str.toLocal8Bit());
     }
-
-    // set timeout 30 sec according to this: https://www.notion.so/windscribe/Data-Plane-VPN-Protocol-Failover-Refresh-48ed7aea1a244617b327c3a7d816a902
-    str = "\r\n--connect-timeout 30\r\n";
-    file_.write(str.toLocal8Bit());
 
 #endif
 

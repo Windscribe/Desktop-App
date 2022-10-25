@@ -41,6 +41,7 @@ private slots:
 private:
     enum class ConnectionState { DISCONNECTED, CONNECTING, CONNECTED };
     static constexpr int PROCESS_KILL_TIMEOUT = 10000;
+    static constexpr int kTimeoutForAutomatic = 20000;  // 20 secs timeout for the automatic connection mode
 
     ConnectionState getCurrentState() const;
     void setCurrentState(ConnectionState state);
@@ -56,6 +57,7 @@ private:
     std::atomic<bool> do_stop_thread_;
     QTimer kill_process_timer_;
     AdapterGatewayInfo adapterGatewayInfo_;
+    bool isAutomaticConnectionMode_;
 };
 
 #endif // WIREGUARDCONNECTION_H
