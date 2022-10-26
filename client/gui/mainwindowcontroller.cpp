@@ -133,7 +133,11 @@ MainWindowController::MainWindowController(QWidget *parent, LocationsWindow *loc
     connect(dynamic_cast<QObject*>(newsFeedWindow_), SIGNAL(resizeFinished()), SLOT(onNewsFeedResizeFinished()));
     connect(preferences_, &Preferences::appSkinChanged, this, &MainWindowController::onAppSkinChanged);
 
-    preferencesWindowHeight_ = preferencesWindow_->recommendedHeight();
+    if (PersistentState::instance().havePreferencesWindowHeight())
+        preferencesWindowHeight_ = PersistentState::instance().preferencesWindowHeight();
+    else
+        preferencesWindowHeight_ = preferencesWindow_->minimumHeight();
+
     newsFeedWindowHeight_ = newsFeedWindow_->recommendedHeight();
 
     view_->setStyleSheet("background: transparent; border: none");
@@ -745,6 +749,7 @@ void MainWindowController::onLocationsWindowHeightChanged() // manual resizing
 void MainWindowController::onPreferencesResize() // manual resizing
 {
     preferencesWindowHeight_ = preferencesWindow_->getGraphicsObject()->boundingRect().height()/G_SCALE;
+    PersistentState::instance().setPreferencesWindowHeight(preferencesWindowHeight_);
     updateMainAndViewGeometry(false);
 
     // only recalculate the shadow size at certain intervals since the changeRectangleSize is expensive
@@ -3484,7 +3489,8 @@ void MainWindowController::onAppSkinChanged(APP_SKIN s)
 
     newsFeedWindowHeight_ = std::max(newsFeedWindowHeight_ - yOffset, newsFeedWindow_->recommendedHeight());
     newsFeedWindow_->setHeight(newsFeedWindowHeight_*G_SCALE);
-    preferencesWindowHeight_ = std::max(preferencesWindowHeight_ - yOffset, preferencesWindow_->recommendedHeight());
+    preferencesWindowHeight_ = std::max(preferencesWindowHeight_ - yOffset, preferencesWindow_->minimumHeight());
+    PersistentState::instance().setPreferencesWindowHeight(preferencesWindowHeight_);
     preferencesWindow_->setHeight(preferencesWindowHeight_*G_SCALE);
 
     // if preferences is open, update shadows and scroll etc
