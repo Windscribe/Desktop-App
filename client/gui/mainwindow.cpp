@@ -2160,7 +2160,7 @@ void MainWindow::onBackendInternetConnectivityChanged(bool connectivity)
     internetConnected_ = connectivity;
 }
 
-void MainWindow::onBackendProtocolPortChanged(const PROTOCOL &protocol, const uint port)
+void MainWindow::onBackendProtocolPortChanged(const types::Protocol &protocol, const uint port)
 {
     mainWindowController_->getConnectWindow()->setProtocolPort(protocol, port);
 }
@@ -2463,24 +2463,19 @@ void MainWindow::onPreferencesLaunchOnStartupChanged(bool bEnabled)
 
 void MainWindow::updateConnectWindowStateProtocolPortDisplay()
 {
-    if (!backend_->getPreferences()->networkPreferredProtocol(curNetwork_.networkOrSsid).isAutomatic)
+    if (!backend_->getPreferences()->networkPreferredProtocol(curNetwork_.networkOrSsid).isAutomatic())
     {
-        mainWindowController_->getConnectWindow()->setProtocolPort(backend_->getPreferences()->networkPreferredProtocol(curNetwork_.networkOrSsid).protocol,
-                                                                   backend_->getPreferences()->networkPreferredProtocol(curNetwork_.networkOrSsid).port);
-
+        mainWindowController_->getConnectWindow()->setProtocolPort(backend_->getPreferences()->networkPreferredProtocol(curNetwork_.networkOrSsid).protocol(),
+                                                                   backend_->getPreferences()->networkPreferredProtocol(curNetwork_.networkOrSsid).port());
     }
-    else if (backend_->getPreferences()->connectionSettings().isAutomatic)
+    else if (backend_->getPreferences()->connectionSettings().isAutomatic())
     {
-#if defined(Q_OS_LINUX)
-        mainWindowController_->getConnectWindow()->setProtocolPort(PROTOCOL::OPENVPN_UDP, 443);
-#else
-        mainWindowController_->getConnectWindow()->setProtocolPort(PROTOCOL::IKEV2, 500);
-#endif
+        mainWindowController_->getConnectWindow()->setProtocolPort(types::Protocol::WIREGUARD, 443);
     }
     else
     {
-        mainWindowController_->getConnectWindow()->setProtocolPort(backend_->getPreferences()->connectionSettings().protocol,
-                                                                   backend_->getPreferences()->connectionSettings().port);
+        mainWindowController_->getConnectWindow()->setProtocolPort(backend_->getPreferences()->connectionSettings().protocol(),
+                                                                   backend_->getPreferences()->connectionSettings().port());
     }
 }
 

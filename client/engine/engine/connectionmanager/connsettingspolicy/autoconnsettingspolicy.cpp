@@ -19,25 +19,8 @@ AutoConnSettingsPolicy::AutoConnSettingsPolicy(QSharedPointer<locationsmodel::Ba
     WS_ASSERT(!locationInfo_.isNull());
     WS_ASSERT(!locationInfo_->locationId().isCustomConfigsLocation());
 
-    // remove wstunnel and WireGuard protocols from portMap_ for automatic connection mode
-    QVector<types::PortItem>::iterator it = portMap_.items().begin();
-    while (it != portMap_.items().end())
-    {
-        if (it->protocol == PROTOCOL::WSTUNNEL ||
-            it->protocol == PROTOCOL::WIREGUARD)
-        {
-            it = portMap_.items().erase(it);
-        }
-        else
-        {
-            ++it;
-        }
-    }
-
-    // sort portmap protocols in the following order: ikev2, udp, tcp, stealth
-    std::sort(portMap_.items().begin(), portMap_.items().end(), sortPortMapFunction);
-
-    PROTOCOL lastSuccessProtocolSaved;
+    // TODO: in the next task related to Protocol Failover
+    /*types::Protocol lastSuccessProtocolSaved;
     QSettings settings;
     if (settings.contains("successConnectionProtocol"))
     {
@@ -45,15 +28,15 @@ AutoConnSettingsPolicy::AutoConnSettingsPolicy(QSharedPointer<locationsmodel::Ba
         QDataStream stream(&arr, QIODevice::ReadOnly);
         QString strProtocol;
         stream >> strProtocol;
-        lastSuccessProtocolSaved = PROTOCOL::fromString(strProtocol);
-    }
+        lastSuccessProtocolSaved = types::Protocol::fromString(strProtocol);
+    }*/
 
 
     QVector<AttemptInfo> localAttemps;
     for (int portMapInd = 0; portMapInd < portMap_.items().count(); ++portMapInd)
     {
         // skip udp protocol, if proxy enabled
-        if (isProxyEnabled && portMap_.items()[portMapInd].protocol == PROTOCOL::OPENVPN_UDP)
+        if (isProxyEnabled && portMap_.items()[portMapInd].protocol == types::Protocol::OPENVPN_UDP)
         {
             continue;
         }
@@ -79,13 +62,13 @@ AutoConnSettingsPolicy::AutoConnSettingsPolicy(QSharedPointer<locationsmodel::Ba
 
     // if we have successfully saved connection settings, then use it first (move on top list)
     // but if first protocol ikev2, then use it second
-    if (lastSuccessProtocolSaved != PROTOCOL::UNINITIALIZED)
+    if (lastSuccessProtocol_ != types::Protocol::UNINITIALIZED)
     {
         AttemptInfo firstAttemptInfo;
         bool bFound = false;
         for (int i = 0; i < localAttemps.count(); ++i)
         {
-            if (localAttemps[i].protocol == lastSuccessProtocolSaved)
+            if (localAttemps[i].protocol == lastSuccessProtocol_)
             {
                 firstAttemptInfo = localAttemps[i];
                 localAttemps.remove(i);
@@ -188,7 +171,7 @@ CurrentConnectionDescr AutoConnSettingsPolicy::getCurrentConnectionSettings() co
         ccd.staticIpPorts = locationInfo_->getStaticIpPorts();
 
         // for static ip with wireguard protocol override id to wg_ip
-        if (ccd.protocol == PROTOCOL::WIREGUARD )
+        if (ccd.protocol == types::Protocol::WIREGUARD )
         {
             ccd.ip = locationInfo_->getWgIpForSelectedNode();
         }
@@ -201,20 +184,19 @@ void AutoConnSettingsPolicy::saveCurrentSuccessfullConnectionSettings()
 {
     // reset ikev2 failed attempts counter if we connected with ikev2 successfully
     if (attemps_[curAttempt_].protocol.isIkev2Protocol())
-    {
         failedIkev2Counter_ = 0;
-    }
 
-    QSettings settings;
-    QString protocol = attemps_[curAttempt_].protocol.toLongString();
-    qCDebug(LOG_CONNECTION) << "Save latest successfully connection protocol:" << protocol;
+    lastSuccessProtocol_ = attemps_[curAttempt_].protocol;
+    qCDebug(LOG_CONNECTION) << "Save latest successfully connection protocol:" << lastSuccessProtocol_.toLongString();
 
+    // TODO: in the next task related to Protocol Failover
+    /*QSettings settings;
     QByteArray arr;
     {
         QDataStream stream(&arr, QIODevice::WriteOnly);
         stream << protocol;
     }
-    settings.setValue("successConnectionProtocol", arr);
+    settings.setValue("successConnectionProtocol", arr);*/
 }
 
 bool AutoConnSettingsPolicy::isAutomaticMode()
@@ -226,46 +208,4 @@ void AutoConnSettingsPolicy::resolveHostnames()
 {
     // nothing todo
     emit hostnamesResolved();
-}
-
-// sort portmap protocols in the following order: ikev2, udp, tcp, stealth
-// operator<
-bool AutoConnSettingsPolicy::sortPortMapFunction(const types::PortItem &p1, const types::PortItem &p2)
-{
-    if (p1.protocol == PROTOCOL::IKEV2)
-    {
-        return true;
-    }
-    else if (p1.protocol == PROTOCOL::OPENVPN_UDP)
-    {
-        if (p2.protocol == PROTOCOL::IKEV2 || p2.protocol == PROTOCOL::OPENVPN_UDP)
-        {
-            return false;
-        }
-        else
-        {
-            return true;
-        }
-    }
-    else if (p1.protocol == PROTOCOL::OPENVPN_TCP)
-    {
-        if (p2.protocol == PROTOCOL::IKEV2 || p2.protocol == PROTOCOL::OPENVPN_UDP
-                || p2.protocol == PROTOCOL::OPENVPN_TCP)
-        {
-            return false;
-        }
-        else
-        {
-            return true;
-        }
-    }
-    else if (p1.protocol == PROTOCOL::STUNNEL)
-    {
-        return false;
-    }
-    else
-    {
-        WS_ASSERT(false);
-    }
-    return 0;
 }

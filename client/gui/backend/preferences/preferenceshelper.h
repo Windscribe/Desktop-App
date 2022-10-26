@@ -24,8 +24,8 @@ public:
     QVector<TAP_ADAPTER_TYPE> getAvailableTapAdapters(const QString &openVpnVersion);
 
     void setPortMap(const types::PortMap &portMap);
-    QVector<PROTOCOL> getAvailableProtocols();
-    QVector<uint> getAvailablePortsForProtocol(PROTOCOL protocol);
+    QVector<types::Protocol> getAvailableProtocols();
+    QVector<uint> getAvailablePortsForProtocol(types::Protocol protocol);
 
     void setWifiSharingSupported(bool bSupported);
     bool isWifiSharingSupported() const;

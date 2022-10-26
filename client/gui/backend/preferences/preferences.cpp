@@ -12,22 +12,9 @@
 #include "types/global_consts.h"
 #include "legacy_protobuf_support/legacy_protobuf.h"
 
-#if defined(Q_OS_WINDOWS)
-#include "utils/winutils.h"
-#endif
-
-
 Preferences::Preferences(QObject *parent) : QObject(parent)
   , receivingEngineSettings_(false)
 {
-#if defined(Q_OS_LINUX)
-    // types::ConnectionSettings has IKEv2 as default protocol in default instance.
-    // But Linux doesn't support IKEv2. It is necessary to change with UDP.
-    auto settings = engineSettings_.connectionSettings();
-    settings.protocol = PROTOCOL::OPENVPN_UDP;
-    settings.port = 443;
-    engineSettings_.setConnectionSettings(settings);
-#endif
 }
 
 bool Preferences::isLaunchOnStartup() const
@@ -738,21 +725,6 @@ void Preferences::validateAndUpdateIfNeeded()
         emit reportErrorToUser("Invalid DNS Settings", "'DNS while connected' was not configured with a valid IP Address. DNS was reverted to ROBERT (default).");
         is_update_needed = true;
     }
-
-    #if defined(Q_OS_WINDOWS)
-    types::ConnectionSettings connSettings = engineSettings_.connectionSettings();
-    if (!WinUtils::isWindows64Bit() &&
-        ((connSettings.protocol == PROTOCOL::WSTUNNEL) ||
-         (connSettings.protocol == PROTOCOL::WIREGUARD)))
-    {
-        connSettings.protocol = PROTOCOL::IKEV2;
-        connSettings.port = 500;
-        engineSettings_.setConnectionSettings(connSettings);
-        emit connectionSettingsChanged(engineSettings_.connectionSettings());
-        emit reportErrorToUser("WireGuard and WStunnel Not Supported", "The WireGuard and WStunnel protocols are no longer supported on 32-bit Windows. The 'Connection Mode' protocol has been changed to IKEv2.");
-        is_update_needed = true;
-    }
-    #endif
 
     if (is_update_needed)
         emit updateEngineSettings();

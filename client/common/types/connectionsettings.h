@@ -4,24 +4,28 @@
 #include <QJsonObject>
 #include <QSettings>
 #include <QString>
-#include "enums.h"
+#include "protocol.h"
 
 namespace types {
 
 struct ConnectionSettings
 {
-    PROTOCOL protocol = PROTOCOL::IKEV2;
-    uint    port = 500;
-    bool    isAutomatic = true;
+    ConnectionSettings();
+    explicit ConnectionSettings(Protocol protocol, uint port, bool isAutomatic);
 
-    void debugToLog() const;
-    void logConnectionSettings() const;
+    Protocol protocol() const { return protocol_; }
+    uint port() const { return port_; }
+    bool isAutomatic() const { return isAutomatic_; }
+
+    void setProtocolAndPort(Protocol protocol, uint port);
+    void setPort(uint port);
+    void setIsAutomatic(bool isAutomatic);
 
     bool operator==(const ConnectionSettings &other) const
     {
-        return other.protocol == protocol &&
-               other.port == port &&
-               other.isAutomatic == isAutomatic;
+        return other.protocol_ == protocol_ &&
+               other.port_ == port_ &&
+               other.isAutomatic_ == isAutomatic_;
     }
 
     bool operator!=(const ConnectionSettings &other) const
@@ -34,9 +38,15 @@ struct ConnectionSettings
 
     friend QDebug operator<<(QDebug dbg, const ConnectionSettings &cs);
 
-private:
-    static constexpr quint32 versionForSerialization_ = 1;  // should increment the version if the data format is changed
+    // if the currently settled protocol is not supported on this OS, then replace it.
+    void checkForUnavailableProtocolAndFix();
 
+private:
+    Protocol protocol_;
+    uint    port_;
+    bool    isAutomatic_;
+
+    static constexpr quint32 versionForSerialization_ = 1;  // should increment the version if the data format is changed
 };
 
 } //namespace types

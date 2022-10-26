@@ -865,7 +865,7 @@ public:
     {
         return "ServerCommand::ProtocolPortChanged";
     }
-    PROTOCOL protocol_;
+    types::Protocol protocol_;
     uint port_;
 };
 

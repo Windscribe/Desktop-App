@@ -150,7 +150,6 @@ void WireGuardConnection::startConnect(const QString &configPathOrUrl, const QSt
     Q_UNUSED(password);
     Q_UNUSED(proxySettings);
     Q_UNUSED(isEnableIkev2Compression);
-    Q_UNUSED(isAutomaticConnectionMode);
 
     qCDebug(LOG_CONNECTION) << "Connecting WireGuard:" << pimpl_->getAdapterName();
 
@@ -158,6 +157,7 @@ void WireGuardConnection::startConnect(const QString &configPathOrUrl, const QSt
     wait();
     do_stop_thread_ = false;
 
+    isAutomaticConnectionMode_ = isAutomaticConnectionMode;
     pimpl_->setConfig(wireGuardConfig);
 
     // if kernel module became available, or is no longer available, update the state
@@ -221,6 +221,8 @@ void WireGuardConnection::run()
     quint64 bytesTransmitted = 0;
     bool is_configured = false;
     bool is_connected = false;
+    QElapsedTimer elapsedTimer;
+    elapsedTimer.start();
 
     BIND_CRASH_HANDLER_FOR_THREAD();
 
@@ -232,6 +234,10 @@ void WireGuardConnection::run()
         const auto current_state = getCurrentState();
         unsigned int next_status_check_ms = 100u;
         if (current_state != ConnectionState::DISCONNECTED) {
+
+            if (current_state == ConnectionState::CONNECTED)
+                elapsedTimer.invalidate();
+
             if (!pimpl_->getStatus(&status)) {
                 qCDebug(LOG_WIREGUARD) << "Failed to get WireGuard status";
                 pimpl_->disconnect();
@@ -281,6 +287,11 @@ void WireGuardConnection::run()
             }
             }
         }
+
+        if (isAutomaticConnectionMode_ && elapsedTimer.isValid() && elapsedTimer.elapsed() >= kTimeoutForAutomatic) {
+            setError(STATE_TIMEOUT_FOR_AUTOMATIC);
+        }
+
         QThread::msleep(next_status_check_ms);
     }
 }

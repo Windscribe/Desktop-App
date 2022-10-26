@@ -99,7 +99,7 @@ BaseRequest *ServerAPI::serverLocations(const QString &language, const QString &
     return request;
 }
 
-BaseRequest *ServerAPI::serverCredentials(const QString &authHash, PROTOCOL protocol)
+BaseRequest *ServerAPI::serverCredentials(const QString &authHash, types::Protocol protocol)
 {
     ServerCredentialsRequest *request = new ServerCredentialsRequest(this, authHash, protocol);
     executeRequest(request);

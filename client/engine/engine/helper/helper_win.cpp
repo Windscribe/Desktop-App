@@ -200,7 +200,7 @@ bool Helper_win::setSplitTunnelingSettings(bool isActive, bool isExclude, bool i
 
 bool Helper_win::sendConnectStatus(bool isConnected, bool isTerminateSocket, bool isKeepLocalSocket,
                                    const AdapterGatewayInfo &defaultAdapter, const AdapterGatewayInfo &vpnAdapter,
-                                   const QString &connectedIp, const PROTOCOL &protocol)
+                                   const QString &connectedIp, const types::Protocol &protocol)
 {
     QMutexLocker locker(&mutex_);
 

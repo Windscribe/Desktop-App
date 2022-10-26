@@ -17,7 +17,7 @@ QUrl PortMapRequest::url(const QString &domain) const
 {
     QUrl url("https://" + hostname(domain, SudomainType::kApi) + "/PortMap");
     QUrlQuery query;
-    query.addQueryItem("version", "5");
+    query.addQueryItem("version", "6");
     urlquery_utils::addAuthQueryItems(query, authHash_);
     urlquery_utils::addPlatformQueryItems(query);
     url.setQuery(query);

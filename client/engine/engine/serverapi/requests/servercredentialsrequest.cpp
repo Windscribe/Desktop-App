@@ -11,7 +11,7 @@
 
 namespace server_api {
 
-ServerCredentialsRequest::ServerCredentialsRequest(QObject *parent, const QString &authHash,  PROTOCOL protocol) :
+ServerCredentialsRequest::ServerCredentialsRequest(QObject *parent, const QString &authHash, types::Protocol protocol) :
     BaseRequest(parent, RequestType::kGet),
     authHash_(authHash),
     protocol_(protocol)

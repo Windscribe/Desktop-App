@@ -20,8 +20,8 @@ bool PortMap::initFromJson(const QJsonArray &jsonArray)
             return false;
         }
 
-        portItem.protocol = PROTOCOL::fromString(obj["heading"].toString());
-        if (portItem.protocol == PROTOCOL::UNINITIALIZED)
+        portItem.protocol = Protocol::fromString(obj["heading"].toString());
+        if (portItem.protocol == Protocol::UNINITIALIZED)
         {
             return false;
         }
@@ -72,7 +72,7 @@ const PortItem *PortMap::getPortItemByHeading(const QString &heading) const
     return NULL;
 }
 
-const PortItem *PortMap::getPortItemByProtocolType(const PROTOCOL &protocol) const
+const PortItem *PortMap::getPortItemByProtocolType(const Protocol &protocol) const
 {
     for (const PortItem &portItem : d->items_)
     {
@@ -84,7 +84,7 @@ const PortItem *PortMap::getPortItemByProtocolType(const PROTOCOL &protocol) con
     return NULL;
 }
 
-int PortMap::getUseIpInd(PROTOCOL connectionProtocol) const
+int PortMap::getUseIpInd(Protocol connectionProtocol) const
 {
     for (const PortItem &portItem : d->items_)
     {
@@ -118,6 +118,13 @@ QVector<PortItem> &PortMap::items()
 const QVector<PortItem> &PortMap::const_items() const
 {
     return d->items_;
+}
+
+void PortMap::removeUnsupportedProtocols(const QList<Protocol> &supportedProtocols)
+{
+    std::remove_if(d->items_.begin(), d->items_.end(), [supportedProtocols](const PortItem &item) {
+            return !supportedProtocols.contains(item.protocol);
+        });
 }
 
 QDataStream& operator <<(QDataStream& stream, const PortItem& p)

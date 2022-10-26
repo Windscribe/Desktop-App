@@ -2,10 +2,6 @@
 #include "utils/languagesutil.h"
 #include "version/appversion.h"
 
-#if defined(Q_OS_WINDOWS)
-#include "utils/winutils.h"
-#endif
-
 PreferencesHelper::PreferencesHelper(QObject *parent) : QObject(parent),
     isWifiSharingSupported_(true), bIpv6StateInOS_(true), isFirewallBlocked_(false),
     isDockedToTray_(false), isExternalConfigMode_(false)
@@ -70,33 +66,15 @@ void PreferencesHelper::setPortMap(const types::PortMap &portMap)
     emit portMapChanged();
 }
 
-QVector<PROTOCOL> PreferencesHelper::getAvailableProtocols()
+QVector<types::Protocol> PreferencesHelper::getAvailableProtocols()
 {
-#if defined(Q_OS_WINDOWS)
-    bool is32bit = !WinUtils::isWindows64Bit();
-#endif
-
-    QVector<PROTOCOL> p;
+    QVector<types::Protocol> p;
     for (auto it : portMap_.const_items())
-    {
-#if defined(Q_OS_LINUX)
-        const auto protocol = it.protocol;
-        if (protocol == PROTOCOL::IKEV2) {
-            continue;
-        }
-#elif defined(Q_OS_WINDOWS)
-        const auto protocol = it.protocol;
-        if (is32bit && ((protocol == PROTOCOL::WIREGUARD) || (protocol == PROTOCOL::WSTUNNEL)))
-        {
-            continue;
-        }
-#endif
         p << it.protocol;
-    }
     return p;
 }
 
-QVector<uint> PreferencesHelper::getAvailablePortsForProtocol(PROTOCOL protocol)
+QVector<uint> PreferencesHelper::getAvailablePortsForProtocol(types::Protocol protocol)
 {
     QVector<uint> v;
     for (auto it : portMap_.const_items())

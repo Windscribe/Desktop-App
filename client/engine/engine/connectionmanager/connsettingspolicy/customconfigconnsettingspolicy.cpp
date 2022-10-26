@@ -49,7 +49,7 @@ CurrentConnectionDescr CustomConfigConnSettingsPolicy::getCurrentConnectionSetti
         ccd.remoteCmdLine = locationInfo_->getSelectedRemoteCommand();
         ccd.customConfigFilename = locationInfo_->getFilename();
         ccd.port = locationInfo_->getSelectedPort();
-        ccd.protocol = PROTOCOL::fromString(locationInfo_->getSelectedProtocol());
+        ccd.protocol = types::Protocol::fromString(locationInfo_->getSelectedProtocol());
         ccd.wgCustomConfig = locationInfo_->getWireguardCustomConfig(ccd.ip);
     }
     else

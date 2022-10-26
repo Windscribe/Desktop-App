@@ -136,7 +136,7 @@ void ConnectionManager::clickConnect(const QString &ovpnConfig, const apiinfo::S
     // if we had a connector before, get rid of it.  This is because we don't want to receive events from a
     // previous connection if a new connection has started.
     if (connector_) {
-        currentProtocol_ = PROTOCOL::UNINITIALIZED;
+        currentProtocol_ = types::Protocol::UNINITIALIZED;
         SAFE_DELETE(connector_);
         connector_ = NULL;
     }
@@ -522,7 +522,7 @@ void ConnectionManager::onConnectionError(CONNECT_ERROR err)
             || err == CONNECT_ERROR::NO_OPENVPN_SOCKET
             || err == CONNECT_ERROR::NO_INSTALLED_TUN_TAP
             || err == CONNECT_ERROR::ALL_TAP_IN_USE
-            || err == CONNECT_ERROR::WIREGUARD_CONNECTION_ERROR
+            || (!connSettingsPolicy_->isAutomaticMode() && err == CONNECT_ERROR::WIREGUARD_CONNECTION_ERROR)
             || err == CONNECT_ERROR::WINTUN_DRIVER_REINSTALLATION_ERROR
             || err == CONNECT_ERROR::TAP_DRIVER_REINSTALLATION_ERROR
             || err == CONNECT_ERROR::WINTUN_FATAL_ERROR)
@@ -541,7 +541,7 @@ void ConnectionManager::onConnectionError(CONNECT_ERROR err)
                                                             || err == CONNECT_ERROR::IKEV_FAILED_LOAD_PREFERENCES_MAC
                                                             || err == CONNECT_ERROR::IKEV_FAILED_SAVE_PREFERENCES_MAC))
             || (!connSettingsPolicy_->isAutomaticMode() && err == CONNECT_ERROR::EXE_VERIFY_OPENVPN_ERROR)
-            || (!connSettingsPolicy_->isAutomaticMode() && err == CONNECT_ERROR::EXE_VERIFY_WIREGUARD_ERROR))
+            || err == CONNECT_ERROR::EXE_VERIFY_WIREGUARD_ERROR)
     {
         // immediately stop trying to connect
         state_ = STATE_DISCONNECTED;
@@ -549,7 +549,8 @@ void ConnectionManager::onConnectionError(CONNECT_ERROR err)
         getWireGuardConfigInLoop_->stop();
         Q_EMIT errorDuringConnection(err);
     }
-    else if (err == CONNECT_ERROR::UDP_CANT_ASSIGN
+    else if (err == CONNECT_ERROR::STATE_TIMEOUT_FOR_AUTOMATIC
+             || err == CONNECT_ERROR::UDP_CANT_ASSIGN
              || err == CONNECT_ERROR::UDP_NO_BUFFER_SPACE
              || err == CONNECT_ERROR::UDP_NETWORK_DOWN
              || err == CONNECT_ERROR::WINTUN_OVER_CAPACITY
@@ -557,6 +558,7 @@ void ConnectionManager::onConnectionError(CONNECT_ERROR err)
              || err == CONNECT_ERROR::CONNECTED_ERROR
              || err == CONNECT_ERROR::INITIALIZATION_SEQUENCE_COMPLETED_WITH_ERRORS
              || err == CONNECT_ERROR::IKEV_FAILED_TO_CONNECT
+             || err == CONNECT_ERROR::WIREGUARD_CONNECTION_ERROR
              || (connSettingsPolicy_->isAutomaticMode() && (err == CONNECT_ERROR::IKEV_NOT_FOUND_WIN
                                                             || err == CONNECT_ERROR::IKEV_FAILED_SET_ENTRY_WIN
                                                             || err == CONNECT_ERROR::IKEV_FAILED_MODIFY_HOSTS_WIN))
@@ -865,6 +867,10 @@ void ConnectionManager::doConnectPart2()
     bIgnoreConnectionErrorsForOpenVpn_ = false;
 
     currentConnectionDescr_ = connSettingsPolicy_->getCurrentConnectionSettings();
+
+    qCDebug(LOG_CONNECTION) << "Connecting to IP:" << currentConnectionDescr_.ip << " protocol:" << currentConnectionDescr_.protocol.toLongString() << " port:" << currentConnectionDescr_.port;
+    Q_EMIT protocolPortChanged(currentConnectionDescr_.protocol, currentConnectionDescr_.port);
+
     //WS_ASSERT(currentConnectionDescr_.connectionNodeType != CONNECTION_NODE_ERROR);
     if (currentConnectionDescr_.connectionNodeType == CONNECTION_NODE_ERROR)
     {
@@ -879,7 +885,7 @@ void ConnectionManager::doConnectPart2()
     if (currentConnectionDescr_.connectionNodeType == CONNECTION_NODE_DEFAULT ||
             currentConnectionDescr_.connectionNodeType == CONNECTION_NODE_STATIC_IPS)
     {
-        if (currentConnectionDescr_.protocol == PROTOCOL::STUNNEL)
+        if (currentConnectionDescr_.protocol == types::Protocol::STUNNEL)
         {
             bool bStunnelConfigSuccess = stunnelManager_->setConfig(currentConnectionDescr_.ip, currentConnectionDescr_.port);
             if (!bStunnelConfigSuccess)
@@ -918,7 +924,7 @@ void ConnectionManager::doConnectPart2()
             }
 
             uint portForStunnelOrWStunnel = currentConnectionDescr_.protocol.isStunnelOrWStunnelProtocol() ?
-                        (currentConnectionDescr_.protocol == PROTOCOL::STUNNEL ? stunnelManager_->getStunnelPort() : wstunnelManager_->getPort()) : 0;
+                        (currentConnectionDescr_.protocol == types::Protocol::STUNNEL ? stunnelManager_->getStunnelPort() : wstunnelManager_->getPort()) : 0;
 
             const bool blockOutsideDnsOption = !IpValidation::instance().isLocalIp(getCustomDnsIp());
             const bool bOvpnSuccess = makeOVPNFile_->generate(lastOvpnConfig_, currentConnectionDescr_.ip, currentConnectionDescr_.protocol,
@@ -931,7 +937,7 @@ void ConnectionManager::doConnectPart2()
                 return;
             }
 
-            if (currentConnectionDescr_.protocol == PROTOCOL::STUNNEL)
+            if (currentConnectionDescr_.protocol == types::Protocol::STUNNEL)
             {
                 if(!stunnelManager_->runProcess())
                 {
@@ -942,7 +948,7 @@ void ConnectionManager::doConnectPart2()
                     return;
                 }
             }
-            else if (currentConnectionDescr_.protocol == PROTOCOL::WSTUNNEL)
+            else if (currentConnectionDescr_.protocol == types::Protocol::WSTUNNEL)
             {
                 if (!wstunnelManager_->runProcess(currentConnectionDescr_.ip, currentConnectionDescr_.port, false))
                 {
@@ -1016,9 +1022,6 @@ void ConnectionManager::doConnectPart2()
 
 void ConnectionManager::doConnectPart3()
 {
-    qCDebug(LOG_CONNECTION) << "Connecting to IP:" << currentConnectionDescr_.ip << " protocol:" << currentConnectionDescr_.protocol.toLongString() << " port:" << currentConnectionDescr_.port;
-    Q_EMIT protocolPortChanged(currentConnectionDescr_.protocol, currentConnectionDescr_.port);
-
     if (currentConnectionDescr_.protocol.isWireGuardProtocol())
     {
         WireGuardConfig* pConfig = (currentConnectionDescr_.connectionNodeType == CONNECTION_NODE_CUSTOM_CONFIG ? currentConnectionDescr_.wgCustomConfig.get() : &wireGuardConfig_);
@@ -1033,9 +1036,9 @@ void ConnectionManager::doConnectPart3()
     if (currentConnectionDescr_.connectionNodeType == CONNECTION_NODE_CUSTOM_CONFIG)
     {
         if (currentConnectionDescr_.protocol.isWireGuardProtocol())
-            recreateConnector(PROTOCOL::WIREGUARD);
+            recreateConnector(types::Protocol::WIREGUARD);
         else
-            recreateConnector(PROTOCOL::OPENVPN_UDP);
+            recreateConnector(types::Protocol::OPENVPN_UDP);
 
         connector_->startConnect(makeOVPNFileFromCustom_->path(), "", "", usernameForCustomOvpn_,
                                  passwordForCustomOvpn_, lastProxySettings_,
@@ -1057,7 +1060,7 @@ void ConnectionManager::doConnectPart3()
                 password = lastServerCredentials_.passwordForOpenVpn();
             }
 
-            recreateConnector(PROTOCOL::OPENVPN_UDP);
+            recreateConnector(types::Protocol::OPENVPN_UDP);
             connector_->startConnect(makeOVPNFile_->path(), "", "", username, password, lastProxySettings_, nullptr, false, connSettingsPolicy_->isAutomaticMode());
         }
         else if (currentConnectionDescr_.protocol.isIkev2Protocol())
@@ -1074,7 +1077,7 @@ void ConnectionManager::doConnectPart3()
                 password = lastServerCredentials_.passwordForIkev2();
             }
 
-            recreateConnector(PROTOCOL::IKEV2);
+            recreateConnector(types::Protocol::IKEV2);
             connector_->startConnect(currentConnectionDescr_.hostname, currentConnectionDescr_.ip, currentConnectionDescr_.hostname, username, password, lastProxySettings_,
                                      nullptr, ExtraConfig::instance().isUseIkev2Compression(), connSettingsPolicy_->isAutomaticMode());
         }
@@ -1083,7 +1086,7 @@ void ConnectionManager::doConnectPart3()
             QString endpointAndPort = QString("%1:%2").arg(currentConnectionDescr_.ip).arg(currentConnectionDescr_.port);
             wireGuardConfig_.setPeerPublicKey(currentConnectionDescr_.wgPeerPublicKey);
             wireGuardConfig_.setPeerEndpoint(endpointAndPort);
-            recreateConnector(PROTOCOL::WIREGUARD);
+            recreateConnector(types::Protocol::WIREGUARD);
             connector_->startConnect(QString(), currentConnectionDescr_.ip,
                 currentConnectionDescr_.dnsHostName, QString(), QString(), lastProxySettings_,
                 &wireGuardConfig_, false, connSettingsPolicy_->isAutomaticMode());
@@ -1139,9 +1142,9 @@ void ConnectionManager::waitForNetworkConnectivity()
     timerWaitNetworkConnectivity_.start(1000);
 }
 
-void ConnectionManager::recreateConnector(PROTOCOL protocol)
+void ConnectionManager::recreateConnector(types::Protocol protocol)
 {
-    if (currentProtocol_ == PROTOCOL::UNINITIALIZED)
+    if (currentProtocol_ == types::Protocol::UNINITIALIZED)
     {
         WS_ASSERT(connector_ == NULL);
     }
@@ -1361,7 +1364,7 @@ bool ConnectionManager::isAllowFirewallAfterConnection() const
         && connector_->isAllowFirewallAfterCustomConfigConnection();
 }
 
-PROTOCOL ConnectionManager::currentProtocol() const
+types::Protocol ConnectionManager::currentProtocol() const
 {
     return currentProtocol_;
 }
@@ -1418,9 +1421,9 @@ void ConnectionManager::updateConnectionSettingsPolicy(
 
     if (bli_->locationId().isCustomConfigsLocation()) {
         connSettingsPolicy_.reset(new CustomConfigConnSettingsPolicy(bli_));
-    } else if (!networkConnectionSettings.isAutomatic) {
+    } else if (!networkConnectionSettings.isAutomatic()) {
         connSettingsPolicy_.reset(new ManualConnSettingsPolicy(bli_, networkConnectionSettings, portMap));
-    } else if (connectionSettings.isAutomatic) {
+    } else if (connectionSettings.isAutomatic()) {
         connSettingsPolicy_.reset(new AutoConnSettingsPolicy(bli_, portMap, proxySettings.isProxyEnabled()));
     } else {
         connSettingsPolicy_.reset(new ManualConnSettingsPolicy(bli_, connectionSettings, portMap));

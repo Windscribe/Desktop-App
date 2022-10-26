@@ -51,11 +51,11 @@ void ProtocolGroup::setConnectionSettings(const types::ConnectionSettings &cm)
 
     if (type_ == SelectionType::COMBO_BOX)
     {
-        connectionModeItem_->setCurrentItem(settings_.isAutomatic ? 0 : 1);
+        connectionModeItem_->setCurrentItem(settings_.isAutomatic() ? 0 : 1);
     }
     else
     {
-        checkBoxEnable_->setState(!settings_.isAutomatic);
+        checkBoxEnable_->setState(!settings_.isAutomatic());
     }
     updateMode();
 }
@@ -65,7 +65,7 @@ void ProtocolGroup::onPortMapChanged()
     protocolItem_->clear();
     portItem_->clear();
 
-    const QVector<PROTOCOL> protocols = preferencesHelper_->getAvailableProtocols();
+    const QVector<types::Protocol> protocols = preferencesHelper_->getAvailableProtocols();
     if (protocols.size() > 0)
     {
         isPortMapInitialized_ = true;
@@ -90,49 +90,47 @@ void ProtocolGroup::onPortMapChanged()
 
 void ProtocolGroup::onAutomaticChanged(QVariant value)
 {
-    settings_.isAutomatic = (value.toInt() == 0);
+    settings_.setIsAutomatic(value.toInt() == 0);
     updateMode();
     emit connectionModePreferencesChanged(settings_);
 }
 
 void ProtocolGroup::onCheckBoxStateChanged(bool isChecked)
 {
-    settings_.isAutomatic = !isChecked;
+    settings_.setIsAutomatic(!isChecked);
     updateMode();
     emit connectionModePreferencesChanged(settings_);
 }
 
 void ProtocolGroup::onProtocolChanged(QVariant value)
 {
-    updatePorts(PROTOCOL(value.toInt()));
-
-    settings_.protocol = PROTOCOL(protocolItem_->currentItem().toInt());
-    settings_.port = portItem_->currentItem().toInt();
+    updatePorts(types::Protocol(value.toInt()));
+    settings_.setProtocolAndPort(types::Protocol(protocolItem_->currentItem().toInt()), portItem_->currentItem().toInt());
     emit connectionModePreferencesChanged(settings_);
 }
 
 void ProtocolGroup::onPortChanged(QVariant value)
 {
-    settings_.port = portItem_->currentItem().toInt();
+    settings_.setPort(portItem_->currentItem().toInt());
     emit connectionModePreferencesChanged(settings_);
 }
 
 void ProtocolGroup::updateMode()
 {
-    if (settings_.isAutomatic)
+    if (settings_.isAutomatic())
     {
         hideItems(indexOf(protocolItem_), indexOf(portItem_));
     }
     else if (isPortMapInitialized_)
     {
         showItems(indexOf(protocolItem_), indexOf(portItem_));
-        updatePorts(settings_.protocol.toInt());
-        protocolItem_->setCurrentItem(settings_.protocol.toInt());
-        portItem_->setCurrentItem(settings_.port);
+        updatePorts(settings_.protocol().toInt());
+        protocolItem_->setCurrentItem(settings_.protocol().toInt());
+        portItem_->setCurrentItem(settings_.port());
     }
 }
 
-void ProtocolGroup::updatePorts(PROTOCOL protocol)
+void ProtocolGroup::updatePorts(types::Protocol protocol)
 {
     portItem_->clear();
 

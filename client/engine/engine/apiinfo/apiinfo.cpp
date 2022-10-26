@@ -120,6 +120,7 @@ void ApiInfo::setPortMap(const types::PortMap &portMap)
 {
     isPortMapInit_ = true;
     portMap_ = portMap;
+    checkPortMapForUnavailableProtocolAndFix();
 }
 
 void ApiInfo::setStaticIps(const StaticIps &value)
@@ -206,6 +207,7 @@ bool ApiInfo::loadFromSettings()
             isOvpnConfigInit_ = true;
             isPortMapInit_ = true;
             isStaticIpsInit_ = true;
+            checkPortMapForUnavailableProtocolAndFix();
             return true;
         }
     }
@@ -258,6 +260,11 @@ void ApiInfo::mergeWindflixLocations()
         }
         itm.remove();
     }
+}
+
+void ApiInfo::checkPortMapForUnavailableProtocolAndFix()
+{
+    portMap_.removeUnsupportedProtocols(types::Protocol::supportedProtocols());
 }
 
 } //namespace apiinfo

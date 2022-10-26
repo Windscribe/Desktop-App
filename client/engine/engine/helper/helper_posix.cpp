@@ -189,7 +189,7 @@ bool Helper_posix::setSplitTunnelingSettings(bool isActive, bool isExclude,
 
 bool Helper_posix::sendConnectStatus(bool isConnected, bool isTerminateSocket, bool isKeepLocalSocket,
                                      const AdapterGatewayInfo &defaultAdapter, const AdapterGatewayInfo &vpnAdapter,
-                                     const QString &connectedIp, const PROTOCOL &protocol)
+                                     const QString &connectedIp, const types::Protocol &protocol)
 {
     Q_UNUSED(isTerminateSocket);
     Q_UNUSED(isKeepLocalSocket);

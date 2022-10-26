@@ -1,5 +1,4 @@
-#ifndef TYPES_ENUMS_H
-#define TYPES_ENUMS_H
+#pragma once
 
 #include <QString>
 
@@ -17,43 +16,6 @@ enum INIT_HELPER_RET {
     INIT_HELPER_SUCCESS = 0,
     INIT_HELPER_FAILED = 1,
     INIT_HELPER_USER_CANCELED =2
-};
-
-class PROTOCOL
-{
-public:
-    enum TYPE {
-        IKEV2 = 0,
-        OPENVPN_UDP = 1,
-        OPENVPN_TCP = 2,
-        STUNNEL = 3,
-        WSTUNNEL = 4,
-        WIREGUARD = 5,
-        UNINITIALIZED = 100000
-    };
-
-    PROTOCOL() : value_(UNINITIALIZED) {}
-    PROTOCOL(TYPE a) : value_(a) {}
-    PROTOCOL(int a) : value_((TYPE)a) {}
-
-    // Prevent usage: if(PROTOCOL)
-    explicit operator bool() const = delete;
-
-    bool operator==(PROTOCOL a) const { return value_ == a.value_; }
-    bool operator!=(PROTOCOL a) const { return value_ != a.value_; }
-
-    // utils functions
-    int toInt() const { return (int)value_; }
-    QString toShortString() const;
-    QString toLongString() const;
-    bool isOpenVpnProtocol() const;
-    bool isStunnelOrWStunnelProtocol() const;
-    bool isIkev2Protocol() const;
-    bool isWireGuardProtocol() const;
-    static PROTOCOL fromString(const QString &strProtocol);
-
-private:
-    TYPE value_;
 };
 
 enum LOGIN_RET {
@@ -137,7 +99,8 @@ enum CONNECT_ERROR  {
   EXE_VERIFY_WSTUNNEL_ERROR = 38,
   EXE_VERIFY_STUNNEL_ERROR = 39,
   EXE_VERIFY_OPENVPN_ERROR = 40,
-  EXE_VERIFY_WIREGUARD_ERROR = 41
+  EXE_VERIFY_WIREGUARD_ERROR = 41,
+  STATE_TIMEOUT_FOR_AUTOMATIC = 42
 };
 
 enum PROXY_SHARING_TYPE {
@@ -334,8 +297,5 @@ QList< QPair<QString, int> > DNS_MANAGER_TYPE_toList();
 QString APP_SKIN_toString(APP_SKIN s);
 QList< QPair<QString, int> > APP_SKIN_toList();
 
-QDataStream& operator <<(QDataStream &stream, const PROTOCOL &o);
-QDataStream& operator >>(QDataStream &stream, PROTOCOL &o);
-#endif // TYPES_ENUMS_H
 
 

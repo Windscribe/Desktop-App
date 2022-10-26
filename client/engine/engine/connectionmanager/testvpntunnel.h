@@ -5,7 +5,7 @@
 #include <QTimer>
 #include <QTime>
 #include <QVector>
-#include "types/enums.h"
+#include "types/protocol.h"
 #include "engine/serverapi/serverapi.h"
 
 // do set of tests after VPN tunnel is established
@@ -17,7 +17,7 @@ public:
     virtual ~TestVPNTunnel();
 
 public slots:
-    void startTests(const PROTOCOL &protocol);
+    void startTests(const types::Protocol &protocol);
     void stopTests();
 
 signals:
@@ -47,7 +47,7 @@ private:
        };
     QVector<uint> timeouts_;
 
-    PROTOCOL protocol_;
+    types::Protocol protocol_;
 
     server_api::BaseRequest *curRequest_;
 

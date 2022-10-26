@@ -161,7 +161,7 @@ signals:
     void highCpuUsage(const QStringList &processesList);
     void userWarning(USER_WARNING_TYPE userWarningType);
     void internetConnectivityChanged(bool connectivity);
-    void protocolPortChanged(const PROTOCOL &protocol, const uint port);
+    void protocolPortChanged(const types::Protocol &protocol, const uint port);
     void packetSizeDetectionStateChanged(bool on, bool isError);
     void updateVersionChanged(uint progressPercent, UPDATE_VERSION_STATE state, UPDATE_VERSION_ERROR error);
 

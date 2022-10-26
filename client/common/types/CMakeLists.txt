@@ -30,6 +30,8 @@ target_sources(common PRIVATE
     pingtime.h
     portmap.cpp
     portmap.h
+    protocol.cpp
+    protocol.h
     proxysettings.cpp
     proxysettings.h
     proxysharinginfo.h

@@ -23,7 +23,7 @@ public:
 private:
     struct AttemptInfo
     {
-        PROTOCOL protocol;
+        types::Protocol protocol;
         int portMapInd;
         bool changeNode;
     };
@@ -38,7 +38,7 @@ private:
     types::PortMap portMap_;
     bool bIsAllFailed_;
 
-    static bool sortPortMapFunction(const types::PortItem &p1, const types::PortItem &p2);
+    types::Protocol lastSuccessProtocol_;
 };
 
 #endif // AUTOCONNSETTINGSPOLICY_H

@@ -54,7 +54,7 @@ public slots:
     void updateNetworkState(types::NetworkInterface network) override;
     void setSplitTunnelingState(bool on) override;
     void setInternetConnectivity(bool connectivity) override;
-    void setProtocolPort(const PROTOCOL &protocol, const uint port) override;
+    void setProtocolPort(const types::Protocol &protocol, const uint port) override;
 
     void onNetworkHoverEnter();
     void onNetworkHoverLeave();

@@ -19,7 +19,6 @@ public:
 
 private:
     QString authHash_;
-    PROTOCOL protocol_;
 
     // output values
     QByteArray ovpnConfig_;

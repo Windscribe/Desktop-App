@@ -26,7 +26,6 @@ OpenVPNConnection::OpenVPNConnection(QObject *parent, IHelper *helper) : IConnec
 
 OpenVPNConnection::~OpenVPNConnection()
 {
-    //disconnect();
     wait();
 }
 
