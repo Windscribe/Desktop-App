@@ -14,7 +14,7 @@ public:
 
     virtual QGraphicsObject *getGraphicsObject() = 0;
 
-    virtual int recommendedHeight() = 0;
+    virtual int minimumHeight() = 0;
     virtual void setHeight(int height) = 0;
 
     virtual void setCurrentTab(PREFERENCES_TAB_TYPE tab) = 0;

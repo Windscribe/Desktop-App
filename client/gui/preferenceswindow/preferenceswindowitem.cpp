@@ -202,7 +202,7 @@ void PreferencesWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsI
     }
 }
 
-int PreferencesWindowItem::recommendedHeight()
+int PreferencesWindowItem::minimumHeight()
 {
     return preferences_->appSkin() == APP_SKIN_VAN_GOGH ? MIN_HEIGHT_VAN_GOGH : MIN_HEIGHT;
 }

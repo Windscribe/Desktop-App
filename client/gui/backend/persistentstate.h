@@ -40,6 +40,11 @@ public:
     void setAppGeometry(const QByteArray& geometry);
     const QByteArray& appGeometry() const;
 
+    bool havePreferencesWindowHeight() const;
+    void setPreferencesWindowHeight(int height);
+    int preferencesWindowHeight() const;
+
+
     void save();
 
 private:

@@ -167,3 +167,19 @@ const QByteArray& PersistentState::appGeometry() const
 {
     return state_.appGeometry;
 }
+
+bool PersistentState::havePreferencesWindowHeight() const
+{
+    return state_.preferencesWindowHeight > 0;
+}
+
+void PersistentState::setPreferencesWindowHeight(int height)
+{
+    state_.preferencesWindowHeight = height;
+    save();
+}
+
+int PersistentState::preferencesWindowHeight() const
+{
+    return state_.preferencesWindowHeight;
+}
