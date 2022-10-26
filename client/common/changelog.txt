@@ -1,3 +1,26 @@
+2.5.8 (26/10/2022)
+All:
+   * Updated automatic connection mode to use WireGuard protocol by default. #202
+   * Fixed CLI app to return 0 on success, 1 on failure. #17
+   * Fixed disconnected notification showing incorrect bandwidth usage. #77
+   * Fixed some minor UI bugs. #92, #245, #272, #483, #486, #492, #493
+   * Fixed preferences screen does not retain user selected height upon app re-launch. #146
+   * Fixed preferred protocol doesn't reconnect when Wi-Fi hopping. #448
+   * Fixed RFC1918 traffic is routed over VPN tunnel. #451
+   * Fixed Manual Packet Size (MTU) and network proxy settings do not retain their values upon app re-launch. #462
+   * Fixed app does not remember last used location if system crashes or app is forcefully terminated. #476
+   * Fixed incorrect data remaining value in Accounts page for build-a-plan accounts with unlimited data. #484
+Windows:
+   * Fixed secure hotspot feature is available when network adapter doesn't support it. #455
+   * Fixed inclusive split tunneled apps unable to access localhost. #464
+   * Fixed ws_com_server.exe command prompt window does not close after choosing custom config directory. #470
+macOS:
+   * Fixed helper installation fails when previous helper explicitly disabled in launch control. #466
+   * Fixed reconnect issue if the computer sleeps on one network and wakes on another. #467
+Linux:
+   * Fixed connect/disconnect notifications do not display on Debian 11. #294
+
+
 2.5.7 (06/10/2022)
 All:
    * Added loading indicator to R.O.B.E.R.T. screen in Preferences. #461
