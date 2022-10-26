@@ -135,7 +135,7 @@ void Helper_posix::suspendUnblockingCmd(unsigned long cmdId)
 }
 
 bool Helper_posix::setSplitTunnelingSettings(bool isActive, bool isExclude,
-                                           bool /*isKeepLocalSockets*/, const QStringList &files,
+                                           bool isAllowLanTraffic, const QStringList &files,
                                            const QStringList &ips, const QStringList &hosts)
 {
     QMutexLocker locker(&mutex_);
@@ -148,6 +148,7 @@ bool Helper_posix::setSplitTunnelingSettings(bool isActive, bool isExclude,
     CMD_SPLIT_TUNNELING_SETTINGS cmdSplitTunnelingSettings;
     cmdSplitTunnelingSettings.isActive = isActive;
     cmdSplitTunnelingSettings.isExclude = isExclude;
+    //cmdSplitTunnelingSettings.isAllowLanTraffic = isAllowLanTraffic;
 
     for (int i = 0; i < files.count(); ++i)
     {

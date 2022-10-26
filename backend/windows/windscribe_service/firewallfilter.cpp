@@ -319,6 +319,40 @@ void FirewallFilter::addFilters(HANDLE engineHandle, const wchar_t *ip, bool bAl
         }
     }
 
+    // Add permit filter for Windscribe reserved range (10.255.255.0 - 10.255.255.255)
+    {
+        FWPM_FILTER0 filter = {0};
+        std::vector<FWPM_FILTER_CONDITION0> condition(1);
+        FWP_V4_ADDR_AND_MASK addrMask;
+        memset(&condition[0], 0, sizeof(FWPM_FILTER_CONDITION0) * 1);
+
+        filter.subLayerKey = subLayerGUID_;
+        filter.displayData.name = (wchar_t *)FIREWALL_SUBLAYER_NAMEW;
+        filter.layerKey = FWPM_LAYER_ALE_AUTH_CONNECT_V4;
+        filter.flags = FWPM_SUBLAYER_FLAG_PERSISTENT;
+        filter.action.type = FWP_ACTION_PERMIT;
+        filter.weight.type = FWP_UINT8;
+        filter.weight.uint8 = 0x04;
+        filter.filterCondition = &condition[0];
+        filter.numFilterConditions = 1;
+
+        condition[0].fieldKey = FWPM_CONDITION_IP_REMOTE_ADDRESS;
+        condition[0].matchType = FWP_MATCH_EQUAL;
+        condition[0].conditionValue.type = FWP_V4_ADDR_MASK;
+        condition[0].conditionValue.v4AddrMask = &addrMask;
+
+        Ip4AddressAndMask ipAddress("10.255.255.0/24");
+        addrMask.addr = ipAddress.ipHostOrder();
+        addrMask.mask = ipAddress.maskHostOrder();
+
+        UINT64 filterId;
+        dwFwAPiRetCode = FwpmFilterAdd0(engineHandle, &filter, NULL, &filterId);
+        if (dwFwAPiRetCode != ERROR_SUCCESS)
+        {
+            Logger::instance().out(L"Error 33 (0x%X)", dwFwAPiRetCode);
+        }
+    }
+
     // add permit filters for Local Network
     if (bAllowLocalTraffic)
     {
