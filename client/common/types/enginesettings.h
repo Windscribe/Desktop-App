@@ -122,10 +122,6 @@ private:
     // for serialization
     static constexpr quint32 magic_ = 0x7745C2AE;
     static constexpr int versionForSerialization_ = 2;  // should increment the version if the data format is changed
-
-#if defined(Q_OS_LINUX)
-    void repairEngineSettings();
-#endif
 };
 
 

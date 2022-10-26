@@ -1,7 +1,5 @@
 #include "enginesettings.h"
-#include "ipc/protobufcommand.h"
 #include "utils/logger.h"
-#include "utils/winutils.h"
 #include "types/global_consts.h"
 #include "legacy_protobuf_support/legacy_protobuf.h"
 
@@ -11,10 +9,6 @@ namespace types {
 
 EngineSettings::EngineSettings() : d(new EngineSettingsData)
 {
-#if defined(Q_OS_LINUX)
-    repairEngineSettings();
-#endif
-
 }
 
 void EngineSettings::saveToSettings()
@@ -86,10 +80,6 @@ void EngineSettings::loadFromSettings()
         qCDebug(LOG_BASIC) << "Could not load engine settings -- resetting to defaults";
         *this = EngineSettings();   // reset to defaults
     }
-
-    #if defined(Q_OS_LINUX)
-            repairEngineSettings();
-    #endif
 }
 
 QString EngineSettings::language() const
@@ -331,18 +321,6 @@ QDebug operator<<(QDebug dbg, const EngineSettings &es)
 
     return dbg;
 }
-
-#if defined(Q_OS_LINUX)
-void EngineSettings::repairEngineSettings()
-{
-    // IKEv2 is disabled on linux but is default protocol in ProtoTypes::ConnectionSettings.
-    // UDP should be default on Linux.
-    if(d->connectionSettings.protocol == PROTOCOL::IKEV2) {
-        d->connectionSettings.protocol = PROTOCOL::OPENVPN_UDP;
-        d->connectionSettings.port = 443;
-    }
-}
-#endif
 
 } // types namespace
 
