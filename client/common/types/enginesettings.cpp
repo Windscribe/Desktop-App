@@ -27,6 +27,7 @@ void EngineSettings::saveToSettings()
     QSettings settings;
     SimpleCrypt simpleCrypt(SIMPLE_CRYPT_KEY);
     settings.setValue("engineSettings", simpleCrypt.encryptToString(arr));
+    settings.sync();
 }
 
 void EngineSettings::loadFromSettings()
@@ -90,6 +91,7 @@ QString EngineSettings::language() const
 void EngineSettings::setLanguage(const QString &lang)
 {
     d->language = lang;
+    saveToSettings();
 }
 
 bool EngineSettings::isIgnoreSslErrors() const
@@ -100,6 +102,7 @@ bool EngineSettings::isIgnoreSslErrors() const
 void EngineSettings::setIsIgnoreSslErrors(bool ignore)
 {
     d->isIgnoreSslErrors = ignore;
+    saveToSettings();
 }
 
 bool EngineSettings::isTerminateSockets() const
@@ -110,6 +113,7 @@ bool EngineSettings::isTerminateSockets() const
 void EngineSettings::setIsTerminateSockets(bool close)
 {
     d->isTerminateSockets = close;
+    saveToSettings();
 }
 
 bool EngineSettings::isAllowLanTraffic() const
@@ -120,6 +124,7 @@ bool EngineSettings::isAllowLanTraffic() const
 void EngineSettings::setIsAllowLanTraffic(bool isAllowLanTraffic)
 {
     d->isAllowLanTraffic = isAllowLanTraffic;
+    saveToSettings();
 }
 
 const types::FirewallSettings &EngineSettings::firewallSettings() const
@@ -130,6 +135,7 @@ const types::FirewallSettings &EngineSettings::firewallSettings() const
 void EngineSettings::setFirewallSettings(const FirewallSettings &fs)
 {
     d->firewallSettings = fs;
+    saveToSettings();
 }
 
 const types::ConnectionSettings &EngineSettings::connectionSettings() const
@@ -140,6 +146,7 @@ const types::ConnectionSettings &EngineSettings::connectionSettings() const
 void EngineSettings::setConnectionSettings(const ConnectionSettings &cs)
 {
     d->connectionSettings = cs;
+    saveToSettings();
 }
 
 const types::ApiResolutionSettings &EngineSettings::apiResolutionSettings() const
@@ -150,6 +157,7 @@ const types::ApiResolutionSettings &EngineSettings::apiResolutionSettings() cons
 void EngineSettings::setApiResolutionSettings(const ApiResolutionSettings &drs)
 {
     d->apiResolutionSettings = drs;
+    saveToSettings();
 }
 
 const types::ProxySettings &EngineSettings::proxySettings() const
@@ -160,6 +168,7 @@ const types::ProxySettings &EngineSettings::proxySettings() const
 void EngineSettings::setProxySettings(const ProxySettings &ps)
 {
     d->proxySettings = ps;
+    saveToSettings();
 }
 
 DNS_POLICY_TYPE EngineSettings::dnsPolicy() const
@@ -170,6 +179,7 @@ DNS_POLICY_TYPE EngineSettings::dnsPolicy() const
 void EngineSettings::setDnsPolicy(DNS_POLICY_TYPE policy)
 {
     d->dnsPolicy = policy;
+    saveToSettings();
 }
 
 DNS_MANAGER_TYPE EngineSettings::dnsManager() const
@@ -180,6 +190,7 @@ DNS_MANAGER_TYPE EngineSettings::dnsManager() const
 void EngineSettings::setDnsManager(DNS_MANAGER_TYPE dnsManager)
 {
     d->dnsManager = dnsManager;
+    saveToSettings();
 }
 
 const types::MacAddrSpoofing &EngineSettings::macAddrSpoofing() const
@@ -200,6 +211,7 @@ UPDATE_CHANNEL EngineSettings::updateChannel() const
 void EngineSettings::setUpdateChannel(UPDATE_CHANNEL channel)
 {
     d->updateChannel = channel;
+    saveToSettings();
 }
 
 const types::ConnectedDnsInfo &EngineSettings::connectedDnsInfo() const
@@ -210,6 +222,7 @@ const types::ConnectedDnsInfo &EngineSettings::connectedDnsInfo() const
 void EngineSettings::setConnectedDnsInfo(const ConnectedDnsInfo &info)
 {
     d->connectedDnsInfo = info;
+    saveToSettings();
 }
 
 bool EngineSettings::isUseWintun() const
@@ -225,6 +238,7 @@ TAP_ADAPTER_TYPE EngineSettings::tapAdapter() const
 void EngineSettings::setTapAdapter(TAP_ADAPTER_TYPE tap)
 {
     d->tapAdapter = tap;
+    saveToSettings();
 }
 
 QString EngineSettings::customOvpnConfigsPath() const
@@ -235,6 +249,7 @@ QString EngineSettings::customOvpnConfigsPath() const
 void EngineSettings::setCustomOvpnConfigsPath(const QString &path)
 {
     d->customOvpnConfigsPath = path;
+    saveToSettings();
 }
 
 bool EngineSettings::isKeepAliveEnabled() const
@@ -245,16 +260,19 @@ bool EngineSettings::isKeepAliveEnabled() const
 void EngineSettings::setIsKeepAliveEnabled(bool enabled)
 {
     d->isKeepAliveEnabled = enabled;
+    saveToSettings();
 }
 
 void EngineSettings::setMacAddrSpoofing(const MacAddrSpoofing &macAddrSpoofing)
 {
     d->macAddrSpoofing = macAddrSpoofing;
+    saveToSettings();
 }
 
 void EngineSettings::setPacketSize(const PacketSize &packetSize)
 {
     d->packetSize = packetSize;
+    saveToSettings();
 }
 
 const QMap<QString, types::ConnectionSettings> &EngineSettings::networkPreferredProtocols() const
@@ -265,6 +283,7 @@ const QMap<QString, types::ConnectionSettings> &EngineSettings::networkPreferred
 void EngineSettings::setNetworkPreferredProtocols(const QMap<QString, types::ConnectionSettings> &preferredProtocols)
 {
     d->networkPreferredProtocols = preferredProtocols;
+    saveToSettings();
 }
 
 bool EngineSettings::operator==(const EngineSettings &other) const
