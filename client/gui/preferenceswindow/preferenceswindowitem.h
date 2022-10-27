@@ -42,7 +42,7 @@ public:
     QRectF boundingRect() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
-    int recommendedHeight() override;
+    int minimumHeight() override;
     void setHeight(int height) override;
 
     void setCurrentTab(PREFERENCES_TAB_TYPE tab) override;
