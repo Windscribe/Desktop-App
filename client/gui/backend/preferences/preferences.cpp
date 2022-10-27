@@ -647,6 +647,7 @@ void Preferences::saveGuiSettings() const
     QSettings settings;
     SimpleCrypt simpleCrypt(SIMPLE_CRYPT_KEY);
     settings.setValue("guiSettings2", simpleCrypt.encryptToString(arr));
+    settings.sync();
 }
 
 void Preferences::loadGuiSettings()

@@ -68,6 +68,7 @@ void PersistentState::save()
     SimpleCrypt simpleCrypt(SIMPLE_CRYPT_KEY);
     QSettings settings;
     settings.setValue("guiPersistentState", simpleCrypt.encryptToString(arr));
+    settings.sync();
 }
 
 void PersistentState::setFirewallState(bool bFirewallOn)
