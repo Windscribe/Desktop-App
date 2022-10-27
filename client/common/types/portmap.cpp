@@ -122,9 +122,10 @@ const QVector<PortItem> &PortMap::const_items() const
 
 void PortMap::removeUnsupportedProtocols(const QList<Protocol> &supportedProtocols)
 {
-    std::remove_if(d->items_.begin(), d->items_.end(), [supportedProtocols](const PortItem &item) {
-            return !supportedProtocols.contains(item.protocol);
-        });
+    d->items_.erase(std::remove_if(d->items_.begin(), d->items_.end(), [supportedProtocols](const PortItem &item)
+    {
+        return !supportedProtocols.contains(item.protocol);
+    }), d->items_.end());
 }
 
 QDataStream& operator <<(QDataStream& stream, const PortItem& p)
