@@ -84,6 +84,7 @@ def BuildDependencyGNU(installpath, openssl_root, outpath):
   configure_cmd = \
     ["./configure", "-opensource", "-confirm-license", "-release", "-nomake", "examples"]
   configure_cmd.append("-openssl-linked")
+  configure_cmd.append("-system-zlib")
   configure_cmd.extend(["-prefix", installpath])
   if not c_ismac:
     configure_cmd.append("-qt-libpng")
