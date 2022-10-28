@@ -606,8 +606,8 @@ void Engine::initPart2()
     connect(locationsModel_, SIGNAL(whitelistCustomConfigsIpsChanged(QStringList)), SLOT(onLocationsModelWhitelistCustomConfigIpsChanged(QStringList)));
 
     vpnShareController_ = new VpnShareController(this, helper_);
-    connect(vpnShareController_, SIGNAL(connectedWifiUsersChanged(int)), SIGNAL(vpnSharingConnectedWifiUsersCountChanged(int)));
-    connect(vpnShareController_, SIGNAL(connectedProxyUsersChanged(int)), SIGNAL(vpnSharingConnectedProxyUsersCountChanged(int)));
+    connect(vpnShareController_, &VpnShareController::connectedWifiUsersChanged, this, &Engine::vpnSharingConnectedWifiUsersCountChanged);
+    connect(vpnShareController_, &VpnShareController::connectedProxyUsersChanged, this, &Engine::vpnSharingConnectedProxyUsersCountChanged);
 
     keepAliveManager_ = new KeepAliveManager(this, connectStateController_);
     keepAliveManager_->setEnabled(engineSettings_.isKeepAliveEnabled());

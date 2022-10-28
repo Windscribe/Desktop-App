@@ -703,16 +703,18 @@ void EngineServer::onEngineWifiSharingStateChanged(bool bEnabled, const QString 
     sendCmdToAllAuthorizedAndGetStateClients(&cmd, true);
 }
 
-void EngineServer::onEngineConnectedWifiUsersCountChanged(int usersCount)
+void EngineServer::onEngineConnectedWifiUsersCountChanged(bool bEnabled, int usersCount)
 {
     IPC::ServerCommands::WifiSharingInfoChanged cmd;
+    cmd.wifiSharingInfo_.isEnabled = bEnabled;
     cmd.wifiSharingInfo_.usersCount = usersCount;
     sendCmdToAllAuthorizedAndGetStateClients(&cmd, true);
 }
 
-void EngineServer::onEngineConnectedProxyUsersCountChanged(int usersCount)
+void EngineServer::onEngineConnectedProxyUsersCountChanged(bool bEnabled, int usersCount)
 {
     IPC::ServerCommands::ProxySharingInfoChanged cmd;
+    cmd.proxySharingInfo_.isEnabled = bEnabled;
     cmd.proxySharingInfo_.usersCount = usersCount;
     sendCmdToAllAuthorizedAndGetStateClients(&cmd, true);
 }
