@@ -130,7 +130,7 @@ void serialize(Archive & ar, CMD_SPLIT_TUNNELING_SETTINGS & g, const unsigned in
     UNREFERENCED_PARAMETER(version);
     ar & g.isActive;
     ar & g.isExclude;
-    ar & g.isAllowLanTraffic;
+    ar & g.isKeepLocalSockets;
     ar & g.files;
     ar & g.ips;
 	ar & g.hosts;

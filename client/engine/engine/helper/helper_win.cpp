@@ -164,7 +164,7 @@ void Helper_win::suspendUnblockingCmd(unsigned long cmdId)
     sendCmdToHelper(AA_COMMAND_SUSPEND_UNBLOCKING_CMD, stream.str());
 }
 
-bool Helper_win::setSplitTunnelingSettings(bool isActive, bool isExclude, bool isAllowLanTraffic,
+bool Helper_win::setSplitTunnelingSettings(bool isActive, bool isExclude, bool isKeepLocalSockets,
                                            const QStringList &files, const QStringList &ips,
                                            const QStringList &hosts)
 {
@@ -173,7 +173,7 @@ bool Helper_win::setSplitTunnelingSettings(bool isActive, bool isExclude, bool i
     CMD_SPLIT_TUNNELING_SETTINGS cmdSplitTunnelingSettings;
     cmdSplitTunnelingSettings.isActive = isActive;
     cmdSplitTunnelingSettings.isExclude = isExclude;
-    cmdSplitTunnelingSettings.isAllowLanTraffic = isAllowLanTraffic;
+    cmdSplitTunnelingSettings.isKeepLocalSockets = isKeepLocalSockets;
 
     for (int i = 0; i < files.count(); ++i)
     {

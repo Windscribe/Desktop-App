@@ -4,7 +4,7 @@
 	ClassGuid = {58465043-616C-6C6F-7574-5F636C617372}
 	Provider = %ManufacturerName%
 	CatalogFile = "WindscribeSplitTunnel.cat"
-DriverVer = 10/13/2022,13.28.25.623
+DriverVer = 01/22/2020,8.50.40.201
 
 [SourceDisksNames]
 	1 = %DiskName%,,,""

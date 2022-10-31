@@ -14,8 +14,7 @@ public:
     SplitTunneling(FirewallFilter& firewallFilter, FwpmWrapper& fwmpWrapper);
     ~SplitTunneling();
 
-    void setSettings(bool isEnabled, bool isExclude, const std::vector<std::wstring>& apps, const std::vector<std::wstring>& ips,
-                     const std::vector<std::string>& hosts, bool isAllowLanTraffic);
+    void setSettings(bool isEnabled, bool isExclude, const std::vector<std::wstring>& apps, const std::vector<std::wstring>& ips, const std::vector<std::string>& hosts);
     bool setConnectStatus(CMD_CONNECT_STATUS& connectStatus);
 
     static void removeAllFilters(FwpmWrapper& fwmpWrapper);
@@ -31,7 +30,6 @@ private:
     CMD_CONNECT_STATUS connectStatus_;
     bool isSplitTunnelEnabled_ = false;
     bool isExclude_ = false;
-    bool isAllowLanTraffic_ = false;
     std::vector<std::wstring> apps_;
     bool prevIsSplitTunnelActive_ = false;
     bool prevIsExclude_ = false;
