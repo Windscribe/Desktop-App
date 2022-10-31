@@ -25,7 +25,7 @@ public:
     void clearUnblockingCmd(unsigned long cmdId) override;
     void suspendUnblockingCmd(unsigned long cmdId) override;
 
-    bool setSplitTunnelingSettings(bool isActive, bool isExclude, bool isAllowLanTraffic,
+    bool setSplitTunnelingSettings(bool isActive, bool isExclude, bool isKeepLocalSockets,
                                    const QStringList &files, const QStringList &ips,
                                    const QStringList &hosts) override;
     bool sendConnectStatus(bool isConnected, bool isTerminateSocket, bool isKeepLocalSocket,

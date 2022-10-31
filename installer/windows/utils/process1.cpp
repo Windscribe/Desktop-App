@@ -3,7 +3,7 @@
 #include <sstream>
 
 #include "logger.h"
-#include "../../../client/common/utils/wsscopeguard.h"
+#include "../../../../../client/common/utils/wsscopeguard.h"
 
 using namespace std;
 
