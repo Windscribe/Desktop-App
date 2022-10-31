@@ -6,73 +6,78 @@
 namespace apiinfo {
 
 ServerCredentials::ServerCredentials() :
-    bInitialized_(false)
+    bIkev2Initialized_(true),
+    bOpenVpnInitialized_(true)
 {
 }
 
 ServerCredentials::ServerCredentials(const QString &usernameOpenVpn, const QString &passwordOpenVpn,
                                      const QString &usernameIkev2, const QString &passwordIkev2) :
-    bInitialized_(true), usernameOpenVpn_(usernameOpenVpn), passwordOpenVpn_(passwordOpenVpn),
-    usernameIkev2_(usernameIkev2), passwordIkev2_(passwordIkev2)
+    bIkev2Initialized_(true),
+    bOpenVpnInitialized_(true),
+    usernameOpenVpn_(usernameOpenVpn),
+    passwordOpenVpn_(passwordOpenVpn),
+    usernameIkev2_(usernameIkev2),
+    passwordIkev2_(passwordIkev2)
 {
 }
 
 bool ServerCredentials::isInitialized() const
 {
-    return bInitialized_ && !usernameOpenVpn_.isEmpty() && !passwordOpenVpn_.isEmpty() && !usernameIkev2_.isEmpty() && !passwordIkev2_.isEmpty();
+    return bIkev2Initialized_ && bOpenVpnInitialized_;
 }
 
 QString ServerCredentials::usernameForOpenVpn() const
 {
-    WS_ASSERT(bInitialized_);
+    WS_ASSERT(bOpenVpnInitialized_);
     return usernameOpenVpn_;
 }
 
 QString ServerCredentials::passwordForOpenVpn() const
 {
-    WS_ASSERT(bInitialized_);
+    WS_ASSERT(bOpenVpnInitialized_);
     return passwordOpenVpn_;
 }
 
 QString ServerCredentials::usernameForIkev2() const
 {
-    WS_ASSERT(bInitialized_);
+    WS_ASSERT(bIkev2Initialized_);
     return usernameIkev2_;
 }
 
 QString ServerCredentials::passwordForIkev2() const
 {
-    WS_ASSERT(bInitialized_);
+    WS_ASSERT(bIkev2Initialized_);
     return passwordIkev2_;
 }
 
 void ServerCredentials::setForOpenVpn(const QString &username, const QString &password)
 {
-    bInitialized_ = true;
+    bOpenVpnInitialized_ = true;
     usernameOpenVpn_ = username;
     passwordOpenVpn_ = password;
 }
 
 void ServerCredentials::setForIkev2(const QString &username, const QString &password)
 {
-    bInitialized_ = true;
+    bIkev2Initialized_ = true;
     usernameIkev2_ = username;
     passwordIkev2_ = password;
 }
 
 bool ServerCredentials::isIkev2Initialized() const
 {
-    return bInitialized_ && !usernameIkev2_.isEmpty() && !passwordIkev2_.isEmpty();
+    return bIkev2Initialized_;
 }
 
 bool ServerCredentials::isOpenVpnInitialized() const
 {
-    return bInitialized_ && !usernameOpenVpn_.isEmpty() && !passwordOpenVpn_.isEmpty();
+    return bOpenVpnInitialized_;
 }
 
 QDataStream& operator <<(QDataStream &stream, const ServerCredentials &s)
 {
-    WS_ASSERT(s.bInitialized_);
+    WS_ASSERT(s.isInitialized());
     stream << s.versionForSerialization_;
     stream << s.usernameOpenVpn_ << s.passwordOpenVpn_ << s.usernameIkev2_ << s.passwordIkev2_;
     return stream;
@@ -85,12 +90,14 @@ QDataStream& operator >>(QDataStream &stream, ServerCredentials &s)
     if (version > s.versionForSerialization_)
     {
         stream.setStatus(QDataStream::ReadCorruptData);
-        s.bInitialized_ = false;
+        s.bIkev2Initialized_ = false;
+        s.bOpenVpnInitialized_ = false;
         return stream;
     }
 
     stream >> s.usernameOpenVpn_ >> s.passwordOpenVpn_ >> s.usernameIkev2_ >> s.passwordIkev2_;
-    s.bInitialized_ = true;
+    s.bIkev2Initialized_ = true;
+    s.bOpenVpnInitialized_ = true;
 
     return stream;
 }

@@ -27,7 +27,10 @@ public:
     friend QDataStream& operator >>(QDataStream &stream, ServerCredentials &s);
 
 private:
-    bool bInitialized_;
+    bool bIkev2Initialized_;
+    bool bOpenVpnInitialized_;
+
+
     QString usernameOpenVpn_;
     QString passwordOpenVpn_;
     QString usernameIkev2_;
