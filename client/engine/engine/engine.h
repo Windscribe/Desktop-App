@@ -156,8 +156,8 @@ signals:
     void lostConnectionToHelper();
     void proxySharingStateChanged(bool bEnabled, PROXY_SHARING_TYPE proxySharingType);
     void wifiSharingStateChanged(bool bEnabled, const QString &ssid);
-    void vpnSharingConnectedWifiUsersCountChanged(int usersCount);
-    void vpnSharingConnectedProxyUsersCountChanged(int usersCount);
+    void vpnSharingConnectedWifiUsersCountChanged(bool bEnabled, int usersCount);
+    void vpnSharingConnectedProxyUsersCountChanged(bool bEnabled, int usersCount);
 
     void signOutFinished();
 

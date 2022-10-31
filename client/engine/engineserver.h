@@ -60,8 +60,8 @@ private slots:
     void onEngineLostConnectionToHelper();
     void onEngineProxySharingStateChanged(bool bEnabled, PROXY_SHARING_TYPE proxySharingType);
     void onEngineWifiSharingStateChanged(bool bEnabled, const QString &ssid);
-    void onEngineConnectedWifiUsersCountChanged(int usersCount);
-    void onEngineConnectedProxyUsersCountChanged(int usersCount);
+    void onEngineConnectedWifiUsersCountChanged(bool bEnabled, int usersCount);
+    void onEngineConnectedProxyUsersCountChanged(bool bEnabled, int usersCount);
     void onEngineSignOutFinished();
 
     void onEngineGotoCustomOvpnConfigModeFinished();
