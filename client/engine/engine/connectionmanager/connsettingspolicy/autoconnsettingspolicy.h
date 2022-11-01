@@ -38,7 +38,7 @@ private:
     types::PortMap portMap_;
     bool bIsAllFailed_;
 
-    types::Protocol lastSuccessProtocol_;
+    static types::Protocol lastSuccessProtocol_;
 };
 
 #endif // AUTOCONNSETTINGSPOLICY_H

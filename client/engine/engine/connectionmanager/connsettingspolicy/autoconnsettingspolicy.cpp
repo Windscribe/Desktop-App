@@ -6,6 +6,7 @@
 #include "utils/logger.h"
 
 int AutoConnSettingsPolicy::failedIkev2Counter_ = 0;
+types::Protocol AutoConnSettingsPolicy::lastSuccessProtocol_;
 
 AutoConnSettingsPolicy::AutoConnSettingsPolicy(QSharedPointer<locationsmodel::BaseLocationInfo> bli,
                                                const types::PortMap &portMap, bool isProxyEnabled)
