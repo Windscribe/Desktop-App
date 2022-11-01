@@ -3,6 +3,7 @@ All:
    * Fixed bottom info widget hidden when something connects to proxy/hotspot #455
    * Fixed signing into an expired account. #500
    * Fixed the working connection setting isn't saved. #202
+   * Sync settings immediately. #476. 
 Windows:
    * Reverted inclusive split tunneled apps unable to access localhost. #464
 Linux:
