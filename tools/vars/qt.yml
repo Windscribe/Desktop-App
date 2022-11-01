@@ -3,7 +3,7 @@
 # Copyright (c) 2020-2022, Windscribe Limited. All rights reserved.
 # ------------------------------------------------------------------------------
 variables:
-  VERSION_QT: '6.2.4'
+  VERSION_QT: '6.3.1'
   BUILDROOT_QT: 'build-libs/qt'
   WINTEMPROOT_QT: 'C:/temp'
   ARTIFACT_QT: 'qt.zip'

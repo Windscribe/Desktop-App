@@ -13,6 +13,12 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# This is a workaround for https://bugreports.qt.io/browse/QTBUG-89754 / #499
+# Without this flag, on Linux libOpenGL.so.0 will be linked instead of libGL,
+# which causes Windscribe to not start on some distributions where libopengl0 is not
+# installed by default.
+set(OpenGL_GL_PREFERENCE LEGACY)
+
 find_package(Qt6 REQUIRED COMPONENTS Widgets Network Test)
 
 # build_all.py sets this option when invoked with the '--sign' flag. Disabled by default
