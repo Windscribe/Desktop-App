@@ -122,8 +122,8 @@ private:
 
     friend class FirewallController_win;
     // friend functions for windows firewall controller class
-    bool firewallOn(const QString &ip, bool bAllowLanTraffic);
-    bool firewallChange(const QString &ip, bool bAllowLanTraffic);
+    bool firewallOn(const QString &ip, bool bAllowLanTraffic, bool bIsCustomConfig);
+    bool firewallChange(const QString &ip, bool bAllowLanTraffic, bool bIsCustomConfig);
     bool firewallOff();
     bool firewallActualState();
     void initVariables();

@@ -61,6 +61,7 @@
 struct CMD_FIREWALL_ON
 {
 	bool allowLanTraffic = false;
+    bool isCustomConfig = false;
     std::wstring ip;
 };
 

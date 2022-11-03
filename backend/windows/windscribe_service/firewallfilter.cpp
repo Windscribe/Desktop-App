@@ -17,7 +17,7 @@ FirewallFilter::~FirewallFilter()
 {
 }
 
-void FirewallFilter::on(const wchar_t *ip, bool bAllowLocalTraffic)
+void FirewallFilter::on(const wchar_t *ip, bool bAllowLocalTraffic, bool bIsCustomConfig)
 {
 	std::lock_guard<std::recursive_mutex> guard(mutex_);
 
@@ -40,7 +40,7 @@ void FirewallFilter::on(const wchar_t *ip, bool bAllowLocalTraffic)
     DWORD dwRet = FwpmSubLayerAdd0(hEngine, &subLayer, NULL );
     if (dwRet == ERROR_SUCCESS)
     {
-		addFilters(hEngine, ip, bAllowLocalTraffic);
+		addFilters(hEngine, ip, bAllowLocalTraffic, bIsCustomConfig);
     }
 	else
 	{
@@ -170,7 +170,7 @@ void FirewallFilter::setSplitTunnelingWhitelistIps(const std::vector<Ip4AddressA
 	fwpmWrapper_.unlock();
 }
 
-void FirewallFilter::addFilters(HANDLE engineHandle, const wchar_t *ip, bool bAllowLocalTraffic)
+void FirewallFilter::addFilters(HANDLE engineHandle, const wchar_t *ip, bool bAllowLocalTraffic, bool bIsCustomConfig)
 {
     std::vector<std::wstring> ipAddresses = split(ip, L';');
 
@@ -206,7 +206,9 @@ void FirewallFilter::addFilters(HANDLE engineHandle, const wchar_t *ip, bool bAl
     {
         NET_LUID luid;
         ConvertInterfaceIndexToLuid(*it, &luid);
-        addBlockFiltersForAdapter(engineHandle, luid, 8);
+        if (!bIsCustomConfig) {
+            addBlockFiltersForAdapter(engineHandle, luid, 8);
+        }
         addPermitFilterForAdapter(engineHandle, luid, 1);
     }
 

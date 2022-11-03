@@ -16,7 +16,7 @@ class FirewallController_mac : public FirewallController
 public:
     explicit FirewallController_mac(QObject *parent, IHelper *helper);
 
-    bool firewallOn(const QSet<QString> &ips, bool bAllowLanTraffic) override;
+    bool firewallOn(const QSet<QString> &ips, bool bAllowLanTraffic, bool bIsCustomConfig) override;
     bool firewallOff() override;
     bool firewallActualState() override;
 
@@ -37,6 +37,7 @@ private:
         QSet<QString> windscribeIps;
         QString interfaceToSkip;
         bool isAllowLanTraffic;
+        bool isCustomConfig;
         bool isStaticIpPortsEmpty;
     };
 
@@ -44,17 +45,19 @@ private:
     QSet<QString> windscribeIps_;
     QString interfaceToSkip_;
     bool isAllowLanTraffic_;
+    bool isCustomConfig_;
     apiinfo::StaticIpPortsVector staticIpPorts_;
 
     QTemporaryFile tempFile_;
 
     void firewallOffImpl();
     QStringList lanTrafficRules() const;
+    QStringList vpnTrafficRules(const QString &interfaceToSkip, bool bIsCustomConfig) const;
     void getFirewallStateFromPfctl(FirewallState &outState);
     bool checkInternalVsPfctlState();
-    QString generatePfConfFile(const QSet<QString> &ips, bool bAllowLanTraffic, const QString &interfaceToSkip);
+    QString generatePfConfFile(const QSet<QString> &ips, bool bAllowLanTraffic, bool bIsCustomConfig, const QString &interfaceToSkip);
     bool generateTableFile(QTemporaryFile &tempFile, const QSet<QString> &ips);
-    void setVpnAnchorRules(Anchor &anchor, const QString &interfaceToSkip);
+    void updateVpnAnchor();
 };
 
 #endif // FIREWALLCONTROLLER_MAC_H

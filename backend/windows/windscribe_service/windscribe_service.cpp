@@ -349,8 +349,8 @@ MessagePacketResult processMessagePacket(int cmdId, const std::string &packet, I
 		CMD_FIREWALL_ON cmdFirewallOn;
 		ia >> cmdFirewallOn;
 
-		firewallFilter.on(cmdFirewallOn.ip.c_str(), cmdFirewallOn.allowLanTraffic);
-		Logger::instance().out(L"AA_COMMAND_FIREWALL_ON, AllowLocalTraffic=%d", cmdFirewallOn.allowLanTraffic);
+		firewallFilter.on(cmdFirewallOn.ip.c_str(), cmdFirewallOn.allowLanTraffic, cmdFirewallOn.isCustomConfig);
+		Logger::instance().out(L"AA_COMMAND_FIREWALL_ON, AllowLocalTraffic=%d, IsCustomConfig=%d", cmdFirewallOn.allowLanTraffic, cmdFirewallOn.isCustomConfig);
 		mpr.success = true;
 		mpr.exitCode = 0;
 	}
@@ -366,8 +366,8 @@ MessagePacketResult processMessagePacket(int cmdId, const std::string &packet, I
 		CMD_FIREWALL_ON cmdFirewallOn;
 		ia >> cmdFirewallOn;
 
-		firewallFilter.on(cmdFirewallOn.ip.c_str(), cmdFirewallOn.allowLanTraffic);
-		Logger::instance().out(L"AA_COMMAND_FIREWALL_CHANGE, AllowLocalTraffic=%d", cmdFirewallOn.allowLanTraffic);
+		firewallFilter.on(cmdFirewallOn.ip.c_str(), cmdFirewallOn.allowLanTraffic, cmdFirewallOn.isCustomConfig);
+		Logger::instance().out(L"AA_COMMAND_FIREWALL_CHANGE, AllowLocalTraffic=%d, IsCustomConfig=%d", cmdFirewallOn.allowLanTraffic, cmdFirewallOn.isCustomConfig);
 		mpr.success = true;
 		mpr.exitCode = 0;
 	}

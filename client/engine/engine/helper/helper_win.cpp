@@ -1021,12 +1021,13 @@ int Helper_win::debugGetActiveUnblockingCmdCount()
     return mpr.exitCode;
 }
 
-bool Helper_win::firewallOn(const QString &ip, bool bAllowLanTraffic)
+bool Helper_win::firewallOn(const QString &ip, bool bAllowLanTraffic, bool bIsCustomConfig)
 {
     QMutexLocker locker(&mutex_);
 
     CMD_FIREWALL_ON cmdFirewallOn;
     cmdFirewallOn.allowLanTraffic = bAllowLanTraffic;
+    cmdFirewallOn.isCustomConfig = bIsCustomConfig;
     cmdFirewallOn.ip = ip.toStdWString();
 
     std::stringstream stream;
@@ -1037,12 +1038,13 @@ bool Helper_win::firewallOn(const QString &ip, bool bAllowLanTraffic)
     return mpr.success;
 }
 
-bool Helper_win::firewallChange(const QString &ip, bool bAllowLanTraffic)
+bool Helper_win::firewallChange(const QString &ip, bool bAllowLanTraffic, bool bIsCustomConfig)
 {
     QMutexLocker locker(&mutex_);
 
     CMD_FIREWALL_ON cmdFirewallOn;
     cmdFirewallOn.allowLanTraffic = bAllowLanTraffic;
+    cmdFirewallOn.isCustomConfig = bIsCustomConfig;
     cmdFirewallOn.ip = ip.toStdWString();
 
     std::stringstream stream;

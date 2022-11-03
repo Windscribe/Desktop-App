@@ -12,7 +12,7 @@ public:
     explicit FirewallController_win(QObject *parent, IHelper *helper);
     ~FirewallController_win() override;
 
-    bool firewallOn(const QSet<QString> &ips, bool bAllowLanTraffic) override;
+    bool firewallOn(const QSet<QString> &ips, bool bAllowLanTraffic, bool bIsCustomConfig) override;
     bool firewallOff() override;
     bool firewallActualState() override;
 

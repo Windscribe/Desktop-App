@@ -7,7 +7,7 @@ FirewallController::FirewallController(QObject *parent) : QObject(parent),
 {
 }
 
-bool FirewallController::firewallOn(const QSet<QString> &ips, bool bAllowLanTraffic)
+bool FirewallController::firewallOn(const QSet<QString> &ips, bool bAllowLanTraffic, bool bIsCustomConfig)
 {
     if (!bInitialized_)
     {
@@ -16,10 +16,11 @@ bool FirewallController::firewallOn(const QSet<QString> &ips, bool bAllowLanTraf
     }
     else
     {
-        bStateChanged_ = (latestEnabledState_ != true || latestIps_ != ips || latestAllowLanTraffic_ != bAllowLanTraffic);
+        bStateChanged_ = (latestEnabledState_ != true || latestIps_ != ips || latestAllowLanTraffic_ != bAllowLanTraffic || latestIsCustomConfig_ != bIsCustomConfig);
     }
     latestIps_ = ips;
     latestAllowLanTraffic_ = bAllowLanTraffic;
+    latestIsCustomConfig_ = bIsCustomConfig;
     latestEnabledState_ = true;
     return true;
 }
