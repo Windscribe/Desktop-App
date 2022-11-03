@@ -5,8 +5,6 @@
 #include <QStringList>
 #include <QTextStream>
 
-#include <system_error>
-
 #include "utils/logger.h"
 #include "utils/openssl_utils.h"
 
@@ -42,7 +40,7 @@ QString WireGuardConfig::stripIpv6Address(const QString &addressList)
     return stripIpv6Address(addressList.split(",", Qt::SkipEmptyParts));
 }
 
-void WireGuardConfig::generateConfigFile(const QString &fileName) const
+bool WireGuardConfig::generateConfigFile(const QString &fileName) const
 {
     // Design Note:
     // Tried to use QSettings(fileName, QSettings::IniFormat) to create this file.
@@ -51,12 +49,9 @@ void WireGuardConfig::generateConfigFile(const QString &fileName) const
     // The wireguard-windows service cannot handle these double-quoted entries.
 
     QFile theFile(fileName);
-    bool bResult = theFile.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate);
-
-    if (!bResult) {
-        throw std::system_error(0, std::generic_category(),
-            std::string("WireGuardConfig::generateConfigFile could not create file '") + fileName.toStdString() +
-            std::string("' (") + theFile.errorString().toStdString() + std::string(")"));
+    if (!theFile.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate)) {
+        qCDebug(LOG_CONNECTION) << "WireGuardConfig::generateConfigFile could not create file '" << fileName << "' (" << theFile.errorString() << ")";
+        return false;
     }
 
     QTextStream ts(&theFile);
@@ -87,6 +82,8 @@ void WireGuardConfig::generateConfigFile(const QString &fileName) const
 
     theFile.flush();
     theFile.close();
+
+    return true;
 }
 
 void WireGuardConfig::reset()

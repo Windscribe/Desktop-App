@@ -1,5 +1,4 @@
-#ifndef WIREGUARDCONFIG_H
-#define WIREGUARDCONFIG_H
+#pragma once
 
 #include <QString>
 
@@ -30,7 +29,7 @@ public:
     void setClientDnsAddress(const QString &dns) { client_.dnsAddress = dns; }
     bool haveServerGeneratedPeerParams() const;
 
-    void generateConfigFile(const QString &fileName) const;
+    bool generateConfigFile(const QString &fileName) const;
 
     bool generateKeyPair();
     bool haveKeyPair() const;
@@ -59,5 +58,3 @@ private:
     // for serialization
     static constexpr quint32 versionForSerialization_ = 1;  // should increment the version if the data format is changed
 };
-
-#endif // WIREGUARDCONFIG_H

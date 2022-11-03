@@ -1,5 +1,4 @@
-#ifndef LINUXUTILS_H
-#define LINUXUTILS_H
+#pragma once
 
 #include <QList>
 #include <QString>
@@ -42,5 +41,3 @@ namespace LinuxUtils
     // Retrieve the routing table via Netlink API.
     QList<RoutingTableEntry> getRoutingTable(bool includeZeroMetricEntries);
 }
-
-#endif // LINUXUTILS_H
