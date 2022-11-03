@@ -212,7 +212,6 @@ void WireGuardConnection::run()
     stopWireGuard.dismiss();
 
     wireguardLog_->getNewLogEntries();
-    wireguardLog_.reset();
 
     // Ensure the config file is deleted if something went awry during service startup.  If all goes well,
     // the wireguard service will delete the file when it exits.
@@ -221,7 +220,10 @@ void WireGuardConnection::run()
     }
 
     // Delay emiting signals until we have cleaned up all our resources.
-    if (!serviceStarted) {
+    if (wireguardLog_->adapterSetupFailed()) {
+        emit error(CONNECT_ERROR::WIREGUARD_ADAPTER_SETUP_FAILED);
+    }
+    else if (!serviceStarted) {
         emit error(CONNECT_ERROR::WIREGUARD_CONNECTION_ERROR);
     }
 
@@ -232,6 +234,8 @@ void WireGuardConnection::run()
     if (disableDNSLeakProtection) {
         helper_->disableDnsLeaksProtection();
     }
+
+    wireguardLog_.reset();
 }
 
 void WireGuardConnection::onCheckServiceRunning()
