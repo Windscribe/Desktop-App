@@ -183,6 +183,7 @@ void serialize(Archive & ar, CMD_FIREWALL_ON & g, const unsigned int version)
 {
     UNREFERENCED_PARAMETER(version);
     ar & g.allowLanTraffic;
+    ar & g.isCustomConfig;
     ar & g.ip;
 }
 

@@ -15,10 +15,10 @@ FirewallController_win::~FirewallController_win()
 
 }
 
-bool FirewallController_win::firewallOn(const QSet<QString> &ips, bool bAllowLanTraffic)
+bool FirewallController_win::firewallOn(const QSet<QString> &ips, bool bAllowLanTraffic, bool bIsCustomConfig)
 {
     QMutexLocker locker(&mutex_);
-    FirewallController::firewallOn(ips, bAllowLanTraffic);
+    FirewallController::firewallOn(ips, bAllowLanTraffic, bIsCustomConfig);
     if (isStateChanged())
     {
         QString ipStr;
@@ -33,7 +33,7 @@ bool FirewallController_win::firewallOn(const QSet<QString> &ips, bool bAllowLan
          }
 
         qCDebug(LOG_FIREWALL_CONTROLLER) << "firewall enabled with ips count:" << ips.count();
-        return helper_win_->firewallOn(ipStr, bAllowLanTraffic);
+        return helper_win_->firewallOn(ipStr, bAllowLanTraffic, bIsCustomConfig);
     }
     else
     {
