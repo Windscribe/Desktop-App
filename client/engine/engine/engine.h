@@ -154,10 +154,8 @@ signals:
     void firewallStateChanged(bool isEnabled);
     void testTunnelResult(bool bSuccess);
     void lostConnectionToHelper();
-    void proxySharingStateChanged(bool bEnabled, PROXY_SHARING_TYPE proxySharingType);
-    void wifiSharingStateChanged(bool bEnabled, const QString &ssid);
-    void vpnSharingConnectedWifiUsersCountChanged(bool bEnabled, int usersCount);
-    void vpnSharingConnectedProxyUsersCountChanged(bool bEnabled, int usersCount);
+    void proxySharingStateChanged(bool bEnabled, PROXY_SHARING_TYPE proxySharingType, const QString &address, int usersCount);
+    void wifiSharingStateChanged(bool bEnabled, const QString &ssid, int usersCount);
 
     void signOutFinished();
 

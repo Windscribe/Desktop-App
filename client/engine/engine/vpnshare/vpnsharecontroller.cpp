@@ -125,8 +125,10 @@ void VpnShareController::onWifiUsersCountChanged()
         {
             cntUsers += wifiSharing_->getConnectedUsersCount();
         }
+        Q_EMIT connectedWifiUsersChanged(isWifiSharingEnabled(), wifiSharing_->getSsid(), cntUsers);
+    #else
+        Q_EMIT connectedWifiUsersChanged(isWifiSharingEnabled(), "", cntUsers);
     #endif
-        Q_EMIT connectedWifiUsersChanged(isWifiSharingEnabled(), cntUsers);
 }
 
 void VpnShareController::onProxyUsersCountChanged()
@@ -137,12 +139,13 @@ void VpnShareController::onProxyUsersCountChanged()
     if (httpProxyServer_)
     {
         cntUsers += httpProxyServer_->getConnectedUsersCount();
+        Q_EMIT connectedProxyUsersChanged(isProxySharingEnabled(), PROXY_SHARING_HTTP, getProxySharingAddress(), cntUsers);
     }
     else if (socksProxyServer_)
     {
         cntUsers += socksProxyServer_->getConnectedUsersCount();
+        Q_EMIT connectedProxyUsersChanged(isProxySharingEnabled(), PROXY_SHARING_SOCKS, getProxySharingAddress(), cntUsers);
     }
-    Q_EMIT connectedProxyUsersChanged(isProxySharingEnabled(), cntUsers);
 }
 
 void VpnShareController::startWifiSharing(const QString &ssid, const QString &password)

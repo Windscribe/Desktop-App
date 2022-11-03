@@ -92,8 +92,6 @@ bool EngineServer::handleCommand(IPC::Command *command)
             connect(engine_, &Engine::lostConnectionToHelper, this, &EngineServer::onEngineLostConnectionToHelper);
             connect(engine_, &Engine::proxySharingStateChanged, this, &EngineServer::onEngineProxySharingStateChanged);
             connect(engine_, &Engine::wifiSharingStateChanged, this, &EngineServer::onEngineWifiSharingStateChanged);
-            connect(engine_, &Engine::vpnSharingConnectedWifiUsersCountChanged, this, &EngineServer::onEngineConnectedWifiUsersCountChanged);
-            connect(engine_, &Engine::vpnSharingConnectedProxyUsersCountChanged, this, &EngineServer::onEngineConnectedProxyUsersCountChanged);
             connect(engine_, &Engine::signOutFinished, this, &EngineServer::onEngineSignOutFinished);
             connect(engine_, &Engine::gotoCustomOvpnConfigModeFinished, this, &EngineServer::onEngineGotoCustomOvpnConfigModeFinished);
             connect(engine_, &Engine::detectionCpuUsageAfterConnected, this, &EngineServer::onEngineDetectionCpuUsageAfterConnected);
@@ -679,43 +677,29 @@ void EngineServer::onEngineLostConnectionToHelper()
     sendCmdToAllAuthorizedAndGetStateClients(&cmd, true);
 }
 
-void EngineServer::onEngineProxySharingStateChanged(bool bEnabled, PROXY_SHARING_TYPE proxySharingType)
+void EngineServer::onEngineProxySharingStateChanged(bool bEnabled, PROXY_SHARING_TYPE proxySharingType, const QString &address, int usersCount)
 {
     IPC::ServerCommands::ProxySharingInfoChanged cmd;
     cmd.proxySharingInfo_.isEnabled = bEnabled;
     if (bEnabled)
     {
         cmd.proxySharingInfo_.mode = proxySharingType;
-        cmd.proxySharingInfo_.address = engine_->getProxySharingAddress();
+        cmd.proxySharingInfo_.address = address;
+        cmd.proxySharingInfo_.usersCount = usersCount;
 
     }
     sendCmdToAllAuthorizedAndGetStateClients(&cmd, true);
 }
 
-void EngineServer::onEngineWifiSharingStateChanged(bool bEnabled, const QString &ssid)
+void EngineServer::onEngineWifiSharingStateChanged(bool bEnabled, const QString &ssid, int usersCount)
 {
     IPC::ServerCommands::WifiSharingInfoChanged cmd;
     cmd.wifiSharingInfo_.isEnabled = bEnabled;
     if (bEnabled)
     {
         cmd.wifiSharingInfo_.ssid = ssid;
+        cmd.wifiSharingInfo_.usersCount = usersCount;
     }
-    sendCmdToAllAuthorizedAndGetStateClients(&cmd, true);
-}
-
-void EngineServer::onEngineConnectedWifiUsersCountChanged(bool bEnabled, int usersCount)
-{
-    IPC::ServerCommands::WifiSharingInfoChanged cmd;
-    cmd.wifiSharingInfo_.isEnabled = bEnabled;
-    cmd.wifiSharingInfo_.usersCount = usersCount;
-    sendCmdToAllAuthorizedAndGetStateClients(&cmd, true);
-}
-
-void EngineServer::onEngineConnectedProxyUsersCountChanged(bool bEnabled, int usersCount)
-{
-    IPC::ServerCommands::ProxySharingInfoChanged cmd;
-    cmd.proxySharingInfo_.isEnabled = bEnabled;
-    cmd.proxySharingInfo_.usersCount = usersCount;
     sendCmdToAllAuthorizedAndGetStateClients(&cmd, true);
 }
 

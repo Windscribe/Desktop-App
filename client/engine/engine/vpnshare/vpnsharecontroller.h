@@ -38,8 +38,8 @@ public:
     QString getProxySharingAddress();
 
 signals:
-    void connectedWifiUsersChanged(bool bEnabled, int usersCount);
-    void connectedProxyUsersChanged(bool bEnabled, int usersCount);
+    void connectedWifiUsersChanged(bool bEnabled, const QString &ssid, int usersCount);
+    void connectedProxyUsersChanged(bool bEnabled, PROXY_SHARING_TYPE type, const QString &address, int usersCount);
 
 private slots:
     void onWifiUsersCountChanged();
