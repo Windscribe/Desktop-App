@@ -606,8 +606,8 @@ void Engine::initPart2()
     connect(locationsModel_, SIGNAL(whitelistCustomConfigsIpsChanged(QStringList)), SLOT(onLocationsModelWhitelistCustomConfigIpsChanged(QStringList)));
 
     vpnShareController_ = new VpnShareController(this, helper_);
-    connect(vpnShareController_, &VpnShareController::connectedWifiUsersChanged, this, &Engine::vpnSharingConnectedWifiUsersCountChanged);
-    connect(vpnShareController_, &VpnShareController::connectedProxyUsersChanged, this, &Engine::vpnSharingConnectedProxyUsersCountChanged);
+    connect(vpnShareController_, &VpnShareController::connectedWifiUsersChanged, this, &Engine::wifiSharingStateChanged);
+    connect(vpnShareController_, &VpnShareController::connectedProxyUsersChanged, this, &Engine::proxySharingStateChanged);
 
     keepAliveManager_ = new KeepAliveManager(this, connectStateController_);
     keepAliveManager_->setEnabled(engineSettings_.isKeepAliveEnabled());
@@ -2075,20 +2075,20 @@ void Engine::checkForceDisconnectNode(const QStringList & /*forceDisconnectNodes
 void Engine::startProxySharingImpl(PROXY_SHARING_TYPE proxySharingType)
 {
     vpnShareController_->startProxySharing(proxySharingType);
-    Q_EMIT proxySharingStateChanged(true, proxySharingType);
+    Q_EMIT proxySharingStateChanged(true, proxySharingType, getProxySharingAddress(), 0);
 }
 
 void Engine::stopProxySharingImpl()
 {
     vpnShareController_->stopProxySharing();
-    Q_EMIT proxySharingStateChanged(false, PROXY_SHARING_HTTP);
+    Q_EMIT proxySharingStateChanged(false, PROXY_SHARING_HTTP, "", 0);
 }
 
 void Engine::startWifiSharingImpl(const QString &ssid, const QString &password)
 {
     vpnShareController_->stopWifiSharing(); //  need to stop it first
     vpnShareController_->startWifiSharing(ssid, password);
-    Q_EMIT wifiSharingStateChanged(true, ssid);
+    Q_EMIT wifiSharingStateChanged(true, ssid, 0);
 }
 
 void Engine::stopWifiSharingImpl()
@@ -2097,7 +2097,7 @@ void Engine::stopWifiSharingImpl()
     vpnShareController_->stopWifiSharing();
     if (bInitialState == true)  // Q_EMIT signal if state changed
     {
-        Q_EMIT wifiSharingStateChanged(false, "");
+        Q_EMIT wifiSharingStateChanged(false, "", 0);
     }
 }
 
