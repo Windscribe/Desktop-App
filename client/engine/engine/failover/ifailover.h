@@ -17,8 +17,6 @@ public:
     explicit IFailover(QObject *parent) : QObject(parent) {}
     virtual ~IFailover() {}
 
-    // can return an empty string if the Failover in the FailoverRetCode::kFailed state
-    virtual QString currentHostname() const = 0;
     virtual void reset() = 0;
     virtual void getNextHostname(bool bIgnoreSslErrors) = 0;
     virtual void setApiResolutionSettings(const types::ApiResolutionSettings &apiResolutionSettings) = 0;

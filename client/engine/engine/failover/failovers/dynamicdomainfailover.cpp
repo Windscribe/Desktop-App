@@ -29,7 +29,7 @@ void DynamicDomainFailover::getHostnames(bool bIgnoreSslErrors)
         if (!reply->isSuccess()) {
             // if connect state changed the retrying the request
             if (connectStateWatcher_->isVpnConnectStateChanged()) {
-                this->getHostnames(bIgnoreSslErrors);
+                emit finished(FailoverRetCode::kConnectStateChanged, QStringList());
             } else {
                 if (reply->error() == NetworkReply::NetworkError::SslError && !bIgnoreSslErrors)
                     emit finished(FailoverRetCode::kSslError, QStringList());

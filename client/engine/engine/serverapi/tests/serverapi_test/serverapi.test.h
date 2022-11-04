@@ -69,13 +69,6 @@ public:
         failovers_(failovers), curFailover_(0)
     {}
 
-    QString currentHostname() const override
-    {
-        if (curFailover_ < failovers_.size())
-            return failovers_[curFailover_].first;
-        else
-            return "";
-    }
     void reset() override
     {
         curFailover_ = 0;

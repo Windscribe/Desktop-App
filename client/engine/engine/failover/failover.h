@@ -16,11 +16,8 @@ class Failover : public IFailover
 public:
     explicit Failover(QObject *parent, NetworkAccessManager *networkAccessManager, IConnectStateController *connectStateController);
 
-    // can return an empty string if the Failover in the FailoverRetCode::kFailed state
-    QString currentHostname() const override;
     void reset() override;  // keep in mind that this function also emits the signal onFailoverFinished()
     void getNextHostname(bool bIgnoreSslErrors) override;   // emits the signal onFailoverFinished()
-
     void setApiResolutionSettings(const types::ApiResolutionSettings &apiResolutionSettings) override;
 
 private slots:
@@ -33,6 +30,7 @@ private:
     int curFaiolverHostnameInd_ = -1;
     bool isFailoverInProgress_ = false;
     bool bIgnoreSslErrors_ = false;
+    bool isAlreadyEmittedForManualDns_ = false;
     types::ApiResolutionSettings apiResolutionSettings_;
 
     QStringList randomizeList(const QStringList &list);
