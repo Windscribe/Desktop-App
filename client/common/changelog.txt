@@ -1,3 +1,13 @@
+2.5.10 (04/11/2022)
+All:
+   * Fixed TLS/SSL interception causes logout and crash. #502
+   * Fixed custom configs do not have DNS connectivity if internal DNS (RFC1918) is used. #505
+   * Fixed Proxy Gateway IP display goes blank when the proxy is connected to. #506
+   * Fixed a crash caused by a bug in the failover logic. #507
+Windows:
+   * Detect failure to set up the WireGuard adapter and abort the connection attempt.  Notify the user of the failure if connection mode is manual. #489
+
+
 2.5.9 (01/11/2022)
 All:
    * Fixed bottom info widget hidden when something connects to proxy/hotspot #455
