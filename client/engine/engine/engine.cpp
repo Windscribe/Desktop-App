@@ -2152,8 +2152,6 @@ void Engine::onApiResourcesManagerLoginFailed(LOGIN_RET retCode, const QString &
     } else  {
         WS_ASSERT(false);
     }
-
-    apiResourcesManager_.reset();
 }
 
 void Engine::onApiResourcesManagerSessionDeleted()
@@ -2424,7 +2422,6 @@ void Engine::doCheckUpdate()
 
 void Engine::loginImpl(bool isUseAuthHash, const QString &username, const QString &password, const QString &code2fa)
 {
-    WS_ASSERT(apiResourcesManager_ == nullptr);
     apiResourcesManager_.reset(new api_resources::ApiResourcesManager(this, serverAPI_, connectStateController_, networkDetectionManager_));
     connect(apiResourcesManager_.get(), &api_resources::ApiResourcesManager::loginFailed, this, &Engine::onApiResourcesManagerLoginFailed);
     connect(apiResourcesManager_.get(), &api_resources::ApiResourcesManager::sessionDeleted, this, &Engine::onApiResourcesManagerSessionDeleted);
