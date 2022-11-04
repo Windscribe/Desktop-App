@@ -76,9 +76,13 @@ public:
     void getNextHostname(bool bIgnoreSslErrors) override
     {
         QTimer::singleShot(0, this, [this] () {
-            emit nextHostnameAnswer(failovers_[curFailover_].second, failovers_[curFailover_].first);
+            if (curFailover_ < failovers_.size()) {
+                emit nextHostnameAnswer(failovers_[curFailover_].second, failovers_[curFailover_].first);
+                curFailover_++;
+            } else {
+                emit nextHostnameAnswer(failover::FailoverRetCode::kFailed, QString());
+            }
         });
-        curFailover_++;
     }
     void setApiResolutionSettings(const types::ApiResolutionSettings &apiResolutionSettings) override
     {
