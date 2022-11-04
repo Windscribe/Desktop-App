@@ -89,12 +89,14 @@ private:
     // Current failover state. If there is no failover currently, then all are zero
     QPointer<BaseRequest> currentFailoverRequest_;
     ConnectStateWatcher *currentConnectStateWatcher_;
+    QString currentFailoverHostname_;
 
     failover::IFailover *failover_;
     bool isFailoverFailedLogAlreadyDone_ = false;   // log "failover failed: API not ready" only once to avoid spam
 
     void handleNetworkRequestFinished();
-    void executeRequest(BaseRequest *request, bool bSkipFailoverConditions = false);
+    void executeRequest(BaseRequest *request);
+
     void executeWaitingInQueueRequests();
     void finishWaitingInQueueRequests(SERVER_API_RET_CODE retCode, const QString &errString);
 
@@ -103,6 +105,8 @@ private:
     void setCurrentFailoverRequest(BaseRequest *request);
     void clearCurrentFailoverRequest();
     bool isDisconnectedState() const;
+
+    QString hostnameForConnectedState() const;
 };
 
 } // namespace server_api

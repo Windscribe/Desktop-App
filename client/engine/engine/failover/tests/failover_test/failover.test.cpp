@@ -65,6 +65,7 @@ public:
 
 private slots:
     void basicTest();
+    void manualDnsResolutionTest();
 };
 
 
@@ -83,33 +84,59 @@ TestFailover::~TestFailover()
 
 void TestFailover::basicTest()
 {
-    ConnectStateController_moc *connectStateController = new ConnectStateController_moc(this);
-    NetworkAccessManager *accessManager = new  NetworkAccessManager(this);
-    failover::Failover *failover = new failover::Failover(this, accessManager, connectStateController);
+    QScopedPointer<ConnectStateController_moc> connectStateController(new ConnectStateController_moc(this));
+    QScopedPointer<NetworkAccessManager> accessManager(new  NetworkAccessManager(this));
+    QScopedPointer<failover::Failover> failover(new failover::Failover(this, accessManager.get(), connectStateController.get()));
 
-    connect(failover, &failover::Failover::nextHostnameAnswer, [=](failover::FailoverRetCode retCode, const QString &hostname) {
+    connect(failover.get(), &failover::Failover::nextHostnameAnswer, [=](failover::FailoverRetCode retCode, const QString &hostname) {
         if (retCode == failover::FailoverRetCode::kSuccess)
             qDebug() << "next hostname:" <<  hostname;
     });
 
-    connect(failover, &failover::Failover::tryingBackupEndpoint, [=](int num, int cnt) {
+    connect(failover.get(), &failover::Failover::tryingBackupEndpoint, [=](int num, int cnt) {
         qDebug() << QString("Trying Backup Endpoints %1/%2").arg(num).arg(cnt);
     });
 
     while (true) {
-        qDebug() << "current hostname:" << failover->currentHostname();
         failover->getNextHostname(false);
-        connectStateController->changeState();
-        QSignalSpy spy(failover, SIGNAL(nextHostnameAnswer(failover::FailoverRetCode, QString)));
+        //connectStateController->changeState();
+        QSignalSpy spy(failover.get(), SIGNAL(nextHostnameAnswer(failover::FailoverRetCode, QString)));
         spy.wait(60000);
         QCOMPARE(spy.count(), 1);
         QList<QVariant> arguments = spy.takeFirst();
         if (arguments.at(0).value<failover::FailoverRetCode>() == failover::FailoverRetCode::kFailed)
             break;
-    };   
-    qDebug() << "current hostname:" << failover->currentHostname();
+    };
 }
 
+void TestFailover::manualDnsResolutionTest()
+{
+    QScopedPointer<ConnectStateController_moc> connectStateController(new ConnectStateController_moc(this));
+    QScopedPointer<NetworkAccessManager> accessManager(new  NetworkAccessManager(this));
+    QScopedPointer<failover::Failover> failover(new failover::Failover(this, accessManager.get(), connectStateController.get()));
+    types::ApiResolutionSettings apiResolutionSettings;
+    apiResolutionSettings.set(false, "1.1.1.1");
+    failover->setApiResolutionSettings(apiResolutionSettings);
+
+    connect(failover.get(), &failover::Failover::nextHostnameAnswer, [=](failover::FailoverRetCode retCode, const QString &hostname) {
+        if (retCode == failover::FailoverRetCode::kSuccess)
+            qDebug() << "next hostname:" <<  hostname;
+    });
+
+    connect(failover.get(), &failover::Failover::tryingBackupEndpoint, [=](int num, int cnt) {
+        qDebug() << QString("Trying Backup Endpoints %1/%2").arg(num).arg(cnt);
+    });
+
+    while (true) {
+        failover->getNextHostname(false);
+        QSignalSpy spy(failover.get(), SIGNAL(nextHostnameAnswer(failover::FailoverRetCode, QString)));
+        spy.wait(60000);
+        QCOMPARE(spy.count(), 1);
+        QList<QVariant> arguments = spy.takeFirst();
+        if (arguments.at(0).value<failover::FailoverRetCode>() == failover::FailoverRetCode::kFailed)
+            break;
+    };
+}
 
 QTEST_MAIN(TestFailover)
 #include "failover.test.moc"

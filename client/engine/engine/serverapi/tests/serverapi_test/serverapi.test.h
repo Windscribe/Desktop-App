@@ -69,13 +69,6 @@ public:
         failovers_(failovers), curFailover_(0)
     {}
 
-    QString currentHostname() const override
-    {
-        if (curFailover_ < failovers_.size())
-            return failovers_[curFailover_].first;
-        else
-            return "";
-    }
     void reset() override
     {
         curFailover_ = 0;
@@ -83,9 +76,13 @@ public:
     void getNextHostname(bool bIgnoreSslErrors) override
     {
         QTimer::singleShot(0, this, [this] () {
-            emit nextHostnameAnswer(failovers_[curFailover_].second, failovers_[curFailover_].first);
+            if (curFailover_ < failovers_.size()) {
+                emit nextHostnameAnswer(failovers_[curFailover_].second, failovers_[curFailover_].first);
+                curFailover_++;
+            } else {
+                emit nextHostnameAnswer(failover::FailoverRetCode::kFailed, QString());
+            }
         });
-        curFailover_++;
     }
     void setApiResolutionSettings(const types::ApiResolutionSettings &apiResolutionSettings) override
     {

@@ -46,7 +46,7 @@ void AccessIpsFailover::onNetworkRequestFinished()
     if (!reply->isSuccess()) {
         // if connect state changed the retrying the request
         if (connectStateWatcher_->isVpnConnectStateChanged()) {
-            this->getHostnames(isIgnoreSslErrors);
+            emit finished(FailoverRetCode::kConnectStateChanged, QStringList());
         } else {
             if (reply->error() ==  NetworkReply::NetworkError::SslError && !isIgnoreSslErrors)
                 emit finished(FailoverRetCode::kSslError, QStringList());

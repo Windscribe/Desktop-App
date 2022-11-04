@@ -64,7 +64,7 @@ void ServerApi_test::testRequests()
         spies << QSharedPointer<QSignalSpy>(new QSignalSpy(request, SIGNAL(finished())));
     }
     {
-        server_api::BaseRequest *request = serverAPI_->serverCredentials(authHash_, PROTOCOL::OPENVPN_TCP);
+        server_api::BaseRequest *request = serverAPI_->serverCredentials(authHash_, types::Protocol::OPENVPN_TCP);
         connect(request, &server_api::BaseRequest::finished, [request]() {
             request->deleteLater();
         });
@@ -252,7 +252,7 @@ void ServerApi_test::testFailoverFailed()
         spies << QSharedPointer<QSignalSpy>(new QSignalSpy(request, SIGNAL(finished())));
     }
     {
-        server_api::BaseRequest *request = serverAPI_->serverCredentials(authHash_, PROTOCOL::OPENVPN_TCP);
+        server_api::BaseRequest *request = serverAPI_->serverCredentials(authHash_, types::Protocol::OPENVPN_TCP);
         connect(request, &server_api::BaseRequest::finished, [request]() {
             request->deleteLater();
         });
@@ -305,7 +305,7 @@ void ServerApi_test::testFailoverSslError()
         spies << QSharedPointer<QSignalSpy>(new QSignalSpy(request, SIGNAL(finished())));
     }
     {
-        server_api::BaseRequest *request = serverAPI_->serverCredentials(authHash_, PROTOCOL::OPENVPN_TCP);
+        server_api::BaseRequest *request = serverAPI_->serverCredentials(authHash_, types::Protocol::OPENVPN_TCP);
         connect(request, &server_api::BaseRequest::finished, [request]() {
             request->deleteLater();
         });

@@ -13,6 +13,9 @@ QDebug operator<<(QDebug dbg, const FailoverRetCode &f)
     case FailoverRetCode::kSslError:
         dbg << "kSslError";
         break;
+    case FailoverRetCode::kConnectStateChanged:
+        dbg << "kConnectStateChanged";
+        break;
     case FailoverRetCode::kFailed:
         dbg << "kFailed";
         break;

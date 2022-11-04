@@ -25,9 +25,7 @@ Failover::Failover(QObject *parent, NetworkAccessManager *networkAccessManager, 
 
     // Hardcoded Default Domain Endpoint
     BaseFailover *failover = new HardcodedDomainFailover(this, HardcodedSettings::instance().serverDomains().at(0));
-    // for the first failover, we make the DirectConnection for others the QueuedConnection
-    // since the first domain is immediately set in the reset() function
-    connect(failover, &BaseFailover::finished, this, &Failover::onFailoverFinished, Qt::DirectConnection);
+    connect(failover, &BaseFailover::finished, this, &Failover::onFailoverFinished, Qt::QueuedConnection);
     failovers_ << failover;
 
     // Don't use other failovers for the staging functionality, as the hashed domains will hit the production environment.
@@ -63,30 +61,18 @@ Failover::Failover(QObject *parent, NetworkAccessManager *networkAccessManager, 
             failovers_ << failover;
         }
     }
-
-    reset();
-}
-
-QString Failover::currentHostname() const
-{
-    if (apiResolutionSettings_.getIsAutomatic() || apiResolutionSettings_.getManualAddress().isEmpty()) {
-        if (curFailoverInd_ < failovers_.size() && !curFailoverHostnames_.isEmpty() && curFaiolverHostnameInd_ < curFailoverHostnames_.size()) {
-            return curFailoverHostnames_[curFaiolverHostnameInd_];
-        }
-    } else {
-        return apiResolutionSettings_.getManualAddress();
-    }
-    return QString();
 }
 
 void Failover::reset()
 {
-    qCDebug(LOG_FAILOVER) << "Failover reset";
+    // important, do not call reset if the failover request is in progress
+    WS_ASSERT(!isFailoverInProgress_);
 
+    qCDebug(LOG_FAILOVER) << "Failover reset";
     // Initialize the state to the first failover
     curFailoverInd_ = -1;
     curFailoverHostnames_.clear();
-    Failover::getNextHostname(false);
+    isAlreadyEmittedForManualDns_ = false;
 }
 
 void Failover::getNextHostname(bool bIgnoreSslErrors)
@@ -119,8 +105,14 @@ void Failover::getNextHostname(bool bIgnoreSslErrors)
             emit tryingBackupEndpoint(curFailoverInd_, failovers_.count() - 1);
     } else {
         QTimer::singleShot(0, [this]() {
-            qCDebug(LOG_FAILOVER) << "Failover" << FailoverRetCode::kSuccess <<  "manualAddress" << apiResolutionSettings_.getManualAddress();
-            emit nextHostnameAnswer(FailoverRetCode::kSuccess, apiResolutionSettings_.getManualAddress());
+            if (!isAlreadyEmittedForManualDns_) {
+                qCDebug(LOG_FAILOVER) << "Failover" << FailoverRetCode::kSuccess <<  "manualAddress" << apiResolutionSettings_.getManualAddress();
+                isAlreadyEmittedForManualDns_ = true;
+                emit nextHostnameAnswer(FailoverRetCode::kSuccess, apiResolutionSettings_.getManualAddress());
+            } else {
+                qCDebug(LOG_FAILOVER) << "Failover" << FailoverRetCode::kFailed << "for manualAddress";
+                emit nextHostnameAnswer(FailoverRetCode::kFailed, QString());
+            }
         });
     }
 }
@@ -144,8 +136,18 @@ void Failover::onFailoverFinished(FailoverRetCode retCode, const QStringList &ho
         emit nextHostnameAnswer(FailoverRetCode::kSuccess, curFailoverHostnames_[curFaiolverHostnameInd_]);
     }
     else if (retCode == FailoverRetCode::kSslError) {
+        // do not switch to the next filer when the SSL error occurs
+        if (curFailoverInd_ > 0) curFailoverInd_--;
+
         qCDebug(LOG_FAILOVER) << "Failover" <<  failovers_[curFailoverInd_]->name() << FailoverRetCode::kSslError;
         emit nextHostnameAnswer(FailoverRetCode::kSslError, QString());
+    }
+    else if (retCode == FailoverRetCode::kConnectStateChanged) {
+        // do not switch to the next filer when the connect state changes
+        if (curFailoverInd_ > 0) curFailoverInd_--;
+
+        qCDebug(LOG_FAILOVER) << "Failover" <<  failovers_[curFailoverInd_]->name() << FailoverRetCode::kConnectStateChanged;
+        emit nextHostnameAnswer(FailoverRetCode::kConnectStateChanged, QString());
     }
     else if (retCode == FailoverRetCode::kFailed) {
         getNextHostname(bIgnoreSslErrors_);
