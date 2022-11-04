@@ -53,8 +53,9 @@ private:
     bool isAutomaticConnectionMode_;
 
 private:
-    void onWireguardServiceStartupFailure() const;
+    void onTunnelConnected();
     void onWireguardHandshakeFailure();
+    bool startService();
 };
 
 #endif // WIREGUARDCONNECTION_WIN_H

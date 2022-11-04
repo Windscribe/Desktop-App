@@ -1,24 +1,25 @@
 #include "linuxutils.h"
-#include "utils.h"
-#include <sys/utsname.h>
-#include <net/if.h>
-#include <unistd.h>
-#include <linux/rtnetlink.h>
-#include <arpa/inet.h>
-#include <memory>
 
 #include <QCoreApplication>
 #include <QFile>
 #include <QHostAddress>
 #include <QRegExp>
+#include <QScopeGuard>
+
+#include <arpa/inet.h>
+#include <linux/rtnetlink.h>
+#include <memory>
+#include <net/if.h>
+#include <sys/utsname.h>
+#include <unistd.h>
 
 #include "logger.h"
-#include "wsscopeguard.h"
+#include "utils.h"
 
 namespace LinuxUtils
 {
 
-const int MAX_NETLINK_SIZE = 8192;
+constexpr int kMaxNetlinkSize = 8192;
 
 QString getOsVersionString()
 {
@@ -161,9 +162,9 @@ static QString getNetlinkIP(int family, const char* buffer)
     return QString::fromLatin1(dst).trimmed();
 }
 
-static void readNetlink(int socket_fd, int seq, char* output, size_t& size)
+static bool readNetlink(int socket_fd, int seq, char* output, size_t& size)
 {
-    const int MAX_NETLINK_ATTEMPTS = 8;
+    constexpr int kMaxNetlinkAttempts = 8;
     struct nlmsghdr* nl_hdr = nullptr;
 
     size_t message_size = 0;
@@ -174,14 +175,16 @@ static void readNetlink(int socket_fd, int seq, char* output, size_t& size)
         ssize_t bytes = 0;
         while (bytes == 0)
         {
-            bytes = recv(socket_fd, output, MAX_NETLINK_SIZE - message_size, 0);
+            bytes = recv(socket_fd, output, kMaxNetlinkSize - message_size, 0);
             if (bytes < 0) {
-                throw std::system_error(errno, std::generic_category(), "could not read from Netlink socket");
+                qCDebug(LOG_BASIC) << "readNetlink could not read from Netlink socket:" << errno;
+                return false;
             }
 
             total_bytes += bytes;
-            if (latency >= MAX_NETLINK_ATTEMPTS) {
-                throw std::system_error(errno, std::generic_category(), "Netlink socket timeout");
+            if (latency >= kMaxNetlinkAttempts) {
+                qCDebug(LOG_BASIC) << "readNetlink Netlink socket timeout";
+                return false;
             }
 
             if (bytes == 0)
@@ -199,7 +202,8 @@ static void readNetlink(int socket_fd, int seq, char* output, size_t& size)
         // Assure valid header response, and not an error type.
         nl_hdr = (struct nlmsghdr*)output;
         if (NLMSG_OK(nl_hdr, bytes) == 0 || nl_hdr->nlmsg_type == NLMSG_ERROR) {
-            throw std::system_error(errno, std::generic_category(), "read invalid Netlink message");
+            qCDebug(LOG_BASIC) << "readNetlink read invalid Netlink message:" << errno;
+            return false;
         }
 
         if (nl_hdr->nlmsg_type == NLMSG_DONE) {
@@ -215,6 +219,8 @@ static void readNetlink(int socket_fd, int seq, char* output, size_t& size)
              static_cast<pid_t>(nl_hdr->nlmsg_pid) != getpid());
 
     size = message_size;
+
+    return true;
 }
 
 static void getNetlinkRoutes(const struct nlmsghdr* netlink_msg, QList<RoutingTableEntry>& entries,
@@ -320,44 +326,37 @@ QList<RoutingTableEntry> getRoutingTable(bool includeZeroMetricEntries)
 {
     QList<RoutingTableEntry> entries;
 
-    try
-    {
-        int socket_fd = socket(PF_NETLINK, SOCK_DGRAM, NETLINK_ROUTE);
-        if (socket_fd < 0) {
-            throw std::system_error(errno, std::generic_category(), "failed to create Netlink socket endpoint");
-        }
+    int socket_fd = socket(PF_NETLINK, SOCK_DGRAM, NETLINK_ROUTE);
+    if (socket_fd < 0) {
+        qCDebug(LOG_BASIC) << "LinuxUtils::getRoutingTable() failed to create Netlink socket endpoint:" << errno;
+        return entries;
+    }
 
-        auto exitGuard = wsl::wsScopeGuard([&]
-        {
-            close(socket_fd);
-        });
+    auto exitGuard = qScopeGuard([&] {
+        close(socket_fd);
+    });
 
-        std::unique_ptr<unsigned char[]> netlink_buffer(new unsigned char[MAX_NETLINK_SIZE]);
+    std::unique_ptr<unsigned char[]> netlink_buffer(new unsigned char[kMaxNetlinkSize]);
 
-        memset(netlink_buffer.get(), 0, MAX_NETLINK_SIZE);
-        auto netlink_msg = (struct nlmsghdr*)netlink_buffer.get();
-        netlink_msg->nlmsg_len   = NLMSG_LENGTH(sizeof(struct rtmsg));
-        netlink_msg->nlmsg_type  = RTM_GETROUTE; // routes from kernel routing table
-        netlink_msg->nlmsg_flags = NLM_F_DUMP | NLM_F_REQUEST | NLM_F_ATOMIC;
-        netlink_msg->nlmsg_seq   = 0;
-        netlink_msg->nlmsg_pid   = getpid();
+    memset(netlink_buffer.get(), 0, kMaxNetlinkSize);
+    auto netlink_msg = (struct nlmsghdr*)netlink_buffer.get();
+    netlink_msg->nlmsg_len   = NLMSG_LENGTH(sizeof(struct rtmsg));
+    netlink_msg->nlmsg_type  = RTM_GETROUTE; // routes from kernel routing table
+    netlink_msg->nlmsg_flags = NLM_F_DUMP | NLM_F_REQUEST | NLM_F_ATOMIC;
+    netlink_msg->nlmsg_seq   = 0;
+    netlink_msg->nlmsg_pid   = getpid();
 
-        if (send(socket_fd, netlink_msg, netlink_msg->nlmsg_len, 0) < 0) {
-            throw std::system_error(errno, std::generic_category(), "send failed");
-        }
+    if (send(socket_fd, netlink_msg, netlink_msg->nlmsg_len, 0) < 0) {
+        qCDebug(LOG_BASIC) << "LinuxUtils::getRoutingTable() send failed:" << errno;
+        return entries;
+    }
 
-        size_t size = 0;
-        readNetlink(socket_fd, 1, (char*)netlink_msg, size);
-
-        while (NLMSG_OK(netlink_msg, size))
-        {
+    size_t size = 0;
+    if (readNetlink(socket_fd, 1, (char*)netlink_msg, size)) {
+        while (NLMSG_OK(netlink_msg, size)) {
             getNetlinkRoutes(netlink_msg, entries, includeZeroMetricEntries);
             netlink_msg = NLMSG_NEXT(netlink_msg, size);
         }
-    }
-    catch (std::system_error& ex)
-    {
-        qCDebug(LOG_BASIC) << "LinuxUtils::getRoutingTable()" << ex.what();
     }
 
     return entries;

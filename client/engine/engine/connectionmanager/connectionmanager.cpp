@@ -523,6 +523,7 @@ void ConnectionManager::onConnectionError(CONNECT_ERROR err)
             || err == CONNECT_ERROR::NO_INSTALLED_TUN_TAP
             || err == CONNECT_ERROR::ALL_TAP_IN_USE
             || (!connSettingsPolicy_->isAutomaticMode() && err == CONNECT_ERROR::WIREGUARD_CONNECTION_ERROR)
+            || (!connSettingsPolicy_->isAutomaticMode() && err == CONNECT_ERROR::WIREGUARD_ADAPTER_SETUP_FAILED)
             || err == CONNECT_ERROR::WINTUN_DRIVER_REINSTALLATION_ERROR
             || err == CONNECT_ERROR::TAP_DRIVER_REINSTALLATION_ERROR
             || err == CONNECT_ERROR::WINTUN_FATAL_ERROR)
@@ -559,6 +560,7 @@ void ConnectionManager::onConnectionError(CONNECT_ERROR err)
              || err == CONNECT_ERROR::INITIALIZATION_SEQUENCE_COMPLETED_WITH_ERRORS
              || err == CONNECT_ERROR::IKEV_FAILED_TO_CONNECT
              || err == CONNECT_ERROR::WIREGUARD_CONNECTION_ERROR
+             || err == CONNECT_ERROR::WIREGUARD_ADAPTER_SETUP_FAILED
              || (connSettingsPolicy_->isAutomaticMode() && (err == CONNECT_ERROR::IKEV_NOT_FOUND_WIN
                                                             || err == CONNECT_ERROR::IKEV_FAILED_SET_ENTRY_WIN
                                                             || err == CONNECT_ERROR::IKEV_FAILED_MODIFY_HOSTS_WIN))

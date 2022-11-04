@@ -20,6 +20,7 @@ public:
 
     void getNewLogEntries();
 
+    bool adapterSetupFailed() const { return adapterSetupFailed_; }
     bool handshakeFailed() const { return handshakeFailed_; }
     bool isTunnelRunning() const { return tunnelRunning_; }
 
@@ -30,6 +31,7 @@ private:
     quint64 startTime_ = 0; // nanoseconds
     bool tunnelRunning_ = false;
     bool handshakeFailed_ = false;
+    bool adapterSetupFailed_ = false;
 
 private:
     bool mapWireguardRinglogFile();

@@ -3389,7 +3389,7 @@ void MainWindow::handleDisconnectWithError(const types::ConnectState &connectSta
             selectedLocation_->set(bestLocation);
             PersistentState::instance().setLastLocation(selectedLocation_->locationdId());
             mainWindowController_->getConnectWindow()->updateLocationInfo(selectedLocation_->firstName(), selectedLocation_->secondName(),
-                                                                                  selectedLocation_->countryCode(), selectedLocation_->pingTime());
+                                                                          selectedLocation_->countryCode(), selectedLocation_->pingTime());
         }
         msg = tr("Failed to setup custom openvpn configuration.");
     }
@@ -3416,6 +3416,12 @@ void MainWindow::handleDisconnectWithError(const types::ConnectState &connectSta
     else if (connectState.connectError == EXE_VERIFY_OPENVPN_ERROR)
     {
         msg = tr("OpenVPN binary failed verification. Please re-install windscribe from trusted source.");
+    }
+    else if (connectState.connectError == WIREGUARD_ADAPTER_SETUP_FAILED)
+    {
+        msg = tr("WireGuard adapter setup failed. Please wait one minute and try the connection again. If adapter setup fails again,"
+                 " please try restarting your computer.\n\nIf the problem persists after a restart, please send a debug log and open"
+                 " a support ticket, then switch to a different connection mode.");
     }
     else
     {
