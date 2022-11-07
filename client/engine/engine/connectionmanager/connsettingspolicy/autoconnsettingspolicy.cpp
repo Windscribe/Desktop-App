@@ -79,14 +79,7 @@ AutoConnSettingsPolicy::AutoConnSettingsPolicy(QSharedPointer<locationsmodel::Ba
         }
         if (bFound)
         {
-            if (localAttemps.count() > 0 && localAttemps.first().protocol.isIkev2Protocol())
-            {
-                localAttemps.insert(1, firstAttemptInfo);
-            }
-            else
-            {
-                localAttemps.insert(0, firstAttemptInfo);
-            }
+            localAttemps.insert(0, firstAttemptInfo);
         }
     }
 

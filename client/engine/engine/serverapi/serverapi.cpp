@@ -323,6 +323,21 @@ void ServerAPI::handleNetworkRequestFinished()
             qCDebugMultiline(LOG_SERVER_API) << serverResponse;
         }
         pointerToRequest->handle(serverResponse);
+
+        if (pointerToRequest->networkRetCode() == SERVER_RETURN_INCORRECT_JSON) {
+            if (currentFailoverRequest_ == pointerToRequest) {
+                if (!currentConnectStateWatcher_->isVpnConnectStateChanged()) {
+                    // get next the failover hostname
+                    failover_->getNextHostname(bIgnoreSslErrors_);
+                } else {
+                    setErrorCodeAndEmitRequestFinished(pointerToRequest, SERVER_RETURN_NETWORK_ERROR, reply->errorString());
+                    clearCurrentFailoverRequest();
+                    executeWaitingInQueueRequests();
+                }
+                return;
+            }
+        }
+
         emit pointerToRequest->finished();
 
         // if for the current request we performed the failover algorithm, then set the state of failover to the kReady

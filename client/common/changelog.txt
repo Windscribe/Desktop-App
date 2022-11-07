@@ -1,3 +1,9 @@
+2.5.11 (07/11/2022)
+All:
+   * Fixed incorrect failover to IKEv2 from WireGuard. #202
+   * Fixed app not failing over to the next protocol when server returned incorrect data. #502
+
+
 2.5.10 (04/11/2022)
 All:
    * Fixed TLS/SSL interception causes logout and crash. #502
