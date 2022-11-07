@@ -1,5 +1,4 @@
-#ifndef WIREGUARDCONNECTION_WIN_H
-#define WIREGUARDCONNECTION_WIN_H
+#pragma once
 
 #include <QScopedPointer>
 
@@ -57,5 +56,3 @@ private:
     void onWireguardHandshakeFailure();
     bool startService();
 };
-
-#endif // WIREGUARDCONNECTION_WIN_H

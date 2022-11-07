@@ -211,7 +211,7 @@ void WireGuardConnection::run()
 
     stopWireGuard.dismiss();
 
-    wireguardLog_->getNewLogEntries();
+    wireguardLog_->getFinalLogEntries();
 
     // Ensure the config file is deleted if something went awry during service startup.  If all goes well,
     // the wireguard service will delete the file when it exits.

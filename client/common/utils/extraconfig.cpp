@@ -22,6 +22,7 @@ const QString WS_TT_NO_ERROR_STR    = WS_PREFIX + "tunnel-test-no-error";
 const QString WS_STAGING_STR    = WS_PREFIX + "staging";
 
 const QString WS_LOG_API_RESPONSE = WS_PREFIX + "log-api-response";
+const QString WS_WG_VERBOSE_LOGGING = WS_PREFIX + "wg-verbose-logging";
 
 void ExtraConfig::writeConfig(const QString &cfg)
 {
@@ -207,6 +208,11 @@ bool ExtraConfig::getIsStaging()
 bool ExtraConfig::getLogAPIResponse()
 {
     return getFlagFromExtraConfigLines(WS_LOG_API_RESPONSE);
+}
+
+bool ExtraConfig::getWireGuardVerboseLogging()
+{
+    return getFlagFromExtraConfigLines(WS_WG_VERBOSE_LOGGING);
 }
 
 int ExtraConfig::getIntFromLineWithString(const QString &line, const QString &str, bool &success)
