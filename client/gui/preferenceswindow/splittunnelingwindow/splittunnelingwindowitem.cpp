@@ -28,13 +28,9 @@ SplitTunnelingWindowItem::SplitTunnelingWindowItem(ScalableGraphicsObject *paren
 
     QString descText = tr("Include or exclude apps and hostnames from the VPN tunnel.");
 #ifdef Q_OS_MAC
-    if (MacUtils::isOsVersionIsBigSur_or_greater())
-    {
-        descText = tr("Sorry, Split Tunneling is currently not supported on your operating system.  We are working hard to enable the feature as soon as possible.");
-        splitTunnelingGroup_->setEnabled(false);
-    }
-    else
-    {
+    if (MacUtils::isOsVersionIsBigSur_or_greater()) {
+        descText = tr("Include or exclude IPs and hostnames from the VPN tunnel.\n\nFirewall will not function in this mode.");
+    } else {
         descText = tr("Include or exclude apps and hostnames from the VPN tunnel.\n\nFirewall will not function in this mode.");
     }
 #endif

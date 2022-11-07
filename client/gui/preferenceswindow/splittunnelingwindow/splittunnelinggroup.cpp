@@ -37,9 +37,17 @@ SplitTunnelingGroup::SplitTunnelingGroup(ScalableGraphicsObject *parent, const Q
     connect(modeComboBox_, &ComboBoxItem::currentItemChanged, this, &SplitTunnelingGroup::onCurrentModeChanged);
     addItem(modeComboBox_);
 
-    appsLinkItem_ = new LinkItem(this, LinkItem::LinkType::SUBPAGE_LINK, QT_TRANSLATE_NOOP("PreferencesWindow::LinkItem", tr("Apps")));
-    connect(appsLinkItem_, &LinkItem::clicked, this, &SplitTunnelingGroup::appsPageClick);
-    addItem(appsLinkItem_);
+#ifdef Q_OS_MAC
+    if (!MacUtils::isOsVersionIsBigSur_or_greater()) {
+#endif
+        appsLinkItem_ = new LinkItem(this, LinkItem::LinkType::SUBPAGE_LINK, QT_TRANSLATE_NOOP("PreferencesWindow::LinkItem", tr("Apps")));
+        connect(appsLinkItem_, &LinkItem::clicked, this, &SplitTunnelingGroup::appsPageClick);
+        addItem(appsLinkItem_);
+#ifdef Q_OS_MAC
+    } else {
+        appsLinkItem_ = nullptr;
+    }
+#endif
 
     addressesLinkItem_ = new LinkItem(this, LinkItem::LinkType::SUBPAGE_LINK, QT_TRANSLATE_NOOP("PreferencesWindow::LinkItem", tr("IPs & Hostnames")));
     connect(addressesLinkItem_, &LinkItem::clicked, this, &SplitTunnelingGroup::addressesPageClick);
@@ -56,6 +64,7 @@ void SplitTunnelingGroup::setSettings(types::SplitTunnelingSettings settings)
         emit settingsChanged(settings);
     }
 #endif
+
     settings_ = settings;
     activeCheckBox_->setState(settings.active);
     updateUIState(settings.active);
@@ -104,7 +113,9 @@ void SplitTunnelingGroup::onCurrentModeChanged(QVariant value)
 void SplitTunnelingGroup::setAppsCount(int count)
 {
     QString num(QString("%1").arg(count));
-    appsLinkItem_->setLinkText(num);
+    if (appsLinkItem_) {
+        appsLinkItem_->setLinkText(num);
+    }
 }
 
 void SplitTunnelingGroup::setAddressesCount(int count)
@@ -118,9 +129,19 @@ void SplitTunnelingGroup::updateDescription()
     switch(settings_.mode) {
         case SPLIT_TUNNELING_MODE_EXCLUDE:
             setDescription(tr("Selected apps, IPs, and hostnames will not go through Windscribe when connected."));
+#ifdef Q_OS_MAC
+            if (MacUtils::isOsVersionIsBigSur_or_greater()) {
+                setDescription(tr("Selected IPs and hostnames will not go through Windscribe when connected."));
+            }
+#endif
             break;
         case SPLIT_TUNNELING_MODE_INCLUDE:
             setDescription(tr("Only selected apps, IPs, and hostnames will go through Windscribe when connected."));
+#ifdef Q_OS_MAC
+            if (MacUtils::isOsVersionIsBigSur_or_greater()) {
+                setDescription(tr("Only selected IPs and hostnames will go through Windscribe when connected."));
+            }
+#endif
             break;
         default:
             break;

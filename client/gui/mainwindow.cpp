@@ -1365,12 +1365,16 @@ void MainWindow::onBackendInitFinished(INIT_STATE initState)
 
         backend_->sendSplitTunneling(p->splitTunneling());
 
-        // disable firewall for Mac when split tunneling is active
 #ifdef Q_OS_MAC
+        // disable firewall for Mac when split tunneling is active
         if (p->splitTunneling().settings.active)
         {
             backend_->getPreferencesHelper()->setBlockFirewall(true);
             mainWindowController_->getConnectWindow()->setFirewallBlock(true);
+        }
+        // if Mac >= 11.0, remove apps from the split tunnel config since we don't support them
+        if (MacUtils::isOsVersionIsBigSur_or_greater()) {
+            p->setSplitTunnelingApps(QList<types::SplitTunnelingApp>());
         }
 #endif
 
