@@ -161,15 +161,16 @@ void WireGuardConnection::run()
 
         QScopedPointer< QTimer > timerGetWireguardStats(new QTimer);
         connect(timerGetWireguardStats.data(), &QTimer::timeout, this, &WireGuardConnection::onGetWireguardStats);
-        timerGetWireguardStats->start(5000);
+        timerGetWireguardStats->start(kTimeoutForGetStats);
 
         QScopedPointer< QTimer > timerCheckServiceRunning(new QTimer);
         connect(timerCheckServiceRunning.data(), &QTimer::timeout, this, &WireGuardConnection::onCheckServiceRunning);
-        timerCheckServiceRunning->start(2000);
+        timerCheckServiceRunning->start(kTimeoutForCheckService);
 
         QScopedPointer< QTimer > timerGetWireguardLogUpdates(new QTimer);
         connect(timerGetWireguardLogUpdates.data(), &QTimer::timeout, this, &WireGuardConnection::onGetWireguardLogUpdates);
-        timerGetWireguardLogUpdates->start(250);
+        // Check the log more frequently for the 'connected' state if we are not already connected.
+        timerGetWireguardLogUpdates->start(connectedSignalEmited_ ? kTimeoutForLogUpdate : 250);
 
         QScopedPointer< QTimer > timerTimeoutForAutomatic;
         if (isAutomaticConnectionMode_) {
@@ -253,6 +254,16 @@ void WireGuardConnection::onGetWireguardLogUpdates()
 
         if (!connectedSignalEmited_ && wireguardLog_->isTunnelRunning()) {
             onTunnelConnected();
+
+            // We've received the 'connected' state in the log, so we can back off
+            // our log checking frequency.
+            /*
+            QTimer* timer = qobject_cast<QTimer*>(sender());
+            if (timer && timer->interval() != kTimeoutForLogUpdate) {
+                timer->start(kTimeoutForLogUpdate);
+                qCDebug(LOG_CONNECTION) << "**JDRM** updated ring log update frequency to " << timer->interval();
+            }
+            */
         }
 
         // We must rely on the WireGuard service log to detect handshake failures.  The service itself does

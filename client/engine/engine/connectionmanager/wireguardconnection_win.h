@@ -41,7 +41,10 @@ private Q_SLOTS:
     void onAutomaticConnectionTimeout();
 
 private:
-    static constexpr int kTimeoutForAutomatic = 20000;  // 20 secs timeout for the automatic connection mode
+    static constexpr int kTimeoutForGetStats     = 5000;  // 5s timeout for the requesting send/recv stats from helper
+    static constexpr int kTimeoutForCheckService = 5000;  // 5s timeout for the checking if the WG service is running
+    static constexpr int kTimeoutForLogUpdate    = 2000;  // 2s timeout for getting log updates from the ring logger
+    static constexpr int kTimeoutForAutomatic    = 20000; // 20s timeout for the automatic connection mode
 
     Helper_win* const helper_;
     const WireGuardConfig* wireGuardConfig_ = nullptr;
