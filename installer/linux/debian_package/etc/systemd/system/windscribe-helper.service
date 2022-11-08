@@ -5,7 +5,7 @@ Wants=network-pre.target
 
 [Service]
 Type=simple
-ExecStart=/usr/local/windscribe/helper
+ExecStart=/opt/windscribe/helper
 
 [Install]
 WantedBy=multi-user.target

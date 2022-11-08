@@ -23,15 +23,6 @@ package(){
 	# Correct permissions
 	chmod -R 755 "${pkgdir}"
 
-	# Point files to the correct location
-	sed -i 's_/usr/local/windscribe_/opt/windscribe_g' ${pkgdir}/usr/share/applications/windscribe.desktop
-	sed -i 's_/usr/local/windscribe_/opt/windscribe_g' ${pkgdir}/etc/systemd/system/windscribe-helper.service
-	sed -i 's_/usr/local/windscribe_/opt/windscribe_g' ${pkgdir}/usr/polkit-1/actions/com.windscribe.authhelper.policy
-
-	# Move files to correct location
-	mkdir -p "${pkgdir}/opt/windscribe"
-	mv "${pkgdir}/usr/local/windscribe" "${pkgdir}/opt/"
-
 	# Install license
 	install -D -m644 "${pkgdir}/opt/windscribe/open_source_licenses.txt" "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
 }

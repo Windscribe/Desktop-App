@@ -30,8 +30,8 @@ class ExecutableSignaturePrivate;
       common/keys/linux folder.
     - The signature file used to validate an executable should be installed in a
       'signatures' subfolder relative to the executable.
-      For example: to validate /usr/local/windscribe/windscribeapp, the signature file
-      must be in /usr/local/windscribe/signatures/windscribeapp.sig
+      For example: to validate /opt/windscribe/windscribeapp, the signature file
+      must be in /opt/windscribe/signatures/windscribeapp.sig
 
 - ExecutableSignaturePrivate implemented for each platform in:
   - ExecutableSignature_win
