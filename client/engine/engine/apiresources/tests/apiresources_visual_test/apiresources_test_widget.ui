@@ -186,6 +186,19 @@
     </property>
    </widget>
   </widget>
+  <widget class="QPushButton" name="btnResetFailover">
+   <property name="geometry">
+    <rect>
+     <x>350</x>
+     <y>150</y>
+     <width>101</width>
+     <height>24</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>ResetFailover</string>
+   </property>
+  </widget>
  </widget>
  <resources/>
  <connections/>

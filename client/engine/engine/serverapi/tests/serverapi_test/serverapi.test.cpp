@@ -282,50 +282,6 @@ void ServerApi_test::testFailoverFailed()
     }
 }
 
-void ServerApi_test::testFailoverSslError()
-{
-    QVector<QPair<QString, failover::FailoverRetCode> > failovers;
-    failovers << qMakePair("windscribe.com", failover::FailoverRetCode::kSslError);
-    failovers << qMakePair("d571d4e00ea4765529703412b1045ba8079d9d87.com", failover::FailoverRetCode::kSslError);
-    QScopedPointer<server_api::ServerAPI> serverAPI_(new server_api::ServerAPI(this, connectStateController_, accessManager_, networkDetectionManager_,
-                                                                              new Failover_moc(this, failovers)));
-    QList<QSharedPointer<QSignalSpy> > spies;
-    {
-        server_api::BaseRequest *request = serverAPI_->session(authHash_);
-        connect(request, &server_api::BaseRequest::finished, [request]() {
-            request->deleteLater();
-        });
-        spies << QSharedPointer<QSignalSpy>(new QSignalSpy(request, SIGNAL(finished())));
-    }
-    {
-        server_api::BaseRequest *request = serverAPI_->serverLocations("", "df", false, QStringList());
-        connect(request, &server_api::BaseRequest::finished, [request]() {
-            request->deleteLater();
-        });
-        spies << QSharedPointer<QSignalSpy>(new QSignalSpy(request, SIGNAL(finished())));
-    }
-    {
-        server_api::BaseRequest *request = serverAPI_->serverCredentials(authHash_, types::Protocol::OPENVPN_TCP);
-        connect(request, &server_api::BaseRequest::finished, [request]() {
-            request->deleteLater();
-        });
-        spies << QSharedPointer<QSignalSpy>(new QSignalSpy(request, SIGNAL(finished())));
-    }
-
-    while (true) {
-        bool bAllFinished = true;
-        for (const auto &spy : spies) {
-            if (spy->count() == 0) {
-                bAllFinished = false;
-                break;
-            }
-        }
-        if (bAllFinished)
-            break;
-        QTest::qWait(100);
-    }
-}
-
 void ServerApi_test::testDeleteServerAPIWhileRequestsRunning()
 {
     QVector<QPair<QString, failover::FailoverRetCode> > failovers;
