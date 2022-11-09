@@ -52,9 +52,15 @@ ServerAPI::ServerAPI(QObject *parent, IConnectStateController *connectStateContr
     currentConnectStateWatcher_(nullptr),
     failover_(failover)
 {
+    connect(connectStateController_, &IConnectStateController::stateChanged, this, &ServerAPI::onConnectStateChanged);
+
     failover_->setParent(this);
     failover_->setProperty("state", QVariant::fromValue(FailoverState::kUnknown));
     connect(failover_, &failover::IFailover::nextHostnameAnswer, this, &ServerAPI::onFailoverNextHostnameAnswer);
+
+    currentFailoverHostname_ = readHostnameFromSettings();
+    if (!currentFailoverHostname_.isEmpty())
+        isUsingFailoverFromSettings_ = true;
 }
 
 ServerAPI::~ServerAPI()
@@ -252,6 +258,9 @@ BaseRequest *ServerAPI::syncRobert(const QString &authHash)
 void ServerAPI::onFailoverNextHostnameAnswer(failover::FailoverRetCode retCode, const QString &hostname)
 {
     WS_ASSERT(currentFailoverRequest_ != nullptr)
+
+    isUsingFailoverFromSettings_ = false;
+
     if (retCode == failover::FailoverRetCode::kSuccess)
         currentFailoverHostname_ = hostname;
 
@@ -271,6 +280,19 @@ void ServerAPI::onFailoverNextHostnameAnswer(failover::FailoverRetCode retCode, 
         finishWaitingInQueueRequests(SERVER_RETURN_FAILOVER_FAILED, "Failover API not ready");
     } else {
         WS_ASSERT(false);
+    }
+}
+
+void ServerAPI::onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, CONNECT_ERROR err, const LocationID &location)
+{
+    // If we use the hostname from the settings then reset it after the first disconnect signal after starting the program
+    if (isUsingFailoverFromSettings_) {
+        if (state == CONNECT_STATE_CONNECTED) {
+            bWasConnectedState_ = true;
+        } else if (state == CONNECT_STATE_DISCONNECTED && bWasConnectedState_) {
+            currentFailoverHostname_.clear();
+            isUsingFailoverFromSettings_ = false;
+        }
     }
 }
 
@@ -344,8 +366,10 @@ void ServerAPI::handleNetworkRequestFinished()
         // and execute pending requests
         if (currentFailoverRequest_ == pointerToRequest) {
             WS_ASSERT(isThroughFailover);
-            if (!currentConnectStateWatcher_->isVpnConnectStateChanged()) {
+            if (!currentConnectStateWatcher_->isVpnConnectStateChanged() && !isUsingFailoverFromSettings_) {
                 failover_->setProperty("state", QVariant::fromValue(FailoverState::kReady));
+                // save last successfull hostname to settings
+                writeHostnameToSettings(currentFailoverHostname_);
             }
             clearCurrentFailoverRequest();
             executeWaitingInQueueRequests();
@@ -482,6 +506,24 @@ bool ServerAPI::isDisconnectedState() const
 QString ServerAPI::hostnameForConnectedState() const
 {
     return HardcodedSettings::instance().serverDomains().at(0);
+}
+
+void ServerAPI::writeHostnameToSettings(const QString &domainName)
+{
+    QSettings settings;
+    SimpleCrypt simpleCrypt(SIMPLE_CRYPT_KEY);
+    settings.setValue("flvId", simpleCrypt.encryptToString(domainName));
+}
+
+QString ServerAPI::readHostnameFromSettings() const
+{
+    QSettings settings;
+    SimpleCrypt simpleCrypt(SIMPLE_CRYPT_KEY);
+    QString str = settings.value("flvId", "").toString();
+    if (!str.isEmpty())
+        return simpleCrypt.decryptToString(str);
+    else
+        return QString();
 }
 
 } // namespace server_api
