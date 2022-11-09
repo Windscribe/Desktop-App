@@ -3,13 +3,13 @@
 #include <QTimer>
 
 #include "wireguardconnection_win.h"
-#include "wireguardringlogger.h"
 
 #include "adapterutils_win.h"
 #include "engine/wireguardconfig/wireguardconfig.h"
 #include "types/wireguardtypes.h"
 #include "utils/crashhandler.h"
 #include "utils/logger.h"
+#include "utils/servicecontrolmanager.h"
 #include "utils/winutils.h"
 #include "utils/ws_assert.h"
 
@@ -19,23 +19,61 @@
 //   the registry.
 
 // Design Notes:
+// - Using Win32 kernel timers rather than QTimer in run().  This is due to the nature of QThread
+//   inheritance: "It is important to remember that a QThread instance lives in the old thread that
+//   instantiated it, not in the new thread that calls run(). This means that all of QThread's
+//   queued slots and invoked methods will execute in the old thread.".  This means that if we
+//   create a QTimer in run() and connect to its timeout signal, the slot will be called by the
+//   thread that created the QThread instance, not by the thread running run().
 // - IConnection::interfaceUpdated signal is not currently used in Engine::onConnectionManagerInterfaceUpdated
 //   on Windows, so no need to emit it.
 
-static const QString serviceIdentifier("WindscribeWireguard");
+static const QString kServiceIdentifier("WindscribeWireguard");
+static const QString kServiceName = QString("WireGuardTunnel$") + kServiceIdentifier;
+
+static HANDLE createTimer(int timeout, bool singleShot, PTIMERAPCROUTINE completionRoutine, LPVOID argToCompletionRoutine)
+{
+    HANDLE hTimer = ::CreateWaitableTimer(NULL, FALSE, NULL);
+    if (hTimer == NULL) {
+        qCDebug(LOG_CONNECTION) << "WireGuardConnection - CreateWaitableTimer failed:" << ::GetLastError();
+        return NULL;
+    }
+
+    LARGE_INTEGER initialTimeout;
+    initialTimeout.QuadPart = -(timeout * 10000);
+
+    LONG period = (singleShot ? 0 : timeout);
+
+    BOOL result = ::SetWaitableTimer(hTimer, &initialTimeout, period, completionRoutine, argToCompletionRoutine, FALSE);
+    if (result == FALSE) {
+        ::CloseHandle(hTimer);
+        qCDebug(LOG_CONNECTION) << "WireGuardConnection - SetWaitableTimer failed:" << ::GetLastError();
+        return NULL;
+    }
+
+    return hTimer;
+}
+
+static void cancelTimer(wsl::Win32Handle &timer)
+{
+    if (timer.isValid()) {
+        ::CancelWaitableTimer(timer.getHandle());
+        timer.closeHandle();
+    }
+}
+
 
 WireGuardConnection::WireGuardConnection(QObject *parent, IHelper *helper)
     : IConnection(parent),
-      helper_(dynamic_cast<Helper_win*>(helper)),
-      stopRequested_(false)
+      helper_(dynamic_cast<Helper_win*>(helper))
 {
+    stopThreadEvent_.setHandle(::CreateEvent(NULL, TRUE, FALSE, NULL));
 }
 
 WireGuardConnection::~WireGuardConnection()
 {
     if (isRunning()) {
-        stopRequested_ = true;
-        quit();
+        stop();
         wait();
     }
 }
@@ -56,18 +94,17 @@ void WireGuardConnection::startConnect(const QString &configPathOrUrl, const QSt
 
     WS_ASSERT(helper_ != nullptr);
     WS_ASSERT(wireGuardConfig != nullptr);
+    WS_ASSERT(stopThreadEvent_.isValid());
 
     if (isRunning()) {
-        stopRequested_ = true;
-        quit();
+        stop();
         wait();
     }
 
     connectedSignalEmited_ = false;
     isAutomaticConnectionMode_ = isAutomaticConnectionMode;
-    stopRequested_ = false;
     wireGuardConfig_ = wireGuardConfig;
-    serviceCtrlManager_.unblockStartStopRequests();
+    ::ResetEvent(stopThreadEvent_.getHandle());
 
     start(LowPriority);
 }
@@ -75,9 +112,7 @@ void WireGuardConnection::startConnect(const QString &configPathOrUrl, const QSt
 void WireGuardConnection::startDisconnect()
 {
     if (isRunning()) {
-        stopRequested_ = true;
-        serviceCtrlManager_.blockStartStopRequests();
-        quit();
+        stop();
     }
     else if (isDisconnected()) {
         emit disconnected();
@@ -88,8 +123,11 @@ bool WireGuardConnection::isDisconnected() const
 {
     DWORD dwStatus = SERVICE_STOPPED;
     try {
-        if (serviceCtrlManager_.isServiceOpen()) {
-            dwStatus = serviceCtrlManager_.queryServiceStatus();
+        wsl::ServiceControlManager scm;
+        scm.openSCM(SC_MANAGER_CONNECT);
+        if (scm.isServiceInstalled(qPrintable(kServiceName))) {
+            scm.openService(qPrintable(kServiceName), SERVICE_QUERY_STATUS);
+            dwStatus = scm.queryServiceStatus();
         }
     }
     catch (std::system_error& ex) {
@@ -110,7 +148,7 @@ void WireGuardConnection::run()
     // create matches the name of the service the helper installs.  The helper will install
     // the service using the name WireGuardTunnel$ConfFileName
 
-    QString configFile = tr("%1/%2.conf").arg(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation), serviceIdentifier);
+    QString configFile = tr("%1/%2.conf").arg(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation), kServiceIdentifier);
 
     // Installing the wireguard service requires admin privilege.
     IHelper::ExecuteError err = helper_->startWireGuard(getWireGuardExeName(), configFile);
@@ -123,9 +161,7 @@ void WireGuardConnection::run()
         return;
     }
 
-    auto stopWireGuard = qScopeGuard([&]
-    {
-        serviceCtrlManager_.closeSCM();
+    auto stopWireGuard = qScopeGuard([&] {
         helper_->stopWireGuard();
     });
 
@@ -145,9 +181,10 @@ void WireGuardConnection::run()
     wireguardLog_.reset(new wsl::WireguardRingLogger(logFile));
 
     bool disableDNSLeakProtection = false;
+
     bool serviceStarted = startService();
 
-    if (serviceStarted) {
+    while (serviceStarted) {
         helper_->enableDnsLeaksProtection();
         disableDNSLeakProtection = true;
 
@@ -159,49 +196,46 @@ void WireGuardConnection::run()
             onGetWireguardStats();
         }
 
-        QScopedPointer< QTimer > timerGetWireguardStats(new QTimer);
-        connect(timerGetWireguardStats.data(), &QTimer::timeout, this, &WireGuardConnection::onGetWireguardStats);
-        timerGetWireguardStats->start(kTimeoutForGetStats);
+        wsl::Win32Handle timerGetWireguardStats(createTimer(kTimeoutForGetStats, false, getWireguardStatsProc, this));
+        if (!timerGetWireguardStats.isValid()) {
+            break;
+        }
 
-        QScopedPointer< QTimer > timerCheckServiceRunning(new QTimer);
-        connect(timerCheckServiceRunning.data(), &QTimer::timeout, this, &WireGuardConnection::onCheckServiceRunning);
-        timerCheckServiceRunning->start(kTimeoutForCheckService);
+        wsl::Win32Handle timerCheckServiceRunning(createTimer(kTimeoutForCheckService, false, checkServiceRunningProc, this));
+        if (!timerCheckServiceRunning.isValid()) {
+            break;
+        }
 
-        QScopedPointer< QTimer > timerGetWireguardLogUpdates(new QTimer);
-        connect(timerGetWireguardLogUpdates.data(), &QTimer::timeout, this, &WireGuardConnection::onGetWireguardLogUpdates);
-        // Check the log more frequently for the 'connected' state if we are not already connected.
-        timerGetWireguardLogUpdates->start(connectedSignalEmited_ ? kTimeoutForLogUpdate : 250);
-
-        QScopedPointer< QTimer > timerTimeoutForAutomatic;
+        wsl::Win32Handle timerTimeoutForAutomatic;
         if (isAutomaticConnectionMode_) {
-            timerTimeoutForAutomatic.reset(new QTimer);
-            timerTimeoutForAutomatic->setSingleShot(true);
-            connect(timerTimeoutForAutomatic.data(), &QTimer::timeout, this, &WireGuardConnection::onAutomaticConnectionTimeout);
-            timerTimeoutForAutomatic->start(kTimeoutForAutomatic);
+            timerTimeoutForAutomatic.setHandle(createTimer(kTimeoutForAutomatic, true, automaticConnectionTimeoutProc, this));
+            if (!timerTimeoutForAutomatic.isValid()) {
+                break;
+            }
         }
 
-        if (!stopRequested_) {
-            exec();
+        wsl::Win32Handle timerGetWireguardLogUpdates(createTimer(kTimeoutForLogUpdate, false, getWireguardLogUpdatesProc, this));
+        if (!timerGetWireguardLogUpdates.isValid()) {
+            break;
         }
 
-        if (!timerTimeoutForAutomatic.isNull()) {
-            disconnect(timerTimeoutForAutomatic.data(), &QTimer::timeout, nullptr, nullptr);
-            timerTimeoutForAutomatic->stop();
+        while (true) {
+            DWORD result = ::WaitForSingleObjectEx(stopThreadEvent_.getHandle(), INFINITE, TRUE);
+            if (result != WAIT_IO_COMPLETION) {
+                break;
+            }
         }
 
-        disconnect(timerGetWireguardStats.data(), &QTimer::timeout, nullptr, nullptr);
-        disconnect(timerCheckServiceRunning.data(), &QTimer::timeout, nullptr, nullptr);
-        disconnect(timerGetWireguardLogUpdates.data(), &QTimer::timeout, nullptr, nullptr);
-
-        timerGetWireguardStats->stop();
-        timerCheckServiceRunning->stop();
-        timerGetWireguardLogUpdates->stop();
+        cancelTimer(timerGetWireguardLogUpdates);
+        cancelTimer(timerGetWireguardStats);
+        cancelTimer(timerCheckServiceRunning);
+        cancelTimer(timerTimeoutForAutomatic);
 
         // Get final receive/transmit byte counts.
         onGetWireguardStats();
-    }
 
-    serviceCtrlManager_.closeSCM();
+        break;
+    }
 
     if (helper_->stopWireGuard()) {
         configFile.clear();
@@ -220,6 +254,10 @@ void WireGuardConnection::run()
         QFile::remove(configFile);
     }
 
+    if (disableDNSLeakProtection) {
+        helper_->disableDnsLeaksProtection();
+    }
+
     // Delay emiting signals until we have cleaned up all our resources.
     if (wireguardLog_->adapterSetupFailed()) {
         emit error(CONNECT_ERROR::WIREGUARD_ADAPTER_SETUP_FAILED);
@@ -231,19 +269,23 @@ void WireGuardConnection::run()
     emit disconnected();
 
     qCDebug(LOG_CONNECTION) << "WireGuardConnection::run exiting";
+}
 
-    if (disableDNSLeakProtection) {
-        helper_->disableDnsLeaksProtection();
+void WireGuardConnection::stop()
+{
+    if (stopThreadEvent_.isValid()) {
+        BOOL result = ::SetEvent(stopThreadEvent_.getHandle());
+        if (result == FALSE) {
+            qCDebug(LOG_CONNECTION) << "WireGuardConnection::stop - SetEvent failed:" << ::GetLastError();
+        }
     }
-
-    wireguardLog_.reset();
 }
 
 void WireGuardConnection::onCheckServiceRunning()
 {
     if (isDisconnected()) {
         qCDebug(LOG_CONNECTION) << "The WireGuard service has stopped unexpectedly";
-        quit();
+        stop();
     }
 }
 
@@ -254,16 +296,6 @@ void WireGuardConnection::onGetWireguardLogUpdates()
 
         if (!connectedSignalEmited_ && wireguardLog_->isTunnelRunning()) {
             onTunnelConnected();
-
-            // We've received the 'connected' state in the log, so we can back off
-            // our log checking frequency.
-            /*
-            QTimer* timer = qobject_cast<QTimer*>(sender());
-            if (timer && timer->interval() != kTimeoutForLogUpdate) {
-                timer->start(kTimeoutForLogUpdate);
-                qCDebug(LOG_CONNECTION) << "**JDRM** updated ring log update frequency to " << timer->interval();
-            }
-            */
         }
 
         // We must rely on the WireGuard service log to detect handshake failures.  The service itself does
@@ -297,18 +329,8 @@ void WireGuardConnection::onAutomaticConnectionTimeout()
 {
     if (!connectedSignalEmited_) {
         emit error(CONNECT_ERROR::STATE_TIMEOUT_FOR_AUTOMATIC);
-        quit();
+        stop();
     }
-}
-
-QString WireGuardConnection::getWireGuardExeName()
-{
-    return QString("WireguardService");
-}
-
-QString WireGuardConnection::getWireGuardAdapterName()
-{
-    return QString("WireGuardTunnel");
 }
 
 void WireGuardConnection::onWireguardHandshakeFailure()
@@ -329,23 +351,27 @@ void WireGuardConnection::onWireguardHandshakeFailure()
 
             if (secsTo >= 3*60) {
                 qCDebug(LOG_CONNECTION) << secsTo << "seconds have passed since the last WireGuard handshake, disconnecting the tunnel.";
-                quit();
+                stop();
             }
         }
     }
     else {
         qCDebug(LOG_CONNECTION) << "The WireGuard service reported a handshake failure and Windows reports no Internet connectivity, disconnecting the tunnel.";
-        quit();
+        stop();
     }
 }
 
 bool WireGuardConnection::startService()
 {
+    if (stopThreadEvent_.isSignaled()) {
+        return false;
+    }
+
     try {
-        QString serviceName = tr("WireGuardTunnel$%1").arg(serviceIdentifier);
-        serviceCtrlManager_.openSCM(SC_MANAGER_CONNECT);
-        serviceCtrlManager_.openService(qPrintable(serviceName), SERVICE_QUERY_STATUS | SERVICE_START);
-        serviceCtrlManager_.startService();
+        wsl::ServiceControlManager scm;
+        scm.openSCM(SC_MANAGER_CONNECT);
+        scm.openService(qPrintable(kServiceName), SERVICE_QUERY_STATUS | SERVICE_START);
+        scm.startService();
         return true;
     }
     catch (std::system_error& ex) {
@@ -358,6 +384,38 @@ bool WireGuardConnection::startService()
 void WireGuardConnection::onTunnelConnected()
 {
     connectedSignalEmited_ = true;
-    AdapterGatewayInfo info = AdapterUtils_win::getWireguardConnectedAdapterInfo(serviceIdentifier);
+    AdapterGatewayInfo info = AdapterUtils_win::getWireguardConnectedAdapterInfo(kServiceIdentifier);
     emit connected(info);
+}
+
+void CALLBACK WireGuardConnection::checkServiceRunningProc(LPVOID lpArgToCompletionRoutine, DWORD dwTimerLowValue, DWORD dwTimerHighValue)
+{
+    Q_UNUSED(dwTimerLowValue)
+    Q_UNUSED(dwTimerHighValue)
+    WireGuardConnection* wc = (WireGuardConnection*)lpArgToCompletionRoutine;
+    wc->onCheckServiceRunning();
+}
+
+void CALLBACK WireGuardConnection::getWireguardLogUpdatesProc(LPVOID lpArgToCompletionRoutine, DWORD dwTimerLowValue, DWORD dwTimerHighValue)
+{
+    Q_UNUSED(dwTimerLowValue)
+    Q_UNUSED(dwTimerHighValue)
+    WireGuardConnection* wc = (WireGuardConnection*)lpArgToCompletionRoutine;
+    wc->onGetWireguardLogUpdates();
+}
+
+void CALLBACK WireGuardConnection::getWireguardStatsProc(LPVOID lpArgToCompletionRoutine, DWORD dwTimerLowValue, DWORD dwTimerHighValue)
+{
+    Q_UNUSED(dwTimerLowValue)
+    Q_UNUSED(dwTimerHighValue)
+    WireGuardConnection* wc = (WireGuardConnection*)lpArgToCompletionRoutine;
+    wc->onGetWireguardStats();
+}
+
+void CALLBACK WireGuardConnection::automaticConnectionTimeoutProc(LPVOID lpArgToCompletionRoutine, DWORD dwTimerLowValue, DWORD dwTimerHighValue)
+{
+    Q_UNUSED(dwTimerLowValue)
+    Q_UNUSED(dwTimerHighValue)
+    WireGuardConnection* wc = (WireGuardConnection*)lpArgToCompletionRoutine;
+    wc->onAutomaticConnectionTimeout();
 }

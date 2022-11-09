@@ -149,7 +149,7 @@ void WireguardRingLogger::process(int index)
                     message.contains("Receiving handshake initiation from peer") ||
                     message.contains("Sending handshake response to peer") ||
                     message.contains("Retrying handshake with peer") ||
-                    (message.contains("Keypair") && (message.contains("destroyed for peer") || (message.contains("created for peer")))))
+                    (message.contains("Keypair") && (message.contains("destroyed for peer") || message.contains("created for peer"))))
                 {
                     return;
                 }

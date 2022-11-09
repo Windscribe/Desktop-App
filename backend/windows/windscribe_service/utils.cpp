@@ -199,7 +199,7 @@ bool verifyWindscribeProcessPath(HANDLE hPipe)
       return true;
    }
 
-   WinUtils::Win32Handle processHandle(::OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, pidClient));
+   wsl::Win32Handle processHandle(::OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, pidClient));
    if (!processHandle.isValid())
    {
       output << "OpenProcess failed. Err = " << ::GetLastError();

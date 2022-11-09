@@ -29,7 +29,7 @@ Q_SIGNALS:
 
 private:
     #if defined(Q_OS_WINDOWS)
-    WinUtils::Win32Handle appSingletonObj_;
+    wsl::Win32Handle appSingletonObj_;
     #else
     QString socketName_;
     QScopedPointer< QLockFile > lockFile_;

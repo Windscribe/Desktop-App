@@ -70,7 +70,7 @@ FindAppWindowHandleProc(HWND hwnd, LPARAM lParam)
         return TRUE;
     }
 
-    WinUtils::Win32Handle hProcess(::OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, processID));
+    wsl::Win32Handle hProcess(::OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, processID));
     if (!hProcess.isValid())
     {
         if (::GetLastError() != ERROR_ACCESS_DENIED) {
