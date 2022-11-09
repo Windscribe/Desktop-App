@@ -77,12 +77,15 @@ public:
 
 private slots:
     void onFailoverNextHostnameAnswer(failover::FailoverRetCode retCode, const QString &hostname);
+    void onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, CONNECT_ERROR err, const LocationID &location);
 
 private:
     NetworkAccessManager *networkAccessManager_;
     IConnectStateController *connectStateController_;
     INetworkDetectionManager *networkDetectionManager_;
     bool bIgnoreSslErrors_;
+    bool isUsingFailoverFromSettings_ = false;
+    bool bWasConnectedState_ = false;
 
     QQueue<QPointer<BaseRequest> > queueRequests_;    // a queue of requests that are waiting for the failover to complete
 
@@ -107,6 +110,11 @@ private:
     bool isDisconnectedState() const;
 
     QString hostnameForConnectedState() const;
+
+    // Save and read the hostname from the settings where it is stored encrypted
+    static constexpr quint64 SIMPLE_CRYPT_KEY = 0x2572241DF31F32EE;
+    void writeHostnameToSettings(const QString &domainName);
+    QString readHostnameFromSettings() const;
 };
 
 } // namespace server_api
