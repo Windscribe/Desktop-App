@@ -793,6 +793,10 @@ void MainWindow::onAbortInitialization()
 
 void MainWindow::onLoginClick(const QString &username, const QString &password, const QString &code2fa)
 {
+    if (username.contains("@")) {
+        mainWindowController_->getLoginWindow()->setErrorMessage(ILoginWindow::ERR_MSG_USERNAME_IS_EMAIL, QString());
+        return;
+    }
     mainWindowController_->getTwoFactorAuthWindow()->setCurrentCredentials(username, password);
     mainWindowController_->getLoggingInWindow()->setMessage(QT_TRANSLATE_NOOP("LoginWindow::LoggingInWindowItem", "Logging you in..."));
     mainWindowController_->getLoggingInWindow()->setAdditionalMessage("");
@@ -1565,13 +1569,18 @@ void MainWindow::onBackendLoginError(LOGIN_RET loginError, const QString &errorM
     {
         if (!isLoginOkAndConnectWindowVisible_)
         {
-            mainWindowController_->getLoginWindow()->setErrorMessage(ILoginWindow::ERR_MSG_INVALID_API_RESPONCE, QString());
+            if (loginAttemptsController_.attempts() >= 3) {
+                // If we are rate limited, we get a blank HTML response like '<html><body></body></html>' instead of JSON.
+                mainWindowController_->getLoginWindow()->setErrorMessage(ILoginWindow::ERR_MSG_RATE_LIMITED, QString());
+            } else {
+                mainWindowController_->getLoginWindow()->setErrorMessage(ILoginWindow::ERR_MSG_INVALID_API_RESPONSE, QString());
+            }
             mainWindowController_->getLoginWindow()->setEmergencyConnectState(false);
             gotoLoginWindow();
         }
         else
         {
-            backToLoginWithErrorMessage(ILoginWindow::ERR_MSG_INVALID_API_RESPONCE, QString());
+            backToLoginWithErrorMessage(ILoginWindow::ERR_MSG_INVALID_API_RESPONSE, QString());
         }
     }
     else if (loginError == LOGIN_RET_PROXY_AUTH_NEED)

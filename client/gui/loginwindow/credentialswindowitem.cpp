@@ -146,7 +146,7 @@ void CredentialsWindowItem::setErrorMessage(ILoginWindow::ERROR_MESSAGE_TYPE err
         case ILoginWindow::ERR_MSG_PROXY_REQUIRES_AUTH:
             curErrorText_ = tr("Proxy requires authentication");
             break;
-        case ILoginWindow::ERR_MSG_INVALID_API_RESPONCE:
+        case ILoginWindow::ERR_MSG_INVALID_API_RESPONSE:
             curErrorText_ = tr("Invalid API response, check your network");
             break;
         case ILoginWindow::ERR_MSG_INVALID_API_ENDPOINT:
@@ -162,10 +162,17 @@ void CredentialsWindowItem::setErrorMessage(ILoginWindow::ERROR_MESSAGE_TYPE err
             break;
         case ILoginWindow::ERR_MSG_INCORRECT_LOGIN3:
             error = true;
-            curErrorText_ = tr("...hmm, try reseting your password!");
+            curErrorText_ = tr("...hmm, try resetting your password!");
+            break;
+        case ILoginWindow::ERR_MSG_RATE_LIMITED:
+            error = true;
+            curErrorText_ = tr("Rate limited. Please wait before trying to login again.");
             break;
         case ILoginWindow::ERR_MSG_SESSION_EXPIRED:
             curErrorText_ = tr("Session is expired. Please login again");
+            break;
+        case ILoginWindow::ERR_MSG_USERNAME_IS_EMAIL:
+            curErrorText_ = tr("Your username should not be an email address. Please try again.");
             break;
         case ILoginWindow::ERR_MSG_ACCOUNT_DISABLED:
             curErrorText_ = errorMessage;

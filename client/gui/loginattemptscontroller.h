@@ -11,6 +11,7 @@ public:
 
     void pushIncorrectLogin();
     void reset();
+    int attempts();
     ILoginWindow::ERROR_MESSAGE_TYPE currentMessage() const;
     
 private:
