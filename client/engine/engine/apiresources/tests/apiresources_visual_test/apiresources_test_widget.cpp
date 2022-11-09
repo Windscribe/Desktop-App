@@ -94,6 +94,10 @@ Widget::Widget(QWidget *parent)
         apiResourceManager_->fetchServerCredentials();
     });
 
+    connect(ui->btnResetFailover, &QPushButton::clicked, [this] {
+        serverAPI_->resetFailover();
+    });
+
 }
 
 Widget::~Widget()

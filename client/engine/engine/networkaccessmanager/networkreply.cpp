@@ -68,11 +68,7 @@ void NetworkReply::checkForCurlError()
 {
     if (curlReply_ && !curlReply_->isSuccess())
     {
-        if (curlReply_->isSSLError()) {
-            error_ = SslError;
-        } else {
-            error_ = CurlError;
-        }
+        error_ = CurlError;
         errorString_ = curlReply_->errorString();
     }
 }
@@ -86,8 +82,6 @@ void NetworkReply::setError(NetworkReply::NetworkError err)
         errorString_ = "TimeoutExceed";
     } else if (err == DnsResolveError) {
         errorString_ = "DnsResolveError";
-    } else if (err == SslError) {
-        errorString_ = "SslError";
     } else if (err == CurlError) {
         errorString_ = "CurlError";
     } else {
