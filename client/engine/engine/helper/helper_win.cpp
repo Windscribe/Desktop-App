@@ -350,7 +350,7 @@ bool Helper_win::isHelperConnected() const
     return curState_ == STATE_CONNECTED;
 }
 
-IHelper::ExecuteError Helper_win::executeOpenVPN(const QString &configPath, unsigned int portNumber, const QString &httpProxy, unsigned int httpPort, const QString &socksProxy, unsigned int socksPort, unsigned long &outCmdId)
+IHelper::ExecuteError Helper_win::executeOpenVPN(const QString &config, unsigned int portNumber, const QString &httpProxy, unsigned int httpPort, const QString &socksProxy, unsigned int socksPort, unsigned long &outCmdId, bool isCustomConfig)
 {
     QMutexLocker locker(&mutex_);
 
@@ -365,12 +365,13 @@ IHelper::ExecuteError Helper_win::executeOpenVPN(const QString &configPath, unsi
 
     CMD_RUN_OPENVPN cmdRunOpenVpn;
     cmdRunOpenVpn.szOpenVpnExecutable = OpenVpnVersionController::instance().getSelectedOpenVpnExecutable().toStdWString();
-    cmdRunOpenVpn.szConfigPath = configPath.toStdWString();
+    cmdRunOpenVpn.szConfig = config.toStdWString();
     cmdRunOpenVpn.portNumber = portNumber;
     cmdRunOpenVpn.szHttpProxy = httpProxy.toStdWString();
     cmdRunOpenVpn.szSocksProxy = socksProxy.toStdWString();
     cmdRunOpenVpn.httpPortNumber = httpPort;
     cmdRunOpenVpn.socksPortNumber = socksPort;
+    cmdRunOpenVpn.isCustomConfig = isCustomConfig;
 
     std::stringstream stream;
     boost::archive::text_oarchive oa(stream, boost::archive::no_header);
@@ -490,7 +491,7 @@ bool Helper_win::executeChangeIcs(int cmd, const QString &configPath, const QStr
     return mpr.success;
 }
 
-bool Helper_win::executeChangeMtu(const QString &adapter, int mtu)
+bool Helper_win::changeMtu(const QString &adapter, int mtu)
 {
     QMutexLocker locker(&mutex_);
 

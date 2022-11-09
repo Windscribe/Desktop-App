@@ -9,12 +9,13 @@ void serialize(Archive & ar, CMD_RUN_OPENVPN & g, const unsigned int version)
 {
     UNREFERENCED_PARAMETER(version);
     ar & g.szOpenVpnExecutable;
-    ar & g.szConfigPath;
+    ar & g.szConfig;
     ar & g.portNumber;
     ar & g.szHttpProxy;
     ar & g.httpPortNumber;
     ar & g.szSocksProxy;
     ar & g.socksPortNumber;
+    ar & g.isCustomConfig;
 }
 
 template<class Archive>

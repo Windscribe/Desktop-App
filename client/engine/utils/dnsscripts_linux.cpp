@@ -3,45 +3,15 @@
 #include "utils/logger.h"
 #include <QProcess>
 
-QString DnsScripts_linux::scriptPath()
-{
-    if (dnsManager_ == DNS_MANAGER_AUTOMATIC)
-    {
-        SCRIPT_TYPE scriptType = detectScript();
-        if (scriptType == SYSTEMD_RESOLVED)
-        {
-            return "/etc/windscribe/update-systemd-resolved";
-        }
-        else if (scriptType == RESOLV_CONF)
-        {
-            return "/etc/windscribe/update-resolv-conf";
-        }
-        else if (scriptType == NETWORK_MANAGER)
-        {
-            return "/etc/windscribe/update-network-manager";
-        }
-        else
-        {
-            WS_ASSERT(false);
-            return "";
-        }
-    }
-    else if (dnsManager_ == DNS_MANAGER_RESOLV_CONF)
-    {
-        return "/etc/windscribe/update-resolv-conf";
-    }
-    else if (dnsManager_ == DNS_MANAGER_SYSTEMD_RESOLVED)
-    {
-        return "/etc/windscribe/update-systemd-resolved";
-    }
-    else if (dnsManager_ == DNS_MANAGER_NETWORK_MANAGER)
-    {
-        return "/etc/windscribe/update-network-manager";
-    }
-    else
-    {
-        WS_ASSERT(false);
-        return "";
+DnsScripts_linux::SCRIPT_TYPE DnsScripts_linux::dnsManager() {
+    if (dnsManager_ == DNS_MANAGER_AUTOMATIC) {
+        return detectScript();
+    } else if (dnsManager_ == DNS_MANAGER_RESOLV_CONF) {
+        return RESOLV_CONF;
+    } else if (dnsManager_ == DNS_MANAGER_SYSTEMD_RESOLVED) {
+        return SYSTEMD_RESOLVED;
+    } else {
+        return NETWORK_MANAGER;
     }
 }
 

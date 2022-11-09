@@ -9,7 +9,6 @@
 #include <QThread>
 #include <QDateTime>
 #include "types/wireguardtypes.h"
-#include "engine/tempscripts_mac.h"
 #include "../openvpnversioncontroller.h"
 #include "installhelper_mac.h"
 #include "engine/wireguardconfig/wireguardconfig.h"
@@ -73,26 +72,14 @@ void Helper_posix::getUnblockingCmdStatus(unsigned long cmdId, QString &outLog, 
     boost::archive::text_oarchive oa(stream, boost::archive::no_header);
     oa << cmd;
 
-    if (!sendCmdToHelper(HELPER_CMD_GET_CMD_STATUS, stream.str()))
-    {
+    CMD_ANSWER answer;
+    if (!runCommand(HELPER_CMD_GET_CMD_STATUS, stream.str(), answer) || answer.executed == 0) {
         doDisconnectAndReconnect();
         return;
     }
-    else
-    {
-        CMD_ANSWER answerCmd;
-        if (!readAnswer(answerCmd))
-        {
-            doDisconnectAndReconnect();
-            return;
-        }
-        else
-        {
-            outFinished = (answerCmd.executed == 1);
-            outLog = QString::fromStdString(answerCmd.body);
-            return;
-        }
-    }
+
+    outFinished = (answer.executed == 1);
+    outLog = QString::fromStdString(answer.body);
 }
 
 void Helper_posix::clearUnblockingCmd(unsigned long cmdId)
@@ -101,8 +88,7 @@ void Helper_posix::clearUnblockingCmd(unsigned long cmdId)
 
     QMutexLocker locker(&mutex_);
 
-    if (curState_ != STATE_CONNECTED)
-    {
+    if (curState_ != STATE_CONNECTED) {
         return;
     }
 
@@ -112,19 +98,9 @@ void Helper_posix::clearUnblockingCmd(unsigned long cmdId)
     boost::archive::text_oarchive oa(stream, boost::archive::no_header);
     oa << cmd;
 
-    if (!sendCmdToHelper(HELPER_CMD_CLEAR_CMDS, stream.str()))
-    {
+    CMD_ANSWER answer;
+    if (!runCommand(HELPER_CMD_CLEAR_CMDS, stream.str(), answer)) {
         doDisconnectAndReconnect();
-        return;
-    }
-    else
-    {
-        CMD_ANSWER answerCmd;
-        if (!readAnswer(answerCmd))
-        {
-            doDisconnectAndReconnect();
-            return;
-        }
     }
 }
 
@@ -140,8 +116,7 @@ bool Helper_posix::setSplitTunnelingSettings(bool isActive, bool isExclude,
 {
     QMutexLocker locker(&mutex_);
 
-    if (curState_ != STATE_CONNECTED)
-    {
+    if (curState_ != STATE_CONNECTED) {
         return false;
     }
 
@@ -149,18 +124,15 @@ bool Helper_posix::setSplitTunnelingSettings(bool isActive, bool isExclude,
     cmdSplitTunnelingSettings.isActive = isActive;
     cmdSplitTunnelingSettings.isExclude = isExclude;
 
-    for (int i = 0; i < files.count(); ++i)
-    {
+    for (int i = 0; i < files.count(); ++i) {
         cmdSplitTunnelingSettings.files.push_back(files[i].toStdString());
     }
 
-    for (int i = 0; i < ips.count(); ++i)
-    {
+    for (int i = 0; i < ips.count(); ++i) {
         cmdSplitTunnelingSettings.ips.push_back(ips[i].toStdString());
     }
 
-    for (int i = 0; i < hosts.count(); ++i)
-    {
+    for (int i = 0; i < hosts.count(); ++i) {
         cmdSplitTunnelingSettings.hosts.push_back(hosts[i].toStdString());
     }
 
@@ -168,21 +140,11 @@ bool Helper_posix::setSplitTunnelingSettings(bool isActive, bool isExclude,
     boost::archive::text_oarchive oa(stream, boost::archive::no_header);
     oa << cmdSplitTunnelingSettings;
 
-    if (!sendCmdToHelper(HELPER_CMD_SPLIT_TUNNELING_SETTINGS, stream.str()))
-    {
+    CMD_ANSWER answer;
+    if (!runCommand(HELPER_CMD_SPLIT_TUNNELING_SETTINGS, stream.str(), answer)) {
         doDisconnectAndReconnect();
         return false;
     }
-    else
-    {
-        CMD_ANSWER answerCmd;
-        if (!readAnswer(answerCmd))
-        {
-            doDisconnectAndReconnect();
-            return false;
-        }
-    }
-
     return true;
 }
 
@@ -203,29 +165,27 @@ bool Helper_posix::sendConnectStatus(bool isConnected, bool isTerminateSocket, b
 
     if (isConnected) {
         if (protocol.isStunnelOrWStunnelProtocol()) {
-            cmd.protocol = CMD_PROTOCOL_STUNNEL_OR_WSTUNNEL;
+            cmd.protocol = kCmdProtocolStunnelOrWstunnel;
         }
         else if (protocol.isIkev2Protocol()) {
-            cmd.protocol = CMD_PROTOCOL_IKEV2;
+            cmd.protocol = kCmdProtocolIkev2;
         }
         else if (protocol.isWireGuardProtocol()) {
-            cmd.protocol = CMD_PROTOCOL_WIREGUARD;
+            cmd.protocol = kCmdProtocolWireGuard;
         }
         else if (protocol.isOpenVpnProtocol()) {
-            cmd.protocol = CMD_PROTOCOL_OPENVPN;
+            cmd.protocol = kCmdProtocolOpenvpn;
         }
         else {
             WS_ASSERT(false);
         }
 
-        auto fillAdapterInfo = [](const AdapterGatewayInfo &a, ADAPTER_GATEWAY_INFO &out)
-        {
+        auto fillAdapterInfo = [](const AdapterGatewayInfo &a, ADAPTER_GATEWAY_INFO &out) {
             out.adapterName = a.adapterName().toStdString();
             out.adapterIp = a.adapterIp().toStdString();
             out.gatewayIp = a.gateway().toStdString();
             const QStringList dns = a.dnsServers();
-            for(auto ip : dns)
-            {
+            for(auto ip : dns) {
                 out.dnsServers.push_back(ip.toStdString());
             }
         };
@@ -241,13 +201,8 @@ bool Helper_posix::sendConnectStatus(bool isConnected, bool isTerminateSocket, b
     boost::archive::text_oarchive oa(stream, boost::archive::no_header);
     oa << cmd;
 
-    if (!sendCmdToHelper(HELPER_CMD_SEND_CONNECT_STATUS, stream.str())) {
-        doDisconnectAndReconnect();
-        return false;
-    }
-
-    CMD_ANSWER answerCmd;
-    if (!readAnswer(answerCmd)) {
+    CMD_ANSWER answer;
+    if (!runCommand(HELPER_CMD_SEND_CONNECT_STATUS, stream.str(), answer)) {
         doDisconnectAndReconnect();
         return false;
     }
@@ -255,122 +210,74 @@ bool Helper_posix::sendConnectStatus(bool isConnected, bool isTerminateSocket, b
     return true;
 }
 
-/*bool Helper_posix::setCustomDnsWhileConnected(bool isIkev2, unsigned long ifIndex, const QString &overrideDnsIpAddress)
+bool Helper_posix::changeMtu(const QString &adapter, int mtu)
 {
-    Q_UNUSED(ifIndex)
-    Q_UNUSED(overrideDnsIpAddress)
+    QMutexLocker locker(&mutex_);
 
-    // get list of entries of interest
-    QStringList networkServices = MacUtils::getListOfDnsNetworkServiceEntries();
+    CMD_ANSWER answer;
+    CMD_CHANGE_MTU cmd;
+    cmd.mtu = mtu;
+    cmd.adapterName = adapter.toStdString();
 
-    // filter list to only SetByWindscribe entries
-    QStringList dnsNetworkServices;
+    std::stringstream stream;
+    boost::archive::text_oarchive oa(stream, boost::archive::no_header);
+    oa << cmd;
 
-    if (isIkev2)
-    {
-        // IKEv2 is slightly different -- look for "ConfirmedServiceID" key in each DNS dictionary
-        for (QString service : networkServices)
-        {
-            if (MacUtils::dynamicStoreEntryHasKey(service, "ConfirmedServiceID"))
-            {
-                dnsNetworkServices.append(service);
-            }
-        }
-    }
-    else
-    {
-        // WG and openVPN: just look for 'SetByWindscribe' key in each DNS dictionary
-        for (QString service : networkServices)
-        {
-            if (MacUtils::dynamicStoreEntryHasKey(service, "SetByWindscribe"))
-            {
-                dnsNetworkServices.append(service);
-            }
-        }
-    }
-    qCDebug(LOG_CONNECTED_DNS) << "Applying custom 'while connected' DNS change to network services: " << dnsNetworkServices;
-
-    if (dnsNetworkServices.isEmpty())
-    {
-        qCDebug(LOG_CONNECTED_DNS) << "No network services to confirgure 'while connected' DNS";
-        return false;
-    }
-
-    // change DNS on each entry
-    bool successAll = true;
-    for (QString service : dnsNetworkServices)
-    {
-        if (!Helper_posix::setDnsOfDynamicStoreEntry(overrideDnsIpAddress, service))
-        {
-            successAll = false;
-            qCDebug(LOG_CONNECTED_DNS) << "Failed to set network service DNS: " << service;
-            break;
-        }
-    }
-
-    return successAll;
+    return runCommand(HELPER_CMD_CHANGE_MTU, stream.str(), answer);
 }
-*/
+
+bool Helper_posix::deleteRoute(const QString &range, int mask, const QString &gateway)
+{
+    QMutexLocker locker(&mutex_);
+
+    CMD_ANSWER answer;
+    CMD_DELETE_ROUTE cmd;
+    cmd.range = range.toStdString();
+    cmd.mask = mask;
+    cmd.gateway = gateway.toStdString();
+
+    std::stringstream stream;
+    boost::archive::text_oarchive oa(stream, boost::archive::no_header);
+    oa << cmd;
+
+    return runCommand(HELPER_CMD_DELETE_ROUTE, stream.str(), answer);
+}
 
 IHelper::ExecuteError Helper_posix::startWireGuard(const QString &exeName, const QString &deviceName)
 {
     QMutexLocker locker(&mutex_);
 
-    if (!exeName.isEmpty())
-    {
-        // check executable signature
-        // no need for windows implementation in posix file
-#if defined Q_OS_LINUX
-        const QString &wireGuardExePath = QCoreApplication::applicationDirPath() + "/" + exeName;
-#else
-        const QString &wireGuardExePath = QCoreApplication::applicationDirPath() + "/../Helpers/windscribewireguard";
-#endif
-
-        ExecutableSignature sigCheck;
-        if (!sigCheck.verifyWithSignCheck(wireGuardExePath.toStdWString()))
-        {
-            qCDebug(LOG_CONNECTION) << "WireGuard executable signature incorrect: " << QString::fromStdString(sigCheck.lastError());
-            return IHelper::EXECUTE_VERIFY_ERROR;
-        }
-
-        wireGuardExeName_ = exeName;
-        wireGuardDeviceName_.clear();
-    }
-
-    if (curState_ != STATE_CONNECTED)
-    {
+    if (curState_ != STATE_CONNECTED) {
         return IHelper::EXECUTE_ERROR;
     }
 
     CMD_START_WIREGUARD cmd;
 #ifdef Q_OS_MAC
-    cmd.exePath = (QCoreApplication::applicationDirPath() + "/../Helpers/" + exeName).toStdString();
+    cmd.exePath = (QCoreApplication::applicationDirPath() + "/../Helpers/").toStdString();
 #elif defined Q_OS_LINUX
-    if (!exeName.isEmpty())
-        cmd.exePath = (QCoreApplication::applicationDirPath() + "/" + exeName).toStdString();
+    if (!exeName.isEmpty()) {
+        cmd.exePath = (QCoreApplication::applicationDirPath() + "/").toStdString();
+    } else {
+        cmd.exePath = "";
+    }
 #else
     WS_ASSERT(false);
 #endif
+    cmd.executable = exeName.toStdString();
     cmd.deviceName = deviceName.toStdString();
 
     std::stringstream stream;
     boost::archive::text_oarchive oa(stream, boost::archive::no_header);
     oa << cmd;
 
-    if (!sendCmdToHelper(HELPER_CMD_START_WIREGUARD, stream.str())) {
-        doDisconnectAndReconnect();
-        return IHelper::EXECUTE_ERROR;
-    }
-    CMD_ANSWER answerCmd;
-    if (!readAnswer(answerCmd)) {
+    CMD_ANSWER answer;
+    if (!runCommand(HELPER_CMD_START_WIREGUARD, stream.str(), answer) || answer.executed == 0) {
         doDisconnectAndReconnect();
         return IHelper::EXECUTE_ERROR;
     }
 
-    if (answerCmd.executed)
-        wireGuardDeviceName_ = deviceName;
-
-    return answerCmd.executed != 0 ? IHelper::EXECUTE_SUCCESS : IHelper::EXECUTE_ERROR;
+    wireGuardDeviceName_ = deviceName;
+    return IHelper::EXECUTE_SUCCESS;
 }
 
 bool Helper_posix::stopWireGuard()
@@ -381,17 +288,14 @@ bool Helper_posix::stopWireGuard()
     if (curState_ == STATE_CONNECTED) {
         QMutexLocker locker(&mutex_);
 
-        if (!sendCmdToHelper(HELPER_CMD_STOP_WIREGUARD, "")) {
+        CMD_ANSWER answer;
+        if (!runCommand(HELPER_CMD_STOP_WIREGUARD, "", answer)) {
             doDisconnectAndReconnect();
             return false;
         }
-        CMD_ANSWER answerCmd;
-        if (!readAnswer(answerCmd)) {
-            doDisconnectAndReconnect();
+        if (answer.executed == 0) {
             return false;
         }
-        if (answerCmd.executed == 0)
-            return false;
     }
     return true;
 }
@@ -408,15 +312,20 @@ bool Helper_posix::configureWireGuard(const WireGuardConfig &config)
         QByteArray::fromBase64(config.clientPrivateKey().toLatin1()).toHex().data();
     cmd.clientIpAddress = config.clientIpAddress().toLatin1().data();
     cmd.clientDnsAddressList = config.clientDnsAddress().toLatin1().data();
-#ifdef Q_OS_MAC
-    QString strDnsPath = TempScripts_mac::instance().dnsScriptPath();
-#elif defined(Q_OS_LINUX)
-    QString strDnsPath = DnsScripts_linux::instance().scriptPath();
-#endif
-    if (strDnsPath.isEmpty()) {
-        return false;
+#if defined(Q_OS_LINUX)
+    switch (DnsScripts_linux::instance().dnsManager()) {
+    case DnsScripts_linux::SCRIPT_TYPE::SYSTEMD_RESOLVED:
+        cmd.dnsManager = kSystemdResolved;
+        break;
+    case DnsScripts_linux::SCRIPT_TYPE::RESOLV_CONF:
+        cmd.dnsManager = kResolvConf;
+        break;
+    case DnsScripts_linux::SCRIPT_TYPE::NETWORK_MANAGER:
+    default:
+        cmd.dnsManager = kNetworkManager;
+        break;
     }
-    cmd.clientDnsScriptName = strDnsPath.toLatin1().data();
+#endif
 
     cmd.peerEndpoint = config.peerEndpoint().toLatin1().data();
     cmd.peerPublicKey = QByteArray::fromBase64(config.peerPublicKey().toLatin1()).toHex().data();
@@ -428,17 +337,13 @@ bool Helper_posix::configureWireGuard(const WireGuardConfig &config)
     boost::archive::text_oarchive oa(stream, boost::archive::no_header);
     oa << cmd;
 
-    if (!sendCmdToHelper(HELPER_CMD_CONFIGURE_WIREGUARD, stream.str())) {
+    CMD_ANSWER answer;
+    if (!runCommand(HELPER_CMD_CONFIGURE_WIREGUARD, stream.str(), answer) || answer.executed == 0) {
         qCDebug(LOG_WIREGUARD) << "WireGuard configuration failed";
         doDisconnectAndReconnect();
         return false;
     }
-    CMD_ANSWER answerCmd;
-    if (!readAnswer(answerCmd)) {
-        doDisconnectAndReconnect();
-        return false;
-    }
-    return answerCmd.executed != 0;
+    return true;
 }
 
 bool Helper_posix::getWireGuardStatus(types::WireGuardStatus *status)
@@ -450,44 +355,41 @@ bool Helper_posix::getWireGuardStatus(types::WireGuardStatus *status)
         status->errorCode = 0;
         status->bytesReceived = status->bytesTransmitted = 0;
     }
-    if (curState_ != STATE_CONNECTED)
-        return false;
-
-    if (!sendCmdToHelper(HELPER_CMD_GET_WIREGUARD_STATUS, "")) {
-        doDisconnectAndReconnect();
-        return false;
-    }
-    CMD_ANSWER answerCmd;
-    if (!readAnswer(answerCmd)) {
-        doDisconnectAndReconnect();
+    if (curState_ != STATE_CONNECTED) {
         return false;
     }
 
-    if (!answerCmd.executed)
+    CMD_ANSWER answer;
+    if (!runCommand(HELPER_CMD_GET_WIREGUARD_STATUS, "", answer)) {
+        doDisconnectAndReconnect();
         return false;
+    }
+    if (!answer.executed) {
+        return false;
+    }
 
-    switch (answerCmd.cmdId) {
+    switch (answer.cmdId) {
     default:
-    case WIREGUARD_STATE_NONE:
+    case kWgStateNone:
         status->state = types::WireGuardState::NONE;
         break;
-    case WIREGUARD_STATE_ERROR:
+    case kWgStateError:
         status->state = types::WireGuardState::FAILURE;
-        status->errorCode = answerCmd.customInfoValue[0];
+        status->errorCode = answer.customInfoValue[0];
         break;
-    case WIREGUARD_STATE_STARTING:
+    case kWgStateStarting:
         status->state = types::WireGuardState::STARTING;
         break;
-    case WIREGUARD_STATE_LISTENING:
+    case kWgStateListening:
         status->state = types::WireGuardState::LISTENING;
         break;
-    case WIREGUARD_STATE_CONNECTING:
+    case kWgStateConnecting:
         status->state = types::WireGuardState::CONNECTING;
         break;
-    case WIREGUARD_STATE_ACTIVE:
+    case kWgStateActive:
         status->state = types::WireGuardState::ACTIVE;
-        status->bytesReceived = answerCmd.customInfoValue[0];
-        status->bytesTransmitted = answerCmd.customInfoValue[1];
+        status->bytesReceived = answer.customInfoValue[0];
+        status->bytesTransmitted = answer.customInfoValue[1];
         break;
     }
     return true;
@@ -497,52 +399,12 @@ void Helper_posix::setDefaultWireGuardDeviceName(const QString &deviceName)
 {
     // If we don't have an active WireGuard device, assign the default device name. It is important
     // for a subsequent call to stopWireGuard(), to stop the device created during the last session.
-    if (wireGuardDeviceName_.isEmpty())
+    if (wireGuardDeviceName_.isEmpty()) {
         wireGuardDeviceName_ = deviceName;
+    }
 }
 
-QString Helper_posix::executeRootCommand(const QString &commandLine, int *exitCode /* = nullptr*/)
-{
-    QMutexLocker locker(&mutex_);
-
-    if (curState_ != STATE_CONNECTED)
-    {
-        return "";
-    }
-
-    bool bExecuted;
-    QString log;
-    int ret = executeRootCommandImpl(commandLine, &bExecuted, log, exitCode);
-    if (ret == RET_SUCCESS)
-    {
-        return log;
-    }
-    else
-    {
-        qCDebug(LOG_BASIC) << "App disconnected from helper, try reconnect";
-        doDisconnectAndReconnect();
-
-        QElapsedTimer elapsedTimer;
-        elapsedTimer.start();
-        while (elapsedTimer.elapsed() < MAX_WAIT_HELPER && !isNeedFinish())
-        {
-            if (curState_ == STATE_CONNECTED)
-            {
-                ret = executeRootCommandImpl(commandLine, &bExecuted, log, exitCode);
-                if (ret == RET_SUCCESS)
-                {
-                    return log;
-                }
-            }
-            msleep(1);
-        }
-    }
-
-    qCDebug(LOG_BASIC) << "executeRootCommand() failed";
-    return "";
-}
-
-IHelper::ExecuteError Helper_posix::executeOpenVPN(const QString &commandLine, const QString &pathToOvpnConfig, unsigned long &outCmdId)
+IHelper::ExecuteError Helper_posix::executeOpenVPN(const QString &config, const QString &arguments, unsigned long &outCmdId, bool isCustomConfig)
 {
     QMutexLocker locker(&mutex_);
 
@@ -554,97 +416,162 @@ IHelper::ExecuteError Helper_posix::executeOpenVPN(const QString &commandLine, c
     const QString &openVpnExePath = QCoreApplication::applicationDirPath() + "/../Helpers/" + OpenVpnVersionController::instance().getSelectedOpenVpnExecutable();
 #endif
 
-    ExecutableSignature sigCheck;
-    if (!sigCheck.verifyWithSignCheck(openVpnExePath.toStdWString()))
-    {
-        qCDebug(LOG_CONNECTION) << "OpenVPN executable signature incorrect: " << QString::fromStdString(sigCheck.lastError());
-        return IHelper::EXECUTE_VERIFY_ERROR;
-    }
-
-    if (curState_ != STATE_CONNECTED)
-    {
+    if (curState_ != STATE_CONNECTED) {
         return IHelper::EXECUTE_ERROR;
     }
-
-    // get path to openvpn util
-    QString strOpenVpnPath = "/" + OpenVpnVersionController::instance().getSelectedOpenVpnExecutable();
 
 #ifdef Q_OS_MAC
     QString helpersPath = QCoreApplication::applicationDirPath() + "/../Helpers";
 #elif defined Q_OS_LINUX
     QString helpersPath = QCoreApplication::applicationDirPath() + "/";
 #endif
-    QString pathToOpenVPN = helpersPath + strOpenVpnPath;
-    QString cmdOpenVPN = QString("cd '%1' && %2 %3").arg(pathToOvpnConfig, pathToOpenVPN, commandLine);
 
-    CMD_EXECUTE_OPENVPN cmd;
-    cmd.cmdline = cmdOpenVPN.toStdString();
+    CMD_START_OPENVPN cmd;
+    cmd.exePath = helpersPath.toStdString();
+    cmd.executable = OpenVpnVersionController::instance().getSelectedOpenVpnExecutable().toStdString();
+    cmd.config = config.toStdString();
+    cmd.arguments = arguments.toStdString();
+    cmd.isCustomConfig = isCustomConfig;
+#if defined(Q_OS_LINUX)
+    switch (DnsScripts_linux::instance().dnsManager()) {
+    case DnsScripts_linux::SCRIPT_TYPE::SYSTEMD_RESOLVED:
+        cmd.dnsManager = kSystemdResolved;
+        break;
+    case DnsScripts_linux::SCRIPT_TYPE::RESOLV_CONF:
+        cmd.dnsManager = kResolvConf;
+        break;
+    case DnsScripts_linux::SCRIPT_TYPE::NETWORK_MANAGER:
+    default:
+        cmd.dnsManager = kNetworkManager;
+        break;
+    }
+#endif
 
     std::stringstream stream;
     boost::archive::text_oarchive oa(stream, boost::archive::no_header);
     oa << cmd;
 
-    qDebug() << Utils::cleanSensitiveInfo(cmdOpenVPN);
+    qDebug() << QString::fromStdString(Utils::cleanSensitiveInfo(cmd.exePath + "/" + cmd.executable + " " + cmd.arguments));
 
-    if (!sendCmdToHelper(HELPER_CMD_EXECUTE_OPENVPN, stream.str()))
-    {
+    CMD_ANSWER answer;
+    if (!runCommand(HELPER_CMD_START_OPENVPN, stream.str(), answer) || answer.executed == 0) {
         doDisconnectAndReconnect();
         return IHelper::EXECUTE_ERROR;
     }
-    else
-    {
-        CMD_ANSWER answerCmd;
-        if (!readAnswer(answerCmd))
-        {
-            doDisconnectAndReconnect();
-            return IHelper::EXECUTE_ERROR;
-        }
-        else
-        {
-            outCmdId = answerCmd.cmdId;
-            return IHelper::EXECUTE_SUCCESS;
-        }
-    }
+
+    outCmdId = answer.cmdId;
+    return IHelper::EXECUTE_SUCCESS;
 }
 
-bool Helper_posix::executeTaskKill(const QString &executableName)
+bool Helper_posix::executeTaskKill(CmdKillTarget target)
 {
-    QString killCmd = "pkill -f " + executableName;
-    executeRootCommand(killCmd);
-    return true;
-}
+    QMutexLocker locker(&mutex_);
 
-int Helper_posix::executeRootCommandImpl(const QString &commandLine, bool *bExecuted, QString &answer, int *exitCode /*= nullptr*/)
-{
-    CMD_EXECUTE cmd;
-    cmd.cmdline = commandLine.toStdString();
+    CMD_TASK_KILL cmd;
+    CMD_ANSWER answer;
+    cmd.target = target;
 
     std::stringstream stream;
     boost::archive::text_oarchive oa(stream, boost::archive::no_header);
     oa << cmd;
 
-    if (!sendCmdToHelper(HELPER_CMD_EXECUTE, stream.str()))
-    {
-        return RET_DISCONNECTED;
+    return runCommand(HELPER_CMD_TASK_KILL, stream.str(), answer);
+}
+
+bool Helper_posix::setDnsScriptEnabled(bool bEnabled)
+{
+    QMutexLocker locker(&mutex_);
+
+    CMD_SET_DNS_SCRIPT_ENABLED cmd;
+    CMD_ANSWER answer;
+    cmd.enabled = bEnabled;
+
+    std::stringstream stream;
+    boost::archive::text_oarchive oa(stream, boost::archive::no_header);
+    oa << cmd;
+
+    return runCommand(HELPER_CMD_SET_DNS_SCRIPT_ENABLED, stream.str(), answer);
+}
+
+bool Helper_posix::checkFirewallState(const QString &tag)
+{
+    QMutexLocker locker(&mutex_);
+
+    CMD_CHECK_FIREWALL_STATE cmd;
+    CMD_ANSWER answer;
+    cmd.tag = tag.toStdString();
+
+    std::stringstream stream;
+    boost::archive::text_oarchive oa(stream, boost::archive::no_header);
+    oa << cmd;
+
+    if (!runCommand(HELPER_CMD_CHECK_FIREWALL_STATE, stream.str(), answer)) {
+        return false;
     }
-    else
-    {
-        CMD_ANSWER answerCmd;
-        if (!readAnswer(answerCmd))
-        {
-            return RET_DISCONNECTED;
-        }
-        else
-        {
-            *bExecuted = true;
-            answer = QString::fromStdString(answerCmd.body);
-            if (exitCode)
-            {
-                *exitCode = answerCmd.exitCode;
-            }
-            return RET_SUCCESS;
-        }
+    return answer.exitCode;
+}
+
+bool Helper_posix::clearFirewallRules()
+{
+    QMutexLocker locker(&mutex_);
+
+    CMD_ANSWER answer;
+    return runCommand(HELPER_CMD_CLEAR_FIREWALL_RULES, {}, answer);
+}
+
+bool Helper_posix::setFirewallRules(CmdIpVersion version, const QString &table, const QString &group, const QString &rules)
+{
+    QMutexLocker locker(&mutex_);
+
+    CMD_SET_FIREWALL_RULES cmd;
+    CMD_ANSWER answer;
+    cmd.ipVersion = version;
+    cmd.table = table.toStdString();
+    cmd.group = group.toStdString();
+    cmd.rules = rules.toStdString();
+
+    std::stringstream stream;
+    boost::archive::text_oarchive oa(stream, boost::archive::no_header);
+    oa << cmd;
+
+    return runCommand(HELPER_CMD_SET_FIREWALL_RULES, stream.str(), answer);
+}
+
+bool Helper_posix::getFirewallRules(CmdIpVersion version, const QString &table, const QString &group, QString &rules)
+{
+    QMutexLocker locker(&mutex_);
+
+    CMD_GET_FIREWALL_RULES cmd;
+    CMD_ANSWER answer;
+    cmd.ipVersion = version;
+    cmd.table = table.toStdString();
+    cmd.group = group.toStdString();
+
+    std::stringstream stream;
+    boost::archive::text_oarchive oa(stream, boost::archive::no_header);
+    oa << cmd;
+
+    if (!runCommand(HELPER_CMD_GET_FIREWALL_RULES, stream.str(), answer)) {
+        return false;
     }
+    rules = QString::fromStdString(answer.body); 
+    return true;
+}
+
+bool Helper_posix::setFirewallOnBoot(bool bEnabled, const QString &rules)
+{
+    QMutexLocker locker(&mutex_);
+
+    CMD_SET_FIREWALL_ON_BOOT cmd;
+    CMD_ANSWER answer;
+    cmd.enabled = bEnabled;
+    cmd.rules = rules.toStdString();
+
+    std::stringstream stream;
+    boost::archive::text_oarchive oa(stream, boost::archive::no_header);
+    oa << cmd;
+
+    return runCommand(HELPER_CMD_SET_FIREWALL_ON_BOOT, stream.str(), answer);
 }
 
 void Helper_posix::run()
@@ -660,41 +587,30 @@ void Helper_posix::run()
 
 void Helper_posix::connectHandler(const boost::system::error_code &ec)
 {
-    if (!ec)
-    {
+    if (!ec) {
         // we connected
         g_this_->curState_ = STATE_CONNECTED;
         //emit signal only once on first run
-        if (!g_this_->bHelperConnectedEmitted_)
-        {
+        if (!g_this_->bHelperConnectedEmitted_) {
             g_this_->bHelperConnectedEmitted_ = true;
         }
         qCDebug(LOG_BASIC) << "connected to helper socket";
-    }
-    else
-    {
+    } else {
         // only report the first error while connecting to helper in order to prevent log bloat
         // we want to see first error in case it is different than all following errors
-        if (!g_this_->firstConnectToHelperErrorReported_)
-        {
+        if (!g_this_->firstConnectToHelperErrorReported_) {
             qCDebug(LOG_BASIC) << "Error while connecting to helper (first): " << ec.value();
             g_this_->firstConnectToHelperErrorReported_ = true;
         }
 
-        if (g_this_->reconnectElapsedTimer_.elapsed() > MAX_WAIT_HELPER)
-        {
-            if (!g_this_->bHelperConnectedEmitted_)
-            {
+        if (g_this_->reconnectElapsedTimer_.elapsed() > MAX_WAIT_HELPER) {
+            if (!g_this_->bHelperConnectedEmitted_) {
                 qCDebug(LOG_BASIC) << "Error while connecting to helper: " << ec.value();
                 g_this_->curState_ = STATE_FAILED_CONNECT;
-            }
-            else
-            {
+            } else {
                 emit g_this_->lostConnectionToHelper();
             }
-        }
-        else
-        {
+        } else {
             // try reconnect
             msleep(10);
             {
@@ -715,23 +631,29 @@ void Helper_posix::doDisconnectAndReconnect()
     }
 }
 
+bool Helper_posix::runCommand(int cmdId, const std::string &data, CMD_ANSWER &answer)
+{
+    bool ret = sendCmdToHelper(cmdId, data);
+    if (!ret) {
+        return ret;
+    }
+
+    return readAnswer(answer);
+}
+
 bool Helper_posix::readAnswer(CMD_ANSWER &outAnswer)
 {
     boost::system::error_code ec;
     int length;
     boost::asio::read(*socket_, boost::asio::buffer(&length, sizeof(length)),
                       boost::asio::transfer_exactly(sizeof(length)), ec);
-    if (ec)
-    {
+    if (ec) {
         return false;
-    }
-    else
-    {
+    } else {
         std::vector<char> buff(length);
         boost::asio::read(*socket_, boost::asio::buffer(&buff[0], length),
                           boost::asio::transfer_exactly(length), ec);
-        if (ec)
-        {
+        if (ec) {
             return false;
         }
 
@@ -751,27 +673,23 @@ bool Helper_posix::sendCmdToHelper(int cmdId, const std::string &data)
 
     // first 4 bytes - cmdId
     boost::asio::write(*socket_, boost::asio::buffer(&cmdId, sizeof(cmdId)), boost::asio::transfer_exactly(sizeof(cmdId)), ec);
-    if (ec)
-    {
+    if (ec) {
         return false;
     }
     // second 4 bytes - pid
     const auto pid = getpid();
     boost::asio::write(*socket_, boost::asio::buffer(&pid, sizeof(pid)), boost::asio::transfer_exactly(sizeof(pid)), ec);
-    if (ec)
-    {
+    if (ec) {
         return false;
     }
     // third 4 bytes - size of buffer
     boost::asio::write(*socket_, boost::asio::buffer(&length, sizeof(length)), boost::asio::transfer_exactly(sizeof(length)), ec);
-    if (ec)
-    {
+    if (ec) {
         return false;
     }
     // body of message
     boost::asio::write(*socket_, boost::asio::buffer(data.data(), length), boost::asio::transfer_exactly(length), ec);
-    if (ec)
-    {
+    if (ec) {
         doDisconnectAndReconnect();
         return false;
     }

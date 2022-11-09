@@ -19,9 +19,10 @@ public:
     explicit OpenVPNConnection(QObject *parent, IHelper *helper);
     ~OpenVPNConnection() override;
 
-    void startConnect(const QString &configPathOrUrl, const QString &ip, const QString &dnsHostName,
+    void startConnect(const QString &configOrUrl, const QString &ip, const QString &dnsHostName,
                       const QString &username, const QString &password, const types::ProxySettings &proxySettings,
-                      const WireGuardConfig *wireGuardConfig, bool isEnableIkev2Compression, bool isAutomaticConnectionMode) override;
+                      const WireGuardConfig *wireGuardConfig, bool isEnableIkev2Compression, bool isAutomaticConnectionMode,
+                      bool isCustomConfig) override;
     void startDisconnect() override;
     bool isDisconnected() const override;
     bool isAllowFirewallAfterCustomConfigConnection() const override;
@@ -46,10 +47,11 @@ private:
 
     boost::asio::io_service io_service_;
 
-    QString configPath_;
+    QString config_;
     QString username_;
     QString password_;
     types::ProxySettings proxySettings_;
+    bool isCustomConfig_;
 
     enum CONNECTION_STATUS {STATUS_DISCONNECTED, STATUS_CONNECTING, STATUS_CONNECTED_TO_SOCKET, STATUS_CONNECTED};
     CONNECTION_STATUS currentState_;
@@ -59,7 +61,7 @@ private:
     void setCurrentStateAndEmitDisconnected(CONNECTION_STATUS state);
     void setCurrentStateAndEmitError(CONNECTION_STATUS state, CONNECT_ERROR err);
     CONNECTION_STATUS getCurrentState() const;
-    IHelper::ExecuteError runOpenVPN(unsigned int port, const types::ProxySettings &proxySettings, unsigned long &outCmdId);
+    IHelper::ExecuteError runOpenVPN(unsigned int port, const types::ProxySettings &proxySettings, unsigned long &outCmdId, bool isCustomConfig);
 
     struct StateVariables
     {

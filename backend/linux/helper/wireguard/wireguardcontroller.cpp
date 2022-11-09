@@ -18,6 +18,7 @@ WireGuardController::WireGuardController()
 
 bool WireGuardController::start(
     const std::string &exePath,
+    const std::string &executable,
     const std::string &deviceName)
 {
     adapter_.reset(new WireGuardAdapter(deviceName));
@@ -33,7 +34,7 @@ bool WireGuardController::start(
         comm_ = std::make_shared<WireGuardGoCommunicator>();
     }
 
-    if (comm_->start(exePath, deviceName))
+    if (comm_->start(exePath, executable, deviceName))
     {
         is_initialized_ = true;
         return true;
@@ -80,7 +81,7 @@ unsigned long WireGuardController::getStatus(
     unsigned long long *bytesTransmitted) const
 {
     if (!is_initialized_)
-        return WIREGUARD_STATE_NONE;
+        return kWgStateNone;
     return comm_->getStatus(errorCode, bytesReceived, bytesTransmitted);
 }
 

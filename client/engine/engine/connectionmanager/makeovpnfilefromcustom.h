@@ -1,6 +1,7 @@
 #ifndef MAKEOVPNFILEFROMCUSTOM_H
 #define MAKEOVPNFILEFROMCUSTOM_H
-#include <QTemporaryFile>
+
+#include <QString>
 
 class MakeOVPNFileFromCustom
 {
@@ -9,11 +10,10 @@ public:
     virtual ~MakeOVPNFileFromCustom();
 
     bool generate(const QString &customConfigPath, const QString &ovpnData, const QString &ip, const QString &remoteCommand);
-    QString path() const { return path_; }
+    QString config() const { return config_; }
 
 private:
-    QString path_;
-    QFile file_;
+    QString config_;
 };
 
 #endif // MAKEOVPNFILEFROMCUSTOM_H

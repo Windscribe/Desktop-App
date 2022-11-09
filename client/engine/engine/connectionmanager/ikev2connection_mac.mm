@@ -160,13 +160,14 @@ IKEv2Connection_mac::~IKEv2Connection_mac()
 
 }
 
-void IKEv2Connection_mac::startConnect(const QString &configPathOrUrl, const QString &ip, const QString &dnsHostName, const QString &username, const QString &password, const types::ProxySettings &proxySettings, const WireGuardConfig *wireGuardConfig, bool isEnableIkev2Compression, bool isAutomaticConnectionMode)
+void IKEv2Connection_mac::startConnect(const QString &configOrUrl, const QString &ip, const QString &dnsHostName, const QString &username, const QString &password, const types::ProxySettings &proxySettings, const WireGuardConfig *wireGuardConfig, bool isEnableIkev2Compression, bool isAutomaticConnectionMode, bool isCustomConfig)
 {
-    Q_UNUSED(configPathOrUrl);
+    Q_UNUSED(configOrUrl);
     Q_UNUSED(proxySettings);
     Q_UNUSED(wireGuardConfig);
     Q_UNUSED(isEnableIkev2Compression);
     Q_UNUSED(isAutomaticConnectionMode);
+    Q_UNUSED(isCustomConfig);
     QMutexLocker locker(&mutex_);
 
     static QWaitCondition waitConditionLocal;

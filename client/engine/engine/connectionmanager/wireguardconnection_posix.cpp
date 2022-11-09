@@ -8,6 +8,10 @@
 #include "types/wireguardtypes.h"
 #include "engine/helper/helper_posix.h"
 
+#ifdef Q_OS_LINUX
+#include "engine/helper/helper_linux.h"
+#endif
+
 class WireGuardConnectionImpl
 {
 public:
@@ -141,7 +145,8 @@ void WireGuardConnection::startConnect(const QString &configPathOrUrl, const QSt
                                        const QString &dnsHostName, const QString &username,
                                        const QString &password, const types::ProxySettings &proxySettings,
                                        const WireGuardConfig *wireGuardConfig,
-                                       bool isEnableIkev2Compression, bool isAutomaticConnectionMode)
+                                       bool isEnableIkev2Compression, bool isAutomaticConnectionMode,
+                                       bool isCustomConfig)
 {
     Q_UNUSED(configPathOrUrl);
     Q_UNUSED(ip);
@@ -150,6 +155,7 @@ void WireGuardConnection::startConnect(const QString &configPathOrUrl, const QSt
     Q_UNUSED(password);
     Q_UNUSED(proxySettings);
     Q_UNUSED(isEnableIkev2Compression);
+    Q_UNUSED(isCustomConfig);
 
     qCDebug(LOG_CONNECTION) << "Connecting WireGuard:" << pimpl_->getAdapterName();
 
@@ -305,7 +311,7 @@ void WireGuardConnection::onProcessKillTimeout()
         qCDebug(LOG_CONNECTION) << "kill the WireGuard process";
         kill_process_timer_.stop();
         Helper_posix *helper_posix = dynamic_cast<Helper_posix *>(helper_);
-        helper_posix->executeRootCommand("pkill -f \"" + getWireGuardExeName() + "\"");
+        helper_posix->executeTaskKill(kTargetWireGuard);
     }
 }
 
@@ -349,11 +355,8 @@ void WireGuardConnection::setError(CONNECT_ERROR err)
 bool WireGuardConnection::checkForKernelModule()
 {
 #if defined(Q_OS_LINUX)
-    Helper_posix *helper_posix = dynamic_cast<Helper_posix *>(helper_);
-    int ret = 0;
-    helper_posix->executeRootCommand("modprobe wireguard", &ret);
-    if (ret == 0)
-        return true;
+    Helper_linux *helper_linux = dynamic_cast<Helper_linux *>(helper_);
+    return helper_linux->checkForWireGuardKernelModule();
 #endif
     return false;
 }

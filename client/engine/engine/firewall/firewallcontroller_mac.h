@@ -55,8 +55,8 @@ private:
     QStringList vpnTrafficRules(const QString &interfaceToSkip, bool bIsCustomConfig) const;
     void getFirewallStateFromPfctl(FirewallState &outState);
     bool checkInternalVsPfctlState();
-    QString generatePfConfFile(const QSet<QString> &ips, bool bAllowLanTraffic, bool bIsCustomConfig, const QString &interfaceToSkip);
-    bool generateTableFile(QTemporaryFile &tempFile, const QSet<QString> &ips);
+    QString generatePfConf(const QSet<QString> &ips, bool bAllowLanTraffic, bool bIsCustomConfig, const QString &interfaceToSkip);
+    QString generateTable(const QSet<QString> &ips);
     void updateVpnAnchor();
 };
 

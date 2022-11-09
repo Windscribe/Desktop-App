@@ -14,7 +14,6 @@ enum INSTALLER_CURRENT_STATE { STATE_INIT, STATE_EXTRACTING, STATE_CANCELED, STA
 
 @interface BaseInstaller : NSObject
 {
-    int pathInd_;  // 0 - no prefix added to path, >=1 - number prefix added to path
     bool isUseUpdatePath_;
     NSString *updatePath_;
 }
@@ -31,14 +30,10 @@ enum INSTALLER_CURRENT_STATE { STATE_INIT, STATE_EXTRACTING, STATE_CANCELED, STA
 
 - (BOOL)isFolderAlreadyExist;
 
--(NSString *)getFullInstallPath;
+- (NSString *)getOldInstallPath;
+- (NSString *)getInstallPath;
 
-// keepBoth make sense if folder already exists
-// keepBoth == YES -> create dir with added number
-// keepBoth == NO -> overwrite old dir
-- (void)start: (BOOL)keepBoth;
-
-
+- (void)start;
 - (void)cancel;
 - (void)runLauncher;
 - (void)waitForCompletion;

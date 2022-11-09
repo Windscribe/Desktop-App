@@ -14,6 +14,7 @@ public:
 
     virtual bool start(
         const std::string &exePath,
+        const std::string &executable,
         const std::string &deviceName);
     virtual bool stop();
     virtual bool configure(
@@ -51,7 +52,7 @@ private:
     };
 
     std::string deviceName_;
-    std::string exePath_;
+    std::string executable_;
     unsigned long daemonCmdId_;
 };
 

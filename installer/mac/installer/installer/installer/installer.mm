@@ -38,24 +38,20 @@
 
 - (BOOL)isFolderAlreadyExist
 {
-    if (isUseUpdatePath_)
-    {
+    if (isUseUpdatePath_) {
         return NO;
-    }
-    else
-    {
+    } else {
         NSFileManager *manager = [NSFileManager defaultManager];
-        return [manager fileExistsAtPath:[self getFullInstallPath] isDirectory:nil];
+        return [manager fileExistsAtPath:[self getOldInstallPath] isDirectory:nil];
     }
 }
 
--(void)start: (BOOL)keepBoth
+-(void)start
 {
     [[Logger sharedLogger] logAndStdOut:@"Installer starting"];
 
-    isKeepBoth_ = keepBoth;
     isCanceled_ = false;
-    
+
     d_group_ = dispatch_group_create();
     dispatch_queue_t bg_queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
 
@@ -74,7 +70,7 @@
     }
     [self waitForCompletion];
     
-    [[NSFileManager defaultManager] removeItemAtPath:[self getFullInstallPath] error:nil];
+    [[NSFileManager defaultManager] removeItemAtPath:[self getOldInstallPath] error:nil];
 }
 
 - (void)appDidLaunch:(NSNotification*)note
@@ -87,7 +83,7 @@
 -(void)runLauncher
 {
     [[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:self selector:@selector(appDidLaunch:) name:NSWorkspaceDidLaunchApplicationNotification object:nil];
-    [[NSWorkspace sharedWorkspace] launchApplication: [self getFullInstallPath]];
+    [[NSWorkspace sharedWorkspace] launchApplication:[self getInstallPath]];
 }
 
 -(NSString *)runProcess:(NSString*)exePath args:(NSArray *)args
@@ -128,70 +124,77 @@
         connectedOldHelper = self.connectHelper;
     }
 
-    // kill processes with "Windscribe" name
-    processesList = processesHelper.getPidsByProcessname("Windscribe");
-    if (processesList.size() > 0)
-    {
-        [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"Waiting for Windscribe programs to close..."]];
-        
-        for (auto pid : processesList)
-        {
-            if (connectedOldHelper) {
-                helper_.killProcess(pid);
-            }
-            else {
-                kill(pid, SIGTERM);
-            }
-        }
+    // trying terminating Windscribe processes with new helper interface
+    bool terminated = false;
+    if (connectedOldHelper) {
+        terminated = helper_.killWindscribeProcess();
+    }
+
+    // if the above method failed or helper was not connected, try the older way
+    if (!terminated) {
+        // kill processes with "Windscribe" name
+        processesList = processesHelper.getPidsByProcessname("Windscribe");
 
         // get WindscribeEngine processes
         std::vector<pid_t> engineList = processesHelper.getPidsByProcessname("WindscribeEngine");
         processesList.insert(processesList.end(), engineList.begin(), engineList.end());
 
-        // wait for finish (maximum 10 sec)
-        NSDate *waitingSince_ = [NSDate date];
-        while (true)
+        if (processesList.size() > 0)
         {
-            bool bAllFinished = true;
+            [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"Waiting for Windscribe programs to close..."]];
+            
             for (auto pid : processesList)
             {
-                if (!processesHelper.isProcessFinished(pid))
-                {
-                    bAllFinished = false;
-                    break;
+                if (connectedOldHelper) {
+                    helper_.killProcess(pid);
+                }
+                else {
+                    kill(pid, SIGTERM);
                 }
             }
-            
-            if (bAllFinished)
+
+            // wait for finish (maximum 10 sec)
+            NSDate *waitingSince_ = [NSDate date];
+            while (true)
             {
-                break;
-            }
-            
-            usleep(10000); // 10 milliseconds
-            int seconds = -(int)[waitingSince_ timeIntervalSinceNow];
-            if (seconds > 10)
-            {
-                NSString *errStr = @"Couldn't kill running Windscribe programs in time. Please close running Windscribe programs manually and try install again.";
-                [[Logger sharedLogger] logAndStdOut:errStr];
-                self.lastError = errStr;
-                self.currentState = STATE_ERROR;
-                [callbackObject_ performSelectorOnMainThread:callbackSelector_ withObject:self waitUntilDone:NO];
-                return;
+                bool bAllFinished = true;
+                for (auto pid : processesList)
+                {
+                    if (!processesHelper.isProcessFinished(pid))
+                    {
+                        bAllFinished = false;
+                        break;
+                    }
+                }
+                
+                if (bAllFinished)
+                {
+                    break;
+                }
+                
+                usleep(10000); // 10 milliseconds
+                int seconds = -(int)[waitingSince_ timeIntervalSinceNow];
+                if (seconds > 10)
+                {
+                    NSString *errStr = @"Couldn't kill running Windscribe programs in time. Please close running Windscribe programs manually and try install again.";
+                    [[Logger sharedLogger] logAndStdOut:errStr];
+                    self.lastError = errStr;
+                    self.currentState = STATE_ERROR;
+                    [callbackObject_ performSelectorOnMainThread:callbackSelector_ withObject:self waitUntilDone:NO];
+                    return;
+                }
             }
         }
     }
-  
-    if (processesList.size() > 0)
-    {
+
+    if (processesList.size() > 0 || terminated) {
         [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"All Windscribe programs closed"]];
     }
 
-    bool bTemp;
     if (self.factoryReset && connectedOldHelper)
     {
         [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"Deleting old helper"]];
-        helper_.executeRootCommand("rm /Library/PrivilegedHelperTools/com.windscribe.helper.macos", bTemp);
-        helper_.executeRootCommand("rm /Library/Logs/com.windscribe.helper.macos/helper_log.txt", bTemp);
+        helper_.deleteOldHelper();
     }
 
     helper_.stop();
@@ -247,48 +250,25 @@
     {
         [[Logger sharedLogger] logAndStdOut:@"Windscribe exists in desired folder"];
 
-        if (isKeepBoth_)
+        [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"Attempting to remove: %@", [self getOldInstallPath]]];
+        
+        bool success = helper_.removeOldInstall([[self getOldInstallPath] UTF8String]);
+        if (!success)
         {
-            for (int i = 2; ; i++)
-            {
-                pathInd_ = i;
-                if ([self isFolderAlreadyExist] == NO)
-                {
-                    [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"Keeping existing app and installing new one as : %i", i]];
-                    break;
-                }
-            }
+            NSString *errStr = @"Previous version of the program cannot be deleted. Please contact support.";
+            [[Logger sharedLogger] logAndStdOut:errStr];
+            self.lastError = errStr;
+            self.currentState = STATE_ERROR;
+            [callbackObject_ performSelectorOnMainThread:callbackSelector_ withObject:self waitUntilDone:NO];
+            helper_.stop();
+            return;
         }
         else
         {
-            [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"Attempting to remove: %@", [self getFullInstallPath]]];
-            
-            NSString *command = [NSString stringWithFormat:@"/bin/rm -r '%@'", [self getFullInstallPath]];
-            std::string strCommand = std::string([command UTF8String]);
-            bool success;
-            helper_.executeRootCommand(strCommand, success);
-            if (!success)
-            {
-                NSString *errStr = @"Previous version of the program cannot be deleted. Please contact support.";
-                [[Logger sharedLogger] logAndStdOut:errStr];
-                self.lastError = errStr;
-                self.currentState = STATE_ERROR;
-                [callbackObject_ performSelectorOnMainThread:callbackSelector_ withObject:self waitUntilDone:NO];
-                helper_.stop();
-                return;
-            }
-            else
-            {
-                [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"Removed!"]];
-            }
+            [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"Removed!"]];
         }
     }
     
-    // remove helper from version 1
-    helper_.executeRootCommand("launchctl unload /Library/LaunchDaemons/com.aaa.windscribe.OVPNHelper.plist", bTemp);
-    helper_.executeRootCommand("rm /Library/LaunchDaemons/com.aaa.windscribe.OVPNHelper.plist", bTemp);
-    helper_.executeRootCommand("rm /Library/PrivilegedHelperTools/com.aaa.windscribe.OVPNHelper", bTemp);
-
     if (self.factoryReset)
     {
         [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"Executing factory reset"]];
@@ -322,7 +302,7 @@
     
     NSString* archivePathFromApp = [[NSBundle mainBundle] pathForResource:@"windscribe.7z" ofType:nil];
     std::wstring strArchivePath = NSStringToStringW(archivePathFromApp);
-    std::wstring strPath = NSStringToStringW([self getFullInstallPath]);
+    std::wstring strPath = NSStringToStringW([self getInstallPath]);
     
     if (!helper_.setPaths(strArchivePath, strPath, userId, groupId))
     {
@@ -382,7 +362,7 @@
     
     // create symlink for cli
     [[Logger sharedLogger] logAndStdOut:@"Creating CLI symlink"];
-    NSString *filepath = [NSString stringWithFormat:@"%@%@", [self getFullInstallPath], @"/Contents/MacOS/windscribe-cli"];
+    NSString *filepath = [NSString stringWithFormat:@"%@%@", [self getInstallPath], @"/Contents/MacOS/windscribe-cli"];
     NSString *sympath = @"/usr/local/bin/windscribe-cli";
     [[NSFileManager defaultManager] removeItemAtPath:sympath error:nil];
     [[NSFileManager defaultManager] createSymbolicLinkAtPath:sympath withDestinationPath:filepath error:nil];

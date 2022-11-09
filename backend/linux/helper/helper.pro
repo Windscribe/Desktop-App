@@ -34,6 +34,7 @@ SOURCES += \
         ipc/helper_security.cpp \
         logger.cpp \
         main.cpp \
+        ovpn.cpp \
         server.cpp \
         utils.cpp \
         routes_manager/routes.cpp \
@@ -54,6 +55,7 @@ HEADERS += \
     execute_cmd.h \
     ipc/helper_security.h \
     logger.h \
+    ovpn.h \
     server.h \
     utils.h \
     routes_manager/routes.h \

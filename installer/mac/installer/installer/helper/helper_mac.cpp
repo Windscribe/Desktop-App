@@ -94,48 +94,52 @@ int Helper_mac::executeFilesStep()
     return answerCmd.executed;
 }
 
-std::string Helper_mac::executeRootCommand(const std::string &commandLine, bool &bSuccess)
+bool Helper_mac::deleteOldHelper()
 {
-    CMD_EXECUTE cmd;
-    cmd.cmdline = commandLine;
-
-    std::stringstream stream;
-    boost::archive::text_oarchive oa(stream, boost::archive::no_header);
-    oa << cmd;
-    
-    if (!sendCmdToHelper(HELPER_CMD_EXECUTE, stream.str()))
-    {
-        return "";
-    }
-    CMD_ANSWER answerCmd;
-    if (!readAnswer(answerCmd))
-    {
-        return "";
-    }
-    bSuccess = true;
-    return answerCmd.body;
+    CMD_ANSWER answer;
+    return runCommand(HELPER_CMD_DELETE_OLD_HELPER, {}, answer);
 }
 
-bool Helper_mac::killProcess(pid_t pid)
+bool Helper_mac::removeOldInstall(const std::string &path)
 {
-    CMD_KILL_PROCESS cmd;
-    cmd.processId = pid;
+    CMD_ANSWER answer;
+    CMD_INSTALLER_REMOVE_OLD_INSTALL cmd;
+    cmd.path = path;
 
     std::stringstream stream;
     boost::archive::text_oarchive oa(stream, boost::archive::no_header);
     oa << cmd;
+
+    return runCommand(HELPER_CMD_INSTALLER_REMOVE_OLD_INSTALL, stream.str(), answer);
+}
+
+// This function invokes the deprecated version of the helper command.
+// If the helper we are calling does not support the newer command from killWindscribeProcess(),
+// we call this one, since the helper we are calling may be older.
+bool Helper_mac::killProcess(pid_t pid)
+{
+    CMD_ANSWER answer;
+    CMD_KILL_PROCESS cmd;
+    cmd.processId = pid;
+ 
+    std::stringstream stream;
+    boost::archive::text_oarchive oa(stream, boost::archive::no_header);
+    oa << cmd;
     
-    if (!sendCmdToHelper(HELPER_CMD_KILL_PROCESS, stream.str()))
-    {
-        return "";
-    }
-    CMD_ANSWER answerCmd;
-    if (!readAnswer(answerCmd))
-    {
-        return "";
-    }
-    
-    return answerCmd.executed != 0;
+    return runCommand(HELPER_CMD_KILL_PROCESS, stream.str(), answer);
+}
+
+bool Helper_mac::killWindscribeProcess()
+{
+    CMD_ANSWER answer;
+    CMD_TASK_KILL cmd;
+    cmd.target = kTargetWindscribe;
+
+    std::stringstream stream;
+    boost::archive::text_oarchive oa(stream, boost::archive::no_header);
+    oa << cmd;
+
+    return runCommand(HELPER_CMD_TASK_KILL, stream.str(), answer);
 }
 
 bool Helper_mac::sendCmdToHelper(int cmdId, const std::string &data)
@@ -190,6 +194,21 @@ bool Helper_mac::readAnswer(CMD_ANSWER &outAnswer)
     ia >> outAnswer;
     return true;
 }
+
+bool Helper_mac::runCommand(int cmdId, const std::string &data, CMD_ANSWER &answer)
+{
+    bool ret = sendCmdToHelper(cmdId, data);
+    if (!ret) {
+        return ret;
+    }
+
+    ret = readAnswer(answer);
+    if (!ret || !answer.executed) {
+        return false;
+    }
+    return true;
+}
+
 
 bool Helper_mac::sendAll(int s, void *buf, int len)
 {

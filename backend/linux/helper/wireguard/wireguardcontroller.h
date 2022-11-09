@@ -18,6 +18,7 @@ public:
 
     bool start(
         const std::string &exePath,
+        const std::string &executable,
         const std::string &deviceName);
     bool stop();
 

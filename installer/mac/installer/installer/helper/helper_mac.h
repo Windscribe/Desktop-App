@@ -16,12 +16,16 @@ public:
     bool setPaths(const std::wstring &archivePath, const std::wstring &installPath, uid_t userId, gid_t groupId);
     int executeFilesStep();
     
-    std::string executeRootCommand(const std::string &commandLine, bool &bSuccess);
     bool killProcess(pid_t pid);
+    bool killWindscribeProcess();
+
+    bool removeOldInstall(const std::string &path);
+    bool deleteOldHelper();
     
 private:
     bool sendCmdToHelper(int cmdId, const std::string &data);
     bool readAnswer(CMD_ANSWER &outAnswer);
+    bool runCommand(int cmdId, const std::string &data, CMD_ANSWER &answer);
     bool sendAll(int s, void *buf, int len);
     bool recvAll(int s, void *buf, int len);
     

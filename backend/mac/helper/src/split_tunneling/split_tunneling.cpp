@@ -58,15 +58,15 @@ void SplitTunneling::updateState()
         }
         else
         {
-            if (connectStatus_.protocol == CMD_PROTOCOL_OPENVPN || connectStatus_.protocol == CMD_PROTOCOL_STUNNEL_OR_WSTUNNEL)
+            if (connectStatus_.protocol == kCmdProtocolOpenvpn || connectStatus_.protocol == kCmdProtocolStunnelOrWstunnel)
             {
                 ipHostnamesManager_.enable(connectStatus_.vpnAdapter.gatewayIp);
             }
-            else if (connectStatus_.protocol == CMD_PROTOCOL_IKEV2)
+            else if (connectStatus_.protocol == kCmdProtocolIkev2)
             {
                 ipHostnamesManager_.enable(connectStatus_.vpnAdapter.adapterIp);
             }
-            else if (connectStatus_.protocol == CMD_PROTOCOL_WIREGUARD)
+            else if (connectStatus_.protocol == kCmdProtocolWireGuard)
             {
                 ipHostnamesManager_.enable(connectStatus_.vpnAdapter.adapterIp);
             }

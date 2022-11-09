@@ -21,17 +21,15 @@ void serialize(Archive &ar, CMD_ANSWER &a, const unsigned int version)
 }
 
 template<class Archive>
-void serialize(Archive &ar, CMD_EXECUTE &a, const unsigned int version)
+void serialize(Archive &ar, CMD_START_OPENVPN &a, const unsigned int version)
 {
     UNUSED(version);
-    ar & a.cmdline;
-}
-
-template<class Archive>
-void serialize(Archive &ar, CMD_EXECUTE_OPENVPN &a, const unsigned int version)
-{
-    UNUSED(version);
-    ar & a.cmdline;
+    ar & a.exePath;
+    ar & a.executable;
+    ar & a.config;
+    ar & a.arguments;
+    ar & a.dnsManager;
+    ar & a.isCustomConfig;
 }
 
 template<class Archive>
@@ -84,10 +82,10 @@ void serialize(Archive &ar, CMD_SEND_CONNECT_STATUS &a, const unsigned int versi
     UNUSED(version);
     ar & a.isConnected;
     ar & a.protocol;
-    
+
     ar & a.defaultAdapter;
     ar & a.vpnAdapter;
-    
+
     ar & a.connectedIp;
     ar & a.remoteIp;
 }
@@ -104,6 +102,7 @@ void serialize(Archive &ar, CMD_START_WIREGUARD &a, const unsigned int version)
 {
     UNUSED(version);
     ar & a.exePath;
+    ar & a.executable;
     ar & a.deviceName;
 }
 
@@ -119,6 +118,7 @@ void serialize(Archive &ar, CMD_CONFIGURE_WIREGUARD &a, const unsigned int versi
     ar & a.peerPresharedKey;
     ar & a.peerEndpoint;
     ar & a.allowedIps;
+    ar & a.dnsManager;
 }
 
 template<class Archive>
@@ -127,7 +127,6 @@ void serialize(Archive &ar, CMD_KILL_PROCESS &a, const unsigned int version)
     UNUSED(version);
     ar & a.processId;
 }
-
 
 template<class Archive>
 void serialize(Archive &ar, CMD_INSTALLER_FILES_SET_PATH &a, const unsigned int version)
@@ -145,6 +144,111 @@ void serialize(Archive &ar, CMD_APPLY_CUSTOM_DNS &a, const unsigned int version)
     UNUSED(version);
     ar & a.ipAddress;
     ar & a.networkService;
+}
+
+template<class Archive>
+void serialize(Archive &ar, CMD_CHANGE_MTU &a, const unsigned int version)
+{
+    UNUSED(version);
+    ar & a.mtu;
+    ar & a.adapterName;
+}
+
+template<class Archive>
+void serialize(Archive &ar, CMD_DELETE_ROUTE &a, const unsigned int version)
+{
+    UNUSED(version);
+    ar & a.range;
+    ar & a.mask;
+    ar & a.gateway;
+}
+
+template<class Archive>
+void serialize(Archive &ar, CMD_SET_IPV6_ENABLED &a, const unsigned int version)
+{
+    UNUSED(version);
+    ar & a.enabled;
+}
+
+template<class Archive>
+void serialize(Archive &ar, CMD_SET_DNS_LEAK_PROTECT_ENABLED &a, const unsigned int version)
+{
+    UNUSED(version);
+    ar & a.enabled;
+}
+
+template<class Archive>
+void serialize(Archive &ar, CMD_SET_DNS_SCRIPT_ENABLED &a, const unsigned int version)
+{
+    UNUSED(version);
+    ar & a.enabled;
+}
+
+template<class Archive>
+void serialize(Archive &ar, CMD_CHECK_FIREWALL_STATE &a, const unsigned int version)
+{
+    UNUSED(version);
+    ar & a.tag;
+}
+
+template<class Archive>
+void serialize(Archive &ar, CMD_SET_FIREWALL_RULES &a, const unsigned int version)
+{
+    UNUSED(version);
+    ar & a.ipVersion;
+    ar & a.table;
+    ar & a.group;
+    ar & a.rules;
+}
+
+template<class Archive>
+void serialize(Archive &ar, CMD_GET_FIREWALL_RULES &a, const unsigned int version)
+{
+    UNUSED(version);
+    ar & a.ipVersion;
+    ar & a.table;
+    ar & a.group;
+}
+
+template<class Archive>
+void serialize(Archive &ar, CMD_INSTALLER_REMOVE_OLD_INSTALL &a, const unsigned int version)
+{
+    UNUSED(version);
+    ar & a.path;
+}
+
+template<class Archive>
+void serialize(Archive &ar, CMD_SET_FIREWALL_ON_BOOT &a, const unsigned int version)
+{
+    UNUSED(version);
+    ar & a.enabled;
+    ar & a.rules;
+}
+
+template<class Archive>
+void serialize(Archive &ar, CMD_SET_MAC_SPOOFING_ON_BOOT &a, const unsigned int version)
+{
+    UNUSED(version);
+    ar & a.enabled;
+    ar & a.interface;
+    ar & a.macAddress;
+    ar & a.robustMethod;
+}
+
+template<class Archive>
+void serialize(Archive &ar, CMD_SET_MAC_ADDRESS &a, const unsigned int version)
+{
+    UNUSED(version);
+    ar & a.interface;
+    ar & a.macAddress;
+    ar & a.robustMethod;
+}
+
+template<class Archive>
+void serialize(Archive &ar, CMD_TASK_KILL &a, const unsigned int version)
+{
+    UNUSED(version);
+    ar & a.target;
 }
 
 }

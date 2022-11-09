@@ -34,6 +34,8 @@ public:
                            const AdapterGatewayInfo &defaultAdapter, const AdapterGatewayInfo &vpnAdapter,
                            const QString &connectedIp, const types::Protocol &protocol) override;
     bool setCustomDnsWhileConnected(bool isIkev2, unsigned long ifIndex, const QString &overrideDnsIpAddress) override;
+    bool changeMtu(const QString &adapter, int mtu) override;
+    bool executeTaskKill(const QString &name);
 
      // WireGuard functions
     IHelper::ExecuteError startWireGuard(const QString &exeName, const QString &deviceName) override;
@@ -46,15 +48,13 @@ public:
     bool isHelperConnected() const;
     IHelper::ExecuteError executeOpenVPN(const QString &configPath, unsigned int portNumber, const QString &httpProxy, unsigned int httpPort,
                         const QString &socksProxy, unsigned int socksPort,
-                        unsigned long &outCmdId);
-    bool executeTaskKill(const QString &executableName);
+                        unsigned long &outCmdId, bool isCustomConfig);
     bool executeResetTap(const QString &tapName);
     QString executeSetMetric(const QString &interfaceType, const QString &interfaceName, const QString &metricNumber);
     QString executeWmicEnable(const QString &adapterName);
     QString executeWmicGetConfigManagerErrorCode(const QString &adapterName);
     bool executeChangeIcs(int cmd, const QString &configPath, const QString &publicGuid, const QString &privateGuid,
                           unsigned long &outCmdId, const QString &eventName);
-    bool executeChangeMtu(const QString &adapter, int mtu);
 
     bool clearDnsOnTap();
     QString enableBFE();

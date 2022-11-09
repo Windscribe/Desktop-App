@@ -11,20 +11,20 @@ class QWidget;
 class DnsScripts_linux
 {
 public:
+    enum SCRIPT_TYPE { SYSTEMD_RESOLVED, RESOLV_CONF, NETWORK_MANAGER };
+
     static DnsScripts_linux &instance()
     {
         static DnsScripts_linux s;
         return s;
     }
 
-    QString scriptPath();
-
+    SCRIPT_TYPE dnsManager();
     void setDnsManager(DNS_MANAGER_TYPE d);
 
 private:
     DnsScripts_linux();
 
-    enum SCRIPT_TYPE { SYSTEMD_RESOLVED, RESOLV_CONF, NETWORK_MANAGER };
     DNS_MANAGER_TYPE dnsManager_;
     SCRIPT_TYPE detectScript();
     QString getSymlink(const QString &path);

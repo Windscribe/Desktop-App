@@ -10,11 +10,14 @@
 #include <list>
 
 #include "../../../posix_common/helper_commands.h"
+#include "firewallonboot.h"
+#include "macspoofingonboot.h"
 #include "split_tunneling.h"
 #include "defaultroutemonitor.h"
 #include "wireguardadapter.h"
 #include "wireguardcontroller.h"
 #include "installer/files.h"
+#include "ipv6/ipv6manager.h"
 
 typedef boost::shared_ptr<boost::asio::local::stream_protocol::socket> socket_ptr;
 
@@ -27,10 +30,13 @@ public:
   
 private:
     SplitTunneling splitTunneling_;
+    Ipv6Manager ipv6Manager_;
     WireGuardController wireGuardController_;
+    FirewallOnBootManager firewallOnBoot_;
+    MacSpoofingOnBootManager macSpoofingOnBoot_;
     boost::asio::io_service service_;
     boost::asio::local::stream_protocol::acceptor *acceptor_;
-    
+
     Files *files_;
    
     bool readAndHandleCommand(socket_ptr sock, boost::asio::streambuf *buf, CMD_ANSWER &outCmdAnswer);

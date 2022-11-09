@@ -36,4 +36,9 @@ bool setDnsOfDynamicStoreEntry(std::string dnsIp, std::string dynEntry)
     return success;
 }
 
+std::string resourcePath()
+{
+    return "/Applications/Windscribe.app/Contents/Resources/";
+}
+
 } // namespace MacUtils

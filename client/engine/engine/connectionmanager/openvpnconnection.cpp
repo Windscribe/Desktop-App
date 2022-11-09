@@ -29,8 +29,9 @@ OpenVPNConnection::~OpenVPNConnection()
     wait();
 }
 
-void OpenVPNConnection::startConnect(const QString &configPathOrUrl, const QString &ip, const QString &dnsHostName, const QString &username, const QString &password,
-                                     const types::ProxySettings &proxySettings, const WireGuardConfig *wireGuardConfig, bool isEnableIkev2Compression, bool isAutomaticConnectionMode)
+void OpenVPNConnection::startConnect(const QString &config, const QString &ip, const QString &dnsHostName, const QString &username, const QString &password,
+                                     const types::ProxySettings &proxySettings, const WireGuardConfig *wireGuardConfig, bool isEnableIkev2Compression, bool isAutomaticConnectionMode,
+                                     bool isCustomConfig)
 {
     Q_UNUSED(ip);
     Q_UNUSED(dnsHostName);
@@ -46,11 +47,12 @@ void OpenVPNConnection::startConnect(const QString &configPathOrUrl, const QStri
     bStopThread_ = false;
 
     setCurrentState(STATUS_CONNECTING);
-    configPath_ = configPathOrUrl;
+    config_ = config;
     username_ = username;
     password_ = password;
     proxySettings_ = proxySettings;
     isAllowFirewallAfterCustomConfigConnection_ = false;
+    isCustomConfig_ = isCustomConfig;
 
     stateVariables_.reset();
     connectionAdapterInfo_.clear();
@@ -125,7 +127,7 @@ OpenVPNConnection::CONNECTION_STATUS OpenVPNConnection::getCurrentState() const
     return currentState_;
 }
 
-IHelper::ExecuteError OpenVPNConnection::runOpenVPN(unsigned int port, const types::ProxySettings &proxySettings, unsigned long &outCmdId)
+IHelper::ExecuteError OpenVPNConnection::runOpenVPN(unsigned int port, const types::ProxySettings &proxySettings, unsigned long &outCmdId, bool isCustomConfig)
 {
 #ifdef Q_OS_WIN
     QString httpProxy, socksProxy;
@@ -149,10 +151,10 @@ IHelper::ExecuteError OpenVPNConnection::runOpenVPN(unsigned int port, const typ
     qCDebug(LOG_CONNECTION) << "OpenVPN version:" << OpenVpnVersionController::instance().getSelectedOpenVpnVersion();
 
     Helper_win *helper_win = dynamic_cast<Helper_win *>(helper_);
-    return helper_win->executeOpenVPN(configPath_, port, httpProxy, httpPort, socksProxy, socksPort, outCmdId);
+    return helper_win->executeOpenVPN(config_, port, httpProxy, httpPort, socksProxy, socksPort, outCmdId, isCustomConfig);
 
 #elif defined (Q_OS_MAC) || defined (Q_OS_LINUX)
-    QString strCommand = "--config \"" + configPath_ + "\" --management 127.0.0.1 " + QString::number(port) + " --management-query-passwords --management-hold --verb 3";
+    QString strCommand = "--management 127.0.0.1 " + QString::number(port) + " --management-query-passwords --management-hold --verb 3";
     if (proxySettings.option() == PROXY_OPTION_HTTP)
     {
         strCommand += " --http-proxy " + proxySettings.address() + " " + QString::number(proxySettings.getPort()) + " auto";
@@ -168,11 +170,8 @@ IHelper::ExecuteError OpenVPNConnection::runOpenVPN(unsigned int port, const typ
     qCDebug(LOG_CONNECTION) << "OpenVPN version:" << OpenVpnVersionController::instance().getSelectedOpenVpnVersion();
     //qCDebug(LOG_CONNECTION) << strCommand;
 
-    std::wstring strOvpnConfigPath = Utils::getDirPathFromFullPath(configPath_.toStdWString());
-    QString qstrOvpnConfigPath = QString::fromStdWString(strOvpnConfigPath);
-
     Helper_posix *helper_posix = dynamic_cast<Helper_posix *>(helper_);
-    return helper_posix->executeOpenVPN(strCommand, qstrOvpnConfigPath, outCmdId);
+    return helper_posix->executeOpenVPN(config_, strCommand, outCmdId, isCustomConfig);
 #endif
 }
 
@@ -190,12 +189,13 @@ void OpenVPNConnection::onKillControllerTimer()
     qCDebug(LOG_CONNECTION) << "kill the openvpn process";
     killControllerTimer_.stop();
 #ifdef Q_OS_WIN
-    Helper_win *helper_win = dynamic_cast<Helper_win *>(helper_);
+    Helper_win *helper_win= dynamic_cast<Helper_win *>(helper_);
     helper_win->executeTaskKill(OpenVpnVersionController::instance().getSelectedOpenVpnExecutable());
-#elif defined (Q_OS_MAC) || defined (Q_OS_LINUX)
+#else
     Helper_posix *helper_posix = dynamic_cast<Helper_posix *>(helper_);
-    helper_posix->executeRootCommand("pkill -9 -f \"" + OpenVpnVersionController::instance().getSelectedOpenVpnExecutable() + "\"");
+    helper_posix->executeTaskKill(kTargetOpenVpn);
 #endif
+
 }
 
 void OpenVPNConnection::funcRunOpenVPN()
@@ -208,7 +208,7 @@ void OpenVPNConnection::funcRunOpenVPN()
 
     // run openvpn process
     IHelper::ExecuteError err;
-    while((err = runOpenVPN(stateVariables_.openVpnPort, proxySettings_, stateVariables_.lastCmdId)) != IHelper::EXECUTE_SUCCESS)
+    while((err = runOpenVPN(stateVariables_.openVpnPort, proxySettings_, stateVariables_.lastCmdId, isCustomConfig_)) != IHelper::EXECUTE_SUCCESS)
     {
         qCDebug(LOG_CONNECTION) << "Can't run OpenVPN";
 

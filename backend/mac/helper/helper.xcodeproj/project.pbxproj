@@ -51,6 +51,14 @@
 		946225E825140DD70032A070 /* wireguardcommunicator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 946225E225140DD70032A070 /* wireguardcommunicator.cpp */; };
 		946225E925140DD70032A070 /* wireguardcontroller.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 946225E425140DD70032A070 /* wireguardcontroller.cpp */; };
 		94DCA9A42559C2510052E65B /* helper_security.mm in Sources */ = {isa = PBXBuildFile; fileRef = 94DCA9A22559C2510052E65B /* helper_security.mm */; };
+		963DFAAF291C5641006E7FF6 /* ipv6manager.h in Sources */ = {isa = PBXBuildFile; fileRef = 963DFAAD291C562C006E7FF6 /* ipv6manager.h */; };
+		963DFAB0291C5641006E7FF6 /* ipv6manager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 963DFAAE291C562C006E7FF6 /* ipv6manager.cpp */; };
+		96A351FD292ECC7900FEED91 /* ovpn.h in Sources */ = {isa = PBXBuildFile; fileRef = 96A351FB292ECC7900FEED91 /* ovpn.h */; };
+		96A351FE292ECC7900FEED91 /* ovpn.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 96A351FC292ECC7900FEED91 /* ovpn.cpp */; };
+		96DC4E87292420C1007C4711 /* macspoofingonboot.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 96DC4E85292420C1007C4711 /* macspoofingonboot.cpp */; };
+		96DC4E88292420C1007C4711 /* macspoofingonboot.h in Sources */ = {isa = PBXBuildFile; fileRef = 96DC4E86292420C1007C4711 /* macspoofingonboot.h */; };
+		96F664E729240B77007D52B0 /* firewallonboot.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 96F664E529240B77007D52B0 /* firewallonboot.cpp */; };
+		96F664E829240B77007D52B0 /* firewallonboot.h in Sources */ = {isa = PBXBuildFile; fileRef = 96F664E629240B77007D52B0 /* firewallonboot.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -168,6 +176,14 @@
 		946225E525140DD70032A070 /* wireguardcontroller.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = wireguardcontroller.h; sourceTree = "<group>"; };
 		94DCA9A22559C2510052E65B /* helper_security.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = helper_security.mm; sourceTree = "<group>"; };
 		94DCA9A32559C2510052E65B /* helper_security.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = helper_security.h; sourceTree = "<group>"; };
+		963DFAAD291C562C006E7FF6 /* ipv6manager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ipv6manager.h; sourceTree = "<group>"; };
+		963DFAAE291C562C006E7FF6 /* ipv6manager.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ipv6manager.cpp; sourceTree = "<group>"; };
+		96A351FB292ECC7900FEED91 /* ovpn.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ovpn.h; sourceTree = "<group>"; };
+		96A351FC292ECC7900FEED91 /* ovpn.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ovpn.cpp; sourceTree = "<group>"; };
+		96DC4E85292420C1007C4711 /* macspoofingonboot.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = macspoofingonboot.cpp; sourceTree = "<group>"; };
+		96DC4E86292420C1007C4711 /* macspoofingonboot.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = macspoofingonboot.h; sourceTree = "<group>"; };
+		96F664E529240B77007D52B0 /* firewallonboot.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = firewallonboot.cpp; sourceTree = "<group>"; };
+		96F664E629240B77007D52B0 /* firewallonboot.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = firewallonboot.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -341,6 +357,7 @@
 		84DA0AE41B1D7EB600260E8F /* src */ = {
 			isa = PBXGroup;
 			children = (
+				963DFAAC291C562C006E7FF6 /* ipv6 */,
 				62BB9E1B27642AC00021F51F /* executable_signature.cpp */,
 				62BB9E1C27642AC00021F51F /* executable_signature.h */,
 				6211D32B274EFFA800533D65 /* executable_signature_mac.h */,
@@ -354,6 +371,12 @@
 				001EE77624B88F52004624BE /* ipc */,
 				8434C1061FD5B99C00B7030D /* keychain_utils.h */,
 				8434C1071FD5B99C00B7030D /* keychain_utils.mm */,
+				96A351FC292ECC7900FEED91 /* ovpn.cpp */,
+				96A351FB292ECC7900FEED91 /* ovpn.h */,
+				96F664E529240B77007D52B0 /* firewallonboot.cpp */,
+				96F664E629240B77007D52B0 /* firewallonboot.h */,
+				96DC4E85292420C1007C4711 /* macspoofingonboot.cpp */,
+				96DC4E86292420C1007C4711 /* macspoofingonboot.h */,
 				843077AB1DE3AE26002405EA /* execute_cmd.cpp */,
 				843077AC1DE3AE26002405EA /* execute_cmd.h */,
 				840B29551D6BBE88007D9519 /* server.cpp */,
@@ -384,6 +407,15 @@
 				946225E525140DD70032A070 /* wireguardcontroller.h */,
 			);
 			path = wireguard;
+			sourceTree = "<group>";
+		};
+		963DFAAC291C562C006E7FF6 /* ipv6 */ = {
+			isa = PBXGroup;
+			children = (
+				963DFAAD291C562C006E7FF6 /* ipv6manager.h */,
+				963DFAAE291C562C006E7FF6 /* ipv6manager.cpp */,
+			);
+			path = ipv6;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -446,6 +478,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				96A351FD292ECC7900FEED91 /* ovpn.h in Sources */,
+				96A351FE292ECC7900FEED91 /* ovpn.cpp in Sources */,
+				96DC4E87292420C1007C4711 /* macspoofingonboot.cpp in Sources */,
+				96DC4E88292420C1007C4711 /* macspoofingonboot.h in Sources */,
+				96F664E729240B77007D52B0 /* firewallonboot.cpp in Sources */,
+				96F664E829240B77007D52B0 /* firewallonboot.h in Sources */,
+				963DFAAF291C5641006E7FF6 /* ipv6manager.h in Sources */,
+				963DFAB0291C5641006E7FF6 /* ipv6manager.cpp in Sources */,
 				00352E9225E549CE00E5ED2C /* Ppmd7.c in Sources */,
 				946225E725140DD70032A070 /* wireguardadapter.cpp in Sources */,
 				00352E9725E549CE00E5ED2C /* LzmaDec.c in Sources */,

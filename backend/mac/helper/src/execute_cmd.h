@@ -15,7 +15,7 @@ public:
         return i;
     }
     
-    unsigned long execute(const char *cmd);
+    unsigned long execute(const std::string &cmd, const std::string &cwd = "");
     void getStatus(unsigned long cmdId, bool &bFinished, std::string &log);
     void clearCmds();
 

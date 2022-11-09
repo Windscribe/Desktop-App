@@ -24,8 +24,6 @@ elseif(APPLE)
     target_sources(engine PRIVATE
         ipv6controller_mac.cpp
         ipv6controller_mac.h
-        tempscripts_mac.cpp
-        tempscripts_mac.h
     )
 elseif(UNIX)
     #todo linux
