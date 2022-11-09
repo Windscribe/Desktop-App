@@ -10,7 +10,7 @@ class NetworkReply : public QObject
 public:
     virtual ~NetworkReply();
 
-    enum NetworkError { NoError, TimeoutExceed, DnsResolveError, SslError, CurlError };
+    enum NetworkError { NoError, TimeoutExceed, DnsResolveError, CurlError };
 
     void abort();
     QByteArray readAll();

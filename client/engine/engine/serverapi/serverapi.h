@@ -44,6 +44,7 @@ public:
     QString getHostname() const;
     void setApiResolutionsSettings(const types::ApiResolutionSettings &apiResolutionSettings);
     void setIgnoreSslErrors(bool bIgnore);
+    void resetFailover();
 
     BaseRequest *login(const QString &username, const QString &password, const QString &code2fa);
     BaseRequest *session(const QString &authHash);

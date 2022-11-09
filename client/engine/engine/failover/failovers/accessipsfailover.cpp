@@ -27,7 +27,6 @@ void AccessIpsFailover::getHostnames(bool bIgnoreSslErrors)
     NetworkRequest networkRequest(url.toString(), kTimeout, true, DnsServersConfiguration::instance().getCurrentDnsServers(), bIgnoreSslErrors);
     NetworkReply *reply = networkAccessManager_->get(networkRequest);
 
-    reply->setProperty("bIgnoreSslErrors", bIgnoreSslErrors);
     connect(reply, &NetworkReply::finished, this, &AccessIpsFailover::onNetworkRequestFinished);
 }
 
@@ -41,17 +40,13 @@ void AccessIpsFailover::onNetworkRequestFinished()
 {
     NetworkReply *reply = static_cast<NetworkReply *>(sender());
     QSharedPointer<NetworkReply> obj = QSharedPointer<NetworkReply>(reply, &QObject::deleteLater);
-    bool isIgnoreSslErrors = reply->property("bIgnoreSslErrors").toBool();
 
     if (!reply->isSuccess()) {
         // if connect state changed the retrying the request
         if (connectStateWatcher_->isVpnConnectStateChanged()) {
             emit finished(FailoverRetCode::kConnectStateChanged, QStringList());
         } else {
-            if (reply->error() ==  NetworkReply::NetworkError::SslError && !isIgnoreSslErrors)
-                emit finished(FailoverRetCode::kSslError, QStringList());
-            else
-                emit finished(FailoverRetCode::kFailed, QStringList());
+            emit finished(FailoverRetCode::kFailed, QStringList());
         }
     }
     else {

@@ -135,13 +135,6 @@ void Failover::onFailoverFinished(FailoverRetCode retCode, const QStringList &ho
         qCDebug(LOG_FAILOVER) << "Failover" << FailoverRetCode::kSuccess <<  failovers_[curFailoverInd_]->name() << curFailoverHostnames_[curFaiolverHostnameInd_].left(3);
         emit nextHostnameAnswer(FailoverRetCode::kSuccess, curFailoverHostnames_[curFaiolverHostnameInd_]);
     }
-    else if (retCode == FailoverRetCode::kSslError) {
-        // do not switch to the next filer when the SSL error occurs
-        if (curFailoverInd_ > 0) curFailoverInd_--;
-
-        qCDebug(LOG_FAILOVER) << "Failover" <<  failovers_[curFailoverInd_]->name() << FailoverRetCode::kSslError;
-        emit nextHostnameAnswer(FailoverRetCode::kSslError, QString());
-    }
     else if (retCode == FailoverRetCode::kConnectStateChanged) {
         // do not switch to the next filer when the connect state changes
         if (curFailoverInd_ > 0) curFailoverInd_--;
