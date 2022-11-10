@@ -3077,7 +3077,9 @@ void MainWindow::onTrayMenuAboutToShow()
 
 void MainWindow::onTrayMenuAboutToHide()
 {
+#ifndef Q_OS_LINUX
     locationsMenu_.clear();
+#endif
 }
 
 void MainWindow::onLocationsTrayMenuLocationSelected(const LocationID &lid)
