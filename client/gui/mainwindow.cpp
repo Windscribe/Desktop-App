@@ -2979,28 +2979,28 @@ void MainWindow::createTrayMenuItems()
 
 #ifdef USE_LOCATIONS_TRAY_MENU_NATIVE
         if (backend_->locationsModelManager()->sortedLocationsProxyModel()->rowCount() > 0) {
-            QSharedPointer<LocationsTrayMenuNative> menu(new LocationsTrayMenuNative(nullptr, backend_->locationsModelManager()->sortedLocationsProxyModel()));
+            QSharedPointer<LocationsTrayMenuNative> menu(new LocationsTrayMenuNative(nullptr, backend_->locationsModelManager()->sortedLocationsProxyModel()), &QObject::deleteLater);
             menu->setTitle(tr("Locations"));
             trayMenu_.addMenu(menu.get());
             connect(menu.get(), &LocationsTrayMenuNative::locationSelected, this, &MainWindow::onLocationsTrayMenuLocationSelected);
             locationsMenu_.append(menu);
         }
         if (backend_->locationsModelManager()->favoriteCitiesProxyModel()->rowCount() > 0) {
-            QSharedPointer<LocationsTrayMenuNative> menu(new LocationsTrayMenuNative(nullptr, backend_->locationsModelManager()->favoriteCitiesProxyModel()));
+            QSharedPointer<LocationsTrayMenuNative> menu(new LocationsTrayMenuNative(nullptr, backend_->locationsModelManager()->favoriteCitiesProxyModel()), &QObject::deleteLater);
             menu->setTitle(tr("Favourites"));
             trayMenu_.addMenu(menu.get());
             connect(menu.get(), &LocationsTrayMenuNative::locationSelected, this, &MainWindow::onLocationsTrayMenuLocationSelected);
             locationsMenu_.append(menu);
         }
         if (backend_->locationsModelManager()->staticIpsProxyModel()->rowCount() > 0) {
-            QSharedPointer<LocationsTrayMenuNative> menu(new LocationsTrayMenuNative(nullptr, backend_->locationsModelManager()->staticIpsProxyModel()));
+            QSharedPointer<LocationsTrayMenuNative> menu(new LocationsTrayMenuNative(nullptr, backend_->locationsModelManager()->staticIpsProxyModel()), &QObject::deleteLater);
             menu->setTitle(tr("Static IPs"));
             trayMenu_.addMenu(menu.get());
             connect(menu.get(), &LocationsTrayMenuNative::locationSelected, this, &MainWindow::onLocationsTrayMenuLocationSelected);
             locationsMenu_.append(menu);
         }
         if (backend_->locationsModelManager()->customConfigsProxyModel()->rowCount() > 0) {
-            QSharedPointer<LocationsTrayMenuNative> menu(new LocationsTrayMenuNative(nullptr, backend_->locationsModelManager()->customConfigsProxyModel()));
+            QSharedPointer<LocationsTrayMenuNative> menu(new LocationsTrayMenuNative(nullptr, backend_->locationsModelManager()->customConfigsProxyModel()), &QObject::deleteLater);
             menu->setTitle(tr("Configured"));
             trayMenu_.addMenu(menu.get());
             connect(menu.get(), &LocationsTrayMenuNative::locationSelected, this, &MainWindow::onLocationsTrayMenuLocationSelected);
@@ -3008,28 +3008,28 @@ void MainWindow::createTrayMenuItems()
         }
 #else
         if (backend_->locationsModelManager()->sortedLocationsProxyModel()->rowCount() > 0) {
-            QSharedPointer<LocationsTrayMenu> menu(new LocationsTrayMenu(backend_->locationsModelManager()->sortedLocationsProxyModel(), trayMenu_.font()));
+            QSharedPointer<LocationsTrayMenu> menu(new LocationsTrayMenu(backend_->locationsModelManager()->sortedLocationsProxyModel(), trayMenu_.font()), &QObject::deleteLater);
             menu->setTitle(tr("Locations"));
             trayMenu_.addMenu(menu.get());
             connect(menu.get(), &LocationsTrayMenu::locationSelected, this, &MainWindow::onLocationsTrayMenuLocationSelected);
             locationsMenu_.append(menu);
         }
         if (backend_->locationsModelManager()->favoriteCitiesProxyModel()->rowCount() > 0) {
-            QSharedPointer<LocationsTrayMenu> menu(new LocationsTrayMenu(backend_->locationsModelManager()->favoriteCitiesProxyModel(), trayMenu_.font()));
+            QSharedPointer<LocationsTrayMenu> menu(new LocationsTrayMenu(backend_->locationsModelManager()->favoriteCitiesProxyModel(), trayMenu_.font()), &QObject::deleteLater);
             menu->setTitle(tr("Favourites"));
             trayMenu_.addMenu(menu.get());
             connect(menu.get(), &LocationsTrayMenu::locationSelected, this, &MainWindow::onLocationsTrayMenuLocationSelected);
             locationsMenu_.append(menu);
         }
         if (backend_->locationsModelManager()->staticIpsProxyModel()->rowCount() > 0) {
-            QSharedPointer<LocationsTrayMenu> menu(new LocationsTrayMenu(backend_->locationsModelManager()->staticIpsProxyModel(), trayMenu_.font()));
+            QSharedPointer<LocationsTrayMenu> menu(new LocationsTrayMenu(backend_->locationsModelManager()->staticIpsProxyModel(), trayMenu_.font()), &QObject::deleteLater);
             menu->setTitle(tr("Static IPs"));
             trayMenu_.addMenu(menu.get());
             connect(menu.get(), &LocationsTrayMenu::locationSelected, this, &MainWindow::onLocationsTrayMenuLocationSelected);
             locationsMenu_.append(menu);
         }
         if (backend_->locationsModelManager()->customConfigsProxyModel()->rowCount() > 0) {
-            QSharedPointer<LocationsTrayMenu> menu(new LocationsTrayMenu(backend_->locationsModelManager()->customConfigsProxyModel(), trayMenu_.font()));
+            QSharedPointer<LocationsTrayMenu> menu(new LocationsTrayMenu(backend_->locationsModelManager()->customConfigsProxyModel(), trayMenu_.font()), &QObject::deleteLater);
             menu->setTitle(tr("Configured"));
             trayMenu_.addMenu(menu.get());
             connect(menu.get(), &LocationsTrayMenu::locationSelected, this, &MainWindow::onLocationsTrayMenuLocationSelected);
@@ -3072,6 +3072,13 @@ void MainWindow::onTrayMenuAboutToShow()
     }
 #else
     createTrayMenuItems();
+#endif
+}
+
+void MainWindow::onTrayMenuAboutToHide()
+{
+#ifndef Q_OS_LINUX
+    locationsMenu_.clear();
 #endif
 }
 
@@ -3213,6 +3220,7 @@ void MainWindow::setupTrayIcon()
 
     trayIcon_.setContextMenu(&trayMenu_);
     connect(&trayMenu_, &QMenu::aboutToShow, this, &MainWindow::onTrayMenuAboutToShow);
+    connect(&trayMenu_, &QMenu::aboutToHide, this, &MainWindow::onTrayMenuAboutToHide);
 
     updateAppIconType(AppIconType::DISCONNECTED);
     updateTrayIconType(AppIconType::DISCONNECTED);
