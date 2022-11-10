@@ -22,9 +22,9 @@
 // - Using Win32 kernel timers rather than QTimer in run().  This is due to the nature of QThread
 //   inheritance: "It is important to remember that a QThread instance lives in the old thread that
 //   instantiated it, not in the new thread that calls run(). This means that all of QThread's
-//   queued slots and invoked methods will execute in the old thread.".  This means that if we
-//   create a QTimer in run() and connect to its timeout signal, the slot will be called by the
-//   thread that created the QThread instance, not by the thread running run().
+//   queued slots and invoked methods will execute in the old thread.".  Thus, if we create a
+//   QTimer in run() and connect to its timeout signal, the slot will be called by the thread that
+//   created the QThread instance, not by the thread running run().
 // - IConnection::interfaceUpdated signal is not currently used in Engine::onConnectionManagerInterfaceUpdated
 //   on Windows, so no need to emit it.
 
