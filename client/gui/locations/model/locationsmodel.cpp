@@ -577,13 +577,9 @@ QVariant LocationsModel::dataForCity(LocationItem *l, int row, int role) const
     {
         LocationID lid = l->location().cities[row].id;
         if (lid.isStaticIpsLocation())
-        {
             return l->location().cities[row].staticIp;
-        }
         else
-        {
             return l->location().cities[row].nick;
-        }
     }
     else if (role == kPingTime)
     {
@@ -591,7 +587,11 @@ QVariant LocationsModel::dataForCity(LocationItem *l, int row, int role) const
     }
     else if (role == kIsShowAsPremium)
     {
-        return l->location().cities[row].isPro && isFreeSessionStatus_;
+        LocationID lid = l->location().cities[row].id;
+        if (lid.isStaticIpsLocation())
+            return false;
+        else
+            return l->location().cities[row].isPro && isFreeSessionStatus_;
     }
     else if (role == kIsFavorite)
     {
