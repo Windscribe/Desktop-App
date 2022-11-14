@@ -149,7 +149,7 @@ optional<DWORD> Process::InstExec(const wstring& appName, const wstring& command
     BOOL result = ::CreateProcess(nullptr, exec.get(), nullptr, nullptr, false,
                                   CREATE_DEFAULT_ERROR_MODE, nullptr, nullptr, &si, &pi);
     if (result == FALSE) {
-        Log::instance().out("Process::InstExec CreateProcess(%ls) failed (%lu)", stream.str().c_str(), ::GetLastError());
+        Log::instance().out("Process::InstExec CreateProcess(%ls) failed (%lu)", exec.get(), ::GetLastError());
         return std::nullopt;
     }
 
@@ -161,7 +161,7 @@ optional<DWORD> Process::InstExec(const wstring& appName, const wstring& command
 
     DWORD waitResult = ::WaitForInputIdle(pi.hProcess, timeoutMS);
     if (waitResult != NO_ERROR) {
-        // We're not treating this failure as critical, but still want to note it.
+        // We're not treating this error as critical, but still want to note it.
         Log::instance().out("Process::InstExec WaitForInputIdle failed (%lu)", ::GetLastError());
     }
 
