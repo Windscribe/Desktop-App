@@ -1,7 +1,9 @@
-2.5.12 (10/11/2022)
+2.5.12 (14/11/2022)
 All:
    * Fixed failover not triggering on TLS/SSL connection error. #509
    * Fixed locations menu appearing randomly. #510
+   * Fixed split tunneling driver not being installed when upgrading from 2.4 to 2.5. #511
+   * Fixed build-a-plan users cannot use their static IPs. #513
 
 
 2.5.11 (07/11/2022)
