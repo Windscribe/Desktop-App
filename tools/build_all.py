@@ -673,7 +673,7 @@ def build_installer_linux(configdata, qt_root):
     dest_package_path = os.path.join(BUILD_INSTALLER_FILES, "..", dest_package_name)
 
     utl.CopyAllFiles(src_package_path, dest_package_path)
-    utl.CopyAllFiles(BUILD_INSTALLER_FILES, os.path.join(dest_package_path, "usr", "local", "windscribe"))
+    utl.CopyAllFiles(BUILD_INSTALLER_FILES, os.path.join(dest_package_path, "opt", "windscribe"))
 
     update_version_in_debian_control(os.path.join(dest_package_path, "DEBIAN", "control"))
 
