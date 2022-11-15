@@ -146,6 +146,8 @@ optional<DWORD> Process::InstExec(const wstring& appName, const wstring& command
     si.dwFlags = STARTF_USESHOWWINDOW;
     si.wShowWindow = showWindowFlags;
 
+    Log::instance().out("Process::InstExec CreateProcess(%ls)", exec.get());
+
     BOOL result = ::CreateProcess(nullptr, exec.get(), nullptr, nullptr, false,
                                   CREATE_DEFAULT_ERROR_MODE, nullptr, nullptr, &si, &pi);
     if (result == FALSE) {

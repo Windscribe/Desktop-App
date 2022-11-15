@@ -3,6 +3,7 @@
 #include <sstream>
 
 #include "../settings.h"
+#include "../../../utils/directory.h"
 #include "../../../utils/logger.h"
 #include "../../../utils/path.h"
 #include "../../../utils/process1.h"
@@ -26,8 +27,10 @@ int InstallSplitTunnel::executeStep()
         return -1;
     }
 
+    wstring appName = Directory::GetSystemDir() + wstring(L"\\rundll32.exe");
+
     for (int attempts = 1; attempts <= 2; ++attempts) {
-        auto result = Process::InstExec(L"rundll32", commandLine, 30 * 1000, SW_HIDE);
+        auto result = Process::InstExec(appName, commandLine, 30 * 1000, SW_HIDE);
 
         if (!result.has_value()) {
             Log::instance().out("WARNING: an error was encountered launching the split tunnel driver installer or while monitoring its progress.");
