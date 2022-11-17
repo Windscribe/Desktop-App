@@ -3,6 +3,7 @@
 #include <sstream>
 
 #include "../settings.h"
+#include "../../../utils/directory.h"
 #include "../../../utils/logger.h"
 #include "../../../utils/path.h"
 #include "../../../utils/process1.h"
@@ -26,8 +27,15 @@ int InstallSplitTunnel::executeStep()
         return -1;
     }
 
+    // For a reason I was unable to determine, if this 64-bit installer is launched by the 32-bit app
+    // (e.g. app version <= 2.4) it ends up running the sysWOW64 (32-bit) version of rundll32 which
+    // incorrectly places the 64-bit split tunnel driver in the sysWOW64/drivers folder, but points
+    // the service entry at the correct system32/drivers folder.  The helper is then unable to start
+    // the driver.  Specifying the full path to the 64-bit rundll32 seems to resolve the issue.
+    wstring appName = Directory::GetSystemDir() + wstring(L"\\rundll32.exe");
+
     for (int attempts = 1; attempts <= 2; ++attempts) {
-        auto result = Process::InstExec(L"rundll32", commandLine, 30 * 1000, SW_HIDE);
+        auto result = Process::InstExec(appName, commandLine, 30 * 1000, SW_HIDE);
 
         if (!result.has_value()) {
             Log::instance().out("WARNING: an error was encountered launching the split tunnel driver installer or while monitoring its progress.");

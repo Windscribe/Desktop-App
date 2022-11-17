@@ -136,7 +136,7 @@ optional<DWORD> Process::InstExec(const wstring& appName, const wstring& command
     // As per the Win32 docs; the Unicode version of CreateProcess 'may' modify its lpCommandLine
     // parameter.  Therefore, this parameter cannot be a pointer to read-only memory (such as a
     // const variable or a literal string).  If this parameter is a constant string, CreateProcess
-    // may cause an access violation.
+    // may cause an access violation.  Maximum length of the lpCommandLine parameter is 32767.
     unique_ptr<wchar_t[]> exec(new wchar_t[32767]);
     wcsncpy_s(exec.get(), 32767, stream.str().c_str(), _TRUNCATE);
 
