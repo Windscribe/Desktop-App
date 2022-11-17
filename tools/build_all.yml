@@ -62,12 +62,6 @@ installhelper:
   target:   WindscribeInstallHelper.exe
   symbols:  WindscribeInstallHelper.pdb
 
-launcher_win:
-  name:     Launcher
-  project:  windscribelauncher.pro
-  subdir:   gui/launcher/win
-  target:   WindscribeLauncher.exe
-
 uninstaller:
   name:     Uninstaller
   project:  uninstall.vcxproj
@@ -140,7 +134,6 @@ targets:
     - service
     - changeics
     - installhelper
-    - launcher_win
     - uninstaller
     - wireguardservice
     - client

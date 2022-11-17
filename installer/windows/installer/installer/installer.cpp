@@ -120,9 +120,9 @@ void Installer::executionImpl()
     callbackState_(static_cast<unsigned int>(100), STATE_FINISHED);
 }
 
-void Installer::runLauncherImpl()
+void Installer::launchAppImpl()
 {
-    wstring pathLauncher = Settings::instance().getPath() + L"\\WindscribeLauncher.exe";
-    Log::instance().out(L"Running launcher: " + pathLauncher);
-    ShellExecuteAsUser::shellExecuteFromExplorer(pathLauncher.c_str(), NULL, NULL, NULL, SW_RESTORE);
+    wstring app = Settings::instance().getPath() + L"\\Windscribe.exe";
+    Log::instance().out(L"Launching Windscribe app: " + app);
+    ShellExecuteAsUser::shellExecuteFromExplorer(app.c_str(), NULL, NULL, NULL, SW_RESTORE);
 }

@@ -112,9 +112,9 @@ void InstallerBase::waitForCompletion()
 	}
 }
 
-void InstallerBase::runLauncher()
+void InstallerBase::launchApp()
 {
-    runLauncherImpl();
+    launchAppImpl();
 }
 
 #ifndef GUI
