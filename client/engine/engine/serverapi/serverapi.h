@@ -44,6 +44,7 @@ public:
     QString getHostname() const;
     void setApiResolutionsSettings(const types::ApiResolutionSettings &apiResolutionSettings);
     void setIgnoreSslErrors(bool bIgnore);
+    void resetFailover();
 
     BaseRequest *login(const QString &username, const QString &password, const QString &code2fa);
     BaseRequest *session(const QString &authHash);
@@ -95,6 +96,8 @@ private:
     QString currentFailoverHostname_;
 
     failover::IFailover *failover_;
+    bool isGettingFailoverHostnameInProgress_ = false;
+    bool isResetFailoverOnNextHostnameAnswer_ = false;
     bool isFailoverFailedLogAlreadyDone_ = false;   // log "failover failed: API not ready" only once to avoid spam
 
     void handleNetworkRequestFinished();

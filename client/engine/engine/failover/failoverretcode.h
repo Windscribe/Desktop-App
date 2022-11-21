@@ -3,7 +3,7 @@
 
 namespace failover {
 
-enum class FailoverRetCode { kSuccess, kSslError, kConnectStateChanged, kFailed };
+enum class FailoverRetCode { kSuccess, kConnectStateChanged, kFailed };
 
 QDebug operator<<(QDebug dbg, const FailoverRetCode &f);
 

@@ -108,7 +108,6 @@ private slots:
 
     void testRequests();
     void testFailoverFailed();
-    void testFailoverSslError();
     void testDeleteServerAPIWhileRequestsRunning();
     void testDeleteRequestsBeforeFinished();
 

@@ -112,16 +112,16 @@ wstring Process::extractFileDir(wstring path)
 optional<DWORD> Process::InstExec(const wstring& appName, const wstring& commandLine,
                                   DWORD timeoutMS, WORD showWindowFlags)
 {
-    wostringstream exec;
+    wostringstream stream;
     if (!appName.empty()) {
-        exec << L"\"" << appName << L"\"";
+        stream << L"\"" << appName << L"\"";
     }
 
     if (!commandLine.empty()) {
-        if (!exec.str().empty()) {
-            exec << L" ";
+        if (!stream.str().empty()) {
+            stream << L" ";
         }
-        exec << commandLine;
+        stream << commandLine;
     }
 
     PROCESS_INFORMATION pi;
@@ -133,16 +133,23 @@ optional<DWORD> Process::InstExec(const wstring& appName, const wstring& command
         }
     });
 
+    // As per the Win32 docs; the Unicode version of CreateProcess 'may' modify its lpCommandLine
+    // parameter.  Therefore, this parameter cannot be a pointer to read-only memory (such as a
+    // const variable or a literal string).  If this parameter is a constant string, CreateProcess
+    // may cause an access violation.  Maximum length of the lpCommandLine parameter is 32767.
+    unique_ptr<wchar_t[]> exec(new wchar_t[32767]);
+    wcsncpy_s(exec.get(), 32767, stream.str().c_str(), _TRUNCATE);
+
     STARTUPINFO si;
     ::ZeroMemory(&si, sizeof(si));
     si.cb = sizeof(si);
     si.dwFlags = STARTF_USESHOWWINDOW;
     si.wShowWindow = showWindowFlags;
 
-    BOOL result = ::CreateProcess(nullptr, exec.str().data(), nullptr, nullptr, false,
-        CREATE_DEFAULT_ERROR_MODE, nullptr, nullptr, &si, &pi);
+    BOOL result = ::CreateProcess(nullptr, exec.get(), nullptr, nullptr, false,
+                                  CREATE_DEFAULT_ERROR_MODE, nullptr, nullptr, &si, &pi);
     if (result == FALSE) {
-        Log::instance().out("Process::InstExec CreateProcess(%ls) failed (%lu)", exec.str().c_str(), ::GetLastError());
+        Log::instance().out("Process::InstExec CreateProcess(%ls) failed (%lu)", exec.get(), ::GetLastError());
         return std::nullopt;
     }
 
@@ -152,9 +159,13 @@ optional<DWORD> Process::InstExec(const wstring& appName, const wstring& command
         return NO_ERROR;
     }
 
-    ::WaitForInputIdle(pi.hProcess, timeoutMS);
+    DWORD waitResult = ::WaitForInputIdle(pi.hProcess, timeoutMS);
+    if (waitResult != NO_ERROR) {
+        // We're not treating this error as critical, but still want to note it.
+        Log::instance().out("Process::InstExec WaitForInputIdle failed (%lu)", ::GetLastError());
+    }
 
-    DWORD waitResult = ::WaitForSingleObject(pi.hProcess, timeoutMS);
+    waitResult = ::WaitForSingleObject(pi.hProcess, timeoutMS);
 
     if (waitResult == WAIT_FAILED) {
         Log::instance().out("Process::InstExec WaitForSingleObject failed (%lu)", ::GetLastError());

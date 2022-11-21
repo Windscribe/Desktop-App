@@ -5,6 +5,7 @@
 
 #include "../utils/applicationinfo.h"
 #include "../utils/authhelper.h"
+#include "../utils/directory.h"
 #include "../utils/paths_to_folders.h"
 #include "../utils/process1.h"
 #include "../utils/registry.h"
@@ -311,7 +312,9 @@ void Uninstaller::UninstallSplitTunnelDriver(const std::wstring& installationPat
     wostringstream commandLine;
     commandLine << L"setupapi,InstallHinfSection DefaultUninstall 132 " << Path::AddBackslash(installationPath) << L"splittunnel\\windscribesplittunnel.inf";
 
-    auto result = Process::InstExec(L"rundll32", commandLine.str(), 30 * 1000, SW_HIDE);
+    wstring appName = Directory::GetSystemDir() + wstring(L"\\rundll32.exe");
+
+    auto result = Process::InstExec(appName, commandLine.str(), 30 * 1000, SW_HIDE);
 
     if (!result.has_value()) {
         Log::instance().out("WARNING: The split tunnel driver uninstall failed to launch.");
