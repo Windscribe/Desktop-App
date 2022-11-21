@@ -9,6 +9,7 @@
 #include <QDateTime>
 #include <QScopeGuard>
 
+#include "utils/extraconfig.h"
 #include "utils/logger.h"
 #include "utils/ws_assert.h"
 
@@ -38,7 +39,8 @@ constexpr uint32_t kWGLogFileSize =
 
 
 WireguardRingLogger::WireguardRingLogger(const QString& filename)
-    : wireguardLogFile_(filename)
+    : verboseLogging_(ExtraConfig::instance().getWireGuardVerboseLogging()),
+      wireguardLogFile_(filename)
 {
     startTime_ = QDateTime::currentMSecsSinceEpoch() * 1000000;
 }
@@ -128,20 +130,42 @@ void WireguardRingLogger::process(int index)
     size_t msgLen = qstrnlen(msgData, kWGLogMessageSize);
 
     if (msgLen > 0) {
-        QDateTime dt = QDateTime::fromMSecsSinceEpoch(timestamp / 1000000, Qt::UTC);
         QByteArray message(msgData, msgLen);
-        qCDebug(LOG_WIREGUARD()) << dt.toString("ddMMyy hh:mm:ss:zzz") << message;
 
-        if (!tunnelRunning_ && message.contains("Keypair 1 created for peer 1")) {
-            tunnelRunning_ = true;
+        if (tunnelRunning_) {
+            if (message.contains("Handshake for peer") && message.contains("did not complete after")) {
+                handshakeFailed_ = true;
+            }
+            else if (!verboseLogging_) {
+                if (message.contains("Packet has invalid nonce")) {
+                    invalidNoncePackets_ += 1;
+                    return;
+                }
+
+                if (message.contains("Sending handshake initiation to peer") ||
+                    message.contains("Receiving handshake response from peer") ||
+                    message.contains("Sending keepalive packet to peer") ||
+                    message.contains("Receiving keepalive packet from peer") ||
+                    message.contains("Receiving handshake initiation from peer") ||
+                    message.contains("Sending handshake response to peer") ||
+                    message.contains("Retrying handshake with peer") ||
+                    (message.contains("Keypair") && (message.contains("destroyed for peer") || message.contains("created for peer"))))
+                {
+                    return;
+                }
+            }
+        }
+        else {
+            if (message.contains("Keypair 1 created for peer 1")) {
+                tunnelRunning_ = true;
+            }
+            else if (message.contains("Failed to setup adapter")) {
+                adapterSetupFailed_ = true;
+            }
         }
 
-        if (message.contains("Failed to setup adapter")) {
-            adapterSetupFailed_ = true;
-        }
-        else if (message.contains("Handshake for peer") && message.contains("did not complete after")) {
-            handshakeFailed_ = true;
-        }
+        QDateTime dt = QDateTime::fromMSecsSinceEpoch(timestamp / 1000000, Qt::UTC);
+        qCDebug(LOG_WIREGUARD) << dt.toString("ddMMyy hh:mm:ss:zzz") << message;
     }
 }
 
@@ -164,6 +188,15 @@ void WireguardRingLogger::getNewLogEntries()
     while (ringLogIndex_ != nextIndex()) {
         process(ringLogIndex_);
         ringLogIndex_ = (ringLogIndex_ + 1) % kWGLogMessageRingSize;
+    }
+}
+
+void WireguardRingLogger::getFinalLogEntries()
+{
+    getNewLogEntries();
+
+    if (invalidNoncePackets_ > 0) {
+        qCDebug(LOG_WIREGUARD) << "Warning:" << invalidNoncePackets_ << "packets discarded since the start of this connection due to an invalid nonce";
     }
 }
 

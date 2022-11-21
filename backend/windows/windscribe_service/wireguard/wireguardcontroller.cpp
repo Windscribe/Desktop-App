@@ -131,7 +131,7 @@ UINT WireGuardController::getStatus(UINT64& lastHandshake, UINT64& txBytes, UINT
                 "WireGuardController::getStatus - the WireGuard tunnel is not initialized");
         }
 
-        WinUtils::Win32Handle hDriver(getKernelInterfaceHandle());
+        wsl::Win32Handle hDriver(getKernelInterfaceHandle());
 
         // Look at kernel_get_device() in wireguard-windows-0.5.3\.deps\src\ipc-windows.h for
         // sample code showing how to parse the structures returned from the wireguard-nt

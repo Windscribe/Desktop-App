@@ -933,7 +933,7 @@ MessagePacketResult Helper_win::sendCmdToHelper(int cmdId, const std::string &da
         }
     }
 
-    WinUtils::Win32Handle closePipe(hPipe);
+    wsl::Win32Handle closePipe(hPipe);
 
     // first 4 bytes - cmdId
     if (!writeAllToPipe(hPipe, (char *)&cmdId, sizeof(cmdId)))

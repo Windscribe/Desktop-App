@@ -108,7 +108,7 @@ getWindscribeClientProcessHandle()
     std::wstring clientExe(L"[any path]/Windscribe.exe");
     #endif
 
-    WinUtils::Win32Handle hProcesses(::CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0));
+    wsl::Win32Handle hProcesses(::CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0));
     if (!hProcesses.isValid()) {
         throw std::system_error(::GetLastError(), std::generic_category(),
             "getWindscribeClientProcessHandle: CreateToolhelp32Snapshot(processes) failed");
@@ -129,7 +129,7 @@ getWindscribeClientProcessHandle()
     {
         if (_wcsicmp(pe32.szExeFile, L"Windscribe.exe") == 0)
         {
-            WinUtils::Win32Handle hProcess(::OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ | SYNCHRONIZE, FALSE, pe32.th32ProcessID));
+            wsl::Win32Handle hProcess(::OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ | SYNCHRONIZE, FALSE, pe32.th32ProcessID));
 
             if (!hProcess.isValid()) {
                 throw std::system_error(::GetLastError(), std::generic_category(), "getWindscribeClientProcessHandle: OpenProcess failed");
@@ -173,7 +173,7 @@ monitorClientStatus(LPVOID lpParam)
 {
     try
     {
-        WinUtils::Win32Handle hWindscribeClient(getWindscribeClientProcessHandle());
+        wsl::Win32Handle hWindscribeClient(getWindscribeClientProcessHandle());
 
         DWORD dwWait = hWindscribeClient.wait(INFINITE, TRUE);
         if (dwWait == WAIT_OBJECT_0)

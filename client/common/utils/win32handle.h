@@ -1,9 +1,8 @@
-#ifndef WIN32HANDLES_H
-#define WIN32HANDLES_H
+#pragma once
 
 #include <Windows.h>
 
-namespace WinUtils
+namespace wsl
 {
 
 class Win32Handle
@@ -25,44 +24,47 @@ public:
     void setHandle(HANDLE hNewHandle);
     void closeHandle(void);
     HANDLE release(void);
-    DWORD wait(DWORD dwTimeout, BOOL bAlertable = FALSE);
+    DWORD wait(DWORD dwTimeout, BOOL bAlertable = FALSE) const;
+
+    bool isSignaled() const;
 
 private:
     HANDLE win32Handle_;
 };
 
-inline void
-Win32Handle::closeHandle(void)
+inline void Win32Handle::closeHandle(void)
 {
-    if (isValid())
-    {
+    if (isValid()) {
         ::CloseHandle(win32Handle_);
         win32Handle_ = nullptr;
     }
 }
 
-inline HANDLE
-Win32Handle::release(void)
+inline HANDLE Win32Handle::release(void)
 {
     HANDLE hTemp = win32Handle_;
     win32Handle_ = nullptr;
     return hTemp;
 }
 
-inline void
-Win32Handle::setHandle(HANDLE hNewHandle)
+inline void Win32Handle::setHandle(HANDLE hNewHandle)
 {
     closeHandle();
     win32Handle_ = hNewHandle;
 }
 
-inline DWORD
-Win32Handle::wait(DWORD dwTimeout, BOOL bAlertable)
+inline DWORD Win32Handle::wait(DWORD dwTimeout, BOOL bAlertable) const
 {
-    DWORD dwWait = ::WaitForSingleObjectEx(win32Handle_, dwTimeout, bAlertable);
-    return dwWait;
+    if (isValid()) {
+        return ::WaitForSingleObjectEx(win32Handle_, dwTimeout, bAlertable);
+    }
+
+    return WAIT_FAILED;
+}
+
+inline bool Win32Handle::isSignaled() const
+{
+    return (wait(0, FALSE) == WAIT_OBJECT_0);
 }
 
 }
-
-#endif

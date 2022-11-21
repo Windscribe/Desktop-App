@@ -45,6 +45,7 @@ public:
     bool getIsStaging();
 
     bool getLogAPIResponse();
+    bool getWireGuardVerboseLogging();
 
 private:
     ExtraConfig();
