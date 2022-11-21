@@ -16,7 +16,7 @@ public:
 protected:
     void startImpl() override;
     void executionImpl() override;
-    void runLauncherImpl() override;
+    void launchAppImpl() override;
 
     std::list<IInstallBlock *> blocks_;
     int totalWork_ = 0;

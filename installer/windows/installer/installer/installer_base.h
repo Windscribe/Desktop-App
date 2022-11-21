@@ -40,7 +40,7 @@ protected:
 
     virtual void startImpl() = 0;
     virtual void executionImpl() = 0;
-    virtual void runLauncherImpl() = 0;
+    virtual void launchAppImpl() = 0;
 
 private:
 #ifdef GUI
@@ -64,7 +64,7 @@ public:
     void cancel();
     void resume();
     void waitForCompletion();
-    void runLauncher();
+    void launchApp();
 
     std::wstring getLastError() { return strLastError_; }
 

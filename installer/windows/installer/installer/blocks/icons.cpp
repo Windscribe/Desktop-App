@@ -28,7 +28,7 @@ int Icons::executeStep()
 	if (isCreateShortcut_)
 	{
 		//C:\\Users\\Public\\Desktop\\Windscribe.lnk
-		CreateAnIcon(common_desktop + L"\\" + ApplicationInfo::instance().getName(), L"", Path::AddBackslash(installPath) + L"WindscribeLauncher.exe", L"", installPath, L"", 0, 1, 0, true);
+		CreateAnIcon(common_desktop + L"\\" + ApplicationInfo::instance().getName(), L"", Path::AddBackslash(installPath) + L"Windscribe.exe", L"", installPath, L"", 0, 1, 0, true);
 	}
 
 	wstring group = pathsToFolders_.GetShellFolder(true, sfPrograms, false);
@@ -37,7 +37,7 @@ int Icons::executeStep()
 	CreateAnIcon(group+L"\\"+ ApplicationInfo::instance().getName() + L"\\Uninstall Windscribe",L"", uninstallExeFilename, L"", installPath,L"",0,1,0,false);
 
 	//C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs\\Windscribe\\Windscribe.lnk
-	CreateAnIcon(group+L"\\"+ ApplicationInfo::instance().getName() + L"\\Windscribe",L"", Path::AddBackslash(installPath) + L"\\WindscribeLauncher.exe",L"", installPath, L"", 0, 1, 0, false);
+	CreateAnIcon(group+L"\\"+ ApplicationInfo::instance().getName() + L"\\Windscribe",L"", Path::AddBackslash(installPath) + L"\\Windscribe.exe",L"", installPath, L"", 0, 1, 0, false);
 	return 100;
 }
 
