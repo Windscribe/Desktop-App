@@ -1,3 +1,18 @@
+2.6.1 (23/11/2022)
+All:
+   * Fixed notice on the login screen when user is disabled or rate-limited. #377
+   * Fixed app to save a successful failover between program launches. #478
+   * Fixed error message when user tries logging in with their email address. #504
+Windows:
+   * Fixed terminate sockets feature to exclude Microsoft services when calculating CPU utilization. #427
+   * Removed 'Windows Launcher' utility application. #137
+   * Removed WireGuard info-level diagnostic output from the log. #494
+macOS:
+   * Added IP/hostname split tunneling on Big Sur+. #508
+Linux:
+   * Fixed install folder to be /opt/windscribe. #399
+
+
 2.5.14 (17/11/2022)
 Windows:
    * Fixed split tunneling driver not being installed when upgrading from 2.4 to 2.5. #511
