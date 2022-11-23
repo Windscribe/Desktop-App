@@ -270,7 +270,8 @@ void ServerAPI::onFailoverNextHostnameAnswer(failover::FailoverRetCode retCode, 
         currentFailoverHostname_.clear();
         BaseRequest *curRequest = currentFailoverRequest_;
         clearCurrentFailoverRequest();
-        executeRequest(curRequest);
+        if (curRequest)
+            executeRequest(curRequest);
         executeWaitingInQueueRequests();
         return;
     }
@@ -281,7 +282,8 @@ void ServerAPI::onFailoverNextHostnameAnswer(failover::FailoverRetCode retCode, 
     if (retCode == failover::FailoverRetCode::kSuccess || retCode == failover::FailoverRetCode::kConnectStateChanged) {
         BaseRequest *curRequest = currentFailoverRequest_;
         clearCurrentFailoverRequest();
-        executeRequest(curRequest);
+        if (curRequest)
+            executeRequest(curRequest);
         executeWaitingInQueueRequests();
     } else if (retCode == failover::FailoverRetCode::kFailed) {
         failover_->setProperty("state", QVariant::fromValue(FailoverState::kFailed));
@@ -318,7 +320,8 @@ void ServerAPI::resetFailover()
     } else {
         failover_->reset();
         failover_->setProperty("state", QVariant::fromValue(FailoverState::kUnknown));
-        currentFailoverHostname_.clear();
+        if (!isUsingFailoverFromSettings_)
+            currentFailoverHostname_.clear();
     }
 }
 
@@ -331,6 +334,7 @@ void ServerAPI::handleNetworkRequestFinished()
 
     // if the request has already been deleted before completion, skip processing
     if (!pointerToRequest) {
+        clearCurrentFailoverRequest();
         executeWaitingInQueueRequests();
         return;
     }
@@ -506,7 +510,6 @@ void ServerAPI::setCurrentFailoverRequest(BaseRequest *request)
 
 void ServerAPI::clearCurrentFailoverRequest()
 {
-    WS_ASSERT(currentFailoverRequest_ != nullptr);
     WS_ASSERT(currentConnectStateWatcher_ != nullptr);
     currentFailoverRequest_ = nullptr;
     SAFE_DELETE(currentConnectStateWatcher_);
