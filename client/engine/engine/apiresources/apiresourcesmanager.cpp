@@ -278,8 +278,6 @@ void ApiResourcesManager::handleLoginOrSessionAnswer(SERVER_API_RET_CODE retCode
             WS_ASSERT(false);
             emit loginFailed(LOGIN_RET_NO_API_CONNECTIVITY, QString());
         }
-    } else if (retCode == SERVER_RETURN_SSL_ERROR) {
-        emit loginFailed(LOGIN_RET_SSL_ERROR, QString());
     } else if (retCode == SERVER_RETURN_NO_NETWORK_CONNECTION) {
         emit loginFailed(LOGIN_RET_NO_CONNECTIVITY, QString());
     } else if (retCode == SERVER_RETURN_INCORRECT_JSON) {

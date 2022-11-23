@@ -31,10 +31,7 @@ void DynamicDomainFailover::getHostnames(bool bIgnoreSslErrors)
             if (connectStateWatcher_->isVpnConnectStateChanged()) {
                 emit finished(FailoverRetCode::kConnectStateChanged, QStringList());
             } else {
-                if (reply->error() == NetworkReply::NetworkError::SslError && !bIgnoreSslErrors)
-                    emit finished(FailoverRetCode::kSslError, QStringList());
-                else
-                    emit finished(FailoverRetCode::kFailed, QStringList());
+                emit finished(FailoverRetCode::kFailed, QStringList());
             }
         } else {
             QString hostname = parseHostnameFromJson(reply->readAll());

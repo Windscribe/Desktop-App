@@ -258,9 +258,23 @@ BaseRequest *ServerAPI::syncRobert(const QString &authHash)
 void ServerAPI::onFailoverNextHostnameAnswer(failover::FailoverRetCode retCode, const QString &hostname)
 {
     WS_ASSERT(currentFailoverRequest_ != nullptr)
+    WS_ASSERT(isGettingFailoverHostnameInProgress_);
 
     isUsingFailoverFromSettings_ = false;
+    isGettingFailoverHostnameInProgress_ = false;
 
+    if (isResetFailoverOnNextHostnameAnswer_) {
+        isResetFailoverOnNextHostnameAnswer_ = false;
+        failover_->reset();
+        failover_->setProperty("state", QVariant::fromValue(FailoverState::kUnknown));
+        currentFailoverHostname_.clear();
+        BaseRequest *curRequest = currentFailoverRequest_;
+        clearCurrentFailoverRequest();
+        executeRequest(curRequest);
+        executeWaitingInQueueRequests();
+        return;
+    }
+    
     if (retCode == failover::FailoverRetCode::kSuccess)
         currentFailoverHostname_ = hostname;
 
@@ -269,10 +283,6 @@ void ServerAPI::onFailoverNextHostnameAnswer(failover::FailoverRetCode retCode, 
         clearCurrentFailoverRequest();
         executeRequest(curRequest);
         executeWaitingInQueueRequests();
-    } else if (retCode == failover::FailoverRetCode::kSslError) {
-        setErrorCodeAndEmitRequestFinished(currentFailoverRequest_, SERVER_RETURN_SSL_ERROR, "Failover return Ssl error");
-        clearCurrentFailoverRequest();
-        finishWaitingInQueueRequests(SERVER_RETURN_SSL_ERROR, "Failover return Ssl error");
     } else if (retCode == failover::FailoverRetCode::kFailed) {
         failover_->setProperty("state", QVariant::fromValue(FailoverState::kFailed));
         setErrorCodeAndEmitRequestFinished(currentFailoverRequest_, SERVER_RETURN_FAILOVER_FAILED, "Failover API not ready");
@@ -301,6 +311,17 @@ void ServerAPI::setIgnoreSslErrors(bool bIgnore)
     bIgnoreSslErrors_ = bIgnore;
 }
 
+void ServerAPI::resetFailover()
+{
+    if (isGettingFailoverHostnameInProgress_) {
+        isResetFailoverOnNextHostnameAnswer_ = true;
+    } else {
+        failover_->reset();
+        failover_->setProperty("state", QVariant::fromValue(FailoverState::kUnknown));
+        currentFailoverHostname_.clear();
+    }
+}
+
 void ServerAPI::handleNetworkRequestFinished()
 {
     NetworkReply *reply = static_cast<NetworkReply *>(sender());
@@ -315,27 +336,19 @@ void ServerAPI::handleNetworkRequestFinished()
     }
 
     if (!reply->isSuccess()) {
-        if (reply->error() == NetworkReply::NetworkError::SslError && !bIgnoreSslErrors_) {
-            setErrorCodeAndEmitRequestFinished(pointerToRequest, SERVER_RETURN_SSL_ERROR, reply->errorString());
-            if (currentFailoverRequest_ == pointerToRequest) {
-                WS_ASSERT(isThroughFailover);
+        if (currentFailoverRequest_ == pointerToRequest) {
+            WS_ASSERT(isThroughFailover);
+            if (!currentConnectStateWatcher_->isVpnConnectStateChanged()) {
+                // get next the failover hostname
+                failover_->getNextHostname(bIgnoreSslErrors_);
+                isGettingFailoverHostnameInProgress_ = true;
+            } else {
+                setErrorCodeAndEmitRequestFinished(pointerToRequest, SERVER_RETURN_NETWORK_ERROR, reply->errorString());
                 clearCurrentFailoverRequest();
                 executeWaitingInQueueRequests();
             }
         } else {
-            if (currentFailoverRequest_ == pointerToRequest) {
-                WS_ASSERT(isThroughFailover);
-                if (!currentConnectStateWatcher_->isVpnConnectStateChanged()) {
-                    // get next the failover hostname
-                    failover_->getNextHostname(bIgnoreSslErrors_);
-                } else {
-                    setErrorCodeAndEmitRequestFinished(pointerToRequest, SERVER_RETURN_NETWORK_ERROR, reply->errorString());
-                    clearCurrentFailoverRequest();
-                    executeWaitingInQueueRequests();
-                }
-            } else {
-                setErrorCodeAndEmitRequestFinished(pointerToRequest, SERVER_RETURN_NETWORK_ERROR, reply->errorString());
-            }
+            setErrorCodeAndEmitRequestFinished(pointerToRequest, SERVER_RETURN_NETWORK_ERROR, reply->errorString());
         }
     }
     else {  // if reply->isSuccess()
@@ -351,6 +364,7 @@ void ServerAPI::handleNetworkRequestFinished()
                 if (!currentConnectStateWatcher_->isVpnConnectStateChanged()) {
                     // get next the failover hostname
                     failover_->getNextHostname(bIgnoreSslErrors_);
+                    isGettingFailoverHostnameInProgress_ = true;
                 } else {
                     setErrorCodeAndEmitRequestFinished(pointerToRequest, SERVER_RETURN_NETWORK_ERROR, reply->errorString());
                     clearCurrentFailoverRequest();
@@ -408,6 +422,7 @@ void ServerAPI::executeRequest(BaseRequest *request)
             setCurrentFailoverRequest(request);
             if (currentFailoverHostname_.isEmpty()) {
                 failover_->getNextHostname(bIgnoreSslErrors_);
+                isGettingFailoverHostnameInProgress_ = true;
                 return;
             }
         }

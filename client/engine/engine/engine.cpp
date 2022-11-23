@@ -2138,13 +2138,14 @@ void Engine::onApiResourcesManagerLoginFailed(LOGIN_RET retCode, const QString &
     if (retCode == LOGIN_RET_NO_CONNECTIVITY) {
         Q_EMIT loginError(LOGIN_RET_NO_CONNECTIVITY, QString());
     } else if (retCode == LOGIN_RET_NO_API_CONNECTIVITY) {
-        Q_EMIT loginError(LOGIN_RET_NO_API_CONNECTIVITY, QString());
+        if (engineSettings_.isIgnoreSslErrors())
+            Q_EMIT loginError(LOGIN_RET_NO_API_CONNECTIVITY, QString());
+        else
+            Q_EMIT loginError(LOGIN_RET_SSL_ERROR, QString());
     } else if (retCode == LOGIN_RET_PROXY_AUTH_NEED) {
         Q_EMIT loginError(LOGIN_RET_PROXY_AUTH_NEED, QString());
     } else if (retCode == LOGIN_RET_INCORRECT_JSON) {
         Q_EMIT loginError(LOGIN_RET_INCORRECT_JSON, QString());
-    } else if (retCode == LOGIN_RET_SSL_ERROR) {
-        Q_EMIT loginError(LOGIN_RET_SSL_ERROR, QString());
     } else if (retCode == LOGIN_RET_BAD_USERNAME || retCode == LOGIN_RET_BAD_CODE2FA ||
              retCode == LOGIN_RET_MISSING_CODE2FA || retCode == LOGIN_RET_ACCOUNT_DISABLED ||
              retCode == LOGIN_RET_SESSION_INVALID) {
@@ -2422,6 +2423,7 @@ void Engine::doCheckUpdate()
 
 void Engine::loginImpl(bool isUseAuthHash, const QString &username, const QString &password, const QString &code2fa)
 {
+    serverAPI_->resetFailover();
     apiResourcesManager_.reset(new api_resources::ApiResourcesManager(this, serverAPI_, connectStateController_, networkDetectionManager_));
     connect(apiResourcesManager_.get(), &api_resources::ApiResourcesManager::loginFailed, this, &Engine::onApiResourcesManagerLoginFailed);
     connect(apiResourcesManager_.get(), &api_resources::ApiResourcesManager::sessionDeleted, this, &Engine::onApiResourcesManagerSessionDeleted);
