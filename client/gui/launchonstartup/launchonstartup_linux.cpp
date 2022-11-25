@@ -14,7 +14,8 @@ void LaunchOnStartup_linux::setLaunchOnStartup(bool enable)
             QDir dir(destDir);
             dir.mkpath(destDir);
             QString destFile = destDir + "/windscribe.desktop";
-            QFile::copy("/usr/share/applications/windscribe.desktop", destFile);
+            QFile::remove(destFile);
+            QFile::link("/usr/share/applications/windscribe.desktop", destFile);
         }
         else
         {
