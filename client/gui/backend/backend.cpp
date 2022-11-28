@@ -4,6 +4,7 @@
 #include "utils/utils.h"
 #include "ipc/servercommands.h"
 #include "ipc/clientcommands.h"
+#include "launchonstartup/launchonstartup.h"
 #include "utils/utils.h"
 #include "persistentstate.h"
 #include "engineserver.h"
@@ -20,6 +21,12 @@ Backend::Backend(QObject *parent) : QObject(parent),
     isExternalConfigMode_(false)
 {
     preferences_.loadGuiSettings();
+
+#ifdef Q_OS_LINUX
+    // work around an issue on Linux where after an update in which the autostart file changed
+    // the user would not get the updated autostart file until they toggle the feature.  Instead, do it programatically.
+    LaunchOnStartup::instance().setLaunchOnStartup(preferences_.isLaunchOnStartup());
+#endif
 
     locationsModelManager_ = new gui_locations::LocationsModelManager(this);
 
