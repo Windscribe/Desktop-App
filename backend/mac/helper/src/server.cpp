@@ -156,12 +156,6 @@ bool Server::readAndHandleCommand(socket_ptr sock, boost::asio::streambuf *buf, 
 
         splitTunneling_.setConnectParams(cmd);
         outCmdAnswer.executed = 1;
-    } else if (cmdId == HELPER_CMD_SET_KEXT_PATH) {
-        CMD_SET_KEXT_PATH cmd;
-        ia >> cmd;
-
-        splitTunneling_.setKextPath(cmd.kextPath);
-        outCmdAnswer.executed = 1;
     } else if (cmdId == HELPER_CMD_START_WIREGUARD) {
         CMD_START_WIREGUARD cmd;
         ia >> cmd;

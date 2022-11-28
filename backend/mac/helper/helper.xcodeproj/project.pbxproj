@@ -9,8 +9,6 @@
 /* Begin PBXBuildFile section */
 		000B36D324B8C39300717275 /* bound_route.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 000B36D124B8C39300717275 /* bound_route.cpp */; };
 		000B36D624B8CB1500717275 /* routes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 000B36D524B8CB1500717275 /* routes.cpp */; };
-		001EE78624B89075004624BE /* kext_client.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 001EE78224B89075004624BE /* kext_client.cpp */; };
-		001EE78724B89075004624BE /* kext_monitor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 001EE78424B89075004624BE /* kext_monitor.cpp */; };
 		001EE79024B890DF004624BE /* split_tunneling.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 001EE78B24B890DE004624BE /* split_tunneling.cpp */; };
 		001EE79524B893D1004624BE /* routes_manager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 001EE79324B893D1004624BE /* routes_manager.cpp */; };
 		001F82D724BCF2A80081515F /* ip_routes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 001F82D524BCF2A80081515F /* ip_routes.cpp */; };
@@ -88,10 +86,6 @@
 		000B36D224B8C39300717275 /* bound_route.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bound_route.h; sourceTree = "<group>"; };
 		000B36D424B8CB1500717275 /* routes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = routes.h; sourceTree = "<group>"; };
 		000B36D524B8CB1500717275 /* routes.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = routes.cpp; sourceTree = "<group>"; };
-		001EE78224B89075004624BE /* kext_client.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = kext_client.cpp; sourceTree = "<group>"; };
-		001EE78324B89075004624BE /* kext_monitor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kext_monitor.h; sourceTree = "<group>"; };
-		001EE78424B89075004624BE /* kext_monitor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = kext_monitor.cpp; sourceTree = "<group>"; };
-		001EE78524B89075004624BE /* kext_client.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kext_client.h; sourceTree = "<group>"; };
 		001EE78A24B890DE004624BE /* split_tunneling.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = split_tunneling.h; sourceTree = "<group>"; };
 		001EE78B24B890DE004624BE /* split_tunneling.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = split_tunneling.cpp; sourceTree = "<group>"; };
 		001EE79324B893D1004624BE /* routes_manager.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = routes_manager.cpp; sourceTree = "<group>"; };
@@ -209,17 +203,6 @@
 				94DCA9A22559C2510052E65B /* helper_security.mm */,
 			);
 			path = ipc;
-			sourceTree = "<group>";
-		};
-		001EE78124B89051004624BE /* kext_client */ = {
-			isa = PBXGroup;
-			children = (
-				001EE78224B89075004624BE /* kext_client.cpp */,
-				001EE78524B89075004624BE /* kext_client.h */,
-				001EE78424B89075004624BE /* kext_monitor.cpp */,
-				001EE78324B89075004624BE /* kext_monitor.h */,
-			);
-			path = kext_client;
 			sourceTree = "<group>";
 		};
 		001EE78824B89096004624BE /* split_tunneling */ = {
@@ -367,7 +350,6 @@
 				001F82D224BCEAAE0081515F /* ip_hostnames */,
 				001EE79224B893B2004624BE /* routes_manager */,
 				001EE78824B89096004624BE /* split_tunneling */,
-				001EE78124B89051004624BE /* kext_client */,
 				001EE77624B88F52004624BE /* ipc */,
 				8434C1061FD5B99C00B7030D /* keychain_utils.h */,
 				8434C1071FD5B99C00B7030D /* keychain_utils.mm */,
@@ -492,12 +474,10 @@
 				00352E9825E549CE00E5ED2C /* 7zDec.c in Sources */,
 				00B1BA3225E4E3F60099A124 /* files.cpp in Sources */,
 				00352E9D25E549CE00E5ED2C /* 7zCrc.c in Sources */,
-				001EE78624B89075004624BE /* kext_client.cpp in Sources */,
 				00352E9C25E549CE00E5ED2C /* 7zFile.c in Sources */,
 				000B36D324B8C39300717275 /* bound_route.cpp in Sources */,
 				00EBAA04247D254400C86F6F /* logger.cpp in Sources */,
 				00352E9625E549CE00E5ED2C /* 7zAlloc.c in Sources */,
-				001EE78724B89075004624BE /* kext_monitor.cpp in Sources */,
 				843077AD1DE3AE26002405EA /* execute_cmd.cpp in Sources */,
 				00AB62AE249142610085A20F /* utils.cpp in Sources */,
 				6211D32C274EFFA800533D65 /* executable_signature_mac.mm in Sources */,

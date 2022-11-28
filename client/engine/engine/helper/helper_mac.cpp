@@ -182,37 +182,6 @@ bool Helper_mac::setKeychainUsernamePassword(const QString &username, const QStr
     return false;
 }
 
-bool Helper_mac::setKextPath(const QString &kextPath)
-{
-    QMutexLocker locker(&mutex_);
-
-    if (curState_ != STATE_CONNECTED)
-    {
-        return false;
-    }
-
-    CMD_SET_KEXT_PATH cmd;
-    cmd.kextPath = kextPath.toStdString();
-
-    std::stringstream stream;
-    boost::archive::text_oarchive oa(stream, boost::archive::no_header);
-    oa << cmd;
-
-    if (!sendCmdToHelper(HELPER_CMD_SET_KEXT_PATH, stream.str()))
-    {
-        return false;
-    }
-    else
-    {
-        CMD_ANSWER answerCmd;
-        if (!readAnswer(answerCmd))
-        {
-            return false;
-        }
-    }
-    return true;
-}
-
 bool Helper_mac::setDnsOfDynamicStoreEntry(const QString &ipAddress, const QString &entry)
 {
     QMutexLocker locker(&mutex_);

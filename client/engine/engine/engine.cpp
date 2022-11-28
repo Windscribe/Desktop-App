@@ -661,25 +661,9 @@ void Engine::onInitializeHelper(INIT_HELPER_RET ret)
 
         FinishActiveConnections::finishAllActiveConnections(helper_);
 
-#ifdef Q_OS_MAC
-        QString kextPath = QCoreApplication::applicationDirPath() + "/../Helpers/WindscribeKext.kext";
-        kextPath = QDir::cleanPath(kextPath);
-        Helper_mac *helper_mac = dynamic_cast<Helper_mac *>(helper_);
-        if (helper_mac->setKextPath(kextPath))
-        {
-            qCDebug(LOG_BASIC) << "Kext path set:" << Utils::cleanSensitiveInfo(kextPath);
-        }
-        else
-        {
-            qCDebug(LOG_BASIC) << "Kext path set failed";
-            Q_EMIT initFinished(ENGINE_INIT_HELPER_FAILED, isAuthHashExists);
-        }
-#endif
-
-    // turn off split tunneling (for case the state remains from the last launch)
-    helper_->sendConnectStatus(false, engineSettings_.isTerminateSockets(), engineSettings_.isAllowLanTraffic(), AdapterGatewayInfo(), AdapterGatewayInfo(), QString(), types::Protocol());
-    helper_->setSplitTunnelingSettings(false, false, false, QStringList(), QStringList(), QStringList());
-
+        // turn off split tunneling (for case the state remains from the last launch)
+        helper_->sendConnectStatus(false, engineSettings_.isTerminateSockets(), engineSettings_.isAllowLanTraffic(), AdapterGatewayInfo(), AdapterGatewayInfo(), QString(), types::Protocol());
+        helper_->setSplitTunnelingSettings(false, false, false, QStringList(), QStringList(), QStringList());
 
     #ifdef Q_OS_WIN
         // check BFE service status

@@ -26,13 +26,10 @@ SplitTunnelingWindowItem::SplitTunnelingWindowItem(ScalableGraphicsObject *paren
     splitTunnelingGroup_->setAppsCount(preferences->splitTunnelingApps().count());
     splitTunnelingGroup_->setAddressesCount(preferences->splitTunnelingNetworkRoutes().count());
 
-    QString descText = tr("Include or exclude apps and hostnames from the VPN tunnel.");
 #ifdef Q_OS_MAC
-    if (MacUtils::isOsVersionIsBigSur_or_greater()) {
-        descText = tr("Include or exclude IPs and hostnames from the VPN tunnel.\n\nFirewall will not function in this mode.");
-    } else {
-        descText = tr("Include or exclude apps and hostnames from the VPN tunnel.\n\nFirewall will not function in this mode.");
-    }
+    QString descText = tr("Include or exclude IPs and hostnames from the VPN tunnel.\n\nFirewall will not function in this mode.");
+#else 
+    QString descText = tr("Include or exclude apps and hostnames from the VPN tunnel.");
 #endif
     desc_ = new PreferenceGroup(this,
                                 descText,

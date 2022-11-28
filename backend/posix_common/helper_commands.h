@@ -12,7 +12,7 @@
 #define HELPER_CMD_SET_KEYCHAIN_ITEM                 4
 #define HELPER_CMD_SPLIT_TUNNELING_SETTINGS          5
 #define HELPER_CMD_SEND_CONNECT_STATUS               6
-#define HELPER_CMD_SET_KEXT_PATH                     7
+#define HELPER_CMD_SET_KEXT_PATH                     7 // deprecated
 #define HELPER_CMD_START_WIREGUARD                   8
 #define HELPER_CMD_STOP_WIREGUARD                    9
 #define HELPER_CMD_CONFIGURE_WIREGUARD               10
@@ -141,10 +141,6 @@ struct CMD_SEND_CONNECT_STATUS {
     // need for stunnel/wstunnel/openvpn routing
     std::string connectedIp;
     std::string remoteIp;
-};
-
-struct CMD_SET_KEXT_PATH {
-    std::string kextPath;
 };
 
 struct CMD_START_WIREGUARD {
