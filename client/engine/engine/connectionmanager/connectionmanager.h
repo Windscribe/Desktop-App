@@ -41,7 +41,6 @@ public:
 
     void clickConnect(const QString &ovpnConfig, const apiinfo::ServerCredentials &serverCredentials,
                       QSharedPointer<locationsmodel::BaseLocationInfo> bli,
-                      const types::ConnectionSettings &networkConnectionSettings,
                       const types::ConnectionSettings &connectionSettings,
                       const types::PortMap &portMap, const types::ProxySettings &proxySettings,
                       bool bEmitAuthError, const QString &customConfigPath);
@@ -84,7 +83,6 @@ public:
     types::Protocol currentProtocol() const;
 
     void updateConnectionSettings(
-        const types::ConnectionSettings &networkConnectionSettings,
         const types::ConnectionSettings &connectionSettings,
         const types::PortMap &portMap,
         const types::ProxySettings &proxySettings);
@@ -211,7 +209,6 @@ private:
     void recreateConnector(types::Protocol protocol);
     void restoreConnectionAfterWakeUp();
     void updateConnectionSettingsPolicy(
-        const types::ConnectionSettings &networkConnectionSettings,
         const types::ConnectionSettings &connectionSettings,
         const types::PortMap &portMap,
         const types::ProxySettings &proxySettings);

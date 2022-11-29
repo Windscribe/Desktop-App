@@ -747,7 +747,7 @@ void Backend::handleNetworkChange(types::NetworkInterface networkInterface, bool
             }
             else // SECURED
             {
-                if (preferences_.isAutoConnect())
+                if (preferences_.isAutoConnect() && connectStateHelper_.isDisconnected())
                 {
                     qCDebug(LOG_BASIC) << "Network Whitelisting detected SECURED network -- Connecting..";
                     sendConnect(PersistentState::instance().lastLocation());
