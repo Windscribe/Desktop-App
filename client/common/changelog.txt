@@ -1,3 +1,10 @@
+2.5.15 (29/11/2022)
+All:
+   * Fixed potential app crash when reading saved WireGuard config data created by the v2.4 app. #523
+macOS:
+   * Fixed app crash when Mac sleeps on one network and wakes on a different network. #519
+
+
 2.5.14 (17/11/2022)
 Windows:
    * Fixed split tunneling driver not being installed when upgrading from 2.4 to 2.5. #511
