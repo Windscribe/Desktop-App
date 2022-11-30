@@ -21,7 +21,6 @@ public:
     bool setMacAddress(const QString &interface, const QString &macAddress, bool robustMethod);
     bool enableMacSpoofingOnBoot(bool bEnable, const QString &interfaceName, const QString &macAddress, bool robustMethod);
     bool setKeychainUsernamePassword(const QString &username, const QString &password);
-    bool setKextPath(const QString &kextPath);
     bool setDnsOfDynamicStoreEntry(const QString &ipAddress, const QString &dynEnties);
     bool setIpv6Enabled(bool bEnabled);
 

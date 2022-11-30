@@ -91,13 +91,6 @@ void serialize(Archive &ar, CMD_SEND_CONNECT_STATUS &a, const unsigned int versi
 }
 
 template<class Archive>
-void serialize(Archive &ar, CMD_SET_KEXT_PATH &a, const unsigned int version)
-{
-    UNUSED(version);
-    ar & a.kextPath;
-}
-
-template<class Archive>
 void serialize(Archive &ar, CMD_START_WIREGUARD &a, const unsigned int version)
 {
     UNUSED(version);

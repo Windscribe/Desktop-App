@@ -1376,10 +1376,8 @@ void MainWindow::onBackendInitFinished(INIT_STATE initState)
             backend_->getPreferencesHelper()->setBlockFirewall(true);
             mainWindowController_->getConnectWindow()->setFirewallBlock(true);
         }
-        // if Mac >= 11.0, remove apps from the split tunnel config since we don't support them
-        if (MacUtils::isOsVersionIsBigSur_or_greater()) {
-            p->setSplitTunnelingApps(QList<types::SplitTunnelingApp>());
-        }
+        // on Mac, remove apps from the split tunnel config since we don't support them
+        p->setSplitTunnelingApps(QList<types::SplitTunnelingApp>());
 #endif
 
         // enable wifi/proxy sharing, if checked
