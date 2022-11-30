@@ -355,19 +355,15 @@ void EmergencyController::doConnect()
     }
 
     qCDebug(LOG_EMERGENCY_CONNECT) << "Connecting to IP:" << attempt.ip << " protocol:" << attempt.protocol << " port:" << attempt.port;
-    connector_->startConnect(makeOVPNFile_->path(), "", "", HardcodedSettings::instance().emergencyUsername(), HardcodedSettings::instance().emergencyPassword(), proxySettings_, nullptr, false, false);
+    connector_->startConnect(makeOVPNFile_->config(), "", "", HardcodedSettings::instance().emergencyUsername(), HardcodedSettings::instance().emergencyPassword(), proxySettings_, nullptr, false, false, false);
     lastIp_ = attempt.ip;
 }
 
 void EmergencyController::doMacRestoreProcedures()
 {
 #ifdef Q_OS_MAC
-    // todo: move this to utils (code duplicate in ConnecionManager class)
-    QString delRouteCommand = "route -n delete " + lastIp_ + "/32 " + defaultAdapterInfo_.gateway();
-    qCDebug(LOG_EMERGENCY_CONNECT) << "Execute command: " << delRouteCommand;
     Helper_mac *helper_mac = dynamic_cast<Helper_mac *>(helper_);
-    QString cmdAnswer = helper_mac->executeRootCommand(delRouteCommand);
-    qCDebug(LOG_EMERGENCY_CONNECT) << "Output from route delete command: " << cmdAnswer;
+    helper_mac->deleteRoute(lastIp_, 32, defaultAdapterInfo_.gateway());
     RestoreDNSManager_mac::restoreState(helper_);
 #endif
 }

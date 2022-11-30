@@ -301,33 +301,31 @@ types::MacAddrSpoofing MacAddressController_mac::macAddrSpoofingWithUpdatedNetwo
 
 void MacAddressController_mac::applyMacAddressSpoof(const QString &interfaceName, const QString &macAddress)
 {
-    QString command = "ifconfig " + interfaceName + " ether " + macAddress + " 2> /dev/null && echo success";
-    QString result = helper_->executeRootCommand(command);
-
-    bool success{ true };
+    bool ret = helper_->setMacAddress(interfaceName, macAddress, false);
+    bool success = true;
+    bool robustMethod = false;
 
     // Can verify MAC spoof immediately on Mac (no need to wait for adapter reset like on Windows).
     if (!NetworkUtils_mac::isInterfaceSpoofed(interfaceName) || !NetworkUtils_mac::checkMacAddr(interfaceName, macAddress))
     {
-        // Check if ifconfig command faild
-        if (result.contains("success"))
-        {
-            qCDebug(LOG_BASIC) << "MacAddressController_mac::applyMacAddressSpoof Command \"" << command << "\" succeeded but MAC address not changed.";
+        // Check if ifconfig command failed
+        if (ret) {
+            qCDebug(LOG_BASIC) << "MacAddressController_mac::applyMacAddressSpoof succeeded but MAC address not changed.";
+        } else {
+            qCDebug(LOG_BASIC) << "MacAddressController_mac::applyMacAddressSpoof failed.";
         }
-        else {
-            qCDebug(LOG_BASIC) << "MacAddressController_mac::applyMacAddressSpoof Command \"" << command << "\" failed.";
-        }
+
+        ret = helper_->setMacAddress(interfaceName, macAddress, true);
 
         // Use heavier handed spoof command sequence, which may bring down the network interface temporarily
         robustMacAddressSpoof(interfaceName, macAddress);
 
-        if (!NetworkUtils_mac::isInterfaceSpoofed(interfaceName) || !NetworkUtils_mac::checkMacAddr(interfaceName, macAddress))
-        {
+        if (!NetworkUtils_mac::isInterfaceSpoofed(interfaceName) || !NetworkUtils_mac::checkMacAddr(interfaceName, macAddress)) {
             qCDebug(LOG_BASIC) << "MacAddressController_mac::applyMacAddressSpoof \"robust\" failed too.";
             success = false;
-        }
-        else{
+        } else {
             success = true;
+            robustMethod = true;
         }
     }
 
@@ -335,7 +333,7 @@ void MacAddressController_mac::applyMacAddressSpoof(const QString &interfaceName
         // Apply to boot script if successful
         lastSpoofTime_ = QDateTime::currentDateTime();
         qCDebug(LOG_BASIC) << "MacAddressController_mac::applyMacAddressSpoof Successfully updated MAC address: " << interfaceName << " : " << macAddress;
-        helper_->enableMacSpoofingOnBoot(true, interfaceName, macAddress);
+        helper_->enableMacSpoofingOnBoot(true, interfaceName, macAddress, robustMethod);
     }
     else {
         qCDebug(LOG_BASIC) << "MacAddressController_mac::applyMacAddressSpoof Was not able to spoof MAC-address on: " << interfaceName;
@@ -345,10 +343,10 @@ void MacAddressController_mac::applyMacAddressSpoof(const QString &interfaceName
 
 void MacAddressController_mac::removeMacAddressSpoof(const QString &interfaceName)
 {
-    helper_->enableMacSpoofingOnBoot(false, "", "");
+    helper_->enableMacSpoofingOnBoot(false, "", "", false);
+
     QString originalMacAddress = NetworkUtils_mac::trueMacAddress(interfaceName);
-    QString commandRemoveSpoofedMacAddress = "ifconfig " + interfaceName + " ether " + originalMacAddress;
-    helper_->executeRootCommand(commandRemoveSpoofedMacAddress);
+    helper_->setMacAddress(interfaceName, originalMacAddress, false);
 
     // if MAC address was not reset to the original one, then try the heavy handed reset
     if (!NetworkUtils_mac::checkMacAddr(interfaceName, originalMacAddress))
@@ -418,14 +416,6 @@ void MacAddressController_mac::filterAndRotateOrUpdateList()
 
 void MacAddressController_mac::robustMacAddressSpoof(const QString &interfaceName, const QString &macAddress)
 {
-    // must be executed separately for some reason (otherwise the spoofed MAC address will not take)
-    const QString robustCommand1 = "/System/Library/PrivateFrameworks/Apple80211.framework/Resources/airport -z";
-    const QString robustCommand2 = "ifconfig " + interfaceName + " ether " + macAddress;
-    const QString robustCommand3 = "ifconfig " + interfaceName + " up";
-
-    helper_->executeRootCommand(robustCommand1);
-    helper_->executeRootCommand(robustCommand2);
-    helper_->executeRootCommand(robustCommand3);
-
+    helper_->setMacAddress(interfaceName, macAddress, true);
     emit robustMacSpoofApplied();
 }

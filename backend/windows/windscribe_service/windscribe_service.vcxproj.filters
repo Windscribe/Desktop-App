@@ -183,6 +183,9 @@
     <ClInclude Include="adapters_info.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ovpn.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="windscribe_service.cpp">
@@ -312,6 +315,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\client\common\utils\servicecontrolmanager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ovpn.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

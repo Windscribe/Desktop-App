@@ -120,12 +120,13 @@ struct CMD_WMIC_GET_CONFIG_ERROR_CODE
 struct CMD_RUN_OPENVPN
 {
     std::wstring    szOpenVpnExecutable;
-    std::wstring    szConfigPath;
+    std::wstring    szConfig;
     unsigned int    portNumber = 0;
     std::wstring    szHttpProxy;           // empty string, if no http
     unsigned int    httpPortNumber = 0;
     std::wstring    szSocksProxy;          // empty string, if no socks
     unsigned int    socksPortNumber = 0;
+    bool            isCustomConfig = false;
 };
 
 struct CMD_UPDATE_ICS

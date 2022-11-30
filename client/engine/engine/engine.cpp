@@ -724,7 +724,7 @@ void Engine::cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool is
     apiResourcesManager_.reset();
     SAFE_DELETE(checkUpdateManager_);
 
-    // to skip blocking executeRootCommand() calls
+    // to skip blocking calls
     if (helper_)
     {
         helper_->setNeedFinish();
@@ -1349,16 +1349,7 @@ void Engine::onConnectionManagerConnected()
             if (mtuForProtocol > 0)
             {
                 qCDebug(LOG_PACKET_SIZE) << "Applying MTU on " << adapterName << ": " << mtuForProtocol;
-    #ifdef Q_OS_MAC
-                const QString setIkev2MtuCmd = QString("ifconfig %1 mtu %2").arg(adapterName).arg(mtuForProtocol);
-                Helper_mac *helper_mac = dynamic_cast<Helper_mac *>(helper_);
-                helper_mac->executeRootCommand(setIkev2MtuCmd);
-    #elif defined(Q_OS_WIN)
-                Helper_win *helper_win = dynamic_cast<Helper_win *>(helper_);
-                helper_win->executeChangeMtu(adapterName, mtuForProtocol);
-    #elif defined(Q_OS_LINUX)
-                //todo
-    #endif
+                helper_->changeMtu(adapterName, mtuForProtocol);
             }
             else
             {

@@ -9,9 +9,11 @@
 
 bool KernelModuleCommunicator::start(
     const std::string &exePath,
+    const std::string &executable,
     const std::string &deviceName)
 {
     UNUSED(exePath);
+    UNUSED(executable);
     assert(!deviceName.empty());
     // NULL terminator included in size of IFNAMSIZ so device name must be smaller
     if (deviceName.size() >= IFNAMSIZ) {
@@ -202,7 +204,7 @@ unsigned long KernelModuleCommunicator::getStatus(unsigned int *errorCode,
 
     wg_device *device = nullptr;
     if (wg_get_device(&device, deviceName_.c_str()) < 0)
-        return WIREGUARD_STATE_LISTENING;
+        return kWgStateListening;
 
     if (device->first_peer != nullptr && device->first_peer->last_handshake_time.tv_sec > 0)
     {
@@ -211,14 +213,14 @@ unsigned long KernelModuleCommunicator::getStatus(unsigned int *errorCode,
         if (rc || tv.tv_sec - device->first_peer->last_handshake_time.tv_sec > 180)
         {
             Logger::instance().out("Time since last handshake time exceeded 3 minutes, disconnecting");
-            return WIREGUARD_STATE_ERROR;
+            return kWgStateError;
         }
         *bytesReceived = device->first_peer->rx_bytes;
         *bytesTransmitted = device->first_peer->tx_bytes;
         wg_free_device(device);
-        return WIREGUARD_STATE_ACTIVE;
+        return kWgStateActive;
     }
 
     wg_free_device(device);
-    return WIREGUARD_STATE_CONNECTING;
+    return kWgStateConnecting;
 }

@@ -9,7 +9,7 @@
 #include "../../utils/directory.h"
 #include "../../utils/registry.h"
 #include "../../utils/utils.h"
-#include "../../../../../client/common/utils/wsscopeguard.h"
+#include "../../../../client/common/utils/wsscopeguard.h"
 
 #pragma comment(lib, "gdiplus.lib")
 

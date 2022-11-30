@@ -15,6 +15,7 @@ public:
 
     virtual bool start(
         const std::string &exePath,
+        const std::string &executable,
         const std::string &deviceName);
     virtual bool stop();
     virtual bool configure(

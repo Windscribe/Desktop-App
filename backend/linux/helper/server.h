@@ -33,8 +33,6 @@ private:
     boost::asio::io_service service_;
     boost::asio::local::stream_protocol::acceptor *acceptor_;
     
-    //Files *files_;
-   
     bool readAndHandleCommand(socket_ptr sock, boost::asio::streambuf *buf, CMD_ANSWER &outCmdAnswer);
     
     void receiveCmdHandle(socket_ptr sock, boost::shared_ptr<boost::asio::streambuf> buf, const boost::system::error_code& ec, std::size_t bytes_transferred);

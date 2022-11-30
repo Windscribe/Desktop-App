@@ -1042,14 +1042,14 @@ void ConnectionManager::doConnectPart3()
         else
             recreateConnector(types::Protocol::OPENVPN_UDP);
 
-        connector_->startConnect(makeOVPNFileFromCustom_->path(), "", "", usernameForCustomOvpn_,
+        connector_->startConnect(makeOVPNFileFromCustom_->config(), "", "", usernameForCustomOvpn_,
                                  passwordForCustomOvpn_, lastProxySettings_,
-                                 currentConnectionDescr_.wgCustomConfig.get(), false, false);
+                                 currentConnectionDescr_.wgCustomConfig.get(), false, false, true);
     }
     else
     {
         if (currentConnectionDescr_.protocol.isOpenVpnProtocol())
-        { 
+        {
             QString username, password;
             if (currentConnectionDescr_.connectionNodeType == CONNECTION_NODE_STATIC_IPS)
             {
@@ -1063,7 +1063,7 @@ void ConnectionManager::doConnectPart3()
             }
 
             recreateConnector(types::Protocol::OPENVPN_UDP);
-            connector_->startConnect(makeOVPNFile_->path(), "", "", username, password, lastProxySettings_, nullptr, false, connSettingsPolicy_->isAutomaticMode());
+            connector_->startConnect(makeOVPNFile_->config(), "", "", username, password, lastProxySettings_, nullptr, false, connSettingsPolicy_->isAutomaticMode(), false);
         }
         else if (currentConnectionDescr_.protocol.isIkev2Protocol())
         {
@@ -1081,7 +1081,7 @@ void ConnectionManager::doConnectPart3()
 
             recreateConnector(types::Protocol::IKEV2);
             connector_->startConnect(currentConnectionDescr_.hostname, currentConnectionDescr_.ip, currentConnectionDescr_.hostname, username, password, lastProxySettings_,
-                                     nullptr, ExtraConfig::instance().isUseIkev2Compression(), connSettingsPolicy_->isAutomaticMode());
+                                     nullptr, ExtraConfig::instance().isUseIkev2Compression(), connSettingsPolicy_->isAutomaticMode(), false);
         }
         else if (currentConnectionDescr_.protocol.isWireGuardProtocol())
         {
@@ -1091,7 +1091,7 @@ void ConnectionManager::doConnectPart3()
             recreateConnector(types::Protocol::WIREGUARD);
             connector_->startConnect(QString(), currentConnectionDescr_.ip,
                 currentConnectionDescr_.dnsHostName, QString(), QString(), lastProxySettings_,
-                &wireGuardConfig_, false, connSettingsPolicy_->isAutomaticMode());
+                &wireGuardConfig_, false, connSettingsPolicy_->isAutomaticMode(), false);
         }
         else
         {
@@ -1117,11 +1117,8 @@ void ConnectionManager::doMacRestoreProcedures()
     const auto connection_type = connector_->getConnectionType();
     if (connection_type == ConnectionType::OPENVPN)
     {
-        QString delRouteCommand = "route -n delete " + lastIp_ + "/32 " + defaultAdapterInfo_.gateway();
-        qCDebug(LOG_CONNECTION) << "Execute command: " << delRouteCommand;
         Helper_mac *helper_mac = dynamic_cast<Helper_mac *>(helper_);
-        QString cmdAnswer = helper_mac->executeRootCommand(delRouteCommand);
-        qCDebug(LOG_CONNECTION) << "Output from route delete command: " << cmdAnswer;
+        helper_mac->deleteRoute(lastIp_, 32, defaultAdapterInfo_.gateway());
     }
     if (connection_type == ConnectionType::OPENVPN || connection_type == ConnectionType::WIREGUARD)
     {

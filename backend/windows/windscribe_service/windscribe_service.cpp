@@ -19,6 +19,7 @@
 #include "ikev2ipsec.h"
 #include "ikev2route.h"
 #include "ioutils.h"
+#include "ovpn.h"
 #include "ipc/serialize_structs.h"
 #include "fwpm_wrapper.h"
 #include "remove_windscribe_network_profiles.h"
@@ -662,32 +663,35 @@ MessagePacketResult processMessagePacket(int cmdId, const std::string &packet, I
 
 		// check input parameters
 		if (Utils::isValidFileName(cmdRunOpenVpn.szOpenVpnExecutable) &&
-			Utils::isFileExists(cmdRunOpenVpn.szConfigPath.c_str()) &&
 			Utils::noSpacesInString(cmdRunOpenVpn.szHttpProxy) &&
 			Utils::noSpacesInString(cmdRunOpenVpn.szSocksProxy))
 		{
-			// make openvpn command
-			std::wstring strCmd = L"\"" + Utils::getExePath() + L"\\" + cmdRunOpenVpn.szOpenVpnExecutable + L"\"";
-			strCmd += L" --config \"" + cmdRunOpenVpn.szConfigPath + L"\" --management 127.0.0.1 ";
-            strCmd += std::to_wstring(cmdRunOpenVpn.portNumber) + L" --management-query-passwords --management-hold --verb 3";
 
-			if (wcslen(cmdRunOpenVpn.szHttpProxy.c_str()) > 0)
-			{
-				strCmd += L" --http-proxy " + cmdRunOpenVpn.szHttpProxy + L" " + std::to_wstring(cmdRunOpenVpn.httpPortNumber) + L" auto";
+			std::wstring filename;
+			int ret = OVPN::writeOVPNFile(filename, cmdRunOpenVpn.szConfig);
+			if (ret) {
+				// make openvpn command
+				std::wstring strCmd = L"\"" + Utils::getExePath() + L"\\" + cmdRunOpenVpn.szOpenVpnExecutable + L"\"";
+				strCmd += L" --config \"" + filename + L"\" --management 127.0.0.1 ";
+				strCmd += std::to_wstring(cmdRunOpenVpn.portNumber) + L" --management-query-passwords --management-hold --verb 3";
+
+				if (wcslen(cmdRunOpenVpn.szHttpProxy.c_str()) > 0)
+				{
+					strCmd += L" --http-proxy " + cmdRunOpenVpn.szHttpProxy + L" " + std::to_wstring(cmdRunOpenVpn.httpPortNumber) + L" auto";
+				}
+				if (wcslen(cmdRunOpenVpn.szSocksProxy.c_str()) > 0)
+				{
+					strCmd += L" --socks-proxy " + cmdRunOpenVpn.szSocksProxy + L" " + std::to_wstring(cmdRunOpenVpn.socksPortNumber);
+				}
+
+				Logger::instance().out(L"AA_COMMAND_RUN_OPENVPN, cmd=%s", strCmd.c_str());
+
+				wchar_t szWorkingDir[MAX_PATH];
+				wcscpy(szWorkingDir, Utils::getDirPathFromFullPath(filename).c_str());
+				Logger::instance().out(L"AA_COMMAND_RUN_OPENVPN, ovpn file directory=%s", szWorkingDir);
+
+				mpr = ExecuteCmd::instance().executeUnblockingCmd(strCmd.c_str(), L"", szWorkingDir);
 			}
-			if (wcslen(cmdRunOpenVpn.szSocksProxy.c_str()) > 0)
-			{
-				strCmd += L" --socks-proxy " + cmdRunOpenVpn.szSocksProxy + L" " + std::to_wstring(cmdRunOpenVpn.socksPortNumber);
-			}
-
-			Logger::instance().out(L"AA_COMMAND_RUN_OPENVPN, cmd=%s", strCmd.c_str());
-
-			wchar_t szWorkingDir[MAX_PATH];
-			std::wstring strConfigPath = cmdRunOpenVpn.szConfigPath;
-			wcscpy(szWorkingDir, Utils::getDirPathFromFullPath(strConfigPath).c_str());
-			Logger::instance().out(L"AA_COMMAND_RUN_OPENVPN, ovpn file directory=%s", szWorkingDir);
-
-			mpr = ExecuteCmd::instance().executeUnblockingCmd(strCmd.c_str(), L"", szWorkingDir);
 		}
 		else
 		{

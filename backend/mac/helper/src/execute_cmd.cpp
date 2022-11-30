@@ -2,9 +2,10 @@
 #include <boost/thread.hpp>
 #include <syslog.h>
 
-unsigned long ExecuteCmd::execute(const char *cmd)
+unsigned long ExecuteCmd::execute(const std::string &cmd, const std::string &cwd)
 {
     mutex_.lock();
+
     curCmdId_++;
     CmdDescr *cmdDescr = new CmdDescr();
     cmdDescr->bFinished = false;
@@ -13,10 +14,11 @@ unsigned long ExecuteCmd::execute(const char *cmd)
     executingCmds_.push_back(cmdDescr);
     mutex_.unlock();
     
-    std::string str = cmd;
-    boost::thread(runCmd, curCmdId_, str);
-    
-    //syslog(LOG_NOTICE, "ExecuteCmd::execute, %ld", curCmdId_);
+    if (!cwd.empty()) {
+        boost::thread(runCmd, curCmdId_, "cd \"" + cwd + "\" && " + cmd);
+    } else {
+        boost::thread(runCmd, curCmdId_, cmd);
+    }
     
     return curCmdId_;
 }
@@ -24,15 +26,12 @@ unsigned long ExecuteCmd::execute(const char *cmd)
 void ExecuteCmd::getStatus(unsigned long cmdId, bool &bFinished, std::string &log)
 {
     mutex_.lock();
-    for (auto it = executingCmds_.begin(); it != executingCmds_.end(); ++it)
-    {
-        if ((*it)->cmdId == cmdId)
-        {
+    for (auto it = executingCmds_.begin(); it != executingCmds_.end(); ++it) {
+        if ((*it)->cmdId == cmdId) {
             bFinished = (*it)->bFinished;
             log = (*it)->log;
             
-            if ((*it)->bFinished)
-            {
+            if ((*it)->bFinished) {
                 delete (*it);
                 executingCmds_.erase(it);
             }
@@ -40,50 +39,38 @@ void ExecuteCmd::getStatus(unsigned long cmdId, bool &bFinished, std::string &lo
         }
     }
     mutex_.unlock();
-    
-    //syslog(LOG_NOTICE, "ExecuteCmd::getStatus, %ld, %d", curCmdId_, bFinished);
 }
 
 void ExecuteCmd::clearCmds()
 {
     mutex_.lock();
-    for (auto it = executingCmds_.begin(); it != executingCmds_.end(); ++it)
-    {
+    for (auto it = executingCmds_.begin(); it != executingCmds_.end(); ++it) {
         delete (*it);
     }
     executingCmds_.clear();
     mutex_.unlock();
-    
-    //syslog(LOG_NOTICE, "ExecuteCmd::clearCmds");
 }
 
 
 ExecuteCmd::ExecuteCmd() : curCmdId_(0)
 {
-    
 }
 
 void ExecuteCmd::runCmd(unsigned long cmdId, std::string cmd)
 {
     std::string strReply;
      
-    // run openvpn command
     FILE *file = popen(cmd.c_str(), "r");
-    if (file)
-    {
+    if (file) {
         char szLine[4096];
-        while(fgets(szLine, sizeof(szLine), file) != 0)
-        {
-            if (instance().isCmdExist(cmdId))
-            {
+        while(fgets(szLine, sizeof(szLine), file) != 0) {
+            if (instance().isCmdExist(cmdId)) {
                 strReply += szLine;
             }
         }
         pclose(file);
         instance().cmdFinished(cmdId, true, strReply);
-    }
-    else
-    {
+    } else {
         instance().cmdFinished(cmdId, false, std::string());
     }
 }
@@ -91,10 +78,8 @@ void ExecuteCmd::runCmd(unsigned long cmdId, std::string cmd)
 void ExecuteCmd::cmdFinished(unsigned long cmdId, bool bSuccess, std::string log)
 {
     mutex_.lock();
-    for (auto it = executingCmds_.begin(); it != executingCmds_.end(); ++it)
-    {
-        if ((*it)->cmdId == cmdId)
-        {
+    for (auto it = executingCmds_.begin(); it != executingCmds_.end(); ++it) {
+        if ((*it)->cmdId == cmdId) {
             (*it)->bFinished = true;
             (*it)->bSuccess = bSuccess;
             (*it)->log = log;
@@ -108,10 +93,8 @@ bool ExecuteCmd::isCmdExist(unsigned long cmdId)
 {
     mutex_.lock();
     bool bFound = false;
-    for (auto it = executingCmds_.begin(); it != executingCmds_.end(); ++it)
-    {
-        if ((*it)->cmdId == cmdId)
-        {
+    for (auto it = executingCmds_.begin(); it != executingCmds_.end(); ++it) {
+        if ((*it)->cmdId == cmdId) {
             bFound = true;
             break;
         }

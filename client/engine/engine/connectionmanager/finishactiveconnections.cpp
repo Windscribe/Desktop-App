@@ -16,7 +16,7 @@
 #endif
 
 #ifdef Q_OS_LINUX
-    #include "engine/helper/helper_posix.h"
+    #include "engine/helper/helper_linux.h"
     #include "wireguardconnection_posix.h"
 #endif
 
@@ -86,13 +86,9 @@ void FinishActiveConnections::finishAllActiveConnections_posix(IHelper *helper)
 void FinishActiveConnections::finishOpenVpnActiveConnections_posix(IHelper *helper)
 {
     Helper_posix *helper_posix = dynamic_cast<Helper_posix *>(helper);
-    const QStringList strOpenVpnExeList = OpenVpnVersionController::instance().getAvailableOpenVpnExecutables();
-    for (const QString &strExe : strOpenVpnExeList)
-    {
-        helper_posix->executeTaskKill(strExe);
-    }
-    helper_posix->executeTaskKill("windscribestunnel");
-    helper_posix->executeTaskKill("windscribewstunnel");
+    helper_posix->executeTaskKill(kTargetOpenVpn);
+    helper_posix->executeTaskKill(kTargetStunnel);
+    helper_posix->executeTaskKill(kTargetWStunnel);
 #if defined(Q_OS_MAC)
     RestoreDNSManager_mac::restoreState(helper);
 #endif
@@ -108,9 +104,8 @@ void FinishActiveConnections::finishWireGuardActiveConnections_posix(IHelper *he
 #if defined(Q_OS_LINUX)
 void FinishActiveConnections::removeDnsLeaksprotection_linux(IHelper *helper)
 {
-    Helper_posix *helperPosix = dynamic_cast<Helper_posix *>(helper);
-    int exitCode;
-    helperPosix->executeRootCommand("/etc/windscribe/dns-leak-protect down", &exitCode);
+    Helper_linux *helperLinux = dynamic_cast<Helper_linux *>(helper);
+    helperLinux->setDnsLeakProtectEnabled(false);
 }
 #endif
 

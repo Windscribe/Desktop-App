@@ -1,8 +1,10 @@
 #include "wireguardgocommunicator.h"
+#include "../../../../../client/common/utils/executable_signature/executable_signature.h"
 #include "../../../../posix_common/helper_commands.h"
 #include "execute_cmd.h"
 #include "utils.h"
 #include "logger.h"
+#include <codecvt>
 #include <regex>
 #include <type_traits>
 #include <boost/algorithm/string/trim.hpp>
@@ -140,22 +142,39 @@ bool WireGuardGoCommunicator::Connection::connect(struct sockaddr_un *address)
 
 bool WireGuardGoCommunicator::start(
     const std::string &exePath,
+    const std::string &executable,
     const std::string &deviceName)
 {
     assert(!deviceName.empty());
-    deviceName_ = deviceName;
-    exePath_ = exePath;
 
-    const std::string strFullCmd(exePath + " -f " + deviceName_);
-    ExecuteCmd::instance().execute(("rm -f /var/run/wireguard/" + deviceName_ + ".sock").c_str());
-    daemonCmdId_ = ExecuteCmd::instance().execute(strFullCmd.c_str()); 
+    Utils::executeCommand("rm", {"-f", ("/var/run/wireguard/" + deviceName + ".sock").c_str()});
+    const std::string fullCmd = Utils::getFullCommand(exePath, executable, "-f " + deviceName);
+    if (fullCmd.empty()) {
+        Logger::instance().out("Invalid WireGuard command");
+        return false;
+    }
+
+    const std::string fullPath = exePath + "/" + executable;
+    ExecutableSignature sigCheck;
+    if (!sigCheck.verifyWithSignCheck(std::wstring_convert<std::codecvt_utf8<wchar_t>>().from_bytes(fullPath))) {
+        Logger::instance().out("WireGuard executable signature incorrect: %s", sigCheck.lastError().c_str());
+        return false;
+    }
+
+    daemonCmdId_ = ExecuteCmd::instance().execute(fullCmd);
+    deviceName_ = deviceName;
+    executable_ = executable;
     return true;
 }
 
 bool WireGuardGoCommunicator::stop()
 {
-    ExecuteCmd::instance().execute(("rm -f /var/run/wireguard/" + deviceName_ + ".sock").c_str());
-    ExecuteCmd::instance().execute(("pkill -f \"" + exePath_ + "\"").c_str());
+    if (!deviceName_.empty()) {
+        Utils::executeCommand("rm", {"-f", ("/var/run/wireguard/" + deviceName_ + ".sock").c_str()});
+    }
+    if (!executable_.empty()) {
+        Utils::executeCommand("pkill", {"-f", executable_.c_str()});
+    }
     return true;
 }
 
@@ -208,17 +227,17 @@ unsigned long WireGuardGoCommunicator::getStatus(unsigned int *errorCode,
     if (is_daemon_dead) {
         // Special error code means the daemon is dead.
         *errorCode = 666u;
-        return WIREGUARD_STATE_ERROR;
+        return kWgStateError;
     }
 
     Connection connection(deviceName_);
     const auto connection_status = connection.getStatus();
     if (connection_status != Connection::Status::OK) {
         if (connection.getStatus() == Connection::Status::NO_SOCKET)
-            return WIREGUARD_STATE_STARTING;
+            return kWgStateStarting;
         if (errorCode)
             *errorCode = static_cast<unsigned int>(errno);
-        return WIREGUARD_STATE_ERROR;
+        return kWgStateError;
     }
 
     // Send get command.
@@ -235,19 +254,19 @@ unsigned long WireGuardGoCommunicator::getStatus(unsigned int *errorCode,
     };
     bool success = connection.getOutput(&results);
     if (!success)
-        return WIREGUARD_STATE_STARTING;
+        return kWgStateStarting;
 
     // Check for errors.
     const auto errno_value = stringToValue<unsigned int>(results["errno"]);
     if (errno_value != 0) {
         if (errorCode)
             *errorCode = errno_value;
-        return WIREGUARD_STATE_ERROR;
+        return kWgStateError;
     }
 
     // Check if not yet listening.
     if (results["listen_port"].empty())
-        return WIREGUARD_STATE_STARTING;
+        return kWgStateStarting;
 
     // Check for handshake.
     if (stringToValue<unsigned long long>(results["last_handshake_time_sec"]) > 0) {
@@ -256,18 +275,18 @@ unsigned long WireGuardGoCommunicator::getStatus(unsigned int *errorCode,
         if (rc || tv.tv_sec - stringToValue<unsigned long long>(results["last_handshake_time_sec"]) > 180)
         {
             Logger::instance().out("Time since last handshake time exceeded 3 minutes, disconnecting");
-            return WIREGUARD_STATE_ERROR;
+            return kWgStateError;
         }
 
         if (bytesReceived)
             *bytesReceived = stringToValue<unsigned long long>(results["rx_bytes"]);
         if (bytesTransmitted)
             *bytesTransmitted = stringToValue<unsigned long long>(results["tx_bytes"]);
-        return WIREGUARD_STATE_ACTIVE;
+        return kWgStateActive;
     }
 
     // If endpoint is set, we are connecting, otherwise simply listening.
     if (!results["public_key"].empty())
-        return WIREGUARD_STATE_CONNECTING;
-    return WIREGUARD_STATE_LISTENING;
+        return kWgStateConnecting;
+    return kWgStateListening;
 }

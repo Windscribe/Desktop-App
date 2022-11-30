@@ -32,8 +32,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, weak) IBOutlet NSButton *eulaButton;
 @property (nonatomic, weak) IBOutlet NSButton *escButton;
 @property (nonatomic, weak) IBOutlet ToggleControl *factoryResetToggle;
-@property (nonatomic, weak) IBOutlet NSButton *selectPathButton;
-@property (nonatomic, weak) IBOutlet NSTextField *pathField;
 @property (nonatomic, weak) IBOutlet NSTextField *factoryResetField;
 
 - (void)mouseDown:(NSEvent *)event;
@@ -45,7 +43,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (IBAction)onInstallClick:(id)sender;
 - (IBAction)onSettingsClick:(id)sender;
 - (IBAction)onEscClick:(id)sender;
-- (IBAction)onSelectPathClick:(id)sender;
 - (IBAction)onFactoryResetToggleClick:(id)sender;
 
 - (void) installerCallback: (id) object;

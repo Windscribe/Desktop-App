@@ -17,7 +17,8 @@ public:
     // config path for openvpn, url for ikev2
     void startConnect(const QString &configPathOrUrl, const QString &ip, const QString &dnsHostName,
                       const QString &username, const QString &password, const types::ProxySettings &proxySettings,
-                      const WireGuardConfig *wireGuardConfig, bool isEnableIkev2Compression, bool isAutomaticConnectionMode) override;
+                      const WireGuardConfig *wireGuardConfig, bool isEnableIkev2Compression, bool isAutomaticConnectionMode,
+                      bool isCustomConfig) override;
     void startDisconnect() override;
     bool isDisconnected() const override;
     ConnectionType getConnectionType() const override { return ConnectionType::IKEV2; }

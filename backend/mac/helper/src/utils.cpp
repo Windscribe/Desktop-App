@@ -1,5 +1,7 @@
 #include "utils.h"
 #include "3rdparty/pstream.h"
+#include "logger.h"
+#include <sstream>
 
 namespace Utils
 {
@@ -65,4 +67,53 @@ size_t findCaseInsensitive(std::string data, std::string toSearch, size_t pos)
     return data.find(toSearch, pos);
 }
 
+std::string getFullCommand(const std::string &exePath, const std::string &executable, const std::string &arguments)
+{
+    char *canonicalPath = realpath(exePath.c_str(), NULL);
+    if (!canonicalPath) {
+        LOG("Executable not in valid path, ignoring.");
+        return "";
+    }
+
+    if (std::string(canonicalPath).rfind("/Applications/Windscribe.app", 0) != 0) {
+        // Don't execute arbitrary commands, only executables that are in our application directory
+        LOG("Executable not in correct path, ignoring.");
+        free(canonicalPath);
+        return "";
+    }
+
+    std::string fullCmd = std::string(canonicalPath) + "/" + executable + " " + arguments;
+    LOG("Resolved command: %s", fullCmd.c_str());
+    free(canonicalPath);
+
+    if (fullCmd.find(";") != std::string::npos || fullCmd.find("|") != std::string::npos || fullCmd.find("&") != std::string::npos) {
+        // Don't execute commands with dangerous pipes or delimiters
+        LOG("Executable command contains invalid characters, ignoring.");
+        return "";
+    }
+
+    return fullCmd;
 }
+
+std::vector<std::string> getOpenVpnExeNames()
+{
+    std::vector<std::string> ret;
+    std::string list;
+    std::string item;
+    int rc = 0;
+
+    rc = Utils::executeCommand("ls", {"/Applications/Windscribe.app/Contents/Helpers"}, &list);
+    if (rc != 0) {
+        return ret;
+    }
+
+    std::istringstream stream(list);
+    while (std::getline(stream, item)) {
+        if (item.find("openvpn") != std::string::npos) {
+            ret.push_back(item);
+        }
+    }
+    return ret;
+}
+
+} // namespace Utils

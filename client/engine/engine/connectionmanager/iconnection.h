@@ -19,11 +19,11 @@ public:
     explicit IConnection(QObject *parent): QThread(parent) {}
     virtual ~IConnection() {}
 
-    // config path for openvpn, url for ikev2
-    virtual void startConnect(const QString &configPathOrUrl, const QString &ip, const QString &dnsHostName,
+    // config contents for openvpn, url for ikev2
+    virtual void startConnect(const QString &configOrUrl, const QString &ip, const QString &dnsHostName,
                               const QString &username, const QString &password, const types::ProxySettings &proxySettings,
                               const WireGuardConfig *wireGuardConfig, bool isEnableIkev2Compression,
-                              bool isAutomaticConnectionMode) = 0;
+                              bool isAutomaticConnectionMode, bool isCustomConfig) = 0;
     virtual void startDisconnect() = 0;
     virtual bool isDisconnected() const = 0;
     virtual ConnectionType getConnectionType() const = 0;

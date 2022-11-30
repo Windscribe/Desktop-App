@@ -25,18 +25,18 @@ void RoutesManager::updateState(const CMD_SEND_CONNECT_STATUS &connectStatus, bo
             }
             else
             {
-                if (connectStatus.protocol == CMD_PROTOCOL_OPENVPN || connectStatus.protocol == CMD_PROTOCOL_STUNNEL_OR_WSTUNNEL)
+                if (connectStatus.protocol == kCmdProtocolOpenvpn || connectStatus.protocol == kCmdProtocolStunnelOrWstunnel)
                 {
                     // delete openvpn default routes
                     deleteOpenVpnDefaultRoutes(connectStatus);
                     // add bound route
                     boundRoute_.create(connectStatus.vpnAdapter.gatewayIp, connectStatus.vpnAdapter.adapterName);
                 }
-                else if (connectStatus.protocol == CMD_PROTOCOL_IKEV2)
+                else if (connectStatus.protocol == kCmdProtocolIkev2)
                 {
                     addIkev2RoutesForInclusiveMode(connectStatus);
                 }
-                else if (connectStatus.protocol == CMD_PROTOCOL_WIREGUARD)
+                else if (connectStatus.protocol == kCmdProtocolWireGuard)
                 {
                     deleteWireGuardDefaultRoutes(connectStatus);
                     boundRoute_.create(connectStatus.vpnAdapter.adapterIp, connectStatus.vpnAdapter.adapterName);
@@ -63,7 +63,7 @@ void RoutesManager::updateState(const CMD_SEND_CONNECT_STATUS &connectStatus, bo
                 
                 if (isExcludeMode)
                 {
-                    if (connectStatus.protocol == CMD_PROTOCOL_OPENVPN || connectStatus.protocol == CMD_PROTOCOL_STUNNEL_OR_WSTUNNEL)
+                    if (connectStatus.protocol == kCmdProtocolOpenvpn || connectStatus.protocol == kCmdProtocolStunnelOrWstunnel)
                     {
                         // add openvpn default routes
                         vpnRoutes_.add(connectStatus.remoteIp, connectStatus.defaultAdapter.gatewayIp, "255.255.255.255");
@@ -71,7 +71,7 @@ void RoutesManager::updateState(const CMD_SEND_CONNECT_STATUS &connectStatus, bo
                         vpnRoutes_.add("128.0.0.0", connectStatus.vpnAdapter.gatewayIp, "128.0.0.0");
                         boundRoute_.create(connectStatus.defaultAdapter.gatewayIp, connectStatus.vpnAdapter.adapterName);
                     }
-                    else if (connectStatus.protocol == CMD_PROTOCOL_WIREGUARD)
+                    else if (connectStatus.protocol == kCmdProtocolWireGuard)
                     {
                         // add wireguard default routes
                         vpnRoutes_.addWithInterface("0.0.0.0/1", connectStatus.vpnAdapter.adapterName);
@@ -81,16 +81,16 @@ void RoutesManager::updateState(const CMD_SEND_CONNECT_STATUS &connectStatus, bo
                 }
                 else
                 {
-                    if (connectStatus.protocol == CMD_PROTOCOL_OPENVPN || connectStatus.protocol == CMD_PROTOCOL_STUNNEL_OR_WSTUNNEL)
+                    if (connectStatus.protocol == kCmdProtocolOpenvpn || connectStatus.protocol == kCmdProtocolStunnelOrWstunnel)
                     {
                         deleteOpenVpnDefaultRoutes(connectStatus);
                         boundRoute_.create(connectStatus.vpnAdapter.gatewayIp, connectStatus.vpnAdapter.adapterName);
                     }
-                    else if (connectStatus.protocol == CMD_PROTOCOL_IKEV2)
+                    else if (connectStatus.protocol == kCmdProtocolIkev2)
                     {
                         addIkev2RoutesForInclusiveMode(connectStatus);
                     }
-                    else if (connectStatus.protocol == CMD_PROTOCOL_WIREGUARD)
+                    else if (connectStatus.protocol == kCmdProtocolWireGuard)
                     {
                         deleteWireGuardDefaultRoutes(connectStatus);
                         boundRoute_.create(connectStatus.vpnAdapter.adapterIp, connectStatus.vpnAdapter.adapterName);

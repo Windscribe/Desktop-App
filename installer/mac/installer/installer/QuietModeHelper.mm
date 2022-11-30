@@ -31,7 +31,7 @@
     }
     
     // start installation
-    [_appDelegate.installer start:false];
+    [_appDelegate.installer start];
 }
 
 - (void) installerCallback: (id)object
@@ -59,10 +59,10 @@
         // for prevent duplicate run
         if (!isAlreadyFinished)
         {
-            [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"Finished! (%@)", [installer getFullInstallPath]]];
+            [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"Finished! (%@)", [installer getInstallPath]]];
 
             [[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:self selector:@selector(appDidLaunch:) name:NSWorkspaceDidLaunchApplicationNotification object:nil];
-            [[NSWorkspace sharedWorkspace] launchApplication: [installer getFullInstallPath]];
+            [[NSWorkspace sharedWorkspace] launchApplication: [installer getInstallPath]];
             isAlreadyFinished = true;
         }
     }
