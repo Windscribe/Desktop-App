@@ -723,12 +723,15 @@ void ConnectionManager::onWakeMode()
 void ConnectionManager::onNetworkOnlineStateChanged(bool isAlive)
 {
     qCDebug(LOG_CONNECTION) << "ConnectionManager::onNetworkOnlineStateChanged(), isAlive =" << isAlive << ", state_ =" << state_;
-#ifdef Q_OS_WIN
+
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     Q_EMIT internetConnectivityChanged(isAlive);
 #elif defined Q_OS_MAC
     Q_EMIT internetConnectivityChanged(isAlive);
 
     bLastIsOnline_ = isAlive;
+    if (!connector_)
+        return;
 
     switch (state_)
     {
@@ -796,8 +799,6 @@ void ConnectionManager::onNetworkOnlineStateChanged(bool isAlive)
         default:
             WS_ASSERT(false);
     }
-#elif defined Q_OS_LINUX
-        Q_EMIT internetConnectivityChanged(isAlive);
 #endif
 }
 
