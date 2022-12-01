@@ -1,3 +1,8 @@
+2.5.17 (01/12/2022)
+Windows:
+   * Fixed potential app crash caused by a DPI issue in the locations tray menu. #523
+
+
 2.5.16 (30/11/2022)
 macOS:
    * Fixed potential app crash when network online state changes. #519
