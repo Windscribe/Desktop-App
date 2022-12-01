@@ -7,7 +7,7 @@ class LocationsTrayMenuItemDelegate : public QItemDelegate
 {
     Q_OBJECT
 public:
-    explicit LocationsTrayMenuItemDelegate(QObject *parent);
+    explicit LocationsTrayMenuItemDelegate(QObject *parent, double scale);
 
     const QFont &getFontForItems() const { return font_; }
     void setFontForItems(const QFont &font);
@@ -20,6 +20,7 @@ protected:
 
 private:
     QFont font_;
+    double scale_;
     const int CITY_CAPTION_MAX_WIDTH = 210;
 };
 

@@ -8,7 +8,6 @@
 #include <QScreen>
 #include <QSortFilterProxyModel>
 #include "commongraphics/commongraphics.h"
-#include "locationstraymenuscalemanager.h"
 #include "locations/locationsmodel_roles.h"
 #include "utils/ws_assert.h"
 
@@ -38,18 +37,36 @@ private:
     LocationsTrayMenuWidget *host_;
 };
 
-LocationsTrayMenuWidget::LocationsTrayMenuWidget(QWidget *parent, QAbstractItemModel *model, const QFont &font) :
+LocationsTrayMenuWidget::LocationsTrayMenuWidget(QWidget *parent, QAbstractItemModel *model, const QFont &font, const QRect &trayIconGeometry) :
     QWidget(parent)
   , currentSubmenu_(nullptr)
   , visibleItemsCount_(20)
 {
+    screen_ = qApp->screenAt(trayIconGeometry.topLeft());
+    WS_ASSERT(screen_ != nullptr);
+    if (!screen_)
+        screen_ = qApp->primaryScreen();
+
+    if (screen_) {
+        #ifdef Q_OS_WIN
+            int curDPI = screen_->logicalDotsPerInch();
+            scale_ = (double)curDPI / (double)LOWEST_LDPI;
+        #else
+            // for Mac curScale always == 1
+            scale_ = 1;
+        #endif
+    } else  {
+        scale_ = 1.0;
+    }
+
+
     listView_ = new QListView();
     listView_->setMouseTracking(true);
     listView_->setStyleSheet("background-color: rgba(255, 255, 255, 0);\nborder-top: none;\nborder-bottom: none;");
     listView_->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     listView_->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     listView_->setResizeMode(QListView::Adjust);
-    locationsTrayMenuItemDelegate_ = new LocationsTrayMenuItemDelegate(this);
+    locationsTrayMenuItemDelegate_ = new LocationsTrayMenuItemDelegate(this, scale_);
     locationsTrayMenuItemDelegate_->setFontForItems(font);
     listView_->setItemDelegate(locationsTrayMenuItemDelegate_);
     listView_->viewport()->installEventFilter(this);
@@ -184,14 +201,13 @@ void LocationsTrayMenuWidget::recalcSize()
     QStyleOptionMenuItem opt;
     QSize sz;
     sz = QApplication::style()->sizeFromContents(QStyle::CT_MenuItem, &opt, sz);
-    const int scaledItemHeight = sz.height() * LocationsTrayMenuScaleManager::instance().scale();
+    const int scaledItemHeight = sz.height() * scale_;
     visibleItemsCount_ = listView_->model()->rowCount();
     if (visibleItemsCount_ < 1)
         visibleItemsCount_ = 1;
 
-    QScreen *screen = LocationsTrayMenuScaleManager::instance().screen();
-    if (screen) {
-        const int availableHeight = screen->geometry().height() -
+    if (screen_) {
+        const int availableHeight = screen_->geometry().height() -
             upButton_->sizeHint().height() - downButton_->sizeHint().height();
         const int maxItemCount = availableHeight / scaledItemHeight - 1;
         if (visibleItemsCount_ > maxItemCount)
@@ -199,7 +215,7 @@ void LocationsTrayMenuWidget::recalcSize()
     }
 
 
-    int maxWidth = 190 * LocationsTrayMenuScaleManager::instance().scale(); // set initial mimimum size
+    int maxWidth = 190 * scale_; // set initial mimimum size
     // if the size of any item exceeds maxWidth, then will increase maxWidth
     for (int i = 0; i < listView_->model()->rowCount(); ++i)
     {
