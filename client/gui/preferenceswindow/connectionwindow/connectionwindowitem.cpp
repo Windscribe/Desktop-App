@@ -2,17 +2,18 @@
 
 #include <QGraphicsScene>
 #include <QGraphicsView>
+#include <QMessageBox>
 #include <QPainter>
+
 #include "dpiscalemanager.h"
 #include "utils/hardcodedsettings.h"
 #include "commongraphics/baseitem.h"
-#include "graphicresources/fontmanager.h"
 #include "graphicresources/imageresourcessvg.h"
 #include "graphicresources/independentpixmap.h"
 #include "languagecontroller.h"
-#include "utils/logger.h"
-#include "tooltips/tooltiputil.h"
 #include "tooltips/tooltipcontroller.h"
+
+extern QWidget *g_mainWindow;
 
 namespace PreferencesWindow {
 
@@ -359,6 +360,16 @@ void ConnectionWindowItem::onLanguageChanged()
 void ConnectionWindowItem::onIsAllowLanTrafficPreferencesChangedByUser(bool b)
 {
     preferences_->setAllowLanTraffic(b);
+
+    types::ShareProxyGateway sp = preferences_->shareProxyGateway();
+    if (sp.isEnabled && !b) {
+        QMessageBox::StandardButton button = QMessageBox::question(g_mainWindow, tr("Windscribe"),
+            tr("Disabling this feature will cause your proxy gateway to stop working.  Do you want to disable the proxy?"));
+        if (button == QMessageBox::Yes) {
+            sp.isEnabled = false;
+            preferences_->setShareProxyGateway(sp);
+        }
+    }
 }
 
 void ConnectionWindowItem::onConnectedDnsPreferencesChangedByUser(const types::ConnectedDnsInfo &dns)
@@ -397,6 +408,16 @@ void ConnectionWindowItem::onConnectionSettingsPreferencesChanged(const types::C
 void ConnectionWindowItem::onProxyGatewayPreferencesChangedByUser(const types::ShareProxyGateway &sp)
 {
     preferences_->setShareProxyGateway(sp);
+
+    if (sp.isEnabled && !preferences_->isAllowLanTraffic()) {
+        QMessageBox::StandardButton button = QMessageBox::question(g_mainWindow, tr("Windscribe"),
+            tr("LAN traffic is currently blocked by the Windscribe firewall. "
+               "Do you want to allow LAN traffic to bypass the firewall in order for this feature to work?"));
+        if (button == QMessageBox::Yes) {
+            preferences_->setAllowLanTraffic(true);
+        }
+    }
+
 }
 
 void ConnectionWindowItem::onProxyGatewayPreferencesChanged(const types::ShareProxyGateway &sp)

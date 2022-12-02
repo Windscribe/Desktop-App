@@ -1,14 +1,10 @@
-#ifndef PROXYGATEWAYITEM_H
-#define PROXYGATEWAYITEM_H
+#pragma once
 
-#include "backend/preferences/preferences.h"
-#include "backend/preferences/preferenceshelper.h"
-#include "commongraphics/baseitem.h"
-#include "commongraphics/checkboxbutton.h"
 #include "preferenceswindow/checkboxitem.h"
 #include "preferenceswindow/comboboxitem.h"
 #include "preferenceswindow/preferencegroup.h"
 #include "proxyipaddressitem.h"
+#include "types/shareproxygateway.h"
 
 namespace PreferencesWindow {
 
@@ -36,8 +32,6 @@ protected:
     void hideOpenPopups() override;
 
 private:    
-    void updateMode();
-
     CheckBoxItem *checkBoxEnable_;
     ComboBoxItem *comboBoxProxyType_;
     ProxyIpAddressItem *proxyIpAddressItem_;
@@ -45,8 +39,8 @@ private:
     types::ShareProxyGateway settings_;
 
     QString desc_;
+
+    void updateMode();
 };
 
 } // namespace PreferencesWindow
-
-#endif // PROXYGATEWAYITEM_H
