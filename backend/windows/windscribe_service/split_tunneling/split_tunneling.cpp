@@ -101,8 +101,8 @@ bool SplitTunneling::updateState()
             hostnamesManager_.enable(connectStatus_.vpnAdapter.gatewayIp, connectStatus_.vpnAdapter.ifIndex);
         }
 
-        firewallFilter_.setSplitTunnelingAppsIds(appsIds, isExclude_);
-        firewallFilter_.setSplitTunnelingEnabled();
+        firewallFilter_.setSplitTunnelingAppsIds(appsIds);
+        firewallFilter_.setSplitTunnelingEnabled(isExclude_);
         calloutFilter_.enable(redirectIp, appsIds);
     }
     else {

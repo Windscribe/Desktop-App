@@ -1,9 +1,8 @@
 #include "proxygatewaygroup.h"
 
 #include <QPainter>
-#include "graphicresources/fontmanager.h"
+
 #include "graphicresources/imageresourcessvg.h"
-#include "dpiscalemanager.h"
 
 namespace PreferencesWindow {
 
@@ -20,8 +19,7 @@ ProxyGatewayGroup::ProxyGatewayGroup(ScalableGraphicsObject *parent, const QStri
     comboBoxProxyType_ = new ComboBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::ComboBoxItem", "Proxy Type"), "");
     comboBoxProxyType_->setCaptionFont(FontDescr(12, false));
     const QList< QPair<QString, int> > allProxyTypes = PROXY_SHARING_TYPE_toList();
-    for (const auto p : allProxyTypes)
-    {
+    for (const auto p : allProxyTypes) {
         comboBoxProxyType_->addItem(p.first, p.second);
     }
     comboBoxProxyType_->setCurrentItem(allProxyTypes.begin()->second);
@@ -38,8 +36,7 @@ ProxyGatewayGroup::ProxyGatewayGroup(ScalableGraphicsObject *parent, const QStri
 
 void ProxyGatewayGroup::setProxyGatewaySettings(const types::ShareProxyGateway &sp)
 {
-    if(settings_ != sp)
-    {
+    if (settings_ != sp) {
         settings_ = sp;
         checkBoxEnable_->setState(sp.isEnabled);
         comboBoxProxyType_->setCurrentItem(sp.proxySharingMode);
@@ -76,12 +73,10 @@ void ProxyGatewayGroup::hideOpenPopups()
 
 void ProxyGatewayGroup::updateMode()
 {
-    if (checkBoxEnable_->isChecked())
-    {
+    if (checkBoxEnable_->isChecked()) {
         showItems(indexOf(comboBoxProxyType_), indexOf(proxyIpAddressItem_));
     }
-    else
-    {
+    else {
         hideItems(indexOf(comboBoxProxyType_), indexOf(proxyIpAddressItem_));
     }
 }

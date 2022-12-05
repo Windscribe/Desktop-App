@@ -375,6 +375,7 @@
     <ClInclude Include="ipc\servicecommunication.h" />
     <ClInclude Include="ipv6_firewall.h" />
     <ClInclude Include="ip_address\ip4_address_and_mask.h" />
+    <ClInclude Include="ip_address\ip6_address_and_prefix.h" />
     <ClInclude Include="ovpn.h" />
     <ClInclude Include="registry.h" />
     <ClInclude Include="reinstall_wan_ikev2.h" />
@@ -424,6 +425,7 @@
     <ClCompile Include="ioutils.cpp" />
     <ClCompile Include="ipv6_firewall.cpp" />
     <ClCompile Include="ip_address\ip4_address_and_mask.cpp" />
+    <ClCompile Include="ip_address\ip6_address_and_prefix.cpp" />
     <ClCompile Include="logger.cpp" />
     <ClCompile Include="ovpn.cpp" />
     <ClCompile Include="pipe_for_process.cpp" />
