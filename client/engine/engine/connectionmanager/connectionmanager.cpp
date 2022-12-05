@@ -112,7 +112,6 @@ ConnectionManager::~ConnectionManager()
 
 void ConnectionManager::clickConnect(const QString &ovpnConfig, const apiinfo::ServerCredentials &serverCredentials,
                                          QSharedPointer<locationsmodel::BaseLocationInfo> bli,
-                                         const types::ConnectionSettings &networkConnectionSettings,
                                          const types::ConnectionSettings &connectionSettings,
                                          const types::PortMap &portMap, const types::ProxySettings &proxySettings,
                                          bool bEmitAuthError, const QString &customConfigPath)
@@ -141,7 +140,7 @@ void ConnectionManager::clickConnect(const QString &ovpnConfig, const apiinfo::S
         connector_ = NULL;
     }
 
-    updateConnectionSettingsPolicy(networkConnectionSettings, connectionSettings, portMap, proxySettings);
+    updateConnectionSettingsPolicy(connectionSettings, portMap, proxySettings);
 
     connSettingsPolicy_->debugLocationInfoToLog();
 
@@ -724,12 +723,15 @@ void ConnectionManager::onWakeMode()
 void ConnectionManager::onNetworkOnlineStateChanged(bool isAlive)
 {
     qCDebug(LOG_CONNECTION) << "ConnectionManager::onNetworkOnlineStateChanged(), isAlive =" << isAlive << ", state_ =" << state_;
-#ifdef Q_OS_WIN
+
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     Q_EMIT internetConnectivityChanged(isAlive);
 #elif defined Q_OS_MAC
     Q_EMIT internetConnectivityChanged(isAlive);
 
     bLastIsOnline_ = isAlive;
+    if (!connector_)
+        return;
 
     switch (state_)
     {
@@ -797,8 +799,6 @@ void ConnectionManager::onNetworkOnlineStateChanged(bool isAlive)
         default:
             WS_ASSERT(false);
     }
-#elif defined Q_OS_LINUX
-        Q_EMIT internetConnectivityChanged(isAlive);
 #endif
 }
 
@@ -1368,15 +1368,13 @@ types::Protocol ConnectionManager::currentProtocol() const
     return currentProtocol_;
 }
 
-void ConnectionManager::updateConnectionSettings(
-        const types::ConnectionSettings &networkConnectionSettings,
-        const types::ConnectionSettings &connectionSettings,
+void ConnectionManager::updateConnectionSettings(const types::ConnectionSettings &connectionSettings,
         const types::PortMap &portMap,
         const types::ProxySettings &proxySettings)
 {
     qCDebug(LOG_CONNECTION) << "ConnectionManager::updateConnectionSettings(), state_ =" << state_;
 
-    updateConnectionSettingsPolicy(networkConnectionSettings, connectionSettings, portMap, proxySettings);
+    updateConnectionSettingsPolicy(connectionSettings, portMap, proxySettings);
 
     if (connector_ == nullptr) {
         return;
@@ -1392,10 +1390,10 @@ void ConnectionManager::updateConnectionSettings(
         case STATE_WAKEUP_RECONNECTING:
         case STATE_AUTO_DISCONNECT:
         case STATE_ERROR_DURING_CONNECTION:
+        case STATE_RECONNECTING:
             break;
         case STATE_CONNECTING_FROM_USER_CLICK:
         case STATE_CONNECTED:
-        case STATE_RECONNECTING:
             Q_EMIT reconnecting();
             state_ = STATE_RECONNECTING;
             if (!timerReconnection_.isActive()) {
@@ -1407,9 +1405,7 @@ void ConnectionManager::updateConnectionSettings(
     }
 }
 
-void ConnectionManager::updateConnectionSettingsPolicy(
-        const types::ConnectionSettings &networkConnectionSettings,
-        const types::ConnectionSettings &connectionSettings,
+void ConnectionManager::updateConnectionSettingsPolicy(const types::ConnectionSettings &connectionSettings,
         const types::PortMap &portMap,
         const types::ProxySettings &proxySettings)
 {
@@ -1420,8 +1416,6 @@ void ConnectionManager::updateConnectionSettingsPolicy(
 
     if (bli_->locationId().isCustomConfigsLocation()) {
         connSettingsPolicy_.reset(new CustomConfigConnSettingsPolicy(bli_));
-    } else if (!networkConnectionSettings.isAutomatic()) {
-        connSettingsPolicy_.reset(new ManualConnSettingsPolicy(bli_, networkConnectionSettings, portMap));
     } else if (connectionSettings.isAutomatic()) {
         connSettingsPolicy_.reset(new AutoConnSettingsPolicy(bli_, portMap, proxySettings.isProxyEnabled()));
     } else {

@@ -74,6 +74,7 @@ public:
     bool isAllowLanTraffic() const;
     void setIsAllowLanTraffic(bool isAllowLanTraffic);
 
+    types::ConnectionSettings connectionSettingsForNetworkInterface(const QString &networkOrSsid) const;
 
     const types::FirewallSettings &firewallSettings() const;
     void setFirewallSettings(const types::FirewallSettings &fs);

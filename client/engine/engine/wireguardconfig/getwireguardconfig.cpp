@@ -241,9 +241,15 @@ WireGuardConfig GetWireGuardConfig::readWireGuardConfigFromSettings()
                 ProtoApiInfo__WireGuardConfig *wgc = proto_api_info__wire_guard_config__unpack(NULL, arr.size(), (const uint8_t *)arr.data());
                 if (wgc)
                 {
-                    wgConfig.setKeyPair(QString::fromStdString(wgc->public_key), QString::fromStdString(wgc->private_key));
-                    wgConfig.setPeerPresharedKey(QString::fromStdString(wgc->preshared_key));
-                    wgConfig.setPeerAllowedIPs(QString::fromStdString(wgc->allowed_ips));
+                    if (wgc->public_key && wgc->private_key)
+                        wgConfig.setKeyPair(QString::fromStdString(wgc->public_key), QString::fromStdString(wgc->private_key));
+
+                    if (wgc->preshared_key)
+                        wgConfig.setPeerPresharedKey(QString::fromStdString(wgc->preshared_key));
+
+                    if (wgc->allowed_ips)
+                        wgConfig.setPeerAllowedIPs(QString::fromStdString(wgc->allowed_ips));
+
                     proto_api_info__wire_guard_config__free_unpacked(wgc, NULL);
                 }
             }

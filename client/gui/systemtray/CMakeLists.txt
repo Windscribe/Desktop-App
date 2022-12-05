@@ -7,8 +7,6 @@ target_sources(gui PRIVATE
     locationstraymenuitemdelegate.h
     locationstraymenunative.cpp
     locationstraymenunative.h
-    locationstraymenuscalemanager.cpp
-    locationstraymenuscalemanager.h
     locationstraymenuwidget.cpp
     locationstraymenuwidget.h
 )
