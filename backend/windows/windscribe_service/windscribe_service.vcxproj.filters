@@ -185,6 +185,8 @@
     </ClInclude>
     <ClInclude Include="ovpn.h">
       <Filter>Header Files</Filter>
+    <ClInclude Include="ip_address\ip6_address_and_prefix.h">
+      <Filter>Header Files\ip_address</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -319,6 +321,8 @@
     </ClCompile>
     <ClCompile Include="ovpn.cpp">
       <Filter>Source Files</Filter>
+    <ClCompile Include="ip_address\ip6_address_and_prefix.cpp">
+      <Filter>Source Files\ip_address</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

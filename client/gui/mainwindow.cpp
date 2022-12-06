@@ -43,7 +43,6 @@
 #include "utils/interfaceutils.h"
 #include "utils/iauthchecker.h"
 #include "utils/authcheckerfactory.h"
-#include "systemtray/locationstraymenuscalemanager.h"
 
 #if defined(Q_OS_WIN)
     #include "utils/winutils.h"
@@ -3019,28 +3018,28 @@ void MainWindow::createTrayMenuItems()
         }
 #else
         if (backend_->locationsModelManager()->sortedLocationsProxyModel()->rowCount() > 0) {
-            QSharedPointer<LocationsTrayMenu> menu(new LocationsTrayMenu(backend_->locationsModelManager()->sortedLocationsProxyModel(), trayMenu_.font()), &QObject::deleteLater);
+            QSharedPointer<LocationsTrayMenu> menu(new LocationsTrayMenu(backend_->locationsModelManager()->sortedLocationsProxyModel(), trayMenu_.font(), trayIcon_.geometry()), &QObject::deleteLater);
             menu->setTitle(tr("Locations"));
             trayMenu_.addMenu(menu.get());
             connect(menu.get(), &LocationsTrayMenu::locationSelected, this, &MainWindow::onLocationsTrayMenuLocationSelected);
             locationsMenu_.append(menu);
         }
         if (backend_->locationsModelManager()->favoriteCitiesProxyModel()->rowCount() > 0) {
-            QSharedPointer<LocationsTrayMenu> menu(new LocationsTrayMenu(backend_->locationsModelManager()->favoriteCitiesProxyModel(), trayMenu_.font()), &QObject::deleteLater);
+            QSharedPointer<LocationsTrayMenu> menu(new LocationsTrayMenu(backend_->locationsModelManager()->favoriteCitiesProxyModel(), trayMenu_.font(), trayIcon_.geometry()), &QObject::deleteLater);
             menu->setTitle(tr("Favourites"));
             trayMenu_.addMenu(menu.get());
             connect(menu.get(), &LocationsTrayMenu::locationSelected, this, &MainWindow::onLocationsTrayMenuLocationSelected);
             locationsMenu_.append(menu);
         }
         if (backend_->locationsModelManager()->staticIpsProxyModel()->rowCount() > 0) {
-            QSharedPointer<LocationsTrayMenu> menu(new LocationsTrayMenu(backend_->locationsModelManager()->staticIpsProxyModel(), trayMenu_.font()), &QObject::deleteLater);
+            QSharedPointer<LocationsTrayMenu> menu(new LocationsTrayMenu(backend_->locationsModelManager()->staticIpsProxyModel(), trayMenu_.font(), trayIcon_.geometry()), &QObject::deleteLater);
             menu->setTitle(tr("Static IPs"));
             trayMenu_.addMenu(menu.get());
             connect(menu.get(), &LocationsTrayMenu::locationSelected, this, &MainWindow::onLocationsTrayMenuLocationSelected);
             locationsMenu_.append(menu);
         }
         if (backend_->locationsModelManager()->customConfigsProxyModel()->rowCount() > 0) {
-            QSharedPointer<LocationsTrayMenu> menu(new LocationsTrayMenu(backend_->locationsModelManager()->customConfigsProxyModel(), trayMenu_.font()), &QObject::deleteLater);
+            QSharedPointer<LocationsTrayMenu> menu(new LocationsTrayMenu(backend_->locationsModelManager()->customConfigsProxyModel(), trayMenu_.font(), trayIcon_.geometry()), &QObject::deleteLater);
             menu->setTitle(tr("Configured"));
             trayMenu_.addMenu(menu.get());
             connect(menu.get(), &LocationsTrayMenu::locationSelected, this, &MainWindow::onLocationsTrayMenuLocationSelected);
@@ -3062,12 +3061,6 @@ void MainWindow::createTrayMenuItems()
 
     trayMenu_.addAction(tr("Help"), this, SLOT(onTrayMenuHelpMe()));
     trayMenu_.addAction(tr("Exit"), this, SLOT(onTrayMenuQuit()));
-
-#ifndef Q_OS_LINUX
-#if !defined(USE_LOCATIONS_TRAY_MENU_NATIVE)
-    LocationsTrayMenuScaleManager::instance().setTrayIconGeometry(trayIcon_.geometry());
-#endif
-#endif
 }
 
 void MainWindow::onTrayMenuAboutToShow()

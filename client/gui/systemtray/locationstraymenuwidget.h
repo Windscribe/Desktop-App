@@ -12,7 +12,7 @@ class LocationsTrayMenuWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit LocationsTrayMenuWidget(QWidget *parent, QAbstractItemModel *model, const QFont &font);
+    explicit LocationsTrayMenuWidget(QWidget *parent, QAbstractItemModel *model, const QFont &font, const QRect &trayIconGeometry);
 
     bool eventFilter(QObject *watched, QEvent *event) override;
 
@@ -38,6 +38,10 @@ private:
     LocationsTrayMenuButton *upButton_;
     LocationsTrayMenuButton *downButton_;
     int visibleItemsCount_;
+
+    static constexpr int LOWEST_LDPI = 96;
+    double scale_;
+    QScreen *screen_;
 
     void handleMouseMove();
     void handleMouseWheel();

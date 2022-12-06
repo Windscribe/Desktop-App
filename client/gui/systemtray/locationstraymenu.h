@@ -8,7 +8,7 @@ class LocationsTrayMenu : public QMenu
 {
     Q_OBJECT
 public:
-    explicit LocationsTrayMenu(QAbstractItemModel *model, const QFont &font);
+    explicit LocationsTrayMenu(QAbstractItemModel *model, const QFont &font, const QRect &trayIconGeometry);
 signals:
     void locationSelected(const LocationID &lid);
 };

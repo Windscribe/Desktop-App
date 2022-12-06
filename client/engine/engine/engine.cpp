@@ -1936,17 +1936,17 @@ void Engine::onNetworkOnlineStateChange(bool isOnline)
 
 void Engine::onNetworkChange(const types::NetworkInterface &networkInterface)
 {
-    if (apiResourcesManager_) {
-        connectionManager_->updateConnectionSettings(
-            engineSettings_.networkPreferredProtocols()[networkInterface.networkOrSsid],
-            engineSettings_.connectionSettings(), apiResourcesManager_->portMap(),
-            ProxyServerController::instance().getCurrentProxySettings());
-    } else {
-        connectionManager_->updateConnectionSettings(
-            engineSettings_.networkPreferredProtocols()[networkInterface.networkOrSsid],
-            engineSettings_.connectionSettings(),
-            types::PortMap(),
-            ProxyServerController::instance().getCurrentProxySettings());
+    if (!networkInterface.networkOrSsid.isEmpty()) {
+        if (apiResourcesManager_) {
+            connectionManager_->updateConnectionSettings(
+                engineSettings_.connectionSettingsForNetworkInterface(networkInterface.networkOrSsid), apiResourcesManager_->portMap(),
+                ProxyServerController::instance().getCurrentProxySettings());
+        } else {
+            connectionManager_->updateConnectionSettings(
+                engineSettings_.connectionSettingsForNetworkInterface(networkInterface.networkOrSsid),
+                types::PortMap(),
+                ProxyServerController::instance().getCurrentProxySettings());
+        }
     }
 
     Q_EMIT networkChanged(networkInterface);
@@ -2284,8 +2284,7 @@ void Engine::doConnect(bool bEmitAuthError)
         qCDebug(LOG_BASIC) << "Connecting to" << locationName_;
 
         connectionManager_->clickConnect(apiResourcesManager_->ovpnConfig(), apiResourcesManager_->serverCredentials(), bli,
-            engineSettings_.networkPreferredProtocols()[networkInterface.networkOrSsid],
-            engineSettings_.connectionSettings(), apiResourcesManager_->portMap(),
+            engineSettings_.connectionSettingsForNetworkInterface(networkInterface.networkOrSsid), apiResourcesManager_->portMap(),
             ProxyServerController::instance().getCurrentProxySettings(),
             bEmitAuthError, engineSettings_.customOvpnConfigsPath());
     }
@@ -2294,8 +2293,7 @@ void Engine::doConnect(bool bEmitAuthError)
     {
         qCDebug(LOG_BASIC) << "Connecting to" << locationName_;
         connectionManager_->clickConnect("", apiinfo::ServerCredentials(), bli,
-                                        engineSettings_.networkPreferredProtocols()[networkInterface.networkOrSsid],
-                                        engineSettings_.connectionSettings(), types::PortMap(),
+                                        engineSettings_.connectionSettingsForNetworkInterface(networkInterface.networkOrSsid), types::PortMap(),
                                         ProxyServerController::instance().getCurrentProxySettings(),
                                         bEmitAuthError, engineSettings_.customOvpnConfigsPath());
     }

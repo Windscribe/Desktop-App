@@ -3,13 +3,12 @@
 #include <QPainter>
 #include <QApplication>
 
-#include "locationstraymenuscalemanager.h"
 #include "graphicresources/imageresourcessvg.h"
 #include "commongraphics/commongraphics.h"
 #include "locations/locationsmodel_roles.h"
 #include "types/locationid.h"
 
-LocationsTrayMenuItemDelegate::LocationsTrayMenuItemDelegate(QObject *parent) : QItemDelegate(parent)
+LocationsTrayMenuItemDelegate::LocationsTrayMenuItemDelegate(QObject *parent, double scale) : QItemDelegate(parent), scale_(scale)
 {
 }
 
@@ -36,7 +35,7 @@ void LocationsTrayMenuItemDelegate::paint(QPainter *painter, const QStyleOptionV
     if (!lid.isCustomConfigsLocation()) {
         flag = ImageResourcesSvg::instance().getScaledFlag(
             index.data(gui_locations::kCountryCode).toString(),
-            20 * LocationsTrayMenuScaleManager::instance().scale(), 10 * LocationsTrayMenuScaleManager::instance().scale(), bEnabled ? 0 : ImageResourcesSvg::IMAGE_FLAG_GRAYED);
+            20 * scale_, 10 * scale_, bEnabled ? 0 : ImageResourcesSvg::IMAGE_FLAG_GRAYED);
     }
     QRect rc = option.rect;
     if (option.state & QStyle::State_Selected)
@@ -50,11 +49,11 @@ void LocationsTrayMenuItemDelegate::paint(QPainter *painter, const QStyleOptionV
             bEnabled ? QPalette::Active : QPalette::Disabled, QPalette::Window));
     }
 
-    int leftOffs = 10 * LocationsTrayMenuScaleManager::instance().scale();
+    int leftOffs = 10 * scale_;
     if (flag) {
         const int pixmapFlagHeight = flag->height();
         flag->draw(leftOffs, rc.top() + (rc.height() - pixmapFlagHeight) / 2, painter);
-        leftOffs += flag->width() + 10 * LocationsTrayMenuScaleManager::instance().scale();
+        leftOffs += flag->width() + 10 * scale_;
     }
 
     if (option.state & QStyle::State_Selected)
@@ -68,7 +67,7 @@ void LocationsTrayMenuItemDelegate::paint(QPainter *painter, const QStyleOptionV
             bEnabled ? QPalette::Active : QPalette::Disabled, QPalette::Text));
     }
 
-    text = CommonGraphics::maybeTruncatedText(text, font_, static_cast<int>(CITY_CAPTION_MAX_WIDTH * LocationsTrayMenuScaleManager::instance().scale()));
+    text = CommonGraphics::maybeTruncatedText(text, font_, static_cast<int>(CITY_CAPTION_MAX_WIDTH * scale_));
     rc.setLeft(rc.left() + leftOffs);
     QTextOption to;
     to.setAlignment(Qt::AlignVCenter);
@@ -78,7 +77,7 @@ void LocationsTrayMenuItemDelegate::paint(QPainter *painter, const QStyleOptionV
     if (index.model()->rowCount(index) > 0)
     {
         QStyleOption ao(option);
-        ao.rect.setLeft(ao.rect.right() - 20 * LocationsTrayMenuScaleManager::instance().scale());
+        ao.rect.setLeft(ao.rect.right() - 20 * scale_);
         ao.palette.setCurrentColorGroup(bEnabled ? QPalette::Active : QPalette::Disabled);
         QApplication::style()->drawPrimitive(QStyle::PE_IndicatorArrowRight, &ao, painter);
     }
@@ -89,7 +88,7 @@ QSize LocationsTrayMenuItemDelegate::sizeHint(const QStyleOptionViewItem &option
     QStyleOptionMenuItem opt;
     QSize sz(0,0);
     QSize sz2 = QApplication::style()->sizeFromContents(QStyle::CT_MenuItem, &opt, sz);
-    int menuHeight = sz2.height() * LocationsTrayMenuScaleManager::instance().scale();
+    int menuHeight = sz2.height() * scale_;
 
     sz = QItemDelegate::sizeHint(option, index);
     sz.setHeight(menuHeight);
@@ -103,25 +102,25 @@ int LocationsTrayMenuItemDelegate::calcWidth(const QModelIndex & index) const
     if (!lid.isCustomConfigsLocation()) {
         flag = ImageResourcesSvg::instance().getScaledFlag(
             index.model()->data(index, gui_locations::kCountryCode).toString(),
-            20 * LocationsTrayMenuScaleManager::instance().scale(), 10 * LocationsTrayMenuScaleManager::instance().scale(), 0);
+            20 * scale_, 10 * scale_, 0);
     }
 
-    int width = 10 * LocationsTrayMenuScaleManager::instance().scale();
+    int width = 10 * scale_;
     if (flag)
     {
-        width += flag->width() + 10 * LocationsTrayMenuScaleManager::instance().scale();
+        width += flag->width() + 10 * scale_;
     }
 
     QString text = index.model()->data(index, Qt::DisplayRole).toString();
-    text = CommonGraphics::maybeTruncatedText(text, font_, static_cast<int>(CITY_CAPTION_MAX_WIDTH * LocationsTrayMenuScaleManager::instance().scale()));
+    text = CommonGraphics::maybeTruncatedText(text, font_, static_cast<int>(CITY_CAPTION_MAX_WIDTH * scale_));
     QFontMetrics fm(font_);
     QRect rc = fm.boundingRect(text);
     width += rc.width();
 
     if (index.model()->rowCount(index) > 0)
     {
-        width += 20 * LocationsTrayMenuScaleManager::instance().scale();
+        width += 20 * scale_;
     }
-    width += 10 * LocationsTrayMenuScaleManager::instance().scale();
+    width += 10 * scale_;
     return width;
 }
