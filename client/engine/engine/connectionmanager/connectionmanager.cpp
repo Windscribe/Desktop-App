@@ -1400,6 +1400,7 @@ void ConnectionManager::updateConnectionSettings(const types::ConnectionSettings
                 timerReconnection_.start(MAX_RECONNECTION_TIME);
             }
             connector_->startDisconnect();
+            break;
         default:
             WS_ASSERT(false);
     }

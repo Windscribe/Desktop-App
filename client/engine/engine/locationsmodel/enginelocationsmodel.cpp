@@ -1,12 +1,6 @@
 #include "enginelocationsmodel.h"
-#include "utils/utils.h"
-#include <QFile>
-#include <QTextStream>
+
 #include <QThread>
-#include "utils/logger.h"
-#include "utils/ipvalidation.h"
-#include "mutablelocationinfo.h"
-#include "nodeselectionalgorithm.h"
 
 namespace locationsmodel {
 
@@ -16,6 +10,8 @@ LocationsModel::LocationsModel(QObject *parent, IConnectStateController *stateCo
     pingHost_ = new PingHost(nullptr, stateController);
     pingHost_->moveToThread(pingThread_);
     pingThread_->start(QThread::HighPriority);
+
+    // TODO: **JDRM** PingHost should have a Debug::CrashHandlerForThread() set on it.
 
     apiLocationsModel_ = new ApiLocationsModel(this, stateController, networkDetectionManager, pingHost_);
     customConfigLocationsModel_ = new CustomConfigLocationsModel(this, stateController, networkDetectionManager, pingHost_);
@@ -34,6 +30,7 @@ LocationsModel::~LocationsModel()
 {
     pingThread_->quit();
     pingThread_->wait();
+    delete pingHost_;
 }
 
 void LocationsModel::setApiLocations(const QVector<apiinfo::Location> &locations, const apiinfo::StaticIps &staticIps)

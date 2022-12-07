@@ -1,9 +1,8 @@
-#ifndef PINGHOST_ICMP_WIN_H
-#define PINGHOST_ICMP_WIN_H
+#pragma once
 
 #include <QObject>
-#include "Engine/ConnectStateController/iconnectstatecontroller.h"
-#include "Utils/boost_includes.h"
+#include "engine/ConnectStateController/iconnectstatecontroller.h"
+#include "utils/boost_includes.h"
 #include "types/proxysettings.h"
 #include <QQueue>
 #include <QMap>
@@ -34,20 +33,18 @@ private:
     struct PingInfo
     {
         QString ip;
-        bool isFromDisconnectedState_;
+        bool isFromDisconnectedState_ = false;
         QElapsedTimer elapsedTimer;
-        HANDLE hIcmpFile;
+        HANDLE hIcmpFile = NULL;
 
-        LPVOID replyBuffer;
-        DWORD replySize;
+        unsigned char* replyBuffer = nullptr;
+        DWORD replySize = 0;
 
-        PingInfo() : isFromDisconnectedState_(false), hIcmpFile(0), replyBuffer(NULL),
-                     replySize(0) {}
+        PingInfo() {}
 
         ~PingInfo()
         {
-            if (replyBuffer)
-            {
+            if (replyBuffer) {
                 delete[] replyBuffer;
             }
         }
@@ -69,8 +66,4 @@ private:
     bool hostAlreadyPingingOrInWaitingQueue(const QString &ip);
     static VOID NTAPI icmpCallback(IN PVOID ApcContext, IN PIO_STATUS_BLOCK IoStatusBlock, IN ULONG Reserved);
     void processNextPings();
-
-
 };
-
-#endif // PINGHOST_ICMP_WIN_H

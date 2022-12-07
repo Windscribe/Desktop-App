@@ -49,7 +49,6 @@ ServerAPI::ServerAPI(QObject *parent, IConnectStateController *connectStateContr
     networkDetectionManager_(networkDetectionManager),
     bIgnoreSslErrors_(false),
     currentFailoverRequest_(nullptr),
-    currentConnectStateWatcher_(nullptr),
     failover_(failover)
 {
     connect(connectStateController_, &IConnectStateController::stateChanged, this, &ServerAPI::onConnectStateChanged);
@@ -503,16 +502,14 @@ void ServerAPI::setErrorCodeAndEmitRequestFinished(BaseRequest *request, SERVER_
 void ServerAPI::setCurrentFailoverRequest(BaseRequest *request)
 {
     WS_ASSERT(currentFailoverRequest_ == nullptr);
-    WS_ASSERT(currentConnectStateWatcher_ == nullptr);
     currentFailoverRequest_ = request;
-    currentConnectStateWatcher_ = new ConnectStateWatcher(this, connectStateController_);
+    currentConnectStateWatcher_.reset(new ConnectStateWatcher(this, connectStateController_));
 }
 
 void ServerAPI::clearCurrentFailoverRequest()
 {
-    WS_ASSERT(currentConnectStateWatcher_ != nullptr);
     currentFailoverRequest_ = nullptr;
-    SAFE_DELETE(currentConnectStateWatcher_);
+    currentConnectStateWatcher_.reset();
 }
 
 bool ServerAPI::isDisconnectedState() const

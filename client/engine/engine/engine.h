@@ -30,6 +30,7 @@
 
 #ifdef Q_OS_WIN
     #include "measurementcpuusage.h"
+    #include "utils/crashhandler.h"
 #endif
 
 // all the functionality of the connections, firewall, helper, etc
@@ -327,6 +328,7 @@ private:
 
 #ifdef Q_OS_WIN
     MeasurementCpuUsage *measurementCpuUsage_;
+    QScopedPointer<Debug::CrashHandlerForThread> crashHandler_;
 #endif
 
     InitializeHelper *inititalizeHelper_;

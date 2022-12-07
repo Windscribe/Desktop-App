@@ -1,19 +1,15 @@
 #include "pinghost_icmp_win.h"
-#include "utils/ws_assert.h"
-#include "utils/ipvalidation.h"
-#include "utils/utils.h"
-#include "icmp_header.h"
-#include "ipv4_header.h"
 
-#include <winsock2.h>
 #include <iphlpapi.h>
 #include <icmpapi.h>
-#include "Utils/logger.h"
+
+#include "utils/ipvalidation.h"
+#include "utils/logger.h"
 
 PingHost_ICMP_win::PingHost_ICMP_win(QObject *parent, IConnectStateController *stateController) : QObject(parent),
     connectStateController_(stateController)
 {
-
+    // TODO: **JDRM** refactor this class.
 }
 
 PingHost_ICMP_win::~PingHost_ICMP_win()
@@ -23,6 +19,11 @@ PingHost_ICMP_win::~PingHost_ICMP_win()
 
 void PingHost_ICMP_win::addHostForPing(const QString &ip)
 {
+    if (!IpValidation::instance().isIp(ip)) {
+        qCDebug(LOG_PING) << "PingHost_ICMP_win::addHostForPing - invalid IP" << ip;
+        return;
+    }
+
     QMutexLocker locker(&mutex_);
     if (!hostAlreadyPingingOrInWaitingQueue(ip))
     {
@@ -60,7 +61,8 @@ void PingHost_ICMP_win::enableProxy()
 
 bool PingHost_ICMP_win::hostAlreadyPingingOrInWaitingQueue(const QString &ip)
 {
-    return pingingHosts_.find(ip) != pingingHosts_.end() || waitingPingsQueue_.indexOf(ip) != -1;
+    QMutexLocker locker(&mutex_);
+    return (pingingHosts_.contains(ip) || waitingPingsQueue_.contains(ip));
 }
 
 VOID NTAPI PingHost_ICMP_win::icmpCallback(IN PVOID ApcContext, IN PIO_STATUS_BLOCK IoStatusBlock, IN ULONG /*Reserved*/)
@@ -105,7 +107,6 @@ void PingHost_ICMP_win::processNextPings()
     if (pingingHosts_.count() < MAX_PARALLEL_PINGS && !waitingPingsQueue_.isEmpty())
     {
         QString ip = waitingPingsQueue_.dequeue();
-        WS_ASSERT(IpValidation::instance().isIp(ip));
 
         const char dataForSend[] = "HelloBufferBuffer";
 
@@ -150,5 +151,3 @@ void PingHost_ICMP_win::processNextPings()
                       pingInfo->replyBuffer, pingInfo->replySize, 2000);
     }
 }
-
-

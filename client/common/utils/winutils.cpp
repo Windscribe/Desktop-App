@@ -35,7 +35,6 @@
 
 // TODO: implement via new way
 #define WORKING_BUFFER_SIZE 15000
-#define MAX_TRIES 3
 #define MALLOC(x) HeapAlloc(GetProcessHeap(), 0, (x))
 #define FREE(x) HeapFree(GetProcessHeap(), 0, (x))
 #define MAX_KEY_LENGTH 255
@@ -964,42 +963,24 @@ QList<IpAdapter> WinUtils::getIpAdapterTable()
 {
     QList<IpAdapter> adapters;
 
-    PIP_ADAPTER_INFO pAdapter = NULL;
-    DWORD dwRetVal = 0;
+    ULONG bufSize = sizeof(IP_ADAPTER_INFO) * 32;
+    QByteArray pAdapterInfo(bufSize, Qt::Uninitialized);
 
-    ULONG ulOutBufLen = sizeof (IP_ADAPTER_INFO);
-    PIP_ADAPTER_INFO pAdapterInfo = (IP_ADAPTER_INFO *) MALLOC(sizeof (IP_ADAPTER_INFO));
-    if (pAdapterInfo == NULL)
-    {
-        printf("Error allocating memory needed to call GetAdaptersinfo\n");
-        return adapters;
+    DWORD result = ::GetAdaptersInfo((IP_ADAPTER_INFO*)pAdapterInfo.data(), &bufSize);
+
+    if (result == ERROR_BUFFER_OVERFLOW) {
+        pAdapterInfo.resize(bufSize);
+        result = ::GetAdaptersInfo((IP_ADAPTER_INFO*)pAdapterInfo.data(), &bufSize);
     }
 
-    // Make an initial call to GetAdaptersInfo to get
-    // the necessary size into the ulOutBufLen variable
-    if (GetAdaptersInfo(pAdapterInfo, &ulOutBufLen) == ERROR_BUFFER_OVERFLOW)
-    {
-        FREE(pAdapterInfo);
-        pAdapterInfo = (IP_ADAPTER_INFO *) MALLOC(ulOutBufLen);
-        if (pAdapterInfo == NULL)
-        {
-            printf("Error allocating memory needed to call GetAdaptersinfo\n");
-            return adapters;
-        }
-    }
-
-    if ((dwRetVal = GetAdaptersInfo(pAdapterInfo, &ulOutBufLen)) == NO_ERROR)
-    {
-        pAdapter = pAdapterInfo;
-        while (pAdapter)
-        {
+    if (result == NO_ERROR) {
+        IP_ADAPTER_INFO *pAdapter = (IP_ADAPTER_INFO*)pAdapterInfo.data();
+        while (pAdapter) {
             QString physAddress = "";
-            for (UINT i = 0; i < pAdapter->AddressLength; i++)
-            {
+            for (UINT i = 0; i < pAdapter->AddressLength; i++) {
                 QString s = QString("%1").arg(pAdapter->Address[i], 0, 16);
 
-                if (singleHexChars().contains(s))
-                {
+                if (singleHexChars().contains(s)) {
                     s = "0" + s;
                 }
                 physAddress += s;
@@ -1011,14 +992,8 @@ QList<IpAdapter> WinUtils::getIpAdapterTable()
             pAdapter = pAdapter->Next;
         }
     }
-    else
-    {
-        printf("GetAdaptersInfo failed with error: %lu\n", dwRetVal);
-    }
-
-    if (pAdapterInfo)
-    {
-        FREE(pAdapterInfo);
+    else {
+        qCDebug(LOG_BASIC) << "WinUtils::getIpAdapterTable(): GetAdaptersInfo failed" << result;
     }
 
     return adapters;
@@ -1028,88 +1003,35 @@ QList<AdapterAddress> WinUtils::getAdapterAddressesTable()
 {
     QList<AdapterAddress> adapters;
 
-    DWORD dwRetVal = 0;
+    ULONG bufSize = sizeof(IP_ADAPTER_ADDRESSES_LH) * 32;
+    QByteArray pAddresses(bufSize, Qt::Uninitialized);
 
-    // Set the flags to pass to GetAdaptersAddresses
-    ULONG flags = GAA_FLAG_INCLUDE_PREFIX;
+    ULONG result = ::GetAdaptersAddresses(AF_INET, GAA_FLAG_INCLUDE_PREFIX, NULL, (PIP_ADAPTER_ADDRESSES)pAddresses.data(), &bufSize);
 
-    // default to unspecified address family (both)
-    ULONG family = AF_INET;
-
-    PIP_ADAPTER_ADDRESSES pAddresses = NULL;
-    ULONG outBufLen = 0;
-    ULONG Iterations = 0;
-
-    PIP_ADAPTER_ADDRESSES pCurrAddresses = NULL;
-
-    // Allocate a 15 KB buffer to start with.
-    outBufLen = WORKING_BUFFER_SIZE;
-
-    do
-    {
-        pAddresses = (IP_ADAPTER_ADDRESSES *) MALLOC(outBufLen);
-        if (pAddresses == NULL)
-        {
-            printf("Memory allocation failed for IP_ADAPTER_ADDRESSES struct\n");
-            exit(1);
-        }
-
-        dwRetVal = GetAdaptersAddresses(family, flags, NULL, pAddresses, &outBufLen);
-
-        if (dwRetVal == ERROR_BUFFER_OVERFLOW)
-        {
-            FREE(pAddresses);
-            pAddresses = NULL;
-        }
-        else
-        {
-            break;
-        }
-
-        Iterations++;
+    if (result == ERROR_BUFFER_OVERFLOW) {
+        pAddresses.resize(bufSize);
+        result = ::GetAdaptersAddresses(AF_INET, GAA_FLAG_INCLUDE_PREFIX, NULL, (PIP_ADAPTER_ADDRESSES)pAddresses.data(), &bufSize);
     }
-    while ((dwRetVal == ERROR_BUFFER_OVERFLOW) && (Iterations < MAX_TRIES));
 
-    if (dwRetVal == NO_ERROR)
-    {
-        // If successful, output some information from the data we received
-        pCurrAddresses = pAddresses;
-        while (pCurrAddresses)
-        {
+    if (result == NO_ERROR) {
+        PIP_ADAPTER_ADDRESSES pCurrAddresses = (PIP_ADAPTER_ADDRESSES)pAddresses.data();
+        while (pCurrAddresses) {
             QString guidString = guidToQString(pCurrAddresses->NetworkGuid);
-
-            AdapterAddress aa(pCurrAddresses->IfIndex,
-                              guidString,
-                              QString::fromWCharArray(pCurrAddresses->FriendlyName) );
+            AdapterAddress aa(pCurrAddresses->IfIndex, guidString, QString::fromWCharArray(pCurrAddresses->FriendlyName));
             adapters.append(aa);
 
             pCurrAddresses = pCurrAddresses->Next;
         }
     }
-    else
-    {
-        printf("Call to GetAdaptersAddresses failed with error: %lu\n", dwRetVal);
-        if (dwRetVal == ERROR_NO_DATA)
-        {
-            printf("\tNo addresses were found for the requested parameters\n");
+    else {
+        if (result == ERROR_NO_DATA) {
+            qCDebug(LOG_BASIC) << "WinUtils::getAdapterAddressesTable(): GetAdaptersAddresses failed - no addresses were found for the requested parameters";
         }
-        else
-        {
+        else {
             wchar_t strErr[1024];
-            WinUtils::Win32GetErrorString(dwRetVal, strErr, _countof(strErr));
-            printf("\tError: %ls", strErr);
-
-            if (pAddresses)
-            {
-                FREE(pAddresses);
-            }
-            exit(1);
+            WinUtils::Win32GetErrorString(result, strErr, _countof(strErr));
+            qCDebug(LOG_BASIC) << "WinUtils::getAdapterAddressesTable(): GetAdaptersAddresses failed (" << result << ")" << strErr;
         }
-    }
-
-    if (pAddresses)
-    {
-        FREE(pAddresses);
     }
 
     return adapters;

@@ -92,7 +92,7 @@ private:
 
     // Current failover state. If there is no failover currently, then all are zero
     QPointer<BaseRequest> currentFailoverRequest_;
-    ConnectStateWatcher *currentConnectStateWatcher_;
+    QScopedPointer<ConnectStateWatcher> currentConnectStateWatcher_;
     QString currentFailoverHostname_;
 
     failover::IFailover *failover_;

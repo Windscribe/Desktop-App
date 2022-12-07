@@ -1,9 +1,9 @@
-#ifndef TYPES_NETWORKINTERFACE_H
-#define TYPES_NETWORKINTERFACE_H
+#pragma once
 
 #include <QDataStream>
 #include <QJsonObject>
 #include <QString>
+
 #include "enums.h"
 
 namespace types {
@@ -69,6 +69,24 @@ struct NetworkInterface
         return !(*this == other);
     }
 
+    bool isValid() const
+    {
+        return (interfaceIndex != -1 && !physicalAddress.isEmpty()) || isNoNetworkInterface();
+    }
+
+    static NetworkInterface noNetworkInterface()
+    {
+        NetworkInterface iff;
+        iff.interfaceIndex = -1;
+        iff.interfaceName = "No Interface";
+        iff.interfaceType = NETWORK_INTERFACE_NONE;
+        return iff;
+    }
+
+    bool isNoNetworkInterface() const
+    {
+        return (interfaceIndex == -1 && interfaceType == NETWORK_INTERFACE_NONE && interfaceName == "No Interface");
+    }
 
     friend QDataStream& operator <<(QDataStream &stream, const NetworkInterface &o)
     {
@@ -106,10 +124,6 @@ struct NetworkInterface
 
 private:
     static constexpr quint32 versionForSerialization_ = 1;  // should increment the version if the data format is changed
-
 };
 
-
 } // types namespace
-
-#endif // TYPES_NETWORKINTERFACE_H

@@ -1,18 +1,11 @@
-#ifndef ENGINELOCATIONSMODEL_H
-#define ENGINELOCATIONSMODEL_H
+#pragma once
 
 #include <QObject>
-#include "engine/apiinfo/location.h"
-#include "engine/apiinfo/staticips.h"
-#include "types/locationid.h"
-#include "types/proxysettings.h"
-#include "pingipscontroller.h"
-#include "pingstorage.h"
-#include "bestlocation.h"
-#include "baselocationinfo.h"
-#include "engine/customconfigs/icustomconfig.h"
+
 #include "apilocationsmodel.h"
 #include "customconfiglocationsmodel.h"
+#include "engine/apiinfo/location.h"
+#include "engine/apiinfo/staticips.h"
 
 namespace locationsmodel {
 
@@ -52,5 +45,3 @@ private:
 };
 
 } //namespace locationsmodel
-
-#endif // ENGINELOCATIONSMODEL_H
