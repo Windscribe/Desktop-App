@@ -11,7 +11,9 @@
 #include <QDebug>
 
 IconButton::IconButton(int width, int height, const QString &imagePath, const QString &shadowPath, ScalableGraphicsObject *parent, double unhoverOpacity, double hoverOpacity) : ClickableGraphicsObject(parent),
-  imagePath_(imagePath), shadowPath_(shadowPath), width_(width), height_(height), curOpacity_(unhoverOpacity), unhoverOpacity_(unhoverOpacity), hoverOpacity_(hoverOpacity)
+  imagePath_(imagePath), shadowPath_(shadowPath), width_(width), height_(height),
+  curOpacity_(unhoverOpacity), unhoverOpacity_(unhoverOpacity), hoverOpacity_(hoverOpacity),
+  tintColor_(QColor(Qt::transparent))
 {
     if (!shadowPath_.isEmpty())
     {
@@ -51,7 +53,11 @@ void IconButton::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
         QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap(imagePath_);
         int w = static_cast<int>(p->width());
         int h = static_cast<int>(p->height());
-        p->draw((rcW - w) / 2, (rcH - h) / 2, painter);
+        if (tintColor_.alpha() != 0) {
+            p->draw((rcW - w) / 2, (rcH - h) / 2, w, h, painter, tintColor_);
+        } else {
+            p->draw((rcW - w) / 2, (rcH - h) / 2, painter);
+        }
     }
 }
 
@@ -136,3 +142,8 @@ void IconButton::onImageHoverOpacityChanged(const QVariant &value)
     update();
 }
 
+void IconButton::setTintColor(const QColor &color)
+{
+    tintColor_ = color;
+    update();
+}

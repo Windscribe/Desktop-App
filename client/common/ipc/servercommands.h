@@ -9,6 +9,7 @@
 #include "types/notification.h"
 #include "types/checkupdate.h"
 #include "types/connectstate.h"
+#include "types/protocolstatus.h"
 #include "types/proxysharinginfo.h"
 #include "types/wifisharinginfo.h"
 #include "types/location.h"
@@ -368,6 +369,27 @@ public:
     }
 
     bool success_;
+};
+
+class ProtocolStatusChanged: public Command
+{
+public:
+    explicit ProtocolStatusChanged(const QVector<types::ProtocolStatus> &status) : status_(status)
+    {}
+
+    std::vector<char> getData() const override   {  WS_ASSERT(false); return std::vector<char>(); }
+    std::string getStringId() const override { return getCommandStringId(); }
+    std::string getDebugString() const override
+    {
+        return "ServerCommand::ProtocolStatusChanged debug string";
+    }
+
+    static std::string getCommandStringId()
+    {
+        return "ServerCommand::ProtocolStatusChanged";
+    }
+
+    QVector<types::ProtocolStatus> status_;
 };
 
 class CheckUpdateInfoUpdated : public Command

@@ -87,7 +87,8 @@ Engine::Engine(const types::EngineSettings &engineSettings) : QObject(nullptr),
     installerUrl_(""),
     guiWindowHandle_(0),
     overrideUpdateChannelWithInternal_(false),
-    bPrevNetworkInterfaceInitialized_(false)
+    bPrevNetworkInterfaceInitialized_(false),
+    connectionSettingsOverride_(types::Protocol(types::Protocol::TYPE::UNINITIALIZED), 0, true)
 {
     connectStateController_ = new ConnectStateController(nullptr);
     connect(connectStateController_, SIGNAL(stateChanged(CONNECT_STATE,DISCONNECT_REASON,CONNECT_ERROR,LocationID)), SLOT(onConnectStateChanged(CONNECT_STATE,DISCONNECT_REASON,CONNECT_ERROR,LocationID)));
@@ -256,14 +257,14 @@ bool Engine::firewallOff()
     return true;
 }
 
-void Engine::connectClick(const LocationID &locationId)
+void Engine::connectClick(const LocationID &locationId, const types::ConnectionSettings &connectionSettings)
 {
     QMutexLocker locker(&mutex_);
     if (bInitialized_)
     {
         locationId_ = locationId;
         connectStateController_->setConnectingState(locationId_);
-        QMetaObject::invokeMethod(this, "connectClickImpl", Q_ARG(LocationID, locationId));
+        QMetaObject::invokeMethod(this, "connectClickImpl", Q_ARG(LocationID, locationId), Q_ARG(types::ConnectionSettings, connectionSettings));
     }
 }
 
@@ -603,6 +604,7 @@ void Engine::initPart2()
     connect(connectionManager_, SIGNAL(wireGuardAtKeyLimit()), SLOT(onConnectionManagerWireGuardAtKeyLimit()));
     connect(connectionManager_, SIGNAL(requestUsername(QString)), SLOT(onConnectionManagerRequestUsername(QString)));
     connect(connectionManager_, SIGNAL(requestPassword(QString)), SLOT(onConnectionManagerRequestPassword(QString)));
+    connect(connectionManager_, SIGNAL(protocolStatusChanged(QVector<types::ProtocolStatus>)), SIGNAL(protocolStatusChanged(QVector<types::ProtocolStatus>)));
 
     locationsModel_ = new locationsmodel::LocationsModel(this, connectStateController_, networkDetectionManager_);
     connect(locationsModel_, SIGNAL(whitelistLocationsIpsChanged(QStringList)), SLOT(onLocationsModelWhitelistIpsChanged(QStringList)));
@@ -888,9 +890,10 @@ void Engine::sendConfirmEmailImpl()
     }
 }
 
-void Engine::connectClickImpl(const LocationID &locationId)
+void Engine::connectClickImpl(const LocationID &locationId, const types::ConnectionSettings &connectionSettings)
 {
     locationId_ = locationId;
+    connectionSettingsOverride_ = connectionSettings;
 
     // if connected, then first disconnect
     if (!connectionManager_->isDisconnected())
@@ -1410,7 +1413,7 @@ void Engine::onConnectionManagerDisconnected(DISCONNECT_REASON reason)
     }
     else if (senderSource == "reconnect")
     {
-        connectClickImpl(locationId_);
+        connectClickImpl(locationId_, connectionSettingsOverride_);
         return;
     }
     else
@@ -1423,6 +1426,9 @@ void Engine::onConnectionManagerDisconnected(DISCONNECT_REASON reason)
             Q_EMIT firewallStateChanged(false);
         }
     }
+
+    // Connection Settings override is one-time only, reset it
+    connectionSettingsOverride_ = types::ConnectionSettings(types::Protocol(types::Protocol::TYPE::UNINITIALIZED), 0, true);
 
     connectStateController_->setDisconnectedState(reason, CONNECT_ERROR::NO_CONNECT_ERROR);
 }
@@ -2290,9 +2296,18 @@ void Engine::doConnect(bool bEmitAuthError)
         }
         qCDebug(LOG_BASIC) << "Connecting to" << locationName_;
 
+        types::ConnectionSettings connectionSettings;
+        // User requested one time override
+        if (!connectionSettingsOverride_.isAutomatic()) {
+            qCDebug(LOG_BASIC) << "One-time override (" << connectionSettingsOverride_.protocol().toLongString() << ")";
+            connectionSettings = connectionSettingsOverride_;
+        } else {
+            connectionSettings = engineSettings_.connectionSettingsForNetworkInterface(networkInterface.networkOrSsid);
+        }
+
+        connectionManager_->setLastKnownGoodProtocol(engineSettings_.networkLastKnownGoodProtocol(networkInterface.networkOrSsid));
         connectionManager_->clickConnect(apiResourcesManager_->ovpnConfig(), apiResourcesManager_->serverCredentials(), bli,
-            engineSettings_.connectionSettingsForNetworkInterface(networkInterface.networkOrSsid), apiResourcesManager_->portMap(),
-            ProxyServerController::instance().getCurrentProxySettings(),
+            connectionSettings, apiResourcesManager_->portMap(), ProxyServerController::instance().getCurrentProxySettings(),
             bEmitAuthError, engineSettings_.customOvpnConfigsPath());
     }
     // for custom configs without login
@@ -2300,9 +2315,8 @@ void Engine::doConnect(bool bEmitAuthError)
     {
         qCDebug(LOG_BASIC) << "Connecting to" << locationName_;
         connectionManager_->clickConnect("", apiinfo::ServerCredentials(), bli,
-                                        engineSettings_.connectionSettingsForNetworkInterface(networkInterface.networkOrSsid), types::PortMap(),
-                                        ProxyServerController::instance().getCurrentProxySettings(),
-                                        bEmitAuthError, engineSettings_.customOvpnConfigsPath());
+            engineSettings_.connectionSettingsForNetworkInterface(networkInterface.networkOrSsid), types::PortMap(),
+            ProxyServerController::instance().getCurrentProxySettings(), bEmitAuthError, engineSettings_.customOvpnConfigsPath());
     }
 }
 

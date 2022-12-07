@@ -176,7 +176,7 @@ void ScrollArea::setHeight(int height)
     updateScrollBarByHeight();
 
     // if top region occluded then bring item down with window
-    if (curItem_->currentPosY() < 0)
+    if (curItem_ != nullptr && curItem_->currentPosY() < 0)
     {
         int newY = curItem_->currentPosY() - change;
         setItemPosY(newY);
@@ -209,7 +209,9 @@ void ScrollArea::wheelEvent(QGraphicsSceneWheelEvent *event)
     QWheelEvent wheelEvent(event->pos(), event->screenPos(), event->pixelDelta(), QPoint(0, event->delta()),
                                               event->buttons(), event->modifiers(), event->phase(),
                                               event->isInverted(), Qt::MouseEventNotSynthesized, QPointingDevice::primaryPointingDevice());
-    curItem_->hideOpenPopups();
+    if (curItem_) {
+        curItem_->hideOpenPopups();
+    }
     QCoreApplication::sendEvent(scrollBar_, &wheelEvent);
 }
 
@@ -223,10 +225,11 @@ void ScrollArea::keyPressEvent(QKeyEvent *event)
 void ScrollArea::updateScrollBarByHeight()
 {
     const int scrollBarHeight = height_ - static_cast<int>(SCROLL_BAR_GAP*2.5*G_SCALE);
+
     scrollBar_->setFixedHeight(scrollBarHeight);
-    if ((curItem_->boundingRect().height() - scrollBarHeight) > 0) {
+    if (curItem_ != nullptr && (curItem_->boundingRect().height() - height_) > 0) {
         scrollBar_->setMinimum(0);
-        scrollBar_->setMaximum(curItem_->boundingRect().height() - scrollBarHeight);
+        scrollBar_->setMaximum(curItem_->boundingRect().height() - height_);
         scrollBar_->setPageStep(scrollBarHeight);
         scrollBar_->setSingleStep(50*G_SCALE);
         if (scrollBarVisible_) {

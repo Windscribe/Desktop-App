@@ -6,6 +6,7 @@
 #include "types/pingtime.h"
 #include "types/locationid.h"
 #include "types/connectstate.h"
+#include "types/protocolstatus.h"
 #include "backend/preferences/preferences.h"
 #include "tooltips/tooltiptypes.h"
 
@@ -29,6 +30,7 @@ public:
     virtual void updateScaling() = 0;
     virtual void setProtocolPort(const types::Protocol &protocol, const uint port) = 0;
     virtual void setCornerColor(QColor color) = 0;
+    virtual types::ProtocolStatus getProtocolStatus() = 0;
 
 public slots:
     virtual void updateLocationInfo(const QString &firstName, const QString &secondName, const QString &countryCode, PingTime pingTime) = 0;
@@ -49,7 +51,9 @@ signals:
     virtual void firewallClick() = 0;
     virtual void locationsClick() = 0;
     virtual void notificationsClick() = 0;
-
+    virtual void networkButtonClick() = 0;
+    virtual void splitTunnelingButtonClick() = 0;
+    virtual void protocolsClick() = 0;
 };
 
 Q_DECLARE_INTERFACE(IConnectWindow, "IConnectWindow")

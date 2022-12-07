@@ -9,16 +9,17 @@ class AutoConnSettingsPolicy : public BaseConnSettingsPolicy
 {
     Q_OBJECT
 public:
-    AutoConnSettingsPolicy(QSharedPointer<locationsmodel::BaseLocationInfo> bli, const types::PortMap &portMap, bool isProxyEnabled);
+    AutoConnSettingsPolicy(QSharedPointer<locationsmodel::BaseLocationInfo> bli, const types::PortMap &portMap, bool isProxyEnabled,
+                           const types::Protocol protocol);
 
     void reset() override;
     void debugLocationInfoToLog() const override;
     void putFailedConnection() override;
     bool isFailed() const override;
     CurrentConnectionDescr getCurrentConnectionSettings() const override;
-    void saveCurrentSuccessfullConnectionSettings() override;
     bool isAutomaticMode() override;
     void resolveHostnames() override;
+    bool hasProtocolChanged() override;
 
 private:
     struct AttemptInfo
@@ -28,17 +29,17 @@ private:
         bool changeNode;
     };
 
-    QVector<AttemptInfo> attemps_;
+    QVector<AttemptInfo> attempts_;
     int curAttempt_;
-    static int failedIkev2Counter_;
-    bool isFailedIkev2CounterAlreadyIncremented_;
-    static const int MAX_IKEV2_FAILED_ATTEMPTS = 5;
 
     QSharedPointer<locationsmodel::MutableLocationInfo> locationInfo_;
     types::PortMap portMap_;
     bool bIsAllFailed_;
 
-    static types::Protocol lastSuccessProtocol_;
+    static types::Protocol lastKnownGoodProtocol_;
+    static uint lastKnownGoodPort_;
+
+    QVector<types::ProtocolStatus> protocolStatus();
 };
 
 #endif // AUTOCONNSETTINGSPOLICY_H

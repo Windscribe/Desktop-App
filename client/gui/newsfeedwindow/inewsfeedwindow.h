@@ -1,25 +1,20 @@
-#ifndef INEWSFEEDWINDOW_H
-#define INEWSFEEDWINDOW_H
+#pragma once
 
 #include <QGraphicsObject>
 #include <QSet>
 #include <QString>
 #include "types/notification.h"
+#include "backend/preferences/preferences.h"
+#include "backend/preferences/preferenceshelper.h"
+#include "commongraphics/resizablewindow.h"
 
-class INewsFeedWindow
+class INewsFeedWindow : public ResizableWindow
 {
 public:
+    explicit INewsFeedWindow(QGraphicsObject *parent, Preferences *preferences, PreferencesHelper *preferencesHelper)
+        : ResizableWindow(parent, preferences, preferencesHelper) {}
     virtual ~INewsFeedWindow() {}
 
-    virtual QGraphicsObject *getGraphicsObject() = 0;
-
-    virtual int recommendedHeight() = 0;
-    virtual void setHeight(int height) = 0;
-
-    virtual void setScrollBarVisibility(bool on) = 0;
-
-    virtual void setClickable(bool isClickable) = 0;
-    virtual void updateScaling() = 0;
     virtual void updateRead() = 0;
 
 public slots:
@@ -31,11 +26,6 @@ public slots:
 
 signals:
     virtual void messageRead(qint64 messageId) = 0;
-    virtual void escClick() = 0;
-    virtual void sizeChanged() = 0;
-    virtual void resizeFinished() = 0;
 };
 
 Q_DECLARE_INTERFACE(INewsFeedWindow, "INewsFeedWindow")
-
-#endif // INEWSFEEDWINDOW_H

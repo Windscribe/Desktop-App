@@ -269,6 +269,8 @@ void FirewallController_mac::getFirewallStateFromPfctl(FirewallState &outState)
             }
         }
         outState.isCustomConfig = (rules.size() == 2 && !outState.interfaceToSkip.isEmpty());
+    } else {
+        outState.isCustomConfig = false;
     }
     // read anchor windscribe_lan_traffic rules
     outState.isAllowLanTraffic = false;

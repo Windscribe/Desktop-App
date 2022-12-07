@@ -19,6 +19,7 @@ public:
 
     int currentPosY() const;
     int currentHeight() const;
+    int fullHeight() const;
 
     BaseItem *item(int index);
     int indexOf(BaseItem *item);
@@ -28,6 +29,8 @@ public:
 
     void setSpacerHeight(int height);
     void setIndent(int indent);
+    void setFirstItemOffsetY(int offset);
+    void setEndSpacing(int offset);
 
     virtual void hideOpenPopups();
     void updateScaling() override;
@@ -49,6 +52,8 @@ private:
     int height_;
     int width_;
     int spacerHeight_;
+    int firstItemOffset_;
+    int endSpacing_;
     int indent_;
     QList<BaseItem *> items_;
 };

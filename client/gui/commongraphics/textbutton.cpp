@@ -74,6 +74,7 @@ void TextButton::setColor(QColor color)
 void TextButton::setMarginHeight(int height)
 {
     margin_ = height;
+    update();
 }
 
 void TextButton::quickSetOpacity(double opacity)

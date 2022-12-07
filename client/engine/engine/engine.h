@@ -77,7 +77,7 @@ public:
     bool firewallOn();
     bool firewallOff();
 
-    void connectClick(const LocationID &locationId);
+    void connectClick(const LocationID &locationId, const types::ConnectionSettings &connectionSettings);
     void disconnectClick();
 
     bool isBlockConnect() const;
@@ -175,6 +175,7 @@ signals:
     void hostsFileBecameWritable();
 
     void wireGuardAtKeyLimit();
+    void protocolStatusChanged(const QVector<types::ProtocolStatus> status);
     void initCleanup(bool isExitWithRestart, bool isFirewallChecked, bool isFirewallAlwaysOn, bool isLaunchOnStart);
 
     void helperSplitTunnelingStartFailed();
@@ -188,7 +189,7 @@ private slots:
     void setIgnoreSslErrorsImlp(bool bIgnoreSslErrors);
     void recordInstallImpl();
     void sendConfirmEmailImpl();
-    void connectClickImpl(const LocationID &locationId);
+    void connectClickImpl(const LocationID &locationId, const types::ConnectionSettings &connectionSettings);
     void disconnectClickImpl();
     void sendDebugLogImpl();
     void getWebSessionTokenImpl(WEB_SESSION_PURPOSE purpose);
@@ -384,4 +385,6 @@ private:
     bool overrideUpdateChannelWithInternal_;
     bool bPrevNetworkInterfaceInitialized_;
     types::NetworkInterface prevNetworkInterface_;
+
+    types::ConnectionSettings connectionSettingsOverride_;
 };

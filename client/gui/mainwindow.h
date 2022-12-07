@@ -23,6 +23,7 @@
 #include "types/checkupdate.h"
 #include "locations/model/selectedlocation.h"
 #include "types/robertfilter.h"
+#include "protocolwindow/protocolwindowmode.h"
 
 #if defined(Q_OS_MAC)
 #define USE_LOCATIONS_TRAY_MENU_NATIVE
@@ -86,9 +87,15 @@ private slots:
     void onConnectWindowPreferencesClick();
     void onConnectWindowNotificationsClick();
     void onConnectWindowSplitTunnelingClick();
+    void onConnectWindowProtocolsClick();
 
     // news feed window signals
     void onEscapeNotificationsClick();
+    // protocol window signals
+    void onEscapeProtocolsClick();
+    void onProtocolWindowProtocolClick(const types::Protocol &protocol, uint port);
+    void onProtocolWindowSetAsPreferred(const types::ConnectionSettings &settings);
+    void onProtocolWindowDisconnect();
 
     // preferences window signals
     void onPreferencesEscapeClick();
@@ -96,7 +103,7 @@ private slots:
     void onPreferencesLoginClick();
     void onPreferencesViewLogClick();
     void onPreferencesSendConfirmEmailClick();
-    void onPreferencesSendDebugLogClick();
+    void onSendDebugLogClick(); // also used by protocol window
     void onPreferencesManageAccountClick();
     void onPreferencesAddEmailButtonClick();
     void onPreferencesManageRobertRulesClick();
@@ -108,6 +115,7 @@ private slots:
     void onPreferencesAdvancedParametersClicked();
     void onPreferencesCustomConfigsPathChanged(QString path);
     void onPreferencesAdvancedParametersChanged(const QString &advParams);
+    void onPreferencesLastKnownGoodProtocolChanged(const QString &network, const types::Protocol &protocol, uint port);
 
     // emergency window signals
     void onEmergencyConnectClick();
@@ -193,6 +201,7 @@ private slots:
     void onBackendRobertFiltersChanged(bool success, const QVector<types::RobertFilter> &filters);
     void onBackendSetRobertFilterResult(bool success);
     void onBackendSyncRobertResult(bool success);
+    void onBackendProtocolStatusChanged(const QVector<types::ProtocolStatus> &status);
     void onHelperSplitTunnelingStartFailed();
 
     void onBackendEngineCrash();
@@ -406,6 +415,8 @@ private:
     void openBrowserToMyAccountWithToken(const QString &tempSessionToken);
     void updateConnectWindowStateProtocolPortDisplay();
     void showTrayMessage(const QString &message);
+
+    bool userProtocolOverride_;
 };
 
 #endif // MAINWINDOW_H

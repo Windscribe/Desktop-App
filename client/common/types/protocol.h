@@ -34,6 +34,7 @@ public:
     bool isStunnelOrWStunnelProtocol() const;
     bool isIkev2Protocol() const;
     bool isWireGuardProtocol() const;
+    bool isValid() const;
 
     static Protocol fromString(const QString &strProtocol);
     static QList<Protocol> supportedProtocols();

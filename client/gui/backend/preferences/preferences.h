@@ -2,6 +2,8 @@
 #define PREFERENCES_H
 
 #include <QObject>
+#include <QMap>
+#include <QTimer>
 #include "types/connecteddnsinfo.h"
 #include "types/enginesettings.h"
 #include "types/guisettings.h"
@@ -12,6 +14,7 @@ class Preferences : public QObject
     Q_OBJECT
 public:
     explicit Preferences(QObject *parent = nullptr);
+    ~Preferences();
 
     bool isLaunchOnStartup() const;
     void setLaunchOnStartup(bool b);
@@ -58,6 +61,7 @@ public:
     void setNetworkWhiteList(const QVector<types::NetworkInterface> &l);
 
     const types::ConnectionSettings networkPreferredProtocol(QString networkOrSsid) const;
+    bool hasNetworkPreferredProtocol(QString networkOrSsid) const;
     void setNetworkPreferredProtocol(QString networkOrSsid, const types::ConnectionSettings &preferredProtocol);
     void setNetworkPreferredProtocols(const QMap<QString, types::ConnectionSettings> &preferredProtocols);
 
@@ -143,6 +147,11 @@ public:
     bool isShowLocationLoad() const;
     void setShowLocationLoad(bool b);
 
+    types::Protocol networkLastKnownGoodProtocol(const QString &network) const;
+    uint networkLastKnownGoodPort(const QString &network) const;
+    void setNetworkLastKnownGoodProtocolPort(const QString &network, const types::Protocol &protocol, uint port);
+    void clearLastKnownGoodProtocols(const QString &network = "");
+
 signals:
     void isLaunchOnStartupChanged(bool b);
     void isAutoConnectChanged(bool b);
@@ -182,6 +191,7 @@ signals:
     void networkPreferredProtocolsChanged(QMap<QString, types::ConnectionSettings> p);
     void splitTunnelingChanged(types::SplitTunneling st);
     void keepAliveChanged(bool b);
+    void networkLastKnownGoodProtocolPortChanged(const QString &network, const types::Protocol &protocol, uint port);
     void updateEngineSettings();
 
     void reportErrorToUser(QString title, QString desc);
@@ -191,6 +201,7 @@ private:
     types::GuiSettings guiSettings_;
 
     bool receivingEngineSettings_;
+    QMap<QString, QTimer *> timers_;
 
     // for serialization
     static constexpr quint32 magic_ = 0x7715C211;

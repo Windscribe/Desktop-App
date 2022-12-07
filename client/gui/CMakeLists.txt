@@ -38,6 +38,8 @@ set(PROJECT_SOURCES
     mainwindowstate.h
     showingdialogstate.cpp
     showingdialogstate.h
+    windowsizemanager.cpp
+    windowsizemanager.h
 
     # --- resources ---
     gif.qrc
@@ -96,6 +98,7 @@ add_subdirectory(multipleaccountdetection)
 add_subdirectory(newsfeedwindow)
 add_subdirectory(overlaysconnectwindow)
 add_subdirectory(preferenceswindow)
+add_subdirectory(protocolwindow)
 add_subdirectory(systemtray)
 add_subdirectory(tooltips)
 add_subdirectory(twofactorauth)

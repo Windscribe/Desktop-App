@@ -2,6 +2,8 @@
 #include "utils/logger.h"
 #include "utils/ws_assert.h"
 
+const int typeIdConnectionSettings = qRegisterMetaType<types::ConnectionSettings>("types::ConnectionSettings");
+
 namespace types {
 
 // init with default connection settings

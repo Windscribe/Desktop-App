@@ -132,11 +132,12 @@ void Backend::signOut(bool keepFirewallOn)
     engineServer_->sendCommand(&cmd);
 }
 
-void Backend::sendConnect(const LocationID &lid)
+void Backend::sendConnect(const LocationID &lid, const types::ConnectionSettings &connectionSettings)
 {
     connectStateHelper_.connectClickFromUser();
     IPC::ClientCommands::Connect cmd;
     cmd.locationId_ = lid;
+    cmd.connectionSettings_ = connectionSettings;
     //qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
     engineServer_->sendCommand(&cmd);
 }
@@ -659,6 +660,11 @@ void Backend::onConnectionNewCommand(IPC::Command *command)
     {
         IPC::ServerCommands::SyncRobertFinished *cmd = static_cast<IPC::ServerCommands::SyncRobertFinished *>(command);
         Q_EMIT syncRobertResult(cmd->success_);
+    }
+    else if (command->getStringId() == IPC::ServerCommands::ProtocolStatusChanged::getCommandStringId())
+    {
+        IPC::ServerCommands::ProtocolStatusChanged *cmd = static_cast<IPC::ServerCommands::ProtocolStatusChanged *>(command);
+        Q_EMIT protocolStatusChanged(cmd->status_);
     }
 }
 

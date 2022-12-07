@@ -12,13 +12,14 @@
 #include "iconnection.h"
 #include "testvpntunnel.h"
 #include "engine/wireguardconfig/wireguardconfig.h"
-#include "engine/wireguardconfig/getwireguardconfiginloop.h"
+#include "engine/wireguardconfig/getwireguardconfig.h"
 #include "connsettingspolicy/baseconnsettingspolicy.h"
 #include "engine/customconfigs/customovpnauthcredentialsstorage.h"
 #include "engine/apiinfo/servercredentials.h"
 #include "engine/locationsmodel/baselocationinfo.h"
 #include "types/connectionsettings.h"
 #include "types/packetsize.h"
+#include "types/protocol.h"
 #include "types/connecteddnsinfo.h"
 
 #ifdef Q_OS_MAC
@@ -87,6 +88,8 @@ public:
         const types::PortMap &portMap,
         const types::ProxySettings &proxySettings);
 
+    void setLastKnownGoodProtocol(const types::Protocol protocol);
+
 signals:
     void connected();
     void connectingToHostname(const QString &hostname, const QString &ip, const QString &dnsServer);
@@ -100,6 +103,7 @@ signals:
     void internetConnectivityChanged(bool connectivity);
     void protocolPortChanged(const types::Protocol &protocol, const uint port);
     void wireGuardAtKeyLimit();
+    void protocolStatusChanged(const QVector<types::ProtocolStatus> &status);
 
     void requestUsername(const QString &pathCustomOvpnConfig);
     void requestPassword(const QString &pathCustomOvpnConfig);
@@ -121,6 +125,8 @@ private slots:
     void onNetworkOnlineStateChanged(bool isAlive);
 
     void onTimerReconnection();
+    void onConnectTrigger();
+    void onConnectingTimeout();
 
     void onStunnelFinishedBeforeConnection();
     void onWstunnelFinishedBeforeConnection();
@@ -175,6 +181,15 @@ private:
     QTimer timerReconnection_;
     enum { MAX_RECONNECTION_TIME = 60 * 60 * 1000 };  // 1 hour
 
+    // this timer is used to 'rest' between protocol failovers
+    QTimer connectTimer_;
+    static constexpr int kConnectionWaitTimeMsec = 10 * 1000;
+
+    // this timer is used to cap the login attempt time
+    QTimer connectingTimer_;
+    static constexpr int kConnectingTimeoutWireGuard = 20 * 1000;
+    static constexpr int kConnectingTimeout = 30 * 1000;
+
     int state_;
     bool bLastIsOnline_;
     bool bWakeSignalReceived_;
@@ -189,7 +204,7 @@ private:
     types::PacketSize packetSize_;
 
     WireGuardConfig wireGuardConfig_;
-    GetWireGuardConfigInLoop *getWireGuardConfigInLoop_;
+    GetWireGuardConfig *getWireGuardConfig_;
 
     AdapterGatewayInfo defaultAdapterInfo_;
     AdapterGatewayInfo vpnAdapterInfo_;
@@ -197,6 +212,8 @@ private:
     CustomDnsAdapterGatewayInfo customDnsAdapterGatewayInfo_;
 
     QSharedPointer<locationsmodel::BaseLocationInfo> bli_;
+
+    types::Protocol lastKnownGoodProtocol_;
 
     void doConnect();
     void doConnectPart2();
@@ -212,6 +229,7 @@ private:
         const types::ConnectionSettings &connectionSettings,
         const types::PortMap &portMap,
         const types::ProxySettings &proxySettings);
+    void connectOrStartConnectTimer();
 };
 
 #endif // CONNECTIONMANAGER_H
