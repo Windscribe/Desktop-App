@@ -7,8 +7,26 @@ const int typeIdPingType = qRegisterMetaType<PingHost::PING_TYPE>("PingHost::PIN
 PingHost::PingHost(QObject *parent, IConnectStateController *stateController) : QObject(parent),
     pingHostTcp_(this, stateController), pingHostIcmp_(this, stateController)
 {
-    connect(&pingHostTcp_, SIGNAL(pingFinished(bool,int,QString,bool)), SIGNAL(pingFinished(bool,int,QString,bool)));
-    connect(&pingHostIcmp_, SIGNAL(pingFinished(bool,int,QString,bool)), SIGNAL(pingFinished(bool,int,QString,bool)));
+    connect(&pingHostTcp_, &PingHost_TCP::pingFinished, this, &PingHost::pingFinished);
+#if defined(Q_OS_WIN)
+    connect(&pingHostIcmp_, &PingHost_ICMP_win::pingFinished, this, &PingHost::pingFinished);
+#else
+    connect(&pingHostIcmp_, &PingHost_ICMP_mac::pingFinished, this, &PingHost::pingFinished);
+#endif
+}
+
+void PingHost::init()
+{
+#ifdef Q_OS_WIN
+    crashHandler_.reset(new Debug::CrashHandlerForThread());
+#endif
+}
+
+void PingHost::finish()
+{
+#ifdef Q_OS_WIN
+    crashHandler_.reset();
+#endif
 }
 
 void PingHost::addHostForPing(const QString &ip, PingHost::PING_TYPE pingType)
@@ -38,16 +56,13 @@ void PingHost::enableProxy()
 
 void PingHost::addHostForPingImpl(const QString &ip, PingHost::PING_TYPE pingType)
 {
-    if (pingType == PING_TCP)
-    {
+    if (pingType == PING_TCP) {
         pingHostTcp_.addHostForPing(ip);
     }
-    else if (pingType == PING_ICMP)
-    {
+    else if (pingType == PING_ICMP) {
         pingHostIcmp_.addHostForPing(ip);
     }
-    else
-    {
+    else {
         WS_ASSERT(false);
     }
 }

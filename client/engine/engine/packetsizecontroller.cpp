@@ -1,13 +1,27 @@
 #include "packetsizecontroller.h"
 
-#include "utils/hardcodedsettings.h"
-#include "utils/utils.h"
-#include "utils/logger.h"
 #include "utils/ipvalidation.h"
+#include "utils/logger.h"
+#include "utils/utils.h"
 
-PacketSizeController::PacketSizeController(QObject *parent) : QObject(parent)
-  , earlyStop_(false)
+PacketSizeController::PacketSizeController(QObject *parent)
+    : QObject(parent),
+      earlyStop_(false)
 {
+}
+
+void PacketSizeController::init()
+{
+#ifdef Q_OS_WIN
+    crashHandler_.reset(new Debug::CrashHandlerForThread());
+#endif
+}
+
+void PacketSizeController::finish()
+{
+#ifdef Q_OS_WIN
+    crashHandler_.reset();
+#endif
 }
 
 void PacketSizeController::setPacketSize(const types::PacketSize &packetSize)

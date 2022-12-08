@@ -560,9 +560,11 @@ void Engine::initPart2()
     packetSizeController_ = new PacketSizeController(nullptr);
     packetSizeController_->setPacketSize(packetSize);
     packetSize_ = packetSize;
-    connect(packetSizeController_, SIGNAL(packetSizeChanged(bool, int)), SLOT(onPacketSizeControllerPacketSizeChanged(bool, int)));
-    connect(packetSizeController_, SIGNAL(finishedPacketSizeDetection(bool)), SLOT(onPacketSizeControllerFinishedSizeDetection(bool)));
+    connect(packetSizeController_, &PacketSizeController::packetSizeChanged, this, &Engine::onPacketSizeControllerPacketSizeChanged);
+    connect(packetSizeController_, &PacketSizeController::finishedPacketSizeDetection, this, &Engine::onPacketSizeControllerFinishedSizeDetection);
     packetSizeController_->moveToThread(packetSizeControllerThread_);
+    connect(packetSizeControllerThread_, &QThread::started, packetSizeController_, &PacketSizeController::init);
+    connect(packetSizeControllerThread_, &QThread::finished, packetSizeController_, &PacketSizeController::finish);
     packetSizeControllerThread_->start(QThread::LowPriority);
 
     firewallController_ = CrossPlatformObjectFactory::createFirewallController(this, helper_);

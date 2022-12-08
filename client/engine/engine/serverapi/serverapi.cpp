@@ -267,26 +267,34 @@ void ServerAPI::onFailoverNextHostnameAnswer(failover::FailoverRetCode retCode, 
         failover_->reset();
         failover_->setProperty("state", QVariant::fromValue(FailoverState::kUnknown));
         currentFailoverHostname_.clear();
-        BaseRequest *curRequest = currentFailoverRequest_;
-        clearCurrentFailoverRequest();
-        if (curRequest)
+        if (currentFailoverRequest_) {
+            BaseRequest *curRequest = currentFailoverRequest_;
+            clearCurrentFailoverRequest();
             executeRequest(curRequest);
+        } else {
+            clearCurrentFailoverRequest();
+        }
         executeWaitingInQueueRequests();
         return;
     }
-    
+
     if (retCode == failover::FailoverRetCode::kSuccess)
         currentFailoverHostname_ = hostname;
 
     if (retCode == failover::FailoverRetCode::kSuccess || retCode == failover::FailoverRetCode::kConnectStateChanged) {
-        BaseRequest *curRequest = currentFailoverRequest_;
-        clearCurrentFailoverRequest();
-        if (curRequest)
+        if (currentFailoverRequest_) {
+            BaseRequest *curRequest = currentFailoverRequest_;
+            clearCurrentFailoverRequest();
             executeRequest(curRequest);
+        } else {
+            clearCurrentFailoverRequest();
+        }
         executeWaitingInQueueRequests();
     } else if (retCode == failover::FailoverRetCode::kFailed) {
         failover_->setProperty("state", QVariant::fromValue(FailoverState::kFailed));
-        setErrorCodeAndEmitRequestFinished(currentFailoverRequest_, SERVER_RETURN_FAILOVER_FAILED, "Failover API not ready");
+        if (currentFailoverRequest_) {
+            setErrorCodeAndEmitRequestFinished(currentFailoverRequest_, SERVER_RETURN_FAILOVER_FAILED, "Failover API not ready");
+        }
         clearCurrentFailoverRequest();
         finishWaitingInQueueRequests(SERVER_RETURN_FAILOVER_FAILED, "Failover API not ready");
     } else {

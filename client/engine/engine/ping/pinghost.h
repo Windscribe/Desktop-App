@@ -1,12 +1,12 @@
-#ifndef PINGHOST_H
-#define PINGHOST_H
+#pragma once
 
 #include <QObject>
 #include "pinghost_tcp.h"
 
 #ifdef Q_OS_WIN
     #include "pinghost_icmp_win.h"
-#elif defined (Q_OS_MAC) || defined (Q_OS_LINUX)
+    #include "utils/crashhandler.h"
+#else
     #include "pinghost_icmp_mac.h"
 #endif
 
@@ -30,6 +30,10 @@ public:
 signals:
     void pingFinished(bool bSuccess, int timems, const QString &ip, bool isFromDisconnectedState);
 
+public slots:
+    void init();
+    void finish();
+
 private slots:
     void addHostForPingImpl(const QString &ip, PingHost::PING_TYPE pingType);
     void clearPingsImpl();
@@ -42,10 +46,8 @@ private:
     PingHost_TCP pingHostTcp_;
 #ifdef Q_OS_WIN
     PingHost_ICMP_win pingHostIcmp_;
-#elif defined (Q_OS_MAC) || defined (Q_OS_LINUX)
+    QScopedPointer<Debug::CrashHandlerForThread> crashHandler_;
+#else
     PingHost_ICMP_mac pingHostIcmp_;
 #endif
-
 };
-
-#endif // PINGHOST_H

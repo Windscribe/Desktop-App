@@ -9,9 +9,9 @@ LocationsModel::LocationsModel(QObject *parent, IConnectStateController *stateCo
     pingThread_ = new QThread(this);
     pingHost_ = new PingHost(nullptr, stateController);
     pingHost_->moveToThread(pingThread_);
+    connect(pingThread_, &QThread::started, pingHost_, &PingHost::init);
+    connect(pingThread_, &QThread::finished, pingHost_, &PingHost::finish);
     pingThread_->start(QThread::HighPriority);
-
-    // TODO: **JDRM** PingHost should have a Debug::CrashHandlerForThread() set on it.
 
     apiLocationsModel_ = new ApiLocationsModel(this, stateController, networkDetectionManager, pingHost_);
     customConfigLocationsModel_ = new CustomConfigLocationsModel(this, stateController, networkDetectionManager, pingHost_);
@@ -66,12 +66,10 @@ void LocationsModel::enableProxy()
 
 QSharedPointer<BaseLocationInfo> LocationsModel::getMutableLocationInfoById(const LocationID &locationId)
 {
-    if (locationId.isCustomConfigsLocation())
-    {
+    if (locationId.isCustomConfigsLocation()) {
         return customConfigLocationsModel_->getMutableLocationInfoById(locationId);
     }
-    else
-    {
+    else {
         return apiLocationsModel_->getMutableLocationInfoById(locationId);
     }
 }
