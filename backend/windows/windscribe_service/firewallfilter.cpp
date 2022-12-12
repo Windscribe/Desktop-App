@@ -167,13 +167,13 @@ void FirewallFilter::addFilters(HANDLE engineHandle, const wchar_t *ip, bool bAl
     std::vector<NET_IFINDEX> taps = ai.getTAPAdapters();
 
     // add block filter for all IPs, for all adapters, IPv4.
-    DWORD ret = Utils::addFilterV4(engineHandle, nullptr, FWP_ACTION_BLOCK, 0, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW);
-    if (ret) {
+    bool ret = Utils::addFilterV4(engineHandle, nullptr, FWP_ACTION_BLOCK, 0, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW);
+    if (!ret) {
         Logger::instance().out("Could not add IPv4 block filter");
     }
     // add block filter for all IPs, for all adapters, IPv6.
     ret = Utils::addFilterV6(engineHandle, nullptr, FWP_ACTION_BLOCK, 0, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW);
-    if (ret) {
+    if (!ret) {
         Logger::instance().out("Could not add IPv6 block filter");
     }
 
@@ -186,25 +186,25 @@ void FirewallFilter::addFilters(HANDLE engineHandle, const wchar_t *ip, bool bAl
             // Explicitly allow 10.255.255.0/24
             const std::vector<Ip4AddressAndMask> reserved = Ip4AddressAndMask::fromVector({L"10.255.255.0/24"});
             ret = Utils::addFilterV4(engineHandle, nullptr, FWP_ACTION_PERMIT, 8, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, &luid, &reserved);
-            if (ret) {
+            if (!ret) {
                 Logger::instance().out(L"Could not add reserved allow filter on VPN interface");
             }
             // Disallow all other private, link-local, loopback networks from going over tunnel
             const std::vector<Ip4AddressAndMask> priv = Ip4AddressAndMask::fromVector(
                 {L"10.0.0.0/8", L"172.16.0.0/12", L"192.168.0.0/16", L"169.254.0.0/16", L"127.0.0.0/8", L"224.0.0.0/24"});
             ret = Utils::addFilterV4(engineHandle, nullptr, FWP_ACTION_BLOCK, 6, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, &luid, &priv);
-            if (ret) {
+            if (!ret) {
                 Logger::instance().out(L"Could not add private network block filter on VPN interface");
             }
         }
         // Allow other IPv4 traffic on this interface
         ret = Utils::addFilterV4(engineHandle, nullptr, FWP_ACTION_PERMIT, 1, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, &luid);
-        if (ret) {
+        if (!ret) {
             Logger::instance().out(L"Could not add IPv4 allow filter on VPN interface");
         }
         // Allow IPv6 traffic on this interface
         Utils::addFilterV6(engineHandle, nullptr, FWP_ACTION_PERMIT, 1, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, &luid);
-        if (ret) {
+        if (!ret) {
             Logger::instance().out(L"Could not add IPv6 allow filter on VPN interface");
         }
     }
@@ -219,7 +219,7 @@ void FirewallFilter::addFilters(HANDLE engineHandle, const wchar_t *ip, bool bAl
     for (size_t i = 0; i < ipAddresses.size(); ++i) {
         const std::vector<Ip4AddressAndMask> ipAddr = Ip4AddressAndMask::fromVector({ipAddresses[i].c_str()});
         ret = Utils::addFilterV4(engineHandle, nullptr, FWP_ACTION_PERMIT, 2, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, &ipAddr);
-        if (ret) {
+        if (!ret) {
             Logger::instance().out(L"Could not add Windscribe IPs allow filter");
         }
     }
@@ -228,14 +228,14 @@ void FirewallFilter::addFilters(HANDLE engineHandle, const wchar_t *ip, bool bAl
     // (Exec("netsh advfirewall firewall add rule name=\"VPN - Out - DHCP\" dir=out action=allow protocol=UDP
     // localport=68 remoteport=67 program=\"%SystemRoot%\\system32\\svchost.exe\" service=\"dhcp\"");
     ret = Utils::addFilterV4(engineHandle, nullptr, FWP_ACTION_PERMIT, 3, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, nullptr, 68, 67);
-    if (ret) {
+    if (!ret) {
         Logger::instance().out(L"Could not add DHCP allow filter");
     }
 
     // Add permit filter for Windscribe reserved range (10.255.255.0 - 10.255.255.255)
     const std::vector<Ip4AddressAndMask> reserved = Ip4AddressAndMask::fromVector({L"10.255.255.0/24"});
     ret = Utils::addFilterV4(engineHandle, nullptr, FWP_ACTION_PERMIT, 4, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, &reserved);
-    if (ret) {
+    if (!ret) {
         Logger::instance().out(L"Could not add reserved allow filter");
     }
 
@@ -244,14 +244,14 @@ void FirewallFilter::addFilters(HANDLE engineHandle, const wchar_t *ip, bool bAl
         const std::vector<Ip4AddressAndMask> privV4 = Ip4AddressAndMask::fromVector(
             {L"10.0.0.0/8", L"172.16.0.0/12", L"192.168.0.0/16", L"169.254.0.0/16", L"127.0.0.0/8", L"224.0.0.0/24"});
         ret = Utils::addFilterV4(engineHandle, nullptr, FWP_ACTION_PERMIT, 4, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, &privV4);
-        if (ret) {
+        if (!ret) {
             Logger::instance().out(L"Could not add IPv4 LAN traffic allow filter.");
         }
 
         const std::vector<Ip6AddressAndPrefix> privV6 = Ip6AddressAndPrefix::fromVector(
             {L"::1/128", L"fe80::/10", L"ff00::/64"});
         ret = Utils::addFilterV6(engineHandle, nullptr, FWP_ACTION_PERMIT, 4, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, &privV6);
-        if (ret) {
+        if (!ret) {
             Logger::instance().out(L"Could not add IPv6 LAN traffic allow filter.");
         }
     }
@@ -270,7 +270,7 @@ void FirewallFilter::addPermitFilterForAppsIds(HANDLE engineHandle)
         ret = Utils::addFilterV4(engineHandle, &filterIdsApps_, FWP_ACTION_PERMIT, 2, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW);
     }
 
-    if (ret) {
+    if (!ret) {
         Logger::instance().out("Could not add split tunnel app filters");
     }
 }
@@ -284,7 +284,7 @@ void FirewallFilter::addPermitFilterForSplitRoutingWhitelistIps(HANDLE engineHan
     }
 
     DWORD ret = Utils::addFilterV4(engineHandle, &filterIdsSplitRoutingIps_, FWP_ACTION_PERMIT, 2, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, &splitRoutingIps_);
-    if (ret) {
+    if (!ret) {
         Logger::instance().out("Could not add split tunnel IP filters");
     }
 }
