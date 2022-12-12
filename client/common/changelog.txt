@@ -1,3 +1,18 @@
+2.6.2 (12/12/2022)
+All:
+   * Fixed HTTP/SOCKS Proxy Gateway setting to warn user the Allow LAN Traffic option must be enabled. #323
+   * Fixed privilege escalation vulnerability in usage of OpenVPN up/down directives. #518
+Windows:
+   * Fixed incoming network connections on local LAN were not blocked by firewall. #385
+   * Fixed app exit when Windows network adapter information request fails. #520
+macOS:
+   * Added IP/hostname split tunneling support on macOS BigSur and newer. #508
+   * Fixed privilege escalation vulnerabilities in communication mechanism between the app and helper. #5
+Linux:
+   * Fixed privilege escalation vulnerabilities in communication mechanism between the app and helper. #5
+   * Fixed install folder to /opt/windscribe. #399
+
+
 2.6.1 (23/11/2022)
 All:
    * Fixed notice on the login screen when user is disabled or rate-limited. #377
@@ -68,7 +83,7 @@ All:
    * Fixed bottom info widget hidden when something connects to proxy/hotspot #455
    * Fixed signing into an expired account. #500
    * Fixed the working connection setting isn't saved. #202
-   * Sync settings immediately. #476. 
+   * Sync settings immediately. #476.
 Windows:
    * Reverted inclusive split tunneled apps unable to access localhost. #464
 Linux:
@@ -251,13 +266,13 @@ macOS:
 * Mac Application doesn't open. #181
 * Fix app crash when signaled to close by installer. #226
 * Uninstaller wipes the entire folder it is located in. #155
-	- modified the installer to only install into a non-blank directory.
-	- if the selected directory has files in it, append \Windscribe to it.
-	- the uninstaller should only run if it's in the install directory.
-* Checked the API interaction. #96 
-	- added 'app_version' to all server API calls.
-	- refresh all server resources every 24 hours.
-	- fix incorrect handling of static IPs server error response.
+    - modified the installer to only install into a non-blank directory.
+    - if the selected directory has files in it, append \Windscribe to it.
+    - the uninstaller should only run if it's in the install directory.
+* Checked the API interaction. #96
+    - added 'app_version' to all server API calls.
+    - refresh all server resources every 24 hours.
+    - fix incorrect handling of static IPs server error response.
 * App main window does not display on Windows 11. #247
 * Fixed OpenVPN works unstably on hardware with Windows 7. #136
 * Fixed firewall deactivated when account status changes to disabled. #248
@@ -375,11 +390,11 @@ macOS:
 * Fixed named pipe security flaw on Windows. #546
 * Add silent install flag to installer (Windows). #481
 * Updated dependencies/libraries. #552
-	- OpenSSL: updated to 1.1.1L
-	- C-Ares: updated to 1.17.2
-	- Curl: updated to 7.79.1
-	- OpenVPN: updated to 2.5.4
-	- Stunnel: updated to 5.60
+    - OpenSSL: updated to 1.1.1L
+    - C-Ares: updated to 1.17.2
+    - Curl: updated to 7.79.1
+    - OpenVPN: updated to 2.5.4
+    - Stunnel: updated to 5.60
 * Linux auto updater functionality (debian and rpm packages). #531
 * Fixed "Cannot open file ':/svg/flags/.svg'" in log. #554
 * Mac install helper issue fixed. #551, #479
@@ -467,7 +482,7 @@ macOS:
 2.02.8 (12/03/2021)
 * Updated remoteid for IKEv2 profiles on Mac. #420
 * Inclusive split routing issue on Mac - should be fixed. #398
-* Removed useless(spam) messages from log (GUI side). #414 
+* Removed useless(spam) messages from log (GUI side). #414
 * Prevented keypress navigation to other locations from config-only mode.
 * Fixed auto-hide of docked app on showing external OS dialogs. #396
 * Fixed negative remaining bytes issue. #370
@@ -484,20 +499,20 @@ macOS:
 * Removed account tab from preferences in external config mode. #365
 
 * Improvements to preferences and combobox menus. #118
-	-> Increased scroll bar widths.
-	-> Fixed trackpad sensitivities on Mac and Windows.
-	-> Fixed [Escape] key press navigations.
+    -> Increased scroll bar widths.
+    -> Fixed trackpad sensitivities on Mac and Windows.
+    -> Fixed [Escape] key press navigations.
 * Fixed rare crash on Mac when using comboboxes and tooltips. #118
 * Improvements to location window. #118
-	-> Tab transitions: animations and logging
-	-> Added navigation to search tab when you start typing
- 	-> Improved key-press navigation and cursor integration
-	-> Fixed footer size
-	-> Fixed view offset that happens at the bottom of the each list
-	-> Fixed error messages and connection prevention for bad vpn configs
-	-> Fixed drag-scrolling to bottom and top of list
-	-> Fixed scaling issues on 125% and 175%
-	-> Other minor bug fixes
+    -> Tab transitions: animations and logging
+    -> Added navigation to search tab when you start typing
+    -> Improved key-press navigation and cursor integration
+    -> Fixed footer size
+    -> Fixed view offset that happens at the bottom of the each list
+    -> Fixed error messages and connection prevention for bad vpn configs
+    -> Fixed drag-scrolling to bottom and top of list
+    -> Fixed scaling issues on 125% and 175%
+    -> Other minor bug fixes
 
 * Fixed latency display always as bars on some screens. #372
 * Fixed OVPN custom config issues with protocol names. #374
@@ -518,13 +533,13 @@ macOS:
 * Removed sensitive info from logs. #366
 * App locks up when the file explorer is shown - fixed. #353
 * List of locations fixes. #118
-	- Search animations on text change
-	- touchpad scrolling slow to stop on Mac by tap
- 	- Added searchbox clearing on tab change and locations drawer hiding
-	- Fixed location expanding animation bug (big lists and bottom items)
-	- Fixed size of locations tab-area in search tab
-	- Fixed ultra-sensitive touchpad on some Windows machines
-	- Fixed locations search for nicknames
+    - Search animations on text change
+    - touchpad scrolling slow to stop on Mac by tap
+    - Added searchbox clearing on tab change and locations drawer hiding
+    - Fixed location expanding animation bug (big lists and bottom items)
+    - Fixed size of locations tab-area in search tab
+    - Fixed ultra-sensitive touchpad on some Windows machines
+    - Fixed locations search for nicknames
 * Fixed locations ribbon UI regression. #341
 * PingTest grows debug log - fixed. #362
 * Added workaround for openvpn error "write_wintun(): head/tail value is over capacity". #368
@@ -639,7 +654,7 @@ macOS:
 * Updated OpenVPN to the latest version 2.5.0.
 * Removed OpenVPN 2.4.8 and use wintun by default.
 * Updated wintun to the latest version 0.9.2.
-* Updated WireGuard to the latest version v0.0.20201118. 
+* Updated WireGuard to the latest version v0.0.20201118.
 * Fixed tunnel test fails for IKEv2 on Windows.
 * Mac keychain issue - fixed.
 * Fixed incorrect engine shutdown on Windows.
@@ -707,7 +722,7 @@ macOS:
 
 2.0.32 (23/09/2020)
 * Mac DMG the typo fix.
-* Don't collapse the location list when you disconnect. 
+* Don't collapse the location list when you disconnect.
 
 2.0.31 (23/09/2020)
 * Extra auth files in OVPN-config issue - fixed.
