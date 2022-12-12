@@ -49,7 +49,6 @@ ServerAPI::ServerAPI(QObject *parent, IConnectStateController *connectStateContr
     networkDetectionManager_(networkDetectionManager),
     bIgnoreSslErrors_(false),
     currentFailoverRequest_(nullptr),
-    currentConnectStateWatcher_(nullptr),
     failover_(failover)
 {
     connect(connectStateController_, &IConnectStateController::stateChanged, this, &ServerAPI::onConnectStateChanged);
@@ -268,26 +267,34 @@ void ServerAPI::onFailoverNextHostnameAnswer(failover::FailoverRetCode retCode, 
         failover_->reset();
         failover_->setProperty("state", QVariant::fromValue(FailoverState::kUnknown));
         currentFailoverHostname_.clear();
-        BaseRequest *curRequest = currentFailoverRequest_;
-        clearCurrentFailoverRequest();
-        if (curRequest)
+        if (currentFailoverRequest_) {
+            BaseRequest *curRequest = currentFailoverRequest_;
+            clearCurrentFailoverRequest();
             executeRequest(curRequest);
+        } else {
+            clearCurrentFailoverRequest();
+        }
         executeWaitingInQueueRequests();
         return;
     }
-    
+
     if (retCode == failover::FailoverRetCode::kSuccess)
         currentFailoverHostname_ = hostname;
 
     if (retCode == failover::FailoverRetCode::kSuccess || retCode == failover::FailoverRetCode::kConnectStateChanged) {
-        BaseRequest *curRequest = currentFailoverRequest_;
-        clearCurrentFailoverRequest();
-        if (curRequest)
+        if (currentFailoverRequest_) {
+            BaseRequest *curRequest = currentFailoverRequest_;
+            clearCurrentFailoverRequest();
             executeRequest(curRequest);
+        } else {
+            clearCurrentFailoverRequest();
+        }
         executeWaitingInQueueRequests();
     } else if (retCode == failover::FailoverRetCode::kFailed) {
         failover_->setProperty("state", QVariant::fromValue(FailoverState::kFailed));
-        setErrorCodeAndEmitRequestFinished(currentFailoverRequest_, SERVER_RETURN_FAILOVER_FAILED, "Failover API not ready");
+        if (currentFailoverRequest_) {
+            setErrorCodeAndEmitRequestFinished(currentFailoverRequest_, SERVER_RETURN_FAILOVER_FAILED, "Failover API not ready");
+        }
         clearCurrentFailoverRequest();
         finishWaitingInQueueRequests(SERVER_RETURN_FAILOVER_FAILED, "Failover API not ready");
     } else {
@@ -503,16 +510,14 @@ void ServerAPI::setErrorCodeAndEmitRequestFinished(BaseRequest *request, SERVER_
 void ServerAPI::setCurrentFailoverRequest(BaseRequest *request)
 {
     WS_ASSERT(currentFailoverRequest_ == nullptr);
-    WS_ASSERT(currentConnectStateWatcher_ == nullptr);
     currentFailoverRequest_ = request;
-    currentConnectStateWatcher_ = new ConnectStateWatcher(this, connectStateController_);
+    currentConnectStateWatcher_.reset(new ConnectStateWatcher(this, connectStateController_));
 }
 
 void ServerAPI::clearCurrentFailoverRequest()
 {
-    WS_ASSERT(currentConnectStateWatcher_ != nullptr);
     currentFailoverRequest_ = nullptr;
-    SAFE_DELETE(currentConnectStateWatcher_);
+    currentConnectStateWatcher_.reset();
 }
 
 bool ServerAPI::isDisconnectedState() const

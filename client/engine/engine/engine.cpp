@@ -499,9 +499,10 @@ void Engine::makeHostsFileWritableWin()
 void Engine::init()
 {
 #ifdef Q_OS_WIN
+    crashHandler_.reset(new Debug::CrashHandlerForThread());
+
     HRESULT hr = CoInitializeEx(0, COINIT_MULTITHREADED);
-    if (FAILED(hr))
-    {
+    if (FAILED(hr)) {
         qCDebug(LOG_BASIC) << "Error: CoInitializeEx failed:" << hr;
     }
 #endif
@@ -510,11 +511,11 @@ void Engine::init()
     connect(this, &Engine::initCleanup, this, &Engine::cleanupImpl);
 
     helper_ = CrossPlatformObjectFactory::createHelper(this);
-    connect(helper_, SIGNAL(lostConnectionToHelper()), SLOT(onLostConnectionToHelper()));
+    connect(helper_, &IHelper::lostConnectionToHelper, this, &Engine::onLostConnectionToHelper);
     helper_->startInstallHelper();
 
     inititalizeHelper_ = new InitializeHelper(this, helper_);
-    connect(inititalizeHelper_, SIGNAL(finished(INIT_HELPER_RET)), SLOT(onInitializeHelper(INIT_HELPER_RET)));
+    connect(inititalizeHelper_, &InitializeHelper::finished, this, &Engine::onInitializeHelper);
     inititalizeHelper_->start();
 }
 
@@ -559,9 +560,11 @@ void Engine::initPart2()
     packetSizeController_ = new PacketSizeController(nullptr);
     packetSizeController_->setPacketSize(packetSize);
     packetSize_ = packetSize;
-    connect(packetSizeController_, SIGNAL(packetSizeChanged(bool, int)), SLOT(onPacketSizeControllerPacketSizeChanged(bool, int)));
-    connect(packetSizeController_, SIGNAL(finishedPacketSizeDetection(bool)), SLOT(onPacketSizeControllerFinishedSizeDetection(bool)));
+    connect(packetSizeController_, &PacketSizeController::packetSizeChanged, this, &Engine::onPacketSizeControllerPacketSizeChanged);
+    connect(packetSizeController_, &PacketSizeController::finishedPacketSizeDetection, this, &Engine::onPacketSizeControllerFinishedSizeDetection);
     packetSizeController_->moveToThread(packetSizeControllerThread_);
+    connect(packetSizeControllerThread_, &QThread::started, packetSizeController_, &PacketSizeController::init);
+    connect(packetSizeControllerThread_, &QThread::finished, packetSizeController_, &PacketSizeController::finish);
     packetSizeControllerThread_->start(QThread::LowPriority);
 
     firewallController_ = CrossPlatformObjectFactory::createFirewallController(this, helper_);
@@ -845,6 +848,10 @@ void Engine::cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool is
     isCleanupFinished_ = true;
     Q_EMIT cleanupFinished();
     qCDebug(LOG_BASIC) << "Cleanup finished";
+
+#ifdef Q_OS_WIN
+    crashHandler_.reset();
+#endif
 }
 
 void Engine::enableBFE_winImpl()

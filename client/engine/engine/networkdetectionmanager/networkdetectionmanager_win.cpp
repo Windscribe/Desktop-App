@@ -117,10 +117,11 @@ void NetworkDetectionManager_win::onNetworkChanged()
         }
         else
         {
-            qCDebug(LOG_BASIC) << "Network update skipped: unidentified network (interface ="
-                << newNetworkInterface.friendlyName << "id ="
-                << newNetworkInterface.interfaceIndex << " active ="
-                << newNetworkInterface.active << ")";
+            qCDebug(LOG_BASIC) << "Network update skipped: unidentified network ("
+                << "valid =" << newNetworkInterface.isValid()
+                << "interface =" << newNetworkInterface.friendlyName
+                << "id =" << newNetworkInterface.interfaceIndex
+                << "active =" << newNetworkInterface.active << ")";
         }
     }
 }

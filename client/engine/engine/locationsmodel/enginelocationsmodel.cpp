@@ -1,12 +1,6 @@
 #include "enginelocationsmodel.h"
-#include "utils/utils.h"
-#include <QFile>
-#include <QTextStream>
+
 #include <QThread>
-#include "utils/logger.h"
-#include "utils/ipvalidation.h"
-#include "mutablelocationinfo.h"
-#include "nodeselectionalgorithm.h"
 
 namespace locationsmodel {
 
@@ -15,6 +9,8 @@ LocationsModel::LocationsModel(QObject *parent, IConnectStateController *stateCo
     pingThread_ = new QThread(this);
     pingHost_ = new PingHost(nullptr, stateController);
     pingHost_->moveToThread(pingThread_);
+    connect(pingThread_, &QThread::started, pingHost_, &PingHost::init);
+    connect(pingThread_, &QThread::finished, pingHost_, &PingHost::finish);
     pingThread_->start(QThread::HighPriority);
 
     apiLocationsModel_ = new ApiLocationsModel(this, stateController, networkDetectionManager, pingHost_);
@@ -34,6 +30,7 @@ LocationsModel::~LocationsModel()
 {
     pingThread_->quit();
     pingThread_->wait();
+    delete pingHost_;
 }
 
 void LocationsModel::setApiLocations(const QVector<apiinfo::Location> &locations, const apiinfo::StaticIps &staticIps)
@@ -69,12 +66,10 @@ void LocationsModel::enableProxy()
 
 QSharedPointer<BaseLocationInfo> LocationsModel::getMutableLocationInfoById(const LocationID &locationId)
 {
-    if (locationId.isCustomConfigsLocation())
-    {
+    if (locationId.isCustomConfigsLocation()) {
         return customConfigLocationsModel_->getMutableLocationInfoById(locationId);
     }
-    else
-    {
+    else {
         return apiLocationsModel_->getMutableLocationInfoById(locationId);
     }
 }

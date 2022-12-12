@@ -23,8 +23,6 @@
 
 using namespace Utils;
 
-const int NO_INTERFACE_INDEX = -1;
-
 QString Utils::getPlatformName()
 {
 #ifdef Q_OS_WIN
@@ -265,11 +263,7 @@ bool Utils::sameNetworkInterface(const types::NetworkInterface &interface1, cons
 
 types::NetworkInterface Utils::noNetworkInterface()
 {
-    types::NetworkInterface iff;
-    iff.interfaceName = QObject::tr("No Interface");
-    iff.interfaceIndex = NO_INTERFACE_INDEX;
-    iff.interfaceType = NETWORK_INTERFACE_NONE;
-    return iff;
+    return types::NetworkInterface::noNetworkInterface();
 }
 
 types::NetworkInterface Utils::interfaceByName(const QVector<types::NetworkInterface> &interfaces, const QString &interfaceName)

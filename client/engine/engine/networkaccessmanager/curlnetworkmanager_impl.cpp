@@ -1,13 +1,13 @@
 #include "curlnetworkmanager_impl.h"
-#include <curl/curl.h>
-#include <QMap>
-#include <QDebug>
+
 #include <QCoreApplication>
-#include <openssl/ssl.h>
-#include "utils/ws_assert.h"
-//#include "utils/crashhandler.h"
-#include "utils/logger.h"
+#include <QDebug>
+#include <QMap>
 #include <QStandardPaths>
+
+#include "utils/crashhandler.h"
+#include "utils/logger.h"
+#include "utils/ws_assert.h"
 
 CurlNetworkManagerImpl *g_this = nullptr;
 
@@ -222,7 +222,7 @@ void CurlNetworkManagerImpl::abort(quint64 replyId)
 
 void CurlNetworkManagerImpl::run()
 {
-    //BIND_CRASH_HANDLER_FOR_THREAD();
+    BIND_CRASH_HANDLER_FOR_THREAD();
 
 #ifdef MAKE_CURL_LOG_FILE
     logFile_ = fopen(logFilePath_.toStdString().c_str(), "w+");

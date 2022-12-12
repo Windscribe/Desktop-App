@@ -1,12 +1,13 @@
 #pragma once
 
+#include <QMutex>
 #include <QThread>
 #include <QWaitCondition>
-#include <QMutex>
+
 #include <curl/curl.h>
 
-#include "curlinitcontroller.h"
 #include "certmanager.h"
+#include "curlinitcontroller.h"
 #include "networkrequest.h"
 #include "types/proxysettings.h"
 
