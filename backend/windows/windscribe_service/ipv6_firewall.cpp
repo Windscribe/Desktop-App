@@ -66,8 +66,8 @@ void Ipv6Firewall::addFilters(HANDLE engineHandle)
     std::vector<NET_IFINDEX> taps = ai.getTAPAdapters();
 
     // add block filter for all IPv6
-    DWORD ret = Utils::addFilterV6(engineHandle, nullptr, FWP_ACTION_BLOCK, 0, subLayerGUID_, FIREWALL_SUBLAYER_IPV6_NAMEW);
-    if (ret) {
+    bool ret = Utils::addFilterV6(engineHandle, nullptr, FWP_ACTION_BLOCK, 0, subLayerGUID_, FIREWALL_SUBLAYER_IPV6_NAMEW);
+    if (!ret) {
         Logger::instance().out(L"Ipv6Firewall::addFilters(), FwpmFilterAdd0 failed");
     }
 
@@ -77,7 +77,7 @@ void Ipv6Firewall::addFilters(HANDLE engineHandle)
         ConvertInterfaceIndexToLuid(*it, &luid);
 
         ret = Utils::addFilterV6(engineHandle, nullptr, FWP_ACTION_PERMIT, 0, subLayerGUID_, FIREWALL_SUBLAYER_IPV6_NAMEW, &luid);
-        if (ret) {
+        if (!ret) {
             Logger::instance().out(L"Ipv6Firewall::addFilters(), add permit filter failed");
         }
     }
@@ -85,7 +85,7 @@ void Ipv6Firewall::addFilters(HANDLE engineHandle)
     // add permit filter for ipv6 localhost address
     const std::vector<Ip6AddressAndPrefix> localhost = Ip6AddressAndPrefix::fromVector({L"::1/128"});
     ret = Utils::addFilterV6(engineHandle, nullptr, FWP_ACTION_PERMIT, 4, subLayerGUID_, FIREWALL_SUBLAYER_IPV6_NAMEW, nullptr, &localhost);
-    if (ret) {
+    if (!ret) {
         Logger::instance().out(L"Could not add IPv6 LAN traffic allow filter");
         return;
     }

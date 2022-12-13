@@ -359,10 +359,10 @@ bool isWindows7()
     return (isWindows7 == 1);
 }
 
-DWORD addFilterV4(HANDLE engineHandle, std::vector<UINT64> *filterId, FWP_ACTION_TYPE type, UINT8 weight,
+bool addFilterV4(HANDLE engineHandle, std::vector<UINT64> *filterId, FWP_ACTION_TYPE type, UINT8 weight,
                   GUID subLayerKey, wchar_t *subLayerName, PNET_LUID pluid,
                   const std::vector<Ip4AddressAndMask> *ranges,
-                  uint16_t localPort, uint16_t remotePort, AppsIds *appsIds)
+                  uint16_t localPort, uint16_t remotePort, AppsIds *appsIds, bool persistent)
 {
     UINT64 id = 0;
     bool success = true;
@@ -378,7 +378,14 @@ DWORD addFilterV4(HANDLE engineHandle, std::vector<UINT64> *filterId, FWP_ACTION
         filter.displayData.name = subLayerName;
         filter.layerKey = guids[i];
         filter.action.type = type;
-        filter.flags = FWPM_FILTER_FLAG_PERSISTENT | FWPM_FILTER_FLAG_CLEAR_ACTION_RIGHT;
+        filter.flags = 0;
+        if (persistent) {
+            filter.flags |= FWPM_FILTER_FLAG_PERSISTENT;
+        }
+        // only veto block rules
+        if (type == FWP_ACTION_BLOCK) {
+            filter.flags |= FWPM_FILTER_FLAG_CLEAR_ACTION_RIGHT;
+        }
         filter.weight.type = FWP_UINT8;
         filter.weight.uint8 = weight;
 
@@ -450,9 +457,9 @@ DWORD addFilterV4(HANDLE engineHandle, std::vector<UINT64> *filterId, FWP_ACTION
     return success;
 }
 
-DWORD addFilterV6(HANDLE engineHandle, std::vector<UINT64> *filterId, FWP_ACTION_TYPE type, UINT8 weight,
+bool addFilterV6(HANDLE engineHandle, std::vector<UINT64> *filterId, FWP_ACTION_TYPE type, UINT8 weight,
                   GUID subLayerKey, wchar_t *subLayerName, PNET_LUID pluid,
-                  const std::vector<Ip6AddressAndPrefix> *ranges)
+                  const std::vector<Ip6AddressAndPrefix> *ranges, bool persistent)
 {
     UINT64 id = 0;
     bool success = true;
@@ -468,7 +475,14 @@ DWORD addFilterV6(HANDLE engineHandle, std::vector<UINT64> *filterId, FWP_ACTION
         filter.displayData.name = subLayerName;
         filter.layerKey = guids[i];
         filter.action.type = type;
-        filter.flags = FWPM_FILTER_FLAG_PERSISTENT | FWPM_FILTER_FLAG_CLEAR_ACTION_RIGHT;
+        filter.flags = 0;
+        if (persistent) {
+            filter.flags |= FWPM_FILTER_FLAG_PERSISTENT;
+        }
+        // only veto block rules
+        if (type == FWP_ACTION_BLOCK) {
+            filter.flags |= FWPM_FILTER_FLAG_CLEAR_ACTION_RIGHT;
+        }
         filter.weight.type = FWP_UINT8;
         filter.weight.uint8 = weight;
 
