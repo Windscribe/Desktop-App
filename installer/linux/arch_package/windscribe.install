@@ -35,6 +35,7 @@ post_install() {
         systemctl enable systemd-resolved
         systemctl start systemd-resolved
         ln -s /opt/windscribe/Windscribe /usr/bin/windscribe
+        update-desktop-database
         echo linux_zst_x64 > ../etc/windscribe/platform
 }
 
