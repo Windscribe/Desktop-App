@@ -508,7 +508,7 @@ bool Helper_posix::checkFirewallState(const QString &tag)
     if (!runCommand(HELPER_CMD_CHECK_FIREWALL_STATE, stream.str(), answer)) {
         return false;
     }
-    return answer.exitCode;
+    return answer.exitCode == 0;
 }
 
 bool Helper_posix::clearFirewallRules()

@@ -277,7 +277,8 @@ bool Server::readAndHandleCommand(socket_ptr sock, boost::asio::streambuf *buf, 
         CMD_CHECK_FIREWALL_STATE cmd;
         ia >> cmd;
 
-        outCmdAnswer.executed = Utils::executeCommand("iptables", {"--check", "INPUT", "-j", "windscribe_input", "-m", "comment" "--comment", cmd.tag.c_str()}, &outCmdAnswer.body);
+        outCmdAnswer.executed = 1;
+        outCmdAnswer.exitCode = Utils::executeCommand("iptables", {"--check", "INPUT", "-j", "windscribe_input", "-m", "comment" "--comment", cmd.tag.c_str()}, &outCmdAnswer.body);
     } else if (cmdId == HELPER_CMD_SET_FIREWALL_RULES) {
         CMD_SET_FIREWALL_RULES cmd;
         ia >> cmd;
