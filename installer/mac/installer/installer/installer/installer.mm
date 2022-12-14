@@ -293,6 +293,8 @@
         [path setString:NSHomeDirectory()];
         [path appendString:@"/Library/Application Support/Windscribe/Windscribe2"];
         [self runProcess:@"/bin/rm" args:@[@"-r", path]];
+
+        [self runProcess:@"/usr/bin/killall" args:@[@"cfprefsd"]];
     }
     
     [[Logger sharedLogger] logAndStdOut:@"Writing blocks"];
