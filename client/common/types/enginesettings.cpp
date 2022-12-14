@@ -129,10 +129,14 @@ void EngineSettings::setIsAllowLanTraffic(bool isAllowLanTraffic)
 
 ConnectionSettings EngineSettings::connectionSettingsForNetworkInterface(const QString &networkOrSsid) const
 {
-    if (!networkOrSsid.isEmpty() && d->networkPreferredProtocols.contains(networkOrSsid))
+    if (!networkOrSsid.isEmpty() &&
+        d->networkPreferredProtocols.contains(networkOrSsid) &&
+        !d->networkPreferredProtocols[networkOrSsid].isAutomatic())
+    {
         return d->networkPreferredProtocols[networkOrSsid];
-    else
+    } else {
         return d->connectionSettings;
+    }
 }
 
 const types::FirewallSettings &EngineSettings::firewallSettings() const
