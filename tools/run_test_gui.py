@@ -5,12 +5,10 @@
 # ------------------------------------------------------------------------------
 # Purpose: runs TestGui
 
-import glob2
 import os
 import re
 import sys
 import time
-import zipfile
 
 TOOLS_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.dirname(TOOLS_DIR)
@@ -77,7 +75,7 @@ def CopyTestGuiFiles(configdata, qt_root, msvc_root, crt_root, targetDir):
     CopyFiles("MSVC", configdata["msvc_files"], msvc_root, targetDir)
   # utl.CopyAllFiles(crt_root, targetDir) # api-ms-win-...dlls
   if "lib_files" in configdata:
-    for k, v in configdata["lib_files"].iteritems():
+    for k, v in configdata["lib_files"].items():
       lib_root = iutl.GetDependencyBuildRoot(k)
       if not lib_root:
         raise iutl.InstallError("Library \"{}\" is not installed.".format(k))

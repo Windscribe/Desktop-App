@@ -12,12 +12,10 @@
 #       this should only be done if possible to succeed at building second script if first script fails
 #       (assuming they are independent)
 
-import glob2
 import os
 import re
 import sys
 import time
-import zipfile
 
 TOOLS_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.dirname(TOOLS_DIR)

@@ -41,12 +41,12 @@ def ReplaceSourceCode(qt_source_dir):
   for change in source_changes:
     file_path = os.path.join(os.path.abspath(qt_source_dir), os.path.relpath(change["file"]))
     with open(file_path, "r") as f_in:
-      contents = f_in.read().decode("utf8")
+      contents = f_in.read()
       if contents.find(change["old_code"]) != -1:
         contents = contents.replace(change["old_code"], change["new_code"])
         f_in.close()
         with open(file_path, "w") as f_out:
-          f_out.write(contents.encode("utf8"))
+          f_out.write(contents)
           f_out.close()
           print("Replaced source code according to {}".format(change["ref"]))
       else:
@@ -103,7 +103,7 @@ def InstallDependency():
     raise iutl.InstallError("Failed to get config data.")
   iutl.SetupEnvironment(configdata)
   dep_name = DEP_TITLE.lower()
-  dep_version_var = "VERSION_" + filter(lambda ch: ch not in "-", DEP_TITLE.upper())
+  dep_version_var = "VERSION_" + [ch for ch in DEP_TITLE.upper() if ch not in "-"]
   dep_version_str = os.environ.get(dep_version_var, None)
   if not dep_version_str:
     raise iutl.InstallError("{} not defined.".format(dep_version_var))

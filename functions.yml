@@ -1,4 +1,3 @@
-
 # upload lib to nexus
 .upload_artifact_to_nexus_win:
   script:

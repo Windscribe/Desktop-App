@@ -4,7 +4,7 @@
 # Copyright (c) 2020-2021, Windscribe Limited. All rights reserved.
 # ------------------------------------------------------------------------------
 import collections
-import glob2
+import glob
 import platform
 import os
 import shutil
@@ -58,7 +58,7 @@ def MakeExecutable(filename):
 
 def MakeUnicodePath(filename):
   fullpath = os.path.abspath("\\\\?\\" + filename) if GetCurrentOS() == "win32" else filename
-  return unicode(fullpath, 'utf-8')
+  return fullpath
 
 
 def remove_readonly_handler(func, path, excinfo):
@@ -124,7 +124,7 @@ def CreateFile(filename, force_recreate=False):
 def CreateFileWithContents(filename, text="", force_recreate=False):
   if CreateFile(filename, force_recreate):
     with open(filename, "wb") as file:
-      file.write(text)
+      file.write(text.encode('utf-8'))
     return True
   raise IOError("Can't create file \"{}\"!\nLast error: {}".format(filename, last_error))
 

@@ -12,16 +12,9 @@ variables:
   NEXUS_BASEURL: 'https://nexus.int.windscribe.com'
   PROJECT_NAME: client-desktop # temporarily override CI_PROJECT_NAME while using client-desktop-public so we can interact with nexus
   NEXUS_PATH_ROOT: '/repository/$PROJECT_NAME/$PROJECT_NAME'
-  NEXUS_PATH_LATEST: '/latest'
   NEXUS_PATH_BRANCHES: '/branches'
-  NEXUS_PATH_TAGS: '/tags'
   NEXUS_PATH_DEPS: '/repository/$PROJECT_NAME/$PROJECT_NAME/dependencies'
-  NEXUS_PATH_DEPS_LATEST: '/latest'
   NEXUS_PATH_DEPS_BRANCHES: '/branches'
-  NEXUS_PATH_DEPS_TAGS: '/tags'
-  TARGET: '*.exe'
-  #NEXUS_USERNAME: ""  # Set in Gitlab variables/vault
-  #NEXUS_PASSWORD: ""  # Set in Gitlab variables/vault
   CODE_SIGNING_PFX_PATH: 'installer\windows\signing\code_signing.pfx'
   CODE_SIGNING_LINUX_PATH: 'client/common/keys/linux'
   CODE_SIGNING_LINUX_PRIVATE_KEY_FILE: '$CODE_SIGNING_LINUX_PATH/key.pem'
@@ -30,9 +23,7 @@ variables:
   HARDCODED_SECRETS_PATH: 'client/common/utils/hardcodedsecrets.ini'
   CODE_SIGNING_PROVISION_PROFILE_FOLDER_PATH : 'backend/mac/provisioning_profile'
   CODE_SIGNING_PROVISION_PROFILE_PATH: '$CODE_SIGNING_PROVISION_PROFILE_FOLDER_PATH/embedded.provisionprofile'
-  RUNNING_CI: 1
   BUILDROOT: 'build-libs'
-  TMPROOT: 'temp'
   ARTIFACT_INSTALLER: 'installer.exe'
   BUILD_WIN: 'y'
   BUILD_MAC: 'y'
@@ -41,6 +32,8 @@ variables:
   TEST_MAC: 'n' # tests will only run if BUILD_MAC also 'y'
   TEST_LINUX: 'n' # tests will only run if BUILD_LINUX also 'y'
   ARCH_LINUX_BUILD_PATH: '/home/build/windscribe'
+  RHEL_CMAKE_BUILD_PATH: '/home/build/windscribe'
+  RUNNING_CI: 1 # used by tools/build_all.bat on Windows
 
 # pull in other yaml files
 include:
@@ -51,36 +44,55 @@ include:
   tags: [win10qty6]
   before_script:
     # run this blindly until baked into image
-    - python tools/bin/get-pip.py
-    - python -m pip install -r tools/requirements.txt
+    - python3 -m pip install -r tools/requirements.txt
 
 .template_mac_build: &template_mac_build
   tags: [macos11qt6]
   before_script:
     # run this blindly until baked into image
-    - python tools/bin/get-pip.py
-    - python -m pip install -r tools/requirements.txt
+    - python3 -m pip install -r tools/requirements.txt
 
-.template_linux_build: &template_linux_build
+.template_ubuntu_build: &template_ubuntu_build
   image: ubuntu:focal
   before_script:
     # run this blindly until baked into image
     - DEBIAN_FRONTEND=noninteractive apt-get -y update
-    - DEBIAN_FRONTEND=noninteractive apt-get -y install build-essential git curl patchelf ruby-dev rpm libpam0g-dev software-properties-common libgl1-mesa-dev
+    - DEBIAN_FRONTEND=noninteractive apt-get -y install build-essential git curl patchelf ruby-dev rpm libpam0g-dev software-properties-common libgl1-mesa-dev fakeroot python3-pip
     - DEBIAN_FRONTEND=noninteractive apt-get -y update
-    - DEBIAN_FRONTEND=noninteractive apt-get -y install wget autoconf libtool fakeroot python
+    - DEBIAN_FRONTEND=noninteractive apt-get -y install wget autoconf libtool
     # install cmake 3.23.x (default for Ubuntu 20.04 is 3.16.3)
     - wget -qO /etc/apt/trusted.gpg.d/kitware-key.asc https://apt.kitware.com/keys/kitware-archive-latest.asc
     - echo "deb https://apt.kitware.com/ubuntu/ focal main" | tee /etc/apt/sources.list.d/kitware.list
     - DEBIAN_FRONTEND=noninteractive apt-get -y update
     - DEBIAN_FRONTEND=noninteractive apt-get -y install cmake
-    # Qt 6 dependencies, only necessary if we're building Qt from source.
+    # Qt 6 dependencies
     - DEBIAN_FRONTEND=noninteractive apt-get -y install libfontconfig1-dev libfreetype6-dev libx11-dev libx11-xcb-dev libxext-dev libxfixes-dev libxi-dev libxrender-dev libxcb1-dev libxcb-glx0-dev libxcb-keysyms1-dev libxcb-image0-dev libxcb-shm0-dev libxcb-icccm4-dev libxcb-sync0-dev libxcb-xfixes0-dev libxcb-shape0-dev libxcb-randr0-dev libxcb-render-util0-dev libxcb-util-dev libxcb-xinerama0-dev libxcb-xkb-dev libxkbcommon-dev libxkbcommon-x11-dev
     - gem i fpm -f
-    - wget -q https://go.dev/dl/go1.18.2.linux-amd64.tar.gz
-    - rm -rf /usr/local/go && tar -C /usr/local -xzf go1.18.2.linux-amd64.tar.gz && export PATH=$PATH:/usr/local/go/bin
-    - python tools/bin/get-pip.py
-    - python -m pip install -r tools/requirements.txt
+    # Only necessary to install golang if we're building the WireGuard package.
+    #- wget -q https://go.dev/dl/go1.18.2.linux-amd64.tar.gz
+    #- rm -rf /usr/local/go && tar -C /usr/local -xzf go1.18.2.linux-amd64.tar.gz && export PATH=$PATH:/usr/local/go/bin
+    - python3 -m pip install --user -r tools/requirements.txt
+    # hack to fix 777 file permissions, which breaks the dpkg-deb command in the build_all script.
+    - chmod -R o-w installer/linux
+
+.template_rhel_build: &template_rhel_build
+  # RHEL 8.4 is the minimum build target for Qt 6.3
+  # Could not use the RHEL 8.4 ubi Docker images, as they require a subscription license in order to install many of the packages we require below.
+  image: fedora:29
+  before_script:
+    # run this blindly until baked into image
+    - dnf -y update
+    - dnf group install -y "Development Tools"
+    - dnf install -y gcc-c++ patchelf libxkbcommon-devel mesa-libGL-devel mesa-vulkan-devel dpkg fakeroot ruby-devel cmake python3-pip wget rpm-build
+    # Qt 6 dependencies
+    - dnf install -y fontconfig-devel freetype-devel libX11-devel libxcb-devel xcb-util-devel xcb-util-image-devel xcb-util-cursor-devel xcb-util-keysyms-devel xcb-util-renderutil-devel libxkbcommon-x11-devel
+    - gem i fpm -f
+    - python3 -m pip install --user -r tools/requirements.txt
+    # install cmake 3.23.x (default for Fedora 29 is 3.14.5)
+    - wget -q -N https://cmake.org/files/v3.23/cmake-3.23.5-linux-x86_64.sh -P ${RHEL_CMAKE_BUILD_PATH}
+    - chmod u+x ${RHEL_CMAKE_BUILD_PATH}/cmake-3.23.5-linux-x86_64.sh
+    - ${RHEL_CMAKE_BUILD_PATH}/cmake-3.23.5-linux-x86_64.sh --skip-license --exclude-subdir --prefix=${RHEL_CMAKE_BUILD_PATH}
+    - export PATH=${RHEL_CMAKE_BUILD_PATH}/bin:$PATH
     # hack to fix 777 file permissions, which breaks the dpkg-deb command in the build_all script.
     - chmod -R o-w installer/linux
 
@@ -147,7 +159,7 @@ testing:win:runtestgui:
     - IF(Test-Path .\build-libs\) {Get-ChildItem .\build-libs\*.zip | Foreach {.\tools\bin\7z.exe x $_.FullName $("-obuild-libs\"+$([io.path]::GetFileNameWithoutExtension($_.name)))}}
     # extractions and run test
     - powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command .\.base64_decode.ps1
-    - Set-Variable -name VERSION -value $(python tools/base/extract.py)
+    - Set-Variable -name VERSION -value $(python3 tools/base/extract.py)
     - tools/run_test_gui
     # upload logs
     - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
@@ -174,7 +186,7 @@ testing:mac:runtestgui:
       "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/TestGui"
     # extraction and build
     - if [ -d ./build-libs/ ]; then for z in ./build-libs/*.zip; do unzip -qod ${z%%.zip} $z; done; fi
-    - VERSION=$(python tools/base/extract.py)
+    - VERSION=$(python3 tools/base/extract.py)
     - chmod +x test-exe/gui/TestGui
     - tools/run_test_gui
     # upload logs
@@ -206,20 +218,20 @@ testing:mac:runtestgui:
     # extractions
     - Set-Variable -name VAULT_CLIENT_TOKEN -value $(tools/bin/curl.exe --cacert tools/cacert.pem
       --data "{\`"role_id\`":\`"$VAULT_ROLE_ID\`",\`"secret_id\`":\`"$VAULT_SECRET_ID\`"}"
-      $VAULT_ADDR/v1/auth/approle/login | python tools/base/vaulthelper.py --get-client-token)
+      $VAULT_ADDR/v1/auth/approle/login | python3 tools/base/vaulthelper.py --get-client-token)
     # get the secrets JSON and put in VAULT_RESPONS_JSON
     - "Set-Variable -name VAULT_RESPONSE_JSON -value $(tools/bin/curl.exe --cacert tools/cacert.pem -H \"X-Vault-Token: $VAULT_CLIENT_TOKEN\" $VAULT_ADDR/v1/kv/cicd/client-desktop)"
     # parse the secrets
-    - Set-Variable -name HARDCODED_SECRETS -value $(echo $VAULT_RESPONSE_JSON | python tools/base/vaulthelper.py --get-hardcoded-secrets)
-    - Set-Variable -name CODE_SIGNING_PFX_BASE64 -value $(echo $VAULT_RESPONSE_JSON | python tools/base/vaulthelper.py --get-windows-cert)
-    - Set-Variable -name NOTARIZE_YML -value $(echo $VAULT_RESPONSE_JSON | python tools/base/vaulthelper.py --get-notarize-yml)
+    - Set-Variable -name HARDCODED_SECRETS -value $(echo $VAULT_RESPONSE_JSON | python3 tools/base/vaulthelper.py --get-hardcoded-secrets)
+    - Set-Variable -name CODE_SIGNING_PFX_BASE64 -value $(echo $VAULT_RESPONSE_JSON | python3 tools/base/vaulthelper.py --get-windows-cert)
+    - Set-Variable -name NOTARIZE_YML -value $(echo $VAULT_RESPONSE_JSON | python3 tools/base/vaulthelper.py --get-notarize-yml)
     # write the secrets to file -- Nice to have: use secrets without files, no need to cleanup
     # Cannot use echo to write out the hardcoded secrets to file. Powershell 5/6 default to UTF16LE encoding for the file, which will cause a run-time failure in the client app when it tries to access the file as an embedded resource.
     - write-output $HARDCODED_SECRETS | out-file $HARDCODED_SECRETS_PATH -encoding ascii
-    - echo $NOTARIZE_YML > $NOTARIZE_YML_PATH
+    - write-output $NOTARIZE_YML | out-file $NOTARIZE_YML_PATH -encoding ascii
     - echo $CODE_SIGNING_PFX_BASE64 > $CODE_SIGNING_PFX_PATH # write base64 encoded temporarily to file
     - powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command .\.base64_decode.ps1 # overwrite temp base64 contents with decoded version
-    - Set-Variable -name VERSION -value $(python tools/base/extract.py)
+    - Set-Variable -name VERSION -value $(python3 tools/base/extract.py)
     # build
     - tools/build_all -zip --ci-mode --sign
 
@@ -258,7 +270,7 @@ build:win:installer:tagged:
   script:
     - !reference [.build_win_installer_common, script]
     # upload installer and symbols to nexus
-    - Set-Variable -name VERSION_NO_SUFFIX -value $(python tools/base/extract.py --no-suffix)
+    - Set-Variable -name VERSION_NO_SUFFIX -value $(python3 tools/base/extract.py --no-suffix)
     - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --upload-file build-exe/Windscribe_$VERSION.exe
       "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}/tagged-builds/$VERSION_NO_SUFFIX/Windscribe_$VERSION.exe"
@@ -283,21 +295,21 @@ build:win:installer:tagged:
     - if [ -d ./build-libs/ ]; then for z in ./build-libs/*.zip; do unzip -qod ./build-libs $z; done; fi
     # extractions
     - VAULT_CLIENT_TOKEN=$(curl --cacert tools/cacert.pem --data "{\"role_id\":\"$VAULT_ROLE_ID\",\"secret_id\":\"$VAULT_SECRET_ID\"}"
-      $VAULT_ADDR/v1/auth/approle/login | python tools/base/vaulthelper.py --get-client-token)
+      $VAULT_ADDR/v1/auth/approle/login | python3 tools/base/vaulthelper.py --get-client-token)
     # get the secrets JSON and put in VAULT_RESPONSE_JSON
     # Note: the single quotes MUST be used here or we'll get a syntax error
     - 'VAULT_RESPONSE_JSON=$(curl --cacert tools/cacert.pem -H "X-Vault-Token: $VAULT_CLIENT_TOKEN" $VAULT_ADDR/v1/kv/cicd/client-desktop)'
     # parse the secrets
-    - HARDCODED_SECRETS=$(echo $VAULT_RESPONSE_JSON | python tools/base/vaulthelper.py --get-hardcoded-secrets)
-    - PROVISION_PROFILE_BASE64=$(echo $VAULT_RESPONSE_JSON | python tools/base/vaulthelper.py --get-mac-provision-profile)
-    - NOTARIZE_YML=$(echo $VAULT_RESPONSE_JSON | python tools/base/vaulthelper.py --get-notarize-yml)
+    - HARDCODED_SECRETS=$(echo $VAULT_RESPONSE_JSON | python3 tools/base/vaulthelper.py --get-hardcoded-secrets)
+    - PROVISION_PROFILE_BASE64=$(echo $VAULT_RESPONSE_JSON | python3 tools/base/vaulthelper.py --get-mac-provision-profile)
+    - NOTARIZE_YML=$(echo $VAULT_RESPONSE_JSON | python3 tools/base/vaulthelper.py --get-notarize-yml)
     # write the secrets to file -- Nice to have: use secrets without files, no need to cleanup
     # use echo -e to print \n as newlines
     - echo -e $HARDCODED_SECRETS > $HARDCODED_SECRETS_PATH
     - echo -e $NOTARIZE_YML > $NOTARIZE_YML_PATH
     - mkdir -p $CODE_SIGNING_PROVISION_PROFILE_FOLDER_PATH
     - echo -e $PROVISION_PROFILE_BASE64 | base64 -d > $CODE_SIGNING_PROVISION_PROFILE_PATH
-    - VERSION=$(python tools/base/extract.py)
+    - VERSION=$(python3 tools/base/extract.py)
 
 # build mac installer (manual button)
 # couldn't figure out how to add manual button without interfering with "rules" -- duplicated the job :\
@@ -355,7 +367,7 @@ build:mac:installer:tagged:
     # Only tagged builds are notarized
     - tools/build_all -zip --ci-mode --notarize --sign
     # upload dmg to nexus
-    - VERSION_NO_SUFFIX=$(python tools/base/extract.py --no-suffix)
+    - VERSION_NO_SUFFIX=$(python3 tools/base/extract.py --no-suffix)
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --upload-file build-exe/Windscribe_$VERSION.dmg
       "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}/tagged-builds/$VERSION_NO_SUFFIX/Windscribe_$VERSION.dmg"
@@ -378,13 +390,13 @@ build:mac:installer:tagged:
     # extractions
     - VAULT_CLIENT_TOKEN=$(curl --cacert tools/cacert.pem
       --data "{\"role_id\":\"$VAULT_ROLE_ID\",\"secret_id\":\"$VAULT_SECRET_ID\"}"
-      $VAULT_ADDR/v1/auth/approle/login | python tools/base/vaulthelper.py --get-client-token)
+      $VAULT_ADDR/v1/auth/approle/login | python3 tools/base/vaulthelper.py --get-client-token)
     # get the secrets JSON and put in VAULT_RESPONSE_JSON
     # Note: the single quotes MUST be used here or we'll get a syntax error
     - 'VAULT_RESPONSE_JSON=$(curl --cacert tools/cacert.pem -H "X-Vault-Token: $VAULT_CLIENT_TOKEN" $VAULT_ADDR/v1/kv/cicd/client-desktop)'
     # parse the secrets
-    - HARDCODED_SECRETS=$(echo $VAULT_RESPONSE_JSON | python tools/base/vaulthelper.py --get-hardcoded-secrets)
-    - LINUX_PRIV_KEY=$(echo $VAULT_RESPONSE_JSON | python tools/base/vaulthelper.py --get-linux-priv-key)
+    - HARDCODED_SECRETS=$(echo $VAULT_RESPONSE_JSON | python3 tools/base/vaulthelper.py --get-hardcoded-secrets)
+    - LINUX_PRIV_KEY=$(echo $VAULT_RESPONSE_JSON | python3 tools/base/vaulthelper.py --get-linux-priv-key)
     # write the secrets to file -- Nice to have: use secrets without files, no need to cleanup
     # use echo -e to print \n as newlines
     - echo -e $HARDCODED_SECRETS > $HARDCODED_SECRETS_PATH
@@ -393,48 +405,90 @@ build:mac:installer:tagged:
     # create the public key from the private key
     - openssl rsa -in $CODE_SIGNING_LINUX_PRIVATE_KEY_FILE -pubout > $CODE_SIGNING_LINUX_PUBLIC_KEY_FILE
     # build the application/installer
-    - VERSION=$(python tools/base/extract.py)
-    - tools/build_all -zip --ci-mode --sign
+    - VERSION=$(python3 tools/base/extract.py)
 
-build:linux:installer:
-  <<: *template_linux_build
+build:ubuntu:installer:
+  <<: *template_ubuntu_build
   stage: Build
   variables:
     GIT_STRATEGY: clone
     ARTIFACT_PATH: $ARTIFACT_INSTALLER
   script:
     - !reference [.build_linux_installer_common, script]
-    # upload deb and rpm packages to nexus
+    - tools/build_all -zip --ci-mode --sign
+    # upload deb package to nexus
     - !reference [.upload_deb_to_nexus_latest_linux, script ]
+  rules:
+    - if: $BUILD_LINUX == "y" && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH != null
+
+# We don't upload artifacts for merge requests
+build:ubuntu:installer:mr:
+  <<: *template_ubuntu_build
+  stage: Build
+  variables:
+    GIT_STRATEGY: clone
+    ARTIFACT_PATH: $ARTIFACT_INSTALLER
+  script:
+    - !reference [.build_linux_installer_common, script]
+    - tools/build_all -zip --ci-mode --sign
+  rules:
+    - if: $BUILD_LINUX == "y" && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH == null
+
+build:ubuntu:installer:tagged:
+  <<: *template_ubuntu_build
+  stage: Build
+  variables:
+    GIT_STRATEGY: clone
+    ARTIFACT_PATH: $ARTIFACT_INSTALLER
+  script:
+    - !reference [.build_linux_installer_common, script]
+    - tools/build_all -zip --ci-mode --sign
+    # upload deb package to nexus
+    - VERSION_NO_SUFFIX=$(python3 tools/base/extract.py --no-suffix)
+    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+      --upload-file build-exe/windscribe_${VERSION}_amd64.deb
+      "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}/tagged-builds/$VERSION_NO_SUFFIX/windscribe_${VERSION}_amd64.deb"
+  rules:
+    - if: $BUILD_LINUX == "y" && $CI_COMMIT_TAG != null
+
+build:rhel:installer:
+  <<: *template_rhel_build
+  stage: Build
+  variables:
+    GIT_STRATEGY: clone
+    ARTIFACT_PATH: $ARTIFACT_INSTALLER
+  script:
+    - !reference [.build_linux_installer_common, script]
+    - tools/build_all -zip --ci-mode --sign --build-rpm
+    # upload rpm package to nexus
     - !reference [.upload_rpm_to_nexus_latest_linux, script ]
   rules:
     - if: $BUILD_LINUX == "y" && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH != null
 
 # We don't upload artifacts for merge requests
-build:linux:installer:mr:
-  <<: *template_linux_build
+build:rhel:installer:mr:
+  <<: *template_rhel_build
   stage: Build
   variables:
     GIT_STRATEGY: clone
     ARTIFACT_PATH: $ARTIFACT_INSTALLER
   script:
     - !reference [.build_linux_installer_common, script]
+    - tools/build_all -zip --ci-mode --sign --build-rpm
   rules:
     - if: $BUILD_LINUX == "y" && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH == null
 
-build:linux:installer:tagged:
-  <<: *template_linux_build
+build:rhel:installer:tagged:
+  <<: *template_rhel_build
   stage: Build
   variables:
     GIT_STRATEGY: clone
     ARTIFACT_PATH: $ARTIFACT_INSTALLER
   script:
     - !reference [.build_linux_installer_common, script]
-    # upload deb and rpm packages to nexus
-    - VERSION_NO_SUFFIX=$(python tools/base/extract.py --no-suffix)
-    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --upload-file build-exe/windscribe_${VERSION}_amd64.deb
-      "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}/tagged-builds/$VERSION_NO_SUFFIX/windscribe_${VERSION}_amd64.deb"
+    - tools/build_all -zip --ci-mode --sign --build-rpm
+    # upload rpm package to nexus
+    - VERSION_NO_SUFFIX=$(python3 tools/base/extract.py --no-suffix)
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --upload-file build-exe/windscribe_${VERSION}_x86_64.rpm
       "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}/tagged-builds/$VERSION_NO_SUFFIX/windscribe_${VERSION}_x86_64.rpm"
@@ -444,7 +498,7 @@ build:linux:installer:tagged:
 .template_archlinux_build: &template_archlinux_build
   image: archlinux:base-devel
   before_script:
-    - pacman -Sy --noconfirm git curl python nftables c-ares freetype2 hicolor-icon-theme
+    - pacman -Sy --noconfirm git curl python3 nftables c-ares freetype2 hicolor-icon-theme
 
 .build_archlinux_installer_prep_build_dir:
   script:
@@ -455,8 +509,8 @@ build:linux:installer:tagged:
     - setfacl -m u::rwx,g::rwx ${ARCH_LINUX_BUILD_PATH}
     - setfacl -d --set u::rwx,g::rwx,o::- ${ARCH_LINUX_BUILD_PATH}
     - cp installer/linux/arch_package/* ${ARCH_LINUX_BUILD_PATH}
-    - export VERSION=$(python tools/base/extract.py)
-    - export VERSION_NO_SUFFIX=$(python tools/base/extract.py --no-suffix)
+    - export VERSION=$(python3 tools/base/extract.py)
+    - export VERSION_NO_SUFFIX=$(python3 tools/base/extract.py --no-suffix)
 
 .build_archlinux_installer_makepkg:
   script:
@@ -503,7 +557,7 @@ build:artifact:links:
   tags: [win10qty6]
   stage: Artifact Links
   script:
-    - Set-Variable -name VERSION -value $(python tools/base/extract.py)
+    - Set-Variable -name VERSION -value $(python3 tools/base/extract.py)
     - echo ${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/Windscribe_$VERSION.exe
     - echo ${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/Windscribe_$VERSION.dmg
     - echo ${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/linux/windscribe_${VERSION}_amd64.deb
@@ -516,8 +570,8 @@ build:artifact:links:tagged:
   tags: [win10qty6]
   stage: Artifact Links
   script:
-    - Set-Variable -name VERSION -value $(python tools/base/extract.py)
-    - Set-Variable -name VERSION_NO_SUFFIX -value $(python tools/base/extract.py --no-suffix)
+    - Set-Variable -name VERSION -value $(python3 tools/base/extract.py)
+    - Set-Variable -name VERSION_NO_SUFFIX -value $(python3 tools/base/extract.py --no-suffix)
     - echo ${NEXUS_BASEURL}${NEXUS_PATH_ROOT}/tagged-builds/$VERSION_NO_SUFFIX/Windscribe_$VERSION.exe
     - echo ${NEXUS_BASEURL}${NEXUS_PATH_ROOT}/tagged-builds/$VERSION_NO_SUFFIX/Windscribe_$VERSION.dmg
     - echo ${NEXUS_BASEURL}${NEXUS_PATH_ROOT}/tagged-builds/$VERSION_NO_SUFFIX/windscribe_${VERSION}_amd64.deb

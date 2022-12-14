@@ -7,9 +7,9 @@
 
 import os
 import re
-import pathhelper
 import sys
 
+import pathhelper
 
 class Extractor:
     # memoize so we don't have to read the file more than once per variable
