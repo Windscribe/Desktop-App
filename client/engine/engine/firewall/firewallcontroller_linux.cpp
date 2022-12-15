@@ -34,6 +34,7 @@ bool FirewallController_linux::firewallOff()
     QMutexLocker locker(&mutex_);
     FirewallController::firewallOff();
     if (isStateChanged()) {
+        qCDebug(LOG_FIREWALL_CONTROLLER) << "firewall off";
         QString cmd;
 
         // remove IPv4 rules
@@ -42,8 +43,8 @@ bool FirewallController_linux::firewallOff()
         // remove IPv6 rules
         removeWindscribeRules(comment_, true);
 
-        int ret = helper_->clearFirewallRules();
-        if (ret != 0) {
+        bool ret = helper_->clearFirewallRules();
+        if (!ret) {
             qCDebug(LOG_FIREWALL_CONTROLLER) << "Clear firewall rules unsuccessful:" << ret;
         }
         return true;
@@ -166,8 +167,8 @@ bool FirewallController_linux::firewallOnImpl(const QSet<QString> &ips, bool bAl
         rules << "-A windscribe_output -j DROP -m comment --comment " + comment_ + "\n";
         rules << "COMMIT\n";
 
-        int ret = helper_->setFirewallRules(kIpv4, "", "", rules.join("\n"));
-        if (ret == 0) {
+        bool ret = helper_->setFirewallRules(kIpv4, "", "", rules.join("\n"));
+        if (!ret) {
             qCDebug(LOG_FIREWALL_CONTROLLER) << "Could not set v4 firewall rules:" << ret;
         }
     }
@@ -189,8 +190,8 @@ bool FirewallController_linux::firewallOnImpl(const QSet<QString> &ips, bool bAl
         rules << "-A windscribe_output -j DROP -m comment --comment " + comment_ + "\n";
         rules << "COMMIT\n";
 
-        int ret = helper_->setFirewallRules(kIpv6, "", "", rules.join("\n"));
-        if (ret == 0) {
+        bool ret = helper_->setFirewallRules(kIpv6, "", "", rules.join("\n"));
+        if (!ret) {
             qCDebug(LOG_FIREWALL_CONTROLLER) << "Could not set v6 firewall rules:" << ret;
         }
     }
@@ -204,7 +205,7 @@ QStringList FirewallController_linux::getWindscribeRules(const QString &comment,
     QString rules;
     QStringList outRules;
     bool ret = helper_->getFirewallRules(isIPv6 ? kIpv6 : kIpv4, "", "", rules);
-    if (!ret || rules.isEmpty()) {
+    if (!ret) {
       qCDebug(LOG_FIREWALL_CONTROLLER) << "Could not get firewall rules:" << ret;
       return {};
     }

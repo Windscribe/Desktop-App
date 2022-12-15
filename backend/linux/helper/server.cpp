@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <string>
 #include <codecvt>
+#include <fstream>
 
 #include <boost/bind.hpp>
 #include <boost/archive/text_oarchive.hpp>
@@ -268,17 +269,19 @@ bool Server::readAndHandleCommand(socket_ptr sock, boost::asio::streambuf *buf, 
         Logger::instance().out("WireGuard kernel module: %s", outCmdAnswer.executed ? "available" : "not available");
     } else if (cmdId == HELPER_CMD_CLEAR_FIREWALL_RULES) {
         Logger::instance().out("Clear firewall rules");
-        if (Utils::executeCommand("rm", {"-f", "/etc/windscribe/rules.v4"}) || Utils::executeCommand("rm", {"-f", "/etc/windscribe/rules.v6"})) {
-            outCmdAnswer.executed = 0;
-        } else {
-            outCmdAnswer.executed = 1;
-        }
+        Utils::executeCommand("rm", {"-f", "/etc/windscribe/rules.v4"});
+        Utils::executeCommand("rm", {"-f", "/etc/windscribe/rules.v6"});
+        outCmdAnswer.executed = 1;
     } else if (cmdId == HELPER_CMD_CHECK_FIREWALL_STATE) {
         CMD_CHECK_FIREWALL_STATE cmd;
         ia >> cmd;
 
         outCmdAnswer.executed = 1;
-        outCmdAnswer.exitCode = Utils::executeCommand("iptables", {"--check", "INPUT", "-j", "windscribe_input", "-m", "comment" "--comment", cmd.tag.c_str()}, &outCmdAnswer.body);
+        if (Utils::executeCommand("iptables", {"--check", "INPUT", "-j", "windscribe_input", "-m", "comment", "--comment", cmd.tag.c_str()}, &outCmdAnswer.body)) {
+            outCmdAnswer.exitCode = 0;
+        } else {
+            outCmdAnswer.exitCode = 1;
+        }
     } else if (cmdId == HELPER_CMD_SET_FIREWALL_RULES) {
         CMD_SET_FIREWALL_RULES cmd;
         ia >> cmd;
@@ -311,12 +314,20 @@ bool Server::readAndHandleCommand(socket_ptr sock, boost::asio::streambuf *buf, 
         }
     } else if (cmdId == HELPER_CMD_GET_FIREWALL_RULES) { CMD_GET_FIREWALL_RULES cmd;
         ia >> cmd;
+        std::string filename;
 
         if (cmd.ipVersion == kIpv4) {
-            outCmdAnswer.exitCode = Utils::executeCommand("iptables-save", {"-n", "/etc/windscribe/rules.v4"}, &outCmdAnswer.body);
+            filename = "/etc/windscribe/rules.v4";
+            outCmdAnswer.exitCode = Utils::executeCommand("iptables-save", {"-f", filename.c_str()});
         } else {
-            outCmdAnswer.exitCode = Utils::executeCommand("ip6tables-save", {"-n", "/etc/windscribe/rules.v6"}, &outCmdAnswer.body);
+            filename = "/etc/windscribe/rules.v6";
+            outCmdAnswer.exitCode = Utils::executeCommand("ip6tables-save", {"-f", filename.c_str()});
         }
+
+        std::ifstream ifs(filename.c_str());
+        std::stringstream buffer;
+        buffer << ifs.rdbuf();
+        outCmdAnswer.body = buffer.str();
         outCmdAnswer.executed = 1;
     } else {
         // these commands are not used in Linux:
