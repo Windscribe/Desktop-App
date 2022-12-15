@@ -1,3 +1,12 @@
+2.6.3 (14/12/2022)
+All:
+   * Fixed app will use Preferred Protocol for a network even if it's disabled. #531
+Windows:
+   * Fixed DNS leaks. #527
+Linux:
+   * Fixed firewall not enabled when firewall switch toggled on. #528
+
+
 2.6.2 (12/12/2022)
 All:
    * Fixed HTTP/SOCKS Proxy Gateway setting to warn user the Allow LAN Traffic option must be enabled. #323
