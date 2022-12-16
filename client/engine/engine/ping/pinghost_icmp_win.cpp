@@ -134,7 +134,7 @@ void PingHost_ICMP_win::addHostForPing(const QString &ip)
 void PingHost_ICMP_win::clearPings()
 {
     QMutexLocker locker(&mutex_);
-    for (auto request : pingingHosts_) {
+    for (auto request : qAsConst(pingingHosts_)) {
         delete request;
     }
     pingingHosts_.clear();
