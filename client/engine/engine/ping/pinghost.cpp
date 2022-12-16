@@ -24,6 +24,11 @@ void PingHost::init()
 
 void PingHost::finish()
 {
+    // The destructor for these objects will run in a different thread.  Need to clear the
+    // ping objects using the thread that created them, otherwise some objects (e.g. QTimer)
+    // will complain about being killed by a thread that did not create them.
+    pingHostTcp_.clearPings();
+    pingHostIcmp_.clearPings();
 #ifdef Q_OS_WIN
     crashHandler_.reset();
 #endif

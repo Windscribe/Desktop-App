@@ -60,7 +60,7 @@ You will find the application logs in C:/Users/USER/AppData/Local/Windscribe/Win
 ### Prerequisites
 
 - macOS Big Sur, Monterey, or Ventura
-- Install Xcode 13.2.1 (If on Monterey/Ventura, you may use a newer version of Xcode 13, but 13.2.1 is the last version to support Big Sur)
+- Install Xcode 13.2.1 (If on Monterey/Ventura, you may use a newer version of Xcode 13/14, but 13.2.1 is the last version to support Big Sur)
     - Note: these downloads will require you to first login to your Apple account.
     - https://download.developer.apple.com/Developer_Tools/Xcode_13.2.1/Xcode_13.2.1.xip
 - Install brew (brew.sh)
@@ -157,4 +157,4 @@ Go to subfolder tools and run 'build_all'. Assuming all goes well with the build
 
 See `build_all --help` for other build options.
 
-The application installs to /usr/local/windscribe.  You will find the application logs in ~/.local/share/Windscribe/Windscribe2.
+The application installs to /opt/windscribe.  You will find the application logs in ~/.local/share/Windscribe/Windscribe2.

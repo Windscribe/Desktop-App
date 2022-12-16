@@ -1,23 +1,26 @@
-#ifndef ROUTEMONITOR_LINUX_H
-#define ROUTEMONITOR_LINUX_H
+#pragma once
 
-#include <QThread>
+#include <QObject>
+#include <QSocketNotifier>
 
-class RouteMonitor_linux : public QThread
+class RouteMonitor_linux : public QObject
 {
    Q_OBJECT
 public:
-    explicit RouteMonitor_linux(QObject *parent);
+    explicit RouteMonitor_linux(QObject *parent = nullptr);
     ~RouteMonitor_linux();
-
-protected:
-    void run() override;
 
 signals:
     void routesChanged();
 
-private:
-    int fd_;
-};
+public slots:
+    void init();
+    void finish();
 
-#endif // ROUTEMONITOR_LINUX_H
+private slots:
+    void netlinkSocketReady(QSocketDescriptor socket, QSocketNotifier::Type activationEvent);
+
+private:
+    int fd_ = -1;
+    QSocketNotifier *notifier_ = nullptr;
+};

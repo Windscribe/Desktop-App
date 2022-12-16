@@ -1,5 +1,4 @@
-#ifndef NETWORKDETECTIONMANAGER_LINUX_H
-#define NETWORKDETECTIONMANAGER_LINUX_H
+#pragma once
 
 #include <QMutex>
 #include <QNetworkInformation>
@@ -21,9 +20,11 @@ private slots:
     void onRoutesChanged();
 
 private:
-    bool isOnline_;
+    bool isOnline_ = false;
     types::NetworkInterface networkInterface_;
-    RouteMonitor_linux *routeMonitor_;
+
+    QThread *routeMonitorThread_ = nullptr;
+    RouteMonitor_linux *routeMonitor_ = nullptr;
 
     void updateNetworkInfo(bool bWithEmitSignal);
     QString getDefaultRouteInterface(bool &isOnline);
@@ -33,5 +34,3 @@ private:
     bool checkWirelessByIfName(const QString &ifname);
     QString getFriendlyNameByIfName(const QString &ifname);
 };
-
-#endif // NETWORKDETECTIONMANAGER_LINUX_H
