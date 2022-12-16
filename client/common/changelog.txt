@@ -1,3 +1,10 @@
+2.6.4 (16/12/2022)
+macOS:
+   * Fixed preferences cache not cleared when doing a factory reset during install. #529
+Linux:
+   * Fixed firewall issues created during implementation of #5.
+
+
 2.6.3 (14/12/2022)
 All:
    * Fixed app will use Preferred Protocol for a network even if it's disabled. #531
