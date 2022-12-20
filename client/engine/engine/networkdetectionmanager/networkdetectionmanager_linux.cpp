@@ -2,17 +2,18 @@
 
 #include <QRegularExpression>
 
-#include "utils/utils.h"
-#include "utils/logger.h"
 #include <sys/socket.h>
 #include <sys/ioctl.h>
 #include <net/if.h>
 #include <unistd.h>
 #include <linux/wireless.h>
 
+#include "utils/logger.h"
+#include "utils/utils.h"
+
 const int typeIdNetworkInterface = qRegisterMetaType<types::NetworkInterface>("types::NetworkInterface");
 
-NetworkDetectionManager_linux::NetworkDetectionManager_linux(QObject *parent, IHelper *helper) : INetworkDetectionManager (parent), routeMonitor_(new RouteMonitor_linux(this))
+NetworkDetectionManager_linux::NetworkDetectionManager_linux(QObject *parent, IHelper *helper) : INetworkDetectionManager(parent)
 {
     Q_UNUSED(helper);
 
@@ -20,13 +21,23 @@ NetworkDetectionManager_linux::NetworkDetectionManager_linux(QObject *parent, IH
     getDefaultRouteInterface(isOnline_);
     updateNetworkInfo(false);
 
+    routeMonitorThread_ = new QThread;
+    routeMonitor_ = new RouteMonitor_linux;
     connect(routeMonitor_, &RouteMonitor_linux::routesChanged, this, &NetworkDetectionManager_linux::onRoutesChanged);
-    routeMonitor_->start();
+    connect(routeMonitorThread_, &QThread::started, routeMonitor_, &RouteMonitor_linux::init);
+    connect(routeMonitorThread_, &QThread::finished, routeMonitor_, &RouteMonitor_linux::finish);
+    connect(routeMonitorThread_, &QThread::finished, routeMonitor_, &RouteMonitor_linux::deleteLater);
+    routeMonitor_->moveToThread(routeMonitorThread_);
+    routeMonitorThread_->start(QThread::LowPriority);
 }
 
 NetworkDetectionManager_linux::~NetworkDetectionManager_linux()
 {
-    SAFE_DELETE(routeMonitor_);
+    if (routeMonitorThread_) {
+        routeMonitorThread_->quit();
+        routeMonitorThread_->wait();
+        routeMonitorThread_->deleteLater();
+    }
 }
 
 void NetworkDetectionManager_linux::getCurrentNetworkInterface(types::NetworkInterface &networkInterface)

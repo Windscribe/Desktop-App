@@ -1,15 +1,13 @@
 #include "pinghost_icmp_mac.h"
-#include "utils/ws_assert.h"
+
 #include "utils/ipvalidation.h"
-#include "utils/utils.h"
 #include "utils/logger.h"
-#include "icmp_header.h"
-#include "ipv4_header.h"
+#include "utils/ws_assert.h"
 
-PingHost_ICMP_mac::PingHost_ICMP_mac(QObject *parent, IConnectStateController *stateController) : QObject(parent),
-    connectStateController_(stateController)
+PingHost_ICMP_mac::PingHost_ICMP_mac(QObject *parent, IConnectStateController *stateController)
+    : QObject(parent),
+      connectStateController_(stateController)
 {
-
 }
 
 PingHost_ICMP_mac::~PingHost_ICMP_mac()
@@ -20,8 +18,7 @@ PingHost_ICMP_mac::~PingHost_ICMP_mac()
 void PingHost_ICMP_mac::addHostForPing(const QString &ip)
 {
     QMutexLocker locker(&mutex_);
-    if (!hostAlreadyPingingOrInWaitingQueue(ip))
-    {
+    if (!pingingHosts_.contains(ip) && !waitingPingsQueue_.contains(ip)) {
         waitingPingsQueue_.enqueue(ip);
         processNextPings();
     }
@@ -29,6 +26,7 @@ void PingHost_ICMP_mac::addHostForPing(const QString &ip)
 
 void PingHost_ICMP_mac::clearPings()
 {   
+    QMutexLocker locker(&mutex_);
     for (QMap<QString, PingInfo *>::iterator it = pingingHosts_.begin(); it != pingingHosts_.end(); ++it)
     {
         it.value()->process->blockSignals(true);
@@ -93,6 +91,8 @@ void PingHost_ICMP_mac::onProcessFinished(int exitCode, QProcess::ExitStatus exi
     }
 
     QString ip = process->property("ip").toString();
+
+    QMutexLocker locker(&mutex_);
     auto it = pingingHosts_.find(ip);
     if (it != pingingHosts_.end())
     {
@@ -114,19 +114,12 @@ void PingHost_ICMP_mac::onProcessFinished(int exitCode, QProcess::ExitStatus exi
     processNextPings();
 }
 
-
-bool PingHost_ICMP_mac::hostAlreadyPingingOrInWaitingQueue(const QString &ip)
-{
-    return pingingHosts_.find(ip) != pingingHosts_.end() || waitingPingsQueue_.indexOf(ip) != -1;
-}
-
 void PingHost_ICMP_mac::processNextPings()
 {
     if (pingingHosts_.count() < MAX_PARALLEL_PINGS && !waitingPingsQueue_.isEmpty())
     {
         QString ip = waitingPingsQueue_.dequeue();
         WS_ASSERT(IpValidation::instance().isIp(ip));
-
 
         PingInfo *pingInfo = new PingInfo();
         pingInfo->ip = ip;

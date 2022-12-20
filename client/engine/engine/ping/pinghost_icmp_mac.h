@@ -1,13 +1,13 @@
-#ifndef PINGHOST_ICMP_MAC_H
-#define PINGHOST_ICMP_MAC_H
+#pragma once
 
+#include <QMap>
 #include <QObject>
+#include <QProcess>
+#include <QQueue>
+#include <QRecursiveMutex>
+
 #include "engine/connectstatecontroller/iconnectstatecontroller.h"
 #include "types/proxysettings.h"
-#include <QQueue>
-#include <QMap>
-#include <QProcess>
-#include <QMutex>
 
 // todo proxy support for icmp ping
 class PingHost_ICMP_mac : public QObject
@@ -38,16 +38,13 @@ private:
         QProcess *process;
     };
 
-    QMutex mutex_;
-    IConnectStateController *connectStateController_;
+    IConnectStateController* const connectStateController_;
 
     static constexpr int MAX_PARALLEL_PINGS = 10;
+    QRecursiveMutex mutex_;
     QMap<QString, PingInfo *> pingingHosts_;
     QQueue<QString> waitingPingsQueue_;
 
-    bool hostAlreadyPingingOrInWaitingQueue(const QString &ip);
     void processNextPings();
     int extractTimeMs(const QString &str);
 };
-
-#endif // PINGHOST_ICMP_MAC_H
