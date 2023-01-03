@@ -5,8 +5,7 @@
 #include "engine/helper/ihelper.h"
 
 FirewallController_linux::FirewallController_linux(QObject *parent, IHelper *helper) :
-    FirewallController(parent), forceUpdateInterfaceToSkip_(false),
-    comment_("\"Windscribe client rule\"")
+    FirewallController(parent), forceUpdateInterfaceToSkip_(false), comment_("Windscribe client rule")
 {
     helper_ = dynamic_cast<Helper_linux *>(helper);
 }
@@ -104,67 +103,67 @@ bool FirewallController_linux::firewallOnImpl(const QSet<QString> &ips, bool bAl
         rules << ":windscribe_output - [0:0]\n";
 
         if (!bExists) {
-            rules << "-A INPUT -j windscribe_input -m comment --comment " + comment_ + "\n";
-            rules << "-A OUTPUT -j windscribe_output -m comment --comment " + comment_ + "\n";
+            rules << "-A INPUT -j windscribe_input -m comment --comment \"" + comment_ + "\"\n";
+            rules << "-A OUTPUT -j windscribe_output -m comment --comment \"" + comment_ + "\"\n";
         }
 
-        rules << "-A windscribe_input -i lo -j ACCEPT -m comment --comment " + comment_ + "\n";
-        rules << "-A windscribe_output -o lo -j ACCEPT -m comment --comment " + comment_ + "\n";
+        rules << "-A windscribe_input -i lo -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
+        rules << "-A windscribe_output -o lo -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
 
         if (!interfaceToSkip_.isEmpty()) {
             if (!bIsCustomConfig) {
                 // Disallow LAN addresses (except 10.255.255.0/24), link-local addresses, loopback,
                 // and local multicast addresses from going into the tunnel
-                rules << "-A windscribe_input -i " + interfaceToSkip_ + " -s 192.168.0.0/16 -j DROP -m comment --comment " + comment_ + "\n";
-                rules << "-A windscribe_output -o " + interfaceToSkip_ + " -d 192.168.0.0/16 -j DROP -m comment --comment " + comment_ + "\n";
-                rules << "-A windscribe_input -i " + interfaceToSkip_ + " -s 172.16.0.0/12 -j DROP -m comment --comment " + comment_ + "\n";
-                rules << "-A windscribe_output -o " + interfaceToSkip_ + " -d 172.16.0.0/12 -j DROP -m comment --comment " + comment_ + "\n";
-                rules << "-A windscribe_input -i " + interfaceToSkip_ + " -s 169.254.0.0/16 -j DROP -m comment --comment " + comment_ + "\n";
-                rules << "-A windscribe_output -o " + interfaceToSkip_ + " -d 169.254.0.0/16 -j DROP -m comment --comment " + comment_ + "\n";
-                rules << "-A windscribe_input -i " + interfaceToSkip_ + " -s 10.255.255.0/24 -j ACCEPT -m comment --comment " + comment_ + "\n";
-                rules << "-A windscribe_output -o " + interfaceToSkip_ + " -d 10.255.255.0/24 -j ACCEPT -m comment --comment " + comment_ + "\n";
-                rules << "-A windscribe_input -i " + interfaceToSkip_ + " -s 10.0.0.0/8 -j DROP -m comment --comment " + comment_ + "\n";
-                rules << "-A windscribe_output -o " + interfaceToSkip_ + " -d 10.0.0.0/8 -j DROP -m comment --comment " + comment_ + "\n";
-                rules << "-A windscribe_input -i " + interfaceToSkip_ + " -s 127.0.0.0/8 -j DROP -m comment --comment " + comment_ + "\n";
-                rules << "-A windscribe_output -o " + interfaceToSkip_ + " -d 127.0.0.0/8 -j DROP -m comment --comment " + comment_ + "\n";
-                rules << "-A windscribe_input -i " + interfaceToSkip_ + " -s 224.0.0.0/24 -j DROP -m comment --comment " + comment_ + "\n";
-                rules << "-A windscribe_output -o " + interfaceToSkip_ + " -d 224.0.0.0/24 -j DROP -m comment --comment " + comment_ + "\n";
+                rules << "-A windscribe_input -i " + interfaceToSkip_ + " -s 192.168.0.0/16 -j DROP -m comment --comment \"" + comment_ + "\"\n";
+                rules << "-A windscribe_output -o " + interfaceToSkip_ + " -d 192.168.0.0/16 -j DROP -m comment --comment \"" + comment_ + "\"\n";
+                rules << "-A windscribe_input -i " + interfaceToSkip_ + " -s 172.16.0.0/12 -j DROP -m comment --comment \"" + comment_ + "\"\n";
+                rules << "-A windscribe_output -o " + interfaceToSkip_ + " -d 172.16.0.0/12 -j DROP -m comment --comment \"" + comment_ + "\"\n";
+                rules << "-A windscribe_input -i " + interfaceToSkip_ + " -s 169.254.0.0/16 -j DROP -m comment --comment \"" + comment_ + "\"\n";
+                rules << "-A windscribe_output -o " + interfaceToSkip_ + " -d 169.254.0.0/16 -j DROP -m comment --comment \"" + comment_ + "\"\n";
+                rules << "-A windscribe_input -i " + interfaceToSkip_ + " -s 10.255.255.0/24 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
+                rules << "-A windscribe_output -o " + interfaceToSkip_ + " -d 10.255.255.0/24 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
+                rules << "-A windscribe_input -i " + interfaceToSkip_ + " -s 10.0.0.0/8 -j DROP -m comment --comment \"" + comment_ + "\"\n";
+                rules << "-A windscribe_output -o " + interfaceToSkip_ + " -d 10.0.0.0/8 -j DROP -m comment --comment \"" + comment_ + "\"\n";
+                rules << "-A windscribe_input -i " + interfaceToSkip_ + " -s 127.0.0.0/8 -j DROP -m comment --comment \"" + comment_ + "\"\n";
+                rules << "-A windscribe_output -o " + interfaceToSkip_ + " -d 127.0.0.0/8 -j DROP -m comment --comment \"" + comment_ + "\"\n";
+                rules << "-A windscribe_input -i " + interfaceToSkip_ + " -s 224.0.0.0/24 -j DROP -m comment --comment \"" + comment_ + "\"\n";
+                rules << "-A windscribe_output -o " + interfaceToSkip_ + " -d 224.0.0.0/24 -j DROP -m comment --comment \"" + comment_ + "\"\n";
             }
 
-            rules << "-A windscribe_input -i " + interfaceToSkip_ + " -j ACCEPT -m comment --comment " + comment_ + "\n";
-            rules << "-A windscribe_output -o " + interfaceToSkip_ + " -j ACCEPT -m comment --comment " + comment_ + "\n";
+            rules << "-A windscribe_input -i " + interfaceToSkip_ + " -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
+            rules << "-A windscribe_output -o " + interfaceToSkip_ + " -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
         }
 
         for (const auto &i : ips) {
-            rules << "-A windscribe_input -s " + i + "/32 -j ACCEPT -m comment --comment " + comment_ + "\n";
-            rules << "-A windscribe_output -d " + i + "/32 -j ACCEPT -m comment --comment " + comment_ + "\n";
+            rules << "-A windscribe_input -s " + i + "/32 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
+            rules << "-A windscribe_output -d " + i + "/32 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
         }
 
         if (bAllowLanTraffic) {
             // Local Network
-            rules << "-A windscribe_input -s 192.168.0.0/16 -j ACCEPT -m comment --comment " + comment_ + "\n";
-            rules << "-A windscribe_output -d 192.168.0.0/16 -j ACCEPT -m comment --comment " + comment_ + "\n";
+            rules << "-A windscribe_input -s 192.168.0.0/16 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
+            rules << "-A windscribe_output -d 192.168.0.0/16 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
 
-            rules << "-A windscribe_input -s 172.16.0.0/12 -j ACCEPT -m comment --comment " + comment_ + "\n";
-            rules << "-A windscribe_output -d 172.16.0.0/12 -j ACCEPT -m comment --comment " + comment_ + "\n";
+            rules << "-A windscribe_input -s 172.16.0.0/12 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
+            rules << "-A windscribe_output -d 172.16.0.0/12 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
 
-            rules << "-A windscribe_input -s 169.254.0.0/16 -j ACCEPT -m comment --comment " + comment_ + "\n";
-            rules << "-A windscribe_output -d 169.254.0.0/16 -j ACCEPT -m comment --comment " + comment_ + "\n";
+            rules << "-A windscribe_input -s 169.254.0.0/16 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
+            rules << "-A windscribe_output -d 169.254.0.0/16 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
 
-            rules << "-A windscribe_input -s 10.255.255.0/24 -j DROP -m comment --comment " + comment_ + "\n";
-            rules << "-A windscribe_output -d 10.255.255.0/24 -j DROP -m comment --comment " + comment_ + "\n";
-            rules << "-A windscribe_input -s 10.0.0.0/8 -j ACCEPT -m comment --comment " + comment_ + "\n";
-            rules << "-A windscribe_output -d 10.0.0.0/8 -j ACCEPT -m comment --comment " + comment_ + "\n";
+            rules << "-A windscribe_input -s 10.255.255.0/24 -j DROP -m comment --comment \"" + comment_ + "\"\n";
+            rules << "-A windscribe_output -d 10.255.255.0/24 -j DROP -m comment --comment \"" + comment_ + "\"\n";
+            rules << "-A windscribe_input -s 10.0.0.0/8 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
+            rules << "-A windscribe_output -d 10.0.0.0/8 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
 
             // Loopback addresses to the local host
-            rules << "-A windscribe_input -s 127.0.0.0/8 -j ACCEPT -m comment --comment " + comment_ + "\n";
+            rules << "-A windscribe_input -s 127.0.0.0/8 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
 
             // Multicast addresses
-            rules << "-A windscribe_input -s 224.0.0.0/4 -j ACCEPT -m comment --comment " + comment_ + "\n";
+            rules << "-A windscribe_input -s 224.0.0.0/4 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
         }
 
-        rules << "-A windscribe_input -j DROP -m comment --comment " + comment_ + "\n";
-        rules << "-A windscribe_output -j DROP -m comment --comment " + comment_ + "\n";
+        rules << "-A windscribe_input -j DROP -m comment --comment \"" + comment_ + "\"\n";
+        rules << "-A windscribe_output -j DROP -m comment --comment \"" + comment_ + "\"\n";
         rules << "COMMIT\n";
 
         bool ret = helper_->setFirewallRules(kIpv4, "", "", rules.join("\n"));
@@ -182,12 +181,12 @@ bool FirewallController_linux::firewallOnImpl(const QSet<QString> &ips, bool bAl
         rules << ":windscribe_output - [0:0]\n";
 
         if (!bExists) {
-            rules << "-A INPUT -j windscribe_input -m comment --comment " + comment_ + "\n";
-            rules << "-A OUTPUT -j windscribe_output -m comment --comment " + comment_ + "\n";
+            rules << "-A INPUT -j windscribe_input -m comment --comment \"" + comment_ + "\"\n";
+            rules << "-A OUTPUT -j windscribe_output -m comment --comment \"" + comment_ + "\"\n";
         }
 
-        rules << "-A windscribe_input -j DROP -m comment --comment " + comment_ + "\n";
-        rules << "-A windscribe_output -j DROP -m comment --comment " + comment_ + "\n";
+        rules << "-A windscribe_input -j DROP -m comment --comment \"" + comment_ + "\"\n";
+        rules << "-A windscribe_output -j DROP -m comment --comment \"" + comment_ + "\"\n";
         rules << "COMMIT\n";
 
         bool ret = helper_->setFirewallRules(kIpv6, "", "", rules.join("\n"));
@@ -216,7 +215,7 @@ QStringList FirewallController_linux::getWindscribeRules(const QString &comment,
         std::string line = in.readLine().toStdString();
         if ((line.rfind("*", 0) == 0) || // string starts with "*"
             (line.find("COMMIT") != std::string::npos) ||
-            ((line.rfind("-A", 0) == 0) && (line.find("-m comment --comment " + comment.toStdString()) != std::string::npos)) )
+            ((line.rfind("-A", 0) == 0) && (line.find("-m comment --comment \"" + comment.toStdString() + "\"") != std::string::npos)) )
         {
             if (line.rfind("-A", 0) == 0) {
                 if (modifyForDelete) {
