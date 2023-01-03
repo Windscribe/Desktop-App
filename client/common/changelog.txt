@@ -1,3 +1,10 @@
+2.6.5 (03/01/2023)
+Linux:
+   * Fixed app crash during exit on Ubuntu. #139
+   * Fixed firewall blocking the app from connecting if set to toggle on before connecting. #528
+   * Fixed firewall doesn't toggle off in automatic mode when disconnecting. #528
+
+
 2.6.4 (16/12/2022)
 macOS:
    * Fixed preferences cache not cleared when doing a factory reset during install. #529
