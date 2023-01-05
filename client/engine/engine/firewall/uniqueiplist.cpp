@@ -3,7 +3,7 @@
 
 void UniqueIpList::add(const QString &ip)
 {
-    if (IpValidation::instance().isIp(ip))
+    if (IpValidation::isIp(ip))
     {
         set_ << ip;
     }

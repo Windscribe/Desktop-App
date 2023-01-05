@@ -716,7 +716,7 @@ void Preferences::validateAndUpdateIfNeeded()
     }
 
     if (engineSettings_.connectedDnsInfo().type() == CONNECTED_DNS_TYPE_CUSTOM &&
-            !IpValidation::instance().isIp(engineSettings_.connectedDnsInfo().ipAddress()))
+            !IpValidation::isIp(engineSettings_.connectedDnsInfo().ipAddress()))
     {
         types::ConnectedDnsInfo dns;
         dns.setType(CONNECTED_DNS_TYPE_ROBERT);

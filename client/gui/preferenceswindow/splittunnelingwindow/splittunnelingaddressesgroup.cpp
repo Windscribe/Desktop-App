@@ -66,7 +66,7 @@ void SplitTunnelingAddressesGroup::onAddClicked(QString address)
     {
         case OK:
             type = SPLIT_TUNNELING_NETWORK_ROUTE_TYPE_HOSTNAME;
-            if (IpValidation::instance().isIpCidr(address))
+            if (IpValidation::isIpCidr(address))
             {
                 type = SPLIT_TUNNELING_NETWORK_ROUTE_TYPE_IP;
             }
@@ -100,7 +100,7 @@ void SplitTunnelingAddressesGroup::onDeleteClicked()
 
 SplitTunnelingAddressesGroup::ValidationCode SplitTunnelingAddressesGroup::validate(QString &address)
 {
-    if (!IpValidation::instance().isIpCidrOrDomain(address) || !IpValidation::instance().isValidIpForCidr(address))
+    if (!IpValidation::isIpCidrOrDomain(address) || !IpValidation::isValidIpForCidr(address))
     {
         return ValidationCode::ERROR_INVALID;
     }
@@ -110,12 +110,12 @@ SplitTunnelingAddressesGroup::ValidationCode SplitTunnelingAddressesGroup::valid
         return ValidationCode::ERROR_EXISTS;
     }
 
-    if (!IpValidation::instance().isValidIpForCidr(address))
+    if (!IpValidation::isValidIpForCidr(address))
     {
         return ValidationCode::ERROR_INVALID;
     }
 
-    if (IpValidation::instance().isWindscribeReservedIp(address))
+    if (IpValidation::isWindscribeReservedIp(address))
     {
         return ValidationCode::ERROR_RESERVED;
     }

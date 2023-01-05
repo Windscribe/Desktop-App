@@ -25,7 +25,7 @@ void PingHost_ICMP_mac::addHostForPing(const QString &ip)
 }
 
 void PingHost_ICMP_mac::clearPings()
-{   
+{
     QMutexLocker locker(&mutex_);
     for (QMap<QString, PingInfo *>::iterator it = pingingHosts_.begin(); it != pingingHosts_.end(); ++it)
     {
@@ -119,7 +119,7 @@ void PingHost_ICMP_mac::processNextPings()
     if (pingingHosts_.count() < MAX_PARALLEL_PINGS && !waitingPingsQueue_.isEmpty())
     {
         QString ip = waitingPingsQueue_.dequeue();
-        WS_ASSERT(IpValidation::instance().isIp(ip));
+        WS_ASSERT(IpValidation::isIp(ip));
 
         PingInfo *pingInfo = new PingInfo();
         pingInfo->ip = ip;

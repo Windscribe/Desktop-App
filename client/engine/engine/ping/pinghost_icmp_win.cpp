@@ -119,7 +119,7 @@ PingHost_ICMP_win::~PingHost_ICMP_win()
 
 void PingHost_ICMP_win::addHostForPing(const QString &ip)
 {
-    if (!IpValidation::instance().isIp(ip)) {
+    if (!IpValidation::isIp(ip)) {
         qCDebug(LOG_PING) << "PingHost_ICMP_win::addHostForPing - invalid IP" << ip;
         return;
     }

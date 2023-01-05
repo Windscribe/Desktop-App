@@ -34,7 +34,7 @@ QByteArray BaseRequest::postData() const
 QString BaseRequest::hostname(const QString &domain, SudomainType subdomain) const
 {
     // if this is IP, return without change
-    if (IpValidation::instance().isIp(domain)) {
+    if (IpValidation::isIp(domain)) {
         if (subdomain == SudomainType::kAssets) {
             return domain + "/" + HardcodedSettings::instance().serverAssetsSubdomain();
         } else if (subdomain == SudomainType::kTunnelTest) {

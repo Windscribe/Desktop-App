@@ -928,7 +928,7 @@ void ConnectionManager::doConnectPart2()
             uint portForStunnelOrWStunnel = currentConnectionDescr_.protocol.isStunnelOrWStunnelProtocol() ?
                         (currentConnectionDescr_.protocol == types::Protocol::STUNNEL ? stunnelManager_->getStunnelPort() : wstunnelManager_->getPort()) : 0;
 
-            const bool blockOutsideDnsOption = !IpValidation::instance().isLocalIp(getCustomDnsIp());
+            const bool blockOutsideDnsOption = !IpValidation::isLocalIp(getCustomDnsIp());
             const bool bOvpnSuccess = makeOVPNFile_->generate(lastOvpnConfig_, currentConnectionDescr_.ip, currentConnectionDescr_.protocol,
                                                         currentConnectionDescr_.port, portForStunnelOrWStunnel, mss, defaultAdapterInfo_.gateway(),
                                                         currentConnectionDescr_.verifyX509name, blockOutsideDnsOption);
@@ -967,11 +967,11 @@ void ConnectionManager::doConnectPart2()
         else if (currentConnectionDescr_.protocol.isIkev2Protocol())
         {
             QString remoteHostname = ExtraConfig::instance().getRemoteIpFromExtraConfig();
-            if (IpValidation::instance().isDomain(remoteHostname))
+            if (IpValidation::isDomain(remoteHostname))
             {
                 currentConnectionDescr_.hostname = remoteHostname;
                 currentConnectionDescr_.ip = ExtraConfig::instance().getDetectedIp();
-                currentConnectionDescr_.dnsHostName = IpValidation::instance().getRemoteIdFromDomain(remoteHostname);
+                currentConnectionDescr_.dnsHostName = IpValidation::getRemoteIdFromDomain(remoteHostname);
                 qCDebug(LOG_CONNECTION) << "Use data from extra config: hostname=" << currentConnectionDescr_.hostname << ", ip=" << currentConnectionDescr_.ip << ", remoteId=" << currentConnectionDescr_.dnsHostName;
 
             }
