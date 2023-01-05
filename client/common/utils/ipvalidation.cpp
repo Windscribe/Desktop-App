@@ -7,8 +7,8 @@
 
 bool IpValidation::isIp(const QString &str)
 {
-    static const QString kIPRange("(?:[0-1]?[0-9]?[0-9]|2[0-4][0-9]|25[0-5])");
-    static const QString kRegExp("^" + kIPRange + "\\." + kIPRange + "\\." + kIPRange + "\\." + kIPRange + "$");
+    const QString kIPRange("(?:[0-1]?[0-9]?[0-9]|2[0-4][0-9]|25[0-5])");
+    const QString kRegExp("^" + kIPRange + "\\." + kIPRange + "\\." + kIPRange + "\\." + kIPRange + "$");
 
     QRegExp ipRegex(kRegExp);
     return ipRegex.exactMatch(str);
