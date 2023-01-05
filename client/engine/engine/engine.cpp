@@ -2205,11 +2205,11 @@ void Engine::addCustomRemoteIpToFirewallIfNeed()
     QString strHost = ExtraConfig::instance().getRemoteIpFromExtraConfig();
     if (!strHost.isEmpty())
     {
-        if (IpValidation::instance().isIp(strHost))
+        if (IpValidation::isIp(strHost))
         {
             ip = strHost;
         }
-        else if (IpValidation::instance().isDomain(strHost))
+        else if (IpValidation::isDomain(strHost))
         {
             // make DNS-resolution for add IP to firewall exceptions
             qCDebug(LOG_BASIC) << "Make DNS-resolution for" << strHost;

@@ -1,20 +1,33 @@
 #include "ipvalidation.h"
-#include <QStringList>
+
+#include <QRegExp>
+
 #include "ws_assert.h"
+
 
 bool IpValidation::isIp(const QString &str)
 {
-    return ipRegex_.exactMatch(str);
+    static const QString kIPRange("(?:[0-1]?[0-9]?[0-9]|2[0-4][0-9]|25[0-5])");
+    static const QString kRegExp("^" + kIPRange + "\\." + kIPRange + "\\." + kIPRange + "\\." + kIPRange + "$");
+
+    QRegExp ipRegex(kRegExp);
+    return ipRegex.exactMatch(str);
 }
 
 bool IpValidation::isIpCidr(const QString &str)
 {
-    return ipCidrRegex_.exactMatch(str);
+    QRegExp ipCidrRegex("^([0-9]{1,3}\\.){3}[0-9]{1,3}(\\/([0-9]|[1-2][0-9]|3[0-2]))?$");
+    return ipCidrRegex.exactMatch(str);
 }
 
 bool IpValidation::isDomain(const QString &str)
 {
-    return str.size() <= 253 && domainRegex_.exactMatch(str);
+    if (str.size() > 253) {
+        return false;
+    }
+
+    QRegExp domainRegex("^([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\\.){1,}([a-zA-Z][a-zA-Z0-9-]*[a-zA-Z])$");
+    return domainRegex.exactMatch(str);
 }
 
 bool IpValidation::isIpOrDomain(const QString &str)
@@ -83,14 +96,6 @@ QString IpValidation::getRemoteIdFromDomain(const QString &str)
     return s;
 }
 
-IpValidation::IpValidation()
-{
-    QString ipRange = "(?:[0-1]?[0-9]?[0-9]|2[0-4][0-9]|25[0-5])";
-    ipRegex_.setPattern("^" + ipRange + "\\." + ipRange + "\\." + ipRange + "\\." + ipRange + "$");
-    ipCidrRegex_.setPattern("^([0-9]{1,3}\\.){3}[0-9]{1,3}(\\/([0-9]|[1-2][0-9]|3[0-2]))?$");
-    domainRegex_.setPattern("^([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\\.){1,}([a-zA-Z][a-zA-Z0-9-]*[a-zA-Z])$");
-}
-
 #if defined(QT_DEBUG)
 
 void IpValidation::runTests()
@@ -142,9 +147,9 @@ void IpValidation::runTests()
     };
 
     for (size_t i = 0; i < sizeof(kValidDomainNames) / sizeof(kValidDomainNames[0]); ++i)
-        WS_ASSERT(IpValidation::instance().isDomain(QString(kValidDomainNames[i])));
+        WS_ASSERT(isDomain(QString(kValidDomainNames[i])));
     for (size_t i = 0; i < sizeof(kInvalidDomainNames) / sizeof(kInvalidDomainNames[0]); ++i)
-        WS_ASSERT(!IpValidation::instance().isDomain(QString(kInvalidDomainNames[i])));
+        WS_ASSERT(!isDomain(QString(kInvalidDomainNames[i])));
 }
 
 #endif  // QT_DEBUG
