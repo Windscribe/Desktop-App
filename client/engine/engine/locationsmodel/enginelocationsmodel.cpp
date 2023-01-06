@@ -16,21 +16,21 @@ LocationsModel::LocationsModel(QObject *parent, IConnectStateController *stateCo
     apiLocationsModel_ = new ApiLocationsModel(this, stateController, networkDetectionManager, pingHost_);
     customConfigLocationsModel_ = new CustomConfigLocationsModel(this, stateController, networkDetectionManager, pingHost_);
 
-    connect(apiLocationsModel_, SIGNAL(locationsUpdated(LocationID, QString, QSharedPointer<QVector<types::Location> >)), SIGNAL(locationsUpdated(LocationID, QString, QSharedPointer<QVector<types::Location> >)));
-    connect(apiLocationsModel_, SIGNAL(bestLocationUpdated(LocationID)), SIGNAL(bestLocationUpdated(LocationID)));
-    connect(apiLocationsModel_, SIGNAL(locationPingTimeChanged(LocationID,PingTime)), SIGNAL(locationPingTimeChanged(LocationID,PingTime)));
-    connect(apiLocationsModel_, SIGNAL(whitelistIpsChanged(QStringList)), SIGNAL(whitelistLocationsIpsChanged(QStringList)));
+    connect(apiLocationsModel_, &ApiLocationsModel::locationsUpdated, this, &LocationsModel::locationsUpdated);
+    connect(apiLocationsModel_, &ApiLocationsModel::bestLocationUpdated, this, &LocationsModel::bestLocationUpdated);
+    connect(apiLocationsModel_, &ApiLocationsModel::locationPingTimeChanged, this, &LocationsModel::locationPingTimeChanged);
+    connect(apiLocationsModel_, &ApiLocationsModel::whitelistIpsChanged, this, &LocationsModel::whitelistLocationsIpsChanged);
 
-    connect(customConfigLocationsModel_, SIGNAL(locationsUpdated(QSharedPointer<types::Location>)), SIGNAL(customConfigsLocationsUpdated(QSharedPointer<types::Location>)));
-    connect(customConfigLocationsModel_, SIGNAL(locationPingTimeChanged(LocationID,PingTime)), SIGNAL(locationPingTimeChanged(LocationID,PingTime)));
-    connect(customConfigLocationsModel_, SIGNAL(whitelistIpsChanged(QStringList)), SIGNAL(whitelistCustomConfigsIpsChanged(QStringList)));
+    connect(customConfigLocationsModel_, &CustomConfigLocationsModel::locationsUpdated, this, &LocationsModel::customConfigsLocationsUpdated);
+    connect(customConfigLocationsModel_, &CustomConfigLocationsModel::locationPingTimeChanged, this, &LocationsModel::locationPingTimeChanged);
+    connect(customConfigLocationsModel_, &CustomConfigLocationsModel::whitelistIpsChanged, this, &LocationsModel::whitelistCustomConfigsIpsChanged);
 }
 
 LocationsModel::~LocationsModel()
 {
     pingThread_->quit();
     pingThread_->wait();
-    delete pingHost_;
+    pingHost_->deleteLater();
 }
 
 void LocationsModel::setApiLocations(const QVector<apiinfo::Location> &locations, const apiinfo::StaticIps &staticIps)

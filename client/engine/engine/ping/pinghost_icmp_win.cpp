@@ -29,7 +29,7 @@ public:
     qint64 elapsed() const { return timer_.elapsed(); }
 
 signals:
-    void requestFinished(bool success, const QString &ip);
+    void requestFinished(bool success, const QString ip);
 
 private:
     const QString ip_;
@@ -180,7 +180,7 @@ void PingHost_ICMP_win::sendNextPing()
     }
 }
 
-void PingHost_ICMP_win::onPingRequestFinished(bool success, const QString &ip)
+void PingHost_ICMP_win::onPingRequestFinished(bool success, const QString ip)
 {
     QMutexLocker locker(&mutex_);
     auto it = pingingHosts_.find(ip);
