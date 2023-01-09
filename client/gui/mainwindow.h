@@ -103,7 +103,7 @@ private slots:
     void onPreferencesQuitAppClick();
     void onPreferencesAccountLoginClick();
     void onPreferencesSetIpv6StateInOS(bool bEnabled, bool bRestartNow);
-	void onPreferencesCycleMacAddressClick();
+    void onPreferencesCycleMacAddressClick();
     void onPreferencesWindowDetectPacketSizeClick();
     void onPreferencesAdvancedParametersClicked();
     void onPreferencesCustomConfigsPathChanged(QString path);
@@ -205,6 +205,7 @@ private slots:
     void onPreferencesShareSecureHotspotChanged(const types::ShareSecureHotspot &ss);
     void onPreferencesLocationOrderChanged(ORDER_LOCATION_TYPE o);
     void onPreferencesSplitTunnelingChanged(types::SplitTunneling st);
+    void onPreferencesAllowLanTrafficChanged(bool bAllowLanTraffic);
     void onPreferencesUpdateEngineSettings();
     void onPreferencesLaunchOnStartupChanged(bool bEnabled);
     void onPreferencesConnectionSettingsChanged(types::ConnectionSettings connectionSettings);
