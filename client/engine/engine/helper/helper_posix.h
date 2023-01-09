@@ -49,7 +49,7 @@ public:
     bool clearFirewallRules();
     bool setFirewallRules(CmdIpVersion version, const QString &table, const QString &group, const QString &rules);
     bool getFirewallRules(CmdIpVersion version, const QString &table, const QString &group, QString &rules);
-    bool setFirewallOnBoot(bool bEnabled, const QString &rules);
+    bool setFirewallOnBoot(bool bEnabled);
 
 protected:
     void run() override;
