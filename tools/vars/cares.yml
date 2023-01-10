@@ -3,6 +3,6 @@
 # Copyright (c) 2020-2022, Windscribe Limited. All rights reserved.
 # ------------------------------------------------------------------------------
 variables:
-  VERSION_CARES: '1.17.2'
+  VERSION_CARES: '1.18.1'
   BUILDROOT_CARES: 'build-libs/cares'
   ARTIFACT_CARES: 'cares.zip'
