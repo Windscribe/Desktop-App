@@ -192,6 +192,7 @@ bool CalloutFilter::addCallouts(HANDLE engineHandle)
             return false;
         }
     }
+    return true;
 }
 
 bool CalloutFilter::addSubLayer(HANDLE engineHandle)
