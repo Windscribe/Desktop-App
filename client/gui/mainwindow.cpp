@@ -1948,7 +1948,9 @@ void MainWindow::onNetworkChanged(types::NetworkInterface network)
     mainWindowController_->getConnectWindow()->updateNetworkState(network);
     mainWindowController_->getPreferencesWindow()->updateNetworkState(network);
     curNetwork_ = network;
-    updateConnectWindowStateProtocolPortDisplay();
+    if (backend_->isDisconnected()) {
+        updateConnectWindowStateProtocolPortDisplay();
+    }
 }
 
 void MainWindow::onSplitTunnelingStateChanged(bool isActive)
@@ -2555,10 +2557,12 @@ void MainWindow::updateConnectWindowStateProtocolPortDisplay()
     if (!backend_->getPreferences()->networkPreferredProtocol(curNetwork_.networkOrSsid).isAutomatic()) {
         mainWindowController_->getConnectWindow()->setProtocolPort(backend_->getPreferences()->networkPreferredProtocol(curNetwork_.networkOrSsid).protocol(),
                                                                    backend_->getPreferences()->networkPreferredProtocol(curNetwork_.networkOrSsid).port());
-    } else if (lastKnownGoodProtocol.isValid()) {
-        mainWindowController_->getConnectWindow()->setProtocolPort(lastKnownGoodProtocol, lastKnownGoodPort);
     } else if (backend_->getPreferences()->connectionSettings().isAutomatic()) {
-        mainWindowController_->getConnectWindow()->setProtocolPort(types::Protocol::WIREGUARD, 443);
+        if (lastKnownGoodProtocol.isValid()) {
+            mainWindowController_->getConnectWindow()->setProtocolPort(lastKnownGoodProtocol, lastKnownGoodPort);
+        } else {
+            mainWindowController_->getConnectWindow()->setProtocolPort(types::Protocol::WIREGUARD, 443);
+        }
     } else {
         mainWindowController_->getConnectWindow()->setProtocolPort(backend_->getPreferences()->connectionSettings().protocol(),
                                                                    backend_->getPreferences()->connectionSettings().port());
