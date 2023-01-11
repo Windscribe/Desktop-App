@@ -23,8 +23,7 @@ void CustomConfigConnSettingsPolicy::debugLocationInfoToLog() const
 
 void CustomConfigConnSettingsPolicy::putFailedConnection()
 {
-    if (!bStarted_)
-    {
+    if (!bStarted_) {
         return;
     }
 
@@ -40,8 +39,7 @@ CurrentConnectionDescr CustomConfigConnSettingsPolicy::getCurrentConnectionSetti
 {
     CurrentConnectionDescr ccd;
 
-    if (locationInfo_->isExistSelectedNode())
-    {
+    if (locationInfo_->isExistSelectedNode()) {
         ccd.connectionNodeType = CONNECTION_NODE_CUSTOM_CONFIG;
         ccd.ovpnData = locationInfo_->getOvpnData();
         ccd.isAllowFirewallAfterConnection = locationInfo_->isAllowFirewallAfterConnection();
@@ -51,18 +49,11 @@ CurrentConnectionDescr CustomConfigConnSettingsPolicy::getCurrentConnectionSetti
         ccd.port = locationInfo_->getSelectedPort();
         ccd.protocol = types::Protocol::fromString(locationInfo_->getSelectedProtocol());
         ccd.wgCustomConfig = locationInfo_->getWireguardCustomConfig(ccd.ip);
-    }
-    else
-    {
+    } else {
         ccd.connectionNodeType = CONNECTION_NODE_ERROR;
     }
 
     return ccd;
-}
-
-void CustomConfigConnSettingsPolicy::saveCurrentSuccessfullConnectionSettings()
-{
-    //nothing todo
 }
 
 bool CustomConfigConnSettingsPolicy::isAutomaticMode()
@@ -80,4 +71,7 @@ void CustomConfigConnSettingsPolicy::onHostnamesResolved()
     emit hostnamesResolved();
 }
 
-
+bool CustomConfigConnSettingsPolicy::hasProtocolChanged()
+{
+    return false;
+}

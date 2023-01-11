@@ -91,7 +91,8 @@ MainWindow::MainWindow() :
     isSpontaneousCloseEvent_(false),
     isExitingAfterUpdate_(false),
     downloadRunning_(false),
-    ignoreUpdateUntilNextRun_(false)
+    ignoreUpdateUntilNextRun_(false),
+    userProtocolOverride_(false)
 {
     g_mainWindow = this;
 
@@ -177,6 +178,7 @@ MainWindow::MainWindow() :
     connect(backend_, &Backend::wireGuardAtKeyLimit, this, &MainWindow::onWireGuardAtKeyLimit);
     connect(backend_, &Backend::robertFiltersChanged, this, &MainWindow::onBackendRobertFiltersChanged);
     connect(backend_, &Backend::setRobertFilterResult, this, &MainWindow::onBackendSetRobertFilterResult);
+    connect(backend_, &Backend::protocolStatusChanged, this, &MainWindow::onBackendProtocolStatusChanged);
     connect(backend_, &Backend::helperSplitTunnelingStartFailed, this, &MainWindow::onHelperSplitTunnelingStartFailed);
     notificationsController_.connect(backend_, &Backend::notificationsChanged, &notificationsController_, &NotificationsController::updateNotifications);
     connect(this, &MainWindow::wireGuardKeyLimitUserResponse, backend_, &Backend::wireGuardKeyLimitUserResponse);
@@ -237,11 +239,18 @@ MainWindow::MainWindow() :
     connect(dynamic_cast<QObject*>(mainWindowController_->getConnectWindow()), SIGNAL(preferencesClick()), SLOT(onConnectWindowPreferencesClick()));
     connect(dynamic_cast<QObject*>(mainWindowController_->getConnectWindow()), SIGNAL(notificationsClick()), SLOT(onConnectWindowNotificationsClick()));
     connect(dynamic_cast<QObject*>(mainWindowController_->getConnectWindow()), SIGNAL(splitTunnelingButtonClick()), SLOT(onConnectWindowSplitTunnelingClick()));
+    connect(dynamic_cast<QObject*>(mainWindowController_->getConnectWindow()), SIGNAL(protocolsClick()), SLOT(onConnectWindowProtocolsClick()));
 
     dynamic_cast<QObject*>(mainWindowController_->getConnectWindow())->connect(dynamic_cast<QObject*>(backend_), SIGNAL(firewallStateChanged(bool)), SLOT(updateFirewallState(bool)));
 
     // news feed window signals
-    connect(dynamic_cast<QObject*>(mainWindowController_->getNewsFeedWindow()), SIGNAL(escClick()), SLOT(onEscapeNotificationsClick()));
+    connect(dynamic_cast<QObject*>(mainWindowController_->getNewsFeedWindow()), SIGNAL(escape()), SLOT(onEscapeNotificationsClick()));
+    // protocols window signals
+    connect(dynamic_cast<QObject*>(mainWindowController_->getProtocolWindow()), SIGNAL(escape()), SLOT(onEscapeProtocolsClick()));
+    connect(dynamic_cast<QObject*>(mainWindowController_->getProtocolWindow()), SIGNAL(protocolClicked(types::Protocol, uint)), SLOT(onProtocolWindowProtocolClick(types::Protocol, uint)));
+    connect(dynamic_cast<QObject*>(mainWindowController_->getProtocolWindow()), SIGNAL(setAsPreferredProtocol(types::ConnectionSettings)), SLOT(onProtocolWindowSetAsPreferred(types::ConnectionSettings)));
+    connect(dynamic_cast<QObject*>(mainWindowController_->getProtocolWindow()), SIGNAL(sendDebugLog()), SLOT(onSendDebugLogClick()));
+    connect(dynamic_cast<QObject*>(mainWindowController_->getProtocolWindow()), SIGNAL(stopConnection()), SLOT(onProtocolWindowDisconnect()));
 
     // preferences window signals
     connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(quitAppClick()), SLOT(onPreferencesQuitAppClick()));
@@ -252,7 +261,7 @@ MainWindow::MainWindow() :
     connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(advancedParametersClicked()), SLOT(onPreferencesAdvancedParametersClicked()));
     connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(currentNetworkUpdated(types::NetworkInterface)), SLOT(onCurrentNetworkUpdated(types::NetworkInterface)));
     connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(sendConfirmEmailClick()), SLOT(onPreferencesSendConfirmEmailClick()));
-    connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(sendDebugLogClick()), SLOT(onPreferencesSendDebugLogClick()));
+    connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(sendDebugLogClick()), SLOT(onSendDebugLogClick()));
     connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(manageAccountClick()), SLOT(onPreferencesManageAccountClick()));
     connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(addEmailButtonClick()), SLOT(onPreferencesAddEmailButtonClick()));
     connect(dynamic_cast<QObject*>(mainWindowController_->getPreferencesWindow()), SIGNAL(manageRobertRulesClick()), SLOT(onPreferencesManageRobertRulesClick()));
@@ -336,6 +345,7 @@ MainWindow::MainWindow() :
 #ifdef Q_OS_MAC
     connect(backend_->getPreferences(), &Preferences::hideFromDockChanged, this, &MainWindow::onPreferencesHideFromDockChanged);
 #endif
+    connect(backend_->getPreferences(), &Preferences::networkLastKnownGoodProtocolPortChanged, this, &MainWindow::onPreferencesLastKnownGoodProtocolChanged);
 
     // WindscribeApplication signals
     WindscribeApplication * app = WindscribeApplication::instance();
@@ -906,6 +916,11 @@ void MainWindow::onConnectWindowPreferencesClick()
     mainWindowController_->expandPreferences();
 }
 
+void MainWindow::onConnectWindowProtocolsClick()
+{
+    mainWindowController_->expandProtocols(ProtocolWindowMode::kChangeProtocol);
+}
+
 void MainWindow::onConnectWindowNotificationsClick()
 {
     mainWindowController_->getNewsFeedWindow()->setMessages(
@@ -922,6 +937,30 @@ void MainWindow::onConnectWindowSplitTunnelingClick()
 void MainWindow::onEscapeNotificationsClick()
 {
     mainWindowController_->collapseNewsFeed();
+}
+
+void MainWindow::onEscapeProtocolsClick()
+{
+    mainWindowController_->collapseProtocols();
+}
+
+void MainWindow::onProtocolWindowProtocolClick(const types::Protocol &protocol, uint port)
+{
+    mainWindowController_->getConnectWindow()->setProtocolPort(protocol, port);
+    backend_->sendConnect(PersistentState::instance().lastLocation(), types::ConnectionSettings(protocol, port, false));
+    userProtocolOverride_ = true;
+}
+
+void MainWindow::onProtocolWindowSetAsPreferred(const types::ConnectionSettings &settings)
+{
+    if (curNetwork_.isValid()) {
+        backend_->getPreferences()->setNetworkPreferredProtocol(curNetwork_.networkOrSsid, settings);
+    }
+}
+
+void MainWindow::onProtocolWindowDisconnect()
+{
+    backend_->sendDisconnect();
 }
 
 void MainWindow::onPreferencesEscapeClick()
@@ -998,7 +1037,7 @@ void MainWindow::onPreferencesSendConfirmEmailClick()
     backend_->sendConfirmEmail();
 }
 
-void MainWindow::onPreferencesSendDebugLogClick()
+void MainWindow::onSendDebugLogClick()
 {
     backend_->sendDebugLog();
 }
@@ -1404,6 +1443,9 @@ void MainWindow::onBackendInitFinished(INIT_STATE initState)
             mainWindowController_->getInitWindow()->startSlideAnimation();
             gotoLoginWindow();
         }
+
+        // Reset last known good protocol/port
+        backend_->getPreferences()->clearLastKnownGoodProtocols();
 
         updateConnectWindowStateProtocolPortDisplay();
 
@@ -1824,11 +1866,6 @@ void MainWindow::onBackendConnectStateChanged(const types::ConnectState &connect
         }
     }
 
-    if (connectState.connectState == CONNECT_STATE_DISCONNECTED)
-    {
-        updateConnectWindowStateProtocolPortDisplay();
-    }
-
     if (connectState.connectState == CONNECT_STATE_CONNECTED)
     {
         bytesTransferred_ = 0;
@@ -1853,12 +1890,17 @@ void MainWindow::onBackendConnectStateChanged(const types::ConnectState &connect
     }
     else if (connectState.connectState == CONNECT_STATE_CONNECTING || connectState.connectState == CONNECT_STATE_DISCONNECTING)
     {
+        mainWindowController_->getProtocolWindow()->resetProtocolStatus();
+
         updateAppIconType(AppIconType::CONNECTING);
         updateTrayIconType(AppIconType::CONNECTING);
         mainWindowController_->clearServerRatingsTooltipState();
+
     }
     else if (connectState.connectState == CONNECT_STATE_DISCONNECTED)
     {
+        updateConnectWindowStateProtocolPortDisplay();
+
         // Ensure the icon has been updated, as QSystemTrayIcon::showMessage displays this icon
         // in the notification window on Windows.
         updateAppIconType(AppIconType::DISCONNECTED);
@@ -1876,6 +1918,9 @@ void MainWindow::onBackendConnectStateChanged(const types::ConnectState &connect
         {
             handleDisconnectWithError(connectState);
         }
+
+        mainWindowController_->getProtocolWindow()->resetProtocolStatus();
+        userProtocolOverride_ = false;
     }
 }
 
@@ -2083,6 +2128,31 @@ void MainWindow::onBackendTestTunnelResult(bool success)
                "Please disconnect and send us a Debug Log, by going into Preferences and clicking the \"Send Log\" button."));
     }
 
+    if (success) {
+        types::ProtocolStatus ps = mainWindowController_->getConnectWindow()->getProtocolStatus();
+
+        mainWindowController_->getProtocolWindow()->setProtocolStatus(
+            types::ProtocolStatus(ps.protocol, ps.port, types::ProtocolStatus::Status::kConnected));
+
+        if (backend_->getPreferences()->networkLastKnownGoodProtocol(curNetwork_.networkOrSsid) != ps.protocol ||
+            backend_->getPreferences()->networkLastKnownGoodPort(curNetwork_.networkOrSsid) != ps.port)
+        {
+            backend_->getPreferences()->setNetworkLastKnownGoodProtocolPort(curNetwork_.networkOrSsid, ps.protocol, ps.port);
+
+            // User manually selected a network or we failed over to a different protocol for the first time.
+            // Ask if they want to save
+            if (userProtocolOverride_) {
+                if (!backend_->getPreferences()->hasNetworkPreferredProtocol(curNetwork_.networkOrSsid) ||
+                    backend_->getPreferences()->networkPreferredProtocol(curNetwork_.networkOrSsid).protocol() != ps.protocol ||
+                    backend_->getPreferences()->networkPreferredProtocol(curNetwork_.networkOrSsid).port() != ps.port)
+                {
+                    mainWindowController_->expandProtocols(ProtocolWindowMode::kSavePreferredProtocol);
+                }
+                userProtocolOverride_ = false;
+            }
+        }
+    }
+
     mainWindowController_->getConnectWindow()->setTestTunnelResult(success);
 }
 
@@ -2223,6 +2293,12 @@ void MainWindow::onBackendSetRobertFilterResult(bool success)
 void MainWindow::onBackendSyncRobertResult(bool success)
 {
     qCDebug(LOG_BASIC) << "Sync ROBERT response:" << success;
+}
+
+void MainWindow::onBackendProtocolStatusChanged(const QVector<types::ProtocolStatus> &status)
+{
+    mainWindowController_->getProtocolWindow()->setProtocolStatus(status);
+    mainWindowController_->expandProtocols();
 }
 
 void MainWindow::onBackendUpdateVersionChanged(uint progressPercent, UPDATE_VERSION_STATE state, UPDATE_VERSION_ERROR error)
@@ -2473,17 +2549,17 @@ void MainWindow::onPreferencesLaunchOnStartupChanged(bool bEnabled)
 
 void MainWindow::updateConnectWindowStateProtocolPortDisplay()
 {
-    if (!backend_->getPreferences()->networkPreferredProtocol(curNetwork_.networkOrSsid).isAutomatic())
-    {
+    types::Protocol lastKnownGoodProtocol = backend_->getPreferences()->networkLastKnownGoodProtocol(curNetwork_.networkOrSsid);
+    uint lastKnownGoodPort = backend_->getPreferences()->networkLastKnownGoodPort(curNetwork_.networkOrSsid);
+
+    if (!backend_->getPreferences()->networkPreferredProtocol(curNetwork_.networkOrSsid).isAutomatic()) {
         mainWindowController_->getConnectWindow()->setProtocolPort(backend_->getPreferences()->networkPreferredProtocol(curNetwork_.networkOrSsid).protocol(),
                                                                    backend_->getPreferences()->networkPreferredProtocol(curNetwork_.networkOrSsid).port());
-    }
-    else if (backend_->getPreferences()->connectionSettings().isAutomatic())
-    {
+    } else if (lastKnownGoodProtocol.isValid()) {
+        mainWindowController_->getConnectWindow()->setProtocolPort(lastKnownGoodProtocol, lastKnownGoodPort);
+    } else if (backend_->getPreferences()->connectionSettings().isAutomatic()) {
         mainWindowController_->getConnectWindow()->setProtocolPort(types::Protocol::WIREGUARD, 443);
-    }
-    else
-    {
+    } else {
         mainWindowController_->getConnectWindow()->setProtocolPort(backend_->getPreferences()->connectionSettings().protocol(),
                                                                    backend_->getPreferences()->connectionSettings().port());
     }
@@ -2514,6 +2590,16 @@ void MainWindow::onPreferencesIsDockedToTrayChanged(bool isDocked)
     mainWindowController_->setIsDockedToTray(isDocked);
     bMoveEnabled_ = !isDocked;
     qApp->processEvents(QEventLoop::ExcludeUserInputEvents);
+}
+
+void MainWindow::onPreferencesLastKnownGoodProtocolChanged(const QString &network, const types::Protocol &protocol, uint port)
+{
+    Q_UNUSED(protocol);
+    Q_UNUSED(port);
+
+    if (network == curNetwork_.networkOrSsid && backend_->isDisconnected()) {
+        updateConnectWindowStateProtocolPortDisplay();
+    }
 }
 
 #ifdef Q_OS_MAC

@@ -41,7 +41,7 @@ public:
     void loginWithLastLoginSettings();
     bool isLastLoginWithAuthHash() const;
     void signOut(bool keepFirewallOn);
-    void sendConnect(const LocationID &lid);
+    void sendConnect(const LocationID &lid, const types::ConnectionSettings &connectionSettings = types::ConnectionSettings(types::Protocol(), 0, true));
     void sendDisconnect();
     bool isDisconnected() const;
     CONNECT_STATE currentConnectState() const;
@@ -170,6 +170,7 @@ signals:
 
     void wireGuardAtKeyLimit();
     void wireGuardKeyLimitUserResponse(bool deleteOldestKey);
+    void protocolStatusChanged(const QVector<types::ProtocolStatus> &status);
 
     void helperSplitTunnelingStartFailed();
 

@@ -251,6 +251,7 @@ public:
     }
 
     LocationID locationId_;
+    types::ConnectionSettings connectionSettings_;
 };
 
 class Disconnect : public Command

@@ -50,6 +50,7 @@ struct EngineSettingsData : public QSharedData
     types::ConnectedDnsInfo connectedDnsInfo;
     DNS_MANAGER_TYPE dnsManager;
     QMap<QString, types::ConnectionSettings> networkPreferredProtocols;
+    QMap<QString, std::pair<types::Protocol, uint>> networkLastKnownGoodProtocols;
 };
 
 
@@ -98,6 +99,10 @@ public:
     void setConnectedDnsInfo(const types::ConnectedDnsInfo &info);
     const QMap<QString, types::ConnectionSettings> &networkPreferredProtocols() const;
     void setNetworkPreferredProtocols(const QMap<QString, types::ConnectionSettings> &settings);
+    const types::Protocol networkLastKnownGoodProtocol(const QString &network) const;
+    uint networkLastKnownGoodPort(const QString &network) const;
+    void setNetworkLastKnownGoodProtocolPort(const QString &network, const types::Protocol &protocol, uint port);
+    void clearLastKnownGoodProtocols(const QString &network);
 
     bool isUseWintun() const;
     TAP_ADAPTER_TYPE tapAdapter() const;
@@ -122,7 +127,7 @@ private:
 
     // for serialization
     static constexpr quint32 magic_ = 0x7745C2AE;
-    static constexpr int versionForSerialization_ = 2;  // should increment the version if the data format is changed
+    static constexpr int versionForSerialization_ = 3;  // should increment the version if the data format is changed
 };
 
 

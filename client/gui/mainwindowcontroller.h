@@ -20,10 +20,12 @@
 #include "overlaysconnectwindow/igeneralmessagewindow.h"
 #include "overlaysconnectwindow/igeneralmessagetwobuttonwindow.h"
 #include "newsfeedwindow/inewsfeedwindow.h"
+#include "protocolwindow/iprotocolwindow.h"
 #include "externalconfig/iexternalconfigwindow.h"
 #include "twofactorauth/itwofactorauthwindow.h"
 #include "bottominfowidget/ibottominfoitem.h"
 #include "tooltips/tooltipcontroller.h"
+#include "windowsizemanager.h"
 
 #include "backend/preferences/preferenceshelper.h"
 #include "backend/preferences/accountinfo.h"
@@ -73,9 +75,10 @@ public:
 
     void expandPreferences();
     void collapsePreferences();
-
     void expandNewsFeed();
     void collapseNewsFeed();
+    void expandProtocols(ProtocolWindowMode mode = ProtocolWindowMode::kUninitialized);
+    void collapseProtocols();
 
     void showUpdateWidget();
     void hideUpdateWidget();
@@ -94,6 +97,7 @@ public:
     IPreferencesWindow *getPreferencesWindow() { return preferencesWindow_; }
     IBottomInfoItem *getBottomInfoWindow() { return bottomInfoWindow_; }
     INewsFeedWindow *getNewsFeedWindow() { return newsFeedWindow_; }
+    IProtocolWindow *getProtocolWindow() { return protocolWindow_; }
     IEmergencyConnectWindow *getEmergencyConnectWindow() { return emergencyConnectWindow_; }
     IExternalConfigWindow *getExternalConfigWindow() { return externalConfigWindow_; }
     ITwoFactorAuthWindow *getTwoFactorAuthWindow() { return twoFactorAuthWindow_; }
@@ -135,10 +139,8 @@ private slots:
 
     void onLocationsWindowHeightChanged();
 
-    void onPreferencesResize();
-    void onPreferencesResizeFinished();
-    void onNewsFeedResize();
-    void onNewsFeedResizeFinished();
+    void onWindowResize(ResizableWindow *window);
+    void onWindowResizeFinished(ResizableWindow *window);
 
     void onBottomInfoHeightChanged();
     void onBottomInfoPosChanged();
@@ -156,6 +158,7 @@ private:
 
     QWidget *mainWindow_;
     ShadowManager *shadowManager_;
+    WindowSizeManager *windowSizeManager_;
     Preferences *preferences_;
     PreferencesHelper *preferencesHelper_;
 
@@ -173,6 +176,7 @@ private:
     IUpdateWindow *updateWindow_;
     IUpgradeWindow *upgradeAccountWindow_;
     INewsFeedWindow *newsFeedWindow_;
+    IProtocolWindow *protocolWindow_;
     IBottomInfoItem *bottomInfoWindow_;
     IGeneralMessageWindow *generalMessageWindow_;
     IUpdateAppItem *updateAppItem_;
@@ -196,19 +200,13 @@ private:
     static constexpr int SCREEN_SWITCH_OPACITY_ANIMATION_DURATION = 150;
     static constexpr int EXPAND_CHILD_WINDOW_OPACITY_DURATION = 200;
     static constexpr int EXPAND_PREFERENCES_RESIZE_DURATION = 250;
-    static constexpr int EXPAND_NEWS_FEED_RESIZE_DURATION = 200;
+    static constexpr int EXPAND_WINDOW_RESIZE_DURATION = 200;
     static constexpr int EXPAND_ANIMATION_DURATION = 250;
     static constexpr int HIDE_BOTTOM_INFO_ANIMATION_DURATION = 150;
     static constexpr int BOTTOM_INFO_POS_Y_SHOWING = 287;
     static constexpr int BOTTOM_INFO_POS_Y_HIDING = 295;
     static constexpr int BOTTOM_INFO_POS_Y_VAN_GOGH = 264;
     static constexpr int UPDATE_WIDGET_HEIGHT = 28;
-
-    enum CHILD_WINDOW_STATE { CHILD_WINDOW_STATE_EXPANDED, CHILD_WINDOW_STATE_COLLAPSED, CHILD_WINDOW_STATE_ANIMATING };
-    CHILD_WINDOW_STATE preferencesState_;
-    CHILD_WINDOW_STATE newsFeedState_;
-    int preferencesWindowHeight_;
-    int newsFeedWindowHeight_;
 
     bool isAtomicAnimationActive_;      // animation which cannot be interrupted is active
     QQueue<WINDOW_ID> queueWindowChanges_;
@@ -239,10 +237,7 @@ private:
     void closeExitWindow();
 
     void expandPreferencesFromLogin();
-    void expandPreferencesFromConnect();
-
     void collapsePreferencesFromLogin();
-    void collapsePreferencesFromConnect(bool bSkipBottomInfoWindowAnimate);
 
     void collapseAllExpandedOnBottom();
 
@@ -265,8 +260,6 @@ private:
     void setMaskForGraphicsView();
     void clearMaskForGraphicsView();
 
-    int lastPreferencesWindowHeight_;
-    int lastNewsFeedWindowHeight_;
     int locationWindowHeightScaled_; // Previously there were issues dynamically grabbing locationsWindow height... keeping a cache somehow helped. Not sure if the original issue persists
 
     void keepWindowInsideScreenCoordinates();
@@ -295,6 +288,10 @@ private:
     TaskbarLocation primaryScreenTaskbarLocation_win();
     QRect taskbarAwareDockedGeometry_win(int width, int shadowSize, int widthWithShadow, int heightWithShadow);
 #endif
+
+    void expandWindow(ResizableWindow *window);
+    void collapseWindow(ResizableWindow *window, bool bSkipBottomInfoWindowAnimate = false);
+
 };
 
 #endif // MAINWINDOWCONTROLLER_H

@@ -78,11 +78,6 @@ CurrentConnectionDescr ManualConnSettingsPolicy::getCurrentConnectionSettings() 
     return ccd;
 }
 
-void ManualConnSettingsPolicy::saveCurrentSuccessfullConnectionSettings()
-{
-    //nothing todo
-}
-
 bool ManualConnSettingsPolicy::isAutomaticMode()
 {
     return false;
@@ -92,4 +87,9 @@ void ManualConnSettingsPolicy::resolveHostnames()
 {
     //nothing todo
     emit hostnamesResolved();
+}
+
+bool ManualConnSettingsPolicy::hasProtocolChanged()
+{
+    return false;
 }

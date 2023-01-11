@@ -21,7 +21,7 @@ void EngineSettings::saveToSettings()
         ds << d->language << d->updateChannel << d->isIgnoreSslErrors << d->isTerminateSockets << d->isAllowLanTraffic <<
               d->firewallSettings << d->connectionSettings << d->apiResolutionSettings << d->proxySettings << d->packetSize <<
               d->macAddrSpoofing << d->dnsPolicy << d->tapAdapter << d->customOvpnConfigsPath << d->isKeepAliveEnabled <<
-              d->connectedDnsInfo << d->dnsManager << d->networkPreferredProtocols;
+              d->connectedDnsInfo << d->dnsManager << d->networkPreferredProtocols << d->networkLastKnownGoodProtocols;
     }
 
     QSettings settings;
@@ -55,6 +55,10 @@ void EngineSettings::loadFromSettings()
             if (version >= 2)
             {
                 ds >> d->networkPreferredProtocols;
+            }
+            if (version >= 3)
+            {
+                ds >> d->networkLastKnownGoodProtocols;
             }
             if (ds.status() == QDataStream::Ok)
             {
@@ -298,6 +302,32 @@ void EngineSettings::setNetworkPreferredProtocols(const QMap<QString, types::Con
     saveToSettings();
 }
 
+const types::Protocol EngineSettings::networkLastKnownGoodProtocol(const QString &network) const
+{
+    return d->networkLastKnownGoodProtocols[network].first;
+}
+
+uint EngineSettings::networkLastKnownGoodPort(const QString &network) const
+{
+    return d->networkLastKnownGoodProtocols[network].second;
+}
+
+void EngineSettings::setNetworkLastKnownGoodProtocolPort(const QString &network, const types::Protocol &protocol, uint port)
+{
+    d->networkLastKnownGoodProtocols[network] = std::make_pair(protocol, port);
+    saveToSettings();
+}
+
+void EngineSettings::clearLastKnownGoodProtocols(const QString &network)
+{
+    if (network.isEmpty()) {
+        d->networkLastKnownGoodProtocols.clear();
+    } else {
+        d->networkLastKnownGoodProtocols.remove(network);
+    }
+    saveToSettings();
+}
+
 bool EngineSettings::operator==(const EngineSettings &other) const
 {
     return  other.d->language == d->language &&
@@ -317,7 +347,8 @@ bool EngineSettings::operator==(const EngineSettings &other) const
             other.d->isKeepAliveEnabled == d->isKeepAliveEnabled &&
             other.d->connectedDnsInfo == d->connectedDnsInfo &&
             other.d->dnsManager == d->dnsManager &&
-            other.d->networkPreferredProtocols == d->networkPreferredProtocols;
+            other.d->networkPreferredProtocols == d->networkPreferredProtocols &&
+            other.d->networkLastKnownGoodProtocols == d->networkLastKnownGoodProtocols;
 }
 
 bool EngineSettings::operator!=(const EngineSettings &other) const
@@ -348,8 +379,14 @@ QDebug operator<<(QDebug dbg, const EngineSettings &es)
     dbg << "isKeepAliveEnabled:" << es.d->isKeepAliveEnabled << "; ";
     dbg << "connectedDnsInfo:" << es.d->connectedDnsInfo << "; ";
     dbg << "dnsManager:" << DNS_MANAGER_TYPE_toString(es.d->dnsManager) << "; ";
-    dbg << "networkPreferredProtocols:" << es.d->networkPreferredProtocols << "}";
-
+    dbg << "networkPreferredProtocols:" << es.d->networkPreferredProtocols << "; ";
+    dbg << "networkLastKnownGoodProtocols: {" << es.d->networkPreferredProtocols << "; ";
+    for (auto network : es.d->networkLastKnownGoodProtocols.keys()) {
+        dbg << network << ": ";
+        dbg << es.d->networkLastKnownGoodProtocols[network].first.toLongString() << ":";
+        dbg << es.d->networkLastKnownGoodProtocols[network].second << "; ";
+    }
+    dbg << "}}";
     return dbg;
 }
 

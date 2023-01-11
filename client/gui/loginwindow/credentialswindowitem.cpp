@@ -571,7 +571,7 @@ void CredentialsWindowItem::updatePositions()
     firewallTurnOffButton_->setPos((LOGIN_WIDTH - 8 - firewallTurnOffButton_->getWidth())*G_SCALE, 0);
 #endif
 
-    backButton_->setPos(16*G_SCALE, 36*G_SCALE);
+    backButton_->setPos(16*G_SCALE, 28*G_SCALE);
 
     int bottom_button_y = LOGIN_HEIGHT*G_SCALE - settingsButton_->boundingRect().width() - WINDOW_MARGIN*G_SCALE;
     int window_center_x_offset = WINDOW_WIDTH/2*G_SCALE - settingsButton_->boundingRect().width()/2;

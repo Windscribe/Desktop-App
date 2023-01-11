@@ -64,7 +64,9 @@ ConnectionManager::ConnectionManager(QObject *parent, IHelper *helper, INetworkD
     bWakeSignalReceived_(false),
     currentConnectionDescr_()
 {
-    connect(&timerReconnection_, SIGNAL(timeout()), SLOT(onTimerReconnection()));
+    connect(&timerReconnection_, &QTimer::timeout, this, &ConnectionManager::onTimerReconnection);
+    connect(&connectTimer_, &QTimer::timeout, this, &ConnectionManager::onConnectTrigger);
+    connect(&connectingTimer_, &QTimer::timeout, this, &ConnectionManager::onConnectingTimeout);
 
     stunnelManager_ = new StunnelManager(this);
     connect(stunnelManager_, SIGNAL(stunnelFinished()), SLOT(onStunnelFinishedBeforeConnection()));
@@ -94,8 +96,8 @@ ConnectionManager::ConnectionManager(QObject *parent, IHelper *helper, INetworkD
 
     connect(&timerWaitNetworkConnectivity_, SIGNAL(timeout()), SLOT(onTimerWaitNetworkConnectivity()));
 
-    getWireGuardConfigInLoop_ = new GetWireGuardConfigInLoop(this, serverAPI);
-    connect(getWireGuardConfigInLoop_, &GetWireGuardConfigInLoop::getWireGuardConfigAnswer, this, &ConnectionManager::onGetWireGuardConfigAnswer);
+    getWireGuardConfig_ = new GetWireGuardConfig(this, serverAPI);
+    connect(getWireGuardConfig_, &GetWireGuardConfig::getWireGuardConfigAnswer, this, &ConnectionManager::onGetWireGuardConfigAnswer);
 }
 
 ConnectionManager::~ConnectionManager()
@@ -107,7 +109,7 @@ ConnectionManager::~ConnectionManager()
     SAFE_DELETE(makeOVPNFile_);
     SAFE_DELETE(makeOVPNFileFromCustom_);
     SAFE_DELETE(sleepEvents_);
-    SAFE_DELETE(getWireGuardConfigInLoop_);
+    SAFE_DELETE(getWireGuardConfig_);
 }
 
 void ConnectionManager::clickConnect(const QString &ovpnConfig, const apiinfo::ServerCredentials &serverCredentials,
@@ -153,7 +155,7 @@ void ConnectionManager::clickDisconnect()
               state_ == STATE_DISCONNECTING_FROM_USER_CLICK || state_ == STATE_WAIT_FOR_NETWORK_CONNECTIVITY || state_ == STATE_DISCONNECTED);
 
     timerWaitNetworkConnectivity_.stop();
-    getWireGuardConfigInLoop_->stop();
+    connectTimer_.stop();
 
     if (state_ != STATE_DISCONNECTING_FROM_USER_CLICK)
     {
@@ -326,7 +328,7 @@ void ConnectionManager::onConnectionConnected(const AdapterGatewayInfo &connecti
     }
 
     timerReconnection_.stop();
-    getWireGuardConfigInLoop_->stop();
+    connectingTimer_.stop();
     state_ = STATE_CONNECTED;
     Q_EMIT connected();
 }
@@ -347,7 +349,7 @@ void ConnectionManager::onConnectionDisconnected()
     stunnelManager_->killProcess();
     wstunnelManager_->killProcess();
     timerWaitNetworkConnectivity_.stop();
-    getWireGuardConfigInLoop_->stop();
+    connectingTimer_.stop();
 
     switch (state_)
     {
@@ -355,6 +357,7 @@ void ConnectionManager::onConnectionDisconnected()
             state_ = STATE_DISCONNECTED;
             connSettingsPolicy_->reset();
             timerReconnection_.stop();
+            connectTimer_.stop();
             Q_EMIT disconnected(DISCONNECTED_BY_USER);
             break;
         case STATE_CONNECTED:
@@ -369,6 +372,7 @@ void ConnectionManager::onConnectionDisconnected()
         case STATE_AUTO_DISCONNECT:
             state_ = STATE_DISCONNECTED;
             timerReconnection_.stop();
+            connectTimer_.stop();
             Q_EMIT disconnected(DISCONNECTED_ITSELF);
             break;
         case STATE_DISCONNECTED:
@@ -389,11 +393,12 @@ void ConnectionManager::onConnectionDisconnected()
                 bNeedResetTap_ = false;
             }
 #endif
-            doConnect();
+            connectOrStartConnectTimer();
             break;
         case STATE_RECONNECTION_TIME_EXCEED:
             state_ = STATE_DISCONNECTED;
             timerReconnection_.stop();
+            connectTimer_.stop();
             Q_EMIT disconnected(DISCONNECTED_BY_RECONNECTION_TIMEOUT_EXCEEDED);
             break;
 
@@ -487,12 +492,19 @@ void ConnectionManager::onConnectionReconnecting()
                 {
                     connSettingsPolicy_->reset();
                 }
-                connector_->startDisconnect();
+                if (connector_) {
+                    connector_->startDisconnect();
+                } else {
+                    state_ = STATE_DISCONNECTED;
+                    connectOrStartConnectTimer();
+                }
             }
             else
             {
                 state_ = STATE_AUTO_DISCONNECT;
-                connector_->startDisconnect();
+                if (connector_) {
+                    connector_->startDisconnect();
+                }
                 Q_EMIT showFailedAutomaticConnectionMessage();
             }
             break;
@@ -546,7 +558,6 @@ void ConnectionManager::onConnectionError(CONNECT_ERROR err)
         // immediately stop trying to connect
         state_ = STATE_DISCONNECTED;
         timerReconnection_.stop();
-        getWireGuardConfigInLoop_->stop();
         Q_EMIT errorDuringConnection(err);
     }
     else if (err == CONNECT_ERROR::STATE_TIMEOUT_FOR_AUTOMATIC
@@ -659,7 +670,7 @@ void ConnectionManager::onSleepMode()
     qCDebug(LOG_CONNECTION) << "ConnectionManager::onSleepMode(), state_ =" << state_;
 
     timerReconnection_.stop();
-    getWireGuardConfigInLoop_->stop();
+    connectTimer_.stop();
     bWakeSignalReceived_ = false;
 
     switch (state_)
@@ -696,7 +707,7 @@ void ConnectionManager::onWakeMode()
 {
     qCDebug(LOG_CONNECTION) << "ConnectionManager::onWakeMode(), state_ =" << state_;
     timerReconnection_.stop();
-    getWireGuardConfigInLoop_->stop();
+    connectTimer_.stop();
     bWakeSignalReceived_ = true;
 
     switch (state_)
@@ -860,6 +871,21 @@ void ConnectionManager::doConnect()
     defaultAdapterInfo_ = AdapterGatewayInfo::detectAndCreateDefaultAdaperInfo();
     qCDebug(LOG_CONNECTION) << "Default adapter and gateway:" << defaultAdapterInfo_.makeLogString();
 
+    connectTimer_.stop();
+
+    connectingTimer_.setSingleShot(true);
+    if (connSettingsPolicy_->isAutomaticMode()) {
+        CurrentConnectionDescr settings = connSettingsPolicy_->getCurrentConnectionSettings();
+        if (settings.protocol == types::Protocol::WIREGUARD) {
+            connectingTimer_.setInterval(kConnectingTimeoutWireGuard);
+        } else {
+            connectingTimer_.setInterval(kConnectingTimeout);
+        }
+    } else {
+        connectingTimer_.setInterval(kConnectingTimeout);
+    }
+    connectingTimer_.start();
+
     connSettingsPolicy_->resolveHostnames();
 }
 
@@ -879,7 +905,6 @@ void ConnectionManager::doConnectPart2()
         qCDebug(LOG_CONNECTION) << "connSettingsPolicy_.getCurrentConnectionSettings returned incorrect value";
         state_ = STATE_DISCONNECTED;
         timerReconnection_.stop();
-        getWireGuardConfigInLoop_->stop();
         Q_EMIT errorDuringConnection(CONNECT_ERROR::LOCATION_NO_ACTIVE_NODES);
         return;
     }
@@ -945,7 +970,6 @@ void ConnectionManager::doConnectPart2()
                 {
                     state_ = STATE_DISCONNECTED;
                     timerReconnection_.stop();
-                    getWireGuardConfigInLoop_->stop();
                     Q_EMIT errorDuringConnection(CONNECT_ERROR::EXE_VERIFY_STUNNEL_ERROR);
                     return;
                 }
@@ -956,7 +980,6 @@ void ConnectionManager::doConnectPart2()
                 {
                     state_ = STATE_DISCONNECTED;
                     timerReconnection_.stop();
-                    getWireGuardConfigInLoop_->stop();
                     Q_EMIT errorDuringConnection(CONNECT_ERROR::EXE_VERIFY_WSTUNNEL_ERROR);
                     return;
                 }
@@ -980,7 +1003,7 @@ void ConnectionManager::doConnectPart2()
         {
             qCDebug(LOG_CONNECTION) << "Requesting WireGuard config for hostname =" << currentConnectionDescr_.hostname;
             QString deviceId = (isStaticIpsLocation() ? GetDeviceId::instance().getDeviceId() : QString());
-            getWireGuardConfigInLoop_->getWireGuardConfig(currentConnectionDescr_.hostname, false, deviceId);
+            getWireGuardConfig_->getWireGuardConfig(currentConnectionDescr_.hostname, false, deviceId);
             return;
         }
     }
@@ -997,7 +1020,6 @@ void ConnectionManager::doConnectPart2()
                 //WS_ASSERT(false);
                 state_ = STATE_DISCONNECTED;
                 timerReconnection_.stop();
-                getWireGuardConfigInLoop_->stop();
                 Q_EMIT errorDuringConnection(CONNECT_ERROR::CANNOT_OPEN_CUSTOM_CONFIG);
                 return;
             }
@@ -1008,7 +1030,6 @@ void ConnectionManager::doConnectPart2()
                                         << currentConnectionDescr_.customConfigFilename;
                 state_ = STATE_DISCONNECTED;
                 timerReconnection_.stop();
-                getWireGuardConfigInLoop_->stop();
                 Q_EMIT errorDuringConnection(CONNECT_ERROR::CANNOT_OPEN_CUSTOM_CONFIG);
                 return;
             }
@@ -1249,9 +1270,8 @@ void ConnectionManager::onTunnelTestsFinished(bool bSuccess, const QString &ipAd
     {
         Q_EMIT testTunnelResult(true, ipAddress);
 
-        // if connection mode is automatic, save last successfully connection settings
+        // if connection mode is automatic
         bWasSuccessfullyConnectionAttempt_ = true;
-        connSettingsPolicy_->saveCurrentSuccessfullConnectionSettings();
     }
 }
 
@@ -1270,7 +1290,7 @@ void ConnectionManager::onTimerWaitNetworkConnectivity()
             qCDebug(LOG_CONNECTION) << "Time for wait network connection exceed";
             timerWaitNetworkConnectivity_.stop();
             timerReconnection_.stop();
-            getWireGuardConfigInLoop_->stop();
+            connectTimer_.stop();
             state_ = STATE_DISCONNECTED;
             Q_EMIT disconnected(DISCONNECTED_BY_RECONNECTION_TIMEOUT_EXCEEDED);
         }
@@ -1302,8 +1322,10 @@ void ConnectionManager::onGetWireGuardConfigAnswer(WireGuardConfigRetCode retCod
     }
     else
     {
-        // this should not happen logically
-        WS_ASSERT(false);
+        state_ = STATE_RECONNECTING;
+        Q_EMIT reconnecting();
+        startReconnectionTimer();
+        onConnectionReconnecting();
     }
 }
 
@@ -1335,7 +1357,7 @@ void ConnectionManager::onWireGuardKeyLimitUserResponse(bool deleteOldestKey)
     if (deleteOldestKey)
     {
         QString deviceId = (isStaticIpsLocation() ? GetDeviceId::instance().getDeviceId() : QString());
-        getWireGuardConfigInLoop_->getWireGuardConfig(currentConnectionDescr_.hostname, true, deviceId);
+        getWireGuardConfig_->getWireGuardConfig(currentConnectionDescr_.hostname, true, deviceId);
     }
     else
     {
@@ -1418,10 +1440,40 @@ void ConnectionManager::updateConnectionSettingsPolicy(const types::ConnectionSe
     if (bli_->locationId().isCustomConfigsLocation()) {
         connSettingsPolicy_.reset(new CustomConfigConnSettingsPolicy(bli_));
     } else if (connectionSettings.isAutomatic()) {
-        connSettingsPolicy_.reset(new AutoConnSettingsPolicy(bli_, portMap, proxySettings.isProxyEnabled()));
+        connSettingsPolicy_.reset(new AutoConnSettingsPolicy(bli_, portMap, proxySettings.isProxyEnabled(), lastKnownGoodProtocol_));
     } else {
         connSettingsPolicy_.reset(new ManualConnSettingsPolicy(bli_, connectionSettings, portMap));
     }
     connSettingsPolicy_->start();
-    connect(connSettingsPolicy_.data(), SIGNAL(hostnamesResolved()), SLOT(onHostnamesResolved()));
+    connect(connSettingsPolicy_.data(), &BaseConnSettingsPolicy::hostnamesResolved, this, &ConnectionManager::onHostnamesResolved);
+    connect(connSettingsPolicy_.data(), &BaseConnSettingsPolicy::protocolStatusChanged, this, &ConnectionManager::protocolStatusChanged);
+}
+
+void ConnectionManager::connectOrStartConnectTimer()
+{
+    if (connSettingsPolicy_->hasProtocolChanged()) {
+        connectTimer_.setSingleShot(true);
+        connectTimer_.setInterval(kConnectionWaitTimeMsec);
+        connectTimer_.start();
+    } else {
+        doConnect();
+    }
+}
+
+void ConnectionManager::onConnectTrigger()
+{
+    doConnect();
+}
+
+void ConnectionManager::setLastKnownGoodProtocol(const types::Protocol protocol) {
+    lastKnownGoodProtocol_ = protocol;
+}
+
+void ConnectionManager::onConnectingTimeout()
+{
+    qCDebug(LOG_CONNECTION) << "Connection timed out";
+    state_ = STATE_RECONNECTING;
+    Q_EMIT reconnecting();
+    startReconnectionTimer();
+    onConnectionReconnecting();
 }

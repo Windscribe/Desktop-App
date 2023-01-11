@@ -21,6 +21,8 @@ target_sources(gui PRIVATE
     iconbutton.h
     imageitem.cpp
     imageitem.h
+    resizablewindow.cpp
+    resizablewindow.h
     resizebar.cpp
     resizebar.h
     scalablegraphicsobject.cpp

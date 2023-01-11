@@ -108,6 +108,7 @@ bool EngineServer::handleCommand(IPC::Command *command)
             connect(engine_, &Engine::packetSizeDetectionStateChanged, this, &EngineServer::onEnginePacketSizeDetectionStateChanged);
             connect(engine_, &Engine::hostsFileBecameWritable, this, &EngineServer::onHostsFileBecameWritable);
             connect(engine_, &Engine::wireGuardAtKeyLimit, this, &EngineServer::wireGuardAtKeyLimit);
+            connect(engine_, &Engine::protocolStatusChanged, this, &EngineServer::onEngineProtocolStatusChanged);
             connect(this, &EngineServer::wireGuardKeyLimitUserResponse, engine_, &Engine::onWireGuardKeyLimitUserResponse);
             connect(engine_, &Engine::loginError, this, &EngineServer::onEngineLoginError);
             connect(engine_, &Engine::robertFiltersUpdated, this, &EngineServer::onEngineRobertFiltersUpdated);
@@ -182,7 +183,7 @@ bool EngineServer::handleCommand(IPC::Command *command)
     else if (command->getStringId() == IPC::ClientCommands::Connect::getCommandStringId())
     {
         IPC::ClientCommands::Connect *connectCmd = static_cast<IPC::ClientCommands::Connect *>(command);
-        engine_->connectClick(connectCmd->locationId_);
+        engine_->connectClick(connectCmd->locationId_, connectCmd->connectionSettings_);
         return true;
     }
     else if (command->getStringId() == IPC::ClientCommands::Disconnect::getCommandStringId())
@@ -638,6 +639,12 @@ void EngineServer::onEngineSetRobertFilterFinished(bool success)
 void EngineServer::onEngineSyncRobertFinished(bool success)
 {
     IPC::ServerCommands::SyncRobertFinished cmd(success);
+    sendCmdToAllAuthorizedAndGetStateClients(&cmd, false);
+}
+
+void EngineServer::onEngineProtocolStatusChanged(const QVector<types::ProtocolStatus> &status)
+{
+    IPC::ServerCommands::ProtocolStatusChanged cmd(status);
     sendCmdToAllAuthorizedAndGetStateClients(&cmd, false);
 }
 

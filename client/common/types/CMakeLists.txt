@@ -32,6 +32,7 @@ target_sources(common PRIVATE
     portmap.h
     protocol.cpp
     protocol.h
+    protocolstatus.h
     proxysettings.cpp
     proxysettings.h
     proxysharinginfo.h

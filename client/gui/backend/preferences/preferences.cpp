@@ -17,6 +17,17 @@ Preferences::Preferences(QObject *parent) : QObject(parent)
 {
 }
 
+Preferences::~Preferences()
+{
+    // make sure timers are cleaned up; don't call clearLastKnownGoodProtocols() here,
+    // because it will trigger a emit updateEngineSettings();
+    for (auto network : timers_.keys()) {
+        timers_[network]->stop();
+        SAFE_DELETE(timers_[network]);
+    }
+    timers_.clear();
+}
+
 bool Preferences::isLaunchOnStartup() const
 {
     return guiSettings_.isLaunchOnStartup;
@@ -241,6 +252,11 @@ void Preferences::setNetworkWhiteList(const QVector<types::NetworkInterface> &l)
 const types::ConnectionSettings Preferences::networkPreferredProtocol(QString networkOrSsid) const
 {
     return engineSettings_.networkPreferredProtocols()[networkOrSsid];
+}
+
+bool Preferences::hasNetworkPreferredProtocol(QString networkOrSsid) const
+{
+    return engineSettings_.networkPreferredProtocols().contains(networkOrSsid);
 }
 
 void Preferences::setNetworkPreferredProtocols(const QMap<QString, types::ConnectionSettings> &preferredProtocols)
@@ -596,6 +612,60 @@ void Preferences::setCustomOvpnConfigsPath(const QString &path)
     {
         engineSettings_.setCustomOvpnConfigsPath(path);
         emit customConfigsPathChanged(path);
+    }
+}
+
+types::Protocol Preferences::networkLastKnownGoodProtocol(const QString &network) const
+{
+    return engineSettings_.networkLastKnownGoodProtocol(network);
+}
+
+uint Preferences::networkLastKnownGoodPort(const QString &network) const
+{
+    return engineSettings_.networkLastKnownGoodPort(network);
+}
+
+void Preferences::setNetworkLastKnownGoodProtocolPort(const QString &network, const types::Protocol &protocol, uint port)
+{
+    if (engineSettings_.networkLastKnownGoodProtocol(network) != protocol ||
+        engineSettings_.networkLastKnownGoodPort(network) != port)
+    {
+        // if a timer doesn't exist for this netowrk, create it, otherwise use the existing one
+        if (!timers_.contains(network)) {
+            QTimer *timer = new QTimer(this);
+            timer->setSingleShot(true);
+            connect(timer, &QTimer::timeout, this, [this, network] () {
+                clearLastKnownGoodProtocols(network);
+            });
+            timers_[network] = timer;
+        }
+        // start or restart timer to clear this in 12 hours
+        timers_[network]->start(12*60*60*1000);
+
+        engineSettings_.setNetworkLastKnownGoodProtocolPort(network, protocol, port);
+        emit updateEngineSettings();
+        emit networkLastKnownGoodProtocolPortChanged(network, protocol, port);
+    }
+}
+
+void Preferences::clearLastKnownGoodProtocols(const QString &network)
+{
+    engineSettings_.clearLastKnownGoodProtocols(network);
+    emit updateEngineSettings();
+
+    if (!network.isEmpty()) {
+        if (timers_.contains(network)) {
+            timers_[network]->stop();
+            SAFE_DELETE(timers_[network]);
+            timers_.remove(network);
+        }
+        emit networkLastKnownGoodProtocolPortChanged(network, types::Protocol(types::Protocol::TYPE::UNINITIALIZED), 0);
+    } else {
+        for (auto network : timers_.keys()) {
+            timers_[network]->stop();
+            SAFE_DELETE(timers_[network]);
+        }
+        timers_.clear();
     }
 }
 

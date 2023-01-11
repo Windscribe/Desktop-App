@@ -7,6 +7,7 @@
 #include "graphicresources/imageresourcessvg.h"
 #include "commongraphics/commongraphics.h"
 #include "dpiscalemanager.h"
+#include "utils/logger.h"
 
 namespace PreferencesWindow {
 

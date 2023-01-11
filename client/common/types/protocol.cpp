@@ -74,6 +74,11 @@ bool Protocol::isWireGuardProtocol() const
     return value_ == WIREGUARD;
 }
 
+bool Protocol::isValid() const
+{
+    return value_ != UNINITIALIZED;
+}
+
 Protocol Protocol::fromString(const QString &strProtocol)
 {
     if (strProtocol.compare("UDP", Qt::CaseInsensitive) == 0) {

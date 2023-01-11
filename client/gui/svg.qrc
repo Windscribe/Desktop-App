@@ -4,6 +4,8 @@
         <file>svg/BADGE_ICON.svg</file>
         <file>svg/BOTTOM_BG.svg</file>
         <file>svg/BOTTOMLEFT_HORIZ_DIVIDER.svg</file>
+        <file>svg/CHECKMARK.svg</file>
+        <file>svg/CHECKMARK_IN_CIRCLE.svg</file>
         <file>svg/ESC_BUTTON.svg</file>
         <file>svg/FAV_DESELECTED.svg</file>
         <file>svg/FAV_SELECTED.svg</file>
@@ -18,6 +20,7 @@
         <file>svg/ring/ON_BUTTON.svg</file>
         <file>svg/ring/ON_BUTTON_SHADOW.svg</file>
         <file>svg/SHADOW.svg</file>
+        <file>svg/WARNING.svg</file>
         <file>svg/WINDOWS_CLOSE_ICON.svg</file>
         <file>svg/firewall/BLACK_TOGGLE_BG.svg</file>
         <file>svg/firewall/BLUE_TOGGLE_BG.svg</file>
@@ -319,11 +322,13 @@
         <file>svg/SPLIT_TUNNELING_CONNECTED.svg</file>
         <file>svg/SPLIT_TUNNELING_CONNECTING.svg</file>
         <file>svg/SPLIT_TUNNELING_DISCONNECTED.svg</file>
+        <file>svg/PROTOCOL_ARROW.svg</file>
         <file>svg/PROTOCOL_IKEV2.svg</file>
         <file>svg/PROTOCOL_STEALTH.svg</file>
         <file>svg/PROTOCOL_TCP.svg</file>
         <file>svg/PROTOCOL_UDP.svg</file>
         <file>svg/PROTOCOL_WSTUNNEL.svg</file>
+        <file>svg/CHANGE_PROTOCOL.svg</file>
         <file>svg/flags/noflag.svg</file>
         <file>svg/flags/pa.svg</file>
         <file>svg/flags/pe.svg</file>

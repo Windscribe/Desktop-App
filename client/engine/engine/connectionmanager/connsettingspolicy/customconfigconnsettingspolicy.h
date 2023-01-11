@@ -17,9 +17,9 @@ public:
     void putFailedConnection() override;
     bool isFailed() const override;
     CurrentConnectionDescr getCurrentConnectionSettings() const override;
-    void saveCurrentSuccessfullConnectionSettings() override;
     bool isAutomaticMode() override;
     void resolveHostnames() override;
+    bool hasProtocolChanged() override;
 
 private slots:
     void onHostnamesResolved();

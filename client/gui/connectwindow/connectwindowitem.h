@@ -41,6 +41,7 @@ public:
     void setFirewallBlock(bool isFirewallBlocked) override;
     void setTestTunnelResult(bool success) override;
     void setCornerColor(QColor color) override;
+    types::ProtocolStatus getProtocolStatus() override;
 
     void updateScaling() override;
 
@@ -80,8 +81,9 @@ signals:
     void firewallClick() override;
     void locationsClick() override;
     void notificationsClick() override;
-    void networkButtonClick();
-    void splitTunnelingButtonClick();
+    void networkButtonClick() override;
+    void splitTunnelingButtonClick() override;
+    void protocolsClick() override;
 
 private slots:
     void onAppSkinChanged(APP_SKIN s);

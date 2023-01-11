@@ -5,45 +5,27 @@
 #include "utils/ws_assert.h"
 #include "utils/logger.h"
 
-int AutoConnSettingsPolicy::failedIkev2Counter_ = 0;
-types::Protocol AutoConnSettingsPolicy::lastSuccessProtocol_;
+types::Protocol AutoConnSettingsPolicy::lastKnownGoodProtocol_;
 
 AutoConnSettingsPolicy::AutoConnSettingsPolicy(QSharedPointer<locationsmodel::BaseLocationInfo> bli,
-                                               const types::PortMap &portMap, bool isProxyEnabled)
+                                               const types::PortMap &portMap, bool isProxyEnabled,
+                                               const types::Protocol protocol)
 {
-    attemps_.clear();
+    attempts_.clear();
     curAttempt_ = 0;
     bIsAllFailed_ = false;
-    isFailedIkev2CounterAlreadyIncremented_ = false;
     portMap_ = portMap;
     locationInfo_ = qSharedPointerDynamicCast<locationsmodel::MutableLocationInfo>(bli);
     WS_ASSERT(!locationInfo_.isNull());
     WS_ASSERT(!locationInfo_->locationId().isCustomConfigsLocation());
 
-    // TODO: in the next task related to Protocol Failover
-    /*types::Protocol lastSuccessProtocolSaved;
-    QSettings settings;
-    if (settings.contains("successConnectionProtocol"))
-    {
-        QByteArray arr = settings.value("successConnectionProtocol").toByteArray();
-        QDataStream stream(&arr, QIODevice::ReadOnly);
-        QString strProtocol;
-        stream >> strProtocol;
-        lastSuccessProtocolSaved = types::Protocol::fromString(strProtocol);
-    }*/
+    if (protocol.isValid()) {
+        lastKnownGoodProtocol_ = protocol;
+    }
 
-
-    QVector<AttemptInfo> localAttemps;
-    for (int portMapInd = 0; portMapInd < portMap_.items().count(); ++portMapInd)
-    {
+    for (int portMapInd = 0; portMapInd < portMap_.items().count(); ++portMapInd) {
         // skip udp protocol, if proxy enabled
-        if (isProxyEnabled && portMap_.items()[portMapInd].protocol == types::Protocol::OPENVPN_UDP)
-        {
-            continue;
-        }
-        // skip ikev2 protocol if failed ikev2 attempts >= MAX_IKEV2_FAILED_ATTEMPTS
-        if (failedIkev2Counter_ >= MAX_IKEV2_FAILED_ATTEMPTS && portMap_.items()[portMapInd].protocol.isIkev2Protocol())
-        {
+        if (isProxyEnabled && portMap_.items()[portMapInd].protocol == types::Protocol::OPENVPN_UDP) {
             continue;
         }
 
@@ -51,46 +33,22 @@ AutoConnSettingsPolicy::AutoConnSettingsPolicy(QSharedPointer<locationsmodel::Ba
         attemptInfo.protocol = portMap_.items()[portMapInd].protocol;
         WS_ASSERT(portMap_.items()[portMapInd].ports.count() > 0);
         attemptInfo.portMapInd = portMapInd;
-        attemptInfo.changeNode = false;
 
-        localAttemps << attemptInfo;
-    }
-
-    if (localAttemps.count() > 0)
-    {
-        localAttemps.last().changeNode = true;
-    }
-
-    // if we have successfully saved connection settings, then use it first (move on top list)
-    // but if first protocol ikev2, then use it second
-    if (lastSuccessProtocol_ != types::Protocol::UNINITIALIZED)
-    {
-        AttemptInfo firstAttemptInfo;
-        bool bFound = false;
-        for (int i = 0; i < localAttemps.count(); ++i)
-        {
-            if (localAttemps[i].protocol == lastSuccessProtocol_)
-            {
-                firstAttemptInfo = localAttemps[i];
-                localAttemps.remove(i);
-                bFound = true;
-                break;
-            }
-        }
-        if (bFound)
-        {
-            localAttemps.insert(0, firstAttemptInfo);
+        // we attempt each protocol twice, so even indices are an initial attempt for a protocol and
+        // odd numbers are a retry on a different node
+        if (attemptInfo.protocol == lastKnownGoodProtocol_) {
+            // prepend in reverse order
+            attemptInfo.changeNode = true;
+            attempts_.prepend(attemptInfo);
+            attemptInfo.changeNode = false;
+            attempts_.prepend(attemptInfo);
+        } else {
+            attemptInfo.changeNode = false;
+            attempts_ << attemptInfo;
+            attemptInfo.changeNode = true;
+            attempts_ << attemptInfo;
         }
     }
-
-    // copy sorted localAttemps to attemps_
-    for (int nodeInd = 0; nodeInd < locationInfo_->nodesCount(); ++nodeInd)
-    {
-        attemps_ << localAttemps;
-    }
-
-    // duplicate attempts (because we need do all attempts twice)
-    attemps_ << attemps_;
 }
 
 void AutoConnSettingsPolicy::reset()
@@ -107,35 +65,28 @@ void AutoConnSettingsPolicy::debugLocationInfoToLog() const
 
 void AutoConnSettingsPolicy::putFailedConnection()
 {
-    if (!bStarted_)
-    {
+    if (!bStarted_) {
         return;
     }
 
-    if (attemps_[curAttempt_].protocol.isIkev2Protocol() && !isFailedIkev2CounterAlreadyIncremented_)
-    {
-        failedIkev2Counter_++;
-        isFailedIkev2CounterAlreadyIncremented_ = true;
-    }
-
-    if (curAttempt_ < (attemps_.count() - 1))
-    {
-        if (attemps_[curAttempt_].changeNode)
-        {
+    if (curAttempt_ < (attempts_.count() - 1)) {
+        if (attempts_[curAttempt_].changeNode) {
             locationInfo_->selectNextNode();
         }
         curAttempt_++;
-    }
-    else
-    {
+        // even indicies are a new protocol, so emit a change
+        if (curAttempt_ % 2 == 0) {
+            emit protocolStatusChanged(protocolStatus());
+        }
+    } else {
         bIsAllFailed_ = true;
+        emit protocolStatusChanged(protocolStatus());
     }
 }
 
 bool AutoConnSettingsPolicy::isFailed() const
 {
-    if (!bStarted_)
-    {
+    if (!bStarted_) {
         return false;
     }
     return bIsAllFailed_;
@@ -146,8 +97,8 @@ CurrentConnectionDescr AutoConnSettingsPolicy::getCurrentConnectionSettings() co
     CurrentConnectionDescr ccd;
 
     ccd.connectionNodeType = CONNECTION_NODE_DEFAULT;
-    ccd.protocol = attemps_[curAttempt_].protocol;
-    ccd.port = portMap_.const_items()[attemps_[curAttempt_].portMapInd].ports[0];
+    ccd.protocol = attempts_[curAttempt_].protocol;
+    ccd.port = portMap_.const_items()[attempts_[curAttempt_].portMapInd].ports[0];
 
     int useIpInd = portMap_.getUseIpInd(ccd.protocol);
     ccd.ip = locationInfo_->getIpForSelectedNode(useIpInd);
@@ -157,8 +108,7 @@ CurrentConnectionDescr AutoConnSettingsPolicy::getCurrentConnectionSettings() co
     ccd.verifyX509name = locationInfo_->getVerifyX509name();
 
     // for static IP set additional fields
-    if (locationInfo_->locationId().isStaticIpsLocation())
-    {
+    if (locationInfo_->locationId().isStaticIpsLocation()) {
         ccd.connectionNodeType = CONNECTION_NODE_STATIC_IPS;
         ccd.username = locationInfo_->getStaticIpUsername();
         ccd.password = locationInfo_->getStaticIpPassword();
@@ -174,25 +124,6 @@ CurrentConnectionDescr AutoConnSettingsPolicy::getCurrentConnectionSettings() co
     return ccd;
 }
 
-void AutoConnSettingsPolicy::saveCurrentSuccessfullConnectionSettings()
-{
-    // reset ikev2 failed attempts counter if we connected with ikev2 successfully
-    if (attemps_[curAttempt_].protocol.isIkev2Protocol())
-        failedIkev2Counter_ = 0;
-
-    lastSuccessProtocol_ = attemps_[curAttempt_].protocol;
-    qCDebug(LOG_CONNECTION) << "Save latest successfully connection protocol:" << lastSuccessProtocol_.toLongString();
-
-    // TODO: in the next task related to Protocol Failover
-    /*QSettings settings;
-    QByteArray arr;
-    {
-        QDataStream stream(&arr, QIODevice::WriteOnly);
-        stream << protocol;
-    }
-    settings.setValue("successConnectionProtocol", arr);*/
-}
-
 bool AutoConnSettingsPolicy::isAutomaticMode()
 {
     return true;
@@ -202,4 +133,42 @@ void AutoConnSettingsPolicy::resolveHostnames()
 {
     // nothing todo
     emit hostnamesResolved();
+}
+
+QVector<types::ProtocolStatus> AutoConnSettingsPolicy::protocolStatus() {
+    QVector<types::ProtocolStatus> status;
+    QVector<types::ProtocolStatus> failedProtocols;
+    QVector<types::ProtocolStatus> disconnectedProtocols;
+    types::Protocol lastProtocol(types::Protocol::TYPE::UNINITIALIZED);
+    bool failed = true;
+
+    types::ProtocolStatus upNext;
+
+    // A protocol is failed if it failed both attempts (i.e. an odd-indexed attempt failed), so just check the odd attempts
+    for (int i = 1; i < attempts_.size(); i += 2) {
+        types::ProtocolStatus::Status s;
+        if (i - 1 == curAttempt_) {
+            s = types::ProtocolStatus::Status::kUpNext;
+            upNext = types::ProtocolStatus(attempts_[i].protocol, portMap_.items()[attempts_[i].portMapInd].ports[0], s, 10);
+        } else if (i < curAttempt_ || bIsAllFailed_) {
+            s = types::ProtocolStatus::Status::kFailed;
+            failedProtocols.append(types::ProtocolStatus(attempts_[i].protocol, portMap_.items()[attempts_[i].portMapInd].ports[0], s, -1));
+        } else {
+            s = types::ProtocolStatus::Status::kDisconnected;
+            disconnectedProtocols.append(types::ProtocolStatus(attempts_[i].protocol, portMap_.items()[attempts_[i].portMapInd].ports[0], s, -1));
+        }
+    }
+
+    if (upNext.timeout > 0) {
+        status.append(upNext);
+    }
+    status << disconnectedProtocols;
+    status << failedProtocols;
+
+    return status;
+}
+
+bool AutoConnSettingsPolicy::hasProtocolChanged()
+{
+    return (curAttempt_ % 2 == 0);
 }

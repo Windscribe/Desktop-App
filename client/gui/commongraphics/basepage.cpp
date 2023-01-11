@@ -1,9 +1,10 @@
 #include "basepage.h"
+#include "utils/logger.h"
 
 namespace CommonGraphics {
 
 BasePage::BasePage(ScalableGraphicsObject *parent, int width)
-  : ScalableGraphicsObject(parent), height_(0), width_(width), spacerHeight_(0), indent_(0)
+  : ScalableGraphicsObject(parent), height_(0), width_(width), spacerHeight_(0), firstItemOffset_(16), endSpacing_(0), indent_(0)
 {
 }
 
@@ -88,6 +89,12 @@ void BasePage::setSpacerHeight(int height)
     recalcItemsPos();
 }
 
+void BasePage::setFirstItemOffsetY(int offset)
+{
+    firstItemOffset_ = offset;
+    recalcItemsPos();
+}
+
 void BasePage::setIndent(int indent)
 {
     indent_ = indent;
@@ -127,7 +134,7 @@ QList<BaseItem *> BasePage::items() const
 
 void BasePage::recalcItemsPos()
 {
-    int newHeight = spacerHeight_*G_SCALE;
+    int newHeight = firstItemOffset_*G_SCALE;
     for (BaseItem *item : qAsConst(items_))
     {
         if (!item->isVisible())
@@ -142,6 +149,16 @@ void BasePage::recalcItemsPos()
         height_ = newHeight;
         emit heightChanged(newHeight);
     }
+}
+
+int BasePage::fullHeight() const
+{
+    int height = firstItemOffset_*G_SCALE;
+
+    for (BaseItem *item : qAsConst(items_)) {
+        height += item->boundingRect().height() + spacerHeight_*G_SCALE;
+    }
+    return height;
 }
 
 } // namespace CommonGraphics
