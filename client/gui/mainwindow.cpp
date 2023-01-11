@@ -3174,7 +3174,7 @@ void MainWindow::onTrayMenuAboutToShow()
 
 void MainWindow::onTrayMenuAboutToHide()
 {
-#ifndef Q_OS_LINUX
+#ifdef Q_OS_WIN
     locationsMenu_.clear();
 #endif
 }
