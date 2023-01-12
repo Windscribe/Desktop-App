@@ -398,7 +398,7 @@ bool Server::readAndHandleCommand(socket_ptr sock, boost::asio::streambuf *buf, 
         ia >> cmd;
         LOG("Set firewall on boot: %s", cmd.enabled ? "true" : "false");
 
-        outCmdAnswer.executed = firewallOnBoot_.setEnabled(cmd.enabled, cmd.rules);
+        outCmdAnswer.executed = firewallOnBoot_.setEnabled(cmd.enabled);
     } else if (cmdId == HELPER_CMD_SET_MAC_SPOOFING_ON_BOOT) {
         CMD_SET_MAC_SPOOFING_ON_BOOT cmd;
         ia >> cmd;

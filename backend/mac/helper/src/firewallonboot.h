@@ -7,9 +7,9 @@ class FirewallOnBootManager
 public:
     FirewallOnBootManager();
     ~FirewallOnBootManager();
-    bool setEnabled(bool bEnabled, const std::string &rules);
+    bool setEnabled(bool bEnabled);
 
 private:
-    bool enable(const std::string &rules);
+    bool enable();
     bool disable();
 };

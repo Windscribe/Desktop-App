@@ -559,14 +559,13 @@ bool Helper_posix::getFirewallRules(CmdIpVersion version, const QString &table, 
     return true;
 }
 
-bool Helper_posix::setFirewallOnBoot(bool bEnabled, const QString &rules)
+bool Helper_posix::setFirewallOnBoot(bool bEnabled)
 {
     QMutexLocker locker(&mutex_);
 
     CMD_SET_FIREWALL_ON_BOOT cmd;
     CMD_ANSWER answer;
     cmd.enabled = bEnabled;
-    cmd.rules = rules.toStdString();
 
     std::stringstream stream;
     boost::archive::text_oarchive oa(stream, boost::archive::no_header);

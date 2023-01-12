@@ -216,7 +216,6 @@ void serialize(Archive &ar, CMD_SET_FIREWALL_ON_BOOT &a, const unsigned int vers
 {
     UNUSED(version);
     ar & a.enabled;
-    ar & a.rules;
 }
 
 template<class Archive>

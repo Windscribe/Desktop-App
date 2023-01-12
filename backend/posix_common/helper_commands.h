@@ -225,7 +225,6 @@ struct CMD_INSTALLER_REMOVE_OLD_INSTALL {
 
 struct CMD_SET_FIREWALL_ON_BOOT {
     bool enabled;
-    std::string rules;
 };
 
 struct CMD_SET_MAC_SPOOFING_ON_BOOT {

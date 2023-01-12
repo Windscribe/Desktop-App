@@ -14,15 +14,29 @@ FirewallOnBootManager::~FirewallOnBootManager()
 {
 }
 
-bool FirewallOnBootManager::setEnabled(bool bEnabled, const std::string &rules)
+bool FirewallOnBootManager::setEnabled(bool bEnabled)
 {
     if (bEnabled) {
-        return enable(rules);
+        return enable();
     }
     return disable();
 }
 
-bool FirewallOnBootManager::enable(const std::string &rules) {
+bool FirewallOnBootManager::enable() {
+    std::stringstream rules;
+
+    rules << "set block-policy return";
+    rules << "set skip on { lo0 }";
+    rules << "scrub in all fragment reassemble";
+    rules << "block all";
+    rules << "table <windscribe_ips> persist {}";
+    rules << "pass out quick inet from any to <windscribe_ips>";
+    rules << "anchor windscribe_vpn_traffic all";
+    rules << "pass out quick inet proto udp from 0.0.0.0 to 255.255.255.255 port = 67";
+    rules << "pass in quick proto udp from any to any port = 68";
+    rules << "anchor windscribe_lan_traffic all";
+    rules << "anchor windscribe_static_ports_traffic all";
+
     // write rules
     int fd = open("/etc/windscribe/boot_pf.conf", O_CREAT | O_WRONLY | O_TRUNC);
     if (fd < 0) {
@@ -30,7 +44,7 @@ bool FirewallOnBootManager::enable(const std::string &rules) {
     	return false;
     }
 
-    write(fd, rules.c_str(), rules.length());
+    write(fd, rules.str().c_str(), rules.str().length());
     close(fd);
 
     // write script
