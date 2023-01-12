@@ -156,6 +156,7 @@ void ConnectionManager::clickDisconnect()
 
     timerWaitNetworkConnectivity_.stop();
     connectTimer_.stop();
+    connectingTimer_.stop();
 
     if (state_ != STATE_DISCONNECTING_FROM_USER_CLICK)
     {
@@ -1306,6 +1307,8 @@ void ConnectionManager::onGetWireGuardConfigAnswer(WireGuardConfigRetCode retCod
 {
     if (retCode == WireGuardConfigRetCode::kKeyLimit)
     {
+        // Do not timeout while waiting for user input
+        connectingTimer_.stop();
         Q_EMIT wireGuardAtKeyLimit();
     }
     else if (retCode == WireGuardConfigRetCode::kSuccess)
@@ -1358,6 +1361,8 @@ void ConnectionManager::onWireGuardKeyLimitUserResponse(bool deleteOldestKey)
     {
         QString deviceId = (isStaticIpsLocation() ? GetDeviceId::instance().getDeviceId() : QString());
         getWireGuardConfig_->getWireGuardConfig(currentConnectionDescr_.hostname, true, deviceId);
+        // restart connecting timeout
+        connectingTimer_.start(kConnectingTimeoutWireGuard);
     }
     else
     {
