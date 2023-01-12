@@ -45,7 +45,10 @@ void getDefaultRoute(QString &outGatewayIp, QString &outInterfaceName, QString &
     QList<RoutingTableEntry> entries = getRoutingTable(false);
     for (const RoutingTableEntry& entry : qAsConst(entries))
     {
-        if (entry.isIPv4() && !entry.source.isEmpty() && entry.metric < lowestMetric)
+        // only consider routes which have a destination of 0.0.0.0.
+        // filtering by metric alone is not enough, because when an interface first comes up, network manager will add 20000 to the metric
+        // if it has not yet passed a connectivity check
+        if (entry.isIPv4() && entry.metric < lowestMetric && entry.destination == "0.0.0.0")
         {
             lowestMetric = entry.metric;
             outInterfaceName = entry.interface;
@@ -57,7 +60,7 @@ void getDefaultRoute(QString &outGatewayIp, QString &outInterfaceName, QString &
     {
         for (const RoutingTableEntry& entry : qAsConst(entries))
         {
-            if (entry.metric == lowestMetric && entry.isIPv4() && !entry.gateway.isEmpty())
+            if (outInterfaceName == entry.interface && entry.isIPv4() && !entry.gateway.isEmpty())
             {
                 outGatewayIp = entry.gateway;
                 break;
