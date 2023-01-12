@@ -1,3 +1,17 @@
+2.6.6 (12/01/2023)
+All:
+   * Added user interface improvements to indicate the app is failing over to another protocol. #398
+   * Fixed potential app crash when verifying an IP's validity. #536
+Windows:
+   * Fixed inclusive split tunneled apps unable to access localhost. #464
+   * Fixed error in the ping-via-icmp logic, used to test latency with custom configs. #537
+macOS:
+   * Fixed failure to connect after reboot when Launch on Startup and Auto-Connect are enabled. #535
+   * Fixed Location/Favourites/Static Ip/Configured menus in top menu bar not working. #543
+Linux:
+   * Fixed connectivity check fails when changing networks on Wstunnel / Stealth protocols. #530
+
+
 2.6.5 (03/01/2023)
 Linux:
    * Fixed app crash during exit on Ubuntu. #139
