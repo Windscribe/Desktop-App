@@ -3,6 +3,6 @@
 # Copyright (c) 2020-2022, Windscribe Limited. All rights reserved.
 # ------------------------------------------------------------------------------
 variables:
-  VERSION_CURL: '7.85.0'
+  VERSION_CURL: '7.87.0'
   BUILDROOT_CURL: 'build-libs/curl'
   ARTIFACT_CURL: 'curl.zip'

@@ -13,6 +13,10 @@ sys.path.insert(0, TOOLS_DIR)
 
 CONFIG_NAME = os.path.join("vars", "curl.yml")
 
+# To ensure modules in the 'base' folder can import other modules in base.
+import base.pathhelper as pathhelper
+sys.path.append(pathhelper.BASE_DIR)
+
 import base.messages as msg
 import base.utils as utl
 import installutils as iutl
@@ -60,7 +64,7 @@ def InstallDependency():
     raise iutl.InstallError("Failed to get config data.")
   iutl.SetupEnvironment(configdata)
   dep_name = DEP_TITLE.lower()
-  dep_version_var = "VERSION_" + [ch for ch in DEP_TITLE.upper() if ch not in "-"]
+  dep_version_var = "VERSION_" + DEP_TITLE.upper().replace("-", "")
   dep_version_str = os.environ.get(dep_version_var, None)
   if not dep_version_str:
     raise iutl.InstallError("{} not defined.".format(dep_version_var))

@@ -75,13 +75,15 @@ std::string getFullCommand(const std::string &exePath, const std::string &execut
         return "";
     }
 
+#if defined(USE_SIGNATURE_CHECK)
     if (std::string(canonicalPath).rfind("/Applications/Windscribe.app", 0) != 0) {
         // Don't execute arbitrary commands, only executables that are in our application directory
         LOG("Executable not in correct path, ignoring.");
         free(canonicalPath);
         return "";
     }
-
+#endif
+    
     std::string fullCmd = std::string(canonicalPath) + "/" + executable + " " + arguments;
     LOG("Resolved command: %s", fullCmd.c_str());
     free(canonicalPath);

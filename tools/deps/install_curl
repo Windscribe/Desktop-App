@@ -5,4 +5,4 @@
 #-------------------------------------------------------------------------------
 tools_dir=$(dirname "$0")
 
-PYTHONDONTWRITEBYTECODE=1 exec python "$tools_dir/install_curl.py" "$@"
+PYTHONDONTWRITEBYTECODE=1 exec python3 "$tools_dir/install_curl.py" "$@"
