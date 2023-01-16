@@ -2136,6 +2136,8 @@ void MainWindow::onBackendTestTunnelResult(bool success)
         mainWindowController_->getProtocolWindow()->setProtocolStatus(
             types::ProtocolStatus(ps.protocol, ps.port, types::ProtocolStatus::Status::kConnected));
 
+        types::Protocol defaultProtocol = getDefaultProtocolForNetwork(curNetwork_.networkOrSsid);
+
         if (backend_->getPreferences()->networkLastKnownGoodProtocol(curNetwork_.networkOrSsid) != ps.protocol ||
             backend_->getPreferences()->networkLastKnownGoodPort(curNetwork_.networkOrSsid) != ps.port)
         {
@@ -2143,7 +2145,7 @@ void MainWindow::onBackendTestTunnelResult(bool success)
 
             // User manually selected a network or we failed over to a different protocol for the first time.
             // Ask if they want to save
-            if (userProtocolOverride_) {
+            if (userProtocolOverride_ || defaultProtocol != ps.protocol) {
                 if (!backend_->getPreferences()->hasNetworkPreferredProtocol(curNetwork_.networkOrSsid) ||
                     backend_->getPreferences()->networkPreferredProtocol(curNetwork_.networkOrSsid).protocol() != ps.protocol ||
                     backend_->getPreferences()->networkPreferredProtocol(curNetwork_.networkOrSsid).port() != ps.port)
@@ -3737,4 +3739,23 @@ void MainWindow::showTrayMessage(const QString &message)
 #else
     qCDebug(LOG_BASIC) << "QSystemTrayIcon reports the system tray is not available";
 #endif
+}
+
+types::Protocol MainWindow::getDefaultProtocolForNetwork(const QString &network)
+{
+    // if there is a preferred protocol for this network, it is the default
+    if (backend_->getPreferences()->hasNetworkPreferredProtocol(network)) {
+        return backend_->getPreferences()->networkPreferredProtocol(network).protocol();
+    // next, if connection settings specifies a manual protocol, it is the default
+    } else if (!backend_->getPreferences()->connectionSettings().isAutomatic()) {
+        return backend_->getPreferences()->connectionSettings().protocol();
+    } else {
+        // otherwise, it's automatic.  if there is a last known good protocol, that is the default
+        types::Protocol p = backend_->getPreferences()->networkLastKnownGoodProtocol(network);
+        if (p.isValid()) {
+            return p;
+        }
+        // if there's no valid last known good protocol, the default is wireguard
+        return types::Protocol(types::Protocol::TYPE::WIREGUARD);
+    }
 }

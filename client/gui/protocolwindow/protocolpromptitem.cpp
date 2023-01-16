@@ -56,9 +56,10 @@ void ProtocolPromptItem::paint(QPainter *painter, const QStyleOptionGraphicsItem
 
 void ProtocolPromptItem::clearCountdown()
 {
-    for (auto i : items_) {
-        ProtocolLineItem *item = static_cast<ProtocolLineItem *>(i);
-        item->clearCountdown();
+    for (auto i : items()) {
+        if (ProtocolLineItem *item = dynamic_cast<ProtocolLineItem *>(i)) {
+            item->clearCountdown();
+        }
     }
 }
 
@@ -76,7 +77,6 @@ void ProtocolPromptItem::doResetProtocolStatus()
     }
 
     clearItems();
-    items_.clear();
     statuses_.clear();
 
     // Put the protocol shown on connect screen first, regardless if it's connected
@@ -134,7 +134,6 @@ void ProtocolPromptItem::setProtocolStatus(const types::ProtocolStatus &ps)
 void ProtocolPromptItem::setProtocolStatus(const QVector<types::ProtocolStatus> &statuses)
 {
     clearItems();
-    items_.clear();
 
     statuses_ = statuses;
 
@@ -289,13 +288,14 @@ void ProtocolPromptItem::updateItemOffset()
 
 void ProtocolPromptItem::onTimerTimeout()
 {
-    for (auto i : items_) {
-        ProtocolLineItem *item = static_cast<ProtocolLineItem *>(i);
-        int secs = item->decrementCountdown();
-        if (secs == 0) {
-            emit escape();
-            countdownTimer_.stop();
-            return;
+    for (auto i : items()) {
+        if (ProtocolLineItem *item = dynamic_cast<ProtocolLineItem *>(i)) {
+            int secs = item->decrementCountdown();
+            if (secs == 0) {
+                emit escape();
+                countdownTimer_.stop();
+                return;
+            }
         }
     }
     countdownTimer_.start();
@@ -319,9 +319,11 @@ void ProtocolPromptItem::updateScaling()
 }
 
 types::Protocol ProtocolPromptItem::connectedProtocol() {
-    for (auto item : items_) {
-        if (item->status() == types::ProtocolStatus::Status::kConnected) {
-            return item->protocol();
+    for (auto i : items()) {
+        if (ProtocolLineItem *item = dynamic_cast<ProtocolLineItem *>(i)) {
+            if (item->status() == types::ProtocolStatus::Status::kConnected) {
+                return item->protocol();
+            }
         }
     }
     return types::Protocol(types::Protocol::TYPE::UNINITIALIZED);
