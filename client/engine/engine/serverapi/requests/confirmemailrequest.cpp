@@ -9,7 +9,7 @@
 namespace server_api {
 
 ConfirmEmailRequest::ConfirmEmailRequest(QObject *parent, const QString &authHash) :
-    BaseRequest(parent, RequestType::kPost),
+    BaseRequest(parent, RequestType::kPut),
     authHash_(authHash)
 {
 }
