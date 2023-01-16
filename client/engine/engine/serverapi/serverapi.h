@@ -85,15 +85,16 @@ private:
     IConnectStateController *connectStateController_;
     INetworkDetectionManager *networkDetectionManager_;
     bool bIgnoreSslErrors_;
-    bool isUsingFailoverFromSettings_ = false;
     bool bWasConnectedState_ = false;
 
     QQueue<QPointer<BaseRequest> > queueRequests_;    // a queue of requests that are waiting for the failover to complete
 
+    enum class FailoverState { kUnknown, kFromSettings, kReady, kFailed } failoverState_;
+
     // Current failover state. If there is no failover currently, then all are zero
     QPointer<BaseRequest> currentFailoverRequest_;
     QScopedPointer<ConnectStateWatcher> currentConnectStateWatcher_;
-    QString currentFailoverHostname_;
+    QString currentHostname_;
 
     failover::IFailover *failover_;
     bool isGettingFailoverHostnameInProgress_ = false;
@@ -101,7 +102,7 @@ private:
     bool isFailoverFailedLogAlreadyDone_ = false;   // log "failover failed: API not ready" only once to avoid spam
 
     void handleNetworkRequestFinished();
-    void executeRequest(BaseRequest *request);
+    void executeRequest(QPointer<BaseRequest> request, bool bSkipFailoverStuff = false);
 
     void executeWaitingInQueueRequests();
     void finishWaitingInQueueRequests(SERVER_API_RET_CODE retCode, const QString &errString);
