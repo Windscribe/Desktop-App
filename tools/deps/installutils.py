@@ -207,7 +207,7 @@ def InstallArtifacts(directory, filemasks, installpath, zipfilename):
     if "*" in mask:
       fullmask = os.path.join(directory, mask)
       skiplen = len(directory) + 1
-      for srcfilename in glob.glob(fullmask):
+      for srcfilename in glob.glob(fullmask, recursive=True):
         if os.path.isdir(srcfilename):
           continue
         srcfilenamepartial = srcfilename[skiplen:]
