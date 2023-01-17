@@ -4,13 +4,12 @@
 #include <QFontMetrics>
 #include <QPainter>
 #include <QTextDocument>
+
 #include "commongraphics/commongraphics.h"
+#include "dpiscalemanager.h"
 #include "graphicresources/fontmanager.h"
 #include "graphicresources/imageresourcessvg.h"
 #include "graphicresources/independentpixmap.h"
-#include "utils/logger.h"
-#include "dpiscalemanager.h"
-#include "newsfeedconst.h"
 
 namespace NewsFeedWindow {
 
@@ -157,18 +156,19 @@ void EntryItem::paint(QPainter *painter, const QStyleOptionGraphicsItem * /*opti
     QString timedelta;
     int daysAgo = QDateTime::fromSecsSinceEpoch(item_.date).daysTo(QDateTime::currentDateTime());
 
-    if (daysAgo > 100)
-    {
+    if (daysAgo > 100) {
         timedelta = tr("Long ago");
     }
-    else if (daysAgo == 1)
-    {
-        timedelta = QString(tr("%1 day ago")).arg(daysAgo);
+    else if (daysAgo == 1) {
+        timedelta = tr("1 day ago");
     }
-    else
-    {
+    else if (daysAgo == 0) {
+        timedelta = tr("Today");
+    }
+    else {
         timedelta = QString(tr("%1 days ago")).arg(daysAgo);
     }
+
     painter->setFont(*FontManager::instance().getFont(12, false));
     QFontMetrics timeDeltaMetrics(*font);
     int textWidth = timeDeltaMetrics.horizontalAdvance(timedelta);
