@@ -57,7 +57,7 @@ ServerAPI::ServerAPI(QObject *parent, IConnectStateController *connectStateContr
 
     currentHostname_ = readHostnameFromSettings();
     if (!currentHostname_.isEmpty())
-        failoverState_ = FailoverState::kFromSettings;
+        failoverState_ = FailoverState::kFromSettingsUnknown;
 }
 
 ServerAPI::~ServerAPI()
@@ -271,15 +271,14 @@ void ServerAPI::onFailoverNextHostnameAnswer(failover::FailoverRetCode retCode, 
             executeRequest(curRequest);
         } else {
             clearCurrentFailoverRequest();
+            executeWaitingInQueueRequests();
         }
-        executeWaitingInQueueRequests();
         return;
     }
 
     if (retCode == failover::FailoverRetCode::kSuccess) {
         currentHostname_ = hostname;
         executeRequest(currentFailoverRequest_, true);
-        executeWaitingInQueueRequests();
     } else if (retCode == failover::FailoverRetCode::kConnectStateChanged) {
        if (currentFailoverRequest_) {
             BaseRequest *curRequest = currentFailoverRequest_;
@@ -287,8 +286,9 @@ void ServerAPI::onFailoverNextHostnameAnswer(failover::FailoverRetCode retCode, 
             executeRequest(curRequest);
         } else {
             clearCurrentFailoverRequest();
+            executeWaitingInQueueRequests();
         }
-        executeWaitingInQueueRequests();
+
     } else if (retCode == failover::FailoverRetCode::kFailed) {
         failoverState_ = FailoverState::kFailed;
         if (currentFailoverRequest_) {
@@ -304,7 +304,7 @@ void ServerAPI::onFailoverNextHostnameAnswer(failover::FailoverRetCode retCode, 
 void ServerAPI::onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, CONNECT_ERROR err, const LocationID &location)
 {
     // If we use the hostname from the settings then reset it after the first disconnect signal after starting the program
-    if (failoverState_ == FailoverState::kFromSettings) {
+    if (failoverState_ == FailoverState::kFromSettingsReady) {
         if (state == CONNECT_STATE_CONNECTED) {
             bWasConnectedState_ = true;
         } else if (state == CONNECT_STATE_DISCONNECTED && bWasConnectedState_) {
@@ -325,7 +325,7 @@ void ServerAPI::resetFailover()
         isResetFailoverOnNextHostnameAnswer_ = true;
     } else {
         failover_->reset();
-        if (failoverState_ != FailoverState::kFromSettings) {
+        if (failoverState_ != FailoverState::kFromSettingsUnknown) {
             failoverState_ = FailoverState::kUnknown;
             currentHostname_.clear();
         }
@@ -390,10 +390,14 @@ void ServerAPI::handleNetworkRequestFinished()
         // if for the current request we performed the failover algorithm, then set the state of failover to the kReady
         // and execute pending requests
         if (currentFailoverRequest_ == pointerToRequest) {
-            if (!currentConnectStateWatcher_->isVpnConnectStateChanged() && failoverState_ != FailoverState::kFromSettings) {
-                failoverState_ = FailoverState::kReady;
-                // save last successfull hostname to settings
-                writeHostnameToSettings(currentHostname_);
+            if (!currentConnectStateWatcher_->isVpnConnectStateChanged()) {
+                if (failoverState_ == FailoverState::kUnknown) {
+                    failoverState_ = FailoverState::kReady;
+                    // save last successfull hostname to settings
+                    writeHostnameToSettings(currentHostname_);
+                }
+                else if (failoverState_ == FailoverState::kFromSettingsUnknown)
+                    failoverState_ = FailoverState::kFromSettingsReady;
             }
             clearCurrentFailoverRequest();
             executeWaitingInQueueRequests();
@@ -426,7 +430,7 @@ void ServerAPI::executeRequest(QPointer<BaseRequest> request, bool bSkipFailover
             // in the connected mode always use the primary domain
             hostname = hostnameForConnectedState();
         } else {
-            if (failoverState_ == FailoverState::kFromSettings) {
+            if (failoverState_ == FailoverState::kFromSettingsUnknown) {
                 setCurrentFailoverRequest(request);
             } else if (failoverState_ == FailoverState::kUnknown) {
                 // start failover algorithm for the request

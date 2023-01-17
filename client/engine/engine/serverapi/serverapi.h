@@ -89,7 +89,7 @@ private:
 
     QQueue<QPointer<BaseRequest> > queueRequests_;    // a queue of requests that are waiting for the failover to complete
 
-    enum class FailoverState { kUnknown, kFromSettings, kReady, kFailed } failoverState_;
+    enum class FailoverState { kUnknown, kFromSettingsUnknown, kFromSettingsReady, kReady, kFailed } failoverState_;
 
     // Current failover state. If there is no failover currently, then all are zero
     QPointer<BaseRequest> currentFailoverRequest_;
