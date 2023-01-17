@@ -19,9 +19,6 @@ Failover::Failover(QObject *parent, NetworkAccessManager *networkAccessManager, 
     IFailover(parent)
 {
     // Creating all failovers in the order of their application
-    WS_ASSERT(HardcodedSettings::instance().serverDomains().size() >= 2);
-    WS_ASSERT(HardcodedSettings::instance().dynamicDomainsUrls().size() >= 2);
-    WS_ASSERT(HardcodedSettings::instance().dynamicDomains().size() >= 1);
 
     // Hardcoded Default Domain Endpoint
     BaseFailover *failover = new HardcodedDomainFailover(this, HardcodedSettings::instance().serverDomains().at(0));
@@ -31,21 +28,19 @@ Failover::Failover(QObject *parent, NetworkAccessManager *networkAccessManager, 
     // Don't use other failovers for the staging functionality, as the hashed domains will hit the production environment.
     if (!AppVersion::instance().isStaging()) {
         // Hardcoded Backup Domain Endpoint
-        failover = new HardcodedDomainFailover(this, HardcodedSettings::instance().serverDomains().at(1));
-        connect(failover, &BaseFailover::finished, this, &Failover::onFailoverFinished, Qt::QueuedConnection);
-        failovers_ << failover;
+        for (int i = 1; i < HardcodedSettings::instance().serverDomains().count(); ++i) {
+            failover = new HardcodedDomainFailover(this, HardcodedSettings::instance().serverDomains().at(i));
+            connect(failover, &BaseFailover::finished, this, &Failover::onFailoverFinished, Qt::QueuedConnection);
+            failovers_ << failover;
+        }
 
-        // Dynamic Domain Cloudflare
-        failover = new DynamicDomainFailover(this, networkAccessManager, HardcodedSettings::instance().dynamicDomainsUrls().at(0), HardcodedSettings::instance().dynamicDomains().at(0),
-                                             connectStateController);
-        connect(failover, &BaseFailover::finished, this, &Failover::onFailoverFinished, Qt::QueuedConnection);
-        failovers_ << failover;
-
-        // Dynamic Domain Google
-        failover = new DynamicDomainFailover(this, networkAccessManager, HardcodedSettings::instance().dynamicDomainsUrls().at(1), HardcodedSettings::instance().dynamicDomains().at(0),
-                                             connectStateController);
-        connect(failover, &BaseFailover::finished, this, &Failover::onFailoverFinished, Qt::QueuedConnection);
-        failovers_ << failover;
+        // Dynamic Domains
+        for (int i = 0; i < HardcodedSettings::instance().dynamicDomainsUrls().count(); ++i) {
+            failover = new DynamicDomainFailover(this, networkAccessManager, HardcodedSettings::instance().dynamicDomainsUrls().at(i), HardcodedSettings::instance().dynamicDomains().at(0),
+                                                 connectStateController);
+            connect(failover, &BaseFailover::finished, this, &Failover::onFailoverFinished, Qt::QueuedConnection);
+            failovers_ << failover;
+        }
 
         // Procedurally Generated Domain Endpoint
         failover = new RandomDomainFailover(this);
