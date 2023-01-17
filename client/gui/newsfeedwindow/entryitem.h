@@ -1,13 +1,12 @@
-#ifndef ENTRYITEM_H
-#define ENTRYITEM_H
+#pragma once
 
 #include <QTextBrowser>
 #include <QVariantAnimation>
 
-#include "../backend/backend.h"
 #include "commongraphics/baseitem.h"
 #include "graphicresources/independentpixmap.h"
 #include "messageitem.h"
+#include "types/notification.h"
 
 namespace NewsFeedWindow {
 
@@ -71,4 +70,3 @@ private:
 };
 
 }
-#endif // ENTRYITEM_H

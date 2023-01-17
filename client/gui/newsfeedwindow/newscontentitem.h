@@ -1,10 +1,8 @@
-#ifndef NEWSCONTENTITEM_H
-#define NEWSCONTENTITEM_H
+#pragma once
 
-#include <QKeyEvent>
 #include <QSet>
+
 #include "entryitem.h"
-#include "../backend/backend.h"
 #include "commongraphics/basepage.h"
 
 namespace NewsFeedWindow {
@@ -23,7 +21,7 @@ public:
     void updateRead();
 
 public slots:
-    void onScrollToItem(EntryItem *item);
+    void onScrollToItem(NewsFeedWindow::EntryItem *item);
 
 signals:
     void messageRead(qint64 id);
@@ -36,11 +34,8 @@ private:
                              const QSet<qint64> &shownIds,
                              int id);
     void scrollToItem(EntryItem *item, bool expanded = false);
-    EntryItem *findEntry(int id);
 
     int width_;
 };
 
 } // namespace NewsFeedWindow
-
-#endif // NEWSCONTENTITEM_H
