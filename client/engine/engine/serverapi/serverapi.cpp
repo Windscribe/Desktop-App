@@ -422,7 +422,15 @@ void ServerAPI::executeRequest(QPointer<BaseRequest> request, bool bSkipFailover
 
         // if failover already in progress then move the request to queue
         if (currentFailoverRequest_ != nullptr) {
-            queueRequests_.enqueue(request);
+
+            // wgConfigsInit, wgConfigsConnect and pingTest should have a higher priority in the queue to avoid potential connection delays
+            if (dynamic_cast<PingTestRequest *>(request.get()) != nullptr ||
+                dynamic_cast<WgConfigsInitRequest *>(request.get()) != nullptr ||
+                dynamic_cast<WgConfigsConnectRequest *>(request.get()) != nullptr ) {
+                queueRequests_.insert(0, request);
+            } else {
+                queueRequests_.enqueue(request);
+            }
             return;
         }
 
