@@ -1305,6 +1305,12 @@ void ConnectionManager::onHostnamesResolved()
 
 void ConnectionManager::onGetWireGuardConfigAnswer(WireGuardConfigRetCode retCode, const WireGuardConfig &config)
 {
+    // if we got an answer after we've timed out or disconnected, ignore this event
+    CurrentConnectionDescr settings = connSettingsPolicy_->getCurrentConnectionSettings();
+    if (state_ != STATE_CONNECTING_FROM_USER_CLICK || settings.protocol != types::Protocol::WIREGUARD) {
+        return;
+    }
+
     if (retCode == WireGuardConfigRetCode::kKeyLimit)
     {
         // Do not timeout while waiting for user input

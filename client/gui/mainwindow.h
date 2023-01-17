@@ -417,6 +417,7 @@ private:
     void updateConnectWindowStateProtocolPortDisplay();
     void showTrayMessage(const QString &message);
 
+    types::Protocol getDefaultProtocolForNetwork(const QString &network);
     bool userProtocolOverride_;
 };
 
