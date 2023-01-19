@@ -55,8 +55,10 @@ HardcodedSettings::HardcodedSettings() : simpleCrypt_(0x1272A4A3FE1A3DBA)
         qCDebug(LOG_BASIC) << "Warning: the hardcodedsecrets.ini file does not contain dynamicDomains";
 
     serverDomains_ = readArrayFromIni(secrets, "hardcodedDomains", "domain", true);
-    if (serverDomains_.isEmpty())
+    if (serverDomains_.isEmpty()) {
+        serverDomains_ << "windscribe.com";   // we must have at least one domain for the program to work
         qCDebug(LOG_BASIC) << "Warning: the hardcodedsecrets.ini file does not contain hardcodedDomains";
+    }
 
     apiIps_ = readArrayFromIni(secrets, "apiIps", "ip", true);
     if (apiIps_.isEmpty())
