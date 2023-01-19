@@ -9,7 +9,7 @@ LoadingIconItem::LoadingIconItem(ScalableGraphicsObject *parent, QString file, i
   : ScalableGraphicsObject(parent), width_(width), height_(height), opacity_(OPACITY_FULL)
 {
     movie_ = new QMovie(file);
-    movie_->setScaledSize(QSize(width*G_SCALE, height*G_SCALE));
+    movie_->setCacheMode(QMovie::CacheAll);
     connect(movie_, &QMovie::frameChanged, this, &LoadingIconItem::onFrameChanged);
 }
 
@@ -20,12 +20,12 @@ QRectF LoadingIconItem::boundingRect() const
 
 void LoadingIconItem::start()
 {
-    movie_->start();
+    movie_->setPaused(false);
 }
 
 void LoadingIconItem::stop()
 {
-    movie_->stop();
+    movie_->setPaused(true);
 }
 
 void LoadingIconItem::onFrameChanged()
@@ -45,5 +45,6 @@ void LoadingIconItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *o
 
     painter->setOpacity(opacity_);
     painter->setPen(Qt::NoPen);
-    painter->drawPixmap(0, 0, movie_->currentPixmap());
+    painter->setRenderHint(QPainter::SmoothPixmapTransform);
+    painter->drawPixmap(0, 0, movie_->currentPixmap().scaled(width_*G_SCALE, height_*G_SCALE, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
 }

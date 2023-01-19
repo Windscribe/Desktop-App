@@ -2362,6 +2362,7 @@ void MainWindowController::collapseWindow(ResizableWindow *window, bool bSkipBot
     connect(animGroup, &QVariantAnimation::finished, [this, window, bSkipBottomInfoWindowAnimate]() {
         windowSizeManager_->setState(window, WindowSizeManager::kWindowCollapsed);
         if (window == preferencesWindow_) {
+            preferencesWindow_->onCollapse();
             emit preferencesCollapsed();
         }
         TooltipController::instance().hideAllTooltips();

@@ -57,6 +57,8 @@ public:
 
     void setSplitTunnelingActive(bool active) override;
 
+    void onCollapse() override;
+
 signals:
     void signOutClick() override;
     void loginClick() override;

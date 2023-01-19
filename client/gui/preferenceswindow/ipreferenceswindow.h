@@ -34,6 +34,8 @@ public:
 
     virtual void setSplitTunnelingActive(bool active) = 0;
 
+    virtual void onCollapse() = 0;
+
 signals:
     virtual void signOutClick() = 0;
     virtual void loginClick() = 0;
