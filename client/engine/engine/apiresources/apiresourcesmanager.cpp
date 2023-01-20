@@ -274,6 +274,8 @@ void ApiResourcesManager::handleLoginOrSessionAnswer(SERVER_API_RET_CODE retCode
             emit loginFailed(LOGIN_RET_ACCOUNT_DISABLED, errorMessage);
         } else if (sessionErrorCode == server_api::SessionErrorCode::kSessionInvalid) {
             emit loginFailed(LOGIN_RET_SESSION_INVALID, errorMessage);
+        } else if (sessionErrorCode == server_api::SessionErrorCode::kRateLimited) {
+            emit loginFailed(LOGIN_RET_RATE_LIMITED, errorMessage);
         } else {
             WS_ASSERT(false);
             emit loginFailed(LOGIN_RET_NO_API_CONNECTIVITY, QString());

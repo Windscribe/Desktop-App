@@ -409,6 +409,8 @@ void ServerAPI::handleNetworkRequestFinished()
 void ServerAPI::executeRequest(QPointer<BaseRequest> request, bool bSkipFailoverStuff)
 {
     QString hostname = currentHostname_;
+    // Make sure the network return code is reset if we've failed over
+    request->setNetworkRetCode(SERVER_RETURN_SUCCESS);
 
     if (!bSkipFailoverStuff) {
         if (!networkDetectionManager_->isOnline()) {
