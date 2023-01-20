@@ -11,6 +11,8 @@ target_sources(engine PRIVATE
     failovers/randomdomainfailover.h
     failovers/accessipsfailover.h
     failovers/accessipsfailover.cpp
+    failovers/dgafailover.h
+    failovers/dgafailover.cpp
 )
 
 if(DEFINED IS_BUILD_TESTS)
