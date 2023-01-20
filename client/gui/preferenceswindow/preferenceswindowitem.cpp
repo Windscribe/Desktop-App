@@ -249,6 +249,7 @@ void PreferencesWindowItem::changeTab(PREFERENCES_TAB_TYPE tab)
         robertWindowItem_->setError(false);
         if (loggedIn_)
         {
+            robertWindowItem_->setLoading(true);
             emit getRobertFilters();
         }
         scrollAreaItem_->setItem(robertWindowItem_);
@@ -285,6 +286,10 @@ void PreferencesWindowItem::changeTab(PREFERENCES_TAB_TYPE tab)
     else
     {
         WS_ASSERT(false);
+    }
+
+    if (tab != TAB_ROBERT) {
+        robertWindowItem_->setLoading(false);
     }
 }
 
@@ -556,6 +561,11 @@ void PreferencesWindowItem::setRobertFiltersError()
 void PreferencesWindowItem::setSplitTunnelingActive(bool active)
 {
     splitTunnelingWindowItem_->setActive(active);
+}
+
+void PreferencesWindowItem::onCollapse()
+{
+    robertWindowItem_->setLoading(false);
 }
 
 } // namespace PreferencesWindow

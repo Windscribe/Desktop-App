@@ -30,6 +30,7 @@ public:
     void clearFilters();
     void setFilters(const QVector<types::RobertFilter> &filters);
     void setError(bool isError);
+    void setLoading(bool loading);
 
 signals:
     void accountLoginClick();
@@ -37,8 +38,9 @@ signals:
     void setRobertFilter(const types::RobertFilter &filter);
 
 private:
-    static constexpr int MESSAGE_OFFSET_Y = 85;
-    static constexpr int LOADING_ICON_SIZE = 40;
+    static constexpr int kMessageOffsetY = 85;
+    static constexpr int kLoadingIconOffsetY = 215;
+    static constexpr int kLoadingIconSize = 40;
 
     void updatePositions();
     void updateVisibility();
@@ -54,6 +56,7 @@ private:
     QGraphicsTextItem *errorMessage_;
     bool loggedIn_;
     bool isError_;
+    bool loading_;
 };
 
 } // namespace PreferencesWindow

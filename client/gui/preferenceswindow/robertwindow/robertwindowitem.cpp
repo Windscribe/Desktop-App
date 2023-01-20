@@ -9,7 +9,7 @@
 namespace PreferencesWindow {
 
 RobertWindowItem::RobertWindowItem(ScalableGraphicsObject *parent, Preferences *preferences, PreferencesHelper *preferencesHelper)
-  : CommonGraphics::BasePage(parent), loggedIn_(false), isError_(false)
+  : CommonGraphics::BasePage(parent), loggedIn_(false), isError_(false), loading_(false)
 {
     Q_UNUSED(preferences);
     Q_UNUSED(preferencesHelper);
@@ -23,9 +23,8 @@ RobertWindowItem::RobertWindowItem(ScalableGraphicsObject *parent, Preferences *
     addItem(desc_);
 
     // Loading items
-    loadingIcon_ = new LoadingIconItem(this, ":/gif/windscribe_spinner.gif", LOADING_ICON_SIZE, LOADING_ICON_SIZE);
+    loadingIcon_ = new LoadingIconItem(this, ":/gif/windscribe_spinner.gif", kLoadingIconSize, kLoadingIconSize);
     loadingIcon_->setOpacity(OPACITY_HALF);
-    loadingIcon_->start();
 
     // Item for case where we could not get status from server
     errorMessage_ = new QGraphicsTextItem(this);
@@ -73,6 +72,8 @@ void RobertWindowItem::clearFilters()
 
 void RobertWindowItem::setFilters(const QVector<types::RobertFilter> &filters)
 {
+    loading_ = false;
+
     clearFilters();
     for(auto filter : filters)
     {
@@ -98,42 +99,43 @@ void RobertWindowItem::updateScaling()
 {
     BasePage::updateScaling();
     updatePositions();
+    errorMessage_->setFont(*FontManager::instance().getFont(14, false));
+    loginPrompt_->setFont(*FontManager::instance().getFont(14, false));
 }
 
 void RobertWindowItem::updatePositions()
 {
     int errorCenterX = static_cast<int>(boundingRect().width()/2 - errorMessage_->boundingRect().width()/2);
-    errorMessage_->setPos(errorCenterX, MESSAGE_OFFSET_Y*G_SCALE);
+    errorMessage_->setPos(errorCenterX, kMessageOffsetY*G_SCALE);
 
     int promptCenterX = static_cast<int>(boundingRect().width()/2 - loginPrompt_->boundingRect().width()/2);
-    loginPrompt_->setPos(promptCenterX, MESSAGE_OFFSET_Y*G_SCALE);
+    loginPrompt_->setPos(promptCenterX, kMessageOffsetY*G_SCALE);
 
     int loginCenterX = static_cast<int>(boundingRect().width()/2 - loginButton_->boundingRect().width()/2);
-    loginButton_->setPos(loginCenterX, (MESSAGE_OFFSET_Y + PREFERENCES_MARGIN)*G_SCALE + loginPrompt_->boundingRect().height());
+    loginButton_->setPos(loginCenterX, (kMessageOffsetY + PREFERENCES_MARGIN)*G_SCALE + loginPrompt_->boundingRect().height());
 
-    int loadingCenterX = static_cast<int>(boundingRect().width()/2 - LOADING_ICON_SIZE*G_SCALE/2);
-    CommonGraphics::ScrollArea *p = static_cast<CommonGraphics::ScrollArea *>(parentItem());
-    int parentHeight = 0;
-    if (p)
-    {
-        parentHeight = p->boundingRect().height()/2 - (LOADING_ICON_SIZE + PREFERENCES_MARGIN)*G_SCALE/2;
-    }
-    loadingIcon_->setPos(loadingCenterX, parentHeight);
+    int loadingCenterX = static_cast<int>(boundingRect().width()/2 - kLoadingIconSize*G_SCALE/2);
+    loadingIcon_->setPos(loadingCenterX, kLoadingIconOffsetY*G_SCALE);
 }
 
 void RobertWindowItem::setError(bool isError)
 {
+    loading_ = false;
     isError_ = isError;
+    updateVisibility();
+}
+
+void RobertWindowItem::setLoading(bool loading)
+{
+    loading_ = loading;
     updateVisibility();
 }
 
 void RobertWindowItem::updateVisibility()
 {
-    if (!loggedIn_)
-    {
+    if (!loggedIn_) {
         desc_->setVisible(loggedIn_);
-        for (auto group : groups_)
-        {
+        for (auto group : groups_) {
             group->setVisible(loggedIn_);
         }
         errorMessage_->setVisible(false);
@@ -141,27 +143,25 @@ void RobertWindowItem::updateVisibility()
         loginButton_->setVisible(!loggedIn_);
         loadingIcon_->setVisible(false);
         loadingIcon_->stop();
-    }
-    else
-    {
+    } else {
         loginPrompt_->setVisible(false);
         loginButton_->setVisible(false);
 
-        if (!isError_ && groups_.isEmpty())
-        {
+        if (!isError_ && groups_.isEmpty()) {
             desc_->setVisible(false);
             errorMessage_->setVisible(false);
             loadingIcon_->setVisible(true);
-            loadingIcon_->start();
-        }
-        else
-        {
+            if (loading_) {
+                loadingIcon_->start();
+            } else {
+                loadingIcon_->stop();
+            }
+        } else {
             desc_->setVisible(!isError_);
             errorMessage_->setVisible(isError_);
             loadingIcon_->setVisible(false);
             loadingIcon_->stop();
-            for (auto group : groups_)
-            {
+            for (auto group : groups_) {
                 group->setVisible(!isError_);
             }
         }
