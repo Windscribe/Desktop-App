@@ -7,6 +7,7 @@
 #include "gui/application.h"
 #include "installer/settings.h"
 #include "../utils/applicationinfo.h"
+#include "../utils/path.h"
 #include "../utils/logger.h"
 
 namespace
@@ -115,8 +116,8 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
                 "Instructs the installer to hide its user interface.  Implies -no-drivers and -no-auto-start.\n\n"
                 "-factory-reset\n"
                 "Delete existing preferences, logs, and other data, if they exist.\n\n"
-                "-dir \"x:\\dirname\"\n"
-                "Overrides the default installation directory."));
+                "-dir \"C:\\dirname\"\n"
+                "Overrides the default installation directory. Installation directory must be on the system drive."));
         return 0;
     }
 	
@@ -177,6 +178,12 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
     {
         WSMessageBox(NULL, _T("Windscribe Install Error"), MB_OK | MB_ICONERROR,
             _T("Incorrect number of arguments passed to installer.\n\nUse the -help argument to see available arguments and their format."));
+        return 0;
+    }
+
+    if (!installPath.empty() && !Path::isOnSystemDrive(installPath)) {
+        WSMessageBox(NULL, _T("Windscribe Install Error"), MB_OK | MB_ICONERROR,
+            _T("The specified installation path is not on the system drive.  To ensure the security of the application, and your system, it must be installed on the same drive as Windows."));
         return 0;
     }
 

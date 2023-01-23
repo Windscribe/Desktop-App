@@ -160,6 +160,8 @@ int Files::moveFiles()
             }
         }
 
+        // MoveFileEx cannot be performed atomically if the source and target folders are on different volumes.
+        // Thus, the installer only permits installation to a folder on the system drive.
         BOOL result = ::MoveFileEx(installPath_.c_str(), settingsInstallPath.c_str(), MOVEFILE_WRITE_THROUGH);
         if (result == FALSE) {
             throw system_error(::GetLastError(), generic_category(), "could not move the installed files");

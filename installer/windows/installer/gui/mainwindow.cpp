@@ -14,9 +14,10 @@
 
 #include "../resource.h"
 #include "../installer/settings.h"
-#include "../../Utils/applicationinfo.h"
-#include "../../Utils/utils.h"
-#include "../../Utils/windscribepathcheck.h"
+#include "../../utils/applicationinfo.h"
+#include "../../utils/path.h"
+#include "../../utils/utils.h"
+#include "../../utils/windscribepathcheck.h"
 
 #pragma comment(lib, "Dwmapi.lib")
 #pragma comment(lib, "Shlwapi.lib")
@@ -546,6 +547,13 @@ void MainWindow::onEscapeClick()
 {
     // check path
     std::wstring path_param = pathControl_->path();
+
+    if (!Path::isOnSystemDrive(path_param)) {
+        MessageBox(hwnd_, L"The specified installation path is not on the system drive.  To ensure the security of the application, and your system, it must be installed on the same drive as Windows.",
+                   L"Windscribe Installer", MB_OK | MB_ICONERROR);
+        pathControl_->setPath(Utils::defaultInstallPath());
+        return;
+    }
 
     if (WindscribePathCheck::isNeedAppendWindscribeSubdirectory(path_param, g_application->getPreviousInstallPath()))
     {

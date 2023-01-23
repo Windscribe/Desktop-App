@@ -22,6 +22,7 @@ public:
 	static unsigned int PathExtensionPos(const std::wstring Filename);
 	static std::wstring PathExtractExt(const std::wstring &s);
     static bool isRoot(const std::wstring& fileName);
+	static bool isOnSystemDrive(const std::wstring& fileName);
 };
 
 #endif // PATH_H
