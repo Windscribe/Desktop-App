@@ -259,6 +259,7 @@ files_codesign_windows:
   - ws_com.dll
   - ws_proxy_stub.dll
   - zlib1.dll
+  - dga.dll
 
 msvc_files:
   - concrt140.dll
@@ -296,6 +297,10 @@ lib_files:
   wireguard:
     - tunnel.dll -> tunnel.dll
     - wireguard.dll -> wireguard.dll
+
+  # The dga library should be in the build-libs directory. If it is not there, then it will not be included in the installer.
+  dga:
+    - dga.dll -> dga.dll
 
 macdeployfixes:
   client:

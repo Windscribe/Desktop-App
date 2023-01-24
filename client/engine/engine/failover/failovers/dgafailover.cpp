@@ -13,7 +13,7 @@ namespace failover {
 
 void DgaFailover::getHostnames(bool)
 {
-    QString dgaLibPath = QCoreApplication::applicationDirPath() + "/dga_library.dll";
+    QString dgaLibPath = QCoreApplication::applicationDirPath() + "/dga.dll";
 
     if (!QFile::exists(dgaLibPath)) {
         qCDebug(LOG_BASIC) << "No dga, skip it";

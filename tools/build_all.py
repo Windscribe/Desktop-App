@@ -542,8 +542,12 @@ def build_installer_win32(configdata, qt_root, msvc_root, crt_root, win_cert_pas
         for k, v in configdata["lib_files"].items():
             lib_root = iutl.GetDependencyBuildRoot(k)
             if not lib_root:
-                raise iutl.InstallError("Library \"{}\" is not installed.".format(k))
-            copy_files(k, v, lib_root, BUILD_INSTALLER_FILES)
+            	if k == "dga":
+            		msg.Info("DGA library not found, skkipping")
+            	else:
+                	raise iutl.InstallError("Library \"{}\" is not installed.".format(k))
+            else:    	
+            	copy_files(k, v, lib_root, BUILD_INSTALLER_FILES)
     if "license_files" in configdata:
         license_dir = os.path.join(pathhelper.COMMON_DIR, "licenses")
         copy_files("license", configdata["license_files"], license_dir, BUILD_INSTALLER_FILES)
