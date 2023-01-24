@@ -1,3 +1,26 @@
+2.6.7 (24/01/2023)
+All:
+   * Added a descriptive error message on the login screen when the user is disabled or rate-limited. #377
+   * Fixed crash may occur when switching protocol window modes. #398
+   * Fixed disconnecting a WireGuard connection while it is connecting may disconnect, then start connecting again once the WireGuard dynamic configuration has been acquired. #398
+   * Fixed a successful failover did not trigger the 'save preferred protocol' screen. #398
+   * Fixed server API request would never be processed by curl due to bug in curl libs 7.83/7.85. #541
+   * Fixed new notifications appear at the bottom of the News Feed screen. #548
+   * Fixed notification age label to display "Today" instead of "0 days ago" for new notifications. #548
+   * Fixed server API request pipeline to ensure requests are processed as quickly as possible. #549
+   * Fixed confirm email feature doesn't work. #551
+   * Fixed high CPU usage while idle. #552
+   * Fixed firewall to allow apps to reach the local interface address. #558
+   * Fixed firewall to always allow localhost (127.0.0.0/8 and ::1). #558
+Windows:
+   * Fixed installer to block, for security purposes, installation on a non-system drive. #417
+   * Fixed app icon on Windows taskbar does not indicate connection status (change color). #550
+Linux:
+   * Fixed helper not enabled on Arch after install/reboot. #556
+   * Fixed firewall rules: multicast and localhost rules were uni-directional instead of both ways. #558
+   * Fixed firewall rules: added missing Linux IPv6 localhost rule. #558
+
+
 2.6.6 (12/01/2023)
 All:
    * Added user interface improvements to indicate the app is failing over to another protocol. #398
