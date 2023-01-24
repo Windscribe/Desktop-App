@@ -376,3 +376,17 @@ bool Path::isRoot(const std::wstring& fileName)
 {
     return ::PathIsRoot(fileName.c_str());
 }
+
+bool Path::isOnSystemDrive(const std::wstring& fileName)
+{
+    if (!fileName.empty()) {
+        wchar_t systemDir[MAX_PATH];
+        UINT result = ::GetSystemDirectoryW(systemDir, sizeof(systemDir) / sizeof(systemDir[0]));
+
+        if (result > 0 && result < MAX_PATH) {
+            return ::PathIsSameRootW(systemDir, fileName.c_str());;
+        }
+    }
+
+    return false;
+}
