@@ -19,7 +19,7 @@ void DgaFailover::getHostnames(bool)
 #elif defined Q_OS_MAC
     QString dgaLibPath = QCoreApplication::applicationDirPath() + "/../Library/libdga.dylib";
 #elif defined Q_OS_LINUX
-    QString dgaLibPath = QCoreApplication::applicationDirPath() + "/../Library/libdga.dylib";
+    QString dgaLibPath = QCoreApplication::applicationDirPath() + "/libdga";
 #endif
 
     if (!QFile::exists(dgaLibPath)) {
