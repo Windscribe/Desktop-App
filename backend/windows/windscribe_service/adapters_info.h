@@ -9,6 +9,7 @@ public:
 	bool isWindscribeAdapter(NET_IFINDEX index) const;
 	bool getWindscribeIkev2AdapterInfo(NET_IFINDEX &outIfIndex, std::wstring &outIp);
 	std::vector<NET_IFINDEX> getTAPAdapters();
+	std::vector<std::string> getAdapterAddresses(NET_IFINDEX idx);
 
 private:
 	std::unique_ptr< unsigned char[] > adapterInfoBuffer_;

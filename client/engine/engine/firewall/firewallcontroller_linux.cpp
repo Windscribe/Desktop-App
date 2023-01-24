@@ -1,6 +1,7 @@
 #include "firewallcontroller_linux.h"
 #include <QStandardPaths>
 #include "utils/logger.h"
+#include <ifaddrs.h>
 #include <QDir>
 #include "engine/helper/ihelper.h"
 
@@ -112,6 +113,13 @@ bool FirewallController_linux::firewallOnImpl(const QSet<QString> &ips, bool bAl
 
         if (!interfaceToSkip_.isEmpty()) {
             if (!bIsCustomConfig) {
+                // Allow local addresses
+                QStringList localAddrs = getLocalAddresses(interfaceToSkip_);
+                for (QString addr : localAddrs) {
+                    rules << "-A windscribe_input -i " + interfaceToSkip_ + " -s " + addr + "/32 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
+                    rules << "-A windscribe_output -o " + interfaceToSkip_ + " -d " + addr + "/32 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
+                }
+
                 // Disallow LAN addresses (except 10.255.255.0/24), link-local addresses, loopback,
                 // and local multicast addresses from going into the tunnel
                 rules << "-A windscribe_input -i " + interfaceToSkip_ + " -s 192.168.0.0/16 -j DROP -m comment --comment \"" + comment_ + "\"\n";
@@ -124,8 +132,6 @@ bool FirewallController_linux::firewallOnImpl(const QSet<QString> &ips, bool bAl
                 rules << "-A windscribe_output -o " + interfaceToSkip_ + " -d 10.255.255.0/24 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
                 rules << "-A windscribe_input -i " + interfaceToSkip_ + " -s 10.0.0.0/8 -j DROP -m comment --comment \"" + comment_ + "\"\n";
                 rules << "-A windscribe_output -o " + interfaceToSkip_ + " -d 10.0.0.0/8 -j DROP -m comment --comment \"" + comment_ + "\"\n";
-                rules << "-A windscribe_input -i " + interfaceToSkip_ + " -s 127.0.0.0/8 -j DROP -m comment --comment \"" + comment_ + "\"\n";
-                rules << "-A windscribe_output -o " + interfaceToSkip_ + " -d 127.0.0.0/8 -j DROP -m comment --comment \"" + comment_ + "\"\n";
                 rules << "-A windscribe_input -i " + interfaceToSkip_ + " -s 224.0.0.0/24 -j DROP -m comment --comment \"" + comment_ + "\"\n";
                 rules << "-A windscribe_output -o " + interfaceToSkip_ + " -d 224.0.0.0/24 -j DROP -m comment --comment \"" + comment_ + "\"\n";
             }
@@ -138,6 +144,10 @@ bool FirewallController_linux::firewallOnImpl(const QSet<QString> &ips, bool bAl
             rules << "-A windscribe_input -s " + i + "/32 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
             rules << "-A windscribe_output -d " + i + "/32 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
         }
+
+        // Loopback addresses to the local host
+        rules << "-A windscribe_input -s 127.0.0.0/8 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
+        rules << "-A windscribe_output -d 127.0.0.0/8 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
 
         if (bAllowLanTraffic) {
             // Local Network
@@ -155,11 +165,9 @@ bool FirewallController_linux::firewallOnImpl(const QSet<QString> &ips, bool bAl
             rules << "-A windscribe_input -s 10.0.0.0/8 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
             rules << "-A windscribe_output -d 10.0.0.0/8 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
 
-            // Loopback addresses to the local host
-            rules << "-A windscribe_input -s 127.0.0.0/8 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
-
             // Multicast addresses
             rules << "-A windscribe_input -s 224.0.0.0/4 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
+            rules << "-A windscribe_output -d 224.0.0.0/4 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
         }
 
         rules << "-A windscribe_input -j DROP -m comment --comment \"" + comment_ + "\"\n";
@@ -184,6 +192,10 @@ bool FirewallController_linux::firewallOnImpl(const QSet<QString> &ips, bool bAl
             rules << "-A INPUT -j windscribe_input -m comment --comment \"" + comment_ + "\"\n";
             rules << "-A OUTPUT -j windscribe_output -m comment --comment \"" + comment_ + "\"\n";
         }
+
+        // Loopback addresses to the local host
+        rules << "-A windscribe_input -s ::1/128 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
+        rules << "-A windscribe_output -d ::1/128 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
 
         rules << "-A windscribe_input -j DROP -m comment --comment \"" + comment_ + "\"\n";
         rules << "-A windscribe_output -j DROP -m comment --comment \"" + comment_ + "\"\n";
@@ -259,4 +271,34 @@ void FirewallController_linux::removeWindscribeRules(const QString &comment, boo
     if (!ret) {
         qCDebug(LOG_FIREWALL_CONTROLLER) << "Could not remove windscribe rules:" << ret;
     }
+}
+
+QStringList FirewallController_linux::getLocalAddresses(const QString iface) const
+{
+    QStringList addrs;
+    struct ifaddrs *ifap;
+    struct ifaddrs *cur;
+
+    if (getifaddrs(&ifap)) {
+        qCDebug(LOG_FIREWALL_CONTROLLER) << "Error: could not get local interface addresses";
+        return addrs;
+    }
+
+    cur = ifap;
+    while (cur) {
+        if (strncmp(iface.toStdString().c_str(), cur->ifa_name, iface.length()) ||
+            cur->ifa_addr == nullptr ||
+            cur->ifa_addr->sa_family != AF_INET)
+        {
+            cur = cur->ifa_next;
+            continue;
+        }
+        char str[16];
+        inet_ntop(AF_INET, &(((struct sockaddr_in *)cur->ifa_addr)->sin_addr), str, 16);
+        addrs << QString(str);
+        cur = cur->ifa_next;
+    }
+
+    freeifaddrs(ifap);
+    return addrs;
 }
