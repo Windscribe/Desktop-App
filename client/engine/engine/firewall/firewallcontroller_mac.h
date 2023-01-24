@@ -51,13 +51,14 @@ private:
     QTemporaryFile tempFile_;
 
     void firewallOffImpl();
-    QStringList lanTrafficRules() const;
+    QStringList lanTrafficRules(bool bAllowLanTraffic) const;
     QStringList vpnTrafficRules(const QString &interfaceToSkip, bool bIsCustomConfig) const;
     void getFirewallStateFromPfctl(FirewallState &outState);
     bool checkInternalVsPfctlState();
     QString generatePfConf(const QSet<QString> &ips, bool bAllowLanTraffic, bool bIsCustomConfig, const QString &interfaceToSkip);
     QString generateTable(const QSet<QString> &ips);
     void updateVpnAnchor();
+    QStringList getLocalAddresses(const QString iface) const;
 };
 
 #endif // FIREWALLCONTROLLER_MAC_H

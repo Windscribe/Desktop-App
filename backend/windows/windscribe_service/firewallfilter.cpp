@@ -189,9 +189,17 @@ void FirewallFilter::addFilters(HANDLE engineHandle, const wchar_t *ip, bool bAl
             if (!ret) {
                 Logger::instance().out(L"Could not add reserved allow filter on VPN interface");
             }
+
+            // Explicitly allow local addresses on this interface
+            const std::vector<Ip4AddressAndMask> localAddrs = Ip4AddressAndMask::fromVector(ai.getAdapterAddresses(*it));
+            ret = Utils::addFilterV4(engineHandle, nullptr, FWP_ACTION_PERMIT, 8, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, &localAddrs);
+            if (!ret) {
+                Logger::instance().out(L"Could not add reserved allow filter on private address for VPN interface");
+            }
+
             // Disallow all other private, link-local, loopback networks from going over tunnel
             const std::vector<Ip4AddressAndMask> priv = Ip4AddressAndMask::fromVector(
-                {L"10.0.0.0/8", L"172.16.0.0/12", L"192.168.0.0/16", L"169.254.0.0/16", L"127.0.0.0/8", L"224.0.0.0/24"});
+                {L"10.0.0.0/8", L"172.16.0.0/12", L"192.168.0.0/16", L"169.254.0.0/16", L"224.0.0.0/24"});
             ret = Utils::addFilterV4(engineHandle, nullptr, FWP_ACTION_BLOCK, 6, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, &luid, &priv);
             if (!ret) {
                 Logger::instance().out(L"Could not add private network block filter on VPN interface");
@@ -239,17 +247,29 @@ void FirewallFilter::addFilters(HANDLE engineHandle, const wchar_t *ip, bool bAl
         Logger::instance().out(L"Could not add reserved allow filter");
     }
 
+    // Always allow localhost
+    const std::vector<Ip4AddressAndMask> localhostV4 = Ip4AddressAndMask::fromVector({L"127.0.0.1/24"});
+    ret = Utils::addFilterV4(engineHandle, nullptr, FWP_ACTION_PERMIT, 8, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, &localhostV4);
+    if (!ret) {
+        Logger::instance().out(L"Could not add localhost v4 allow filter");
+    }
+    const std::vector<Ip6AddressAndPrefix> localhostV6 = Ip6AddressAndPrefix::fromVector({L"::1/128"});
+    ret = Utils::addFilterV6(engineHandle, nullptr, FWP_ACTION_PERMIT, 8, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, &localhostV6);
+    if (!ret) {
+        Logger::instance().out(L"Could not add localhost v6 allow filter.");
+    }
+
     // add permit filters for Local Network
     if (bAllowLocalTraffic) {
         const std::vector<Ip4AddressAndMask> privV4 = Ip4AddressAndMask::fromVector(
-            {L"10.0.0.0/8", L"172.16.0.0/12", L"192.168.0.0/16", L"169.254.0.0/16", L"127.0.0.0/8", L"224.0.0.0/24"});
+            {L"10.0.0.0/8", L"172.16.0.0/12", L"192.168.0.0/16", L"169.254.0.0/16", L"224.0.0.0/24"});
         ret = Utils::addFilterV4(engineHandle, nullptr, FWP_ACTION_PERMIT, 4, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, &privV4);
         if (!ret) {
             Logger::instance().out(L"Could not add IPv4 LAN traffic allow filter.");
         }
 
         const std::vector<Ip6AddressAndPrefix> privV6 = Ip6AddressAndPrefix::fromVector(
-            {L"::1/128", L"fe80::/10", L"ff00::/64"});
+            {L"fe80::/10", L"ff00::/64"});
         ret = Utils::addFilterV6(engineHandle, nullptr, FWP_ACTION_PERMIT, 4, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, &privV6);
         if (!ret) {
             Logger::instance().out(L"Could not add IPv6 LAN traffic allow filter.");

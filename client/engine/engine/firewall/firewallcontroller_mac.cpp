@@ -2,6 +2,7 @@
 #include <QStandardPaths>
 #include "utils/ws_assert.h"
 #include "utils/logger.h"
+#include <ifaddrs.h>
 #include <QDir>
 #include <QCoreApplication>
 
@@ -105,9 +106,7 @@ bool FirewallController_mac::firewallOn(const QSet<QString> &ips, bool bAllowLan
 
         if (bAllowLanTraffic != isAllowLanTraffic_) {
             Anchor anchor("windscribe_lan_traffic");
-            if (bAllowLanTraffic) {
-                anchor.addRules(lanTrafficRules());
-            }
+            anchor.addRules(lanTrafficRules(bAllowLanTraffic));
 
             QString anchorConf = anchor.generateConf();
             helper_->setFirewallRules(kIpv4, "", "windscribe_lan_traffic", anchorConf);
@@ -181,43 +180,48 @@ void FirewallController_mac::firewallOffImpl()
 }
 
 
-QStringList FirewallController_mac::lanTrafficRules() const
+QStringList FirewallController_mac::lanTrafficRules(bool bAllowLanTraffic) const
 {
     QStringList rules;
-    // Local Network
-    rules << "pass out quick inet from any to 192.168.0.0/16";
-    rules << "pass in quick inet from 192.168.0.0/16 to any";
-    rules << "pass out quick inet from any to 172.16.0.0/12";
-    rules << "pass in quick inet from 172.16.0.0/12 to any";
-    rules << "pass out quick inet from any to 169.254.0.0/16";
-    rules << "pass in quick inet from 169.254.0.0/16 to any";
-    rules << "block out quick inet from any to 10.255.255.0/24";
-    rules << "block in quick inet from 10.255.255.0/24 to any";
-    rules << "pass out quick inet from any to 10.0.0.0/8";
-    rules << "pass in quick inet from 10.0.0.0/8 to any";
 
-    // Loopback addresses to the local host
+    // Always allow localhost
+    rules << "pass out quick inet from any to 127.0.0.0/8";
     rules << "pass in quick inet from 127.0.0.0/8 to any";
 
-    // Multicast addresses
-    rules << "pass in quick inet from 224.0.0.0/4 to any";
+    if (bAllowLanTraffic) {
+        // Local Network
+        rules << "pass out quick inet from any to 192.168.0.0/16";
+        rules << "pass in quick inet from 192.168.0.0/16 to any";
+        rules << "pass out quick inet from any to 172.16.0.0/12";
+        rules << "pass in quick inet from 172.16.0.0/12 to any";
+        rules << "pass out quick inet from any to 169.254.0.0/16";
+        rules << "pass in quick inet from 169.254.0.0/16 to any";
+        rules << "block out quick inet from any to 10.255.255.0/24";
+        rules << "block in quick inet from 10.255.255.0/24 to any";
+        rules << "pass out quick inet from any to 10.0.0.0/8";
+        rules << "pass in quick inet from 10.0.0.0/8 to any";
 
-    // Allow AirDrop
-    rules << "pass in quick on awdl0 inet6 proto udp from any to any port = 5353";
-    rules << "pass out quick on awdl0 proto tcp all flags any";
+        // Multicast addresses
+        rules << "pass out quick inet from any to 224.0.0.0/4";
+        rules << "pass in quick inet from 224.0.0.0/4 to any";
 
-    // UPnP
-    rules << "pass out quick inet proto udp from any to any port = 1900";
-    rules << "pass in quick proto udp from any to any port = 1900";
-    rules << "pass out quick inet proto udp from any to any port = 1901";
-    rules << "pass in quick proto udp from any to any port = 1901";
+        // Allow AirDrop
+        rules << "pass in quick on awdl0 inet6 proto udp from any to any port = 5353";
+        rules << "pass out quick on awdl0 proto tcp all flags any";
 
-    rules << "pass out quick inet proto udp from any to any port = 5350";
-    rules << "pass in quick proto udp from any to any port = 5350";
-    rules << "pass out quick inet proto udp from any to any port = 5351";
-    rules << "pass in quick proto udp from any to any port = 5351";
-    rules << "pass out quick inet proto udp from any to any port = 5353";
-    rules << "pass in quick proto udp from any to any port = 5353";
+        // UPnP
+        rules << "pass out quick inet proto udp from any to any port = 1900";
+        rules << "pass in quick proto udp from any to any port = 1900";
+        rules << "pass out quick inet proto udp from any to any port = 1901";
+        rules << "pass in quick proto udp from any to any port = 1901";
+
+        rules << "pass out quick inet proto udp from any to any port = 5350";
+        rules << "pass in quick proto udp from any to any port = 5350";
+        rules << "pass out quick inet proto udp from any to any port = 5351";
+        rules << "pass in quick proto udp from any to any port = 5351";
+        rules << "pass out quick inet proto udp from any to any port = 5353";
+        rules << "pass in quick proto udp from any to any port = 5353";
+    }
     return rules;
 }
 
@@ -262,8 +266,8 @@ void FirewallController_mac::getFirewallStateFromPfctl(FirewallState &outState)
         if (rules.size() > 0) {
             QStringList words = rules[0].split(" ");
             if (words.size() >= 10) {
-                // block drop out quick on [interface name]
-                outState.interfaceToSkip = words[5];
+                // pass out quick on [interface]
+                outState.interfaceToSkip = words[4];
             } else {
                 WS_ASSERT(false);
             }
@@ -278,7 +282,8 @@ void FirewallController_mac::getFirewallStateFromPfctl(FirewallState &outState)
     ret = helper_->getFirewallRules(kIpv4, "", "windscribe_lan_traffic", output);
     output = output.trimmed();
     if (ret && !output.isEmpty()) {
-        outState.isAllowLanTraffic = true;
+        QStringList rules = output.split("\n");
+        outState.isAllowLanTraffic = (rules.size() > 2);
     }
 
     // read anchor windscribe_static_ports_traffic rules
@@ -298,7 +303,6 @@ bool FirewallController_mac::checkInternalVsPfctlState()
 
     if (firewallState.isEnabled) {
         if (!firewallState.isBasicWindscribeRulesCorrect ||
-            windscribeIps_ != firewallState.windscribeIps ||
             !isFirewallEnabled_ ||
             windscribeIps_ != firewallState.windscribeIps ||
             interfaceToSkip_ != firewallState.interfaceToSkip ||
@@ -341,9 +345,7 @@ QString FirewallController_mac::generatePfConf(const QSet<QString> &ips, bool bA
     pf += "pass in quick proto udp from any to any port = 68\n";
 
     Anchor lanTrafficAnchor("windscribe_lan_traffic");
-    if (bAllowLanTraffic) {
-        lanTrafficAnchor.addRules(lanTrafficRules());
-    }
+    lanTrafficAnchor.addRules(lanTrafficRules(bAllowLanTraffic));
     pf += lanTrafficAnchor.getString() + "\n";
 
     Anchor portsAnchor("windscribe_static_ports_traffic");
@@ -386,7 +388,6 @@ void FirewallController_mac::setInterfaceToSkip_posix(const QString &interfaceTo
 
 void FirewallController_mac::enableFirewallOnBoot(bool bEnable)
 {
-    QString pf = generatePfConf(windscribeIps_, isAllowLanTraffic_, isCustomConfig_, interfaceToSkip_);
     helper_->setFirewallOnBoot(bEnable);
 }
 
@@ -396,6 +397,12 @@ QStringList FirewallController_mac::vpnTrafficRules(const QString &interfaceToSk
 
     if (!interfaceToSkip.isEmpty()) {
         if (!bIsCustomConfig) {
+            // Allow local addresses
+            QList<QString> localAddrs = getLocalAddresses(interfaceToSkip);
+            for (QString addr : localAddrs) {
+                rules << "pass out quick on " + interfaceToSkip + " inet from any to " + addr + "/32";
+                rules << "pass in quick on " + interfaceToSkip + " inet from " + addr + "/32 to any";
+            }
             // Disallow RFC1918/link local/loopback traffic to go over tunnel
             rules << "block out quick on " + interfaceToSkip + " inet from any to 192.168.0.0/16";
             rules << "block in quick on " + interfaceToSkip + " inet from 192.168.0.0/16 to any";
@@ -410,8 +417,6 @@ QStringList FirewallController_mac::vpnTrafficRules(const QString &interfaceToSk
             rules << "block out quick on " + interfaceToSkip + " inet from any to 10.0.0.0/8";
             rules << "block in quick on " + interfaceToSkip + " inet from 10.0.0.0/8 to any";
             rules << "block out quick on " + interfaceToSkip + " inet from any to 127.0.0.0/8";
-            rules << "block in quick on " + interfaceToSkip + " inet from 127.0.0.0/8 to any";
-            rules << "block out quick on " + interfaceToSkip + " inet from any to 224.0.0.0/24";
             rules << "block in quick on " + interfaceToSkip + " inet from 224.0.0.0/24 to any";
         }
 
@@ -428,4 +433,34 @@ void FirewallController_mac::updateVpnAnchor() {
 
     QString anchorConf = vpnTrafficAnchor.generateConf();
     helper_->setFirewallRules(kIpv4, "", "windscribe_vpn_traffic", anchorConf);
+}
+
+QStringList FirewallController_mac::getLocalAddresses(const QString iface) const
+{
+    QStringList addrs;
+    struct ifaddrs *ifap;
+    struct ifaddrs *cur;
+
+    if (getifaddrs(&ifap)) {
+        qCDebug(LOG_FIREWALL_CONTROLLER) << "Error: could not get local interface addresses";
+        return addrs;
+    }
+
+    cur = ifap;
+    while (cur) {
+        if (strncmp(iface.toStdString().c_str(), cur->ifa_name, iface.length()) ||
+            cur->ifa_addr == nullptr ||
+            cur->ifa_addr->sa_family != AF_INET)
+        {
+            cur = cur->ifa_next;
+            continue;
+        }
+        char str[16];
+        inet_ntop(AF_INET, &(((struct sockaddr_in *)cur->ifa_addr)->sin_addr), str, 16);
+        addrs << QString(str);
+        cur = cur->ifa_next;
+    }
+
+    freeifaddrs(ifap);
+    return addrs;
 }
