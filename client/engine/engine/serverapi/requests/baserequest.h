@@ -31,6 +31,9 @@ public:
     void setNetworkRetCode(SERVER_API_RET_CODE retCode) { networkRetCode_ = retCode; }
     SERVER_API_RET_CODE networkRetCode() const { return networkRetCode_; }
 
+    void setCancelled(bool cancelled);
+    bool isCancelled() const;
+
 signals:
     void finished();
 
@@ -43,6 +46,7 @@ private:
     RequestType requestType_;
     bool isWriteToLog_ = true;
     SERVER_API_RET_CODE networkRetCode_ = SERVER_RETURN_SUCCESS;
+    bool cancelled_ = false;
 };
 
 } // namespace server_api

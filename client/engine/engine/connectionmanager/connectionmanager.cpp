@@ -1307,7 +1307,9 @@ void ConnectionManager::onGetWireGuardConfigAnswer(WireGuardConfigRetCode retCod
 {
     // if we got an answer after we've timed out or disconnected, ignore this event
     CurrentConnectionDescr settings = connSettingsPolicy_->getCurrentConnectionSettings();
-    if (state_ != STATE_CONNECTING_FROM_USER_CLICK || settings.protocol != types::Protocol::WIREGUARD) {
+    if ((state_ != STATE_CONNECTING_FROM_USER_CLICK && state_ != STATE_WAKEUP_RECONNECTING && state_ != STATE_RECONNECTING)
+        || settings.protocol != types::Protocol::WIREGUARD)
+    {
         return;
     }
 

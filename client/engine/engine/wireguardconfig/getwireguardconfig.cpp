@@ -15,19 +15,19 @@ extern "C" {
 const QString GetWireGuardConfig::KEY_WIREGUARD_CONFIG = "wireguardConfig";
 
 GetWireGuardConfig::GetWireGuardConfig(QObject *parent, server_api::ServerAPI *serverAPI) : QObject(parent), serverAPI_(serverAPI),
-    isRequestAlreadyInProgress_(false), simpleCrypt_(SIMPLE_CRYPT_KEY)
+    request_(nullptr), simpleCrypt_(SIMPLE_CRYPT_KEY)
 {
 }
 
 void GetWireGuardConfig::getWireGuardConfig(const QString &serverName, bool deleteOldestKey, const QString &deviceId)
 {
-    if (isRequestAlreadyInProgress_)
-    {
-        WS_ASSERT(false);
-        return;
+    if (request_) {
+        // no longer interested in the old result, if there was an active request
+        request_->setCancelled(true);
+        // serverAPI will delete this request when done
+        request_ = nullptr;
     }
 
-    isRequestAlreadyInProgress_ = true;
     serverName_ = serverName;
     deleteOldestKey_ = deleteOldestKey;
     deviceId_ = deviceId;
@@ -39,17 +39,14 @@ void GetWireGuardConfig::getWireGuardConfig(const QString &serverName, bool dele
     // restore a key-pair and peer parameters stored on disk
     // if they are not found in settings, they will be generated and saved later by this class flow.
     QString publicKey, privateKey, presharedKey, allowedIPs;
-    if (getWireGuardKeyPair(publicKey, privateKey) && getWireGuardPeerInfo(presharedKey, allowedIPs))
-    {
+    if (getWireGuardKeyPair(publicKey, privateKey) && getWireGuardPeerInfo(presharedKey, allowedIPs)) {
         wireGuardConfig_.setKeyPair(publicKey, privateKey);
         wireGuardConfig_.setPeerPresharedKey(presharedKey);
         wireGuardConfig_.setPeerAllowedIPs(allowedIPs);
-        server_api::BaseRequest *requestConfigsConnect = serverAPI_->wgConfigsConnect(apiinfo::ApiInfo::getAuthHash(), wireGuardConfig_.clientPublicKey(), serverName_, deviceId_);
-        requestConfigsConnect->setParent(this);
-        connect(requestConfigsConnect, &server_api::BaseRequest::finished, this, &GetWireGuardConfig::onWgConfigsConnectAnswer);
-    }
-    else
-    {
+        request_ = serverAPI_->wgConfigsConnect(apiinfo::ApiInfo::getAuthHash(), wireGuardConfig_.clientPublicKey(), serverName_, deviceId_);
+        request_->setParent(this);
+        connect(request_, &server_api::BaseRequest::finished, this, &GetWireGuardConfig::onWgConfigsConnectAnswer);
+    } else {
         submitWireGuardInitRequest(true);
     }
 }
@@ -59,13 +56,12 @@ void GetWireGuardConfig::onWgConfigsInitAnswer()
     QSharedPointer<server_api::WgConfigsInitRequest> request(static_cast<server_api::WgConfigsInitRequest *>(sender()), &QObject::deleteLater);
 
     if (request->networkRetCode() != SERVER_RETURN_SUCCESS) {
-        isRequestAlreadyInProgress_ = false;
+        request_ = nullptr;
         emit getWireGuardConfigAnswer(WireGuardConfigRetCode::kFailed, wireGuardConfig_);
         return;
     }
 
-    if (request->isErrorCode())
-    {
+    if (request->isErrorCode()) {
         WireGuardConfigRetCode newRetCode = WireGuardConfigRetCode::kFailed;
 
         if (request->errorCode() == 1310) {
@@ -76,14 +72,14 @@ void GetWireGuardConfig::onWgConfigsInitAnswer()
                 submitWireGuardInitRequest(false);
                 return;
             }
-         }
-         else if (request->errorCode() == 1313) {
-            // This error indicates the user has used up all of their public key slots on the server.
-            // Ask them if they want to delete their oldest registered key and try again.
-            newRetCode = WireGuardConfigRetCode::kKeyLimit;
-         }
+        }
+        else if (request->errorCode() == 1313) {
+           // This error indicates the user has used up all of their public key slots on the server.
+           // Ask them if they want to delete their oldest registered key and try again.
+           newRetCode = WireGuardConfigRetCode::kKeyLimit;
+        }
 
-        isRequestAlreadyInProgress_ = false;
+        request_ = nullptr;
         emit getWireGuardConfigAnswer(newRetCode, wireGuardConfig_);
         return;
     }
@@ -94,9 +90,9 @@ void GetWireGuardConfig::onWgConfigsInitAnswer()
     // Persist the peer parameters we received.
     setWireGuardPeerInfo(wireGuardConfig_.peerPresharedKey(), wireGuardConfig_.peerAllowedIps());
 
-    server_api::BaseRequest *requestConfigsConnect = serverAPI_->wgConfigsConnect(apiinfo::ApiInfo::getAuthHash(), wireGuardConfig_.clientPublicKey(), serverName_, deviceId_);
-    requestConfigsConnect->setParent(this);
-    connect(requestConfigsConnect, &server_api::BaseRequest::finished, this, &GetWireGuardConfig::onWgConfigsConnectAnswer);
+    request_ = serverAPI_->wgConfigsConnect(apiinfo::ApiInfo::getAuthHash(), wireGuardConfig_.clientPublicKey(), serverName_, deviceId_);
+    request_->setParent(this);
+    connect(request_, &server_api::BaseRequest::finished, this, &GetWireGuardConfig::onWgConfigsConnectAnswer);
 
 }
 
@@ -106,7 +102,7 @@ void GetWireGuardConfig::onWgConfigsConnectAnswer()
 
     if (request->networkRetCode() != SERVER_RETURN_SUCCESS)
     {
-        isRequestAlreadyInProgress_ = false;
+        request_ = nullptr;
         emit getWireGuardConfigAnswer(WireGuardConfigRetCode::kFailed, wireGuardConfig_);
         return;
     }
@@ -137,14 +133,14 @@ void GetWireGuardConfig::onWgConfigsConnectAnswer()
             }
         }
 
-        isRequestAlreadyInProgress_ = false;
+        request_ = nullptr;
         emit getWireGuardConfigAnswer(WireGuardConfigRetCode::kFailed, wireGuardConfig_);
         return;
     }
 
     wireGuardConfig_.setClientIpAddress(WireGuardConfig::stripIpv6Address(request->ipAddress()));
     wireGuardConfig_.setClientDnsAddress(WireGuardConfig::stripIpv6Address(request->dnsAddress()));
-    isRequestAlreadyInProgress_ = false;
+    request_ = nullptr;
     emit getWireGuardConfigAnswer(WireGuardConfigRetCode::kSuccess, wireGuardConfig_);
 }
 
@@ -154,7 +150,7 @@ void GetWireGuardConfig::submitWireGuardInitRequest(bool generateKeyPair)
     {
         if (!wireGuardConfig_.generateKeyPair())
         {
-            isRequestAlreadyInProgress_ = false;
+            request_ = nullptr;
             emit getWireGuardConfigAnswer(WireGuardConfigRetCode::kFailed, wireGuardConfig_);
             return;
         }

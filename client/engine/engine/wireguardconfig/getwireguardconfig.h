@@ -4,6 +4,7 @@
 #include <QObject>
 #include "wireguardconfig.h"
 #include "utils/simplecrypt.h"
+#include "../serverapi/requests/baserequest.h"
 
 namespace server_api {
 class ServerAPI;
@@ -42,7 +43,7 @@ private:
     bool isErrorCode1311Guard_;
     bool isRetryConnectRequest_;
     bool isRetryInitRequest_;
-    bool isRequestAlreadyInProgress_;
+    server_api::BaseRequest *request_;
     SimpleCrypt simpleCrypt_;
 
     void submitWireGuardInitRequest(bool generateKeyPair);
