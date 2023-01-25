@@ -2136,9 +2136,9 @@ void Engine::onApiResourcesManagerLoginFailed(LOGIN_RET retCode, const QString &
         Q_EMIT loginError(LOGIN_RET_INCORRECT_JSON, QString());
     } else if (retCode == LOGIN_RET_BAD_USERNAME || retCode == LOGIN_RET_BAD_CODE2FA ||
              retCode == LOGIN_RET_MISSING_CODE2FA || retCode == LOGIN_RET_ACCOUNT_DISABLED ||
-             retCode == LOGIN_RET_SESSION_INVALID) {
+             retCode == LOGIN_RET_SESSION_INVALID || retCode == LOGIN_RET_RATE_LIMITED) {
         Q_EMIT loginError(retCode, errorMessage);
-    } else  {
+    } else {
         WS_ASSERT(false);
     }
 }

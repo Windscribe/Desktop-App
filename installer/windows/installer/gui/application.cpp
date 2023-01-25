@@ -7,6 +7,7 @@
 #include "../installer/settings.h"
 #include "../../utils/applicationinfo.h"
 #include "../../utils/directory.h"
+#include "../../utils/path.h"
 #include "../../utils/registry.h"
 #include "../../utils/utils.h"
 #include "../../../../client/common/utils/wsscopeguard.h"
@@ -44,12 +45,14 @@ Application::Application(HINSTANCE hInstance, int nCmdShow, bool isAutoUpdateMod
         Settings::instance().setPath(installPath);
     }
     else if (existingInstallFolder.empty() || !Directory::DirExists(existingInstallFolder) ||
-             Utils::in32BitProgramFilesFolder(existingInstallFolder))
+             Utils::in32BitProgramFilesFolder(existingInstallFolder) ||
+             !Path::isOnSystemDrive(existingInstallFolder))
     {
         // We don't have an install folder specified in the Registry, or the folder specified
         // in the Registry no longer exists, indicating the user uninstalled the app.  Or we do
         // have an old install folder but it is referencing the 32-bit Program Files (x86) folder,
         // in which case we want to retarget the install path to the 64-bit Program Files folder.
+        // Lastly, for security purposes, we only allow installation on the system drive.
         Settings::instance().setPath(Utils::defaultInstallPath());
     }
 

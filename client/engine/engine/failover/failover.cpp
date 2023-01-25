@@ -9,9 +9,13 @@
 #include "failovers/dynamicdomainfailover.h"
 #include "failovers/randomdomainfailover.h"
 #include "failovers/accessipsfailover.h"
+#include "failovers/dgafailover.h"
 #include "utils/ws_assert.h"
 #include "utils/hardcodedsettings.h"
 #include "utils/logger.h"
+
+#define USE_NEW_DGA 1
+#define USE_OLD_RANDOM_DOMAIN_GENERATION 1
 
 namespace failover {
 
@@ -34,6 +38,13 @@ Failover::Failover(QObject *parent, NetworkAccessManager *networkAccessManager, 
             failovers_ << failover;
         }
 
+#ifdef USE_NEW_DGA
+        // DGA
+        failover = new DgaFailover(this);
+        connect(failover, &BaseFailover::finished, this, &Failover::onFailoverFinished, Qt::QueuedConnection);
+        failovers_ << failover;
+#endif
+
         // Dynamic Domains
         for (int i = 0; i < HardcodedSettings::instance().dynamicDomainsUrls().count(); ++i) {
             failover = new DynamicDomainFailover(this, networkAccessManager, HardcodedSettings::instance().dynamicDomainsUrls().at(i), HardcodedSettings::instance().dynamicDomains().at(0),
@@ -42,10 +53,12 @@ Failover::Failover(QObject *parent, NetworkAccessManager *networkAccessManager, 
             failovers_ << failover;
         }
 
+#ifdef USE_OLD_RANDOM_DOMAIN_GENERATION
         // Procedurally Generated Domain Endpoint
         failover = new RandomDomainFailover(this);
         connect(failover, &BaseFailover::finished, this, &Failover::onFailoverFinished, Qt::QueuedConnection);
         failovers_ << failover;
+#endif
 
         // Hardcoded IP Endpoints (ApiAccessIps)
         // making the order of IPs random

@@ -33,6 +33,7 @@ public:
     }
 
     static std::vector<Ip4AddressAndMask> fromVector(const std::vector<PCWSTR> &ips);
+    static std::vector<Ip4AddressAndMask> fromVector(const std::vector<std::string> &ips);
 
 private:
     // stored in host order

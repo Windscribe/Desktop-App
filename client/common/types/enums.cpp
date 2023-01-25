@@ -60,6 +60,10 @@ QString LOGIN_RET_toString(LOGIN_RET ret)
     {
         return "SESSION_INVALID";
     }
+    else if (ret == LOGIN_RET_RATE_LIMITED)
+    {
+        return "RATE_LIMITED";
+    }
     else
     {
         WS_ASSERT(false);

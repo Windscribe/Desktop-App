@@ -24,4 +24,9 @@ void DividerLine::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
     painter->fillRect(boundingRect().adjusted(startX_*G_SCALE, 0, 0, 0).toRect(), QBrush(Qt::white));
 }
 
+void DividerLine::updateScaling()
+{
+    setHeight(DIVIDER_HEIGHT*G_SCALE);
+}
+
 } // namespace CommonGraphics

@@ -128,3 +128,13 @@ std::vector<Ip4AddressAndMask> Ip4AddressAndMask::fromVector(const std::vector<P
     }
     return ret;
 }
+
+std::vector<Ip4AddressAndMask> Ip4AddressAndMask::fromVector(const std::vector<std::string> &ips)
+{
+    std::vector<Ip4AddressAndMask> ret;
+
+    for (std::string ip : ips) {
+        ret.push_back(Ip4AddressAndMask(ip.c_str()));
+    }
+    return ret;
+}

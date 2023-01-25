@@ -69,6 +69,7 @@ void LoginRequest::handle(const QByteArray &arr)
         //       instead of what we do for 702 errors.
         // 706 - this is thrown only on login flow, and means the target account is disabled or banned.
         //       Do exactly the same thing as for 703 - show the errorMessage.
+        // 707 - We have been rate limited by the server.  Ask user to try later.
 
         if (errorCode == 701) {
             qCDebug(LOG_SERVER_API) << "API request " + name() + " return session auth hash invalid";
@@ -81,6 +82,9 @@ void LoginRequest::handle(const QByteArray &arr)
             errorMessage_ = jsonObject["errorMessage"].toString();
             qCDebug(LOG_SERVER_API) << "API request " + name() + " return account disabled or banned";
             sessionErrorCode_ = SessionErrorCode::kAccountDisabled;
+        } else if (errorCode == 707) {
+            qCDebug(LOG_SERVER_API) << "API request " + name() + " return rate limit";
+            sessionErrorCode_ = SessionErrorCode::kRateLimited;
         } else {
             if (errorCode == 1340) {
                 qCDebug(LOG_SERVER_API) << "API request " + name() + " return missing 2FA code";

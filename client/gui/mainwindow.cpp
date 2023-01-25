@@ -1613,12 +1613,7 @@ void MainWindow::onBackendLoginError(LOGIN_RET loginError, const QString &errorM
     {
         if (!isLoginOkAndConnectWindowVisible_)
         {
-            if (loginAttemptsController_.attempts() >= 3) {
-                // If we are rate limited, we get a blank HTML response like '<html><body></body></html>' instead of JSON.
-                mainWindowController_->getLoginWindow()->setErrorMessage(ILoginWindow::ERR_MSG_RATE_LIMITED, QString());
-            } else {
-                mainWindowController_->getLoginWindow()->setErrorMessage(ILoginWindow::ERR_MSG_INVALID_API_RESPONSE, QString());
-            }
+            mainWindowController_->getLoginWindow()->setErrorMessage(ILoginWindow::ERR_MSG_INVALID_API_RESPONSE, QString());
             mainWindowController_->getLoginWindow()->setEmergencyConnectState(false);
             gotoLoginWindow();
         }
@@ -1691,6 +1686,20 @@ void MainWindow::onBackendLoginError(LOGIN_RET loginError, const QString &errorM
         {
             backToLoginWithErrorMessage(ILoginWindow::ERR_MSG_SESSION_EXPIRED, QString());
         }
+    }
+    else if (loginError == LOGIN_RET_RATE_LIMITED)
+    {
+        if (!isLoginOkAndConnectWindowVisible_)
+        {
+            mainWindowController_->getLoginWindow()->setErrorMessage(ILoginWindow::ERR_MSG_RATE_LIMITED, QString());
+            mainWindowController_->getLoginWindow()->setEmergencyConnectState(false);
+            gotoLoginWindow();
+        }
+        else
+        {
+            backToLoginWithErrorMessage(ILoginWindow::ERR_MSG_RATE_LIMITED, QString());
+        }
+
     }
 }
 
