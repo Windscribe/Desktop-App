@@ -542,8 +542,12 @@ def build_installer_win32(configdata, qt_root, msvc_root, crt_root, win_cert_pas
         for k, v in configdata["lib_files"].items():
             lib_root = iutl.GetDependencyBuildRoot(k)
             if not lib_root:
-                raise iutl.InstallError("Library \"{}\" is not installed.".format(k))
-            copy_files(k, v, lib_root, BUILD_INSTALLER_FILES)
+            	if k == "dga":
+            		msg.Info("DGA library not found, skipping...")
+            	else:
+                	raise iutl.InstallError("Library \"{}\" is not installed.".format(k))
+            else:    	
+            	copy_files(k, v, lib_root, BUILD_INSTALLER_FILES)
     if "license_files" in configdata:
         license_dir = os.path.join(pathhelper.COMMON_DIR, "licenses")
         copy_files("license", configdata["license_files"], license_dir, BUILD_INSTALLER_FILES)
@@ -625,12 +629,18 @@ def build_installer_mac(configdata, qt_root):
 
 
 def code_sign_linux(binary_name, binary_dir, signature_output_dir):
+
     binary = binary_dir + "/" + binary_name
-    private_key = pathhelper.COMMON_DIR + "/keys/linux/key.pem"
-    signature = signature_output_dir + "/" + binary_name + ".sig"
-    msg.Info("Signing " + binary + " with " + private_key + " -> " + signature)
-    cmd = ["openssl", "dgst", "-sign", private_key, "-keyform", "PEM", "-sha256", "-out", signature, "-binary", binary]
-    iutl.RunCommand(cmd)
+    # Skip DGA library signing, if it not exists (to avoid error)
+    is_binary_exists = os.path.isfile(binary)
+    if binary_name == "libdga" and not is_binary_exists:
+        pass
+    else:    
+        private_key = pathhelper.COMMON_DIR + "/keys/linux/key.pem"
+        signature = signature_output_dir + "/" + binary_name + ".sig"
+        msg.Info("Signing " + binary + " with " + private_key + " -> " + signature)
+        cmd = ["openssl", "dgst", "-sign", private_key, "-keyform", "PEM", "-sha256", "-out", signature, "-binary", binary]
+        iutl.RunCommand(cmd)
 
 
 def build_installer_linux(configdata, qt_root):
@@ -642,8 +652,12 @@ def build_installer_linux(configdata, qt_root):
         for k, v in configdata["lib_files_linux"].items():
             lib_root = iutl.GetDependencyBuildRoot(k)
             if not lib_root:
-                raise iutl.InstallError("Library \"{}\" is not installed.".format(k))
-            copy_files(k, v, lib_root, BUILD_INSTALLER_FILES)
+                if k == "dga":
+                    msg.Info("DGA library not found, skipping...")
+                else:    
+                    raise iutl.InstallError("Library \"{}\" is not installed.".format(k))
+            else:        
+                copy_files(k, v, lib_root, BUILD_INSTALLER_FILES)
 
     msg.Info("Fixing rpaths...")
     if "files_fix_rpath_linux" in configdata:

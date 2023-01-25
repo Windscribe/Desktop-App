@@ -218,6 +218,8 @@ lib_files_linux:
     - lib/libcares.so.2 -> lib/libcares.so.2
   curl:
     - lib/libcurl.so.4 -> lib/libcurl.so.4
+  dga:
+    - libdga -> libdga
   openssl: 
     - lib/libcrypto.so.1.1 -> lib/libcrypto.so.1.1
     - lib/libssl.so.1.1 -> lib/libssl.so.1.1
@@ -249,6 +251,7 @@ files_codesign_linux:
   - windscribe-authhelper
   - windscribewireguard 
   - Windscribe
+  - libdga
 
 files_codesign_windows:
   - cares.dll
@@ -259,6 +262,7 @@ files_codesign_windows:
   - ws_com.dll
   - ws_proxy_stub.dll
   - zlib1.dll
+  - dga.dll
 
 msvc_files:
   - concrt140.dll
@@ -296,6 +300,10 @@ lib_files:
   wireguard:
     - tunnel.dll -> tunnel.dll
     - wireguard.dll -> wireguard.dll
+
+  # The dga library should be in the build-libs directory. If it is not there, then it will not be included in the installer.
+  dga:
+    - dga.dll -> dga.dll
 
 macdeployfixes:
   client:

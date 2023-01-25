@@ -16,3 +16,4 @@ include:
   - 'tools/vars/stunnel.yml'
   - 'tools/vars/wireguard.yml'
   - 'tools/vars/gtest.yml'
+  - 'tools/vars/dga.yml'
