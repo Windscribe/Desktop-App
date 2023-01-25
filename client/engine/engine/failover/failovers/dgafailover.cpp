@@ -1,5 +1,3 @@
-#pragma once
-
 #include "dgafailover.h"
 
 #include <QCoreApplication>
@@ -53,7 +51,6 @@ void DgaFailover::getHostnames(bool)
     QString domain = QString::fromStdString(buf);
     if (!domain.isEmpty())
     {
-        qCDebug(LOG_FAILOVER) << "DGA domain:" << domain;      // TODO: remove
         emit finished(FailoverRetCode::kSuccess, QStringList() << domain);
     }
     else
