@@ -76,6 +76,7 @@ void BasePage::clearItems()
     for (auto item : items_)
     {
         item->disconnect();
+        item->setVisible(false);
         item->deleteLater();
     }
     items_.clear();
