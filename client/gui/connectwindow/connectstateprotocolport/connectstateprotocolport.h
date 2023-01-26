@@ -34,6 +34,8 @@ public:
     void setProtocolPort(const types::Protocol &protocol, const uint port);
     void setTestTunnelResult(bool success);
     types::ProtocolStatus getProtocolStatus();
+    bool isProtocolButtonVisible() const;
+    void setProtocolButtonVisible(bool visible);
 
     void updateScaling() override;
 

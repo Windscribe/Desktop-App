@@ -11,7 +11,7 @@ class DividerLine : public CommonGraphics::BaseItem
 
 public:
     explicit DividerLine(ScalableGraphicsObject *parent, int width = PAGE_WIDTH, int startX = 16);
-    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR);
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR) override;
     void updateScaling() override;
 
     void setOpacity(double opacity);

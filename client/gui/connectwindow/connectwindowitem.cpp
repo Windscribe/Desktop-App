@@ -63,7 +63,6 @@ ConnectWindowItem::ConnectWindowItem(QGraphicsObject *parent, Preferences *prefe
     connectStateProtocolPort_ = new ConnectStateProtocolPort(this);
     connect(connectStateProtocolPort_, &ClickableGraphicsObject::hoverEnter, this, &ConnectWindowItem::onConnectStateTextHoverEnter);
     connect(connectStateProtocolPort_, &ClickableGraphicsObject::hoverLeave, this, &ConnectWindowItem::onConnectStateTextHoverLeave);
-    connect(connectStateProtocolPort_, &ClickableGraphicsObject::clicked, this, &ConnectWindowItem::protocolsClick);
 
     cityName1Text_ = new CommonGraphics::TextButton("", FontDescr(28, true), Qt::white, true, this, 0, true);
     cityName1Text_->setUnhoverOpacity(OPACITY_FULL);
@@ -207,7 +206,7 @@ void ConnectWindowItem::updateScaling()
     updatePositions();
 }
 
-void ConnectWindowItem::updateLocationInfo(const QString &firstName, const QString &secondName, const QString &countryCode, PingTime pingTime)
+void ConnectWindowItem::updateLocationInfo(const QString &firstName, const QString &secondName, const QString &countryCode, PingTime pingTime, bool isCustomConfig)
 {
     if (fullFirstName_ != firstName || fullSecondName_ != secondName)
     {
@@ -217,6 +216,18 @@ void ConnectWindowItem::updateLocationInfo(const QString &firstName, const QStri
     }
     background_->onLocationSelected(countryCode);
     serverRatingIndicator_->setPingTime(pingTime);
+
+    // if custom but button is visible, make it invisible
+    // if not custom but button is invisible, make it visible
+    if (connectStateProtocolPort_->isProtocolButtonVisible() == isCustomConfig) {
+        connectStateProtocolPort_->setProtocolButtonVisible(!isCustomConfig);
+
+        if (isCustomConfig) {
+            disconnect(connectStateProtocolPort_, &ClickableGraphicsObject::clicked, this, &ConnectWindowItem::protocolsClick);
+        } else {
+            connect(connectStateProtocolPort_, &ClickableGraphicsObject::clicked, this, &ConnectWindowItem::protocolsClick);
+        }
+    }
 }
 
 void ConnectWindowItem::updateConnectState(const types::ConnectState &newConnectState)

@@ -33,7 +33,7 @@ public:
     virtual types::ProtocolStatus getProtocolStatus() = 0;
 
 public slots:
-    virtual void updateLocationInfo(const QString &firstName, const QString &secondName, const QString &countryCode, PingTime pingTime) = 0;
+    virtual void updateLocationInfo(const QString &firstName, const QString &secondName, const QString &countryCode, PingTime pingTime, bool isCustomConfig) = 0;
     virtual void updateConnectState(const types::ConnectState & newConnectState) = 0;
     virtual void updateFirewallState(bool isFirewallEnabled) = 0;
     virtual void updateLocationsState(bool isExpanded) = 0;

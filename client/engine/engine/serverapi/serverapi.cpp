@@ -165,10 +165,10 @@ BaseRequest *ServerAPI::checkUpdate(UPDATE_CHANNEL updateChannel)
     // This check will only be useful in the case that we expand our supported linux OSes and the platform flag is not added for that OS
     if (Utils::getPlatformName().isEmpty()) {
         qCDebug(LOG_SERVER_API) << "Check update failed: platform name is empty";
-        QTimer::singleShot(0, this, [request] () {
+        QTimer::singleShot(0, this, [request, this] () {
             qCDebug(LOG_SERVER_API) << "API request " + request->name() + " failed: API not ready";
             request->setNetworkRetCode(SERVER_RETURN_SUCCESS);
-            emit request->finished();
+            completeRequest(request);
         });
         return request;
     }
@@ -385,7 +385,7 @@ void ServerAPI::handleNetworkRequestFinished()
             }
         }
 
-        emit pointerToRequest->finished();
+        completeRequest(pointerToRequest);
 
         // if for the current request we performed the failover algorithm, then set the state of failover to the kReady
         // and execute pending requests
@@ -414,10 +414,10 @@ void ServerAPI::executeRequest(QPointer<BaseRequest> request, bool bSkipFailover
 
     if (!bSkipFailoverStuff) {
         if (!networkDetectionManager_->isOnline()) {
-            QTimer::singleShot(0, this, [request] () {
+            QTimer::singleShot(0, this, [request, this] () {
                 qCDebug(LOG_SERVER_API) << "API request " + request->name() + " failed: no network connection";
                 request->setNetworkRetCode(SERVER_RETURN_NO_NETWORK_CONNECTION);
-                emit request->finished();
+                completeRequest(request);
             });
             return;
         }
@@ -457,7 +457,7 @@ void ServerAPI::executeRequest(QPointer<BaseRequest> request, bool bSkipFailover
                     }
                     if (request) {
                         request->setNetworkRetCode(SERVER_RETURN_FAILOVER_FAILED);
-                        emit request->finished();
+                        completeRequest(request);
                     }
                 });
                 return;
@@ -517,7 +517,7 @@ void ServerAPI::setErrorCodeAndEmitRequestFinished(BaseRequest *request, SERVER_
     request->setNetworkRetCode(retCode);
     if (request->isWriteToLog())
         qCDebug(LOG_SERVER_API) << "API request " + request->name() + " failed:" << errorStr;
-    emit request->finished();
+    completeRequest(request);
 }
 
 void ServerAPI::setCurrentFailoverRequest(BaseRequest *request)
@@ -560,6 +560,17 @@ QString ServerAPI::readHostnameFromSettings() const
         return simpleCrypt.decryptToString(str);
     else
         return QString();
+}
+
+void ServerAPI::completeRequest(BaseRequest *request)
+{
+    // if the caller has indicated that they are no longer interested in the result,
+    // do not bother emitting finished(), and instead just delete the request.
+    if (request->isCancelled()) {
+        request->deleteLater();
+    } else {
+        emit request->finished();
+    }
 }
 
 } // namespace server_api

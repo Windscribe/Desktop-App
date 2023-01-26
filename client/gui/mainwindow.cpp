@@ -1314,7 +1314,8 @@ void MainWindow::onLocationSelected(const LocationID &lid)
     if (selectedLocation_->isValid())
     {
         mainWindowController_->getConnectWindow()->updateLocationInfo(selectedLocation_->firstName(), selectedLocation_->secondName(),
-                                                                      selectedLocation_->countryCode(), selectedLocation_->pingTime());
+                                                                      selectedLocation_->countryCode(), selectedLocation_->pingTime(),
+                                                                      selectedLocation_->locationdId().isCustomConfigsLocation());
         mainWindowController_->collapseLocations();
         backend_->sendConnect(lid);
     }
@@ -1525,7 +1526,8 @@ void MainWindow::onBackendLoginFinished(bool /*isLoginFromSavedSettings*/)
             PersistentState::instance().setLastLocation(selectedLocation_->locationdId());
         }
         mainWindowController_->getConnectWindow()->updateLocationInfo(selectedLocation_->firstName(), selectedLocation_->secondName(),
-                                                                      selectedLocation_->countryCode(), selectedLocation_->pingTime());
+                                                                      selectedLocation_->countryCode(), selectedLocation_->pingTime(),
+                                                                      selectedLocation_->locationdId().isCustomConfigsLocation());
         mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_CONNECT);
         isLoginOkAndConnectWindowVisible_ = true;
     }
@@ -1866,7 +1868,8 @@ void MainWindow::onBackendConnectStateChanged(const types::ConnectState &connect
             if (selectedLocation_->isValid())
             {
                 mainWindowController_->getConnectWindow()->updateLocationInfo(selectedLocation_->firstName(), selectedLocation_->secondName(),
-                                                                                      selectedLocation_->countryCode(), selectedLocation_->pingTime());
+                                                                              selectedLocation_->countryCode(), selectedLocation_->pingTime(),
+                                                                              selectedLocation_->locationdId().isCustomConfigsLocation());
             }
             else {
                 qCDebug(LOG_BASIC) << "Fatal error: MainWindow::onBackendConnectStateChanged, WS_ASSERT(selectedLocation_.isValid());";
@@ -2033,7 +2036,8 @@ void MainWindow::onBackendGotoCustomOvpnConfigModeFinished()
         if (selectedLocation_->isValid() && selectedLocation_->locationdId().isCustomConfigsLocation())
         {
             mainWindowController_->getConnectWindow()->updateLocationInfo(selectedLocation_->firstName(), selectedLocation_->secondName(),
-                                                                                  selectedLocation_->countryCode(), selectedLocation_->pingTime());
+                                                                          selectedLocation_->countryCode(), selectedLocation_->pingTime(),
+                                                                          selectedLocation_->locationdId().isCustomConfigsLocation());
         }
         else
         {
@@ -2043,7 +2047,8 @@ void MainWindow::onBackendGotoCustomOvpnConfigModeFinished()
                 PersistentState::instance().setLastLocation(selectedLocation_->locationdId());
                 // |selectedLocation_| can be empty (nopt valid) here, so this will reset current location.
                 mainWindowController_->getConnectWindow()->updateLocationInfo(selectedLocation_->firstName(), selectedLocation_->secondName(),
-                                                                                      selectedLocation_->countryCode(), selectedLocation_->pingTime());
+                                                                              selectedLocation_->countryCode(), selectedLocation_->pingTime(),
+                                                                              selectedLocation_->locationdId().isCustomConfigsLocation());
             }
         }
 
@@ -2139,7 +2144,7 @@ void MainWindow::onBackendTestTunnelResult(bool success)
                "Please disconnect and send us a Debug Log, by going into Preferences and clicking the \"Send Log\" button."));
     }
 
-    if (success) {
+    if (success && selectedLocation_->isValid() && !selectedLocation_->locationdId().isCustomConfigsLocation()) {
         types::ProtocolStatus ps = mainWindowController_->getConnectWindow()->getProtocolStatus();
 
         mainWindowController_->getProtocolWindow()->setProtocolStatus(
@@ -3419,7 +3424,8 @@ void MainWindow::handleDisconnectWithError(const types::ConnectState &connectSta
         if (selectedLocation_->isValid())
         {
             mainWindowController_->getConnectWindow()->updateLocationInfo(selectedLocation_->firstName(), selectedLocation_->secondName(),
-                                                                                  selectedLocation_->countryCode(), selectedLocation_->pingTime());
+                                                                          selectedLocation_->countryCode(), selectedLocation_->pingTime(),
+                                                                          selectedLocation_->locationdId().isCustomConfigsLocation());
             onConnectWindowConnectClick();
         }
         else
@@ -3509,7 +3515,8 @@ void MainWindow::handleDisconnectWithError(const types::ConnectState &connectSta
             selectedLocation_->set(bestLocation);
             PersistentState::instance().setLastLocation(selectedLocation_->locationdId());
             mainWindowController_->getConnectWindow()->updateLocationInfo(selectedLocation_->firstName(), selectedLocation_->secondName(),
-                                                                          selectedLocation_->countryCode(), selectedLocation_->pingTime());
+                                                                          selectedLocation_->countryCode(), selectedLocation_->pingTime(),
+                                                                          selectedLocation_->locationdId().isCustomConfigsLocation());
         }
         msg = tr("Failed to setup custom openvpn configuration.");
     }
@@ -3687,8 +3694,11 @@ void MainWindow::onSelectedLocationChanged()
             }
         }
     }
+
     mainWindowController_->getConnectWindow()->updateLocationInfo(selectedLocation_->firstName(), selectedLocation_->secondName(),
-                                                                          selectedLocation_->countryCode(), selectedLocation_->pingTime());
+                                                                  selectedLocation_->countryCode(), selectedLocation_->pingTime(),
+                                                                  selectedLocation_->locationdId().isCustomConfigsLocation());
+
 }
 
 void MainWindow::onSelectedLocationRemoved()
@@ -3701,7 +3711,8 @@ void MainWindow::onSelectedLocationRemoved()
         WS_ASSERT(selectedLocation_->isValid());
         PersistentState::instance().setLastLocation(selectedLocation_->locationdId());
         mainWindowController_->getConnectWindow()->updateLocationInfo(selectedLocation_->firstName(), selectedLocation_->secondName(),
-                                                                      selectedLocation_->countryCode(), selectedLocation_->pingTime());
+                                                                      selectedLocation_->countryCode(), selectedLocation_->pingTime(),
+                                                                      selectedLocation_->locationdId().isCustomConfigsLocation());
     }
 }
 

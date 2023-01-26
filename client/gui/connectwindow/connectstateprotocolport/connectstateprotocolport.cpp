@@ -290,4 +290,14 @@ types::ProtocolStatus ConnectStateProtocolPort::getProtocolStatus()
     return ps;
 }
 
+bool ConnectStateProtocolPort::isProtocolButtonVisible() const
+{
+    return protocolArrow_->isVisible();
+}
+
+void ConnectStateProtocolPort::setProtocolButtonVisible(bool visible)
+{
+    protocolArrow_->setVisible(visible);
+}
+
 } //namespace ConnectWindow
