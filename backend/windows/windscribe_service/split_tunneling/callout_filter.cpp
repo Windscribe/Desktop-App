@@ -1,5 +1,6 @@
 #include "../all_headers.h"
 #include "callout_filter.h"
+#include "../adapters_info.h"
 #include "../ip_address/ip4_address_and_mask.h"
 #include "../logger.h"
 #include "../utils.h"
@@ -230,6 +231,7 @@ bool CalloutFilter::addFilters(HANDLE engineHandle, bool withTcpFilters)
         "224.0.0.0/4",
     };
     std::vector<FWP_V4_ADDR_AND_MASK> addrMasks(lanRanges.size());
+    std::vector<FWP_V4_ADDR_AND_MASK> localAddrMasks;
 
     if (appsIds_.count() == 0) {
         return true;
@@ -270,64 +272,111 @@ bool CalloutFilter::addFilters(HANDLE engineHandle, bool withTcpFilters)
 
     // LAN TCP traffic goes to CONNECT filter
     if (withTcpFilters) {
-        std::vector<FWPM_FILTER_CONDITION> conditions;
-
-        // Must match one of the apps
-        for (size_t i = 0; i < appsIds_.count(); ++i)
+        // first, we create a filter that explicitly allows traffic to the private VPN IPs, which
+        // on IKEv2/OpenVPN reside on a LAN range.
         {
-            FWPM_FILTER_CONDITION condition;
-            condition.fieldKey = FWPM_CONDITION_ALE_APP_ID;
-            condition.matchType = FWP_MATCH_EQUAL;
-            condition.conditionValue.type = FWP_BYTE_BLOB_TYPE;
-            condition.conditionValue.byteBlob = appsIds_.getAppId(i);
-            conditions.push_back(condition);
-        }
+            std::vector<FWPM_FILTER_CONDITION> conditions;
+            AdaptersInfo ai;
+            std::vector<NET_IFINDEX> taps = ai.getTAPAdapters();
 
-        // must match TCP
-        {
-            FWPM_FILTER_CONDITION condition;
-            condition.fieldKey = FWPM_CONDITION_IP_PROTOCOL;
-            condition.matchType = FWP_MATCH_EQUAL;
-            condition.conditionValue.type = FWP_UINT8;
-            condition.conditionValue.uint8 = IPPROTO_TCP;
-            conditions.push_back(condition);
-        }
+            for (int i = 0; i < taps.size(); i++) {
+                std::vector<std::string> addrs = ai.getAdapterAddresses(taps[i]);
 
-        // must match a LAN range
-        {
-            for (int i = 0; i < lanRanges.size(); i++) {
-                FWPM_FILTER_CONDITION condition;
-                condition.fieldKey = FWPM_CONDITION_IP_REMOTE_ADDRESS;
-                condition.matchType = FWP_MATCH_EQUAL;
-                condition.conditionValue.type = FWP_V4_ADDR_MASK;
-                condition.conditionValue.v4AddrMask = &addrMasks[i];
-                Ip4AddressAndMask ipAddress(lanRanges[i].c_str());
-                addrMasks[i].addr = ipAddress.ipHostOrder();
-                addrMasks[i].mask = ipAddress.maskHostOrder();
-                addrMasks.push_back(addrMasks[i]);
-                conditions.push_back(condition);
+                for (int j = 0; j < addrs.size(); j++) {
+                    FWPM_FILTER_CONDITION condition;
+                    FWP_V4_ADDR_AND_MASK addrMask;
+                    condition.fieldKey = FWPM_CONDITION_IP_REMOTE_ADDRESS;
+                    condition.matchType = FWP_MATCH_EQUAL;
+                    condition.conditionValue.type = FWP_V4_ADDR_MASK;
+                    Ip4AddressAndMask ipAddress(addrs[j].c_str());
+                    addrMask.addr = ipAddress.ipHostOrder();
+                    addrMask.mask = 0xffffffff;
+                    localAddrMasks.push_back(addrMask);
+                    condition.conditionValue.v4AddrMask = &localAddrMasks.back();
+                    conditions.push_back(condition);
+                }
+            }
+
+            FWPM_FILTER filter = { 0 };
+            filter.subLayerKey = SUBLAYER_CALLOUT_GUID;
+            filter.layerKey = FWPM_LAYER_ALE_CONNECT_REDIRECT_V4;
+            filter.displayData.name = (wchar_t *)L"Windscribe TCP exception filter for callout driver";
+            filter.weight.type = FWP_UINT8;
+            filter.weight.uint8 = 0x01;
+            filter.numFilterConditions = static_cast<UINT32>(conditions.size());
+            filter.filterCondition = &conditions[0];
+            filter.action.type = FWP_ACTION_PERMIT;
+
+            UINT64 filterId;
+            DWORD ret = FwpmFilterAdd(engineHandle, &filter, NULL, &filterId);
+            retValue = (ret == ERROR_SUCCESS);
+            if (!retValue) {
+                Logger::instance().out(L"CalloutFilter::addFilter(), TCP exception filter failed: %u", ret);
+                return retValue;
             }
         }
 
-        FWPM_FILTER filter = { 0 };
-        filter.subLayerKey = SUBLAYER_CALLOUT_GUID;
-        filter.layerKey = FWPM_LAYER_ALE_CONNECT_REDIRECT_V4;
-        filter.displayData.name = (wchar_t *)L"Windscribe TCP filter for callout driver";
-        filter.weight.type = FWP_UINT8;
-        filter.weight.uint8 = 0x00;
-        filter.providerContextKey = CALLOUT_PROVIDER_CONTEXT_IP_GUID;
-        filter.flags |= FWPM_FILTER_FLAG_HAS_PROVIDER_CONTEXT;
-        filter.numFilterConditions = static_cast<UINT32>(conditions.size());
-        filter.filterCondition = &conditions[0];
-        filter.action.type = FWP_ACTION_CALLOUT_UNKNOWN;
-        filter.action.calloutKey = WINDSCRIBE_TCP_CALLOUT_GUID;
+        // now, we create the filter which allows other LAN traffic to be routed back to the primary interface
+        {
+            std::vector<FWPM_FILTER_CONDITION> conditions;
 
-        UINT64 filterId;
-        DWORD ret = FwpmFilterAdd(engineHandle, &filter, NULL, &filterId);
-        retValue = (ret == ERROR_SUCCESS);
-        if (!retValue) {
-            Logger::instance().out(L"CalloutFilter::addFilter(), TCP filter failed: %u", ret);
-            return retValue;
+            // Must match one of the apps
+            for (size_t i = 0; i < appsIds_.count(); ++i)
+            {
+                FWPM_FILTER_CONDITION condition;
+                condition.fieldKey = FWPM_CONDITION_ALE_APP_ID;
+                condition.matchType = FWP_MATCH_EQUAL;
+                condition.conditionValue.type = FWP_BYTE_BLOB_TYPE;
+                condition.conditionValue.byteBlob = appsIds_.getAppId(i);
+                conditions.push_back(condition);
+            }
+
+            // must match TCP
+            {
+                FWPM_FILTER_CONDITION condition;
+                condition.fieldKey = FWPM_CONDITION_IP_PROTOCOL;
+                condition.matchType = FWP_MATCH_EQUAL;
+                condition.conditionValue.type = FWP_UINT8;
+                condition.conditionValue.uint8 = IPPROTO_TCP;
+                conditions.push_back(condition);
+            }
+
+            // must match a LAN range
+            {
+                for (int i = 0; i < lanRanges.size(); i++) {
+                    FWPM_FILTER_CONDITION condition;
+                    condition.fieldKey = FWPM_CONDITION_IP_REMOTE_ADDRESS;
+                    condition.matchType = FWP_MATCH_EQUAL;
+                    condition.conditionValue.type = FWP_V4_ADDR_MASK;
+                    condition.conditionValue.v4AddrMask = &addrMasks[i];
+                    Ip4AddressAndMask ipAddress(lanRanges[i].c_str());
+                    addrMasks[i].addr = ipAddress.ipHostOrder();
+                    addrMasks[i].mask = ipAddress.maskHostOrder();
+                    addrMasks.push_back(addrMasks[i]);
+                    conditions.push_back(condition);
+                }
+            }
+
+            FWPM_FILTER filter = { 0 };
+            filter.subLayerKey = SUBLAYER_CALLOUT_GUID;
+            filter.layerKey = FWPM_LAYER_ALE_CONNECT_REDIRECT_V4;
+            filter.displayData.name = (wchar_t *)L"Windscribe TCP filter for callout driver";
+            filter.weight.type = FWP_UINT8;
+            filter.weight.uint8 = 0x00;
+            filter.providerContextKey = CALLOUT_PROVIDER_CONTEXT_IP_GUID;
+            filter.flags |= FWPM_FILTER_FLAG_HAS_PROVIDER_CONTEXT;
+            filter.numFilterConditions = static_cast<UINT32>(conditions.size());
+            filter.filterCondition = &conditions[0];
+            filter.action.type = FWP_ACTION_CALLOUT_UNKNOWN;
+            filter.action.calloutKey = WINDSCRIBE_TCP_CALLOUT_GUID;
+
+            UINT64 filterId;
+            DWORD ret = FwpmFilterAdd(engineHandle, &filter, NULL, &filterId);
+            retValue = (ret == ERROR_SUCCESS);
+            if (!retValue) {
+                Logger::instance().out(L"CalloutFilter::addFilter(), TCP filter failed: %u", ret);
+                return retValue;
+            }
         }
     }
 
