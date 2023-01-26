@@ -7,11 +7,11 @@
 
 import os
 
-import utils as utl
-import messages as msg
-import process as proc
-import pathhelper
-import arghelper
+from . import utils as utl
+from . import messages as msg
+from . import process as proc
+from . import pathhelper
+from . import arghelper
 
 
 def download_apps_team_file_from_1password(filename, download_filename, session_token):

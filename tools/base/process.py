@@ -3,7 +3,7 @@
 # Windscribe Build System
 # Copyright (c) 2020-2021, Windscribe Limited. All rights reserved.
 # ------------------------------------------------------------------------------
-from __future__ import print_function
+
 
 import os
 import subprocess

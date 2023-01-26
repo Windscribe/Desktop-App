@@ -16,7 +16,7 @@ CONFIG_NAME = os.path.join("vars", "qt.yml")
 
 import base.messages as msg
 import base.utils as utl
-import installutils as iutl
+from . import installutils as iutl
 
 # Dependency-specific settings.
 DEP_TITLE = "Qt"
@@ -48,7 +48,7 @@ def ReplaceSourceCode(qt_source_dir):
         with open(file_path, "w") as f_out:
           f_out.write(contents.encode("utf8"))
           f_out.close()
-          print("Replaced source code according to {}".format(change["ref"]))
+          print(("Replaced source code according to {}".format(change["ref"])))
       else:
         sys.exit("Code {} doesn't exist in {}".format(change["old_code"], file_path))
 
@@ -101,7 +101,7 @@ def InstallDependency():
     raise iutl.InstallError("Failed to get config data.")
   iutl.SetupEnvironment(configdata)
   dep_name = DEP_TITLE.lower()
-  dep_version_var = "VERSION_" + filter(lambda ch: ch not in "-", DEP_TITLE.upper())
+  dep_version_var = "VERSION_" + [ch for ch in DEP_TITLE.upper() if ch not in "-"]
   dep_version_str = os.environ.get(dep_version_var, None)
   if not dep_version_str:
     raise iutl.InstallError("{} not defined.".format(dep_version_var))

@@ -31,13 +31,13 @@ def SetupEnvironment(configdata):
   if configdata:
     msg.Verbose("SetupEnvironment:")
     if "variables" in configdata:
-      for k, v in configdata["variables"].iteritems():
+      for k, v in configdata["variables"].items():
         msg.Verbose("\"{}\" = \"{}\"".format(k,v))
         os.environ[k] = v
 
 
 def PrepareTempDirectory(depname, doclean=True):
-  temp_root_postfix = filter(lambda ch: ch not in "-", depname.upper())
+  temp_root_postfix = [ch for ch in depname.upper() if ch not in "-"]
   temp_root_var = None
   if utl.GetCurrentOS() == "win32":
     temp_root_var = "WINTEMPROOT_" + temp_root_postfix
@@ -59,7 +59,7 @@ def GetDependencyBuildRoot(depname):
   buildroot_var = "BUILDROOT_" + depname.upper()
   buildroot_str = None
   if "variables" in configdata:
-    for k, v in configdata["variables"].iteritems():
+    for k, v in configdata["variables"].items():
       if k == buildroot_var:
           buildroot_str = os.path.normpath(os.path.join(REPOSITORY_ROOT, v))
           if not os.path.exists(buildroot_str):

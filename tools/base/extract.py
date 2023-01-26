@@ -7,7 +7,7 @@
 
 import os
 import re
-import pathhelper
+from . import pathhelper
 
 
 class Extractor:
@@ -94,4 +94,4 @@ class Extractor:
 if __name__ == "__main__":
     extractor = Extractor()
     # build_all.py is using True, so must use True here as well so .gitlab-ci.yml retrieves the proper version string.
-    print extractor.app_version(True)
+    print(extractor.app_version(True))

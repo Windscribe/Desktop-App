@@ -15,7 +15,7 @@ CONFIG_NAME = os.path.join("vars", "openvpn.yml")
 
 import base.messages as msg
 import base.utils as utl
-import installutils as iutl
+from . import installutils as iutl
 
 # Dependency-specific settings.
 # NOTE: we use different sources for Windows and POSIX, because apparently the GitHub version is
@@ -66,7 +66,7 @@ def InstallDependency():
     raise iutl.InstallError("Failed to get config data.")
   iutl.SetupEnvironment(configdata)
   dep_name = DEP_TITLE.lower()
-  dep_version_var = "VERSION_" + filter(lambda ch: ch not in "-", DEP_TITLE.upper())
+  dep_version_var = "VERSION_" + [ch for ch in DEP_TITLE.upper() if ch not in "-"]
   dep_version_str = os.environ.get(dep_version_var, None)
   if not dep_version_str:
     raise iutl.InstallError("{} not defined.".format(dep_version_var))

@@ -44,7 +44,7 @@ def remove_files(files):
             if os.path.isfile(f):
                 os.remove(f)
         except OSError as err:
-            print("Error: %s : %s" % (f, err.strerror))
+            print(("Error: %s : %s" % (f, err.strerror)))
 
 
 def remove_empty_dirs(dirs):
@@ -59,7 +59,7 @@ def remove_empty_dirs(dirs):
                 remove_empty_dirs(subdirs)
                 os.rmdir(d)
         except OSError as err:
-            print("Error: %s : %s" % (d, err.strerror))
+            print(("Error: %s : %s" % (d, err.strerror)))
 
 
 def delete_all_files(root_dir, dir_pattern):
@@ -186,7 +186,7 @@ def apply_mac_deploy_fixes(appname, fixlist):
     # Special deploy fixes for Mac.
     # 1. copy_libs
     if "copy_libs" in fixlist:
-        for k, v in fixlist["copy_libs"].iteritems():
+        for k, v in fixlist["copy_libs"].items():
             lib_root = iutl.GetDependencyBuildRoot(k)
             if not lib_root:
                 raise iutl.InstallError("Library \"{}\" is not installed.".format(k))
@@ -200,10 +200,10 @@ def apply_mac_deploy_fixes(appname, fixlist):
     if "rpathfix" in fixlist:
         with utl.PushDir():
             msg.Info("Fixing rpaths...")
-            for f, m in fixlist["rpathfix"].iteritems():
+            for f, m in fixlist["rpathfix"].items():
                 fs = os.path.split(f)
                 os.chdir(os.path.join(appname, fs[0]))
-                for k, v in m.iteritems():
+                for k, v in m.items():
                     lib_root = iutl.GetDependencyBuildRoot(k)
                     if not lib_root:
                         raise iutl.InstallError("Library \"{}\" is not installed.".format(k))
@@ -511,7 +511,7 @@ def build_installer_win32(configdata, qt_root, msvc_root, crt_root, win_cert_pas
         additional_dir = os.path.join(pathhelper.ROOT_DIR, "installer", "windows", "additional_files")
         copy_files("additional", configdata["additional_files"], additional_dir, BUILD_INSTALLER_FILES)
     if "lib_files" in configdata:
-        for k, v in configdata["lib_files"].iteritems():
+        for k, v in configdata["lib_files"].items():
             lib_root = iutl.GetDependencyBuildRoot(k)
             if not lib_root:
                 raise iutl.InstallError("Library \"{}\" is not installed.".format(k))
@@ -606,7 +606,7 @@ def build_installer_linux(configdata, qt_root):
     # * windscribe_2.x.y_x86_64.rpm
     msg.Info("Copying lib_files_linux...")
     if "lib_files_linux" in configdata:
-        for k, v in configdata["lib_files_linux"].iteritems():
+        for k, v in configdata["lib_files_linux"].items():
             lib_root = iutl.GetDependencyBuildRoot(k)
             if not lib_root:
                 raise iutl.InstallError("Library \"{}\" is not installed.".format(k))

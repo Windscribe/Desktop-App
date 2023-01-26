@@ -12,7 +12,7 @@ import stat
 import time
 
 import yaml
-import messages as msg
+from . import messages as msg
 
 _OS_CURRENT_NAME = None
 _OS_RETRY_COUNT = 20
@@ -58,7 +58,7 @@ def MakeExecutable(filename):
 
 def MakeUnicodePath(filename):
   fullpath = os.path.abspath("\\\\?\\" + filename) if GetCurrentOS() == "win32" else filename
-  return unicode(fullpath, 'utf-8')
+  return str(fullpath, 'utf-8')
 
 
 def remove_readonly_handler(func, path, excinfo):
