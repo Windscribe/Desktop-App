@@ -2,7 +2,7 @@
 
 #include <QElapsedTimer>
 
-#include <winsock2.h>
+#include <ws2tcpip.h>
 #include <iphlpapi.h>
 
 #include <winternl.h>
@@ -26,10 +26,8 @@ public:
     bool isFromDisconnectedState() const { return isFromDisconnectedState_; }
     void setFromDisconnectedState(bool disconncted) { isFromDisconnectedState_ = disconncted; }
 
-    qint64 elapsed() const { return timer_.elapsed(); }
-
 signals:
-    void requestFinished(bool success, const QString ip);
+    void requestFinished(bool success, const QString ip, qint64 elapsed);
 
 private:
     const QString ip_;
@@ -71,12 +69,16 @@ bool PingRequest::sendRequest()
     replySize_ = sizeof(ICMP_ECHO_REPLY) + sizeof(dataForSend) + 8;
     replyBuffer_.reset(new unsigned char[replySize_]);
 
-    unsigned long ipaddr = inet_addr(ip_.toStdString().c_str());
+    IN_ADDR ipAddr;
+    if (inet_pton(AF_INET, qPrintable(ip_), &ipAddr) != 1) {
+        qCDebug(LOG_PING) << "PingHost_ICMP_win inet_pton failed" << ::WSAGetLastError();
+        return false;
+    }
 
     timer_.start();
 
-    DWORD result = ::IcmpSendEcho2(icmpFile_, NULL, icmpCallback, this,
-                                   ipaddr, (LPVOID)dataForSend, sizeof(dataForSend), NULL,
+    DWORD result = ::IcmpSendEcho2(icmpFile_, NULL, icmpCallback, this, ipAddr.S_un.S_addr,
+                                   (LPVOID)dataForSend, sizeof(dataForSend), NULL,
                                    replyBuffer_.get(), replySize_, 2000);
     if (result != 0) {
         qCDebug(LOG_PING) << "PingHost_ICMP_win IcmpSendEcho2 returned unexpected result" << result << ::GetLastError();
@@ -102,7 +104,7 @@ bool PingRequest::parseReply()
 VOID NTAPI PingRequest::icmpCallback(IN PVOID ApcContext, IN PIO_STATUS_BLOCK IoStatusBlock, IN ULONG /*Reserved*/)
 {
     PingRequest *request = static_cast<PingRequest*>(ApcContext);
-    Q_EMIT request->requestFinished((IoStatusBlock->Status == 0), request->ip_);
+    Q_EMIT request->requestFinished((IoStatusBlock->Status == 0), request->ip_, request->timer_.elapsed());
 }
 
 
@@ -141,9 +143,9 @@ void PingHost_ICMP_win::clearPings()
     waitingPingsQueue_.clear();
 }
 
-void PingHost_ICMP_win::setProxySettings(const types::ProxySettings & /*proxySettings*/)
+void PingHost_ICMP_win::setProxySettings(const types::ProxySettings &proxySettings)
 {
-    //todo
+    Q_UNUSED(proxySettings)
 }
 
 void PingHost_ICMP_win::disableProxy()
@@ -180,7 +182,7 @@ void PingHost_ICMP_win::sendNextPing()
     }
 }
 
-void PingHost_ICMP_win::onPingRequestFinished(bool success, const QString ip)
+void PingHost_ICMP_win::onPingRequestFinished(bool success, const QString ip, qint64 elapsed)
 {
     QMutexLocker locker(&mutex_);
     auto it = pingingHosts_.find(ip);
@@ -190,7 +192,7 @@ void PingHost_ICMP_win::onPingRequestFinished(bool success, const QString ip)
         pingingHosts_.remove(ip);
 
         if (success && request->parseReply()) {
-            Q_EMIT pingFinished(true, request->elapsed(), ip, request->isFromDisconnectedState());
+            Q_EMIT pingFinished(true, elapsed, ip, request->isFromDisconnectedState());
         }
         else {
             Q_EMIT pingFinished(false, 0, ip, request->isFromDisconnectedState());

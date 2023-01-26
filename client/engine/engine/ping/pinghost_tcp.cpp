@@ -111,7 +111,7 @@ void PingHost_TCP::processNextPings()
         PingInfo *pingInfo = new PingInfo();
         pingInfo->ip = ip;
         pingInfo->tcpSocket = new QTcpSocket(this);
-        if (bProxyEnabled_ && proxySettings_.option() != PROXY_OPTION_NONE)
+        if (isProxyEnabled())
         {
             pingInfo->tcpSocket->setProxy(proxySettings_.getNetworkProxy());
         }
@@ -157,3 +157,7 @@ void PingHost_TCP::processError(QObject *obj)
     processNextPings();
 }
 
+bool PingHost_TCP::isProxyEnabled() const
+{
+    return (bProxyEnabled_ && proxySettings_.option() != PROXY_OPTION_NONE);
+}

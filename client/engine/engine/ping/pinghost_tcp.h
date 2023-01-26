@@ -26,6 +26,8 @@ public:
     void disableProxy();
     void enableProxy();
 
+    bool isProxyEnabled() const;
+
 signals:
     void pingFinished(bool bSuccess, int timems, const QString &ip, bool isFromDisconnectedState);
 
