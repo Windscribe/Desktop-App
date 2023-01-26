@@ -202,7 +202,7 @@ bool WireGuardAdapter::addFirewallRules(const std::string &ipAddress, uint32_t f
         fputs("\n", file);
     }
 
-    fclose(file);
+    pclose(file);
     return true;
 }
 
@@ -233,7 +233,7 @@ bool WireGuardAdapter::removeFirewallRules()
             lines.push_back(line);
         }
     }
-    fclose(file);
+    pclose(file);
 
     if (bFound)
     {
@@ -249,7 +249,7 @@ bool WireGuardAdapter::removeFirewallRules()
             fputs(line.c_str(), file);
             fputs("\n", file);
         }
-        fclose(file);
+        pclose(file);
     }
 
     return true;
