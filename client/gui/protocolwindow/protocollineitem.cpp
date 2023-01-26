@@ -10,13 +10,15 @@
 namespace ProtocolWindow {
 
 ProtocolLineItem::ProtocolLineItem(ScalableGraphicsObject *parent, const types::ProtocolStatus &status, const QString &desc)
-    : BaseItem(parent, 64*G_SCALE, "", true, WINDOW_WIDTH - 72), desc_(desc), status_(status)
+    : BaseItem(parent, 64*G_SCALE, "", true, WINDOW_WIDTH - 72), desc_(desc), status_(status), hoverValue_(0.0)
 {
     if (status_.status == types::ProtocolStatus::kConnected ||
         status_.status == types::ProtocolStatus::kFailed)
     {
         setClickable(false);
     }
+    setAcceptHoverEvents(true);
+    connect(&hoverAnimation_, &QVariantAnimation::valueChanged, this, &ProtocolLineItem::onHoverValueChanged);
 }
 
 void ProtocolLineItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
@@ -29,7 +31,6 @@ void ProtocolLineItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
 
     // outer rounded rectangle
     {
-        painter->setOpacity(0.08);
         QPainterPath path;
         path.addRoundedRect(boundingRect().adjusted(kBorderWidth*G_SCALE-1,
                                                     kBorderWidth*G_SCALE-1,
@@ -42,8 +43,13 @@ void ProtocolLineItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
         QPainterPathStroker stroker(pen);
         painter->setPen(Qt::NoPen);
         if (status_.status == types::ProtocolStatus::Status::kConnected) {
+            painter->setOpacity(0.08);
             painter->fillPath(stroker.createStroke(path), QBrush(QColor(85, 255, 138)));
+        } else if (status_.status == types::ProtocolStatus::Status::kFailed) {
+            painter->setOpacity(0.08);
+            painter->fillPath(stroker.createStroke(path), QBrush(QColor(255, 255, 255)));
         } else {
+            painter->setOpacity(0.08 + 0.05*hoverValue_);
             painter->fillPath(stroker.createStroke(path), QBrush(QColor(255, 255, 255)));
         }
         painter->setPen(Qt::SolidLine);
@@ -61,7 +67,7 @@ void ProtocolLineItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
                                                     -kBorderWidth*G_SCALE),
                             kRoundedRectRadius*G_SCALE, kRoundedRectRadius*G_SCALE);
         painter->setPen(Qt::NoPen);
-        painter->setOpacity(0.08);
+        painter->setOpacity(0.08 + 0.05*hoverValue_);
         painter->fillPath(path, QBrush(QColor(255, 255, 255)));
         painter->setPen(Qt::SolidLine);
     }
@@ -199,7 +205,7 @@ void ProtocolLineItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
                           Qt::AlignRight | Qt::AlignVCenter,
                           QString(tr("Failed")));
     } else {
-        painter->setOpacity(0.5);
+        painter->setOpacity(0.5 + 0.5*hoverValue_);
         QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap("preferences/FRWRD_ARROW_WHITE_ICON");
         if (status_.status == types::ProtocolStatus::Status::kUpNext) {
             p->draw(boundingRect().width() - 16*G_SCALE - p->width(), 36*G_SCALE, painter);
@@ -242,6 +248,22 @@ void ProtocolLineItem::clearCountdown()
 
 void ProtocolLineItem::updateScaling() {
     setHeight(64*G_SCALE);
+    update();
+}
+
+void ProtocolLineItem::hoverEnterEvent(QGraphicsSceneHoverEvent* event)
+{
+    startAnAnimation<double>(hoverAnimation_, hoverValue_, 1.0, ANIMATION_SPEED_FAST);
+}
+
+void ProtocolLineItem::hoverLeaveEvent(QGraphicsSceneHoverEvent* event)
+{
+    startAnAnimation<double>(hoverAnimation_, hoverValue_, 0.0, ANIMATION_SPEED_FAST);
+}
+
+void ProtocolLineItem::onHoverValueChanged(const QVariant &value)
+{
+    hoverValue_ = value.toDouble();
     update();
 }
 

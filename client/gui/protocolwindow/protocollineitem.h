@@ -21,7 +21,12 @@ public:
     int decrementCountdown();
     void clearCountdown();
 
+protected:
+    void hoverEnterEvent(QGraphicsSceneHoverEvent* event) override;
+    void hoverLeaveEvent(QGraphicsSceneHoverEvent* event) override;
+
 private slots:
+    void onHoverValueChanged(const QVariant &value);
 
 private:
     static constexpr int kRoundedRectRadius = 8;
@@ -36,6 +41,9 @@ private:
     types::ProtocolStatus status_;
     QString desc_;
     IconButton *icon_; // > arrow
+
+    QVariantAnimation hoverAnimation_;
+    double hoverValue_;
 };
 
 } // namespace ProtocolWindow
