@@ -3,7 +3,6 @@
 #include <QMouseEvent>
 #include <QTimer>
 #include <QApplication>
-#include <QDesktopWidget>
 #include <QMessageBox>
 #include <QDesktopServices>
 #include <QThread>
