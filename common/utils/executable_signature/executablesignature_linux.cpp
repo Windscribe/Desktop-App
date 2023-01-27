@@ -99,8 +99,8 @@ bool ExecutableSignaturePrivate::verify(const std::string& exePath)
 
     unsigned char digest[SHA256_DIGEST_LENGTH];
     //unsigned char **digest;
-    unsigned int *_digest_len = 0;
-    if (1 != EVP_DigestFinal_ex(mdctx, digest, _digest_len)) {
+    unsigned int *digest_len = 0;
+    if (1 != EVP_DigestFinal_ex(mdctx, digest, digest_len)) {
         lastError_ << "Failed to finalize SHA256 digest";
         return false;
     }
