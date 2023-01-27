@@ -39,7 +39,7 @@ LocationsTrayMenuWidget::LocationsTrayMenuWidget(LocationsTrayMenuType type, QWi
     widgetLayout->addWidget(upButton_);
     widgetLayout->addWidget(listWidget_);
     widgetLayout->addWidget(downButton_);
-    widgetLayout->setMargin(0);
+    widgetLayout->setContentsMargins(0, 0, 0, 0);
     widgetLayout->setSpacing(0);
     setLayout(widgetLayout);
 
