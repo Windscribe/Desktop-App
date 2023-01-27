@@ -62,7 +62,7 @@ MainWindowController::MainWindowController(QWidget *parent, LocationsWindow *loc
     view_ = new QGraphicsView(mainWindow_);
     scene_ = new QGraphicsScene(mainWindow_);
 
-    view_->setRenderHints(QPainter::HighQualityAntialiasing | QPainter::SmoothPixmapTransform | QPainter::TextAntialiasing);
+    view_->setRenderHints(QPainter::SmoothPixmapTransform | QPainter::TextAntialiasing);
 
     loginWindow_ = new LoginWindow::LoginWindowItem(nullptr, preferencesHelper);
     loggingInWindow_ = new LoginWindow::LoggingInWindowItem();
