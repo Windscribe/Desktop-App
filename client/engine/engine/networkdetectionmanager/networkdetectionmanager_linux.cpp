@@ -21,9 +21,9 @@ NetworkDetectionManager_linux::NetworkDetectionManager_linux(QObject *parent, IH
     updateNetworkInfo(false);
 
     ncm_ = new QNetworkInformation(this);
-    connect(ncm_, &QNetworkInformation::configurationAdded, this, &NetworkDetectionManager_linux::onNetworkUpdated);
-    connect(ncm_, &QNetworkInformation::configurationChanged, this, &NetworkDetectionManager_linux::onNetworkUpdated);
-    connect(ncm_, &QNetworkInformation::configurationRemoved, this, &NetworkDetectionManager_linux::onNetworkUpdated);
+    connect(ncm_, &QNetworkInformation::isMeteredChanged, this, &NetworkDetectionManager_linux::onNetworkUpdated);
+    connect(ncm_, &QNetworkInformation::reachabilityChanged, this, &NetworkDetectionManager_linux::onNetworkUpdated);
+    connect(ncm_, &QNetworkInformation::transportMediumChanged, this, &NetworkDetectionManager_linux::onNetworkUpdated);
 }
 
 NetworkDetectionManager_linux::~NetworkDetectionManager_linux()
