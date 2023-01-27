@@ -7,7 +7,6 @@
 #include <iostream>
 #include <sstream>
 #include <openssl/pem.h>
-// FIXME deprecated
 #include <openssl/rsa.h>
 #include <openssl/evp.h>
 
@@ -37,6 +36,8 @@ ExecutableSignaturePrivate::~ExecutableSignaturePrivate()
 {
 }
 
+// https://wiki.openssl.org/index.php/EVP_Signing_and_Verifying#Asymmetric_Key
+// https://wiki.openssl.org/index.php/EVP#Working_with_EVP_PKEYs
 bool ExecutableSignaturePrivate::verify(const std::string& exePath)
 {
     std::string pubKeyBytes(g_PublicKeyData);
@@ -49,6 +50,15 @@ bool ExecutableSignaturePrivate::verify(const std::string& exePath)
     }
 
     // read public key into openssl bio abstraction
+    // TODO BIO_new_mem_buf?
+    /*
+    // https://stackoverflow.com/questions/11886262
+    BIO *bufio;
+    RSA *rsa
+    bufio = BIO_new_mem_buf((void*)pem_key_buffer, pem_key_buffer_len);
+    PEM_read_bio_RSAPublicKey(bufio, &rsa, 0, NULL);
+    */
+    // TODO what is wsl
     wsl::EvpBioCharBuf bioPublicKey;
     if (!bioPublicKey.isValid())
     {
@@ -75,11 +85,14 @@ bool ExecutableSignaturePrivate::verify(const std::string& exePath)
 
     mdctx = EVP_MD_CTX_new();
     if (mdctx == NULL) {
-        lastError_ << "Failed to init SHA256 context";
+        lastError_ << "Failed to create SHA256 context";
         return false;
     }
 
-    if (1 != EVP_DigestInit_ex(mdctx, EVP_sha256(), NULL)) {
+    if (EVP_DigestInit_ex(mdctx, EVP_sha256(), NULL) != 1) {
+    //EVP_PKEY key;
+    //if (EVP_DigestSignInit(mdctx, NULL, EVP_sha256(), NULL, key) != 1) {
+    //if (EVP_DigestVerifyInit(mdctx, NULL, EVP_sha256(), NULL, key) != 1) {
         lastError_ << "Failed to init SHA256 digest";
         return false;
     }
@@ -91,16 +104,15 @@ bool ExecutableSignaturePrivate::verify(const std::string& exePath)
     size_t bytesRead = 0;
     while ((bytesRead = fread(fileData.get(), 1, fileDataSize, datafile)))
     {
-        if (1 != EVP_DigestUpdate(mdctx, fileData.get(), bytesRead)) {
+        if (EVP_DigestUpdate(mdctx, fileData.get(), bytesRead) != 1) {
             lastError_ << "Failed to update SHA256 digest";
             return false;
         }
     }
 
     unsigned char digest[SHA256_DIGEST_LENGTH];
-    //unsigned char **digest;
-    unsigned int *digest_len = 0;
-    if (1 != EVP_DigestFinal_ex(mdctx, digest, digest_len)) {
+    unsigned int digest_len = 0;
+    if (1 != EVP_DigestFinal_ex(mdctx, digest, &digest_len)) {
         lastError_ << "Failed to finalize SHA256 digest";
         return false;
     }
@@ -111,26 +123,41 @@ bool ExecutableSignaturePrivate::verify(const std::string& exePath)
     // RSA
     // https://www.openssl.org/docs/man3.0/man3/EVP_PKEY_verify.html
 
-    EVP_PKEY_CTX *ctx;
+    EVP_PKEY *pkey;
 
-    ctx = EVP_PKEY_CTX_new(verify_key, NULL /* no engine */);
-    if (ctx == NULL) {
-        lastError_ << "Failed to init RSA context";
+    // Load RSA public key from bio
+    pkey = PEM_read_bio_PUBKEY(bioPublicKey.getBIO(), NULL, NULL, NULL);
+    //pkey = PEM_read_bio_PUBKEY_ex(bioPublicKey, NULL, NULL, NULL, NULL, NULL);
+    if (pkey == NULL) {
+        lastError_ << "Failed to load RSA public key";
         return false;
     }
 
-    if (EVP_PKEY_verify_init(ctx) <= 0) {
+    EVP_PKEY_CTX *ctx;
+
+    ctx = EVP_PKEY_CTX_new_from_name(NULL, "RSA", NULL);
+    if (ctx == NULL) {
+        lastError_ << "Failed to create RSA context";
+        return false;
+    }
+
+    if (EVP_PKEY_verify_init(ctx) != 1) {
         lastError_ << "Failed to init RSA verify";
         return false;
     }
 
-    if (EVP_PKEY_CTX_set_rsa_padding(ctx, RSA_PKCS1_PADDING) <= 0) {
+    if (EVP_PKEY_CTX_set_rsa_padding(ctx, RSA_PKCS1_PADDING) != 1) {
         lastError_ << "Failed to init RSA padding";
         return false;
     }
 
-    if (EVP_PKEY_CTX_set_signature_md(ctx, EVP_sha256()) <= 0) {
+    if (EVP_PKEY_CTX_set_signature_md(ctx, EVP_sha256()) != 1) {
         lastError_ << "Failed to set RSA signature digest";
+        return false;
+    }
+
+    if (EVP_PKEY_check(ctx) != 1) {
+        lastError_ << "Failed to check RSA context";
         return false;
     }
 
@@ -158,7 +185,7 @@ bool ExecutableSignaturePrivate::verify(const std::string& exePath)
     }
 
     // Decrypt signature and verify it matches with the digest calculated from data file.
-    //int result = RSA_verify(NID_sha256, digest, SHA256_DIGEST_LENGTH, fileData.get(), bytesRead, rsa_pubkey);
+    // RSA signature is in fileData
     int result = EVP_PKEY_verify(ctx, fileData.get(), bytesRead, digest, digest_len);
 
     EVP_PKEY_CTX_free(ctx);
