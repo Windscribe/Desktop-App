@@ -7,6 +7,7 @@
 #include <iostream>
 #include <sstream>
 #include <openssl/pem.h>
+// FIXME deprecated
 #include <openssl/rsa.h>
 #include <openssl/evp.h>
 
@@ -69,6 +70,7 @@ bool ExecutableSignaturePrivate::verify(const std::string& exePath)
         return false;
     }
 
+    // https://wiki.openssl.org/index.php/EVP_Message_Digests
     EVP_MD_CTX *ctx;
 
     ctx = EVP_MD_CTX_new();
@@ -96,7 +98,9 @@ bool ExecutableSignaturePrivate::verify(const std::string& exePath)
     }
 
     unsigned char digest[SHA256_DIGEST_LENGTH];
-    if (1 != EVP_DigestFinal_ex(ctx, *digest, SHA256_DIGEST_LENGTH)) {
+    //unsigned char **digest;
+    unsigned int *_digest_len;
+    if (1 != EVP_DigestFinal_ex(ctx, digest, _digest_len)) {
         lastError_ << "Failed to finalize SHA256 digest";
         return false;
     }
