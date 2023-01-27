@@ -8,7 +8,7 @@
 #include <sstream>
 #include <openssl/pem.h>
 #include <openssl/rsa.h>
-#include <openssl/sha.h>
+#include <openssl/evp.h>
 
 #include "boost/filesystem/path.hpp"
 
@@ -69,8 +69,18 @@ bool ExecutableSignaturePrivate::verify(const std::string& exePath)
         return false;
     }
 
-    SHA256_CTX ctx;
-    SHA256_Init(&ctx);
+    EVP_MD_CTX *ctx;
+
+    ctx = EVP_MD_CTX_new();
+    if (ctx == NULL) {
+        lastError_ << "Failed to init SHA256 context";
+        return false;
+    }
+
+    if (1 != EVP_DigestInit_ex(ctx, EVP_sha256(), NULL)) {
+        lastError_ << "Failed to init SHA256 digest";
+        return false;
+    }
 
     const size_t fileDataSize = 65536;
     std::unique_ptr<unsigned char[]> fileData(new unsigned char[fileDataSize]);
@@ -79,12 +89,19 @@ bool ExecutableSignaturePrivate::verify(const std::string& exePath)
     size_t bytesRead = 0;
     while ((bytesRead = fread(fileData.get(), 1, fileDataSize, datafile)))
     {
-        SHA256_Update(&ctx, fileData.get(), bytesRead);
+        if (1 != EVP_DigestUpdate(ctx, fileData.get(), bytesRead)) {
+            lastError_ << "Failed to update SHA256 digest";
+            return false;
+        }
     }
 
     unsigned char digest[SHA256_DIGEST_LENGTH];
-    SHA256_Final(digest, &ctx);
+    if (1 != EVP_DigestFinal_ex(ctx, *digest, SHA256_DIGEST_LENGTH)) {
+        lastError_ << "Failed to finalize SHA256 digest";
+        return false;
+    }
 
+    EVP_MD_CTX_free(ctx);
     fclose(datafile);
 
     boost::filesystem::path path(exePath);
