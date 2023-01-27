@@ -29,11 +29,11 @@ public:
     }
     const MultilineMessageLogger &operator<<(const QString &text) const
     {
-        return operator<<(text.split("\n", QString::SkipEmptyParts));
+        return operator<<(text.split("\n", Qt::SkipEmptyParts));
     }
     const MultilineMessageLogger &operator<<(const QByteArray &text) const
     {
-        return operator<<(QString(text).split("\n", QString::SkipEmptyParts));
+        return operator<<(QString(text).split("\n", Qt::SkipEmptyParts));
     }
 
 private:

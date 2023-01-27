@@ -87,13 +87,13 @@ QString NetworkDetectionManager_linux::getDefaultRouteInterface(bool &isOnline)
         pclose(file);
     }
 
-    const QStringList lines = strReply.split('\n', QString::SkipEmptyParts);
+    const QStringList lines = strReply.split('\n', Qt::SkipEmptyParts);
 
     isOnline = !lines.isEmpty();
 
     for (auto &it : lines)
     {
-        const QStringList pars = it.split(QRegExp("\\s+"), QString::SkipEmptyParts);
+        const QStringList pars = it.split(QRegExp("\\s+"), Qt::SkipEmptyParts);
         if (pars.size() == 8)
         {
             if (!pars[7].startsWith("tun") && !pars[7].startsWith("utun"))
@@ -223,10 +223,10 @@ QString NetworkDetectionManager_linux::getFriendlyNameByIfName(const QString &if
         pclose(file);
     }
 
-    const QStringList lines = strReply.split('\n', QString::SkipEmptyParts);
+    const QStringList lines = strReply.split('\n', Qt::SkipEmptyParts);
     for (auto &it : lines)
     {
-        const QStringList pars = it.split(':', QString::SkipEmptyParts);
+        const QStringList pars = it.split(':', Qt::SkipEmptyParts);
         if (pars.size() == 2)
         {
             if (pars[1] == ifname)

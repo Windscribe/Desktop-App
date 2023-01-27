@@ -38,7 +38,7 @@ QString WireGuardConfig::stripIpv6Address(const QStringList &addressList)
 // static
 QString WireGuardConfig::stripIpv6Address(const QString &addressList)
 {
-    return stripIpv6Address(addressList.split(",", QString::SkipEmptyParts));
+    return stripIpv6Address(addressList.split(",", Qt::SkipEmptyParts));
 }
 
 void WireGuardConfig::generateConfigFile(const QString &fileName) const

@@ -32,11 +32,11 @@ std::vector<std::wstring> getOSDefaultDnsServers_NMCLI()
         return dnsServers;
     }
 
-    const QStringList lines = strReply.split('\n', QString::SkipEmptyParts);
+    const QStringList lines = strReply.split('\n', Qt::SkipEmptyParts);
     qCDebug(LOG_FIREWALL_CONTROLLER) << "Get OS default DNS list (nmcli output):" << lines;
     for (auto &it : lines)
     {
-        const QStringList pars = it.split(QRegExp("\\s+"), QString::SkipEmptyParts);
+        const QStringList pars = it.split(QRegExp("\\s+"), Qt::SkipEmptyParts);
         if (pars.size() == 2)
         {
             dnsServers.push_back(pars[1].toStdWString());
@@ -68,11 +68,11 @@ std::vector<std::wstring> getOSDefaultDnsServers_Resolvectl()
         return dnsServers;
     }
 
-    const QStringList lines = strReply.split('\n', QString::SkipEmptyParts);
+    const QStringList lines = strReply.split('\n', Qt::SkipEmptyParts);
     qCDebug(LOG_FIREWALL_CONTROLLER) << "Get OS default DNS list (resolvectl output):" << lines;
     for (auto &it : lines)
     {
-        const QStringList pars = it.split(":", QString::SkipEmptyParts);
+        const QStringList pars = it.split(":", Qt::SkipEmptyParts);
         if (pars.size() == 2)
         {
             if (!pars[0].contains("(utun") && !pars[0].contains("(tun"))
