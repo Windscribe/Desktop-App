@@ -3,17 +3,17 @@
 
 bool IpValidation::isIp(const QString &str)
 {
-    return ipRegex_.exactMatch(str);
+    return ipRegex_.match(str).hasMatch();
 }
 
 bool IpValidation::isIpCidr(const QString &str)
 {
-    return ipCidrRegex_.exactMatch(str);
+    return ipCidrRegex_.match(str).hasMatch();
 }
 
 bool IpValidation::isDomain(const QString &str)
 {
-    return str.size() <= 253 && domainRegex_.exactMatch(str);
+    return str.size() <= 253 && domainRegex_.match(str).hasMatch();
 }
 
 bool IpValidation::isIpOrDomain(const QString &str)
