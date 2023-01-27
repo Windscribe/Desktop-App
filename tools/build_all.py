@@ -629,15 +629,14 @@ def build_installer_mac(configdata, qt_root):
 
 
 def code_sign_linux(binary_name, binary_dir, signature_output_dir):
-
     binary = binary_dir + "/" + binary_name
+    binary_base_name = os.path.basename(binary)
     # Skip DGA library signing, if it not exists (to avoid error)
-    is_binary_exists = os.path.isfile(binary)
-    if binary_name == "libdga" and not is_binary_exists:
+    if binary_base_name == "libdga.so" and not os.path.exists(binary):
         pass
     else:    
         private_key = pathhelper.COMMON_DIR + "/keys/linux/key.pem"
-        signature = signature_output_dir + "/" + binary_name + ".sig"
+        signature = signature_output_dir + "/" + binary_base_name + ".sig"
         msg.Info("Signing " + binary + " with " + private_key + " -> " + signature)
         cmd = ["openssl", "dgst", "-sign", private_key, "-keyform", "PEM", "-sha256", "-out", signature, "-binary", binary]
         iutl.RunCommand(cmd)
