@@ -1,13 +1,14 @@
 #! /bin/sh
 
 set -e
+set -x
 
-mkdir build
+mkdir build || true
 cd build
 
 #cmake ..
 #make
 
-#TERM=dumb # disable line-clearing in ninja
 cmake -G "Ninja" ..
-ninja
+TERM=dumb # disable line-clearing in ninja
+ninja #-d explain # -v
