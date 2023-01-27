@@ -214,7 +214,7 @@ void LocationsWindow::mousePressEvent(QMouseEvent *event)
     if (middle.contains(event->pos()))
     {
         bDragPressed_ = true;
-        dragPressPt_ = event->globalPosition();
+        dragPressPt_ = event->globalPosition().toPoint();
         dragInitialVisibleItemsCount_ = getCountVisibleItems();
 
         QPoint centerBtnDrag = mapToGlobal(middle.center());
