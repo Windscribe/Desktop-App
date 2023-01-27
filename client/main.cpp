@@ -97,11 +97,6 @@ int main(int argc, char *argv[])
     Debug::CrashHandler::instance().bindToProcess();
 #endif
 
-#ifdef Q_OS_MAC
-#elif defined (Q_OS_LINUX)
-    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-#endif
-
     qputenv("QT_EVENT_DISPATCHER_CORE_FOUNDATION", "1");
 
     WindscribeApplication a(argc, argv);
