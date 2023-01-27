@@ -25,4 +25,7 @@ common/keys/linux/key.pem
 common/keys/linux/key.pub
 common/keys/linux/key_pub.txt
 installer/windows/signing/code_signing.pfx
-backend/mac/provisioning_profile/
+backend/mac/provisioning_profile/build/
+
+# cmake
+build/
