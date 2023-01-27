@@ -86,7 +86,7 @@ void EditBoxItem::setText(const QString &text)
     update();
 }
 
-void EditBoxItem::setValidator(QRegExpValidator *validator)
+void EditBoxItem::setValidator(QRegularExpressionValidator *validator)
 {
     lineEdit_->setValidator(validator);
 }

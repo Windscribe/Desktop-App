@@ -4,7 +4,7 @@
 #include <QGraphicsObject>
 #include <QGraphicsProxyWidget>
 #include <QLineEdit>
-#include <QRegExpValidator>
+#include <QRegularExpressionValidator>
 #include "commongraphics/iconbutton.h"
 #include "../dividerline.h"
 

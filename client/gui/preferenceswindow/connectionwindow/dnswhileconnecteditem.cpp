@@ -25,7 +25,7 @@ DnsWhileConnectedItem::DnsWhileConnectedItem(ScalableGraphicsObject *parent) : B
 
     QString ipRange = "(?:[0-1]?[0-9]?[0-9]|2[0-4][0-9]|25[0-5])";
     QRegExp ipRegex ("^" + ipRange + "\\." + ipRange + "\\." + ipRange + "\\." + ipRange + "$");
-    QRegExpValidator *ipValidator = new QRegExpValidator(ipRegex, this);
+    QRegularExpressionValidator *ipValidator = new QRegularExpressionValidator(ipRegex, this);
     editBoxIP_->setValidator(ipValidator);
 
     dividerLine_ = new DividerLine(this, 276);
