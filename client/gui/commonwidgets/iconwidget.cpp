@@ -52,7 +52,7 @@ void IconWidget::enterEvent(QEnterEvent *event)
     emit hoverEnter();
 }
 
-void IconWidget::leaveEvent(QEvent *event)
+void IconWidget::leaveEvent(QLeaveEvent *event)
 {
     Q_UNUSED(event)
     emit hoverLeave();

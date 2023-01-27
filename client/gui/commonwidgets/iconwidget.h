@@ -26,7 +26,7 @@ signals:
 protected:
     void paintEvent(QPaintEvent *event) override;
     void enterEvent(QEnterEvent *event) override;
-    void leaveEvent(QEvent *event) override;
+    void leaveEvent(QLeaveEvent *event) override;
 
 private:
     QString imagePath_;

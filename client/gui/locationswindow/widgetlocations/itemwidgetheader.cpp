@@ -315,7 +315,7 @@ void ItemWidgetHeader::enterEvent(QEnterEvent *event)
     emit hoverEnter();
 }
 
-void ItemWidgetHeader::leaveEvent(QEvent *event)
+void ItemWidgetHeader::leaveEvent(QLeaveEvent *event)
 {
     TooltipController::instance().hideTooltip(TOOLTIP_ID_LOCATIONS_P2P);
     QWidget::leaveEvent(event);

@@ -67,7 +67,7 @@ void TextButtonWidget::enterEvent(QEnterEvent *event)
     setCursor(Qt::PointingHandCursor);
 }
 
-void TextButtonWidget::leaveEvent(QEvent *event)
+void TextButtonWidget::leaveEvent(QLeaveEvent *event)
 {
     Q_UNUSED(event);
     resetHoverState();

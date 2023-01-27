@@ -34,7 +34,7 @@ protected:
      void mouseReleaseEvent(QMouseEvent *event) override;
      void mouseMoveEvent(QMouseEvent *event)    override;
      void enterEvent(QEnterEvent *event) override;
-     void leaveEvent(QEvent *event) override;
+     void leaveEvent(QLeaveEvent *event) override;
 
 private:
     int width_;
