@@ -21,7 +21,7 @@ ProxySettingsItem::ProxySettingsItem(ScalableGraphicsObject *parent) : BaseItem(
     comboBoxProxyType_ = new ComboBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::ComboBoxItem", "Proxy"), "", 50, Qt::transparent, 0, false);
 
     const QList< QPair<QString, int> > types = ProtoEnumToString::instance().getEnums(ProtoTypes::ProxyOption_descriptor());
-    for (const auto p : types)
+    for (const auto &p : types)
     {
         if (IsProxyOptionAllowed(p.second))
             comboBoxProxyType_->addItem(p.first, p.second);
