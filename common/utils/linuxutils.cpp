@@ -70,9 +70,10 @@ QString getLinuxKernelVersion()
     struct utsname unameData;
     if (uname(&unameData) == 0)
     {
-        QRegularExpression rx("(\\d+\\.\\d+(\\.\\d+)*)");
-        if(rx.indexIn(unameData.release, 0) != -1) {
-            return rx.cap(1);
+        QRegularExpression re("(\\d+\\.\\d+(\\.\\d+)*)");
+        QRegularExpressionMatch match = re.match(unameData.release);
+        if(match.hasMatch()) {
+            return match.captured(1);
         }
     }
 
