@@ -71,15 +71,15 @@ bool ExecutableSignaturePrivate::verify(const std::string& exePath)
     }
 
     // https://wiki.openssl.org/index.php/EVP_Message_Digests
-    EVP_MD_CTX *ctx;
+    EVP_MD_CTX *mdctx;
 
-    ctx = EVP_MD_CTX_new();
-    if (ctx == NULL) {
+    mdctx = EVP_MD_CTX_new();
+    if (mdctx == NULL) {
         lastError_ << "Failed to init SHA256 context";
         return false;
     }
 
-    if (1 != EVP_DigestInit_ex(ctx, EVP_sha256(), NULL)) {
+    if (1 != EVP_DigestInit_ex(mdctx, EVP_sha256(), NULL)) {
         lastError_ << "Failed to init SHA256 digest";
         return false;
     }
@@ -91,7 +91,7 @@ bool ExecutableSignaturePrivate::verify(const std::string& exePath)
     size_t bytesRead = 0;
     while ((bytesRead = fread(fileData.get(), 1, fileDataSize, datafile)))
     {
-        if (1 != EVP_DigestUpdate(ctx, fileData.get(), bytesRead)) {
+        if (1 != EVP_DigestUpdate(mdctx, fileData.get(), bytesRead)) {
             lastError_ << "Failed to update SHA256 digest";
             return false;
         }
@@ -99,13 +99,13 @@ bool ExecutableSignaturePrivate::verify(const std::string& exePath)
 
     unsigned char digest[SHA256_DIGEST_LENGTH];
     //unsigned char **digest;
-    unsigned int *_digest_len;
-    if (1 != EVP_DigestFinal_ex(ctx, digest, _digest_len)) {
+    unsigned int *_digest_len = 0;
+    if (1 != EVP_DigestFinal_ex(mdctx, digest, _digest_len)) {
         lastError_ << "Failed to finalize SHA256 digest";
         return false;
     }
 
-    EVP_MD_CTX_free(ctx);
+    EVP_MD_CTX_free(mdctx);
     fclose(datafile);
 
     boost::filesystem::path path(exePath);
