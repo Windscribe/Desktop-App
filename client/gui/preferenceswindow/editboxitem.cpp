@@ -107,11 +107,12 @@ void EditBoxItem::setMasked(bool masked)
     if (masked) {
         QStyleOptionFrame opt;
         opt.initFrom(lineEdit_);
-        maskingChar_ =
-            lineEdit_->style()->styleHint(QStyle::SH_LineEdit_PasswordCharacter, &opt, lineEdit_);
+        maskingChar_ = QChar(
+            lineEdit_->style()->styleHint(QStyle::SH_LineEdit_PasswordCharacter, &opt, lineEdit_)
+        );
         lineEdit_->setEchoMode(QLineEdit::Password);
     } else {
-        maskingChar_ = 0;
+        maskingChar_ = QChar(0);
         lineEdit_->setEchoMode(QLineEdit::Normal);
     }
     update();
