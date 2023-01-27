@@ -645,7 +645,7 @@ void MainWindow::mouseMoveEvent(QMouseEvent *event)
     {
         if (event->buttons() & Qt::LeftButton && bMousePressed_)
         {
-            this->move((event->globalPosition() - dragPosition_).toPoint());
+            this->move(event->globalPosition().toPoint() - dragPosition_);
             mainWindowController_->hideAllToolTips();
             event->accept();
         }
@@ -658,7 +658,7 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
     {
         if (event->button() == Qt::LeftButton)
         {
-            dragPosition_ = event->globalPosition() - this->frameGeometry().topLeft().toPoint();
+            dragPosition_ = event->globalPosition().toPoint() - this->frameGeometry().topLeft();
 
             //event->accept();
             bMousePressed_ = true;
