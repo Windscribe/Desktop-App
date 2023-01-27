@@ -658,7 +658,7 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
     {
         if (event->button() == Qt::LeftButton)
         {
-            dragPosition_ = event->globalPosition() - this->frameGeometry().topLeft();
+            dragPosition_ = event->globalPosition() - this->frameGeometry().topLeft().toPoint();
 
             //event->accept();
             bMousePressed_ = true;
