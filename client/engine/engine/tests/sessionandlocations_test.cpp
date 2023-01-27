@@ -13,7 +13,7 @@ QByteArray SessionAndLocationsTest::getSessionData()
     {
         file.setFileName("c:\\5\\session_pro.api");
     }
-    if (file.open(QIODevice::ReadOnly))
+    if (file.open(QIODeviceBase::ReadOnly))
     {
         return file.readAll();
     }
@@ -35,7 +35,7 @@ QByteArray SessionAndLocationsTest::getLocationsData()
     {
         file.setFileName("c:\\5\\locations_pro.api");
     }
-    if (file.open(QIODevice::ReadOnly))
+    if (file.open(QIODeviceBase::ReadOnly))
     {
         return file.readAll();
     }

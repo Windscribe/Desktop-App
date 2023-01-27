@@ -88,7 +88,7 @@ DnsScripts_linux::SCRIPT_TYPE DnsScripts_linux::detectScript()
     // read a header of /etc/resolv.conf file
     {
         QFile file("/etc/resolv.conf");
-        if (file.open(QIODevice::ReadOnly))
+        if (file.open(QIODeviceBase::ReadOnly))
         {
             QTextStream in(&file);
             while (!in.atEnd())

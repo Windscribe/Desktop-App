@@ -269,7 +269,7 @@ QStringList FirewallController_linux::getWindscribeRules(const QString &comment,
     }
     // Get Windscribe rules
     QFile file(pathToTempTable_);
-    if (!file.open(QIODevice::ReadOnly))
+    if (!file.open(QIODeviceBase::ReadOnly))
     {
         qCDebug(LOG_FIREWALL_CONTROLLER) << "Can't open file:" << pathToTempTable_;
     }

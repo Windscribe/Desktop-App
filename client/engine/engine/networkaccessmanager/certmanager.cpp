@@ -7,7 +7,7 @@ CertManager::CertManager()
     // load certificates from bundle
     {
         QFile file(":/resources/cert/certs_bundle.pem");
-        if (file.open(QIODevice::ReadOnly))
+        if (file.open(QIODeviceBase::ReadOnly))
         {
             QByteArray arr = file.readAll();
             parseCertsBundle(arr);
@@ -22,7 +22,7 @@ CertManager::CertManager()
     // load Windscribe certificates
     {
         QFile file(":/resources/cert/cert.crt");
-        if (file.open(QIODevice::ReadOnly))
+        if (file.open(QIODeviceBase::ReadOnly))
         {
             QByteArray arr = file.readAll();
             parseCertsBundle(arr);

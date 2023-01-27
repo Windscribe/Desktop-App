@@ -3045,7 +3045,7 @@ void MainWindow::onSplitTunnelingAppsAddButtonClick()
 #if defined(Q_OS_WIN)
     QProcess getOpenFileNameProcess;
     QString changeIcsExePath = QCoreApplication::applicationDirPath() + "/ChangeIcs.exe";
-    getOpenFileNameProcess.start(changeIcsExePath, { "-browseforapp" }, QIODevice::ReadOnly);
+    getOpenFileNameProcess.start(changeIcsExePath, { "-browseforapp" }, QIODeviceBase::ReadOnly);
     if (getOpenFileNameProcess.waitForStarted(-1)) {
         const int kRefreshGuiMs = 10;
         do {

@@ -122,7 +122,7 @@ QString Logger::getLogStr()
     QMutexLocker lock(&mutex_);
     QString ret;
     QFile prevFileLog(prevLogPath_);
-    if (prevFileLog.open(QIODevice::ReadOnly))
+    if (prevFileLog.open(QIODeviceBase::ReadOnly))
     {
         ret = prevFileLog.readAll();
         ret += "----------------------------------------------------------------\n";

@@ -2957,7 +2957,7 @@ void Engine::updateProxySettings()
 bool Engine::verifyContentsSha256(const QString &filename, const QString &compareHash)
 {
     QFile file(filename);
-    if (!file.open(QIODevice::ReadOnly))
+    if (!file.open(QIODeviceBase::ReadOnly))
     {
         qCDebug(LOG_BASIC) << "Failed to open installer for reading";
         return false;

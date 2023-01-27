@@ -97,7 +97,7 @@ const QString getLastInstallPlatform()
 
     QFile lastInstallPlatform(LAST_INSTALL_PLATFORM_FILE);
 
-    if (!lastInstallPlatform.open(QIODevice::ReadOnly))
+    if (!lastInstallPlatform.open(QIODeviceBase::ReadOnly))
     {
         qCDebug(LOG_BASIC) << "Couldn't open previous install platform file: " << LAST_INSTALL_PLATFORM_FILE;
         return "";

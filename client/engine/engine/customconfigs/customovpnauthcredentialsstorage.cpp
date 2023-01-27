@@ -53,7 +53,7 @@ void CustomOvpnAuthCredentialsStorage::readFromSettings()
     if (settings.contains("customOvpnAuths"))
     {
         QByteArray arr = settings.value("customOvpnAuths").toByteArray();
-        QDataStream in(&arr,QIODevice::ReadOnly);
+        QDataStream in(&arr,QIODeviceBase::ReadOnly);
         in >> hash_;
     }
 }

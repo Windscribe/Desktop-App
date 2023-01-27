@@ -225,7 +225,7 @@ QByteArray SimpleCrypt::decryptToByteArray(QByteArray cypher)
         }
         quint16 storedChecksum;
         {
-            QDataStream s(&ba, QIODevice::ReadOnly);
+            QDataStream s(&ba, QIODeviceBase::ReadOnly);
             s >> storedChecksum;
         }
         ba = ba.mid(2);

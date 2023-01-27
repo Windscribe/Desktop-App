@@ -62,7 +62,7 @@ bool MultipleAccountDetection_mac::readEntry(MultipleAccountDetection_mac::TEntr
             return false;
         }
 
-        QDataStream stream(&buf, QIODevice::ReadOnly);
+        QDataStream stream(&buf, QIODeviceBase::ReadOnly);
         stream >> entry.username_;
         stream >> entry.date_;
         return true;

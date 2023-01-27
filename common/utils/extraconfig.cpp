@@ -43,7 +43,7 @@ QString ExtraConfig::getExtraConfig(bool bWithLog)
 {
     QMutexLocker locker(&mutex_);
     QFile fileExtra(path_);
-    if (fileExtra.open(QIODevice::ReadOnly))
+    if (fileExtra.open(QIODeviceBase::ReadOnly))
     {
         QByteArray extraArr = fileExtra.readAll();
         if (bWithLog)

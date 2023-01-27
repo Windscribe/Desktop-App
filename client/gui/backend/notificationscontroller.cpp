@@ -135,7 +135,7 @@ void NotificationsController::readFromSettings()
     if (settings.contains("idForShownPopups"))
     {
         QByteArray arr = settings.value("idForShownPopups").toByteArray();
-        QDataStream stream(&arr, QIODevice::ReadOnly);
+        QDataStream stream(&arr, QIODeviceBase::ReadOnly);
         stream >> idOfShownNotifications_;
     }
     updateState();

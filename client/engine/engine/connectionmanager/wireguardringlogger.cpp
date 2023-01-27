@@ -65,7 +65,7 @@ WireguardRingLogger::mapWireguardRinglogFile()
         return false;
     }
 
-    if (!wireguardLogFile_.open(QIODevice::ReadOnly))
+    if (!wireguardLogFile_.open(QIODeviceBase::ReadOnly))
     {
         qCDebug(LOG_CONNECTION) << "Failed to open the wireguard service log file";
         return false;

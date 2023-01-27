@@ -20,7 +20,7 @@ LogWatcher::~LogWatcher()
 bool LogWatcher::add(const QString &filename, LogDataType type, LogRangeCheckType rangeCheck)
 {
     for (QFile qf(filename);;) {
-        if (!qf.open(QIODevice::ReadOnly))
+        if (!qf.open(QIODeviceBase::ReadOnly))
             return false;
         qf.close();
         break;
@@ -117,7 +117,7 @@ void LogWatcher::process(const QString &filename, LogFileInfo *info)
         return;
     QStringList lines;
     QFile qf(filename);
-    if (!qf.open(QIODevice::ReadOnly))
+    if (!qf.open(QIODeviceBase::ReadOnly))
         return;
     QTextStream qts(&qf);
     qts.seek(info->position);
@@ -133,7 +133,7 @@ void LogWatcher::process(const QString &filename, LogFileInfo *info)
 LogDataType LogWatcher::detectLogType(const QString &filename)
 {
     QFile qf(filename);
-    if (qf.open(QIODevice::ReadOnly)) {
+    if (qf.open(QIODeviceBase::ReadOnly)) {
         QTextStream qts(&qf);
         QString line;
         while (line.isEmpty() || line.startsWith("==="))

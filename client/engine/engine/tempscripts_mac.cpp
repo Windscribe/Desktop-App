@@ -72,7 +72,7 @@ QByteArray TempScripts_mac::hashFile(const QString& file) const
     QByteArray result;
 
     QFile fi(file);
-    if (fi.open(QIODevice::ReadOnly))
+    if (fi.open(QIODeviceBase::ReadOnly))
     {
         QCryptographicHash hash(QCryptographicHash::Sha256);
         if (hash.addData(&fi)) {

@@ -36,7 +36,7 @@ QString WindscribeInstallHelper_win::getPathForLogFile()
 void WindscribeInstallHelper_win::outputLogFileToLoggerAndRemove(QString &logPath)
 {
     QFile file(logPath);
-    if (file.open(QIODevice::ReadOnly))
+    if (file.open(QIODeviceBase::ReadOnly))
     {
         QTextStream in(&file);
         while (!in.atEnd())

@@ -112,7 +112,7 @@ void OvpnCustomConfig::process()
 #endif
 
     QFile file(filepath_);
-    if (file.open(QIODevice::ReadOnly))
+    if (file.open(QIODeviceBase::ReadOnly))
     {
         qDebug(LOG_CUSTOM_OVPN) << "Opened:" << Utils::cleanSensitiveInfo(filepath_);
 
