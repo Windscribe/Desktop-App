@@ -518,7 +518,7 @@ LocationID LocationsModel::getFirstValidCustomConfigLocationId() const
 
 LocationID LocationsModel::findGenericLocationByTitle(const QString &title) const
 {
-    for (const auto location : apiLocations_) {
+    for (const auto &location : apiLocations_) {
         for (const auto &city : location->cities) {
             if (city.makeTitle() == title)
                 return city.id;
@@ -529,7 +529,7 @@ LocationID LocationsModel::findGenericLocationByTitle(const QString &title) cons
 
 LocationID LocationsModel::findCustomConfigLocationByTitle(const QString &title) const
 {
-    for (const auto location : customConfigLocations_) {
+    for (const auto &location : customConfigLocations_) {
         for (const auto &city : qAsConst(location->cities)) {
             if (city.makeTitle() == title)
                 return city.id;
