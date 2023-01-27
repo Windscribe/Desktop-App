@@ -20,7 +20,7 @@ protected:
     virtual void paintEvent(QPaintEvent *event);
 
     void enterEvent(QEnterEvent *event);
-    void leaveEvent(QLeaveEvent *event);
+    void leaveEvent(QEvent *event);
     void mousePressEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *event);
 

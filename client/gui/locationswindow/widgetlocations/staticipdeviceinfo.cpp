@@ -88,7 +88,7 @@ void StaticIPDeviceInfo::enterEvent(QEnterEvent *event)
     startAnAnimation<double>(iconOpacityAnimation_, curIconOpacity_, OPACITY_FULL, ANIMATION_SPEED_FAST);
 }
 
-void StaticIPDeviceInfo::leaveEvent(QLeaveEvent *event)
+void StaticIPDeviceInfo::leaveEvent(QEvent *event)
 {
     Q_UNUSED(event);
     setCursor(Qt::PointingHandCursor);

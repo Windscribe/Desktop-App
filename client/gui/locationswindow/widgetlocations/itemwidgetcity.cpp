@@ -440,7 +440,7 @@ void ItemWidgetCity::enterEvent(QEnterEvent *event)
     emit hoverEnter();
 }
 
-void ItemWidgetCity::leaveEvent(QLeaveEvent *event)
+void ItemWidgetCity::leaveEvent(QEvent *event)
 {
     TooltipController::instance().hideTooltip(TOOLTIP_ID_LOCATIONS_PING_TIME);
     TooltipController::instance().hideTooltip(TOOLTIP_ID_LOCATIONS_ITEM_CAPTION);

@@ -48,7 +48,7 @@ signals:
 protected:
     void paintEvent(QPaintEvent *event) override;
     void enterEvent(QEnterEvent *event) override;
-    void leaveEvent(QLeaveEvent *event) override;
+    void leaveEvent(QEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
 
 private slots:

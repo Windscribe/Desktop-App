@@ -244,7 +244,7 @@ void ScrollBar::enterEvent(QEnterEvent *event)
     QScrollBar::enterEvent(event);
 }
 
-void ScrollBar::leaveEvent(QLeaveEvent *event)
+void ScrollBar::leaveEvent(QEvent *event)
 {
     setCursor(Qt::ArrowCursor);
     opacityAnimation_.setStartValue(curOpacity_);

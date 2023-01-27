@@ -330,7 +330,7 @@ void LocationsTab::mouseReleaseEvent(QMouseEvent *event)
     }
 }
 
-void LocationsTab::leaveEvent(QLeaveEvent *event)
+void LocationsTab::leaveEvent(QEvent *event)
 {
     curTabMouseOver_ = LOCATION_TAB_NONE;
     setArrowCursor();

@@ -65,7 +65,7 @@ void IconButtonWidget::enterEvent(QEnterEvent *event)
     emit hoverEnter();
 }
 
-void IconButtonWidget::leaveEvent(QLeaveEvent *event)
+void IconButtonWidget::leaveEvent(QEvent *event)
 {
     Q_UNUSED(event);
     startAnAnimation(opacityAnimation_, curOpacity_, unhoverOpacity_, ANIMATION_SPEED_FAST);
