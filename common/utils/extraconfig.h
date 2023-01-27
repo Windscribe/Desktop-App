@@ -2,7 +2,7 @@
 #define EXTRACONFIG_H
 
 #include <QString>
-#include <QMutex>
+#include <QRecursiveMutex>
 #include <QRegularExpression>
 
 // for work with windscribe_extra.conf file (additional parameters), thread-safe access
@@ -46,7 +46,7 @@ public:
 private:
     ExtraConfig();
 
-    QMutex mutex_;
+    QRecursiveMutex mutex_;
     QString path_;
     QRegularExpression regExp_;
     QString detectedIp_;
