@@ -80,6 +80,8 @@ QString IpValidation::getRemoteIdFromDomain(const QString &str)
 IpValidation::IpValidation()
 {
     QString ipRange = "(?:[0-1]?[0-9]?[0-9]|2[0-4][0-9]|25[0-5])";
+    // note: the patterns are "anchored" (^...$)
+    // so no need for QRegExp::exactMatch (qt5) or QRegularExpression::anchoredPattern (qt6)
     ipRegex_.setPattern("^" + ipRange + "\\." + ipRange + "\\." + ipRange + "\\." + ipRange + "$");
     ipCidrRegex_.setPattern("^([0-9]{1,3}\\.){3}[0-9]{1,3}(\\/([0-9]|[1-2][0-9]|3[0-2]))?$");
     domainRegex_.setPattern("^([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\\.){1,}([a-zA-Z][a-zA-Z0-9-]*[a-zA-Z])$");
