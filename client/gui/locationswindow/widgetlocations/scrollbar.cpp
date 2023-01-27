@@ -36,7 +36,7 @@ void ScrollBar::wheelEvent(QWheelEvent * event)
 //             << ", wheel event delta: " << event->angleDelta()
 //             << ", pixDelta: " << event->pixelDelta()
 //             << ", delta: " << event->delta()
-//             << ", globalPos: " << event->globalPos() // cursor pos
+//             << ", globalPos: " << event->globalPosition() // cursor pos
 //             << ", phase: " << event->phase();
 
 	// Note: Windows10 trackpad does not appear to generate Synthesized system events so this block will only run on Mac

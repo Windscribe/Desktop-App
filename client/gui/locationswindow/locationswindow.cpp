@@ -163,7 +163,7 @@ void LocationsWindow::mouseMoveEvent(QMouseEvent *event)
 {
     if (bDragPressed_)
     {
-        int y_offs = event->globalPos().y() - dragPressPt_.y();
+        int y_offs = event->globalPosition().y() - dragPressPt_.y();
 
         int cnt = y_offs / (50 * G_SCALE);
         int curCntVisibleItems = dragInitialVisibleItemsCount_ + cnt;
@@ -214,7 +214,7 @@ void LocationsWindow::mousePressEvent(QMouseEvent *event)
     if (middle.contains(event->pos()))
     {
         bDragPressed_ = true;
-        dragPressPt_ = event->globalPos();
+        dragPressPt_ = event->globalPosition();
         dragInitialVisibleItemsCount_ = getCountVisibleItems();
 
         QPoint centerBtnDrag = mapToGlobal(middle.center());
