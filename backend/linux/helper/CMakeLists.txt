@@ -1,20 +1,6 @@
 # based on helper.pro
 
-cmake_minimum_required(VERSION 3.13.4)
-
-project(windscribe-backend
-  # TODO single-source version
-  # parse version from ../../../common/changelog.txt
-  # or set version once in ../../../CMakeLists.txt
-  VERSION 2.4.11
-  DESCRIPTION "backend for the windscribe VPN client"
-  HOMEPAGE_URL "https://github.com/Windscribe/Desktop-App"
-  LANGUAGES CXX
-)
-
-set(CMAKE_CXX_STANDARD 11) # -std=c++11
-
-include(GNUInstallDirs)
+set(target_name windscribe-helper)
 
 # TODO boost version?
 #find_package(Boost 1.36.0 REQUIRED COMPONENTS serialization thread filesystem)
@@ -30,6 +16,8 @@ option(use_signature_check "Sign this build with key_pub.txt" OFF)
 # error: multiple definition of main
 #file(GLOB_RECURSE sources *.cpp *.h)
 #message(STATUS "sources=${sources}")
+
+# TODO glob + filter
 
 set(sources
   ../../../common/utils/executable_signature/executable_signature.cpp
@@ -61,33 +49,30 @@ set(headers
   wireguard/wireguardcontroller.h
 )
 
-add_executable(${PROJECT_NAME}
+add_executable(${target_name}
   ${sources}
   ${headers}
 )
 
-target_compile_options(${PROJECT_NAME} PUBLIC -Wall)
+target_compile_options(${target_name} PUBLIC -Wall)
 
-target_compile_definitions(${PROJECT_NAME} PUBLIC BOOST_BIND_GLOBAL_PLACEHOLDERS)
+target_compile_definitions(${target_name} PUBLIC BOOST_BIND_GLOBAL_PLACEHOLDERS)
 if(${use_signature_check})
   message(STATUS "use_signature_check=ON")
-  target_compile_definitions(${PROJECT_NAME} PUBLIC USE_SIGNATURE_CHECK)
+  target_compile_definitions(${target_name} PUBLIC USE_SIGNATURE_CHECK)
 else()
   message(STATUS "use_signature_check=OFF")
 endif()
-target_compile_definitions(${PROJECT_NAME} PUBLIC QT_DISABLE_DEPRECATED_BEFORE=0x060000)
+target_compile_definitions(${target_name} PUBLIC QT_DISABLE_DEPRECATED_BEFORE=0x060000)
 
-target_include_directories(${PROJECT_NAME} PUBLIC
+target_include_directories(${target_name} PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-target_link_libraries(${PROJECT_NAME} PUBLIC
+target_link_libraries(${target_name} PUBLIC
   ${Boost_LIBRARIES}
   #${OpenSSL_LIBRARIES} # error: undefined reference
   OpenSSL::SSL
 )
 
-install(TARGETS ${PROJECT_NAME} DESTINATION ${CMAKE_INSTALL_BIN})
-
-#add_subdirectory(libs/module1)
-#add_subdirectory(libs/module2)
+install(TARGETS ${target_name} DESTINATION ${CMAKE_INSTALL_BIN})

@@ -49,7 +49,7 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR}/../common)
 
 # https://doc.qt.io/qt-6/cmake-get-started.html
 # TODO remove Gui?
-find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Network Svg)
+find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Network Svg Core5Compat)
 qt_standard_project_setup()
 
 find_package(CURL REQUIRED)
@@ -984,6 +984,7 @@ target_link_libraries(${target_name}
   # fix: client/engine/engine/proxy/proxysettings.h:6:10: fatal error: QNetworkProxy: No such file
   # fix: common/utils/linuxutils.cpp:12:10: fatal error: QHostAddress: No such file
   Qt6::Network
+  Qt6::Core5Compat
 )
 
 install(TARGETS ${target_name} DESTINATION ${CMAKE_INSTALL_BIN})
