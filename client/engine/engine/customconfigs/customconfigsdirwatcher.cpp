@@ -7,7 +7,7 @@
 CustomConfigsDirWatcher::CustomConfigsDirWatcher(QObject *parent, const QString &path)
     : QObject(parent), path_(path)
 {
-    dirWatcher_.addPath(QStandardPaths::writableLocation(QStandardPaths::DataLocation));
+    dirWatcher_.addPath(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation));
     dirWatcher_.addPath(path_);
 
     connect(&dirWatcher_, SIGNAL(directoryChanged(QString)), SLOT(onDirectoryChanged(QString)));

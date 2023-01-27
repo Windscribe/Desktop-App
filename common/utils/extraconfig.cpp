@@ -292,7 +292,7 @@ bool ExtraConfig::isLegalOpenVpnCommand(const QString &command) const
 }
 
 ExtraConfig::ExtraConfig() : mutex_(QMutex::Recursive),
-                             path_(QStandardPaths::writableLocation(QStandardPaths::DataLocation)
+                             path_(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)
                                    + "/windscribe_extra.conf"),
                              regExp_("(?m)^(?i)(verb)(\\s+)(\\d+$)")
 {

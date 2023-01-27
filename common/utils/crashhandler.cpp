@@ -91,7 +91,7 @@ std::wstring GetOutputLocation()
     strBuffer = strBuffer.substr(0, strBuffer.find_last_of(L"\\/"));
     return strBuffer + TEXT("/");
 #else
-    return QString("%1/").arg(QStandardPaths::writableLocation(QStandardPaths::DataLocation))
+    return QString("%1/").arg(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation))
                          .toStdWString();
 #endif
 }

@@ -11,7 +11,7 @@ IcsManager::IcsManager(QObject *parent, IHelper *helper) : QThread(parent),
 {
     helper_ = dynamic_cast<Helper_win *>(helper);
     Q_ASSERT(helper_);
-    QString strPath = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+    QString strPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
     QDir dir(strPath);
     dir.mkpath(strPath);
     path_ = strPath + "/ics.dat";

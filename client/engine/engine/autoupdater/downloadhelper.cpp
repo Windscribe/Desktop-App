@@ -16,7 +16,7 @@ DownloadHelper::DownloadHelper(QObject *parent, NetworkAccessManager *networkAcc
   , networkAccessManager_(networkAccessManager)
   , busy_(false)
   , platform_(platform)
-  , downloadDirectory_(QStandardPaths::writableLocation(QStandardPaths::DataLocation))
+  , downloadDirectory_(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation))
   , progressPercent_(0)
   , state_(DOWNLOAD_STATE_INIT)
 

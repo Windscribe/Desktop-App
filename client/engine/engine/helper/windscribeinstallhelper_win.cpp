@@ -27,7 +27,7 @@ bool WindscribeInstallHelper_win::checkWindscribeInstallHelper(QString &outPath)
 
 QString WindscribeInstallHelper_win::getPathForLogFile()
 {
-    QString strPath = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+    QString strPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
     QDir dir(strPath);
     dir.mkpath(strPath);
     return strPath + "/logwindscribeinstallhelper.txt";

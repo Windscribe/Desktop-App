@@ -158,7 +158,7 @@ void SingleAppInstancePrivate::debugOut(const char *format, ...)
 
     if (sMsg.size() > 0)
     {
-        QString sFilename = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+        QString sFilename = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
         sFilename += QLatin1String("/log_singleappinstanceguard.txt");
 
         QFile fileLog(sFilename);

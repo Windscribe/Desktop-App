@@ -52,7 +52,7 @@ MainWindow::MainWindow() : QWidget(), dpiScale_(1.0), logAutoScrollMode_(true),
                            logWatcher_(new LogWatcher), logData_(new LogData),
                            checkRangeOnAppend_(CheckRangeMode::NO),
                            openFilePath_(QStandardPaths::writableLocation(
-                               QStandardPaths::DataLocation)),
+                               QStandardPaths::AppDataLocation)),
                            isFilterCI_(true), isHideUnmatched_(true), textVisibilityMask_(0),
                            currentFilterMatch_(-1), previousFilterMatch_(-1)
 {

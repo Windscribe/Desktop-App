@@ -15,7 +15,7 @@
 
 MakeOVPNFile::MakeOVPNFile()
 {
-    QString strPath = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+    QString strPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
     QDir dir(strPath);
     dir.mkpath(strPath);
     path_ = strPath + "/config.ovpn";

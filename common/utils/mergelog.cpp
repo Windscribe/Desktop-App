@@ -166,7 +166,7 @@ int MergeLog::mergeTask(QMutex *mutex, QMultiMap<quint64, QPair<LineSource, QStr
 
 const QString MergeLog::guiLogLocation()
 {
-    QString path = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+    QString path = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
     return path + "/log_gui.txt";
 }
 
@@ -194,7 +194,7 @@ const QString MergeLog::wireguardServiceLogLocation()
 
 const QString MergeLog::prevGuiLogLocation()
 {
-    QString path = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+    QString path = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
     return path + "/prev_log_gui.txt";
 }
 
@@ -206,7 +206,7 @@ const QString MergeLog::prevServiceLogLocation()
     return qApp->applicationDirPath() + "/helper_no_prev_log.txt";
 #elif defined(Q_OS_MACOS)
     // The Mac helper does not currently maintain a previous log file
-    return QStandardPaths::writableLocation(QStandardPaths::DataLocation) + "/helper_no_prev_log.txt";
+    return QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/helper_no_prev_log.txt";
 #else
     return qApp->applicationDirPath() + "/windscribeservice_prev.log";
 #endif

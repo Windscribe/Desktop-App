@@ -1120,7 +1120,7 @@ void Engine::sendDebugLogImpl()
 
     /*
     // For testing merge log functionality
-    QString path = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+    QString path = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
     path += "/merged_logs.txt";
     QFile file(path);
     if (file.open(QIODevice::WriteOnly | QIODevice::Truncate))

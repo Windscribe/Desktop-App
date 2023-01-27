@@ -11,7 +11,7 @@ FirewallController_linux::FirewallController_linux(QObject *parent, IHelper *hel
 {
     helper_ = dynamic_cast<Helper_linux *>(helper);
 
-    pathToTempTable_ = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+    pathToTempTable_ = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
     QDir dir(pathToTempTable_);
     dir.mkpath(pathToTempTable_);
     pathToTempTable_ += "/windscribe_table.txt";

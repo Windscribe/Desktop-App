@@ -20,7 +20,7 @@ CurlNetworkManager2::CurlNetworkManager2(QObject *parent) : QThread(parent),
 {
 
 #ifdef MAKE_CURL_LOG_FILE
-    logFilePath_ = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+    logFilePath_ = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
     logFilePath_ += "/curl_log.txt";
     QFile::remove(logFilePath_);
     logFile_ = nullptr;

@@ -13,7 +13,7 @@
 
 MakeOVPNFileFromCustom::MakeOVPNFileFromCustom()
 {
-    path_ = QStandardPaths::writableLocation(QStandardPaths::DataLocation)
+    path_ = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)
           + "/windscribe_temp_config.ovpn";
     file_.setFileName(path_);
 }
