@@ -41,7 +41,7 @@ void LocationsTrayMenuNative::onSubmenuActionTriggered(QAction *action)
     Q_ASSERT(action);
     if (!action || !action->isEnabled())
         return;
-    const auto *menu = qobject_cast<QMenu*>(action->parentWidget());
+    const auto *menu = qobject_cast<QMenu*>(action->parent());
     if (!menu || !menu->isEnabled())
         return;
     emit locationSelected(locationType_, action->whatsThis(), menu->actions().indexOf(action));
