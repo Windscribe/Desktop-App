@@ -2,8 +2,9 @@
 #define IMAGERESOURCESSVG_H
 
 #include <QThread>
+#include <QHash>
 #include <QPixmap>
-#include <QMutex>
+#include <QRecursiveMutex>
 #include "independentpixmap.h"
 
 class ImageResourcesSvg : public QThread
@@ -43,7 +44,7 @@ private:
     QHash<QString, QSharedPointer<IndependentPixmap> > hashIndependent_;
     std::atomic<bool> bNeedFinish_;
     bool bFininishedGracefully_;
-    QMutex mutex_;
+    QRecursiveMutex mutex_;
 
 
     bool loadIconFromResource(const QString &name);
