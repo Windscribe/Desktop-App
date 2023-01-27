@@ -62,7 +62,7 @@ void CustomOvpnAuthCredentialsStorage::writeToSettings()
 {
     QMutexLocker locker(&mutex_);
     QByteArray arr;
-    QDataStream out(&arr,QIODevice::WriteOnly);
+    QDataStream out(&arr,QIODeviceBase::WriteOnly);
     out << hash_;
 
     QSettings settings;

@@ -98,7 +98,7 @@ void LogViewerWindow::onExportClick()
         log += MergeLog::mergeLogs(true);
 
         QFile file(fileName);
-        if (file.open(QIODevice::WriteOnly))
+        if (file.open(QIODeviceBase::WriteOnly))
         {
             file.write(log.toLocal8Bit());
         }

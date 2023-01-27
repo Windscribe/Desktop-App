@@ -189,7 +189,7 @@ void DownloadHelper::getInner(const QString url, const QString targetFilenamePat
 
     FileAndProgress fileAndProgess;
     fileAndProgess.file = QSharedPointer<QFile>::create(targetFilenamePath); // unnecessary copy?
-    if (!fileAndProgess.file->open(QIODevice::WriteOnly))
+    if (!fileAndProgess.file->open(QIODeviceBase::WriteOnly))
     {
         qCDebug(LOG_DOWNLOADER) << "Failed to open file for download" << url;
         return;

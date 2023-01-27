@@ -12,7 +12,7 @@ PingLog::PingLog(const QString &filename) : file_(NULL)
     dir.mkpath(logFilePath);
     logFilePath += "/" + filename;
     file_ = new QFile(logFilePath);
-    if (file_->open(QIODevice::WriteOnly))
+    if (file_->open(QIODeviceBase::WriteOnly))
     {
         textStream_.setDevice(file_);
     }

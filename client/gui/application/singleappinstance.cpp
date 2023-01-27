@@ -162,7 +162,7 @@ void SingleAppInstancePrivate::debugOut(const char *format, ...)
         sFilename += QLatin1String("/log_singleappinstanceguard.txt");
 
         QFile fileLog(sFilename);
-        QFile::OpenMode openMode = QIODevice::WriteOnly | QIODevice::Text;
+        QFile::OpenMode openMode = QIODeviceBase::WriteOnly | QIODevice::Text;
 
         if (fileLog.size() > 524288) {
            openMode |= QIODevice::Truncate;

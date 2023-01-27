@@ -115,7 +115,7 @@ void NotificationsController::saveToSettings()
 
     QByteArray arrShownPopups;
     {
-        QDataStream stream(&arrShownPopups, QIODevice::WriteOnly);
+        QDataStream stream(&arrShownPopups, QIODeviceBase::WriteOnly);
         stream << idOfShownNotifications_;
     }
     settings.setValue("idForShownPopups", arrShownPopups);

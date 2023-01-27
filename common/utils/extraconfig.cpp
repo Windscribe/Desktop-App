@@ -29,7 +29,7 @@ void ExtraConfig::writeConfig(const QString &cfg)
     }
     else
     {
-        if (file.open(QIODevice::WriteOnly))
+        if (file.open(QIODeviceBase::WriteOnly))
         {
             file.resize(0);
             file.write(cfg.toLocal8Bit());

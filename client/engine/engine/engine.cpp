@@ -1123,7 +1123,7 @@ void Engine::sendDebugLogImpl()
     QString path = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
     path += "/merged_logs.txt";
     QFile file(path);
-    if (file.open(QIODevice::WriteOnly | QIODevice::Truncate))
+    if (file.open(QIODeviceBase::WriteOnly | QIODevice::Truncate))
     {
         file.write(log.toLatin1());
         file.close();

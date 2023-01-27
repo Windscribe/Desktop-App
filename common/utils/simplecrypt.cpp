@@ -106,7 +106,7 @@ QByteArray SimpleCrypt::encryptToByteArray(QByteArray plaintext)
     QByteArray integrityProtection;
     if (m_protectionMode == ProtectionChecksum) {
         flags |= CryptoFlagChecksum;
-        QDataStream s(&integrityProtection, QIODevice::WriteOnly);
+        QDataStream s(&integrityProtection, QIODeviceBase::WriteOnly);
         s << qChecksum(bav);
     } else if (m_protectionMode == ProtectionHash) {
         flags |= CryptoFlagHash;

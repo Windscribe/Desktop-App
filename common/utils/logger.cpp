@@ -61,7 +61,7 @@ void Logger::install(const QString &name, bool consoleOutput, bool recoveryMode)
     if (!recoveryMode)
     {
         copyToPrevLog();
-        openModeFlag = QIODevice::WriteOnly;
+        openModeFlag = QIODeviceBase::WriteOnly;
     }
 
     QMutexLocker lock(&mutex_);

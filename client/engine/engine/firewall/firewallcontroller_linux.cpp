@@ -129,7 +129,7 @@ bool FirewallController_linux::firewallOnImpl(const QString &ip, bool bAllowLanT
     // rules for IPv4
     {
         QFile file(pathToTempTable_);
-        if (file.open(QIODevice::WriteOnly))
+        if (file.open(QIODeviceBase::WriteOnly))
         {
             QTextStream stream(&file);
 
@@ -210,7 +210,7 @@ bool FirewallController_linux::firewallOnImpl(const QString &ip, bool bAllowLanT
     // rules for IPv6 (disable IPv6)
     {
         QFile file(pathToTempTable_);
-        if (file.open(QIODevice::WriteOnly))
+        if (file.open(QIODeviceBase::WriteOnly))
         {
             QTextStream stream(&file);
 
@@ -331,7 +331,7 @@ void FirewallController_linux::removeWindscribeRules(const QString &comment, boo
         }
 
         QFile file(pathToTempTable_);
-        if (file.open(QIODevice::WriteOnly | QIODevice::Text))
+        if (file.open(QIODeviceBase::WriteOnly | QIODevice::Text))
         {
             QTextStream out(&file);
             for (const auto &l : rules)

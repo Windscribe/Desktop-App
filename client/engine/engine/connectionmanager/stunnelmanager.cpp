@@ -109,7 +109,7 @@ void StunnelManager::onStunnelProcessFinished()
 bool StunnelManager::makeConfigFile(const QString &hostname, uint port)
 {
     QFile file(path_);
-    if (file.open(QIODevice::WriteOnly))
+    if (file.open(QIODeviceBase::WriteOnly))
     {
         file.resize(0);
 

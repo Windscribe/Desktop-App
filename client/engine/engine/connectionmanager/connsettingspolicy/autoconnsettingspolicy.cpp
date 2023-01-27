@@ -210,7 +210,7 @@ void AutoConnSettingsPolicy::saveCurrentSuccessfullConnectionSettings()
 
     QByteArray arr;
     {
-        QDataStream stream(&arr, QIODevice::WriteOnly);
+        QDataStream stream(&arr, QIODeviceBase::WriteOnly);
         stream << protocol;
     }
     settings.setValue("successConnectionProtocol", arr);

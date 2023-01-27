@@ -77,7 +77,7 @@ void MultipleAccountDetection_mac::writeEntry(const MultipleAccountDetection_mac
 {
     QByteArray buf;
     {
-        QDataStream stream(&buf, QIODevice::WriteOnly);
+        QDataStream stream(&buf, QIODeviceBase::WriteOnly);
         stream << entry.username_;
         stream << entry.date_;
     }

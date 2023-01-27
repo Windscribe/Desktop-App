@@ -122,7 +122,7 @@ void Helper_mac::enableMacSpoofingOnBoot(bool bEnable, QString interfaceName, QS
         {
             QString exePath = QCoreApplication::applicationFilePath();
             QFile file(macSpoofingScript);
-            if (file.open(QIODevice::WriteOnly | QIODevice::Text))
+            if (file.open(QIODeviceBase::WriteOnly | QIODevice::Text))
             {
                 file.resize(0);
                 QTextStream in(&file);
@@ -151,7 +151,7 @@ void Helper_mac::enableMacSpoofingOnBoot(bool bEnable, QString interfaceName, QS
 
         // create plist
         QFile file(strTempFilePath);
-        if (file.open(QIODevice::WriteOnly | QIODevice::Text))
+        if (file.open(QIODeviceBase::WriteOnly | QIODevice::Text))
         {
             file.resize(0);
             QTextStream in(&file);

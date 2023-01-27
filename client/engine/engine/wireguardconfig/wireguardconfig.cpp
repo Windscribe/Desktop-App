@@ -50,7 +50,7 @@ void WireGuardConfig::generateConfigFile(const QString &fileName) const
     // The wireguard-windows service cannot handle these double-quoted entries.
 
     QFile theFile(fileName);
-    bool bResult = theFile.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate);
+    bool bResult = theFile.open(QIODeviceBase::WriteOnly | QIODevice::Text | QIODevice::Truncate);
 
     if (!bResult) {
         throw std::system_error(0, std::generic_category(),

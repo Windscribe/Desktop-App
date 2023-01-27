@@ -200,7 +200,7 @@ bool FirewallController_mac::firewallOnImpl(const QString &ip, bool bAllowLanTra
     }
 
     QFile f(pfConfigFilePath);
-    if (f.open(QIODevice::WriteOnly))
+    if (f.open(QIODeviceBase::WriteOnly))
     {
         QTextStream ts(&f);
         ts << pf;
@@ -250,7 +250,7 @@ void FirewallController_mac::enableFirewallOnBoot(bool bEnable)
         {
             QString exePath = QCoreApplication::applicationFilePath();
             QFile file(pfBashScriptFile);
-            if (file.open(QIODevice::WriteOnly | QIODevice::Text))
+            if (file.open(QIODeviceBase::WriteOnly | QIODevice::Text))
             {
                 file.resize(0);
                 QTextStream in(&file);
@@ -278,7 +278,7 @@ void FirewallController_mac::enableFirewallOnBoot(bool bEnable)
 
         // create plist
         QFile file(strTempFilePath);
-        if (file.open(QIODevice::WriteOnly | QIODevice::Text))
+        if (file.open(QIODeviceBase::WriteOnly | QIODevice::Text))
         {
             file.resize(0);
             QTextStream in(&file);

@@ -1692,7 +1692,7 @@ void ServerAPI::handleSessionReplyCurl(BaseRequest *rd, bool success)
 
 #ifdef TEST_CREATE_API_FILES
         QFile file("c:\\5\\session.api");
-        if (file.open(QIODevice::WriteOnly))
+        if (file.open(QIODeviceBase::WriteOnly))
         {
             file.write(arr);
         }
@@ -1890,7 +1890,7 @@ void ServerAPI::handleServerLocationsCurl(BaseRequest *rd, bool success)
 
 #ifdef TEST_CREATE_API_FILES
         QFile file("c:\\5\\locations.api");
-        if (file.open(QIODevice::WriteOnly))
+        if (file.open(QIODeviceBase::WriteOnly))
         {
             file.write(arr);
         }

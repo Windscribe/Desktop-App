@@ -41,7 +41,7 @@ QPair<int, int> LogData::getDataSizeForType(LogDataType type) const
 bool LogData::save(const QString &filename) const
 {
     QFile qf(filename);
-    if (!qf.open(QIODevice::WriteOnly))
+    if (!qf.open(QIODeviceBase::WriteOnly))
         return false;
 
     const char *kTypeMarker[] = { "G", "E", "S" };

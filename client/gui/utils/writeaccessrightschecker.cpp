@@ -94,7 +94,7 @@ bool WriteAccessRightsChecker::isElevated() const
 
 void WriteAccessRightsChecker::testWrite()
 {
-    is_writeable_ = open(QIODevice::WriteOnly);
+    is_writeable_ = open(QIODeviceBase::WriteOnly);
 }
 
 #if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
