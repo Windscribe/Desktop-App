@@ -10,7 +10,7 @@
 #include <QCoreApplication>
 #include <QFile>
 #include <QHostAddress>
-#include <QRegExp>
+#include <QRegularExpression>
 
 #include "logger.h"
 #include "wsscopeguard.h"
@@ -70,7 +70,7 @@ QString getLinuxKernelVersion()
     struct utsname unameData;
     if (uname(&unameData) == 0)
     {
-        QRegExp rx("(\\d+\\.\\d+(\\.\\d+)*)");
+        QRegularExpression rx("(\\d+\\.\\d+(\\.\\d+)*)");
         if(rx.indexIn(unameData.release, 0) != -1) {
             return rx.cap(1);
         }

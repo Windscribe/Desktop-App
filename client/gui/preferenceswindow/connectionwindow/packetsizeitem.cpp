@@ -31,7 +31,7 @@ PacketSizeItem::PacketSizeItem(ScalableGraphicsObject *parent)
     editBoxPacketSize_->setPos(0, COLLAPSED_HEIGHT*G_SCALE);
     setHeight(EXPANDED_HEIGHT);
 
-    QRegExp ipRegex ("^\\d+$");
+    QRegularExpression ipRegex ("^\\d+$");
     QRegularExpressionValidator *integerValidator = new QRegularExpressionValidator(ipRegex, this);
     editBoxPacketSize_->setValidator(integerValidator);
 

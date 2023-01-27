@@ -36,7 +36,7 @@ std::vector<std::wstring> getOSDefaultDnsServers_NMCLI()
     qCDebug(LOG_FIREWALL_CONTROLLER) << "Get OS default DNS list (nmcli output):" << lines;
     for (auto &it : lines)
     {
-        const QStringList pars = it.split(QRegExp("\\s+"), Qt::SkipEmptyParts);
+        const QStringList pars = it.split(QRegularExpression("\\s+"), Qt::SkipEmptyParts);
         if (pars.size() == 2)
         {
             dnsServers.push_back(pars[1].toStdWString());

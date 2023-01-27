@@ -2,7 +2,7 @@
 #define IPVALIDATION_H
 
 #include <QString>
-#include <QRegExp>
+#include <QRegularExpression>
 
 class IpValidation
 {
@@ -29,9 +29,9 @@ public:
 private:
     IpValidation();
 
-    QRegExp ipRegex_;
-    QRegExp ipCidrRegex_;
-    QRegExp domainRegex_;
+    QRegularExpression ipRegex_;
+    QRegularExpression ipCidrRegex_;
+    QRegularExpression domainRegex_;
 };
 
 #endif // IPVALIDATION_H

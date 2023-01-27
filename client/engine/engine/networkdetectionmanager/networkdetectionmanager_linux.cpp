@@ -103,7 +103,7 @@ QString NetworkDetectionManager_linux::getDefaultRouteInterface(bool &isOnline)
 
     for (auto &it : lines)
     {
-        const QStringList pars = it.split(QRegExp("\\s+"), Qt::SkipEmptyParts);
+        const QStringList pars = it.split(QRegularExpression("\\s+"), Qt::SkipEmptyParts);
         if (pars.size() == 8)
         {
             if (!pars[7].startsWith("tun") && !pars[7].startsWith("utun"))

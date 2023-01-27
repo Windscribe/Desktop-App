@@ -30,7 +30,7 @@ WireGuardConfig::WireGuardConfig(const QString &privateKey, const QString &ipAdd
 // static
 QString WireGuardConfig::stripIpv6Address(const QStringList &addressList)
 {
-    const QRegExp rx("^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}(.*)$");
+    const QRegularExpression rx("^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}(.*)$");
     QString s = addressList.filter(rx).join(",");
     return s;
 }
