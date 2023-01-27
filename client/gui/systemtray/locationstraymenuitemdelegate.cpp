@@ -46,7 +46,7 @@ void LocationsTrayMenuItemDelegate::paint(QPainter *painter, const QStyleOptionV
     else
     {
         painter->fillRect(rc, option.palette.brush(
-            bEnabled ? QPalette::Active : QPalette::Disabled, QPalette::Background));
+            bEnabled ? QPalette::Active : QPalette::Disabled, QPalette::Base));
     }
 
     int leftOffs = 10 * LocationsTrayMenuScaleManager::instance().scale();
