@@ -1,1 +1,1 @@
-ipc/generated_proto/
+ipc/proto/*.pb.*

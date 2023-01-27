@@ -2,7 +2,7 @@
 #define DNSWHILECONNECTEDINFO_H
 
 #include <QString>
-#include "ipc/generated_proto/types.pb.h"
+#include "ipc/proto/types.pb.h"
 
 
 class DnsWhileConnectedInfo

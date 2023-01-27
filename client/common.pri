@@ -48,9 +48,9 @@ HEADERS += \
 
 
 SOURCES += \
-    $$COMMON_PATH/ipc/generated_proto/types.pb.cc \
-    $$COMMON_PATH/ipc/generated_proto/apiinfo.pb.cc \
-    $$COMMON_PATH/ipc/generated_proto/cli.pb.cc \
+    $$COMMON_PATH/ipc/proto/types.pb.cc \
+    $$COMMON_PATH/ipc/proto/apiinfo.pb.cc \
+    $$COMMON_PATH/ipc/proto/cli.pb.cc \
     $$COMMON_PATH/types/locationid.cpp \
     $$COMMON_PATH/types/pingtime.cpp \
     $$COMMON_PATH/utils/clean_sensitive_info.cpp \
@@ -68,14 +68,14 @@ SOURCES += \
     $$COMMON_PATH/ipc/commandfactory.cpp \
     $$COMMON_PATH/ipc/connection.cpp \
     $$COMMON_PATH/ipc/server.cpp \
-    $$COMMON_PATH/ipc/generated_proto/clientcommands.pb.cc \
-    $$COMMON_PATH/ipc/generated_proto/servercommands.pb.cc \
+    $$COMMON_PATH/ipc/proto/clientcommands.pb.cc \
+    $$COMMON_PATH/ipc/proto/servercommands.pb.cc \
 
 HEADERS += \
     $$COMMON_PATH/names.h \
-    $$COMMON_PATH/ipc/generated_proto/types.pb.h \
-    $$COMMON_PATH/ipc/generated_proto/apiinfo.pb.h \
-    $$COMMON_PATH/ipc/generated_proto/cli.pb.h \
+    $$COMMON_PATH/ipc/proto/types.pb.h \
+    $$COMMON_PATH/ipc/proto/apiinfo.pb.h \
+    $$COMMON_PATH/ipc/proto/cli.pb.h \
     $$COMMON_PATH/types/locationid.h \
     $$COMMON_PATH/types/pingtime.h \
     $$COMMON_PATH/utils/clean_sensitive_info.h \
@@ -100,5 +100,5 @@ HEADERS += \
     $$COMMON_PATH/ipc/iserver.h \
     $$COMMON_PATH/ipc/protobufcommand.h \
     $$COMMON_PATH/ipc/server.h \
-    $$COMMON_PATH/ipc/generated_proto/clientcommands.pb.h \
-    $$COMMON_PATH/ipc/generated_proto/servercommands.pb.h
+    $$COMMON_PATH/ipc/proto/clientcommands.pb.h \
+    $$COMMON_PATH/ipc/proto/servercommands.pb.h

@@ -6,11 +6,11 @@
   #pragma warning(disable: 4018 4100 4267)
 #endif
 
-#include "ipc/generated_proto/apiinfo.pb.h"
-#include "ipc/generated_proto/types.pb.h"
-#include "ipc/generated_proto/servercommands.pb.h"
-#include "ipc/generated_proto/clientcommands.pb.h"
-#include "ipc/generated_proto/cli.pb.h"
+#include "ipc/proto/apiinfo.pb.h"
+#include "ipc/proto/types.pb.h"
+#include "ipc/proto/servercommands.pb.h"
+#include "ipc/proto/clientcommands.pb.h"
+#include "ipc/proto/cli.pb.h"
 #include <google/protobuf/util/message_differencer.h>
 
 #ifdef _MSC_VER

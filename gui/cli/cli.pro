@@ -102,10 +102,10 @@ SOURCES += \
         ../../common/utils/ipvalidation.cpp \
         $$COMMON_PATH/ipc/commandfactory.cpp \
         $$COMMON_PATH/ipc/connection.cpp \
-        $$COMMON_PATH/ipc/generated_proto/clientcommands.pb.cc \
-        $$COMMON_PATH/ipc/generated_proto/servercommands.pb.cc \
-        $$COMMON_PATH/ipc/generated_proto/cli.pb.cc \
-        $$COMMON_PATH/ipc/generated_proto/types.pb.cc \
+        $$COMMON_PATH/ipc/proto/clientcommands.pb.cc \
+        $$COMMON_PATH/ipc/proto/servercommands.pb.cc \
+        $$COMMON_PATH/ipc/proto/cli.pb.cc \
+        $$COMMON_PATH/ipc/proto/types.pb.cc \
         $$COMMON_PATH/ipc/server.cpp \
         $$COMMON_PATH/types/locationid.cpp \
         $$COMMON_PATH/utils/extraconfig.cpp \
@@ -131,10 +131,10 @@ HEADERS += \
     $$COMMON_PATH/ipc/command.h \
     $$COMMON_PATH/ipc/commandfactory.h \
     $$COMMON_PATH/ipc/connection.h \
-    $$COMMON_PATH/ipc/generated_proto/clientcommands.pb.h \
-    $$COMMON_PATH/ipc/generated_proto/servercommands.pb.h \
-    $$COMMON_PATH/ipc/generated_proto/cli.pb.h \
-    $$COMMON_PATH/ipc/generated_proto/types.pb.h \
+    $$COMMON_PATH/ipc/proto/clientcommands.pb.h \
+    $$COMMON_PATH/ipc/proto/servercommands.pb.h \
+    $$COMMON_PATH/ipc/proto/cli.pb.h \
+    $$COMMON_PATH/ipc/proto/types.pb.h \
     $$COMMON_PATH/ipc/iconnection.h \
     $$COMMON_PATH/ipc/iserver.h \
     $$COMMON_PATH/ipc/protobufcommand.h \
