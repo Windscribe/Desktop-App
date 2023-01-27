@@ -63,7 +63,10 @@ void IPAddressItem::setIpAddress(const QString &ip, bool bWithAnimation)
         bool prevIsValid = isValid_;
 
         QString ipRange = "(?:[0-1]?[0-9]?[0-9]|2[0-4][0-9]|25[0-5])";
-        QRegularExpression ipRegex ("^" + ipRange + "\\." + ipRange + "\\." + ipRange + "\\." + ipRange + "$");
+
+        QString ipRegexString ("^" + ipRange + "\\." + ipRange + "\\." + ipRange + "\\." + ipRange + "$");
+        QRegularExpression ipRegex (ipRegexString);
+
         isValid_ = ipRegex.match(ip).hasMatch();
 
         if (isValid_)
