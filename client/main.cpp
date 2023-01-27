@@ -98,10 +98,8 @@ int main(int argc, char *argv[])
 #endif
 
 #ifdef Q_OS_MAC
-    QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
 #elif defined (Q_OS_LINUX)
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-    QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
 #endif
 
     qputenv("QT_EVENT_DISPATCHER_CORE_FOUNDATION", "1");
