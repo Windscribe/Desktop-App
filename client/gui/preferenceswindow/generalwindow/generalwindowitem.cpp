@@ -107,7 +107,7 @@ GeneralWindowItem::GeneralWindowItem(ScalableGraphicsObject *parent, Preferences
     comboBoxLatencyDisplay_ = new ComboBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::ComboBoxItem", "Latency Display"), QString(), 50, Qt::transparent, 0, true);
     const QList< QPair<QString, int> > allLatencyTypes = ProtoEnumToString::instance().getEnums(ProtoTypes::LatencyDisplayType_descriptor());
 
-    for (const auto l : allLatencyTypes)
+    for (const auto &l : allLatencyTypes)
     {
         comboBoxLatencyDisplay_->addItem(l.first, l.second);
     }
@@ -122,7 +122,7 @@ GeneralWindowItem::GeneralWindowItem(ScalableGraphicsObject *parent, Preferences
 
     comboBoxUpdateChannel_ = new ComboBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::ComboBoxItem", "Update Channel"), QString(), 50, Qt::transparent, 0, true);
     const QList< QPair<QString, int> > allUpdateChannelTypes = ProtoEnumToString::instance().getEnums(ProtoTypes::UpdateChannel_descriptor());
-    for (const auto u : allUpdateChannelTypes)
+    for (const auto &u : allUpdateChannelTypes)
     {
         if (u.first != "Internal") // don't display internal channel -- this will be specified by advanced parameters
         {
