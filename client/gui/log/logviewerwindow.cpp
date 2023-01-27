@@ -3,7 +3,7 @@
 #include <QTextStream>
 #include <QIcon>
 #include <QApplication>
-#include <QDesktopWidget>
+#include <QScreen>
 #include <QScrollBar>
 #include <QTextBlock>
 #include <QTextDocument>
@@ -60,8 +60,8 @@ LogViewerWindow::LogViewerWindow(QWidget *parent)
     layout_->addWidget(textEdit_, 1);
 
     // make size of dialog to 70% of desktop size
-    QDesktopWidget *desktopWidget = QApplication::desktop();
-    QRect desktopRc = desktopWidget->availableGeometry(parent);
+    QScreen *primaryScreen = QGuiApplication::primaryScreen();
+    QRect desktopRc = primaryScreen->availableGeometry(parent);
     setGeometry(desktopRc.left() + desktopRc.width() * 0.3 / 2,
                 desktopRc.top() + desktopRc.height() * 0.3 / 2,
                 desktopRc.width() * 0.7,
