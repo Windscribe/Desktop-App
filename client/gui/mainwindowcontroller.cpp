@@ -1,7 +1,6 @@
 #include "mainwindowcontroller.h"
 
 #include <QApplication>
-#include <QDesktopWidget>
 #include <QSequentialAnimationGroup>
 #include <QScreen>
 #include <QWindow>
