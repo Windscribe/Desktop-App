@@ -981,6 +981,7 @@ target_link_libraries(${target_name}
   c_ares
   Qt6::Core
   Qt6::Widgets
+  Qt6::Svg
   # fix: client/engine/engine/proxy/proxysettings.h:6:10: fatal error: QNetworkProxy: No such file
   # fix: common/utils/linuxutils.cpp:12:10: fatal error: QHostAddress: No such file
   Qt6::Network
