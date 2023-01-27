@@ -6,6 +6,7 @@
 #include "octetitem.h"
 
 #include <QGraphicsBlurEffect>
+#include <QRegularExpression>
 
 class IPAddressItem : public ScalableGraphicsObject
 {
