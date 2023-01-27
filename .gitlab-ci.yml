@@ -104,7 +104,6 @@ testing:win:buildtestgui:
   script:
     # download necessary libs
     - !reference [.download_qt_win, script]
-    - !reference [.download_gtest_win, script]
     - IF(Test-Path .\build-libs\) {Get-ChildItem .\build-libs\*.zip | Foreach {.\tools\bin\7z.exe x $_.FullName $("-obuild-libs\"+$([io.path]::GetFileNameWithoutExtension($_.name)))}}
     # extraction and build
     - powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command .\.base64_decode.ps1
@@ -127,7 +126,6 @@ testing:mac:buildtestgui:
   script:
     # download necessary libs
     - !reference [ .download_qt_mac, script ]
-    - !reference [ .download_gtest_mac, script ]
     - if [ -d ./build-libs/ ]; then for z in ./build-libs/*.zip; do unzip -qod ${z%%.zip} $z; done; fi
     # build the test
     - tools/build_test_gui
@@ -150,7 +148,6 @@ testing:win:runtestgui:
   script:
     - !reference [ .download_qt_win, script ]
     - !reference [ .download_openssl_win, script ]
-    - !reference [ .download_gtest_win, script ]
     # download testgui
     - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --create-dirs -o test-exe/gui/TestGui.exe
@@ -179,7 +176,6 @@ testing:mac:runtestgui:
     # download necessary files
     - !reference [ .download_qt_mac, script ]
     - !reference [ .download_openssl_mac, script ]
-    - !reference [ .download_gtest_mac, script ]
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --create-dirs -o test-exe/gui/TestGui
       "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/TestGui"
