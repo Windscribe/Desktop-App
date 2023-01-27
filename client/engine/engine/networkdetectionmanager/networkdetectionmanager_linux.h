@@ -16,7 +16,9 @@ public:
     bool isOnline() override;
 
 private slots:
-    void onNetworkUpdated(const QNetworkConfiguration &config);
+    void isMeteredChanged(bool _isMetered);
+    void reachabilityChanged(QNetworkInformation::Reachability _newReachability);
+    void transportMediumChanged(QNetworkInformation::TransportMedium _current);
 
 private:
     bool isOnline_;

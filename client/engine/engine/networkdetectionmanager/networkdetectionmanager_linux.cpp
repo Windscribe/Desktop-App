@@ -21,9 +21,9 @@ NetworkDetectionManager_linux::NetworkDetectionManager_linux(QObject *parent, IH
     updateNetworkInfo(false);
 
     ncm_ = new QNetworkInformation(this);
-    connect(ncm_, &QNetworkInformation::isMeteredChanged, this, &NetworkDetectionManager_linux::onNetworkUpdated);
-    connect(ncm_, &QNetworkInformation::reachabilityChanged, this, &NetworkDetectionManager_linux::onNetworkUpdated);
-    connect(ncm_, &QNetworkInformation::transportMediumChanged, this, &NetworkDetectionManager_linux::onNetworkUpdated);
+    connect(ncm_, &QNetworkInformation::isMeteredChanged, this, &NetworkDetectionManager_linux::isMeteredChanged);
+    connect(ncm_, &QNetworkInformation::reachabilityChanged, this, &NetworkDetectionManager_linux::reachabilityChanged);
+    connect(ncm_, &QNetworkInformation::transportMediumChanged, this, &NetworkDetectionManager_linux::transportMediumChanged);
 }
 
 NetworkDetectionManager_linux::~NetworkDetectionManager_linux()
@@ -40,7 +40,17 @@ bool NetworkDetectionManager_linux::isOnline()
     return isOnline_;
 }
 
-void NetworkDetectionManager_linux::onNetworkUpdated(const QNetworkConfiguration &/*config*/)
+void NetworkDetectionManager_linux::isMeteredChanged(bool _isMetered)
+{
+    updateNetworkInfo(true);
+}
+
+void NetworkDetectionManager_linux::reachabilityChanged(QNetworkInformation::Reachability _newReachability)
+{
+    updateNetworkInfo(true);
+}
+
+void NetworkDetectionManager_linux::transportMediumChanged(QNetworkInformation::TransportMedium _current)
 {
     updateNetworkInfo(true);
 }
