@@ -2978,9 +2978,9 @@ void MainWindowController::updateMainAndViewGeometry(bool updateShadow)
             return;
         }
 
-        const QRect desktopAvailableRc = screen->availableGeometry();
-
 #ifdef Q_OS_WIN
+
+        const QRect desktopAvailableRc = screen->availableGeometry();
 
         geo = taskbarAwareDockedGeometry_win(width, shadowSize, widthWithShadow, heightWithShadow);
         if (!geo.isValid()) {
@@ -2992,6 +2992,8 @@ void MainWindowController::updateMainAndViewGeometry(bool updateShadow)
             geo.moveRight(kMaxGeometryRightPosition);
 
 #elif defined Q_OS_MAC
+
+        const QRect desktopAvailableRc = screen->availableGeometry();
 
         // center ear on tray
         int rightEarCenterOffset = static_cast<int>(41 * G_SCALE);
