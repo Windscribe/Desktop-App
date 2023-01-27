@@ -189,6 +189,7 @@ QByteArray SimpleCrypt::decryptToByteArray(QByteArray cypher)
     }
 
     QByteArray ba = cypher;
+    QByteArrayView bav(ba);
 
     if( cypher.count() < 3 )
         return QByteArray();
