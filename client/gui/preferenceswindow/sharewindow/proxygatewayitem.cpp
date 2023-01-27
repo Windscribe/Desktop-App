@@ -22,7 +22,7 @@ ProxyGatewayItem::ProxyGatewayItem(ScalableGraphicsObject *parent, PreferencesHe
     comboBoxProxyType_ = new ComboBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::ComboBoxItem", "Proxy Type"), "", 43, QColor(16, 22, 40), 24, true);
 
     const QList< QPair<QString, int> > allProxyTypes = ProtoEnumToString::instance().getEnums(ProtoTypes::ProxySharingMode_descriptor());
-    for (const auto p : allProxyTypes)
+    for (const auto &p : allProxyTypes)
     {
         comboBoxProxyType_->addItem(p.first, p.second);
     }

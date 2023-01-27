@@ -96,7 +96,7 @@ GeneralWindowItem::GeneralWindowItem(ScalableGraphicsObject *parent, Preferences
     comboBoxLocationOrder_ = new ComboBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::ComboBoxItem", "Location Order"), QString(), 50, Qt::transparent, 0, true);
 
     const QList< QPair<QString, int> > allOrderTypes = ProtoEnumToString::instance().getEnums(ProtoTypes::OrderLocationType_descriptor());
-    for (const auto o : allOrderTypes)
+    for (const auto &o : allOrderTypes)
     {
         comboBoxLocationOrder_->addItem(o.first, o.second);
     }
