@@ -153,7 +153,7 @@ void WidgetLocationsList::expandLocationIds(QVector<LocationID> locIds)
 {
     for (auto *regionWidget : qAsConst(itemWidgets_))
     {
-        for (const LocationID locId : qAsConst(locIds))
+        for (const LocationID &locId : qAsConst(locIds))
         {
             if (regionWidget->getId() == locId)
             {
