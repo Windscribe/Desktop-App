@@ -108,6 +108,32 @@ bool ExecutableSignaturePrivate::verify(const std::string& exePath)
     EVP_MD_CTX_free(mdctx);
     fclose(datafile);
 
+    // RSA
+    // https://www.openssl.org/docs/man3.0/man3/EVP_PKEY_verify.html
+
+    EVP_PKEY_CTX *ctx;
+
+    ctx = EVP_PKEY_CTX_new(verify_key, NULL /* no engine */);
+    if (ctx == NULL) {
+        lastError_ << "Failed to init RSA context";
+        return false;
+    }
+
+    if (EVP_PKEY_verify_init(ctx) <= 0) {
+        lastError_ << "Failed to init RSA verify";
+        return false;
+    }
+
+    if (EVP_PKEY_CTX_set_rsa_padding(ctx, RSA_PKCS1_PADDING) <= 0) {
+        lastError_ << "Failed to init RSA padding";
+        return false;
+    }
+
+    if (EVP_PKEY_CTX_set_signature_md(ctx, EVP_sha256()) <= 0) {
+        lastError_ << "Failed to set RSA signature digest";
+        return false;
+    }
+
     boost::filesystem::path path(exePath);
     std::ostringstream stream;
     stream << path.parent_path().native() << "/signatures/" << path.stem().native() << ".sig";
@@ -131,17 +157,11 @@ bool ExecutableSignaturePrivate::verify(const std::string& exePath)
         return false;
     }
 
-    // Verify that calculated digest and signature match
-    RSA* rsa_pubkey = PEM_read_bio_RSA_PUBKEY(bioPublicKey.getBIO(), NULL, NULL, NULL);
-    if (rsa_pubkey == NULL)
-    {
-        lastError_ << "Failed to read the RSA public key";
-        return false;
-    }
-
     // Decrypt signature and verify it matches with the digest calculated from data file.
-    int result = RSA_verify(NID_sha256, digest, SHA256_DIGEST_LENGTH, fileData.get(), bytesRead, rsa_pubkey);
-    RSA_free(rsa_pubkey);
+    //int result = RSA_verify(NID_sha256, digest, SHA256_DIGEST_LENGTH, fileData.get(), bytesRead, rsa_pubkey);
+    int result = EVP_PKEY_verify(ctx, fileData.get(), bytesRead, digest, digest_len);
+
+    EVP_PKEY_CTX_free(ctx);
 
     if (result != 1) {
         lastError_ << "Executable's signature does not match signature file";
