@@ -61,7 +61,7 @@ LogViewerWindow::LogViewerWindow(QWidget *parent)
 
     // make size of dialog to 70% of desktop size
     QScreen *primaryScreen = QGuiApplication::primaryScreen();
-    QRect desktopRc = primaryScreen->availableGeometry(parent);
+    QRect desktopRc = primaryScreen->availableGeometry();
     setGeometry(desktopRc.left() + desktopRc.width() * 0.3 / 2,
                 desktopRc.top() + desktopRc.height() * 0.3 / 2,
                 desktopRc.width() * 0.7,
