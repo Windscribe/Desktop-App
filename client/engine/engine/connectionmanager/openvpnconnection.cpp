@@ -7,6 +7,8 @@
 #include "engine/openvpnversioncontroller.h"
 #include "utils/ipvalidation.h"
 
+#include <QStringRef>
+
 #ifdef Q_OS_WIN
     #include "adapterutils_win.h"
     #include "engine/helper/helper_win.h"
