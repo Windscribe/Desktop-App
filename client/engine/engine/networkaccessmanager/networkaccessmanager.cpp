@@ -42,7 +42,7 @@ NetworkReply *NetworkAccessManager::deleteResource(const NetworkRequest &request
 void NetworkAccessManager::abort(NetworkReply *reply)
 {
     Q_ASSERT(QThread::currentThread() == this->thread());
-    Q_ASSERT(reply->property("replyId") != QVariant::Invalid);
+    Q_ASSERT(QVariant::isValid(reply->property("replyId")));
     quint64 id = reply->property("replyId").toULongLong();
 
     auto it = activeRequests_.find(id);
