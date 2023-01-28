@@ -9,7 +9,7 @@ PingManager::PingManager(QObject *parent, NodesSpeedRatings *nodesSpeedRating, N
     isInitialized_(false),
     nodesSpeedRating_(nodesSpeedRating),
     nodesSpeedStore_(nodesSpeedStore),
-    mutex_(QMutex::Recursive),
+    mutex_(QRecursiveMutex()),
     isBestLocationDetermined_(false),
     bestLocationId_(0),
     selectedNodeIndForBestLocation_(0),

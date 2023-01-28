@@ -2,7 +2,7 @@
 #include "curlnetworkmanager2.h"
 
 CurlReply::CurlReply(QObject *parent, const NetworkRequest &networkRequest, const QStringList &ips, REQUEST_TYPE requestType, const QByteArray &postData, CurlNetworkManager2 *manager)
-    : QObject(parent), mutex_(QMutex::Recursive), networkRequest_(networkRequest), ips_(ips), requestType_(requestType), postData_(postData), manager_(manager)
+    : QObject(parent), mutex_(QRecursiveMutex()), networkRequest_(networkRequest), ips_(ips), requestType_(requestType), postData_(postData), manager_(manager)
 {
     static std::atomic<quint64> id(0);
     id_ = id++;

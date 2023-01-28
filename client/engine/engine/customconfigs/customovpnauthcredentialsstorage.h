@@ -4,7 +4,7 @@
 #include <QString>
 #include <QHash>
 #include <QDataStream>
-#include <QMutex>
+#include <QRecursiveMutex>
 
 
 class CustomOvpnAuthCredentialsStorage
@@ -30,7 +30,7 @@ private:
     void writeToSettings();
 
     QHash<QString, Credentials> hash_;
-    QMutex mutex_;
+    QRecursiveMutex mutex_;
 
 };
 

@@ -6,6 +6,7 @@
 #include <QTcpSocket>
 #include <QTimer>
 #include <QElapsedTimer>
+#include <QRecursiveMutex>
 #include "engine/types/apiinfo.h"
 #include "engine/types/locationid.h"
 #include "nodesspeedratings.h"
@@ -71,7 +72,7 @@ private:
     bool isInitialized_;
     NodesSpeedRatings *nodesSpeedRating_;
     NodesSpeedStore *nodesSpeedStore_;
-    QMutex mutex_;
+    QRecursiveMutex mutex_;
 
     QHash<LocationID, QSharedPointer<LocationSpeedInfo> > hashLocationsSpeedInfo_;
 

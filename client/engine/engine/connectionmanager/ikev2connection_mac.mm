@@ -146,7 +146,7 @@ namespace KeyChainUtils
 }
 
 IKEv2Connection_mac::IKEv2Connection_mac(QObject *parent, IHelper *helper) : IConnection(parent),
-    state_(STATE_DISCONNECTED), bConnected_(false), mutex_(QMutex::Recursive), notificationId_(NULL), isStateConnectingAfterClick_(false), isDisconnectClicked_(false),
+    state_(STATE_DISCONNECTED), bConnected_(false), mutex_(QRecursiveMutex()), notificationId_(NULL), isStateConnectingAfterClick_(false), isDisconnectClicked_(false),
     isPrevConnectionStatusInitialized_(false)
 {
     helper_ = dynamic_cast<Helper_mac *>(helper);

@@ -2,7 +2,7 @@
 
 #include <QSettings>
 
-CustomOvpnAuthCredentialsStorage::CustomOvpnAuthCredentialsStorage() : mutex_(QMutex::Recursive)
+CustomOvpnAuthCredentialsStorage::CustomOvpnAuthCredentialsStorage() : mutex_(QRecursiveMutex())
 {
     readFromSettings();
 }

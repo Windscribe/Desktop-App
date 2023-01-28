@@ -18,7 +18,7 @@ bool IKEv2Connection_win::wanReinstalled_ = false;
 
 IKEv2Connection_win::IKEv2Connection_win(QObject *parent, IHelper *helper) : IConnection(parent),
     state_(STATE_DISCONNECTED), initialEnableIkev2Compression_(false),
-    isAutomaticConnectionMode_(false), connHandle_(NULL), mutex_(QMutex::Recursive),
+    isAutomaticConnectionMode_(false), connHandle_(NULL), mutex_(QRecursiveMutex()),
     disconnectLogic_(this), cntFailedConnectionAttempts_(0)
 {
     helper_ = dynamic_cast<Helper_win *>(helper);

@@ -3,7 +3,7 @@
 
 #include <QObject>
 #include <QTimer>
-#include <QMutex>
+#include <QRecursiveMutex>
 #include "engine/types/types.h"
 #include "iconnectstatecontroller.h"
 
@@ -31,7 +31,7 @@ private:
     DISCONNECT_REASON disconnectReason_;
     ProtoTypes::ConnectError err_;
     LocationID location_;
-    QMutex mutex_;
+    QRecursiveMutex mutex_;
 };
 
 #endif // CONNECTSTATECONTROLLER_H

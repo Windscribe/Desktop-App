@@ -10,7 +10,7 @@
 #include "Utils/logger.h"
 
 PingHost_ICMP_win::PingHost_ICMP_win(QObject *parent, IConnectStateController *stateController) : QObject(parent),
-    mutex_(QMutex::Recursive), connectStateController_(stateController)
+    mutex_(QRecursiveMutex()), connectStateController_(stateController)
 {
 
 }

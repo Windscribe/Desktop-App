@@ -5,7 +5,7 @@ ConnectStateController::ConnectStateController(QObject *parent) : IConnectStateC
     prevState_(CONNECT_STATE_DISCONNECTED),
     disconnectReason_(DISCONNECTED_ITSELF),
     err_(ProtoTypes::ConnectError::NO_CONNECT_ERROR),
-    mutex_(QMutex::Recursive)
+    mutex_(QRecursiveMutex())
 {
 }
 

@@ -1,7 +1,7 @@
 #ifndef CURLREPLY_H
 #define CURLREPLY_H
 
-#include <QMutex>
+#include <QRecursiveMutex>
 #include "networkrequest.h"
 #include <curl/curl.h>
 
@@ -41,7 +41,7 @@ private:
     void addCurlListForFreeLater(struct curl_slist *list);
 
     QByteArray data_;
-    mutable QMutex mutex_;
+    mutable QRecursiveMutex mutex_;
     CURLcode curlErrorCode_;
 
     quint64 id_;

@@ -7,7 +7,7 @@
 #include "Engine/Proxy/proxysettings.h"
 #include <QQueue>
 #include <QMap>
-#include <QMutex>
+#include <QRecursiveMutex>
 #include <QElapsedTimer>
 #include <winternl.h>
 
@@ -53,7 +53,7 @@ private:
         }
     };
 
-    QMutex mutex_;
+    QRecursiveMutex mutex_;
     IConnectStateController *connectStateController_;
 
     static constexpr int MAX_PARALLEL_PINGS = 10;

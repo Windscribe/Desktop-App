@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QMap>
 #include <QTimer>
-#include <QMutex>
+#include <QRecursiveMutex>
 #include "Engine/Types/types.h"
 #include "IConnection.h"
 #include <windows.h>
@@ -64,7 +64,7 @@ private:
     static constexpr int CONTROL_TIMER_PERIOD = 1000;
     QMap<RASCONNSTATE, QString> mapConnStates_;
 
-    mutable QMutex mutex_;
+    mutable QRecursiveMutex mutex_;
 
     IKEv2ConnectionDisconnectLogic_win disconnectLogic_;
 
