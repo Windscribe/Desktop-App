@@ -4,6 +4,7 @@
 #include <QCoreApplication>
 #include <QProcess>
 #include <QSettings>
+#include <QRegularExpression>
 
 QStringList OpenVpnVersionController::getAvailableOpenVpnVersions()
 {
