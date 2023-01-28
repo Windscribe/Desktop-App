@@ -3171,7 +3171,7 @@ void MainWindowController::clearMaskForGraphicsView()
 void MainWindowController::keepWindowInsideScreenCoordinates()
 {
     QRect rcWindow = mainWindow_->geometry();
-    QRect rcScreen = QGuiApplication::primaryScreen()->availableGeometry(mainWindow_);
+    QRect rcScreen = QGuiApplication::primaryScreen()->availableGeometry();
 
     if (rcWindow.bottom() > (rcScreen.bottom()))
     {
