@@ -174,7 +174,7 @@ void SingleAppInstancePrivate::debugOut(const char *format, ...)
         if (fileLog.open(openMode))
         {
             QTextStream out(&fileLog);
-            out << QDateTime::currentDateTimeUtc().toString(Qt::ISODate) << ' ' << sMsg << endl;
+            out << QDateTime::currentDateTimeUtc().toString(Qt::ISODate) << ' ' << sMsg << std::endl;
             fileLog.close();
         }
     }
