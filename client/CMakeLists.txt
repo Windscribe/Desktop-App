@@ -973,19 +973,20 @@ target_include_directories(${target_name} PUBLIC
 
 target_link_libraries(${target_name}
   #PRIVATE
-  ${Boost_LIBRARIES}
+  #${Boost_LIBRARIES}
+  PRIVATE Boost
   #${OpenSSL_LIBRARIES} # error: undefined reference
-  OpenSSL::SSL
+  PRIVATE OpenSSL::SSL
   #protobuf
-  CURL
-  c_ares
-  Qt6::Core
-  Qt6::Widgets
-  Qt6::Svg
+  PRIVATE CURL
+  PRIVATE c_ares
+  PRIVATE Qt6::Core
+  PRIVATE Qt6::Widgets
+  PRIVATE Qt6::Svg
   # fix: client/engine/engine/proxy/proxysettings.h:6:10: fatal error: QNetworkProxy: No such file
   # fix: common/utils/linuxutils.cpp:12:10: fatal error: QHostAddress: No such file
-  Qt6::Network
-  Qt6::Core5Compat
+  PRIVATE Qt6::Network
+  PRIVATE Qt6::Core5Compat
 )
 
 install(TARGETS ${target_name} DESTINATION ${CMAKE_INSTALL_BIN})

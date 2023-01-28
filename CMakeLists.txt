@@ -12,7 +12,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_VISIBILITY_PRESET hidden) # perf
 set(CMAKE_VISIBILITY_INLINES_HIDDEN ON) # perf
 
-add_compile_options(-Wall -Wextra -pedantic -Werror -O1)
+# breaks with -pedantic: error: ISO C++ prohibits anonymous structs
+add_compile_options(-Wall -Wextra -Werror -O1)
 
 include(GNUInstallDirs)
 
