@@ -2,7 +2,7 @@
 #define VPNSHARECONTROLLER_H
 
 #include <QObject>
-#include <QMutex>
+#include <QRecursiveMutex>
 #include "httpproxyserver/httpproxyserver.h"
 #include "socksproxyserver/socksproxyserver.h"
 #include "engine/helper/ihelper.h"
@@ -46,7 +46,7 @@ private slots:
     void onProxyUsersCountChanged();
 
 private:
-    QMutex mutex_;
+    QRecursiveMutex mutex_;
     IHelper *helper_;
     HttpProxyServer::HttpProxyServer *httpProxyServer_;
     SocksProxyServer::SocksProxyServer *socksProxyServer_;

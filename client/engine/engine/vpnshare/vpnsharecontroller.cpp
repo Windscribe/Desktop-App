@@ -5,7 +5,7 @@
 #include <QSettings>
 
 VpnShareController::VpnShareController(QObject *parent, IHelper *helper) : QObject(parent),
-    mutex_(QMutex::Recursive),
+    mutex_(QRecursiveMutex()),
     helper_(helper),
     httpProxyServer_(NULL),
     socksProxyServer_(NULL)
