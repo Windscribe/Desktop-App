@@ -163,8 +163,8 @@ QString OpenVpnVersionController::detectVersion(const QString &path)
 
     // parse version from process output
     QRegularExpression rx("\\d{1,}.\\d{1,}.\\d{1,}");
-    rx.indexIn(strAnswer);
-    QStringList list = rx.capturedTexts();
+    QRegularExpressionMatch match = rx.match(strAnswer);
+    QStringList list = match.capturedTexts();
     Q_ASSERT(list.count() == 1);
     if (list.count() == 1)
     {
