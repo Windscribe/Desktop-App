@@ -20,7 +20,7 @@ NetworkDetectionManager_linux::NetworkDetectionManager_linux(QObject *parent, IH
     getDefaultRouteInterface(isOnline_);
     updateNetworkInfo(false);
 
-    ncm_ = new QNetworkInformation(this);
+    ncm_ = new QNetworkInformation();
     connect(ncm_, &QNetworkInformation::isMeteredChanged, this, &NetworkDetectionManager_linux::isMeteredChanged);
     connect(ncm_, &QNetworkInformation::reachabilityChanged, this, &NetworkDetectionManager_linux::reachabilityChanged);
     connect(ncm_, &QNetworkInformation::transportMediumChanged, this, &NetworkDetectionManager_linux::transportMediumChanged);
