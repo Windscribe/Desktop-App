@@ -6,7 +6,7 @@
 #include "engine/helper/ihelper.h"
 
 FirewallController_linux::FirewallController_linux(QObject *parent, IHelper *helper) :
-    FirewallController(parent), forceUpdateInterfaceToSkip_(false), mutex_(QMutex::Recursive),
+    FirewallController(parent), forceUpdateInterfaceToSkip_(false), mutex_(QRecursiveMutex()),
     comment_("\"Windscribe client rule\"")
 {
     helper_ = dynamic_cast<Helper_linux *>(helper);
