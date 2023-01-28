@@ -152,7 +152,7 @@ void SingleAppInstancePrivate::debugOut(const char *format, ...)
     va_start(arg_list, format);
 
     QString sMsg;
-    sMsg.vsprintf(format, arg_list);
+    sMsg.vasprintf(format, arg_list);
 
     va_end(arg_list);
 
