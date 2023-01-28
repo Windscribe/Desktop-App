@@ -2,6 +2,7 @@
 #define ENGINE_H
 
 #include <QObject>
+#include <QRecursiveMutex>
 #include "firewall/firewallexceptions.h"
 #include "logincontroller/logincontroller.h"
 #include "helper/ihelper.h"
@@ -352,7 +353,7 @@ private:
     FirewallExceptions firewallExceptions_;
 
     LoginSettings loginSettings_;
-    QMutex loginSettingsMutex_;
+    QRecursiveMutex loginSettingsMutex_;
 
     QTimer *updateServerResourcesTimer_;
     SessionStatusTimer *updateSessionStatusTimer_;
@@ -369,7 +370,7 @@ private:
     QTimer *robustMacSpoofTimer_;
 #endif
 
-    QMutex mutex_;
+    QRecursiveMutex mutex_;
 
     apiinfo::SessionStatus prevSessionStatus_;
     apiinfo::SessionStatus prevSessionForLogging_;
