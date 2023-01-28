@@ -2,6 +2,7 @@
 #include "utils/logger.h"
 
 #include <QProcess>
+#include <QRegularExpression>
 
 namespace DnsUtils
 {
