@@ -3,6 +3,7 @@
 #include <QFile>
 #include <QStringList>
 #include <QTextStream>
+#include <QRegularExpression>
 
 #include <system_error>
 
