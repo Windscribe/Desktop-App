@@ -82,7 +82,7 @@ QThread *HttpProxyConnectionManager::getLessBusyThread()
     quint32 min = threads_.begin().value();
     QThread *thread = threads_.begin().key();
     QMap<QThread *, quint32>::iterator it = threads_.begin();
-    ++it
+    ++it;
     for (; it != threads_.end(); ++it)
     {
         if (it.value() < min)
