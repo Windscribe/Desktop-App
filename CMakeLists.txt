@@ -13,7 +13,8 @@ set(CMAKE_CXX_VISIBILITY_PRESET hidden) # perf
 set(CMAKE_VISIBILITY_INLINES_HIDDEN ON) # perf
 
 # breaks with -pedantic: error: ISO C++ prohibits anonymous structs
-add_compile_options(-Wall -Wextra -Werror -O1)
+# beaks with -Werror: error: unused parameter ‘helper’ [-Werror=unused-parameter]
+add_compile_options(-Wall -Wextra -O1)
 
 include(GNUInstallDirs)
 
