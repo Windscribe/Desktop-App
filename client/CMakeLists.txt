@@ -38,6 +38,8 @@ include_directories(${Boost_INCLUDE_DIRS})
 find_package(OpenSSL REQUIRED)
 include_directories(${OpenSSL_INCLUDE_DIRS}) 
 
+find_package(protobuf REQUIRED)
+
 # fix: moc error: Undefined interface
 include_directories(gui)
 # fix: error: engine/types/protocoltype.h: No such file
@@ -972,14 +974,12 @@ target_include_directories(${target_name} PUBLIC
 )
 
 target_link_libraries(${target_name}
-  #PRIVATE
-  #${Boost_LIBRARIES}
-  PRIVATE Boost
-  #${OpenSSL_LIBRARIES} # error: undefined reference
+  PRIVATE Boost::serialization
+  PRIVATE Boost::filesystem
   PRIVATE OpenSSL::SSL
-  #protobuf
-  PRIVATE CURL
-  PRIVATE c_ares
+  PRIVATE protobuf::libprotobuf
+  PRIVATE CURL::libcurl
+  PRIVATE c-ares::cares
   PRIVATE Qt6::Core
   PRIVATE Qt6::Widgets
   PRIVATE Qt6::Svg
