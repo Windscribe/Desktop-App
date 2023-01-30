@@ -882,10 +882,8 @@ void ConnectionManager::doConnect()
         } else {
             connectingTimer_.setInterval(kConnectingTimeout);
         }
-    } else {
-        connectingTimer_.setInterval(kConnectingTimeout);
+        connectingTimer_.start();
     }
-    connectingTimer_.start();
 
     connSettingsPolicy_->resolveHostnames();
 }
