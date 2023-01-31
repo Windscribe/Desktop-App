@@ -1,23 +1,24 @@
-#ifndef PINGIPSCONTROLLER_H
-#define PINGIPSCONTROLLER_H
+#pragma once
 
 #include <QDateTime>
 #include <QObject>
 #include <QSet>
-#include "pingstorage.h"
-#include "engine/ping/pinghost.h"
-#include "pinglog.h"
-#include "failedpinglogcontroller.h"
+
 #include "engine/networkdetectionmanager/inetworkdetectionmanager.h"
+#include "engine/ping/pinghost.h"
+#include "failedpinglogcontroller.h"
+#include "pinglog.h"
 
 namespace locationsmodel {
 
 struct PingIpInfo
 {
     QString ip_;     // ip or hostname
+    QString city_;
+    QString nick_;
     PingHost::PING_TYPE pingType_;
 
-    PingIpInfo(const QString &ip, PingHost::PING_TYPE pingType) : ip_(ip), pingType_(pingType) {}
+    PingIpInfo(const QString &ip, const QString &city, const QString &nick, PingHost::PING_TYPE pingType) : ip_(ip), city_(city), nick_(nick), pingType_(pingType) {}
     PingIpInfo() : pingType_(PingHost::PING_TCP) {}
 };
 
@@ -56,6 +57,8 @@ private:
         bool bNowPinging_;
         bool existThisIp;  // used in function updateNodes for remove unused ips
         PingHost::PING_TYPE pingType;
+        QString city_;
+        QString nick_;
     };
 
     FailedPingLogController failedPingLogController_;
@@ -73,6 +76,3 @@ private:
 };
 
 } //namespace locationsmodel
-
-
-#endif // PINGIPSCONTROLLER_H
