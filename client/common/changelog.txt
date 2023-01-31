@@ -1,3 +1,20 @@
+2.6.8 (31/01/2023)
+All:
+   * Added support for the new domain generation algorithm library to the app. #325
+   * Added hover highlighting to the protocol change screen. #398
+   * Fixed out of place cancel button and overlapping entries in the change protocol screen. #398
+   * Fixed change protocol screen should not be available when using a custom config. #398
+   * Fixed WireGuard doesn't reconnect upon waking from sleep. #559
+   * Fixed manual-mode connections should not timeout. #559
+   * Fixed login screen overlay bugs. #561
+   * Fixed default notification message color, displayed when there are no notifications. #562
+Windows:
+   * Fixed unreasonably low ping values displayed for geographically distant locations. #521
+   * Fixed inclusive split tunneled app unable to listen on local interface when IKEv2 or OpenVPN protocols are used. #558
+Linux:
+   * Fixed login hang on Xubuntu when app firewall is enabled. #364
+
+
 2.6.7 (24/01/2023)
 All:
    * Added a descriptive error message on the login screen when the user is disabled or rate-limited. #377
