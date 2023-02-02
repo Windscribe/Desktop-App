@@ -510,27 +510,23 @@ void MainWindow::doClose(QCloseEvent *event, bool isFromSigTerm_mac)
 
     // Backend handles setting firewall state after app closes
     // This block handles initializing the firewall state on next run
-    if (PersistentState::instance().isFirewallOn()  &&
+    if (PersistentState::instance().isFirewallOn() &&
         backend_->getPreferences()->firewallSettings().mode == FIREWALL_MODE_AUTOMATIC)
     {
-        if (WindscribeApplication::instance()->isExitWithRestart())
-        {
-            if (!backend_->getPreferences()->isLaunchOnStartup() ||
-                !backend_->getPreferences()->isAutoConnect())
-            {
+        if (WindscribeApplication::instance()->isExitWithRestart()) {
+            if (!backend_->getPreferences()->isLaunchOnStartup() || !backend_->getPreferences()->isAutoConnect()) {
                 qCDebug(LOG_BASIC) << "Setting firewall persistence to false for restart-triggered shutdown";
                 PersistentState::instance().setFirewallState(false);
             }
         }
-        else // non-restart close
-        {
-            if (!backend_->getPreferences()->isAutoConnect())
-            {
+        else { // non-restart close
+            if (!backend_->getPreferences()->isAutoConnect()) {
                 qCDebug(LOG_BASIC) << "Setting firewall persistence to false for non-restart auto-mode";
                 PersistentState::instance().setFirewallState(false);
             }
         }
     }
+
     qCDebug(LOG_BASIC) << "Firewall on next startup: " << PersistentState::instance().isFirewallOn();
 
     PersistentState::instance().setAppGeometry(this->saveGeometry());
@@ -548,35 +544,30 @@ void MainWindow::doClose(QCloseEvent *event, bool isFromSigTerm_mac)
     PersistentState::instance().save();
     backend_->locationsModelManager()->saveFavoriteLocations();
 
-    if (WindscribeApplication::instance()->isExitWithRestart() || isFromSigTerm_mac)
-    {
-        if (!isFromSigTerm_mac)
-        {
-            qCDebug(LOG_BASIC) << "close main window with restart OS";
-        }
-        else
-        {
-            qCDebug(LOG_BASIC) << "close main window with SIGTERM";
-        }
-        while (!backend_->isAppCanClose())
-        {
+    if (WindscribeApplication::instance()->isExitWithRestart() || isFromSigTerm_mac) {
+        // Since we may process events below, disable UI updates and prevent the slot for this signal
+        // from attempting to close this widget. We have encountered instances of that occurring during
+        // the app update process on macOS.
+        setUpdatesEnabled(false);
+        disconnect(WindscribeApplication::instance(), &WindscribeApplication::shouldTerminate_mac, this, nullptr);
+
+        qCDebug(LOG_BASIC) << "close main window with" << (isFromSigTerm_mac ? "SIGTERM" : "restart OS");
+
+        while (!backend_->isAppCanClose()) {
             QThread::msleep(1);
             qApp->processEvents(QEventLoop::ExcludeUserInputEvents);
         }
-        if (event)
-        {
+
+        if (event) {
             QWidget::closeEvent(event);
         }
-        else
-        {
+        else {
             close();
         }
     }
-    else
-    {
+    else {
         qCDebug(LOG_BASIC) << "close main window";
-        if (event)
-        {
+        if (event) {
             event->ignore();
             QTimer::singleShot(TIME_BEFORE_SHOW_SHUTDOWN_WINDOW, this, SLOT(showShutdownWindow()));
         }
@@ -868,7 +859,7 @@ void MainWindow::onConnectWindowConnectClick()
         backend_->sendConnect(selectedLocation_->locationdId());
     }
     else
-    {  
+    {
         backend_->sendDisconnect();
     }
 }
@@ -1855,7 +1846,7 @@ void MainWindow::onBackendMyIpChanged(QString ip, bool isFromDisconnectedState)
 }
 
 void MainWindow::onBackendConnectStateChanged(const types::ConnectState &connectState)
-{  
+{
     mainWindowController_->getConnectWindow()->updateConnectState(connectState);
 
     if (connectState.location.isValid())
@@ -2554,7 +2545,7 @@ void MainWindow::onPreferencesUpdateEngineSettings()
 {
     // prevent SetSettings while we are currently receiving from new settigns from engine
     // Issues with initializing certain preferences state (See ApiResolution and App Internal DNS)
-    if (!backend_->getPreferences()->isReceivingEngineSettings()) 
+    if (!backend_->getPreferences()->isReceivingEngineSettings())
     {
         backend_->sendEngineSettingsIfChanged();
     }
