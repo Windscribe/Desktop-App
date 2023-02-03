@@ -7,6 +7,7 @@
 #include "utils/logger.h"
 #include "utils/utils.h"
 #include "utils/extraconfig.h"
+#include "utils/simplecrypt.h"
 #include "utils/hardcodedsettings.h"
 #include "engine/dnsresolver/dnsserversconfiguration.h"
 #include "engine/connectstatecontroller/iconnectstatecontroller.h"
