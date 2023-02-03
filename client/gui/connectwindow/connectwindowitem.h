@@ -72,6 +72,7 @@ public slots:
     void onServerRatingIndicatorHoverEnter();
     void onServerRatingIndicatorHoverLeave();
     void onDockedModeChanged(bool bIsDockedToTray);
+    void onProtocolsClick();
 
 signals:
     void minimizeClick() override;

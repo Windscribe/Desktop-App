@@ -63,6 +63,7 @@ ConnectWindowItem::ConnectWindowItem(QGraphicsObject *parent, Preferences *prefe
     connectStateProtocolPort_ = new ConnectStateProtocolPort(this);
     connect(connectStateProtocolPort_, &ClickableGraphicsObject::hoverEnter, this, &ConnectWindowItem::onConnectStateTextHoverEnter);
     connect(connectStateProtocolPort_, &ClickableGraphicsObject::hoverLeave, this, &ConnectWindowItem::onConnectStateTextHoverLeave);
+    connect(connectStateProtocolPort_, &ClickableGraphicsObject::clicked, this, &ConnectWindowItem::onProtocolsClick);
 
     cityName1Text_ = new CommonGraphics::TextButton("", FontDescr(28, true), Qt::white, true, this, 0, true);
     cityName1Text_->setUnhoverOpacity(OPACITY_FULL);
@@ -219,15 +220,7 @@ void ConnectWindowItem::updateLocationInfo(const QString &firstName, const QStri
 
     // if custom but button is visible, make it invisible
     // if not custom but button is invisible, make it visible
-    if (connectStateProtocolPort_->isProtocolButtonVisible() == isCustomConfig) {
-        connectStateProtocolPort_->setProtocolButtonVisible(!isCustomConfig);
-
-        if (isCustomConfig) {
-            disconnect(connectStateProtocolPort_, &ClickableGraphicsObject::clicked, this, &ConnectWindowItem::protocolsClick);
-        } else {
-            connect(connectStateProtocolPort_, &ClickableGraphicsObject::clicked, this, &ConnectWindowItem::protocolsClick);
-        }
-    }
+    connectStateProtocolPort_->setProtocolButtonVisible(!isCustomConfig);
 }
 
 void ConnectWindowItem::updateConnectState(const types::ConnectState &newConnectState)
@@ -672,6 +665,13 @@ void ConnectWindowItem::setCornerColor(QColor color)
 types::ProtocolStatus ConnectWindowItem::getProtocolStatus()
 {
     return connectStateProtocolPort_->getProtocolStatus();
+}
+
+void ConnectWindowItem::onProtocolsClick()
+{
+    if (connectStateProtocolPort_->isProtocolButtonVisible()) {
+        emit protocolsClick();
+    }
 }
 
 } //namespace ConnectWindow
