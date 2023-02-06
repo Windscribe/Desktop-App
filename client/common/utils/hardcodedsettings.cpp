@@ -6,6 +6,8 @@
 
 #include "utils/logger.h"
 #include "utils/utils.h"
+#include "dga_library.h"
+#include "dga_parameters.h"
 
 const QStringList HardcodedSettings::openDns() const
 {
@@ -40,61 +42,29 @@ QString HardcodedSettings::generateDomain()
     return result;
 }
 
-HardcodedSettings::HardcodedSettings() : simpleCrypt_(0x1272A4A3FE1A3DBA)
+HardcodedSettings::HardcodedSettings()
 {
-    // If the secrets.ini doesn't exist (open source users) then the strings will be empty
-    // this is the same as having default empty strings in a dummy file
-    QSettings secrets(":hardcodedsecrets.ini", QSettings::IniFormat);
+    serverDomains_ << "windscribe.com";
 
-    dynamicDomainsUrls_ = readArrayFromIni(secrets, "dynamicDomainsUrls", "url", true);
-    if (dynamicDomainsUrls_.isEmpty())
-        qCDebug(LOG_BASIC) << "Warning: the hardcodedsecrets.ini file does not contain dynamicDomainsUrls";
+    DgaLibrary dga;
+    if (dga.load()) {
+        serverDomains_ << dga.getParameter(PAR_BACKUP_DOMAIN);
 
-    dynamicDomains_ = readArrayFromIni(secrets, "dynamicDomains", "domain", true);
-    if (dynamicDomains_.isEmpty())
-        qCDebug(LOG_BASIC) << "Warning: the hardcodedsecrets.ini file does not contain dynamicDomains";
+        dynamicDomainsUrls_ << dga.getParameter(PAR_DYNAMIC_DOMAIN_URL1);
+        dynamicDomainsUrls_ << dga.getParameter(PAR_DYNAMIC_DOMAIN_URL2);
 
-    serverDomains_ = readArrayFromIni(secrets, "hardcodedDomains", "domain", true);
-    if (serverDomains_.isEmpty()) {
-        serverDomains_ << "windscribe.com";   // we must have at least one domain for the program to work
-        qCDebug(LOG_BASIC) << "Warning: the hardcodedsecrets.ini file does not contain hardcodedDomains";
+        dynamicDomains_ << dga.getParameter(PAR_DYNAMIC_DOMAIN_DESKTOP);
+
+        apiIps_ << dga.getParameter(PAR_API_ACCESS_IP1);
+        apiIps_ << dga.getParameter(PAR_API_ACCESS_IP2);
+
+        emergencyUsername_ = dga.getParameter(PAR_EMERGENCY_USERNAME);
+        emergencyPassword_ = dga.getParameter(PAR_EMERGENCY_PASSWORD);
+
+        emergencyIps_ << dga.getParameter(PAR_EMERGENCY_IP1);
+        emergencyIps_ << dga.getParameter(PAR_EMERGENCY_IP2);
+
+        passwordForRandomDomain_ = dga.getParameter(PAR_PASSWORD_FOR_RANDOM_DOMAIN).toStdString().c_str();
     }
-
-    apiIps_ = readArrayFromIni(secrets, "apiIps", "ip", true);
-    if (apiIps_.isEmpty())
-        qCDebug(LOG_BASIC) << "Warning: the hardcodedsecrets.ini file does not contain apiIps";
-
-    emergencyUsername_ = simpleCrypt_.decryptToString(secrets.value("emergency/username").toString());
-    emergencyPassword_ = simpleCrypt_.decryptToString(secrets.value("emergency/password").toString());
-    if (emergencyUsername_.isEmpty() || emergencyPassword_.isEmpty())
-        qCDebug(LOG_BASIC) << "Warning: the hardcodedsecrets.ini file does not contain emergency username/password";
-
-    emergencyIps_ = readArrayFromIni(secrets, "emergencyIps", "ip", true);
-    if (emergencyIps_.isEmpty())
-        qCDebug(LOG_BASIC) << "Warning: the hardcodedsecrets.ini file does not contain emergencyIps";
-
-    passwordForRandomDomain_ = simpleCrypt_.decryptToString(secrets.value("emergency/passwordForDomain").toString()).toStdString().c_str();
-    if (passwordForRandomDomain_.isEmpty())
-        qCDebug(LOG_BASIC) << "Warning: the hardcodedsecrets.ini file does not contain passwordForRandomDomain_";
 }
 
-QStringList HardcodedSettings::readArrayFromIni(const QSettings &settings, const QString &key, const QString &value, bool bWithDecrypt)
-{
-    QStringList ret;
-    int ind = 1;
-
-    while (true) {
-        QVariant v = settings.value(key + "/" + value + QString::number(ind));
-        if (v.isValid()) {
-            if (bWithDecrypt)
-                ret << simpleCrypt_.decryptToString(v.toString());
-            else
-                ret << v.toString();
-            ind++;
-        } else {
-            break;
-        }
-    }
-
-    return ret;
-}

@@ -4,7 +4,6 @@
 #include <QString>
 #include <QStringList>
 
-#include "utils/simplecrypt.h"
 #include "version/appversion.h"
 
 class HardcodedSettings
@@ -50,9 +49,6 @@ private:
     QString emergencyPassword_;
     QStringList emergencyIps_;
     QByteArray passwordForRandomDomain_;
-
-    SimpleCrypt simpleCrypt_;
-    QStringList readArrayFromIni(const QSettings &settings, const QString &key, const QString &value, bool bWithDecrypt);
 };
 
 inline QString HardcodedSettings::serverApiSubdomain() const

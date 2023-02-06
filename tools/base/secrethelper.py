@@ -71,4 +71,3 @@ def cleanup_secrets():
     utl.RemoveFile(pathhelper.linux_private_key_filename_absolute())
     utl.RemoveFile(pathhelper.linux_public_key_filename_absolute())
     utl.RemoveFile(pathhelper.linux_include_key_filename_absolute())
-    utl.RemoveFile(pathhelper.hardcoded_secrets_filename_absolute())
