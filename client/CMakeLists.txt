@@ -43,11 +43,6 @@ set(PROJECT_SOURCES
         main.cpp
 )
 
-if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/common/utils/hardcodedsecrets.ini")
-    list(APPEND PROJECT_SOURCES secrets.qrc)
-endif()
-
-
 if (WIN32)
     link_directories(${WINDSCRIBE_BUILD_LIBS_PATH}/boost/lib
                      ${WINDSCRIBE_BUILD_LIBS_PATH}/curl/lib
