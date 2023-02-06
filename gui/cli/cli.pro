@@ -102,6 +102,7 @@ SOURCES += \
         $$COMMON_PATH/utils/languagesutil.cpp \
         $$COMMON_PATH/utils/logger.cpp \
         $$COMMON_PATH/utils/utils.cpp \
+        $$COMMON_PATH/utils/dga_library.cpp \
         $$COMMON_PATH/utils/hardcodedsettings.cpp \
         $$COMMON_PATH/utils/simplecrypt.cpp \
         $$COMMON_PATH/version/appversion.cpp \

@@ -31,7 +31,7 @@ signals:
     void pingFinished(bool success, int timems, const QString &ip, bool isFromDisconnectedState);
 
 private slots:
-    void onPingRequestFinished(bool success, const QString ip);
+    void onPingRequestFinished(bool success, const QString ip, qint64 elapsed);
 
 private:
     IConnectStateController* const connectStateController_;

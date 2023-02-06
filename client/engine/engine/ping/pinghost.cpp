@@ -60,6 +60,14 @@ void PingHost::enableProxy()
 
 void PingHost::addHostForPingImpl(const QString &ip, PingHost::PING_TYPE pingType)
 {
+#ifdef Q_OS_WIN
+    // The icmp ping object is not currently set up to work with a network proxy.
+    if (pingType == PING_TCP && pingHostTcp_.isProxyEnabled()) {
+        pingHostTcp_.addHostForPing(ip);
+    } else {
+        pingHostIcmp_.addHostForPing(ip);
+    }
+#else
     if (pingType == PING_TCP) {
         pingHostTcp_.addHostForPing(ip);
     }
@@ -69,6 +77,7 @@ void PingHost::addHostForPingImpl(const QString &ip, PingHost::PING_TYPE pingTyp
     else {
         WS_ASSERT(false);
     }
+#endif
 }
 
 void PingHost::clearPingsImpl()

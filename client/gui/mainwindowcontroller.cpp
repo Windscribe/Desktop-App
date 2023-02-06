@@ -2233,6 +2233,8 @@ void MainWindowController::collapsePreferencesFromLogin()
 
     isAtomicAnimationActive_ = true;
 
+    hideUpdateWidget();
+
     preferencesWindow_->setScrollBarVisibility(false);
     TooltipController::instance().hideAllTooltips();
 

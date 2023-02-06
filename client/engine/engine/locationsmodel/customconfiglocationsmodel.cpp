@@ -30,7 +30,6 @@ void CustomConfigLocationsModel::setCustomConfigs(const QVector<QSharedPointer<c
     // todo: dns-resolver cache
 
     QStringList hostnamesForResolve;
-    QVector<PingIpInfo> allIps;
     // fill pingInfos_ array
     pingInfos_.clear();
     for (auto config : customConfigs)
@@ -48,7 +47,6 @@ void CustomConfigLocationsModel::setCustomConfigs(const QVector<QSharedPointer<c
 
             if (!ri.isHostname)
             {
-                allIps << PingIpInfo(hostname, PingHost::PING_ICMP);
                 ri.ipOrHostname.pingTime = pingStorage_.getNodeSpeed(hostname);
             }
             else
@@ -183,13 +181,13 @@ void CustomConfigLocationsModel::startPingAndWhitelistIps()
                 for (auto ipIt = remoteIt->ips.begin(); ipIt != remoteIt->ips.end(); ++ipIt)
                 {
                     strListIps << ipIt->ip;
-                    allIps << PingIpInfo(ipIt->ip, PingHost::PING_ICMP);
+                    allIps << PingIpInfo(ipIt->ip, it->customConfig->name(), it->customConfig->nick(), PingHost::PING_ICMP);
                 }
             }
             else
             {
                 strListIps << remoteIt->ipOrHostname.ip;
-                allIps << PingIpInfo(remoteIt->ipOrHostname.ip, PingHost::PING_ICMP);
+                allIps << PingIpInfo(remoteIt->ipOrHostname.ip, it->customConfig->name(), it->customConfig->nick(), PingHost::PING_ICMP);
             }
         }
     }

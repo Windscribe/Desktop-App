@@ -46,9 +46,9 @@ void ApiLocationsModel::setLocations(const QVector<apiinfo::Location> &locations
     {
         for (int i = 0; i < l.groupsCount(); ++i)
         {
-            QString pingIp = l.getGroup(i).getPingIp();
-            ips << PingIpInfo(pingIp, PingHost::PING_TCP);
-            stringListIps << pingIp;
+            apiinfo::Group group = l.getGroup(i);
+            ips << PingIpInfo(group.getPingIp(), group.getCity(), group.getNick(), PingHost::PING_TCP);
+            stringListIps << group.getPingIp();
         }
     }
 
@@ -57,7 +57,7 @@ void ApiLocationsModel::setLocations(const QVector<apiinfo::Location> &locations
     {
         const apiinfo::StaticIpDescr &sid = staticIps_.getIp(i);
         QString pingIp = sid.getPingIp();
-        ips << PingIpInfo(pingIp, PingHost::PING_TCP);
+        ips << PingIpInfo(pingIp, sid.name, "staticIP", PingHost::PING_TCP);
         stringListIps << pingIp;
     }
 
