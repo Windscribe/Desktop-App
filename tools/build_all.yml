@@ -51,7 +51,7 @@ authhelper_com_proxy_stub:
 
 authhelper_linux:
   name: windscribe-authhelper
-  project: AuthHelper.pro 
+  project: AuthHelper.pro
   subdir: gui/authhelper/linux/AuthHelper
   target: windscribe-authhelper
 
@@ -219,8 +219,8 @@ lib_files_linux:
   curl:
     - lib/libcurl.so.4 -> lib/libcurl.so.4
   dga:
-    - libdga -> libdga
-  openssl: 
+    - libdga.so -> lib/libdga.so
+  openssl:
     - lib/libcrypto.so.1.1 -> lib/libcrypto.so.1.1
     - lib/libssl.so.1.1 -> lib/libssl.so.1.1
   openvpn:
@@ -249,9 +249,9 @@ files_codesign_linux:
   - windscribewstunnel
   - windscribeopenvpn
   - windscribe-authhelper
-  - windscribewireguard 
+  - windscribewireguard
   - Windscribe
-  - libdga
+  - lib/libdga.so
 
 files_codesign_windows:
   - cares.dll
@@ -288,7 +288,7 @@ lib_files:
     - dll_x64/lib/cares.dll -> cares.dll
   curl:
     - bin/libcurl.dll -> libcurl.dll
-  openssl: 
+  openssl:
     - bin/libcrypto-1_1-x64.dll -> libcrypto-1_1-x64.dll
     - bin/libssl-1_1-x64.dll -> libssl-1_1-x64.dll
   stunnel:

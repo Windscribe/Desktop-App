@@ -119,11 +119,6 @@
     - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --create-dirs -o $BUILDROOT/$ARTIFACT_OPENVPN
       "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}/current/windows/${ARTIFACT_OPENVPN}"
-.download_protobuf_win:
-  script:
-    - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --create-dirs -o $BUILDROOT/$ARTIFACT_PROTOBUF
-      "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}/current/windows/${ARTIFACT_PROTOBUF}"
 .download_qt_win:
   script:
     - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
@@ -134,11 +129,11 @@
     - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --create-dirs -o $BUILDROOT/$ARTIFACT_STUNNEL
       "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}/current/windows/${ARTIFACT_STUNNEL}"
-.download_gtest_win:
+.download_dga_win:
   script:
     - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --create-dirs -o $BUILDROOT/$ARTIFACT_GTEST
-      "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}/current/windows/${ARTIFACT_GTEST}"
+      --create-dirs -o $BUILDROOT/$ARTIFACT_DGA
+      "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}/current/windows/${ARTIFACT_DGA}"
 
 # download from nexus (mac)
 .download_cares_mac:
@@ -176,11 +171,6 @@
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --create-dirs -o $BUILDROOT/$ARTIFACT_OPENVPN
       "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}/current/macos/${ARTIFACT_OPENVPN}"
-.download_protobuf_mac:
-  script:
-    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --create-dirs -o $BUILDROOT/$ARTIFACT_PROTOBUF
-      "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}/current/macos/${ARTIFACT_PROTOBUF}"
 .download_qt_mac:
   script:
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
@@ -191,11 +181,11 @@
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --create-dirs -o $BUILDROOT/$ARTIFACT_STUNNEL
       "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}/current/macos/${ARTIFACT_STUNNEL}"
-.download_gtest_mac:
+.download_dga_mac:
   script:
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --create-dirs -o $BUILDROOT/$ARTIFACT_GTEST
-      "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}/current/macos/${ARTIFACT_GTEST}"
+      --create-dirs -o $BUILDROOT/$ARTIFACT_DGA
+      "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}/current/macos/${ARTIFACT_DGA}"
 
 # download from nexus (linux)
 .download_cares_linux:
@@ -233,11 +223,6 @@
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --create-dirs -o $BUILDROOT/$ARTIFACT_OPENVPN
       "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}/current/linux/${ARTIFACT_OPENVPN}"
-.download_protobuf_linux:
-  script:
-    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --create-dirs -o $BUILDROOT/$ARTIFACT_PROTOBUF
-      "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}/current/linux/${ARTIFACT_PROTOBUF}"
 .download_qt_linux:
   script:
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
@@ -248,8 +233,8 @@
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --create-dirs -o $BUILDROOT/$ARTIFACT_STUNNEL
       "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}/current/linux/${ARTIFACT_STUNNEL}"
-.download_gtest_linux:
+.download_dga_linux:
   script:
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --create-dirs -o $BUILDROOT/$ARTIFACT_GTEST
-      "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}/current/linux/${ARTIFACT_GTEST}"
+      --create-dirs -o $BUILDROOT/$ARTIFACT_DGA
+      "${NEXUS_BASEURL}${NEXUS_PATH_DEPS}/current/linux/${ARTIFACT_DGA}"

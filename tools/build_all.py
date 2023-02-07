@@ -370,8 +370,8 @@ def build_component(component, qt_root, buildenv=None, macdeployfixes=None, targ
             if build_exception:
                 raise iutl.InstallError(build_exception)
             if c_target:
-                outdir = proc.ExecuteAndGetOutput(["xcodebuild -project {} -showBuildSettings | " 
-                                                   "grep -m 1 \"BUILT_PRODUCTS_DIR\" | " 
+                outdir = proc.ExecuteAndGetOutput(["xcodebuild -project {} -showBuildSettings | "
+                                                   "grep -m 1 \"BUILT_PRODUCTS_DIR\" | "
                                                    "grep -oEi \"\/.*\"".format(c_project)], shell=True)
                 if c_target.endswith(".app"):
                     utl.CopyMacBundle(os.path.join(outdir, c_target), os.path.join(temp_wd, c_target))
@@ -542,12 +542,12 @@ def build_installer_win32(configdata, qt_root, msvc_root, crt_root, win_cert_pas
         for k, v in configdata["lib_files"].items():
             lib_root = iutl.GetDependencyBuildRoot(k)
             if not lib_root:
-            	if k == "dga":
-            		msg.Info("DGA library not found, skipping...")
-            	else:
-                	raise iutl.InstallError("Library \"{}\" is not installed.".format(k))
-            else:    	
-            	copy_files(k, v, lib_root, BUILD_INSTALLER_FILES)
+                if k == "dga":
+                    msg.Info("DGA library not found, skipping...")
+                else:
+                    raise iutl.InstallError("Library \"{}\" is not installed.".format(k))
+            else:
+                copy_files(k, v, lib_root, BUILD_INSTALLER_FILES)
     if "license_files" in configdata:
         license_dir = os.path.join(pathhelper.COMMON_DIR, "licenses")
         copy_files("license", configdata["license_files"], license_dir, BUILD_INSTALLER_FILES)
@@ -629,15 +629,14 @@ def build_installer_mac(configdata, qt_root):
 
 
 def code_sign_linux(binary_name, binary_dir, signature_output_dir):
-
     binary = binary_dir + "/" + binary_name
+    binary_base_name = os.path.basename(binary)
     # Skip DGA library signing, if it not exists (to avoid error)
-    is_binary_exists = os.path.isfile(binary)
-    if binary_name == "libdga" and not is_binary_exists:
+    if binary_base_name == "libdga.so" and not os.path.exists(binary):
         pass
-    else:    
+    else:
         private_key = pathhelper.COMMON_DIR + "/keys/linux/key.pem"
-        signature = signature_output_dir + "/" + binary_name + ".sig"
+        signature = signature_output_dir + "/" + binary_base_name + ".sig"
         msg.Info("Signing " + binary + " with " + private_key + " -> " + signature)
         cmd = ["openssl", "dgst", "-sign", private_key, "-keyform", "PEM", "-sha256", "-out", signature, "-binary", binary]
         iutl.RunCommand(cmd)
@@ -654,9 +653,9 @@ def build_installer_linux(configdata, qt_root):
             if not lib_root:
                 if k == "dga":
                     msg.Info("DGA library not found, skipping...")
-                else:    
+                else:
                     raise iutl.InstallError("Library \"{}\" is not installed.".format(k))
-            else:        
+            else:
                 copy_files(k, v, lib_root, BUILD_INSTALLER_FILES)
 
     msg.Info("Fixing rpaths...")
@@ -697,7 +696,7 @@ def build_installer_linux(configdata, qt_root):
     # Force use of 'xz' compression.  dpkg on Ubuntu 21.10 defaulting to zstd compression,
     # which fpm currently cannot handle.
     iutl.RunCommand(["fakeroot", "dpkg-deb", "-Zxz", "--build", dest_package_path])
-    
+
     if arghelper.build_rpm():
         # create RPM from deb
         msg.Info("Creating RPM package...")
@@ -836,7 +835,7 @@ def pre_checks_and_build_all():
         if not arghelper.ci_mode():
             if not arghelper.use_local_secrets():
                 download_secrets()
-                
+
         # on linux we need keypair to sign -- check that they exist in the correct location
         if CURRENT_OS == utl.CURRENT_OS_LINUX:
             keypath = pathhelper.linux_key_directory()

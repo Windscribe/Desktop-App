@@ -12,8 +12,6 @@ include:
   - 'tools/vars/curl.yml'
   - 'tools/vars/lzo.yml'
   - 'tools/vars/openvpn.yml'
-  - 'tools/vars/protobuf.yml'
   - 'tools/vars/stunnel.yml'
   - 'tools/vars/wireguard.yml'
-  - 'tools/vars/gtest.yml'
   - 'tools/vars/dga.yml'
