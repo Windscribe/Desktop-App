@@ -347,8 +347,6 @@ bool Server::readAndHandleCommand(socket_ptr sock, boost::asio::streambuf *buf, 
                 Utils::executeCommand("pfctl", {"-T", "load", "-f", "/etc/windscribe/pf.conf"});
             } else if (!cmd.group.empty()) {
                 Utils::executeCommand("pfctl", {"-a", cmd.group.c_str(), "-f", "/etc/windscribe/pf.conf"});
-                // kill states of current connections
-                Utils::executeCommand("pfctl", {"-k", "0.0.0.0/0"});
             }
             outCmdAnswer.executed = 1;
         }

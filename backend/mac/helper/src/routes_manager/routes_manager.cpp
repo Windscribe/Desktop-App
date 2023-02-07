@@ -110,12 +110,12 @@ void RoutesManager::addDnsRoutes(const CMD_SEND_CONNECT_STATUS &connectStatus)
 {
     // 10.255.255.0/24 contains the default DNS servers, on-node APIs, decoy traffic servers, etc
     // and always goes through the tunnel.
-    dnsServersRoutes_.addWithInterface("10.255.255.0", connectStatus.vpnAdapter.adapterName);
+    dnsServersRoutes_.addWithInterface("10.255.255.0/24", connectStatus.vpnAdapter.adapterName);
 
     // However the DNS server may fall outside the above range if configured with custom DNS after connecting.
     // Set a /32 for each DNS server to make sure they are routed correctly.
     for (auto it = connectStatus.vpnAdapter.dnsServers.begin(); it != connectStatus.vpnAdapter.dnsServers.end(); ++it)
-        dnsServersRoutes_.addWithInterface(*it, connectStatus.vpnAdapter.adapterName);
+        dnsServersRoutes_.addWithInterface(*it + "/32", connectStatus.vpnAdapter.adapterName);
 }
 
 void RoutesManager::deleteOpenVpnDefaultRoutes(const CMD_SEND_CONNECT_STATUS &connectStatus)
