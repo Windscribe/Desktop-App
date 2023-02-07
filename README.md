@@ -1,4 +1,7 @@
 # Windscribe 2.0 Desktop Application
+
+** Please note this repository is currently well behind our internal development repository due to a mirroring bug between GitLab and GitHub.  Generating PRs at this time is not recommended.
+
 This repo contains the complete source code for the Windscribe 2.0 app. This includes installer, service/helper, backend process and GUI. 
 
 ## Windows
