@@ -1,6 +1,6 @@
 # ------------------------------------------------------------------------------
 # Windscribe Build System
-# Copyright (c) 2020-2022, Windscribe Limited. All rights reserved.
+# Copyright (c) 2020-2023, Windscribe Limited. All rights reserved.
 # ------------------------------------------------------------------------------
 variables:
   VERSION_CURL: '7.87.0'

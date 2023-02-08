@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 #-------------------------------------------------------------------------------
 # Windscribe Build System
-# Copyright (c) 2020-2021, Windscribe Limited. All rights reserved.
+# Copyright (c) 2020-2023, Windscribe Limited. All rights reserved.
 #-------------------------------------------------------------------------------
 tools_dir=$(dirname "$0")
 
-PYTHONDONTWRITEBYTECODE=1 exec python "$tools_dir/install_protobuf.py" "$@"
+PYTHONDONTWRITEBYTECODE=1 exec python3 "$tools_dir/install_protobuf.py" "$@"

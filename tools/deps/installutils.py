@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # ------------------------------------------------------------------------------
 # Windscribe Build System
-# Copyright (c) 2020-2021, Windscribe Limited. All rights reserved.
+# Copyright (c) 2020-2023, Windscribe Limited. All rights reserved.
 # ------------------------------------------------------------------------------
 import glob
 import multiprocessing
@@ -104,7 +104,7 @@ def DownloadFile(webfilename, localfilename):
 def ExtractFile(localfilename, outputpath=None, deleteonsuccess=True):
   if not outputpath:
     outputpath = os.path.dirname(localfilename)
-  msg.Verbose("ExtractFile: \"{}\" to \"{}\"".format(localfilename, outputpath))
+  msg.HeadPrint("ExtractFile: \"{}\" to \"{}\"".format(localfilename, outputpath))
   extracted = False
   localfilename2 = None
   if utl.GetCurrentOS() == "win32":

@@ -1,7 +1,7 @@
 @echo off
 ::------------------------------------------------------------------------------
 :: Windscribe Build System
-:: Copyright (c) 2020-2021, Windscribe Limited. All rights reserved.
+:: Copyright (c) 2020-2023, Windscribe Limited. All rights reserved.
 ::------------------------------------------------------------------------------
 setlocal
 set tools_dir=%~dp0
@@ -15,6 +15,6 @@ set PYTHONDONTWRITEBYTECODE=1
 set python_dir=%PYTHONHOME%
 if not "%python_dir%" == "" set python_dir=%python_dir%\
 
-%python_dir%python "%tools_dir%\install_openssl.py" %*
+%python_dir%python3 "%tools_dir%\install_openssl.py" %*
 if _%pause_on_exit%_==_1_ pause
 exit /B %ERRORLEVEL%

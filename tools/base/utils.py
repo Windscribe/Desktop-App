@@ -190,7 +190,7 @@ def RenameFile(srcname, dstname):
 def RemoveAllFiles(sourcedir, filemask):
   fullmask = os.path.join(sourcedir, filemask)
   msg.Verbose("RemoveAllFiles: \"{}\"".format(fullmask))
-  for filename in glob2.glob(fullmask):
+  for filename in glob.glob(fullmask):
     if not os.path.isdir(filename):
       RemoveFile(filename)
 
