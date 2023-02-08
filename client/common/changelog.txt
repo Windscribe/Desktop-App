@@ -1,3 +1,15 @@
+2.6.9 (08/02/2023)
+All:
+   * Added all secrets to the domain generation algorithm library and removed them from the app code. #465
+   * Added OpenSSL 1.1.1t due to an OpenSSL security advisory. #566
+   * Fixed protocols window expansion bug. #398
+   * Fixed potential app crash when exiting due to an OS restart. #563
+macOS:
+   * Fixed auto-connect on system launch does not work. #535
+   * Fixed potential app crash when performing an in-app upgrade. #563
+   * Fixed issues connecting with TCP based protocols on macOS. #564
+
+
 2.6.8 (31/01/2023)
 All:
    * Added support for the new domain generation algorithm library to the app. #325
