@@ -176,6 +176,7 @@ bool FirewallController_mac::deleteWhitelistPorts()
 void FirewallController_mac::firewallOffImpl()
 {
     helper_->clearFirewallRules();
+    isFirewallEnabled_ = false;
     qCDebug(LOG_FIREWALL_CONTROLLER) << "firewallOff disabled";
 }
 
@@ -334,15 +335,16 @@ QString FirewallController_mac::generatePfConf(const QSet<QString> &ips, bool bA
     }
     pf += "}\n";
 
-    pf += "pass out quick inet from any to <windscribe_ips> \n";
+    pf += "pass out quick inet from any to <windscribe_ips>\n";
+    pf += "pass in quick inet from <windscribe_ips> to any\n";
 
     Anchor vpnTrafficAnchor("windscribe_vpn_traffic");
     vpnTrafficAnchor.addRules(vpnTrafficRules(interfaceToSkip, bIsCustomConfig));
     pf += vpnTrafficAnchor.getString() + "\n";
 
     // Allow Dynamic Host Configuration Protocol (DHCP)
-    pf += "pass out quick inet proto udp from 0.0.0.0 to 255.255.255.255 port = 67\n";
-    pf += "pass in quick proto udp from any to any port = 68\n";
+    pf += "pass out quick inet proto udp from any to any port = 67\n";
+    pf += "pass in quick inet proto udp from any to any port = 68\n";
 
     Anchor lanTrafficAnchor("windscribe_lan_traffic");
     lanTrafficAnchor.addRules(lanTrafficRules(bAllowLanTraffic));

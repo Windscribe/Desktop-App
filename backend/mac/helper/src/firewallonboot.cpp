@@ -25,17 +25,17 @@ bool FirewallOnBootManager::setEnabled(bool bEnabled)
 bool FirewallOnBootManager::enable() {
     std::stringstream rules;
 
-    rules << "set block-policy return";
-    rules << "set skip on { lo0 }";
-    rules << "scrub in all fragment reassemble";
-    rules << "block all";
-    rules << "table <windscribe_ips> persist {}";
-    rules << "pass out quick inet from any to <windscribe_ips>";
-    rules << "anchor windscribe_vpn_traffic all";
-    rules << "pass out quick inet proto udp from 0.0.0.0 to 255.255.255.255 port = 67";
-    rules << "pass in quick proto udp from any to any port = 68";
-    rules << "anchor windscribe_lan_traffic all";
-    rules << "anchor windscribe_static_ports_traffic all";
+    rules << "set block-policy return\n";
+    rules << "set skip on { lo0 }\n";
+    rules << "scrub in all fragment reassemble\n";
+    rules << "block all\n";
+    rules << "table <windscribe_ips> persist\n";
+    rules << "pass out quick inet from any to <windscribe_ips>\n";
+    rules << "anchor windscribe_vpn_traffic all\n";
+    rules << "pass out quick inet proto udp from any to any port = 67\n";
+    rules << "pass in quick inet proto udp from any to any port = 68\n";
+    rules << "anchor windscribe_lan_traffic all\n";
+    rules << "anchor windscribe_static_ports_traffic all\n";
 
     // write rules
     int fd = open("/etc/windscribe/boot_pf.conf", O_CREAT | O_WRONLY | O_TRUNC);
@@ -52,18 +52,11 @@ bool FirewallOnBootManager::enable() {
 
     script << "#!/bin/bash\n";
     script << "FILE=\"/Applications/Windscribe.app/Contents/MacOS/Windscribe\"\n";
-    script << "if [ ! -f \"$FILE\" ]\n";
-    script << "then\n";
-    script << "echo \"File $FILE does not exists\"\n";
     script << "launchctl stop com.aaa.windscribe.firewall_on\n";
     script << "launchctl unload /Library/LaunchDaemons/com.aaa.windscribe.firewall_on.plist\n";
     script << "launchctl remove com.aaa.windscribe.firewall_on\n";
-    script << "srm \"$0\"\n";
-    script << "else\n";
-    script << "echo \"File $FILE exists\"\n";
-    script << "ipconfig waitall\n";
+    script << "while grep -q \"No such key\" <<< \"`echo 'show State:/Network/Global/IPv4' | scutil`\"; do sleep 1; done;\n";
     script << "/sbin/pfctl -e -f \"/etc/windscribe/boot_pf.conf\"\n";
-    script << "fi\n";
 
     fd = open("/etc/windscribe/boot_pf.sh", O_CREAT | O_WRONLY | O_TRUNC);
     if (fd < 0) {
@@ -98,6 +91,7 @@ bool FirewallOnBootManager::enable() {
 
     plist << "<key>RunAtLoad</key>\n";
     plist << "<true/>\n";
+
     plist << "</dict>\n";
     plist << "</plist>\n";
 
