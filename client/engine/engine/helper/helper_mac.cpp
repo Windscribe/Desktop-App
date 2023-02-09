@@ -39,8 +39,7 @@ void Helper_mac::startInstallHelper()
 
 bool Helper_mac::reinstallHelper()
 {
-    QString strUninstallUtilPath = QCoreApplication::applicationDirPath() + "/../Resources/uninstallHelper.sh";
-    InstallHelper_mac::runScriptWithAdminRights(strUninstallUtilPath);
+    InstallHelper_mac::uninstallHelper();
     return true;
 }
 

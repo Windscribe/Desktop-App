@@ -34,13 +34,13 @@ bool InstallHelper_mac::installHelper(bool &isUserCanceled)
 
         qCDebug(LOG_BASIC) << "current helper version: " << (long)currentVersion;
 
-        if (installedVersion >= currentVersion)
-        {
+        if (installedVersion == currentVersion) {
             return true;
+        } else if (installedVersion > currentVersion) {
+            // If we are downgrading, we need to uninstall the previous helper first (SMJobBless will not let us downgrade)
+            uninstallHelper();
         }
-    }
-    else
-    {
+    } else {
         qCDebug(LOG_BASIC) << "Not installed helper";
     }
 
@@ -55,13 +55,10 @@ bool InstallHelper_mac::installHelper(bool &isUserCanceled)
 
     // Obtain the right to install privileged helper tools (kSMRightBlessPrivilegedHelper).
     OSStatus status = AuthorizationCreate(&authRights, kAuthorizationEmptyEnvironment, flags, &authRef);
-    if (status != errAuthorizationSuccess)
-    {
+    if (status != errAuthorizationSuccess) {
         qCDebug(LOG_BASIC) << "Failed to create AuthorizationRef. Error code:" << (int)status;
         isUserCanceled = true;
-    }
-    else
-    {
+    } else {
         // This does all the work of verifying the helper tool against the application
         // and vice-versa. Once verification has passed, the embedded launchd.plist
         // is extracted and placed in /Library/LaunchDaemons and then loaded. The
@@ -69,8 +66,7 @@ bool InstallHelper_mac::installHelper(bool &isUserCanceled)
         //
         CFErrorRef outError = NULL;
         result = SMJobBless(kSMDomainSystemLaunchd, (CFStringRef)helperLabel, authRef, &outError);
-        if (outError)
-        {
+        if (outError) {
             NSError *error = (NSError *)outError;
             qCDebug(LOG_BASIC) << QString::fromCFString((CFStringRef)[error localizedDescription]);
             CFRelease(outError);
@@ -80,23 +76,20 @@ bool InstallHelper_mac::installHelper(bool &isUserCanceled)
     return result == YES;
 }
 
-bool InstallHelper_mac::runScriptWithAdminRights(const QString &scriptPath)
+bool InstallHelper_mac::uninstallHelper()
 {
-    NSString * fullScript = [NSString stringWithFormat:@"'%@'", (__bridge CFStringRef)scriptPath.toCFString()];
-    NSString *script =  [NSString stringWithFormat:@"do shell script \"%@\" with administrator privileges", fullScript];
-
-    NSDictionary *errorInfo = [NSDictionary new];
-    NSAppleScript *appleScript = [[NSAppleScript new] initWithSource:script];
-    NSAppleEventDescriptor * eventResult = [appleScript executeAndReturnError:&errorInfo];
-
-    if (!eventResult)
-    {
+    qCDebug(LOG_BASIC) << "Uninstalling helper.";
+    NSString *scriptContents = @"do shell script \"launchctl remove /Library/LaunchDaemons/com.windscribe.helper.macos.plist;"
+                                                  "rm /Library/LaunchDaemons/com.windscribe.helper.macos.plist;"
+                                                  "rm /Library/PrivilegedHelperTools/com.windscribe.helper.macos\" with administrator privileges";
+    NSAppleScript *script = [[NSAppleScript alloc] initWithSource:scriptContents];
+    NSAppleEventDescriptor *desc;
+    desc = [script executeAndReturnError:nil];
+    if (desc == nil) {
+        qCDebug(LOG_BASIC) << "Couldn't remove the previous helper.";
+        return true;
+    } else {
+        qCDebug(LOG_BASIC) << "Removed previous helper.";
         return false;
     }
-    else
-    {
-        return true;
-    }
 }
-
-
