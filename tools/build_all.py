@@ -13,6 +13,8 @@ import time
 import zipfile
 import multiprocessing
 
+from pathlib import Path
+
 # To ensure modules in the 'base' folder can import other modules in base.
 import base.pathhelper as pathhelper
 sys.path.append(pathhelper.BASE_DIR)
@@ -628,17 +630,21 @@ def build_installer_mac(configdata, qt_root):
     utl.RenameFile(os.path.join(dmg_dir, "WindscribeInstaller.dmg"), final_installer_name)
 
 
-def code_sign_linux(binary_name, binary_dir, signature_output_dir):
-    binary = binary_dir + "/" + binary_name
+def code_sign_linux(binary_name, binary_dir):
+    binary = os.path.join(binary_dir, binary_name)
     binary_base_name = os.path.basename(binary)
     # Skip DGA library signing, if it not exists (to avoid error)
     if binary_base_name == "libdga.so" and not os.path.exists(binary):
         pass
     else:
+        signatures_dir = os.path.join(os.path.dirname(binary), "signatures")
+        if not os.path.exists(signatures_dir):
+            msg.Print("Creating signatures path: " + signatures_dir)
+            utl.CreateDirectory(signatures_dir, True)
         private_key = pathhelper.COMMON_DIR + "/keys/linux/key.pem"
-        signature = signature_output_dir + "/" + binary_base_name + ".sig"
-        msg.Info("Signing " + binary + " with " + private_key + " -> " + signature)
-        cmd = ["openssl", "dgst", "-sign", private_key, "-keyform", "PEM", "-sha256", "-out", signature, "-binary", binary]
+        signature_file = signatures_dir + "/" + Path(binary).stem + ".sig"
+        msg.Info("Signing " + binary + " with " + private_key + " -> " + signature_file)
+        cmd = ["openssl", "dgst", "-sign", private_key, "-keyform", "PEM", "-sha256", "-out", signature_file, "-binary", binary]
         iutl.RunCommand(cmd)
 
 
@@ -670,13 +676,9 @@ def build_installer_linux(configdata, qt_root):
     copy_file("windscribewstunnel", wstunnel_dir, BUILD_INSTALLER_FILES)
 
     # sign supplementary binaries and move the signatures into InstallerFiles/signatures
-    if arghelper.sign_app():
-        signatures_dir = os.path.join(BUILD_INSTALLER_FILES, "signatures")
-        msg.Print("Creating signatures path: " + signatures_dir)
-        utl.CreateDirectory(signatures_dir, True)
-        if "files_codesign_linux" in configdata:
-            for binary_name in configdata["files_codesign_linux"]:
-                code_sign_linux(binary_name, BUILD_INSTALLER_FILES, signatures_dir)
+    if arghelper.sign_app() and "files_codesign_linux" in configdata:
+        for binary_name in configdata["files_codesign_linux"]:
+            code_sign_linux(binary_name, BUILD_INSTALLER_FILES)
 
     if "license_files" in configdata:
         license_dir = os.path.join(pathhelper.COMMON_DIR, "licenses")
