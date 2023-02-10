@@ -6,6 +6,7 @@
 # Purpose: builds Windscribe.
 import glob
 import os
+import pathlib
 import re
 import subprocess
 import sys
@@ -112,7 +113,7 @@ def update_version_in_plist(plistfilename):
         f.write(file_data)
 
 
-def update_version_in_debian_control(filename):
+def update_version_in_config(filename):
     with open(filename, "r") as f:
         filedata = f.read()
     # update Bundle Version
@@ -684,33 +685,33 @@ def build_installer_linux(configdata, qt_root):
         license_dir = os.path.join(pathhelper.COMMON_DIR, "licenses")
         copy_files("license", configdata["license_files"], license_dir, BUILD_INSTALLER_FILES)
 
-    msg.Info("Creating Debian package...")
-    src_package_path = os.path.join(pathhelper.ROOT_DIR, "installer", "linux", "debian_package")
-    dest_package_name = "windscribe_{}_amd64".format(extractor.app_version(True))
-    dest_package_path = os.path.join(BUILD_INSTALLER_FILES, "..", dest_package_name)
-
-    utl.CopyAllFiles(src_package_path, dest_package_path)
-    utl.CopyAllFiles(BUILD_INSTALLER_FILES, os.path.join(dest_package_path, "opt", "windscribe"))
-
-    update_version_in_debian_control(os.path.join(dest_package_path, "DEBIAN", "control"))
-
     # create .deb with dest_package
-    # Force use of 'xz' compression.  dpkg on Ubuntu 21.10 defaulting to zstd compression,
-    # which fpm currently cannot handle.
-    iutl.RunCommand(["fakeroot", "dpkg-deb", "-Zxz", "--build", dest_package_path])
+    if arghelper.build_deb():
+        msg.Info("Creating .deb package...")
+
+        src_package_path = os.path.join(pathhelper.ROOT_DIR, "installer", "linux", "common")
+        deb_files_path = os.path.join(pathhelper.ROOT_DIR, "installer", "linux", "debian_package")
+        dest_package_name = "windscribe_{}_amd64".format(extractor.app_version(True))
+        dest_package_path = os.path.join(BUILD_INSTALLER_FILES, "..", dest_package_name)
+
+        utl.CopyAllFiles(src_package_path, dest_package_path)
+        utl.CopyAllFiles(deb_files_path, dest_package_path)
+        utl.CopyAllFiles(BUILD_INSTALLER_FILES, os.path.join(dest_package_path, "opt", "windscribe"))
+
+        update_version_in_config(os.path.join(dest_package_path, "DEBIAN", "control"))
+        iutl.RunCommand(["fakeroot", "dpkg-deb", "--build", dest_package_path])
 
     if arghelper.build_rpm():
-        # create RPM from deb
-        msg.Info("Creating RPM package...")
-        rpm_package_name = "windscribe_{}_x86_64.rpm".format(extractor.app_version(True))
-        postinst_rpm_script = os.path.join(pathhelper.ROOT_DIR, "installer", "linux", "additional_files", "postinst_rpm")
-        iutl.RunCommand(["fpm", "--after-install", postinst_rpm_script,
-                         "--input-type", "deb",
-                         "--package", rpm_package_name,
-                         "--output-type", "rpm",
-                         "--directories", "/opt/windscribe",
-                         dest_package_path + ".deb"])
+        msg.Info("Creating .rpm package...")
 
+        utl.CopyAllFiles(os.path.join(pathhelper.ROOT_DIR, "installer", "linux", "rpm_package"), os.path.join(pathlib.Path.home(), "rpmbuild"))
+        utl.CopyAllFiles(os.path.join(pathhelper.ROOT_DIR, "installer", "linux", "common"), os.path.join(pathlib.Path.home(), "rpmbuild", "SOURCES"))
+        utl.CopyAllFiles(BUILD_INSTALLER_FILES, os.path.join(pathlib.Path.home(), "rpmbuild", "SOURCES", "opt", "windscribe"))
+
+        update_version_in_config(os.path.join(pathlib.Path.home(), "rpmbuild", "SPECS", "windscribe_rpm.spec"))
+        iutl.RunCommand(["rpmbuild", "-bb", os.path.join(pathlib.Path.home(), "rpmbuild", "SPECS", "windscribe_rpm.spec")])
+        utl.CopyFile(os.path.join(pathlib.Path.home(), "rpmbuild", "RPMS", "x86_64", "windscribe-{}-0.x86_64.rpm".format(extractor.app_version(False))),
+                     os.path.join(".", "windscribe_{}_x86_64.rpm".format(extractor.app_version(True))))
 
 def build_all(win_cert_password):
     # Load config.
