@@ -2,6 +2,8 @@
 
 #include <shlwapi.h>
 
+#include <filesystem>
+
 using namespace std;
 
 wstring Path::PathExpand(const wstring Filename)
@@ -97,16 +99,10 @@ wstring Path::PathExtractName(const wstring Filename)
     return Filename.substr(I + 1);
 }
 
-
-
 wstring Path::PathExtractDir(const wstring Filename)
-//{ Like PathExtractPath, but strips any trailing slashes, unless the resulting
-//  path is the root directory of a drive (i.e. 'C:\' or '\'). }
 {
-    unsigned int I;
-
-    I = PathPathPartLength(Filename, false);
-    return  Filename.substr(0, I + 1);
+    filesystem::path path(Filename);
+    return path.parent_path();
 }
 
 /*
