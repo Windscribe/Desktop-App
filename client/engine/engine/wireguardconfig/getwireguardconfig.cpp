@@ -2,6 +2,7 @@
 #include "engine/serverapi/serverapi.h"
 #include "engine/apiinfo/apiinfo.h"
 #include "types/global_consts.h"
+#include "utils/utils.h"
 #include "utils/ws_assert.h"
 #include "engine/serverapi/requests/wgconfigsinitrequest.h"
 #include "engine/serverapi/requests/wgconfigsconnectrequest.h"
@@ -21,12 +22,7 @@ GetWireGuardConfig::GetWireGuardConfig(QObject *parent, server_api::ServerAPI *s
 
 void GetWireGuardConfig::getWireGuardConfig(const QString &serverName, bool deleteOldestKey, const QString &deviceId)
 {
-    if (request_) {
-        // no longer interested in the old result, if there was an active request
-        request_->setCancelled(true);
-        // serverAPI will delete this request when done
-        request_ = nullptr;
-    }
+    SAFE_DELETE(request_);
 
     serverName_ = serverName;
     deleteOldestKey_ = deleteOldestKey;
