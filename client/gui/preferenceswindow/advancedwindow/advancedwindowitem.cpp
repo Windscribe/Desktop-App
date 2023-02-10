@@ -82,7 +82,7 @@ AdvancedWindowItem::AdvancedWindowItem(ScalableGraphicsObject *parent, Preferenc
     keepAliveGroup_->addItem(cbKeepAlive_);
     addItem(keepAliveGroup_);
 
-    internalDnsGroup_ = new PreferenceGroup(this, "Windscribe uses this DNS server to resolve addresses outside the VPN.");
+    internalDnsGroup_ = new PreferenceGroup(this, "Windscribe uses this DNS server to resolve addresses outside the VPN.\nWarning: Using \"OS Default\" may sometimes cause DNS leaks during reconnects.");
     comboBoxAppInternalDns_ = new ComboBoxItem(internalDnsGroup_, QT_TRANSLATE_NOOP("PreferencesWindow::ComboBoxItem", "App Internal DNS"), QString());
     comboBoxAppInternalDns_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/INTERNAL_DNS"));
     const QList< QPair<QString, int> > dnsTypes = DNS_POLICY_TYPE_toList();

@@ -26,7 +26,7 @@ struct EngineSettingsData : public QSharedData
         isIgnoreSslErrors(false),
         isTerminateSockets(true),
         isAllowLanTraffic(false),
-        dnsPolicy(DNS_TYPE_OS_DEFAULT),
+        dnsPolicy(DNS_TYPE_CLOUDFLARE),
         tapAdapter(WINTUN_ADAPTER),
         isKeepAliveEnabled(false),
         dnsManager(DNS_MANAGER_AUTOMATIC)

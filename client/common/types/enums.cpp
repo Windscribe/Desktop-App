@@ -91,7 +91,7 @@ QString DNS_POLICY_TYPE_ToString(DNS_POLICY_TYPE d)
     }
     else if (d == DNS_TYPE_CONTROLD)
     {
-        return "ControlD";
+        return "Control D";
     }
     else
     {
