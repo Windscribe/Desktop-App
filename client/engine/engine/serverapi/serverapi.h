@@ -119,8 +119,6 @@ private:
     static constexpr quint64 SIMPLE_CRYPT_KEY = 0x2572241DF31F32EE;
     void writeHostnameToSettings(const QString &domainName);
     QString readHostnameFromSettings() const;
-
-    void completeRequest(BaseRequest *request);
 };
 
 } // namespace server_api

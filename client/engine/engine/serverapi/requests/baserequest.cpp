@@ -55,14 +55,4 @@ QString BaseRequest::hostname(const QString &domain, SudomainType subdomain) con
     return "";
 }
 
-void BaseRequest::setCancelled(bool cancelled)
-{
-    cancelled_ = cancelled;
-}
-
-bool BaseRequest::isCancelled() const
-{
-    return cancelled_;
-}
-
 } // namespace server_api {
