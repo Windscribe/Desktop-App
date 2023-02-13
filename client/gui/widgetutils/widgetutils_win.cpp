@@ -1,12 +1,16 @@
 #include "widgetutils_win.h"
 
-#include <Windows.h>
-#include <shellapi.h>
-#include "utils/winutils.h"
-#include <QPainter>
 #include <QDir>
-#include <QFileInfo>
+#include <QPainter>
+#include <QScopeGuard>
 #include <QXmlStreamReader>
+
+#include <Windows.h>
+#include <Objbase.h>
+#include <shellapi.h>
+#include <ShObjIdl_core.h>
+
+#include "utils/logger.h"
 
 Q_GUI_EXPORT QPixmap qt_pixmapFromWinHICON(HICON icon);
 Q_GUI_EXPORT HICON qt_pixmapToWinHICON(const QPixmap &p);
@@ -183,3 +187,44 @@ void WidgetUtils_win::fixSystemTrayIconDblClick()
         SendMessage(trayHwnd, MYWM_NOTIFYICON, 0, MAKELPARAM(NIN_SELECT, q_uNOTIFYICONID));
 }
 
+void WidgetUtils_win::setTaskbarIconOverlay(const QWidget &appMainWindow, const QIcon *icon)
+{
+    ITaskbarList4* taskbarInterface = nullptr;
+    HICON iconHandle = nullptr; // A null icon handle will clear the icon overlay
+
+    auto comRelease = qScopeGuard([&] {
+        // Free converted icon, since ITaskbarList::SetOverlayIcon creates a copy.
+        if (iconHandle) {
+            ::DestroyIcon(iconHandle);
+        }
+
+        if (taskbarInterface) {
+            taskbarInterface->Release();
+        }
+    });
+
+
+    HRESULT result = ::CoCreateInstance(CLSID_TaskbarList, nullptr, CLSCTX_INPROC_SERVER, IID_ITaskbarList4, reinterpret_cast<void **>(&taskbarInterface));
+    if (FAILED(result)) {
+        qCDebug(LOG_BASIC) << "WidgetUtils_win::setTaskbarIconOverlay() could not create an IID_ITaskbarList4 instance" << HRESULT_CODE(result);
+        return;
+    }
+
+    result = taskbarInterface->HrInit();
+    if (FAILED(result)) {
+        qCDebug(LOG_BASIC) << "WidgetUtils_win::setTaskbarIconOverlay() IID_ITaskbarList4::HrInit failed" << HRESULT_CODE(result);
+        return;
+    }
+
+    if (icon) {
+        // Note: we will clear the current overlay icon, if any, if we cannot obtain a native handle to the specified icon overlay.
+        auto nativeIconSize = ::GetSystemMetrics(SM_CXSMICON);
+        iconHandle = icon->pixmap(nativeIconSize).toImage().toHICON();
+    }
+
+    HWND hwnd = reinterpret_cast<HWND>(appMainWindow.winId());
+    result = taskbarInterface->SetOverlayIcon(hwnd, iconHandle, L"");
+    if (FAILED(result)) {
+        qCDebug(LOG_BASIC) << "WidgetUtils_win::setTaskbarIconOverlay() IID_ITaskbarList4::SetOverlayIcon failed" << HRESULT_CODE(result);
+    }
+}

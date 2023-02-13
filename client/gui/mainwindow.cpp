@@ -3598,9 +3598,12 @@ void MainWindow::updateAppIconType(AppIconType type)
         return;
 
     const QIcon *icon = nullptr;
+
     switch (type) {
     case AppIconType::DISCONNECTED:
+        #if !defined(Q_OS_WIN)
         icon = IconManager::instance().getDisconnectedIcon();
+        #endif
         break;
     case AppIconType::CONNECTING:
         icon = IconManager::instance().getConnectingIcon();
@@ -3611,8 +3614,16 @@ void MainWindow::updateAppIconType(AppIconType type)
     default:
         break;
     }
-    if (icon)
+
+    #if defined(Q_OS_WIN)
+    // Qt's setWindowIcon() API cannot change the taskbar icon on Windows.
+    WidgetUtils_win::setTaskbarIconOverlay(*this, icon);
+    #else
+    if (icon) {
         qApp->setWindowIcon(*icon);
+    }
+    #endif
+
     currentAppIconType_ = type;
 }
 
