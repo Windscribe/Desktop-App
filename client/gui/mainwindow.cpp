@@ -3601,15 +3601,24 @@ void MainWindow::updateAppIconType(AppIconType type)
 
     switch (type) {
     case AppIconType::DISCONNECTED:
+        // No taskbar button overlay icon on Windows.
         #if !defined(Q_OS_WIN)
         icon = IconManager::instance().getDisconnectedIcon();
         #endif
         break;
     case AppIconType::CONNECTING:
+        #if defined(Q_OS_WIN)
+        icon = IconManager::instance().getConnectingOverlayIcon();
+        #else
         icon = IconManager::instance().getConnectingIcon();
+        #endif
         break;
     case AppIconType::CONNECTED:
+        #if defined(Q_OS_WIN)
+        icon = IconManager::instance().getConnectedOverlayIcon();
+        #else
         icon = IconManager::instance().getConnectedIcon();
+        #endif
         break;
     default:
         break;

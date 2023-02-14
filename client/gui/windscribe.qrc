@@ -11,5 +11,7 @@
         <file>resources/icons/win/OFF_WHITE.ico</file>
         <file>resources/icons/win/ON_BLACK.ico</file>
         <file>resources/icons/win/ON_WHITE.ico</file>
+        <file>resources/icons/win/ConnectedShield.ico</file>
+        <file>resources/icons/win/ConnectingShield.ico</file>
     </qresource>
 </RCC>
