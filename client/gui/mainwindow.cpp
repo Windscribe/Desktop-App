@@ -2328,7 +2328,14 @@ void MainWindow::onBackendUpdateVersionChanged(uint progressPercent, UPDATE_VERS
                 // restart the application after update
                 doClose(nullptr, false);
                 qApp->quit();
-                QProcess::startDetached(QApplication::applicationFilePath());
+                qCDebug(LOG_BASIC) << "Restarting app";
+                QProcess process;
+                process.setProgram(QApplication::applicationFilePath());
+                process.setProcessEnvironment(QProcessEnvironment::systemEnvironment());
+                bool ret = process.startDetached();
+                if (!ret) {
+                    qCDebug(LOG_BASIC) << "Could not launch app";
+                }
 #endif
             }
             else // Error
