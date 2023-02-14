@@ -18,8 +18,8 @@ CustomConfigLocationsModel::CustomConfigLocationsModel(QObject *parent, IConnect
     pingStorage_("pingStorageCustomConfigs"),
     pingIpsController_(this, stateController, networkDetectionManager, pingHost, "ping_log_custom_configs.txt")
 {
-    connect(&pingIpsController_, SIGNAL(pingInfoChanged(QString,int, bool)), SLOT(onPingInfoChanged(QString,int, bool)));
-    connect(&pingIpsController_, SIGNAL(needIncrementPingIteration()), SLOT(onNeedIncrementPingIteration()));
+    connect(&pingIpsController_, &PingIpsController::pingInfoChanged, this, &CustomConfigLocationsModel::onPingInfoChanged);
+    connect(&pingIpsController_, &PingIpsController::needIncrementPingIteration, this, &CustomConfigLocationsModel::onNeedIncrementPingIteration);
     pingStorage_.incIteration();
 }
 

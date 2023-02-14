@@ -165,8 +165,7 @@ void PingHost_ICMP_win::sendNextPing()
         auto request = std::make_unique<PingRequest>(nullptr, ip);
 
         if (connectStateController_) {
-            request->setFromDisconnectedState(connectStateController_->currentState() == CONNECT_STATE_DISCONNECTED ||
-                                              connectStateController_->currentState() == CONNECT_STATE_CONNECTING);
+            request->setFromDisconnectedState(connectStateController_->currentState() == CONNECT_STATE_DISCONNECTED);
         }
 
         connect(request.get(), &PingRequest::requestFinished, this, &PingHost_ICMP_win::onPingRequestFinished);

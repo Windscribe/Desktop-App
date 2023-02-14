@@ -120,12 +120,11 @@ void PingHost_TCP::processNextPings()
         connect(pingInfo->tcpSocket, &QTcpSocket::connected, this, &PingHost_TCP::onSocketConnected);
         connect(pingInfo->tcpSocket, &QTcpSocket::bytesWritten, this, &PingHost_TCP::onSocketBytesWritten);
         connect(pingInfo->tcpSocket, &QTcpSocket::errorOccurred, this, &PingHost_TCP::onSocketError);
-        if (connectStateController_)
-        {
-            pingInfo->tcpSocket->setProperty("fromDisconnectedState", connectStateController_->currentState() == CONNECT_STATE_DISCONNECTED || connectStateController_->currentState() == CONNECT_STATE_CONNECTING);
+
+        if (connectStateController_) {
+            pingInfo->tcpSocket->setProperty("fromDisconnectedState", connectStateController_->currentState() == CONNECT_STATE_DISCONNECTED);
         }
-        else
-        {
+        else {
             pingInfo->tcpSocket->setProperty("fromDisconnectedState", true);
         }
 

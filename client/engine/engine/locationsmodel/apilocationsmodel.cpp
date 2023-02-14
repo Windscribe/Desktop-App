@@ -13,8 +13,8 @@ ApiLocationsModel::ApiLocationsModel(QObject *parent, IConnectStateController *s
     pingStorage_("pingStorage"),
     pingIpsController_(this, stateController, networkDetectionManager, pingHost, "ping_log.txt")
 {
-    connect(&pingIpsController_, SIGNAL(pingInfoChanged(QString,int, bool)), SLOT(onPingInfoChanged(QString,int, bool)));
-    connect(&pingIpsController_, SIGNAL(needIncrementPingIteration()), SLOT(onNeedIncrementPingIteration()));
+    connect(&pingIpsController_, &PingIpsController::pingInfoChanged, this, &ApiLocationsModel::onPingInfoChanged);
+    connect(&pingIpsController_, &PingIpsController::needIncrementPingIteration, this, &ApiLocationsModel::onNeedIncrementPingIteration);
     pingStorage_.incIteration();
 
     if (bestLocation_.isValid())

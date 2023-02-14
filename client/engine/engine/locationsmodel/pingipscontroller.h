@@ -29,7 +29,6 @@ class PingIpsController : public QObject
 {
     Q_OBJECT
 public:
-
     explicit PingIpsController(QObject *parent, IConnectStateController *stateController, INetworkDetectionManager *networkDetectionManager, PingHost *pingHost, const QString &log_filename);
 
     void updateIps(const QVector<PingIpInfo> &ips);
@@ -37,7 +36,6 @@ public:
 signals:
     void pingInfoChanged(const QString &ip, int timems, bool isFromDisconnectedState);
     void needIncrementPingIteration();
-
 
 private slots:
     void onPingTimer();
@@ -52,7 +50,6 @@ private:
         bool isExistPingAttempt;
         bool latestPingFailed_;
         int failedPingsInRow;
-        bool latestPingFromDisconnectedState_;
         qint64 nextTimeForFailedPing_;
         bool bNowPinging_;
         bool existThisIp;  // used in function updateNodes for remove unused ips
@@ -72,7 +69,6 @@ private:
     QTimer pingTimer_;
 
     QDateTime dtNextPingTime_;
-    bool isNeedPingForNextDisconnectState_;
 };
 
 } //namespace locationsmodel

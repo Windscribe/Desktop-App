@@ -127,12 +127,10 @@ void PingHost_ICMP_mac::processNextPings()
         pingInfo->process = new QProcess(this);
         connect(pingInfo->process, SIGNAL(finished(int,QProcess::ExitStatus)), SLOT(onProcessFinished(int,QProcess::ExitStatus)));
 
-        if (connectStateController_)
-        {
-            pingInfo->process->setProperty("fromDisconnectedState", connectStateController_->currentState() == CONNECT_STATE_DISCONNECTED || connectStateController_->currentState() == CONNECT_STATE_CONNECTING);
+        if (connectStateController_) {
+            pingInfo->process->setProperty("fromDisconnectedState", connectStateController_->currentState() == CONNECT_STATE_DISCONNECTED);
         }
-        else
-        {
+        else {
             pingInfo->process->setProperty("fromDisconnectedState", true);
         }
 
