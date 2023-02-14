@@ -101,9 +101,9 @@ QSharedPointer<BaseLocationInfo> CustomConfigLocationsModel::getMutableLocationI
     return NULL;
 }
 
-void CustomConfigLocationsModel::onPingInfoChanged(const QString &ip, int timems, bool isFromDisconnectedState)
+void CustomConfigLocationsModel::onPingInfoChanged(const QString &ip, int timems)
 {
-    pingStorage_.setNodePing(ip, timems, isFromDisconnectedState);
+    pingStorage_.setNodePing(ip, timems, true);
 
     for (auto it = pingInfos_.begin(); it != pingInfos_.end(); ++it)
     {

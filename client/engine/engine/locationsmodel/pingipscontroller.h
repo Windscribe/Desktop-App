@@ -34,7 +34,7 @@ public:
     void updateIps(const QVector<PingIpInfo> &ips);
 
 signals:
-    void pingInfoChanged(const QString &ip, int timems, bool isFromDisconnectedState);
+    void pingInfoChanged(const QString &ip, int timems);
     void needIncrementPingIteration();
 
 private slots:

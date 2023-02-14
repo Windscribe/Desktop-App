@@ -46,7 +46,7 @@ signals:
     //void customOvpnConfgsIpsChanged(const QStringList &ips);
 
 private slots:
-    void onPingInfoChanged(const QString &ip, int timems, bool isFromDisconnectedState);
+    void onPingInfoChanged(const QString &ip, int timems);
     void onNeedIncrementPingIteration();
 
 private:

@@ -146,7 +146,7 @@ void PingIpsController::onPingFinished(bool bSuccess, int timems, const QString 
             tr("ping successfully from %1 state: %2 (%3 - %4) %5ms").arg(isFromDisconnectedState ? tr("disconnected") : tr("connected"), ip, itNode->city_, itNode->nick_).arg(timems));
 
         if (isFromDisconnectedState) {
-            Q_EMIT pingInfoChanged(ip, timems, true);
+            Q_EMIT pingInfoChanged(ip, timems);
         }
     }
     else {
@@ -160,7 +160,7 @@ void PingIpsController::onPingFinished(bool bSuccess, int timems, const QString 
             pni.nextTimeForFailedPing_ = QDateTime::currentMSecsSinceEpoch() + 1000 * 60;
 
             if (isFromDisconnectedState) {
-                Q_EMIT pingInfoChanged(ip, PingTime::PING_FAILED, true);
+                Q_EMIT pingInfoChanged(ip, PingTime::PING_FAILED);
             }
 
             if (failedPingLogController_.logFailedIPs(ip)) {

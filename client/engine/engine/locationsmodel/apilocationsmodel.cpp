@@ -151,9 +151,9 @@ QSharedPointer<BaseLocationInfo> ApiLocationsModel::getMutableLocationInfoById(c
     return NULL;
 }
 
-void ApiLocationsModel::onPingInfoChanged(const QString &ip, int timems, bool isFromDisconnectedState)
+void ApiLocationsModel::onPingInfoChanged(const QString &ip, int timems)
 {
-    pingStorage_.setNodePing(ip, timems, isFromDisconnectedState);
+    pingStorage_.setNodePing(ip, timems, true);
 
     bool isAllNodesHaveCurIteration;
     bool isAllNodesInDisconnectedState;
