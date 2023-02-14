@@ -28,7 +28,9 @@ class ArgHelper:
     OPTION_NO_INSTALLER = "--no-installer"
     # CI-specific options
     OPTION_CI_MODE = "--ci-mode"
+    # linux packaging
     OPTION_BUILD_RPM = "--build-rpm"
+    OPTION_BUILD_DEB = "--build-deb"
 
     options = list()
     options.append(("\nGeneral", ""))
@@ -51,7 +53,9 @@ class ArgHelper:
     options.append((OPTION_NO_INSTALLER, "Do not build the installer component"))
     options.append(("\nCI-specific options", ""))
     options.append((OPTION_CI_MODE, "Used to indicate app is building on CI"))
-    options.append((OPTION_BUILD_RPM, "Builds the rpm installer package when CI is running on RHEL"))
+    options.append(("\nLinux packaging", ""))
+    options.append((OPTION_BUILD_RPM, "Build .rpm package for Red Hat and derivative distros"))
+    options.append((OPTION_BUILD_DEB, "Build .deb package for Debian and derivative distros (default)"))
 
     def __init__(self, program_arg_list):
         self.args_only = program_arg_list[1:]
@@ -75,6 +79,11 @@ class ArgHelper:
 
         # CI related
         self.mode_ci = ArgHelper.OPTION_CI_MODE in program_arg_list
+
+        # linux packaging
+        no_packaging_selected = ArgHelper.OPTION_BUILD_RPM not in program_arg_list and ArgHelper.OPTION_BUILD_DEB not in program_arg_list
+
+        self.mode_build_deb = no_packaging_selected or ArgHelper.OPTION_BUILD_DEB in program_arg_list
         self.mode_build_rpm = ArgHelper.OPTION_BUILD_RPM in program_arg_list
 
         # 1password user/session
@@ -145,6 +154,9 @@ class ArgHelper:
 
     def build_rpm(self):
         return self.mode_build_rpm
+
+    def build_deb(self):
+        return self.mode_build_deb
 
     def invalid_mode(self):
         if self.mode_help:
