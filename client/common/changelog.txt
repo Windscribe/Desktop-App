@@ -1,3 +1,21 @@
+2.6.10 (15/02/2023)
+All:
+   * Fixed 'App Internal DNS' preference description to indicate 'OS Default' may cause DNS leaks. #195
+   * Fixed location latency checks (pings) to only be performed when the app is disconnected. #521
+   * Updated 'App Internal DNS' preference to default to Cloudflare. #195
+Windows:
+   * Added connecting/connected 'badge' icon to the app's taskbar icon. #550
+   * Fixed installer to allow install to root system folder (e.g. C:\Windscribe). #417
+macOS:
+   * Fixed domain generation algorithm library signature check. #465
+   * Fixed installer to allow helper downgrade. #545
+Linux:
+   * Fixed in-app upgrade to use apt/dnf rather than dpkg/rpm. #501
+   * Fixed rpm package creation to use rpmbuild rather than convert the Debian package with fpm. #544
+   * Fixed domain generation algorithm library signature check. #560
+   * Fixed app does not relaunch after in-app upgrade. #569
+
+
 2.6.9 (08/02/2023)
 All:
    * Added all secrets to the domain generation algorithm library and removed them from the app code. #465
