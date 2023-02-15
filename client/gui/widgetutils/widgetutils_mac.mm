@@ -30,7 +30,6 @@ void WidgetUtils_mac::allowMinimizeForFramelessWindow(QWidget *window)
         [nsWindow setShowsToolbarButton:NO];
         [nsWindow setBackgroundColor:[NSColor clearColor]];
 
-        [[nsWindow standardWindowButton:NSWindowFullScreenButton] setHidden:YES];
         [[nsWindow standardWindowButton:NSWindowMiniaturizeButton] setHidden:YES];
         [[nsWindow standardWindowButton:NSWindowCloseButton] setHidden:YES];
         [[nsWindow standardWindowButton:NSWindowZoomButton] setHidden:YES];

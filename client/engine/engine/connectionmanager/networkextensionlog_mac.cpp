@@ -15,7 +15,7 @@ NetworkExtensionLog_mac::NetworkExtensionLog_mac(QObject *parent) : QObject(pare
     collectNext();
     if (!logs_.empty())
     {
-        initialTimestamp_ = (logs_.end() - 1).key();
+        initialTimestamp_ = (std::prev(logs_.end())).key();
         isInitialTimestampInitialized_ = true;
         logs_.clear();
     }
