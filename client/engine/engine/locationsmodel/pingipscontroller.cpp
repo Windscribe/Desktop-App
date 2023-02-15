@@ -142,11 +142,12 @@ void PingIpsController::onPingFinished(bool bSuccess, int timems, const QString 
         pni.latestPingFailed_ = false;
         pni.failedPingsInRow = 0;
 
-        pingLog_.addLog("PingIpsController::onPingFinished",
-            tr("ping successfully from %1 state: %2 (%3 - %4) %5ms").arg(isFromDisconnectedState ? tr("disconnected") : tr("connected"), ip, itNode->city_, itNode->nick_).arg(timems));
-
         if (isFromDisconnectedState) {
             Q_EMIT pingInfoChanged(ip, timems);
+            pingLog_.addLog("PingIpsController::onPingFinished", tr("ping successful: %1 (%2 - %3) %4ms").arg(ip, pni.city_, pni.nick_).arg(timems));
+        }
+        else {
+            pingLog_.addLog("PingIpsController::onPingFinished", tr("discarding ping while connected: %1 (%2 - %3)").arg(ip, pni.city_, pni.nick_));
         }
     }
     else {
@@ -155,7 +156,6 @@ void PingIpsController::onPingFinished(bool bSuccess, int timems, const QString 
         pni.failedPingsInRow++;
 
         if (pni.failedPingsInRow >= MAX_FAILED_PING_IN_ROW) {
-            //pingLog_.addLog("PingIpsController::onPingFinished", "ping failed 3 times in a row: " + ip);
             pni.failedPingsInRow = 0;
             pni.nextTimeForFailedPing_ = QDateTime::currentMSecsSinceEpoch() + 1000 * 60;
 
@@ -164,12 +164,11 @@ void PingIpsController::onPingFinished(bool bSuccess, int timems, const QString 
             }
 
             if (failedPingLogController_.logFailedIPs(ip)) {
-                pingLog_.addLog("PingIpsController::onPingFinished", tr("ping failed: %1 (%2 - %3)").arg(ip, itNode->city_, itNode->nick_));
+                pingLog_.addLog("PingIpsController::onPingFinished", tr("ping failed: %1 (%2 - %3)").arg(ip, pni.city_, pni.nick_));
             }
         }
         else {
             pni.nextTimeForFailedPing_ = 0;
-            //pingLog_.addLog("PingIpsController::onPingFinished", "ping failed: " + ip);
         }
     }
 }
