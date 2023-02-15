@@ -40,10 +40,10 @@ std::optional<bool> Helper_linux::installUpdate(const QString &package) const
 {
     QString bashCmd;
     if (package.endsWith(".deb")) {
-        bashCmd = QString("pkexec dpkg -i %1").arg(package);
+        bashCmd = QString("pkexec apt install %1").arg(package);
     }
     else if (package.endsWith(".rpm")) {
-        bashCmd = QString("pkexec rpm -i --replacefiles --replacepkgs %1").arg(package);
+        bashCmd = QString("pkexec dnf upgrade -y %1").arg(package);
     }
     else if (package.endsWith(".zst")) {
         bashCmd = QString("pkexec pacman -U --noconfirm %1").arg(package);
