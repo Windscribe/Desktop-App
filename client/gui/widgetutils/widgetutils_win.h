@@ -1,7 +1,8 @@
-#ifndef WIDGETUTILS_WIN_H
-#define WIDGETUTILS_WIN_H
+#pragma once
 
+#include <QIcon>
 #include <QPixmap>
+#include <QWidget>
 
 namespace WidgetUtils_win {
 
@@ -10,7 +11,6 @@ QPixmap extractWindowsAppProgramIcon(QString filePath);
 void updateSystemTrayIcon(const QPixmap &pixmap, QString tooltip);
 void fixSystemTrayIconDblClick();
 
+void setTaskbarIconOverlay(const QWidget &appMainWindow, const QIcon *icon);
+
 }
-
-
-#endif // WIDGETUTILS_WIN_H

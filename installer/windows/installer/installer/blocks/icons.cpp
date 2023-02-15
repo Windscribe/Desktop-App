@@ -24,46 +24,25 @@ int Icons::executeStep()
     CoInitialize(nullptr);
 
     const wstring& installPath = Settings::instance().getPath();
-    wstring uninstallExeFilename = Path::AddBackslash(installPath) + ApplicationInfo::instance().getUninstall();
-
-    wstring common_desktop = pathsToFolders_.GetShellFolder(true, sfDesktop, false);
-
-    // Note that for the desktop and start menu shortcuts, we actually create a shortcut for explorer.exe,
-    // with the Windscribe app as an argument.  We do this because on Windows 10+, the default taskbar setting
-    // for "Combine Taskbar Buttons" is "Always; hide labels", which groups app windows together.
-    // When this setting is enabled, Windows searches the start menu and desktop to find shortcuts for the
-    // app being grouped, and the shortcut's icon supercedes the application's actual window icon, even if
-    // there is only one window.  By setting the shortcut as we do here, we circumvent this so that an icon is
-    // not found; Windows then falls back to using the actual window icon, which is what we want since we
-    // change it based on connection state.
+    const wstring installPathWithPathSep = Path::AddBackslash(installPath);
+    const wstring uninstallExeFilename = installPathWithPathSep + ApplicationInfo::instance().getUninstall();
 
     if (isCreateShortcut_) {
         //C:\\Users\\Public\\Desktop\\Windscribe.lnk
+        wstring common_desktop = pathsToFolders_.GetShellFolder(true, sfDesktop, false);
         createShortcut(common_desktop + L"\\" + ApplicationInfo::instance().getName() + L".lnk",
-                       L"%WINDIR%\\explorer.exe",
-                       Path::AddBackslash(installPath) + L"Windscribe.exe",
-                       installPath,
-                       Path::AddBackslash(installPath) + L"Windscribe.exe",
-                       0);
+                       installPathWithPathSep + L"Windscribe.exe", L"", installPath, L"", 0);
     }
 
-    wstring group = pathsToFolders_.GetShellFolder(true, sfPrograms, false);
+    const wstring group = pathsToFolders_.GetShellFolder(true, sfPrograms, false);
 
     //C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs\\Windscribe\\Uninstall Windscribe.lnk
     createShortcut(group + L"\\"+ ApplicationInfo::instance().getName() + L"\\Uninstall Windscribe.lnk",
-                   uninstallExeFilename,
-                   L"",
-                   installPath,
-                   L"",
-                   0);
+                   uninstallExeFilename, L"", installPath, L"", 0);
 
     //C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs\\Windscribe\\Windscribe.lnk
-    createShortcut(group + L"\\"+ ApplicationInfo::instance().getName() + L"\\Windscribe.lnk",
-                   L"%WINDIR%\\explorer.exe",
-                   Path::AddBackslash(installPath) + L"Windscribe.exe",
-                   installPath,
-                   Path::AddBackslash(installPath) + L"Windscribe.exe",
-                   0);
+    createShortcut(group + L"\\" + ApplicationInfo::instance().getName() + L"\\Windscribe.lnk",
+                   installPathWithPathSep + L"Windscribe.exe", L"", installPath, L"", 0);
 
     CoUninitialize();
     return 100;

@@ -1,6 +1,8 @@
 #include "iconmanager.h"
-#include <QApplication>
+
+#if defined(Q_OS_MAC)
 #include "dpiscalemanager.h"
+#endif
 
 #include "utils/logger.h"
 
@@ -29,6 +31,10 @@ IconManager::IconManager()
         ":/resources/icons/win/CONNECTING_BLACK.ico", // ICON_TRAY_CONNECTING_LIGHT
         ":/resources/icons/win/ON_WHITE.ico",         // ICON_TRAY_CONNECTED_DARK
         ":/resources/icons/win/ON_BLACK.ico",         // ICON_TRAY_CONNECTED_LIGHT
+#endif
+#if defined(Q_OS_WIN)
+        ":/resources/icons/win/ConnectingShield.ico", // ICON_OVERLAY_CONNECTING
+        ":/resources/icons/win/ConnectedShield.ico",  // ICON_OVERLAY_CONNECTED
 #endif
     };
 
