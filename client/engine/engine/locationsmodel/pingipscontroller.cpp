@@ -20,7 +20,6 @@ PingIpsController::PingIpsController(QObject *parent, IConnectStateController *s
     int pingMinute = Utils::generateIntegerRandom(0, 59);
     int pingSecond = Utils::generateIntegerRandom(0, 59);
 
-    isNeedPingForNextDisconnectState_ = false;
     dtNextPingTime_ = QDateTime::currentDateTime();
 
     if (dtNextPingTime_.time().hour() < pingHour) {
@@ -51,7 +50,6 @@ void PingIpsController::updateIps(const QVector<PingIpInfo> &ips)
             pni.latestPingFailed_ = false;
             pni.bNowPinging_ = false;
             pni.failedPingsInRow = 0;
-            pni.latestPingFromDisconnectedState_ = false;
             pni.nextTimeForFailedPing_ = 0;
             pni.pingType = ip_info.pingType_;
             pni.city_ = ip_info.city_;
@@ -83,7 +81,8 @@ void PingIpsController::updateIps(const QVector<PingIpInfo> &ips)
 
 void PingIpsController::onPingTimer()
 {
-    if (!networkDetectionManager_->isOnline()) {
+    // We don't attempt to issue a ping request when state is CONNECT_STATE_CONNECTING, as the firewall will block it.
+    if (!networkDetectionManager_->isOnline() || connectStateController_->currentState() != CONNECT_STATE_DISCONNECTED) {
         return;
     }
 
@@ -96,84 +95,80 @@ void PingIpsController::onPingTimer()
         Q_EMIT needIncrementPingIteration();
     }
 
-    CONNECT_STATE curConnectState = connectStateController_->currentState();
-
-    if (bNeedPingByTime && curConnectState != CONNECT_STATE_DISCONNECTED) {
-        isNeedPingForNextDisconnectState_ = true;
-    }
-
     for (QHash<QString, PingNodeInfo>::iterator it = ips_.begin(); it != ips_.end(); ++it) {
-        PingNodeInfo pni = it.value();
+        PingNodeInfo &pni = it.value();
 
-        if (it.value().bNowPinging_) {
+        if (pni.bNowPinging_) {
             continue;
         }
 
-        if ((bNeedPingByTime || isNeedPingForNextDisconnectState_) && curConnectState == CONNECT_STATE_DISCONNECTED) {
+        if (bNeedPingByTime) {
             pingLog_.addLog("PingNodesController::onPingTimer", tr("start ping by time for: %1 (%2 - %3)").arg(it.key(), pni.city_, pni.nick_));
-            it.value().bNowPinging_ = true;
-            pingHost_->addHostForPing(it.key(), it.value().pingType);
+            pni.bNowPinging_ = true;
+            pingHost_->addHostForPing(it.key(), pni.pingType);
         }
         else if (!pni.isExistPingAttempt) {
             pingLog_.addLog("PingNodesController::onPingTimer", tr("ping new node: %1 (%2 - %3)").arg(it.key(), pni.city_, pni.nick_));
-            it.value().bNowPinging_ = true;
-            pingHost_->addHostForPing(it.key(), it.value().pingType);
+            pni.bNowPinging_ = true;
+            pingHost_->addHostForPing(it.key(), pni.pingType);
         }
         else if (pni.latestPingFailed_) {
             if (pni.nextTimeForFailedPing_ == 0 || QDateTime::currentMSecsSinceEpoch() >= pni.nextTimeForFailedPing_) {
                 //pingLog_.addLog("PingNodesController::onPingTimer", "start ping because latest ping failed: " + it.key());
-                it.value().bNowPinging_ = true;
-                pingHost_->addHostForPing(it.key(), it.value().pingType);
+                pni.bNowPinging_ = true;
+                pingHost_->addHostForPing(it.key(), pni.pingType);
             }
         }
-        else if (!pni.latestPingFromDisconnectedState_ && curConnectState == CONNECT_STATE_DISCONNECTED) {
-            pingLog_.addLog("PingNodesController::onPingTimer", tr("start ping from disconnected state, because latest ping was in connected state: %1 (%2 - %3)").arg(it.key(), pni.city_, pni.nick_));
-            it.value().bNowPinging_ = true;
-            pingHost_->addHostForPing(it.key(), it.value().pingType);
-        }
-    }
-
-    if (isNeedPingForNextDisconnectState_ && curConnectState == CONNECT_STATE_DISCONNECTED) {
-        isNeedPingForNextDisconnectState_ = false;
     }
 }
 
 void PingIpsController::onPingFinished(bool bSuccess, int timems, const QString &ip, bool isFromDisconnectedState)
 {
     auto itNode = ips_.find(ip);
-    if (itNode != ips_.end()) {
-        itNode.value().bNowPinging_ = false;
+    if (itNode == ips_.end()) {
+        return;
+    }
 
-        if (bSuccess) {
-            itNode.value().isExistPingAttempt = true;
-            itNode.value().latestPingFailed_ = false;
-            itNode.value().latestPingFromDisconnectedState_ = isFromDisconnectedState;
-            itNode.value().failedPingsInRow = 0;
+    // Note: we only issue ping requests in the disconnected state.  However, it is possible we transitioned to the
+    // connecting/connected state between the time the ping request was issued to PingHost and when it was executed.
 
-            pingLog_.addLog("PingIpsController::onPingFinished",
-                tr("ping successfully from %1 state: %2 (%3 - %4) %5ms").arg(isFromDisconnectedState ? tr("disconnected") : tr("connected"), ip, itNode->city_, itNode->nick_).arg(timems));
+    PingNodeInfo &pni = itNode.value();
+    pni.bNowPinging_ = false;
 
-            Q_EMIT pingInfoChanged(ip, timems, isFromDisconnectedState);
+    if (bSuccess) {
+        // If the ping was executed in the connected state, we'll mark it as never happening and reissue it when
+        // we're back in the disconnected state.
+        pni.isExistPingAttempt = isFromDisconnectedState;
+        pni.latestPingFailed_ = false;
+        pni.failedPingsInRow = 0;
+
+        if (isFromDisconnectedState) {
+            Q_EMIT pingInfoChanged(ip, timems);
+            pingLog_.addLog("PingIpsController::onPingFinished", tr("ping successful: %1 (%2 - %3) %4ms").arg(ip, pni.city_, pni.nick_).arg(timems));
         }
         else {
-            itNode.value().isExistPingAttempt = true;
-            itNode.value().latestPingFailed_ = true;
-            itNode.value().failedPingsInRow++;
+            pingLog_.addLog("PingIpsController::onPingFinished", tr("discarding ping while connected: %1 (%2 - %3)").arg(ip, pni.city_, pni.nick_));
+        }
+    }
+    else {
+        pni.isExistPingAttempt = true;
+        pni.latestPingFailed_ = true;
+        pni.failedPingsInRow++;
 
-            if (itNode.value().failedPingsInRow >= MAX_FAILED_PING_IN_ROW) {
-                //pingLog_.addLog("PingIpsController::onPingFinished", "ping failed 3 times at row: " + ip);
-                itNode.value().failedPingsInRow = 0;
-                // next ping attempt in 1 mins
-                itNode.value().nextTimeForFailedPing_ = QDateTime::currentMSecsSinceEpoch() + 1000 * 60;
-                Q_EMIT pingInfoChanged(ip, PingTime::PING_FAILED, isFromDisconnectedState);
-                if (failedPingLogController_.logFailedIPs(ip)) {
-                    pingLog_.addLog("PingIpsController::onPingFinished", tr("ping failed: %1 (%2 - %3)").arg(ip, itNode->city_, itNode->nick_));
-                }
+        if (pni.failedPingsInRow >= MAX_FAILED_PING_IN_ROW) {
+            pni.failedPingsInRow = 0;
+            pni.nextTimeForFailedPing_ = QDateTime::currentMSecsSinceEpoch() + 1000 * 60;
+
+            if (isFromDisconnectedState) {
+                Q_EMIT pingInfoChanged(ip, PingTime::PING_FAILED);
             }
-            else {
-                itNode.value().nextTimeForFailedPing_ = 0;
-                //pingLog_.addLog("PingIpsController::onPingFinished", "ping failed: " + ip);
+
+            if (failedPingLogController_.logFailedIPs(ip)) {
+                pingLog_.addLog("PingIpsController::onPingFinished", tr("ping failed: %1 (%2 - %3)").arg(ip, pni.city_, pni.nick_));
             }
+        }
+        else {
+            pni.nextTimeForFailedPing_ = 0;
         }
     }
 }
