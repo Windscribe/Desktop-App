@@ -127,7 +127,7 @@ if (APPLE)
 
     if(EXISTS "${WINDSCRIBE_BUILD_LIBS_PATH}/dga/libdga.dylib")
         add_custom_command(TARGET Windscribe POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                           "${WINDSCRIBE_BUILD_LIBS_PATH}/dga/libdga.dylib" $<TARGET_FILE_DIR:Windscribe>/../Library/libdga.dylib)
+                           "${WINDSCRIBE_BUILD_LIBS_PATH}/dga/libdga.dylib" $<TARGET_FILE_DIR:Windscribe>/../Helpers/libdga.dylib)
     endif()
 
     add_custom_command(TARGET Windscribe POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different

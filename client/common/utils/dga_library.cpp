@@ -21,7 +21,7 @@ bool DgaLibrary::load()
 #ifdef Q_OS_WIN
     QString dgaLibPath = QCoreApplication::applicationDirPath() + "/dga.dll";
 #elif defined Q_OS_MAC
-    QString dgaLibPath = QCoreApplication::applicationDirPath() + "/../Library/libdga.dylib";
+    QString dgaLibPath = QCoreApplication::applicationDirPath() + "/../Helpers/libdga.dylib";
 #elif defined Q_OS_LINUX
     QString dgaLibPath = QCoreApplication::applicationDirPath() + "/lib/libdga.so";
 #endif
