@@ -192,11 +192,12 @@ void FirewallFilter::addFilters(HANDLE engineHandle, const wchar_t *ip, bool bAl
 
             // Explicitly allow local addresses on this interface
             const std::vector<Ip4AddressAndMask> localAddrs = Ip4AddressAndMask::fromVector(ai.getAdapterAddresses(*it));
-            ret = Utils::addFilterV4(engineHandle, nullptr, FWP_ACTION_PERMIT, 8, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, &localAddrs);
-            if (!ret) {
-                Logger::instance().out(L"Could not add reserved allow filter on private address for VPN interface");
+            if (!localAddrs.empty()) {
+                ret = Utils::addFilterV4(engineHandle, nullptr, FWP_ACTION_PERMIT, 8, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, &localAddrs);
+                if (!ret) {
+                    Logger::instance().out(L"Could not add reserved allow filter on private address for VPN interface");
+                }
             }
-
             // Disallow all other private, link-local, loopback networks from going over tunnel
             const std::vector<Ip4AddressAndMask> priv = Ip4AddressAndMask::fromVector(
                 {L"10.0.0.0/8", L"172.16.0.0/12", L"192.168.0.0/16", L"169.254.0.0/16", L"224.0.0.0/24"});
