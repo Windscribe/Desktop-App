@@ -297,22 +297,24 @@ bool CalloutFilter::addFilters(HANDLE engineHandle, bool withTcpFilters)
                 }
             }
 
-            FWPM_FILTER filter = { 0 };
-            filter.subLayerKey = SUBLAYER_CALLOUT_GUID;
-            filter.layerKey = FWPM_LAYER_ALE_CONNECT_REDIRECT_V4;
-            filter.displayData.name = (wchar_t *)L"Windscribe TCP exception filter for callout driver";
-            filter.weight.type = FWP_UINT8;
-            filter.weight.uint8 = 0x01;
-            filter.numFilterConditions = static_cast<UINT32>(conditions.size());
-            filter.filterCondition = &conditions[0];
-            filter.action.type = FWP_ACTION_PERMIT;
+            if (!conditions.empty()) {
+                FWPM_FILTER filter = { 0 };
+                filter.subLayerKey = SUBLAYER_CALLOUT_GUID;
+                filter.layerKey = FWPM_LAYER_ALE_CONNECT_REDIRECT_V4;
+                filter.displayData.name = (wchar_t *)L"Windscribe TCP exception filter for callout driver";
+                filter.weight.type = FWP_UINT8;
+                filter.weight.uint8 = 0x01;
+                filter.numFilterConditions = static_cast<UINT32>(conditions.size());
+                filter.filterCondition = &conditions[0];
+                filter.action.type = FWP_ACTION_PERMIT;
 
-            UINT64 filterId;
-            DWORD ret = FwpmFilterAdd(engineHandle, &filter, NULL, &filterId);
-            retValue = (ret == ERROR_SUCCESS);
-            if (!retValue) {
-                Logger::instance().out(L"CalloutFilter::addFilter(), TCP exception filter failed: %u", ret);
-                return retValue;
+                UINT64 filterId;
+                DWORD ret = FwpmFilterAdd(engineHandle, &filter, NULL, &filterId);
+                retValue = (ret == ERROR_SUCCESS);
+                if (!retValue) {
+                    Logger::instance().out(L"CalloutFilter::addFilter(), TCP exception filter failed: %u", ret);
+                    return retValue;
+                }
             }
         }
 
