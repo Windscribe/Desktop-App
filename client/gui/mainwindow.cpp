@@ -2730,8 +2730,17 @@ void MainWindow::activateAndShow()
     WidgetUtils_mac::allowMoveBetweenSpacesForWindow(this, kAllowMoveBetweenSpaces);
 #endif
     mainWindowController_->updateMainAndViewGeometry(true);
-    if (!isVisible() || isMinimized())
+
+    if (!isVisible()) {
         showNormal();
+#ifdef Q_OS_WIN
+        // Windows will have removed our icon overlay if the app was hidden.
+        updateAppIconType(currentAppIconType_);
+#endif
+    }
+    else if (isMinimized())
+        showNormal();
+
     if (!isActiveWindow())
         activateWindow();
 #ifdef Q_OS_MAC
@@ -3601,8 +3610,11 @@ void MainWindow::collapsePreferences()
 
 void MainWindow::updateAppIconType(AppIconType type)
 {
+    // We need to be able to recreate the icon overlay on Windows even if the icon type hasn't changed.
+    #if !defined(Q_OS_WIN)
     if (currentAppIconType_ == type)
         return;
+    #endif
 
     const QIcon *icon = nullptr;
 
