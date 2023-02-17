@@ -5,8 +5,8 @@ stages:
 
 variables:
   BUILD_WIN: 'y'
-  BUILD_MAC: 'y'
-  BUILD_LINUX: 'y'
+  BUILD_MAC: 'n'
+  BUILD_LINUX: 'n'
   GIT_DEPTH: 5 # Only grab the last 5 commits when cloning
   NEXUS_PATH_ROOT: 'https://nexus.int.windscribe.com/repository/client-desktop/client-desktop'
   NEXUS_PATH_DEPS: '$NEXUS_PATH_ROOT/dependencies/current'
@@ -137,9 +137,9 @@ variables:
 # Build and Upload Installer
 .build_win_installer_common:
   variables:
-    OS_IDENTIFIER: "windows"
+    OS_IDENTIFIER: 'windows'
     # Have to specify curl.exe, rather than curl, as Powershell aliases the 'curl' keyword to its own download mechanism.
-    CURL_COMMAND: "curl.exe"
+    CURL_COMMAND: 'curl.exe'
   script:
     - !reference [.download_dependency_boost, script]
     - !reference [.download_dependency_cares, script ]
@@ -213,8 +213,8 @@ build:win:installer:tagged:
 
 .build_mac_installer_common:
   variables:
-    OS_IDENTIFIER: "macos"
-    CURL_COMMAND: "curl"
+    OS_IDENTIFIER: 'macos'
+    CURL_COMMAND: 'curl'
   script:
     - !reference [.download_dependency_boost, script]
     - !reference [.download_dependency_cares, script ]
@@ -285,8 +285,8 @@ build:mac:installer:tagged:
 
 .build_linux_installer_common:
   variables:
-    OS_IDENTIFIER: "linux"
-    CURL_COMMAND: "curl"
+    OS_IDENTIFIER: 'linux'
+    CURL_COMMAND: 'curl'
   script:
     # download the libs
     - !reference [.download_dependency_boost, script]
@@ -425,7 +425,7 @@ build:archlinux:installer:
   stage: Build Arch Linux
   variables:
     GIT_STRATEGY: clone
-    OS_IDENTIFIER: "linux"
+    OS_IDENTIFIER: 'linux'
   script:
     - !reference [.build_archlinux_installer_prep_build_dir, script]
     - export APP_DOWNLOAD_URL="${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/windscribe_${VERSION}_amd64.deb"
