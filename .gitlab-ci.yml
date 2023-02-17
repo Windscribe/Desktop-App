@@ -76,71 +76,72 @@ variables:
 
 .download_dependency_boost:
   script:
-    - echo $CURL_COMMAND
-    - $CURL_COMMAND --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --create-dirs -o build-libs/boost.zip "${NEXUS_PATH_DEPS}/${OS_IDENTIFIER}/boost.zip"
 
 .download_dependency_cares:
   script:
-    - $CURL_COMMAND --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --create-dirs -o build-libs/cares.zip "${NEXUS_PATH_DEPS}/${OS_IDENTIFIER}/cares.zip"
 
 .download_dependency_curl:
   script:
-    - $CURL_COMMAND --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --create-dirs -o build-libs/curl.zip "${NEXUS_PATH_DEPS}/${OS_IDENTIFIER}/curl.zip"
 
 .download_dependency_dga:
   script:
-    - $CURL_COMMAND --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --create-dirs -o build-libs/dga.zip "${NEXUS_PATH_DEPS}/${OS_IDENTIFIER}/dga.zip"
 
 .download_dependency_jom:
   script:
-    - $CURL_COMMAND --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --create-dirs -o build-libs/jom.zip "${NEXUS_PATH_DEPS}/${OS_IDENTIFIER}/jom.zip"
 
 .download_dependency_lzo:
   script:
-    - $CURL_COMMAND --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --create-dirs -o build-libs/lzo.zip "${NEXUS_PATH_DEPS}/${OS_IDENTIFIER}/lzo.zip"
 
 .download_dependency_openssl:
   script:
-    - $CURL_COMMAND --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --create-dirs -o build-libs/openssl.zip "${NEXUS_PATH_DEPS}/${OS_IDENTIFIER}/openssl.zip"
 
 .download_dependency_openvpn:
   script:
-    - $CURL_COMMAND --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --create-dirs -o build-libs/openvpn_2_5_4.zip "${NEXUS_PATH_DEPS}/${OS_IDENTIFIER}/openvpn_2_5_4.zip"
 
 .download_dependency_qt:
   script:
-    - $CURL_COMMAND --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --create-dirs -o build-libs/qt.zip "${NEXUS_PATH_DEPS}/${OS_IDENTIFIER}/qt.zip"
 
 .download_dependency_stunnel:
   script:
-    - $CURL_COMMAND --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --create-dirs -o build-libs/stunnel.zip "${NEXUS_PATH_DEPS}/${OS_IDENTIFIER}/stunnel.zip"
 
 .download_dependency_wireguard:
   script:
-    - $CURL_COMMAND --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --create-dirs -o build-libs/wireguard.zip "${NEXUS_PATH_DEPS}/${OS_IDENTIFIER}/wireguard.zip"
 
 .download_dependency_zlib:
   script:
-    - $CURL_COMMAND --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --create-dirs -o build-libs/zlib.zip "${NEXUS_PATH_DEPS}/${OS_IDENTIFIER}/zlib.zip"
 
 # Build and Upload Installer
 .build_win_installer_common:
+  variables:
+    OS_INDENTIFIER: 'windows'
   script:
-    - Set-Variable -name OS_IDENTIFIER -value "windows"
-    # Have to specify curl.exe, rather than curl, as Powershell aliases the 'curl' keyword to its own download mechanism.
-    - Set-Variable -name CURL_COMMAND -value "curl.exe"
+    #- Set-Variable -name OS_IDENTIFIER -value "windows"
+    # Remove the default Powershell curl aliases so we can call curl.exe
+    - Remove-Item alias:curl
     - !reference [.download_dependency_boost, script]
     - !reference [.download_dependency_cares, script ]
     - !reference [.download_dependency_curl, script]
@@ -155,11 +156,11 @@ variables:
     - !reference [.download_dependency_zlib, script]
     - 'IF(Test-Path .\build-libs\) {Get-ChildItem .\build-libs\*.zip | Foreach {.\tools\bin\7z.exe x $_.FullName -obuild-libs\}}'
     # extractions
-    - Set-Variable -name VAULT_CLIENT_TOKEN -value $($CURL_COMMAND --cacert tools/cacert.pem
+    - Set-Variable -name VAULT_CLIENT_TOKEN -value $(curl --cacert tools/cacert.pem
       --data "{\`"role_id\`":\`"$VAULT_ROLE_ID\`",\`"secret_id\`":\`"$VAULT_SECRET_ID\`"}"
       $VAULT_ADDR/v1/auth/approle/login | python3 tools/base/vaulthelper.py --get-client-token)
     # get the secrets JSON and put in VAULT_RESPONSE_JSON
-    - "Set-Variable -name VAULT_RESPONSE_JSON -value $($CURL_COMMAND --cacert tools/cacert.pem -H \"X-Vault-Token: $VAULT_CLIENT_TOKEN\" $VAULT_ADDR/v1/kv/cicd/client-desktop)"
+    - "Set-Variable -name VAULT_RESPONSE_JSON -value $(curl --cacert tools/cacert.pem -H \"X-Vault-Token: $VAULT_CLIENT_TOKEN\" $VAULT_ADDR/v1/kv/cicd/client-desktop)"
     # parse the secrets
     - Set-Variable -name CODE_SIGNING_PFX_BASE64 -value $(echo $VAULT_RESPONSE_JSON | python3 tools/base/vaulthelper.py --get-windows-cert)
     - Set-Variable -name NOTARIZE_YML -value $(echo $VAULT_RESPONSE_JSON | python3 tools/base/vaulthelper.py --get-notarize-yml)
