@@ -1,20 +1,17 @@
-# Define Stages
 stages:
-  - Build Tests
-  - Run Tests
   - Build
   - Build Arch Linux
   - Artifact Links
 
-# Set variables inherited by all jobs
 variables:
+  BUILD_WIN: 'y'
+  BUILD_MAC: 'y'
+  BUILD_LINUX: 'y'
   GIT_DEPTH: 5 # Only grab the last 5 commits when cloning
-  NEXUS_BASEURL: 'https://nexus.int.windscribe.com'
-  PROJECT_NAME: client-desktop # temporarily override CI_PROJECT_NAME while using client-desktop-public so we can interact with nexus
-  NEXUS_PATH_ROOT: '/repository/$PROJECT_NAME/$PROJECT_NAME'
-  NEXUS_PATH_BRANCHES: '/branches'
-  NEXUS_PATH_DEPS: '/repository/$PROJECT_NAME/$PROJECT_NAME/dependencies'
-  NEXUS_PATH_DEPS_BRANCHES: '/branches'
+  NEXUS_PATH_ROOT: 'https://nexus.int.windscribe.com/repository/client-desktop/client-desktop'
+  NEXUS_PATH_DEPS: '$NEXUS_PATH_ROOT/dependencies/current'
+  NEXUS_PATH_BRANCH_UPLOAD: '${NEXUS_PATH_ROOT}/branches/${CI_COMMIT_BRANCH}'
+  NEXUS_PATH_TAGGED_UPLOAD: '${NEXUS_PATH_ROOT}/tagged-builds/$VERSION_NO_SUFFIX'
   CODE_SIGNING_PFX_PATH: 'installer\windows\signing\code_signing.pfx'
   CODE_SIGNING_LINUX_PATH: 'client/common/keys/linux'
   CODE_SIGNING_LINUX_PRIVATE_KEY_FILE: '$CODE_SIGNING_LINUX_PATH/key.pem'
@@ -22,33 +19,17 @@ variables:
   NOTARIZE_YML_PATH: 'tools/notarize.yml'
   CODE_SIGNING_PROVISION_PROFILE_FOLDER_PATH : 'backend/mac/provisioning_profile'
   CODE_SIGNING_PROVISION_PROFILE_PATH: '$CODE_SIGNING_PROVISION_PROFILE_FOLDER_PATH/embedded.provisionprofile'
-  BUILDROOT: 'build-libs'
-  ARTIFACT_INSTALLER: 'installer.exe'
-  BUILD_WIN: 'y'
-  BUILD_MAC: 'y'
-  BUILD_LINUX: 'y'
-  TEST_WIN: 'n' # tests will only run if BUILD_WIN also 'y'
-  TEST_MAC: 'n' # tests will only run if BUILD_MAC also 'y'
-  TEST_LINUX: 'n' # tests will only run if BUILD_LINUX also 'y'
   ARCH_LINUX_BUILD_PATH: '/home/build/windscribe'
   RHEL_CMAKE_BUILD_PATH: '/home/build/windscribe'
-  RUNNING_CI: 1 # used by tools/build_all.bat on Windows
-
-# pull in other yaml files
-include:
-  - local: 'vars.yml'
-  - local: functions.yml
 
 .template_win10_build: &template_win10_build
   tags: [win10qty6]
   before_script:
-    # run this blindly until baked into image
     - python3 -m pip install -r tools/requirements.txt
 
 .template_mac_build: &template_mac_build
   tags: [macos11qt6]
   before_script:
-    # run this blindly until baked into image
     - python3 -m pip install -r tools/requirements.txt
 
 .template_ubuntu_build: &template_ubuntu_build
@@ -56,7 +37,7 @@ include:
   before_script:
     # run this blindly until baked into image
     - DEBIAN_FRONTEND=noninteractive apt-get -y update
-    - DEBIAN_FRONTEND=noninteractive apt-get -y install build-essential git curl patchelf ruby-dev rpm libpam0g-dev software-properties-common libgl1-mesa-dev fakeroot python3-pip
+    - DEBIAN_FRONTEND=noninteractive apt-get -y install build-essential git curl patchelf libpam0g-dev software-properties-common libgl1-mesa-dev fakeroot python3-pip
     - DEBIAN_FRONTEND=noninteractive apt-get -y update
     - DEBIAN_FRONTEND=noninteractive apt-get -y install wget autoconf libtool
     # install cmake 3.23.x (default for Ubuntu 20.04 is 3.16.3)
@@ -66,7 +47,6 @@ include:
     - DEBIAN_FRONTEND=noninteractive apt-get -y install cmake
     # Qt 6 dependencies
     - DEBIAN_FRONTEND=noninteractive apt-get -y install libfontconfig1-dev libfreetype6-dev libx11-dev libx11-xcb-dev libxext-dev libxfixes-dev libxi-dev libxrender-dev libxcb1-dev libxcb-glx0-dev libxcb-keysyms1-dev libxcb-image0-dev libxcb-shm0-dev libxcb-icccm4-dev libxcb-sync0-dev libxcb-xfixes0-dev libxcb-shape0-dev libxcb-randr0-dev libxcb-render-util0-dev libxcb-util-dev libxcb-xinerama0-dev libxcb-xkb-dev libxkbcommon-dev libxkbcommon-x11-dev
-    - gem i fpm -f
     # Only necessary to install golang if we're building the WireGuard package.
     #- wget -q https://go.dev/dl/go1.18.2.linux-amd64.tar.gz
     #- rm -rf /usr/local/go && tar -C /usr/local -xzf go1.18.2.linux-amd64.tar.gz && export PATH=$PATH:/usr/local/go/bin
@@ -82,10 +62,9 @@ include:
     # run this blindly until baked into image
     - dnf -y update
     - dnf group install -y "Development Tools"
-    - dnf install -y gcc-c++ patchelf libxkbcommon-devel mesa-libGL-devel mesa-vulkan-devel dpkg fakeroot ruby-devel cmake python3-pip wget rpm-build
+    - dnf install -y gcc-c++ patchelf libxkbcommon-devel mesa-libGL-devel mesa-vulkan-devel cmake python3-pip wget rpm-build
     # Qt 6 dependencies
     - dnf install -y fontconfig-devel freetype-devel libX11-devel libxcb-devel xcb-util-devel xcb-util-image-devel xcb-util-cursor-devel xcb-util-keysyms-devel xcb-util-renderutil-devel libxkbcommon-x11-devel
-    - gem i fpm -f
     - python3 -m pip install --user -r tools/requirements.txt
     # install cmake 3.23.x (default for Fedora 29 is 3.14.5)
     - wget -q -N https://cmake.org/files/v3.23/cmake-3.23.5-linux-x86_64.sh -P ${RHEL_CMAKE_BUILD_PATH}
@@ -95,128 +74,92 @@ include:
     # hack to fix 777 file permissions, which breaks the dpkg-deb command in the build_all script.
     - chmod -R o-w installer/linux
 
-# Build Tests
-testing:win:buildtestgui:
-  <<: *template_win10_build
-  stage: Build Tests
-  variables:
-    GIT_STRATEGY: clone
+.download_dependency_boost:
   script:
-    # download necessary libs
-    - !reference [.download_qt_win, script]
-    - IF(Test-Path .\build-libs\) {Get-ChildItem .\build-libs\*.zip | Foreach {.\tools\bin\7z.exe x $_.FullName $("-obuild-libs\"+$([io.path]::GetFileNameWithoutExtension($_.name)))}}
-    # extraction and build
-    - powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command .\.base64_decode.ps1
-    - tools/build_test_gui
-    # upload test gui
-    - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --upload-file test-exe/gui/TestGui.exe
-      "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/${DATE}/${CI_COMMIT_SHORT_SHA}/win/TestGui.exe"
-    - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --upload-file test-exe/gui/TestGui.exe
-      "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/TestGui.exe"
-  rules:
-    - if: $BUILD_WIN == "y" && $TEST_WIN == "y"
+    - ${CURL_COMMAND} --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+      --create-dirs -o build-libs/boost.zip "${NEXUS_PATH_DEPS}/${OS_IDENTIFIER}/boost.zip"
 
-testing:mac:buildtestgui:
-  <<: *template_mac_build
-  stage: Build Tests
-  variables:
-    GIT_STRATEGY: clone
+.download_dependency_cares:
   script:
-    # download necessary libs
-    - !reference [ .download_qt_mac, script ]
-    - if [ -d ./build-libs/ ]; then for z in ./build-libs/*.zip; do unzip -qod ${z%%.zip} $z; done; fi
-    # build the test
-    - tools/build_test_gui
-    # upload test-gui
-    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --upload-file test-exe/gui/TestGui
-      "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/${DATE}/${CI_COMMIT_SHORT_SHA}/macos/TestGui"
-    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --upload-file test-exe/gui/TestGui
-      "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/TestGui"
-  rules:
-    - if: $BUILD_MAC == "y" && $TEST_MAC == "y"
+    - ${CURL_COMMAND} --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+      --create-dirs -o build-libs/cares.zip "${NEXUS_PATH_DEPS}/${OS_IDENTIFIER}/cares.zip"
 
-# Run Tests
-testing:win:runtestgui:
-  <<: *template_win10_build
-  stage: Run Tests
-  variables:
-    GIT_STRATEGY: clone
+.download_dependency_curl:
   script:
-    - !reference [ .download_qt_win, script ]
-    - !reference [ .download_openssl_win, script ]
-    # download testgui
-    - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --create-dirs -o test-exe/gui/TestGui.exe
-      "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/TestGui.exe"
-    - IF(Test-Path .\build-libs\) {Get-ChildItem .\build-libs\*.zip | Foreach {.\tools\bin\7z.exe x $_.FullName $("-obuild-libs\"+$([io.path]::GetFileNameWithoutExtension($_.name)))}}
-    # extractions and run test
-    - powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command .\.base64_decode.ps1
-    - Set-Variable -name VERSION -value $(python3 tools/base/extract.py)
-    - tools/run_test_gui
-    # upload logs
-    - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --upload-file test-exe/gui/TestGui-$VERSION.log
-      "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/${DATE}/${CI_COMMIT_SHORT_SHA}/win/TestGui-$VERSION.log"
-    - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --upload-file test-exe/gui/TestGui-$VERSION.log
-      "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/TestGui-$VERSION.log"
-  rules:
-    - if: $BUILD_WIN == "y" && $TEST_WIN == "y"
+    - ${CURL_COMMAND} --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+      --create-dirs -o build-libs/curl.zip "${NEXUS_PATH_DEPS}/${OS_IDENTIFIER}/curl.zip"
 
-testing:mac:runtestgui:
-  <<: *template_mac_build
-  stage: Run Tests
-  variables:
-    GIT_STRATEGY: clone
+.download_dependency_dga:
   script:
-    # download necessary files
-    - !reference [ .download_qt_mac, script ]
-    - !reference [ .download_openssl_mac, script ]
-    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --create-dirs -o test-exe/gui/TestGui
-      "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/TestGui"
-    # extraction and build
-    - if [ -d ./build-libs/ ]; then for z in ./build-libs/*.zip; do unzip -qod ${z%%.zip} $z; done; fi
-    - VERSION=$(python3 tools/base/extract.py)
-    - chmod +x test-exe/gui/TestGui
-    - tools/run_test_gui
-    # upload logs
-    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --upload-file test-exe/gui/TestGui-$VERSION.log
-      "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/${DATE}/${CI_COMMIT_SHORT_SHA}/macos/TestGui-$VERSION.log"
-    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --upload-file test-exe/gui/TestGui-$VERSION.log
-      "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/TestGui-$VERSION.log"
-  rules:
-    - if: $BUILD_MAC == "y" && $TEST_MAC == "y"
+    - ${CURL_COMMAND} --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+      --create-dirs -o build-libs/dga.zip "${NEXUS_PATH_DEPS}/${OS_IDENTIFIER}/dga.zip"
+
+.download_dependency_jom:
+  script:
+    - ${CURL_COMMAND} --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+      --create-dirs -o build-libs/jom.zip "${NEXUS_PATH_DEPS}/${OS_IDENTIFIER}/jom.zip"
+
+.download_dependency_lzo:
+  script:
+    - ${CURL_COMMAND} --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+      --create-dirs -o build-libs/lzo.zip "${NEXUS_PATH_DEPS}/${OS_IDENTIFIER}/lzo.zip"
+
+.download_dependency_openssl:
+  script:
+    - ${CURL_COMMAND} --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+      --create-dirs -o build-libs/openssl.zip "${NEXUS_PATH_DEPS}/${OS_IDENTIFIER}/openssl.zip"
+
+.download_dependency_openvpn:
+  script:
+    - ${CURL_COMMAND} --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+      --create-dirs -o build-libs/openvpn_2_5_4.zip "${NEXUS_PATH_DEPS}/${OS_IDENTIFIER}/openvpn_2_5_4.zip"
+
+.download_dependency_qt:
+  script:
+    - ${CURL_COMMAND} --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+      --create-dirs -o build-libs/qt.zip "${NEXUS_PATH_DEPS}/${OS_IDENTIFIER}/qt.zip"
+
+.download_dependency_stunnel:
+  script:
+    - ${CURL_COMMAND} --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+      --create-dirs -o build-libs/stunnel.zip "${NEXUS_PATH_DEPS}/${OS_IDENTIFIER}/stunnel.zip"
+
+.download_dependency_wireguard:
+  script:
+    - ${CURL_COMMAND} --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+      --create-dirs -o build-libs/wireguard.zip "${NEXUS_PATH_DEPS}/${OS_IDENTIFIER}/wireguard.zip"
+
+.download_dependency_zlib:
+  script:
+    - ${CURL_COMMAND} --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+      --create-dirs -o build-libs/zlib.zip "${NEXUS_PATH_DEPS}/${OS_IDENTIFIER}/zlib.zip"
 
 # Build and Upload Installer
 .build_win_installer_common:
+  variables:
+    OS_IDENTIFIER: "windows"
+    # Have to specify curl.exe, rather than curl, as Powershell aliases the 'curl' keyword to its own download mechanism.
+    CURL_COMMAND: "curl.exe"
   script:
-    # download the libs
-    - !reference [.download_jom_win, script]
-    - !reference [.download_cares_win, script ]
-    - !reference [.download_lzo_win, script]
-    - !reference [.download_boost_win, script]
-    - !reference [.download_wireguard_win, script]
-    - !reference [.download_openssl_win, script]
-    - !reference [.download_zlib_win, script]
-    - !reference [.download_curl_win, script]
-    - !reference [.download_openvpn_win, script]
-    - !reference [.download_qt_win, script]
-    - !reference [.download_stunnel_win, script]
-    - !reference [.download_dga_win, script]
+    - !reference [.download_dependency_boost, script]
+    - !reference [.download_dependency_cares, script ]
+    - !reference [.download_dependency_curl, script]
+    - !reference [.download_dependency_dga, script]
+    - !reference [.download_dependency_jom, script]
+    - !reference [.download_dependency_lzo, script]
+    - !reference [.download_dependency_openssl, script]
+    - !reference [.download_dependency_openvpn, script]
+    - !reference [.download_dependency_qt, script]
+    - !reference [.download_dependency_stunnel, script]
+    - !reference [.download_dependency_wireguard, script]
+    - !reference [.download_dependency_zlib, script]
     - 'IF(Test-Path .\build-libs\) {Get-ChildItem .\build-libs\*.zip | Foreach {.\tools\bin\7z.exe x $_.FullName -obuild-libs\}}'
     # extractions
-    - Set-Variable -name VAULT_CLIENT_TOKEN -value $(tools/bin/curl.exe --cacert tools/cacert.pem
+    - Set-Variable -name VAULT_CLIENT_TOKEN -value $($CURL_COMMAND --cacert tools/cacert.pem
       --data "{\`"role_id\`":\`"$VAULT_ROLE_ID\`",\`"secret_id\`":\`"$VAULT_SECRET_ID\`"}"
       $VAULT_ADDR/v1/auth/approle/login | python3 tools/base/vaulthelper.py --get-client-token)
-    # get the secrets JSON and put in VAULT_RESPONS_JSON
-    - "Set-Variable -name VAULT_RESPONSE_JSON -value $(tools/bin/curl.exe --cacert tools/cacert.pem -H \"X-Vault-Token: $VAULT_CLIENT_TOKEN\" $VAULT_ADDR/v1/kv/cicd/client-desktop)"
+    # get the secrets JSON and put in VAULT_RESPONSE_JSON
+    - "Set-Variable -name VAULT_RESPONSE_JSON -value $($CURL_COMMAND --cacert tools/cacert.pem -H \"X-Vault-Token: $VAULT_CLIENT_TOKEN\" $VAULT_ADDR/v1/kv/cicd/client-desktop)"
     # parse the secrets
     - Set-Variable -name CODE_SIGNING_PFX_BASE64 -value $(echo $VAULT_RESPONSE_JSON | python3 tools/base/vaulthelper.py --get-windows-cert)
     - Set-Variable -name NOTARIZE_YML -value $(echo $VAULT_RESPONSE_JSON | python3 tools/base/vaulthelper.py --get-notarize-yml)
@@ -233,12 +176,12 @@ build:win:installer:
   stage: Build
   variables:
     GIT_STRATEGY: clone
-    ARTIFACT_PATH: $ARTIFACT_INSTALLER
   script:
     - !reference [.build_win_installer_common, script]
-    # upload installer and symbols to nexus
-    - !reference [.upload_installer_to_nexus_latest_win, script ]
-    - !reference [.upload_symbols_to_nexus_latest_win, script ]
+    - ${CURL_COMMAND} --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+      --upload-file build-exe/Windscribe_$VERSION.exe "${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/Windscribe_$VERSION.exe"
+    - ${CURL_COMMAND} --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+      --upload-file build-exe/WindscribeSymbols_$VERSION.zip "${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/WindscribeSymbols_$VERSION.zip"
   rules:
     - if: $BUILD_WIN == "y" && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH != null
 
@@ -248,7 +191,6 @@ build:win:installer:mr:
   stage: Build
   variables:
     GIT_STRATEGY: clone
-    ARTIFACT_PATH: $ARTIFACT_INSTALLER
   script:
     - !reference [.build_win_installer_common, script]
   rules:
@@ -259,33 +201,31 @@ build:win:installer:tagged:
   stage: Build
   variables:
     GIT_STRATEGY: clone
-    ARTIFACT_PATH: $ARTIFACT_INSTALLER
   script:
     - !reference [.build_win_installer_common, script]
-    # upload installer and symbols to nexus
     - Set-Variable -name VERSION_NO_SUFFIX -value $(python3 tools/base/extract.py --no-suffix)
-    - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --upload-file build-exe/Windscribe_$VERSION.exe
-      "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}/tagged-builds/$VERSION_NO_SUFFIX/Windscribe_$VERSION.exe"
-    - tools/bin/curl.exe --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --upload-file build-exe/WindscribeSymbols_$VERSION.zip
-      "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}/tagged-builds/$VERSION_NO_SUFFIX/WindscribeSymbols_$VERSION.zip"
+    - ${CURL_COMMAND} --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+      --upload-file build-exe/Windscribe_$VERSION.exe "{NEXUS_PATH_TAGGED_UPLOAD}/Windscribe_$VERSION.exe"
+    - ${CURL_COMMAND} --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+      --upload-file build-exe/WindscribeSymbols_$VERSION.zip "${NEXUS_PATH_TAGGED_UPLOAD}/WindscribeSymbols_$VERSION.zip"
   rules:
     - if: $BUILD_WIN == "y" && $CI_COMMIT_TAG != null
 
 .build_mac_installer_common:
+  variables:
+    OS_IDENTIFIER: "macos"
+    CURL_COMMAND: "curl"
   script:
-    # download the libs
-    - !reference [.download_cares_mac, script]
-    - !reference [.download_lzo_mac, script]
-    - !reference [.download_boost_mac, script]
-    - !reference [.download_wireguard_mac, script]
-    - !reference [.download_openssl_mac, script]
-    - !reference [.download_curl_mac, script]
-    - !reference [.download_openvpn_mac, script]
-    - !reference [.download_qt_mac, script]
-    - !reference [.download_stunnel_mac, script]
-    - !reference [.download_dga_mac, script]
+    - !reference [.download_dependency_boost, script]
+    - !reference [.download_dependency_cares, script ]
+    - !reference [.download_dependency_curl, script]
+    - !reference [.download_dependency_dga, script]
+    - !reference [.download_dependency_lzo, script]
+    - !reference [.download_dependency_openssl, script]
+    - !reference [.download_dependency_openvpn, script]
+    - !reference [.download_dependency_qt, script]
+    - !reference [.download_dependency_stunnel, script]
+    - !reference [.download_dependency_wireguard, script]
     - if [ -d ./build-libs/ ]; then for z in ./build-libs/*.zip; do unzip -qod ./build-libs $z; done; fi
     # extractions
     - VAULT_CLIENT_TOKEN=$(curl --cacert tools/cacert.pem --data "{\"role_id\":\"$VAULT_ROLE_ID\",\"secret_id\":\"$VAULT_SECRET_ID\"}"
@@ -303,35 +243,16 @@ build:win:installer:tagged:
     - echo -e $PROVISION_PROFILE_BASE64 | base64 -d > $CODE_SIGNING_PROVISION_PROFILE_PATH
     - VERSION=$(python3 tools/base/extract.py)
 
-# build mac installer (manual button)
-# couldn't figure out how to add manual button without interfering with "rules" -- duplicated the job :\
-manual:build:mac:installer:
-  <<: *template_mac_build
-  stage: Build
-  variables:
-    GIT_STRATEGY: clone
-    ARTIFACT_PATH: $ARTIFACT_INSTALLER
-  script:
-    - !reference [.build_mac_installer_common, script]
-    - tools/build_all -zip --ci-mode --sign
-    # upload dmg to nexus
-    - !reference [.upload_dmg_to_nexus_latest_mac, script]
-  when: manual
-  rules:
-    - if: $BUILD_MAC == "y"
-
 build:mac:installer:
   <<: *template_mac_build
   stage: Build
   variables:
     GIT_STRATEGY: clone
-    ARTIFACT_PATH: $ARTIFACT_INSTALLER
   script:
     - !reference [.build_mac_installer_common, script]
-    # build the application/installer
     - tools/build_all -zip --ci-mode --sign
-    # upload dmg to nexus
-    - !reference [.upload_dmg_to_nexus_latest_mac, script]
+    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+      --upload-file build-exe/Windscribe_$VERSION.dmg "${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/Windscribe_$VERSION.dmg"
   rules:
     - if: $BUILD_MAC == "y" && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH != null
 
@@ -341,7 +262,6 @@ build:mac:installer:mr:
   stage: Build
   variables:
     GIT_STRATEGY: clone
-    ARTIFACT_PATH: $ARTIFACT_INSTALLER
   script:
     - !reference [.build_mac_installer_common, script]
     - tools/build_all -zip --ci-mode --sign
@@ -353,32 +273,32 @@ build:mac:installer:tagged:
   stage: Build
   variables:
     GIT_STRATEGY: clone
-    ARTIFACT_PATH: $ARTIFACT_INSTALLER
   script:
     - !reference [.build_mac_installer_common, script]
     # Only tagged builds are notarized
     - tools/build_all -zip --ci-mode --notarize --sign
-    # upload dmg to nexus
     - VERSION_NO_SUFFIX=$(python3 tools/base/extract.py --no-suffix)
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --upload-file build-exe/Windscribe_$VERSION.dmg
-      "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}/tagged-builds/$VERSION_NO_SUFFIX/Windscribe_$VERSION.dmg"
+      --upload-file build-exe/Windscribe_$VERSION.dmg "${NEXUS_PATH_TAGGED_UPLOAD}/Windscribe_$VERSION.dmg"
   rules:
     - if: $BUILD_MAC == "y" && $CI_COMMIT_TAG != null
 
 .build_linux_installer_common:
+  variables:
+    OS_IDENTIFIER: "linux"
+    CURL_COMMAND: "curl"
   script:
     # download the libs
-    - !reference [.download_cares_linux, script ]
-    - !reference [.download_lzo_linux, script]
-    - !reference [.download_boost_linux, script]
-    - !reference [.download_wireguard_linux, script]
-    - !reference [.download_openssl_linux, script]
-    - !reference [.download_curl_linux, script]
-    - !reference [.download_openvpn_linux, script]
-    - !reference [.download_qt_linux, script]
-    - !reference [.download_stunnel_linux, script]
-    - !reference [.download_dga_linux, script]
+    - !reference [.download_dependency_boost, script]
+    - !reference [.download_dependency_cares, script ]
+    - !reference [.download_dependency_curl, script]
+    - !reference [.download_dependency_dga, script]
+    - !reference [.download_dependency_lzo, script]
+    - !reference [.download_dependency_openssl, script]
+    - !reference [.download_dependency_openvpn, script]
+    - !reference [.download_dependency_qt, script]
+    - !reference [.download_dependency_stunnel, script]
+    - !reference [.download_dependency_wireguard, script]
     - if [ -d ./build-libs/ ]; then for z in ./build-libs/*.zip; do unzip -qod ./build-libs $z; done; fi
     # extractions
     - VAULT_CLIENT_TOKEN=$(curl --cacert tools/cacert.pem
@@ -403,12 +323,11 @@ build:ubuntu:installer:
   stage: Build
   variables:
     GIT_STRATEGY: clone
-    ARTIFACT_PATH: $ARTIFACT_INSTALLER
   script:
     - !reference [.build_linux_installer_common, script]
     - tools/build_all -zip --ci-mode --sign
-    # upload deb package to nexus
-    - !reference [.upload_deb_to_nexus_latest_linux, script ]
+    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+      --upload-file build-exe/windscribe_${VERSION}_amd64.deb "${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/windscribe_${VERSION}_amd64.deb"
   rules:
     - if: $BUILD_LINUX == "y" && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH != null
 
@@ -418,7 +337,6 @@ build:ubuntu:installer:mr:
   stage: Build
   variables:
     GIT_STRATEGY: clone
-    ARTIFACT_PATH: $ARTIFACT_INSTALLER
   script:
     - !reference [.build_linux_installer_common, script]
     - tools/build_all -zip --ci-mode --sign
@@ -430,15 +348,12 @@ build:ubuntu:installer:tagged:
   stage: Build
   variables:
     GIT_STRATEGY: clone
-    ARTIFACT_PATH: $ARTIFACT_INSTALLER
   script:
     - !reference [.build_linux_installer_common, script]
     - tools/build_all -zip --ci-mode --sign
-    # upload deb package to nexus
     - VERSION_NO_SUFFIX=$(python3 tools/base/extract.py --no-suffix)
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --upload-file build-exe/windscribe_${VERSION}_amd64.deb
-      "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}/tagged-builds/$VERSION_NO_SUFFIX/windscribe_${VERSION}_amd64.deb"
+      --upload-file build-exe/windscribe_${VERSION}_amd64.deb "${NEXUS_PATH_TAGGED_UPLOAD}/windscribe_${VERSION}_amd64.deb"
   rules:
     - if: $BUILD_LINUX == "y" && $CI_COMMIT_TAG != null
 
@@ -447,12 +362,11 @@ build:rhel:installer:
   stage: Build
   variables:
     GIT_STRATEGY: clone
-    ARTIFACT_PATH: $ARTIFACT_INSTALLER
   script:
     - !reference [.build_linux_installer_common, script]
     - tools/build_all -zip --ci-mode --sign --build-rpm
-    # upload rpm package to nexus
-    - !reference [.upload_rpm_to_nexus_latest_linux, script ]
+    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+      --upload-file build-exe/windscribe_${VERSION}_x86_64.rpm "${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/windscribe_${VERSION}_x86_64.rpm"
   rules:
     - if: $BUILD_LINUX == "y" && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH != null
 
@@ -462,7 +376,6 @@ build:rhel:installer:mr:
   stage: Build
   variables:
     GIT_STRATEGY: clone
-    ARTIFACT_PATH: $ARTIFACT_INSTALLER
   script:
     - !reference [.build_linux_installer_common, script]
     - tools/build_all -zip --ci-mode --sign --build-rpm
@@ -474,15 +387,12 @@ build:rhel:installer:tagged:
   stage: Build
   variables:
     GIT_STRATEGY: clone
-    ARTIFACT_PATH: $ARTIFACT_INSTALLER
   script:
     - !reference [.build_linux_installer_common, script]
     - tools/build_all -zip --ci-mode --sign --build-rpm
-    # upload rpm package to nexus
     - VERSION_NO_SUFFIX=$(python3 tools/base/extract.py --no-suffix)
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --upload-file build-exe/windscribe_${VERSION}_x86_64.rpm
-      "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}/tagged-builds/$VERSION_NO_SUFFIX/windscribe_${VERSION}_x86_64.rpm"
+      --upload-file build-exe/windscribe_${VERSION}_x86_64.rpm "${NEXUS_PATH_TAGGED_UPLOAD}/windscribe_${VERSION}_x86_64.rpm"
   rules:
     - if: $BUILD_LINUX == "y" && $CI_COMMIT_TAG != null
 
@@ -515,15 +425,14 @@ build:archlinux:installer:
   stage: Build Arch Linux
   variables:
     GIT_STRATEGY: clone
-    ARTIFACT_PATH: $ARTIFACT_INSTALLER
+    OS_IDENTIFIER: "linux"
   script:
     - !reference [.build_archlinux_installer_prep_build_dir, script]
-    - export APP_DOWNLOAD_URL="${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/linux/windscribe_${VERSION}_amd64.deb"
+    - export APP_DOWNLOAD_URL="${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/windscribe_${VERSION}_amd64.deb"
     - !reference [.build_archlinux_installer_makepkg, script]
-    # Upload Arch Linux package to Nexus.
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --upload-file ${ARCH_LINUX_BUILD_PATH}/windscribe-$VERSION_NO_SUFFIX-1-x86_64.pkg.tar.zst
-      "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/linux/windscribe_${VERSION}_x86_64.pkg.tar.zst"
+      "${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/windscribe_${VERSION}_x86_64.pkg.tar.zst"
   rules:
     - if: $BUILD_LINUX == "y" && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH != null
 
@@ -532,15 +441,13 @@ build:archlinux:installer:tagged:
   stage: Build Arch Linux
   variables:
     GIT_STRATEGY: clone
-    ARTIFACT_PATH: $ARTIFACT_INSTALLER
   script:
     - !reference [.build_archlinux_installer_prep_build_dir, script]
-    - export APP_DOWNLOAD_URL=${NEXUS_BASEURL}${NEXUS_PATH_ROOT}/tagged-builds/$VERSION_NO_SUFFIX/windscribe_${VERSION}_amd64.deb
+    - export APP_DOWNLOAD_URL=${NEXUS_PATH_TAGGED_UPLOAD}/windscribe_${VERSION}_amd64.deb
     - !reference [.build_archlinux_installer_makepkg, script]
-    # Upload Arch Linux package to Nexus.
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --upload-file ${ARCH_LINUX_BUILD_PATH}/windscribe-$VERSION_NO_SUFFIX-1-x86_64.pkg.tar.zst
-      "${NEXUS_BASEURL}${NEXUS_PATH_ROOT}/tagged-builds/$VERSION_NO_SUFFIX/windscribe_${VERSION}_x86_64.pkg.tar.zst"
+      "${NEXUS_PATH_TAGGED_UPLOAD}/windscribe_${VERSION}_x86_64.pkg.tar.zst"
   rules:
     - if: $BUILD_LINUX == "y" && $CI_COMMIT_TAG != null
 
@@ -549,11 +456,11 @@ build:artifact:links:
   stage: Artifact Links
   script:
     - Set-Variable -name VERSION -value $(python3 tools/base/extract.py)
-    - echo ${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/win/Windscribe_$VERSION.exe
-    - echo ${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/macos/Windscribe_$VERSION.dmg
-    - echo ${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/linux/windscribe_${VERSION}_amd64.deb
-    - echo ${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/linux/windscribe_${VERSION}_x86_64.rpm
-    - echo ${NEXUS_BASEURL}${NEXUS_PATH_ROOT}${NEXUS_PATH_BRANCHES}/${CI_COMMIT_BRANCH}/latest/linux/windscribe_${VERSION}_x86_64.pkg.tar.zst
+    - echo ${NEXUS_PATH_BRANCH_UPLOAD}/windows/Windscribe_$VERSION.exe
+    - echo ${NEXUS_PATH_BRANCH_UPLOAD}/macos/Windscribe_$VERSION.dmg
+    - echo ${NEXUS_PATH_BRANCH_UPLOAD}/linux/windscribe_${VERSION}_amd64.deb
+    - echo ${NEXUS_PATH_BRANCH_UPLOAD}/linux/windscribe_${VERSION}_x86_64.rpm
+    - echo ${NEXUS_PATH_BRANCH_UPLOAD}/linux/windscribe_${VERSION}_x86_64.pkg.tar.zst
   rules:
     - if: $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH != null
 
@@ -563,10 +470,10 @@ build:artifact:links:tagged:
   script:
     - Set-Variable -name VERSION -value $(python3 tools/base/extract.py)
     - Set-Variable -name VERSION_NO_SUFFIX -value $(python3 tools/base/extract.py --no-suffix)
-    - echo ${NEXUS_BASEURL}${NEXUS_PATH_ROOT}/tagged-builds/$VERSION_NO_SUFFIX/Windscribe_$VERSION.exe
-    - echo ${NEXUS_BASEURL}${NEXUS_PATH_ROOT}/tagged-builds/$VERSION_NO_SUFFIX/Windscribe_$VERSION.dmg
-    - echo ${NEXUS_BASEURL}${NEXUS_PATH_ROOT}/tagged-builds/$VERSION_NO_SUFFIX/windscribe_${VERSION}_amd64.deb
-    - echo ${NEXUS_BASEURL}${NEXUS_PATH_ROOT}/tagged-builds/$VERSION_NO_SUFFIX/windscribe_${VERSION}_x86_64.rpm
-    - echo ${NEXUS_BASEURL}${NEXUS_PATH_ROOT}/tagged-builds/$VERSION_NO_SUFFIX/windscribe_${VERSION}_x86_64.pkg.tar.zst
+    - echo ${NEXUS_PATH_TAGGED_UPLOAD}/Windscribe_$VERSION.exe
+    - echo ${NEXUS_PATH_TAGGED_UPLOAD}/Windscribe_$VERSION.dmg
+    - echo ${NEXUS_PATH_TAGGED_UPLOAD}/windscribe_${VERSION}_amd64.deb
+    - echo ${NEXUS_PATH_TAGGED_UPLOAD}/windscribe_${VERSION}_x86_64.rpm
+    - echo ${NEXUS_PATH_TAGGED_UPLOAD}/windscribe_${VERSION}_x86_64.pkg.tar.zst
   rules:
     - if: $CI_COMMIT_TAG != null
