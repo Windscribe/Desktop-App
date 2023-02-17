@@ -37,7 +37,7 @@ variables:
   before_script:
     # run this blindly until baked into image
     - DEBIAN_FRONTEND=noninteractive apt-get -y update
-    - DEBIAN_FRONTEND=noninteractive apt-get -y install build-essential git curl patchelf libpam0g-dev software-properties-common libgl1-mesa-dev fakeroot python3-pip
+    - DEBIAN_FRONTEND=noninteractive apt-get -y install build-essential git curl patchelf libpam0g-dev software-properties-common libgl1-mesa-dev fakeroot python3-pip zip unzip
     - DEBIAN_FRONTEND=noninteractive apt-get -y update
     - DEBIAN_FRONTEND=noninteractive apt-get -y install wget autoconf libtool
     # install cmake 3.23.x (default for Ubuntu 20.04 is 3.16.3)
