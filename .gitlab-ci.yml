@@ -136,14 +136,11 @@ variables:
 
 # Build and Upload Installer
 .build_win_installer_common:
-  variables:
-    OS_INDENTIFIER: 'windows'
   script:
-    #- Set-Variable -name OS_IDENTIFIER -value "windows"
+    - Set-Variable -name OS_IDENTIFIER -value "windows"
     # Remove the default Powershell curl aliases so we can call curl.exe
     - Remove-Item alias:curl
     - Set-Alias -Name curl -Value curl.exe
-    - Get-Alias -Name curl
     - !reference [.download_dependency_boost, script]
     - !reference [.download_dependency_cares, script ]
     - !reference [.download_dependency_curl, script]
