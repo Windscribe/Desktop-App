@@ -137,11 +137,10 @@ variables:
 
 # Build and Upload Installer
 .build_win_installer_common:
-  variables:
-    OS_IDENTIFIER: 'windows'
-    # Have to specify curl.exe, rather than curl, as Powershell aliases the 'curl' keyword to its own download mechanism.
-    CURL_COMMAND: 'curl.exe'
   script:
+    - Set-Variable -name OS_IDENTIFIER -value "windows"
+    # Have to specify curl.exe, rather than curl, as Powershell aliases the 'curl' keyword to its own download mechanism.
+    - Set-Variable -name CURL_COMMAND -value "curl.exe"
     - !reference [.download_dependency_boost, script]
     - !reference [.download_dependency_cares, script ]
     - !reference [.download_dependency_curl, script]
