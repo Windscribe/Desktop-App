@@ -144,7 +144,7 @@ void LocationsButton::onBackgroundOpacityChange(const QVariant &value)
 
 void LocationsButton::updatePositions()
 {
-    arrowItem_->setPos(206*G_SCALE, 16*G_SCALE);
+    arrowItem_->setPos(205*G_SCALE, 16*G_SCALE);
     setArrowRotation(isExpanded_ ? 180 : 0);
 }
 

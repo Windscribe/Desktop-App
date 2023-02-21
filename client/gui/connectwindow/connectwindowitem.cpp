@@ -601,11 +601,11 @@ void ConnectWindowItem::updatePositions()
         preferencesButton_->setPos(22*G_SCALE, 16*G_SCALE);
         logoButton_->setPos(64*G_SCALE, 8*G_SCALE);
         connectButton_->setPos(235*G_SCALE, 34*G_SCALE);
-        connectStateProtocolPort_->setPos(16*G_SCALE, 69*G_SCALE);
+        connectStateProtocolPort_->setPos(13*G_SCALE, 69*G_SCALE);
         cityName1Text_->setPos(14*G_SCALE, 88*G_SCALE);
         cityName2Text_->setPos(16*G_SCALE, 127*G_SCALE);
         locationsButton_->setPos(93*G_SCALE, 216*G_SCALE);
-        networkTrustButton_->setPos(234*G_SCALE, 132*G_SCALE);
+        networkTrustButton_->setPos(236*G_SCALE, 132*G_SCALE);
         serverRatingIndicator_->setPos(296*G_SCALE, 129*G_SCALE);
         middleItem_->setPos(0, 182*G_SCALE);
         firewallButton_->setPos(16*G_SCALE, 224*G_SCALE);
@@ -627,15 +627,15 @@ void ConnectWindowItem::updatePositions()
         preferencesButton_->setPos(22*G_SCALE, 45*G_SCALE);
         logoButton_->setPos(64*G_SCALE, 37*G_SCALE);
         connectButton_->setPos(235*G_SCALE, 50*G_SCALE);
-        connectStateProtocolPort_->setPos(16*G_SCALE, 95*G_SCALE);
+        connectStateProtocolPort_->setPos(13*G_SCALE, 95*G_SCALE);
         cityName1Text_->setPos(14*G_SCALE, 115*G_SCALE);
         cityName2Text_->setPos(16*G_SCALE, 154*G_SCALE);
         locationsButton_->setPos(93*G_SCALE, 242*G_SCALE);
         serverRatingIndicator_->setPos(296*G_SCALE, 153*G_SCALE);
-        networkTrustButton_->setPos(boundingRect().width() - 100*G_SCALE, 156*G_SCALE);
+        networkTrustButton_->setPos(boundingRect().width() - 98*G_SCALE, 156*G_SCALE);
         middleItem_->setPos(0, 208*G_SCALE);
         firewallButton_->setPos(16*G_SCALE, 276*G_SCALE);
-        firewallInfo_->setPos(35*G_SCALE, 241*G_SCALE);
+        firewallInfo_->setPos(30*G_SCALE, 241*G_SCALE);
     }
 }
 

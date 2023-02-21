@@ -47,7 +47,7 @@ void MiddleItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
             p = ImageResourcesSvg::instance().getIndependentPixmap("IP_LOCK_UNSECURE");
         }
         painter->setOpacity(OPACITY_UNHOVER_ICON_STANDALONE * initOpacity);
-        p->draw(301*G_SCALE, 2*G_SCALE, painter);
+        p->draw(296*G_SCALE, 2*G_SCALE, painter);
     }
 }
 
@@ -60,7 +60,7 @@ void MiddleItem::setTextColor(QColor color)
 void MiddleItem::updateScaling()
 {
     ScalableGraphicsObject::updateScaling();
-    QRectF rc = boundingRect().adjusted(0, 0, -38*G_SCALE, 0);
+    QRectF rc = boundingRect().adjusted(0, 0, -44*G_SCALE, 0);
     ipAddressItem_->setPos(rc.right() - ipAddressItem_->boundingRect().width(), rc.top());
 }
 
@@ -78,7 +78,7 @@ void MiddleItem::setIsSecured(bool isSecured)
 
 void MiddleItem::onIpAddressWidthChanged(int width)
 {
-    QRectF rc = boundingRect().adjusted(0, 0, -38*G_SCALE, 0);
+    QRectF rc = boundingRect().adjusted(0, 0, -44*G_SCALE, 0);
     ipAddressItem_->setPos(rc.right() - width, rc.top());
 }
 
