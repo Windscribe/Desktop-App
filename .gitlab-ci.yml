@@ -4,8 +4,8 @@ stages:
   - Artifact Links
 
 variables:
-  BUILD_WIN: 'n'
-  BUILD_MAC: 'n'
+  BUILD_WIN: 'y'
+  BUILD_MAC: 'y'
   BUILD_LINUX: 'y'
   GIT_DEPTH: 5 # Only grab the last 5 commits when cloning
   NEXUS_PATH_ROOT: 'https://nexus.int.windscribe.com/repository/client-desktop/client-desktop'
