@@ -75,7 +75,7 @@ target_include_directories(gui PRIVATE
     ${WINDSCRIBE_BUILD_LIBS_PATH}/boost/include
     ${WINDSCRIBE_BUILD_LIBS_PATH}/curl/include
     ${WINDSCRIBE_BUILD_LIBS_PATH}/cares/dll_x64/include
-    ${WINDSCRIBE_BUILD_LIBS_PATH}/openssl/include
+    ${WINDSCRIBE_BUILD_LIBS_PATH}/openssl_ech_draft/include
 )
 
 add_subdirectory(application)

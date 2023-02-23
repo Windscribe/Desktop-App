@@ -32,7 +32,7 @@ target_compile_definitions(common PRIVATE CMAKE_LIBRARY_LIBRARY
                                   PIO_APC_ROUTINE_DEFINED)
 
 target_include_directories(common PRIVATE
-    ${WINDSCRIBE_BUILD_LIBS_PATH}/openssl/include
+    ${WINDSCRIBE_BUILD_LIBS_PATH}/openssl_ech_draft/include
     ${WINDSCRIBE_BUILD_LIBS_PATH}/boost/include
 )
 

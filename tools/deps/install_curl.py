@@ -12,6 +12,7 @@ TOOLS_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, TOOLS_DIR)
 
 CONFIG_NAME = os.path.join("vars", "curl.yml")
+CMAKE_BINARY_WIN = "C:\\Program Files\\CMake\\bin\\cmake.exe"
 
 # To ensure modules in the 'base' folder can import other modules in base.
 import base.pathhelper as pathhelper
@@ -28,18 +29,28 @@ DEP_OS_LIST = ["win32", "macos", "linux"]
 DEP_FILE_MASK = ["bin/**", "include/**", "lib/**"]
 
 
-def BuildDependencyMSVC(openssl_root, zlib_root):
+def BuildDependencyMSVC(openssl_root, zlib_root, outpath):
   # Create an environment with VS vars.
   buildenv = os.environ.copy()
   buildenv.update({ "MAKEFLAGS" : "S" })
   buildenv.update(iutl.GetVisualStudioEnvironment())
   # Build and install.
-  os.chdir("winbuild")
-  build_cmd = ["nmake", "/F", "Makefile.vc", "mode=dll", "MACHINE=x64", "WITH_SSL=dll", "WITH_ZLIB=dll"]
-  build_cmd.append("SSL_PATH={}".format(openssl_root))
-  build_cmd.append("ZLIB_PATH={}".format(zlib_root))
+  current_wd = os.getcwd()
+  buildpath = os.path.join(current_wd, "build")
+  utl.CreateDirectory(buildpath)
+  os.chdir(buildpath)
+
+  build_cmd = [CMAKE_BINARY_WIN, "..", "-DCURL_USE_OPENSSL=ON", "-DUSE_ECH=ON"]
+  build_cmd.append("-DOPENSSL_ROOT_DIR={}".format(openssl_root))
+  build_cmd.append("-DZLIB_INCLUDE_DIR={}/include".format(zlib_root))
+  build_cmd.append("-DZLIB_LIBRARY={}/lib/zdll.lib".format(zlib_root))
+
+  iutl.RunCommand(build_cmd, env=buildenv, shell=True)
+  build_cmd = [CMAKE_BINARY_WIN, "--build", ".", "--config", "Release"]
   iutl.RunCommand(build_cmd, env=buildenv, shell=True)
 
+  build_cmd = [CMAKE_BINARY_WIN, "--install", ".", "--prefix", outpath]
+  iutl.RunCommand(build_cmd, env=buildenv, shell=True)
 
 def BuildDependencyGNU(openssl_root, outpath):
   # Create an environment with CC flags.
@@ -68,9 +79,9 @@ def InstallDependency():
   dep_version_str = os.environ.get(dep_version_var, None)
   if not dep_version_str:
     raise iutl.InstallError("{} not defined.".format(dep_version_var))
-  openssl_root = iutl.GetDependencyBuildRoot("openssl")
+  openssl_root = iutl.GetDependencyBuildRoot("openssl_ech_draft")
   if not openssl_root:
-    raise iutl.InstallError("OpenSSL is not installed.")
+    raise iutl.InstallError("OpenSSL ECH Draft is not installed.")
   if utl.GetCurrentOS() == "win32":
     zlib_root = iutl.GetDependencyBuildRoot("zlib")
     if not zlib_root:
@@ -85,6 +96,9 @@ def InstallDependency():
   iutl.DownloadFile("{}{}".format(DEP_URL, archivename), localfilename)
   msg.HeadPrint("Extracting: \"{}\"".format(archivename))
   iutl.ExtractFile(localfilename)
+  # Copy modified files.
+  iutl.CopyCustomFiles(dep_name,os.path.join(temp_dir, archivetitle))
+
   # Build the dependency.
   dep_buildroot_var = "BUILDROOT_" + DEP_TITLE.upper()
   dep_buildroot_str = os.environ.get(dep_buildroot_var, os.path.join("build-libs", dep_name))
@@ -94,7 +108,7 @@ def InstallDependency():
   with utl.PushDir(os.path.join(temp_dir, archivetitle)):
     msg.HeadPrint("Building: \"{}\"".format(archivetitle))
     if utl.GetCurrentOS() == "win32":
-      BuildDependencyMSVC(openssl_root, zlib_root)
+      BuildDependencyMSVC(openssl_root, zlib_root, outpath)
     else:
       BuildDependencyGNU(openssl_root, outpath)
   # Copy the dependency to output directory and to a zip file, if needed.
@@ -106,9 +120,9 @@ def InstallDependency():
   msg.Print("Installing artifacts...")
   artifacts_dir = outpath
   install_dir = None
-  if utl.GetCurrentOS() == "win32":
-    artifacts_dir = os.path.join(temp_dir, archivetitle, "builds", "libcurl-vc-x64-release-dll-ssl-dll-zlib-dll-ipv6-sspi")
-    install_dir = outpath
+  #if utl.GetCurrentOS() == "win32":
+  #  artifacts_dir = os.path.join(temp_dir, archivetitle, "builds", "libcurl-vc-x64-release-dll-ssl-dll-zlib-dll-ipv6-sspi")
+  #  install_dir = outpath
   aflist = iutl.InstallArtifacts(artifacts_dir, DEP_FILE_MASK, install_dir, installzipname)
   for af in aflist:
     msg.HeadPrint("Ready: \"{}\"".format(af))

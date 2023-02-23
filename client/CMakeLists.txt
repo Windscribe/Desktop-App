@@ -46,12 +46,12 @@ set(PROJECT_SOURCES
 if (WIN32)
     link_directories(${WINDSCRIBE_BUILD_LIBS_PATH}/boost/lib
                      ${WINDSCRIBE_BUILD_LIBS_PATH}/curl/lib
+                     ${WINDSCRIBE_BUILD_LIBS_PATH}/openssl_ech_draft/lib
                      ${WINDSCRIBE_BUILD_LIBS_PATH}/cares/dll_x64/lib
-                     ${WINDSCRIBE_BUILD_LIBS_PATH}/openssl/lib
     )
 
     set (OS_SPECIFIC_LIBRARIES psapi.lib iphlpapi.lib dnsapi.lib rasapi32.lib pdh.lib
-        libcurl cares libcrypto libssl
+        libcurl_imp libssl libcrypto cares
     )
     list(APPEND PROJECT_SOURCES client.rc)
     # Generate debug information (symbol files) for Windows (release build only)
