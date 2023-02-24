@@ -1,12 +1,10 @@
 #include "defaultroutemonitor.h"
-#include "../logger.h"
 #include "../utils.h"
+#include "../logger.h"
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/split.hpp>
-#include <sys/socket.h>
-#include <linux/netlink.h>
-#include <linux/rtnetlink.h>
+#include <net/route.h>
 #include <poll.h>
 
 namespace
@@ -14,9 +12,9 @@ namespace
 void RouteMonitorThread(void *callerContext)
 {
     auto *this_ = static_cast<DefaultRouteMonitor *>(callerContext);
-    int socket_fd = socket(PF_NETLINK, SOCK_RAW, NETLINK_ROUTE);
+    int socket_fd = socket(PF_ROUTE, SOCK_RAW, AF_INET);
     if (socket_fd < 0) {
-        Logger::instance().out("Failed to open PF_NETLINK socket");
+        LOG("Failed to open PF_ROUTE socket");
         return;
     }
     char message[2048];
@@ -29,17 +27,15 @@ void RouteMonitorThread(void *callerContext)
         if (ret <= 0)
             continue;
         const auto n = read(socket_fd, message, sizeof(message));
-        if (n <= 0)
-            continue;
-        if ((size_t)n >= sizeof(nlmsghdr)) {
-            const auto *msg = reinterpret_cast<const nlmsghdr*>(message);
-            if (NLMSG_OK(msg, n)) {
+        if (n >= sizeof(struct rt_msghdr)) {
+            const auto *msg = reinterpret_cast<const struct rt_msghdr*>(message);
+            if (msg->rtm_version == RTM_VERSION) {
                 if (!this_->checkDefaultRoutes())
                     break;
             }
         }
     }
-    Logger::instance().out("Default route monitoring finished");
+    LOG("Default route monitoring finished");
 }
 }  // namespace
 
@@ -95,7 +91,7 @@ bool DefaultRouteMonitor::executeCommandWithLogging(const std::string &command) 
     std::string output;
     const auto status = Utils::executeCommand(command, {}, &output);
     if (!output.empty())
-        Logger::instance().out("%s", output.c_str());
+        LOG("%s", output.c_str());
     return status == 0;
 }
 
@@ -103,7 +99,7 @@ std::string DefaultRouteMonitor::getDefaultGateway() const
 {
     std::string output;
     const auto status = Utils::executeCommand(
-        "ip route | grep 'default' | awk '{print $3}'", {}, &output);
+        "netstat -nr -f inet | grep 'default' | awk '{print $2}'", {}, &output);
     if (status == 0) {
         std::vector<std::string> gateways;
         boost::trim(output);
@@ -111,7 +107,7 @@ std::string DefaultRouteMonitor::getDefaultGateway() const
         if (!gateways.empty() && !gateways[0].empty())
             return gateways[0];
     }
-    Logger::instance().out("Failed to get default gateway (%s)", output.c_str());
+    LOG("Failed to get default gateway (%s)", output.c_str());
     return "";
 }
 
@@ -120,7 +116,7 @@ bool DefaultRouteMonitor::setEndpointDirectRoute()
     if (endpoint_.empty() || lastGateway_.empty())
         return false;
     if (!executeCommandWithLogging(
-        "ip route add " + endpoint_ + "/32 via " + lastGateway_))
+        "route -q -n add -inet " + endpoint_ + " -gateway " + lastGateway_))
         return false;
     return true;
 }
@@ -129,5 +125,5 @@ void DefaultRouteMonitor::unsetEndpointDirectRoute()
 {
     if (endpoint_.empty())
         return;
-    executeCommandWithLogging("ip route del " + endpoint_);
+    executeCommandWithLogging("route -q -n delete -inet " + endpoint_);
 }

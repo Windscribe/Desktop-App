@@ -235,8 +235,9 @@ def CopyMacBundle(sourcefilename, destfilename):
   if not os.path.exists(sourcefilename):
     raise IOError("Can't copy bundle \"{}\": not found.".format(sourcefilename))
   destdir = os.path.dirname(destfilename)
-  if not os.path.exists(destdir):
-    CreateDirectory(destdir)
+  if os.path.exists(destdir):
+    RemoveDirectory(destdir)
+  CreateDirectory(destdir)
   last_error = None
   for _ in range(_OS_RETRY_COUNT):
     try:

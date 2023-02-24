@@ -1,8 +1,0 @@
-LIBRARY ws_proxy_stub.dll
-
-EXPORTS
-	DllGetClassObject    
-	DllCanUnloadNow	     
-	GetProxyDllInfo		 
-	DllRegisterServer	 
-	DllUnregisterServer  

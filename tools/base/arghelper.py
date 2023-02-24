@@ -14,6 +14,7 @@ class ArgHelper:
     OPTION_CLEAN_ONLY = "--clean-only"
     OPTION_DELETE_SECRETS_ONLY = "--delete-secrets-only"
     OPTION_DOWNLOAD_SECRETS = "--download-secrets"
+    OPTION_DEBUG = "--debug"
     # signing
     OPTION_NOTARIZE = "--notarize"
     OPTION_SIGN = "--sign"
@@ -22,7 +23,7 @@ class ArgHelper:
     OPTION_ONE_PASSWORD_SESSION = "--session"
     OPTION_USE_LOCAL_SECRETS = "--use-local-secrets"
     # partial builds
-    OPTION_NO_CLEAN = "--no-clean" # basically exists to achieve partial builds
+    OPTION_CLEAN = "--clean"
     OPTION_NO_APP = "--no-app"
     OPTION_NO_COM = "--no-com"
     OPTION_NO_INSTALLER = "--no-installer"
@@ -39,6 +40,7 @@ class ArgHelper:
     options.append((OPTION_DELETE_SECRETS_ONLY, "Deletes secrets needed for signing"))
     options.append((OPTION_DOWNLOAD_SECRETS, "Download secrets from 1password (not recommended)"))
     options.append((OPTION_NO_INSTALLER, "Do not build the installer component"))
+    options.append((OPTION_DEBUG, "Build project as debug"))
     options.append(("\nSigning", ""))
     options.append((OPTION_NOTARIZE, "Notarizes the app after building (Mac only, CI-only, requires --sign)"))
     options.append((OPTION_SIGN, "Sign the build"))
@@ -47,7 +49,7 @@ class ArgHelper:
     options.append((OPTION_ONE_PASSWORD_SESSION, "1password session to skip 1p login"))
     options.append((OPTION_USE_LOCAL_SECRETS, "Do not download secrets, use local secrets"))
     options.append(("\nComponent skipping", ""))
-    options.append((OPTION_NO_CLEAN, "Skip cleaning up temp files/folders. Helps speed up re-building"))
+    options.append((OPTION_CLEAN, "Fully clean previous build files before building"))
     options.append((OPTION_NO_APP, "Do not build the main application components"))
     options.append((OPTION_NO_COM, "Do not build the COM components required for auth helper"))
     options.append((OPTION_NO_INSTALLER, "Do not build the installer component"))
@@ -65,11 +67,11 @@ class ArgHelper:
         self.mode_help = ArgHelper.OPTION_HELP in program_arg_list
         self.mode_delete_secrets = ArgHelper.OPTION_DELETE_SECRETS_ONLY in program_arg_list
         self.mode_download_secrets = ArgHelper.OPTION_DOWNLOAD_SECRETS in program_arg_list
+        self.mode_debug = ArgHelper.OPTION_DEBUG in program_arg_list
 
         # building
-        self.mode_post_clean = not (ArgHelper.OPTION_NO_CLEAN in program_arg_list)
+        self.mode_clean = ArgHelper.OPTION_CLEAN in program_arg_list
         self.mode_build_app = not (ArgHelper.OPTION_NO_APP in program_arg_list)
-        self.mode_build_com = not (ArgHelper.OPTION_NO_COM in program_arg_list)
         self.mode_build_installer = not (ArgHelper.OPTION_NO_INSTALLER in program_arg_list)
 
         # signing related
@@ -110,14 +112,11 @@ class ArgHelper:
     def clean_only(self):
         return self.mode_clean_only
 
-    def post_clean(self):
-        return self.mode_post_clean
+    def clean(self):
+        return self.mode_clean
 
     def build_app(self):
         return self.mode_build_app
-
-    def build_com(self):
-        return self.mode_build_com
 
     def build_installer(self):
         return self.mode_build_installer
@@ -157,6 +156,9 @@ class ArgHelper:
 
     def build_deb(self):
         return self.mode_build_deb
+
+    def build_debug(self):
+        return self.mode_debug
 
     def invalid_mode(self):
         if self.mode_help:

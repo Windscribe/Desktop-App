@@ -1,9 +1,9 @@
-#include "wireguardgocommunicator.h"
-#include "../../../../../client/common/utils/executable_signature/executable_signature.h"
-#include "../../../../posix_common/helper_commands.h"
-#include "../../execute_cmd.h"
-#include "../../logger.h"
-#include "../../utils.h"
+#include "wireguardcommunicator.h"
+#include "../../../posix_common/helper_commands.h"
+#include "../execute_cmd.h"
+#include "utils/executable_signature/executable_signature.h"
+#include "../utils.h"
+#include "../logger.h"
 #include <codecvt>
 #include <regex>
 #include <type_traits>
@@ -33,7 +33,7 @@ stringToValue(const std::string &str)
 }
 }  // namespace
 
-WireGuardGoCommunicator::Connection::Connection(const std::string &deviceName)
+WireGuardCommunicator::Connection::Connection(const std::string &deviceName)
     : status_(Status::NO_ACCESS), socketHandle_(-1), fileHandle_(nullptr)
 {
     struct sockaddr_un addr;
@@ -60,7 +60,7 @@ WireGuardGoCommunicator::Connection::Connection(const std::string &deviceName)
     status_ = Status::OK;
 }
 
-WireGuardGoCommunicator::Connection::~Connection()
+WireGuardCommunicator::Connection::~Connection()
 {
     if (fileHandle_)
         fclose(fileHandle_);
@@ -68,7 +68,7 @@ WireGuardGoCommunicator::Connection::~Connection()
         close(socketHandle_);
 }
 
-bool WireGuardGoCommunicator::Connection::getOutput(ResultMap *results_map) const
+bool WireGuardCommunicator::Connection::getOutput(ResultMap *results_map) const
 {
     if (!fileHandle_)
         return false;
@@ -101,7 +101,7 @@ bool WireGuardGoCommunicator::Connection::getOutput(ResultMap *results_map) cons
     return true;
 }
 
-bool WireGuardGoCommunicator::Connection::connect(struct sockaddr_un *address)
+bool WireGuardCommunicator::Connection::connect(struct sockaddr_un *address)
 {
     struct stat sbuf;
     auto ret = stat(address->sun_path, &sbuf);
@@ -112,21 +112,21 @@ bool WireGuardGoCommunicator::Connection::connect(struct sockaddr_un *address)
     }
     if (!S_ISSOCK(sbuf.st_mode)) {
         errno = EBADF;
-        Logger::instance().out("File is not a socket: %s", address->sun_path);
+        LOG("File is not a socket: %s", address->sun_path);
         // Socket is bad, don't attempt to reconnect.
         status_ = Status::NO_ACCESS;
         return false;
     }
     socketHandle_ = socket(AF_UNIX, SOCK_STREAM, 0);
     if (socketHandle_ < 0) {
-        Logger::instance().out("Failed to open the socket: %s", address->sun_path);
+        LOG("Failed to open the socket: %s", address->sun_path);
         // Socket cannot be opened, don't attempt to reconnect.
         status_ = Status::NO_ACCESS;
         return false;
     }
     ret = ::connect(socketHandle_, reinterpret_cast<struct sockaddr *>(address), sizeof(*address));
     if (ret < 0) {
-        Logger::instance().out("Failed to connect to the socket: %s", address->sun_path);
+        LOG("Failed to connect to the socket: %s", address->sun_path);
         bool do_retry = errno != EACCES;
         if (errno == ECONNREFUSED)
             unlink(address->sun_path);
@@ -140,7 +140,7 @@ bool WireGuardGoCommunicator::Connection::connect(struct sockaddr_un *address)
     return true;
 }
 
-bool WireGuardGoCommunicator::start(
+bool WireGuardCommunicator::start(
     const std::string &exePath,
     const std::string &executable,
     const std::string &deviceName)
@@ -150,14 +150,14 @@ bool WireGuardGoCommunicator::start(
     Utils::executeCommand("rm", {"-f", ("/var/run/wireguard/" + deviceName + ".sock").c_str()});
     const std::string fullCmd = Utils::getFullCommand(exePath, executable, "-f " + deviceName);
     if (fullCmd.empty()) {
-        Logger::instance().out("Invalid WireGuard command");
+        LOG("Invalid WireGuard command");
         return false;
     }
 
     const std::string fullPath = exePath + "/" + executable;
     ExecutableSignature sigCheck;
     if (!sigCheck.verifyWithSignCheck(std::wstring_convert<std::codecvt_utf8<wchar_t>>().from_bytes(fullPath))) {
-        Logger::instance().out("WireGuard executable signature incorrect: %s", sigCheck.lastError().c_str());
+        LOG("WireGuard executable signature incorrect: %s", sigCheck.lastError().c_str());
         return false;
     }
 
@@ -167,37 +167,39 @@ bool WireGuardGoCommunicator::start(
     return true;
 }
 
-bool WireGuardGoCommunicator::stop()
+bool WireGuardCommunicator::stop()
 {
     if (!deviceName_.empty()) {
         Utils::executeCommand("rm", {"-f", ("/var/run/wireguard/" + deviceName_ + ".sock").c_str()});
+        deviceName_.clear();
     }
+
     if (!executable_.empty()) {
         Utils::executeCommand("pkill", {"-f", executable_.c_str()});
+        executable_.clear();
     }
     return true;
 }
 
-bool WireGuardGoCommunicator::configure(const std::string &clientPrivateKey,
+bool WireGuardCommunicator::configure(const std::string &clientPrivateKey,
     const std::string &peerPublicKey, const std::string &peerPresharedKey,
-    const std::string &peerEndpoint, const std::vector<std::string> &allowedIps, uint32_t fwmark)
+    const std::string &peerEndpoint, const std::vector<std::string> &allowedIps)
 {
     Connection connection(deviceName_);
     if (connection.getStatus() != Connection::Status::OK) {
-        Logger::instance().out("WireGuardGoCommunicator::configure(): no connection to daemon");
+        LOG("WireGuardCommunicator::configure(): no connection to daemon");
         return false;
     }
 
     // Send set command.
     fputs("set=1\n", connection);
     fprintf(connection,
-        "fwmark=%u\n"
         "private_key=%s\n"
         "replace_peers=true\n"
         "public_key=%s\n"
         "endpoint=%s\n"
         "persistent_keepalive_interval=0\n",
-        fwmark, clientPrivateKey.c_str(), peerPublicKey.c_str(), peerEndpoint.c_str());
+        clientPrivateKey.c_str(), peerPublicKey.c_str(), peerEndpoint.c_str());
     if (!peerPresharedKey.empty())
         fprintf(connection, "preshared_key=%s\n", peerPresharedKey.c_str());
     fprintf(connection, "%s", "replace_allowed_ips=true\n");
@@ -209,16 +211,12 @@ bool WireGuardGoCommunicator::configure(const std::string &clientPrivateKey,
     // Check results.
     Connection::ResultMap results{ std::make_pair("errno", "") };
     bool success = connection.getOutput(&results);
-    for (auto it = results.begin(); it != results.end(); ++it)
-        {
-            Logger::instance().out("%s = %s", it->first.c_str(), it->second.c_str());
-        }
     if (success)
         success = stringToValue<int>(results["errno"]) == 0;
     return success;
 }
 
-unsigned long WireGuardGoCommunicator::getStatus(unsigned int *errorCode,
+unsigned long WireGuardCommunicator::getStatus(unsigned int *errorCode,
     unsigned long long *bytesReceived, unsigned long long *bytesTransmitted)
 {
     bool is_daemon_dead = true;
@@ -253,8 +251,9 @@ unsigned long WireGuardGoCommunicator::getStatus(unsigned int *errorCode,
         std::make_pair("last_handshake_time_sec", "")
     };
     bool success = connection.getOutput(&results);
-    if (!success)
+    if (!success) {
         return kWgStateStarting;
+    }
 
     // Check for errors.
     const auto errno_value = stringToValue<unsigned int>(results["errno"]);
@@ -274,19 +273,22 @@ unsigned long WireGuardGoCommunicator::getStatus(unsigned int *errorCode,
         int rc = gettimeofday(&tv, NULL);
         if (rc || tv.tv_sec - stringToValue<unsigned long long>(results["last_handshake_time_sec"]) > 180)
         {
-            Logger::instance().out("Time since last handshake time exceeded 3 minutes, disconnecting");
+            LOG("Time since last handshake time exceeded 3 minutes, disconnecting");
             return kWgStateError;
         }
 
-        if (bytesReceived)
+        if (bytesReceived) {
             *bytesReceived = stringToValue<unsigned long long>(results["rx_bytes"]);
-        if (bytesTransmitted)
+        }
+        if (bytesTransmitted) {
             *bytesTransmitted = stringToValue<unsigned long long>(results["tx_bytes"]);
+        }
         return kWgStateActive;
     }
 
     // If endpoint is set, we are connecting, otherwise simply listening.
-    if (!results["public_key"].empty())
+    if (!results["public_key"].empty()) {
         return kWgStateConnecting;
+    }
     return kWgStateListening;
 }
