@@ -158,16 +158,29 @@ void NetworkAccessManager::onResolved(bool success, const QStringList &ips, quin
 
                 CurlReply *curlReply{ nullptr };
 
-                if (requestData->type == REQUEST_GET)
-                    curlReply = curlNetworkManager_->get(requestData->request, ips, currentProxySettings());
-                else if (requestData->type == REQUEST_POST)
-                    curlReply = curlNetworkManager_->post(requestData->request, requestData->data, ips, currentProxySettings());
-                else if (requestData->type == REQUEST_PUT)
-                    curlReply = curlNetworkManager_->put(requestData->request, requestData->data, ips, currentProxySettings());
-                else if (requestData->type == REQUEST_DELETE)
-                    curlReply = curlNetworkManager_->deleteResource(requestData->request, ips, currentProxySettings());
-                else
-                    WS_ASSERT(false);
+                if (requestData->request.echConfig().isEmpty()) {
+                    if (requestData->type == REQUEST_GET)
+                        curlReply = curlNetworkManager_->get(requestData->request, ips, currentProxySettings());
+                    else if (requestData->type == REQUEST_POST)
+                        curlReply = curlNetworkManager_->post(requestData->request, requestData->data, ips, currentProxySettings());
+                    else if (requestData->type == REQUEST_PUT)
+                        curlReply = curlNetworkManager_->put(requestData->request, requestData->data, ips, currentProxySettings());
+                    else if (requestData->type == REQUEST_DELETE)
+                        curlReply = curlNetworkManager_->deleteResource(requestData->request, ips, currentProxySettings());
+                    else
+                        WS_ASSERT(false);
+                } else {
+                    if (requestData->type == REQUEST_GET)
+                        curlReply = curlNetworkManager_->get(requestData->request, QStringList() << "159.203.22.239", currentProxySettings());
+                    else if (requestData->type == REQUEST_POST)
+                        curlReply = curlNetworkManager_->post(requestData->request, requestData->data, QStringList() << "159.203.22.239", currentProxySettings());
+                    else if (requestData->type == REQUEST_PUT)
+                        curlReply = curlNetworkManager_->put(requestData->request, requestData->data, QStringList() << "159.203.22.239", currentProxySettings());
+                    else if (requestData->type == REQUEST_DELETE)
+                        curlReply = curlNetworkManager_->deleteResource(requestData->request, QStringList() << "159.203.22.239", currentProxySettings());
+                    else
+                        WS_ASSERT(false);
+                }
 
                 curlReply->setProperty("replyId", id);
                 requestData->reply->setCurlReply(curlReply);

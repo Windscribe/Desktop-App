@@ -86,6 +86,13 @@ bool CurlNetworkManagerImpl::setupBasicOptions(RequestInfo *requestInfo, const N
     if (!setupSslVerification(requestInfo, request)) return false;
     if (!setupProxy(requestInfo, proxySettings)) return false;
 
+    if (!request.echConfig().isEmpty()) {
+        if (curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_ECH_STATUS, 1) != CURLE_OK)
+            return false;
+        if (curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_ECH_CONFIG, request.echConfig().toStdString().c_str()) != CURLE_OK)
+            return false;
+    }
+
     curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_PRIVATE, new quint64(requestInfo->id));    // our user data, must be deleted in the RequestInfo destructor
     return true;
 }

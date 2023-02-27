@@ -5,14 +5,15 @@
 #include <chrono>
 #include <QTimer>
 
-#include "failovers/hardcodeddomainfailover.h"
-#include "failovers/dynamicdomainfailover.h"
-#include "failovers/randomdomainfailover.h"
 #include "failovers/accessipsfailover.h"
 #include "failovers/dgafailover.h"
-#include "utils/ws_assert.h"
+#include "failovers/dynamicdomainfailover.h"
+#include "failovers/echfailover.h"
+#include "failovers/hardcodeddomainfailover.h"
+#include "failovers/randomdomainfailover.h"
 #include "utils/hardcodedsettings.h"
 #include "utils/logger.h"
+#include "utils/ws_assert.h"
 
 #define USE_NEW_DGA 1
 #define USE_OLD_RANDOM_DOMAIN_GENERATION 1
@@ -26,11 +27,17 @@ Failover::Failover(QObject *parent, NetworkAccessManager *networkAccessManager, 
 
     // Hardcoded Default Domain Endpoint
     BaseFailover *failover = new HardcodedDomainFailover(this, HardcodedSettings::instance().serverDomains().at(0));
-    connect(failover, &BaseFailover::finished, this, &Failover::onFailoverFinished, Qt::QueuedConnection);
-    failovers_ << failover;
+//    connect(failover, &BaseFailover::finished, this, &Failover::onFailoverFinished, Qt::QueuedConnection);
+//    failovers_ << failover;
 
     // Don't use other failovers for the staging functionality, as the hashed domains will hit the production environment.
     if (!AppVersion::instance().isStaging()) {
+
+        // ECH
+        failover = new EchFailover(this, networkAccessManager, "https://1.0.0.1/dns-query", "echconfig001.windscribe.dev", connectStateController);
+        connect(failover, &BaseFailover::finished, this, &Failover::onFailoverFinished, Qt::QueuedConnection);
+        failovers_ << failover;
+
         // Hardcoded Backup Domain Endpoint
         for (int i = 1; i < HardcodedSettings::instance().serverDomains().count(); ++i) {
             failover = new HardcodedDomainFailover(this, HardcodedSettings::instance().serverDomains().at(i));

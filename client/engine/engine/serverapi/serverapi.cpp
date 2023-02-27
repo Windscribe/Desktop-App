@@ -468,7 +468,8 @@ void ServerAPI::executeRequest(QPointer<BaseRequest> request, bool bSkipFailover
     }
 
     //TODO: getCurrentDnsServers() move to NetworkAccessManager
-    NetworkRequest networkRequest(request->url(hostname).toString(), request->timeout(), true, DnsServersConfiguration::instance().getCurrentDnsServers(), bIgnoreSslErrors_);
+    NetworkRequest networkRequest(request->url("windscribe.com").toString(), request->timeout(), true, DnsServersConfiguration::instance().getCurrentDnsServers(), bIgnoreSslErrors_);
+    networkRequest.setEchConfig(hostname);
     NetworkReply *reply;
     switch (request->requestType()) {
         case RequestType::kGet:
@@ -486,6 +487,24 @@ void ServerAPI::executeRequest(QPointer<BaseRequest> request, bool bSkipFailover
         default:
             WS_ASSERT(false);
     }
+    /*NetworkRequest networkRequest(request->url(hostname).toString(), request->timeout(), true, DnsServersConfiguration::instance().getCurrentDnsServers(), bIgnoreSslErrors_);
+    NetworkReply *reply;
+    switch (request->requestType()) {
+        case RequestType::kGet:
+            reply = networkAccessManager_->get(networkRequest);
+            break;
+        case RequestType::kPost:
+            reply = networkAccessManager_->post(networkRequest, request->postData());
+            break;
+        case RequestType::kDelete:
+            reply = networkAccessManager_->deleteResource(networkRequest);
+            break;
+        case RequestType::kPut:
+            reply = networkAccessManager_->put(networkRequest, request->postData());
+            break;
+        default:
+            WS_ASSERT(false);
+    }*/
 
     QPointer<BaseRequest> pointerToRequest(request);
     reply->setProperty("pointerToRequest",  QVariant::fromValue(pointerToRequest));
