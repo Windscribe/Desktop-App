@@ -92,7 +92,8 @@ MainWindow::MainWindow() :
     isExitingAfterUpdate_(false),
     downloadRunning_(false),
     ignoreUpdateUntilNextRun_(false),
-    userProtocolOverride_(false)
+    userProtocolOverride_(false),
+    tunnelTestMsgBox_(nullptr)
 {
     g_mainWindow = this;
 
@@ -2130,9 +2131,18 @@ void MainWindow::onBackendTestTunnelResult(bool success)
 {
     if (!ExtraConfig::instance().getIsTunnelTestNoError() && !success)
     {
-        QMessageBox::information(nullptr, QApplication::applicationName(),
-            tr("We've detected that your network settings may interfere with Windscribe. "
-               "Please disconnect and send us a Debug Log, by going into Preferences and clicking the \"Send Log\" button."));
+        if (tunnelTestMsgBox_ == nullptr) {
+            tunnelTestMsgBox_ = new QMessageBox(
+                QMessageBox::Information,
+                QApplication::applicationName(),
+                tr("We've detected that your network settings may interfere with Windscribe. "
+                   "Please disconnect and send us a Debug Log, by going into Preferences and clicking the \"Send Log\" button."),
+                QMessageBox::Ok);
+            tunnelTestMsgBox_->setWindowModality(Qt::WindowModal);
+            // Connect manually instead of passing slot into open(), since that seems to throw some warnings
+            tunnelTestMsgBox_->open(nullptr, nullptr);
+            connect(tunnelTestMsgBox_, &QMessageBox::buttonClicked, this, &MainWindow::onMsgBoxClicked);
+        }
     }
 
     if (success && selectedLocation_->isValid() && !selectedLocation_->locationdId().isCustomConfigsLocation()) {
@@ -3808,4 +3818,9 @@ types::Protocol MainWindow::getDefaultProtocolForNetwork(const QString &network)
         // if there's no valid last known good protocol, the default is wireguard
         return types::Protocol(types::Protocol::TYPE::WIREGUARD);
     }
+}
+
+void MainWindow::onMsgBoxClicked(QAbstractButton *button) {
+    Q_UNUSED(button);
+    SAFE_DELETE_LATER(tunnelTestMsgBox_);
 }
