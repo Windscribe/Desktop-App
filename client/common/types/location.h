@@ -3,7 +3,6 @@
 #include "enums.h"
 #include "locationid.h"
 #include "pingtime.h"
-#include "utils/ws_assert.h"
 
 namespace types {
 

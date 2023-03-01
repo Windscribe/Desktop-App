@@ -1,18 +1,14 @@
-#ifndef CUSTOMCONFIGLOCATIONSMODEL_H
-#define CUSTOMCONFIGLOCATIONSMODEL_H
+#pragma once
 
 #include <QHostInfo>
 #include <QObject>
-#include "engine/apiinfo/location.h"
-#include "engine/apiinfo/staticips.h"
-#include "types/locationid.h"
-#include "types/proxysettings.h"
-#include "types/location.h"
-#include "pingipscontroller.h"
-#include "pingstorage.h"
-#include "bestlocation.h"
+
 #include "baselocationinfo.h"
 #include "engine/customconfigs/icustomconfig.h"
+#include "pingipscontroller.h"
+#include "pingstorage.h"
+#include "types/location.h"
+#include "types/locationid.h"
 
 class INetworkDetectionManager;
 
@@ -46,7 +42,7 @@ private slots:
     void onDnsRequestFinished();
 
 private:
-    PingStorage pingStorage_;
+    CustomConfigPingStorage pingStorage_;
 
     PingIpsController pingIpsController_;
 
@@ -87,5 +83,3 @@ private:
 };
 
 } //namespace locationsmodel
-
-#endif // CUSTOMCONFIGLOCATIONSMODEL_H
