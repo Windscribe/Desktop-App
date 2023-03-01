@@ -33,6 +33,8 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpszCmdParam);
 
+    SetDefaultDllDirectories(LOAD_LIBRARY_SEARCH_SYSTEM32);
+
     Log::instance().init(false);
 
     ArgumentsParser argumentParser;

@@ -1,11 +1,8 @@
-#ifndef SERVICE_H
-#define SERVICE_H
+#pragma once
 
 #include <string>
-#include <Windows.h>
 
 #include "../iinstall_block.h"
-
 
 // install WindscribeService
 class Service : public IInstallBlock
@@ -15,8 +12,7 @@ public:
 	int executeStep();
 
 private:
-	unsigned long installWindscribeService();
+	void installWindscribeService();
 	void fixUnquotedServicePath();
+	void executeProcess(const std::wstring& process, const std::wstring& cmdLine);
 };
-
-#endif // SERVICE_H
