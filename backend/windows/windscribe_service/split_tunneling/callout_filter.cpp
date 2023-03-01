@@ -224,7 +224,6 @@ bool CalloutFilter::addFilters(HANDLE engineHandle, bool withTcpFilters)
         "10.248.0.0/14",
         "10.252.0.0/15",
         "10.254.0.0/16",
-        "127.0.0.0/8",
         "169.254.0.0/16",
         "172.16.0.0/12",
         "192.168.0.0/16",
@@ -246,6 +245,20 @@ bool CalloutFilter::addFilters(HANDLE engineHandle, bool withTcpFilters)
             conditions[i].matchType = FWP_MATCH_EQUAL;
             conditions[i].conditionValue.type = FWP_BYTE_BLOB_TYPE;
             conditions[i].conditionValue.byteBlob = appsIds_.getAppId(i);
+        }
+
+        FWP_V4_ADDR_AND_MASK localhost;
+        // except localhost traffic
+        {
+            FWPM_FILTER_CONDITION condition;
+            condition.fieldKey = FWPM_CONDITION_IP_REMOTE_ADDRESS;
+            condition.matchType = FWP_MATCH_EQUAL;
+            condition.conditionValue.type = FWP_V4_ADDR_MASK;
+            condition.conditionValue.v4AddrMask = &localhost;
+            Ip4AddressAndMask ipAddress("127.0.0.0/8");
+            localhost.addr = ipAddress.ipHostOrder();
+            localhost.mask = ipAddress.maskHostOrder();
+            conditions.push_back(condition);
         }
 
         FWPM_FILTER filter = { 0 };
