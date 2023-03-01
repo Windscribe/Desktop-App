@@ -161,7 +161,8 @@ void CityItemDelegate::paint(QPainter *painter, const ItemStyleOption &option, c
 
         // draw latency text
         QFont font = *FontManager::instance().getFont(11, false);
-        QString latencyText = QString::number(index.data(kPingTime).toInt());
+        int latency = index.data(kPingTime).toInt();
+        QString latencyText = (latency <= 0 ? "--" : QString::number(latency));
         painter->setBrush(Qt::white);
         painter->setPen(Qt::white);
         painter->setFont(font);

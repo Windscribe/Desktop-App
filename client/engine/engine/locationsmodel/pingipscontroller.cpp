@@ -37,6 +37,7 @@ PingIpsController::PingIpsController(QObject *parent, IConnectStateController *s
 void PingIpsController::updateIps(const QVector<PingIpInfo> &ips)
 {
     pingLog_.addLog("PingIpsController::updateIps", "update ips");
+
     for (auto it = ips_.begin(); it != ips_.end(); ++it) {
         it.value().existThisIp = false;
     }
@@ -44,17 +45,7 @@ void PingIpsController::updateIps(const QVector<PingIpInfo> &ips)
     for (const PingIpInfo &ip_info : ips) {
         auto it = ips_.find(ip_info.ip_);
         if (it == ips_.end()) {
-            PingNodeInfo pni;
-            pni.isExistPingAttempt = false;
-            pni.existThisIp = true;
-            pni.latestPingFailed_ = false;
-            pni.bNowPinging_ = false;
-            pni.failedPingsInRow = 0;
-            pni.nextTimeForFailedPing_ = 0;
-            pni.pingType = ip_info.pingType_;
-            pni.city_ = ip_info.city_;
-            pni.nick_ = ip_info.nick_;
-            ips_[ip_info.ip_] = pni;
+            ips_[ip_info.ip_] = PingNodeInfo(ip_info);
         }
         else {
             it.value().existThisIp = true;
@@ -95,34 +86,34 @@ void PingIpsController::onPingTimer()
         Q_EMIT needIncrementPingIteration();
     }
 
-    for (QHash<QString, PingNodeInfo>::iterator it = ips_.begin(); it != ips_.end(); ++it) {
+    for (auto it = ips_.begin(); it != ips_.end(); ++it) {
         PingNodeInfo &pni = it.value();
 
-        if (pni.bNowPinging_) {
+        if (pni.nowPinging_) {
             continue;
         }
 
         if (bNeedPingByTime) {
-            pingLog_.addLog("PingNodesController::onPingTimer", tr("start ping by time for: %1 (%2 - %3)").arg(it.key(), pni.city_, pni.nick_));
-            pni.bNowPinging_ = true;
-            pingHost_->addHostForPing(it.key(), pni.pingType);
+            pingLog_.addLog("PingNodesController::onPingTimer", tr("start ping by time for: %1 (%2 - %3)").arg(pni.ipInfo_.ip_, pni.ipInfo_.city_, pni.ipInfo_.nick_));
+            pni.nowPinging_ = true;
+            pingHost_->addHostForPing(pni.ipInfo_.ip_, pni.ipInfo_.pingType_);
         }
-        else if (!pni.isExistPingAttempt) {
-            pingLog_.addLog("PingNodesController::onPingTimer", tr("ping new node: %1 (%2 - %3)").arg(it.key(), pni.city_, pni.nick_));
-            pni.bNowPinging_ = true;
-            pingHost_->addHostForPing(it.key(), pni.pingType);
+        else if (!pni.isExistPingAttempt_) {
+            pingLog_.addLog("PingNodesController::onPingTimer", tr("ping new node: %1 (%2 - %3)").arg(pni.ipInfo_.ip_, pni.ipInfo_.city_, pni.ipInfo_.nick_));
+            pni.nowPinging_ = true;
+            pingHost_->addHostForPing(pni.ipInfo_.ip_, pni.ipInfo_.pingType_);
         }
         else if (pni.latestPingFailed_) {
             if (pni.nextTimeForFailedPing_ == 0 || QDateTime::currentMSecsSinceEpoch() >= pni.nextTimeForFailedPing_) {
                 //pingLog_.addLog("PingNodesController::onPingTimer", "start ping because latest ping failed: " + it.key());
-                pni.bNowPinging_ = true;
-                pingHost_->addHostForPing(it.key(), pni.pingType);
+                pni.nowPinging_ = true;
+                pingHost_->addHostForPing(pni.ipInfo_.ip_, pni.ipInfo_.pingType_);
             }
         }
     }
 }
 
-void PingIpsController::onPingFinished(bool bSuccess, int timems, const QString &ip, bool isFromDisconnectedState)
+void PingIpsController::onPingFinished(bool success, int timems, const QString &ip, bool isFromDisconnectedState)
 {
     auto itNode = ips_.find(ip);
     if (itNode == ips_.end()) {
@@ -133,30 +124,30 @@ void PingIpsController::onPingFinished(bool bSuccess, int timems, const QString 
     // connecting/connected state between the time the ping request was issued to PingHost and when it was executed.
 
     PingNodeInfo &pni = itNode.value();
-    pni.bNowPinging_ = false;
+    pni.nowPinging_ = false;
 
-    if (bSuccess) {
+    if (success) {
         // If the ping was executed in the connected state, we'll mark it as never happening and reissue it when
         // we're back in the disconnected state.
-        pni.isExistPingAttempt = isFromDisconnectedState;
+        pni.isExistPingAttempt_ = isFromDisconnectedState;
         pni.latestPingFailed_ = false;
-        pni.failedPingsInRow = 0;
+        pni.failedPingsInRow_ = 0;
 
         if (isFromDisconnectedState) {
             Q_EMIT pingInfoChanged(ip, timems);
-            pingLog_.addLog("PingIpsController::onPingFinished", tr("ping successful: %1 (%2 - %3) %4ms").arg(ip, pni.city_, pni.nick_).arg(timems));
+            pingLog_.addLog("PingIpsController::onPingFinished", tr("ping successful: %1 (%2 - %3) %4ms").arg(ip, pni.ipInfo_.city_, pni.ipInfo_.nick_).arg(timems));
         }
         else {
-            pingLog_.addLog("PingIpsController::onPingFinished", tr("discarding ping while connected: %1 (%2 - %3)").arg(ip, pni.city_, pni.nick_));
+            pingLog_.addLog("PingIpsController::onPingFinished", tr("discarding ping while connected: %1 (%2 - %3)").arg(ip, pni.ipInfo_.city_, pni.ipInfo_.nick_));
         }
     }
     else {
-        pni.isExistPingAttempt = true;
+        pni.isExistPingAttempt_ = true;
         pni.latestPingFailed_ = true;
-        pni.failedPingsInRow++;
+        pni.failedPingsInRow_++;
 
-        if (pni.failedPingsInRow >= MAX_FAILED_PING_IN_ROW) {
-            pni.failedPingsInRow = 0;
+        if (pni.failedPingsInRow_ >= MAX_FAILED_PING_IN_ROW) {
+            pni.failedPingsInRow_ = 0;
             pni.nextTimeForFailedPing_ = QDateTime::currentMSecsSinceEpoch() + 1000 * 60;
 
             if (isFromDisconnectedState) {
@@ -164,7 +155,7 @@ void PingIpsController::onPingFinished(bool bSuccess, int timems, const QString 
             }
 
             if (failedPingLogController_.logFailedIPs(ip)) {
-                pingLog_.addLog("PingIpsController::onPingFinished", tr("ping failed: %1 (%2 - %3)").arg(ip, pni.city_, pni.nick_));
+                pingLog_.addLog("PingIpsController::onPingFinished", tr("ping failed: %1 (%2 - %3)").arg(ip, pni.ipInfo_.city_, pni.ipInfo_.nick_));
             }
         }
         else {

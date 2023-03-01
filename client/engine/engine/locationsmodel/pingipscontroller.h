@@ -1,8 +1,8 @@
 #pragma once
 
 #include <QDateTime>
+#include <QHash>
 #include <QObject>
-#include <QSet>
 
 #include "engine/networkdetectionmanager/inetworkdetectionmanager.h"
 #include "engine/ping/pinghost.h"
@@ -39,35 +39,36 @@ signals:
 
 private slots:
     void onPingTimer();
-    void onPingFinished(bool bSuccess, int timems, const QString &ip, bool isFromDisconnectedState);
+    void onPingFinished(bool success, int timems, const QString &ip, bool isFromDisconnectedState);
 
 private:
     static constexpr int PING_TIMER_INTERVAL = 1000;
     static constexpr int MAX_FAILED_PING_IN_ROW = 3;
 
-    struct PingNodeInfo
-    {
-        bool isExistPingAttempt;
-        bool latestPingFailed_;
-        int failedPingsInRow;
-        qint64 nextTimeForFailedPing_;
-        bool bNowPinging_;
-        bool existThisIp;  // used in function updateNodes for remove unused ips
-        PingHost::PING_TYPE pingType;
-        QString city_;
-        QString nick_;
-    };
+    PingHost* const pingHost_;
+    IConnectStateController* const connectStateController_;
+    INetworkDetectionManager* const networkDetectionManager_;
 
     FailedPingLogController failedPingLogController_;
-
-    IConnectStateController *connectStateController_;
-    INetworkDetectionManager *networkDetectionManager_;
     PingLog pingLog_;
 
-    QHash<QString, PingNodeInfo> ips_;
-    PingHost *pingHost_;
-    QTimer pingTimer_;
+    struct PingNodeInfo
+    {
+        PingIpInfo ipInfo_;
+        bool isExistPingAttempt_ = false;
+        bool latestPingFailed_ = false;
+        bool nowPinging_ = false;
+        int failedPingsInRow_ = 0;
+        qint64 nextTimeForFailedPing_ = 0;
+        bool existThisIp = false;
 
+        PingNodeInfo() {}
+        PingNodeInfo(const PingIpInfo &ipInfo) : ipInfo_(ipInfo), existThisIp(true) {}
+    };
+
+    QHash<QString, PingNodeInfo> ips_;
+
+    QTimer pingTimer_;
     QDateTime dtNextPingTime_;
 };
 
