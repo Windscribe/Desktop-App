@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QObject>
+
 #include "pinghost_tcp.h"
 
 #ifdef Q_OS_WIN
@@ -28,7 +29,7 @@ public:
     void enableProxy();
 
 signals:
-    void pingFinished(bool bSuccess, int timems, const QString &ip, bool isFromDisconnectedState);
+    void pingFinished(bool success, int timems, const QString &ip, bool isFromDisconnectedState);
 
 public slots:
     void init();

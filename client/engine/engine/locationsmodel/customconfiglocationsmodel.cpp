@@ -1,5 +1,5 @@
 #include "customconfiglocationsmodel.h"
-#include "utils/utils.h"
+
 #include <QFile>
 #include <QTextStream>
 
@@ -7,7 +7,6 @@
 #include "utils/logger.h"
 #include "utils/ipvalidation.h"
 #include "customconfiglocationinfo.h"
-#include "nodeselectionalgorithm.h"
 #include "engine/dnsresolver/dnsrequest.h"
 #include "engine/dnsresolver/dnsserversconfiguration.h"
 
@@ -15,7 +14,6 @@
 namespace locationsmodel {
 
 CustomConfigLocationsModel::CustomConfigLocationsModel(QObject *parent, IConnectStateController *stateController, INetworkDetectionManager *networkDetectionManager, PingHost *pingHost) : QObject(parent),
-    pingStorage_("pingStorageCustomConfigs"),
     pingIpsController_(this, stateController, networkDetectionManager, pingHost, "ping_log_custom_configs.txt")
 {
     connect(&pingIpsController_, &PingIpsController::pingInfoChanged, this, &CustomConfigLocationsModel::onPingInfoChanged);
@@ -32,14 +30,14 @@ void CustomConfigLocationsModel::setCustomConfigs(const QVector<QSharedPointer<c
     QStringList hostnamesForResolve;
     // fill pingInfos_ array
     pingInfos_.clear();
-    for (auto config : customConfigs)
+    for (const auto &config : customConfigs)
     {
         CustomConfigWithPingInfo cc;
         cc.customConfig = config;
 
         // fill remotes
         const QStringList hostnames = config->hostnames();
-        for (auto hostname : hostnames)
+        for (const auto &hostname : hostnames)
         {
             RemoteItem ri;
             ri.ipOrHostname.ip = hostname;
@@ -47,7 +45,7 @@ void CustomConfigLocationsModel::setCustomConfigs(const QVector<QSharedPointer<c
 
             if (!ri.isHostname)
             {
-                ri.ipOrHostname.pingTime = pingStorage_.getNodeSpeed(hostname);
+                ri.ipOrHostname.pingTime = pingStorage_.getPing(hostname);
             }
             else
             {
@@ -103,7 +101,7 @@ QSharedPointer<BaseLocationInfo> CustomConfigLocationsModel::getMutableLocationI
 
 void CustomConfigLocationsModel::onPingInfoChanged(const QString &ip, int timems)
 {
-    pingStorage_.setNodePing(ip, timems, true);
+    pingStorage_.setPing(ip, timems);
 
     for (auto it = pingInfos_.begin(); it != pingInfos_.end(); ++it)
     {
@@ -137,7 +135,7 @@ void CustomConfigLocationsModel::onDnsRequestFinished()
                 {
                     IpItem ipItem;
                     ipItem.ip = ip;
-                    ipItem.pingTime = pingStorage_.getNodeSpeed(ipItem.ip);
+                    ipItem.pingTime = pingStorage_.getPing(ipItem.ip);
                     remoteIt->ips << ipItem;
 
                     Q_EMIT locationPingTimeChanged(LocationID::createCustomConfigLocationId(it->customConfig->filename()), it->getPing());

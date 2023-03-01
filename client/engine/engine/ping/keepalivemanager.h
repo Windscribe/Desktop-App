@@ -1,9 +1,6 @@
-#ifndef KEEPALIVEMANAGER_H
-#define KEEPALIVEMANAGER_H
+#pragma once
 
 #include <QObject>
-#include <QHostInfo>
-#include "pinghost_tcp.h"
 
 #ifdef Q_OS_WIN
     #include "pinghost_icmp_win.h"
@@ -43,12 +40,9 @@ private:
 
     QVector<IP_DESCR> ips_;
 
-
 #ifdef Q_OS_WIN
     PingHost_ICMP_win pingHostIcmp_;
 #elif defined (Q_OS_MAC) || defined(Q_OS_LINUX)
     PingHost_ICMP_mac pingHostIcmp_;
 #endif
 };
-
-#endif // KEEPALIVEMANAGER_H
