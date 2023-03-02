@@ -11,7 +11,7 @@
 
 namespace failover {
 
-void EchFailover::getHostnames(bool bIgnoreSslErrors)
+void EchFailover::getData(bool bIgnoreSslErrors)
 {
     QUrl url(urlString_);
     QUrlQuery query;
@@ -29,16 +29,13 @@ void EchFailover::getHostnames(bool bIgnoreSslErrors)
         if (!reply->isSuccess()) {
             // if connect state changed the retrying the request
             if (connectStateWatcher_->isVpnConnectStateChanged()) {
-                emit finished(FailoverRetCode::kConnectStateChanged, QStringList());
+                emit finished(QVector<FailoverData>());
             } else {
-                emit finished(FailoverRetCode::kFailed, QStringList());
+                emit finished(QVector<FailoverData>());
             }
         } else {
-            QString hostname = parseHostnameFromJson(reply->readAll());
-            if (!hostname.isEmpty())
-                emit finished(FailoverRetCode::kSuccess, QStringList() << hostname);
-            else
-                emit finished(FailoverRetCode::kFailed, QStringList());
+            QVector<FailoverData> data = parseDataFromJson(reply->readAll());
+            emit finished(data);
         }
         reply->deleteLater();
     });
@@ -47,34 +44,42 @@ void EchFailover::getHostnames(bool bIgnoreSslErrors)
 QString EchFailover::name() const
 {
     // the domain name has been reduced to 9 characters for log security
-    return "dyn: " + urlString_.left(9) + " " + domainName_.left(9);
+    return "ech: " + urlString_.left(9) + " " + domainName_.left(9);
 }
 
 // returns an empty string if parsing failed
-QString EchFailover::parseHostnameFromJson(const QByteArray &arr)
+QVector<FailoverData> EchFailover::parseDataFromJson(const QByteArray &arr)
 {
     QJsonParseError errCode;
     QJsonDocument doc = QJsonDocument::fromJson(arr, &errCode);
     if (errCode.error != QJsonParseError::NoError || !doc.isObject())
-        return QString();
+        return QVector<FailoverData>();
 
     QJsonObject jsonObject = doc.object();
     if (!jsonObject.contains("Status") || jsonObject["Status"].toInt(1) != 0)
-        return QString();
+        return QVector<FailoverData>();
 
     if (!jsonObject.contains("Answer") || !jsonObject["Answer"].isArray())
-        return QString();
+        return QVector<FailoverData>();
 
     QJsonArray jsonArray = jsonObject["Answer"].toArray();
     WS_ASSERT(jsonArray.size() > 0);
     if (jsonArray.isEmpty())
-        return QString();
+        return QVector<FailoverData>();
 
-    QJsonObject jsonAnswer = jsonArray[0].toObject();
-    if (!jsonAnswer.contains("data"))
-        return QString();
+    QVector<FailoverData> ret;
+    for (auto obj : jsonArray) {
+        QJsonObject jsonAnswer = obj.toObject();
+        if (!jsonAnswer.contains("data") || !jsonAnswer.contains("TTL"))
+            return QVector<FailoverData>();
+        QString echConfig = jsonAnswer["data"].toString().remove("\"");
+        int ttl = jsonAnswer["TTL"].toInt();
+        if (ttl == 0)
+            return QVector<FailoverData>();
 
-    return jsonAnswer["data"].toString().remove("\"");  // remove quotes
+        ret << FailoverData(domainName_, echConfig, QDateTime::currentDateTime().addSecs(ttl));
+    }
+    return ret;
 }
 
 } // namespace failover

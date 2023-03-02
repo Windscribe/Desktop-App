@@ -1,6 +1,6 @@
 #pragma once
 
-#include "basefailover.h"
+#include "../basefailover.h"
 
 namespace failover {
 
@@ -8,10 +8,11 @@ class HardcodedDomainFailover : public BaseFailover
 {
     Q_OBJECT
 public:
-    explicit HardcodedDomainFailover(QObject *parent, const QString &domain) : BaseFailover(parent), domain_(domain) {}
-    void getHostnames(bool /*bIgnoreSslErrors*/) override
+    explicit HardcodedDomainFailover(QObject *parent, const QString &uniqueId, const QString &domain) : BaseFailover(parent, uniqueId), domain_(domain) {}
+
+    void getData(bool /*bIgnoreSslErrors*/) override
     {
-        emit finished(FailoverRetCode::kSuccess, QStringList() << domain_);
+        emit finished(QVector<FailoverData>() << domain_);
     }
 
     QString name() const override

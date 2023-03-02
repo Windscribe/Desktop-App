@@ -1,6 +1,7 @@
 #ifndef UTILS_H
 #define UTILS_H
 
+#include <random>
 #include <QString>
 #include <QStringList>
 #include "types/networkinterface.h"
@@ -23,6 +24,16 @@ namespace Utils {
     //thread safe random number generator from min to max inclusive
     double generateDoubleRandom(const double &min, const double &max);
     int generateIntegerRandom(const int &min, const int &max);
+
+    template<typename T>
+    T randomizeList(const T &list)
+    {
+        T result = list;
+        unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+        std::shuffle( result.begin(), result.end(), std::default_random_engine(seed));
+        return result;
+    }
+
     bool isSubdomainsEqual(const QString &hostname1, const QString &hostname2);
     std::wstring getDirPathFromFullPath(const std::wstring &fullPath);
     QString getDirPathFromFullPath(const QString &fullPath);

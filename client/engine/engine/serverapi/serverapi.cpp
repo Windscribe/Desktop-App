@@ -42,29 +42,29 @@
 namespace server_api {
 
 ServerAPI::ServerAPI(QObject *parent, IConnectStateController *connectStateController, NetworkAccessManager *networkAccessManager,
-                     INetworkDetectionManager *networkDetectionManager, failover::IFailover *failover) : QObject(parent),
+                     INetworkDetectionManager *networkDetectionManager, failover::IFailoverContainer *failoverContainer) : QObject(parent),
     connectStateController_(connectStateController),
     networkAccessManager_(networkAccessManager),
     networkDetectionManager_(networkDetectionManager),
     bIgnoreSslErrors_(false),
     failoverState_(FailoverState::kUnknown),
     currentFailoverRequest_(nullptr),
-    failover_(failover)
+    failoverContainer_(failoverContainer)
 {
-    connect(connectStateController_, &IConnectStateController::stateChanged, this, &ServerAPI::onConnectStateChanged);
+    /*connect(connectStateController_, &IConnectStateController::stateChanged, this, &ServerAPI::onConnectStateChanged);
 
     failover_->setParent(this);
     connect(failover_, &failover::IFailover::nextHostnameAnswer, this, &ServerAPI::onFailoverNextHostnameAnswer);
 
     currentHostname_ = readHostnameFromSettings();
     if (!currentHostname_.isEmpty())
-        failoverState_ = FailoverState::kFromSettingsUnknown;
+        failoverState_ = FailoverState::kFromSettingsUnknown;*/
 }
 
 ServerAPI::~ServerAPI()
 {
-    if (currentFailoverRequest_)
-        clearCurrentFailoverRequest();
+    /*if (currentFailoverRequest_)
+        clearCurrentFailoverRequest();*/
 }
 
 QString ServerAPI::getHostname() const
@@ -78,8 +78,8 @@ QString ServerAPI::getHostname() const
 void ServerAPI::setApiResolutionsSettings(const types::ApiResolutionSettings &apiResolutionSettings)
 {
     // we use it only for the disconnected mode
-    failover_->setApiResolutionSettings(apiResolutionSettings);
-    qCDebug(LOG_SERVER_API) << "ServerAPI::setApiResolutionsSettings" << apiResolutionSettings;
+    /*failover_->setApiResolutionSettings(apiResolutionSettings);
+    qCDebug(LOG_SERVER_API) << "ServerAPI::setApiResolutionsSettings" << apiResolutionSettings;*/
 }
 
 BaseRequest *ServerAPI::login(const QString &username, const QString &password, const QString &code2fa)
@@ -253,7 +253,7 @@ BaseRequest *ServerAPI::syncRobert(const QString &authHash)
     return request;
 }
 
-void ServerAPI::onFailoverNextHostnameAnswer(failover::FailoverRetCode retCode, const QString &hostname)
+/*void ServerAPI::onFailoverNextHostnameAnswer(failover::FailoverRetCode retCode, const QString &hostname)
 {
     WS_ASSERT(currentFailoverRequest_ != nullptr)
     WS_ASSERT(isGettingFailoverHostnameInProgress_);
@@ -300,7 +300,7 @@ void ServerAPI::onFailoverNextHostnameAnswer(failover::FailoverRetCode retCode, 
     } else {
         WS_ASSERT(false);
     }
-}
+}*/
 
 void ServerAPI::onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, CONNECT_ERROR err, const LocationID &location)
 {
@@ -322,7 +322,7 @@ void ServerAPI::setIgnoreSslErrors(bool bIgnore)
 
 void ServerAPI::resetFailover()
 {
-    if (isGettingFailoverHostnameInProgress_) {
+    /*if (isGettingFailoverHostnameInProgress_) {
         isResetFailoverOnNextHostnameAnswer_ = true;
     } else {
         failover_->reset();
@@ -330,12 +330,12 @@ void ServerAPI::resetFailover()
             failoverState_ = FailoverState::kUnknown;
             currentHostname_.clear();
         }
-    }
+    }*/
 }
 
 void ServerAPI::handleNetworkRequestFinished()
 {
-    NetworkReply *reply = static_cast<NetworkReply *>(sender());
+    /*NetworkReply *reply = static_cast<NetworkReply *>(sender());
     QSharedPointer<NetworkReply> obj = QSharedPointer<NetworkReply>(reply, &QObject::deleteLater);
     QPointer<BaseRequest> pointerToRequest = reply->property("pointerToRequest").value<QPointer<BaseRequest> >();
 
@@ -403,13 +403,13 @@ void ServerAPI::handleNetworkRequestFinished()
             clearCurrentFailoverRequest();
             executeWaitingInQueueRequests();
         }
-    }
+    }*/
 }
 
 // execute request if the failover detected or queue
 void ServerAPI::executeRequest(QPointer<BaseRequest> request, bool bSkipFailoverStuff)
 {
-    QString hostname = currentHostname_;
+    /*QString hostname = currentHostname_;
     // Make sure the network return code is reset if we've failed over
     request->setNetworkRetCode(SERVER_RETURN_SUCCESS);
 
@@ -487,7 +487,7 @@ void ServerAPI::executeRequest(QPointer<BaseRequest> request, bool bSkipFailover
         default:
             WS_ASSERT(false);
     }
-    /*NetworkRequest networkRequest(request->url(hostname).toString(), request->timeout(), true, DnsServersConfiguration::instance().getCurrentDnsServers(), bIgnoreSslErrors_);
+    NetworkRequest networkRequest(request->url(hostname).toString(), request->timeout(), true, DnsServersConfiguration::instance().getCurrentDnsServers(), bIgnoreSslErrors_);
     NetworkReply *reply;
     switch (request->requestType()) {
         case RequestType::kGet:
@@ -504,11 +504,11 @@ void ServerAPI::executeRequest(QPointer<BaseRequest> request, bool bSkipFailover
             break;
         default:
             WS_ASSERT(false);
-    }*/
+    }
 
     QPointer<BaseRequest> pointerToRequest(request);
     reply->setProperty("pointerToRequest",  QVariant::fromValue(pointerToRequest));
-    connect(reply, &NetworkReply::finished, this, &ServerAPI::handleNetworkRequestFinished);
+    connect(reply, &NetworkReply::finished, this, &ServerAPI::handleNetworkRequestFinished);*/
 }
 
 void ServerAPI::executeWaitingInQueueRequests()

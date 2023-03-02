@@ -1,11 +1,7 @@
 target_sources(engine PRIVATE
-    failover.cpp
-    failover.h
-    failoverretcode.cpp
-    failoverretcode.h
     failovers/accessipsfailover.cpp
     failovers/accessipsfailover.h
-    failovers/basefailover.h
+    basefailover.h
     failovers/dgafailover.cpp
     failovers/dgafailover.h
     failovers/dynamicdomainfailover.cpp
@@ -14,7 +10,9 @@ target_sources(engine PRIVATE
     failovers/echfailover.h
     failovers/hardcodeddomainfailover.h
     failovers/randomdomainfailover.h
-    ifailover.h
+    ifailovercontainer.h
+    failovercontainer.cpp
+    failovercontainer.h
 )
 
 if(DEFINED IS_BUILD_TESTS)

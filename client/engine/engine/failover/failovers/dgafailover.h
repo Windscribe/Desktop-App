@@ -1,6 +1,6 @@
 #pragma once
 
-#include "basefailover.h"
+#include "../basefailover.h"
 
 namespace failover {
 
@@ -9,8 +9,8 @@ class DgaFailover : public BaseFailover
 {
     Q_OBJECT
 public:
-    explicit DgaFailover(QObject *parent) : BaseFailover(parent) {}
-    void getHostnames(bool /*bIgnoreSslErrors*/) override;
+    explicit DgaFailover(QObject *parent, const QString &uniqueId) : BaseFailover(parent, uniqueId) {}
+    void getData(bool /*bIgnoreSslErrors*/) override;
 
     QString name() const override
     {

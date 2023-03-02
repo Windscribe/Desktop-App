@@ -1,10 +1,11 @@
 #include <QtTest>
 #include <QCoreApplication>
+#include <QSet>
 #include <QtConcurrent/QtConcurrent>
 //#include <WinSock2.h>
 #include "engine/networkaccessmanager/networkaccessmanager.h"
 #include "engine/connectstatecontroller/iconnectstatecontroller.h"
-#include "engine/failover/failover.h"
+#include "engine/failover/failovercontainer.h"
 
 class ConnectStateController_moc : public IConnectStateController
 {
@@ -52,7 +53,6 @@ private:
 
 };
 
-
 // This is a manual test, todo some kind of automatic test is not trivial
 // Just run and see the order of domain traversal in the log
 class TestFailover : public QObject
@@ -65,7 +65,6 @@ public:
 
 private slots:
     void basicTest();
-    void manualDnsResolutionTest();
 };
 
 
@@ -86,56 +85,29 @@ void TestFailover::basicTest()
 {
     QScopedPointer<ConnectStateController_moc> connectStateController(new ConnectStateController_moc(this));
     QScopedPointer<NetworkAccessManager> accessManager(new  NetworkAccessManager(this));
-    QScopedPointer<failover::Failover> failover(new failover::Failover(this, accessManager.get(), connectStateController.get()));
+    QScopedPointer<failover::FailoverContainer> failoverContainer(new failover::FailoverContainer(this, accessManager.get(), connectStateController.get()));
 
-    connect(failover.get(), &failover::Failover::nextHostnameAnswer, [=](failover::FailoverRetCode retCode, const QString &hostname) {
-        if (retCode == failover::FailoverRetCode::kSuccess)
-            qDebug() << "next hostname:" <<  hostname;
-    });
-
-    connect(failover.get(), &failover::Failover::tryingBackupEndpoint, [=](int num, int cnt) {
-        qDebug() << QString("Trying Backup Endpoints %1/%2").arg(num).arg(cnt);
-    });
+    QSet<QString> uniqueIds;
+    int failoversCount = 0;
 
     while (true) {
-        failover->getNextHostname(false);
-        //connectStateController->changeState();
-        QSignalSpy spy(failover.get(), SIGNAL(nextHostnameAnswer(failover::FailoverRetCode, QString)));
-        spy.wait(60000);
-        QCOMPARE(spy.count(), 1);
+        failover::BaseFailover *failover = failoverContainer->currentFailover();
+        uniqueIds << failover->uniqueId();
+        QSignalSpy spy(failover, SIGNAL(finished(QVector<failover::FailoverData>)));
+        failover->getData(false);
+        while (spy.count() != 1) {
+            spy.wait(1000);
+        }
+
         QList<QVariant> arguments = spy.takeFirst();
-        if (arguments.at(0).value<failover::FailoverRetCode>() == failover::FailoverRetCode::kFailed)
+        qDebug() << failover->name() << arguments.at(0).value<QVector<failover::FailoverData>>();
+        failoversCount++;
+        if (!failoverContainer->gotoNext())
             break;
     };
-}
 
-void TestFailover::manualDnsResolutionTest()
-{
-    QScopedPointer<ConnectStateController_moc> connectStateController(new ConnectStateController_moc(this));
-    QScopedPointer<NetworkAccessManager> accessManager(new  NetworkAccessManager(this));
-    QScopedPointer<failover::Failover> failover(new failover::Failover(this, accessManager.get(), connectStateController.get()));
-    types::ApiResolutionSettings apiResolutionSettings;
-    apiResolutionSettings.set(false, "1.1.1.1");
-    failover->setApiResolutionSettings(apiResolutionSettings);
-
-    connect(failover.get(), &failover::Failover::nextHostnameAnswer, [=](failover::FailoverRetCode retCode, const QString &hostname) {
-        if (retCode == failover::FailoverRetCode::kSuccess)
-            qDebug() << "next hostname:" <<  hostname;
-    });
-
-    connect(failover.get(), &failover::Failover::tryingBackupEndpoint, [=](int num, int cnt) {
-        qDebug() << QString("Trying Backup Endpoints %1/%2").arg(num).arg(cnt);
-    });
-
-    while (true) {
-        failover->getNextHostname(false);
-        QSignalSpy spy(failover.get(), SIGNAL(nextHostnameAnswer(failover::FailoverRetCode, QString)));
-        spy.wait(60000);
-        QCOMPARE(spy.count(), 1);
-        QList<QVariant> arguments = spy.takeFirst();
-        if (arguments.at(0).value<failover::FailoverRetCode>() == failover::FailoverRetCode::kFailed)
-            break;
-    };
+    // check that all failover IDs are unique
+    QCOMPARE(failoversCount, uniqueIds.count());
 }
 
 QTEST_MAIN(TestFailover)

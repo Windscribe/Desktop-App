@@ -1,6 +1,6 @@
 #pragma once
 
-#include "basefailover.h"
+#include "../basefailover.h"
 #include "engine/connectstatecontroller/iconnectstatecontroller.h"
 #include "engine/connectstatecontroller/connectstatewatcher.h"
 
@@ -10,15 +10,15 @@ class EchFailover : public BaseFailover
 {
     Q_OBJECT
 public:
-    explicit EchFailover(QObject *parent, NetworkAccessManager *networkAccessManager, const QString &urlString, const QString &domainName, IConnectStateController *connectStateController) :
-        BaseFailover(parent, networkAccessManager),
+    explicit EchFailover(QObject *parent, const QString &uniqueId, NetworkAccessManager *networkAccessManager, const QString &urlString, const QString &domainName, IConnectStateController *connectStateController) :
+        BaseFailover(parent, uniqueId, networkAccessManager),
         urlString_(urlString),
         domainName_(domainName),
         connectStateController_(connectStateController),
         connectStateWatcher_(nullptr)
     {}
 
-    void getHostnames(bool bIgnoreSslErrors) override;
+    void getData(bool bIgnoreSslErrors) override;
     QString name() const override;
 
 private:
@@ -27,7 +27,7 @@ private:
     IConnectStateController *connectStateController_;
     ConnectStateWatcher *connectStateWatcher_;
 
-    QString parseHostnameFromJson(const QByteArray &arr);
+    QVector<failover::FailoverData> parseDataFromJson(const QByteArray &arr);
 };
 
 } // namespace failover

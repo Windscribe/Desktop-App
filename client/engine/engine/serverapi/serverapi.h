@@ -4,14 +4,15 @@
 #include <QPointer>
 #include <QQueue>
 
-#include "types/protocol.h"
-#include "types/robertfilter.h"
-#include "engine/networkaccessmanager/networkaccessmanager.h"
-#include "engine/connectstatecontroller/iconnectstatecontroller.h"
 #include "engine/connectstatecontroller/connectstatewatcher.h"
+#include "engine/connectstatecontroller/iconnectstatecontroller.h"
+#include "engine/failover/ifailovercontainer.h"
+#include "engine/networkaccessmanager/networkaccessmanager.h"
 #include "engine/networkdetectionmanager/inetworkdetectionmanager.h"
 #include "requests/baserequest.h"
-#include "engine/failover/ifailover.h"
+#include "types/apiresolutionsettings.h"
+#include "types/protocol.h"
+#include "types/robertfilter.h"
 
 namespace server_api {
 
@@ -38,7 +39,7 @@ class ServerAPI : public QObject
 public:
     // Ownership of the failover passes to the serverAPI object
     explicit ServerAPI(QObject *parent, IConnectStateController *connectStateController, NetworkAccessManager *networkAccessManager,
-                       INetworkDetectionManager *networkDetectionManager, failover::IFailover *failover);
+                       INetworkDetectionManager *networkDetectionManager, failover::IFailoverContainer *failoverContainer);
     virtual ~ServerAPI();
 
     QString getHostname() const;
@@ -77,7 +78,7 @@ public:
     BaseRequest *syncRobert(const QString &authHash);
 
 private slots:
-    void onFailoverNextHostnameAnswer(failover::FailoverRetCode retCode, const QString &hostname);
+    //void onFailoverNextHostnameAnswer(failover::FailoverRetCode retCode, const QString &hostname);
     void onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, CONNECT_ERROR err, const LocationID &location);
 
 private:
@@ -96,7 +97,7 @@ private:
     QScopedPointer<ConnectStateWatcher> currentConnectStateWatcher_;
     QString currentHostname_;
 
-    failover::IFailover *failover_;
+    failover::IFailoverContainer *failoverContainer_;
     bool isGettingFailoverHostnameInProgress_ = false;
     bool isResetFailoverOnNextHostnameAnswer_ = false;
     bool isFailoverFailedLogAlreadyDone_ = false;   // log "failover failed: API not ready" only once to avoid spam

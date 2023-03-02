@@ -24,7 +24,7 @@
 #include "serverapi/requests/debuglogrequest.h"
 #include "serverapi/requests/getrobertfiltersrequest.h"
 #include "serverapi/requests/setrobertfiltersrequest.h"
-#include "failover/failover.h"
+#include "failover/failovercontainer.h"
 
 #ifdef Q_OS_WIN
     #include <Objbase.h>
@@ -574,9 +574,10 @@ void Engine::initPart2()
     connect(networkAccessManager_, &NetworkAccessManager::whitelistIpsChanged, this, &Engine::onHostIPsChanged);
 
     // Ownership of the failover passes to the serverAPI object (in the ServerAPI ctor)
-    failover::IFailover *failover = new failover::Failover(nullptr,networkAccessManager_, connectStateController_);
-    connect(failover, &failover::IFailover::tryingBackupEndpoint, this, &Engine::onFailOverTryingBackupEndpoint);
-    serverAPI_ = new server_api::ServerAPI(this, connectStateController_, networkAccessManager_, networkDetectionManager_, failover);
+    failover::IFailoverContainer *failoverContainer = new failover::FailoverContainer(nullptr, networkAccessManager_, connectStateController_);
+    //TODO:
+    ///connect(failover, &failover::IFailover::tryingBackupEndpoint, this, &Engine::onFailOverTryingBackupEndpoint);
+    serverAPI_ = new server_api::ServerAPI(this, connectStateController_, networkAccessManager_, networkDetectionManager_, failoverContainer);
     serverAPI_->setIgnoreSslErrors(engineSettings_.isIgnoreSslErrors());
     serverAPI_->setApiResolutionsSettings(engineSettings_.apiResolutionSettings());
 

@@ -1,8 +1,6 @@
 #pragma once
 
-#include "basefailover.h"
-#include "engine/connectstatecontroller/iconnectstatecontroller.h"
-#include "engine/connectstatecontroller/connectstatewatcher.h"
+#include "../basefailover.h"
 
 namespace failover {
 
@@ -10,13 +8,11 @@ class AccessIpsFailover : public BaseFailover
 {
     Q_OBJECT
 public:
-    explicit AccessIpsFailover(QObject *parent, NetworkAccessManager *networkAccessManager, const QString &ip, IConnectStateController *connectStateController) :
-        BaseFailover(parent, networkAccessManager),
-        ip_(ip),
-        connectStateController_(connectStateController),
-        connectStateWatcher_(nullptr)
+    explicit AccessIpsFailover(QObject *parent, const QString &uniqueId, NetworkAccessManager *networkAccessManager, const QString &ip) :
+        BaseFailover(parent, uniqueId, networkAccessManager),
+        ip_(ip)
     {}
-    void getHostnames(bool bIgnoreSslErrors) override;
+    void getData(bool bIgnoreSslErrors) override;
     QString name() const override;
 
 private slots:
@@ -25,9 +21,6 @@ private slots:
 private:
     static constexpr int kTimeout = 5000;          // timeout 5 sec by default
     QString ip_;
-    IConnectStateController *connectStateController_;
-    ConnectStateWatcher *connectStateWatcher_;
-
     QStringList handleRequest(const QByteArray &arr);
 };
 
