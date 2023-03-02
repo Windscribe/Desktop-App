@@ -480,6 +480,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
+      <DelayLoadDLLs>dwmapi.dll;uxtheme.dll;wldp.dll</DelayLoadDLLs>
     </Link>
     <Manifest>
       <AdditionalManifestFiles>ossupport.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>

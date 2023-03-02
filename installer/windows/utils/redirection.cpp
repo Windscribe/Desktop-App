@@ -141,42 +141,6 @@ bool Redirection::MoveFileExRedir(const bool DisableFsRedir,
     return Result;
 }
 
-bool Redirection::CreateProcessRedir(const wchar_t* lpApplicationName, const wchar_t* lpCommandLine,
-    const LPSECURITY_ATTRIBUTES lpProcessAttributes, const LPSECURITY_ATTRIBUTES lpThreadAttributes,
-    const bool bInheritHandles, const DWORD dwCreationFlags,
-    const void* lpEnvironment, const wchar_t* lpCurrentDirectory,
-    LPSTARTUPINFO lpStartupInfo,
-    LPPROCESS_INFORMATION lpProcessInformation)
-{
-
-    DWORD ErrorCode;
-    bool Result;
-
-    //TPreviousFsRedirectionState PrevState;
-   // PrevState.OldValue = nullptr;
-   // PrevState.DidDisable = false;
-   // if (DisableFsRedirectionIf(DisableFsRedir, PrevState)==false)
-  //  {
-  //    Result = false;
-  //    return Result;
-  //  }
-
-    //try{
-    Result = CreateProcess(lpApplicationName, const_cast<wchar_t*>(lpCommandLine),
-        lpProcessAttributes, lpThreadAttributes,
-        bInheritHandles, dwCreationFlags, const_cast<void*>(lpEnvironment),
-        lpCurrentDirectory, lpStartupInfo, lpProcessInformation);
-    ErrorCode = GetLastError();
-    // }
-     //__finally
-    // {
-       //RestoreFsRedirection(PrevState);
-    // }
-    SetLastError(ErrorCode);
-
-    return Result;
-}
-
 
 bool Redirection::DisableFsRedirectionIf(const bool Disable, TPreviousFsRedirectionState PreviousState)
 {
