@@ -199,7 +199,7 @@ void Uninstaller::RunSecondPhase()
     }
 
     Log::instance().out(L"kill openvpn process");
-    Process::InstExec(L"taskkill", L"/f /im windscribeopenvpn.exe", L"", ewWaitUntilTerminated, SW_HIDE, iResultCode);
+    Process::InstExec(Directory::GetSystemDir() + wstring(L"\\taskkill.exe"), L"/f /im windscribeopenvpn.exe", L"", ewWaitUntilTerminated, SW_HIDE, iResultCode);
 
     Log::instance().out(L"uninstall tap adapter");
     Process::InstExec(path_for_installation + L"\\tap\\tapinstall.exe", L"remove tapwindscribe0901", path_for_installation + L"\\tap", ewWaitUntilTerminated, SW_HIDE, iResultCode);

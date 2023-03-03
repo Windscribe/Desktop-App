@@ -10,6 +10,18 @@
 #include "../utils/path.h"
 #include "../utils/logger.h"
 
+// Set the DLL load directory to the system directory before entering WinMain().
+struct LoadSystemDLLsFromSystem32
+{
+    LoadSystemDLLsFromSystem32()
+    {
+        // Remove the current directory from the search path for dynamically loaded
+        // DLLs as a precaution.  This call has no effect for delay load DLLs.
+        SetDllDirectory(L"");
+        SetDefaultDllDirectories(LOAD_LIBRARY_SEARCH_SYSTEM32);
+    }
+} loadSystemDLLs;
+
 namespace
 {
 int argCount = 0;
@@ -93,7 +105,6 @@ bool GetCommandLineArgumentIndex(LPCWSTR argumentToCheck, int *valueIndex)
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdParam, int nCmdShow)
 {
     UNREFERENCED_PARAMETER(hPrevInstance);
-    SetDefaultDllDirectories(LOAD_LIBRARY_SEARCH_SYSTEM32);
 
     if (!IsWindows10OrGreater())
     {
