@@ -12,7 +12,7 @@ public:
 
     void getData(bool /*bIgnoreSslErrors*/) override
     {
-        emit finished(QVector<FailoverData>() << domain_);
+        emit finished(QVector<FailoverData>() << FailoverData(domain_));
     }
 
     QString name() const override

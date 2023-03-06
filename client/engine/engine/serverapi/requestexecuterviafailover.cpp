@@ -136,4 +136,28 @@ void RequestExecuterViaFailover::executeBaseRequest(const failover::FailoverData
     connect(reply, &NetworkReply::finished, this, &RequestExecuterViaFailover::onNetworkRequestFinished);
 }
 
+QDebug operator<<(QDebug dbg, const RequestExecuterRetCode &f)
+{
+    QDebugStateSaver saver(dbg);
+    switch (f) {
+    case RequestExecuterRetCode::kSuccess:
+        dbg << "kSuccess";
+        break;
+    case RequestExecuterRetCode::kRequestDeleted:
+        dbg << "kRequestDeleted";
+        break;
+    case RequestExecuterRetCode::kFailoverFailed:
+        dbg << "kFailoverFailed";
+        break;
+    case RequestExecuterRetCode::kConnectStateChanged:
+        dbg << "kConnectStateChanged";
+        break;
+    default:
+        WS_ASSERT(false);
+    }
+
+    return dbg;
+}
+
+
 } // namespace server_api

@@ -17,9 +17,10 @@ public:
     explicit FailoverContainer(QObject *parent, NetworkAccessManager *networkAccessManager, IConnectStateController *connectStateController);
 
     void reset() override;
-    BaseFailover *currentFailover() override;
+    BaseFailover *currentFailover(int *outInd = nullptr) override;
     bool gotoNext() override;
-    void moveFailoverToTop(const QString &failoverUniqueId) override;
+    BaseFailover *failoverById(const QString &failoverUniqueId) override;
+    int count() const override;
 
 private:
     QVector<BaseFailover *> failovers_;

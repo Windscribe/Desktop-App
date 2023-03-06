@@ -28,7 +28,7 @@ void DynamicDomainFailover::getData(bool bIgnoreSslErrors)
         } else {
             QString hostname = parseHostnameFromJson(reply->readAll());
             if (!hostname.isEmpty())
-                emit finished(QVector<FailoverData>() << hostname);
+                emit finished(QVector<FailoverData>() << FailoverData(hostname));
             else
                 emit finished(QVector<FailoverData>());
         }

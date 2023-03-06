@@ -10,8 +10,8 @@ namespace failover {
 class FailoverData {
 
 public:
-    FailoverData(const QString &domain) : domain_(domain) {}
-    FailoverData(const QString &domain, const QString &echConfig, QDateTime ttlDateExpire) :
+    explicit FailoverData(const QString &domain) : domain_(domain) {}
+    explicit FailoverData(const QString &domain, const QString &echConfig, QDateTime ttlDateExpire) :
         domain_(domain), echConfig_(echConfig), ttlDateExpire_(ttlDateExpire) {}
 
     QString domain() const { return domain_; }

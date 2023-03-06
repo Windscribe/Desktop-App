@@ -18,6 +18,8 @@ namespace server_api {
 // In short it executes the failover request first and then, if successful, the request itself
 
 enum class RequestExecuterRetCode { kSuccess, kRequestDeleted, kFailoverFailed, kConnectStateChanged};
+QDebug operator<<(QDebug dbg, const RequestExecuterRetCode &f);
+
 
 class RequestExecuterViaFailover : public QObject
 {

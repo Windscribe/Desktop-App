@@ -29,10 +29,6 @@ FailoverContainer::FailoverContainer(QObject *parent, NetworkAccessManager *netw
     // Don't use other failovers for the staging functionality, as the hashed domains will hit the production environment.
     if (!AppVersion::instance().isStaging()) {
 
-        // ECH
-        failover = new EchFailover(this, "3e60e3d5-d379-46cc-a9a0-d9f04f47999a", networkAccessManager, "https://1.1.1.1/dns-query", "echconfig001.windscribe.dev", connectStateController);
-        failovers_ << failover;
-
         // Hardcoded Backup Domain Endpoint
         if (HardcodedSettings::instance().serverDomains().count() > 1) {
             failover = new HardcodedDomainFailover(this, "83e64a18-31bb-4d26-956a-ade58a5df0b9", HardcodedSettings::instance().serverDomains().at(1));
@@ -44,6 +40,11 @@ FailoverContainer::FailoverContainer(QObject *parent, NetworkAccessManager *netw
         failover = new DgaFailover(this, "c7e95d4a-ac69-4ff2-b4c0-c4e9d648b758");
         failovers_ << failover;
 #endif
+
+        // ECH
+        failover = new EchFailover(this, "3e60e3d5-d379-46cc-a9a0-d9f04f47999a", networkAccessManager, "https://1.1.1.1/dns-query", "echconfig001.windscribe.dev", "ech-public-test.windscribe.dev", connectStateController);
+        failovers_ << failover;
+
 
         // Dynamic Domains
         if (HardcodedSettings::instance().dynamicDomainsUrls().count() > 0) {
@@ -82,9 +83,11 @@ void FailoverContainer::reset()
     curFailoverInd_ = 0;
 }
 
-BaseFailover *FailoverContainer::currentFailover()
+BaseFailover *FailoverContainer::currentFailover(int *outInd /*= nullptr*/)
 {
     WS_ASSERT(curFailoverInd_ >= 0 && curFailoverInd_ < failovers_.size());
+    if (outInd)
+        *outInd = curFailoverInd_;
     return failovers_[curFailoverInd_];
 }
 
@@ -98,15 +101,17 @@ bool FailoverContainer::gotoNext()
     }
 }
 
-void FailoverContainer::moveFailoverToTop(const QString &failoverUniqueId)
+BaseFailover *FailoverContainer::failoverById(const QString &failoverUniqueId)
 {
-    curFailoverInd_ = 0;
-    for (int i = 0; i < failovers_.size(); ++i) {
-        if (failovers_[i]->uniqueId() == failoverUniqueId) {
-            failovers_.move(i, 0);
-            break;
-        }
-    }
+    for (int i = 0; i < failovers_.size(); ++i)
+        if (failovers_[i]->uniqueId() == failoverUniqueId)
+            return failovers_[i];
+    return nullptr;
+}
+
+int FailoverContainer::count() const
+{
+    return failovers_.count();
 }
 
 } // namespace failover

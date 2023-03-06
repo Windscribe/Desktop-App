@@ -16,7 +16,7 @@ void DgaFailover::getData(bool)
             qCDebug(LOG_BASIC) << "dga domain is empty, skip it";
             emit finished(QVector<FailoverData>());
         } else {
-            emit finished(QVector<FailoverData>() << domain);
+            emit finished(QVector<FailoverData>() << FailoverData(domain));
         }
 
     } else {

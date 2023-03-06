@@ -15,7 +15,7 @@ void EchFailover::getData(bool bIgnoreSslErrors)
 {
     QUrl url(urlString_);
     QUrlQuery query;
-    query.addQueryItem("name", domainName_);
+    query.addQueryItem("name", configDomainName_);
     query.addQueryItem("type", "TXT");
     url.setQuery(query);
 
@@ -44,7 +44,7 @@ void EchFailover::getData(bool bIgnoreSslErrors)
 QString EchFailover::name() const
 {
     // the domain name has been reduced to 9 characters for log security
-    return "ech: " + urlString_.left(9) + " " + domainName_.left(9);
+    return "ech: " + urlString_.left(9) + " " + configDomainName_.left(9);
 }
 
 // returns an empty string if parsing failed

@@ -12,7 +12,7 @@ class RandomDomainFailover : public BaseFailover
 public:
     explicit RandomDomainFailover(QObject *parent, const QString &uniqueId) : BaseFailover(parent, uniqueId) {}
     void getData(bool /*bIgnoreSslErrors*/) override {
-        emit finished(QVector<FailoverData>() << HardcodedSettings::instance().generateDomain());
+        emit finished(QVector<FailoverData>() << FailoverData(HardcodedSettings::instance().generateDomain()));
     }
 
     QString name() const override
