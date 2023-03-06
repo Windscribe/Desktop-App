@@ -16,6 +16,7 @@ Source0:        windscribe.tar
 
 Requires:	bash
 Requires:	iptables
+Requires:	glibc >= 2.28
 
 %description
 Windscribe client.
