@@ -1968,6 +1968,7 @@ void MainWindow::onBackendSignOutFinished()
     mainWindowController_->getPreferencesWindow()->setLoggedIn(false);
     isLoginOkAndConnectWindowVisible_ = false;
     backend_->getPreferencesHelper()->setIsExternalConfigMode(false);
+    mainWindowController_->getBottomInfoWindow()->setDataRemaining(-1, -1);
 
     //hideSupplementaryWidgets();
 
