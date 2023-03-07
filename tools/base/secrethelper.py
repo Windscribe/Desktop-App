@@ -50,14 +50,14 @@ def login_and_download_files_from_1password(arghelper):
         if not os.path.exists(pathhelper.mac_provision_profile_folder_name_absolute()):
             utl.CreateDirectory(pathhelper.mac_provision_profile_folder_name_absolute())
         download_apps_team_file_from_1password(pathhelper.PROVISION_PROFILE,
-                                          pathhelper.mac_provision_profile_filename_absolute(),
-                                          one_password_session_token)
-  
+                                               pathhelper.mac_provision_profile_filename_absolute(),
+                                               one_password_session_token)
+
     # get/extract linux keys
     if current_os == "linux":
         download_apps_team_file_from_1password("Linux Signature Private Key",
-                                          pathhelper.linux_private_key_filename_absolute(),
-                                          one_password_session_token)
+                                               pathhelper.linux_private_key_filename_absolute(),
+                                               one_password_session_token)
         # extract public key from private key
         extract_pub_key_cmd = ["openssl", "rsa", "-in", pathhelper.linux_private_key_filename_absolute(), "-pubout"]
         public_key_contents = proc.ExecuteAndGetOutput(extract_pub_key_cmd)

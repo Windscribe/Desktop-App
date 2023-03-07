@@ -26,7 +26,7 @@ import base.utils as utl
 import base.extract as extract
 import base.secrethelper as secrethelper
 import deps.installutils as iutl
-from base.arghelper import *
+from base.arghelper import ArgHelper
 
 # Windscribe settings.
 BUILD_TITLE = "Windscribe"
@@ -204,6 +204,7 @@ def fix_build_libs_rpaths(configdata):
                 for binary_name in binaries_to_patch:
                     fix_rpath_macos(os.path.join(build_lib_root, binary_name))
 
+
 def apply_mac_deploy_fixes(configdata, target, appname, fullpath):
     # Special deploy fixes for Mac.
     # 1. copy_libs
@@ -264,9 +265,8 @@ def apply_mac_deploy_fixes(configdata, target, appname, fullpath):
         else:
             msg.Warn("No embedded.provisionprofile found for this project.  IKEv2 will not function in this build.")
 
-def build_component(component, qt_root, buildenv=None):
-    c_target = component.get("target", None)
 
+def build_component(component, qt_root, buildenv=None):
     msg.Info("Building {} (64-bit)...".format(component["name"]))
     with utl.PushDir() as current_wd:
         temp_wd = os.path.normpath(os.path.join(current_wd, component["subdir"]))
@@ -288,9 +288,9 @@ def build_component(component, qt_root, buildenv=None):
 
         if component["name"] == "Client":
             try:
-                build_id = re.search("\d+", proc.ExecuteAndGetOutput(["git", "branch", "--show-current"], env=buildenv, shell=False)).group()
+                build_id = re.search(r"\d+", proc.ExecuteAndGetOutput(["git", "branch", "--show-current"], env=buildenv, shell=False)).group()
                 generate_cmd.extend(["-DDEFINE_USE_BUILD_ID_MACRO=" + build_id])
-            except Exception as e:
+            except Exception:
                 # Not on a development branch, ignore
                 pass
 
@@ -317,6 +317,7 @@ def build_component(component, qt_root, buildenv=None):
                 restore_helper_info_plist(os.path.join(pathhelper.ROOT_DIR, component["subdir"], "helper-info.plist"))
             elif component["name"] == "Installer":
                 utl.RemoveFile(temp_info_plist)
+
 
 def deploy_component(configdata, component_name, buildenv=None, target_name_override=None):
     component = configdata[component_name][CURRENT_OS]
@@ -370,6 +371,7 @@ def deploy_component(configdata, component_name, buildenv=None, target_name_over
                 dstfile = os.path.join(dstfile, component["symbols"])
                 utl.CopyFile(srcfile, dstfile)
 
+
 def build_components(configdata, targetlist, qt_root):
     # Setup globals.
     global BUILD_MAC_DEPLOY
@@ -387,6 +389,7 @@ def build_components(configdata, targetlist, qt_root):
         if CURRENT_OS in configdata[target]:
             build_component(configdata[target][CURRENT_OS], qt_root, buildenv)
             deploy_component(configdata, target, buildenv)
+
 
 def pack_symbols():
     msg.Info("Packing symbols...")
@@ -524,7 +527,7 @@ def build_installer_mac(configdata, qt_root, build_path):
                          "WindscribeInstaller.dmg", "-D", "app=WindscribeInstaller.app", "-D",
                          "background=" + pathhelper.ROOT_DIR + "/installer/mac/dmgbuild/osx_install_background.tiff"])
         final_installer_name = os.path.normpath(os.path.join(dmg_dir, "Windscribe_{}.dmg"
-                                                         .format(extractor.app_version(True))))
+                                                             .format(extractor.app_version(True))))
     utl.RenameFile(os.path.join(dmg_dir, "WindscribeInstaller.dmg"), final_installer_name)
 
 
@@ -609,6 +612,7 @@ def build_installer_linux(configdata, qt_root):
         iutl.RunCommand(["rpmbuild", "-bb", os.path.join(pathlib.Path.home(), "rpmbuild", "SPECS", "windscribe_rpm.spec")])
         utl.CopyFile(os.path.join(pathlib.Path.home(), "rpmbuild", "RPMS", "x86_64", "windscribe-{}-0.x86_64.rpm".format(extractor.app_version(False))),
                      os.path.join(BUILD_INSTALLER_FILES, "..", "windscribe_{}_x86_64.rpm".format(extractor.app_version(True))))
+
 
 def build_all(win_cert_password):
     # Load config.
