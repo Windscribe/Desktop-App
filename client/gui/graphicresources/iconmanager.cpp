@@ -33,8 +33,9 @@ IconManager::IconManager()
         ":/resources/icons/win/ON_BLACK.ico",         // ICON_TRAY_CONNECTED_LIGHT
 #endif
 #if defined(Q_OS_WIN)
-        ":/resources/icons/win/ConnectingShield.ico", // ICON_OVERLAY_CONNECTING
-        ":/resources/icons/win/ConnectedShield.ico",  // ICON_OVERLAY_CONNECTED
+        ":/resources/icons/win/ConnectingOverlay.ico", // ICON_OVERLAY_CONNECTING
+        ":/resources/icons/win/ConnectedOverlay.ico",  // ICON_OVERLAY_CONNECTED
+        ":/resources/icons/win/ErrorOverlay.ico",      // ICON_OVERLAY_ERROR
 #endif
     };
 

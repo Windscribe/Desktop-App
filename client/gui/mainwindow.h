@@ -314,7 +314,7 @@ private:
 
 #endif
 
-    enum class AppIconType { DISCONNECTED, CONNECTING, CONNECTED };
+    enum class AppIconType { DISCONNECTED, DISCONNECTED_WITH_ERROR, CONNECTING, CONNECTED };
     void updateAppIconType(AppIconType type);
     void updateTrayIconType(AppIconType type);
     void updateTrayTooltip(QString tooltip);
