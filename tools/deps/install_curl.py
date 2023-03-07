@@ -57,10 +57,17 @@ def BuildDependencyGNU(openssl_root, outpath):
   buildenv = os.environ.copy()
   if utl.GetCurrentOS() == "macos":
     buildenv.update({ "CC" : "cc -mmacosx-version-min=10.14 -arch x86_64 -arch arm64"})
+
+  buildconf_cmd = ["./buildconf"]
+  iutl.RunCommand(buildconf_cmd, env=buildenv)
+
   # Configure.
   configure_cmd = ["./configure"]
   configure_cmd.append("--prefix={}".format(outpath))
   configure_cmd.append("--with-ssl={}".format(openssl_root))
+  configure_cmd.append("--enable-ech")
+  configure_cmd.append("--without-brotli")
+  configure_cmd.append("--without-zstd")
   iutl.RunCommand(configure_cmd, env=buildenv)
   # Build and install.
   iutl.RunCommand(iutl.GetMakeBuildCommand(), env=buildenv)

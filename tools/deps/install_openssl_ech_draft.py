@@ -50,6 +50,10 @@ def BuildDependencyMSVC(outpath):
 def BuildDependencyMacOS(outpath, build_arch, install_dep):
   buildenv = os.environ.copy()
   buildenv.update({ "CC" : "cc -mmacosx-version-min=10.14"})
+
+  set_execute_permissions_cmd = ["chmod", "+x", "Configure"]
+  iutl.RunCommand(set_execute_permissions_cmd, env=buildenv)
+
   configure_cmd = ["./Configure", "darwin64-{}-cc".format(build_arch), "shared", "no-asm", "no-unit-test", "no-tests"]
   configure_cmd.append("--prefix={}".format(outpath))
   configure_cmd.append("--openssldir=/usr/local/ssl")
@@ -126,8 +130,8 @@ def InstallDependency():
     with utl.PushDir(temp_dir):
       iutl.RunCommand(["lipo", "-create", archivetitle + "-arm64/libcrypto.a", archivetitle + "-x86_64/libcrypto.a", "-output", outpath + "/lib/libcrypto.a"])
       iutl.RunCommand(["lipo", "-create", archivetitle + "-arm64/libssl.a", archivetitle + "-x86_64/libssl.a", "-output", outpath + "/lib/libssl.a"])
-      iutl.RunCommand(["lipo", "-create", archivetitle + "-arm64/libcrypto.1.1.dylib", archivetitle + "-x86_64/libcrypto.1.1.dylib", "-output", outpath + "/lib/libcrypto.1.1.dylib"])
-      iutl.RunCommand(["lipo", "-create", archivetitle + "-arm64/libssl.1.1.dylib", archivetitle + "-x86_64/libssl.1.1.dylib", "-output", outpath + "/lib/libssl.1.1.dylib"])
+      iutl.RunCommand(["lipo", "-create", archivetitle + "-arm64/libcrypto.3.dylib", archivetitle + "-x86_64/libcrypto.3.dylib", "-output", outpath + "/lib/libcrypto.3.dylib"])
+      iutl.RunCommand(["lipo", "-create", archivetitle + "-arm64/libssl.3.dylib", archivetitle + "-x86_64/libssl.3.dylib", "-output", outpath + "/lib/libssl.3.dylib"])
   else:
     with utl.PushDir(os.path.join(temp_dir, archivetitle)):
       msg.Info("Building: \"{}\"".format(archivetitle))
