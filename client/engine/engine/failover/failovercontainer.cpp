@@ -26,6 +26,10 @@ FailoverContainer::FailoverContainer(QObject *parent, NetworkAccessManager *netw
     BaseFailover *failover = new HardcodedDomainFailover(this, "300fa426-4640-4a3f-b95c-1f0277462358", HardcodedSettings::instance().serverDomains().at(0));
     failovers_ << failover;
 
+    // ECH
+    failover = new EchFailover(this, "3e60e3d5-d379-46cc-a9a0-d9f04f47999a", networkAccessManager, "https://1.0.0.1/dns-query", "echconfig001.windscribe.dev", "ech-public-test.windscribe.dev");
+    failovers_ << failover;
+
     // Don't use other failovers for the staging functionality, as the hashed domains will hit the production environment.
     if (!AppVersion::instance().isStaging()) {
 
@@ -40,11 +44,6 @@ FailoverContainer::FailoverContainer(QObject *parent, NetworkAccessManager *netw
         failover = new DgaFailover(this, "c7e95d4a-ac69-4ff2-b4c0-c4e9d648b758");
         failovers_ << failover;
 #endif
-
-        // ECH
-        failover = new EchFailover(this, "3e60e3d5-d379-46cc-a9a0-d9f04f47999a", networkAccessManager, "https://1.1.1.1/dns-query", "echconfig001.windscribe.dev", "ech-public-test.windscribe.dev", connectStateController);
-        failovers_ << failover;
-
 
         // Dynamic Domains
         if (HardcodedSettings::instance().dynamicDomainsUrls().count() > 0) {

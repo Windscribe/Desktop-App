@@ -91,7 +91,7 @@ elseif(UNIX)
     link_directories(${WINDSCRIBE_BUILD_LIBS_PATH}/boost/lib
                      ${WINDSCRIBE_BUILD_LIBS_PATH}/curl/lib
                      ${WINDSCRIBE_BUILD_LIBS_PATH}/cares/lib
-                     ${WINDSCRIBE_BUILD_LIBS_PATH}/openssl/lib
+                     ${WINDSCRIBE_BUILD_LIBS_PATH}/openssl_ech_draft/lib64
      )
      set (OS_SPECIFIC_LIBRARIES ssl crypto cares curl libboost_serialization.a libboost_filesystem.a)
 endif()

@@ -67,6 +67,12 @@ def BuildDependencyLinux(outpath):
   buildenv = os.environ.copy()
   # Configure.
   is_testing_ok = "-test" in sys.argv
+
+  set_execute_permissions_cmd = ["chmod", "+x", "config"]
+  iutl.RunCommand(set_execute_permissions_cmd, env=buildenv)
+  set_execute_permissions_cmd = ["chmod", "+x", "Configure"]
+  iutl.RunCommand(set_execute_permissions_cmd, env=buildenv)
+
   configure_cmd = ["./config", "--shared", "no-asm"]
   if not is_testing_ok:
     configure_cmd.extend(["no-unit-test", "no-tests"])

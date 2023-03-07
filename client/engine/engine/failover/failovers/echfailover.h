@@ -1,8 +1,6 @@
 #pragma once
 
 #include "../basefailover.h"
-#include "engine/connectstatecontroller/iconnectstatecontroller.h"
-#include "engine/connectstatecontroller/connectstatewatcher.h"
 
 namespace failover {
 
@@ -10,13 +8,11 @@ class EchFailover : public BaseFailover
 {
     Q_OBJECT
 public:
-    explicit EchFailover(QObject *parent, const QString &uniqueId, NetworkAccessManager *networkAccessManager, const QString &urlString, const QString &configDomainName, const QString &domainName, IConnectStateController *connectStateController) :
+    explicit EchFailover(QObject *parent, const QString &uniqueId, NetworkAccessManager *networkAccessManager, const QString &urlString, const QString &configDomainName, const QString &domainName) :
         BaseFailover(parent, uniqueId, networkAccessManager),
         urlString_(urlString),
         configDomainName_(configDomainName),
-        domainName_(domainName),
-        connectStateController_(connectStateController),
-        connectStateWatcher_(nullptr)
+        domainName_(domainName)
     {}
 
     void getData(bool bIgnoreSslErrors) override;
@@ -27,8 +23,6 @@ private:
     QString urlString_;
     QString configDomainName_;
     QString domainName_;
-    IConnectStateController *connectStateController_;
-    ConnectStateWatcher *connectStateWatcher_;
 
     QVector<failover::FailoverData> parseDataFromJson(const QByteArray &arr);
 };

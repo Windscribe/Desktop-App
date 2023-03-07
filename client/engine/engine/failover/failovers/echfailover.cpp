@@ -19,20 +19,12 @@ void EchFailover::getData(bool bIgnoreSslErrors)
     query.addQueryItem("type", "TXT");
     url.setQuery(query);
 
-    SAFE_DELETE(connectStateWatcher_);
-    connectStateWatcher_ = new ConnectStateWatcher(this, connectStateController_);
-
     NetworkRequest networkRequest(url, 5000, true, DnsServersConfiguration::instance().getCurrentDnsServers(), bIgnoreSslErrors);
     networkRequest.setContentTypeHeader("accept: application/dns-json");
     NetworkReply *reply = networkAccessManager_->get(networkRequest);
     connect(reply, &NetworkReply::finished, [=]() {
         if (!reply->isSuccess()) {
-            // if connect state changed the retrying the request
-            if (connectStateWatcher_->isVpnConnectStateChanged()) {
-                emit finished(QVector<FailoverData>());
-            } else {
-                emit finished(QVector<FailoverData>());
-            }
+            emit finished(QVector<FailoverData>());
         } else {
             QVector<FailoverData> data = parseDataFromJson(reply->readAll());
             emit finished(data);
