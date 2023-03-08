@@ -9,14 +9,16 @@ class DgaFailover : public BaseFailover
 {
     Q_OBJECT
 public:
-    explicit DgaFailover(QObject *parent, const QString &uniqueId) : BaseFailover(parent, uniqueId) {}
+    explicit DgaFailover(QObject *parent, const QString &uniqueId);
     void getData(bool /*bIgnoreSslErrors*/) override;
 
     QString name() const override
     {
         // the domain name has been reduced to 3 characters for log security
-        return "dga";
+        return "dga: " + domain_.left(3);
     }
+private:
+    QString domain_;
 
 };
 

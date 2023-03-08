@@ -4,6 +4,7 @@
 #include "utils/utils.h"
 #include "engine/connectionmanager/openvpnconnection.h"
 #include "utils/hardcodedsettings.h"
+#include "utils/dga_library.h"
 #include "engine/dnsresolver/dnsrequest.h"
 #include "engine/dnsresolver/dnsserversconfiguration.h"
 #include <QFile>
@@ -355,8 +356,15 @@ void EmergencyController::doConnect()
     }
 
     qCDebug(LOG_EMERGENCY_CONNECT) << "Connecting to IP:" << attempt.ip << " protocol:" << attempt.protocol << " port:" << attempt.port;
-    connector_->startConnect(makeOVPNFile_->config(), "", "", HardcodedSettings::instance().emergencyUsername(), HardcodedSettings::instance().emergencyPassword(), proxySettings_, nullptr, false, false, false);
-    lastIp_ = attempt.ip;
+    DgaLibrary dga;
+    if (dga.load()) {
+        connector_->startConnect(makeOVPNFile_->config(), "", "", dga.getParameter(PAR_EMERGENCY_USERNAME), dga.getParameter(PAR_EMERGENCY_PASSWORD), proxySettings_, nullptr, false, false, false);
+        lastIp_ = attempt.ip;
+    } else {
+        qCDebug(LOG_EMERGENCY_CONNECT) << "No dga found";
+        WS_ASSERT(false);
+        return;
+    }
 }
 
 void EmergencyController::doMacRestoreProcedures()
@@ -370,7 +378,11 @@ void EmergencyController::doMacRestoreProcedures()
 
 void EmergencyController::addRandomHardcodedIpsToAttempts()
 {
-    const QStringList ips = HardcodedSettings::instance().emergencyIps();
+    DgaLibrary dga;
+    QStringList ips;
+    if (dga.load())
+        ips << dga.getParameter(PAR_EMERGENCY_IP1) << dga.getParameter(PAR_EMERGENCY_IP2);
+
     std::vector<QString> randomVecIps;
     for (const QString &ip : ips)
     {

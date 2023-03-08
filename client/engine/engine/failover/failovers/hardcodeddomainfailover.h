@@ -18,7 +18,7 @@ public:
     QString name() const override
     {
         // the domain name has been reduced to 3 characters for log security
-        return "hrd";
+        return "hrd: " + domain_.left(3);
     }
 
 private:

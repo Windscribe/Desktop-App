@@ -4,7 +4,7 @@
 #include <QObject>
 #include "engine/networkaccessmanager/networkaccessmanager.h"
 #include "engine/connectstatecontroller/iconnectstatecontroller.h"
-
+#include "utils/dga_library.h"
 
 class ConnectStateController_moc : public IConnectStateController
 {
@@ -52,8 +52,6 @@ private slots:
     void cleanup();
 
     void testEchFailover();
-
-private:
     void testDynamicFailover();
     void testFailoverFailed();
     void testRequestDeleted();
@@ -61,8 +59,10 @@ private:
     void testMultiIpFailover();
 
 
+private:
     NetworkAccessManager *networkAccessManager_;
     ConnectStateController_moc *connectStateController_;
+    DgaLibrary dga_;
 
 };
 

@@ -41,6 +41,7 @@ public:
     // Ownership of the failover passes to the serverAPI object
     explicit ServerAPI(QObject *parent, IConnectStateController *connectStateController, NetworkAccessManager *networkAccessManager,
                        INetworkDetectionManager *networkDetectionManager, failover::IFailoverContainer *failoverContainer);
+    virtual ~ServerAPI();
 
     QString getHostname() const;
     void setApiResolutionsSettings(const types::ApiResolutionSettings &apiResolutionSettings);
@@ -101,7 +102,7 @@ private:
 
     QString failoverFromSettingsId_;   // empty if not exists
 
-    RequestExecuterViaFailover *requestExecutorViaFailover_;
+    QScopedPointer<RequestExecuterViaFailover> requestExecutorViaFailover_;
 
     failover::IFailoverContainer *failoverContainer_;
     bool isGettingFailoverHostnameInProgress_ = false;

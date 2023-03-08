@@ -21,6 +21,8 @@ RequestExecuterViaFailover_test::RequestExecuterViaFailover_test()
 
 void RequestExecuterViaFailover_test::init()
 {
+    bool bDgaLoaded = dga_.load();
+    QVERIFY(bDgaLoaded);
     networkAccessManager_ = new NetworkAccessManager(this);
     connectStateController_ = new ConnectStateController_moc(this);
 }
@@ -35,7 +37,8 @@ void RequestExecuterViaFailover_test::testEchFailover()
 {
     server_api::RequestExecuterViaFailover *requestExecuter = new server_api::RequestExecuterViaFailover(this, connectStateController_, networkAccessManager_);
     server_api::MyIpRequest *request = new server_api::MyIpRequest(this, 5000);
-    failover::BaseFailover *failover = new failover::EchFailover(this, "3e60e3d5-d379-46cc-a9a0-d9f04f47999a", networkAccessManager_, "https://1.1.1.1/dns-query", "echconfig001.windscribe.dev", "ech-public-test.windscribe.dev", connectStateController_);
+    QSharedPointer<failover::BaseFailover> failover = QSharedPointer<failover::BaseFailover>(new failover::EchFailover(this, "3e60e3d5-d379-46cc-a9a0-d9f04f47999a", networkAccessManager_,
+                                                                                                                       dga_.getParameter(PAR_DYNAMIC_DOMAIN_CLOUDFLARE_URL2), dga_.getParameter(PAR_ECH_CONFIG_DOMAIN), dga_.getParameter(PAR_ECH_DOMAIN)));
 
     QSignalSpy spy(requestExecuter, SIGNAL(finished(server_api::RequestExecuterRetCode)));
 
@@ -52,7 +55,7 @@ void RequestExecuterViaFailover_test::testDynamicFailover()
 {
     server_api::RequestExecuterViaFailover *requestExecuter = new server_api::RequestExecuterViaFailover(this, connectStateController_, networkAccessManager_);
     server_api::MyIpRequest *request = new server_api::MyIpRequest(this, 5000);
-    failover::BaseFailover *failover = new failover::DynamicDomainFailover(this, "20846580-b8fc-418b-9202-0af1fdbd90b9", networkAccessManager_, HardcodedSettings::instance().dynamicDomainsUrls().at(0), HardcodedSettings::instance().dynamicDomains().at(0));
+    QSharedPointer<failover::BaseFailover> failover = QSharedPointer<failover::BaseFailover>(new failover::DynamicDomainFailover(this, "20846580-b8fc-418b-9202-0af1fdbd90b9", networkAccessManager_, dga_.getParameter(PAR_DYNAMIC_DOMAIN_CLOUDFLARE_URL2), dga_.getParameter(PAR_DYNAMIC_DOMAIN_DESKTOP)));
 
     QSignalSpy spy(requestExecuter, SIGNAL(finished(server_api::RequestExecuterRetCode)));
 
@@ -69,7 +72,7 @@ void RequestExecuterViaFailover_test::testFailoverFailed()
 {
     server_api::RequestExecuterViaFailover *requestExecuter = new server_api::RequestExecuterViaFailover(this, connectStateController_, networkAccessManager_);
     server_api::MyIpRequest *request = new server_api::MyIpRequest(this, 5000);
-    failover::BaseFailover *failover = new failover::DynamicDomainFailover(this, "20846580-b8fc-418b-9202-0af1fdbd90b9", networkAccessManager_, "bad_domain_32764623746873246.com", HardcodedSettings::instance().dynamicDomains().at(0));
+    QSharedPointer<failover::BaseFailover> failover = QSharedPointer<failover::BaseFailover>(new failover::DynamicDomainFailover(this, "20846580-b8fc-418b-9202-0af1fdbd90b9", networkAccessManager_, "bad_domain_32764623746873246.com", dga_.getParameter(PAR_DYNAMIC_DOMAIN_DESKTOP)));
 
     QSignalSpy spy(requestExecuter, SIGNAL(finished(server_api::RequestExecuterRetCode)));
 
@@ -86,7 +89,7 @@ void RequestExecuterViaFailover_test::testRequestDeleted()
 {
     server_api::RequestExecuterViaFailover *requestExecuter = new server_api::RequestExecuterViaFailover(this, connectStateController_, networkAccessManager_);
     server_api::MyIpRequest *request = new server_api::MyIpRequest(this, 5000);
-    failover::BaseFailover *failover = new failover::DynamicDomainFailover(this, "20846580-b8fc-418b-9202-0af1fdbd90b9", networkAccessManager_, HardcodedSettings::instance().dynamicDomainsUrls().at(0), HardcodedSettings::instance().dynamicDomains().at(0));
+    QSharedPointer<failover::BaseFailover> failover = QSharedPointer<failover::BaseFailover>(new failover::DynamicDomainFailover(this, "20846580-b8fc-418b-9202-0af1fdbd90b9", networkAccessManager_, dga_.getParameter(PAR_DYNAMIC_DOMAIN_CLOUDFLARE_URL2), dga_.getParameter(PAR_DYNAMIC_DOMAIN_DESKTOP)));
 
     QSignalSpy spy(requestExecuter, SIGNAL(finished(server_api::RequestExecuterRetCode)));
 
@@ -107,7 +110,7 @@ void RequestExecuterViaFailover_test::testConnectStateChanged()
 {
     server_api::RequestExecuterViaFailover *requestExecuter = new server_api::RequestExecuterViaFailover(this, connectStateController_, networkAccessManager_);
     server_api::MyIpRequest *request = new server_api::MyIpRequest(this, 5000);
-    failover::BaseFailover *failover = new failover::DynamicDomainFailover(this, "20846580-b8fc-418b-9202-0af1fdbd90b9", networkAccessManager_, HardcodedSettings::instance().dynamicDomainsUrls().at(0), HardcodedSettings::instance().dynamicDomains().at(0));
+    QSharedPointer<failover::BaseFailover> failover = QSharedPointer<failover::BaseFailover>(new failover::DynamicDomainFailover(this, "20846580-b8fc-418b-9202-0af1fdbd90b9", networkAccessManager_, dga_.getParameter(PAR_DYNAMIC_DOMAIN_CLOUDFLARE_URL2), dga_.getParameter(PAR_DYNAMIC_DOMAIN_DESKTOP)));
 
     QSignalSpy spy(requestExecuter, SIGNAL(finished(server_api::RequestExecuterRetCode)));
 
@@ -126,7 +129,7 @@ void RequestExecuterViaFailover_test::testMultiIpFailover()
 {
     server_api::RequestExecuterViaFailover *requestExecuter = new server_api::RequestExecuterViaFailover(this, connectStateController_, networkAccessManager_);
     server_api::MyIpRequest *request = new server_api::MyIpRequest(this, 5000);
-    failover::BaseFailover *failover = new failover::AccessIpsFailover(this, "20846580-b8fc-418b-9202-0af1fdbd90b9", networkAccessManager_, HardcodedSettings::instance().apiIps()[0]);
+    QSharedPointer<failover::BaseFailover> failover = QSharedPointer<failover::BaseFailover>(new failover::AccessIpsFailover(this, "20846580-b8fc-418b-9202-0af1fdbd90b9", networkAccessManager_, dga_.getParameter(PAR_API_ACCESS_IP1)));
 
     QSignalSpy spy(requestExecuter, SIGNAL(finished(server_api::RequestExecuterRetCode)));
 

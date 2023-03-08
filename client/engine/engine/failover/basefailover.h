@@ -46,8 +46,6 @@ public:
     virtual void getData(bool bIgnoreSslErrors) = 0;
     virtual QString name() const = 0;
     QString uniqueId() const { return uniqueId_; }
-    virtual bool isEch() const { return false; }        // must return true for ECH failover
-
 signals:
     void finished(const QVector<failover::FailoverData> &data);     // if data is empty then it is implied that failed
 

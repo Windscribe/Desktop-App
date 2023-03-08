@@ -574,7 +574,7 @@ void Engine::initPart2()
     connect(networkAccessManager_, &NetworkAccessManager::whitelistIpsChanged, this, &Engine::onHostIPsChanged);
 
     // Ownership of the failover passes to the serverAPI object (in the ServerAPI ctor)
-    failover::IFailoverContainer *failoverContainer = new failover::FailoverContainer(nullptr, networkAccessManager_, connectStateController_);
+    failover::IFailoverContainer *failoverContainer = new failover::FailoverContainer(nullptr, networkAccessManager_);
     serverAPI_ = new server_api::ServerAPI(this, connectStateController_, networkAccessManager_, networkDetectionManager_, failoverContainer);
     connect(serverAPI_, &server_api::ServerAPI::tryingBackupEndpoint, this, &Engine::onFailOverTryingBackupEndpoint);
     serverAPI_->setIgnoreSslErrors(engineSettings_.isIgnoreSslErrors());

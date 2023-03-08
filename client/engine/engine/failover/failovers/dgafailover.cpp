@@ -7,22 +7,28 @@
 
 namespace failover {
 
-void DgaFailover::getData(bool)
+DgaFailover::DgaFailover(QObject *parent, const QString &uniqueId) : BaseFailover(parent, uniqueId)
 {
     DgaLibrary dga;
     if (dga.load()) {
         QString domain = dga.getParameter(PAR_RANDOM_GENERATED_DOMAIN);
         if (domain.isEmpty()) {
             qCDebug(LOG_BASIC) << "dga domain is empty, skip it";
-            emit finished(QVector<FailoverData>());
         } else {
-            emit finished(QVector<FailoverData>() << FailoverData(domain));
+            domain_ = domain;
         }
 
     } else {
         qCDebug(LOG_BASIC) << "No dga, skip it";
-        emit finished(QVector<FailoverData>());
     }
+}
+
+void DgaFailover::getData(bool)
+{
+    if (!domain_.isEmpty())
+        emit finished(QVector<FailoverData>() << FailoverData(domain_));
+    else
+        emit finished(QVector<FailoverData>());
 }
 
 } // namespace failover

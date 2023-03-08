@@ -17,7 +17,6 @@ public:
 
     void getData(bool bIgnoreSslErrors) override;
     QString name() const override;
-    bool isEch() const override { return true; }
 
 private:
     QString urlString_;

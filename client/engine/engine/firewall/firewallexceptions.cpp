@@ -127,12 +127,6 @@ QSet<QString> FirewallExceptions::getIPAddressesForFirewall() const
         }
     }
 
-    // add hardcoded IPs
-    for (const QString &s : HardcodedSettings::instance().apiIps())
-    {
-        ipList.add(s);
-    }
-
     for (const QString &s : hostIPs_)
     {
         if (!s.isEmpty())

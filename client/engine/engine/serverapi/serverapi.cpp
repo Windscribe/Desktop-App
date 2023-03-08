@@ -48,18 +48,22 @@ ServerAPI::ServerAPI(QObject *parent, IConnectStateController *connectStateContr
     networkDetectionManager_(networkDetectionManager),
     bIgnoreSslErrors_(false),
     failoverState_(FailoverState::kUnknown),
-    failoverContainer_(failoverContainer),
-    requestExecutorViaFailover_(nullptr)
+    failoverContainer_(failoverContainer)
 {
     connect(connectStateController_, &IConnectStateController::stateChanged, this, &ServerAPI::onConnectStateChanged);
 
     failoverContainer_->setParent(this);
 
-    failoverFromSettingsId_ = readFailoverIdFromSettings();
+    /*failoverFromSettingsId_ = readFailoverIdFromSettings();
     if (!failoverContainer_->failoverById(failoverFromSettingsId_))
         failoverFromSettingsId_.clear();
     else
-        failoverState_ = FailoverState::kFromSettingsUnknown;
+        failoverState_ = FailoverState::kFromSettingsUnknown;*/
+}
+
+ServerAPI::~ServerAPI()
+{
+    requestExecutorViaFailover_.reset();
 }
 
 QString ServerAPI::getHostname() const
@@ -301,15 +305,15 @@ void ServerAPI::onRequestExecuterViaFailoverFinished(RequestExecuterRetCode retC
             writeFailoverIdToSettings(failoverContainer_->currentFailover()->uniqueId());
         }
         failoverData_.reset(new failover::FailoverData(requestExecutorViaFailover_->failoverData()));
-        SAFE_DELETE_LATER(requestExecutorViaFailover_);
+        requestExecutorViaFailover_.reset();
         emit request->finished();
         executeWaitingInQueueRequests();
     } else if (retCode == RequestExecuterRetCode::kRequestDeleted) {
         WS_ASSERT(request.isNull());
-        SAFE_DELETE_LATER(requestExecutorViaFailover_);
+        requestExecutorViaFailover_.reset();
         executeWaitingInQueueRequests();
     } else if (retCode == RequestExecuterRetCode::kFailoverFailed) {
-        SAFE_DELETE_LATER(requestExecutorViaFailover_);
+        requestExecutorViaFailover_.reset();
         if (failoverState_ == FailoverState::kFromSettingsUnknown) {
             failoverState_ = FailoverState::kUnknown;
             failoverFromSettingsId_.clear();
@@ -326,7 +330,7 @@ void ServerAPI::onRequestExecuterViaFailoverFinished(RequestExecuterRetCode retC
         }
     } else if (retCode == RequestExecuterRetCode::kConnectStateChanged) {
         // Repeat the execution of the request via failover
-        SAFE_DELETE_LATER(requestExecutorViaFailover_);
+        requestExecutorViaFailover_.reset();
         executeRequest(request);
     } else {
         WS_ASSERT(false);
@@ -393,14 +397,15 @@ void ServerAPI::executeRequest(QPointer<BaseRequest> request)
         if (failoverState_ == FailoverState::kFromSettingsUnknown || failoverState_ == FailoverState::kUnknown) {
             WS_ASSERT(requestExecutorViaFailover_ == nullptr);
             int failoverInd = -1;
-            failover::BaseFailover *curFailover = (failoverState_ == FailoverState::kFromSettingsUnknown) ? failoverContainer_->failoverById(failoverFromSettingsId_) : failoverContainer_->currentFailover(&failoverInd);
+            QSharedPointer<failover::BaseFailover> curFailover = (failoverState_ == FailoverState::kFromSettingsUnknown) ? failoverContainer_->failoverById(failoverFromSettingsId_) : failoverContainer_->currentFailover(&failoverInd);
             WS_ASSERT(curFailover);
             qCDebug(LOG_FAILOVER) << "Trying:" << curFailover->name();
-            requestExecutorViaFailover_ = new RequestExecuterViaFailover(this, connectStateController_, networkAccessManager_);
-            connect(requestExecutorViaFailover_, &RequestExecuterViaFailover::finished, this, &ServerAPI::onRequestExecuterViaFailoverFinished);
+            requestExecutorViaFailover_.reset(new RequestExecuterViaFailover(this, connectStateController_, networkAccessManager_));
+            connect(requestExecutorViaFailover_.get(), &RequestExecuterViaFailover::finished, this, &ServerAPI::onRequestExecuterViaFailoverFinished, Qt::QueuedConnection);
             requestExecutorViaFailover_->execute(request, curFailover, bIgnoreSslErrors_);
-            if (failoverInd != -1)
-                emit tryingBackupEndpoint(failoverInd + 1, failoverContainer_->count());
+            // Do not emit this signal for the first failover and for from the settings failover
+            if (failoverInd > 0)
+                emit tryingBackupEndpoint(failoverInd, failoverContainer_->count() - 1);
         } else if (failoverState_ == FailoverState::kReady || failoverState_ == FailoverState::kFromSettingsReady) {
             WS_ASSERT(!failoverData_.isNull());
             executeRequestImpl(request, *failoverData_);
@@ -488,7 +493,7 @@ bool ServerAPI::isDisconnectedState() const
 
 QString ServerAPI::hostnameForConnectedState() const
 {
-    return HardcodedSettings::instance().serverDomains().at(0);
+    return HardcodedSettings::instance().primaryServerDomain();
 }
 
 void ServerAPI::writeFailoverIdToSettings(const QString &failoverId)

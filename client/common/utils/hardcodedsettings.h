@@ -16,9 +16,7 @@ public:
         return s;
     }
 
-    QStringList serverDomains() const { return serverDomains_; }
-    QStringList dynamicDomainsUrls() const { return dynamicDomainsUrls_; }
-    QStringList dynamicDomains() const { return dynamicDomains_; }
+    QString primaryServerDomain() const { return "windscribe.com"; }
 
     QString serverApiSubdomain() const;
     QString serverAssetsSubdomain() const;
@@ -31,24 +29,10 @@ public:
     const QStringList cloudflareDns() const;
     const QStringList controldDns() const;
 
-    const QStringList apiIps() const { return apiIps_; }
-    QString emergencyUsername() const { return emergencyUsername_; }
-    QString emergencyPassword() const { return emergencyPassword_; }
-    const QStringList emergencyIps() const { return emergencyIps_; }
-
     QString generateDomain();
 
 private:
     HardcodedSettings();
-
-    QStringList apiIps_;
-    QStringList serverDomains_;
-    QStringList dynamicDomainsUrls_;
-    QStringList dynamicDomains_;
-    QString emergencyUsername_;
-    QString emergencyPassword_;
-    QStringList emergencyIps_;
-    QByteArray passwordForRandomDomain_;
 };
 
 inline QString HardcodedSettings::serverApiSubdomain() const

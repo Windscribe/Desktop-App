@@ -35,8 +35,9 @@ void EchFailover::getData(bool bIgnoreSslErrors)
 
 QString EchFailover::name() const
 {
-    // the domain name has been reduced to 9 characters for log security
-    return "ech: " + urlString_.left(9) + " " + configDomainName_.left(9);
+    QUrl url(urlString_);
+    // the domain name has been reduced for log security
+    return "ech: " + url.host().left(3);
 }
 
 // returns an empty string if parsing failed

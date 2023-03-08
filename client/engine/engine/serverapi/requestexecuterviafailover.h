@@ -27,7 +27,7 @@ class RequestExecuterViaFailover : public QObject
 public:
     explicit RequestExecuterViaFailover(QObject *parent, IConnectStateController *connectStateController, NetworkAccessManager *networkAccessManager);
 
-    void execute(QPointer<BaseRequest> request, failover::BaseFailover *failover, bool bIgnoreSslErrors);
+    void execute(QPointer<BaseRequest> request, QSharedPointer<failover::BaseFailover> failover, bool bIgnoreSslErrors);
     QPointer<BaseRequest> request() { return request_; }
     failover::FailoverData failoverData() const;
 
@@ -43,7 +43,7 @@ private:
     NetworkAccessManager *networkAccessManager_;
 
     QPointer<BaseRequest> request_;
-    failover::BaseFailover *failover_;
+    QSharedPointer<failover::BaseFailover> failover_;
     bool bIgnoreSslErrors_;
 
     QScopedPointer<ConnectStateWatcher> connectStateWatcher_;

@@ -11,12 +11,13 @@
 
 namespace server_api {
 
+
 RequestExecuterViaFailover::RequestExecuterViaFailover(QObject *parent, IConnectStateController *connectStateController, NetworkAccessManager *networkAccessManager) : QObject(parent),
     connectStateController_(connectStateController), networkAccessManager_(networkAccessManager), failover_(nullptr)
 {
 }
 
-void RequestExecuterViaFailover::execute(QPointer<BaseRequest> request, failover::BaseFailover *failover, bool bIgnoreSslErrors)
+void RequestExecuterViaFailover::execute(QPointer<BaseRequest> request, QSharedPointer<failover::BaseFailover> failover, bool bIgnoreSslErrors)
 {
     WS_ASSERT(request_ == nullptr);
     WS_ASSERT(failover_ == nullptr);
@@ -25,7 +26,7 @@ void RequestExecuterViaFailover::execute(QPointer<BaseRequest> request, failover
     bIgnoreSslErrors_ = bIgnoreSslErrors;
     connectStateWatcher_.reset(new ConnectStateWatcher(this, connectStateController_));
 
-    connect(failover_, &failover::BaseFailover::finished, this, &RequestExecuterViaFailover::onFailoverFinished);
+    connect(failover_.get(), &failover::BaseFailover::finished, this, &RequestExecuterViaFailover::onFailoverFinished);
     failover_->getData(bIgnoreSslErrors_);
 }
 
@@ -112,7 +113,7 @@ void RequestExecuterViaFailover::executeBaseRequest(const failover::FailoverData
     request_->setNetworkRetCode(SERVER_RETURN_SUCCESS);
 
     NetworkRequest networkRequest(request_->url(failoverData.domain()).toString(), request_->timeout(), true, DnsServersConfiguration::instance().getCurrentDnsServers(), bIgnoreSslErrors_);
-    if (failover_->isEch()) {
+    if (!failoverData.echConfig().isEmpty()) {
         networkRequest.setEchConfig(failoverData.echConfig());
     }
 

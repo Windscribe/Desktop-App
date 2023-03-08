@@ -7,104 +7,171 @@
 #include "failovers/hardcodeddomainfailover.h"
 #include "failovers/randomdomainfailover.h"
 #include "utils/hardcodedsettings.h"
+#include "utils/dga_library.h"
 #include "utils/logger.h"
 #include "utils/utils.h"
 #include "utils/ws_assert.h"
 
-#define USE_NEW_DGA 1
-#define USE_OLD_RANDOM_DOMAIN_GENERATION 1
+
+// All failovers in the order of their application by unique id
+// Attention: do not change the unique identifiers of failover. By adding a new failover generate a new unique identifier
+#define FAILOVER_DEFAULT_HARDCODED               "300fa426-4640-4a3f-b95c-1f0277462358"
+#define FAILOVER_BACKUP_HARDCODED                "83e64a18-31bb-4d26-956a-ade58a5df0b9"
+
+#define FAILOVER_ECH_CLOUFLARE_1                 "3e60e3d5-d379-46cc-a9a0-d9f04f47999a"
+#define FAILOVER_ECH_CLOUFLARE_2                 "ee195090-f5e8-4ae0-9142-ca0961a43173"
+#define FAILOVER_ECH_CLOUFLARE_3                 "ad532351-5999-4a64-859f-32a021511876"
+
+#define FAILOVER_DGA                             "c7e95d4a-ac69-4ff2-b4c0-c4e9d648b758"
+#define FAILOVER_OLD_RANDOM_DOMAIN_GENERATION    "7edd0a41-1ffd-4224-a2b1-809c646a918b"
+
+#define FAILOVER_DYNAMIC_CLOUDFLARE_1            "20846580-b8fc-418b-9202-0af1fdbd90b9"
+#define FAILOVER_DYNAMIC_CLOUDFLARE_2            "d1f8d432-3ef3-4b26-864e-f3bd44fede77"
+#define FAILOVER_DYNAMIC_CLOUDFLARE_3            "bd35e5d2-fbe2-4e1a-9ae6-2d641c3cf26e"
+
+#define FAILOVER_DYNAMIC_GOOGLE_1                "0555eaa2-265c-475a-bebb-fb6e65efd4af"
+#define FAILOVER_DYNAMIC_GOOGLE_2                "a84a8883-1d82-409b-8521-10d8040e9557"
+#define FAILOVER_DYNAMIC_GOOGLE_3                "b08c7b45-f65b-4d7f-a424-9fb71f296957"
+
+#define FAILOVER_ACCESS_IP_1                     "5efc039e-0937-4ad7-a82e-f4097987027e"
+#define FAILOVER_ACCESS_IP_2                     "c80e1193-27ea-405a-9502-00c31a51c911"
 
 namespace failover {
 
-FailoverContainer::FailoverContainer(QObject *parent, NetworkAccessManager *networkAccessManager, IConnectStateController *connectStateController) :
-    IFailoverContainer(parent)
+FailoverContainer::FailoverContainer(QObject *parent, NetworkAccessManager *networkAccessManager) :
+    IFailoverContainer(parent),
+    networkAccessManager_(networkAccessManager)
 {
-    // Creating all failovers in the order of their application
-    // Attention: do not change the unique identifiers of failover. By adding a new failover generate a new unique identifier
-
-    // Hardcoded Default Domain Endpoint
-    BaseFailover *failover = new HardcodedDomainFailover(this, "300fa426-4640-4a3f-b95c-1f0277462358", HardcodedSettings::instance().serverDomains().at(0));
-    failovers_ << failover;
-
-    // ECH
-    failover = new EchFailover(this, "3e60e3d5-d379-46cc-a9a0-d9f04f47999a", networkAccessManager, "https://1.0.0.1/dns-query", "echconfig001.windscribe.dev", "ech-public-test.windscribe.dev");
-    failovers_ << failover;
+    // Array of all failover ids in the order of their application
+    failovers_ << FAILOVER_DEFAULT_HARDCODED;
+    currentFailover_ = QSharedPointer<BaseFailover>(new HardcodedDomainFailover(this, FAILOVER_DEFAULT_HARDCODED, HardcodedSettings::instance().primaryServerDomain()));
 
     // Don't use other failovers for the staging functionality, as the hashed domains will hit the production environment.
-    if (!AppVersion::instance().isStaging()) {
+    if (AppVersion::instance().isStaging())
+        return;
 
-        // Hardcoded Backup Domain Endpoint
-        if (HardcodedSettings::instance().serverDomains().count() > 1) {
-            failover = new HardcodedDomainFailover(this, "83e64a18-31bb-4d26-956a-ade58a5df0b9", HardcodedSettings::instance().serverDomains().at(1));
-            failovers_ << failover;
-        }
+    failovers_ << FAILOVER_BACKUP_HARDCODED;
 
-#ifdef USE_NEW_DGA
-        // DGA
-        failover = new DgaFailover(this, "c7e95d4a-ac69-4ff2-b4c0-c4e9d648b758");
-        failovers_ << failover;
-#endif
+    failovers_ << FAILOVER_DYNAMIC_CLOUDFLARE_1;
+    failovers_ << FAILOVER_DYNAMIC_CLOUDFLARE_2;
+    failovers_ << FAILOVER_DYNAMIC_CLOUDFLARE_3;
 
-        // Dynamic Domains
-        if (HardcodedSettings::instance().dynamicDomainsUrls().count() > 0) {
-            WS_ASSERT(HardcodedSettings::instance().dynamicDomainsUrls().count() == 2);
-            WS_ASSERT(HardcodedSettings::instance().dynamicDomains().count() == 1);
+    failovers_ << FAILOVER_DYNAMIC_GOOGLE_1;
+    failovers_ << FAILOVER_DYNAMIC_GOOGLE_2;
+    failovers_ << FAILOVER_DYNAMIC_GOOGLE_3;
 
-            failover = new DynamicDomainFailover(this, "20846580-b8fc-418b-9202-0af1fdbd90b9", networkAccessManager, HardcodedSettings::instance().dynamicDomainsUrls().at(0), HardcodedSettings::instance().dynamicDomains().at(0));
-            failovers_ << failover;
+    failovers_ << FAILOVER_OLD_RANDOM_DOMAIN_GENERATION;
+    failovers_ << FAILOVER_DGA;
 
-            failover = new DynamicDomainFailover(this, "0555eaa2-265c-475a-bebb-fb6e65efd4af", networkAccessManager, HardcodedSettings::instance().dynamicDomainsUrls().at(1), HardcodedSettings::instance().dynamicDomains().at(0));
-            failovers_ << failover;
-        }
+    failovers_ << FAILOVER_ECH_CLOUFLARE_1;
+    failovers_ << FAILOVER_ECH_CLOUFLARE_2;
+    failovers_ << FAILOVER_ECH_CLOUFLARE_3;
 
-#ifdef USE_OLD_RANDOM_DOMAIN_GENERATION
-        // Procedurally Generated Domain Endpoint
-        failover = new RandomDomainFailover(this, "7edd0a41-1ffd-4224-a2b1-809c646a918b");
-        failovers_ << failover;
-#endif
-        if (HardcodedSettings::instance().apiIps().count() > 0) {
-            WS_ASSERT(HardcodedSettings::instance().apiIps().count() == 2);
-            // making the order of IPs random
-            QVector< QPair<QString, QString> > vec;
-            vec << qMakePair(HardcodedSettings::instance().apiIps()[0], "5e1f1984-904d-46de-a272-64b02ff6a9d9");
-            vec << qMakePair(HardcodedSettings::instance().apiIps()[1], "8d6b6c81-210f-4c69-95d2-1a983b53e895");
-            vec = Utils::randomizeList< QVector< QPair<QString, QString> > >(vec);
-            for (const auto & ip : vec) {
-                failover = new AccessIpsFailover(this, ip.second, networkAccessManager, ip.first);
-                failovers_ << failover;
-            }
-        }
+    // randomize access ips order
+    if (Utils::generateIntegerRandom(0, 1) == 0) {
+        failovers_ << FAILOVER_ACCESS_IP_1;
+        failovers_ << FAILOVER_ACCESS_IP_2;
+    } else {
+        failovers_ << FAILOVER_ACCESS_IP_2;
+        failovers_ << FAILOVER_ACCESS_IP_1;
     }
 }
 
 void FailoverContainer::reset()
 {
     curFailoverInd_ = 0;
+    currentFailover_ = QSharedPointer<BaseFailover>(new HardcodedDomainFailover(this, FAILOVER_DEFAULT_HARDCODED, HardcodedSettings::instance().primaryServerDomain()));
 }
 
-BaseFailover *FailoverContainer::currentFailover(int *outInd /*= nullptr*/)
+QSharedPointer<BaseFailover> FailoverContainer::currentFailover(int *outInd /*= nullptr*/)
 {
     WS_ASSERT(curFailoverInd_ >= 0 && curFailoverInd_ < failovers_.size());
     if (outInd)
         *outInd = curFailoverInd_;
-    return failovers_[curFailoverInd_];
+    return currentFailover_;
 }
 
 bool FailoverContainer::gotoNext()
 {
     if (curFailoverInd_ <  (failovers_.size() - 1)) {
         curFailoverInd_++;
-        return true;
+        currentFailover_ = failoverById(failovers_[curFailoverInd_]);
+        return !currentFailover_.isNull();
     } else {
         return false;
     }
 }
 
-BaseFailover *FailoverContainer::failoverById(const QString &failoverUniqueId)
+QSharedPointer<BaseFailover> FailoverContainer::failoverById(const QString &failoverUniqueId)
 {
-    for (int i = 0; i < failovers_.size(); ++i)
-        if (failovers_[i]->uniqueId() == failoverUniqueId)
-            return failovers_[i];
+    if (failoverUniqueId == FAILOVER_DEFAULT_HARDCODED) {
+        return QSharedPointer<BaseFailover>(new HardcodedDomainFailover(this, FAILOVER_DEFAULT_HARDCODED, HardcodedSettings::instance().primaryServerDomain()));
+    } else if (failoverUniqueId == FAILOVER_BACKUP_HARDCODED) {
+        DgaLibrary dga;
+        if (dga.load()) {
+            return QSharedPointer<BaseFailover>(new HardcodedDomainFailover(this, FAILOVER_BACKUP_HARDCODED, dga.getParameter(PAR_BACKUP_DOMAIN)));
+        }
+    } else if (failoverUniqueId == FAILOVER_ECH_CLOUFLARE_1) {
+        DgaLibrary dga;
+        if (dga.load()) {
+            return QSharedPointer<BaseFailover>(new EchFailover(this, FAILOVER_ECH_CLOUFLARE_1, networkAccessManager_, dga.getParameter(PAR_DYNAMIC_DOMAIN_CLOUDFLARE_URL1), dga.getParameter(PAR_ECH_CONFIG_DOMAIN), dga.getParameter(PAR_ECH_DOMAIN)));
+        }
+    } else if (failoverUniqueId == FAILOVER_ECH_CLOUFLARE_2) {
+        DgaLibrary dga;
+        if (dga.load()) {
+            return QSharedPointer<BaseFailover>(new EchFailover(this, FAILOVER_ECH_CLOUFLARE_2, networkAccessManager_, dga.getParameter(PAR_DYNAMIC_DOMAIN_CLOUDFLARE_URL2), dga.getParameter(PAR_ECH_CONFIG_DOMAIN), dga.getParameter(PAR_ECH_DOMAIN)));
+        }
+    } else if (failoverUniqueId == FAILOVER_ECH_CLOUFLARE_3) {
+        DgaLibrary dga;
+        if (dga.load()) {
+            return QSharedPointer<BaseFailover>(new EchFailover(this, FAILOVER_ECH_CLOUFLARE_3, networkAccessManager_, dga.getParameter(PAR_DYNAMIC_DOMAIN_CLOUDFLARE_URL3), dga.getParameter(PAR_ECH_CONFIG_DOMAIN), dga.getParameter(PAR_ECH_DOMAIN)));
+        }
+    } else if (failoverUniqueId == FAILOVER_DGA) {
+        return QSharedPointer<BaseFailover>(new DgaFailover(this, FAILOVER_DGA));
+    } else if (failoverUniqueId == FAILOVER_OLD_RANDOM_DOMAIN_GENERATION) {
+        return QSharedPointer<BaseFailover>(new RandomDomainFailover(this, FAILOVER_OLD_RANDOM_DOMAIN_GENERATION));
+    } else if (failoverUniqueId == FAILOVER_DYNAMIC_CLOUDFLARE_1) {
+        DgaLibrary dga;
+        if (dga.load()) {
+            return QSharedPointer<BaseFailover>(new DynamicDomainFailover(this, FAILOVER_DYNAMIC_CLOUDFLARE_1, networkAccessManager_, dga.getParameter(PAR_DYNAMIC_DOMAIN_CLOUDFLARE_URL1), dga.getParameter(PAR_DYNAMIC_DOMAIN_DESKTOP)));
+        }
+    } else if (failoverUniqueId == FAILOVER_DYNAMIC_CLOUDFLARE_2) {
+        DgaLibrary dga;
+        if (dga.load()) {
+            return QSharedPointer<BaseFailover>(new DynamicDomainFailover(this, FAILOVER_DYNAMIC_CLOUDFLARE_2, networkAccessManager_, dga.getParameter(PAR_DYNAMIC_DOMAIN_CLOUDFLARE_URL2), dga.getParameter(PAR_DYNAMIC_DOMAIN_DESKTOP)));
+        }
+    } else if (failoverUniqueId == FAILOVER_DYNAMIC_CLOUDFLARE_3) {
+        DgaLibrary dga;
+        if (dga.load()) {
+            return QSharedPointer<BaseFailover>(new DynamicDomainFailover(this, FAILOVER_DYNAMIC_CLOUDFLARE_3, networkAccessManager_, dga.getParameter(PAR_DYNAMIC_DOMAIN_CLOUDFLARE_URL3), dga.getParameter(PAR_DYNAMIC_DOMAIN_DESKTOP)));
+        }
+    } else if (failoverUniqueId == FAILOVER_DYNAMIC_GOOGLE_1) {
+        DgaLibrary dga;
+        if (dga.load()) {
+            return QSharedPointer<BaseFailover>(new DynamicDomainFailover(this, FAILOVER_DYNAMIC_GOOGLE_1, networkAccessManager_, dga.getParameter(PAR_DYNAMIC_DOMAIN_GOOGLE_URL1), dga.getParameter(PAR_DYNAMIC_DOMAIN_DESKTOP)));
+        }
+    } else if (failoverUniqueId == FAILOVER_DYNAMIC_GOOGLE_2) {
+        DgaLibrary dga;
+        if (dga.load()) {
+            return QSharedPointer<BaseFailover>(new DynamicDomainFailover(this, FAILOVER_DYNAMIC_GOOGLE_2, networkAccessManager_, dga.getParameter(PAR_DYNAMIC_DOMAIN_GOOGLE_URL2), dga.getParameter(PAR_DYNAMIC_DOMAIN_DESKTOP)));
+        }
+    } else if (failoverUniqueId == FAILOVER_DYNAMIC_GOOGLE_3) {
+        DgaLibrary dga;
+        if (dga.load()) {
+            return QSharedPointer<BaseFailover>(new DynamicDomainFailover(this, FAILOVER_DYNAMIC_GOOGLE_3, networkAccessManager_, dga.getParameter(PAR_DYNAMIC_DOMAIN_GOOGLE_URL3), dga.getParameter(PAR_DYNAMIC_DOMAIN_DESKTOP)));
+        }
+    } else if (failoverUniqueId == FAILOVER_ACCESS_IP_1) {
+        DgaLibrary dga;
+        if (dga.load()) {
+            return QSharedPointer<BaseFailover>(new AccessIpsFailover(this, FAILOVER_ACCESS_IP_1, networkAccessManager_, dga.getParameter(PAR_API_ACCESS_IP1)));
+        }
+    } else if (failoverUniqueId == FAILOVER_ACCESS_IP_2) {
+        DgaLibrary dga;
+        if (dga.load()) {
+            return QSharedPointer<BaseFailover>(new AccessIpsFailover(this, FAILOVER_ACCESS_IP_2, networkAccessManager_, dga.getParameter(PAR_API_ACCESS_IP2)));
+        }
+    }
+
     return nullptr;
 }
 

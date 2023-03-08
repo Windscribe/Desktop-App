@@ -38,8 +38,9 @@ void DynamicDomainFailover::getData(bool bIgnoreSslErrors)
 
 QString DynamicDomainFailover::name() const
 {
+    QUrl url(urlString_);
     // the domain name has been reduced to 9 characters for log security
-    return "dyn: " + urlString_.left(9) + " " + domainName_.left(9);
+    return "dyn: " + url.host().left(3);
 }
 
 // returns an empty string if parsing failed

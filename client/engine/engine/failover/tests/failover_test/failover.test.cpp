@@ -85,15 +85,15 @@ void TestFailover::basicTest()
 {
     QScopedPointer<ConnectStateController_moc> connectStateController(new ConnectStateController_moc(this));
     QScopedPointer<NetworkAccessManager> accessManager(new  NetworkAccessManager(this));
-    QScopedPointer<failover::FailoverContainer> failoverContainer(new failover::FailoverContainer(this, accessManager.get(), connectStateController.get()));
+    QScopedPointer<failover::FailoverContainer> failoverContainer(new failover::FailoverContainer(this, accessManager.get()));
 
     QSet<QString> uniqueIds;
     int failoversCount = 0;
 
     while (true) {
-        failover::BaseFailover *failover = failoverContainer->currentFailover();
+        QSharedPointer<failover::BaseFailover> failover = failoverContainer->currentFailover();
         uniqueIds << failover->uniqueId();
-        QSignalSpy spy(failover, SIGNAL(finished(QVector<failover::FailoverData>)));
+        QSignalSpy spy(failover.get(), SIGNAL(finished(QVector<failover::FailoverData>)));
         failover->getData(false);
         while (spy.count() != 1) {
             spy.wait(1000);
