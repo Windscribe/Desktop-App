@@ -19,6 +19,7 @@ class IconManager
         #if defined(Q_OS_WIN)
         ICON_OVERLAY_CONNECTING,
         ICON_OVERLAY_CONNECTED,
+        ICON_OVERLAY_ERROR,
         #endif
         NUM_ICON_TYPES
     };
@@ -44,6 +45,7 @@ public:
     #if defined(Q_OS_WIN)
     const QIcon *getConnectingOverlayIcon() const { return &icons_[ICON_OVERLAY_CONNECTING]; }
     const QIcon *getConnectedOverlayIcon() const { return &icons_[ICON_OVERLAY_CONNECTED]; }
+    const QIcon *getErrorOverlayIcon() const { return &icons_[ICON_OVERLAY_ERROR]; }
     #endif
 
 private:

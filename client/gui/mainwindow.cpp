@@ -1905,9 +1905,14 @@ void MainWindow::onBackendConnectStateChanged(const types::ConnectState &connect
     {
         updateConnectWindowStateProtocolPortDisplay();
 
+        if (connectState.disconnectReason == DISCONNECTED_WITH_ERROR) {
+            updateAppIconType(AppIconType::DISCONNECTED_WITH_ERROR);
+        } else {
+            updateAppIconType(AppIconType::DISCONNECTED);
+        }
+
         // Ensure the icon has been updated, as QSystemTrayIcon::showMessage displays this icon
         // in the notification window on Windows.
-        updateAppIconType(AppIconType::DISCONNECTED);
         updateTrayIconType(AppIconType::DISCONNECTED);
 
         if (bNotificationConnectedShowed_)
@@ -3633,6 +3638,13 @@ void MainWindow::updateAppIconType(AppIconType type)
     case AppIconType::DISCONNECTED:
         // No taskbar button overlay icon on Windows.
         #if !defined(Q_OS_WIN)
+        icon = IconManager::instance().getDisconnectedIcon();
+        #endif
+        break;
+    case AppIconType::DISCONNECTED_WITH_ERROR:
+        #if defined(Q_OS_WIN)
+        icon = IconManager::instance().getErrorOverlayIcon();
+        #else
         icon = IconManager::instance().getDisconnectedIcon();
         #endif
         break;
