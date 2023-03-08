@@ -27,6 +27,7 @@ void EchFailover::getData(bool bIgnoreSslErrors)
             emit finished(QVector<FailoverData>());
         } else {
             QVector<FailoverData> data = parseDataFromJson(reply->readAll());
+            data = Utils::randomizeList<QVector<FailoverData> >(data);
             emit finished(data);
         }
         reply->deleteLater();

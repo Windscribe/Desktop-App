@@ -30,11 +30,11 @@ void ServerApi_test::cleanup()
 
 void ServerApi_test::testRequests()
 {
-    QVector<QPair<QString, failover::FailoverRetCode> > failovers;
-    failovers << qMakePair("windscribe.com", failover::FailoverRetCode::kSuccess);
-    failovers << qMakePair("d571d4e00ea4765529703412b1045ba8079d9d87.com", failover::FailoverRetCode::kSuccess);
+    QVector<QPair<QString, bool> > failovers;
+    failovers << qMakePair("windscribe.com", true);
+    failovers << qMakePair("d571d4e00ea4765529703412b1045ba8079d9d87.com", true);
     QScopedPointer<server_api::ServerAPI> serverAPI_(new server_api::ServerAPI(this, connectStateController_, accessManager_, networkDetectionManager_,
-                                                                              new Failover_moc(this, failovers)));
+                                                                              new FailoverContainer_moc(this, failovers)));
     serverAPI_->getHostname();
 
     {
@@ -231,11 +231,11 @@ void ServerApi_test::testRequests()
 
 void ServerApi_test::testFailoverFailed()
 {
-    QVector<QPair<QString, failover::FailoverRetCode> > failovers;
-    failovers << qMakePair("windscribe.com", failover::FailoverRetCode::kFailed);
-    failovers << qMakePair("d571d4e00ea4765529703412b1045ba8079d9d87.com", failover::FailoverRetCode::kFailed);
+    QVector<QPair<QString, bool> > failovers;
+    failovers << qMakePair("windscribe.com", false);
+    failovers << qMakePair("d571d4e00ea4765529703412b1045ba8079d9d87.com", false);
     QScopedPointer<server_api::ServerAPI> serverAPI_(new server_api::ServerAPI(this, connectStateController_, accessManager_, networkDetectionManager_,
-                                                                              new Failover_moc(this, failovers)));
+                                                                              new FailoverContainer_moc(this, failovers)));
     QList<QSharedPointer<QSignalSpy> > spies;
     {
         server_api::BaseRequest *request = serverAPI_->session(authHash_);
@@ -284,11 +284,11 @@ void ServerApi_test::testFailoverFailed()
 
 void ServerApi_test::testDeleteServerAPIWhileRequestsRunning()
 {
-    QVector<QPair<QString, failover::FailoverRetCode> > failovers;
-    failovers << qMakePair("windscribe.com", failover::FailoverRetCode::kSuccess);
-    failovers << qMakePair("d571d4e00ea4765529703412b1045ba8079d9d87.com", failover::FailoverRetCode::kSuccess);
+    QVector<QPair<QString, bool> > failovers;
+    failovers << qMakePair("windscribe.com", true);
+    failovers << qMakePair("d571d4e00ea4765529703412b1045ba8079d9d87.com", true);
     QScopedPointer<server_api::ServerAPI> serverAPI_(new server_api::ServerAPI(this, connectStateController_, accessManager_, networkDetectionManager_,
-                                                                              new Failover_moc(this, failovers)));
+                                                                              new FailoverContainer_moc(this, failovers)));
     QList<QSharedPointer<QSignalSpy> > spies;
     {
         server_api::BaseRequest *request = serverAPI_->session(authHash_);
@@ -308,11 +308,11 @@ void ServerApi_test::testDeleteServerAPIWhileRequestsRunning()
 
 void ServerApi_test::testDeleteRequestsBeforeFinished()
 {
-    QVector<QPair<QString, failover::FailoverRetCode> > failovers;
-    failovers << qMakePair("windscribe.com", failover::FailoverRetCode::kSuccess);
-    failovers << qMakePair("d571d4e00ea4765529703412b1045ba8079d9d87.com", failover::FailoverRetCode::kSuccess);
+    QVector<QPair<QString, bool> > failovers;
+    failovers << qMakePair("windscribe.com", true);
+    failovers << qMakePair("d571d4e00ea4765529703412b1045ba8079d9d87.com", true);
     QScopedPointer<server_api::ServerAPI> serverAPI_(new server_api::ServerAPI(this, connectStateController_, accessManager_, networkDetectionManager_,
-                                                                              new Failover_moc(this, failovers)));
+                                                                              new FailoverContainer_moc(this, failovers)));
     {
         server_api::BaseRequest *request = serverAPI_->session(authHash_);
         request->deleteLater();

@@ -10,6 +10,7 @@
 #include "engine/dnsresolver/dnsserversconfiguration.h"
 #include "engine/utils/urlquery_utils.h"
 #include "utils/logger.h"
+#include "utils/utils.h"
 
 namespace failover {
 
@@ -47,6 +48,7 @@ void AccessIpsFailover::onNetworkRequestFinished()
         for (const QString &s : hosts)
             data << FailoverData(s);
 
+        data = Utils::randomizeList<QVector<FailoverData> >(data);
         emit finished(data);
     }
 }

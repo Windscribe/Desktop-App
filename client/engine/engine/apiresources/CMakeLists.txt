@@ -8,5 +8,5 @@ target_sources(engine PRIVATE
 )
 
 if(DEFINED IS_BUILD_TESTS)
-   #add_subdirectory(tests)
+   add_subdirectory(tests)
 endif(DEFINED IS_BUILD_TESTS)

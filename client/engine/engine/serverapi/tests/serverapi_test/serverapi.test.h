@@ -6,7 +6,7 @@
 #include "engine/networkdetectionmanager/inetworkdetectionmanager.h"
 #include "engine/serverapi/serverapi.h"
 #include "engine/networkaccessmanager/networkaccessmanager.h"
-#include "engine/failover/ifailover.h"
+#include "engine/failover/ifailovercontainer.h"
 
 class ConnectStateController_moc : public IConnectStateController
 {
@@ -60,37 +60,84 @@ private:
     bool bOnline_ = true;
 };
 
-class Failover_moc : public failover::IFailover
+class Failover_moc : public failover::BaseFailover
+{
+    Q_OBJECT
+public:
+    explicit Failover_moc(QObject *parent, QString domain, bool bSuccess) : BaseFailover(parent, "id"),  domain_(domain), bSuccess_(bSuccess) {}
+
+    void getData(bool bIgnoreSslErrors) {
+        if (bSuccess_) {
+            emit finished(QVector<failover::FailoverData>() << failover::FailoverData(domain_));
+        } else {
+            emit finished(QVector<failover::FailoverData>());
+        }
+    }
+
+    QString name() const override {
+        return "failoverName: " + domain_;
+    }
+
+private:
+    QString domain_;
+    bool bSuccess_;
+};
+
+class FailoverContainer_moc : public failover::IFailoverContainer
 {
     Q_OBJECT
 
 public:
-    explicit Failover_moc(QObject *parent, QVector<QPair<QString, failover::FailoverRetCode> > failovers) : IFailover(parent),
-        failovers_(failovers), curFailover_(0)
-    {}
+    explicit FailoverContainer_moc(QObject *parent, QVector<QPair<QString, bool> > failovers) : IFailoverContainer(parent),
+        failovers_(failovers), curFailoverInd_(0)
+    {
+        resetImpl();
+    }
 
     void reset() override
     {
-        curFailover_ = 0;
+        resetImpl();
     }
-    void getNextHostname(bool bIgnoreSslErrors) override
+
+    QSharedPointer<failover::BaseFailover> currentFailover(int *outInd = nullptr) override
     {
-        QTimer::singleShot(0, this, [this] () {
-            if (curFailover_ < failovers_.size()) {
-                emit nextHostnameAnswer(failovers_[curFailover_].second, failovers_[curFailover_].first);
-                curFailover_++;
-            } else {
-                emit nextHostnameAnswer(failover::FailoverRetCode::kFailed, QString());
-            }
-        });
+        WS_ASSERT(curFailoverInd_ >= 0 && curFailoverInd_ < failovers_.size());
+        if (outInd)
+            *outInd = curFailoverInd_;
+        return currentFailover_;
     }
-    void setApiResolutionSettings(const types::ApiResolutionSettings &apiResolutionSettings) override
+
+    bool gotoNext() override
     {
+        if (curFailoverInd_ <  (failovers_.size() - 1)) {
+            curFailoverInd_++;
+            currentFailover_ = QSharedPointer<failover::BaseFailover>(new Failover_moc(this, failovers_[curFailoverInd_].first, failovers_[curFailoverInd_].second));
+            return !currentFailover_.isNull();
+        } else {
+            return false;
+        }
+    }
+
+    QSharedPointer<failover::BaseFailover> failoverById(const QString &failoverUniqueId) override
+    {
+        return nullptr;
+    }
+
+    int count() const override
+    {
+        return failovers_.count();
     }
 
 private:
-    QVector<QPair<QString, failover::FailoverRetCode> > failovers_;
-    int curFailover_;
+    QVector<QPair<QString, bool> > failovers_;
+    int curFailoverInd_;
+    QSharedPointer<failover::BaseFailover> currentFailover_;
+
+    void resetImpl()
+    {
+        curFailoverInd_ = 0;
+        currentFailover_ = QSharedPointer<failover::BaseFailover>(new Failover_moc(this, failovers_[curFailoverInd_].first, failovers_[curFailoverInd_].second));
+    }
 };
 
 // Semi-automatic unit test of ServerAPI,

@@ -1,7 +1,7 @@
 #include "apiresources_test_widget.h"
 #include "ui_apiresources_test_widget.h"
 
-#include "engine/failover/failover.h"
+#include "engine/failover/failovercontainer.h"
 
 Widget::Widget(QWidget *parent)
     : QWidget(parent)
@@ -9,7 +9,7 @@ Widget::Widget(QWidget *parent)
 {
     ui->setupUi(this);
 
-    authHash_ = "142257:3:1663921160:458801c564bc4ceac71b5bfc10177f2db7c7a129e7:397f679fadd36ba21cab7e82a5ab448bd843bb4c3f";
+    authHash_ = "142257:3:1678311600:70abc33817383a1b54c0cab373eb2479570b8a923b:0d20efc6bb771a2eb9b03a040d5cb309200faa6120";
 
     connectStateController_ = new ConnectStateController_moc(this);
     connect(ui->rbConnected, &QRadioButton::clicked, [this]() {
@@ -33,7 +33,7 @@ Widget::Widget(QWidget *parent)
     accessManager_ = new NetworkAccessManager(this);
 
     serverAPI_ = new server_api::ServerAPI(this, connectStateController_, accessManager_, networkDetectionManager_,
-                                           new failover::Failover(nullptr,accessManager_, connectStateController_));
+                                           new failover::FailoverContainer(nullptr,accessManager_));
 
     apiResourceManager_ = new api_resources::ApiResourcesManager(this, serverAPI_, connectStateController_, networkDetectionManager_);
     connect(apiResourceManager_, &api_resources::ApiResourcesManager::readyForLogin, [this] {

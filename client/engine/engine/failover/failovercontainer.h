@@ -29,6 +29,8 @@ private:
     QVector<QString> failovers_;
     QSharedPointer<BaseFailover> currentFailover_;
     int curFailoverInd_ = 0;
+
+    void resetImpl();
 };
 
 } // namespace failover

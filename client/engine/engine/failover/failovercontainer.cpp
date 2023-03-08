@@ -44,43 +44,42 @@ FailoverContainer::FailoverContainer(QObject *parent, NetworkAccessManager *netw
 {
     // Array of all failover ids in the order of their application
     failovers_ << FAILOVER_DEFAULT_HARDCODED;
-    currentFailover_ = QSharedPointer<BaseFailover>(new HardcodedDomainFailover(this, FAILOVER_DEFAULT_HARDCODED, HardcodedSettings::instance().primaryServerDomain()));
 
     // Don't use other failovers for the staging functionality, as the hashed domains will hit the production environment.
-    if (AppVersion::instance().isStaging())
-        return;
+    if (!AppVersion::instance().isStaging()) {
+        failovers_ << FAILOVER_BACKUP_HARDCODED;
 
-    failovers_ << FAILOVER_BACKUP_HARDCODED;
+        failovers_ << FAILOVER_DYNAMIC_CLOUDFLARE_1;
+        failovers_ << FAILOVER_DYNAMIC_CLOUDFLARE_2;
+        failovers_ << FAILOVER_DYNAMIC_CLOUDFLARE_3;
 
-    failovers_ << FAILOVER_DYNAMIC_CLOUDFLARE_1;
-    failovers_ << FAILOVER_DYNAMIC_CLOUDFLARE_2;
-    failovers_ << FAILOVER_DYNAMIC_CLOUDFLARE_3;
+        failovers_ << FAILOVER_DYNAMIC_GOOGLE_1;
+        failovers_ << FAILOVER_DYNAMIC_GOOGLE_2;
+        failovers_ << FAILOVER_DYNAMIC_GOOGLE_3;
 
-    failovers_ << FAILOVER_DYNAMIC_GOOGLE_1;
-    failovers_ << FAILOVER_DYNAMIC_GOOGLE_2;
-    failovers_ << FAILOVER_DYNAMIC_GOOGLE_3;
+        failovers_ << FAILOVER_OLD_RANDOM_DOMAIN_GENERATION;
+        failovers_ << FAILOVER_DGA;
 
-    failovers_ << FAILOVER_OLD_RANDOM_DOMAIN_GENERATION;
-    failovers_ << FAILOVER_DGA;
+        failovers_ << FAILOVER_ECH_CLOUFLARE_1;
+        failovers_ << FAILOVER_ECH_CLOUFLARE_2;
+        failovers_ << FAILOVER_ECH_CLOUFLARE_3;
 
-    failovers_ << FAILOVER_ECH_CLOUFLARE_1;
-    failovers_ << FAILOVER_ECH_CLOUFLARE_2;
-    failovers_ << FAILOVER_ECH_CLOUFLARE_3;
-
-    // randomize access ips order
-    if (Utils::generateIntegerRandom(0, 1) == 0) {
-        failovers_ << FAILOVER_ACCESS_IP_1;
-        failovers_ << FAILOVER_ACCESS_IP_2;
-    } else {
-        failovers_ << FAILOVER_ACCESS_IP_2;
-        failovers_ << FAILOVER_ACCESS_IP_1;
+        // randomize access ips order
+        if (Utils::generateIntegerRandom(0, 1) == 0) {
+            failovers_ << FAILOVER_ACCESS_IP_1;
+            failovers_ << FAILOVER_ACCESS_IP_2;
+        } else {
+            failovers_ << FAILOVER_ACCESS_IP_2;
+            failovers_ << FAILOVER_ACCESS_IP_1;
+        }
     }
+
+    resetImpl();
 }
 
 void FailoverContainer::reset()
 {
-    curFailoverInd_ = 0;
-    currentFailover_ = QSharedPointer<BaseFailover>(new HardcodedDomainFailover(this, FAILOVER_DEFAULT_HARDCODED, HardcodedSettings::instance().primaryServerDomain()));
+    resetImpl();
 }
 
 QSharedPointer<BaseFailover> FailoverContainer::currentFailover(int *outInd /*= nullptr*/)
@@ -178,6 +177,12 @@ QSharedPointer<BaseFailover> FailoverContainer::failoverById(const QString &fail
 int FailoverContainer::count() const
 {
     return failovers_.count();
+}
+
+void FailoverContainer::resetImpl()
+{
+    curFailoverInd_ = 0;
+    currentFailover_ = QSharedPointer<BaseFailover>(new HardcodedDomainFailover(this, FAILOVER_DEFAULT_HARDCODED, HardcodedSettings::instance().primaryServerDomain()));
 }
 
 } // namespace failover
