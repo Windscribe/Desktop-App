@@ -110,15 +110,18 @@ MainWindow::MainWindow() :
 
     // Init and show tray icon.
     trayIcon_.setIcon(*IconManager::instance().getDisconnectedTrayIcon(isRunningInDarkMode_));
-    trayIcon_.show();
 #ifdef Q_OS_MAC
+    // Work around https://bugreports.qt.io/browse/QTBUG-107008 by delaying showing trayIcon_.
+    QTimer::singleShot(0, this, [this] {
+        trayIcon_.show();
+    });
     const QRect desktopScreenRc = screen->geometry();
     if (desktopScreenRc.top() != desktopAvailableRc.top()) {
         while (trayIcon_.geometry().isEmpty())
             qApp->processEvents();
     }
-#elif defined Q_OS_LINUX
-    //todo Linux
+#else
+    trayIcon_.show();
 #endif
 
     setWindowFlags(Qt::FramelessWindowHint | Qt::WindowMinimizeButtonHint);
