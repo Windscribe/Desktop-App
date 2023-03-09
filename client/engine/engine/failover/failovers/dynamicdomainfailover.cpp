@@ -11,7 +11,7 @@
 
 namespace failover {
 
-void DynamicDomainFailover::getHostnames(bool bIgnoreSslErrors)
+void DynamicDomainFailover::getData(bool bIgnoreSslErrors)
 {
     QUrl url(urlString_);
     QUrlQuery query;
@@ -19,26 +19,18 @@ void DynamicDomainFailover::getHostnames(bool bIgnoreSslErrors)
     query.addQueryItem("type", "TXT");
     url.setQuery(query);
 
-    SAFE_DELETE(connectStateWatcher_);
-    connectStateWatcher_ = new ConnectStateWatcher(this, connectStateController_);
-
     NetworkRequest networkRequest(url, 5000, true, DnsServersConfiguration::instance().getCurrentDnsServers(), bIgnoreSslErrors);
     networkRequest.setContentTypeHeader("accept: application/dns-json");
     NetworkReply *reply = networkAccessManager_->get(networkRequest);
     connect(reply, &NetworkReply::finished, [=]() {
         if (!reply->isSuccess()) {
-            // if connect state changed the retrying the request
-            if (connectStateWatcher_->isVpnConnectStateChanged()) {
-                emit finished(FailoverRetCode::kConnectStateChanged, QStringList());
-            } else {
-                emit finished(FailoverRetCode::kFailed, QStringList());
-            }
+            emit finished(QVector<FailoverData>());
         } else {
             QString hostname = parseHostnameFromJson(reply->readAll());
             if (!hostname.isEmpty())
-                emit finished(FailoverRetCode::kSuccess, QStringList() << hostname);
+                emit finished(QVector<FailoverData>() << FailoverData(hostname));
             else
-                emit finished(FailoverRetCode::kFailed, QStringList());
+                emit finished(QVector<FailoverData>());
         }
         reply->deleteLater();
     });
@@ -46,8 +38,9 @@ void DynamicDomainFailover::getHostnames(bool bIgnoreSslErrors)
 
 QString DynamicDomainFailover::name() const
 {
+    QUrl url(urlString_);
     // the domain name has been reduced to 9 characters for log security
-    return "dyn: " + urlString_.left(9) + " " + domainName_.left(9);
+    return "dyn: " + url.host().left(3);
 }
 
 // returns an empty string if parsing failed

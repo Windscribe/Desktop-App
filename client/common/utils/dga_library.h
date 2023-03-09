@@ -2,6 +2,7 @@
 
 #include <QString>
 #include <QLibrary>
+#include "dga_parameters.h"
 
 typedef void (*FuncPrototype)(char *, int, int, void *, void *, void *);
 

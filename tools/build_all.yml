@@ -223,6 +223,9 @@ lib_files_linux:
   openssl:
     - lib/libcrypto.so.1.1 -> lib/libcrypto.so.1.1
     - lib/libssl.so.1.1 -> lib/libssl.so.1.1
+  openssl_ech_draft:
+    - lib64/libcrypto.so.3-> lib/libcrypto.so.3
+    - lib64/libssl.so.3 -> lib/libssl.so.3
   openvpn:
     - openvpn -> windscribeopenvpn
   stunnel:
@@ -237,6 +240,8 @@ files_fix_rpath_linux:
   - lib/libcurl.so.4 -> $ORIGIN
   - lib/libssl.so.1.1 -> $ORIGIN
   - lib/libcrypto.so.1.1 -> $ORIGIN
+  - lib/libssl.so.3 -> $ORIGIN
+  - lib/libcrypto.so.3 -> $ORIGIN
   - windscribestunnel -> $ORIGIN/lib
   - windscribeopenvpn -> $ORIGIN/lib
   - windscribe-authhelper -> $ORIGIN/lib
@@ -291,6 +296,9 @@ lib_files:
   openssl:
     - bin/libcrypto-1_1-x64.dll -> libcrypto-1_1-x64.dll
     - bin/libssl-1_1-x64.dll -> libssl-1_1-x64.dll
+  openssl_ech_draft:
+    - bin/libcrypto-3-x64.dll -> libcrypto-3-x64.dll
+    - bin/libssl-3-x64.dll -> libssl-3-x64.dll
   stunnel:
     - tstunnel.exe -> tstunnel.exe
   zlib:

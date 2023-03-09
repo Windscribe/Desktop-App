@@ -9,15 +9,13 @@
 #include "engine/networkaccessmanager/networkaccessmanager.h"
 #include "engine/dnsresolver/dnsserversconfiguration.h"
 #include "engine/utils/urlquery_utils.h"
+#include "utils/logger.h"
 #include "utils/utils.h"
 
 namespace failover {
 
-void AccessIpsFailover::getHostnames(bool bIgnoreSslErrors)
+void AccessIpsFailover::getData(bool bIgnoreSslErrors)
 {
-    SAFE_DELETE(connectStateWatcher_);
-    connectStateWatcher_ = new ConnectStateWatcher(this, connectStateController_);
-
     QUrl url("https://" + ip_ + "/ApiAccessIps");
     QUrlQuery query;
     urlquery_utils::addAuthQueryItems(query);
@@ -42,19 +40,16 @@ void AccessIpsFailover::onNetworkRequestFinished()
     QSharedPointer<NetworkReply> obj = QSharedPointer<NetworkReply>(reply, &QObject::deleteLater);
 
     if (!reply->isSuccess()) {
-        // if connect state changed the retrying the request
-        if (connectStateWatcher_->isVpnConnectStateChanged()) {
-            emit finished(FailoverRetCode::kConnectStateChanged, QStringList());
-        } else {
-            emit finished(FailoverRetCode::kFailed, QStringList());
-        }
+        emit finished(QVector<FailoverData>());
     }
     else {
         QStringList hosts = handleRequest(reply->readAll());
-        if (!hosts.isEmpty())
-            emit finished(FailoverRetCode::kSuccess, hosts);
-        else
-            emit finished(FailoverRetCode::kFailed, QStringList());
+        QVector<FailoverData> data;
+        for (const QString &s : hosts)
+            data << FailoverData(s);
+
+        data = Utils::randomizeList<QVector<FailoverData> >(data);
+        emit finished(data);
     }
 }
 

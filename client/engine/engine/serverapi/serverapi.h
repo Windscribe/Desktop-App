@@ -4,14 +4,16 @@
 #include <QPointer>
 #include <QQueue>
 
-#include "types/protocol.h"
-#include "types/robertfilter.h"
-#include "engine/networkaccessmanager/networkaccessmanager.h"
-#include "engine/connectstatecontroller/iconnectstatecontroller.h"
 #include "engine/connectstatecontroller/connectstatewatcher.h"
+#include "engine/connectstatecontroller/iconnectstatecontroller.h"
+#include "engine/failover/ifailovercontainer.h"
+#include "engine/networkaccessmanager/networkaccessmanager.h"
 #include "engine/networkdetectionmanager/inetworkdetectionmanager.h"
 #include "requests/baserequest.h"
-#include "engine/failover/ifailover.h"
+#include "types/apiresolutionsettings.h"
+#include "types/protocol.h"
+#include "types/robertfilter.h"
+#include "requestexecuterviafailover.h"
 
 namespace server_api {
 
@@ -38,7 +40,7 @@ class ServerAPI : public QObject
 public:
     // Ownership of the failover passes to the serverAPI object
     explicit ServerAPI(QObject *parent, IConnectStateController *connectStateController, NetworkAccessManager *networkAccessManager,
-                       INetworkDetectionManager *networkDetectionManager, failover::IFailover *failover);
+                       INetworkDetectionManager *networkDetectionManager, failover::IFailoverContainer *failoverContainer);
     virtual ~ServerAPI();
 
     QString getHostname() const;
@@ -76,9 +78,14 @@ public:
     BaseRequest *wgConfigsConnect(const QString &authHash, const QString &clientPublicKey, const QString &serverName, const QString &deviceId);
     BaseRequest *syncRobert(const QString &authHash);
 
+signals:
+    void tryingBackupEndpoint(int num, int cnt);
+
 private slots:
-    void onFailoverNextHostnameAnswer(failover::FailoverRetCode retCode, const QString &hostname);
+    void onNetworkRequestFinished();
+    //void onFailoverNextHostnameAnswer(failover::FailoverRetCode retCode, const QString &hostname);
     void onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, CONNECT_ERROR err, const LocationID &location);
+    void onRequestExecuterViaFailoverFinished(server_api::RequestExecuterRetCode retCode);
 
 private:
     NetworkAccessManager *networkAccessManager_;
@@ -86,39 +93,38 @@ private:
     INetworkDetectionManager *networkDetectionManager_;
     bool bIgnoreSslErrors_;
     bool bWasConnectedState_ = false;
+    types::ApiResolutionSettings apiResolutionSettings_;
 
     QQueue<QPointer<BaseRequest> > queueRequests_;    // a queue of requests that are waiting for the failover to complete
 
     enum class FailoverState { kUnknown, kFromSettingsUnknown, kFromSettingsReady, kReady, kFailed } failoverState_;
+    QScopedPointer<failover::FailoverData> failoverData_;   // valid only in kReady/kFromSettingsReady states
 
-    // Current failover state. If there is no failover currently, then all are zero
-    QPointer<BaseRequest> currentFailoverRequest_;
-    QScopedPointer<ConnectStateWatcher> currentConnectStateWatcher_;
-    QString currentHostname_;
+    QString failoverFromSettingsId_;   // empty if not exists
 
-    failover::IFailover *failover_;
+    QScopedPointer<RequestExecuterViaFailover> requestExecutorViaFailover_;
+
+    failover::IFailoverContainer *failoverContainer_;
     bool isGettingFailoverHostnameInProgress_ = false;
     bool isResetFailoverOnNextHostnameAnswer_ = false;
     bool isFailoverFailedLogAlreadyDone_ = false;   // log "failover failed: API not ready" only once to avoid spam
 
-    void handleNetworkRequestFinished();
-    void executeRequest(QPointer<BaseRequest> request, bool bSkipFailoverStuff = false);
+    void executeRequest(QPointer<BaseRequest> request);
+    void executeRequestImpl(QPointer<BaseRequest> request, const failover::FailoverData &failoverData);
 
     void executeWaitingInQueueRequests();
     void finishWaitingInQueueRequests(SERVER_API_RET_CODE retCode, const QString &errString);
 
     void setErrorCodeAndEmitRequestFinished(BaseRequest *request, SERVER_API_RET_CODE retCode, const QString &errorStr);
 
-    void setCurrentFailoverRequest(BaseRequest *request);
-    void clearCurrentFailoverRequest();
     bool isDisconnectedState() const;
 
     QString hostnameForConnectedState() const;
 
     // Save and read the hostname from the settings where it is stored encrypted
     static constexpr quint64 SIMPLE_CRYPT_KEY = 0x2572241DF31F32EE;
-    void writeHostnameToSettings(const QString &domainName);
-    QString readHostnameFromSettings() const;
+    void writeFailoverIdToSettings(const QString &failoverId);
+    QString readFailoverIdFromSettings() const;
 };
 
 } // namespace server_api

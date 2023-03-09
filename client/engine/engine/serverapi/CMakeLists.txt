@@ -1,6 +1,8 @@
 target_sources(engine PRIVATE
     serverapi.cpp
     serverapi.h
+    requestexecuterviafailover.cpp
+    requestexecuterviafailover.h
     requests/baserequest.cpp
     requests/baserequest.h
     requests/checkupdaterequest.cpp

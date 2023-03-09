@@ -84,3 +84,13 @@ bool NetworkRequest::isRemoveFromWhitelistIpsAfterFinish() const
 {
     return bRemoveFromWhitelistIpsAfterFinish_;
 }
+
+void NetworkRequest::setEchConfig(const QString &echConfig)
+{
+    echConfig_ = echConfig;
+}
+
+QString NetworkRequest::echConfig() const
+{
+    return echConfig_;
+}

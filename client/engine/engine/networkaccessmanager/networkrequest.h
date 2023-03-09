@@ -30,6 +30,9 @@ public:
     void setRemoveFromWhitelistIpsAfterFinish();
     bool isRemoveFromWhitelistIpsAfterFinish() const;
 
+    void setEchConfig(const QString &echConfig);
+    QString echConfig() const;
+
 private:
     QUrl url_;
     int timeout_;
@@ -37,6 +40,8 @@ private:
     bool bIgnoreSslErrors_;
     QString header_;
     QStringList dnsServers_;
+
+    QString echConfig_;         // if not empty, use ECH request
 
     //default false, if true then immediately removes the IP from the whitelist ips after the request is completed.
     bool bRemoveFromWhitelistIpsAfterFinish_;

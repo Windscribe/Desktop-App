@@ -6,7 +6,7 @@
 #include "utils/logger.h"
 #include "utils/executable_signature/executable_signature.h"
 #include "utils/ws_assert.h"
-#include "dga_parameters.h"
+
 
 DgaLibrary::~DgaLibrary()
 {
@@ -18,6 +18,7 @@ DgaLibrary::~DgaLibrary()
 
 bool DgaLibrary::load()
 {
+    static bool alreadyLogVersion = false;
 #ifdef Q_OS_WIN
     QString dgaLibPath = QCoreApplication::applicationDirPath() + "/dga.dll";
 #elif defined Q_OS_MAC
@@ -50,9 +51,12 @@ bool DgaLibrary::load()
         return false;
     }
 
-    char buf[1024] = {0};
-    func(buf, 1024, PAR_LIBRARY_VERSION, nullptr, nullptr, nullptr);
-    qCDebug(LOG_BASIC) << "dga version:" << buf;
+    if (!alreadyLogVersion) {
+        char buf[1024] = {0};
+        func(buf, 1024, PAR_LIBRARY_VERSION, nullptr, nullptr, nullptr);
+        qCDebug(LOG_BASIC) << "dga version:" << buf;
+        alreadyLogVersion = true;
+    }
     return true;
 }
 
