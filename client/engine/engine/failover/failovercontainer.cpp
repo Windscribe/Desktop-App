@@ -22,6 +22,11 @@
 #define FAILOVER_ECH_CLOUFLARE_2                 "ee195090-f5e8-4ae0-9142-ca0961a43173"
 #define FAILOVER_ECH_CLOUFLARE_3                 "ad532351-5999-4a64-859f-32a021511876"
 
+// For these three, we  do not need to update ECH config the timeout(TTL)
+#define FAILOVER_ECH_CLOUFLARE_FALLBACK_1        "7f01c68b-d06f-4522-99f3-9c31762f24a4 "
+#define FAILOVER_ECH_CLOUFLARE_FALLBACK_2        "3ddc4f4c-37d3-44e7-bdba-877a5666d2ac"
+#define FAILOVER_ECH_CLOUFLARE_FALLBACK_3        "da3f5ac6-897b-44be-b401-bfbceaca4ce8"
+
 #define FAILOVER_DGA                             "c7e95d4a-ac69-4ff2-b4c0-c4e9d648b758"
 #define FAILOVER_OLD_RANDOM_DOMAIN_GENERATION    "7edd0a41-1ffd-4224-a2b1-809c646a918b"
 
@@ -63,6 +68,10 @@ FailoverContainer::FailoverContainer(QObject *parent, NetworkAccessManager *netw
         failovers_ << FAILOVER_ECH_CLOUFLARE_1;
         failovers_ << FAILOVER_ECH_CLOUFLARE_2;
         failovers_ << FAILOVER_ECH_CLOUFLARE_3;
+
+        failovers_ << FAILOVER_ECH_CLOUFLARE_FALLBACK_1;
+        failovers_ << FAILOVER_ECH_CLOUFLARE_FALLBACK_2;
+        failovers_ << FAILOVER_ECH_CLOUFLARE_FALLBACK_3;
 
         // randomize access ips order
         if (Utils::generateIntegerRandom(0, 1) == 0) {
@@ -113,17 +122,32 @@ QSharedPointer<BaseFailover> FailoverContainer::failoverById(const QString &fail
     } else if (failoverUniqueId == FAILOVER_ECH_CLOUFLARE_1) {
         DgaLibrary dga;
         if (dga.load()) {
-            return QSharedPointer<BaseFailover>(new EchFailover(this, FAILOVER_ECH_CLOUFLARE_1, networkAccessManager_, dga.getParameter(PAR_DYNAMIC_DOMAIN_CLOUDFLARE_URL1), dga.getParameter(PAR_ECH_CONFIG_DOMAIN), dga.getParameter(PAR_ECH_DOMAIN)));
+            return QSharedPointer<BaseFailover>(new EchFailover(this, FAILOVER_ECH_CLOUFLARE_1, networkAccessManager_, dga.getParameter(PAR_DYNAMIC_DOMAIN_CLOUDFLARE_URL1), dga.getParameter(PAR_ECH_CONFIG_DOMAIN), dga.getParameter(PAR_ECH_DOMAIN), false));
         }
     } else if (failoverUniqueId == FAILOVER_ECH_CLOUFLARE_2) {
         DgaLibrary dga;
         if (dga.load()) {
-            return QSharedPointer<BaseFailover>(new EchFailover(this, FAILOVER_ECH_CLOUFLARE_2, networkAccessManager_, dga.getParameter(PAR_DYNAMIC_DOMAIN_CLOUDFLARE_URL2), dga.getParameter(PAR_ECH_CONFIG_DOMAIN), dga.getParameter(PAR_ECH_DOMAIN)));
+            return QSharedPointer<BaseFailover>(new EchFailover(this, FAILOVER_ECH_CLOUFLARE_2, networkAccessManager_, dga.getParameter(PAR_DYNAMIC_DOMAIN_CLOUDFLARE_URL2), dga.getParameter(PAR_ECH_CONFIG_DOMAIN), dga.getParameter(PAR_ECH_DOMAIN), false));
         }
     } else if (failoverUniqueId == FAILOVER_ECH_CLOUFLARE_3) {
         DgaLibrary dga;
         if (dga.load()) {
-            return QSharedPointer<BaseFailover>(new EchFailover(this, FAILOVER_ECH_CLOUFLARE_3, networkAccessManager_, dga.getParameter(PAR_DYNAMIC_DOMAIN_CLOUDFLARE_URL3), dga.getParameter(PAR_ECH_CONFIG_DOMAIN), dga.getParameter(PAR_ECH_DOMAIN)));
+            return QSharedPointer<BaseFailover>(new EchFailover(this, FAILOVER_ECH_CLOUFLARE_3, networkAccessManager_, dga.getParameter(PAR_DYNAMIC_DOMAIN_CLOUDFLARE_URL3), dga.getParameter(PAR_ECH_CONFIG_DOMAIN), dga.getParameter(PAR_ECH_DOMAIN), false));
+        }
+    } else if (failoverUniqueId == FAILOVER_ECH_CLOUFLARE_FALLBACK_1) {
+        DgaLibrary dga;
+        if (dga.load()) {
+            return QSharedPointer<BaseFailover>(new EchFailover(this, FAILOVER_ECH_CLOUFLARE_FALLBACK_1, networkAccessManager_, dga.getParameter(PAR_DYNAMIC_DOMAIN_CLOUDFLARE_URL1), dga.getParameter(PAR_ECH_CONFIG_DOMAIN), dga.getParameter(PAR_ECH_DOMAIN), true));
+        }
+    } else if (failoverUniqueId == FAILOVER_ECH_CLOUFLARE_FALLBACK_2) {
+        DgaLibrary dga;
+        if (dga.load()) {
+            return QSharedPointer<BaseFailover>(new EchFailover(this, FAILOVER_ECH_CLOUFLARE_FALLBACK_2, networkAccessManager_, dga.getParameter(PAR_DYNAMIC_DOMAIN_CLOUDFLARE_URL2), dga.getParameter(PAR_ECH_CONFIG_DOMAIN), dga.getParameter(PAR_ECH_DOMAIN), true));
+        }
+    } else if (failoverUniqueId == FAILOVER_ECH_CLOUFLARE_FALLBACK_3) {
+        DgaLibrary dga;
+        if (dga.load()) {
+            return QSharedPointer<BaseFailover>(new EchFailover(this, FAILOVER_ECH_CLOUFLARE_FALLBACK_3, networkAccessManager_, dga.getParameter(PAR_DYNAMIC_DOMAIN_CLOUDFLARE_URL3), dga.getParameter(PAR_ECH_CONFIG_DOMAIN), dga.getParameter(PAR_ECH_DOMAIN), true));
         }
     } else if (failoverUniqueId == FAILOVER_DGA) {
         return QSharedPointer<BaseFailover>(new DgaFailover(this, FAILOVER_DGA));

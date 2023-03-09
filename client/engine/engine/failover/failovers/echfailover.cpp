@@ -15,7 +15,10 @@ void EchFailover::getData(bool bIgnoreSslErrors)
 {
     QUrl url(urlString_);
     QUrlQuery query;
-    query.addQueryItem("name", configDomainName_);
+    if (isFallback_)
+        query.addQueryItem("name", "fallback." + configDomainName_);
+    else
+        query.addQueryItem("name", configDomainName_);
     query.addQueryItem("type", "TXT");
     url.setQuery(query);
 
@@ -38,7 +41,10 @@ QString EchFailover::name() const
 {
     QUrl url(urlString_);
     // the domain name has been reduced for log security
-    return "ech: " + url.host().left(3);
+    if (isFallback_)
+        return "ech_f: " + url.host().left(3);
+    else
+        return "ech: " + url.host().left(3);
 }
 
 // returns an empty string if parsing failed
@@ -67,9 +73,14 @@ QVector<FailoverData> EchFailover::parseDataFromJson(const QByteArray &arr)
         if (!jsonAnswer.contains("data") || !jsonAnswer.contains("TTL"))
             return QVector<FailoverData>();
         QString echConfig = jsonAnswer["data"].toString().remove("\"");
-        int ttl = jsonAnswer["TTL"].toInt();
-        if (ttl == 0)
-            return QVector<FailoverData>();
+        int ttl = 0;
+        if (!isFallback_) {
+            ttl = jsonAnswer["TTL"].toInt();
+            if (ttl == 0)
+                return QVector<FailoverData>();
+        } else {
+            ttl = INT_MAX;      // we  do not need to update ECH config for fallback domain
+        }
 
         ret << FailoverData(domainName_, echConfig, ttl);
     }
