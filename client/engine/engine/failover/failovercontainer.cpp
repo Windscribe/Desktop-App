@@ -27,7 +27,7 @@
 #define FAILOVER_ECH_CLOUFLARE_FALLBACK_2        "3ddc4f4c-37d3-44e7-bdba-877a5666d2ac"
 #define FAILOVER_ECH_CLOUFLARE_FALLBACK_3        "da3f5ac6-897b-44be-b401-bfbceaca4ce8"
 
-#define FAILOVER_DGA                             "c7e95d4a-ac69-4ff2-b4c0-c4e9d648b758"
+//#define FAILOVER_DGA                             "c7e95d4a-ac69-4ff2-b4c0-c4e9d648b758"       // postponed for 2.7
 #define FAILOVER_OLD_RANDOM_DOMAIN_GENERATION    "7edd0a41-1ffd-4224-a2b1-809c646a918b"
 
 #define FAILOVER_DYNAMIC_CLOUDFLARE_1            "20846580-b8fc-418b-9202-0af1fdbd90b9"
@@ -63,7 +63,7 @@ FailoverContainer::FailoverContainer(QObject *parent, NetworkAccessManager *netw
         failovers_ << FAILOVER_DYNAMIC_GOOGLE_3;
 
         failovers_ << FAILOVER_OLD_RANDOM_DOMAIN_GENERATION;
-        failovers_ << FAILOVER_DGA;
+        //failovers_ << FAILOVER_DGA;
 
         failovers_ << FAILOVER_ECH_CLOUFLARE_1;
         failovers_ << FAILOVER_ECH_CLOUFLARE_2;
@@ -149,8 +149,9 @@ QSharedPointer<BaseFailover> FailoverContainer::failoverById(const QString &fail
         if (dga.load()) {
             return QSharedPointer<BaseFailover>(new EchFailover(this, FAILOVER_ECH_CLOUFLARE_FALLBACK_3, networkAccessManager_, dga.getParameter(PAR_DYNAMIC_DOMAIN_CLOUDFLARE_URL3), dga.getParameter(PAR_ECH_CONFIG_DOMAIN), dga.getParameter(PAR_ECH_DOMAIN), true));
         }
-    } else if (failoverUniqueId == FAILOVER_DGA) {
-        return QSharedPointer<BaseFailover>(new DgaFailover(this, FAILOVER_DGA));
+    // postponed for 2.7
+    /*} else if (failoverUniqueId == FAILOVER_DGA) {
+        return QSharedPointer<BaseFailover>(new DgaFailover(this, FAILOVER_DGA));*/
     } else if (failoverUniqueId == FAILOVER_OLD_RANDOM_DOMAIN_GENERATION) {
         return QSharedPointer<BaseFailover>(new RandomDomainFailover(this, FAILOVER_OLD_RANDOM_DOMAIN_GENERATION));
     } else if (failoverUniqueId == FAILOVER_DYNAMIC_CLOUDFLARE_1) {
