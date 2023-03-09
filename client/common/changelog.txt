@@ -1,3 +1,13 @@
+2.6.11 (23/02/2023)
+All:
+   * Fixed alignment of some icon and text widgets on the main app screen. #577
+Windows:
+   * Fixed connecting/connected 'badge' icon on the app's taskbar icon disappears if app closed to tray then restored. #550
+   * Fixed firewall leak when using OpenVPN and firewall is on (firewall mode is always on or manual) after disconnecting. #570
+macOS:
+   * Fixed DGA library not compatible with ARM-based Macs. #465
+
+
 2.6.10 (15/02/2023)
 All:
    * Fixed 'App Internal DNS' preference description to indicate 'OS Default' may cause DNS leaks. #195

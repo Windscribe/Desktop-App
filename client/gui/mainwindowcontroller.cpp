@@ -821,7 +821,7 @@ void MainWindowController::gotoInitializationWindow()
 
     exitWindow_->getGraphicsObject()->setVisible(false);
 
-	// init could be different height depending on if going to login or directly to connect screen
+    // init could be different height depending on if going to login or directly to connect screen
     int initHeight = WINDOW_HEIGHT;
     if (curWindow_ == WINDOW_ID_LOGIN) initHeight = LOGIN_HEIGHT;
     initWindow_->setHeight(initHeight);
@@ -2175,7 +2175,7 @@ void MainWindowController::expandWindow(ResizableWindow *window)
                 newsFeedWindow_->updateRead();
             }
 
-			shadowManager_->setVisible(windowSizeManager_->shapeId(window), true);
+            shadowManager_->setVisible(windowSizeManager_->shapeId(window), true);
             shadowManager_->changeRectangleSize(windowSizeManager_->shapeId(window),
                                                 QRect(0,
                                                       childWindowShadowOffsetY(),
@@ -2518,9 +2518,8 @@ MainWindowController::TaskbarLocation MainWindowController::primaryScreenTaskbar
 {
     TaskbarLocation taskbarLocation = TASKBAR_HIDDEN;
 
-    // use system tray icon as anchor for primary screen since QGuiApplication::primaryScreen() doesn't update after app startup
     QRect rcIcon = static_cast<MainWindow*>(mainWindow_)->trayIconRect();
-    QScreen *screen = QGuiApplication::screenAt(rcIcon.center());
+    QScreen *screen = WidgetUtils::slightlySaferScreenAt(rcIcon.center());
     if (!screen) {
         qCDebug(LOG_BASIC) << "Couldn't find screen at system icon location";
         return taskbarLocation;

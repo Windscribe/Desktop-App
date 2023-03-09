@@ -9,69 +9,33 @@
 
 namespace locationsmodel {
 
-PingStorage::PingStorage(const QString &settingsKeyName) : curIteration_(0),
-    settingsKeyName_(settingsKeyName)
+class PingData
 {
-    loadFromSettings();
+public:
+    explicit PingData() : timeMs_(PingTime::NO_PING_INFO), iteration_(0) {};
+    explicit PingData(PingTime timeMs, quint32 iteration) : timeMs_(timeMs), iteration_(iteration)
+    {
+    }
+
+    PingTime pingTime() const { return timeMs_; }
+    quint32 iteration() const { return iteration_; }
+
+private:
+    PingTime timeMs_;
+    quint32 iteration_;
+};
+
+PingStorage::PingStorage(const QString &settingsKey) : settingsKey_(settingsKey)
+{
 }
 
 PingStorage::~PingStorage()
 {
-    saveToSettings();
 }
 
-void PingStorage::updateNodes(const QStringList &ips)
+const QString& PingStorage::settingsKey() const
 {
-    QSet<QString> setIps;
-    for (const QString &ip : ips)
-    {
-        setIps.insert(ip);
-    }
-
-    // find and remove unused nodes
-    auto it = hash_.begin();
-    while (it != hash_.end())
-    {
-        if (!setIps.contains(it.key()))
-        {
-            it = hash_.erase(it);
-        }
-        else
-        {
-            ++it;
-        }
-    }
-
-    // and new IPs
-    for (const QString &ip : setIps)
-    {
-        if (!hash_.contains(ip))
-        {
-            hash_[ip] = PingData();
-        }
-    }
-}
-
-void PingStorage::setNodePing(const QString &nodeIp, PingTime timeMs, bool fromDisconnectedState)
-{
-    PingData pd;
-    pd.timeMs_ = timeMs;
-    pd.iteration_ = curIteration_;
-    pd.fromDisconnectedState_ = fromDisconnectedState;
-    hash_[nodeIp] = pd;
-}
-
-PingTime PingStorage::getNodeSpeed(const QString &nodeIp) const
-{
-    auto it = hash_.find(nodeIp);
-    if (it != hash_.end())
-    {
-        return it.value().timeMs_;
-    }
-    else
-    {
-        return PingTime::NO_PING_INFO;
-    }
+    return settingsKey_;
 }
 
 quint32 PingStorage::getCurrentIteration() const
@@ -84,85 +48,208 @@ void PingStorage::incIteration()
     curIteration_++;
 }
 
-void PingStorage::getState(bool &isAllNodesHaveCurIteration, bool &isAllNodesInDisconnectedState)
+void PingStorage::setCurrentIteration(quint32 iteration)
+{
+    curIteration_ = iteration;
+}
+
+
+ApiPingStorage::ApiPingStorage() : PingStorage("pingStorage")
+{
+    loadFromSettings();
+}
+
+ApiPingStorage::~ApiPingStorage()
+{
+    saveToSettings();
+}
+
+void ApiPingStorage::setPing(int id, PingTime timeMs)
+{
+    pingDataDB_[id] = PingData(timeMs, getCurrentIteration());
+}
+
+PingTime ApiPingStorage::getPing(int id) const
+{
+    auto it = pingDataDB_.constFind(id);
+    if (it != pingDataDB_.constEnd()) {
+        return it.value().pingTime();
+    }
+
+    return PingTime::NO_PING_INFO;
+}
+
+void ApiPingStorage::getState(bool &isAllNodesHaveCurIteration)
 {
     isAllNodesHaveCurIteration = true;
-    isAllNodesInDisconnectedState = true;
 
-    for (auto it = hash_.begin(); it != hash_.end(); ++it)
-    {
-        if (it.value().iteration_ != curIteration_)
-        {
+    for (auto it = pingDataDB_.begin(); it != pingDataDB_.end(); ++it) {
+        if (it.value().iteration() != getCurrentIteration()) {
             isAllNodesHaveCurIteration = false;
-        }
-        if (!it.value().fromDisconnectedState_)
-        {
-            isAllNodesInDisconnectedState = false;
+            break;
         }
     }
 }
 
-void PingStorage::saveToSettings()
+void ApiPingStorage::saveToSettings()
 {
     QByteArray arr;
     {
         QDataStream ds(&arr, QIODevice::WriteOnly);
         ds << magic_;
         ds << versionForSerialization_;
-        ds << curIteration_;
-        ds << hash_.size();
-        for (auto it = hash_.begin(); it != hash_.end(); ++it)
-        {
-            ds << it.key() << it.value().timeMs_.toInt() << it.value().iteration_ << it.value().fromDisconnectedState_;
+        ds << getCurrentIteration();
+        ds << pingDataDB_.size();
+        for (auto it = pingDataDB_.begin(); it != pingDataDB_.end(); ++it) {
+            ds << it.key() << it.value().pingTime().toInt() << it.value().iteration();
         }
     }
+
     QSettings settings;
     SimpleCrypt simpleCrypt(SIMPLE_CRYPT_KEY);
-    settings.setValue(settingsKeyName_, simpleCrypt.encryptToString(arr));
+    settings.setValue(settingsKey(), simpleCrypt.encryptToString(arr));
 }
 
-void PingStorage::loadFromSettings()
+void ApiPingStorage::loadFromSettings()
 {
+    pingDataDB_.clear();
+
     QSettings settings;
-    if (settings.contains(settingsKeyName_))
-    {
-        SimpleCrypt simpleCrypt(SIMPLE_CRYPT_KEY);
-        QString str = settings.value(settingsKeyName_).toString();
-        QByteArray arr = simpleCrypt.decryptToByteArray(str);
+    if (!settings.contains(settingsKey())) {
+        return;
+    }
 
-        QDataStream ds(&arr, QIODevice::ReadOnly);
-        quint32 magic, version;
-        ds >> magic;
-        if (magic == magic_)
-        {
-            ds >> version;
-            if (version <= versionForSerialization_)
-            {
-                ds >> curIteration_;
-                qsizetype hashSize;
-                ds >> hashSize;
+    SimpleCrypt simpleCrypt(SIMPLE_CRYPT_KEY);
+    QString str = settings.value(settingsKey()).toString();
+    QByteArray arr = simpleCrypt.decryptToByteArray(str);
 
-                for (qsizetype i = 0; i < hashSize; ++i)
-                {
-                    QString key;
-                    int timeMs;
-                    quint32 iteration;
-                    bool fromDisconnectedState;
+    QDataStream ds(&arr, QIODevice::ReadOnly);
+    quint32 magic;
+    ds >> magic;
 
-                    ds >> key >> timeMs >> iteration >> fromDisconnectedState;
-                    PingData pd;
-                    pd.timeMs_ = timeMs;
-                    pd.iteration_ = iteration;
-                    pd.fromDisconnectedState_ = fromDisconnectedState;
+    if (magic == magic_) {
+        quint32 version;
+        ds >> version;
+        if (version <= 1) {
+            // We can't use the old stored data that mapped pingIP to ping data.
+            return;
+        }
+        if (version <= versionForSerialization_) {
+            quint32 iteration;
+            ds >> iteration;
+            qsizetype numDBElements;
+            ds >> numDBElements;
 
-                    hash_[key] = pd;
-                }
-
-                if (ds.status() != QDataStream::Ok)
-                {
-                    hash_.clear();
-                }
+            for (qsizetype i = 0; i < numDBElements; ++i) {
+                int locationID;
+                int timeMs;
+                quint32 iteration;
+                ds >> locationID >> timeMs >> iteration;
+                pingDataDB_[locationID] = PingData(timeMs, iteration);
             }
+
+            if (ds.status() != QDataStream::Ok) {
+                pingDataDB_.clear();
+                iteration = 0;
+            }
+
+            setCurrentIteration(iteration);
+        }
+    }
+}
+
+
+CustomConfigPingStorage::CustomConfigPingStorage() : PingStorage("pingStorageCustomConfigs")
+{
+    loadFromSettings();
+}
+
+CustomConfigPingStorage::~CustomConfigPingStorage()
+{
+    saveToSettings();
+}
+
+void CustomConfigPingStorage::setPing(const QString &ip, PingTime timeMs)
+{
+    pingDataDB_[ip] = PingData(timeMs, getCurrentIteration());
+}
+
+PingTime CustomConfigPingStorage::getPing(const QString &ip) const
+{
+    const auto it = pingDataDB_.constFind(ip);
+    if (it != pingDataDB_.constEnd()) {
+        return it.value().pingTime();
+    }
+
+    return PingTime::NO_PING_INFO;
+}
+
+void CustomConfigPingStorage::saveToSettings()
+{
+    QByteArray arr;
+    {
+        QDataStream ds(&arr, QIODevice::WriteOnly);
+        ds << magic_;
+        ds << versionForSerialization_;
+        ds << getCurrentIteration();
+        ds << pingDataDB_.size();
+        for (auto it = pingDataDB_.begin(); it != pingDataDB_.end(); ++it) {
+            ds << it.key() << it.value().pingTime().toInt() << it.value().iteration();
+        }
+    }
+
+    QSettings settings;
+    SimpleCrypt simpleCrypt(SIMPLE_CRYPT_KEY);
+    settings.setValue(settingsKey(), simpleCrypt.encryptToString(arr));
+}
+
+void CustomConfigPingStorage::loadFromSettings()
+{
+    pingDataDB_.clear();
+
+    QSettings settings;
+    if (!settings.contains(settingsKey())) {
+        return;
+    }
+
+    SimpleCrypt simpleCrypt(SIMPLE_CRYPT_KEY);
+    QString str = settings.value(settingsKey()).toString();
+    QByteArray arr = simpleCrypt.decryptToByteArray(str);
+
+    QDataStream ds(&arr, QIODevice::ReadOnly);
+    quint32 magic;
+    ds >> magic;
+
+    if (magic == magic_) {
+        quint32 version;
+        ds >> version;
+        if (version <= versionForSerialization_) {
+            quint32 iteration;
+            ds >> iteration;
+            qsizetype numDBElements;
+            ds >> numDBElements;
+
+            for (qsizetype i = 0; i < numDBElements; ++i) {
+                QString ip;
+                int timeMs;
+                quint32 iteration;
+                ds >> ip >> timeMs >> iteration;
+
+                if (version <= 1) {
+                    // Skip over the old 'pinged while disconnected' flag we no longer use.
+                    bool fromDisconnectedState;
+                    ds >> fromDisconnectedState;
+                }
+
+                pingDataDB_[ip] = PingData(timeMs, iteration);
+            }
+
+            if (ds.status() != QDataStream::Ok) {
+                pingDataDB_.clear();
+                iteration = 0;
+            }
+
+            setCurrentIteration(iteration);
         }
     }
 }

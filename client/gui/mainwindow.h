@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QWidget>
+#include <QMessageBox>
 #include <QSystemTrayIcon>
 #include <QWidgetAction>
 #include "mainwindowcontroller.h"
@@ -284,6 +285,8 @@ private slots:
     void onSelectedLocationChanged();
     void onSelectedLocationRemoved();
 
+    void onMsgBoxClicked(QAbstractButton *button);
+
 private:
     void gotoLoginWindow();
     void gotoExitWindow();
@@ -311,7 +314,7 @@ private:
 
 #endif
 
-    enum class AppIconType { DISCONNECTED, CONNECTING, CONNECTED };
+    enum class AppIconType { DISCONNECTED, DISCONNECTED_WITH_ERROR, CONNECTING, CONNECTED };
     void updateAppIconType(AppIconType type);
     void updateTrayIconType(AppIconType type);
     void updateTrayTooltip(QString tooltip);
@@ -419,6 +422,8 @@ private:
 
     types::Protocol getDefaultProtocolForNetwork(const QString &network);
     bool userProtocolOverride_;
+
+    QMessageBox *tunnelTestMsgBox_;
 };
 
 #endif // MAINWINDOW_H

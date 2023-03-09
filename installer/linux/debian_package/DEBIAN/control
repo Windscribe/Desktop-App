@@ -2,7 +2,7 @@ Package: windscribe
 Version: 2.3-9
 Section: misc
 Architecture: amd64
-Depends: bash, iptables
+Depends: bash, iptables, libc6 (>= 2.28)
 Maintainer: Windscribe Limited <hello@windscribe.com>
 Description: Windscribe
  Windscribe Client.

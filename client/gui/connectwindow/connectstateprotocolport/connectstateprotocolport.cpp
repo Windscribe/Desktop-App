@@ -57,8 +57,8 @@ void ConnectStateProtocolPort::paint(QPainter *painter, const QStyleOptionGraphi
     // connection badge dots made to show during connecting
     if (badgeFgImage_)
     {
-        int widthOffset = badgePixmap_.width()/2 - badgeFgImage_->width()/2;
-        badgeFgImage_->draw(painter, widthOffset, badgePixmap_.height()/2 - badgeFgImage_->height()/2 - 1*G_SCALE);
+        int widthOffset = (badgePixmap_.width() - badgeFgImage_->width())/2;
+        badgeFgImage_->draw(painter, widthOffset, (badgePixmap_.height() - badgeFgImage_->height())/2);
     }
 
     QFont *font = FontManager::instance().getFont(fontDescr_);

@@ -92,7 +92,7 @@ def DownloadFile(webfilename, localfilename):
   if os.path.exists(localfilename):
     utl.RemoveDirectory(localfilename)
   try:
-    curl_exe = os.path.join(TOOLS_BIN_DIR, "curl.exe") if utl.GetCurrentOS() == "win321" else "curl"
+    curl_exe = "curl.exe" if utl.GetCurrentOS() == "win321" else "curl"
     curl_cmd = [ curl_exe, webfilename, "-o", localfilename, "-kL" ]
     if "-v" not in sys.argv:
       curl_cmd.append( "-#" )

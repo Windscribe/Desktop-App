@@ -1,18 +1,17 @@
-#ifndef APILOCATIONSMODEL_H
-#define APILOCATIONSMODEL_H
+#pragma once
 
 #include <QObject>
+#include <QHash>
+
+#include "baselocationinfo.h"
+#include "bestlocation.h"
 #include "engine/apiinfo/location.h"
 #include "engine/apiinfo/staticips.h"
-#include "types/locationid.h"
-#include "types/proxysettings.h"
-#include "types/location.h"
+#include "engine/networkdetectionmanager/inetworkdetectionmanager.h"
 #include "pingipscontroller.h"
 #include "pingstorage.h"
-#include "bestlocation.h"
-#include "baselocationinfo.h"
-#include "engine/customconfigs/icustomconfig.h"
-#include "engine/networkdetectionmanager/inetworkdetectionmanager.h"
+#include "types/location.h"
+#include "types/locationid.h"
 
 namespace locationsmodel {
 
@@ -50,7 +49,7 @@ private slots:
     void onNeedIncrementPingIteration();
 
 private:
-    PingStorage pingStorage_;
+    ApiPingStorage pingStorage_;
     QVector<apiinfo::Location> locations_;
     apiinfo::StaticIps staticIps_;
 
@@ -58,6 +57,10 @@ private:
 
     PingIpsController pingIpsController_;
 
+    // Map an IP we're pinging to the location/static IP identifer owning that IP.
+    QHash<QString, int> idFromIp_;
+
+private:
     void detectBestLocation(bool isAllNodesInDisconnectedState);
     BestAndAllLocations generateLocationsUpdated();
     void sendLocationsUpdated();
@@ -67,5 +70,3 @@ private:
 };
 
 } //namespace locationsmodel
-
-#endif // APILOCATIONSMODEL_H

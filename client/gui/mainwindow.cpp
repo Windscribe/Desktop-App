@@ -92,7 +92,8 @@ MainWindow::MainWindow() :
     isExitingAfterUpdate_(false),
     downloadRunning_(false),
     ignoreUpdateUntilNextRun_(false),
-    userProtocolOverride_(false)
+    userProtocolOverride_(false),
+    tunnelTestMsgBox_(nullptr)
 {
     g_mainWindow = this;
 
@@ -109,15 +110,18 @@ MainWindow::MainWindow() :
 
     // Init and show tray icon.
     trayIcon_.setIcon(*IconManager::instance().getDisconnectedTrayIcon(isRunningInDarkMode_));
-    trayIcon_.show();
 #ifdef Q_OS_MAC
+    // Work around https://bugreports.qt.io/browse/QTBUG-107008 by delaying showing trayIcon_.
+    QTimer::singleShot(0, this, [this] {
+        trayIcon_.show();
+    });
     const QRect desktopScreenRc = screen->geometry();
     if (desktopScreenRc.top() != desktopAvailableRc.top()) {
         while (trayIcon_.geometry().isEmpty())
             qApp->processEvents();
     }
-#elif defined Q_OS_LINUX
-    //todo Linux
+#else
+    trayIcon_.show();
 #endif
 
     setWindowFlags(Qt::FramelessWindowHint | Qt::WindowMinimizeButtonHint);
@@ -1904,9 +1908,14 @@ void MainWindow::onBackendConnectStateChanged(const types::ConnectState &connect
     {
         updateConnectWindowStateProtocolPortDisplay();
 
+        if (connectState.disconnectReason == DISCONNECTED_WITH_ERROR) {
+            updateAppIconType(AppIconType::DISCONNECTED_WITH_ERROR);
+        } else {
+            updateAppIconType(AppIconType::DISCONNECTED);
+        }
+
         // Ensure the icon has been updated, as QSystemTrayIcon::showMessage displays this icon
         // in the notification window on Windows.
-        updateAppIconType(AppIconType::DISCONNECTED);
         updateTrayIconType(AppIconType::DISCONNECTED);
 
         if (bNotificationConnectedShowed_)
@@ -1967,6 +1976,7 @@ void MainWindow::onBackendSignOutFinished()
     mainWindowController_->getPreferencesWindow()->setLoggedIn(false);
     isLoginOkAndConnectWindowVisible_ = false;
     backend_->getPreferencesHelper()->setIsExternalConfigMode(false);
+    mainWindowController_->getBottomInfoWindow()->setDataRemaining(-1, -1);
 
     //hideSupplementaryWidgets();
 
@@ -2130,9 +2140,18 @@ void MainWindow::onBackendTestTunnelResult(bool success)
 {
     if (!ExtraConfig::instance().getIsTunnelTestNoError() && !success)
     {
-        QMessageBox::information(nullptr, QApplication::applicationName(),
-            tr("We've detected that your network settings may interfere with Windscribe. "
-               "Please disconnect and send us a Debug Log, by going into Preferences and clicking the \"Send Log\" button."));
+        if (tunnelTestMsgBox_ == nullptr) {
+            tunnelTestMsgBox_ = new QMessageBox(
+                QMessageBox::Information,
+                QApplication::applicationName(),
+                tr("We've detected that your network settings may interfere with Windscribe. "
+                   "Please disconnect and send us a Debug Log, by going into Preferences and clicking the \"Send Log\" button."),
+                QMessageBox::Ok);
+            tunnelTestMsgBox_->setWindowModality(Qt::WindowModal);
+            // Connect manually instead of passing slot into open(), since that seems to throw some warnings
+            tunnelTestMsgBox_->open(nullptr, nullptr);
+            connect(tunnelTestMsgBox_, &QMessageBox::buttonClicked, this, &MainWindow::onMsgBoxClicked);
+        }
     }
 
     if (success && selectedLocation_->isValid() && !selectedLocation_->locationdId().isCustomConfigsLocation()) {
@@ -3625,6 +3644,13 @@ void MainWindow::updateAppIconType(AppIconType type)
         icon = IconManager::instance().getDisconnectedIcon();
         #endif
         break;
+    case AppIconType::DISCONNECTED_WITH_ERROR:
+        #if defined(Q_OS_WIN)
+        icon = IconManager::instance().getErrorOverlayIcon();
+        #else
+        icon = IconManager::instance().getDisconnectedIcon();
+        #endif
+        break;
     case AppIconType::CONNECTING:
         #if defined(Q_OS_WIN)
         icon = IconManager::instance().getConnectingOverlayIcon();
@@ -3808,4 +3834,9 @@ types::Protocol MainWindow::getDefaultProtocolForNetwork(const QString &network)
         // if there's no valid last known good protocol, the default is wireguard
         return types::Protocol(types::Protocol::TYPE::WIREGUARD);
     }
+}
+
+void MainWindow::onMsgBoxClicked(QAbstractButton *button) {
+    Q_UNUSED(button);
+    SAFE_DELETE_LATER(tunnelTestMsgBox_);
 }

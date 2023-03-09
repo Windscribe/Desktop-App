@@ -7,7 +7,8 @@
 #include <list>
 #include <thread>
 #include "base_installer.hpp"
-#include "helper_mac.h"
+#include "processes_helper.h"
+#include "../helper/helper_mac.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -32,6 +33,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)cancel;
 - (void)runLauncher;
 - (NSString *)runProcess: (NSString *)exePath args:(NSArray *)args;
+- (BOOL)waitForProcessFinish: (std::vector<pid_t>)processes helper:(ProcessesHelper *)helper timeoutSec:(size_t)timeoutSec;
 - (void)waitForCompletion;
 - (BOOL)connectHelper;
 

@@ -112,6 +112,7 @@
 -(void) execution
 {
     int prevOverallProgress = 0;
+    bool terminated = false;
     self.progress = 0;
     self.currentState = STATE_EXTRACTING;
     [callbackObject_ performSelectorOnMainThread:callbackSelector_ withObject:self waitUntilDone:NO];
@@ -124,70 +125,43 @@
         connectedOldHelper = self.connectHelper;
     }
 
-    // trying terminating Windscribe processes with new helper interface
-    bool terminated = false;
-    if (connectedOldHelper) {
-        terminated = helper_.killWindscribeProcess();
-    }
+    // kill processes with "Windscribe" name
+    processesList = processesHelper.getPidsByProcessname("Windscribe");
+    // get WindscribeEngine processes
+    std::vector<pid_t> engineList = processesHelper.getPidsByProcessname("WindscribeEngine");
+    processesList.insert(processesList.end(), engineList.begin(), engineList.end());
 
-    // if the above method failed or helper was not connected, try the older way
-    if (!terminated) {
-        // kill processes with "Windscribe" name
-        processesList = processesHelper.getPidsByProcessname("Windscribe");
+    if (processesList.size() > 0) {
+        // try to terminate Windscribe processes with new helper interface
+        if (connectedOldHelper) {
+            helper_.killWindscribeProcess();
+        }
+        terminated = [self waitForProcessFinish:processesList helper:&processesHelper timeoutSec:5];
 
-        // get WindscribeEngine processes
-        std::vector<pid_t> engineList = processesHelper.getPidsByProcessname("WindscribeEngine");
-        processesList.insert(processesList.end(), engineList.begin(), engineList.end());
-
-        if (processesList.size() > 0)
-        {
+        if (!terminated) {
+            // if the above method failed or helper was not connected, try the older way
             [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"Waiting for Windscribe programs to close..."]];
             
-            for (auto pid : processesList)
-            {
+            for (auto pid : processesList) {
                 if (connectedOldHelper) {
                     helper_.killProcess(pid);
-                }
-                else {
+                } else {
                     kill(pid, SIGTERM);
                 }
             }
+            terminated = [self waitForProcessFinish:processesList helper:&processesHelper timeoutSec:5];
 
-            // wait for finish (maximum 10 sec)
-            NSDate *waitingSince_ = [NSDate date];
-            while (true)
-            {
-                bool bAllFinished = true;
-                for (auto pid : processesList)
-                {
-                    if (!processesHelper.isProcessFinished(pid))
-                    {
-                        bAllFinished = false;
-                        break;
-                    }
-                }
-                
-                if (bAllFinished)
-                {
-                    break;
-                }
-                
-                usleep(10000); // 10 milliseconds
-                int seconds = -(int)[waitingSince_ timeIntervalSinceNow];
-                if (seconds > 10)
-                {
-                    NSString *errStr = @"Couldn't kill running Windscribe programs in time. Please close running Windscribe programs manually and try install again.";
-                    [[Logger sharedLogger] logAndStdOut:errStr];
-                    self.lastError = errStr;
-                    self.currentState = STATE_ERROR;
-                    [callbackObject_ performSelectorOnMainThread:callbackSelector_ withObject:self waitUntilDone:NO];
-                    return;
-                }
+            // Still could not terminate, return error
+            if (!terminated) {
+                NSString *errStr = @"Couldn't kill running Windscribe programs in time. Please close running Windscribe programs manually and try install again.";
+                [[Logger sharedLogger] logAndStdOut:errStr];
+                self.lastError = errStr;
+                self.currentState = STATE_ERROR;
+                [callbackObject_ performSelectorOnMainThread:callbackSelector_ withObject:self waitUntilDone:NO];
+                return;
             }
         }
-    }
 
-    if (processesList.size() > 0 || terminated) {
         [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"All Windscribe programs closed"]];
     }
 
@@ -415,6 +389,31 @@ NSString* StringWToNSString ( const std::wstring& Str )
     }
     
     return YES;
+}
+
+- (BOOL)waitForProcessFinish: (std::vector<pid_t>)processes helper:(ProcessesHelper *)helper timeoutSec:(size_t)timeoutSec
+{
+    NSDate *waitingSince_ = [NSDate date];
+    while (true) {
+        bool bAllFinished = true;
+        for (auto pid : processes) {
+            if (!helper->isProcessFinished(pid)) {
+                bAllFinished = false;
+                break;
+            }
+        }
+        
+        if (bAllFinished) {
+            break;
+        }
+        
+        usleep(10000); // 10 milliseconds
+        int seconds = -(int)[waitingSince_ timeIntervalSinceNow];
+        if (seconds > timeoutSec) {
+            return false;
+        }
+    }
+    return true;
 }
 
 @end
