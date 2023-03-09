@@ -344,6 +344,9 @@ files_fix_rpath_macos:
     openssl:
       - lib/libcrypto.1.1.dylib
       - lib/libssl.1.1.dylib
+    openssl_ech_draft:
+      - lib/libcrypto.3.dylib
+      - lib/libssl.3.dylib
     cares:
       - lib/libcares.2.dylib
     curl:
