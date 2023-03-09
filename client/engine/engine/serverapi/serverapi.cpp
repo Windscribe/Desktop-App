@@ -66,11 +66,10 @@ ServerAPI::~ServerAPI()
 
 QString ServerAPI::getHostname() const
 {
-    //TODO:
-    //if (!isDisconnectedState() || currentHostname_.isEmpty())
+    if (!isDisconnectedState() || failoverData_.isNull())
         return hostnameForConnectedState();
-    //else
-    //    return currentHostname_;
+    else
+        return failoverData_->domain();
 }
 
 void ServerAPI::setApiResolutionsSettings(const types::ApiResolutionSettings &apiResolutionSettings)
