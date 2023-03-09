@@ -1,3 +1,23 @@
+2.6.12 (09/03/2023)
+All:
+   * Added use of Encrypted Client Hello (ECH) as a fail-over mechanism to circumvent SNI filtering. #568
+   * Fixed data counter appears in custom config mode. #373
+   * Fixed location latency checks (pings) displaying "-2" for many locations when connected. #521
+   * Fixed ON/OFF icon not centered on some display scale factors. #577
+   * Fixed "We've detected that your network settings may interfere with Windscribe" dialog displays multiple times. #581
+   * Removed use of the new domain generation algorithm.  Will be added in 2.7. #595
+Windows:
+   * Added new taskbar overlay icons displayed when connecting, connected, and if a connection error occurs. #590
+   * Fixed installer/uninstaller local privilege escalation vulnerabilities. #579
+   * Fixed docked app appears on left bottom of screen when displayed by tray icon menu click. #588
+macOS:
+   * Fixed odd menu entry in macOS dock right-click popup menu. #468
+   * Fixed attempting to update the app using the installer causes the app to freeze and the installer to hang at 100%. #584
+Linux:
+   * Fixed manual install does not detect an incompatible OS version. #587
+   * Fixed in-app check for update to not indicate an update is available if the OS kernel version is incompatible. #587
+
+
 2.6.11 (23/02/2023)
 All:
    * Fixed alignment of some icon and text widgets on the main app screen. #577
