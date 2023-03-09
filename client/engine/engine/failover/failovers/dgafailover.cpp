@@ -9,7 +9,8 @@ namespace failover {
 
 DgaFailover::DgaFailover(QObject *parent, const QString &uniqueId) : BaseFailover(parent, uniqueId)
 {
-    DgaLibrary dga;
+    // postponed for 2.7
+    /*DgaLibrary dga;
     if (dga.load()) {
         QString domain = dga.getParameter(PAR_RANDOM_GENERATED_DOMAIN);
         if (domain.isEmpty()) {
@@ -20,7 +21,7 @@ DgaFailover::DgaFailover(QObject *parent, const QString &uniqueId) : BaseFailove
 
     } else {
         qCDebug(LOG_BASIC) << "No dga, skip it";
-    }
+    }*/
 }
 
 void DgaFailover::getData(bool)

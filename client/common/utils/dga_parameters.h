@@ -8,7 +8,7 @@
 
 #define PAR_BACKUP_DOMAIN               	100     
 
-#define PAR_RANDOM_GENERATED_DOMAIN     	200     
+//#define PAR_RANDOM_GENERATED_DOMAIN     	200     
 
 #define PAR_DYNAMIC_DOMAIN_CLOUDFLARE_URL1  300     
 #define PAR_DYNAMIC_DOMAIN_CLOUDFLARE_URL2  301     
