@@ -54,11 +54,9 @@ ServerAPI::ServerAPI(QObject *parent, IConnectStateController *connectStateContr
 
     failoverContainer_->setParent(this);
 
-    /*failoverFromSettingsId_ = readFailoverIdFromSettings();
-    if (!failoverContainer_->failoverById(failoverFromSettingsId_))
-        failoverFromSettingsId_.clear();
-    else
-        failoverState_ = FailoverState::kFromSettingsUnknown;*/
+    failoverFromSettingsId_ = readFailoverIdFromSettings();
+    if (failoverContainer_->failoverById(failoverFromSettingsId_))
+        failoverState_ = FailoverState::kFromSettingsUnknown;
 }
 
 ServerAPI::~ServerAPI()
@@ -285,7 +283,6 @@ void ServerAPI::onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON rea
         if (state == CONNECT_STATE_CONNECTED) {
             bWasConnectedState_ = true;
         } else if (state == CONNECT_STATE_DISCONNECTED && bWasConnectedState_) {
-            failoverFromSettingsId_.clear();
             failoverState_ = FailoverState::kUnknown;
         }
     }
@@ -299,7 +296,6 @@ void ServerAPI::onRequestExecuterViaFailoverFinished(RequestExecuterRetCode retC
     if (retCode == RequestExecuterRetCode::kSuccess) {
         if (failoverState_ == FailoverState::kFromSettingsUnknown) {
             failoverState_ = FailoverState::kFromSettingsReady;
-            failoverFromSettingsId_.clear();
         } else {
             failoverState_ = FailoverState::kReady;
             writeFailoverIdToSettings(failoverContainer_->currentFailover()->uniqueId());
@@ -316,7 +312,6 @@ void ServerAPI::onRequestExecuterViaFailoverFinished(RequestExecuterRetCode retC
         requestExecutorViaFailover_.reset();
         if (failoverState_ == FailoverState::kFromSettingsUnknown) {
             failoverState_ = FailoverState::kUnknown;
-            failoverFromSettingsId_.clear();
             executeRequest(request);
         } else {
             WS_ASSERT(failoverState_ == FailoverState::kUnknown);
@@ -347,7 +342,6 @@ void ServerAPI::resetFailover()
     failoverContainer_->reset();
     if (failoverState_ != FailoverState::kFromSettingsUnknown) {
         failoverState_ = FailoverState::kUnknown;
-        failoverFromSettingsId_.clear();
     }
 }
 
@@ -394,8 +388,21 @@ void ServerAPI::executeRequest(QPointer<BaseRequest> request)
         executeRequestImpl(request, failover::FailoverData(hostnameForConnectedState()));
         executeWaitingInQueueRequests();
     } else {
+        WS_ASSERT(requestExecutorViaFailover_ == nullptr);
+
+        bool bUseFailover = false;
         if (failoverState_ == FailoverState::kFromSettingsUnknown || failoverState_ == FailoverState::kUnknown) {
-            WS_ASSERT(requestExecutorViaFailover_ == nullptr);
+            bUseFailover = true;
+        } else if (failoverState_ == FailoverState::kReady || failoverState_ == FailoverState::kFromSettingsReady) {
+            if (!failoverData_->echConfig().isEmpty() && failoverData_->isExpired()) {
+                if (failoverState_ == FailoverState::kReady) failoverState_ = FailoverState::kUnknown;
+                else if (failoverState_ == FailoverState::kFromSettingsReady) failoverState_ = FailoverState::kFromSettingsUnknown;
+                else WS_ASSERT(false);
+                bUseFailover = true;
+            }
+        }
+
+        if (bUseFailover) {
             int failoverInd = -1;
             QSharedPointer<failover::BaseFailover> curFailover = (failoverState_ == FailoverState::kFromSettingsUnknown) ? failoverContainer_->failoverById(failoverFromSettingsId_) : failoverContainer_->currentFailover(&failoverInd);
             WS_ASSERT(curFailover);
@@ -406,20 +413,22 @@ void ServerAPI::executeRequest(QPointer<BaseRequest> request)
             // Do not emit this signal for the first failover and for from the settings failover
             if (failoverInd > 0)
                 emit tryingBackupEndpoint(failoverInd, failoverContainer_->count() - 1);
-        } else if (failoverState_ == FailoverState::kReady || failoverState_ == FailoverState::kFromSettingsReady) {
-            WS_ASSERT(!failoverData_.isNull());
-            executeRequestImpl(request, *failoverData_);
-        } else if (failoverState_ == FailoverState::kFailed) {
-            QTimer::singleShot(0, this, [request, this] () {
-                if (!isFailoverFailedLogAlreadyDone_) {
-                    qCDebug(LOG_SERVER_API) << "API request " + request->name() + " failed: API not ready";
-                    isFailoverFailedLogAlreadyDone_ = true;
-                }
-                if (request) {
-                    request->setNetworkRetCode(SERVER_RETURN_FAILOVER_FAILED);
-                    emit request->finished();
-                }
-            });
+        } else {
+            if (failoverState_ == FailoverState::kReady || failoverState_ == FailoverState::kFromSettingsReady) {
+                WS_ASSERT(!failoverData_.isNull());
+                executeRequestImpl(request, *failoverData_);
+            } else if (failoverState_ == FailoverState::kFailed) {
+                QTimer::singleShot(0, this, [request, this] () {
+                    if (!isFailoverFailedLogAlreadyDone_) {
+                        qCDebug(LOG_SERVER_API) << "API request " + request->name() + " failed: API not ready";
+                        isFailoverFailedLogAlreadyDone_ = true;
+                    }
+                    if (request) {
+                        request->setNetworkRetCode(SERVER_RETURN_FAILOVER_FAILED);
+                        emit request->finished();
+                    }
+                });
+            }
         }
     }
 }

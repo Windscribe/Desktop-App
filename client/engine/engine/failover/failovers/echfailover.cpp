@@ -71,7 +71,7 @@ QVector<FailoverData> EchFailover::parseDataFromJson(const QByteArray &arr)
         if (ttl == 0)
             return QVector<FailoverData>();
 
-        ret << FailoverData(domainName_, echConfig, QDateTime::currentDateTime().addSecs(ttl));
+        ret << FailoverData(domainName_, echConfig, ttl);
     }
     return ret;
 }
