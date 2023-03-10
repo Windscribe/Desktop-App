@@ -11,7 +11,7 @@ variables:
   NEXUS_PATH_ROOT: 'https://nexus.int.windscribe.com/repository/client-desktop/client-desktop'
   NEXUS_PATH_DEPS: '$NEXUS_PATH_ROOT/dependencies/current'
   NEXUS_PATH_BRANCH_UPLOAD: '${NEXUS_PATH_ROOT}/branches/${CI_COMMIT_BRANCH}'
-  NEXUS_PATH_TAGGED_UPLOAD: '${NEXUS_PATH_ROOT}/tagged-builds/$VERSION_NO_SUFFIX'
+  NEXUS_PATH_TAGGED_UPLOAD: '${NEXUS_PATH_ROOT}/tagged-builds'
   CODE_SIGNING_PFX_PATH: 'installer\windows\signing\code_signing.pfx'
   CODE_SIGNING_LINUX_PATH: 'client/common/keys/linux'
   CODE_SIGNING_LINUX_PRIVATE_KEY_FILE: '$CODE_SIGNING_LINUX_PATH/key.pem'
@@ -207,9 +207,9 @@ build:win:installer:tagged:
     - !reference [.build_win_installer_common, script]
     - Set-Variable -name VERSION_NO_SUFFIX -value $(python3 tools/base/extract.py --no-suffix)
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --upload-file build-exe/Windscribe_$VERSION.exe "{NEXUS_PATH_TAGGED_UPLOAD}/Windscribe_$VERSION.exe"
+      --upload-file build-exe/Windscribe_$VERSION.exe "${NEXUS_PATH_TAGGED_UPLOAD}/$VERSION_NO_SUFFIX/Windscribe_$VERSION.exe"
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --upload-file build-exe/WindscribeSymbols_$VERSION.zip "${NEXUS_PATH_TAGGED_UPLOAD}/WindscribeSymbols_$VERSION.zip"
+      --upload-file build-exe/WindscribeSymbols_$VERSION.zip "${NEXUS_PATH_TAGGED_UPLOAD}/$VERSION_NO_SUFFIX/WindscribeSymbols_$VERSION.zip"
   rules:
     - if: $BUILD_WIN == "y" && $CI_COMMIT_TAG != null
 
@@ -279,7 +279,7 @@ build:mac:installer:tagged:
     - tools/build_all -zip --ci-mode --notarize --sign
     - VERSION_NO_SUFFIX=$(python3 tools/base/extract.py --no-suffix)
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --upload-file build-exe/Windscribe_$VERSION.dmg "${NEXUS_PATH_TAGGED_UPLOAD}/Windscribe_$VERSION.dmg"
+      --upload-file build-exe/Windscribe_$VERSION.dmg "${NEXUS_PATH_TAGGED_UPLOAD}/$VERSION_NO_SUFFIX/Windscribe_$VERSION.dmg"
   rules:
     - if: $BUILD_MAC == "y" && $CI_COMMIT_TAG != null
 
@@ -350,7 +350,7 @@ build:ubuntu:installer:tagged:
     - tools/build_all -zip --ci-mode --sign
     - VERSION_NO_SUFFIX=$(python3 tools/base/extract.py --no-suffix)
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --upload-file build-exe/windscribe_${VERSION}_amd64.deb "${NEXUS_PATH_TAGGED_UPLOAD}/windscribe_${VERSION}_amd64.deb"
+      --upload-file build-exe/windscribe_${VERSION}_amd64.deb "${NEXUS_PATH_TAGGED_UPLOAD}/$VERSION_NO_SUFFIX/windscribe_${VERSION}_amd64.deb"
   rules:
     - if: $BUILD_LINUX == "y" && $CI_COMMIT_TAG != null
 
@@ -389,7 +389,7 @@ build:rhel:installer:tagged:
     - tools/build_all -zip --ci-mode --sign --build-rpm
     - VERSION_NO_SUFFIX=$(python3 tools/base/extract.py --no-suffix)
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --upload-file build-exe/windscribe_${VERSION}_x86_64.rpm "${NEXUS_PATH_TAGGED_UPLOAD}/windscribe_${VERSION}_x86_64.rpm"
+      --upload-file build-exe/windscribe_${VERSION}_x86_64.rpm "${NEXUS_PATH_TAGGED_UPLOAD}/$VERSION_NO_SUFFIX/windscribe_${VERSION}_x86_64.rpm"
   rules:
     - if: $BUILD_LINUX == "y" && $CI_COMMIT_TAG != null
 
@@ -440,11 +440,11 @@ build:archlinux:installer:tagged:
     GIT_STRATEGY: clone
   script:
     - !reference [.build_archlinux_installer_prep_build_dir, script]
-    - export APP_DOWNLOAD_URL=${NEXUS_PATH_TAGGED_UPLOAD}/windscribe_${VERSION}_amd64.deb
+    - export APP_DOWNLOAD_URL=${NEXUS_PATH_TAGGED_UPLOAD}/$VERSION_NO_SUFFIX/windscribe_${VERSION}_amd64.deb
     - !reference [.build_archlinux_installer_makepkg, script]
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --upload-file ${ARCH_LINUX_BUILD_PATH}/windscribe-$VERSION_NO_SUFFIX-1-x86_64.pkg.tar.zst
-      "${NEXUS_PATH_TAGGED_UPLOAD}/windscribe_${VERSION}_x86_64.pkg.tar.zst"
+      "${NEXUS_PATH_TAGGED_UPLOAD}/$VERSION_NO_SUFFIX/windscribe_${VERSION}_x86_64.pkg.tar.zst"
   rules:
     - if: $BUILD_LINUX == "y" && $CI_COMMIT_TAG != null
 
@@ -467,10 +467,10 @@ build:artifact:links:tagged:
   script:
     - Set-Variable -name VERSION -value $(python3 tools/base/extract.py)
     - Set-Variable -name VERSION_NO_SUFFIX -value $(python3 tools/base/extract.py --no-suffix)
-    - echo ${NEXUS_PATH_TAGGED_UPLOAD}/Windscribe_$VERSION.exe
-    - echo ${NEXUS_PATH_TAGGED_UPLOAD}/Windscribe_$VERSION.dmg
-    - echo ${NEXUS_PATH_TAGGED_UPLOAD}/windscribe_${VERSION}_amd64.deb
-    - echo ${NEXUS_PATH_TAGGED_UPLOAD}/windscribe_${VERSION}_x86_64.rpm
-    - echo ${NEXUS_PATH_TAGGED_UPLOAD}/windscribe_${VERSION}_x86_64.pkg.tar.zst
+    - echo ${NEXUS_PATH_TAGGED_UPLOAD}/$VERSION_NO_SUFFIX/Windscribe_$VERSION.exe
+    - echo ${NEXUS_PATH_TAGGED_UPLOAD}/$VERSION_NO_SUFFIX/Windscribe_$VERSION.dmg
+    - echo ${NEXUS_PATH_TAGGED_UPLOAD}/$VERSION_NO_SUFFIX/windscribe_${VERSION}_amd64.deb
+    - echo ${NEXUS_PATH_TAGGED_UPLOAD}/$VERSION_NO_SUFFIX/windscribe_${VERSION}_x86_64.rpm
+    - echo ${NEXUS_PATH_TAGGED_UPLOAD}/$VERSION_NO_SUFFIX/windscribe_${VERSION}_x86_64.pkg.tar.zst
   rules:
     - if: $CI_COMMIT_TAG != null
