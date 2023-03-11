@@ -300,6 +300,8 @@ codesign_files:
     - ws_proxy_stub.dll
     - zlib1.dll
     - dga.dll
+    - libcrypto-3-x64.dll
+    - libssl-3-x64.dll
   linux:
     - windscribestunnel
     - windscribewstunnel

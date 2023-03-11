@@ -403,14 +403,14 @@ def pack_symbols():
 
 
 def sign_executables_win32(configdata, cert_password, filename_to_sign=None):
-    if "windows_signing_cert" in configdata and \
-            "path_signtool" in configdata["windows_signing_cert"] and \
-            "path_cert" in configdata["windows_signing_cert"] and \
-            "timestamp" in configdata["windows_signing_cert"] and \
+    if "signing_cert_win" in configdata and \
+            "path_signtool" in configdata["signing_cert_win"] and \
+            "path_cert" in configdata["signing_cert_win"] and \
+            "timestamp" in configdata["signing_cert_win"] and \
             cert_password:
-        signtool = os.path.join(pathhelper.ROOT_DIR, configdata["windows_signing_cert"]["path_signtool"])
-        certfile = os.path.join(pathhelper.ROOT_DIR, configdata["windows_signing_cert"]["path_cert"])
-        timestamp = configdata["windows_signing_cert"]["timestamp"]
+        signtool = os.path.join(pathhelper.ROOT_DIR, configdata["signing_cert_win"]["path_signtool"])
+        certfile = os.path.join(pathhelper.ROOT_DIR, configdata["signing_cert_win"]["path_cert"])
+        timestamp = configdata["signing_cert_win"]["timestamp"]
 
         if filename_to_sign:
             iutl.RunCommand([signtool, "sign", "/fd", "SHA256", "/t", timestamp, "/f", certfile,
