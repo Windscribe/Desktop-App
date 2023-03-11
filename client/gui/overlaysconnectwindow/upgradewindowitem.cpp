@@ -72,7 +72,7 @@ void UpgradeWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem 
         p->draw(0, 0, painter);
     }
 
-    int yOffset = preferences_->appSkin() == APP_SKIN_VAN_GOGH ? -28*G_SCALE : 0;
+    int yOffset = preferences_->appSkin() == APP_SKIN_VAN_GOGH ? -16*G_SCALE : 0;
 
     // title
     painter->setOpacity(OPACITY_FULL * initialOpacity);
