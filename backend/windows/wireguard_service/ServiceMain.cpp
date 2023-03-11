@@ -9,10 +9,10 @@
 #include <cstdio>
 #include <sstream>
 
-#include "boost/filesystem/path.hpp"
+#include <boost/filesystem/path.hpp>
 
-#include "servicecontrolmanager.h"
-#include "win32handle.h"
+#include "utils/servicecontrolmanager.h"
+#include "utils/win32handle.h"
 
 
 // C:\Code\ThirdParty\Wireguard\wireguard-windows-0.5.3\docs\enterprise.md has useful info

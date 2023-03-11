@@ -1,327 +1,205 @@
 # ------------------------------------------------------------------------------
 # Windscribe Build System
-# Copyright (c) 2020-2021, Windscribe Limited. All rights reserved.
+# Copyright (c) 2020-2023, Windscribe Limited. All rights reserved.
 # ------------------------------------------------------------------------------
 client:
-  name:     Client
-  project:  CMakeList.txt
-  subdir:   client
-  target:   Windscribe.exe
-  symbols:  Windscribe.pdb
-  macapp:   Windscribe.app
+  win32:
+    name:     Client
+    subdir:   client
+    target:   Windscribe.exe
+    symbols:  Windscribe.pdb
+  macos:
+    name:     Client
+    subdir:   client
+    target:   Windscribe.app
+    deploy:   True
+  linux:
+    name:     Client
+    subdir:   client
+    target:   Windscribe
 
 cli:
-  name:     CLI
-  project:  cli.pro
-  subdir:   gui/cli
-  target:   windscribe-cli.exe
-  symbols:  windscribe-cli.pdb
-
-service:
-  name:     Service
-  project:  windscribe_service.vcxproj
-  subdir:   backend/windows/windscribe_service
-  target:   WindscribeService.exe
-  symbols:  WindscribeService.pdb
-
-changeics:
-  name:     ChangeICS
-  project:  changeics.vcxproj
-  subdir:   backend/windows/changeics
-  target:   ChangeIcs.exe
-  symbols:  ChangeIcs.pdb
-
-authhelper_com:
-  name: ws_com
-  project: ws_com.vcxproj
-  subdir: gui/authhelper/win/ws_com/ws_com
-  target: ws_com.dll
-
-authhelper_com_server:
-  name: ws_com_server
-  project: ws_com_server.vcxproj
-  subdir: gui/authhelper/win/ws_com_server/ws_com_server
-  target: ws_com_server.exe
-
-authhelper_com_proxy_stub:
-  name: ws_proxy_stub
-  project: ws_proxy_stub.vcxproj
-  subdir: gui/authhelper/win/ws_proxy_stub/ws_proxy_stub
-  target: ws_proxy_stub.dll
-
-authhelper_linux:
-  name: windscribe-authhelper
-  project: AuthHelper.pro
-  subdir: gui/authhelper/linux/AuthHelper
-  target: windscribe-authhelper
-
-installhelper:
-  name:     "Install Helper"
-  project:  windscribe_install_helper.vcxproj
-  subdir:   backend/windows/windscribe_install_helper
-  target:   WindscribeInstallHelper.exe
-  symbols:  WindscribeInstallHelper.pdb
-
-uninstaller:
-  name:     Uninstaller
-  project:  uninstall.vcxproj
-  subdir:   installer/windows/uninstaller
-  target:   uninstall.exe
-
-installer_win:
-  name:     Installer
-  project:  installer.vcxproj
-  subdir:   installer/windows/installer
-  target:   installer.exe
+  win32:
+    name:     CLI
+    subdir:   gui/cli
+    target:   windscribe-cli.exe
+    symbols:  windscribe-cli.pdb
+  macos:
+    name:     CLI
+    subdir:   gui/cli
+    target:   windscribe-cli
+  linux:
+    name:     CLI
+    subdir:   gui/cli
+    target:   windscribe-cli
 
 helper:
-  name:     Helper
-  project:  helper.xcodeproj
-  subdir:   backend/mac/helper
-  target:   com.windscribe.helper.macos
-  scheme:   com.windscribe.helper.macos
-  outdir:   helper
-  xcflags:
-    - OTHER_CODE_SIGN_FLAGS=--timestamp
-    - CODE_SIGN_INJECT_BASE_ENTITLEMENTS=NO
-    - "-destination"
-    - generic/platform=macOS
+  win32:
+    name:     Helper
+    subdir:   backend/windows/windscribe_service
+    target:   WindscribeService.exe
+    symbols:  WindscribeService.pdb
+  macos:
+    name:     Helper
+    subdir:   backend/mac/helper
+    target:   com.windscribe.helper.macos
+    outdir:   helper
+    generator: Xcode
+    xcflags:
+      - OTHER_CODE_SIGN_FLAGS=--timestamp
+      - CODE_SIGN_INJECT_BASE_ENTITLEMENTS=NO
+      - -quiet
+      - OTHER_CFLAGS=$(inherited) -Wno-incompatible-pointer-types-discards-qualifiers -Wno-strict-prototypes -Wno-enum-conversion -Wno-shorten-64-to-32 -Wno-incompatible-pointer-types
 
-helper_linux:
-  name:     Helper
-  project:  helper.pro
-  subdir:   backend/linux/helper
-  target:   helper
+  linux:
+    name:     Helper
+    subdir:   backend/linux/helper
+    target:   helper
 
-launcher_mac:
-  name:     Launcher
-  project:  windscribelauncher.xcodeproj
-  subdir:   gui/launcher/mac
-  target:   WindscribeLauncher.app
-  scheme:   WindscribeLauncher
-  outdir:   launcher
-  xcflags:
-    - "-destination"
-    - generic/platform=macOS
+changeics:
+  win32:
+    name:     ChangeICS
+    subdir:   backend/windows/changeics
+    target:   ChangeIcs.exe
+    symbols:  ChangeIcs.pdb
 
-installer_mac:
-  name:     Installer
-  project:  installer.xcodeproj
-  subdir:   installer/mac/installer
-  target:   installer.app
-  scheme:   installer
-  outdir:   installer
-  xcflags:
-    - OTHER_CODE_SIGN_FLAGS=--timestamp
-    - CODE_SIGN_INJECT_BASE_ENTITLEMENTS=NO
-    - "-destination"
-    - generic/platform=macOS
+authhelper:
+  win32:
+    name:     "Auth Helper"
+    subdir:   gui/authhelper/win
+    target:   [ "ws_com.dll", "ws_com_server.exe", "ws_proxy_stub.dll" ]
+  linux:
+    name:     "Auth Helper"
+    subdir:   gui/authhelper/linux
+    target:   windscribe-authhelper
 
-installer_linux:
-  name:     Installer
+installhelper:
+  win32:
+    name:     "Install Helper"
+    subdir:   backend/windows/windscribe_install_helper
+    target:   WindscribeInstallHelper.exe
+    symbols:  WindscribeInstallHelper.pdb
+
+uninstaller:
+  win32:
+    name:     Uninstaller
+    subdir:   installer/windows/uninstaller
+    target:   uninstall.exe
+
+launcher:
+  macos:
+    name:      Launcher
+    subdir:    gui/launcher/mac
+    target:    WindscribeLauncher.app
+    outdir:    launcher
+    generator: Xcode
+    xcflags:
+      - -quiet
 
 wireguardservice:
-  name:     WireguardService
-  project:  WireguardService.pro
-  subdir:   backend/windows/wireguard_service
-  target:   WireguardService.exe
-  symbols:  WireguardService.pdb
+  win32:
+    name:     WireguardService
+    subdir:   backend/windows/wireguard_service
+    target:   WireguardService.exe
+    symbols:  WireguardService.pdb
 
+installer:
+  win32:
+    name:     Installer
+    subdir:   installer/windows/installer
+    target:   installer.exe
+  macos:
+    name:      Installer
+    subdir:    installer/mac/installer
+    target:    installer.app
+    outdir:    installer
+    generator: Xcode
+    xcflags:
+      - OTHER_CODE_SIGN_FLAGS=--timestamp
+      - CODE_SIGN_INJECT_BASE_ENTITLEMENTS=NO
+      - -quiet
 
 targets:
-  win32:
     - cli
-    - service
+    - helper
     - changeics
     - installhelper
     - uninstaller
     - wireguardservice
+    - authhelper
+    - launcher
     - client
-  macos:
-    - helper
-    - launcher_mac
-    - cli
-    - client
-  linux:
-    - helper_linux
-    - cli
-    - authhelper_linux
-    - client
-  authhelper_win:
-    - authhelper_com
-    - authhelper_com_server
-    - authhelper_com_proxy_stub
 
-installer:
-  win32: installer_win
-  macos: installer_mac
-  linux: installer_linux
-
-windows_signing_cert:
+signing_cert_win:
   path_signtool: installer/windows/signing/signtool.exe
   path_cert: installer/windows/signing/code_signing.pfx
   timestamp: http://timestamp.digicert.com
 
-qt_files:
-  - bin/Qt6Core.dll
-  - bin/Qt6Core5Compat.dll
-  - bin/Qt6Gui.dll
-  - bin/Qt6Network.dll
-  - bin/Qt6Svg.dll
-  - bin/Qt6Widgets.dll
-  - plugins/imageformats/qgif.dll
-  - plugins/imageformats/qico.dll
-  - plugins/imageformats/qsvg.dll
-  - plugins/imageformats/qjpeg.dll
-  - plugins/networkinformation/qnetworklistmanager.dll
-  - plugins/platforms/qwindows.dll
-  - plugins/styles/qwindowsvistastyle.dll
-  - plugins/tls/qopensslbackend.dll
-  - plugins/tls/qschannelbackend.dll
+client_deploy_files:
+  win32:
+    msvc:
+      - concrt140.dll
+      - msvcp140.dll
+      - msvcp140_1.dll
+      - msvcp140_2.dll
+      - vccorlib140.dll
+      - vcruntime140.dll
+      - vcruntime140_1.dll
+    additional_files:
+      - tap6/
+      - wintun/
+      - splittunnel/
+      - wstunnel/wstunnel.exe -> wstunnel.exe
+      - subinacl.exe
+    libs:
+      qt:
+        - bin/Qt6Core.dll -> Qt6Core.dll
+        - bin/Qt6Core5Compat.dll ->Qt6Core5Compat.dll
+        - bin/Qt6Gui.dll ->Qt6Gui.dll
+        - bin/Qt6Network.dll -> Qt6Network.dll
+        - bin/Qt6Svg.dll -> Qt6Svg.dll
+        - bin/Qt6Widgets.dll -> Qt6Widgets.dll
+        - plugins/imageformats/qgif.dll -> imageformats/qgif.dll
+        - plugins/imageformats/qico.dll -> imageformats/qico.dll
+        - plugins/imageformats/qsvg.dll -> imageformats/qsvg.dll
+        - plugins/imageformats/qjpeg.dll -> imageformats/qjpeg.dll
+        - plugins/networkinformation/qnetworklistmanager.dll -> networkinformation/qnetworklistmanager.dll
+        - plugins/platforms/qwindows.dll -> platforms/qwindows.dll
+        - plugins/styles/qwindowsvistastyle.dll -> styles/qwindowsvistastyle.dll
+        - plugins/tls/qopensslbackend.dll -> tls/qopensslbackend.dll
+        - plugins/tls/qschannelbackend.dll -> tls/qschannelbackend.dll
+      cares:
+        - dll_x64/lib/cares.dll -> cares.dll
+      curl:
+        - bin/libcurl.dll -> libcurl.dll
+      openssl:
+        - bin/libcrypto-1_1-x64.dll -> libcrypto-1_1-x64.dll
+        - bin/libssl-1_1-x64.dll -> libssl-1_1-x64.dll
+      openssl_ech_draft:
+        - bin/libcrypto-3-x64.dll -> libcrypto-3-x64.dll
+        - bin/libssl-3-x64.dll -> libssl-3-x64.dll
+      stunnel:
+        - tstunnel.exe -> tstunnel.exe
+      zlib:
+        - lib/zlib1.dll -> zlib1.dll
+      openvpn:
+        - openvpn.exe -> windscribeopenvpn_2_5_4.exe
+      wireguard:
+        - tunnel.dll -> tunnel.dll
+        - wireguard.dll -> wireguard.dll
+      # The dga library should be in the build-libs directory. If it is not there, then it will not be included in the installer.
+      dga:
+        - dga.dll -> dga.dll
 
-lib_files_linux:
-  qt:
-    - lib/libicui18n.so.56 -> lib/libicui18n.so.56
-    - lib/libicuuc.so.56 -> lib/libicuuc.so.56
-    - lib/libicudata.so.56 -> lib/libicudata.so.56
-    - lib/libQt6Core.so.6 -> lib/libQt6Core.so.6
-    - lib/libQt6Core5Compat.so.6 -> lib/libQt6Core5Compat.so.6
-    - lib/libQt6DBus.so.6 -> lib/libQt6DBus.so.6
-    - lib/libQt6Gui.so.6 -> lib/libQt6Gui.so.6
-    - lib/libQt6Network.so.6 -> lib/libQt6Network.so.6
-    - lib/libQt6OpenGL.so.6 -> lib/libQt6OpenGL.so.6
-    - lib/libQt6Svg.so.6 -> lib/libQt6Svg.so.6
-    - lib/libQt6WaylandClient.so.6 -> lib/libQt6WaylandClient.so.6
-    - lib/libQt6WaylandEglClientHwIntegration.so.6 -> lib/libQt6WaylandEglClientHwIntegration.so.6
-    - lib/libQt6WlShellIntegration.so.6 -> lib/libQt6WlShellIntegration.so.6
-    - lib/libQt6Widgets.so.6 -> lib/libQt6Widgets.so.6
-    - lib/libQt6XcbQpa.so.6 -> lib/libQt6XcbQpa.so.6
-    - plugins/platforms/libqwayland-generic.so -> plugins/platforms/libqwayland-generic.so
-    - plugins/platforms/libqwayland-egl.so -> plugins/platforms/libqwayland-egl.so
-    - plugins/platforms/libqxcb.so -> plugins/platforms/libqxcb.so
-    - plugins/platforminputcontexts/libcomposeplatforminputcontextplugin.so -> plugins/platforminputcontexts/libcomposeplatforminputcontextplugin.so
-    - plugins/platforminputcontexts/libibusplatforminputcontextplugin.so -> plugins/platforminputcontexts/libibusplatforminputcontextplugin.so
-    - plugins/imageformats/libqico.so -> plugins/imageformats/libqico.so
-    - plugins/imageformats/libqjpeg.so -> plugins/imageformats/libqjpeg.so
-    - plugins/imageformats/libqgif.so -> plugins/imageformats/libqgif.so
-    - plugins/imageformats/libqsvg.so -> plugins/imageformats/libqsvg.so
-    - plugins/networkinformation/libqnetworkmanager.so -> plugins/networkinformation/libqnetworkmanager.so
-    - plugins/platforms/libqxcb.so -> plugins/platforms/libqxcb.so
-    - plugins/tls/libqopensslbackend.so -> plugins/tls/libqopensslbackend.so
-    - plugins/wayland-graphics-integration-client/libqt-plugin-wayland-egl.so -> plugins/wayland-graphics-integration-client/libqt-plugin-wayland-egl.so
-    - plugins/wayland-decoration-client/libbradient.so -> plugins/wayland-decoration-client/libbradient.so
-    - plugins/wayland-shell-integration/libxdg-shell.so -> plugins/wayland-shell-integration/libxdg-shell.so
-    - plugins/xcbglintegrations/libqxcb-egl-integration.so -> plugins/xcbglintegrations/libqxcb-egl-integration.so
-    - plugins/xcbglintegrations/libqxcb-glx-integration.so -> plugins/xcbglintegrations/libqxcb-glx-integration.so
-
-  cares:
-    - lib/libcares.so.2 -> lib/libcares.so.2
-  curl:
-    - lib/libcurl.so.4 -> lib/libcurl.so.4
-  dga:
-    - libdga.so -> lib/libdga.so
-  openssl:
-    - lib/libcrypto.so.1.1 -> lib/libcrypto.so.1.1
-    - lib/libssl.so.1.1 -> lib/libssl.so.1.1
-  openssl_ech_draft:
-    - lib64/libcrypto.so.3-> lib/libcrypto.so.3
-    - lib64/libssl.so.3 -> lib/libssl.so.3
-  openvpn:
-    - openvpn -> windscribeopenvpn
-  stunnel:
-    - stunnel -> windscribestunnel
-  wireguard:
-    - windscribewireguard -> windscribewireguard
-
-files_fix_rpath_linux:
-  - lib/libQt6Network.so.6 -> $ORIGIN
-  - lib/libQt6XcbQpa.so.6 -> $ORIGIN
-  - lib/libQt6DBus.so.6 -> $ORIGIN
-  - lib/libcurl.so.4 -> $ORIGIN
-  - lib/libssl.so.1.1 -> $ORIGIN
-  - lib/libcrypto.so.1.1 -> $ORIGIN
-  - lib/libssl.so.3 -> $ORIGIN
-  - lib/libcrypto.so.3 -> $ORIGIN
-  - windscribestunnel -> $ORIGIN/lib
-  - windscribeopenvpn -> $ORIGIN/lib
-  - windscribe-authhelper -> $ORIGIN/lib
-  - Windscribe -> $ORIGIN/lib
-  - windscribe-cli -> $ORIGIN/lib
-  - helper -> $ORIGIN/lib
-
-files_codesign_linux:
-  - windscribestunnel
-  - windscribewstunnel
-  - windscribeopenvpn
-  - windscribe-authhelper
-  - windscribewireguard
-  - Windscribe
-  - lib/libdga.so
-
-files_codesign_windows:
-  - cares.dll
-  - libcrypto-1_1-x64.dll
-  - libcurl.dll
-  - libssl-1_1-x64.dll
-  - tunnel.dll
-  - ws_com.dll
-  - ws_proxy_stub.dll
-  - zlib1.dll
-  - dga.dll
-  - libcrypto-3-x64.dll
-  - libssl-3-x64.dll
-
-msvc_files:
-  - concrt140.dll
-  - msvcp140.dll
-  - msvcp140_1.dll
-  - msvcp140_2.dll
-  - vccorlib140.dll
-  - vcruntime140.dll
-  - vcruntime140_1.dll
-
-additional_files:
-  - tap6/
-  - wintun/
-  - splittunnel/
-  - wstunnel/wstunnel.exe -> wstunnel.exe
-  - subinacl.exe
-
-license_files:
-  - open_source_licenses.txt
-
-lib_files:
-  cares:
-    - dll_x64/lib/cares.dll -> cares.dll
-  curl:
-    - bin/libcurl.dll -> libcurl.dll
-  openssl:
-    - bin/libcrypto-1_1-x64.dll -> libcrypto-1_1-x64.dll
-    - bin/libssl-1_1-x64.dll -> libssl-1_1-x64.dll
-  openssl_ech_draft:
-    - bin/libcrypto-3-x64.dll -> libcrypto-3-x64.dll
-    - bin/libssl-3-x64.dll -> libssl-3-x64.dll
-  stunnel:
-    - tstunnel.exe -> tstunnel.exe
-  zlib:
-    - lib/zlib1.dll -> zlib1.dll
-  openvpn:
-    - openvpn.exe -> windscribeopenvpn_2_5_4.exe
-  wireguard:
-    - tunnel.dll -> tunnel.dll
-    - wireguard.dll -> wireguard.dll
-
-  # The dga library should be in the build-libs directory. If it is not there, then it will not be included in the installer.
-  dga:
-    - dga.dll -> dga.dll
-
-macdeployfixes:
-  client:
-    copy_libs:
+  macos:
+    libs:
       openssl:
         - lib/libcrypto.1.1.dylib -> Contents/Helpers/libcrypto.1.1.dylib
         - lib/libssl.1.1.dylib -> Contents/Helpers/libssl.1.1.dylib
-    rpathfix:
+      openssl_ech_draft:
+        - lib/libcrypto.3.dylib -> Contents/Helpers/libcrypto.3.dylib
+        - lib/libssl.3.dylib -> Contents/Helpers/libssl.3.dylib
+    fix_rpath:
       Contents/Helpers/windscribeopenvpn_2_5_4:
         openssl:
           - lib/libssl.1.1.dylib -> libssl.1.1.dylib
@@ -336,24 +214,102 @@ macdeployfixes:
     entitlements:
       entitlements_binary: Contents/MacOS/Windscribe
       entitlements_file: client/engine/mac/windscribe_engine.entitlements
-    remove_files:
+    remove:
       # Remove unused Qt frameworks.
       - Contents/Frameworks/QtQml.framework
       - Contents/Frameworks/QtQuick.framework
-
-files_fix_rpath_macos:
-    # openssl must be patched before curl since curl depends on it.
-    openssl:
-      - lib/libcrypto.1.1.dylib
-      - lib/libssl.1.1.dylib
-    openssl_ech_draft:
-      - lib/libcrypto.3.dylib
-      - lib/libssl.3.dylib
-    cares:
-      - lib/libcares.2.dylib
-    curl:
-      - lib/libcurl.4.dylib
-    openvpn:
-      - openvpn
-    stunnel:
       - stunnel
+
+  linux:
+    libs:
+      qt:
+        - lib/libicui18n.so.56 -> lib/libicui18n.so.56
+        - lib/libicuuc.so.56 -> lib/libicuuc.so.56
+        - lib/libicudata.so.56 -> lib/libicudata.so.56
+        - lib/libQt6Core.so.6 -> lib/libQt6Core.so.6
+        - lib/libQt6Core5Compat.so.6 -> lib/libQt6Core5Compat.so.6
+        - lib/libQt6DBus.so.6 -> lib/libQt6DBus.so.6
+        - lib/libQt6Gui.so.6 -> lib/libQt6Gui.so.6
+        - lib/libQt6Network.so.6 -> lib/libQt6Network.so.6
+        - lib/libQt6OpenGL.so.6 -> lib/libQt6OpenGL.so.6
+        - lib/libQt6Svg.so.6 -> lib/libQt6Svg.so.6
+        - lib/libQt6WaylandClient.so.6 -> lib/libQt6WaylandClient.so.6
+        - lib/libQt6WaylandEglClientHwIntegration.so.6 -> lib/libQt6WaylandEglClientHwIntegration.so.6
+        - lib/libQt6WlShellIntegration.so.6 -> lib/libQt6WlShellIntegration.so.6
+        - lib/libQt6Widgets.so.6 -> lib/libQt6Widgets.so.6
+        - lib/libQt6XcbQpa.so.6 -> lib/libQt6XcbQpa.so.6
+        - plugins/platforms/libqwayland-generic.so -> plugins/platforms/libqwayland-generic.so
+        - plugins/platforms/libqwayland-egl.so -> plugins/platforms/libqwayland-egl.so
+        - plugins/platforms/libqxcb.so -> plugins/platforms/libqxcb.so
+        - plugins/platforminputcontexts/libcomposeplatforminputcontextplugin.so -> plugins/platforminputcontexts/libcomposeplatforminputcontextplugin.so
+        - plugins/platforminputcontexts/libibusplatforminputcontextplugin.so -> plugins/platforminputcontexts/libibusplatforminputcontextplugin.so
+        - plugins/imageformats/libqico.so -> plugins/imageformats/libqico.so
+        - plugins/imageformats/libqjpeg.so -> plugins/imageformats/libqjpeg.so
+        - plugins/imageformats/libqgif.so -> plugins/imageformats/libqgif.so
+        - plugins/imageformats/libqsvg.so -> plugins/imageformats/libqsvg.so
+        - plugins/networkinformation/libqnetworkmanager.so -> plugins/networkinformation/libqnetworkmanager.so
+        - plugins/platforms/libqxcb.so -> plugins/platforms/libqxcb.so
+        - plugins/tls/libqopensslbackend.so -> plugins/tls/libqopensslbackend.so
+        - plugins/wayland-graphics-integration-client/libqt-plugin-wayland-egl.so -> plugins/wayland-graphics-integration-client/libqt-plugin-wayland-egl.so
+        - plugins/wayland-decoration-client/libbradient.so -> plugins/wayland-decoration-client/libbradient.so
+        - plugins/wayland-shell-integration/libxdg-shell.so -> plugins/wayland-shell-integration/libxdg-shell.so
+        - plugins/xcbglintegrations/libqxcb-egl-integration.so -> plugins/xcbglintegrations/libqxcb-egl-integration.so
+        - plugins/xcbglintegrations/libqxcb-glx-integration.so -> plugins/xcbglintegrations/libqxcb-glx-integration.so
+      cares:
+        - lib/libcares.so.2 -> lib/libcares.so.2
+      curl:
+        - lib/libcurl.so.4 -> lib/libcurl.so.4
+      dga:
+        - libdga.so -> lib/libdga.so
+      openssl:
+        - lib/libcrypto.so.1.1 -> lib/libcrypto.so.1.1
+        - lib/libssl.so.1.1 -> lib/libssl.so.1.1
+      openssl_ech_draft:
+        - lib64/libcrypto.so.3-> lib/libcrypto.so.3
+        - lib64/libssl.so.3 -> lib/libssl.so.3
+      openvpn:
+        - openvpn -> windscribeopenvpn
+      stunnel:
+        - stunnel -> windscribestunnel
+      wireguard:
+        - windscribewireguard -> windscribewireguard
+    fix_rpath:
+      - lib/libQt6Network.so.6 -> $ORIGIN
+      - lib/libQt6XcbQpa.so.6 -> $ORIGIN
+      - lib/libQt6DBus.so.6 -> $ORIGIN
+      - lib/libcurl.so.4 -> $ORIGIN
+      - lib/libssl.so.1.1 -> $ORIGIN
+      - lib/libcrypto.so.1.1 -> $ORIGIN
+      - lib/libssl.so.3 -> $ORIGIN
+      - lib/libcrypto.so.3 -> $ORIGIN
+      - windscribestunnel -> $ORIGIN/lib
+      - windscribeopenvpn -> $ORIGIN/lib
+      - windscribe-authhelper -> $ORIGIN/lib
+      - Windscribe -> $ORIGIN/lib
+      - windscribe-cli -> $ORIGIN/lib
+      - helper -> $ORIGIN/lib
+
+codesign_files:
+  win32:
+    - cares.dll
+    - libcrypto-1_1-x64.dll
+    - libcurl.dll
+    - libssl-1_1-x64.dll
+    - tunnel.dll
+    - ws_com.dll
+    - ws_proxy_stub.dll
+    - zlib1.dll
+    - dga.dll
+    - libcrypto-3-x64.dll
+    - libssl-3-x64.dll
+  linux:
+    - windscribestunnel
+    - windscribewstunnel
+    - windscribeopenvpn
+    - windscribe-authhelper
+    - windscribewireguard
+    - Windscribe
+    - lib/libdga.so
+
+license_files:
+  - open_source_licenses.txt

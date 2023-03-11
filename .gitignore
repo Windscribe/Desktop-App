@@ -19,6 +19,8 @@ drawings/*/*.png
 /gui/authhelper/win/ws_proxy_stub/ws_proxy_stub/ws_proxy_stub_i.c
 /gui/authhelper/win/ws_proxy_stub/ws_proxy_stub/ws_proxy_stub_p.c
 tools/.idea/
+build/
+.vscode/
 
 # secrets
 tools/notarize.yml

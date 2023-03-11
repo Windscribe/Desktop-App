@@ -1,6 +1,6 @@
 #include "resource.h"
 
-Windscribe		RCDATA "..\windscribe.7z"
+Windscribe		RCDATA "resources\windscribe.7z"
 
 WS_BACKGROUND_IMAGE PNG DISCARDABLE "resources\background.png"
 WS_BACKGROUND_IMAGE15 PNG DISCARDABLE "resources\background@15x.png"
@@ -22,6 +22,4 @@ IDI_ICON1   ICON    DISCARDABLE     "resources\\windscribe.ico"
 
 IDR_PLEXFONT_BOLD 	BINARY	"resources\IBMPlexSans-Bold.ttf"
 IDR_PLEXFONT_REGULAR 	BINARY	"resources\IBMPlexSans-Regular.ttf"
-
-
 

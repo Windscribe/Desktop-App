@@ -105,9 +105,9 @@ qt_add_executable(Windscribe
 if (APPLE)
     #postbuild copy commands for Mac
     add_custom_command(TARGET Windscribe POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory
-                       ${CMAKE_CURRENT_SOURCE_DIR}/../installer/mac/binaries/launcher/ $<TARGET_FILE_DIR:Windscribe>/../Library/LoginItems/)
+                       ${CMAKE_CURRENT_SOURCE_DIR}/../build/gui/launcher/mac/$<CONFIG>/ $<TARGET_FILE_DIR:Windscribe>/../Library/LoginItems)
     add_custom_command(TARGET Windscribe POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory
-                       ${CMAKE_CURRENT_SOURCE_DIR}/../installer/mac/binaries/helper/ $<TARGET_FILE_DIR:Windscribe>/../Library/LaunchServices/)
+                       ${CMAKE_CURRENT_SOURCE_DIR}/../build/backend/mac/helper/$<CONFIG>/ $<TARGET_FILE_DIR:Windscribe>/../Library/LaunchServices)
 
     add_custom_command(TARGET Windscribe POST_BUILD COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:Windscribe>/../Helpers)
     add_custom_command(TARGET Windscribe POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
@@ -131,14 +131,16 @@ if (APPLE)
     endif()
 
     add_custom_command(TARGET Windscribe POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                       ${CMAKE_CURRENT_SOURCE_DIR}/../installer/mac/binaries/windscribe-cli $<TARGET_FILE_DIR:Windscribe>/windscribe-cli)
+                       ${CMAKE_CURRENT_SOURCE_DIR}/../build/gui/cli/windscribe-cli $<TARGET_FILE_DIR:Windscribe>/windscribe-cli)
     add_custom_command(TARGET Windscribe POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
                        ${CMAKE_CURRENT_SOURCE_DIR}/common/licenses/open_source_licenses.txt $<TARGET_FILE_DIR:Windscribe>/../Resources/open_source_licenses.txt)
 endif (APPLE)
 
 if (WIN32)
     target_link_options(Windscribe PRIVATE "/IGNORE:4099")
-endif (WIN32)
+elseif (APPLE)
+    set_property(TARGET Windscribe APPEND_STRING PROPERTY COMPILE_FLAGS "-fobjc-arc")
+endif()
 
 target_link_libraries(Windscribe PRIVATE Qt6::Widgets Qt6::Network gui engine common ${OS_SPECIFIC_LIBRARIES})
 
