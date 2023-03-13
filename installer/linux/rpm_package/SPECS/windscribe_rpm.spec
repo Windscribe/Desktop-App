@@ -12,11 +12,23 @@ License:	GPLv2
 URL:		https://www.windscribe.com
 Vendor:		Windscribe Limited
 BuildArch:	x86_64
-Source0:        windscribe.tar
+Source0:	windscribe.tar
 
 Requires:	bash
 Requires:	iptables
 Requires:	glibc >= 2.28
+Requires:	libstdc++
+Requires:	glib2
+Requires:	zlib
+Requires:	libglvnd-egl
+Requires:	libglvnd-glx
+Requires:	libX11
+Requires:	libxkbcommon
+Requires:	dbus-libs
+Requires:	fontconfig
+Requires:	freetype
+Requires:	systemd-libs
+Requires:	libxcb
 
 %description
 Windscribe client.
