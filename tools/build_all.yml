@@ -265,7 +265,7 @@ client_deploy_files:
         - lib/libcrypto.so.1.1 -> lib/libcrypto.so.1.1
         - lib/libssl.so.1.1 -> lib/libssl.so.1.1
       openssl_ech_draft:
-        - lib64/libcrypto.so.3-> lib/libcrypto.so.3
+        - lib64/libcrypto.so.3 -> lib/libcrypto.so.3
         - lib64/libssl.so.3 -> lib/libssl.so.3
       openvpn:
         - openvpn -> windscribeopenvpn
@@ -313,3 +313,20 @@ codesign_files:
 
 license_files:
   - open_source_licenses.txt
+
+rpath_fix_files_mac:
+    # openssl must be patched before curl since curl depends on it.
+    openssl:
+      - lib/libcrypto.1.1.dylib
+      - lib/libssl.1.1.dylib
+    openssl_ech_draft:
+      - lib/libcrypto.3.dylib
+      - lib/libssl.3.dylib
+    cares:
+      - lib/libcares.2.dylib
+    curl:
+      - lib/libcurl.4.dylib
+    openvpn:
+      - openvpn
+    stunnel:
+      - stunnel
