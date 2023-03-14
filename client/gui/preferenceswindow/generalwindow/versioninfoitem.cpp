@@ -33,6 +33,12 @@ void VersionInfoItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *o
     painter->drawText(boundingRect().adjusted(0, 0, -PREFERENCES_MARGIN*G_SCALE, 0), Qt::AlignVCenter | Qt::AlignRight, strValue_);
 }
 
+void VersionInfoItem::setCaption(const QString &caption)
+{
+    strCaption_ = caption;
+    update();
+}
+
 void VersionInfoItem::updateScaling()
 {
     BaseItem::updateScaling();

@@ -802,7 +802,7 @@ void MainWindow::onLoginClick(const QString &username, const QString &password, 
         return;
     }
     mainWindowController_->getTwoFactorAuthWindow()->setCurrentCredentials(username, password);
-    mainWindowController_->getLoggingInWindow()->setMessage(QT_TRANSLATE_NOOP("LoginWindow::LoggingInWindowItem", "Logging you in..."));
+    mainWindowController_->getLoggingInWindow()->setMessage(tr("Logging you in..."));
     mainWindowController_->getLoggingInWindow()->setAdditionalMessage("");
     mainWindowController_->getLoggingInWindow()->startAnimation();
     mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_LOGGING_IN);
@@ -1421,7 +1421,7 @@ void MainWindow::onBackendInitFinished(INIT_STATE initState)
         {
             if (!backend_->isSavedApiSettingsExists())
             {
-                mainWindowController_->getLoggingInWindow()->setMessage(QT_TRANSLATE_NOOP("LoginWindow::LoggingInWindowItem", "Logging you in..."));
+                mainWindowController_->getLoggingInWindow()->setMessage(tr("Logging you in..."));
                 mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_LOGGING_IN);
             }
             backend_->loginWithAuthHash();
@@ -1443,7 +1443,7 @@ void MainWindow::onBackendInitFinished(INIT_STATE initState)
     }
     else if (initState == INIT_STATE_BFE_SERVICE_NOT_STARTED)
     {
-        if (QMessageBox::information(nullptr, QApplication::applicationName(), QObject::tr("Enable \"Base Filtering Engine\" service? This is required for Windscribe to function."),
+        if (QMessageBox::information(nullptr, QApplication::applicationName(), tr("Enable \"Base Filtering Engine\" service? This is required for Windscribe to function."),
                                      QMessageBox::Yes, QMessageBox::Close) == QMessageBox::Yes)
         {
             backend_->enableBFE_win();
@@ -3376,7 +3376,8 @@ QString MainWindow::getConnectionTime()
 
 QString MainWindow::getConnectionTransferred()
 {
-    return Utils::humanReadableByteCount(bytesTransferred_, true, true);
+    QLocale locale(LanguageController::instance().getLanguage());
+    return locale.formattedDataSize(bytesTransferred_, 1, QLocale::DataSizeTraditionalFormat);
 }
 
 void MainWindow::setInitialFirewallState()

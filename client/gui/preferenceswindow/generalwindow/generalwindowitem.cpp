@@ -7,7 +7,6 @@
 #include "backend/persistentstate.h"
 #include "graphicresources/imageresourcessvg.h"
 #include "languagecontroller.h"
-#include "languagecontroller.h"
 #include "preferenceswindow/preferencegroup.h"
 #include "utils/logger.h"
 
@@ -18,7 +17,7 @@
 namespace PreferencesWindow {
 
 GeneralWindowItem::GeneralWindowItem(ScalableGraphicsObject *parent, Preferences *preferences, PreferencesHelper *preferencesHelper) : CommonGraphics::BasePage(parent),
-    preferences_(preferences)
+    preferences_(preferences), preferencesHelper_(preferencesHelper)
 {
     setFlag(QGraphicsItem::ItemIsFocusable);
     setSpacerHeight(PREFERENCES_MARGIN);
@@ -41,16 +40,16 @@ GeneralWindowItem::GeneralWindowItem(ScalableGraphicsObject *parent, Preferences
     connect(preferences, &Preferences::hideFromDockChanged, this, &GeneralWindowItem::onHideFromDockPreferecesChanged);
 #endif
 
-    launchOnStartGroup_ = new PreferenceGroup(this, tr("Run Windscribe when your device starts."));
-    checkBoxLaunchOnStart_ = new CheckBoxItem(launchOnStartGroup_, QT_TRANSLATE_NOOP("PreferencesWindow::CheckBoxItem", "Launch on Startup"), QString());
+    launchOnStartGroup_ = new PreferenceGroup(this);
+    checkBoxLaunchOnStart_ = new CheckBoxItem(launchOnStartGroup_);
     checkBoxLaunchOnStart_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/LAUNCH_AT_STARTUP"));
     checkBoxLaunchOnStart_->setState(preferences->isLaunchOnStartup());
     connect(checkBoxLaunchOnStart_, &CheckBoxItem::stateChanged, this, &GeneralWindowItem::onIsLaunchOnStartupClicked);
     launchOnStartGroup_->addItem(checkBoxLaunchOnStart_);
     addItem(launchOnStartGroup_);
 
-    startMinimizedGroup_ = new PreferenceGroup(this, tr("Launch Windscribe in a minimized state."));
-    checkBoxStartMinimized_ = new CheckBoxItem(startMinimizedGroup_, QT_TRANSLATE_NOOP("Preferences::CheckBoxStartMinimized", "Start Minimized"), QString());
+    startMinimizedGroup_ = new PreferenceGroup(this);
+    checkBoxStartMinimized_ = new CheckBoxItem(startMinimizedGroup_);
     checkBoxStartMinimized_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/START_MINIMIZED"));
     checkBoxStartMinimized_->setState(preferences->isStartMinimized());
     connect(checkBoxStartMinimized_, &CheckBoxItem::stateChanged, this, &GeneralWindowItem::onStartMinimizedClicked);
@@ -60,8 +59,8 @@ GeneralWindowItem::GeneralWindowItem(ScalableGraphicsObject *parent, Preferences
 #if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     if (QSystemTrayIcon::isSystemTrayAvailable())
     {
-        closeToTrayGroup_ = new PreferenceGroup(this, tr("Windscribe minimizes to system tray and no longer appears in the task bar."));
-        checkBoxMinimizeAndCloseToTray_ = new CheckBoxItem(closeToTrayGroup_, QT_TRANSLATE_NOOP("PreferencesWindow::CheckBoxItem", "Close to Tray"), QString());
+        closeToTrayGroup_ = new PreferenceGroup(this);
+        checkBoxMinimizeAndCloseToTray_ = new CheckBoxItem(closeToTrayGroup_);
         checkBoxMinimizeAndCloseToTray_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/MINIMIZE_AND_CLOSE_TO_TRAY"));
         checkBoxMinimizeAndCloseToTray_->setState(preferences->isMinimizeAndCloseToTray());
         connect(checkBoxMinimizeAndCloseToTray_, &CheckBoxItem::stateChanged, this, &GeneralWindowItem::onMinimizeAndCloseToTrayClicked);
@@ -69,109 +68,77 @@ GeneralWindowItem::GeneralWindowItem(ScalableGraphicsObject *parent, Preferences
         addItem(closeToTrayGroup_);
     }
 #elif defined Q_OS_MAC
-    hideFromDockGroup_ = new PreferenceGroup(this, tr("Don't show the Windscribe icon in dock."), "");
-    checkBoxHideFromDock_ = new CheckBoxItem(hideFromDockGroup_, QT_TRANSLATE_NOOP("PreferencesWindow::CheckBoxItem", "Hide from dock"), QString());
+    hideFromDockGroup_ = new PreferenceGroup(this);
+    checkBoxHideFromDock_ = new CheckBoxItem(hideFromDockGroup_);
     checkBoxHideFromDock_->setState(preferences->isHideFromDock());
     checkBoxHideFromDock_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/HIDE_FROM_DOCK"));
     connect(checkBoxHideFromDock_, &CheckBoxItem::stateChanged, this, &GeneralWindowItem::onHideFromDockClicked);
     hideFromDockGroup_->addItem(checkBoxHideFromDock_);
     addItem(hideFromDockGroup_);
 #endif
-    dockedGroup_ = new PreferenceGroup(this, tr("Pin Windscribe near the system tray or menu bar."));
-    checkBoxDockedToTray_ = new CheckBoxItem(dockedGroup_, QT_TRANSLATE_NOOP("PreferencesWindow::CheckBoxItem", "Docked"), QString());
+
+    dockedGroup_ = new PreferenceGroup(this);
+    checkBoxDockedToTray_ = new CheckBoxItem(dockedGroup_);
     checkBoxDockedToTray_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/DOCKED"));
     checkBoxDockedToTray_->setState(preferences->isDockedToTray());
     connect(checkBoxDockedToTray_, &CheckBoxItem::stateChanged, this, &GeneralWindowItem::onDockedToTrayChanged);
     dockedGroup_->addItem(checkBoxDockedToTray_);
     addItem(dockedGroup_);
 
-    showNotificationsGroup_ = new PreferenceGroup(this, tr("Display system-level notifications when connection events occur."));
-    checkBoxShowNotifications_ = new CheckBoxItem(showNotificationsGroup_, QT_TRANSLATE_NOOP("PreferencesWindow::CheckBoxItem", "Show Notifications"), QString());
+    showNotificationsGroup_ = new PreferenceGroup(this);
+    checkBoxShowNotifications_ = new CheckBoxItem(showNotificationsGroup_);
     checkBoxShowNotifications_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/SHOW_NOTIFICATIONS"));
     checkBoxShowNotifications_->setState(preferences->isShowNotifications());
     connect(checkBoxShowNotifications_, &CheckBoxItem::stateChanged, this, &GeneralWindowItem::onIsShowNotificationsClicked);
     showNotificationsGroup_->addItem(checkBoxShowNotifications_);
     addItem(showNotificationsGroup_);
 
-    showLocationLoadGroup_ = new PreferenceGroup(this, tr("Display a location's load. Shorter bars mean lesser load (usage)."));
-    checkBoxShowLocationLoad_ = new CheckBoxItem(showLocationLoadGroup_, QT_TRANSLATE_NOOP("PreferencesWindow::CheckBoxItem", "Show Location Load"), QString());
+    showLocationLoadGroup_ = new PreferenceGroup(this);
+    checkBoxShowLocationLoad_ = new CheckBoxItem(showLocationLoadGroup_);
     checkBoxShowLocationLoad_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/LOCATION_LOAD"));
     checkBoxShowLocationLoad_->setState(preferences->isShowLocationLoad());
     connect(checkBoxShowLocationLoad_, &CheckBoxItem::stateChanged, this, &GeneralWindowItem::onShowLocationLoadClicked);
     showLocationLoadGroup_->addItem(checkBoxShowLocationLoad_);
     addItem(showLocationLoadGroup_);
 
-    locationOrderGroup_ = new PreferenceGroup(this, tr("Arrange locations alphabetically, geographically, or by latency."));
-    comboBoxLocationOrder_ = new ComboBoxItem(locationOrderGroup_, QT_TRANSLATE_NOOP("PreferencesWindow::ComboBoxItem", "Location Order"), QString());
+    locationOrderGroup_ = new PreferenceGroup(this);
+    comboBoxLocationOrder_ = new ComboBoxItem(locationOrderGroup_);
     comboBoxLocationOrder_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/LOCATION_ORDER"));
-    const QList< QPair<QString, int> > allOrderTypes = ORDER_LOCATION_TYPE_toList();
-    for (const auto o : allOrderTypes)
-    {
-        comboBoxLocationOrder_->addItem(o.first, o.second);
-    }
-    comboBoxLocationOrder_->setCurrentItem((int)preferences->locationOrder());
     connect(comboBoxLocationOrder_, &ComboBoxItem::currentItemChanged, this, &GeneralWindowItem::onLocationItemChanged);
     locationOrderGroup_->addItem(comboBoxLocationOrder_);
     addItem(locationOrderGroup_);
 
-    latencyDisplayGroup_ = new PreferenceGroup(this, tr("Display latency as signal strength bars or in milliseconds."));
-    comboBoxLatencyDisplay_ = new ComboBoxItem(latencyDisplayGroup_, QT_TRANSLATE_NOOP("PreferencesWindow::ComboBoxItem", "Latency Display"), QString());
+    latencyDisplayGroup_ = new PreferenceGroup(this);
+    comboBoxLatencyDisplay_ = new ComboBoxItem(latencyDisplayGroup_);
     comboBoxLatencyDisplay_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/LATENCY_DISPLAY"));
-    const QList< QPair<QString, int> > allLatencyTypes = LATENCY_DISPLAY_TYPE_toList();
-    for (const auto l : allLatencyTypes)
-    {
-        comboBoxLatencyDisplay_->addItem(l.first, l.second);
-    }
-    comboBoxLatencyDisplay_->setCurrentItem((int)preferences->latencyDisplay());
     connect(comboBoxLatencyDisplay_, &ComboBoxItem::currentItemChanged, this, &GeneralWindowItem::onLatencyItemChanged);
     latencyDisplayGroup_->addItem(comboBoxLatencyDisplay_);
     addItem(latencyDisplayGroup_);
 
-    languageGroup_ = new PreferenceGroup(this, tr("Localize Windscribe to supported languages."));
-    comboBoxLanguage_ = new ComboBoxItem(languageGroup_, QT_TRANSLATE_NOOP("PreferencesWindow::ComboBoxItem", "Language"), QString());
+    languageGroup_ = new PreferenceGroup(this);
+    comboBoxLanguage_ = new ComboBoxItem(languageGroup_);
     comboBoxLanguage_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/LANGUAGE"));
-    QList<QPair<QString, QString> > langList = preferencesHelper->availableLanguages();
-    for (auto it = langList.begin(); it != langList.end(); ++it)
-    {
-        comboBoxLanguage_->addItem(it->first, it->second);
-    }
-    comboBoxLanguage_->setCurrentItem(langList.begin()->second);
     connect(comboBoxLanguage_, &ComboBoxItem::currentItemChanged, this, &GeneralWindowItem::onLanguageItemChanged);
     languageGroup_->addItem(comboBoxLanguage_);
     addItem(languageGroup_);
 
-    appSkinGroup_ = new PreferenceGroup(this, tr("Choose between the classic GUI or the \"earless\" alternative GUI."));
-    appSkinItem_ = new ComboBoxItem(appSkinGroup_, QT_TRANSLATE_NOOP("PreferencesWindow::ComboBoxItem", "App Skin"), QString());
+    appSkinGroup_ = new PreferenceGroup(this);
+    appSkinItem_ = new ComboBoxItem(appSkinGroup_);
     appSkinItem_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/APP_SKIN"));
-    const QList< QPair<QString, int> > allAppSkins = APP_SKIN_toList();
-    for (const auto l : allAppSkins)
-    {
-        appSkinItem_->addItem(l.first, l.second);
-    }
-    appSkinItem_->setCurrentItem(preferences->appSkin());
     connect(appSkinItem_, &ComboBoxItem::currentItemChanged, this, &GeneralWindowItem::onAppSkinChanged);
     appSkinGroup_->addItem(appSkinItem_);
     addItem(appSkinGroup_);
 
-    backgroundSettingsGroup_ = new BackgroundSettingsGroup(this, tr("Customize the background of the main app screen."));
+    backgroundSettingsGroup_ = new BackgroundSettingsGroup(this);
     backgroundSettingsGroup_->setBackgroundSettings(preferences->backgroundSettings());
     connect(backgroundSettingsGroup_, &BackgroundSettingsGroup::backgroundSettingsChanged, this, &GeneralWindowItem::onBackgroundSettingsChanged);
     addItem(backgroundSettingsGroup_);
 
     updateChannelGroup_ = new PreferenceGroup(this,
-                                              tr("Choose to receive stable, beta, or experimental builds."),
+                                              QString(),
                                               QString("https://%1/features/update-channels").arg(HardcodedSettings::instance().serverUrl()));
-    comboBoxUpdateChannel_ = new ComboBoxItem(updateChannelGroup_, QT_TRANSLATE_NOOP("PreferencesWindow::ComboBoxItem", "Update Channel"), QString());
+    comboBoxUpdateChannel_ = new ComboBoxItem(updateChannelGroup_);
     comboBoxUpdateChannel_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/UPDATE_CHANNEL"));
-    const QList< QPair<QString, int> > allUpdateChannelTypes = UPDATE_CHANNEL_toList();
-    for (const auto u : allUpdateChannelTypes)
-    {
-        if (u.first != "Internal") // don't display internal channel -- this will be specified by advanced parameters
-        {
-            comboBoxUpdateChannel_->addItem(u.first, u.second);
-        }
-    }
-    comboBoxUpdateChannel_->setCurrentItem((int)preferences->updateChannel());
     connect(comboBoxUpdateChannel_, &ComboBoxItem::currentItemChanged, this, &GeneralWindowItem::onUpdateChannelItemChanged);
     updateChannelGroup_->addItem(comboBoxUpdateChannel_);
     addItem(updateChannelGroup_);
@@ -180,15 +147,18 @@ GeneralWindowItem::GeneralWindowItem(ScalableGraphicsObject *parent, Preferences
 
     versionGroup_ = new PreferenceGroup(this);
     versionGroup_->setDrawBackground(false);
-    versionInfoItem_ = new VersionInfoItem(versionGroup_, tr("Version"), preferencesHelper->buildVersion());
+    versionInfoItem_ = new VersionInfoItem(versionGroup_, QString(), preferencesHelper->buildVersion());
     connect(versionInfoItem_, &ClickableGraphicsObject::clicked, this, &GeneralWindowItem::onVersionInfoClicked);
     versionGroup_->addItem(versionInfoItem_);
     addItem(versionGroup_);
+
+    // Populate combo boxes and other text
+    onLanguageChanged();
 }
 
-QString GeneralWindowItem::caption()
+QString GeneralWindowItem::caption() const
 {
-    return QT_TRANSLATE_NOOP("PreferencesWindow::PreferencesWindowItem", "General");
+    return tr("General");
 }
 
 void GeneralWindowItem::onIsLaunchOnStartupClicked(bool isChecked)
@@ -310,34 +280,47 @@ void GeneralWindowItem::onPreferencesBackgroundSettingsChanged(const types::Back
 
 void GeneralWindowItem::onLanguageChanged()
 {
-    /*QVariant order = comboBoxLocationOrder_->currentItem();
-    QVariant latency = comboBoxLatencyDisplay_->currentItem();
-    QVariant update = comboBoxUpdateChannel_->currentItem();
-
-    comboBoxLocationOrder_->clear();
-    comboBoxLatencyDisplay_->clear();
-    comboBoxUpdateChannel_->clear();
-
-    const QList<OrderLocationType> allOrderTypes = OrderLocationType::allAvailableTypes();
-    for (const OrderLocationType &o : allOrderTypes)
-    {
-        comboBoxLocationOrder_->addItem(o.toString(), (int)o.type());
+    launchOnStartGroup_->setDescription(tr("Run Windscribe when your device starts."));
+    checkBoxLaunchOnStart_->setCaption(tr("Launch on Startup"));
+    startMinimizedGroup_->setDescription(tr("Launch Windscribe in a minimized state."));
+    checkBoxStartMinimized_->setCaption(tr("Start Minimized"));
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
+    closeToTrayGroup_->setDescription(tr("Windscribe minimizes to system tray and no longer appears in the task bar."));
+    checkBoxMinimizeAndCloseToTray_->setCaption(tr("Close to Tray"));
+#elif defined(Q_OS_MAC)
+    hideFromDockGroup_->setDescription(tr("Don't show the Windscribe icon in dock."));
+    checkBoxHideFromDock_->setCaption(tr("Hide from Dock"));
+#endif
+    dockedGroup_->setDescription(tr("Pin Windscribe near the system tray or menu bar."));
+    checkBoxDockedToTray_->setCaption(tr("Docked"));
+    showNotificationsGroup_->setDescription(tr("Display system-level notifications when connection events occur."));
+    checkBoxShowNotifications_->setCaption(tr("Show Notifications"));
+    showLocationLoadGroup_->setDescription(tr("Display a location's load. Shorter bars mean lesser load (usage)."));
+    checkBoxShowLocationLoad_->setCaption(tr("Show Location Load"));
+    locationOrderGroup_->setDescription(tr("Arrange locations alphabetically, geographically, or by latency."));
+    comboBoxLocationOrder_->setLabelCaption(tr("Location Order"));
+    comboBoxLocationOrder_->setItems(ORDER_LOCATION_TYPE_toList(), preferences_->locationOrder());
+    latencyDisplayGroup_->setDescription(tr("Display latency as signal strength bars or in milliseconds."));
+    comboBoxLatencyDisplay_->setLabelCaption(tr("Latency Display"));
+    comboBoxLatencyDisplay_->setItems(LATENCY_DISPLAY_TYPE_toList(), preferences_->latencyDisplay());
+    languageGroup_->setDescription(tr("Localize Windscribe to supported languages."));
+    comboBoxLanguage_->setLabelCaption(tr("Language"));
+    comboBoxLanguage_->setItems(preferencesHelper_->availableLanguages(), preferences_->language());
+    appSkinGroup_->setDescription(tr("Choose between the classic GUI or the \"earless\" alternative GUI."));
+    appSkinItem_->setLabelCaption(tr("App Skin"));
+    appSkinItem_->setItems(APP_SKIN_toList(), preferences_->appSkin());
+    backgroundSettingsGroup_->setDescription(tr("Customize the background of the main app screen."));
+    updateChannelGroup_->setDescription(tr("Choose to receive stable, beta, or experimental builds."));
+    comboBoxUpdateChannel_->setLabelCaption(tr("Update Channel"));
+    QList<QPair<QString, QVariant>> updateChannelList = UPDATE_CHANNEL_toList();
+    for (auto item : updateChannelList) {
+        if (item.second == UPDATE_CHANNEL_INTERNAL) {
+            updateChannelList.removeOne(item);
+            break;
+        }
     }
-    comboBoxLocationOrder_->setCurrentItem(order.toInt());
-
-    const QList<LatencyDisplayType> allLatencyTypes = LatencyDisplayType::allAvailableTypes();
-    for (const LatencyDisplayType &l : allLatencyTypes)
-    {
-        comboBoxLatencyDisplay_->addItem(l.toString(), (int)l.type());
-    }
-    comboBoxLatencyDisplay_->setCurrentItem(latency.toInt());
-
-    const QList<UpdateChannelType> allUpdateChannelTypes = UpdateChannelType::allAvailableTypes();
-    for (const UpdateChannelType &u : allUpdateChannelTypes)
-    {
-        comboBoxUpdateChannel_->addItem(u.toString(), (int)u.type());
-    }
-    comboBoxUpdateChannel_->setCurrentItem(update.toInt());*/
+    comboBoxUpdateChannel_->setItems(updateChannelList, preferences_->updateChannel());
+    versionInfoItem_->setCaption(tr("Version"));
 }
 
 void GeneralWindowItem::updateScaling()

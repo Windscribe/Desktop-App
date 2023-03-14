@@ -28,7 +28,7 @@ class ConnectionWindowItem : public CommonGraphics::BasePage
 public:
     explicit ConnectionWindowItem(ScalableGraphicsObject *parent, Preferences *preferences, PreferencesHelper *preferencesHelper);
 
-    QString caption();
+    QString caption() const override;
     void updateScaling() override;
 
     CONNECTION_SCREEN_TYPE getScreen();

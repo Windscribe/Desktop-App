@@ -13,7 +13,7 @@ class CheckBoxItem : public CommonGraphics::BaseItem
 {
     Q_OBJECT
 public:
-    explicit CheckBoxItem(ScalableGraphicsObject *parent, const QString &caption, const QString &tooltip);
+    explicit CheckBoxItem(ScalableGraphicsObject *parent, const QString &caption = "", const QString &tooltip = "");
 
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
@@ -26,6 +26,7 @@ public:
 
     void updateScaling() override;
     void setIcon(QSharedPointer<IndependentPixmap> icon);
+    void setCaption(const QString &caption);
     void setCaptionFont(const FontDescr &fontDescr);
 
 signals:

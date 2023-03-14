@@ -218,7 +218,7 @@ void CountryItemDelegate::tooltipEnterEvent(const ItemStyleOption &option, const
         TooltipInfo ti(TOOLTIP_TYPE_BASIC, TOOLTIP_ID_LOCATIONS_P2P);
         ti.x = pt.x();
         ti.y = pt.y();
-        ti.title = widget->tr("File Sharing Frowned Upon");
+        ti.title = QWidget::tr("File Sharing Frowned Upon");
         ti.tailtype = TOOLTIP_TAIL_BOTTOM;
         ti.tailPosPercent = 0.5;
         TooltipController::instance().showTooltipBasic(ti);

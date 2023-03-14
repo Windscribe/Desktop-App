@@ -15,10 +15,12 @@ class PacketSizeEditBoxItem : public CommonGraphics::BaseItem
 {
     Q_OBJECT
 public:
-    explicit PacketSizeEditBoxItem(ScalableGraphicsObject *parent, const QString &caption, const QString &editPrompt);
+    explicit PacketSizeEditBoxItem(ScalableGraphicsObject *parent, const QString &caption = "", const QString &editPrompt = "");
 
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
+    void setCaption(const QString &caption);
+    void setPrompt(const QString &prompt);
     void setText(const QString &text);
     void setValidator(QRegularExpressionValidator *validator);
 
@@ -43,8 +45,6 @@ private slots:
     void onEditClick();
     void onConfirmClick();
     void onUndoClick();
-
-    void onLanguageChanged();
 
     void onBusySpinnerOpacityAnimationChanged(const QVariant &value);
     void onBusySpinnerRotationAnimationChanged(const QVariant &value);

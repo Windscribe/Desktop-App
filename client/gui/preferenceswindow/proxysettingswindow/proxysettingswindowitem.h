@@ -15,11 +15,12 @@ class ProxySettingsWindowItem : public CommonGraphics::BasePage
 public:
     explicit ProxySettingsWindowItem(ScalableGraphicsObject *parent, Preferences *preferences);
 
-    QString caption();
+    QString caption() const override;
 
 private slots:
     void onProxySettingsPreferencesChanged(const types::ProxySettings &ps);
     void onProxySettingsChanged(const types::ProxySettings &ps);
+    void onLanguageChanged();
 
 private:
     Preferences *preferences_;

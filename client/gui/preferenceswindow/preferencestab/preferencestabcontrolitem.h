@@ -46,6 +46,7 @@ signals:
 
 private slots:
     void onTabClicked(PREFERENCES_TAB_TYPE tab, TabButton *button);
+    void onLanguageChanged();
 
 private:
     TabButton *generalButton_;

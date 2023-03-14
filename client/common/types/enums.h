@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QString>
+#include <QVariant>
 
 // Basic enumerations
 // When adding a new enum, increase the number. Do not delete unused enums, just mark it as deprecated, since they are used in serialization
@@ -265,39 +266,39 @@ enum APP_SKIN
 // utils for enums
 QString LOGIN_RET_toString(LOGIN_RET ret);
 QString DNS_POLICY_TYPE_ToString(DNS_POLICY_TYPE d);
-QList< QPair<QString, int> > DNS_POLICY_TYPE_toList();
+QList<QPair<QString, QVariant>> DNS_POLICY_TYPE_toList();
 
 QString CONNECTED_DNS_TYPE_toString(CONNECTED_DNS_TYPE t);
 QString SPLIT_TUNNELING_MODE_toString(SPLIT_TUNNELING_MODE t);
 
 QString PROXY_SHARING_TYPE_toString(PROXY_SHARING_TYPE t);
-QList< QPair<QString, int> > PROXY_SHARING_TYPE_toList();
+QList<QPair<QString, QVariant>> PROXY_SHARING_TYPE_toList();
 
 QString ORDER_LOCATION_TYPE_toString(ORDER_LOCATION_TYPE p);
-QList< QPair<QString, int> > ORDER_LOCATION_TYPE_toList();
+QList<QPair<QString, QVariant>> ORDER_LOCATION_TYPE_toList();
 
 QString LATENCY_DISPLAY_TYPE_toString(LATENCY_DISPLAY_TYPE t);
-QList< QPair<QString, int> > LATENCY_DISPLAY_TYPE_toList();
+QList<QPair<QString, QVariant>> LATENCY_DISPLAY_TYPE_toList();
 
 QString TAP_ADAPTER_TYPE_toString(TAP_ADAPTER_TYPE t);
 
 QString FIREWALL_MODE_toString(FIREWALL_MODE t);
-QList< QPair<QString, int> > FIREWALL_MODE_toList();
+QList<QPair<QString, QVariant>> FIREWALL_MODE_toList();
 
 QString FIREWALL_WHEN_toString(FIREWALL_WHEN t);
-QList< QPair<QString, int> > FIREWALL_WHEN_toList();
+QList<QPair<QString, QVariant>> FIREWALL_WHEN_toList();
 
 QString PROXY_OPTION_toString(PROXY_OPTION t);
-QList< QPair<QString, int> > PROXY_OPTION_toList();
+QList<QPair<QString, QVariant>> PROXY_OPTION_toList();
 
 QString UPDATE_CHANNEL_toString(UPDATE_CHANNEL t);
-QList< QPair<QString, int> > UPDATE_CHANNEL_toList();
+QList<QPair<QString, QVariant>> UPDATE_CHANNEL_toList();
 
 QString DNS_MANAGER_TYPE_toString(DNS_MANAGER_TYPE t);
-QList< QPair<QString, int> > DNS_MANAGER_TYPE_toList();
+QList<QPair<QString, QVariant>> DNS_MANAGER_TYPE_toList();
 
 QString APP_SKIN_toString(APP_SKIN s);
-QList< QPair<QString, int> > APP_SKIN_toList();
+QList<QPair<QString, QVariant>> APP_SKIN_toList();
 
 
 

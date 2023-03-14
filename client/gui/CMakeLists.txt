@@ -11,8 +11,11 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(Qt6 REQUIRED COMPONENTS Widgets Network Svg Core5Compat)
+find_package(Qt6 REQUIRED COMPONENTS Widgets Network Svg Core5Compat LinguistTools)
 set(WINDSCRIBE_BUILD_LIBS_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../../build-libs)
+
+set(TS_FILES ${CMAKE_CURRENT_SOURCE_DIR}/translations/en.ts)
+qt6_create_translation(QM_FILES ${CMAKE_CURRENT_SOURCE_DIR}/.. ${TS_FILES})
 
 set(PROJECT_SOURCES
     # --- sources and headers ---
@@ -46,6 +49,7 @@ set(PROJECT_SOURCES
     jpg.qrc
     svg.qrc
     windscribe.qrc
+    ${QM_FILES}
 )
 
 if (APPLE)
@@ -105,4 +109,3 @@ add_subdirectory(twofactorauth)
 add_subdirectory(utils)
 add_subdirectory(widgetutils)
 add_subdirectory(tests)
-

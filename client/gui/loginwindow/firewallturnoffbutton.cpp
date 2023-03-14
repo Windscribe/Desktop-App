@@ -7,7 +7,7 @@
 
 namespace LoginWindow {
 
-FirewallTurnOffButton::FirewallTurnOffButton(QString text, ScalableGraphicsObject *parent)
+FirewallTurnOffButton::FirewallTurnOffButton(const QString &text, ScalableGraphicsObject *parent)
                       : ClickableGraphicsObject(parent),
                         width_(106), height_(24), font_descr_(12, false),
                         text_(text), is_animating_(false), animation_()
@@ -73,6 +73,12 @@ void FirewallTurnOffButton::onPositionChanged(QVariant position)
         setVisible(animation_.endValue().toReal() > animation_.startValue().toReal());
         is_animating_ = false;
     }
+}
+
+void FirewallTurnOffButton::setText(const QString &text)
+{
+    text_ = text;
+    update();
 }
 
 }  // namespace LoginWindow

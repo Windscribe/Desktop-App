@@ -28,8 +28,8 @@ private slots:
     void onCheckBoxStateChanged(bool isChecked);
     void onAutoRotateMacStateChanged(bool isChecked);
     void onInterfaceItemChanged(const QVariant &value);
-
     void onCycleMacAddressClick();
+    void onLanguageChanged();
 
 private:
     void updateMode();

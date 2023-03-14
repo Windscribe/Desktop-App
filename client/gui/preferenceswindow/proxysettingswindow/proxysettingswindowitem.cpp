@@ -1,6 +1,7 @@
 #include "proxysettingswindowitem.h"
 
 #include <QPainter>
+#include "languagecontroller.h"
 #include "utils/hardcodedsettings.h"
 
 namespace PreferencesWindow {
@@ -14,7 +15,7 @@ ProxySettingsWindowItem::ProxySettingsWindowItem(ScalableGraphicsObject *parent,
     connect(preferences, &Preferences::proxySettingsChanged, this, &ProxySettingsWindowItem::onProxySettingsPreferencesChanged);
 
     desc_ = new PreferenceGroup(this,
-                                tr("If your network has a LAN proxy, configure it here."),
+                                "",
                                 QString("https://%1/features/proxy-settings").arg(HardcodedSettings::instance().serverUrl()));
     addItem(desc_);
 
@@ -22,11 +23,14 @@ ProxySettingsWindowItem::ProxySettingsWindowItem(ScalableGraphicsObject *parent,
     proxySettingsGroup_->setProxySettings(preferences->proxySettings());
     connect(proxySettingsGroup_, &ProxySettingsGroup::proxySettingsChanged, this, &ProxySettingsWindowItem::onProxySettingsChanged);
     addItem(proxySettingsGroup_);
+
+    connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &ProxySettingsWindowItem::onLanguageChanged);
+    onLanguageChanged();
 }
 
-QString ProxySettingsWindowItem::caption()
+QString ProxySettingsWindowItem::caption() const
 {
-    return QT_TRANSLATE_NOOP("PreferencesWindow::PreferencesWindowItem", "Proxy Settings");
+    return tr("Proxy Settings");
 }
 
 void ProxySettingsWindowItem::onProxySettingsPreferencesChanged(const types::ProxySettings &ps)
@@ -39,5 +43,9 @@ void ProxySettingsWindowItem::onProxySettingsChanged(const types::ProxySettings 
     preferences_->setProxySettings(ps);
 }
 
+void ProxySettingsWindowItem::onLanguageChanged()
+{
+    desc_->setDescription(tr("If your network has a LAN proxy, configure it here."));
+}
 
 } // namespace PreferencesWindow

@@ -1,8 +1,8 @@
 #include "proxygatewaygroup.h"
 
 #include <QPainter>
-
 #include "graphicresources/imageresourcessvg.h"
+#include "languagecontroller.h"
 
 namespace PreferencesWindow {
 
@@ -11,18 +11,13 @@ ProxyGatewayGroup::ProxyGatewayGroup(ScalableGraphicsObject *parent, const QStri
 {
     setFlags(flags() | QGraphicsItem::ItemClipsChildrenToShape | QGraphicsItem::ItemIsFocusable);
 
-    checkBoxEnable_ = new CheckBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::CheckBoxItem", "Proxy Gateway"), "");
+    checkBoxEnable_ = new CheckBoxItem(this);
     checkBoxEnable_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/PROXY_GATEWAY"));
     connect(checkBoxEnable_, &CheckBoxItem::stateChanged, this, &ProxyGatewayGroup::onCheckBoxStateChanged);
     addItem(checkBoxEnable_);
 
-    comboBoxProxyType_ = new ComboBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::ComboBoxItem", "Proxy Type"), "");
+    comboBoxProxyType_ = new ComboBoxItem(this);
     comboBoxProxyType_->setCaptionFont(FontDescr(12, false));
-    const QList< QPair<QString, int> > allProxyTypes = PROXY_SHARING_TYPE_toList();
-    for (const auto p : allProxyTypes) {
-        comboBoxProxyType_->addItem(p.first, p.second);
-    }
-    comboBoxProxyType_->setCurrentItem(allProxyTypes.begin()->second);
     connect(comboBoxProxyType_, &ComboBoxItem::currentItemChanged, this, &ProxyGatewayGroup::onProxyTypeItemChanged);
     addItem(comboBoxProxyType_);
 
@@ -32,6 +27,9 @@ ProxyGatewayGroup::ProxyGatewayGroup(ScalableGraphicsObject *parent, const QStri
     hideItems(indexOf(comboBoxProxyType_), -1, DISPLAY_FLAGS::FLAG_NO_ANIMATION);
 
     updateMode();
+
+    connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &ProxyGatewayGroup::onLanguageChanged);
+    onLanguageChanged();
 }
 
 void ProxyGatewayGroup::setProxyGatewaySettings(const types::ShareProxyGateway &sp)
@@ -62,10 +60,6 @@ void ProxyGatewayGroup::setProxyGatewayAddress(const QString &address)
     proxyIpAddressItem_->setIP(address);
 }
 
-void ProxyGatewayGroup::onLanguageChanged()
-{
-}
-
 void ProxyGatewayGroup::hideOpenPopups()
 {
     comboBoxProxyType_->hideMenu();
@@ -79,6 +73,13 @@ void ProxyGatewayGroup::updateMode()
     else {
         hideItems(indexOf(comboBoxProxyType_), indexOf(proxyIpAddressItem_));
     }
+}
+
+void ProxyGatewayGroup::onLanguageChanged()
+{
+    checkBoxEnable_->setCaption(tr("Proxy Gateway"));
+    comboBoxProxyType_->setLabelCaption(tr("Proxy Type"));
+    comboBoxProxyType_->setItems(PROXY_SHARING_TYPE_toList(), settings_.proxySharingMode);
 }
 
 } // namespace PreferencesWindow

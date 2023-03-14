@@ -16,7 +16,7 @@ class UsernamePasswordEntry : public ClickableGraphicsObject
     Q_OBJECT
 public:
 
-    explicit UsernamePasswordEntry(QString descriptionText, bool password, ScalableGraphicsObject * parent = nullptr);
+    explicit UsernamePasswordEntry(const QString &text, bool password, ScalableGraphicsObject * parent = nullptr);
 
     QRectF boundingRect() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
@@ -24,6 +24,7 @@ public:
     void clearActiveState();
 
     QString getText() const;
+    void setText(const QString &text);
 
     void setError(bool error);
 

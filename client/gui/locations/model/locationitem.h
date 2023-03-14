@@ -18,13 +18,14 @@ public:
     QString nickname() const { WS_ASSERT(location_.id.isBestLocation()); return nickname_; }
     bool is10gbps() const { return is10gbps_; }
 
-
     void insertCityAtInd(int ind, const types::City &city);
     void removeCityAtInd(int ind);
     void updateCityAtInd(int ind, const types::City &city);
     void updateLocation(const types::Location &location);
     void moveCity(int from, int to);
     void setPingTimeForCity(int cityInd, PingTime time);
+
+    void setName(const QString &name);
 
     bool operator==(const LocationItem &other) const;
     bool operator!=(const LocationItem &other) const;

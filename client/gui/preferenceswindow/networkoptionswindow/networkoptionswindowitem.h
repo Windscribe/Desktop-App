@@ -20,7 +20,7 @@ class NetworkOptionsWindowItem : public CommonGraphics::BasePage
 public:
     explicit NetworkOptionsWindowItem(ScalableGraphicsObject *parent, Preferences *preferences);
 
-    QString caption();
+    QString caption() const override;
 
     void setCurrentNetwork(types::NetworkInterface networkInterface);
 
@@ -35,6 +35,8 @@ public:
     void setScreen(NETWORK_OPTIONS_SCREEN screen);
 
     void updateScaling() override;
+
+    static QString trustTypeToString(NETWORK_TRUST_TYPE type);
 
 signals:
     void currentNetworkUpdated(types::NetworkInterface);
@@ -63,7 +65,7 @@ private:
 
     NETWORK_OPTIONS_SCREEN currentScreen_;
 
-    const QString NO_NETWORKS_DETECTED = QT_TR_NOOP("No Networks Detected.\nConnect to a network first");
+    const QString NO_NETWORKS_DETECTED = tr("No Networks Detected.\nConnect to a network first");
 };
 
 } // namespace PreferencesWindow

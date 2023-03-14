@@ -27,6 +27,7 @@ signals:
 private slots:
     void onSendEmailClick();
     void onVisibleChanged();
+    void onLanguageChanged();
 
 private:
     static constexpr int WARNING_OFFSET_Y = 40;
@@ -44,9 +45,10 @@ private:
     void updatePositions();
     void setEmailSendState(EMAIL_SEND_STATE state);
 
-    const char *ADD_TEXT = "Get 10GB/Month of data and gain the ability to reset your password.";
-    const char *CONFIRM_TEXT = "Please confirm your email";
-    const char *EMAIL_TEXT = "Email";
+    const char *ADD_TEXT = QT_TR_NOOP("Add");
+    const char *UPGRADE_TEXT = QT_TR_NOOP("Get 10GB/Month of data and gain the ability to reset your password.");
+    const char *CONFIRM_TEXT = QT_TR_NOOP("Please confirm your email");
+    const char *EMAIL_TEXT = QT_TR_NOOP("Email");
 };
 
 } // namespace PreferencesWindow

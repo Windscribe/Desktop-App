@@ -15,7 +15,7 @@ class HelpWindowItem : public CommonGraphics::BasePage
 public:
     explicit HelpWindowItem(ScalableGraphicsObject *parent, Preferences *preferences, PreferencesHelper *preferencesHelper);
 
-    QString caption() const;
+    QString caption() const override;
     void setSendLogResult(bool success);
 
 signals:
@@ -24,8 +24,17 @@ signals:
 
 private slots:
     void onSendLogClick();
+    void onLanguageChanged();
 
 private:
+    enum SEND_LOG_STATE {
+        NOT_SENT,
+        SENDING,
+        SENT,
+        FAILED
+    };
+    SEND_LOG_STATE sendLogState_;
+
     PreferenceGroup *knowledgeBaseGroup_;
     LinkItem *knowledgeBaseItem_;
     PreferenceGroup *talkToGarryGroup_;

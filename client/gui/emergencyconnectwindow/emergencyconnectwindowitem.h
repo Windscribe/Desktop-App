@@ -129,9 +129,6 @@ private:
     static constexpr int DISCONNECT_BUTTON_POS_Y = 233;
 
     static constexpr int TARGET_ROTATION = 360;
-
-    const QString CONNECTING_STRING = QT_TR_NOOP("Connecting...");
-
 };
 
 }

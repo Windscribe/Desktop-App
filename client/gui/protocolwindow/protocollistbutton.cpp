@@ -58,4 +58,13 @@ void ProtocolListButton::updatePositions()
     update();
 }
 
+void ProtocolListButton::setText(const QString &text)
+{
+    if (textButton_) {
+        textButton_->setText(text);
+    } else {
+        bubbleButton_->setText(text);
+    }
+}
+
 } // namespace ProtocolWindow

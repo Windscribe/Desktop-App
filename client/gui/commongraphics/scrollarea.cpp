@@ -77,6 +77,11 @@ void ScrollArea::setItem(BasePage *item)
     updateScrollBarByHeight();
 }
 
+BasePage *ScrollArea::item()
+{
+    return curItem_;
+}
+
 double ScrollArea::screenFraction()
 {
     double screenFraction = 1;

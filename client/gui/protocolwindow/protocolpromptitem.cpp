@@ -8,6 +8,7 @@
 #include "commongraphics/baseitem.h"
 #include "commongraphics/scrollarea.h"
 #include "graphicresources/fontmanager.h"
+#include "languagecontroller.h"
 #include "utils/hardcodedsettings.h"
 #include "utils/logger.h"
 
@@ -30,6 +31,9 @@ ProtocolPromptItem::ProtocolPromptItem(ScalableGraphicsObject *parent,
 
     countdownTimer_.setInterval(1000);
     connect(&countdownTimer_, &QTimer::timeout, this, &ProtocolPromptItem::onTimerTimeout);
+
+    connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &ProtocolPromptItem::onLanguageChanged);
+    onLanguageChanged();
 }
 
 void ProtocolPromptItem::paint(QPainter *painter, const QStyleOptionGraphicsItem */*option*/, QWidget */*widget*/)
@@ -175,7 +179,7 @@ void ProtocolPromptItem::setMode(ProtocolWindowMode mode)
         desc_ = tr(kSavePreferredProtocolDescription);
         clearItems();
 
-        actionButton_ = new ProtocolListButton(this, kSetAsPreferredButton, false, QColor(0, 0, 0));
+        actionButton_ = new ProtocolListButton(this, tr(kSetAsPreferredButton), false, QColor(0, 0, 0));
         connect(actionButton_, &ProtocolListButton::clicked, this, &ProtocolPromptItem::onSetAsPreferred);
         addItem(actionButton_);
         addCancelButton();
@@ -187,7 +191,7 @@ void ProtocolPromptItem::setMode(ProtocolWindowMode mode)
         desc_ = tr(kSendDebugLogDescription);
         clearItems();
 
-        actionButton_ = new ProtocolListButton(this, kSendDebugLogButton, false, QColor(255, 255, 255));
+        actionButton_ = new ProtocolListButton(this, tr(kSendDebugLogButton), false, QColor(255, 255, 255));
         connect(actionButton_, &ProtocolListButton::clicked, this, &ProtocolPromptItem::onSendDebugLog);
         addItem(actionButton_);
         addCancelButton();
@@ -197,7 +201,7 @@ void ProtocolPromptItem::setMode(ProtocolWindowMode mode)
         desc_ = tr(kDebugLogSentDescription);
         clearItems();
 
-        actionButton_ = new ProtocolListButton(this, kContactSupportButton, false, QColor(255, 255, 255));
+        actionButton_ = new ProtocolListButton(this, tr(kContactSupportButton), false, QColor(255, 255, 255));
         connect(actionButton_, &ProtocolListButton::clicked, this, &ProtocolPromptItem::onContactSupport);
         addItem(actionButton_);
         addCancelButton();
@@ -230,7 +234,7 @@ void ProtocolPromptItem::onContactSupport()
 
 void ProtocolPromptItem::addCancelButton()
 {
-    cancelButton_ = new ProtocolListButton(this, kCancelButton, true);
+    cancelButton_ = new ProtocolListButton(this, tr(kCancelButton), true);
     connect(cancelButton_, &ProtocolListButton::clicked, this, &ProtocolPromptItem::onCancelClicked);
     addItem(cancelButton_);
 }
@@ -327,6 +331,18 @@ types::Protocol ProtocolPromptItem::connectedProtocol() {
         }
     }
     return types::Protocol(types::Protocol::TYPE::UNINITIALIZED);
+}
+
+void ProtocolPromptItem::onLanguageChanged()
+{
+    setMode(mode_);
+    cancelButton_->setText(tr(kCancelButton));
+    for (auto i : items()) {
+        if (ProtocolLineItem *item = dynamic_cast<ProtocolLineItem *>(i)) {
+            item->setDescription(getProtocolDescription(item->protocol()));
+        }
+    }
+
 }
 
 } // namespace ProtocolWindow

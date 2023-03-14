@@ -41,6 +41,7 @@ private slots:
 private:
     QString trustTypeToString(NETWORK_TRUST_TYPE type);
     NETWORK_TRUST_TYPE stringToTrustType(QString str);
+    types::NetworkInterface networkInterfaceByName(QString networkOrSsid);
 
     QString currentNetwork_;
     QMap<QString, types::NetworkInterface> networks_;

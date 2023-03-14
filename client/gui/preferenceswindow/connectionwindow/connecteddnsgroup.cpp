@@ -1,6 +1,7 @@
 #include "connecteddnsgroup.h"
 
 #include "dpiscalemanager.h"
+#include "languagecontroller.h"
 #include "graphicresources/imageresourcessvg.h"
 
 namespace PreferencesWindow {
@@ -10,18 +11,12 @@ ConnectedDnsGroup::ConnectedDnsGroup(ScalableGraphicsObject *parent, const QStri
 {
     setFlags(flags() | QGraphicsItem::ItemClipsChildrenToShape | QGraphicsItem::ItemIsFocusable);
 
-    comboBoxDns_ = new ComboBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::ComboBoxItem", "Connected DNS"), "");
-    const QList<CONNECTED_DNS_TYPE> modes = types::ConnectedDnsInfo::allAvailableTypes();
-    for (const CONNECTED_DNS_TYPE &d : modes)
-    {
-        comboBoxDns_->addItem(types::ConnectedDnsInfo::typeToString(d), static_cast<int>(d));
-    }
+    comboBoxDns_ = new ComboBoxItem(this);
     comboBoxDns_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/CONNECTED_DNS"));
-    comboBoxDns_->setCurrentItem(modes.first());
     connect(comboBoxDns_, &ComboBoxItem::currentItemChanged, this, &ConnectedDnsGroup::onConnectedDnsModeChanged);
     addItem(comboBoxDns_);
 
-    editBoxIp_ = new EditBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::EditBoxItem", "IP Address"), QT_TRANSLATE_NOOP("PreferencesWindow::EditBoxItem", "IP address"));
+    editBoxIp_ = new EditBoxItem(this);
     connect(editBoxIp_, &EditBoxItem::textChanged, this, &ConnectedDnsGroup::onConnectedDnsIpChanged);
     addItem(editBoxIp_);
 
@@ -31,6 +26,9 @@ ConnectedDnsGroup::ConnectedDnsGroup(ScalableGraphicsObject *parent, const QStri
     editBoxIp_->setValidator(ipValidator);
 
     hideItems(indexOf(editBoxIp_), -1, DISPLAY_FLAGS::FLAG_NO_ANIMATION);
+
+    connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &ConnectedDnsGroup::onLanguageChanged);
+    onLanguageChanged();
 }
 
 bool ConnectedDnsGroup::hasItemWithFocus()
@@ -91,23 +89,23 @@ void ConnectedDnsGroup::onConnectedDnsIpChanged(QString v)
     }
 }
 
-void ConnectedDnsGroup::onLanguageChanged()
-{
-    QVariant dnsSelected = comboBoxDns_->currentItem();
-
-    comboBoxDns_->clear();
-
-    const QList<CONNECTED_DNS_TYPE> modes = types::ConnectedDnsInfo::allAvailableTypes();
-    for (const CONNECTED_DNS_TYPE &d : modes)
-    {
-        comboBoxDns_->addItem(types::ConnectedDnsInfo::typeToString(d), static_cast<int>(d));
-    }
-    comboBoxDns_->setCurrentItem(dnsSelected.toInt());
-}
-
 void ConnectedDnsGroup::hideOpenPopups()
 {
     comboBoxDns_->hideMenu();
+}
+
+void ConnectedDnsGroup::onLanguageChanged()
+{
+    comboBoxDns_->setLabelCaption(tr("Connected DNS"));
+    QList<CONNECTED_DNS_TYPE> types = types::ConnectedDnsInfo::allAvailableTypes();
+    QList<QPair<QString, QVariant>> list;
+    for (const auto t : types) {
+        list << qMakePair(types::ConnectedDnsInfo::typeToString(t), t);
+    }
+    comboBoxDns_->setItems(list, settings_.type());
+
+    editBoxIp_->setCaption(tr("IP Address"));
+    editBoxIp_->setPrompt(tr("IP Address"));
 }
 
 }

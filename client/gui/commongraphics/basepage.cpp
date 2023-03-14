@@ -162,4 +162,9 @@ int BasePage::fullHeight() const
     return height;
 }
 
+QString BasePage::caption() const
+{
+    return "";
+}
+
 } // namespace CommonGraphics

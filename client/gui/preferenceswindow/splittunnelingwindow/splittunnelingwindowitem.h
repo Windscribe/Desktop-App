@@ -16,7 +16,7 @@ class SplitTunnelingWindowItem : public CommonGraphics::BasePage
 public:
     explicit SplitTunnelingWindowItem(ScalableGraphicsObject *parent, Preferences *preferences);
 
-    QString caption();
+    QString caption() const override;
 
     SPLIT_TUNNEL_SCREEN getScreen();
     void setScreen(SPLIT_TUNNEL_SCREEN screen);
@@ -32,6 +32,7 @@ signals:
 
 private slots:
     void onSettingsChanged(types::SplitTunnelingSettings settings);
+    void onLanguageChanged();
 
 private:
     SPLIT_TUNNEL_SCREEN currentScreen_;

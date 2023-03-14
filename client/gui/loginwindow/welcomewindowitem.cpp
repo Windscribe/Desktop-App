@@ -73,15 +73,13 @@ WelcomeWindowItem::WelcomeWindowItem(QGraphicsObject *parent, PreferencesHelper 
     curButtonLineXPos_ = LOGIN_MARGIN_WIDTH_LARGE;
     connect(&buttonLinePosAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onButtonLinePosChanged(QVariant)));
 
-    QString firewallOffText = QT_TRANSLATE_NOOP("LoginWindow::FirewallTurnOffButton", "Turn Off Firewall");
-    firewallTurnOffButton_ = new FirewallTurnOffButton(std::move(firewallOffText), this);
+    firewallTurnOffButton_ = new FirewallTurnOffButton("", this);
     connect(firewallTurnOffButton_, SIGNAL(clicked()), SLOT(onFirewallTurnOffClick()));
 
-    gotoLoginButton_ = new CommonGraphics::TextButton(tr("Login"), FontDescr(14, true), QColor(255, 255, 255), true, this );
+    gotoLoginButton_ = new CommonGraphics::TextButton("", FontDescr(14, true), QColor(255, 255, 255), true, this );
     connect(gotoLoginButton_, SIGNAL(clicked()), SLOT(onGotoLoginButtonClick()));
 
     getStartedButton_ = new CommonGraphics::BubbleButtonBright(this, 130, 32, 15, 15);
-    getStartedButton_->setText(tr("Get Started"));
     getStartedButton_->setFont(FontDescr(14, false));
     connect(getStartedButton_, SIGNAL(clicked()), SLOT(onGetStartedButtonClick()));
 
@@ -106,13 +104,14 @@ WelcomeWindowItem::WelcomeWindowItem(QGraphicsObject *parent, PreferencesHelper 
 
     emergencyConnectOn_ = false;
 
-    connect(&LanguageController::instance(), SIGNAL(languageChanged()), SLOT(onLanguageChanged()));
-
     curEmergencyTextOpacity_ = OPACITY_HIDDEN;
     connect(&emergencyTextAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onEmergencyTextTransition(QVariant)));
 
     connect(preferencesHelper, SIGNAL(isDockedModeChanged(bool)), this,
             SLOT(onDockedModeChanged(bool)));
+
+    connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &WelcomeWindowItem::onLanguageChanged);
+    onLanguageChanged();
 
     updatePositions();
     changeToAccountScreen();
@@ -311,17 +310,17 @@ void WelcomeWindowItem::onHideYesNoTimerTick()
 
 void WelcomeWindowItem::onEmergencyHoverEnter()
 {
-    onAbstractButtonHoverEnter(emergencyButton_, QT_TRANSLATE_NOOP("CommonWidgets::ToolTipWidget", "Emergency Connect"));
+    onAbstractButtonHoverEnter(emergencyButton_, tr("Emergency Connect"));
 }
 
 void WelcomeWindowItem::onConfigHoverEnter()
 {
-    onAbstractButtonHoverEnter(configButton_, QT_TRANSLATE_NOOP("CommonWidgets::ToolTipWidget", "External Config"));
+    onAbstractButtonHoverEnter(configButton_, tr("External Config"));
 }
 
 void WelcomeWindowItem::onSettingsHoverEnter()
 {
-    onAbstractButtonHoverEnter(settingsButton_, QT_TRANSLATE_NOOP("CommonWidgets::ToolTipWidget", "Preferences"));
+    onAbstractButtonHoverEnter(settingsButton_, tr("Preferences"));
 }
 
 void WelcomeWindowItem::onAbstractButtonHoverEnter(QGraphicsObject *button, QString text)
@@ -346,6 +345,10 @@ void WelcomeWindowItem::onAbstractButtonHoverEnter(QGraphicsObject *button, QStr
 
 void WelcomeWindowItem::onLanguageChanged()
 {
+    firewallTurnOffButton_->setText(tr("Turn Off Firewall"));
+    gotoLoginButton_->setText(tr("Login"));
+    getStartedButton_->setText(tr("Get Started"));
+    updatePositions();
 }
 
 void WelcomeWindowItem::onDockedModeChanged(bool bIsDockedToTray)

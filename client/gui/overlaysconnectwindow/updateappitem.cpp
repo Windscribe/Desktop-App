@@ -13,9 +13,7 @@ UpdateAppItem::UpdateAppItem(Preferences *preferences, QGraphicsObject *parent) 
     preferences_(preferences), mode_(UPDATE_APP_ITEM_MODE_PROMPT), curVersionText_(""), curBackgroundOpacity_(OPACITY_FULL), curVersionOpacity_(OPACITY_FULL),
     curProgressBackgroundOpacity_(OPACITY_HIDDEN), curProgressForegroundOpacity_(OPACITY_HIDDEN), curProgressBarPos_(0)
 {
-    QString updateText = QT_TRANSLATE_NOOP("CommonGraphics::TextButton", "UPDATE");
-    updateButton_ = new CommonGraphics::TextButton(updateText, FontDescr(11, true, 105),
-                                                   Qt::white, true, this, 15);
+    updateButton_ = new CommonGraphics::TextButton("", FontDescr(11, true, 105), Qt::white, true, this, 15);
     connect(updateButton_, &CommonGraphics::TextButton::clicked, this, &UpdateAppItem::onUpdateClick);
 
     updateButton_->animateShow(ANIMATION_SPEED_FAST);
@@ -30,6 +28,8 @@ UpdateAppItem::UpdateAppItem(Preferences *preferences, QGraphicsObject *parent) 
     connect(&progressBarPosChangeAnimation_, &QVariantAnimation::valueChanged, this, &UpdateAppItem::onProgressBarPosChanged);
 
     connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &UpdateAppItem::onLanguageChanged);
+    onLanguageChanged();
+
     updatePositions();
 }
 
@@ -216,8 +216,8 @@ void UpdateAppItem::onUpdateClick()
 
 void UpdateAppItem::onLanguageChanged()
 {
+    updateButton_->setText(tr("UPDATE"));
     updateButton_->recalcBoundingRect();
-
     int width = preferences_->appSkin() == APP_SKIN_VAN_GOGH ? WIDTH_VAN_GOGH : WIDTH;
     int updatePosX = width - updateButton_->boundingRect().width() - 15;
     updateButton_->setPos(updatePosX, 0);

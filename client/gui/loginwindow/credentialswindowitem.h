@@ -135,6 +135,8 @@ private:
     CommonGraphics::TextButton *forgotPassButton_;
     QVariantAnimation forgotAnd2FAPosYAnimation_;
 
+    ILoginWindow::ERROR_MESSAGE_TYPE curError_;
+    QString curErrorMsg_;
     QString curErrorText_;
     double curErrorOpacity_;
     QVariantAnimation errorAnimation_;

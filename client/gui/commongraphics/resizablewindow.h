@@ -44,6 +44,7 @@ protected slots:
     virtual void onResizeFinished();
     virtual void onBackArrowButtonClicked();
     virtual void onAppSkinChanged(APP_SKIN s);
+    void onLanguageChanged();
 
 protected:
     static constexpr int kBottomAreaHeight = 16;

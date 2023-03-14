@@ -18,8 +18,7 @@ class GeneralWindowItem : public CommonGraphics::BasePage
 public:
     explicit GeneralWindowItem(ScalableGraphicsObject *parent, Preferences *preferences, PreferencesHelper *preferencesHelper);
 
-    QString caption();
-
+    QString caption() const override;
     void updateScaling() override;
 
 private slots:
@@ -77,6 +76,7 @@ protected:
 
 private:
     Preferences *preferences_;
+    PreferencesHelper *preferencesHelper_;
 
     PreferenceGroup *launchOnStartGroup_;
     CheckBoxItem *checkBoxLaunchOnStart_;

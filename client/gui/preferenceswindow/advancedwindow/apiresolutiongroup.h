@@ -28,6 +28,7 @@ signals:
 private slots:
     void onAutomaticChanged(QVariant value);
     void onAddressChanged(const QString &text);
+    void onLanguageChanged();
 
 private:
     void updateMode();

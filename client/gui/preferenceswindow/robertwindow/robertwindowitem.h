@@ -23,7 +23,7 @@ class RobertWindowItem : public CommonGraphics::BasePage
 public:
     explicit RobertWindowItem(ScalableGraphicsObject *parent, Preferences *preferences, PreferencesHelper *preferencesHelper);
 
-    QString caption() const;
+    QString caption() const override;
     void updateScaling() override;
 
     void setLoggedIn(bool loggedIn);
@@ -36,6 +36,9 @@ signals:
     void accountLoginClick();
     void manageRobertRulesClick();
     void setRobertFilter(const types::RobertFilter &filter);
+
+private slots:
+    void onLanguageChanged();
 
 private:
     static constexpr int kMessageOffsetY = 85;
@@ -57,6 +60,8 @@ private:
     bool loggedIn_;
     bool isError_;
     bool loading_;
+
+    LinkItem *manageRulesItem_;
 };
 
 } // namespace PreferencesWindow

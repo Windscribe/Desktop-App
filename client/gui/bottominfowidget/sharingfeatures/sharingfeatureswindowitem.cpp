@@ -4,6 +4,7 @@
 #include "graphicresources/fontmanager.h"
 #include "commongraphics/commongraphics.h"
 #include "dpiscalemanager.h"
+#include "languagecontroller.h"
 
 namespace SharingFeatures {
 
@@ -12,7 +13,7 @@ SharingFeaturesWindowItem::SharingFeaturesWindowItem(Preferences *preferences, S
     proxyGatewayMode_(PROXY_SHARING_HTTP), mode_(SHARE_MODE_OFF), curOpacity_(OPACITY_HIDDEN), height_(0), showingHorns_(false),
     curHornOpacity_(OPACITY_HIDDEN), HORN_POS_Y_HIDDEN(height_ - 30), HORN_POS_Y_SHOWING(height_)
 {
-    headerText_ = TEXT_SHARING_FEATURES;
+    headerText_ = tr(TEXT_SHARING_FEATURES);
     curHornPosY_ = HORN_POS_Y_HIDDEN;
 
     connect(preferences, &Preferences::appSkinChanged, this, &SharingFeaturesWindowItem::onAppSkinChanged);
@@ -32,6 +33,8 @@ SharingFeaturesWindowItem::SharingFeaturesWindowItem(Preferences *preferences, S
     dividerLine2_ = new CommonGraphics::DividerLine(this, (WINDOW_WIDTH - 8)*G_SCALE);
     dividerLine2_->setOpacity(OPACITY_DIVIDER_LINE_BRIGHT);
     updateScaling();
+
+    connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &SharingFeaturesWindowItem::onLanguageChanged);
 }
 
 QRectF SharingFeaturesWindowItem::boundingRect() const
@@ -84,7 +87,7 @@ void SharingFeaturesWindowItem::paint(QPainter *painter, const QStyleOptionGraph
         painter->setFont(*font);
         painter->setPen(Qt::white);
         painter->setOpacity(OPACITY_HALF);
-        painter->drawText(boundingRect().adjusted(24*G_SCALE, 16*G_SCALE, 0, 0), Qt::AlignLeft, tr(headerText_.toUpper().toStdString().c_str()));
+        painter->drawText(boundingRect().adjusted(24*G_SCALE, 16*G_SCALE, 0, 0), Qt::AlignLeft, headerText_.toUpper().toStdString().c_str());
         font->setLetterSpacing(QFont::AbsoluteSpacing, oldLetterSpacing);
     }
     else
@@ -93,8 +96,8 @@ void SharingFeaturesWindowItem::paint(QPainter *painter, const QStyleOptionGraph
         painter->setOpacity(OPACITY_FULL);
         painter->setFont(*font);
         painter->setPen(Qt::white);
-        int headerTextWidth = CommonGraphics::textWidth(tr(headerText_.toStdString().c_str()), *font);
-        painter->drawText(WIDTH*G_SCALE - headerTextWidth - margin, HEADER_HEIGHT/2*G_SCALE + CommonGraphics::textHeight(*font)/4, tr(headerText_.toStdString().c_str()));
+        int headerTextWidth = CommonGraphics::textWidth(headerText_.toStdString().c_str(), *font);
+        painter->drawText(WIDTH*G_SCALE - headerTextWidth - margin, HEADER_HEIGHT/2*G_SCALE + CommonGraphics::textHeight(*font)/4, headerText_.toStdString().c_str());
     }
 
     // horns:
@@ -195,10 +198,10 @@ void SharingFeaturesWindowItem::setProxyGatewayUsersCount(int usersCount)
 
 void SharingFeaturesWindowItem::updateModedFeatures(SHARE_MODE mode)
 {
-    QString newText = TEXT_SHARING_FEATURES;
+    QString newText = tr(TEXT_SHARING_FEATURES);
     if (mode == SHARE_MODE_PROXY)
     {
-        newText  = TEXT_PROXY_GATEWAY;
+        newText  = tr(TEXT_PROXY_GATEWAY);
 
         curOpacity_ = OPACITY_FULL;
 
@@ -214,7 +217,7 @@ void SharingFeaturesWindowItem::updateModedFeatures(SHARE_MODE mode)
     }
     else if (mode == SHARE_MODE_HOTSPOT)
     {
-        newText = TEXT_SECURE_HOTSPOT;
+        newText = tr(TEXT_SECURE_HOTSPOT);
 
         curOpacity_ = OPACITY_FULL;
 
@@ -230,7 +233,7 @@ void SharingFeaturesWindowItem::updateModedFeatures(SHARE_MODE mode)
     }
     else if (mode == SHARE_MODE_BOTH)
     {
-        newText = TEXT_SHARING_FEATURES;
+        newText = tr(TEXT_SHARING_FEATURES);
 
         curOpacity_ = OPACITY_FULL;
 
@@ -271,6 +274,12 @@ void SharingFeaturesWindowItem::updateScaling()
     updateShareFeatureRoundedness();
     recalcHeight();
     updatePositions();
+}
+
+void SharingFeaturesWindowItem::onLanguageChanged()
+{
+    updateModedFeatures(mode_);
+    update();
 }
 
 void SharingFeaturesWindowItem::setMode(SHARE_MODE mode)

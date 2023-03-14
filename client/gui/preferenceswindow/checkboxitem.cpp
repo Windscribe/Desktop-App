@@ -84,4 +84,10 @@ void CheckBoxItem::setCaptionFont(const FontDescr &fontDescr)
     captionFont_ = fontDescr;
 }
 
+void CheckBoxItem::setCaption(const QString &caption)
+{
+    strCaption_ = caption;
+    update();
+}
+
 } // namespace PreferencesWindow

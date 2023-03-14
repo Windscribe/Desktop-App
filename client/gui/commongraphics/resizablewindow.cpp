@@ -7,6 +7,7 @@
 
 #include "graphicresources/imageresourcessvg.h"
 #include "graphicresources/fontmanager.h"
+#include "languagecontroller.h"
 #include "utils/ws_assert.h"
 #include "utils/utils.h"
 #include "utils/logger.h"
@@ -46,6 +47,8 @@ ResizableWindow::ResizableWindow(QGraphicsObject *parent, Preferences *preferenc
     connect(bottomResizeItem_, &CommonGraphics::ResizeBar::resizeFinished, this, &ResizableWindow::onResizeFinished);
 
     scrollAreaItem_ = new CommonGraphics::ScrollArea(this, curHeight_ - 102*G_SCALE, WINDOW_WIDTH);
+
+    connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &ResizableWindow::onLanguageChanged);
 
     updatePositions();
     // trigger app skin change in case we start in van gogh mode
@@ -131,6 +134,7 @@ void ResizableWindow::updateScaling()
 void ResizableWindow::updatePositions()
 {
     bottomResizeItem_->setPos(kBottomResizeOriginX*G_SCALE, curHeight_ - kBottomResizeOffsetY*G_SCALE);
+    escapeButton_->onLanguageChanged();
     escapeButton_->setPos(WINDOW_WIDTH*G_SCALE - escapeButton_->boundingRect().width() - 16*G_SCALE, 16*G_SCALE);
 
     if (preferences_->appSkin() == APP_SKIN_VAN_GOGH) {
@@ -191,4 +195,9 @@ void ResizableWindow::onAppSkinChanged(APP_SKIN s)
 void ResizableWindow::setScrollOffset(int offset)
 {
     scrollAreaItem_->setScrollPos(offset);
+}
+
+void ResizableWindow::onLanguageChanged()
+{
+    onAppSkinChanged(preferences_->appSkin());
 }

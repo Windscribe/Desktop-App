@@ -23,7 +23,7 @@ UpgradeWidgetItem::UpgradeWidgetItem(ScalableGraphicsObject *parent) : ScalableG
   , roundedRectXRadius_(10)
 {
 
-    QString buttonText = QT_TRANSLATE_NOOP("CommonGraphics::TextButton", "GET MORE DATA");
+    QString buttonText = tr("GET MORE DATA");
     textButton_ = new CommonGraphics::TextButton(buttonText, FontDescr(11, true, 105),
                                                  Qt::white, true, this, 15);
     textButton_->setTextAlignment(Qt::AlignRight | Qt::AlignVCenter);
@@ -291,7 +291,8 @@ QString UpgradeWidgetItem::currentText()
             const auto bytes_remaining = qMax(qint64(0), bytesMax_ - bytesUsed_);
             const auto gigabytes_remaining = static_cast<int>(bytes_remaining / kOneGB);
             const bool between_1_and_10_gb = gigabytes_remaining >= 1 && gigabytes_remaining < 10;
-            result = Utils::humanReadableByteCount(bytes_remaining, false, between_1_and_10_gb);
+            QLocale locale(LanguageController::instance().getLanguage());
+            result = locale.formattedDataSize(bytes_remaining, 1, QLocale::DataSizeTraditionalFormat);
         }
     }
 
@@ -323,7 +324,7 @@ void UpgradeWidgetItem::updateButtonText()
 {
     if (isExtConfigMode_)
     {
-        QString buttonText = QT_TRANSLATE_NOOP("CommonGraphics::TextButton", "LOGIN");
+        QString buttonText = tr("LOGIN");
         textButton_->setText(buttonText);
     }
     else

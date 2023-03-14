@@ -45,20 +45,6 @@ QString Utils::getOSVersion()
 #endif
 }
 
-QString Utils::humanReadableByteCount(double bytes, bool isUseSpace, bool isDecimal)
-{
-    const int kUnit = 1024;
-    if (bytes < kUnit)
-        return QString::number(static_cast<quint64>(bytes)) + " B";
-
-    const int exp = static_cast<int>(log(bytes) / log(kUnit));
-    const QString pre = QString("KMGTPE").at(exp-1);
-    double fvalue = bytes / pow(kUnit, exp);
-    fvalue = isDecimal ? (floor(fvalue * 10.0) / 10.0) : floor(fvalue);
-    return QString("%1%2%3B").arg(QString::number(fvalue, 'f', isDecimal ? 1 : 0))
-                             .arg(isUseSpace ? " " : "").arg(pre);
-}
-
 void Utils::parseVersionString(const QString &version, int &major, int &minor, bool &bSuccess)
 {
     QStringList strs = version.split(".");

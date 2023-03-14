@@ -24,6 +24,7 @@
 #include "protocolwindow/protocolwindowitem.h"
 #include "utils/ws_assert.h"
 #include "utils/utils.h"
+#include "languagecontroller.h"
 #include "mainwindow.h"
 #include "commongraphics/commongraphics.h"
 #include "backend/persistentstate.h"
@@ -42,9 +43,6 @@ MainWindowController::MainWindowController(QWidget *parent, LocationsWindow *loc
     preferences_(preferences),
     preferencesHelper_(preferencesHelper),
     locationsWindow_(locationsWindow),
-    CLOSING_WINDSCRIBE(QT_TR_NOOP("Closing Windscribe")),
-    CLOSE_ACCEPT(QT_TR_NOOP("Yes")),
-    CLOSE_REJECT(QT_TR_NOOP("No")),
     locationListAnimationState_(LOCATION_LIST_ANIMATION_COLLAPSED),
     isAtomicAnimationActive_(false),
     expandLocationsListAnimation_(NULL),
@@ -81,9 +79,7 @@ MainWindowController::MainWindowController(QWidget *parent, LocationsWindow *loc
     upgradeAccountWindow_ = new UpgradeWindow::UpgradeWindowItem(preferences);
     bottomInfoWindow_ = new SharingFeatures::BottomInfoItem(preferences);
     generalMessageWindow_ = new GeneralMessage::GeneralMessageWindowItem(preferences, false);
-    exitWindow_ = new GeneralMessage::GeneralMessageTwoButtonWindowItem(tr(CLOSING_WINDSCRIBE.toStdString().c_str()),
-                                                                        "SHUTDOWN_ICON",
-                                                                        tr(CLOSE_ACCEPT.toStdString().c_str()), tr(CLOSE_REJECT.toStdString().c_str()));
+    exitWindow_ = new GeneralMessage::GeneralMessageTwoButtonWindowItem(tr(CLOSING_WINDSCRIBE), "SHUTDOWN_ICON", tr(CLOSE_ACCEPT), tr(CLOSE_REJECT));
     updateAppItem_ = new UpdateApp::UpdateAppItem(preferences);
     newsFeedWindow_ = new NewsFeedWindow::NewsFeedWindowItem(nullptr, preferences, preferencesHelper);
     protocolWindow_ = new ProtocolWindow::ProtocolWindowItem(nullptr, connectWindow_, preferences, preferencesHelper);
@@ -172,6 +168,8 @@ MainWindowController::MainWindowController(QWidget *parent, LocationsWindow *loc
 
     // update window heights if we start in van gogh mode
     onAppSkinChanged(preferences_->appSkin());
+
+    connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &MainWindowController::onLanguageChanged);
 }
 
 void MainWindowController::updateScaling()
@@ -3035,4 +3033,11 @@ int MainWindowController::locationsYOffset()
         return 0;
     }
     return -LOCATIONS_WINDOW_TOP_OFFS*G_SCALE;
+}
+
+void MainWindowController::onLanguageChanged()
+{
+    exitWindow_->setTitle(tr(CLOSING_WINDSCRIBE));
+    exitWindow_->setAcceptText(tr(CLOSE_ACCEPT));
+    exitWindow_->setRejectText(tr(CLOSE_REJECT));
 }

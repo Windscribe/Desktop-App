@@ -151,6 +151,7 @@ private slots:
     void onAppSkinChanged(APP_SKIN s);
     void onVanGoghAnimationProgressChanged(QVariant value);
     void onVanGoghAnimationFinished();
+    void onLanguageChanged();
 
 private:
     WINDOW_ID curWindow_;
@@ -184,9 +185,9 @@ private:
 
     LocationsWindow *locationsWindow_;
 
-    QString CLOSING_WINDSCRIBE;
-    QString CLOSE_ACCEPT;
-    QString CLOSE_REJECT;
+    const char *CLOSING_WINDSCRIBE = QT_TR_NOOP("Closing Windscribe");
+    const char *CLOSE_ACCEPT = QT_TR_NOOP("Yes");
+    const char *CLOSE_REJECT = QT_TR_NOOP("No");
 
     static constexpr int LOCATIONS_WINDOW_TOP_OFFS = 27;
     static constexpr int LOCATIONS_WINDOW_WIDTH = WINDOW_WIDTH;

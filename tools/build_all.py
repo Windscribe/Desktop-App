@@ -293,9 +293,9 @@ def build_component(component, qt_root, buildenv=None):
             except Exception:
                 # Not on a development branch, ignore
                 pass
-
         msg.Info(generate_cmd)
         iutl.RunCommand(generate_cmd, env=buildenv, shell=(CURRENT_OS == "win32"))
+
         build_cmd = ["cmake", "--build", ".", "--config", "Debug" if arghelper.build_debug() else "Release", "--parallel", str(multiprocessing.cpu_count()), "--"]
         if "xcflags" in component:
             build_cmd.extend(component["xcflags"])
@@ -484,8 +484,7 @@ def build_installer_win32(configdata, qt_root, msvc_root, crt_root, win_cert_pas
     buildenv.update({"CL": "/MP"})
     build_component(installer_info, qt_root, buildenv)
     deploy_component(configdata, "installer", buildenv)
-    if arghelper.clean():
-        utl.RemoveFile(archive_filename)
+    utl.RemoveFile(archive_filename)
     final_installer_name = os.path.normpath(os.path.join(BUILD_INSTALLER_FILES, "..",
                                                          "Windscribe_{}.exe".format(extractor.app_version(True))))
     utl.RenameFile(os.path.normpath(os.path.join(BUILD_INSTALLER_FILES,
@@ -529,6 +528,7 @@ def build_installer_mac(configdata, qt_root, build_path):
         final_installer_name = os.path.normpath(os.path.join(dmg_dir, "Windscribe_{}.dmg"
                                                              .format(extractor.app_version(True))))
     utl.RenameFile(os.path.join(dmg_dir, "WindscribeInstaller.dmg"), final_installer_name)
+    utl.RemoveFile(arc_path)
 
 
 def code_sign_linux(binary_name, binary_dir):

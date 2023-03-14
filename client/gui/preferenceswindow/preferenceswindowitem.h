@@ -137,8 +137,6 @@ private:
     SplitTunnelingAddressesWindowItem *splitTunnelingAddressesWindowItem_;
 
     bool isShowSubPage_;
-    QString pageCaption_;
-
     bool loggedIn_;
 
     void changeTab(PREFERENCES_TAB_TYPE tab);

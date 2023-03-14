@@ -18,6 +18,8 @@ class NetworkOptionsNetworkWindowItem : public CommonGraphics::BasePage
 public:
     explicit NetworkOptionsNetworkWindowItem(ScalableGraphicsObject *parent, Preferences *preferences, PreferencesHelper *preferencesHelper);
 
+    QString caption() const override;
+
     void setCurrentNetwork(types::NetworkInterface network);
     void setNetwork(types::NetworkInterface network);
 
@@ -29,6 +31,7 @@ private slots:
     void onForgetClicked();
     void onNetworkWhitelistChanged(QVector<types::NetworkInterface> l);
     void onPreferredProtocolChanged(const types::ConnectionSettings &settings);
+    void onLanguageChanged();
 
 private:
     void updateForgetGroup();

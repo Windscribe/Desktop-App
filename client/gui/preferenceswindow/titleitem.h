@@ -10,7 +10,7 @@ class TitleItem : public CommonGraphics::BaseItem
 {
     Q_OBJECT
 public:
-    explicit TitleItem(ScalableGraphicsObject *parent, const QString &title);
+    explicit TitleItem(ScalableGraphicsObject *parent, const QString &title = "");
 
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
     void updateScaling() override;

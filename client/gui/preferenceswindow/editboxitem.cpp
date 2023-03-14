@@ -31,8 +31,6 @@ EditBoxItem::EditBoxItem(ScalableGraphicsObject *parent, const QString &caption,
     lineEdit_->setStyleSheet("background: transparent; color: rgb(135, 138, 147)");
     lineEdit_->setFrame(false);
 
-    connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &EditBoxItem::onLanguageChanged);
-
     proxyWidget_ = new QGraphicsProxyWidget(this);
     proxyWidget_->setWidget(lineEdit_);
     proxyWidget_->hide();
@@ -49,14 +47,13 @@ void EditBoxItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
     {
         QFont *font = FontManager::instance().getFont(12, false);
         QFontMetrics fm(*font);
-        QString caption = tr(caption_.toStdString().c_str());
         painter->setFont(*font);
         painter->setPen(Qt::white);
         painter->drawText(boundingRect().adjusted(PREFERENCES_MARGIN*G_SCALE,
                                                   PREFERENCES_MARGIN*G_SCALE,
                                                   -(2*PREFERENCES_MARGIN + ICON_WIDTH)*G_SCALE,
                                                   -PREFERENCES_MARGIN*G_SCALE),
-                          Qt::AlignLeft, caption);
+                          Qt::AlignLeft, caption_);
 
         painter->setOpacity(OPACITY_HALF);
         QString t;
@@ -73,15 +70,21 @@ void EditBoxItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
             t = text_;
         }
 
-        painter->drawText(boundingRect().adjusted((2*PREFERENCES_MARGIN*G_SCALE) + fm.horizontalAdvance(caption),
+        painter->drawText(boundingRect().adjusted((2*PREFERENCES_MARGIN*G_SCALE) + fm.horizontalAdvance(caption_),
                                                   PREFERENCES_MARGIN*G_SCALE,
                                                   -(2*PREFERENCES_MARGIN + ICON_WIDTH)*G_SCALE,
                                                   -PREFERENCES_MARGIN),
                           Qt::AlignRight,
                           fm.elidedText(t,
                                         Qt::ElideRight,
-                                        boundingRect().width() - (4*PREFERENCES_MARGIN + ICON_WIDTH)*G_SCALE - fm.horizontalAdvance(caption)));
+                                        boundingRect().width() - (4*PREFERENCES_MARGIN + ICON_WIDTH)*G_SCALE - fm.horizontalAdvance(caption_)));
     }
+}
+
+void EditBoxItem::setCaption(const QString &caption)
+{
+    caption_ = caption;
+    update();
 }
 
 void EditBoxItem::setText(const QString &text)
@@ -89,6 +92,12 @@ void EditBoxItem::setText(const QString &text)
     text_ = text;
     lineEdit_->setText(text_);
     update();
+}
+
+void EditBoxItem::setPrompt(const QString &prompt)
+{
+    editPlaceholderText_ = prompt;
+    lineEdit_->setPlaceholderText(editPlaceholderText_.toStdString().c_str());
 }
 
 void EditBoxItem::setValidator(QRegularExpressionValidator *validator)
@@ -171,11 +180,6 @@ void EditBoxItem::updateScaling()
     CommonGraphics::BaseItem::updateScaling();
     setHeight(PREFERENCE_GROUP_ITEM_HEIGHT*G_SCALE);
     updatePositions();
-}
-
-void EditBoxItem::onLanguageChanged()
-{
-    lineEdit_->setPlaceholderText(tr(editPlaceholderText_.toStdString().c_str()));
 }
 
 void EditBoxItem::updatePositions()

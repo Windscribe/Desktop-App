@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.23)
+cmake_minimum_required(VERSION 3.20)
 
 set(CMAKE_OSX_DEPLOYMENT_TARGET "10.14" CACHE STRING "Minimum OS X deployment version")
 
@@ -19,21 +19,21 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # installed by default.
 set(OpenGL_GL_PREFERENCE LEGACY)
 
-find_package(Qt6 REQUIRED COMPONENTS Widgets Network Test)
+find_package(Qt6 REQUIRED COMPONENTS Widgets Network Test LinguistTools)
 
 # build_all.py sets this option when invoked with the '--sign' flag. Disabled by default
-OPTION(DEFINE_USE_SIGNATURE_CHECK_MACRO "Add define USE_SIGNATURE_CHECK to project" OFF)
-IF(DEFINE_USE_SIGNATURE_CHECK_MACRO)
-    ADD_DEFINITIONS(-DUSE_SIGNATURE_CHECK)
-ENDIF(DEFINE_USE_SIGNATURE_CHECK_MACRO)
+option(DEFINE_USE_SIGNATURE_CHECK_MACRO "Add define USE_SIGNATURE_CHECK to project" OFF)
+if(DEFINE_USE_SIGNATURE_CHECK_MACRO)
+    add_definitions(-DUSE_SIGNATURE_CHECK)
+endif(DEFINE_USE_SIGNATURE_CHECK_MACRO)
 
 #set(IS_BUILD_TESTS "1")
 
 # if a build identifier is provided, add it to the project.
-OPTION(DEFINE_USE_BUILD_ID_MACRO "Add define BUILD_ID to project" "")
-IF(DEFINE_USE_BUILD_ID_MACRO)
-    ADD_DEFINITIONS(-DUSE_BUILD_ID="${DEFINE_USE_BUILD_ID_MACRO}")
-ENDIF(DEFINE_USE_BUILD_ID_MACRO)
+option(DEFINE_USE_BUILD_ID_MACRO "Add define BUILD_ID to project" "")
+if(DEFINE_USE_BUILD_ID_MACRO)
+    add_definitions(-DUSE_BUILD_ID="${DEFINE_USE_BUILD_ID_MACRO}")
+endif(DEFINE_USE_BUILD_ID_MACRO)
 
 set(WINDSCRIBE_BUILD_LIBS_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../build-libs)
 

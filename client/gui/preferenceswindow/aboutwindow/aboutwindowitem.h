@@ -11,13 +11,24 @@ namespace PreferencesWindow {
 
 class AboutWindowItem : public CommonGraphics::BasePage
 {
+    Q_OBJECT
 public:
     explicit AboutWindowItem(ScalableGraphicsObject *parent, Preferences *preferences, PreferencesHelper *preferencesHelper);
 
-    QString caption() const;
+    QString caption() const override;
+
+private slots:
+    void onLanguageChanged();
 
 private:
     PreferenceGroup *group_;
+    LinkItem *statusLink_;
+    LinkItem *aboutUsLink_;
+    LinkItem *privacyLink_;
+    LinkItem *termsLink_;
+    LinkItem *blogLink_;
+    LinkItem *jobsLink_;
+    LinkItem *licensesLink_;
 };
 
 } // namespace PreferencesWindow

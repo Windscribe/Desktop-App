@@ -6,6 +6,7 @@
 #include "preferenceswindow/preferencesconst.h"
 #include "utils/utils.h"
 #include "dpiscalemanager.h"
+#include "languagecontroller.h"
 
 namespace PreferencesWindow {
 
@@ -14,12 +15,14 @@ PlanItem::PlanItem(ScalableGraphicsObject *parent)
 {
     generatePlanString();
 
-    textButton_ = new CommonGraphics::TextButton(QT_TRANSLATE_NOOP("CommonGraphics::TextButton", "Pro"), FontDescr(12, false), QColor(85, 255, 138), true, this);
+    textButton_ = new CommonGraphics::TextButton(tr(PRO_TEXT), FontDescr(12, false), QColor(85, 255, 138), true, this);
     connect(textButton_, &CommonGraphics::TextButton::clicked, this, &PlanItem::upgradeClicked);
     textButton_->setClickable(false);
     textButton_->setMarginHeight(0);
     textButton_->setTextAlignment(Qt::AlignLeft);
     updateTextButtonPos();
+
+    connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &PlanItem::onLanguageChanged);
 }
 
 void PlanItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
@@ -46,13 +49,13 @@ void PlanItem::setIsPremium(bool isPremium)
     isPremium_ = isPremium;
     if (isPremium_)
     {
-        textButton_->setText(tr("Pro"));
+        textButton_->setText(tr(PRO_TEXT));
         textButton_->setCurrentOpacity(OPACITY_FULL);
         textButton_->setColor(QColor(85, 255, 138));
     }
     else
     {
-        textButton_->setText(tr("Upgrade"));
+        textButton_->setText(tr(UPGRADE_TEXT));
         textButton_->setCurrentOpacity(OPACITY_HALF);
         textButton_->setColor(Qt::white);
     }
@@ -75,26 +78,24 @@ void PlanItem::updateScaling()
 
 void PlanItem::onLanguageChanged()
 {
-    if (isPremium_)
-    {
-        textButton_->setText(tr("Pro"));
-    }
-    else
-    {
-        textButton_->setText(tr("Upgrade"));
+    if (isPremium_) {
+        textButton_->setText(tr(PRO_TEXT));
+    } else {
+        textButton_->setText(tr(UPGRADE_TEXT));
     }
     updateTextButtonPos();
+
+    generatePlanString();
+    update();
 }
 
 void PlanItem::generatePlanString()
 {
-    if (planBytes_ < 0)
-    {
+    if (planBytes_ < 0) {
         planStr_ = tr("Unlimited Data");
-    }
-    else
-    {
-        planStr_ = QString(tr("%1/Month")).arg(Utils::humanReadableByteCount(planBytes_, false));
+    } else {
+        QLocale locale(LanguageController::instance().getLanguage());
+        planStr_ = QString(tr("%1/Month")).arg(locale.formattedDataSize(planBytes_, 1, QLocale::DataSizeTraditionalFormat));
     }
 }
 

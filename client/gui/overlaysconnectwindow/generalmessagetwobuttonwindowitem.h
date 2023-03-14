@@ -59,7 +59,6 @@ private:
     void updatePositions();
 
     QString title_;
-    QString titleShuttingDown_;
     QString icon_;
 
     static constexpr int SHAPED_ICON_POS_Y = 58;
