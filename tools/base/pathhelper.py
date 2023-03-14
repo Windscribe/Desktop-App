@@ -9,10 +9,10 @@ import os
 # client-desktop                      (ROOT_DIR)
 #     build-exe                       (artifact_dir)
 #     common                          (COMMON_DIR)
-#     installer 
+#     installer
 #         linux                       (LINUX_INSTALLER_ROOT)
 #             debian_package          (src_package_path)
-#     temp 
+#     temp
 #         installer
 #             InstallerFiles          (BUILD_INSTALLER_FILES)
 #                 signatures
@@ -34,35 +34,36 @@ PROVISION_PROFILE = "embedded.provisionprofile"
 
 
 def windows_signing_cert_filename():
-	return os.path.join(ROOT_DIR, "installer", "windows", "signing", "code_signing.pfx")
+    return os.path.join(ROOT_DIR, "installer", "windows", "signing", "code_signing.pfx")
 
 
 def notarize_yml_filename_absolute():
-	return os.path.join(TOOLS_DIR, NOTARIZE_YML)
+    return os.path.join(TOOLS_DIR, NOTARIZE_YML)
+
 
 def notarize_script_filename_absolute():
-	return os.path.join(TOOLS_DIR, NOTARIZE_SCRIPT)
+    return os.path.join(TOOLS_DIR, NOTARIZE_SCRIPT)
 
 
 def mac_provision_profile_folder_name_absolute():
-	return os.path.join(ROOT_DIR, "backend", "mac", "provisioning_profile")
+    return os.path.join(ROOT_DIR, "backend", "mac", "provisioning_profile")
 
 
 def mac_provision_profile_filename_absolute():
-	return os.path.join(mac_provision_profile_folder_name_absolute(), PROVISION_PROFILE)
+    return os.path.join(mac_provision_profile_folder_name_absolute(), PROVISION_PROFILE)
 
 
 def linux_key_directory():
-	return os.path.join(COMMON_DIR, "keys", "linux")
+    return os.path.join(COMMON_DIR, "keys", "linux")
 
 
 def linux_private_key_filename_absolute():
-	return os.path.join(linux_key_directory(), "key.pem")
+    return os.path.join(linux_key_directory(), "key.pem")
 
 
 def linux_public_key_filename_absolute():
-	return os.path.join(linux_key_directory(), "key.pub")
+    return os.path.join(linux_key_directory(), "key.pub")
 
 
 def linux_include_key_filename_absolute():
-	return os.path.join(linux_key_directory(), "key_pub.txt")
+    return os.path.join(linux_key_directory(), "key_pub.txt")

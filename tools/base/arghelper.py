@@ -100,9 +100,9 @@ class ArgHelper:
                 if session_token_index >= len(program_arg_list):
                     raise IOError()
                 self.one_password_session = program_arg_list[session_token_index]
-            except:
+            except Exception:
                 self.one_password_session = ""
-        except:
+        except Exception:
             self.one_password_user = ""
             self.one_password_session = ""
 

@@ -42,12 +42,12 @@ class VaultParser:
     @staticmethod
     def notarize_yml():
         notarize_contents = VaultParser.parse_vault_json('data', 'notarize.yml')
-        sys.stdout.write(notarize_contents) 
+        sys.stdout.write(notarize_contents)
 
     @staticmethod
     def hardcoded_secrets():
         hardcoded_contents = VaultParser.parse_vault_json('data', 'hardcodedsecrets.ini')
-        sys.stdout.write(hardcoded_contents) 
+        sys.stdout.write(hardcoded_contents)
 
     @staticmethod
     def windows_cert():

@@ -11,6 +11,7 @@ import sys
 
 import pathhelper
 
+
 class Extractor:
     # memoize so we don't have to read the file more than once per variable
     extracted_app_version = ""
@@ -39,11 +40,11 @@ class Extractor:
     def __extract_app_version(include_beta_suffix=False):
         version_file = os.path.join(pathhelper.COMMON_DIR, "version", "windscribe_version.h")
         values = [0] * 5
-        patterns = [re.compile("\\bWINDSCRIBE_MAJOR_VERSION\\s+(\\d+)"),
-                    re.compile("\\bWINDSCRIBE_MINOR_VERSION\\s+(\\d+)"),
-                    re.compile("\\bWINDSCRIBE_BUILD_VERSION\\s+(\\d+)"),
-                    re.compile("^#define\\s+WINDSCRIBE_IS_BETA"),
-                    re.compile("^#define\\s+WINDSCRIBE_IS_GUINEA_PIG")]
+        patterns = [re.compile(r"\bWINDSCRIBE_MAJOR_VERSION\s+(\d+)"),
+                    re.compile(r"\bWINDSCRIBE_MINOR_VERSION\s+(\d+)"),
+                    re.compile(r"\bWINDSCRIBE_BUILD_VERSION\s+(\d+)"),
+                    re.compile(r"^#define\s+WINDSCRIBE_IS_BETA"),
+                    re.compile(r"^#define\s+WINDSCRIBE_IS_GUINEA_PIG")]
 
         with open(version_file, "r") as f:
             for line in f:
@@ -67,7 +68,7 @@ class Extractor:
     @staticmethod
     def __extract_mac_signing_params():
         version_file = os.path.join(pathhelper.COMMON_DIR, "utils", "executable_signature", "executable_signature_defs.h")
-        pattern = re.compile("^#define\\s+MACOS_CERT_DEVELOPER_ID\\s+")
+        pattern = re.compile(r"^#define\s+MACOS_CERT_DEVELOPER_ID\s+")
         key_name = ""
         with open(version_file, "r") as f:
             for line in f:
@@ -80,7 +81,7 @@ class Extractor:
                           "This entry is required for code signing and runtime signature verification."
                           .format(version_file))
         team_id = ""
-        pattern = re.compile("\(([^]]+)\)")
+        pattern = re.compile(r"\(([^]]+)\)")
         matched = pattern.search(key_name)
         if matched:
             team_id = matched.group(0).strip("()")
