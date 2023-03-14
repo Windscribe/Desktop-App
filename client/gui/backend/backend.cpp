@@ -28,6 +28,9 @@ Backend::Backend(QObject *parent) : QObject(parent),
     LaunchOnStartup::instance().setLaunchOnStartup(preferences_.isLaunchOnStartup());
 #endif
 
+    // if any of the options from engine settings are changed sync with engine settings
+    connect(&preferences_, &Preferences::engineSettingsChanged, this, &Backend::onEngineSettingsChangedInPreferences);
+
     locationsModelManager_ = new gui_locations::LocationsModelManager(this);
 
     connect(&connectStateHelper_, SIGNAL(connectStateChanged(types::ConnectState)), SIGNAL(connectStateChanged(types::ConnectState)));
@@ -364,18 +367,6 @@ void Backend::sendAdvancedParametersChanged()
     engineServer_->sendCommand(&cmd);
 }
 
-void Backend::sendEngineSettingsIfChanged()
-{
-    if (preferences_.getEngineSettings() != latestEngineSettings_)
-    {
-        //qCDebug(LOG_BASIC) << "Engine settings changed, sent to engine";
-        latestEngineSettings_ = preferences_.getEngineSettings();
-        IPC::ClientCommands::SetSettings cmd(latestEngineSettings_);
-        //qCDebugMultiline(LOG_IPC) << QString::fromStdString(cmd.getDebugString());
-        engineServer_->sendCommand(&cmd);
-    }
-}
-
 gui_locations::LocationsModelManager *Backend::locationsModelManager()
 {
     return locationsModelManager_;
@@ -430,8 +421,7 @@ void Backend::onConnectionNewCommand(IPC::Command *command)
             IPC::ServerCommands::InitFinished *cmd = static_cast<IPC::ServerCommands::InitFinished *>(command);
             if (cmd->initState_ == INIT_STATE_SUCCESS)
             {
-                latestEngineSettings_ = cmd->engineSettings_;
-                preferences_.setEngineSettings(latestEngineSettings_);
+                preferences_.setEngineSettings(cmd->engineSettings_);
                 getOpenVpnVersionsFromInitCommand(*cmd);
 
                 // WiFi sharing supported state
@@ -568,8 +558,7 @@ void Backend::onConnectionNewCommand(IPC::Command *command)
     else if (command->getStringId() == IPC::ServerCommands::EngineSettingsChanged::getCommandStringId())
     {
         //qCDebugMultiline(LOG_IPC) << QString::fromStdString(command->getDebugString());
-        latestEngineSettings_ = static_cast<IPC::ServerCommands::EngineSettingsChanged *>(command)->engineSettings_;
-        preferences_.setEngineSettings(latestEngineSettings_);
+        preferences_.setEngineSettings(static_cast<IPC::ServerCommands::EngineSettingsChanged *>(command)->engineSettings_);
     }
     else if (command->getStringId() == IPC::ServerCommands::CleanupFinished::getCommandStringId())
     {
@@ -666,6 +655,13 @@ void Backend::onConnectionNewCommand(IPC::Command *command)
         IPC::ServerCommands::ProtocolStatusChanged *cmd = static_cast<IPC::ServerCommands::ProtocolStatusChanged *>(command);
         Q_EMIT protocolStatusChanged(cmd->status_);
     }
+}
+
+void Backend::onEngineSettingsChangedInPreferences()
+{
+    // sync engine settings with engine
+    IPC::ClientCommands::SetSettings cmd(preferences_.getEngineSettings());
+    engineServer_->sendCommand(&cmd);
 }
 
 void Backend::abortInitialization()
@@ -795,8 +791,6 @@ void Backend::cycleMacAddress()
     types::MacAddrSpoofing mas = preferences_.macAddrSpoofing();
     mas.macAddress = macAddress;
     preferences_.setMacAddrSpoofing(mas);
-
-    sendEngineSettingsIfChanged(); //  force EngineSettings update on manual MAC cycle button press
 }
 
 void Backend::sendDetectPacketSize()

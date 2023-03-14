@@ -216,7 +216,6 @@ private slots:
     void onPreferencesLocationOrderChanged(ORDER_LOCATION_TYPE o);
     void onPreferencesSplitTunnelingChanged(types::SplitTunneling st);
     void onPreferencesAllowLanTrafficChanged(bool bAllowLanTraffic);
-    void onPreferencesUpdateEngineSettings();
     void onPreferencesLaunchOnStartupChanged(bool bEnabled);
     void onPreferencesConnectionSettingsChanged(types::ConnectionSettings connectionSettings);
     void onPreferencesNetworkPreferredProtocolsChanged(QMap<QString, types::ConnectionSettings> p);

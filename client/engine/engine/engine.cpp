@@ -48,8 +48,7 @@
     #include "utils/linuxutils.h"
 #endif
 
-Engine::Engine(const types::EngineSettings &engineSettings) : QObject(nullptr),
-    engineSettings_(engineSettings),
+Engine::Engine() : QObject(nullptr),
     helper_(nullptr),
     firewallController_(nullptr),
     networkAccessManager_(nullptr),
@@ -90,10 +89,13 @@ Engine::Engine(const types::EngineSettings &engineSettings) : QObject(nullptr),
     bPrevNetworkInterfaceInitialized_(false),
     connectionSettingsOverride_(types::Protocol(types::Protocol::TYPE::UNINITIALIZED), 0, true)
 {
+    engineSettings_.loadFromSettings();
+    qCDebug(LOG_BASIC) << "Engine settings" << engineSettings_;
+
     connectStateController_ = new ConnectStateController(nullptr);
     connect(connectStateController_, SIGNAL(stateChanged(CONNECT_STATE,DISCONNECT_REASON,CONNECT_ERROR,LocationID)), SLOT(onConnectStateChanged(CONNECT_STATE,DISCONNECT_REASON,CONNECT_ERROR,LocationID)));
     emergencyConnectStateController_ = new ConnectStateController(nullptr);
-    OpenVpnVersionController::instance().setUseWinTun(engineSettings.isUseWintun());
+    OpenVpnVersionController::instance().setUseWinTun(engineSettings_.isUseWintun());
 #ifdef Q_OS_LINUX
     DnsScripts_linux::instance().setDnsManager(engineSettings.dnsManager());
 #endif
@@ -674,11 +676,11 @@ void Engine::onInitializeHelper(INIT_HELPER_RET ret)
         // check BFE service status
         if (!BFE_Service_win::instance().isBFEEnabled())
         {
-            Q_EMIT initFinished(ENGINE_INIT_BFE_SERVICE_FAILED, isAuthHashExists);
+            Q_EMIT initFinished(ENGINE_INIT_BFE_SERVICE_FAILED, isAuthHashExists, engineSettings_);
         }
         else
         {
-            Q_EMIT initFinished(ENGINE_INIT_SUCCESS, isAuthHashExists);
+            Q_EMIT initFinished(ENGINE_INIT_SUCCESS, isAuthHashExists, engineSettings_);
         }
     #else
         Q_EMIT initFinished(ENGINE_INIT_SUCCESS, isAuthHashExists);
@@ -686,11 +688,11 @@ void Engine::onInitializeHelper(INIT_HELPER_RET ret)
     }
     else if (ret == INIT_HELPER_FAILED)
     {
-        Q_EMIT initFinished(ENGINE_INIT_HELPER_FAILED, isAuthHashExists);
+        Q_EMIT initFinished(ENGINE_INIT_HELPER_FAILED, isAuthHashExists, engineSettings_);
     }
     else if (ret == INIT_HELPER_USER_CANCELED)
     {
-        Q_EMIT initFinished(ENGINE_INIT_HELPER_USER_CANCELED, isAuthHashExists);
+        Q_EMIT initFinished(ENGINE_INIT_HELPER_USER_CANCELED, isAuthHashExists, engineSettings_);
     }
     else
     {
@@ -862,9 +864,9 @@ void Engine::enableBFE_winImpl()
 
     bool bSuccess = BFE_Service_win::instance().checkAndEnableBFE(helper_);
     if (bSuccess)
-        Q_EMIT bfeEnableFinished(ENGINE_INIT_SUCCESS, api_resources::ApiResourcesManager::isAuthHashExists());
+        Q_EMIT bfeEnableFinished(ENGINE_INIT_SUCCESS, api_resources::ApiResourcesManager::isAuthHashExists(), engineSettings_);
     else
-        Q_EMIT bfeEnableFinished(ENGINE_INIT_BFE_SERVICE_FAILED, api_resources::ApiResourcesManager::isAuthHashExists());
+        Q_EMIT bfeEnableFinished(ENGINE_INIT_BFE_SERVICE_FAILED, api_resources::ApiResourcesManager::isAuthHashExists(), engineSettings_);
 #endif
 }
 
@@ -1100,6 +1102,9 @@ void Engine::speedRatingImpl(int rating, const QString &localExternalIp)
 
 void Engine::setSettingsImpl(const types::EngineSettings &engineSettings)
 {
+    if (engineSettings_ == engineSettings)
+        return;
+
     qCDebug(LOG_BASIC) << "Engine::setSettingsImpl";
 
     bool isAllowLanTrafficChanged = engineSettings_.isAllowLanTraffic() != engineSettings.isAllowLanTraffic();
@@ -1111,6 +1116,7 @@ void Engine::setSettingsImpl(const types::EngineSettings &engineSettings)
     bool isPacketSizeChanged =  engineSettings_.packetSize() != engineSettings.packetSize();
     bool isDnsWhileConnectedChanged = engineSettings_.connectedDnsInfo() != engineSettings.connectedDnsInfo();
     engineSettings_ = engineSettings;
+    engineSettings_.saveToSettings();
 
 #ifdef Q_OS_LINUX
     DnsScripts_linux::instance().setDnsManager(engineSettings.dnsManager());
@@ -1996,7 +2002,7 @@ void Engine::onPacketSizeControllerPacketSizeChanged(bool isAuto, int mtu)
 
         // Connection to EngineServer is chewing the parameters to garbage when passed as ProtoTypes::PacketSize
         // Probably has something to do with EngineThread
-        Q_EMIT packetSizeChanged(packetSize.isAutomatic, packetSize.mtu);
+        Q_EMIT packetSizeChanged(engineSettings_);
     }
 }
 
@@ -2092,7 +2098,7 @@ void Engine::stopWifiSharingImpl()
 void Engine::setSettingsMacAddressSpoofingImpl(const types::MacAddrSpoofing &macAddrSpoofing)
 {
     engineSettings_.setMacAddrSpoofing(macAddrSpoofing);
-    Q_EMIT macAddrSpoofingChanged(macAddrSpoofing);
+    Q_EMIT macAddrSpoofingChanged(engineSettings_);
 }
 
 void Engine::setSplitTunnelingSettingsImpl(bool isActive, bool isExclude, const QStringList &files, const QStringList &ips, const QStringList &hosts)

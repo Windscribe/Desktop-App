@@ -19,14 +19,10 @@ EngineServer::EngineServer(QObject *parent) : QObject(parent)
   , threadEngine_(NULL)
   , bClientAuthReceived_(false)
 {
-    curEngineSettings_.loadFromSettings();
-    qCDebug(LOG_BASIC) << "Engine settings" << curEngineSettings_;
 }
 
 EngineServer::~EngineServer()
 {
-    curEngineSettings_.saveToSettings();
-
     const auto connectionKeys = connections_.keys();
     for (auto connection : connectionKeys)
     {
@@ -36,23 +32,6 @@ EngineServer::~EngineServer()
     }
     SAFE_DELETE(server_);
     qCDebug(LOG_IPC) << "IPC server stopped";
-}
-
-void EngineServer::run()
-{
-    WS_ASSERT(server_ == NULL);
-    server_ = new IPC::Server();
-    connect(dynamic_cast<QObject*>(server_), SIGNAL(newConnection(IPC::IConnection *)), SLOT(onServerCallbackAcceptFunction(IPC::IConnection *)), Qt::QueuedConnection);
-
-    if (!server_->start())
-    {
-        qCDebug(LOG_IPC) << "Can't start IPC server, exit";
-        Q_EMIT finished();
-    }
-    else
-    {
-        qCDebug(LOG_IPC) << "IPC server started";
-    }
 }
 
 bool EngineServer::handleCommand(IPC::Command *command)
@@ -65,7 +44,7 @@ bool EngineServer::handleCommand(IPC::Command *command)
         if (engine_ == NULL && threadEngine_ == NULL)
         {
             threadEngine_ = new QThread(this);
-            engine_ = new Engine(curEngineSettings_);
+            engine_ = new Engine();
             engine_->moveToThread(threadEngine_);
             connect(threadEngine_, &QThread::started, engine_, &Engine::init);
             connect(engine_, &Engine::cleanupFinished, threadEngine_, &QThread::quit);
@@ -322,16 +301,7 @@ bool EngineServer::handleCommand(IPC::Command *command)
     else if (command->getStringId() == IPC::ClientCommands::SetSettings::getCommandStringId())
     {
         IPC::ClientCommands::SetSettings *setSettingsCmd = static_cast<IPC::ClientCommands::SetSettings *>(command);
-
-        if (curEngineSettings_ != setSettingsCmd->getEngineSettings())
-        {
-            curEngineSettings_ = setSettingsCmd->getEngineSettings();
-            if (engine_)
-            {
-                engine_->setSettings(curEngineSettings_);
-            }
-            curEngineSettings_.saveToSettings();
-        }
+        engine_->setSettings(setSettingsCmd->getEngineSettings());
         return true;
     }
     else if (command->getStringId() == IPC::ClientCommands::SetBlockConnect::getCommandStringId())
@@ -391,7 +361,7 @@ bool EngineServer::handleCommand(IPC::Command *command)
     return false;
 }
 
-void EngineServer::sendEngineInitReturnCode(ENGINE_INIT_RET_CODE retCode, bool isCanLoginWithAuthHash)
+void EngineServer::sendEngineInitReturnCode(ENGINE_INIT_RET_CODE retCode, bool isCanLoginWithAuthHash, const types::EngineSettings &engineSettings)
 {
     if (retCode == ENGINE_INIT_SUCCESS)
     {
@@ -400,7 +370,7 @@ void EngineServer::sendEngineInitReturnCode(ENGINE_INIT_RET_CODE retCode, bool i
         connect(engine_->getLocationsModel(), &locationsmodel::LocationsModel::customConfigsLocationsUpdated, this, &EngineServer::onEngineLocationsModelCustomConfigItemsUpdated);
         connect(engine_->getLocationsModel(), &locationsmodel::LocationsModel::locationPingTimeChanged, this, &EngineServer::onEngineLocationsModelPingChangedChanged);
 
-        IPC::ServerCommands::InitFinished cmd(INIT_STATE_SUCCESS, curEngineSettings_, OpenVpnVersionController::instance().getAvailableOpenVpnVersions(),
+        IPC::ServerCommands::InitFinished cmd(INIT_STATE_SUCCESS, engineSettings, OpenVpnVersionController::instance().getAvailableOpenVpnVersions(),
                                               engine_->isWifiSharingSupported(), engine_->isApiSavedSettingsExists(), isCanLoginWithAuthHash);
 
         sendCmdToAllAuthorizedAndGetStateClients(&cmd, true);
@@ -501,16 +471,16 @@ void EngineServer::onEngineCleanupFinished()
     sendCmdToAllAuthorizedAndGetStateClients(&cmd, true);
 }
 
-void EngineServer::onEngineInitFinished(ENGINE_INIT_RET_CODE retCode, bool isCanLoginWithAuthHash)
+void EngineServer::onEngineInitFinished(ENGINE_INIT_RET_CODE retCode, bool isCanLoginWithAuthHash, const types::EngineSettings &engineSettings)
 {
-    sendEngineInitReturnCode(retCode, isCanLoginWithAuthHash);
+    sendEngineInitReturnCode(retCode, isCanLoginWithAuthHash, engineSettings);
 }
 
-void EngineServer::onEngineBfeEnableFinished(ENGINE_INIT_RET_CODE retCode, bool isCanLoginWithAuthHash)
+void EngineServer::onEngineBfeEnableFinished(ENGINE_INIT_RET_CODE retCode, bool isCanLoginWithAuthHash, const types::EngineSettings &engineSettings)
 {
     if (retCode == ENGINE_INIT_SUCCESS)
     {
-        onEngineInitFinished(ENGINE_INIT_SUCCESS, isCanLoginWithAuthHash);
+        onEngineInitFinished(ENGINE_INIT_SUCCESS, isCanLoginWithAuthHash, engineSettings);
     }
     else
     {
@@ -804,10 +774,9 @@ void EngineServer::onEngineLocationsModelPingChangedChanged(const LocationID &id
     sendCmdToAllAuthorizedAndGetStateClients(&cmd, false);
 }
 
-void EngineServer::onMacAddrSpoofingChanged(const types::MacAddrSpoofing &macAddrSpoofing)
+void EngineServer::onMacAddrSpoofingChanged(const types::EngineSettings &engineSettings)
 {
-    curEngineSettings_.setMacAddrSpoofing(macAddrSpoofing);
-    IPC::ServerCommands::EngineSettingsChanged cmd(curEngineSettings_);
+    IPC::ServerCommands::EngineSettingsChanged cmd(engineSettings);
     sendCmdToAllAuthorizedAndGetStateClients(&cmd, true);
 }
 
@@ -818,15 +787,9 @@ void EngineServer::onEngineSendUserWarning(USER_WARNING_TYPE userWarningType)
     sendCmdToAllAuthorizedAndGetStateClients(&cmd, true);
 }
 
-void EngineServer::onEnginePacketSizeChanged(bool isAuto, int mtu)
+void EngineServer::onEnginePacketSizeChanged(const types::EngineSettings &engineSettings)
 {
-    types::PacketSize packetSize;
-    packetSize.isAutomatic = isAuto;
-    packetSize.mtu = mtu;
-
-    curEngineSettings_.setPacketSize(packetSize);
-
-    IPC::ServerCommands::EngineSettingsChanged cmd(curEngineSettings_);
+    IPC::ServerCommands::EngineSettingsChanged cmd(engineSettings);
     sendCmdToAllAuthorizedAndGetStateClients(&cmd, true);
 }
 

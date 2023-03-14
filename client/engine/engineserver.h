@@ -18,9 +18,6 @@ public:
     void sendCmdToAllAuthorizedAndGetStateClients(IPC::Command *cmd, bool bWithLog);
     //void sendCmdToAllAuthorizedAndGetStateClientsOfType(const IPC::Command &cmd, bool bWithLog, unsigned int clientId, bool* bLogged = nullptr);
 
-public slots:
-    void run();
-
 signals:
     void finished();
     void emitCommand(IPC::Command *command);
@@ -33,8 +30,8 @@ private slots:
     void onConnectionStateCallback(int state, IPC::IConnection *connection);
 
     void onEngineCleanupFinished();
-    void onEngineInitFinished(ENGINE_INIT_RET_CODE retCode, bool isCanLoginWithAuthHash);
-    void onEngineBfeEnableFinished(ENGINE_INIT_RET_CODE retCode, bool isCanLoginWithAuthHash);
+    void onEngineInitFinished(ENGINE_INIT_RET_CODE retCode, bool isCanLoginWithAuthHash, const types::EngineSettings &engineSettings);
+    void onEngineBfeEnableFinished(ENGINE_INIT_RET_CODE retCode, bool isCanLoginWithAuthHash, const types::EngineSettings &engineSettings);
     void onEngineFirewallStateChanged(bool isEnabled);
     void onEngineLoginFinished(bool isLoginFromSavedSettings, const QString &authHash, const types::PortMap &portMap);
     void onEngineLoginError(LOGIN_RET retCode, const QString &errorMessage);
@@ -83,9 +80,9 @@ private slots:
     void onEngineLocationsModelCustomConfigItemsUpdated(QSharedPointer<types::Location> item);
     void onEngineLocationsModelPingChangedChanged(const LocationID &id, PingTime timeMs);
 
-    void onMacAddrSpoofingChanged(const types::MacAddrSpoofing &macAddrSpoofing);
+    void onMacAddrSpoofingChanged(const types::EngineSettings &engineSettings);
     void onEngineSendUserWarning(USER_WARNING_TYPE userWarningType);
-    void onEnginePacketSizeChanged(bool isAuto, int mtu);
+    void onEnginePacketSizeChanged(const types::EngineSettings &engineSettings);
     void onEnginePacketSizeDetectionStateChanged(bool on, bool isError);
 
     void onHostsFileBecameWritable();
@@ -95,14 +92,13 @@ private:
 
     Engine *engine_;
     QThread *threadEngine_;
-    types::EngineSettings curEngineSettings_;
 
     bool bClientAuthReceived_;
     QHash<IPC::IConnection *, ClientConnectionDescr> connections_;
 
     //void serverCallbackAcceptFunction(IPC::IConnection *connection);
     bool handleCommand(IPC::Command *command);
-    void sendEngineInitReturnCode(ENGINE_INIT_RET_CODE retCode, bool isCanLoginWithAuthHash);
+    void sendEngineInitReturnCode(ENGINE_INIT_RET_CODE retCode, bool isCanLoginWithAuthHash, const types::EngineSettings &engineSettings);
     void sendConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, CONNECT_ERROR err, const LocationID &locationId);
 
     void sendFirewallStateChanged(bool isEnabled);

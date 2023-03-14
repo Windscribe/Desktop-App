@@ -20,8 +20,9 @@
 #include "types/proxysharinginfo.h"
 #include "types/wifisharinginfo.h"
 #include "types/splittunneling.h"
-//#include "engine/engineserver.h"
+//#include "engine/engine.h"
 
+class Engine;
 class EngineServer;
 
 class Backend : public QObject
@@ -85,7 +86,6 @@ public:
     void continueWithCredentialsForOvpnConfig(const QString &username, const QString &password, bool bSave);
 
     void sendAdvancedParametersChanged();
-    void sendEngineSettingsIfChanged();
 
     gui_locations::LocationsModelManager *locationsModelManager();
 
@@ -115,6 +115,7 @@ public:
 
 private slots:
     void onConnectionNewCommand(IPC::Command *command);
+    void onEngineSettingsChangedInPreferences();
 
 signals:
     // emited when connected to engine and received the engine settings, or error in initState variable
@@ -183,12 +184,12 @@ private:
     QString lastCode2fa_;
 
     types::SessionStatus latestSessionStatus_;
-    types::EngineSettings latestEngineSettings_;
     ConnectStateHelper connectStateHelper_;
     ConnectStateHelper emergencyConnectStateHelper_;
     FirewallStateHelper firewallStateHelper_;
 
     EngineServer *engineServer_;
+    Engine *engine_;
     bool isCleanupFinished_;
 
     quint32 cmdId_;
