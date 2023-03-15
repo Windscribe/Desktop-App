@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.20)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-add_definitions(-DUNICODE -D_UNICODE /wd4090)
+add_definitions(-DUNICODE -D_UNICODE /wd4090 -D_CRT_SECURE_NO_WARNINGS)
 
 project(installer)
 
@@ -81,6 +81,7 @@ set(SOURCES
 
 add_executable(installer WIN32 ${SOURCES})
 set_property(TARGET installer PROPERTY VS_DPI_AWARE "PerMonitor")
+set_property(TARGET installer PROPERTY COMPILE_FLAGS "/Gy /Oi /sdl")
 set_property(TARGET installer PROPERTY LINK_FLAGS "/MANIFESTUAC:\"level='requireAdministrator' uiAccess='false'\" /DELAYLOAD:dwmapi.dll /DELAYLOAD:uxtheme.dll /DELAYLOAD:wldp.dll")
 
 target_link_directories(installer
