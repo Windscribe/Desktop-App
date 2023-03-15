@@ -46,7 +46,7 @@ MainWindow::MainWindow()
 MainWindow::~MainWindow()
 {
     SAFE_DELETE(captionItem_);
-    SAFE_DELETE(instalButton_);
+    SAFE_DELETE(installButton_);
     SAFE_DELETE(closeButton_);
     SAFE_DELETE(minimizeButton_);
     SAFE_DELETE(settingsButton_);
@@ -60,7 +60,7 @@ MainWindow::~MainWindow()
 
 bool MainWindow::create(int windowCenterX, int windowCenterY)
 {
-    instalButton_ = new InstallButton(this, strInstallTitle_.c_str());
+    installButton_ = new InstallButton(this, strInstallTitle_.c_str());
     closeButton_ = new CloseButton(this);
     minimizeButton_ = new MinimizeButton(this);
     settingsButton_ = new SettingsButton(this);
@@ -307,12 +307,12 @@ LRESULT MainWindow::onCreate(HWND hwnd)
     RECT clientRect;
     GetClientRect(hwnd, &clientRect);
 
-    int wInstall = instalButton_->getRecommendedWidth();
-    int hInstall = instalButton_->getRecommendedHeight();
+    int wInstall = installButton_->getRecommendedWidth();
+    int hInstall = installButton_->getRecommendedHeight();
     int xInstall = (clientRect.right - wInstall) / 2;
     int yInstall = (clientRect.bottom - hInstall) / 2 + BIG_MARGIN * SCALE_FACTOR;
 
-    if (!instalButton_->create(xInstall, yInstall, wInstall, hInstall))
+    if (!installButton_->create(xInstall, yInstall, wInstall, hInstall))
     {
         return -1;
     }
@@ -487,7 +487,7 @@ void MainWindow::drawControl(HDC hdc)
 
 void MainWindow::resetControls()
 {
-    ShowWindow(instalButton_->getHwnd(), SW_SHOW);
+    ShowWindow(installButton_->getHwnd(), SW_SHOW);
     ShowWindow(eulaButton_->getHwnd(), SW_SHOW);
     ShowWindow(settingsButton_->getHwnd(), SW_SHOW);
     ShowWindow(pathControl_->getHwnd(), SW_HIDE);
@@ -495,7 +495,7 @@ void MainWindow::resetControls()
     ShowWindow(factoryResetControl_->getHwnd(), SW_HIDE);
     ShowWindow(escButton_->getHwnd(), SW_HIDE);
 
-    instalButton_->setState(InstallButton::INSTALL_TITLE);
+    installButton_->setState(InstallButton::INSTALL_TITLE);
     captionItem_->changeText(strInstallButtonText_.c_str());
     topOffsTitle_ += 42 * SCALE_FACTOR;
     redraw();
@@ -512,7 +512,7 @@ void MainWindow::onInstallClick(bool isUpdating)
 
     if (settingsButton_)
         settingsButton_->setEnabled(false);
-    instalButton_->setState(InstallButton::WAIT_WITH_PROGRESS);
+    installButton_->setState(InstallButton::WAIT_WITH_PROGRESS);
     InvalidateRect(hwnd_, NULL, TRUE);
     UpdateWindow(hwnd_);
 
@@ -528,7 +528,7 @@ void MainWindow::onSettingsClick()
     incBackgroundOpacity_ = false;
     SetTimer(hwnd_, OPACITY_TIMER_ID, 10, NULL);
 
-    ShowWindow(instalButton_->getHwnd(), SW_HIDE);
+    ShowWindow(installButton_->getHwnd(), SW_HIDE);
     ShowWindow(eulaButton_->getHwnd(), SW_HIDE);
     if (settingsButton_)
         ShowWindow(settingsButton_->getHwnd(), SW_HIDE);
@@ -576,11 +576,11 @@ void MainWindow::onInstallerCallback(unsigned int progress, INSTALLER_CURRENT_ST
 
     if (state == STATE_EXTRACTING)
     {
-        instalButton_->setProgress(progress);
+        installButton_->setProgress(progress);
     }
     else if (state == STATE_FINISHED)
     {
-        instalButton_->setProgress(progress);
+        installButton_->setProgress(progress);
         captionItem_->changeText(L"Launching...");
         InvalidateRect(hwnd_, NULL, TRUE);
         UpdateWindow(hwnd_);
@@ -677,7 +677,7 @@ void MainWindow::onOpacityAnimationTimer()
     SendMessage(pathControl_->getHwnd(), WI_FORCE_REDRAW, 0, 0);
     SendMessage(desktopShortcutControl_->getHwnd(), WI_FORCE_REDRAW, 0, 0);
     SendMessage(factoryResetControl_->getHwnd(), WI_FORCE_REDRAW, 0, 0);
-    SendMessage(instalButton_->getHwnd(), WI_FORCE_REDRAW, 0, 0);
+    SendMessage(installButton_->getHwnd(), WI_FORCE_REDRAW, 0, 0);
     if (settingsButton_)
         SendMessage(settingsButton_->getHwnd(), WI_FORCE_REDRAW, 0, 0);
     SendMessage(eulaButton_->getHwnd(), WI_FORCE_REDRAW, 0, 0);
