@@ -97,7 +97,7 @@ Engine::Engine() : QObject(nullptr),
     emergencyConnectStateController_ = new ConnectStateController(nullptr);
     OpenVpnVersionController::instance().setUseWinTun(engineSettings_.isUseWintun());
 #ifdef Q_OS_LINUX
-    DnsScripts_linux::instance().setDnsManager(engineSettings.dnsManager());
+    DnsScripts_linux::instance().setDnsManager(engineSettings_.dnsManager());
 #endif
 }
 
