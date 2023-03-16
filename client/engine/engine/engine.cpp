@@ -683,7 +683,7 @@ void Engine::onInitializeHelper(INIT_HELPER_RET ret)
             Q_EMIT initFinished(ENGINE_INIT_SUCCESS, isAuthHashExists, engineSettings_);
         }
     #else
-        Q_EMIT initFinished(ENGINE_INIT_SUCCESS, isAuthHashExists);
+        Q_EMIT initFinished(ENGINE_INIT_SUCCESS, isAuthHashExists, engineSettings_);
     #endif
     }
     else if (ret == INIT_HELPER_FAILED)
