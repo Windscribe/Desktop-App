@@ -502,7 +502,7 @@ void Preferences::setDnsManager(DNS_MANAGER_TYPE d)
     if (engineSettings_.dnsManager() != d)
     {
         engineSettings_.setDnsManager(d);
-        emit updateEngineSettings();
+        emitEngineSettingsChanged();
         emit dnsManagerChanged(d);
     }
 }
