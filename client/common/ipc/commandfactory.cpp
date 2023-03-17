@@ -2,7 +2,6 @@
 #include <QDebug>
 
 #include "commandfactory.h"
-#include "protobufcommand.h"
 #include "clicommands.h"
 #include "utils/ws_assert.h"
 

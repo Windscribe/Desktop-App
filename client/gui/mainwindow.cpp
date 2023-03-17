@@ -337,7 +337,6 @@ MainWindow::MainWindow() :
     connect(backend_->getPreferences(), &Preferences::locationOrderChanged, this, &MainWindow::onPreferencesLocationOrderChanged);
     connect(backend_->getPreferences(), &Preferences::splitTunnelingChanged, this, &MainWindow::onPreferencesSplitTunnelingChanged);
     connect(backend_->getPreferences(), &Preferences::isAllowLanTrafficChanged, this, &MainWindow::onPreferencesAllowLanTrafficChanged);
-    connect(backend_->getPreferences(), &Preferences::updateEngineSettings, this, &MainWindow::onPreferencesUpdateEngineSettings);
     connect(backend_->getPreferences(), &Preferences::isLaunchOnStartupChanged, this, &MainWindow::onPreferencesLaunchOnStartupChanged);
     connect(backend_->getPreferences(), &Preferences::connectionSettingsChanged, this, &MainWindow::onPreferencesConnectionSettingsChanged);
     connect(backend_->getPreferences(), &Preferences::networkPreferredProtocolsChanged, this, &MainWindow::onPreferencesNetworkPreferredProtocolsChanged);
@@ -961,7 +960,6 @@ void MainWindow::onProtocolWindowDisconnect()
 void MainWindow::onPreferencesEscapeClick()
 {
     collapsePreferences();
-    backend_->sendEngineSettingsIfChanged();
 }
 
 void MainWindow::onPreferencesSignOutClick()
@@ -976,7 +974,6 @@ void MainWindow::onPreferencesSignOutClick()
 void MainWindow::onPreferencesLoginClick()
 {
     collapsePreferences();
-    backend_->sendEngineSettingsIfChanged();
 }
 
 void MainWindow::cleanupLogViewerWindow()
@@ -1332,11 +1329,7 @@ void MainWindow::onLocationsAddStaticIpClicked()
 
 void MainWindow::onLocationsClearCustomConfigClicked()
 {
-    if (!backend_->getPreferences()->customOvpnConfigsPath().isEmpty()) {
-        // qCDebug(LOG_BASIC) << "User cleared custom config path";
-        backend_->getPreferences()->setCustomOvpnConfigsPath(QString());
-        backend_->sendEngineSettingsIfChanged();
-    }
+    backend_->getPreferences()->setCustomOvpnConfigsPath(QString());
 }
 
 void MainWindow::onLocationsAddCustomConfigClicked()
@@ -1387,7 +1380,6 @@ void MainWindow::onLocationsAddCustomConfigClicked()
 
         // set the path
         backend_->getPreferences()->setCustomOvpnConfigsPath(path);
-        backend_->sendEngineSettingsIfChanged();
     }
 }
 
@@ -2566,16 +2558,6 @@ void MainWindow::onPreferencesAllowLanTrafficChanged(bool /*allowLanTraffic*/)
     onPreferencesSplitTunnelingChanged(backend_->getPreferences()->splitTunneling());
 }
 
-// for aggressive (dynamic) signalling of EngineSettings save
-void MainWindow::onPreferencesUpdateEngineSettings()
-{
-    // prevent SetSettings while we are currently receiving from new settigns from engine
-    // Issues with initializing certain preferences state (See ApiResolution and App Internal DNS)
-    if (!backend_->getPreferences()->isReceivingEngineSettings())
-    {
-        backend_->sendEngineSettingsIfChanged();
-    }
-}
 
 void MainWindow::onPreferencesLaunchOnStartupChanged(bool bEnabled)
 {
