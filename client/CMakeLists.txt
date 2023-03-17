@@ -111,7 +111,7 @@ if (APPLE)
 
     add_custom_command(TARGET Windscribe POST_BUILD COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:Windscribe>/../Helpers)
     add_custom_command(TARGET Windscribe POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                       ${WINDSCRIBE_BUILD_LIBS_PATH}/openvpn_2_5_4/openvpn $<TARGET_FILE_DIR:Windscribe>/../Helpers/windscribeopenvpn_2_5_4)
+                       ${WINDSCRIBE_BUILD_LIBS_PATH}/openvpn_2_6_1/openvpn $<TARGET_FILE_DIR:Windscribe>/../Helpers/windscribeopenvpn_2_6_1)
     add_custom_command(TARGET Windscribe POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
                        ${WINDSCRIBE_BUILD_LIBS_PATH}/stunnel/stunnel $<TARGET_FILE_DIR:Windscribe>/../Helpers/windscribestunnel)
     add_custom_command(TARGET Windscribe POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
