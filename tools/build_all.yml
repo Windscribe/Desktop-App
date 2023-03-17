@@ -183,7 +183,7 @@ client_deploy_files:
       zlib:
         - lib/zlib1.dll -> zlib1.dll
       openvpn:
-        - openvpn.exe -> windscribeopenvpn_2_5_4.exe
+        - openvpn.exe -> windscribeopenvpn_2_6_1.exe
       wireguard:
         - tunnel.dll -> tunnel.dll
         - wireguard.dll -> wireguard.dll

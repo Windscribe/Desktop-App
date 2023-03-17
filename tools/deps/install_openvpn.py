@@ -38,7 +38,7 @@ def BuildDependencyMSVC(openssl_root, lzo_root, outpath):
     buildenv.update(iutl.GetVisualStudioEnvironment())
     buildenv.update({"OPENVPN_DEPROOT": outpath, "OPENSSL_HOME": openssl_root, "LZO_HOME": lzo_root})
     # Build and install.
-    iutl.RunCommand("msvc-build.bat", env=buildenv, shell=True)
+    iutl.RunCommand("msbuild openvpn.sln /p:Configuration=Release /p:Platform=x64", env=buildenv, shell=True)
     currend_wd = os.getcwd()
     utl.CopyFile("{}/x64-Output/Release/openvpn.exe".format(currend_wd),
                  "{}/openvpn.exe".format(outpath))
@@ -74,7 +74,7 @@ def InstallDependency():
     dep_version_str = os.environ.get(dep_version_var, None)
     if not dep_version_str:
         raise iutl.InstallError("{} not defined.".format(dep_version_var))
-    openssl_root = iutl.GetDependencyBuildRoot("openssl")
+    openssl_root = iutl.GetDependencyBuildRoot("openssl_ech_draft")
     if not openssl_root:
         raise iutl.InstallError("OpenSSL is not installed.")
     lzo_root = iutl.GetDependencyBuildRoot("lzo")
