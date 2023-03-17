@@ -1062,7 +1062,7 @@ void MainWindowController::gotoLoginWindow()
             locationListAnimationState_ = LOCATION_LIST_ANIMATION_COLLAPSED;
             clearMaskForGraphicsView();
         }
-
+        hideUpdateWidget();
         updateMainAndViewGeometry(false);
     }
 }
