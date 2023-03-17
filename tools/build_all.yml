@@ -200,10 +200,10 @@ client_deploy_files:
         - lib/libcrypto.3.dylib -> Contents/Helpers/libcrypto.3.dylib
         - lib/libssl.3.dylib -> Contents/Helpers/libssl.3.dylib
     fix_rpath:
-      Contents/Helpers/windscribeopenvpn_2_5_4:
-        openssl:
-          - lib/libssl.1.1.dylib -> libssl.1.1.dylib
-          - lib/libcrypto.1.1.dylib -> libcrypto.1.1.dylib
+      Contents/Helpers/windscribeopenvpn_2_6_1:
+        openssl_ech_draft:
+          - lib/libssl.3.dylib -> libssl.3.dylib
+          - lib/libcrypto.3.dylib -> libcrypto.3.dylib
       Contents/Helpers/windscribestunnel:
         openssl:
           - lib/libssl.1.1.dylib -> libssl.1.1.dylib
@@ -211,6 +211,8 @@ client_deploy_files:
       Contents/Helpers/libssl.1.1.dylib:
         openssl:
           - lib/libcrypto.1.1.dylib -> libcrypto.1.1.dylib
+        openssl_ech_draft:
+          - lib/libcrypto.3.dylib -> libcrypto.3.dylib
     entitlements:
       entitlements_binary: Contents/MacOS/Windscribe
       entitlements_file: client/engine/mac/windscribe_engine.entitlements

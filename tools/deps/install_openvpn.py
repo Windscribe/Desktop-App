@@ -45,17 +45,20 @@ def BuildDependencyMSVC(openssl_root, lzo_root, outpath):
 
 
 def BuildDependencyGNU(openssl_root, lzo_root, lz4_root, outpath):
+    # Build lz4 lib statically
+    with utl.PushDir(lz4_root):
+        msg.HeadPrint("Building lz4...")
+        buildenv = os.environ.copy()
+        if utl.GetCurrentOS() == "macos":
+            buildenv.update({"CFLAGS": "-arch x86_64 -arch arm64 -mmacosx-version-min=10.14"})
+        make_cmd = ["make"]
+        iutl.RunCommand(make_cmd, env=buildenv)
+
     # Create an environment with CC flags.
     buildenv = os.environ.copy()
     buildenv.update({"CFLAGS": "-I{}/include -I{}/include -I{}".format(openssl_root, lzo_root, lz4_root)})
     buildenv.update({"CPPFLAGS": "-I{}/include -I{}/include -I{}".format(openssl_root, lzo_root, lz4_root)})
     buildenv.update({"LDFLAGS": "-L{}/lib -L{}/lib -L{}".format(openssl_root, lzo_root, lz4_root)})
-
-    with utl.PushDir(lz4_root):
-        msg.HeadPrint("Building lz4...")
-        make_cmd = ["make"]
-        iutl.RunCommand(make_cmd, env=buildenv)
-
     # Configure.
     configure_cmd = ["./configure", "--with-crypto-library=openssl"]
     if utl.GetCurrentOS() == "macos":
