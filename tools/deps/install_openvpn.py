@@ -44,12 +44,18 @@ def BuildDependencyMSVC(openssl_root, lzo_root, outpath):
                  "{}/openvpn.exe".format(outpath))
 
 
-def BuildDependencyGNU(openssl_root, lzo_root, outpath):
+def BuildDependencyGNU(openssl_root, lzo_root, lz4_root, outpath):
     # Create an environment with CC flags.
     buildenv = os.environ.copy()
-    buildenv.update({"CFLAGS": "-I{}/include -I{}/include".format(openssl_root, lzo_root)})
-    buildenv.update({"CPPFLAGS": "-I{}/include -I{}/include".format(openssl_root, lzo_root)})
-    buildenv.update({"LDFLAGS": "-L{}/lib -L{}/lib".format(openssl_root, lzo_root)})
+    buildenv.update({"CFLAGS": "-I{}/include -I{}/include -I{}".format(openssl_root, lzo_root, lz4_root)})
+    buildenv.update({"CPPFLAGS": "-I{}/include -I{}/include -I{}".format(openssl_root, lzo_root, lz4_root)})
+    buildenv.update({"LDFLAGS": "-L{}/lib -L{}/lib -L{}".format(openssl_root, lzo_root, lz4_root)})
+
+    with utl.PushDir(lz4_root):
+        msg.HeadPrint("Building lz4...")
+        make_cmd = ["make"]
+        iutl.RunCommand(make_cmd, env=buildenv)
+
     # Configure.
     configure_cmd = ["./configure", "--with-crypto-library=openssl"]
     if utl.GetCurrentOS() == "macos":
@@ -95,9 +101,8 @@ def InstallDependency():
     iutl.DownloadFile("{}{}".format(dep_url, archivename), localfilename)
     msg.HeadPrint("Extracting: \"{}\"".format(archivename))
     iutl.ExtractFile(localfilename)
-    # Copy modified files (Windows only).
-    if utl.GetCurrentOS() == "win32":
-        iutl.CopyCustomFiles(dep_name, os.path.join(temp_dir, archivetitle))
+    # Copy modified files.
+    iutl.CopyCustomFiles(dep_name, os.path.join(temp_dir, archivetitle))
     # Build the dependency.
     dep_buildroot_var = "BUILDROOT_" + DEP_TITLE.upper()
     dep_buildroot_str = os.environ.get(dep_buildroot_var, os.path.join("build-libs", dep_name))
@@ -109,7 +114,7 @@ def InstallDependency():
         if utl.GetCurrentOS() == "win32":
             BuildDependencyMSVC(openssl_root, lzo_root, temp_dir)
         else:
-            BuildDependencyGNU(openssl_root, lzo_root, temp_dir)
+            BuildDependencyGNU(openssl_root, lzo_root, os.path.join(temp_dir, archivetitle, "lz4-1.9.4"), temp_dir)
     # Copy the dependency to output directory and to a zip file, if needed.
     installzipname = None
     if "-zip" in sys.argv:
