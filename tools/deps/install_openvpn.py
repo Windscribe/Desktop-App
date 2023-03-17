@@ -64,6 +64,8 @@ def BuildDependencyGNU(openssl_root, lzo_root, lz4_root, outpath):
     if utl.GetCurrentOS() == "macos":
         configure_cmd.append("CFLAGS=-arch x86_64 -arch arm64 -mmacosx-version-min=10.14")
     configure_cmd.append("--prefix={}".format(outpath))
+    configure_cmd.append("OPENSSL_CFLAGS=-I{}/include".format(openssl_root))
+    configure_cmd.append("OPENSSL_LIBS=-L{}/lib64 -lssl -lcrypto".format(openssl_root))
     iutl.RunCommand(configure_cmd, env=buildenv)
     # Build and install.
     iutl.RunCommand(iutl.GetMakeBuildCommand(), env=buildenv)

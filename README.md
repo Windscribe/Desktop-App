@@ -126,7 +126,7 @@ You will find the application logs in ~/Library/Application Support/Windscribe/W
 Build process tested on Ubuntu 20.04/ZorinOS 16 (gcc 9.3.0).
 
 -Install build requirements:
-    - sudo apt-get install build-essential git curl patchelf ruby-dev rpm libpam0g-dev software-properties-common libgl1-mesa-dev
+    - sudo apt-get install build-essential git curl patchelf ruby-dev rpm libpam0g-dev software-properties-common libgl1-mesa-dev libnl-genl-3-dev libcap-ng-dev
     - sudo apt-get update
     - sudo apt-get install wget autoconf libtool cmake fakeroot python
     - sudo gem i fpm -f

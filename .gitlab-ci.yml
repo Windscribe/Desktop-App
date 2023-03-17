@@ -115,7 +115,7 @@ variables:
 .download_dependency_openvpn:
   script:
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --create-dirs -o build-libs/openvpn_2_5_4.zip "${NEXUS_PATH_DEPS}/${OS_IDENTIFIER}/openvpn_2_5_4.zip"
+      --create-dirs -o build-libs/openvpn_2_6_1.zip "${NEXUS_PATH_DEPS}/${OS_IDENTIFIER}/openvpn_2_6_1.zip"
 
 .download_dependency_qt:
   script:
