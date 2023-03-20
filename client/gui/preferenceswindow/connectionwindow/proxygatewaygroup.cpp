@@ -25,11 +25,11 @@ ProxyGatewayGroup::ProxyGatewayGroup(ScalableGraphicsObject *parent, const QStri
     comboBoxProxyType_->setCurrentItem(allProxyTypes.begin()->second);
     connect(comboBoxProxyType_, &ComboBoxItem::currentItemChanged, this, &ProxyGatewayGroup::onProxyTypeItemChanged);
     addItem(comboBoxProxyType_);
-    hideItems(indexOf(comboBoxProxyType_));
 
     proxyIpAddressItem_ = new ProxyIpAddressItem(this);
     addItem(proxyIpAddressItem_);
-    hideItems(indexOf(proxyIpAddressItem_));
+
+    hideItems(indexOf(comboBoxProxyType_), -1, DISPLAY_FLAGS::FLAG_NO_ANIMATION);
 
     updateMode();
 }

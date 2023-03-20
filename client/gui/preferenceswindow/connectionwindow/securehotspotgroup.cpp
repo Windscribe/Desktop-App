@@ -23,12 +23,12 @@ SecureHotspotGroup::SecureHotspotGroup(ScalableGraphicsObject *parent, const QSt
     editBoxSSID_ = new EditBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::EditBoxItem", "SSID"), QT_TRANSLATE_NOOP("PreferencesWindow::EditBoxItem", "Enter SSID"));
     connect(editBoxSSID_, &EditBoxItem::textChanged, this, &SecureHotspotGroup::onSSIDChanged);
     addItem(editBoxSSID_);
-    hideItems(indexOf(editBoxSSID_), -1, DISPLAY_FLAGS::FLAG_NO_ANIMATION);
 
     editBoxPassword_ = new EditBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::EditBoxItem", "Password"), QT_TRANSLATE_NOOP("PreferencesWindow::EditBoxItem", "Enter Password"));
     connect(editBoxPassword_, &EditBoxItem::textChanged, this, &SecureHotspotGroup::onPasswordChanged);
     addItem(editBoxPassword_);
-    hideItems(indexOf(editBoxPassword_), -1, DISPLAY_FLAGS::FLAG_NO_ANIMATION);
+
+    hideItems(indexOf(editBoxSSID_), -1, DISPLAY_FLAGS::FLAG_NO_ANIMATION);
 
     setSupported(supported_);
     updateDescription();

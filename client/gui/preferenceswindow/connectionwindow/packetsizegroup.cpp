@@ -29,11 +29,12 @@ PacketSizeGroup::PacketSizeGroup(ScalableGraphicsObject *parent, const QString &
     connect(editBoxItem_, &PacketSizeEditBoxItem::detectButtonHoverEnter, this, &PacketSizeGroup::onDetectHoverEnter);
     connect(editBoxItem_, &PacketSizeEditBoxItem::detectButtonHoverLeave, this, &PacketSizeGroup::onDetectHoverLeave);
     addItem(editBoxItem_);
-    hideItems(indexOf(editBoxItem_));
 
     QRegularExpression ipRegex ("^\\d+$");
     QRegularExpressionValidator *integerValidator = new QRegularExpressionValidator(ipRegex, this);
     editBoxItem_->setValidator(integerValidator);
+
+    hideItems(indexOf(editBoxItem_), -1, DISPLAY_FLAGS::FLAG_NO_ANIMATION);
 }
 
 void PacketSizeGroup::setPacketSizeSettings(types::PacketSize settings)

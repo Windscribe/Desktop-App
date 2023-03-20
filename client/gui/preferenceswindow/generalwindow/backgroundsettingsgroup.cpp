@@ -23,12 +23,12 @@ BackgroundSettingsGroup::BackgroundSettingsGroup(ScalableGraphicsObject *parent,
     imageItemDisconnected_ = new SelectImageItem(this, tr("Disconnected"));
     connect(imageItemDisconnected_, &SelectImageItem::pathChanged, this, &BackgroundSettingsGroup::onDisconnectedPathChanged);
     addItem(imageItemDisconnected_);
-    hideItems(indexOf(imageItemDisconnected_), -1, DISPLAY_FLAGS::FLAG_NO_ANIMATION);
 
     imageItemConnected_ = new SelectImageItem(this, tr("Connected"));
     connect(imageItemConnected_, &SelectImageItem::pathChanged, this, &BackgroundSettingsGroup::onConnectedPathChanged);
     addItem(imageItemConnected_);
-    hideItems(indexOf(imageItemConnected_), -1, DISPLAY_FLAGS::FLAG_NO_ANIMATION);
+
+    hideItems(indexOf(imageItemDisconnected_), -1, DISPLAY_FLAGS::FLAG_NO_ANIMATION);
 }
 
 void BackgroundSettingsGroup::onLanguageChanged()

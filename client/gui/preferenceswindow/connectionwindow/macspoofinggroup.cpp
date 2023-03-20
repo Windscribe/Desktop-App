@@ -31,6 +31,8 @@ MacSpoofingGroup::MacSpoofingGroup(ScalableGraphicsObject *parent, const QString
     autoRotateMacItem_ = new CheckBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::CheckBoxItem", "Auto-Rotate MAC"), "");
     connect(autoRotateMacItem_, &CheckBoxItem::stateChanged, this, &MacSpoofingGroup::onAutoRotateMacStateChanged);
     addItem(autoRotateMacItem_);
+
+    hideItems(indexOf(macAddressItem_), -1, DISPLAY_FLAGS::FLAG_NO_ANIMATION);
 }
 
 void MacSpoofingGroup::setMacSpoofingSettings(const types::MacAddrSpoofing &macAddrSpoofing)

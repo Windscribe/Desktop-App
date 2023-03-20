@@ -37,12 +37,12 @@ ProtocolGroup::ProtocolGroup(ScalableGraphicsObject *parent, PreferencesHelper *
     protocolItem_ = new ComboBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::ComboBoxItem", "Protocol"), QString());
     connect(protocolItem_, &ComboBoxItem::currentItemChanged, this, &ProtocolGroup::onProtocolChanged);
     addItem(protocolItem_);
-    hideItems(indexOf(protocolItem_));
 
     portItem_ = new ComboBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::ComboBoxItem", "Port"), QString());
     connect(portItem_, &ComboBoxItem::currentItemChanged, this, &ProtocolGroup::onPortChanged);
     addItem(portItem_);
-    hideItems(indexOf(portItem_));
+
+    hideItems(indexOf(protocolItem_), -1, DISPLAY_FLAGS::FLAG_NO_ANIMATION);
 }
 
 void ProtocolGroup::setConnectionSettings(const types::ConnectionSettings &cm)
