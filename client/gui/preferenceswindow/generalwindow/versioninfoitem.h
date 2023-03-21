@@ -13,8 +13,9 @@ public:
     explicit VersionInfoItem(ScalableGraphicsObject *parent, const QString &caption, const QString &value);
 
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
-
     void updateScaling() override;
+
+    void setCaption(const QString &caption);
 
 private:
     QString strCaption_;

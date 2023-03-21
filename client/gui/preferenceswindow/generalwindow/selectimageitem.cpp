@@ -104,6 +104,11 @@ void SelectImageItem::onOpenClick()
     }
 }
 
+void SelectImageItem::setCaption(const QString &caption)
+{
+    caption_ = caption;
+    update();
+}
 
 void SelectImageItem::updatePositions()
 {

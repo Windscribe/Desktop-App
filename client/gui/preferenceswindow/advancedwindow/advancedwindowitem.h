@@ -22,7 +22,7 @@ class AdvancedWindowItem : public CommonGraphics::BasePage
 public:
     explicit AdvancedWindowItem(ScalableGraphicsObject *parent, Preferences *preferences, PreferencesHelper *preferencesHelper);
 
-    QString caption() const;
+    QString caption() const override;
 
     ADVANCED_SCREEN getScreen();
     void setScreen(ADVANCED_SCREEN screen);

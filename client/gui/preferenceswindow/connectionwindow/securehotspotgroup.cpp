@@ -4,6 +4,7 @@
 #include <QMessageBox>
 #include "graphicresources/fontmanager.h"
 #include "graphicresources/imageresourcessvg.h"
+#include "languagecontroller.h"
 #include "dpiscalemanager.h"
 
 extern QWidget *g_mainWindow;
@@ -15,16 +16,16 @@ SecureHotspotGroup::SecureHotspotGroup(ScalableGraphicsObject *parent, const QSt
 {
     setFlags(flags() | QGraphicsItem::ItemClipsChildrenToShape | QGraphicsItem::ItemIsFocusable);
 
-    checkBoxEnable_ = new CheckBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::CheckBoxItem", "Secure Hotspot"), "");
+    checkBoxEnable_ = new CheckBoxItem(this, tr("Secure Hotspot"));
     checkBoxEnable_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/SECURE_HOTSPOT"));
     connect(checkBoxEnable_, &CheckBoxItem::stateChanged, this, &SecureHotspotGroup::onCheckBoxStateChanged);
     addItem(checkBoxEnable_);
 
-    editBoxSSID_ = new EditBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::EditBoxItem", "SSID"), QT_TRANSLATE_NOOP("PreferencesWindow::EditBoxItem", "Enter SSID"));
+    editBoxSSID_ = new EditBoxItem(this);
     connect(editBoxSSID_, &EditBoxItem::textChanged, this, &SecureHotspotGroup::onSSIDChanged);
     addItem(editBoxSSID_);
 
-    editBoxPassword_ = new EditBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::EditBoxItem", "Password"), QT_TRANSLATE_NOOP("PreferencesWindow::EditBoxItem", "Enter Password"));
+    editBoxPassword_ = new EditBoxItem(this);
     connect(editBoxPassword_, &EditBoxItem::textChanged, this, &SecureHotspotGroup::onPasswordChanged);
     addItem(editBoxPassword_);
 
@@ -32,6 +33,9 @@ SecureHotspotGroup::SecureHotspotGroup(ScalableGraphicsObject *parent, const QSt
 
     setSupported(supported_);
     updateDescription();
+
+    connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &SecureHotspotGroup::onLanguageChanged);
+    onLanguageChanged();
 }
 
 void SecureHotspotGroup::setSecureHotspotSettings(const types::ShareSecureHotspot &ss)
@@ -95,10 +99,6 @@ void SecureHotspotGroup::onPasswordChanged(const QString &password)
     }
 }
 
-void SecureHotspotGroup::onLanguageChanged()
-{
-}
-
 void SecureHotspotGroup::updateDescription()
 {
     switch(supported_)
@@ -125,6 +125,16 @@ void SecureHotspotGroup::updateMode()
     {
         hideItems(indexOf(editBoxSSID_), indexOf(editBoxPassword_));
     }
+}
+
+void SecureHotspotGroup::onLanguageChanged()
+{
+    checkBoxEnable_->setCaption(tr("Secure Hotspot"));
+    editBoxSSID_->setCaption(tr("SSID"));
+    editBoxSSID_->setPrompt(tr("Enter SSID"));
+    editBoxPassword_->setCaption(tr("Password"));
+    editBoxPassword_->setPrompt(tr("Enter Password"));
+    updateDescription();
 }
 
 } // namespace PreferencesWindow

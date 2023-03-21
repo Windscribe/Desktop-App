@@ -2,6 +2,8 @@
 #define COMBOBOXITEM_H
 
 #include <QGraphicsProxyWidget>
+#include <QPair>
+#include <QVariant>
 #include "commonwidgets/combomenuwidget.h"
 #include "commongraphics/baseitem.h"
 #include "commongraphics/texticonbutton.h"
@@ -19,6 +21,7 @@ struct ComboBoxItemDescr
         caption_(caption), userValue_(userValue), isInitialized_(true) {}
 
     QString caption() const { WS_ASSERT(isInitialized_); return caption_; }
+    void setCaption(const QString &caption) { caption_ = caption; }
     QVariant userValue() const { WS_ASSERT(isInitialized_); return userValue_; }
 
     bool isInitialized() const { return isInitialized_; }
@@ -40,12 +43,13 @@ class ComboBoxItem : public CommonGraphics::BaseItem
 {
     Q_OBJECT
 public:
-    explicit ComboBoxItem(ScalableGraphicsObject *parent, const QString &caption, const QString &tooltip);
+    explicit ComboBoxItem(ScalableGraphicsObject *parent, const QString &caption = "", const QString &tooltip = "");
     ~ComboBoxItem() override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
     bool hasItems();
     void addItem(const QString &caption, const QVariant &userValue);
+    void setItems(const QList<QPair<QString, QVariant>> &list, QVariant curValue = QVariant::fromValue(nullptr));
     void removeItem(const QVariant &value);
     void setCurrentItem(QVariant value);
     QVariant currentItem() const;

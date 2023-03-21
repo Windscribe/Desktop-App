@@ -53,26 +53,27 @@ private slots:
     void onProtocolClicked();
     void onTimerTimeout();
     void onCancelClicked();
+    void onLanguageChanged();
 
 private:
     static constexpr int kSpacerHeight = 16;
     static constexpr int kIndent = 36;
 
-    const char *kChangeProtocolTitle = "Change Protocol";
-    const char *kChangeProtocolDescription = "Quickly re-connect using a different protocol.";
-    const char *kFailedProtocolTitle = "Connection Failure!";
-    const char *kFailedProtocolDescription = "The protocol you’ve chosen has failed to connect. Windscribe will attempt to reconnect using the first protocol below.";
-    const char *kSavePreferredProtocolTitle = "Set “%1” as preferred protocol?";
-    const char *kSavePreferredProtocolDescription = "Windscribe will always use this protocol to connect on this network in the future to avoid any interruptions.";
-    const char *kSendDebugLogTitle = "This network hates us";
-    const char *kSendDebugLogDescription = "We couldn’t connect you on this network. Send us your debug log so we can figure out what happened.";
-    const char *kDebugLogSentTitle = "Debug Sent!";
-    const char *kDebugLogSentDescription = "Your debug log has been received. Please contact support if you want assistance with this issue.";
+    const char *kChangeProtocolTitle = QT_TR_NOOP("Change Protocol");
+    const char *kChangeProtocolDescription = QT_TR_NOOP("Quickly re-connect using a different protocol.");
+    const char *kFailedProtocolTitle = QT_TR_NOOP("Connection Failure!");
+    const char *kFailedProtocolDescription = QT_TR_NOOP("The protocol you’ve chosen has failed to connect. Windscribe will attempt to reconnect using the first protocol below.");
+    const char *kSavePreferredProtocolTitle = QT_TR_NOOP("Set “%1” as preferred protocol?");
+    const char *kSavePreferredProtocolDescription = QT_TR_NOOP("Windscribe will always use this protocol to connect on this network in the future to avoid any interruptions.");
+    const char *kSendDebugLogTitle = QT_TR_NOOP("This network hates us");
+    const char *kSendDebugLogDescription = QT_TR_NOOP("We couldn’t connect you on this network. Send us your debug log so we can figure out what happened.");
+    const char *kDebugLogSentTitle = QT_TR_NOOP("Debug Sent!");
+    const char *kDebugLogSentDescription = QT_TR_NOOP("Your debug log has been received. Please contact support if you want assistance with this issue.");
 
-    const char *kSetAsPreferredButton = "Set as Preferred";
-    const char *kSendDebugLogButton = "Send Debug Log";
-    const char *kContactSupportButton = "Contact Support";
-    const char *kCancelButton = "Cancel";
+    const char *kSetAsPreferredButton = QT_TR_NOOP("Set as Preferred");
+    const char *kSendDebugLogButton = QT_TR_NOOP("Send Debug Log");
+    const char *kContactSupportButton = QT_TR_NOOP("Contact Support");
+    const char *kCancelButton = QT_TR_NOOP("Cancel");
 
     QScopedPointer<ImageItem> icon_;
 

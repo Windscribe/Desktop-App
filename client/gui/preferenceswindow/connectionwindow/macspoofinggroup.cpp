@@ -4,6 +4,7 @@
 #include <QMessageBox>
 #include "graphicresources/fontmanager.h"
 #include "graphicresources/imageresourcessvg.h"
+#include "languagecontroller.h"
 #include "utils/logger.h"
 #include "dpiscalemanager.h"
 
@@ -14,25 +15,28 @@ MacSpoofingGroup::MacSpoofingGroup(ScalableGraphicsObject *parent, const QString
 {
     setFlags(flags() | QGraphicsItem::ItemClipsChildrenToShape);
 
-    checkBoxEnable_ = new CheckBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::CheckBoxItem", "MAC Spoofing"), "");
+    checkBoxEnable_ = new CheckBoxItem(this);
     checkBoxEnable_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/MAC_SPOOFING"));
     connect(checkBoxEnable_, &CheckBoxItem::stateChanged, this, &MacSpoofingGroup::onCheckBoxStateChanged);
     addItem(checkBoxEnable_);
 
-    macAddressItem_ = new MacAddressItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::MacAddressItem", "MAC Address"));
+    macAddressItem_ = new MacAddressItem(this);
     connect(macAddressItem_, &MacAddressItem::cycleMacAddressClick, this, &MacSpoofingGroup::onCycleMacAddressClick);
     addItem(macAddressItem_);
 
-    comboBoxInterface_ = new ComboBoxItem(this, tr("Interface"), "");
+    comboBoxInterface_ = new ComboBoxItem(this);
     comboBoxInterface_ ->setCaptionFont(FontDescr(12, false));
     connect(comboBoxInterface_, &ComboBoxItem::currentItemChanged, this, &MacSpoofingGroup::onInterfaceItemChanged);
     addItem(comboBoxInterface_);
 
-    autoRotateMacItem_ = new CheckBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::CheckBoxItem", "Auto-Rotate MAC"), "");
+    autoRotateMacItem_ = new CheckBoxItem(this);
     connect(autoRotateMacItem_, &CheckBoxItem::stateChanged, this, &MacSpoofingGroup::onAutoRotateMacStateChanged);
     addItem(autoRotateMacItem_);
 
     hideItems(indexOf(macAddressItem_), -1, DISPLAY_FLAGS::FLAG_NO_ANIMATION);
+
+    connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &MacSpoofingGroup::onLanguageChanged);
+    onLanguageChanged();
 }
 
 void MacSpoofingGroup::setMacSpoofingSettings(const types::MacAddrSpoofing &macAddrSpoofing)
@@ -115,7 +119,11 @@ void MacSpoofingGroup::updateMode()
         for (int i = 0; i < settings_.networkInterfaces.size(); i++)
         {
             types::NetworkInterface interface = settings_.networkInterfaces[i];
-            comboBoxInterface_->addItem(interface.interfaceName, interface.interfaceIndex);
+            if (interface.interfaceName == "No Interface") {
+                comboBoxInterface_->addItem(tr("No Interface"), interface.interfaceIndex);
+            } else {
+                comboBoxInterface_->addItem(interface.interfaceName, interface.interfaceIndex);
+            }
 
             adapters += interface.interfaceName;
 
@@ -135,6 +143,15 @@ void MacSpoofingGroup::updateMode()
     {
         hideItems(indexOf(macAddressItem_), size() - 1);
     }
+}
+
+void MacSpoofingGroup::onLanguageChanged()
+{
+    checkBoxEnable_->setCaption(tr("MAC Spoofing"));
+    macAddressItem_->setCaption(tr("MAC Address"));
+    comboBoxInterface_->setLabelCaption(tr("Interface"));
+    autoRotateMacItem_->setCaption(tr("Auto-Rotate MAC"));
+    updateMode();
 }
 
 } // namespace PreferencesWindow

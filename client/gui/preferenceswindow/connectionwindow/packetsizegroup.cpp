@@ -3,6 +3,7 @@
 #include <QGraphicsScene>
 #include <QGraphicsView>
 #include "dpiscalemanager.h"
+#include "languagecontroller.h"
 #include "packetsizeeditboxitem.h"
 #include "graphicresources/imageresourcessvg.h"
 #include "graphicresources/independentpixmap.h"
@@ -14,16 +15,12 @@ namespace PreferencesWindow {
 PacketSizeGroup::PacketSizeGroup(ScalableGraphicsObject *parent, const QString &desc, const QString &descUrl)
   : PreferenceGroup(parent, desc, descUrl)
 {
-    packetSizeModeItem_ = new ComboBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::ComboBoxItem", "Packet Size"), QString());
-    packetSizeModeItem_->addItem(tr("Automatic"), 0);
-    packetSizeModeItem_->addItem(tr("Manual"), 1);
-    packetSizeModeItem_->setCurrentItem(0);
-
+    packetSizeModeItem_ = new ComboBoxItem(this);
     connect(packetSizeModeItem_, &ComboBoxItem::currentItemChanged, this, &PacketSizeGroup::onAutomaticChanged);
     packetSizeModeItem_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/PACKET_SIZE"));
     addItem(packetSizeModeItem_);
 
-    editBoxItem_ = new PacketSizeEditBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::ComboBoxItem", "MTU"), QT_TRANSLATE_NOOP("PreferencesWindow::ComboBoxItem", "MTU"));
+    editBoxItem_ = new PacketSizeEditBoxItem(this);
     connect(editBoxItem_, &PacketSizeEditBoxItem::textChanged, this, &PacketSizeGroup::onEditBoxTextChanged);
     connect(editBoxItem_, &PacketSizeEditBoxItem::detectButtonClicked, this, &PacketSizeGroup::detectPacketSize);
     connect(editBoxItem_, &PacketSizeEditBoxItem::detectButtonHoverEnter, this, &PacketSizeGroup::onDetectHoverEnter);
@@ -35,6 +32,9 @@ PacketSizeGroup::PacketSizeGroup(ScalableGraphicsObject *parent, const QString &
     editBoxItem_->setValidator(integerValidator);
 
     hideItems(indexOf(editBoxItem_), -1, DISPLAY_FLAGS::FLAG_NO_ANIMATION);
+
+    connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &PacketSizeGroup::onLanguageChanged);
+    onLanguageChanged();
 }
 
 void PacketSizeGroup::setPacketSizeSettings(types::PacketSize settings)
@@ -133,5 +133,16 @@ void PacketSizeGroup::onEditBoxTextChanged(const QString &text)
     emit packetSizeChanged(settings_);
 }
 
+void PacketSizeGroup::onLanguageChanged()
+{
+    packetSizeModeItem_->setLabelCaption(tr("Packet Size"));
+    QList<QPair<QString, QVariant>> list;
+    list << qMakePair(tr("Automatic"), 0);
+    list << qMakePair(tr("Manual"), 1);
+    packetSizeModeItem_->setItems(list, settings_.isAutomatic ? 0 : 1);
+
+    editBoxItem_->setCaption(tr("MTU"));
+    editBoxItem_->setPrompt(tr("MTU"));
+}
 
 } // namespace PreferencesWindow

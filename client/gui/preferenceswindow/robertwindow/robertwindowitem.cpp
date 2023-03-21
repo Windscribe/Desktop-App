@@ -3,6 +3,7 @@
 #include <QTextDocument>
 #include "commongraphics/scrollarea.h"
 #include "graphicresources/fontmanager.h"
+#include "languagecontroller.h"
 #include "utils/hardcodedsettings.h"
 #include "utils/logger.h"
 
@@ -18,7 +19,7 @@ RobertWindowItem::RobertWindowItem(ScalableGraphicsObject *parent, Preferences *
     setSpacerHeight(PREFERENCES_MARGIN);
 
     desc_ = new PreferenceGroup(this,
-                                tr("R.O.B.E.R.T. is a customizable server-side domain and IP blocking tool. Select the block lists you wish to apply on all your devices by toggling the switch."),
+                                "",
                                 QString("https://%1/features/robert").arg(HardcodedSettings::instance().serverUrl()));
     addItem(desc_);
 
@@ -28,7 +29,6 @@ RobertWindowItem::RobertWindowItem(ScalableGraphicsObject *parent, Preferences *
 
     // Item for case where we could not get status from server
     errorMessage_ = new QGraphicsTextItem(this);
-    errorMessage_->setPlainText(tr("Could not retrieve R.O.B.E.R.T. preferences from server. Try again later."));
     errorMessage_->setFont(*FontManager::instance().getFont(14, false));
     errorMessage_->setDefaultTextColor(Qt::white);
     errorMessage_->setTextWidth(125);
@@ -36,23 +36,24 @@ RobertWindowItem::RobertWindowItem(ScalableGraphicsObject *parent, Preferences *
 
     // Below items for case when not logged in
     loginPrompt_ = new QGraphicsTextItem(this);
-    loginPrompt_->setPlainText(tr("Login to view or change R.O.B.E.R.T preferences"));
     loginPrompt_->setFont(*FontManager::instance().getFont(14, false));
     loginPrompt_->setDefaultTextColor(Qt::white);
     loginPrompt_->setTextWidth(125);
     loginPrompt_->document()->setDefaultTextOption(QTextOption(Qt::AlignHCenter));
 
     loginButton_ = new CommonGraphics::BubbleButtonDark(this, 69, 24, 12, 20);
-    loginButton_->setText(tr("Login"));
     loginButton_->setFont(FontDescr(12,false));
     connect(loginButton_, &CommonGraphics::BubbleButtonDark::clicked, this, &RobertWindowItem::accountLoginClick);
+
+    connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &RobertWindowItem::onLanguageChanged);
+    onLanguageChanged();
 
     updatePositions();
 }
 
 QString RobertWindowItem::caption() const
 {
-    return QT_TRANSLATE_NOOP("PreferencesWindow::PreferencesWindowItem", "R.O.B.E.R.T.");
+    return tr("R.O.B.E.R.T.");
 }
 
 void RobertWindowItem::setLoggedIn(bool loggedIn)
@@ -63,8 +64,8 @@ void RobertWindowItem::setLoggedIn(bool loggedIn)
 
 void RobertWindowItem::clearFilters()
 {
-    for (auto item : groups_)
-    {
+    manageRulesItem_ = nullptr;
+    for (auto item : groups_) {
         removeItem(item);
     }
     groups_.clear();
@@ -75,8 +76,7 @@ void RobertWindowItem::setFilters(const QVector<types::RobertFilter> &filters)
     loading_ = false;
 
     clearFilters();
-    for(auto filter : filters)
-    {
+    for(auto filter : filters) {
         PreferenceGroup *group = new PreferenceGroup(this);
         RobertItem *item = new RobertItem(group, filter);
         connect(item, &RobertItem::filterChanged, this, &RobertWindowItem::setRobertFilter);
@@ -86,11 +86,12 @@ void RobertWindowItem::setFilters(const QVector<types::RobertFilter> &filters)
     }
     /* Add "Manage Rules" link */
     PreferenceGroup *manageRulesGroup = new PreferenceGroup(this);
-    LinkItem *manageRulesItem = new LinkItem(manageRulesGroup, LinkItem::LinkType::EXTERNAL_LINK, tr("Manage Custom Rules"));
-    connect(manageRulesItem, &LinkItem::clicked, this, &RobertWindowItem::manageRobertRulesClick);
-    manageRulesGroup->addItem(manageRulesItem);
+    manageRulesItem_ = new LinkItem(manageRulesGroup, LinkItem::LinkType::EXTERNAL_LINK);
+    connect(manageRulesItem_, &LinkItem::clicked, this, &RobertWindowItem::manageRobertRulesClick);
+    manageRulesGroup->addItem(manageRulesItem_);
     addItem(manageRulesGroup);
     groups_ << manageRulesGroup;
+    onLanguageChanged();
 
     updateVisibility();
 }
@@ -165,6 +166,17 @@ void RobertWindowItem::updateVisibility()
                 group->setVisible(!isError_);
             }
         }
+    }
+}
+
+void RobertWindowItem::onLanguageChanged()
+{
+    desc_->setDescription(tr("R.O.B.E.R.T. is a customizable server-side domain and IP blocking tool. Select the block lists you wish to apply on all your devices by toggling the switch."));
+    errorMessage_->setPlainText(tr("Could not retrieve R.O.B.E.R.T. preferences from server. Try again later."));
+    loginPrompt_->setPlainText(tr("Login to view or change R.O.B.E.R.T preferences"));
+    loginButton_->setText(tr("Login"));
+    if (manageRulesItem_) {
+        manageRulesItem_->setTitle(tr("Manage Custom Rules"));
     }
 }
 

@@ -33,6 +33,7 @@ signals:
 private slots:
     void onActiveSwitchStateChanged(bool checked);
     void onCurrentModeChanged(QVariant value);
+    void onLanguageChanged();
 
 private:
     void updateDescription();

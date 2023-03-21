@@ -31,6 +31,8 @@ private slots:
     void onUsernameChanged(const QString &text);
     void onPasswordChanged(const QString &text);
 
+    void onLanguageChanged();
+
 private:
     void updateMode();
 

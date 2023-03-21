@@ -34,21 +34,18 @@ UpdateWindowItem::UpdateWindowItem(Preferences *preferences, ScalableGraphicsObj
     connect(&spinnerOpacityAnimation_, &QVariantAnimation::valueChanged, this, &UpdateWindowItem::onSpinnerOpacityChange);
     connect(&spinnerRotationAnimation_, &QVariantAnimation::valueChanged, this, &UpdateWindowItem::onSpinnerRotationChange);
 
-    connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &UpdateWindowItem::onLanguageChanged);
-
     // accept
     acceptButton_ = new CommonGraphics::BubbleButtonBright(this, 128, 40, 20, 20);
     connect(acceptButton_, &CommonGraphics::BubbleButtonBright::clicked, this, &UpdateWindowItem::onAcceptClick);
-    QString updateText = QT_TRANSLATE_NOOP("CommonGraphics::BubbleButtonBright", "Update");
-    acceptButton_->setText(updateText);
 
     // cancel
-    QString cancelText = QT_TRANSLATE_NOOP("CommonGraphics::TextButton", "Later");
     double cancelOpacity = OPACITY_UNHOVER_TEXT;
-    cancelButton_ = new CommonGraphics::TextButton(cancelText, FontDescr(16, false),
-                                                   Qt::white, true, this);
+    cancelButton_ = new CommonGraphics::TextButton("", FontDescr(16, false), Qt::white, true, this);
     connect(cancelButton_, &CommonGraphics::TextButton::clicked, this, &UpdateWindowItem::onCancelClick);
     cancelButton_->quickSetOpacity(cancelOpacity);
+
+    connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &UpdateWindowItem::onLanguageChanged);
+    onLanguageChanged();
 
     updatePositions();
 }
@@ -342,6 +339,9 @@ void UpdateWindowItem::onLanguageChanged()
     int cancelPosX = CommonGraphics::centeredOffset(WINDOW_WIDTH*G_SCALE, cancelButton_->boundingRect().width());
     int yOffset = preferences_->appSkin() == APP_SKIN_VAN_GOGH ? -28*G_SCALE : 0;
     cancelButton_->setPos(cancelPosX, CANCEL_BUTTON_POS_Y*G_SCALE + yOffset);
+
+    acceptButton_->setText(tr("Update"));
+    cancelButton_->setText(tr("Later"));
 }
 
 void UpdateWindowItem::updatePositions()

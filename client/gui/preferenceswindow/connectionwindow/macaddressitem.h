@@ -13,10 +13,11 @@ class MacAddressItem : public CommonGraphics::BaseItem
 {
     Q_OBJECT
 public:
-    explicit MacAddressItem(ScalableGraphicsObject *parent, const QString &caption);
+    explicit MacAddressItem(ScalableGraphicsObject *parent, const QString &caption = "");
 
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
+    void setCaption(const QString &caption);
     void setMacAddress(const QString &macAddress);
     void updateScaling() override;
 

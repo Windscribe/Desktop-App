@@ -3,6 +3,7 @@
 #include <QPainter>
 
 #include "utils/hardcodedsettings.h"
+#include "languagecontroller.h"
 
 #ifdef Q_OS_MAC
     #include "utils/macutils.h"
@@ -26,22 +27,20 @@ SplitTunnelingWindowItem::SplitTunnelingWindowItem(ScalableGraphicsObject *paren
     splitTunnelingGroup_->setAppsCount(preferences->splitTunnelingApps().count());
     splitTunnelingGroup_->setAddressesCount(preferences->splitTunnelingNetworkRoutes().count());
 
-#ifdef Q_OS_MAC
-    QString descText = tr("Include or exclude IPs and hostnames from the VPN tunnel.\n\nFirewall will not function in this mode.");
-#else 
-    QString descText = tr("Include or exclude apps and hostnames from the VPN tunnel.");
-#endif
     desc_ = new PreferenceGroup(this,
-                                descText,
+                                "",
                                 QString("https://%1/features/split-tunneling/desktop").arg(HardcodedSettings::instance().serverUrl()));
 
     addItem(desc_);
     addItem(splitTunnelingGroup_);
+
+    connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &SplitTunnelingWindowItem::onLanguageChanged);
+    onLanguageChanged();
 }
 
-QString SplitTunnelingWindowItem::caption()
+QString SplitTunnelingWindowItem::caption() const
 {
-    return QT_TRANSLATE_NOOP("PreferencesWindow::PreferencesWindowItem", "Split Tunneling");
+    return tr("Split Tunneling");
 }
 
 SPLIT_TUNNEL_SCREEN SplitTunnelingWindowItem::getScreen()
@@ -72,6 +71,16 @@ void SplitTunnelingWindowItem::onSettingsChanged(types::SplitTunnelingSettings s
 void SplitTunnelingWindowItem::setActive(bool active)
 {
     splitTunnelingGroup_->setActive(active);
+}
+
+void SplitTunnelingWindowItem::onLanguageChanged()
+{
+    QString desc = tr("Include or exclude apps and hostnames from the VPN tunnel.");
+#ifdef Q_OS_MAC
+    desc_->setDescription(desc + "\n\n" + tr("Firewall will not function in this mode."));
+#else 
+    desc_->setDescription(desc);
+#endif
 }
 
 } // namespace PreferencesWindow

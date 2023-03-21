@@ -29,6 +29,7 @@ public:
                            const QString &descUrl = "");
 
     void setConnectionSettings(const types::ConnectionSettings &cm);
+    void setTitle(const QString &title);
 
 signals:
     void connectionModePreferencesChanged(const types::ConnectionSettings &settings);
@@ -39,6 +40,7 @@ private slots:
     void onCheckBoxStateChanged(bool isChecked);
     void onProtocolChanged(QVariant value);
     void onPortChanged(QVariant value);
+    void onLanguageChanged();
 
 private:
     void updatePositions();
@@ -46,6 +48,7 @@ private:
     void updateMode();
     PreferencesHelper *preferencesHelper_;
 
+    QString title_;
     ComboBoxItem *connectionModeItem_;
     CheckBoxItem *checkBoxEnable_;
     ComboBoxItem *protocolItem_;

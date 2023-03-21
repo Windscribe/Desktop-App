@@ -2,6 +2,7 @@
 
 #include <QPainter>
 #include "dpiscalemanager.h"
+#include "languagecontroller.h"
 #include "graphicresources/imageresourcessvg.h"
 #include "graphicresources/fontmanager.h"
 #include "preferenceswindow/preferencesconst.h"
@@ -20,6 +21,9 @@ RobertItem::RobertItem(ScalableGraphicsObject *parent, const types::RobertFilter
     setIcon(iconForId(filter.id));
     setState(filter.status == 1);
 
+    connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &RobertItem::onLanguageChanged);
+    onLanguageChanged();
+
     updateScaling();
 }
 
@@ -34,8 +38,7 @@ void RobertItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
     painter->setOpacity(OPACITY_FULL);
 
     int xOffset = PREFERENCES_MARGIN*G_SCALE;
-    if (icon_)
-    {
+    if (icon_) {
         xOffset = (2*PREFERENCES_MARGIN + ICON_WIDTH)*G_SCALE;
         icon_->draw(PREFERENCES_MARGIN*G_SCALE, ROBERT_ICON_MARGIN_Y*G_SCALE, ICON_WIDTH*G_SCALE, ICON_HEIGHT*G_SCALE, painter);
     }
@@ -52,13 +55,10 @@ void RobertItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
     painter->setFont(*FontManager::instance().getFont(10, false));
     QString text = tr("Blocking");
 
-    if (checkBoxButton_->isChecked())
-    {
+    if (checkBoxButton_->isChecked()) {
         painter->setOpacity(OPACITY_FULL);
         painter->setPen(QColor(85, 255, 138));
-    }
-    else
-    {
+    } else {
         text = tr("Allowing");
         painter->setOpacity(OPACITY_HALF);
         painter->setPen(Qt::white);
@@ -114,42 +114,30 @@ void RobertItem::onStateChanged(bool checked)
 
 QSharedPointer<IndependentPixmap> RobertItem::iconForId(QString id)
 {
-    if (id == "malware")
-    {
+    if (id == "malware") {
         return ImageResourcesSvg::instance().getIndependentPixmap("preferences/MALWARE");
-    }
-    else if (id == "ads")
-    {
+    } else if (id == "ads") {
         return ImageResourcesSvg::instance().getIndependentPixmap("preferences/ADS");
-    }
-    else if (id == "social")
-    {
+    } else if (id == "social") {
         return ImageResourcesSvg::instance().getIndependentPixmap("preferences/SOCIAL_NETWORKS");
-    }
-    else if (id == "porn")
-    {
+    } else if (id == "porn") {
         return ImageResourcesSvg::instance().getIndependentPixmap("preferences/PORN");
-    }
-    else if (id == "gambling")
-    {
+    } else if (id == "gambling") {
         return ImageResourcesSvg::instance().getIndependentPixmap("preferences/GAMBLING");
-    }
-    else if (id == "fakenews")
-    {
+    } else if (id == "fakenews") {
         return ImageResourcesSvg::instance().getIndependentPixmap("preferences/FAKE_NEWS");
-    }
-    else if (id == "competitors")
-    {
+    } else if (id == "competitors") {
         return ImageResourcesSvg::instance().getIndependentPixmap("preferences/OTHER_VPNS");
-    }
-    else if (id == "cryptominers")
-    {
+    } else if (id == "cryptominers") {
         return ImageResourcesSvg::instance().getIndependentPixmap("preferences/CRYPTO");
-    }
-    else
-    {
+    } else {
         return ImageResourcesSvg::instance().getIndependentPixmap("preferences/UNKNOWN_FILTER");
     }
+}
+
+void RobertItem::onLanguageChanged()
+{
+    update();
 }
 
 } // namespace PreferencesWindow

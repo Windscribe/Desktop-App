@@ -381,8 +381,8 @@ void ConnectWindowItem::onConnectStateTextHoverEnter()
 
             if (prevConnectState_.connectState == CONNECT_STATE_DISCONNECTED)
             {
-                QString text = QT_TRANSLATE_NOOP("CommonWidgets::ToolTipWidget", "Connection to Windscribe has been terminated. ") +
-                        dataTransferred_ + QT_TRANSLATE_NOOP("CommonWidgets::ToolTipWidget", " transferred in ") +
+                QString text = tr("Connection to Windscribe has been terminated. ") +
+                        dataTransferred_ + tr(" transferred in ") +
                         connectionTime_;
 
                 TooltipInfo ti(TOOLTIP_TYPE_DESCRIPTIVE, TOOLTIP_ID_CONNECTION_INFO);
@@ -397,9 +397,8 @@ void ConnectWindowItem::onConnectStateTextHoverEnter()
             }
             else // CONNECTED
             {
-                QString text = QT_TRANSLATE_NOOP("CommonWidgets::ToolTipWidget", "Connected for ") +
-                        connectionTime_ + ", " +
-                        dataTransferred_ + QT_TRANSLATE_NOOP("CommonWidgets::ToolTipWidget", " transferred");
+                QString text = tr("Connected for ") +
+                        connectionTime_ + ", " + dataTransferred_ + tr(" transferred");
 
                 TooltipInfo ti(TOOLTIP_TYPE_BASIC, TOOLTIP_ID_CONNECTION_INFO);
                 ti.x = posX;

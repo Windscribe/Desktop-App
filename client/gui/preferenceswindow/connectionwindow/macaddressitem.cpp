@@ -73,5 +73,11 @@ void MacAddressItem::updatePositions()
     updateButton_->setPos(boundingRect().width() - (PREFERENCES_MARGIN + ICON_WIDTH)*G_SCALE, PREFERENCES_MARGIN*G_SCALE);
 }
 
+void MacAddressItem::setCaption(const QString &caption)
+{
+    caption_ = caption;
+    update();
+}
+
 } // namespace PreferencesWindow
 

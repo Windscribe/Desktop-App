@@ -24,7 +24,7 @@ GeneralMessageWindowItem::GeneralMessageWindowItem(Preferences *preferences, boo
     background_ = "background/MAC_MAIN_BG";
 #endif
 
-    QString acceptText = QT_TRANSLATE_NOOP("CommonGraphics::BubbleButtonDark", "Ok");
+    QString acceptText = tr("Ok");
 
     connect(preferences_, &Preferences::appSkinChanged, this, &GeneralMessageWindowItem::onAppSkinChanged);
 

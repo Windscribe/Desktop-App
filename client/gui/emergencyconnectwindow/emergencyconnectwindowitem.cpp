@@ -31,8 +31,6 @@ EmergencyConnectWindowItem::EmergencyConnectWindowItem(QGraphicsObject *parent,
     lastSpinnerRotationStart_ = 0;
     spinnerRotationAnimationActive_ = false;
 
-    curSubDescription_ = CONNECTING_STRING;
-
     connectButton_ = new CommonGraphics::BubbleButtonDark(this, 108, 40, 20, 20);
     connect(connectButton_, SIGNAL(clicked()), SLOT(onConnectClicked()));
 
@@ -48,20 +46,6 @@ EmergencyConnectWindowItem::EmergencyConnectWindowItem(QGraphicsObject *parent,
 
     minimizeButton_ = new IconButton(16, 16, "WINDOWS_MINIMIZE_ICON", "", this);
     connect(minimizeButton_, SIGNAL(clicked()), SIGNAL(minimizeClick()));
-#else //if Q_OS_MAC
-
-    /*closeButton_ = new IconButton(14,14, "MAC_CLOSE_DEFAULT", this);
-    connect(closeButton_, SIGNAL(clicked()), SIGNAL(closeClick()));
-    connect(closeButton_, &IconButton::hoverEnter, [=](){ closeButton_->setIcon("MAC_CLOSE_HOVER"); });
-    connect(closeButton_, &IconButton::hoverLeave, [=](){ closeButton_->setIcon("MAC_CLOSE_DEFAULT"); });
-    closeButton_->setSelected(true);
-
-    minimizeButton_ = new IconButton(14,14,"MAC_MINIMIZE_DEFAULT", this);
-    connect(minimizeButton_, SIGNAL(clicked()), SIGNAL(minimizeClick()));
-    connect(minimizeButton_, &IconButton::hoverEnter, [=](){ minimizeButton_->setIcon("MAC_MINIMIZE_HOVER"); });
-    connect(minimizeButton_, &IconButton::hoverLeave, [=](){ minimizeButton_->setIcon("MAC_MINIMIZE_DEFAULT"); });
-    minimizeButton_->setSelected(true);*/
-
 #endif
 
     textLinkButton_ = new TextLinkButton(this);
@@ -230,7 +214,7 @@ void EmergencyConnectWindowItem::setState(types::ConnectState state)
     }
     else if (state.connectState == CONNECT_STATE_CONNECTING)
     {
-        curSubDescription_ = CONNECTING_STRING;
+        curSubDescription_ = tr("Connecting...");
 
         connectButton_->setVisible(false);
         disconnectButton_->setVisible(false);
@@ -240,7 +224,7 @@ void EmergencyConnectWindowItem::setState(types::ConnectState state)
     }
     else // CONNECT_STATE_DISCONNECTING
     {
-        curSubDescription_ = QT_TR_NOOP("Disconnecting...");
+        curSubDescription_ = tr("Disconnecting...");
 
         transitionToDisconnecting();
         startSpinnerAnimation();

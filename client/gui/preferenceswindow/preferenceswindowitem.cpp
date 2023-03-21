@@ -8,6 +8,7 @@
 #include "graphicresources/imageresourcessvg.h"
 #include "preferencestab/preferencestabcontrolitem.h"
 #include "graphicresources/fontmanager.h"
+#include "languagecontroller.h"
 #include "utils/ws_assert.h"
 #include "utils/utils.h"
 #include "utils/logger.h"
@@ -64,7 +65,6 @@ PreferencesWindowItem::PreferencesWindowItem(QGraphicsObject *parent, Preference
     aboutWindowItem_ = new AboutWindowItem(nullptr, preferences, preferencesHelper);
 
     scrollAreaItem_->setItem(generalWindowItem_);
-    pageCaption_ = generalWindowItem_->caption();
 
     networkOptionsWindowItem_ = new NetworkOptionsWindowItem(nullptr, preferences);
     networkOptionsNetworkWindowItem_ = new NetworkOptionsNetworkWindowItem(nullptr, preferences, preferencesHelper);
@@ -145,7 +145,7 @@ void PreferencesWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsI
     QFont *font = FontManager::instance().getFont(16, true);
     painter->setFont(*font);
     QFontMetrics fm(*font);
-    painter->drawText(rcCaption, Qt::AlignLeft | Qt::AlignVCenter, fm.elidedText(pageCaption_, Qt::ElideRight, 140*G_SCALE));
+    painter->drawText(rcCaption, Qt::AlignLeft | Qt::AlignVCenter, fm.elidedText(scrollAreaItem_->item()->caption(), Qt::ElideRight, 140*G_SCALE));
 
     // bottom-most background
     painter->setOpacity(initialOpacity);
@@ -224,7 +224,6 @@ void PreferencesWindowItem::changeTab(PREFERENCES_TAB_TYPE tab)
         scrollAreaItem_->setItem(generalWindowItem_);
         generalWindowItem_->updateScaling();
         setShowSubpageMode(false);
-        pageCaption_ = generalWindowItem_->caption();
         update();
     }
     else if (tab == TAB_ACCOUNT)
@@ -232,7 +231,6 @@ void PreferencesWindowItem::changeTab(PREFERENCES_TAB_TYPE tab)
         scrollAreaItem_->setItem(accountWindowItem_);
         accountWindowItem_->updateScaling();
         setShowSubpageMode(false);
-        pageCaption_ = accountWindowItem_->caption();
         update();
     }
     else if (tab == TAB_CONNECTION)
@@ -241,7 +239,6 @@ void PreferencesWindowItem::changeTab(PREFERENCES_TAB_TYPE tab)
         connectionWindowItem_->updateScaling();
         connectionWindowItem_->setScreen(CONNECTION_SCREEN_HOME);
         setShowSubpageMode(false);
-        pageCaption_ = connectionWindowItem_->caption();
         update();
     }
     else if (tab == TAB_ROBERT)
@@ -255,7 +252,6 @@ void PreferencesWindowItem::changeTab(PREFERENCES_TAB_TYPE tab)
         scrollAreaItem_->setItem(robertWindowItem_);
         robertWindowItem_->updateScaling();
         setShowSubpageMode(false);
-        pageCaption_ = robertWindowItem_->caption();
         update();
     }
     else if (tab == TAB_ADVANCED)
@@ -264,7 +260,6 @@ void PreferencesWindowItem::changeTab(PREFERENCES_TAB_TYPE tab)
         advancedWindowItem_->updateScaling();
         advancedWindowItem_->setScreen(ADVANCED_SCREEN_HOME);
         setShowSubpageMode(false);
-        pageCaption_ = advancedWindowItem_->caption();
         update();
     }
     else if (tab == TAB_HELP)
@@ -272,7 +267,6 @@ void PreferencesWindowItem::changeTab(PREFERENCES_TAB_TYPE tab)
         scrollAreaItem_->setItem(helpWindowItem_);
         helpWindowItem_->updateScaling();
         setShowSubpageMode(false);
-        pageCaption_ = helpWindowItem_->caption();
         update();
     }
     else if (tab == TAB_ABOUT)
@@ -280,7 +274,6 @@ void PreferencesWindowItem::changeTab(PREFERENCES_TAB_TYPE tab)
         scrollAreaItem_->setItem(aboutWindowItem_);
         aboutWindowItem_->updateScaling();
         setShowSubpageMode(false);
-        pageCaption_ = aboutWindowItem_->caption();
         update();
     }
     else
@@ -348,7 +341,6 @@ void PreferencesWindowItem::onNetworkOptionsPageClick()
     connectionWindowItem_->setScreen(CONNECTION_SCREEN_NETWORK_OPTIONS);
     networkOptionsWindowItem_->setScreen(NETWORK_OPTIONS_HOME);
     setShowSubpageMode(true);
-    pageCaption_ = networkOptionsWindowItem_->caption();
     setFocus();
     update();
 }
@@ -361,7 +353,6 @@ void PreferencesWindowItem::onNetworkOptionsNetworkClick(types::NetworkInterface
     connectionWindowItem_->setScreen(CONNECTION_SCREEN_NETWORK_OPTIONS);
     networkOptionsWindowItem_->setScreen(NETWORK_OPTIONS_DETAILS);
     setShowSubpageMode(true);
-    pageCaption_ = network.friendlyName;
     update();
 }
 
@@ -372,7 +363,6 @@ void PreferencesWindowItem::setPreferencesWindowToSplitTunnelingHome()
     connectionWindowItem_->setScreen(CONNECTION_SCREEN_SPLIT_TUNNELING);
     splitTunnelingWindowItem_->setScreen(SPLIT_TUNNEL_SCREEN_HOME);
     setShowSubpageMode(true);
-    pageCaption_ = splitTunnelingWindowItem_->caption();
     setFocus();
     update();
 }
@@ -388,7 +378,6 @@ void PreferencesWindowItem::onProxySettingsPageClick()
     proxySettingsWindowItem_->updateScaling();
     connectionWindowItem_->setScreen(CONNECTION_SCREEN_PROXY_SETTINGS);
     setShowSubpageMode(true);
-    pageCaption_ = proxySettingsWindowItem_->caption();
     setFocus();
     update();
 }
@@ -405,7 +394,6 @@ void PreferencesWindowItem::setPreferencesWindowToSplitTunnelingAppsHome()
     connectionWindowItem_->setScreen(CONNECTION_SCREEN_SPLIT_TUNNELING);
     splitTunnelingWindowItem_->setScreen(SPLIT_TUNNEL_SCREEN_APPS);
     setShowSubpageMode(true);
-    pageCaption_ = splitTunnelingAppsWindowItem_->caption();
     update();
 }
 
@@ -449,7 +437,6 @@ void PreferencesWindowItem::onSplitTunnelingAddressesClick()
     connectionWindowItem_->setScreen(CONNECTION_SCREEN_SPLIT_TUNNELING);
     splitTunnelingWindowItem_->setScreen(SPLIT_TUNNEL_SCREEN_IPS_AND_HOSTNAMES);
     setShowSubpageMode(true);
-    pageCaption_ = splitTunnelingAddressesWindowItem_->caption();
     update();
     splitTunnelingAddressesWindowItem_->setFocusOnTextEntry();
 }

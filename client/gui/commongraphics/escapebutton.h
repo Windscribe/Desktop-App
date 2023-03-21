@@ -26,6 +26,9 @@ public:
     void updateScaling() override;
     int getSize() const { return BUTTON_SIZE; }
 
+public slots:
+    void onLanguageChanged();
+
 signals:
     void clicked();
 

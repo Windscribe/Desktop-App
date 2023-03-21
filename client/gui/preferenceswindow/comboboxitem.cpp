@@ -320,4 +320,15 @@ void ComboBoxItem::setIcon(QSharedPointer<IndependentPixmap> icon)
     icon_ = icon;
 }
 
+void ComboBoxItem::setItems(const QList<QPair<QString, QVariant>> &list, QVariant curValue)
+{
+    clear();
+
+    for (const auto item : list) {
+        addItem(item.first, item.second);
+    }
+    setCurrentItem(curValue);
+    updatePositions();
+}
+
 } // namespace PreferencesWindow

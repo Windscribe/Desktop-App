@@ -36,6 +36,7 @@ signals:
 
 private slots:
     void onStateChanged(bool isChecked);
+    void onLanguageChanged();
 
 private:
     QSharedPointer<IndependentPixmap> iconForId(QString id);

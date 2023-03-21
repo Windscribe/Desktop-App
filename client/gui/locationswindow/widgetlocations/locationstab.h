@@ -96,6 +96,8 @@ private slots:
     void onLocationSelected(const LocationID &lid);
     void onClickedOnPremiumStarCity();
 
+    void onLanguageChanged();
+
 private:
     Preferences *preferences_;
     gui_locations::LocationsModelManager *locationsModelManager_;

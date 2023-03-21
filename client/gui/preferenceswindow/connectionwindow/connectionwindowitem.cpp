@@ -41,29 +41,27 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
     connect(preferences, &Preferences::isTerminateSocketsChanged, this, &ConnectionWindowItem::onTerminateSocketsPreferencesChanged);
     connect(preferences, &Preferences::isAutoConnectChanged, this, &ConnectionWindowItem::onIsAutoConnectPreferencesChanged);
 
-    connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &ConnectionWindowItem::onLanguageChanged);
-
     subpagesGroup_ = new PreferenceGroup(this);
 
-    networkOptionsItem_ = new LinkItem(subpagesGroup_, LinkItem::LinkType::SUBPAGE_LINK, QT_TRANSLATE_NOOP("PreferencesWindow::LinkItem","Network Options"));
+    networkOptionsItem_ = new LinkItem(subpagesGroup_, LinkItem::LinkType::SUBPAGE_LINK);
     connect(networkOptionsItem_, &LinkItem::clicked, this, &ConnectionWindowItem::networkOptionsPageClick);
     subpagesGroup_->addItem(networkOptionsItem_);
 
 #ifndef Q_OS_LINUX
-    splitTunnelingItem_ = new LinkItem(subpagesGroup_, LinkItem::LinkType::SUBPAGE_LINK, QT_TRANSLATE_NOOP("PreferencesWindow::LinkItem","Split Tunneling"));
+    splitTunnelingItem_ = new LinkItem(subpagesGroup_, LinkItem::LinkType::SUBPAGE_LINK);
     connect(splitTunnelingItem_, &LinkItem::clicked, this, &ConnectionWindowItem::splitTunnelingPageClick);
     onSplitTunnelingPreferencesChanged(preferences->splitTunneling());
     subpagesGroup_->addItem(splitTunnelingItem_);
 #endif
 
-    proxySettingsItem_ = new LinkItem(subpagesGroup_, LinkItem::LinkType::SUBPAGE_LINK, QT_TRANSLATE_NOOP("PreferencesWindow::LinkItem","Proxy Settings"));
+    proxySettingsItem_ = new LinkItem(subpagesGroup_, LinkItem::LinkType::SUBPAGE_LINK);
     connect(proxySettingsItem_, &LinkItem::clicked, this, &ConnectionWindowItem::proxySettingsPageClick);
     subpagesGroup_->addItem(proxySettingsItem_);
 
     addItem(subpagesGroup_);
 
-    autoConnectGroup_ = new PreferenceGroup(this, tr("Connects to last used location when the app launches or joins a network."));
-    checkBoxAutoConnect_ = new CheckBoxItem(autoConnectGroup_, QT_TRANSLATE_NOOP("PreferencesWindow::CheckBoxItem", "Auto-Connect"), QString());
+    autoConnectGroup_ = new PreferenceGroup(this);
+    checkBoxAutoConnect_ = new CheckBoxItem(autoConnectGroup_);
     checkBoxAutoConnect_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/AUTOCONNECT"));
     checkBoxAutoConnect_->setState(preferences->isAutoConnect());
     connect(checkBoxAutoConnect_, &CheckBoxItem::stateChanged, this, &ConnectionWindowItem::onIsAutoConnectPreferencesChangedByUser);
@@ -71,7 +69,7 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
     addItem(autoConnectGroup_);
 
     firewallGroup_ = new FirewallGroup(this,
-                                       tr("Control the mode of behavior of the Windscribe firewall."),
+                                       "",
                                        QString("https://%1/features/firewall").arg(HardcodedSettings::instance().serverUrl()));
     connect(firewallGroup_, &FirewallGroup::firewallPreferencesChanged, this, &ConnectionWindowItem::onFirewallPreferencesChangedByUser);
     firewallGroup_->setFirewallSettings(preferences->firewallSettings());
@@ -80,10 +78,10 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
 
     connectionModeGroup_ = new ProtocolGroup(this,
                                              preferencesHelper,
-                                             tr("Connection Mode"),
+                                             "",
                                              "preferences/CONNECTION_MODE",
                                              ProtocolGroup::SelectionType::COMBO_BOX,
-                                             tr("Automatically choose the VPN protocol, or select one manually."),
+                                             "",
                                              QString("https://%1/features/flexible-connectivity").arg(HardcodedSettings::instance().serverUrl()));
     connectionModeGroup_->setConnectionSettings(preferences->connectionSettings());
     connect(connectionModeGroup_, &ProtocolGroup::connectionModePreferencesChanged, this, &ConnectionWindowItem::onConnectionModePreferencesChangedByUser);
@@ -91,7 +89,7 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
 
 #ifndef Q_OS_LINUX
     packetSizeGroup_ = new PacketSizeGroup(this,
-                                           tr("Automatically determine the MTU for your connection, or manually override."),
+                                           "",
                                            QString("https://%1/features/packet-size").arg(HardcodedSettings::instance().serverUrl()));
     packetSizeGroup_->setPacketSizeSettings(preferences->packetSize());
     connect(packetSizeGroup_, &PacketSizeGroup::packetSizeChanged, this, &ConnectionWindowItem::onPacketSizePreferencesChangedByUser);
@@ -99,7 +97,7 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
     addItem(packetSizeGroup_);
 
     connectedDnsGroup_ = new ConnectedDnsGroup(this,
-                                               tr("Select the DNS server while connected to Windscribe."),
+                                               "",
                                                QString("https://%1/features/flexible-dns").arg(HardcodedSettings::instance().serverUrl()));
     connectedDnsGroup_->setConnectedDnsInfo(preferences->connectedDnsInfo());
     connect(connectedDnsGroup_, &ConnectedDnsGroup::connectedDnsInfoChanged, this, &ConnectionWindowItem::onConnectedDnsPreferencesChangedByUser);
@@ -107,9 +105,9 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
 #endif
 
     allowLanTrafficGroup_ = new PreferenceGroup(this,
-                                                tr("Allow access to local services and printers while connected to Windscribe."),
+                                                "",
                                                 QString("https://%1/features/lan-traffic").arg(HardcodedSettings::instance().serverUrl()));
-    checkBoxAllowLanTraffic_ = new CheckBoxItem(allowLanTrafficGroup_, QT_TRANSLATE_NOOP("PreferencesWindow::CheckBoxItem", "Allow LAN Traffic"), QString());
+    checkBoxAllowLanTraffic_ = new CheckBoxItem(allowLanTrafficGroup_, tr("Allow LAN Traffic"));
     checkBoxAllowLanTraffic_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/ALLOW_LAN_TRAFFIC"));
     checkBoxAllowLanTraffic_->setState(preferences->isAllowLanTraffic());
     connect(checkBoxAllowLanTraffic_, &CheckBoxItem::stateChanged, this, &ConnectionWindowItem::onIsAllowLanTrafficPreferencesChangedByUser);
@@ -119,7 +117,7 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
 
 #ifndef Q_OS_LINUX
     macSpoofingGroup_ = new MacSpoofingGroup(this,
-                                             tr("Spoof your device's physical address (MAC address)."),
+                                             "",
                                              QString("https://%1/features/mac-spoofing").arg(HardcodedSettings::instance().serverUrl()));
     connect(macSpoofingGroup_, &MacSpoofingGroup::macAddrSpoofingChanged, this, &ConnectionWindowItem::onMacAddrSpoofingPreferencesChangedByUser);
     connect(macSpoofingGroup_, &MacSpoofingGroup::cycleMacAddressClick, this, &ConnectionWindowItem::cycleMacAddressClick);
@@ -129,9 +127,9 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
 
 #if defined(Q_OS_WIN)
     terminateSocketsGroup_ = new PreferenceGroup(this,
-                                                 tr("Close all active TCP sockets when the VPN tunnel is established."),
+                                                 "",
                                                  QString("https://%1/features/tcp-socket-termination").arg(HardcodedSettings::instance().serverUrl()));
-    terminateSocketsItem_ = new CheckBoxItem(terminateSocketsGroup_, QT_TRANSLATE_NOOP("PreferencesWindow::CheckBoxItem", "Terminate Sockets"), QString());
+    terminateSocketsItem_ = new CheckBoxItem(terminateSocketsGroup_, tr("Terminate Sockets"));
     terminateSocketsItem_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/TERMINATE_SOCKETS"));
     terminateSocketsItem_->setState(preferences->isTerminateSockets());
     connect(terminateSocketsItem_, &CheckBoxItem::stateChanged, this, &ConnectionWindowItem::onTerminateSocketsPreferencesChangedByUser);
@@ -151,16 +149,19 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
 #endif
 
     proxyGatewayGroup_ = new ProxyGatewayGroup(this,
-                                               tr("Configure your TV, gaming console, or other devices that support proxy servers."),
+                                               "",
                                                QString("https://%1/features/proxy-gateway").arg(HardcodedSettings::instance().serverUrl()));
     connect(proxyGatewayGroup_, &ProxyGatewayGroup::proxyGatewayPreferencesChanged, this, &ConnectionWindowItem::onProxyGatewayPreferencesChangedByUser);
     proxyGatewayGroup_->setProxyGatewaySettings(preferences->shareProxyGateway());
     addItem(proxyGatewayGroup_);
+
+    connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &ConnectionWindowItem::onLanguageChanged);
+    onLanguageChanged();
 }
 
-QString ConnectionWindowItem::caption()
+QString ConnectionWindowItem::caption() const
 {
-    return QT_TRANSLATE_NOOP("PreferencesWindow::PreferencesWindowItem", "Connection");
+    return tr("Connection");
 }
 
 void ConnectionWindowItem::updateScaling()
@@ -354,7 +355,40 @@ void ConnectionWindowItem::onIsAllowLanTrafficPreferencesChanged(bool b)
 
 void ConnectionWindowItem::onLanguageChanged()
 {
+    networkOptionsItem_->setTitle(tr("Network Options"));
+#ifndef Q_OS_LINUX
+    splitTunnelingItem_->setTitle(tr("Split Tunneling"));
+    onSplitTunnelingPreferencesChanged(preferences_->splitTunneling());
+#endif
+    proxySettingsItem_->setTitle(tr("Proxy Settings"));
 
+    autoConnectGroup_->setDescription(tr("Connects to last used location when the app launches or joins a network."));
+    checkBoxAutoConnect_->setCaption(tr("Auto-Connect"));
+    firewallGroup_->setDescription(tr("Control the mode of behavior of the Windscribe firewall."));
+    connectionModeGroup_->setTitle(tr("Connection Mode"));
+    connectionModeGroup_->setDescription(tr("Automatically choose the VPN protocol, or select one manually."));
+
+#ifndef Q_OS_LINUX
+    packetSizeGroup_->setDescription(tr("Automatically determine the MTU for your connection, or manually override."));
+    connectedDnsGroup_->setDescription(tr("Select the DNS server while connected to Windscribe."));
+#endif
+
+    allowLanTrafficGroup_->setDescription(tr("Allow access to local services and printers while connected to Windscribe."));
+    checkBoxAllowLanTraffic_->setCaption(tr("Allow LAN Traffic"));
+
+#ifndef Q_OS_LINUX
+    macSpoofingGroup_->setDescription(tr("Spoof your device's physical address (MAC address)."));
+#endif
+
+#if defined(Q_OS_WIN)
+    terminateSocketsGroup_->setDescription(tr("Close all active TCP sockets when the VPN tunnel is established."));
+#endif
+
+#ifndef Q_OS_LINUX
+    //secureHotspotGroup_ sets its own description
+#endif
+
+    proxyGatewayGroup_->setDescription(tr("Configure your TV, gaming console, or other devices that support proxy servers."));
 }
 
 void ConnectionWindowItem::onIsAllowLanTrafficPreferencesChangedByUser(bool b)

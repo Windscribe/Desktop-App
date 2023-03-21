@@ -19,7 +19,7 @@ class AccountWindowItem : public CommonGraphics::BasePage
 public:
     explicit AccountWindowItem(ScalableGraphicsObject *parent, AccountInfo *accountInfo);
 
-    QString caption();
+    QString caption() const override;
     void setLoggedIn(bool loggedIn);
     void setConfirmEmailResult(bool bSuccess);
 
@@ -46,6 +46,7 @@ signals:
     void addEmailButtonClick();
 
 private:
+    AccountInfo *accountInfo_;
     TitleItem *infoTitle_;
     AccountDataItem *usernameItem_;
     PreferenceGroup *infoGroup_;

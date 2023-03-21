@@ -1,4 +1,5 @@
 #include "aboutwindowitem.h"
+#include "languagecontroller.h"
 #include "preferenceswindow/preferencesconst.h"
 #include "utils/hardcodedsettings.h"
 
@@ -15,34 +16,54 @@ AboutWindowItem::AboutWindowItem(ScalableGraphicsObject *parent, Preferences *pr
     
     group_ = new PreferenceGroup(this, "", "");
 
-    LinkItem *item1 = new LinkItem(group_, LinkItem::LinkType::EXTERNAL_LINK, tr("Status"),
-                                   QString("https://%1/status").arg(HardcodedSettings::instance().serverUrl()));
-    group_->addItem(item1);
-    LinkItem *item2 = new LinkItem(group_, LinkItem::LinkType::EXTERNAL_LINK, tr("About Us"),
-                                   QString("https://%1/about").arg(HardcodedSettings::instance().serverUrl()));
-    group_->addItem(item2);
-    LinkItem *item3 = new LinkItem(group_, LinkItem::LinkType::EXTERNAL_LINK, tr("Privacy Policy"),
-                                   QString("https://%1/privacy").arg(HardcodedSettings::instance().serverUrl()));
-    group_->addItem(item3);
-    LinkItem *item4 = new LinkItem(group_, LinkItem::LinkType::EXTERNAL_LINK, tr("Terms"),
-                                   QString("https://%1/terms").arg(HardcodedSettings::instance().serverUrl()));
-    group_->addItem(item4);
-    LinkItem *item5 = new LinkItem(group_, LinkItem::LinkType::EXTERNAL_LINK, tr("Blog"),
-                                   "https://blog.windscribe.com");
-    group_->addItem(item5);
-    LinkItem *item6 = new LinkItem(group_, LinkItem::LinkType::EXTERNAL_LINK, tr("Jobs"),
-                                   "https://angel.co/company/windscribe");
-    group_->addItem(item6);
-    LinkItem *item7 = new LinkItem(group_, LinkItem::LinkType::EXTERNAL_LINK, tr("Software Licenses"),
-                                   QString("https://%1/terms/oss").arg(HardcodedSettings::instance().serverUrl()));
-    group_->addItem(item7);
+    statusLink_ = new LinkItem(group_, LinkItem::LinkType::EXTERNAL_LINK, "",
+                               QString("https://%1/status").arg(HardcodedSettings::instance().serverUrl()));
+    group_->addItem(statusLink_);
+
+    aboutUsLink_ = new LinkItem(group_, LinkItem::LinkType::EXTERNAL_LINK, "",
+                                QString("https://%1/about").arg(HardcodedSettings::instance().serverUrl()));
+    group_->addItem(aboutUsLink_);
+
+    privacyLink_ = new LinkItem(group_, LinkItem::LinkType::EXTERNAL_LINK, "",
+                                QString("https://%1/privacy").arg(HardcodedSettings::instance().serverUrl()));
+    group_->addItem(privacyLink_);
+
+    termsLink_ = new LinkItem(group_, LinkItem::LinkType::EXTERNAL_LINK, "",
+                              QString("https://%1/terms").arg(HardcodedSettings::instance().serverUrl()));
+    group_->addItem(termsLink_);
+
+    blogLink_ = new LinkItem(group_, LinkItem::LinkType::EXTERNAL_LINK, ""
+                             "https://blog.windscribe.com");
+    group_->addItem(blogLink_);
+
+    jobsLink_ = new LinkItem(group_, LinkItem::LinkType::EXTERNAL_LINK, "",
+                             "https://angel.co/company/windscribe");
+    group_->addItem(jobsLink_);
+
+    licensesLink_ = new LinkItem(group_, LinkItem::LinkType::EXTERNAL_LINK, "",
+                                 QString("https://%1/terms/oss").arg(HardcodedSettings::instance().serverUrl()));
+    group_->addItem(licensesLink_);
 
     addItem(group_);
+
+    connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &AboutWindowItem::onLanguageChanged);
+    onLanguageChanged();
 }
 
 QString AboutWindowItem::caption() const
 {
-    return QT_TRANSLATE_NOOP("PreferencesWindow::PreferencesWindowItem", "About");
+    return tr("About");
+}
+
+void AboutWindowItem::onLanguageChanged()
+{
+    statusLink_->setTitle(tr("Status"));
+    aboutUsLink_->setTitle(tr("About Us"));
+    privacyLink_->setTitle(tr("Privacy Policy"));
+    termsLink_->setTitle(tr("Terms"));
+    blogLink_->setTitle(tr("Blog"));
+    jobsLink_->setTitle(tr("Jobs"));
+    licensesLink_->setTitle(tr("Software Licenses"));
 }
 
 } // namespace PreferencesWindow

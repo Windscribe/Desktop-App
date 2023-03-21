@@ -51,8 +51,6 @@ PacketSizeEditBoxItem::PacketSizeEditBoxItem(ScalableGraphicsObject *parent, con
     lineEdit_->setStyleSheet("background: transparent; color: rgb(135, 138, 147)");
     lineEdit_->setFrame(false);
 
-    connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &PacketSizeEditBoxItem::onLanguageChanged);
-
     proxyWidget_ = new QGraphicsProxyWidget(this);
     proxyWidget_->setWidget(lineEdit_);
     proxyWidget_->hide();
@@ -253,11 +251,6 @@ void PacketSizeEditBoxItem::onUndoClick()
     update();
 }
 
-void PacketSizeEditBoxItem::onLanguageChanged()
-{
-    lineEdit_->setPlaceholderText(tr(editPlaceholderText_.toStdString().c_str()));
-}
-
 void PacketSizeEditBoxItem::onBusySpinnerOpacityAnimationChanged(const QVariant &value)
 {
     busySpinnerOpacity_ = value.toDouble();
@@ -310,6 +303,17 @@ void PacketSizeEditBoxItem::updatePositions()
     {
         lineEdit_->setGeometry(PREFERENCES_MARGIN*G_SCALE, PREFERENCES_MARGIN*G_SCALE, 180*G_SCALE, ICON_HEIGHT*G_SCALE);
     }
+}
+
+void PacketSizeEditBoxItem::setCaption(const QString &caption)
+{
+    caption_ = caption;
+    update();
+}
+
+void PacketSizeEditBoxItem::setPrompt(const QString &prompt)
+{
+    lineEdit_->setPlaceholderText(prompt);
 }
 
 } // namespace PreferencesWindow

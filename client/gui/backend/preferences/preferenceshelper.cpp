@@ -6,7 +6,7 @@ PreferencesHelper::PreferencesHelper(QObject *parent) : QObject(parent),
     isWifiSharingSupported_(true), bIpv6StateInOS_(true), isFirewallBlocked_(false),
     isDockedToTray_(false), isExternalConfigMode_(false)
 {
-    availableLanguageCodes_ << "en" ; // << "en_nsfw" << "ru" << "ar" << "es" << "fr" << "hu" << "it" << "ja" << "ko" << "nl" <<
+    availableLanguageCodes_ << "en"; // << "en_nsfw" << "ru" << "ar" << "es" << "fr" << "hu" << "it" << "ja" << "ko" << "nl" <<
                             // "zh" << "de" << "pl" << "tr" << "cs" << "da" << "el" << "pt" << "sk" << "th" << "vi" << "sv" <<
                             // "id" << "hi" << "hr";
 }
@@ -16,11 +16,10 @@ QString PreferencesHelper::buildVersion()
     return AppVersion::instance().fullVersionString();
 }
 
-QList<QPair<QString, QString> > PreferencesHelper::availableLanguages() const
+QList<QPair<QString, QVariant>> PreferencesHelper::availableLanguages() const
 {
-    QList<QPair<QString, QString> > pairs;
-    for (const QString &lang : availableLanguageCodes_)
-    {
+    QList<QPair<QString, QVariant>> pairs;
+    for (const QString &lang : availableLanguageCodes_) {
         pairs << QPair<QString, QString>(LanguagesUtil::convertCodeToNative(lang), lang);
     }
 

@@ -12,9 +12,9 @@
 
 namespace PreferencesWindow {
 
-TabButton::TabButton(ScalableGraphicsObject *parent, QString text, PREFERENCES_TAB_TYPE type, QString path, uint32_t flags)
+TabButton::TabButton(ScalableGraphicsObject *parent, PREFERENCES_TAB_TYPE type, QString path, uint32_t flags)
     : ClickableGraphicsObject(parent), type_(type), icon_(ImageResourcesSvg::instance().getIndependentPixmap(path)),
-      text_(text), circleOpacity_(OPACITY_UNHOVER_CIRCLE), iconOpacity_(OPACITY_HALF), flags_(flags)
+      text_(""), circleOpacity_(OPACITY_UNHOVER_CIRCLE), iconOpacity_(OPACITY_HALF), flags_(flags)
 {
     setClickable(true);
     connect(this, &TabButton::clicked, this, &TabButton::onClicked);

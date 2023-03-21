@@ -35,6 +35,8 @@ private:
     void generatePlanString();
     void updateTextButtonPos();
 
+    const char *PRO_TEXT = QT_TR_NOOP("Pro");
+    const char *UPGRADE_TEXT = QT_TR_NOOP("Upgrade");
 };
 
 } // namespace PreferencesWindow

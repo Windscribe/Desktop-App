@@ -56,8 +56,6 @@ target_sources(gui PRIVATE
     networkoptionswindow/networklistgroup.h
     networkoptionswindow/networkoptionsnetworkwindowitem.cpp
     networkoptionswindow/networkoptionsnetworkwindowitem.h
-    networkoptionswindow/networkoptionsshared.cpp
-    networkoptionswindow/networkoptionsshared.h
     networkoptionswindow/networkoptionswindowitem.cpp
     networkoptionswindow/networkoptionswindowitem.h
     preferencestab/ipreferencestabcontrol.h

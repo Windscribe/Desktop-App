@@ -10,10 +10,10 @@
 
 namespace LoginWindow {
 
-UsernamePasswordEntry::UsernamePasswordEntry(QString descriptionText, bool password, ScalableGraphicsObject *parent)
+UsernamePasswordEntry::UsernamePasswordEntry(const QString &text, bool password, ScalableGraphicsObject *parent)
     : ClickableGraphicsObject(parent),
       userEntryLineAddSS_("padding-left: 8px; background: #0cffffff; border-radius: 3px;"),
-      descriptionText_(descriptionText), height_(50),
+      descriptionText_(text), height_(50),
       width_(WINDOW_WIDTH), curDescriptionOpacity_(OPACITY_HIDDEN),
       curLineEditOpacity_(OPACITY_HIDDEN)
 {
@@ -163,6 +163,12 @@ void UsernamePasswordEntry::clearActiveState()
 {
     setError(false);
     userEntryLine_->setText("");
+}
+
+void UsernamePasswordEntry::setText(const QString &text)
+{
+    descriptionText_ = text;
+    update();
 }
 
 }

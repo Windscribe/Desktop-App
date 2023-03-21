@@ -36,6 +36,7 @@ public:
     void updateScaling() override;
 
     virtual bool hasItemWithFocus();
+    virtual QString caption() const;
 
 signals:
     void escape();

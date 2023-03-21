@@ -32,7 +32,6 @@ private slots:
     void onCheckBoxStateChanged(bool isChecked);
     void onSSIDChanged(const QString &text);
     void onPasswordChanged(const QString &password);
-
     void onLanguageChanged();
 
 private:

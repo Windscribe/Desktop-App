@@ -50,6 +50,7 @@ private slots:
     void onHornPosChanged(const QVariant &value);
     void onHornOpacityChanged(const QVariant &value);
     void onAppSkinChanged(APP_SKIN s);
+    void onLanguageChanged();
 
 private:
     void setHotspotSSID(QString ssid);
@@ -81,9 +82,9 @@ private:
     static const int WIDTH = 332;
     int height_;
 
-    const QString TEXT_SHARING_FEATURES = QT_TR_NOOP("Sharing Features");
-    const QString TEXT_PROXY_GATEWAY = QT_TR_NOOP("Proxy Gateway");
-    const QString TEXT_SECURE_HOTSPOT = QT_TR_NOOP("Secure Hotspot");
+    const char *TEXT_SHARING_FEATURES = QT_TR_NOOP("Sharing Features");
+    const char *TEXT_PROXY_GATEWAY = QT_TR_NOOP("Proxy Gateway");
+    const char *TEXT_SECURE_HOTSPOT = QT_TR_NOOP("Secure Hotspot");
 
     void recalcHeight();
 

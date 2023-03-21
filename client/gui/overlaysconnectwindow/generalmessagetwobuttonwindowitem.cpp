@@ -44,8 +44,6 @@ GeneralMessageTwoButtonWindowItem::GeneralMessageTwoButtonWindowItem(const QStri
     backgroundIcon_ = "background/MAC_MAIN_BG";
 #endif
 
-    titleShuttingDown_ = tr("Windscribe is shutting down");
-
     connect(&spinnerRotationAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onSpinnerRotationChanged(QVariant)));
     connect(&spinnerRotationAnimation_, SIGNAL(finished()), SLOT(onSpinnerRotationFinished()));
 
@@ -91,7 +89,7 @@ void GeneralMessageTwoButtonWindowItem::paint(QPainter *painter, const QStyleOpt
         QFont titleFont = *FontManager::instance().getFont(16, true);
         painter->setFont(titleFont);
         QRectF titleRect(0, titlePosY_, WINDOW_WIDTH*G_SCALE, CommonGraphics::textHeight(titleFont));
-        painter->drawText(titleRect, Qt::AlignCenter, tr(title_.toStdString().c_str()));
+        painter->drawText(titleRect, Qt::AlignCenter, title_);
     }
     else
     {
@@ -100,7 +98,7 @@ void GeneralMessageTwoButtonWindowItem::paint(QPainter *painter, const QStyleOpt
         QFont titleFont = *FontManager::instance().getFont(16, true);
         painter->setFont(titleFont);
         QRectF titleRect(0, titlePosY_ + 70*G_SCALE, WINDOW_WIDTH*G_SCALE, CommonGraphics::textHeight(titleFont));
-        painter->drawText(titleRect, Qt::AlignCenter, tr(titleShuttingDown_.toStdString().c_str()));
+        painter->drawText(titleRect, Qt::AlignCenter, tr("Windscribe is shutting down"));
 
         curLogoPosY_ = LOGO_POS_CENTER;
 

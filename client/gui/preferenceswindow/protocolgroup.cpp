@@ -3,6 +3,7 @@
 #include <QGraphicsScene>
 #include <QGraphicsView>
 #include "dpiscalemanager.h"
+#include "languagecontroller.h"
 #include "graphicresources/imageresourcessvg.h"
 #include "graphicresources/independentpixmap.h"
 #include "tooltips/tooltiputil.h"
@@ -11,50 +12,44 @@
 namespace PreferencesWindow {
 
 ProtocolGroup::ProtocolGroup(ScalableGraphicsObject *parent, PreferencesHelper *preferencesHelper, const QString &title, const QString &path, const SelectionType type, const QString &desc, const QString &descUrl)
-  : PreferenceGroup(parent, desc, descUrl), preferencesHelper_(preferencesHelper), type_(type), isPortMapInitialized_(false)
+  : PreferenceGroup(parent, desc, descUrl), preferencesHelper_(preferencesHelper), title_(title), type_(type), isPortMapInitialized_(false)
 {
     connect(preferencesHelper, &PreferencesHelper::portMapChanged, this, &ProtocolGroup::onPortMapChanged);
 
-    if (type == SelectionType::COMBO_BOX)
-    {
-        connectionModeItem_ = new ComboBoxItem(this, title, QString());
-        connectionModeItem_->addItem(tr("Automatic"), 0);
-        connectionModeItem_->addItem(tr("Manual"), 1);
-        connectionModeItem_->setCurrentItem(0);
+    if (type == SelectionType::COMBO_BOX) {
+        connectionModeItem_ = new ComboBoxItem(this);
         connectionModeItem_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap(path));
         connect(connectionModeItem_, &ComboBoxItem::currentItemChanged, this, &ProtocolGroup::onAutomaticChanged);
         addItem(connectionModeItem_);
-    }
-    else
-    {
-        checkBoxEnable_ = new CheckBoxItem(this, title, QString());
+    } else {
+        checkBoxEnable_ = new CheckBoxItem(this);
         checkBoxEnable_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap(path));
         checkBoxEnable_->setState(false);
         connect(checkBoxEnable_, &CheckBoxItem::stateChanged, this, &ProtocolGroup::onCheckBoxStateChanged);
         addItem(checkBoxEnable_);
     }
 
-    protocolItem_ = new ComboBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::ComboBoxItem", "Protocol"), QString());
+    protocolItem_ = new ComboBoxItem(this);
     connect(protocolItem_, &ComboBoxItem::currentItemChanged, this, &ProtocolGroup::onProtocolChanged);
     addItem(protocolItem_);
 
-    portItem_ = new ComboBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::ComboBoxItem", "Port"), QString());
+    portItem_ = new ComboBoxItem(this);
     connect(portItem_, &ComboBoxItem::currentItemChanged, this, &ProtocolGroup::onPortChanged);
     addItem(portItem_);
 
     hideItems(indexOf(protocolItem_), -1, DISPLAY_FLAGS::FLAG_NO_ANIMATION);
+
+    connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &ProtocolGroup::onLanguageChanged);
+    onLanguageChanged();
 }
 
 void ProtocolGroup::setConnectionSettings(const types::ConnectionSettings &cm)
 {
     settings_ = cm;
 
-    if (type_ == SelectionType::COMBO_BOX)
-    {
+    if (type_ == SelectionType::COMBO_BOX) {
         connectionModeItem_->setCurrentItem(settings_.isAutomatic() ? 0 : 1);
-    }
-    else
-    {
+    } else {
         checkBoxEnable_->setState(!settings_.isAutomatic());
     }
     updateMode();
@@ -66,11 +61,9 @@ void ProtocolGroup::onPortMapChanged()
     portItem_->clear();
 
     const QVector<types::Protocol> protocols = preferencesHelper_->getAvailableProtocols();
-    if (protocols.size() > 0)
-    {
+    if (protocols.size() > 0) {
         isPortMapInitialized_ = true;
-        for (auto pd : protocols)
-        {
+        for (auto pd : protocols) {
             protocolItem_->addItem(pd.toLongString(), pd.toInt());
         }
         protocolItem_->setCurrentItem(protocols.begin()->toInt());
@@ -78,9 +71,7 @@ void ProtocolGroup::onPortMapChanged()
         updatePorts(*protocols.begin());
         protocolItem_->setClickable(true);
         portItem_->setClickable(true);
-    }
-    else
-    {
+    } else {
         isPortMapInitialized_ = false;
         protocolItem_->setClickable(false);
         portItem_->setClickable(false);
@@ -117,12 +108,9 @@ void ProtocolGroup::onPortChanged(QVariant value)
 
 void ProtocolGroup::updateMode()
 {
-    if (settings_.isAutomatic())
-    {
+    if (settings_.isAutomatic()) {
         hideItems(indexOf(protocolItem_), indexOf(portItem_));
-    }
-    else if (isPortMapInitialized_)
-    {
+    } else if (isPortMapInitialized_) {
         showItems(indexOf(protocolItem_), indexOf(portItem_));
         updatePorts(settings_.protocol().toInt());
         protocolItem_->setCurrentItem(settings_.protocol().toInt());
@@ -135,12 +123,33 @@ void ProtocolGroup::updatePorts(types::Protocol protocol)
     portItem_->clear();
 
     const QVector<uint> ports = preferencesHelper_->getAvailablePortsForProtocol(protocol);
-    for (uint p : ports)
-    {
+    for (uint p : ports) {
         portItem_->addItem(QString::number(p), p);
     }
     portItem_->setCurrentItem(*ports.begin());
 }
 
+void ProtocolGroup::setTitle(const QString &title)
+{
+    title_ = title;
+    onLanguageChanged();
+}
+
+void ProtocolGroup::onLanguageChanged()
+{
+    if (type_ == SelectionType::COMBO_BOX) {
+        connectionModeItem_->setLabelCaption(title_);
+        QList<QPair<QString, QVariant>> list;
+        list << qMakePair(tr("Automatic"), 0);
+        list << qMakePair(tr("Manual"), 1);
+
+        connectionModeItem_->setItems(list, settings_.isAutomatic() ? 0 : 1);
+    } else {
+        checkBoxEnable_->setCaption(title_);
+    }
+
+    protocolItem_->setLabelCaption(tr("Protocol"));
+    portItem_->setLabelCaption(tr("Port"));
+}
 
 } // namespace PreferencesWindow

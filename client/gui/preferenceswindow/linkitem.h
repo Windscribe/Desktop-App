@@ -20,16 +20,16 @@ public:
         EXTERNAL_LINK,
     };
 
-    explicit LinkItem(ScalableGraphicsObject *parent, LinkType type, const QString &title, const QString &url = "");
+    explicit LinkItem(ScalableGraphicsObject *parent, LinkType type, const QString &title = "", const QString &url = "");
 
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
     void hideOpenPopups() override;
     void updateScaling() override;
 
     QString title();
-    void setTitle(QString &title);
+    void setTitle(const QString &title);
     QString linkText();
-    void setLinkText(QString &text);
+    void setLinkText(const QString &text);
     void setUrl(const QString &url);
     void setIcon(QSharedPointer<IndependentPixmap> icon);
 
