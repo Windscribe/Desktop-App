@@ -10,7 +10,7 @@
 namespace PreferencesWindow {
 
 RobertWindowItem::RobertWindowItem(ScalableGraphicsObject *parent, Preferences *preferences, PreferencesHelper *preferencesHelper)
-  : CommonGraphics::BasePage(parent), loggedIn_(false), isError_(false), loading_(false)
+  : CommonGraphics::BasePage(parent), loggedIn_(false), isError_(false), loading_(false), manageRulesItem_(nullptr)
 {
     Q_UNUSED(preferences);
     Q_UNUSED(preferencesHelper);
