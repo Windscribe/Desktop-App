@@ -60,15 +60,15 @@ extern std::string g_path;
     } else {
         _installButton.title = @"Install";
     }
-    _installButton.image = imageResources_.forwardArrow.NSImage;
+    _installButton.image = imageResources_.installIcon.NSImage;
     _installButton.imagePosition = NSImageRight;
     
     [_installButton sizeToFit];
     
-    CGFloat btnWidth = _installButton.bounds.size.width + 14*2;
-    CGFloat btnHeight = 32;
+    CGFloat btnWidth = _installButton.bounds.size.width + 18*2;
+    CGFloat btnHeight = 44;
     CGFloat btnX = (self.bounds.size.width - btnWidth) / 2.0f;
-    CGFloat btnY = (self.bounds.size.height - btnHeight) / 2.0f - 16;
+    CGFloat btnY = (self.bounds.size.height - btnHeight) / 2.0f;
     [_installButton setFrame:NSMakeRect(btnX, btnY, btnWidth, btnHeight)];
     
     [progressView_ setFrame:NSMakeRect(btnX, btnY, btnWidth, btnHeight)];
@@ -325,9 +325,10 @@ extern std::string g_path;
             [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"Finished! (%@)", [installer getInstallPath]]];
             
             isAlreadyFinished = true;
-            
+
             // we make a delay of 1 ms to update the GUI
             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1000000), dispatch_get_main_queue(), ^{
+                [progressView_ setProgress: -1];
                 [self.appDelegate.installer runLauncher];
             });
         }
@@ -339,40 +340,13 @@ extern std::string g_path;
 }
 
 -(void) updateState{
-    
-    NSString *strCaption;
-    if (_appDelegate.isLegacy)
-    {
-        if (isLaunching_)
-            strCaption = @"Launching...";
-        else if (isInstallScreen_ && isInstalling_ == NO)
-            strCaption = @"Unsupported OS: Install legacy version.";
-        else if (isInstallScreen_ && isInstalling_ == YES)
-            strCaption = @"Downloading legacy installer...";
-        else
-            strCaption = @"Install Settings";
+    if (!isLaunching_ && !isInstallScreen_) {
+        [fgView_ setCaption:@"Install Settings"];
+    } else {
+        [fgView_ setCaption:@""];
     }
-    else
-    {
-        if (isLaunching_)
-            strCaption = @"Launching...";
-        else if (isInstallScreen_ && isInstalling_ == NO)
-            strCaption = @"Click below to start.";
-        else if (isInstallScreen_ && isInstalling_ == YES)
-        {
-            if (_appDelegate.isUpdateMode)
-                strCaption = @"Updating...";
-            else
-                strCaption = @"Installing...";
-        }
-        else
-            strCaption = @"Install Settings";
-    }
-    
     [fgView_ setIsInstallScreen:isInstallScreen_];
-    [fgView_ setCaption:strCaption];
     [fgView_ setNeedsDisplay:YES];
-    
     [bgView_ setAlphaValue:curBackgroundOpacity_];
 }
 

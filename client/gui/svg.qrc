@@ -1,7 +1,6 @@
 <RCC>
     <qresource prefix="/">
         <file>svg/BACK_ARROW.svg</file>
-        <file>svg/BADGE_ICON.svg</file>
         <file>svg/BOTTOMLEFT_HORIZ_DIVIDER.svg</file>
         <file>svg/CHECKMARK.svg</file>
         <file>svg/CHECKMARK_IN_CIRCLE.svg</file>
@@ -16,6 +15,7 @@
         <file>svg/ring/ON_BUTTON_SHADOW.svg</file>
         <file>svg/WARNING.svg</file>
         <file>svg/WINDOWS_CLOSE_ICON.svg</file>
+        <file>svg/WINDSCRIBE_ICON.svg</file>
         <file>svg/firewall/BLACK_TOGGLE_BG.svg</file>
         <file>svg/firewall/BLUE_TOGGLE_BG.svg</file>
         <file>svg/firewall/TOGGLE_BUTTON_WHITE.svg</file>

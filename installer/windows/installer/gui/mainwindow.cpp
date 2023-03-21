@@ -40,7 +40,6 @@ MainWindow::MainWindow()
     memset(&rgn_, 0, sizeof(rgn_));
     this_ = this;
     strInstallTitle_ = L"Install";
-    strInstallButtonText_ = L"Click below to start.";
 }
 
 MainWindow::~MainWindow()
@@ -310,7 +309,7 @@ LRESULT MainWindow::onCreate(HWND hwnd)
     int wInstall = installButton_->getRecommendedWidth();
     int hInstall = installButton_->getRecommendedHeight();
     int xInstall = (clientRect.right - wInstall) / 2;
-    int yInstall = (clientRect.bottom - hInstall) / 2 + BIG_MARGIN * SCALE_FACTOR;
+    int yInstall = (clientRect.bottom - hInstall) / 2;
 
     if (!installButton_->create(xInstall, yInstall, wInstall, hInstall))
     {
@@ -318,7 +317,7 @@ LRESULT MainWindow::onCreate(HWND hwnd)
     }
 
     captionItem_ = new TextItem(strInstallButtonText_.c_str(), (int)(16 * SCALE_FACTOR), true);
-    topOffsTitle_ = yInstall - BIG_MARGIN * SCALE_FACTOR - captionItem_->textHeight();
+    topOffsTitle_ = yInstall - BIG_MARGIN * SCALE_FACTOR - captionItem_->textHeight() - 42 * SCALE_FACTOR;
 
     const int CLOSE_BUTTON_MARGIN = (int)(10 * SCALE_FACTOR);
     if (!closeButton_->create(clientRect.right - closeButton_->getRecommendedWidth() - CLOSE_BUTTON_MARGIN, CLOSE_BUTTON_MARGIN, closeButton_->getRecommendedWidth(), closeButton_->getRecommendedHeight()))
@@ -357,7 +356,7 @@ LRESULT MainWindow::onCreate(HWND hwnd)
 
     int settingsOffs = 16 * SCALE_FACTOR;
     if (!pathControl_->create(settingsOffs,
-        yInstall - 49 * SCALE_FACTOR,
+        yInstall + BIG_MARGIN * SCALE_FACTOR - 49 * SCALE_FACTOR,
         clientRect.right - settingsOffs,
         pathControl_->getRecommendedHeight(),
         Settings::instance().getPath()))
@@ -366,8 +365,8 @@ LRESULT MainWindow::onCreate(HWND hwnd)
     }
 
     if (!desktopShortcutControl_->create(settingsOffs,
-        yInstall - 49 * SCALE_FACTOR
-        + pathControl_->getRecommendedHeight(),
+        yInstall + BIG_MARGIN * SCALE_FACTOR - 49 * SCALE_FACTOR
+            + pathControl_->getRecommendedHeight(),
         clientRect.right - settingsOffs,
         desktopShortcutControl_->getRecommendedHeight()))
     {
@@ -375,9 +374,9 @@ LRESULT MainWindow::onCreate(HWND hwnd)
     }
 
     if (!factoryResetControl_->create(settingsOffs,
-        yInstall - 49 * SCALE_FACTOR
-        + pathControl_->getRecommendedHeight()
-        + desktopShortcutControl_->getRecommendedHeight(),
+        yInstall + BIG_MARGIN * SCALE_FACTOR - 49 * SCALE_FACTOR
+            + pathControl_->getRecommendedHeight()
+            + desktopShortcutControl_->getRecommendedHeight(),
         clientRect.right - settingsOffs,
         factoryResetControl_->getRecommendedHeight()))
     {
@@ -496,20 +495,12 @@ void MainWindow::resetControls()
     ShowWindow(escButton_->getHwnd(), SW_HIDE);
 
     installButton_->setState(InstallButton::INSTALL_TITLE);
-    captionItem_->changeText(strInstallButtonText_.c_str());
-    topOffsTitle_ += 42 * SCALE_FACTOR;
+    captionItem_->changeText(L"");
     redraw();
 }
 
 void MainWindow::onInstallClick(bool isUpdating)
 {
-    if (isUpdating) {
-        captionItem_->changeText(L"Updating...");
-    }
-    else {
-        captionItem_->changeText(L"Installing...");
-    }
-
     if (settingsButton_)
         settingsButton_->setEnabled(false);
     installButton_->setState(InstallButton::WAIT_WITH_PROGRESS);
@@ -538,7 +529,6 @@ void MainWindow::onSettingsClick()
     ShowWindow(factoryResetControl_->getHwnd(), SW_SHOW);
     ShowWindow(escButton_->getHwnd(), SW_SHOW);
 
-    topOffsTitle_ -= 42 * SCALE_FACTOR;
     captionItem_->changeText(L"Install Settings");
     redraw();
 }
@@ -580,8 +570,7 @@ void MainWindow::onInstallerCallback(unsigned int progress, INSTALLER_CURRENT_ST
     }
     else if (state == STATE_FINISHED)
     {
-        installButton_->setProgress(progress);
-        captionItem_->changeText(L"Launching...");
+        installButton_->setState(InstallButton::LAUNCHING);
         InvalidateRect(hwnd_, NULL, TRUE);
         UpdateWindow(hwnd_);
 
