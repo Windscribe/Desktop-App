@@ -429,8 +429,8 @@ def build_installer_win32(configdata, qt_root, msvc_root, crt_root, win_cert_pas
     # Copy Windows files.
     msg.Info("Copying libs...")
 
-    if "msvc" in configdata["client_deploy_files"]:
-        copy_files("MSVC", configdata["client_deploy_files"]["msvc"], msvc_root, BUILD_INSTALLER_FILES)
+    if "msvc" in configdata["client_deploy_files"]["win32"]:
+        copy_files("MSVC", configdata["client_deploy_files"]["win32"]["msvc"], msvc_root, BUILD_INSTALLER_FILES)
 
     utl.CopyAllFiles(crt_root, BUILD_INSTALLER_FILES)
     if "additional_files" in configdata["client_deploy_files"]["win32"]:
