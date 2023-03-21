@@ -255,9 +255,6 @@ client_deploy_files:
         - lib/libcurl.so.4 -> lib/libcurl.so.4
       dga:
         - libdga.so -> lib/libdga.so
-      openssl:
-        - lib/libcrypto.so.1.1 -> lib/libcrypto.so.1.1
-        - lib/libssl.so.1.1 -> lib/libssl.so.1.1
       openssl_ech_draft:
         - lib64/libcrypto.so.3 -> lib/libcrypto.so.3
         - lib64/libssl.so.3 -> lib/libssl.so.3
@@ -272,8 +269,6 @@ client_deploy_files:
       - lib/libQt6XcbQpa.so.6 -> $ORIGIN
       - lib/libQt6DBus.so.6 -> $ORIGIN
       - lib/libcurl.so.4 -> $ORIGIN
-      - lib/libssl.so.1.1 -> $ORIGIN
-      - lib/libcrypto.so.1.1 -> $ORIGIN
       - lib/libssl.so.3 -> $ORIGIN
       - lib/libcrypto.so.3 -> $ORIGIN
       - windscribestunnel -> $ORIGIN/lib
