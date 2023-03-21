@@ -73,7 +73,7 @@ def InstallDependency():
     dep_version_str = os.environ.get(dep_version_var, None)
     if not dep_version_str:
         raise iutl.InstallError("{} not defined.".format(dep_version_var))
-    openssl_root = iutl.GetDependencyBuildRoot("openssl")
+    openssl_root = iutl.GetDependencyBuildRoot("openssl_ech_draft")
     if not openssl_root:
         raise iutl.InstallError("OpenSSL is not installed.")
     # Prepare output.

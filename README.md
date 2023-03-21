@@ -39,10 +39,9 @@ This repo contains the complete source code for the Windscribe 2.0 app. This inc
     - boost.zip
     - cares.zip
     - curl.zip
-    - jom.zip
     - lzo.zip
-    - openssl.zip
-    - openvpn_2_5_4.zip
+    - openssl_ech_draft.zip
+    - openvpn_2_6_1.zip
     - qt.zip
     - stunnel.zip
     - wireguard.zip
@@ -100,8 +99,8 @@ You will find the application logs in C:/Users/USER/AppData/Local/Windscribe/Win
     - cares.zip
     - curl.zip
     - lzo.zip
-    - openssl.zip
-    - openvpn_2_5_4.zip
+    - openssl_ech_draft.zip
+    - openvpn_2_6_1.zip
     - qt.zip
     - stunnel.zip
     - wireguard.zip
@@ -145,8 +144,8 @@ Build process tested on Ubuntu 20.04/ZorinOS 16 (gcc 9.3.0).
     - cares.zip
     - curl.zip
     - lzo.zip
-    - openssl.zip
-    - openvpn_2_5_4.zip
+    - openssl_ech_draft.zip
+    - openvpn_2_6_1.zip
     - qt.zip
     - stunnel.zip
     - wireguard.zip

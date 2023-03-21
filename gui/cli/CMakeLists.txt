@@ -76,6 +76,11 @@ if(APPLE)
     set_property(TARGET windscribe-cli APPEND_STRING PROPERTY COMPILE_FLAGS "-fobjc-arc")
 endif()
 
+target_include_directories(windscribe-cli
+                           PRIVATE
+                           ../../build-libs/openssl_ech_draft/include
+)
+
 target_link_libraries(windscribe-cli
                       PRIVATE
                       ${OS_SPECIFIC_LIBS}
@@ -86,7 +91,7 @@ target_link_libraries(windscribe-cli
 
 target_link_directories(windscribe-cli
                         PRIVATE
-                        ../../build-libs/openssl/lib)
+                        ../../build-libs/openssl_ech_draft/lib64)
 
 target_include_directories(windscribe-cli PRIVATE
                            ../../client/common
