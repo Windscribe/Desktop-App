@@ -190,9 +190,6 @@ client_deploy_files:
 
   macos:
     libs:
-      openssl:
-        - lib/libcrypto.1.1.dylib -> Contents/Helpers/libcrypto.1.1.dylib
-        - lib/libssl.1.1.dylib -> Contents/Helpers/libssl.1.1.dylib
       openssl_ech_draft:
         - lib/libcrypto.3.dylib -> Contents/Helpers/libcrypto.3.dylib
         - lib/libssl.3.dylib -> Contents/Helpers/libssl.3.dylib
@@ -202,12 +199,10 @@ client_deploy_files:
           - lib/libssl.3.dylib -> libssl.3.dylib
           - lib/libcrypto.3.dylib -> libcrypto.3.dylib
       Contents/Helpers/windscribestunnel:
-        openssl:
-          - lib/libssl.1.1.dylib -> libssl.1.1.dylib
-          - lib/libcrypto.1.1.dylib -> libcrypto.1.1.dylib
-      Contents/Helpers/libssl.1.1.dylib:
-        openssl:
-          - lib/libcrypto.1.1.dylib -> libcrypto.1.1.dylib
+        openssl_ech_draft:
+          - lib/libssl.3.dylib -> libssl.3.dylib
+          - lib/libcrypto.3.dylib -> libcrypto.3.dylib
+      Contents/Helpers/libssl.3.dylib:
         openssl_ech_draft:
           - lib/libcrypto.3.dylib -> libcrypto.3.dylib
     entitlements:
@@ -313,9 +308,6 @@ license_files:
 
 rpath_fix_files_mac:
     # openssl must be patched before curl since curl depends on it.
-    openssl:
-      - lib/libcrypto.1.1.dylib
-      - lib/libssl.1.1.dylib
     openssl_ech_draft:
       - lib/libcrypto.3.dylib
       - lib/libssl.3.dylib
