@@ -172,9 +172,6 @@ client_deploy_files:
         - dll_x64/lib/cares.dll -> cares.dll
       curl:
         - bin/libcurl.dll -> libcurl.dll
-      openssl:
-        - bin/libcrypto-1_1-x64.dll -> libcrypto-1_1-x64.dll
-        - bin/libssl-1_1-x64.dll -> libssl-1_1-x64.dll
       openssl_ech_draft:
         - bin/libcrypto-3-x64.dll -> libcrypto-3-x64.dll
         - bin/libssl-3-x64.dll -> libssl-3-x64.dll
@@ -294,9 +291,7 @@ client_deploy_files:
 codesign_files:
   win32:
     - cares.dll
-    - libcrypto-1_1-x64.dll
     - libcurl.dll
-    - libssl-1_1-x64.dll
     - tunnel.dll
     - ws_com.dll
     - ws_proxy_stub.dll
