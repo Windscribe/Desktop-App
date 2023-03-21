@@ -1839,47 +1839,47 @@ If the problem persists after a restart, please send a debug log and open a supp
 <context>
     <name>PreferencesWindow::NetworkOptionsWindowItem</name>
     <message>
-        <location filename="../preferenceswindow/networkoptionswindow/networkoptionswindowitem.cpp" line="55"/>
+        <location filename="../preferenceswindow/networkoptionswindow/networkoptionswindowitem.cpp" line="56"/>
         <source>Network Options</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/networkoptionswindow/networkoptionswindowitem.cpp" line="127"/>
+        <location filename="../preferenceswindow/networkoptionswindow/networkoptionswindowitem.cpp" line="128"/>
         <source>Windscribe will auto-disconnect when the device connects to a network tagged &quot;Unsecured&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/networkoptionswindow/networkoptionswindowitem.cpp" line="128"/>
+        <location filename="../preferenceswindow/networkoptionswindow/networkoptionswindowitem.cpp" line="129"/>
         <source>Mark all newly encountered networks as Secured.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/networkoptionswindow/networkoptionswindowitem.cpp" line="129"/>
+        <location filename="../preferenceswindow/networkoptionswindow/networkoptionswindowitem.cpp" line="130"/>
         <source>Auto-Secure Networks</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/networkoptionswindow/networkoptionswindowitem.cpp" line="130"/>
+        <location filename="../preferenceswindow/networkoptionswindow/networkoptionswindowitem.cpp" line="131"/>
         <source>No Network Detected</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/networkoptionswindow/networkoptionswindowitem.cpp" line="132"/>
+        <location filename="../preferenceswindow/networkoptionswindow/networkoptionswindowitem.cpp" line="133"/>
         <source>CURRENT NETWORK</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/networkoptionswindow/networkoptionswindowitem.cpp" line="136"/>
+        <location filename="../preferenceswindow/networkoptionswindow/networkoptionswindowitem.cpp" line="137"/>
         <source>OTHER NETWORKS</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/networkoptionswindow/networkoptionswindowitem.cpp" line="178"/>
+        <location filename="../preferenceswindow/networkoptionswindow/networkoptionswindowitem.cpp" line="179"/>
         <source>Secured</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/networkoptionswindow/networkoptionswindowitem.cpp" line="180"/>
+        <location filename="../preferenceswindow/networkoptionswindow/networkoptionswindowitem.cpp" line="181"/>
         <source>Unsecured</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2300,64 +2300,64 @@ Connect to a network first</source>
 <context>
     <name>PreferencesWindow::SplitTunnelingGroup</name>
     <message>
-        <location filename="../preferenceswindow/splittunnelingwindow/splittunnelinggroup.cpp" line="79"/>
+        <location filename="../preferenceswindow/splittunnelingwindow/splittunnelinggroup.cpp" line="80"/>
         <source>Windscribe</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/splittunnelingwindow/splittunnelinggroup.cpp" line="80"/>
+        <location filename="../preferenceswindow/splittunnelingwindow/splittunnelinggroup.cpp" line="81"/>
         <source>The split tunneling driver is not installed.  To enable this feature, try reinstalling the Windscribe application.
 
 If the reinstall does not help, please contact Windscribe support for assistance.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/splittunnelingwindow/splittunnelinggroup.cpp" line="122"/>
+        <location filename="../preferenceswindow/splittunnelingwindow/splittunnelinggroup.cpp" line="123"/>
         <source>Selected IPs and hostnames will not go through Windscribe when connected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/splittunnelingwindow/splittunnelinggroup.cpp" line="124"/>
+        <location filename="../preferenceswindow/splittunnelingwindow/splittunnelinggroup.cpp" line="125"/>
         <source>Selected apps, IPs, and hostnames will not go through Windscribe when connected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/splittunnelingwindow/splittunnelinggroup.cpp" line="129"/>
+        <location filename="../preferenceswindow/splittunnelingwindow/splittunnelinggroup.cpp" line="130"/>
         <source>Only selected IPs and hostnames will go through Windscribe when connected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/splittunnelingwindow/splittunnelinggroup.cpp" line="131"/>
+        <location filename="../preferenceswindow/splittunnelingwindow/splittunnelinggroup.cpp" line="132"/>
         <source>Only selected apps, IPs, and hostnames will go through Windscribe when connected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/splittunnelingwindow/splittunnelinggroup.cpp" line="169"/>
+        <location filename="../preferenceswindow/splittunnelingwindow/splittunnelinggroup.cpp" line="170"/>
         <source>Split Tunneling</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/splittunnelingwindow/splittunnelinggroup.cpp" line="170"/>
+        <location filename="../preferenceswindow/splittunnelingwindow/splittunnelinggroup.cpp" line="171"/>
         <source>Mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/splittunnelingwindow/splittunnelinggroup.cpp" line="172"/>
+        <location filename="../preferenceswindow/splittunnelingwindow/splittunnelinggroup.cpp" line="173"/>
         <source>Exclusive</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/splittunnelingwindow/splittunnelinggroup.cpp" line="173"/>
+        <location filename="../preferenceswindow/splittunnelingwindow/splittunnelinggroup.cpp" line="174"/>
         <source>Inclusive</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/splittunnelingwindow/splittunnelinggroup.cpp" line="177"/>
+        <location filename="../preferenceswindow/splittunnelingwindow/splittunnelinggroup.cpp" line="178"/>
         <source>Apps</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/splittunnelingwindow/splittunnelinggroup.cpp" line="179"/>
+        <location filename="../preferenceswindow/splittunnelingwindow/splittunnelinggroup.cpp" line="180"/>
         <source>IPs &amp; Hostnames</source>
         <translation type="unfinished"></translation>
     </message>

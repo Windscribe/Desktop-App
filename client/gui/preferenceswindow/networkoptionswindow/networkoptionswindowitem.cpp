@@ -29,6 +29,7 @@ NetworkOptionsWindowItem::NetworkOptionsWindowItem(ScalableGraphicsObject *paren
 
     currentNetworkGroup_ = new PreferenceGroup(this);
     placeholderItem_ = new LinkItem(currentNetworkGroup_, LinkItem::LinkType::TEXT_ONLY);
+    currentNetworkItem_ = placeholderItem_;
     currentNetworkGroup_->addItem(placeholderItem_);
     addItem(currentNetworkGroup_);
 

@@ -49,6 +49,7 @@ SplitTunnelingGroup::SplitTunnelingGroup(ScalableGraphicsObject *parent, const Q
     addItem(addressesLinkItem_);
 
     connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &SplitTunnelingGroup::onLanguageChanged);
+    onLanguageChanged();
 
     updateScaling();
 }
