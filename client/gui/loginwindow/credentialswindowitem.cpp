@@ -27,7 +27,7 @@ const QString CONFIG_ICON_PATH             = "login/CONFIG_ICON";
 const QString SETTINGS_ICON_PATH           = "login/SETTINGS_ICON";
 
 CredentialsWindowItem::CredentialsWindowItem(QGraphicsObject *parent, PreferencesHelper *preferencesHelper)
-    : ScalableGraphicsObject(parent)
+    : ScalableGraphicsObject(parent), curError_(ILoginWindow::ERR_MSG_EMPTY), curErrorMsg_("")
 {
     WS_ASSERT(preferencesHelper);
     setFlag(QGraphicsItem::ItemIsFocusable);
