@@ -47,7 +47,7 @@ ProxySettingsGroup::ProxySettingsGroup(ScalableGraphicsObject *parent, const QSt
     connect(editBoxPassword_, &EditBoxItem::textChanged, this, &ProxySettingsGroup::onPasswordChanged);
     addItem(editBoxPassword_);
 
-    hideItems(indexOf(editBoxAddress_), indexOf(editBoxPassword_), DISPLAY_FLAGS::FLAG_NO_ANIMATION);
+    hideItems(indexOf(editBoxAddress_), -1, DISPLAY_FLAGS::FLAG_NO_ANIMATION);
 }
 
 void ProxySettingsGroup::onAddressChanged(const QString &text)

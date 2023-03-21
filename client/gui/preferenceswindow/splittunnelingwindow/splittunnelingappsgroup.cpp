@@ -32,7 +32,8 @@ SplitTunnelingAppsGroup::SplitTunnelingAppsGroup(ScalableGraphicsObject *parent,
     connect(searchLineEditItem_, &SearchLineEditItem::searchModeExited, this, &SplitTunnelingAppsGroup::onSearchModeExited);
     connect(searchLineEditItem_, &SearchLineEditItem::focusIn, this, &SplitTunnelingAppsGroup::onSearchBoxFocusIn);
     addItem(searchLineEditItem_);
-    hideItems(indexOf(searchLineEditItem_));
+
+    hideItems(indexOf(searchLineEditItem_), -1, DISPLAY_FLAGS::FLAG_NO_ANIMATION);
 
     populateSearchApps();
 }

@@ -24,12 +24,13 @@ ConnectedDnsGroup::ConnectedDnsGroup(ScalableGraphicsObject *parent, const QStri
     editBoxIp_ = new EditBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::EditBoxItem", "IP Address"), QT_TRANSLATE_NOOP("PreferencesWindow::EditBoxItem", "IP address"));
     connect(editBoxIp_, &EditBoxItem::textChanged, this, &ConnectedDnsGroup::onConnectedDnsIpChanged);
     addItem(editBoxIp_);
-    hideItems(indexOf(editBoxIp_), -1, DISPLAY_FLAGS::FLAG_NO_ANIMATION);
 
     QString ipRange = "(?:[0-1]?[0-9]?[0-9]|2[0-4][0-9]|25[0-5])";
     QRegularExpression ipRegex ("^" + ipRange + "\\." + ipRange + "\\." + ipRange + "\\." + ipRange + "$");
     QRegularExpressionValidator *ipValidator = new QRegularExpressionValidator(ipRegex, this);
     editBoxIp_->setValidator(ipValidator);
+
+    hideItems(indexOf(editBoxIp_), -1, DISPLAY_FLAGS::FLAG_NO_ANIMATION);
 }
 
 bool ConnectedDnsGroup::hasItemWithFocus()

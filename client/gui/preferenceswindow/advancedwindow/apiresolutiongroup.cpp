@@ -23,7 +23,8 @@ ApiResolutionGroup::ApiResolutionGroup(ScalableGraphicsObject *parent, const QSt
     editBoxAddress_ = new EditBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::EditBoxItem", "Address"), QT_TRANSLATE_NOOP("PreferencesWindow::EditBoxItem", "Enter IP or Hostname"));
     connect(editBoxAddress_, &EditBoxItem::textChanged, this, &ApiResolutionGroup::onAddressChanged);
     addItem(editBoxAddress_);
-    hideItems(indexOf(editBoxAddress_));
+
+    hideItems(indexOf(editBoxAddress_), -1, DISPLAY_FLAGS::FLAG_NO_ANIMATION);
 }
 
 void ApiResolutionGroup::setApiResolution(const types::ApiResolutionSettings &ar)

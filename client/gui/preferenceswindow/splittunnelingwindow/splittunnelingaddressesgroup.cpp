@@ -22,6 +22,8 @@ SplitTunnelingAddressesGroup::SplitTunnelingAddressesGroup(ScalableGraphicsObjec
     connect(newAddressItem_, &NewAddressItem::keyPressed, this, &SplitTunnelingAddressesGroup::clearError);
     connect(newAddressItem_, &NewAddressItem::escape, this, &SplitTunnelingAddressesGroup::escape);
     addItem(newAddressItem_);
+
+    hideItems(indexOf(newAddressItem_), -1, DISPLAY_FLAGS::FLAG_NO_ANIMATION);
 }
 
 void SplitTunnelingAddressesGroup::setAddresses(QList<types::SplitTunnelingNetworkRoute> addresses)
