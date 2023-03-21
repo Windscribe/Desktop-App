@@ -25,8 +25,8 @@ build/
 # secrets
 tools/notarize.yml
 client/common/utils/hardcodedsecrets.ini
-common/keys/linux/key.pem
-common/keys/linux/key.pub
-common/keys/linux/key_pub.txt
+client/common/keys/linux/key.pem
+client/common/keys/linux/key.pub
+client/common/keys/linux/key_pub.txt
 installer/windows/signing/code_signing.pfx
 backend/mac/provisioning_profile/

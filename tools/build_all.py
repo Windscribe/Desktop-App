@@ -577,8 +577,8 @@ def build_installer_linux(configdata, qt_root):
     copy_file("windscribewstunnel", wstunnel_dir, BUILD_INSTALLER_FILES)
 
     # sign supplementary binaries and move the signatures into InstallerFiles/signatures
-    if arghelper.sign_app() and "codesign_files_linux" in configdata:
-        for binary_name in configdata["codesign_files_linux"]:
+    if arghelper.sign_app() and "linux" in configdata["codesign_files"]:
+        for binary_name in configdata["codesign_files"]["linux"]:
             code_sign_linux(binary_name, BUILD_INSTALLER_FILES)
 
     if "license_files" in configdata:
