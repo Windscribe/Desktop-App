@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ABSOLUTE_PATH_TOOLS="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-ABSOLUTE_PATH_INSTALLER_BINS="$ABSOLUTE_PATH_TOOLS/../installer/mac/binaries/installer"
+ABSOLUTE_PATH_INSTALLER_BINS="$ABSOLUTE_PATH_TOOLS/../temp/installer/InstallerFiles/installer"
 NOTARIZE_YML=$ABSOLUTE_PATH_TOOLS/notarize.yml
 
 #(time in seconds, default 600 = 10 minutes)
