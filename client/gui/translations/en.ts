@@ -1567,112 +1567,112 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/generalwindow/generalwindowitem.cpp" line="288"/>
+        <location filename="../preferenceswindow/generalwindow/generalwindowitem.cpp" line="289"/>
         <source>Windscribe minimizes to system tray and no longer appears in the task bar.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/generalwindow/generalwindowitem.cpp" line="289"/>
+        <location filename="../preferenceswindow/generalwindow/generalwindowitem.cpp" line="292"/>
         <source>Close to Tray</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/generalwindow/generalwindowitem.cpp" line="291"/>
+        <location filename="../preferenceswindow/generalwindow/generalwindowitem.cpp" line="295"/>
         <source>Don&apos;t show the Windscribe icon in dock.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/generalwindow/generalwindowitem.cpp" line="292"/>
+        <location filename="../preferenceswindow/generalwindow/generalwindowitem.cpp" line="296"/>
         <source>Hide from Dock</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/generalwindow/generalwindowitem.cpp" line="294"/>
+        <location filename="../preferenceswindow/generalwindow/generalwindowitem.cpp" line="298"/>
         <source>Pin Windscribe near the system tray or menu bar.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/generalwindow/generalwindowitem.cpp" line="295"/>
+        <location filename="../preferenceswindow/generalwindow/generalwindowitem.cpp" line="299"/>
         <source>Docked</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/generalwindow/generalwindowitem.cpp" line="296"/>
+        <location filename="../preferenceswindow/generalwindow/generalwindowitem.cpp" line="300"/>
         <source>Display system-level notifications when connection events occur.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/generalwindow/generalwindowitem.cpp" line="297"/>
+        <location filename="../preferenceswindow/generalwindow/generalwindowitem.cpp" line="301"/>
         <source>Show Notifications</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/generalwindow/generalwindowitem.cpp" line="298"/>
+        <location filename="../preferenceswindow/generalwindow/generalwindowitem.cpp" line="302"/>
         <source>Display a location&apos;s load. Shorter bars mean lesser load (usage).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/generalwindow/generalwindowitem.cpp" line="299"/>
+        <location filename="../preferenceswindow/generalwindow/generalwindowitem.cpp" line="303"/>
         <source>Show Location Load</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/generalwindow/generalwindowitem.cpp" line="300"/>
+        <location filename="../preferenceswindow/generalwindow/generalwindowitem.cpp" line="304"/>
         <source>Arrange locations alphabetically, geographically, or by latency.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/generalwindow/generalwindowitem.cpp" line="301"/>
+        <location filename="../preferenceswindow/generalwindow/generalwindowitem.cpp" line="305"/>
         <source>Location Order</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/generalwindow/generalwindowitem.cpp" line="303"/>
+        <location filename="../preferenceswindow/generalwindow/generalwindowitem.cpp" line="307"/>
         <source>Display latency as signal strength bars or in milliseconds.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/generalwindow/generalwindowitem.cpp" line="304"/>
+        <location filename="../preferenceswindow/generalwindow/generalwindowitem.cpp" line="308"/>
         <source>Latency Display</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/generalwindow/generalwindowitem.cpp" line="306"/>
+        <location filename="../preferenceswindow/generalwindow/generalwindowitem.cpp" line="310"/>
         <source>Localize Windscribe to supported languages.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/generalwindow/generalwindowitem.cpp" line="307"/>
+        <location filename="../preferenceswindow/generalwindow/generalwindowitem.cpp" line="311"/>
         <source>Language</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/generalwindow/generalwindowitem.cpp" line="309"/>
+        <location filename="../preferenceswindow/generalwindow/generalwindowitem.cpp" line="313"/>
         <source>Choose between the classic GUI or the &quot;earless&quot; alternative GUI.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/generalwindow/generalwindowitem.cpp" line="310"/>
+        <location filename="../preferenceswindow/generalwindow/generalwindowitem.cpp" line="314"/>
         <source>App Skin</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/generalwindow/generalwindowitem.cpp" line="312"/>
+        <location filename="../preferenceswindow/generalwindow/generalwindowitem.cpp" line="316"/>
         <source>Customize the background of the main app screen.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/generalwindow/generalwindowitem.cpp" line="313"/>
+        <location filename="../preferenceswindow/generalwindow/generalwindowitem.cpp" line="317"/>
         <source>Choose to receive stable, beta, or experimental builds.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/generalwindow/generalwindowitem.cpp" line="314"/>
+        <location filename="../preferenceswindow/generalwindow/generalwindowitem.cpp" line="318"/>
         <source>Update Channel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/generalwindow/generalwindowitem.cpp" line="323"/>
+        <location filename="../preferenceswindow/generalwindow/generalwindowitem.cpp" line="327"/>
         <source>Version</source>
         <translation type="unfinished"></translation>
     </message>
