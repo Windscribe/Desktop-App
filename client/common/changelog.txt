@@ -1,3 +1,17 @@
+2.7.0 (22/03/2023)
+All:
+   * Added support for language translations. #8
+   * Fixed python scripts to conform to the pep8 style guide. #589
+   * Fixed 'out of data' screen isn't vertically centered. #597
+   * Fixed preference items are sometimes expanded when they shouldn't be. #605
+   * Updated build system to use cmake for all projects. #567
+   * Updated to OpenVPN 2.6.1. #601
+   * Removed unnecessary code from when the UI and engine were separate executables. #526
+   * Removed use of OpenSSL 1.1.1. #582
+Linux:
+   * Added the minimum requirements to Linux packaging specs. #501
+
+
 2.6.12 (09/03/2023)
 All:
    * Added use of Encrypted Client Hello (ECH) as a fail-over mechanism to circumvent SNI filtering. #568
