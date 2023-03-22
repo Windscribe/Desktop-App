@@ -66,6 +66,9 @@ GeneralWindowItem::GeneralWindowItem(ScalableGraphicsObject *parent, Preferences
         connect(checkBoxMinimizeAndCloseToTray_, &CheckBoxItem::stateChanged, this, &GeneralWindowItem::onMinimizeAndCloseToTrayClicked);
         closeToTrayGroup_->addItem(checkBoxMinimizeAndCloseToTray_);
         addItem(closeToTrayGroup_);
+    } else {
+        closeToTrayGroup_ = nullptr;
+        checkBoxMinimizeAndCloseToTray_ = nullptr;
     }
 #elif defined Q_OS_MAC
     hideFromDockGroup_ = new PreferenceGroup(this);
@@ -285,8 +288,12 @@ void GeneralWindowItem::onLanguageChanged()
     startMinimizedGroup_->setDescription(tr("Launch Windscribe in a minimized state."));
     checkBoxStartMinimized_->setCaption(tr("Start Minimized"));
 #if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
-    closeToTrayGroup_->setDescription(tr("Windscribe minimizes to system tray and no longer appears in the task bar."));
-    checkBoxMinimizeAndCloseToTray_->setCaption(tr("Close to Tray"));
+    if (closeToTrayGroup_) {
+        closeToTrayGroup_->setDescription(tr("Windscribe minimizes to system tray and no longer appears in the task bar."));
+    }
+    if (checkBoxMinimizeAndCloseToTray_) {
+        checkBoxMinimizeAndCloseToTray_->setCaption(tr("Close to Tray"));
+    }
 #elif defined(Q_OS_MAC)
     hideFromDockGroup_->setDescription(tr("Don't show the Windscribe icon in dock."));
     checkBoxHideFromDock_->setCaption(tr("Hide from Dock"));
