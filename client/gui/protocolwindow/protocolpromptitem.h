@@ -34,6 +34,7 @@ public:
     void clearCountdown();
     void setProtocolStatus(const types::ProtocolStatus &status);
     void setProtocolStatus(const QVector<types::ProtocolStatus> &status);
+    void clearItems() override;
 
 public slots:
     void resetProtocolStatus();

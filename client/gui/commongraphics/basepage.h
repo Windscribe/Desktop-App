@@ -25,7 +25,7 @@ public:
     int indexOf(BaseItem *item);
     void addItem(BaseItem *item);
     void removeItem(BaseItem *itemToRemove);
-    void clearItems();
+    virtual void clearItems();
 
     void setSpacerHeight(int height);
     void setIndent(int indent);
