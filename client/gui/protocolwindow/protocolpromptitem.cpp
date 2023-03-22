@@ -19,7 +19,8 @@ ProtocolPromptItem::ProtocolPromptItem(ScalableGraphicsObject *parent,
                                        Preferences *preferences,
                                        PreferencesHelper *preferencesHelper,
                                        ProtocolWindowMode mode)
-    : BasePage(parent, WINDOW_WIDTH), connectWindow_(connectWindow), preferences_(preferences), preferencesHelper_(preferencesHelper)
+    : BasePage(parent, WINDOW_WIDTH), connectWindow_(connectWindow), preferences_(preferences), preferencesHelper_(preferencesHelper),
+      cancelButton_(nullptr), actionButton_(nullptr)
 {
     setFlag(QGraphicsItem::ItemIsFocusable);
     setSpacerHeight(kSpacerHeight);
@@ -336,13 +337,30 @@ types::Protocol ProtocolPromptItem::connectedProtocol() {
 void ProtocolPromptItem::onLanguageChanged()
 {
     setMode(mode_);
-    cancelButton_->setText(tr(kCancelButton));
+    if (cancelButton_) {
+        cancelButton_->setText(tr(kCancelButton));
+    }
+    if (actionButton_) {
+        if (mode_ == ProtocolWindowMode::kSavePreferredProtocol) {
+            actionButton_->setText(tr(kSetAsPreferredButton));
+        } else if (mode_ == ProtocolWindowMode::kSendDebugLog) {
+            actionButton_->setText(tr(kSendDebugLogButton));
+        } else if (mode_ == ProtocolWindowMode::kDebugLogSent) {
+           actionButton_->setText(tr(kContactSupportButton));
+        }
+    }
     for (auto i : items()) {
         if (ProtocolLineItem *item = dynamic_cast<ProtocolLineItem *>(i)) {
             item->setDescription(getProtocolDescription(item->protocol()));
         }
     }
+}
 
+void ProtocolPromptItem::clearItems()
+{
+    cancelButton_ = nullptr;
+    actionButton_ = nullptr;
+    BasePage::clearItems();
 }
 
 } // namespace ProtocolWindow

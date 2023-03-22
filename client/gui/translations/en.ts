@@ -2401,102 +2401,102 @@ If the reinstall does not help, please contact Windscribe support for assistance
 <context>
     <name>ProtocolWindow::ProtocolPromptItem</name>
     <message>
-        <location filename="../protocolwindow/protocolpromptitem.cpp" line="251"/>
+        <location filename="../protocolwindow/protocolpromptitem.cpp" line="252"/>
         <source>Cutting-edge protocol.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../protocolwindow/protocolpromptitem.cpp" line="253"/>
+        <location filename="../protocolwindow/protocolpromptitem.cpp" line="254"/>
         <source>An IPsec based tunneling protocol.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../protocolwindow/protocolpromptitem.cpp" line="255"/>
+        <location filename="../protocolwindow/protocolpromptitem.cpp" line="256"/>
         <source>Balanced speed and security.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../protocolwindow/protocolpromptitem.cpp" line="257"/>
+        <location filename="../protocolwindow/protocolpromptitem.cpp" line="258"/>
         <source>Use it if OpenVPN UDP fails.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../protocolwindow/protocolpromptitem.cpp" line="259"/>
+        <location filename="../protocolwindow/protocolpromptitem.cpp" line="260"/>
         <source>Disguises traffic as HTTPS with TLS.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../protocolwindow/protocolpromptitem.cpp" line="261"/>
+        <location filename="../protocolwindow/protocolpromptitem.cpp" line="262"/>
         <source>Wraps traffic with web sockets.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../protocolwindow/protocolpromptitem.h" line="62"/>
+        <location filename="../protocolwindow/protocolpromptitem.h" line="63"/>
         <source>Change Protocol</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../protocolwindow/protocolpromptitem.h" line="63"/>
+        <location filename="../protocolwindow/protocolpromptitem.h" line="64"/>
         <source>Quickly re-connect using a different protocol.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../protocolwindow/protocolpromptitem.h" line="64"/>
+        <location filename="../protocolwindow/protocolpromptitem.h" line="65"/>
         <source>Connection Failure!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../protocolwindow/protocolpromptitem.h" line="65"/>
+        <location filename="../protocolwindow/protocolpromptitem.h" line="66"/>
         <source>The protocol you’ve chosen has failed to connect. Windscribe will attempt to reconnect using the first protocol below.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../protocolwindow/protocolpromptitem.h" line="66"/>
+        <location filename="../protocolwindow/protocolpromptitem.h" line="67"/>
         <source>Set “%1” as preferred protocol?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../protocolwindow/protocolpromptitem.h" line="67"/>
+        <location filename="../protocolwindow/protocolpromptitem.h" line="68"/>
         <source>Windscribe will always use this protocol to connect on this network in the future to avoid any interruptions.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../protocolwindow/protocolpromptitem.h" line="68"/>
+        <location filename="../protocolwindow/protocolpromptitem.h" line="69"/>
         <source>This network hates us</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../protocolwindow/protocolpromptitem.h" line="69"/>
+        <location filename="../protocolwindow/protocolpromptitem.h" line="70"/>
         <source>We couldn’t connect you on this network. Send us your debug log so we can figure out what happened.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../protocolwindow/protocolpromptitem.h" line="70"/>
+        <location filename="../protocolwindow/protocolpromptitem.h" line="71"/>
         <source>Debug Sent!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../protocolwindow/protocolpromptitem.h" line="71"/>
+        <location filename="../protocolwindow/protocolpromptitem.h" line="72"/>
         <source>Your debug log has been received. Please contact support if you want assistance with this issue.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../protocolwindow/protocolpromptitem.h" line="73"/>
+        <location filename="../protocolwindow/protocolpromptitem.h" line="74"/>
         <source>Set as Preferred</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../protocolwindow/protocolpromptitem.h" line="74"/>
+        <location filename="../protocolwindow/protocolpromptitem.h" line="75"/>
         <source>Send Debug Log</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../protocolwindow/protocolpromptitem.h" line="75"/>
+        <location filename="../protocolwindow/protocolpromptitem.h" line="76"/>
         <source>Contact Support</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../protocolwindow/protocolpromptitem.h" line="76"/>
+        <location filename="../protocolwindow/protocolpromptitem.h" line="77"/>
         <source>Cancel</source>
         <translation type="unfinished"></translation>
     </message>
