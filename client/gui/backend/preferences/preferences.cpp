@@ -383,7 +383,6 @@ void Preferences::setMacAddrSpoofing(const types::MacAddrSpoofing &mas)
     {
         engineSettings_.setMacAddrSpoofing(mas);
         emitEngineSettingsChanged();
-        emit updateEngineSettings();
         emit macAddrSpoofingChanged(engineSettings_.macAddrSpoofing());
     }
 }
