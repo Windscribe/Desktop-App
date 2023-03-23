@@ -379,9 +379,10 @@ const types::MacAddrSpoofing &Preferences::macAddrSpoofing() const
 
 void Preferences::setMacAddrSpoofing(const types::MacAddrSpoofing &mas)
 {
-    if(engineSettings_.macAddrSpoofing() != mas)
+    if (engineSettings_.macAddrSpoofing() != mas)
     {
         engineSettings_.setMacAddrSpoofing(mas);
+        emit updateEngineSettings();
         emit macAddrSpoofingChanged(engineSettings_.macAddrSpoofing());
     }
 }
