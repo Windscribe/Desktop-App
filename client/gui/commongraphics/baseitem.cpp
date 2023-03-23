@@ -79,16 +79,6 @@ void BaseItem::show(bool animate)
 
 void BaseItem::onHideProgressChanged(const QVariant &value)
 {
-    if (hideProgress_ == 1.0 && value.toDouble() == 0.0 ||
-        hideProgress_ == 0.0 && value.toDouble() == 1.0) {
-        // There seems to be a bug in Qt's QVariantAnimation where it gives us
-        // one frame at the end value before iterating through the animation.
-        // On hide, we don't want to falsely trigger hidden() since it may result
-        // in deletion, and on show, we don't want to see a flash of the whole frame
-        // before we expand it, so ignore this update.
-        return;
-    }
-
     prepareGeometryChange();
     hideProgress_ = value.toDouble();
     if (hideProgress_ == 0.0)
