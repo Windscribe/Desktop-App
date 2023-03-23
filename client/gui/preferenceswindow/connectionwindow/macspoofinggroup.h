@@ -1,11 +1,10 @@
-#ifndef MACSPOOFINGITEM_H
-#define MACSPOOFINGITEM_H
+#pragma once
 
-#include "backend/preferences/preferences.h"
+#include "macaddressitem.h"
 #include "preferenceswindow/checkboxitem.h"
 #include "preferenceswindow/comboboxitem.h"
 #include "preferenceswindow/preferencegroup.h"
-#include "macaddressitem.h"
+#include "types/macaddrspoofing.h"
 
 namespace PreferencesWindow {
 
@@ -45,5 +44,3 @@ private:
 };
 
 } // namespace PreferencesWindow
-
-#endif // MACSPOOFINGITEM_H
