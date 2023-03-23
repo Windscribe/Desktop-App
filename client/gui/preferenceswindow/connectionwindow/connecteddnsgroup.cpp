@@ -43,13 +43,13 @@ void ConnectedDnsGroup::setConnectedDnsInfo(const types::ConnectedDnsInfo &dns)
         settings_ = dns;
 
         // update inner widgets
-        if (dns.type() == CONNECTED_DNS_TYPE_ROBERT)
+        if (dns.type_ == CONNECTED_DNS_TYPE_ROBERT)
         {
             comboBoxDns_->setCurrentItem(CONNECTED_DNS_TYPE_ROBERT);
         }
         else
         {
-            editBoxIp_->setText(dns.ipAddress());
+            editBoxIp_->setText(dns.upStream1_);
             comboBoxDns_->setCurrentItem(CONNECTED_DNS_TYPE_CUSTOM);
         }
         updateMode();
@@ -58,9 +58,9 @@ void ConnectedDnsGroup::setConnectedDnsInfo(const types::ConnectedDnsInfo &dns)
 
 void ConnectedDnsGroup::updateMode()
 {
-    if (settings_.type() == CONNECTED_DNS_TYPE_ROBERT)
+    if (settings_.type_ == CONNECTED_DNS_TYPE_ROBERT)
     {
-        settings_.setIpAddress("");
+        settings_.upStream1_.clear();
         editBoxIp_->setText("");
         hideItems(indexOf(editBoxIp_));
     }
@@ -72,9 +72,9 @@ void ConnectedDnsGroup::updateMode()
 
 void ConnectedDnsGroup::onConnectedDnsModeChanged(QVariant v)
 {
-    if (settings_.type() != v.toInt())
+    if (settings_.type_ != v.toInt())
     {
-        settings_.setType((CONNECTED_DNS_TYPE)v.toInt());
+        settings_.type_ = (CONNECTED_DNS_TYPE)v.toInt();
         updateMode();
         emit connectedDnsInfoChanged(settings_);
     }
@@ -82,9 +82,9 @@ void ConnectedDnsGroup::onConnectedDnsModeChanged(QVariant v)
 
 void ConnectedDnsGroup::onConnectedDnsIpChanged(QString v)
 {
-    if (settings_.ipAddress() != v)
+    if (settings_.upStream1_ != v)
     {
-        settings_.setIpAddress(v);
+        settings_.upStream1_ = v;
         emit connectedDnsInfoChanged(settings_);
     }
 }
@@ -102,7 +102,7 @@ void ConnectedDnsGroup::onLanguageChanged()
     for (const auto t : types) {
         list << qMakePair(types::ConnectedDnsInfo::typeToString(t), t);
     }
-    comboBoxDns_->setItems(list, settings_.type());
+    comboBoxDns_->setItems(list, settings_.type_);
 
     editBoxIp_->setCaption(tr("IP Address"));
     editBoxIp_->setPrompt(tr("IP Address"));

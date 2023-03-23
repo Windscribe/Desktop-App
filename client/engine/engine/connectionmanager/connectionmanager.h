@@ -59,7 +59,6 @@ public:
         types::ConnectedDnsInfo connectedDnsInfo;
     };
     const CustomDnsAdapterGatewayInfo &getCustomDnsAdapterGatewayInfo() const;
-    QString getCustomDnsIp() const;
     void setConnectedDnsInfo(const types::ConnectedDnsInfo &info);
 
     void removeIkev2ConnectionFromOS();
@@ -230,6 +229,7 @@ private:
         const types::PortMap &portMap,
         const types::ProxySettings &proxySettings);
     void connectOrStartConnectTimer();
+    QString getCustomDnsIp() const;
 };
 
 #endif // CONNECTIONMANAGER_H

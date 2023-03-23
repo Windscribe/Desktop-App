@@ -253,7 +253,7 @@ const ConnectionManager::CustomDnsAdapterGatewayInfo &ConnectionManager::getCust
 
 QString ConnectionManager::getCustomDnsIp() const
 {
-    return customDnsAdapterGatewayInfo_.connectedDnsInfo.ipAddress();
+    return customDnsAdapterGatewayInfo_.connectedDnsInfo.upStream1_;
 }
 
 void ConnectionManager::setConnectedDnsInfo(const types::ConnectedDnsInfo &info)
@@ -261,7 +261,7 @@ void ConnectionManager::setConnectedDnsInfo(const types::ConnectedDnsInfo &info)
     customDnsAdapterGatewayInfo_.connectedDnsInfo = info;
 #ifdef Q_OS_WIN
     if(helper_) {
-        dynamic_cast<Helper_win*>(helper_)->setCustomDnsIp(info.ipAddress());
+        dynamic_cast<Helper_win*>(helper_)->setCustomDnsIp(info.upStream1_);
     }
 #endif
 }
@@ -315,9 +315,9 @@ void ConnectionManager::onConnectionConnected(const AdapterGatewayInfo &connecti
     qCDebug(LOG_CONNECTION) << "VPN adapter and gateway:" << vpnAdapterInfo_.makeLogString();
 
     // override the DNS if we are using custom
-    if (customDnsAdapterGatewayInfo_.connectedDnsInfo.type() == CONNECTED_DNS_TYPE_CUSTOM)
+    if (customDnsAdapterGatewayInfo_.connectedDnsInfo.type_ == CONNECTED_DNS_TYPE_CUSTOM)
     {
-        QString customDnsIp = customDnsAdapterGatewayInfo_.connectedDnsInfo.ipAddress();
+        QString customDnsIp = customDnsAdapterGatewayInfo_.connectedDnsInfo.upStream1_;
         customDnsAdapterGatewayInfo_.adapterInfo.setDnsServers(QStringList() << customDnsIp);
         qCDebug(LOG_CONNECTION) << "Custom DNS detected, will override with: " << customDnsIp;
     }

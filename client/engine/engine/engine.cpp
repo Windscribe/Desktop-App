@@ -1309,11 +1309,11 @@ void Engine::onConnectionManagerConnected()
         firewallController_->firewallOn(firewallExceptions_.getIPAddressesForFirewallForConnectedState(connectionManager_->getLastConnectedIp()), engineSettings_.isAllowLanTraffic(), locationId_.isCustomConfigsLocation());
     }
 
-    if (connectionManager_->getCustomDnsAdapterGatewayInfo().connectedDnsInfo.type() == CONNECTED_DNS_TYPE_CUSTOM)
+    if (connectionManager_->getCustomDnsAdapterGatewayInfo().connectedDnsInfo.type_ == CONNECTED_DNS_TYPE_CUSTOM)
     {
          if (!helper_->setCustomDnsWhileConnected(connectionManager_->currentProtocol().isIkev2Protocol(),
                                                   connectionManager_->getVpnAdapterInfo().ifIndex(),
-                                                  connectionManager_->getCustomDnsAdapterGatewayInfo().connectedDnsInfo.ipAddress()))
+                                                  connectionManager_->getCustomDnsAdapterGatewayInfo().connectedDnsInfo.upStream1_))
          {
              qCDebug(LOG_CONNECTED_DNS) << "Failed to set Custom 'while connected' DNS";
          }

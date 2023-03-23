@@ -4,31 +4,6 @@
 
 namespace types {
 
-QString ConnectedDnsInfo::toString() const
-{
-    return typeToString(type_);
-}
-
-CONNECTED_DNS_TYPE ConnectedDnsInfo::type() const
-{
-    return type_;
-}
-
-void ConnectedDnsInfo::setType(CONNECTED_DNS_TYPE type)
-{
-    type_ = type;
-}
-
-QString ConnectedDnsInfo::ipAddress() const
-{
-    return ipAddress_;
-}
-
-void ConnectedDnsInfo::setIpAddress(const QString &ipAddr)
-{
-    ipAddress_ = ipAddr;
-}
-
 QList<CONNECTED_DNS_TYPE> ConnectedDnsInfo::allAvailableTypes()
 {
     QList<CONNECTED_DNS_TYPE> t;
@@ -53,10 +28,24 @@ QString ConnectedDnsInfo::typeToString(const CONNECTED_DNS_TYPE &type)
     }
 }
 
+bool ConnectedDnsInfo::operator==(const ConnectedDnsInfo &other) const
+{
+    return other.type_ == type_ &&
+           other.upStream1_ == upStream1_ &&
+           other.isSplitDns_ == isSplitDns_ &&
+           other.upStream2_ == upStream2_ &&
+           other.hostnames_ == hostnames_;
+}
+
+bool ConnectedDnsInfo::operator!=(const ConnectedDnsInfo &other) const
+{
+    return !(*this == other);
+}
+
 QDataStream& operator <<(QDataStream &stream, const ConnectedDnsInfo &o)
 {
     stream << o.versionForSerialization_;
-    stream << o.type_ << o.ipAddress_;
+    stream << o.type_ << o.upStream1_ << o.isSplitDns_ << o.upStream2_ << o.hostnames_;
     return stream;
 }
 
@@ -64,12 +53,16 @@ QDataStream& operator >>(QDataStream &stream, ConnectedDnsInfo &o)
 {
     quint32 version;
     stream >> version;
-    if (version > o.versionForSerialization_)
-    {
+    if (version > o.versionForSerialization_) {
         stream.setStatus(QDataStream::ReadCorruptData);
         return stream;
     }
-    stream >> o.type_ >> o.ipAddress_;
+
+    if (version == 1)
+        stream >> o.type_ >> o.upStream1_;
+    else
+        stream >> o.type_ >> o.upStream1_ >> o.isSplitDns_ >> o.upStream2_ >> o.hostnames_;
+
     return stream;
 }
 
