@@ -54,12 +54,8 @@ public:
     const AdapterGatewayInfo &getDefaultAdapterInfo() const;
     const AdapterGatewayInfo &getVpnAdapterInfo() const;
 
-    struct CustomDnsAdapterGatewayInfo {
-        AdapterGatewayInfo adapterInfo;
-        types::ConnectedDnsInfo connectedDnsInfo;
-    };
-    const CustomDnsAdapterGatewayInfo &getCustomDnsAdapterGatewayInfo() const;
     void setConnectedDnsInfo(const types::ConnectedDnsInfo &info);
+    const types::ConnectedDnsInfo &connectedDnsInfo() const;
 
     void removeIkev2ConnectionFromOS();
 
@@ -208,7 +204,7 @@ private:
     AdapterGatewayInfo defaultAdapterInfo_;
     AdapterGatewayInfo vpnAdapterInfo_;
 
-    CustomDnsAdapterGatewayInfo customDnsAdapterGatewayInfo_;
+    types::ConnectedDnsInfo connectedDnsInfo_;
 
     QSharedPointer<locationsmodel::BaseLocationInfo> bli_;
 

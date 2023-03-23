@@ -1257,7 +1257,7 @@ void Engine::onConnectionManagerConnected()
 #ifdef Q_OS_WIN
     // wireguard-nt driver monitors metrics itself.
     if (!connectionManager_->currentProtocol().isWireGuardProtocol()) {
-        AdapterMetricsController_win::updateMetrics(connectionManager_->getVpnAdapterInfo().adapterName(), helper_);
+        AdapterMetricsController_win::updateMetrics(adapterName, helper_);
     }
 #elif defined (Q_OS_MAC) || defined (Q_OS_LINUX)
     firewallController_->setInterfaceToSkip_posix(adapterName);
@@ -1293,7 +1293,7 @@ void Engine::onConnectionManagerConnected()
     }
 
     bool result = helper_->sendConnectStatus(true, engineSettings_.isTerminateSockets(), engineSettings_.isAllowLanTraffic(),
-                                             connectionManager_->getDefaultAdapterInfo(), connectionManager_->getCustomDnsAdapterGatewayInfo().adapterInfo,
+                                             connectionManager_->getDefaultAdapterInfo(), connectionManager_->getVpnAdapterInfo(),
                                              connectionManager_->getLastConnectedIp(), lastConnectingProtocol_);
     if (!result) {
         #if defined(Q_OS_WINDOWS)
@@ -1309,11 +1309,11 @@ void Engine::onConnectionManagerConnected()
         firewallController_->firewallOn(firewallExceptions_.getIPAddressesForFirewallForConnectedState(connectionManager_->getLastConnectedIp()), engineSettings_.isAllowLanTraffic(), locationId_.isCustomConfigsLocation());
     }
 
-    if (connectionManager_->getCustomDnsAdapterGatewayInfo().connectedDnsInfo.type_ == CONNECTED_DNS_TYPE_CUSTOM)
+    if (connectionManager_->connectedDnsInfo().type_ == CONNECTED_DNS_TYPE_CUSTOM)
     {
          if (!helper_->setCustomDnsWhileConnected(connectionManager_->currentProtocol().isIkev2Protocol(),
                                                   connectionManager_->getVpnAdapterInfo().ifIndex(),
-                                                  connectionManager_->getCustomDnsAdapterGatewayInfo().connectedDnsInfo.upStream1_))
+                                                  connectionManager_->connectedDnsInfo().upStream1_))
          {
              qCDebug(LOG_CONNECTED_DNS) << "Failed to set Custom 'while connected' DNS";
          }
