@@ -42,10 +42,8 @@ void ApiLocationsModel::setLocations(const QVector<apiinfo::Location> &locations
     for (const apiinfo::Location &l : locations) {
         for (int i = 0; i < l.groupsCount(); ++i) {
             apiinfo::Group group = l.getGroup(i);
-            if (!group.isDisabled()) {
-                ips << PingIpInfo(group.getPingIp(), group.getCity(), group.getNick(), PingHost::PING_TCP);
-                idFromIp_[group.getPingIp()] = group.getId();
-            }
+            ips << PingIpInfo(group.getPingIp(), group.getCity(), group.getNick(), PingHost::PING_TCP);
+            idFromIp_[group.getPingIp()] = group.getId();
         }
     }
 

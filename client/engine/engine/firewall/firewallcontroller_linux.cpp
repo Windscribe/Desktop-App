@@ -267,7 +267,7 @@ void FirewallController_linux::removeWindscribeRules(const QString &comment, boo
         }
     }
 
-    bool ret = helper_->setFirewallRules(isIPv6 ? kIpv6 : kIpv4, "", "", rules.join("\n"));
+    bool ret = helper_->setFirewallRules(isIPv6 ? kIpv6 : kIpv4, "", "", rules.join("\n") + "\n");
     if (!ret) {
         qCDebug(LOG_FIREWALL_CONTROLLER) << "Could not remove windscribe rules:" << ret;
     }
