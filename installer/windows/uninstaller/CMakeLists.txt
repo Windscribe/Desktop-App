@@ -31,7 +31,7 @@ set(SOURCES
 )
 
 add_executable(uninstall WIN32 ${SOURCES})
-set_property(TARGET uninstall PROPERTY LINK_FLAGS "/DELAYLOAD:dwmapi.dll /DELAYLOAD:uxtheme.dll /DELAYLOAD:wldp.dll")
+set_property(TARGET uninstall PROPERTY LINK_FLAGS "/MANIFESTUAC:\"level='requireAdministrator' uiAccess='false'\" /DELAYLOAD:dwmapi.dll /DELAYLOAD:uxtheme.dll /DELAYLOAD:wldp.dll")
 
 target_include_directories(uninstall PRIVATE
                            ../installer/client/common
