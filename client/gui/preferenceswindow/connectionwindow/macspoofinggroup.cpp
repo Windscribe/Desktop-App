@@ -33,7 +33,7 @@ MacSpoofingGroup::MacSpoofingGroup(ScalableGraphicsObject *parent, const QString
     connect(autoRotateMacItem_, &CheckBoxItem::stateChanged, this, &MacSpoofingGroup::onAutoRotateMacStateChanged);
     addItem(autoRotateMacItem_);
 
-    hideItems(indexOf(macAddressItem_), -1, DISPLAY_FLAGS::FLAG_NO_ANIMATION);
+    hideItems(indexOf(macAddressItem_), indexOf(autoRotateMacItem_), DISPLAY_FLAGS::FLAG_NO_ANIMATION);
 
     connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &MacSpoofingGroup::onLanguageChanged);
     onLanguageChanged();

@@ -25,7 +25,7 @@ BackgroundSettingsGroup::BackgroundSettingsGroup(ScalableGraphicsObject *parent,
     connect(imageItemConnected_, &SelectImageItem::pathChanged, this, &BackgroundSettingsGroup::onConnectedPathChanged);
     addItem(imageItemConnected_);
 
-    hideItems(indexOf(imageItemDisconnected_), -1, DISPLAY_FLAGS::FLAG_NO_ANIMATION);
+    hideItems(indexOf(imageItemDisconnected_), indexOf(imageItemConnected_), DISPLAY_FLAGS::FLAG_NO_ANIMATION);
 
     connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &BackgroundSettingsGroup::onLanguageChanged);
     onLanguageChanged();

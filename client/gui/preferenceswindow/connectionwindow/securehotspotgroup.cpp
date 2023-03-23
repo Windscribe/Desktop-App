@@ -29,7 +29,7 @@ SecureHotspotGroup::SecureHotspotGroup(ScalableGraphicsObject *parent, const QSt
     connect(editBoxPassword_, &EditBoxItem::textChanged, this, &SecureHotspotGroup::onPasswordChanged);
     addItem(editBoxPassword_);
 
-    hideItems(indexOf(editBoxSSID_), -1, DISPLAY_FLAGS::FLAG_NO_ANIMATION);
+    hideItems(indexOf(editBoxSSID_), indexOf(editBoxPassword_), DISPLAY_FLAGS::FLAG_NO_ANIMATION);
 
     setSupported(supported_);
     updateDescription();
