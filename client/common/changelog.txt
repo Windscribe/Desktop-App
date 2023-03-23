@@ -12,6 +12,18 @@ Linux:
    * Added the minimum requirements to Linux packaging specs. #501
 
 
+2.6.14 (23/03/2023)
+All:
+   * Fixed free accounts not pinging pro locations. #521
+   * Fixed upgrade widget not hidden when returning to login screen. #561
+   * Fixed 'out of data' screen isn't vertically centered. #597
+   * Fixed MAC address spoofing toggle state isn't saved. #606
+macOS:
+   * Fixed crash when reconnecting to different servers. #525
+Linux:
+   * Fixed iptables not flushed after disconnect on distros using iptables-legacy (Ubuntu 20.04/Fedora 29). #5
+
+
 2.6.12 (09/03/2023)
 All:
    * Added use of Encrypted Client Hello (ECH) as a fail-over mechanism to circumvent SNI filtering. #568

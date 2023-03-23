@@ -112,12 +112,10 @@ void MacSpoofingGroup::onCycleMacAddressClick()
 
 void MacSpoofingGroup::updateMode()
 {
-    if (settings_.isEnabled)
-    {
+    if (settings_.isEnabled) {
         QString adapters = "";
         comboBoxInterface_->clear();
-        for (int i = 0; i < settings_.networkInterfaces.size(); i++)
-        {
+        for (int i = 0; i < settings_.networkInterfaces.size(); i++) {
             types::NetworkInterface interface = settings_.networkInterfaces[i];
             if (interface.interfaceName == "No Interface") {
                 comboBoxInterface_->addItem(tr("No Interface"), interface.interfaceIndex);
@@ -127,8 +125,7 @@ void MacSpoofingGroup::updateMode()
 
             adapters += interface.interfaceName;
 
-            if (i < networks_.size() - 1)
-            {
+            if (i < settings_.networkInterfaces.size() - 1) {
                 adapters += ", ";
             }
         }
@@ -139,8 +136,7 @@ void MacSpoofingGroup::updateMode()
         comboBoxInterface_->setCurrentItem(settings_.selectedNetworkInterface.interfaceIndex);
         showItems(indexOf(macAddressItem_), size() - 1);
     }
-    else
-    {
+    else {
         hideItems(indexOf(macAddressItem_), size() - 1);
     }
 }
