@@ -37,7 +37,7 @@ ProtocolGroup::ProtocolGroup(ScalableGraphicsObject *parent, PreferencesHelper *
     connect(portItem_, &ComboBoxItem::currentItemChanged, this, &ProtocolGroup::onPortChanged);
     addItem(portItem_);
 
-    hideItems(indexOf(protocolItem_), -1, DISPLAY_FLAGS::FLAG_NO_ANIMATION);
+    hideItems(indexOf(protocolItem_), indexOf(portItem_), DISPLAY_FLAGS::FLAG_NO_ANIMATION);
 
     connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &ProtocolGroup::onLanguageChanged);
     onLanguageChanged();

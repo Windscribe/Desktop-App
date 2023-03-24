@@ -24,7 +24,7 @@ ProxyGatewayGroup::ProxyGatewayGroup(ScalableGraphicsObject *parent, const QStri
     proxyIpAddressItem_ = new ProxyIpAddressItem(this);
     addItem(proxyIpAddressItem_);
 
-    hideItems(indexOf(comboBoxProxyType_), -1, DISPLAY_FLAGS::FLAG_NO_ANIMATION);
+    hideItems(indexOf(comboBoxProxyType_), indexOf(proxyIpAddressItem_), DISPLAY_FLAGS::FLAG_NO_ANIMATION);
 
     updateMode();
 

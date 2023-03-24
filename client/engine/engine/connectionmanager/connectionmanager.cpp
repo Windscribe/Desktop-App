@@ -152,7 +152,8 @@ void ConnectionManager::clickConnect(const QString &ovpnConfig, const apiinfo::S
 void ConnectionManager::clickDisconnect()
 {
     WS_ASSERT(state_ == STATE_CONNECTING_FROM_USER_CLICK || state_ == STATE_CONNECTED || state_ == STATE_RECONNECTING ||
-              state_ == STATE_DISCONNECTING_FROM_USER_CLICK || state_ == STATE_WAIT_FOR_NETWORK_CONNECTIVITY || state_ == STATE_DISCONNECTED);
+              state_ == STATE_WAKEUP_RECONNECTING || state_ == STATE_DISCONNECTING_FROM_USER_CLICK ||
+              state_ == STATE_WAIT_FOR_NETWORK_CONNECTIVITY || state_ == STATE_DISCONNECTED);
 
     timerWaitNetworkConnectivity_.stop();
     connectTimer_.stop();
@@ -674,6 +675,7 @@ void ConnectionManager::onSleepMode()
         case STATE_CONNECTING_FROM_USER_CLICK:
         case STATE_CONNECTED:
         case STATE_RECONNECTING:
+        case STATE_WAKEUP_RECONNECTING:
             Q_EMIT reconnecting();
             blockingDisconnect();
             qCDebug(LOG_CONNECTION) << "ConnectionManager::onSleepMode(), connection blocking disconnected";
@@ -715,6 +717,7 @@ void ConnectionManager::onWakeMode()
         case STATE_DISCONNECTING_FROM_USER_CLICK:
         case STATE_RECONNECTION_TIME_EXCEED:
         case STATE_SLEEP_MODE_NEED_RECONNECT:
+        case STATE_WAKEUP_RECONNECTING:
             // We should not be in some of these above states after wake up, but in some weird cases
             // on Mac it is possible for the network to keep changing after onSleep() which may trigger
             // some state changes.  Regardless of the above state, we should restore connection here.
@@ -1209,8 +1212,12 @@ void ConnectionManager::restoreConnectionAfterWakeUp()
         qCDebug(LOG_CONNECTION) <<
             "ConnectionManager::restoreConnectionAfterWakeUp(), reconnecting";
         state_ = STATE_WAKEUP_RECONNECTING;
-        Q_EMIT reconnecting();
-        doConnect();
+        if (connector_) {
+            connector_->startDisconnect();
+        } else {
+            Q_EMIT reconnecting();
+            doConnect();
+        }
     }
     else
     {

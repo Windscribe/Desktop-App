@@ -574,7 +574,11 @@ void MainWindowController::collapseProtocols()
 
 void MainWindowController::showUpdateWidget()
 {
-    //WS_ASSERT(curWindow_ == WINDOW_ID_CONNECT
+    // Do not show update widget if in login screen or other window, since the
+    // widget will overlay incorrectly.
+    if (curWindow_ != WINDOW_ID_CONNECT) {
+        return;
+    }
     if (!updateAppItem_->getGraphicsObject()->isVisible()) {
         updateAppItem_->getGraphicsObject()->show();
         QPixmap shadow = updateAppItem_->getCurrentPixmapShape();
@@ -1060,7 +1064,7 @@ void MainWindowController::gotoLoginWindow()
             locationListAnimationState_ = LOCATION_LIST_ANIMATION_COLLAPSED;
             clearMaskForGraphicsView();
         }
-
+        hideUpdateWidget();
         updateMainAndViewGeometry(false);
     }
 }
