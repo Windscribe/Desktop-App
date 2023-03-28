@@ -544,37 +544,37 @@
 <context>
     <name>LoginWindow::WelcomeWindowItem</name>
     <message>
-        <location filename="../loginwindow/welcomewindowitem.cpp" line="169"/>
+        <location filename="../loginwindow/welcomewindowitem.cpp" line="156"/>
         <source>Keep Your Secrets.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../loginwindow/welcomewindowitem.cpp" line="313"/>
+        <location filename="../loginwindow/welcomewindowitem.cpp" line="228"/>
         <source>Emergency Connect</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../loginwindow/welcomewindowitem.cpp" line="318"/>
+        <location filename="../loginwindow/welcomewindowitem.cpp" line="233"/>
         <source>External Config</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../loginwindow/welcomewindowitem.cpp" line="323"/>
+        <location filename="../loginwindow/welcomewindowitem.cpp" line="238"/>
         <source>Preferences</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../loginwindow/welcomewindowitem.cpp" line="348"/>
+        <location filename="../loginwindow/welcomewindowitem.cpp" line="263"/>
         <source>Turn Off Firewall</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../loginwindow/welcomewindowitem.cpp" line="349"/>
+        <location filename="../loginwindow/welcomewindowitem.cpp" line="264"/>
         <source>Login</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../loginwindow/welcomewindowitem.cpp" line="350"/>
+        <location filename="../loginwindow/welcomewindowitem.cpp" line="265"/>
         <source>Get Started</source>
         <translation type="unfinished"></translation>
     </message>

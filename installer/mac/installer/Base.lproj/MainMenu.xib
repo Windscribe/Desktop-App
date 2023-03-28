@@ -27,7 +27,7 @@
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <buttonCell key="cell" type="square" title="Install" bezelStyle="shadowlessSquare" alignment="center" borderStyle="border" inset="2" id="FEJ-Rt-hJn" customClass="InstallButtonCell">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                            <font key="font" metaFont="system"/>
+                            <font key="font" metaFont="system" size="16"/>
                         </buttonCell>
                         <connections>
                             <action selector="onInstallClick:" target="EiT-Mj-1SZ" id="Mpz-oc-HZJ"/>
