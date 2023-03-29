@@ -25,7 +25,7 @@ ExternalConfigWindowItem::ExternalConfigWindowItem(QGraphicsObject *parent,
     curTextOpacity_ = OPACITY_FULL;
     curEscTextOpacity_ = OPACITY_FULL;
 
-    okButton_ = new CommonGraphics::BubbleButtonDark(this, 108, 40, 20, 20);
+    okButton_ = new CommonGraphics::BubbleButton(this, CommonGraphics::BubbleButton::kOutline, 108, 40, 20);
     connect(okButton_, SIGNAL(clicked()), this, SLOT(onButtonClicked()));
 
     escButton_ = new CommonGraphics::EscapeButton(this);

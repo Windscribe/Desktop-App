@@ -67,7 +67,7 @@ WelcomeWindowItem::WelcomeWindowItem(QGraphicsObject *parent, PreferencesHelper 
     gotoLoginButton_->setClickable(true);
     gotoLoginButton_->show();
 
-    getStartedButton_ = new CommonGraphics::BubbleButtonBright(this, 130, 32, 15, 15);
+    getStartedButton_ = new CommonGraphics::BubbleButton(this, CommonGraphics::BubbleButton::kBright, 130, 32, 15);
     getStartedButton_->setFont(FontDescr(14, false));
     connect(getStartedButton_, SIGNAL(clicked()), SLOT(onGetStartedButtonClick()));
     getStartedButton_->setClickable(true);

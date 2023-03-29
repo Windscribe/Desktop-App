@@ -87,10 +87,10 @@ AccountWindowItem::AccountWindowItem(ScalableGraphicsObject *parent, AccountInfo
     textItem_->setTextWidth(125);
     textItem_->document()->setDefaultTextOption(QTextOption(Qt::AlignHCenter));
 
-    loginButton_ = new CommonGraphics::BubbleButtonDark(this, 69, 24, 12, 20);
+    loginButton_ = new CommonGraphics::BubbleButton(this, CommonGraphics::BubbleButton::kOutline, 69, 24, 12);
     loginButton_->setText(tr("Login"));
     loginButton_->setFont(FontDescr(12,false));
-    connect(loginButton_, &CommonGraphics::BubbleButtonDark::clicked, this, &AccountWindowItem::accountLoginClick);
+    connect(loginButton_, &CommonGraphics::BubbleButton::clicked, this, &AccountWindowItem::accountLoginClick);
 
     updateWidgetPos();
 

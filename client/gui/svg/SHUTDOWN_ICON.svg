@@ -1,14 +1,3 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg width="40px" height="40px" viewBox="0 0 40 40" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-    <!-- Generator: Sketch 51.3 (57544) - http://www.bohemiancoding.com/sketch -->
-    <title>shutdown_icon</title>
-    <desc>Created with Sketch.</desc>
-    <defs></defs>
-    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-        <g id="Emergency-Disconnect" transform="translate(-293.000000, -185.000000)" fill="#FFFFFF">
-            <g id="Group-3" transform="translate(293.000000, 185.000000)">
-                <path d="M17,6.28079156 L17,8.32217954 C10.709636,9.69551997 6,15.2977628 6,22 C6,29.7319865 12.2680135,36 20,36 C27.7319865,36 34,29.7319865 34,22 C34,15.2977628 29.290364,9.69551997 23,8.32217954 L23,6.28079156 C30.402582,7.68501141 36,14.1888322 36,22 C36,30.836556 28.836556,38 20,38 C11.163444,38 4,30.836556 4,22 C4,14.1888322 9.59741797,7.68501141 17,6.28079156 Z M20,2 L20,2 C20.5522847,2 21,2.44771525 21,3 L21,21 C21,21.5522847 20.5522847,22 20,22 L20,22 C19.4477153,22 19,21.5522847 19,21 L19,3 C19,2.44771525 19.4477153,2 20,2 Z" id="Combined-Shape-Copy-14"></path>
-            </g>
-        </g>
-    </g>
+<svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+    <path d="M26 .916C34.115 3.464 40 11.045 40 20c0 11.046-8.954 20-20 20S0 31.046 0 20C0 11.045 5.886 3.464 14 .915v4.248C8.138 7.536 4 13.285 4 20c0 8.837 7.163 16 16 16s16-7.163 16-16c0-6.715-4.136-12.463-10-14.837V.916zM20 0a2 2 0 0 1 2 2v17a2 2 0 0 1-4 0V2a2 2 0 0 1 2-2z" fill="#FFF" fill-rule="nonzero"/>
 </svg>

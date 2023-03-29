@@ -16,8 +16,6 @@
 #include "iconhoverengagebutton.h"
 #include "commongraphics/scalablegraphicsobject.h"
 #include "tooltips/tooltiptypes.h"
-#include "commongraphics/bubblebuttonbright.h"
-#include "commongraphics/bubblebuttondark.h"
 
 namespace LoginWindow {
 

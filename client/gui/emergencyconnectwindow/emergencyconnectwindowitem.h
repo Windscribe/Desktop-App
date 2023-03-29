@@ -5,8 +5,7 @@
 #include <QEvent>
 #include "../backend/backend.h"
 #include "emergencyconnectwindow/iemergencyconnectwindow.h"
-#include "commongraphics/bubblebuttonbright.h"
-#include "commongraphics/bubblebuttondark.h"
+#include "commongraphics/bubblebutton.h"
 #include "commongraphics/escapebutton.h"
 #include "commongraphics/iconbutton.h"
 #include "textlinkbutton.h"
@@ -79,8 +78,8 @@ private:
 
     QString curSubDescription_;
 
-    CommonGraphics::BubbleButtonDark *connectButton_;
-    CommonGraphics::BubbleButtonBright *disconnectButton_;
+    CommonGraphics::BubbleButton *connectButton_;
+    CommonGraphics::BubbleButton *disconnectButton_;
 
     CommonGraphics::EscapeButton *escButton_;
     TextLinkButton *textLinkButton_;

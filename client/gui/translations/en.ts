@@ -25,22 +25,6 @@
     </message>
 </context>
 <context>
-    <name>CommonGraphics::BubbleButtonBright</name>
-    <message>
-        <location filename="../commongraphics/bubblebuttonbright.cpp" line="15"/>
-        <source>Disconnect</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>CommonGraphics::BubbleButtonDark</name>
-    <message>
-        <location filename="../commongraphics/bubblebuttondark.cpp" line="15"/>
-        <source>Connect</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>CommonGraphics::EscapeButton</name>
     <message>
         <location filename="../commongraphics/escapebutton.cpp" line="29"/>
@@ -53,52 +37,52 @@
 <context>
     <name>ConnectWindow::ConnectWindowItem</name>
     <message>
-        <location filename="../connectwindow/connectwindowitem.cpp" line="333"/>
+        <location filename="../connectwindow/connectwindowitem.cpp" line="334"/>
         <source>No Network Info</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../connectwindow/connectwindowitem.cpp" line="341"/>
+        <location filename="../connectwindow/connectwindowitem.cpp" line="342"/>
         <source>Unsecured</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../connectwindow/connectwindowitem.cpp" line="345"/>
+        <location filename="../connectwindow/connectwindowitem.cpp" line="346"/>
         <source>Secured</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../connectwindow/connectwindowitem.cpp" line="384"/>
+        <location filename="../connectwindow/connectwindowitem.cpp" line="385"/>
         <source>Connection to Windscribe has been terminated. </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../connectwindow/connectwindowitem.cpp" line="385"/>
+        <location filename="../connectwindow/connectwindowitem.cpp" line="386"/>
         <source> transferred in </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../connectwindow/connectwindowitem.cpp" line="400"/>
+        <location filename="../connectwindow/connectwindowitem.cpp" line="401"/>
         <source>Connected for </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../connectwindow/connectwindowitem.cpp" line="401"/>
+        <location filename="../connectwindow/connectwindowitem.cpp" line="402"/>
         <source> transferred</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../connectwindow/connectwindowitem.cpp" line="478"/>
+        <location filename="../connectwindow/connectwindowitem.cpp" line="479"/>
         <source>Firewall</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../connectwindow/connectwindowitem.cpp" line="479"/>
+        <location filename="../connectwindow/connectwindowitem.cpp" line="480"/>
         <source>Blocks all connectivity in the event of a sudden disconnect</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../connectwindow/connectwindowitem.cpp" line="571"/>
+        <location filename="../connectwindow/connectwindowitem.cpp" line="572"/>
         <source>Connect to rate</source>
         <translation type="unfinished"></translation>
     </message>
@@ -243,27 +227,37 @@
 <context>
     <name>EmergencyConnectWindow::EmergencyConnectWindowItem</name>
     <message>
-        <location filename="../emergencyconnectwindow/emergencyconnectwindowitem.cpp" line="112"/>
+        <location filename="../emergencyconnectwindow/emergencyconnectwindowitem.cpp" line="113"/>
         <source>Emergency Connect</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../emergencyconnectwindow/emergencyconnectwindowitem.cpp" line="123"/>
+        <location filename="../emergencyconnectwindow/emergencyconnectwindowitem.cpp" line="124"/>
         <source>Emergency connection failure. Try again?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../emergencyconnectwindow/emergencyconnectwindowitem.cpp" line="128"/>
+        <location filename="../emergencyconnectwindow/emergencyconnectwindowitem.cpp" line="129"/>
         <source>Can&apos;t access Windscribe.com or login into the app on your restrictive network? Connect to the emergency server that unblocks all of Windscribe.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../emergencyconnectwindow/emergencyconnectwindowitem.cpp" line="227"/>
+        <location filename="../emergencyconnectwindow/emergencyconnectwindowitem.cpp" line="228"/>
         <source>Disconnecting...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../emergencyconnectwindow/emergencyconnectwindowitem.cpp" line="217"/>
+        <location filename="../emergencyconnectwindow/emergencyconnectwindowitem.cpp" line="429"/>
+        <source>Connect</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../emergencyconnectwindow/emergencyconnectwindowitem.cpp" line="430"/>
+        <source>Disconnect</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../emergencyconnectwindow/emergencyconnectwindowitem.cpp" line="218"/>
         <source>Connecting...</source>
         <translation type="unfinished"></translation>
     </message>
@@ -310,22 +304,6 @@
         <location filename="../freetrafficnotificationcontroller.cpp" line="14"/>
         <location filename="../freetrafficnotificationcontroller.cpp" line="20"/>
         <source>You reached %1% of your free bandwidth allowance</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>GeneralMessage::GeneralMessageTwoButtonWindowItem</name>
-    <message>
-        <location filename="../overlaysconnectwindow/generalmessagetwobuttonwindowitem.cpp" line="101"/>
-        <source>Windscribe is shutting down</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>GeneralMessage::GeneralMessageWindowItem</name>
-    <message>
-        <location filename="../overlaysconnectwindow/generalmessagewindowitem.cpp" line="27"/>
-        <source>Ok</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -582,431 +560,436 @@
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="../mainwindow.cpp" line="805"/>
-        <location filename="../mainwindow.cpp" line="1424"/>
+        <location filename="../mainwindow.cpp" line="808"/>
+        <location filename="../mainwindow.cpp" line="1451"/>
         <source>Logging you in...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1081"/>
-        <location filename="../mainwindow.cpp" line="1096"/>
+        <location filename="../mainwindow.cpp" line="1084"/>
+        <location filename="../mainwindow.cpp" line="1099"/>
         <source>VPN is active</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1082"/>
+        <location filename="../mainwindow.cpp" line="1085"/>
         <source>Rotating your MAC address will result in a disconnect event from the current network. Are you sure?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1097"/>
+        <location filename="../mainwindow.cpp" line="1100"/>
         <source>Cannot detect appropriate packet size while connected. Please disconnect first.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1106"/>
+        <location filename="../mainwindow.cpp" line="1109"/>
         <source>No Internet</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1107"/>
+        <location filename="../mainwindow.cpp" line="1110"/>
         <source>Cannot detect appropriate packet size without internet. Check your connection.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1339"/>
+        <location filename="../mainwindow.cpp" line="1353"/>
         <source>Select Custom Config Folder</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1356"/>
+        <location filename="../mainwindow.cpp" line="1370"/>
         <source>Cannot select this directory because it is writeable for non-privileged users. Custom configs in this directory may pose a potential security risk. Please authenticate with an admin user to select this directory.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1360"/>
-        <location filename="../mainwindow.cpp" line="1369"/>
-        <location filename="../mainwindow.cpp" line="1378"/>
-        <location filename="../mainwindow.cpp" line="3711"/>
-        <location filename="../mainwindow.cpp" line="3763"/>
-        <location filename="../mainwindow.cpp" line="3770"/>
+        <location filename="../mainwindow.cpp" line="1374"/>
+        <location filename="../mainwindow.cpp" line="1383"/>
+        <location filename="../mainwindow.cpp" line="1392"/>
+        <location filename="../mainwindow.cpp" line="3749"/>
+        <location filename="../mainwindow.cpp" line="3801"/>
+        <location filename="../mainwindow.cpp" line="3808"/>
         <source>Windscribe</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1366"/>
+        <location filename="../mainwindow.cpp" line="1380"/>
         <source>Failed to verify AuthHelper, binary may be corrupted. Please reinstall application to repair.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1375"/>
+        <location filename="../mainwindow.cpp" line="1389"/>
         <source>The selected directory is writeable for non-privileged users. Custom configs in this directory may pose a potential security risk.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1446"/>
+        <location filename="../mainwindow.cpp" line="1473"/>
         <source>Enable &quot;Base Filtering Engine&quot; service? This is required for Windscribe to function.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1465"/>
+        <location filename="../mainwindow.cpp" line="1492"/>
         <source>Windscribe helper initialize error. Please reinstall the application or contact support.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1476"/>
+        <location filename="../mainwindow.cpp" line="1503"/>
         <source>Can&apos;t start the engine. Please contact support.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1485"/>
+        <location filename="../mainwindow.cpp" line="1512"/>
         <source>This is taking a while, something could be wrong.
 If this screen does not disappear,
 please contact support.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1537"/>
+        <location filename="../mainwindow.cpp" line="1564"/>
         <source>Trying Backup Endpoints %1/%2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1630"/>
+        <location filename="../mainwindow.cpp" line="1660"/>
         <source>We detected that SSL requests may be intercepted on your network. This could be due to a firewall configured on your computer, or Windscribe being blocking by your network administrator. Ignore SSL errors?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1833"/>
-        <location filename="../mainwindow.cpp" line="3344"/>
+        <location filename="../mainwindow.cpp" line="1863"/>
+        <location filename="../mainwindow.cpp" line="3372"/>
         <source>Disconnected</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1839"/>
+        <location filename="../mainwindow.cpp" line="1869"/>
         <source>Connected to </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1884"/>
+        <location filename="../mainwindow.cpp" line="1914"/>
         <source>You are now connected to Windscribe (%1).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1916"/>
+        <location filename="../mainwindow.cpp" line="1946"/>
         <source>Connection to Windscribe has been terminated.
 %1 transferred in %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2139"/>
+        <location filename="../mainwindow.cpp" line="2169"/>
         <source>We&apos;ve detected that your network settings may interfere with Windscribe. Please disconnect and send us a Debug Log, by going into Preferences and clicking the &quot;Send Log&quot; button.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2182"/>
+        <location filename="../mainwindow.cpp" line="2212"/>
         <source>Couldn&apos;t connect to Windscribe helper, please restart the application</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2201"/>
+        <location filename="../mainwindow.cpp" line="2231"/>
         <source>Windscribe has detected that %1 is using a high amount of CPU due to a potential conflict with the VPN connection. Do you want to disable the Windscribe TCP socket termination feature that may be causing this issue?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2222"/>
-        <location filename="../mainwindow.cpp" line="2227"/>
+        <location filename="../mainwindow.cpp" line="2252"/>
+        <location filename="../mainwindow.cpp" line="2257"/>
         <source>MAC Spoofing Failed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2223"/>
+        <location filename="../mainwindow.cpp" line="2253"/>
         <source>Your network adapter does not support MAC spoofing. Try a different adapter.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2228"/>
+        <location filename="../mainwindow.cpp" line="2258"/>
         <source>Could not spoof MAC address, try updating your OS to the latest version.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2232"/>
+        <location filename="../mainwindow.cpp" line="2262"/>
         <source>Logs too large to send</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2233"/>
+        <location filename="../mainwindow.cpp" line="2263"/>
         <source>Could not send logs to Windscribe, they are too big. Either re-send after replicating the issue or manually compressing and sending to support.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2237"/>
+        <location filename="../mainwindow.cpp" line="2267"/>
         <source>Logs too large to view</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2238"/>
+        <location filename="../mainwindow.cpp" line="2268"/>
         <source>Could not view the logs because they are too big. You may want to try viewing manually.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2273"/>
+        <location filename="../mainwindow.cpp" line="2303"/>
         <source>Detection Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2274"/>
+        <location filename="../mainwindow.cpp" line="2304"/>
         <source>Cannot detect appropriate packet size due to an error. Please try again.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2358"/>
+        <location filename="../mainwindow.cpp" line="2388"/>
         <source>Auto-Update Failed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2359"/>
+        <location filename="../mainwindow.cpp" line="2389"/>
         <source>Please contact support</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2362"/>
+        <location filename="../mainwindow.cpp" line="2392"/>
         <source>Please try again using a different network connection.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2366"/>
+        <location filename="../mainwindow.cpp" line="2396"/>
         <source>Can&apos;t run the downloaded installer. It does not have the correct signature.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2370"/>
+        <location filename="../mainwindow.cpp" line="2400"/>
         <source>An unexpected error occurred. Please contact support.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2374"/>
+        <location filename="../mainwindow.cpp" line="2404"/>
         <source>Cannot access the installer. Image mounting has failed.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2378"/>
+        <location filename="../mainwindow.cpp" line="2408"/>
         <source>Downloaded image does not contain installer.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2382"/>
+        <location filename="../mainwindow.cpp" line="2412"/>
         <source>Cannot overwrite a pre-existing temporary installer.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2386"/>
+        <location filename="../mainwindow.cpp" line="2416"/>
         <source>Failed to copy installer to temp location.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2390"/>
+        <location filename="../mainwindow.cpp" line="2420"/>
         <source>Auto-Updater has failed to run installer. Please relaunch Windscribe and try again.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2394"/>
+        <location filename="../mainwindow.cpp" line="2424"/>
         <source>Cannot run the downloaded installer. It does not have the expected hash.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2398"/>
+        <location filename="../mainwindow.cpp" line="2428"/>
         <source>Windscribe API has returned an invalid hash for downloaded installer. Please contact support.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2471"/>
+        <location filename="../mainwindow.cpp" line="2433"/>
+        <source>Ok</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="2502"/>
         <source>Lost connection to the backend process.
 Recovering...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3070"/>
+        <location filename="../mainwindow.cpp" line="3101"/>
         <source>Select an application</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3101"/>
+        <location filename="../mainwindow.cpp" line="3132"/>
         <source>Connect</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3105"/>
+        <location filename="../mainwindow.cpp" line="3136"/>
         <source>Disconnect</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3114"/>
-        <location filename="../mainwindow.cpp" line="3143"/>
+        <location filename="../mainwindow.cpp" line="3145"/>
+        <location filename="../mainwindow.cpp" line="3174"/>
         <source>Locations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3121"/>
-        <location filename="../mainwindow.cpp" line="3150"/>
+        <location filename="../mainwindow.cpp" line="3152"/>
+        <location filename="../mainwindow.cpp" line="3181"/>
         <source>Favourites</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3128"/>
-        <location filename="../mainwindow.cpp" line="3157"/>
+        <location filename="../mainwindow.cpp" line="3159"/>
+        <location filename="../mainwindow.cpp" line="3188"/>
         <source>Static IPs</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3135"/>
-        <location filename="../mainwindow.cpp" line="3164"/>
+        <location filename="../mainwindow.cpp" line="3166"/>
+        <location filename="../mainwindow.cpp" line="3195"/>
         <source>Configured</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3175"/>
+        <location filename="../mainwindow.cpp" line="3206"/>
         <source>Show/Hide</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3180"/>
+        <location filename="../mainwindow.cpp" line="3211"/>
         <source>Preferences</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3183"/>
+        <location filename="../mainwindow.cpp" line="3214"/>
         <source>Help</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3184"/>
+        <location filename="../mainwindow.cpp" line="3215"/>
         <source>Exit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3417"/>
+        <location filename="../mainwindow.cpp" line="3445"/>
         <source>Can&apos;t connect to openvpn process.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3421"/>
+        <location filename="../mainwindow.cpp" line="3449"/>
         <source>Can&apos;t start openvpn process.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3425"/>
+        <location filename="../mainwindow.cpp" line="3453"/>
         <source>Couldn&apos;t fetch server credentials. Please try again later.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3448"/>
+        <location filename="../mainwindow.cpp" line="3476"/>
         <source>All TAP-Windows adapters on this system are currently in use.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3452"/>
+        <location filename="../mainwindow.cpp" line="3480"/>
         <source>IKEv2 connection failed. Please send a debug log and open a support ticket. You can switch to UDP or TCP connection modes in the mean time.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3457"/>
+        <location filename="../mainwindow.cpp" line="3485"/>
         <source>Fix Issue</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3458"/>
+        <location filename="../mainwindow.cpp" line="3486"/>
         <source>Cancel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3460"/>
+        <location filename="../mainwindow.cpp" line="3488"/>
         <source>Your hosts file is read-only. IKEv2 connectivity requires for it to be writable. Fix the issue automatically?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3471"/>
+        <location filename="../mainwindow.cpp" line="3499"/>
         <source>Failed to load the network extension framework.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3475"/>
+        <location filename="../mainwindow.cpp" line="3503"/>
         <source>Failed set password to keychain.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3479"/>
+        <location filename="../mainwindow.cpp" line="3507"/>
         <source>Failed to start IKEv2 connection.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3483"/>
+        <location filename="../mainwindow.cpp" line="3511"/>
         <source>Failed to load IKEv2 preferences.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3487"/>
+        <location filename="../mainwindow.cpp" line="3515"/>
         <source>Failed to create IKEv2 Profile. Please connect again and select &quot;Allow&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3491"/>
+        <location filename="../mainwindow.cpp" line="3519"/>
         <source>Failed to setup WireGuard connection.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3530"/>
+        <location filename="../mainwindow.cpp" line="3558"/>
         <source>Failed to setup custom openvpn configuration.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3534"/>
+        <location filename="../mainwindow.cpp" line="3562"/>
         <source>Wintun driver fatal error. Failed to reinstall it automatically. Please try to reinstall it manually.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3538"/>
+        <location filename="../mainwindow.cpp" line="3566"/>
         <source>Tap driver Fatal error. Failed to reinstall it automatically. Please try to reinstall it manually.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3542"/>
+        <location filename="../mainwindow.cpp" line="3570"/>
         <source>WSTunnel binary failed verification. Please re-install windscribe from trusted source.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3546"/>
+        <location filename="../mainwindow.cpp" line="3574"/>
         <source>STunnel binary failed verification. Please re-install windscribe from trusted source.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3550"/>
+        <location filename="../mainwindow.cpp" line="3578"/>
         <source>Wireguard binary failed verification. Please re-install windscribe from trusted source.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3554"/>
+        <location filename="../mainwindow.cpp" line="3582"/>
         <source>OpenVPN binary failed verification. Please re-install windscribe from trusted source.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3558"/>
+        <location filename="../mainwindow.cpp" line="3586"/>
         <source>WireGuard adapter setup failed. Please wait one minute and try the connection again. If adapter setup fails again, please try restarting your computer.
 
 If the problem persists after a restart, please send a debug log and open a support ticket, then switch to a different connection mode.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3564"/>
+        <location filename="../mainwindow.cpp" line="3592"/>
         <source>Error during connection (%1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3712"/>
+        <location filename="../mainwindow.cpp" line="3750"/>
         <source>You have reached your limit of WireGuard public keys. Do you want to delete your oldest key?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3764"/>
+        <location filename="../mainwindow.cpp" line="3802"/>
         <source>The split tunneling feature could not be started, and has been disabled in Preferences.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1014,18 +997,28 @@ If the problem persists after a restart, please send a debug log and open a supp
 <context>
     <name>MainWindowController</name>
     <message>
-        <location filename="../mainwindowcontroller.h" line="188"/>
-        <source>Closing Windscribe</source>
+        <location filename="../mainwindowcontroller.h" line="191"/>
+        <source>Quit Windscribe?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindowcontroller.h" line="189"/>
-        <source>Yes</source>
+        <location filename="../mainwindowcontroller.h" line="192"/>
+        <source>Log Out of Windscribe?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindowcontroller.h" line="190"/>
-        <source>No</source>
+        <location filename="../mainwindowcontroller.h" line="193"/>
+        <source>Quit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindowcontroller.h" line="194"/>
+        <source>Log Out</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindowcontroller.h" line="195"/>
+        <source>Cancel</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1783,27 +1776,27 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/macspoofinggroup.cpp" line="123"/>
+        <location filename="../preferenceswindow/connectionwindow/macspoofinggroup.cpp" line="121"/>
         <source>No Interface</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/macspoofinggroup.cpp" line="150"/>
+        <location filename="../preferenceswindow/connectionwindow/macspoofinggroup.cpp" line="146"/>
         <source>MAC Spoofing</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/macspoofinggroup.cpp" line="151"/>
+        <location filename="../preferenceswindow/connectionwindow/macspoofinggroup.cpp" line="147"/>
         <source>MAC Address</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/macspoofinggroup.cpp" line="152"/>
+        <location filename="../preferenceswindow/connectionwindow/macspoofinggroup.cpp" line="148"/>
         <source>Interface</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/macspoofinggroup.cpp" line="153"/>
+        <location filename="../preferenceswindow/connectionwindow/macspoofinggroup.cpp" line="149"/>
         <source>Auto-Rotate MAC</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1954,52 +1947,52 @@ Connect to a network first</source>
 <context>
     <name>PreferencesWindow::PreferencesTabControlItem</name>
     <message>
-        <location filename="../preferenceswindow/preferencestab/preferencestabcontrolitem.cpp" line="83"/>
+        <location filename="../preferenceswindow/preferencestab/preferencestabcontrolitem.cpp" line="84"/>
         <source>General</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/preferencestab/preferencestabcontrolitem.cpp" line="84"/>
+        <location filename="../preferenceswindow/preferencestab/preferencestabcontrolitem.cpp" line="85"/>
         <source>Account</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/preferencestab/preferencestabcontrolitem.cpp" line="85"/>
+        <location filename="../preferenceswindow/preferencestab/preferencestabcontrolitem.cpp" line="86"/>
         <source>Connection</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/preferencestab/preferencestabcontrolitem.cpp" line="86"/>
+        <location filename="../preferenceswindow/preferencestab/preferencestabcontrolitem.cpp" line="87"/>
         <source>R.O.B.E.R.T.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/preferencestab/preferencestabcontrolitem.cpp" line="87"/>
+        <location filename="../preferenceswindow/preferencestab/preferencestabcontrolitem.cpp" line="88"/>
         <source>Advanced Options</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/preferencestab/preferencestabcontrolitem.cpp" line="88"/>
+        <location filename="../preferenceswindow/preferencestab/preferencestabcontrolitem.cpp" line="89"/>
         <source>Help</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/preferencestab/preferencestabcontrolitem.cpp" line="89"/>
+        <location filename="../preferenceswindow/preferencestab/preferencestabcontrolitem.cpp" line="90"/>
         <source>About</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/preferencestab/preferencestabcontrolitem.cpp" line="91"/>
+        <location filename="../preferenceswindow/preferencestab/preferencestabcontrolitem.cpp" line="92"/>
         <source>Login</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/preferencestab/preferencestabcontrolitem.cpp" line="93"/>
-        <source>Sign Out</source>
+        <location filename="../preferenceswindow/preferencestab/preferencestabcontrolitem.cpp" line="94"/>
+        <source>Log Out</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/preferencestab/preferencestabcontrolitem.cpp" line="95"/>
+        <location filename="../preferenceswindow/preferencestab/preferencestabcontrolitem.cpp" line="96"/>
         <source>Quit</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2431,72 +2424,72 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../protocolwindow/protocolpromptitem.h" line="63"/>
+        <location filename="../protocolwindow/protocolpromptitem.h" line="62"/>
         <source>Change Protocol</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../protocolwindow/protocolpromptitem.h" line="64"/>
+        <location filename="../protocolwindow/protocolpromptitem.h" line="63"/>
         <source>Quickly re-connect using a different protocol.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../protocolwindow/protocolpromptitem.h" line="65"/>
+        <location filename="../protocolwindow/protocolpromptitem.h" line="64"/>
         <source>Connection Failure!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../protocolwindow/protocolpromptitem.h" line="66"/>
+        <location filename="../protocolwindow/protocolpromptitem.h" line="65"/>
         <source>The protocol you’ve chosen has failed to connect. Windscribe will attempt to reconnect using the first protocol below.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../protocolwindow/protocolpromptitem.h" line="67"/>
+        <location filename="../protocolwindow/protocolpromptitem.h" line="66"/>
         <source>Set “%1” as preferred protocol?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../protocolwindow/protocolpromptitem.h" line="68"/>
+        <location filename="../protocolwindow/protocolpromptitem.h" line="67"/>
         <source>Windscribe will always use this protocol to connect on this network in the future to avoid any interruptions.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../protocolwindow/protocolpromptitem.h" line="69"/>
+        <location filename="../protocolwindow/protocolpromptitem.h" line="68"/>
         <source>This network hates us</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../protocolwindow/protocolpromptitem.h" line="70"/>
+        <location filename="../protocolwindow/protocolpromptitem.h" line="69"/>
         <source>We couldn’t connect you on this network. Send us your debug log so we can figure out what happened.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../protocolwindow/protocolpromptitem.h" line="71"/>
+        <location filename="../protocolwindow/protocolpromptitem.h" line="70"/>
         <source>Debug Sent!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../protocolwindow/protocolpromptitem.h" line="72"/>
+        <location filename="../protocolwindow/protocolpromptitem.h" line="71"/>
         <source>Your debug log has been received. Please contact support if you want assistance with this issue.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../protocolwindow/protocolpromptitem.h" line="74"/>
+        <location filename="../protocolwindow/protocolpromptitem.h" line="73"/>
         <source>Set as Preferred</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../protocolwindow/protocolpromptitem.h" line="75"/>
+        <location filename="../protocolwindow/protocolpromptitem.h" line="74"/>
         <source>Send Debug Log</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../protocolwindow/protocolpromptitem.h" line="76"/>
+        <location filename="../protocolwindow/protocolpromptitem.h" line="75"/>
         <source>Contact Support</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../protocolwindow/protocolpromptitem.h" line="77"/>
+        <location filename="../protocolwindow/protocolpromptitem.h" line="76"/>
         <source>Cancel</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2524,7 +2517,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1459"/>
+        <location filename="../mainwindow.cpp" line="1486"/>
         <source>Failed to start &quot;Base Filtering Engine&quot; service.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2729,7 +2722,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../engine/engine/locationsmodel/apilocationsmodel.cpp" line="382"/>
+        <location filename="../../engine/engine/locationsmodel/apilocationsmodel.cpp" line="380"/>
         <source>Static IPs</source>
         <translation type="unfinished"></translation>
     </message>

@@ -180,8 +180,8 @@ void ProtocolPromptItem::setMode(ProtocolWindowMode mode)
         desc_ = tr(kSavePreferredProtocolDescription);
         clearItems();
 
-        actionButton_ = new ProtocolListButton(this, tr(kSetAsPreferredButton), false, QColor(0, 0, 0));
-        connect(actionButton_, &ProtocolListButton::clicked, this, &ProtocolPromptItem::onSetAsPreferred);
+        actionButton_ = new CommonGraphics::ListButton(this, CommonGraphics::ListButton::kBright, tr(kSetAsPreferredButton));
+        connect(actionButton_, &CommonGraphics::ListButton::clicked, this, &ProtocolPromptItem::onSetAsPreferred);
         addItem(actionButton_);
         addCancelButton();
     } else if (mode == ProtocolWindowMode::kSendDebugLog) {
@@ -192,8 +192,8 @@ void ProtocolPromptItem::setMode(ProtocolWindowMode mode)
         desc_ = tr(kSendDebugLogDescription);
         clearItems();
 
-        actionButton_ = new ProtocolListButton(this, tr(kSendDebugLogButton), false, QColor(255, 255, 255));
-        connect(actionButton_, &ProtocolListButton::clicked, this, &ProtocolPromptItem::onSendDebugLog);
+        actionButton_ = new CommonGraphics::ListButton(this, CommonGraphics::ListButton::kBright, tr(kSendDebugLogButton));
+        connect(actionButton_, &CommonGraphics::ListButton::clicked, this, &ProtocolPromptItem::onSendDebugLog);
         addItem(actionButton_);
         addCancelButton();
     } else if (mode == ProtocolWindowMode::kDebugLogSent) {
@@ -202,8 +202,8 @@ void ProtocolPromptItem::setMode(ProtocolWindowMode mode)
         desc_ = tr(kDebugLogSentDescription);
         clearItems();
 
-        actionButton_ = new ProtocolListButton(this, tr(kContactSupportButton), false, QColor(255, 255, 255));
-        connect(actionButton_, &ProtocolListButton::clicked, this, &ProtocolPromptItem::onContactSupport);
+        actionButton_ = new CommonGraphics::ListButton(this, CommonGraphics::ListButton::kBright, tr(kContactSupportButton));
+        connect(actionButton_, &CommonGraphics::ListButton::clicked, this, &ProtocolPromptItem::onContactSupport);
         addItem(actionButton_);
         addCancelButton();
     }
@@ -235,8 +235,8 @@ void ProtocolPromptItem::onContactSupport()
 
 void ProtocolPromptItem::addCancelButton()
 {
-    cancelButton_ = new ProtocolListButton(this, tr(kCancelButton), true);
-    connect(cancelButton_, &ProtocolListButton::clicked, this, &ProtocolPromptItem::onCancelClicked);
+    cancelButton_ = new CommonGraphics::ListButton(this, CommonGraphics::ListButton::kText, tr(kCancelButton));
+    connect(cancelButton_, &CommonGraphics::ListButton::clicked, this, &ProtocolPromptItem::onCancelClicked);
     addItem(cancelButton_);
 }
 

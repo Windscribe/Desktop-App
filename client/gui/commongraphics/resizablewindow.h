@@ -32,6 +32,7 @@ public:
     void setScrollOffset(int offset);
 
     void setBackButtonEnabled(bool b);
+    void setResizeBarEnabled(bool b);
 
 signals:
     void escape();

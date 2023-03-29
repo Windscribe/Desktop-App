@@ -4,6 +4,7 @@
         <file>svg/BOTTOMLEFT_HORIZ_DIVIDER.svg</file>
         <file>svg/CHECKMARK.svg</file>
         <file>svg/CHECKMARK_IN_CIRCLE.svg</file>
+        <file>svg/ERROR_ICON.svg</file>
         <file>svg/ESC_BUTTON.svg</file>
         <file>svg/LOCATION_BUTTON_BG.svg</file>
         <file>svg/LOGO.svg</file>
@@ -263,6 +264,7 @@
         <file>svg/RATE_SPEED_GOOD_OFF.svg</file>
         <file>svg/RATE_SPEED_GOOD_ON.svg</file>
         <file>svg/BADGE_BLACK_ICON.svg</file>
+        <file>svg/LOGOUT_ICON.svg</file>
         <file>svg/SHUTDOWN_ICON.svg</file>
         <file>svg/RENEW_PRO_ICON.svg</file>
         <file>svg/locations/UNDER_CONSTRUCTION_ICON.svg</file>

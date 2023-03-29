@@ -16,8 +16,7 @@
 #include "iconhoverengagebutton.h"
 #include "commongraphics/scalablegraphicsobject.h"
 #include "tooltips/tooltiptypes.h"
-#include "commongraphics/bubblebuttonbright.h"
-#include "commongraphics/bubblebuttondark.h"
+#include "commongraphics/bubblebutton.h"
 
 namespace LoginWindow {
 
@@ -88,7 +87,7 @@ private:
     IconButton *minimizeButton_;
     IconButton *closeButton_;
 
-    CommonGraphics::BubbleButtonBright *getStartedButton_;
+    CommonGraphics::BubbleButton *getStartedButton_;
     CommonGraphics::TextButton *gotoLoginButton_;
 
     IconButton *settingsButton_;
