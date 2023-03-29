@@ -794,14 +794,15 @@ void Preferences::validateAndUpdateIfNeeded()
         is_update_needed = true;
     }
 
-    if (engineSettings_.connectedDnsInfo().type_ == CONNECTED_DNS_TYPE_CUSTOM &&
+    //FIXME:
+    /*if (engineSettings_.connectedDnsInfo().type_ == CONNECTED_DNS_TYPE_CUSTOM &&
             !IpValidation::isIp(engineSettings_.connectedDnsInfo().upStream1_))
     {
         engineSettings_.setConnectedDnsInfo(types::ConnectedDnsInfo()); // set default settings
         emit connectedDnsInfoChanged(engineSettings_.connectedDnsInfo());
         emit reportErrorToUser("Invalid DNS Settings", "'DNS while connected' was not configured with a valid IP Address. DNS was reverted to ROBERT (default).");
         is_update_needed = true;
-    }
+    }*/
 
     if (is_update_needed)
         emitEngineSettingsChanged();

@@ -16,16 +16,31 @@ ConnectedDnsGroup::ConnectedDnsGroup(ScalableGraphicsObject *parent, const QStri
     connect(comboBoxDns_, &ComboBoxItem::currentItemChanged, this, &ConnectedDnsGroup::onConnectedDnsModeChanged);
     addItem(comboBoxDns_);
 
-    editBoxIp_ = new EditBoxItem(this);
-    connect(editBoxIp_, &EditBoxItem::textChanged, this, &ConnectedDnsGroup::onConnectedDnsIpChanged);
-    addItem(editBoxIp_);
+    editBoxUpstream1_ = new EditBoxItem(this);
+    connect(editBoxUpstream1_, &EditBoxItem::textChanged, this, &ConnectedDnsGroup::onUpstream1Changed);
+    addItem(editBoxUpstream1_);
 
-    QString ipRange = "(?:[0-1]?[0-9]?[0-9]|2[0-4][0-9]|25[0-5])";
-    QRegularExpression ipRegex ("^" + ipRange + "\\." + ipRange + "\\." + ipRange + "\\." + ipRange + "$");
-    QRegularExpressionValidator *ipValidator = new QRegularExpressionValidator(ipRegex, this);
-    editBoxIp_->setValidator(ipValidator);
+    splitDnsCheckBox_ = new CheckBoxItem(this);
+    splitDnsCheckBox_->setState(false);
+    connect(splitDnsCheckBox_, &CheckBoxItem::stateChanged, this, &ConnectedDnsGroup::onSplitDnsStateChanged);
+    addItem(splitDnsCheckBox_);
 
-    hideItems(indexOf(editBoxIp_), -1, DISPLAY_FLAGS::FLAG_NO_ANIMATION);
+    editBoxUpstream2_ = new EditBoxItem(this);
+    connect(editBoxUpstream2_, &EditBoxItem::textChanged, this, &ConnectedDnsGroup::onUpstream2Changed);
+    addItem(editBoxUpstream2_);
+
+    domainsItem_ = new LinkItem(this, LinkItem::LinkType::SUBPAGE_LINK);
+    connect(domainsItem_, &LinkItem::clicked, this, &ConnectedDnsGroup::onDomainsClick);
+
+    addItem(domainsItem_);
+
+    //FIXME:
+//    QString ipRange = "(?:[0-1]?[0-9]?[0-9]|2[0-4][0-9]|25[0-5])";
+//    QRegularExpression ipRegex ("^" + ipRange + "\\." + ipRange + "\\." + ipRange + "\\." + ipRange + "$");
+//    QRegularExpressionValidator *ipValidator = new QRegularExpressionValidator(ipRegex, this);
+//    editBoxUpstream1_->setValidator(ipValidator);
+
+    hideItems(indexOf(editBoxUpstream1_), indexOf(domainsItem_), DISPLAY_FLAGS::FLAG_NO_ANIMATION);
 
     connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &ConnectedDnsGroup::onLanguageChanged);
     onLanguageChanged();
@@ -33,7 +48,7 @@ ConnectedDnsGroup::ConnectedDnsGroup(ScalableGraphicsObject *parent, const QStri
 
 bool ConnectedDnsGroup::hasItemWithFocus()
 {
-    return editBoxIp_->lineEditHasFocus();
+    return editBoxUpstream1_->lineEditHasFocus();
 }
 
 void ConnectedDnsGroup::setConnectedDnsInfo(const types::ConnectedDnsInfo &dns)
@@ -49,8 +64,11 @@ void ConnectedDnsGroup::setConnectedDnsInfo(const types::ConnectedDnsInfo &dns)
         }
         else
         {
-            editBoxIp_->setText(dns.upStream1_);
+            editBoxUpstream1_->setText(dns.upStream1_);
+            editBoxUpstream2_->setText(dns.upStream2_);
+            splitDnsCheckBox_->setState(dns.isSplitDns_);
             comboBoxDns_->setCurrentItem(CONNECTED_DNS_TYPE_CUSTOM);
+            domainsItem_->setLinkText(QString::number(2/*dns.hostnames_.count()*/));
         }
         updateMode();
     }
@@ -58,15 +76,13 @@ void ConnectedDnsGroup::setConnectedDnsInfo(const types::ConnectedDnsInfo &dns)
 
 void ConnectedDnsGroup::updateMode()
 {
-    if (settings_.type_ == CONNECTED_DNS_TYPE_ROBERT)
-    {
-        settings_.upStream1_.clear();
-        editBoxIp_->setText("");
-        hideItems(indexOf(editBoxIp_));
-    }
-    else
-    {
-        showItems(indexOf(editBoxIp_));
+    if (settings_.type_ == CONNECTED_DNS_TYPE_ROBERT) {
+        hideItems(indexOf(editBoxUpstream1_), indexOf(domainsItem_));
+    } else  {
+        if (settings_.isSplitDns_)
+            showItems(indexOf(editBoxUpstream1_), indexOf(domainsItem_));
+        else
+            showItems(indexOf(editBoxUpstream1_), indexOf(splitDnsCheckBox_));
     }
 }
 
@@ -80,13 +96,41 @@ void ConnectedDnsGroup::onConnectedDnsModeChanged(QVariant v)
     }
 }
 
-void ConnectedDnsGroup::onConnectedDnsIpChanged(QString v)
+void ConnectedDnsGroup::onUpstream1Changed(QString v)
 {
-    if (settings_.upStream1_ != v)
-    {
+    if (settings_.upStream1_ != v) {
         settings_.upStream1_ = v;
         emit connectedDnsInfoChanged(settings_);
     }
+}
+
+void ConnectedDnsGroup::onUpstream2Changed(QString v)
+{
+    if (settings_.upStream2_ != v) {
+        settings_.upStream2_ = v;
+        emit connectedDnsInfoChanged(settings_);
+    }
+}
+
+void ConnectedDnsGroup::onSplitDnsStateChanged(bool checked)
+{
+    if (settings_.isSplitDns_ != checked) {
+
+        // hide additional items
+        if (settings_.isSplitDns_ && !checked) {
+            hideItems(indexOf(editBoxUpstream2_), indexOf(domainsItem_));
+        } else  {        // show additional items
+            showItems(indexOf(editBoxUpstream1_), indexOf(domainsItem_));
+        }
+
+        settings_.isSplitDns_ = checked;
+        emit connectedDnsInfoChanged(settings_);
+    }
+}
+
+void ConnectedDnsGroup::onDomainsClick()
+{
+    emit domainsClick(settings_.hostnames_);
 }
 
 void ConnectedDnsGroup::hideOpenPopups()
@@ -104,8 +148,13 @@ void ConnectedDnsGroup::onLanguageChanged()
     }
     comboBoxDns_->setItems(list, settings_.type_);
 
-    editBoxIp_->setCaption(tr("IP Address"));
-    editBoxIp_->setPrompt(tr("IP Address"));
+    editBoxUpstream1_->setCaption(tr("Upstream 1"));
+    editBoxUpstream1_->setPrompt(tr("Upstream 1"));
+    editBoxUpstream2_->setCaption(tr("Upstream 2"));
+    editBoxUpstream2_->setPrompt(tr("Upstream 2"));
+    splitDnsCheckBox_->setCaption(tr("Split DNS"));
+    domainsItem_->setTitle(tr("Domains"));
+
 }
 
 }

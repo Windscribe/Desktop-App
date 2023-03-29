@@ -101,6 +101,7 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
                                                QString("https://%1/features/flexible-dns").arg(HardcodedSettings::instance().serverUrl()));
     connectedDnsGroup_->setConnectedDnsInfo(preferences->connectedDnsInfo());
     connect(connectedDnsGroup_, &ConnectedDnsGroup::connectedDnsInfoChanged, this, &ConnectionWindowItem::onConnectedDnsPreferencesChangedByUser);
+    connect(connectedDnsGroup_, &ConnectedDnsGroup::domainsClick, this, &ConnectionWindowItem::connectedDnsDomainsClick);
     addItem(connectedDnsGroup_);
 #endif
 

@@ -104,6 +104,12 @@ target_sources(gui PRIVATE
     splittunnelingwindow/splittunnelinggroup.h
     splittunnelingwindow/splittunnelingwindowitem.cpp
     splittunnelingwindow/splittunnelingwindowitem.h
+    dnsdomainswindow/dnsdomainswindowitem.cpp
+    dnsdomainswindow/dnsdomainswindowitem.h
+    dnsdomainswindow/dnsdomainsgroup.cpp
+    dnsdomainswindow/dnsdomainsgroup.h
+    dnsdomainswindow/dnsdomainaddressitem.cpp
+    dnsdomainswindow/dnsdomainaddressitem.h
     titleitem.cpp
     titleitem.h
 )

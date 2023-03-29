@@ -4,7 +4,9 @@
 #include "commongraphics/baseitem.h"
 #include "backend/preferences/preferences.h"
 #include "preferenceswindow/comboboxitem.h"
+#include "preferenceswindow/checkboxitem.h"
 #include "preferenceswindow/editboxitem.h"
+#include "preferenceswindow/linkitem.h"
 #include "preferenceswindow/preferencegroup.h"
 #include "types/connecteddnsinfo.h"
 
@@ -25,10 +27,14 @@ public:
 
 signals:
     void connectedDnsInfoChanged(const types::ConnectedDnsInfo &dns);
+    void domainsClick(const QStringList &domains);
 
 private slots:
     void onConnectedDnsModeChanged(QVariant v);
-    void onConnectedDnsIpChanged(QString v);
+    void onUpstream1Changed(QString v);
+    void onUpstream2Changed(QString v);
+    void onSplitDnsStateChanged(bool checked);
+    void onDomainsClick();
     void onLanguageChanged();
 
 protected:
@@ -38,7 +44,10 @@ private:
     void updateMode();
 
     ComboBoxItem *comboBoxDns_;
-    EditBoxItem *editBoxIp_;
+    EditBoxItem *editBoxUpstream1_;
+    EditBoxItem *editBoxUpstream2_;
+    CheckBoxItem *splitDnsCheckBox_;
+    LinkItem *domainsItem_;
 
     types::ConnectedDnsInfo settings_;
 };

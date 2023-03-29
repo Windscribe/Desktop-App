@@ -47,6 +47,7 @@ PreferencesWindowItem::PreferencesWindowItem(QGraphicsObject *parent, Preference
     connect(connectionWindowItem_, &ConnectionWindowItem::proxySettingsPageClick, this, &PreferencesWindowItem::onProxySettingsPageClick);
     connect(connectionWindowItem_, &ConnectionWindowItem::cycleMacAddressClick, this, &PreferencesWindowItem::cycleMacAddressClick);
     connect(connectionWindowItem_, &ConnectionWindowItem::detectPacketSize, this, &PreferencesWindowItem::detectPacketSizeClick);
+    connect(connectionWindowItem_, &ConnectionWindowItem::connectedDnsDomainsClick, this, &PreferencesWindowItem::onConnectedDnsDomainsClick);
 
     advancedWindowItem_ = new AdvancedWindowItem(nullptr, preferences, preferencesHelper);
     connect(advancedWindowItem_, &AdvancedWindowItem::advParametersClick, this, &PreferencesWindowItem::onAdvParametersClick);
@@ -72,6 +73,7 @@ PreferencesWindowItem::PreferencesWindowItem(QGraphicsObject *parent, Preference
     splitTunnelingWindowItem_ = new SplitTunnelingWindowItem(nullptr, preferences);
     splitTunnelingAppsWindowItem_ = new SplitTunnelingAppsWindowItem(nullptr, preferences);
     splitTunnelingAddressesWindowItem_ = new SplitTunnelingAddressesWindowItem(nullptr, preferences);
+    dnsDomainsWindowItem_ = new DnsDomainsWindowItem(nullptr, preferences);
 
     connect(splitTunnelingWindowItem_, &SplitTunnelingWindowItem::appsPageClick, this, &PreferencesWindowItem::onSplitTunnelingAppsClick);
     connect(splitTunnelingWindowItem_, &SplitTunnelingWindowItem::addressesPageClick, this, &PreferencesWindowItem::onSplitTunnelingAddressesClick);
@@ -94,6 +96,7 @@ PreferencesWindowItem::~PreferencesWindowItem()
     delete splitTunnelingWindowItem_;
     delete splitTunnelingAppsWindowItem_;
     delete splitTunnelingAddressesWindowItem_;
+    delete dnsDomainsWindowItem_;
 
     delete generalWindowItem_;
     delete accountWindowItem_;
@@ -197,6 +200,7 @@ void PreferencesWindowItem::setLoggedIn(bool loggedIn)
     robertWindowItem_->setLoggedIn(loggedIn);
     splitTunnelingAppsWindowItem_->setLoggedIn(loggedIn);
     splitTunnelingAddressesWindowItem_->setLoggedIn(loggedIn);
+    dnsDomainsWindowItem_->setLoggedIn(loggedIn);
     loggedIn_ = loggedIn;
 }
 
@@ -319,6 +323,8 @@ void PreferencesWindowItem::moveOnePageBack()
             }
         } else if (screen == CONNECTION_SCREEN_PROXY_SETTINGS) {
             changeTab(tabControlItem_->currentTab());
+        } else if (screen == CONNECTION_SCREEN_DNS_DOMAINS) {
+            changeTab(tabControlItem_->currentTab());
         }
     } else { // non-connection screen
         changeTab(tabControlItem_->currentTab());
@@ -380,6 +386,16 @@ void PreferencesWindowItem::onProxySettingsPageClick()
     setShowSubpageMode(true);
     setFocus();
     update();
+}
+
+void PreferencesWindowItem::onConnectedDnsDomainsClick(const QStringList &domains)
+{
+    scrollAreaItem_->setItem(dnsDomainsWindowItem_);
+    dnsDomainsWindowItem_->updateScaling();
+    connectionWindowItem_->setScreen(CONNECTION_SCREEN_DNS_DOMAINS);
+    setShowSubpageMode(true);
+    update();
+    dnsDomainsWindowItem_->setFocusOnTextEntry();
 }
 
 void PreferencesWindowItem::onAdvParametersClick()

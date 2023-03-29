@@ -16,6 +16,7 @@
 #include "splittunnelingwindow/splittunnelingwindowitem.h"
 #include "splittunnelingwindow/splittunnelingaddresseswindowitem.h"
 #include "splittunnelingwindow/splittunnelingappswindowitem.h"
+#include "dnsdomainswindow/dnsdomainswindowitem.h"
 #include "backend/preferences/preferences.h"
 #include "backend/preferences/accountinfo.h"
 #include "commongraphics/resizebar.h"
@@ -93,6 +94,7 @@ private slots:
     void onNetworkOptionsNetworkClick(types::NetworkInterface network);
     void onSplitTunnelingPageClick();
     void onProxySettingsPageClick();
+    void onConnectedDnsDomainsClick(const QStringList &domains);
 
     void onAdvParametersClick();
 
@@ -135,6 +137,7 @@ private:
     SplitTunnelingWindowItem *splitTunnelingWindowItem_;
     SplitTunnelingAppsWindowItem *splitTunnelingAppsWindowItem_;
     SplitTunnelingAddressesWindowItem *splitTunnelingAddressesWindowItem_;
+    DnsDomainsWindowItem *dnsDomainsWindowItem_;
 
     bool isShowSubPage_;
     bool loggedIn_;

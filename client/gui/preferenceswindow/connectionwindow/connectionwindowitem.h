@@ -18,7 +18,8 @@
 enum CONNECTION_SCREEN_TYPE { CONNECTION_SCREEN_HOME,
                               CONNECTION_SCREEN_NETWORK_OPTIONS,
                               CONNECTION_SCREEN_SPLIT_TUNNELING,
-                              CONNECTION_SCREEN_PROXY_SETTINGS };
+                              CONNECTION_SCREEN_PROXY_SETTINGS,
+                              CONNECTION_SCREEN_DNS_DOMAINS };
 
 namespace PreferencesWindow {
 
@@ -43,6 +44,7 @@ signals:
     void proxySettingsPageClick();
     void cycleMacAddressClick();
     void detectPacketSize();
+    void connectedDnsDomainsClick(const QStringList &domains);
 
 private slots:
     // slots for preference changes
