@@ -560,7 +560,6 @@ void ConnectionManager::onConnectionError(CONNECT_ERROR err)
         // immediately stop trying to connect
         state_ = STATE_DISCONNECTED;
         timerReconnection_.stop();
-        getWireGuardConfigInLoop_->stop();
         Q_EMIT errorDuringConnection(err);
     }
     else if (err == CONNECT_ERROR::STATE_TIMEOUT_FOR_AUTOMATIC

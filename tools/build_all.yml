@@ -333,9 +333,6 @@ macdeployfixes:
       Contents/Helpers/libssl.1.1.dylib:
         openssl:
           - lib/libcrypto.1.1.dylib -> libcrypto.1.1.dylib
-      Contents/MacOS/windscribe-cli:
-        protobuf:
-          - lib/libprotobuf.28.dylib -> ../Frameworks/libprotobuf.28.dylib
     entitlements:
       entitlements_binary: Contents/MacOS/Windscribe
       entitlements_file: client/engine/mac/windscribe_engine.entitlements

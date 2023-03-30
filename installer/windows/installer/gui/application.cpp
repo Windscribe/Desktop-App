@@ -164,25 +164,3 @@ std::wstring Application::getPreviousInstallPath()
 
     return std::wstring(L"");
 }
-
-
-// return path of installed Windscribe app or empty string if not installed
-std::wstring Application::getPreviousInstallPath()
-{
-	HKEY rootKey = HKEY_LOCAL_MACHINE;
-	std::wstring subkeyName = L"Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\" + ApplicationInfo::instance().getId() + L"_is1";
-
-	bool bRet = false;
-	HKEY hKey;
-	if (Registry::RegOpenKeyExView(rvDefault, rootKey, subkeyName.c_str(), 0, KEY_QUERY_VALUE, hKey) == ERROR_SUCCESS)
-	{
-		std::wstring path;
-		if (Registry::RegQueryStringValue1(hKey, L"InstallLocation", path))
-		{
-			return path;
-		}
-		RegCloseKey(hKey);
-	}
-	return L"";
-
-}

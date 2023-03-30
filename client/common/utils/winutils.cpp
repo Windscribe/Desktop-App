@@ -1536,4 +1536,3 @@ std::optional<bool> WinUtils::haveInternetConnectivity()
 
     return false;
 }
-

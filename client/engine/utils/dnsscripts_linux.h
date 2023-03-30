@@ -3,7 +3,6 @@
 
 #include "types/enums.h"
 #include <QString>
-#include "utils/protobuf_includes.h"
 
 class IHelper;
 class QWidget;
@@ -22,8 +21,6 @@ public:
 
     SCRIPT_TYPE dnsManager();
     void setDnsManager(DNS_MANAGER_TYPE d);
-
-    void setDnsManager(ProtoTypes::DnsManagerType d);
 
 private:
     DnsScripts_linux();

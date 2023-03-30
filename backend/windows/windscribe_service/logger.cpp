@@ -94,17 +94,3 @@ void Logger::debugOut(const char* format, ...)
 
     ::OutputDebugStringA(szMsg);
 }
-
-void Logger::debugOut(const char *format, ...)
-{
-    va_list arg_list;
-    va_start(arg_list, format);
-
-    char szMsg[1024];
-    szMsg[1023] = '\0';
-
-    _vsnprintf(szMsg, 1023, format, arg_list);
-    va_end(arg_list);
-
-    ::OutputDebugStringA(szMsg);
-}

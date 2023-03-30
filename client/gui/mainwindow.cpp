@@ -43,7 +43,6 @@
 #include "utils/interfaceutils.h"
 #include "utils/iauthchecker.h"
 #include "utils/authcheckerfactory.h"
-#include "systemtray/locationstraymenuscalemanager.h"
 
 #if defined(Q_OS_WIN)
     #include "utils/winutils.h"
@@ -205,10 +204,6 @@ MainWindow::MainWindow() :
     connect(localIpcServer_, &LocalIPCServer::showLocations, this, &MainWindow::onReceivedOpenLocationsMessage);
     connect(localIpcServer_, &LocalIPCServer::connectToLocation, this, &MainWindow::onConnectToLocation);
     connect(localIpcServer_, &LocalIPCServer::attemptLogin, this, &MainWindow::onLoginClick);
-
-    localIpcServer_ = new LocalIPCServer(backend_, this);
-    connect(localIpcServer_, &LocalIPCServer::showLocations, this, &MainWindow::onReceivedOpenLocationsMessage);
-    connect(localIpcServer_, &LocalIPCServer::connectToLocation, this, &MainWindow::onConnectToLocation);
 
     mainWindowController_ = new MainWindowController(this, locationsWindow_, backend_->getPreferencesHelper(), backend_->getPreferences(), backend_->getAccountInfo());
 

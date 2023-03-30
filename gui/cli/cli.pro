@@ -70,9 +70,6 @@ macx {
     SOURCES += \
         $$COMMON_PATH/utils/network_utils/network_utils_mac.cpp
 
-    SOURCES += \
-        $$COMMON_PATH/utils/network_utils/network_utils_mac.cpp
-
     OBJECTIVE_SOURCES += \
             $$COMMON_PATH/utils/executable_signature/executable_signature_mac.mm \
             $$COMMON_PATH/utils/macutils.mm

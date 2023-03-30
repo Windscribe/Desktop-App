@@ -66,9 +66,6 @@ void FinishActiveConnections::finishIkev2ActiveConnections_win(IHelper *helper)
 
 void FinishActiveConnections::finishWireGuardActiveConnections_win(IHelper *helper)
 {
-    Q_UNUSED(helper)
-    // No need to stop the wireguard service, as it automatically stops if the client exits prematurely.
-    // But we need to remove dns leak protection.
     Helper_win *helper_win = dynamic_cast<Helper_win *>(helper);
     helper_win->stopWireGuard();
     helper_win->disableDnsLeaksProtection();

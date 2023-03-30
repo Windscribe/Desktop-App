@@ -30,8 +30,6 @@ public:
 
     std::wstring getPreviousInstallPath();
 
-	std::wstring getPreviousInstallPath();
-
 private:
     ULONG_PTR gdiplusToken_;
     HINSTANCE hInstance_;
