@@ -186,9 +186,6 @@
     <ClCompile Include="installer\blocks\install_splittunnel.cpp">
       <Filter>Source Files\installer\blocks</Filter>
     </ClCompile>
-    <ClCompile Include="installer\blocks\shellexecuteasuser.cpp">
-      <Filter>Source Files\installer\blocks</Filter>
-    </ClCompile>
     <ClCompile Include="installer\blocks\fixadaptername.cpp">
       <Filter>Source Files\installer\blocks</Filter>
     </ClCompile>
@@ -243,9 +240,6 @@
     <ClCompile Include="installer\installer_base.cpp">
       <Filter>Source Files\installer</Filter>
     </ClCompile>
-    <ClCompile Include="installer\downloader.cpp">
-      <Filter>Source Files\installer</Filter>
-    </ClCompile>
     <ClCompile Include="..\utils\base64codec.cpp">
       <Filter>Source Files\utils</Filter>
     </ClCompile>
@@ -254,6 +248,15 @@
     </ClCompile>
     <ClCompile Include="..\utils\windscribepathcheck.cpp">
       <Filter>Source Files\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\factoryresetcontrol.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\utils\utils.cpp">
+      <Filter>Source Files\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="installer\shellexecuteasuser.cpp">
+      <Filter>Source Files\installer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -383,16 +386,10 @@
     <ClInclude Include="installer\blocks\service.h">
       <Filter>Header Files\installer\blocks</Filter>
     </ClInclude>
-    <ClInclude Include="installer\blocks\install_tap.h">
-      <Filter>Header Files\installer</Filter>
-    </ClInclude>
     <ClInclude Include="installer\blocks\install_wintun.h">
       <Filter>Header Files\installer\blocks</Filter>
     </ClInclude>
     <ClInclude Include="installer\blocks\install_splittunnel.h">
-      <Filter>Header Files\installer\blocks</Filter>
-    </ClInclude>
-    <ClInclude Include="installer\blocks\shellexecuteasuser.h">
       <Filter>Header Files\installer\blocks</Filter>
     </ClInclude>
     <ClInclude Include="messages.h">
@@ -452,9 +449,6 @@
     <ClInclude Include="installer\installer_base.h">
       <Filter>Header Files\installer</Filter>
     </ClInclude>
-    <ClInclude Include="installer\downloader.h">
-      <Filter>Header Files\installer</Filter>
-    </ClInclude>
     <ClInclude Include="..\utils\base64codec.h">
       <Filter>Header Files\utils</Filter>
     </ClInclude>
@@ -463,6 +457,15 @@
     </ClInclude>
     <ClInclude Include="..\utils\windscribepathcheck.h">
       <Filter>Header Files\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\factoryresetcontrol.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="installer\blocks\install_tap.h">
+      <Filter>Header Files\installer\blocks</Filter>
+    </ClInclude>
+    <ClInclude Include="installer\shellexecuteasuser.h">
+      <Filter>Header Files\installer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

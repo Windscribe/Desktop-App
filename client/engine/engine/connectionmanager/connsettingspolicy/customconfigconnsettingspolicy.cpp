@@ -1,12 +1,13 @@
 #include "customconfigconnsettingspolicy.h"
+#include "utils/ws_assert.h"
 #include "utils/logger.h"
 
 CustomConfigConnSettingsPolicy::CustomConfigConnSettingsPolicy(
     QSharedPointer<locationsmodel::BaseLocationInfo> bli) :
         locationInfo_(qSharedPointerDynamicCast<locationsmodel::CustomConfigLocationInfo>(bli))
 {
-    Q_ASSERT(!locationInfo_.isNull());
-    Q_ASSERT(locationInfo_->locationId().isCustomConfigsLocation());
+    WS_ASSERT(!locationInfo_.isNull());
+    WS_ASSERT(locationInfo_->locationId().isCustomConfigsLocation());
     connect(locationInfo_.data(), SIGNAL(hostnamesResolved()), SLOT(onHostnamesResolved()));
 }
 
@@ -22,8 +23,7 @@ void CustomConfigConnSettingsPolicy::debugLocationInfoToLog() const
 
 void CustomConfigConnSettingsPolicy::putFailedConnection()
 {
-    if (!bStarted_)
-    {
+    if (!bStarted_) {
         return;
     }
 
@@ -39,8 +39,7 @@ CurrentConnectionDescr CustomConfigConnSettingsPolicy::getCurrentConnectionSetti
 {
     CurrentConnectionDescr ccd;
 
-    if (locationInfo_->isExistSelectedNode())
-    {
+    if (locationInfo_->isExistSelectedNode()) {
         ccd.connectionNodeType = CONNECTION_NODE_CUSTOM_CONFIG;
         ccd.ovpnData = locationInfo_->getOvpnData();
         ccd.isAllowFirewallAfterConnection = locationInfo_->isAllowFirewallAfterConnection();
@@ -48,20 +47,13 @@ CurrentConnectionDescr CustomConfigConnSettingsPolicy::getCurrentConnectionSetti
         ccd.remoteCmdLine = locationInfo_->getSelectedRemoteCommand();
         ccd.customConfigFilename = locationInfo_->getFilename();
         ccd.port = locationInfo_->getSelectedPort();
-        ccd.protocol = locationInfo_->getSelectedProtocol();
+        ccd.protocol = types::Protocol::fromString(locationInfo_->getSelectedProtocol());
         ccd.wgCustomConfig = locationInfo_->getWireguardCustomConfig(ccd.ip);
-    }
-    else
-    {
+    } else {
         ccd.connectionNodeType = CONNECTION_NODE_ERROR;
     }
 
     return ccd;
-}
-
-void CustomConfigConnSettingsPolicy::saveCurrentSuccessfullConnectionSettings()
-{
-    //nothing todo
 }
 
 bool CustomConfigConnSettingsPolicy::isAutomaticMode()
@@ -79,4 +71,7 @@ void CustomConfigConnSettingsPolicy::onHostnamesResolved()
     emit hostnamesResolved();
 }
 
-
+bool CustomConfigConnSettingsPolicy::hasProtocolChanged()
+{
+    return false;
+}

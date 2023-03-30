@@ -13,7 +13,7 @@ ClickableGraphicsObject::ClickableGraphicsObject(ScalableGraphicsObject *parent)
     setAcceptHoverEvents(false);
     setZValue(0);
 
-    connect(&LanguageController::instance(), SIGNAL(languageChanged()), SLOT(onLanguageChanged()));
+    connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &ClickableGraphicsObject::onLanguageChanged);
 }
 
 bool ClickableGraphicsObject::isClickable()

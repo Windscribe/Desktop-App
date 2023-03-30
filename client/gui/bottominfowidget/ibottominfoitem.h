@@ -22,7 +22,7 @@ public:
 
     virtual void setSecureHotspotFeatures(bool isEnabled, const QString &ssid) = 0;
     virtual void setSecureHotspotUsersCount(int usersCount) = 0;
-    virtual void setProxyGatewayFeatures(bool isEnabled, ProtoTypes::ProxySharingMode mode) = 0;
+    virtual void setProxyGatewayFeatures(bool isEnabled, PROXY_SHARING_TYPE mode) = 0;
     virtual void setProxyGatewayUsersCount(int usersCount) = 0;
 
     virtual QPixmap getCurrentPixmapShape() = 0;

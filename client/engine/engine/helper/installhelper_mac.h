@@ -8,7 +8,7 @@ class InstallHelper_mac
 {
 public:
     static bool installHelper(bool &isUserCanceled);
-    static bool runScriptWithAdminRights(const QString &scriptPath);
+    static bool uninstallHelper();
 };
 
 #endif // INSTALLHELPER_MAC_H

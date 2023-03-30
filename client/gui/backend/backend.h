@@ -5,17 +5,21 @@
 #include <QObject>
 #include <QTimer>
 #include <QProcess>
-#include "ibackend.h"
 #include "ipc/iconnection.h"
 #include "ipc/command.h"
+#include "ipc/servercommands.h"
 #include "types/locationid.h"
 #include "types/upgrademodetype.h"
-#include "locationsmodel/locationsmodel.h"
+#include "locations/locationsmodel_manager.h"
 #include "preferences/preferences.h"
 #include "preferences/preferenceshelper.h"
 #include "preferences/accountinfo.h"
 #include "connectstatehelper.h"
 #include "firewallstatehelper.h"
+#include "types/sessionstatus.h"
+#include "types/proxysharinginfo.h"
+#include "types/wifisharinginfo.h"
+#include "types/splittunneling.h"
 //#include "engine/engineserver.h"
 
 class EngineServer;
@@ -28,24 +32,19 @@ public:
     virtual ~Backend();
 
     void init();
-    void basicInit();
-    void basicClose();
     void cleanup(bool isExitWithRestart, bool isFirewallChecked, bool isFirewallAlwaysOn, bool isLaunchOnStart);
     void enableBFE_win();
     void login(const QString &username, const QString &password, const QString &code2fa);
     bool isCanLoginWithAuthHash() const;
     bool isSavedApiSettingsExists() const;
-    QString getCurrentAuthHash() const;
-    void loginWithAuthHash(const QString &authHash);
+    void loginWithAuthHash();
     void loginWithLastLoginSettings();
     bool isLastLoginWithAuthHash() const;
     void signOut(bool keepFirewallOn);
-    void sendConnect(const LocationID &lid);
+    void sendConnect(const LocationID &lid, const types::ConnectionSettings &connectionSettings = types::ConnectionSettings(types::Protocol(), 0, true));
     void sendDisconnect();
     bool isDisconnected() const;
-    ProtoTypes::ConnectStateType currentConnectState() const;
-
-    void forceCliStateUpdate();
+    CONNECT_STATE currentConnectState() const;
 
     void firewallOn(bool updateHelperFirst = true);
     void firewallOff(bool updateHelperFirst = true);
@@ -58,7 +57,7 @@ public:
 
     void startWifiSharing(const QString &ssid, const QString &password);
     void stopWifiSharing();
-    void startProxySharing(ProtoTypes::ProxySharingMode proxySharingMode);
+    void startProxySharing(PROXY_SHARING_TYPE proxySharingMode);
     void stopProxySharing();
 
     void setIPv6StateInOS(bool bEnabled);
@@ -69,13 +68,17 @@ public:
     void recordInstall();
     void sendConfirmEmail();
     void sendDebugLog();
-    void getWebSessionTokenForEditAccountDetails();
+    void getWebSessionTokenForManageAccount();
     void getWebSessionTokenForAddEmail();
+    void getWebSessionTokenForManageRobertRules();
 
     void speedRating(int rating, const QString &localExternalIp);
 
     void setBlockConnect(bool isBlockConnect);
-    void clearCredentials();
+
+    void getRobertFilters();
+    void setRobertFilter(const types::RobertFilter &filter);
+    void syncRobert();
 
     bool isAppCanClose() const;
 
@@ -84,7 +87,7 @@ public:
     void sendAdvancedParametersChanged();
     void sendEngineSettingsIfChanged();
 
-    LocationsModel *getLocationsModel();
+    gui_locations::LocationsModelManager *locationsModelManager();
 
     PreferencesHelper *getPreferencesHelper();
     Preferences *getPreferences();
@@ -93,18 +96,19 @@ public:
     void applicationActivated();
     void applicationDeactivated();
 
-    const ProtoTypes::SessionStatus &getSessionStatus() const;
+    const types::SessionStatus &getSessionStatus() const;
 
-    void handleNetworkChange(ProtoTypes::NetworkInterface networkInterface);
+    void handleNetworkChange(types::NetworkInterface networkInterface, bool manual=false);
+    types::NetworkInterface getCurrentNetworkInterface();
 
     virtual void cycleMacAddress();
     void sendDetectPacketSize();
-    void sendSplitTunneling(ProtoTypes::SplitTunneling st);
+    void sendSplitTunneling(const types::SplitTunneling &st);
 
     void abortInitialization();
 
     void sendUpdateWindowInfo(qint32 mainWindowCenterX, qint32 mainWindowCenterY);
-    void sendUpdateVersion(qint32 mainWindowHandle);
+    void sendUpdateVersion(qint64 mainWindowHandle);
     void cancelUpdateVersion();
 
     void sendMakeHostsFilesWritableWin();
@@ -114,37 +118,40 @@ private slots:
 
 signals:
     // emited when connected to engine and received the engine settings, or error in initState variable
-    void initFinished(ProtoTypes::InitState initState);
+    void initFinished(INIT_STATE initState);
     void initTooLong();
     void cleanupFinished();
 
     void gotoCustomOvpnConfigModeFinished();
 
     void loginFinished(bool isLoginFromSavedSettings);
-    void loginStepMessage(ProtoTypes::LoginMessage msg);
-    void loginError(ProtoTypes::LoginError loginError, const QString &errorMessage);
+    void tryingBackupEndpoint(int num, int cnt);
+    void loginError(LOGIN_RET loginError, const QString &errorMessage);
 
     void signOutFinished();
 
     void myIpChanged(QString ip, bool isFromDisconnectedState);
-    void connectStateChanged(const ProtoTypes::ConnectState &connectState);
-    void emergencyConnectStateChanged(const ProtoTypes::ConnectState &connectState);
+    void connectStateChanged(const types::ConnectState &connectState);
+    void emergencyConnectStateChanged(const types::ConnectState &connectState);
     void firewallStateChanged(bool isEnabled);
-    void notificationsChanged(const ProtoTypes::ArrayApiNotification &arr);
-    void networkChanged(ProtoTypes::NetworkInterface interface);
-    void sessionStatusChanged(const ProtoTypes::SessionStatus &sessionStatus);
-    void checkUpdateChanged(const ProtoTypes::CheckUpdateInfo &checkUpdateInfo);
-    void locationsUpdated();
+    void notificationsChanged(const QVector<types::Notification> &arr);
+    void robertFiltersChanged(bool success, const QVector<types::RobertFilter> &arr);
+    void setRobertFilterResult(bool success);
+    void syncRobertResult(bool success);
+    void networkChanged(types::NetworkInterface interface);
+    void sessionStatusChanged(const types::SessionStatus &sessionStatus);
+    void checkUpdateChanged(const types::CheckUpdate &checkUpdateInfo);
     void splitTunnelingStateChanged(bool isActive);
 
     void confirmEmailResult(bool bSuccess);
     void debugLogResult(bool bSuccess);
     void statisticsUpdated(quint64 bytesIn, quint64 bytesOut, bool isTotalBytes);
 
-    void proxySharingInfoChanged(const ProtoTypes::ProxySharingInfo &psi);
-    void wifiSharingInfoChanged(const ProtoTypes::WifiSharingInfo &wsi);
-    void webSessionTokenForEditAccountDetails(const QString &temp_session_token);
+    void proxySharingInfoChanged(const types::ProxySharingInfo &psi);
+    void wifiSharingInfoChanged(const types::WifiSharingInfo &wsi);
+    void webSessionTokenForManageAccount(const QString &temp_session_token);
     void webSessionTokenForAddEmail(const QString &temp_session_token);
+    void webSessionTokenForManageRobertRules(const QString &temp_session_token);
 
     void requestCustomOvpnConfigCredentials();
 
@@ -152,24 +159,31 @@ signals:
     void testTunnelResult(bool success);
     void lostConnectionToHelper();
     void highCpuUsage(const QStringList &processesList);
-    void userWarning(ProtoTypes::UserWarningType userWarningType);
+    void userWarning(USER_WARNING_TYPE userWarningType);
     void internetConnectivityChanged(bool connectivity);
-    void protocolPortChanged(const ProtoTypes::Protocol &protocol, const uint port);
+    void protocolPortChanged(const types::Protocol &protocol, const uint port);
     void packetSizeDetectionStateChanged(bool on, bool isError);
-    void updateVersionChanged(uint progressPercent, ProtoTypes::UpdateVersionState state, ProtoTypes::UpdateVersionError error);
+    void updateVersionChanged(uint progressPercent, UPDATE_VERSION_STATE state, UPDATE_VERSION_ERROR error);
 
     void engineCrash();
     void engineRecoveryFailed();
 
     void wireGuardAtKeyLimit();
     void wireGuardKeyLimitUserResponse(bool deleteOldestKey);
+    void protocolStatusChanged(const QVector<types::ProtocolStatus> &status);
+
+    void helperSplitTunnelingStartFailed();
 
 private:
     bool isSavedApiSettingsExists_;
-    bool bLastLoginWithAuthHash_;
 
-    ProtoTypes::SessionStatus latestSessionStatus_;
-    ProtoTypes::EngineSettings latestEngineSettings_;
+    bool bLastLoginWithAuthHash_;
+    QString lastUsername_;
+    QString lastPassword_;
+    QString lastCode2fa_;
+
+    types::SessionStatus latestSessionStatus_;
+    types::EngineSettings latestEngineSettings_;
     ConnectStateHelper connectStateHelper_;
     ConnectStateHelper emergencyConnectStateHelper_;
     FirewallStateHelper firewallStateHelper_;
@@ -179,8 +193,9 @@ private:
 
     quint32 cmdId_;
 
-    LocationsModel *locationsModel_;
+    gui_locations::LocationsModelManager *locationsModelManager_;
 
+    bool isCanLoginWithAuthHash_;
     bool isFirewallEnabled_;
 
     PreferencesHelper preferencesHelper_;
@@ -190,11 +205,11 @@ private:
     bool isExternalConfigMode_;
     UpgradeModeType upgradeMode_;
 
-    ProtoTypes::NetworkInterface currentNetworkInterface_;
+    types::NetworkInterface currentNetworkInterface_;
 
     QString generateNewFriendlyName();
     void updateAccountInfo();
-    void getOpenVpnVersionsFromInitCommand(const IPCServerCommands::InitFinished &state);
+    void getOpenVpnVersionsFromInitCommand(const IPC::ServerCommands::InitFinished &state);
 };
 
 #endif // BACKEND_H

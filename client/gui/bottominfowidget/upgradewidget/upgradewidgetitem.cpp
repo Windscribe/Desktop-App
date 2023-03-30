@@ -6,6 +6,7 @@
 #include "graphicresources/fontmanager.h"
 #include "graphicresources/imageresourcessvg.h"
 #include "languagecontroller.h"
+#include "utils/ws_assert.h"
 #include "utils/utils.h"
 #include "dpiscalemanager.h"
 
@@ -313,7 +314,7 @@ QString UpgradeWidgetItem::makeDaysLeftString(int days)
        return tr("5 DAYS LEFT");
    else
    {
-       Q_ASSERT(false);
+       WS_ASSERT(false);
        return tr("%1 DAYS LEFT").arg(QString::number(days));
    }
 }

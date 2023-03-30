@@ -31,3 +31,8 @@ ILoginWindow::ERROR_MESSAGE_TYPE LoginAttemptsController::currentMessage() const
     }
     return ILoginWindow::ERR_MSG_INCORRECT_LOGIN1;
 }
+
+int LoginAttemptsController::attempts()
+{
+    return loginAttempts_;
+}

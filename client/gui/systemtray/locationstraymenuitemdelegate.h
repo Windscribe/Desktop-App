@@ -7,13 +7,12 @@ class LocationsTrayMenuItemDelegate : public QItemDelegate
 {
     Q_OBJECT
 public:
-    explicit LocationsTrayMenuItemDelegate(QObject *parent);
-    ~LocationsTrayMenuItemDelegate();
+    explicit LocationsTrayMenuItemDelegate(QObject *parent, double scale);
 
     const QFont &getFontForItems() const { return font_; }
     void setFontForItems(const QFont &font);
 
-    int calcWidth(const QString &text, const QString &country, int flags) const;
+    int calcWidth(const QModelIndex & index) const;
 
 protected:
     void paint(QPainter * painter, const QStyleOptionViewItem & option, const QModelIndex & index) const override;
@@ -21,6 +20,8 @@ protected:
 
 private:
     QFont font_;
+    double scale_;
+    const int CITY_CAPTION_MAX_WIDTH = 210;
 };
 
 #endif // LOCATIONSTRAYMENUITEMDELEGATE_H

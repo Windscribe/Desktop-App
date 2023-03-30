@@ -1,8 +1,8 @@
 # ------------------------------------------------------------------------------
 # Windscribe Build System
-# Copyright (c) 2020-2021, Windscribe Limited. All rights reserved.
+# Copyright (c) 2020-2023, Windscribe Limited. All rights reserved.
 # ------------------------------------------------------------------------------
 variables:
-  VERSION_CURL: '7.79.1'
+  VERSION_CURL: '7.87.0'
   BUILDROOT_CURL: 'build-libs/curl'
   ARTIFACT_CURL: 'curl.zip'

@@ -1,0 +1,129 @@
+#include "protocolwindowitem.h"
+
+#include <QPainter>
+#include "commongraphics/commongraphics.h"
+#include "graphicresources/imageresourcessvg.h"
+#include "utils/ws_assert.h"
+#include "dpiscalemanager.h"
+#include "../../common/types/protocolstatus.h"
+
+namespace ProtocolWindow {
+
+ProtocolWindowItem::ProtocolWindowItem(QGraphicsObject *parent,
+                                       IConnectWindow *connectWindow,
+                                       Preferences *preferences,
+                                       PreferencesHelper *preferencesHelper)
+    : IProtocolWindow(parent, preferences, preferencesHelper),
+      protocolPromptItem_(new ProtocolPromptItem(this, connectWindow, preferences, preferencesHelper, ProtocolWindowMode::kChangeProtocol)),
+      promptHeight_(protocolPromptItem_->currentHeight())
+{
+    WS_ASSERT(preferencesHelper);
+
+    setBackButtonEnabled(false);
+
+    scrollAreaItem_->setItem(protocolPromptItem_);
+
+    connect(escapeButton_, &CommonGraphics::EscapeButton::clicked, this, &ProtocolWindowItem::onEscape);
+    connect(protocolPromptItem_, &ProtocolPromptItem::escape, this, &ProtocolWindowItem::escape);
+    connect(protocolPromptItem_, &ProtocolPromptItem::protocolClicked, this, &ProtocolWindowItem::protocolClicked);
+    connect(protocolPromptItem_, &ProtocolPromptItem::heightChanged, this, &ProtocolWindowItem::onPromptHeightChanged);
+    connect(protocolPromptItem_, &ProtocolPromptItem::setAsPreferredProtocol, this, &ProtocolWindowItem::setAsPreferredProtocol);
+    connect(protocolPromptItem_, &ProtocolPromptItem::stopConnection, this, &ProtocolWindowItem::stopConnection);
+
+    onPromptHeightChanged(promptHeight_);
+}
+
+void ProtocolWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem * /*option*/, QWidget * /*widget*/)
+{
+    // resize area background
+    qreal initialOpacity = painter->opacity();
+    painter->fillRect(boundingRect().adjusted(0, 286*G_SCALE, 0, -7*G_SCALE), QBrush(QColor(2, 13, 28)));
+
+    // base background
+    if (preferences_->appSkin() == APP_SKIN_VAN_GOGH) {
+        QPainterPath path;
+#ifdef Q_OS_MAC
+        path.addRoundedRect(boundingRect().toRect(), 5*G_SCALE, 5*G_SCALE);
+#else
+        path.addRect(boundingRect().toRect());
+#endif
+        painter->setPen(Qt::NoPen);
+        painter->fillPath(path, QColor(2, 13, 28));
+        painter->setPen(Qt::SolidLine);
+    } else {
+        QSharedPointer<IndependentPixmap> pixmapBaseBackground = ImageResourcesSvg::instance().getIndependentPixmap(backgroundBase_);
+        pixmapBaseBackground->draw(0, 0, painter);
+    }
+
+    // bottom-most background
+    painter->setOpacity(initialOpacity);
+    if (roundedFooter_) {
+        painter->setPen(footerColor_);
+        painter->setBrush(footerColor_);
+        painter->drawRoundedRect(getBottomResizeArea(), 8*G_SCALE, 8*G_SCALE);
+        painter->fillRect(getBottomResizeArea().adjusted(0, -2*G_SCALE, 0, -7*G_SCALE), QBrush(footerColor_));
+    } else {
+        painter->fillRect(getBottomResizeArea(), QBrush(footerColor_));
+    }
+}
+
+void ProtocolWindowItem::setMode(ProtocolWindowMode mode)
+{
+    protocolPromptItem_->setMode(mode);
+}
+
+void ProtocolWindowItem::setProtocolStatus(const types::ProtocolStatus &status)
+{
+    protocolPromptItem_->setProtocolStatus(status);
+}
+
+void ProtocolWindowItem::setProtocolStatus(const QVector<types::ProtocolStatus> &status)
+{
+    bool hasNonFailedProtocol = false;
+
+    for (auto s : status) {
+        if (s.status != types::ProtocolStatus::Status::kFailed) {
+            hasNonFailedProtocol = true;
+            break;
+        }
+    }
+
+    if (hasNonFailedProtocol) {
+        protocolPromptItem_->setMode(ProtocolWindowMode::kFailedProtocol);
+        protocolPromptItem_->setProtocolStatus(status);
+    } else {
+        protocolPromptItem_->setMode(ProtocolWindowMode::kSendDebugLog);
+    }
+}
+
+void ProtocolWindowItem::onPromptHeightChanged(int height)
+{
+    if (preferences_->appSkin() == APP_SKIN_VAN_GOGH) {
+        setHeight(height + 74*G_SCALE);
+    } else {
+        setHeight(height + 102*G_SCALE);
+    }
+    promptHeight_ = height;
+    emit sizeChanged(this);
+}
+
+void ProtocolWindowItem::onAppSkinChanged(APP_SKIN skin)
+{
+    ResizableWindow::onAppSkinChanged(skin);
+    onPromptHeightChanged(promptHeight_);
+}
+
+void ProtocolWindowItem::resetProtocolStatus()
+{
+    protocolPromptItem_->resetProtocolStatus();
+}
+
+void ProtocolWindowItem::onEscape()
+{
+    if (protocolPromptItem_->mode() == ProtocolWindowMode::kFailedProtocol) {
+        emit stopConnection();
+    }
+    emit escape();
+}
+
+} // namespace ProtocolWindow

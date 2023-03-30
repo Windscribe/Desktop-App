@@ -5,7 +5,6 @@
 #include <QPropertyAnimation>
 #include <QTimer>
 #include "commongraphics/scalablegraphicsobject.h"
-#include "utils/protobuf_includes.h"
 #include "backgroundimage/backgroundimage.h"
 #include "utils/imagewithshadow.h"
 
@@ -23,10 +22,11 @@ public:
     QRectF boundingRect() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
-    void onConnectStateChanged(ProtoTypes::ConnectStateType newConnectState, ProtoTypes::ConnectStateType prevConnectState);
+    void onConnectStateChanged(CONNECT_STATE newConnectState, CONNECT_STATE prevConnectState);
     void onLocationSelected(const QString &countryCode);
     void setDarkMode(bool dark);
     QPixmap getShadowPixmap();
+    void setCornerColor(QColor color);
 
     void updateScaling() override;
 
@@ -37,6 +37,9 @@ private:
     static constexpr int ANIMATION_DURATION = 600;
     static constexpr int WIDTH = 332;
     static constexpr int HEIGHT = 316;
+
+    Preferences *preferences_;
+
     qreal opacityConnecting_;
     qreal opacityConnected_;
     qreal opacityDisconnected_;
@@ -53,8 +56,9 @@ private:
     QString bottomFrameBG_      ;
 
     QString bottomLeftHorizDivider_;
-
     QScopedPointer<ImageWithShadow> midRightVertDivider_;
+
+    QColor cornerColor_;
 
     qreal opacityConnecting();
     void setOpacityConnecting(qreal v);

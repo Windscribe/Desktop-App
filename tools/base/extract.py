@@ -7,8 +7,9 @@
 
 import os
 import re
-import pathhelper
+import sys
 
+import pathhelper
 
 class Extractor:
     # memoize so we don't have to read the file more than once per variable
@@ -49,7 +50,7 @@ class Extractor:
                 for i in range(len(patterns)):
                     matched = patterns[i].search(line)
                     if matched:
-                        values[i] = int(matched.group(1)) if matched.lastindex > 0 else 1
+                        values[i] = int(matched.group(1)) if matched.lastindex else 1
                         break
         version_only = "{:d}.{:d}.{:d}".format(values[0], values[1], values[2])
         # version-only: x.y.z
@@ -93,5 +94,7 @@ class Extractor:
 # allows shell to directly call this module to get the version
 if __name__ == "__main__":
     extractor = Extractor()
-    # build_all.py is using True, so must use True here as well so .gitlab-ci.yml retrieves the proper version string.
-    print extractor.app_version(True)
+    # build_all.py is using True when it calls app_version(), so default to True here as well
+    # so .gitlab-ci.yml retrieves the proper version string.
+    include_beta_suffix = False if "--no-suffix" in sys.argv else True
+    print(extractor.app_version(include_beta_suffix))

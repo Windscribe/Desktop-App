@@ -21,6 +21,9 @@ ComboMenuWidget::ComboMenuWidget(QWidget *parent) : QWidget(parent)
     // Qt::SubWindow will also take focus in/out events properly (unlike Qt::Tool and Qt::ToolTip)
     // Until Popup bug is fixed Qt::SubWindow is best option
     setWindowFlags(Qt::SubWindow | Qt::FramelessWindowHint | Qt::NoDropShadowWindowHint);
+#elif defined(Q_OS_LINUX)
+    // Linux needs the Qt::Popup flag; particularly for Wayland, where the Widget will be placed arbitrarily by the window manager if it's not set.
+    setWindowFlags(Qt::Popup | Qt::FramelessWindowHint | Qt::NoDropShadowWindowHint);
 #else
     // Menu not visible on Mac with when it is a Qt::SubWindow
     // It appears that Popup is no longer necessary to prevent mainwindow WindowDeactivate event from hiding the app while using the combobox
@@ -39,7 +42,7 @@ ComboMenuWidget::ComboMenuWidget(QWidget *parent) : QWidget(parent)
     //font_ = *FontManager::instance().getFont(12*g_pixelRatio, false);
 
     layout_ = new QVBoxLayout();
-    layout_->setMargin(0);
+    layout_->setContentsMargins(0, 0, 0, 0);
     layout_->setSpacing(0);
     layout_->setSizeConstraint(QLayout::SetFixedSize);
 

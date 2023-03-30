@@ -1,6 +1,7 @@
 #include "httpproxyconnection.h"
 #include <QThread>
 #include <QHostAddress>
+#include "utils/ws_assert.h"
 #include "utils/logger.h"
 
 namespace HttpProxyServer {
@@ -62,10 +63,10 @@ void HttpProxyConnection::onSocketReadyRead()
             {
                 socketExternal_ = new QTcpSocket(this);
 
-                connect(socketExternal_, SIGNAL(connected()), SLOT(onExternalSocketConnected()));
-                connect(socketExternal_, SIGNAL(disconnected()), SLOT(onExternalSocketDisconnected()));
-                connect(socketExternal_, SIGNAL(readyRead()), SLOT(onExternalSocketReadyRead()));
-                connect(socketExternal_, SIGNAL(error(QAbstractSocket::SocketError)), SLOT(onExternalSocketError(QAbstractSocket::SocketError)));
+                connect(socketExternal_, &QTcpSocket::connected, this, &HttpProxyConnection::onExternalSocketConnected);
+                connect(socketExternal_, &QTcpSocket::disconnected, this, &HttpProxyConnection::onExternalSocketDisconnected);
+                connect(socketExternal_, &QTcpSocket::readyRead, this, &HttpProxyConnection::onExternalSocketReadyRead);
+                connect(socketExternal_, &QTcpSocket::errorOccurred, this, &HttpProxyConnection::onExternalSocketError);
 
                 writeAllSocketExternal_ = new SocketWriteAll(this, socketExternal_);
 
@@ -102,7 +103,7 @@ void HttpProxyConnection::onSocketReadyRead()
     }
     else
     {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
     }
 }
 
@@ -137,7 +138,7 @@ void HttpProxyConnection::onExternalSocketConnected()
             /*long contentLength = requestParser_.getRequest().getContentLength();
             if (contentLength > 0)
             {
-                Q_ASSERT(contentLength == extraContent_.size());
+                WS_ASSERT(contentLength == extraContent_.size());
                 writeAllSocketExternal_->write(extraContent_);
             }
             else
@@ -154,7 +155,7 @@ void HttpProxyConnection::onExternalSocketConnected()
     }
     else
     {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
     }
 }
 
@@ -210,7 +211,7 @@ void HttpProxyConnection::onExternalSocketReadyRead()
     }
     else
     {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
     }
 }
 

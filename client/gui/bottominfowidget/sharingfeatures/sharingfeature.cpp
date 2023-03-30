@@ -16,6 +16,7 @@ SharingFeature::SharingFeature(QString ssidOrProxyText, QString primaryIcon, Sca
 {
     textIconButton_ = new CommonGraphics::TextIconButton(SPACE_BETWEEN_TEXT_AND_ARROW, ssidOrProxyText, "sharingfeatures/FRWRD_ARROW_ICON", this, false);
     textIconButton_->setCursor(Qt::PointingHandCursor);
+    textIconButton_->setVerticalOffset(-4);
 
     connect(textIconButton_, SIGNAL(widthChanged(int)), this, SLOT(onTextIconWidthChanged(int)));
     connect(textIconButton_, SIGNAL(clicked()), this, SIGNAL(clicked()));
@@ -122,7 +123,7 @@ void SharingFeature::updateScaling()
 
 void SharingFeature::onTextIconWidthChanged(int newWidth)
 {
-    textIconButton_->setPos(WIDTH*G_SCALE - newWidth -16*G_SCALE, textIconButton_->getHeight() - 4*G_SCALE);
+    textIconButton_->setPos(WIDTH*G_SCALE - newWidth - 16*G_SCALE, textIconButton_->getHeight() - 4*G_SCALE);
 }
 
 void SharingFeature::updatePositions()

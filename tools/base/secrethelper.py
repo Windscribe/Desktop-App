@@ -11,7 +11,6 @@ import utils as utl
 import messages as msg
 import process as proc
 import pathhelper
-import arghelper
 
 
 def download_apps_team_file_from_1password(filename, download_filename, session_token):
@@ -72,4 +71,3 @@ def cleanup_secrets():
     utl.RemoveFile(pathhelper.linux_private_key_filename_absolute())
     utl.RemoveFile(pathhelper.linux_public_key_filename_absolute())
     utl.RemoveFile(pathhelper.linux_include_key_filename_absolute())
-    utl.RemoveFile(pathhelper.hardcoded_secrets_filename_absolute())

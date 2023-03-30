@@ -1,7 +1,9 @@
-#include "dnsutils.h"
-#include "utils/logger.h"
-
 #include <QProcess>
+#include <QRegularExpression>
+
+#include "dnsutils.h"
+#include "utils/ws_assert.h"
+#include "utils/logger.h"
 
 namespace DnsUtils
 {
@@ -32,11 +34,10 @@ std::vector<std::wstring> getOSDefaultDnsServers_NMCLI()
         return dnsServers;
     }
 
-    const QStringList lines = strReply.split('\n', QString::SkipEmptyParts);
-    qCDebug(LOG_FIREWALL_CONTROLLER) << "Get OS default DNS list (nmcli output):" << lines;
+    const QStringList lines = strReply.split('\n', Qt::SkipEmptyParts);
     for (auto &it : lines)
     {
-        const QStringList pars = it.split(QRegExp("\\s+"), QString::SkipEmptyParts);
+        const QStringList pars = it.split(QRegularExpression("\\s+"), Qt::SkipEmptyParts);
         if (pars.size() == 2)
         {
             dnsServers.push_back(pars[1].toStdWString());
@@ -68,11 +69,10 @@ std::vector<std::wstring> getOSDefaultDnsServers_Resolvectl()
         return dnsServers;
     }
 
-    const QStringList lines = strReply.split('\n', QString::SkipEmptyParts);
-    qCDebug(LOG_FIREWALL_CONTROLLER) << "Get OS default DNS list (resolvectl output):" << lines;
+    const QStringList lines = strReply.split('\n', Qt::SkipEmptyParts);
     for (auto &it : lines)
     {
-        const QStringList pars = it.split(":", QString::SkipEmptyParts);
+        const QStringList pars = it.split(":", Qt::SkipEmptyParts);
         if (pars.size() == 2)
         {
             if (!pars[0].contains("(utun") && !pars[0].contains("(tun"))
@@ -108,7 +108,7 @@ std::vector<std::wstring> getOSDefaultDnsServers()
     }
     else
     {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
         return std::vector<std::wstring>();
     }
 }

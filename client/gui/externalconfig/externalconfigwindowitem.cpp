@@ -6,6 +6,7 @@
 #include "commongraphics/commongraphics.h"
 #include "graphicresources/fontmanager.h"
 #include "graphicresources/imageresourcessvg.h"
+#include "utils/ws_assert.h"
 #include "dpiscalemanager.h"
 
 namespace ExternalConfigWindow {
@@ -14,7 +15,7 @@ ExternalConfigWindowItem::ExternalConfigWindowItem(QGraphicsObject *parent,
                                                    PreferencesHelper *preferencesHelper)
     : ScalableGraphicsObject(parent)
 {
-    Q_ASSERT(preferencesHelper);
+    WS_ASSERT(preferencesHelper);
     setFlag(QGraphicsItem::ItemIsFocusable);
 
     curIconPath_ = "BIG_CONFIG_ICON";
@@ -29,7 +30,7 @@ ExternalConfigWindowItem::ExternalConfigWindowItem(QGraphicsObject *parent,
     okButton_->setText(acceptText);
     connect(okButton_, SIGNAL(clicked()), this, SLOT(onButtonClicked()));
 
-    escButton_ = new PreferencesWindow::EscapeButton(this);
+    escButton_ = new CommonGraphics::EscapeButton(this);
     connect(escButton_, SIGNAL(clicked()), SLOT(onEscClicked()));
 
 #ifdef Q_OS_WIN

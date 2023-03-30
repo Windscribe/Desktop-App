@@ -1,15 +1,14 @@
 #include "networkdetectionmanager_win.h"
 
+#include "utils/ws_assert.h"
 #include "utils/winutils.h"
 #include "utils/logger.h"
 #include "utils/utils.h"
 
-const int typeIdNetworkInterface = qRegisterMetaType<ProtoTypes::NetworkInterface>("ProtoTypes::NetworkInterface");
-
 NetworkDetectionManager_win::NetworkDetectionManager_win(QObject *parent, IHelper *helper) : INetworkDetectionManager (parent)
 {
     helper_ = dynamic_cast<Helper_win *>(helper);
-    Q_ASSERT(helper_);
+    WS_ASSERT(helper_);
 
     curNetworkInterface_ = WinUtils::currentNetworkInterface();
     bLastIsOnline_ = isOnlineImpl();
@@ -32,7 +31,7 @@ NetworkDetectionManager_win::~NetworkDetectionManager_win()
 bool NetworkDetectionManager_win::interfaceEnabled(int interfaceIndex)
 {
     bool enabled = false;
-    ProtoTypes::NetworkInterface ni = WinUtils::interfaceByIndex(interfaceIndex, enabled);
+    types::NetworkInterface ni = WinUtils::interfaceByIndex(interfaceIndex, enabled);
     return enabled;
 }
 
@@ -90,19 +89,19 @@ void NetworkDetectionManager_win::onNetworkChanged()
         emit onlineStateChanged(bLastIsOnline_);
     }
 
-    ProtoTypes::NetworkInterface newNetworkInterface = WinUtils::currentNetworkInterface();
-    newNetworkInterface.set_requested(false);
+    types::NetworkInterface newNetworkInterface = WinUtils::currentNetworkInterface();
+    newNetworkInterface.requested = false;
 
     // Only report a changed, properly formed
-    if (curNetworkInterface_.active() != newNetworkInterface.active()
+    if (curNetworkInterface_.active != newNetworkInterface.active
         || !Utils::sameNetworkInterface(curNetworkInterface_, newNetworkInterface))
     {
-        const QString name = QString::fromStdString(newNetworkInterface.network_or_ssid());
+        const QString name = newNetworkInterface.networkOrSsid;
         if (name != "Unidentified network" && name != "Identifying...")
         {
             // if still online: Don't send the NoInterface since this can happen during
             // VPN CONNECTING
-            if (newNetworkInterface.interface_index() == -1)
+            if (newNetworkInterface.interfaceIndex == -1)
             {
                 if (!bLastIsOnline_)
                 {
@@ -118,10 +117,11 @@ void NetworkDetectionManager_win::onNetworkChanged()
         }
         else
         {
-            qCDebug(LOG_BASIC) << "Network update skipped: unidentified network (interface ="
-                << newNetworkInterface.friendly_name().c_str() << "id ="
-                << newNetworkInterface.interface_index() << " active ="
-                << newNetworkInterface.active() << ")";
+            qCDebug(LOG_BASIC) << "Network update skipped: unidentified network ("
+                << "valid =" << newNetworkInterface.isValid()
+                << "interface =" << newNetworkInterface.friendlyName
+                << "id =" << newNetworkInterface.interfaceIndex
+                << "active =" << newNetworkInterface.active << ")";
         }
     }
 }
@@ -130,13 +130,11 @@ bool NetworkDetectionManager_win::isOnlineImpl()
 {
     bool result = false;
 
-    ProtoTypes::NetworkInterfaces nis = WinUtils::currentNetworkInterfaces(true);
+    QVector<types::NetworkInterface> nis = WinUtils::currentNetworkInterfaces(true);
 
-    for (int i = 0; i < nis.networks_size(); i++)
+    for (auto it : nis)
     {
-        ProtoTypes::NetworkInterface ni = nis.networks(i);
-
-        if (ni.active())
+        if (it.active)
         {
             result = true;
             break;
@@ -146,7 +144,7 @@ bool NetworkDetectionManager_win::isOnlineImpl()
     return result;
 }
 
-void NetworkDetectionManager_win::getCurrentNetworkInterface(ProtoTypes::NetworkInterface &networkInterface)
+void NetworkDetectionManager_win::getCurrentNetworkInterface(types::NetworkInterface &networkInterface)
 {
     networkInterface = curNetworkInterface_;
 }

@@ -1,22 +1,27 @@
 #include "wireguardconnection_posix.h"
+#include "utils/ws_assert.h"
 #include "utils/crashhandler.h"
 #include "utils/logger.h"
-#include "utils/utils.h"
 #include "engine/helper/ihelper.h"
-#include "engine/types/types.h"
+#include "types/enums.h"
 #include "engine/wireguardconfig/wireguardconfig.h"
-#include "engine/types/wireguardtypes.h"
+#include "types/wireguardtypes.h"
 #include "engine/helper/helper_posix.h"
+
+#ifdef Q_OS_LINUX
+#include "engine/helper/helper_linux.h"
+#endif
 
 class WireGuardConnectionImpl
 {
 public:
     explicit WireGuardConnectionImpl(WireGuardConnection *host);
     void setConfig(const WireGuardConfig *wireGuardConfig);
+    void setUsingKernelModule(bool usingKernelModule);
     void connect();
     void configure();
     void disconnect();
-    bool getStatus(WireGuardStatus *status);
+    bool getStatus(types::WireGuardStatus *status);
     bool stopWireGuard();
 
     QString getAdapterName() const { return adapterName_; }
@@ -25,13 +30,15 @@ private:
     WireGuardConnection *host_;
     QString adapterName_;
     WireGuardConfig config_;
-    bool isDaemonRunning_;
+    bool isStarted_;
+    bool usingKernelModule_;
 };
 
 WireGuardConnectionImpl::WireGuardConnectionImpl(WireGuardConnection *host)
     : host_(host),
       adapterName_(WireGuardConnection::getWireGuardAdapterName()),
-      isDaemonRunning_(false)
+      isStarted_(false),
+      usingKernelModule_(false)
 {
 }
 
@@ -43,39 +50,44 @@ void WireGuardConnectionImpl::setConfig(const WireGuardConfig *wireGuardConfig)
 
 void WireGuardConnectionImpl::connect()
 {
-    // Start daemon, if not running.
-    if (!isDaemonRunning_) {
+    if (!isStarted_) {
         int retry = 0;
         IHelper::ExecuteError err;
-        while ((err = host_->helper_->startWireGuard(WireGuardConnection::getWireGuardExeName(), adapterName_)) != IHelper::EXECUTE_SUCCESS)
+        QString exeName;
+
+        if (!usingKernelModule_)
+            exeName = WireGuardConnection::getWireGuardExeName();
+
+        while ((err = host_->helper_->startWireGuard(exeName, adapterName_)) != IHelper::EXECUTE_SUCCESS)
         {
             // don't bother another attempt if signature is invalid
             if (err == IHelper::EXECUTE_VERIFY_ERROR)
             {
-                host_->setError(ProtoTypes::ConnectError::EXE_VERIFY_WIREGUARD_ERROR);
+                host_->setError(EXE_VERIFY_WIREGUARD_ERROR);
                 return;
             }
-            if (retry >= 2) {
-                qCDebug(LOG_WIREGUARD) << "Can't start WireGuard daemon after" << retry << "retries";
-                host_->setError(ProtoTypes::ConnectError::WIREGUARD_CONNECTION_ERROR);
+            if (retry >= 2)
+            {
+                qCDebug(LOG_WIREGUARD) << "Can't start WireGuard after" << retry << "retries";
+                host_->setError(WIREGUARD_CONNECTION_ERROR);
                 return;
             }
             ++retry;
             QThread::msleep(1000);
         }
-        qCDebug(LOG_WIREGUARD) << "WireGuard daemon started after" << retry << "retries";
-        isDaemonRunning_ = true;
+        qCDebug(LOG_WIREGUARD) << "WireGuard started after" << retry << "retries";
+        isStarted_ = true;
     }
 }
 
 void WireGuardConnectionImpl::configure()
 {
-    Q_ASSERT(isDaemonRunning_);
+    WS_ASSERT(isStarted_);
 
     // Configure the client and the peer.
     if (!host_->helper_->configureWireGuard(config_)) {
-        qCDebug(LOG_WIREGUARD) << "Failed to configure WireGuard daemon";
-        host_->setError(ProtoTypes::ConnectError::WIREGUARD_CONNECTION_ERROR);
+        qCDebug(LOG_WIREGUARD) << "Failed to configure WireGuard";
+        host_->setError(WIREGUARD_CONNECTION_ERROR);
     }
 }
 
@@ -86,14 +98,19 @@ void WireGuardConnectionImpl::disconnect()
     host_->setCurrentStateAndEmitSignal(WireGuardConnection::ConnectionState::DISCONNECTED);
 }
 
-bool WireGuardConnectionImpl::getStatus(WireGuardStatus *status)
+bool WireGuardConnectionImpl::getStatus(types::WireGuardStatus *status)
 {
-    return isDaemonRunning_ && host_->helper_->getWireGuardStatus(status);
+    return isStarted_ && host_->helper_->getWireGuardStatus(status);
+}
+
+void WireGuardConnectionImpl::setUsingKernelModule(bool usingKernelModule)
+{
+    usingKernelModule_ = usingKernelModule;
 }
 
 bool WireGuardConnectionImpl::stopWireGuard()
 {
-    if (isDaemonRunning_) {
+    if (isStarted_) {
         int retry = 0;
         while (!host_->helper_->stopWireGuard()) {
             if (retry >= 4) {
@@ -104,7 +121,7 @@ bool WireGuardConnectionImpl::stopWireGuard()
             QThread::msleep(500);
         }
         qCDebug(LOG_WIREGUARD) << "WireGuard daemon stopped after" << retry << "retries";
-        isDaemonRunning_ = false;
+        isStarted_ = false;
     }
     return true;
 }
@@ -126,9 +143,10 @@ WireGuardConnection::~WireGuardConnection()
 
 void WireGuardConnection::startConnect(const QString &configPathOrUrl, const QString &ip,
                                        const QString &dnsHostName, const QString &username,
-                                       const QString &password, const ProxySettings &proxySettings,
+                                       const QString &password, const types::ProxySettings &proxySettings,
                                        const WireGuardConfig *wireGuardConfig,
-                                       bool isEnableIkev2Compression, bool isAutomaticConnectionMode)
+                                       bool isEnableIkev2Compression, bool isAutomaticConnectionMode,
+                                       bool isCustomConfig)
 {
     Q_UNUSED(configPathOrUrl);
     Q_UNUSED(ip);
@@ -137,7 +155,7 @@ void WireGuardConnection::startConnect(const QString &configPathOrUrl, const QSt
     Q_UNUSED(password);
     Q_UNUSED(proxySettings);
     Q_UNUSED(isEnableIkev2Compression);
-    Q_UNUSED(isAutomaticConnectionMode);
+    Q_UNUSED(isCustomConfig);
 
     qCDebug(LOG_CONNECTION) << "Connecting WireGuard:" << pimpl_->getAdapterName();
 
@@ -145,7 +163,12 @@ void WireGuardConnection::startConnect(const QString &configPathOrUrl, const QSt
     wait();
     do_stop_thread_ = false;
 
+    isAutomaticConnectionMode_ = isAutomaticConnectionMode;
     pimpl_->setConfig(wireGuardConfig);
+
+    // if kernel module became available, or is no longer available, update the state
+    using_kernel_module_ = checkForKernelModule();
+    pimpl_->setUsingKernelModule(using_kernel_module_);
 
     // note: route gateway not used for WireGuard in AdapterGatewayInfo
     adapterGatewayInfo_.clear();
@@ -199,11 +222,13 @@ QString WireGuardConnection::getWireGuardAdapterName()
 
 void WireGuardConnection::run()
 {
-    WireGuardStatus status;
+    types::WireGuardStatus status;
     quint64 bytesReceived = 0;
     quint64 bytesTransmitted = 0;
     bool is_configured = false;
     bool is_connected = false;
+    QElapsedTimer elapsedTimer;
+    elapsedTimer.start();
 
     BIND_CRASH_HANDLER_FOR_THREAD();
 
@@ -215,25 +240,29 @@ void WireGuardConnection::run()
         const auto current_state = getCurrentState();
         unsigned int next_status_check_ms = 100u;
         if (current_state != ConnectionState::DISCONNECTED) {
+
+            if (current_state == ConnectionState::CONNECTED)
+                elapsedTimer.invalidate();
+
             if (!pimpl_->getStatus(&status)) {
                 qCDebug(LOG_WIREGUARD) << "Failed to get WireGuard status";
                 pimpl_->disconnect();
                 break;
             }
             switch (status.state) {
-            case WireGuardState::NONE:
-                // Daemon is not initialized.
+            case types::WireGuardState::NONE:
+                // Not initialized.
                 break;
-            case WireGuardState::FAILURE:
+            case types::WireGuardState::FAILURE:
                 // Error state.
                 qCDebug(LOG_WIREGUARD) << "WireGuard daemon error";
                 do_stop_thread_ = true;
                 break;
-            case WireGuardState::STARTING:
+            case types::WireGuardState::STARTING:
                 // Daemon is warming up, we have no other option that wait.
                 break;
-            case WireGuardState::LISTENING:
-                // Daemon is accepting configuration.
+            case types::WireGuardState::LISTENING:
+                // Accepting configuration.
                 if (!is_configured) {
                     qCDebug(LOG_WIREGUARD) << "Configuring WireGuard...";
                     is_configured = true;
@@ -241,11 +270,11 @@ void WireGuardConnection::run()
                     emit interfaceUpdated(pimpl_->getAdapterName());
                 }
                 break;
-            case WireGuardState::CONNECTING:
-                // Daemon is connecting (waiting for a handshake).
+            case types::WireGuardState::CONNECTING:
+                // Connecting (waiting for a handshake).
                 next_status_check_ms = 250u;
                 break;
-            case WireGuardState::ACTIVE:
+            case types::WireGuardState::ACTIVE:
             {
                 if (!is_connected) {
                     qCDebug(LOG_WIREGUARD) << "WireGuard daemon reported successful handshake";
@@ -264,18 +293,26 @@ void WireGuardConnection::run()
             }
             }
         }
+
+        if (isAutomaticConnectionMode_ && elapsedTimer.isValid() && elapsedTimer.elapsed() >= kTimeoutForAutomatic) {
+            setError(STATE_TIMEOUT_FOR_AUTOMATIC);
+        }
+
         QThread::msleep(next_status_check_ms);
     }
 }
 
 void WireGuardConnection::onProcessKillTimeout()
 {
-    qCDebug(LOG_CONNECTION) << "WireGuard process not finished after "
-                            << PROCESS_KILL_TIMEOUT << "ms";
-    qCDebug(LOG_CONNECTION) << "kill the WireGuard process";
-    kill_process_timer_.stop();
-    Helper_posix *helper_posix = dynamic_cast<Helper_posix *>(helper_);
-    helper_posix->executeRootCommand("pkill -f \"" + getWireGuardExeName() + "\"");
+    if (!using_kernel_module_)
+    {
+        qCDebug(LOG_CONNECTION) << "WireGuard process not finished after "
+                                << PROCESS_KILL_TIMEOUT << "ms";
+        qCDebug(LOG_CONNECTION) << "kill the WireGuard process";
+        kill_process_timer_.stop();
+        Helper_posix *helper_posix = dynamic_cast<Helper_posix *>(helper_);
+        helper_posix->executeTaskKill(kTargetWireGuard);
+    }
 }
 
 WireGuardConnection::ConnectionState WireGuardConnection::getCurrentState() const
@@ -307,10 +344,19 @@ void WireGuardConnection::setCurrentStateAndEmitSignal(ConnectionState state)
     }
 }
 
-void WireGuardConnection::setError(ProtoTypes::ConnectError err)
+void WireGuardConnection::setError(CONNECT_ERROR err)
 {
     QMutexLocker locker(&current_state_mutex_);
     current_state_ = ConnectionState::DISCONNECTED;
     do_stop_thread_ = true;
     emit error(err);
+}
+
+bool WireGuardConnection::checkForKernelModule()
+{
+#if defined(Q_OS_LINUX)
+    Helper_linux *helper_linux = dynamic_cast<Helper_linux *>(helper_);
+    return helper_linux->checkForWireGuardKernelModule();
+#endif
+    return false;
 }

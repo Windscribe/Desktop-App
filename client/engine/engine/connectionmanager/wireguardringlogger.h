@@ -4,8 +4,7 @@
 
 // Adapted from mozilla-vpn-client\src\platforms\windows\daemon\windowstunnellogger.h
 
-#ifndef WIREGUARDRINGLOGGER_H
-#define WIREGUARDRINGLOGGER_H
+#pragma once
 
 #include <QFile>
 
@@ -19,15 +18,22 @@ public:
     ~WireguardRingLogger();
 
     void getNewLogEntries();
+    void getFinalLogEntries();
 
+    bool adapterSetupFailed() const { return adapterSetupFailed_; }
+    bool handshakeFailed() const { return handshakeFailed_; }
     bool isTunnelRunning() const { return tunnelRunning_; }
 
 private:
+    const bool verboseLogging_ = false;
     QFile wireguardLogFile_;
     uchar* logData_ = nullptr;
     int ringLogIndex_ = -1;
     quint64 startTime_ = 0; // nanoseconds
     bool tunnelRunning_ = false;
+    bool handshakeFailed_ = false;
+    bool adapterSetupFailed_ = false;
+    quint64 invalidNoncePackets_ = 0;
 
 private:
     bool mapWireguardRinglogFile();
@@ -36,5 +42,3 @@ private:
 };
 
 }
-
-#endif  // WIREGUARDRINGLOGGER_H

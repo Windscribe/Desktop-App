@@ -4,12 +4,11 @@
 #include <QGraphicsObject>
 #include <QTimer>
 #include "background.h"
-#include "../backend/backend.h"
+#include "backend/backend.h"
 #include "connectbutton.h"
 #include "connectstateprotocolport/connectstateprotocolport.h"
 #include "locationsbutton.h"
 #include "serverratingindicator.h"
-#include "wifiname.h"
 #include "middleitem.h"
 #include "firewallbutton.h"
 #include "iconnectwindow.h"
@@ -41,22 +40,22 @@ public:
     void setFirewallAlwaysOn(bool isFirewallAlwaysOn) override;
     void setFirewallBlock(bool isFirewallBlocked) override;
     void setTestTunnelResult(bool success) override;
+    void setCornerColor(QColor color) override;
+    types::ProtocolStatus getProtocolStatus() override;
 
     void updateScaling() override;
 
 public slots:
-    void updateLocationInfo(LocationID id, const QString &firstName, const QString &secondName, const QString &countryCode, PingTime pingTime) override;
-    void updateLocationSpeed(LocationID id, PingTime speed) override;
-    void updateConnectState(const ProtoTypes::ConnectState & newConnectState) override;
+    void updateLocationInfo(const QString &firstName, const QString &secondName, const QString &countryCode, PingTime pingTime, bool isCustomConfig) override;
+    void updateConnectState(const types::ConnectState & newConnectState) override;
     void updateFirewallState(bool isFirewallEnabled) override;
     void updateLocationsState(bool isExpanded) override;
-    void updateFavoriteState(LocationID id, bool isFavorite) override;
     void updateMyIp(const QString &ip) override;
     void updateNotificationsState(int totalMessages, int unread) override;
-    void updateNetworkState(ProtoTypes::NetworkInterface network) override;
+    void updateNetworkState(types::NetworkInterface network) override;
     void setSplitTunnelingState(bool on) override;
     void setInternetConnectivity(bool connectivity) override;
-    void setProtocolPort(const ProtoTypes::Protocol &protocol, const uint port) override;
+    void setProtocolPort(const types::Protocol &protocol, const uint port) override;
 
     void onNetworkHoverEnter();
     void onNetworkHoverLeave();
@@ -73,6 +72,7 @@ public slots:
     void onServerRatingIndicatorHoverEnter();
     void onServerRatingIndicatorHoverLeave();
     void onDockedModeChanged(bool bIsDockedToTray);
+    void onProtocolsClick();
 
 signals:
     void minimizeClick() override;
@@ -82,10 +82,15 @@ signals:
     void firewallClick() override;
     void locationsClick() override;
     void notificationsClick() override;
-    void networkButtonClick();
-    void splitTunnelingButtonClick();
+    void networkButtonClick() override;
+    void splitTunnelingButtonClick() override;
+    void protocolsClick() override;
+
+private slots:
+    void onAppSkinChanged(APP_SKIN s);
 
 private:
+    Preferences *preferences_;
     PreferencesHelper *preferencesHelper_;
     IconButton *minimizeButton_;
     IconButton *closeButton_;
@@ -108,13 +113,10 @@ private:
 
     LogoNotificationsButton *logoButton_;
 
-    LocationID locationID_;
-    bool favorite_;
-
-    ProtoTypes::ConnectState prevConnectState_;
+    types::ConnectState prevConnectState_;
     QString networkName_;
-    ProtoTypes::NetworkTrustType trustType_;
-    ProtoTypes::NetworkInterfaceType interfaceType_;
+    NETWORK_TRUST_TYPE trustType_;
+    NETWORK_INTERACE_TYPE interfaceType_;
     bool networkActive_;
 
     QString fullFirstName_;

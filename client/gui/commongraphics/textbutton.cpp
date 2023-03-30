@@ -10,7 +10,7 @@
 namespace CommonGraphics {
 
 TextButton::TextButton(QString text, const FontDescr &fd, QColor color, bool bSetClickable, ScalableGraphicsObject *parent, int addWidth, bool bDrawWithShadow) : ClickableGraphicsObject(parent),
-    text_(text), color_(color), fontDescr_(fd), width_(0), height_(0), addWidth_(addWidth),
+    text_(text), color_(color), fontDescr_(fd), width_(0), height_(0), addWidth_(addWidth), margin_(MARGIN_HEIGHT),
     curTextOpacity_(OPACITY_UNHOVER_TEXT), unhoverOpacity_(OPACITY_UNHOVER_TEXT), isHovered_(false),
     textAlignment_(Qt::AlignLeft | Qt::AlignVCenter)
 {
@@ -19,7 +19,7 @@ TextButton::TextButton(QString text, const FontDescr &fd, QColor color, bool bSe
         textShadow_.reset(new TextShadow());
     }
 
-    connect(&textOpacityAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onTextHoverOpacityChanged(QVariant)));
+    connect(&textOpacityAnimation_, &QVariantAnimation::valueChanged, this, &TextButton::onTextHoverOpacityChanged);
 
     // Direct constructor call to ClickableGraphicsObject::setCursor() crashes due to "pure virtual function call" for some reason only in this class...
     setClickable(bSetClickable);
@@ -29,7 +29,14 @@ TextButton::TextButton(QString text, const FontDescr &fd, QColor color, bool bSe
 
 QRectF TextButton::boundingRect() const
 {
-    return QRectF(0, 0, width_, height_ + MARGIN_HEIGHT*G_SCALE );
+    return QRectF(0, 0, width_, height_ + margin_*G_SCALE );
+}
+
+void TextButton::updateScaling()
+{
+    ClickableGraphicsObject::updateScaling();
+    recalcBoundingRect();
+    update();
 }
 
 void TextButton::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
@@ -57,6 +64,17 @@ void TextButton::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
 double TextButton::getOpacity() const
 {
     return curTextOpacity_;
+}
+
+void TextButton::setColor(QColor color)
+{
+    color_ = color;
+}
+
+void TextButton::setMarginHeight(int height)
+{
+    margin_ = height;
+    update();
 }
 
 void TextButton::quickSetOpacity(double opacity)

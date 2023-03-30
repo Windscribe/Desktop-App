@@ -4,6 +4,8 @@
 #include <QCoreApplication>
 #include <QProcess>
 #include <QSettings>
+#include <QRegExp>
+#include "utils/ws_assert.h"
 
 QStringList OpenVpnVersionController::getAvailableOpenVpnVersions()
 {
@@ -158,13 +160,13 @@ QString OpenVpnVersionController::detectVersion(const QString &path)
     process.setProcessChannelMode(QProcess::MergedChannels);
     process.start(path, QStringList() << "--version");
     process.waitForFinished(-1);
-    QString strAnswer = QString::fromStdString((const char *)process.readAll().data()).toLower();
+    QString strAnswer = QString::fromStdString((const char *)process.readAll().constData()).toLower();
 
     // parse version from process output
     QRegExp rx("\\d{1,}.\\d{1,}.\\d{1,}");
     rx.indexIn(strAnswer);
     QStringList list = rx.capturedTexts();
-    Q_ASSERT(list.count() == 1);
+    WS_ASSERT(list.count() == 1);
     if (list.count() == 1)
     {
         return list[0];

@@ -1,11 +1,12 @@
-#ifndef MEASUREMENTCPUUSAGE_H
-#define MEASUREMENTCPUUSAGE_H
+#pragma once
 
-#include <QObject>
 #include <QHash>
-#include "helper/helper_win.h"
-#include "connectstatecontroller/iconnectstatecontroller.h"
+#include <QObject>
+
 #include <pdh.h>
+
+#include "connectstatecontroller/iconnectstatecontroller.h"
+#include "helper/helper_win.h"
 
 class MeasurementCpuUsage : public QObject
 {
@@ -20,13 +21,13 @@ signals:
     void detectionCpuUsageAfterConnected(QStringList processesList);
 
 private slots:
-    void onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, ProtoTypes::ConnectError err, const LocationID &location);
+    void onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, CONNECT_ERROR err, const LocationID &location);
     void onTimer();
 
 private:
-    Helper_win *helper_;
-    PDH_HQUERY hQuery_;
-    bool bEnabled_;
+    Helper_win* const helper_;
+    PDH_HQUERY hQuery_ = NULL;
+    bool bEnabled_ = false;
 
     struct UsageData
     {
@@ -64,13 +65,14 @@ private:
     };
 
     QHash<QString, CounterDescr> counters_;
-    static constexpr int TIMER_INTERVAL_FOR_CONNECTING_MODE = 1000;
-    static constexpr int TIMER_INTERVAL_FOR_CONNECTED_MODE = 5000;
+    static constexpr int kTimeoutForConnectingMode = 1000;
+    static constexpr int kTimeoutForConnectedMode = 5000;
     QTimer timer_;
 
-    void startInConnectingState();
+    void clearPerformanceCounters();
+    bool getPerformanceCounters();
+
     void continueInConnectedState();
+    void startInConnectingState();
     void stopInDisconnectedState();
 };
-
-#endif // MEASUREMENTCPUUSAGE_H

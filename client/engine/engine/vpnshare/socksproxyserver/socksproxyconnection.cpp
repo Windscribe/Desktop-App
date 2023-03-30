@@ -1,6 +1,7 @@
 #include "socksproxyconnection.h"
 #include <QHostAddress>
 #include <QThread>
+#include "utils/ws_assert.h"
 #include "utils/logger.h"
 
 namespace SocksProxyServer {
@@ -82,7 +83,7 @@ void SocksProxyConnection::onSocketReadyRead()
         }
         else
         {
-            Q_ASSERT((quint32)socketReadArr_.size() == parsed);
+            WS_ASSERT((quint32)socketReadArr_.size() == parsed);
             socketReadArr_.clear();
         }
     }
@@ -101,13 +102,13 @@ void SocksProxyConnection::onSocketReadyRead()
             // handle command
             if (commandParser_.cmd().Cmd == 0x01)  // connect
             {
-                Q_ASSERT(socketExternal_ == NULL);
+                WS_ASSERT(socketExternal_ == NULL);
                 socketExternal_ = new QTcpSocket(this);
 
-                connect(socketExternal_, SIGNAL(connected()), SLOT(onExternalSocketConnected()));
-                connect(socketExternal_, SIGNAL(disconnected()), SLOT(onExternalSocketDisconnected()));
-                connect(socketExternal_, SIGNAL(readyRead()), SLOT(onExternalSocketReadyRead()));
-                connect(socketExternal_, SIGNAL(error(QAbstractSocket::SocketError)), SLOT(onExternalSocketError(QAbstractSocket::SocketError)));
+                connect(socketExternal_, &QTcpSocket::connected, this, &SocksProxyConnection::onExternalSocketConnected);
+                connect(socketExternal_, &QTcpSocket::disconnected, this, &SocksProxyConnection::onExternalSocketDisconnected);
+                connect(socketExternal_, &QTcpSocket::readyRead, this, &SocksProxyConnection::onExternalSocketReadyRead);
+                connect(socketExternal_, &QTcpSocket::errorOccurred, this, &SocksProxyConnection::onExternalSocketError);
 
                 writeAllSocketExternal_ = new SocketWriteAll(this, socketExternal_);
                 state_ = CONNECT_TO_HOST;
@@ -115,7 +116,7 @@ void SocksProxyConnection::onSocketReadyRead()
                 if (commandParser_.cmd().AddrType == 0x01)  // ip4
                 {
                     quint32 ipv4;
-                    Q_ASSERT(sizeof(commandParser_.cmd().DestAddr.IPv4) == sizeof(ipv4));
+                    WS_ASSERT(sizeof(commandParser_.cmd().DestAddr.IPv4) == sizeof(ipv4));
                     memcpy(&ipv4, &commandParser_.cmd().DestAddr.IPv4, sizeof(quint32));
                     socketExternal_->connectToHost(QHostAddress(ipv4), commandParser_.cmd().DestPort);
                 }
@@ -132,17 +133,17 @@ void SocksProxyConnection::onSocketReadyRead()
             }
             else if (commandParser_.cmd().Cmd == 0x02)  // bind
             {
-                Q_ASSERT(false);
+                WS_ASSERT(false);
             }
             else if (commandParser_.cmd().Cmd == 0x03)  // udp associate
             {
-                Q_ASSERT(false);
+                WS_ASSERT(false);
             }
             else
             {
                 qCDebug(LOG_SOCKS_SERVER) << "SocksProxyConnection::onSocketReadyRead() unknown command:" << commandParser_.cmd().Cmd;
                 closeSocketsAndEmitFinished();
-                Q_ASSERT(false);
+                WS_ASSERT(false);
             }
         }
         else if (res == TRI_INDETERMINATE)
@@ -153,7 +154,7 @@ void SocksProxyConnection::onSocketReadyRead()
         {
             qCDebug(LOG_SOCKS_SERVER) << "SocksProxyConnection::onSocketReadyRead() incorrect input command packet";
             closeSocketsAndEmitFinished();
-            Q_ASSERT(false);
+            WS_ASSERT(false);
         }
     }
     else if (state_ == RELAY_BETWEEN_CLIENT_SERVER)
@@ -165,7 +166,7 @@ void SocksProxyConnection::onSocketReadyRead()
     {
         qCDebug(LOG_SOCKS_SERVER) << "SocksProxyConnection::onSocketReadyRead() unknown state:" << state_;
         closeSocketsAndEmitFinished();
-        Q_ASSERT(false);
+        WS_ASSERT(false);
     }
 }
 
@@ -189,7 +190,7 @@ void SocksProxyConnection::onExternalSocketConnected()
     }
     else
     {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
     }
 }
 
@@ -242,7 +243,7 @@ void SocksProxyConnection::onExternalSocketReadyRead()
     }
     else
     {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
     }*/
 }
 

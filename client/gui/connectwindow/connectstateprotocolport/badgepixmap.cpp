@@ -1,6 +1,6 @@
 #include "badgepixmap.h"
 #include "dpiscalemanager.h"
-
+#include "utils/ws_assert.h"
 
 namespace ConnectWindow {
 
@@ -42,20 +42,19 @@ void BadgePixmap::setSize(const QSize &size, int radius)
 
 int BadgePixmap::width() const
 {
-    Q_ASSERT(!pixmap_.isNull());
-    return pixmap_.width() / pixmap_.devicePixelRatio();
+    WS_ASSERT(!pixmap_.isNull());
+    return pixmap_.width();
 }
 
 int BadgePixmap::height() const
 {
-    Q_ASSERT(!pixmap_.isNull());
-    return pixmap_.height() / pixmap_.devicePixelRatio();
+    WS_ASSERT(!pixmap_.isNull());
+    return pixmap_.height();
 }
 
 void BadgePixmap::updatePixmap()
 {
-    pixmap_ = QPixmap((size_.width() + SHADOW_OFFSET) * DpiScaleManager::instance().curDevicePixelRatio(), (size_.height() + SHADOW_OFFSET) * DpiScaleManager::instance().curDevicePixelRatio());
-    pixmap_.setDevicePixelRatio(DpiScaleManager::instance().curDevicePixelRatio());
+    pixmap_ = QPixmap(size_.width() + SHADOW_OFFSET, size_.height() + SHADOW_OFFSET);
     pixmap_.fill(Qt::transparent);
     {
         QPainter painter(&pixmap_);

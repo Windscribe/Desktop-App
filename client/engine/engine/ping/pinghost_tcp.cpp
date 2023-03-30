@@ -33,7 +33,7 @@ void PingHost_TCP::clearPings()
     waitingPingsQueue_.clear();
 }
 
-void PingHost_TCP::setProxySettings(const ProxySettings &proxySettings)
+void PingHost_TCP::setProxySettings(const types::ProxySettings &proxySettings)
 {
     proxySettings_ = proxySettings;
 }
@@ -111,21 +111,20 @@ void PingHost_TCP::processNextPings()
         PingInfo *pingInfo = new PingInfo();
         pingInfo->ip = ip;
         pingInfo->tcpSocket = new QTcpSocket(this);
-        if (bProxyEnabled_ && proxySettings_.option() != PROXY_OPTION_NONE)
+        if (isProxyEnabled())
         {
             pingInfo->tcpSocket->setProxy(proxySettings_.getNetworkProxy());
         }
         pingInfo->timer = new QTimer(this);
-        connect(pingInfo->timer, SIGNAL(timeout()), SLOT(onSocketTimeout()));
-        connect(pingInfo->tcpSocket, SIGNAL(connected()), SLOT(onSocketConnected()));
-        connect(pingInfo->tcpSocket, SIGNAL(bytesWritten(qint64)), SLOT(onSocketBytesWritten(qint64)));
-        connect(pingInfo->tcpSocket, SIGNAL(error(QAbstractSocket::SocketError)), SLOT(onSocketError(QAbstractSocket::SocketError)));
-        if (connectStateController_)
-        {
-            pingInfo->tcpSocket->setProperty("fromDisconnectedState", connectStateController_->currentState() == CONNECT_STATE_DISCONNECTED || connectStateController_->currentState() == CONNECT_STATE_CONNECTING);
+        connect(pingInfo->timer, &QTimer::timeout, this, &PingHost_TCP::onSocketTimeout);
+        connect(pingInfo->tcpSocket, &QTcpSocket::connected, this, &PingHost_TCP::onSocketConnected);
+        connect(pingInfo->tcpSocket, &QTcpSocket::bytesWritten, this, &PingHost_TCP::onSocketBytesWritten);
+        connect(pingInfo->tcpSocket, &QTcpSocket::errorOccurred, this, &PingHost_TCP::onSocketError);
+
+        if (connectStateController_) {
+            pingInfo->tcpSocket->setProperty("fromDisconnectedState", connectStateController_->currentState() == CONNECT_STATE_DISCONNECTED);
         }
-        else
-        {
+        else {
             pingInfo->tcpSocket->setProperty("fromDisconnectedState", true);
         }
 
@@ -157,3 +156,7 @@ void PingHost_TCP::processError(QObject *obj)
     processNextPings();
 }
 
+bool PingHost_TCP::isProxyEnabled() const
+{
+    return (bProxyEnabled_ && proxySettings_.option() != PROXY_OPTION_NONE);
+}

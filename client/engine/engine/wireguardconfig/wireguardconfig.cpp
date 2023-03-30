@@ -1,10 +1,9 @@
 #include "wireguardconfig.h"
 
 #include <QFile>
+#include <QRegularExpression>
 #include <QStringList>
 #include <QTextStream>
-
-#include <system_error>
 
 #include "utils/logger.h"
 #include "utils/openssl_utils.h"
@@ -30,7 +29,7 @@ WireGuardConfig::WireGuardConfig(const QString &privateKey, const QString &ipAdd
 // static
 QString WireGuardConfig::stripIpv6Address(const QStringList &addressList)
 {
-    const QRegExp rx("^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}(.*)$");
+    const QRegularExpression rx("^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}(.*)$");
     QString s = addressList.filter(rx).join(",");
     return s;
 }
@@ -38,10 +37,10 @@ QString WireGuardConfig::stripIpv6Address(const QStringList &addressList)
 // static
 QString WireGuardConfig::stripIpv6Address(const QString &addressList)
 {
-    return stripIpv6Address(addressList.split(",", QString::SkipEmptyParts));
+    return stripIpv6Address(addressList.split(",", Qt::SkipEmptyParts));
 }
 
-void WireGuardConfig::generateConfigFile(const QString &fileName) const
+bool WireGuardConfig::generateConfigFile(const QString &fileName) const
 {
     // Design Note:
     // Tried to use QSettings(fileName, QSettings::IniFormat) to create this file.
@@ -50,12 +49,9 @@ void WireGuardConfig::generateConfigFile(const QString &fileName) const
     // The wireguard-windows service cannot handle these double-quoted entries.
 
     QFile theFile(fileName);
-    bool bResult = theFile.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate);
-
-    if (!bResult) {
-        throw std::system_error(0, std::generic_category(),
-            std::string("WireGuardConfig::generateConfigFile could not create file '") + fileName.toStdString() +
-            std::string("' (") + theFile.errorString().toStdString() + std::string(")"));
+    if (!theFile.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate)) {
+        qCDebug(LOG_CONNECTION) << "WireGuardConfig::generateConfigFile could not create file '" << fileName << "' (" << theFile.errorString() << ")";
+        return false;
     }
 
     QTextStream ts(&theFile);
@@ -67,7 +63,10 @@ void WireGuardConfig::generateConfigFile(const QString &fileName) const
     ts << "[Peer]\n";
     ts << "PublicKey = " << peer_.publicKey << '\n';
     ts << "Endpoint = " << peer_.endpoint << '\n';
-    ts << "PresharedKey = " << peer_.presharedKey << '\n';
+
+    if (!peer_.presharedKey.isEmpty()) {
+        ts << "PresharedKey = " << peer_.presharedKey << '\n';
+    }
 
     // wireguard-windows implements its own 'kill switch' if we pass it 0.0.0.0/0.
     // https://git.zx2c4.com/wireguard-windows/about/docs/netquirk.md
@@ -83,6 +82,8 @@ void WireGuardConfig::generateConfigFile(const QString &fileName) const
 
     theFile.flush();
     theFile.close();
+
+    return true;
 }
 
 void WireGuardConfig::reset()
@@ -155,7 +156,7 @@ bool WireGuardConfig::haveKeyPair() const
     return !client_.privateKey.isEmpty() && !client_.publicKey.isEmpty();
 }
 
-void WireGuardConfig::setKeyPair(QString& publicKey, QString& privateKey)
+void WireGuardConfig::setKeyPair(const QString &publicKey, const QString &privateKey)
 {
     client_.publicKey  = publicKey;
     client_.privateKey = privateKey;
@@ -164,4 +165,26 @@ void WireGuardConfig::setKeyPair(QString& publicKey, QString& privateKey)
 bool WireGuardConfig::haveServerGeneratedPeerParams() const
 {
     return !peer_.presharedKey.isEmpty() && !peer_.allowedIps.isEmpty();
+}
+
+QDataStream& operator <<(QDataStream &stream, const WireGuardConfig &c)
+{
+    stream << c.versionForSerialization_;
+    stream << c.client_.privateKey << c.client_.publicKey << c.client_.ipAddress << c.client_.dnsAddress;
+    stream << c.peer_.publicKey << c.peer_.presharedKey << c.peer_.endpoint << c.peer_.allowedIps;
+    return stream;
+}
+QDataStream& operator >>(QDataStream &stream, WireGuardConfig &c)
+{
+    quint32 version;
+    stream >> version;
+    if (version > c.versionForSerialization_)
+    {
+        stream.setStatus(QDataStream::ReadCorruptData);
+        return stream;
+    }
+
+    stream >> c.client_.privateKey >> c.client_.publicKey >> c.client_.ipAddress >> c.client_.dnsAddress;
+    stream >> c.peer_.publicKey >> c.peer_.presharedKey >> c.peer_.endpoint >> c.peer_.allowedIps;
+    return stream;
 }

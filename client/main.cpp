@@ -14,7 +14,6 @@
 #include "gui/application/singleappinstance.h"
 
 #ifdef Q_OS_WIN
-    #include "gui/utils/scaleutils_win.h"
     #include "utils/crashhandler.h"
     #include "utils/installedantiviruses_win.h"
     #include "engine/taputils/tapinstall_win.h"
@@ -80,6 +79,16 @@ int main(int argc, char *argv[])
     #endif
 #endif
 
+    Q_INIT_RESOURCE(engine);
+    Q_INIT_RESOURCE(gif);
+    Q_INIT_RESOURCE(jpg);
+    Q_INIT_RESOURCE(svg);
+    Q_INIT_RESOURCE(windscribe);
+    #ifdef Q_OS_MAC
+        Q_INIT_RESOURCE(windscribe_mac);
+    #endif
+
+
     // Switch to staging if necessary. It should be done at the beginning of main function.
     // Further, in all parts of the program, the staging check is performed by the function AppVersion::instance().isStaging()
     // Works only for guinea pig builds
@@ -97,14 +106,15 @@ int main(int argc, char *argv[])
     Debug::CrashHandler::instance().bindToProcess();
 #endif
 
-#ifdef Q_OS_MAC
-    QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
-#elif defined (Q_OS_LINUX)
-    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-    QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
-#endif
-
     qputenv("QT_EVENT_DISPATCHER_CORE_FOUNDATION", "1");
+
+    #ifdef Q_OS_WIN
+    // Fixes fuzzy text and graphics on Windows when a display is set to a fractional scaling value (e.g. 150%).
+    // Warning: I tried Floor, Round, RoundPreferFloor, and Ceil on Qt 6.2.4 and 6.3.1, and they all produce
+    // strange clipping behavior when one minimizes the app, changes the display's scale, then restores the app.
+    // Using the Floor setting, at least on Windows 10, appeared to minimize this behavior.
+    QGuiApplication::setHighDpiScaleFactorRoundingPolicy(Qt::HighDpiScaleFactorRoundingPolicy::Floor);
+    #endif
 
     WindscribeApplication a(argc, argv);
 
@@ -142,8 +152,11 @@ int main(int argc, char *argv[])
 
     qCDebug(LOG_BASIC) << "App start time:" << QDateTime::currentDateTime().toString();
     qCDebug(LOG_BASIC) << "App version:" << AppVersion::instance().fullVersionString();
+    qCDebug(LOG_BASIC) << "Platform:" << QGuiApplication::platformName();
     qCDebug(LOG_BASIC) << "OS Version:" << Utils::getOSVersion();
+    qCDebug(LOG_BASIC) << "CPU architecture:" << QSysInfo::currentCpuArchitecture();
 
+    ExtraConfig::instance().logExtraConfig();
 
 #ifdef Q_OS_WIN
     InstalledAntiviruses_win::outToLog();

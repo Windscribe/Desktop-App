@@ -6,15 +6,17 @@
 #include "isleepevents.h"
 #include "openvpnconnection.h"
 
+#include "utils/ws_assert.h"
 #include "utils/utils.h"
-#include "engine/types/types.h"
-#include "engine/types/connectionsettings.h"
-#include "engine/apiinfo/apiinfo.h"
+#include "types/enums.h"
+#include "types/connectionsettings.h"
 #include "engine/serverapi/serverapi.h"
+#include "engine/getdeviceid.h"
 
 #include "engine/networkdetectionmanager/inetworkdetectionmanager.h"
 #include "utils/extraconfig.h"
 #include "utils/ipvalidation.h"
+#include "types/global_consts.h"
 
 #include "connsettingspolicy/autoconnsettingspolicy.h"
 #include "connsettingspolicy/manualconnsettingspolicy.h"
@@ -41,10 +43,8 @@
     #include "wireguardconnection_posix.h"
 #endif
 
-const int typeIdProtocol = qRegisterMetaType<ProtoTypes::Protocol>("ProtoTypes::Protocol");
-
 ConnectionManager::ConnectionManager(QObject *parent, IHelper *helper, INetworkDetectionManager *networkDetectionManager,
-                                             ServerAPI *serverAPI, CustomOvpnAuthCredentialsStorage *customOvpnAuthCredentialsStorage) : QObject(parent),
+                                             server_api::ServerAPI *serverAPI, CustomOvpnAuthCredentialsStorage *customOvpnAuthCredentialsStorage) : QObject(parent),
     helper_(helper),
     networkDetectionManager_(networkDetectionManager),
     customOvpnAuthCredentialsStorage_(customOvpnAuthCredentialsStorage),
@@ -64,7 +64,9 @@ ConnectionManager::ConnectionManager(QObject *parent, IHelper *helper, INetworkD
     bWakeSignalReceived_(false),
     currentConnectionDescr_()
 {
-    connect(&timerReconnection_, SIGNAL(timeout()), SLOT(onTimerReconnection()));
+    connect(&timerReconnection_, &QTimer::timeout, this, &ConnectionManager::onTimerReconnection);
+    connect(&connectTimer_, &QTimer::timeout, this, &ConnectionManager::onConnectTrigger);
+    connect(&connectingTimer_, &QTimer::timeout, this, &ConnectionManager::onConnectingTimeout);
 
     stunnelManager_ = new StunnelManager(this);
     connect(stunnelManager_, SIGNAL(stunnelFinished()), SLOT(onStunnelFinishedBeforeConnection()));
@@ -94,8 +96,8 @@ ConnectionManager::ConnectionManager(QObject *parent, IHelper *helper, INetworkD
 
     connect(&timerWaitNetworkConnectivity_, SIGNAL(timeout()), SLOT(onTimerWaitNetworkConnectivity()));
 
-    getWireGuardConfigInLoop_ = new GetWireGuardConfigInLoop(this, serverAPI, serverAPI->getAvailableUserRole());
-    connect(getWireGuardConfigInLoop_, &GetWireGuardConfigInLoop::getWireGuardConfigAnswer, this, &ConnectionManager::onGetWireGuardConfigAnswer);
+    getWireGuardConfig_ = new GetWireGuardConfig(this, serverAPI);
+    connect(getWireGuardConfig_, &GetWireGuardConfig::getWireGuardConfigAnswer, this, &ConnectionManager::onGetWireGuardConfigAnswer);
 }
 
 ConnectionManager::~ConnectionManager()
@@ -107,21 +109,23 @@ ConnectionManager::~ConnectionManager()
     SAFE_DELETE(makeOVPNFile_);
     SAFE_DELETE(makeOVPNFileFromCustom_);
     SAFE_DELETE(sleepEvents_);
-    SAFE_DELETE(getWireGuardConfigInLoop_);
+    SAFE_DELETE(getWireGuardConfig_);
 }
 
 void ConnectionManager::clickConnect(const QString &ovpnConfig, const apiinfo::ServerCredentials &serverCredentials,
                                          QSharedPointer<locationsmodel::BaseLocationInfo> bli,
-                                         const ConnectionSettings &connectionSettings,
-                                         const apiinfo::PortMap &portMap, const ProxySettings &proxySettings, bool bEmitAuthError, const QString &customConfigPath)
+                                         const types::ConnectionSettings &connectionSettings,
+                                         const types::PortMap &portMap, const types::ProxySettings &proxySettings,
+                                         bool bEmitAuthError, const QString &customConfigPath)
 {
-    Q_ASSERT(state_ == STATE_DISCONNECTED);
+    WS_ASSERT(state_ == STATE_DISCONNECTED);
 
     lastOvpnConfig_ = ovpnConfig;
     lastServerCredentials_ = serverCredentials;
     lastProxySettings_ = proxySettings;
     bEmitAuthError_ = bEmitAuthError;
     customConfigPath_ = customConfigPath;
+    bli_ = bli;
 
     bWasSuccessfullyConnectionAttempt_ = false;
 
@@ -130,25 +134,15 @@ void ConnectionManager::clickConnect(const QString &ovpnConfig, const apiinfo::S
 
     state_= STATE_CONNECTING_FROM_USER_CLICK;
 
-    if (bli->locationId().isCustomConfigsLocation())
-    {
-        connSettingsPolicy_.reset(new CustomConfigConnSettingsPolicy(bli));
+    // if we had a connector before, get rid of it.  This is because we don't want to receive events from a
+    // previous connection if a new connection has started.
+    if (connector_) {
+        currentProtocol_ = types::Protocol::UNINITIALIZED;
+        SAFE_DELETE(connector_);
+        connector_ = NULL;
     }
-    // API or static ips locations
-    else
-    {
-        if (connectionSettings.isAutomatic())
-        {
-            connSettingsPolicy_.reset(new AutoConnSettingsPolicy(bli, portMap, proxySettings.isProxyEnabled()));
-        }
-        else
-        {
-            connSettingsPolicy_.reset(new ManualConnSettingsPolicy(bli, connectionSettings, portMap));
-        }
-    }
-    connSettingsPolicy_->start();
 
-    connect(connSettingsPolicy_.data(), SIGNAL(hostnamesResolved()), SLOT(onHostnamesResolved()));
+    updateConnectionSettingsPolicy(connectionSettings, portMap, proxySettings);
 
     connSettingsPolicy_->debugLocationInfoToLog();
 
@@ -157,11 +151,13 @@ void ConnectionManager::clickConnect(const QString &ovpnConfig, const apiinfo::S
 
 void ConnectionManager::clickDisconnect()
 {
-    Q_ASSERT(state_ == STATE_CONNECTING_FROM_USER_CLICK || state_ == STATE_CONNECTED || state_ == STATE_RECONNECTING ||
-             state_ == STATE_DISCONNECTING_FROM_USER_CLICK || state_ == STATE_WAIT_FOR_NETWORK_CONNECTIVITY || state_ == STATE_DISCONNECTED);
+    WS_ASSERT(state_ == STATE_CONNECTING_FROM_USER_CLICK || state_ == STATE_CONNECTED || state_ == STATE_RECONNECTING ||
+              state_ == STATE_WAKEUP_RECONNECTING || state_ == STATE_DISCONNECTING_FROM_USER_CLICK ||
+              state_ == STATE_WAIT_FOR_NETWORK_CONNECTIVITY || state_ == STATE_DISCONNECTED);
 
     timerWaitNetworkConnectivity_.stop();
-    getWireGuardConfigInLoop_->stop();
+    connectTimer_.stop();
+    connectingTimer_.stop();
 
     if (state_ != STATE_DISCONNECTING_FROM_USER_CLICK)
     {
@@ -228,7 +224,7 @@ bool ConnectionManager::isDisconnected()
     {
         if (connector_)
         {
-            Q_ASSERT(connector_->isDisconnected());
+            WS_ASSERT(connector_->isDisconnected());
         }
     }
     return state_ == STATE_DISCONNECTED;
@@ -246,27 +242,27 @@ const AdapterGatewayInfo &ConnectionManager::getDefaultAdapterInfo() const
 
 const AdapterGatewayInfo &ConnectionManager::getVpnAdapterInfo() const
 {
-    Q_ASSERT(state_ == STATE_CONNECTED); // make sense only in connected state
+    WS_ASSERT(state_ == STATE_CONNECTED); // make sense only in connected state
     return vpnAdapterInfo_;
 }
 
 const ConnectionManager::CustomDnsAdapterGatewayInfo &ConnectionManager::getCustomDnsAdapterGatewayInfo() const
 {
-    Q_ASSERT(state_ == STATE_CONNECTED); // make sense only in connected state
+    WS_ASSERT(state_ == STATE_CONNECTED); // make sense only in connected state
     return customDnsAdapterGatewayInfo_;
 }
 
 QString ConnectionManager::getCustomDnsIp() const
 {
-    return QString(customDnsAdapterGatewayInfo_.dnsWhileConnectedInfo.ip_address().c_str());
+    return customDnsAdapterGatewayInfo_.connectedDnsInfo.ipAddress();
 }
 
-void ConnectionManager::setDnsWhileConnectedInfo(const ProtoTypes::DnsWhileConnectedInfo &info)
+void ConnectionManager::setConnectedDnsInfo(const types::ConnectedDnsInfo &info)
 {
-    customDnsAdapterGatewayInfo_.dnsWhileConnectedInfo = info;
+    customDnsAdapterGatewayInfo_.connectedDnsInfo = info;
 #ifdef Q_OS_WIN
     if(helper_) {
-        dynamic_cast<Helper_win*>(helper_)->setCustomDnsIp(info.ip_address().c_str());
+        dynamic_cast<Helper_win*>(helper_)->setCustomDnsIp(info.ipAddress());
     }
 #endif
 }
@@ -282,7 +278,7 @@ void ConnectionManager::removeIkev2ConnectionFromOS()
 
 void ConnectionManager::continueWithUsernameAndPassword(const QString &username, const QString &password, bool bNeedReconnect)
 {
-    Q_ASSERT(connector_ != NULL);
+    WS_ASSERT(connector_ != NULL);
     usernameForCustomOvpn_ = username;
     passwordForCustomOvpn_ = password;
 
@@ -303,7 +299,7 @@ void ConnectionManager::continueWithUsernameAndPassword(const QString &username,
 
 void ConnectionManager::continueWithPassword(const QString &password, bool /*bNeedReconnect*/)
 {
-    Q_ASSERT(connector_ != NULL);
+    WS_ASSERT(connector_ != NULL);
     if (connector_)
     {
         connector_->continueWithPassword(password);
@@ -320,9 +316,9 @@ void ConnectionManager::onConnectionConnected(const AdapterGatewayInfo &connecti
     qCDebug(LOG_CONNECTION) << "VPN adapter and gateway:" << vpnAdapterInfo_.makeLogString();
 
     // override the DNS if we are using custom
-    if (customDnsAdapterGatewayInfo_.dnsWhileConnectedInfo.type() == ProtoTypes::DNS_WHILE_CONNECTED_TYPE_CUSTOM)
+    if (customDnsAdapterGatewayInfo_.connectedDnsInfo.type() == CONNECTED_DNS_TYPE_CUSTOM)
     {
-        QString customDnsIp = QString::fromStdString(customDnsAdapterGatewayInfo_.dnsWhileConnectedInfo.ip_address());
+        QString customDnsIp = customDnsAdapterGatewayInfo_.connectedDnsInfo.ipAddress();
         customDnsAdapterGatewayInfo_.adapterInfo.setDnsServers(QStringList() << customDnsIp);
         qCDebug(LOG_CONNECTION) << "Custom DNS detected, will override with: " << customDnsIp;
     }
@@ -334,13 +330,20 @@ void ConnectionManager::onConnectionConnected(const AdapterGatewayInfo &connecti
     }
 
     timerReconnection_.stop();
-    getWireGuardConfigInLoop_->stop();
+    connectingTimer_.stop();
     state_ = STATE_CONNECTED;
     Q_EMIT connected();
 }
 
 void ConnectionManager::onConnectionDisconnected()
 {
+    if (connector_ == nullptr || static_cast<IConnection *>(sender()) != connector_) {
+        // This event came from a connector that we have retired, and we already have a new connection
+        // underway. Ignore the event
+        qCDebug(LOG_CONNECTION) << "ConnectionManager::onConnectionDisconnected(), ignored";
+        return;
+    }
+
     qCDebug(LOG_CONNECTION) << "ConnectionManager::onConnectionDisconnected(), state_ =" << state_;
 
     testVPNTunnel_->stopTests();
@@ -348,7 +351,7 @@ void ConnectionManager::onConnectionDisconnected()
     stunnelManager_->killProcess();
     wstunnelManager_->killProcess();
     timerWaitNetworkConnectivity_.stop();
-    getWireGuardConfigInLoop_->stop();
+    connectingTimer_.stop();
 
     switch (state_)
     {
@@ -356,11 +359,12 @@ void ConnectionManager::onConnectionDisconnected()
             state_ = STATE_DISCONNECTED;
             connSettingsPolicy_->reset();
             timerReconnection_.stop();
+            connectTimer_.stop();
             Q_EMIT disconnected(DISCONNECTED_BY_USER);
             break;
         case STATE_CONNECTED:
             // goto reconnection state, start reconnection timer and do connection again
-            Q_ASSERT(!timerReconnection_.isActive());
+            WS_ASSERT(!timerReconnection_.isActive());
             timerReconnection_.start(MAX_RECONNECTION_TIME);
             state_ = STATE_RECONNECTING;
             Q_EMIT reconnecting();
@@ -370,6 +374,7 @@ void ConnectionManager::onConnectionDisconnected()
         case STATE_AUTO_DISCONNECT:
             state_ = STATE_DISCONNECTED;
             timerReconnection_.stop();
+            connectTimer_.stop();
             Q_EMIT disconnected(DISCONNECTED_ITSELF);
             break;
         case STATE_DISCONNECTED:
@@ -390,11 +395,12 @@ void ConnectionManager::onConnectionDisconnected()
                 bNeedResetTap_ = false;
             }
 #endif
-            doConnect();
+            connectOrStartConnectTimer();
             break;
         case STATE_RECONNECTION_TIME_EXCEED:
             state_ = STATE_DISCONNECTED;
             timerReconnection_.stop();
+            connectTimer_.stop();
             Q_EMIT disconnected(DISCONNECTED_BY_RECONNECTION_TIMEOUT_EXCEEDED);
             break;
 
@@ -409,7 +415,7 @@ void ConnectionManager::onConnectionDisconnected()
             break;
 
         default:
-            Q_ASSERT(false);
+            WS_ASSERT(false);
     }
 }
 
@@ -455,7 +461,7 @@ void ConnectionManager::onConnectionReconnecting()
             break;
 
         case STATE_CONNECTED:
-            Q_ASSERT(!timerReconnection_.isActive());
+            WS_ASSERT(!timerReconnection_.isActive());
 
             if (!connector_->isDisconnected())
             {
@@ -488,12 +494,19 @@ void ConnectionManager::onConnectionReconnecting()
                 {
                     connSettingsPolicy_->reset();
                 }
-                connector_->startDisconnect();
+                if (connector_) {
+                    connector_->startDisconnect();
+                } else {
+                    state_ = STATE_DISCONNECTED;
+                    connectOrStartConnectTimer();
+                }
             }
             else
             {
                 state_ = STATE_AUTO_DISCONNECT;
-                connector_->startDisconnect();
+                if (connector_) {
+                    connector_->startDisconnect();
+                }
                 Q_EMIT showFailedAutomaticConnectionMessage();
             }
             break;
@@ -502,11 +515,11 @@ void ConnectionManager::onConnectionReconnecting()
         case STATE_WAKEUP_RECONNECTING:
             break;
         default:
-            Q_ASSERT(false);
+            WS_ASSERT(false);
     }
 }
 
-void ConnectionManager::onConnectionError(ProtoTypes::ConnectError err)
+void ConnectionManager::onConnectionError(CONNECT_ERROR err)
 {
     if (state_ == STATE_DISCONNECTING_FROM_USER_CLICK || state_ == STATE_RECONNECTION_TIME_EXCEED ||
         state_ == STATE_AUTO_DISCONNECT || state_ == STATE_ERROR_DURING_CONNECTION)
@@ -517,31 +530,32 @@ void ConnectionManager::onConnectionError(ProtoTypes::ConnectError err)
     qCDebug(LOG_CONNECTION) << "ConnectionManager::onConnectionError(), state_ =" << state_ << ", error =" << (int)err;
     testVPNTunnel_->stopTests();
 
-    if ((err == ProtoTypes::ConnectError::AUTH_ERROR && bEmitAuthError_)
-            || err == ProtoTypes::ConnectError::CANT_RUN_OPENVPN
-            || err == ProtoTypes::ConnectError::NO_OPENVPN_SOCKET
-            || err == ProtoTypes::ConnectError::NO_INSTALLED_TUN_TAP
-            || err == ProtoTypes::ConnectError::ALL_TAP_IN_USE
-            || err == ProtoTypes::ConnectError::WIREGUARD_CONNECTION_ERROR
-            || err == ProtoTypes::ConnectError::WINTUN_DRIVER_REINSTALLATION_ERROR
-            || err == ProtoTypes::ConnectError::TAP_DRIVER_REINSTALLATION_ERROR
-            || err == ProtoTypes::ConnectError::WINTUN_FATAL_ERROR)
+    if ((err == CONNECT_ERROR::AUTH_ERROR && bEmitAuthError_)
+            || err == CONNECT_ERROR::CANT_RUN_OPENVPN
+            || err == CONNECT_ERROR::NO_OPENVPN_SOCKET
+            || err == CONNECT_ERROR::NO_INSTALLED_TUN_TAP
+            || err == CONNECT_ERROR::ALL_TAP_IN_USE
+            || (!connSettingsPolicy_->isAutomaticMode() && err == CONNECT_ERROR::WIREGUARD_CONNECTION_ERROR)
+            || (!connSettingsPolicy_->isAutomaticMode() && err == CONNECT_ERROR::WIREGUARD_ADAPTER_SETUP_FAILED)
+            || err == CONNECT_ERROR::WINTUN_DRIVER_REINSTALLATION_ERROR
+            || err == CONNECT_ERROR::TAP_DRIVER_REINSTALLATION_ERROR
+            || err == CONNECT_ERROR::WINTUN_FATAL_ERROR)
     {
         // emit error in disconnected event
         latestConnectionError_ = err;
         state_ = STATE_ERROR_DURING_CONNECTION;
         timerReconnection_.stop();
     }
-    else if ( (!connSettingsPolicy_->isAutomaticMode() && (err == ProtoTypes::ConnectError::IKEV_NOT_FOUND_WIN
-                                                           || err == ProtoTypes::ConnectError::IKEV_FAILED_SET_ENTRY_WIN
-                                                           || err == ProtoTypes::ConnectError::IKEV_FAILED_MODIFY_HOSTS_WIN) )
-            || (!connSettingsPolicy_->isAutomaticMode() && (err == ProtoTypes::ConnectError::IKEV_NETWORK_EXTENSION_NOT_FOUND_MAC
-                                                            || err == ProtoTypes::ConnectError::IKEV_FAILED_SET_KEYCHAIN_MAC
-                                                            || err == ProtoTypes::ConnectError::IKEV_FAILED_START_MAC
-                                                            || err == ProtoTypes::ConnectError::IKEV_FAILED_LOAD_PREFERENCES_MAC
-                                                            || err == ProtoTypes::ConnectError::IKEV_FAILED_SAVE_PREFERENCES_MAC))
-            || (!connSettingsPolicy_->isAutomaticMode() && err == ProtoTypes::ConnectError::EXE_VERIFY_OPENVPN_ERROR)
-            || (!connSettingsPolicy_->isAutomaticMode() && err == ProtoTypes::ConnectError::EXE_VERIFY_WIREGUARD_ERROR))
+    else if ( (!connSettingsPolicy_->isAutomaticMode() && (err == CONNECT_ERROR::IKEV_NOT_FOUND_WIN
+                                                           || err == CONNECT_ERROR::IKEV_FAILED_SET_ENTRY_WIN
+                                                           || err == CONNECT_ERROR::IKEV_FAILED_MODIFY_HOSTS_WIN) )
+            || (!connSettingsPolicy_->isAutomaticMode() && (err == CONNECT_ERROR::IKEV_NETWORK_EXTENSION_NOT_FOUND_MAC
+                                                            || err == CONNECT_ERROR::IKEV_FAILED_SET_KEYCHAIN_MAC
+                                                            || err == CONNECT_ERROR::IKEV_FAILED_START_MAC
+                                                            || err == CONNECT_ERROR::IKEV_FAILED_LOAD_PREFERENCES_MAC
+                                                            || err == CONNECT_ERROR::IKEV_FAILED_SAVE_PREFERENCES_MAC))
+            || (!connSettingsPolicy_->isAutomaticMode() && err == CONNECT_ERROR::EXE_VERIFY_OPENVPN_ERROR)
+            || err == CONNECT_ERROR::EXE_VERIFY_WIREGUARD_ERROR)
     {
         // immediately stop trying to connect
         state_ = STATE_DISCONNECTED;
@@ -549,23 +563,26 @@ void ConnectionManager::onConnectionError(ProtoTypes::ConnectError err)
         getWireGuardConfigInLoop_->stop();
         Q_EMIT errorDuringConnection(err);
     }
-    else if (err == ProtoTypes::ConnectError::UDP_CANT_ASSIGN
-             || err == ProtoTypes::ConnectError::UDP_NO_BUFFER_SPACE
-             || err == ProtoTypes::ConnectError::UDP_NETWORK_DOWN
-             || err == ProtoTypes::ConnectError::WINTUN_OVER_CAPACITY
-             || err == ProtoTypes::ConnectError::TCP_ERROR
-             || err == ProtoTypes::ConnectError::CONNECTED_ERROR
-             || err == ProtoTypes::ConnectError::INITIALIZATION_SEQUENCE_COMPLETED_WITH_ERRORS
-             || err == ProtoTypes::ConnectError::IKEV_FAILED_TO_CONNECT
-             || (connSettingsPolicy_->isAutomaticMode() && (err == ProtoTypes::ConnectError::IKEV_NOT_FOUND_WIN
-                                                            || err == ProtoTypes::ConnectError::IKEV_FAILED_SET_ENTRY_WIN
-                                                            || err == ProtoTypes::ConnectError::IKEV_FAILED_MODIFY_HOSTS_WIN))
-             || (connSettingsPolicy_->isAutomaticMode() && (err == ProtoTypes::ConnectError::IKEV_NETWORK_EXTENSION_NOT_FOUND_MAC
-                                                            || err == ProtoTypes::ConnectError::IKEV_FAILED_SET_KEYCHAIN_MAC
-                                                            || err == ProtoTypes::ConnectError::IKEV_FAILED_START_MAC
-                                                            || err == ProtoTypes::ConnectError::IKEV_FAILED_LOAD_PREFERENCES_MAC
-                                                            || err == ProtoTypes::ConnectError::IKEV_FAILED_SAVE_PREFERENCES_MAC))
-             || (err == ProtoTypes::ConnectError::AUTH_ERROR && !bEmitAuthError_))
+    else if (err == CONNECT_ERROR::STATE_TIMEOUT_FOR_AUTOMATIC
+             || err == CONNECT_ERROR::UDP_CANT_ASSIGN
+             || err == CONNECT_ERROR::UDP_NO_BUFFER_SPACE
+             || err == CONNECT_ERROR::UDP_NETWORK_DOWN
+             || err == CONNECT_ERROR::WINTUN_OVER_CAPACITY
+             || err == CONNECT_ERROR::TCP_ERROR
+             || err == CONNECT_ERROR::CONNECTED_ERROR
+             || err == CONNECT_ERROR::INITIALIZATION_SEQUENCE_COMPLETED_WITH_ERRORS
+             || err == CONNECT_ERROR::IKEV_FAILED_TO_CONNECT
+             || err == CONNECT_ERROR::WIREGUARD_CONNECTION_ERROR
+             || err == CONNECT_ERROR::WIREGUARD_ADAPTER_SETUP_FAILED
+             || (connSettingsPolicy_->isAutomaticMode() && (err == CONNECT_ERROR::IKEV_NOT_FOUND_WIN
+                                                            || err == CONNECT_ERROR::IKEV_FAILED_SET_ENTRY_WIN
+                                                            || err == CONNECT_ERROR::IKEV_FAILED_MODIFY_HOSTS_WIN))
+             || (connSettingsPolicy_->isAutomaticMode() && (err == CONNECT_ERROR::IKEV_NETWORK_EXTENSION_NOT_FOUND_MAC
+                                                            || err == CONNECT_ERROR::IKEV_FAILED_SET_KEYCHAIN_MAC
+                                                            || err == CONNECT_ERROR::IKEV_FAILED_START_MAC
+                                                            || err == CONNECT_ERROR::IKEV_FAILED_LOAD_PREFERENCES_MAC
+                                                            || err == CONNECT_ERROR::IKEV_FAILED_SAVE_PREFERENCES_MAC))
+             || (err == CONNECT_ERROR::AUTH_ERROR && !bEmitAuthError_))
     {
         // bIgnoreConnectionErrorsForOpenVpn_ need to prevent handle multiple error messages from openvpn
         if (!bIgnoreConnectionErrorsForOpenVpn_)
@@ -577,12 +594,12 @@ void ConnectionManager::onConnectionError(ProtoTypes::ConnectError err)
                 Q_EMIT reconnecting();
                 state_ = STATE_RECONNECTING;
                 startReconnectionTimer();
-                if (err == ProtoTypes::ConnectError::INITIALIZATION_SEQUENCE_COMPLETED_WITH_ERRORS)
+                if (err == CONNECT_ERROR::INITIALIZATION_SEQUENCE_COMPLETED_WITH_ERRORS)
                 {
                     bNeedResetTap_ = true;
                 }
                 // for AUTH_ERROR signal disconnected will be emitted automatically
-                if (err != ProtoTypes::ConnectError::AUTH_ERROR)
+                if (err != CONNECT_ERROR::AUTH_ERROR)
                 {
                     connector_->startDisconnect();
                 }
@@ -603,12 +620,12 @@ void ConnectionManager::onConnectionError(ProtoTypes::ConnectError err)
                         state_ = STATE_RECONNECTING;
                         startReconnectionTimer();
                     }
-                    if (err == ProtoTypes::ConnectError::INITIALIZATION_SEQUENCE_COMPLETED_WITH_ERRORS)
+                    if (err == CONNECT_ERROR::INITIALIZATION_SEQUENCE_COMPLETED_WITH_ERRORS)
                     {
                         bNeedResetTap_ = true;
                     }
                     // for AUTH_ERROR signal disconnected will be emitted automatically
-                    if (err != ProtoTypes::ConnectError::AUTH_ERROR)
+                    if (err != CONNECT_ERROR::AUTH_ERROR)
                     {
                         connector_->startDisconnect();
                     }
@@ -616,7 +633,7 @@ void ConnectionManager::onConnectionError(ProtoTypes::ConnectError err)
                 else
                 {
                     state_ = STATE_AUTO_DISCONNECT;
-                    if (err != ProtoTypes::ConnectError::AUTH_ERROR)
+                    if (err != CONNECT_ERROR::AUTH_ERROR)
                     {
                         connector_->startDisconnect();
                     }
@@ -656,7 +673,7 @@ void ConnectionManager::onSleepMode()
     qCDebug(LOG_CONNECTION) << "ConnectionManager::onSleepMode(), state_ =" << state_;
 
     timerReconnection_.stop();
-    getWireGuardConfigInLoop_->stop();
+    connectTimer_.stop();
     bWakeSignalReceived_ = false;
 
     switch (state_)
@@ -666,6 +683,7 @@ void ConnectionManager::onSleepMode()
         case STATE_CONNECTING_FROM_USER_CLICK:
         case STATE_CONNECTED:
         case STATE_RECONNECTING:
+        case STATE_WAKEUP_RECONNECTING:
             Q_EMIT reconnecting();
             blockingDisconnect();
             qCDebug(LOG_CONNECTION) << "ConnectionManager::onSleepMode(), connection blocking disconnected";
@@ -685,7 +703,7 @@ void ConnectionManager::onSleepMode()
         case STATE_RECONNECTION_TIME_EXCEED:
             break;
         default:
-            Q_ASSERT(false);
+            WS_ASSERT(false);
     }
 }
 
@@ -693,36 +711,43 @@ void ConnectionManager::onWakeMode()
 {
     qCDebug(LOG_CONNECTION) << "ConnectionManager::onWakeMode(), state_ =" << state_;
     timerReconnection_.stop();
-    getWireGuardConfigInLoop_->stop();
+    connectTimer_.stop();
     bWakeSignalReceived_ = true;
 
     switch (state_)
     {
         case STATE_DISCONNECTED:
+            break;
         case STATE_CONNECTING_FROM_USER_CLICK:
         case STATE_CONNECTED:
         case STATE_RECONNECTING:
         case STATE_WAIT_FOR_NETWORK_CONNECTIVITY:
         case STATE_DISCONNECTING_FROM_USER_CLICK:
         case STATE_RECONNECTION_TIME_EXCEED:
-            break;
         case STATE_SLEEP_MODE_NEED_RECONNECT:
+        case STATE_WAKEUP_RECONNECTING:
+            // We should not be in some of these above states after wake up, but in some weird cases
+            // on Mac it is possible for the network to keep changing after onSleep() which may trigger
+            // some state changes.  Regardless of the above state, we should restore connection here.
             restoreConnectionAfterWakeUp();
             break;
         default:
-            Q_ASSERT(false);
+            WS_ASSERT(false);
     }
 }
 
 void ConnectionManager::onNetworkOnlineStateChanged(bool isAlive)
 {
     qCDebug(LOG_CONNECTION) << "ConnectionManager::onNetworkOnlineStateChanged(), isAlive =" << isAlive << ", state_ =" << state_;
-#ifdef Q_OS_WIN
+
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     Q_EMIT internetConnectivityChanged(isAlive);
 #elif defined Q_OS_MAC
     Q_EMIT internetConnectivityChanged(isAlive);
 
     bLastIsOnline_ = isAlive;
+    if (!connector_)
+        return;
 
     switch (state_)
     {
@@ -733,7 +758,7 @@ void ConnectionManager::onNetworkOnlineStateChanged(bool isAlive)
             if (!isAlive)
             {
                 state_ = STATE_WAIT_FOR_NETWORK_CONNECTIVITY;
-                Q_ASSERT(!timerReconnection_.isActive());
+                WS_ASSERT(!timerReconnection_.isActive());
                 timerReconnection_.start(MAX_RECONNECTION_TIME);
                 connector_->startDisconnect();
             }
@@ -743,7 +768,7 @@ void ConnectionManager::onNetworkOnlineStateChanged(bool isAlive)
             {
                 Q_EMIT reconnecting();
                 state_ = STATE_WAIT_FOR_NETWORK_CONNECTIVITY;
-                Q_ASSERT(!timerReconnection_.isActive());
+                WS_ASSERT(!timerReconnection_.isActive());
                 timerReconnection_.start(MAX_RECONNECTION_TIME);
                 connector_->startDisconnect();
             }
@@ -751,7 +776,7 @@ void ConnectionManager::onNetworkOnlineStateChanged(bool isAlive)
             {
                 Q_EMIT reconnecting();
                 state_ = STATE_RECONNECTING;
-                Q_ASSERT(!timerReconnection_.isActive());
+                WS_ASSERT(!timerReconnection_.isActive());
                 timerReconnection_.start(MAX_RECONNECTION_TIME);
                 connector_->startDisconnect();
             }
@@ -788,10 +813,8 @@ void ConnectionManager::onNetworkOnlineStateChanged(bool isAlive)
             break;
 
         default:
-            Q_ASSERT(false);
+            WS_ASSERT(false);
     }
-#elif defined Q_OS_LINUX
-        Q_EMIT internetConnectivityChanged(isAlive);
 #endif
 }
 
@@ -853,6 +876,19 @@ void ConnectionManager::doConnect()
     defaultAdapterInfo_ = AdapterGatewayInfo::detectAndCreateDefaultAdaperInfo();
     qCDebug(LOG_CONNECTION) << "Default adapter and gateway:" << defaultAdapterInfo_.makeLogString();
 
+    connectTimer_.stop();
+
+    connectingTimer_.setSingleShot(true);
+    if (connSettingsPolicy_->isAutomaticMode()) {
+        CurrentConnectionDescr settings = connSettingsPolicy_->getCurrentConnectionSettings();
+        if (settings.protocol == types::Protocol::WIREGUARD) {
+            connectingTimer_.setInterval(kConnectingTimeoutWireGuard);
+        } else {
+            connectingTimer_.setInterval(kConnectingTimeout);
+        }
+        connectingTimer_.start();
+    }
+
     connSettingsPolicy_->resolveHostnames();
 }
 
@@ -862,27 +898,30 @@ void ConnectionManager::doConnectPart2()
     bIgnoreConnectionErrorsForOpenVpn_ = false;
 
     currentConnectionDescr_ = connSettingsPolicy_->getCurrentConnectionSettings();
-    //Q_ASSERT(currentConnectionDescr_.connectionNodeType != CONNECTION_NODE_ERROR);
+
+    qCDebug(LOG_CONNECTION) << "Connecting to IP:" << currentConnectionDescr_.ip << " protocol:" << currentConnectionDescr_.protocol.toLongString() << " port:" << currentConnectionDescr_.port;
+    Q_EMIT protocolPortChanged(currentConnectionDescr_.protocol, currentConnectionDescr_.port);
+
+    //WS_ASSERT(currentConnectionDescr_.connectionNodeType != CONNECTION_NODE_ERROR);
     if (currentConnectionDescr_.connectionNodeType == CONNECTION_NODE_ERROR)
     {
         qCDebug(LOG_CONNECTION) << "connSettingsPolicy_.getCurrentConnectionSettings returned incorrect value";
         state_ = STATE_DISCONNECTED;
         timerReconnection_.stop();
-        getWireGuardConfigInLoop_->stop();
-        Q_EMIT errorDuringConnection(ProtoTypes::ConnectError::LOCATION_NO_ACTIVE_NODES);
+        Q_EMIT errorDuringConnection(CONNECT_ERROR::LOCATION_NO_ACTIVE_NODES);
         return;
     }
 
     if (currentConnectionDescr_.connectionNodeType == CONNECTION_NODE_DEFAULT ||
             currentConnectionDescr_.connectionNodeType == CONNECTION_NODE_STATIC_IPS)
     {
-        if (currentConnectionDescr_.protocol.getType() == ProtocolType::PROTOCOL_STUNNEL)
+        if (currentConnectionDescr_.protocol == types::Protocol::STUNNEL)
         {
             bool bStunnelConfigSuccess = stunnelManager_->setConfig(currentConnectionDescr_.ip, currentConnectionDescr_.port);
             if (!bStunnelConfigSuccess)
             {
                 qCDebug(LOG_CONNECTION) << "Failed create config for stunnel";
-                Q_ASSERT(false);
+                WS_ASSERT(false);
                 return;
             }
         }
@@ -891,13 +930,13 @@ void ConnectionManager::doConnectPart2()
         {
 
             int mss = 0;
-            if (!packetSize_.is_automatic())
+            if (!packetSize_.isAutomatic)
             {
                 bool advParamsOpenVpnExists = false;
                 int openVpnOffset = ExtraConfig::instance().getMtuOffsetOpenVpn(advParamsOpenVpnExists);
                 if (!advParamsOpenVpnExists) openVpnOffset = MTU_OFFSET_OPENVPN;
 
-                mss = packetSize_.mtu() - openVpnOffset;
+                mss = packetSize_.mtu - openVpnOffset;
 
                 if (mss <= 0)
                 {
@@ -915,38 +954,36 @@ void ConnectionManager::doConnectPart2()
             }
 
             uint portForStunnelOrWStunnel = currentConnectionDescr_.protocol.isStunnelOrWStunnelProtocol() ?
-                        (currentConnectionDescr_.protocol.getType() == ProtocolType::PROTOCOL_STUNNEL ? stunnelManager_->getStunnelPort() : wstunnelManager_->getPort()) : 0;
+                        (currentConnectionDescr_.protocol == types::Protocol::STUNNEL ? stunnelManager_->getStunnelPort() : wstunnelManager_->getPort()) : 0;
 
-            const bool blockOutsideDnsOption = !IpValidation::instance().isLocalIp(getCustomDnsIp());
+            const bool blockOutsideDnsOption = !IpValidation::isLocalIp(getCustomDnsIp());
             const bool bOvpnSuccess = makeOVPNFile_->generate(lastOvpnConfig_, currentConnectionDescr_.ip, currentConnectionDescr_.protocol,
                                                         currentConnectionDescr_.port, portForStunnelOrWStunnel, mss, defaultAdapterInfo_.gateway(),
                                                         currentConnectionDescr_.verifyX509name, blockOutsideDnsOption);
             if (!bOvpnSuccess )
             {
                 qCDebug(LOG_CONNECTION) << "Failed create ovpn config";
-                Q_ASSERT(false);
+                WS_ASSERT(false);
                 return;
             }
 
-            if (currentConnectionDescr_.protocol.getType() == ProtocolType::PROTOCOL_STUNNEL)
+            if (currentConnectionDescr_.protocol == types::Protocol::STUNNEL)
             {
                 if(!stunnelManager_->runProcess())
                 {
                     state_ = STATE_DISCONNECTED;
                     timerReconnection_.stop();
-                    getWireGuardConfigInLoop_->stop();
-                    Q_EMIT errorDuringConnection(ProtoTypes::ConnectError::EXE_VERIFY_STUNNEL_ERROR);
+                    Q_EMIT errorDuringConnection(CONNECT_ERROR::EXE_VERIFY_STUNNEL_ERROR);
                     return;
                 }
             }
-            else if (currentConnectionDescr_.protocol.getType() == ProtocolType::PROTOCOL_WSTUNNEL)
+            else if (currentConnectionDescr_.protocol == types::Protocol::WSTUNNEL)
             {
                 if (!wstunnelManager_->runProcess(currentConnectionDescr_.ip, currentConnectionDescr_.port, false))
                 {
                     state_ = STATE_DISCONNECTED;
                     timerReconnection_.stop();
-                    getWireGuardConfigInLoop_->stop();
-                    Q_EMIT errorDuringConnection(ProtoTypes::ConnectError::EXE_VERIFY_WSTUNNEL_ERROR);
+                    Q_EMIT errorDuringConnection(CONNECT_ERROR::EXE_VERIFY_WSTUNNEL_ERROR);
                     return;
                 }
                 // call doConnectPart2 in onWstunnelStarted slot
@@ -956,11 +993,11 @@ void ConnectionManager::doConnectPart2()
         else if (currentConnectionDescr_.protocol.isIkev2Protocol())
         {
             QString remoteHostname = ExtraConfig::instance().getRemoteIpFromExtraConfig();
-            if (IpValidation::instance().isDomain(remoteHostname))
+            if (IpValidation::isDomain(remoteHostname))
             {
                 currentConnectionDescr_.hostname = remoteHostname;
                 currentConnectionDescr_.ip = ExtraConfig::instance().getDetectedIp();
-                currentConnectionDescr_.dnsHostName = IpValidation::instance().getRemoteIdFromDomain(remoteHostname);
+                currentConnectionDescr_.dnsHostName = IpValidation::getRemoteIdFromDomain(remoteHostname);
                 qCDebug(LOG_CONNECTION) << "Use data from extra config: hostname=" << currentConnectionDescr_.hostname << ", ip=" << currentConnectionDescr_.ip << ", remoteId=" << currentConnectionDescr_.dnsHostName;
 
             }
@@ -968,7 +1005,8 @@ void ConnectionManager::doConnectPart2()
         else if (currentConnectionDescr_.protocol.isWireGuardProtocol())
         {
             qCDebug(LOG_CONNECTION) << "Requesting WireGuard config for hostname =" << currentConnectionDescr_.hostname;
-            getWireGuardConfigInLoop_->getWireGuardConfig(currentConnectionDescr_.hostname, false);
+            QString deviceId = (isStaticIpsLocation() ? GetDeviceId::instance().getDeviceId() : QString());
+            getWireGuardConfig_->getWireGuardConfig(currentConnectionDescr_.hostname, false, deviceId);
             return;
         }
     }
@@ -982,29 +1020,27 @@ void ConnectionManager::doConnectPart2()
             {
                 qCDebug(LOG_CONNECTION) << "Failed create ovpn config for custom ovpn file:"
                                         << currentConnectionDescr_.customConfigFilename;
-                //Q_ASSERT(false);
+                //WS_ASSERT(false);
                 state_ = STATE_DISCONNECTED;
                 timerReconnection_.stop();
-                getWireGuardConfigInLoop_->stop();
-                Q_EMIT errorDuringConnection(ProtoTypes::ConnectError::CANNOT_OPEN_CUSTOM_CONFIG);
+                Q_EMIT errorDuringConnection(CONNECT_ERROR::CANNOT_OPEN_CUSTOM_CONFIG);
                 return;
             }
         } else if (currentConnectionDescr_.protocol.isWireGuardProtocol()) {
-            Q_ASSERT(currentConnectionDescr_.wgCustomConfig != nullptr);
+            WS_ASSERT(currentConnectionDescr_.wgCustomConfig != nullptr);
             if (currentConnectionDescr_.wgCustomConfig == nullptr) {
                 qCDebug(LOG_CONNECTION) << "Failed to get config for custom WG file:"
                                         << currentConnectionDescr_.customConfigFilename;
                 state_ = STATE_DISCONNECTED;
                 timerReconnection_.stop();
-                getWireGuardConfigInLoop_->stop();
-                Q_EMIT errorDuringConnection(ProtoTypes::ConnectError::CANNOT_OPEN_CUSTOM_CONFIG);
+                Q_EMIT errorDuringConnection(CONNECT_ERROR::CANNOT_OPEN_CUSTOM_CONFIG);
                 return;
             }
         }
     }
     else
     {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
     }
 
     doConnectPart3();
@@ -1012,13 +1048,10 @@ void ConnectionManager::doConnectPart2()
 
 void ConnectionManager::doConnectPart3()
 {
-    qCDebug(LOG_CONNECTION) << "Connecting to IP:" << currentConnectionDescr_.ip << " protocol:" << currentConnectionDescr_.protocol.toLongString() << " port:" << currentConnectionDescr_.port;
-    Q_EMIT protocolPortChanged(currentConnectionDescr_.protocol.convertToProtobuf(), currentConnectionDescr_.port);
-
     if (currentConnectionDescr_.protocol.isWireGuardProtocol())
     {
         WireGuardConfig* pConfig = (currentConnectionDescr_.connectionNodeType == CONNECTION_NODE_CUSTOM_CONFIG ? currentConnectionDescr_.wgCustomConfig.get() : &wireGuardConfig_);
-        Q_ASSERT(pConfig != nullptr);
+        WS_ASSERT(pConfig != nullptr);
         Q_EMIT connectingToHostname(currentConnectionDescr_.hostname, currentConnectionDescr_.ip, pConfig->clientDnsAddress());
     }
     else
@@ -1029,18 +1062,18 @@ void ConnectionManager::doConnectPart3()
     if (currentConnectionDescr_.connectionNodeType == CONNECTION_NODE_CUSTOM_CONFIG)
     {
         if (currentConnectionDescr_.protocol.isWireGuardProtocol())
-            recreateConnector(ProtocolType(ProtocolType::PROTOCOL_WIREGUARD));
+            recreateConnector(types::Protocol::WIREGUARD);
         else
-            recreateConnector(ProtocolType(ProtocolType::PROTOCOL_OPENVPN_UDP));
+            recreateConnector(types::Protocol::OPENVPN_UDP);
 
-        connector_->startConnect(makeOVPNFileFromCustom_->path(), "", "", usernameForCustomOvpn_,
+        connector_->startConnect(makeOVPNFileFromCustom_->config(), "", "", usernameForCustomOvpn_,
                                  passwordForCustomOvpn_, lastProxySettings_,
-                                 currentConnectionDescr_.wgCustomConfig.get(), false, false);
+                                 currentConnectionDescr_.wgCustomConfig.get(), false, false, true);
     }
     else
     {
         if (currentConnectionDescr_.protocol.isOpenVpnProtocol())
-        { 
+        {
             QString username, password;
             if (currentConnectionDescr_.connectionNodeType == CONNECTION_NODE_STATIC_IPS)
             {
@@ -1053,8 +1086,8 @@ void ConnectionManager::doConnectPart3()
                 password = lastServerCredentials_.passwordForOpenVpn();
             }
 
-            recreateConnector(ProtocolType(ProtocolType::PROTOCOL_OPENVPN_UDP));
-            connector_->startConnect(makeOVPNFile_->path(), "", "", username, password, lastProxySettings_, nullptr, false, connSettingsPolicy_->isAutomaticMode());
+            recreateConnector(types::Protocol::OPENVPN_UDP);
+            connector_->startConnect(makeOVPNFile_->config(), "", "", username, password, lastProxySettings_, nullptr, false, connSettingsPolicy_->isAutomaticMode(), false);
         }
         else if (currentConnectionDescr_.protocol.isIkev2Protocol())
         {
@@ -1070,23 +1103,23 @@ void ConnectionManager::doConnectPart3()
                 password = lastServerCredentials_.passwordForIkev2();
             }
 
-            recreateConnector(ProtocolType(ProtocolType::PROTOCOL_IKEV2));
+            recreateConnector(types::Protocol::IKEV2);
             connector_->startConnect(currentConnectionDescr_.hostname, currentConnectionDescr_.ip, currentConnectionDescr_.hostname, username, password, lastProxySettings_,
-                                     nullptr, ExtraConfig::instance().isUseIkev2Compression(), connSettingsPolicy_->isAutomaticMode());
+                                     nullptr, ExtraConfig::instance().isUseIkev2Compression(), connSettingsPolicy_->isAutomaticMode(), false);
         }
         else if (currentConnectionDescr_.protocol.isWireGuardProtocol())
         {
             QString endpointAndPort = QString("%1:%2").arg(currentConnectionDescr_.ip).arg(currentConnectionDescr_.port);
             wireGuardConfig_.setPeerPublicKey(currentConnectionDescr_.wgPeerPublicKey);
             wireGuardConfig_.setPeerEndpoint(endpointAndPort);
-            recreateConnector(ProtocolType(ProtocolType::PROTOCOL_WIREGUARD));
+            recreateConnector(types::Protocol::WIREGUARD);
             connector_->startConnect(QString(), currentConnectionDescr_.ip,
                 currentConnectionDescr_.dnsHostName, QString(), QString(), lastProxySettings_,
-                &wireGuardConfig_, false, connSettingsPolicy_->isAutomaticMode());
+                &wireGuardConfig_, false, connSettingsPolicy_->isAutomaticMode(), false);
         }
         else
         {
-            Q_ASSERT(false);
+            WS_ASSERT(false);
         }
     }
 
@@ -1108,11 +1141,8 @@ void ConnectionManager::doMacRestoreProcedures()
     const auto connection_type = connector_->getConnectionType();
     if (connection_type == ConnectionType::OPENVPN)
     {
-        QString delRouteCommand = "route -n delete " + lastIp_ + "/32 " + defaultAdapterInfo_.gateway();
-        qCDebug(LOG_CONNECTION) << "Execute command: " << delRouteCommand;
         Helper_mac *helper_mac = dynamic_cast<Helper_mac *>(helper_);
-        QString cmdAnswer = helper_mac->executeRootCommand(delRouteCommand);
-        qCDebug(LOG_CONNECTION) << "Output from route delete command: " << cmdAnswer;
+        helper_mac->deleteRoute(lastIp_, 32, defaultAdapterInfo_.gateway());
     }
     if (connection_type == ConnectionType::OPENVPN || connection_type == ConnectionType::WIREGUARD)
     {
@@ -1135,14 +1165,14 @@ void ConnectionManager::waitForNetworkConnectivity()
     timerWaitNetworkConnectivity_.start(1000);
 }
 
-void ConnectionManager::recreateConnector(ProtocolType protocol)
+void ConnectionManager::recreateConnector(types::Protocol protocol)
 {
-    if (!currentProtocol_.isInitialized())
+    if (currentProtocol_ == types::Protocol::UNINITIALIZED)
     {
-        Q_ASSERT(connector_ == NULL);
+        WS_ASSERT(connector_ == NULL);
     }
 
-    if (!currentProtocol_.isEqual(protocol))
+    if (currentProtocol_ != protocol)
     {
         SAFE_DELETE_LATER(connector_);
 
@@ -1166,13 +1196,13 @@ void ConnectionManager::recreateConnector(ProtocolType protocol)
         }
         else
         {
-            Q_ASSERT(false);
+            WS_ASSERT(false);
         }
 
         connect(connector_, SIGNAL(connected(AdapterGatewayInfo)), SLOT(onConnectionConnected(AdapterGatewayInfo)), Qt::QueuedConnection);
         connect(connector_, SIGNAL(disconnected()), SLOT(onConnectionDisconnected()), Qt::QueuedConnection);
         connect(connector_, SIGNAL(reconnecting()), SLOT(onConnectionReconnecting()), Qt::QueuedConnection);
-        connect(connector_, SIGNAL(error(ProtoTypes::ConnectError)), SLOT(onConnectionError(ProtoTypes::ConnectError)), Qt::QueuedConnection);
+        connect(connector_, SIGNAL(error(CONNECT_ERROR)), SLOT(onConnectionError(CONNECT_ERROR)), Qt::QueuedConnection);
         connect(connector_, SIGNAL(statisticsUpdated(quint64,quint64, bool)), SLOT(onConnectionStatisticsUpdated(quint64,quint64, bool)), Qt::QueuedConnection);
         connect(connector_, SIGNAL(interfaceUpdated(QString)), SLOT(onConnectionInterfaceUpdated(QString)), Qt::QueuedConnection);
 
@@ -1190,7 +1220,12 @@ void ConnectionManager::restoreConnectionAfterWakeUp()
         qCDebug(LOG_CONNECTION) <<
             "ConnectionManager::restoreConnectionAfterWakeUp(), reconnecting";
         state_ = STATE_WAKEUP_RECONNECTING;
-        doConnect();
+        if (connector_) {
+            connector_->startDisconnect();
+        } else {
+            Q_EMIT reconnecting();
+            doConnect();
+        }
     }
     else
     {
@@ -1202,7 +1237,15 @@ void ConnectionManager::restoreConnectionAfterWakeUp()
 
 void ConnectionManager::onTunnelTestsFinished(bool bSuccess, const QString &ipAddress)
 {
-    if (!bSuccess)
+    bool hasAttempts = false;
+    int attempts = ExtraConfig::instance().getTunnelTestAttempts(hasAttempts);
+    bool noError = ExtraConfig::instance().getIsTunnelTestNoError();
+
+    if ((hasAttempts && attempts == 0) || (noError && !bSuccess))
+    {
+        Q_EMIT testTunnelResult(bSuccess, "");
+    }
+    else if (!bSuccess)
     {
         if (connSettingsPolicy_->isAutomaticMode())
         {
@@ -1234,9 +1277,8 @@ void ConnectionManager::onTunnelTestsFinished(bool bSuccess, const QString &ipAd
     {
         Q_EMIT testTunnelResult(true, ipAddress);
 
-        // if connection mode is automatic, save last successfully connection settings
+        // if connection mode is automatic
         bWasSuccessfullyConnectionAttempt_ = true;
-        connSettingsPolicy_->saveCurrentSuccessfullConnectionSettings();
     }
 }
 
@@ -1255,7 +1297,7 @@ void ConnectionManager::onTimerWaitNetworkConnectivity()
             qCDebug(LOG_CONNECTION) << "Time for wait network connection exceed";
             timerWaitNetworkConnectivity_.stop();
             timerReconnection_.stop();
-            getWireGuardConfigInLoop_->stop();
+            connectTimer_.stop();
             state_ = STATE_DISCONNECTED;
             Q_EMIT disconnected(DISCONNECTED_BY_RECONNECTION_TIMEOUT_EXCEEDED);
         }
@@ -1267,19 +1309,29 @@ void ConnectionManager::onHostnamesResolved()
     doConnectPart2();
 }
 
-void ConnectionManager::onGetWireGuardConfigAnswer(SERVER_API_RET_CODE retCode, const WireGuardConfig &config)
+void ConnectionManager::onGetWireGuardConfigAnswer(WireGuardConfigRetCode retCode, const WireGuardConfig &config)
 {
-    if (retCode == SERVER_RETURN_WIREGUARD_KEY_LIMIT)
+    // if we got an answer after we've timed out or disconnected, ignore this event
+    CurrentConnectionDescr settings = connSettingsPolicy_->getCurrentConnectionSettings();
+    if ((state_ != STATE_CONNECTING_FROM_USER_CLICK && state_ != STATE_WAKEUP_RECONNECTING && state_ != STATE_RECONNECTING)
+        || settings.protocol != types::Protocol::WIREGUARD)
     {
+        return;
+    }
+
+    if (retCode == WireGuardConfigRetCode::kKeyLimit)
+    {
+        // Do not timeout while waiting for user input
+        connectingTimer_.stop();
         Q_EMIT wireGuardAtKeyLimit();
     }
-    else if (retCode == SERVER_RETURN_SUCCESS)
+    else if (retCode == WireGuardConfigRetCode::kSuccess)
     {
         wireGuardConfig_ = config;
         // If the protocol has been changed, do nothing.
         if (!currentConnectionDescr_.protocol.isWireGuardProtocol())
         {
-            Q_ASSERT(false);  // this should not happen logically?
+            WS_ASSERT(false);  // this should not happen logically?
             return;
         }
 
@@ -1287,8 +1339,10 @@ void ConnectionManager::onGetWireGuardConfigAnswer(SERVER_API_RET_CODE retCode, 
     }
     else
     {
-        // this should not happen logically
-        Q_ASSERT(false);
+        state_ = STATE_RECONNECTING;
+        Q_EMIT reconnecting();
+        startReconnectionTimer();
+        onConnectionReconnecting();
     }
 }
 
@@ -1300,7 +1354,7 @@ bool ConnectionManager::isCustomOvpnConfigCurrentConnection() const
 
 QString ConnectionManager::getCustomOvpnConfigFileName()
 {
-    Q_ASSERT(isCustomOvpnConfigCurrentConnection());
+    WS_ASSERT(isCustomOvpnConfigCurrentConnection());
     return currentConnectionDescr_.customConfigFilename;
 }
 
@@ -1311,7 +1365,7 @@ bool ConnectionManager::isStaticIpsLocation() const
 
 apiinfo::StaticIpPortsVector ConnectionManager::getStatisIps()
 {
-    Q_ASSERT(isStaticIpsLocation());
+    WS_ASSERT(isStaticIpsLocation());
     return currentConnectionDescr_.staticIpPorts;
 }
 
@@ -1319,7 +1373,10 @@ void ConnectionManager::onWireGuardKeyLimitUserResponse(bool deleteOldestKey)
 {
     if (deleteOldestKey)
     {
-        getWireGuardConfigInLoop_->getWireGuardConfig(currentConnectionDescr_.hostname, true);
+        QString deviceId = (isStaticIpsLocation() ? GetDeviceId::instance().getDeviceId() : QString());
+        getWireGuardConfig_->getWireGuardConfig(currentConnectionDescr_.hostname, true, deviceId);
+        // restart connecting timeout
+        connectingTimer_.start(kConnectingTimeoutWireGuard);
     }
     else
     {
@@ -1327,7 +1384,7 @@ void ConnectionManager::onWireGuardKeyLimitUserResponse(bool deleteOldestKey)
     }
 }
 
-void ConnectionManager::setPacketSize(ProtoTypes::PacketSize ps)
+void ConnectionManager::setPacketSize(types::PacketSize ps)
 {
     packetSize_ = ps;
 }
@@ -1339,7 +1396,7 @@ void ConnectionManager::startTunnelTests()
 
 bool ConnectionManager::isAllowFirewallAfterConnection() const
 {
-    Q_ASSERT(connector_);
+    WS_ASSERT(connector_);
     if (!connector_ || currentConnectionDescr_.connectionNodeType != CONNECTION_NODE_CUSTOM_CONFIG)
         return true;
 
@@ -1347,7 +1404,95 @@ bool ConnectionManager::isAllowFirewallAfterConnection() const
         && connector_->isAllowFirewallAfterCustomConfigConnection();
 }
 
-ProtocolType ConnectionManager::currentProtocol() const
+types::Protocol ConnectionManager::currentProtocol() const
 {
     return currentProtocol_;
+}
+
+void ConnectionManager::updateConnectionSettings(const types::ConnectionSettings &connectionSettings,
+        const types::PortMap &portMap,
+        const types::ProxySettings &proxySettings)
+{
+    qCDebug(LOG_CONNECTION) << "ConnectionManager::updateConnectionSettings(), state_ =" << state_;
+
+    updateConnectionSettingsPolicy(connectionSettings, portMap, proxySettings);
+
+    if (connector_ == nullptr) {
+        return;
+    }
+
+    switch (state_)
+    {
+        case STATE_DISCONNECTED:
+        case STATE_DISCONNECTING_FROM_USER_CLICK:
+        case STATE_WAIT_FOR_NETWORK_CONNECTIVITY:
+        case STATE_RECONNECTION_TIME_EXCEED:
+        case STATE_SLEEP_MODE_NEED_RECONNECT:
+        case STATE_WAKEUP_RECONNECTING:
+        case STATE_AUTO_DISCONNECT:
+        case STATE_ERROR_DURING_CONNECTION:
+        case STATE_RECONNECTING:
+            break;
+        case STATE_CONNECTING_FROM_USER_CLICK:
+        case STATE_CONNECTED:
+            Q_EMIT reconnecting();
+            state_ = STATE_RECONNECTING;
+            if (!timerReconnection_.isActive()) {
+                timerReconnection_.start(MAX_RECONNECTION_TIME);
+            }
+            connector_->startDisconnect();
+            break;
+        default:
+            WS_ASSERT(false);
+    }
+}
+
+void ConnectionManager::updateConnectionSettingsPolicy(const types::ConnectionSettings &connectionSettings,
+        const types::PortMap &portMap,
+        const types::ProxySettings &proxySettings)
+{
+    if (!bli_) {
+        // no active connection in progress
+        return;
+    }
+
+    if (bli_->locationId().isCustomConfigsLocation()) {
+        connSettingsPolicy_.reset(new CustomConfigConnSettingsPolicy(bli_));
+    } else if (connectionSettings.isAutomatic()) {
+        connSettingsPolicy_.reset(new AutoConnSettingsPolicy(bli_, portMap, proxySettings.isProxyEnabled(), lastKnownGoodProtocol_));
+    } else {
+        connSettingsPolicy_.reset(new ManualConnSettingsPolicy(bli_, connectionSettings, portMap));
+    }
+    connSettingsPolicy_->start();
+    connect(connSettingsPolicy_.data(), &BaseConnSettingsPolicy::hostnamesResolved, this, &ConnectionManager::onHostnamesResolved);
+    connect(connSettingsPolicy_.data(), &BaseConnSettingsPolicy::protocolStatusChanged, this, &ConnectionManager::protocolStatusChanged);
+}
+
+void ConnectionManager::connectOrStartConnectTimer()
+{
+    if (connSettingsPolicy_->hasProtocolChanged()) {
+        connectTimer_.setSingleShot(true);
+        connectTimer_.setInterval(kConnectionWaitTimeMsec);
+        connectTimer_.start();
+    } else {
+        doConnect();
+    }
+}
+
+void ConnectionManager::onConnectTrigger()
+{
+    doConnect();
+}
+
+void ConnectionManager::setLastKnownGoodProtocol(const types::Protocol protocol) {
+    lastKnownGoodProtocol_ = protocol;
+}
+
+void ConnectionManager::onConnectingTimeout()
+{
+    qCDebug(LOG_CONNECTION) << "Connection timed out";
+    state_ = STATE_RECONNECTING;
+    Q_EMIT reconnecting();
+    startReconnectionTimer();
+    onConnectionReconnecting();
 }

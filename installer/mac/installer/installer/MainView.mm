@@ -1,9 +1,12 @@
 #import "MainView.h"
 #import <SVGKit/SVGKit.h>
+#import <QuartzCore/QuartzCore.h>
+#include "installhelper_mac.h"
 #import "Logger.h"
 
 @implementation MainView
 
+extern std::string g_path;
 
 -(id)initWithCoder:(NSCoder *)coder
 {
@@ -52,10 +55,11 @@
     [[Logger sharedLogger] logAndStdOut:@"Setting up buttons"];
 
     // setup install button
-    if (_appDelegate.isLegacy)
+    if (_appDelegate.isLegacy) {
         _installButton.title = @"Legacy Install";
-    else
+    } else {
         _installButton.title = @"Install";
+    }
     _installButton.image = imageResources_.forwardArrow.NSImage;
     _installButton.imagePosition = NSImageRight;
     
@@ -103,28 +107,48 @@
     btnY =  10;
     [_escButton setFrame:NSMakeRect(btnX, btnY, btnWidth, btnHeight)];
     
-    // setup select path button
-    _selectPathButton.hidden = YES;
-    _selectPathButton.image = imageResources_.folderIcon.NSImage;
-    _selectPathButton.imagePosition = NSImageRight;
-    
-    btnWidth = imageResources_.folderIcon.size.width + 4;
-    btnHeight = imageResources_.folderIcon.size.height + 4;
+    // setup factory reset toggle
+    _factoryResetToggle.hidden = YES;
+
+    btnWidth = imageResources_.toggleBgWhite.size.width;
+    btnHeight = imageResources_.toggleBgWhite.size.height;
     btnX = self.bounds.size.width - btnWidth - 16;
-    btnY =  150;
-    [_selectPathButton setFrame:NSMakeRect(btnX, btnY, btnWidth, btnHeight)];
-    
-    // setup path text field
-    _pathField.hidden = YES;
-    _pathField.stringValue = _appDelegate.installer.path;
-    [_pathField.cell setFocusRingType:NSFocusRingTypeNone];
-    [_pathField setFrame:NSMakeRect(16, btnY, self.bounds.size.width - btnHeight - 16 * 3, btnHeight)];
-    
+    btnY = 100;
+    [_factoryResetToggle setFrame:NSMakeRect(btnX, btnY, btnWidth, btnHeight)];
+    [_factoryResetToggle setImageResources:imageResources_];
+
+     // factory reset text field
+    _factoryResetField.hidden = YES;
+    _factoryResetField.stringValue = @"Factory Reset";
+    [_factoryResetField setFrame:NSMakeRect(16, btnY, self.bounds.size.width - btnHeight - 16 * 3, btnHeight)];
+
     [self updateState];
-    
-    if (_appDelegate.isUpdateMode)
-    {
-        [_installButton performClick:self];
+
+    if (_appDelegate.isUpdateMode) {
+        [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"Application location: %@", [NSString stringWithUTF8String:g_path.c_str()]]];
+
+        // if there is a path set that's not the default, warn the user that we're migrating them to /Applications
+        if(g_path.empty() || g_path.rfind("/Applications/Windscribe.app", 0) != 0) {
+            NSAlert *alert = [[NSAlert alloc] init];
+            [alert addButtonWithTitle:@"Continue"];
+            [alert addButtonWithTitle:@"Cancel"];
+            [alert setMessageText:@"Windscribe Installer"];
+            [alert setInformativeText:@"To improve security, Windscribe will be moved to /Applications."];
+            [alert setAlertStyle:NSAlertStyleWarning];
+
+            [alert beginSheetModalForWindow:[self window] completionHandler:^(NSInteger result) {
+                if (result == NSAlertFirstButtonReturn) {
+                    [self->_installButton performClick:self];
+                } else if (result == NSAlertSecondButtonReturn) {
+                    // launch old app
+                    [self.appDelegate.installer runLauncher];
+                    [NSApp terminate:self];
+                }
+            }];
+
+        } else {
+            [_installButton performClick:self];
+        }
     }
 }
 
@@ -204,7 +228,6 @@
         NSAlert *alert = [[NSAlert alloc] init];
         [alert addButtonWithTitle:@"Replace"];
         [alert addButtonWithTitle:@"Stop"];
-        [alert addButtonWithTitle:@"Keep Both"];
         [alert setMessageText:@"Windscribe Installer"];
         [alert setInformativeText:@"An item named \"Windscribe\" already exists in this location. Do you want to replace it?"];
         [alert setAlertStyle:NSAlertStyleWarning];
@@ -212,18 +235,16 @@
         [alert beginSheetModalForWindow:[self window] completionHandler:^(NSInteger result) {
             
             if (result == NSAlertFirstButtonReturn)
-                [self startInstall:NO];
-            else if (result == NSAlertThirdButtonReturn)
-                [self startInstall:YES];
+                [self startInstall];
         }];
     }
     else
     {
-        [self startInstall:NO];
+        [self startInstall];
     }
 }
 
-- (void)startInstall:(BOOL)isKeepBoth
+- (void)startInstall
 {
     _settingsButton.enabled = NO;
     [progressView_ startAnimation];
@@ -232,7 +253,7 @@
     isInstalling_ = TRUE;
     [self updateState];
     [self setNeedsDisplay:YES];
-    [_appDelegate.installer start: isKeepBoth];
+    [_appDelegate.installer start];
 }
 
 - (IBAction)onSettingsClick:(id)sender
@@ -243,8 +264,8 @@
     _eulaButton.hidden = YES;
     _escButton.hidden = NO;
     _settingsButton.hidden = YES;
-    _pathField.hidden = NO;
-    _selectPathButton.hidden = NO;
+    _factoryResetToggle.hidden = NO;
+    _factoryResetField.hidden = NO;
     opacityTimer_ = [NSTimer scheduledTimerWithTimeInterval:0.01 target:self selector:@selector(onOpacityTimer) userInfo:nil repeats:YES];
     [self updateState];
 
@@ -258,23 +279,15 @@
     _eulaButton.hidden = NO;
     _escButton.hidden = YES;
     _settingsButton.hidden = NO;
-     _pathField.hidden = YES;
-    _selectPathButton.hidden = YES;
+    _factoryResetToggle.hidden = YES;
+    _factoryResetField.hidden = YES;
     opacityTimer_ = [NSTimer scheduledTimerWithTimeInterval:0.01 target:self selector:@selector(onOpacityTimer) userInfo:nil repeats:YES];
     [self updateState];
 }
 
-- (IBAction)onSelectPathClick:(id)sender
+- (IBAction)onFactoryResetToggleClick:(id)sender
 {
-    NSOpenPanel *panel = [NSOpenPanel openPanel];
-    [panel setAllowsMultipleSelection:NO];
-    [panel setCanChooseDirectories:YES];
-    [panel setCanChooseFiles:NO];
-    if ([panel runModal] == NSFileHandlingPanelOKButton)
-    {
-        _pathField.stringValue = [[panel URLs] lastObject].path;
-        _appDelegate.installer.path = _pathField.stringValue;
-    }
+    _appDelegate.installer.factoryReset = _factoryResetToggle.checked;
 }
 
 - (void) installerCallback: (id)object
@@ -293,7 +306,7 @@
 
         [alert setInformativeText: installer.lastError];
         [alert setAlertStyle:NSAlertStyleCritical];
-        
+
         [alert beginSheetModalForWindow:[self window] completionHandler:^(NSInteger result) {
             [NSApp terminate:self];
         }];
@@ -309,7 +322,7 @@
             [self updateState];
             [self setNeedsDisplay:YES];
             
-            [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"Finished! (%@)", [installer getFullInstallPath]]];
+            [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"Finished! (%@)", [installer getInstallPath]]];
             
             isAlreadyFinished = true;
             

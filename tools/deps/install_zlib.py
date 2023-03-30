@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # ------------------------------------------------------------------------------
 # Windscribe Build System
-# Copyright (c) 2020-2021, Windscribe Limited. All rights reserved.
+# Copyright (c) 2020-2023, Windscribe Limited. All rights reserved.
 # ------------------------------------------------------------------------------
 # Purpose: installs ZLib library.
 import os
@@ -12,6 +12,10 @@ TOOLS_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, TOOLS_DIR)
 
 CONFIG_NAME = os.path.join("vars", "zlib.yml")
+
+# To ensure modules in the 'base' folder can import other modules in base.
+import base.pathhelper as pathhelper
+sys.path.append(pathhelper.BASE_DIR)
 
 import base.messages as msg
 import base.utils as utl
@@ -52,7 +56,7 @@ def InstallDependency():
     raise iutl.InstallError("Failed to get config data.")
   iutl.SetupEnvironment(configdata)
   dep_name = DEP_TITLE.lower()
-  dep_version_var = "VERSION_" + filter(lambda ch: ch not in "-", DEP_TITLE.upper())
+  dep_version_var = "VERSION_" + DEP_TITLE.upper().replace("-", "")
   dep_version_str = os.environ.get(dep_version_var, None)
   if not dep_version_str:
     raise iutl.InstallError("{} not defined.".format(dep_version_var))

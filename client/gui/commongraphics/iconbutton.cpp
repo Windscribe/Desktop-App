@@ -11,16 +11,18 @@
 #include <QDebug>
 
 IconButton::IconButton(int width, int height, const QString &imagePath, const QString &shadowPath, ScalableGraphicsObject *parent, double unhoverOpacity, double hoverOpacity) : ClickableGraphicsObject(parent),
-  imagePath_(imagePath), shadowPath_(shadowPath), width_(width), height_(height), curOpacity_(unhoverOpacity), unhoverOpacity_(unhoverOpacity), hoverOpacity_(hoverOpacity)
+  imagePath_(imagePath), shadowPath_(shadowPath), width_(width), height_(height),
+  curOpacity_(unhoverOpacity), unhoverOpacity_(unhoverOpacity), hoverOpacity_(hoverOpacity),
+  tintColor_(QColor(Qt::transparent))
 {
     if (!shadowPath_.isEmpty())
     {
         imageWithShadow_.reset(new ImageWithShadow(imagePath_, shadowPath_));
     }
 
-    connect(&imageOpacityAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onImageHoverOpacityChanged(QVariant)));
-    connect(this, SIGNAL(hoverEnter()), SLOT(onHoverEnter()));
-    connect(this, SIGNAL(hoverLeave()), SLOT(onHoverLeave()));
+    connect(&imageOpacityAnimation_, &QVariantAnimation::valueChanged, this, &IconButton::onImageHoverOpacityChanged);
+    connect(this, &IconButton::hoverEnter, this, &IconButton::onHoverEnter);
+    connect(this, &IconButton::hoverLeave, this, &IconButton::onHoverLeave);
 
     setClickable(true);
 }
@@ -51,7 +53,11 @@ void IconButton::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
         QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap(imagePath_);
         int w = static_cast<int>(p->width());
         int h = static_cast<int>(p->height());
-        p->draw((rcW - w) / 2, (rcH - h) / 2, painter);
+        if (tintColor_.alpha() != 0) {
+            p->draw((rcW - w) / 2, (rcH - h) / 2, w, h, painter, tintColor_);
+        } else {
+            p->draw((rcW - w) / 2, (rcH - h) / 2, painter);
+        }
     }
 }
 
@@ -136,3 +142,8 @@ void IconButton::onImageHoverOpacityChanged(const QVariant &value)
     update();
 }
 
+void IconButton::setTintColor(const QColor &color)
+{
+    tintColor_ = color;
+    update();
+}

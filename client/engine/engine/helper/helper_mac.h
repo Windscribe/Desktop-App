@@ -18,11 +18,11 @@ public:
     bool setCustomDnsWhileConnected(bool isIkev2, unsigned long ifIndex, const QString &overrideDnsIpAddress) override;
 
     // Mac specific functions
-    void enableMacSpoofingOnBoot(bool bEnable, QString interfaceName, QString macAddress);
-    QStringList getActiveNetworkInterfaces();
+    bool setMacAddress(const QString &interface, const QString &macAddress, bool robustMethod);
+    bool enableMacSpoofingOnBoot(bool bEnable, const QString &interfaceName, const QString &macAddress, bool robustMethod);
     bool setKeychainUsernamePassword(const QString &username, const QString &password);
-    bool setKextPath(const QString &kextPath);
     bool setDnsOfDynamicStoreEntry(const QString &ipAddress, const QString &dynEnties);
+    bool setIpv6Enabled(bool bEnabled);
 
 private:
     bool setKeychainUsernamePasswordImpl(const QString &username, const QString &password, bool *bExecuted);

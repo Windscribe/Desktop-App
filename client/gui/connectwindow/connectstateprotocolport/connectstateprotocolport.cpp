@@ -1,44 +1,38 @@
 #include "connectstateprotocolport.h"
 #include "graphicresources/fontmanager.h"
-#include "utils/protoenumtostring.h"
 
 #include <QFontMetrics>
 #include <QPainter>
-#include "graphicresources/imageresourcessvg.h"
 #include "commongraphics/commongraphics.h"
-#include "languagecontroller.h"
 #include "dpiscalemanager.h"
 
 const int PROTOCOL_OPACITY_ANIMATION_DURATION = 500;
 
 namespace ConnectWindow {
 
-ConnectStateProtocolPort::ConnectStateProtocolPort(ScalableGraphicsObject *parent) : ScalableGraphicsObject(parent)
-    , fontDescr_(11,true, 100)
-    , hoverable_(false)
+ConnectStateProtocolPort::ConnectStateProtocolPort(ScalableGraphicsObject *parent) : ClickableGraphicsObject(parent)
+    , fontDescr_(11, true, 100, 0.5)
     , connectivity_(false)
     , textColor_(QColor(255, 255, 255))
     , textOpacity_(0.5)
     , receivedTunnelTestResult_  (false)
     , badgePixmap_(QSize(36*G_SCALE, 20*G_SCALE), 10*G_SCALE)
+    , protocolArrow_(new IconButton(16, 16, "PROTOCOL_ARROW", "", this, OPACITY_FULL, OPACITY_FULL))
 {
 
-#if defined(Q_OS_LINUX)
-    protocol_ = ProtoTypes::Protocol::PROTOCOL_UDP;
+    protocol_ = types::Protocol::WIREGUARD;
     port_ = 443;
-#else
-    protocol_ = ProtoTypes::Protocol::PROTOCOL_IKEV2;
-    port_ = 500;
-#endif
 
     badgeFgImage_.reset(new ImageWithShadow("connection-badge/OFF", "connection-badge/OFF_SHADOW"));
     setAcceptHoverEvents(true);
     protocolTestTunnelTimer_.setInterval(PROTOCOL_OPACITY_ANIMATION_DURATION);
-    connect(&protocolTestTunnelTimer_, SIGNAL(timeout()), SLOT(onProtocolTestTunnelTimerTick()));
-    connect(&protocolOpacityAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onProtocolOpacityAnimationChanged(QVariant)));
+    connect(&protocolTestTunnelTimer_, &QTimer::timeout, this, &ConnectStateProtocolPort::onProtocolTestTunnelTimerTick);
+    connect(&protocolOpacityAnimation_, &QVariantAnimation::valueChanged, this, &ConnectStateProtocolPort::onProtocolOpacityAnimationChanged);
+    connect(protocolArrow_, &IconButton::clicked, this, &ConnectStateProtocolPort::clicked);
 
     connectionBadgeDots_ = new ConnectionBadgeDots(this);
 
+    setClickableHoverable(true, false);
     recalcSize();
 }
 
@@ -63,28 +57,27 @@ void ConnectStateProtocolPort::paint(QPainter *painter, const QStyleOptionGraphi
     // connection badge dots made to show during connecting
     if (badgeFgImage_)
     {
-        int widthOffset = badgePixmap_.width()/2 - badgeFgImage_->width()/2;
-        badgeFgImage_->draw(painter, widthOffset, badgePixmap_.height()/2 - badgeFgImage_->height()/2);
+        int widthOffset = (badgePixmap_.width() - badgeFgImage_->width())/2;
+        badgeFgImage_->draw(painter, widthOffset, (badgePixmap_.height() - badgeFgImage_->height())/2);
     }
 
-    QFont font = *FontManager::instance().getFont(fontDescr_);
-    painter->setFont(font);
+    QFont *font = FontManager::instance().getFont(fontDescr_);
     painter->setOpacity(textOpacity_ * initOpacity);
     painter->setPen(textColor_);
 
-    const int textHeight = 8*G_SCALE;
+    const int textHeight = CommonGraphics::textHeight(*font);
     const int posYTop = badgePixmap_.height()/2 - textHeight/2;
     const int posYBot = posYTop + textHeight;
-    const int separatorMinusProtocolPosX = badgePixmap_.width() + (protocolSeparatorPadding + badgeProtocolPadding)*G_SCALE;
+    const int separatorMinusProtocolPosX = badgePixmap_.width() + 2*kSpacerWidth*G_SCALE;
 
-    // protocol and port string
-    QString protocolString = ProtoEnumToString::instance().toString(protocol_);
-    textShadowProtocol_.drawText(painter, QRect(badgePixmap_.width() + badgeProtocolPadding * G_SCALE, 0, INT_MAX, badgePixmap_.height()), Qt::AlignLeft | Qt::AlignVCenter, protocolString, &font, textColor_ );
+    // types::Protocol and port string
+    QString protocolString = protocol_.toLongString();
+    textShadowProtocol_.drawText(painter, QRect(badgePixmap_.width() + kSpacerWidth*G_SCALE, 0, INT_MAX, badgePixmap_.height()), Qt::AlignLeft | Qt::AlignVCenter, protocolString, font, textColor_ );
 
     // port
     const QString portString = QString::number(port_);
-    const int portPosX = separatorMinusProtocolPosX + (separatorPortPadding + 1) * G_SCALE + textShadowProtocol_.width();
-    textShadowPort_.drawText(painter, QRect(portPosX, 0, INT_MAX, badgePixmap_.height()), Qt::AlignLeft | Qt::AlignVCenter, portString, &font, textColor_ );
+    const int portPosX = separatorMinusProtocolPosX + kSpacerWidth*G_SCALE + textShadowProtocol_.width();
+    textShadowPort_.drawText(painter, QRect(portPosX, 0, INT_MAX, badgePixmap_.height()), Qt::AlignLeft | Qt::AlignVCenter, portString, font, textColor_ );
 
     // separator
     painter->setPen(Qt::white);
@@ -96,15 +89,14 @@ void ConnectStateProtocolPort::paint(QPainter *painter, const QStyleOptionGraphi
     painter->drawLine(QPoint(separatorMinusProtocolPosX + textShadowProtocol_.width()+1, posYTop),
                       QPoint(separatorMinusProtocolPosX + textShadowProtocol_.width()+1, posYBot));
 
-
     painter->restore();
 }
 
-void ConnectStateProtocolPort::updateStateDisplay(ProtoTypes::ConnectState connectState)
+void ConnectStateProtocolPort::updateStateDisplay(const types::ConnectState &connectState)
 {
     if (connectivity_)
     {
-        if (connectState.connect_state_type() == ProtoTypes::CONNECTED)
+        if (connectState.connectState == CONNECT_STATE_CONNECTED)
         {
             badgeBgColor_ = QColor(0x02, 0x0D, 0x1C, 255*0.25);
             badgeFgImage_.reset(new ImageWithShadow("connection-badge/ON", "connection-badge/ON_SHADOW"));
@@ -113,17 +105,7 @@ void ConnectStateProtocolPort::updateStateDisplay(ProtoTypes::ConnectState conne
             connectionBadgeDots_->hide();
             connectionBadgeDots_->stop();
         }
-        else if (connectState.connect_state_type() == ProtoTypes::CONNECTING)
-        {
-            badgeBgColor_ = QColor(0x02, 0x0D, 0x1C, 255*0.25);
-            badgeFgImage_.reset();
-            textOpacity_ = 1.0;
-            textColor_ = QColor(0xA0, 0xFE, 0xDA);
-
-            connectionBadgeDots_->start();
-            connectionBadgeDots_->show();
-        }
-        else if (connectState.connect_state_type() == ProtoTypes::DISCONNECTING)
+        else if (connectState.connectState == CONNECT_STATE_CONNECTING)
         {
             badgeBgColor_ = QColor(0x02, 0x0D, 0x1C, 255*0.25);
             badgeFgImage_.reset();
@@ -132,7 +114,16 @@ void ConnectStateProtocolPort::updateStateDisplay(ProtoTypes::ConnectState conne
             connectionBadgeDots_->start();
             connectionBadgeDots_->show();
         }
-        else if (connectState.connect_state_type() == ProtoTypes::DISCONNECTED)
+        else if (connectState.connectState == CONNECT_STATE_DISCONNECTING)
+        {
+            badgeBgColor_ = QColor(0x02, 0x0D, 0x1C, 255*0.25);
+            badgeFgImage_.reset();
+            textOpacity_ = 1.0;
+            textColor_ = QColor(0xA0, 0xFE, 0xDA);
+            connectionBadgeDots_->start();
+            connectionBadgeDots_->show();
+        }
+        else if (connectState.connectState == CONNECT_STATE_DISCONNECTED)
         {
             badgeBgColor_ = QColor(255, 255, 255, 39);
             badgeFgImage_.reset(new ImageWithShadow("connection-badge/OFF", "connection-badge/OFF_SHADOW"));
@@ -141,6 +132,8 @@ void ConnectStateProtocolPort::updateStateDisplay(ProtoTypes::ConnectState conne
             connectionBadgeDots_->hide();
             connectionBadgeDots_->stop();
         }
+        badgePixmap_.setColor(badgeBgColor_);
+        protocolArrow_->setTintColor(textColor_);
     }
     else
     {
@@ -150,7 +143,7 @@ void ConnectStateProtocolPort::updateStateDisplay(ProtoTypes::ConnectState conne
         connectionBadgeDots_->hide();
         connectionBadgeDots_->stop();
 
-        if (connectState.connect_state_type() == ProtoTypes::DISCONNECTED)
+        if (connectState.connectState == CONNECT_STATE_DISCONNECTED)
         {
             badgeBgColor_ = QColor(255, 255, 255, 39);
             textOpacity_ = 0.5;
@@ -159,29 +152,30 @@ void ConnectStateProtocolPort::updateStateDisplay(ProtoTypes::ConnectState conne
         else
         {
             badgeBgColor_ = QColor(0x02, 0x0D, 0x1C, 255*0.25);
-
             textOpacity_ = 1.0;
             textColor_ = FontManager::instance().getBrightYellowColor();
         }
+        badgePixmap_.setColor(badgeBgColor_);
+        protocolArrow_->setTintColor(textColor_);
     }
     recalcSize();
 }
 
-void ConnectStateProtocolPort::onConnectStateChanged(ProtoTypes::ConnectState newConnectState, ProtoTypes::ConnectState prevConnectState)
+void ConnectStateProtocolPort::onConnectStateChanged(const types::ConnectState &newConnectState, const types::ConnectState &prevConnectState)
 {
     Q_UNUSED(prevConnectState);
 
-    if (newConnectState.connect_state_type() == ProtoTypes::CONNECTING)
+    if (newConnectState.connectState == CONNECT_STATE_CONNECTING)
     {
         receivedTunnelTestResult_ = false;
     }
 
-    if (newConnectState.connect_state_type() == ProtoTypes::CONNECTED)
+    if (newConnectState.connectState == CONNECT_STATE_CONNECTED)
     {
         protocolTestTunnelTimer_.start();
     }
 
-    if (newConnectState.connect_state_type() == ProtoTypes::DISCONNECTING || newConnectState.connect_state_type() == ProtoTypes::DISCONNECTED)
+    if (newConnectState.connectState == CONNECT_STATE_DISCONNECTING || newConnectState.connectState == CONNECT_STATE_DISCONNECTED)
     {
         protocolTestTunnelTimer_.stop();
     }
@@ -192,7 +186,7 @@ void ConnectStateProtocolPort::onConnectStateChanged(ProtoTypes::ConnectState ne
 
 void ConnectStateProtocolPort::setHoverable(bool hoverable)
 {
-    hoverable_ = hoverable;
+    setClickableHoverable(true, hoverable);
 }
 
 void ConnectStateProtocolPort::updateScaling()
@@ -212,7 +206,7 @@ void ConnectStateProtocolPort::setInternetConnectivity(bool connectivity)
     updateStateDisplay(connectState_);
 }
 
-void ConnectStateProtocolPort::setProtocolPort(const ProtoTypes::Protocol &protocol, const uint port)
+void ConnectStateProtocolPort::setProtocolPort(const types::Protocol &protocol, const uint port)
 {
     protocol_ = protocol;
     port_ = port;
@@ -231,25 +225,9 @@ void ConnectStateProtocolPort::setTestTunnelResult(bool success)
     }
 }
 
-void ConnectStateProtocolPort::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
-{
-    Q_UNUSED(event);
-
-    if (hoverable_)
-    {
-        emit hoverEnter();
-    }
-}
-
-void ConnectStateProtocolPort::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
-{
-    Q_UNUSED(event);
-    emit hoverLeave();
-}
-
 void ConnectStateProtocolPort::onProtocolTestTunnelTimerTick()
 {
-    if (connectState_.connect_state_type() == ProtoTypes::CONNECTED)
+    if (connectState_.connectState == CONNECT_STATE_CONNECTED)
     {
         if (textOpacity_ > .5)
         {
@@ -263,13 +241,13 @@ void ConnectStateProtocolPort::onProtocolTestTunnelTimerTick()
     else
     {
         protocolTestTunnelTimer_.stop();
-        textOpacity_ = OPACITY_HIDDEN;
+        updateStateDisplay(connectState_);
     }
 }
 
 void ConnectStateProtocolPort::onProtocolOpacityAnimationChanged(const QVariant &value)
 {
-    if (connectState_.connect_state_type() == ProtoTypes::CONNECTED)
+    if (connectState_.connectState == CONNECT_STATE_CONNECTED)
     {
         textOpacity_ = value.toDouble();
         update();
@@ -283,17 +261,43 @@ void ConnectStateProtocolPort::recalcSize()
     QFont font = *FontManager::instance().getFont(fontDescr_);
     QFontMetrics fm(font);
 
-    const QString protocolString = ProtoEnumToString::instance().toString(protocol_);
+    const QString protocolString = protocol_.toLongString();
     const int protocolWidth = fm.horizontalAdvance(protocolString);
     const QString portString = QString::number(port_);
     const int portWidth = fm.horizontalAdvance(portString);
     const int badgeWidth = 36*G_SCALE;
-    const int separatorWidthSum = (badgeProtocolPadding + protocolSeparatorPadding * 2 + separatorPortPadding) * G_SCALE;
+    const int separatorWidth = kSpacerWidth*G_SCALE;
     const int badgeHeight = 20*G_SCALE;
+    const int protocolArrowWidth = 16*G_SCALE;
 
-    width_ = protocolWidth + portWidth + badgeWidth + separatorWidthSum;
+    width_ = protocolWidth + portWidth + badgeWidth + protocolArrowWidth + 4*separatorWidth;
     height_ = badgeHeight;
+
+    protocolArrow_->setPos(width_ - protocolArrowWidth, 2*G_SCALE);
 }
 
+types::ProtocolStatus ConnectStateProtocolPort::getProtocolStatus()
+{
+    types::ProtocolStatus ps;
+
+    ps.protocol = protocol_;
+    ps.port = port_;
+    if (connectState_.connectState == CONNECT_STATE_CONNECTED) {
+        ps.status = types::ProtocolStatus::Status::kConnected;
+    } else {
+        ps.status = types::ProtocolStatus::Status::kDisconnected;
+    }
+    return ps;
+}
+
+bool ConnectStateProtocolPort::isProtocolButtonVisible() const
+{
+    return protocolArrow_->isVisible();
+}
+
+void ConnectStateProtocolPort::setProtocolButtonVisible(bool visible)
+{
+    protocolArrow_->setVisible(visible);
+}
 
 } //namespace ConnectWindow

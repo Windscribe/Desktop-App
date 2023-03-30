@@ -6,7 +6,7 @@
 #include <QFont>
 #include "sharingfeature.h"
 #include "backend/preferences/preferences.h"
-#include "preferenceswindow/dividerline.h"
+#include "commongraphics/dividerline.h"
 
 namespace SharingFeatures {
 
@@ -14,7 +14,7 @@ class SharingFeaturesWindowItem : public ScalableGraphicsObject
 {
     Q_OBJECT
 public:
-    explicit SharingFeaturesWindowItem(ScalableGraphicsObject * parent = nullptr);
+    explicit SharingFeaturesWindowItem(Preferences *preferences, ScalableGraphicsObject * parent = nullptr);
 
     virtual QGraphicsObject *getGraphicsObject() { return this; }
     QRectF boundingRect() const override;
@@ -22,7 +22,7 @@ public:
 
     void setSecureHotspotFeatures(bool isEnabled, const QString &ssid);
     void setSecureHotspotUsersCount(int usersCount);
-    void setProxyGatewayFeatures(bool isEnabled, ProtoTypes::ProxySharingMode mode);
+    void setProxyGatewayFeatures(bool isEnabled, PROXY_SHARING_TYPE mode);
     void setProxyGatewayUsersCount(int usersCount);
 
     virtual void animateHornDisplay(bool show);
@@ -49,26 +49,29 @@ signals:
 private slots:
     void onHornPosChanged(const QVariant &value);
     void onHornOpacityChanged(const QVariant &value);
+    void onAppSkinChanged(APP_SKIN s);
 
 private:
     void setHotspotSSID(QString ssid);
-    void setProxyType(ProtoTypes::ProxySharingMode mode);
+    void setProxyType(PROXY_SHARING_TYPE mode);
 
     enum SHARE_MODE { SHARE_MODE_OFF, SHARE_MODE_HOTSPOT, SHARE_MODE_PROXY, SHARE_MODE_BOTH };
 
     void updateModedFeatures(SHARE_MODE mode);
     void setMode(SHARE_MODE mode);
 
+    Preferences *preferences_;
+
     bool isSecureHotspotEnabled_;
     QString secureHotspotSsid_;
 
     bool isProxyGatewayEnabled_;
-    ProtoTypes::ProxySharingMode proxyGatewayMode_;
+    PROXY_SHARING_TYPE proxyGatewayMode_;
     //ProtoTypes::WifiSharingInfo hotspot_;
     //ProtoTypes::ProxySharingInfo gateway_;
 
-    PreferencesWindow::DividerLine *dividerLine_;
-    PreferencesWindow::DividerLine *dividerLine2_;
+    CommonGraphics::DividerLine *dividerLine_;
+    CommonGraphics::DividerLine *dividerLine2_;
 
     QString headerText_;
     SHARE_MODE mode_;
@@ -79,6 +82,8 @@ private:
     int height_;
 
     const QString TEXT_SHARING_FEATURES = QT_TR_NOOP("Sharing Features");
+    const QString TEXT_PROXY_GATEWAY = QT_TR_NOOP("Proxy Gateway");
+    const QString TEXT_SECURE_HOTSPOT = QT_TR_NOOP("Secure Hotspot");
 
     void recalcHeight();
 

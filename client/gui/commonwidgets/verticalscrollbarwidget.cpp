@@ -200,7 +200,7 @@ void VerticalScrollBarWidget::mouseMoveEvent(QMouseEvent *event)
     }
 }
 
-void VerticalScrollBarWidget::enterEvent(QEvent *event)
+void VerticalScrollBarWidget::enterEvent(QEnterEvent *event)
 {
     Q_UNUSED(event)
     emit hoverEnter();

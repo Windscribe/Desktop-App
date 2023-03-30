@@ -41,7 +41,7 @@ bool ArgumentsParser::parse()
 		std::wstring curStr = szArglist[i];
 		if ((curStr != L"") && (curStr[0] == '/'))
 		{
-			unsigned int p = curStr.find(L"=");
+			size_t p = curStr.find(L"=");
 
 			if (p != std::wstring::npos)
 			{

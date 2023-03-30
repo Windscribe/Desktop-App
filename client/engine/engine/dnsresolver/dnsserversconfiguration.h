@@ -3,7 +3,7 @@
 
 #include <QStringList>
 #include <QMutex>
-#include "engine/types/types.h"
+#include "types/enums.h"
 
 // singleton, global current DNS-servers configuration
 class DnsServersConfiguration

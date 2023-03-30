@@ -1,14 +1,15 @@
 #include "adapterutils_win.h"
 #include <QProcess>
-#include "utils/logger.h"
 #include <winsock2.h>
 #include <iphlpapi.h>
 #include "engine/helper/helper_win.h"
+#include "utils/ws_assert.h"
+#include "utils/logger.h"
 
 void AdapterUtils_win::resetAdapter(IHelper *helper, const QString &tapName)
 {
     Helper_win *helper_win = dynamic_cast<Helper_win *>(helper);
-    Q_ASSERT(helper_win);
+    WS_ASSERT(helper_win);
     qCDebug(LOG_BASIC) << "Reset TAP adapter:" << tapName;
     helper_win->executeResetTap(tapName);
 }

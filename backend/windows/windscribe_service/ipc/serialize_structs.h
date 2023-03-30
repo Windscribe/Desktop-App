@@ -9,12 +9,13 @@ void serialize(Archive & ar, CMD_RUN_OPENVPN & g, const unsigned int version)
 {
     UNREFERENCED_PARAMETER(version);
     ar & g.szOpenVpnExecutable;
-    ar & g.szConfigPath;
+    ar & g.szConfig;
     ar & g.portNumber;
     ar & g.szHttpProxy;
     ar & g.httpPortNumber;
     ar & g.szSocksProxy;
     ar & g.socksPortNumber;
+    ar & g.isCustomConfig;
 }
 
 template<class Archive>
@@ -130,7 +131,7 @@ void serialize(Archive & ar, CMD_SPLIT_TUNNELING_SETTINGS & g, const unsigned in
     UNREFERENCED_PARAMETER(version);
     ar & g.isActive;
     ar & g.isExclude;
-    ar & g.isKeepLocalSockets;
+    ar & g.isAllowLanTraffic;
     ar & g.files;
     ar & g.ips;
 	ar & g.hosts;
@@ -152,7 +153,7 @@ void serialize(Archive & ar, CMD_CONNECT_STATUS & a, const unsigned int version)
 {
     UNREFERENCED_PARAMETER(version);
     ar & a.isConnected;
-	ar & a.isCloseTcpSocket;
+	ar & a.isTerminateSocket;
 	ar & a.isKeepLocalSocket;
     ar & a.protocol;
 
@@ -164,7 +165,7 @@ void serialize(Archive & ar, CMD_CONNECT_STATUS & a, const unsigned int version)
 }
 
 template<class Archive>
-void serialize(Archive & ar, CMD_DNS_WHILE_CONNECTED & g, const unsigned int version)
+void serialize(Archive & ar, CMD_CONNECTED_DNS & g, const unsigned int version)
 {
         UNREFERENCED_PARAMETER(version);
         ar & g.ifIndex;
@@ -183,6 +184,7 @@ void serialize(Archive & ar, CMD_FIREWALL_ON & g, const unsigned int version)
 {
     UNREFERENCED_PARAMETER(version);
     ar & g.allowLanTraffic;
+    ar & g.isCustomConfig;
     ar & g.ip;
 }
 

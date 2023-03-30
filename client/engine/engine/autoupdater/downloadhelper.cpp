@@ -6,6 +6,7 @@
 #include <QDir>
 #include "names.h"
 #include "engine/networkaccessmanager/networkaccessmanager.h"
+#include "engine/networkaccessmanager/networkreply.h"
 #include "utils/utils.h"
 
 #ifdef Q_OS_LINUX
@@ -16,7 +17,7 @@ DownloadHelper::DownloadHelper(QObject *parent, NetworkAccessManager *networkAcc
   , networkAccessManager_(networkAccessManager)
   , busy_(false)
   , platform_(platform)
-  , downloadDirectory_(QStandardPaths::writableLocation(QStandardPaths::DataLocation))
+  , downloadDirectory_(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation))
   , progressPercent_(0)
   , state_(DOWNLOAD_STATE_INIT)
 
@@ -38,11 +39,14 @@ const QString DownloadHelper::downloadInstallerPath()
     const QString path = downloadInstallerPathWithoutExtension() + ".dmg";
 #elif defined Q_OS_LINUX
     QString path;
-    if(platform_ == LinuxUtils::DEB_PLATFORM_NAME) { // if getPlatformName() fails, we should never get this far anyway
+    if (platform_ == LinuxUtils::DEB_PLATFORM_NAME) { // if getPlatformName() fails, we should never get this far anyway
         path = downloadInstallerPathWithoutExtension() + ".deb";
     }
-    else {
+    else if (platform_ == LinuxUtils::RPM_PLATFORM_NAME) {
         path = downloadInstallerPathWithoutExtension() + ".rpm";
+    }
+    else if (platform_ == LinuxUtils::ZST_PLATFORM_NAME) {
+        path = downloadInstallerPathWithoutExtension() + ".pkg.tar.zst";
     }
 #endif
     return path;
@@ -196,12 +200,13 @@ void DownloadHelper::getInner(const QString url, const QString targetFilenamePat
     }
 
     NetworkRequest request(QUrl(url), 60000 * 5, true);     // timeout 5 mins
+    request.setRemoveFromWhitelistIpsAfterFinish();
 
     NetworkReply *reply = networkAccessManager_->get(request);
     replies_.insert(reply, fileAndProgess);
-    connect(reply, SIGNAL(finished()), SLOT(onReplyFinished()));
-    connect(reply, SIGNAL(progress(qint64,qint64)), SLOT(onReplyDownloadProgress(qint64,qint64)));
-    connect(reply, SIGNAL(readyRead()), SLOT(onReplyReadyRead()));
+    connect(reply, &NetworkReply::finished, this, &DownloadHelper::onReplyFinished);
+    connect(reply, &NetworkReply::progress, this, &DownloadHelper::onReplyDownloadProgress);
+    connect(reply, &NetworkReply::readyRead, this, &DownloadHelper::onReplyReadyRead);
 }
 
 void DownloadHelper::removeAutoUpdateInstallerFiles()

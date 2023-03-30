@@ -1,12 +1,13 @@
 #include "firewallcontroller_win.h"
 #include <QStandardPaths>
 #include <QDir>
-#include "Utils/logger.h"
+#include "utils/ws_assert.h"
+#include "utils/logger.h"
 
 FirewallController_win::FirewallController_win(QObject *parent, IHelper *helper) : FirewallController(parent)
 {
     helper_win_ = dynamic_cast<Helper_win *>(helper);
-    Q_ASSERT(helper_win_);
+    WS_ASSERT(helper_win_);
 }
 
 FirewallController_win::~FirewallController_win()
@@ -14,14 +15,25 @@ FirewallController_win::~FirewallController_win()
 
 }
 
-bool FirewallController_win::firewallOn(const QString &ip, bool bAllowLanTraffic)
+bool FirewallController_win::firewallOn(const QSet<QString> &ips, bool bAllowLanTraffic, bool bIsCustomConfig)
 {
     QMutexLocker locker(&mutex_);
-    FirewallController::firewallOn(ip, bAllowLanTraffic);
+    FirewallController::firewallOn(ips, bAllowLanTraffic, bIsCustomConfig);
     if (isStateChanged())
     {
-        qCDebug(LOG_FIREWALL_CONTROLLER) << "firewall enabled with ips count:" << countIps(ip);
-        return helper_win_->firewallOn(ip, bAllowLanTraffic);
+        QString ipStr;
+        for (const QString &ip : ips)
+        {
+           ipStr += ip + ";";
+        }
+
+         if (ipStr.endsWith(";"))
+         {
+            ipStr = ipStr.remove(ipStr.length() - 1, 1);
+         }
+
+        qCDebug(LOG_FIREWALL_CONTROLLER) << "firewall enabled with ips count:" << ips.count();
+        return helper_win_->firewallOn(ipStr, bAllowLanTraffic, bIsCustomConfig);
     }
     else
     {
@@ -72,5 +84,4 @@ void FirewallController_win::enableFirewallOnBoot(bool bEnable)
 {
     Q_UNUSED(bEnable);
     //nothing todo for Windows
-
 }

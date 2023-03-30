@@ -9,12 +9,12 @@ BUILD_LIBS_PATH = $$PWD/../../../build-libs
 
 SOURCES += \
     ServiceMain.cpp \
-    ../../../common/utils/servicecontrolmanager.cpp
+    ../../../client/common/utils/servicecontrolmanager.cpp
 
 #HEADERS +=
 
 INCLUDEPATH += \
-    ../../../common/utils \
+    ../../../client/common/utils \
     $$BUILD_LIBS_PATH/boost/include
 
 LIBS += Advapi32.lib

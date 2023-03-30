@@ -3,7 +3,8 @@
 
 #include <QObject>
 #include <QVector>
-#include "utils/protobuf_includes.h"
+#include "types/portmap.h"
+#include "types/enums.h"
 
 class PreferencesHelper : public QObject
 {
@@ -20,11 +21,11 @@ public:
     void setAvailableOpenVpnVersions(const QStringList &list);
     QStringList getAvailableOpenVpnVersions();
 
-    QVector<ProtoTypes::TapAdapterType> getAvailableTapAdapters(const QString &openVpnVersion);
+    QVector<TAP_ADAPTER_TYPE> getAvailableTapAdapters(const QString &openVpnVersion);
 
-    void setPortMap(const ProtoTypes::ArrayPortMap &arr);
-    QVector<ProtoTypes::Protocol> getAvailableProtocols();
-    QVector<uint> getAvailablePortsForProtocol(ProtoTypes::Protocol protocol);
+    void setPortMap(const types::PortMap &portMap);
+    QVector<types::Protocol> getAvailableProtocols();
+    QVector<uint> getAvailablePortsForProtocol(types::Protocol protocol);
 
     void setWifiSharingSupported(bool bSupported);
     bool isWifiSharingSupported() const;
@@ -49,7 +50,7 @@ signals:
     void wifiSharingSupportedChanged(bool bSupported);
     void proxyGatewayAddressChanged(const QString &address);
     void ipv6StateInOSChanged(bool bEnabled);
-    void installedTapAdapterChanged(ProtoTypes::TapAdapterType tapAdapter);
+    void installedTapAdapterChanged(TAP_ADAPTER_TYPE tapAdapter);
     void isFirewallBlockedChanged(bool bFirewallBlocked);
     void isDockedModeChanged(bool bIsDockedToTray);
     void isExternalConfigModeChanged(bool bIsExternalConfigMode);
@@ -58,7 +59,7 @@ private:
     QStringList availableLanguageCodes_;
     QStringList availableOpenVpnVersions_;
 
-    ProtoTypes::ArrayPortMap portMap_;
+    types::PortMap portMap_;
     bool isWifiSharingSupported_;
 
     QString proxyGatewayAddress_;

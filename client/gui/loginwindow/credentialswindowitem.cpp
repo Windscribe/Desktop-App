@@ -13,6 +13,7 @@
 #include "graphicresources/fontmanager.h"
 #include "graphicresources/imageresourcessvg.h"
 #include "languagecontroller.h"
+#include "utils/ws_assert.h"
 #include "utils/hardcodedsettings.h"
 #include "dpiscalemanager.h"
 #include "tooltips/tooltiptypes.h"
@@ -28,11 +29,11 @@ const QString SETTINGS_ICON_PATH           = "login/SETTINGS_ICON";
 CredentialsWindowItem::CredentialsWindowItem(QGraphicsObject *parent, PreferencesHelper *preferencesHelper)
     : ScalableGraphicsObject(parent)
 {
-    Q_ASSERT(preferencesHelper);
+    WS_ASSERT(preferencesHelper);
     setFlag(QGraphicsItem::ItemIsFocusable);
 
     // Header Region:
-    backButton_ = new IconButton(16,16, "login/BACK_ARROW", "", this);
+    backButton_ = new IconButton(32, 32, "BACK_ARROW", "", this);
     connect(backButton_, SIGNAL(clicked()), SLOT(onBackClick()));
 
     curLoginTextOpacity_ = OPACITY_HIDDEN;
@@ -145,7 +146,7 @@ void CredentialsWindowItem::setErrorMessage(ILoginWindow::ERROR_MESSAGE_TYPE err
         case ILoginWindow::ERR_MSG_PROXY_REQUIRES_AUTH:
             curErrorText_ = tr("Proxy requires authentication");
             break;
-        case ILoginWindow::ERR_MSG_INVALID_API_RESPONCE:
+        case ILoginWindow::ERR_MSG_INVALID_API_RESPONSE:
             curErrorText_ = tr("Invalid API response, check your network");
             break;
         case ILoginWindow::ERR_MSG_INVALID_API_ENDPOINT:
@@ -161,16 +162,23 @@ void CredentialsWindowItem::setErrorMessage(ILoginWindow::ERROR_MESSAGE_TYPE err
             break;
         case ILoginWindow::ERR_MSG_INCORRECT_LOGIN3:
             error = true;
-            curErrorText_ = tr("...hmm, try reseting your password!");
+            curErrorText_ = tr("...hmm, try resetting your password!");
+            break;
+        case ILoginWindow::ERR_MSG_RATE_LIMITED:
+            error = true;
+            curErrorText_ = tr("Rate limited. Please wait before trying to login again.");
             break;
         case ILoginWindow::ERR_MSG_SESSION_EXPIRED:
             curErrorText_ = tr("Session is expired. Please login again");
+            break;
+        case ILoginWindow::ERR_MSG_USERNAME_IS_EMAIL:
+            curErrorText_ = tr("Your username should not be an email address. Please try again.");
             break;
         case ILoginWindow::ERR_MSG_ACCOUNT_DISABLED:
             curErrorText_ = errorMessage;
             break;
         default:
-            Q_ASSERT(false);
+            WS_ASSERT(false);
             break;
     }
 
@@ -563,7 +571,7 @@ void CredentialsWindowItem::updatePositions()
     firewallTurnOffButton_->setPos((LOGIN_WIDTH - 8 - firewallTurnOffButton_->getWidth())*G_SCALE, 0);
 #endif
 
-    backButton_->setPos(8*G_SCALE, 36*G_SCALE);
+    backButton_->setPos(16*G_SCALE, 28*G_SCALE);
 
     int bottom_button_y = LOGIN_HEIGHT*G_SCALE - settingsButton_->boundingRect().width() - WINDOW_MARGIN*G_SCALE;
     int window_center_x_offset = WINDOW_WIDTH/2*G_SCALE - settingsButton_->boundingRect().width()/2;

@@ -1,7 +1,9 @@
 #ifndef INSTALL_SPLITTUNNEL_H
 #define INSTALL_SPLITTUNNEL_H
+
 #include <string>
 #include <Windows.h>
+
 #include "../iinstall_block.h"
 
 
@@ -9,12 +11,8 @@
 class InstallSplitTunnel : public IInstallBlock
 {
 public:
-	InstallSplitTunnel(const std::wstring &installPath, double weight, HWND hwnd);
-	int executeStep();
-
-private:
-	std::wstring installPath_;
-	HWND hwnd_;
+    InstallSplitTunnel(double weight);
+    int executeStep();
 };
 
 #endif // INSTALL_SPLITTUNNEL_H

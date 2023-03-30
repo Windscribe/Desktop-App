@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # ------------------------------------------------------------------------------
 # Windscribe Build System
-# Copyright (c) 2020-2021, Windscribe Limited. All rights reserved.
+# Copyright (c) 2020-2023, Windscribe Limited. All rights reserved.
 # ------------------------------------------------------------------------------
 # Purpose: installs stunnel executable.
 import os
@@ -12,6 +12,10 @@ TOOLS_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, TOOLS_DIR)
 
 CONFIG_NAME = os.path.join("vars", "stunnel.yml")
+
+# To ensure modules in the 'base' folder can import other modules in base.
+import base.pathhelper as pathhelper
+sys.path.append(pathhelper.BASE_DIR)
 
 import base.messages as msg
 import base.utils as utl
@@ -37,17 +41,17 @@ def BuildDependencyMSVC(openssl_root, outpath):
   build_cmd = iutl.GetMakeBuildCommand()
   build_cmd.extend(["/F", "vc.mak"])
   iutl.RunCommand(build_cmd, env=buildenv, shell=True)
-  utl.CopyFile("{}/bin/win32/tstunnel.exe".format(currend_wd),
+  utl.CopyFile("{}/bin/win64/tstunnel.exe".format(currend_wd),
                "{}/tstunnel.exe".format(outpath))
 
 
 def BuildDependencyGNU(openssl_root, outpath):
   # Create an environment with CC flags.
   buildenv = os.environ.copy()
-  if utl.GetCurrentOS() == "macos":
-    buildenv.update({ "CC" : "cc -mmacosx-version-min=10.11" })
   # Configure.
   configure_cmd = ["./configure"]
+  if utl.GetCurrentOS() == "macos":
+    configure_cmd.append("CFLAGS=-arch x86_64 -arch arm64 -mmacosx-version-min=10.14")
   configure_cmd.append("--prefix={}".format(outpath))
   configure_cmd.append("--with-ssl={}".format(openssl_root))
   iutl.RunCommand(configure_cmd, env=buildenv)
@@ -65,7 +69,7 @@ def InstallDependency():
     raise iutl.InstallError("Failed to get config data.")
   iutl.SetupEnvironment(configdata)
   dep_name = DEP_TITLE.lower()
-  dep_version_var = "VERSION_" + filter(lambda ch: ch not in "-", DEP_TITLE.upper())
+  dep_version_var = "VERSION_" + DEP_TITLE.upper().replace("-", "")
   dep_version_str = os.environ.get(dep_version_var, None)
   if not dep_version_str:
     raise iutl.InstallError("{} not defined.".format(dep_version_var))
@@ -84,6 +88,11 @@ def InstallDependency():
   iutl.ExtractFile(localfilename)
   # Copy modified files.
   iutl.CopyCustomFiles(dep_name,os.path.join(temp_dir, archivetitle))
+  dep_buildroot_var = "BUILDROOT_" + DEP_TITLE.upper()
+  dep_buildroot_str = os.environ.get(dep_buildroot_var, os.path.join("build-libs", dep_name))
+  outpath = os.path.normpath(os.path.join(os.path.dirname(TOOLS_DIR), dep_buildroot_str))
+  # Clean the output folder to ensure no conflicts when we're updating to a newer stunnel version.
+  utl.RemoveDirectory(outpath)
   # Build the dependency.
   with utl.PushDir(os.path.join(temp_dir, archivetitle)):
     msg.HeadPrint("Building: \"{}\"".format(archivetitle))
@@ -92,9 +101,6 @@ def InstallDependency():
     else:
       BuildDependencyGNU(openssl_root, temp_dir)
   # Copy the dependency to output directory and to a zip file, if needed.
-  dep_buildroot_var = "BUILDROOT_" + DEP_TITLE.upper()
-  dep_buildroot_str = os.environ.get(dep_buildroot_var, os.path.join("build-libs", dep_name))
-  outpath = os.path.normpath(os.path.join(os.path.dirname(TOOLS_DIR), dep_buildroot_str))
   installzipname = None
   if "-zip" in sys.argv:
     dep_artifact_var = "ARTIFACT_" + DEP_TITLE.upper()

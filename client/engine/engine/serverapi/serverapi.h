@@ -1,224 +1,130 @@
-#ifndef SERVERAPI_H
-#define SERVERAPI_H
+#pragma once
 
 #include <QObject>
-#include <QTimer>
-#include "engine/apiinfo/apiinfo.h"
-#include "engine/apiinfo/notification.h"
-#include "engine/apiinfo/portmap.h"
-#include "engine/apiinfo/staticips.h"
-#include "engine/apiinfo/checkupdate.h"
-#include "engine/proxy/proxysettings.h"
-#include "dnscache.h"
-#include "curlnetworkmanager.h"
+#include <QPointer>
+#include <QQueue>
 
-#include <list>
+#include "engine/connectstatecontroller/connectstatewatcher.h"
+#include "engine/connectstatecontroller/iconnectstatecontroller.h"
+#include "engine/failover/ifailovercontainer.h"
+#include "engine/networkaccessmanager/networkaccessmanager.h"
+#include "engine/networkdetectionmanager/inetworkdetectionmanager.h"
+#include "requests/baserequest.h"
+#include "types/apiresolutionsettings.h"
+#include "types/protocol.h"
+#include "types/robertfilter.h"
+#include "requestexecuterviafailover.h"
 
-class INetworkStateManager;
+namespace server_api {
 
-// access to API endpoint with custom DNS-resolution
+/*
+Access to API endpoint.
+Example of a typical usage in the calling code
+   server_api::BaseRequest *request = serverAPI_->login(username, password, code2fa);
+   connect(request, &server_api::BaseRequest::finished, this, &LoginController::onLoginAnswer);
+   .....
+  void LoginController::onLoginAnswer()
+{
+    QSharedPointer<server_api::LoginRequest> request(static_cast<server_api::LoginRequest *>(sender()), &QObject::deleteLater);
+    ... some code processing request ...;
+}
+that is, the calling code should take care of the deletion returned server_api::BaseRequest object (preferably via deleteLater())
+
+Also this class makes a failover algorithm for all requests, which depends on the VPN connection status.
+Important: while the failover domain is not detected, requests can wait in the queue.
+*/
+
 class ServerAPI : public QObject
 {
     Q_OBJECT
 public:
-    class BaseRequest;
-
-    explicit ServerAPI(QObject *parent);
+    // Ownership of the failover passes to the serverAPI object
+    explicit ServerAPI(QObject *parent, IConnectStateController *connectStateController, NetworkAccessManager *networkAccessManager,
+                       INetworkDetectionManager *networkDetectionManager, failover::IFailoverContainer *failoverContainer);
     virtual ~ServerAPI();
 
-    uint getAvailableUserRole();
-
-    void setProxySettings(const ProxySettings &proxySettings);
-    void disableProxy();
-    void enableProxy();
-
-    // if true, then all requests works
-    // if false, then only request for SERVER_API_ROLE_LOGIN_CONTROLLER and SERVER_API_ROLE_ACCESS_IPS_CONTROLLER roles works
-    void setRequestsEnabled(bool bEnable);
-    bool isRequestsEnabled() const;
-
-    // set single hostname for make API requests
-    void setHostname(const QString &hostname);
     QString getHostname() const;
-
-    void accessIps(const QString &hostIp, uint userRole, bool isNeedCheckRequestsEnabled);
-    void login(const QString &username, const QString &password, const QString &code2fa, uint userRole, bool isNeedCheckRequestsEnabled);
-    void session(const QString &authHash, uint userRole, bool isNeedCheckRequestsEnabled);
-    void serverLocations(const QString &authHash, const QString &language, uint userRole, bool isNeedCheckRequestsEnabled,
-                         const QString &revision, bool isPro, ProtocolType protocol, const QStringList &alcList);
-    void serverCredentials(const QString &authHash, uint userRole, ProtocolType protocol, bool isNeedCheckRequestsEnabled);
-    void deleteSession(const QString &authHash, uint userRole, bool isNeedCheckRequestsEnabled);
-    void serverConfigs(const QString &authHash, uint userRole, bool isNeedCheckRequestsEnabled);
-    void portMap(const QString &authHash, uint userRole, bool isNeedCheckRequestsEnabled);
-    void recordInstall(uint userRole, bool isNeedCheckRequestsEnabled);
-    void confirmEmail(uint userRole, const QString &authHash, bool isNeedCheckRequestsEnabled);
-    void webSession(const QString authHash, uint userRole, bool isNeedCheckRequestsEnabled);
-
-    void myIP(bool isDisconnected, uint userRole, bool isNeedCheckRequestsEnabled);
-
-    void checkUpdate(const ProtoTypes::UpdateChannel updateChannel, uint userRole, bool isNeedCheckRequestsEnabled);
-    void debugLog(const QString &username, const QString &strLog, uint userRole, bool isNeedCheckRequestsEnabled);
-    void speedRating(const QString &authHash, const QString &speedRatingHostname, const QString &ip, int rating,
-                     uint userRole, bool isNeedCheckRequestsEnabled);
-
-    void staticIps(const QString &authHash, const QString &deviceId, uint userRole, bool isNeedCheckRequestsEnabled);
-
-    void pingTest(quint64 cmdId, uint timeout, bool bWriteLog);
-    void cancelPingTest(quint64 cmdId);
-
-    void notifications(const QString &authHash, uint userRole, bool isNeedCheckRequestsEnabled);
-
-    void wgConfigsInit(const QString &authHash, uint userRole, bool isNeedCheckRequestsEnabled, const QString &clientPublicKey, bool deleteOldestKey);
-    void wgConfigsConnect(const QString &authHash, uint userRole, bool isNeedCheckRequestsEnabled, const QString &clientPublicKey, const QString &serverName);
-
+    void setApiResolutionsSettings(const types::ApiResolutionSettings &apiResolutionSettings);
     void setIgnoreSslErrors(bool bIgnore);
+    void resetFailover();
 
-    void onTunnelTestDnsResolve(const QStringList &ips);
+    BaseRequest *login(const QString &username, const QString &password, const QString &code2fa);
+    BaseRequest *session(const QString &authHash);
+    BaseRequest *serverLocations(const QString &language, const QString &revision, bool isPro, const QStringList &alcList);
+    BaseRequest *serverCredentials(const QString &authHash, types::Protocol protocol);
+    BaseRequest *deleteSession(const QString &authHash);
+    BaseRequest *serverConfigs(const QString &authHash);
+    BaseRequest *portMap(const QString &authHash);
+    BaseRequest *recordInstall();
+    BaseRequest *confirmEmail(const QString &authHash);
+    BaseRequest *webSession(const QString authHash, WEB_SESSION_PURPOSE purpose);
+
+    BaseRequest *myIP(int timeout);
+
+    BaseRequest *checkUpdate(UPDATE_CHANNEL updateChannel);
+    BaseRequest *debugLog(const QString &username, const QString &strLog);
+    BaseRequest *speedRating(const QString &authHash, const QString &speedRatingHostname, const QString &ip, int rating);
+
+    BaseRequest *staticIps(const QString &authHash, const QString &deviceId);
+
+    BaseRequest *pingTest(uint timeout, bool bWriteLog);
+
+    BaseRequest *notifications(const QString &authHash);
+
+    BaseRequest *getRobertFilters(const QString &authHash);
+    BaseRequest *setRobertFilter(const QString &authHash, const types::RobertFilter &filter);
+
+    BaseRequest *wgConfigsInit(const QString &authHash, const QString &clientPublicKey, bool deleteOldestKey);
+    BaseRequest *wgConfigsConnect(const QString &authHash, const QString &clientPublicKey, const QString &serverName, const QString &deviceId);
+    BaseRequest *syncRobert(const QString &authHash);
 
 signals:
-    void accessIpsAnswer(SERVER_API_RET_CODE retCode, const QStringList &hosts, uint userRole);
-    void loginAnswer(SERVER_API_RET_CODE retCode, const apiinfo::SessionStatus &sessionStatus, const QString &authHash,
-                     uint userRole, const QString &errorMessage);
-    void sessionAnswer(SERVER_API_RET_CODE retCode, const apiinfo::SessionStatus &sessionStatus, uint userRole);
-    void serverLocationsAnswer(SERVER_API_RET_CODE retCode, const QVector<apiinfo::Location> &serverLocations,
-                               QStringList forceDisconnectNodes, uint userRole);
-    void serverCredentialsAnswer(SERVER_API_RET_CODE retCode, const QString &radiusUsername,
-                                 const QString &radiusPassword, ProtocolType protocol, uint userRole);
-    void serverConfigsAnswer(SERVER_API_RET_CODE retCode, const QString &config, uint userRole);
-    void portMapAnswer(SERVER_API_RET_CODE retCode, const apiinfo::PortMap &portMap, uint userRole);
-    void myIPAnswer(const QString &ip, bool success, bool isDisconnected, uint userRole);
-    void checkUpdateAnswer(const apiinfo::CheckUpdate &checkUpdate, bool bNetworkErrorOccured, uint userRole);
-    void debugLogAnswer(SERVER_API_RET_CODE retCode, uint userRole);
-    void confirmEmailAnswer(SERVER_API_RET_CODE retCode, uint userRole);
-    void staticIpsAnswer(SERVER_API_RET_CODE retCode, const apiinfo::StaticIps &staticIps, uint userRole);
-    void pingTestAnswer(SERVER_API_RET_CODE retCode, const QString &data);
-    void notificationsAnswer(SERVER_API_RET_CODE retCode, QVector<apiinfo::Notification> notifications, uint userRole);
-
-    void wgConfigsInitAnswer(SERVER_API_RET_CODE retCode, uint userRole, bool isErrorCode, int errorCode, const QString &presharedKey, const QString &allowedIps);
-    void wgConfigsConnectAnswer(SERVER_API_RET_CODE retCode, uint userRole, bool isErrorCode, int errorCode, const QString &ipAddress, const QString &dnsAddress);
-
-    void webSessionAnswer(SERVER_API_RET_CODE retCode, const QString &token, uint userRole);
-    void sendUserWarning(ProtoTypes::UserWarningType warning);
-
-    // need for add to firewall rules
-    void hostIpsChanged(const QStringList &hostIps);
+    void tryingBackupEndpoint(int num, int cnt);
 
 private slots:
-    void onDnsResolved(bool success, void *userData, qint64 requestStartTime, const QStringList &ips);
-    void onCurlNetworkRequestFinished(CurlRequest *curlRequest);
-    void onRequestTimer();
+    void onNetworkRequestFinished();
+    //void onFailoverNextHostnameAnswer(failover::FailoverRetCode retCode, const QString &hostname);
+    void onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, CONNECT_ERROR err, const LocationID &location);
+    void onRequestExecuterViaFailoverFinished(server_api::RequestExecuterRetCode retCode);
 
 private:
-    using HandleDnsResolveFunc = void (ServerAPI::*)(BaseRequest*,bool, const QStringList&);
-    using HandleCurlReplyFunc = void (ServerAPI::*)(BaseRequest*, bool);
-
-    enum {
-        GET_MY_IP_TIMEOUT = 5000,
-        NETWORK_TIMEOUT = 10000,
-    };
-    enum {
-        REPLY_ACCESS_IPS,
-        REPLY_LOGIN,
-        REPLY_SESSION,
-        REPLY_SERVER_LOCATIONS,
-        REPLY_SERVER_CREDENTIALS,
-        REPLY_DELETE_SESSION,
-        REPLY_SERVER_CONFIGS,
-        REPLY_PORT_MAP,
-        REPLY_MY_IP,
-        REPLY_CHECK_UPDATE,
-        REPLY_RECORD_INSTALL,
-        REPLY_DEBUG_LOG,
-        REPLY_SPEED_RATING,
-        REPLY_PING_TEST,
-        REPLY_NOTIFICATIONS,
-        REPLY_STATIC_IPS,
-        REPLY_CONFIRM_EMAIL,
-        REPLY_WIREGUARD_INIT,
-        REPLY_WIREGUARD_CONNECT,
-        REPLY_WEB_SESSION,
-        NUM_REPLY_TYPES
-    };
-
-    template<typename RequestType, typename... RequestArgs>
-    RequestType *createRequest(RequestArgs &&... args) {
-        auto *request = new RequestType(std::forward<RequestArgs>( args )...);
-        // if (request)
-        {
-            activeRequests_.push_back(request);
-        }
-        return request;
-    }
-    void submitDnsRequest(BaseRequest *request, const QString &forceHostname = QString());
-    void submitCurlRequest(BaseRequest *request, CurlRequest::MethodType type,
-                           const QString &contentTypeHeader, const QString &hostname,
-                           const QStringList &ips);
-
-    void handleRequestTimeout(BaseRequest *rd);
-
-    void handleLoginDnsResolve(BaseRequest *rd, bool success, const QStringList &ips);
-    void handleSessionDnsResolve(BaseRequest *rd, bool success, const QStringList &ips);
-    void handleServerLocationsDnsResolve(BaseRequest *rd, bool success, const QStringList &ips);
-    void handleServerCredentialsDnsResolve(BaseRequest *rd, bool success, const QStringList &ips);
-    void handleDeleteSessionDnsResolve(BaseRequest *rd, bool success, const QStringList &ips);
-    void handleServerConfigsDnsResolve(BaseRequest *rd, bool success, const QStringList &ips);
-    void handlePortMapDnsResolve(BaseRequest *rd, bool success, const QStringList &ips);
-    void handleRecordInstallDnsResolve(BaseRequest *rd, bool success, const QStringList &ips);
-    void handleConfirmEmailDnsResolve(BaseRequest *rd, bool success, const QStringList &ips);
-    void handleMyIPDnsResolve(BaseRequest *rd, bool success, const QStringList &ips);
-    void handleCheckUpdateDnsResolve(BaseRequest *rd, bool success, const QStringList &ips);
-    void handleDebugLogDnsResolve(BaseRequest *rd, bool success, const QStringList &ips);
-    void handleSpeedRatingDnsResolve(BaseRequest *rd, bool success, const QStringList &ips);
-    void handleNotificationsDnsResolve(BaseRequest *rd, bool success, const QStringList &ips);
-    void handleStaticIpsDnsResolve(BaseRequest *rd, bool success, const QStringList &ips);
-    void handlePingTestDnsResolve(BaseRequest *rd, bool success, const QStringList &ips);
-
-    void handleWgConfigsInitDnsResolve(BaseRequest *rd, bool success, const QStringList &ips);
-    void handleWgConfigsConnectDnsResolve(BaseRequest *rd, bool success, const QStringList &ips);
-
-    void handleWebSessionDnsResolve(BaseRequest *rd, bool success, const QStringList &ips);
-
-    void handleAccessIpsCurl(BaseRequest *rd, bool success);
-    void handleSessionReplyCurl(BaseRequest *rd, bool success);
-    void handleServerLocationsCurl(BaseRequest *rd, bool success);
-    void handleServerCredentialsCurl(BaseRequest *rd, bool success);
-    void handleDeleteSessionCurl(BaseRequest *rd, bool success);
-    void handleServerConfigsCurl(BaseRequest *rd, bool success);
-    void handlePortMapCurl(BaseRequest *rd, bool success);
-    void handleMyIPCurl(BaseRequest *rd, bool success);
-    void handleCheckUpdateCurl(BaseRequest *rd, bool success);
-    void handleRecordInstallCurl(BaseRequest *rd, bool success);
-    void handleConfirmEmailCurl(BaseRequest *rd, bool success);
-    void handleDebugLogCurl(BaseRequest *rd, bool success);
-    void handleSpeedRatingCurl(BaseRequest *rd, bool success);
-    void handlePingTestCurl(BaseRequest *rd, bool success);
-    void handleNotificationsCurl(BaseRequest *rd, bool success);
-    void handleStaticIpsCurl(BaseRequest *rd, bool success);
-    void handleWgConfigsInitCurl(BaseRequest *rd, bool success);
-    void handleWgConfigsConnectCurl(BaseRequest *rd, bool success);
-    void handleWebSessionCurl(BaseRequest *rd, bool success);
-
-    CurlNetworkManager curlNetworkManager_;
-
-    QString lastLocationsLanguage_;
-
-    DnsCache *dnsCache_;
-
-    QString hostname_;
-    QStringList hostIps_;
-
-    enum HOST_MODE { HOST_MODE_HOSTNAME, HOST_MODE_IPS };
-    HOST_MODE hostMode_;
-
-    bool bIsRequestsEnabled_;
-    uint curUserRole_;
+    NetworkAccessManager *networkAccessManager_;
+    IConnectStateController *connectStateController_;
+    INetworkDetectionManager *networkDetectionManager_;
     bool bIgnoreSslErrors_;
+    bool bWasConnectedState_ = false;
+    types::ApiResolutionSettings apiResolutionSettings_;
 
-    std::list<BaseRequest*> activeRequests_;
-    QMap<const CurlRequest*, BaseRequest*> curlToRequestMap_;
-    HandleDnsResolveFunc handleDnsResolveFuncTable_[NUM_REPLY_TYPES];
-    HandleCurlReplyFunc handleCurlReplyFuncTable_[NUM_REPLY_TYPES];
-    QTimer requestTimer_;
+    QQueue<QPointer<BaseRequest> > queueRequests_;    // a queue of requests that are waiting for the failover to complete
+
+    enum class FailoverState { kUnknown, kFromSettingsUnknown, kFromSettingsReady, kReady, kFailed } failoverState_;
+    QScopedPointer<failover::FailoverData> failoverData_;   // valid only in kReady/kFromSettingsReady states
+
+    QString failoverFromSettingsId_;   // empty if not exists
+
+    QScopedPointer<RequestExecuterViaFailover> requestExecutorViaFailover_;
+
+    failover::IFailoverContainer *failoverContainer_;
+    bool isGettingFailoverHostnameInProgress_ = false;
+    bool isResetFailoverOnNextHostnameAnswer_ = false;
+    bool isFailoverFailedLogAlreadyDone_ = false;   // log "failover failed: API not ready" only once to avoid spam
+
+    void executeRequest(QPointer<BaseRequest> request);
+    void executeRequestImpl(QPointer<BaseRequest> request, const failover::FailoverData &failoverData);
+
+    void executeWaitingInQueueRequests();
+    void finishWaitingInQueueRequests(SERVER_API_RET_CODE retCode, const QString &errString);
+
+    void setErrorCodeAndEmitRequestFinished(BaseRequest *request, SERVER_API_RET_CODE retCode, const QString &errorStr);
+
+    bool isDisconnectedState() const;
+
+    QString hostnameForConnectedState() const;
+
+    // Save and read the hostname from the settings where it is stored encrypted
+    static constexpr quint64 SIMPLE_CRYPT_KEY = 0x2572241DF31F32EE;
+    void writeFailoverIdToSettings(const QString &failoverId);
+    QString readFailoverIdFromSettings() const;
 };
 
-#endif // SERVERAPI_H
+} // namespace server_api

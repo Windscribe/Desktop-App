@@ -1,23 +1,29 @@
 #include "splittunnelingappswindowitem.h"
 
+#include "preferenceswindow/preferencegroup.h"
+
 namespace PreferencesWindow {
 
-PreferencesWindow::SplitTunnelingAppsWindowItem::SplitTunnelingAppsWindowItem(ScalableGraphicsObject *parent, Preferences *preferences) : BasePage (parent)
-  , preferences_(preferences)
+SplitTunnelingAppsWindowItem::SplitTunnelingAppsWindowItem(ScalableGraphicsObject *parent, Preferences *preferences)
+  : CommonGraphics::BasePage(parent), preferences_(preferences)
 {
     setFlags(flags() | QGraphicsItem::ItemClipsChildrenToShape | QGraphicsItem::ItemIsFocusable);
+    setSpacerHeight(PREFERENCES_MARGIN);
 
-    splitTunnelingAppsItem_ = new SplitTunnelingAppsItem(this);
-    connect(splitTunnelingAppsItem_, SIGNAL(appsUpdated(QList<ProtoTypes::SplitTunnelingApp>)), SLOT(onAppsUpdated(QList<ProtoTypes::SplitTunnelingApp>)));
-    connect(splitTunnelingAppsItem_, SIGNAL(searchClicked()), SIGNAL(searchButtonClicked()));
-    connect(splitTunnelingAppsItem_, SIGNAL(addClicked()), SIGNAL(addButtonClicked()));
-    connect(splitTunnelingAppsItem_, SIGNAL(nativeInfoErrorMessage(QString, QString)), SIGNAL(nativeInfoErrorMessage(QString,QString)));
-    connect(splitTunnelingAppsItem_, SIGNAL(scrollToRect(QRect)), SIGNAL(scrollToRect(QRect)));
-    connect(splitTunnelingAppsItem_, SIGNAL(escape()), SIGNAL(escape()));
-    addItem(splitTunnelingAppsItem_);
-    setFocusProxy(splitTunnelingAppsItem_);
+    desc_ = new PreferenceGroup(this);
+    desc_->setDescriptionBorderWidth(2);
+    addItem(desc_);
 
-    splitTunnelingAppsItem_->setApps(preferences->splitTunnelingApps());
+    splitTunnelingAppsGroup_ = new SplitTunnelingAppsGroup(this);
+    connect(splitTunnelingAppsGroup_, &SplitTunnelingAppsGroup::appsUpdated, this, &SplitTunnelingAppsWindowItem::onAppsUpdated);
+    connect(splitTunnelingAppsGroup_, &SplitTunnelingAppsGroup::addClicked, this, &SplitTunnelingAppsWindowItem::addButtonClicked);
+    connect(splitTunnelingAppsGroup_, &SplitTunnelingAppsGroup::escape, this, &SplitTunnelingAppsWindowItem::escape);
+    addItem(splitTunnelingAppsGroup_);
+    setFocusProxy(splitTunnelingAppsGroup_);
+
+    splitTunnelingAppsGroup_->setApps(preferences->splitTunnelingApps());
+
+    setLoggedIn(false);
 }
 
 QString SplitTunnelingAppsWindowItem::caption()
@@ -25,34 +31,40 @@ QString SplitTunnelingAppsWindowItem::caption()
     return QT_TRANSLATE_NOOP("PreferencesWindow::PreferencesWindowItem", "Apps");
 }
 
-QList<ProtoTypes::SplitTunnelingApp> SplitTunnelingAppsWindowItem::getApps()
+QList<types::SplitTunnelingApp> SplitTunnelingAppsWindowItem::getApps()
 {
-    return splitTunnelingAppsItem_->getApps();
+    return splitTunnelingAppsGroup_->apps();
 }
 
-void SplitTunnelingAppsWindowItem::setApps(QList<ProtoTypes::SplitTunnelingApp> apps)
+void SplitTunnelingAppsWindowItem::setApps(QList<types::SplitTunnelingApp> apps)
 {
-    splitTunnelingAppsItem_->setApps(apps);
+    splitTunnelingAppsGroup_->setApps(apps);
 }
 
-void SplitTunnelingAppsWindowItem::addAppManually(ProtoTypes::SplitTunnelingApp app)
+void SplitTunnelingAppsWindowItem::addAppManually(types::SplitTunnelingApp app)
 {
-    QList<ProtoTypes::SplitTunnelingApp> apps = splitTunnelingAppsItem_->getApps();
-    apps.append(app);
-    splitTunnelingAppsItem_->setApps(apps);
-    preferences_->setSplitTunnelingApps(apps);
-    emit appsUpdated(apps);
+    splitTunnelingAppsGroup_->addApp(app);
 }
 
-void SplitTunnelingAppsWindowItem::setLoggedIn(bool able)
-{
-    splitTunnelingAppsItem_->setLoggedIn(able);
-}
-
-void SplitTunnelingAppsWindowItem::onAppsUpdated(QList<ProtoTypes::SplitTunnelingApp> apps)
+void SplitTunnelingAppsWindowItem::onAppsUpdated(QList<types::SplitTunnelingApp> apps)
 {
     preferences_->setSplitTunnelingApps(apps);
     emit appsUpdated(apps);
 }
 
-} // namespace
+void SplitTunnelingAppsWindowItem::setLoggedIn(bool loggedIn)
+{
+    if (loggedIn)
+    {
+        desc_->clearError();
+        desc_->setDescription(tr("Add the apps you wish to include in or exclude from the VPN tunnel below."));
+    }
+    else
+    {
+        desc_->setDescription(tr("Please log in to modify split tunneling rules."), true);
+    }
+
+    splitTunnelingAppsGroup_->setLoggedIn(loggedIn);
+}
+
+} // namespace PreferencesWindow

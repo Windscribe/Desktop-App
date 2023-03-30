@@ -1,0 +1,11 @@
+[Unit]
+Description=Windscribe helper service
+Before=network-pre.target
+Wants=network-pre.target
+
+[Service]
+Type=simple
+ExecStart=/opt/windscribe/helper
+
+[Install]
+WantedBy=multi-user.target

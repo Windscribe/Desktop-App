@@ -1,10 +1,8 @@
 #ifndef SERVICES_H
 #define SERVICES_H
 
+#include <string>
 #include <Windows.h>
-#include "../Utils/logger.h"
-#include <excpt.h>
-
 
 class Services
 {

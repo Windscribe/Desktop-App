@@ -1,10 +1,11 @@
-#ifndef NETWORKDETECTIONMANAGER_LINUX_H
-#define NETWORKDETECTIONMANAGER_LINUX_H
+#pragma once
 
 #include <QMutex>
-#include <QNetworkConfigurationManager>
+#include <QNetworkInformation>
+
 #include "engine/helper/ihelper.h"
 #include "inetworkdetectionmanager.h"
+#include "routemonitor_linux.h"
 
 class NetworkDetectionManager_linux : public INetworkDetectionManager
 {
@@ -12,25 +13,24 @@ class NetworkDetectionManager_linux : public INetworkDetectionManager
 public:
     NetworkDetectionManager_linux(QObject *parent, IHelper *helper);
     ~NetworkDetectionManager_linux() override;
-    void getCurrentNetworkInterface(ProtoTypes::NetworkInterface &networkInterface) override;
+    void getCurrentNetworkInterface(types::NetworkInterface &networkInterface) override;
     bool isOnline() override;
 
 private slots:
-    void onNetworkUpdated(const QNetworkConfiguration &config);
+    void onRoutesChanged();
 
 private:
-    bool isOnline_;
-    ProtoTypes::NetworkInterface networkInterface_;
-    QNetworkConfigurationManager *ncm_;
+    bool isOnline_ = false;
+    types::NetworkInterface networkInterface_;
 
+    QThread *routeMonitorThread_ = nullptr;
+    RouteMonitor_linux *routeMonitor_ = nullptr;
 
     void updateNetworkInfo(bool bWithEmitSignal);
     QString getDefaultRouteInterface(bool &isOnline);
-    void getInterfacePars(const QString &ifname, ProtoTypes::NetworkInterface &outNetworkInterface);
+    void getInterfacePars(const QString &ifname, types::NetworkInterface &outNetworkInterface);
     QString getMacAddressByIfName(const QString &ifname);
     bool isActiveByIfName(const QString &ifname);
     bool checkWirelessByIfName(const QString &ifname);
     QString getFriendlyNameByIfName(const QString &ifname);
 };
-
-#endif // NETWORKDETECTIONMANAGER_LINUX_H

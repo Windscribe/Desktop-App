@@ -3,7 +3,7 @@
 
 #include <QObject>
 #include <QVariantAnimation>
-#include "../../graphicresources/independentpixmap.h"
+
 #include "backend/preferences/preferences.h"
 #include "imagechanger.h"
 #include "simpleimagechanger.h"
@@ -31,8 +31,9 @@ signals:
     void updated();
 
 private slots:
-    void onBackgroundSettingsChanged(const ProtoTypes::BackgroundSettings &backgroundSettings);
+    void onBackgroundSettingsChanged(const types::BackgroundSettings &backgroundSettings);
     void handleBackgroundsChange();
+    void onAppSkinChanged(APP_SKIN s);
 
 private:
     static constexpr int WIDTH = 332;
@@ -44,7 +45,7 @@ private:
     QString connectedCustomGradient_;
 
     Preferences *preferences_;
-    ProtoTypes::BackgroundSettings curBackgroundSettings_;
+    types::BackgroundSettings curBackgroundSettings_;
     bool isDisconnectedAndConnectedImagesTheSame_;
 
     QSharedPointer<QMovie> disconnectedMovie_;
@@ -57,10 +58,12 @@ private:
     QString prevCountryCode_;
     QString countryCode_;
     bool isConnected_;
+    bool isCustomBackground_;
 
     void safeChangeToDisconnectedImage(bool bShowPrevChangeAnimation);
     void safeChangeToConnectedImage(bool bShowPrevChangeAnimation);
     void switchConnectGradient(bool isCustomBackground);
+    void updateImages();
 };
 
 } //namespace ConnectWindow

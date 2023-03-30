@@ -6,6 +6,7 @@
 #include "graphicresources/fontmanager.h"
 #include "graphicresources/imageresourcessvg.h"
 #include "commongraphics/commongraphics.h"
+#include "utils/ws_assert.h"
 #include "languagecontroller.h"
 #include "dpiscalemanager.h"
 
@@ -15,7 +16,7 @@ EmergencyConnectWindowItem::EmergencyConnectWindowItem(QGraphicsObject *parent,
                                                        PreferencesHelper *preferencesHelper)
     : ScalableGraphicsObject(parent), errorConnecting_(false)
 {
-    Q_ASSERT(preferencesHelper);
+    WS_ASSERT(preferencesHelper);
     setFlag(QGraphicsItem::ItemIsFocusable);
 
     curTitleOpacity_ = OPACITY_FULL;
@@ -38,7 +39,7 @@ EmergencyConnectWindowItem::EmergencyConnectWindowItem(QGraphicsObject *parent,
     disconnectButton_ = new CommonGraphics::BubbleButtonBright(this, 128, 40, 20, 20);
     connect(disconnectButton_, SIGNAL(clicked()), SLOT(onDisconnectClicked()));
 
-    escButton_ = new PreferencesWindow::EscapeButton(this);
+    escButton_ = new CommonGraphics::EscapeButton(this);
     connect(escButton_, SIGNAL(clicked()), SLOT(onEscClicked()));
 
 #ifdef Q_OS_WIN
@@ -84,7 +85,7 @@ EmergencyConnectWindowItem::EmergencyConnectWindowItem(QGraphicsObject *parent,
 
     textLinkButton_->animateShow(ANIMATION_SPEED_FAST);
 
-    ProtoTypes::ConnectState defaultConnectState;
+    types::ConnectState defaultConnectState;
     setState(defaultConnectState);
 
     updatePositions();
@@ -187,12 +188,12 @@ void EmergencyConnectWindowItem::stopSpinnerAnimation()
 
 }
 
-void EmergencyConnectWindowItem::setState(ProtoTypes::ConnectState state)
+void EmergencyConnectWindowItem::setState(types::ConnectState state)
 {
 
-    if (state.connect_state_type() == ProtoTypes::CONNECTED)
+    if (state.connectState == CONNECT_STATE_CONNECTED)
     {
-        errorConnecting_ =  (state.connect_error() != ProtoTypes::NO_CONNECT_ERROR);
+        errorConnecting_ =  (state.connectError != NO_CONNECT_ERROR);
 
         stopSpinnerAnimation();
         descriptionOpacityAnimation_.stop();
@@ -208,9 +209,9 @@ void EmergencyConnectWindowItem::setState(ProtoTypes::ConnectState state)
         disconnectButton_->quickShow();
         disconnectButton_->setVisible(true);
     }
-    else if (state.connect_state_type() == ProtoTypes::DISCONNECTED)
+    else if (state.connectState == CONNECT_STATE_DISCONNECTED)
     {
-        errorConnecting_ =  (state.connect_error() != ProtoTypes::NO_CONNECT_ERROR);
+        errorConnecting_ =  (state.connectError != NO_CONNECT_ERROR);
 
         stopSpinnerAnimation();
         descriptionOpacityAnimation_.stop();
@@ -227,7 +228,7 @@ void EmergencyConnectWindowItem::setState(ProtoTypes::ConnectState state)
         connectButton_->quickShow();
         connectButton_->setVisible(true);
     }
-    else if (state.connect_state_type() == ProtoTypes::CONNECTING)
+    else if (state.connectState == CONNECT_STATE_CONNECTING)
     {
         curSubDescription_ = CONNECTING_STRING;
 
@@ -237,7 +238,7 @@ void EmergencyConnectWindowItem::setState(ProtoTypes::ConnectState state)
         transitionToConnecting();
         startSpinnerAnimation();
     }
-    else // ProtoTypes::DISCONNECTING
+    else // CONNECT_STATE_DISCONNECTING
     {
         curSubDescription_ = QT_TR_NOOP("Disconnecting...");
 
@@ -252,7 +253,7 @@ void EmergencyConnectWindowItem::setState(ProtoTypes::ConnectState state)
 
 void EmergencyConnectWindowItem::setClickable(bool isClickable)
 {
-    if (state_.connect_state_type() == ProtoTypes::CONNECTED)
+    if (state_.connectState == CONNECT_STATE_CONNECTED)
     {
         disconnectButton_->setClickable(isClickable);
     }
@@ -261,7 +262,7 @@ void EmergencyConnectWindowItem::setClickable(bool isClickable)
         disconnectButton_->setClickable(false);
     }
 
-    if (state_.connect_state_type() == ProtoTypes::DISCONNECTED)
+    if (state_.connectState == CONNECT_STATE_DISCONNECTED)
     {
         connectButton_->setClickable(isClickable);
     }
@@ -289,7 +290,7 @@ void EmergencyConnectWindowItem::keyPressEvent(QKeyEvent *event)
 {
     if (event->key() == Qt::Key_Escape)
     {
-        if (state_.connect_state_type() == ProtoTypes::CONNECTING)
+        if (state_.connectState == CONNECT_STATE_CONNECTING)
         {
             emit disconnectClick();
         }
@@ -300,11 +301,11 @@ void EmergencyConnectWindowItem::keyPressEvent(QKeyEvent *event)
     }
     else if (event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter)
     {
-        if (state_.connect_state_type() == ProtoTypes::CONNECTED)
+        if (state_.connectState == CONNECT_STATE_CONNECTED)
         {
             emit disconnectClick();
         }
-        else if (state_.connect_state_type() == ProtoTypes::DISCONNECTED)
+        else if (state_.connectState == CONNECT_STATE_DISCONNECTED)
         {
             emit connectClick();
         }
@@ -313,7 +314,7 @@ void EmergencyConnectWindowItem::keyPressEvent(QKeyEvent *event)
 
 void EmergencyConnectWindowItem::onEscClicked()
 {
-    if (state_.connect_state_type() == ProtoTypes::CONNECTING)
+    if (state_.connectState == CONNECT_STATE_CONNECTING)
     {
         emit disconnectClick();
     }

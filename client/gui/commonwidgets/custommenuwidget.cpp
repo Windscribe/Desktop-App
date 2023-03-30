@@ -19,13 +19,13 @@ void CustomMenuWidget::addItem(const QString &caption, const QVariant &userValue
     action->setFont(*FontManager::instance().getFont(fontDescr_));
 
     // Add key-bindings to display
-    if (userValue.toInt() == UNDO)            { action->setShortcut(QKeySequence::Undo);       }
-    else if (userValue.toInt() == REDO)       { action->setShortcut(QKeySequence::Redo);       }
-    else if (userValue.toInt() == COPY)       { action->setShortcut(QKeySequence::Copy);       }
-    else if (userValue.toInt() == CUT)        { action->setShortcut(QKeySequence::Cut);        }
-    else if (userValue.toInt() == PASTE)      { action->setShortcut(QKeySequence::Paste);      }
-    else if (userValue.toInt() == DELETE)     { action->setShortcut(QKeySequence::Delete);     }
-    else if (userValue.toInt() == SELECT_ALL) { action->setShortcut(QKeySequence::SelectAll);  }
+    if (userValue.toInt() == ACT_UNDO)            { action->setShortcut(QKeySequence::Undo);       }
+    else if (userValue.toInt() == ACT_REDO)       { action->setShortcut(QKeySequence::Redo);       }
+    else if (userValue.toInt() == ACT_COPY)       { action->setShortcut(QKeySequence::Copy);       }
+    else if (userValue.toInt() == ACT_CUT)        { action->setShortcut(QKeySequence::Cut);        }
+    else if (userValue.toInt() == ACT_PASTE)      { action->setShortcut(QKeySequence::Paste);      }
+    else if (userValue.toInt() == ACT_DELETE)     { action->setShortcut(QKeySequence::Delete);     }
+    else if (userValue.toInt() == ACT_SELECT_ALL) { action->setShortcut(QKeySequence::SelectAll);  }
 
     action->setData(userValue);
 }
@@ -61,17 +61,17 @@ void CustomMenuWidget::initContextMenu()
     setFont(*FontManager::instance().getFont(fontDescr_));
     updateStyleSheet();
 
-    addItem(tr("Undo"), UNDO);
-    addItem(tr("Redo"), REDO);
+    addItem(tr("Undo"), ACT_UNDO);
+    addItem(tr("Redo"), ACT_REDO);
 
     addSeparator();
-    addItem(tr("Cut"), CUT);
-    addItem(tr("Copy"), COPY);
-    addItem(tr("Paste"), PASTE);
-    addItem(tr("Delete"), DELETE);
+    addItem(tr("Cut"), ACT_CUT);
+    addItem(tr("Copy"), ACT_COPY);
+    addItem(tr("Paste"), ACT_PASTE);
+    addItem(tr("Delete"), ACT_DELETE);
 
     addSeparator();
-    addItem(tr("Select All"), SELECT_ALL);
+    addItem(tr("Select All"), ACT_SELECT_ALL);
 }
 
 void CustomMenuWidget::updateStyleSheet()

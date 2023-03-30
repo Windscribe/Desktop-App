@@ -1,4 +1,5 @@
 #include "customconfiglocationinfo.h"
+#include "utils/ws_assert.h"
 #include "utils/ipvalidation.h"
 #include "utils/logger.h"
 #include "engine/dnsresolver/dnsrequest.h"
@@ -54,14 +55,14 @@ void CustomConfigLocationInfo::resolveHostnames()
     }
 
     switch (config_->type()) {
-    case customconfigs::CUSTOM_CONFIG_OPENVPN:
+    case CUSTOM_CONFIG_OPENVPN:
         resolveHostnamesForOVPNConfig();
         break;
-    case customconfigs::CUSTOM_CONFIG_WIREGUARD:
+    case CUSTOM_CONFIG_WIREGUARD:
         resolveHostnamesForWireGuardConfig();
         break;
     default:
-        Q_ASSERT(false);
+        WS_ASSERT(false);
         break;
     }
 }
@@ -71,7 +72,7 @@ void CustomConfigLocationInfo::resolveHostnamesForWireGuardConfig()
     auto *config = dynamic_cast<customconfigs::WireguardCustomConfig const *>(config_.data());
     if (!config)
     {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
         return;
     }
 
@@ -86,7 +87,7 @@ void CustomConfigLocationInfo::resolveHostnamesForWireGuardConfig()
         rd.ipOrHostname_ = remote;
         rd.isHostname = false;
         rd.port = globalPort_;
-        if (!IpValidation::instance().isIp(remote))
+        if (!IpValidation::isIp(remote))
         {
             rd.isHostname = true;
             rd.isResolved = false;
@@ -110,7 +111,7 @@ void CustomConfigLocationInfo::resolveHostnamesForOVPNConfig()
     auto *config = dynamic_cast<customconfigs::OvpnCustomConfig const *>(config_.data());
     if (!config)
     {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
         return;
     }
 
@@ -121,7 +122,7 @@ void CustomConfigLocationInfo::resolveHostnamesForOVPNConfig()
     const QVector<customconfigs::RemoteCommandLine> remotes = config->remotes();
     for (const auto &remote : remotes)
     {
-        if (IpValidation::instance().isIp(remote.hostname))
+        if (IpValidation::isIp(remote.hostname))
         {
             RemoteDescr rd;
             rd.ipOrHostname_ = remote.hostname;
@@ -162,7 +163,7 @@ void CustomConfigLocationInfo::resolveHostnamesForOVPNConfig()
 
 QString CustomConfigLocationInfo::getSelectedIp() const
 {
-    Q_ASSERT(selected_ >= 0 && selected_ < remotes_.count());
+    WS_ASSERT(selected_ >= 0 && selected_ < remotes_.count());
 
     if (!remotes_[selected_].isHostname)
     {
@@ -176,13 +177,13 @@ QString CustomConfigLocationInfo::getSelectedIp() const
 
 QString CustomConfigLocationInfo::getSelectedRemoteCommand() const
 {
-    Q_ASSERT(selected_ >= 0 && selected_ < remotes_.count());
+    WS_ASSERT(selected_ >= 0 && selected_ < remotes_.count());
     return remotes_[selected_].remoteCmdLine;
 }
 
 uint CustomConfigLocationInfo::getSelectedPort() const
 {
-    Q_ASSERT(selected_ >= 0 && selected_ < remotes_.count());
+    WS_ASSERT(selected_ >= 0 && selected_ < remotes_.count());
     if (remotes_[selected_].port != 0)
     {
         return remotes_[selected_].port;
@@ -195,7 +196,7 @@ uint CustomConfigLocationInfo::getSelectedPort() const
 
 QString CustomConfigLocationInfo::getSelectedProtocol() const
 {
-    Q_ASSERT(selected_ >= 0 && selected_ < remotes_.count());
+    WS_ASSERT(selected_ >= 0 && selected_ < remotes_.count());
     if (!remotes_[selected_].protocol.isEmpty())
     {
         return remotes_[selected_].protocol;
@@ -208,11 +209,11 @@ QString CustomConfigLocationInfo::getSelectedProtocol() const
 
 QString CustomConfigLocationInfo::getOvpnData() const
 {
-    if (config_->type() == customconfigs::CUSTOM_CONFIG_OPENVPN) {
+    if (config_->type() == CUSTOM_CONFIG_OPENVPN) {
         auto *config = dynamic_cast<customconfigs::OvpnCustomConfig const *>(config_.data());
         if (config)
             return config->getOvpnData();
-        Q_ASSERT(false);
+        WS_ASSERT(false);
     }
     return QString();
 }
@@ -225,11 +226,11 @@ QString CustomConfigLocationInfo::getFilename() const
 QSharedPointer<WireGuardConfig> CustomConfigLocationInfo::getWireguardCustomConfig(
     const QString &endpointIp) const
 {
-    if (config_->type() == customconfigs::CUSTOM_CONFIG_WIREGUARD) {
+    if (config_->type() == CUSTOM_CONFIG_WIREGUARD) {
         auto *config = dynamic_cast<customconfigs::WireguardCustomConfig const *>(config_.data());
         if ( config )
             return config->getWireGuardConfig(endpointIp);
-        Q_ASSERT(false);
+        WS_ASSERT(false);
     }
     return nullptr;
 }
@@ -291,7 +292,7 @@ QString CustomConfigLocationInfo::getLogString() const
 void CustomConfigLocationInfo::onDnsRequestFinished()
 {
     DnsRequest *dnsRequest = qobject_cast<DnsRequest *>(sender());
-    Q_ASSERT(dnsRequest != nullptr);
+    WS_ASSERT(dnsRequest != nullptr);
 
     for (int i = 0; i < remotes_.count(); ++i)
     {

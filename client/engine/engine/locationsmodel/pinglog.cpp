@@ -7,7 +7,7 @@
 
 PingLog::PingLog(const QString &filename) : file_(NULL)
 {
-    QString logFilePath = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+    QString logFilePath = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
     QDir dir(logFilePath);
     dir.mkpath(logFilePath);
     logFilePath += "/" + filename;

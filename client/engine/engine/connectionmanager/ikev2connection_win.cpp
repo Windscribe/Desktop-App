@@ -5,6 +5,7 @@
 #include <QCoreApplication>
 #include "utils/hardcodedsettings.h"
 #include "engine/taputils/checkadapterenable.h"
+#include "utils/ws_assert.h"
 #include "utils/winutils.h"
 #include "utils/ras_service_win.h"
 #include "adapterutils_win.h"
@@ -18,19 +19,19 @@ bool IKEv2Connection_win::wanReinstalled_ = false;
 
 IKEv2Connection_win::IKEv2Connection_win(QObject *parent, IHelper *helper) : IConnection(parent),
     state_(STATE_DISCONNECTED), initialEnableIkev2Compression_(false),
-    isAutomaticConnectionMode_(false), connHandle_(NULL), mutex_(QMutex::Recursive),
+    isAutomaticConnectionMode_(false), connHandle_(NULL),
     disconnectLogic_(this), cntFailedConnectionAttempts_(0)
 {
     helper_ = dynamic_cast<Helper_win *>(helper);
-    Q_ASSERT(helper_);
+    WS_ASSERT(helper_);
 
-    Q_ASSERT(this_ == NULL);
+    WS_ASSERT(this_ == NULL);
     this_ = this;
     initMapConnStates();
     timerControlConnection_.setInterval(CONTROL_TIMER_PERIOD);
     connect(&timerControlConnection_, &QTimer::timeout, this, &IKEv2Connection_win::onTimerControlConnection);
     connect(&disconnectLogic_, &IKEv2ConnectionDisconnectLogic_win::disconnected, this, &IKEv2Connection_win::onHandleDisconnectLogic);
-    Q_ASSERT(state_ == STATE_DISCONNECTED);
+    WS_ASSERT(state_ == STATE_DISCONNECTED);
 }
 
 IKEv2Connection_win::~IKEv2Connection_win()
@@ -38,17 +39,18 @@ IKEv2Connection_win::~IKEv2Connection_win()
     this_ = NULL;
 }
 
-void IKEv2Connection_win::startConnect(const QString &configPathOrUrl, const QString &ip, const QString &dnsHostName, const QString &username, const QString &password, const ProxySettings &proxySettings, const WireGuardConfig *wireGuardConfig, bool isEnableIkev2Compression, bool isAutomaticConnectionMode)
+void IKEv2Connection_win::startConnect(const QString &configOrUrl, const QString &ip, const QString &dnsHostName, const QString &username, const QString &password, const types::ProxySettings &proxySettings, const WireGuardConfig *wireGuardConfig, bool isEnableIkev2Compression, bool isAutomaticConnectionMode, bool isCustomConfig)
 {
     Q_UNUSED(dnsHostName);
     Q_UNUSED(proxySettings);
     Q_UNUSED(wireGuardConfig);
+    Q_UNUSED(isCustomConfig);
 
     QMutexLocker locker(&mutex_);
 
-    Q_ASSERT(state_ == STATE_DISCONNECTED);
+    WS_ASSERT(state_ == STATE_DISCONNECTED);
 
-    initialUrl_ = configPathOrUrl;
+    initialUrl_ = configOrUrl;
     initialIp_ = ip;
     initialUsername_ = username;
     initialPassword_ = password;
@@ -138,13 +140,13 @@ QVector<HRASCONN> IKEv2Connection_win::getActiveWindscribeConnections()
 void IKEv2Connection_win::continueWithUsernameAndPassword(const QString & /*username*/, const QString & /*password*/)
 {
     // nothing todo for ikev2
-    Q_ASSERT(false);
+    WS_ASSERT(false);
 }
 
 void IKEv2Connection_win::continueWithPassword(const QString & /*password*/)
 {
     // nothing todo for ikev2
-    Q_ASSERT(false);
+    WS_ASSERT(false);
 }
 
 void IKEv2Connection_win::onTimerControlConnection()
@@ -187,7 +189,7 @@ void IKEv2Connection_win::onTimerControlConnection()
     }
     else
     {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
     }
 }
 
@@ -197,7 +199,7 @@ void IKEv2Connection_win::handleAuthError()
     // auth error
     doBlockingDisconnect();
     connHandle_ = NULL;
-    emit error(ProtoTypes::ConnectError::AUTH_ERROR);
+    emit error(CONNECT_ERROR::AUTH_ERROR);
     helper_->disableDnsLeaksProtection();
     helper_->removeHosts();
     state_ = STATE_DISCONNECTED;
@@ -233,7 +235,7 @@ void IKEv2Connection_win::handleErrorReinstallWan()
         if (cntFailedConnectionAttempts_ >= (MAX_FAILED_CONNECTION_ATTEMPTS_FOR_AUTOMATIC_MODE))
         {
             state_ = STATE_DISCONNECTED;
-            emit error(ProtoTypes::ConnectError::IKEV_FAILED_TO_CONNECT);
+            emit error(CONNECT_ERROR::IKEV_FAILED_TO_CONNECT);
         }
         else
         {
@@ -262,7 +264,7 @@ void IKEv2Connection_win::handleErrorReinstallWan()
                     else
                     {
                         state_ = STATE_DISCONNECTED;
-                        emit error(ProtoTypes::ConnectError::IKEV_FAILED_TO_CONNECT);
+                        emit error(CONNECT_ERROR::IKEV_FAILED_TO_CONNECT);
                     }
                 }
             }
@@ -290,13 +292,13 @@ void IKEv2Connection_win::handleErrorReinstallWan()
             else
             {
                 state_ = STATE_DISCONNECTED;
-                emit error(ProtoTypes::ConnectError::IKEV_FAILED_TO_CONNECT);
+                emit error(CONNECT_ERROR::IKEV_FAILED_TO_CONNECT);
             }
         }
         else if (cntFailedConnectionAttempts_ >= MAX_FAILED_CONNECTION_ATTEMPTS)
         {
             state_ = STATE_DISCONNECTED;
-            emit error(ProtoTypes::ConnectError::IKEV_FAILED_TO_CONNECT);
+            emit error(CONNECT_ERROR::IKEV_FAILED_TO_CONNECT);
         }
         else
         {
@@ -354,7 +356,7 @@ void IKEv2Connection_win::doConnect()
     if (!ikev2DeviceInitialized)
     {
         state_ = STATE_DISCONNECTED;
-        emit error(ProtoTypes::ConnectError::IKEV_NOT_FOUND_WIN);
+        emit error(CONNECT_ERROR::IKEV_NOT_FOUND_WIN);
         return;
     }
 
@@ -401,7 +403,7 @@ void IKEv2Connection_win::doConnect()
         {
             qCDebug(LOG_IKEV2) << "RasSetEntryProperties failed with error:" << dwErr;
             state_ = STATE_DISCONNECTED;
-            emit error(ProtoTypes::ConnectError::IKEV_FAILED_SET_ENTRY_WIN);
+            emit error(CONNECT_ERROR::IKEV_FAILED_SET_ENTRY_WIN);
             return;
         }
     }
@@ -421,7 +423,7 @@ void IKEv2Connection_win::doConnect()
     {
         qCDebug(LOG_IKEV2) << "RasSetEntryDialParams failed with error:" << dwErr;
         state_ = STATE_DISCONNECTED;
-        emit error(ProtoTypes::ConnectError::IKEV_FAILED_SET_ENTRY_WIN);
+        emit error(CONNECT_ERROR::IKEV_FAILED_SET_ENTRY_WIN);
         return;
     }
 
@@ -429,7 +431,7 @@ void IKEv2Connection_win::doConnect()
     {
         qCDebug(LOG_IKEV2) << "Can't modify hosts file";
         state_ = STATE_DISCONNECTED;
-        emit error(ProtoTypes::ConnectError::IKEV_FAILED_MODIFY_HOSTS_WIN);
+        emit error(CONNECT_ERROR::IKEV_FAILED_MODIFY_HOSTS_WIN);
         return;
     }
 
@@ -447,7 +449,7 @@ void IKEv2Connection_win::doConnect()
         helper_->disableDnsLeaksProtection();
         helper_->removeHosts();
         state_ = STATE_DISCONNECTED;
-        emit error(ProtoTypes::ConnectError::IKEV_FAILED_SET_ENTRY_WIN);
+        emit error(CONNECT_ERROR::IKEV_FAILED_SET_ENTRY_WIN);
         return;
     }
 }
@@ -632,13 +634,13 @@ QString IKEv2Connection_win::rasConnStateToString(tagRASCONNSTATE state)
     }
     else
     {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
         return "rasConnStateToString: unknown value";
     }
 }
 
 void IKEv2Connection_win::staticRasDialFunc(HRASCONN hRasConn, UINT unMsg, RASCONNSTATE rascs, DWORD dwError, DWORD dwExtendedError)
 {
-    Q_ASSERT(this_ != NULL);
+    WS_ASSERT(this_ != NULL);
     this_->rasDialFuncCallback(hRasConn, unMsg, rascs, dwError, dwExtendedError);
 }

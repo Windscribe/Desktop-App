@@ -3,25 +3,23 @@
 
 #include <QGraphicsObject>
 #include <QGraphicsProxyWidget>
-#include <QRegExpValidator>
+#include <QRegularExpressionValidator>
 #include "commongraphics/iconbutton.h"
 #include "commonwidgets/custommenulineedit.h"
-#include "dividerline.h"
 
 namespace PreferencesWindow {
 
-class EditBoxItem : public ScalableGraphicsObject
+class EditBoxItem : public CommonGraphics::BaseItem
 {
     Q_OBJECT
 
 public:
-    explicit EditBoxItem(ScalableGraphicsObject *parent, const QString &caption, const QString &editPrompt, bool isDrawFullBottomDivider);
+    explicit EditBoxItem(ScalableGraphicsObject *parent, const QString &caption, const QString &editPrompt);
 
-    QRectF boundingRect() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
     void setText(const QString &text);
-    void setValidator(QRegExpValidator *validator);
+    void setValidator(QRegularExpressionValidator *validator);
 
     void updateScaling() override;
     void setEditButtonClickable(bool clickable);
@@ -36,13 +34,12 @@ signals:
     void additionalButtonHoverLeave();
 
 protected:
-    void keyReleaseEvent(QKeyEvent *event) override;
+    void keyPressEvent(QKeyEvent *event) override;
 
 private slots:
     void onEditClick();
     void onConfirmClick();
     void onUndoClick();
-
 
     void onLanguageChanged();
 
@@ -59,7 +56,6 @@ private:
 
     QGraphicsProxyWidget *proxyWidget_;
     CommonWidgets::CustomMenuLineEdit *lineEdit_;
-    DividerLine *line_;
 
     void updatePositions();
 

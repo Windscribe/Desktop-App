@@ -2,7 +2,7 @@
 #define AUTOUPDATERHELPER_H
 
 #include <QString>
-#include "utils/protobuf_includes.h"
+#include "types/enums.h"
 
 class AutoUpdaterHelper_mac
 {
@@ -11,13 +11,13 @@ public:
 
     const QString copyInternalInstallerToTempFromDmg(const QString &dmgFilename);
     bool verifyAndRun(const QString &tempInstallerFilename, const QString &additionalArgs);
-    ProtoTypes::UpdateVersionError error();
+    UPDATE_VERSION_ERROR error();
 
 private:
     const QString mountDmg(const QString &dmgFilename);
     bool unmountVolume(const QString &volumePath);
 
-    ProtoTypes::UpdateVersionError error_;
+    UPDATE_VERSION_ERROR error_;
 };
 
 #endif // AUTOUPDATERHELPER_H

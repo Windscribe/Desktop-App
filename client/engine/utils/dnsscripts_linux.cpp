@@ -1,55 +1,26 @@
 #include "dnsscripts_linux.h"
+#include "utils/ws_assert.h"
 #include "utils/logger.h"
 #include <QProcess>
 
-QString DnsScripts_linux::scriptPath()
-{
-    if (dnsManager_ == ProtoTypes::DNS_MANAGER_AUTOMATIC)
-    {
-        SCRIPT_TYPE scriptType = detectScript();
-        if (scriptType == SYSTEMD_RESOLVED)
-        {
-            return "/etc/windscribe/update-systemd-resolved";
-        }
-        else if (scriptType == RESOLV_CONF)
-        {
-            return "/etc/windscribe/update-resolv-conf";
-        }
-        else if (scriptType == NETWORK_MANAGER)
-        {
-            return "/etc/windscribe/update-network-manager";
-        }
-        else
-        {
-            Q_ASSERT(false);
-            return "";
-        }
-    }
-    else if (dnsManager_ == ProtoTypes::DNS_MANAGER_RESOLV_CONF)
-    {
-        return "/etc/windscribe/update-resolv-conf";
-    }
-    else if (dnsManager_ == ProtoTypes::DNS_MANAGER_SYSTEMD_RESOLVED)
-    {
-        return "/etc/windscribe/update-systemd-resolved";
-    }
-    else if (dnsManager_ == ProtoTypes::DNS_MANAGER_NETWORK_MANAGER)
-    {
-        return "/etc/windscribe/update-network-manager";
-    }
-    else
-    {
-        Q_ASSERT(false);
-        return "";
+DnsScripts_linux::SCRIPT_TYPE DnsScripts_linux::dnsManager() {
+    if (dnsManager_ == DNS_MANAGER_AUTOMATIC) {
+        return detectScript();
+    } else if (dnsManager_ == DNS_MANAGER_RESOLV_CONF) {
+        return RESOLV_CONF;
+    } else if (dnsManager_ == DNS_MANAGER_SYSTEMD_RESOLVED) {
+        return SYSTEMD_RESOLVED;
+    } else {
+        return NETWORK_MANAGER;
     }
 }
 
-void DnsScripts_linux::setDnsManager(ProtoTypes::DnsManagerType d)
+void DnsScripts_linux::setDnsManager(DNS_MANAGER_TYPE d)
 {
     dnsManager_ = d;
 }
 
-DnsScripts_linux::DnsScripts_linux() : dnsManager_(ProtoTypes::DNS_MANAGER_AUTOMATIC)
+DnsScripts_linux::DnsScripts_linux() : dnsManager_(DNS_MANAGER_AUTOMATIC)
 {
 }
 
@@ -77,7 +48,7 @@ DnsScripts_linux::SCRIPT_TYPE DnsScripts_linux::detectScript()
     // check if the systemd-resolved service is running.
     {
         QProcess process;
-        process.start("systemctl is-active --quiet systemd-resolved");
+        process.startCommand("systemctl is-active --quiet systemd-resolved");
         process.waitForFinished();
         isSystemdResolvedServiceRunning = (process.exitCode() == 0);
     }
@@ -146,7 +117,7 @@ DnsScripts_linux::SCRIPT_TYPE DnsScripts_linux::detectScript()
 QString DnsScripts_linux::getSymlink(const QString &path)
 {
     QProcess process;
-    process.start("readlink -f " + path);
+    process.startCommand("readlink -f " + path);
     process.waitForFinished();
     return process.readAll().trimmed();
 }

@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QSet>
 #include <QVector>
-#include "utils/protobuf_includes.h"
+#include "types/notification.h"
 
 class NotificationsController : public QObject
 {
@@ -17,24 +17,28 @@ public:
     int totalMessages() const;
     int unreadMessages() const;
 
-    ProtoTypes::ArrayApiNotification messages() const;
+    QVector<types::Notification> messages() const;
     const QSet<qint64> &shownIds() const;
 
 public slots:
-    void updateNotifications(const ProtoTypes::ArrayApiNotification &arr);
-    void setNotificationReaded(qint64 notificationId);
+    void updateNotifications(const QVector<types::Notification> &arr);
+    void setNotificationRead(qint64 notificationId);
 
 signals:
     void stateChanged(int totalMessages, int unread);
     void newPopupMessage(int messageId);
 
 private:
-    ProtoTypes::ArrayApiNotification notifications_;
+    QVector<types::Notification> notifications_;
     QSet<qint64> idOfShownNotifications_;
     QVector<int> unreadPopupNotificationIds_;
 
     int latestTotal_;
     int latestUnreadCnt_;
+
+    // for serialization
+    static constexpr quint32 magic_ = 0x7745C2AE;
+    static constexpr int versionForSerialization_ = 1;  // should increment the version if the data format is changed
 
     void saveToSettings();
     void readFromSettings();

@@ -9,7 +9,7 @@ namespace ConnectWindow {
 
 
 ConnectButton::ConnectButton(ScalableGraphicsObject *parent) : ClickableGraphicsObject(parent)
-    , connectStateType_(ProtoTypes::DISCONNECTED)
+    , connectStateType_(CONNECT_STATE_DISCONNECTED)
     , online_(false)
     , splitRouting_(false)
 {
@@ -110,13 +110,13 @@ void ConnectButton::updateScaling()
     updatePositions();
 }
 
-void ConnectButton::onConnectStateChanged(ProtoTypes::ConnectStateType newConnectState, ProtoTypes::ConnectStateType prevConnectState)
+void ConnectButton::onConnectStateChanged(CONNECT_STATE newConnectState, CONNECT_STATE prevConnectState)
 {
     Q_UNUSED(prevConnectState);
 
 
     // flip the on button
-    if (newConnectState == ProtoTypes::CONNECTING || newConnectState == ProtoTypes::CONNECTED)
+    if (newConnectState == CONNECT_STATE_CONNECTING || newConnectState == CONNECT_STATE_CONNECTED)
     {
         buttonRotationAnimation_.setDirection(QPropertyAnimation::Forward);
         if (buttonRotationAnimation_.state() != QPropertyAnimation::Running)
@@ -139,7 +139,7 @@ void ConnectButton::onConnectStateChanged(ProtoTypes::ConnectStateType newConnec
         }
     }
 
-    if (newConnectState == ProtoTypes::CONNECTING)
+    if (newConnectState == CONNECT_STATE_CONNECTING)
     {
         fuzzyHideConnectedRing(); // might go from connected to connecting
 
@@ -155,7 +155,7 @@ void ConnectButton::onConnectStateChanged(ProtoTypes::ConnectStateType newConnec
             startNoInternetRingAnimations(QPropertyAnimation::Forward);
         }
     }
-    else if (newConnectState == ProtoTypes::CONNECTED)
+    else if (newConnectState == CONNECT_STATE_CONNECTED)
     {
         fuzzyHideConnectingRing();
 
@@ -165,7 +165,7 @@ void ConnectButton::onConnectStateChanged(ProtoTypes::ConnectStateType newConnec
             startConnectedRingAnimations(QPropertyAnimation::Forward);
         }
     }
-    else if (newConnectState == ProtoTypes::DISCONNECTED || newConnectState == ProtoTypes::DISCONNECTING)
+    else if (newConnectState == CONNECT_STATE_DISCONNECTED || newConnectState == CONNECT_STATE_DISCONNECTING)
     {
         fuzzyHideConnectedRing();
         fuzzyHideConnectingRing();
@@ -181,13 +181,13 @@ void ConnectButton::setInternetConnectivity(bool online)
     {
         if (online)
         {
-            if (connectStateType_ == ProtoTypes::CONNECTED)
+            if (connectStateType_ == CONNECT_STATE_CONNECTED)
             {
                 noInternetRingOpacityAnimation_.stop();
                 startNoInternetRingAnimations(QPropertyAnimation::Backward);
                 startConnectedRingAnimations(QPropertyAnimation::Forward);
             }
-            else if (connectStateType_ == ProtoTypes::CONNECTING)
+            else if (connectStateType_ == CONNECT_STATE_CONNECTING)
             {
                 noInternetRingOpacityAnimation_.stop();
                 startNoInternetRingAnimations(QPropertyAnimation::Backward);
@@ -196,12 +196,12 @@ void ConnectButton::setInternetConnectivity(bool online)
         }
         else
         {
-            if (connectStateType_ == ProtoTypes::CONNECTED)
+            if (connectStateType_ == CONNECT_STATE_CONNECTED)
             {
                 fuzzyHideConnectedRing();
                 startNoInternetRingAnimations(QPropertyAnimation::Forward);
             }
-            else if (connectStateType_ == ProtoTypes::CONNECTING)
+            else if (connectStateType_ == CONNECT_STATE_CONNECTING)
             {
                 connectingRingOpacityAnimation_.stop();
                 startConnectingRingAnimations(QPropertyAnimation::Backward);
@@ -217,7 +217,7 @@ void ConnectButton::setSplitRouting(bool on)
 {
     splitRouting_ = on;
 
-    if (connectStateType_ == ProtoTypes::CONNECTED)
+    if (connectStateType_ == CONNECT_STATE_CONNECTED)
     {
         fuzzyHideConnectedRing();
         startConnectedRingAnimations(QPropertyAnimation::Forward);

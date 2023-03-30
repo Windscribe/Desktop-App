@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # ------------------------------------------------------------------------------
 # Windscribe Build System
-# Copyright (c) 2020-2021, Windscribe Limited. All rights reserved.
+# Copyright (c) 2020-2023, Windscribe Limited. All rights reserved.
 # ------------------------------------------------------------------------------
 # Purpose: installs jom (multithreaded nmake).
 import os
@@ -12,6 +12,10 @@ TOOLS_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, TOOLS_DIR)
 
 CONFIG_NAME = os.path.join("vars", "gtest.yml")
+
+# To ensure modules in the 'base' folder can import other modules in base.
+import base.pathhelper as pathhelper
+sys.path.append(pathhelper.BASE_DIR)
 
 CMAKE_BINARY_WIN = "C:\\Program Files\\CMake\\bin\\cmake.exe"
 CMAKE_BINARY_MAC = "/Applications/CMake.app/Contents/bin/cmake"
@@ -43,7 +47,7 @@ def BuildDependencyMSVC(outpath):
     build_cmd = [CMAKE_BINARY_MAC, "..", "-Dgtest_force_shared_crt=ON"]
 
   iutl.RunCommand(build_cmd, env=buildenv, shell=True)
-  iutl.RunCommand(["msbuild", "googletest-distribution.sln", "/p:Configuration=Release", "/p:Platform=Win32"], env=buildenv, shell=True)
+  iutl.RunCommand(["msbuild", "googletest-distribution.sln", "/p:Configuration=Release", "/p:Platform=x64"], env=buildenv, shell=True)
   # copy libs
   utl.CreateDirectory("{}/include".format(outpath), True)
   utl.CopyAllFiles("{}/googlemock/include".format(current_wd), "{}/include".format(outpath))
@@ -86,7 +90,7 @@ def InstallDependency():
     raise iutl.InstallError("Failed to get config data.")
   iutl.SetupEnvironment(configdata)
   dep_name = DEP_TITLE.lower()
-  dep_version_var = "VERSION_" + filter(lambda ch: ch not in "-", DEP_TITLE.upper())
+  dep_version_var = "VERSION_" + DEP_TITLE.upper().replace("-", "")
   dep_version_str = os.environ.get(dep_version_var, None)
   if not dep_version_str:
     raise iutl.InstallError("{} not defined.".format(dep_version_var))

@@ -1,20 +1,17 @@
 #include "firewallexceptions.h"
 #include "uniqueiplist.h"
 #include <QThread>
+#include "utils/ws_assert.h"
 #include "utils/hardcodedsettings.h"
+#include "utils/logger.h"
 #include "engine/dnsresolver/dnsutils.h"
 
-void FirewallExceptions::setHostIPs(const QStringList &hostIPs)
+void FirewallExceptions::setHostIPs(const QSet<QString> &hostIPs)
 {
     hostIPs_ = hostIPs;
 }
 
-void FirewallExceptions::setWhiteListedIPs(const QSet<QString> &ips)
-{
-    whitelistedIPs_ = ips;
-}
-
-void FirewallExceptions::setProxyIP(const ProxySettings &proxySettings)
+void FirewallExceptions::setProxyIP(const types::ProxySettings &proxySettings)
 {
     if (proxySettings.option() == PROXY_OPTION_NONE)
     {
@@ -26,7 +23,7 @@ void FirewallExceptions::setProxyIP(const ProxySettings &proxySettings)
     }
     else
     {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
     }
 }
 
@@ -84,9 +81,9 @@ void FirewallExceptions::setCustomConfigPingIps(const QStringList &listIps)
     customConfigsPingIPs_ = listIps;
 }
 
-QString FirewallExceptions::getIPAddressesForFirewall() const
+QSet<QString> FirewallExceptions::getIPAddressesForFirewall() const
 {
-    //Q_ASSERT(QApplication::instance()->thread() == QThread::currentThread());
+    //WS_ASSERT(QApplication::instance()->thread() == QThread::currentThread());
 
     UniqueIpList ipList;
     ipList.add("127.0.0.1");
@@ -99,6 +96,7 @@ QString FirewallExceptions::getIPAddressesForFirewall() const
         {
             ipList.add(QString::fromStdWString(*it));
         }
+        //qCDebug(LOG_FIREWALL_CONTROLLER) << "Get OS default DNS list:" << ipList.get();
     }
     else if (dnsPolicyType_ == DNS_TYPE_OPEN_DNS)
     {
@@ -129,21 +127,7 @@ QString FirewallExceptions::getIPAddressesForFirewall() const
         }
     }
 
-    // add hardcoded IPs
-    for (const QString &s : HardcodedSettings::instance().apiIps())
-    {
-        ipList.add(s);
-    }
-
     for (const QString &s : hostIPs_)
-    {
-        if (!s.isEmpty())
-        {
-            ipList.add(s);
-        }
-    }
-
-    for (const QString &s : whitelistedIPs_)
     {
         if (!s.isEmpty())
         {
@@ -187,10 +171,10 @@ QString FirewallExceptions::getIPAddressesForFirewall() const
         }
     }
 
-    return ipList.getFirewallString();
+    return ipList.get();
 }
 
-QString FirewallExceptions::getIPAddressesForFirewallForConnectedState(const QString &connectedIp) const
+QSet<QString> FirewallExceptions::getIPAddressesForFirewallForConnectedState(const QString &connectedIp) const
 {
     UniqueIpList ipList;
     ipList.add("127.0.0.1");
@@ -199,7 +183,7 @@ QString FirewallExceptions::getIPAddressesForFirewallForConnectedState(const QSt
     {
         ipList.add(remoteIP_);
     }
-    return ipList.getFirewallString();
+    return ipList.get();
 }
 
 FirewallExceptions::FirewallExceptions(): dnsPolicyType_(DNS_TYPE_OPEN_DNS)

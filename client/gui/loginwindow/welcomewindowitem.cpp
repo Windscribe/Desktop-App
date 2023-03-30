@@ -14,6 +14,7 @@
 #include "graphicresources/imageresourcessvg.h"
 #include "graphicresources/imageresourcesjpg.h"
 #include "languagecontroller.h"
+#include "utils/ws_assert.h"
 #include "utils/hardcodedsettings.h"
 #include "dpiscalemanager.h"
 #include "tooltips/tooltiptypes.h"
@@ -32,7 +33,7 @@ const QString SETTINGS_ICON_PATH           = "login/SETTINGS_ICON";
 WelcomeWindowItem::WelcomeWindowItem(QGraphicsObject *parent, PreferencesHelper *preferencesHelper)
     : ScalableGraphicsObject(parent)
 {
-    Q_ASSERT(preferencesHelper);
+    WS_ASSERT(preferencesHelper);
     setFlag(QGraphicsItem::ItemIsFocusable);
 
     curBadgeScale_ = BADGE_SCALE_LARGE;

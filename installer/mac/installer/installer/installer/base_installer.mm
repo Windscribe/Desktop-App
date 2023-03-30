@@ -10,7 +10,6 @@
     if (self = [super init])
     {
         self.currentState = STATE_INIT;
-        pathInd_ = 0;
         self.path = [self getDefaultInstallPath];
         isUseUpdatePath_ = false;
     }
@@ -24,7 +23,6 @@
         self.currentState = STATE_INIT;
         isUseUpdatePath_ = true;
         updatePath_ = path;
-        pathInd_ = 0;
         self.path = [self getDefaultInstallPath];
         
     }
@@ -40,7 +38,7 @@
     return NO;
 }
 
--(void)start: (BOOL)keepBoth
+-(void)start
 {
 }
 
@@ -48,23 +46,18 @@
 {
 }
 
--(NSString *)getFullInstallPath
+-(NSString *)getOldInstallPath
 {
-    if (isUseUpdatePath_)
-    {
+    if (isUseUpdatePath_) {
         return updatePath_;
+    } else {
+        return [self.path stringByAppendingString:@"/Windscribe.app"];
     }
-    else
-    {
-        if (pathInd_ == 0)
-        {
-            return [self.path stringByAppendingString:@"/Windscribe.app"];
-        }
-        else
-        {
-            return [NSString stringWithFormat:@"%@/Windscribe %d.app",self.path, pathInd_];
-        }
-    }
+}
+
+-(NSString *)getInstallPath
+{
+    return [self.path stringByAppendingString:@"/Windscribe.app"];
 }
 
 -(void)runLauncher
@@ -81,7 +74,7 @@
     NSFileManager *manager = [NSFileManager defaultManager];
     NSError *error;
     NSURL *applicationSupport = [manager URLForDirectory:NSApplicationDirectory inDomain:NSLocalDomainMask appropriateForURL:nil create:false error:&error];
-    
+
     return applicationSupport.path;
 }
 

@@ -50,7 +50,7 @@
 #define AA_COMMAND_GET_WIREGUARD_STATUS                     46
 #define AA_COMMAND_CONNECT_STATUS                           47
 #define AA_COMMAND_SUSPEND_UNBLOCKING_CMD                   48
-#define AA_COMMAND_DNS_WHILE_CONNECTED                      49
+#define AA_COMMAND_CONNECTED_DNS                            49
 #define AA_COMMAND_MAKE_HOSTS_FILE_WRITABLE                 50
 #define AA_COMMAND_REINSTALL_TAP_DRIVER                     51
 #define AA_COMMAND_REINSTALL_WINTUN_DRIVER                  52
@@ -61,6 +61,7 @@
 struct CMD_FIREWALL_ON
 {
 	bool allowLanTraffic = false;
+    bool isCustomConfig = false;
     std::wstring ip;
 };
 
@@ -119,12 +120,13 @@ struct CMD_WMIC_GET_CONFIG_ERROR_CODE
 struct CMD_RUN_OPENVPN
 {
     std::wstring    szOpenVpnExecutable;
-    std::wstring    szConfigPath;
+    std::wstring    szConfig;
     unsigned int    portNumber = 0;
     std::wstring    szHttpProxy;           // empty string, if no http
     unsigned int    httpPortNumber = 0;
     std::wstring    szSocksProxy;          // empty string, if no socks
     unsigned int    socksPortNumber = 0;
+    bool            isCustomConfig = false;
 };
 
 struct CMD_UPDATE_ICS
@@ -163,7 +165,7 @@ struct CMD_SPLIT_TUNNELING_SETTINGS
 {
     bool isActive;
     bool isExclude;     // true -> SPLIT_TUNNELING_MODE_EXCLUDE, false -> SPLIT_TUNNELING_MODE_INCLUDE
-    bool isKeepLocalSockets;
+    bool isAllowLanTraffic;
 
     std::vector<std::wstring> files;
     std::vector<std::wstring> ips;
@@ -192,7 +194,7 @@ struct CMD_CONNECT_STATUS
 {
 	bool isConnected;
 
-    bool isCloseTcpSocket;
+    bool isTerminateSocket;
     bool isKeepLocalSocket;
 
 	CMD_PROTOCOL_TYPE protocol;
@@ -205,7 +207,7 @@ struct CMD_CONNECT_STATUS
 	std::string remoteIp;
 };
 
-struct CMD_DNS_WHILE_CONNECTED
+struct CMD_CONNECTED_DNS
 {
     unsigned long ifIndex = 0;
     std::wstring szDnsIpAddress;
@@ -264,10 +266,10 @@ struct MessagePacketResult
 {
 	__int64 id;
 	bool success;
-	DWORD exitCode;
+    unsigned long exitCode;
 	unsigned long blockingCmdId;    // id for check status of blocking cmd
 	bool blockingCmdFinished;
-	UINT64 customInfoValue[3];
+    unsigned __int64 customInfoValue[3];
 	std::string additionalString;
 
 	MessagePacketResult() : id(0), success(false), exitCode(0), blockingCmdId(0),

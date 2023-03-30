@@ -2,8 +2,8 @@
 #define ICONNECTION_H
 
 #include <QThread>
-#include "engine/proxy/proxysettings.h"
-#include "engine/types/types.h"
+#include "types/proxysettings.h"
+#include "types/enums.h"
 #include "adaptergatewayinfo.h"
 
 class IHelper;
@@ -19,11 +19,11 @@ public:
     explicit IConnection(QObject *parent): QThread(parent) {}
     virtual ~IConnection() {}
 
-    // config path for openvpn, url for ikev2
-    virtual void startConnect(const QString &configPathOrUrl, const QString &ip, const QString &dnsHostName,
-                              const QString &username, const QString &password, const ProxySettings &proxySettings,
+    // config contents for openvpn, url for ikev2
+    virtual void startConnect(const QString &configOrUrl, const QString &ip, const QString &dnsHostName,
+                              const QString &username, const QString &password, const types::ProxySettings &proxySettings,
                               const WireGuardConfig *wireGuardConfig, bool isEnableIkev2Compression,
-                              bool isAutomaticConnectionMode) = 0;
+                              bool isAutomaticConnectionMode, bool isCustomConfig) = 0;
     virtual void startDisconnect() = 0;
     virtual bool isDisconnected() const = 0;
     virtual ConnectionType getConnectionType() const = 0;
@@ -36,7 +36,7 @@ signals:
     void connected(const AdapterGatewayInfo &connectionAdapterInfo);
     void disconnected();
     void reconnecting();
-    void error(ProtoTypes::ConnectError err);
+    void error(CONNECT_ERROR err);
     void statisticsUpdated(quint64 bytesIn, quint64 bytesOut, bool isTotalBytes);
     void interfaceUpdated(const QString &interfaceName);  // WireGuard-specific.
 

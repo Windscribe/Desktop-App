@@ -26,7 +26,7 @@ private:
 	HWND hwndEdit_;
 
 	const int TIMER_ID = 1111;
-	const int IDC_EDIT_CONTROL = 100;
+	const ULONGLONG IDC_EDIT_CONTROL = 100;
 	const int RIGHT_MARGIN = 12;
 	const int BOTTOM_LINE_HEIGHT = 2;
 	const int BOTTOM_LINE_LEFT_MARGIN = 12;

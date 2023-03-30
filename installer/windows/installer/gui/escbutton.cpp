@@ -183,8 +183,8 @@ void EscButton::drawButton(HDC hdc)
 	Gdiplus::StringFormat strformat;
 	strformat.SetAlignment(Gdiplus::StringAlignmentCenter);
 	strformat.SetLineAlignment(Gdiplus::StringAlignmentFar);
-	graphics->DrawString(textItem_->text(), wcslen(textItem_->text()), textItem_->getFont(),
-		Gdiplus::RectF(0, 0, rc.right, rc.bottom), &strformat, bMouseTracking_ ? &brushWhite : &brush);
+	graphics->DrawString(textItem_->text(), static_cast<int>(wcslen(textItem_->text())), textItem_->getFont(),
+		                 Gdiplus::RectF(0, 0, rc.right, rc.bottom), &strformat, bMouseTracking_ ? &brushWhite : &brush);
 
 
 	// draw main window background image

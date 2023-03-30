@@ -8,15 +8,20 @@
 #include <QPixmap>
 
 const int WINDOW_WIDTH = 332;
+const int WINDOW_HEIGHT_VAN_GOGH = 264;
 const int WINDOW_HEIGHT = 316;
 const int WINDOW_MARGIN = 16;
+
+// This is the WINDOW_WIDTH, minus the size of the tab icons, which is margin (16) + icon (32) + margin (16),
+// and finally subtracting rightmost margin (16).
+const int PAGE_WIDTH = 252;
 
 // Re: heavy use of qCeil(LOCATION_ITEM_HEIGHT*G_SCALE):
 // When scaling is 125% or 175% a truncated value will drastically affect the size of the list
 // and affect it's scrollability, especially when dragging the scroller with the mouse
 const int LOCATION_ITEM_HEIGHT = 50;
 
-const int LOCATION_ITEM_MARGIN = 16;
+const int LOCATION_ITEM_MARGIN = 8;
 const int LOCATION_ITEM_MARGIN_TO_LINE = 24;
 const int LOCATION_ITEM_FLAG_WIDTH = 32;
 
@@ -26,12 +31,16 @@ const int LOGIN_HEIGHT = 354;
 const int LOGIN_BUTTON_POS_Y                 = 232;
 
 const double OPACITY_HIDDEN                  = 0.0;
+const double OPACITY_DIVIDER_LINE            = 0.05;
+const double OPACITY_DIVIDER_LINE_BRIGHT     = 0.15;
+const double OPACITY_QUARTER                 = 0.25;
 const double OPACITY_THIRD                   = 0.3;
 const double OPACITY_HALF                    = 0.5;
 const double OPACITY_TWO_THIRDS              = 0.66;
 const double OPACITY_FULL                    = 1.0;
 
 const double OPACITY_UNHOVER_DIVIDER         = 0.1;
+const double OPACITY_WARNING_BACKGROUND      = 0.1;
 const double OPACITY_UNHOVER_DIVIDER_DARK    = 0.2;
 const double OPACITY_UNHOVER_ICON_TEXT       = 0.2;
 const double OPACITY_UNHOVER_ICON_TEXT_DARK  = OPACITY_THIRD;

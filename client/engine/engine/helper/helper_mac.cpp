@@ -39,8 +39,7 @@ void Helper_mac::startInstallHelper()
 
 bool Helper_mac::reinstallHelper()
 {
-    QString strUninstallUtilPath = QCoreApplication::applicationDirPath() + "/../Resources/uninstallHelper.sh";
-    InstallHelper_mac::runScriptWithAdminRights(strUninstallUtilPath);
+    InstallHelper_mac::uninstallHelper();
     return true;
 }
 
@@ -106,120 +105,40 @@ bool Helper_mac::setCustomDnsWhileConnected(bool isIkev2, unsigned long ifIndex,
     return successAll;
 }
 
-
-
-void Helper_mac::enableMacSpoofingOnBoot(bool bEnable, QString interfaceName, QString macAddress)
+bool Helper_mac::setMacAddress(const QString &interface, const QString &macAddress, bool robustMethod)
 {
-    qCDebug(LOG_BASIC) << "Enable MAC spoofing on boot, bEnable =" << bEnable;
-    QString strTempFilePath = QString::fromLocal8Bit(getenv("TMPDIR")) + "windscribetemp.plist";
-    QString filePath = "/Library/LaunchDaemons/com.aaa.windscribe.macspoofing_on.plist";
+    QMutexLocker locker(&mutex_);
 
-    QString macSpoofingScript = QStandardPaths::writableLocation(QStandardPaths::DataLocation) + "/windscribe_macspoof.sh";
+    CMD_SET_MAC_ADDRESS cmd;
+    CMD_ANSWER answer;
+    cmd.interface = interface.toStdString();
+    cmd.macAddress = macAddress.toStdString();
+    cmd.robustMethod = robustMethod;
 
-    if (bEnable)
-    {
-        // bash script
-        {
-            QString exePath = QCoreApplication::applicationFilePath();
-            QFile file(macSpoofingScript);
-            if (file.open(QIODevice::WriteOnly | QIODevice::Text))
-            {
-                file.resize(0);
-                QTextStream in(&file);
-                in << "#!/bin/bash\n";
-                in << "FILE=\"" << exePath << "\"\n";
-                in << "if [ ! -f \"$FILE\" ]\n";
-                in << "then\n";
-                in << "echo \"File $FILE does not exists\"\n";
-                in << "launchctl stop com.aaa.windscribe.macspoofing_on\n";
-                in << "launchctl unload " << filePath << "\n";
-                in << "launchctl remove com.aaa.windscribe.macspoofing_on\n";
-                in << "srm \"$0\"\n";
-                //in << "rm " << filePath << "\n";
-                in << "else\n";
-                in << "echo \"File $FILE exists\"\n";
-                in << "ipconfig waitall\n";
-                in << "sleep 3\n";
-                in << "/sbin/ifconfig " << interfaceName << " ether " << macAddress << "\n";
-                in << "fi\n";
-                file.close();
+    std::stringstream stream;
+    boost::archive::text_oarchive oa(stream, boost::archive::no_header);
+    oa << cmd;
 
-                // set executable flag
-                executeRootCommand("chmod +x \"" + macSpoofingScript + "\"");
-            }
-        }
+    return runCommand(HELPER_CMD_SET_MAC_ADDRESS, stream.str(), answer);
 
-        // create plist
-        QFile file(strTempFilePath);
-        if (file.open(QIODevice::WriteOnly | QIODevice::Text))
-        {
-            file.resize(0);
-            QTextStream in(&file);
-            in << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
-            in << "<!DOCTYPE plist PUBLIC \"-//Apple Computer//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n";
-            in << "<plist version=\"1.0\">\n";
-            in << "<dict>\n";
-            in << "<key>Label</key>\n";
-            in << "<string>com.aaa.windscribe.macspoofing_on</string>\n";
-
-            in << "<key>ProgramArguments</key>\n";
-            in << "<array>\n";
-            in << "<string>/bin/bash</string>\n";
-            in << "<string>" << macSpoofingScript << "</string>\n";
-            in << "</array>\n";
-
-            in << "<key>StandardErrorPath</key>\n";
-            in << "<string>/var/log/windscribe_macspoofing.log</string>\n";
-            in << "<key>StandardOutPath</key>\n";
-            in << "<string>/var/log/windscribe_macspoofing.log</string>\n";
-
-            in << "<key>RunAtLoad</key>\n";
-            in << "<true/>\n";
-            in << "</dict>\n";
-            in << "</plist>\n";
-
-            file.close();
-
-            executeRootCommand("cp " + strTempFilePath + " " + filePath);
-            executeRootCommand("launchctl load -w " + filePath);
-        }
-        else
-        {
-            qCDebug(LOG_BASIC) << "Can't create plist file for startup firewall: " << filePath;
-        }
-    }
-    else
-    {
-        qCDebug(LOG_BASIC) << "Execute command: "
-                           << "launchctl unload " + Utils::cleanSensitiveInfo(filePath);
-        executeRootCommand("launchctl unload " + filePath);
-        qCDebug(LOG_BASIC) << "Execute command: "
-                           << "rm " + Utils::cleanSensitiveInfo(filePath);
-        executeRootCommand("rm " + filePath);
-        qCDebug(LOG_BASIC) << "Execute command: "
-                           << "rm " + Utils::cleanSensitiveInfo(macSpoofingScript);
-        executeRootCommand("rm \"" + macSpoofingScript + "\"");
-    }
 }
 
-QStringList Helper_mac::getActiveNetworkInterfaces()
+bool Helper_mac::enableMacSpoofingOnBoot(bool bEnabled, const QString &interface, const QString &macAddress, bool robustMethod)
 {
-    const QString answer = executeRootCommand("ifconfig -a");
-    const QStringList lines = answer.split("\n");
-    QStringList res;
-    for (const QString &s : lines)
-    {
-        if (s.startsWith("en", Qt::CaseInsensitive))
-        {
-            int ind = s.indexOf(':');
-            if (ind != -1)
-            {
-                res << s.left(ind);
-            }
-        }
-    }
+    QMutexLocker locker(&mutex_);
 
-    return res;
+    CMD_SET_MAC_SPOOFING_ON_BOOT cmd;
+    CMD_ANSWER answer;
+    cmd.enabled = bEnabled;
+    cmd.interface = interface.toStdString();
+    cmd.macAddress = macAddress.toStdString();
+    cmd.robustMethod = robustMethod;
+
+    std::stringstream stream;
+    boost::archive::text_oarchive oa(stream, boost::archive::no_header);
+    oa << cmd;
+
+    return runCommand(HELPER_CMD_SET_MAC_SPOOFING_ON_BOOT, stream.str(), answer);
 }
 
 bool Helper_mac::setKeychainUsernamePassword(const QString &username, const QString &password)
@@ -260,37 +179,6 @@ bool Helper_mac::setKeychainUsernamePassword(const QString &username, const QStr
 
     qCDebug(LOG_BASIC) << "setKeychainUsernamePassword() failed";
     return false;
-}
-
-bool Helper_mac::setKextPath(const QString &kextPath)
-{
-    QMutexLocker locker(&mutex_);
-
-    if (curState_ != STATE_CONNECTED)
-    {
-        return false;
-    }
-
-    CMD_SET_KEXT_PATH cmd;
-    cmd.kextPath = kextPath.toStdString();
-
-    std::stringstream stream;
-    boost::archive::text_oarchive oa(stream, boost::archive::no_header);
-    oa << cmd;
-
-    if (!sendCmdToHelper(HELPER_CMD_SET_KEXT_PATH, stream.str()))
-    {
-        return false;
-    }
-    else
-    {
-        CMD_ANSWER answerCmd;
-        if (!readAnswer(answerCmd))
-        {
-            return false;
-        }
-    }
-    return true;
 }
 
 bool Helper_mac::setDnsOfDynamicStoreEntry(const QString &ipAddress, const QString &entry)
@@ -350,4 +238,19 @@ bool Helper_mac::setKeychainUsernamePasswordImpl(const QString &username, const 
             return RET_SUCCESS;
         }
     }
+}
+
+bool Helper_mac::setIpv6Enabled(bool bEnabled)
+{
+    QMutexLocker locker(&mutex_);
+
+    CMD_ANSWER answer;
+    CMD_SET_IPV6_ENABLED cmd;
+    cmd.enabled = bEnabled;
+
+    std::stringstream stream;
+    boost::archive::text_oarchive oa(stream, boost::archive::no_header);
+    oa << cmd;
+
+    return runCommand(HELPER_CMD_SET_IPV6_ENABLED, stream.str(), answer);
 }

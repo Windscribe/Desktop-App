@@ -105,8 +105,15 @@ void ITooltip::triangleLeftPointXY(int &tailLeftPtX, int &tailLeftPtY)
 
 void ITooltip::initWindowFlags()
 {
-#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
+#if defined(Q_OS_WIN)
     setWindowFlags(Qt::Tool | Qt::FramelessWindowHint | Qt::NoDropShadowWindowHint);
+#elif defined(Q_OS_LINUX)
+    // In Wayland, setting this to any flag which implies Qt::Window causes the tooltip to be misplaced,
+    // and causes side effects such as window clipping, since window position can not controlled by
+    // the application, and top-level windows without parents behave strangely.
+    // Setting just Qt::ToolTip seems to look and behave fine on both Xorg and Wayland.
+    setWindowFlags(Qt::ToolTip);
+    setAttribute(Qt::WA_ShowWithoutActivating, true);
 #else
     // Removed Qt::Tooltip since inner Qt::Popup seems to cause very rare crash when telling tooltip to show()
     // Appears to be same issue as ComboMenuWidget (see combomenuwidget.cpp for details)

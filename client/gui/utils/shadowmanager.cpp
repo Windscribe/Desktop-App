@@ -1,6 +1,7 @@
 #include "shadowmanager.h"
 
 #include <QPainter>
+#include "utils/ws_assert.h"
 #include "utils/makecustomshadow.h"
 
 extern qreal g_pixelRatio;
@@ -63,7 +64,7 @@ void ShadowManager::changeRectangleSize(int id, const QRect &newRc)
     int ind = findObjectIndById(id);
     if (ind == -1)
     {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
         return;
     }
 
@@ -115,7 +116,7 @@ void ShadowManager::setVisible(int id, bool isVisible)
     int ind = findObjectIndById(id);
     if (ind == -1)
     {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
         return;
     }
 
@@ -136,7 +137,7 @@ void ShadowManager::setOpacity(int id, qreal opacity, bool withUpdateShadow)
     int ind = findObjectIndById(id);
     if (ind == -1)
     {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
         return;
     }
 
@@ -169,7 +170,7 @@ bool ShadowManager::isInShadowList(int id) const
 
 QPixmap &ShadowManager::getCurrentShadowPixmap()
 {
-    Q_ASSERT(isNeedShadow());
+    WS_ASSERT(isNeedShadow());
     return currentShadow_;
 }
 

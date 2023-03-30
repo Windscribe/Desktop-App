@@ -4,8 +4,8 @@
 #include <comdef.h>
 #include <WbemIdl.h>
 #include <versionhelpers.h>
-#include "../../../common/utils/executable_signature/executable_signature.h"
-#include "../../../common/utils/win32handle.h"
+#include "../../../client/common/utils/executable_signature/executable_signature.h"
+#include "../../../client/common/utils/win32handle.h"
 
 #pragma comment(lib, "wbemuuid.lib")
 
@@ -14,176 +14,138 @@ namespace Utils
 
 bool deleteSublayerAndAllFilters(HANDLE engineHandle, const GUID *subLayerGUID)
 {
-	FWPM_SUBLAYER0 *subLayer;
+    FWPM_SUBLAYER0 *subLayer;
 
-	DWORD dwRet = FwpmSubLayerGetByKey0(engineHandle, subLayerGUID, &subLayer);
-	if (dwRet != ERROR_SUCCESS)
-	{
-		return false;
-	}
+    DWORD dwRet = FwpmSubLayerGetByKey0(engineHandle, subLayerGUID, &subLayer);
+    if (dwRet != ERROR_SUCCESS) {
+        return false;
+    }
 
-	deleteAllFiltersForSublayer(engineHandle, subLayerGUID, FWPM_LAYER_ALE_AUTH_CONNECT_V4);
-	deleteAllFiltersForSublayer(engineHandle, subLayerGUID, FWPM_LAYER_ALE_AUTH_CONNECT_V6);
+    deleteAllFiltersForSublayer(engineHandle, subLayerGUID, FWPM_LAYER_ALE_AUTH_CONNECT_V4);
+    deleteAllFiltersForSublayer(engineHandle, subLayerGUID, FWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V4);
+    deleteAllFiltersForSublayer(engineHandle, subLayerGUID, FWPM_LAYER_ALE_AUTH_CONNECT_V6);
+    deleteAllFiltersForSublayer(engineHandle, subLayerGUID, FWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V6);
 
-	dwRet = FwpmSubLayerDeleteByKey0(engineHandle, subLayerGUID);
-	FwpmFreeMemory0((void **)&subLayer);
+    dwRet = FwpmSubLayerDeleteByKey0(engineHandle, subLayerGUID);
+    FwpmFreeMemory0((void **)&subLayer);
 
-	return true;
+    return true;
 }
 
 bool deleteAllFiltersForSublayer(HANDLE engineHandle, const GUID *subLayerGUID, GUID layerKey)
 {
-	FWPM_FILTER_ENUM_TEMPLATE0 enumTemplate;
-	ZeroMemory(&enumTemplate, sizeof(enumTemplate));
-	enumTemplate.layerKey = layerKey;
-	enumTemplate.actionMask = 0xFFFFFFFF;
-	HANDLE enumHandle;
-	DWORD dwRet = FwpmFilterCreateEnumHandle0(engineHandle, &enumTemplate, &enumHandle);
-	if (dwRet != ERROR_SUCCESS)
-	{
-		return false;
-	}
+    FWPM_FILTER_ENUM_TEMPLATE0 enumTemplate;
+    ZeroMemory(&enumTemplate, sizeof(enumTemplate));
+    enumTemplate.layerKey = layerKey;
+    enumTemplate.actionMask = 0xFFFFFFFF;
+    HANDLE enumHandle;
+    DWORD dwRet = FwpmFilterCreateEnumHandle0(engineHandle, &enumTemplate, &enumHandle);
+    if (dwRet != ERROR_SUCCESS) {
+        return false;
+    }
 
-	FWPM_FILTER0 **filters;
-	UINT32 numFiltersReturned;
-	dwRet = FwpmFilterEnum0(engineHandle, enumHandle, INFINITE, &filters, &numFiltersReturned);
-	while (dwRet == ERROR_SUCCESS && numFiltersReturned > 0)
-	{
-		for (UINT32 i = 0; i < numFiltersReturned; ++i)
-		{
-			if (filters[i]->subLayerKey == *subLayerGUID)
-			{
-				FwpmFilterDeleteById0(engineHandle, filters[i]->filterId);
-			}
-		}
+    FWPM_FILTER0 **filters;
+    UINT32 numFiltersReturned;
+    dwRet = FwpmFilterEnum0(engineHandle, enumHandle, INFINITE, &filters, &numFiltersReturned);
+    while (dwRet == ERROR_SUCCESS && numFiltersReturned > 0) {
+        for (UINT32 i = 0; i < numFiltersReturned; ++i) {
+            if (filters[i]->subLayerKey == *subLayerGUID) {
+                FwpmFilterDeleteById0(engineHandle, filters[i]->filterId);
+            }
+        }
 
-		FwpmFreeMemory0((void **)&filters);
-		dwRet = FwpmFilterEnum0(engineHandle, enumHandle, INFINITE, &filters, &numFiltersReturned);
-	}
-	dwRet = FwpmFilterDestroyEnumHandle0(engineHandle, enumHandle);
-	return true;
-}
-void addPermitFilterIPv6ForAdapter(NET_IFINDEX tapInd, UINT8 weight, wchar_t *layerName, GUID &subLayerGUID, HANDLE hEngine)
-{
-	NET_LUID luid;
-	ConvertInterfaceIndexToLuid(tapInd, &luid);
-
-	// add permit filter IPv6 for TAP.
-	{
-		DWORD dwFwAPiRetCode;
-		FWPM_FILTER0 filter = { 0 };
-		std::vector<FWPM_FILTER_CONDITION0> condition(1);
-		memset(&condition[0], 0, sizeof(FWPM_FILTER_CONDITION0) * (1));
-
-		filter.subLayerKey = subLayerGUID;
-		filter.displayData.name = layerName;
-		filter.layerKey = FWPM_LAYER_ALE_AUTH_CONNECT_V6;
-		filter.action.type = FWP_ACTION_PERMIT;
-		filter.flags = FWPM_SUBLAYER_FLAG_PERSISTENT;
-		filter.weight.type = FWP_UINT8;
-		filter.weight.uint8 = weight;
-		filter.filterCondition = &condition[0];
-		filter.numFilterConditions = 1;
-
-		condition[0].fieldKey = FWPM_CONDITION_IP_LOCAL_INTERFACE;
-		condition[0].matchType = FWP_MATCH_EQUAL;
-		condition[0].conditionValue.type = FWP_UINT64;
-		condition[0].conditionValue.uint64 = &luid.Value;
-
-		UINT64 filterId;
-		dwFwAPiRetCode = FwpmFilterAdd0(hEngine, &filter, NULL, &filterId);
-		if (dwFwAPiRetCode != ERROR_SUCCESS)
-		{
-			Logger::instance().out(L"Utils::addPermitFilterIPv6ForTAP(), FwpmFilterAdd0 failed");
-		}
-	}
+        FwpmFreeMemory0((void **)&filters);
+        dwRet = FwpmFilterEnum0(engineHandle, enumHandle, INFINITE, &filters, &numFiltersReturned);
+    }
+    dwRet = FwpmFilterDestroyEnumHandle0(engineHandle, enumHandle);
+    return true;
 }
 
 std::string readAllFromPipe(HANDLE hPipe)
 {
-	const int BUFFER_SIZE = 1024;
-	std::string csoutput;
-	while (true)
-	{
-		char buf[BUFFER_SIZE + 1];
-		DWORD readword;
-		if (!::ReadFile(hPipe, buf, BUFFER_SIZE, &readword, 0))
-		{
-			break;
-		}
-		if (readword == 0)
-		{
-			break;
-		}
-		buf[readword] = '\0';
-		std::string cstemp = buf;
-		csoutput += cstemp;
-	}
-	return csoutput;
+    const int BUFFER_SIZE = 1024;
+    std::string csoutput;
+    while (true)
+    {
+        char buf[BUFFER_SIZE + 1];
+        DWORD readword;
+        if (!::ReadFile(hPipe, buf, BUFFER_SIZE, &readword, 0))
+        {
+            break;
+        }
+        if (readword == 0)
+        {
+            break;
+        }
+        buf[readword] = '\0';
+        std::string cstemp = buf;
+        csoutput += cstemp;
+    }
+    return csoutput;
 }
 
 std::wstring guidToStr(const GUID &guid)
 {
-	wchar_t szBuf[256];
-	swprintf(szBuf, 256, L"%08lX-%04hX-%04hX-%02hhX%02hhX-%02hhX%02hhX%02hhX%02hhX%02hhX%02hhX",
-		guid.Data1, guid.Data2, guid.Data3,
-		guid.Data4[0], guid.Data4[1], guid.Data4[2], guid.Data4[3],
-		guid.Data4[4], guid.Data4[5], guid.Data4[6], guid.Data4[7]);
-	return szBuf;
+    wchar_t szBuf[256];
+    swprintf(szBuf, 256, L"%08lX-%04hX-%04hX-%02hhX%02hhX-%02hhX%02hhX%02hhX%02hhX%02hhX%02hhX",
+        guid.Data1, guid.Data2, guid.Data3,
+        guid.Data4[0], guid.Data4[1], guid.Data4[2], guid.Data4[3],
+        guid.Data4[4], guid.Data4[5], guid.Data4[6], guid.Data4[7]);
+    return szBuf;
 }
 
-std::wstring getExePath() 
+std::wstring getExePath()
 {
-	wchar_t buffer[MAX_PATH];
-	GetModuleFileName(NULL, buffer, MAX_PATH);
-	std::wstring::size_type pos = std::wstring(buffer).find_last_of(L"\\/");
-	return std::wstring(buffer).substr(0, pos);
+    wchar_t buffer[MAX_PATH];
+    GetModuleFileName(NULL, buffer, MAX_PATH);
+    std::wstring::size_type pos = std::wstring(buffer).find_last_of(L"\\/");
+    return std::wstring(buffer).substr(0, pos);
 }
 
 std::wstring getDirPathFromFullPath(std::wstring &fullPath)
 {
-	size_t found = fullPath.find_last_of(L"/\\");
-	if (found != std::wstring::npos)
-	{
-		return fullPath.substr(0, found);
-	}
-	else
-	{
-		return fullPath;
-	}
+    size_t found = fullPath.find_last_of(L"/\\");
+    if (found != std::wstring::npos)
+    {
+        return fullPath.substr(0, found);
+    }
+    else
+    {
+        return fullPath;
+    }
 }
 
 bool isValidFileName(std::wstring &filename)
 {
-	return filename.find_first_of(L"\\/<>|\":?* ") == std::wstring::npos;
+    return filename.find_first_of(L"\\/<>|\":?* ") == std::wstring::npos;
 }
 
 bool isFileExists(const wchar_t *path)
 {
-	DWORD dwAttrib = GetFileAttributes(path);
-	return (dwAttrib != INVALID_FILE_ATTRIBUTES && !(dwAttrib & FILE_ATTRIBUTE_DIRECTORY));
+    DWORD dwAttrib = GetFileAttributes(path);
+    return (dwAttrib != INVALID_FILE_ATTRIBUTES && !(dwAttrib & FILE_ATTRIBUTE_DIRECTORY));
 }
 
 bool noSpacesInString(std::wstring &str)
 {
-	return str.find_first_of(L" ") == std::wstring::npos;
+    return str.find_first_of(L" ") == std::wstring::npos;
 }
 
 bool iequals(const std::wstring &a, const std::wstring &b)
 {
-	if (b.size() != a.size())
-		return false;
+    if (b.size() != a.size())
+        return false;
 
-	return _wcsnicmp(a.c_str(), b.c_str(), a.size()) == 0;
+    return _wcsnicmp(a.c_str(), b.c_str(), a.size()) == 0;
 }
 
 bool verifyWindscribeProcessPath(HANDLE hPipe)
 {
 #if defined(USE_SIGNATURE_CHECK)
     // NOTE: a test project is archived with issue 546 for testing this method.
-    
+
    static DWORD pidVerified = 0;
-   
+
    std::wostringstream output;
 
    DWORD pidClient = 0;
@@ -199,7 +161,7 @@ bool verifyWindscribeProcessPath(HANDLE hPipe)
       return true;
    }
 
-   WinUtils::Win32Handle processHandle(::OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, pidClient));
+   wsl::Win32Handle processHandle(::OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, pidClient));
    if (!processHandle.isValid())
    {
       output << "OpenProcess failed. Err = " << ::GetLastError();
@@ -245,123 +207,123 @@ bool verifyWindscribeProcessPath(HANDLE hPipe)
 
 void callNetworkAdapterMethod(const std::wstring &methodName, const std::wstring &adapterRegistryName)
 {
-	// Assume that COM has already been initialzed for the thread
+    // Assume that COM has already been initialzed for the thread
 
-	BSTR strNetworkResource = L"\\\\.\\root\\CIMV2";
-	HRESULT hres;
+    BSTR strNetworkResource = L"\\\\.\\root\\CIMV2";
+    HRESULT hres;
 
-	// Obtain the initial locator to WMI -------------------------
-	IWbemLocator *pLoc = NULL;
-	hres = CoCreateInstance(CLSID_WbemLocator, 0, CLSCTX_INPROC_SERVER, IID_IWbemLocator, (LPVOID *)&pLoc);
+    // Obtain the initial locator to WMI -------------------------
+    IWbemLocator *pLoc = NULL;
+    hres = CoCreateInstance(CLSID_WbemLocator, 0, CLSCTX_INPROC_SERVER, IID_IWbemLocator, (LPVOID *)&pLoc);
 
-	if (FAILED(hres))
-	{
-		std::wstring output = L"Failed to create IWbemLocator object. Err = " + std::to_wstring(hres);
-		Logger::instance().out(output.c_str());
-		return;
-	}
+    if (FAILED(hres))
+    {
+        std::wstring output = L"Failed to create IWbemLocator object. Err = " + std::to_wstring(hres);
+        Logger::instance().out(output.c_str());
+        return;
+    }
 
-	// Connect to WMI through the IWbemLocator::ConnectServer method
-	IWbemServices *pSvc = NULL;
+    // Connect to WMI through the IWbemLocator::ConnectServer method
+    IWbemServices *pSvc = NULL;
 
-	// Connect to the root\\CIMV2 namespace
-	// and obtain pointer pSvc to make IWbemServices calls.
-	hres = pLoc->ConnectServer(
-		_bstr_t(strNetworkResource),      // Object path of WMI namespace
-		NULL,                    // User name. NULL = current user
-		NULL,                    // User password. NULL = current
-		0,                       // Locale. NULL indicates current
-		NULL,                    // Security flags.
-		0,                       // Authority (e.g. Kerberos)
-		0,                       // Context object
-		&pSvc                    // pointer to IWbemServices proxy
-	);
+    // Connect to the root\\CIMV2 namespace
+    // and obtain pointer pSvc to make IWbemServices calls.
+    hres = pLoc->ConnectServer(
+        _bstr_t(strNetworkResource),      // Object path of WMI namespace
+        NULL,                    // User name. NULL = current user
+        NULL,                    // User password. NULL = current
+        0,                       // Locale. NULL indicates current
+        NULL,                    // Security flags.
+        0,                       // Authority (e.g. Kerberos)
+        0,                       // Context object
+        &pSvc                    // pointer to IWbemServices proxy
+    );
 
-	if (FAILED(hres))
-	{
-		std::wstring output = L"Could not connect. Err = " + std::to_wstring(hres);
-		Logger::instance().out(output.c_str());
-		pLoc->Release();
-		return;               
-	}
+    if (FAILED(hres))
+    {
+        std::wstring output = L"Could not connect. Err = " + std::to_wstring(hres);
+        Logger::instance().out(output.c_str());
+        pLoc->Release();
+        return;
+    }
 
-	// Set security levels on the proxy -------------------------
-	hres = CoSetProxyBlanket(
-		pSvc,                        // Indicates the proxy to set
-		RPC_C_AUTHN_WINNT,           // RPC_C_AUTHN_xxx
-		RPC_C_AUTHZ_NONE,            // RPC_C_AUTHZ_xxx
-		NULL,                        // Server principal name
-		RPC_C_AUTHN_LEVEL_CALL,      // RPC_C_AUTHN_LEVEL_xxx
-		RPC_C_IMP_LEVEL_IMPERSONATE, // RPC_C_IMP_LEVEL_xxx
-		NULL,                        // client identity
-		EOAC_NONE                    // proxy capabilities
-	);
+    // Set security levels on the proxy -------------------------
+    hres = CoSetProxyBlanket(
+        pSvc,                        // Indicates the proxy to set
+        RPC_C_AUTHN_WINNT,           // RPC_C_AUTHN_xxx
+        RPC_C_AUTHZ_NONE,            // RPC_C_AUTHZ_xxx
+        NULL,                        // Server principal name
+        RPC_C_AUTHN_LEVEL_CALL,      // RPC_C_AUTHN_LEVEL_xxx
+        RPC_C_IMP_LEVEL_IMPERSONATE, // RPC_C_IMP_LEVEL_xxx
+        NULL,                        // client identity
+        EOAC_NONE                    // proxy capabilities
+    );
 
-	if (FAILED(hres))
-	{
-		std::wstring output = L"Could not set proxy blanket. Err = " + std::to_wstring(hres);
-		Logger::instance().out(output.c_str());
+    if (FAILED(hres))
+    {
+        std::wstring output = L"Could not set proxy blanket. Err = " + std::to_wstring(hres);
+        Logger::instance().out(output.c_str());
 
-		pSvc->Release();
-		pLoc->Release();
-		return;
-	}
+        pSvc->Release();
+        pLoc->Release();
+        return;
+    }
 
-	BSTR MethodName = SysAllocString(methodName.c_str());
-	BSTR ClassName = SysAllocString(L"Win32_NetworkAdapter");
+    BSTR MethodName = SysAllocString(methodName.c_str());
+    BSTR ClassName = SysAllocString(L"Win32_NetworkAdapter");
 
-	// Get class
-	IWbemClassObject* pClass = NULL;
-	hres = pSvc->GetObject(ClassName, 0, NULL, &pClass, NULL);
+    // Get class
+    IWbemClassObject* pClass = NULL;
+    hres = pSvc->GetObject(ClassName, 0, NULL, &pClass, NULL);
 
-	if (FAILED(hres))
-	{
-		std::wstring output = L"Failed GetObject IWbemClassObject. Err = " + std::to_wstring(hres);
-		Logger::instance().out(output.c_str());
+    if (FAILED(hres))
+    {
+        std::wstring output = L"Failed GetObject IWbemClassObject. Err = " + std::to_wstring(hres);
+        Logger::instance().out(output.c_str());
 
-		SysFreeString(ClassName);
-		SysFreeString(MethodName);
-		pSvc->Release();
-		pLoc->Release();
-		return;
-	}
+        SysFreeString(ClassName);
+        SysFreeString(MethodName);
+        pSvc->Release();
+        pLoc->Release();
+        return;
+    }
 
-	// Create instance
-	IWbemClassObject* pClassInstance = NULL;
-	hres = pClass->SpawnInstance(0, &pClassInstance);
+    // Create instance
+    IWbemClassObject* pClassInstance = NULL;
+    hres = pClass->SpawnInstance(0, &pClassInstance);
 
-	// Execute Method
-	IWbemClassObject* pInParamsDefinition = NULL; // no input parameters to disable()
-	IWbemClassObject* pOutParams = NULL;          // no output paramters to disable()
+    // Execute Method
+    IWbemClassObject* pInParamsDefinition = NULL; // no input parameters to disable()
+    IWbemClassObject* pOutParams = NULL;          // no output paramters to disable()
 
-	std::wstring networkAdapterDeviceID = L"Win32_NetworkAdapter.DeviceID=\"" + adapterRegistryName + L"\"";
-	hres = pSvc->ExecMethod((BSTR)networkAdapterDeviceID.c_str(), MethodName, 0,
-		NULL, pClassInstance, &pOutParams, NULL);
+    std::wstring networkAdapterDeviceID = L"Win32_NetworkAdapter.DeviceID=\"" + adapterRegistryName + L"\"";
+    hres = pSvc->ExecMethod((BSTR)networkAdapterDeviceID.c_str(), MethodName, 0,
+        NULL, pClassInstance, &pOutParams, NULL);
 
-	if (FAILED(hres))
-	{
-		std::wstring output = L"Could not execute method. Err = " + std::to_wstring(hres);
-		Logger::instance().out(output.c_str());
+    if (FAILED(hres))
+    {
+        std::wstring output = L"Could not execute method. Err = " + std::to_wstring(hres);
+        Logger::instance().out(output.c_str());
 
-		SysFreeString(ClassName);
-		SysFreeString(MethodName);
-		pClass->Release();
-		if (pInParamsDefinition) pInParamsDefinition->Release();
-		if (pOutParams) pOutParams->Release();
-		pSvc->Release();
-		pLoc->Release();
-		return;
-	}
+        SysFreeString(ClassName);
+        SysFreeString(MethodName);
+        pClass->Release();
+        if (pInParamsDefinition) pInParamsDefinition->Release();
+        if (pOutParams) pOutParams->Release();
+        pSvc->Release();
+        pLoc->Release();
+        return;
+    }
 
-	// Clean up
-	SysFreeString(ClassName);
-	SysFreeString(MethodName);
-	pClass->Release();
-	if (pInParamsDefinition) pInParamsDefinition->Release();
-	if (pOutParams) pOutParams->Release();
-	pLoc->Release();
-	pSvc->Release();
-	return;
+    // Clean up
+    SysFreeString(ClassName);
+    SysFreeString(MethodName);
+    pClass->Release();
+    if (pInParamsDefinition) pInParamsDefinition->Release();
+    if (pOutParams) pOutParams->Release();
+    pLoc->Release();
+    pSvc->Release();
+    return;
 }
 
 GUID guidFromString(const std::wstring &str)
@@ -395,6 +357,170 @@ bool isWindows7()
     }
 
     return (isWindows7 == 1);
+}
+
+bool addFilterV4(HANDLE engineHandle, std::vector<UINT64> *filterId, FWP_ACTION_TYPE type, UINT8 weight,
+                  GUID subLayerKey, wchar_t *subLayerName, PNET_LUID pluid,
+                  const std::vector<Ip4AddressAndMask> *ranges,
+                  uint16_t localPort, uint16_t remotePort, AppsIds *appsIds, bool persistent)
+{
+    UINT64 id = 0;
+    bool success = true;
+    DWORD dwFwApiRetCode = 0;
+    std::vector<FWP_V4_ADDR_AND_MASK> addrMasks(ranges ? ranges->size() : 0);
+    GUID guids[2] = {FWPM_LAYER_ALE_AUTH_CONNECT_V4, FWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V4};
+
+    for (int i = 0; i < 2; i++) {
+        FWPM_FILTER0 filter = { 0 };
+        std::vector<FWPM_FILTER_CONDITION0> conditions;
+
+        filter.subLayerKey = subLayerKey;
+        filter.displayData.name = subLayerName;
+        filter.layerKey = guids[i];
+        filter.action.type = type;
+        filter.flags = 0;
+        if (persistent) {
+            filter.flags |= FWPM_FILTER_FLAG_PERSISTENT;
+        }
+        // only veto block rules
+        if (type == FWP_ACTION_BLOCK) {
+            filter.flags |= FWPM_FILTER_FLAG_CLEAR_ACTION_RIGHT;
+        }
+        filter.weight.type = FWP_UINT8;
+        filter.weight.uint8 = weight;
+
+        if (ranges) {
+            for (int j = 0; j < (*ranges).size(); j++) {
+                FWPM_FILTER_CONDITION0 condition;
+                condition.fieldKey = FWPM_CONDITION_IP_REMOTE_ADDRESS;
+                condition.matchType = FWP_MATCH_EQUAL;
+                condition.conditionValue.type = FWP_V4_ADDR_MASK;
+                condition.conditionValue.v4AddrMask = &addrMasks[j];
+
+                addrMasks[j].addr = (*ranges)[j].ipHostOrder();
+                addrMasks[j].mask = (*ranges)[j].maskHostOrder();
+
+                conditions.push_back(condition);
+            }
+        }
+
+        if (pluid != nullptr) {
+            FWPM_FILTER_CONDITION0 condition;
+            condition.fieldKey = FWPM_CONDITION_IP_LOCAL_INTERFACE;
+            condition.matchType = FWP_MATCH_EQUAL;
+            condition.conditionValue.type = FWP_UINT64;
+            condition.conditionValue.uint64 = &pluid->Value;
+            conditions.push_back(condition);
+        }
+
+        if (localPort != 0) {
+            FWPM_FILTER_CONDITION0 condition;
+            condition.fieldKey = FWPM_CONDITION_IP_LOCAL_PORT;
+            condition.matchType = FWP_MATCH_EQUAL;
+            condition.conditionValue.type = FWP_UINT16;
+            condition.conditionValue.uint16 = localPort;
+            conditions.push_back(condition);
+        }
+
+        if (remotePort != 0) {
+            FWPM_FILTER_CONDITION0 condition;
+            condition.fieldKey = FWPM_CONDITION_IP_REMOTE_PORT;
+            condition.matchType = FWP_MATCH_EQUAL;
+            condition.conditionValue.type = FWP_UINT16;
+            condition.conditionValue.uint16 = remotePort;
+            conditions.push_back(condition);
+        }
+
+        if (appsIds != nullptr) {
+            for (size_t i = 0; i < (*appsIds).count(); ++i) {
+                FWPM_FILTER_CONDITION0 condition;
+                condition.fieldKey = FWPM_CONDITION_ALE_APP_ID;
+                condition.matchType = FWP_MATCH_EQUAL;
+                condition.conditionValue.type = FWP_BYTE_BLOB_TYPE;
+                condition.conditionValue.byteBlob = (*appsIds).getAppId(i);
+                conditions.push_back(condition);
+            }
+        }
+
+        filter.filterCondition = &conditions[0];
+        filter.numFilterConditions = conditions.size();
+
+        dwFwApiRetCode = FwpmFilterAdd0(engineHandle, &filter, NULL, &id);
+        if (dwFwApiRetCode != ERROR_SUCCESS) {
+            Logger::instance().out(L"Error adding filter: %4X", dwFwApiRetCode);
+            success = false;
+        }
+        if (filterId) {
+            (*filterId).push_back(id);
+        }
+    }
+    return success;
+}
+
+bool addFilterV6(HANDLE engineHandle, std::vector<UINT64> *filterId, FWP_ACTION_TYPE type, UINT8 weight,
+                  GUID subLayerKey, wchar_t *subLayerName, PNET_LUID pluid,
+                  const std::vector<Ip6AddressAndPrefix> *ranges, bool persistent)
+{
+    UINT64 id = 0;
+    bool success = true;
+    DWORD dwFwApiRetCode = 0;
+    std::vector<FWP_V6_ADDR_AND_MASK> addrMasks(ranges ? ranges->size() : 0);
+    GUID guids[2] = {FWPM_LAYER_ALE_AUTH_CONNECT_V6, FWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V6};
+
+    for (int i = 0; i < 2; i++) {
+        FWPM_FILTER0 filter = { 0 };
+        std::vector<FWPM_FILTER_CONDITION0> conditions;
+
+        filter.subLayerKey = subLayerKey;
+        filter.displayData.name = subLayerName;
+        filter.layerKey = guids[i];
+        filter.action.type = type;
+        filter.flags = 0;
+        if (persistent) {
+            filter.flags |= FWPM_FILTER_FLAG_PERSISTENT;
+        }
+        // only veto block rules
+        if (type == FWP_ACTION_BLOCK) {
+            filter.flags |= FWPM_FILTER_FLAG_CLEAR_ACTION_RIGHT;
+        }
+        filter.weight.type = FWP_UINT8;
+        filter.weight.uint8 = weight;
+
+        if (ranges) {
+            for (int j = 0; j < (*ranges).size(); j++) {
+                FWPM_FILTER_CONDITION0 condition;
+                condition.fieldKey = FWPM_CONDITION_IP_REMOTE_ADDRESS;
+                condition.matchType = FWP_MATCH_EQUAL;
+                condition.conditionValue.type = FWP_V6_ADDR_MASK;
+                condition.conditionValue.v6AddrMask = &addrMasks[j];
+
+                CopyMemory(addrMasks[j].addr, (*ranges)[j].ip(), 16);
+                addrMasks[j].prefixLength = (*ranges)[j].prefixLength();
+                conditions.push_back(condition);
+            }
+        }
+
+        if (pluid != nullptr) {
+            FWPM_FILTER_CONDITION0 condition;
+            condition.fieldKey = FWPM_CONDITION_IP_LOCAL_INTERFACE;
+            condition.matchType = FWP_MATCH_EQUAL;
+            condition.conditionValue.type = FWP_UINT64;
+            condition.conditionValue.uint64 = &pluid->Value;
+            conditions.push_back(condition);
+        }
+
+        filter.filterCondition = &conditions[0];
+        filter.numFilterConditions = conditions.size();
+
+        dwFwApiRetCode = FwpmFilterAdd0(engineHandle, &filter, NULL, &id);
+        if (dwFwApiRetCode != ERROR_SUCCESS) {
+            Logger::instance().out("Error adding filter: %u", dwFwApiRetCode);
+            success = false;
+        } else if (filterId) {
+            (*filterId).push_back(id);
+        }
+    }
+    return success;
 }
 
 }

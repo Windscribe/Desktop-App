@@ -3,6 +3,7 @@
 
 #include <QPixmap>
 #include <QMutex>
+#include <QHash>
 #include "independentpixmap.h"
 
 class ImageResourcesJpg

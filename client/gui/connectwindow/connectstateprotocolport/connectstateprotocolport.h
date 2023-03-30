@@ -5,16 +5,20 @@
 #include <QTimer>
 #include <QVariantAnimation>
 #include "commongraphics/scalablegraphicsobject.h"
+#include "commongraphics/iconbutton.h"
 #include "backend/preferences/preferences.h"
 #include "graphicresources/fontdescr.h"
 #include "utils/textshadow.h"
 #include "utils/imagewithshadow.h"
 #include "connectionbadgedots.h"
 #include "badgepixmap.h"
+#include "types/connectstate.h"
+#include "types/protocol.h"
+#include "types/protocolstatus.h"
 
 namespace ConnectWindow {
 
-class ConnectStateProtocolPort : public ScalableGraphicsObject
+class ConnectStateProtocolPort : public ClickableGraphicsObject
 {
     Q_OBJECT
 public:
@@ -23,22 +27,20 @@ public:
     QRectF boundingRect() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR) override;
 
-    void onConnectStateChanged(ProtoTypes::ConnectState newConnectState, ProtoTypes::ConnectState prevConnectState);
+    void onConnectStateChanged(const types::ConnectState &newConnectState, const types::ConnectState &prevConnectState);
 
     void setHoverable(bool hoverable);
     void setInternetConnectivity(bool connectivity);
-    void setProtocolPort(const ProtoTypes::Protocol &protocol, const uint port);
+    void setProtocolPort(const types::Protocol &protocol, const uint port);
     void setTestTunnelResult(bool success);
+    types::ProtocolStatus getProtocolStatus();
+    bool isProtocolButtonVisible() const;
+    void setProtocolButtonVisible(bool visible);
 
     void updateScaling() override;
 
 signals:
-    void hoverEnter();
-    void hoverLeave();
-
-protected:
-    void hoverEnterEvent(QGraphicsSceneHoverEvent *event) override;
-    void hoverLeaveEvent(QGraphicsSceneHoverEvent *event) override;
+    void protocolsClick();
 
 private slots:
     void onProtocolTestTunnelTimerTick();
@@ -48,11 +50,10 @@ private:
     ConnectionBadgeDots * connectionBadgeDots_;
 
     FontDescr fontDescr_;
-    ProtoTypes::ConnectState connectState_;
-    ProtoTypes::ConnectState prevConnectState_;
-    bool hoverable_;
+    types::ConnectState connectState_;
+    types::ConnectState prevConnectState_;
     bool connectivity_;
-    ProtoTypes::Protocol protocol_;
+    types::Protocol protocol_;
     uint port_;
     QColor textColor_;
     double textOpacity_;
@@ -67,14 +68,14 @@ private:
     QColor badgeBgColor_;
     BadgePixmap badgePixmap_;
 
+    IconButton *protocolArrow_;
+
     int width_;
     int height_;
     void recalcSize();
-    void updateStateDisplay(ProtoTypes::ConnectState newConnectState);
+    void updateStateDisplay(const types::ConnectState &newConnectState);
 
-    static constexpr int badgeProtocolPadding = 10;
-    static constexpr int protocolSeparatorPadding = 7;
-    static constexpr int separatorPortPadding = 8;
+    static constexpr int kSpacerWidth = 8;
 
     QTimer protocolTestTunnelTimer_;
     QVariantAnimation protocolOpacityAnimation_;

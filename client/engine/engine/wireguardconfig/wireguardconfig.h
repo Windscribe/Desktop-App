@@ -1,5 +1,4 @@
-#ifndef WIREGUARDCONFIG_H
-#define WIREGUARDCONFIG_H
+#pragma once
 
 #include <QString>
 
@@ -30,14 +29,17 @@ public:
     void setClientDnsAddress(const QString &dns) { client_.dnsAddress = dns; }
     bool haveServerGeneratedPeerParams() const;
 
-    void generateConfigFile(const QString &fileName) const;
+    bool generateConfigFile(const QString &fileName) const;
 
     bool generateKeyPair();
     bool haveKeyPair() const;
-    void setKeyPair(QString& publicKey, QString& privateKey);
+    void setKeyPair(const QString& publicKey, const QString& privateKey);
 
     static QString stripIpv6Address(const QStringList &addressList);
     static QString stripIpv6Address(const QString &addressList);
+
+    friend QDataStream& operator <<(QDataStream &stream, const WireGuardConfig &c);
+    friend QDataStream& operator >>(QDataStream &stream, WireGuardConfig &c);
 
 private:
     struct {
@@ -52,6 +54,7 @@ private:
         QString endpoint;
         QString allowedIps;
     } peer_;
-};
 
-#endif // WIREGUARDCONFIG_H
+    // for serialization
+    static constexpr quint32 versionForSerialization_ = 1;  // should increment the version if the data format is changed
+};

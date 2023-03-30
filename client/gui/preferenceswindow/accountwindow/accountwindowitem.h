@@ -2,17 +2,18 @@
 #define ACCOUNTWINDOWITEM_H
 
 #include "backend/preferences/accountinfo.h"
-#include "../basepage.h"
-#include "usernameitem.h"
+#include "commongraphics/basepage.h"
+#include "commongraphics/bubblebuttondark.h"
+#include "preferenceswindow/linkitem.h"
+#include "preferenceswindow/preferencegroup.h"
+#include "preferenceswindow/titleitem.h"
+#include "accountdataitem.h"
 #include "emailitem.h"
 #include "planitem.h"
-#include "expiredateitem.h"
-#include "commongraphics/bubblebuttondark.h"
-#include "../openurlitem.h"
 
 namespace PreferencesWindow {
 
-class AccountWindowItem : public BasePage
+class AccountWindowItem : public CommonGraphics::BasePage
 {
     Q_OBJECT
 public:
@@ -30,8 +31,9 @@ private slots:
     void onIsNeedConfirmEmailChanged(bool bNeedConfirm);
     void onPlanChanged(qint64 plan);
     void onExpireDateChanged(const QString &date);
-    void onAuthHashChanged(const QString &authHash);
     void onIsPremiumChanged(bool isPremium);
+    void onTrafficUsedChanged(qint64 used);
+    void onLastResetChanged(const QString &date);
 
     void onUpgradeClicked();
 
@@ -39,21 +41,34 @@ private slots:
 
 signals:
     void sendConfirmEmailClick();
-    void noAccountLoginClick();
-    void editAccountDetailsClick();
+    void accountLoginClick();
+    void manageAccountClick();
     void addEmailButtonClick();
 
 private:
-    UsernameItem *usernameItem_;
+    TitleItem *infoTitle_;
+    AccountDataItem *usernameItem_;
+    PreferenceGroup *infoGroup_;
     EmailItem *emailItem_;
+    TitleItem *planTitle_;
+    PreferenceGroup *planGroup_;
     PlanItem *planItem_;
-    ExpireDateItem *expireDateItem_;
-    OpenUrlItem *editAccountItem_;
-    QString authHash_;
+    AccountDataItem *expireDateItem_;
+    AccountDataItem *resetDateItem_;
+    AccountDataItem *dataLeftItem_;
+    PreferenceGroup *manageAccountGroup_;
+    LinkItem *manageAccountItem_;
 
     QGraphicsTextItem *textItem_;
     CommonGraphics::BubbleButtonDark *loginButton_;
     void updateWidgetPos();
+
+    qint64 plan_;
+    qint64 trafficUsed_;
+
+    bool isUnlimitedData() const;
+    void setDataLeft() const;
+    void updatePlanGroupItemVisibility();
 };
 
 } // namespace PreferencesWindow

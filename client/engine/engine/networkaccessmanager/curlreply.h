@@ -1,11 +1,10 @@
-#ifndef CURLREPLY_H
-#define CURLREPLY_H
+#pragma once
 
+#include <QObject>
 #include <QMutex>
-#include "networkrequest.h"
 #include <curl/curl.h>
 
-class CurlNetworkManager2;
+class CurlNetworkManager;
 
 class CurlReply : public QObject
 {
@@ -28,34 +27,21 @@ signals:
 private:
     enum REQUEST_TYPE { REQUEST_GET, REQUEST_POST, REQUEST_PUT, REQUEST_DELETE};
 
-    explicit CurlReply(QObject *parent, const NetworkRequest &networkRequest, const QStringList &ips, REQUEST_TYPE requestType, const QByteArray &postData, CurlNetworkManager2 *manager);
+    explicit CurlReply(CurlNetworkManager *manager, quint64 id);
 
-    const NetworkRequest &networkRequest() const;
-    QStringList ips() const;
     void appendNewData(const QByteArray &newData);
     void setCurlErrorCode(CURLcode curlErrorCode);
-    REQUEST_TYPE requestType() const;
-    const QByteArray &postData() const;
-
     quint64 id() const;
-    void addCurlListForFreeLater(struct curl_slist *list);
 
     QByteArray data_;
-    mutable QMutex mutex_;
+    mutable QRecursiveMutex mutex_;
     CURLcode curlErrorCode_;
-
     quint64 id_;
-    NetworkRequest networkRequest_;
-    QStringList ips_;
-    REQUEST_TYPE requestType_;
-    QByteArray postData_;
-    CurlNetworkManager2 *manager_;
-    QVector<struct curl_slist *> curlLists_;
+    CurlNetworkManager *manager_;
 
 
-    friend class CurlNetworkManager2;    // CurlNetworkManager class uses private functions to store internal data
+    friend class CurlNetworkManager;    // CurlNetworkManager class uses private functions to store internal data
 };
 
 
 
-#endif // CURLREPLY_H

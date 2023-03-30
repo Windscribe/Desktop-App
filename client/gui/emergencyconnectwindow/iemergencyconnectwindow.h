@@ -2,6 +2,7 @@
 #define IEMERGENCYCONNECTWINDOW_H
 
 #include <QGraphicsObject>
+#include "types/connectstate.h"
 
 class IEmergencyConnectWindow
 {
@@ -10,7 +11,7 @@ public:
 
     virtual QGraphicsObject *getGraphicsObject() = 0;
 
-    virtual void setState(ProtoTypes::ConnectState state) = 0;
+    virtual void setState(types::ConnectState state) = 0;
 
     virtual void setClickable(bool isClickable) = 0;
 

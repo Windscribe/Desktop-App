@@ -1,12 +1,12 @@
 #include "customconfiglocationsmodel.h"
-#include "utils/utils.h"
+
 #include <QFile>
 #include <QTextStream>
 
+#include "utils/ws_assert.h"
 #include "utils/logger.h"
 #include "utils/ipvalidation.h"
 #include "customconfiglocationinfo.h"
-#include "nodeselectionalgorithm.h"
 #include "engine/dnsresolver/dnsrequest.h"
 #include "engine/dnsresolver/dnsserversconfiguration.h"
 
@@ -14,11 +14,10 @@
 namespace locationsmodel {
 
 CustomConfigLocationsModel::CustomConfigLocationsModel(QObject *parent, IConnectStateController *stateController, INetworkDetectionManager *networkDetectionManager, PingHost *pingHost) : QObject(parent),
-    pingStorage_("pingStorageCustomConfigs"),
     pingIpsController_(this, stateController, networkDetectionManager, pingHost, "ping_log_custom_configs.txt")
 {
-    connect(&pingIpsController_, SIGNAL(pingInfoChanged(QString,int, bool)), SLOT(onPingInfoChanged(QString,int, bool)));
-    connect(&pingIpsController_, SIGNAL(needIncrementPingIteration()), SLOT(onNeedIncrementPingIteration()));
+    connect(&pingIpsController_, &PingIpsController::pingInfoChanged, this, &CustomConfigLocationsModel::onPingInfoChanged);
+    connect(&pingIpsController_, &PingIpsController::needIncrementPingIteration, this, &CustomConfigLocationsModel::onNeedIncrementPingIteration);
     pingStorage_.incIteration();
 }
 
@@ -29,26 +28,24 @@ void CustomConfigLocationsModel::setCustomConfigs(const QVector<QSharedPointer<c
     // todo: dns-resolver cache
 
     QStringList hostnamesForResolve;
-    QVector<PingIpInfo> allIps;
     // fill pingInfos_ array
     pingInfos_.clear();
-    for (auto config : customConfigs)
+    for (const auto &config : customConfigs)
     {
         CustomConfigWithPingInfo cc;
         cc.customConfig = config;
 
         // fill remotes
         const QStringList hostnames = config->hostnames();
-        for (auto hostname : hostnames)
+        for (const auto &hostname : hostnames)
         {
             RemoteItem ri;
             ri.ipOrHostname.ip = hostname;
-            ri.isHostname = !IpValidation::instance().isIp(hostname);
+            ri.isHostname = !IpValidation::isIp(hostname);
 
             if (!ri.isHostname)
             {
-                allIps << PingIpInfo(hostname, PingHost::PING_ICMP);
-                ri.ipOrHostname.pingTime = pingStorage_.getNodeSpeed(hostname);
+                ri.ipOrHostname.pingTime = pingStorage_.getPing(hostname);
             }
             else
             {
@@ -82,13 +79,13 @@ void CustomConfigLocationsModel::clear()
 {
     pingInfos_.clear();
     pingIpsController_.updateIps(QVector<PingIpInfo>());
-    QSharedPointer<QVector<locationsmodel::LocationItem> > empty(new QVector<locationsmodel::LocationItem>());
+    QSharedPointer<types::Location> empty(new types::Location());
     Q_EMIT locationsUpdated(empty);
 }
 
 QSharedPointer<BaseLocationInfo> CustomConfigLocationsModel::getMutableLocationInfoById(const LocationID &locationId)
 {
-    Q_ASSERT(locationId.isCustomConfigsLocation());
+    WS_ASSERT(locationId.isCustomConfigsLocation());
 
     for (const CustomConfigWithPingInfo &config : pingInfos_)
     {
@@ -102,9 +99,9 @@ QSharedPointer<BaseLocationInfo> CustomConfigLocationsModel::getMutableLocationI
     return NULL;
 }
 
-void CustomConfigLocationsModel::onPingInfoChanged(const QString &ip, int timems, bool isFromDisconnectedState)
+void CustomConfigLocationsModel::onPingInfoChanged(const QString &ip, int timems)
 {
-    pingStorage_.setNodePing(ip, timems, isFromDisconnectedState);
+    pingStorage_.setPing(ip, timems);
 
     for (auto it = pingInfos_.begin(); it != pingInfos_.end(); ++it)
     {
@@ -123,7 +120,7 @@ void CustomConfigLocationsModel::onNeedIncrementPingIteration()
 void CustomConfigLocationsModel::onDnsRequestFinished()
 {
     DnsRequest *dnsRequest = qobject_cast<DnsRequest *>(sender());
-    Q_ASSERT(dnsRequest != nullptr);
+    WS_ASSERT(dnsRequest != nullptr);
 
     for (auto it = pingInfos_.begin(); it != pingInfos_.end(); ++it)
     {
@@ -138,7 +135,7 @@ void CustomConfigLocationsModel::onDnsRequestFinished()
                 {
                     IpItem ipItem;
                     ipItem.ip = ip;
-                    ipItem.pingTime = pingStorage_.getNodeSpeed(ipItem.ip);
+                    ipItem.pingTime = pingStorage_.getPing(ipItem.ip);
                     remoteIt->ips << ipItem;
 
                     Q_EMIT locationPingTimeChanged(LocationID::createCustomConfigLocationId(it->customConfig->filename()), it->getPing());
@@ -182,13 +179,13 @@ void CustomConfigLocationsModel::startPingAndWhitelistIps()
                 for (auto ipIt = remoteIt->ips.begin(); ipIt != remoteIt->ips.end(); ++ipIt)
                 {
                     strListIps << ipIt->ip;
-                    allIps << PingIpInfo(ipIt->ip, PingHost::PING_ICMP);
+                    allIps << PingIpInfo(ipIt->ip, it->customConfig->name(), it->customConfig->nick(), PingHost::PING_ICMP);
                 }
             }
             else
             {
                 strListIps << remoteIt->ipOrHostname.ip;
-                allIps << PingIpInfo(remoteIt->ipOrHostname.ip, PingHost::PING_ICMP);
+                allIps << PingIpInfo(remoteIt->ipOrHostname.ip, it->customConfig->name(), it->customConfig->nick(), PingHost::PING_ICMP);
             }
         }
     }
@@ -198,37 +195,34 @@ void CustomConfigLocationsModel::startPingAndWhitelistIps()
 
 void CustomConfigLocationsModel::generateLocationsUpdated()
 {
-    QSharedPointer <QVector<LocationItem> > items(new QVector<LocationItem>());
+    QSharedPointer<types::Location> item(new types::Location());
+
+    item->id = LocationID::createTopCustomConfigsLocationId();
+    item->name = QObject::tr("Custom Configs");
+    item->countryCode = "noflag";
+    item->isPremiumOnly = false;
+    item->isNoP2P = false;
 
     if (!pingInfos_.isEmpty())
     {
-        LocationItem item;
-
-        item.id = LocationID::createTopCustomConfigsLocationId();
-        item.name = QObject::tr("Custom Configs");
-        item.countryCode = "noflag";
-        item.isPremiumOnly = false;
-        item.p2p = 1;
-
         for (const CustomConfigWithPingInfo &config : pingInfos_)
         {
-            CityItem city;
+            types::City city;
             city.id = LocationID::createCustomConfigLocationId(config.customConfig->filename());
             city.city = config.customConfig->name();
             city.nick = config.customConfig->nick();
             city.pingTimeMs = config.getPing();
-            city.isPro = true;
+            city.isPro = false;
             city.isDisabled = false;
 
             city.customConfigType = config.customConfig->type();
             city.customConfigIsCorrect = config.customConfig->isCorrect();
             city.customConfigErrorMessage = config.customConfig->getErrorForIncorrect();
-            item.cities << city;
+            item->cities << city;
         }
-        *items << item;
     }
 
-    Q_EMIT locationsUpdated(items);
+    Q_EMIT locationsUpdated(item);
 }
 
 PingTime CustomConfigLocationsModel::CustomConfigWithPingInfo::getPing() const

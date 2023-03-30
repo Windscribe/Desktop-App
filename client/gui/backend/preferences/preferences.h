@@ -2,9 +2,11 @@
 #define PREFERENCES_H
 
 #include <QObject>
-//#include "../types/types.h"
-#include "../types/dnswhileconnectedinfo.h"
-#include "utils/protobuf_includes.h"
+#include <QMap>
+#include <QTimer>
+#include "types/connecteddnsinfo.h"
+#include "types/enginesettings.h"
+#include "types/guisettings.h"
 
 // all preferences with the ability to receive signals when certain preferences are changed
 class Preferences : public QObject
@@ -12,6 +14,7 @@ class Preferences : public QObject
     Q_OBJECT
 public:
     explicit Preferences(QObject *parent = nullptr);
+    ~Preferences();
 
     bool isLaunchOnStartup() const;
     void setLaunchOnStartup(bool b);
@@ -36,8 +39,8 @@ public:
     bool isShowNotifications() const;
     void setShowNotifications(bool b);
 
-    ProtoTypes::BackgroundSettings backgroundSettings() const;
-    void setBackgroundSettings(const ProtoTypes::BackgroundSettings &backgroundSettings);
+    types::BackgroundSettings backgroundSettings() const;
+    void setBackgroundSettings(const types::BackgroundSettings &backgroundSettings);
 
     bool isDockedToTray() const;
     void setDockedToTray(bool b);
@@ -45,90 +48,95 @@ public:
     const QString language() const;
     void setLanguage(const QString &lang);
 
-    ProtoTypes::OrderLocationType locationOrder() const;
-    void setLocationOrder(ProtoTypes::OrderLocationType o);
+    ORDER_LOCATION_TYPE locationOrder() const;
+    void setLocationOrder(ORDER_LOCATION_TYPE o);
 
-    ProtoTypes::LatencyDisplayType latencyDisplay() const;
-    void setLatencyDisplay(ProtoTypes::LatencyDisplayType l);
+    LATENCY_DISPLAY_TYPE latencyDisplay() const;
+    void setLatencyDisplay(LATENCY_DISPLAY_TYPE l);
 
-    ProtoTypes::UpdateChannel updateChannel() const;
-    void setUpdateChannel(ProtoTypes::UpdateChannel c);
+    UPDATE_CHANNEL updateChannel() const;
+    void setUpdateChannel(UPDATE_CHANNEL c);
 
-    ProtoTypes::NetworkWhiteList networkWhiteList();
-    void setNetworkWhiteList(ProtoTypes::NetworkWhiteList l);
+    QVector<types::NetworkInterface> networkWhiteList();
+    void setNetworkWhiteList(const QVector<types::NetworkInterface> &l);
 
-    //const CustomRouting &customRouting() const;
-    //void setCustomRouting(const CustomRouting &cr);
+    const types::ConnectionSettings networkPreferredProtocol(QString networkOrSsid) const;
+    bool hasNetworkPreferredProtocol(QString networkOrSsid) const;
+    void setNetworkPreferredProtocol(QString networkOrSsid, const types::ConnectionSettings &preferredProtocol);
+    void setNetworkPreferredProtocols(const QMap<QString, types::ConnectionSettings> &preferredProtocols);
 
-    const ProtoTypes::ProxySettings &proxySettings() const;
-    void setProxySettings(const ProtoTypes::ProxySettings &ps);
+    const types::ProxySettings &proxySettings() const;
+    void setProxySettings(const types::ProxySettings &ps);
 
-    const ProtoTypes::FirewallSettings &firewalSettings() const;
-    void setFirewallSettings(const ProtoTypes::FirewallSettings &fm);
+    bool isAutoSecureNetworks();
+    void setAutoSecureNetworks(bool b);
 
-    const ProtoTypes::ConnectionSettings &connectionSettings() const;
-    void setConnectionSettings(const ProtoTypes::ConnectionSettings &cm);
+    const types::FirewallSettings &firewallSettings() const;
+    void setFirewallSettings(const types::FirewallSettings &fs);
 
-    const ProtoTypes::ApiResolution &apiResolution() const;
-    void setApiResolution(const ProtoTypes::ApiResolution &ar);
+    const types::ConnectionSettings &connectionSettings() const;
+    void setConnectionSettings(const types::ConnectionSettings &cs);
 
-    const ProtoTypes::PacketSize &packetSize() const;
-    void setPacketSize(const ProtoTypes::PacketSize &ps);
+    const types::ApiResolutionSettings &apiResolution() const;
+    void setApiResolution(const types::ApiResolutionSettings &s);
 
-    const ProtoTypes::MacAddrSpoofing &macAddrSpoofing() const;
-    void setMacAddrSpoofing(const ProtoTypes::MacAddrSpoofing &mas);
+    const types::PacketSize &packetSize() const;
+    void setPacketSize(const types::PacketSize &ps);
+
+    const types::MacAddrSpoofing &macAddrSpoofing() const;
+    void setMacAddrSpoofing(const types::MacAddrSpoofing &mas);
 
     bool isIgnoreSslErrors() const;
     void setIgnoreSslErrors(bool b);
 
-#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
-    bool isKillTcpSockets() const;
-    void setKillTcpSockets(bool b);
+#if defined(Q_OS_WIN)
+    bool isTerminateSockets() const;
+    void setTerminateSockets(bool b);
 #endif
 
-    const ProtoTypes::ShareSecureHotspot &shareSecureHotspot() const;
-    void setShareSecureHotspot(const ProtoTypes::ShareSecureHotspot &ss);
+    const types::ShareSecureHotspot &shareSecureHotspot() const;
+    void setShareSecureHotspot(const types::ShareSecureHotspot &ss);
 
-    const ProtoTypes::ShareProxyGateway &shareProxyGateway() const;
-    void setShareProxyGateway(const ProtoTypes::ShareProxyGateway &sp);
+    const types::ShareProxyGateway &shareProxyGateway() const;
+    void setShareProxyGateway(const types::ShareProxyGateway &sp);
 
     const QString debugAdvancedParameters() const;
     void setDebugAdvancedParameters(const QString &p);
 
 #ifdef Q_OS_WIN
-    ProtoTypes::TapAdapterType tapAdapter() const;
-    void setTapAdapter(ProtoTypes::TapAdapterType tapAdapter);
+    TAP_ADAPTER_TYPE tapAdapter() const;
+    void setTapAdapter(TAP_ADAPTER_TYPE tapAdapter);
 #endif
-    ProtoTypes::DnsPolicy dnsPolicy() const;
-    void setDnsPolicy(ProtoTypes::DnsPolicy d);
+    DNS_POLICY_TYPE dnsPolicy() const;
+    void setDnsPolicy(DNS_POLICY_TYPE d);
 
 #ifdef Q_OS_LINUX
-    ProtoTypes::DnsManagerType dnsManager() const;
-    void setDnsManager(ProtoTypes::DnsManagerType d);
+    DNS_MANAGER_TYPE dnsManager() const;
+    void setDnsManager(DNS_MANAGER_TYPE d);
 #endif
 
-
-    DnsWhileConnectedInfo dnsWhileConnectedInfo() const;
-    void setDnsWhileConnectedInfo(DnsWhileConnectedInfo d);
+    types::ConnectedDnsInfo connectedDnsInfo() const;
+    void setConnectedDnsInfo(types::ConnectedDnsInfo d);
 
     bool keepAlive() const;
     void setKeepAlive(bool bEnabled);
 
-    ProtoTypes::SplitTunneling splitTunneling();
-    QList<ProtoTypes::SplitTunnelingApp> splitTunnelingApps();
-    void setSplitTunnelingApps(QList<ProtoTypes::SplitTunnelingApp> apps);
-    QList<ProtoTypes::SplitTunnelingNetworkRoute> splitTunnelingNetworkRoutes();
-    void setSplitTunnelingNetworkRoutes(QList<ProtoTypes::SplitTunnelingNetworkRoute> routes);
-    ProtoTypes::SplitTunnelingSettings splitTunnelingSettings();
-    void setSplitTunnelingSettings(ProtoTypes::SplitTunnelingSettings settings);
+    APP_SKIN appSkin() const;
+    void setAppSkin(APP_SKIN s);
+
+    types::SplitTunneling splitTunneling();
+    QList<types::SplitTunnelingApp> splitTunnelingApps();
+    void setSplitTunnelingApps(QList<types::SplitTunnelingApp> apps);
+    QList<types::SplitTunnelingNetworkRoute> splitTunnelingNetworkRoutes();
+    void setSplitTunnelingNetworkRoutes(QList<types::SplitTunnelingNetworkRoute> routes);
+    types::SplitTunnelingSettings splitTunnelingSettings();
+    void setSplitTunnelingSettings(types::SplitTunnelingSettings settings);
 
     QString customOvpnConfigsPath() const;
     void setCustomOvpnConfigsPath(const QString &path);
 
-    void setEngineSettings(const ProtoTypes::EngineSettings &es);
-    //void setGuiSettings(const ProtoTypes::GuiSettings &gs);
-
-    ProtoTypes::EngineSettings getEngineSettings() const;
+    void setEngineSettings(const types::EngineSettings &es);
+    types::EngineSettings getEngineSettings() const;
 
     void saveGuiSettings() const;
     void loadGuiSettings();
@@ -139,60 +147,65 @@ public:
     bool isShowLocationLoad() const;
     void setShowLocationLoad(bool b);
 
+    types::Protocol networkLastKnownGoodProtocol(const QString &network) const;
+    uint networkLastKnownGoodPort(const QString &network) const;
+    void setNetworkLastKnownGoodProtocolPort(const QString &network, const types::Protocol &protocol, uint port);
+    void clearLastKnownGoodProtocols(const QString &network = "");
+
 signals:
     void isLaunchOnStartupChanged(bool b);
     void isAutoConnectChanged(bool b);
     void isAllowLanTrafficChanged(bool b);
     void isShowNotificationsChanged(bool b);
-    void backgroundSettingsChanged(const ProtoTypes::BackgroundSettings &backgroundSettings);
+    void backgroundSettingsChanged(const types::BackgroundSettings &backgroundSettings);
 
     void isStartMinimizedChanged(bool b);
     void isDockedToTrayChanged(bool b);
     void languageChanged(const QString &lang);
-    void locationOrderChanged(ProtoTypes::OrderLocationType o);
-    void latencyDisplayChanged(ProtoTypes::LatencyDisplayType l);
-    void updateChannelChanged(const ProtoTypes::UpdateChannel &c);
-    void proxySettingsChanged(const ProtoTypes::ProxySettings &ps);
-    void firewallSettingsChanged(const ProtoTypes::FirewallSettings &fm);
-    void connectionSettingsChanged(const ProtoTypes::ConnectionSettings &cm);
-    void apiResolutionChanged(const ProtoTypes::ApiResolution &ar);
-    void packetSizeChanged(const ProtoTypes::PacketSize &ps);
-    void macAddrSpoofingChanged(const ProtoTypes::MacAddrSpoofing &mas);
+    void locationOrderChanged(ORDER_LOCATION_TYPE o);
+    void latencyDisplayChanged(LATENCY_DISPLAY_TYPE l);
+    void updateChannelChanged(UPDATE_CHANNEL c);
+    void proxySettingsChanged(const types::ProxySettings &ps);
+    void firewallSettingsChanged(const types::FirewallSettings &fs);
+    void connectionSettingsChanged(const types::ConnectionSettings &cm);
+    void apiResolutionChanged(const types::ApiResolutionSettings &s);
+    void packetSizeChanged(const types::PacketSize &ps);
+    void macAddrSpoofingChanged(const types::MacAddrSpoofing &mas);
     void isIgnoreSslErrorsChanged(bool b);
     void invalidLanAddressNotification(QString address);
     void customConfigsPathChanged(QString path);
     void showLocationLoadChanged(bool b);
-
-#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
+    void isAutoSecureNetworksChanged(bool b);
     void minimizeAndCloseToTrayChanged(bool b);
-    void isKillTcpSocketsChanged(bool b);
-    void tapAdapterChanged(ProtoTypes::TapAdapterType tapAdapter);
-#elif defined Q_OS_MAC
+    void isTerminateSocketsChanged(bool b);
+    void tapAdapterChanged(TAP_ADAPTER_TYPE tapAdapter);
     void hideFromDockChanged(bool b);
-#endif
-
-    void shareSecureHotspotChanged(const ProtoTypes::ShareSecureHotspot &ss);
-    void shareProxyGatewayChanged(const ProtoTypes::ShareProxyGateway &sp);
+    void shareSecureHotspotChanged(const types::ShareSecureHotspot &ss);
+    void shareProxyGatewayChanged(const types::ShareProxyGateway &sp);
     void debugAdvancedParametersChanged(const QString &pars);
-    void dnsPolicyChanged(ProtoTypes::DnsPolicy d);
-
-#if defined(Q_OS_LINUX)
-    void dnsManagerChanged(ProtoTypes::DnsManagerType d);
-#endif
-
-    void dnsWhileConnectedInfoChanged(DnsWhileConnectedInfo dnsWcInfo);
-    void networkWhiteListChanged(ProtoTypes::NetworkWhiteList l);
-    void splitTunnelingChanged(ProtoTypes::SplitTunneling st);
+    void dnsPolicyChanged(DNS_POLICY_TYPE d);
+    void dnsManagerChanged(DNS_MANAGER_TYPE d);
+    void appSkinChanged(APP_SKIN s);
+    void connectedDnsInfoChanged(types::ConnectedDnsInfo dnsWcInfo);
+    void networkWhiteListChanged(QVector<types::NetworkInterface> l);
+    void networkPreferredProtocolsChanged(QMap<QString, types::ConnectionSettings> p);
+    void splitTunnelingChanged(types::SplitTunneling st);
     void keepAliveChanged(bool b);
+    void networkLastKnownGoodProtocolPortChanged(const QString &network, const types::Protocol &protocol, uint port);
     void updateEngineSettings();
 
     void reportErrorToUser(QString title, QString desc);
 
 private:
-    ProtoTypes::EngineSettings engineSettings_;
-    ProtoTypes::GuiSettings guiSettings_;
+    types::EngineSettings engineSettings_;
+    types::GuiSettings guiSettings_;
 
     bool receivingEngineSettings_;
+    QMap<QString, QTimer *> timers_;
+
+    // for serialization
+    static constexpr quint32 magic_ = 0x7715C211;
+    static constexpr int versionForSerialization_ = 1;  // should increment the version if the data format is changed
 };
 
 #endif // PREFERENCES_H

@@ -1,4 +1,5 @@
 #include "httpproxywebanswer.h"
+#include "utils/ws_assert.h"
 #include "utils/boost_includes.h"
 #include "version/appversion.h"
 
@@ -37,7 +38,7 @@ std::string HttpProxyWebAnswer::processServerHeaders(unsigned int major, unsigne
                 int len = sprintf(buf, "Via: %s, %hu.%hu %s (%s/%s)\r\n",
                         it->value.c_str(), (unsigned short)major, (unsigned short)minor, "Windscribe proxy", AppVersion::instance().version().toStdString().c_str(),
                         AppVersion::instance().build().toStdString().c_str());
-                Q_ASSERT((unsigned int)len < sizeof(buf));
+                WS_ASSERT((unsigned int)len < sizeof(buf));
                 ret += buf;
                 isExistViaHeader = true;
             }
@@ -53,7 +54,7 @@ std::string HttpProxyWebAnswer::processServerHeaders(unsigned int major, unsigne
         int len = sprintf(buf, "Via: %hu.%hu %s (%s/%s)\r\n",
                 (unsigned short)major, (unsigned short)minor, "Windscribe proxy", AppVersion::instance().version().toStdString().c_str(),
                 AppVersion::instance().build().toStdString().c_str());
-        Q_ASSERT((unsigned int)len < sizeof(buf));
+        WS_ASSERT((unsigned int)len < sizeof(buf));
         ret += buf;
     }
 

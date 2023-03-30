@@ -8,6 +8,7 @@
 #import <Foundation/Foundation.h>
 #include <QWaitCondition>
 
+#include "utils/ws_assert.h"
 #include "utils/logger.h"
 #include "utils/macutils.h"
 #include "utils/network_utils/network_utils_mac.h"
@@ -146,7 +147,7 @@ namespace KeyChainUtils
 }
 
 IKEv2Connection_mac::IKEv2Connection_mac(QObject *parent, IHelper *helper) : IConnection(parent),
-    state_(STATE_DISCONNECTED), bConnected_(false), mutex_(QMutex::Recursive), notificationId_(NULL), isStateConnectingAfterClick_(false), isDisconnectClicked_(false),
+    state_(STATE_DISCONNECTED), bConnected_(false), notificationId_(NULL), isStateConnectingAfterClick_(false), isDisconnectClicked_(false),
     isPrevConnectionStatusInitialized_(false)
 {
     helper_ = dynamic_cast<Helper_mac *>(helper);
@@ -159,13 +160,14 @@ IKEv2Connection_mac::~IKEv2Connection_mac()
 
 }
 
-void IKEv2Connection_mac::startConnect(const QString &configPathOrUrl, const QString &ip, const QString &dnsHostName, const QString &username, const QString &password, const ProxySettings &proxySettings, const WireGuardConfig *wireGuardConfig, bool isEnableIkev2Compression, bool isAutomaticConnectionMode)
+void IKEv2Connection_mac::startConnect(const QString &configOrUrl, const QString &ip, const QString &dnsHostName, const QString &username, const QString &password, const types::ProxySettings &proxySettings, const WireGuardConfig *wireGuardConfig, bool isEnableIkev2Compression, bool isAutomaticConnectionMode, bool isCustomConfig)
 {
-    Q_UNUSED(configPathOrUrl);
+    Q_UNUSED(configOrUrl);
     Q_UNUSED(proxySettings);
     Q_UNUSED(wireGuardConfig);
     Q_UNUSED(isEnableIkev2Compression);
     Q_UNUSED(isAutomaticConnectionMode);
+    Q_UNUSED(isCustomConfig);
     QMutexLocker locker(&mutex_);
 
     static QWaitCondition waitConditionLocal;
@@ -173,7 +175,7 @@ void IKEv2Connection_mac::startConnect(const QString &configPathOrUrl, const QSt
 
     mutexLocal.lock();
 
-    Q_ASSERT(state_ == STATE_DISCONNECTED);
+    WS_ASSERT(state_ == STATE_DISCONNECTED);
 
     isPrevConnectionStatusInitialized_ = false;
     state_ = STATE_START_CONNECT;
@@ -181,7 +183,7 @@ void IKEv2Connection_mac::startConnect(const QString &configPathOrUrl, const QSt
     if (!setKeyChain(username, password))
     {
         state_ = STATE_DISCONNECTED;
-        emit error(ProtoTypes::ConnectError::IKEV_FAILED_SET_KEYCHAIN_MAC);
+        emit error(IKEV_FAILED_SET_KEYCHAIN_MAC);
         mutexLocal.unlock();
         return;
     }
@@ -200,7 +202,7 @@ void IKEv2Connection_mac::startConnect(const QString &configPathOrUrl, const QSt
         {
             qCDebug(LOG_IKEV2) << "Load vpn preferences failed:" << QString::fromNSString(err.localizedDescription);
             state_ = STATE_DISCONNECTED;
-            emit error(ProtoTypes::ConnectError::IKEV_FAILED_LOAD_PREFERENCES_MAC);
+            emit error(IKEV_FAILED_LOAD_PREFERENCES_MAC);
             waitConditionLocal.wakeAll();
             mutexLocal.unlock();
         }
@@ -249,7 +251,7 @@ void IKEv2Connection_mac::startConnect(const QString &configPathOrUrl, const QSt
                 {
                     qCDebug(LOG_IKEV2) << "Save vpn preferences failed:" << QString::fromNSString(err.localizedDescription);
                     state_ = STATE_DISCONNECTED;
-                    emit error(ProtoTypes::ConnectError::IKEV_FAILED_SAVE_PREFERENCES_MAC);
+                    emit error(IKEV_FAILED_SAVE_PREFERENCES_MAC);
                     waitConditionLocal.wakeAll();
                     mutexLocal.unlock();
                 }
@@ -263,7 +265,7 @@ void IKEv2Connection_mac::startConnect(const QString &configPathOrUrl, const QSt
                         {
                             qCDebug(LOG_IKEV2) << "load vpn preferences failed:" << QString::fromNSString(err.localizedDescription);
                             state_ = STATE_DISCONNECTED;
-                            emit error(ProtoTypes::ConnectError::IKEV_FAILED_SAVE_PREFERENCES_MAC);
+                            emit error(IKEV_FAILED_SAVE_PREFERENCES_MAC);
                             waitConditionLocal.wakeAll();
                             mutexLocal.unlock();
                         }
@@ -283,9 +285,10 @@ void IKEv2Connection_mac::startConnect(const QString &configPathOrUrl, const QSt
                         [manager.connection startVPNTunnelAndReturnError:&startError];
                         if (startError)
                         {
-                            qCDebug(LOG_IKEV2) << "Error staring ikev2 connection:" << QString::fromNSString(startError.localizedDescription);
+                            qCDebug(LOG_IKEV2) << "Error starting ikev2 connection:" << QString::fromNSString(startError.localizedDescription);
+                            [[NSNotificationCenter defaultCenter] removeObserver: (id)notificationId_ name: (NSString *)NEVPNStatusDidChangeNotification object: manager.connection];
                             state_ = STATE_DISCONNECTED;
-                            emit error(ProtoTypes::ConnectError::IKEV_FAILED_START_MAC);
+                            emit error(IKEV_FAILED_START_MAC);
                         }
                         waitConditionLocal.wakeAll();
                         mutexLocal.unlock();
@@ -335,7 +338,7 @@ bool IKEv2Connection_mac::isDisconnected() const
 void IKEv2Connection_mac::continueWithUsernameAndPassword(const QString &username, const QString &password)
 {
     // nothing todo for ikev2
-    Q_ASSERT(false);
+    WS_ASSERT(false);
     Q_UNUSED(username);
     Q_UNUSED(password);
 }
@@ -343,7 +346,7 @@ void IKEv2Connection_mac::continueWithUsernameAndPassword(const QString &usernam
 void IKEv2Connection_mac::continueWithPassword(const QString &password)
 {
     // nothing todo for ikev2
-    Q_ASSERT(false);
+    WS_ASSERT(false);
     Q_UNUSED(password);
 }
 
@@ -407,13 +410,13 @@ void IKEv2Connection_mac::handleNotificationImpl(int status)
         {
             [[NSNotificationCenter defaultCenter] removeObserver: (id)notificationId_ name: (NSString *)NEVPNStatusDidChangeNotification object: manager.connection];
             state_ = STATE_DISCONNECTED;
-            emit error(ProtoTypes::ConnectError::IKEV_FAILED_TO_CONNECT);
+            emit error(IKEV_FAILED_TO_CONNECT);
         }
         else if (state_ != STATE_DISCONNECTED)
         {
             if (state_ == STATE_DISCONNECTING_AUTH_ERROR)
             {
-                emit error(ProtoTypes::ConnectError::AUTH_ERROR);
+                emit error(AUTH_ERROR);
             }
 
             [[NSNotificationCenter defaultCenter] removeObserver: (id)notificationId_ name: (NSString *)NEVPNStatusDidChangeNotification object: manager.connection];

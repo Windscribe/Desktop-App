@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # ------------------------------------------------------------------------------
 # Windscribe Build System
-# Copyright (c) 2020-2021, Windscribe Limited. All rights reserved.
+# Copyright (c) 2020-2023, Windscribe Limited. All rights reserved.
 # ------------------------------------------------------------------------------
-import glob2
+import glob
 import multiprocessing
 import os
 import subprocess
@@ -31,13 +31,13 @@ def SetupEnvironment(configdata):
   if configdata:
     msg.Verbose("SetupEnvironment:")
     if "variables" in configdata:
-      for k, v in configdata["variables"].iteritems():
+      for k, v in configdata["variables"].items():
         msg.Verbose("\"{}\" = \"{}\"".format(k,v))
         os.environ[k] = v
 
 
 def PrepareTempDirectory(depname, doclean=True):
-  temp_root_postfix = filter(lambda ch: ch not in "-", depname.upper())
+  temp_root_postfix = depname.upper().replace("-", "")
   temp_root_var = None
   if utl.GetCurrentOS() == "win32":
     temp_root_var = "WINTEMPROOT_" + temp_root_postfix
@@ -59,7 +59,7 @@ def GetDependencyBuildRoot(depname):
   buildroot_var = "BUILDROOT_" + depname.upper()
   buildroot_str = None
   if "variables" in configdata:
-    for k, v in configdata["variables"].iteritems():
+    for k, v in configdata["variables"].items():
       if k == buildroot_var:
           buildroot_str = os.path.normpath(os.path.join(REPOSITORY_ROOT, v))
           if not os.path.exists(buildroot_str):
@@ -92,7 +92,7 @@ def DownloadFile(webfilename, localfilename):
   if os.path.exists(localfilename):
     utl.RemoveDirectory(localfilename)
   try:
-    curl_exe = os.path.join(TOOLS_BIN_DIR, "curl.exe") if utl.GetCurrentOS() == "win321" else "curl"
+    curl_exe = "curl.exe" if utl.GetCurrentOS() == "win321" else "curl"
     curl_cmd = [ curl_exe, webfilename, "-o", localfilename, "-kL" ]
     if "-v" not in sys.argv:
       curl_cmd.append( "-#" )
@@ -104,7 +104,7 @@ def DownloadFile(webfilename, localfilename):
 def ExtractFile(localfilename, outputpath=None, deleteonsuccess=True):
   if not outputpath:
     outputpath = os.path.dirname(localfilename)
-  msg.Verbose("ExtractFile: \"{}\" to \"{}\"".format(localfilename, outputpath))
+  msg.HeadPrint("ExtractFile: \"{}\" to \"{}\"".format(localfilename, outputpath))
   extracted = False
   localfilename2 = None
   if utl.GetCurrentOS() == "win32":
@@ -154,11 +154,11 @@ def ExtractFile(localfilename, outputpath=None, deleteonsuccess=True):
       utl.RemoveFile(localfilename2)
 
 
-def GetVisualStudioEnvironment(architecture="x86"):
+def GetVisualStudioEnvironment(architecture="x64"):
   result = None
   for batfile in [
-    "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\BuildTools\\VC\\Auxiliary\\Build\\vcvarsall.bat",
-    "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\VC\Auxiliary\\Build\\vcvarsall.bat"
+    "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Auxiliary\\Build\\vcvarsall.bat",
+    "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\BuildTools\\VC\\Auxiliary\\Build\\vcvarsall.bat"
   ]:
     if os.path.isfile(batfile):
       process = subprocess.Popen(
@@ -207,7 +207,7 @@ def InstallArtifacts(directory, filemasks, installpath, zipfilename):
     if "*" in mask:
       fullmask = os.path.join(directory, mask)
       skiplen = len(directory) + 1
-      for srcfilename in glob2.glob(fullmask):
+      for srcfilename in glob.glob(fullmask, recursive=True):
         if os.path.isdir(srcfilename):
           continue
         srcfilenamepartial = srcfilename[skiplen:]

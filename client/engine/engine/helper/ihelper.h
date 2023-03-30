@@ -2,12 +2,16 @@
 #define IHELPER_H
 
 #include <QThread>
+#include "types/protocol.h"
 
 class SplitTunnelingNetworkInfo;
 class WireGuardConfig;
-struct WireGuardStatus;
 class AdapterGatewayInfo;
-class ProtocolType;
+
+namespace types
+{
+    struct WireGuardStatus;
+}
 
 // basic helper class for execute root commands
 // universal functions for all platforms are declared here
@@ -33,17 +37,19 @@ public:
     virtual void suspendUnblockingCmd(unsigned long cmdId) = 0;
 
     virtual bool setSplitTunnelingSettings(bool isActive, bool isExclude, bool isKeepLocalSockets,
-                                   const QStringList &files, const QStringList &ips,
-                                   const QStringList &hosts) = 0;
-    virtual void sendConnectStatus(bool isConnected, bool isCloseTcpSocket, bool isKeepLocalSocket, const AdapterGatewayInfo &defaultAdapter, const AdapterGatewayInfo &vpnAdapter,
-                           const QString &connectedIp, const ProtocolType &protocol) = 0;
+                                           const QStringList &files, const QStringList &ips,
+                                           const QStringList &hosts) = 0;
+    virtual bool sendConnectStatus(bool isConnected, bool isTerminateSocket, bool isKeepLocalSocket,
+                                   const AdapterGatewayInfo &defaultAdapter, const AdapterGatewayInfo &vpnAdapter,
+                                   const QString &connectedIp, const types::Protocol &protocol) = 0;
     virtual bool setCustomDnsWhileConnected(bool isIkev2, unsigned long ifIndex, const QString &overrideDnsIpAddress) = 0;
+    virtual bool changeMtu(const QString &adapter, int mtu) = 0;
 
     // WireGuard functions
     virtual ExecuteError startWireGuard(const QString &exeName, const QString &deviceName) = 0;
     virtual bool stopWireGuard() = 0;
     virtual bool configureWireGuard(const WireGuardConfig &config) = 0;
-    virtual bool getWireGuardStatus(WireGuardStatus *status) = 0;
+    virtual bool getWireGuardStatus(types::WireGuardStatus *status) = 0;
     virtual void setDefaultWireGuardDeviceName(const QString &deviceName) = 0;
 
 signals:

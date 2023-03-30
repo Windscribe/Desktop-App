@@ -17,7 +17,10 @@ public:
 
     bool setCustomDnsWhileConnected(bool isIkev2, unsigned long ifIndex, const QString &overrideDnsIpAddress) override;
 
-    bool installUpdate(const QString& package) const;
+    // linux specific
+    std::optional<bool> installUpdate(const QString& package) const;
+    bool setDnsLeakProtectEnabled(bool bEnabled);
+    bool checkForWireGuardKernelModule();
 };
 
 #endif // HELPER_LINUX_H

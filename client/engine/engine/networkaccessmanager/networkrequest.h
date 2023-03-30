@@ -1,14 +1,13 @@
-#ifndef NETWORKREQUEST_H
-#define NETWORKREQUEST_H
+#pragma once
 
 #include <QUrl>
-#include "engine/proxy/proxysettings.h"
 
 class NetworkRequest
 {
 public:
-    explicit NetworkRequest() {}
+    NetworkRequest() {}
     explicit NetworkRequest(const QUrl &url, int timeout, bool bUseDnsCache);
+    explicit NetworkRequest(const QUrl &url, int timeout, bool bUseDnsCache, const QStringList &dnsServers, bool isIgnoreSslErrors);
 
     void setUrl(const QUrl &url);
     QUrl url() const;
@@ -28,17 +27,23 @@ public:
     void setIgnoreSslErrors(bool bIgnore);
     bool isIgnoreSslErrors() const;
 
-    void setProxySettings(const ProxySettings &proxySettings);
-    const ProxySettings &proxySettings() const;
+    void setRemoveFromWhitelistIpsAfterFinish();
+    bool isRemoveFromWhitelistIpsAfterFinish() const;
+
+    void setEchConfig(const QString &echConfig);
+    QString echConfig() const;
 
 private:
     QUrl url_;
     int timeout_;
     bool bUseDnsCache_;
-    ProxySettings proxySettings_;
     bool bIgnoreSslErrors_;
     QString header_;
     QStringList dnsServers_;
+
+    QString echConfig_;         // if not empty, use ECH request
+
+    //default false, if true then immediately removes the IP from the whitelist ips after the request is completed.
+    bool bRemoveFromWhitelistIpsAfterFinish_;
 };
 
-#endif // NETWORKREQUEST_H

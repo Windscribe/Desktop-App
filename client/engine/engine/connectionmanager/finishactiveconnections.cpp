@@ -16,7 +16,7 @@
 #endif
 
 #ifdef Q_OS_LINUX
-    #include "engine/helper/helper_posix.h"
+    #include "engine/helper/helper_linux.h"
     #include "wireguardconnection_posix.h"
 #endif
 
@@ -24,10 +24,8 @@ void FinishActiveConnections::finishAllActiveConnections(IHelper *helper)
 {
 #ifdef Q_OS_WIN
     finishAllActiveConnections_win(helper);
-#elif defined Q_OS_MAC
-    finishAllActiveConnections_mac(helper);
-#elif defined Q_OS_LINUX
-    finishAllActiveConnections_linux(helper);
+#else
+    finishAllActiveConnections_posix(helper);
 #endif
 }
 
@@ -72,48 +70,46 @@ void FinishActiveConnections::finishWireGuardActiveConnections_win(IHelper *help
     // No need to stop the wireguard service, as it automatically stops if the client exits prematurely.
     // But we need to remove dns leak protection.
     Helper_win *helper_win = dynamic_cast<Helper_win *>(helper);
+    helper_win->stopWireGuard();
     helper_win->disableDnsLeaksProtection();
 }
-#elif defined Q_OS_MAC
-void FinishActiveConnections::finishAllActiveConnections_mac(IHelper *helper)
+#elif defined(Q_OS_MAC) || defined(Q_OS_LINUX)
+void FinishActiveConnections::finishAllActiveConnections_posix(IHelper *helper)
 {
-    finishOpenVpnActiveConnections_mac(helper);
-    finishWireGuardActiveConnections_mac(helper);
+#if defined(Q_OS_LINUX)
+    removeDnsLeaksprotection_linux(helper);
+#endif
+    finishOpenVpnActiveConnections_posix(helper);
+    finishWireGuardActiveConnections_posix(helper);
+#if defined(Q_OS_MAC)
     IKEv2Connection_mac::closeWindscribeActiveConnection();
+#endif
 }
 
-void FinishActiveConnections::finishOpenVpnActiveConnections_mac(IHelper *helper)
+void FinishActiveConnections::finishOpenVpnActiveConnections_posix(IHelper *helper)
 {
-    Helper_mac *helper_mac = dynamic_cast<Helper_mac *>(helper);
-    const QStringList strOpenVpnExeList = OpenVpnVersionController::instance().getAvailableOpenVpnExecutables();
-    for (const QString &strExe : strOpenVpnExeList)
-    {
-        helper_mac->executeTaskKill(strExe);
-    }
-    helper_mac->executeTaskKill("windscribestunnel");
-    helper_mac->executeTaskKill("windscribewstunnel");
+    Helper_posix *helper_posix = dynamic_cast<Helper_posix *>(helper);
+    helper_posix->executeTaskKill(kTargetOpenVpn);
+    helper_posix->executeTaskKill(kTargetStunnel);
+    helper_posix->executeTaskKill(kTargetWStunnel);
+#if defined(Q_OS_MAC)
     RestoreDNSManager_mac::restoreState(helper);
+#endif
 }
-void FinishActiveConnections::finishWireGuardActiveConnections_mac(IHelper *helper)
+
+void FinishActiveConnections::finishWireGuardActiveConnections_posix(IHelper *helper)
 {
     helper->setDefaultWireGuardDeviceName(WireGuardConnection::getWireGuardAdapterName());
     helper->stopWireGuard();
 }
-#elif defined Q_OS_LINUX
+#endif
 
-void FinishActiveConnections::finishAllActiveConnections_linux(IHelper *helper)
-{
-    // todo: kill openvpn, wireguard for Linux
-    removeDnsLeaksprotection_linux(helper);
-}
-
+#if defined(Q_OS_LINUX)
 void FinishActiveConnections::removeDnsLeaksprotection_linux(IHelper *helper)
 {
-    Helper_posix *helperPosix = dynamic_cast<Helper_posix *>(helper);
-    int exitCode;
-    helperPosix->executeRootCommand("/etc/windscribe/dns-leak-protect down", &exitCode);
+    Helper_linux *helperLinux = dynamic_cast<Helper_linux *>(helper);
+    helperLinux->setDnsLeakProtectEnabled(false);
 }
-
 #endif
 
 

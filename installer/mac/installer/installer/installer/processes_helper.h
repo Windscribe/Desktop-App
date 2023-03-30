@@ -13,9 +13,6 @@ public:
     
     std::vector<pid_t> getPidsByProcessname(const char *name);
     bool isProcessFinished(pid_t pid) const;
-
-private:
-    std::vector< std::pair< std::string, pid_t > > processes_;
 };
 
 #endif 

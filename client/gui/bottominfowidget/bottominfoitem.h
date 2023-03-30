@@ -12,7 +12,7 @@ class BottomInfoItem : public ScalableGraphicsObject, public IBottomInfoItem
 {
     Q_OBJECT
 public:
-    explicit BottomInfoItem(QGraphicsObject *parent = nullptr);
+    explicit BottomInfoItem(Preferences *preferences, QGraphicsObject *parent = nullptr);
 
     QGraphicsObject *getGraphicsObject() override { return this; }
     QRectF boundingRect() const override;
@@ -29,7 +29,7 @@ public:
 
     void setSecureHotspotFeatures(bool isEnabled, const QString &ssid) override;
     void setSecureHotspotUsersCount(int usersCount) override;
-    void setProxyGatewayFeatures(bool isEnabled, ProtoTypes::ProxySharingMode mode) override;
+    void setProxyGatewayFeatures(bool isEnabled, PROXY_SHARING_TYPE mode) override;
     void setProxyGatewayUsersCount(int usersCount) override;
 
     QPixmap getCurrentPixmapShape() override;
@@ -46,6 +46,8 @@ signals:
     void secureHotspotClick();
 
 private:
+    Preferences *preferences_;
+
     SharingFeaturesWindowItem *sharingFeaturesWindowItem_;
     UpgradeWidget::UpgradeWidgetItem *upgradeWidgetItem_;
 
@@ -53,7 +55,7 @@ private:
     QString secureHotspotSsid_;
 
     bool isProxyGatewayEnabled_;
-    ProtoTypes::ProxySharingMode proxyGatewayMode_;
+    PROXY_SHARING_TYPE proxyGatewayMode_;
 
     int currentUpgradePosX;
     int currentUpgradePosY;
@@ -74,7 +76,7 @@ private:
     static constexpr int SHARING_UPGRADE_SPACE = 2;
     static constexpr int UPGRADE_POS_X_WIDE = 4;
     static constexpr int UPGRADE_WIDTH_EXPANDED = WIDTH_ - 8;
-
+    static constexpr int UPGRADE_WIDTH_VAN_GOGH = WIDTH_;
 };
 
 }

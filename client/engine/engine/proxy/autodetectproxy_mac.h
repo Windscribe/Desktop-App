@@ -1,12 +1,12 @@
 #ifndef AUTODETECTPROXY_MAC_H
 #define AUTODETECTPROXY_MAC_H
 
-#include "proxysettings.h"
+#include "types/proxysettings.h"
 
 class AutoDetectProxy_mac
 {
 public:
-    static ProxySettings detect(bool &bSuccessfully);
+    static types::ProxySettings detect(bool &bSuccessfully);
 };
 
 #endif // AUTODETECTPROXY_MAC_H

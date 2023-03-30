@@ -66,34 +66,30 @@
                             <action selector="onEscClick:" target="EiT-Mj-1SZ" id="Kyc-AB-jGk"/>
                         </connections>
                     </button>
-                    <textField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="m4j-yf-mKd" customClass="PathTextField">
-                        <rect key="frame" x="20" y="166" width="264" height="21"/>
+                    <textField verticalHuggingPriority="750" fixedFrame="YES" textCompletion="NO" translatesAutoresizingMaskIntoConstraints="NO" id="pzm-ab-w3f" customClass="PathTextField">
+                        <rect key="frame" x="20" y="140" width="264" height="21"/>
                         <autoresizingMask key="autoresizingMask"/>
-                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" usesSingleLineMode="YES" id="mU5-sR-5me">
-                            <font key="font" metaFont="cellTitle"/>
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" allowsUndo="NO" sendsActionOnEndEditing="YES" usesSingleLineMode="YES" id="uP0-lY-Xow">
+                            <font key="font" metaFont="systemBold" size="12"/>
                             <color key="textColor" red="0.75406885150000003" green="0.75408679249999999" blue="0.75407713649999997" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                     </textField>
-                    <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="nj0-rs-P0J" customClass="HoverButton">
-                        <rect key="frame" x="292" y="169" width="38" height="21"/>
+                    <control verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="j97-W6-kd0" customClass="ToggleControl">
+                        <rect key="frame" x="289" y="137" width="44" height="25"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <buttonCell key="cell" type="square" title="Button" bezelStyle="shadowlessSquare" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="ATR-ro-8FH" customClass="PathButtonCell">
-                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                            <font key="font" metaFont="system"/>
-                        </buttonCell>
                         <connections>
-                            <action selector="onSelectPathClick:" target="EiT-Mj-1SZ" id="in0-R0-Dni"/>
+                            <action selector="onFactoryResetToggleClick:" target="EiT-Mj-1SZ" id="HFp-tL-XUV"/>
                         </connections>
-                    </button>
+                    </control>
                 </subviews>
                 <connections>
                     <outlet property="appDelegate" destination="Voe-Tx-rLC" id="8AH-gw-NCk"/>
+                    <outlet property="factoryResetField" destination="pzm-ab-w3f" id="5Ws-15-bYG"/>
+                    <outlet property="factoryResetToggle" destination="j97-W6-kd0" id="n3W-AA-h5C"/>
                     <outlet property="escButton" destination="HWc-H4-MpI" id="4se-uN-mpD"/>
                     <outlet property="eulaButton" destination="8Ii-cP-6NA" id="1nE-4S-LaW"/>
                     <outlet property="installButton" destination="txg-Kj-LPO" id="T54-rC-Vsq"/>
-                    <outlet property="pathField" destination="m4j-yf-mKd" id="ISH-mz-lsf"/>
-                    <outlet property="selectPathButton" destination="nj0-rs-P0J" id="BzR-PP-yf3"/>
                     <outlet property="settingsButton" destination="19T-bc-b57" id="5fZ-8q-jp1"/>
                 </connections>
             </view>

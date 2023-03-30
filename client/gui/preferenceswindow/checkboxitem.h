@@ -1,13 +1,15 @@
 #ifndef CHECKBOXITEM_H
 #define CHECKBOXITEM_H
 
-#include "baseitem.h"
+#include <QSharedPointer>
+#include "commongraphics/baseitem.h"
 #include "commongraphics/checkboxbutton.h"
-#include "dividerline.h"
+#include "graphicresources/fontdescr.h"
+#include "graphicresources/independentpixmap.h"
 
 namespace PreferencesWindow {
 
-class CheckBoxItem : public BaseItem
+class CheckBoxItem : public CommonGraphics::BaseItem
 {
     Q_OBJECT
 public:
@@ -15,6 +17,7 @@ public:
 
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
+    void setEnabled(bool enabled);
     void setState(bool isChecked);
     bool isChecked() const;
 
@@ -22,6 +25,8 @@ public:
     QPointF getButtonScenePos() const;
 
     void updateScaling() override;
+    void setIcon(QSharedPointer<IndependentPixmap> icon);
+    void setCaptionFont(const FontDescr &fontDescr);
 
 signals:
     void stateChanged(bool isChecked);
@@ -29,13 +34,15 @@ signals:
     void buttonHoverLeave();
 
 private:
+    // Height of typical BaseItem (48) - height of checkbox item (22), divided by 2.
+    static constexpr int CHECKBOX_MARGIN_Y = 13;
+
     QString strCaption_;
     QString strTooltip_;
 
     CheckBoxButton *checkBoxButton_;
-
-    DividerLine *line_;
-
+    FontDescr captionFont_;
+    QSharedPointer<IndependentPixmap> icon_;
 };
 
 } // namespace PreferencesWindow

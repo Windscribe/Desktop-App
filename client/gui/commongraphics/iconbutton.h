@@ -29,6 +29,8 @@ public:
     void setHoverOpacity(double hoverOpacity);
     void updateScaling() override;
 
+    void setTintColor(const QColor &color);
+
 private slots:
     void onHoverEnter();
     void onHoverLeave();
@@ -48,7 +50,7 @@ private:
     double unhoverOpacity_;
     double hoverOpacity_;
 
-
+    QColor tintColor_;
 };
 
 

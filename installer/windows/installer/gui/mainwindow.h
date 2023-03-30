@@ -1,22 +1,25 @@
 #pragma once
+
 #include <Windows.h>
-#include "InstallButton.h"
-#include "CloseButton.h"
-#include "MinimizeButton.h"
-#include "SettingsButton.h"
-#include "EulaButton.h"
-#include "TextItem.h"
-#include "PathControl.h"
-#include "DesktopShortcutControl.h"
-#include "EscButton.h"
+
 #include "../Installer/installer.h"
 #include "../messages.h"
+#include "CloseButton.h"
+#include "DesktopShortcutControl.h"
+#include "EscButton.h"
+#include "EulaButton.h"
+#include "FactoryResetControl.h"
+#include "InstallButton.h"
+#include "MinimizeButton.h"
+#include "PathControl.h"
+#include "SettingsButton.h"
+#include "TextItem.h"
 
 
 class MainWindow
 {
 public:
-	explicit MainWindow(bool isLegacyOS);
+	explicit MainWindow();
 	virtual ~MainWindow();
 	bool create(int windowCenterX, int windowCenterY);
 
@@ -26,44 +29,42 @@ public:
     void gotoSilentInstall();
 
 private:
-	HWND hwnd_;
-	InstallButton *instalButton_;
-	CloseButton *closeButton_;
-	MinimizeButton *minimizeButton_;
-	SettingsButton *settingsButton_;
-	EulaButton *eulaButton_;
-	PathControl *pathControl_;
-	DesktopShortcutControl *desktopShortcutControl_;
-	EscButton *escButton_;
+	HWND hwnd_ = nullptr;
+	InstallButton *instalButton_ = nullptr;
+	CloseButton *closeButton_ = nullptr;
+	MinimizeButton *minimizeButton_ = nullptr;
+	SettingsButton *settingsButton_ = nullptr;
+	EulaButton *eulaButton_ = nullptr;
+	PathControl *pathControl_ = nullptr;
+	DesktopShortcutControl *desktopShortcutControl_ = nullptr;
+	FactoryResetControl *factoryResetControl_ = nullptr;
+	EscButton *escButton_ = nullptr;
 
-	Gdiplus::Bitmap *backgroundBitmap_;
+	Gdiplus::Bitmap *backgroundBitmap_ = nullptr;
 	void createBackgroundBitmap(int width, int height);
-
-	int progress_;
 
 	const int BIG_MARGIN = 16;
 	const int SMALL_MARGIN = 8;
 
 	const int OPACITY_TIMER_ID = 1235;
 
-	TextItem *captionItem_;
-	int topOffsTitle_;
+	TextItem *captionItem_ = nullptr;
+	int topOffsTitle_ = 0;
 	
-	bool bMouseLeftButtonPressed_;
+	bool bMouseLeftButtonPressed_ = false;
 	POINT startDragPosition_;
 
-	bool compositionIsEnabled_;
-	bool themeIsEnabled_;
+	bool compositionIsEnabled_ = false;
+	bool themeIsEnabled_ = false;
 	RECT rgn_;
-	LONG winWidth_;
-	LONG winHeight_;
+	LONG winWidth_ = 0;
+	LONG winHeight_ = 0;
 
-	float curBackgroundOpacity_;
-	bool incBackgroundOpacity_;
+	float curBackgroundOpacity_ = 1.0;
+	bool incBackgroundOpacity_ = false;
 
-	INSTALLER_CURRENT_STATE installerLastState_;
+	INSTALLER_CURRENT_STATE installerLastState_ = STATE_INIT;
 
-    bool isLegacyOS_;
     std::wstring strInstallTitle_;
     std::wstring strInstallButtonText_;
 

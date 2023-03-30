@@ -1,12 +1,11 @@
 <RCC>
     <qresource prefix="/">
+        <file>svg/BACK_ARROW.svg</file>
         <file>svg/BADGE_ICON.svg</file>
-        <file>svg/BOTTOM_BG.svg</file>
         <file>svg/BOTTOMLEFT_HORIZ_DIVIDER.svg</file>
-        <file>svg/FAV_DESELECTED.svg</file>
-        <file>svg/FAV_SELECTED.svg</file>
-        <file>svg/FRWRD_ARROW_WHITE.svg</file>
-        <file>svg/LOCATION_ARROW.svg</file>
+        <file>svg/CHECKMARK.svg</file>
+        <file>svg/CHECKMARK_IN_CIRCLE.svg</file>
+        <file>svg/ESC_BUTTON.svg</file>
         <file>svg/LOCATION_BUTTON_BG.svg</file>
         <file>svg/LOGO.svg</file>
         <file>svg/MENU_ICON.svg</file>
@@ -15,11 +14,10 @@
         <file>svg/NOTIFICATION_ICON.svg</file>
         <file>svg/ring/ON_BUTTON.svg</file>
         <file>svg/ring/ON_BUTTON_SHADOW.svg</file>
-        <file>svg/SHADOW.svg</file>
+        <file>svg/WARNING.svg</file>
         <file>svg/WINDOWS_CLOSE_ICON.svg</file>
         <file>svg/firewall/BLACK_TOGGLE_BG.svg</file>
         <file>svg/firewall/BLUE_TOGGLE_BG.svg</file>
-        <file>svg/firewall/INFO_ICON.svg</file>
         <file>svg/firewall/TOGGLE_BUTTON_WHITE.svg</file>
         <file>svg/flags/ae.svg</file>
         <file>svg/flags/ar.svg</file>
@@ -107,13 +105,11 @@
         <file>svg/locations/LOCATION_PING_BARS2.svg</file>
         <file>svg/locations/LOCATION_PING_BARS3.svg</file>
         <file>svg/locations/STATIC_IP_ICON.svg</file>
-        <file>svg/locations/TOP_ICON_DIVIDER.svg</file>
         <file>svg/locations/NO_P2P_ICON.svg</file>
         <file>svg/locations/DATACENTER_ICON.svg</file>
         <file>svg/locations/RES_IP_ICON.svg</file>
         <file>svg/WINDOWS_MINIMIZE_ICON.svg</file>
         <file>svg/background/FLAG_GRADIENT.svg</file>
-        <file>svg/login/BACK_ARROW.svg</file>
         <file>svg/login/BADGE_ICON.svg</file>
         <file>svg/login/CONFIG_ICON.svg</file>
         <file>svg/login/DISABLED_LOGIN_ICON.svg</file>
@@ -121,77 +117,92 @@
         <file>svg/login/SETTINGS_ICON.svg</file>
         <file>svg/login/SPINNER.svg</file>
         <file>svg/login/ENABLED_LOGIN_ICON.svg</file>
-        <file>svg/frame-shadows/BOTTOM_FRAME_BG_MACOS.svg</file>
-        <file>svg/frame-shadows/BOTTOM_FRAME_BG_WINDOWS.svg</file>
-        <file>svg/frame-shadows/LOCATION_BUTTON_BG_MACOS.svg</file>
-        <file>svg/frame-shadows/LOCATION_BUTTON_BG_WINDOWS.svg</file>
-        <file>svg/frame-shadows/LOCATION_FOOTER_MACOS.svg</file>
-        <file>svg/frame-shadows/LOCATION_FOOTER_WINDOWS.svg</file>
-        <file>svg/frame-shadows/macos-location-shadow-deselected.svg</file>
-        <file>svg/frame-shadows/macos-location-shadow-selected.svg</file>
-        <file>svg/frame-shadows/macos-login-shadow-deselected.svg</file>
-        <file>svg/frame-shadows/macos-login-shadow-selected.svg</file>
-        <file>svg/frame-shadows/macos-main-shadow-deselected.svg</file>
-        <file>svg/frame-shadows/macos-main-shadow-selected.svg</file>
-        <file>svg/frame-shadows/TOP_FRAME_BG_MACOS.svg</file>
-        <file>svg/frame-shadows/TOP_FRAME_BG_WINDOWS.svg</file>
-        <file>svg/frame-shadows/windows-location-shadow-deselected.svg</file>
-        <file>svg/frame-shadows/windows-location-shadow-selected.svg</file>
-        <file>svg/frame-shadows/windows-login-shadow-deselected.svg</file>
-        <file>svg/frame-shadows/windows-login-shadow-selected.svg</file>
-        <file>svg/frame-shadows/windows-main-shadow-deselected.svg</file>
-        <file>svg/frame-shadows/windows-main-shadow-selected.svg</file>
         <file>svg/login/ERROR_LOGIN_ICON.svg</file>
-        <file>svg/login/BADGE_SMALL_ICON.svg</file>
-        <file>svg/macos-windowbuttons/CLOSE_DEFAULT.svg</file>
-        <file>svg/macos-windowbuttons/CLOSE_HOVER.svg</file>
-        <file>svg/macos-windowbuttons/EMPTY_DEFAULT.svg</file>
-        <file>svg/macos-windowbuttons/MAXIMIZE_DEFAULT.svg</file>
-        <file>svg/macos-windowbuttons/MAXIMIZE_HOVER.svg</file>
-        <file>svg/macos-windowbuttons/MINIMIZE_DEFAULT.svg</file>
-        <file>svg/macos-windowbuttons/MINIMIZE_HOVER.svg</file>
-        <file>svg/macos-windowbuttons/RESIZE_HOVER.svg</file>
         <file>svg/login/EMERGENCY_ICON_ENABLED.svg</file>
         <file>svg/login/EMERGENCY_ICON_DISABLED.svg</file>
         <file>svg/emergencyconnect/EMERGENCY_CONNECT_ICON.svg</file>
         <file>svg/emergencyconnect/BIG_SPINNER.svg</file>
-        <file>svg/emergencyconnect/ESC_BUTTON.svg</file>
         <file>svg/MAC_CLOSE_DEFAULT.svg</file>
         <file>svg/MAC_CLOSE_HOVER.svg</file>
         <file>svg/MAC_EMPTY_DEFAULT.svg</file>
-        <file>svg/MAC_MAXIMIZE_HOVER.svg</file>
-        <file>svg/MAC_MAXMIZE_DEFAULT.svg</file>
         <file>svg/MAC_MINIMIZE_DEFAULT.svg</file>
         <file>svg/MAC_MINIMIZE_HOVER.svg</file>
-        <file>svg/MAC_RESIZE_HOVER.svg</file>
+        <file>svg/preferences/ABOUT_ICON.svg</file>
         <file>svg/preferences/ACCOUNT_ICON.svg</file>
+        <file>svg/preferences/ADVANCED_ICON.svg</file>
+        <file>svg/preferences/ADS.svg</file>
+        <file>svg/preferences/ALLOW_LAN_TRAFFIC.svg</file>
+        <file>svg/preferences/API_RESOLUTION.svg</file>
+        <file>svg/preferences/APP_BACKGROUND.svg</file>
+        <file>svg/preferences/APP_SKIN.svg</file>
+        <file>svg/preferences/AUTOCONNECT.svg</file>
+        <file>svg/preferences/AUTODETECT_ICON.svg</file>
+        <file>svg/preferences/AUTOSECURE.svg</file>
+        <file>svg/preferences/AUTOSECURE_NETWORKS.svg</file>
+        <file>svg/preferences/CLEAR_ICON.svg</file>
+        <file>svg/preferences/CLOSE_ICON.svg</file>
+        <file>svg/preferences/CNTXT_MENU_ICON.svg</file>
+        <file>svg/preferences/COMMUNITY_SUPPORT.svg</file>
+        <file>svg/preferences/CONFIRM_ICON.svg</file>
+        <file>svg/preferences/CONNECTED_DNS.svg</file>
         <file>svg/preferences/CONNECTION_ICON.svg</file>
-        <file>svg/preferences/DEBUG_ICON.svg</file>
+        <file>svg/preferences/CONNECTION_MODE.svg</file>
+        <file>svg/preferences/COPY_ICON.svg</file>
+        <file>svg/preferences/CRYPTO.svg</file>
+        <file>svg/preferences/DNS_MANAGER.svg</file>
+        <file>svg/preferences/DELETE_ICON.svg</file>
+        <file>svg/preferences/DOCKED.svg</file>
+        <file>svg/preferences/EDIT_ICON.svg</file>
+        <file>svg/preferences/ERROR.svg</file>
+        <file>svg/preferences/EXTERNAL_LINK_ICON.svg</file>
+        <file>svg/preferences/FAKE_NEWS.svg</file>
+        <file>svg/preferences/FIREWALL_MODE.svg</file>
+        <file>svg/preferences/FRWRD_ARROW_WHITE_ICON.svg</file>
+        <file>svg/preferences/GAMBLING.svg</file>
         <file>svg/preferences/GENERAL_ICON.svg</file>
         <file>svg/preferences/HELP_ICON.svg</file>
-        <file>svg/preferences/QUIT_ICON.svg</file>
-        <file>svg/preferences/SHARING_ICON.svg</file>
-        <file>svg/preferences/SIGN_OUT_ICON.svg</file>
-        <file>svg/preferences/GREEN_TOGGLE_BG.svg</file>
-        <file>svg/preferences/TOGGLE_BUTTON_BLACK.svg</file>
-        <file>svg/preferences/WHITE_TOGGLE_BG.svg</file>
-        <file>svg/preferences/ESC_BUTTON.svg</file>
-        <file>svg/preferences/CNTXT_MENU_ICON.svg</file>
-        <file>svg/newsfeed/LEFT_ARROW.svg</file>
-        <file>svg/newsfeed/RIGHT_ARROW.svg</file>
+        <file>svg/preferences/HIDE_FROM_DOCK.svg</file>
+        <file>svg/preferences/IGNORE_SSL_ERRORS.svg</file>
+        <file>svg/preferences/INFO_ICON.svg</file>
+        <file>svg/preferences/INFO_WHITE_ICON.svg</file>
         <file>svg/preferences/INFO_YELLOW_ICON.svg</file>
-        <file>svg/preferences/EXTERNAL_LINK_ICON.svg</file>
-        <file>svg/preferences/EDIT_ICON.svg</file>
-        <file>svg/preferences/CONFIRM_ICON.svg</file>
+        <file>svg/preferences/INTERNAL_DNS.svg</file>
+        <file>svg/preferences/IPV6.svg</file>
+        <file>svg/preferences/KEEPALIVE.svg</file>
+        <file>svg/preferences/KNOWLEDGE_BASE.svg</file>
+        <file>svg/preferences/LANGUAGE.svg</file>
+        <file>svg/preferences/LATENCY_DISPLAY.svg</file>
+        <file>svg/preferences/LAUNCH_AT_STARTUP.svg</file>
+        <file>svg/preferences/LOCATION_LOAD.svg</file>
+        <file>svg/preferences/LOCATION_ORDER.svg</file>
+        <file>svg/preferences/MAC_SPOOFING.svg</file>
+        <file>svg/preferences/MAGNIFYING_GLASS.svg</file>
+        <file>svg/preferences/MALWARE.svg</file>
+        <file>svg/preferences/MINIMIZE_AND_CLOSE_TO_TRAY.svg</file>
+        <file>svg/preferences/OTHER_VPNS.svg</file>
+        <file>svg/preferences/PACKET_SIZE.svg</file>
+        <file>svg/preferences/PORN.svg</file>
+        <file>svg/preferences/PREFERRED_PROTOCOL.svg</file>
+        <file>svg/preferences/PROXY.svg</file>
+        <file>svg/preferences/PROXY_GATEWAY.svg</file>
+        <file>svg/preferences/QUIT_ICON.svg</file>
+        <file>svg/preferences/ROBERT_ICON.svg</file>
+        <file>svg/preferences/SECURE_HOTSPOT.svg</file>
+        <file>svg/preferences/SEND_LOG.svg</file>
+        <file>svg/preferences/SEND_TICKET.svg</file>
+        <file>svg/preferences/SHOW_NOTIFICATIONS.svg</file>
+        <file>svg/preferences/SIGN_OUT_ICON.svg</file>
+        <file>svg/preferences/SOCIAL_NETWORKS.svg</file>
+        <file>svg/preferences/SPLIT_TUNNELING.svg</file>
+        <file>svg/preferences/START_MINIMIZED.svg</file>
+        <file>svg/preferences/TAP_DRIVER.svg</file>
+        <file>svg/preferences/TALK_TO_GARRY.svg</file>
+        <file>svg/preferences/TERMINATE_SOCKETS.svg</file>
         <file>svg/preferences/UNDO_ICON.svg</file>
-        <file>svg/preferences/COPY_ICON.svg</file>
-        <file>svg/preferences/VIEW_LOG_ICON.svg</file>
-        <file>svg/preferences/SEND_LOG_ICON.svg</file>
-        <file>svg/preferences/DELETE_ICON.svg</file>
-        <file>svg/preferences/FRWRD_ARROW_WHITE_ICON.svg</file>
-        <file>svg/preferences/AUTODETECT_ICON.svg</file>
-        <file>svg/update/LOCATION_BUTTON_BG.svg</file>
-        <file>svg/update/TOP_LEFT_HEADER_BG.svg</file>
+        <file>svg/preferences/UNKNOWN_FILTER.svg</file>
+        <file>svg/preferences/UPDATE_CHANNEL.svg</file>
+        <file>svg/preferences/VIEW_LOG.svg</file>
+        <file>svg/preferences/WHITE_QUESTION_MARK_ICON.svg</file>
         <file>svg/update/UPDATING_SPINNER.svg</file>
         <file>svg/update/INFO_ICON.svg</file>
         <file>svg/preferences/REFRESH_ICON.svg</file>
@@ -204,7 +215,6 @@
         <file>svg/DATA_FULL_ICON.svg</file>
         <file>svg/DATA_LOW_ICON.svg</file>
         <file>svg/DATA_OVER_ICON.svg</file>
-        <file>svg/update/WINDOWS_MAIN.svg</file>
         <file>svg/background/MAC_MAIN_BG.svg</file>
         <file>svg/INFO_ICON.svg</file>
         <file>svg/ARROW_DOWN_WHITE.svg</file>
@@ -223,15 +233,23 @@
         <file>svg/background/WIN_MAIN_BG.svg</file>
         <file>svg/background/WIN_MASK_TOP_GRADIENT_CONNECTED.svg</file>
         <file>svg/background/WIN_TOP_GRADIENT_BG_CONNECTED.svg</file>
+        <file>svg/background/WIN_TOP_GRADIENT_BG_CONNECTED_VAN_GOGH.svg</file>
         <file>svg/background/WIN_TOP_GRADIENT_BG_CONNECTING.svg</file>
+        <file>svg/background/WIN_TOP_GRADIENT_BG_CONNECTING_VAN_GOGH.svg</file>
         <file>svg/background/WIN_TOP_GRADIENT_BG_CONNECTED_CUSTOM.svg</file>
+        <file>svg/background/WIN_TOP_GRADIENT_BG_CONNECTED_CUSTOM_VAN_GOGH.svg</file>
         <file>svg/background/WIN_TOP_GRADIENT_BG_CONNECTING_CUSTOM.svg</file>
+        <file>svg/background/WIN_TOP_GRADIENT_BG_CONNECTING_CUSTOM_VAN_GOGH.svg</file>
         <file>svg/background/MAC_LOCATION_BUTTON_BG_BRIGHT.svg</file>
         <file>svg/background/MAC_LOCATION_BUTTON_BG_DARK.svg</file>
         <file>svg/background/MAC_TOP_GRADIENT_BG_CONNECTED.svg</file>
+        <file>svg/background/MAC_TOP_GRADIENT_BG_CONNECTED_VAN_GOGH.svg</file>
         <file>svg/background/MAC_TOP_GRADIENT_BG_CONNECTING.svg</file>
+        <file>svg/background/MAC_TOP_GRADIENT_BG_CONNECTING_VAN_GOGH.svg</file>
         <file>svg/background/MAC_TOP_GRADIENT_BG_CONNECTED_CUSTOM.svg</file>
+        <file>svg/background/MAC_TOP_GRADIENT_BG_CONNECTED_CUSTOM_VAN_GOGH.svg</file>
         <file>svg/background/MAC_TOP_GRADIENT_BG_CONNECTING_CUSTOM.svg</file>
+        <file>svg/background/MAC_TOP_GRADIENT_BG_CONNECTING_CUSTOM_VAN_GOGH.svg</file>
         <file>svg/background/WIN_HEADER_BG_CONNECTED.svg</file>
         <file>svg/background/WIN_HEADER_BG_DISCONNECTED.svg</file>
         <file>svg/background/MAC_HEADER_BG_CONNECTED.svg</file>
@@ -244,29 +262,17 @@
         <file>svg/RATE_SPEED_BAD_ON.svg</file>
         <file>svg/RATE_SPEED_GOOD_OFF.svg</file>
         <file>svg/RATE_SPEED_GOOD_ON.svg</file>
-        <file>svg/locations/ADD_ICON.svg</file>
         <file>svg/BADGE_BLACK_ICON.svg</file>
         <file>svg/SHUTDOWN_ICON.svg</file>
         <file>svg/RENEW_PRO_ICON.svg</file>
         <file>svg/locations/UNDER_CONSTRUCTION_ICON.svg</file>
         <file>svg/flags/cy.svg</file>
         <file>svg/flags/aq.svg</file>
-        <file>svg/preferences/CLEAR_ICON.svg</file>
-        <file>svg/preferences/CLOSE_ICON.svg</file>
-        <file>svg/preferences/WHITE_QUESTION_MARK_ICON.svg</file>
-        <file>svg/preferences/GREEN_CHECKMARK_ICON.svg</file>
-        <file>svg/preferences/WHITE_CHECKMARK_ICON.svg</file>
         <file>svg/flags/mk.svg</file>
         <file>svg/flags/ge.svg</file>
         <file>svg/locations/BROKEN_HEART_ICON.svg</file>
-        <file>svg/SPLIT_TUNNELING_CONNECTED.svg</file>
-        <file>svg/SPLIT_TUNNELING_CONNECTING.svg</file>
-        <file>svg/SPLIT_TUNNELING_DISCONNECTED.svg</file>
-        <file>svg/PROTOCOL_IKEV2.svg</file>
-        <file>svg/PROTOCOL_STEALTH.svg</file>
-        <file>svg/PROTOCOL_TCP.svg</file>
-        <file>svg/PROTOCOL_UDP.svg</file>
-        <file>svg/PROTOCOL_WSTUNNEL.svg</file>
+        <file>svg/PROTOCOL_ARROW.svg</file>
+        <file>svg/CHANGE_PROTOCOL.svg</file>
         <file>svg/flags/noflag.svg</file>
         <file>svg/flags/pa.svg</file>
         <file>svg/flags/pe.svg</file>
@@ -294,7 +300,6 @@
         <file>svg/ring/CONNECTING_SHADOW.svg</file>
         <file>svg/ring/NO_INTERNET.svg</file>
         <file>svg/locations/PRO_CITY_STAR.svg</file>
-        <file>svg/locations/PRO_REGION_STAR_DARK.svg</file>
         <file>svg/locations/PRO_REGION_STAR_LIGHT.svg</file>
         <file>svg/login/TWOFA_ICON.svg</file>
         <file>svg/locations/ERROR_ICON.svg</file>

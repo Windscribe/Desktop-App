@@ -1,48 +1,12 @@
-#ifndef NETWORKACCESSMANAGER_H
-#define NETWORKACCESSMANAGER_H
+#pragma once
 
 #include <QObject>
 #include <QUrl>
-#include "engine/proxy/proxysettings.h"
-#include "curlnetworkmanager2.h"
-#include "dnscache2.h"
-
-class NetworkAccessManager;
-
-class NetworkReply : public QObject
-{
-    Q_OBJECT
-
-    enum NetworkError { NoError, TimeoutExceed, DnsResolveError, CurlError };
-
-public:
-    explicit NetworkReply(NetworkAccessManager *parent);
-    virtual ~NetworkReply();
-
-    void abort();
-    QByteArray readAll();
-    NetworkError error() const;
-    bool isSuccess() const;
-
-signals:
-    void finished();
-    void progress(qint64 bytesReceived, qint64 bytesTotal);
-    void readyRead();
-
-private:
-    void setCurlReply(CurlReply *curlReply);
-    void abortCurl();
-    void checkForCurlError();
-
-    void setError(NetworkError err);
-
-    CurlReply *curlReply_;
-    NetworkAccessManager *manager_;
-    NetworkError error_;
-
-    friend class NetworkAccessManager;
-};
-
+#include <QElapsedTimer>
+#include "curlnetworkmanager.h"
+#include "dnscache.h"
+#include "networkreply.h"
+#include "whitelistipsmanager.h"
 
 // Some simplified implementation of the QNetworkAccessManager class for our needs based on curl and cares(DnsRequest).
 // In particular, it has the functionality to whitelist IP addresses to firewall exceptions.
@@ -60,6 +24,10 @@ public:
     NetworkReply *deleteResource(const NetworkRequest &request);
 
     void abort(NetworkReply *reply);
+
+    void setProxySettings(const types::ProxySettings &proxySettings);
+    void enableProxy();
+    void disableProxy();
 
 signals:
     // need for add exception rules to firewall
@@ -86,16 +54,17 @@ private:
         NetworkRequest request;
         NetworkReply *reply;
         QByteArray data;
+        QElapsedTimer elapsedTimer_;
     };
 
-    QMap<quint64, QSharedPointer<RequestData> > activeRequests_;
-    CurlNetworkManager2 *curlNetworkManager_;
-    DnsCache2 *dnsCache_;
+    QHash<quint64, QSharedPointer<RequestData> > activeRequests_;
+    CurlNetworkManager *curlNetworkManager_;
+    DnsCache *dnsCache_;
+    WhitelistIpsManager *whitelistIpsManager_;
+    types::ProxySettings proxySettings_;
+    bool isProxyEnabled_ = true;
 
-    quint64 getNextId();
-
+    types::ProxySettings currentProxySettings() const;
     NetworkReply *invokeHandleRequest(REQUEST_TYPE type, const NetworkRequest &request, const QByteArray &data);
 };
 
-
-#endif // NETWORKACCESSMANAGER_H

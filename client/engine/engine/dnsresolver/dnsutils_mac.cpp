@@ -34,8 +34,6 @@ std::vector<std::wstring> getOSDefaultDnsServers()
         }
     }
 
-    qCDebug(LOG_FIREWALL_CONTROLLER) << "Get OS default DNS list:" << ips;
-
     for (const QString &s : qAsConst(ips))
     {
         dnsServers.push_back(s.toStdWString());

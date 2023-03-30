@@ -3,11 +3,10 @@
 #include <QRegularExpression>
 #include "../networkdetectionmanager/reachabilityevents.h"
 #include "utils/network_utils/network_utils_mac.h"
-#include "utils/macutils.h"
 #include "utils/utils.h"
 #include "utils/logger.h"
 
-const int typeIdNetworkInterface = qRegisterMetaType<ProtoTypes::NetworkInterface>("ProtoTypes::NetworkInterface");
+const int typeIdNetworkInterface = qRegisterMetaType<types::NetworkInterface>("types::NetworkInterface");
 
 NetworkDetectionManager_mac::NetworkDetectionManager_mac(QObject *parent, IHelper *helper) : INetworkDetectionManager (parent)
     , helper_(helper)
@@ -39,38 +38,38 @@ void NetworkDetectionManager_mac::onNetworkStateChanged()
         emit onlineStateChanged(curIsOnlineState);
     }
 
-    const ProtoTypes::NetworkInterfaces &networkList = NetworkUtils_mac::currentNetworkInterfaces(true);
-    const ProtoTypes::NetworkInterface &networkInterface = currentNetworkInterfaceFromNetworkList(networkList);
+    const QVector<types::NetworkInterface> &networkList = NetworkUtils_mac::currentNetworkInterfaces(true);
+    const types::NetworkInterface &networkInterface = currentNetworkInterfaceFromNetworkList(networkList);
     bool wifiAdapterUp = isWifiAdapterUp(networkList);
 
-    if (!google::protobuf::util::MessageDifferencer::Equals(networkInterface, lastNetworkInterface_))
+    if (networkInterface != lastNetworkInterface_)
     {
-        if (networkInterface.interface_name() != lastNetworkInterface_.interface_name())
+        if (networkInterface.interfaceName != lastNetworkInterface_.interfaceName)
         {
-            if (networkInterface.interface_index() == -1)
+            if (networkInterface.interfaceIndex == -1)
             {
-                qCDebug(LOG_BASIC) << "Primary Adapter down: " << QString::fromStdString(lastNetworkInterface_.interface_name());
+                qCDebug(LOG_BASIC) << "Primary Adapter down: " << lastNetworkInterface_.interfaceName;
                 emit primaryAdapterDown(lastNetworkInterface_);
             }
-            else if (lastNetworkInterface_.interface_index() == -1)
+            else if (lastNetworkInterface_.interfaceIndex == -1)
             {
-                qCDebug(LOG_BASIC) << "Primary Adapter up: " << QString::fromStdString(networkInterface.interface_name());
+                qCDebug(LOG_BASIC) << "Primary Adapter up: " << networkInterface.interfaceName;
                 emit primaryAdapterUp(networkInterface);
             }
             else
             {
-                qCDebug(LOG_BASIC) << "Primary Adapter changed: " << QString::fromStdString(networkInterface.interface_name());
+                qCDebug(LOG_BASIC) << "Primary Adapter changed: " << networkInterface.interfaceName;
                 emit primaryAdapterChanged(networkInterface);
             }
         }
-        else if (networkInterface.network_or_ssid() != lastNetworkInterface_.network_or_ssid())
+        else if (networkInterface.networkOrSsid != lastNetworkInterface_.networkOrSsid)
         {
             qCDebug(LOG_BASIC) << "Primary Network Changed: "
-                               << QString::fromStdString(networkInterface.interface_name())
-                               << " : " << QString::fromStdString(networkInterface.network_or_ssid());
+                               << networkInterface.interfaceName
+                               << " : " << networkInterface.networkOrSsid;
 
             // if network change or adapter down (no comeup)
-            if (lastNetworkInterface_.network_or_ssid() != "")
+            if (lastNetworkInterface_.networkOrSsid != "")
             {
                 qCDebug(LOG_BASIC) << "Primary Adapter Network changed or lost";
                 emit primaryAdapterNetworkLostOrChanged(networkInterface);
@@ -87,14 +86,14 @@ void NetworkDetectionManager_mac::onNetworkStateChanged()
     }
     else if (wifiAdapterUp != lastWifiAdapterUp_)
     {
-        if (NetworkUtils_mac::isWifiAdapter(QString::fromStdString(networkInterface.interface_name()))
-                || NetworkUtils_mac::isWifiAdapter(QString::fromStdString(lastNetworkInterface_.interface_name())))
+        if (NetworkUtils_mac::isWifiAdapter(networkInterface.interfaceName)
+                || NetworkUtils_mac::isWifiAdapter(lastNetworkInterface_.interfaceName))
         {
             qCDebug(LOG_BASIC) << "Wifi adapter (primary) up state changed: " << wifiAdapterUp;
             emit wifiAdapterChanged(wifiAdapterUp);
         }
     }
-    else if (!google::protobuf::util::MessageDifferencer::Equals(networkList, lastNetworkList_))
+    else if (networkList != lastNetworkList_)
     {
         qCDebug(LOG_BASIC) << "Network list changed";
         emit networkListChanged(networkList);
@@ -104,11 +103,11 @@ void NetworkDetectionManager_mac::onNetworkStateChanged()
     lastWifiAdapterUp_ = wifiAdapterUp;
 }
 
-bool NetworkDetectionManager_mac::isWifiAdapterUp(const ProtoTypes::NetworkInterfaces &networkList)
+bool NetworkDetectionManager_mac::isWifiAdapterUp(const QVector<types::NetworkInterface> &networkList)
 {
-    for (int i = 0; i < networkList.networks_size(); ++i)
+    for (int i = 0; i < networkList.size(); ++i)
     {
-        if (networkList.networks(i).interface_type() == ProtoTypes::NETWORK_INTERFACE_WIFI)
+        if (networkList[i].interfaceType == NETWORK_INTERFACE_WIFI)
         {
             return true;
         }
@@ -116,14 +115,14 @@ bool NetworkDetectionManager_mac::isWifiAdapterUp(const ProtoTypes::NetworkInter
     return false;
 }
 
-const ProtoTypes::NetworkInterface NetworkDetectionManager_mac::currentNetworkInterfaceFromNetworkList(const ProtoTypes::NetworkInterfaces &networkList)
+const types::NetworkInterface NetworkDetectionManager_mac::currentNetworkInterfaceFromNetworkList(const QVector<types::NetworkInterface> &networkList)
 {
     // we assume that the first non-empty adapter is a current network interface
-    for (int i = 0; i < networkList.networks_size(); ++i)
+    for (int i = 0; i < networkList.size(); ++i)
     {
-        if (networkList.networks(i).interface_index() != -1)
+        if (networkList[i].interfaceIndex != -1)
         {
-            return networkList.networks(i);
+            return networkList[i];
         }
     }
 
@@ -138,7 +137,7 @@ bool NetworkDetectionManager_mac::isOnlineImpl()
 }
 
 
-void NetworkDetectionManager_mac::getCurrentNetworkInterface(ProtoTypes::NetworkInterface &networkInterface)
+void NetworkDetectionManager_mac::getCurrentNetworkInterface(types::NetworkInterface &networkInterface)
 {
     networkInterface = lastNetworkInterface_;
 }

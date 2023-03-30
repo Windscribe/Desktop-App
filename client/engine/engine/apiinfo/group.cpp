@@ -1,5 +1,6 @@
 #include "group.h"
 #include <QJsonArray>
+#include "utils/ws_assert.h"
 
 namespace apiinfo {
 
@@ -73,49 +74,55 @@ bool Group::initFromJson(QJsonObject &obj, QStringList &forceDisconnectNodes)
     return true;
 }
 
-void Group::initFromProtoBuf(const ProtoApiInfo::Group &g)
+bool Group::operator==(const Group &other) const
 {
-    d->id_ = g.id();
-    d->city_ = QString::fromStdString(g.city());
-    d->nick_ = QString::fromStdString(g.nick());
-    d->pro_ = g.pro();
-    d->pingIp_ = QString::fromStdString(g.ping_ip());
-    d->wg_pubkey_ = QString::fromStdString(g.wg_pubkey());
-    d->dnsHostName_ = QString::fromStdString(g.dns_hostname());
-    d->ovpn_x509_ = QString::fromStdString(g.ovpn_x509());
-    d->link_speed_ = g.link_speed();
-    d->health_ = g.health();
-
-    for (int i = 0; i < g.nodes_size(); ++i)
-    {
-        Node node;
-        node.initFromProtoBuf(g.nodes(i));
-        d->nodes_ << node;
-    }
-
-    d->isValid_ = true;
+    return d->id_ == other.d->id_ &&
+           d->city_ == other.d->city_ &&
+           d->nick_ == other.d->nick_ &&
+           d->pro_ == other.d->pro_ &&
+           d->pingIp_ == other.d->pingIp_ &&
+           d->wg_pubkey_ == other.d->wg_pubkey_ &&
+           d->ovpn_x509_ == other.d->ovpn_x509_ &&
+           d->link_speed_ == other.d->link_speed_ &&
+           d->health_ == other.d->health_ &&
+           d->dnsHostName_ == other.d->dnsHostName_ &&
+           d->nodes_ == other.d->nodes_ &&
+            d->isValid_ == other.d->isValid_;
 }
 
-ProtoApiInfo::Group Group::getProtoBuf() const
+bool Group::operator!=(const Group &other) const
 {
-    Q_ASSERT(d->isValid_);
-
-    ProtoApiInfo::Group group;
-    group.set_id(d->id_);
-    group.set_city(d->city_.toStdString());
-    group.set_nick(d->nick_.toStdString());
-    group.set_pro(d->pro_);
-    group.set_ping_ip(d->pingIp_.toStdString());
-    group.set_wg_pubkey(d->wg_pubkey_.toStdString());
-    group.set_dns_hostname(d->dnsHostName_.toStdString());
-    group.set_ovpn_x509(d->ovpn_x509_.toStdString());
-    group.set_link_speed(d->link_speed_);
-    group.set_health(d->health_);
-    for (const Node &node : d->nodes_)
-    {
-        *group.add_nodes() = node.getProtoBuf();
-    }
-    return group;
+    return !operator==(other);
 }
+
+QDataStream& operator <<(QDataStream& stream, const Group& g)
+{
+    WS_ASSERT(g.d->isValid_);
+    stream << g.versionForSerialization_;
+    stream << g.d->id_ << g.d->city_ << g.d->nick_ << g.d->pro_ << g.d->pingIp_ << g.d->wg_pubkey_ << g.d->ovpn_x509_ << g.d->link_speed_ <<
+              g.d->health_ << g.d->dnsHostName_ << g.d->nodes_;
+
+    return stream;
+}
+
+QDataStream& operator >>(QDataStream& stream, Group& g)
+{
+    quint32 version;
+    stream >> version;
+    if (version > g.versionForSerialization_)
+    {
+        stream.setStatus(QDataStream::ReadCorruptData);
+        g.d->isValid_ = false;
+        return stream;
+    }
+
+    stream >> g.d->id_ >> g.d->city_ >> g.d->nick_ >> g.d->pro_ >> g.d->pingIp_ >> g.d->wg_pubkey_ >> g.d->ovpn_x509_ >> g.d->link_speed_ >>
+              g.d->health_ >> g.d->dnsHostName_ >> g.d->nodes_;
+
+    g.d->isValid_ = true;
+
+    return stream;
+}
+
 
 } // namespace apiinfo

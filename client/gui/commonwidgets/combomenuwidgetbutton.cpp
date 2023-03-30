@@ -43,7 +43,7 @@ int ComboMenuWidgetButton::heightUnscaled()
     return heightUnscaled_;
 }
 
-void ComboMenuWidgetButton::enterEvent(QEvent *e)
+void ComboMenuWidgetButton::enterEvent(QEnterEvent *e)
 {
     emit hoverEnter();
 

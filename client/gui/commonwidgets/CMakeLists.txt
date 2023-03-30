@@ -1,0 +1,24 @@
+target_sources(gui PRIVATE
+    combomenuwidget.cpp
+    combomenuwidget.h
+    combomenuwidgetbutton.cpp
+    combomenuwidgetbutton.h
+    custommenulineedit.cpp
+    custommenulineedit.h
+    custommenuwidget.cpp
+    custommenuwidget.h
+    customtexteditwidget.cpp
+    customtexteditwidget.h
+    iconbuttonwidget.cpp
+    iconbuttonwidget.h
+    iconwidget.cpp
+    iconwidget.h
+    lightwidget.cpp
+    lightwidget.h
+    textbuttonwidget.cpp
+    textbuttonwidget.h
+    verticalscrollbarwidget.cpp
+    verticalscrollbarwidget.h
+    scrollbar.cpp
+    scrollbar.h
+)

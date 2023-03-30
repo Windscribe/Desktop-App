@@ -10,10 +10,11 @@ class ILoginWindow
 public:
 
     enum ERROR_MESSAGE_TYPE { ERR_MSG_EMPTY, ERR_MSG_NO_INTERNET_CONNECTIVITY, ERR_MSG_NO_API_CONNECTIVITY,
-                             ERR_MSG_PROXY_REQUIRES_AUTH, ERR_MSG_INVALID_API_RESPONCE,
-                             ERR_MSG_INVALID_API_ENDPOINT, ERR_MSG_INCORRECT_LOGIN1,
-                             ERR_MSG_INCORRECT_LOGIN2, ERR_MSG_INCORRECT_LOGIN3,
-                             ERR_MSG_SESSION_EXPIRED, ERR_MSG_ACCOUNT_DISABLED };
+                              ERR_MSG_PROXY_REQUIRES_AUTH, ERR_MSG_INVALID_API_RESPONSE,
+                              ERR_MSG_INVALID_API_ENDPOINT, ERR_MSG_INCORRECT_LOGIN1,
+                              ERR_MSG_INCORRECT_LOGIN2, ERR_MSG_INCORRECT_LOGIN3,
+                              ERR_MSG_SESSION_EXPIRED, ERR_MSG_ACCOUNT_DISABLED, ERR_MSG_RATE_LIMITED,
+                              ERR_MSG_USERNAME_IS_EMAIL };
 
     virtual ~ILoginWindow() {}
     virtual QGraphicsObject *getGraphicsObject() = 0;

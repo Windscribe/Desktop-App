@@ -1,0 +1,2 @@
+add_subdirectory(serverapi_test)
+add_subdirectory(requestexecutorviafailover_test)

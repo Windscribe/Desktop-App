@@ -13,17 +13,17 @@ public:
     MacAddressController_mac(QObject *parent, NetworkDetectionManager_mac *ndManager, IHelper *helper);
     ~MacAddressController_mac() override;
 
-    void initMacAddrSpoofing(const ProtoTypes::MacAddrSpoofing &macAddrSpoofing) override;
-    void setMacAddrSpoofing(const ProtoTypes::MacAddrSpoofing &macAddrSpoofing) override;
+    void initMacAddrSpoofing(const types::MacAddrSpoofing &macAddrSpoofing) override;
+    void setMacAddrSpoofing(const types::MacAddrSpoofing &macAddrSpoofing) override;
 
     void updateNetworkList();
 
 private slots:
-    void onPrimaryAdapterUp(const ProtoTypes::NetworkInterface &currentAdapter);
-    void onPrimaryAdapterDown(const ProtoTypes::NetworkInterface &lastAdapter);
-    void onPrimaryAdapterChanged(const ProtoTypes::NetworkInterface &currentAdapter);
-    void onPrimaryAdapterNetworkLostOrChanged(const ProtoTypes::NetworkInterface &currentAdapter);
-    void onNetworkListChanged(const ProtoTypes::NetworkInterfaces &adapterList);
+    void onPrimaryAdapterUp(const types::NetworkInterface &currentAdapter);
+    void onPrimaryAdapterDown(const types::NetworkInterface &lastAdapter);
+    void onPrimaryAdapterChanged(const types::NetworkInterface &currentAdapter);
+    void onPrimaryAdapterNetworkLostOrChanged(const types::NetworkInterface &currentAdapter);
+    void onNetworkListChanged(const QVector<types::NetworkInterface> &adapterList);
     void onWifiAdapterChaged(bool adapterUp);
 
 private:
@@ -33,12 +33,12 @@ private:
     int lastSpoofIndex_;
     QDateTime lastSpoofTime_;
     QList<QString> networksBeingUpdated_; // used to ignore network changes during an adapter reset
-    ProtoTypes::MacAddrSpoofing macAddrSpoofing_;
+    types::MacAddrSpoofing macAddrSpoofing_;
     NetworkDetectionManager_mac *networkDetectionManager_;
 
     bool doneFilteringNetworkEvents();
     void autoRotateUpdateMacSpoof();
-    ProtoTypes::MacAddrSpoofing macAddrSpoofingWithUpdatedNetworkList();
+    types::MacAddrSpoofing macAddrSpoofingWithUpdatedNetworkList();
     void applyMacAddressSpoof(const QString &interfaceName, const QString &macAddress);
     void removeMacAddressSpoof(const QString &interfaceName);
 

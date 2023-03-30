@@ -1,14 +1,13 @@
 #include "pinghost_icmp_mac.h"
+
 #include "utils/ipvalidation.h"
-#include "utils/utils.h"
 #include "utils/logger.h"
-#include "icmp_header.h"
-#include "ipv4_header.h"
+#include "utils/ws_assert.h"
 
-PingHost_ICMP_mac::PingHost_ICMP_mac(QObject *parent, IConnectStateController *stateController) : QObject(parent),
-    connectStateController_(stateController)
+PingHost_ICMP_mac::PingHost_ICMP_mac(QObject *parent, IConnectStateController *stateController)
+    : QObject(parent),
+      connectStateController_(stateController)
 {
-
 }
 
 PingHost_ICMP_mac::~PingHost_ICMP_mac()
@@ -19,15 +18,15 @@ PingHost_ICMP_mac::~PingHost_ICMP_mac()
 void PingHost_ICMP_mac::addHostForPing(const QString &ip)
 {
     QMutexLocker locker(&mutex_);
-    if (!hostAlreadyPingingOrInWaitingQueue(ip))
-    {
+    if (!pingingHosts_.contains(ip) && !waitingPingsQueue_.contains(ip)) {
         waitingPingsQueue_.enqueue(ip);
         processNextPings();
     }
 }
 
 void PingHost_ICMP_mac::clearPings()
-{   
+{
+    QMutexLocker locker(&mutex_);
     for (QMap<QString, PingInfo *>::iterator it = pingingHosts_.begin(); it != pingingHosts_.end(); ++it)
     {
         it.value()->process->blockSignals(true);
@@ -41,7 +40,7 @@ void PingHost_ICMP_mac::clearPings()
     waitingPingsQueue_.clear();
 }
 
-void PingHost_ICMP_mac::setProxySettings(const ProxySettings &proxySettings)
+void PingHost_ICMP_mac::setProxySettings(const types::ProxySettings &proxySettings)
 {
     //todo
     Q_UNUSED(proxySettings);
@@ -80,7 +79,7 @@ void PingHost_ICMP_mac::onProcessFinished(int exitCode, QProcess::ExitStatus exi
                 else
                 {
                     qCDebug(LOG_PING) << "Something incorrect in ping utility output:" << line;
-                    Q_ASSERT(false);
+                    WS_ASSERT(false);
                 }
                 break;
             }
@@ -92,6 +91,8 @@ void PingHost_ICMP_mac::onProcessFinished(int exitCode, QProcess::ExitStatus exi
     }
 
     QString ip = process->property("ip").toString();
+
+    QMutexLocker locker(&mutex_);
     auto it = pingingHosts_.find(ip);
     if (it != pingingHosts_.end())
     {
@@ -113,19 +114,12 @@ void PingHost_ICMP_mac::onProcessFinished(int exitCode, QProcess::ExitStatus exi
     processNextPings();
 }
 
-
-bool PingHost_ICMP_mac::hostAlreadyPingingOrInWaitingQueue(const QString &ip)
-{
-    return pingingHosts_.find(ip) != pingingHosts_.end() || waitingPingsQueue_.indexOf(ip) != -1;
-}
-
 void PingHost_ICMP_mac::processNextPings()
 {
     if (pingingHosts_.count() < MAX_PARALLEL_PINGS && !waitingPingsQueue_.isEmpty())
     {
         QString ip = waitingPingsQueue_.dequeue();
-        Q_ASSERT(IpValidation::instance().isIp(ip));
-
+        WS_ASSERT(IpValidation::isIp(ip));
 
         PingInfo *pingInfo = new PingInfo();
         pingInfo->ip = ip;
@@ -133,12 +127,10 @@ void PingHost_ICMP_mac::processNextPings()
         pingInfo->process = new QProcess(this);
         connect(pingInfo->process, SIGNAL(finished(int,QProcess::ExitStatus)), SLOT(onProcessFinished(int,QProcess::ExitStatus)));
 
-        if (connectStateController_)
-        {
-            pingInfo->process->setProperty("fromDisconnectedState", connectStateController_->currentState() == CONNECT_STATE_DISCONNECTED || connectStateController_->currentState() == CONNECT_STATE_CONNECTING);
+        if (connectStateController_) {
+            pingInfo->process->setProperty("fromDisconnectedState", connectStateController_->currentState() == CONNECT_STATE_DISCONNECTED);
         }
-        else
-        {
+        else {
             pingInfo->process->setProperty("fromDisconnectedState", true);
         }
 

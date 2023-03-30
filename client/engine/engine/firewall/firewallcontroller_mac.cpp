@@ -1,106 +1,171 @@
 #include "firewallcontroller_mac.h"
 #include <QStandardPaths>
+#include "utils/ws_assert.h"
 #include "utils/logger.h"
+#include <ifaddrs.h>
 #include <QDir>
 #include <QCoreApplication>
 
+class Anchor
+{
+public:
+    Anchor(const QString &name) : name_(name) {}
+    void addRule(const QString &rule) {
+        rules_ << rule;
+    }
+
+    void addRules(const QStringList &rules) {
+        rules_ << rules;
+    }
+
+    QString getString() const {
+        if (rules_.isEmpty()) {
+            return "anchor " + name_ + " all";
+        } else {
+            QString str = "anchor " + name_ + " all {\n";
+            for (const auto &r : rules_) {
+                str += r + "\n";
+            }
+            str += "}";
+            return str;
+        }
+    }
+
+    QString generateConf() {
+        QString str;
+        for (const auto &r : rules_) {
+            str += r + "\n";
+        }
+        return str;
+    }
+
+private:
+    QString name_;
+    QStringList rules_;
+};
+
 FirewallController_mac::FirewallController_mac(QObject *parent, IHelper *helper) :
-    FirewallController(parent), forceUpdateInterfaceToSkip_(false)
+    FirewallController(parent), isFirewallEnabled_(false), isAllowLanTraffic_(false), isCustomConfig_(false)
 {
     helper_ = dynamic_cast<Helper_mac *>(helper);
+
+    FirewallState firewallState;
+    getFirewallStateFromPfctl(firewallState);
+
+    if (firewallState.isEnabled && !firewallState.isBasicWindscribeRulesCorrect) {
+        qCDebug(LOG_FIREWALL_CONTROLLER) << "Warning: the firewall was enabled at the start, but not by the Windscribe program.";
+        WS_ASSERT(false);
+        firewallOffImpl();
+        isFirewallEnabled_ = false;
+    } else if (firewallState.isEnabled && firewallState.isBasicWindscribeRulesCorrect) {
+        windscribeIps_ = firewallState.windscribeIps;
+        if (windscribeIps_.isEmpty())
+        {
+            qCDebug(LOG_FIREWALL_CONTROLLER) << "Warning: the firewall was enabled at the start, but windscribe_ips table not found or empty.";
+            WS_ASSERT(false);
+        }
+        interfaceToSkip_ = firewallState.interfaceToSkip;
+        isAllowLanTraffic_ = firewallState.isAllowLanTraffic;
+        isCustomConfig_ = firewallState.isCustomConfig;
+        isFirewallEnabled_ = true;
+    } else {
+        isFirewallEnabled_ = false;
+    }
 }
 
-FirewallController_mac::~FirewallController_mac()
-{
-
-}
-
-bool FirewallController_mac::firewallOn(const QString &ip, bool bAllowLanTraffic)
+bool FirewallController_mac::firewallOn(const QSet<QString> &ips, bool bAllowLanTraffic, bool bIsCustomConfig)
 {
     QMutexLocker locker(&mutex_);
-    FirewallController::firewallOn(ip, bAllowLanTraffic);
-    if (isStateChanged())
-    {
-        qCDebug(LOG_FIREWALL_CONTROLLER) << "firewall changed with ips count:" << countIps(ip);
-        return firewallOnImpl(ip, bAllowLanTraffic, latestStaticIpPorts_);
+
+    if (!checkInternalVsPfctlState()) {
+        qCDebug(LOG_FIREWALL_CONTROLLER) << "Fatal error: firewall internal state not equal firewall state from pfctl";
     }
-    else if (forceUpdateInterfaceToSkip_)
-    {
-        qCDebug(LOG_FIREWALL_CONTROLLER) << "firewall changed due to interface-to-skip update";
-        return firewallOnImpl(ip, bAllowLanTraffic, latestStaticIpPorts_);
+
+    if (!isFirewallEnabled_) {
+        QString pfConfig = generatePfConf(ips, bAllowLanTraffic, bIsCustomConfig, interfaceToSkip_);
+        if (!pfConfig.isEmpty()) {
+            helper_->setFirewallRules(kIpv4, "", "", pfConfig);
+            windscribeIps_ = ips;
+            isAllowLanTraffic_ = bAllowLanTraffic;
+            isCustomConfig_ = bIsCustomConfig;
+            isFirewallEnabled_ = true;
+        } else {
+            qCDebug(LOG_FIREWALL_CONTROLLER) << "Fatal error: can't set firewall rules";
+        }
+    } else {
+        if (bIsCustomConfig != isCustomConfig_) {
+            isCustomConfig_ = bIsCustomConfig;
+            updateVpnAnchor();
+        }
+
+        if (ips != windscribeIps_) {
+            QString table = generateTable(ips);
+            helper_->setFirewallRules(kIpv4, "windscribe_ips", "", table);
+            windscribeIps_ = ips;
+        }
+
+        if (bAllowLanTraffic != isAllowLanTraffic_) {
+            Anchor anchor("windscribe_lan_traffic");
+            anchor.addRules(lanTrafficRules(bAllowLanTraffic));
+
+            QString anchorConf = anchor.generateConf();
+            helper_->setFirewallRules(kIpv4, "", "windscribe_lan_traffic", anchorConf);
+            isAllowLanTraffic_ = bAllowLanTraffic;
+        }
     }
-    else
-    {
-        return true;
-    }
+
+    return true;
 }
 
 bool FirewallController_mac::firewallOff()
 {
     QMutexLocker locker(&mutex_);
-    FirewallController::firewallOff();
-    if (isStateChanged())
-    {
-        //restore settings
-        QString str = helper_->executeRootCommand("pfctl -v -f /etc/pf.conf");
-        qCDebug(LOG_FIREWALL_CONTROLLER) << "Output from pfctl -v -f /etc/pf.conf command: " << str;
-        str = helper_->executeRootCommand("pfctl -d");
-        qCDebug(LOG_FIREWALL_CONTROLLER) << "Output from disable firewall command: " << str;
 
-        // force delete the table "windscribe_ips"
-        str = helper_->executeRootCommand("pfctl -t windscribe_ips -T kill");
-
-        str = helper_->executeRootCommand("pfctl -si");
-        qCDebug(LOG_FIREWALL_CONTROLLER) << "Output from status firewall command: " << str;
-
-        qCDebug(LOG_FIREWALL_CONTROLLER) << "firewallOff disabled";
-
-        return true;
+    if (!checkInternalVsPfctlState()) {
+        qCDebug(LOG_FIREWALL_CONTROLLER) << "Fatal error: firewall internal state not equal firewall state from pfctl";
     }
-    else
-    {
-        return true;
-    }
+    firewallOffImpl();
+    isFirewallEnabled_ = false;
+    windscribeIps_.clear();
+    return true;
 }
 
 bool FirewallController_mac::firewallActualState()
 {
     QMutexLocker locker(&mutex_);
-    if (helper_->currentState() != IHelper::STATE_CONNECTED)
-    {
-        return false;
+
+    if (!checkInternalVsPfctlState()) {
+        qCDebug(LOG_FIREWALL_CONTROLLER) << "Fatal error: firewall internal state not equal firewall state from pfctl";
     }
 
-    // Additionally check the table "windscribe_ips", which will indicate that the firewall is enabled by our program.
-    QString tableReport = helper_->executeRootCommand("pfctl -t windscribe_ips -T show");
-    if (tableReport.isEmpty())
-    {
-        return false;
-    }
-
-    QString report = helper_->executeRootCommand("pfctl -si");
-    if (report.indexOf("Status: Enabled") != -1)
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    return isFirewallEnabled_;
 }
 
 bool FirewallController_mac::whitelistPorts(const apiinfo::StaticIpPortsVector &ports)
 {
     QMutexLocker locker(&mutex_);
-    FirewallController::whitelistPorts(ports);
-    if (isStateChanged() && latestEnabledState_)
-    {
-        return firewallOnImpl(latestIp_, latestAllowLanTraffic_, ports);
+    if (!checkInternalVsPfctlState()) {
+        qCDebug(LOG_FIREWALL_CONTROLLER) << "Fatal error: firewall internal state not equal firewall state from pfctl";
     }
-    else
-    {
-        return true;
+
+    if (isFirewallEnabled_) {
+        if (staticIpPorts_ != ports) {
+            Anchor portsAnchor("windscribe_static_ports_traffic");
+            if (!ports.isEmpty()) {
+                for (unsigned int port : ports) {
+                    portsAnchor.addRule("pass in quick proto tcp from any to any port = " + QString::number(port));
+                }
+            }
+
+            QString anchorConf = portsAnchor.generateConf();
+            staticIpPorts_ = ports;
+            helper_->setFirewallRules(kIpv4, "", "windscribe_static_ports_traffic", anchorConf);
+        }
+    } else {
+        staticIpPorts_ = ports;
     }
+
+    return true;
 }
 
 bool FirewallController_mac::deleteWhitelistPorts()
@@ -108,222 +173,296 @@ bool FirewallController_mac::deleteWhitelistPorts()
     return whitelistPorts(apiinfo::StaticIpPortsVector());
 }
 
-bool FirewallController_mac::firewallOnImpl(const QString &ip, bool bAllowLanTraffic, const apiinfo::StaticIpPortsVector &ports )
+void FirewallController_mac::firewallOffImpl()
 {
-    QString pfConfigFilePath = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
-    QDir dir(pfConfigFilePath);
-    dir.mkpath(pfConfigFilePath);
-    pfConfigFilePath += "/pf.conf";
-    qCDebug(LOG_BASIC) << pfConfigFilePath;
+    helper_->clearFirewallRules();
+    isFirewallEnabled_ = false;
+    qCDebug(LOG_FIREWALL_CONTROLLER) << "firewallOff disabled";
+}
 
-    forceUpdateInterfaceToSkip_ = false;
 
-    QString pf = "";
-    pf += "# Automatically generated by Windscribe. Any manual change will be overridden.\n";
-    pf += "# Block policy, RST for quickly notice\n";
-    pf += "set block-policy return\n";
+QStringList FirewallController_mac::lanTrafficRules(bool bAllowLanTraffic) const
+{
+    QStringList rules;
 
-    pf += "# Skip interfaces: lo0 and utun (only when connected)\n";
-    if (!interfaceToSkip_.isEmpty())
-    {
-        pf += "set skip on { lo0 " + interfaceToSkip_ + " }\n";
+    // Always allow localhost
+    rules << "pass out quick inet from any to 127.0.0.0/8";
+    rules << "pass in quick inet from 127.0.0.0/8 to any";
+
+    if (bAllowLanTraffic) {
+        // Local Network
+        rules << "pass out quick inet from any to 192.168.0.0/16";
+        rules << "pass in quick inet from 192.168.0.0/16 to any";
+        rules << "pass out quick inet from any to 172.16.0.0/12";
+        rules << "pass in quick inet from 172.16.0.0/12 to any";
+        rules << "pass out quick inet from any to 169.254.0.0/16";
+        rules << "pass in quick inet from 169.254.0.0/16 to any";
+        rules << "block out quick inet from any to 10.255.255.0/24";
+        rules << "block in quick inet from 10.255.255.0/24 to any";
+        rules << "pass out quick inet from any to 10.0.0.0/8";
+        rules << "pass in quick inet from 10.0.0.0/8 to any";
+
+        // Multicast addresses
+        rules << "pass out quick inet from any to 224.0.0.0/4";
+        rules << "pass in quick inet from 224.0.0.0/4 to any";
+
+        // Allow AirDrop
+        rules << "pass in quick on awdl0 inet6 proto udp from any to any port = 5353";
+        rules << "pass out quick on awdl0 proto tcp all flags any";
+
+        // UPnP
+        rules << "pass out quick inet proto udp from any to any port = 1900";
+        rules << "pass in quick proto udp from any to any port = 1900";
+        rules << "pass out quick inet proto udp from any to any port = 1901";
+        rules << "pass in quick proto udp from any to any port = 1901";
+
+        rules << "pass out quick inet proto udp from any to any port = 5350";
+        rules << "pass in quick proto udp from any to any port = 5350";
+        rules << "pass out quick inet proto udp from any to any port = 5351";
+        rules << "pass in quick proto udp from any to any port = 5351";
+        rules << "pass out quick inet proto udp from any to any port = 5353";
+        rules << "pass in quick proto udp from any to any port = 5353";
     }
-    else
+    return rules;
+}
+
+void FirewallController_mac::getFirewallStateFromPfctl(FirewallState &outState)
+{
+    outState.isEnabled = helper_->checkFirewallState(QString());
+
+    QString output;
+    bool ret;
+
+    // checking a few key rules to make sure the firewall rules is settled by our program
+    helper_->getFirewallRules(kIpv4, "", "", output);
+    if (output.indexOf("anchor \"windscribe_vpn_traffic\" all") != -1 &&
+        output.indexOf("anchor \"windscribe_lan_traffic\" all") != -1 &&
+        output.indexOf("anchor \"windscribe_static_ports_traffic\" all") != -1)
     {
-        pf += "set skip on { lo0}\n";
+        outState.isBasicWindscribeRulesCorrect = true;
+    } else {
+        outState.isBasicWindscribeRulesCorrect = false;
     }
 
-    pf += "# Scrub\n";
-    pf += "scrub in all\n"; // 2.9
-
-    pf += "# Drop everything that doesn't match a rule\n";
-    pf += "block in all\n";
-    pf += "block out all\n";
-
-    QString ips =ip;
-    ips = ips.replace(";", " ");
-    pf += "table <windscribe_ips> const { " + ips + " }\n";
-
-    pf += "pass out quick inet proto udp from 0.0.0.0 to 255.255.255.255 port = 67\n";
-    pf += "pass in quick proto udp from any to any port = 68\n";
-
-    pf += "pass out quick inet from any to <windscribe_ips> flags S/SA keep state\n";
-    pf += "pass in quick inet from any to <windscribe_ips> flags S/SA keep state\n";
-
-    if (!ports.isEmpty())
-    {
-        //pass in proto tcp from any to any port 1234
-        for (unsigned int port : ports)
-        {
-            pf += "pass in quick proto tcp from any to any port = " + QString::number(port) + "\n";
+    // get windscribe_ips table IPs
+    output.clear();
+    outState.windscribeIps.clear();
+    ret = helper_->getFirewallRules(kIpv4, "windscribe_ips", "", output);
+    if (ret && !output.isEmpty()) {
+        const QStringList list = output.split("\n");
+        for (auto &ip : list) {
+            if (!ip.trimmed().isEmpty()) {
+                outState.windscribeIps << ip.trimmed();
+            }
         }
     }
 
-    if (bAllowLanTraffic)
-    {
-        // Local Network;
-        pf += "pass out quick inet from 192.168.0.0/16 to 192.168.0.0/16 flags S/SA keep state\n";
-        pf += "pass in quick inet from 192.168.0.0/16 to 192.168.0.0/16 flags S/SA keep state\n";
-        pf += "pass out quick inet from 172.16.0.0/12 to 172.16.0.0/12 flags S/SA keep state\n";
-        pf += "pass in quick inet from 172.16.0.0/12 to 172.16.0.0/12 flags S/SA keep state\n";
-        pf += "pass out quick inet from 10.0.0.0/8 to 10.0.0.0/8 flags S/SA keep state\n";
-        pf += "pass in quick inet from 10.0.0.0/8 to 10.0.0.0/8 flags S/SA keep state\n";
-
-        // Loopback addresses to the local host
-        pf += "pass in quick inet from 127.0.0.0/8 to 127.0.0.0/8 flags S/SA keep state\n";
-
-        // Multicast addresses
-        pf += "pass in quick inet from 224.0.0.0/4 to 224.0.0.0/4 flags S/SA keep state\n";
-
-        // Allow AirDrop
-        pf += "pass in quick on awdl0 inet6 proto udp from any to any port = 5353 keep state\n";
-        pf += "pass out quick on awdl0 proto tcp all flags any keep state\n";
-
-        // UPnP
-        //pf += "pass out quick inet proto udp from 239.255.255.250 to 239.255.255.250 port = 1900\n";
-        //pf += "pass in quick inet proto udp from 239.255.255.250 to 239.255.255.250 port = 1900\n";
-
-        //pf += "pass out quick inet proto udp from 239.255.255.250 to 239.255.255.250 port = 1901\n";
-        //pf += "pass in quick inet proto udp from 239.255.255.250 to 239.255.255.250 port = 1901\n";
-
-        pf += "pass out quick inet proto udp from any to any port = 1900\n";
-        pf += "pass in quick proto udp from any to any port = 1900\n";
-        pf += "pass out quick inet proto udp from any to any port = 1901\n";
-        pf += "pass in quick proto udp from any to any port = 1901\n";
-
-        pf += "pass out quick inet proto udp from any to any port = 5350\n";
-        pf += "pass in quick proto udp from any to any port = 5350\n";
-        pf += "pass out quick inet proto udp from any to any port = 5351\n";
-        pf += "pass in quick proto udp from any to any port = 5351\n";
-        pf += "pass out quick inet proto udp from any to any port = 5353\n";
-        pf += "pass in quick proto udp from any to any port = 5353\n";
+    // read anchor windscribe_vpn_traffic rules
+    output.clear();
+    outState.interfaceToSkip.clear();
+    ret = helper_->getFirewallRules(kIpv4, "", "windscribe_vpn_traffic", output);
+    output = output.trimmed();
+    if (ret && !output.isEmpty()) {
+        QStringList rules = output.split("\n");
+        if (rules.size() > 0) {
+            QStringList words = rules[0].split(" ");
+            if (words.size() >= 10) {
+                // pass out quick on [interface]
+                outState.interfaceToSkip = words[4];
+            } else {
+                WS_ASSERT(false);
+            }
+        }
+        outState.isCustomConfig = (rules.size() == 2 && !outState.interfaceToSkip.isEmpty());
+    } else {
+        outState.isCustomConfig = false;
+    }
+    // read anchor windscribe_lan_traffic rules
+    outState.isAllowLanTraffic = false;
+    output.clear();
+    ret = helper_->getFirewallRules(kIpv4, "", "windscribe_lan_traffic", output);
+    output = output.trimmed();
+    if (ret && !output.isEmpty()) {
+        QStringList rules = output.split("\n");
+        outState.isAllowLanTraffic = (rules.size() > 2);
     }
 
-    QFile f(pfConfigFilePath);
-    if (f.open(QIODevice::WriteOnly))
-    {
-        QTextStream ts(&f);
-        ts << pf;
-        f.close();
-
-        // Note:
-        // Be careful adding '-F all' to this command to fix an issue.  Adding it will prevent the
-        // OpenVPN over TCP and Stealth protocols from completing their connection setup.
-
-        QString reply = helper_->executeRootCommand("pfctl -v -f \"" + pfConfigFilePath + "\"");
-        //qCDebug(LOG_FIREWALL_CONTROLLER) << "Firewall on pfctl result:" << reply;
-        Q_UNUSED(reply);
-
-        helper_->executeRootCommand("pfctl -e");
-
-        return true;
+    // read anchor windscribe_static_ports_traffic rules
+    outState.isStaticIpPortsEmpty = true;
+    output.clear();
+    ret = helper_->getFirewallRules(kIpv4, "", "windscribe_static_ports_traffic", output);
+    output = output.trimmed();
+    if (ret && !output.isEmpty()) {
+        outState.isStaticIpPortsEmpty = false;
     }
-    else
-    {
+}
+
+bool FirewallController_mac::checkInternalVsPfctlState()
+{
+    FirewallState firewallState;
+    getFirewallStateFromPfctl(firewallState);
+
+    if (firewallState.isEnabled) {
+        if (!firewallState.isBasicWindscribeRulesCorrect ||
+            !isFirewallEnabled_ ||
+            windscribeIps_ != firewallState.windscribeIps ||
+            interfaceToSkip_ != firewallState.interfaceToSkip ||
+            isAllowLanTraffic_ != firewallState.isAllowLanTraffic ||
+            isCustomConfig_ != firewallState.isCustomConfig ||
+            (staticIpPorts_.isEmpty() && !firewallState.isStaticIpPortsEmpty) ||
+            (!staticIpPorts_.isEmpty() && firewallState.isStaticIpPortsEmpty))
+        {
+            return false;
+        }
+    } else if (isFirewallEnabled_) {
         return false;
     }
+    return true;
+}
+
+QString FirewallController_mac::generatePfConf(const QSet<QString> &ips, bool bAllowLanTraffic, bool bIsCustomConfig, const QString &interfaceToSkip)
+{
+    QString pf = "";
+    pf += "# Automatically generated by Windscribe. Any manual change will be overridden.\n";
+    pf += "set block-policy return\n";
+    pf += "set skip on { lo0 }\n";
+    pf += "scrub in all fragment reassemble\n";
+    pf += "block all\n";
+    pf += "table <windscribe_ips> persist {";
+    for (auto &ip : ips)
+    {
+        pf += ip + " ";
+    }
+    pf += "}\n";
+
+    pf += "pass out quick inet from any to <windscribe_ips>\n";
+    pf += "pass in quick inet from <windscribe_ips> to any\n";
+
+    Anchor vpnTrafficAnchor("windscribe_vpn_traffic");
+    vpnTrafficAnchor.addRules(vpnTrafficRules(interfaceToSkip, bIsCustomConfig));
+    pf += vpnTrafficAnchor.getString() + "\n";
+
+    // Allow Dynamic Host Configuration Protocol (DHCP)
+    pf += "pass out quick inet proto udp from any to any port = 67\n";
+    pf += "pass in quick inet proto udp from any to any port = 68\n";
+
+    Anchor lanTrafficAnchor("windscribe_lan_traffic");
+    lanTrafficAnchor.addRules(lanTrafficRules(bAllowLanTraffic));
+    pf += lanTrafficAnchor.getString() + "\n";
+
+    Anchor portsAnchor("windscribe_static_ports_traffic");
+    if (!staticIpPorts_.isEmpty()) {
+        for (unsigned int port : staticIpPorts_) {
+            portsAnchor.addRule("pass in quick proto tcp from any to any port = " + QString::number(port));
+        }
+    }
+    pf += portsAnchor.getString() + "\n";
+    return pf;
+}
+
+QString FirewallController_mac::generateTable(const QSet<QString> &ips)
+{
+    QString pf = "table <windscribe_ips> persist {";
+    for (auto &ip : ips) {
+        pf += ip + " ";
+    }
+    pf += "}\n";
+    return pf;
 }
 
 void FirewallController_mac::setInterfaceToSkip_posix(const QString &interfaceToSkip)
 {
     QMutexLocker locker(&mutex_);
     qCDebug(LOG_BASIC) << "FirewallController_mac::setInterfaceToSkip_posix ->" << interfaceToSkip;
-    if (interfaceToSkip_ != interfaceToSkip) {
+    if (!checkInternalVsPfctlState()) {
+        qCDebug(LOG_FIREWALL_CONTROLLER) << "Fatal error: firewall internal state not equal firewall state from pfctl";
+    }
+
+    if (isFirewallEnabled_) {
+        if (interfaceToSkip_ != interfaceToSkip) {
+            interfaceToSkip_ = interfaceToSkip;
+            updateVpnAnchor();
+        }
+    } else {
         interfaceToSkip_ = interfaceToSkip;
-        forceUpdateInterfaceToSkip_ = true;
     }
 }
 
 void FirewallController_mac::enableFirewallOnBoot(bool bEnable)
 {
-    qCDebug(LOG_BASIC) << "Enable firewall on boot, bEnable =" << bEnable;
-    QString strTempFilePath = QString::fromLocal8Bit(getenv("TMPDIR")) + "windscribetemp.plist";
-    QString filePath = "/Library/LaunchDaemons/com.aaa.windscribe.firewall_on.plist";
+    helper_->setFirewallOnBoot(bEnable);
+}
 
-    QString pfConfFilePath = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
-    QString pfBashScriptFile = pfConfFilePath + "/windscribe_pf.sh";
-    pfConfFilePath = pfConfFilePath + "/pf.conf";
+QStringList FirewallController_mac::vpnTrafficRules(const QString &interfaceToSkip, bool bIsCustomConfig) const
+{
+    QStringList rules;
 
-    if (bEnable)
-    {
-        //create bash script
-        {
-            QString exePath = QCoreApplication::applicationFilePath();
-            QFile file(pfBashScriptFile);
-            if (file.open(QIODevice::WriteOnly | QIODevice::Text))
-            {
-                file.resize(0);
-                QTextStream in(&file);
-                in << "#!/bin/bash\n";
-                in << "FILE=\"" << exePath << "\"\n";
-                in << "if [ ! -f \"$FILE\" ]\n";
-                in << "then\n";
-                in << "echo \"File $FILE does not exists\"\n";
-                in << "launchctl stop com.aaa.windscribe.firewall_on\n";
-                in << "launchctl unload " << filePath << "\n";
-                in << "launchctl remove com.aaa.windscribe.firewall_on\n";
-                in << "srm \"$0\"\n";
-                //in << "rm " << filePath << "\n";
-                in << "else\n";
-                in << "echo \"File $FILE exists\"\n";
-                in << "ipconfig waitall\n";
-                in << "/sbin/pfctl -e -f \"" << pfConfFilePath << "\"\n";
-                in << "fi\n";
-                file.close();
-
-                // set executable flag
-                helper_->executeRootCommand("chmod +x \"" + pfBashScriptFile + "\"");
+    if (!interfaceToSkip.isEmpty()) {
+        if (!bIsCustomConfig) {
+            // Allow local addresses
+            QList<QString> localAddrs = getLocalAddresses(interfaceToSkip);
+            for (QString addr : localAddrs) {
+                rules << "pass out quick on " + interfaceToSkip + " inet from any to " + addr + "/32";
+                rules << "pass in quick on " + interfaceToSkip + " inet from " + addr + "/32 to any";
             }
+            // Disallow RFC1918/link local/loopback traffic to go over tunnel
+            rules << "block out quick on " + interfaceToSkip + " inet from any to 192.168.0.0/16";
+            rules << "block in quick on " + interfaceToSkip + " inet from 192.168.0.0/16 to any";
+            rules << "block out quick on " + interfaceToSkip + " inet from any to 172.16.0.0/12";
+            rules << "block in quick on " + interfaceToSkip + " inet from 172.16.0.0/12 to any";
+            rules << "block out quick on " + interfaceToSkip + " inet from any to 169.254.0.0/16";
+            rules << "block in quick on " + interfaceToSkip + " inet from 169.254.0.0/16 to any";
+            // Allow reserved subnet
+            rules << "pass out quick on " + interfaceToSkip + " inet from any to 10.255.255.0/24";
+            rules << "pass in quick on " + interfaceToSkip + " inet from 10.255.255.0/24 to any";
+            // Disallow RFC1918/link local/loopback traffic to go over tunnel (cont'd)
+            rules << "block out quick on " + interfaceToSkip + " inet from any to 10.0.0.0/8";
+            rules << "block in quick on " + interfaceToSkip + " inet from 10.0.0.0/8 to any";
+            rules << "block out quick on " + interfaceToSkip + " inet from any to 127.0.0.0/8";
+            rules << "block in quick on " + interfaceToSkip + " inet from 224.0.0.0/24 to any";
         }
 
-        // create plist
-        QFile file(strTempFilePath);
-        if (file.open(QIODevice::WriteOnly | QIODevice::Text))
-        {
-            file.resize(0);
-            QTextStream in(&file);
-            in << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
-            in << "<!DOCTYPE plist PUBLIC \"-//Apple Computer//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n";
-            in << "<plist version=\"1.0\">\n";
-            in << "<dict>\n";
-            in << "<key>Label</key>\n";
-            in << "<string>com.aaa.windscribe.firewall_on</string>\n";
-
-            in << "<key>ProgramArguments</key>\n";
-            in << "<array>\n";
-            in << "<string>/bin/bash</string>\n";
-            in << "<string>" << pfBashScriptFile << "</string>\n";
-            in << "</array>\n";
-
-            in << "<key>StandardErrorPath</key>\n";
-            in << "<string>/var/log/windscribe_pf.log</string>\n";
-            in << "<key>StandardOutPath</key>\n";
-            in << "<string>/var/log/windscribe_pf.log</string>\n";
-
-            in << "<key>RunAtLoad</key>\n";
-            in << "<true/>\n";
-            in << "</dict>\n";
-            in << "</plist>\n";
-
-            file.close();
-
-            helper_->executeRootCommand("cp " + strTempFilePath + " " + filePath);
-            helper_->executeRootCommand("launchctl load -w " + filePath);
-        }
-        else
-        {
-            qCDebug(LOG_BASIC) << "Can't create plist file for startup firewall: " << filePath;
-        }
+        // Allow other traffic on VPN interface
+        rules << "pass out quick on " + interfaceToSkip + " inet from any to any";
+        rules << "pass in quick on " + interfaceToSkip + " inet from any to any";
     }
-    else
-    {
-        qCDebug(LOG_BASIC) << "Execute command: "
-                           << "launchctl unload " + Utils::cleanSensitiveInfo(filePath);
-        helper_->executeRootCommand("launchctl unload " + filePath);
-        qCDebug(LOG_BASIC) << "Execute command: " << "rm " + Utils::cleanSensitiveInfo(filePath);
-        helper_->executeRootCommand("rm " + filePath);
-        qCDebug(LOG_BASIC) << "Execute command: "
-                           << "rm " + Utils::cleanSensitiveInfo(pfBashScriptFile);
-        helper_->executeRootCommand("rm \"" + pfBashScriptFile + "\"");
+    return rules;
+}
+
+void FirewallController_mac::updateVpnAnchor() {
+    Anchor vpnTrafficAnchor("windscribe_vpn_traffic");
+    vpnTrafficAnchor.addRules(vpnTrafficRules(interfaceToSkip_, isCustomConfig_));
+
+    QString anchorConf = vpnTrafficAnchor.generateConf();
+    helper_->setFirewallRules(kIpv4, "", "windscribe_vpn_traffic", anchorConf);
+}
+
+QStringList FirewallController_mac::getLocalAddresses(const QString iface) const
+{
+    QStringList addrs;
+    struct ifaddrs *ifap;
+    struct ifaddrs *cur;
+
+    if (getifaddrs(&ifap)) {
+        qCDebug(LOG_FIREWALL_CONTROLLER) << "Error: could not get local interface addresses";
+        return addrs;
     }
+
+    cur = ifap;
+    while (cur) {
+        if (strncmp(iface.toStdString().c_str(), cur->ifa_name, iface.length()) ||
+            cur->ifa_addr == nullptr ||
+            cur->ifa_addr->sa_family != AF_INET)
+        {
+            cur = cur->ifa_next;
+            continue;
+        }
+        char str[16];
+        inet_ntop(AF_INET, &(((struct sockaddr_in *)cur->ifa_addr)->sin_addr), str, 16);
+        addrs << QString(str);
+        cur = cur->ifa_next;
+    }
+
+    freeifaddrs(ifap);
+    return addrs;
 }

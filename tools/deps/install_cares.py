@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # ------------------------------------------------------------------------------
 # Windscribe Build System
-# Copyright (c) 2020-2021, Windscribe Limited. All rights reserved.
+# Copyright (c) 2020-2023, Windscribe Limited. All rights reserved.
 # ------------------------------------------------------------------------------
 # Purpose: installs C-Ares library.
 import os
@@ -12,6 +12,10 @@ TOOLS_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, TOOLS_DIR)
 
 CONFIG_NAME = os.path.join("vars", "cares.yml")
+
+# To ensure modules in the 'base' folder can import other modules in base.
+import base.pathhelper as pathhelper
+sys.path.append(pathhelper.BASE_DIR)
 
 import base.messages as msg
 import base.utils as utl
@@ -24,26 +28,26 @@ DEP_OS_LIST = ["win32", "macos", "linux"]
 DEP_FILE_MASK = []  # filled out later.
 
 CARES_CONFIGS = {
-  "dll_x32" : ["x86", "dll"],
   "dll_x64" : ["x86_amd64", "dll"],
-  "static_x32" : ["x86", "lib"],
   "static_x64" : ["x86_amd64", "lib"],
 }
 
 
 def BuildDependencyMSVC(outpath):
   global DEP_FILE_MASK
-  for prefix, params in CARES_CONFIGS.iteritems():
+  for prefix, params in CARES_CONFIGS.items():
     msg.HeadPrint("Building: {} ({} {})".format(prefix, params[0], params[1]))
     # Create an environment with VS vars.
     buildenv = os.environ.copy()
     buildenv.update({ "MAKEFLAGS" : "S" })
+    buildenv.update({ "RTLIBCFG" : "static" })
     buildenv.update({ "INSTALL_DIR" : "{}/{}".format(outpath, prefix) })
     buildenv.update(iutl.GetVisualStudioEnvironment(params[0]))
     buildenv.update({ "CL" : "/D_WINSOCK_DEPRECATED_NO_WARNINGS" })
     # Build and install.
-    for buildcfg in ["debug", "release"]:
-      iutl.RunCommand(["nmake", "/NOLOGO", "/F", "Makefile.msvc", 
+    #for buildcfg in ["debug", "release"]:
+    for buildcfg in ["release"]:
+      iutl.RunCommand(["nmake", "/NOLOGO", "/F", "Makefile.msvc",
                        "CFG={}-{}".format(params[1], buildcfg), "c-ares"], env=buildenv, shell=True)
       iutl.RunCommand(["nmake", "/F", "Makefile.msvc", "CFG={}-{}".format(params[1], buildcfg),
                        "install"], env=buildenv, shell=True)
@@ -55,16 +59,14 @@ def BuildDependencyGNU(outpath):
   global DEP_FILE_MASK
   # Create an environment with CC flags.
   buildenv = os.environ.copy()
-  args = ""
-  if utl.GetCurrentOS() == "macos":
-    args = "-mmacosx-version-min=10.11"
-  buildenv.update({ "CC" : "cc {}".format(args)})
   # Configure.
   configure_cmd = ["./configure"]
+  if utl.GetCurrentOS() == "macos":
+    configure_cmd.append("CFLAGS=-arch x86_64 -arch arm64 -mmacosx-version-min=10.14")
   configure_cmd.append("--prefix={}".format(outpath))
   iutl.RunCommand(configure_cmd, env=buildenv)
   # Build and install.
-  iutl.RunCommand(["make"], env=buildenv)
+  iutl.RunCommand(iutl.GetMakeBuildCommand(), env=buildenv)
   iutl.RunCommand(["make", "install", "-s"], env=buildenv)
   for prefix in ["include", "lib"]:
     DEP_FILE_MASK.append("{}/**".format(prefix))
@@ -78,7 +80,7 @@ def InstallDependency():
     raise iutl.InstallError("Failed to get config data.")
   iutl.SetupEnvironment(configdata)
   dep_name = DEP_TITLE.lower()
-  dep_version_var = "VERSION_" + filter(lambda ch: ch not in "-", DEP_TITLE.upper())
+  dep_version_var = "VERSION_" + DEP_TITLE.upper().replace("-", "")
   dep_version_str = os.environ.get(dep_version_var, None)
   if not dep_version_str:
     raise iutl.InstallError("{} not defined.".format(dep_version_var))
@@ -99,6 +101,8 @@ def InstallDependency():
   dep_buildroot_var = "BUILDROOT_" + DEP_TITLE.upper()
   dep_buildroot_str = os.environ.get(dep_buildroot_var, os.path.join("build-libs", dep_name))
   outpath = os.path.normpath(os.path.join(os.path.dirname(TOOLS_DIR), dep_buildroot_str))
+  # Clean the output folder to ensure no conflicts when we're updating to a newer c-ares version.
+  utl.RemoveDirectory(outpath)
   with utl.PushDir(os.path.join(temp_dir, archivetitle)):
     msg.HeadPrint("Building: \"{}\"".format(archivetitle))
     if utl.GetCurrentOS() == "win32":

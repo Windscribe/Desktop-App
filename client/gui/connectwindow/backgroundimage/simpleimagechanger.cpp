@@ -1,7 +1,8 @@
 #include "simpleimagechanger.h"
-#include "dpiscalemanager.h"
 #include <QPainter>
 #include <QDebug>
+#include "dpiscalemanager.h"
+#include "utils/ws_assert.h"
 
 namespace ConnectWindow {
 
@@ -21,7 +22,7 @@ QPixmap *SimpleImageChanger::currentPixmap()
 
 void SimpleImageChanger::setImage(QSharedPointer<IndependentPixmap> image, bool bWithAnimation)
 {
-    Q_ASSERT(!image.isNull());
+    WS_ASSERT(!image.isNull());
 
     if (curImage_.isNull() || !bWithAnimation)
     {

@@ -1,24 +1,25 @@
-#include "../all_headers.h"
+// Have to include wireguard.h first or we'll get include conflicts in the Windows headers.
+#include "wireguard.h"
+#include "wireguardcontroller.h"
 
 #include <Cfgmgr32.h>
 #include <devguid.h>
 #include <ndisguid.h>
-#include <winioctl.h>
+#include <SetupAPI.h>
 
 #include <codecvt>
 #include <sstream>
 
+#define BOOST_AUTO_LINK_TAGGED 1
 #include <boost/filesystem/path.hpp>
 
-#include "wireguardcontroller.h"
-#include "wireguard.h"
+#include "../../../client/common/utils/servicecontrolmanager.h"
+#include "../../../client/common/utils/win32handle.h"
+#include "../../../client/common/utils/wsscopeguard.h"
 #include "../executecmd.h"
+#include "../ipc/servicecommunication.h"
 #include "../logger.h"
 #include "../utils.h"
-#include "../ipc/servicecommunication.h"
-#include "../../../common/utils/servicecontrolmanager.h"
-#include "../../../common/utils/win32handle.h"
-#include "../../../common/utils/wsscopeguard.h"
 
 static const DEVPROPKEY WG_DEVP_KEYNAME = DEVPKEY_WG_NAME;
 
@@ -130,7 +131,7 @@ UINT WireGuardController::getStatus(UINT64& lastHandshake, UINT64& txBytes, UINT
                 "WireGuardController::getStatus - the WireGuard tunnel is not initialized");
         }
 
-        WinUtils::Win32Handle hDriver(getKernelInterfaceHandle());
+        wsl::Win32Handle hDriver(getKernelInterfaceHandle());
 
         // Look at kernel_get_device() in wireguard-windows-0.5.3\.deps\src\ipc-windows.h for
         // sample code showing how to parse the structures returned from the wireguard-nt

@@ -7,12 +7,13 @@
 
 namespace SharingFeatures {
 
-BottomInfoItem::BottomInfoItem(QGraphicsObject *parent) : ScalableGraphicsObject(parent),
+BottomInfoItem::BottomInfoItem(Preferences *preferences, QGraphicsObject *parent) : ScalableGraphicsObject(parent),
+    preferences_(preferences),
     sharingFeaturesWindowItem_(NULL),
     upgradeWidgetItem_(NULL),
     isSecureHotspotEnabled_(false),
     isProxyGatewayEnabled_(false),
-    proxyGatewayMode_(ProtoTypes::PROXY_SHARING_HTTP)
+    proxyGatewayMode_(PROXY_SHARING_HTTP)
 {
     setFlag(ItemHasNoContents, false);
 
@@ -119,7 +120,7 @@ void BottomInfoItem::setSecureHotspotUsersCount(int usersCount)
     }
 }
 
-void BottomInfoItem::setProxyGatewayFeatures(bool isEnabled, ProtoTypes::ProxySharingMode mode)
+void BottomInfoItem::setProxyGatewayFeatures(bool isEnabled, PROXY_SHARING_TYPE mode)
 {
     isProxyGatewayEnabled_ = isEnabled;
     proxyGatewayMode_ = mode;
@@ -172,10 +173,18 @@ void BottomInfoItem::updateDisplay()
         }
         else
         {
-            currentUpgradePosX = 0;
-            currentUpgradePosY = 0;
-            upgradeWidgetItem_->setPos(0, 0);
-            upgradeWidgetItem_->setWidth(UPGRADE_WIDTH_DEFAULT);
+            if (preferences_->appSkin() == APP_SKIN_VAN_GOGH)
+            {
+                upgradeWidgetItem_->setPos(0, 0);
+                upgradeWidgetItem_->setWidth(UPGRADE_WIDTH_VAN_GOGH);
+            }
+            else
+            {
+                currentUpgradePosX = 0;
+                currentUpgradePosY = 0;
+                upgradeWidgetItem_->setPos(0, 0);
+                upgradeWidgetItem_->setWidth(UPGRADE_WIDTH_DEFAULT);
+            }
         }
     }
     else
@@ -217,7 +226,7 @@ void BottomInfoItem::updateSecureHotspotState()
     }
     else if (isSharingFeatureVisible() && sharingFeaturesWindowItem_ == NULL)
     {
-        sharingFeaturesWindowItem_ = new SharingFeaturesWindowItem(this);
+        sharingFeaturesWindowItem_ = new SharingFeaturesWindowItem(preferences_, this);
         connect(sharingFeaturesWindowItem_, SIGNAL(clickedProxy()), SIGNAL(proxyGatewayClick()));
         connect(sharingFeaturesWindowItem_, SIGNAL(clickedHotSpot()), SIGNAL(secureHotspotClick()));
     }

@@ -19,6 +19,7 @@ public:
 
     QRectF boundingRect() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
+    void updateScaling() override;
 
     double getOpacity() const;
     void quickSetOpacity(double opacity);
@@ -32,6 +33,8 @@ public:
     int getWidth() const;
     void setText(QString text);
     QString text() const;
+    void setColor(QColor color);
+    void setMarginHeight(int height);
 
     void setCurrentOpacity(double opacity);
     void setUnhoverOpacity(double unhoverOpacity);
@@ -58,6 +61,7 @@ private:
     int width_;
     int height_;
     int addWidth_;   // HACK - allows full displaying of text in Upgrade Widget
+    int margin_;
 
     double curTextOpacity_;
     QVariantAnimation textOpacityAnimation_;

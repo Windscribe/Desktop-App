@@ -1,17 +1,18 @@
-#ifndef PINGHOST_ICMP_WIN_H
-#define PINGHOST_ICMP_WIN_H
+#pragma once
 
-#include <QObject>
-#include "Engine/ConnectStateController/iconnectstatecontroller.h"
-#include "Utils/boost_includes.h"
-#include "Engine/Proxy/proxysettings.h"
-#include <QQueue>
 #include <QMap>
-#include <QMutex>
-#include <QElapsedTimer>
-#include <winternl.h>
+#include <QObject>
+#include <QQueue>
+#include <QRecursiveMutex>
+#include <QString>
+
+#include "engine/connectstatecontroller/iconnectstatecontroller.h"
+#include "types/proxysettings.h"
 
 // todo proxy support for icmp ping
+
+class PingRequest;
+
 class PingHost_ICMP_win : public QObject
 {
     Q_OBJECT
@@ -22,55 +23,22 @@ public:
     void addHostForPing(const QString &ip);
     void clearPings();
 
-    void setProxySettings(const ProxySettings &proxySettings);
+    void setProxySettings(const types::ProxySettings &proxySettings);
     void disableProxy();
     void enableProxy();
 
 signals:
-    void pingFinished(bool bSuccess, int timems, const QString &ip, bool isFromDisconnectedState);
+    void pingFinished(bool success, int timems, const QString &ip, bool isFromDisconnectedState);
+
+private slots:
+    void onPingRequestFinished(bool success, const QString ip, qint64 elapsed);
 
 private:
+    IConnectStateController* const connectStateController_;
 
-    struct PingInfo
-    {
-        QString ip;
-        bool isFromDisconnectedState_;
-        QElapsedTimer elapsedTimer;
-        HANDLE hIcmpFile;
-
-        LPVOID replyBuffer;
-        DWORD replySize;
-
-        PingInfo() : isFromDisconnectedState_(false), hIcmpFile(0), replyBuffer(NULL),
-                     replySize(0) {}
-
-        ~PingInfo()
-        {
-            if (replyBuffer)
-            {
-                delete[] replyBuffer;
-            }
-        }
-    };
-
-    QMutex mutex_;
-    IConnectStateController *connectStateController_;
-
-    static constexpr int MAX_PARALLEL_PINGS = 10;
-    QMap<QString, PingInfo *> pingingHosts_;
+    QRecursiveMutex mutex_;
+    QMap<QString, PingRequest*> pingingHosts_;
     QQueue<QString> waitingPingsQueue_;
 
-    struct USER_ARG
-    {
-        PingHost_ICMP_win *this_;
-        PingInfo *pingInfo;
-    };
-
-    bool hostAlreadyPingingOrInWaitingQueue(const QString &ip);
-    static VOID NTAPI icmpCallback(IN PVOID ApcContext, IN PIO_STATUS_BLOCK IoStatusBlock, IN ULONG Reserved);
-    void processNextPings();
-
-
+    void sendNextPing();
 };
-
-#endif // PINGHOST_ICMP_WIN_H

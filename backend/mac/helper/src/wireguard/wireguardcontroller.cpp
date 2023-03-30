@@ -10,30 +10,41 @@
 #include <boost/algorithm/string/split.hpp>
 
 WireGuardController::WireGuardController()
-    : comm_(new WireGuardCommunicator), daemonCmdId_(0), is_initialized_(false)
+    : daemonCmdId_(0), is_initialized_(false)
 {
 }
 
-void WireGuardController::init(const std::string &deviceName, unsigned long daemonCmdId)
+bool WireGuardController::start(
+    const std::string &exePath,
+    const std::string &executable,
+    const std::string &deviceName)
 {
-    daemonCmdId_ = daemonCmdId;
-    comm_->setDeviceName(deviceName);
     adapter_.reset(new WireGuardAdapter(deviceName));
-    is_initialized_ = true;
+    comm_.reset(new WireGuardCommunicator());
+    if (comm_->start(exePath, executable, deviceName))
+    {
+        is_initialized_ = true;
+        return true;
+    }
+    return false;
 }
 
-void WireGuardController::reset()
+bool WireGuardController::stop()
 {
     if (!is_initialized_)
-        return;
+        return false;
+
+    comm_->stop();
+    comm_.reset();
+
     drm_.reset();
     adapter_.reset();
     is_initialized_ = false;
+    return true;
 }
 
-bool WireGuardController::configureAdapter(const std::string &ipAddress,
-    const std::string &dnsAddressList, const std::string &dnsScriptName,
-    const std::vector<std::string> &allowedIps)
+bool WireGuardController::configureAdapter(const std::string &ipAddress, const std::string &dnsAddressList,
+    const std::string &dnsScriptName, const std::vector<std::string> &allowedIps)
 {
     if (!is_initialized_ || !adapter_.get())
         return false;
@@ -53,18 +64,12 @@ bool WireGuardController::configureDefaultRouteMonitor(const std::string &peerEn
 {
     if (!is_initialized_ || !adapter_.get())
         return false;
-    if (!adapter_->hasDefaultRoute()) {
-        if (drm_)
-            drm_->stop();
-        return true;
-    } else {
-        if (!drm_)
-            drm_.reset(new DefaultRouteMonitor(adapter_->getName()));
-        return drm_->start(peerEndpoint);
-    }
+    if (!drm_)
+        drm_.reset(new DefaultRouteMonitor(adapter_->getName()));
+    return drm_->start(peerEndpoint);
 }
 
-bool WireGuardController::configureDaemon(const std::string &clientPrivateKey,
+bool WireGuardController::configure(const std::string &clientPrivateKey,
     const std::string &peerPublicKey, const std::string &peerPresharedKey,
     const std::string &peerEndpoint, const std::vector<std::string> &allowedIps)
 {
@@ -77,7 +82,7 @@ unsigned long WireGuardController::getStatus(unsigned int *errorCode,
     unsigned long long *bytesReceived, unsigned long long *bytesTransmitted) const
 {
     if (!is_initialized_)
-        return WIREGUARD_STATE_NONE;
+        return kWgStateNone;
     return comm_->getStatus(errorCode, bytesReceived, bytesTransmitted);
 }
 

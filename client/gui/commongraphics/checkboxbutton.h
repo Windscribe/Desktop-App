@@ -18,11 +18,17 @@ public:
 
     void setState(bool isChecked);
     bool isChecked() const;
+    void setEnabled(bool enabled);
 
 signals:
     void stateChanged(bool isChecked);
 
 protected:
+    static constexpr int TOGGLE_RADIUS = 12;
+    static constexpr int BUTTON_OFFSET = 2;
+    static constexpr int BUTTON_WIDTH = 18;
+    static constexpr int BUTTON_HEIGHT = 18;
+
     void mouseReleaseEvent(QGraphicsSceneMouseEvent *event) override;
     void hoverEnterEvent(QGraphicsSceneHoverEvent *event) override;
     void hoverLeaveEvent(QGraphicsSceneHoverEvent *event) override;
@@ -31,10 +37,10 @@ private slots:
     void onOpacityChanged(const QVariant &value);
 
 private:
-    qreal curOpacity_; // 0 - unchecked(white background), 1 - checked(green background)
+    double animationProgress_;
     bool isChecked_;
+    bool enabled_;
     QVariantAnimation opacityAnimation_;
-
 };
 
 } // namespace PreferencesWindow

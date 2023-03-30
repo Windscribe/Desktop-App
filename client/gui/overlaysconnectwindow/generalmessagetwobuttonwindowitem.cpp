@@ -17,8 +17,7 @@ GeneralMessageTwoButtonWindowItem::GeneralMessageTwoButtonWindowItem(const QStri
                                                                      QGraphicsObject *parent) : ScalableGraphicsObject (parent)
   , title_(title)
   , icon_(icon)
-  , titlePosY_(RECT_TITLE_POS_Y)
-  , iconPosY_(RECT_ICON_POS_Y)
+  , height_(LOGIN_HEIGHT)
   , shapedToConnectWindow_(false)
   , isShutdownAnimationMode_(false)
   , selection_(NONE)
@@ -55,7 +54,7 @@ GeneralMessageTwoButtonWindowItem::GeneralMessageTwoButtonWindowItem(const QStri
 
 QRectF GeneralMessageTwoButtonWindowItem::boundingRect() const
 {
-    return QRect(0,0,WINDOW_WIDTH*G_SCALE, LOGIN_HEIGHT*G_SCALE);
+    return QRect(0,0,WINDOW_WIDTH*G_SCALE, height_*G_SCALE);
 }
 
 void GeneralMessageTwoButtonWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem * /*option*/, QWidget * /*widget*/)
@@ -85,13 +84,13 @@ void GeneralMessageTwoButtonWindowItem::paint(QPainter *painter, const QStyleOpt
     {
         // icon
         QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap(icon_);
-        p->draw((WINDOW_WIDTH/2 - 20) * G_SCALE, iconPosY_*G_SCALE, painter);
+        p->draw((WINDOW_WIDTH/2 - 20) * G_SCALE, iconPosY_, painter);
 
         // title
         painter->setPen(Qt::white);
         QFont titleFont = *FontManager::instance().getFont(16, true);
         painter->setFont(titleFont);
-        QRectF titleRect(0, titlePosY_ * G_SCALE, WINDOW_WIDTH*G_SCALE, CommonGraphics::textHeight(titleFont));
+        QRectF titleRect(0, titlePosY_, WINDOW_WIDTH*G_SCALE, CommonGraphics::textHeight(titleFont));
         painter->drawText(titleRect, Qt::AlignCenter, tr(title_.toStdString().c_str()));
     }
     else
@@ -100,7 +99,7 @@ void GeneralMessageTwoButtonWindowItem::paint(QPainter *painter, const QStyleOpt
         painter->setPen(Qt::white);
         QFont titleFont = *FontManager::instance().getFont(16, true);
         painter->setFont(titleFont);
-        QRectF titleRect(0, (titlePosY_ + 70) * G_SCALE, WINDOW_WIDTH*G_SCALE, CommonGraphics::textHeight(titleFont));
+        QRectF titleRect(0, titlePosY_ + 70*G_SCALE, WINDOW_WIDTH*G_SCALE, CommonGraphics::textHeight(titleFont));
         painter->drawText(titleRect, Qt::AlignCenter, tr(titleShuttingDown_.toStdString().c_str()));
 
         curLogoPosY_ = LOGO_POS_CENTER;
@@ -143,17 +142,13 @@ void GeneralMessageTwoButtonWindowItem::setRejectText(const QString text)
 void GeneralMessageTwoButtonWindowItem::setBackgroundShapedToConnectWindow(bool shapedToConnectWindow)
 {
     shapedToConnectWindow_ = shapedToConnectWindow;
+    updatePositions();
+}
 
-    int titlePos = RECT_TITLE_POS_Y;
-    int iconPos = RECT_ICON_POS_Y;
-    if (shapedToConnectWindow)
-    {
-        titlePos = SHAPED_TITLE_POS_Y;
-        iconPos =  SHAPED_ICON_POS_Y;
-    }
-
-    titlePosY_ = titlePos;
-    iconPosY_ = iconPos;
+void GeneralMessageTwoButtonWindowItem::setHeight(int height)
+{
+    prepareGeometryChange();
+    height_ = height;
     updateScaling();
 }
 
@@ -181,9 +176,27 @@ void GeneralMessageTwoButtonWindowItem::clearSelection()
 void GeneralMessageTwoButtonWindowItem::updateScaling()
 {
     ScalableGraphicsObject::updateScaling();
+    updatePositions();
+}
 
-    acceptButton_->setPos(WINDOW_WIDTH/2*G_SCALE - acceptButton_->boundingRect().width()/2, RECT_ACCEPT_BUTTON_POS_Y*G_SCALE);
-    rejectButton_->setPos(WINDOW_WIDTH/2*G_SCALE - rejectButton_->boundingRect().width()/2, RECT_REJECT_BUTTON_POS_Y*G_SCALE);
+void GeneralMessageTwoButtonWindowItem::updatePositions()
+{
+    if (shapedToConnectWindow_)
+    {
+        titlePosY_ = SHAPED_TITLE_POS_Y*G_SCALE;
+        iconPosY_ =  SHAPED_ICON_POS_Y*G_SCALE;
+        acceptButton_->setPos(WINDOW_WIDTH/2*G_SCALE - acceptButton_->boundingRect().width()/2, SHAPED_ACCEPT_BUTTON_POS_Y*G_SCALE);
+        rejectButton_->setPos(WINDOW_WIDTH/2*G_SCALE - rejectButton_->boundingRect().width()/2, SHAPED_REJECT_BUTTON_POS_Y*G_SCALE);
+    }
+    else
+    {
+        // If not shaped to window, we proportion the elements relative to the height of the window.
+        // These numbers are derived from the original y value divided by the height values of the standard GUI.
+        titlePosY_ = 0.403*boundingRect().height();
+        iconPosY_ = 0.161*boundingRect().height();
+        acceptButton_->setPos(WINDOW_WIDTH/2*G_SCALE - acceptButton_->boundingRect().width()/2, 0.577*boundingRect().height());
+        rejectButton_->setPos(WINDOW_WIDTH/2*G_SCALE - rejectButton_->boundingRect().width()/2, 0.752*boundingRect().height());
+    }
 }
 
 void GeneralMessageTwoButtonWindowItem::keyPressEvent(QKeyEvent *event)

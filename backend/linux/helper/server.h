@@ -10,6 +10,8 @@
 #include <list>
 
 #include "../../posix_common/helper_commands.h"
+#include "routes_manager/routes_manager.h"
+#include "wireguard/defaultroutemonitor.h"
 #include "wireguard/wireguardadapter.h"
 #include "wireguard/wireguardcontroller.h"
 
@@ -26,12 +28,11 @@ public:
   
 private:
     //SplitTunneling splitTunneling_;
+    RoutesManager routesManager_;
     WireGuardController wireGuardController_;
     boost::asio::io_service service_;
     boost::asio::local::stream_protocol::acceptor *acceptor_;
     
-    //Files *files_;
-   
     bool readAndHandleCommand(socket_ptr sock, boost::asio::streambuf *buf, CMD_ANSWER &outCmdAnswer);
     
     void receiveCmdHandle(socket_ptr sock, boost::shared_ptr<boost::asio::streambuf> buf, const boost::system::error_code& ec, std::size_t bytes_transferred);

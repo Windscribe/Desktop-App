@@ -1,0 +1,8 @@
+# ------------------------------------------------------------------------------
+# Windscribe Build System
+# Copyright (c) 2020-2023, Windscribe Limited. All rights reserved.
+# ------------------------------------------------------------------------------
+variables:
+  VERSION_OPENSSL_ECH_DRAFT: '13a'
+  BUILDROOT_OPENSSL_ECH_DRAFT: 'build-libs/openssl_ech_draft'
+  ARTIFACT_OPENSSL_ECH_DRAFT: 'ECH-draft-13a.zip'

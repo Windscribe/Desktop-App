@@ -2,6 +2,7 @@
 #include "dpiscalemanager.h"
 
 #include <QCursor>
+#include <QRegExp>
 
 IPAddressItem::IPAddressItem(ScalableGraphicsObject *parent) : ScalableGraphicsObject(parent),
     isValid_(false)

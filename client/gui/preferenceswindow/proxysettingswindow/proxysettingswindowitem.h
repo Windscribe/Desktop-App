@@ -1,14 +1,15 @@
 #ifndef PROXYSETTINGSWINDOWITEM_H
 #define PROXYSETTINGSWINDOWITEM_H
 
-#include "../basepage.h"
+#include "commongraphics/basepage.h"
 #include "backend/preferences/preferences.h"
 #include "backend/preferences/preferenceshelper.h"
-#include "proxysettingsitem.h"
+#include "preferenceswindow/preferencegroup.h"
+#include "proxysettingsgroup.h"
 
 namespace PreferencesWindow {
 
-class ProxySettingsWindowItem : public BasePage
+class ProxySettingsWindowItem : public CommonGraphics::BasePage
 {
     Q_OBJECT
 public:
@@ -17,12 +18,13 @@ public:
     QString caption();
 
 private slots:
-    void onProxySettingsPreferencesChanged(const ProtoTypes::ProxySettings &ps);
-    void onProxySettingsChanged(const ProtoTypes::ProxySettings &ps);
+    void onProxySettingsPreferencesChanged(const types::ProxySettings &ps);
+    void onProxySettingsChanged(const types::ProxySettings &ps);
 
 private:
     Preferences *preferences_;
-    ProxySettingsItem *proxySettingsItem_;
+    PreferenceGroup *desc_;
+    ProxySettingsGroup *proxySettingsGroup_;
 
 };
 

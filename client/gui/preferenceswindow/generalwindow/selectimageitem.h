@@ -4,20 +4,17 @@
 #include <QGraphicsObject>
 #include <QGraphicsProxyWidget>
 #include <QLineEdit>
-#include <QRegExpValidator>
+#include "commongraphics/baseitem.h"
 #include "commongraphics/iconbutton.h"
-#include "../dividerline.h"
 
 namespace PreferencesWindow {
 
-class SelectImageItem : public ScalableGraphicsObject
+class SelectImageItem : public CommonGraphics::BaseItem
 {
     Q_OBJECT
 
 public:
-    explicit SelectImageItem(ScalableGraphicsObject *parent, const QString &caption, bool bShowDividerLine);
-
-    QRectF boundingRect() const override;
+    explicit SelectImageItem(ScalableGraphicsObject *parent, const QString &caption);
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
     void setPath(const QString &path);
@@ -31,17 +28,15 @@ private slots:
 
 private:
 
-    static constexpr int TITLE_HEIGHT = 30;
-    static constexpr int BODY_HEIGHT = 43;
+    static constexpr int SELECT_IMAGE_HEIGHT = 60;
+    static constexpr int SELECT_IMAGE_MARGIN_Y = 14;
 
     QString caption_;
     QString path_;
     QString filenameForShow_;
     IconButton *btnOpen_;
-    DividerLine *dividerLine_;
 
     void updatePositions();
-
 };
 
 } // namespace PreferencesWindow

@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QTimer>
 #include <QMutex>
-#include "engine/types/types.h"
+#include "types/enums.h"
 #include "iconnectstatecontroller.h"
 
 class ConnectStateController : public IConnectStateController
@@ -14,7 +14,7 @@ public:
     explicit ConnectStateController(QObject *parent);
 
     void setConnectedState(const LocationID &location);
-    void setDisconnectedState(DISCONNECT_REASON reason, ProtoTypes::ConnectError err);
+    void setDisconnectedState(DISCONNECT_REASON reason, CONNECT_ERROR err);
     void setConnectingState(const LocationID &location);
     void setDisconnectingState();
 
@@ -22,16 +22,16 @@ public:
     virtual CONNECT_STATE prevState() override;
 
     DISCONNECT_REASON disconnectReason() override;
-    ProtoTypes::ConnectError connectionError() override;
+    CONNECT_ERROR connectionError() override;
     const LocationID& locationId() override;
 
 private:
     CONNECT_STATE state_;
     CONNECT_STATE prevState_;
     DISCONNECT_REASON disconnectReason_;
-    ProtoTypes::ConnectError err_;
+    CONNECT_ERROR err_;
     LocationID location_;
-    QMutex mutex_;
+    QRecursiveMutex mutex_;
 };
 
 #endif // CONNECTSTATECONTROLLER_H

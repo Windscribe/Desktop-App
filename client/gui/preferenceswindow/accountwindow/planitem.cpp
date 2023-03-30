@@ -1,24 +1,24 @@
 #include "planitem.h"
 
 #include <QPainter>
-#include "graphicresources/fontmanager.h"
 #include "commongraphics/commongraphics.h"
+#include "graphicresources/fontmanager.h"
+#include "preferenceswindow/preferencesconst.h"
 #include "utils/utils.h"
 #include "dpiscalemanager.h"
 
 namespace PreferencesWindow {
 
-PlanItem::PlanItem(ScalableGraphicsObject *parent) : BaseItem(parent, 78),
-    planBytes_(-1), isPremium_(false)
+PlanItem::PlanItem(ScalableGraphicsObject *parent)
+  : BaseItem(parent, PREFERENCE_GROUP_ITEM_HEIGHT*G_SCALE), planBytes_(-1), isPremium_(false)
 {
     generatePlanString();
 
-    dividerLine_ = new DividerLine(this, 276);
-    dividerLine_->setPos(24, 78 - 3);
-
-    textButton_ = new CommonGraphics::TextButton(QT_TRANSLATE_NOOP("CommonGraphics::TextButton", "Pro"), FontDescr(12, true), QColor(255, 255, 255), true, this);
+    textButton_ = new CommonGraphics::TextButton(QT_TRANSLATE_NOOP("CommonGraphics::TextButton", "Pro"), FontDescr(12, false), QColor(85, 255, 138), true, this);
     connect(textButton_, &CommonGraphics::TextButton::clicked, this, &PlanItem::upgradeClicked);
     textButton_->setClickable(false);
+    textButton_->setMarginHeight(0);
+    textButton_->setTextAlignment(Qt::AlignLeft);
     updateTextButtonPos();
 }
 
@@ -27,16 +27,11 @@ void PlanItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, 
     Q_UNUSED(option);
     Q_UNUSED(widget);
 
-    qreal initialOpacity = painter->opacity();
-
     QFont *font = FontManager::instance().getFont(12, true);
     painter->setFont(*font);
-    painter->setPen(QColor(255, 255, 255));
-    painter->setOpacity(0.5 * initialOpacity);
-    painter->drawText(boundingRect().adjusted(16*G_SCALE, 18*G_SCALE, 0, 0), Qt::AlignTop, tr("PLAN"));
-
-    painter->setOpacity(1.0 * initialOpacity);
-    painter->drawText(boundingRect().adjusted(16*G_SCALE, 0, 0, -18*G_SCALE), Qt::AlignBottom, planStr_);
+    painter->setPen(Qt::white);
+    painter->setOpacity(OPACITY_FULL);
+    painter->drawText(boundingRect().adjusted(PREFERENCES_MARGIN*G_SCALE, PREFERENCES_MARGIN*G_SCALE, -PREFERENCES_MARGIN*G_SCALE, -PREFERENCES_MARGIN*G_SCALE), Qt::AlignLeft, planStr_);
 }
 
 void PlanItem::setPlan(qint64 plan)
@@ -53,22 +48,28 @@ void PlanItem::setIsPremium(bool isPremium)
     {
         textButton_->setText(tr("Pro"));
         textButton_->setCurrentOpacity(OPACITY_FULL);
+        textButton_->setColor(QColor(85, 255, 138));
     }
     else
     {
         textButton_->setText(tr("Upgrade"));
-        textButton_->setCurrentOpacity(OPACITY_UNHOVER_TEXT);
+        textButton_->setCurrentOpacity(OPACITY_HALF);
+        textButton_->setColor(Qt::white);
     }
     textButton_->setClickable(!isPremium_);
     updateTextButtonPos();
     update();
 }
 
+bool PlanItem::isPremium()
+{
+    return isPremium_;
+}
+
 void PlanItem::updateScaling()
 {
     BaseItem::updateScaling();
-    setHeight(78*G_SCALE);
-    dividerLine_->setPos(24*G_SCALE, (78 - 3)*G_SCALE);
+    setHeight(PREFERENCE_GROUP_ITEM_HEIGHT*G_SCALE);
     updateTextButtonPos();
 }
 
@@ -93,17 +94,13 @@ void PlanItem::generatePlanString()
     }
     else
     {
-        planStr_ = QString(tr("%1/Mo")).arg(Utils::humanReadableByteCount(planBytes_, false));
+        planStr_ = QString(tr("%1/Month")).arg(Utils::humanReadableByteCount(planBytes_, false));
     }
 }
 
 void PlanItem::updateTextButtonPos()
 {
-    textButton_->recalcBoundingRect();
-
-    QRectF rcBottom = boundingRect().adjusted(16*G_SCALE, 0, -16*G_SCALE, -18*G_SCALE);
-    textButton_->setPos(boundingRect().width() - textButton_->boundingRect().width() - 16*G_SCALE, rcBottom.bottom() - textButton_->boundingRect().height() + 2*G_SCALE);
+    textButton_->setPos(boundingRect().width() - textButton_->boundingRect().width() - PREFERENCES_MARGIN*G_SCALE, PREFERENCES_MARGIN*G_SCALE);
 }
-
 
 } // namespace PreferencesWindow

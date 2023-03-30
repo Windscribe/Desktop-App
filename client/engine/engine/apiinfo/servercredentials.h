@@ -1,8 +1,7 @@
-#ifndef APIINFO_SERVERCREDENTIALS_H
-#define APIINFO_SERVERCREDENTIALS_H
+#pragma once
 
 #include <QString>
-#include "utils/protobuf_includes.h"
+#include <QDataStream>
 
 namespace apiinfo {
 
@@ -11,9 +10,6 @@ class ServerCredentials
 public:
     ServerCredentials();
     ServerCredentials(const QString &usernameOpenVpn, const QString &passwordOpenVpn, const QString &usernameIkev2, const QString &passwordIkev2);
-    explicit ServerCredentials(const ProtoApiInfo::ServerCredentials &serverCredentials);
-
-    ProtoApiInfo::ServerCredentials getProtoBuf() const;
 
     bool isInitialized() const;
     QString usernameForOpenVpn() const;
@@ -21,17 +17,28 @@ public:
     QString usernameForIkev2() const;
     QString passwordForIkev2() const;
 
-    void writeToStream(QDataStream &stream);
-    void readFromStream(QDataStream &stream, int revision);
+    void setForOpenVpn(const QString &username, const QString &password);
+    void setForIkev2(const QString &username, const QString &password);
+
+    bool isIkev2Initialized() const;
+    bool isOpenVpnInitialized() const;
+
+    friend QDataStream& operator <<(QDataStream &stream, const ServerCredentials &s);
+    friend QDataStream& operator >>(QDataStream &stream, ServerCredentials &s);
 
 private:
-    bool bInitialized_;
+    bool bIkev2Initialized_;
+    bool bOpenVpnInitialized_;
+
+
     QString usernameOpenVpn_;
     QString passwordOpenVpn_;
     QString usernameIkev2_;
     QString passwordIkev2_;
+
+    static constexpr quint32 versionForSerialization_ = 1;
+
 };
 
 } //namespace apiinfo
 
-#endif // APIINFO_SERVERCREDENTIALS_H

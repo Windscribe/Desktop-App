@@ -6,12 +6,15 @@
 #include <QWidget>
 #include <QVariantAnimation>
 #include <QTimer>
-#include "widgetcities.h"
-#include "widgetlocations.h"
-#include "backend/locationsmodel/locationsmodel.h"
+#include <QElapsedTimer>
+
+#include "locations/locationsmodel_manager.h"
+#include "backend/preferences/preferences.h"
 #include "staticipdeviceinfo.h"
 #include "configfooterinfo.h"
 #include "commonwidgets/custommenulineedit.h"
+#include "widgetswitcher.h"
+
 
 namespace GuiLocations {
 
@@ -20,15 +23,12 @@ class LocationsTab : public QWidget
 {
     Q_OBJECT
 public:
-    explicit LocationsTab(QWidget *parent, LocationsModel *locationsModel);
+    explicit LocationsTab(QWidget *parent, Preferences *preferences, gui_locations::LocationsModelManager *locationsModelManager);
 
     int unscaledHeightOfItemViewport();
     void setCountVisibleItemSlots(int cnt);
     int getCountVisibleItems();
     void setOnlyConfigTabVisible(bool onlyConfig);
-
-    void handleKeyReleaseEvent(QKeyEvent *event);
-    void handleKeyPressEvent(QKeyEvent *event);
 
     void updateIconRectsAndLine();
     void updateLocationWidgetsGeometry(int newHeight);
@@ -39,7 +39,7 @@ public:
     void hideSearchTab();
     void hideSearchTabWithoutAnimation();
 
-    void setMuteAccentChanges(bool mute);
+    bool handleKeyPressEvent(QKeyEvent *event);
 
     enum LocationTabEnum {
         LOCATION_TAB_NONE = 0,
@@ -57,7 +57,7 @@ public:
     static constexpr int COVER_LAST_ITEM_LINE = 4;
 
 public slots:
-    void setLatencyDisplay(ProtoTypes::LatencyDisplayType l);
+    void setLatencyDisplay(LATENCY_DISPLAY_TYPE l);
     void setCustomConfigsPath(QString path);
     void setShowLocationLoad(bool showLocationLoad);
 
@@ -72,7 +72,6 @@ protected:
 signals:
     void selected(LocationID id);
     void clickedOnPremiumStarCity();
-    void switchFavorite(LocationID id, bool isFavorite);
     void addStaticIpClicked();
     void clearCustomConfigClicked();
     void addCustomConfigClicked();
@@ -93,22 +92,24 @@ private slots:
     void onSearchTypingDelayTimerTimeout();
     void onSearchLineEditTextChanged(QString text);
     void onSearchLineEditFocusOut();
+    void onAppSkinChanged(APP_SKIN s);
+    void onLocationSelected(const LocationID &lid);
+    void onClickedOnPremiumStarCity();
+
 private:
+    Preferences *preferences_;
+    gui_locations::LocationsModelManager *locationsModelManager_;
 
-
-    IWidgetLocationsInfo *currentWidgetLocations();
-    IWidgetLocationsInfo *locationWidgetByEnum(LocationTabEnum tabEnum);
-    GuiLocations::WidgetLocations *widgetAllLocations_;
-    GuiLocations::WidgetCities *widgetConfiguredLocations_;
-    GuiLocations::WidgetCities *widgetStaticIpsLocations_;
-    GuiLocations::WidgetCities *widgetFavoriteLocations_;
-    GuiLocations::WidgetLocations *widgetSearchLocations_;
+    WidgetSwitcher *widgetAllLocations_;
+    WidgetSwitcher *widgetConfiguredLocations_;
+    WidgetSwitcher *widgetStaticIpsLocations_;
+    WidgetSwitcher *widgetFavoriteLocations_;
+    WidgetSwitcher *widgetSearchLocations_;
 
     // ribbons
     StaticIPDeviceInfo *staticIPDeviceInfo_;
     ConfigFooterInfo *configFooterInfo_;
 
-    //Backend &backend_;
     LocationTabEnum curTab_;
     LocationTabEnum lastTab_;
     LocationTabEnum tabPress_;
@@ -119,6 +120,7 @@ private:
     static constexpr int TOP_TAB_MARGIN = 15;
     static constexpr double TAB_OPACITY_DIM = 0.5;
     static constexpr int SEARCH_BUTTON_POS_ANIMATION_DURATION = 200;
+    static constexpr int FIRST_TAB_ICON_POS_X_VAN_GOGH = 24;
     static constexpr int FIRST_TAB_ICON_POS_X = 106;
     static constexpr int LAST_TAB_ICON_POS_X = 300;
 
@@ -174,6 +176,7 @@ private:
     QVariantAnimation searchButtonPosAnimation_;
     void updateTabIconRects();
     void passEventToLocationWidget(QKeyEvent *event);
+    WidgetSwitcher *getCurrentWidget() const;
 };
 
 } // namespace GuiLocations

@@ -9,8 +9,6 @@
 /* Begin PBXBuildFile section */
 		000B36D324B8C39300717275 /* bound_route.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 000B36D124B8C39300717275 /* bound_route.cpp */; };
 		000B36D624B8CB1500717275 /* routes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 000B36D524B8CB1500717275 /* routes.cpp */; };
-		001EE78624B89075004624BE /* kext_client.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 001EE78224B89075004624BE /* kext_client.cpp */; };
-		001EE78724B89075004624BE /* kext_monitor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 001EE78424B89075004624BE /* kext_monitor.cpp */; };
 		001EE79024B890DF004624BE /* split_tunneling.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 001EE78B24B890DE004624BE /* split_tunneling.cpp */; };
 		001EE79524B893D1004624BE /* routes_manager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 001EE79324B893D1004624BE /* routes_manager.cpp */; };
 		001F82D724BCF2A80081515F /* ip_routes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 001F82D524BCF2A80081515F /* ip_routes.cpp */; };
@@ -37,6 +35,7 @@
 		00B1BA3225E4E3F60099A124 /* files.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00B1BA2F25E4E3F60099A124 /* files.cpp */; };
 		00EBAA04247D254400C86F6F /* logger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00EBAA02247D254400C86F6F /* logger.cpp */; };
 		6211D32C274EFFA800533D65 /* executable_signature_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6211D32A274EFFA800533D65 /* executable_signature_mac.mm */; };
+		622CE1542874BE08008AEDE6 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 622CE1532874BE08008AEDE6 /* IOKit.framework */; };
 		62BB9E1D27642AC00021F51F /* executable_signature.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 62BB9E1B27642AC00021F51F /* executable_signature.cpp */; };
 		840B29571D6BBE88007D9519 /* server.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 840B29551D6BBE88007D9519 /* server.cpp */; };
 		843077AD1DE3AE26002405EA /* execute_cmd.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 843077AB1DE3AE26002405EA /* execute_cmd.cpp */; };
@@ -50,6 +49,14 @@
 		946225E825140DD70032A070 /* wireguardcommunicator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 946225E225140DD70032A070 /* wireguardcommunicator.cpp */; };
 		946225E925140DD70032A070 /* wireguardcontroller.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 946225E425140DD70032A070 /* wireguardcontroller.cpp */; };
 		94DCA9A42559C2510052E65B /* helper_security.mm in Sources */ = {isa = PBXBuildFile; fileRef = 94DCA9A22559C2510052E65B /* helper_security.mm */; };
+		963DFAAF291C5641006E7FF6 /* ipv6manager.h in Sources */ = {isa = PBXBuildFile; fileRef = 963DFAAD291C562C006E7FF6 /* ipv6manager.h */; };
+		963DFAB0291C5641006E7FF6 /* ipv6manager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 963DFAAE291C562C006E7FF6 /* ipv6manager.cpp */; };
+		96A351FD292ECC7900FEED91 /* ovpn.h in Sources */ = {isa = PBXBuildFile; fileRef = 96A351FB292ECC7900FEED91 /* ovpn.h */; };
+		96A351FE292ECC7900FEED91 /* ovpn.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 96A351FC292ECC7900FEED91 /* ovpn.cpp */; };
+		96DC4E87292420C1007C4711 /* macspoofingonboot.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 96DC4E85292420C1007C4711 /* macspoofingonboot.cpp */; };
+		96DC4E88292420C1007C4711 /* macspoofingonboot.h in Sources */ = {isa = PBXBuildFile; fileRef = 96DC4E86292420C1007C4711 /* macspoofingonboot.h */; };
+		96F664E729240B77007D52B0 /* firewallonboot.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 96F664E529240B77007D52B0 /* firewallonboot.cpp */; };
+		96F664E829240B77007D52B0 /* firewallonboot.h in Sources */ = {isa = PBXBuildFile; fileRef = 96F664E629240B77007D52B0 /* firewallonboot.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -79,10 +86,6 @@
 		000B36D224B8C39300717275 /* bound_route.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bound_route.h; sourceTree = "<group>"; };
 		000B36D424B8CB1500717275 /* routes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = routes.h; sourceTree = "<group>"; };
 		000B36D524B8CB1500717275 /* routes.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = routes.cpp; sourceTree = "<group>"; };
-		001EE78224B89075004624BE /* kext_client.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = kext_client.cpp; sourceTree = "<group>"; };
-		001EE78324B89075004624BE /* kext_monitor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kext_monitor.h; sourceTree = "<group>"; };
-		001EE78424B89075004624BE /* kext_monitor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = kext_monitor.cpp; sourceTree = "<group>"; };
-		001EE78524B89075004624BE /* kext_client.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kext_client.h; sourceTree = "<group>"; };
 		001EE78A24B890DE004624BE /* split_tunneling.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = split_tunneling.h; sourceTree = "<group>"; };
 		001EE78B24B890DE004624BE /* split_tunneling.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = split_tunneling.cpp; sourceTree = "<group>"; };
 		001EE79324B893D1004624BE /* routes_manager.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = routes_manager.cpp; sourceTree = "<group>"; };
@@ -137,10 +140,11 @@
 		00B1BA3125E4E3F60099A124 /* iinstall_block.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = iinstall_block.h; sourceTree = "<group>"; };
 		00EBAA02247D254400C86F6F /* logger.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = logger.cpp; sourceTree = "<group>"; };
 		00EBAA03247D254400C86F6F /* logger.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = logger.h; sourceTree = "<group>"; };
-		6211D32A274EFFA800533D65 /* executable_signature_mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = executable_signature_mac.mm; path = ../../../../common/utils/executable_signature/executable_signature_mac.mm; sourceTree = "<group>"; };
-		6211D32B274EFFA800533D65 /* executable_signature_mac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = executable_signature_mac.h; path = ../../../../common/utils/executable_signature/executable_signature_mac.h; sourceTree = "<group>"; };
-		62BB9E1B27642AC00021F51F /* executable_signature.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = executable_signature.cpp; path = ../../../../common/utils/executable_signature/executable_signature.cpp; sourceTree = "<group>"; };
-		62BB9E1C27642AC00021F51F /* executable_signature.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = executable_signature.h; path = ../../../../common/utils/executable_signature/executable_signature.h; sourceTree = "<group>"; };
+		6211D32A274EFFA800533D65 /* executable_signature_mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = executable_signature_mac.mm; path = ../../../../client/common/utils/executable_signature/executable_signature_mac.mm; sourceTree = "<group>"; };
+		6211D32B274EFFA800533D65 /* executable_signature_mac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = executable_signature_mac.h; path = ../../../../client/common/utils/executable_signature/executable_signature_mac.h; sourceTree = "<group>"; };
+		622CE1532874BE08008AEDE6 /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = System/Library/Frameworks/IOKit.framework; sourceTree = SDKROOT; };
+		62BB9E1B27642AC00021F51F /* executable_signature.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = executable_signature.cpp; path = ../../../../client/common/utils/executable_signature/executable_signature.cpp; sourceTree = "<group>"; };
+		62BB9E1C27642AC00021F51F /* executable_signature.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = executable_signature.h; path = ../../../../client/common/utils/executable_signature/executable_signature.h; sourceTree = "<group>"; };
 		840B29551D6BBE88007D9519 /* server.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = server.cpp; sourceTree = "<group>"; };
 		840B29561D6BBE88007D9519 /* server.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = server.h; sourceTree = "<group>"; };
 		843077AB1DE3AE26002405EA /* execute_cmd.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = execute_cmd.cpp; sourceTree = "<group>"; };
@@ -166,6 +170,14 @@
 		946225E525140DD70032A070 /* wireguardcontroller.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = wireguardcontroller.h; sourceTree = "<group>"; };
 		94DCA9A22559C2510052E65B /* helper_security.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = helper_security.mm; sourceTree = "<group>"; };
 		94DCA9A32559C2510052E65B /* helper_security.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = helper_security.h; sourceTree = "<group>"; };
+		963DFAAD291C562C006E7FF6 /* ipv6manager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ipv6manager.h; sourceTree = "<group>"; };
+		963DFAAE291C562C006E7FF6 /* ipv6manager.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ipv6manager.cpp; sourceTree = "<group>"; };
+		96A351FB292ECC7900FEED91 /* ovpn.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ovpn.h; sourceTree = "<group>"; };
+		96A351FC292ECC7900FEED91 /* ovpn.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ovpn.cpp; sourceTree = "<group>"; };
+		96DC4E85292420C1007C4711 /* macspoofingonboot.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = macspoofingonboot.cpp; sourceTree = "<group>"; };
+		96DC4E86292420C1007C4711 /* macspoofingonboot.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = macspoofingonboot.h; sourceTree = "<group>"; };
+		96F664E529240B77007D52B0 /* firewallonboot.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = firewallonboot.cpp; sourceTree = "<group>"; };
+		96F664E629240B77007D52B0 /* firewallonboot.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = firewallonboot.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -175,6 +187,7 @@
 			files = (
 				888838512644773D00FE5C25 /* SystemConfiguration.framework in Frameworks */,
 				8434C10D1FD5BA1400B7030D /* Security.framework in Frameworks */,
+				622CE1542874BE08008AEDE6 /* IOKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -190,17 +203,6 @@
 				94DCA9A22559C2510052E65B /* helper_security.mm */,
 			);
 			path = ipc;
-			sourceTree = "<group>";
-		};
-		001EE78124B89051004624BE /* kext_client */ = {
-			isa = PBXGroup;
-			children = (
-				001EE78224B89075004624BE /* kext_client.cpp */,
-				001EE78524B89075004624BE /* kext_client.h */,
-				001EE78424B89075004624BE /* kext_monitor.cpp */,
-				001EE78324B89075004624BE /* kext_monitor.h */,
-			);
-			path = kext_client;
 			sourceTree = "<group>";
 		};
 		001EE78824B89096004624BE /* split_tunneling */ = {
@@ -327,6 +329,7 @@
 		8434C1091FD5B9D800B7030D /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				622CE1532874BE08008AEDE6 /* IOKit.framework */,
 				8888384F2643340200FE5C25 /* SystemConfiguration.framework */,
 				8434C10C1FD5BA1400B7030D /* Security.framework */,
 				8434C10A1FD5B9D800B7030D /* CoreFoundation.framework */,
@@ -337,6 +340,7 @@
 		84DA0AE41B1D7EB600260E8F /* src */ = {
 			isa = PBXGroup;
 			children = (
+				963DFAAC291C562C006E7FF6 /* ipv6 */,
 				62BB9E1B27642AC00021F51F /* executable_signature.cpp */,
 				62BB9E1C27642AC00021F51F /* executable_signature.h */,
 				6211D32B274EFFA800533D65 /* executable_signature_mac.h */,
@@ -346,10 +350,15 @@
 				001F82D224BCEAAE0081515F /* ip_hostnames */,
 				001EE79224B893B2004624BE /* routes_manager */,
 				001EE78824B89096004624BE /* split_tunneling */,
-				001EE78124B89051004624BE /* kext_client */,
 				001EE77624B88F52004624BE /* ipc */,
 				8434C1061FD5B99C00B7030D /* keychain_utils.h */,
 				8434C1071FD5B99C00B7030D /* keychain_utils.mm */,
+				96A351FC292ECC7900FEED91 /* ovpn.cpp */,
+				96A351FB292ECC7900FEED91 /* ovpn.h */,
+				96F664E529240B77007D52B0 /* firewallonboot.cpp */,
+				96F664E629240B77007D52B0 /* firewallonboot.h */,
+				96DC4E85292420C1007C4711 /* macspoofingonboot.cpp */,
+				96DC4E86292420C1007C4711 /* macspoofingonboot.h */,
 				843077AB1DE3AE26002405EA /* execute_cmd.cpp */,
 				843077AC1DE3AE26002405EA /* execute_cmd.h */,
 				840B29551D6BBE88007D9519 /* server.cpp */,
@@ -380,6 +389,15 @@
 				946225E525140DD70032A070 /* wireguardcontroller.h */,
 			);
 			path = wireguard;
+			sourceTree = "<group>";
+		};
+		963DFAAC291C562C006E7FF6 /* ipv6 */ = {
+			isa = PBXGroup;
+			children = (
+				963DFAAD291C562C006E7FF6 /* ipv6manager.h */,
+				963DFAAE291C562C006E7FF6 /* ipv6manager.cpp */,
+			);
+			path = ipv6;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -442,18 +460,24 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				96A351FD292ECC7900FEED91 /* ovpn.h in Sources */,
+				96A351FE292ECC7900FEED91 /* ovpn.cpp in Sources */,
+				96DC4E87292420C1007C4711 /* macspoofingonboot.cpp in Sources */,
+				96DC4E88292420C1007C4711 /* macspoofingonboot.h in Sources */,
+				96F664E729240B77007D52B0 /* firewallonboot.cpp in Sources */,
+				96F664E829240B77007D52B0 /* firewallonboot.h in Sources */,
+				963DFAAF291C5641006E7FF6 /* ipv6manager.h in Sources */,
+				963DFAB0291C5641006E7FF6 /* ipv6manager.cpp in Sources */,
 				00352E9225E549CE00E5ED2C /* Ppmd7.c in Sources */,
 				946225E725140DD70032A070 /* wireguardadapter.cpp in Sources */,
 				00352E9725E549CE00E5ED2C /* LzmaDec.c in Sources */,
 				00352E9825E549CE00E5ED2C /* 7zDec.c in Sources */,
 				00B1BA3225E4E3F60099A124 /* files.cpp in Sources */,
 				00352E9D25E549CE00E5ED2C /* 7zCrc.c in Sources */,
-				001EE78624B89075004624BE /* kext_client.cpp in Sources */,
 				00352E9C25E549CE00E5ED2C /* 7zFile.c in Sources */,
 				000B36D324B8C39300717275 /* bound_route.cpp in Sources */,
 				00EBAA04247D254400C86F6F /* logger.cpp in Sources */,
 				00352E9625E549CE00E5ED2C /* 7zAlloc.c in Sources */,
-				001EE78724B89075004624BE /* kext_monitor.cpp in Sources */,
 				843077AD1DE3AE26002405EA /* execute_cmd.cpp in Sources */,
 				00AB62AE249142610085A20F /* utils.cpp in Sources */,
 				6211D32C274EFFA800533D65 /* executable_signature_mac.mm in Sources */,
@@ -537,7 +561,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
@@ -585,7 +609,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = macosx;
 			};
@@ -611,7 +635,7 @@
 					"$(PROJECT_DIR)/../../../build-libs/boost/include",
 				);
 				LIBRARY_SEARCH_PATHS = "$(PROJECT_DIR)/../../../build-libs/boost/lib";
-				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
 				OTHER_LDFLAGS = (
 					"-sectcreate",
 					__TEXT,
@@ -647,7 +671,7 @@
 					"$(PROJECT_DIR)/../../../build-libs/boost/include",
 				);
 				LIBRARY_SEARCH_PATHS = "$(PROJECT_DIR)/../../../build-libs/boost/lib";
-				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
 				OTHER_LDFLAGS = (
 					"-sectcreate",
 					__TEXT,

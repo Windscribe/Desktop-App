@@ -2,7 +2,7 @@
 #define IMACADDRESSCONTROLLER_H
 
 #include <QObject>
-#include "utils/protobuf_includes.h"
+#include "types/macaddrspoofing.h"
 
 class IMacAddressController : public QObject
 {
@@ -11,12 +11,12 @@ public:
     explicit IMacAddressController(QObject *parent) : QObject(parent) {}
     virtual ~IMacAddressController() {}
 
-    virtual void initMacAddrSpoofing(const ProtoTypes::MacAddrSpoofing &macAddrSpoofing) = 0;
-    virtual void setMacAddrSpoofing(const ProtoTypes::MacAddrSpoofing &macAddrSpoofing) = 0;
+    virtual void initMacAddrSpoofing(const types::MacAddrSpoofing &macAddrSpoofing) = 0;
+    virtual void setMacAddrSpoofing(const types::MacAddrSpoofing &macAddrSpoofing) = 0;
 
 signals:
-    void macAddrSpoofingChanged(const ProtoTypes::MacAddrSpoofing &macAddrSpoofing);
-    void sendUserWarning(ProtoTypes::UserWarningType userWarningType);
+    void macAddrSpoofingChanged(const types::MacAddrSpoofing &macAddrSpoofing);
+    void sendUserWarning(USER_WARNING_TYPE userWarningType);
     void robustMacSpoofApplied();
 };
 

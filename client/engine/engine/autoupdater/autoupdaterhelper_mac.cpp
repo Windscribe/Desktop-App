@@ -3,6 +3,7 @@
 #include <QFileInfo>
 #include <QProcess>
 #include <QCoreApplication>
+#include <QRegularExpression>
 #include "utils/logger.h"
 #include "names.h"
 #include "utils/utils.h"
@@ -15,13 +16,13 @@ AutoUpdaterHelper_mac::AutoUpdaterHelper_mac()
 
 const QString AutoUpdaterHelper_mac::copyInternalInstallerToTempFromDmg(const QString &dmgFilename)
 {
-    error_ = ProtoTypes::UPDATE_VERSION_ERROR_NO_ERROR;
+    error_ = UPDATE_VERSION_ERROR_NO_ERROR;
 
     const QString volumeMountPoint = mountDmg(dmgFilename);
 
     if (volumeMountPoint == "")
     {
-        error_ = ProtoTypes::UPDATE_VERSION_ERROR_MOUNT_FAIL;
+        error_ = UPDATE_VERSION_ERROR_MOUNT_FAIL;
         return "";
     }
 
@@ -31,7 +32,7 @@ const QString AutoUpdaterHelper_mac::copyInternalInstallerToTempFromDmg(const QS
     {
         qCDebug(LOG_AUTO_UPDATER) << "Volume installer does not exist: " + volumeInstallerFilename;
         unmountVolume(volumeMountPoint);
-        error_ = ProtoTypes::UPDATE_VERSION_ERROR_DMG_HAS_NO_INSTALLER_FAIL;
+        error_ = UPDATE_VERSION_ERROR_DMG_HAS_NO_INSTALLER_FAIL;
         return "";
     }
     qCDebug(LOG_AUTO_UPDATER) << "Volume has installer: " << volumeInstallerFilename;
@@ -47,7 +48,7 @@ const QString AutoUpdaterHelper_mac::copyInternalInstallerToTempFromDmg(const QS
         {
             qCDebug(LOG_AUTO_UPDATER) << "Couldn't remove temp file: " << tempInstallerFilename;
             unmountVolume(volumeMountPoint);
-            error_ = ProtoTypes::UPDATE_VERSION_ERROR_CANNOT_REMOVE_EXISTING_TEMP_INSTALLER_FAIL;
+            error_ = UPDATE_VERSION_ERROR_CANNOT_REMOVE_EXISTING_TEMP_INSTALLER_FAIL;
             return "";
         }
     }
@@ -59,7 +60,7 @@ const QString AutoUpdaterHelper_mac::copyInternalInstallerToTempFromDmg(const QS
         qCDebug(LOG_AUTO_UPDATER) << "Failed to copy installer into temp folder";
         unmountVolume(volumeMountPoint);
         Utils::removeDirectory(tempInstallerFilename); // remove any partially copied application
-        error_ = ProtoTypes::UPDATE_VERSION_ERROR_COPY_FAIL;
+        error_ = UPDATE_VERSION_ERROR_COPY_FAIL;
         return "";
     }
     qCDebug(LOG_AUTO_UPDATER) << "Copied installer to: " << tempInstallerFilename;
@@ -72,7 +73,7 @@ const QString AutoUpdaterHelper_mac::copyInternalInstallerToTempFromDmg(const QS
 bool AutoUpdaterHelper_mac::verifyAndRun(const QString &tempInstallerFilename,
                                          const QString &additionalArgs)
 {
-    if (error_ != ProtoTypes::UPDATE_VERSION_ERROR_NO_ERROR)
+    if (error_ != UPDATE_VERSION_ERROR_NO_ERROR)
     {
         qCDebug(LOG_AUTO_UPDATER) << "Cannot verify and run when dmg unpacking has failed";
         return false;
@@ -85,7 +86,7 @@ bool AutoUpdaterHelper_mac::verifyAndRun(const QString &tempInstallerFilename,
     {
         qDebug(LOG_AUTO_UPDATER) << "Failed to verify signature and certificate of downloaded installer: " << QString::fromStdString(sigCheck.lastError());
         Utils::removeDirectory(tempInstallerFilename);
-        error_ = ProtoTypes::UPDATE_VERSION_ERROR_SIGN_FAIL;
+        error_ = UPDATE_VERSION_ERROR_SIGN_FAIL;
         return false;
     }
 
@@ -114,14 +115,14 @@ bool AutoUpdaterHelper_mac::verifyAndRun(const QString &tempInstallerFilename,
         {
             qCDebug(LOG_AUTO_UPDATER) << "Could not remove unsigned installer";
         }
-        error_ = ProtoTypes::UPDATE_VERSION_ERROR_START_INSTALLER_FAIL;
+        error_ = UPDATE_VERSION_ERROR_START_INSTALLER_FAIL;
         return false;
     }
 
     return true;
 }
 
-ProtoTypes::UpdateVersionError AutoUpdaterHelper_mac::error()
+UPDATE_VERSION_ERROR AutoUpdaterHelper_mac::error()
 {
     return error_;
 }
@@ -155,11 +156,12 @@ const QString AutoUpdaterHelper_mac::mountDmg(const QString &dmgFilename)
 
     // parse output for volume mount point
     const QString mountingOutput = mountProcess.readAll();
-    const QList<QString> lines = mountingOutput.split("\n", QString::SkipEmptyParts);
+    const QList<QString> lines = mountingOutput.split("\n", Qt::SkipEmptyParts);
     if (lines.length() > 0)
     {
         const QString lastLine = lines[lines.length()-1];
-        QStringList entries = lastLine.split(QRegExp("\\s+"), QString::SkipEmptyParts);
+        QRegularExpression regExp("\\s+");
+        QStringList entries = lastLine.split(regExp, Qt::SkipEmptyParts);
 
         if (entries.length() > 2)
         {

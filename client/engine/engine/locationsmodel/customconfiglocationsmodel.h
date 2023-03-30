@@ -1,18 +1,14 @@
-#ifndef CUSTOMCONFIGLOCATIONSMODEL_H
-#define CUSTOMCONFIGLOCATIONSMODEL_H
+#pragma once
 
 #include <QHostInfo>
 #include <QObject>
-#include "engine/apiinfo/location.h"
-#include "engine/apiinfo/staticips.h"
-#include "types/locationid.h"
-#include "engine/proxy/proxysettings.h"
-#include "locationitem.h"
-#include "pingipscontroller.h"
-#include "pingstorage.h"
-#include "bestlocation.h"
+
 #include "baselocationinfo.h"
 #include "engine/customconfigs/icustomconfig.h"
+#include "pingipscontroller.h"
+#include "pingstorage.h"
+#include "types/location.h"
+#include "types/locationid.h"
 
 class INetworkDetectionManager;
 
@@ -32,7 +28,7 @@ public:
     QSharedPointer<BaseLocationInfo> getMutableLocationInfoById(const LocationID &locationId);
 
 signals:
-    void locationsUpdated( QSharedPointer<QVector<locationsmodel::LocationItem> > locations);
+    void locationsUpdated( QSharedPointer<types::Location> location);
     void locationPingTimeChanged(const LocationID &id, PingTime timeMs);
 
     void whitelistIpsChanged(const QStringList &ips);
@@ -41,12 +37,12 @@ signals:
     //void customOvpnConfgsIpsChanged(const QStringList &ips);
 
 private slots:
-    void onPingInfoChanged(const QString &ip, int timems, bool isFromDisconnectedState);
+    void onPingInfoChanged(const QString &ip, int timems);
     void onNeedIncrementPingIteration();
     void onDnsRequestFinished();
 
 private:
-    PingStorage pingStorage_;
+    CustomConfigPingStorage pingStorage_;
 
     PingIpsController pingIpsController_;
 
@@ -87,5 +83,3 @@ private:
 };
 
 } //namespace locationsmodel
-
-#endif // CUSTOMCONFIGLOCATIONSMODEL_H

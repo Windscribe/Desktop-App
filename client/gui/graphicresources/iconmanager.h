@@ -1,5 +1,4 @@
-#ifndef ICONMANAGER_H
-#define ICONMANAGER_H
+#pragma once
 
 #include <QIcon>
 
@@ -17,6 +16,11 @@ class IconManager
         ICON_TRAY_CONNECTING_LIGHT,
         ICON_TRAY_CONNECTED_DARK,
         ICON_TRAY_CONNECTED_LIGHT,
+        #if defined(Q_OS_WIN)
+        ICON_OVERLAY_CONNECTING,
+        ICON_OVERLAY_CONNECTED,
+        ICON_OVERLAY_ERROR,
+        #endif
         NUM_ICON_TYPES
     };
 
@@ -38,10 +42,14 @@ public:
     const QIcon *getConnectingTrayIcon(bool isDarkMode) const;
     const QIcon *getConnectedTrayIcon(bool isDarkMode) const;
 
+    #if defined(Q_OS_WIN)
+    const QIcon *getConnectingOverlayIcon() const { return &icons_[ICON_OVERLAY_CONNECTING]; }
+    const QIcon *getConnectedOverlayIcon() const { return &icons_[ICON_OVERLAY_CONNECTED]; }
+    const QIcon *getErrorOverlayIcon() const { return &icons_[ICON_OVERLAY_ERROR]; }
+    #endif
+
 private:
     explicit IconManager();
 
     QIcon icons_[NUM_ICON_TYPES];
 };
-
-#endif // ICONMANAGER_H

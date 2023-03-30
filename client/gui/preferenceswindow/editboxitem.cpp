@@ -2,31 +2,27 @@
 
 #include <QPainter>
 #include <QStyleOption>
-#include "basepage.h"
+#include "commongraphics/basepage.h"
 #include "graphicresources/fontmanager.h"
-#include "languagecontroller.h"
 #include "dpiscalemanager.h"
+#include "languagecontroller.h"
+#include "preferencesconst.h"
 
 namespace PreferencesWindow {
 
-EditBoxItem::EditBoxItem(ScalableGraphicsObject *parent, const QString &caption, const QString &editPrompt, bool isDrawFullBottomDivider) :
-    ScalableGraphicsObject(parent),
-    caption_(caption),
-    isEditMode_(false),
-    maskingChar_(0)
+EditBoxItem::EditBoxItem(ScalableGraphicsObject *parent, const QString &caption, const QString &editPrompt)
+  : BaseItem(parent, PREFERENCE_GROUP_ITEM_HEIGHT*G_SCALE), caption_(caption), isEditMode_(false), maskingChar_('\0')
 {
-    line_ = new DividerLine(this, isDrawFullBottomDivider ? 276 : 264);
-
     btnEdit_ = new IconButton(16, 16, "preferences/EDIT_ICON", "", this);
-    connect(btnEdit_, SIGNAL(clicked()), SLOT(onEditClick()));
+    connect(btnEdit_, &IconButton::clicked, this, &EditBoxItem::onEditClick);
 
     btnConfirm_ = new IconButton(16, 16, "preferences/CONFIRM_ICON", "", this);
     btnConfirm_->hide();
-    connect(btnConfirm_, SIGNAL(clicked()), SLOT(onConfirmClick()));
+    connect(btnConfirm_, &IconButton::clicked, this, &EditBoxItem::onConfirmClick);
 
     btnUndo_ = new IconButton(16, 16, "preferences/UNDO_ICON", "", this);
     btnUndo_->hide();
-    connect(btnUndo_, SIGNAL(clicked()), SLOT(onUndoClick()));
+    connect(btnUndo_, &IconButton::clicked, this, &EditBoxItem::onUndoClick);
 
     editPlaceholderText_ = editPrompt;
 
@@ -35,18 +31,13 @@ EditBoxItem::EditBoxItem(ScalableGraphicsObject *parent, const QString &caption,
     lineEdit_->setStyleSheet("background: transparent; color: rgb(135, 138, 147)");
     lineEdit_->setFrame(false);
 
-    connect(&LanguageController::instance(), SIGNAL(languageChanged()), SLOT(onLanguageChanged()));
+    connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &EditBoxItem::onLanguageChanged);
 
     proxyWidget_ = new QGraphicsProxyWidget(this);
     proxyWidget_->setWidget(lineEdit_);
     proxyWidget_->hide();
 
-    updatePositions();
-}
-
-QRectF EditBoxItem::boundingRect() const
-{
-    return QRectF(0, 0, PAGE_WIDTH*G_SCALE, 43*G_SCALE);
+    updateScaling();
 }
 
 void EditBoxItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
@@ -54,28 +45,42 @@ void EditBoxItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
     Q_UNUSED(option)
     Q_UNUSED(widget)
 
-    qreal initialOpacity = painter->opacity();
-
-    painter->fillRect(boundingRect().adjusted(24*G_SCALE, 0, 0, 0), QBrush(QColor(16, 22, 40)));
-
     if (!isEditMode_)
     {
-        QFont *font = FontManager::instance().getFont(12, true);
+        QFont *font = FontManager::instance().getFont(12, false);
+        QFontMetrics fm(*font);
+        QString caption = tr(caption_.toStdString().c_str());
         painter->setFont(*font);
-        painter->setPen(QColor(255, 255, 255));
-        painter->drawText(boundingRect().adjusted(40*G_SCALE, 0, 0, -3*G_SCALE), Qt::AlignVCenter, tr(caption_.toStdString().c_str()));
+        painter->setPen(Qt::white);
+        painter->drawText(boundingRect().adjusted(PREFERENCES_MARGIN*G_SCALE,
+                                                  PREFERENCES_MARGIN*G_SCALE,
+                                                  -(2*PREFERENCES_MARGIN + ICON_WIDTH)*G_SCALE,
+                                                  -PREFERENCES_MARGIN*G_SCALE),
+                          Qt::AlignLeft, caption);
 
-        painter->setOpacity(0.5 * initialOpacity);
+        painter->setOpacity(OPACITY_HALF);
         QString t;
         if (text_.isEmpty())
+        {
             t = "--";
-        else if (maskingChar_ != 0)
+        }
+        else if (!maskingChar_.isNull())
+        {
             t = QString(text_.size(), maskingChar_);
+        }
         else
+        {
             t = text_;
+        }
 
-        int rightOffs = -48*G_SCALE;
-        painter->drawText(boundingRect().adjusted(40*G_SCALE, 0, rightOffs, -3*G_SCALE), Qt::AlignRight | Qt::AlignVCenter, t);
+        painter->drawText(boundingRect().adjusted((2*PREFERENCES_MARGIN*G_SCALE) + fm.horizontalAdvance(caption),
+                                                  PREFERENCES_MARGIN*G_SCALE,
+                                                  -(2*PREFERENCES_MARGIN + ICON_WIDTH)*G_SCALE,
+                                                  -PREFERENCES_MARGIN),
+                          Qt::AlignRight,
+                          fm.elidedText(t,
+                                        Qt::ElideRight,
+                                        boundingRect().width() - (4*PREFERENCES_MARGIN + ICON_WIDTH)*G_SCALE - fm.horizontalAdvance(caption)));
     }
 }
 
@@ -86,15 +91,9 @@ void EditBoxItem::setText(const QString &text)
     update();
 }
 
-void EditBoxItem::setValidator(QRegExpValidator *validator)
+void EditBoxItem::setValidator(QRegularExpressionValidator *validator)
 {
     lineEdit_->setValidator(validator);
-}
-
-void EditBoxItem::updateScaling()
-{
-    ScalableGraphicsObject::updateScaling();
-    updatePositions();
 }
 
 void EditBoxItem::setEditButtonClickable(bool clickable)
@@ -106,12 +105,11 @@ void EditBoxItem::setMasked(bool masked)
 {
     if (masked) {
         QStyleOptionFrame opt;
-        opt.init(lineEdit_);
-        maskingChar_ =
-            lineEdit_->style()->styleHint(QStyle::SH_LineEdit_PasswordCharacter, &opt, lineEdit_);
+        opt.initFrom(lineEdit_);
+        maskingChar_ = QChar(lineEdit_->style()->styleHint(QStyle::SH_LineEdit_PasswordCharacter, &opt, lineEdit_));
         lineEdit_->setEchoMode(QLineEdit::Password);
     } else {
-        maskingChar_ = 0;
+        maskingChar_ = '\0';
         lineEdit_->setEchoMode(QLineEdit::Normal);
     }
     update();
@@ -122,7 +120,7 @@ bool EditBoxItem::lineEditHasFocus()
     return lineEdit_->hasFocus();
 }
 
-void EditBoxItem::keyReleaseEvent(QKeyEvent *event)
+void EditBoxItem::keyPressEvent(QKeyEvent *event)
 {
     if (event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter)
     {
@@ -168,6 +166,12 @@ void EditBoxItem::onUndoClick()
     update();
 }
 
+void EditBoxItem::updateScaling()
+{
+    CommonGraphics::BaseItem::updateScaling();
+    setHeight(PREFERENCE_GROUP_ITEM_HEIGHT*G_SCALE);
+    updatePositions();
+}
 
 void EditBoxItem::onLanguageChanged()
 {
@@ -176,22 +180,20 @@ void EditBoxItem::onLanguageChanged()
 
 void EditBoxItem::updatePositions()
 {
-    line_->setPos(24*G_SCALE, 40*G_SCALE);
-    btnEdit_->setPos(boundingRect().width() - btnEdit_->boundingRect().width() - 16*G_SCALE, (boundingRect().height() - line_->boundingRect().height() - btnEdit_->boundingRect().height()) / 2);
-
-    btnConfirm_->setPos(boundingRect().width() - btnConfirm_->boundingRect().width() - 16*G_SCALE, (boundingRect().height() - line_->boundingRect().height() - btnConfirm_->boundingRect().height()) / 2);
-    btnUndo_->setPos(boundingRect().width() - btnUndo_->boundingRect().width() - (16 + 32)*G_SCALE, (boundingRect().height() - line_->boundingRect().height() - btnUndo_->boundingRect().height()) / 2);
+    btnEdit_->setPos(boundingRect().width() - (ICON_WIDTH + PREFERENCES_MARGIN)*G_SCALE, PREFERENCES_MARGIN*G_SCALE);
+    btnConfirm_->setPos(boundingRect().width() - (ICON_WIDTH + PREFERENCES_MARGIN)*G_SCALE, PREFERENCES_MARGIN*G_SCALE);
+    btnUndo_->setPos(boundingRect().width() - (2*ICON_WIDTH + 2*PREFERENCES_MARGIN)*G_SCALE, PREFERENCES_MARGIN*G_SCALE);
     lineEdit_->setFont(*FontManager::instance().getFont(12, true));
 
-    if (!proxyWidget_->isVisible()) // workaround Qt bug (setGeometry now working when proxyWidget_ is not visible)
+    if (!proxyWidget_->isVisible()) // workaround Qt bug (setGeometry not working when proxyWidget_ is not visible)
     {
         proxyWidget_->show();
-        lineEdit_->setGeometry((24 + 14)*G_SCALE, 0, 180 * G_SCALE, 40 * G_SCALE);
+        lineEdit_->setGeometry(PREFERENCES_MARGIN*G_SCALE, PREFERENCES_MARGIN*G_SCALE, boundingRect().width() - (2*ICON_WIDTH + 3*PREFERENCES_MARGIN)*G_SCALE, ICON_HEIGHT*G_SCALE);
         proxyWidget_->hide();
     }
     else
     {
-        lineEdit_->setGeometry((24 + 14)*G_SCALE, 0, 180 * G_SCALE, 40 * G_SCALE);
+        lineEdit_->setGeometry(PREFERENCES_MARGIN*G_SCALE, PREFERENCES_MARGIN*G_SCALE, boundingRect().width() - (2*ICON_WIDTH + 3*PREFERENCES_MARGIN)*G_SCALE, ICON_HEIGHT*G_SCALE);
     }
 }
 

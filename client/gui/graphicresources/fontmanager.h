@@ -1,7 +1,7 @@
 #ifndef FONTMANAGER_H
 #define FONTMANAGER_H
 
-#include <QMap>
+#include <QHash>
 #include <QSharedPointer>
 #include <QColor>
 #include "fontdescr.h"
@@ -16,10 +16,10 @@ public:
         return fm;
     }
 
-    QFont *getFontWithCustomScale(double scale, int size, bool isBold, int stretch = 100, qreal letterSpacing = 0.0);
-    QFont *getFont(int size, bool isBold, int stretch = 100, qreal letterSpacing = 0.0);
+    QFont *getFontWithCustomScale(double scale, double size, bool isBold, int stretch = 100, qreal letterSpacing = 0.0);
+    QFont *getFont(double size, bool isBold, int stretch = 100, qreal letterSpacing = 0.0);
     QFont *getFont(const FontDescr &fd);
-    QString getFontStyleSheet(int size, bool isBold);
+    QString getFontStyleSheet(double size, bool isBold);
     void clearCache();
 
     void languageChanged();
@@ -44,7 +44,7 @@ private:
     FontManager();
     ~FontManager();
 
-    QMap<QString, QFont *> fonts_;
+    QHash<QString, QFont *> fonts_;
 
     void clearFontMap();
 };

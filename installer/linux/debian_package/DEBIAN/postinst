@@ -2,9 +2,10 @@
 # This file will be overwritten by rpm specific script which is passed to fpm in build script
 # So if multi-platform change is needed remember to change that file as well
 set -e
-systemctl enable windscribe-helper
+systemctl preset windscribe-helper
 systemctl start windscribe-helper
-ln -s /usr/local/windscribe/windscribe-cli /usr/local/bin/windscribe-cli
+ln -s /opt/windscribe/windscribe-cli /usr/bin/windscribe-cli
+update-desktop-database
 
 echo linux_deb_x64 > ../etc/windscribe/platform # debian-specific
 

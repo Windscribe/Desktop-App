@@ -40,8 +40,7 @@ void RouteMonitorThread(void *callerContext)
 }  // namespace
 
 DefaultRouteMonitor::DefaultRouteMonitor(const std::string &deviceName)
-    : deviceName_(deviceName), monitorThread_(nullptr), doStopThread_(false),
-      isIpv6Blackholed_(false)
+    : deviceName_(deviceName), monitorThread_(nullptr), doStopThread_(false)
 {
 }
 
@@ -73,7 +72,7 @@ void DefaultRouteMonitor::stop()
         delete monitorThread_;
         monitorThread_ = nullptr;
     }
-    unsetEndpointDirectRoute(true);
+    unsetEndpointDirectRoute();
 }
 
 bool DefaultRouteMonitor::checkDefaultRoutes()
@@ -82,7 +81,7 @@ bool DefaultRouteMonitor::checkDefaultRoutes()
     if (newGateway == lastGateway_)
         return true;
 
-    unsetEndpointDirectRoute(false);
+    unsetEndpointDirectRoute();
     lastGateway_ = newGateway;
     return setEndpointDirectRoute();
 }
@@ -119,20 +118,12 @@ bool DefaultRouteMonitor::setEndpointDirectRoute()
     if (!executeCommandWithLogging(
         "route -q -n add -inet " + endpoint_ + " -gateway " + lastGateway_))
         return false;
-    if (!isIpv6Blackholed_) {
-        if (executeCommandWithLogging("route -q -n add -inet6 " + endpoint_ + " ::1 -blackhole"))
-            isIpv6Blackholed_ = true;
-    }
     return true;
 }
 
-void DefaultRouteMonitor::unsetEndpointDirectRoute(bool unset_ipv6_blackhole)
+void DefaultRouteMonitor::unsetEndpointDirectRoute()
 {
     if (endpoint_.empty())
         return;
     executeCommandWithLogging("route -q -n delete -inet " + endpoint_);
-    if (unset_ipv6_blackhole) {
-        executeCommandWithLogging("route -q -n delete -inet6 " + endpoint_);
-        isIpv6Blackholed_ = false;
-    }
 }

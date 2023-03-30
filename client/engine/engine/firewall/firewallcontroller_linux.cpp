@@ -1,55 +1,41 @@
 #include "firewallcontroller_linux.h"
 #include <QStandardPaths>
 #include "utils/logger.h"
-#include "utils/utils.h"
+#include <ifaddrs.h>
 #include <QDir>
 #include "engine/helper/ihelper.h"
 
 FirewallController_linux::FirewallController_linux(QObject *parent, IHelper *helper) :
-    FirewallController(parent), forceUpdateInterfaceToSkip_(false), mutex_(QMutex::Recursive),
-    comment_("\"Windscribe client rule\"")
+    FirewallController(parent), forceUpdateInterfaceToSkip_(false), comment_("Windscribe client rule")
 {
     helper_ = dynamic_cast<Helper_linux *>(helper);
-
-    pathToTempTable_ = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
-    QDir dir(pathToTempTable_);
-    dir.mkpath(pathToTempTable_);
-    pathToTempTable_ += "/windscribe_table.txt";
 }
 
 FirewallController_linux::~FirewallController_linux()
 {
 }
 
-bool FirewallController_linux::firewallOn(const QString &ip, bool bAllowLanTraffic)
+bool FirewallController_linux::firewallOn(const QSet<QString> &ips, bool bAllowLanTraffic, bool bIsCustomConfig)
 {
     QMutexLocker locker(&mutex_);
-    FirewallController::firewallOn(ip, bAllowLanTraffic);
-    if (isStateChanged())
-    {
-        qCDebug(LOG_FIREWALL_CONTROLLER) << "firewall enabled with ips count:" << countIps(ip);
-        return firewallOnImpl(ip, bAllowLanTraffic, latestStaticIpPorts_);
-    }
-    else if (forceUpdateInterfaceToSkip_)
-    {
+    FirewallController::firewallOn(ips, bAllowLanTraffic, bIsCustomConfig);
+    if (isStateChanged()) {
+        qCDebug(LOG_FIREWALL_CONTROLLER) << "firewall enabled with ips count:" << ips.count();
+        return firewallOnImpl(ips, bAllowLanTraffic, bIsCustomConfig, latestStaticIpPorts_);
+    } else if (forceUpdateInterfaceToSkip_) {
         qCDebug(LOG_FIREWALL_CONTROLLER) << "firewall changed due to interface-to-skip update";
-        return firewallOnImpl(ip, bAllowLanTraffic, latestStaticIpPorts_);
+        return firewallOnImpl(ips, bAllowLanTraffic, bIsCustomConfig, latestStaticIpPorts_);
     }
-    else
-    {
-        return true;
-    }
+    return true;
 }
 
 bool FirewallController_linux::firewallOff()
 {
     QMutexLocker locker(&mutex_);
     FirewallController::firewallOff();
-    if (isStateChanged())
-    {
+    if (isStateChanged()) {
+        qCDebug(LOG_FIREWALL_CONTROLLER) << "firewall off";
         QString cmd;
-        int exitCode;
-
 
         // remove IPv4 rules
         removeWindscribeRules(comment_, false);
@@ -57,39 +43,22 @@ bool FirewallController_linux::firewallOff()
         // remove IPv6 rules
         removeWindscribeRules(comment_, true);
 
-        // remove rules from /etc/windscribe directory to avoid enabling them on OS reboot
-        cmd = "rm -f /etc/windscribe/rules.v4";
-        helper_->executeRootCommand(cmd, &exitCode);
-        if (exitCode != 0)
-        {
-            qCDebug(LOG_FIREWALL_CONTROLLER) << "Unsuccessful exit code:" << exitCode << " for cmd:" << cmd;
+        bool ret = helper_->clearFirewallRules();
+        if (!ret) {
+            qCDebug(LOG_FIREWALL_CONTROLLER) << "Clear firewall rules unsuccessful:" << ret;
         }
-        cmd = "rm -f /etc/windscribe/rules.v6";
-        helper_->executeRootCommand(cmd, &exitCode);
-        if (exitCode != 0)
-        {
-            qCDebug(LOG_FIREWALL_CONTROLLER) << "Unsuccessful exit code:" << exitCode << " for cmd:" << cmd;
-        }
-
         return true;
     }
-    else
-    {
-        return true;
-    }
+    return true;
 }
 
 bool FirewallController_linux::firewallActualState()
 {
     QMutexLocker locker(&mutex_);
-    if (helper_->currentState() != IHelper::STATE_CONNECTED)
-    {
+    if (helper_->currentState() != IHelper::STATE_CONNECTED) {
         return false;
     }
-
-    int exitCode;
-    helper_->executeRootCommand("iptables --check INPUT -j windscribe_input -m comment --comment " + comment_ + " 2>&-", &exitCode);
-    return exitCode == 0;
+    return helper_->checkFirewallState(comment_);
 }
 
 bool FirewallController_linux::whitelistPorts(const apiinfo::StaticIpPortsVector &ports)
@@ -119,137 +88,122 @@ void FirewallController_linux::enableFirewallOnBoot(bool bEnable)
     //nothing todo for Linux
 }
 
-bool FirewallController_linux::firewallOnImpl(const QString &ip, bool bAllowLanTraffic, const apiinfo::StaticIpPortsVector &ports)
+bool FirewallController_linux::firewallOnImpl(const QSet<QString> &ips, bool bAllowLanTraffic, bool bIsCustomConfig, const apiinfo::StaticIpPortsVector &ports)
 {
     // TODO: this is need for Linux?
     Q_UNUSED(ports);
 
     forceUpdateInterfaceToSkip_ = false;
+    bool bExists = firewallActualState();
 
     // rules for IPv4
     {
-        QFile file(pathToTempTable_);
-        if (file.open(QIODevice::WriteOnly))
-        {
-            QTextStream stream(&file);
+        QStringList rules;
+        rules << "*filter\n";
+        rules << ":windscribe_input - [0:0]\n";
+        rules << ":windscribe_output - [0:0]\n";
 
-            stream << "*filter\n";
-            stream << ":windscribe_input - [0:0]\n";
-            stream << ":windscribe_output - [0:0]\n";
-
-            stream << "-A INPUT -j windscribe_input -m comment --comment " + comment_ + "\n";
-            stream << "-A OUTPUT -j windscribe_output -m comment --comment " + comment_ + "\n";
-
-            stream << "-A windscribe_input -i lo -j ACCEPT -m comment --comment " + comment_ + "\n";
-            stream << "-A windscribe_output -o lo -j ACCEPT -m comment --comment " + comment_ + "\n";
-
-            if (!interfaceToSkip_.isEmpty())
-            {
-                stream << "-A windscribe_input -i " + interfaceToSkip_ + " -j ACCEPT -m comment --comment " + comment_ + "\n";
-                stream << "-A windscribe_output -o " + interfaceToSkip_ + " -j ACCEPT -m comment --comment " + comment_ + "\n";
-            }
-
-            const QStringList ips = ip.split(';');
-            for (auto &i : ips)
-            {
-                stream << "-A windscribe_input -s " + i + "/32 -j ACCEPT -m comment --comment " + comment_ + "\n";
-                stream << "-A windscribe_output -d " + i + "/32 -j ACCEPT -m comment --comment " + comment_ + "\n";
-            }
-
-            if (bAllowLanTraffic)
-            {
-                // Local Network
-                stream << "-A windscribe_input -s 192.168.0.0/16 -j ACCEPT -m comment --comment " + comment_ + "\n";
-                stream << "-A windscribe_output -d 192.168.0.0/16 -j ACCEPT -m comment --comment " + comment_ + "\n";
-
-                stream << "-A windscribe_input -s 172.16.0.0/12 -j ACCEPT -m comment --comment " + comment_ + "\n";
-                stream << "-A windscribe_output -d 172.16.0.0/12 -j ACCEPT -m comment --comment " + comment_ + "\n";
-
-                stream << "-A windscribe_input -s 10.0.0.0/8 -j ACCEPT -m comment --comment " + comment_ + "\n";
-                stream << "-A windscribe_output -d 10.0.0.0/8 -j ACCEPT -m comment --comment " + comment_ + "\n";
-
-                // Loopback addresses to the local host
-                stream << "-A windscribe_input -s 127.0.0.0/8 -j ACCEPT -m comment --comment " + comment_ + "\n";
-
-                // Multicast addresses
-                stream << "-A windscribe_input -s 224.0.0.0/4 -j ACCEPT -m comment --comment " + comment_ + "\n";
-            }
-
-            stream << "-A windscribe_input -j DROP -m comment --comment " + comment_ + "\n";
-            stream << "-A windscribe_output -j DROP -m comment --comment " + comment_ + "\n";
-            stream << "COMMIT\n";
-
-            file.close();
-
-
-            int exitCode;
-            QString cmd = "iptables-restore -n < " + pathToTempTable_;
-            helper_->executeRootCommand(cmd, &exitCode);
-            if (exitCode != 0)
-            {
-                qCDebug(LOG_FIREWALL_CONTROLLER) << "Unsuccessful exit code:" << exitCode << " for cmd:" << cmd;
-            }
-
-            // save current rules to /etc/windscribe directory to make it restorable on OS boot with windscribe-helper
-            cmd = "cp " + pathToTempTable_ + " /etc/windscribe/rules.v4";
-            helper_->executeRootCommand(cmd, &exitCode);
-            if (exitCode != 0)
-            {
-                qCDebug(LOG_FIREWALL_CONTROLLER) << "Unsuccessful exit code:" << exitCode << " for cmd:" << cmd;
-            }
-
-            file.remove();
+        if (!bExists) {
+            rules << "-A INPUT -j windscribe_input -m comment --comment \"" + comment_ + "\"\n";
+            rules << "-A OUTPUT -j windscribe_output -m comment --comment \"" + comment_ + "\"\n";
         }
-        else
-        {
-            qCDebug(LOG_FIREWALL_CONTROLLER) << "Can't create file:" << pathToTempTable_;
-            return false;
+
+        rules << "-A windscribe_input -i lo -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
+        rules << "-A windscribe_output -o lo -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
+
+        if (!interfaceToSkip_.isEmpty()) {
+            if (!bIsCustomConfig) {
+                // Allow local addresses
+                QStringList localAddrs = getLocalAddresses(interfaceToSkip_);
+                for (QString addr : localAddrs) {
+                    rules << "-A windscribe_input -i " + interfaceToSkip_ + " -s " + addr + "/32 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
+                    rules << "-A windscribe_output -o " + interfaceToSkip_ + " -d " + addr + "/32 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
+                }
+
+                // Disallow LAN addresses (except 10.255.255.0/24), link-local addresses, loopback,
+                // and local multicast addresses from going into the tunnel
+                rules << "-A windscribe_input -i " + interfaceToSkip_ + " -s 192.168.0.0/16 -j DROP -m comment --comment \"" + comment_ + "\"\n";
+                rules << "-A windscribe_output -o " + interfaceToSkip_ + " -d 192.168.0.0/16 -j DROP -m comment --comment \"" + comment_ + "\"\n";
+                rules << "-A windscribe_input -i " + interfaceToSkip_ + " -s 172.16.0.0/12 -j DROP -m comment --comment \"" + comment_ + "\"\n";
+                rules << "-A windscribe_output -o " + interfaceToSkip_ + " -d 172.16.0.0/12 -j DROP -m comment --comment \"" + comment_ + "\"\n";
+                rules << "-A windscribe_input -i " + interfaceToSkip_ + " -s 169.254.0.0/16 -j DROP -m comment --comment \"" + comment_ + "\"\n";
+                rules << "-A windscribe_output -o " + interfaceToSkip_ + " -d 169.254.0.0/16 -j DROP -m comment --comment \"" + comment_ + "\"\n";
+                rules << "-A windscribe_input -i " + interfaceToSkip_ + " -s 10.255.255.0/24 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
+                rules << "-A windscribe_output -o " + interfaceToSkip_ + " -d 10.255.255.0/24 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
+                rules << "-A windscribe_input -i " + interfaceToSkip_ + " -s 10.0.0.0/8 -j DROP -m comment --comment \"" + comment_ + "\"\n";
+                rules << "-A windscribe_output -o " + interfaceToSkip_ + " -d 10.0.0.0/8 -j DROP -m comment --comment \"" + comment_ + "\"\n";
+                rules << "-A windscribe_input -i " + interfaceToSkip_ + " -s 224.0.0.0/24 -j DROP -m comment --comment \"" + comment_ + "\"\n";
+                rules << "-A windscribe_output -o " + interfaceToSkip_ + " -d 224.0.0.0/24 -j DROP -m comment --comment \"" + comment_ + "\"\n";
+            }
+
+            rules << "-A windscribe_input -i " + interfaceToSkip_ + " -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
+            rules << "-A windscribe_output -o " + interfaceToSkip_ + " -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
+        }
+
+        for (const auto &i : ips) {
+            rules << "-A windscribe_input -s " + i + "/32 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
+            rules << "-A windscribe_output -d " + i + "/32 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
+        }
+
+        // Loopback addresses to the local host
+        rules << "-A windscribe_input -s 127.0.0.0/8 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
+        rules << "-A windscribe_output -d 127.0.0.0/8 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
+
+        if (bAllowLanTraffic) {
+            // Local Network
+            rules << "-A windscribe_input -s 192.168.0.0/16 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
+            rules << "-A windscribe_output -d 192.168.0.0/16 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
+
+            rules << "-A windscribe_input -s 172.16.0.0/12 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
+            rules << "-A windscribe_output -d 172.16.0.0/12 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
+
+            rules << "-A windscribe_input -s 169.254.0.0/16 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
+            rules << "-A windscribe_output -d 169.254.0.0/16 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
+
+            rules << "-A windscribe_input -s 10.255.255.0/24 -j DROP -m comment --comment \"" + comment_ + "\"\n";
+            rules << "-A windscribe_output -d 10.255.255.0/24 -j DROP -m comment --comment \"" + comment_ + "\"\n";
+            rules << "-A windscribe_input -s 10.0.0.0/8 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
+            rules << "-A windscribe_output -d 10.0.0.0/8 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
+
+            // Multicast addresses
+            rules << "-A windscribe_input -s 224.0.0.0/4 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
+            rules << "-A windscribe_output -d 224.0.0.0/4 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
+        }
+
+        rules << "-A windscribe_input -j DROP -m comment --comment \"" + comment_ + "\"\n";
+        rules << "-A windscribe_output -j DROP -m comment --comment \"" + comment_ + "\"\n";
+        rules << "COMMIT\n";
+
+        bool ret = helper_->setFirewallRules(kIpv4, "", "", rules.join("\n"));
+        if (!ret) {
+            qCDebug(LOG_FIREWALL_CONTROLLER) << "Could not set v4 firewall rules:" << ret;
         }
     }
 
     // rules for IPv6 (disable IPv6)
     {
-        QFile file(pathToTempTable_);
-        if (file.open(QIODevice::WriteOnly))
-        {
-            QTextStream stream(&file);
+        QStringList rules;
 
-            stream << "*filter\n";
-            stream << ":windscribe_input - [0:0]\n";
-            stream << ":windscribe_output - [0:0]\n";
+        rules << "*filter\n";
+        rules << ":windscribe_input - [0:0]\n";
+        rules << ":windscribe_output - [0:0]\n";
 
-            stream << "-A INPUT -j windscribe_input -m comment --comment " + comment_ + "\n";
-            stream << "-A OUTPUT -j windscribe_output -m comment --comment " + comment_ + "\n";
-
-            stream << "-A windscribe_input -j DROP -m comment --comment " + comment_ + "\n";
-            stream << "-A windscribe_output -j DROP -m comment --comment " + comment_ + "\n";
-            stream << "COMMIT\n";
-
-            file.close();
-
-
-            int exitCode;
-            QString cmd = "ip6tables-restore -n < " + pathToTempTable_;
-            helper_->executeRootCommand(cmd, &exitCode);
-            if (exitCode != 0)
-            {
-                qCDebug(LOG_FIREWALL_CONTROLLER) << "Unsuccessful exit code:" << exitCode << " for cmd:" << cmd;
-            }
-
-            // save current ipv6 rules to /etc/windscribe directory to make it restorable on OS boot with windscribe-helper
-            cmd = "cp " + pathToTempTable_ + " /etc/windscribe/rules.v6";
-            helper_->executeRootCommand(cmd, &exitCode);
-            if (exitCode != 0)
-            {
-                qCDebug(LOG_FIREWALL_CONTROLLER) << "Unsuccessful exit code:" << exitCode << " for cmd:" << cmd;
-            }
-
-            file.remove();
+        if (!bExists) {
+            rules << "-A INPUT -j windscribe_input -m comment --comment \"" + comment_ + "\"\n";
+            rules << "-A OUTPUT -j windscribe_output -m comment --comment \"" + comment_ + "\"\n";
         }
-        else
-        {
-            qCDebug(LOG_FIREWALL_CONTROLLER) << "Can't create file:" << pathToTempTable_;
-            return false;
+
+        // Loopback addresses to the local host
+        rules << "-A windscribe_input -s ::1/128 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
+        rules << "-A windscribe_output -d ::1/128 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
+
+        rules << "-A windscribe_input -j DROP -m comment --comment \"" + comment_ + "\"\n";
+        rules << "-A windscribe_output -j DROP -m comment --comment \"" + comment_ + "\"\n";
+        rules << "COMMIT\n";
+
+        bool ret = helper_->setFirewallRules(kIpv6, "", "", rules.join("\n"));
+        if (!ret) {
+            qCDebug(LOG_FIREWALL_CONTROLLER) << "Could not set v6 firewall rules:" << ret;
         }
     }
 
@@ -259,49 +213,94 @@ bool FirewallController_linux::firewallOnImpl(const QString &ip, bool bAllowLanT
 // Extract rules from iptables with comment.If modifyForDelete == true, then replace commands for delete.
 QStringList FirewallController_linux::getWindscribeRules(const QString &comment, bool modifyForDelete, bool isIPv6)
 {
-    QStringList rules;
-    int exitCode;
-    QString cmd = (isIPv6 ? "ip6tables-save > " : "iptables-save > ") + pathToTempTable_;
-    helper_->executeRootCommand(cmd, &exitCode);
-    if (exitCode != 0)
-    {
-        qCDebug(LOG_FIREWALL_CONTROLLER) << "Unsuccessful exit code:" << exitCode << " for cmd:" << cmd;
-    }
-    // Get Windscribe rules
-    QFile file(pathToTempTable_);
-    if (!file.open(QIODevice::ReadOnly))
-    {
-        qCDebug(LOG_FIREWALL_CONTROLLER) << "Can't open file:" << pathToTempTable_;
+    QString rules;
+    QStringList outRules;
+    bool ret = helper_->getFirewallRules(isIPv6 ? kIpv6 : kIpv4, "", "", rules);
+    if (!ret) {
+      qCDebug(LOG_FIREWALL_CONTROLLER) << "Could not get firewall rules:" << ret;
+      return {};
     }
 
-    QTextStream in(&file);
+    QTextStream in(&rules);
     bool bFound = false;
-    while (!in.atEnd())
-    {
+    while (!in.atEnd()) {
         std::string line = in.readLine().toStdString();
         if ((line.rfind("*", 0) == 0) || // string starts with "*"
             (line.find("COMMIT") != std::string::npos) ||
-            ((line.rfind("-A", 0) == 0) && (line.find("-m comment --comment " + comment.toStdString()) != std::string::npos)) )
+            ((line.rfind("-A", 0) == 0) && (line.find("-m comment --comment \"" + comment.toStdString() + "\"") != std::string::npos)) )
         {
-            if (line.rfind("-A", 0) == 0)
-            {
-                if (modifyForDelete)
-                {
+            if (line.rfind("-A", 0) == 0) {
+                if (modifyForDelete) {
                     line[1] = 'D';
                 }
                 bFound = true;
             }
-            rules << QString::fromStdString(line);
+            outRules << QString::fromStdString(line);
         }
     }
 
-    file.close();
-    file.remove();
-    if (!bFound)
-    {
-        rules.clear();
+    if (!bFound) {
+        outRules.clear();
     }
-    return rules;
+    return outRules;
+}
+
+void FirewallController_linux::removeWindscribeRules(const QString &comment, bool isIPv6)
+{
+    QStringList rules = getWindscribeRules(comment, true, isIPv6);
+
+    // delete Windscribe rules, if found
+    if (rules.isEmpty()) {
+        return;
+    }
+
+    QString curTable;
+    for (int ind = 0; ind < rules.count(); ++ind) {
+        if (rules[ind].startsWith("*")) {
+            curTable = rules[ind];
+        }
+
+        if (rules[ind].contains("COMMIT") && curTable.contains("*filter")) {
+            rules.insert(ind, "-X windscribe_input");
+            rules.insert(ind + 1, "-X windscribe_output");
+            break;
+        }
+    }
+
+    bool ret = helper_->setFirewallRules(isIPv6 ? kIpv6 : kIpv4, "", "", rules.join("\n") + "\n");
+    if (!ret) {
+        qCDebug(LOG_FIREWALL_CONTROLLER) << "Could not remove windscribe rules:" << ret;
+    }
+}
+
+QStringList FirewallController_linux::getLocalAddresses(const QString iface) const
+{
+    QStringList addrs;
+    struct ifaddrs *ifap;
+    struct ifaddrs *cur;
+
+    if (getifaddrs(&ifap)) {
+        qCDebug(LOG_FIREWALL_CONTROLLER) << "Error: could not get local interface addresses";
+        return addrs;
+    }
+
+    cur = ifap;
+    while (cur) {
+        if (strncmp(iface.toStdString().c_str(), cur->ifa_name, iface.length()) ||
+            cur->ifa_addr == nullptr ||
+            cur->ifa_addr->sa_family != AF_INET)
+        {
+            cur = cur->ifa_next;
+            continue;
+        }
+        char str[16];
+        inet_ntop(AF_INET, &(((struct sockaddr_in *)cur->ifa_addr)->sin_addr), str, 16);
+        addrs << QString(str);
+        cur = cur->ifa_next;
+    }
+
+    freeifaddrs(ifap);
+    return addrs;
 }
 
 void FirewallController_linux::removeWindscribeRules(const QString &comment, bool isIPv6)

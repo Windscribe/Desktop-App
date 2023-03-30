@@ -9,7 +9,7 @@
 #endif
 
 #ifdef Q_OS_MAC
-    #include "exithandler_mac.h"
+    #include "utils/exithandler_mac.h"
 #endif
 
 class WindscribeApplication : public QApplication

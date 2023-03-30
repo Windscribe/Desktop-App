@@ -1,8 +1,10 @@
 #ifndef BASECONNSETTINGSPOLICY_H
 #define BASECONNSETTINGSPOLICY_H
 
+#include <QVector>
 #include "engine/apiinfo/staticips.h"
-#include "engine/apiinfo/portmap.h"
+#include "types/portmap.h"
+#include "types/protocolstatus.h"
 #include "engine/wireguardconfig/wireguardconfig.h"
 
 enum CONNECTION_NODE_TYPE {
@@ -19,7 +21,7 @@ struct CurrentConnectionDescr
     // fields for CONNECTION_NODE_DEFAULT
     QString ip;
     uint port = 0;
-    ProtocolType protocol;
+    types::Protocol protocol;
     QString hostname;
     QString dnsHostName;
     QString verifyX509name;
@@ -64,11 +66,12 @@ public:
     virtual void putFailedConnection() = 0;
     virtual bool isFailed() const = 0;
     virtual CurrentConnectionDescr getCurrentConnectionSettings() const = 0;
-    virtual void saveCurrentSuccessfullConnectionSettings() = 0;
     virtual bool isAutomaticMode() = 0;
     virtual void resolveHostnames() = 0;
+    virtual bool hasProtocolChanged() = 0;
 
 signals:
+    void protocolStatusChanged(const QVector<types::ProtocolStatus> &status);
     void hostnamesResolved();
 
 protected:

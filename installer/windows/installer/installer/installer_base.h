@@ -3,7 +3,6 @@
 
 #ifdef _WIN32
 #include <windows.h>
-#include "settings.h"
 #endif
 
 #if defined __APPLE__
@@ -12,6 +11,7 @@
 #include <unistd.h>
 #endif
 
+#include <functional>    // std::function
 #include <thread>        // std::thread
 #include <mutex>         // std::mutex
 
@@ -38,9 +38,9 @@ protected:
   
     std::wstring strLastError_;
 
-    virtual void startImpl(HWND hwnd, const Settings &settings) = 0;
+    virtual void startImpl() = 0;
     virtual void executionImpl() = 0;
-    virtual void runLauncherImpl() = 0;
+    virtual void launchAppImpl() = 0;
 
 private:
 #ifdef GUI
@@ -59,12 +59,12 @@ public:
     static unsigned kBreakAbortThreshold;
 #endif
 
-    void start(HWND hwnd, const Settings &settings);
+    void start();
     void pause();
     void cancel();
     void resume();
     void waitForCompletion();
-    void runLauncher();
+    void launchApp();
 
     std::wstring getLastError() { return strLastError_; }
 

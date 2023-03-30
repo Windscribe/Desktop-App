@@ -17,6 +17,7 @@ public:
     virtual void setRejectText(const QString text) = 0;
 
     virtual void setBackgroundShapedToConnectWindow(bool shapedToConnectWindow) = 0;
+    virtual void setHeight(int height) = 0;
 
     virtual void setShutdownAnimationMode(bool isShutdownAnimationMode) = 0;
 
@@ -30,7 +31,6 @@ public:
 signals:
     virtual void acceptClick() = 0;
     virtual void rejectClick() = 0;
-
 };
 
 Q_DECLARE_INTERFACE(IGeneralMessageTwoButtonWindow, "IGeneralMessageTwoButtonWindow")

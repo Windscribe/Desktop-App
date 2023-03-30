@@ -1,0 +1,2 @@
+The external/ directory is reserved for embedding of external projects. Each embedded project should occupy a single subdirectory of external/.
+Subdirectories of external/ should not be modified as part of regular project development. Subdirectories should remain as close to their upstream source as possible.

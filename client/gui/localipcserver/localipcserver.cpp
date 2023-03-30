@@ -1,14 +1,14 @@
 #include "localipcserver.h"
+#include "utils/ws_assert.h"
 #include "utils/utils.h"
 #include "utils/logger.h"
 #include "ipc/server.h"
+#include "ipc/clicommands.h"
 #include "ipc/protobufcommand.h"
 #include "backend/persistentstate.h"
 
 LocalIPCServer::LocalIPCServer(Backend *backend, QObject *parent) : QObject(parent)
   , backend_(backend)
-  , server_(NULL)
-  , isLoggedIn_(false)
 {
     connect(backend_, &Backend::connectStateChanged, this, &LocalIPCServer::onBackendConnectStateChanged);
     connect(backend_, &Backend::firewallStateChanged, this, &LocalIPCServer::onBackendFirewallStateChanged);
@@ -30,7 +30,7 @@ LocalIPCServer::~LocalIPCServer()
 
 void LocalIPCServer::start()
 {
-    Q_ASSERT(server_ == NULL);
+    WS_ASSERT(server_ == nullptr);
     server_ = new IPC::Server();
     connect(dynamic_cast<QObject*>(server_), SIGNAL(newConnection(IPC::IConnection *)), SLOT(onServerCallbackAcceptFunction(IPC::IConnection *)));
 
@@ -48,7 +48,7 @@ void LocalIPCServer::sendLocationsShown()
 {
     for (IPC::IConnection * connection : connections_)
     {
-        IPC::ProtobufCommand<CliIpc::LocationsShown> cmd;
+        IPC::CliCommands::LocationsShown cmd;
         connection->sendCommand(cmd);
     }
 }
@@ -65,14 +65,14 @@ void LocalIPCServer::onServerCallbackAcceptFunction(IPC::IConnection *connection
 
 void LocalIPCServer::onConnectionCommandCallback(IPC::Command *command, IPC::IConnection * /*connection*/)
 {
-    if (command->getStringId() == CliIpc::ShowLocations::descriptor()->full_name())
+    if (command->getStringId() ==IPC::CliCommands::ShowLocations::getCommandStringId())
     {
         emit showLocations();
     }
-    else if (command->getStringId() == CliIpc::Connect::descriptor()->full_name())
+    else if (command->getStringId() == IPC::CliCommands::Connect::getCommandStringId())
     {
-        IPC::ProtobufCommand<CliIpc::Connect> *cmd = static_cast<IPC::ProtobufCommand<CliIpc::Connect> *>(command);
-        QString locationStr = QString::fromStdString(cmd->getProtoObj().location());
+        IPC::CliCommands::Connect *cmd = static_cast<IPC::CliCommands::Connect *>(command);
+        QString locationStr = cmd->location_;
         LocationID lid;
         if (locationStr.isEmpty())
         {
@@ -80,22 +80,22 @@ void LocalIPCServer::onConnectionCommandCallback(IPC::Command *command, IPC::ICo
         }
         else if (locationStr == "best")
         {
-            lid = backend_->getLocationsModel()->getBestLocationId();
+            lid = backend_->locationsModelManager()->getBestLocationId();
         }
         else
         {
-            lid = backend_->getLocationsModel()->findLocationByFilter(locationStr);
+            lid = backend_->locationsModelManager()->findLocationByFilter(locationStr);
         }
 
-        IPC::ProtobufCommand<CliIpc::ConnectToLocationAnswer> cmd_send;
+        IPC::CliCommands::ConnectToLocationAnswer cmd_send;
         if (lid.isValid())
         {
-            cmd_send.getProtoObj().set_is_success(true);
-            cmd_send.getProtoObj().set_location(lid.city().toStdString());
+            cmd_send.isSuccess_ = true;
+            cmd_send.location_ = lid.city();
         }
         else
         {
-            cmd_send.getProtoObj().set_is_success(false);
+            cmd_send.isSuccess_ = false;
         }
         sendCommand(cmd_send);
 
@@ -104,11 +104,11 @@ void LocalIPCServer::onConnectionCommandCallback(IPC::Command *command, IPC::ICo
             emit connectToLocation(lid);
         }
     }
-    else if (command->getStringId() == CliIpc::Disconnect::descriptor()->full_name())
+    else if (command->getStringId() == IPC::CliCommands::Disconnect::getCommandStringId())
     {
         if (backend_->isDisconnected())
         {
-            IPC::ProtobufCommand<CliIpc::AlreadyDisconnected> cmd;
+            IPC::CliCommands::AlreadyDisconnected cmd;
             sendCommand(cmd);
         }
         else
@@ -116,16 +116,17 @@ void LocalIPCServer::onConnectionCommandCallback(IPC::Command *command, IPC::ICo
             backend_->sendDisconnect();
         }
     }
-    else if (command->getStringId() == CliIpc::GetState::descriptor()->full_name())
+    else if (command->getStringId() == IPC::CliCommands::GetState::getCommandStringId())
     {
-        IPC::ProtobufCommand<CliIpc::State> cmd;
-        cmd.getProtoObj().set_is_logged_in(isLoggedIn_);
+        IPC::CliCommands::State cmd;
+        cmd.isLoggedIn_ = isLoggedIn_;
+        cmd.waitingForLoginInfo_ = !backend_->isCanLoginWithAuthHash();
         sendCommand(cmd);
     }
-    else if (command->getStringId() == CliIpc::Firewall::descriptor()->full_name())
+    else if (command->getStringId() == IPC::CliCommands::Firewall::getCommandStringId())
     {
-        IPC::ProtobufCommand<CliIpc::Firewall> *cmd = static_cast<IPC::ProtobufCommand<CliIpc::Firewall> *>(command);
-        if (cmd->getProtoObj().is_enable())
+        IPC::CliCommands::Firewall *cmd = static_cast<IPC::CliCommands::Firewall *>(command);
+        if (cmd->isEnable_)
         {
             if (!backend_->isFirewallEnabled())
             {
@@ -133,9 +134,9 @@ void LocalIPCServer::onConnectionCommandCallback(IPC::Command *command, IPC::ICo
             }
             else
             {
-                IPC::ProtobufCommand<CliIpc::FirewallStateChanged> cmd;
-                cmd.getProtoObj().set_is_firewall_enabled(true);
-                cmd.getProtoObj().set_is_firewall_always_on(backend_->isFirewallAlwaysOn());
+                IPC::CliCommands::FirewallStateChanged cmd;
+                cmd.isFirewallEnabled_ = true;
+                cmd.isFirewallAlwaysOn_ = backend_->isFirewallAlwaysOn();
                 sendCommand(cmd);
             }
         }
@@ -143,9 +144,9 @@ void LocalIPCServer::onConnectionCommandCallback(IPC::Command *command, IPC::ICo
         {
             if (!backend_->isFirewallEnabled())
             {
-                IPC::ProtobufCommand<CliIpc::FirewallStateChanged> cmd;
-                cmd.getProtoObj().set_is_firewall_enabled(false);
-                cmd.getProtoObj().set_is_firewall_always_on(backend_->isFirewallAlwaysOn());
+                IPC::CliCommands::FirewallStateChanged cmd;
+                cmd.isFirewallEnabled_ = false;
+                cmd.isFirewallAlwaysOn_ = backend_->isFirewallAlwaysOn();
                 sendCommand(cmd);
             }
             else if (!backend_->isFirewallAlwaysOn())
@@ -154,11 +155,36 @@ void LocalIPCServer::onConnectionCommandCallback(IPC::Command *command, IPC::ICo
             }
             else
             {
-                IPC::ProtobufCommand<CliIpc::FirewallStateChanged> cmd;
-                cmd.getProtoObj().set_is_firewall_enabled(true);
-                cmd.getProtoObj().set_is_firewall_always_on(backend_->isFirewallAlwaysOn());
+                IPC::CliCommands::FirewallStateChanged cmd;
+                cmd.isFirewallEnabled_ = true;
+                cmd.isFirewallAlwaysOn_ = backend_->isFirewallAlwaysOn();
                 sendCommand(cmd);
             }
+        }
+    }
+    else if (command->getStringId() == IPC::CliCommands::Login::getCommandStringId())
+    {
+        if (isLoggedIn_) {
+            notifyCliLoginFinished();
+        }
+        else
+        {
+            connect(backend_, &Backend::loginFinished, this, &LocalIPCServer::notifyCliLoginFinished);
+            connect(backend_, &Backend::loginError, this, &LocalIPCServer::notifyCliLoginFailed);
+            IPC::CliCommands::Login *cmd = static_cast<IPC::CliCommands::Login *>(command);
+            Q_EMIT attemptLogin(cmd->username_, cmd->password_, cmd->code2fa_);
+        }
+    }
+    else if (command->getStringId() == IPC::CliCommands::SignOut::getCommandStringId())
+    {
+        if (isLoggedIn_)
+        {
+            connect(backend_, &Backend::signOutFinished, this, &LocalIPCServer::notifyCliSignOutFinished);
+            IPC::CliCommands::SignOut *cmd = static_cast<IPC::CliCommands::SignOut *>(command);
+            backend_->signOut(cmd->isKeepFirewallOn_);
+        }
+        else {
+            notifyCliSignOutFinished();
         }
     }
 }
@@ -182,18 +208,18 @@ void LocalIPCServer::onConnectionStateCallback(int state, IPC::IConnection *conn
 
 }
 
-void LocalIPCServer::onBackendConnectStateChanged(const ProtoTypes::ConnectState &connectState)
+void LocalIPCServer::onBackendConnectStateChanged(const types::ConnectState &connectState)
 {
-    IPC::ProtobufCommand<CliIpc::ConnectStateChanged> cmd;
-    *cmd.getProtoObj().mutable_connect_state() = connectState;
+    IPC::CliCommands::ConnectStateChanged cmd;
+    cmd.connectState = connectState;
     sendCommand(cmd);
 }
 
 void LocalIPCServer::onBackendFirewallStateChanged(bool isEnabled)
 {
-    IPC::ProtobufCommand<CliIpc::FirewallStateChanged> cmd;
-    cmd.getProtoObj().set_is_firewall_enabled(isEnabled);
-    cmd.getProtoObj().set_is_firewall_always_on(backend_->isFirewallAlwaysOn());
+    IPC::CliCommands::FirewallStateChanged cmd;
+    cmd.isFirewallEnabled_ = isEnabled;
+    cmd.isFirewallAlwaysOn_ = backend_->isFirewallAlwaysOn();
     sendCommand(cmd);
 }
 
@@ -213,4 +239,34 @@ void LocalIPCServer::sendCommand(const IPC::Command &command)
     {
         connection->sendCommand(command);
     }
+}
+
+void LocalIPCServer::notifyCliLoginFinished()
+{
+    sendLoginResult(true, QString());
+}
+
+void LocalIPCServer::notifyCliLoginFailed(LOGIN_RET loginError, const QString &errorMessage)
+{
+    Q_UNUSED(loginError)
+    sendLoginResult(false, errorMessage);
+}
+
+void LocalIPCServer::notifyCliSignOutFinished()
+{
+    disconnect(backend_, &Backend::signOutFinished, this, &LocalIPCServer::notifyCliSignOutFinished);
+    IPC::CliCommands::SignedOut cmd;
+    sendCommand(cmd);
+}
+
+void LocalIPCServer::sendLoginResult(bool isLoggedIn, const QString &errorMessage)
+{
+    disconnect(backend_, &Backend::loginFinished, this, &LocalIPCServer::notifyCliLoginFinished);
+    disconnect(backend_, &Backend::loginError, this, &LocalIPCServer::notifyCliLoginFailed);
+    IPC::CliCommands::LoginResult cmd;
+    cmd.isLoggedIn_ = isLoggedIn;
+    if (!errorMessage.isEmpty()) {
+        cmd.loginError_ = errorMessage;
+    }
+    sendCommand(cmd);
 }

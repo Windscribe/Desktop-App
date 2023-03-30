@@ -1,7 +1,0 @@
-[Desktop Entry]
-Type=Application
-Terminal=false
-Exec=/usr/local/windscribe/Windscribe %F
-Name=Windscribe
-Icon=windscribe
-Categories=Utility;Security

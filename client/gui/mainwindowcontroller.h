@@ -20,10 +20,12 @@
 #include "overlaysconnectwindow/igeneralmessagewindow.h"
 #include "overlaysconnectwindow/igeneralmessagetwobuttonwindow.h"
 #include "newsfeedwindow/inewsfeedwindow.h"
+#include "protocolwindow/iprotocolwindow.h"
 #include "externalconfig/iexternalconfigwindow.h"
 #include "twofactorauth/itwofactorauthwindow.h"
 #include "bottominfowidget/ibottominfoitem.h"
 #include "tooltips/tooltipcontroller.h"
+#include "windowsizemanager.h"
 
 #include "backend/preferences/preferenceshelper.h"
 #include "backend/preferences/accountinfo.h"
@@ -43,7 +45,6 @@ public:
         WINDOW_ID_EMERGENCY,
         WINDOW_ID_EXTERNAL_CONFIG,
         WINDOW_ID_TWO_FACTOR_AUTH,
-        WINDOW_ID_NOTIFICATIONS,
         WINDOW_ID_UPDATE,
         WINDOW_ID_UPGRADE,
         WINDOW_ID_GENERAL_MESSAGE,
@@ -63,7 +64,8 @@ public:
     void setWindowPosFromPersistent();
     void setIsDockedToTray(bool isDocked);
 
-    bool preferencesVisible();
+    bool isPreferencesVisible();
+    bool isNewsFeedVisible();
     WINDOW_ID currentWindow();
     void changeWindow(WINDOW_ID windowId);
 
@@ -73,6 +75,10 @@ public:
 
     void expandPreferences();
     void collapsePreferences();
+    void expandNewsFeed();
+    void collapseNewsFeed();
+    void expandProtocols(ProtocolWindowMode mode = ProtocolWindowMode::kUninitialized);
+    void collapseProtocols();
 
     void showUpdateWidget();
     void hideUpdateWidget();
@@ -91,6 +97,7 @@ public:
     IPreferencesWindow *getPreferencesWindow() { return preferencesWindow_; }
     IBottomInfoItem *getBottomInfoWindow() { return bottomInfoWindow_; }
     INewsFeedWindow *getNewsFeedWindow() { return newsFeedWindow_; }
+    IProtocolWindow *getProtocolWindow() { return protocolWindow_; }
     IEmergencyConnectWindow *getEmergencyConnectWindow() { return emergencyConnectWindow_; }
     IExternalConfigWindow *getExternalConfigWindow() { return externalConfigWindow_; }
     ITwoFactorAuthWindow *getTwoFactorAuthWindow() { return twoFactorAuthWindow_; }
@@ -100,13 +107,13 @@ public:
     IUpgradeWindow *getUpgradeWindow() { return upgradeAccountWindow_; }
     IGeneralMessageWindow *getGeneralMessageWindow() { return generalMessageWindow_; }
     IGeneralMessageTwoButtonWindow *getExitWindow() { return exitWindow_; }
-
-    void handleKeyReleaseEvent(QKeyEvent *event);
-    void handleKeyPressEvent(QKeyEvent *event);
+    QWidget *getLocationsWindow() { return locationsWindow_; }
 
     void hideLocationsWindow();
 
     void clearServerRatingsTooltipState();
+
+    bool eventFilter(QObject *watched, QEvent *event) override;
 
 #ifdef Q_OS_MAC
     void updateNativeShadowIfNeeded();
@@ -132,8 +139,8 @@ private slots:
 
     void onLocationsWindowHeightChanged();
 
-    void onPreferencesWindowResize();
-    void onPreferencesWindowResizeFinished();
+    void onWindowResize(ResizableWindow *window);
+    void onWindowResizeFinished(ResizableWindow *window);
 
     void onBottomInfoHeightChanged();
     void onBottomInfoPosChanged();
@@ -141,12 +148,18 @@ private slots:
     void onTooltipControllerSendServerRatingUp();
     void onTooltipControllerSendServerRatingDown();
 
+    void onAppSkinChanged(APP_SKIN s);
+    void onVanGoghAnimationProgressChanged(QVariant value);
+    void onVanGoghAnimationFinished();
+
 private:
     WINDOW_ID curWindow_;
     WINDOW_ID windowBeforeExit_; // here save prev window before show exit window
 
     QWidget *mainWindow_;
     ShadowManager *shadowManager_;
+    WindowSizeManager *windowSizeManager_;
+    Preferences *preferences_;
     PreferencesHelper *preferencesHelper_;
 
     QGraphicsView *view_;
@@ -163,6 +176,7 @@ private:
     IUpdateWindow *updateWindow_;
     IUpgradeWindow *upgradeAccountWindow_;
     INewsFeedWindow *newsFeedWindow_;
+    IProtocolWindow *protocolWindow_;
     IBottomInfoItem *bottomInfoWindow_;
     IGeneralMessageWindow *generalMessageWindow_;
     IUpdateAppItem *updateAppItem_;
@@ -184,16 +198,15 @@ private:
     static constexpr int REVEAL_CONNECT_ANIMATION_DURATION = 300;
     static constexpr int REVEAL_LOGIN_ANIMATION_DURATION = 300;
     static constexpr int SCREEN_SWITCH_OPACITY_ANIMATION_DURATION = 150;
-    static constexpr int EXPAND_PREFERENCES_OPACITY_DURATION = 200;
+    static constexpr int EXPAND_CHILD_WINDOW_OPACITY_DURATION = 200;
     static constexpr int EXPAND_PREFERENCES_RESIZE_DURATION = 250;
+    static constexpr int EXPAND_WINDOW_RESIZE_DURATION = 200;
     static constexpr int EXPAND_ANIMATION_DURATION = 250;
     static constexpr int HIDE_BOTTOM_INFO_ANIMATION_DURATION = 150;
     static constexpr int BOTTOM_INFO_POS_Y_SHOWING = 287;
     static constexpr int BOTTOM_INFO_POS_Y_HIDING = 295;
-
-    enum PREFERENCES_STATE { PREFERENCES_STATE_EXPANDED, PREFERENCES_STATE_COLLAPSED, PREFERENCES_STATE_ANIMATING };
-    PREFERENCES_STATE preferencesState_;
-    int preferencesWindowHeight_;
+    static constexpr int BOTTOM_INFO_POS_Y_VAN_GOGH = 264;
+    static constexpr int UPDATE_WIDGET_HEIGHT = 28;
 
     bool isAtomicAnimationActive_;      // animation which cannot be interrupted is active
     QQueue<WINDOW_ID> queueWindowChanges_;
@@ -205,6 +218,9 @@ private:
 
     // function used in onExpandLocationsAnimationGroupFinished for to do some actions after animation finished
     std::function<void()> functionOnAnimationFinished_;
+
+    QVariantAnimation vanGoghUpdateWidgetAnimation_;
+    double vanGoghUpdateWidgetAnimationProgress_;
 
     void gotoInitializationWindow();
     void gotoLoginWindow();
@@ -221,10 +237,7 @@ private:
     void closeExitWindow();
 
     void expandPreferencesFromLogin();
-    void expandPreferencesFromConnect();
-
     void collapsePreferencesFromLogin();
-    void collapsePreferencesFromConnect(bool bSkipBottomInfoWindowAnimate);
 
     void collapseAllExpandedOnBottom();
 
@@ -247,7 +260,6 @@ private:
     void setMaskForGraphicsView();
     void clearMaskForGraphicsView();
 
-    int lastPreferencesHeight_;
     int locationWindowHeightScaled_; // Previously there were issues dynamically grabbing locationsWindow height... keeping a cache somehow helped. Not sure if the original issue persists
 
     void keepWindowInsideScreenCoordinates();
@@ -261,8 +273,10 @@ private:
 
     qreal locationsShadowOpacity_;
 
-    int preferencesShadowOffsetY();
+    int childWindowShadowOffsetY();
     int initWindowInitHeight_;
+
+    int locationsYOffset();
 
 #ifdef Q_OS_MAC
     void invalidateShadow_mac_impl();
@@ -274,6 +288,10 @@ private:
     TaskbarLocation primaryScreenTaskbarLocation_win();
     QRect taskbarAwareDockedGeometry_win(int width, int shadowSize, int widthWithShadow, int heightWithShadow);
 #endif
+
+    void expandWindow(ResizableWindow *window);
+    void collapseWindow(ResizableWindow *window, bool bSkipBottomInfoWindowAnimate = false);
+
 };
 
 #endif // MAINWINDOWCONTROLLER_H

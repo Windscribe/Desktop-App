@@ -1,8 +1,4 @@
 #include "installer_base.h"
-#include <assert.h>
-#include "../../Utils/Logger.h"
-
-using namespace std;
 
 #ifndef GUI
 
@@ -64,11 +60,11 @@ InstallerBase::~InstallerBase()
  #endif
 }
 
-void InstallerBase::start(HWND hwnd, const Settings &settings)
+void InstallerBase::start()
 {
 	isCanceled_ = false;
 	isPaused_ = false;
-    startImpl(hwnd, settings);
+    startImpl();
 
 	extract_thread = std::thread([this] { executionImpl(); });
 }
@@ -116,9 +112,9 @@ void InstallerBase::waitForCompletion()
 	}
 }
 
-void InstallerBase::runLauncher()
+void InstallerBase::launchApp()
 {
-    runLauncherImpl();
+    launchAppImpl();
 }
 
 #ifndef GUI

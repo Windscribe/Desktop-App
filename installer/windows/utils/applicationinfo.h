@@ -23,7 +23,8 @@ class ApplicationInfo
 	std::wstring getSupportUrl() const;
 	std::wstring getUpdateUrl() const;
 
-    bool appIsRunning();
+	// If the Windscribe app is running, retrieve its main window handle.
+	static HWND getAppMainWindowHandle();
 
 private:
 	ApplicationInfo();
@@ -40,7 +41,6 @@ private:
 	const std::wstring affiliateCpid;
 	const std::wstring affiliateId;
 	const std::wstring affiliateTag;
-
 };
 
 #endif // APPLICATION_H

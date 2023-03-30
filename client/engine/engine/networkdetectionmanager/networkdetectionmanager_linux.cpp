@@ -1,18 +1,19 @@
 #include "networkdetectionmanager_linux.h"
 
 #include <QRegularExpression>
-#include "utils/macutils.h"
-#include "utils/utils.h"
-#include "utils/logger.h"
+
 #include <sys/socket.h>
 #include <sys/ioctl.h>
 #include <net/if.h>
 #include <unistd.h>
 #include <linux/wireless.h>
 
-const int typeIdNetworkInterface = qRegisterMetaType<ProtoTypes::NetworkInterface>("ProtoTypes::NetworkInterface");
+#include "utils/logger.h"
+#include "utils/utils.h"
 
-NetworkDetectionManager_linux::NetworkDetectionManager_linux(QObject *parent, IHelper *helper) : INetworkDetectionManager (parent)
+const int typeIdNetworkInterface = qRegisterMetaType<types::NetworkInterface>("types::NetworkInterface");
+
+NetworkDetectionManager_linux::NetworkDetectionManager_linux(QObject *parent, IHelper *helper) : INetworkDetectionManager(parent)
 {
     Q_UNUSED(helper);
 
@@ -20,17 +21,26 @@ NetworkDetectionManager_linux::NetworkDetectionManager_linux(QObject *parent, IH
     getDefaultRouteInterface(isOnline_);
     updateNetworkInfo(false);
 
-    ncm_ = new QNetworkConfigurationManager(this);
-    connect(ncm_, &QNetworkConfigurationManager::configurationAdded, this, &NetworkDetectionManager_linux::onNetworkUpdated);
-    connect(ncm_, &QNetworkConfigurationManager::configurationChanged, this, &NetworkDetectionManager_linux::onNetworkUpdated);
-    connect(ncm_, &QNetworkConfigurationManager::configurationRemoved, this, &NetworkDetectionManager_linux::onNetworkUpdated);
+    routeMonitorThread_ = new QThread;
+    routeMonitor_ = new RouteMonitor_linux;
+    connect(routeMonitor_, &RouteMonitor_linux::routesChanged, this, &NetworkDetectionManager_linux::onRoutesChanged);
+    connect(routeMonitorThread_, &QThread::started, routeMonitor_, &RouteMonitor_linux::init);
+    connect(routeMonitorThread_, &QThread::finished, routeMonitor_, &RouteMonitor_linux::finish);
+    connect(routeMonitorThread_, &QThread::finished, routeMonitor_, &RouteMonitor_linux::deleteLater);
+    routeMonitor_->moveToThread(routeMonitorThread_);
+    routeMonitorThread_->start(QThread::LowPriority);
 }
 
 NetworkDetectionManager_linux::~NetworkDetectionManager_linux()
 {
+    if (routeMonitorThread_) {
+        routeMonitorThread_->quit();
+        routeMonitorThread_->wait();
+        routeMonitorThread_->deleteLater();
+    }
 }
 
-void NetworkDetectionManager_linux::getCurrentNetworkInterface(ProtoTypes::NetworkInterface &networkInterface)
+void NetworkDetectionManager_linux::getCurrentNetworkInterface(types::NetworkInterface &networkInterface)
 {
     networkInterface = networkInterface_;
 }
@@ -40,7 +50,7 @@ bool NetworkDetectionManager_linux::isOnline()
     return isOnline_;
 }
 
-void NetworkDetectionManager_linux::onNetworkUpdated(const QNetworkConfiguration &/*config*/)
+void NetworkDetectionManager_linux::onRoutesChanged()
 {
     updateNetworkInfo(true);
 }
@@ -57,13 +67,13 @@ void NetworkDetectionManager_linux::updateNetworkInfo(bool bWithEmitSignal)
     }
 
 
-    ProtoTypes::NetworkInterface newNetworkInterface = Utils::noNetworkInterface();
+    types::NetworkInterface newNetworkInterface = Utils::noNetworkInterface();
     if (!ifname.isEmpty())
     {
         getInterfacePars(ifname, newNetworkInterface);
     }
 
-    if (!google::protobuf::util::MessageDifferencer::Equals(newNetworkInterface, networkInterface_))
+    if (newNetworkInterface != networkInterface_)
     {
         networkInterface_ = newNetworkInterface;
         if (bWithEmitSignal)
@@ -87,13 +97,13 @@ QString NetworkDetectionManager_linux::getDefaultRouteInterface(bool &isOnline)
         pclose(file);
     }
 
-    const QStringList lines = strReply.split('\n', QString::SkipEmptyParts);
+    const QStringList lines = strReply.split('\n', Qt::SkipEmptyParts);
 
     isOnline = !lines.isEmpty();
 
     for (auto &it : lines)
     {
-        const QStringList pars = it.split(QRegExp("\\s+"), QString::SkipEmptyParts);
+        const QStringList pars = it.split(QRegularExpression("\\s+"), Qt::SkipEmptyParts);
         if (pars.size() == 8)
         {
             if (!pars[7].startsWith("tun") && !pars[7].startsWith("utun"))
@@ -110,42 +120,42 @@ QString NetworkDetectionManager_linux::getDefaultRouteInterface(bool &isOnline)
     return QString();
 }
 
-void NetworkDetectionManager_linux::getInterfacePars(const QString &ifname, ProtoTypes::NetworkInterface &outNetworkInterface)
+void NetworkDetectionManager_linux::getInterfacePars(const QString &ifname, types::NetworkInterface &outNetworkInterface)
 {
-    outNetworkInterface.set_interface_name(ifname.toStdString().c_str());
-    outNetworkInterface.set_interface_index(if_nametoindex(ifname.toStdString().c_str()));
+    outNetworkInterface.interfaceName = ifname;
+    outNetworkInterface.interfaceIndex = if_nametoindex(ifname.toStdString().c_str());
     QString macAddress = getMacAddressByIfName(ifname);
-    outNetworkInterface.set_physical_address(macAddress.toStdString().c_str());
+    outNetworkInterface.physicalAddress = macAddress;
 
     bool isWifi = checkWirelessByIfName(ifname);
     if (isWifi)
     {
-        outNetworkInterface.set_interface_type(ProtoTypes::NETWORK_INTERFACE_WIFI);
+        outNetworkInterface.interfaceType = NETWORK_INTERFACE_WIFI;
         QString friendlyName = getFriendlyNameByIfName(ifname);
         if (!friendlyName.isEmpty())
         {
-            outNetworkInterface.set_network_or_ssid(friendlyName.toStdString().c_str());
+            outNetworkInterface.networkOrSsid = friendlyName;
         }
         else
         {
-            outNetworkInterface.set_network_or_ssid(macAddress.toStdString().c_str());
+            outNetworkInterface.networkOrSsid = macAddress;
         }
     }
     else
     {
-        outNetworkInterface.set_interface_type(ProtoTypes::NETWORK_INTERFACE_ETH);
+        outNetworkInterface.interfaceType = NETWORK_INTERFACE_ETH;
         QString friendlyName = getFriendlyNameByIfName(ifname);
         if (!friendlyName.isEmpty())
         {
-            outNetworkInterface.set_network_or_ssid(friendlyName.toStdString().c_str());
+            outNetworkInterface.networkOrSsid = friendlyName;
         }
         else
         {
-            outNetworkInterface.set_network_or_ssid(macAddress.toStdString().c_str());
+            outNetworkInterface.networkOrSsid = macAddress;
         }
     }
 
-    outNetworkInterface.set_active(isActiveByIfName(ifname));
+    outNetworkInterface.active = isActiveByIfName(ifname);
 }
 
 QString NetworkDetectionManager_linux::getMacAddressByIfName(const QString &ifname)
@@ -223,10 +233,10 @@ QString NetworkDetectionManager_linux::getFriendlyNameByIfName(const QString &if
         pclose(file);
     }
 
-    const QStringList lines = strReply.split('\n', QString::SkipEmptyParts);
+    const QStringList lines = strReply.split('\n', Qt::SkipEmptyParts);
     for (auto &it : lines)
     {
-        const QStringList pars = it.split(':', QString::SkipEmptyParts);
+        const QStringList pars = it.split(':', Qt::SkipEmptyParts);
         if (pars.size() == 2)
         {
             if (pars[1] == ifname)

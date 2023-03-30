@@ -1,10 +1,9 @@
-#ifndef APIINFO_STATICIPS_H
-#define APIINFO_STATICIPS_H
+#pragma once
 
 #include <QSharedPointer>
 #include <QString>
 #include <QVector>
-#include "utils/protobuf_includes.h"
+#include "utils/ws_assert.h"
 
 namespace apiinfo {
 
@@ -12,6 +11,12 @@ struct StaticIpPortDescr
 {
     unsigned int extPort;
     unsigned int intPort;
+
+    friend QDataStream& operator <<(QDataStream& stream, const StaticIpPortDescr& s);
+    friend QDataStream& operator >>(QDataStream& stream, StaticIpPortDescr& s);
+
+private:
+    static constexpr quint32 versionForSerialization_ = 1;
 };
 
 bool operator==(const StaticIpPortDescr &l, const StaticIpPortDescr&r);
@@ -33,9 +38,7 @@ struct StaticIpDescr
     QString shortName;
     QString cityName;
     uint serverId;
-    QString nodeIP1;
-    QString nodeIP2;
-    QString nodeIP3;
+    QVector<QString> nodeIPs;    // 3 ips
     QString hostname;
     QString dnsHostname;
     QString username;
@@ -45,47 +48,18 @@ struct StaticIpDescr
     QString ovpnX509;
     QVector<StaticIpPortDescr> ports;
 
-    const QString& getPingIp() const { return nodeIP1; }
+    const QString& getPingIp() const { WS_ASSERT(!nodeIPs.isEmpty()); return nodeIPs[0]; }
 
-    StaticIpPortsVector getAllStaticIpIntPorts() const
-    {
-        StaticIpPortsVector ret;
-        for (const StaticIpPortDescr &portDescr : ports)
-        {
-            ret << portDescr.intPort;
-        }
-        return ret;
-    }
+    StaticIpPortsVector getAllStaticIpIntPorts() const;
 
-    bool operator== (const StaticIpDescr &other) const
-    {
-        return id == other.id &&
-               ipId == other.ipId &&
-               staticIp == other.staticIp &&
-               type == other.type &&
-               name == other.name &&
-               countryCode == other.countryCode &&
-               shortName == other.shortName &&
-               cityName == other.cityName &&
-               serverId == other.serverId &&
-               nodeIP1 == other.nodeIP1 &&
-               nodeIP2 == other.nodeIP2 &&
-               nodeIP3 == other.nodeIP3 &&
-               hostname == other.hostname &&
-               dnsHostname == other.dnsHostname &&
-               username == other.username &&
-               password == other.password &&
-               wgIp == other.wgIp &&
-               wgPubKey == other.wgPubKey &&
-               ovpnX509 == other.ovpnX509 &&
-               ports == other.ports;
-    }
+    bool operator== (const StaticIpDescr &other) const;
+    bool operator!= (const StaticIpDescr &other) const;
 
-    bool operator!= (const StaticIpDescr &other) const
-    {
-        return !operator==(other);
-    }
+    friend QDataStream& operator <<(QDataStream& stream, const StaticIpDescr& s);
+    friend QDataStream& operator >>(QDataStream& stream, StaticIpDescr& s);
 
+private:
+    static constexpr quint32 versionForSerialization_ = 1;
 };
 
 // internal data for StaticIps
@@ -112,32 +86,25 @@ public:
     StaticIps(const StaticIps &other) : d (other.d) {}
 
     bool initFromJson(QJsonObject &obj);
-    void initFromProtoBuf(const ProtoApiInfo::StaticIps &staticIps);
-    ProtoApiInfo::StaticIps getProtoBuf() const;
 
     const QString &getDeviceName() const { return d->deviceName_; }
     int getIpsCount() const { return d->ips_.count(); }
-    const StaticIpDescr &getIp(int ind) const { Q_ASSERT(ind >= 0 && ind < d->ips_.count()); return d->ips_[ind]; }
+    const StaticIpDescr &getIp(int ind) const { WS_ASSERT(ind >= 0 && ind < d->ips_.count()); return d->ips_[ind]; }
 
     QStringList getAllPingIps() const;
 
-    bool operator== (const StaticIps &other) const
-    {
-        return d->deviceName_ == other.d->deviceName_ &&
-               d->ips_ == other.d->ips_;
-    }
-
-    bool operator!= (const StaticIps &other) const
-    {
-        return !operator==(other);
-    }
+    bool operator== (const StaticIps &other) const;
+    bool operator!= (const StaticIps &other) const;
 
     StaticIps& operator=(const StaticIps&) = default;
 
+    friend QDataStream& operator <<(QDataStream& stream, const StaticIps& s);
+    friend QDataStream& operator >>(QDataStream& stream, StaticIps& s);
+
 private:
     QSharedDataPointer<StaticIpsData> d;
+    static constexpr quint32 versionForSerialization_ = 1;
 };
 
 } //namespace apiinfo
 
-#endif // APIINFO_STATICIPS_H

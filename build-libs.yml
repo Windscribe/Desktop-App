@@ -18,7 +18,7 @@
 
 
 .template_linux_build: &template_linux_build
-  image: ubuntu:xenial
+  image: ubuntu:focal
   before_script:
     # run this blindly until baked into image
     - apt -y update
@@ -29,12 +29,14 @@
     - apt -y install ruby-dev rpm && gem i fpm -f
     - apt -y install libpam0g-dev
     - apt -y install software-properties-common && apt -y update
-    - add-apt-repository ppa:longsleep/golang-backports -y && apt -y update && apt -y install golang-go
+    - apt -y install wget
+    - wget -q https://go.dev/dl/go1.18.2.linux-amd64.tar.gz
+    - rm -rf /usr/local/go && tar -C /usr/local -xzf go1.18.2.linux-amd64.tar.gz && export PATH=$PATH:/usr/local/go/bin
     - apt -y install autoconf
     - apt -y install libtool
     - apt -y install cmake
     - apt -y install fakeroot
-    - apt -y install libfontconfig1-dev libfreetype6-dev libx11-dev libx11-xcb-dev libxext-dev libxfixes-dev libxi-dev libxrender-dev libxcb1-dev libxcb-glx0-dev libxcb-keysyms1-dev libxcb-image0-dev libxcb-shm0-dev libxcb-icccm4-dev libxcb-sync0-dev libxcb-xfixes0-dev libxcb-shape0-dev libxcb-randr0-dev libxcb-render-util0-dev libxkbcommon-dev libxkbcommon-x11-dev
+    - apt -y install libfontconfig1-dev libfreetype6-dev libx11-dev libx11-xcb-dev libxext-dev libxfixes-dev libxi-dev libxrender-dev libxcb1-dev libxcb-glx0-dev libxcb-keysyms1-dev libxcb-image0-dev libxcb-shm0-dev libxcb-icccm4-dev libxcb-sync0-dev libxcb-xfixes0-dev libxcb-shape0-dev libxcb-randr0-dev libxcb-render-util0-dev libxcb-util-dev libxcb-xinerama0-dev libxcb-xkb-dev libxkbcommon-dev libxkbcommon-x11-dev
     - apt -y install python
     - python tools/bin/get-pip.py
     - python -m pip install -r tools/requirements.txt

@@ -23,14 +23,13 @@ import os
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))  # tools/base
 TOOLS_DIR = os.path.dirname(BASE_DIR)
 ROOT_DIR = os.path.dirname(TOOLS_DIR)
-COMMON_DIR = os.path.join(ROOT_DIR, "common")
+COMMON_DIR = os.path.join(ROOT_DIR, "client/common")
 TEMP_DIR = os.path.join(ROOT_DIR, "temp")
 TEMP_INSTALLER_DIR = os.path.join(TEMP_DIR, "installer")
 
 # some filenames
 NOTARIZE_YML = "notarize.yml"
 NOTARIZE_SCRIPT = "notarize.sh"
-HARDCODED_SECRETS_INI = "hardcodedsecrets.ini"
 PROVISION_PROFILE = "embedded.provisionprofile"
 
 
@@ -40,11 +39,6 @@ def windows_signing_cert_filename():
 
 def notarize_yml_filename_absolute():
 	return os.path.join(TOOLS_DIR, NOTARIZE_YML)
-
-
-def hardcoded_secrets_filename_absolute():
-	return os.path.join(COMMON_DIR, "utils", HARDCODED_SECRETS_INI)
-
 
 def notarize_script_filename_absolute():
 	return os.path.join(TOOLS_DIR, NOTARIZE_SCRIPT)

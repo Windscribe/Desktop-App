@@ -2,137 +2,150 @@
 
 #include <QRect>
 #include <QSettings>
+
 #include "utils/logger.h"
+#include "utils/simplecrypt.h"
+#include "types/global_consts.h"
+#include "legacy_protobuf_support/legacy_protobuf.h"
 
 void PersistentState::load()
 {
     QSettings settings;
-
+    bool bLoaded = false;
+    // try load from legacy protobuf
+    // todo remove this code at some point later
     if (settings.contains("persistentGuiSettings"))
     {
         QByteArray arr = settings.value("persistentGuiSettings").toByteArray();
-        state_.ParseFromArray(arr.data(), arr.size());
+        bLoaded = LegacyProtobufSupport::loadGuiPersistentState(arr, state_);
+        if (bLoaded)
+        {
+            settings.remove("persistentGuiSettings");
+        }
     }
-    // if can't load from version 2
-    // then try load from version 1
-    else
+    if (!bLoaded && settings.contains("guiPersistentState"))
     {
-        loadFromVersion1();
+        SimpleCrypt simpleCrypt(SIMPLE_CRYPT_KEY);
+        QString str = settings.value("guiPersistentState", "").toString();
+        QByteArray arr = simpleCrypt.decryptToByteArray(str);
+
+        QDataStream ds(&arr, QIODevice::ReadOnly);
+
+        quint32 magic, version;
+        ds >> magic;
+        if (magic == magic_)
+        {
+            ds >> version;
+            if (version <= versionForSerialization_)
+            {
+                ds >> state_;
+                if (ds.status() == QDataStream::Ok)
+                {
+                    bLoaded = true;
+                }
+            }
+        }
     }
-
-    // Censor User Ip from log
-    ProtoTypes::GuiPersistentState censoredState = state_;
-    QString censoredIp = QString::fromStdString(censoredState.last_external_ip());
-    censoredIp = censoredIp.mid(0, censoredIp.lastIndexOf('.')+1) + "###"; // censor last octet
-    censoredState.set_last_external_ip(censoredIp.toStdString());
-
-    qCDebugMultiline(LOG_BASIC) << "Gui internal settings:" << QString::fromStdString(censoredState.DebugString());
+    if (!bLoaded)
+    {
+        qCDebug(LOG_BASIC) << "Could not load GUI persistent state -- resetting to defaults";
+        state_ = types::GuiPersistentState(); // reset to defaults
+    }
+    // remove the legacy key of settings
+    settings.remove("persistentGuiSettings");
 }
 
 void PersistentState::save()
 {
+    QByteArray arr;
+    {
+        QDataStream ds(&arr, QIODevice::WriteOnly);
+        ds << magic_;
+        ds << versionForSerialization_;
+        ds << state_;
+    }
+
+    SimpleCrypt simpleCrypt(SIMPLE_CRYPT_KEY);
     QSettings settings;
-
-    int size = state_.ByteSizeLong();
-    QByteArray arr(size, Qt::Uninitialized);
-    state_.SerializeToArray(arr.data(), size);
-
-    settings.setValue("persistentGuiSettings", arr);
+    settings.setValue("guiPersistentState", simpleCrypt.encryptToString(arr));
+    settings.sync();
 }
 
 void PersistentState::setFirewallState(bool bFirewallOn)
 {
-    state_.set_is_firewall_on(bFirewallOn);
+    state_.isFirewallOn = bFirewallOn;
     save();
 }
 
 bool PersistentState::isFirewallOn() const
 {
-    return state_.is_firewall_on();
-}
-
-bool PersistentState::isWindowPosExists() const
-{
-    return state_.has_window_offs_x() && state_.has_window_offs_y();
-}
-
-void PersistentState::setWindowPos(const QPoint &windowOffs)
-{
-    state_.set_window_offs_x(windowOffs.x());
-    state_.set_window_offs_y(windowOffs.y());
-    save();
-}
-
-QPoint PersistentState::windowPos() const
-{
-    QPoint pt(state_.window_offs_x(), state_.window_offs_y());
-    return pt;
+    return state_.isFirewallOn;
 }
 
 void PersistentState::setCountVisibleLocations(int cnt)
 {
-    state_.set_count_visible_locations(cnt);
+    state_.countVisibleLocations = cnt;
     save();
 }
 
 int PersistentState::countVisibleLocations() const
 {
-    return state_.count_visible_locations();
+    return state_.countVisibleLocations;
 }
 
 void PersistentState::setFirstLogin(bool bFirstRun)
 {
-    state_.set_is_first_login(bFirstRun);
+    state_.isFirstLogin = bFirstRun;
     save();
 }
 
 bool PersistentState::isFirstLogin()
 {
-    return state_.is_first_login();
+    return state_.isFirstLogin;
 }
 
 void PersistentState::setIgnoreCpuUsageWarnings(bool isIgnore)
 {
-    state_.set_is_ignore_cpu_usage_warnings(isIgnore);
+    state_.isIgnoreCpuUsageWarnings = isIgnore;
     save();
 }
 
 bool PersistentState::isIgnoreCpuUsageWarnings()
 {
-    return state_.is_ignore_cpu_usage_warnings();
+    return state_.isIgnoreCpuUsageWarnings;
 }
 
 void PersistentState::setLastLocation(const LocationID &lid)
 {
-    *state_.mutable_lastlocation() = lid.toProtobuf();
+    state_.lastLocation = lid;
     save();
 }
 
 LocationID PersistentState::lastLocation() const
 {
-    return LocationID::createFromProtoBuf(state_.lastlocation());
+    return state_.lastLocation;
 }
 
 void PersistentState::setLastExternalIp(const QString &ip)
 {
-    state_.set_last_external_ip(ip.toStdString());
+    state_.lastExternalIp = ip;
     save();
 }
 
 QString PersistentState::lastExternalIp() const
 {
-    return QString::fromStdString(state_.last_external_ip());
+    return state_.lastExternalIp;
 }
 
-void PersistentState::setNetworkWhitelist(const ProtoTypes::NetworkWhiteList &list)
+void PersistentState::setNetworkWhitelist(const QVector<types::NetworkInterface> &list)
 {
-    *state_.mutable_network_white_list() = list;
+    state_.networkWhiteList = list;
     save();
 }
 
-ProtoTypes::NetworkWhiteList PersistentState::networkWhitelist() const
+QVector<types::NetworkInterface> PersistentState::networkWhitelist() const
 {
-    return state_.network_white_list();
+    return state_.networkWhiteList;
 }
 
 PersistentState::PersistentState()
@@ -140,38 +153,34 @@ PersistentState::PersistentState()
     load();
 }
 
-void PersistentState::loadFromVersion1()
+bool PersistentState::haveAppGeometry() const
 {
-    QSettings settings("Windscribe", "Windscribe");
-    if (settings.contains("firewallChecked"))
-    {
-        state_.set_is_firewall_on(settings.value("firewallChecked").toBool());
-    }
+    return !state_.appGeometry.isEmpty();
+}
 
-    if (settings.contains("windowGeometry"))
-    {
-        QRect windowGeometry = settings.value("windowGeometry").toRect();
-        state_.set_window_offs_x(windowGeometry.x());
-        state_.set_window_offs_y(windowGeometry.y());
-    }
+void PersistentState::setAppGeometry(const QByteArray &geometry)
+{
+    state_.appGeometry = geometry;
+    save();
+}
 
-    if (settings.contains("firstRun"))
-    {
-        state_.set_is_first_login(settings.value("firstRun").toBool());
-    }
+const QByteArray& PersistentState::appGeometry() const
+{
+    return state_.appGeometry;
+}
 
-    if (settings.contains("ignoreCpuUsageWarnings"))
-    {
-        state_.set_is_ignore_cpu_usage_warnings(settings.value("ignoreCpuUsageWarnings").toBool());
-    }
+bool PersistentState::havePreferencesWindowHeight() const
+{
+    return state_.preferencesWindowHeight > 0;
+}
 
-    if (settings.contains("lastExternalIp"))
-    {
-        state_.set_last_external_ip(settings.value("lastExternalIp").toString().toStdString());
-    }
+void PersistentState::setPreferencesWindowHeight(int height)
+{
+    state_.preferencesWindowHeight = height;
+    save();
+}
 
-    if (settings.contains("countVisibleLocations"))
-    {
-        state_.set_count_visible_locations(settings.value("countVisibleLocations", 7).toInt());
-    }
+int PersistentState::preferencesWindowHeight() const
+{
+    return state_.preferencesWindowHeight;
 }

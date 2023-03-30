@@ -4,6 +4,7 @@
 #include <QSvgRenderer>
 #include <QtGlobal>
 #include <QElapsedTimer>
+#include "commongraphics/commongraphics.h"
 #include "graphicresources/imageresourcessvg.h"
 #include "graphicresources/fontmanager.h"
 #include "utils/makecustomshadow.h"
@@ -13,7 +14,8 @@ namespace ConnectWindow {
 
 
 Background::Background(ScalableGraphicsObject *parent, Preferences *preferences) : ScalableGraphicsObject(parent),
-    opacityConnecting_(0), opacityConnected_(0), opacityDisconnected_(1), backgroundImage_(this, preferences)
+    preferences_(preferences), opacityConnecting_(0), opacityConnected_(0), opacityDisconnected_(1), backgroundImage_(this, preferences),
+    cornerColor_(Qt::transparent)
 {
     opacityConnectingAnimation_.setTargetObject(this);
     opacityConnectingAnimation_.setPropertyName("opacityConnecting");
@@ -57,7 +59,14 @@ Background::Background(ScalableGraphicsObject *parent, Preferences *preferences)
 
 QRectF Background::boundingRect() const
 {
-    return QRectF(0, 0, WIDTH * G_SCALE, HEIGHT * G_SCALE);
+    if (preferences_->appSkin() == APP_SKIN_VAN_GOGH)
+    {
+        return QRectF(0, 0, WIDTH*G_SCALE, WINDOW_HEIGHT_VAN_GOGH*G_SCALE);
+    }
+    else
+    {
+        return QRectF(0, 0, WIDTH*G_SCALE, HEIGHT*G_SCALE);
+    }
 }
 
 void Background::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
@@ -66,6 +75,20 @@ void Background::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
     Q_UNUSED(widget);
 
     // MAIN BG
+    if (preferences_->appSkin() == APP_SKIN_VAN_GOGH)
+    {
+        painter->setPen(Qt::NoPen);
+#ifdef Q_OS_MAC
+        QPainterPath path;
+        path.addRoundedRect(boundingRect().toRect(), 5*G_SCALE, 5*G_SCALE);
+        painter->fillPath(path, QColor(2, 13, 28));
+        painter->fillRect(boundingRect().adjusted(0, boundingRect().height() - 5*G_SCALE, 0, 0), cornerColor_);
+#else
+        painter->fillRect(boundingRect().toRect(), QColor(2, 13, 28));
+#endif
+        painter->setPen(Qt::SolidLine);
+    }
+    else
     {
         QSharedPointer<IndependentPixmap> pixmap = ImageResourcesSvg::instance().getIndependentPixmap(topFrameBG_);
         pixmap->draw(0, 0, painter);
@@ -77,7 +100,7 @@ void Background::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
         if (backgroundPixmap)
         {
             painter->setOpacity(1.0);
-            painter->drawPixmap(0, 50*G_SCALE, *backgroundPixmap);
+            painter->drawPixmap(0, preferences_->appSkin() == APP_SKIN_VAN_GOGH ? 22*G_SCALE : 50*G_SCALE, *backgroundPixmap);
         }
     }
 
@@ -110,7 +133,7 @@ void Background::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
         {
             painter->setOpacity(opacityDisconnected_);
             QSharedPointer<IndependentPixmap> pixmap = ImageResourcesSvg::instance().getIndependentPixmap(headerDisconnected_);
-            pixmap->draw(0, 27*G_SCALE, painter);
+            pixmap->draw(0, preferences_->appSkin() == APP_SKIN_VAN_GOGH ? 0 : 27*G_SCALE, painter);
         }
     }
     {
@@ -118,7 +141,7 @@ void Background::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
         {
             painter->setOpacity(opacityConnected_);
             QSharedPointer<IndependentPixmap> pixmap = ImageResourcesSvg::instance().getIndependentPixmap(headerConnected_);
-            pixmap->draw(0, 27*G_SCALE, painter);
+            pixmap->draw(0, preferences_->appSkin() == APP_SKIN_VAN_GOGH ? 0 : 27*G_SCALE, painter);
         }
     }
     {
@@ -126,11 +149,28 @@ void Background::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
         {
             painter->setOpacity(opacityConnecting_);
             QSharedPointer<IndependentPixmap> pixmap = ImageResourcesSvg::instance().getIndependentPixmap(headerConnecting_);
-            pixmap->draw(0, 27*G_SCALE, painter);
+            pixmap->draw(0, preferences_->appSkin() == APP_SKIN_VAN_GOGH ? 0 : 27*G_SCALE, painter);
         }
     }
 
     // BOTTOM
+    if (preferences_->appSkin() == APP_SKIN_VAN_GOGH)
+    {
+        painter->setOpacity(1);
+        painter->setPen(Qt::NoPen);
+#ifdef Q_OS_MAC
+        QPainterPath path;
+        path.addRoundedRect(boundingRect().adjusted(0, 166*G_SCALE, 0, 0), 5*G_SCALE, 5*G_SCALE);
+        painter->fillPath(path, QColor(26, 39, 58));
+
+        // We don't actually want rounded corners on the top part of this shape, paint this part again with straight edge
+        painter->fillRect(boundingRect().adjusted(0, 166*G_SCALE, 0, -10*G_SCALE), QColor(26, 39, 58));
+#else
+        painter->fillRect(boundingRect().adjusted(0, 166*G_SCALE, 0, 0), QColor(26, 39, 58));
+#endif
+        painter->setPen(Qt::SolidLine);
+    }
+    else
     {
         painter->setOpacity(1);
         QSharedPointer<IndependentPixmap> pixmap = ImageResourcesSvg::instance().getIndependentPixmap(bottomFrameBG_);
@@ -138,21 +178,28 @@ void Background::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
     }
 
     // DIVIDER
+    if (preferences_->appSkin() == APP_SKIN_VAN_GOGH)
     {
-        midRightVertDivider_->draw(painter, boundingRect().width() - 54 * G_SCALE, 166 * G_SCALE);
+        midRightVertDivider_->draw(painter, 275*G_SCALE, 138*G_SCALE);
     }
+    else
+    {
+        midRightVertDivider_->draw(painter, 275*G_SCALE, 166*G_SCALE);
+    }
+
+    if (preferences_->appSkin() == APP_SKIN_ALPHA)
     {
         painter->setOpacity(0.1);
         QSharedPointer<IndependentPixmap> pixmap = ImageResourcesSvg::instance().getIndependentPixmap(bottomLeftHorizDivider_);
-        pixmap->draw(0, 248 * G_SCALE, painter);
+        pixmap->draw(0, 248*G_SCALE, painter);
     }
 }
 
-void Background::onConnectStateChanged(ProtoTypes::ConnectStateType newConnectState, ProtoTypes::ConnectStateType prevConnectState)
+void Background::onConnectStateChanged(CONNECT_STATE newConnectState, CONNECT_STATE prevConnectState)
 {
     Q_UNUSED(prevConnectState);
 
-    if (newConnectState == ProtoTypes::CONNECTING || newConnectState == ProtoTypes::DISCONNECTING)
+    if (newConnectState == CONNECT_STATE_CONNECTING || newConnectState == CONNECT_STATE_DISCONNECTING)
     {
         if (!qFuzzyCompare(opacityConnecting_, 1.0))
         {
@@ -182,7 +229,7 @@ void Background::onConnectStateChanged(ProtoTypes::ConnectStateType newConnectSt
                 opacityConnectedAnimation_.stop();
         }
     }
-    else if (newConnectState == ProtoTypes::CONNECTED)
+    else if (newConnectState == CONNECT_STATE_CONNECTED)
     {
         if (!qFuzzyCompare(opacityConnected_, 1.0))
         {
@@ -212,7 +259,7 @@ void Background::onConnectStateChanged(ProtoTypes::ConnectStateType newConnectSt
                 opacityConnectingAnimation_.stop();
         }
     }
-    else if (newConnectState == ProtoTypes::DISCONNECTED)
+    else if (newConnectState == CONNECT_STATE_DISCONNECTED)
     {
         if (!qFuzzyIsNull(opacityConnecting_))
         {
@@ -243,7 +290,7 @@ void Background::onConnectStateChanged(ProtoTypes::ConnectStateType newConnectSt
         }
     }
 
-    backgroundImage_.setIsConnected(newConnectState == ProtoTypes::CONNECTED);
+    backgroundImage_.setIsConnected(newConnectState == CONNECT_STATE_CONNECTED);
 }
 
 void Background::onLocationSelected(const QString &countryCode)
@@ -304,6 +351,20 @@ QPixmap Background::getShadowPixmap()
     tempPixmap.fill(Qt::transparent);
 
     QPainter painter(&tempPixmap);
+    if (preferences_->appSkin() == APP_SKIN_VAN_GOGH)
+    {
+        painter.setPen(Qt::NoPen);
+#ifdef Q_OS_MAC
+        QPainterPath path;
+        path.addRoundedRect(boundingRect().toRect(), 5*G_SCALE, 5*G_SCALE);
+        painter.fillPath(path, QColor(2, 13, 28));
+        painter.fillRect(boundingRect().adjusted(0, boundingRect().height() - 5*G_SCALE, 0, 0), cornerColor_);
+#else
+        painter.fillRect(boundingRect().toRect(), QColor(2, 13, 28));
+#endif
+        painter.setPen(Qt::SolidLine);
+    }
+    else
     {
         QSharedPointer<IndependentPixmap> pixmap = ImageResourcesSvg::instance().getIndependentPixmap(topFrameBG_);
         pixmap->draw(0, 0, &painter);
@@ -319,10 +380,14 @@ void Background::updateScaling()
     ScalableGraphicsObject::updateScaling();
 }
 
-
 void Background::doUpdate()
 {
     update();
+}
+
+void Background::setCornerColor(QColor color)
+{
+    cornerColor_ = color;
 }
 
 } //namespace ConnectWindow

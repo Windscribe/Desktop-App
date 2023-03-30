@@ -106,6 +106,30 @@ std::vector<NET_IFINDEX> AdaptersInfo::getTAPAdapters()
 	return list;
 }
 
+std::vector<std::string> AdaptersInfo::getAdapterAddresses(NET_IFINDEX idx)
+{
+    std::vector<std::string> list;
+
+    PIP_ADAPTER_ADDRESSES ai = pAdapterInfo_;
+    while (ai) {
+        if (idx == ai->IfIndex) {
+            PIP_ADAPTER_UNICAST_ADDRESS addr = ai->FirstUnicastAddress;
+            while (addr) {
+                char str[16] = { 0 };
+
+                if (addr->Address.lpSockaddr->sa_family == AF_INET) {
+                    inet_ntop(AF_INET, &(((struct sockaddr_in *)addr->Address.lpSockaddr)->sin_addr), str, 16);
+                    list.push_back(std::string(str));
+                }
+                addr = addr->Next;
+            }
+        }
+        ai = ai->Next;
+    }
+
+    return list;
+}
+
 bool AdaptersInfo::isWindscribeAdapter(PIP_ADAPTER_ADDRESSES ai) const
 {
     // Warning: we control the FriendlyName of the wireguard-nt adapter, but not the Description.

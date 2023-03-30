@@ -77,5 +77,5 @@ if __name__ == "__main__":
     elif "--get-notarize-yml" in sys.argv:
         VaultParser.notarize_yml()
     else:
-        print "Error, pass argument that specifies what to parse for"
+        print("Error, pass argument that specifies what to parse for")
         sys.exit(1)

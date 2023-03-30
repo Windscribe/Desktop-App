@@ -1,127 +1,169 @@
 #include "generalwindowitem.h"
 
-#include "../dividerline.h"
-#include "utils/protoenumtostring.h"
-#include "utils/logger.h"
+#include <QDesktopServices>
 #include <QPainter>
 #include <QSystemTrayIcon>
-#include "languagecontroller.h"
-#include "../dividerline.h"
-#include "languagecontroller.h"
+#include "utils/hardcodedsettings.h"
 #include "backend/persistentstate.h"
+#include "graphicresources/imageresourcessvg.h"
+#include "languagecontroller.h"
+#include "languagecontroller.h"
+#include "preferenceswindow/preferencegroup.h"
+#include "utils/logger.h"
+
+#if defined Q_OS_LINUX
+    #include "utils/linuxutils.h"
+#endif
 
 namespace PreferencesWindow {
 
-GeneralWindowItem::GeneralWindowItem(ScalableGraphicsObject *parent, Preferences *preferences, PreferencesHelper *preferencesHelper) : BasePage(parent),
+GeneralWindowItem::GeneralWindowItem(ScalableGraphicsObject *parent, Preferences *preferences, PreferencesHelper *preferencesHelper) : CommonGraphics::BasePage(parent),
     preferences_(preferences)
 {
     setFlag(QGraphicsItem::ItemIsFocusable);
+    setSpacerHeight(PREFERENCES_MARGIN);
 
-    connect(preferences, SIGNAL(isLaunchOnStartupChanged(bool)), SLOT(onIsLaunchOnStartupPreferencesChanged(bool)));
-    connect(preferences, SIGNAL(isAutoConnectChanged(bool)), SLOT(onIsAutoConnectPreferencesChanged(bool)));
-    connect(preferences, SIGNAL(isShowNotificationsChanged(bool)), SLOT(onIsShowNotificationsPreferencesChanged(bool)));
-    connect(preferences, SIGNAL(isDockedToTrayChanged(bool)), SLOT(onIsDockedToTrayPreferencesChanged(bool)));
-    connect(preferences, SIGNAL(languageChanged(QString)), SLOT(onLanguagePreferencesChanged(QString)));
-    connect(preferences, SIGNAL(locationOrderChanged(ProtoTypes::OrderLocationType)), SLOT(onLocationOrderPreferencesChanged(ProtoTypes::OrderLocationType)));
-    connect(preferences, SIGNAL(latencyDisplayChanged(ProtoTypes::LatencyDisplayType)), SLOT(onLatencyDisplayPreferencesChanged(ProtoTypes::LatencyDisplayType)));
-    connect(preferences, SIGNAL(updateChannelChanged(ProtoTypes::UpdateChannel)), SLOT(onUpdateChannelPreferencesChanged(ProtoTypes::UpdateChannel)));
-    connect(preferences, SIGNAL(backgroundSettingsChanged(ProtoTypes::BackgroundSettings)), SLOT(onPreferencesBackgroundSettingsChanged(ProtoTypes::BackgroundSettings)));
-    connect(preferences, SIGNAL(isStartMinimizedChanged(bool)), SLOT(onStartMinimizedPreferencesChanged(bool)));
+    connect(preferences, &Preferences::isLaunchOnStartupChanged, this, &GeneralWindowItem::onIsLaunchOnStartupPreferencesChanged);
+    connect(preferences, &Preferences::isShowNotificationsChanged, this, &GeneralWindowItem::onIsShowNotificationsPreferencesChanged);
+    connect(preferences, &Preferences::isDockedToTrayChanged, this, &GeneralWindowItem::onIsDockedToTrayPreferencesChanged);
+    connect(preferences, &Preferences::languageChanged, this, &GeneralWindowItem::onLanguagePreferencesChanged);
+    connect(preferences, &Preferences::locationOrderChanged, this, &GeneralWindowItem::onLocationOrderPreferencesChanged);
+    connect(preferences, &Preferences::latencyDisplayChanged, this, &GeneralWindowItem::onLatencyDisplayPreferencesChanged);
+    connect(preferences, &Preferences::updateChannelChanged, this, &GeneralWindowItem::onUpdateChannelPreferencesChanged);
+    connect(preferences, &Preferences::backgroundSettingsChanged, this, &GeneralWindowItem::onPreferencesBackgroundSettingsChanged);
+    connect(preferences, &Preferences::isStartMinimizedChanged, this, &GeneralWindowItem::onStartMinimizedPreferencesChanged);
     connect(preferences, &Preferences::showLocationLoadChanged, this, &GeneralWindowItem::onShowLocationLoadPreferencesChanged);
+    connect(preferences, &Preferences::appSkinChanged, this, &GeneralWindowItem::onAppSkinPreferencesChanged);
 
 #if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
-    connect(preferences, SIGNAL(minimizeAndCloseToTrayChanged(bool)), SLOT(onMinimizeAndCloseToTrayPreferencesChanged(bool)));
+    connect(preferences, &Preferences::minimizeAndCloseToTrayChanged, this, &GeneralWindowItem::onMinimizeAndCloseToTrayPreferencesChanged);
 #elif defined Q_OS_MAC
-    connect(preferences, SIGNAL(hideFromDockChanged(bool)), SLOT(onHideFromDockPreferecesChanged(bool)));
+    connect(preferences, &Preferences::hideFromDockChanged, this, &GeneralWindowItem::onHideFromDockPreferecesChanged);
 #endif
 
-    checkBoxLaunchOnStart_ = new CheckBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::CheckBoxItem", "Launch on Startup"), QString());
+    launchOnStartGroup_ = new PreferenceGroup(this, tr("Run Windscribe when your device starts."));
+    checkBoxLaunchOnStart_ = new CheckBoxItem(launchOnStartGroup_, QT_TRANSLATE_NOOP("PreferencesWindow::CheckBoxItem", "Launch on Startup"), QString());
+    checkBoxLaunchOnStart_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/LAUNCH_AT_STARTUP"));
     checkBoxLaunchOnStart_->setState(preferences->isLaunchOnStartup());
-    connect(checkBoxLaunchOnStart_, SIGNAL(stateChanged(bool)), SLOT(onIsLaunchOnStartupClicked(bool)));
-    addItem(checkBoxLaunchOnStart_);
+    connect(checkBoxLaunchOnStart_, &CheckBoxItem::stateChanged, this, &GeneralWindowItem::onIsLaunchOnStartupClicked);
+    launchOnStartGroup_->addItem(checkBoxLaunchOnStart_);
+    addItem(launchOnStartGroup_);
 
-    checkBoxAutoConnect_ = new CheckBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::CheckBoxItem", "Auto-Connect"), QString());
-    checkBoxAutoConnect_->setState(preferences->isAutoConnect());
-    connect(checkBoxAutoConnect_, SIGNAL(stateChanged(bool)), SLOT(onIsAutoConnectClicked(bool)));
-    addItem(checkBoxAutoConnect_);
-
-    checkBoxStartMinimized_ = new CheckBoxItem(this, QT_TRANSLATE_NOOP("Preferences::CheckBoxStartMinimized", "Start Minimized"), QString());
+    startMinimizedGroup_ = new PreferenceGroup(this, tr("Launch Windscribe in a minimized state."));
+    checkBoxStartMinimized_ = new CheckBoxItem(startMinimizedGroup_, QT_TRANSLATE_NOOP("Preferences::CheckBoxStartMinimized", "Start Minimized"), QString());
+    checkBoxStartMinimized_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/START_MINIMIZED"));
     checkBoxStartMinimized_->setState(preferences->isStartMinimized());
-    connect(checkBoxStartMinimized_, SIGNAL(stateChanged(bool)), SLOT(onStartMinimizedClicked(bool)));
-    addItem(checkBoxStartMinimized_);
+    connect(checkBoxStartMinimized_, &CheckBoxItem::stateChanged, this, &GeneralWindowItem::onStartMinimizedClicked);
+    startMinimizedGroup_->addItem(checkBoxStartMinimized_);
+    addItem(startMinimizedGroup_);
 
 #if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     if (QSystemTrayIcon::isSystemTrayAvailable())
     {
-        checkBoxMinimizeAndCloseToTray_ = new CheckBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::CheckBoxItem", "Minimize and Close to Tray"), QString());
+        closeToTrayGroup_ = new PreferenceGroup(this, tr("Windscribe minimizes to system tray and no longer appears in the task bar."));
+        checkBoxMinimizeAndCloseToTray_ = new CheckBoxItem(closeToTrayGroup_, QT_TRANSLATE_NOOP("PreferencesWindow::CheckBoxItem", "Close to Tray"), QString());
+        checkBoxMinimizeAndCloseToTray_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/MINIMIZE_AND_CLOSE_TO_TRAY"));
         checkBoxMinimizeAndCloseToTray_->setState(preferences->isMinimizeAndCloseToTray());
-        connect(checkBoxMinimizeAndCloseToTray_, SIGNAL(stateChanged(bool)), SLOT(onMinimizeAndCloseToTrayClicked(bool)));
-        addItem(checkBoxMinimizeAndCloseToTray_);
+        connect(checkBoxMinimizeAndCloseToTray_, &CheckBoxItem::stateChanged, this, &GeneralWindowItem::onMinimizeAndCloseToTrayClicked);
+        closeToTrayGroup_->addItem(checkBoxMinimizeAndCloseToTray_);
+        addItem(closeToTrayGroup_);
     }
 #elif defined Q_OS_MAC
-    checkBoxHideFromDock_ = new CheckBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::CheckBoxItem", "Hide from dock"), QString());
+    hideFromDockGroup_ = new PreferenceGroup(this, tr("Don't show the Windscribe icon in dock."), "");
+    checkBoxHideFromDock_ = new CheckBoxItem(hideFromDockGroup_, QT_TRANSLATE_NOOP("PreferencesWindow::CheckBoxItem", "Hide from dock"), QString());
     checkBoxHideFromDock_->setState(preferences->isHideFromDock());
-    connect(checkBoxHideFromDock_, SIGNAL(stateChanged(bool)), SLOT(onHideFromDockClicked(bool)));
-    addItem(checkBoxHideFromDock_);
-#elif defined Q_OS_LINUX
-        //todo linux
-        //Q_ASSERT(false);
+    checkBoxHideFromDock_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/HIDE_FROM_DOCK"));
+    connect(checkBoxHideFromDock_, &CheckBoxItem::stateChanged, this, &GeneralWindowItem::onHideFromDockClicked);
+    hideFromDockGroup_->addItem(checkBoxHideFromDock_);
+    addItem(hideFromDockGroup_);
 #endif
-
-    checkBoxShowNotifications_ = new CheckBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::CheckBoxItem", "Show Notifications"), QString());
-    checkBoxShowNotifications_->setState(preferences->isShowNotifications());
-    connect(checkBoxShowNotifications_, SIGNAL(stateChanged(bool)), SLOT(onIsShowNotificationsClicked(bool)));
-    addItem(checkBoxShowNotifications_);
-
-    backgroundSettingsItem_ = new BackgroundSettingsItem(this);
-    backgroundSettingsItem_->setBackgroundSettings(preferences->backgroundSettings());
-    connect(backgroundSettingsItem_, SIGNAL(backgroundSettingsChanged(ProtoTypes::BackgroundSettings)), SLOT(onBackgroundSettingsChanged(ProtoTypes::BackgroundSettings)));
-    addItem(backgroundSettingsItem_);
-
-    checkBoxDockedToTray_ = new CheckBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::CheckBoxItem", "Docked"), QString());
+    dockedGroup_ = new PreferenceGroup(this, tr("Pin Windscribe near the system tray or menu bar."));
+    checkBoxDockedToTray_ = new CheckBoxItem(dockedGroup_, QT_TRANSLATE_NOOP("PreferencesWindow::CheckBoxItem", "Docked"), QString());
+    checkBoxDockedToTray_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/DOCKED"));
     checkBoxDockedToTray_->setState(preferences->isDockedToTray());
-    connect(checkBoxDockedToTray_, SIGNAL(stateChanged(bool)), SLOT(onDockedToTrayChanged(bool)));
-    addItem(checkBoxDockedToTray_);
+    connect(checkBoxDockedToTray_, &CheckBoxItem::stateChanged, this, &GeneralWindowItem::onDockedToTrayChanged);
+    dockedGroup_->addItem(checkBoxDockedToTray_);
+    addItem(dockedGroup_);
 
-    comboBoxLanguage_ = new ComboBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::ComboBoxItem", "Language"), QString(), 50, Qt::transparent, 0, true);
+    showNotificationsGroup_ = new PreferenceGroup(this, tr("Display system-level notifications when connection events occur."));
+    checkBoxShowNotifications_ = new CheckBoxItem(showNotificationsGroup_, QT_TRANSLATE_NOOP("PreferencesWindow::CheckBoxItem", "Show Notifications"), QString());
+    checkBoxShowNotifications_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/SHOW_NOTIFICATIONS"));
+    checkBoxShowNotifications_->setState(preferences->isShowNotifications());
+    connect(checkBoxShowNotifications_, &CheckBoxItem::stateChanged, this, &GeneralWindowItem::onIsShowNotificationsClicked);
+    showNotificationsGroup_->addItem(checkBoxShowNotifications_);
+    addItem(showNotificationsGroup_);
+
+    showLocationLoadGroup_ = new PreferenceGroup(this, tr("Display a location's load. Shorter bars mean lesser load (usage)."));
+    checkBoxShowLocationLoad_ = new CheckBoxItem(showLocationLoadGroup_, QT_TRANSLATE_NOOP("PreferencesWindow::CheckBoxItem", "Show Location Load"), QString());
+    checkBoxShowLocationLoad_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/LOCATION_LOAD"));
+    checkBoxShowLocationLoad_->setState(preferences->isShowLocationLoad());
+    connect(checkBoxShowLocationLoad_, &CheckBoxItem::stateChanged, this, &GeneralWindowItem::onShowLocationLoadClicked);
+    showLocationLoadGroup_->addItem(checkBoxShowLocationLoad_);
+    addItem(showLocationLoadGroup_);
+
+    locationOrderGroup_ = new PreferenceGroup(this, tr("Arrange locations alphabetically, geographically, or by latency."));
+    comboBoxLocationOrder_ = new ComboBoxItem(locationOrderGroup_, QT_TRANSLATE_NOOP("PreferencesWindow::ComboBoxItem", "Location Order"), QString());
+    comboBoxLocationOrder_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/LOCATION_ORDER"));
+    const QList< QPair<QString, int> > allOrderTypes = ORDER_LOCATION_TYPE_toList();
+    for (const auto o : allOrderTypes)
+    {
+        comboBoxLocationOrder_->addItem(o.first, o.second);
+    }
+    comboBoxLocationOrder_->setCurrentItem((int)preferences->locationOrder());
+    connect(comboBoxLocationOrder_, &ComboBoxItem::currentItemChanged, this, &GeneralWindowItem::onLocationItemChanged);
+    locationOrderGroup_->addItem(comboBoxLocationOrder_);
+    addItem(locationOrderGroup_);
+
+    latencyDisplayGroup_ = new PreferenceGroup(this, tr("Display latency as signal strength bars or in milliseconds."));
+    comboBoxLatencyDisplay_ = new ComboBoxItem(latencyDisplayGroup_, QT_TRANSLATE_NOOP("PreferencesWindow::ComboBoxItem", "Latency Display"), QString());
+    comboBoxLatencyDisplay_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/LATENCY_DISPLAY"));
+    const QList< QPair<QString, int> > allLatencyTypes = LATENCY_DISPLAY_TYPE_toList();
+    for (const auto l : allLatencyTypes)
+    {
+        comboBoxLatencyDisplay_->addItem(l.first, l.second);
+    }
+    comboBoxLatencyDisplay_->setCurrentItem((int)preferences->latencyDisplay());
+    connect(comboBoxLatencyDisplay_, &ComboBoxItem::currentItemChanged, this, &GeneralWindowItem::onLatencyItemChanged);
+    latencyDisplayGroup_->addItem(comboBoxLatencyDisplay_);
+    addItem(latencyDisplayGroup_);
+
+    languageGroup_ = new PreferenceGroup(this, tr("Localize Windscribe to supported languages."));
+    comboBoxLanguage_ = new ComboBoxItem(languageGroup_, QT_TRANSLATE_NOOP("PreferencesWindow::ComboBoxItem", "Language"), QString());
+    comboBoxLanguage_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/LANGUAGE"));
     QList<QPair<QString, QString> > langList = preferencesHelper->availableLanguages();
     for (auto it = langList.begin(); it != langList.end(); ++it)
     {
         comboBoxLanguage_->addItem(it->first, it->second);
     }
     comboBoxLanguage_->setCurrentItem(langList.begin()->second);
-    connect(comboBoxLanguage_, SIGNAL(currentItemChanged(QVariant)), SLOT(onLanguageItemChanged(QVariant)));
-    addItem(comboBoxLanguage_);
+    connect(comboBoxLanguage_, &ComboBoxItem::currentItemChanged, this, &GeneralWindowItem::onLanguageItemChanged);
+    languageGroup_->addItem(comboBoxLanguage_);
+    addItem(languageGroup_);
 
-    comboBoxLocationOrder_ = new ComboBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::ComboBoxItem", "Location Order"), QString(), 50, Qt::transparent, 0, true);
-
-    const QList< QPair<QString, int> > allOrderTypes = ProtoEnumToString::instance().getEnums(ProtoTypes::OrderLocationType_descriptor());
-    for (const auto o : allOrderTypes)
+    appSkinGroup_ = new PreferenceGroup(this, tr("Choose between the classic GUI or the \"earless\" alternative GUI."));
+    appSkinItem_ = new ComboBoxItem(appSkinGroup_, QT_TRANSLATE_NOOP("PreferencesWindow::ComboBoxItem", "App Skin"), QString());
+    appSkinItem_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/APP_SKIN"));
+    const QList< QPair<QString, int> > allAppSkins = APP_SKIN_toList();
+    for (const auto l : allAppSkins)
     {
-        comboBoxLocationOrder_->addItem(o.first, o.second);
+        appSkinItem_->addItem(l.first, l.second);
     }
-    comboBoxLocationOrder_->setCurrentItem((int)preferences->locationOrder());
-    connect(comboBoxLocationOrder_, SIGNAL(currentItemChanged(QVariant)), SLOT(onLocationItemChanged(QVariant)));
-    addItem(comboBoxLocationOrder_);
+    appSkinItem_->setCurrentItem(preferences->appSkin());
+    connect(appSkinItem_, &ComboBoxItem::currentItemChanged, this, &GeneralWindowItem::onAppSkinChanged);
+    appSkinGroup_->addItem(appSkinItem_);
+    addItem(appSkinGroup_);
 
-    comboBoxLatencyDisplay_ = new ComboBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::ComboBoxItem", "Latency Display"), QString(), 50, Qt::transparent, 0, true);
-    const QList< QPair<QString, int> > allLatencyTypes = ProtoEnumToString::instance().getEnums(ProtoTypes::LatencyDisplayType_descriptor());
+    backgroundSettingsGroup_ = new BackgroundSettingsGroup(this, tr("Customize the background of the main app screen."));
+    backgroundSettingsGroup_->setBackgroundSettings(preferences->backgroundSettings());
+    connect(backgroundSettingsGroup_, &BackgroundSettingsGroup::backgroundSettingsChanged, this, &GeneralWindowItem::onBackgroundSettingsChanged);
+    addItem(backgroundSettingsGroup_);
 
-    for (const auto l : allLatencyTypes)
-    {
-        comboBoxLatencyDisplay_->addItem(l.first, l.second);
-    }
-    comboBoxLatencyDisplay_->setCurrentItem((int)preferences->latencyDisplay());
-    connect(comboBoxLatencyDisplay_, SIGNAL(currentItemChanged(QVariant)), SLOT(onLatencyItemChanged(QVariant)));
-    addItem(comboBoxLatencyDisplay_);
-
-    checkBoxShowLocationLoad_ = new CheckBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::CheckBoxItem", "Show Location Load"), QString());
-    checkBoxShowLocationLoad_->setState(preferences->isShowLocationLoad());
-    connect(checkBoxShowLocationLoad_, &CheckBoxItem::stateChanged, this, &GeneralWindowItem::onShowLocationLoadClicked);
-    addItem(checkBoxShowLocationLoad_);
-
-    comboBoxUpdateChannel_ = new ComboBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::ComboBoxItem", "Update Channel"), QString(), 50, Qt::transparent, 0, true);
-    const QList< QPair<QString, int> > allUpdateChannelTypes = ProtoEnumToString::instance().getEnums(ProtoTypes::UpdateChannel_descriptor());
+    updateChannelGroup_ = new PreferenceGroup(this,
+                                              tr("Choose to receive stable, beta, or experimental builds."),
+                                              QString("https://%1/features/update-channels").arg(HardcodedSettings::instance().serverUrl()));
+    comboBoxUpdateChannel_ = new ComboBoxItem(updateChannelGroup_, QT_TRANSLATE_NOOP("PreferencesWindow::ComboBoxItem", "Update Channel"), QString());
+    comboBoxUpdateChannel_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/UPDATE_CHANNEL"));
+    const QList< QPair<QString, int> > allUpdateChannelTypes = UPDATE_CHANNEL_toList();
     for (const auto u : allUpdateChannelTypes)
     {
         if (u.first != "Internal") // don't display internal channel -- this will be specified by advanced parameters
@@ -130,13 +172,18 @@ GeneralWindowItem::GeneralWindowItem(ScalableGraphicsObject *parent, Preferences
         }
     }
     comboBoxUpdateChannel_->setCurrentItem((int)preferences->updateChannel());
-    connect(comboBoxUpdateChannel_, SIGNAL(currentItemChanged(QVariant)), SLOT(onUpdateChannelItemChanged(QVariant)));
-    addItem(comboBoxUpdateChannel_);
+    connect(comboBoxUpdateChannel_, &ComboBoxItem::currentItemChanged, this, &GeneralWindowItem::onUpdateChannelItemChanged);
+    updateChannelGroup_->addItem(comboBoxUpdateChannel_);
+    addItem(updateChannelGroup_);
 
-    connect(&LanguageController::instance(), SIGNAL(languageChanged()), SLOT(onLanguageChanged()));
+    connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &GeneralWindowItem::onLanguageChanged);
 
-    versionInfoItem_ = new VersionInfoItem(this, tr("Version"), preferencesHelper->buildVersion());
-    addItem(versionInfoItem_);
+    versionGroup_ = new PreferenceGroup(this);
+    versionGroup_->setDrawBackground(false);
+    versionInfoItem_ = new VersionInfoItem(versionGroup_, tr("Version"), preferencesHelper->buildVersion());
+    connect(versionInfoItem_, &ClickableGraphicsObject::clicked, this, &GeneralWindowItem::onVersionInfoClicked);
+    versionGroup_->addItem(versionInfoItem_);
+    addItem(versionGroup_);
 }
 
 QString GeneralWindowItem::caption()
@@ -152,16 +199,6 @@ void GeneralWindowItem::onIsLaunchOnStartupClicked(bool isChecked)
 void GeneralWindowItem::onIsLaunchOnStartupPreferencesChanged(bool b)
 {
     checkBoxLaunchOnStart_->setState(b);
-}
-
-void GeneralWindowItem::onIsAutoConnectClicked(bool isChecked)
-{
-    preferences_->setAutoConnect(isChecked);
-}
-
-void GeneralWindowItem::onIsAutoConnectPreferencesChanged(bool b)
-{
-    checkBoxAutoConnect_->setState(b);
 }
 
 void GeneralWindowItem::onStartMinimizedPreferencesChanged(bool b)
@@ -231,44 +268,44 @@ void GeneralWindowItem::onLanguageItemChanged(QVariant lang)
     preferences_->setLanguage(lang.toString());
 }
 
-void GeneralWindowItem::onLocationOrderPreferencesChanged(ProtoTypes::OrderLocationType o)
+void GeneralWindowItem::onLocationOrderPreferencesChanged(ORDER_LOCATION_TYPE o)
 {
     comboBoxLocationOrder_->setCurrentItem((int)o);
 }
 
 void GeneralWindowItem::onLocationItemChanged(QVariant o)
 {
-    preferences_->setLocationOrder((ProtoTypes::OrderLocationType)o.toInt());
+    preferences_->setLocationOrder((ORDER_LOCATION_TYPE)o.toInt());
 }
 
-void GeneralWindowItem::onLatencyDisplayPreferencesChanged(ProtoTypes::LatencyDisplayType l)
+void GeneralWindowItem::onLatencyDisplayPreferencesChanged(LATENCY_DISPLAY_TYPE l)
 {
     comboBoxLatencyDisplay_->setCurrentItem((int)l);
 }
 
 void GeneralWindowItem::onLatencyItemChanged(QVariant o)
 {
-    preferences_->setLatencyDisplay((ProtoTypes::LatencyDisplayType)o.toInt());
+    preferences_->setLatencyDisplay((LATENCY_DISPLAY_TYPE)o.toInt());
 }
 
-void GeneralWindowItem::onUpdateChannelPreferencesChanged(const ProtoTypes::UpdateChannel &c)
+void GeneralWindowItem::onUpdateChannelPreferencesChanged(const UPDATE_CHANNEL &c)
 {
     comboBoxUpdateChannel_->setCurrentItem((int)c);
 }
 
 void GeneralWindowItem::onUpdateChannelItemChanged(QVariant o)
 {
-    preferences_->setUpdateChannel((ProtoTypes::UpdateChannel)o.toInt());
+    preferences_->setUpdateChannel((UPDATE_CHANNEL)o.toInt());
 }
 
-void GeneralWindowItem::onBackgroundSettingsChanged(const ProtoTypes::BackgroundSettings &settings)
+void GeneralWindowItem::onBackgroundSettingsChanged(const types::BackgroundSettings &settings)
 {
     preferences_->setBackgroundSettings(settings);
 }
 
-void GeneralWindowItem::onPreferencesBackgroundSettingsChanged(const ProtoTypes::BackgroundSettings &settings)
+void GeneralWindowItem::onPreferencesBackgroundSettingsChanged(const types::BackgroundSettings &settings)
 {
-    backgroundSettingsItem_->setBackgroundSettings(settings);
+    backgroundSettingsGroup_->setBackgroundSettings(settings);
 }
 
 void GeneralWindowItem::onLanguageChanged()
@@ -305,12 +342,12 @@ void GeneralWindowItem::onLanguageChanged()
 
 void GeneralWindowItem::updateScaling()
 {
-    BasePage::updateScaling();
+    CommonGraphics::BasePage::updateScaling();
 }
 
 void GeneralWindowItem::hideOpenPopups()
 {
-    BasePage::hideOpenPopups();
+    CommonGraphics::BasePage::hideOpenPopups();
 
     // qCDebug(LOG_PREFERENCES) << "Hiding General popups";
     comboBoxLanguage_      ->hideMenu();
@@ -327,6 +364,41 @@ void GeneralWindowItem::onShowLocationLoadClicked(bool b)
 void GeneralWindowItem::onShowLocationLoadPreferencesChanged(bool b)
 {
     checkBoxShowLocationLoad_->setState(b);
+}
+
+void GeneralWindowItem::onAppSkinChanged(QVariant value)
+{
+    preferences_->setAppSkin((APP_SKIN)value.toInt());
+}
+
+void GeneralWindowItem::onAppSkinPreferencesChanged(APP_SKIN s)
+{
+    appSkinItem_->setCurrentItem(s);
+}
+
+void GeneralWindowItem::onVersionInfoClicked()
+{
+    QString platform;
+#ifdef Q_OS_WIN
+    platform = "windows";
+#elif defined(Q_OS_MAC)
+    platform = "mac";
+#else
+    platform = LinuxUtils::getLastInstallPlatform();
+    if (platform == LinuxUtils::DEB_PLATFORM_NAME) {
+        platform = "linux_deb";
+    } else if (platform == LinuxUtils::RPM_PLATFORM_NAME) {
+        platform = "linux_rpm";
+    } else {
+        // We don't have a website changelog for zst yet, go to top page instead
+        platform = "";
+    }
+#endif
+
+    QDesktopServices::openUrl(QUrl(
+        QString("https://%1/changelog/%2")
+            .arg(HardcodedSettings::instance().serverUrl())
+            .arg(platform)));
 }
 
 } // namespace PreferencesWindow

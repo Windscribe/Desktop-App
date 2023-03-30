@@ -1,8 +1,8 @@
 # ------------------------------------------------------------------------------
 # Windscribe Build System
-# Copyright (c) 2020-2021, Windscribe Limited. All rights reserved.
+# Copyright (c) 2020-2023, Windscribe Limited. All rights reserved.
 # ------------------------------------------------------------------------------
 variables:
-  VERSION_ZLIB: '1.2.11'
+  VERSION_ZLIB: '1.2.13'
   BUILDROOT_ZLIB: 'build-libs/zlib'
   ARTIFACT_ZLIB: 'zlib.zip'

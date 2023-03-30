@@ -3,33 +3,23 @@
 #include <QPainter>
 #include "graphicresources/fontmanager.h"
 #include "graphicresources/imageresourcessvg.h"
-#include "utils/widgetutils.h"
+#include "preferenceswindow/preferencesconst.h"
+#include "widgetutils/widgetutils.h"
 #include "dpiscalemanager.h"
 
 namespace PreferencesWindow {
 
-AppSearchItem::AppSearchItem(ProtoTypes::SplitTunnelingApp app, QString appIconPath, ScalableGraphicsObject *parent) : BaseItem (parent, 50*G_SCALE)
-    , textOpacity_(OPACITY_UNHOVER_TEXT)
-    , app_(app)
-    , appIcon_(appIconPath)
+AppSearchItem::AppSearchItem(types::SplitTunnelingApp app, QString appIconPath, ScalableGraphicsObject *parent)
+  : BaseItem (parent, PREFERENCE_GROUP_ITEM_HEIGHT*G_SCALE), opacity_(OPACITY_HALF), app_(app), appIcon_(appIconPath)
 {
     if (appIcon_ == "")
     {
         appIcon_ = "preferences/WHITE_QUESTION_MARK_ICON";
     }
 
-    line_ = new DividerLine(this, 276);
-    line_->setPos(24*G_SCALE, 43*G_SCALE);
-
-    connect(&textOpacityAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onTextOpacityChanged(QVariant)));
-    connect(this, SIGNAL(hoverEnter()), SLOT(onHoverEnter()));
-
-    updateIcons();
-}
-
-AppSearchItem::~AppSearchItem()
-{
-    delete line_;
+    connect(&opacityAnimation_, &QVariantAnimation::valueChanged, this, &AppSearchItem::onOpacityChanged);
+    connect(this, &BaseItem::hoverEnter, this, &AppSearchItem::onHoverEnter);
+    connect(this, &BaseItem::hoverLeave, this, &AppSearchItem::onHoverLeave);
 }
 
 void AppSearchItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
@@ -37,49 +27,45 @@ void AppSearchItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opt
     Q_UNUSED(option);
     Q_UNUSED(widget);
 
-    qreal initOpacity = painter->opacity();
-
     // app icon
-    painter->save();
     QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIconIndependentPixmap(appIcon_);
-    if (p)
+    if (!p)
     {
-
-#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
-        int size = 18*G_SCALE;
-#elif defined Q_OS_MAC
-        int size = p->originalPixmapSize().width();
-#endif
-        QPixmap drawingPixmap = p->getScaledPixmap(size, size);
-        painter->drawPixmap(16*G_SCALE, 12*G_SCALE, drawingPixmap);
+        p = ImageResourcesSvg::instance().getIndependentPixmap("preferences/WHITE_QUESTION_MARK_ICON");
     }
-    else
-    {
-        QSharedPointer<IndependentPixmap> ip = ImageResourcesSvg::instance().getIndependentPixmap("preferences/WHITE_QUESTION_MARK_ICON");
-        ip->draw(16*G_SCALE, 12*G_SCALE, painter);
-    }
-    painter->restore();
+    p->draw(PREFERENCES_MARGIN*G_SCALE, APP_ICON_MARGIN_Y*G_SCALE, APP_ICON_WIDTH*G_SCALE, APP_ICON_HEIGHT*G_SCALE, painter);
 
-    // checkmark icon
-    painter->setOpacity(initOpacity * enabledIconOpacity_);
-    QSharedPointer<IndependentPixmap> enabledPixmap = ImageResourcesSvg::instance().getIndependentPixmap(enabledIcon_);
-    enabledPixmap->draw(boundingRect().width() - 36*G_SCALE, 12*G_SCALE, painter);
+    // add icon
+    painter->setPen(Qt::white);
+    painter->setOpacity(opacity_);
+    QSharedPointer<IndependentPixmap> addIcon = ImageResourcesSvg::instance().getIndependentPixmap("locations/EXPAND_ICON");
+    addIcon->draw(boundingRect().width() - (PREFERENCES_MARGIN + ICON_WIDTH)*G_SCALE, PREFERENCES_MARGIN*G_SCALE, painter);
 
     // text
-    painter->setOpacity(textOpacity_ * initOpacity);
     painter->setPen(Qt::white);
-    painter->setFont(*FontManager::instance().getFont(12, false));
-    painter->drawText(boundingRect().adjusted(40*G_SCALE, 13*G_SCALE, -48*G_SCALE, -18*G_SCALE), QString::fromStdString(app_.name()));
+    painter->setOpacity(opacity_);
+
+    QFont *font = FontManager::instance().getFont(12, false);
+    painter->setFont(*font);
+    QFontMetrics fm(*font);
+    QString elidedName = fm.elidedText(app_.name,
+                                       Qt::TextElideMode::ElideRight,
+                                       boundingRect().width() - (3*PREFERENCES_MARGIN + APP_ICON_MARGIN_X + APP_ICON_WIDTH + ICON_WIDTH)*G_SCALE);
+    painter->drawText(boundingRect().adjusted((PREFERENCES_MARGIN + APP_ICON_WIDTH + APP_ICON_MARGIN_X)*G_SCALE,
+                                              PREFERENCES_MARGIN*G_SCALE,
+                                              -(2*PREFERENCES_MARGIN + ICON_WIDTH)*G_SCALE,
+                                              -PREFERENCES_MARGIN*G_SCALE),
+                      elidedName);
 }
 
 QString AppSearchItem::getName()
 {
-    return QString::fromStdString(app_.name());
+    return app_.name;
 }
 
 QString AppSearchItem::getFullName()
 {
-    return QString::fromStdString(app_.full_name());
+    return app_.fullName;
 }
 
 QString AppSearchItem::getAppIcon()
@@ -87,45 +73,38 @@ QString AppSearchItem::getAppIcon()
     return appIcon_;
 }
 
-void AppSearchItem::updateIcons()
-{
-    if (app_.active())
-    {
-        enabledIcon_ = "preferences/GREEN_CHECKMARK_ICON";
-        enabledIconOpacity_ = OPACITY_FULL;
-    }
-    else
-    {
-        enabledIcon_ = "preferences/WHITE_CHECKMARK_ICON";
-        enabledIconOpacity_ = OPACITY_UNHOVER_ICON_STANDALONE;
-    }
-}
-
 void AppSearchItem::setSelected(bool selected)
 {
     selected_ = selected;
 
     double targetOpacity = OPACITY_FULL;
-    if (!selected) targetOpacity = OPACITY_UNHOVER_TEXT;
-    startAnAnimation<double>(textOpacityAnimation_, textOpacity_, targetOpacity, ANIMATION_SPEED_FAST);
+    if (!selected)
+    {
+        targetOpacity = OPACITY_HALF;
+    }
+    startAnAnimation<double>(opacityAnimation_, opacity_, targetOpacity, ANIMATION_SPEED_FAST);
 }
 
 void AppSearchItem::updateScaling()
 {
     BaseItem::updateScaling();
-    setHeight(50*G_SCALE);
-    line_->setPos(24*G_SCALE, 43*G_SCALE);
+    setHeight(PREFERENCE_GROUP_ITEM_HEIGHT*G_SCALE);
 }
 
-void AppSearchItem::onTextOpacityChanged(const QVariant &value)
+void AppSearchItem::onOpacityChanged(const QVariant &value)
 {
-    textOpacity_ = value.toDouble();
+    opacity_ = value.toDouble();
     update();
 }
 
 void AppSearchItem::onHoverEnter()
 {
-    startAnAnimation<double>(textOpacityAnimation_, textOpacity_, OPACITY_FULL, ANIMATION_SPEED_FAST);
+    startAnAnimation<double>(opacityAnimation_, opacity_, OPACITY_FULL, ANIMATION_SPEED_FAST);
+}
+
+void AppSearchItem::onHoverLeave()
+{
+    startAnAnimation<double>(opacityAnimation_, opacity_, OPACITY_HALF, ANIMATION_SPEED_FAST);
 }
 
 void AppSearchItem::setAppIcon(QString icon)

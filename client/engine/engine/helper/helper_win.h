@@ -1,13 +1,14 @@
 #ifndef HELPER_WIN_H
 #define HELPER_WIN_H
 
-#include "ihelper.h"
-#include <QTimer>
 #include <QMutex>
+#include <QTimer>
+#include <qt_windows.h>
+
 #include <atomic>
-#include <windows.h>
+
+#include "ihelper.h"
 #include "../../../../backend/windows/windscribe_service/ipc/servicecommunication.h"
-#include "../../../../backend/windows/windscribe_service/ipc/serialize_structs.h"
 
 class Helper_win : public IHelper
 {
@@ -29,30 +30,31 @@ public:
     bool setSplitTunnelingSettings(bool isActive, bool isExclude, bool isKeepLocalSockets,
                                    const QStringList &files, const QStringList &ips,
                                    const QStringList &hosts) override;
-    void sendConnectStatus(bool isConnected, bool isCloseTcpSocket, bool isKeepLocalSocket, const AdapterGatewayInfo &defaultAdapter, const AdapterGatewayInfo &vpnAdapter,
-                           const QString &connectedIp, const ProtocolType &protocol) override;
+    bool sendConnectStatus(bool isConnected, bool isTerminateSocket, bool isKeepLocalSocket,
+                           const AdapterGatewayInfo &defaultAdapter, const AdapterGatewayInfo &vpnAdapter,
+                           const QString &connectedIp, const types::Protocol &protocol) override;
     bool setCustomDnsWhileConnected(bool isIkev2, unsigned long ifIndex, const QString &overrideDnsIpAddress) override;
+    bool changeMtu(const QString &adapter, int mtu) override;
+    bool executeTaskKill(const QString &name);
 
      // WireGuard functions
     IHelper::ExecuteError startWireGuard(const QString &exeName, const QString &deviceName) override;
     bool stopWireGuard() override;
     bool configureWireGuard(const WireGuardConfig &config) override;
-    bool getWireGuardStatus(WireGuardStatus *status) override;
+    bool getWireGuardStatus(types::WireGuardStatus *status) override;
     void setDefaultWireGuardDeviceName(const QString &deviceName) override;
 
     // Windows specific functions
     bool isHelperConnected() const;
     IHelper::ExecuteError executeOpenVPN(const QString &configPath, unsigned int portNumber, const QString &httpProxy, unsigned int httpPort,
                         const QString &socksProxy, unsigned int socksPort,
-                        unsigned long &outCmdId);
-    bool executeTaskKill(const QString &executableName);
+                        unsigned long &outCmdId, bool isCustomConfig);
     bool executeResetTap(const QString &tapName);
     QString executeSetMetric(const QString &interfaceType, const QString &interfaceName, const QString &metricNumber);
     QString executeWmicEnable(const QString &adapterName);
     QString executeWmicGetConfigManagerErrorCode(const QString &adapterName);
     bool executeChangeIcs(int cmd, const QString &configPath, const QString &publicGuid, const QString &privateGuid,
                           unsigned long &outCmdId, const QString &eventName);
-    bool executeChangeMtu(const QString &adapter, int mtu);
 
     bool clearDnsOnTap();
     QString enableBFE();
@@ -120,8 +122,8 @@ private:
 
     friend class FirewallController_win;
     // friend functions for windows firewall controller class
-    bool firewallOn(const QString &ip, bool bAllowLanTraffic);
-    bool firewallChange(const QString &ip, bool bAllowLanTraffic);
+    bool firewallOn(const QString &ip, bool bAllowLanTraffic, bool bIsCustomConfig);
+    bool firewallChange(const QString &ip, bool bAllowLanTraffic, bool bIsCustomConfig);
     bool firewallOff();
     bool firewallActualState();
     void initVariables();

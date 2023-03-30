@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include "../../posix_common/helper_commands.h"
 
 #ifndef UNUSED
 #define UNUSED(x) (void)(x)
@@ -20,6 +21,14 @@ namespace Utils
 
     bool isFileExists(const std::string &name);
 
+    // combine exe path, exe, and arguments
+    std::string getFullCommand(const std::string &exePath, const std::string &executable, const std::string &arguments);
+
+    // get list of openvpn exe names from package
+    std::vector<std::string> getOpenVpnExeNames();
+
+    // get dns script associated with a particular dns manager
+    std::string getDnsScript(CmdDnsManager mgr);
 };
 
 #endif

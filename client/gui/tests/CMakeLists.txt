@@ -1,0 +1,1 @@
+#add_subdirectory(locationsmodel_visual_test)

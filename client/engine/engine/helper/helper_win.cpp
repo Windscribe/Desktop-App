@@ -1,19 +1,24 @@
-#include "utils/boost_includes.h"
-#include "utils/executable_signature/executable_signature.h"
 #include "helper_win.h"
-#include "utils/crashhandler.h"
-#include "utils/logger.h"
-#include <QDir>
+
 #include <QCoreApplication>
+#include <QDir>
 #include <QElapsedTimer>
+
 #include <sstream>
-#include "windscribeinstallhelper_win.h"
+
+#include "utils/boost_includes.h"
+
+#include "../../../../backend/windows/windscribe_service/ipc/serialize_structs.h"
+#include "engine/connectionmanager/adaptergatewayinfo.h"
 #include "engine/openvpnversioncontroller.h"
 #include "engine/wireguardconfig/wireguardconfig.h"
-#include "engine/types/wireguardtypes.h"
-#include "engine/connectionmanager/adaptergatewayinfo.h"
-#include "engine/types/protocoltype.h"
+#include "types/wireguardtypes.h"
+#include "utils/crashhandler.h"
+#include "utils/executable_signature/executable_signature.h"
+#include "utils/logger.h"
 #include "utils/win32handle.h"
+#include "utils/ws_assert.h"
+#include "windscribeinstallhelper_win.h"
 
 #define SERVICE_PIPE_NAME  (L"\\\\.\\pipe\\WindscribeService")
 
@@ -54,8 +59,8 @@ Helper_win::~Helper_win()
 void Helper_win::startInstallHelper()
 {
     initVariables();
-    Q_ASSERT(schSCManager_ == NULL);
-    Q_ASSERT(schService_ == NULL);
+    WS_ASSERT(schSCManager_ == NULL);
+    WS_ASSERT(schService_ == NULL);
 
     helperLabel_ = "WindscribeService";
 
@@ -159,7 +164,7 @@ void Helper_win::suspendUnblockingCmd(unsigned long cmdId)
     sendCmdToHelper(AA_COMMAND_SUSPEND_UNBLOCKING_CMD, stream.str());
 }
 
-bool Helper_win::setSplitTunnelingSettings(bool isActive, bool isExclude, bool isKeepLocalSockets,
+bool Helper_win::setSplitTunnelingSettings(bool isActive, bool isExclude, bool isAllowLanTraffic,
                                            const QStringList &files, const QStringList &ips,
                                            const QStringList &hosts)
 {
@@ -168,7 +173,7 @@ bool Helper_win::setSplitTunnelingSettings(bool isActive, bool isExclude, bool i
     CMD_SPLIT_TUNNELING_SETTINGS cmdSplitTunnelingSettings;
     cmdSplitTunnelingSettings.isActive = isActive;
     cmdSplitTunnelingSettings.isExclude = isExclude;
-    cmdSplitTunnelingSettings.isKeepLocalSockets = isKeepLocalSockets;
+    cmdSplitTunnelingSettings.isAllowLanTraffic = isAllowLanTraffic;
 
     for (int i = 0; i < files.count(); ++i)
     {
@@ -193,37 +198,32 @@ bool Helper_win::setSplitTunnelingSettings(bool isActive, bool isExclude, bool i
     return mpr.exitCode;
 }
 
-void Helper_win::sendConnectStatus(bool isConnected, bool isCloseTcpSocket, bool isKeepLocalSocket, const AdapterGatewayInfo &defaultAdapter, const AdapterGatewayInfo &vpnAdapter,
-                                   const QString &connectedIp, const ProtocolType &protocol)
+bool Helper_win::sendConnectStatus(bool isConnected, bool isTerminateSocket, bool isKeepLocalSocket,
+                                   const AdapterGatewayInfo &defaultAdapter, const AdapterGatewayInfo &vpnAdapter,
+                                   const QString &connectedIp, const types::Protocol &protocol)
 {
     QMutexLocker locker(&mutex_);
 
     CMD_CONNECT_STATUS cmd;
     cmd.isConnected = isConnected;
-    cmd.isCloseTcpSocket = isCloseTcpSocket;
+    cmd.isTerminateSocket = isTerminateSocket;
     cmd.isKeepLocalSocket = isKeepLocalSocket;
 
-    if (isConnected)
-    {
-        if (protocol.isStunnelOrWStunnelProtocol())
-        {
+    if (isConnected) {
+        if (protocol.isStunnelOrWStunnelProtocol()) {
             cmd.protocol = CMD_PROTOCOL_STUNNEL_OR_WSTUNNEL;
         }
-        else if (protocol.isIkev2Protocol())
-        {
+        else if (protocol.isIkev2Protocol()) {
             cmd.protocol = CMD_PROTOCOL_IKEV2;
         }
-        else if (protocol.isWireGuardProtocol())
-        {
+        else if (protocol.isWireGuardProtocol()) {
             cmd.protocol = CMD_PROTOCOL_WIREGUARD;
         }
-        else if (protocol.isOpenVpnProtocol())
-        {
+        else if (protocol.isOpenVpnProtocol()) {
             cmd.protocol = CMD_PROTOCOL_OPENVPN;
         }
-        else
-        {
-            Q_ASSERT(false);
+        else {
+            WS_ASSERT(false);
         }
 
         auto fillAdapterInfo = [](const AdapterGatewayInfo &a, ADAPTER_GATEWAY_INFO &out)
@@ -251,6 +251,7 @@ void Helper_win::sendConnectStatus(bool isConnected, bool isCloseTcpSocket, bool
     oa << cmd;
 
     MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_CONNECT_STATUS, stream.str());
+    return mpr.success;
 }
 
 bool Helper_win::setCustomDnsWhileConnected(bool isIkev2, unsigned long ifIndex, const QString &overrideDnsIpAddress)
@@ -259,7 +260,7 @@ bool Helper_win::setCustomDnsWhileConnected(bool isIkev2, unsigned long ifIndex,
 
     QMutexLocker locker(&mutex_);
 
-    CMD_DNS_WHILE_CONNECTED cmd;
+    CMD_CONNECTED_DNS cmd;
     cmd.ifIndex = ifIndex;
     cmd.szDnsIpAddress = overrideDnsIpAddress.toStdWString();
 
@@ -267,7 +268,7 @@ bool Helper_win::setCustomDnsWhileConnected(bool isIkev2, unsigned long ifIndex,
     boost::archive::text_oarchive oa(stream, boost::archive::no_header);
     oa << cmd;
 
-    MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_DNS_WHILE_CONNECTED, stream.str());
+    MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_CONNECTED_DNS, stream.str());
     return mpr.exitCode == 0;
 }
 
@@ -313,7 +314,7 @@ bool Helper_win::configureWireGuard(const WireGuardConfig &config)
     return true;
 }
 
-bool Helper_win::getWireGuardStatus(WireGuardStatus *status)
+bool Helper_win::getWireGuardStatus(types::WireGuardStatus *status)
 {
     QMutexLocker locker(&mutex_);
 
@@ -322,14 +323,14 @@ bool Helper_win::getWireGuardStatus(WireGuardStatus *status)
     {
         if (mpr.exitCode == WIREGUARD_STATE_ERROR)
         {
-            status->state = WireGuardState::FAILURE;
+            status->state = types::WireGuardState::FAILURE;
             status->lastHandshake = 0;
             status->bytesReceived = 0;
             status->bytesTransmitted = 0;
         }
         else
         {
-            status->state = WireGuardState::ACTIVE;
+            status->state = types::WireGuardState::ACTIVE;
             status->lastHandshake = mpr.customInfoValue[0];
             status->bytesTransmitted = mpr.customInfoValue[1];
             status->bytesReceived = mpr.customInfoValue[2];
@@ -349,7 +350,7 @@ bool Helper_win::isHelperConnected() const
     return curState_ == STATE_CONNECTED;
 }
 
-IHelper::ExecuteError Helper_win::executeOpenVPN(const QString &configPath, unsigned int portNumber, const QString &httpProxy, unsigned int httpPort, const QString &socksProxy, unsigned int socksPort, unsigned long &outCmdId)
+IHelper::ExecuteError Helper_win::executeOpenVPN(const QString &config, unsigned int portNumber, const QString &httpProxy, unsigned int httpPort, const QString &socksProxy, unsigned int socksPort, unsigned long &outCmdId, bool isCustomConfig)
 {
     QMutexLocker locker(&mutex_);
 
@@ -364,12 +365,13 @@ IHelper::ExecuteError Helper_win::executeOpenVPN(const QString &configPath, unsi
 
     CMD_RUN_OPENVPN cmdRunOpenVpn;
     cmdRunOpenVpn.szOpenVpnExecutable = OpenVpnVersionController::instance().getSelectedOpenVpnExecutable().toStdWString();
-    cmdRunOpenVpn.szConfigPath = configPath.toStdWString();
+    cmdRunOpenVpn.szConfig = config.toStdWString();
     cmdRunOpenVpn.portNumber = portNumber;
     cmdRunOpenVpn.szHttpProxy = httpProxy.toStdWString();
     cmdRunOpenVpn.szSocksProxy = socksProxy.toStdWString();
     cmdRunOpenVpn.httpPortNumber = httpPort;
     cmdRunOpenVpn.socksPortNumber = socksPort;
+    cmdRunOpenVpn.isCustomConfig = isCustomConfig;
 
     std::stringstream stream;
     boost::archive::text_oarchive oa(stream, boost::archive::no_header);
@@ -489,7 +491,7 @@ bool Helper_win::executeChangeIcs(int cmd, const QString &configPath, const QStr
     return mpr.success;
 }
 
-bool Helper_win::executeChangeMtu(const QString &adapter, int mtu)
+bool Helper_win::changeMtu(const QString &adapter, int mtu)
 {
     QMutexLocker locker(&mutex_);
 
@@ -932,7 +934,7 @@ MessagePacketResult Helper_win::sendCmdToHelper(int cmdId, const std::string &da
         }
     }
 
-    WinUtils::Win32Handle closePipe(hPipe);
+    wsl::Win32Handle closePipe(hPipe);
 
     // first 4 bytes - cmdId
     if (!writeAllToPipe(hPipe, (char *)&cmdId, sizeof(cmdId)))
@@ -1016,16 +1018,17 @@ int Helper_win::debugGetActiveUnblockingCmdCount()
 {
     QMutexLocker locker(&mutex_);
     MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_GET_UNBLOCKING_CMD_COUNT, std::string());
-    Q_ASSERT(mpr.exitCode == 0);
+    WS_ASSERT(mpr.exitCode == 0);
     return mpr.exitCode;
 }
 
-bool Helper_win::firewallOn(const QString &ip, bool bAllowLanTraffic)
+bool Helper_win::firewallOn(const QString &ip, bool bAllowLanTraffic, bool bIsCustomConfig)
 {
     QMutexLocker locker(&mutex_);
 
     CMD_FIREWALL_ON cmdFirewallOn;
     cmdFirewallOn.allowLanTraffic = bAllowLanTraffic;
+    cmdFirewallOn.isCustomConfig = bIsCustomConfig;
     cmdFirewallOn.ip = ip.toStdWString();
 
     std::stringstream stream;
@@ -1036,12 +1039,13 @@ bool Helper_win::firewallOn(const QString &ip, bool bAllowLanTraffic)
     return mpr.success;
 }
 
-bool Helper_win::firewallChange(const QString &ip, bool bAllowLanTraffic)
+bool Helper_win::firewallChange(const QString &ip, bool bAllowLanTraffic, bool bIsCustomConfig)
 {
     QMutexLocker locker(&mutex_);
 
     CMD_FIREWALL_ON cmdFirewallOn;
     cmdFirewallOn.allowLanTraffic = bAllowLanTraffic;
+    cmdFirewallOn.isCustomConfig = bIsCustomConfig;
     cmdFirewallOn.ip = ip.toStdWString();
 
     std::stringstream stream;
@@ -1063,7 +1067,7 @@ bool Helper_win::firewallActualState()
 {
     QMutexLocker locker(&mutex_);
     MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_FIREWALL_STATUS, std::string());
-    Q_ASSERT(mpr.success);
+    WS_ASSERT(mpr.success);
     return mpr.exitCode == 1;
 }
 

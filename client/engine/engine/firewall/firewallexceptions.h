@@ -2,16 +2,15 @@
 #define FIREWALLEXCEPTIONS_H
 
 #include <QSharedPointer>
-#include "engine/proxy/proxysettings.h"
+#include "types/proxysettings.h"
 
 class FirewallExceptions
 {
 public:
     FirewallExceptions();
 
-    void setHostIPs(const QStringList &hostIPs);
-    void setWhiteListedIPs(const QSet<QString> &ips);
-    void setProxyIP(const ProxySettings &proxySettings);
+    void setHostIPs(const QSet<QString> &hostIPs);
+    void setProxyIP(const types::ProxySettings &proxySettings);
 
     void setCustomRemoteIp(const QString &remoteIP, bool &bChanged);
     void setConnectingIp(const QString &connectingIp, bool &bChanged);
@@ -23,12 +22,11 @@ public:
     void setLocationsPingIps(const QStringList &listIps);
     void setCustomConfigPingIps(const QStringList &listIps);
 
-    QString getIPAddressesForFirewall() const;
-    QString getIPAddressesForFirewallForConnectedState(const QString &connectedIp) const;
+    QSet<QString> getIPAddressesForFirewall() const;
+    QSet<QString> getIPAddressesForFirewallForConnectedState(const QString &connectedIp) const;
 
 private:
-    QStringList hostIPs_;
-    QSet<QString> whitelistedIPs_;
+    QSet<QString> hostIPs_;
     QString proxyIP_;
     QString remoteIP_;
     QStringList locationsPingIPs_;

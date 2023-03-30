@@ -1,5 +1,6 @@
 #include "blockconnect.h"
 #include <QObject>
+#include "utils/ws_assert.h"
 
 BlockConnect::BlockConnect() : blockConnect_(CONNECT_NOT_BLOCKED), bNeedUpgrade_(false)
 {
@@ -41,7 +42,7 @@ QString BlockConnect::message()
     }
     else
     {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
         return "Unknown message from BlockConnect";
     }
 }

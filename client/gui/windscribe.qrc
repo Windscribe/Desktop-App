@@ -1,6 +1,5 @@
 <RCC>
     <qresource prefix="/">
-	<file>../../common/utils/hardcodedsettings.ini</file>
         <file>resources/fonts/ibmplexsans-bold.ttf</file>
         <file>resources/fonts/ibmplexsans-regular.ttf</file>
         <file>resources/icons/icon_connected.ico</file>
@@ -12,5 +11,8 @@
         <file>resources/icons/win/OFF_WHITE.ico</file>
         <file>resources/icons/win/ON_BLACK.ico</file>
         <file>resources/icons/win/ON_WHITE.ico</file>
+        <file>resources/icons/win/ConnectedOverlay.ico</file>
+        <file>resources/icons/win/ConnectingOverlay.ico</file>
+        <file>resources/icons/win/ErrorOverlay.ico</file>
     </qresource>
 </RCC>

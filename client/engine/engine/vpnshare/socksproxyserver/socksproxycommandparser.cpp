@@ -1,4 +1,5 @@
 #include "socksproxycommandparser.h"
+#include "utils/ws_assert.h"
 
 namespace SocksProxyServer {
 
@@ -120,7 +121,7 @@ TRI_BOOL SocksProxyCommandParser::consume(char input)
     }
     else
     {
-        Q_ASSERT(false);
+        WS_ASSERT(false);
     }
     return TRI_INDETERMINATE;
 }

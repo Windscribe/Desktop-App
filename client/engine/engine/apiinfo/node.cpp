@@ -1,4 +1,5 @@
 #include "node.h"
+#include "utils/ws_assert.h"
 
 namespace apiinfo {
 
@@ -10,9 +11,9 @@ bool Node::initFromJson(QJsonObject &obj)
         return false;
     }
 
-    d->ip_[0] = obj["ip"].toString();
-    d->ip_[1] = obj["ip2"].toString();
-    d->ip_[2] = obj["ip3"].toString();
+    d->ips_ << obj["ip"].toString();
+    d->ips_ << obj["ip2"].toString();
+    d->ips_ << obj["ip3"].toString();
     d->hostname_ = obj["hostname"].toString();
     d->weight_ = obj["weight"].toInt();
 
@@ -29,60 +30,70 @@ bool Node::initFromJson(QJsonObject &obj)
     return true;
 }
 
-void Node::initFromProtoBuf(const ProtoApiInfo::Node &n)
-{
-    Q_ASSERT(n.ips_size() == 3);
-    if (n.ips_size() == 3)
-    {
-        for (auto i = 0; i < 3; ++i)
-        {
-            d->ip_[i] = QString::fromStdString(n.ips(i));
-        }
-    }
-
-    d->hostname_ = QString::fromStdString(n.hostname());
-    d->weight_ = n.weight();
-    d->forceDisconnect_ = false;
-    d->isValid_ = true;
-}
-
-ProtoApiInfo::Node Node::getProtoBuf() const
-{
-    Q_ASSERT(d->isValid_);
-    ProtoApiInfo::Node node;
-
-    for (auto i = 0; i < 3; ++i)
-    {
-        *node.add_ips() = d->ip_[i].toStdString();
-    }
-    node.set_hostname(d->hostname_.toStdString());
-    node.set_weight(d->weight_);
-    return node;
-}
-
 QString Node::getHostname() const
 {
-    Q_ASSERT(d->isValid_);
+    WS_ASSERT(d->isValid_);
     return d->hostname_;
 }
 
 bool Node::isForceDisconnect() const
 {
-    Q_ASSERT(d->isValid_);
+    WS_ASSERT(d->isValid_);
     return d->forceDisconnect_ == 1;
 }
 
 QString Node::getIp(int ind) const
 {
-    Q_ASSERT(d->isValid_);
-    Q_ASSERT(ind >= 0 && ind <= 2);
-    return d->ip_[ind];
+    WS_ASSERT(d->isValid_);
+    WS_ASSERT(ind >= 0 && ind <= 2);
+    WS_ASSERT(d->ips_.size() == 3);
+    return d->ips_[ind];
 }
 
 int Node::getWeight() const
 {
-    Q_ASSERT(d->isValid_);
+    WS_ASSERT(d->isValid_);
     return d->weight_;
 }
+
+bool Node::operator==(const Node &other) const
+{
+    return d->ips_ == other.d->ips_ &&
+           d->hostname_ == other.d->hostname_ &&
+           d->weight_ == other.d->weight_ &&
+           d->forceDisconnect_ == other.d->forceDisconnect_ &&
+            d->isValid_ == other.d->isValid_;
+}
+
+bool Node::operator!=(const Node &other) const
+{
+    return !operator==(other);
+}
+
+QDataStream& operator <<(QDataStream &stream, const Node &n)
+{
+    WS_ASSERT(n.d->isValid_);
+    stream << n.versionForSerialization_;
+    // forceDisconnect_ does not require serialization
+    stream << n.d->ips_ << n.d->hostname_ << n.d->weight_;
+    return stream;
+}
+
+QDataStream& operator >>(QDataStream &stream, Node &n)
+{
+    quint32 version;
+    stream >> version;
+    if (version > n.versionForSerialization_)
+    {
+        stream.setStatus(QDataStream::ReadCorruptData);
+        n.d->isValid_ = false;
+        return stream;
+    }
+
+    stream >> n.d->ips_ >> n.d->hostname_ >> n.d->weight_;
+    n.d->isValid_ = true;
+    return stream;
+}
+
 
 } //namespace apiinfo

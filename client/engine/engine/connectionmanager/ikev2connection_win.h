@@ -5,7 +5,7 @@
 #include <QMap>
 #include <QTimer>
 #include <QMutex>
-#include "Engine/Types/types.h"
+#include "types/enums.h"
 #include "IConnection.h"
 #include <windows.h>
 #include <ras.h>
@@ -21,8 +21,8 @@ public:
     explicit IKEv2Connection_win(QObject *parent, IHelper *helper);
     ~IKEv2Connection_win() override;
 
-    void startConnect(const QString &configPathOrUrl, const QString &ip, const QString &dnsHostName,  const QString &username, const QString &password, const ProxySettings &proxySettings,
-                      const WireGuardConfig *wireGuardConfig, bool isEnableIkev2Compression, bool isAutomaticConnectionMode) override;
+    void startConnect(const QString &configPathOrUrl, const QString &ip, const QString &dnsHostName,  const QString &username, const QString &password, const types::ProxySettings &proxySettings,
+                      const WireGuardConfig *wireGuardConfig, bool isEnableIkev2Compression, bool isAutomaticConnectionMode, bool isCustomConfig) override;
     void startDisconnect() override;
     bool isDisconnected() const override;
 
@@ -64,7 +64,7 @@ private:
     static constexpr int CONTROL_TIMER_PERIOD = 1000;
     QMap<RASCONNSTATE, QString> mapConnStates_;
 
-    mutable QMutex mutex_;
+    mutable QRecursiveMutex mutex_;
 
     IKEv2ConnectionDisconnectLogic_win disconnectLogic_;
 

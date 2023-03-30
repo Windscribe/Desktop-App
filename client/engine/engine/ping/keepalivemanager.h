@@ -1,9 +1,6 @@
-#ifndef KEEPALIVEMANAGER_H
-#define KEEPALIVEMANAGER_H
+#pragma once
 
 #include <QObject>
-#include <QHostInfo>
-#include "pinghost_tcp.h"
 
 #ifdef Q_OS_WIN
     #include "pinghost_icmp_win.h"
@@ -21,7 +18,7 @@ public:
     void setEnabled(bool isEnabled);
 
 private slots:
-    void onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, ProtoTypes::ConnectError err, const LocationID &location);
+    void onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, CONNECT_ERROR err, const LocationID &location);
     void onTimer();
     void onDnsRequestFinished();
     void onPingFinished(bool bSuccess, int timems, const QString &ip, bool isFromDisconnectedState);
@@ -43,12 +40,9 @@ private:
 
     QVector<IP_DESCR> ips_;
 
-
 #ifdef Q_OS_WIN
     PingHost_ICMP_win pingHostIcmp_;
 #elif defined (Q_OS_MAC) || defined(Q_OS_LINUX)
     PingHost_ICMP_mac pingHostIcmp_;
 #endif
 };
-
-#endif // KEEPALIVEMANAGER_H

@@ -6,7 +6,7 @@
 #include "httpproxyserver/httpproxyserver.h"
 #include "socksproxyserver/socksproxyserver.h"
 #include "engine/helper/ihelper.h"
-#include "engine/types/types.h"
+#include "types/enums.h"
 
 #ifdef Q_OS_WIN
     #include "WifiSharing/wifisharing.h"
@@ -38,15 +38,15 @@ public:
     QString getProxySharingAddress();
 
 signals:
-    void connectedWifiUsersChanged(int usersCount);
-    void connectedProxyUsersChanged(int usersCount);
+    void connectedWifiUsersChanged(bool bEnabled, const QString &ssid, int usersCount);
+    void connectedProxyUsersChanged(bool bEnabled, PROXY_SHARING_TYPE type, const QString &address, int usersCount);
 
 private slots:
     void onWifiUsersCountChanged();
     void onProxyUsersCountChanged();
 
 private:
-    QMutex mutex_;
+    QRecursiveMutex mutex_;
     IHelper *helper_;
     HttpProxyServer::HttpProxyServer *httpProxyServer_;
     SocksProxyServer::SocksProxyServer *socksProxyServer_;

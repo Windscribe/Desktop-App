@@ -2,24 +2,41 @@
 
 #include <QPainter>
 
+#include "utils/hardcodedsettings.h"
+
+#ifdef Q_OS_MAC
+    #include "utils/macutils.h"
+#endif
+
 namespace PreferencesWindow {
 
-SplitTunnelingWindowItem::SplitTunnelingWindowItem(ScalableGraphicsObject *parent, Preferences *preferences) : BasePage(parent)
+SplitTunnelingWindowItem::SplitTunnelingWindowItem(ScalableGraphicsObject *parent, Preferences *preferences) : CommonGraphics::BasePage(parent)
     , currentScreen_(SPLIT_TUNNEL_SCREEN_HOME)
     , preferences_(preferences)
 {
     setFlag(QGraphicsItem::ItemIsFocusable);
+    setSpacerHeight(PREFERENCES_MARGIN);
 
-    splitTunnelingItem_ = new SplitTunnelingItem(this);
-    connect(splitTunnelingItem_, SIGNAL(ipsAndHostnamesPageClick()), SIGNAL(ipsAndHostnamesPageClick()));
-    connect(splitTunnelingItem_, SIGNAL(appsPageClick()), SIGNAL(appsPageClick()));
-    connect(splitTunnelingItem_, SIGNAL(settingsChanged(ProtoTypes::SplitTunnelingSettings)), SLOT(onSettingsChanged(ProtoTypes::SplitTunnelingSettings)));
+    splitTunnelingGroup_ = new SplitTunnelingGroup(this);
+    connect(splitTunnelingGroup_, &SplitTunnelingGroup::addressesPageClick, this, &SplitTunnelingWindowItem::addressesPageClick);
+    connect(splitTunnelingGroup_, &SplitTunnelingGroup::appsPageClick, this, &SplitTunnelingWindowItem::appsPageClick);
+    connect(splitTunnelingGroup_, &SplitTunnelingGroup::settingsChanged, this, &SplitTunnelingWindowItem::onSettingsChanged);
 
-    addItem(splitTunnelingItem_);
-    splitTunnelingItem_->setSettings(preferences->splitTunnelingSettings());
+    splitTunnelingGroup_->setSettings(preferences->splitTunnelingSettings());
+    splitTunnelingGroup_->setAppsCount(preferences->splitTunnelingApps().count());
+    splitTunnelingGroup_->setAddressesCount(preferences->splitTunnelingNetworkRoutes().count());
 
-    splitTunnelingItem_->setAppsCount(preferences->splitTunnelingApps().count());
-    splitTunnelingItem_->setIpsAndHostnamesCount(preferences->splitTunnelingNetworkRoutes().count());
+#ifdef Q_OS_MAC
+    QString descText = tr("Include or exclude IPs and hostnames from the VPN tunnel.\n\nFirewall will not function in this mode.");
+#else 
+    QString descText = tr("Include or exclude apps and hostnames from the VPN tunnel.");
+#endif
+    desc_ = new PreferenceGroup(this,
+                                descText,
+                                QString("https://%1/features/split-tunneling/desktop").arg(HardcodedSettings::instance().serverUrl()));
+
+    addItem(desc_);
+    addItem(splitTunnelingGroup_);
 }
 
 QString SplitTunnelingWindowItem::caption()
@@ -39,17 +56,22 @@ void SplitTunnelingWindowItem::setScreen(SPLIT_TUNNEL_SCREEN screen)
 
 void SplitTunnelingWindowItem::setAppsCount(int count)
 {
-    splitTunnelingItem_->setAppsCount(count);
+    splitTunnelingGroup_->setAppsCount(count);
 }
 
 void SplitTunnelingWindowItem::setNetworkRoutesCount(int count)
 {
-    splitTunnelingItem_->setIpsAndHostnamesCount(count);
+    splitTunnelingGroup_->setAddressesCount(count);
 }
 
-void SplitTunnelingWindowItem::onSettingsChanged(ProtoTypes::SplitTunnelingSettings settings)
+void SplitTunnelingWindowItem::onSettingsChanged(types::SplitTunnelingSettings settings)
 {
     preferences_->setSplitTunnelingSettings(settings);
+}
+
+void SplitTunnelingWindowItem::setActive(bool active)
+{
+    splitTunnelingGroup_->setActive(active);
 }
 
 } // namespace PreferencesWindow

@@ -7,7 +7,7 @@
 #include <QTimer>
 #include <QElapsedTimer>
 #include <QQueue>
-#include "engine/proxy/proxysettings.h"
+#include "types/proxysettings.h"
 
 class IConnectStateController;
 
@@ -22,9 +22,11 @@ public:
     void addHostForPing(const QString &ip);
     void clearPings();
 
-    void setProxySettings(const ProxySettings &proxySettings);
+    void setProxySettings(const types::ProxySettings &proxySettings);
     void disableProxy();
     void enableProxy();
+
+    bool isProxyEnabled() const;
 
 signals:
     void pingFinished(bool bSuccess, int timems, const QString &ip, bool isFromDisconnectedState);
@@ -48,7 +50,7 @@ private:
     static constexpr int MAX_PARALLEL_PINGS = 10;
 
     IConnectStateController *connectStateController_;
-    ProxySettings proxySettings_;
+    types::ProxySettings proxySettings_;
     bool bProxyEnabled_;
 
     QMap<QString, PingInfo *> pingingHosts_;

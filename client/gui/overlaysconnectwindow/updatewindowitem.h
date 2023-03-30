@@ -3,19 +3,17 @@
 
 #include <QGraphicsObject>
 #include <QVariantAnimation>
+#include "backend/preferences/preferences.h"
 #include "overlaysconnectwindow/iupdatewindow.h"
 #include "commongraphics/bubblebuttonbright.h"
 #include "commongraphics/textbutton.h"
-
-namespace UpdateWindow {
-
 
 class UpdateWindowItem : public ScalableGraphicsObject, public IUpdateWindow
 {
     Q_OBJECT
     Q_INTERFACES(IUpdateWindow)
 public:
-    explicit UpdateWindowItem(ScalableGraphicsObject *parent = nullptr);
+    explicit UpdateWindowItem(Preferences *preferences, ScalableGraphicsObject *parent = nullptr);
 
     QGraphicsObject *getGraphicsObject() override { return this; }
 
@@ -32,6 +30,7 @@ public:
     void setProgress(int progressPercent) override;
     void changeToDownloadingScreen() override;
     void changeToPromptScreen() override;
+    void setHeight(int height) override;
 
 signals:
     void acceptClick() override;
@@ -57,8 +56,12 @@ private slots:
     void onLanguageChanged();
     void updatePositions();
 
+    void onAppSkinChanged(APP_SKIN s);
+
 private:
     void initScreen();
+    Preferences *preferences_;
+
     CommonGraphics::BubbleButtonBright *acceptButton_;
     CommonGraphics::TextButton *cancelButton_;
 
@@ -82,6 +85,8 @@ private:
     int spinnerRotation_;
     QVariantAnimation spinnerRotationAnimation_;
 
+    int height_;
+
     // constants:
     static constexpr int TITLE_POS_Y = 51;
 
@@ -103,7 +108,5 @@ private:
 
     const QString cancelButtonText();
 };
-
-} // namespace
 
 #endif // UPDATEWINDOWITEM_H

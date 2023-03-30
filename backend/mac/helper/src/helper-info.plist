@@ -9,11 +9,11 @@
 	<key>CFBundleName</key>
 	<string>WindscribeHelper</string>
 	<key>CFBundleVersion</key>
-	<string>33</string>
+	<string>41</string>
 	<key>NSHumanReadableCopyright</key>
-	<string>Copyright © 2022 Windscribe Limited. All rights reserved.</string>
+	<string>Copyright © 2023 Windscribe Limited. All rights reserved.</string>
 	<key>LSMinimumSystemVersion</key>
-	<string>10.11</string>
+	<string>10.14</string>
 	<key>SMAuthorizedClients</key>
 	<array>
 		<string>identifier &quot;com.windscribe.gui.macos&quot; and anchor apple generic and certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = $(DEVELOPMENT_TEAM)</string>

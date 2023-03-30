@@ -16,8 +16,9 @@ public:
 
     // config path for openvpn, url for ikev2
     void startConnect(const QString &configPathOrUrl, const QString &ip, const QString &dnsHostName,
-                      const QString &username, const QString &password, const ProxySettings &proxySettings,
-                      const WireGuardConfig *wireGuardConfig, bool isEnableIkev2Compression, bool isAutomaticConnectionMode) override;
+                      const QString &username, const QString &password, const types::ProxySettings &proxySettings,
+                      const WireGuardConfig *wireGuardConfig, bool isEnableIkev2Compression, bool isAutomaticConnectionMode,
+                      bool isCustomConfig) override;
     void startDisconnect() override;
     bool isDisconnected() const override;
     ConnectionType getConnectionType() const override { return ConnectionType::IKEV2; }
@@ -40,7 +41,7 @@ private:
 
     Helper_mac *helper_;
     bool bConnected_;
-    mutable QMutex mutex_;
+    mutable QRecursiveMutex mutex_;
     void *notificationId_;
     bool isStateConnectingAfterClick_;
     bool isDisconnectClicked_;

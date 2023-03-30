@@ -1,11 +1,11 @@
-#ifndef APIINFO_GROUP_H
-#define APIINFO_GROUP_H
+#pragma once
 
 #include <QString>
 #include <QJsonObject>
 #include <QVector>
 #include <QSharedDataPointer>
 #include "node.h"
+#include "utils/ws_assert.h"
 
 namespace apiinfo {
 
@@ -38,10 +38,9 @@ public:
     QString ovpn_x509_;
     int link_speed_;
     int health_;
+    QString dnsHostName_;   // if not empty, then use this dns, overwise from parent Location
 
     QVector<Node> nodes_;
-
-    QString dnsHostName_;   // if not empty, then use this dns, overwise from parent Location
 
     // internal state
     bool isValid_;
@@ -56,52 +55,34 @@ public:
     Group(const Group &other) : d (other.d) {}
 
     bool initFromJson(QJsonObject &obj, QStringList &forceDisconnectNodes);
-    void initFromProtoBuf(const ProtoApiInfo::Group &g);
-    ProtoApiInfo::Group getProtoBuf() const;
 
-    int getId() const { Q_ASSERT(d->isValid_); return d->id_; }
-    QString getCity() const { Q_ASSERT(d->isValid_); return d->city_; }
-    QString getNick() const { Q_ASSERT(d->isValid_); return d->nick_; }
-    bool isPro() const { Q_ASSERT(d->isValid_); return d->pro_ != 0; }
-    bool isDisabled() const { Q_ASSERT(d->isValid_); return d->nodes_.isEmpty(); }
-    QString getPingIp() const { Q_ASSERT(d->isValid_); return d->pingIp_; }
-    QString getWgPubKey() const { Q_ASSERT(d->isValid_); return d->wg_pubkey_; }
-    QString getOvpnX509() const { Q_ASSERT(d->isValid_); return d->ovpn_x509_; }
-    int getLinkSpeed() const { Q_ASSERT(d->isValid_); return d->link_speed_; }
-    int getHealth() const { Q_ASSERT(d->isValid_); return d->health_; }
+    int getId() const { WS_ASSERT(d->isValid_); return d->id_; }
+    QString getCity() const { WS_ASSERT(d->isValid_); return d->city_; }
+    QString getNick() const { WS_ASSERT(d->isValid_); return d->nick_; }
+    bool isPro() const { WS_ASSERT(d->isValid_); return d->pro_ != 0; }
+    bool isDisabled() const { WS_ASSERT(d->isValid_); return d->nodes_.isEmpty(); }
+    QString getPingIp() const { WS_ASSERT(d->isValid_); return d->pingIp_; }
+    QString getWgPubKey() const { WS_ASSERT(d->isValid_); return d->wg_pubkey_; }
+    QString getOvpnX509() const { WS_ASSERT(d->isValid_); return d->ovpn_x509_; }
+    int getLinkSpeed() const { WS_ASSERT(d->isValid_); return d->link_speed_; }
+    int getHealth() const { WS_ASSERT(d->isValid_); return d->health_; }
 
-    int getNodesCount() const { Q_ASSERT(d->isValid_); return d->nodes_.count(); }
-    const Node &getNode(int ind) const { Q_ASSERT(d->isValid_); return d->nodes_[ind]; }
+    int getNodesCount() const { WS_ASSERT(d->isValid_); return d->nodes_.count(); }
+    const Node &getNode(int ind) const { WS_ASSERT(d->isValid_); return d->nodes_[ind]; }
 
     void setOverrideDnsHostName(const QString &dnsHostName) { d->dnsHostName_ = dnsHostName; }
-    QString getDnsHostName() const { Q_ASSERT(d->isValid_); return d->dnsHostName_; }
+    QString getDnsHostName() const { WS_ASSERT(d->isValid_); return d->dnsHostName_; }
 
+    bool operator== (const Group &other) const;
+    bool operator!= (const Group &other) const;
 
-    bool operator== (const Group &other) const
-    {
-        return d->id_ == other.d->id_ &&
-               d->city_ == other.d->city_ &&
-               d->nick_ == other.d->nick_ &&
-               d->pro_ == other.d->pro_ &&
-               d->pingIp_ == other.d->pingIp_ &&
-               d->wg_pubkey_ == other.d->wg_pubkey_ &&
-               d->ovpn_x509_ == other.d->ovpn_x509_ &&
-               d->link_speed_ == other.d->link_speed_ &&
-               d->health_ == other.d->health_ &&
-               d->nodes_ == other.d->nodes_ &&
-               d->dnsHostName_ == other.d->dnsHostName_ &&
-               d->isValid_ == other.d->isValid_;
-    }
+    friend QDataStream& operator <<(QDataStream& stream, const Group& g);
+    friend QDataStream& operator >>(QDataStream& stream, Group& g);
 
-    bool operator!= (const Group &other) const
-    {
-        return !operator==(other);
-    }
 
 private:
     QSharedDataPointer<GroupData> d;
+    static constexpr quint32 versionForSerialization_ = 1;
 };
 
 } //namespace apiinfo
-
-#endif // APIINFO_GROUP_H

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # ------------------------------------------------------------------------------
 # Windscribe Build System
-# Copyright (c) 2020-2021, Windscribe Limited. All rights reserved.
+# Copyright (c) 2020-2023, Windscribe Limited. All rights reserved.
 # ------------------------------------------------------------------------------
 # Purpose: installs LZO library.
 import os
@@ -12,6 +12,10 @@ TOOLS_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, TOOLS_DIR)
 
 CONFIG_NAME = os.path.join("vars", "lzo.yml")
+
+# To ensure modules in the 'base' folder can import other modules in base.
+import base.pathhelper as pathhelper
+sys.path.append(pathhelper.BASE_DIR)
 
 import base.messages as msg
 import base.utils as utl
@@ -31,7 +35,7 @@ def BuildDependencyMSVC(outpath):
   buildenv.update(iutl.GetVisualStudioEnvironment())
   buildenv.update({ "BECHO" : "n" })
   # Build.
-  iutl.RunCommand("B\\win32\\vc.bat", env=buildenv, shell=True)
+  iutl.RunCommand("B\\win64\\vc.bat", env=buildenv, shell=True)
   currend_wd = os.getcwd()
   utl.CreateDirectory("{}/include".format(outpath), True)
   utl.CopyAllFiles("{}/include".format(currend_wd), "{}/include".format(outpath))
@@ -42,10 +46,10 @@ def BuildDependencyMSVC(outpath):
 def BuildDependencyGNU(outpath):
   # Create an environment with CC flags.
   buildenv = os.environ.copy()
-  if utl.GetCurrentOS() == "macos":
-    buildenv.update({ "CC" : "cc -mmacosx-version-min=10.11" })
   # Configure.
   configure_cmd = ["./configure"]
+  if utl.GetCurrentOS() == "macos":
+    configure_cmd.append("CFLAGS=-arch x86_64 -arch arm64 -mmacosx-version-min=10.14")
   configure_cmd.append("--prefix={}".format(outpath))
   iutl.RunCommand(configure_cmd, env=buildenv)
   # Build and install.
@@ -61,7 +65,7 @@ def InstallDependency():
     raise iutl.InstallError("Failed to get config data.")
   iutl.SetupEnvironment(configdata)
   dep_name = DEP_TITLE.lower()
-  dep_version_var = "VERSION_" + filter(lambda ch: ch not in "-", DEP_TITLE.upper())
+  dep_version_var = "VERSION_" + DEP_TITLE.upper().replace("-", "")
   dep_version_str = os.environ.get(dep_version_var, None)
   if not dep_version_str:
     raise iutl.InstallError("{} not defined.".format(dep_version_var))

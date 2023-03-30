@@ -28,7 +28,7 @@ void Logger::out(const char *str, ...)
     if ((bytesOut > 0) && (bytesOut < sizeof(buf)))
     {
         mutex_.lock();
-        FILE* logFile = fopen("/usr/local/windscribe/helper_log.txt", "a");
+        FILE* logFile = fopen("/opt/windscribe/helper_log.txt", "a");
         if (logFile != NULL)
         {
             fprintf(logFile, "%s\n", buf);

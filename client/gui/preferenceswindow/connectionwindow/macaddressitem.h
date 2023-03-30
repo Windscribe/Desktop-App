@@ -4,20 +4,17 @@
 #include <QGraphicsObject>
 #include <QGraphicsProxyWidget>
 #include <QLineEdit>
-#include <QRegExpValidator>
+#include "commongraphics/baseitem.h"
 #include "commongraphics/iconbutton.h"
-#include "../dividerline.h"
 
 namespace PreferencesWindow {
 
-class MacAddressItem : public ScalableGraphicsObject
+class MacAddressItem : public CommonGraphics::BaseItem
 {
     Q_OBJECT
-
 public:
     explicit MacAddressItem(ScalableGraphicsObject *parent, const QString &caption);
 
-    QRectF boundingRect() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
     void setMacAddress(const QString &macAddress);
@@ -30,17 +27,14 @@ private slots:
     void onUpdateClick();
 
 private:
-    QString caption_;
-    QString text_;
-    IconButton *btnUpdate_;
-    DividerLine *dividerLine_;
-    bool isEditMode_;
-
     void updatePositions();
 
+    QString caption_;
+    QString text_;
+    IconButton *updateButton_;
+    bool isEditMode_;
 };
 
 } // namespace PreferencesWindow
-
 
 #endif // MACADDRESSITEM_H

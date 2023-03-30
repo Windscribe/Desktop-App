@@ -1,21 +1,25 @@
 #include "measurementcpuusage.h"
-#include <QElapsedTimer>
-#include "Utils/logger.h"
 
-MeasurementCpuUsage::MeasurementCpuUsage(QObject *parent, IHelper *helper, IConnectStateController *connectStateController) : QObject(parent),
-    bEnabled_(false)
+#include <QRegularExpression>
+#include <QRegularExpressionMatch>
+
+#include "engine/helper/helper_win.h"
+#include "utils/logger.h"
+#include "utils/ws_assert.h"
+
+MeasurementCpuUsage::MeasurementCpuUsage(QObject *parent, IHelper *helper, IConnectStateController *connectStateController)
+    : QObject(parent),
+      helper_(dynamic_cast<Helper_win*>(helper))
 {
-    helper_ = dynamic_cast<Helper_win *>(helper);
-    Q_ASSERT(helper_);
-    connect(connectStateController, SIGNAL(stateChanged(CONNECT_STATE, DISCONNECT_REASON, ProtoTypes::ConnectError, LocationID)), SLOT(onConnectStateChanged(CONNECT_STATE, DISCONNECT_REASON, ProtoTypes::ConnectError, LocationID)));
-    connect(&timer_, SIGNAL(timeout()), SLOT(onTimer()));
+    WS_ASSERT(helper_);
 
-    if (PdhOpenQuery(NULL, 0, &hQuery_) == ERROR_SUCCESS)
-    {
-
+    PDH_STATUS status = PdhOpenQuery(NULL, 0, &hQuery_);
+    if (status == ERROR_SUCCESS) {
+        connect(connectStateController, &IConnectStateController::stateChanged, this, &MeasurementCpuUsage::onConnectStateChanged);
+        connect(&timer_, &QTimer::timeout, this, &MeasurementCpuUsage::onTimer);
     }
-    else
-    {
+    else {
+        qCDebug(LOG_BASIC) << "MeasurementCpuUsage - PdhOpenQuery failed: " << status;
         hQuery_ = NULL;
     }
 }
@@ -23,15 +27,9 @@ MeasurementCpuUsage::MeasurementCpuUsage(QObject *parent, IHelper *helper, IConn
 MeasurementCpuUsage::~MeasurementCpuUsage()
 {
     timer_.stop();
-    auto it = counters_.begin();
-    while (it != counters_.end())
-    {
-        PdhRemoveCounter(it.value().counter_);
-        it = counters_.erase(it);
-    }
-    counters_.clear();
-    if (hQuery_)
-    {
+    clearPerformanceCounters();
+
+    if (hQuery_) {
         PdhCloseQuery(hQuery_);
     }
 }
@@ -39,26 +37,26 @@ MeasurementCpuUsage::~MeasurementCpuUsage()
 void MeasurementCpuUsage::setEnabled(bool bEnabled)
 {
     bEnabled_ = bEnabled;
-    if (!bEnabled)
-    {
+    if (!bEnabled) {
         stopInDisconnectedState();
     }
 }
 
-void MeasurementCpuUsage::onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON /*reason*/, ProtoTypes::ConnectError /*err*/, const LocationID & /*location*/)
+void MeasurementCpuUsage::onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason,
+                                                CONNECT_ERROR err, const LocationID &location)
 {
-    if (bEnabled_)
-    {
-        if (state == CONNECT_STATE_DISCONNECTED)
-        {
+    Q_UNUSED(reason)
+    Q_UNUSED(err)
+    Q_UNUSED(location)
+
+    if (bEnabled_) {
+        if (state == CONNECT_STATE_DISCONNECTED) {
             stopInDisconnectedState();
         }
-        else if (state == CONNECT_STATE_CONNECTING)
-        {
+        else if (state == CONNECT_STATE_CONNECTING) {
             startInConnectingState();
         }
-        else if (state == CONNECT_STATE_CONNECTED)
-        {
+        else if (state == CONNECT_STATE_CONNECTED) {
             continueInConnectedState();
         }
     }
@@ -68,78 +66,26 @@ void MeasurementCpuUsage::startInConnectingState()
 {
     qDebug() << "MeasurementCpuUsage started";
 
-    const QStringList processesList = helper_->getProcessesList();
-
-    for(auto it = counters_.begin(); it != counters_.end(); ++it)
-    {
-        it.value().bUsed = false;
-    }
-
-    for (const QString &processName : processesList)
-    {
-        auto it = counters_.find(processName);
-        if (it == counters_.end())
-        {
-            PDH_HCOUNTER hCounter;
-            QString counterPath =  QString("\\Process(%1)\\% Processor Time").arg(processName);
-            if (PdhAddEnglishCounter(hQuery_, counterPath.toStdWString().c_str(), 0, &hCounter) == ERROR_SUCCESS)
-            {
-                CounterDescr cd;
-                cd.counter_ = hCounter;
-                cd.bUsed = true;
-                counters_[processName] = cd;
-            }
-            else
-            {
-                qCDebug(LOG_BASIC) << "updateProcessesList failed add counter for process =" << processName;
-            }
-        }
-        else
-        {
-            it.value().bUsed = true;
-        }
-    }
-
-    // remove unused processes and counters
-    auto it = counters_.begin();
-    while (it != counters_.end())
-    {
-        if (!it.value().bUsed)
-        {
-            PdhRemoveCounter(it.value().counter_);
-            it = counters_.erase(it);
-        }
-        else
-        {
-            ++it;
-        }
-    }
-
+    getPerformanceCounters();
     PdhCollectQueryData(hQuery_);
     timer_.setProperty("startedInDisconnectedState", true);
-    timer_.start(TIMER_INTERVAL_FOR_CONNECTING_MODE);
+    timer_.start(kTimeoutForConnectingMode);
 }
 
 void MeasurementCpuUsage::continueInConnectedState()
 {
-    Q_ASSERT(timer_.isActive());
+    WS_ASSERT(timer_.isActive());
     qDebug() << "MeasurementCpuUsage detect CPU usage in connected state";
     PdhCollectQueryData(hQuery_);
     timer_.setProperty("startedInDisconnectedState", false);
-    timer_.start(TIMER_INTERVAL_FOR_CONNECTED_MODE);
+    timer_.start(kTimeoutForConnectedMode);
 }
 
 void MeasurementCpuUsage::stopInDisconnectedState()
 {
     qDebug() << "MeasurementCpuUsage stopped";
     timer_.stop();
-    auto it = counters_.begin();
-    while (it != counters_.end())
-    {
-        PdhRemoveCounter(it.value().counter_);
-        it = counters_.erase(it);
-    }
-    counters_.clear();
+    clearPerformanceCounters();
 }
 
 void MeasurementCpuUsage::onTimer()
@@ -149,19 +95,15 @@ void MeasurementCpuUsage::onTimer()
     QStringList processesForPopup;
     bool isTimerStartedInDisconnectedState = timer_.property("startedInDisconnectedState").toBool();
 
-    for (auto it = counters_.begin(); it != counters_.end(); ++it)
-    {
+    for (auto it = counters_.begin(); it != counters_.end(); ++it) {
         DWORD counterType;
         PDH_FMT_COUNTERVALUE value;
         PDH_STATUS status = PdhGetFormattedCounterValue(it.value().counter_, PDH_FMT_DOUBLE, &counterType, &value);
-        if (status == ERROR_SUCCESS)
-        {
-            if (isTimerStartedInDisconnectedState)
-            {
+        if (status == ERROR_SUCCESS) {
+            if (isTimerStartedInDisconnectedState) {
                 it.value().putNextCpuUsageInDisconnectedState(value.doubleValue);
             }
-            else
-            {
+            else {
                 // for extended logs
                 /*QString disconnectedValues;
                 if (!it.value().cpuUsageInDisconnectedState[0].isValid && !it.value().cpuUsageInDisconnectedState[1].isValid)
@@ -180,103 +122,103 @@ void MeasurementCpuUsage::onTimer()
                 qDebug() << "Process" << it.key() << " disconnected: " << disconnectedValues << "\t connected:" << value.doubleValue;*/
 
                 // calc for popup message
-                const double marginValueInConnectedState = 80.0;   // 80 % CPU usage
-                const double marginValueInDisconnectedState = 60.0;   // 60 % CPU usage
-                if (value.doubleValue > marginValueInConnectedState)
-                {
-                    if (!it.value().cpuUsageInDisconnectedState[0].isValid && !it.value().cpuUsageInDisconnectedState[1].isValid)
-                    {
+                const double kMarginValueInConnectedState = 80.0;   // 80 % CPU usage
+                const double kMarginValueInDisconnectedState = 60.0;   // 60 % CPU usage
+
+                if (value.doubleValue > kMarginValueInConnectedState) {
+                    if (!it.value().cpuUsageInDisconnectedState[0].isValid && !it.value().cpuUsageInDisconnectedState[1].isValid) {
                         processesForPopup << it.key();
                     }
-                    else if (it.value().cpuUsageInDisconnectedState[0].isValid && !it.value().cpuUsageInDisconnectedState[1].isValid)
-                    {
-                        if (it.value().cpuUsageInDisconnectedState[0].value < marginValueInDisconnectedState)
-                        {
+                    else if (it.value().cpuUsageInDisconnectedState[0].isValid && !it.value().cpuUsageInDisconnectedState[1].isValid) {
+                        if (it.value().cpuUsageInDisconnectedState[0].value < kMarginValueInDisconnectedState) {
                             processesForPopup << it.key();
                         }
                     }
-                    else if (it.value().cpuUsageInDisconnectedState[0].isValid && it.value().cpuUsageInDisconnectedState[1].isValid)
-                    {
-                        if (it.value().cpuUsageInDisconnectedState[0].value < marginValueInDisconnectedState || it.value().cpuUsageInDisconnectedState[1].value < marginValueInDisconnectedState)
-                        {
+                    else if (it.value().cpuUsageInDisconnectedState[0].isValid && it.value().cpuUsageInDisconnectedState[1].isValid) {
+                        if (it.value().cpuUsageInDisconnectedState[0].value < kMarginValueInDisconnectedState || it.value().cpuUsageInDisconnectedState[1].value < kMarginValueInDisconnectedState) {
                             processesForPopup << it.key();
                         }
                     }
                 }
             }
         }
-        else
-        {
+        else {
             //qDebug() << "MeasurementCpuUsage::onTimer(),  failed get CPU usage value for process: " << it.key();
         }
     }
 
-    if (isTimerStartedInDisconnectedState)
-    {
-        // check for new processes
-        bool bAddedNewProcesses = false;
-        const QStringList processesList = helper_->getProcessesList();
-
-        for(auto it = counters_.begin(); it != counters_.end(); ++it)
-        {
-            it.value().bUsed = false;
+    if (isTimerStartedInDisconnectedState) {
+        if (getPerformanceCounters()) {
+            PdhCollectQueryData(hQuery_);
         }
+    }
+    else {
+        stopInDisconnectedState();
 
-        for (const QString &processName : processesList)
-        {
+        if (!processesForPopup.isEmpty()) {
+            std::sort(processesForPopup.begin(), processesForPopup.end());
+            emit detectionCpuUsageAfterConnected(processesForPopup);
+        }
+    }
+}
+
+bool MeasurementCpuUsage::getPerformanceCounters()
+{
+    bool bAddedNewProcesses = false;
+    const QStringList processesList = helper_->getProcessesList();
+
+    for (auto it = counters_.begin(); it != counters_.end(); ++it) {
+        it.value().bUsed = false;
+    }
+
+    QRegularExpression exclude("svchost|svchost#\\d+");
+
+    for (const QString &processName : processesList) {
+        QRegularExpressionMatch match = exclude.match(processName);
+        if (!match.hasMatch()) {
             auto it = counters_.find(processName);
-            if (it == counters_.end())
-            {
+            if (it == counters_.end()) {
                 PDH_HCOUNTER hCounter;
                 QString counterPath =  QString("\\Process(%1)\\% Processor Time").arg(processName);
-                if (PdhAddEnglishCounter(hQuery_, counterPath.toStdWString().c_str(), 0, &hCounter) == ERROR_SUCCESS)
-                {
+                PDH_STATUS status = PdhAddEnglishCounter(hQuery_, counterPath.toStdWString().c_str(), 0, &hCounter);
+                if (status == ERROR_SUCCESS) {
                     CounterDescr cd;
                     cd.counter_ = hCounter;
                     cd.bUsed = true;
                     counters_[processName] = cd;
                     bAddedNewProcesses = true;
                 }
-                else
-                {
-                    //qCDebug(LOG_BASIC) << "updateProcessesList failed add counter for process =" << processName;
+                else {
+                    qCDebug(LOG_BASIC) << "MeasurementCpuUsage::getPerformanceCounters failed to add counter for process =" << processName;
                 }
             }
-            else
-            {
+            else {
                 it.value().bUsed = true;
             }
         }
+    }
 
-        // remove unused processes and counters
-        auto it = counters_.begin();
-        while (it != counters_.end())
-        {
-            if (!it.value().bUsed)
-            {
-                PdhRemoveCounter(it.value().counter_);
-                it = counters_.erase(it);
-            }
-            else
-            {
-                ++it;
-            }
+    // remove unused processes and counters
+    auto it = counters_.begin();
+    while (it != counters_.end()) {
+        if (!it.value().bUsed) {
+            PdhRemoveCounter(it.value().counter_);
+            it = counters_.erase(it);
         }
-
-        if (bAddedNewProcesses)
-        {
-            //qCDebug(LOG_BASIC) << "New processes added";
-            PdhCollectQueryData(hQuery_);
+        else {
+            ++it;
         }
     }
-    else //if (isTimerStartedInDisconnectedState)
-    {
-        stopInDisconnectedState();
 
-        if (!processesForPopup.isEmpty())
-        {
-            std::sort(processesForPopup.begin(), processesForPopup.end());
-            emit detectionCpuUsageAfterConnected(processesForPopup);
-        }
+    return bAddedNewProcesses;
+}
+
+void MeasurementCpuUsage::clearPerformanceCounters()
+{
+    auto it = counters_.begin();
+    while (it != counters_.end()) {
+        PdhRemoveCounter(it.value().counter_);
+        it = counters_.erase(it);
     }
+    counters_.clear();
 }

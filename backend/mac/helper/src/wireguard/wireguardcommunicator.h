@@ -9,7 +9,9 @@ class WireGuardCommunicator
 public:
     WireGuardCommunicator() = default;
 
-    void setDeviceName(const std::string &deviceName);
+    bool start(const std::string &exePath, const std::string &executable, const std::string &deviceName);
+    bool stop();
+
     bool configure(const std::string &clientPrivateKey, const std::string &peerPublicKey,
         const std::string &peerPresharedKey, const std::string &peerEndpoint,
         const std::vector<std::string> &allowedIps);
@@ -39,6 +41,8 @@ private:
     };
 
     std::string deviceName_;
+    std::string executable_;
+    unsigned long daemonCmdId_;
 };
 
 #endif  // WireGuardCommunicator_h

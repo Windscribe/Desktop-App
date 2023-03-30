@@ -6,13 +6,13 @@
 #include <codecvt>
 #include <fstream>
 #include <iomanip>
-#include <stdio.h>
+#include <cstdio>
 #include <sstream>
 
 #include "boost/filesystem/path.hpp"
 
-#include "win32handle.h"
 #include "servicecontrolmanager.h"
+#include "win32handle.h"
 
 
 // C:\Code\ThirdParty\Wireguard\wireguard-windows-0.5.3\docs\enterprise.md has useful info
@@ -108,7 +108,7 @@ getWindscribeClientProcessHandle()
     std::wstring clientExe(L"[any path]/Windscribe.exe");
     #endif
 
-    WinUtils::Win32Handle hProcesses(::CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0));
+    wsl::Win32Handle hProcesses(::CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0));
     if (!hProcesses.isValid()) {
         throw std::system_error(::GetLastError(), std::generic_category(),
             "getWindscribeClientProcessHandle: CreateToolhelp32Snapshot(processes) failed");
@@ -129,7 +129,7 @@ getWindscribeClientProcessHandle()
     {
         if (_wcsicmp(pe32.szExeFile, L"Windscribe.exe") == 0)
         {
-            WinUtils::Win32Handle hProcess(::OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ | SYNCHRONIZE, FALSE, pe32.th32ProcessID));
+            wsl::Win32Handle hProcess(::OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ | SYNCHRONIZE, FALSE, pe32.th32ProcessID));
 
             if (!hProcess.isValid()) {
                 throw std::system_error(::GetLastError(), std::generic_category(), "getWindscribeClientProcessHandle: OpenProcess failed");
@@ -173,7 +173,7 @@ monitorClientStatus(LPVOID lpParam)
 {
     try
     {
-        WinUtils::Win32Handle hWindscribeClient(getWindscribeClientProcessHandle());
+        wsl::Win32Handle hWindscribeClient(getWindscribeClientProcessHandle());
 
         DWORD dwWait = hWindscribeClient.wait(INFINITE, TRUE);
         if (dwWait == WAIT_OBJECT_0)
@@ -266,8 +266,10 @@ main(int argc, char *argv[])
 
     debugOut("Starting WireGuard tunnel with config file: %ls", configFile.c_str());
 
-    WinUtils::Win32Handle hMonitorThread(::CreateThread(NULL, 0, monitorClientStatus,
-                                                        (LPVOID)argv[1], 0, NULL));
+    // Disabling client app monitoring.  The tunnel should remain up if the client app crashes.
+    // The client app will shut the tunnel down when it restarts.
+    //WinUtils::Win32Handle hMonitorThread(::CreateThread(NULL, 0, monitorClientStatus,
+    //                                                    (LPVOID)argv[1], 0, NULL));
 
     bool bResult = tunnelProc((const unsigned short*)configFile.c_str());
 
@@ -275,11 +277,11 @@ main(int argc, char *argv[])
         debugOut("Windscribe WireGuard service - WireGuardTunnelService from tunnel.dll failed");
     }
 
-    if (hMonitorThread.isValid() && (hMonitorThread.wait(0) != WAIT_OBJECT_0))
-    {
-        ::QueueUserAPC(stopMonitorThread, hMonitorThread.getHandle(), 0);
-        hMonitorThread.wait(5000);
-    }
+    //if (hMonitorThread.isValid() && (hMonitorThread.wait(0) != WAIT_OBJECT_0))
+    //{
+    //    ::QueueUserAPC(stopMonitorThread, hMonitorThread.getHandle(), 0);
+    //    hMonitorThread.wait(5000);
+    //}
 
     // Delete the config file.
     dwAttrib = ::GetFileAttributes(configFile.c_str());

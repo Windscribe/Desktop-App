@@ -25,7 +25,7 @@ AuthCheckerError AuthChecker_linux::authenticate()
     if (!sigCheck.verify(authHelperPath.toStdString()))
     {
         qCDebug(LOG_AUTH_HELPER) << "Failed to verify AuthHelper, executable may be corrupted: " << QString::fromStdString(sigCheck.lastError());
-        return AuthCheckerError::HELPER_ERROR;
+        return AuthCheckerError::AUTH_HELPER_ERROR;
     }
 
     QStringList args;
@@ -39,12 +39,12 @@ AuthCheckerError AuthChecker_linux::authenticate()
         && process_->exitCode() == 0
         && process_->error() == QProcess::UnknownError)
     {
-        return AuthCheckerError::NO_ERROR;
+        return AuthCheckerError::AUTH_NO_ERROR;
     }
 
     qCDebug(LOG_AUTH_HELPER) << "Failed to authenticate: " << process_->exitStatus()
                              << ", code: " << process_->exitCode()
                              << ", error: " << process_->error();
-    return AuthCheckerError::AUTHENTICATION_ERROR;
+    return AuthCheckerError::AUTH_NO_ERROR;
 }
 

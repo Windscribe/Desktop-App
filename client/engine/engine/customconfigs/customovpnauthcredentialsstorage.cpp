@@ -1,8 +1,9 @@
 #include "customovpnauthcredentialsstorage.h"
 
+#include <QIODevice>
 #include <QSettings>
 
-CustomOvpnAuthCredentialsStorage::CustomOvpnAuthCredentialsStorage() : mutex_(QMutex::Recursive)
+CustomOvpnAuthCredentialsStorage::CustomOvpnAuthCredentialsStorage()
 {
     readFromSettings();
 }

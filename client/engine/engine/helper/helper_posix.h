@@ -25,24 +25,31 @@ public:
     void clearUnblockingCmd(unsigned long cmdId) override;
     void suspendUnblockingCmd(unsigned long cmdId) override;
 
-    bool setSplitTunnelingSettings(bool isActive, bool isExclude, bool isKeepLocalSockets,
+    bool setSplitTunnelingSettings(bool isActive, bool isExclude, bool isAllowLanTraffic,
                                    const QStringList &files, const QStringList &ips,
                                    const QStringList &hosts) override;
-    void sendConnectStatus(bool isConnected, bool isCloseTcpSocket, bool isKeepLocalSocket, const AdapterGatewayInfo &defaultAdapter, const AdapterGatewayInfo &vpnAdapter,
-                           const QString &connectedIp, const ProtocolType &protocol) override;
+    bool sendConnectStatus(bool isConnected, bool isTerminateSocket, bool isKeepLocalSocket,
+                           const AdapterGatewayInfo &defaultAdapter, const AdapterGatewayInfo &vpnAdapter,
+                           const QString &connectedIp, const types::Protocol &protocol) override;
+    bool changeMtu(const QString &adapter, int mtu) override;
+    bool executeTaskKill(CmdKillTarget target);
 
      // WireGuard functions
     IHelper::ExecuteError startWireGuard(const QString &exeName, const QString &deviceName) override;
     bool stopWireGuard() override;
     bool configureWireGuard(const WireGuardConfig &config) override;
-    bool getWireGuardStatus(WireGuardStatus *status) override;
+    bool getWireGuardStatus(types::WireGuardStatus *status) override;
     void setDefaultWireGuardDeviceName(const QString &deviceName) override;
 
     // Posix specific functions
-    QString executeRootCommand(const QString &commandLine, int *exitCode = nullptr);
-    IHelper::ExecuteError executeOpenVPN(const QString &commandLine, const QString &pathToOvpnConfig, unsigned long &outCmdId);
-    bool executeTaskKill(const QString &executableName);
-
+    IHelper::ExecuteError executeOpenVPN(const QString &config, const QString &arguments, unsigned long &outCmdId, bool isCustomConfig);
+    bool deleteRoute(const QString &range, int mask, const QString &gateway);
+    bool setDnsScriptEnabled(bool bEnabled);
+    bool checkFirewallState(const QString &tag);
+    bool clearFirewallRules();
+    bool setFirewallRules(CmdIpVersion version, const QString &table, const QString &group, const QString &rules);
+    bool getFirewallRules(CmdIpVersion version, const QString &table, const QString &group, QString &rules);
+    bool setFirewallOnBoot(bool bEnabled);
 
 protected:
     void run() override;
@@ -99,13 +106,13 @@ protected:
     }
 
     enum { RET_SUCCESS, RET_DISCONNECTED };
-    int executeRootCommandImpl(const QString &commandLine, bool *bExecuted, QString &answer, int *exitCode = nullptr);
 
     static void connectHandler(const boost::system::error_code &ec);
     void doDisconnectAndReconnect();
 
     bool readAnswer(CMD_ANSWER &outAnswer);
     bool sendCmdToHelper(int cmdId, const std::string &data);
+    bool runCommand(int cmdId, const std::string &data, CMD_ANSWER &answer);
 
 private:
     bool firstConnectToHelperErrorReported_;

@@ -5,11 +5,16 @@
 #include "widgetlocations/locationstab.h"
 #include "widgetlocations/footertopstrip.h"
 
+namespace gui_locations
+{
+    class LocationsModelManager;
+}
+
 class LocationsWindow : public QWidget
 {
     Q_OBJECT
 public:
-    explicit LocationsWindow(QWidget *parent, LocationsModel *locationsModel);
+    explicit LocationsWindow(QWidget *parent, Preferences *preferences, gui_locations::LocationsModelManager *locationsModelManager);
 
     int tabAndFooterHeight() const;
 
@@ -18,27 +23,24 @@ public:
 
     void setOnlyConfigTabVisible(bool onlyConfig);
 
-    void handleKeyReleaseEvent(QKeyEvent *event);
-    void handleKeyPressEvent(QKeyEvent *event);
-
     void updateLocationsTabGeometry();
     void updateScaling();
 
-    void setMuteAccentChanges(bool mute);
     void hideSearchTabWithoutAnimation();
     GuiLocations::LocationsTab::LocationTabEnum currentTab();
 
+    bool handleKeyPressEvent(QKeyEvent *event);
+
 public slots:
-    void setLatencyDisplay(ProtoTypes::LatencyDisplayType l);
+    void setLatencyDisplay(LATENCY_DISPLAY_TYPE l);
     void setCustomConfigsPath(QString path);
     void onLanguageChanged();
     void setShowLocationLoad(bool showLocationLoad);
 
 signals:
     void heightChanged();
-    void selected(LocationID id);
+    void selected(const LocationID &lid);
     void clickedOnPremiumStarCity();
-    void switchFavorite(LocationID id, bool isFavorite);
     void addStaticIpClicked();
     void clearCustomConfigClicked();
     void addCustomConfigClicked();

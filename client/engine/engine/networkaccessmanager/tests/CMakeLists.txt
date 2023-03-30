@@ -1,0 +1,3 @@
+add_subdirectory(curlnetworkmanager)
+add_subdirectory(networkaccessmanager)
+add_subdirectory(dnscache)
