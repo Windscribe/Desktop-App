@@ -170,7 +170,7 @@ int Files::moveFiles()
     catch (system_error& ex) {
         // Update the install path that will be used by the subsequent blocks.
         Settings::instance().setPath(installPath_);
-        Log::instance().out("Files::moveFiles() %s (%lu)", ex.what(), ex.code());
+        Log::instance().out("Files::moveFiles() %s (%lu)", ex.what(), ex.code().value());
     }
 
     return 100;

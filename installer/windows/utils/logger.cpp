@@ -116,7 +116,7 @@ void Log::writeFile(const wstring& installPath) const
         return;
     }
 
-    for (auto entry : logEntries_) {
+    for (const auto &entry : logEntries_) {
         fputws(entry.c_str(), fileHandle);
     }
 
@@ -126,7 +126,7 @@ void Log::writeFile(const wstring& installPath) const
 
 void Log::writeToSystemDebugger() const
 {
-    for (auto entry : logEntries_) {
+    for (const auto &entry : logEntries_) {
         ::OutputDebugStringW(entry.c_str());
     }
 }

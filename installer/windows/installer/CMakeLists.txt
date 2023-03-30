@@ -4,7 +4,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
-add_definitions(-DUNICODE -D_UNICODE /wd4090 -D_CRT_SECURE_NO_WARNINGS)
+add_definitions(-DUNICODE -D_UNICODE /wd4090 -D_CRT_SECURE_NO_WARNINGS -D_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING)
 
 project(installer)
 
@@ -78,6 +78,7 @@ set(SOURCES
     main.cpp
     ossupport.manifest
     version.rc
+    ../../../client/common/utils/wincryptutils.cpp
 )
 
 add_executable(installer WIN32 ${SOURCES})
@@ -87,9 +88,6 @@ set_property(TARGET installer PROPERTY LINK_FLAGS "/MANIFESTUAC:\"level='require
 
 target_link_directories(installer
                         PRIVATE
-                        ../../../build-libs/boost/lib
-                        ../../../build-libs/cares/dll_x64/lib
-                        ../../../build-libs/cares/static_x64/lib
 )
 
 target_link_libraries(installer
@@ -99,13 +97,12 @@ target_link_libraries(installer
                       rpcrt4
                       Fwpuclnt
                       Ws2_32
-                      cares
                       delayimp
+                      Crypt32
 )
 
 target_include_directories(installer PRIVATE
-                           ../../../build-libs/boost/include
-                           ../../../build-libs/cares/dll_x64/include
                            ../../../client/common/
+                           ../../../client/common/utils/
 )
 
