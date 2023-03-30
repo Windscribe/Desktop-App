@@ -1,8 +1,6 @@
 #ifndef CONNECTEDDNSITEM_H
 #define CONNECTEDDNSITEM_H
 
-#include "commongraphics/baseitem.h"
-#include "backend/preferences/preferences.h"
 #include "preferenceswindow/comboboxitem.h"
 #include "preferenceswindow/checkboxitem.h"
 #include "preferenceswindow/editboxitem.h"

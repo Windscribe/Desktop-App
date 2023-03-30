@@ -84,6 +84,8 @@ PreferencesWindowItem::PreferencesWindowItem(QGraphicsObject *parent, Preference
     connect(splitTunnelingAddressesWindowItem_, &SplitTunnelingAddressesWindowItem::addressesUpdated, this, &PreferencesWindowItem::onAddressesUpdated);
     connect(splitTunnelingAddressesWindowItem_, &SplitTunnelingAddressesWindowItem::escape, this, &PreferencesWindowItem::onIpsAndHostnameEscape);
 
+    connect(dnsDomainsWindowItem_, &DnsDomainsWindowItem::escape, this, &PreferencesWindowItem::onDnsDomainsEscape);
+
     connect(networkOptionsWindowItem_, &NetworkOptionsWindowItem::currentNetworkUpdated, this, &PreferencesWindowItem::onCurrentNetworkUpdated);
     connect(networkOptionsWindowItem_, &NetworkOptionsWindowItem::networkClicked, this, &PreferencesWindowItem::onNetworkOptionsNetworkClick);
     connect(networkOptionsNetworkWindowItem_, &NetworkOptionsNetworkWindowItem::escape, this, &PreferencesWindowItem::onNetworkEscape);
@@ -504,6 +506,11 @@ void PreferencesWindowItem::onStAppsEscape()
 void PreferencesWindowItem::onIpsAndHostnameEscape()
 {
     setPreferencesWindowToSplitTunnelingHome();
+}
+
+void PreferencesWindowItem::onDnsDomainsEscape()
+{
+    changeTab(tabControlItem_->currentTab());
 }
 
 void PreferencesWindowItem::onNetworkEscape()

@@ -68,7 +68,7 @@ void ConnectedDnsGroup::setConnectedDnsInfo(const types::ConnectedDnsInfo &dns)
             editBoxUpstream2_->setText(dns.upStream2_);
             splitDnsCheckBox_->setState(dns.isSplitDns_);
             comboBoxDns_->setCurrentItem(CONNECTED_DNS_TYPE_CUSTOM);
-            domainsItem_->setLinkText(QString::number(2/*dns.hostnames_.count()*/));
+            domainsItem_->setLinkText(QString::number(dns.hostnames_.count()));
         }
         updateMode();
     }

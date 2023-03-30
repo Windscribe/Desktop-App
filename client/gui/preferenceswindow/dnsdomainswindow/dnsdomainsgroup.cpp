@@ -25,12 +25,19 @@ DnsDomainsGroup::DnsDomainsGroup(ScalableGraphicsObject *parent, const QString &
 
 void DnsDomainsGroup::setAddresses(const QStringList &addresses)
 {
-    clearItems(true);
+    QSet<QString> curList;
+    QSet<QString> newList;
+    for (const QString &item: addresses_.values())
+        curList << item;
+    for (const QString &item: addresses)
+        newList << item;
 
-    for (auto &addr : addresses)
-        addAddressInternal(addr);
-
-    emit addressesUpdated(addresses_.values());
+    if (newList != curList) {
+        clearItems(true);
+        for (auto &addr : addresses)
+            addAddressInternal(addr);
+        emit addressesUpdated(addresses_.values());
+    }
 }
 
 void DnsDomainsGroup::addAddress(const QString &address)
@@ -139,9 +146,7 @@ void DnsDomainsGroup::setLoggedIn(bool loggedIn)
 {
     newAddressItem_->setClickable(loggedIn);
     for (DnsDomainAddressItem *item: addresses_.keys())
-    {
         item->setClickable(loggedIn);
-    }
 }
 
 }

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "backend/preferences/preferences.h"
-#include "backend/preferences/preferenceshelper.h"
 #include "commongraphics/basepage.h"
 #include "preferenceswindow/preferencegroup.h"
 #include "dnsdomainsgroup.h"
@@ -20,14 +19,15 @@ public:
     void setLoggedIn(bool loggedIn);
 
 signals:
-    void addressesUpdated(QList<types::SplitTunnelingNetworkRoute> addresses);
     void escape();
 
 private slots:
     void onAddressesUpdated(const QStringList &addresses);
     void onError(QString title, QString msg);
     void onClearError();
+    void onConnectedDnsPreferencesChanged(const types::ConnectedDnsInfo &dns);
     void onLanguageChanged();
+
 
 private:
     Preferences *preferences_;

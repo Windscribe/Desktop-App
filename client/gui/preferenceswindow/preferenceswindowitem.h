@@ -105,6 +105,7 @@ private slots:
 
     void onStAppsEscape();
     void onIpsAndHostnameEscape();
+    void onDnsDomainsEscape();
     void onNetworkEscape();
 
     void onCurrentNetworkUpdated(types::NetworkInterface network);

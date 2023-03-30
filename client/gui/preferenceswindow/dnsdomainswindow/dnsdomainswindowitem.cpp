@@ -1,5 +1,4 @@
 #include "dnsdomainswindowitem.h"
-#include "utils/logger.h"
 #include "languagecontroller.h"
 
 namespace PreferencesWindow {
@@ -10,6 +9,8 @@ DnsDomainsWindowItem::DnsDomainsWindowItem(ScalableGraphicsObject *parent, Prefe
     setFlags(flags() | QGraphicsItem::ItemClipsChildrenToShape | QGraphicsItem::ItemIsFocusable);
     setSpacerHeight(PREFERENCES_MARGIN);
 
+    connect(preferences, &Preferences::connectedDnsInfoChanged, this, &DnsDomainsWindowItem::onConnectedDnsPreferencesChanged);
+
     desc_ = new PreferenceGroup(this);
     desc_->setDescriptionBorderWidth(2);
     addItem(desc_);
@@ -19,11 +20,11 @@ DnsDomainsWindowItem::DnsDomainsWindowItem(ScalableGraphicsObject *parent, Prefe
     connect(addressesGroup_, &DnsDomainsGroup::setError, this, &DnsDomainsWindowItem::onError);
     connect(addressesGroup_, &DnsDomainsGroup::escape, this, &DnsDomainsWindowItem::escape);
     connect(addressesGroup_, &DnsDomainsGroup::clearError, this, &DnsDomainsWindowItem::onClearError);
-
     addItem(addressesGroup_);
 
     setFocusProxy(addressesGroup_);
-    //addressesGroup_->setAddresses(preferences->splitTunnelingNetworkRoutes());
+
+    addressesGroup_->setAddresses(preferences_->connectedDnsInfo().hostnames_);
 
     setLoggedIn(false);
 
@@ -43,8 +44,10 @@ void DnsDomainsWindowItem::setFocusOnTextEntry()
 
 void DnsDomainsWindowItem::onAddressesUpdated(const QStringList &addresses)
 {
-    ///preferences_->setSplitTunnelingNetworkRoutes(addresses);
-    ///emit addressesUpdated(addresses); // tell other screens about change
+    types::ConnectedDnsInfo curDnsInfo = preferences_->connectedDnsInfo();
+    curDnsInfo.hostnames_ = addresses;
+    preferences_->setConnectedDnsInfo(curDnsInfo);
+
 }
 
 void DnsDomainsWindowItem::onError(QString title, QString msg)
@@ -55,6 +58,11 @@ void DnsDomainsWindowItem::onError(QString title, QString msg)
 void DnsDomainsWindowItem::onClearError()
 {
     desc_->clearError();
+}
+
+void DnsDomainsWindowItem::onConnectedDnsPreferencesChanged(const types::ConnectedDnsInfo &dns)
+{
+    addressesGroup_->setAddresses(preferences_->connectedDnsInfo().hostnames_);
 }
 
 void DnsDomainsWindowItem::setLoggedIn(bool loggedIn)
