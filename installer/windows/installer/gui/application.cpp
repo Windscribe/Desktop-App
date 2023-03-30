@@ -1,16 +1,19 @@
 #include "Application.h"
 
 #include <VersionHelpers.h>
+#include <system_error>
 
 #include "ImageResources.h"
 #include "../installer/installer.h"
 #include "../installer/settings.h"
 #include "../../utils/applicationinfo.h"
 #include "../../utils/directory.h"
+#include "../../utils/logger.h"
 #include "../../utils/path.h"
 #include "../../utils/registry.h"
 #include "../../utils/utils.h"
-#include "../../../../client/common/utils/wsscopeguard.h"
+#include "wincryptutils.h"
+#include "wsscopeguard.h"
 
 #pragma comment(lib, "gdiplus.lib")
 
@@ -19,11 +22,13 @@ Application *g_application = NULL;
 
 Application::Application(HINSTANCE hInstance, int nCmdShow, bool isAutoUpdateMode,
                          bool isSilent, bool noDrivers, bool noAutoStart, bool isFactoryReset,
-                         const std::wstring& installPath) :
+                         const std::wstring& installPath, const std::wstring &username, const std::wstring &password) :
     hInstance_(hInstance),
     nCmdShow_(nCmdShow),
     isAutoUpdateMode_(isAutoUpdateMode),
-    isSilent_(isSilent)
+    isSilent_(isSilent),
+    username_(username),
+    password_(password)
 {
     g_application = this;
 
@@ -92,7 +97,7 @@ bool Application::init(int windowCenterX, int windowCenterY)
     if (!imageResources_->init()) {
         return false;
     }
-    
+
     if (!fontResources_->init()) {
         return false;
     }
@@ -137,8 +142,7 @@ void Application::installerCallback(unsigned int progress, INSTALLER_CURRENT_STA
 std::wstring Application::getPreviousInstallPath()
 {
     HKEY hKey = NULL;
-    auto exitGuard = wsl::wsScopeGuard([&]
-    {
+    auto exitGuard = wsl::wsScopeGuard([&] {
         if (hKey != NULL) {
             ::RegCloseKey(hKey);
         }
@@ -153,14 +157,40 @@ std::wstring Application::getPreviousInstallPath()
         status = Registry::RegOpenKeyExView(rv32Bit, HKEY_LOCAL_MACHINE, subkeyName.c_str(), 0, KEY_QUERY_VALUE, hKey);
     }
 
-    if (status == ERROR_SUCCESS)
-    {
+    if (status == ERROR_SUCCESS) {
         std::wstring path;
-        if (Registry::RegQueryStringValue1(hKey, L"InstallLocation", path))
-        {
+        if (Registry::RegQueryStringValue1(hKey, L"InstallLocation", path)) {
             return path;
         }
     }
 
     return std::wstring(L"");
+}
+
+void Application::saveCredentials() const
+{
+    if (username_.empty() || password_.empty()) {
+        return;
+    }
+
+    try {
+        const auto encodedUsername = wsl::WinCryptUtils::encrypt(username_, wsl::WinCryptUtils::EncodeHex);
+        const auto encodedPassword = wsl::WinCryptUtils::encrypt(password_, wsl::WinCryptUtils::EncodeHex);
+
+        bool result = Registry::RegWriteStringValue(HKEY_CURRENT_USER, L"Software\\Windscribe\\Windscribe2", L"username", encodedUsername);
+        if (!result) {
+            throw std::system_error(0, std::generic_category(), "Application::saveCredentials() failed to write username to Registry");
+        }
+
+        result = Registry::RegWriteStringValue(HKEY_CURRENT_USER, L"Software\\Windscribe\\Windscribe2", L"password", encodedPassword);
+        if (!result) {
+            throw std::system_error(0, std::generic_category(), "Application::saveCredentials() failed to write password to Registry");
+        }
+
+        // Clear any existing authHash from a previous login.
+        Registry::regDeleteProperty(HKEY_CURRENT_USER, L"Software\\Windscribe\\Windscribe2", L"authHash");
+    }
+    catch (std::system_error& ex) {
+        Log::instance().out("Application::saveCredentials() %s (%lu)", ex.what(), ex.code().value());
+    }
 }

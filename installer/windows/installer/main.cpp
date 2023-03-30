@@ -3,6 +3,7 @@
 #include <versionhelpers.h>
 
 #include <algorithm>
+#include <regex>
 
 #include "gui/application.h"
 #include "installer/settings.h"
@@ -27,8 +28,7 @@ namespace
 int argCount = 0;
 LPWSTR *argList = nullptr;
 
-int
-WSMessageBox(HWND hOwner, LPCTSTR szTitle, UINT nStyle, LPCTSTR szFormat, ...)
+static int WSMessageBox(HWND hOwner, LPCTSTR szTitle, UINT nStyle, LPCTSTR szFormat, ...)
 {
     va_list arg_list;
     va_start(arg_list, szFormat);
@@ -46,8 +46,8 @@ WSMessageBox(HWND hOwner, LPCTSTR szTitle, UINT nStyle, LPCTSTR szFormat, ...)
 
 // This function cannot handle negative coordinates passed with the -center option; -dir option seems to break sometimes too
 // For now (we can make this better later) we assume 2 additional args will be passed with -center and 1 for -dir
-bool CheckCommandLineArgument(LPCWSTR argumentToCheck, int *valueIndex = nullptr,
-                              int *valueCount = nullptr)
+static bool CheckCommandLineArgument(LPCWSTR argumentToCheck, int *valueIndex = nullptr,
+                                     int *valueCount = nullptr)
 {
     if (!argumentToCheck)
         return false;
@@ -71,32 +71,56 @@ bool CheckCommandLineArgument(LPCWSTR argumentToCheck, int *valueIndex = nullptr
                     *valueIndex = j;
                 ++*valueCount;
             }
-	        else
-	        {
-    		    break;
-	        }
+            else
+            {
+                break;
+            }
         }
     }
     return result;
 }
 
-bool GetCommandLineArgumentIndex(LPCWSTR argumentToCheck, int *valueIndex)
+static bool GetCommandLineArgumentIndex(LPCWSTR argumentToCheck, int *valueIndex)
 {
-	if (!argumentToCheck)
-		return false;
+    if (!argumentToCheck)
+        return false;
 
-	if (!argList)
-		argList = CommandLineToArgvW(GetCommandLine(), &argCount);
+    if (!argList)
+        argList = CommandLineToArgvW(GetCommandLine(), &argCount);
 
-	bool result = false;
-	for (int i = 0; i < argCount; ++i) {
-		if (wcscmp(argList[i], argumentToCheck))
-			continue;
-		result = true;
+    bool result = false;
+    for (int i = 0; i < argCount; ++i) {
+        if (wcscmp(argList[i], argumentToCheck))
+            continue;
+        result = true;
 
-		*valueIndex = i + 1;
-	}
-	return result;
+        *valueIndex = i + 1;
+    }
+    return result;
+}
+
+static void replaceAll(std::wstring &inout, std::wstring_view what, std::wstring_view with)
+{
+    for (std::wstring::size_type pos{}; inout.npos != (pos = inout.find(what.data(), pos, what.length())); pos += with.length()) {
+        inout.replace(pos, what.length(), with.data(), with.length());
+    }
+}
+
+static std::wstring santizedCommandLine(const std::wstring &username, const std::wstring &password)
+{
+    std::wstring cmdLine(::GetCommandLine());
+
+    if (!username.empty()) {
+        std::wstring oldVal = L"\"" + username + L"\"";
+        replaceAll(cmdLine, oldVal, std::wstring(L"\"********\""));
+    }
+
+    if (!password.empty()) {
+        std::wstring oldVal = L"\"" + password + L"\"";
+        replaceAll(cmdLine, oldVal, std::wstring(L"\"********\""));
+    }
+
+    return cmdLine;
 }
 
 }  // namespace
@@ -128,14 +152,18 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
                 "-factory-reset\n"
                 "Delete existing preferences, logs, and other data, if they exist.\n\n"
                 "-dir \"C:\\dirname\"\n"
-                "Overrides the default installation directory. Installation directory must be on the system drive."));
+                "Overrides the default installation directory. Installation directory must be on the system drive.\n\n"
+                "-username \"my username\"\n"
+                "Sets the username the application will use to automatically log in when first launched.\n\n"
+                "-password \"my password\"\n"
+                "Sets the password the application will use to automatically log in when first launched."));
         return 0;
     }
-	
+
     // Useful for debugging
-	// AllocConsole();
-	// FILE *stream;
-	// freopen_s(&stream, "CONOUT$", "w+t", stdout);
+    // AllocConsole();
+    // FILE *stream;
+    // freopen_s(&stream, "CONOUT$", "w+t", stdout);
 
     const bool isUpdateMode = CheckCommandLineArgument(L"-update") || CheckCommandLineArgument(L"-q");
     int expectedArgumentCount = isUpdateMode ? 2 : 1;
@@ -153,6 +181,8 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
     bool noAutoStart = false;
     bool isFactoryReset = false;
     std::wstring installPath;
+    std::wstring username;
+    std::wstring password;
 
     if (!isUpdateMode)
     {
@@ -178,8 +208,49 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
         {
             if (install_path_index > 0)
             {
+                if (install_path_index >= argCount)
+                {
+                    WSMessageBox(NULL, _T("Windscribe Install Error"), MB_OK | MB_ICONERROR,
+                        _T("The -dir parameter was specified but the directory path was not."));
+                    return 0;
+                }
+
                 installPath = argList[install_path_index];
                 std::replace(installPath.begin(), installPath.end(), L'/', L'\\');
+                expectedArgumentCount += 2;
+            }
+        }
+
+        int username_index = 0;
+        if (GetCommandLineArgumentIndex(L"-username", &username_index))
+        {
+            if (username_index > 0)
+            {
+                if (username_index >= argCount)
+                {
+                    WSMessageBox(NULL, _T("Windscribe Install Error"), MB_OK | MB_ICONERROR,
+                        _T("The -username parameter was specified but the username was not."));
+                    return 0;
+                }
+
+                username = argList[username_index];
+                expectedArgumentCount += 2;
+            }
+        }
+
+        int password_index = 0;
+        if (GetCommandLineArgumentIndex(L"-password", &password_index))
+        {
+            if (password_index > 0)
+            {
+                if (password_index >= argCount)
+                {
+                    WSMessageBox(NULL, _T("Windscribe Install Error"), MB_OK | MB_ICONERROR,
+                        _T("The -password parameter was specified but the password was not."));
+                    return 0;
+                }
+
+                password = argList[password_index];
                 expectedArgumentCount += 2;
             }
         }
@@ -198,11 +269,30 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
         return 0;
     }
 
+    if (!username.empty()) {
+        if (password.empty()) {
+            WSMessageBox(NULL, _T("Windscribe Install Error"), MB_OK | MB_ICONERROR,
+                _T("A username was specified but its corresponding password was not provided.\n\nUse the -help argument to see available arguments and their format."));
+            return 0;
+        }
+
+        if (username.find_first_of(L'@') != std::wstring::npos) {
+            WSMessageBox(NULL, _T("Windscribe Install Error"), MB_OK | MB_ICONERROR, _T("Your username should not be an email address. Please try again."));
+            return 0;
+        }
+    }
+
+    if (!password.empty() && username.empty()) {
+        WSMessageBox(NULL, _T("Windscribe Install Error"), MB_OK | MB_ICONERROR,
+            _T("A password was specified but its corresponding username was not provided.\n\nUse the -help argument to see available arguments and their format."));
+        return 0;
+    }
+
     Log::instance().init(true);
     Log::instance().out(L"Installing Windscribe version " + ApplicationInfo::instance().getVersion());
-    Log::instance().out(L"Command-line args: " + std::wstring(::GetCommandLine()));
+    Log::instance().out(L"Command-line args: " + santizedCommandLine(username, password));
 
-    Application app(hInstance, nCmdShow, isUpdateMode, isSilent, noDrivers, noAutoStart, isFactoryReset, installPath);
+    Application app(hInstance, nCmdShow, isUpdateMode, isSilent, noDrivers, noAutoStart, isFactoryReset, installPath, username, password);
 
     int result = -1;
     if (app.init(window_center_x, window_center_y)) {

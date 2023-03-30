@@ -470,10 +470,12 @@ def build_installer_win32(configdata, qt_root, msvc_root, crt_root, win_cert_pas
                     msg.Warn("Skipping signing of {}.  File not found.".format(binary_path))
 
     # Place everything in a 7z archive.
-    msg.Info("Zipping...")
     installer_info = configdata["installer"]["win32"]
     archive_filename = os.path.normpath(os.path.join(pathhelper.ROOT_DIR, installer_info["subdir"], "resources", "windscribe.7z"))
-    print(archive_filename)
+    # Don't delete the archive after the installer is built so we can use it for installer build/testing/debugging during development.
+    if os.path.exists(archive_filename):
+        utl.RemoveFile(archive_filename)
+    msg.Info("Zipping into " + archive_filename)
     ziptool = os.path.join(pathhelper.TOOLS_DIR, "bin", "7z.exe")
     iutl.RunCommand([ziptool, "a", archive_filename, os.path.join(BUILD_INSTALLER_FILES, "*"),
                      "-y", "-bso0", "-bsp2"])
@@ -484,7 +486,6 @@ def build_installer_win32(configdata, qt_root, msvc_root, crt_root, win_cert_pas
     buildenv.update({"CL": "/MP"})
     build_component(installer_info, qt_root, buildenv)
     deploy_component(configdata, "installer", buildenv)
-    utl.RemoveFile(archive_filename)
     final_installer_name = os.path.normpath(os.path.join(BUILD_INSTALLER_FILES, "..",
                                                          "Windscribe_{}.exe".format(extractor.app_version(True))))
     utl.RenameFile(os.path.normpath(os.path.join(BUILD_INSTALLER_FILES,

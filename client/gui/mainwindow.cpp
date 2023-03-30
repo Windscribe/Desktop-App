@@ -1417,7 +1417,20 @@ void MainWindow::onBackendInitFinished(INIT_STATE initState)
             onPreferencesShareProxyGatewayChanged(p->shareProxyGateway());
         }
 
-        if (backend_->isCanLoginWithAuthHash())
+        QString autoLoginUsername;
+        QString autoLoginPassword;
+
+        if (backend_->haveAutoLoginCredentials(autoLoginUsername, autoLoginPassword)) {
+            mainWindowController_->getInitWindow()->startSlideAnimation();
+            gotoLoginWindow();
+            // Give the UI time to finish transitioning (adjusting window height, etc.) in the
+            // gotoLoginWindow() call before we attempt login.  Otherwise, the screen height
+            // may be incorrect if the login fails (e.g. due to invalid credentials).
+            QTimer::singleShot(150, this, [this, autoLoginUsername, autoLoginPassword]() {
+                onLoginClick(autoLoginUsername, autoLoginPassword, QString());
+            });
+        }
+        else if (backend_->isCanLoginWithAuthHash())
         {
             if (!backend_->isSavedApiSettingsExists())
             {
@@ -1561,6 +1574,9 @@ void MainWindow::onBackendLoginError(LOGIN_RET loginError, const QString &errorM
         {
             loginAttemptsController_.pushIncorrectLogin();
             mainWindowController_->getLoginWindow()->setErrorMessage(loginAttemptsController_.currentMessage(), QString());
+            // It's possible we were passed invalid credentials by the CLI or installer auto-login.  Ensure we transition
+            // the user to the username/password entry screen so they can see the error message and attempt a manual login.
+            mainWindowController_->getLoginWindow()->transitionToUsernameScreen();
             gotoLoginWindow();
         }
     }

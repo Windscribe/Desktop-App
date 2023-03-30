@@ -50,7 +50,7 @@ if (WIN32)
                      ${WINDSCRIBE_BUILD_LIBS_PATH}/cares/dll_x64/lib
     )
 
-    set (OS_SPECIFIC_LIBRARIES psapi.lib iphlpapi.lib dnsapi.lib rasapi32.lib pdh.lib
+    set (OS_SPECIFIC_LIBRARIES psapi.lib iphlpapi.lib dnsapi.lib rasapi32.lib pdh.lib Crypt32.lib
         libcurl_imp libssl libcrypto cares
     )
     list(APPEND PROJECT_SOURCES client.rc)

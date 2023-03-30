@@ -3,7 +3,7 @@ target_sources(common PRIVATE
     clean_sensitive_info.h
     dga_library.cpp
     dga_library.h
-    dga_parameters.h 
+    dga_parameters.h
     executable_signature/executable_signature.cpp
     executable_signature/executable_signature.h
     extraconfig.cpp
@@ -33,6 +33,8 @@ if (WIN32)
         winutils.cpp
         executable_signature/executable_signature_win.cpp
         servicecontrolmanager.cpp
+        wincryptutils.cpp
+        wincryptutils.h
     )
 elseif(APPLE)
     target_sources(common PRIVATE

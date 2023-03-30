@@ -201,7 +201,7 @@ LRESULT CALLBACK  MainWindow::realWndProc(HWND hwnd, UINT msg, WPARAM wParam, LP
     case WM_NCACTIVATE:
         // DefWindowProc won't repaint the window border if lParam (normally a
         //   HRGN) is -1. This is recommended in:
-        //   https://blogs.msdn.microsoft.com/wpfsdk/2008/09/08/custom-window-chrome-in-wpf/ 
+        //   https://blogs.msdn.microsoft.com/wpfsdk/2008/09/08/custom-window-chrome-in-wpf/
         return DefWindowProc(hwnd, msg, wParam, -1);
     case WM_NCCALCSIZE:
         handleNCCalcSize(wParam, lParam);
@@ -211,7 +211,7 @@ LRESULT CALLBACK  MainWindow::realWndProc(HWND hwnd, UINT msg, WPARAM wParam, LP
         return handleNCHittest(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
     case WM_NCPAINT:
         // Only block WM_NCPAINT when composition is disabled. If it's blocked
-        //   when composition is enabled, the window shadow won't be drawn. 
+        //   when composition is enabled, the window shadow won't be drawn.
         if (!compositionIsEnabled_)
         {
             return 0;
@@ -220,7 +220,7 @@ LRESULT CALLBACK  MainWindow::realWndProc(HWND hwnd, UINT msg, WPARAM wParam, LP
     case WM_NCUAHDRAWCAPTION:
     case WM_NCUAHDRAWFRAME:
         // These undocumented messages are sent to draw themed window borders.
-        //   Block them to prevent drawing borders over the client area. 
+        //   Block them to prevent drawing borders over the client area.
         return 0;
     case WM_SETICON:
     case WM_SETTEXT:
@@ -228,7 +228,7 @@ LRESULT CALLBACK  MainWindow::realWndProc(HWND hwnd, UINT msg, WPARAM wParam, LP
         //   from drawing a window caption over the client area, but only when
         //   composition and theming are disabled. These messages don't paint
         //   when composition is enabled and blocking WM_NCUAHDRAWCAPTION should
-        //   be enough to prevent painting when theming is enabled. 
+        //   be enough to prevent painting when theming is enabled.
         if (!compositionIsEnabled_ && !themeIsEnabled_)
             return handleMessageInvisible(hwnd, msg, wParam, lParam);
         break;
@@ -570,12 +570,15 @@ void MainWindow::onInstallerCallback(unsigned int progress, INSTALLER_CURRENT_ST
     }
     else if (state == STATE_FINISHED)
     {
-        installButton_->setState(InstallButton::LAUNCHING);
-        InvalidateRect(hwnd_, NULL, TRUE);
-        UpdateWindow(hwnd_);
+        g_application->saveCredentials();
 
-        if (Settings::instance().getAutoStart())
+        if (Settings::instance().getAutoStart()) {
+            installButton_->setState(InstallButton::LAUNCHING);
+            InvalidateRect(hwnd_, NULL, TRUE);
+            UpdateWindow(hwnd_);
             g_application->getInstaller()->launchApp();
+        }
+
         DestroyWindow(hwnd_);
     }
     else if (state == STATE_ERROR || state == STATE_FATAL_ERROR)
@@ -684,7 +687,7 @@ void MainWindow::handleCompositionChanged()
     if (enabled)
     {
         // The window needs a frame to show a shadow, so give it the smallest
-        // amount of frame possible 
+        // amount of frame possible
         MARGINS margins{ 0, 0, 1, 0 };
         DwmExtendFrameIntoClientArea(hwnd_, &margins);
         DWORD dwAttribute = DWMNCRP_ENABLED;
@@ -794,7 +797,7 @@ LRESULT MainWindow::handleNCHittest(int x, int y)
     ScreenToClient(hwnd_, &mouse);
 
     // The horizontal frame should be the same size as the vertical frame,
-    //   since the NONCLIENTMETRICS structure does not distinguish between them 
+    //   since the NONCLIENTMETRICS structure does not distinguish between them
     int frame_size = GetSystemMetrics(SM_CXFRAME) + GetSystemMetrics(SM_CXPADDEDBORDER);
     // The diagonal size handles are wider than the frame
     int diagonal_width = frame_size * 2 + GetSystemMetrics(SM_CXBORDER);
@@ -889,7 +892,7 @@ void MainWindow::updateRegion()
         GetWindowInfo(hwnd_, &wi);
 
         // For maximized windows, a region is needed to cut off the non-client
-        // borders that hang over the edge of the screen 
+        // borders that hang over the edge of the screen
         rgn_.left = wi.rcClient.left - wi.rcWindow.left;
         rgn_.top = wi.rcClient.top - wi.rcWindow.top;
         rgn_.right = wi.rcClient.right - wi.rcWindow.left;
