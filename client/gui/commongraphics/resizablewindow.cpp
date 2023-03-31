@@ -153,6 +153,11 @@ void ResizableWindow::setBackButtonEnabled(bool b)
 	backArrowButton_->setVisible(b);
 }
 
+void ResizableWindow::setResizeBarEnabled(bool b)
+{
+    bottomResizeItem_->setVisible(b);
+}
+
 void ResizableWindow::keyPressEvent(QKeyEvent *event)
 {
     if (event->key() == Qt::Key_Escape) {
@@ -190,6 +195,7 @@ void ResizableWindow::onAppSkinChanged(APP_SKIN s)
     }
     updatePositions();
     update();
+    emit sizeChanged(this);
 }
 
 void ResizableWindow::setScrollOffset(int offset)

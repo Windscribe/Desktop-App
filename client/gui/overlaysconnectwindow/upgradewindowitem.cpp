@@ -18,8 +18,8 @@ UpgradeWindowItem::UpgradeWindowItem(Preferences *preferences, ScalableGraphicsO
     connect(preferences_, &Preferences::appSkinChanged, this, &UpgradeWindowItem::onAppSkinChanged);
 
     // accept
-    acceptButton_ = new CommonGraphics::BubbleButtonBright(this, 128, 40, 20, 20);
-    connect(acceptButton_, &CommonGraphics::BubbleButtonBright::clicked, this, &UpgradeWindowItem::acceptClick);
+    acceptButton_ = new CommonGraphics::BubbleButton(this, CommonGraphics::BubbleButton::kBright, 128, 40, 20);
+    connect(acceptButton_, &CommonGraphics::BubbleButton::clicked, this, &UpgradeWindowItem::acceptClick);
     // cancel
     double cancelOpacity = OPACITY_UNHOVER_TEXT;
     cancelButton_ = new CommonGraphics::TextButton("", FontDescr(16, false), Qt::white, true, this);

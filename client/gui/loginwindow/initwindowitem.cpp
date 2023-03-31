@@ -12,7 +12,6 @@ InitWindowItem::InitWindowItem(QGraphicsObject *parent) : ScalableGraphicsObject
   , curLogoPosY_(LOGO_POS_CENTER)
   , curSpinnerRotation_(0)
   , curSpinnerOpacity_(1.0)
-  , curAbortOpacity_(OPACITY_HIDDEN)
   , waitingAnimationActive_(false)
   , cropHeight_(0)
   , height_(WINDOW_HEIGHT)
@@ -113,13 +112,6 @@ void InitWindowItem::startWaitingAnimation()
 
     curSpinnerRotation_ = 0;
     startAnAnimation<int>(spinnerRotationAnimation_, curSpinnerRotation_, 360, (double)curSpinnerRotation_ / 360.0 * (double)SPINNER_SPEED);
-
-    //showAbortTimer_.start();
-}
-
-void InitWindowItem::setClickable(bool /*clickable*/)
-{
-    //abortButton_->setClickable(clickable);
 }
 
 void InitWindowItem::setAdditionalMessage(const QString &msg, bool useSmallFont)
@@ -176,11 +168,6 @@ void InitWindowItem::onLogoPosChanged(const QVariant &value)
         curSpinnerOpacity_ = (double)(curLogoPosY_ - LOGO_POS_TOP) / (double)logoDist_;
     }
     update();
-}
-
-void InitWindowItem::onShowAbortTimerTimeout()
-{
-    //abortButton_->animateShow(ANIMATION_SPEED_FAST);
 }
 
 void InitWindowItem::updatePositions()

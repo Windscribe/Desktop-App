@@ -31,10 +31,10 @@ EmergencyConnectWindowItem::EmergencyConnectWindowItem(QGraphicsObject *parent,
     lastSpinnerRotationStart_ = 0;
     spinnerRotationAnimationActive_ = false;
 
-    connectButton_ = new CommonGraphics::BubbleButtonDark(this, 108, 40, 20, 20);
+    connectButton_ = new CommonGraphics::BubbleButton(this, CommonGraphics::BubbleButton::kOutline, 108, 40, 20);
     connect(connectButton_, SIGNAL(clicked()), SLOT(onConnectClicked()));
 
-    disconnectButton_ = new CommonGraphics::BubbleButtonBright(this, 128, 40, 20, 20);
+    disconnectButton_ = new CommonGraphics::BubbleButton(this, CommonGraphics::BubbleButton::kBright, 128, 40, 20);
     connect(disconnectButton_, SIGNAL(clicked()), SLOT(onDisconnectClicked()));
 
     escButton_ = new CommonGraphics::EscapeButton(this);
@@ -63,6 +63,7 @@ EmergencyConnectWindowItem::EmergencyConnectWindowItem(QGraphicsObject *parent,
     connect(&spinnerRotationAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onSpinnerRotation(QVariant)));
 
     connect(&LanguageController::instance(), SIGNAL(languageChanged()), SLOT(onLanguageChanged()));
+    onLanguageChanged();
 
     connect(preferencesHelper, SIGNAL(isDockedModeChanged(bool)), this,
             SLOT(onDockedModeChanged(bool)));
@@ -419,12 +420,14 @@ void EmergencyConnectWindowItem::onSpinnerRotation(const QVariant &value)
 
 void EmergencyConnectWindowItem::onTextLinkWidthChanged()
 {
-    textLinkButton_->setPos( CommonGraphics::centeredOffset(LOGIN_WIDTH*G_SCALE, textLinkButton_->boundingRect().width()), LINK_TEXT_POS_Y*G_SCALE);
+    textLinkButton_->setPos(CommonGraphics::centeredOffset(LOGIN_WIDTH*G_SCALE, textLinkButton_->boundingRect().width()), LINK_TEXT_POS_Y*G_SCALE);
 }
 
 void EmergencyConnectWindowItem::onLanguageChanged()
 {
-    textLinkButton_->setPos( CommonGraphics::centeredOffset(LOGIN_WIDTH*G_SCALE, textLinkButton_->boundingRect().width()), LINK_TEXT_POS_Y*G_SCALE);
+    textLinkButton_->setPos(CommonGraphics::centeredOffset(LOGIN_WIDTH*G_SCALE, textLinkButton_->boundingRect().width()), LINK_TEXT_POS_Y*G_SCALE);
+    connectButton_->setText(tr("Connect"));
+    disconnectButton_->setText(tr("Disconnect"));
 }
 
 void EmergencyConnectWindowItem::onDockedModeChanged(bool /*bIsDockedToTray*/)

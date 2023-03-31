@@ -5,7 +5,7 @@
 #include <QVariantAnimation>
 #include "backend/preferences/preferences.h"
 #include "overlaysconnectwindow/iupdatewindow.h"
-#include "commongraphics/bubblebuttonbright.h"
+#include "commongraphics/bubblebutton.h"
 #include "commongraphics/textbutton.h"
 
 class UpdateWindowItem : public ScalableGraphicsObject, public IUpdateWindow
@@ -62,7 +62,7 @@ private:
     void initScreen();
     Preferences *preferences_;
 
-    CommonGraphics::BubbleButtonBright *acceptButton_;
+    CommonGraphics::BubbleButton *acceptButton_;
     CommonGraphics::TextButton *cancelButton_;
 
     QString curVersion_;

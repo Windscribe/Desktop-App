@@ -3,10 +3,8 @@ target_sources(gui PRIVATE
     baseitem.h
     basepage.cpp
     basepage.h
-    bubblebuttonbright.cpp
-    bubblebuttonbright.h
-    bubblebuttondark.cpp
-    bubblebuttondark.h
+    bubblebutton.cpp
+    bubblebutton.h
     checkboxbutton.cpp
     checkboxbutton.h
     clickablegraphicsobject.cpp
@@ -21,6 +19,8 @@ target_sources(gui PRIVATE
     iconbutton.h
     imageitem.cpp
     imageitem.h
+    listbutton.cpp
+    listbutton.h
     resizablewindow.cpp
     resizablewindow.h
     resizebar.cpp

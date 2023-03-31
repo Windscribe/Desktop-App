@@ -27,6 +27,8 @@ public:
     void quickHide();
     void animateShow(int animationSpeed);
     void animateHide(int animationSpeed);
+
+    void hover();
     void unhover();
 
     QFont getFont() const;

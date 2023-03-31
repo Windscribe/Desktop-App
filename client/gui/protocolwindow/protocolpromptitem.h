@@ -3,14 +3,13 @@
 #include <QKeyEvent>
 #include <QSet>
 #include "../../common/types/protocolstatus.h"
-#include "../commongraphics/textbutton.h"
 #include "../backend/backend.h"
 #include "../backend/preferences/preferences.h"
 #include "../backend/preferences/preferenceshelper.h"
 #include "commongraphics/imageitem.h"
 #include "commongraphics/basepage.h"
+#include "commongraphics/listbutton.h"
 #include "connectwindow/iconnectwindow.h"
-#include "protocollistbutton.h"
 #include "protocolwindow/iprotocolwindow.h"
 #include "protocolwindow/protocollineitem.h"
 
@@ -84,8 +83,8 @@ private:
     int titleHeight_;
     int descHeight_;
 
-    ProtocolListButton *actionButton_;
-    ProtocolListButton *cancelButton_;
+    CommonGraphics::ListButton *actionButton_;
+    CommonGraphics::ListButton *cancelButton_;
 
     ProtocolWindowMode mode_;
     IConnectWindow *connectWindow_;

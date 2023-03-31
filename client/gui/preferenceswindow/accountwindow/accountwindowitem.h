@@ -3,7 +3,7 @@
 
 #include "backend/preferences/accountinfo.h"
 #include "commongraphics/basepage.h"
-#include "commongraphics/bubblebuttondark.h"
+#include "commongraphics/bubblebutton.h"
 #include "preferenceswindow/linkitem.h"
 #include "preferenceswindow/preferencegroup.h"
 #include "preferenceswindow/titleitem.h"
@@ -61,7 +61,7 @@ private:
     LinkItem *manageAccountItem_;
 
     QGraphicsTextItem *textItem_;
-    CommonGraphics::BubbleButtonDark *loginButton_;
+    CommonGraphics::BubbleButton *loginButton_;
     void updateWidgetPos();
 
     qint64 plan_;

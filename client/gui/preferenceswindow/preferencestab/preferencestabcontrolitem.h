@@ -62,6 +62,7 @@ private:
     QList<TabButton *> buttonList_;
 
     bool loggedIn_;
+    bool isExternalConfigMode_;
     int height_;
 
     PREFERENCES_TAB_TYPE curTab_;

@@ -4,7 +4,6 @@
 #include <QVariantAnimation>
 #include <QTimer>
 #include "iinitwindow.h"
-#include "commongraphics/bubblebuttondark.h"
 #include "commongraphics/iconbutton.h"
 
 namespace LoginWindow {
@@ -24,7 +23,6 @@ public:
     void startSlideAnimation() override;
     void startWaitingAnimation() override;
 
-    void setClickable(bool clickable) override;
     void setAdditionalMessage(const QString &msg, bool useSmallFont) override;
     void setCropHeight(int height) override;
     void setHeight(int height) override;
@@ -40,8 +38,6 @@ private slots:
     void onSpinnerRotationFinished();
 
     void onLogoPosChanged(const QVariant &value);
-
-    void onShowAbortTimerTimeout();
 
 private:
     static constexpr int LOGO_POS_TOP = 87;
@@ -59,7 +55,6 @@ private:
     int curLogoPosY_;
     int curSpinnerRotation_;
     double curSpinnerOpacity_;
-    double curAbortOpacity_;
 
     bool waitingAnimationActive_;
 
@@ -75,10 +70,6 @@ private:
     QVariantAnimation spinnerRotationAnimation_;
 
     QVariantAnimation abortOpacityAnimation_;
-    //CommonGraphics::BubbleButtonDark *abortButton_;
-
-    //QTimer showAbortTimer_;
-
 };
 
 }

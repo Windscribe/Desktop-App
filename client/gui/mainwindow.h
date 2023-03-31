@@ -149,7 +149,8 @@ private slots:
     // general window signals
     void onGeneralMessageWindowAccept();
 
-    // exit window signals
+    // logout & exit window signals
+    void onLogoutWindowAccept();
     void onExitWindowAccept();
     void onExitWindowReject();
 
@@ -288,6 +289,7 @@ private slots:
 
 private:
     void gotoLoginWindow();
+    void gotoLogoutWindow();
     void gotoExitWindow();
     void collapsePreferences();
 
