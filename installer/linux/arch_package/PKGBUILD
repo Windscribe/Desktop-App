@@ -8,7 +8,7 @@ pkgdesc="Windscribe Client"
 arch=('x86_64')
 url="https://windscribe.com/download"
 license=('GPL2')
-depends=('nftables' 'c-ares' 'freetype2' 'hicolor-icon-theme' 'systemd' 'glibc>=2.28' 'glib2' 'zlib' 'gcc-libs' 'dbus'
+depends=('nftables' 'c-ares' 'freetype2' 'hicolor-icon-theme' 'systemd' 'glibc>=2.31' 'glib2' 'zlib' 'gcc-libs' 'dbus'
          'libglvnd' 'fontconfig' 'libx11' 'libxkbcommon' 'libxcb')
 conflicts=('windscribe-cli')
 provides=('windscribe')
