@@ -146,7 +146,7 @@ Build process tested on Ubuntu 20.04/ZorinOS 16 (gcc 9.3.0).
 
 - Install build requirements:
 ```bash
-  sudo apt-get install install build-essential git curl patchelf libpam0g-dev software-properties-common libgl1-mesa-dev fakeroot python3-pip zip unzip
+  sudo apt-get install build-essential git curl patchelf libpam0g-dev software-properties-common libgl1-mesa-dev fakeroot python3-pip zip unzip
   sudo apt-get update
   sudo apt-get install wget autoconf libtool
   # install cmake 3.23.x (default for Ubuntu 20.04 is 3.16.3)
