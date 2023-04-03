@@ -17,7 +17,8 @@ ConnectStateProtocolPort::ConnectStateProtocolPort(ScalableGraphicsObject *paren
     , textOpacity_(0.5)
     , receivedTunnelTestResult_  (false)
     , badgePixmap_(QSize(36*G_SCALE, 20*G_SCALE), 10*G_SCALE)
-    , protocolArrow_(new IconButton(16, 16, "PROTOCOL_ARROW", "", this, OPACITY_FULL, OPACITY_FULL))
+    , protocolArrow_(new IconButton(16, 16, "PROTOCOL_ARROW", "", this, OPACITY_HALF, OPACITY_FULL))
+    , arrowShift_(0)
 {
 
     protocol_ = types::Protocol::WIREGUARD;
@@ -31,6 +32,10 @@ ConnectStateProtocolPort::ConnectStateProtocolPort(ScalableGraphicsObject *paren
     connect(protocolArrow_, &IconButton::clicked, this, &ConnectStateProtocolPort::clicked);
 
     connectionBadgeDots_ = new ConnectionBadgeDots(this);
+
+    connect(this, &ClickableGraphicsObject::hoverEnter, this, &ConnectStateProtocolPort::onHoverEnter);
+    connect(this, &ClickableGraphicsObject::hoverLeave, this, &ConnectStateProtocolPort::onHoverLeave);
+    connect(&protocolArrowAnimation_, &QVariantAnimation::valueChanged, this, &ConnectStateProtocolPort::onProtocolArrowAnimationChanged);
 
     setClickableHoverable(true, false);
     recalcSize();
@@ -254,6 +259,12 @@ void ConnectStateProtocolPort::onProtocolOpacityAnimationChanged(const QVariant 
     }
 }
 
+void ConnectStateProtocolPort::onProtocolArrowAnimationChanged(const QVariant &value)
+{
+    arrowShift_ = value.toInt();
+    recalcSize();
+}
+
 void ConnectStateProtocolPort::recalcSize()
 {
     prepareGeometryChange();
@@ -270,10 +281,10 @@ void ConnectStateProtocolPort::recalcSize()
     const int badgeHeight = 20*G_SCALE;
     const int protocolArrowWidth = 16*G_SCALE;
 
-    width_ = protocolWidth + portWidth + badgeWidth + protocolArrowWidth + 4*separatorWidth;
+    width_ = protocolWidth + portWidth + badgeWidth + protocolArrowWidth + 4*separatorWidth + 4*G_SCALE;
     height_ = badgeHeight;
 
-    protocolArrow_->setPos(width_ - protocolArrowWidth, 2*G_SCALE);
+    protocolArrow_->setPos(width_ - protocolArrowWidth - 4*G_SCALE + arrowShift_*G_SCALE, 2*G_SCALE);
 }
 
 types::ProtocolStatus ConnectStateProtocolPort::getProtocolStatus()
@@ -298,6 +309,18 @@ bool ConnectStateProtocolPort::isProtocolButtonVisible() const
 void ConnectStateProtocolPort::setProtocolButtonVisible(bool visible)
 {
     protocolArrow_->setVisible(visible);
+}
+
+void ConnectStateProtocolPort::onHoverEnter()
+{
+    protocolArrow_->hoverEnter();
+    startAnAnimation(protocolArrowAnimation_, arrowShift_, 4, ANIMATION_SPEED_FAST);
+}
+
+void ConnectStateProtocolPort::onHoverLeave()
+{
+    protocolArrow_->hoverLeave();
+    startAnAnimation(protocolArrowAnimation_, arrowShift_, 0, ANIMATION_SPEED_FAST);
 }
 
 } //namespace ConnectWindow

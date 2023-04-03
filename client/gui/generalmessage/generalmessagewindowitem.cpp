@@ -6,6 +6,7 @@
 #include "graphicresources/imageresourcessvg.h"
 #include "graphicresources/fontmanager.h"
 #include "dpiscalemanager.h"
+#include "utils/logger.h"
 
 namespace GeneralMessageWindow {
 
@@ -35,29 +36,17 @@ GeneralMessageWindowItem::GeneralMessageWindowItem(ScalableGraphicsObject *paren
     connect(&spinnerRotationAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onSpinnerRotationChanged(QVariant)));
     connect(&spinnerRotationAnimation_, SIGNAL(finished()), SLOT(onSpinnerRotationFinished()));
     connect(this, &ResizableWindow::escape, this, &GeneralMessageWindowItem::onEscape);
+
+    updateHeight();
 }
 
 void GeneralMessageWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem * /*option*/, QWidget * /*widget*/)
 {
-    // resize area background
-    qreal initialOpacity = painter->opacity();
-    painter->fillRect(boundingRect().adjusted(0, 286*G_SCALE, 0, -7*G_SCALE), QBrush(QColor(2, 13, 28)));
-
-    // bottom-most background
-    painter->setOpacity(initialOpacity);
-    if (roundedFooter_) {
-        painter->setPen(QColor(2, 13, 28));
-        painter->setBrush(QColor(2, 13, 28));
-        painter->drawRoundedRect(getBottomResizeArea(), 8*G_SCALE, 8*G_SCALE);
-        painter->fillRect(getBottomResizeArea().adjusted(0, -2*G_SCALE, 0, -7*G_SCALE), QBrush(QColor(2, 13, 28)));
-    } else {
-        painter->fillRect(getBottomResizeArea(), QBrush(QColor(2, 13, 28)));
-    }
-
     // base background
     if (shape_ == IGeneralMessageWindow::kConnectScreenAlphaShape) {
         QSharedPointer<IndependentPixmap> pixmapBaseBackground = ImageResourcesSvg::instance().getIndependentPixmap(backgroundBase_);
         pixmapBaseBackground->draw(0, 0, painter);
+        painter->fillRect(boundingRect().adjusted(0, pixmapBaseBackground->height(), 0, -7*G_SCALE), QBrush(QColor(2, 13, 28)));
     } else {
         QPainterPath path;
 #ifdef Q_OS_MAC
@@ -68,6 +57,16 @@ void GeneralMessageWindowItem::paint(QPainter *painter, const QStyleOptionGraphi
         painter->setPen(Qt::NoPen);
         painter->fillPath(path, QColor(2, 13, 28));
         painter->setPen(Qt::SolidLine);
+    }
+
+    // bottom-most background
+    if (roundedFooter_) {
+        painter->setPen(QColor(2, 13, 28));
+        painter->setBrush(QColor(2, 13, 28));
+        painter->drawRoundedRect(getBottomResizeArea(), 8*G_SCALE, 8*G_SCALE);
+        painter->fillRect(getBottomResizeArea().adjusted(0, -2*G_SCALE, 0, -7*G_SCALE), QBrush(QColor(2, 13, 28)));
+    } else {
+        painter->fillRect(getBottomResizeArea(), QBrush(QColor(2, 13, 28)));
     }
 
     if (isSpinnerMode_) {
@@ -179,32 +178,39 @@ void GeneralMessageWindowItem::updatePositions()
     escapeButton_->setPos(WINDOW_WIDTH*G_SCALE - escapeButton_->boundingRect().width() - 16*G_SCALE, 16*G_SCALE);
 
     if (preferences_->appSkin() == APP_SKIN_VAN_GOGH && shape_ != kLoginScreenShape) {
-        backArrowButton_->setPos(16*G_SCALE, 12*G_SCALE);
         scrollAreaItem_->setPos(0, 55*G_SCALE);
         scrollAreaItem_->setHeight(curHeight_ - 74*G_SCALE);
     } else {
-        backArrowButton_->setPos(16*G_SCALE, 40*G_SCALE);
         scrollAreaItem_->setPos(0, 83*G_SCALE);
         scrollAreaItem_->setHeight(curHeight_ - 102*G_SCALE);
     }
+
+    updateHeight();
 }
 
 void GeneralMessageWindowItem::updateHeight()
 {
     int height = 0;
 
-    if (preferences_->appSkin() == APP_SKIN_VAN_GOGH) {
-        height = contentItem_->fullHeight() + 54*G_SCALE;
+    if (shape_ == IGeneralMessageWindow::kLoginScreenShape) {
+        height = LOGIN_HEIGHT*G_SCALE;
     } else {
-        height = contentItem_->fullHeight() + 82*G_SCALE;
-    }
+        if (preferences_->appSkin() == APP_SKIN_VAN_GOGH) {
+            height = contentItem_->fullHeight() + 54*G_SCALE;
+        } else {
+            height = contentItem_->fullHeight() + 82*G_SCALE;
+        }
 
-    // minimum height is standard height of connect window
-    if (height < WINDOW_HEIGHT) {
-        height = WINDOW_HEIGHT;
+        // minimum height is standard height of connect window
+        if (height < WINDOW_HEIGHT*G_SCALE) {
+            height = WINDOW_HEIGHT*G_SCALE;
+        }
     }
-    setHeight(height);
-    emit sizeChanged(this);
+    
+    if (curHeight_ != height) {
+        setHeight(height);
+        emit sizeChanged(this);
+    }
 }
 
 } // namespace GeneralMessage

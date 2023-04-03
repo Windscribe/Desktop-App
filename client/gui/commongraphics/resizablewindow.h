@@ -74,6 +74,5 @@ protected:
 
     virtual QRectF getBottomResizeArea();
     void keyPressEvent(QKeyEvent *event) override;
-    virtual void updateChildItemsAfterHeightChanged();
     virtual void updatePositions();
 };

@@ -93,6 +93,8 @@ MainWindowController::MainWindowController(QWidget *parent, LocationsWindow *loc
     windowSizeManager_->addWindow(newsFeedWindow_, ShadowManager::SHAPE_ID_NEWS_FEED, EXPAND_WINDOW_RESIZE_DURATION);
     windowSizeManager_->addWindow(protocolWindow_, ShadowManager::SHAPE_ID_PROTOCOL, EXPAND_WINDOW_RESIZE_DURATION);
     windowSizeManager_->addWindow(generalMessageWindow_, ShadowManager::SHAPE_ID_GENERAL_MESSAGE, EXPAND_WINDOW_RESIZE_DURATION);
+    windowSizeManager_->addWindow(logoutWindow_, ShadowManager::SHAPE_ID_EXIT, EXPAND_WINDOW_RESIZE_DURATION);
+    windowSizeManager_->addWindow(exitWindow_, ShadowManager::SHAPE_ID_EXIT, EXPAND_WINDOW_RESIZE_DURATION);
 
     scene_->addItem(loginWindow_->getGraphicsObject());
     scene_->addItem(loggingInWindow_->getGraphicsObject());
@@ -143,6 +145,10 @@ MainWindowController::MainWindowController(QWidget *parent, LocationsWindow *loc
     connect(dynamic_cast<QObject*>(protocolWindow_), SIGNAL(resizeFinished(ResizableWindow *)), SLOT(onWindowResizeFinished(ResizableWindow *)));
     connect(dynamic_cast<QObject*>(generalMessageWindow_), SIGNAL(sizeChanged(ResizableWindow *)), SLOT(onWindowResize(ResizableWindow *)));
     connect(dynamic_cast<QObject*>(generalMessageWindow_), SIGNAL(resizeFinished(ResizableWindow *)), SLOT(onWindowResizeFinished(ResizableWindow *)));
+    connect(dynamic_cast<QObject*>(logoutWindow_), SIGNAL(sizeChanged(ResizableWindow *)), SLOT(onWindowResize(ResizableWindow *)));
+    connect(dynamic_cast<QObject*>(logoutWindow_), SIGNAL(resizeFinished(ResizableWindow *)), SLOT(onWindowResizeFinished(ResizableWindow *)));
+    connect(dynamic_cast<QObject*>(exitWindow_), SIGNAL(sizeChanged(ResizableWindow *)), SLOT(onWindowResize(ResizableWindow *)));
+    connect(dynamic_cast<QObject*>(exitWindow_), SIGNAL(resizeFinished(ResizableWindow *)), SLOT(onWindowResizeFinished(ResizableWindow *)));
 
     connect(preferences_, &Preferences::appSkinChanged, this, &MainWindowController::onAppSkinChanged);
 
@@ -167,6 +173,7 @@ MainWindowController::MainWindowController(QWidget *parent, LocationsWindow *loc
     shadowManager_->addRectangle(QRect(0, 0, 0, 0), ShadowManager::SHAPE_ID_NEWS_FEED, false);
     shadowManager_->addRectangle(QRect(0, 0, 0, 0), ShadowManager::SHAPE_ID_PROTOCOL, false);
     shadowManager_->addRectangle(QRect(0, 0, 0, 0), ShadowManager::SHAPE_ID_GENERAL_MESSAGE, false);
+    shadowManager_->addRectangle(QRect(0, 0, 0, 0), ShadowManager::SHAPE_ID_EXIT, false);
     connect(shadowManager_, SIGNAL(shadowUpdated()), SIGNAL(shadowUpdated()));
 
     connect(&TooltipController::instance(), SIGNAL(sendServerRatingUp()), SLOT(onTooltipControllerSendServerRatingUp()));
@@ -281,6 +288,12 @@ void MainWindowController::updateLocationsWindowAndTabGeometryStatic()
                                               childWindowShadowOffsetY(true),
                                               generalMessageWindow_->getGraphicsObject()->boundingRect().width(),
                                               generalMessageWindow_->getGraphicsObject()->boundingRect().height() - childWindowShadowOffsetY(false)));
+
+    shadowManager_->changeRectangleSize(ShadowManager::SHAPE_ID_EXIT,
+                                        QRect(0,
+                                              childWindowShadowOffsetY(true),
+                                              exitWindow_->getGraphicsObject()->boundingRect().width(),
+                                              exitWindow_->getGraphicsObject()->boundingRect().height() - childWindowShadowOffsetY(false)));
 
     shadowManager_->changeRectangleSize(ShadowManager::SHAPE_ID_LOGIN_WINDOW,
                                         QRect(0,
@@ -1298,6 +1311,7 @@ void MainWindowController::gotoConnectWindow()
         curWindow_ = WINDOW_ID_CONNECT;
         shadowManager_->setVisible(ShadowManager::SHAPE_ID_LOGIN_WINDOW, false);
         shadowManager_->setVisible(ShadowManager::SHAPE_ID_INIT_WINDOW, false);
+        shadowManager_->setVisible(ShadowManager::SHAPE_ID_EXIT, false);
         shadowManager_->setVisible(ShadowManager::SHAPE_ID_CONNECT_WINDOW, true);
         connectWindow_->setClickable(true);
         connectWindow_->getGraphicsObject()->setVisible(true);
@@ -1854,6 +1868,7 @@ void MainWindowController::gotoExitWindow(bool isLogout)
 
     windowBeforeExit_ = curWindow_;
     IGeneralMessageWindow *win = (isLogout ? logoutWindow_ : exitWindow_);
+    shadowManager_->setVisible(ShadowManager::SHAPE_ID_EXIT, true);
 
     if (curWindow_ == WINDOW_ID_CONNECT) {
         win->setHeight(connectWindow_->getGraphicsObject()->boundingRect().height());
@@ -1928,6 +1943,7 @@ void MainWindowController::closeExitWindow(bool fromPrefs)
         win = exitWindow_;
     } else {
         WS_ASSERT(false);
+        return;
     }
 
     if (windowBeforeExit_ == WINDOW_ID_CONNECT) {
@@ -1940,6 +1956,9 @@ void MainWindowController::closeExitWindow(bool fromPrefs)
         anim->setStartValue(win->getGraphicsObject()->opacity());
         anim->setEndValue(0.0);
         anim->setDuration(SCREEN_SWITCH_OPACITY_ANIMATION_DURATION);
+
+        shadowManager_->setVisible(ShadowManager::SHAPE_ID_EXIT, false);
+        shadowManager_->setVisible(ShadowManager::SHAPE_ID_CONNECT_WINDOW, true);
 
         connect(anim, &QPropertyAnimation::finished, [this, fromPrefs, win]() {
             win->getGraphicsObject()->hide();
@@ -2589,7 +2608,8 @@ int MainWindowController::childWindowShadowOffsetY(bool withVanGoghOffset)
 {
     int yOffset = 0;
 
-    if (withVanGoghOffset && updateAppItem_->getGraphicsObject()->isVisible()) {
+    if (withVanGoghOffset && preferences_->appSkin() == APP_SKIN_VAN_GOGH &&
+            updateAppItem_->getGraphicsObject()->isVisible()) {
         yOffset = UPDATE_WIDGET_HEIGHT*G_SCALE;
     }
 

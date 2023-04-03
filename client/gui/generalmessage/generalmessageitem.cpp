@@ -92,30 +92,33 @@ void GeneralMessageItem::setAcceptText(const QString &text)
         if (style_ == IGeneralMessageWindow::kDark) {
             buttonStyle = CommonGraphics::ListButton::kDark;
         }
-        acceptButton_ = new CommonGraphics::ListButton(this, buttonStyle, "");
+        acceptButton_ = new CommonGraphics::ListButton(this, buttonStyle, text);
         connect(acceptButton_, &CommonGraphics::ListButton::clicked, this, &GeneralMessageItem::acceptClick);
         connect(acceptButton_, &CommonGraphics::ListButton::hoverEnter, this, &GeneralMessageItem::onHoverAccept);
         connect(acceptButton_, &CommonGraphics::ListButton::hoverLeave, this, &GeneralMessageItem::onHoverLeaveAccept);
         addItem(acceptButton_);
+    } else {
+        acceptButton_->setText(text);
     }
-    acceptButton_->setText(text);
 }
 
 void GeneralMessageItem::setRejectText(const QString &text)
 {
     if (!rejectButton_) {
-        rejectButton_ = new CommonGraphics::ListButton(this, CommonGraphics::ListButton::kText, "");
+        rejectButton_ = new CommonGraphics::ListButton(this, CommonGraphics::ListButton::kText, text);
         connect(rejectButton_, &CommonGraphics::ListButton::clicked, this, &GeneralMessageItem::rejectClick);
         connect(rejectButton_, &CommonGraphics::ListButton::hoverEnter, this, &GeneralMessageItem::onHoverReject);
         connect(rejectButton_, &CommonGraphics::ListButton::hoverLeave, this, &GeneralMessageItem::onHoverLeaveReject);
         addItem(rejectButton_);
+    } else {
+        rejectButton_->setText(text);
     }
-    rejectButton_->setText(text);
 }
 
 void GeneralMessageItem::updateScaling()
 {
     ScalableGraphicsObject::updateScaling();
+    updatePositions();
 }
 
 void GeneralMessageItem::keyPressEvent(QKeyEvent *event)
@@ -211,7 +214,7 @@ void GeneralMessageItem::setTitleSize(int size)
 void GeneralMessageItem::updatePositions()
 {
     if (icon_ != nullptr) {
-        icon_->setPos((WINDOW_WIDTH/2 - icon_->boundingRect().width()/2)*G_SCALE, 0);
+        icon_->setPos(boundingRect().width()/2 - icon_->boundingRect().width()/2, 0);
     }
 
     if (desc_.isEmpty()) {
