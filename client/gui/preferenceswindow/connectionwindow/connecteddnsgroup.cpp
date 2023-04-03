@@ -59,17 +59,15 @@ void ConnectedDnsGroup::setConnectedDnsInfo(const types::ConnectedDnsInfo &dns)
 
         // update inner widgets
         if (dns.type_ == CONNECTED_DNS_TYPE_ROBERT)
-        {
             comboBoxDns_->setCurrentItem(CONNECTED_DNS_TYPE_ROBERT);
-        }
         else
-        {
-            editBoxUpstream1_->setText(dns.upStream1_);
-            editBoxUpstream2_->setText(dns.upStream2_);
-            splitDnsCheckBox_->setState(dns.isSplitDns_);
             comboBoxDns_->setCurrentItem(CONNECTED_DNS_TYPE_CUSTOM);
-            domainsItem_->setLinkText(QString::number(dns.hostnames_.count()));
-        }
+
+        editBoxUpstream1_->setText(dns.upStream1_);
+        editBoxUpstream2_->setText(dns.upStream2_);
+        splitDnsCheckBox_->setState(dns.isSplitDns_);
+        domainsItem_->setLinkText(QString::number(dns.hostnames_.count()));
+
         updateMode();
     }
 }
@@ -154,7 +152,6 @@ void ConnectedDnsGroup::onLanguageChanged()
     editBoxUpstream2_->setPrompt(tr("Upstream 2"));
     splitDnsCheckBox_->setCaption(tr("Split DNS"));
     domainsItem_->setTitle(tr("Domains"));
-
 }
 
 }

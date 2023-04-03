@@ -1311,12 +1311,13 @@ void Engine::onConnectionManagerConnected()
 
     if (connectionManager_->connectedDnsInfo().type_ == CONNECTED_DNS_TYPE_CUSTOM)
     {
-         if (!helper_->setCustomDnsWhileConnected(connectionManager_->currentProtocol().isIkev2Protocol(),
-                                                  connectionManager_->getVpnAdapterInfo().ifIndex(),
-                                                  connectionManager_->connectedDnsInfo().upStream1_))
-         {
-             qCDebug(LOG_CONNECTED_DNS) << "Failed to set Custom 'while connected' DNS";
-         }
+        WS_ASSERT(connectionManager_->getVpnAdapterInfo().dnsServers().count() == 1);
+        if (!helper_->setCustomDnsWhileConnected(connectionManager_->currentProtocol().isIkev2Protocol(),
+                                                 connectionManager_->getVpnAdapterInfo().ifIndex(),
+                                                 connectionManager_->getVpnAdapterInfo().dnsServers().first()))
+        {
+            qCDebug(LOG_CONNECTED_DNS) << "Failed to set Custom 'while connected' DNS";
+        }
     }
 
 #ifdef Q_OS_WIN
@@ -1371,7 +1372,7 @@ void Engine::onConnectionManagerConnected()
     networkAccessManager_->disableProxy();
     locationsModel_->disableProxy();
 
-    DnsServersConfiguration::instance().setDnsServersPolicy(DNS_TYPE_OS_DEFAULT);
+    DnsServersConfiguration::instance().setConnectedState(connectionManager_->getVpnAdapterInfo().dnsServers());
 
     if (engineSettings_.isTerminateSockets())
     {
@@ -1443,7 +1444,7 @@ void Engine::onConnectionManagerReconnecting()
 {
     qCDebug(LOG_BASIC) << "on reconnecting event";
 
-    DnsServersConfiguration::instance().setDnsServersPolicy(engineSettings_.dnsPolicy());
+    DnsServersConfiguration::instance().setDisconnectedState();
 
     if (firewallController_->firewallActualState())
     {
@@ -1869,7 +1870,7 @@ void Engine::onEmergencyControllerConnected()
 #endif
 
     networkAccessManager_->disableProxy();
-    DnsServersConfiguration::instance().setDnsServersPolicy(DNS_TYPE_OS_DEFAULT);
+    DnsServersConfiguration::instance().setConnectedState(emergencyController_->getVpnAdapterInfo().dnsServers());
 
     emergencyConnectStateController_->setConnectedState(LocationID());
     Q_EMIT emergencyConnected();
@@ -1880,7 +1881,7 @@ void Engine::onEmergencyControllerDisconnected(DISCONNECT_REASON reason)
     qCDebug(LOG_BASIC) << "Engine::onEmergencyControllerDisconnected(), reason =" << reason;
 
     networkAccessManager_->enableProxy();
-    DnsServersConfiguration::instance().setDnsServersPolicy(engineSettings_.dnsPolicy());
+    DnsServersConfiguration::instance().setDisconnectedState();
 
     emergencyConnectStateController_->setDisconnectedState(reason, CONNECT_ERROR::NO_CONNECT_ERROR);
     Q_EMIT emergencyDisconnected();
@@ -2332,7 +2333,7 @@ void Engine::doDisconnectRestoreStuff()
 
     networkAccessManager_->enableProxy();
     locationsModel_->enableProxy();
-    DnsServersConfiguration::instance().setDnsServersPolicy(engineSettings_.dnsPolicy());
+    DnsServersConfiguration::instance().setDisconnectedState();
 
 #if defined (Q_OS_MAC) || defined(Q_OS_LINUX)
     firewallController_->setInterfaceToSkip_posix("");

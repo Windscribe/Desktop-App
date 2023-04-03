@@ -12,6 +12,8 @@ target_sources(engine PRIVATE
     connsettingspolicy/customconfigconnsettingspolicy.h
     connsettingspolicy/manualconnsettingspolicy.cpp
     connsettingspolicy/manualconnsettingspolicy.h
+    ctrldmanager.cpp
+    ctrldmanager.h
     finishactiveconnections.cpp
     finishactiveconnections.h
     iconnection.h

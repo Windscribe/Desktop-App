@@ -48,14 +48,15 @@ ConnectionManager::ConnectionManager(QObject *parent, IHelper *helper, INetworkD
     helper_(helper),
     networkDetectionManager_(networkDetectionManager),
     customOvpnAuthCredentialsStorage_(customOvpnAuthCredentialsStorage),
-    connector_(NULL),
-    sleepEvents_(NULL),
-    stunnelManager_(NULL),
-    wstunnelManager_(NULL),
+    connector_(nullptr),
+    sleepEvents_(nullptr),
+    stunnelManager_(nullptr),
+    wstunnelManager_(nullptr),
+    ctrldManager_(nullptr),
     bEmitAuthError_(false),
-    makeOVPNFile_(NULL),
-    makeOVPNFileFromCustom_(NULL),
-    testVPNTunnel_(NULL),
+    makeOVPNFile_(nullptr),
+    makeOVPNFileFromCustom_(nullptr),
+    testVPNTunnel_(nullptr),
     bNeedResetTap_(false),
     bIgnoreConnectionErrorsForOpenVpn_(false),
     bWasSuccessfullyConnectionAttempt_(false),
@@ -69,14 +70,18 @@ ConnectionManager::ConnectionManager(QObject *parent, IHelper *helper, INetworkD
     connect(&connectingTimer_, &QTimer::timeout, this, &ConnectionManager::onConnectingTimeout);
 
     stunnelManager_ = new StunnelManager(this);
-    connect(stunnelManager_, SIGNAL(stunnelFinished()), SLOT(onStunnelFinishedBeforeConnection()));
+    connect(stunnelManager_, &StunnelManager::stunnelFinished, this, &ConnectionManager::onStunnelFinishedBeforeConnection);
 
     wstunnelManager_ = new WstunnelManager(this);
-    connect(wstunnelManager_, SIGNAL(wstunnelStarted()), SLOT(onWstunnelStarted()));
-    connect(wstunnelManager_, SIGNAL(wstunnelFinished()), SLOT(onWstunnelFinishedBeforeConnection()));
+    connect(wstunnelManager_, &WstunnelManager::wstunnelStarted, this, &ConnectionManager::onWstunnelStarted);
+    connect(wstunnelManager_, &WstunnelManager::wstunnelFinished, this, &ConnectionManager::onWstunnelFinishedBeforeConnection);
+
+    ctrldManager_ = new CtrldManager(this);
+    connect(ctrldManager_, &CtrldManager::ctrldFinished, this, &ConnectionManager::onCtrldFinishedBeforeConnection);
+
 
     testVPNTunnel_ = new TestVPNTunnel(this, serverAPI);
-    connect(testVPNTunnel_, SIGNAL(testsFinished(bool, QString)), SLOT(onTunnelTestsFinished(bool, QString)));
+    connect(testVPNTunnel_, &TestVPNTunnel::testsFinished, this, &ConnectionManager::onTunnelTestsFinished);
 
     makeOVPNFile_ = new MakeOVPNFile();
     makeOVPNFileFromCustom_ = new MakeOVPNFileFromCustom();
@@ -87,14 +92,14 @@ ConnectionManager::ConnectionManager(QObject *parent, IHelper *helper, INetworkD
     sleepEvents_ = new SleepEvents_mac(this);
 #endif
 
-    connect(networkDetectionManager_, SIGNAL(onlineStateChanged(bool)), SLOT(onNetworkOnlineStateChanged(bool)));
+    connect(networkDetectionManager_, &INetworkDetectionManager::onlineStateChanged, this, &ConnectionManager::onNetworkOnlineStateChanged);
 
 #if defined(Q_OS_WIN) || defined(Q_OS_MAC)
     connect(sleepEvents_, SIGNAL(gotoSleep()), SLOT(onSleepMode()));
     connect(sleepEvents_, SIGNAL(gotoWake()), SLOT(onWakeMode()));
 #endif
 
-    connect(&timerWaitNetworkConnectivity_, SIGNAL(timeout()), SLOT(onTimerWaitNetworkConnectivity()));
+    connect(&timerWaitNetworkConnectivity_, &QTimer::timeout, this, &ConnectionManager::onTimerWaitNetworkConnectivity);
 
     getWireGuardConfig_ = new GetWireGuardConfig(this, serverAPI);
     connect(getWireGuardConfig_, &GetWireGuardConfig::getWireGuardConfigAnswer, this, &ConnectionManager::onGetWireGuardConfigAnswer);
@@ -106,6 +111,7 @@ ConnectionManager::~ConnectionManager()
     SAFE_DELETE(connector_);
     SAFE_DELETE(stunnelManager_);
     SAFE_DELETE(wstunnelManager_);
+    SAFE_DELETE(ctrldManager_);
     SAFE_DELETE(makeOVPNFile_);
     SAFE_DELETE(makeOVPNFileFromCustom_);
     SAFE_DELETE(sleepEvents_);
@@ -207,6 +213,7 @@ void ConnectionManager::blockingDisconnect()
             doMacRestoreProcedures();
             stunnelManager_->killProcess();
             wstunnelManager_->killProcess();
+            ctrldManager_->killProcess();
 
             if (!connSettingsPolicy_.isNull())
             {
@@ -311,7 +318,7 @@ void ConnectionManager::onConnectionConnected(const AdapterGatewayInfo &connecti
     // override the DNS if we are using custom
     if (connectedDnsInfo_.type_ == CONNECTED_DNS_TYPE_CUSTOM)
     {
-        QString customDnsIp = connectedDnsInfo_.upStream1_;
+        QString customDnsIp = ctrldManager_->listenIp();
         vpnAdapterInfo_.setDnsServers(QStringList() << customDnsIp);
         qCDebug(LOG_CONNECTION) << "Custom DNS detected, will override with: " << customDnsIp;
     }
@@ -343,6 +350,7 @@ void ConnectionManager::onConnectionDisconnected()
     doMacRestoreProcedures();
     stunnelManager_->killProcess();
     wstunnelManager_->killProcess();
+    ctrldManager_->killProcess();
     timerWaitNetworkConnectivity_.stop();
     connectingTimer_.stop();
 
@@ -830,31 +838,32 @@ void ConnectionManager::onStunnelFinishedBeforeConnection()
 {
     state_ = STATE_AUTO_DISCONNECT;
     if (connector_)
-    {
         connector_->startDisconnect();
-    }
     else
-    {
         onConnectionDisconnected();
-    }
 }
 
 void ConnectionManager::onWstunnelFinishedBeforeConnection()
 {
     state_ = STATE_AUTO_DISCONNECT;
     if (connector_)
-    {
         connector_->startDisconnect();
-    }
     else
-    {
         onConnectionDisconnected();
-    }
 }
 
 void ConnectionManager::onWstunnelStarted()
 {
     doConnectPart3();
+}
+
+void ConnectionManager::onCtrldFinishedBeforeConnection()
+{
+    state_ = STATE_AUTO_DISCONNECT;
+    if (connector_)
+        connector_->startDisconnect();
+    else
+        onConnectionDisconnected();
 }
 
 void ConnectionManager::doConnect()
@@ -904,6 +913,23 @@ void ConnectionManager::doConnectPart2()
         return;
     }
 
+    // start ctrld utility
+    if (connectedDnsInfo_.type_ == CONNECTED_DNS_TYPE_CUSTOM) {
+        bool bStarted = false;
+        if (connectedDnsInfo_.isSplitDns_)
+            bStarted = ctrldManager_->runProcess(connectedDnsInfo_.upStream1_, connectedDnsInfo_.upStream2_, connectedDnsInfo_.hostnames_);
+        else
+            bStarted = ctrldManager_->runProcess(connectedDnsInfo_.upStream1_, QString(), QStringList());
+
+        if (!bStarted) {
+            state_ = STATE_DISCONNECTED;
+            timerReconnection_.stop();
+            Q_EMIT errorDuringConnection(CONNECT_ERROR::CTRLD_START_FAILED);
+            return;
+        }
+    }
+
+
     if (currentConnectionDescr_.connectionNodeType == CONNECTION_NODE_DEFAULT ||
             currentConnectionDescr_.connectionNodeType == CONNECTION_NODE_STATIC_IPS)
     {
@@ -948,10 +974,9 @@ void ConnectionManager::doConnectPart2()
             uint portForStunnelOrWStunnel = currentConnectionDescr_.protocol.isStunnelOrWStunnelProtocol() ?
                         (currentConnectionDescr_.protocol == types::Protocol::STUNNEL ? stunnelManager_->getStunnelPort() : wstunnelManager_->getPort()) : 0;
 
-            const bool blockOutsideDnsOption = !IpValidation::isLocalIp(getCustomDnsIp());
             const bool bOvpnSuccess = makeOVPNFile_->generate(lastOvpnConfig_, currentConnectionDescr_.ip, currentConnectionDescr_.protocol,
                                                         currentConnectionDescr_.port, portForStunnelOrWStunnel, mss, defaultAdapterInfo_.gateway(),
-                                                        currentConnectionDescr_.verifyX509name, blockOutsideDnsOption);
+                                                        currentConnectionDescr_.verifyX509name, connectedDnsInfo_.type_ == CONNECTED_DNS_TYPE_ROBERT);
             if (!bOvpnSuccess )
             {
                 qCDebug(LOG_CONNECTION) << "Failed create ovpn config";
@@ -1469,11 +1494,6 @@ void ConnectionManager::connectOrStartConnectTimer()
     } else {
         doConnect();
     }
-}
-
-QString ConnectionManager::getCustomDnsIp() const
-{
-    return connectedDnsInfo_.upStream1_;
 }
 
 void ConnectionManager::onConnectTrigger()
