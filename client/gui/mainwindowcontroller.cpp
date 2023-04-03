@@ -36,7 +36,7 @@
 
 MainWindowController::MainWindowController(QWidget *parent, LocationsWindow *locationsWindow, PreferencesHelper *preferencesHelper,
                                            Preferences *preferences, AccountInfo *accountInfo) : QObject(parent),
-    curWindow_(WINDOW_ID_UNITIALIZED),
+    curWindow_(WINDOW_ID_UNINITIALIZED),
     mainWindow_(parent),
     preferences_(preferences),
     preferencesHelper_(preferencesHelper),
@@ -464,7 +464,9 @@ void MainWindowController::changeWindow(MainWindowController::WINDOW_ID windowId
     } else if (windowId == WINDOW_ID_LOGGING_IN) {
         gotoLoggingInWindow();
     } else if (windowId == WINDOW_ID_CONNECT) {
-        gotoConnectWindow();
+        gotoConnectWindow(false);
+    } else if (windowId == WINDOW_ID_CONNECT_PREFERENCES) {
+        gotoConnectWindow(true);
     } else if (windowId == WINDOW_ID_EXTERNAL_CONFIG) {
         gotoExternalConfigWindow();
     } else if (windowId == WINDOW_ID_TWO_FACTOR_AUTH) {
@@ -858,6 +860,7 @@ void MainWindowController::gotoInitializationWindow()
     twoFactorAuthWindow_->getGraphicsObject()->setVisible(false);
     newsFeedWindow_->getGraphicsObject()->setVisible(false);
     protocolWindow_->getGraphicsObject()->setVisible(false);
+    generalMessageWindow_->getGraphicsObject()->setVisible(false);
     exitWindow_->getGraphicsObject()->setVisible(false);
     logoutWindow_->getGraphicsObject()->setVisible(false);
 
@@ -886,12 +889,13 @@ void MainWindowController::gotoInitializationWindow()
 void MainWindowController::gotoLoginWindow()
 {
     // qDebug() << "gotoLoginWindow()";
-    WS_ASSERT(curWindow_ == WINDOW_ID_UNITIALIZED
+    WS_ASSERT(curWindow_ == WINDOW_ID_UNINITIALIZED
              || curWindow_ == WINDOW_ID_INITIALIZATION
              || curWindow_ == WINDOW_ID_EMERGENCY
              || curWindow_ == WINDOW_ID_LOGGING_IN
              || curWindow_ == WINDOW_ID_CONNECT
              || curWindow_ == WINDOW_ID_EXTERNAL_CONFIG
+             || curWindow_ == WINDOW_ID_GENERAL_MESSAGE
              || curWindow_ == WINDOW_ID_TWO_FACTOR_AUTH
              || curWindow_ == WINDOW_ID_UPDATE
              || curWindow_ == WINDOW_ID_UPGRADE
@@ -1068,6 +1072,34 @@ void MainWindowController::gotoLoginWindow()
 
         isAtomicAnimationActive_ = true;
         anim->start(QPropertyAnimation::DeleteWhenStopped);
+    } else if (curWindow_ == WINDOW_ID_GENERAL_MESSAGE) {
+        // qDebug() << "General -> Login";
+        curWindow_ = WINDOW_ID_LOGIN;
+
+        generalMessageWindow_->getGraphicsObject()->stackBefore(loginWindow_->getGraphicsObject());
+        shadowManager_->setVisible(ShadowManager::SHAPE_ID_GENERAL_MESSAGE, false);
+
+        loginWindow_->getGraphicsObject()->setOpacity(0.0);
+        loginWindow_->getGraphicsObject()->setVisible(true);
+        loggingInWindow_->getGraphicsObject()->setVisible(false);
+
+        QPropertyAnimation *anim = new QPropertyAnimation(this);
+        anim->setTargetObject(loginWindow_->getGraphicsObject());
+        anim->setPropertyName("opacity");
+        anim->setStartValue(0.0);
+        anim->setEndValue(1.0);
+        anim->setDuration(SCREEN_SWITCH_OPACITY_ANIMATION_DURATION);
+
+        connect(anim, &QPropertyAnimation::finished, [this]() {
+            generalMessageWindow_->getGraphicsObject()->setVisible(false);
+            loginWindow_->setClickable(true);
+            loginWindow_->getGraphicsObject()->setFocus();
+            isAtomicAnimationActive_ = false;
+            handleNextWindowChange();
+        });
+
+        isAtomicAnimationActive_ = true;
+        anim->start(QPropertyAnimation::DeleteWhenStopped);
     } else if (curWindow_ == WINDOW_ID_CONNECT || curWindow_ == WINDOW_ID_UPDATE || curWindow_ == WINDOW_ID_UPGRADE || curWindow_ == WINDOW_ID_LOGOUT) {
         // qDebug() << "Other -> Login";
         if (curWindow_ == WINDOW_ID_LOGOUT) {
@@ -1147,6 +1179,7 @@ void MainWindowController::gotoLoggingInWindow()
 {
     WS_ASSERT(curWindow_ == WINDOW_ID_LOGIN
              || curWindow_ == WINDOW_ID_INITIALIZATION
+             || curWindow_ == WINDOW_ID_GENERAL_MESSAGE
              || curWindow_ == WINDOW_ID_EXTERNAL_CONFIG
              || curWindow_ == WINDOW_ID_TWO_FACTOR_AUTH);
 
@@ -1243,6 +1276,28 @@ void MainWindowController::gotoLoggingInWindow()
 
         isAtomicAnimationActive_ = true;
         anim->start(QPropertyAnimation::DeleteWhenStopped);
+    } else if (curWindow_ == WINDOW_ID_GENERAL_MESSAGE) {
+        curWindow_ = WINDOW_ID_LOGGING_IN;
+        generalMessageWindow_->getGraphicsObject()->stackBefore(loggingInWindow_->getGraphicsObject());
+
+        loggingInWindow_->getGraphicsObject()->setOpacity(0.0);
+        loggingInWindow_->getGraphicsObject()->setVisible(true);
+        loggingInWindow_->startAnimation();
+
+        QPropertyAnimation *anim = new QPropertyAnimation(this);
+        anim->setTargetObject(generalMessageWindow_->getGraphicsObject());
+        anim->setPropertyName("opacity");
+        anim->setStartValue(0.0);
+        anim->setEndValue(1.0);
+        anim->setDuration(SCREEN_SWITCH_OPACITY_ANIMATION_DURATION);
+        connect(anim, &QPropertyAnimation::finished, [this]() {
+            generalMessageWindow_->getGraphicsObject()->setVisible(false);
+            isAtomicAnimationActive_ = false;
+            handleNextWindowChange();
+        });
+
+        isAtomicAnimationActive_ = true;
+        anim->start(QPropertyAnimation::DeleteWhenStopped);
     }
 }
 
@@ -1294,7 +1349,7 @@ void MainWindowController::updateNativeShadowIfNeeded()
 }
 #endif
 
-void MainWindowController::gotoConnectWindow()
+void MainWindowController::gotoConnectWindow(bool expandPrefs)
 {
     // qDebug() << "gotoConnectWindow()";
     WS_ASSERT(curWindow_ == WINDOW_ID_LOGGING_IN
@@ -1482,22 +1537,27 @@ void MainWindowController::gotoConnectWindow()
         anim->setEndValue(0.0);
         anim->setDuration(SCREEN_SWITCH_OPACITY_ANIMATION_DURATION);
 
-        connect(anim, &QPropertyAnimation::finished, [this]() {
+        connect(anim, &QPropertyAnimation::finished, [this, expandPrefs]() {
             generalMessageWindow_->getGraphicsObject()->hide();
             connectWindow_->setClickable(true);
             bottomInfoWindow_->setClickable(true);
 
-            if (bottomInfoWindow_->getGraphicsObject()->isVisible()) {
-                std::function<void()> finish_function = [this](){
-                    isAtomicAnimationActive_ = false;
-                    updateBottomInfoWindowVisibilityAndPos();
-                    handleNextWindowChange();
-                };
-
-                animateBottomInfoWindow(QAbstractAnimation::Backward, finish_function);
+            if (expandPrefs) {
+                bottomInfoWindow_->getGraphicsObject()->setVisible(false);
+                expandWindow(preferencesWindow_);
             } else {
-                isAtomicAnimationActive_ = false;
-                handleNextWindowChange();
+                if (bottomInfoWindow_->getGraphicsObject()->isVisible()) {
+                    std::function<void()> finish_function = [this](){
+                        isAtomicAnimationActive_ = false;
+                        updateBottomInfoWindowVisibilityAndPos();
+                        handleNextWindowChange();
+                    };
+
+                    animateBottomInfoWindow(QAbstractAnimation::Backward, finish_function);
+                } else {
+                    isAtomicAnimationActive_ = false;
+                    handleNextWindowChange();
+                }
             }
         });
 
@@ -1802,48 +1862,53 @@ void MainWindowController::gotoUpgradeWindow()
 
 void MainWindowController::gotoGeneralMessageWindow()
 {
-    WS_ASSERT(curWindow_ == WINDOW_ID_CONNECT || curWindow_ == WINDOW_ID_UPDATE);
+    WS_ASSERT(curWindow_ == WINDOW_ID_INITIALIZATION ||
+              curWindow_ == WINDOW_ID_LOGIN ||
+              curWindow_ == WINDOW_ID_LOGGING_IN ||
+              curWindow_ == WINDOW_ID_CONNECT ||
+              curWindow_ == WINDOW_ID_UPDATE);
 
     isAtomicAnimationActive_ = true;
     WINDOW_ID saveCurWindow = curWindow_;
-    curWindow_ = WINDOW_ID_GENERAL_MESSAGE;
-    updateMaskForGraphicsView();
-    shadowManager_->setVisible(ShadowManager::SHAPE_ID_CONNECT_WINDOW, false);
-    shadowManager_->setVisible(ShadowManager::SHAPE_ID_GENERAL_MESSAGE, true);
 
-    if (preferences_->appSkin() == APP_SKIN_VAN_GOGH) {
+    if (curWindow_ == WINDOW_ID_INITIALIZATION || curWindow_ == WINDOW_ID_LOGGING_IN || curWindow_ == WINDOW_ID_LOGIN) {
+        generalMessageWindow_->setBackgroundShape(IGeneralMessageWindow::kLoginScreenShape);
+    } else if (preferences_->appSkin() == APP_SKIN_VAN_GOGH) {
         generalMessageWindow_->setBackgroundShape(IGeneralMessageWindow::kConnectScreenVanGoghShape);
     } else {
         generalMessageWindow_->setBackgroundShape(IGeneralMessageWindow::kConnectScreenAlphaShape);
     }
 
     TooltipController::instance().hideAllTooltips();
-    if (saveCurWindow == WINDOW_ID_CONNECT) {
+    if (curWindow_ == WINDOW_ID_CONNECT) {
         connectWindow_->setClickable(false);
-    } else if (saveCurWindow == WINDOW_ID_UPDATE) {
+        bottomInfoWindow_->setClickable(false);
+    } else if (curWindow_ == WINDOW_ID_UPDATE) {
         updateWindow_->setClickable(false);
-    } else {
-        WS_ASSERT(false);
+    } else if (curWindow_ == WINDOW_ID_LOGIN) {
+        loginWindow_->setClickable(false);
     }
 
-    bottomInfoWindow_->setClickable(false);
+    curWindow_ = WINDOW_ID_GENERAL_MESSAGE;
+    updateMaskForGraphicsView();
+    shadowManager_->setVisible(ShadowManager::SHAPE_ID_CONNECT_WINDOW, false);
+    shadowManager_->setVisible(ShadowManager::SHAPE_ID_GENERAL_MESSAGE, true);
 
     functionOnAnimationFinished_ = [this, saveCurWindow]() {
         generalMessageWindow_->getGraphicsObject()->setOpacity(0.0);
-        if (saveCurWindow == WINDOW_ID_CONNECT) {
-            connectWindow_->getGraphicsObject()->stackBefore(generalMessageWindow_->getGraphicsObject());
-        } else if (saveCurWindow == WINDOW_ID_UPDATE) {
-            updateWindow_->getGraphicsObject()->stackBefore(generalMessageWindow_->getGraphicsObject());
-        } else {
-            WS_ASSERT(false);
-        }
+        preferencesWindow_->getGraphicsObject()->stackBefore(generalMessageWindow_->getGraphicsObject());
+        connectWindow_->getGraphicsObject()->stackBefore(generalMessageWindow_->getGraphicsObject());
+        updateWindow_->getGraphicsObject()->stackBefore(generalMessageWindow_->getGraphicsObject());
+        loginWindow_->getGraphicsObject()->stackBefore(generalMessageWindow_->getGraphicsObject());
+        initWindow_->getGraphicsObject()->stackBefore(generalMessageWindow_->getGraphicsObject());
+        loggingInWindow_->getGraphicsObject()->stackBefore(generalMessageWindow_->getGraphicsObject());
         generalMessageWindow_->getGraphicsObject()->show();
 
         QPropertyAnimation *anim = new QPropertyAnimation(this);
         anim->setTargetObject(generalMessageWindow_->getGraphicsObject());
         anim->setPropertyName("opacity");
         anim->setStartValue(generalMessageWindow_->getGraphicsObject()->opacity());
-        anim->setEndValue(0.96);
+        anim->setEndValue(1.0);
         anim->setDuration(SCREEN_SWITCH_OPACITY_ANIMATION_DURATION);
 
         connect(anim, &QPropertyAnimation::finished, [this]() {
@@ -1855,6 +1920,7 @@ void MainWindowController::gotoGeneralMessageWindow()
         anim->start(QPropertyAnimation::DeleteWhenStopped);
     };
 
+    updateMainAndViewGeometry(false);
     collapseAllExpandedOnBottom();
 }
 
@@ -1868,13 +1934,15 @@ void MainWindowController::gotoExitWindow(bool isLogout)
 
     windowBeforeExit_ = curWindow_;
     IGeneralMessageWindow *win = (isLogout ? logoutWindow_ : exitWindow_);
-    shadowManager_->setVisible(ShadowManager::SHAPE_ID_EXIT, true);
 
     if (curWindow_ == WINDOW_ID_CONNECT) {
         win->setHeight(connectWindow_->getGraphicsObject()->boundingRect().height());
         if (preferences_->appSkin() == APP_SKIN_VAN_GOGH) {
             win->setBackgroundShape(IGeneralMessageWindow::kConnectScreenVanGoghShape);
         } else {
+            // this is only needed for Alpha; in Van Gogh mode the exit window is the
+            // same shape & size as the connect window and the connect shadow suffices
+            shadowManager_->setVisible(ShadowManager::SHAPE_ID_EXIT, true);
             win->setBackgroundShape(IGeneralMessageWindow::kConnectScreenAlphaShape);
         }
         TooltipController::instance().hideAllTooltips();
@@ -2159,6 +2227,7 @@ void MainWindowController::expandPreferencesFromLogin()
                                             QRect(0, childWindowShadowOffsetY(true),
                                                   preferencesWindow_->getGraphicsObject()->boundingRect().width(),
                                                   preferencesWindow_->getGraphicsObject()->boundingRect().height() - childWindowShadowOffsetY(false)));
+        preferencesWindow_->setScrollPos(windowSizeManager_->scrollPos(preferencesWindow_));
         invalidateShadow_mac();
 
         isAtomicAnimationActive_ = false;
@@ -2268,6 +2337,7 @@ void MainWindowController::expandWindow(ResizableWindow *window)
             if (window == newsFeedWindow_) {
                 newsFeedWindow_->updateRead();
             }
+            window->setScrollPos(windowSizeManager_->scrollPos(window));
 
             shadowManager_->setVisible(windowSizeManager_->shapeId(window), true);
             shadowManager_->changeRectangleSize(windowSizeManager_->shapeId(window),
@@ -2332,6 +2402,7 @@ void MainWindowController::collapsePreferencesFromLogin()
     preferencesWindow_->setScrollBarVisibility(false);
     TooltipController::instance().hideAllTooltips();
 
+    windowSizeManager_->setScrollPos(preferencesWindow_, preferencesWindow_->scrollPos());
     windowSizeManager_->setState(preferencesWindow_, WindowSizeManager::kWindowAnimating);
     loginWindow_->getGraphicsObject()->show();
 
@@ -2414,6 +2485,7 @@ void MainWindowController::collapseWindow(ResizableWindow *window, bool bSkipBot
     window->setScrollBarVisibility(false);
     TooltipController::instance().hideAllTooltips();
 
+    windowSizeManager_->setScrollPos(window, window->scrollPos());
     windowSizeManager_->setState(window, WindowSizeManager::kWindowAnimating);
     connectWindow_->getGraphicsObject()->show();
 
@@ -2791,6 +2863,8 @@ void MainWindowController::getGraphicsRegionWidthAndHeight(int &width, int &heig
         if (windowSizeManager_->state(preferencesWindow_) == WindowSizeManager::kWindowAnimating) {
             height = preferencesWindow_->getGraphicsObject()->boundingRect().height();
         }
+    } else if (curWindow_ == WINDOW_ID_UNINITIALIZED) {
+        // nothing
     } else {
         WS_ASSERT(false);
     }
@@ -3089,20 +3163,19 @@ void MainWindowController::onAppSkinChanged(APP_SKIN s)
             scrollOffset = 0;
         }
         preferencesWindow_->setScrollOffset(scrollOffset);
+        windowSizeManager_->setScrollPos(preferencesWindow_, scrollOffset);
     }
 
     // update window heights
     if (s == APP_SKIN_VAN_GOGH) {
         updateWindow_->setHeight(connectWindow_->getGraphicsObject()->boundingRect().height()/G_SCALE);
         upgradeAccountWindow_->setHeight(connectWindow_->getGraphicsObject()->boundingRect().height()/G_SCALE);
-        generalMessageWindow_->setHeight(connectWindow_->getGraphicsObject()->boundingRect().height()/G_SCALE);
     } else {
         updateWindow_->setHeight(WINDOW_HEIGHT);
         upgradeAccountWindow_->setHeight(WINDOW_HEIGHT);
-        generalMessageWindow_->setHeight(WINDOW_HEIGHT);
     }
 
-    if (curWindow_ != WINDOW_ID_UNITIALIZED) {
+    if (curWindow_ != WINDOW_ID_UNINITIALIZED) {
         updateMainAndViewGeometry(true);
         updateLocationsWindowAndTabGeometryStatic();
         updateBottomInfoWindowVisibilityAndPos();
@@ -3127,7 +3200,7 @@ void MainWindowController::onVanGoghAnimationProgressChanged(QVariant value)
 
 void MainWindowController::onVanGoghAnimationFinished()
 {
-    if (curWindow_ != WINDOW_ID_UNITIALIZED) {
+    if (curWindow_ != WINDOW_ID_UNINITIALIZED) {
         updateMainAndViewGeometry(true);
         updateLocationsWindowAndTabGeometryStatic();
         updateBottomInfoWindowVisibilityAndPos();

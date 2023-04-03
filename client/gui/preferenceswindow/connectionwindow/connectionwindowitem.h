@@ -5,7 +5,7 @@
 #include "backend/preferences/preferences.h"
 #include "backend/preferences/preferenceshelper.h"
 #include "commongraphics/basepage.h"
-#include "preferenceswindow/checkboxitem.h"
+#include "preferenceswindow/toggleitem.h"
 #include "preferenceswindow/linkitem.h"
 #include "preferenceswindow/protocolgroup.h"
 #include "connecteddnsgroup.h"
@@ -97,11 +97,11 @@ private:
     MacSpoofingGroup *macSpoofingGroup_;
     PreferenceGroup *allowLanTrafficGroup_;
     PreferenceGroup *autoConnectGroup_;
-    CheckBoxItem *checkBoxAutoConnect_;
-    CheckBoxItem *checkBoxAllowLanTraffic_;
+    ToggleItem *checkBoxAutoConnect_;
+    ToggleItem *checkBoxAllowLanTraffic_;
     ConnectedDnsGroup *connectedDnsGroup_;
     PreferenceGroup *terminateSocketsGroup_;
-    CheckBoxItem *terminateSocketsItem_;
+    ToggleItem *terminateSocketsItem_;
     SecureHotspotGroup *secureHotspotGroup_;
     ProxyGatewayGroup *proxyGatewayGroup_;
 

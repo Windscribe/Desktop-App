@@ -4,7 +4,7 @@
 #include "commongraphics/basepage.h"
 #include "backend/preferences/preferenceshelper.h"
 #include "backend/preferences/preferences.h"
-#include "preferenceswindow/checkboxitem.h"
+#include "preferenceswindow/toggleitem.h"
 #include "preferenceswindow/comboboxitem.h"
 #include "preferenceswindow/preferencegroup.h"
 #include "backgroundsettingsgroup.h"
@@ -79,23 +79,23 @@ private:
     PreferencesHelper *preferencesHelper_;
 
     PreferenceGroup *launchOnStartGroup_;
-    CheckBoxItem *checkBoxLaunchOnStart_;
+    ToggleItem *checkBoxLaunchOnStart_;
     PreferenceGroup *showNotificationsGroup_;
-    CheckBoxItem *checkBoxShowNotifications_;
+    ToggleItem *checkBoxShowNotifications_;
     BackgroundSettingsGroup *backgroundSettingsGroup_;
     PreferenceGroup *dockedGroup_;
-    CheckBoxItem *checkBoxDockedToTray_;
+    ToggleItem *checkBoxDockedToTray_;
     PreferenceGroup *startMinimizedGroup_;
-    CheckBoxItem *checkBoxStartMinimized_;
+    ToggleItem *checkBoxStartMinimized_;
     PreferenceGroup *showLocationLoadGroup_;
-    CheckBoxItem *checkBoxShowLocationLoad_;
+    ToggleItem *checkBoxShowLocationLoad_;
 
 #if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     PreferenceGroup *closeToTrayGroup_;
-    CheckBoxItem *checkBoxMinimizeAndCloseToTray_;
+    ToggleItem *checkBoxMinimizeAndCloseToTray_;
 #elif defined Q_OS_MAC
     PreferenceGroup *hideFromDockGroup_;
-    CheckBoxItem *checkBoxHideFromDock_;
+    ToggleItem *checkBoxHideFromDock_;
 #endif
 
     PreferenceGroup *appSkinGroup_;

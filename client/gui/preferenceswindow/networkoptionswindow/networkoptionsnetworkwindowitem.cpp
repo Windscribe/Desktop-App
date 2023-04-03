@@ -14,9 +14,9 @@ NetworkOptionsNetworkWindowItem::NetworkOptionsNetworkWindowItem(ScalableGraphic
     setSpacerHeight(PREFERENCES_MARGIN);
 
     autoSecureGroup_ = new PreferenceGroup(this);
-    autoSecureCheckBox_ = new CheckBoxItem(autoSecureGroup_);
+    autoSecureCheckBox_ = new ToggleItem(autoSecureGroup_);
     autoSecureCheckBox_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/AUTOSECURE"));
-    connect(autoSecureCheckBox_, &CheckBoxItem::stateChanged, this, &NetworkOptionsNetworkWindowItem::onAutoSecureChanged);
+    connect(autoSecureCheckBox_, &ToggleItem::stateChanged, this, &NetworkOptionsNetworkWindowItem::onAutoSecureChanged);
     autoSecureGroup_->addItem(autoSecureCheckBox_);
     addItem(autoSecureGroup_);
 

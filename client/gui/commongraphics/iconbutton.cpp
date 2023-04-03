@@ -125,10 +125,20 @@ void IconButton::updateScaling()
 
 void IconButton::onHoverEnter()
 {
+    hover();
+}
+
+void IconButton::hover()
+{
     startAnAnimation<double>(imageOpacityAnimation_, curOpacity_, hoverOpacity_, ANIMATION_SPEED_FAST);
 }
 
 void IconButton::onHoverLeave()
+{
+    unhover();
+}
+
+void IconButton::unhover()
 {
     if (!selected_)
     {

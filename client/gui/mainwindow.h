@@ -2,9 +2,9 @@
 #define MAINWINDOW_H
 
 #include <QWidget>
-#include <QMessageBox>
 #include <QSystemTrayIcon>
 #include <QWidgetAction>
+#include "generalmessagecontroller.h"
 #include "mainwindowcontroller.h"
 
 #include "locationswindow/locationswindow.h"
@@ -146,9 +146,6 @@ private slots:
     void onUpgradeAccountAccept();
     void onUpgradeAccountCancel();
 
-    // general window signals
-    void onGeneralMessageWindowAccept();
-
     // logout & exit window signals
     void onLogoutWindowAccept();
     void onExitWindowAccept();
@@ -224,7 +221,6 @@ private slots:
     void onPreferencesUpdateChannelChanged(UPDATE_CHANNEL updateChannel);
     void onPreferencesGetRobertFilters();
     void onPreferencesSetRobertFilter(const types::RobertFilter &filter);
-
     void onPreferencesReportErrorToUser(const QString &title, const QString &desc);
 
     void onPreferencesCollapsed();
@@ -264,7 +260,6 @@ private slots:
     void onLocationsTrayMenuLocationSelected(const LocationID &lid);
 
     void onFreeTrafficNotification(const QString &message);
-    void onNativeInfoErrorMessage(QString title, QString desc);
     void onSplitTunnelingAppsAddButtonClick();
     void onRevealConnectStateChanged(bool revealingConnect);
 
@@ -284,8 +279,6 @@ private slots:
     // Selected location signals
     void onSelectedLocationChanged();
     void onSelectedLocationRemoved();
-
-    void onMsgBoxClicked(QAbstractButton *button);
 
 private:
     void gotoLoginWindow();
@@ -368,10 +361,7 @@ private:
     bool revealingConnectWindow_;
     bool internetConnected_;
 
-    bool currentlyShowingUserWarningMessage_;
     QSet<USER_WARNING_TYPE> alreadyShownWarnings_;
-
-    bool bGotoUpdateWindowAfterGeneralMessage_;
 
     types::NetworkInterface curNetwork_;
 
@@ -423,8 +413,6 @@ private:
 
     types::Protocol getDefaultProtocolForNetwork(const QString &network);
     bool userProtocolOverride_;
-
-    QMessageBox *tunnelTestMsgBox_;
 };
 
 #endif // MAINWINDOW_H

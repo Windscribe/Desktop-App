@@ -1,4 +1,4 @@
-#include "checkboxbutton.h"
+#include "togglebutton.h"
 
 #include <QGraphicsSceneMouseEvent>
 #include <QPainter>
@@ -9,12 +9,12 @@
 
 namespace PreferencesWindow {
 
-CheckBoxButton::CheckBoxButton(ScalableGraphicsObject *parent) : ClickableGraphicsObject(parent),
+ToggleButton::ToggleButton(ScalableGraphicsObject *parent) : ClickableGraphicsObject(parent),
     animationProgress_(0.0), isChecked_(false), enabled_(true)
 {
     setAcceptHoverEvents(true);
 
-    connect(&opacityAnimation_, &QVariantAnimation::valueChanged, this, &CheckBoxButton::onOpacityChanged);
+    connect(&opacityAnimation_, &QVariantAnimation::valueChanged, this, &ToggleButton::onOpacityChanged);
     opacityAnimation_.setStartValue(0.0);
     opacityAnimation_.setEndValue(1.0);
     opacityAnimation_.setDuration(150);
@@ -22,12 +22,12 @@ CheckBoxButton::CheckBoxButton(ScalableGraphicsObject *parent) : ClickableGraphi
     setClickable(true);
 }
 
-QRectF CheckBoxButton::boundingRect() const
+QRectF ToggleButton::boundingRect() const
 {
     return QRectF(0, 0, 40*G_SCALE, 22*G_SCALE);
 }
 
-void CheckBoxButton::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+void ToggleButton::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
     Q_UNUSED(option);
     Q_UNUSED(widget);
@@ -55,7 +55,7 @@ void CheckBoxButton::paint(QPainter *painter, const QStyleOptionGraphicsItem *op
     painter->drawEllipse(QRectF(curW, boundingRect().height()/2 - BUTTON_HEIGHT/2*G_SCALE, BUTTON_WIDTH*G_SCALE, BUTTON_HEIGHT*G_SCALE));
 }
 
-void CheckBoxButton::setState(bool isChecked)
+void ToggleButton::setState(bool isChecked)
 {
     if (isChecked != isChecked_)
     {
@@ -72,12 +72,12 @@ void CheckBoxButton::setState(bool isChecked)
     }
 }
 
-bool CheckBoxButton::isChecked() const
+bool ToggleButton::isChecked() const
 {
     return isChecked_;
 }
 
-void CheckBoxButton::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
+void ToggleButton::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton)
     {
@@ -110,27 +110,27 @@ void CheckBoxButton::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
     }
 }
 
-void CheckBoxButton::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
+void ToggleButton::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
 {
     Q_UNUSED(event);
     setCursor(Qt::PointingHandCursor);
     emit hoverEnter();
 }
 
-void CheckBoxButton::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
+void ToggleButton::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
 {
     Q_UNUSED(event);
     setCursor(Qt::ArrowCursor);
     emit hoverLeave();
 }
 
-void CheckBoxButton::onOpacityChanged(const QVariant &value)
+void ToggleButton::onOpacityChanged(const QVariant &value)
 {
     animationProgress_ = value.toDouble();
     update();
 }
 
-void CheckBoxButton::setEnabled(bool enabled)
+void ToggleButton::setEnabled(bool enabled)
 {
     ClickableGraphicsObject::setEnabled(enabled);
     enabled_ = enabled;

@@ -1,5 +1,4 @@
-#ifndef ICONBUTTON_H
-#define ICONBUTTON_H
+#pragma once
 
 #include <QGraphicsObject>
 #include <QGraphicsPixmapItem>
@@ -31,6 +30,9 @@ public:
 
     void setTintColor(const QColor &color);
 
+    void hover();
+    void unhover();
+
 private slots:
     void onHoverEnter();
     void onHoverLeave();
@@ -52,6 +54,3 @@ private:
 
     QColor tintColor_;
 };
-
-
-#endif // ICONBUTTON_H

@@ -11,9 +11,9 @@ ProxyGatewayGroup::ProxyGatewayGroup(ScalableGraphicsObject *parent, const QStri
 {
     setFlags(flags() | QGraphicsItem::ItemClipsChildrenToShape | QGraphicsItem::ItemIsFocusable);
 
-    checkBoxEnable_ = new CheckBoxItem(this);
+    checkBoxEnable_ = new ToggleItem(this);
     checkBoxEnable_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/PROXY_GATEWAY"));
-    connect(checkBoxEnable_, &CheckBoxItem::stateChanged, this, &ProxyGatewayGroup::onCheckBoxStateChanged);
+    connect(checkBoxEnable_, &ToggleItem::stateChanged, this, &ProxyGatewayGroup::onCheckBoxStateChanged);
     addItem(checkBoxEnable_);
 
     comboBoxProxyType_ = new ComboBoxItem(this);

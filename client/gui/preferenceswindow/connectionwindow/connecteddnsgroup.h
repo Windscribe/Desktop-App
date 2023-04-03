@@ -2,7 +2,7 @@
 #define CONNECTEDDNSITEM_H
 
 #include "preferenceswindow/comboboxitem.h"
-#include "preferenceswindow/checkboxitem.h"
+#include "preferenceswindow/toggleitem.h"
 #include "preferenceswindow/verticaleditboxitem.h"
 #include "preferenceswindow/linkitem.h"
 #include "preferenceswindow/preferencegroup.h"
@@ -44,7 +44,7 @@ private:
     ComboBoxItem *comboBoxDns_;
     VerticalEditBoxItem *editBoxUpstream1_;
     VerticalEditBoxItem *editBoxUpstream2_;
-    CheckBoxItem *splitDnsCheckBox_;
+    ToggleItem *splitDnsCheckBox_;
     LinkItem *domainsItem_;
 
     types::ConnectedDnsInfo settings_;

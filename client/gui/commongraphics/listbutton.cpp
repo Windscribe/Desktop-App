@@ -75,6 +75,8 @@ void ListButton::setText(const QString &text)
         bubbleButton_->setText(text);
         bubbleButton_->setWidth(width/G_SCALE + 48);
     }
+    text_ = text;
+    updatePositions();
 }
 
 void ListButton::hover() {

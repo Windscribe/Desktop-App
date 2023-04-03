@@ -17,10 +17,10 @@ NetworkOptionsWindowItem::NetworkOptionsWindowItem(ScalableGraphicsObject *paren
     addItem(desc_);
 
     autosecureGroup_ = new PreferenceGroup(this);
-    autosecureCheckbox_ = new CheckBoxItem(autosecureGroup_);
+    autosecureCheckbox_ = new ToggleItem(autosecureGroup_);
     autosecureCheckbox_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/AUTOSECURE_NETWORKS"));
     autosecureCheckbox_->setState(preferences->isAutoSecureNetworks());
-    connect(autosecureCheckbox_, &CheckBoxItem::stateChanged, this, &NetworkOptionsWindowItem::onAutoSecureChanged);
+    connect(autosecureCheckbox_, &ToggleItem::stateChanged, this, &NetworkOptionsWindowItem::onAutoSecureChanged);
     autosecureGroup_->addItem(autosecureCheckbox_);
     addItem(autosecureGroup_);
 

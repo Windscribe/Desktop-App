@@ -12,7 +12,7 @@ namespace CommonGraphics {
 TextButton::TextButton(QString text, const FontDescr &fd, QColor color, bool bSetClickable, ScalableGraphicsObject *parent, int addWidth, bool bDrawWithShadow) : ClickableGraphicsObject(parent),
     text_(text), color_(color), fontDescr_(fd), width_(0), height_(0), addWidth_(addWidth), margin_(MARGIN_HEIGHT),
     curTextOpacity_(OPACITY_UNHOVER_TEXT), unhoverOpacity_(OPACITY_UNHOVER_TEXT), isHovered_(false),
-    textAlignment_(Qt::AlignLeft | Qt::AlignVCenter)
+    textAlignment_(Qt::AlignLeft | Qt::AlignVCenter), textUnderline_(false), unhoverOnClick_(true)
 {
     if (bDrawWithShadow)
     {
@@ -47,15 +47,15 @@ void TextButton::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
     qreal initialOpacity = painter->opacity();
 
     painter->setOpacity(curTextOpacity_ * initialOpacity);
-    QFont *font = FontManager::instance().getFont(fontDescr_);
+    QFont font = getFont();
 
     if (textShadow_)
     {
-        textShadow_->drawText(painter, boundingRect().toRect(), textAlignment_, text_, font, color_);
+        textShadow_->drawText(painter, boundingRect().toRect(), textAlignment_, text_, &font, color_);
     }
     else
     {
-        painter->setFont(*font);
+        painter->setFont(font);
         painter->setPen(color_);
         painter->drawText(boundingRect(), textAlignment_ , text_);
     }
@@ -69,6 +69,11 @@ double TextButton::getOpacity() const
 void TextButton::setColor(QColor color)
 {
     color_ = color;
+}
+
+void TextButton::setUnderline(bool on)
+{
+    textUnderline_ = on;
 }
 
 void TextButton::setMarginHeight(int height)
@@ -104,7 +109,9 @@ void TextButton::animateHide(int animationSpeed)
 
 QFont TextButton::getFont() const
 {
-    return *FontManager::instance().getFont(fontDescr_);
+    QFont font(*FontManager::instance().getFont(fontDescr_));
+    font.setUnderline(textUnderline_);
+    return font;
 }
 
 int TextButton::getWidth() const
@@ -148,7 +155,9 @@ void TextButton::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
                 if (contains(event->pos()))
                 {
                     setCursor(Qt::ArrowCursor);
-                    unhover();
+                    if (unhoverOnClick_) {
+                        unhover();
+                    }
                     emit clicked();
                 }
             }
@@ -206,9 +215,7 @@ void TextButton::onTextHoverOpacityChanged(const QVariant &value)
 
 void TextButton::recalcBoundingRect()
 {
-    QFont *font = FontManager::instance().getFont(fontDescr_);
-    QFontMetrics fm(*font);
-
+    QFontMetrics fm(getFont());
     prepareGeometryChange();
     width_ = fm.boundingRect(text_).width() + addWidth_*G_SCALE;
     height_ = fm.height();
@@ -218,6 +225,11 @@ void TextButton::setTextAlignment(int alignment)
 {
     textAlignment_ = alignment;
     update();
+}
+
+void TextButton::setUnhoverOnClick(bool on)
+{
+    unhoverOnClick_ = on;
 }
 
 }

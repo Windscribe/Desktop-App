@@ -1,4 +1,4 @@
-#include "checkboxitem.h"
+#include "toggleitem.h"
 
 #include <QGraphicsSceneMouseEvent>
 #include <QPainter>
@@ -10,19 +10,19 @@
 
 namespace PreferencesWindow {
 
-CheckBoxItem::CheckBoxItem(ScalableGraphicsObject *parent, const QString &caption, const QString &tooltip)
+ToggleItem::ToggleItem(ScalableGraphicsObject *parent, const QString &caption, const QString &tooltip)
   : BaseItem(parent, PREFERENCE_GROUP_ITEM_HEIGHT*G_SCALE), strCaption_(caption), strTooltip_(tooltip),
     captionFont_(12, true), icon_(nullptr)
 {
-    checkBoxButton_ = new CheckBoxButton(this);
-    connect(checkBoxButton_, &CheckBoxButton::stateChanged, this, &CheckBoxItem::stateChanged);
-    connect(checkBoxButton_, &CheckBoxButton::hoverEnter, this, &CheckBoxItem::buttonHoverEnter);
-    connect(checkBoxButton_, &CheckBoxButton::hoverLeave, this, &CheckBoxItem::buttonHoverLeave);
+    checkBoxButton_ = new ToggleButton(this);
+    connect(checkBoxButton_, &ToggleButton::stateChanged, this, &ToggleItem::stateChanged);
+    connect(checkBoxButton_, &ToggleButton::hoverEnter, this, &ToggleItem::buttonHoverEnter);
+    connect(checkBoxButton_, &ToggleButton::hoverLeave, this, &ToggleItem::buttonHoverLeave);
 
     updateScaling();
 }
 
-void CheckBoxItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+void ToggleItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
     Q_UNUSED(option);
     Q_UNUSED(widget);
@@ -45,28 +45,28 @@ void CheckBoxItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
                       strCaption_);
 }
 
-void CheckBoxItem::setEnabled(bool enabled)
+void ToggleItem::setEnabled(bool enabled)
 {
     BaseItem::setEnabled(enabled);
     checkBoxButton_->setEnabled(enabled);
 }
 
-void CheckBoxItem::setState(bool isChecked)
+void ToggleItem::setState(bool isChecked)
 {
     checkBoxButton_->setState(isChecked);
 }
 
-bool CheckBoxItem::isChecked() const
+bool ToggleItem::isChecked() const
 {
     return checkBoxButton_->isChecked();
 }
 
-QPointF CheckBoxItem::getButtonScenePos() const
+QPointF ToggleItem::getButtonScenePos() const
 {
     return checkBoxButton_->scenePos();
 }
 
-void CheckBoxItem::updateScaling()
+void ToggleItem::updateScaling()
 {
     BaseItem::updateScaling();
     setHeight(PREFERENCE_GROUP_ITEM_HEIGHT*G_SCALE);
@@ -74,17 +74,17 @@ void CheckBoxItem::updateScaling()
                             CHECKBOX_MARGIN_Y*G_SCALE);
 }
 
-void CheckBoxItem::setIcon(QSharedPointer<IndependentPixmap> icon)
+void ToggleItem::setIcon(QSharedPointer<IndependentPixmap> icon)
 {
     icon_ = icon;
 }
 
-void CheckBoxItem::setCaptionFont(const FontDescr &fontDescr)
+void ToggleItem::setCaptionFont(const FontDescr &fontDescr)
 {
     captionFont_ = fontDescr;
 }
 
-void CheckBoxItem::setCaption(const QString &caption)
+void ToggleItem::setCaption(const QString &caption)
 {
     strCaption_ = caption;
     update();

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "macaddressitem.h"
-#include "preferenceswindow/checkboxitem.h"
+#include "preferenceswindow/toggleitem.h"
 #include "preferenceswindow/comboboxitem.h"
 #include "preferenceswindow/preferencegroup.h"
 #include "types/macaddrspoofing.h"
@@ -33,9 +33,9 @@ private slots:
 private:
     void updateMode();
 
-    CheckBoxItem *checkBoxEnable_;
+    ToggleItem *checkBoxEnable_;
     MacAddressItem *macAddressItem_;
-    CheckBoxItem *autoRotateMacItem_;
+    ToggleItem *autoRotateMacItem_;
     ComboBoxItem *comboBoxInterface_;
 
     QList<types::NetworkInterface> networks_;

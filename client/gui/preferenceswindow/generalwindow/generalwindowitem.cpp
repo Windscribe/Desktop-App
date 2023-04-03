@@ -41,18 +41,18 @@ GeneralWindowItem::GeneralWindowItem(ScalableGraphicsObject *parent, Preferences
 #endif
 
     launchOnStartGroup_ = new PreferenceGroup(this);
-    checkBoxLaunchOnStart_ = new CheckBoxItem(launchOnStartGroup_);
+    checkBoxLaunchOnStart_ = new ToggleItem(launchOnStartGroup_);
     checkBoxLaunchOnStart_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/LAUNCH_AT_STARTUP"));
     checkBoxLaunchOnStart_->setState(preferences->isLaunchOnStartup());
-    connect(checkBoxLaunchOnStart_, &CheckBoxItem::stateChanged, this, &GeneralWindowItem::onIsLaunchOnStartupClicked);
+    connect(checkBoxLaunchOnStart_, &ToggleItem::stateChanged, this, &GeneralWindowItem::onIsLaunchOnStartupClicked);
     launchOnStartGroup_->addItem(checkBoxLaunchOnStart_);
     addItem(launchOnStartGroup_);
 
     startMinimizedGroup_ = new PreferenceGroup(this);
-    checkBoxStartMinimized_ = new CheckBoxItem(startMinimizedGroup_);
+    checkBoxStartMinimized_ = new ToggleItem(startMinimizedGroup_);
     checkBoxStartMinimized_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/START_MINIMIZED"));
     checkBoxStartMinimized_->setState(preferences->isStartMinimized());
-    connect(checkBoxStartMinimized_, &CheckBoxItem::stateChanged, this, &GeneralWindowItem::onStartMinimizedClicked);
+    connect(checkBoxStartMinimized_, &ToggleItem::stateChanged, this, &GeneralWindowItem::onStartMinimizedClicked);
     startMinimizedGroup_->addItem(checkBoxStartMinimized_);
     addItem(startMinimizedGroup_);
 
@@ -60,10 +60,10 @@ GeneralWindowItem::GeneralWindowItem(ScalableGraphicsObject *parent, Preferences
     if (QSystemTrayIcon::isSystemTrayAvailable())
     {
         closeToTrayGroup_ = new PreferenceGroup(this);
-        checkBoxMinimizeAndCloseToTray_ = new CheckBoxItem(closeToTrayGroup_);
+        checkBoxMinimizeAndCloseToTray_ = new ToggleItem(closeToTrayGroup_);
         checkBoxMinimizeAndCloseToTray_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/MINIMIZE_AND_CLOSE_TO_TRAY"));
         checkBoxMinimizeAndCloseToTray_->setState(preferences->isMinimizeAndCloseToTray());
-        connect(checkBoxMinimizeAndCloseToTray_, &CheckBoxItem::stateChanged, this, &GeneralWindowItem::onMinimizeAndCloseToTrayClicked);
+        connect(checkBoxMinimizeAndCloseToTray_, &ToggleItem::stateChanged, this, &GeneralWindowItem::onMinimizeAndCloseToTrayClicked);
         closeToTrayGroup_->addItem(checkBoxMinimizeAndCloseToTray_);
         addItem(closeToTrayGroup_);
     } else {
@@ -72,35 +72,35 @@ GeneralWindowItem::GeneralWindowItem(ScalableGraphicsObject *parent, Preferences
     }
 #elif defined Q_OS_MAC
     hideFromDockGroup_ = new PreferenceGroup(this);
-    checkBoxHideFromDock_ = new CheckBoxItem(hideFromDockGroup_);
+    checkBoxHideFromDock_ = new ToggleItem(hideFromDockGroup_);
     checkBoxHideFromDock_->setState(preferences->isHideFromDock());
     checkBoxHideFromDock_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/HIDE_FROM_DOCK"));
-    connect(checkBoxHideFromDock_, &CheckBoxItem::stateChanged, this, &GeneralWindowItem::onHideFromDockClicked);
+    connect(checkBoxHideFromDock_, &ToggleItem::stateChanged, this, &GeneralWindowItem::onHideFromDockClicked);
     hideFromDockGroup_->addItem(checkBoxHideFromDock_);
     addItem(hideFromDockGroup_);
 #endif
 
     dockedGroup_ = new PreferenceGroup(this);
-    checkBoxDockedToTray_ = new CheckBoxItem(dockedGroup_);
+    checkBoxDockedToTray_ = new ToggleItem(dockedGroup_);
     checkBoxDockedToTray_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/DOCKED"));
     checkBoxDockedToTray_->setState(preferences->isDockedToTray());
-    connect(checkBoxDockedToTray_, &CheckBoxItem::stateChanged, this, &GeneralWindowItem::onDockedToTrayChanged);
+    connect(checkBoxDockedToTray_, &ToggleItem::stateChanged, this, &GeneralWindowItem::onDockedToTrayChanged);
     dockedGroup_->addItem(checkBoxDockedToTray_);
     addItem(dockedGroup_);
 
     showNotificationsGroup_ = new PreferenceGroup(this);
-    checkBoxShowNotifications_ = new CheckBoxItem(showNotificationsGroup_);
+    checkBoxShowNotifications_ = new ToggleItem(showNotificationsGroup_);
     checkBoxShowNotifications_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/SHOW_NOTIFICATIONS"));
     checkBoxShowNotifications_->setState(preferences->isShowNotifications());
-    connect(checkBoxShowNotifications_, &CheckBoxItem::stateChanged, this, &GeneralWindowItem::onIsShowNotificationsClicked);
+    connect(checkBoxShowNotifications_, &ToggleItem::stateChanged, this, &GeneralWindowItem::onIsShowNotificationsClicked);
     showNotificationsGroup_->addItem(checkBoxShowNotifications_);
     addItem(showNotificationsGroup_);
 
     showLocationLoadGroup_ = new PreferenceGroup(this);
-    checkBoxShowLocationLoad_ = new CheckBoxItem(showLocationLoadGroup_);
+    checkBoxShowLocationLoad_ = new ToggleItem(showLocationLoadGroup_);
     checkBoxShowLocationLoad_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/LOCATION_LOAD"));
     checkBoxShowLocationLoad_->setState(preferences->isShowLocationLoad());
-    connect(checkBoxShowLocationLoad_, &CheckBoxItem::stateChanged, this, &GeneralWindowItem::onShowLocationLoadClicked);
+    connect(checkBoxShowLocationLoad_, &ToggleItem::stateChanged, this, &GeneralWindowItem::onShowLocationLoadClicked);
     showLocationLoadGroup_->addItem(checkBoxShowLocationLoad_);
     addItem(showLocationLoadGroup_);
 

@@ -1,5 +1,4 @@
-#ifndef TEXTBUTTON_H
-#define TEXTBUTTON_H
+#pragma once
 
 #include <QGraphicsObject>
 #include <QVariantAnimation>
@@ -44,6 +43,8 @@ public:
     void recalcBoundingRect();
 
     void setTextAlignment(int alignment);
+    void setUnderline(bool on);
+    void setUnhoverOnClick(bool on);
 
 protected:
     void mouseReleaseEvent(QGraphicsSceneMouseEvent *event) override;
@@ -72,7 +73,9 @@ private:
     bool isHovered_;
 
     int textAlignment_;
+    bool textUnderline_;
+
+    bool unhoverOnClick_;
 };
 
 }
-#endif // TEXTBUTTON_H

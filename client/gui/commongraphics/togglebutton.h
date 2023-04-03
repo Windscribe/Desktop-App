@@ -7,11 +7,11 @@
 
 namespace PreferencesWindow {
 
-class CheckBoxButton : public ClickableGraphicsObject
+class ToggleButton : public ClickableGraphicsObject
 {
     Q_OBJECT
 public:
-    explicit CheckBoxButton(ScalableGraphicsObject *parent = nullptr);
+    explicit ToggleButton(ScalableGraphicsObject *parent = nullptr);
 
     QRectF boundingRect() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;

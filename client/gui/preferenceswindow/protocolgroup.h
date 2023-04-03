@@ -5,7 +5,7 @@
 #include "backend/preferences/preferences.h"
 #include "backend/preferences/preferenceshelper.h"
 #include "commongraphics/scalablegraphicsobject.h"
-#include "preferenceswindow/checkboxitem.h"
+#include "preferenceswindow/toggleitem.h"
 #include "preferenceswindow/comboboxitem.h"
 #include "preferenceswindow/preferencegroup.h"
 
@@ -50,7 +50,7 @@ private:
 
     QString title_;
     ComboBoxItem *connectionModeItem_;
-    CheckBoxItem *checkBoxEnable_;
+    ToggleItem *checkBoxEnable_;
     ComboBoxItem *protocolItem_;
     ComboBoxItem *portItem_;
 

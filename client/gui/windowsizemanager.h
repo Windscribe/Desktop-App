@@ -17,6 +17,9 @@ public:
     void setWindowHeight(ResizableWindow *window, int height);
     int windowHeight(ResizableWindow *window);
 
+    void setScrollPos(ResizableWindow *window, int pos);
+    int scrollPos(ResizableWindow *window);
+
     void setPreviousWindowHeight(ResizableWindow *window, int height);
     int previousWindowHeight(ResizableWindow *window);
     bool hasWindowInState(WindowState state);
@@ -37,6 +40,7 @@ private:
         int height;
         int prevHeight;
         int resizeDurationMs;
+        int scrollPos;
     };
     std::map<ResizableWindow *, struct WindowInfo> windowInfo_;
 };

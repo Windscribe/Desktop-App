@@ -18,13 +18,18 @@ public:
     virtual void setDescription(const QString &desc) = 0;
     virtual void setAcceptText(const QString &text) = 0;
     virtual void setRejectText(const QString &text) = 0;
+    virtual void setTertiaryText(const QString &text) = 0;
     virtual void setTitleSize(int size) = 0;
     virtual void setBackgroundShape(Shape shape) = 0;
     virtual void setSpinnerMode(bool on) = 0;
+    virtual void setShowBottomPanel(bool on) = 0;
+    virtual void setLearnMoreUrl(const QString &url) = 0;
+    virtual bool isRememberChecked() = 0;
 
 signals:
     virtual void acceptClick() = 0;
     virtual void rejectClick() = 0;
+    virtual void tertiaryClick() = 0;
 };
 
 Q_DECLARE_INTERFACE(IGeneralMessageWindow, "IGeneralMessageWindow")

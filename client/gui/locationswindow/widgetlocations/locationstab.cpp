@@ -1,6 +1,5 @@
 #include "locationstab.h"
 
-#include <QMessageBox>
 #include <QPainter>
 #include <QtMath>
 

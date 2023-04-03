@@ -3,8 +3,8 @@
 #include <QPainter>
 #include <QGraphicsScene>
 #include <QGraphicsView>
-#include <QMessageBox>
 #include "dpiscalemanager.h"
+#include "generalmessagecontroller.h"
 #include "languagecontroller.h"
 #include "commongraphics/commongraphics.h"
 #include "graphicresources/imageresourcessvg.h"
@@ -53,10 +53,10 @@ AdvancedWindowItem::AdvancedWindowItem(ScalableGraphicsObject *parent, Preferenc
     addItem(tapAdapterGroup_);
 
     ipv6Group_ = new PreferenceGroup(this);
-    checkBoxIPv6_ = new CheckBoxItem(ipv6Group_);
+    checkBoxIPv6_ = new ToggleItem(ipv6Group_);
     checkBoxIPv6_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/IPV6"));
     checkBoxIPv6_->setState(preferencesHelper->getIpv6StateInOS());
-    connect(checkBoxIPv6_, &CheckBoxItem::stateChanged, this, &AdvancedWindowItem::onIPv6StateChanged);
+    connect(checkBoxIPv6_, &ToggleItem::stateChanged, this, &AdvancedWindowItem::onIPv6StateChanged);
     ipv6Group_->addItem(checkBoxIPv6_);
     addItem(ipv6Group_);
 #endif
@@ -67,18 +67,18 @@ AdvancedWindowItem::AdvancedWindowItem(ScalableGraphicsObject *parent, Preferenc
     addItem(apiResolutionGroup_);
 
     ignoreSslErrorsGroup_ = new PreferenceGroup(this);
-    cbIgnoreSslErrors_ = new CheckBoxItem(ignoreSslErrorsGroup_);
+    cbIgnoreSslErrors_ = new ToggleItem(ignoreSslErrorsGroup_);
     cbIgnoreSslErrors_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/IGNORE_SSL_ERRORS"));
     cbIgnoreSslErrors_->setState(preferences->isIgnoreSslErrors());
-    connect(cbIgnoreSslErrors_, &CheckBoxItem::stateChanged, this, &AdvancedWindowItem::onIgnoreSslErrorsStateChanged);
+    connect(cbIgnoreSslErrors_, &ToggleItem::stateChanged, this, &AdvancedWindowItem::onIgnoreSslErrorsStateChanged);
     ignoreSslErrorsGroup_->addItem(cbIgnoreSslErrors_);
     addItem(ignoreSslErrorsGroup_);
 
     keepAliveGroup_ = new PreferenceGroup(this);
-    cbKeepAlive_ = new CheckBoxItem(keepAliveGroup_);
+    cbKeepAlive_ = new ToggleItem(keepAliveGroup_);
     cbKeepAlive_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/KEEPALIVE"));
     cbKeepAlive_->setState(preferences->keepAlive());
-    connect(cbKeepAlive_, &CheckBoxItem::stateChanged, this, &AdvancedWindowItem::onKeepAliveStateChanged);
+    connect(cbKeepAlive_, &ToggleItem::stateChanged, this, &AdvancedWindowItem::onKeepAliveStateChanged);
     keepAliveGroup_->addItem(cbKeepAlive_);
     addItem(keepAliveGroup_);
 
@@ -130,25 +130,17 @@ void AdvancedWindowItem::onTapAdapterChanged(QVariant v)
 
 void AdvancedWindowItem::onIPv6StateChanged(bool isChecked)
 {
-    QMessageBox msgBox(g_mainWindow);
-    msgBox.setText(tr("In order to disable IPv6, a computer restart is required. Do it now?"));
-    QAbstractButton* pButtonYes = msgBox.addButton(tr("Yes"), QMessageBox::NoRole);
-    QAbstractButton* pButtonLater = msgBox.addButton(tr("Restart later"), QMessageBox::NoRole);
-    QAbstractButton* pButtonCancel = msgBox.addButton(tr("Cancel"), QMessageBox::NoRole);
-    msgBox.exec();
-
-    if (msgBox.clickedButton() == pButtonYes)
-    {
-        emit setIpv6StateInOS(isChecked, true);
-    }
-    else if (msgBox.clickedButton() == pButtonLater)
-    {
-        emit setIpv6StateInOS(isChecked, false);
-    }
-    else if (msgBox.clickedButton() == pButtonCancel)
-    {
-        checkBoxIPv6_->setState(!isChecked);
-    }
+    GeneralMessageController::instance().showMessage(
+        "WARNING_WHITE",
+        tr("Restart Required"),
+        tr("In order to disable IPv6, a computer restart is required. Do it now?"),
+        tr(GeneralMessage::kYes),
+        tr(GeneralMessage::kCancel),
+        tr("Restart later"),
+        [this, isChecked](bool b) { emit setIpv6StateInOS(isChecked, true); },
+        [this, isChecked](bool b) { checkBoxIPv6_->setState(!isChecked); },
+        [this, isChecked](bool b) { emit setIpv6StateInOS(isChecked, false); },
+        GeneralMessage::kFromPreferences);
 }
 #endif
 

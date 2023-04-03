@@ -29,6 +29,8 @@ public:
     void setHeight(int height);
     void setScrollBarVisibility(bool on);
     void updateScaling() override;
+    int scrollPos();
+    void setScrollPos(int pos);
     void setScrollOffset(int offset);
 
     void setBackButtonEnabled(bool b);

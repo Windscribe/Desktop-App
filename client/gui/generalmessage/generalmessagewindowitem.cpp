@@ -12,7 +12,7 @@ namespace GeneralMessageWindow {
 
 GeneralMessageWindowItem::GeneralMessageWindowItem(ScalableGraphicsObject *parent, Preferences *preferences, PreferencesHelper *preferencesHelper,
         IGeneralMessageWindow::Style style, const QString &icon, const QString &title, const QString &desc,
-        const QString &acceptText, const QString &rejectText) :
+        const QString &acceptText, const QString &rejectText, const QString &tertiaryText) :
     IGeneralMessageWindow(parent, preferences, preferencesHelper), isSpinnerMode_(false), shape_(IGeneralMessageWindow::kLoginScreenShape)
 {
     setBackButtonEnabled(false);
@@ -23,6 +23,7 @@ GeneralMessageWindowItem::GeneralMessageWindowItem(ScalableGraphicsObject *paren
     contentItem_->setTitle(title);
     contentItem_->setDescription(desc);
     contentItem_->setAcceptText(acceptText);
+    contentItem_->setTertiaryText(tertiaryText);
     contentItem_->setRejectText(rejectText);
     scrollAreaItem_->setItem(contentItem_);
 
@@ -33,8 +34,9 @@ GeneralMessageWindowItem::GeneralMessageWindowItem(ScalableGraphicsObject *paren
 
     connect(contentItem_, &GeneralMessageItem::acceptClick, this, &GeneralMessageWindowItem::acceptClick);
     connect(contentItem_, &GeneralMessageItem::rejectClick, this, &GeneralMessageWindowItem::rejectClick);
-    connect(&spinnerRotationAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onSpinnerRotationChanged(QVariant)));
-    connect(&spinnerRotationAnimation_, SIGNAL(finished()), SLOT(onSpinnerRotationFinished()));
+    connect(contentItem_, &GeneralMessageItem::tertiaryClick, this, &GeneralMessageWindowItem::tertiaryClick);
+    connect(&spinnerRotationAnimation_, &QVariantAnimation::valueChanged, this, &GeneralMessageWindowItem::onSpinnerRotationChanged);
+    connect(&spinnerRotationAnimation_, &QVariantAnimation::finished, this, &GeneralMessageWindowItem::onSpinnerRotationFinished);
     connect(this, &ResizableWindow::escape, this, &GeneralMessageWindowItem::onEscape);
 
     updateHeight();
@@ -114,6 +116,12 @@ void GeneralMessageWindowItem::setRejectText(const QString &text)
     updateHeight();
 }
 
+void GeneralMessageWindowItem::setTertiaryText(const QString &text)
+{
+    contentItem_->setTertiaryText(text);
+    updateHeight();
+}
+
 void GeneralMessageWindowItem::setTitleSize(int size)
 {
     contentItem_->setTitleSize(size);
@@ -124,7 +132,22 @@ void GeneralMessageWindowItem::setBackgroundShape(IGeneralMessageWindow::Shape s
 {
     shape_ = shape;
     updatePositions();
+}
+
+void GeneralMessageWindowItem::setShowBottomPanel(bool on)
+{
+    contentItem_->setShowBottomPanel(on);
     updateHeight();
+}
+
+void GeneralMessageWindowItem::setLearnMoreUrl(const QString &url)
+{
+    contentItem_->setLearnMoreUrl(url);
+}
+
+bool GeneralMessageWindowItem::isRememberChecked()
+{
+    return contentItem_->isRememberChecked();
 }
 
 void GeneralMessageWindowItem::onEscape()
@@ -179,10 +202,10 @@ void GeneralMessageWindowItem::updatePositions()
 
     if (preferences_->appSkin() == APP_SKIN_VAN_GOGH && shape_ != kLoginScreenShape) {
         scrollAreaItem_->setPos(0, 55*G_SCALE);
-        scrollAreaItem_->setHeight(curHeight_ - 74*G_SCALE);
+        scrollAreaItem_->setHeight(curHeight_ - 55*G_SCALE);
     } else {
         scrollAreaItem_->setPos(0, 83*G_SCALE);
-        scrollAreaItem_->setHeight(curHeight_ - 102*G_SCALE);
+        scrollAreaItem_->setHeight(curHeight_ - 83*G_SCALE);
     }
 
     updateHeight();
@@ -193,24 +216,29 @@ void GeneralMessageWindowItem::updateHeight()
     int height = 0;
 
     if (shape_ == IGeneralMessageWindow::kLoginScreenShape) {
-        height = LOGIN_HEIGHT*G_SCALE;
+        height = contentItem_->fullHeight() + 98*G_SCALE;
+
+        if (height < LOGIN_HEIGHT*G_SCALE) {
+            height = LOGIN_HEIGHT*G_SCALE;
+        }
     } else {
         if (preferences_->appSkin() == APP_SKIN_VAN_GOGH) {
-            height = contentItem_->fullHeight() + 54*G_SCALE;
+            height = contentItem_->fullHeight() + 70*G_SCALE;
         } else {
-            height = contentItem_->fullHeight() + 82*G_SCALE;
+            height = contentItem_->fullHeight() + 98*G_SCALE;
         }
 
-        // minimum height is standard height of connect window
         if (height < WINDOW_HEIGHT*G_SCALE) {
             height = WINDOW_HEIGHT*G_SCALE;
         }
     }
-    
+
     if (curHeight_ != height) {
         setHeight(height);
         emit sizeChanged(this);
     }
+
+    contentItem_->update();
 }
 
 } // namespace GeneralMessage
