@@ -67,7 +67,7 @@ void BubbleButton::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
     painter->setPen(QPen(curTextColor_, 1*G_SCALE));
     QFont *font = FontManager::instance().getFont(fontDescr_);
     painter->setFont(*font);
-    QRectF textRect(0, 0, width_*G_SCALE,height_*G_SCALE);
+    QRectF textRect(0, 0, width_*G_SCALE, height_*G_SCALE);
     painter->drawText(textRect, Qt::AlignCenter, text_);
 }
 
@@ -119,35 +119,43 @@ void BubbleButton::quickShow()
 void BubbleButton::setText(QString text)
 {
     text_ = text;
+    update();
 }
 
 void BubbleButton::setFillColor(QColor newFillColor)
 {
     fillColor_ = newFillColor;
     curFillColor_ = newFillColor;
+    update();
 }
 
 void BubbleButton::setTextColor(QColor newTextColor)
 {
     curTextColor_ = newTextColor;
+    update();
 }
 
 void BubbleButton::setFont(const FontDescr &fontDescr)
 {
     fontDescr_ = fontDescr;
+    update();
+}
+
+void BubbleButton::setWidth(int width)
+{
+    width_ = width;
+    update();
 }
 
 void BubbleButton::onTextOpacityChanged(const QVariant &value)
 {
     curTextOpacity_ = value.toDouble();
-
     update();
 }
 
 void BubbleButton::onOutlineOpacityChanged(const QVariant &value)
 {
     curOutlineFillOpacity_ = value.toDouble();
-
     update();
 }
 
@@ -161,7 +169,6 @@ void BubbleButton::onTextColorChanged(const QVariant &value)
 void BubbleButton::onFillColorChanged(const QVariant &value)
 {
     curFillColor_ = value.value<QColor>();
-
     update();
 }
 

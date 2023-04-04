@@ -33,6 +33,7 @@ public:
     void setTextColor(QColor newTextColor);
 
     void setFont(const FontDescr &fontDescr);
+    void setWidth(int width);
 
     void hover();
     void unhover();

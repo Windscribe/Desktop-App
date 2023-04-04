@@ -22,13 +22,10 @@ ListButton::ListButton(ScalableGraphicsObject *parent, Style style, const QStrin
         int width = metrics.horizontalAdvance(text);
         int height = metrics.height();
 
-        if (width < kMinimumWidth*G_SCALE) {
-            width = kMinimumWidth*G_SCALE;
-        }
         bubbleButton_ = new BubbleButton(this,
                                          (style == kBright ? BubbleButton::kBright : BubbleButton::kDark),
-                                         (width + 48*G_SCALE)/G_SCALE,
-                                         (height + 20*G_SCALE)/G_SCALE,
+                                         width/G_SCALE + 48,
+                                         height/G_SCALE + 20,
                                          20);
         bubbleButton_->setFont(fontDescr);
         bubbleButton_->setText(text);
@@ -59,9 +56,6 @@ void ListButton::updatePositions()
         int width = metrics.horizontalAdvance(text_);
         int height = metrics.height();
 
-        if (width < kMinimumWidth*G_SCALE) {
-            width = kMinimumWidth*G_SCALE;
-        }
         bubbleButton_->setPos((WINDOW_WIDTH-72)/2*G_SCALE - (width + 48*G_SCALE)/2, 0);
         setHeight(38*G_SCALE);
     }
@@ -73,7 +67,13 @@ void ListButton::setText(const QString &text)
     if (style_ == kText) {
         textButton_->setText(text);
     } else {
+        FontDescr fontDescr(14, false);
+        QFont *font = FontManager::instance().getFont(fontDescr);
+        QFontMetrics metrics(*font);
+        int width = metrics.horizontalAdvance(text);
+
         bubbleButton_->setText(text);
+        bubbleButton_->setWidth(width/G_SCALE + 48);
     }
 }
 

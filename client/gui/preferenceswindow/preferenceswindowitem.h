@@ -110,7 +110,6 @@ private slots:
 protected:
     void keyPressEvent(QKeyEvent *event) override;
     void updatePositions() override;
-    void updateChildItemsAfterHeightChanged() override;
 
 protected slots:
     void onBackArrowButtonClicked() override;

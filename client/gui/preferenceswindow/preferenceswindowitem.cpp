@@ -522,19 +522,6 @@ void PreferencesWindowItem::setShowSubpageMode(bool isShowSubPage)
     tabControlItem_->setInSubpage(isShowSubPage);
 }
 
-void PreferencesWindowItem::updateChildItemsAfterHeightChanged()
-{
-    bottomResizeItem_->setPos(kBottomResizeOriginX*G_SCALE, curHeight_ - kBottomResizeOffsetY*G_SCALE);
-
-    if (preferences_->appSkin() == APP_SKIN_VAN_GOGH) {
-        tabControlItem_->setHeight(curHeight_ - 71*G_SCALE);
-        scrollAreaItem_->setHeight(curHeight_ - 74*G_SCALE);
-    } else {
-        tabControlItem_->setHeight(curHeight_ - 99*G_SCALE);
-        scrollAreaItem_->setHeight(curHeight_ - 102*G_SCALE);
-    }
-}
-
 void PreferencesWindowItem::setRobertFilters(const QVector<types::RobertFilter> &filters)
 {
     robertWindowItem_->setFilters(filters);

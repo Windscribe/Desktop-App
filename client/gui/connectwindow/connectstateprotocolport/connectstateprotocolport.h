@@ -45,6 +45,9 @@ signals:
 private slots:
     void onProtocolTestTunnelTimerTick();
     void onProtocolOpacityAnimationChanged(const QVariant &value);
+    void onProtocolArrowAnimationChanged(const QVariant &value);
+    void onHoverEnter();
+    void onHoverLeave();
 
 private:
     ConnectionBadgeDots * connectionBadgeDots_;
@@ -69,6 +72,7 @@ private:
     BadgePixmap badgePixmap_;
 
     IconButton *protocolArrow_;
+    int arrowShift_;
 
     int width_;
     int height_;
@@ -79,7 +83,7 @@ private:
 
     QTimer protocolTestTunnelTimer_;
     QVariantAnimation protocolOpacityAnimation_;
-
+    QVariantAnimation protocolArrowAnimation_;
 };
 
 } //namespace ConnectWindow
