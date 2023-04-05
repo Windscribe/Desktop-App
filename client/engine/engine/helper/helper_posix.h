@@ -41,6 +41,10 @@ public:
     bool getWireGuardStatus(types::WireGuardStatus *status) override;
     void setDefaultWireGuardDeviceName(const QString &deviceName) override;
 
+    // ctrld functions
+    ExecuteError startCtrld(const QString &exeName, const QString &parameters) override;
+    bool stopCtrld() override;
+
     // Posix specific functions
     IHelper::ExecuteError executeOpenVPN(const QString &config, const QString &arguments, unsigned long &outCmdId, bool isCustomConfig);
     bool deleteRoute(const QString &range, int mask, const QString &gateway);

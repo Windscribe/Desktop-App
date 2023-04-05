@@ -405,6 +405,43 @@ void Helper_posix::setDefaultWireGuardDeviceName(const QString &deviceName)
     }
 }
 
+IHelper::ExecuteError Helper_posix::startCtrld(const QString &exeName, const QString &parameters)
+{
+    QMutexLocker locker(&mutex_);
+
+    if (curState_ != STATE_CONNECTED) {
+        return IHelper::EXECUTE_ERROR;
+    }
+
+    CMD_START_CTRLD cmd;
+#ifdef Q_OS_MAC
+    cmd.exePath = (QCoreApplication::applicationDirPath() + "/../Helpers/").toStdString();
+#elif defined Q_OS_LINUX
+    cmd.exePath = (QCoreApplication::applicationDirPath() + "/").toStdString();
+#else
+    WS_ASSERT(false);
+#endif
+    cmd.executable = exeName.toStdString();
+    cmd.parameters = parameters.toStdString();
+
+    std::stringstream stream;
+    boost::archive::text_oarchive oa(stream, boost::archive::no_header);
+    oa << cmd;
+
+    CMD_ANSWER answer;
+    if (!runCommand(HELPER_CMD_START_CTRLD, stream.str(), answer) || answer.executed == 0) {
+        doDisconnectAndReconnect();
+        return IHelper::EXECUTE_ERROR;
+    }
+
+    return IHelper::EXECUTE_SUCCESS;
+}
+
+bool Helper_posix::stopCtrld()
+{
+    return executeTaskKill(kTargetCtrld);
+}
+
 IHelper::ExecuteError Helper_posix::executeOpenVPN(const QString &config, const QString &arguments, unsigned long &outCmdId, bool isCustomConfig)
 {
     QMutexLocker locker(&mutex_);

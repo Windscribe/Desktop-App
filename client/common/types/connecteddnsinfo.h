@@ -11,11 +11,11 @@ namespace types {
 
 struct ConnectedDnsInfo
 {
-    CONNECTED_DNS_TYPE type_ = CONNECTED_DNS_TYPE_ROBERT;
-    QString upStream1_;
-    bool isSplitDns_ = false;
-    QString upStream2_;
-    QStringList hostnames_;
+    CONNECTED_DNS_TYPE type = CONNECTED_DNS_TYPE_ROBERT;
+    QString upStream1;
+    bool isSplitDns = false;
+    QString upStream2;
+    QStringList hostnames;
 
     static QList<CONNECTED_DNS_TYPE> allAvailableTypes();
     static QString typeToString(const CONNECTED_DNS_TYPE &type);

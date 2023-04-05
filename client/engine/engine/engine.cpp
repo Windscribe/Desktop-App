@@ -1309,7 +1309,7 @@ void Engine::onConnectionManagerConnected()
         firewallController_->firewallOn(firewallExceptions_.getIPAddressesForFirewallForConnectedState(connectionManager_->getLastConnectedIp()), engineSettings_.isAllowLanTraffic(), locationId_.isCustomConfigsLocation());
     }
 
-    if (connectionManager_->connectedDnsInfo().type_ == CONNECTED_DNS_TYPE_CUSTOM)
+    if (connectionManager_->connectedDnsInfo().type == CONNECTED_DNS_TYPE_CUSTOM)
     {
         WS_ASSERT(connectionManager_->getVpnAdapterInfo().dnsServers().count() == 1);
         if (!helper_->setCustomDnsWhileConnected(connectionManager_->currentProtocol().isIkev2Protocol(),

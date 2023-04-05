@@ -76,7 +76,7 @@ ConnectionManager::ConnectionManager(QObject *parent, IHelper *helper, INetworkD
     connect(wstunnelManager_, &WstunnelManager::wstunnelStarted, this, &ConnectionManager::onWstunnelStarted);
     connect(wstunnelManager_, &WstunnelManager::wstunnelFinished, this, &ConnectionManager::onWstunnelFinishedBeforeConnection);
 
-    ctrldManager_ = new CtrldManager(this);
+    ctrldManager_ = new CtrldManager(this, helper);
     connect(ctrldManager_, &CtrldManager::ctrldFinished, this, &ConnectionManager::onCtrldFinishedBeforeConnection);
 
 
@@ -316,7 +316,7 @@ void ConnectionManager::onConnectionConnected(const AdapterGatewayInfo &connecti
     qCDebug(LOG_CONNECTION) << "VPN adapter and gateway:" << vpnAdapterInfo_.makeLogString();
 
     // override the DNS if we are using custom
-    if (connectedDnsInfo_.type_ == CONNECTED_DNS_TYPE_CUSTOM)
+    if (connectedDnsInfo_.type == CONNECTED_DNS_TYPE_CUSTOM)
     {
         QString customDnsIp = ctrldManager_->listenIp();
         vpnAdapterInfo_.setDnsServers(QStringList() << customDnsIp);
@@ -914,12 +914,12 @@ void ConnectionManager::doConnectPart2()
     }
 
     // start ctrld utility
-    if (connectedDnsInfo_.type_ == CONNECTED_DNS_TYPE_CUSTOM) {
+    if (connectedDnsInfo_.type == CONNECTED_DNS_TYPE_CUSTOM) {
         bool bStarted = false;
-        if (connectedDnsInfo_.isSplitDns_)
-            bStarted = ctrldManager_->runProcess(connectedDnsInfo_.upStream1_, connectedDnsInfo_.upStream2_, connectedDnsInfo_.hostnames_);
+        if (connectedDnsInfo_.isSplitDns)
+            bStarted = ctrldManager_->runProcess(connectedDnsInfo_.upStream1, connectedDnsInfo_.upStream2, connectedDnsInfo_.hostnames);
         else
-            bStarted = ctrldManager_->runProcess(connectedDnsInfo_.upStream1_, QString(), QStringList());
+            bStarted = ctrldManager_->runProcess(connectedDnsInfo_.upStream1, QString(), QStringList());
 
         if (!bStarted) {
             state_ = STATE_DISCONNECTED;
@@ -928,7 +928,6 @@ void ConnectionManager::doConnectPart2()
             return;
         }
     }
-
 
     if (currentConnectionDescr_.connectionNodeType == CONNECTION_NODE_DEFAULT ||
             currentConnectionDescr_.connectionNodeType == CONNECTION_NODE_STATIC_IPS)
@@ -976,7 +975,7 @@ void ConnectionManager::doConnectPart2()
 
             const bool bOvpnSuccess = makeOVPNFile_->generate(lastOvpnConfig_, currentConnectionDescr_.ip, currentConnectionDescr_.protocol,
                                                         currentConnectionDescr_.port, portForStunnelOrWStunnel, mss, defaultAdapterInfo_.gateway(),
-                                                        currentConnectionDescr_.verifyX509name, connectedDnsInfo_.type_ == CONNECTED_DNS_TYPE_ROBERT);
+                                                        currentConnectionDescr_.verifyX509name, connectedDnsInfo_.type == CONNECTED_DNS_TYPE_ROBERT);
             if (!bOvpnSuccess )
             {
                 qCDebug(LOG_CONNECTION) << "Failed create ovpn config";

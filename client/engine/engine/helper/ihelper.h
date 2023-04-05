@@ -52,6 +52,10 @@ public:
     virtual bool getWireGuardStatus(types::WireGuardStatus *status) = 0;
     virtual void setDefaultWireGuardDeviceName(const QString &deviceName) = 0;
 
+    // ctrld functions
+    virtual ExecuteError startCtrld(const QString &exeName, const QString &parameters) = 0;
+    virtual bool stopCtrld() = 0;
+
 signals:
     void lostConnectionToHelper();
 };

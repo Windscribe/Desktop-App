@@ -58,15 +58,15 @@ void ConnectedDnsGroup::setConnectedDnsInfo(const types::ConnectedDnsInfo &dns)
         settings_ = dns;
 
         // update inner widgets
-        if (dns.type_ == CONNECTED_DNS_TYPE_ROBERT)
+        if (dns.type == CONNECTED_DNS_TYPE_ROBERT)
             comboBoxDns_->setCurrentItem(CONNECTED_DNS_TYPE_ROBERT);
         else
             comboBoxDns_->setCurrentItem(CONNECTED_DNS_TYPE_CUSTOM);
 
-        editBoxUpstream1_->setText(dns.upStream1_);
-        editBoxUpstream2_->setText(dns.upStream2_);
-        splitDnsCheckBox_->setState(dns.isSplitDns_);
-        domainsItem_->setLinkText(QString::number(dns.hostnames_.count()));
+        editBoxUpstream1_->setText(dns.upStream1);
+        editBoxUpstream2_->setText(dns.upStream2);
+        splitDnsCheckBox_->setState(dns.isSplitDns);
+        domainsItem_->setLinkText(QString::number(dns.hostnames.count()));
 
         updateMode();
     }
@@ -74,10 +74,10 @@ void ConnectedDnsGroup::setConnectedDnsInfo(const types::ConnectedDnsInfo &dns)
 
 void ConnectedDnsGroup::updateMode()
 {
-    if (settings_.type_ == CONNECTED_DNS_TYPE_ROBERT) {
+    if (settings_.type == CONNECTED_DNS_TYPE_ROBERT) {
         hideItems(indexOf(editBoxUpstream1_), indexOf(domainsItem_));
     } else  {
-        if (settings_.isSplitDns_)
+        if (settings_.isSplitDns)
             showItems(indexOf(editBoxUpstream1_), indexOf(domainsItem_));
         else
             showItems(indexOf(editBoxUpstream1_), indexOf(splitDnsCheckBox_));
@@ -86,9 +86,9 @@ void ConnectedDnsGroup::updateMode()
 
 void ConnectedDnsGroup::onConnectedDnsModeChanged(QVariant v)
 {
-    if (settings_.type_ != v.toInt())
+    if (settings_.type != v.toInt())
     {
-        settings_.type_ = (CONNECTED_DNS_TYPE)v.toInt();
+        settings_.type = (CONNECTED_DNS_TYPE)v.toInt();
         updateMode();
         emit connectedDnsInfoChanged(settings_);
     }
@@ -96,39 +96,39 @@ void ConnectedDnsGroup::onConnectedDnsModeChanged(QVariant v)
 
 void ConnectedDnsGroup::onUpstream1Changed(QString v)
 {
-    if (settings_.upStream1_ != v) {
-        settings_.upStream1_ = v;
+    if (settings_.upStream1 != v) {
+        settings_.upStream1 = v;
         emit connectedDnsInfoChanged(settings_);
     }
 }
 
 void ConnectedDnsGroup::onUpstream2Changed(QString v)
 {
-    if (settings_.upStream2_ != v) {
-        settings_.upStream2_ = v;
+    if (settings_.upStream2 != v) {
+        settings_.upStream2 = v;
         emit connectedDnsInfoChanged(settings_);
     }
 }
 
 void ConnectedDnsGroup::onSplitDnsStateChanged(bool checked)
 {
-    if (settings_.isSplitDns_ != checked) {
+    if (settings_.isSplitDns != checked) {
 
         // hide additional items
-        if (settings_.isSplitDns_ && !checked) {
+        if (settings_.isSplitDns && !checked) {
             hideItems(indexOf(editBoxUpstream2_), indexOf(domainsItem_));
         } else  {        // show additional items
             showItems(indexOf(editBoxUpstream1_), indexOf(domainsItem_));
         }
 
-        settings_.isSplitDns_ = checked;
+        settings_.isSplitDns = checked;
         emit connectedDnsInfoChanged(settings_);
     }
 }
 
 void ConnectedDnsGroup::onDomainsClick()
 {
-    emit domainsClick(settings_.hostnames_);
+    emit domainsClick(settings_.hostnames);
 }
 
 void ConnectedDnsGroup::hideOpenPopups()
@@ -144,7 +144,7 @@ void ConnectedDnsGroup::onLanguageChanged()
     for (const auto t : types) {
         list << qMakePair(types::ConnectedDnsInfo::typeToString(t), t);
     }
-    comboBoxDns_->setItems(list, settings_.type_);
+    comboBoxDns_->setItems(list, settings_.type);
 
     editBoxUpstream1_->setCaption(tr("Upstream 1"));
     editBoxUpstream1_->setPrompt(tr("Upstream 1"));

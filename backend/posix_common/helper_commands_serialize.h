@@ -116,6 +116,15 @@ void serialize(Archive &ar, CMD_CONFIGURE_WIREGUARD &a, const unsigned int versi
 }
 
 template<class Archive>
+void serialize(Archive &ar, CMD_START_CTRLD &a, const unsigned int version)
+{
+    UNUSED(version);
+    ar & a.exePath;
+    ar & a.executable;
+    ar & a.parameters;
+}
+
+template<class Archive>
 void serialize(Archive &ar, CMD_KILL_PROCESS &a, const unsigned int version)
 {
     UNUSED(version);

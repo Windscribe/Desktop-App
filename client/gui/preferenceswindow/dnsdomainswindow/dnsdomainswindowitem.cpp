@@ -24,7 +24,7 @@ DnsDomainsWindowItem::DnsDomainsWindowItem(ScalableGraphicsObject *parent, Prefe
 
     setFocusProxy(addressesGroup_);
 
-    addressesGroup_->setAddresses(preferences_->connectedDnsInfo().hostnames_);
+    addressesGroup_->setAddresses(preferences_->connectedDnsInfo().hostnames);
 
     setLoggedIn(false);
 
@@ -45,7 +45,7 @@ void DnsDomainsWindowItem::setFocusOnTextEntry()
 void DnsDomainsWindowItem::onAddressesUpdated(const QStringList &addresses)
 {
     types::ConnectedDnsInfo curDnsInfo = preferences_->connectedDnsInfo();
-    curDnsInfo.hostnames_ = addresses;
+    curDnsInfo.hostnames = addresses;
     preferences_->setConnectedDnsInfo(curDnsInfo);
 
 }
@@ -62,7 +62,7 @@ void DnsDomainsWindowItem::onClearError()
 
 void DnsDomainsWindowItem::onConnectedDnsPreferencesChanged(const types::ConnectedDnsInfo &dns)
 {
-    addressesGroup_->setAddresses(preferences_->connectedDnsInfo().hostnames_);
+    addressesGroup_->setAddresses(preferences_->connectedDnsInfo().hostnames);
 }
 
 void DnsDomainsWindowItem::setLoggedIn(bool loggedIn)

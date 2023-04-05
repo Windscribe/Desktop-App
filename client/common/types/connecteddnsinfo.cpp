@@ -30,11 +30,11 @@ QString ConnectedDnsInfo::typeToString(const CONNECTED_DNS_TYPE &type)
 
 bool ConnectedDnsInfo::operator==(const ConnectedDnsInfo &other) const
 {
-    return other.type_ == type_ &&
-           other.upStream1_ == upStream1_ &&
-           other.isSplitDns_ == isSplitDns_ &&
-           other.upStream2_ == upStream2_ &&
-           other.hostnames_ == hostnames_;
+    return other.type == type &&
+           other.upStream1 == upStream1 &&
+           other.isSplitDns == isSplitDns &&
+           other.upStream2 == upStream2 &&
+           other.hostnames == hostnames;
 }
 
 bool ConnectedDnsInfo::operator!=(const ConnectedDnsInfo &other) const
@@ -45,7 +45,7 @@ bool ConnectedDnsInfo::operator!=(const ConnectedDnsInfo &other) const
 QDataStream& operator <<(QDataStream &stream, const ConnectedDnsInfo &o)
 {
     stream << o.versionForSerialization_;
-    stream << o.type_ << o.upStream1_ << o.isSplitDns_ << o.upStream2_ << o.hostnames_;
+    stream << o.type << o.upStream1 << o.isSplitDns << o.upStream2 << o.hostnames;
     return stream;
 }
 
@@ -59,10 +59,9 @@ QDataStream& operator >>(QDataStream &stream, ConnectedDnsInfo &o)
     }
 
     if (version == 1)
-        stream >> o.type_ >> o.upStream1_;
+        stream >> o.type >> o.upStream1;
     else
-        stream >> o.type_ >> o.upStream1_ >> o.isSplitDns_ >> o.upStream2_ >> o.hostnames_;
-
+        stream >> o.type >> o.upStream1 >> o.isSplitDns >> o.upStream2 >> o.hostnames;
     return stream;
 }
 
@@ -71,7 +70,7 @@ QDebug operator<<(QDebug dbg, const ConnectedDnsInfo &ds)
 {
     QDebugStateSaver saver(dbg);
     dbg.nospace();
-    dbg << "{type:" << ds.type_ << "}";
+    dbg << "{type:" << ds.type << "}";
     return dbg;
 }
 

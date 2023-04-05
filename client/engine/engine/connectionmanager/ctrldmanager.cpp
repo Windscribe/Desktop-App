@@ -4,27 +4,20 @@
 #include <QStandardPaths>
 #include "utils/logger.h"
 #include "availableport.h"
-#include "utils/executable_signature/executable_signature.h"
 
-
-CtrldManager::CtrldManager(QObject *parent) : QObject(parent), bProcessStarted_(false)
+CtrldManager::CtrldManager(QObject *parent, IHelper *helper) : QObject(parent), helper_(helper), bProcessStarted_(false)
 {
-    process_ = new QProcess(this);
-    connect(process_, SIGNAL(started()), SLOT(onProcessStarted()));
-    connect(process_, SIGNAL(finished(int)), SLOT(onProcessFinished()));
-    connect(process_, SIGNAL(readyReadStandardOutput()), SLOT(onReadyReadStandardOutput()));
-    connect(process_, SIGNAL(errorOccurred(QProcess::ProcessError)), SLOT(onProcessErrorOccurred(QProcess::ProcessError)));
-    process_->setProcessChannelMode(QProcess::MergedChannels);
-
 #if defined Q_OS_WIN
-    ctrldExePath_ = QCoreApplication::applicationDirPath() + "/ctrld.exe";
+    ctrldExePath_ = QCoreApplication::applicationDirPath() + "/windscribectrld.exe";
     logPath_ = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + "ctrld.log";
 #elif defined Q_OS_MAC
-    wstunelExePath_ = QCoreApplication::applicationDirPath() + "/../Helpers/windscribewstunnel";
-    qCDebug(LOG_BASIC) << Utils::cleanSensitiveInfo(wstunelExePath_);
+    ctrldExePath_ = QCoreApplication::applicationDirPath() + "/../Helpers/windscribectrld";
+    qCDebug(LOG_BASIC) << Utils::cleanSensitiveInfo(ctrldExePath_);
+    logPath_ = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + "/ctrld.log";
 #elif defined Q_OS_LINUX
-    wstunelExePath_ = QCoreApplication::applicationDirPath() + "/windscribewstunnel";
-    qCDebug(LOG_BASIC) << Utils::cleanSensitiveInfo(wstunelExePath_);
+    ctrldExePath_ = QCoreApplication::applicationDirPath() + "/windscribectrld";
+    qCDebug(LOG_BASIC) << Utils::cleanSensitiveInfo(ctrldExePath_);
+    logPath_ = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + "/ctrld.log";
 #endif
     listenIp_ = "127.0.0.1";    // default listen ip for ctrld utility
 }
@@ -36,11 +29,7 @@ CtrldManager::~CtrldManager()
 
 bool CtrldManager::runProcess(const QString &upstream1, const QString &upstream2, const QStringList &domains)
 {
-    ExecutableSignature sigCheck;
-    if (!sigCheck.verifyWithSignCheck(ctrldExePath_.toStdWString())) {
-        qCDebug(LOG_CTRLD) << "Failed to verify ctrld signature: " << QString::fromStdString(sigCheck.lastError());
-        return false;
-    }
+    QFile::remove("\"" + logPath_ + "\"");
 
     QString ip = getAvailableIp();
     if (ip.isEmpty()) {
@@ -48,10 +37,7 @@ bool CtrldManager::runProcess(const QString &upstream1, const QString &upstream2
         return false;
     }
 
-    inputArr_.clear();
-    bProcessStarted_ = true;
     QStringList args;
-
     args << "run";
     args << "--listen=" + ip + ":53";
     args << "--primary_upstream=" + upstream1;
@@ -61,26 +47,26 @@ bool CtrldManager::runProcess(const QString &upstream1, const QString &upstream2
             args << "--domains=" + domains.join(',');
         }
     }
-    args << "--log" << logPath_;
-    args << "-vv";
-    process_->start(ctrldExePath_, args);
-    return true;
+    // Probably don't log in the release
+    //args << "--log" << "\"" + logPath_ + "\"";
+    //args << "-vv";
+#if defined Q_OS_WIN
+    IHelper::ExecuteError err = helper_->startCtrld("windscribectrld.exe", args.join(' '));
+#else
+    IHelper::ExecuteError err = helper_->startCtrld("windscribectrld", args.join(' '));
+#endif
+    bProcessStarted_ = (err == IHelper::ExecuteError::EXECUTE_SUCCESS);
+    if (bProcessStarted_) {
+        qCDebug(LOG_CTRLD) << "ctrld started";
+    }
+    return bProcessStarted_;
 }
 
 void CtrldManager::killProcess()
 {
     if (bProcessStarted_) {
         bProcessStarted_ = false;
-        process_->close();
-
-        // for Mac/Linux send kill command
-    #if defined (Q_OS_MAC) || defined(Q_OS_LINUX)
-        QProcess killCmd(this);
-        killCmd.execute("killall", QStringList() << "ctrld");
-        killCmd.waitForFinished(-1);
-    #endif
-
-        process_->waitForFinished(-1);
+        helper_->stopCtrld();
         qCDebug(LOG_CTRLD) << "ctrld stopped";
     }
 }
@@ -90,59 +76,6 @@ QString CtrldManager::listenIp() const
     return listenIp_;
 }
 
-void CtrldManager::onProcessStarted()
-{
-    qCDebug(LOG_CTRLD) << "ctrld started on " << listenIp_ + ":53";
-}
-
-void CtrldManager::onProcessFinished()
-{
-#ifdef Q_OS_WIN
-    if (bProcessStarted_) {
-        qCDebug(LOG_CTRLD) << "wstunnel finished";
-        qCDebug(LOG_CTRLD) << process_->readAllStandardError();
-        emit ctrldFinished();
-    }
-#endif
-}
-
-void CtrldManager::onReadyReadStandardOutput()
-{
-    inputArr_.append(process_->readAll());
-    bool bSuccess = true;
-    int length;
-    while (true) {
-        QString str = getNextStringFromInputBuffer(bSuccess, length);    
-        if (bSuccess) {
-            inputArr_.remove(0, length);
-            qCDebug(LOG_CTRLD) << str;
-        } else {
-            break;
-        }
-    };
-}
-
-void CtrldManager::onProcessErrorOccurred(QProcess::ProcessError /*error*/)
-{
-    qCDebug(LOG_CTRLD) << "ctrld process error:" << process_->errorString();
-}
-
-QString CtrldManager::getNextStringFromInputBuffer(bool &bSuccess, int &outSize)
-{
-    QString str;
-    bSuccess = false;
-    outSize = 0;
-    for (int i = 0; i < inputArr_.size(); ++i) {
-        if (inputArr_[i] == '\n') {
-            bSuccess = true;
-            outSize = i + 1;
-            return str.trimmed();
-        }
-        str += inputArr_[i];
-    }
-
-    return QString();
-}
 
 QString CtrldManager::getAvailableIp()
 {
