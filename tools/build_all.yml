@@ -262,6 +262,8 @@ client_deploy_files:
         - openvpn -> windscribeopenvpn
       stunnel:
         - stunnel -> windscribestunnel
+      ctrld:
+        - ctrld -> windscribectrld
       wireguard:
         - windscribewireguard -> windscribewireguard
     fix_rpath:
@@ -293,6 +295,7 @@ codesign_files:
     - windscribestunnel
     - windscribewstunnel
     - windscribeopenvpn
+    - windscribectrld
     - windscribe-authhelper
     - windscribewireguard
     - Windscribe

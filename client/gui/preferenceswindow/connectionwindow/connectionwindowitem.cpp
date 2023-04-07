@@ -95,6 +95,7 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
     connect(packetSizeGroup_, &PacketSizeGroup::packetSizeChanged, this, &ConnectionWindowItem::onPacketSizePreferencesChangedByUser);
     connect(packetSizeGroup_, &PacketSizeGroup::detectPacketSize, this, &ConnectionWindowItem::detectPacketSize);
     addItem(packetSizeGroup_);
+#endif
 
     connectedDnsGroup_ = new ConnectedDnsGroup(this,
                                                "",
@@ -103,8 +104,6 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
     connect(connectedDnsGroup_, &ConnectedDnsGroup::connectedDnsInfoChanged, this, &ConnectionWindowItem::onConnectedDnsPreferencesChangedByUser);
     connect(connectedDnsGroup_, &ConnectedDnsGroup::domainsClick, this, &ConnectionWindowItem::connectedDnsDomainsClick);
     addItem(connectedDnsGroup_);
-#endif
-
     allowLanTrafficGroup_ = new PreferenceGroup(this,
                                                 "",
                                                 QString("https://%1/features/lan-traffic").arg(HardcodedSettings::instance().serverUrl()));
@@ -339,9 +338,7 @@ void ConnectionWindowItem::onIsExternalConfigModeChanged(bool bIsExternalConfigM
 
 void ConnectionWindowItem::onConnectedDnsPreferencesChanged(const types::ConnectedDnsInfo &dns)
 {
-#ifndef Q_OS_LINUX
     connectedDnsGroup_->setConnectedDnsInfo(dns);
-#endif
 }
 
 void ConnectionWindowItem::onProxyGatewayAddressChanged(const QString &address)
@@ -371,9 +368,9 @@ void ConnectionWindowItem::onLanguageChanged()
 
 #ifndef Q_OS_LINUX
     packetSizeGroup_->setDescription(tr("Automatically determine the MTU for your connection, or manually override."));
-    connectedDnsGroup_->setDescription(tr("Select the DNS server while connected to Windscribe."));
 #endif
 
+    connectedDnsGroup_->setDescription(tr("Select the DNS server while connected to Windscribe."));
     allowLanTrafficGroup_->setDescription(tr("Allow access to local services and printers while connected to Windscribe."));
     checkBoxAllowLanTraffic_->setCaption(tr("Allow LAN Traffic"));
 
@@ -409,9 +406,7 @@ void ConnectionWindowItem::onIsAllowLanTrafficPreferencesChangedByUser(bool b)
 
 void ConnectionWindowItem::onConnectedDnsPreferencesChangedByUser(const types::ConnectedDnsInfo &dns)
 {
-#ifndef Q_OS_LINUX
     preferences_->setConnectedDnsInfo(dns);
-#endif
 }
 
 void ConnectionWindowItem::hideOpenPopups()

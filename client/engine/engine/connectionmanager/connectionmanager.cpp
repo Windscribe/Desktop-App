@@ -975,7 +975,8 @@ void ConnectionManager::doConnectPart2()
 
             const bool bOvpnSuccess = makeOVPNFile_->generate(lastOvpnConfig_, currentConnectionDescr_.ip, currentConnectionDescr_.protocol,
                                                         currentConnectionDescr_.port, portForStunnelOrWStunnel, mss, defaultAdapterInfo_.gateway(),
-                                                        currentConnectionDescr_.verifyX509name, connectedDnsInfo_.type == CONNECTED_DNS_TYPE_ROBERT);
+                                                        currentConnectionDescr_.verifyX509name, connectedDnsInfo_.type == CONNECTED_DNS_TYPE_ROBERT ? "" : ctrldManager_->listenIp(),
+                                                        connectedDnsInfo_.type == CONNECTED_DNS_TYPE_ROBERT);
             if (!bOvpnSuccess )
             {
                 qCDebug(LOG_CONNECTION) << "Failed create ovpn config";
@@ -1068,7 +1069,8 @@ void ConnectionManager::doConnectPart3()
     {
         WireGuardConfig* pConfig = (currentConnectionDescr_.connectionNodeType == CONNECTION_NODE_CUSTOM_CONFIG ? currentConnectionDescr_.wgCustomConfig.get() : &wireGuardConfig_);
         WS_ASSERT(pConfig != nullptr);
-        Q_EMIT connectingToHostname(currentConnectionDescr_.hostname, currentConnectionDescr_.ip, pConfig->clientDnsAddress());
+        Q_EMIT connectingToHostname(currentConnectionDescr_.hostname, currentConnectionDescr_.ip,
+                                    (connectedDnsInfo_.type == CONNECTED_DNS_TYPE_ROBERT) ? pConfig->clientDnsAddress() : ctrldManager_->listenIp());
     }
     else
     {
@@ -1128,6 +1130,10 @@ void ConnectionManager::doConnectPart3()
             QString endpointAndPort = QString("%1:%2").arg(currentConnectionDescr_.ip).arg(currentConnectionDescr_.port);
             wireGuardConfig_.setPeerPublicKey(currentConnectionDescr_.wgPeerPublicKey);
             wireGuardConfig_.setPeerEndpoint(endpointAndPort);
+            // override the DNS if we are using custom
+            if (connectedDnsInfo_.type == CONNECTED_DNS_TYPE_CUSTOM) {
+                wireGuardConfig_.setClientDnsAddress(ctrldManager_->listenIp());
+            }
             recreateConnector(types::Protocol::WIREGUARD);
             connector_->startConnect(QString(), currentConnectionDescr_.ip,
                 currentConnectionDescr_.dnsHostName, QString(), QString(), lastProxySettings_,

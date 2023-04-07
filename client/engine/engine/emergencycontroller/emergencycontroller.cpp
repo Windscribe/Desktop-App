@@ -347,7 +347,7 @@ void EmergencyController::doConnect()
     }
 
 
-    bool bOvpnSuccess = makeOVPNFile_->generate(ovpnConfig_, attempt.ip, types::Protocol::fromString(attempt.protocol), attempt.port, 0, mss, defaultAdapterInfo_.gateway(), "");
+    bool bOvpnSuccess = makeOVPNFile_->generate(ovpnConfig_, attempt.ip, types::Protocol::fromString(attempt.protocol), attempt.port, 0, mss, defaultAdapterInfo_.gateway(), "", "");
     if (!bOvpnSuccess )
     {
         qCDebug(LOG_EMERGENCY_CONNECT) << "Failed create ovpn config";
