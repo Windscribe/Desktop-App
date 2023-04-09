@@ -1,33 +1,24 @@
-#include "ctrldmanager.h"
+#include "ctrldmanager_posix.h"
 #include <QCoreApplication>
 #include <QDir>
 #include <QStandardPaths>
 #include "utils/logger.h"
 #include "utils/ws_assert.h"
-#include "availableport.h"
+#include "../availableport.h"
 
-CtrldManager::CtrldManager(QObject *parent, IHelper *helper) : QObject(parent), helper_(helper), bProcessStarted_(false)
+CtrldManager_posix::CtrldManager_posix(QObject *parent, IHelper *helper, bool isCreateLog) : ICtrldManager(parent, isCreateLog), helper_(helper), bProcessStarted_(false)
 {
-#if defined Q_OS_WIN
-    logPath_ = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + "ctrld.log";
-#elif defined Q_OS_MAC
-    qCDebug(LOG_BASIC) << Utils::cleanSensitiveInfo(ctrldExePath_);
     logPath_ = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + "/ctrld.log";
-#elif defined Q_OS_LINUX
-    qCDebug(LOG_BASIC) << Utils::cleanSensitiveInfo(ctrldExePath_);
-    logPath_ = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + "/ctrld.log";
-#endif
     listenIp_ = "127.0.0.1";    // default listen ip for ctrld utility
 }
 
-CtrldManager::~CtrldManager()
+CtrldManager_posix::~CtrldManager_posix()
 {
-    killProcess();
+    WS_ASSERT(!bProcessStarted_);
 }
 
-bool CtrldManager::runProcess(const QString &upstream1, const QString &upstream2, const QStringList &domains)
+bool CtrldManager_posix::runProcess(const QString &upstream1, const QString &upstream2, const QStringList &domains)
 {
-    return true;
     WS_ASSERT(!bProcessStarted_);
     QFile::remove("\"" + logPath_ + "\"");
 
@@ -47,14 +38,12 @@ bool CtrldManager::runProcess(const QString &upstream1, const QString &upstream2
             args << "--domains=" + domains.join(',');
         }
     }
-    // Probably don't log in the release
-    //args << "--log" << "\"" + logPath_ + "\"";
-    //args << "-vv";
-#if defined Q_OS_WIN
-    IHelper::ExecuteError err = helper_->startCtrld("windscribectrld.exe", args.join(' '));
-#else
+    if (isCreateLog_) {
+        args << "--log" << "\"" + logPath_ + "\"";
+        args << "-vv";
+    }
+
     IHelper::ExecuteError err = helper_->startCtrld("windscribectrld", args.join(' '));
-#endif
     bProcessStarted_ = (err == IHelper::ExecuteError::EXECUTE_SUCCESS);
     if (bProcessStarted_) {
         qCDebug(LOG_CTRLD) << "ctrld started";
@@ -62,9 +51,8 @@ bool CtrldManager::runProcess(const QString &upstream1, const QString &upstream2
     return bProcessStarted_;
 }
 
-void CtrldManager::killProcess()
+void CtrldManager_posix::killProcess()
 {
-    return;
     if (bProcessStarted_) {
         bProcessStarted_ = false;
         helper_->stopCtrld();
@@ -72,13 +60,13 @@ void CtrldManager::killProcess()
     }
 }
 
-QString CtrldManager::listenIp() const
+QString CtrldManager_posix::listenIp() const
 {
     return listenIp_;
 }
 
 
-QString CtrldManager::getAvailableIp()
+QString CtrldManager_posix::getAvailableIp()
 {
     if (!AvailablePort::isPortBusy(listenIp_, 53))
         return listenIp_;
