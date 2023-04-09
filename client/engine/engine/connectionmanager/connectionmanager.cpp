@@ -5,6 +5,7 @@
 #include <QDateTime>
 #include "isleepevents.h"
 #include "openvpnconnection.h"
+#include "engine/crossplatformobjectfactory.h"
 
 #include "utils/ws_assert.h"
 #include "utils/utils.h"
@@ -76,9 +77,7 @@ ConnectionManager::ConnectionManager(QObject *parent, IHelper *helper, INetworkD
     connect(wstunnelManager_, &WstunnelManager::wstunnelStarted, this, &ConnectionManager::onWstunnelStarted);
     connect(wstunnelManager_, &WstunnelManager::wstunnelFinished, this, &ConnectionManager::onWstunnelFinishedBeforeConnection);
 
-    ctrldManager_ = new CtrldManager(this, helper);
-    connect(ctrldManager_, &CtrldManager::ctrldFinished, this, &ConnectionManager::onCtrldFinishedBeforeConnection);
-
+    ctrldManager_ = CrossPlatformObjectFactory::createCtrldManager(this, helper, false);
 
     testVPNTunnel_ = new TestVPNTunnel(this, serverAPI);
     connect(testVPNTunnel_, &TestVPNTunnel::testsFinished, this, &ConnectionManager::onTunnelTestsFinished);
@@ -181,6 +180,9 @@ void ConnectionManager::clickDisconnect()
                 connSettingsPolicy_->reset();
             }
             timerReconnection_.stop();
+            stunnelManager_->killProcess();
+            wstunnelManager_->killProcess();
+            ctrldManager_->killProcess();
             Q_EMIT disconnected(DISCONNECTED_BY_USER);
         }
     }
@@ -257,9 +259,10 @@ void ConnectionManager::setConnectedDnsInfo(const types::ConnectedDnsInfo &info)
 {
     connectedDnsInfo_ = info;
 #ifdef Q_OS_WIN
-    if(helper_) {
-        dynamic_cast<Helper_win*>(helper_)->setCustomDnsIp(info.upStream1_);
-    }
+    //FIXME:
+    //if(helper_) {
+        //dynamic_cast<Helper_win*>(helper_)->setCustomDnsIp("127.0.0.1");
+    //}
 #endif
 }
 
@@ -855,15 +858,6 @@ void ConnectionManager::onWstunnelFinishedBeforeConnection()
 void ConnectionManager::onWstunnelStarted()
 {
     doConnectPart3();
-}
-
-void ConnectionManager::onCtrldFinishedBeforeConnection()
-{
-    state_ = STATE_AUTO_DISCONNECT;
-    if (connector_)
-        connector_->startDisconnect();
-    else
-        onConnectionDisconnected();
 }
 
 void ConnectionManager::doConnect()

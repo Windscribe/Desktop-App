@@ -6,7 +6,7 @@
 #include <QTimer>
 #include "stunnelmanager.h"
 #include "wstunnelmanager.h"
-#include "ctrldmanager.h"
+#include "ctrldmanager/ictrldmanager.h"
 #include "makeovpnfile.h"
 #include "makeovpnfilefromcustom.h"
 
@@ -127,7 +127,6 @@ private slots:
     void onStunnelFinishedBeforeConnection();
     void onWstunnelFinishedBeforeConnection();
     void onWstunnelStarted();
-    void onCtrldFinishedBeforeConnection();
     void onTunnelTestsFinished(bool bSuccess, const QString &ipAddress);
 
     void onTimerWaitNetworkConnectivity();
@@ -149,7 +148,7 @@ private:
     ISleepEvents *sleepEvents_;
     StunnelManager *stunnelManager_;
     WstunnelManager *wstunnelManager_;
-    CtrldManager *ctrldManager_;
+    ICtrldManager *ctrldManager_;
 
 #ifdef Q_OS_MAC
     RestoreDNSManager_mac restoreDnsManager_;

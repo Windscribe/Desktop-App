@@ -1314,9 +1314,8 @@ void Engine::onConnectionManagerConnected()
     if (connectionManager_->connectedDnsInfo().type == CONNECTED_DNS_TYPE_CUSTOM)
     {
         WS_ASSERT(connectionManager_->getVpnAdapterInfo().dnsServers().count() == 1);
-        if (!helper_win->setCustomDnsWhileConnected(connectionManager_->currentProtocol().isIkev2Protocol(),
-                                                 connectionManager_->getVpnAdapterInfo().ifIndex(),
-                                                 connectionManager_->getVpnAdapterInfo().dnsServers().first()))
+        if (!helper_win->setCustomDnsWhileConnected( connectionManager_->getVpnAdapterInfo().ifIndex(),
+                                                     connectionManager_->getVpnAdapterInfo().dnsServers().first()))
         {
             qCDebug(LOG_CONNECTED_DNS) << "Failed to set Custom 'while connected' DNS";
         }

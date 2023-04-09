@@ -3,19 +3,17 @@
 #include <QDir>
 #include <QStandardPaths>
 #include "utils/logger.h"
+#include "utils/ws_assert.h"
 #include "availableport.h"
 
 CtrldManager::CtrldManager(QObject *parent, IHelper *helper) : QObject(parent), helper_(helper), bProcessStarted_(false)
 {
 #if defined Q_OS_WIN
-    ctrldExePath_ = QCoreApplication::applicationDirPath() + "/windscribectrld.exe";
     logPath_ = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + "ctrld.log";
 #elif defined Q_OS_MAC
-    ctrldExePath_ = QCoreApplication::applicationDirPath() + "/../Helpers/windscribectrld";
     qCDebug(LOG_BASIC) << Utils::cleanSensitiveInfo(ctrldExePath_);
     logPath_ = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + "/ctrld.log";
 #elif defined Q_OS_LINUX
-    ctrldExePath_ = QCoreApplication::applicationDirPath() + "/windscribectrld";
     qCDebug(LOG_BASIC) << Utils::cleanSensitiveInfo(ctrldExePath_);
     logPath_ = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + "/ctrld.log";
 #endif
@@ -29,6 +27,8 @@ CtrldManager::~CtrldManager()
 
 bool CtrldManager::runProcess(const QString &upstream1, const QString &upstream2, const QStringList &domains)
 {
+    return true;
+    WS_ASSERT(!bProcessStarted_);
     QFile::remove("\"" + logPath_ + "\"");
 
     QString ip = getAvailableIp();
@@ -64,6 +64,7 @@ bool CtrldManager::runProcess(const QString &upstream1, const QString &upstream2
 
 void CtrldManager::killProcess()
 {
+    return;
     if (bProcessStarted_) {
         bProcessStarted_ = false;
         helper_->stopCtrld();

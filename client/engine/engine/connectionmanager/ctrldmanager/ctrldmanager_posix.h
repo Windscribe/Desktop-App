@@ -16,14 +16,8 @@ public:
     void killProcess();
     QString listenIp() const;
 
-signals:
-    void ctrldFinished();
-    void ctrldStarted();
-
-
 private:
     IHelper *helper_;
-    QString     ctrldExePath_;
     QString     logPath_;
     bool bProcessStarted_;
     QString listenIp_;
