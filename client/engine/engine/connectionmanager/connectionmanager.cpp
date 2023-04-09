@@ -1086,7 +1086,8 @@ void ConnectionManager::doConnectPart3()
 
         connector_->startConnect(makeOVPNFileFromCustom_->config(), "", "", usernameForCustomOvpn_,
                                  passwordForCustomOvpn_, lastProxySettings_,
-                                 currentConnectionDescr_.wgCustomConfig.get(), false, false, true);
+                                 currentConnectionDescr_.wgCustomConfig.get(), false, false, true,
+                                 (connectedDnsInfo_.type == CONNECTED_DNS_TYPE_ROBERT) ? QString() : ctrldManager_->listenIp());
     }
     else
     {
@@ -1105,7 +1106,9 @@ void ConnectionManager::doConnectPart3()
             }
 
             recreateConnector(types::Protocol::OPENVPN_UDP);
-            connector_->startConnect(makeOVPNFile_->config(), "", "", username, password, lastProxySettings_, nullptr, false, connSettingsPolicy_->isAutomaticMode(), false);
+            connector_->startConnect(makeOVPNFile_->config(), "", "", username, password, lastProxySettings_, nullptr,
+                                     false, connSettingsPolicy_->isAutomaticMode(), false,
+                                     (connectedDnsInfo_.type == CONNECTED_DNS_TYPE_ROBERT) ? QString() : ctrldManager_->listenIp());
         }
         else if (currentConnectionDescr_.protocol.isIkev2Protocol())
         {
@@ -1123,21 +1126,19 @@ void ConnectionManager::doConnectPart3()
 
             recreateConnector(types::Protocol::IKEV2);
             connector_->startConnect(currentConnectionDescr_.hostname, currentConnectionDescr_.ip, currentConnectionDescr_.hostname, username, password, lastProxySettings_,
-                                     nullptr, ExtraConfig::instance().isUseIkev2Compression(), connSettingsPolicy_->isAutomaticMode(), false);
+                                     nullptr, ExtraConfig::instance().isUseIkev2Compression(), connSettingsPolicy_->isAutomaticMode(), false,
+                                     (connectedDnsInfo_.type == CONNECTED_DNS_TYPE_ROBERT) ? QString() : ctrldManager_->listenIp());
         }
         else if (currentConnectionDescr_.protocol.isWireGuardProtocol())
         {
             QString endpointAndPort = QString("%1:%2").arg(currentConnectionDescr_.ip).arg(currentConnectionDescr_.port);
             wireGuardConfig_.setPeerPublicKey(currentConnectionDescr_.wgPeerPublicKey);
             wireGuardConfig_.setPeerEndpoint(endpointAndPort);
-            // override the DNS if we are using custom
-            if (connectedDnsInfo_.type == CONNECTED_DNS_TYPE_CUSTOM) {
-                wireGuardConfig_.setClientDnsAddress(ctrldManager_->listenIp());
-            }
             recreateConnector(types::Protocol::WIREGUARD);
             connector_->startConnect(QString(), currentConnectionDescr_.ip,
                 currentConnectionDescr_.dnsHostName, QString(), QString(), lastProxySettings_,
-                &wireGuardConfig_, false, connSettingsPolicy_->isAutomaticMode(), false);
+                &wireGuardConfig_, false, connSettingsPolicy_->isAutomaticMode(), false,
+                (connectedDnsInfo_.type == CONNECTED_DNS_TYPE_ROBERT) ? QString() : ctrldManager_->listenIp());
         }
         else
         {

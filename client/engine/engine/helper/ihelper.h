@@ -42,7 +42,6 @@ public:
     virtual bool sendConnectStatus(bool isConnected, bool isTerminateSocket, bool isKeepLocalSocket,
                                    const AdapterGatewayInfo &defaultAdapter, const AdapterGatewayInfo &vpnAdapter,
                                    const QString &connectedIp, const types::Protocol &protocol) = 0;
-    virtual bool setCustomDnsWhileConnected(bool isIkev2, unsigned long ifIndex, const QString &overrideDnsIpAddress) = 0;
     virtual bool changeMtu(const QString &adapter, int mtu) = 0;
 
     // WireGuard functions

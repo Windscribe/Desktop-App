@@ -18,7 +18,7 @@ public:
     void startConnect(const QString &configPathOrUrl, const QString &ip, const QString &dnsHostName,
                       const QString &username, const QString &password, const types::ProxySettings &proxySettings,
                       const WireGuardConfig *wireGuardConfig, bool isEnableIkev2Compression, bool isAutomaticConnectionMode,
-                      bool isCustomConfig) override;
+                      bool isCustomConfig, const QString &overrideDnsIp) override;
     void startDisconnect() override;
     bool isDisconnected() const override;
     ConnectionType getConnectionType() const override { return ConnectionType::IKEV2; }
@@ -46,6 +46,7 @@ private:
     bool isStateConnectingAfterClick_;
     bool isDisconnectClicked_;
     NetworkExtensionLog_mac networkExtensionLog_;
+    QString overrideDnsIp_;
 
     static constexpr int STATISTICS_UPDATE_PERIOD = 1000;
     QTimer statisticsTimer_;
@@ -58,6 +59,7 @@ private:
     void handleNotification(void *notification);
     bool isFailedAuthError(QMap<time_t, QString> &logs);
     bool isSocketError(QMap<time_t, QString> &logs);
+    bool setCustomDns(const QString &overrideDnsIpAddress);
 };
 
 #endif // IKEV2CONNECTION_MAC_H
