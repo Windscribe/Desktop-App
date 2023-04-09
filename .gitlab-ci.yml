@@ -90,6 +90,11 @@ variables:
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --create-dirs -o build-libs/curl.zip "${NEXUS_PATH_DEPS}/${OS_IDENTIFIER}/curl.zip"
 
+.download_dependency_ctrld:
+  script:
+    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+      --create-dirs -o build-libs/ctrld.zip "${NEXUS_PATH_DEPS}/${OS_IDENTIFIER}/ctrld.zip"
+
 .download_dependency_dga:
   script:
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
@@ -145,6 +150,7 @@ variables:
     - !reference [.download_dependency_boost, script]
     - !reference [.download_dependency_cares, script ]
     - !reference [.download_dependency_curl, script]
+    - !reference [.download_dependency_ctrld, script]
     - !reference [.download_dependency_dga, script]
     - !reference [.download_dependency_jom, script]
     - !reference [.download_dependency_lzo, script]
@@ -218,6 +224,7 @@ build:win:installer:tagged:
     - !reference [.download_dependency_boost, script]
     - !reference [.download_dependency_cares, script ]
     - !reference [.download_dependency_curl, script]
+    - !reference [.download_dependency_ctrld, script]
     - !reference [.download_dependency_dga, script]
     - !reference [.download_dependency_lzo, script]
     - !reference [.download_dependency_openssl, script]
@@ -289,6 +296,7 @@ build:mac:installer:tagged:
     - !reference [.download_dependency_cares, script ]
     - !reference [.download_dependency_curl, script]
     - !reference [.download_dependency_dga, script]
+    - !reference [.download_dependency_ctrld, script]
     - !reference [.download_dependency_lzo, script]
     - !reference [.download_dependency_openssl, script]
     - !reference [.download_dependency_openvpn, script]
