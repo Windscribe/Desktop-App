@@ -34,12 +34,6 @@ ConnectedDnsGroup::ConnectedDnsGroup(ScalableGraphicsObject *parent, const QStri
 
     addItem(domainsItem_);
 
-    //FIXME:
-//    QString ipRange = "(?:[0-1]?[0-9]?[0-9]|2[0-4][0-9]|25[0-5])";
-//    QRegularExpression ipRegex ("^" + ipRange + "\\." + ipRange + "\\." + ipRange + "\\." + ipRange + "$");
-//    QRegularExpressionValidator *ipValidator = new QRegularExpressionValidator(ipRegex, this);
-//    editBoxUpstream1_->setValidator(ipValidator);
-
     hideItems(indexOf(editBoxUpstream1_), indexOf(domainsItem_), DISPLAY_FLAGS::FLAG_NO_ANIMATION);
 
     connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &ConnectedDnsGroup::onLanguageChanged);

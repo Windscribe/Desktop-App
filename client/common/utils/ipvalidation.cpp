@@ -30,6 +30,13 @@ bool IpValidation::isDomain(const QString &str)
     return domainRegex.exactMatch(str);
 }
 
+bool IpValidation::isDomainStartsWithHttps(const QString &str)
+{
+    if (!str.toUpper().startsWith("HTTPS://"))
+        return false;
+    return isDomain(str.mid(8));
+}
+
 bool IpValidation::isIpOrDomain(const QString &str)
 {
     return (isIp(str) || isDomain(str));
@@ -38,6 +45,15 @@ bool IpValidation::isIpOrDomain(const QString &str)
 bool IpValidation::isIpCidrOrDomain(const QString &str)
 {
     return (isIpCidr(str) || isDomain(str));
+}
+
+// checking the correctness of the address for the ctrld utility
+// If IP address -> legacy
+// if https://..... -> DOH
+// if hostname -> DOT
+bool IpValidation::isCtrldCorrectAddress(const QString &str)
+{
+    return isIp(str) || isDomain(str) || isDomainStartsWithHttps(str);
 }
 
 bool IpValidation::isValidIpForCidr(const QString &str)
