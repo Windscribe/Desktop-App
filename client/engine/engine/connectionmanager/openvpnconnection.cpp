@@ -403,7 +403,8 @@ void OpenVPNConnection::handleRead(const boost::system::error_code &err, size_t 
                 stateVariables_.bSigTermSent = true;
             }
         }
-        else if (serverReply.contains("There are no TAP-Windows nor Wintun adapters on this system.", Qt::CaseInsensitive))
+        else if (serverReply.contains("There are no TAP-Windows", Qt::CaseInsensitive) && serverReply.contains("Wintun",Qt::CaseInsensitive) &&
+                 serverReply.contains("adapters on this system.",Qt::CaseInsensitive))
         {
             if (!stateVariables_.bTapErrorEmited)
             {
