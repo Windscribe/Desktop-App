@@ -17,10 +17,11 @@ ConnectStateProtocolPort::ConnectStateProtocolPort(ScalableGraphicsObject *paren
     , textOpacity_(0.5)
     , receivedTunnelTestResult_  (false)
     , badgePixmap_(QSize(36*G_SCALE, 20*G_SCALE), 10*G_SCALE)
+    , preferredProtocolBadge_(new IconButton(8, 10, "PREFERRED_PROTOCOL_BADGE", "", this, OPACITY_FULL, OPACITY_FULL))
+    , isPreferredProtocol_(false)
     , protocolArrow_(new IconButton(16, 16, "PROTOCOL_ARROW", "", this, OPACITY_HALF, OPACITY_FULL))
     , arrowShift_(0)
 {
-
     protocol_ = types::Protocol::WIREGUARD;
     port_ = 443;
 
@@ -36,6 +37,8 @@ ConnectStateProtocolPort::ConnectStateProtocolPort(ScalableGraphicsObject *paren
     connect(this, &ClickableGraphicsObject::hoverEnter, this, &ConnectStateProtocolPort::onHoverEnter);
     connect(this, &ClickableGraphicsObject::hoverLeave, this, &ConnectStateProtocolPort::onHoverLeave);
     connect(&protocolArrowAnimation_, &QVariantAnimation::valueChanged, this, &ConnectStateProtocolPort::onProtocolArrowAnimationChanged);
+
+    preferredProtocolBadge_->setClickableHoverable(false, false);
 
     setClickableHoverable(true, false);
     recalcSize();
@@ -139,6 +142,7 @@ void ConnectStateProtocolPort::updateStateDisplay(const types::ConnectState &con
         }
         badgePixmap_.setColor(badgeBgColor_);
         protocolArrow_->setTintColor(textColor_);
+        preferredProtocolBadge_->setTintColor(textColor_);
     }
     else
     {
@@ -162,6 +166,7 @@ void ConnectStateProtocolPort::updateStateDisplay(const types::ConnectState &con
         }
         badgePixmap_.setColor(badgeBgColor_);
         protocolArrow_->setTintColor(textColor_);
+        preferredProtocolBadge_->setTintColor(textColor_);
     }
     recalcSize();
 }
@@ -281,10 +286,16 @@ void ConnectStateProtocolPort::recalcSize()
     const int badgeHeight = 20*G_SCALE;
     const int protocolArrowWidth = 16*G_SCALE;
 
-    width_ = protocolWidth + portWidth + badgeWidth + protocolArrowWidth + 4*separatorWidth + 4*G_SCALE;
+    width_ = protocolWidth + portWidth + badgeWidth + protocolArrowWidth + 4*separatorWidth + 8*G_SCALE;
+    if (isPreferredProtocol_) {
+        width_ += preferredProtocolBadge_->boundingRect().width() + separatorWidth;
+    }
     height_ = badgeHeight;
 
     protocolArrow_->setPos(width_ - protocolArrowWidth - 4*G_SCALE + arrowShift_*G_SCALE, 2*G_SCALE);
+    preferredProtocolBadge_->setVisible(isPreferredProtocol_);
+    preferredProtocolBadge_->setPos(protocolWidth + portWidth + badgeWidth + 4*separatorWidth + 4*G_SCALE,
+                                    boundingRect().height()/2 - preferredProtocolBadge_->boundingRect().height()/2);
 }
 
 types::ProtocolStatus ConnectStateProtocolPort::getProtocolStatus()
@@ -321,6 +332,12 @@ void ConnectStateProtocolPort::onHoverLeave()
 {
     protocolArrow_->hoverLeave();
     startAnAnimation(protocolArrowAnimation_, arrowShift_, 0, ANIMATION_SPEED_FAST);
+}
+
+void ConnectStateProtocolPort::setIsPreferredProtocol(bool on)
+{
+    isPreferredProtocol_ = on;
+    recalcSize();
 }
 
 } //namespace ConnectWindow

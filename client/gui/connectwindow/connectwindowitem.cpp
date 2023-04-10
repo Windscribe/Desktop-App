@@ -674,4 +674,9 @@ void ConnectWindowItem::onProtocolsClick()
     }
 }
 
+void ConnectWindowItem::setIsPreferredProtocol(bool on)
+{
+    connectStateProtocolPort_->setIsPreferredProtocol(on);
+}
+
 } //namespace ConnectWindow

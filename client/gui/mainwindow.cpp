@@ -943,6 +943,12 @@ void MainWindow::onEscapeProtocolsClick()
 
 void MainWindow::onProtocolWindowProtocolClick(const types::Protocol &protocol, uint port)
 {
+    // If chosen protocol is different from preferred, turn off the badge
+    types::ProtocolStatus ps = mainWindowController_->getConnectWindow()->getProtocolStatus();
+    if (protocol != ps.protocol || port != ps.port) {
+        mainWindowController_->getConnectWindow()->setIsPreferredProtocol(false);
+    }
+
     mainWindowController_->getConnectWindow()->setProtocolPort(protocol, port);
     backend_->sendConnect(PersistentState::instance().lastLocation(), types::ConnectionSettings(protocol, port, false));
     userProtocolOverride_ = true;
@@ -2603,15 +2609,18 @@ void MainWindow::updateConnectWindowStateProtocolPortDisplay()
     if (!backend_->getPreferences()->networkPreferredProtocol(curNetwork_.networkOrSsid).isAutomatic()) {
         mainWindowController_->getConnectWindow()->setProtocolPort(backend_->getPreferences()->networkPreferredProtocol(curNetwork_.networkOrSsid).protocol(),
                                                                    backend_->getPreferences()->networkPreferredProtocol(curNetwork_.networkOrSsid).port());
+        mainWindowController_->getConnectWindow()->setIsPreferredProtocol(true);
     } else if (backend_->getPreferences()->connectionSettings().isAutomatic()) {
         if (lastKnownGoodProtocol.isValid()) {
             mainWindowController_->getConnectWindow()->setProtocolPort(lastKnownGoodProtocol, lastKnownGoodPort);
         } else {
             mainWindowController_->getConnectWindow()->setProtocolPort(types::Protocol::WIREGUARD, 443);
         }
+        mainWindowController_->getConnectWindow()->setIsPreferredProtocol(false);
     } else {
         mainWindowController_->getConnectWindow()->setProtocolPort(backend_->getPreferences()->connectionSettings().protocol(),
                                                                    backend_->getPreferences()->connectionSettings().port());
+        mainWindowController_->getConnectWindow()->setIsPreferredProtocol(false);
     }
 }
 
@@ -2627,11 +2636,20 @@ void MainWindow::onPreferencesConnectionSettingsChanged(types::ConnectionSetting
 
 void MainWindow::onPreferencesNetworkPreferredProtocolsChanged(QMap<QString, types::ConnectionSettings> p)
 {
-    Q_UNUSED(p);
-
-    if (backend_->isDisconnected())
-    {
+    if (backend_->isDisconnected()) {
         updateConnectWindowStateProtocolPortDisplay();
+    } else {
+        // If everything is the same but we set/unset the current connection as preferred, update the icon
+        types::ProtocolStatus ps = mainWindowController_->getConnectWindow()->getProtocolStatus();
+        if (p.contains(curNetwork_.networkOrSsid) &&
+            p[curNetwork_.networkOrSsid].isAutomatic() == false &&
+            p[curNetwork_.networkOrSsid].protocol() == ps.protocol &&
+            p[curNetwork_.networkOrSsid].port() == ps.port)
+        {
+            mainWindowController_->getConnectWindow()->setIsPreferredProtocol(true);
+        } else {
+            mainWindowController_->getConnectWindow()->setIsPreferredProtocol(false);
+        }
     }
 }
 

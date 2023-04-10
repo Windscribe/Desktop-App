@@ -36,6 +36,7 @@ public:
     types::ProtocolStatus getProtocolStatus();
     bool isProtocolButtonVisible() const;
     void setProtocolButtonVisible(bool visible);
+    void setIsPreferredProtocol(bool on);
 
     void updateScaling() override;
 
@@ -70,6 +71,9 @@ private:
 
     QColor badgeBgColor_;
     BadgePixmap badgePixmap_;
+
+    IconButton *preferredProtocolBadge_;
+    bool isPreferredProtocol_;
 
     IconButton *protocolArrow_;
     int arrowShift_;

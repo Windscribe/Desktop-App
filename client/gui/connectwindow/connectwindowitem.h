@@ -42,6 +42,7 @@ public:
     void setTestTunnelResult(bool success) override;
     void setCornerColor(QColor color) override;
     types::ProtocolStatus getProtocolStatus() override;
+    void setIsPreferredProtocol(bool on) override;
 
     void updateScaling() override;
 
