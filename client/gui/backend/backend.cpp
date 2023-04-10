@@ -1,13 +1,17 @@
 #include "backend.h"
 
-#include "utils/logger.h"
-#include "utils/utils.h"
-#include "launchonstartup/launchonstartup.h"
-#include "utils/utils.h"
-#include "persistentstate.h"
+#include <QCoreApplication>
+
+#include "engine/apiinfo/apiinfo.h"
 #include "engine/engine.h"
 #include "engine/openvpnversioncontroller.h"
-#include <QCoreApplication>
+#include "persistentstate.h"
+#include "utils/logger.h"
+#include "utils/utils.h"
+
+#ifdef Q_OS_LINUX
+#include "launchonstartup/launchonstartup.h"
+#endif
 
 Backend::Backend(QObject *parent) : QObject(parent),
     isSavedApiSettingsExists_(false),
@@ -32,9 +36,9 @@ Backend::Backend(QObject *parent) : QObject(parent),
 
     locationsModelManager_ = new gui_locations::LocationsModelManager(this);
 
-    connect(&connectStateHelper_, SIGNAL(connectStateChanged(types::ConnectState)), SIGNAL(connectStateChanged(types::ConnectState)));
-    connect(&emergencyConnectStateHelper_, SIGNAL(connectStateChanged(types::ConnectState)), SIGNAL(emergencyConnectStateChanged(types::ConnectState)));
-    connect(&firewallStateHelper_, SIGNAL(firewallStateChanged(bool)), SIGNAL(firewallStateChanged(bool)));
+    connect(&connectStateHelper_, &ConnectStateHelper::connectStateChanged, this, &Backend::connectStateChanged);
+    connect(&emergencyConnectStateHelper_, &ConnectStateHelper::connectStateChanged, this, &Backend::emergencyConnectStateChanged);
+    connect(&firewallStateHelper_, &FirewallStateHelper::firewallStateChanged, this, &Backend::firewallStateChanged);
 }
 
 Backend::~Backend()
@@ -113,7 +117,11 @@ void Backend::enableBFE_win()
 
 void Backend::login(const QString &username, const QString &password, const QString &code2fa)
 {
-     engine_->loginWithUsernameAndPassword(username, password, code2fa);
+    bLastLoginWithAuthHash_ = false;
+    lastUsername_ = username;
+    lastPassword_ = password;
+    lastCode2fa_ = code2fa;
+    engine_->loginWithUsernameAndPassword(username, password, code2fa);
 }
 
 bool Backend::isCanLoginWithAuthHash() const
@@ -748,7 +756,7 @@ void Backend::handleNetworkChange(types::NetworkInterface networkInterface, bool
             currentNetworkInterface_ = networkInterface;
         }
 
-		// Even if not a real network change we want to update the UI with current network info.
+        // Even if not a real network change we want to update the UI with current network info.
         types::NetworkInterface protoInterface = networkInterface;
         protoInterface.trustType =foundInterface.trustType;
         Q_EMIT networkChanged(protoInterface);
@@ -866,4 +874,22 @@ void Backend::getOpenVpnVersionsFromInitCommand(const QStringList &availableOpen
     // OpenVpn versions
     if (availableOpenvpnVersions.size() > 0)
         preferencesHelper_.setAvailableOpenVpnVersions(availableOpenvpnVersions);
+}
+
+bool Backend::haveAutoLoginCredentials(QString &username, QString &password)
+{
+#ifdef Q_OS_WIN
+    username = apiinfo::ApiInfo::autoLoginUsername();
+    password = apiinfo::ApiInfo::autoLoginPassword();
+
+    // Remove the auto-login credentials so we don't attempt to use them again.  If the user entered
+    // incorrect auto-login credentials in the installer, we'll bounce them back to the login screen
+    // and display the 'bad credentials' error when login is attempted.  If a connectivity/server
+    // error prevents login, the login() method will have saved these creds and will retry them.
+    apiinfo::ApiInfo::clearAutoLoginCredentials();
+
+    return (!username.isEmpty() && !password.isEmpty());
+#else
+    return false;
+#endif
 }

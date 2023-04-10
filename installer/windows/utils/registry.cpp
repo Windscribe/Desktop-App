@@ -1,8 +1,8 @@
 #include "registry.h"
 
+#include <codecvt>
 #include <sstream>
 
-#include "logger.h"
 
 using namespace std;
 
@@ -129,7 +129,7 @@ LSTATUS Registry::RegCreateKeyExView(const TRegView &RegView, HKEY &hKey, LPCWST
     else if (RegView == rv32Bit) {
         samDesired = samDesired | KEY_WOW64_32KEY;
     }
-    
+
     return RegCreateKeyEx(hKey, lpSubKey, Reserved, lpClass, dwOptions, samDesired, lpSecurityAttributes, phkResult, lpdwDisposition);
 }
 
@@ -179,6 +179,12 @@ bool Registry::RegWriteStringValue(HKEY H, wstring SubKeyName, wstring ValueName
     return ret;
 }
 
+bool Registry::RegWriteStringValue(HKEY H, std::wstring SubKeyName, std::wstring ValueName, std::string ValueData)
+{
+    wstring_convert<codecvt_utf8<wchar_t>> converter;
+    wstring data = converter.from_bytes(ValueData);
+    return RegWriteStringValue(H, SubKeyName, ValueName, data);
+}
 
 bool Registry::RegDeleteValue1(HKEY H, const wchar_t *SubKeyName, wstring ValueName)
 {
@@ -202,7 +208,7 @@ bool Registry::RegDeleteValue1(HKEY H, const wchar_t *SubKeyName, wstring ValueN
     {
         ret = false;
     }
-    
+
     return ret;
 }
 
@@ -334,14 +340,14 @@ std::vector<std::wstring> Registry::regGetSubkeyChildNames(HKEY h, const wchar_t
             {
                 cbName = MAX_KEY_LENGTH; // magic -- dont try to initialize with this value
                 LONG error = RegEnumKeyEx(hKey, i, achKey, &cbName, NULL, NULL, NULL, NULL);
-                
+
                 if (error == ERROR_SUCCESS)
                 {
                     registryInterfaces.push_back(std::wstring(achKey));
                 }
             }
         }
-        
+
         RegCloseKey(hKey);
     }
 

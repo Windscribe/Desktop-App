@@ -35,8 +35,8 @@ UpdateWindowItem::UpdateWindowItem(Preferences *preferences, ScalableGraphicsObj
     connect(&spinnerRotationAnimation_, &QVariantAnimation::valueChanged, this, &UpdateWindowItem::onSpinnerRotationChange);
 
     // accept
-    acceptButton_ = new CommonGraphics::BubbleButtonBright(this, 128, 40, 20, 20);
-    connect(acceptButton_, &CommonGraphics::BubbleButtonBright::clicked, this, &UpdateWindowItem::onAcceptClick);
+    acceptButton_ = new CommonGraphics::BubbleButton(this, CommonGraphics::BubbleButton::kBright, 128, 40, 20);
+    connect(acceptButton_, &CommonGraphics::BubbleButton::clicked, this, &UpdateWindowItem::onAcceptClick);
 
     // cancel
     double cancelOpacity = OPACITY_UNHOVER_TEXT;

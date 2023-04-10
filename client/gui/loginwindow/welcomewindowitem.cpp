@@ -36,17 +36,6 @@ WelcomeWindowItem::WelcomeWindowItem(QGraphicsObject *parent, PreferencesHelper 
     WS_ASSERT(preferencesHelper);
     setFlag(QGraphicsItem::ItemIsFocusable);
 
-    curBadgeScale_ = BADGE_SCALE_LARGE;
-    curBadgePosX_ = centeredOffset(WINDOW_WIDTH, BADGE_WIDTH_BIG);
-    curBadgePosY_ = centeredOffset(HEADER_HEIGHT-100, BADGE_HEIGHT_BIG);
-    connect(&badgePosXAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onBadgePosXChanged(QVariant)));
-    connect(&badgePosYAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onBadgePosYChanged(QVariant)));
-
-    connect(&badgeScaleAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onBadgeScaleChanged(QVariant)));
-
-    curLoginTextOpacity_ = OPACITY_HIDDEN;
-    connect(&loginTextOpacityAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onLoginTextOpacityChanged(QVariant)));
-
 #if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     closeButton_ = new IconButton(16, 16, "WINDOWS_CLOSE_ICON", "", this);
     connect(closeButton_, SIGNAL(clicked()), SLOT(onCloseClick()));
@@ -70,21 +59,19 @@ WelcomeWindowItem::WelcomeWindowItem(QGraphicsObject *parent, PreferencesHelper 
 
 #endif
 
-    curButtonLineXPos_ = LOGIN_MARGIN_WIDTH_LARGE;
-    connect(&buttonLinePosAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onButtonLinePosChanged(QVariant)));
-
     firewallTurnOffButton_ = new FirewallTurnOffButton("", this);
     connect(firewallTurnOffButton_, SIGNAL(clicked()), SLOT(onFirewallTurnOffClick()));
 
     gotoLoginButton_ = new CommonGraphics::TextButton("", FontDescr(14, true), QColor(255, 255, 255), true, this );
     connect(gotoLoginButton_, SIGNAL(clicked()), SLOT(onGotoLoginButtonClick()));
+    gotoLoginButton_->setClickable(true);
+    gotoLoginButton_->show();
 
-    getStartedButton_ = new CommonGraphics::BubbleButtonBright(this, 130, 32, 15, 15);
+    getStartedButton_ = new CommonGraphics::BubbleButton(this, CommonGraphics::BubbleButton::kBright, 130, 32, 15);
     getStartedButton_->setFont(FontDescr(14, false));
     connect(getStartedButton_, SIGNAL(clicked()), SLOT(onGetStartedButtonClick()));
-
-    curErrorOpacity_ = OPACITY_HIDDEN;
-    connect(&errorAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onErrorChanged(QVariant)));
+    getStartedButton_->setClickable(true);
+    getStartedButton_->show();
 
     // Lower Region:
     settingsButton_ = new IconButton(24, 24, SETTINGS_ICON_PATH, "", this);
@@ -114,7 +101,7 @@ WelcomeWindowItem::WelcomeWindowItem(QGraphicsObject *parent, PreferencesHelper 
     onLanguageChanged();
 
     updatePositions();
-    changeToAccountScreen();
+    setFocus();
 }
 
 
@@ -161,12 +148,12 @@ void WelcomeWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem 
 
     painter->setOpacity(initOpacity);
 
-    QSharedPointer<IndependentPixmap> pixmap_badge = ImageResourcesSvg::instance().getIndependentPixmap("BADGE_ICON");
-    pixmap_badge->draw(curBadgePosX_ * G_SCALE, curBadgePosY_* G_SCALE, BADGE_WIDTH_BIG * G_SCALE, BADGE_HEIGHT_BIG * G_SCALE, painter);
+    QSharedPointer<IndependentPixmap> pixmap_badge = ImageResourcesSvg::instance().getIndependentPixmap("WINDSCRIBE_ICON");
+    pixmap_badge->draw(centeredOffset(WINDOW_WIDTH, BADGE_WIDTH)*G_SCALE, BADGE_POS_Y*G_SCALE, BADGE_WIDTH*G_SCALE, BADGE_HEIGHT*G_SCALE, painter);
 
     painter->setFont(*FontManager::instance().getFont(24, true));
     painter->setPen(Qt::white);
-    painter->drawText(QRect(0, 138 * G_SCALE, WINDOW_WIDTH * G_SCALE, 40 * G_SCALE), Qt::AlignCenter, tr("Keep Your Secrets."));
+    painter->drawText(QRect(0, 113*G_SCALE, WINDOW_WIDTH*G_SCALE, 40*G_SCALE), Qt::AlignCenter, tr("Keep Your Secrets."));
 
     // dividers -- bottom buttons
     painter->setOpacity(OPACITY_UNHOVER_DIVIDER * initOpacity);
@@ -177,19 +164,6 @@ void WelcomeWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem 
     painter->fillRect(QRect(window_center_x_offset + 29*G_SCALE, bottom_button_y, 2*G_SCALE,  LOGIN_HEIGHT * G_SCALE), Qt::white);
 
     painter->restore();
-}
-
-void WelcomeWindowItem::resetState()
-{
-    /*changeToAccountScreen();
-    updateEmergencyConnect();
-
-    usernameEntry_->clearActiveState();
-    passwordEntry_->clearActiveState();
-
-    loginButton_->setError(false);
-    loginButton_->setClickable(false);*/
-
 }
 
 void WelcomeWindowItem::setClickable(bool enabled)
@@ -206,12 +180,6 @@ void WelcomeWindowItem::setClickable(bool enabled)
     closeButton_->setClickable(enabled);
 #endif
 }
-
-void WelcomeWindowItem::onBackClick()
-{
-    resetState();
-}
-
 
 void WelcomeWindowItem::onCloseClick()
 {
@@ -249,63 +217,10 @@ void WelcomeWindowItem::onConfigButtonClick()
     emit externalConfigModeClick();
 }
 
-void WelcomeWindowItem::onBadgePosXChanged(const QVariant &value)
-{
-    curBadgePosX_ = value.toInt();
-    update();
-}
-
-void WelcomeWindowItem::onBadgePosYChanged(const QVariant &value)
-{
-    curBadgePosY_ = value.toInt();
-
-    update();
-}
-
-void WelcomeWindowItem::onBadgeScaleChanged(const QVariant &value)
-{
-    curBadgeScale_ = value.toDouble();
-    update();
-}
-
-void WelcomeWindowItem::onLoginTextOpacityChanged(const QVariant &value)
-{
-    curLoginTextOpacity_ = value.toDouble();
-    update();
-}
-
-void WelcomeWindowItem::onButtonLinePosChanged(const QVariant &value)
-{
-    curButtonLineXPos_ = value.toInt();
-    update();
-}
-
-void WelcomeWindowItem::onErrorChanged(const QVariant &value)
-{
-    curErrorOpacity_ = value.toDouble();
-    update();
-}
-
 void WelcomeWindowItem::onEmergencyTextTransition(const QVariant &value)
 {
     curEmergencyTextOpacity_ = value.toDouble();
     update();
-}
-
-void WelcomeWindowItem::showYesNo()
-{
-    gotoLoginButton_->setClickable(true);
-    getStartedButton_->setClickable(true);
-    gotoLoginButton_->show();
-    getStartedButton_->show();
-}
-
-void WelcomeWindowItem::onHideYesNoTimerTick()
-{
-    gotoLoginButton_->setClickable(false);
-    getStartedButton_->setClickable(false);
-    gotoLoginButton_->hide();
-    getStartedButton_->hide();
 }
 
 void WelcomeWindowItem::onEmergencyHoverEnter()
@@ -373,10 +288,8 @@ void WelcomeWindowItem::updatePositions()
 #endif
 
     gotoLoginButton_->recalcBoundingRect();
-    gotoLoginButton_->setPos((LOGIN_WIDTH*G_SCALE - gotoLoginButton_->boundingRect().width()) / 2, Y_COORD_NO_BUTTON*G_SCALE);
-    getStartedButton_->setPos((LOGIN_WIDTH*G_SCALE - getStartedButton_->boundingRect().width()) / 2,  Y_COORD_YES_BUTTON*G_SCALE);
-
-
+    gotoLoginButton_->setPos((LOGIN_WIDTH*G_SCALE - gotoLoginButton_->boundingRect().width()) / 2, LOGIN_BUTTON_POS_Y*G_SCALE);
+    getStartedButton_->setPos((LOGIN_WIDTH*G_SCALE - getStartedButton_->boundingRect().width()) / 2, GET_STARTED_BUTTON_POS_Y*G_SCALE);
 
     int bottom_button_y = LOGIN_HEIGHT*G_SCALE - settingsButton_->boundingRect().width() - WINDOW_MARGIN*G_SCALE;
     int window_center_x_offset = WINDOW_WIDTH/2*G_SCALE - settingsButton_->boundingRect().width()/2;
@@ -389,72 +302,13 @@ void WelcomeWindowItem::updatePositions()
 
 void WelcomeWindowItem::keyPressEvent(QKeyEvent *event)
 {
-    if (event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter)
-    {
-        if (hasFocus())
-        {
+    if (event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter) {
+        if (hasFocus()) {
             emit haveAccountYesClick();
         }
     }
 
     event->ignore();
-}
-
-bool WelcomeWindowItem::sceneEvent(QEvent *event)
-{
-    if (event->type() == QEvent::KeyRelease)
-    {
-
-        QKeyEvent *keyEvent = dynamic_cast<QKeyEvent*>(event);
-
-        if ( keyEvent->key() == Qt::Key_Tab)
-        {
-            /*if (account_screen_)
-            {
-                if (yesButton_->hasFocus())
-                {
-                    yesButton_->animateButtonUnhighlight();
-                    //noButton_->animateButtonHighlight();
-                    return true;
-                }
-                else if (noButton_->hasFocus())
-                {
-                    //noButton_->animateButtonUnhighlight();
-                    yesButton_->animateButtonHighlight();
-                    return true;
-                }
-                else if (hasFocus())
-                {
-                    yesButton_->animateButtonHighlight();
-                    return true;
-                }
-            }
-            else
-            {
-                if (hasFocus())
-                {
-                    return true;
-                }
-            }*/
-        }
-    }
-
-    QGraphicsItem::sceneEvent(event);
-    return false;
-}
-
-void WelcomeWindowItem::changeToAccountScreen()
-{
-    startAnAnimation<int>(buttonLinePosAnimation_, curButtonLineXPos_, LOGIN_MARGIN_WIDTH_LARGE, ANIMATION_SPEED_SLOW );
-
-    startAnAnimation<double>(badgePosXAnimation_, curBadgePosX_, centeredOffset(WINDOW_WIDTH, BADGE_WIDTH_BIG), ANIMATION_SPEED_SLOW);
-    startAnAnimation<double>(badgePosYAnimation_, curBadgePosY_, centeredOffset(HEADER_HEIGHT+143, BADGE_HEIGHT_BIG), ANIMATION_SPEED_SLOW);
-    startAnAnimation<double>(badgeScaleAnimation_, curBadgeScale_, BADGE_SCALE_LARGE, ANIMATION_SPEED_SLOW);
-
-    startAnAnimation<double>(loginTextOpacityAnimation_, curLoginTextOpacity_, OPACITY_HIDDEN, ANIMATION_SPEED_SLOW);
-
-    showYesNo();
-    setFocus();
 }
 
 void WelcomeWindowItem::updateScaling()
@@ -471,7 +325,7 @@ void WelcomeWindowItem::onTooltipButtonHoverLeave()
 void WelcomeWindowItem::transitionToEmergencyON()
 {
     double opacity = OPACITY_FULL;
-     startAnAnimation<double>(emergencyTextAnimation_, curEmergencyTextOpacity_, opacity, ANIMATION_SPEED_FAST);
+    startAnAnimation<double>(emergencyTextAnimation_, curEmergencyTextOpacity_, opacity, ANIMATION_SPEED_FAST);
 }
 
 void WelcomeWindowItem::transitionToEmergencyOFF()

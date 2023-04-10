@@ -68,7 +68,8 @@ void PingHost_ICMP_mac::onProcessFinished(int exitCode, QProcess::ExitStatus exi
         const QStringList lines = strAnswer.split("\n");
         for (const QString &line : lines)
         {
-            if (line.contains("icmp_seq=0"))
+            // macOS ping command produces icmp_seq=0, Linux produces icmp_seq=1.
+            if (line.contains("icmp_seq=0") || line.contains("icmp_seq=1"))
             {
                 int ind = line.indexOf("time=");
                 if (ind != -1)

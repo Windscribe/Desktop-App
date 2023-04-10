@@ -154,6 +154,7 @@ void ConnectWindowItem::setClickable(bool isClickable)
     firewallInfo_->setClickableHoverable(false, isClickable);
     serverRatingIndicator_->setClickableHoverable(false, isClickable);
     connectStateProtocolPort_->setHoverable(isClickable);
+    connectStateProtocolPort_->setClickable(isClickable);
 }
 
 QRegion ConnectWindowItem::getMask()

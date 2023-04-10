@@ -1,3 +1,19 @@
+2.7.1 (31/03/2023)
+All:
+   * Added new logout and quit screens. #457
+   * Fixed app crash during startup. #8
+   * Fixed additional preference items are sometimes expanded when they shouldn't be issues. #605/#610
+Windows:
+   * Added -username and -password command-line arguments to the installer. #309
+   * Fixed uninstall executable fails when uninstalling. #611
+   * Update installer to use new icons. #142
+macOS:
+   * Update installer to use new icons. #142
+Linux:
+   * Fixed incorrect minimum glib requirements for install on Debian and Arch. #501
+   * Fixed custom configs not pinged on Linux. #613
+
+
 2.7.0 (22/03/2023)
 All:
    * Added support for language translations. #8

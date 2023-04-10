@@ -148,7 +148,7 @@ void TextButton::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
                 if (contains(event->pos()))
                 {
                     setCursor(Qt::ArrowCursor);
-
+                    unhover();
                     emit clicked();
                 }
             }
@@ -164,12 +164,14 @@ void TextButton::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 void TextButton::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
 {
     Q_UNUSED(event);
+    hover();
+}
 
-    if (hoverable_)
-    {
+void TextButton::hover()
+{
+    if (hoverable_) {
         startAnAnimation<double>(textOpacityAnimation_, curTextOpacity_, OPACITY_FULL, ANIMATION_SPEED_FAST);
-        if (clickable_)
-        {
+        if (clickable_) {
             setCursor(Qt::PointingHandCursor);
         }
         isHovered_ = true;
@@ -179,8 +181,9 @@ void TextButton::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
 
 void TextButton::unhover()
 {
-    if (!isHovered_)
+    if (!isHovered_) {
         return;
+    }
 
     startAnAnimation<double>(textOpacityAnimation_, curTextOpacity_, unhoverOpacity_, ANIMATION_SPEED_FAST);
     setCursor(Qt::ArrowCursor);

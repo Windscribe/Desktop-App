@@ -1,8 +1,14 @@
 #include "apiinfo.h"
+
 #include <QSettings>
+
 #include "utils/ws_assert.h"
 #include "utils/logger.h"
 #include "types/global_consts.h"
+
+#ifdef Q_OS_WIN
+#include "utils/wincryptutils.h"
+#endif
 
 namespace apiinfo {
 
@@ -265,6 +271,48 @@ void ApiInfo::mergeWindflixLocations()
 void ApiInfo::checkPortMapForUnavailableProtocolAndFix()
 {
     portMap_.removeUnsupportedProtocols(types::Protocol::supportedProtocols());
+}
+
+void ApiInfo::clearAutoLoginCredentials()
+{
+    QSettings settings;
+    if (settings.contains("username")) {
+        settings.remove("username");
+    }
+    if (settings.contains("password")) {
+        settings.remove("password");
+    }
+}
+
+static QString getAutoLoginCredential(const QString &key)
+{
+    QString credential;
+
+#ifdef Q_OS_WIN
+    try {
+        QSettings settings;
+        if (settings.contains(key)) {
+            std::string encoded = settings.value(key).toString().toStdString();
+            const auto decrypted = wsl::WinCryptUtils::decrypt(encoded, wsl::WinCryptUtils::EncodeHex);
+            credential = QString::fromStdWString(decrypted);
+        }
+    }
+    catch (std::system_error& ex) {
+        qCDebug(LOG_BASIC) << "ApiInfo::getAutoLoginCredential() -" << ex.what() << ex.code().value();
+    }
+#endif
+
+    return credential;
+}
+
+QString ApiInfo::autoLoginUsername()
+{
+    return getAutoLoginCredential("username");
+}
+
+QString ApiInfo::autoLoginPassword()
+{
+    return getAutoLoginCredential("password");
 }
 
 } //namespace apiinfo

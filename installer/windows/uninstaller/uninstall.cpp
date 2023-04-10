@@ -190,6 +190,10 @@ void Uninstaller::RunSecondPhase()
 
     Log::instance().out(L"Running uninstall second phase with path: %s", path_for_installation.c_str());
 
+    // Clear any existing auto-login entries.
+    Registry::regDeleteProperty(HKEY_CURRENT_USER, L"Software\\Windscribe\\Windscribe2", L"username");
+    Registry::regDeleteProperty(HKEY_CURRENT_USER, L"Software\\Windscribe\\Windscribe2", L"password");
+
     AuthHelper::removeRegEntriesForAuthHelper(path_for_installation);
 
     if (!isSilent_)

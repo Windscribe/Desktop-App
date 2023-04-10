@@ -14,9 +14,8 @@ public:
 	virtual ~ImageResources();
 	bool init();
 
-	Gdiplus::Image* getForwardArrow() { return forwardArrow_->getImage(); }
+	Gdiplus::Image* getInstallIcon() { return installIcon_->getImage(); }
 	Gdiplus::Image* getBadgeIcon() { return badgeIcon_->getImage(); }
-
 	Gdiplus::Image* getCloseIcon() { return closeIcon_->getImage(); }
 	Gdiplus::Image* getMinimizeIcon() { return minimizeIcon_->getImage(); }
 	Gdiplus::Image* getSettingsIcon() { return settingsIcon_->getImage(); }
@@ -31,7 +30,7 @@ public:
 	PngImage* getBackgroundImage() { return backgroundImage_; }
 
 private:
-	SVGImage *forwardArrow_;
+	SVGImage *installIcon_;
 	SVGImage *badgeIcon_;
 	SVGImage *closeIcon_;
 	SVGImage *minimizeIcon_;

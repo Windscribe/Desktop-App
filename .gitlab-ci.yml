@@ -100,11 +100,6 @@ variables:
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --create-dirs -o build-libs/dga.zip "${NEXUS_PATH_DEPS}/${OS_IDENTIFIER}/dga.zip"
 
-.download_dependency_jom:
-  script:
-    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --create-dirs -o build-libs/jom.zip "${NEXUS_PATH_DEPS}/${OS_IDENTIFIER}/jom.zip"
-
 .download_dependency_lzo:
   script:
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
@@ -152,7 +147,6 @@ variables:
     - !reference [.download_dependency_curl, script]
     - !reference [.download_dependency_ctrld, script]
     - !reference [.download_dependency_dga, script]
-    - !reference [.download_dependency_jom, script]
     - !reference [.download_dependency_lzo, script]
     - !reference [.download_dependency_openssl, script]
     - !reference [.download_dependency_openvpn, script]

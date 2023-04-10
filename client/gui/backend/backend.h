@@ -1,26 +1,26 @@
-#ifndef BACKEND_H
-#define BACKEND_H
+#pragma once
 
 #include <QElapsedTimer>
 #include <QObject>
-#include <QTimer>
 #include <QProcess>
-#include "types/locationid.h"
-#include "types/upgrademodetype.h"
-#include "locations/locationsmodel_manager.h"
-#include "preferences/preferences.h"
-#include "preferences/preferenceshelper.h"
-#include "preferences/accountinfo.h"
+#include <QTimer>
+
 #include "connectstatehelper.h"
 #include "firewallstatehelper.h"
-#include "types/sessionstatus.h"
-#include "types/proxysharinginfo.h"
-#include "types/wifisharinginfo.h"
-#include "types/splittunneling.h"
-#include "types/robertfilter.h"
-#include "types/notification.h"
+#include "locations/locationsmodel_manager.h"
+#include "preferences/accountinfo.h"
+#include "preferences/preferences.h"
+#include "preferences/preferenceshelper.h"
 #include "types/checkupdate.h"
+#include "types/locationid.h"
+#include "types/notification.h"
 #include "types/protocolstatus.h"
+#include "types/proxysharinginfo.h"
+#include "types/robertfilter.h"
+#include "types/sessionstatus.h"
+#include "types/splittunneling.h"
+#include "types/upgrademodetype.h"
+#include "types/wifisharinginfo.h"
 
 class Engine;
 
@@ -111,6 +111,8 @@ public:
     void cancelUpdateVersion();
 
     void sendMakeHostsFilesWritableWin();
+
+    bool haveAutoLoginCredentials(QString &username, QString &password);
 
 private slots:
     void onEngineSettingsChangedInPreferences();
@@ -267,5 +269,3 @@ private:
     void updateAccountInfo();
     void getOpenVpnVersionsFromInitCommand(const QStringList &availableOpenvpnVersions);
 };
-
-#endif // BACKEND_H

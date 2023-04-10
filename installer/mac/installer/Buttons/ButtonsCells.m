@@ -53,7 +53,7 @@
 
     [fillColor setStroke];
     [fillColor setFill];
-    NSBezierPath* roundedPath = [NSBezierPath bezierPathWithRoundedRect:frame xRadius:16 yRadius:16];
+    NSBezierPath* roundedPath = [NSBezierPath bezierPathWithRoundedRect:frame xRadius:22 yRadius:22];
     [roundedPath fill];
     
     [[NSGraphicsContext currentContext] restoreGraphicsState];

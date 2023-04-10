@@ -6,7 +6,7 @@
 #include "backend/preferences/preferenceshelper.h"
 #include "backend/preferences/preferences.h"
 #include "commongraphics/basepage.h"
-#include "commongraphics/bubblebuttondark.h"
+#include "commongraphics/bubblebutton.h"
 #include "graphicresources/imageresourcessvg.h"
 #include "graphicresources/independentpixmap.h"
 #include "preferenceswindow/linkitem.h"
@@ -54,7 +54,7 @@ private:
     LoadingIconItem *loadingIcon_;
 
     QGraphicsTextItem *loginPrompt_;
-    CommonGraphics::BubbleButtonDark *loginButton_;
+    CommonGraphics::BubbleButton *loginButton_;
 
     QGraphicsTextItem *errorMessage_;
     bool loggedIn_;

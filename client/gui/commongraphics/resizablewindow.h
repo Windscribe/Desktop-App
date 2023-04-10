@@ -32,6 +32,7 @@ public:
     void setScrollOffset(int offset);
 
     void setBackButtonEnabled(bool b);
+    void setResizeBarEnabled(bool b);
 
 signals:
     void escape();
@@ -73,6 +74,5 @@ protected:
 
     virtual QRectF getBottomResizeArea();
     void keyPressEvent(QKeyEvent *event) override;
-    virtual void updateChildItemsAfterHeightChanged();
     virtual void updatePositions();
 };

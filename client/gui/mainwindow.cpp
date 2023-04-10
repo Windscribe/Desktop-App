@@ -319,8 +319,11 @@ MainWindow::MainWindow() :
 
     // general window signals
     connect(dynamic_cast<QObject*>(mainWindowController_->getGeneralMessageWindow()), SIGNAL(acceptClick()), SLOT(onGeneralMessageWindowAccept()));
+    connect(dynamic_cast<QObject*>(mainWindowController_->getGeneralMessageWindow()), SIGNAL(rejectClick()), SLOT(onGeneralMessageWindowAccept()));
 
-    // exit window signals
+    // logout & exit window signals
+    connect(dynamic_cast<QObject*>(mainWindowController_->getLogoutWindow()), SIGNAL(acceptClick()), SLOT(onLogoutWindowAccept()));
+    connect(dynamic_cast<QObject*>(mainWindowController_->getLogoutWindow()), SIGNAL(rejectClick()), SLOT(onExitWindowReject()));
     connect(dynamic_cast<QObject*>(mainWindowController_->getExitWindow()), SIGNAL(acceptClick()), SLOT(onExitWindowAccept()));
     connect(dynamic_cast<QObject*>(mainWindowController_->getExitWindow()), SIGNAL(rejectClick()), SLOT(onExitWindowReject()));
 
@@ -964,16 +967,16 @@ void MainWindow::onPreferencesEscapeClick()
 
 void MainWindow::onPreferencesSignOutClick()
 {
-    QApplication::setOverrideCursor(Qt::WaitCursor);
-    setEnabled(false);
-    signOutReason_ = SIGN_OUT_FROM_MENU;
-    selectedLocation_->clear();
-    backend_->signOut(false);
+    gotoLogoutWindow();
 }
 
 void MainWindow::onPreferencesLoginClick()
 {
     collapsePreferences();
+    if (backend_->getPreferencesHelper()->isExternalConfigMode()) {
+        // We're not really logged in, but trigger events as if user has confirmed logout
+        onLogoutWindowAccept();
+    }
 }
 
 void MainWindow::cleanupLogViewerWindow()
@@ -1283,6 +1286,16 @@ void MainWindow::onGeneralMessageWindowAccept()
         mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_CONNECT);
 }
 
+void MainWindow::onLogoutWindowAccept()
+{
+    QApplication::setOverrideCursor(Qt::WaitCursor);
+    setEnabled(false);
+    signOutReason_ = SIGN_OUT_FROM_MENU;
+    isExitingFromPreferences_ = false;
+    selectedLocation_->clear();
+    backend_->signOut(false);
+}
+
 void MainWindow::onExitWindowAccept()
 {
     close();
@@ -1290,10 +1303,11 @@ void MainWindow::onExitWindowAccept()
 
 void MainWindow::onExitWindowReject()
 {
-    mainWindowController_->changeWindow(MainWindowController::WINDOW_CMD_CLOSE_EXIT);
     if (isExitingFromPreferences_) {
         isExitingFromPreferences_ = false;
-        mainWindowController_->expandPreferences();
+        mainWindowController_->changeWindow(MainWindowController::WINDOW_CMD_CLOSE_EXIT_FROM_PREFS);
+    } else {
+        mainWindowController_->changeWindow(MainWindowController::WINDOW_CMD_CLOSE_EXIT);
     }
 }
 
@@ -1417,7 +1431,20 @@ void MainWindow::onBackendInitFinished(INIT_STATE initState)
             onPreferencesShareProxyGatewayChanged(p->shareProxyGateway());
         }
 
-        if (backend_->isCanLoginWithAuthHash())
+        QString autoLoginUsername;
+        QString autoLoginPassword;
+
+        if (backend_->haveAutoLoginCredentials(autoLoginUsername, autoLoginPassword)) {
+            mainWindowController_->getInitWindow()->startSlideAnimation();
+            gotoLoginWindow();
+            // Give the UI time to finish transitioning (adjusting window height, etc.) in the
+            // gotoLoginWindow() call before we attempt login.  Otherwise, the screen height
+            // may be incorrect if the login fails (e.g. due to invalid credentials).
+            QTimer::singleShot(150, this, [this, autoLoginUsername, autoLoginPassword]() {
+                onLoginClick(autoLoginUsername, autoLoginPassword, QString());
+            });
+        }
+        else if (backend_->isCanLoginWithAuthHash())
         {
             if (!backend_->isSavedApiSettingsExists())
             {
@@ -1561,6 +1588,9 @@ void MainWindow::onBackendLoginError(LOGIN_RET loginError, const QString &errorM
         {
             loginAttemptsController_.pushIncorrectLogin();
             mainWindowController_->getLoginWindow()->setErrorMessage(loginAttemptsController_.currentMessage(), QString());
+            // It's possible we were passed invalid credentials by the CLI or installer auto-login.  Ensure we transition
+            // the user to the username/password entry screen so they can see the error message and attempt a manual login.
+            mainWindowController_->getLoginWindow()->transitionToUsernameScreen();
             gotoLoginWindow();
         }
     }
@@ -2397,9 +2427,10 @@ void MainWindow::onBackendUpdateVersionChanged(uint progressPercent, UPDATE_VERS
                 {
                     descText = tr("Windscribe API has returned an invalid hash for downloaded installer. Please contact support.");
                 }
-                mainWindowController_->getGeneralMessageWindow()->setErrorMode(true);
+                mainWindowController_->getGeneralMessageWindow()->setIcon("ERROR_ICON");
                 mainWindowController_->getGeneralMessageWindow()->setTitle(titleText);
                 mainWindowController_->getGeneralMessageWindow()->setDescription(descText);
+                mainWindowController_->getGeneralMessageWindow()->setAcceptText(tr("Ok"));
                 bGotoUpdateWindowAfterGeneralMessage_ = true;
                 mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_GENERAL_MESSAGE);
             }
@@ -2877,7 +2908,7 @@ void MainWindow::onAppWinIniChanged()
 void MainWindow::showShutdownWindow()
 {
     setEnabled(true);
-    mainWindowController_->getExitWindow()->setShutdownAnimationMode(true);
+    mainWindowController_->getExitWindow()->setSpinnerMode(true);
 }
 
 void MainWindow::onCurrentNetworkUpdated(types::NetworkInterface networkInterface)
@@ -3297,9 +3328,6 @@ void MainWindow::onAdvancedParametersCancelClick()
 
 void MainWindow::onLanguageChanged()
 {
-    /*exitWindow_->setTitle(tr(CLOSING_WINDSCRIBE.toStdString().c_str()));
-    exitWindow_->setAcceptText(tr(CLOSE_ACCEPT.toStdString().c_str()));
-    exitWindow_->setRejectText(tr(CLOSE_REJECT.toStdString().c_str()));*/
 }
 
 void MainWindow::hideSupplementaryWidgets()
@@ -3595,6 +3623,16 @@ void MainWindow::gotoLoginWindow()
 {
     mainWindowController_->getLoginWindow()->setFirewallTurnOffButtonVisibility(backend_->isFirewallEnabled());
     mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_LOGIN);
+}
+
+void MainWindow::gotoLogoutWindow()
+{
+    if (mainWindowController_->currentWindow() == MainWindowController::WINDOW_ID_LOGOUT)
+        return;
+    isExitingFromPreferences_ = mainWindowController_->isPreferencesVisible();
+    if (isExitingFromPreferences_)
+        collapsePreferences();
+    mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_LOGOUT);
 }
 
 void MainWindow::gotoExitWindow()

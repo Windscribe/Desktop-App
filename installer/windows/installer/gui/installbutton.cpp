@@ -12,7 +12,7 @@ InstallButton::InstallButton(MainWindow *mainWindow, const wchar_t *szTitle) : m
 
 {
 	this_ = this;
-	titleItem_ = new TextItem(szTitle, (int)(13 * SCALE_FACTOR), false);
+	titleItem_ = new TextItem(szTitle, (int)(16 * SCALE_FACTOR), false);
 }
 
 InstallButton::~InstallButton()
@@ -56,36 +56,31 @@ bool InstallButton::create(int x, int y, int w, int h)
 
 int InstallButton::getRecommendedWidth()
 {
-	return titleItem_->textWidth() + g_application->getImageResources()->getForwardArrow()->GetWidth() + (int)(TEXT_MARGIN * SCALE_FACTOR * 2) +
+	return titleItem_->textWidth() + g_application->getImageResources()->getInstallIcon()->GetWidth() + (int)(TEXT_MARGIN * SCALE_FACTOR * 2) +
 		+(int)(BEFORE_ARROW_MARGIN * SCALE_FACTOR);
 }
 
 int InstallButton::getRecommendedHeight()
 {
-	return (int)(32 * SCALE_FACTOR);
+	return (int)(44 * SCALE_FACTOR);
 }
 
 void InstallButton::setState(BUTTON_STATE state)
 {
 	state_ = state;
 	progress_ = 0;
-	if (state_ == WAIT_WITH_PROGRESS || state_ == WAIT_WITHOUT_PROGRESS)
-	{
+	if (state_ == WAIT_WITH_PROGRESS || state_ == WAIT_WITHOUT_PROGRESS || state_ == LAUNCHING) {
 		SetTimer(hwnd_, TIMER_ID, 1, NULL);
-	}
-	else
-	{
+	} else {
 		KillTimer(hwnd_, TIMER_ID);
 	}
 
-	if (state_ == INSTALL_TITLE)
-	{
+	if (state_ == INSTALL_TITLE) {
 		SetCursor(LoadCursor(NULL, IDC_HAND));
-	}
-	else
-	{
+	} else {
 		SetCursor(LoadCursor(NULL, IDC_ARROW));
 	}
+
 	redraw();
 }
 
@@ -245,16 +240,13 @@ void InstallButton::drawButton(HDC hdc)
 
 	mainWindow_->drawBackground(graphics, p1.x, p1.y, p2.x - p1.x, p2.y - p1.y);
 
-	if (state_ == INSTALL_TITLE)
-	{
+	if (state_ == INSTALL_TITLE) {
 		drawStateInstallTitle(graphics, rc);
-	}
-	else if (state_ == WAIT_WITH_PROGRESS)
-	{
+	} else if (state_ == WAIT_WITH_PROGRESS) {
 		drawStateWithProgress(graphics, rc);
-	}
-	else
-	{
+	} else if (state_ == LAUNCHING) {
+		drawStateLaunching(graphics, rc);
+	} else {
 		drawStateInstallTitle(graphics, rc);
 	}
 
@@ -270,7 +262,7 @@ void InstallButton::drawButton(HDC hdc)
 void InstallButton::drawStateInstallTitle(Gdiplus::Graphics *graphics, const RECT &rc)
 {
 	SolidBrush brush(bMouseTracking_ ? Color(255, 255, 255) : Color(0x55, 0xFF, 0x8A));
-	fillRoundRectangle(graphics, &brush, Rect(0, 0, rc.right - 1, rc.bottom - 1), 16 * SCALE_FACTOR);
+	fillRoundRectangle(graphics, &brush, Rect(0, 0, rc.right - 1, rc.bottom - 1), 22 * SCALE_FACTOR);
 
 	// draw text
 	StringFormat format;
@@ -279,7 +271,7 @@ void InstallButton::drawStateInstallTitle(Gdiplus::Graphics *graphics, const REC
 	graphics->DrawString(titleItem_->text(), static_cast<int>(wcslen(titleItem_->text())), titleItem_->getFont(),
                          RectF((REAL)(TEXT_MARGIN * SCALE_FACTOR), 0.0f, (REAL)rc.right, (REAL)rc.bottom), &format, &blackBrush);
 
-	// draw arrow image with 50% opacity
+	// draw install icon with 50% opacity
 	float alpha = 1.0f;
 	ColorMatrix matrix =
 	{
@@ -292,17 +284,20 @@ void InstallButton::drawStateInstallTitle(Gdiplus::Graphics *graphics, const REC
 	ImageAttributes attrib;
 	attrib.SetColorMatrix(&matrix);
 
-	int imageWidth = g_application->getImageResources()->getForwardArrow()->GetWidth();
-	int imageHeight = g_application->getImageResources()->getForwardArrow()->GetHeight();
-	graphics->DrawImage(g_application->getImageResources()->getForwardArrow(),
-		Rect(titleItem_->textWidth() + (int)(TEXT_MARGIN * SCALE_FACTOR) + (int)(BEFORE_ARROW_MARGIN * SCALE_FACTOR), (rc.bottom - imageHeight) / 2, imageWidth, imageHeight),
+	int imageWidth = g_application->getImageResources()->getInstallIcon()->GetWidth();
+	int imageHeight = g_application->getImageResources()->getInstallIcon()->GetHeight();
+	graphics->DrawImage(g_application->getImageResources()->getInstallIcon(),
+		Rect(titleItem_->textWidth() + (int)(TEXT_MARGIN * SCALE_FACTOR) + (int)(BEFORE_ARROW_MARGIN * SCALE_FACTOR),
+		     (rc.bottom - imageHeight) / 2,
+			 imageWidth,
+			 imageHeight),
 		0, 0, imageWidth, imageHeight, UnitPixel, &attrib);
 }
 
 void InstallButton::drawStateWithProgress(Gdiplus::Graphics *graphics, const RECT &rc)
 {
 	SolidBrush brush(Color(255, 255, 255));
-	fillRoundRectangle(graphics, &brush, Rect(0, 0, rc.right - 1, rc.bottom - 1), 16 * SCALE_FACTOR);
+	fillRoundRectangle(graphics, &brush, Rect(0, 0, rc.right - 1, rc.bottom - 1), 22 * SCALE_FACTOR);
 
 	// draw text
 	StringFormat format;
@@ -312,34 +307,29 @@ void InstallButton::drawStateWithProgress(Gdiplus::Graphics *graphics, const REC
 
 	std::wstring str = std::to_wstring(progress_) + L"%";
 
-	graphics->DrawString(str.c_str(), static_cast<int>(str.length()), g_application->getFontResources()->getFont((int)(12 * SCALE_FACTOR), false),
-                         RectF(4 * SCALE_FACTOR, 0.0f, (REAL)rc.right - TEXT_MARGIN * SCALE_FACTOR - g_application->getImageResources()->getForwardArrow()->GetWidth(),
-                         (REAL)rc.bottom), &format, &blackBrush);
-	/*{
-	float alpha = 1.0f;
-	ColorMatrix matrix =
-	{
-		1, 0, 0, 0, 0,
-		0, 1, 0, 0, 0,
-		0, 0, 1, 0, 0,
-		0, 0, 0, alpha, 0,
-		0, 0, 0, 0, 1
-	};
-	ImageAttributes attrib;
-	attrib.SetColorMatrix(&matrix);
+	graphics->DrawString(str.c_str(), static_cast<int>(str.length()), g_application->getFontResources()->getFont((int)(16 * SCALE_FACTOR), false),
+						RectF(4 * SCALE_FACTOR, 0.0f, (REAL)rc.right - TEXT_MARGIN * SCALE_FACTOR - g_application->getImageResources()->getInstallIcon()->GetWidth(),
+						(REAL)rc.bottom), &format, &blackBrush);
 
-	int imageWidth = g_application->getImageResources()->getForwardArrow()->GetWidth();
-	int imageHeight = g_application->getImageResources()->getForwardArrow()->GetHeight();
-	graphics->DrawImage(g_application->getImageResources()->getForwardArrow(),
-		Rect(titleItem_->textWidth() + (int)(TEXT_MARGIN * SCALE_FACTOR) + (int)(BEFORE_ARROW_MARGIN * SCALE_FACTOR), (rc.bottom - imageHeight) / 2, imageWidth, imageHeight),
-		0, 0, imageWidth, imageHeight, UnitPixel, &attrib);
-	}*/
-	// draw spinner icon
-	int imageWidth = 16 * SCALE_FACTOR;// g_application->getImageResources()->getForwardArrow()->GetWidth();
-	int imageHeight = 16 * SCALE_FACTOR;// g_application->getImageResources()->getForwardArrow()->GetHeight();
+	Rect spinnerRc(rc.right - 34 * SCALE_FACTOR, (rc.bottom - 16 * SCALE_FACTOR) / 2, 16 * SCALE_FACTOR, 16 * SCALE_FACTOR);
+	drawSpinner(graphics, spinnerRc);
+}
 
-	Rect rrr(rc.right - (int)(TEXT_MARGIN * SCALE_FACTOR) - imageWidth + 5 * SCALE_FACTOR, (rc.bottom - imageHeight) / 2,
-		imageWidth, imageHeight);
-	Pen pen(Color(167, 170, 176), 2.0 * SCALE_FACTOR);
-	graphics->DrawArc(&pen, rrr, curRotation_, 270);
+void InstallButton::drawStateLaunching(Gdiplus::Graphics *graphics, const RECT &rc)
+{
+	SolidBrush brush(Color(255, 255, 255));
+	graphics->FillEllipse(&brush,
+	                      rc.left + (rc.right - rc.left)/2 - 22 * SCALE_FACTOR,
+						  0,
+						  44 * SCALE_FACTOR,
+						  44 * SCALE_FACTOR);
+
+	Rect spinnerRc(rc.left + (rc.right - rc.left)/2 - 8 * SCALE_FACTOR, (rc.bottom - 16 * SCALE_FACTOR) / 2, 16 * SCALE_FACTOR, 16 * SCALE_FACTOR);
+	drawSpinner(graphics, spinnerRc);
+}
+
+void InstallButton::drawSpinner(Gdiplus::Graphics *graphics, const Gdiplus::Rect &rect)
+{
+	Pen pen(Color(2, 13, 28), 2.0 * SCALE_FACTOR);
+	graphics->DrawArc(&pen, rect, curRotation_, 270);
 }
