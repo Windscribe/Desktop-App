@@ -16,17 +16,17 @@ ConnectedDnsGroup::ConnectedDnsGroup(ScalableGraphicsObject *parent, const QStri
     connect(comboBoxDns_, &ComboBoxItem::currentItemChanged, this, &ConnectedDnsGroup::onConnectedDnsModeChanged);
     addItem(comboBoxDns_);
 
-    editBoxUpstream1_ = new EditBoxItem(this);
-    connect(editBoxUpstream1_, &EditBoxItem::textChanged, this, &ConnectedDnsGroup::onUpstream1Changed);
+    editBoxUpstream1_ = new VerticalEditBoxItem(this);
+    connect(editBoxUpstream1_, &VerticalEditBoxItem::textChanged, this, &ConnectedDnsGroup::onUpstream1Changed);
     addItem(editBoxUpstream1_);
 
     splitDnsCheckBox_ = new CheckBoxItem(this);
     splitDnsCheckBox_->setState(false);
     connect(splitDnsCheckBox_, &CheckBoxItem::stateChanged, this, &ConnectedDnsGroup::onSplitDnsStateChanged);
-    addItem(splitDnsCheckBox_);
+    addItem(splitDnsCheckBox_, true);
 
-    editBoxUpstream2_ = new EditBoxItem(this);
-    connect(editBoxUpstream2_, &EditBoxItem::textChanged, this, &ConnectedDnsGroup::onUpstream2Changed);
+    editBoxUpstream2_ = new VerticalEditBoxItem(this);
+    connect(editBoxUpstream2_, &VerticalEditBoxItem::textChanged, this, &ConnectedDnsGroup::onUpstream2Changed);
     addItem(editBoxUpstream2_);
 
     domainsItem_ = new LinkItem(this, LinkItem::LinkType::SUBPAGE_LINK);
@@ -146,10 +146,8 @@ void ConnectedDnsGroup::onLanguageChanged()
     }
     comboBoxDns_->setItems(list, settings_.type);
 
-    editBoxUpstream1_->setCaption(tr("Upstream 1"));
-    editBoxUpstream1_->setPrompt(tr("Upstream 1"));
-    editBoxUpstream2_->setCaption(tr("Upstream 2"));
-    editBoxUpstream2_->setPrompt(tr("Upstream 2"));
+    editBoxUpstream1_->setCaption(tr("Upstream 1 (IP/DNS-over-HTTPS/TLS)"));
+    editBoxUpstream2_->setCaption(tr("Upstream 2 (IP/DNS-over-HTTPS/TLS)"));
     splitDnsCheckBox_->setCaption(tr("Split DNS"));
     domainsItem_->setTitle(tr("Domains"));
 }

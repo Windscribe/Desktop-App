@@ -112,4 +112,6 @@ target_sources(gui PRIVATE
     splittunnelingwindow/splittunnelingwindowitem.h
     titleitem.cpp
     titleitem.h
+    verticaleditboxitem.cpp
+    verticaleditboxitem.h
 )

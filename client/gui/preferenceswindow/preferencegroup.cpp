@@ -112,13 +112,18 @@ void PreferenceGroup::paint(QPainter *painter, const QStyleOptionGraphicsItem *o
     }
 }
 
-void PreferenceGroup::addItem(CommonGraphics::BaseItem *item)
+void PreferenceGroup::addItem(CommonGraphics::BaseItem *item, bool isWideDividerLine)
 {
     itemsExternal_ << item;
 
     if (!items_.empty())
     {
-        CommonGraphics::DividerLine *line = new CommonGraphics::DividerLine(this);
+        CommonGraphics::DividerLine *line;
+        if (!isWideDividerLine)
+            line = new CommonGraphics::DividerLine(this);
+        else
+            line = new CommonGraphics::DividerLine(this, PAGE_WIDTH, 0);
+
         connect(line, &BaseItem::heightChanged, this, &PreferenceGroup::updatePositions);
         connect(line, &BaseItem::hidden, this, &PreferenceGroup::onHidden);
         if (firstVisibleItem() < 0)

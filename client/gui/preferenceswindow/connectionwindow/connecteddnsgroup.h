@@ -3,7 +3,7 @@
 
 #include "preferenceswindow/comboboxitem.h"
 #include "preferenceswindow/checkboxitem.h"
-#include "preferenceswindow/editboxitem.h"
+#include "preferenceswindow/verticaleditboxitem.h"
 #include "preferenceswindow/linkitem.h"
 #include "preferenceswindow/preferencegroup.h"
 #include "types/connecteddnsinfo.h"
@@ -42,8 +42,8 @@ private:
     void updateMode();
 
     ComboBoxItem *comboBoxDns_;
-    EditBoxItem *editBoxUpstream1_;
-    EditBoxItem *editBoxUpstream2_;
+    VerticalEditBoxItem *editBoxUpstream1_;
+    VerticalEditBoxItem *editBoxUpstream2_;
     CheckBoxItem *splitDnsCheckBox_;
     LinkItem *domainsItem_;
 
