@@ -35,14 +35,12 @@ private slots:
 private:
     enum ValidationCode {
         OK = 0,
-        ERROR_EXISTS,
-        ERROR_INVALID,
-        ERROR_RESERVED,
+        ERROR_EXISTS
     };
 
     void addAddressInternal(const QString &address);
-    DnsDomainAddressItem *itemByName(QString &address);
-    ValidationCode validate(QString &address);
+    DnsDomainAddressItem *itemByName(const QString &address);
+    ValidationCode validate(const QString &address);
 
     NewAddressItem *newAddressItem_;
     QMap<DnsDomainAddressItem *, QString> addresses_;

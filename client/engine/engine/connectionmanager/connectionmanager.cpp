@@ -258,12 +258,6 @@ const AdapterGatewayInfo &ConnectionManager::getVpnAdapterInfo() const
 void ConnectionManager::setConnectedDnsInfo(const types::ConnectedDnsInfo &info)
 {
     connectedDnsInfo_ = info;
-#ifdef Q_OS_WIN
-    //FIXME:
-    //if(helper_) {
-        //dynamic_cast<Helper_win*>(helper_)->setCustomDnsIp("127.0.0.1");
-    //}
-#endif
 }
 
 const types::ConnectedDnsInfo &ConnectionManager::connectedDnsInfo() const
@@ -921,6 +915,9 @@ void ConnectionManager::doConnectPart2()
             Q_EMIT errorDuringConnection(CONNECT_ERROR::CTRLD_START_FAILED);
             return;
         }
+    #ifdef Q_OS_WIN
+        dynamic_cast<Helper_win*>(helper_)->setCustomDnsIp(ctrldManager_->listenIp());
+    #endif
     }
 
     if (currentConnectionDescr_.connectionNodeType == CONNECTION_NODE_DEFAULT ||

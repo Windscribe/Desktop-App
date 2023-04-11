@@ -63,38 +63,20 @@ void DnsDomainsGroup::setFocusOnTextEntry()
 
 void DnsDomainsGroup::onAddClicked(const QString &address)
 {
-    addAddress(address);
-    //FIXME:
-    /*ValidationCode code = validate(address);
+    ValidationCode code = validate(address);
     SPLIT_TUNNELING_NETWORK_ROUTE_TYPE type;
     types::SplitTunnelingNetworkRoute route;
 
     switch(code)
     {
         case OK:
-            type = SPLIT_TUNNELING_NETWORK_ROUTE_TYPE_HOSTNAME;
-            if (IpValidation::isIpCidr(address))
-            {
-                type = SPLIT_TUNNELING_NETWORK_ROUTE_TYPE_IP;
-            }
-
-            route.name = address;
-            route.type = type;
-            addAddress(route);
+            addAddress(address);
             break;
         case ERROR_EXISTS:
             emit setError(tr("IP or hostname already exists"),
                           tr("Please enter a new IP or hostname."));
             break;
-        case ERROR_INVALID:
-            emit setError(tr("Incorrect IP address/mask combination"),
-                          tr("Please enter a valid hostname or IP address in plain or CIDR notation."));
-            break;
-        case ERROR_RESERVED:
-            emit setError(tr("Reserved IP address range"),
-                          tr("This IP address or range is reserved by Windscribe and can not be changed."));
-            break;
-    }*/
+    }
 }
 
 void DnsDomainsGroup::onDeleteClicked()
@@ -105,32 +87,17 @@ void DnsDomainsGroup::onDeleteClicked()
     emit addressesUpdated(addresses_.values());
 }
 
-DnsDomainsGroup::ValidationCode DnsDomainsGroup::validate(QString &address)
+DnsDomainsGroup::ValidationCode DnsDomainsGroup::validate(const QString &address)
 {
-    if (!IpValidation::isIpCidrOrDomain(address) || !IpValidation::isValidIpForCidr(address))
-    {
-        return ValidationCode::ERROR_INVALID;
-    }
-
     if (itemByName(address) != nullptr)
     {
         return ValidationCode::ERROR_EXISTS;
     }
 
-    if (!IpValidation::isValidIpForCidr(address))
-    {
-        return ValidationCode::ERROR_INVALID;
-    }
-
-    if (IpValidation::isWindscribeReservedIp(address))
-    {
-        return ValidationCode::ERROR_RESERVED;
-    }
-
     return ValidationCode::OK;
 }
 
-DnsDomainAddressItem *DnsDomainsGroup::itemByName(QString &address)
+DnsDomainAddressItem *DnsDomainsGroup::itemByName(const QString &address)
 {
     for (DnsDomainAddressItem *item: addresses_.keys())
     {
