@@ -13,8 +13,6 @@ target_sources(gui PRIVATE
     advancedwindow/advancedwindowitem.h
     advancedwindow/apiresolutiongroup.cpp
     advancedwindow/apiresolutiongroup.h
-    checkboxitem.cpp
-    checkboxitem.h
     comboboxitem.cpp
     comboboxitem.h
     connectionwindow/connecteddnsgroup.cpp
@@ -112,6 +110,8 @@ target_sources(gui PRIVATE
     splittunnelingwindow/splittunnelingwindowitem.h
     titleitem.cpp
     titleitem.h
+    toggleitem.cpp
+    toggleitem.h
     verticaleditboxitem.cpp
     verticaleditboxitem.h
 )

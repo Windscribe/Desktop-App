@@ -1,11 +1,16 @@
 #pragma once
 
+#include <QCheckBox>
+#include <QGraphicsProxyWidget>
 #include <QSet>
 
 #include "igeneralmessagewindow.h"
 #include "commongraphics/basepage.h"
+#include "commongraphics/checkbox.h"
 #include "commongraphics/imageitem.h"
 #include "commongraphics/listbutton.h"
+#include "commongraphics/textbutton.h"
+#include "languagecontroller.h"
 
 namespace GeneralMessageWindow {
 
@@ -25,12 +30,18 @@ public:
     void setAcceptButtonStyle(IGeneralMessageWindow::Style style);
     void setAcceptText(const QString &text);
     void setRejectText(const QString &text);
+    void setTertiaryText(const QString &text);
 
     void setTitleSize(int size);
+
+    void setShowBottomPanel(bool on);
+    void setLearnMoreUrl(const QString &url);
+    bool isRememberChecked();
 
 signals:
     void acceptClick();
     void rejectClick();
+    void tertiaryClick();
 
 protected:
     void keyPressEvent(QKeyEvent *event) override;
@@ -38,9 +49,11 @@ protected:
 
 private slots:
     void onHoverAccept();
-    void onHoverLeaveAccept();
     void onHoverReject();
-    void onHoverLeaveReject();
+    void onHoverTertiary();
+    void onHoverLeave();
+    void onLearnMoreClick();
+    void onLanguageChanged();
 
 private:
     IGeneralMessageWindow::Style style_;
@@ -58,11 +71,20 @@ private:
 
     CommonGraphics::ListButton *acceptButton_;
     CommonGraphics::ListButton *rejectButton_;
+    CommonGraphics::ListButton *tertiaryButton_;
+
+    bool showBottomPanel_;
+    Checkbox *checkbox_;
+    QString learnMoreUrl_;
+    CommonGraphics::TextButton *learnMoreLink_;
+
+    const char *kRemember = QT_TR_NOOP("Ignore Warnings");
+    const char *kLearnMore = QT_TR_NOOP("Learn More");
 
     static constexpr int kSpacerHeight = 16;
     static constexpr int kIndent = 36;
 
-    enum Selection { NONE, ACCEPT, REJECT };
+    enum Selection { NONE, ACCEPT, REJECT, TERTIARY };
     Selection selection_;
 
     void changeSelection(Selection selection);

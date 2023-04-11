@@ -4,7 +4,7 @@
 #include "commongraphics/basepage.h"
 #include "backend/preferences/preferences.h"
 #include "backend/preferences/preferenceshelper.h"
-#include "preferenceswindow/checkboxitem.h"
+#include "preferenceswindow/toggleitem.h"
 #include "preferenceswindow/comboboxitem.h"
 #include "preferenceswindow/linkitem.h"
 #include "preferenceswindow/titleitem.h"
@@ -54,7 +54,7 @@ private:
 
     PreferenceGroup *desc_;
     PreferenceGroup *autosecureGroup_;
-    CheckBoxItem *autosecureCheckbox_;
+    ToggleItem *autosecureCheckbox_;
     TitleItem *currentNetworkTitle_;
     PreferenceGroup *currentNetworkGroup_;
     LinkItem *currentNetworkItem_;

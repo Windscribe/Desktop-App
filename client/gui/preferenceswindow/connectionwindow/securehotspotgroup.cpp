@@ -1,9 +1,9 @@
 #include "securehotspotgroup.h"
 
 #include <QPainter>
-#include <QMessageBox>
 #include "graphicresources/fontmanager.h"
 #include "graphicresources/imageresourcessvg.h"
+#include "generalmessagecontroller.h"
 #include "languagecontroller.h"
 #include "dpiscalemanager.h"
 
@@ -16,9 +16,9 @@ SecureHotspotGroup::SecureHotspotGroup(ScalableGraphicsObject *parent, const QSt
 {
     setFlags(flags() | QGraphicsItem::ItemClipsChildrenToShape | QGraphicsItem::ItemIsFocusable);
 
-    checkBoxEnable_ = new CheckBoxItem(this, tr("Secure Hotspot"));
+    checkBoxEnable_ = new ToggleItem(this, tr("Secure Hotspot"));
     checkBoxEnable_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/SECURE_HOTSPOT"));
-    connect(checkBoxEnable_, &CheckBoxItem::stateChanged, this, &SecureHotspotGroup::onCheckBoxStateChanged);
+    connect(checkBoxEnable_, &ToggleItem::stateChanged, this, &SecureHotspotGroup::onCheckBoxStateChanged);
     addItem(checkBoxEnable_);
 
     editBoxSSID_ = new EditBoxItem(this);
@@ -92,9 +92,9 @@ void SecureHotspotGroup::onPasswordChanged(const QString &password)
     }
     else
     {
-        QString title = tr("Windscribe");
+        QString title = tr("Password Too Short");
         QString desc = tr("Hotspot password must be at least 8 characters.");
-        QMessageBox::information(g_mainWindow, title, desc);
+        GeneralMessageController::instance().showMessage("ERROR_ICON", title, desc, GeneralMessage::kOk);
         editBoxPassword_->setText(settings_.password);
     }
 }

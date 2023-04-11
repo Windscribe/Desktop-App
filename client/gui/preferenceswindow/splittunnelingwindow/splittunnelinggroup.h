@@ -2,7 +2,7 @@
 #define SPLITTUNNELINGGROUP_H
 
 #include "commongraphics/scalablegraphicsobject.h"
-#include "preferenceswindow/checkboxitem.h"
+#include "preferenceswindow/toggleitem.h"
 #include "preferenceswindow/comboboxitem.h"
 #include "preferenceswindow/linkitem.h"
 #include "preferenceswindow/preferencegroup.h"
@@ -40,7 +40,7 @@ private:
 
     types::SplitTunnelingSettings settings_;
 
-    CheckBoxItem *activeCheckBox_;
+    ToggleItem *activeCheckBox_;
     ComboBoxItem *modeComboBox_;
     LinkItem *appsLinkItem_;
     LinkItem *addressesLinkItem_;

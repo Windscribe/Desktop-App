@@ -12,10 +12,10 @@ namespace PreferencesWindow {
 RobertItem::RobertItem(ScalableGraphicsObject *parent, const types::RobertFilter &filter)
   : BaseItem(parent, ROBERT_ITEM_HEIGHT*G_SCALE), captionFont_(12, true), icon_(nullptr), filter_(filter)
 {
-    checkBoxButton_ = new CheckBoxButton(this);
-    connect(checkBoxButton_, &CheckBoxButton::stateChanged, this, &RobertItem::onStateChanged);
-    connect(checkBoxButton_, &CheckBoxButton::hoverEnter, this, &RobertItem::buttonHoverEnter);
-    connect(checkBoxButton_, &CheckBoxButton::hoverLeave, this, &RobertItem::buttonHoverLeave);
+    checkBoxButton_ = new ToggleButton(this);
+    connect(checkBoxButton_, &ToggleButton::stateChanged, this, &RobertItem::onStateChanged);
+    connect(checkBoxButton_, &ToggleButton::hoverEnter, this, &RobertItem::buttonHoverEnter);
+    connect(checkBoxButton_, &ToggleButton::hoverLeave, this, &RobertItem::buttonHoverLeave);
 
     strCaption_ = tr(filter.title.toStdString().c_str());
     setIcon(iconForId(filter.id));

@@ -170,12 +170,12 @@ void ProtocolPromptItem::setMode(ProtocolWindowMode mode)
         desc_ = tr(kChangeProtocolDescription);
         doResetProtocolStatus();
     } else if (mode == ProtocolWindowMode::kFailedProtocol) {
-        setIcon("WARNING");
+        setIcon("WARNING_WHITE");
         title_ = tr(kFailedProtocolTitle);
         desc_ = tr(kFailedProtocolDescription);
         doResetProtocolStatus();
     } else if (mode == ProtocolWindowMode::kSavePreferredProtocol) {
-        setIcon("WARNING");
+        setIcon("WARNING_WHITE");
         title_ = QString(tr(kSavePreferredProtocolTitle)).arg(connectedProtocol().toLongString());
         desc_ = tr(kSavePreferredProtocolDescription);
         clearItems();
@@ -187,7 +187,7 @@ void ProtocolPromptItem::setMode(ProtocolWindowMode mode)
     } else if (mode == ProtocolWindowMode::kSendDebugLog) {
         resetProtocolStatus();
 
-        setIcon("WARNING");
+        setIcon("WARNING_WHITE");
         title_ = tr(kSendDebugLogTitle);
         desc_ = tr(kSendDebugLogDescription);
         clearItems();

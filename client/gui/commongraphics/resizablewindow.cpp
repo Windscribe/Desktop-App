@@ -190,9 +190,22 @@ void ResizableWindow::onAppSkinChanged(APP_SKIN s)
     emit sizeChanged(this);
 }
 
+int ResizableWindow::scrollPos()
+{
+    if (!scrollAreaItem_->item()) {
+        return 0;
+    }
+    return scrollAreaItem_->item()->y();
+}
+
+void ResizableWindow::setScrollPos(int pos)
+{
+    scrollAreaItem_->setScrollPos(pos);
+}
+
 void ResizableWindow::setScrollOffset(int offset)
 {
-    scrollAreaItem_->setScrollPos(offset);
+    scrollAreaItem_->setScrollOffset(offset);
 }
 
 void ResizableWindow::onLanguageChanged()

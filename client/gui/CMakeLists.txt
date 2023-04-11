@@ -27,6 +27,9 @@ set(PROJECT_SOURCES
     dpiscalemanager.h
     freetrafficnotificationcontroller.cpp
     freetrafficnotificationcontroller.h
+    generalmessage.h
+    generalmessagecontroller.cpp
+    generalmessagecontroller.h
     guitest.cpp
     guitest.h
     languagecontroller.cpp

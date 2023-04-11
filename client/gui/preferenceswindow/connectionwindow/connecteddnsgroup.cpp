@@ -20,9 +20,9 @@ ConnectedDnsGroup::ConnectedDnsGroup(ScalableGraphicsObject *parent, const QStri
     connect(editBoxUpstream1_, &VerticalEditBoxItem::textChanged, this, &ConnectedDnsGroup::onUpstream1Changed);
     addItem(editBoxUpstream1_);
 
-    splitDnsCheckBox_ = new CheckBoxItem(this);
+    splitDnsCheckBox_ = new ToggleItem(this);
     splitDnsCheckBox_->setState(false);
-    connect(splitDnsCheckBox_, &CheckBoxItem::stateChanged, this, &ConnectedDnsGroup::onSplitDnsStateChanged);
+    connect(splitDnsCheckBox_, &ToggleItem::stateChanged, this, &ConnectedDnsGroup::onSplitDnsStateChanged);
     addItem(splitDnsCheckBox_, true);
 
     editBoxUpstream2_ = new VerticalEditBoxItem(this);

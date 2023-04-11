@@ -5,8 +5,8 @@ target_sources(gui PRIVATE
     basepage.h
     bubblebutton.cpp
     bubblebutton.h
-    checkboxbutton.cpp
-    checkboxbutton.h
+    checkbox.cpp
+    checkbox.h
     clickablegraphicsobject.cpp
     clickablegraphicsobject.h
     commongraphics.cpp
@@ -31,6 +31,8 @@ target_sources(gui PRIVATE
     textbutton.h
     texticonbutton.cpp
     texticonbutton.h
+    togglebutton.cpp
+    togglebutton.h
     verticaldividerline.cpp
     verticaldividerline.h
     scrollarea.cpp

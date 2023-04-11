@@ -1,6 +1,6 @@
 #pragma once
 
-#include "preferenceswindow/checkboxitem.h"
+#include "preferenceswindow/toggleitem.h"
 #include "preferenceswindow/comboboxitem.h"
 #include "preferenceswindow/preferencegroup.h"
 #include "proxyipaddressitem.h"
@@ -32,7 +32,7 @@ protected:
     void hideOpenPopups() override;
 
 private:    
-    CheckBoxItem *checkBoxEnable_;
+    ToggleItem *checkBoxEnable_;
     ComboBoxItem *comboBoxProxyType_;
     ProxyIpAddressItem *proxyIpAddressItem_;
 

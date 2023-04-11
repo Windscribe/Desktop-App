@@ -1,10 +1,11 @@
 #include "generalmessageitem.h"
 
+#include <QDesktopServices>
 #include <QPainter>
 #include <QKeyEvent>
 #include "commongraphics/commongraphics.h"
-#include "graphicresources/imageresourcessvg.h"
 #include "graphicresources/fontmanager.h"
+#include "graphicresources/imageresourcessvg.h"
 #include "dpiscalemanager.h"
 #include "utils/logger.h"
 
@@ -12,12 +13,23 @@ namespace GeneralMessageWindow {
 
 GeneralMessageItem::GeneralMessageItem(ScalableGraphicsObject *parent, int width, IGeneralMessageWindow::Style style)
     : CommonGraphics::BasePage(parent, width), style_(style), shape_(IGeneralMessageWindow::kLoginScreenShape),
-    title_(""), desc_(""), titleSize_(16), acceptButton_(nullptr), rejectButton_(nullptr), selection_(NONE)
+    title_(""), desc_(""), titleSize_(16), acceptButton_(nullptr), rejectButton_(nullptr), tertiaryButton_(nullptr),
+    showBottomPanel_(false), learnMoreUrl_(""), selection_(NONE)
 {
     setFlag(QGraphicsItem::ItemIsFocusable);
     setSpacerHeight(kSpacerHeight);
     setIndent(kIndent);
 
+    checkbox_ = new Checkbox(this, tr(kRemember));
+    checkbox_->setVisible(false);
+
+    learnMoreLink_ = new CommonGraphics::TextButton(tr(kLearnMore), FontDescr(12, false), QColor(255, 255, 255), true, this);
+    learnMoreLink_->setVisible(false);
+    learnMoreLink_->setMarginHeight(0);
+    learnMoreLink_->setUnderline(true);
+    connect(learnMoreLink_, &CommonGraphics::TextButton::clicked, this, &GeneralMessageItem::onLearnMoreClick);
+
+    connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &GeneralMessageItem::onLanguageChanged);
     updateScaling();
 }
 
@@ -48,6 +60,14 @@ void GeneralMessageItem::paint(QPainter *painter, const QStyleOptionGraphicsItem
                                                   0),
                           Qt::AlignHCenter | Qt::TextWordWrap, desc_);
 
+    }
+
+    // bottom panel
+    if (showBottomPanel_) {
+        // horizontal divider
+        painter->setOpacity(OPACITY_UNHOVER_DIVIDER);
+        painter->drawLine(QPoint(0, boundingRect().height() - 32*G_SCALE),
+                          QPoint(boundingRect().width(), boundingRect().height() - 32*G_SCALE));
     }
 }
 
@@ -87,6 +107,14 @@ void GeneralMessageItem::setDescription(const QString &desc)
 
 void GeneralMessageItem::setAcceptText(const QString &text)
 {
+    if (text.isEmpty()) {
+        if (acceptButton_) {
+            removeItem(acceptButton_);
+            acceptButton_ = nullptr;
+        }
+        return;
+    }
+
     if (!acceptButton_) {
         CommonGraphics::ListButton::Style buttonStyle = CommonGraphics::ListButton::kBright;
         if (style_ == IGeneralMessageWindow::kDark) {
@@ -95,20 +123,53 @@ void GeneralMessageItem::setAcceptText(const QString &text)
         acceptButton_ = new CommonGraphics::ListButton(this, buttonStyle, text);
         connect(acceptButton_, &CommonGraphics::ListButton::clicked, this, &GeneralMessageItem::acceptClick);
         connect(acceptButton_, &CommonGraphics::ListButton::hoverEnter, this, &GeneralMessageItem::onHoverAccept);
-        connect(acceptButton_, &CommonGraphics::ListButton::hoverLeave, this, &GeneralMessageItem::onHoverLeaveAccept);
+        connect(acceptButton_, &CommonGraphics::ListButton::hoverLeave, this, &GeneralMessageItem::onHoverLeave);
         addItem(acceptButton_);
     } else {
         acceptButton_->setText(text);
     }
 }
 
+void GeneralMessageItem::setTertiaryText(const QString &text)
+{
+    if (text.isEmpty()) {
+        if (tertiaryButton_) {
+            removeItem(tertiaryButton_);
+            tertiaryButton_ = nullptr;
+        }
+        return;
+    }
+
+    if (!tertiaryButton_) {
+        CommonGraphics::ListButton::Style buttonStyle = CommonGraphics::ListButton::kBright;
+        if (style_ == IGeneralMessageWindow::kDark) {
+            buttonStyle = CommonGraphics::ListButton::kDark;
+        }
+        tertiaryButton_ = new CommonGraphics::ListButton(this, buttonStyle, text);
+        connect(tertiaryButton_, &CommonGraphics::ListButton::clicked, this, &GeneralMessageItem::tertiaryClick);
+        connect(tertiaryButton_, &CommonGraphics::ListButton::hoverEnter, this, &GeneralMessageItem::onHoverTertiary);
+        connect(tertiaryButton_, &CommonGraphics::ListButton::hoverLeave, this, &GeneralMessageItem::onHoverLeave);
+        addItem(tertiaryButton_);
+    } else {
+        tertiaryButton_->setText(text);
+    }
+}
+
 void GeneralMessageItem::setRejectText(const QString &text)
 {
+    if (text.isEmpty()) {
+        if (rejectButton_) {
+            removeItem(rejectButton_);
+            rejectButton_ = nullptr;
+        }
+        return;
+    }
+
     if (!rejectButton_) {
         rejectButton_ = new CommonGraphics::ListButton(this, CommonGraphics::ListButton::kText, text);
         connect(rejectButton_, &CommonGraphics::ListButton::clicked, this, &GeneralMessageItem::rejectClick);
         connect(rejectButton_, &CommonGraphics::ListButton::hoverEnter, this, &GeneralMessageItem::onHoverReject);
-        connect(rejectButton_, &CommonGraphics::ListButton::hoverLeave, this, &GeneralMessageItem::onHoverLeaveReject);
+        connect(rejectButton_, &CommonGraphics::ListButton::hoverLeave, this, &GeneralMessageItem::onHoverLeave);
         addItem(rejectButton_);
     } else {
         rejectButton_->setText(text);
@@ -131,18 +192,30 @@ void GeneralMessageItem::keyPressEvent(QKeyEvent *event)
     if (event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter) {
         if (selection_ == ACCEPT) {
             emit acceptClick();
+        } else if (selection_ == TERTIARY) {
+            emit tertiaryClick();
         } else if (selection_ == REJECT) {
             emit rejectClick();
         }
     } else if (event->key() == Qt::Key_Escape) {
         emit rejectClick();
     } else if (event->key() == Qt::Key_Up) {
-        changeSelection(ACCEPT);
-    } else if (event->key() == Qt::Key_Down) {
-        if (selection_ == NONE) {
+        if (selection_ == REJECT && tertiaryButton_) {
+            changeSelection(TERTIARY);
+        } else if (acceptButton_) {
             changeSelection(ACCEPT);
-        } else if (selection_ == ACCEPT) {
+        } else {
+            changeSelection(NONE);
+        }
+    } else if (event->key() == Qt::Key_Down) {
+        if (selection_ == NONE && acceptButton_) {
+            changeSelection(ACCEPT);
+        } else if (selection_ == ACCEPT && tertiaryButton_) {
+            changeSelection(TERTIARY);
+        } else if (rejectButton_) {
             changeSelection(REJECT);
+        } else {
+            changeSelection(NONE);
         }
     }
 
@@ -175,17 +248,17 @@ void GeneralMessageItem::onHoverAccept()
     selection_ = ACCEPT;
 }
 
-void GeneralMessageItem::onHoverLeaveAccept()
-{
-    selection_ = NONE;
-}
-
 void GeneralMessageItem::onHoverReject()
 {
     selection_ = REJECT;
 }
 
-void GeneralMessageItem::onHoverLeaveReject()
+void GeneralMessageItem::onHoverTertiary()
+{
+    selection_ = TERTIARY;
+}
+
+void GeneralMessageItem::onHoverLeave()
 {
     selection_ = NONE;
 }
@@ -193,12 +266,21 @@ void GeneralMessageItem::onHoverLeaveReject()
 void GeneralMessageItem::changeSelection(Selection selection)
 {
     if (selection != selection_) {
-        acceptButton_->unhover();
-        rejectButton_->unhover();
+        if (acceptButton_) {
+            acceptButton_->unhover();
+        }
+        if (tertiaryButton_) {
+            tertiaryButton_->unhover();
+        }
+        if (rejectButton_) {
+            rejectButton_->unhover();
+        }
 
-        if (selection == ACCEPT) {
+        if (selection == ACCEPT && acceptButton_) {
             acceptButton_->hover();
-        } else if (selection == REJECT) {
+        } else if (selection == TERTIARY && tertiaryButton_) {
+            tertiaryButton_->hover();
+        } else if (selection == REJECT && rejectButton_) {
             rejectButton_->hover();
         }
         selection_ = selection;
@@ -223,6 +305,51 @@ void GeneralMessageItem::updatePositions()
         setFirstItemOffsetY((titleHeight_ + descHeight_ + 124*G_SCALE)/G_SCALE);
     }
     update();
+}
+
+void GeneralMessageItem::setShowBottomPanel(bool on)
+{
+    // to update text
+    onLanguageChanged();
+
+    if (showBottomPanel_ == on) {
+        return;
+    }
+
+    showBottomPanel_ = on;
+
+    if (on) {
+        QFontMetrics fm(*FontManager::instance().getFont(14, false));
+        int textWidth = fm.horizontalAdvance(tr(kLearnMore));
+        checkbox_->setPos(16*G_SCALE, fullHeight() + 40*G_SCALE);
+        learnMoreLink_->setPos(boundingRect().width() - 16*G_SCALE - textWidth, fullHeight() + 40*G_SCALE);
+    }
+    checkbox_->setVisible(on);
+    learnMoreLink_->setVisible(on);
+
+    setEndSpacing(on ? 56 : 0);
+    update();
+}
+
+void GeneralMessageItem::setLearnMoreUrl(const QString &url)
+{
+    learnMoreUrl_ = url;
+}
+
+bool GeneralMessageItem::isRememberChecked()
+{
+    return checkbox_->isChecked();
+}
+
+void GeneralMessageItem::onLanguageChanged()
+{
+    checkbox_->setText(tr(kRemember));
+    learnMoreLink_->setText(tr(kLearnMore));
+}
+
+void GeneralMessageItem::onLearnMoreClick()
+{
+    QDesktopServices::openUrl(QUrl(learnMoreUrl_));
 }
 
 } // namespace GeneralMessageWindow

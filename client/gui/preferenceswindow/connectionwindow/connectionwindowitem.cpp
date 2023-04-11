@@ -2,7 +2,6 @@
 
 #include <QGraphicsScene>
 #include <QGraphicsView>
-#include <QMessageBox>
 #include <QPainter>
 
 #include "dpiscalemanager.h"
@@ -11,6 +10,7 @@
 #include "graphicresources/imageresourcessvg.h"
 #include "graphicresources/independentpixmap.h"
 #include "languagecontroller.h"
+#include "generalmessagecontroller.h"
 #include "tooltips/tooltipcontroller.h"
 
 extern QWidget *g_mainWindow;
@@ -61,10 +61,10 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
     addItem(subpagesGroup_);
 
     autoConnectGroup_ = new PreferenceGroup(this);
-    checkBoxAutoConnect_ = new CheckBoxItem(autoConnectGroup_);
+    checkBoxAutoConnect_ = new ToggleItem(autoConnectGroup_);
     checkBoxAutoConnect_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/AUTOCONNECT"));
     checkBoxAutoConnect_->setState(preferences->isAutoConnect());
-    connect(checkBoxAutoConnect_, &CheckBoxItem::stateChanged, this, &ConnectionWindowItem::onIsAutoConnectPreferencesChangedByUser);
+    connect(checkBoxAutoConnect_, &ToggleItem::stateChanged, this, &ConnectionWindowItem::onIsAutoConnectPreferencesChangedByUser);
     autoConnectGroup_->addItem(checkBoxAutoConnect_);
     addItem(autoConnectGroup_);
 
@@ -107,11 +107,11 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
     allowLanTrafficGroup_ = new PreferenceGroup(this,
                                                 "",
                                                 QString("https://%1/features/lan-traffic").arg(HardcodedSettings::instance().serverUrl()));
-    checkBoxAllowLanTraffic_ = new CheckBoxItem(allowLanTrafficGroup_, tr("Allow LAN Traffic"));
+    checkBoxAllowLanTraffic_ = new ToggleItem(allowLanTrafficGroup_, tr("Allow LAN Traffic"));
     checkBoxAllowLanTraffic_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/ALLOW_LAN_TRAFFIC"));
     checkBoxAllowLanTraffic_->setState(preferences->isAllowLanTraffic());
-    connect(checkBoxAllowLanTraffic_, &CheckBoxItem::stateChanged, this, &ConnectionWindowItem::onIsAllowLanTrafficPreferencesChangedByUser);
-    connect(checkBoxAllowLanTraffic_, &CheckBoxItem::buttonHoverLeave, this, &ConnectionWindowItem::onAllowLanTrafficButtonHoverLeave);
+    connect(checkBoxAllowLanTraffic_, &ToggleItem::stateChanged, this, &ConnectionWindowItem::onIsAllowLanTrafficPreferencesChangedByUser);
+    connect(checkBoxAllowLanTraffic_, &ToggleItem::buttonHoverLeave, this, &ConnectionWindowItem::onAllowLanTrafficButtonHoverLeave);
     allowLanTrafficGroup_->addItem(checkBoxAllowLanTraffic_);
     addItem(allowLanTrafficGroup_);
 
@@ -129,10 +129,10 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
     terminateSocketsGroup_ = new PreferenceGroup(this,
                                                  "",
                                                  QString("https://%1/features/tcp-socket-termination").arg(HardcodedSettings::instance().serverUrl()));
-    terminateSocketsItem_ = new CheckBoxItem(terminateSocketsGroup_, tr("Terminate Sockets"));
+    terminateSocketsItem_ = new ToggleItem(terminateSocketsGroup_, tr("Terminate Sockets"));
     terminateSocketsItem_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/TERMINATE_SOCKETS"));
     terminateSocketsItem_->setState(preferences->isTerminateSockets());
-    connect(terminateSocketsItem_, &CheckBoxItem::stateChanged, this, &ConnectionWindowItem::onTerminateSocketsPreferencesChangedByUser);
+    connect(terminateSocketsItem_, &ToggleItem::stateChanged, this, &ConnectionWindowItem::onTerminateSocketsPreferencesChangedByUser);
     terminateSocketsGroup_->addItem(terminateSocketsItem_);
     addItem(terminateSocketsGroup_);
 #endif
@@ -393,14 +393,22 @@ void ConnectionWindowItem::onIsAllowLanTrafficPreferencesChangedByUser(bool b)
 {
     preferences_->setAllowLanTraffic(b);
 
-    types::ShareProxyGateway sp = preferences_->shareProxyGateway();
-    if (sp.isEnabled && !b) {
-        QMessageBox::StandardButton button = QMessageBox::question(g_mainWindow, tr("Windscribe"),
-            tr("Disabling this feature will cause your proxy gateway to stop working.  Do you want to disable the proxy?"));
-        if (button == QMessageBox::Yes) {
-            sp.isEnabled = false;
-            preferences_->setShareProxyGateway(sp);
-        }
+    if (preferences_->shareProxyGateway().isEnabled && !b) {
+        GeneralMessageController::instance().showMessage(
+            "WARNING_WHITE",
+            tr("Settings Conflict"),
+            tr("Disabling Allow LAN Traffic will cause your proxy gateway to stop working.  Do you want to disable the proxy?"),
+            tr(GeneralMessage::kYes),
+            tr(GeneralMessage::kNo),
+            "",
+            [this](bool b) {
+                types::ShareProxyGateway sp = preferences_->shareProxyGateway();
+                sp.isEnabled = false;
+                preferences_->setShareProxyGateway(sp);
+            },
+            std::function<void(bool b)>(nullptr),
+            std::function<void(bool b)>(nullptr),
+            GeneralMessage::kFromPreferences);
     }
 }
 
@@ -440,14 +448,18 @@ void ConnectionWindowItem::onProxyGatewayPreferencesChangedByUser(const types::S
     preferences_->setShareProxyGateway(sp);
 
     if (sp.isEnabled && !preferences_->isAllowLanTraffic()) {
-        QMessageBox::StandardButton button = QMessageBox::question(g_mainWindow, tr("Windscribe"),
-            tr("LAN traffic is currently blocked by the Windscribe firewall. "
-               "Do you want to allow LAN traffic to bypass the firewall in order for this feature to work?"));
-        if (button == QMessageBox::Yes) {
-            preferences_->setAllowLanTraffic(true);
-        }
+        GeneralMessageController::instance().showMessage(
+            "WARNING_WHITE",
+            tr("Settings Conflict"),
+            tr("LAN traffic is currently blocked by the Windscribe firewall.  Do you want to allow LAN traffic to bypass the firewall in order for this feature to work?"),
+            tr(GeneralMessage::kYes),
+            tr(GeneralMessage::kNo),
+            "",
+            [this](bool b) { preferences_->setAllowLanTraffic(true); },
+            std::function<void(bool)>(nullptr),
+            std::function<void(bool)>(nullptr),
+            GeneralMessage::kFromPreferences);
     }
-
 }
 
 void ConnectionWindowItem::onProxyGatewayPreferencesChanged(const types::ShareProxyGateway &sp)

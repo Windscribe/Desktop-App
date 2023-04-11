@@ -22,10 +22,10 @@ ProtocolGroup::ProtocolGroup(ScalableGraphicsObject *parent, PreferencesHelper *
         connect(connectionModeItem_, &ComboBoxItem::currentItemChanged, this, &ProtocolGroup::onAutomaticChanged);
         addItem(connectionModeItem_);
     } else {
-        checkBoxEnable_ = new CheckBoxItem(this);
+        checkBoxEnable_ = new ToggleItem(this);
         checkBoxEnable_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap(path));
         checkBoxEnable_->setState(false);
-        connect(checkBoxEnable_, &CheckBoxItem::stateChanged, this, &ProtocolGroup::onCheckBoxStateChanged);
+        connect(checkBoxEnable_, &ToggleItem::stateChanged, this, &ProtocolGroup::onCheckBoxStateChanged);
         addItem(checkBoxEnable_);
     }
 

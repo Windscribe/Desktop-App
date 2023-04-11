@@ -36,11 +36,12 @@ class MainWindowController : public QObject
 public:
     enum WINDOW_ID {
         // use this consts in changeWindow(...)
-        WINDOW_ID_UNITIALIZED,
+        WINDOW_ID_UNINITIALIZED,
         WINDOW_ID_INITIALIZATION,
         WINDOW_ID_LOGIN,
         WINDOW_ID_LOGGING_IN,
         WINDOW_ID_CONNECT,
+        WINDOW_ID_CONNECT_PREFERENCES,
         WINDOW_ID_EMERGENCY,
         WINDOW_ID_EXTERNAL_CONFIG,
         WINDOW_ID_TWO_FACTOR_AUTH,
@@ -232,7 +233,7 @@ private:
     void gotoLoginWindow();
     void gotoEmergencyWindow();
     void gotoLoggingInWindow();
-    void gotoConnectWindow();
+    void gotoConnectWindow(bool expandPrefs);
     void gotoNotificationsWindow();
     void gotoExternalConfigWindow();
     void gotoTwoFactorAuthWindow();

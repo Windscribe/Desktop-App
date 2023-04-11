@@ -5,7 +5,7 @@
 #include "backend/preferences/preferences.h"
 #include "backend/preferences/preferenceshelper.h"
 #include "commongraphics/basepage.h"
-#include "preferenceswindow/checkboxitem.h"
+#include "preferenceswindow/toggleitem.h"
 #include "preferenceswindow/comboboxitem.h"
 #include "preferenceswindow/linkitem.h"
 #include "tooltips/tooltiptypes.h"
@@ -69,9 +69,9 @@ private:
 
     ApiResolutionGroup *apiResolutionGroup_;
     PreferenceGroup *ignoreSslErrorsGroup_;
-    CheckBoxItem *cbIgnoreSslErrors_;
+    ToggleItem *cbIgnoreSslErrors_;
     PreferenceGroup *keepAliveGroup_;
-    CheckBoxItem *cbKeepAlive_;
+    ToggleItem *cbKeepAlive_;
     PreferenceGroup *internalDnsGroup_;
     ComboBoxItem *comboBoxAppInternalDns_;
 #ifdef Q_OS_LINUX
@@ -85,7 +85,7 @@ private:
 
 #ifdef Q_OS_WIN
     PreferenceGroup *ipv6Group_;
-    CheckBoxItem *checkBoxIPv6_;
+    ToggleItem *checkBoxIPv6_;
     PreferenceGroup *tapAdapterGroup_;
     ComboBoxItem *comboBoxTapAdapter_;
     void updateTapAdaptersList();

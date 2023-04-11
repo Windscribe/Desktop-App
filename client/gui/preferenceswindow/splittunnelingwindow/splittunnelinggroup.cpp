@@ -2,11 +2,11 @@
 
 #include <QGraphicsScene>
 #include <QGraphicsView>
-#include <QMessageBox>
 #include <QPainter>
 
 #include "graphicresources/imageresourcessvg.h"
 #include "graphicresources/independentpixmap.h"
+#include "generalmessagecontroller.h"
 #include "languagecontroller.h"
 
 #if defined(Q_OS_MAC)
@@ -25,10 +25,10 @@ SplitTunnelingGroup::SplitTunnelingGroup(ScalableGraphicsObject *parent, const Q
 {
     setFlags(flags() | QGraphicsItem::ItemClipsChildrenToShape);
 
-    activeCheckBox_ = new CheckBoxItem(this);
+    activeCheckBox_ = new ToggleItem(this);
     activeCheckBox_->setState(true);
     activeCheckBox_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/SPLIT_TUNNELING"));
-    connect(activeCheckBox_, &CheckBoxItem::stateChanged, this, &SplitTunnelingGroup::onActiveSwitchStateChanged);
+    connect(activeCheckBox_, &ToggleItem::stateChanged, this, &SplitTunnelingGroup::onActiveSwitchStateChanged);
     addItem(activeCheckBox_);
 
     modeComboBox_ = new ComboBoxItem(this);
@@ -77,10 +77,19 @@ void SplitTunnelingGroup::onActiveSwitchStateChanged(bool checked)
             if (!manager.isServiceInstalled("WindscribeSplitTunnel")) {
                 checked = false;
                 activeCheckBox_->setState(false);
-                QMessageBox::warning(g_mainWindow, tr("Windscribe"),
+                GeneralMessageController::instance().showMessage(
+                    "WARNING_YELLOW",
+                    tr("Service Not Installed"),
                     tr("The split tunneling driver is not installed.  To enable this feature, try"
                        " reinstalling the Windscribe application.\n\nIf the reinstall does not help, please"
-                       " contact Windscribe support for assistance."));
+                       " contact Windscribe support for assistance."),
+                    tr(GeneralMessage::kOk),
+                    "",
+                    "",
+                    std::function<void(bool)>(nullptr),
+                    std::function<void(bool)>(nullptr),
+                    std::function<void(bool)>(nullptr),
+                    GeneralMessage::kFromPreferences);
             }
         }
         catch (std::system_error& ex) {
