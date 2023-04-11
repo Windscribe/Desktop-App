@@ -234,11 +234,14 @@ void FirewallFilter::addFilters(HANDLE engineHandle, const wchar_t *ip, bool bAl
     }
 
     // add permit filter for DHCP
-    // (Exec("netsh advfirewall firewall add rule name=\"VPN - Out - DHCP\" dir=out action=allow protocol=UDP
-    // localport=68 remoteport=67 program=\"%SystemRoot%\\system32\\svchost.exe\" service=\"dhcp\"");
-    ret = Utils::addFilterV4(engineHandle, nullptr, FWP_ACTION_PERMIT, 3, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, nullptr, 68, 67);
+    ret = Utils::addFilterV4(engineHandle, nullptr, FWP_ACTION_PERMIT, 3, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, nullptr, 68);
     if (!ret) {
-        Logger::instance().out(L"Could not add DHCP allow filter");
+        Logger::instance().out(L"Could not add DHCP allow filter (68)");
+    }
+    // add permit filter for DHCP
+    ret = Utils::addFilterV4(engineHandle, nullptr, FWP_ACTION_PERMIT, 3, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, nullptr, 67);
+    if (!ret) {
+        Logger::instance().out(L"Could not add DHCP allow filter (67)");
     }
 
     // Add permit filter for Windscribe reserved range (10.255.255.0 - 10.255.255.255)
