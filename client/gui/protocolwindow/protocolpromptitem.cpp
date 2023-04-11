@@ -20,7 +20,7 @@ ProtocolPromptItem::ProtocolPromptItem(ScalableGraphicsObject *parent,
                                        PreferencesHelper *preferencesHelper,
                                        ProtocolWindowMode mode)
     : BasePage(parent, WINDOW_WIDTH), connectWindow_(connectWindow), preferences_(preferences), preferencesHelper_(preferencesHelper),
-      cancelButton_(nullptr), actionButton_(nullptr)
+      cancelButton_(nullptr)
 {
     setFlag(QGraphicsItem::ItemIsFocusable);
     setSpacerHeight(kSpacerHeight);
@@ -174,63 +174,11 @@ void ProtocolPromptItem::setMode(ProtocolWindowMode mode)
         title_ = tr(kFailedProtocolTitle);
         desc_ = tr(kFailedProtocolDescription);
         doResetProtocolStatus();
-    } else if (mode == ProtocolWindowMode::kSavePreferredProtocol) {
-        setIcon("WARNING_WHITE");
-        title_ = QString(tr(kSavePreferredProtocolTitle)).arg(connectedProtocol().toLongString());
-        desc_ = tr(kSavePreferredProtocolDescription);
-        clearItems();
-
-        actionButton_ = new CommonGraphics::ListButton(this, CommonGraphics::ListButton::kBright, tr(kSetAsPreferredButton));
-        connect(actionButton_, &CommonGraphics::ListButton::clicked, this, &ProtocolPromptItem::onSetAsPreferred);
-        addItem(actionButton_);
-        addCancelButton();
-    } else if (mode == ProtocolWindowMode::kSendDebugLog) {
-        resetProtocolStatus();
-
-        setIcon("WARNING_WHITE");
-        title_ = tr(kSendDebugLogTitle);
-        desc_ = tr(kSendDebugLogDescription);
-        clearItems();
-
-        actionButton_ = new CommonGraphics::ListButton(this, CommonGraphics::ListButton::kBright, tr(kSendDebugLogButton));
-        connect(actionButton_, &CommonGraphics::ListButton::clicked, this, &ProtocolPromptItem::onSendDebugLog);
-        addItem(actionButton_);
-        addCancelButton();
-    } else if (mode == ProtocolWindowMode::kDebugLogSent) {
-        setIcon("CHECKMARK_IN_CIRCLE");
-        title_ = tr(kDebugLogSentTitle);
-        desc_ = tr(kDebugLogSentDescription);
-        clearItems();
-
-        actionButton_ = new CommonGraphics::ListButton(this, CommonGraphics::ListButton::kBright, tr(kContactSupportButton));
-        connect(actionButton_, &CommonGraphics::ListButton::clicked, this, &ProtocolPromptItem::onContactSupport);
-        addItem(actionButton_);
-        addCancelButton();
     }
     mode_ = mode;
     updateItemOffset();
     update();
     emit heightChanged(fullHeight());
-}
-
-void ProtocolPromptItem::onSetAsPreferred()
-{
-    countdownTimer_.stop();
-    emit escape();
-    emit setAsPreferredProtocol(types::ConnectionSettings(lastProtocol_, lastPort_, false));
-}
-
-void ProtocolPromptItem::onSendDebugLog()
-{
-    emit sendDebugLog();
-    setMode(ProtocolWindowMode::kDebugLogSent);
-}
-
-void ProtocolPromptItem::onContactSupport()
-{
-    countdownTimer_.stop();
-    emit escape();
-    QDesktopServices::openUrl(QUrl(QString("https://%1/support/ticket").arg(HardcodedSettings::instance().serverUrl())));
 }
 
 void ProtocolPromptItem::addCancelButton()
@@ -340,15 +288,6 @@ void ProtocolPromptItem::onLanguageChanged()
     if (cancelButton_) {
         cancelButton_->setText(tr(kCancelButton));
     }
-    if (actionButton_) {
-        if (mode_ == ProtocolWindowMode::kSavePreferredProtocol) {
-            actionButton_->setText(tr(kSetAsPreferredButton));
-        } else if (mode_ == ProtocolWindowMode::kSendDebugLog) {
-            actionButton_->setText(tr(kSendDebugLogButton));
-        } else if (mode_ == ProtocolWindowMode::kDebugLogSent) {
-           actionButton_->setText(tr(kContactSupportButton));
-        }
-    }
     for (auto i : items()) {
         if (ProtocolLineItem *item = dynamic_cast<ProtocolLineItem *>(i)) {
             item->setDescription(getProtocolDescription(item->protocol()));
@@ -359,7 +298,6 @@ void ProtocolPromptItem::onLanguageChanged()
 void ProtocolPromptItem::clearItems()
 {
     cancelButton_ = nullptr;
-    actionButton_ = nullptr;
     BasePage::clearItems();
 }
 

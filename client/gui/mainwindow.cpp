@@ -30,7 +30,6 @@
 #include "languagecontroller.h"
 #include "multipleaccountdetection/multipleaccountdetectionfactory.h"
 #include "dialogs/dialoggetusernamepassword.h"
-#include "dialogs/dialogmessagecpuusage.h"
 
 #include "graphicresources/imageresourcessvg.h"
 #include "graphicresources/imageresourcesjpg.h"
@@ -249,8 +248,6 @@ MainWindow::MainWindow() :
     // protocols window signals
     connect(dynamic_cast<QObject*>(mainWindowController_->getProtocolWindow()), SIGNAL(escape()), SLOT(onEscapeProtocolsClick()));
     connect(dynamic_cast<QObject*>(mainWindowController_->getProtocolWindow()), SIGNAL(protocolClicked(types::Protocol, uint)), SLOT(onProtocolWindowProtocolClick(types::Protocol, uint)));
-    connect(dynamic_cast<QObject*>(mainWindowController_->getProtocolWindow()), SIGNAL(setAsPreferredProtocol(types::ConnectionSettings)), SLOT(onProtocolWindowSetAsPreferred(types::ConnectionSettings)));
-    connect(dynamic_cast<QObject*>(mainWindowController_->getProtocolWindow()), SIGNAL(sendDebugLog()), SLOT(onSendDebugLogClick()));
     connect(dynamic_cast<QObject*>(mainWindowController_->getProtocolWindow()), SIGNAL(stopConnection()), SLOT(onProtocolWindowDisconnect()));
 
     // preferences window signals
@@ -947,13 +944,6 @@ void MainWindow::onProtocolWindowProtocolClick(const types::Protocol &protocol, 
     mainWindowController_->getConnectWindow()->setProtocolPort(protocol, port);
     backend_->sendConnect(PersistentState::instance().lastLocation(), types::ConnectionSettings(protocol, port, false));
     userProtocolOverride_ = true;
-}
-
-void MainWindow::onProtocolWindowSetAsPreferred(const types::ConnectionSettings &settings)
-{
-    if (curNetwork_.isValid()) {
-        backend_->getPreferences()->setNetworkPreferredProtocol(curNetwork_.networkOrSsid, settings);
-    }
 }
 
 void MainWindow::onProtocolWindowDisconnect()
@@ -2146,7 +2136,18 @@ void MainWindow::onBackendTestTunnelResult(bool success)
                     backend_->getPreferences()->networkPreferredProtocol(curNetwork_.networkOrSsid).protocol() != ps.protocol ||
                     backend_->getPreferences()->networkPreferredProtocol(curNetwork_.networkOrSsid).port() != ps.port)
                 {
-                    mainWindowController_->expandProtocols(ProtocolWindowMode::kSavePreferredProtocol);
+                    QString title = QString(tr("Set “%1” as preferred protocol?")).arg(ps.protocol.toLongString());
+                    GeneralMessageController::instance().showMessage("WARNING_WHITE",
+                                                                     title,
+                                                                     tr("Windscribe will always use this protocol to connect on this network in the future to avoid any interruptions."),
+                                                                     tr("Set as Preferred"),
+                                                                     tr(GeneralMessage::kCancel),
+                                                                     "",
+                                                                     [this, ps](bool b) {
+                                                                        if (curNetwork_.isValid()) {
+                                                                            backend_->getPreferences()->setNetworkPreferredProtocol(curNetwork_.networkOrSsid, types::ConnectionSettings(ps.protocol, ps.port, false));
+                                                                        }
+                                                                     });
                 }
                 userProtocolOverride_ = false;
             }
@@ -2292,7 +2293,28 @@ void MainWindow::onBackendSyncRobertResult(bool success)
 void MainWindow::onBackendProtocolStatusChanged(const QVector<types::ProtocolStatus> &status)
 {
     mainWindowController_->getProtocolWindow()->setProtocolStatus(status);
-    mainWindowController_->expandProtocols();
+    if (mainWindowController_->getProtocolWindow()->hasMoreAttempts()) {
+        mainWindowController_->expandProtocols();
+    } else {
+        GeneralMessageController::instance().showMessage(
+            "WARNING_WHITE",
+            tr("This network hates us"),
+            tr("We couldn’t connect you on this network. Send us your debug log so we can figure out what happened."),
+            tr("Send Debug Log"),
+            tr(GeneralMessage::kCancel),
+            "",
+            [this](bool b) {
+                backend_->sendDebugLog();
+                GeneralMessageController::instance().showMessage(
+                    "CHECKMARK_IN_CIRCLE",
+                    tr("Debug Sent!"),
+                    tr("Your debug log has been received. Please contact support if you want assistance with this issue."),
+                    tr("Contact Support"),
+                    tr(GeneralMessage::kCancel),
+                    "",
+                    [](bool b) { QDesktopServices::openUrl(QUrl(QString("https://%1/support/ticket").arg(HardcodedSettings::instance().serverUrl()))); });
+            });
+    }
 }
 
 void MainWindow::onBackendUpdateVersionChanged(uint progressPercent, UPDATE_VERSION_STATE state, UPDATE_VERSION_ERROR error)

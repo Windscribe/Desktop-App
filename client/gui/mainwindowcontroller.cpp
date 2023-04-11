@@ -603,8 +603,10 @@ void MainWindowController::collapseNewsFeed()
 
 void MainWindowController::expandProtocols(ProtocolWindowMode mode)
 {
-    protocolWindow_->setMode(mode);
-    expandWindow(protocolWindow_);
+    if (curWindow_ == WINDOW_ID_CONNECT) {
+        protocolWindow_->setMode(mode);
+        expandWindow(protocolWindow_);
+    }
 }
 
 void MainWindowController::collapseProtocols()
