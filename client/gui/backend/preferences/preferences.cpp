@@ -800,11 +800,11 @@ void Preferences::validateAndUpdateIfNeeded()
         bool bCorrect = true;
         if (!IpValidation::isCtrldCorrectAddress(cdi.upStream1)) {
             bCorrect = false;
-            emit reportErrorToUser("Invalid DNS Settings", "'DNS while connected' was not configured with a valid Upstream 1 (IP/DNS-over-HTTPS/TLS). DNS was reverted to ROBERT (default).");
+            emit reportErrorToUser(tr("Invalid DNS Settings"), tr("'DNS while connected' was not configured with a valid Upstream 1 (IP/DNS-over-HTTPS/TLS). DNS was reverted to ROBERT (default)."));
         }
         if (cdi.isSplitDns && !IpValidation::isCtrldCorrectAddress(cdi.upStream2)) {
             bCorrect = false;
-            emit reportErrorToUser("Invalid DNS Settings", "'DNS while connected' was not configured with a valid Upstream 2 (IP/DNS-over-HTTPS/TLS). DNS was reverted to ROBERT (default).");
+            emit reportErrorToUser(tr("Invalid DNS Settings"), tr("'DNS while connected' was not configured with a valid Upstream 2 (IP/DNS-over-HTTPS/TLS). DNS was reverted to ROBERT (default)."));
         }
         if (!bCorrect)
         {
