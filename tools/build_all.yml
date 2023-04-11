@@ -184,6 +184,8 @@ client_deploy_files:
       wireguard:
         - tunnel.dll -> tunnel.dll
         - wireguard.dll -> wireguard.dll
+      ctrld:
+        - ctrld.exe -> windscribectrld.exe
       # The dga library should be in the build-libs directory. If it is not there, then it will not be included in the installer.
       dga:
         - dga.dll -> dga.dll
@@ -262,6 +264,8 @@ client_deploy_files:
         - openvpn -> windscribeopenvpn
       stunnel:
         - stunnel -> windscribestunnel
+      ctrld:
+        - ctrld -> windscribectrld
       wireguard:
         - windscribewireguard -> windscribewireguard
     fix_rpath:
@@ -293,6 +297,7 @@ codesign_files:
     - windscribestunnel
     - windscribewstunnel
     - windscribeopenvpn
+    - windscribectrld
     - windscribe-authhelper
     - windscribewireguard
     - Windscribe

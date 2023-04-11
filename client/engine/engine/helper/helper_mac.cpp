@@ -49,62 +49,6 @@ QString Helper_mac::getHelperVersion()
     return "";
 }
 
-bool Helper_mac::setCustomDnsWhileConnected(bool isIkev2, unsigned long ifIndex, const QString &overrideDnsIpAddress)
-{
-    Q_UNUSED(ifIndex)
-    Q_UNUSED(overrideDnsIpAddress)
-
-    // get list of entries of interest
-    QStringList networkServices = NetworkUtils_mac::getListOfDnsNetworkServiceEntries();
-
-    // filter list to only SetByWindscribe entries
-    QStringList dnsNetworkServices;
-
-    if (isIkev2)
-    {
-        // IKEv2 is slightly different -- look for "ConfirmedServiceID" key in each DNS dictionary
-        for (QString service : networkServices)
-        {
-            if (MacUtils::dynamicStoreEntryHasKey(service, "ConfirmedServiceID"))
-            {
-                dnsNetworkServices.append(service);
-            }
-        }
-    }
-    else
-    {
-        // WG and openVPN: just look for 'SetByWindscribe' key in each DNS dictionary
-        for (QString service : networkServices)
-        {
-            if (MacUtils::dynamicStoreEntryHasKey(service, "SetByWindscribe"))
-            {
-                dnsNetworkServices.append(service);
-            }
-        }
-    }
-    qCDebug(LOG_CONNECTED_DNS) << "Applying custom 'while connected' DNS change to network services: " << dnsNetworkServices;
-
-    if (dnsNetworkServices.isEmpty())
-    {
-        qCDebug(LOG_CONNECTED_DNS) << "No network services to confirgure 'while connected' DNS";
-        return false;
-    }
-
-    // change DNS on each entry
-    bool successAll = true;
-    for (QString service : dnsNetworkServices)
-    {
-        if (!Helper_mac::setDnsOfDynamicStoreEntry(overrideDnsIpAddress, service))
-        {
-            successAll = false;
-            qCDebug(LOG_CONNECTED_DNS) << "Failed to set network service DNS: " << service;
-            break;
-        }
-    }
-
-    return successAll;
-}
-
 bool Helper_mac::setMacAddress(const QString &interface, const QString &macAddress, bool robustMethod)
 {
     QMutexLocker locker(&mutex_);

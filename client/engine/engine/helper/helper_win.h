@@ -33,7 +33,7 @@ public:
     bool sendConnectStatus(bool isConnected, bool isTerminateSocket, bool isKeepLocalSocket,
                            const AdapterGatewayInfo &defaultAdapter, const AdapterGatewayInfo &vpnAdapter,
                            const QString &connectedIp, const types::Protocol &protocol) override;
-    bool setCustomDnsWhileConnected(bool isIkev2, unsigned long ifIndex, const QString &overrideDnsIpAddress) override;
+    bool setCustomDnsWhileConnected(unsigned long ifIndex, const QString &overrideDnsIpAddress);
     bool changeMtu(const QString &adapter, int mtu) override;
     bool executeTaskKill(const QString &name);
 
@@ -43,6 +43,10 @@ public:
     bool configureWireGuard(const WireGuardConfig &config) override;
     bool getWireGuardStatus(types::WireGuardStatus *status) override;
     void setDefaultWireGuardDeviceName(const QString &deviceName) override;
+
+    // ctrld functions
+    ExecuteError startCtrld(const QString &exeName, const QString &parameters) override;
+    bool stopCtrld() override;
 
     // Windows specific functions
     bool isHelperConnected() const;

@@ -15,8 +15,6 @@ public:
     bool reinstallHelper() override;
     QString getHelperVersion() override;
 
-    bool setCustomDnsWhileConnected(bool isIkev2, unsigned long ifIndex, const QString &overrideDnsIpAddress) override;
-
     // linux specific
     std::optional<bool> installUpdate(const QString& package) const;
     bool setDnsLeakProtectEnabled(bool bEnabled);

@@ -17,7 +17,7 @@ public:
     void updateScaling() override;
 
     void clearItems(bool skipFirst = false);
-    void addItem(CommonGraphics::BaseItem *item);
+    void addItem(CommonGraphics::BaseItem *item, bool isWideDividerLine = false);
 
     void setDescription(const QString &desc, bool error = false);
     void showDescription();

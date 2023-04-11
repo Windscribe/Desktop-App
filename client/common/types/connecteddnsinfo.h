@@ -9,16 +9,13 @@
 
 namespace types {
 
-class ConnectedDnsInfo
+struct ConnectedDnsInfo
 {
-public:    
-    ConnectedDnsInfo() : type_(CONNECTED_DNS_TYPE_ROBERT) {}
-
-    QString toString() const;
-    CONNECTED_DNS_TYPE type() const;
-    void setType(CONNECTED_DNS_TYPE type);
-    QString ipAddress() const;
-    void setIpAddress(const QString &ipAddr);
+    CONNECTED_DNS_TYPE type = CONNECTED_DNS_TYPE_ROBERT;
+    QString upStream1;
+    bool isSplitDns = false;
+    QString upStream2;
+    QStringList hostnames;
 
     static QList<CONNECTED_DNS_TYPE> allAvailableTypes();
     static QString typeToString(const CONNECTED_DNS_TYPE &type);
@@ -28,22 +25,11 @@ public:
 
     friend QDebug operator<<(QDebug dbg, const ConnectedDnsInfo &ds);
 
-private:
-    CONNECTED_DNS_TYPE type_;
-    QString ipAddress_;
+    bool operator==(const ConnectedDnsInfo &other) const;
+    bool operator!=(const ConnectedDnsInfo &other) const;
 
-    static constexpr quint32 versionForSerialization_ = 1;  // should increment the version if the data format is changed
+    static constexpr quint32 versionForSerialization_ = 2;  // should increment the version if the data format is changed
 };
-
-inline bool operator==(const ConnectedDnsInfo& lhs, const ConnectedDnsInfo& rhs)
-{
-    return lhs.type() == rhs.type() && lhs.ipAddress() == rhs.ipAddress();
-}
-
-inline bool operator!=(const ConnectedDnsInfo& lhs, const ConnectedDnsInfo& rhs)
-{
-    return lhs.type() != rhs.type() || lhs.ipAddress() != rhs.ipAddress();
-}
 
 
 

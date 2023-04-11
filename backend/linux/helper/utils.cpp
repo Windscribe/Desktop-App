@@ -74,12 +74,15 @@ std::string getFullCommand(const std::string &exePath, const std::string &execut
         return "";
     }
 
+// check only for release build
+#ifdef NDEBUG
     if (std::string(canonicalPath).rfind("/opt/windscribe", 0) != 0) {
         // Don't execute arbitrary commands, only executables that are in our application directory
         Logger::instance().out("Executable not in correct path, ignoring.");
         free(canonicalPath);
         return "";
     }
+#endif
 
     std::string fullCmd = std::string(canonicalPath) + "/" + executable + " " + arguments;
     Logger::instance().out("Resolved command: %s", fullCmd.c_str());

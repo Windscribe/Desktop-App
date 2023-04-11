@@ -21,7 +21,24 @@ void DnsServersConfiguration::setDnsServersPolicy(DNS_POLICY_TYPE policy)
 QStringList DnsServersConfiguration::getCurrentDnsServers() const
 {
     QMutexLocker locker(&mutex_);
-    return ips;
+    if (isConnectedToVpn_)
+        return vpnDnsServers_;
+    else
+        return ips;
+}
+
+void DnsServersConfiguration::setConnectedState(const QStringList &vpnDnsServers)
+{
+    QMutexLocker locker(&mutex_);
+    vpnDnsServers_ = vpnDnsServers;
+    isConnectedToVpn_ = true;
+}
+
+void DnsServersConfiguration::setDisconnectedState()
+{
+    QMutexLocker locker(&mutex_);
+    vpnDnsServers_.clear();
+    isConnectedToVpn_ = false;
 }
 
 QStringList DnsServersConfiguration::dnsPolicyTypeToStringList(DNS_POLICY_TYPE dnsPolicyType)

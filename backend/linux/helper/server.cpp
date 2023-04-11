@@ -155,6 +155,25 @@ bool Server::readAndHandleCommand(socket_ptr sock, boost::asio::streambuf *buf, 
         if (wireGuardController_.stop()) {
             outCmdAnswer.executed = 1;
         }
+    } else if (cmdId == HELPER_CMD_START_CTRLD) {
+        CMD_START_CTRLD cmd;
+        ia >> cmd;
+
+        std::string fullCmd = Utils::getFullCommand(cmd.exePath, cmd.executable, cmd.parameters);
+        if (fullCmd.empty()) {
+            // Something wrong with the command
+            outCmdAnswer.executed = 0;
+        } else {
+            const std::string fullPath = cmd.exePath + "/" + cmd.executable;
+            ExecutableSignature sigCheck;
+            if (!sigCheck.verifyWithSignCheck(std::wstring_convert<std::codecvt_utf8<wchar_t>>().from_bytes(fullPath))) {
+                Logger::instance().out("ctrld executable signature incorrect: %s", sigCheck.lastError().c_str());
+                outCmdAnswer.executed = 0;
+            } else {
+                outCmdAnswer.cmdId = ExecuteCmd::instance().execute(fullCmd, std::string());
+                outCmdAnswer.executed = 1;
+            }
+        }
     } else if (cmdId == HELPER_CMD_CONFIGURE_WIREGUARD) {
         CMD_CONFIGURE_WIREGUARD cmd;
         ia >> cmd;
@@ -259,6 +278,10 @@ bool Server::readAndHandleCommand(socket_ptr sock, boost::asio::streambuf *buf, 
         } else if (cmd.target == kTargetWireGuard) {
             Logger::instance().out("Killing WireGuard processes");
             Utils::executeCommand("pkill", {"-f", "windscribewireguard"});
+            outCmdAnswer.executed = 1;
+        } else if (cmd.target == kTargetCtrld) {
+            Logger::instance().out("Killing ctrld processes");
+            Utils::executeCommand("pkill", {"-f", "windscribectrld"});
             outCmdAnswer.executed = 1;
         } else {
             Logger::instance().out("Did not kill processes for type %d", cmd.target);

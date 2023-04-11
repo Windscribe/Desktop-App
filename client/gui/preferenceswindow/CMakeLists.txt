@@ -37,6 +37,12 @@ target_sources(gui PRIVATE
     connectionwindow/proxyipaddressitem.h
     connectionwindow/securehotspotgroup.cpp
     connectionwindow/securehotspotgroup.h
+    dnsdomainswindow/dnsdomainaddressitem.cpp
+    dnsdomainswindow/dnsdomainaddressitem.h
+    dnsdomainswindow/dnsdomainsgroup.cpp
+    dnsdomainswindow/dnsdomainsgroup.h
+    dnsdomainswindow/dnsdomainswindowitem.cpp
+    dnsdomainswindow/dnsdomainswindowitem.h
     editboxitem.cpp
     editboxitem.h
     generalwindow/backgroundsettingsgroup.cpp
@@ -58,14 +64,14 @@ target_sources(gui PRIVATE
     networkoptionswindow/networkoptionsnetworkwindowitem.h
     networkoptionswindow/networkoptionswindowitem.cpp
     networkoptionswindow/networkoptionswindowitem.h
+    preferencegroup.cpp
+    preferencegroup.h
+    preferencesconst.h
     preferencestab/ipreferencestabcontrol.h
     preferencestab/preferencestabcontrolitem.cpp
     preferencestab/preferencestabcontrolitem.h
     preferencestab/tabbutton.cpp
     preferencestab/tabbutton.h
-    preferencegroup.cpp
-    preferencegroup.h
-    preferencesconst.h
     preferenceswindowitem.cpp
     preferenceswindowitem.h
     protocolgroup.cpp
@@ -106,4 +112,6 @@ target_sources(gui PRIVATE
     splittunnelingwindow/splittunnelingwindowitem.h
     titleitem.cpp
     titleitem.h
+    verticaleditboxitem.cpp
+    verticaleditboxitem.h
 )

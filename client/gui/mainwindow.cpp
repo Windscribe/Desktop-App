@@ -3599,6 +3599,10 @@ void MainWindow::handleDisconnectWithError(const types::ConnectState &connectSta
     {
         msg = tr("OpenVPN binary failed verification. Please re-install windscribe from trusted source.");
     }
+    else if (connectState.connectError == CTRLD_START_FAILED)
+    {
+        msg = tr("ctrld binary failed to start. Please re-install windscribe from trusted source.");
+    }
     else if (connectState.connectError == WIREGUARD_ADAPTER_SETUP_FAILED)
     {
         msg = tr("WireGuard adapter setup failed. Please wait one minute and try the connection again. If adapter setup fails again,"

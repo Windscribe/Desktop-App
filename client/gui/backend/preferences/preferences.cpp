@@ -794,16 +794,25 @@ void Preferences::validateAndUpdateIfNeeded()
         is_update_needed = true;
     }
 
-    if (engineSettings_.connectedDnsInfo().type() == CONNECTED_DNS_TYPE_CUSTOM &&
-            !IpValidation::isIp(engineSettings_.connectedDnsInfo().ipAddress()))
-    {
-        types::ConnectedDnsInfo dns;
-        dns.setType(CONNECTED_DNS_TYPE_ROBERT);
-        dns.setIpAddress("");
-        engineSettings_.setConnectedDnsInfo(dns);
-        emit connectedDnsInfoChanged(engineSettings_.connectedDnsInfo());
-        emit reportErrorToUser("Invalid DNS Settings", "'DNS while connected' was not configured with a valid IP Address. DNS was reverted to ROBERT (default).");
-        is_update_needed = true;
+    // Validate Connected Dns settings
+    types::ConnectedDnsInfo cdi = engineSettings_.connectedDnsInfo();
+    if (cdi.type == CONNECTED_DNS_TYPE_CUSTOM) {
+        bool bCorrect = true;
+        if (!IpValidation::isCtrldCorrectAddress(cdi.upStream1)) {
+            bCorrect = false;
+            emit reportErrorToUser(tr("Invalid DNS Settings"), tr("'DNS while connected' was not configured with a valid Upstream 1 (IP/DNS-over-HTTPS/TLS). DNS was reverted to ROBERT (default)."));
+        }
+        if (cdi.isSplitDns && !IpValidation::isCtrldCorrectAddress(cdi.upStream2)) {
+            bCorrect = false;
+            emit reportErrorToUser(tr("Invalid DNS Settings"), tr("'DNS while connected' was not configured with a valid Upstream 2 (IP/DNS-over-HTTPS/TLS). DNS was reverted to ROBERT (default)."));
+        }
+        if (!bCorrect)
+        {
+            cdi.type = CONNECTED_DNS_TYPE_ROBERT;
+            engineSettings_.setConnectedDnsInfo(cdi);
+            emit connectedDnsInfoChanged(engineSettings_.connectedDnsInfo());
+            is_update_needed = true;
+        }
     }
 
     if (is_update_needed)
