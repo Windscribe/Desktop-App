@@ -1,3 +1,15 @@
+2.7.2 (12/04/2023)
+All:
+   * Added support for DNS-over-HTTPS (DoH) and split DNS to the 'Connected DNS' feature. #393 & #54
+   * Added custom alert screens, replacing the native OS message boxes. #583
+   * Added icon on connect screen indicating if connection is auto, manual, or network preferred protocol. #600
+   * Fixed some shadow & scaling issues, and a crash, in the new logout and quit screens. #457
+   * Fixed emergency connect feature not working. #621
+Windows:
+   * Fixed OpenVPN drivers are not installed at runtime after update to OpenVPN 2.6.1. #615
+   * Fixed sharing Windscribe connection with Windows Hotspot doesn't work with firewall enabled using app version 2.6. #622
+
+
 2.7.1 (31/03/2023)
 All:
    * Added new logout and quit screens. #457
