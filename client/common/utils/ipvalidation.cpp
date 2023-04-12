@@ -30,13 +30,6 @@ bool IpValidation::isDomain(const QString &str)
     return domainRegex.exactMatch(str);
 }
 
-bool IpValidation::isDomainStartsWithHttps(const QString &str)
-{
-    if (!str.toUpper().startsWith("HTTPS://"))
-        return false;
-    return isDomain(str.mid(8));
-}
-
 bool IpValidation::isIpOrDomain(const QString &str)
 {
     return (isIp(str) || isDomain(str));
@@ -53,7 +46,7 @@ bool IpValidation::isIpCidrOrDomain(const QString &str)
 // if hostname -> DOT
 bool IpValidation::isCtrldCorrectAddress(const QString &str)
 {
-    return isIp(str) || isDomain(str) || isDomainStartsWithHttps(str);
+    return isIp(str) || isDomain(str) || isValidHttpsUrl(str);
 }
 
 bool IpValidation::isValidIpForCidr(const QString &str)
@@ -88,6 +81,12 @@ bool IpValidation::isLocalIp(const QString &str)
         }
     }
     return false;
+}
+
+bool IpValidation::isValidHttpsUrl(const QString &str)
+{
+    QRegExp regex("^((https):\\/)\\/?([^:\\/\\s]+)((\\/\\w+)*\\/)([\\w\\-\\.]+[^#?\\s]+)(.*)?(#[\\w\\-]+)?$");
+    return regex.exactMatch(str);
 }
 
 bool IpValidation::isWindscribeReservedIp(const QString &str)
