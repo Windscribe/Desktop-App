@@ -95,7 +95,6 @@ private slots:
     // protocol window signals
     void onEscapeProtocolsClick();
     void onProtocolWindowProtocolClick(const types::Protocol &protocol, uint port);
-    void onProtocolWindowSetAsPreferred(const types::ConnectionSettings &settings);
     void onProtocolWindowDisconnect();
 
     // preferences window signals

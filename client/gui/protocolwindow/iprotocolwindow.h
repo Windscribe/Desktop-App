@@ -19,11 +19,10 @@ public:
     virtual void setProtocolStatus(const types::ProtocolStatus &status) = 0;
     virtual void setProtocolStatus(const QVector<types::ProtocolStatus> &status) = 0;
     virtual void resetProtocolStatus() = 0;
+    virtual bool hasMoreAttempts() = 0;
 
 signals:
     virtual void protocolClicked(types::Protocol protocol, uint port) = 0;
-    virtual void setAsPreferredProtocol(types::ConnectionSettings settings) = 0;
-    virtual void sendDebugLog() = 0;
     virtual void stopConnection() = 0;
 };
 

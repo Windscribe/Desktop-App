@@ -27,7 +27,6 @@ ProtocolWindowItem::ProtocolWindowItem(QGraphicsObject *parent,
     connect(protocolPromptItem_, &ProtocolPromptItem::escape, this, &ProtocolWindowItem::escape);
     connect(protocolPromptItem_, &ProtocolPromptItem::protocolClicked, this, &ProtocolWindowItem::protocolClicked);
     connect(protocolPromptItem_, &ProtocolPromptItem::heightChanged, this, &ProtocolWindowItem::onPromptHeightChanged);
-    connect(protocolPromptItem_, &ProtocolPromptItem::setAsPreferredProtocol, this, &ProtocolWindowItem::setAsPreferredProtocol);
     connect(protocolPromptItem_, &ProtocolPromptItem::stopConnection, this, &ProtocolWindowItem::stopConnection);
 
     onPromptHeightChanged(promptHeight_);
@@ -91,8 +90,9 @@ void ProtocolWindowItem::setProtocolStatus(const QVector<types::ProtocolStatus> 
     if (hasNonFailedProtocol) {
         protocolPromptItem_->setMode(ProtocolWindowMode::kFailedProtocol);
         protocolPromptItem_->setProtocolStatus(status);
+        allProtocolsFailed_ = false;
     } else {
-        protocolPromptItem_->setMode(ProtocolWindowMode::kSendDebugLog);
+        allProtocolsFailed_ = true;
     }
 }
 
@@ -115,6 +115,7 @@ void ProtocolWindowItem::onAppSkinChanged(APP_SKIN skin)
 
 void ProtocolWindowItem::resetProtocolStatus()
 {
+    allProtocolsFailed_ = false;
     protocolPromptItem_->resetProtocolStatus();
 }
 
@@ -124,6 +125,11 @@ void ProtocolWindowItem::onEscape()
         emit stopConnection();
     }
     emit escape();
+}
+
+bool ProtocolWindowItem::hasMoreAttempts()
+{
+    return !allProtocolsFailed_;
 }
 
 } // namespace ProtocolWindow

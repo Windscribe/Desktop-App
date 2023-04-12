@@ -42,14 +42,9 @@ signals:
     void escape();
     void protocolClicked(types::Protocol protocol, uint port);
     void heightChanged(int height);
-    void setAsPreferredProtocol(types::ConnectionSettings settings);
-    void sendDebugLog();
     void stopConnection();
 
 private slots:
-    void onSetAsPreferred();
-    void onSendDebugLog();
-    void onContactSupport();
     void onProtocolClicked();
     void onTimerTimeout();
     void onCancelClicked();
@@ -63,16 +58,6 @@ private:
     const char *kChangeProtocolDescription = QT_TR_NOOP("Quickly re-connect using a different protocol.");
     const char *kFailedProtocolTitle = QT_TR_NOOP("Connection Failure!");
     const char *kFailedProtocolDescription = QT_TR_NOOP("The protocol you’ve chosen has failed to connect. Windscribe will attempt to reconnect using the first protocol below.");
-    const char *kSavePreferredProtocolTitle = QT_TR_NOOP("Set “%1” as preferred protocol?");
-    const char *kSavePreferredProtocolDescription = QT_TR_NOOP("Windscribe will always use this protocol to connect on this network in the future to avoid any interruptions.");
-    const char *kSendDebugLogTitle = QT_TR_NOOP("This network hates us");
-    const char *kSendDebugLogDescription = QT_TR_NOOP("We couldn’t connect you on this network. Send us your debug log so we can figure out what happened.");
-    const char *kDebugLogSentTitle = QT_TR_NOOP("Debug Sent!");
-    const char *kDebugLogSentDescription = QT_TR_NOOP("Your debug log has been received. Please contact support if you want assistance with this issue.");
-
-    const char *kSetAsPreferredButton = QT_TR_NOOP("Set as Preferred");
-    const char *kSendDebugLogButton = QT_TR_NOOP("Send Debug Log");
-    const char *kContactSupportButton = QT_TR_NOOP("Contact Support");
     const char *kCancelButton = QT_TR_NOOP("Cancel");
 
     QScopedPointer<ImageItem> icon_;
@@ -83,7 +68,6 @@ private:
     int titleHeight_;
     int descHeight_;
 
-    CommonGraphics::ListButton *actionButton_;
     CommonGraphics::ListButton *cancelButton_;
 
     ProtocolWindowMode mode_;
