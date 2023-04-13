@@ -356,10 +356,10 @@ QString FirewallController_mac::generatePfConf(const QSet<QString> &ips, bool bA
     pf += "pass in quick inet6 proto udp from any to any port {547}\n";
 
     // always allow igmp
-    pf += "pass proto igmp allow opts";
+    pf += "pass proto igmp allow-opts\n";
 
     // always allow esp/gre
-    pf += "pass proto {esp, gre} from any to any";
+    pf += "pass proto {esp, gre} from any to any\n";
 
     // block everything on tcp/udp
     pf += "block in proto {tcp, udp}\n";
