@@ -4,7 +4,6 @@
 # Copyright (c) 2020-2023, Windscribe Limited. All rights reserved.
 # ------------------------------------------------------------------------------
 # Purpose: installs Qt.
-import json
 import os
 import sys
 import time
@@ -38,28 +37,6 @@ QT_SKIP_MODULES = ["qtdoc", "qt3d", "qtactiveqt", "qtcanvas3d", "qtcharts", "qtc
 
 QT_SOURCE_CHANGES_JSON_PATH = "deps/custom_qt/source_changes.json"
 
-# This was required for Qt 5.12.x.  No longer required for Qt 6.
-
-
-def ReplaceSourceCode(qt_source_dir):
-    f = open(os.path.join(TOOLS_DIR, os.path.relpath(QT_SOURCE_CHANGES_JSON_PATH)), 'r')
-    source_changes = json.load(f)
-    for change in source_changes:
-        file_path = os.path.join(os.path.abspath(qt_source_dir), os.path.relpath(change["file"]))
-        with open(file_path, "r") as f_in:
-            contents = f_in.read()
-            if contents.find(change["old_code"]) != -1:
-                contents = contents.replace(change["old_code"], change["new_code"])
-                f_in.close()
-                with open(file_path, "w") as f_out:
-                    f_out.write(contents)
-                    f_out.close()
-                    print("Replaced source code according to {}".format(change["ref"]))
-            else:
-                sys.exit("Code {} doesn't exist in {}".format(change["old_code"], file_path))
-
-    f.close()
-
 
 def BuildDependencyMSVC(installpath, openssl_root, outpath):
     # Create an environment with VS vars.
@@ -88,11 +65,15 @@ def BuildDependencyGNU(installpath, openssl_root, outpath):
     buildenv.update({"OPENSSL_ROOT_DIR": "{}".format(openssl_root)})
     if c_ismac:
         buildenv.update({"CMAKE_OSX_ARCHITECTURES": "x86_64;arm64"})
+
     # Configure.
     configure_cmd = \
         ["./configure", "-opensource", "-confirm-license", "-release", "-nomake", "examples"]
     configure_cmd.append("-openssl-linked")
-    configure_cmd.append("-system-zlib")
+    configure_cmd.append("-qt-zlib")
+    configure_cmd.append("-qt-pcre")
+    configure_cmd.append("-no-icu")
+    configure_cmd.append("-bundled-xcb-xinput")
     configure_cmd.extend(["-prefix", installpath])
     if not c_ismac:
         configure_cmd.append("-qt-libpng")
@@ -100,7 +81,7 @@ def BuildDependencyGNU(installpath, openssl_root, outpath):
         configure_cmd.extend(x for t in zip(["-skip"] * len(QT_SKIP_MODULES), QT_SKIP_MODULES) for x in t)
     iutl.RunCommand(configure_cmd, env=buildenv)
     # Build and install.
-    iutl.RunCommand(["cmake", "--build", ".", "--parallel"], env=buildenv)
+    iutl.RunCommand(["cmake", "--build", ".", "--parallel", "8"], env=buildenv)
     iutl.RunCommand(["cmake", "--install", "."], env=buildenv)
 
 
@@ -116,7 +97,7 @@ def InstallDependency():
     dep_version_str = os.environ.get(dep_version_var, None)
     if not dep_version_str:
         raise iutl.InstallError("{} not defined.".format(dep_version_var))
-    openssl_root = iutl.GetDependencyBuildRoot("openssl")
+    openssl_root = iutl.GetDependencyBuildRoot("openssl_ech_draft")
     if not openssl_root:
         raise iutl.InstallError("OpenSSL is not installed.")
     # Prepare output.
@@ -136,8 +117,8 @@ def InstallDependency():
         utl.RenameDirectory(os.path.join(temp_dir, archivetitle), os.path.join(temp_dir, extracteddir))
     else:
         extracteddir = archivetitle
-    # Replace source code if necessary
-    # ReplaceSourceCode(os.path.join(temp_dir, extracteddir))
+    # Copy modified files.
+    iutl.CopyCustomFiles(dep_name, os.path.join(temp_dir, archivetitle))
     # Build the dependency.
     dep_buildroot_var = "BUILDROOT_" + DEP_TITLE.upper()
     dep_buildroot_str = os.environ.get(dep_buildroot_var, os.path.join("build-libs", dep_name))

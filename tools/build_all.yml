@@ -216,12 +216,25 @@ client_deploy_files:
       - Contents/Frameworks/QtQuick.framework
       - stunnel
 
-  linux:
+  linux_x86_64:
     libs:
       qt:
         - lib/libicui18n.so.56 -> lib/libicui18n.so.56
         - lib/libicuuc.so.56 -> lib/libicuuc.so.56
         - lib/libicudata.so.56 -> lib/libicudata.so.56
+      openssl_ech_draft:
+        - lib64/libcrypto.so.3 -> lib/libcrypto.so.3
+        - lib64/libssl.so.3 -> lib/libssl.so.3
+
+  linux_aarch64:
+    libs:
+      openssl_ech_draft:
+        - lib/libcrypto.so.3 -> lib/libcrypto.so.3
+        - lib/libssl.so.3 -> lib/libssl.so.3
+
+  linux:
+    libs:
+      qt:
         - lib/libQt6Core.so.6 -> lib/libQt6Core.so.6
         - lib/libQt6Core5Compat.so.6 -> lib/libQt6Core5Compat.so.6
         - lib/libQt6DBus.so.6 -> lib/libQt6DBus.so.6
@@ -257,9 +270,6 @@ client_deploy_files:
         - lib/libcurl.so.4 -> lib/libcurl.so.4
       dga:
         - libdga.so -> lib/libdga.so
-      openssl_ech_draft:
-        - lib64/libcrypto.so.3 -> lib/libcrypto.so.3
-        - lib64/libssl.so.3 -> lib/libssl.so.3
       openvpn:
         - openvpn -> windscribeopenvpn
       stunnel:

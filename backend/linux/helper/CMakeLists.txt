@@ -29,6 +29,7 @@ add_executable(helper ${SOURCES})
 target_link_directories(helper
                         PRIVATE
                         ../../../build-libs/boost/lib
+                        ../../../build-libs/openssl_ech_draft/lib
                         ../../../build-libs/openssl_ech_draft/lib64
 )
 target_link_libraries(helper
