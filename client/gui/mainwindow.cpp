@@ -1932,6 +1932,14 @@ void MainWindow::onNetworkChanged(types::NetworkInterface network)
     curNetwork_ = network;
     if (backend_->isDisconnected()) {
         updateConnectWindowStateProtocolPortDisplay();
+    } else {
+        const types::ConnectionSettings cs = backend_->getPreferences()->networkPreferredProtocol(network.networkOrSsid);
+        types::ProtocolStatus ps = mainWindowController_->getConnectWindow()->getProtocolStatus();
+        if (!cs.isAutomatic() && cs.protocol() == ps.protocol && cs.port() == ps.port) {
+            mainWindowController_->getConnectWindow()->setIsPreferredProtocol(true);
+        } else {
+            mainWindowController_->getConnectWindow()->setIsPreferredProtocol(false);
+        }
     }
 }
 
@@ -2237,6 +2245,14 @@ void MainWindow::onBackendInternetConnectivityChanged(bool connectivity)
 
 void MainWindow::onBackendProtocolPortChanged(const types::Protocol &protocol, const uint port)
 {
+    const types::ConnectionSettings cs = backend_->getPreferences()->networkPreferredProtocol(curNetwork_.networkOrSsid);
+
+    if (!cs.isAutomatic() && cs.protocol() == protocol && cs.port() == port) {
+        mainWindowController_->getConnectWindow()->setIsPreferredProtocol(true);
+    } else {
+        mainWindowController_->getConnectWindow()->setIsPreferredProtocol(false);
+    }
+
     mainWindowController_->getConnectWindow()->setProtocolPort(protocol, port);
 }
 
