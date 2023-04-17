@@ -2,6 +2,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <boost/algorithm/string.hpp>
 #include "../utils.h"
 #include "../logger.h"
 
@@ -30,23 +31,25 @@ bool Ipv6Manager::setEnabled(bool bEnabled)
     if (bEnabled) {
         LOG("Restoring IPv6");
 
-        for (std::string interface : interfaces) {
-            const std::string curState = getState(interface);
-            const std::string savedState = interfaceStates_[interface];
+        for (const std::string &interface : interfaces) {
+            const IPv6State curState = getState(interface);
+            const IPv6State savedState = interfaceStates_[interface];
 
-            if ((curState != savedState && savedState == "Automatic") ||
-                curState.empty() || savedState.empty() ||
-                curState == "Unknown" || savedState == "Unknown") {
-
-                Utils::executeCommand("networksetup", {"-setv6automatic", interface});
+            if (curState != savedState) {
+                if (savedState.state == "Manual")
+                    Utils::executeCommand("networksetup", {"-setv6manual", interface, savedState.ipAddress, savedState.prefixLength, savedState.routerAddress});
+                else if (savedState.state == "Automatic")
+                    Utils::executeCommand("networksetup", {"-setv6automatic", interface});
+                else if (savedState.state == "Off")
+                    Utils::executeCommand("networksetup", {"-setv6off", interface});
             }
         }
     } else {
         LOG("Disabling IPv6");
 
         saveIpv6States(interfaces);
-        for (std::string interface : interfaces) {
-            if (interfaceStates_[interface] != "Off") {
+        for (const std::string &interface : interfaces) {
+            if (interfaceStates_[interface].state != "Off") {
                 Utils::executeCommand("networksetup", {"-setv6off", interface});
             }
         }
@@ -58,9 +61,12 @@ bool Ipv6Manager::setEnabled(bool bEnabled)
 
 void Ipv6Manager::saveIpv6States(const std::vector<const std::string> &interfaces)
 {
-    for (std::string interface : interfaces) {
-    	interfaceStates_[interface] = getState(interface);
-    	LOG("Save state for %s: %s", interface.c_str(), interfaceStates_[interface].c_str());
+    interfaceStates_.clear();
+    for (const std::string &interface : interfaces) {
+        IPv6State state = getState(interface);
+        interfaceStates_[interface] = state;
+        LOG("Save state for %s: %s, %s, %s, %s", interface.c_str(), state.state.c_str(), state.ipAddress.c_str(),
+                                                state.routerAddress.c_str(), state.prefixLength.c_str());
     }
 }
 
@@ -87,19 +93,40 @@ std::vector<const std::string> Ipv6Manager::getInterfaces()
     return interfaces;
 }
 
-std::string Ipv6Manager::getState(const std::string &interface)
+Ipv6Manager::IPv6State Ipv6Manager::getState(const std::string &interface)
 {
     std::string out;
-	int status = Utils::executeCommand("networksetup", {"-getinfo", interface}, &out);
+    int status = Utils::executeCommand("networksetup", {"-getinfo", interface}, &out);
     if (status != 0) {
         LOG("Get network info failed");
-        return "Unknown";
+        return IPv6State();
     }
 
-    if (out.find("IPv6: Automatic") != std::string::npos) {
-        return "Automatic";
-    } else if (out.find("IPv6: Off") != std::string::npos) {
-    	return "Off";
+    IPv6State ipv6state;
+    std::stringstream ss(out);
+    std::string line;
+    while (std::getline(ss, line, '\n')) {
+        std::string::size_type posDelimiter = line.find(':');
+        if (posDelimiter != std::string::npos) {
+            std::string name, value;
+            name = line.substr(0, posDelimiter);
+            if (name.find("IPv6") != std::string::npos) {
+                value = line.substr(posDelimiter + 1);
+                boost::trim(name);
+                boost::trim(value);
+                if (name == "IPv6")
+                    ipv6state.state = value;
+                else if (name == "IPv6 IP address")
+                    ipv6state.ipAddress = value;
+                else if (name == "IPv6 Router")
+                    ipv6state.routerAddress = value;
+                else if (name == "IPv6 Prefix Length")
+                    ipv6state.prefixLength = value;
+                else
+                    LOG("ipv6Manager::getState parse error, unknown name: %s", name.c_str());
+            }
+        }
     }
-    return "Unknown";
+
+    return ipv6state;
 }
