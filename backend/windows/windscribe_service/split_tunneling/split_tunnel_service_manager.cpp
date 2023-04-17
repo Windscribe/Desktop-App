@@ -5,7 +5,7 @@
 #include "../../../client/common/utils/servicecontrolmanager.h"
 #include "../logger.h"
 
-static const char* kServiceName = "WindscribeSplitTunnel";
+static const wchar_t* kServiceName = L"WindscribeSplitTunnel";
 
 SplitTunnelServiceManager::SplitTunnelServiceManager()
 {

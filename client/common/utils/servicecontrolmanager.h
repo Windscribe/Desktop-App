@@ -1,5 +1,4 @@
-#ifndef SERVICECONTROLMANAGER_H
-#define SERVICECONTROLMANAGER_H
+#pragma once
 
 #include <Windows.h>
 #include <atomic>
@@ -17,28 +16,28 @@ public:
    explicit ServiceControlManager();
    ~ServiceControlManager();
 
-   void deleteService(LPCSTR pszServiceName, bool bStopRunningService = true);
+   void deleteService(LPCTSTR pszServiceName, bool bStopRunningService = true);
 
-   void installService(LPCSTR pszServiceName, LPCSTR pszBinaryPathName,
-                       LPCSTR pszDisplayName, LPCSTR pszDescription,
+   void installService(LPCTSTR pszServiceName, LPCTSTR pszBinaryPathName,
+                       LPCTSTR pszDisplayName, LPCTSTR pszDescription,
                        DWORD dwServiceType = SERVICE_WIN32_OWN_PROCESS,
                        DWORD dwStartType = SERVICE_AUTO_START,
-                       LPCSTR pszDependencies = NULL,
+                       LPCTSTR pszDependencies = NULL,
                        bool bAllowInteractiveUserStart = false);
 
    bool isSCMOpen() const;
-   bool isServiceInstalled(LPCSTR pszServiceName) const;
+   bool isServiceInstalled(LPCTSTR pszServiceName) const;
    bool isServiceOpen() const;
 
    void closeSCM() noexcept;
    void closeService() noexcept;
-   void openSCM(DWORD dwDesiredAccess, LPCSTR pszServerName = NULL);
-   void openService(LPCSTR pszServiceName, DWORD dwDesiredAccess = SERVICE_ALL_ACCESS);
-   void queryServiceConfig(std::string& sExePath, std::string& sAccountName,
+   void openSCM(DWORD dwDesiredAccess, LPCTSTR pszServerName = NULL);
+   void openService(LPCTSTR pszServiceName, DWORD dwDesiredAccess = SERVICE_ALL_ACCESS);
+   void queryServiceConfig(std::wstring& sExePath, std::wstring& sAccountName,
                            DWORD& dwStartType, bool& bServiceShareProcess) const;
    DWORD queryServiceStatus() const;
    void sendControlCode(DWORD dwCode) const;
-   void setServiceDescription(LPCSTR pszDescription) const;
+   void setServiceDescription(LPCTSTR pszDescription) const;
    void setServiceSIDType(DWORD dwServiceSidType) const;
    void startService();
    void stopService();
@@ -47,18 +46,18 @@ public:
    void blockStartStopRequests();
    void unblockStartStopRequests();
 
-   LPCSTR getServerName() const;
+   LPCTSTR getServerName() const;
 
 private:
-   std::string m_sServerName;
-   std::string m_sServiceName;
+   std::wstring m_sServerName;
+   std::wstring m_sServiceName;
    SC_HANDLE m_hSCM;
    SC_HANDLE m_hService;
    std::atomic<bool> m_bBlockStartStopRequests;
 
 private:
    void grantUserStartPermission() const;
-   std::string serverNameForDebug() const;
+   std::wstring serverNameForDebug() const;
 };
 
 //---------------------------------------------------------------------------
@@ -91,5 +90,3 @@ ServiceControlManager::unblockStartStopRequests()
 //---------------------------------------------------------------------------
 
 } // end namespace wsl
-
-#endif // SERVICECONTROLMANAGER_H
