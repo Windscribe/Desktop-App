@@ -361,9 +361,8 @@ QString FirewallController_mac::generatePfConf(const QSet<QString> &ips, bool bA
     // always allow esp/gre
     pf += "pass proto {esp, gre} from any to any\n";
 
-    // block everything on tcp/udp
-    pf += "block in proto {tcp, udp}\n";
-    pf += "block out proto {tcp, udp}\n";
+    // block everything
+    pf += "block all\n";
 
     // add Windscribe rules
     pf += "table <windscribe_ips> persist {";
