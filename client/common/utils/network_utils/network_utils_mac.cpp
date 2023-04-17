@@ -13,6 +13,7 @@
 #include <netdb.h>
 #include <unistd.h>
 #include <libproc.h>
+#include <QRegExp>
 
 namespace
 {
@@ -392,4 +393,15 @@ QStringList NetworkUtils_mac::getListOfDnsNetworkServiceEntries()
 bool NetworkUtils_mac::checkMacAddr(const QString &interfaceName, const QString &macAddr)
 {
     return macAddressFromInterfaceName(interfaceName).toUpper().remove(':') == macAddr;
+}
+
+QStringList NetworkUtils_mac::getP2P_AWDL_NetworkInterfaces()
+{
+    QString res = Utils::execCmd("ifconfig -l -u").trimmed();
+    QStringList list = res.split(QRegularExpression("\\s+"), Qt::SkipEmptyParts);
+    QStringList ret;
+    for (const auto &s : list)
+        if (s.startsWith("p2p") || s.startsWith("awdl"))
+            ret << s;
+    return ret;
 }
