@@ -38,18 +38,15 @@ bool WireGuardController::installService(const std::wstring &exeName, const std:
         {
             boost::filesystem::path path(configFile);
             deviceName_ = path.stem().native();
-            std::wostringstream stream;
-            stream << L"WireGuardTunnel$" << deviceName_;
-            std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-            serviceName_ = converter.to_bytes(stream.str());
         }
 
-        std::string serviceCmdLine;
+        serviceName_ = L"WireGuardTunnel$" + deviceName_;
+
+        std::wstring serviceCmdLine;
         {
             std::wostringstream stream;
             stream << L"\"" << Utils::getExePath() << L"\\" << exeName_ << "\" \"" << configFile << L"\"";
-            std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-            serviceCmdLine = converter.to_bytes(stream.str());
+            serviceCmdLine = stream.str();
         }
 
         wsl::ServiceControlManager svcCtrl;
@@ -61,11 +58,11 @@ bool WireGuardController::installService(const std::wstring &exeName, const std:
             svcCtrl.deleteService(serviceName_.c_str());
         }
 
-        Logger::instance().out("WireGuardController::installService - command-line: %s", serviceCmdLine.c_str());
+        Logger::instance().out("WireGuardController::installService - command-line: %ls", serviceCmdLine.c_str());
 
         svcCtrl.installService(serviceName_.c_str(), serviceCmdLine.c_str(),
-            "Windscribe Wireguard Tunnel", "Manages the Windscribe WireGuard tunnel connection",
-            SERVICE_WIN32_OWN_PROCESS, SERVICE_DEMAND_START, "Nsi\0TcpIp\0", true);
+            L"Windscribe Wireguard Tunnel", L"Manages the Windscribe WireGuard tunnel connection",
+            SERVICE_WIN32_OWN_PROCESS, SERVICE_DEMAND_START, L"Nsi\0TcpIp\0", true);
 
         svcCtrl.setServiceSIDType(SERVICE_SID_TYPE_UNRESTRICTED);
 
@@ -111,8 +108,8 @@ bool WireGuardController::deleteService()
     {
         serviceName_.clear();
         wchar_t killCmd[MAX_PATH];
-        wcscpy(killCmd, L"taskkill /f /t /im ");
-        wcscat(killCmd, exeName_.c_str());
+        wcscpy_s(killCmd, L"taskkill /f /t /im ");
+        wcscat_s(killCmd, exeName_.c_str());
         Logger::instance().out("WireGuardController::deleteService - task killing the WireGuard service instance");
         ExecuteCmd::instance().executeBlockingCmd(killCmd);
     }
@@ -294,7 +291,7 @@ HANDLE WireGuardController::getKernelInterfaceHandle() const
 
         break;
     }
-    
+
     if (hKernelInterface == INVALID_HANDLE_VALUE) {
         throw std::system_error(ERROR_FILE_NOT_FOUND, std::generic_category(),
             "WireGuardController::getKernelInterfaceHandle - could not find the wireguard-nt kernal interface file descriptor");

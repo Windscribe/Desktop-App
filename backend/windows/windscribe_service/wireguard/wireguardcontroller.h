@@ -16,7 +16,7 @@ public:
 private:
     bool is_initialized_ = false;
 
-    std::string serviceName_;
+    std::wstring serviceName_;
     std::wstring deviceName_;
     std::wstring exeName_;
 

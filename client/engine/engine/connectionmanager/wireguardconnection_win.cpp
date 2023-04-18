@@ -29,7 +29,7 @@
 //   on Windows, so no need to emit it.
 
 static const QString kServiceIdentifier("WindscribeWireguard");
-static const QString kServiceName = QString("WireGuardTunnel$") + kServiceIdentifier;
+static const std::wstring kServiceName = L"WireGuardTunnel$" + kServiceIdentifier.toStdWString();
 
 static HANDLE createTimer(int timeout, bool singleShot, PTIMERAPCROUTINE completionRoutine, LPVOID argToCompletionRoutine)
 {
@@ -128,8 +128,8 @@ bool WireGuardConnection::isDisconnected() const
     try {
         wsl::ServiceControlManager scm;
         scm.openSCM(SC_MANAGER_CONNECT);
-        if (scm.isServiceInstalled(qPrintable(kServiceName))) {
-            scm.openService(qPrintable(kServiceName), SERVICE_QUERY_STATUS);
+        if (scm.isServiceInstalled(kServiceName.c_str())) {
+            scm.openService(kServiceName.c_str(), SERVICE_QUERY_STATUS);
             dwStatus = scm.queryServiceStatus();
         }
     }
@@ -373,7 +373,7 @@ bool WireGuardConnection::startService()
     try {
         wsl::ServiceControlManager scm;
         scm.openSCM(SC_MANAGER_CONNECT);
-        scm.openService(qPrintable(kServiceName), SERVICE_QUERY_STATUS | SERVICE_START);
+        scm.openService(kServiceName.c_str(), SERVICE_QUERY_STATUS | SERVICE_START);
         scm.startService();
         return true;
     }

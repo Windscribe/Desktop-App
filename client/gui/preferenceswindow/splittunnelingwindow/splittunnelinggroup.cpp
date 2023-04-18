@@ -74,7 +74,7 @@ void SplitTunnelingGroup::onActiveSwitchStateChanged(bool checked)
             // moving/replicating this logic in a code path invoked during app startup.
             wsl::ServiceControlManager manager;
             manager.openSCM(SC_MANAGER_CONNECT);
-            if (!manager.isServiceInstalled("WindscribeSplitTunnel")) {
+            if (!manager.isServiceInstalled(L"WindscribeSplitTunnel")) {
                 checked = false;
                 activeCheckBox_->setState(false);
                 GeneralMessageController::instance().showMessage(
