@@ -13,7 +13,7 @@ public:
     explicit PingHost_Curl(QObject *parent, IConnectStateController *stateController, NetworkAccessManager *networkAccessManager);
     virtual ~PingHost_Curl();
 
-    void addHostForPing(const QString &ip, const QString &hostame);
+    void addHostForPing(const QString &id, const QString &ip, const QString &hostame);
     void clearPings();
 
     void setProxySettings(const types::ProxySettings &proxySettings);
@@ -21,7 +21,7 @@ public:
     void enableProxy();
 
 signals:
-    void pingFinished(bool bSuccess, int timems, const QString &ip, bool isFromDisconnectedState);
+    void pingFinished(bool bSuccess, int timems, const QString &id, bool isFromDisconnectedState);
 
 private slots:
     void onNetworkRequestFinished();

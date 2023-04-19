@@ -43,9 +43,9 @@ void PingIpsController::updateIps(const QVector<PingIpInfo> &ips)
     }
 
     for (const PingIpInfo &ip_info : ips) {
-        auto it = ips_.find(ip_info.ip_);
+        auto it = ips_.find(ip_info.id_);
         if (it == ips_.end()) {
-            ips_[ip_info.ip_] = PingNodeInfo(ip_info);
+            ips_[ip_info.id_] = PingNodeInfo(ip_info);
         }
         else {
             it.value().existThisIp = true;
@@ -96,26 +96,26 @@ void PingIpsController::onPingTimer()
         if (bNeedPingByTime) {
             pingLog_.addLog("PingNodesController::onPingTimer", tr("start ping by time for: %1 (%2 - %3)").arg(pni.ipInfo_.ip_, pni.ipInfo_.city_, pni.ipInfo_.nick_));
             pni.nowPinging_ = true;
-            pingHost_->addHostForPing(pni.ipInfo_.ip_, pni.ipInfo_.pingType_, pni.ipInfo_.hostname_);
+            pingHost_->addHostForPing(pni.ipInfo_.id_, pni.ipInfo_.ip_, pni.ipInfo_.pingType_, pni.ipInfo_.hostname_);
         }
         else if (!pni.isExistPingAttempt_) {
             pingLog_.addLog("PingNodesController::onPingTimer", tr("ping new node: %1 (%2 - %3)").arg(pni.ipInfo_.ip_, pni.ipInfo_.city_, pni.ipInfo_.nick_));
             pni.nowPinging_ = true;
-            pingHost_->addHostForPing(pni.ipInfo_.ip_, pni.ipInfo_.pingType_, pni.ipInfo_.hostname_);
+            pingHost_->addHostForPing(pni.ipInfo_.id_, pni.ipInfo_.ip_, pni.ipInfo_.pingType_, pni.ipInfo_.hostname_);
         }
         else if (pni.latestPingFailed_) {
             if (pni.nextTimeForFailedPing_ == 0 || QDateTime::currentMSecsSinceEpoch() >= pni.nextTimeForFailedPing_) {
                 //pingLog_.addLog("PingNodesController::onPingTimer", "start ping because latest ping failed: " + it.key());
                 pni.nowPinging_ = true;
-                pingHost_->addHostForPing(pni.ipInfo_.ip_, pni.ipInfo_.pingType_, pni.ipInfo_.hostname_);
+                pingHost_->addHostForPing(pni.ipInfo_.id_, pni.ipInfo_.ip_, pni.ipInfo_.pingType_, pni.ipInfo_.hostname_);
             }
         }
     }
 }
 
-void PingIpsController::onPingFinished(bool success, int timems, const QString &ip, bool isFromDisconnectedState)
+void PingIpsController::onPingFinished(bool success, int timems, const QString &id, bool isFromDisconnectedState)
 {
-    auto itNode = ips_.find(ip);
+    auto itNode = ips_.find(id);
     if (itNode == ips_.end()) {
         return;
     }
@@ -134,11 +134,11 @@ void PingIpsController::onPingFinished(bool success, int timems, const QString &
         pni.failedPingsInRow_ = 0;
 
         if (isFromDisconnectedState) {
-            Q_EMIT pingInfoChanged(ip, timems);
-            pingLog_.addLog("PingIpsController::onPingFinished", tr("ping successful: %1 (%2 - %3) %4ms").arg(ip, pni.ipInfo_.city_, pni.ipInfo_.nick_).arg(timems));
+            Q_EMIT pingInfoChanged(id, timems);
+            pingLog_.addLog("PingIpsController::onPingFinished", tr("ping successful: %1 (%2 - %3) %4ms").arg(pni.ipInfo_.ip_, pni.ipInfo_.city_, pni.ipInfo_.nick_).arg(timems));
         }
         else {
-            pingLog_.addLog("PingIpsController::onPingFinished", tr("discarding ping while connected: %1 (%2 - %3)").arg(ip, pni.ipInfo_.city_, pni.ipInfo_.nick_));
+            pingLog_.addLog("PingIpsController::onPingFinished", tr("discarding ping while connected: %1 (%2 - %3)").arg(pni.ipInfo_.ip_, pni.ipInfo_.city_, pni.ipInfo_.nick_));
         }
     }
     else {
@@ -151,11 +151,11 @@ void PingIpsController::onPingFinished(bool success, int timems, const QString &
             pni.nextTimeForFailedPing_ = QDateTime::currentMSecsSinceEpoch() + 1000 * 60;
 
             if (isFromDisconnectedState) {
-                Q_EMIT pingInfoChanged(ip, PingTime::PING_FAILED);
+                Q_EMIT pingInfoChanged(id, PingTime::PING_FAILED);
             }
 
-            if (failedPingLogController_.logFailedIPs(ip)) {
-                pingLog_.addLog("PingIpsController::onPingFinished", tr("ping failed: %1 (%2 - %3)").arg(ip, pni.ipInfo_.city_, pni.ipInfo_.nick_));
+            if (failedPingLogController_.logFailedIPs(id)) {
+                pingLog_.addLog("PingIpsController::onPingFinished", tr("ping failed: %1 (%2 - %3)").arg(pni.ipInfo_.ip_, pni.ipInfo_.city_, pni.ipInfo_.nick_));
             }
         }
         else {

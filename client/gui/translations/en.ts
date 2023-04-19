@@ -2848,7 +2848,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../engine/engine/locationsmodel/apilocationsmodel.cpp" line="385"/>
+        <location filename="../../engine/engine/locationsmodel/apilocationsmodel.cpp" line="377"/>
         <source>Static IPs</source>
         <translation type="unfinished"></translation>
     </message>

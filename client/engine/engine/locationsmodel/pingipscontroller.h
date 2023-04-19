@@ -13,14 +13,15 @@ namespace locationsmodel {
 
 struct PingIpInfo
 {
+    QString id_;    // id by which we can distinguish the same pings
     QString ip_;
     QString hostname_;  // used for PING_CURL type
     QString city_;
     QString nick_;
     PingHost::PING_TYPE pingType_;
 
-    PingIpInfo(const QString &ip, const QString &hostname, const QString &city, const QString &nick, PingHost::PING_TYPE pingType) :
-        ip_(ip), hostname_(hostname), city_(city), nick_(nick), pingType_(pingType) {}
+    PingIpInfo(const QString &id, const QString &ip, const QString &hostname, const QString &city, const QString &nick, PingHost::PING_TYPE pingType) :
+        id_(id), ip_(ip), hostname_(hostname), city_(city), nick_(nick), pingType_(pingType) {}
     PingIpInfo() : pingType_(PingHost::PING_TCP) {}
 };
 
@@ -36,12 +37,12 @@ public:
     void updateIps(const QVector<PingIpInfo> &ips);
 
 signals:
-    void pingInfoChanged(const QString &ip, int timems);
+    void pingInfoChanged(const QString &id, int timems);
     void needIncrementPingIteration();
 
 private slots:
     void onPingTimer();
-    void onPingFinished(bool success, int timems, const QString &ip, bool isFromDisconnectedState);
+    void onPingFinished(bool success, int timems, const QString &id, bool isFromDisconnectedState);
 
 private:
     static constexpr int PING_TIMER_INTERVAL = 1000;

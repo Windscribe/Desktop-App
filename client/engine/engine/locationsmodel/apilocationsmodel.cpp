@@ -44,8 +44,7 @@ void ApiLocationsModel::setLocations(const QVector<apiinfo::Location> &locations
             apiinfo::Group group = l.getGroup(i);
             // Ping with Curl by hostname was introduced later, so the ping hostname may be empty when updating the program from an older version.
             if (!group.getPingHost().isEmpty()) {
-                ips << PingIpInfo(group.getPingIp(), group.getPingHost(), group.getCity(), group.getNick(), PingHost::PING_CURL);
-                idFromIp_[group.getPingIp()] = group.getId();
+                ips << PingIpInfo(QString::number(group.getId()), group.getPingIp(), group.getPingHost(), group.getCity(), group.getNick(), PingHost::PING_CURL);
             }
         }
     }
@@ -54,8 +53,7 @@ void ApiLocationsModel::setLocations(const QVector<apiinfo::Location> &locations
     for (int i = 0; i < staticIps_.getIpsCount(); ++i) {
         const apiinfo::StaticIpDescr &sid = staticIps_.getIp(i);
         if (!sid.getPingHost().isEmpty()) {
-            ips << PingIpInfo(sid.getPingIp(), sid.getPingHost(), sid.name, "staticIP", PingHost::PING_TCP);
-            idFromIp_[sid.getPingIp()] = sid.id;
+            ips << PingIpInfo(QString::number(sid.id), sid.getPingIp(), sid.getPingHost(), sid.name, "staticIP", PingHost::PING_CURL);
         }
     }
 
@@ -66,7 +64,6 @@ void ApiLocationsModel::setLocations(const QVector<apiinfo::Location> &locations
 void ApiLocationsModel::clear()
 {
     locations_.clear();
-    idFromIp_.clear();
     staticIps_ = apiinfo::StaticIps();
     pingIpsController_.updateIps(QVector<PingIpInfo>());
     QSharedPointer<QVector<types::Location> > empty(new QVector<types::Location>());
@@ -149,15 +146,10 @@ QSharedPointer<BaseLocationInfo> ApiLocationsModel::getMutableLocationInfoById(c
     return NULL;
 }
 
-void ApiLocationsModel::onPingInfoChanged(const QString &ip, int timems)
+void ApiLocationsModel::onPingInfoChanged(const QString &id, int timems)
 {
-    auto it = idFromIp_.constFind(ip);
-    if (it == idFromIp_.constEnd()) {
-        qCDebug(LOG_BASIC) << "ApiLocationsModel location identifier not found for IP" << ip;
-        return;
-    }
-
-    pingStorage_.setPing(it.value(), timems);
+    int locationId = id.toInt();
+    pingStorage_.setPing(locationId, timems);
 
     bool isAllNodesHaveCurIteration;
     pingStorage_.getState(isAllNodesHaveCurIteration);
@@ -171,7 +163,7 @@ void ApiLocationsModel::onPingInfoChanged(const QString &ip, int timems)
     for (const apiinfo::Location &l : locations_) {
         for (int i = 0; i < l.groupsCount(); ++i) {
             const apiinfo::Group group = l.getGroup(i);
-            if (group.getId() == it.value()) {
+            if (group.getId() == locationId) {
                 Q_EMIT locationPingTimeChanged(LocationID::createApiLocationId(l.getId(), group.getCity(), group.getNick()), timems);
                 signalEmitted = true;
                 break;
@@ -183,7 +175,7 @@ void ApiLocationsModel::onPingInfoChanged(const QString &ip, int timems)
         if (staticIps_.getIpsCount() > 0) {
             for (int i = 0; i < staticIps_.getIpsCount(); ++i) {
                 const apiinfo::StaticIpDescr &sid = staticIps_.getIp(i);
-                if (sid.id == it.value()) {
+                if (sid.id == locationId) {
                     Q_EMIT locationPingTimeChanged(LocationID::createStaticIpsLocationId(sid.cityName, sid.staticIp), timems);
                     break;
                 }

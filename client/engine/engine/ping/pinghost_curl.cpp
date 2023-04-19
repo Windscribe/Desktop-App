@@ -13,10 +13,10 @@ PingHost_Curl::~PingHost_Curl()
     clearPings();
 }
 
-void PingHost_Curl::addHostForPing(const QString &ip, const QString &hostame)
+void PingHost_Curl::addHostForPing(const QString &id, const QString &ip, const QString &hostame)
 {
     // is host already pinging?
-    if (pingingHosts_.contains(ip))
+    if (pingingHosts_.contains(id))
         return;
 
     QUrl url(hostame);
@@ -24,9 +24,9 @@ void PingHost_Curl::addHostForPing(const QString &ip, const QString &hostame)
     networkRequest.setOverrideIp(ip);
     NetworkReply *reply = networkAccessManager_->get(networkRequest);
     connect(reply, &NetworkReply::finished, this, &PingHost_Curl::onNetworkRequestFinished);
-    reply->setProperty("ip", ip);
+    reply->setProperty("id", id);
     reply->setProperty("fromDisconnectedState", connectStateController_->currentState() == CONNECT_STATE_DISCONNECTED);
-    pingingHosts_[ip] = reply;
+    pingingHosts_[id] = reply;
 }
 
 void PingHost_Curl::clearPings()
@@ -56,27 +56,26 @@ void PingHost_Curl::onNetworkRequestFinished()
 {
     NetworkReply *reply = static_cast<NetworkReply *>(sender());
     QSharedPointer<NetworkReply> obj = QSharedPointer<NetworkReply>(reply, &QObject::deleteLater);  // don't forget to delete
-    QString ip = reply->property("ip").toString();
+    QString id = reply->property("id").toString();
     bool bFromDisconnectedState = reply->property("fromDisconnectedState").toBool();
 
-    auto it = pingingHosts_.find(ip);
+    auto it = pingingHosts_.find(id);
     if (it != pingingHosts_.end()) {
 
         if (reply->isSuccess()) {
             int timems = parseReplyString(reply->readAll());
             if (timems != -1)
                 // Convert to milliseconds dividing by 1000
-                emit pingFinished(true, round(timems / 1000.0), ip, bFromDisconnectedState);
+                emit pingFinished(true, round(timems / 1000.0), id, bFromDisconnectedState);
             else
-                emit pingFinished(false, 0, ip, bFromDisconnectedState);
+                emit pingFinished(false, 0, id, bFromDisconnectedState);
 
         } else {
-            emit pingFinished(false, 0, ip, bFromDisconnectedState);
+            emit pingFinished(false, 0, id, bFromDisconnectedState);
         }
 
-        pingingHosts_.remove(ip);
+        pingingHosts_.remove(id);
     }
-    qDebug() << "pingingHosts_: " << pingingHosts_.count();
 }
 
 int PingHost_Curl::parseReplyString(const QByteArray &arr)

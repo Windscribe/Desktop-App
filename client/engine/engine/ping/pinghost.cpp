@@ -16,9 +16,9 @@ PingHost::PingHost(QObject *parent, IConnectStateController *stateController, Ne
 #endif
 }
 
-void PingHost::addHostForPing(const QString &ip, PING_TYPE pingType, const QString &hostname)
+void PingHost::addHostForPing(const QString &id, const QString &ip, PING_TYPE pingType, const QString &hostname)
 {
-    QMetaObject::invokeMethod(this, "addHostForPingImpl", Q_ARG(QString, ip), Q_ARG(PingHost::PING_TYPE, pingType), Q_ARG(QString, hostname));
+    QMetaObject::invokeMethod(this, "addHostForPingImpl", Q_ARG(QString, id), Q_ARG(QString, ip), Q_ARG(PingHost::PING_TYPE, pingType), Q_ARG(QString, hostname));
 }
 
 void PingHost::clearPings()
@@ -41,19 +41,19 @@ void PingHost::enableProxy()
     QMetaObject::invokeMethod(this, "enableProxyImpl");
 }
 
-void PingHost::addHostForPingImpl(const QString &ip, PING_TYPE pingType, const QString &hostname)
+void PingHost::addHostForPingImpl(const QString &id, const QString &ip, PING_TYPE pingType, const QString &hostname)
 {
     if (pingType == PING_CURL) {
-        pingHostCurl_.addHostForPing(ip, hostname);
+        pingHostCurl_.addHostForPing(id, ip, hostname);
         return;
     }
 
 #ifdef Q_OS_WIN
     // The icmp ping object is not currently set up to work with a network proxy.
     if (pingType == PING_TCP && pingHostTcp_.isProxyEnabled()) {
-        pingHostTcp_.addHostForPing(ip);
+        pingHostTcp_.addHostForPing(id, ip);
     } else {
-        pingHostIcmp_.addHostForPing(ip);
+        pingHostIcmp_.addHostForPing(id, ip);
     }
 #else
     if (pingType == PING_TCP) {
