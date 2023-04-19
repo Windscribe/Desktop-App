@@ -57,10 +57,10 @@ void PingHost::addHostForPingImpl(const QString &id, const QString &ip, PING_TYP
     }
 #else
     if (pingType == PING_TCP) {
-        pingHostTcp_.addHostForPing(ip);
+        pingHostTcp_.addHostForPing(id, ip);
     }
     else if (pingType == PING_ICMP) {
-        pingHostIcmp_.addHostForPing(ip);
+        pingHostIcmp_.addHostForPing(id, ip);
     }
     else {
         WS_ASSERT(false);
