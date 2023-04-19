@@ -42,16 +42,21 @@ void ApiLocationsModel::setLocations(const QVector<apiinfo::Location> &locations
     for (const apiinfo::Location &l : locations) {
         for (int i = 0; i < l.groupsCount(); ++i) {
             apiinfo::Group group = l.getGroup(i);
-            ips << PingIpInfo(group.getPingIp(), group.getCity(), group.getNick(), PingHost::PING_TCP);
-            idFromIp_[group.getPingIp()] = group.getId();
+            // Ping with Curl by hostname was introduced later, so the ping hostname may be empty when updating the program from an older version.
+            if (!group.getPingHost().isEmpty()) {
+                ips << PingIpInfo(group.getPingIp(), group.getPingHost(), group.getCity(), group.getNick(), PingHost::PING_CURL);
+                idFromIp_[group.getPingIp()] = group.getId();
+            }
         }
     }
 
     // handle static ips location
     for (int i = 0; i < staticIps_.getIpsCount(); ++i) {
         const apiinfo::StaticIpDescr &sid = staticIps_.getIp(i);
-        ips << PingIpInfo(sid.getPingIp(), sid.name, "staticIP", PingHost::PING_TCP);
-        idFromIp_[sid.getPingIp()] = sid.id;
+        if (!sid.getPingHost().isEmpty()) {
+            ips << PingIpInfo(sid.getPingIp(), sid.getPingHost(), sid.name, "staticIP", PingHost::PING_TCP);
+            idFromIp_[sid.getPingIp()] = sid.id;
+        }
     }
 
     pingIpsController_.updateIps(ips);

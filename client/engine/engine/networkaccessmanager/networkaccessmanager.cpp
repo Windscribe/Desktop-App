@@ -104,8 +104,14 @@ void NetworkAccessManager::handleRequest(quint64 id)
     auto it = activeRequests_.find(id);
     if (it != activeRequests_.end()) {
         QSharedPointer<RequestData> requestData = it.value();
-        QString hostname = requestData->request.url().host();
-        dnsCache_->resolve(hostname, requestData->id, !requestData->request.isUseDnsCache(), requestData->request.dnsServers(), requestData->request.timeout());
+
+        // skip DNS-resolution if the overrideIp is settled
+        if (!requestData->request.overrideIp().isEmpty()) {
+            onResolved(true, QStringList() << requestData->request.overrideIp(), requestData->id, false, 0);
+        } else {
+            QString hostname = requestData->request.url().host();
+            dnsCache_->resolve(hostname, requestData->id, !requestData->request.isUseDnsCache(), requestData->request.dnsServers(), requestData->request.timeout());
+        }
     }
 }
 

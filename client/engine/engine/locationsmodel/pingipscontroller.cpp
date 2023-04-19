@@ -96,18 +96,18 @@ void PingIpsController::onPingTimer()
         if (bNeedPingByTime) {
             pingLog_.addLog("PingNodesController::onPingTimer", tr("start ping by time for: %1 (%2 - %3)").arg(pni.ipInfo_.ip_, pni.ipInfo_.city_, pni.ipInfo_.nick_));
             pni.nowPinging_ = true;
-            pingHost_->addHostForPing(pni.ipInfo_.ip_, pni.ipInfo_.pingType_);
+            pingHost_->addHostForPing(pni.ipInfo_.ip_, pni.ipInfo_.pingType_, pni.ipInfo_.hostname_);
         }
         else if (!pni.isExistPingAttempt_) {
             pingLog_.addLog("PingNodesController::onPingTimer", tr("ping new node: %1 (%2 - %3)").arg(pni.ipInfo_.ip_, pni.ipInfo_.city_, pni.ipInfo_.nick_));
             pni.nowPinging_ = true;
-            pingHost_->addHostForPing(pni.ipInfo_.ip_, pni.ipInfo_.pingType_);
+            pingHost_->addHostForPing(pni.ipInfo_.ip_, pni.ipInfo_.pingType_, pni.ipInfo_.hostname_);
         }
         else if (pni.latestPingFailed_) {
             if (pni.nextTimeForFailedPing_ == 0 || QDateTime::currentMSecsSinceEpoch() >= pni.nextTimeForFailedPing_) {
                 //pingLog_.addLog("PingNodesController::onPingTimer", "start ping because latest ping failed: " + it.key());
                 pni.nowPinging_ = true;
-                pingHost_->addHostForPing(pni.ipInfo_.ip_, pni.ipInfo_.pingType_);
+                pingHost_->addHostForPing(pni.ipInfo_.ip_, pni.ipInfo_.pingType_, pni.ipInfo_.hostname_);
             }
         }
     }

@@ -94,3 +94,13 @@ QString NetworkRequest::echConfig() const
 {
     return echConfig_;
 }
+
+void NetworkRequest::setOverrideIp(const QString &ip)
+{
+    overrideIp_ = ip;
+}
+
+QString NetworkRequest::overrideIp() const
+{
+    return overrideIp_;
+}

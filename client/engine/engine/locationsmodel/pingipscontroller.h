@@ -13,12 +13,14 @@ namespace locationsmodel {
 
 struct PingIpInfo
 {
-    QString ip_;     // ip or hostname
+    QString ip_;
+    QString hostname_;  // used for PING_CURL type
     QString city_;
     QString nick_;
     PingHost::PING_TYPE pingType_;
 
-    PingIpInfo(const QString &ip, const QString &city, const QString &nick, PingHost::PING_TYPE pingType) : ip_(ip), city_(city), nick_(nick), pingType_(pingType) {}
+    PingIpInfo(const QString &ip, const QString &hostname, const QString &city, const QString &nick, PingHost::PING_TYPE pingType) :
+        ip_(ip), hostname_(hostname), city_(city), nick_(nick), pingType_(pingType) {}
     PingIpInfo() : pingType_(PingHost::PING_TCP) {}
 };
 
