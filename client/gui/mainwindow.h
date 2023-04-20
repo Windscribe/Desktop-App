@@ -161,7 +161,6 @@ private slots:
 
     // backend state signals
     void onBackendInitFinished(INIT_STATE initState);
-    void onBackendInitTooLong();
 
     void onBackendLoginFinished(bool isLoginFromSavedSettings);
     void onBackendTryingBackupEndpoint(int num, int cnt);
@@ -412,6 +411,8 @@ private:
 
     types::Protocol getDefaultProtocolForNetwork(const QString &network);
     bool userProtocolOverride_;
+
+    bool sendDebugLogOnDisconnect_;
 };
 
 #endif // MAINWINDOW_H

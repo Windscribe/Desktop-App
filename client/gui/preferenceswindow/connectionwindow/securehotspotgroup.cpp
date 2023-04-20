@@ -26,6 +26,7 @@ SecureHotspotGroup::SecureHotspotGroup(ScalableGraphicsObject *parent, const QSt
     addItem(editBoxSSID_);
 
     editBoxPassword_ = new EditBoxItem(this);
+    editBoxPassword_->setMinimumLength(8);
     connect(editBoxPassword_, &EditBoxItem::textChanged, this, &SecureHotspotGroup::onPasswordChanged);
     addItem(editBoxPassword_);
 
@@ -85,17 +86,9 @@ void SecureHotspotGroup::onSSIDChanged(const QString &text)
 
 void SecureHotspotGroup::onPasswordChanged(const QString &password)
 {
-    if (password.length() >= 8)
-    {
+    if (password.length() >= 8) {
         settings_.password = password;
         emit secureHotspotPreferencesChanged(settings_);
-    }
-    else
-    {
-        QString title = tr("Password Too Short");
-        QString desc = tr("Hotspot password must be at least 8 characters.");
-        GeneralMessageController::instance().showMessage("ERROR_ICON", title, desc, GeneralMessage::kOk);
-        editBoxPassword_->setText(settings_.password);
     }
 }
 
@@ -133,7 +126,7 @@ void SecureHotspotGroup::onLanguageChanged()
     editBoxSSID_->setCaption(tr("SSID"));
     editBoxSSID_->setPrompt(tr("Enter SSID"));
     editBoxPassword_->setCaption(tr("Password"));
-    editBoxPassword_->setPrompt(tr("Enter Password"));
+    editBoxPassword_->setPrompt(tr("At least 8 characters"));
     updateDescription();
 }
 

@@ -22,6 +22,7 @@ public:
     void setText(const QString &text);
     void setPrompt(const QString &prompt);
     void setValidator(QRegularExpressionValidator *validator);
+    void setMinimumLength(int length);
 
     void updateScaling() override;
     void setEditButtonClickable(bool clickable);
@@ -42,6 +43,7 @@ private slots:
     void onEditClick();
     void onConfirmClick();
     void onUndoClick();
+    void onTextChanged(const QString &text);
 
 private:
     QString caption_;
@@ -56,6 +58,8 @@ private:
 
     QGraphicsProxyWidget *proxyWidget_;
     CommonWidgets::CustomMenuLineEdit *lineEdit_;
+
+    int minLength_;
 
     void updatePositions();
 
