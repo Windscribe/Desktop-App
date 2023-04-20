@@ -177,7 +177,6 @@ private slots:
 signals:
     // emited when connected to engine and received the engine settings, or error in initState variable
     void initFinished(INIT_STATE initState);
-    void initTooLong();
     void cleanupFinished();
 
     void gotoCustomOvpnConfigModeFinished();

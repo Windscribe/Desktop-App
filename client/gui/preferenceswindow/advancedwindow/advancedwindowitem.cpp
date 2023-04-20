@@ -133,7 +133,7 @@ void AdvancedWindowItem::onIPv6StateChanged(bool isChecked)
     GeneralMessageController::instance().showMessage(
         "WARNING_WHITE",
         tr("Restart Required"),
-        tr("In order to disable IPv6, a computer restart is required. Do it now?"),
+        tr("In order to toggle IPv6, a computer restart is required. Do it now?"),
         tr(GeneralMessage::kYes),
         tr(GeneralMessage::kCancel),
         tr("Restart later"),

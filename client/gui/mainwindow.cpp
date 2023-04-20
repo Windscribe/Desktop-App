@@ -88,7 +88,8 @@ MainWindow::MainWindow() :
     isExitingAfterUpdate_(false),
     downloadRunning_(false),
     ignoreUpdateUntilNextRun_(false),
-    userProtocolOverride_(false)
+    userProtocolOverride_(false),
+    sendDebugLogOnDisconnect_(false)
 {
     g_mainWindow = this;
 
@@ -140,7 +141,6 @@ MainWindow::MainWindow() :
 #endif
 
     connect(backend_, &Backend::initFinished, this, &MainWindow::onBackendInitFinished);
-    connect(backend_, &Backend::initTooLong, this, &MainWindow::onBackendInitTooLong);
     connect(backend_, &Backend::loginFinished, this, &MainWindow::onBackendLoginFinished);
     connect(backend_, &Backend::tryingBackupEndpoint, this, &MainWindow::onBackendTryingBackupEndpoint);
     connect(backend_, &Backend::loginError, this, &MainWindow::onBackendLoginError);
@@ -1345,9 +1345,7 @@ void MainWindow::onLocationsAddCustomConfigClicked()
                 else if (err == AuthCheckerError::AUTH_HELPER_ERROR)
                 {
                     qCDebug(LOG_AUTH_HELPER) << "Failed to verify AuthHelper, binary may be corrupted.";
-                    const QString desc = tr(
-                        "Failed to verify AuthHelper, binary may be corrupted. "
-                        "Please reinstall application to repair.");
+                    const QString desc = tr("The application is corrupted.  Please reinstall Windscribe.");
                     GeneralMessageController::instance().showMessage("WARNING_YELLOW", tr("Validation Error"), desc, tr(GeneralMessage::kOk));
                     return;
                 }
@@ -1438,7 +1436,7 @@ void MainWindow::onBackendInitFinished(INIT_STATE initState)
     } else if (initState == INIT_STATE_BFE_SERVICE_FAILED_TO_START) {
         GeneralMessageController::instance().showMessage("ERROR_ICON",
                                                tr("Failed to Enable Service"),
-                                               tr("Failed to start \"Base Filtering Engine\" service.  Windscribe will now close."),
+                                               tr("Could not start 'Base Filtering Engine' service.  Please enable this service manually in Windows Services."),
                                                tr(GeneralMessage::kOk),
                                                "",
                                                "",
@@ -1456,25 +1454,11 @@ void MainWindow::onBackendInitFinished(INIT_STATE initState)
         QTimer::singleShot(0, this, SLOT(close()));
     } else {
         if (!isInitializationAborted_) {
-            GeneralMessageController::instance().showMessage("ERROR_ICON",
-                                       tr("Failed to Start"),
-                                       tr("Can't start the engine. Please contact support."),
-                                       tr(GeneralMessage::kOk),
-                                       "",
-                                       "",
-                                       [this](bool b) { QTimer::singleShot(0, this, SLOT(close())); });
-        } else {
-            QTimer::singleShot(0, this, SLOT(close()));
+            qCDebug(LOG_BASIC) << "Engine failed to start.";
+            WS_ASSERT(false);
         }
+        QTimer::singleShot(0, this, SLOT(close()));
     }
-}
-
-void MainWindow::onBackendInitTooLong()
-{
-    mainWindowController_->getInitWindow()->setCloseButtonVisible(true);
-    mainWindowController_->getInitWindow()->setAdditionalMessage(
-        tr("This is taking a while, something could be wrong.\n"
-           "If this screen does not disappear,\nplease contact support."), /*useSmallFont =*/ true);
 }
 
 void MainWindow::onBackendLoginFinished(bool /*isLoginFromSavedSettings*/)
@@ -1622,7 +1606,7 @@ void MainWindow::onBackendLoginError(LOGIN_RET loginError, const QString &errorM
     {
         GeneralMessageController::instance().showMessage("WARNING_WHITE",
                                    tr("SSL Error"),
-                                   tr("We detected that SSL requests may be intercepted on your network. This could be due to a firewall configured on your computer, or Windscribe being blocking by your network administrator. Ignore SSL errors?"),
+                                   tr("We detected that SSL requests may be intercepted on your network. This could be due to a firewall configured on your computer, or Windscribe being blocked by your network administrator. Ignore SSL errors?"),
                                    tr(GeneralMessage::kYes),
                                    tr(GeneralMessage::kNo),
                                    "",
@@ -1903,6 +1887,11 @@ void MainWindow::onBackendConnectStateChanged(const types::ConnectState &connect
 
         mainWindowController_->getProtocolWindow()->resetProtocolStatus();
         userProtocolOverride_ = false;
+
+        if (sendDebugLogOnDisconnect_) {
+            sendDebugLogOnDisconnect_ = false;
+            backend_->sendDebugLog();
+        }
     }
 }
 
@@ -2119,9 +2108,11 @@ void MainWindow::onBackendTestTunnelResult(bool success)
     if (!ExtraConfig::instance().getIsTunnelTestNoError() && !success) {
         GeneralMessageController::instance().showMessage("WARNING_YELLOW",
                                                tr("Network Settings Interference"),
-                                               tr("We've detected that your network settings may interfere with Windscribe. "
-                                                  "Please disconnect and send us a Debug Log, by going into Preferences and clicking the \"Send Log\" button."),
-                                               tr(GeneralMessage::kOk));
+                                               tr("We've detected that your network settings may interfere with Windscribe.  Please send us a debug log to troubleshoot."),
+                                               tr("Send Debug Log"),
+                                               tr(GeneralMessage::kCancel),
+                                               "",
+                                               [this](bool b) { sendDebugLogOnDisconnect_ = true; });
     }
 
     if (success && selectedLocation_->isValid() && !selectedLocation_->locationdId().isCustomConfigsLocation()) {
@@ -2170,7 +2161,7 @@ void MainWindow::onBackendLostConnectionToHelper()
     qCDebug(LOG_BASIC) << "Helper connection was lost";
     GeneralMessageController::instance().showMessage("ERROR_ICON",
                                            tr("Service Error"),
-                                           tr("Couldn't connect to Windscribe helper, please restart the application"),
+                                           tr("Windscribe is malfunctioning.  Please restart the application."),
                                            tr(GeneralMessage::kOk));
 }
 
@@ -2218,7 +2209,7 @@ void MainWindow::showUserWarning(USER_WARNING_TYPE userWarningType)
         descText = tr("Your network adapter does not support MAC spoofing. Try a different adapter.");
     } else if (userWarningType == USER_WARNING_MAC_SPOOFING_FAILURE_SOFT) {
         titleText = tr("MAC Spoofing Failed");
-        descText = tr("Could not spoof MAC address, try updating your OS to the latest version.");
+        descText = tr("Could not spoof MAC address.  Please try a different network interface or contact support.");
     } else if (userWarningType == USER_WARNING_SEND_LOG_FILE_TOO_BIG) {
         titleText = tr("Logs too large to send");
         descText = tr("Could not send logs to Windscribe, they are too big. Either re-send after replicating the issue or manually compressing and sending to support.");
@@ -2370,25 +2361,9 @@ void MainWindow::onBackendUpdateVersionChanged(uint progressPercent, UPDATE_VERS
                 QString titleText = tr("Auto-Update Failed");
                 QString descText = tr("Please contact support");
                 if (error == UPDATE_VERSION_ERROR_DL_FAIL) {
-                    descText = tr("Please try again using a different network connection.");
-                } else if (error == UPDATE_VERSION_ERROR_SIGN_FAIL) {
-                    descText = tr("Can't run the downloaded installer. It does not have the correct signature.");
-                } else if (error == UPDATE_VERSION_ERROR_OTHER_FAIL) {
-                    descText = tr("An unexpected error occurred. Please contact support.");
-                } else if (error == UPDATE_VERSION_ERROR_MOUNT_FAIL) {
-                    descText = tr("Cannot access the installer. Image mounting has failed.");
-                } else if (error == UPDATE_VERSION_ERROR_DMG_HAS_NO_INSTALLER_FAIL) {
-                    descText = tr("Downloaded image does not contain installer.");
-                } else if (error == UPDATE_VERSION_ERROR_CANNOT_REMOVE_EXISTING_TEMP_INSTALLER_FAIL) {
-                    descText = tr("Cannot overwrite a pre-existing temporary installer.");
-                } else if (error == UPDATE_VERSION_ERROR_COPY_FAIL) {
-                    descText = tr("Failed to copy installer to temp location.");
-                } else if (error == UPDATE_VERSION_ERROR_START_INSTALLER_FAIL) {
-                    descText = tr("Auto-Updater has failed to run installer. Please relaunch Windscribe and try again.");
-                } else if (error == UPDATE_VERSION_ERROR_COMPARE_HASH_FAIL) {
-                    descText = tr("Cannot run the downloaded installer. It does not have the expected hash.");
-                } else if (error == UPDATE_VERSION_ERROR_API_HASH_INVALID) {
-                    descText = tr("Windscribe API has returned an invalid hash for downloaded installer. Please contact support.");
+                    descText = tr("Could not download update.  Please try again or use a different network.");
+                } else {
+                    descText = tr("Could not run updater (Error %1).  Please contact support").arg(error);
                 }
                 GeneralMessageController::instance().showMessage("ERROR_ICON", titleText, descText, tr(GeneralMessage::kOk));
             }
@@ -3405,47 +3380,21 @@ void MainWindow::handleDisconnectWithError(const types::ConnectState &connectSta
     WS_ASSERT(connectState.disconnectReason == DISCONNECTED_WITH_ERROR);
 
     QString msg;
-    if (connectState.connectError == NO_OPENVPN_SOCKET)
-    {
-        msg = tr("Can't connect to openvpn process.");
-    }
-    else if (connectState.connectError == CANT_RUN_OPENVPN)
-    {
-        msg = tr("Can't start openvpn process.");
-    }
-    else if (connectState.connectError == COULD_NOT_FETCH_CREDENTAILS)
-    {
-         msg = tr("Couldn't fetch server credentials. Please try again later.");
-    }
-    else if (connectState.connectError == LOCATION_NOT_EXIST || connectState.connectError == LOCATION_NO_ACTIVE_NODES)
-    {
+    if (connectState.connectError == LOCATION_NOT_EXIST || connectState.connectError == LOCATION_NO_ACTIVE_NODES) {
         qCDebug(LOG_BASIC) << "Location not exist or no active nodes, try connect to best location";
         LocationID bestLocation = backend_->locationsModelManager()->getBestLocationId();
         selectedLocation_->set(bestLocation);
         PersistentState::instance().setLastLocation(selectedLocation_->locationdId());
-        if (selectedLocation_->isValid())
-        {
+        if (selectedLocation_->isValid()) {
             mainWindowController_->getConnectWindow()->updateLocationInfo(selectedLocation_->firstName(), selectedLocation_->secondName(),
                                                                           selectedLocation_->countryCode(), selectedLocation_->pingTime(),
                                                                           selectedLocation_->locationdId().isCustomConfigsLocation());
             onConnectWindowConnectClick();
-        }
-        else
-        {
+        } else {
             qCDebug(LOG_BASIC) << "Best Location not exist or no active nodes, goto disconnected mode";
         }
         return;
-    }
-    else if (connectState.connectError == ALL_TAP_IN_USE)
-    {
-        msg = tr("All TAP-Windows adapters on this system are currently in use.");
-    }
-    else if (connectState.connectError == IKEV_FAILED_SET_ENTRY_WIN || connectState.connectError == IKEV_NOT_FOUND_WIN)
-    {
-        msg = tr("IKEv2 connection failed. Please send a debug log and open a support ticket. You can switch to UDP or TCP connection modes in the mean time.");
-    }
-    else if (connectState.connectError == IKEV_FAILED_MODIFY_HOSTS_WIN)
-    {
+    } else if (connectState.connectError == IKEV_FAILED_MODIFY_HOSTS_WIN) {
         GeneralMessageController::instance().showMessage("WARNING_WHITE",
                                                tr("Read-only file"),
                                                tr("Your hosts file is read-only. IKEv2 connectivity requires for it to be writable. Fix the issue automatically?"),
@@ -3454,95 +3403,42 @@ void MainWindow::handleDisconnectWithError(const types::ConnectState &connectSta
                                                "",
                                                [this](bool b) { if (backend_) backend_->sendMakeHostsFilesWritableWin(); });
         return;
-    }
-    else if (connectState.connectError == IKEV_NETWORK_EXTENSION_NOT_FOUND_MAC)
-    {
-        msg = tr("Failed to load the network extension framework.");
-    }
-    else if (connectState.connectError == IKEV_FAILED_SET_KEYCHAIN_MAC)
-    {
-        msg = tr("Failed set password to keychain.");
-    }
-    else if (connectState.connectError == IKEV_FAILED_START_MAC)
-    {
-        msg = tr("Failed to start IKEv2 connection.");
-    }
-    else if (connectState.connectError == IKEV_FAILED_LOAD_PREFERENCES_MAC)
-    {
-        msg = tr("Failed to load IKEv2 preferences.");
-    }
-    else if (connectState.connectError == IKEV_FAILED_SAVE_PREFERENCES_MAC)
-    {
-        msg = tr("Failed to create IKEv2 Profile. Please connect again and select \"Allow\".");
-    }
-    else if (connectState.connectError == WIREGUARD_CONNECTION_ERROR)
-    {
-        msg = tr("Failed to setup WireGuard connection.");
-    }
 #ifdef Q_OS_WIN
-    else if (connectState.connectError == NO_INSTALLED_TUN_TAP)
-    {
+    } else if (connectState.connectError == NO_INSTALLED_TUN_TAP) {
         return;
-    }
 #endif
-    else if (connectState.connectError == CONNECTION_BLOCKED)
-    {
+    } else if (connectState.connectError == CONNECTION_BLOCKED) {
         if (blockConnect_.isBlockedExceedTraffic()) {
             mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_UPGRADE);
             return;
         }
         msg = blockConnect_.message();
-    }
-    else if (connectState.connectError == CANNOT_OPEN_CUSTOM_CONFIG)
-    {
+    } else if (connectState.connectError == CANNOT_OPEN_CUSTOM_CONFIG) {
         LocationID bestLocation{backend_->locationsModelManager()->getBestLocationId()};
-        if (bestLocation.isValid())
-        {
+        if (bestLocation.isValid()) {
             selectedLocation_->set(bestLocation);
             PersistentState::instance().setLastLocation(selectedLocation_->locationdId());
             mainWindowController_->getConnectWindow()->updateLocationInfo(selectedLocation_->firstName(), selectedLocation_->secondName(),
                                                                           selectedLocation_->countryCode(), selectedLocation_->pingTime(),
                                                                           selectedLocation_->locationdId().isCustomConfigsLocation());
         }
-        msg = tr("Failed to setup custom openvpn configuration.");
-    }
-    else if(connectState.connectError == WINTUN_DRIVER_REINSTALLATION_ERROR)
-    {
-        msg = tr("Wintun driver fatal error. Failed to reinstall it automatically. Please try to reinstall it manually.");
-    }
-    else if(connectState.connectError == TAP_DRIVER_REINSTALLATION_ERROR)
-    {
-        msg = tr("Tap driver Fatal error. Failed to reinstall it automatically. Please try to reinstall it manually.");
-    }
-    else if (connectState.connectError == EXE_VERIFY_WSTUNNEL_ERROR)
-    {
-        msg = tr("WSTunnel binary failed verification. Please re-install windscribe from trusted source.");
-    }
-    else if (connectState.connectError == EXE_VERIFY_STUNNEL_ERROR)
-    {
-        msg = tr("STunnel binary failed verification. Please re-install windscribe from trusted source.");
-    }
-    else if (connectState.connectError == EXE_VERIFY_WIREGUARD_ERROR)
-    {
-        msg = tr("Wireguard binary failed verification. Please re-install windscribe from trusted source.");
-    }
-    else if (connectState.connectError == EXE_VERIFY_OPENVPN_ERROR)
-    {
-        msg = tr("OpenVPN binary failed verification. Please re-install windscribe from trusted source.");
-    }
-    else if (connectState.connectError == CTRLD_START_FAILED)
-    {
-        msg = tr("ctrld binary failed to start. Please re-install windscribe from trusted source.");
-    }
-    else if (connectState.connectError == WIREGUARD_ADAPTER_SETUP_FAILED)
-    {
+        msg = tr("The custom configuration could not be loaded.  Please check that it’s correct or contact support.");
+    } else if(connectState.connectError == WINTUN_DRIVER_REINSTALLATION_ERROR) {
+        msg = tr("There is a problem with the Wintun device driver, and it could not be reinstalled automatically.  Please reinstall Windscribe.");
+    } else if(connectState.connectError == TAP_DRIVER_REINSTALLATION_ERROR) {
+        msg = tr("There is a problem with the TAP device driver, and it could not be reinstalled automatically.  Please reinstall Windscribe.");
+    } else if (connectState.connectError == EXE_VERIFY_WSTUNNEL_ERROR ||
+               connectState.connectError == EXE_VERIFY_STUNNEL_ERROR ||
+               connectState.connectError == EXE_VERIFY_WIREGUARD_ERROR ||
+               connectState.connectError == EXE_VERIFY_OPENVPN_ERROR ||
+               connectState.connectError == CTRLD_START_FAILED) {
+        msg = tr("The application is corrupted.  Please reinstall Windscribe.");
+    } else if (connectState.connectError == WIREGUARD_ADAPTER_SETUP_FAILED) {
         msg = tr("WireGuard adapter setup failed. Please wait one minute and try the connection again. If adapter setup fails again,"
                  " please try restarting your computer.\n\nIf the problem persists after a restart, please send a debug log and open"
                  " a support ticket, then switch to a different connection mode.");
-    }
-    else
-    {
-         msg = tr("Error during connection (%1)").arg(QString::number(connectState.connectError));
+    } else {
+        msg = tr("An unexpected error occurred establishing the VPN connection (Error %1).  If this error persists, try using a different protocol or contact support.").arg(connectState.connectError);
     }
 
     GeneralMessageController::instance().showMessage("ERROR_ICON", tr("Connection Error"), msg, tr(GeneralMessage::kOk));

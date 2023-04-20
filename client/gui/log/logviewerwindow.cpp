@@ -102,7 +102,7 @@ void LogViewerWindow::onExportClick()
         }
         else
         {
-            QMessageBox::information(this, tr("Export log"), tr("Failed to export log"));
+            QMessageBox::information(this, tr("Export log"), tr("Failed to export log.  Make sure you have the correct permissions."));
         }
     }
 }

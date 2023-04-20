@@ -184,15 +184,6 @@ int main(int argc, char *argv[])
 #endif
 
 #if defined Q_OS_MAC
-    if (!MacUtils::isOsVersion10_11_or_greater())
-    {
-        QMessageBox msgBox;
-        msgBox.setText( QObject::tr("Windscribe is not compatible with your version of OSX. Please upgrade to 10.11+") );
-        msgBox.setIcon( QMessageBox::Information );
-        msgBox.exec();
-        return 0;
-    }
-
     if (!MacUtils::verifyAppBundleIntegrity())
     {
         QMessageBox msgBox;
