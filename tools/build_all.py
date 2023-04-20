@@ -7,6 +7,7 @@
 import glob
 import os
 import pathlib
+import platform
 import re
 import subprocess
 import sys
@@ -119,6 +120,18 @@ def update_version_in_config(filename):
         f.write(filedata)
 
 
+def update_arch_in_config(filename):
+    with open(filename, "r") as f:
+        filedata = f.read()
+    # update Bundle Version
+    if platform.processor() == "x86_64":
+        filedata = re.sub("Architecture:[^\n]+", "Architecture: amd64", filedata, flags=re.M)
+    elif platform.processor() == "aarch64":
+        filedata = re.sub("Architecture:[^\n]+", "Architecture: arm64", filedata, flags=re.M)
+    with open(filename, "w") as f:
+        f.write(filedata)
+
+
 def update_team_id(filename):
     with open(filename, "r") as f:
         filedata = f.read()
@@ -208,12 +221,7 @@ def fix_build_libs_rpaths(configdata):
 def apply_mac_deploy_fixes(configdata, target, appname, fullpath):
     # Special deploy fixes for Mac.
     # 1. copy_libs
-    if "libs" in configdata["client_deploy_files"]["macos"]:
-        for k, v in configdata["client_deploy_files"]["macos"]["libs"].items():
-            lib_root = iutl.GetDependencyBuildRoot(k)
-            if not lib_root:
-                raise iutl.InstallError("Library \"{}\" is not installed.".format(k))
-            copy_files(k, v, lib_root, fullpath)
+    copy_libs(configdata, "macos", fullpath)
     # 2. remove_files
     if "remove" in configdata["client_deploy_files"]["macos"]:
         msg.Info("Removing unnecessary files...")
@@ -437,16 +445,7 @@ def build_installer_win32(configdata, qt_root, msvc_root, crt_root, win_cert_pas
         additional_dir = os.path.join(pathhelper.ROOT_DIR, "installer", "windows", "additional_files")
         copy_files("additional", configdata["client_deploy_files"]["win32"]["additional_files"], additional_dir, BUILD_INSTALLER_FILES)
 
-    if "libs" in configdata["client_deploy_files"]["win32"]:
-        for k, v in configdata["client_deploy_files"]["win32"]["libs"].items():
-            lib_root = iutl.GetDependencyBuildRoot(k)
-            if not lib_root:
-                if k == "dga":
-                    msg.Info("DGA library not found, skipping...")
-                else:
-                    raise iutl.InstallError("Library \"{}\" is not installed.".format(k))
-            else:
-                copy_files(k, v, lib_root, BUILD_INSTALLER_FILES)
+    copy_libs(configdata, "win32", BUILD_INSTALLER_FILES)
 
     if "license_files" in configdata:
         license_dir = os.path.join(pathhelper.COMMON_DIR, "licenses")
@@ -550,13 +549,10 @@ def code_sign_linux(binary_name, binary_dir):
         iutl.RunCommand(cmd)
 
 
-def build_installer_linux(configdata, qt_root):
-    # Creates the following:
-    # * windscribe_2.x.y_amd64.deb
-    # * windscribe_2.x.y_x86_64.rpm
-    msg.Info("Copying libs...")
-    if "libs" in configdata["client_deploy_files"]["linux"]:
-        for k, v in configdata["client_deploy_files"]["linux"]["libs"].items():
+def copy_libs(configdata, platform, dst):
+    msg.Info("Copying libs ({})...".format(platform))
+    if "libs" in configdata["client_deploy_files"][platform]:
+        for k, v in configdata["client_deploy_files"][platform]["libs"].items():
             lib_root = iutl.GetDependencyBuildRoot(k)
             if not lib_root:
                 if k == "dga":
@@ -564,7 +560,18 @@ def build_installer_linux(configdata, qt_root):
                 else:
                     raise iutl.InstallError("Library \"{}\" is not installed.".format(k))
             else:
-                copy_files(k, v, lib_root, BUILD_INSTALLER_FILES)
+                copy_files(k, v, lib_root, dst)
+
+
+def build_installer_linux(configdata, qt_root):
+    # Creates the following:
+    # * windscribe_2.x.y_amd64.deb
+    # * windscribe_2.x.y_x86_64.rpm
+    copy_libs(configdata, "linux", BUILD_INSTALLER_FILES)
+    if platform.processor() == "aarch64":
+        copy_libs(configdata, "linux_aarch64", BUILD_INSTALLER_FILES)
+    elif platform.processor() == "x86_64":
+        copy_libs(configdata, "linux_x86_64", BUILD_INSTALLER_FILES)
 
     msg.Info("Fixing rpaths...")
     if "fix_rpath" in configdata["client_deploy_files"]["linux"]:
@@ -592,7 +599,10 @@ def build_installer_linux(configdata, qt_root):
 
         src_package_path = os.path.join(pathhelper.ROOT_DIR, "installer", "linux", "common")
         deb_files_path = os.path.join(pathhelper.ROOT_DIR, "installer", "linux", "debian_package")
-        dest_package_name = "windscribe_{}_amd64".format(extractor.app_version(True))
+        if platform.processor() == "x86_64":
+            dest_package_name = "windscribe_{}_amd64".format(extractor.app_version(True))
+        elif platform.processor() == "aarch64":
+            dest_package_name = "windscribe_{}_arm64".format(extractor.app_version(True))
         dest_package_path = os.path.join(BUILD_INSTALLER_FILES, "..", dest_package_name)
 
         utl.CopyAllFiles(src_package_path, dest_package_path)
@@ -600,6 +610,7 @@ def build_installer_linux(configdata, qt_root):
         utl.CopyAllFiles(BUILD_INSTALLER_FILES, os.path.join(dest_package_path, "opt", "windscribe"))
 
         update_version_in_config(os.path.join(dest_package_path, "DEBIAN", "control"))
+        update_arch_in_config(os.path.join(dest_package_path, "DEBIAN", "control"))
         iutl.RunCommand(["fakeroot", "dpkg-deb", "--build", dest_package_path])
 
     if arghelper.build_rpm():

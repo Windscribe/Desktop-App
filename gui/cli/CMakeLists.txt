@@ -91,6 +91,7 @@ target_link_libraries(windscribe-cli
 
 target_link_directories(windscribe-cli
                         PRIVATE
+                        ../../build-libs/openssl_ech_draft/lib
                         ../../build-libs/openssl_ech_draft/lib64)
 
 target_include_directories(windscribe-cli PRIVATE

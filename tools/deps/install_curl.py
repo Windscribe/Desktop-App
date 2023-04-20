@@ -5,6 +5,7 @@
 # ------------------------------------------------------------------------------
 # Purpose: installs CUrl library.
 import os
+import platform
 import sys
 import time
 
@@ -58,6 +59,8 @@ def BuildDependencyGNU(openssl_root, outpath):
     buildenv = os.environ.copy()
     if utl.GetCurrentOS() == "macos":
         buildenv.update({"CC": "cc -mmacosx-version-min=10.14 -arch x86_64 -arch arm64"})
+    if utl.GetCurrentOS() == "linux" and platform.processor() == "aarch64":
+        buildenv.update({"LDFLAGS": "-Wl,-rpath,{}/lib".format(openssl_root)})
 
     buildconf_cmd = ["./buildconf"]
     iutl.RunCommand(buildconf_cmd, env=buildenv)
@@ -65,7 +68,7 @@ def BuildDependencyGNU(openssl_root, outpath):
     # Configure.
     configure_cmd = ["./configure"]
     configure_cmd.append("--prefix={}".format(outpath))
-    configure_cmd.append("--with-ssl={}".format(openssl_root))
+    configure_cmd.append("--with-openssl={}".format(openssl_root))
     configure_cmd.append("--enable-ech")
     configure_cmd.append("--without-brotli")
     configure_cmd.append("--without-zstd")
