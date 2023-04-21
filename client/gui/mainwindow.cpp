@@ -523,6 +523,8 @@ void MainWindow::doClose(QCloseEvent *event, bool isFromSigTerm_mac)
                 PersistentState::instance().setFirewallState(false);
             }
         }
+    } else if (backend_->getPreferences()->firewallSettings().mode == FIREWALL_MODE_ALWAYS_ON) {
+        PersistentState::instance().setFirewallState(true);
     }
 
     qCDebug(LOG_BASIC) << "Firewall on next startup: " << PersistentState::instance().isFirewallOn();
