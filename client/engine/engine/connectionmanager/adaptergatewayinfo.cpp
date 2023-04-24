@@ -12,7 +12,7 @@
 const int typeIdAdapterGatewayInfo = qRegisterMetaType<AdapterGatewayInfo>("AdapterGatewayInfo");
 
 
-AdapterGatewayInfo AdapterGatewayInfo::detectAndCreateDefaultAdaperInfo()
+AdapterGatewayInfo AdapterGatewayInfo::detectAndCreateDefaultAdapterInfo()
 {
     AdapterGatewayInfo cai;
 

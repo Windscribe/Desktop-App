@@ -862,7 +862,7 @@ void ConnectionManager::doConnect()
         waitForNetworkConnectivity();
         return;
     }
-    defaultAdapterInfo_ = AdapterGatewayInfo::detectAndCreateDefaultAdaperInfo();
+    defaultAdapterInfo_ = AdapterGatewayInfo::detectAndCreateDefaultAdapterInfo();
     qCDebug(LOG_CONNECTION) << "Default adapter and gateway:" << defaultAdapterInfo_.makeLogString();
 
     connectTimer_.stop();
