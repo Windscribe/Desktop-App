@@ -25,7 +25,13 @@ void PingHost_Curl::addHostForPing(const QString &id, const QString &ip, const Q
     NetworkReply *reply = networkAccessManager_->get(networkRequest);
     connect(reply, &NetworkReply::finished, this, &PingHost_Curl::onNetworkRequestFinished);
     reply->setProperty("id", id);
-    reply->setProperty("fromDisconnectedState", connectStateController_->currentState() == CONNECT_STATE_DISCONNECTED);
+    if (connectStateController_) {
+        reply->setProperty("fromDisconnectedState", connectStateController_->currentState() == CONNECT_STATE_DISCONNECTED);
+    }
+    else {
+        reply->setProperty("fromDisconnectedState", true);
+    }
+
     pingingHosts_[id] = reply;
 }
 
