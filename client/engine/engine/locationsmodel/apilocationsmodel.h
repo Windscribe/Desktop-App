@@ -45,7 +45,7 @@ signals:
     //void customOvpnConfgsIpsChanged(const QStringList &ips);
 
 private slots:
-    void onPingInfoChanged(const QString &ip, int timems);
+    void onPingInfoChanged(const QString &id, int timems);
     void onNeedIncrementPingIteration();
 
 private:
@@ -56,9 +56,6 @@ private:
     BestLocation bestLocation_;
 
     PingIpsController pingIpsController_;
-
-    // Map an IP we're pinging to the location/static IP identifer owning that IP.
-    QHash<QString, int> idFromIp_;
 
 private:
     void detectBestLocation(bool isAllNodesInDisconnectedState);

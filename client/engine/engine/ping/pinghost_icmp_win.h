@@ -20,7 +20,7 @@ public:
     explicit PingHost_ICMP_win(QObject *parent, IConnectStateController *stateController);
     virtual ~PingHost_ICMP_win();
 
-    void addHostForPing(const QString &ip);
+    void addHostForPing(const QString &id, const QString &ip);
     void clearPings();
 
     void setProxySettings(const types::ProxySettings &proxySettings);
@@ -28,17 +28,25 @@ public:
     void enableProxy();
 
 signals:
-    void pingFinished(bool success, int timems, const QString &ip, bool isFromDisconnectedState);
+    void pingFinished(bool success, int timems, const QString &id, bool isFromDisconnectedState);
 
 private slots:
-    void onPingRequestFinished(bool success, const QString ip, qint64 elapsed);
+    void onPingRequestFinished(bool success, const QString &id, qint64 elapsed);
 
 private:
+    struct QueueJob
+    {
+        QString id;
+        QString ip;
+    };
+
     IConnectStateController* const connectStateController_;
 
     QRecursiveMutex mutex_;
     QMap<QString, PingRequest*> pingingHosts_;
-    QQueue<QString> waitingPingsQueue_;
+    QQueue<QueueJob> waitingPingsQueue_;
 
+    bool hostAlreadyPingingOrInWaitingQueue(const QString &id);
+    void removeFromQueue(const QString &id);
     void sendNextPing();
 };

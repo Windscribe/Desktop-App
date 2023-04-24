@@ -36,6 +36,7 @@ bool StaticIps::initFromJson(QJsonObject &init_obj)
             sid.wgIp = obj["wg_ip"].toString();
             sid.wgPubKey = obj["wg_pubkey"].toString();
             sid.ovpnX509 = obj["ovpn_x509"].toString();
+            sid.pingHost = obj["ping_host"].toString();
 
             QJsonObject objNode = obj["node"].toObject();
             if (objNode.contains("ip") && objNode.contains("ip2") && objNode.contains("ip3") &&
@@ -196,7 +197,8 @@ bool StaticIpDescr::operator==(const StaticIpDescr &other) const
            wgIp == other.wgIp &&
            wgPubKey == other.wgPubKey &&
            ovpnX509 == other.ovpnX509 &&
-            ports == other.ports;
+           pingHost == other.pingHost &&
+           ports == other.ports;
 }
 
 bool StaticIpDescr::operator!=(const StaticIpDescr &other) const
@@ -208,7 +210,7 @@ QDataStream& operator <<(QDataStream& stream, const StaticIpDescr& s)
 {
     stream << s.versionForSerialization_;
     stream << s.id << s.ipId << s.staticIp << s.type << s.name << s.countryCode << s.shortName << s.cityName << s.serverId << s.nodeIPs
-           << s.hostname << s.dnsHostname << s.username << s.password << s.wgIp << s.wgPubKey << s.ovpnX509 << s.ports;
+           << s.hostname << s.dnsHostname << s.username << s.password << s.wgIp << s.wgPubKey << s.ovpnX509 << s.pingHost << s.ports;
     return stream;
 }
 
@@ -221,8 +223,13 @@ QDataStream& operator >>(QDataStream& stream, StaticIpDescr& s)
         stream.setStatus(QDataStream::ReadCorruptData);
         return stream;
     }
-    stream >> s.id >> s.ipId >> s.staticIp >> s.type >> s.name >> s.countryCode >> s.shortName >> s.cityName >> s.serverId >> s.nodeIPs
-           >> s.hostname >> s.dnsHostname >> s.username >> s.password >> s.wgIp >> s.wgPubKey >> s.ovpnX509 >> s.ports;
+    if (version == 1) {
+        stream >> s.id >> s.ipId >> s.staticIp >> s.type >> s.name >> s.countryCode >> s.shortName >> s.cityName >> s.serverId >> s.nodeIPs
+               >> s.hostname >> s.dnsHostname >> s.username >> s.password >> s.wgIp >> s.wgPubKey >> s.ovpnX509 >> s.ports;
+    } else {
+        stream >> s.id >> s.ipId >> s.staticIp >> s.type >> s.name >> s.countryCode >> s.shortName >> s.cityName >> s.serverId >> s.nodeIPs
+               >> s.hostname >> s.dnsHostname >> s.username >> s.password >> s.wgIp >> s.wgPubKey >> s.ovpnX509 >> s.pingHost >> s.ports;
+    }
     return stream;
 }
 

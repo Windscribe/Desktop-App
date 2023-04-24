@@ -17,7 +17,7 @@ class PingRequest : public QObject
 {
     Q_OBJECT
 public:
-    explicit PingRequest(QObject *parent, const QString &ip);
+    explicit PingRequest(QObject *parent, const QString &id, const QString &ip);
     ~PingRequest();
 
     bool parseReply();
@@ -26,10 +26,13 @@ public:
     bool isFromDisconnectedState() const { return isFromDisconnectedState_; }
     void setFromDisconnectedState(bool disconncted) { isFromDisconnectedState_ = disconncted; }
 
+    QString id() const { return id_; }
+
 signals:
-    void requestFinished(bool success, const QString ip, qint64 elapsed);
+    void requestFinished(bool success, const QString id, qint64 elapsed);
 
 private:
+    const QString id_;
     const QString ip_;
     bool isFromDisconnectedState_ = true;
     HANDLE icmpFile_ = INVALID_HANDLE_VALUE;
@@ -43,8 +46,9 @@ private:
     static VOID NTAPI icmpCallback(IN PVOID ApcContext, IN PIO_STATUS_BLOCK IoStatusBlock, IN ULONG /*Reserved*/);
 };
 
-PingRequest::PingRequest(QObject *parent, const QString &ip)
+PingRequest::PingRequest(QObject *parent, const QString &id, const QString &ip)
     : QObject(parent),
+      id_(id),
       ip_(ip)
 {
 }
@@ -104,7 +108,7 @@ bool PingRequest::parseReply()
 VOID NTAPI PingRequest::icmpCallback(IN PVOID ApcContext, IN PIO_STATUS_BLOCK IoStatusBlock, IN ULONG /*Reserved*/)
 {
     PingRequest *request = static_cast<PingRequest*>(ApcContext);
-    Q_EMIT request->requestFinished((IoStatusBlock->Status == 0), request->ip_, request->timer_.elapsed());
+    Q_EMIT request->requestFinished((IoStatusBlock->Status == 0), request->id_, request->timer_.elapsed());
 }
 
 
@@ -119,7 +123,7 @@ PingHost_ICMP_win::~PingHost_ICMP_win()
     clearPings();
 }
 
-void PingHost_ICMP_win::addHostForPing(const QString &ip)
+void PingHost_ICMP_win::addHostForPing(const QString &id, const QString &ip)
 {
     if (!IpValidation::isIp(ip)) {
         qCDebug(LOG_PING) << "PingHost_ICMP_win::addHostForPing - invalid IP" << ip;
@@ -127,8 +131,11 @@ void PingHost_ICMP_win::addHostForPing(const QString &ip)
     }
 
     QMutexLocker locker(&mutex_);
-    if (!pingingHosts_.contains(ip) && !waitingPingsQueue_.contains(ip)) {
-        waitingPingsQueue_.enqueue(ip);
+    if (!hostAlreadyPingingOrInWaitingQueue(id)) {
+        QueueJob job;
+        job.id = id;
+        job.ip = ip;
+        waitingPingsQueue_.enqueue(job);
         sendNextPing();
     }
 }
@@ -161,8 +168,8 @@ void PingHost_ICMP_win::enableProxy()
 void PingHost_ICMP_win::sendNextPing()
 {
     if (pingingHosts_.size() < MAX_PARALLEL_PINGS && !waitingPingsQueue_.isEmpty()) {
-        const QString ip = waitingPingsQueue_.dequeue();
-        auto request = std::make_unique<PingRequest>(nullptr, ip);
+        const QueueJob job = waitingPingsQueue_.dequeue();
+        auto request = std::make_unique<PingRequest>(nullptr, job.id, job.ip);
 
         if (connectStateController_) {
             request->setFromDisconnectedState(connectStateController_->currentState() == CONNECT_STATE_DISCONNECTED);
@@ -171,35 +178,55 @@ void PingHost_ICMP_win::sendNextPing()
         connect(request.get(), &PingRequest::requestFinished, this, &PingHost_ICMP_win::onPingRequestFinished);
 
         if (!request->sendRequest()) {
-            Q_EMIT pingFinished(false, 0, ip, request->isFromDisconnectedState());
-            waitingPingsQueue_.removeAll(ip);
+            Q_EMIT pingFinished(false, 0, job.id, request->isFromDisconnectedState());
+            removeFromQueue(job.id);
             sendNextPing();
             return;
         }
 
-        pingingHosts_[ip] = request.release();
+        pingingHosts_[job.id] = request.release();
     }
 }
 
-void PingHost_ICMP_win::onPingRequestFinished(bool success, const QString ip, qint64 elapsed)
+void PingHost_ICMP_win::onPingRequestFinished(bool success, const QString &id, qint64 elapsed)
 {
     QMutexLocker locker(&mutex_);
-    auto it = pingingHosts_.find(ip);
+    auto it = pingingHosts_.find(id);
 
     if (it != pingingHosts_.end()) {
         std::unique_ptr<PingRequest> request(it.value());
-        pingingHosts_.remove(ip);
+        pingingHosts_.remove(id);
 
         if (success && request->parseReply()) {
-            Q_EMIT pingFinished(true, elapsed, ip, request->isFromDisconnectedState());
+            Q_EMIT pingFinished(true, elapsed, id, request->isFromDisconnectedState());
         }
         else {
-            Q_EMIT pingFinished(false, 0, ip, request->isFromDisconnectedState());
+            Q_EMIT pingFinished(false, 0, id, request->isFromDisconnectedState());
         }
     }
-
-    waitingPingsQueue_.removeAll(ip);
+    removeFromQueue(id);
     sendNextPing();
+}
+
+bool PingHost_ICMP_win::hostAlreadyPingingOrInWaitingQueue(const QString &id)
+{
+    if (pingingHosts_.find(id) != pingingHosts_.end())
+        return true;
+
+    for (const auto &it : waitingPingsQueue_)
+        if (it.id == id)
+            return true;
+
+    return false;
+}
+
+void PingHost_ICMP_win::removeFromQueue(const QString &id)
+{
+    QMutableListIterator<QueueJob> i(waitingPingsQueue_);
+    while (i.hasNext()) {
+        if (i.next().id == id)
+            i.remove();
+    }
 }
 
 // Following line required if the Q_OBJECT macro is used within a cpp file.

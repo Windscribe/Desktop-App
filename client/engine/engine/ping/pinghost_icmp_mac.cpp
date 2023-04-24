@@ -15,11 +15,15 @@ PingHost_ICMP_mac::~PingHost_ICMP_mac()
     clearPings();
 }
 
-void PingHost_ICMP_mac::addHostForPing(const QString &ip)
+void PingHost_ICMP_mac::addHostForPing(const QString &id, const QString &ip)
 {
     QMutexLocker locker(&mutex_);
-    if (!pingingHosts_.contains(ip) && !waitingPingsQueue_.contains(ip)) {
-        waitingPingsQueue_.enqueue(ip);
+    if (!hostAlreadyPingingOrInWaitingQueue(id))
+    {
+        QueueJob job;
+        job.id = id;
+        job.ip = ip;
+        waitingPingsQueue_.enqueue(job);
         processNextPings();
     }
 }
@@ -91,39 +95,52 @@ void PingHost_ICMP_mac::onProcessFinished(int exitCode, QProcess::ExitStatus exi
         qCDebug(LOG_PING) << "ping utility return not 0 exitCode:" << exitCode;
     }
 
-    QString ip = process->property("ip").toString();
+    QString id = process->property("id").toString();
 
     QMutexLocker locker(&mutex_);
-    auto it = pingingHosts_.find(ip);
+    auto it = pingingHosts_.find(id);
     if (it != pingingHosts_.end())
     {
         PingInfo *pingInfo = it.value();
         bool bFromDisconnectedState = pingInfo->process->property("fromDisconnectedState").toBool();
         pingInfo->process->deleteLater();
-        pingingHosts_.remove(ip);
+        pingingHosts_.remove(id);
         delete pingInfo;
         if (timeMs != -1)
         {
-            emit pingFinished(true, timeMs, ip, bFromDisconnectedState);
+            emit pingFinished(true, timeMs, id, bFromDisconnectedState);
         }
         else
         {
-            emit pingFinished(false, 0, ip, bFromDisconnectedState);
+            emit pingFinished(false, 0, id, bFromDisconnectedState);
         }
     }
-    waitingPingsQueue_.removeAll(ip);
+
+    removeFromQueue(id);
     processNextPings();
+}
+
+bool PingHost_ICMP_mac::hostAlreadyPingingOrInWaitingQueue(const QString &id)
+{
+    if (pingingHosts_.find(id) != pingingHosts_.end())
+        return true;
+
+    for (const auto &it : waitingPingsQueue_)
+        if (it.id == id)
+            return true;
+
+    return false;
 }
 
 void PingHost_ICMP_mac::processNextPings()
 {
     if (pingingHosts_.count() < MAX_PARALLEL_PINGS && !waitingPingsQueue_.isEmpty())
     {
-        QString ip = waitingPingsQueue_.dequeue();
-        WS_ASSERT(IpValidation::isIp(ip));
+        QueueJob job = waitingPingsQueue_.dequeue();
+        WS_ASSERT(IpValidation::isIp(job.ip));
 
         PingInfo *pingInfo = new PingInfo();
-        pingInfo->ip = ip;
+        pingInfo->ip = job.ip;
 
         pingInfo->process = new QProcess(this);
         connect(pingInfo->process, SIGNAL(finished(int,QProcess::ExitStatus)), SLOT(onProcessFinished(int,QProcess::ExitStatus)));
@@ -135,10 +152,10 @@ void PingHost_ICMP_mac::processNextPings()
             pingInfo->process->setProperty("fromDisconnectedState", true);
         }
 
-        pingInfo->process->setProperty("ip", ip);
+        pingInfo->process->setProperty("id", job.id);
 
-        pingingHosts_[ip] = pingInfo;
-        pingInfo->process->start("ping", QStringList() << "-c" << "1" << "-W" << "2000" << ip);
+        pingingHosts_[job.id] = pingInfo;
+        pingInfo->process->start("ping", QStringList() << "-c" << "1" << "-W" << "2000" << job.ip);
     }
 }
 
@@ -164,6 +181,15 @@ int PingHost_ICMP_mac::extractTimeMs(const QString &str)
         }
     }
     return -1;
+}
+
+void PingHost_ICMP_mac::removeFromQueue(const QString &id)
+{
+    QMutableListIterator<QueueJob> i(waitingPingsQueue_);
+    while (i.hasNext()) {
+        if (i.next().id == id)
+            i.remove();
+    }
 }
 
 

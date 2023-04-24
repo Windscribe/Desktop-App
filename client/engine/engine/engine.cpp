@@ -608,7 +608,7 @@ void Engine::initPart2()
     connect(connectionManager_, SIGNAL(requestPassword(QString)), SLOT(onConnectionManagerRequestPassword(QString)));
     connect(connectionManager_, SIGNAL(protocolStatusChanged(QVector<types::ProtocolStatus>)), SIGNAL(protocolStatusChanged(QVector<types::ProtocolStatus>)));
 
-    locationsModel_ = new locationsmodel::LocationsModel(this, connectStateController_, networkDetectionManager_);
+    locationsModel_ = new locationsmodel::LocationsModel(this, connectStateController_, networkDetectionManager_, networkAccessManager_);
     connect(locationsModel_, SIGNAL(whitelistLocationsIpsChanged(QStringList)), SLOT(onLocationsModelWhitelistIpsChanged(QStringList)));
     connect(locationsModel_, SIGNAL(whitelistCustomConfigsIpsChanged(QStringList)), SLOT(onLocationsModelWhitelistCustomConfigIpsChanged(QStringList)));
 

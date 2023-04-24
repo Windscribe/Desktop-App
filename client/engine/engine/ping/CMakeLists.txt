@@ -5,6 +5,8 @@ target_sources(engine PRIVATE
     keepalivemanager.h
     pinghost.cpp
     pinghost.h
+    pinghost_curl.cpp
+    pinghost_curl.h
     pinghost_tcp.cpp
     pinghost_tcp.h
 )
