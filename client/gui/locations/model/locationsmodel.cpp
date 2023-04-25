@@ -744,7 +744,9 @@ void LocationsModel::onLanguageChanged()
     if (locations_.isEmpty() || !locations_[0]->location().id.isBestLocation()) {
         return;
     }
+
     locations_[0]->setName(tr(BEST_LOCATION_NAME));
+    emit dataChanged(index(0, 0), index(0, 0), QList<int>() << kName);
 }
 
 } //namespace gui_locations

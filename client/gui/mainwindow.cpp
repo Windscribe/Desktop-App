@@ -1077,8 +1077,8 @@ void MainWindow::onPreferencesCycleMacAddressClick()
             "WARNING_WHITE",
             title,
             desc,
-            tr(GeneralMessage::kYes),
-            tr(GeneralMessage::kNo),
+            GeneralMessageController::tr(GeneralMessageController::kYes),
+            GeneralMessageController::tr(GeneralMessageController::kNo),
             "",
             [this](bool b) { backend_->cycleMacAddress(); },
             std::function<void(bool)>(nullptr),
@@ -1151,7 +1151,7 @@ void MainWindow::onPreferencesUpdateChannelChanged(UPDATE_CHANNEL updateChannel)
 
 void MainWindow::onPreferencesReportErrorToUser(const QString &title, const QString &desc)
 {
-    GeneralMessageController::instance().showMessage("WARNING_YELLOW", title, desc, tr(GeneralMessage::kOk));
+    GeneralMessageController::instance().showMessage("WARNING_YELLOW", title, desc, GeneralMessageController::tr(GeneralMessageController::kOk));
 }
 
 void MainWindow::onPreferencesCollapsed()
@@ -1341,14 +1341,14 @@ void MainWindow::onLocationsAddCustomConfigClicked()
                         "Cannot select this directory because it is writeable for non-privileged users. "
                         "Custom configs in this directory may pose a potential security risk. "
                         "Please authenticate with an admin user to select this directory.");
-                    GeneralMessageController::instance().showMessage("WARNING_YELLOW", tr("Can't select directory"), desc, tr(GeneralMessage::kOk));
+                    GeneralMessageController::instance().showMessage("WARNING_YELLOW", tr("Can't select directory"), desc, GeneralMessageController::tr(GeneralMessageController::kOk));
                     return;
                 }
                 else if (err == AuthCheckerError::AUTH_HELPER_ERROR)
                 {
                     qCDebug(LOG_AUTH_HELPER) << "Failed to verify AuthHelper, binary may be corrupted.";
                     const QString desc = tr("The application is corrupted.  Please reinstall Windscribe.");
-                    GeneralMessageController::instance().showMessage("WARNING_YELLOW", tr("Validation Error"), desc, tr(GeneralMessage::kOk));
+                    GeneralMessageController::instance().showMessage("WARNING_YELLOW", tr("Validation Error"), desc, GeneralMessageController::tr(GeneralMessageController::kOk));
                     return;
                 }
             }
@@ -1357,7 +1357,7 @@ void MainWindow::onLocationsAddCustomConfigClicked()
             const QString desc = tr(
                 "The selected directory is writeable for non-privileged users. "
                 "Custom configs in this directory may pose a potential security risk.");
-            GeneralMessageController::instance().showMessage("WARNING_YELLOW", tr("Security Risk"), desc, tr(GeneralMessage::kOk));
+            GeneralMessageController::instance().showMessage("WARNING_YELLOW", tr("Security Risk"), desc, GeneralMessageController::tr(GeneralMessageController::kOk));
         }
 
         // set the path
@@ -1430,8 +1430,8 @@ void MainWindow::onBackendInitFinished(INIT_STATE initState)
         GeneralMessageController::instance().showMessage("WARNING_YELLOW",
                                                tr("Enable Service?"),
                                                tr("Enable \"Base Filtering Engine\" service? This is required for Windscribe to function."),
-                                               tr(GeneralMessage::kYes),
-                                               tr(GeneralMessage::kNo),
+                                               GeneralMessageController::tr(GeneralMessageController::kYes),
+                                               GeneralMessageController::tr(GeneralMessageController::kNo),
                                                "",
                                                [this](bool b) { backend_->enableBFE_win(); },
                                                [this](bool b) { QTimer::singleShot(0, this, SLOT(close())); });
@@ -1439,7 +1439,7 @@ void MainWindow::onBackendInitFinished(INIT_STATE initState)
         GeneralMessageController::instance().showMessage("ERROR_ICON",
                                                tr("Failed to Enable Service"),
                                                tr("Could not start 'Base Filtering Engine' service.  Please enable this service manually in Windows Services."),
-                                               tr(GeneralMessage::kOk),
+                                               GeneralMessageController::tr(GeneralMessageController::kOk),
                                                "",
                                                "",
                                                [this](bool b) { QTimer::singleShot(0, this, SLOT(close())); });
@@ -1447,7 +1447,7 @@ void MainWindow::onBackendInitFinished(INIT_STATE initState)
         GeneralMessageController::instance().showMessage("ERROR_ICON",
                                                tr("Failed to Start"),
                                                tr("Windscribe helper initialize error. Please reinstall the application or contact support."),
-                                               tr(GeneralMessage::kOk),
+                                               GeneralMessageController::tr(GeneralMessageController::kOk),
                                                "",
                                                "",
                                                [this](bool b) { QTimer::singleShot(0, this, SLOT(close())); });
@@ -1609,8 +1609,8 @@ void MainWindow::onBackendLoginError(LOGIN_RET loginError, const QString &errorM
         GeneralMessageController::instance().showMessage("WARNING_WHITE",
                                    tr("SSL Error"),
                                    tr("We detected that SSL requests may be intercepted on your network. This could be due to a firewall configured on your computer, or Windscribe being blocked by your network administrator. Ignore SSL errors?"),
-                                   tr(GeneralMessage::kYes),
-                                   tr(GeneralMessage::kNo),
+                                   GeneralMessageController::tr(GeneralMessageController::kYes),
+                                   GeneralMessageController::tr(GeneralMessageController::kNo),
                                    "",
                                    [this](bool b) {
                                        backend_->getPreferences()->setIgnoreSslErrors(true);
@@ -1628,7 +1628,7 @@ void MainWindow::onBackendLoginError(LOGIN_RET loginError, const QString &errorM
                                        }
                                     },
                                     std::function<void(bool)>(nullptr),
-                                    GeneralMessage::GeneralMessage::kNoWindowChange);
+                                    GeneralMessage::kNoWindowChange);
     } else if (loginError == LOGIN_RET_ACCOUNT_DISABLED) {
         if (!isLoginOkAndConnectWindowVisible_) {
             mainWindowController_->getLoginWindow()->setErrorMessage(ILoginWindow::ERR_MSG_ACCOUNT_DISABLED, errorMessage);
@@ -2112,7 +2112,7 @@ void MainWindow::onBackendTestTunnelResult(bool success)
                                                tr("Network Settings Interference"),
                                                tr("We've detected that your network settings may interfere with Windscribe.  Please send us a debug log to troubleshoot."),
                                                tr("Send Debug Log"),
-                                               tr(GeneralMessage::kCancel),
+                                               GeneralMessageController::tr(GeneralMessageController::kCancel),
                                                "",
                                                [this](bool b) { sendDebugLogOnDisconnect_ = true; });
     }
@@ -2142,7 +2142,7 @@ void MainWindow::onBackendTestTunnelResult(bool success)
                                                                      title,
                                                                      tr("Windscribe will always use this protocol to connect on this network in the future to avoid any interruptions."),
                                                                      tr("Set as Preferred"),
-                                                                     tr(GeneralMessage::kCancel),
+                                                                     GeneralMessageController::tr(GeneralMessageController::kCancel),
                                                                      "",
                                                                      [this, ps](bool b) {
                                                                         if (curNetwork_.isValid()) {
@@ -2164,7 +2164,7 @@ void MainWindow::onBackendLostConnectionToHelper()
     GeneralMessageController::instance().showMessage("ERROR_ICON",
                                            tr("Service Error"),
                                            tr("Windscribe is malfunctioning.  Please restart the application."),
-                                           tr(GeneralMessage::kOk));
+                                           GeneralMessageController::tr(GeneralMessageController::kOk));
 }
 
 void MainWindow::onBackendHighCpuUsage(const QStringList &processesList)
@@ -2187,8 +2187,8 @@ void MainWindow::onBackendHighCpuUsage(const QStringList &processesList)
             "WARNING_YELLOW",
             tr("High CPU Usage"),
             msg,
-            tr(GeneralMessage::kYes),
-            tr(GeneralMessage::kNo),
+            GeneralMessageController::tr(GeneralMessageController::kYes),
+            GeneralMessageController::tr(GeneralMessageController::kNo),
             "",
 #if defined(Q_OS_WIN)
             [this](bool b) { backend_->getPreferences()->setTerminateSockets(false); },
@@ -2221,7 +2221,7 @@ void MainWindow::showUserWarning(USER_WARNING_TYPE userWarningType)
     }
 
     if (!titleText.isEmpty() && !descText.isEmpty()) {
-        GeneralMessageController::instance().showMessage("WARNING_YELLOW", titleText, descText, tr(GeneralMessage::kOk));
+        GeneralMessageController::instance().showMessage("WARNING_YELLOW", titleText, descText, GeneralMessageController::tr(GeneralMessageController::kOk));
     }
 }
 
@@ -2310,7 +2310,7 @@ void MainWindow::onBackendProtocolStatusChanged(const QVector<types::ProtocolSta
             tr("This network hates us"),
             tr("We couldn’t connect you on this network. Send us your debug log so we can figure out what happened."),
             tr("Send Debug Log"),
-            tr(GeneralMessage::kCancel),
+            GeneralMessageController::tr(GeneralMessageController::kCancel),
             "",
             [this](bool b) {
                 backend_->sendDebugLog();
@@ -2319,7 +2319,7 @@ void MainWindow::onBackendProtocolStatusChanged(const QVector<types::ProtocolSta
                     tr("Debug Sent!"),
                     tr("Your debug log has been received. Please contact support if you want assistance with this issue."),
                     tr("Contact Support"),
-                    tr(GeneralMessage::kCancel),
+                    GeneralMessageController::tr(GeneralMessageController::kCancel),
                     "",
                     [](bool b) { QDesktopServices::openUrl(QUrl(QString("https://%1/support/ticket").arg(HardcodedSettings::instance().serverUrl()))); });
             });
@@ -2367,7 +2367,7 @@ void MainWindow::onBackendUpdateVersionChanged(uint progressPercent, UPDATE_VERS
                 } else {
                     descText = tr("Could not run updater (Error %1).  Please contact support").arg(error);
                 }
-                GeneralMessageController::instance().showMessage("ERROR_ICON", titleText, descText, tr(GeneralMessage::kOk));
+                GeneralMessageController::instance().showMessage("ERROR_ICON", titleText, descText, GeneralMessageController::tr(GeneralMessageController::kOk));
             }
         }
         else
@@ -3400,8 +3400,8 @@ void MainWindow::handleDisconnectWithError(const types::ConnectState &connectSta
         GeneralMessageController::instance().showMessage("WARNING_WHITE",
                                                tr("Read-only file"),
                                                tr("Your hosts file is read-only. IKEv2 connectivity requires for it to be writable. Fix the issue automatically?"),
-                                               tr(GeneralMessage::kYes),
-                                               tr(GeneralMessage::kNo),
+                                               GeneralMessageController::tr(GeneralMessageController::kYes),
+                                               GeneralMessageController::tr(GeneralMessageController::kNo),
                                                "",
                                                [this](bool b) { if (backend_) backend_->sendMakeHostsFilesWritableWin(); });
         return;
@@ -3443,7 +3443,7 @@ void MainWindow::handleDisconnectWithError(const types::ConnectState &connectSta
         msg = tr("An unexpected error occurred establishing the VPN connection (Error %1).  If this error persists, try using a different protocol or contact support.").arg(connectState.connectError);
     }
 
-    GeneralMessageController::instance().showMessage("ERROR_ICON", tr("Connection Error"), msg, tr(GeneralMessage::kOk));
+    GeneralMessageController::instance().showMessage("ERROR_ICON", tr("Connection Error"), msg, GeneralMessageController::tr(GeneralMessageController::kOk));
 }
 
 void MainWindow::setVariablesToInitState()
@@ -3597,14 +3597,15 @@ void MainWindow::updateTrayTooltip(QString tooltip)
 
 void MainWindow::onWireGuardAtKeyLimit()
 {
-    GeneralMessageController::instance().showMessage("WARNING_WHITE",
-                                           tr("Reached Key Limit"), 
-                                           tr("You have reached your limit of WireGuard public keys. Do you want to delete your oldest key?"),
-                                           tr(GeneralMessage::kYes),
-                                           tr(GeneralMessage::kNo),
-                                           "",
-                                           [this](bool b) { emit wireGuardKeyLimitUserResponse(true); },
-                                           [this](bool b) { emit wireGuardKeyLimitUserResponse(false); });
+    GeneralMessageController::instance().showMessage(
+        "WARNING_WHITE",
+        tr("Reached Key Limit"),
+        tr("You have reached your limit of WireGuard public keys. Do you want to delete your oldest key?"),
+        GeneralMessageController::tr(GeneralMessageController::kYes),
+        GeneralMessageController::tr(GeneralMessageController::kNo),
+        "",
+        [this](bool b) { emit wireGuardKeyLimitUserResponse(true); },
+        [this](bool b) { emit wireGuardKeyLimitUserResponse(false); });
 }
 
 void MainWindow::onSelectedLocationChanged()
@@ -3655,7 +3656,7 @@ void MainWindow::onHelperSplitTunnelingStartFailed()
     GeneralMessageController::instance().showMessage("WARNING_YELLOW",
                                            tr("Error Starting Service"),
                                            tr("The split tunneling feature could not be started, and has been disabled in Preferences."),
-                                           tr(GeneralMessage::kOk));
+                                           GeneralMessageController::tr(GeneralMessageController::kOk));
 }
 
 void MainWindow::showTrayMessage(const QString &message)

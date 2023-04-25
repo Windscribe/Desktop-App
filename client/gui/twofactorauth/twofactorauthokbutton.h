@@ -1,11 +1,11 @@
-#ifndef TWOFACTORAUTHOKBUTTON_H
-#define TWOFACTORAUTHOKBUTTON_H
+#pragma once
 
-#include <QGraphicsObject>
 #include <QColor>
-#include <QVariantAnimation>
-#include <QPropertyAnimation>
 #include <QFont>
+#include <QGraphicsObject>
+#include <QPropertyAnimation>
+#include <QVariantAnimation>
+
 #include "commongraphics/clickablegraphicsobject.h"
 #include "graphicresources/fontdescr.h"
 
@@ -17,7 +17,7 @@ class TwoFactorAuthOkButton : public ClickableGraphicsObject
 public:
     enum BUTTON_TYPE { BUTTON_TYPE_ADD, BUTTON_TYPE_LOGIN };
 
-    TwoFactorAuthOkButton(ScalableGraphicsObject *parent, int width, int height);
+    TwoFactorAuthOkButton(ScalableGraphicsObject *parent);
 
     QRectF boundingRect() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
@@ -43,14 +43,15 @@ private:
     int height_;
     int arcWidth_;
     int arcHeight_;
-     FontDescr fontDescr_;
+    FontDescr fontDescr_;
     QString text_;
     QColor targetFillColor_;
     QColor currentFillColor_;
     double currentfillOpacity_;
     QPropertyAnimation fillColorAnimation_;
+
+    static constexpr int OK_BUTTON_WIDTH = 78;
+    static constexpr int OK_BUTTON_HEIGHT = 32;
 };
 
 }  // namespace TwoFactorAuthWindow
-
-#endif // TWOFACTORAUTHOKBUTTON_H

@@ -1,9 +1,9 @@
-#ifndef COMBOBOXITEM_H
-#define COMBOBOXITEM_H
+#pragma once
 
 #include <QGraphicsProxyWidget>
 #include <QPair>
 #include <QVariant>
+
 #include "commonwidgets/combomenuwidget.h"
 #include "commongraphics/baseitem.h"
 #include "commongraphics/texticonbutton.h"
@@ -90,7 +90,6 @@ private:
     QString strCaption_;
     QString strTooltip_;
     QColor fillColor_;
-    int captionOffsX_;
 
     FontDescr captionFont_;
 
@@ -104,5 +103,3 @@ private:
 };
 
 } // namespace PreferencesWindow
-
-#endif // COMBOBOXITEM_H

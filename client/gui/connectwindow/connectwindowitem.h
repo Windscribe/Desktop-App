@@ -1,21 +1,19 @@
-#ifndef CONNECTWINDOWITEM_H
-#define CONNECTWINDOWITEM_H
+#pragma once
 
 #include <QGraphicsObject>
 #include <QTimer>
+
 #include "background.h"
-#include "backend/backend.h"
-#include "connectbutton.h"
-#include "connectstateprotocolport/connectstateprotocolport.h"
-#include "locationsbutton.h"
-#include "serverratingindicator.h"
-#include "middleitem.h"
-#include "firewallbutton.h"
-#include "iconnectwindow.h"
 #include "commongraphics/iconbutton.h"
 #include "commongraphics/textbutton.h"
-#include "commonwidgets/iconbuttonwidget.h"
+#include "connectbutton.h"
+#include "connectstateprotocolport/connectstateprotocolport.h"
+#include "firewallbutton.h"
+#include "iconnectwindow.h"
+#include "locationsbutton.h"
 #include "logonotificationsbutton.h"
+#include "middleitem.h"
+#include "serverratingindicator.h"
 
 namespace ConnectWindow {
 
@@ -89,6 +87,7 @@ signals:
 
 private slots:
     void onAppSkinChanged(APP_SKIN s);
+    void onLanguageChanged();
 
 private:
     Preferences *preferences_;
@@ -131,10 +130,6 @@ private:
 
     void updatePositions();
     void updateShortenedText();
-
 };
 
 } //namespace ConnectWindow
-
-
-#endif // CONNECTWINDOWITEM_H

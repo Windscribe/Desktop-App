@@ -1,5 +1,4 @@
-#ifndef SPLITTUNNELINGAPPSITEM_H
-#define SPLITTUNNELINGAPPSITEM_H
+#pragma once
 
 #include "commongraphics/baseitem.h"
 #include "commongraphics/iconbutton.h"
@@ -29,5 +28,3 @@ private:
 };
 
 } // namespace PreferencesWindow
-
-#endif // SPLITTUNNELINGAPPSITEM_H

@@ -81,8 +81,6 @@ private:
     static constexpr int HEADER_HEIGHT = 71;
     static constexpr int CODE_ENTRY_POS_Y = 155;
     static constexpr int CODE_ENTRY_WIDTH = 244;
-    static constexpr int OK_BUTTON_WIDTH = 78;
-    static constexpr int OK_BUTTON_HEIGHT = 32;
     static constexpr int OK_BUTTON_POS_Y = 223;
 };
 

@@ -3,10 +3,11 @@
 #include <QCursor>
 #include <QFontMetrics>
 #include <QPainter>
-#include "graphicresources/fontmanager.h"
-#include "graphicresources/imageresourcessvg.h"
+
 #include "commongraphics.h"
 #include "dpiscalemanager.h"
+#include "graphicresources/fontmanager.h"
+#include "graphicresources/imageresourcessvg.h"
 
 namespace CommonGraphics {
 

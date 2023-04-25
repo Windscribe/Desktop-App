@@ -1,7 +1,10 @@
 #include "enginesettings.h"
-#include "utils/logger.h"
-#include "types/global_consts.h"
+
 #include "legacy_protobuf_support/legacy_protobuf.h"
+#include "types/global_consts.h"
+#include "utils/languagesutil.h"
+#include "utils/logger.h"
+#include "utils/simplecrypt.h"
 
 const int typeIdEngineSettings = qRegisterMetaType<types::EngineSettings>("types::EngineSettings");
 
@@ -66,6 +69,7 @@ void EngineSettings::loadFromSettings()
             }
         }
     }
+
     if (!bLoaded && settings.contains("engineSettings2"))
     {
         // try load from legacy protobuf
@@ -84,6 +88,10 @@ void EngineSettings::loadFromSettings()
     {
         qCDebug(LOG_BASIC) << "Could not load engine settings -- resetting to defaults";
         *this = EngineSettings();   // reset to defaults
+    }
+
+    if (d->language.isEmpty()) {
+        d->language = LanguagesUtil::systemLanguage();
     }
 }
 
@@ -371,4 +379,3 @@ QDebug operator<<(QDebug dbg, const EngineSettings &es)
 }
 
 } // types namespace
-

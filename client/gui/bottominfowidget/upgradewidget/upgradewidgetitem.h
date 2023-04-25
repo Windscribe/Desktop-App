@@ -62,6 +62,7 @@ private:
 
     int width_ = 230;
     static constexpr int HEIGHT_ = 22;
+    const FontDescr fontDescr_ = { 11, true, 105 };
 
     CommonGraphics::TextButton *textButton_;
 

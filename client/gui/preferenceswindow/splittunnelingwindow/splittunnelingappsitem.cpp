@@ -1,11 +1,11 @@
 #include "splittunnelingappsitem.h"
 
 #include <QPainter>
+
 #include "commongraphics/commongraphics.h"
+#include "dpiscalemanager.h"
 #include "graphicresources/fontmanager.h"
 #include "preferenceswindow/preferencesconst.h"
-#include "utils/utils.h"
-#include "dpiscalemanager.h"
 
 namespace PreferencesWindow {
 
@@ -24,10 +24,22 @@ void SplitTunnelingAppsItem::paint(QPainter *painter, const QStyleOptionGraphics
     Q_UNUSED(widget);
     Q_UNUSED(option);
 
-    painter->setFont(*FontManager::instance().getFont(12, false));
+    QString text(tr("Search/Add Apps"));
+    QString elidedText = text;
+
+    QFont *font = FontManager::instance().getFont(12, false);
+    painter->setFont(*font);
     painter->setOpacity(OPACITY_HALF);
     painter->setPen(Qt::white);
-    painter->drawText(boundingRect().adjusted(PREFERENCES_MARGIN*G_SCALE, 0, 0, 0), Qt::AlignVCenter, tr("Search/Add Apps"));
+
+    int availableWidth = searchButton_->pos().x() - PREFERENCES_MARGIN*G_SCALE;
+
+    QFontMetrics fm(*font);
+    if (availableWidth < fm.horizontalAdvance(text)) {
+        elidedText = fm.elidedText(text, Qt::ElideRight, availableWidth, 0);
+    }
+
+    painter->drawText(boundingRect().adjusted(PREFERENCES_MARGIN*G_SCALE, 0, 0, 0), Qt::AlignVCenter, elidedText);
 }
 
 void SplitTunnelingAppsItem::updateScaling()

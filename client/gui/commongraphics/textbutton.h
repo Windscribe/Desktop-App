@@ -46,6 +46,8 @@ public:
     void setUnderline(bool on);
     void setUnhoverOnClick(bool on);
 
+    void setMaxWidth(int width);
+
 protected:
     void mouseReleaseEvent(QGraphicsSceneMouseEvent *event) override;
     void hoverEnterEvent(QGraphicsSceneHoverEvent *event) override;
@@ -65,6 +67,7 @@ private:
     int height_;
     int addWidth_;   // HACK - allows full displaying of text in Upgrade Widget
     int margin_;
+    int maxWidth_ = 0;
 
     double curTextOpacity_;
     QVariantAnimation textOpacityAnimation_;

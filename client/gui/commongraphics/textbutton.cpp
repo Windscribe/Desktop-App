@@ -14,8 +14,7 @@ TextButton::TextButton(QString text, const FontDescr &fd, QColor color, bool bSe
     curTextOpacity_(OPACITY_UNHOVER_TEXT), unhoverOpacity_(OPACITY_UNHOVER_TEXT), isHovered_(false),
     textAlignment_(Qt::AlignLeft | Qt::AlignVCenter), textUnderline_(false), unhoverOnClick_(true)
 {
-    if (bDrawWithShadow)
-    {
+    if (bDrawWithShadow) {
         textShadow_.reset(new TextShadow());
     }
 
@@ -49,15 +48,20 @@ void TextButton::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
     painter->setOpacity(curTextOpacity_ * initialOpacity);
     QFont font = getFont();
 
-    if (textShadow_)
-    {
-        textShadow_->drawText(painter, boundingRect().toRect(), textAlignment_, text_, &font, color_);
+    // Only elide the text if we have been constrained to a maximum width.
+    QFontMetrics fm(font);
+    QString elidedText = text_;
+    if (maxWidth_ > 0 && width_ < fm.horizontalAdvance(text_)) {
+        elidedText = fm.elidedText(text_, Qt::ElideRight, width_, 0);
     }
-    else
-    {
+
+    if (textShadow_) {
+        textShadow_->drawText(painter, boundingRect().toRect(), textAlignment_, elidedText, &font, color_);
+    }
+    else {
         painter->setFont(font);
         painter->setPen(color_);
-        painter->drawText(boundingRect(), textAlignment_ , text_);
+        painter->drawText(boundingRect(), textAlignment_ , elidedText);
     }
 }
 
@@ -217,7 +221,12 @@ void TextButton::recalcBoundingRect()
 {
     QFontMetrics fm(getFont());
     prepareGeometryChange();
-    width_ = fm.boundingRect(text_).width() + addWidth_*G_SCALE;
+    if (maxWidth_ > 0) {
+        width_ = maxWidth_;
+    }
+    else {
+        width_ = fm.boundingRect(text_).width() + addWidth_*G_SCALE;
+    }
     height_ = fm.height();
 }
 
@@ -230,6 +239,12 @@ void TextButton::setTextAlignment(int alignment)
 void TextButton::setUnhoverOnClick(bool on)
 {
     unhoverOnClick_ = on;
+}
+
+void TextButton::setMaxWidth(int width)
+{
+    maxWidth_ = width;
+    update();
 }
 
 }

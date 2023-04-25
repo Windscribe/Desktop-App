@@ -398,8 +398,8 @@ void ConnectionWindowItem::onIsAllowLanTrafficPreferencesChangedByUser(bool b)
             "WARNING_WHITE",
             tr("Settings Conflict"),
             tr("Disabling Allow LAN Traffic will cause your proxy gateway to stop working.  Do you want to disable the proxy?"),
-            tr(GeneralMessage::kYes),
-            tr(GeneralMessage::kNo),
+            GeneralMessageController::tr(GeneralMessageController::kYes),
+            GeneralMessageController::tr(GeneralMessageController::kNo),
             "",
             [this](bool b) {
                 types::ShareProxyGateway sp = preferences_->shareProxyGateway();
@@ -452,8 +452,8 @@ void ConnectionWindowItem::onProxyGatewayPreferencesChangedByUser(const types::S
             "WARNING_WHITE",
             tr("Settings Conflict"),
             tr("LAN traffic is currently blocked by the Windscribe firewall.  Do you want to allow LAN traffic to bypass the firewall in order for this feature to work?"),
-            tr(GeneralMessage::kYes),
-            tr(GeneralMessage::kNo),
+            GeneralMessageController::tr(GeneralMessageController::kYes),
+            GeneralMessageController::tr(GeneralMessageController::kNo),
             "",
             [this](bool b) { preferences_->setAllowLanTraffic(true); },
             std::function<void(bool)>(nullptr),
