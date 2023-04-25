@@ -315,7 +315,7 @@ void EmergencyController::onConnectionError(CONNECT_ERROR err)
 
 void EmergencyController::doConnect()
 {
-    defaultAdapterInfo_ = AdapterGatewayInfo::detectAndCreateDefaultAdaperInfo();
+    defaultAdapterInfo_ = AdapterGatewayInfo::detectAndCreateDefaultAdapterInfo();
     qCDebug(LOG_CONNECTION) << "Default adapter and gateway:" << defaultAdapterInfo_.makeLogString();
 
     WS_ASSERT(!attempts_.empty());

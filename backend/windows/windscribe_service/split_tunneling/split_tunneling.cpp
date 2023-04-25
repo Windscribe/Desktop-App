@@ -79,27 +79,34 @@ void SplitTunneling::detectWindscribeExecutables()
 
 bool SplitTunneling::updateState()
 {
+    AppsIds appsIds;
+    appsIds.setFromList(apps_);
+    Ip4AddressAndMask localAddr(connectStatus_.defaultAdapter.adapterIp.c_str());
+    DWORD localIp = localAddr.ipNetworkOrder();
     bool isSplitTunnelActive = connectStatus_.isConnected && isSplitTunnelEnabled_;
 
-    if (isSplitTunnelActive) {
+    // Allow excluded traffic to bypass firewall even when not connected
+    if (!connectStatus_.isConnected && isSplitTunnelEnabled_ && isExclude_
+        && connectStatus_.defaultAdapter.ifIndex != 0 && firewallFilter_.currentStatus())
+    {
+        hostnamesManager_.enable(connectStatus_.defaultAdapter.gatewayIp, connectStatus_.defaultAdapter.ifIndex);
+        firewallFilter_.setSplitTunnelingAppsIds(appsIds);
+        firewallFilter_.setSplitTunnelingEnabled(isExclude_);
+
+        calloutFilter_.disable();
+        splitTunnelServiceManager_.stop();
+    } else if (isSplitTunnelActive) {
         if (!splitTunnelServiceManager_.start()) {
             return false;
         }
 
-        DWORD localIp;
         DWORD vpnIp;
-        AppsIds appsIds;
-        appsIds.setFromList(apps_);
-
-        Ip4AddressAndMask localAddr(connectStatus_.defaultAdapter.adapterIp.c_str());
-        localIp = localAddr.ipNetworkOrder();
         Ip4AddressAndMask vpnAddr(connectStatus_.vpnAdapter.adapterIp.c_str());
         vpnIp = vpnAddr.ipNetworkOrder();
 
         if (isExclude_) {
             hostnamesManager_.enable(connectStatus_.defaultAdapter.gatewayIp, connectStatus_.defaultAdapter.ifIndex);
-        }
-        else {
+        } else {
             appsIds.addFrom(windscribeExecutablesIds_);
             hostnamesManager_.enable(connectStatus_.vpnAdapter.gatewayIp, connectStatus_.vpnAdapter.ifIndex);
         }
@@ -107,8 +114,7 @@ bool SplitTunneling::updateState()
         firewallFilter_.setSplitTunnelingAppsIds(appsIds);
         firewallFilter_.setSplitTunnelingEnabled(isExclude_);
         calloutFilter_.enable(localIp, vpnIp, appsIds, isExclude_, isAllowLanTraffic_);
-    }
-    else {
+    } else {
         calloutFilter_.disable();
         hostnamesManager_.disable();
         firewallFilter_.setSplitTunnelingDisabled();
@@ -119,8 +125,7 @@ bool SplitTunneling::updateState()
     if (isSplitTunnelActive != prevIsSplitTunnelActive_ && connectStatus_.isTerminateSocket) {
         Logger::instance().out(L"SplitTunneling::threadFunc() close TCP sockets, exclude non VPN apps");
         CloseTcpConnections::closeAllTcpConnections(connectStatus_.isKeepLocalSocket, isExclude_, apps_);
-    }
-    else if (isSplitTunnelActive && isExclude_ != prevIsExclude_ && connectStatus_.isTerminateSocket) {
+    } else if (isSplitTunnelActive && isExclude_ != prevIsExclude_ && connectStatus_.isTerminateSocket) {
         Logger::instance().out(L"SplitTunneling::threadFunc() close all TCP sockets");
         CloseTcpConnections::closeAllTcpConnections(connectStatus_.isKeepLocalSocket);
     }

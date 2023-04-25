@@ -669,7 +669,8 @@ void Engine::onInitializeHelper(INIT_HELPER_RET ret)
         FinishActiveConnections::finishAllActiveConnections(helper_);
 
         // turn off split tunneling (for case the state remains from the last launch)
-        helper_->sendConnectStatus(false, engineSettings_.isTerminateSockets(), engineSettings_.isAllowLanTraffic(), AdapterGatewayInfo(), AdapterGatewayInfo(), QString(), types::Protocol());
+        helper_->sendConnectStatus(false, engineSettings_.isTerminateSockets(), engineSettings_.isAllowLanTraffic(), AdapterGatewayInfo::detectAndCreateDefaultAdapterInfo(), AdapterGatewayInfo(), QString(), types::Protocol());
+
         helper_->setSplitTunnelingSettings(false, false, false, QStringList(), QStringList(), QStringList());
 
     #ifdef Q_OS_WIN
@@ -748,7 +749,7 @@ void Engine::cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool is
     // turn off split tunneling
     if (helper_)
     {
-        helper_->sendConnectStatus(false, engineSettings_.isTerminateSockets(), engineSettings_.isAllowLanTraffic(), AdapterGatewayInfo(), AdapterGatewayInfo(), QString(), types::Protocol());
+        helper_->sendConnectStatus(false, engineSettings_.isTerminateSockets(), engineSettings_.isAllowLanTraffic(), AdapterGatewayInfo::detectAndCreateDefaultAdapterInfo(), AdapterGatewayInfo(), QString(), types::Protocol());
         helper_->setSplitTunnelingSettings(false, false, false, QStringList(), QStringList(), QStringList());
     }
 
@@ -1068,6 +1069,17 @@ void Engine::updateCurrentNetworkInterfaceImpl()
     {
         prevNetworkInterface_ = networkInterface;
         bPrevNetworkInterfaceInitialized_ = true;
+
+        if (helper_ && connectStateController_->currentState() == CONNECT_STATE_DISCONNECTED) {
+            helper_->sendConnectStatus(false,
+                                       engineSettings_.isTerminateSockets(),
+                                       engineSettings_.isAllowLanTraffic(),
+                                       AdapterGatewayInfo::detectAndCreateDefaultAdapterInfo(),
+                                       AdapterGatewayInfo(),
+                                       QString(),
+                                       types::Protocol());
+        }
+
         Q_EMIT networkChanged(networkInterface);
     }
 }
@@ -1965,6 +1977,16 @@ void Engine::onNetworkChange(const types::NetworkInterface &networkInterface)
                 types::PortMap(),
                 ProxyServerController::instance().getCurrentProxySettings());
         }
+
+        if (helper_ && connectStateController_->currentState() == CONNECT_STATE_DISCONNECTED) {
+            helper_->sendConnectStatus(false,
+                                       engineSettings_.isTerminateSockets(),
+                                       engineSettings_.isAllowLanTraffic(),
+                                       AdapterGatewayInfo::detectAndCreateDefaultAdapterInfo(),
+                                       AdapterGatewayInfo(),
+                                       QString(),
+                                       types::Protocol());
+        }
     }
 
     Q_EMIT networkChanged(networkInterface);
@@ -2370,11 +2392,9 @@ void Engine::stopPacketDetectionImpl()
 
 void Engine::onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON /*reason*/, CONNECT_ERROR /*err*/, const LocationID & /*location*/)
 {
-    if (helper_)
-    {
-        if (state != CONNECT_STATE_CONNECTED)
-        {
-            helper_->sendConnectStatus(false, engineSettings_.isTerminateSockets(), engineSettings_.isAllowLanTraffic(), AdapterGatewayInfo(), AdapterGatewayInfo(), QString(), types::Protocol());
+    if (helper_) {
+        if (state != CONNECT_STATE_CONNECTED) {
+            helper_->sendConnectStatus(false, engineSettings_.isTerminateSockets(), engineSettings_.isAllowLanTraffic(), AdapterGatewayInfo::detectAndCreateDefaultAdapterInfo(), AdapterGatewayInfo(), QString(), types::Protocol());
         }
     }
 }
