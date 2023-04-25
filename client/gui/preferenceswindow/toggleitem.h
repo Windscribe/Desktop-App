@@ -1,7 +1,7 @@
-#ifndef CHECKBOXITEM_H
-#define CHECKBOXITEM_H
+#pragma once
 
 #include <QSharedPointer>
+
 #include "commongraphics/baseitem.h"
 #include "commongraphics/togglebutton.h"
 #include "graphicresources/fontdescr.h"
@@ -47,5 +47,3 @@ private:
 };
 
 } // namespace PreferencesWindow
-
-#endif // CHECKBOXITEM_H

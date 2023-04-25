@@ -82,5 +82,12 @@ void MiddleItem::onIpAddressWidthChanged(int width)
     ipAddressItem_->setPos(rc.right() - width, rc.top());
 }
 
+int MiddleItem::firewallTextRight() const
+{
+    QFont *font = FontManager::instance().getFont(16, false);
+    int textWidth = CommonGraphics::textWidth(tr("Firewall"), *font);
+    // +16 to match the value added to the bounding rect in ::paint().
+    return boundingRect().left() + textWidth + 16*G_SCALE;
+}
 
 } //namespace ConnectWindow

@@ -1,5 +1,7 @@
 #include "languagesutil.h"
 
+#include <QLocale>
+
 QString LanguagesUtil::convertCodeToNative(const QString &code)
 {
     if (code == "en")
@@ -56,4 +58,14 @@ QString LanguagesUtil::convertCodeToNative(const QString &code)
         return "Hrvatski jezik";
 
     return "Unknown";
+}
+
+QString LanguagesUtil::systemLanguage()
+{
+    QString language = QLocale::system().bcp47Name().left(2);
+    if (language.isEmpty()) {
+        language = "en";
+    }
+
+    return language;
 }

@@ -1,10 +1,8 @@
-#ifndef LANGUAGECONTROLLER_H
-#define LANGUAGECONTROLLER_H
+#pragma once
 
 #include <QObject>
 #include <QTranslator>
 
-// TODO: make persistent currentLanguage
 
 class LanguageController : public QObject
 {
@@ -31,6 +29,5 @@ private:
 
     QTranslator translator_;
 
+    bool loadLanguage(const QString &language);
 };
-
-#endif // LANGUAGECONTROLLER_H

@@ -14,8 +14,17 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(Qt6 REQUIRED COMPONENTS Widgets Network Svg Core5Compat LinguistTools)
 set(WINDSCRIBE_BUILD_LIBS_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../../build-libs)
 
-set(TS_FILES ${CMAKE_CURRENT_SOURCE_DIR}/translations/en.ts)
-qt6_create_translation(QM_FILES ${CMAKE_CURRENT_SOURCE_DIR}/.. ${TS_FILES})
+set(WS_TS_FILES
+    ${CMAKE_CURRENT_SOURCE_DIR}/translations/ws_desktop_ar.ts
+    ${CMAKE_CURRENT_SOURCE_DIR}/translations/ws_desktop_de.ts
+    ${CMAKE_CURRENT_SOURCE_DIR}/translations/ws_desktop_es.ts
+    ${CMAKE_CURRENT_SOURCE_DIR}/translations/ws_desktop_fr.ts
+    ${CMAKE_CURRENT_SOURCE_DIR}/translations/ws_desktop_hi.ts
+    ${CMAKE_CURRENT_SOURCE_DIR}/translations/ws_desktop_ru.ts
+    ${CMAKE_CURRENT_SOURCE_DIR}/translations/ws_desktop_zh.ts)
+# Using the -extensions flag to skip processing the .ui files in the test projects.  Otherwise, the
+# strings in said ui files will be added to the .ts output files.
+qt6_create_translation(WS_QM_FILES ${CMAKE_CURRENT_SOURCE_DIR}/.. ${WS_TS_FILES} OPTIONS -extensions cpp,h)
 
 set(PROJECT_SOURCES
     # --- sources and headers ---
@@ -52,7 +61,6 @@ set(PROJECT_SOURCES
     jpg.qrc
     svg.qrc
     windscribe.qrc
-    ${QM_FILES}
 )
 
 if (APPLE)
@@ -60,6 +68,15 @@ if (APPLE)
 endif (APPLE)
 
 add_library(gui STATIC ${PROJECT_SOURCES})
+
+qt_add_resources(gui "translations"
+    PREFIX
+        "/translations"
+    BASE
+        ${CMAKE_CURRENT_BINARY_DIR}
+    FILES
+        ${WS_QM_FILES}
+)
 
 target_link_libraries(gui PRIVATE Qt6::Core Qt6::Network Qt6::Widgets Qt6::Svg Qt6::Core5Compat)
 

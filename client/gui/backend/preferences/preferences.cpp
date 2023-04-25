@@ -9,6 +9,7 @@
 #include "utils/logger.h"
 #include "utils/utils.h"
 #include "utils/ipvalidation.h"
+#include "utils/simplecrypt.h"
 #include "types/global_consts.h"
 #include "legacy_protobuf_support/legacy_protobuf.h"
 
@@ -186,6 +187,7 @@ void Preferences::setLanguage(const QString &lang)
     if (engineSettings_.language() != lang)
     {
         engineSettings_.setLanguage(lang);
+        emitEngineSettingsChanged();
         emit languageChanged(lang);
     }
 }

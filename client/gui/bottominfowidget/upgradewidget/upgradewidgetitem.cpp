@@ -22,10 +22,8 @@ UpgradeWidgetItem::UpgradeWidgetItem(ScalableGraphicsObject *parent) : ScalableG
   , curLeftTextOffset_(LEFT_TEXT_WITH_ICON_OFFSET)
   , roundedRectXRadius_(10)
 {
-
     QString buttonText = tr("GET MORE DATA");
-    textButton_ = new CommonGraphics::TextButton(buttonText, FontDescr(11, true, 105),
-                                                 Qt::white, true, this, 15);
+    textButton_ = new CommonGraphics::TextButton(buttonText, fontDescr_, Qt::white, true, this, 15);
     textButton_->setTextAlignment(Qt::AlignRight | Qt::AlignVCenter);
 
     connect(textButton_, SIGNAL(clicked()), SLOT(onButtonClick()));
@@ -72,7 +70,7 @@ void UpgradeWidgetItem::paint(QPainter *painter, const QStyleOptionGraphicsItem 
 
     // version text
     painter->save();
-    QFont font = *FontManager::instance().getFont(11,true, 105);
+    QFont font = *FontManager::instance().getFont(fontDescr_);
     QFontMetrics fm(font);
     painter->translate(0, fm.height()+1*G_SCALE);
     painter->setPen(curDataRemainingColor_);
@@ -265,9 +263,15 @@ void UpgradeWidgetItem::updateScaling()
 
 void UpgradeWidgetItem::updateTextPos()
 {
+    // Constrain the text button to the remaining space in this widget.
+    QFont *font = FontManager::instance().getFont(fontDescr_);
+    int currentTextWidth = CommonGraphics::textWidth(currentText(), *font);
+    int nAvailableWidth = width_*G_SCALE - curLeftTextOffset_*G_SCALE - currentTextWidth - 20*G_SCALE;
+    textButton_->setMaxWidth(nAvailableWidth);
+
     textButton_->recalcBoundingRect();
 
-    int updatePosX = width_*G_SCALE - textButton_->boundingRect().width() - 10*G_SCALE;
+    int updatePosX = curLeftTextOffset_*G_SCALE + currentTextWidth + 10*G_SCALE;
     textButton_->setPos(updatePosX, (int)(G_SCALE+0.5));
 }
 
@@ -287,10 +291,7 @@ QString UpgradeWidgetItem::currentText()
         }
         else
         {
-            const qint64 kOneGB = 1024 * 1024 * 1024;
             const auto bytes_remaining = qMax(qint64(0), bytesMax_ - bytesUsed_);
-            const auto gigabytes_remaining = static_cast<int>(bytes_remaining / kOneGB);
-            const bool between_1_and_10_gb = gigabytes_remaining >= 1 && gigabytes_remaining < 10;
             QLocale locale(LanguageController::instance().getLanguage());
             result = locale.formattedDataSize(bytes_remaining, 1, QLocale::DataSizeTraditionalFormat);
         }

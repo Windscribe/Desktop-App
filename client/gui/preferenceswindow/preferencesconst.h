@@ -14,6 +14,7 @@ static constexpr int APP_ICON_HEIGHT = 20;
 static constexpr int APP_ICON_WIDTH = 20;
 static constexpr int ICON_HEIGHT = 16;
 static constexpr int ICON_WIDTH = 16;
+static constexpr int MIN_COMBOBOX_WIDTH = 60;
 
 } // namespace PreferencesWindow
 
