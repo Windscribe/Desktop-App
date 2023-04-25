@@ -74,7 +74,9 @@ void GeneralMessageWindowItem::paint(QPainter *painter, const QStyleOptionGraphi
     if (isSpinnerMode_) {
         int offset = 0;
         if (shape_ == IGeneralMessageWindow::kConnectScreenAlphaShape) {
-            offset = -14*G_SCALE;
+            offset = 10*G_SCALE;
+        } else if (shape_ == IGeneralMessageWindow::kConnectScreenVanGoghShape) {
+            offset = -24*G_SCALE;
         }
 
         // spinner
