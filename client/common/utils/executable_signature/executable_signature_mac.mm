@@ -24,8 +24,7 @@ bool ExecutableSignaturePrivate::verify(const std::string &exePath)
 
     OSStatus status = SecStaticCodeCreateWithPath((__bridge CFURLRef)([NSURL fileURLWithPath:path]), kSecCSDefaultFlags, &staticCode);
 
-    if (status != errSecSuccess)
-    {
+    if (status != errSecSuccess) {
         lastError_ << "SecStaticCodeCreateWithPath failed: " << status;
         return false;
     }
@@ -42,40 +41,42 @@ bool ExecutableSignaturePrivate::verify(const std::string &exePath)
 
     CFDictionaryRef signingDetails = NULL;
     status = SecCodeCopySigningInformation(staticCode, kSecCSSigningInformation, &signingDetails);
-    if (status != errSecSuccess)
-    {
+    CFRelease(staticCode);
+    if (status != errSecSuccess) {
         lastError_ << "SecCodeCopySigningInformation failed: " << status;
         return false;
     }
 
     NSArray *certificateChain = [((__bridge NSDictionary*)signingDetails)
                                  objectForKey: (__bridge NSString*)kSecCodeInfoCertificates];
-    if (certificateChain.count == 0)
-    {
+    if (certificateChain.count == 0) {
         lastError_ << "certificate chain is empty";
+        CFRelease(signingDetails);
         return false;
     }
 
     bool certNameMatches = false;
 
     CFStringRef commonName = NULL;
-    for (NSUInteger index = 0; index < certificateChain.count; index++)
-    {
+    for (NSUInteger index = 0; index < certificateChain.count; index++) {
         SecCertificateRef certificate = (__bridge SecCertificateRef)([certificateChain objectAtIndex:index]);
-        if ((errSecSuccess == SecCertificateCopyCommonName(certificate, &commonName)) && (NULL != commonName) )
-        {
-            if (CFEqual((CFTypeRef)commonName, (CFTypeRef)@MACOS_CERT_DEVELOPER_ID))
-            {
-                certNameMatches = true;
-                break;
+        if ((errSecSuccess == SecCertificateCopyCommonName(certificate, &commonName))) {
+            if (NULL != commonName) {
+                if (CFEqual((CFTypeRef)commonName, (CFTypeRef)@MACOS_CERT_DEVELOPER_ID)) {
+                    certNameMatches = true;
+                    CFRelease(commonName);
+                    break;
+                }
+                CFRelease(commonName);
             }
-         }
+        }
     }
 
     if (!certNameMatches) {
         lastError_ << "No certificate common name matches for " << MACOS_CERT_DEVELOPER_ID;
     }
 
+    CFRelease(signingDetails);
     return certNameMatches;
 }
 
@@ -98,45 +99,47 @@ bool ExecutableSignaturePrivate::verifyWithSignCheck(const std::wstring &exePath
                                encoding:[NSString defaultCStringEncoding]];
 
     OSStatus status = SecStaticCodeCreateWithPath((__bridge CFURLRef)([NSURL fileURLWithPath:path]), kSecCSDefaultFlags, &staticCode);
-    if (status != errSecSuccess)
-    {
+    if (status != errSecSuccess) {
         return false;
     }
 
     SecCSFlags flags = kSecCSDefaultFlags;
     status = SecStaticCodeCheckValidity(staticCode, flags, NULL);
-    if (status != errSecSuccess)
-    {
+    if (status != errSecSuccess) {
         lastError_ << "Failed Signature Check";
+        CFRelease(staticCode);
         return false;
     }
 
     CFDictionaryRef signingDetails = NULL;
     status = SecCodeCopySigningInformation(staticCode, kSecCSSigningInformation, &signingDetails);
-    if (status != errSecSuccess)
-    {
+    CFRelease(staticCode);
+    if (status != errSecSuccess) {
         return false;
     }
 
     NSArray *certificateChain = [((__bridge NSDictionary*)signingDetails) objectForKey: (__bridge NSString*)kSecCodeInfoCertificates];
-    if (certificateChain.count == 0)
-    {
+    if (certificateChain.count == 0) {
         // no certs
+        CFRelease(signingDetails);
         return false;
     }
 
     CFStringRef commonName = NULL;
-    for (NSUInteger index = 0; index < certificateChain.count; index++)
-    {
+    for (NSUInteger index = 0; index < certificateChain.count; index++) {
         SecCertificateRef certificate = (__bridge SecCertificateRef)([certificateChain objectAtIndex:index]);
-        if ((errSecSuccess == SecCertificateCopyCommonName(certificate, &commonName)) && (NULL != commonName) )
-        {
-            if (CFEqual((CFTypeRef)commonName, (CFTypeRef)@MACOS_CERT_DEVELOPER_ID))
-            {
-                return true;
+        if ((errSecSuccess == SecCertificateCopyCommonName(certificate, &commonName))) {
+            if (NULL != commonName) {
+                if (CFEqual((CFTypeRef)commonName, (CFTypeRef)@MACOS_CERT_DEVELOPER_ID)) {
+                    CFRelease(signingDetails);
+                    CFRelease(commonName);
+                    return true;
+                }
+                CFRelease(commonName);
             }
-         }
+        }
     }
 
+    CFRelease(signingDetails);
     return false;
 }
