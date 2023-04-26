@@ -3,4 +3,6 @@ set -e
 systemctl stop windscribe-helper
 systemctl disable windscribe-helper
 
+killall -q Windscribe
+
 rm -f /usr/bin/windscribe-cli
