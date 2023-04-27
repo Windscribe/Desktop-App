@@ -142,6 +142,14 @@ void ScrollArea::setScrollOffset(int amt)
 
 void ScrollArea::setScrollPos(int pos)
 {
+    int lowestY = height_ - static_cast<int>(curItem_->boundingRect().height());
+    if (pos > lowestY) {
+        pos = lowestY;
+    }
+    if (pos < 0) {
+        pos = 0;
+    }
+
     curItem_->setY(pos);
     scrollBar_->setValueWithoutAnimation(-curItem_->y());
     update();

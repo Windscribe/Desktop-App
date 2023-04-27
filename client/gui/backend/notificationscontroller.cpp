@@ -46,9 +46,9 @@ QVector<types::Notification> NotificationsController::messages() const
 
         types::Notification notification;
         notification.id = 0;
-        notification.title = QT_TR_NOOP("WELCOME TO WINDSCRIBE");
-        notification.message = QT_TR_NOOP("<p>You will find announcements and general Windscribe related news here. "
-                                          "Perhaps even delicious cake, everyone loves cake!</p>");
+        notification.title = tr("WELCOME TO WINDSCRIBE");
+        notification.message = tr("<p>You will find announcements and general Windscribe related news here. "
+                                   "Perhaps even delicious cake, everyone loves cake!</p>");
         arr << notification;
         return arr;
     }
