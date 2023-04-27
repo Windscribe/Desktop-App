@@ -337,6 +337,7 @@ void MainWindowController::updateMaskForGraphicsView()
     } else if (windowSizeManager_->allWindowsInState(WindowSizeManager::kWindowCollapsed)
             && curWindow_ != WINDOW_ID_INITIALIZATION
             && curWindow_ != WINDOW_ID_LOGIN
+            && curWindow_ != WINDOW_ID_LOGGING_IN
             && curWindow_ != WINDOW_ID_EMERGENCY
             && curWindow_ != WINDOW_ID_EXTERNAL_CONFIG
             && curWindow_ != WINDOW_ID_TWO_FACTOR_AUTH
@@ -437,7 +438,7 @@ void MainWindowController::changeWindow(MainWindowController::WINDOW_ID windowId
         return;
     }
 
-    //qCDebug(LOG_BASIC) << "MainWindowController::changeWindow:" << (int)windowId;
+    //qCDebug(LOG_BASIC) << "MainWindowController::changeWindow:" << (int)curWindow_ << (int)windowId;
 
     // specific commands
     if (windowId == WINDOW_CMD_UPDATE_BOTTOM_INFO) {
