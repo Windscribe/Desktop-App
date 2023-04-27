@@ -7,5 +7,8 @@ systemctl start windscribe-helper
 ln -sf /opt/windscribe/windscribe-cli /usr/bin/windscribe-cli
 update-desktop-database
 
-echo linux_deb_x64 > ../etc/windscribe/platform # debian-specific
-
+if [ "`uname -p`" == "aarch64" ]; then
+    echo linux_deb_arm64 > ../etc/windscribe/platform
+else
+    echo linux_deb_x64 > ../etc/windscribe/platform
+fi
