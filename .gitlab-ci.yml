@@ -33,28 +33,6 @@ variables:
   before_script:
     - python3 -m pip install -r tools/requirements.txt
 
-.template_ubuntu_build: &template_ubuntu_build
-  image: ubuntu:focal
-  before_script:
-    # run this blindly until baked into image
-    - DEBIAN_FRONTEND=noninteractive apt-get -y update
-    - DEBIAN_FRONTEND=noninteractive apt-get -y install build-essential git curl patchelf libpam0g-dev software-properties-common libgl1-mesa-dev fakeroot python3-pip zip unzip
-    - DEBIAN_FRONTEND=noninteractive apt-get -y update
-    - DEBIAN_FRONTEND=noninteractive apt-get -y install wget autoconf libtool
-    # install cmake 3.23.x (default for Ubuntu 20.04 is 3.16.3)
-    - wget -qO /etc/apt/trusted.gpg.d/kitware-key.asc https://apt.kitware.com/keys/kitware-archive-latest.asc
-    - echo "deb https://apt.kitware.com/ubuntu/ focal main" | tee /etc/apt/sources.list.d/kitware.list
-    - DEBIAN_FRONTEND=noninteractive apt-get -y update
-    - DEBIAN_FRONTEND=noninteractive apt-get -y install cmake
-    # Qt 6 dependencies
-    - DEBIAN_FRONTEND=noninteractive apt-get -y install libfontconfig1-dev libfreetype6-dev libx11-dev libx11-xcb-dev libxext-dev libxfixes-dev libxi-dev libxrender-dev libxcb1-dev libxcb-glx0-dev libxcb-keysyms1-dev libxcb-image0-dev libxcb-shm0-dev libxcb-icccm4-dev libxcb-sync0-dev libxcb-xfixes0-dev libxcb-shape0-dev libxcb-randr0-dev libxcb-render-util0-dev libxcb-util-dev libxcb-xinerama0-dev libxcb-xkb-dev libxkbcommon-dev libxkbcommon-x11-dev
-    # Only necessary to install golang if we're building the WireGuard package.
-    #- wget -q https://go.dev/dl/go1.18.2.linux-amd64.tar.gz
-    #- rm -rf /usr/local/go && tar -C /usr/local -xzf go1.18.2.linux-amd64.tar.gz && export PATH=$PATH:/usr/local/go/bin
-    - python3 -m pip install --user -r tools/requirements.txt
-    # hack to fix 777 file permissions, which breaks the dpkg-deb command in the build_all script.
-    - chmod -R o-w installer/linux
-
 .template_rhel_build: &template_rhel_build
   # RHEL 8.4 is the minimum build target for Qt 6.3
   # Could not use the RHEL 8.4 ubi Docker images, as they require a subscription license in order to install many of the packages we require below.
@@ -63,7 +41,7 @@ variables:
     # run this blindly until baked into image
     - dnf -y update
     - dnf group install -y "Development Tools"
-    - dnf install -y gcc-c++ patchelf libxkbcommon-devel mesa-libGL-devel mesa-vulkan-devel cmake python3-pip wget rpm-build
+    - dnf install -y gcc-c++ patchelf libxkbcommon-devel mesa-libGL-devel mesa-vulkan-devel cmake python3-pip wget rpm-build fakeroot dpkg
     # Qt 6 dependencies
     - dnf install -y fontconfig-devel freetype-devel libX11-devel libxcb-devel xcb-util-devel xcb-util-image-devel xcb-util-cursor-devel xcb-util-keysyms-devel xcb-util-renderutil-devel libxkbcommon-x11-devel
     - python3 -m pip install --user -r tools/requirements.txt
@@ -316,45 +294,6 @@ build:mac:installer:tagged:
     # build the application/installer
     - VERSION=$(python3 tools/base/extract.py)
 
-build:ubuntu:installer:
-  <<: *template_ubuntu_build
-  stage: Build
-  variables:
-    GIT_STRATEGY: clone
-  script:
-    - !reference [.build_linux_installer_common, script]
-    - tools/build_all -zip --ci-mode --sign
-    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --upload-file build-exe/windscribe_${VERSION}_amd64.deb "${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/windscribe_${VERSION}_amd64.deb"
-  rules:
-    - if: $BUILD_LINUX == "y" && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH != null
-
-# We don't upload artifacts for merge requests
-build:ubuntu:installer:mr:
-  <<: *template_ubuntu_build
-  stage: Build
-  variables:
-    GIT_STRATEGY: clone
-  script:
-    - !reference [.build_linux_installer_common, script]
-    - tools/build_all -zip --ci-mode --sign
-  rules:
-    - if: $BUILD_LINUX == "y" && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH == null
-
-build:ubuntu:installer:tagged:
-  <<: *template_ubuntu_build
-  stage: Build
-  variables:
-    GIT_STRATEGY: clone
-  script:
-    - !reference [.build_linux_installer_common, script]
-    - tools/build_all -zip --ci-mode --sign
-    - VERSION_NO_SUFFIX=$(python3 tools/base/extract.py --no-suffix)
-    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --upload-file build-exe/windscribe_${VERSION}_amd64.deb "${NEXUS_PATH_TAGGED_UPLOAD}/$VERSION_NO_SUFFIX/windscribe_${VERSION}_amd64.deb"
-  rules:
-    - if: $BUILD_LINUX == "y" && $CI_COMMIT_TAG != null
-
 build:rhel:installer:
   <<: *template_rhel_build
   stage: Build
@@ -362,9 +301,12 @@ build:rhel:installer:
     GIT_STRATEGY: clone
   script:
     - !reference [.build_linux_installer_common, script]
-    - tools/build_all -zip --ci-mode --sign --build-rpm
+    - tools/build_all -zip --ci-mode --sign --build-deb --build-rpm
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --upload-file build-exe/windscribe_${VERSION}_x86_64.rpm "${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/windscribe_${VERSION}_x86_64.rpm"
+    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+      --upload-file build-exe/windscribe_${VERSION}_amd64.deb "${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/windscribe_${VERSION}_amd64.deb"
+
   rules:
     - if: $BUILD_LINUX == "y" && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH != null
 
@@ -376,7 +318,7 @@ build:rhel:installer:mr:
     GIT_STRATEGY: clone
   script:
     - !reference [.build_linux_installer_common, script]
-    - tools/build_all -zip --ci-mode --sign --build-rpm
+    - tools/build_all -zip --ci-mode --sign --build-deb --build-rpm
   rules:
     - if: $BUILD_LINUX == "y" && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH == null
 
@@ -387,10 +329,13 @@ build:rhel:installer:tagged:
     GIT_STRATEGY: clone
   script:
     - !reference [.build_linux_installer_common, script]
-    - tools/build_all -zip --ci-mode --sign --build-rpm
+    - tools/build_all -zip --ci-mode --sign --build-deb --build-rpm
     - VERSION_NO_SUFFIX=$(python3 tools/base/extract.py --no-suffix)
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --upload-file build-exe/windscribe_${VERSION}_x86_64.rpm "${NEXUS_PATH_TAGGED_UPLOAD}/$VERSION_NO_SUFFIX/windscribe_${VERSION}_x86_64.rpm"
+    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+      --upload-file build-exe/windscribe_${VERSION}_amd64.deb "${NEXUS_PATH_TAGGED_UPLOAD}/$VERSION_NO_SUFFIX/windscribe_${VERSION}_amd64.deb"
+
   rules:
     - if: $BUILD_LINUX == "y" && $CI_COMMIT_TAG != null
 
