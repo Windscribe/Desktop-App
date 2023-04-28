@@ -358,37 +358,42 @@
 <context>
     <name>LogViewer::LogViewerWindow</name>
     <message>
-        <location filename="../log/logviewerwindow.cpp" line="36"/>
+        <location filename="../log/logviewerwindow.cpp" line="35"/>
         <source>Merge all logs by timestamp</source>
         <translation>دمج جميع السجلات حسب الطابع الزمني</translation>
     </message>
     <message>
-        <location filename="../log/logviewerwindow.cpp" line="41"/>
+        <location filename="../log/logviewerwindow.cpp" line="40"/>
+        <source>Word Wrap</source>
+        <translation>التفاف</translation>
+    </message>
+    <message>
+        <location filename="../log/logviewerwindow.cpp" line="45"/>
         <source>Color highlighting</source>
         <translation>تسليط الضوء على اللون</translation>
     </message>
     <message>
-        <location filename="../log/logviewerwindow.cpp" line="46"/>
+        <location filename="../log/logviewerwindow.cpp" line="50"/>
         <source>Export to file...</source>
         <translation>تصدير إلى ملف...</translation>
     </message>
     <message>
-        <location filename="../log/logviewerwindow.cpp" line="90"/>
+        <location filename="../log/logviewerwindow.cpp" line="98"/>
         <source>Save log</source>
         <translation>حفظ السجل</translation>
     </message>
     <message>
-        <location filename="../log/logviewerwindow.cpp" line="90"/>
+        <location filename="../log/logviewerwindow.cpp" line="98"/>
         <source>Text files (*.txt)</source>
         <translation>الملفات النصية (*.txt)</translation>
     </message>
     <message>
-        <location filename="../log/logviewerwindow.cpp" line="105"/>
+        <location filename="../log/logviewerwindow.cpp" line="113"/>
         <source>Export log</source>
         <translation>سجل التصدير</translation>
     </message>
     <message>
-        <location filename="../log/logviewerwindow.cpp" line="105"/>
+        <location filename="../log/logviewerwindow.cpp" line="113"/>
         <source>Failed to export log.  Make sure you have the correct permissions.</source>
         <translation>فشل تصدير السجل.  تأكد من أن لديك الأذونات الصحيحة.</translation>
     </message>

@@ -1,11 +1,11 @@
-#ifndef LOGVIEWERWINDOW_H
-#define LOGVIEWERWINDOW_H
+#pragma once
 
-#include <QWidget>
 #include <QCheckBox>
 #include <QPlainTextEdit>
 #include <QPushButton>
 #include <QVBoxLayout>
+#include <QWidget>
+
 #include "dpiscaleawarewidget.h"
 
 namespace LogViewer {
@@ -24,6 +24,7 @@ private slots:
     void updateLog(bool doMergePerLine);
     void updateColorHighlighting(bool isColorHighlighting);
     void onExportClick();
+    void onWordWrapToggled(bool wordWrap);
 
 protected:
     void updateScaling() override;
@@ -37,11 +38,10 @@ private:
     QPlainTextEdit *textEdit_;
     QVBoxLayout *layout_;
     QCheckBox *cbMergePerLine_;
+    QCheckBox *cbWordWrap_;
     QCheckBox *cbColorHighlighting_;
     QPushButton *btnExportLog_;
     bool isColorHighlighting_;
 };
 
 }
-
-#endif // LOGVIEWERWINDOW_H

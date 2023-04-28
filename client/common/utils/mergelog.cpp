@@ -1,14 +1,11 @@
 #include "mergelog.h"
+
 #include <QCoreApplication>
-#include <QDateTime>
 #include <QFile>
+#include <QFileInfo>
 #include <QStandardPaths>
 #include <QTextStream>
-#include <QFileInfo>
-#include <fstream>
-#include <iostream>
-#include <sstream>
-#include <thread>
+
 #include <future>
 
 namespace
@@ -38,10 +35,8 @@ QDateTime parseDateTimeFormat1(const std::string &datestr)
     {
         return QDateTime(QDate(yy + 1900, MM, dd), QTime(hh, mm, ss, zzz));
     }
-    else
-    {
-        return QDateTime();
-    }
+
+    return QDateTime();
 }
 
 // parse date from string "ddMM hh:mm:ss:zzz"
@@ -53,10 +48,8 @@ QDateTime parseDateTimeFormat2(const std::string &datestr)
     {
         return QDateTime(QDate(1900, MM, dd), QTime(hh, mm, ss, zzz));
     }
-    else
-    {
-        return QDateTime();
-    }
+
+    return QDateTime();
 }
 
 
@@ -117,20 +110,21 @@ int MergeLog::mergeTask(QMutex *mutex, QMultiMap<quint64, QPair<LineSource, QStr
     const int kCurrentYearOffset = QDateTime::currentDateTime().date().year() - 1900;
     QDateTime prevDateTime;
 
-    std::ifstream file;
-    file.open(filename->toStdString());
-    if (file.fail())
-    {
+    QFile file(*filename);
+    if (!file.open(QIODevice::ReadOnly)) {
         return 0;
     }
 
     int timestamp = 0;
-    std::string line;
-    while (std::getline(file, line))
+    QTextStream textStream(&file);
+    while (!textStream.atEnd())
     {
-        if (line[0] != '[')
+        QString line = textStream.readLine();
+
+        if (line[0] != '[' || line.length() < 20)
             continue;
-        const auto datestr = line.substr(1, 19);
+
+        const auto datestr = line.sliced(1, 19).toStdString();
 
         const auto datetime = isYearInDatePresent(datestr)
             ? parseDateTimeFormat1(datestr)
@@ -140,6 +134,7 @@ int MergeLog::mergeTask(QMutex *mutex, QMultiMap<quint64, QPair<LineSource, QStr
 
         if (useMinMax && (datetime < min || datetime > max))
             continue;
+
         if (prevDateTime != datetime) {
             prevDateTime = datetime;
             timestamp = 0;
@@ -157,7 +152,7 @@ int MergeLog::mergeTask(QMutex *mutex, QMultiMap<quint64, QPair<LineSource, QStr
 
         {
             QMutexLocker locker(mutex);
-            lines->insert(key, qMakePair(source, QString::fromStdString(line)));
+            lines->insert(key, qMakePair(source, line));
         }
         datasize += line.length() + 3;
     }

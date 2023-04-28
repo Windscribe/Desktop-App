@@ -358,37 +358,42 @@
 <context>
     <name>LogViewer::LogViewerWindow</name>
     <message>
-        <location filename="../log/logviewerwindow.cpp" line="36"/>
+        <location filename="../log/logviewerwindow.cpp" line="35"/>
         <source>Merge all logs by timestamp</source>
         <translation>按时间戳合并所有日志</translation>
     </message>
     <message>
-        <location filename="../log/logviewerwindow.cpp" line="41"/>
+        <location filename="../log/logviewerwindow.cpp" line="40"/>
+        <source>Word Wrap</source>
+        <translation>自动换行</translation>
+    </message>
+    <message>
+        <location filename="../log/logviewerwindow.cpp" line="45"/>
         <source>Color highlighting</source>
         <translation>颜色突出显示</translation>
     </message>
     <message>
-        <location filename="../log/logviewerwindow.cpp" line="46"/>
+        <location filename="../log/logviewerwindow.cpp" line="50"/>
         <source>Export to file...</source>
         <translation>导出到文件...</translation>
     </message>
     <message>
-        <location filename="../log/logviewerwindow.cpp" line="90"/>
+        <location filename="../log/logviewerwindow.cpp" line="98"/>
         <source>Save log</source>
         <translation>保存日志</translation>
     </message>
     <message>
-        <location filename="../log/logviewerwindow.cpp" line="90"/>
+        <location filename="../log/logviewerwindow.cpp" line="98"/>
         <source>Text files (*.txt)</source>
         <translation>文本文件 （*.txt）</translation>
     </message>
     <message>
-        <location filename="../log/logviewerwindow.cpp" line="105"/>
+        <location filename="../log/logviewerwindow.cpp" line="113"/>
         <source>Export log</source>
         <translation>导出日志</translation>
     </message>
     <message>
-        <location filename="../log/logviewerwindow.cpp" line="105"/>
+        <location filename="../log/logviewerwindow.cpp" line="113"/>
         <source>Failed to export log.  Make sure you have the correct permissions.</source>
         <translation>无法导出日志。 确保您具有正确的权限。</translation>
     </message>
