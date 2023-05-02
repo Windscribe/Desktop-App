@@ -36,6 +36,9 @@ void WindowSizeManager::setWindowHeight(ResizableWindow *window, int height)
         // not found
         return;
     }
+    if (height < window->minimumHeight()) {
+        height = window->minimumHeight();
+    }
     windowInfo_[window].height = height;
 }
 
