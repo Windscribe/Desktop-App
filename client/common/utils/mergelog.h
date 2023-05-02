@@ -1,10 +1,8 @@
-#ifndef MERGELOG_H
-#define MERGELOG_H
+#pragma once
 
 #include <QDateTime>
-#include <QString>
 #include <QMutex>
-#include <vector>
+#include <QString>
 
 // merge logs files log_gui.txt, windscribeservice.log, and WireguardServiceLog.txt (Windows only) to one,
 // cutting out the middle of the log if the count of lines exceeds MAX_COUNT_OF_LINES
@@ -32,5 +30,3 @@ private:
     static const QString prevServiceLogLocation();
     static const QString prevWireguardServiceLogLocation();
 };
-
-#endif // MERGELOG_H
