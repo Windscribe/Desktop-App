@@ -1,5 +1,4 @@
 #import "HoverButton.h"
-#import <Foundation/NSFileHandle.h>
 
 @implementation HoverButton
 
