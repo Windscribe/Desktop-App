@@ -590,7 +590,7 @@
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1350"/>
-        <location filename="../mainwindow.cpp" line="3437"/>
+        <location filename="../mainwindow.cpp" line="3438"/>
         <source>The application is corrupted.  Please reinstall Windscribe.</source>
         <translation>La aplicación está dañada.  Vuelva a instalar Windscribe.</translation>
     </message>
@@ -630,32 +630,32 @@
         <translation>No se pudo ejecutar el actualizador (error %1).  Póngase en contacto con el servicio de asistencia</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3401"/>
+        <location filename="../mainwindow.cpp" line="3402"/>
         <source>Read-only file</source>
         <translation>Archivo de solo lectura</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3427"/>
+        <location filename="../mainwindow.cpp" line="3428"/>
         <source>The custom configuration could not be loaded.  Please check that it’s correct or contact support.</source>
         <translation>No se pudo cargar la configuración personalizada.  Comprueba que es correcto o ponte en contacto con el servicio de asistencia.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3429"/>
+        <location filename="../mainwindow.cpp" line="3430"/>
         <source>There is a problem with the Wintun device driver, and it could not be reinstalled automatically.  Please reinstall Windscribe.</source>
         <translation>Hay un problema con el controlador de dispositivo Wintun y no se pudo reinstalar automáticamente.  Vuelva a instalar Windscribe.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3431"/>
+        <location filename="../mainwindow.cpp" line="3432"/>
         <source>There is a problem with the TAP device driver, and it could not be reinstalled automatically.  Please reinstall Windscribe.</source>
         <translation>Hay un problema con el controlador de dispositivo TAP y no se pudo reinstalar automáticamente.  Vuelva a instalar Windscribe.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3443"/>
+        <location filename="../mainwindow.cpp" line="3444"/>
         <source>An unexpected error occurred establishing the VPN connection (Error %1).  If this error persists, try using a different protocol or contact support.</source>
         <translation>Se ha producido un error inesperado al establecer la conexión VPN (error %1).  Si este error persiste, intente usar un protocolo diferente o póngase en contacto con el soporte técnico.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3665"/>
+        <location filename="../mainwindow.cpp" line="3666"/>
         <source>Windscribe</source>
         <translation>Windscribe</translation>
     </message>
@@ -716,7 +716,7 @@
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1797"/>
-        <location filename="../mainwindow.cpp" line="3314"/>
+        <location filename="../mainwindow.cpp" line="3315"/>
         <source>Disconnected</source>
         <translation>Desconectado</translation>
     </message>
@@ -862,71 +862,71 @@ Recovering...</source>
 Recuperación...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3043"/>
+        <location filename="../mainwindow.cpp" line="3044"/>
         <source>Select an application</source>
         <translation>Seleccione una aplicación</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3074"/>
+        <location filename="../mainwindow.cpp" line="3075"/>
         <source>Connect</source>
         <translation>Conectar</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3078"/>
+        <location filename="../mainwindow.cpp" line="3079"/>
         <source>Disconnect</source>
         <translation>Desconectar</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3087"/>
-        <location filename="../mainwindow.cpp" line="3116"/>
+        <location filename="../mainwindow.cpp" line="3088"/>
+        <location filename="../mainwindow.cpp" line="3117"/>
         <source>Locations</source>
         <translation>Ubicaciones</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3094"/>
-        <location filename="../mainwindow.cpp" line="3123"/>
+        <location filename="../mainwindow.cpp" line="3095"/>
+        <location filename="../mainwindow.cpp" line="3124"/>
         <source>Favourites</source>
         <translation>Favoritos</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3101"/>
-        <location filename="../mainwindow.cpp" line="3130"/>
+        <location filename="../mainwindow.cpp" line="3102"/>
+        <location filename="../mainwindow.cpp" line="3131"/>
         <source>Static IPs</source>
         <translation>IP estáticas</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3108"/>
-        <location filename="../mainwindow.cpp" line="3137"/>
+        <location filename="../mainwindow.cpp" line="3109"/>
+        <location filename="../mainwindow.cpp" line="3138"/>
         <source>Configured</source>
         <translation>Configurado</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3148"/>
+        <location filename="../mainwindow.cpp" line="3149"/>
         <source>Show/Hide</source>
         <translation>Mostrar/Ocultar</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3153"/>
+        <location filename="../mainwindow.cpp" line="3154"/>
         <source>Preferences</source>
         <translation>Preferencias</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3156"/>
+        <location filename="../mainwindow.cpp" line="3157"/>
         <source>Help</source>
         <translation>Ayuda</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3157"/>
+        <location filename="../mainwindow.cpp" line="3158"/>
         <source>Exit</source>
         <translation>Salida</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3402"/>
+        <location filename="../mainwindow.cpp" line="3403"/>
         <source>Your hosts file is read-only. IKEv2 connectivity requires for it to be writable. Fix the issue automatically?</source>
         <translation>El archivo hosts es de solo lectura. La conectividad IKEv2 requiere que sea escribible. ¿Solucionar el problema automáticamente?</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3439"/>
+        <location filename="../mainwindow.cpp" line="3440"/>
         <source>WireGuard adapter setup failed. Please wait one minute and try the connection again. If adapter setup fails again, please try restarting your computer.
 
 If the problem persists after a restart, please send a debug log and open a support ticket, then switch to a different connection mode.</source>
@@ -935,27 +935,27 @@ If the problem persists after a restart, please send a debug log and open a supp
 Si el problema persiste después de un reinicio, envíe un registro de depuración y abra un ticket de soporte, luego cambie a un modo de conexión diferente.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3446"/>
+        <location filename="../mainwindow.cpp" line="3447"/>
         <source>Connection Error</source>
         <translation>Error de conexión</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3602"/>
+        <location filename="../mainwindow.cpp" line="3603"/>
         <source>Reached Key Limit</source>
         <translation>Límite de clave alcanzado</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3603"/>
+        <location filename="../mainwindow.cpp" line="3604"/>
         <source>You have reached your limit of WireGuard public keys. Do you want to delete your oldest key?</source>
         <translation>Ha alcanzado su límite de claves públicas de WireGuard. ¿Desea eliminar su clave más antigua?</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3657"/>
+        <location filename="../mainwindow.cpp" line="3658"/>
         <source>Error Starting Service</source>
         <translation>Error al iniciar el servicio</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3658"/>
+        <location filename="../mainwindow.cpp" line="3659"/>
         <source>The split tunneling feature could not be started, and has been disabled in Preferences.</source>
         <translation>No se pudo iniciar la función de túnel dividido y se ha deshabilitado en Preferencias.</translation>
     </message>
@@ -2821,18 +2821,18 @@ Si la reinstalación no ayuda, póngase en contacto con el soporte de Windscribe
         <translation>Tu actualización está en progreso, espera allí...</translation>
     </message>
     <message>
-        <location filename="../overlaysconnectwindow/updatewindowitem.cpp" line="260"/>
+        <location filename="../overlaysconnectwindow/updatewindowitem.cpp" line="262"/>
         <source>Cancel</source>
         <translation>Cancelar</translation>
     </message>
     <message>
-        <location filename="../overlaysconnectwindow/updatewindowitem.cpp" line="261"/>
-        <location filename="../overlaysconnectwindow/updatewindowitem.cpp" line="344"/>
+        <location filename="../overlaysconnectwindow/updatewindowitem.cpp" line="263"/>
+        <location filename="../overlaysconnectwindow/updatewindowitem.cpp" line="346"/>
         <source>Later</source>
         <translation>Más tarde</translation>
     </message>
     <message>
-        <location filename="../overlaysconnectwindow/updatewindowitem.cpp" line="343"/>
+        <location filename="../overlaysconnectwindow/updatewindowitem.cpp" line="345"/>
         <source>Update</source>
         <translation>Actualizar</translation>
     </message>

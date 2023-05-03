@@ -2855,6 +2855,7 @@ void MainWindow::onAppWinIniChanged()
 void MainWindow::showShutdownWindow()
 {
     setEnabled(true);
+    mainWindowController_->hideUpdateWidget();
     mainWindowController_->getExitWindow()->setSpinnerMode(true);
 }
 

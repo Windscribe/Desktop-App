@@ -194,6 +194,7 @@ void UpdateWindowItem::changeToDownloadingScreen()
 {
     downloading_ = true;
     cancelButton_->setText(cancelButtonText());
+    updatePositions();
 
     int animationSpeed = ANIMATION_SPEED_SLOW;
 
@@ -214,6 +215,7 @@ void UpdateWindowItem::changeToPromptScreen()
 {
     downloading_ = false;
     cancelButton_->setText(cancelButtonText());
+    updatePositions();
 
     int animationSpeed = ANIMATION_SPEED_SLOW;
 
