@@ -1,14 +1,36 @@
 #import "HoverButton.h"
-
+#import <Foundation/NSFileHandle.h>
 
 @implementation HoverButton
 
 @synthesize isHovering;
 
+- (instancetype)initWithFrame:(NSRect)frameRect {
+    self = [super initWithFrame:frameRect];
+    if (self) {
+        [self setup];
+    }
+    return self;
+}
+
+- (instancetype)initWithCoder:(NSCoder *)coder {
+    self = [super initWithCoder:coder];
+    if (self) {
+        [self setup];
+    }
+    return self;
+}
+
+- (void)setup {
+    trackingRect = 0;
+}
+
 - (void)setFrame:(NSRect)frameRect
 {
     [super setFrame:frameRect];
-    [self removeTrackingRect:trackingRect];
+    if (trackingRect) {
+      [self removeTrackingRect:trackingRect];
+    }
     trackingRect = [self addTrackingRect:[self bounds] owner:self userData:nil assumeInside:NO];
 }
 
