@@ -548,385 +548,381 @@
     <name>MainWindow</name>
     <message>
         <location filename="../mainwindow.cpp" line="802"/>
-        <location filename="../mainwindow.cpp" line="1412"/>
+        <location filename="../mainwindow.cpp" line="1404"/>
         <source>Logging you in...</source>
         <translation>आपको लॉग इन करें ...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1074"/>
-        <location filename="../mainwindow.cpp" line="1094"/>
+        <location filename="../mainwindow.cpp" line="1066"/>
+        <location filename="../mainwindow.cpp" line="1086"/>
         <source>VPN is active</source>
         <translation>VPN सक्रिय है</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1075"/>
+        <location filename="../mainwindow.cpp" line="1067"/>
         <source>Rotating your MAC address will result in a disconnect event from the current network. Are you sure?</source>
         <translation>अपने मैक पते को घुमाने से वर्तमान नेटवर्क से डिस्कनेक्ट ईवेंट होगा। क्या आपको यकीन है?</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1095"/>
+        <location filename="../mainwindow.cpp" line="1087"/>
         <source>Cannot detect appropriate packet size while connected. Please disconnect first.</source>
         <translation>कनेक्ट करते समय उपयुक्त पैकेट आकार का पता नहीं लगा सकता. कृपया पहले डिस्कनेक्ट करें।</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1104"/>
+        <location filename="../mainwindow.cpp" line="1096"/>
         <source>No Internet</source>
         <translation>इंटरनेट नहीं</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1105"/>
+        <location filename="../mainwindow.cpp" line="1097"/>
         <source>Cannot detect appropriate packet size without internet. Check your connection.</source>
         <translation>इंटरनेट के बिना उपयुक्त पैकेट आकार का पता नहीं लगा सकता. अपने कनेक्शन की जाँच करें.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1323"/>
+        <location filename="../mainwindow.cpp" line="1315"/>
         <source>Select Custom Config Folder</source>
         <translation>कस्टम कॉन्फ़िगरेशन फ़ोल्डर का चयन करें</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1340"/>
+        <location filename="../mainwindow.cpp" line="1332"/>
         <source>Cannot select this directory because it is writeable for non-privileged users. Custom configs in this directory may pose a potential security risk. Please authenticate with an admin user to select this directory.</source>
         <translation>इस निर्देशिका का चयन नहीं कर सकता क्योंकि यह गैर-विशेषाधिकार प्राप्त उपयोगकर्ताओं के लिए लिखने योग्य है. इस निर्देशिका में कस्टम कॉन्फ़िगरेशन एक संभावित सुरक्षा जोखिम पैदा कर सकते हैं। कृपया इस निर्देशिका का चयन करने के लिए व्यवस्थापक उपयोगकर्ता के साथ प्रमाणित करें.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1350"/>
-        <location filename="../mainwindow.cpp" line="3438"/>
+        <location filename="../mainwindow.cpp" line="1342"/>
+        <location filename="../mainwindow.cpp" line="3424"/>
         <source>The application is corrupted.  Please reinstall Windscribe.</source>
         <translation>अनुप्रयोग दूषित है.  कृपया विंडस्क्राइब को पुनर्स्थापित करें।</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1441"/>
+        <location filename="../mainwindow.cpp" line="1433"/>
         <source>Could not start &apos;Base Filtering Engine&apos; service.  Please enable this service manually in Windows Services.</source>
         <translation>&apos;बेस फ़िल्टरिंग इंजन&apos; सेवा प्रारंभ नहीं कर सका.  कृपया इस सेवा को Windows सेवाओं में मैन्युअल रूप से सक्षम करें.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1611"/>
+        <location filename="../mainwindow.cpp" line="1603"/>
         <source>We detected that SSL requests may be intercepted on your network. This could be due to a firewall configured on your computer, or Windscribe being blocked by your network administrator. Ignore SSL errors?</source>
         <translation>हमने पाया कि SSL अनुरोध आपके नेटवर्क पर अवरोधित किए जा सकते हैं. यह आपके कंप्यूटर पर कॉन्फ़िगर किए गए फ़ायरवॉल के कारण हो सकता है, या आपके नेटवर्क व्यवस्थापक द्वारा विंडस्क्राइब को अवरुद्ध किया जा रहा है। SSL त्रुटियों को अनदेखा करें?</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2113"/>
+        <location filename="../mainwindow.cpp" line="2105"/>
         <source>We&apos;ve detected that your network settings may interfere with Windscribe.  Please send us a debug log to troubleshoot.</source>
         <translation>हमने पाया है कि आपकी नेटवर्क सेटिंग्स विंडस्क्राइब में हस्तक्षेप कर सकती हैं।  कृपया समस्या निवारण के लिए हमें एक डीबग लॉग भेजें.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2166"/>
+        <location filename="../mainwindow.cpp" line="2158"/>
         <source>Windscribe is malfunctioning.  Please restart the application.</source>
         <translation>विंडस्क्राइब खराब हो रहा है।  कृपया अनुप्रयोग को पुनरारंभ करें।</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2214"/>
+        <location filename="../mainwindow.cpp" line="2206"/>
         <source>Could not spoof MAC address.  Please try a different network interface or contact support.</source>
         <translation>MAC पते को स्पूफ नहीं कर सका.  कृपया किसी भिन्न नेटवर्क इंटरफ़ेस का प्रयास करें या समर्थन से संपर्क करें.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2366"/>
+        <location filename="../mainwindow.cpp" line="2352"/>
         <source>Could not download update.  Please try again or use a different network.</source>
         <translation>अद्यतन डाउनलोड नहीं किया जा सका.  कृपया पुन: प्रयास करें या किसी भिन्न नेटवर्क का उपयोग करें.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2368"/>
+        <location filename="../mainwindow.cpp" line="2354"/>
         <source>Could not run updater (Error %1).  Please contact support</source>
         <translation>अद्यतनकर्ता नहीं चलाया जा सका (त्रुटि %1).  कृपया समर्थन से संपर्क करें</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3402"/>
+        <location filename="../mainwindow.cpp" line="3388"/>
         <source>Read-only file</source>
         <translation>केवल पढ़ने की फ़ाइल</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3428"/>
+        <location filename="../mainwindow.cpp" line="3414"/>
         <source>The custom configuration could not be loaded.  Please check that it’s correct or contact support.</source>
         <translation>कस्टम कॉन्फ़िगरेशन लोड नहीं किया जा सका.  कृपया जांचें कि यह सही है या समर्थन से संपर्क करें।</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3430"/>
+        <location filename="../mainwindow.cpp" line="3416"/>
         <source>There is a problem with the Wintun device driver, and it could not be reinstalled automatically.  Please reinstall Windscribe.</source>
         <translation>Wintun डिवाइस ड्राइवर के साथ कोई समस्या है, और इसे स्वचालित रूप से पुनर्स्थापित नहीं किया जा सका।  कृपया विंडस्क्राइब को पुनर्स्थापित करें।</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3432"/>
+        <location filename="../mainwindow.cpp" line="3418"/>
         <source>There is a problem with the TAP device driver, and it could not be reinstalled automatically.  Please reinstall Windscribe.</source>
         <translation>TAP डिवाइस ड्राइवर के साथ कोई समस्या है, और इसे स्वचालित रूप से पुनर्स्थापित नहीं किया जा सका।  कृपया विंडस्क्राइब को पुनर्स्थापित करें।</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3444"/>
+        <location filename="../mainwindow.cpp" line="3430"/>
         <source>An unexpected error occurred establishing the VPN connection (Error %1).  If this error persists, try using a different protocol or contact support.</source>
         <translation>VPN कनेक्शन स्थापित करने में कोई अनपेक्षित त्रुटि आई (त्रुटि %1).  यदि यह त्रुटि बनी रहती है, तो किसी भिन्न प्रोटोकॉल या संपर्क समर्थन का उपयोग करने का प्रयास करें.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3666"/>
+        <location filename="../mainwindow.cpp" line="3652"/>
         <source>Windscribe</source>
         <translation>विंडस्क्राइब</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1344"/>
+        <location filename="../mainwindow.cpp" line="1336"/>
         <source>Can&apos;t select directory</source>
         <translation>निर्देशिका का चयन नहीं कर सकता</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1351"/>
+        <location filename="../mainwindow.cpp" line="1343"/>
         <source>Validation Error</source>
         <translation>सत्यापन त्रुटि</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1357"/>
+        <location filename="../mainwindow.cpp" line="1349"/>
         <source>The selected directory is writeable for non-privileged users. Custom configs in this directory may pose a potential security risk.</source>
         <translation>चयनित निर्देशिका गैर-विशेषाधिकार प्राप्त उपयोगकर्ताओं के लिए लिखने योग्य है। इस निर्देशिका में कस्टम कॉन्फ़िगरेशन एक संभावित सुरक्षा जोखिम पैदा कर सकते हैं।</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1360"/>
+        <location filename="../mainwindow.cpp" line="1352"/>
         <source>Security Risk</source>
         <translation>सुरक्षा जोखिम</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1431"/>
+        <location filename="../mainwindow.cpp" line="1423"/>
         <source>Enable Service?</source>
         <translation>सेवा सक्षम करें?</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1432"/>
+        <location filename="../mainwindow.cpp" line="1424"/>
         <source>Enable &quot;Base Filtering Engine&quot; service? This is required for Windscribe to function.</source>
         <translation>&quot;बेस फ़िल्टरिंग इंजन&quot; सेवा सक्षम करें? विंडस्क्राइब के कार्य करने के लिए यह आवश्यक है।</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1440"/>
+        <location filename="../mainwindow.cpp" line="1432"/>
         <source>Failed to Enable Service</source>
         <translation>सेवा सक्षम करने में विफल</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1448"/>
+        <location filename="../mainwindow.cpp" line="1440"/>
         <source>Failed to Start</source>
         <translation>प्रारंभ करने में विफल</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1449"/>
+        <location filename="../mainwindow.cpp" line="1441"/>
         <source>Windscribe helper initialize error. Please reinstall the application or contact support.</source>
         <translation>विंडस्क्राइब हेल्पर त्रुटि प्रारंभ करता है. कृपया अनुप्रयोग पुनर्स्थापित करें या समर्थन से संपर्क करें.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1514"/>
+        <location filename="../mainwindow.cpp" line="1506"/>
         <source>Trying Backup Endpoints %1/%2</source>
         <translation>बैकअप एंडपॉइंट्स की कोशिश करना %1/%2</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1610"/>
+        <location filename="../mainwindow.cpp" line="1602"/>
         <source>SSL Error</source>
         <translation>SSL त्रुटि</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1797"/>
-        <location filename="../mainwindow.cpp" line="3315"/>
+        <location filename="../mainwindow.cpp" line="1789"/>
+        <location filename="../mainwindow.cpp" line="3301"/>
         <source>Disconnected</source>
         <translation>डिस्कनेक्ट</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1803"/>
+        <location filename="../mainwindow.cpp" line="1795"/>
         <source>Connected to </source>
         <translation>से कनेक्ट डे </translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1848"/>
+        <location filename="../mainwindow.cpp" line="1840"/>
         <source>You are now connected to Windscribe (%1).</source>
         <translation>अब आप विंडस्क्राइब (%1) से कनेक्ट डे हैं.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1880"/>
+        <location filename="../mainwindow.cpp" line="1872"/>
         <source>Connection to Windscribe has been terminated.
 %1 transferred in %2</source>
         <translation>विंडस्क्राइब से कनेक्शन समाप्त कर दिया गया है.
 %1 को %2 में स्थानांतरित किया गया</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2112"/>
+        <location filename="../mainwindow.cpp" line="2104"/>
         <source>Network Settings Interference</source>
         <translation>नेटवर्क सेटिंग्स हस्तक्षेप</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2140"/>
+        <location filename="../mainwindow.cpp" line="2132"/>
         <source>Set “%1” as preferred protocol?</source>
         <translation>पसंदीदा प्रोटोकॉल के रूप में &quot;%1&quot; सेट करें?</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2143"/>
+        <location filename="../mainwindow.cpp" line="2135"/>
         <source>Windscribe will always use this protocol to connect on this network in the future to avoid any interruptions.</source>
         <translation>विंडस्क्राइब हमेशा किसी भी रुकावट से बचने के लिए भविष्य में इस नेटवर्क पर कनेक्ट करने के लिए इस प्रोटोकॉल का उपयोग करेगा।</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2144"/>
+        <location filename="../mainwindow.cpp" line="2136"/>
         <source>Set as Preferred</source>
         <translation>पसंदीदा के रूप में सेट करें</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2165"/>
+        <location filename="../mainwindow.cpp" line="2157"/>
         <source>Service Error</source>
         <translation>सेवा त्रुटि</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2184"/>
+        <location filename="../mainwindow.cpp" line="2176"/>
         <source>Windscribe has detected that %1 is using a high amount of CPU due to a potential conflict with the VPN connection. Do you want to disable the Windscribe TCP socket termination feature that may be causing this issue?</source>
         <translation>विंडस्क्राइब ने पता लगाया है कि वीपीएन कनेक्शन के साथ संभावित संघर्ष के कारण %1 उच्च मात्रा में सीपीयू का उपयोग कर रहा है. क्या आप विंडस्क्राइब TCP सॉकेट समाप्ति सुविधा को अक्षम करना चाहते हैं जो इस समस्या का कारण हो सकता है?</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2188"/>
+        <location filename="../mainwindow.cpp" line="2180"/>
         <source>High CPU Usage</source>
         <translation>उच्च सीपीयू उपयोग</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2210"/>
-        <location filename="../mainwindow.cpp" line="2213"/>
+        <location filename="../mainwindow.cpp" line="2202"/>
+        <location filename="../mainwindow.cpp" line="2205"/>
         <source>MAC Spoofing Failed</source>
         <translation>मैक स्पूफिंग विफल</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2211"/>
+        <location filename="../mainwindow.cpp" line="2203"/>
         <source>Your network adapter does not support MAC spoofing. Try a different adapter.</source>
         <translation>आपका नेटवर्क एडाप्टर MAC स्पूफिंग का समर्थन नहीं करता. किसी भिन्न एडाप्टर का प्रयास करें.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2216"/>
         <source>Logs too large to send</source>
-        <translation>भेजने के लिए लॉग बहुत बड़े</translation>
+        <translation type="vanished">भेजने के लिए लॉग बहुत बड़े</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2217"/>
         <source>Could not send logs to Windscribe, they are too big. Either re-send after replicating the issue or manually compressing and sending to support.</source>
-        <translation>विंडस्क्राइब को लॉग नहीं भेज सका, वे बहुत बड़े हैं। या तो समस्या को दोहराने के बाद फिर से भेजें या मैन्युअल रूप से संपीड़ित करें और समर्थन में भेजें।</translation>
+        <translation type="vanished">विंडस्क्राइब को लॉग नहीं भेज सका, वे बहुत बड़े हैं। या तो समस्या को दोहराने के बाद फिर से भेजें या मैन्युअल रूप से संपीड़ित करें और समर्थन में भेजें।</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2219"/>
         <source>Logs too large to view</source>
-        <translation>लॉग देखने के लिए बहुत बड़े</translation>
+        <translation type="vanished">लॉग देखने के लिए बहुत बड़े</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2220"/>
         <source>Could not view the logs because they are too big. You may want to try viewing manually.</source>
-        <translation>लॉग ्स नहीं देख सका क्योंकि वे बहुत बड़े हैं. आप मैन्युअल रूप से देखने का प्रयास करना चाह सकते हैं।</translation>
+        <translation type="vanished">लॉग ्स नहीं देख सका क्योंकि वे बहुत बड़े हैं. आप मैन्युअल रूप से देखने का प्रयास करना चाह सकते हैं।</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2257"/>
+        <location filename="../mainwindow.cpp" line="2243"/>
         <source>Detection Error</source>
         <translation>डिटेक्शन त्रुटि</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2258"/>
+        <location filename="../mainwindow.cpp" line="2244"/>
         <source>Cannot detect appropriate packet size due to an error. Please try again.</source>
         <translation>किसी त्रुटि के कारण उपयुक्त पैकेट आकार का पता नहीं लगा सकता. कृपया पुन: प्रयास करें.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2310"/>
+        <location filename="../mainwindow.cpp" line="2296"/>
         <source>This network hates us</source>
         <translation>यह नेटवर्क हमसे नफरत करता है</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2311"/>
+        <location filename="../mainwindow.cpp" line="2297"/>
         <source>We couldn’t connect you on this network. Send us your debug log so we can figure out what happened.</source>
         <translation>हम आपको इस नेटवर्क पर कनेक्ट नहीं कर सके. हमें अपना डीबग लॉग भेजें ताकि हम पता लगा सकें कि क्या हुआ था।</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2114"/>
-        <location filename="../mainwindow.cpp" line="2312"/>
+        <location filename="../mainwindow.cpp" line="2106"/>
+        <location filename="../mainwindow.cpp" line="2298"/>
         <source>Send Debug Log</source>
         <translation>डीबग लॉग भेजें</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2319"/>
+        <location filename="../mainwindow.cpp" line="2305"/>
         <source>Debug Sent!</source>
         <translation>डीबग भेजा गया!</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2320"/>
+        <location filename="../mainwindow.cpp" line="2306"/>
         <source>Your debug log has been received. Please contact support if you want assistance with this issue.</source>
         <translation>आपका डीबग लॉग प्राप्त हो गया है. यदि आप इस समस्या के साथ सहायता चाहते हैं तो कृपया समर्थन से संपर्क करें।</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2321"/>
+        <location filename="../mainwindow.cpp" line="2307"/>
         <source>Contact Support</source>
         <translation>संपर्क समर्थन</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2363"/>
+        <location filename="../mainwindow.cpp" line="2349"/>
         <source>Auto-Update Failed</source>
         <translation>स्वत: अद्यतन विफल रहा</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2364"/>
+        <location filename="../mainwindow.cpp" line="2350"/>
         <source>Please contact support</source>
         <translation>कृपया समर्थन से संपर्क करें</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2437"/>
+        <location filename="../mainwindow.cpp" line="2423"/>
         <source>Lost connection to the backend process.
 Recovering...</source>
         <translation>बैकएंड प्रक्रिया से कनेक्शन खो गया.
 ठीक।।।</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3044"/>
+        <location filename="../mainwindow.cpp" line="3030"/>
         <source>Select an application</source>
         <translation>किसी अनुप्रयोग का चयन करें</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3075"/>
+        <location filename="../mainwindow.cpp" line="3061"/>
         <source>Connect</source>
         <translation>जोड़ना</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3079"/>
+        <location filename="../mainwindow.cpp" line="3065"/>
         <source>Disconnect</source>
         <translation>अलग करना</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3088"/>
-        <location filename="../mainwindow.cpp" line="3117"/>
+        <location filename="../mainwindow.cpp" line="3074"/>
+        <location filename="../mainwindow.cpp" line="3103"/>
         <source>Locations</source>
         <translation>स्थान</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3095"/>
-        <location filename="../mainwindow.cpp" line="3124"/>
+        <location filename="../mainwindow.cpp" line="3081"/>
+        <location filename="../mainwindow.cpp" line="3110"/>
         <source>Favourites</source>
         <translation>पसंदीदा</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3102"/>
-        <location filename="../mainwindow.cpp" line="3131"/>
+        <location filename="../mainwindow.cpp" line="3088"/>
+        <location filename="../mainwindow.cpp" line="3117"/>
         <source>Static IPs</source>
         <translation>स्थैतिक आईपी</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3109"/>
-        <location filename="../mainwindow.cpp" line="3138"/>
+        <location filename="../mainwindow.cpp" line="3095"/>
+        <location filename="../mainwindow.cpp" line="3124"/>
         <source>Configured</source>
         <translation>कॉन्फ़िगर</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3149"/>
+        <location filename="../mainwindow.cpp" line="3135"/>
         <source>Show/Hide</source>
         <translation>दिखाओ/छिपाओ</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3154"/>
+        <location filename="../mainwindow.cpp" line="3140"/>
         <source>Preferences</source>
         <translation>प्राथमिकताएँ</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3157"/>
+        <location filename="../mainwindow.cpp" line="3143"/>
         <source>Help</source>
         <translation>मदद</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3158"/>
+        <location filename="../mainwindow.cpp" line="3144"/>
         <source>Exit</source>
         <translation>निकासी</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3403"/>
+        <location filename="../mainwindow.cpp" line="3389"/>
         <source>Your hosts file is read-only. IKEv2 connectivity requires for it to be writable. Fix the issue automatically?</source>
         <translation>आपकी होस्ट्स फ़ाइल केवल पढ़ने के लिए है. IKEv2 कनेक्टिविटी को लिखने योग्य होने की आवश्यकता है। समस्या को स्वचालित रूप से ठीक करें?</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3440"/>
+        <location filename="../mainwindow.cpp" line="3426"/>
         <source>WireGuard adapter setup failed. Please wait one minute and try the connection again. If adapter setup fails again, please try restarting your computer.
 
 If the problem persists after a restart, please send a debug log and open a support ticket, then switch to a different connection mode.</source>
@@ -935,27 +931,27 @@ If the problem persists after a restart, please send a debug log and open a supp
 यदि पुनरारंभ के बाद भी समस्या बनी रहती है, तो कृपया एक डीबग लॉग भेजें और एक समर्थन टिकट खोलें, फिर किसी अन्य कनेक्शन मोड पर स्विच करें।</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3447"/>
+        <location filename="../mainwindow.cpp" line="3433"/>
         <source>Connection Error</source>
         <translation>कनेक्शन त्रुटि</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3603"/>
+        <location filename="../mainwindow.cpp" line="3589"/>
         <source>Reached Key Limit</source>
         <translation>कुंजी सीमा तक पहुँच गया</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3604"/>
+        <location filename="../mainwindow.cpp" line="3590"/>
         <source>You have reached your limit of WireGuard public keys. Do you want to delete your oldest key?</source>
         <translation>आप वायरगार्ड सार्वजनिक कुंजी की अपनी सीमा तक पहुंच गए हैं। क्या आप अपनी सबसे पुरानी कुंजी हटाना चाहते हैं?</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3658"/>
+        <location filename="../mainwindow.cpp" line="3644"/>
         <source>Error Starting Service</source>
         <translation>प्रारंभ सेवा में त्रुटि</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3659"/>
+        <location filename="../mainwindow.cpp" line="3645"/>
         <source>The split tunneling feature could not be started, and has been disabled in Preferences.</source>
         <translation>स्प्लिट टनलिंग सुविधा प्रारंभ नहीं की जा सकी, और प्राथमिकताओं में अक्षम कर दी गई है.</translation>
     </message>

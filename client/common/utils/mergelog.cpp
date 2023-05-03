@@ -10,13 +10,6 @@
 
 namespace
 {
-// On Linux and Mac: big files take a while to load but can be loaded. Tested with 2GB (on linux) and 10GB file on OSX
-// On Windows only:
-// Application seems to crash reliably (in debug mode) at 630MB
-// Selecting a slightly lower max combined file size to prevent app from crashing
-// Even at 500MB, application is very slow to load (5-10s) and UI background glitches are obivous
-const quint64 MAX_COMBINED_LOG_SIZE = 500000000; // 500MB
-
 bool isYearInDatePresent(const std::string &dateline)
 {
     const int scan = qMin(6, (int)dateline.size());
@@ -75,35 +68,6 @@ QString MergeLog::mergePrevLogs(bool doMergePerLine)
                  wgPrevServiceLogFilename, doMergePerLine);
 }
 
-bool MergeLog::canMerge()
-{
-    quint64 mergedFileSize = 0;
-
-    // gui
-    QFileInfo guiLogInfo(guiLogLocation());
-    mergedFileSize += guiLogInfo.size();
-
-    // prev gui
-    QFileInfo prevGuiLogInfo(prevGuiLogLocation());
-    mergedFileSize += prevGuiLogInfo.size();
-
-    // service (twice)
-    QFileInfo serviceLogInfo(serviceLogLocation());
-    mergedFileSize += serviceLogInfo.size() * 2; // why are we merging twice though, is this a bug?
-
-    // prev service (twice)
-    QFileInfo prevServiceLogInfo(prevServiceLogLocation());
-    mergedFileSize += prevServiceLogInfo.size() * 2; // why are we merging twice though, is this a bug?
-
-    QFileInfo wgServiceLog(wireguardServiceLogLocation());
-    mergedFileSize += wgServiceLog.size();
-
-    QFileInfo prevWGServiceLog(prevWireguardServiceLogLocation());
-    mergedFileSize += prevWGServiceLog.size();
-
-    return mergedFileSize < MAX_COMBINED_LOG_SIZE;
-}
-
 int MergeLog::mergeTask(QMutex *mutex, QMultiMap<quint64, QPair<LineSource, QString>> *lines, const QString *filename, LineSource source, bool useMinMax, QDateTime min, QDateTime max)
 {
     int datasize = 0;
@@ -117,6 +81,12 @@ int MergeLog::mergeTask(QMutex *mutex, QMultiMap<quint64, QPair<LineSource, QStr
 
     int timestamp = 0;
     QTextStream textStream(&file);
+    // If file is larger than 10MiB, just take the last 10MiB
+    int64_t filelen = file.size();
+    if (filelen > 10000000) {
+        file.seek(filelen - 10000000);
+    }
+
     while (!textStream.atEnd())
     {
         QString line = textStream.readLine();

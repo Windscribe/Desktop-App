@@ -548,375 +548,371 @@
     <name>MainWindow</name>
     <message>
         <location filename="../mainwindow.cpp" line="802"/>
-        <location filename="../mainwindow.cpp" line="1412"/>
+        <location filename="../mainwindow.cpp" line="1404"/>
         <source>Logging you in...</source>
         <translation>正在登录...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1074"/>
-        <location filename="../mainwindow.cpp" line="1094"/>
+        <location filename="../mainwindow.cpp" line="1066"/>
+        <location filename="../mainwindow.cpp" line="1086"/>
         <source>VPN is active</source>
         <translation>VPN 处于活动状态</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1075"/>
+        <location filename="../mainwindow.cpp" line="1067"/>
         <source>Rotating your MAC address will result in a disconnect event from the current network. Are you sure?</source>
         <translation>旋转 MAC 地址将导致与当前网络断开连接的事件。是否确定？</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1095"/>
+        <location filename="../mainwindow.cpp" line="1087"/>
         <source>Cannot detect appropriate packet size while connected. Please disconnect first.</source>
         <translation>连接时无法检测到适当的数据包大小。请先断开连接。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1104"/>
+        <location filename="../mainwindow.cpp" line="1096"/>
         <source>No Internet</source>
         <translation>没有互联网</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1105"/>
+        <location filename="../mainwindow.cpp" line="1097"/>
         <source>Cannot detect appropriate packet size without internet. Check your connection.</source>
         <translation>在没有互联网的情况下无法检测到适当的数据包大小。检查您的连接。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1323"/>
+        <location filename="../mainwindow.cpp" line="1315"/>
         <source>Select Custom Config Folder</source>
         <translation>选择自定义配置文件夹</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1340"/>
+        <location filename="../mainwindow.cpp" line="1332"/>
         <source>Cannot select this directory because it is writeable for non-privileged users. Custom configs in this directory may pose a potential security risk. Please authenticate with an admin user to select this directory.</source>
         <translation>无法选择此目录，因为它对非特权用户是可写的。此目录中的自定义配置可能会带来潜在的安全风险。请使用管理员用户进行身份验证以选择此目录。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1344"/>
+        <location filename="../mainwindow.cpp" line="1336"/>
         <source>Can&apos;t select directory</source>
         <translation>无法选择目录</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1350"/>
-        <location filename="../mainwindow.cpp" line="3438"/>
+        <location filename="../mainwindow.cpp" line="1342"/>
+        <location filename="../mainwindow.cpp" line="3424"/>
         <source>The application is corrupted.  Please reinstall Windscribe.</source>
         <translation>应用程序已损坏。 请重新安装 Windscribe。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1351"/>
+        <location filename="../mainwindow.cpp" line="1343"/>
         <source>Validation Error</source>
         <translation>验证错误</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1357"/>
+        <location filename="../mainwindow.cpp" line="1349"/>
         <source>The selected directory is writeable for non-privileged users. Custom configs in this directory may pose a potential security risk.</source>
         <translation>所选目录对非特权用户是可写的。此目录中的自定义配置可能会带来潜在的安全风险。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1360"/>
+        <location filename="../mainwindow.cpp" line="1352"/>
         <source>Security Risk</source>
         <translation>安全风险</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1431"/>
+        <location filename="../mainwindow.cpp" line="1423"/>
         <source>Enable Service?</source>
         <translation>启用服务？</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1432"/>
+        <location filename="../mainwindow.cpp" line="1424"/>
         <source>Enable &quot;Base Filtering Engine&quot; service? This is required for Windscribe to function.</source>
         <translation>启用“基础过滤引擎”服务？这是Windscribe运行所必需的。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1440"/>
+        <location filename="../mainwindow.cpp" line="1432"/>
         <source>Failed to Enable Service</source>
         <translation>无法启用服务</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1441"/>
+        <location filename="../mainwindow.cpp" line="1433"/>
         <source>Could not start &apos;Base Filtering Engine&apos; service.  Please enable this service manually in Windows Services.</source>
         <translation>无法启动“基本筛选引擎”服务。 请在 Windows 服务中手动启用此服务。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1448"/>
+        <location filename="../mainwindow.cpp" line="1440"/>
         <source>Failed to Start</source>
         <translation>无法启动</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1449"/>
+        <location filename="../mainwindow.cpp" line="1441"/>
         <source>Windscribe helper initialize error. Please reinstall the application or contact support.</source>
         <translation>风抄写员帮助程序初始化错误。请重新安装应用程序或联系支持人员。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1514"/>
+        <location filename="../mainwindow.cpp" line="1506"/>
         <source>Trying Backup Endpoints %1/%2</source>
         <translation>正在尝试备份终结点 %1/%2</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1610"/>
+        <location filename="../mainwindow.cpp" line="1602"/>
         <source>SSL Error</source>
         <translation>SSL 错误</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1611"/>
+        <location filename="../mainwindow.cpp" line="1603"/>
         <source>We detected that SSL requests may be intercepted on your network. This could be due to a firewall configured on your computer, or Windscribe being blocked by your network administrator. Ignore SSL errors?</source>
         <translation>我们检测到您的网络上可能会拦截 SSL 请求。这可能是由于计算机上配置了防火墙，或者网络管理员阻止了 Windscribe。忽略 SSL 错误？</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1797"/>
-        <location filename="../mainwindow.cpp" line="3315"/>
+        <location filename="../mainwindow.cpp" line="1789"/>
+        <location filename="../mainwindow.cpp" line="3301"/>
         <source>Disconnected</source>
         <translation>断开</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1803"/>
+        <location filename="../mainwindow.cpp" line="1795"/>
         <source>Connected to </source>
         <translation>已连接到</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1848"/>
+        <location filename="../mainwindow.cpp" line="1840"/>
         <source>You are now connected to Windscribe (%1).</source>
         <translation>您现在已连接到 Windscribe （%1）。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1880"/>
+        <location filename="../mainwindow.cpp" line="1872"/>
         <source>Connection to Windscribe has been terminated.
 %1 transferred in %2</source>
         <translation>与Windscribe的连接已终止。
 %1 在 %2 中转移</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2112"/>
+        <location filename="../mainwindow.cpp" line="2104"/>
         <source>Network Settings Interference</source>
         <translation>网络设置干扰</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2113"/>
+        <location filename="../mainwindow.cpp" line="2105"/>
         <source>We&apos;ve detected that your network settings may interfere with Windscribe.  Please send us a debug log to troubleshoot.</source>
         <translation>我们检测到您的网络设置可能会干扰 Windscribe。 请向我们发送调试日志以进行故障排除。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2114"/>
-        <location filename="../mainwindow.cpp" line="2312"/>
+        <location filename="../mainwindow.cpp" line="2106"/>
+        <location filename="../mainwindow.cpp" line="2298"/>
         <source>Send Debug Log</source>
         <translation>发送调试日志</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2140"/>
+        <location filename="../mainwindow.cpp" line="2132"/>
         <source>Set “%1” as preferred protocol?</source>
         <translation>将“%1”设置为首选协议？</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2143"/>
+        <location filename="../mainwindow.cpp" line="2135"/>
         <source>Windscribe will always use this protocol to connect on this network in the future to avoid any interruptions.</source>
         <translation>Windscribe将来将始终使用此协议在此网络上进行连接，以避免任何中断。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2144"/>
+        <location filename="../mainwindow.cpp" line="2136"/>
         <source>Set as Preferred</source>
         <translation>设置为首选</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2165"/>
+        <location filename="../mainwindow.cpp" line="2157"/>
         <source>Service Error</source>
         <translation>服务错误</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2166"/>
+        <location filename="../mainwindow.cpp" line="2158"/>
         <source>Windscribe is malfunctioning.  Please restart the application.</source>
         <translation>风抄写员出现故障。 请重新启动应用程序。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2184"/>
+        <location filename="../mainwindow.cpp" line="2176"/>
         <source>Windscribe has detected that %1 is using a high amount of CPU due to a potential conflict with the VPN connection. Do you want to disable the Windscribe TCP socket termination feature that may be causing this issue?</source>
         <translation>Windscribe 检测到 %1 由于与 VPN 连接的潜在冲突而使用大量 CPU。是否要禁用可能导致此问题的 Windscribe TCP 套接字终止功能？</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2188"/>
+        <location filename="../mainwindow.cpp" line="2180"/>
         <source>High CPU Usage</source>
         <translation>高 CPU 使用率</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2210"/>
-        <location filename="../mainwindow.cpp" line="2213"/>
+        <location filename="../mainwindow.cpp" line="2202"/>
+        <location filename="../mainwindow.cpp" line="2205"/>
         <source>MAC Spoofing Failed</source>
         <translation>MAC 欺骗失败</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2211"/>
+        <location filename="../mainwindow.cpp" line="2203"/>
         <source>Your network adapter does not support MAC spoofing. Try a different adapter.</source>
         <translation>您的网络适配器不支持 MAC 欺骗。尝试使用其他适配器。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2214"/>
+        <location filename="../mainwindow.cpp" line="2206"/>
         <source>Could not spoof MAC address.  Please try a different network interface or contact support.</source>
         <translation>无法欺骗 MAC 地址。 请尝试其他网络接口或联系支持人员。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2216"/>
         <source>Logs too large to send</source>
-        <translation>日志太大而无法发送</translation>
+        <translation type="vanished">日志太大而无法发送</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2217"/>
         <source>Could not send logs to Windscribe, they are too big. Either re-send after replicating the issue or manually compressing and sending to support.</source>
-        <translation>无法将日志发送给Windscribe，它们太大了。复制问题后重新发送，或手动压缩并发送给支持人员。</translation>
+        <translation type="vanished">无法将日志发送给Windscribe，它们太大了。复制问题后重新发送，或手动压缩并发送给支持人员。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2219"/>
         <source>Logs too large to view</source>
-        <translation>日志太大，无法查看</translation>
+        <translation type="vanished">日志太大，无法查看</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2220"/>
         <source>Could not view the logs because they are too big. You may want to try viewing manually.</source>
-        <translation>无法查看日志，因为它们太大。您可能需要尝试手动查看。</translation>
+        <translation type="vanished">无法查看日志，因为它们太大。您可能需要尝试手动查看。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2257"/>
+        <location filename="../mainwindow.cpp" line="2243"/>
         <source>Detection Error</source>
         <translation>检测错误</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2258"/>
+        <location filename="../mainwindow.cpp" line="2244"/>
         <source>Cannot detect appropriate packet size due to an error. Please try again.</source>
         <translation>由于错误，无法检测适当的数据包大小。请重试。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2310"/>
+        <location filename="../mainwindow.cpp" line="2296"/>
         <source>This network hates us</source>
         <translation>这个网络讨厌我们</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2311"/>
+        <location filename="../mainwindow.cpp" line="2297"/>
         <source>We couldn’t connect you on this network. Send us your debug log so we can figure out what happened.</source>
         <translation>我们无法在此网络上连接您。将您的调试日志发送给我们，以便我们弄清楚发生了什么。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2319"/>
+        <location filename="../mainwindow.cpp" line="2305"/>
         <source>Debug Sent!</source>
         <translation>调试已发送！</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2320"/>
+        <location filename="../mainwindow.cpp" line="2306"/>
         <source>Your debug log has been received. Please contact support if you want assistance with this issue.</source>
         <translation>已收到调试日志。如果您需要有关此问题的帮助，请联系支持人员。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2321"/>
+        <location filename="../mainwindow.cpp" line="2307"/>
         <source>Contact Support</source>
         <translation>联系支持人员</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2363"/>
+        <location filename="../mainwindow.cpp" line="2349"/>
         <source>Auto-Update Failed</source>
         <translation>自动更新失败</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2364"/>
+        <location filename="../mainwindow.cpp" line="2350"/>
         <source>Please contact support</source>
         <translation>请联系支持人员</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2366"/>
+        <location filename="../mainwindow.cpp" line="2352"/>
         <source>Could not download update.  Please try again or use a different network.</source>
         <translation>无法下载更新。 请重试或使用其他网络。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2368"/>
+        <location filename="../mainwindow.cpp" line="2354"/>
         <source>Could not run updater (Error %1).  Please contact support</source>
         <translation>无法运行更新程序（错误 %1）。 请联系支持人员</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2437"/>
+        <location filename="../mainwindow.cpp" line="2423"/>
         <source>Lost connection to the backend process.
 Recovering...</source>
         <translation>与后端进程的连接丢失。
 恢复。。。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3044"/>
+        <location filename="../mainwindow.cpp" line="3030"/>
         <source>Select an application</source>
         <translation>选择一个应用程序</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3075"/>
+        <location filename="../mainwindow.cpp" line="3061"/>
         <source>Connect</source>
         <translation>连接</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3079"/>
+        <location filename="../mainwindow.cpp" line="3065"/>
         <source>Disconnect</source>
         <translation>断开</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3088"/>
-        <location filename="../mainwindow.cpp" line="3117"/>
+        <location filename="../mainwindow.cpp" line="3074"/>
+        <location filename="../mainwindow.cpp" line="3103"/>
         <source>Locations</source>
         <translation>地点</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3095"/>
-        <location filename="../mainwindow.cpp" line="3124"/>
+        <location filename="../mainwindow.cpp" line="3081"/>
+        <location filename="../mainwindow.cpp" line="3110"/>
         <source>Favourites</source>
         <translation>收藏夹</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3102"/>
-        <location filename="../mainwindow.cpp" line="3131"/>
+        <location filename="../mainwindow.cpp" line="3088"/>
+        <location filename="../mainwindow.cpp" line="3117"/>
         <source>Static IPs</source>
         <translation>静态 IP</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3109"/>
-        <location filename="../mainwindow.cpp" line="3138"/>
+        <location filename="../mainwindow.cpp" line="3095"/>
+        <location filename="../mainwindow.cpp" line="3124"/>
         <source>Configured</source>
         <translation>配置</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3149"/>
+        <location filename="../mainwindow.cpp" line="3135"/>
         <source>Show/Hide</source>
         <translation>显示/隐藏</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3154"/>
+        <location filename="../mainwindow.cpp" line="3140"/>
         <source>Preferences</source>
         <translation>偏好</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3157"/>
+        <location filename="../mainwindow.cpp" line="3143"/>
         <source>Help</source>
         <translation>帮助</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3158"/>
+        <location filename="../mainwindow.cpp" line="3144"/>
         <source>Exit</source>
         <translation>退出</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3402"/>
+        <location filename="../mainwindow.cpp" line="3388"/>
         <source>Read-only file</source>
         <translation>只读文件</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3403"/>
+        <location filename="../mainwindow.cpp" line="3389"/>
         <source>Your hosts file is read-only. IKEv2 connectivity requires for it to be writable. Fix the issue automatically?</source>
         <translation>主机文件是只读的。IKEv2 连接要求它是可写的。自动修复问题？</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3428"/>
+        <location filename="../mainwindow.cpp" line="3414"/>
         <source>The custom configuration could not be loaded.  Please check that it’s correct or contact support.</source>
         <translation>无法加载自定义配置。 请检查是否正确或联系支持人员。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3430"/>
+        <location filename="../mainwindow.cpp" line="3416"/>
         <source>There is a problem with the Wintun device driver, and it could not be reinstalled automatically.  Please reinstall Windscribe.</source>
         <translation>Wintun 设备驱动程序有问题，无法自动重新安装。 请重新安装 Windscribe。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3432"/>
+        <location filename="../mainwindow.cpp" line="3418"/>
         <source>There is a problem with the TAP device driver, and it could not be reinstalled automatically.  Please reinstall Windscribe.</source>
         <translation>TAP 设备驱动程序有问题，无法自动重新安装。 请重新安装 Windscribe。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3440"/>
+        <location filename="../mainwindow.cpp" line="3426"/>
         <source>WireGuard adapter setup failed. Please wait one minute and try the connection again. If adapter setup fails again, please try restarting your computer.
 
 If the problem persists after a restart, please send a debug log and open a support ticket, then switch to a different connection mode.</source>
@@ -925,37 +921,37 @@ If the problem persists after a restart, please send a debug log and open a supp
 如果重新启动后问题仍然存在，请发送调试日志并打开支持票证，然后切换到其他连接模式。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3444"/>
+        <location filename="../mainwindow.cpp" line="3430"/>
         <source>An unexpected error occurred establishing the VPN connection (Error %1).  If this error persists, try using a different protocol or contact support.</source>
         <translation>建立 VPN 连接时发生意外错误（错误 %1）。 如果此错误仍然存在，请尝试使用其他协议或联系支持人员。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3447"/>
+        <location filename="../mainwindow.cpp" line="3433"/>
         <source>Connection Error</source>
         <translation>连接错误</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3603"/>
+        <location filename="../mainwindow.cpp" line="3589"/>
         <source>Reached Key Limit</source>
         <translation>已达到密钥限制</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3604"/>
+        <location filename="../mainwindow.cpp" line="3590"/>
         <source>You have reached your limit of WireGuard public keys. Do you want to delete your oldest key?</source>
         <translation>您已达到 WireGuard 公钥的限制。是否要删除最旧的密钥？</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3658"/>
+        <location filename="../mainwindow.cpp" line="3644"/>
         <source>Error Starting Service</source>
         <translation>启动服务时出错</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3659"/>
+        <location filename="../mainwindow.cpp" line="3645"/>
         <source>The split tunneling feature could not be started, and has been disabled in Preferences.</source>
         <translation>拆分隧道功能无法启动，并且已在首选项中禁用。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3666"/>
+        <location filename="../mainwindow.cpp" line="3652"/>
         <source>Windscribe</source>
         <translation>风抄写员</translation>
     </message>
