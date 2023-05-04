@@ -26,6 +26,8 @@
     #include <signal.h>
 #endif
 
+#include <QThread>
+
 void applyScalingFactor(qreal ldpi, MainWindow &mw);
 
 #if defined (Q_OS_MAC) || defined (Q_OS_LINUX)
@@ -211,7 +213,11 @@ int main(int argc, char *argv[])
 
     appSingleInstGuard.release();
 
+#if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
+    QThread::msleep(200000000);
+#else
     Sleep(INFINITE);
+#endif
 
     return ret;
 }
