@@ -15,71 +15,6 @@ ExecutableSignaturePrivate::~ExecutableSignaturePrivate()
 {
 }
 
-bool ExecutableSignaturePrivate::verify(const std::string &exePath)
-{
-    // Check code signature.
-    SecStaticCodeRef staticCode = NULL;
-    NSString* path = [NSString stringWithCString:exePath.c_str()
-                               encoding:[NSString defaultCStringEncoding]];
-
-    OSStatus status = SecStaticCodeCreateWithPath((__bridge CFURLRef)([NSURL fileURLWithPath:path]), kSecCSDefaultFlags, &staticCode);
-
-    if (status != errSecSuccess) {
-        lastError_ << "SecStaticCodeCreateWithPath failed: " << status;
-        return false;
-    }
-
-    // TODO: check signature (for some reason it doesn't work after extract app bundle with installer, so commented)
-    /*
-    SecCSFlags flags = kSecCSDefaultFlags;
-    status = SecStaticCodeCheckValidity(staticCode, flags, NULL);
-    if (status != errSecSuccess)
-    {
-        return false;
-    }
-    */
-
-    CFDictionaryRef signingDetails = NULL;
-    status = SecCodeCopySigningInformation(staticCode, kSecCSSigningInformation, &signingDetails);
-    CFRelease(staticCode);
-    if (status != errSecSuccess) {
-        lastError_ << "SecCodeCopySigningInformation failed: " << status;
-        return false;
-    }
-
-    NSArray *certificateChain = [((__bridge NSDictionary*)signingDetails)
-                                 objectForKey: (__bridge NSString*)kSecCodeInfoCertificates];
-    if (certificateChain.count == 0) {
-        lastError_ << "certificate chain is empty";
-        CFRelease(signingDetails);
-        return false;
-    }
-
-    bool certNameMatches = false;
-
-    CFStringRef commonName = NULL;
-    for (NSUInteger index = 0; index < certificateChain.count; index++) {
-        SecCertificateRef certificate = (__bridge SecCertificateRef)([certificateChain objectAtIndex:index]);
-        if ((errSecSuccess == SecCertificateCopyCommonName(certificate, &commonName))) {
-            if (NULL != commonName) {
-                if (CFEqual((CFTypeRef)commonName, (CFTypeRef)@MACOS_CERT_DEVELOPER_ID)) {
-                    certNameMatches = true;
-                    CFRelease(commonName);
-                    break;
-                }
-                CFRelease(commonName);
-            }
-        }
-    }
-
-    if (!certNameMatches) {
-        lastError_ << "No certificate common name matches for " << MACOS_CERT_DEVELOPER_ID;
-    }
-
-    CFRelease(signingDetails);
-    return certNameMatches;
-}
-
 bool ExecutableSignaturePrivate::verify(const std::wstring& exePath)
 {
     std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
@@ -87,15 +22,11 @@ bool ExecutableSignaturePrivate::verify(const std::wstring& exePath)
     return verify(converted);
 }
 
-// TODO: convert all uses of this to verify(...) once signature checking has been fixed for gui/engine check
-bool ExecutableSignaturePrivate::verifyWithSignCheck(const std::wstring &exePath)
+bool ExecutableSignaturePrivate::verify(const std::string &exePath)
 {
     SecStaticCodeRef staticCode = NULL;
 
-    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-    std::string converted = converter.to_bytes(exePath);
-
-    NSString* path = [NSString stringWithCString:converted.c_str()
+    NSString* path = [NSString stringWithCString:exePath.c_str()
                                encoding:[NSString defaultCStringEncoding]];
 
     OSStatus status = SecStaticCodeCreateWithPath((__bridge CFURLRef)([NSURL fileURLWithPath:path]), kSecCSDefaultFlags, &staticCode);

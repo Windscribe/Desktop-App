@@ -82,7 +82,7 @@ bool AutoUpdaterHelper_mac::verifyAndRun(const QString &tempInstallerFilename,
     // verify installer
     qCDebug(LOG_AUTO_UPDATER) << "Verifying signature and certificate of installer: " << tempInstallerFilename;
     ExecutableSignature sigCheck;
-    if (!sigCheck.verifyWithSignCheck(tempInstallerFilename.toStdWString()))
+    if (!sigCheck.verify(tempInstallerFilename.toStdWString()))
     {
         qDebug(LOG_AUTO_UPDATER) << "Failed to verify signature and certificate of downloaded installer: " << QString::fromStdString(sigCheck.lastError());
         Utils::removeDirectory(tempInstallerFilename);

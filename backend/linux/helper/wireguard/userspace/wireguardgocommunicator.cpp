@@ -156,7 +156,7 @@ bool WireGuardGoCommunicator::start(
 
     const std::string fullPath = exePath + "/" + executable;
     ExecutableSignature sigCheck;
-    if (!sigCheck.verifyWithSignCheck(std::wstring_convert<std::codecvt_utf8<wchar_t>>().from_bytes(fullPath))) {
+    if (!sigCheck.verify(std::wstring_convert<std::codecvt_utf8<wchar_t>>().from_bytes(fullPath))) {
         Logger::instance().out("WireGuard executable signature incorrect: %s", sigCheck.lastError().c_str());
         return false;
     }

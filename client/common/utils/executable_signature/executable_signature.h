@@ -52,9 +52,6 @@ public:
     // For use with non-Unicode file systems (Linux/FAT/etc).
     bool verify(const std::string &exePath);
 
-    // TODO: See ticket #614
-    bool verifyWithSignCheck(const std::wstring &exePath);
-
     std::string lastError() const;
 
 private:

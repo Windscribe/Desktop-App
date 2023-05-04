@@ -36,7 +36,7 @@ WstunnelManager::~WstunnelManager()
 bool WstunnelManager::runProcess(const QString &hostname, unsigned int port, bool isUdp)
 {
     ExecutableSignature sigCheck;
-    if (!sigCheck.verifyWithSignCheck(wstunelExePath_.toStdWString()))
+    if (!sigCheck.verify(wstunelExePath_.toStdWString()))
     {
         qCDebug(LOG_BASIC) << "Failed to verify wstunnel signature: " << QString::fromStdString(sigCheck.lastError());
         return false;
