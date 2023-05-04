@@ -85,7 +85,6 @@ void GeneralMessageController::showNext()
     } else {
         window->setShowBottomPanel(false);
     }
-    controller_->collapsePreferences();
     controller_->changeWindow(MainWindowController::WINDOW_ID_GENERAL_MESSAGE);
 }
 
