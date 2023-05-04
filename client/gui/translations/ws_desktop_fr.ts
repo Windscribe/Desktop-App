@@ -548,385 +548,381 @@
     <name>MainWindow</name>
     <message>
         <location filename="../mainwindow.cpp" line="802"/>
-        <location filename="../mainwindow.cpp" line="1412"/>
+        <location filename="../mainwindow.cpp" line="1404"/>
         <source>Logging you in...</source>
         <translation>En vous connectant...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1074"/>
-        <location filename="../mainwindow.cpp" line="1094"/>
+        <location filename="../mainwindow.cpp" line="1066"/>
+        <location filename="../mainwindow.cpp" line="1086"/>
         <source>VPN is active</source>
         <translation>Le VPN est actif</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1075"/>
+        <location filename="../mainwindow.cpp" line="1067"/>
         <source>Rotating your MAC address will result in a disconnect event from the current network. Are you sure?</source>
         <translation>La rotation de votre adresse MAC entraînera un événement de déconnexion du réseau actuel. Es-tu sûr?</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1095"/>
+        <location filename="../mainwindow.cpp" line="1087"/>
         <source>Cannot detect appropriate packet size while connected. Please disconnect first.</source>
         <translation>Impossible de détecter la taille de paquet appropriée lors de la connexion. Veuillez d’abord vous déconnecter.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1104"/>
+        <location filename="../mainwindow.cpp" line="1096"/>
         <source>No Internet</source>
         <translation>Pas d’Internet</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1105"/>
+        <location filename="../mainwindow.cpp" line="1097"/>
         <source>Cannot detect appropriate packet size without internet. Check your connection.</source>
         <translation>Impossible de détecter la taille de paquet appropriée sans Internet. Vérifiez votre connexion.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1323"/>
+        <location filename="../mainwindow.cpp" line="1315"/>
         <source>Select Custom Config Folder</source>
         <translation>Sélectionnez le dossier de configuration personnalisé</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1340"/>
+        <location filename="../mainwindow.cpp" line="1332"/>
         <source>Cannot select this directory because it is writeable for non-privileged users. Custom configs in this directory may pose a potential security risk. Please authenticate with an admin user to select this directory.</source>
         <translation>Impossible de sélectionner ce répertoire car il est accessible en écriture pour les utilisateurs non privilégiés. Les configurations personnalisées dans ce répertoire peuvent présenter un risque potentiel de sécurité. Authentifiez-vous auprès d’un utilisateur administrateur pour sélectionner ce répertoire.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1350"/>
-        <location filename="../mainwindow.cpp" line="3438"/>
+        <location filename="../mainwindow.cpp" line="1342"/>
+        <location filename="../mainwindow.cpp" line="3424"/>
         <source>The application is corrupted.  Please reinstall Windscribe.</source>
         <translation>L’application est endommagée.  Veuillez réinstaller Windscribe.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1441"/>
+        <location filename="../mainwindow.cpp" line="1433"/>
         <source>Could not start &apos;Base Filtering Engine&apos; service.  Please enable this service manually in Windows Services.</source>
         <translation>Impossible de démarrer le service « Moteur de filtrage de base ».  Veuillez activer ce service manuellement dans les services Windows.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1611"/>
+        <location filename="../mainwindow.cpp" line="1603"/>
         <source>We detected that SSL requests may be intercepted on your network. This could be due to a firewall configured on your computer, or Windscribe being blocked by your network administrator. Ignore SSL errors?</source>
         <translation>Nous avons détecté que les requêtes SSL peuvent être interceptées sur votre réseau. Cela peut être dû à un pare-feu configuré sur votre ordinateur ou au blocage de Windscribe par votre administrateur réseau. Ignorer les erreurs SSL ?</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2113"/>
+        <location filename="../mainwindow.cpp" line="2105"/>
         <source>We&apos;ve detected that your network settings may interfere with Windscribe.  Please send us a debug log to troubleshoot.</source>
         <translation>Nous avons détecté que vos paramètres réseau peuvent interférer avec Windscribe.  Veuillez nous envoyer un journal de débogage pour dépanner.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2166"/>
+        <location filename="../mainwindow.cpp" line="2158"/>
         <source>Windscribe is malfunctioning.  Please restart the application.</source>
         <translation>Windscribe fonctionne mal.  Veuillez redémarrer l’application.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2214"/>
+        <location filename="../mainwindow.cpp" line="2206"/>
         <source>Could not spoof MAC address.  Please try a different network interface or contact support.</source>
         <translation>Impossible d’usurper l’adresse MAC.  Veuillez essayer une autre interface réseau ou contacter le support.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2366"/>
+        <location filename="../mainwindow.cpp" line="2352"/>
         <source>Could not download update.  Please try again or use a different network.</source>
         <translation>Impossible de télécharger la mise à jour.  Veuillez réessayer ou utiliser un autre réseau.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2368"/>
+        <location filename="../mainwindow.cpp" line="2354"/>
         <source>Could not run updater (Error %1).  Please contact support</source>
         <translation>Impossible d’exécuter le programme de mise à jour (erreur %1).  Veuillez contacter le support</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3402"/>
+        <location filename="../mainwindow.cpp" line="3388"/>
         <source>Read-only file</source>
         <translation>Fichier en lecture seule</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3428"/>
+        <location filename="../mainwindow.cpp" line="3414"/>
         <source>The custom configuration could not be loaded.  Please check that it’s correct or contact support.</source>
         <translation>La configuration personnalisée n’a pas pu être chargée.  Veuillez vérifier qu’il est correct ou contacter le support.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3430"/>
+        <location filename="../mainwindow.cpp" line="3416"/>
         <source>There is a problem with the Wintun device driver, and it could not be reinstalled automatically.  Please reinstall Windscribe.</source>
         <translation>Il y a un problème avec le pilote de périphérique Wintun et il n’a pas pu être réinstallé automatiquement.  Veuillez réinstaller Windscribe.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3432"/>
+        <location filename="../mainwindow.cpp" line="3418"/>
         <source>There is a problem with the TAP device driver, and it could not be reinstalled automatically.  Please reinstall Windscribe.</source>
         <translation>Il y a un problème avec le pilote de périphérique TAP et il n’a pas pu être réinstallé automatiquement.  Veuillez réinstaller Windscribe.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3444"/>
+        <location filename="../mainwindow.cpp" line="3430"/>
         <source>An unexpected error occurred establishing the VPN connection (Error %1).  If this error persists, try using a different protocol or contact support.</source>
         <translation>Une erreur inattendue s’est produite lors de l’établissement de la connexion VPN (erreur %1).  Si cette erreur persiste, essayez d’utiliser un autre protocole ou contactez le support technique.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3666"/>
+        <location filename="../mainwindow.cpp" line="3652"/>
         <source>Windscribe</source>
         <translation>Windscribe</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1344"/>
+        <location filename="../mainwindow.cpp" line="1336"/>
         <source>Can&apos;t select directory</source>
         <translation>Impossible de sélectionner le répertoire</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1351"/>
+        <location filename="../mainwindow.cpp" line="1343"/>
         <source>Validation Error</source>
         <translation>Erreur de validation</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1357"/>
+        <location filename="../mainwindow.cpp" line="1349"/>
         <source>The selected directory is writeable for non-privileged users. Custom configs in this directory may pose a potential security risk.</source>
         <translation>Le répertoire sélectionné est accessible en écriture pour les utilisateurs non privilégiés. Les configurations personnalisées dans ce répertoire peuvent présenter un risque potentiel de sécurité.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1360"/>
+        <location filename="../mainwindow.cpp" line="1352"/>
         <source>Security Risk</source>
         <translation>Risque de sécurité</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1431"/>
+        <location filename="../mainwindow.cpp" line="1423"/>
         <source>Enable Service?</source>
         <translation>Activer le service ?</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1432"/>
+        <location filename="../mainwindow.cpp" line="1424"/>
         <source>Enable &quot;Base Filtering Engine&quot; service? This is required for Windscribe to function.</source>
         <translation>Activer le service «&#xa0;Moteur de filtrage de base&#xa0;» ? Ceci est nécessaire pour que Windscribe fonctionne.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1440"/>
+        <location filename="../mainwindow.cpp" line="1432"/>
         <source>Failed to Enable Service</source>
         <translation>Echec de l’activation du service</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1448"/>
+        <location filename="../mainwindow.cpp" line="1440"/>
         <source>Failed to Start</source>
         <translation>Échec du démarrage</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1449"/>
+        <location filename="../mainwindow.cpp" line="1441"/>
         <source>Windscribe helper initialize error. Please reinstall the application or contact support.</source>
         <translation>Erreur d’initialisation de l’assistant Windscribe. Veuillez réinstaller l’application ou contacter le support.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1514"/>
+        <location filename="../mainwindow.cpp" line="1506"/>
         <source>Trying Backup Endpoints %1/%2</source>
         <translation>Essai de points de terminaison de sauvegarde %1/%2</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1610"/>
+        <location filename="../mainwindow.cpp" line="1602"/>
         <source>SSL Error</source>
         <translation>Erreur SSL</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1797"/>
-        <location filename="../mainwindow.cpp" line="3315"/>
+        <location filename="../mainwindow.cpp" line="1789"/>
+        <location filename="../mainwindow.cpp" line="3301"/>
         <source>Disconnected</source>
         <translation>Coupé</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1803"/>
+        <location filename="../mainwindow.cpp" line="1795"/>
         <source>Connected to </source>
         <translation>Connecté à </translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1848"/>
+        <location filename="../mainwindow.cpp" line="1840"/>
         <source>You are now connected to Windscribe (%1).</source>
         <translation>Vous êtes maintenant connecté à Windscribe (%1).</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1880"/>
+        <location filename="../mainwindow.cpp" line="1872"/>
         <source>Connection to Windscribe has been terminated.
 %1 transferred in %2</source>
         <translation>La connexion à Windscribe a été interrompue.
 %1 transféré en %2</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2112"/>
+        <location filename="../mainwindow.cpp" line="2104"/>
         <source>Network Settings Interference</source>
         <translation>Interférence des paramètres réseau</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2140"/>
+        <location filename="../mainwindow.cpp" line="2132"/>
         <source>Set “%1” as preferred protocol?</source>
         <translation>Définir «&#xa0;%1&#xa0;» comme protocole préféré ?</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2143"/>
+        <location filename="../mainwindow.cpp" line="2135"/>
         <source>Windscribe will always use this protocol to connect on this network in the future to avoid any interruptions.</source>
         <translation>Windscribe utilisera toujours ce protocole pour se connecter à ce réseau à l’avenir afin d’éviter toute interruption.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2144"/>
+        <location filename="../mainwindow.cpp" line="2136"/>
         <source>Set as Preferred</source>
         <translation>Définir comme préféré</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2165"/>
+        <location filename="../mainwindow.cpp" line="2157"/>
         <source>Service Error</source>
         <translation>Erreur de service</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2184"/>
+        <location filename="../mainwindow.cpp" line="2176"/>
         <source>Windscribe has detected that %1 is using a high amount of CPU due to a potential conflict with the VPN connection. Do you want to disable the Windscribe TCP socket termination feature that may be causing this issue?</source>
         <translation>Windscribe a détecté que %1 utilise une grande quantité de CPU en raison d’un conflit potentiel avec la connexion VPN. Voulez-vous désactiver la fonction de terminaison de socket TCP de Windscribe qui peut être à l’origine de ce problème ?</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2188"/>
+        <location filename="../mainwindow.cpp" line="2180"/>
         <source>High CPU Usage</source>
         <translation>Utilisation élevée du processeur</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2210"/>
-        <location filename="../mainwindow.cpp" line="2213"/>
+        <location filename="../mainwindow.cpp" line="2202"/>
+        <location filename="../mainwindow.cpp" line="2205"/>
         <source>MAC Spoofing Failed</source>
         <translation>Echec de l’usurpation d’identité MAC</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2211"/>
+        <location filename="../mainwindow.cpp" line="2203"/>
         <source>Your network adapter does not support MAC spoofing. Try a different adapter.</source>
         <translation>Votre carte réseau ne prend pas en charge l’usurpation d’adresse MAC. Essayez un autre adaptateur.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2216"/>
         <source>Logs too large to send</source>
-        <translation>Journaux trop volumineux pour être envoyés</translation>
+        <translation type="vanished">Journaux trop volumineux pour être envoyés</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2217"/>
         <source>Could not send logs to Windscribe, they are too big. Either re-send after replicating the issue or manually compressing and sending to support.</source>
-        <translation>Impossible d’envoyer des journaux à Windscribe, ils sont trop gros. Renvoyez après avoir répliqué le problème ou compressez manuellement et envoyez au support.</translation>
+        <translation type="vanished">Impossible d’envoyer des journaux à Windscribe, ils sont trop gros. Renvoyez après avoir répliqué le problème ou compressez manuellement et envoyez au support.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2219"/>
         <source>Logs too large to view</source>
-        <translation>Journaux trop volumineux pour être affichés</translation>
+        <translation type="vanished">Journaux trop volumineux pour être affichés</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2220"/>
         <source>Could not view the logs because they are too big. You may want to try viewing manually.</source>
-        <translation>Impossible d’afficher les journaux car ils sont trop volumineux. Vous pouvez essayer d’afficher manuellement.</translation>
+        <translation type="vanished">Impossible d’afficher les journaux car ils sont trop volumineux. Vous pouvez essayer d’afficher manuellement.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2257"/>
+        <location filename="../mainwindow.cpp" line="2243"/>
         <source>Detection Error</source>
         <translation>Erreur de détection</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2258"/>
+        <location filename="../mainwindow.cpp" line="2244"/>
         <source>Cannot detect appropriate packet size due to an error. Please try again.</source>
         <translation>Impossible de détecter la taille de paquet appropriée en raison d’une erreur. Veuillez réessayer.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2310"/>
+        <location filename="../mainwindow.cpp" line="2296"/>
         <source>This network hates us</source>
         <translation>Ce réseau nous déteste</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2311"/>
+        <location filename="../mainwindow.cpp" line="2297"/>
         <source>We couldn’t connect you on this network. Send us your debug log so we can figure out what happened.</source>
         <translation>Nous n’avons pas pu vous connecter sur ce réseau. Envoyez-nous votre journal de débogage afin que nous puissions comprendre ce qui s’est passé.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2114"/>
-        <location filename="../mainwindow.cpp" line="2312"/>
+        <location filename="../mainwindow.cpp" line="2106"/>
+        <location filename="../mainwindow.cpp" line="2298"/>
         <source>Send Debug Log</source>
         <translation>Envoyer le journal de débogage</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2319"/>
+        <location filename="../mainwindow.cpp" line="2305"/>
         <source>Debug Sent!</source>
         <translation>Débogage envoyé!</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2320"/>
+        <location filename="../mainwindow.cpp" line="2306"/>
         <source>Your debug log has been received. Please contact support if you want assistance with this issue.</source>
         <translation>Votre journal de débogage a été reçu. Veuillez contacter le support si vous souhaitez obtenir de l’aide pour résoudre ce problème.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2321"/>
+        <location filename="../mainwindow.cpp" line="2307"/>
         <source>Contact Support</source>
         <translation>Contacter le support</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2363"/>
+        <location filename="../mainwindow.cpp" line="2349"/>
         <source>Auto-Update Failed</source>
         <translation>Echec de la mise à jour automatique</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2364"/>
+        <location filename="../mainwindow.cpp" line="2350"/>
         <source>Please contact support</source>
         <translation>Veuillez contacter le support</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2437"/>
+        <location filename="../mainwindow.cpp" line="2423"/>
         <source>Lost connection to the backend process.
 Recovering...</source>
         <translation>Perte de connexion au processus principal.
 Récupération...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3044"/>
+        <location filename="../mainwindow.cpp" line="3030"/>
         <source>Select an application</source>
         <translation>Sélectionner une application</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3075"/>
+        <location filename="../mainwindow.cpp" line="3061"/>
         <source>Connect</source>
         <translation>Relier</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3079"/>
+        <location filename="../mainwindow.cpp" line="3065"/>
         <source>Disconnect</source>
         <translation>Déconnecter</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3088"/>
-        <location filename="../mainwindow.cpp" line="3117"/>
+        <location filename="../mainwindow.cpp" line="3074"/>
+        <location filename="../mainwindow.cpp" line="3103"/>
         <source>Locations</source>
         <translation>Lieux</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3095"/>
-        <location filename="../mainwindow.cpp" line="3124"/>
+        <location filename="../mainwindow.cpp" line="3081"/>
+        <location filename="../mainwindow.cpp" line="3110"/>
         <source>Favourites</source>
         <translation>Favoris</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3102"/>
-        <location filename="../mainwindow.cpp" line="3131"/>
+        <location filename="../mainwindow.cpp" line="3088"/>
+        <location filename="../mainwindow.cpp" line="3117"/>
         <source>Static IPs</source>
         <translation>Adresses IP statiques</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3109"/>
-        <location filename="../mainwindow.cpp" line="3138"/>
+        <location filename="../mainwindow.cpp" line="3095"/>
+        <location filename="../mainwindow.cpp" line="3124"/>
         <source>Configured</source>
         <translation>Configuré</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3149"/>
+        <location filename="../mainwindow.cpp" line="3135"/>
         <source>Show/Hide</source>
         <translation>Afficher/Masquer</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3154"/>
+        <location filename="../mainwindow.cpp" line="3140"/>
         <source>Preferences</source>
         <translation>Préférences</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3157"/>
+        <location filename="../mainwindow.cpp" line="3143"/>
         <source>Help</source>
         <translation>Aide</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3158"/>
+        <location filename="../mainwindow.cpp" line="3144"/>
         <source>Exit</source>
         <translation>Sortie</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3403"/>
+        <location filename="../mainwindow.cpp" line="3389"/>
         <source>Your hosts file is read-only. IKEv2 connectivity requires for it to be writable. Fix the issue automatically?</source>
         <translation>Votre fichier hosts est en lecture seule. La connectivité IKEv2 nécessite qu’elle soit accessible en écriture. Résoudre le problème automatiquement ?</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3440"/>
+        <location filename="../mainwindow.cpp" line="3426"/>
         <source>WireGuard adapter setup failed. Please wait one minute and try the connection again. If adapter setup fails again, please try restarting your computer.
 
 If the problem persists after a restart, please send a debug log and open a support ticket, then switch to a different connection mode.</source>
@@ -935,27 +931,27 @@ If the problem persists after a restart, please send a debug log and open a supp
 Si le problème persiste après un redémarrage, envoyez un journal de débogage et ouvrez un ticket de support, puis passez à un autre mode de connexion.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3447"/>
+        <location filename="../mainwindow.cpp" line="3433"/>
         <source>Connection Error</source>
         <translation>Erreur de connexion</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3603"/>
+        <location filename="../mainwindow.cpp" line="3589"/>
         <source>Reached Key Limit</source>
         <translation>Limite de clé atteinte</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3604"/>
+        <location filename="../mainwindow.cpp" line="3590"/>
         <source>You have reached your limit of WireGuard public keys. Do you want to delete your oldest key?</source>
         <translation>Vous avez atteint votre limite de clés publiques WireGuard. Voulez-vous supprimer votre clé la plus ancienne ?</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3658"/>
+        <location filename="../mainwindow.cpp" line="3644"/>
         <source>Error Starting Service</source>
         <translation>Erreur lors du démarrage du service</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3659"/>
+        <location filename="../mainwindow.cpp" line="3645"/>
         <source>The split tunneling feature could not be started, and has been disabled in Preferences.</source>
         <translation>La fonctionnalité de tunneling fractionné n’a pas pu être démarrée et a été désactivée dans les Préférences.</translation>
     </message>

@@ -949,14 +949,6 @@ void Engine::sendDebugLogImpl()
     if (apiResourcesManager_)
         userName = apiResourcesManager_->sessionStatus().getUsername();
 
-#ifdef Q_OS_WIN
-    if (!MergeLog::canMerge())
-    {
-        Q_EMIT sendUserWarning(USER_WARNING_SEND_LOG_FILE_TOO_BIG);
-        return;
-    }
-#endif
-
     QString log = MergeLog::mergePrevLogs(true);
     log += "================================================================================================================================================================================================\n";
     log += "================================================================================================================================================================================================\n";

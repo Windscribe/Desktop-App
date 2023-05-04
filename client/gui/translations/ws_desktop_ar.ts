@@ -548,385 +548,381 @@
     <name>MainWindow</name>
     <message>
         <location filename="../mainwindow.cpp" line="802"/>
-        <location filename="../mainwindow.cpp" line="1412"/>
+        <location filename="../mainwindow.cpp" line="1404"/>
         <source>Logging you in...</source>
         <translation>جاري تسجيل دخولك...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1074"/>
-        <location filename="../mainwindow.cpp" line="1094"/>
+        <location filename="../mainwindow.cpp" line="1066"/>
+        <location filename="../mainwindow.cpp" line="1086"/>
         <source>VPN is active</source>
         <translation>VPN نشط</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1075"/>
+        <location filename="../mainwindow.cpp" line="1067"/>
         <source>Rotating your MAC address will result in a disconnect event from the current network. Are you sure?</source>
         <translation>سيؤدي تدوير عنوان MAC الخاص بك إلى حدث قطع الاتصال بالشبكة الحالية. هل أنت متأكد؟</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1095"/>
+        <location filename="../mainwindow.cpp" line="1087"/>
         <source>Cannot detect appropriate packet size while connected. Please disconnect first.</source>
         <translation>لا يمكن اكتشاف حجم الحزمة المناسب أثناء الاتصال. يرجى قطع الاتصال أولا.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1104"/>
+        <location filename="../mainwindow.cpp" line="1096"/>
         <source>No Internet</source>
         <translation>لا يوجد إنترنت</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1105"/>
+        <location filename="../mainwindow.cpp" line="1097"/>
         <source>Cannot detect appropriate packet size without internet. Check your connection.</source>
         <translation>لا يمكن اكتشاف حجم الحزمة المناسب بدون الإنترنت. تحقق من اتصالك.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1323"/>
+        <location filename="../mainwindow.cpp" line="1315"/>
         <source>Select Custom Config Folder</source>
         <translation>حدد مجلد التكوين المخصص</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1340"/>
+        <location filename="../mainwindow.cpp" line="1332"/>
         <source>Cannot select this directory because it is writeable for non-privileged users. Custom configs in this directory may pose a potential security risk. Please authenticate with an admin user to select this directory.</source>
         <translation>لا يمكن تحديد هذا الدليل لأنه قابل للكتابة للمستخدمين غير المتميزين. قد تشكل التكوينات المخصصة في هذا الدليل خطرا أمنيا محتملا. يرجى المصادقة مع مستخدم مسؤول لتحديد هذا الدليل.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1350"/>
-        <location filename="../mainwindow.cpp" line="3438"/>
+        <location filename="../mainwindow.cpp" line="1342"/>
+        <location filename="../mainwindow.cpp" line="3424"/>
         <source>The application is corrupted.  Please reinstall Windscribe.</source>
         <translation>التطبيق تالف.  الرجاء إعادة تثبيت Windscribe.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1441"/>
+        <location filename="../mainwindow.cpp" line="1433"/>
         <source>Could not start &apos;Base Filtering Engine&apos; service.  Please enable this service manually in Windows Services.</source>
         <translation>تعذر بدء تشغيل خدمة &quot;محرك التصفية الأساسي&quot;.  الرجاء تمكين هذه الخدمة يدويا في خدمات Windows.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1611"/>
+        <location filename="../mainwindow.cpp" line="1603"/>
         <source>We detected that SSL requests may be intercepted on your network. This could be due to a firewall configured on your computer, or Windscribe being blocked by your network administrator. Ignore SSL errors?</source>
         <translation>اكتشفنا أنه قد يتم اعتراض طلبات SSL على شبكتك. قد يكون هذا بسبب جدار حماية تم تكوينه على جهاز الكمبيوتر الخاص بك ، أو حظر Windscribe من قبل مسؤول الشبكة. تجاهل أخطاء SSL؟</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2113"/>
+        <location filename="../mainwindow.cpp" line="2105"/>
         <source>We&apos;ve detected that your network settings may interfere with Windscribe.  Please send us a debug log to troubleshoot.</source>
         <translation>لقد اكتشفنا أن إعدادات الشبكة الخاصة بك قد تتداخل مع Windscribe.  يرجى إرسال سجل تصحيح الأخطاء إلينا لاستكشاف الأخطاء وإصلاحها.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2166"/>
+        <location filename="../mainwindow.cpp" line="2158"/>
         <source>Windscribe is malfunctioning.  Please restart the application.</source>
         <translation>Windscribe معطل.  الرجاء إعادة تشغيل التطبيق.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2214"/>
+        <location filename="../mainwindow.cpp" line="2206"/>
         <source>Could not spoof MAC address.  Please try a different network interface or contact support.</source>
         <translation>تعذر محاكاة عنوان MAC.  يرجى تجربة واجهة شبكة مختلفة أو الاتصال بالدعم.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2366"/>
+        <location filename="../mainwindow.cpp" line="2352"/>
         <source>Could not download update.  Please try again or use a different network.</source>
         <translation>تعذر تنزيل التحديث.  يرجى المحاولة مرة أخرى أو استخدام شبكة مختلفة.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2368"/>
+        <location filename="../mainwindow.cpp" line="2354"/>
         <source>Could not run updater (Error %1).  Please contact support</source>
         <translation>تعذر تشغيل المحدث (خطأ ٪ 1).  يرجى الاتصال بالدعم</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3402"/>
+        <location filename="../mainwindow.cpp" line="3388"/>
         <source>Read-only file</source>
         <translation>ملف للقراءة فقط</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3428"/>
+        <location filename="../mainwindow.cpp" line="3414"/>
         <source>The custom configuration could not be loaded.  Please check that it’s correct or contact support.</source>
         <translation>تعذر تحميل التكوين المخصص.  يرجى التحقق من صحته أو الاتصال بالدعم.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3430"/>
+        <location filename="../mainwindow.cpp" line="3416"/>
         <source>There is a problem with the Wintun device driver, and it could not be reinstalled automatically.  Please reinstall Windscribe.</source>
         <translation>توجد مشكلة في برنامج تشغيل جهاز Wintun، ولا يمكن إعادة تثبيته تلقائيا.  الرجاء إعادة تثبيت Windscribe.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3432"/>
+        <location filename="../mainwindow.cpp" line="3418"/>
         <source>There is a problem with the TAP device driver, and it could not be reinstalled automatically.  Please reinstall Windscribe.</source>
         <translation>توجد مشكلة في برنامج تشغيل جهاز TAP، ولا يمكن إعادة تثبيته تلقائيا.  الرجاء إعادة تثبيت Windscribe.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3444"/>
+        <location filename="../mainwindow.cpp" line="3430"/>
         <source>An unexpected error occurred establishing the VPN connection (Error %1).  If this error persists, try using a different protocol or contact support.</source>
         <translation>حدث خطأ غير متوقع أثناء تأسيس اتصال VPN (خطأ ٪ 1).  إذا استمر هذا الخطأ، فحاول استخدام بروتوكول مختلف أو اتصل بالدعم.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3666"/>
+        <location filename="../mainwindow.cpp" line="3652"/>
         <source>Windscribe</source>
         <translation>ويندسكريب</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1344"/>
+        <location filename="../mainwindow.cpp" line="1336"/>
         <source>Can&apos;t select directory</source>
         <translation>لا يمكن تحديد الدليل</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1351"/>
+        <location filename="../mainwindow.cpp" line="1343"/>
         <source>Validation Error</source>
         <translation>خطأ في التحقق من الصحة</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1357"/>
+        <location filename="../mainwindow.cpp" line="1349"/>
         <source>The selected directory is writeable for non-privileged users. Custom configs in this directory may pose a potential security risk.</source>
         <translation>الدليل المحدد قابل للكتابة للمستخدمين غير المتميزين. قد تشكل التكوينات المخصصة في هذا الدليل خطرا أمنيا محتملا.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1360"/>
+        <location filename="../mainwindow.cpp" line="1352"/>
         <source>Security Risk</source>
         <translation>المخاطر الأمنية</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1431"/>
+        <location filename="../mainwindow.cpp" line="1423"/>
         <source>Enable Service?</source>
         <translation>تمكين الخدمة؟</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1432"/>
+        <location filename="../mainwindow.cpp" line="1424"/>
         <source>Enable &quot;Base Filtering Engine&quot; service? This is required for Windscribe to function.</source>
         <translation>تمكين خدمة &quot;محرك التصفية الأساسي&quot;؟ هذا مطلوب لكي يعمل Windscribe.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1440"/>
+        <location filename="../mainwindow.cpp" line="1432"/>
         <source>Failed to Enable Service</source>
         <translation>فشل تمكين الخدمة</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1448"/>
+        <location filename="../mainwindow.cpp" line="1440"/>
         <source>Failed to Start</source>
         <translation>فشل البدء</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1449"/>
+        <location filename="../mainwindow.cpp" line="1441"/>
         <source>Windscribe helper initialize error. Please reinstall the application or contact support.</source>
         <translation>خطأ تهيئة مساعد Windscribe. الرجاء إعادة تثبيت التطبيق أو الاتصال بالدعم.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1514"/>
+        <location filename="../mainwindow.cpp" line="1506"/>
         <source>Trying Backup Endpoints %1/%2</source>
         <translation>محاولة النسخ الاحتياطي لنقاط النهاية ٪1/٪2</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1610"/>
+        <location filename="../mainwindow.cpp" line="1602"/>
         <source>SSL Error</source>
         <translation>خطأ SSL</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1797"/>
-        <location filename="../mainwindow.cpp" line="3315"/>
+        <location filename="../mainwindow.cpp" line="1789"/>
+        <location filename="../mainwindow.cpp" line="3301"/>
         <source>Disconnected</source>
         <translation>قطع اتصال</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1803"/>
+        <location filename="../mainwindow.cpp" line="1795"/>
         <source>Connected to </source>
         <translation>متصل ب </translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1848"/>
+        <location filename="../mainwindow.cpp" line="1840"/>
         <source>You are now connected to Windscribe (%1).</source>
         <translation>أنت الآن متصل ب Windscribe (٪1).</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1880"/>
+        <location filename="../mainwindow.cpp" line="1872"/>
         <source>Connection to Windscribe has been terminated.
 %1 transferred in %2</source>
         <translation>تم إنهاء الاتصال ب Windscribe.
 ٪1 محولة في ٪2</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2112"/>
+        <location filename="../mainwindow.cpp" line="2104"/>
         <source>Network Settings Interference</source>
         <translation>تداخل إعدادات الشبكة</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2140"/>
+        <location filename="../mainwindow.cpp" line="2132"/>
         <source>Set “%1” as preferred protocol?</source>
         <translation>تعيين &quot;٪ 1&quot; كبروتوكول مفضل؟</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2143"/>
+        <location filename="../mainwindow.cpp" line="2135"/>
         <source>Windscribe will always use this protocol to connect on this network in the future to avoid any interruptions.</source>
         <translation>سوف تستخدم Windscribe دائما هذا البروتوكول للاتصال بهذه الشبكة في المستقبل لتجنب أي انقطاع.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2144"/>
+        <location filename="../mainwindow.cpp" line="2136"/>
         <source>Set as Preferred</source>
         <translation>تعيين على النحو المفضل</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2165"/>
+        <location filename="../mainwindow.cpp" line="2157"/>
         <source>Service Error</source>
         <translation>خطأ في الخدمة</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2184"/>
+        <location filename="../mainwindow.cpp" line="2176"/>
         <source>Windscribe has detected that %1 is using a high amount of CPU due to a potential conflict with the VPN connection. Do you want to disable the Windscribe TCP socket termination feature that may be causing this issue?</source>
         <translation>اكتشف Windscribe أن ٪1 يستخدم كمية كبيرة من وحدة المعالجة المركزية بسبب تعارض محتمل مع اتصال VPN. هل تريد تعطيل ميزة إنهاء مأخذ التوصيل TCP Windscribe التي قد تسبب هذه المشكلة؟</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2188"/>
+        <location filename="../mainwindow.cpp" line="2180"/>
         <source>High CPU Usage</source>
         <translation>ارتفاع استخدام وحدة المعالجة المركزية</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2210"/>
-        <location filename="../mainwindow.cpp" line="2213"/>
+        <location filename="../mainwindow.cpp" line="2202"/>
+        <location filename="../mainwindow.cpp" line="2205"/>
         <source>MAC Spoofing Failed</source>
         <translation>فشل انتحال MAC</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2211"/>
+        <location filename="../mainwindow.cpp" line="2203"/>
         <source>Your network adapter does not support MAC spoofing. Try a different adapter.</source>
         <translation>لا يدعم محول الشبكة انتحال MAC. جرب محولا مختلفا.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2216"/>
         <source>Logs too large to send</source>
-        <translation>سجلات كبيرة جدا بحيث لا يمكن إرسالها</translation>
+        <translation type="vanished">سجلات كبيرة جدا بحيث لا يمكن إرسالها</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2217"/>
         <source>Could not send logs to Windscribe, they are too big. Either re-send after replicating the issue or manually compressing and sending to support.</source>
-        <translation>تعذر إرسال السجلات إلى Windscribe ، فهي كبيرة جدا. إما إعادة الإرسال بعد تكرار المشكلة أو الضغط يدويا وإرسالها إلى الدعم.</translation>
+        <translation type="vanished">تعذر إرسال السجلات إلى Windscribe ، فهي كبيرة جدا. إما إعادة الإرسال بعد تكرار المشكلة أو الضغط يدويا وإرسالها إلى الدعم.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2219"/>
         <source>Logs too large to view</source>
-        <translation>سجلات كبيرة جدا بحيث لا يمكن عرضها</translation>
+        <translation type="vanished">سجلات كبيرة جدا بحيث لا يمكن عرضها</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2220"/>
         <source>Could not view the logs because they are too big. You may want to try viewing manually.</source>
-        <translation>تعذر عرض السجلات لأنها كبيرة جدا. قد ترغب في محاولة العرض يدويا.</translation>
+        <translation type="vanished">تعذر عرض السجلات لأنها كبيرة جدا. قد ترغب في محاولة العرض يدويا.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2257"/>
+        <location filename="../mainwindow.cpp" line="2243"/>
         <source>Detection Error</source>
         <translation>خطأ في الكشف</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2258"/>
+        <location filename="../mainwindow.cpp" line="2244"/>
         <source>Cannot detect appropriate packet size due to an error. Please try again.</source>
         <translation>لا يمكن اكتشاف حجم الحزمة المناسب بسبب خطأ. يرجى المحاولة مرة أخرى.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2310"/>
+        <location filename="../mainwindow.cpp" line="2296"/>
         <source>This network hates us</source>
         <translation>هذه الشبكة تكرهنا</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2311"/>
+        <location filename="../mainwindow.cpp" line="2297"/>
         <source>We couldn’t connect you on this network. Send us your debug log so we can figure out what happened.</source>
         <translation>لم نتمكن من توصيلك على هذه الشبكة. أرسل لنا سجل التصحيح الخاص بك حتى نتمكن من معرفة ما حدث.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2114"/>
-        <location filename="../mainwindow.cpp" line="2312"/>
+        <location filename="../mainwindow.cpp" line="2106"/>
+        <location filename="../mainwindow.cpp" line="2298"/>
         <source>Send Debug Log</source>
         <translation>إرسال سجل التصحيح</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2319"/>
+        <location filename="../mainwindow.cpp" line="2305"/>
         <source>Debug Sent!</source>
         <translation>تم إرسال التصحيح!</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2320"/>
+        <location filename="../mainwindow.cpp" line="2306"/>
         <source>Your debug log has been received. Please contact support if you want assistance with this issue.</source>
         <translation>تم استلام سجل التصحيح الخاص بك. يرجى الاتصال بالدعم إذا كنت تريد المساعدة في هذه المشكلة.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2321"/>
+        <location filename="../mainwindow.cpp" line="2307"/>
         <source>Contact Support</source>
         <translation>الاتصال بالدعم</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2363"/>
+        <location filename="../mainwindow.cpp" line="2349"/>
         <source>Auto-Update Failed</source>
         <translation>فشل التحديث التلقائي</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2364"/>
+        <location filename="../mainwindow.cpp" line="2350"/>
         <source>Please contact support</source>
         <translation>يرجى الاتصال بالدعم</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2437"/>
+        <location filename="../mainwindow.cpp" line="2423"/>
         <source>Lost connection to the backend process.
 Recovering...</source>
         <translation>فقد الاتصال بعملية الواجهة الخلفية.
 يتعافي...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3044"/>
+        <location filename="../mainwindow.cpp" line="3030"/>
         <source>Select an application</source>
         <translation>حدد تطبيقا</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3075"/>
+        <location filename="../mainwindow.cpp" line="3061"/>
         <source>Connect</source>
         <translation>عشق</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3079"/>
+        <location filename="../mainwindow.cpp" line="3065"/>
         <source>Disconnect</source>
         <translation>قطع الاتصال</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3088"/>
-        <location filename="../mainwindow.cpp" line="3117"/>
+        <location filename="../mainwindow.cpp" line="3074"/>
+        <location filename="../mainwindow.cpp" line="3103"/>
         <source>Locations</source>
         <translation>مواقع</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3095"/>
-        <location filename="../mainwindow.cpp" line="3124"/>
+        <location filename="../mainwindow.cpp" line="3081"/>
+        <location filename="../mainwindow.cpp" line="3110"/>
         <source>Favourites</source>
         <translation>المفضلة</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3102"/>
-        <location filename="../mainwindow.cpp" line="3131"/>
+        <location filename="../mainwindow.cpp" line="3088"/>
+        <location filename="../mainwindow.cpp" line="3117"/>
         <source>Static IPs</source>
         <translation>عناوين IP ثابتة</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3109"/>
-        <location filename="../mainwindow.cpp" line="3138"/>
+        <location filename="../mainwindow.cpp" line="3095"/>
+        <location filename="../mainwindow.cpp" line="3124"/>
         <source>Configured</source>
         <translation>تكوين</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3149"/>
+        <location filename="../mainwindow.cpp" line="3135"/>
         <source>Show/Hide</source>
         <translation>إظهار/إخفاء</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3154"/>
+        <location filename="../mainwindow.cpp" line="3140"/>
         <source>Preferences</source>
         <translation>التفضيلات</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3157"/>
+        <location filename="../mainwindow.cpp" line="3143"/>
         <source>Help</source>
         <translation>تعليمات</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3158"/>
+        <location filename="../mainwindow.cpp" line="3144"/>
         <source>Exit</source>
         <translation>مخرج</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3403"/>
+        <location filename="../mainwindow.cpp" line="3389"/>
         <source>Your hosts file is read-only. IKEv2 connectivity requires for it to be writable. Fix the issue automatically?</source>
         <translation>ملف المضيفين الخاص بك للقراءة فقط. يتطلب اتصال IKEv2 أن يكون قابلا للكتابة. حل المشكلة تلقائيا؟</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3440"/>
+        <location filename="../mainwindow.cpp" line="3426"/>
         <source>WireGuard adapter setup failed. Please wait one minute and try the connection again. If adapter setup fails again, please try restarting your computer.
 
 If the problem persists after a restart, please send a debug log and open a support ticket, then switch to a different connection mode.</source>
@@ -935,27 +931,27 @@ If the problem persists after a restart, please send a debug log and open a supp
 إذا استمرت المشكلة بعد إعادة التشغيل ، فيرجى إرسال سجل تصحيح الأخطاء وفتح تذكرة دعم ، ثم التبديل إلى وضع اتصال مختلف.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3447"/>
+        <location filename="../mainwindow.cpp" line="3433"/>
         <source>Connection Error</source>
         <translation>خطأ في الاتصال</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3603"/>
+        <location filename="../mainwindow.cpp" line="3589"/>
         <source>Reached Key Limit</source>
         <translation>تم الوصول إلى حد المفتاح</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3604"/>
+        <location filename="../mainwindow.cpp" line="3590"/>
         <source>You have reached your limit of WireGuard public keys. Do you want to delete your oldest key?</source>
         <translation>لقد وصلت إلى الحد الأقصى لمفاتيح WireGuard العامة. هل تريد حذف أقدم مفتاح لديك؟</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3658"/>
+        <location filename="../mainwindow.cpp" line="3644"/>
         <source>Error Starting Service</source>
         <translation>خطأ في بدء تشغيل الخدمة</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3659"/>
+        <location filename="../mainwindow.cpp" line="3645"/>
         <source>The split tunneling feature could not be started, and has been disabled in Preferences.</source>
         <translation>تعذر بدء تشغيل ميزة الانقسام النفقي، وتم تعطيلها في التفضيلات.</translation>
     </message>

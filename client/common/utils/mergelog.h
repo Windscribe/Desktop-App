@@ -12,8 +12,6 @@ public:
     static QString mergeLogs(bool doMergePerLine);
     static QString mergePrevLogs(bool doMergePerLine);
 
-    // This is a quick hack to prevent GUI crash as result of merging files that are too large for the program
-    static bool canMerge();
 private:
     static constexpr int MAX_COUNT_OF_LINES = 100000;
     static QString merge(const QString &guiLogFilename, const QString &serviceLogFilename, const QString &servicePrevLogFilename,

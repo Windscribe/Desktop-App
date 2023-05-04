@@ -999,14 +999,6 @@ void MainWindow::onPreferencesViewLogClick()
     // must delete every open: bug in qt 5.12.14 will lose parent hierarchy and crash
     cleanupLogViewerWindow();
 
-#ifdef Q_OS_WIN
-    if (!MergeLog::canMerge())
-    {
-        showUserWarning(USER_WARNING_VIEW_LOG_FILE_TOO_BIG);
-        return;
-    }
-#endif
-
     logViewerWindow_ = new LogViewer::LogViewerWindow(this);
     logViewerWindow_->setAttribute( Qt::WA_DeleteOnClose );
 
@@ -2212,12 +2204,6 @@ void MainWindow::showUserWarning(USER_WARNING_TYPE userWarningType)
     } else if (userWarningType == USER_WARNING_MAC_SPOOFING_FAILURE_SOFT) {
         titleText = tr("MAC Spoofing Failed");
         descText = tr("Could not spoof MAC address.  Please try a different network interface or contact support.");
-    } else if (userWarningType == USER_WARNING_SEND_LOG_FILE_TOO_BIG) {
-        titleText = tr("Logs too large to send");
-        descText = tr("Could not send logs to Windscribe, they are too big. Either re-send after replicating the issue or manually compressing and sending to support.");
-    } else if (userWarningType == USER_WARNING_VIEW_LOG_FILE_TOO_BIG) {
-        titleText = tr("Logs too large to view");
-        descText = tr("Could not view the logs because they are too big. You may want to try viewing manually.");
     }
 
     if (!titleText.isEmpty() && !descText.isEmpty()) {
