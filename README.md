@@ -64,6 +64,13 @@ See `build_all --help` for other build options.
 
 You will find the application logs in `C:/Users/USER/AppData/Local/Windscribe/Windscribe2`.
 
+### Logs
+
+- ping and client, installer helper: C:/Users/<user_name>/AppData/Local/Windscribe/Windscribe2
+- installer: <Windscribe_installation_path>/log_installer.txt
+- service: <Windscribe_installation_path>/windscribeservice.log
+<Windscribe_installation_path> is usually "C:/Program Files/Windscribe".
+
 ## Mac
 
 ### Prerequisites
@@ -140,6 +147,12 @@ You will find the application logs in `~/Library/Application Support/Windscribe/
 - If you make any changes to the helper source code `backend/mac/helper/src`, you must increase the `CFBundleVersion` in `backend/mac/helper/src/helper-info.plist`. The installer only updates the helper if this bundle version number has changed.
 - The IKEv2 protocol will only function in builds produced by Windscribe.  It's implementation on macOS utilizes the NEVPNManager API, which requires the 'Personal VPN' entitlement (`com.apple.developer.networking.vpn.api`) and an embedded provisioning profile file.  If you wish to enable IKEv2 functionality, you will have to create an embedded provisioning file in your Apple Developer account and use it in the client project (Search for `embedded.provisionprofile` in `client/CMakeLists.txt` for details on where to place the embedded provisioning profile).
 
+### Logs
+
+- client, ping, engine: "/Users/<user_name>/Library/Application Support/Windscribe/Windsrcibe2"
+- installer: "/Users/<user_name>/Library/Application Support/Windscribe/Windsrcibe"
+- helper: /Library/Logs/com.windscribe/helper.macos
+
 ## Linux
 
 ### Prerequisites
@@ -189,6 +202,10 @@ Go to subfolder `tools` and run `build_all`. Assuming all goes well with the bui
 See `build_all --help` for other build options.
 
 The application installs to `/opt/windscribe`.  You will find the application logs in `~/.local/share/Windscribe/Windscribe2`.
+
+### Logs
+- client, ping: ~/.local/share/Windscribe/Windscribe2
+- helper: /opt/windscribe/helper_log.txt
 
 ## Contributing
 
