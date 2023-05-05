@@ -594,12 +594,16 @@ void MainWindowController::collapsePreferences()
 
 void MainWindowController::expandNewsFeed()
 {
-    expandWindow(newsFeedWindow_);
+    if (curWindow_ == WINDOW_ID_CONNECT) {
+        expandWindow(newsFeedWindow_);
+    }
 }
 
 void MainWindowController::collapseNewsFeed()
 {
-    collapseWindow(newsFeedWindow_, false);
+    if (curWindow_ == WINDOW_ID_CONNECT) {
+        collapseWindow(newsFeedWindow_, false);
+    }
 }
 
 void MainWindowController::expandProtocols(ProtocolWindowMode mode)
@@ -1890,6 +1894,10 @@ void MainWindowController::gotoGeneralMessageWindow()
         updateWindow_->setClickable(false);
     } else if (curWindow_ == WINDOW_ID_LOGIN) {
         loginWindow_->setClickable(false);
+    }
+
+    for (auto w : windowSizeManager_->windows()) {
+        collapseWindow(w);
     }
 
     curWindow_ = WINDOW_ID_GENERAL_MESSAGE;
