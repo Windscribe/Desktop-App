@@ -30,7 +30,7 @@ CtrldManager_win::~CtrldManager_win()
 bool CtrldManager_win::runProcess(const QString &upstream1, const QString &upstream2, const QStringList &domains)
 {
     ExecutableSignature sigCheck;
-    if (!sigCheck.verifyWithSignCheck(ctrldExePath_.toStdWString())) {
+    if (!sigCheck.verify(ctrldExePath_.toStdWString())) {
         qCDebug(LOG_CTRLD) << "Failed to verify ctrld signature: " << QString::fromStdString(sigCheck.lastError());
         return false;
     }

@@ -42,7 +42,7 @@ StunnelManager::~StunnelManager()
 bool StunnelManager::runProcess()
 {
     ExecutableSignature sigCheck;
-    if (!sigCheck.verifyWithSignCheck(stunelExePath_.toStdWString()))
+    if (!sigCheck.verify(stunelExePath_.toStdWString()))
     {
         qCDebug(LOG_BASIC) << "Failed to verify stunnel signature: " << QString::fromStdString(sigCheck.lastError());
         return false;

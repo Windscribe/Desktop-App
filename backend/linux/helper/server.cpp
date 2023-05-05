@@ -108,7 +108,7 @@ bool Server::readAndHandleCommand(socket_ptr sock, boost::asio::streambuf *buf, 
                 } else {
                     const std::string fullPath = cmd.exePath + "/" + cmd.executable;
                     ExecutableSignature sigCheck;
-                    if (!sigCheck.verifyWithSignCheck(std::wstring_convert<std::codecvt_utf8<wchar_t>>().from_bytes(fullPath))) {
+                    if (!sigCheck.verify(std::wstring_convert<std::codecvt_utf8<wchar_t>>().from_bytes(fullPath))) {
                         Logger::instance().out("OpenVPN executable signature incorrect: %s", sigCheck.lastError().c_str());
                         outCmdAnswer.executed = 0;
                     } else {
@@ -166,7 +166,7 @@ bool Server::readAndHandleCommand(socket_ptr sock, boost::asio::streambuf *buf, 
         } else {
             const std::string fullPath = cmd.exePath + "/" + cmd.executable;
             ExecutableSignature sigCheck;
-            if (!sigCheck.verifyWithSignCheck(std::wstring_convert<std::codecvt_utf8<wchar_t>>().from_bytes(fullPath))) {
+            if (!sigCheck.verify(std::wstring_convert<std::codecvt_utf8<wchar_t>>().from_bytes(fullPath))) {
                 Logger::instance().out("ctrld executable signature incorrect: %s", sigCheck.lastError().c_str());
                 outCmdAnswer.executed = 0;
             } else {

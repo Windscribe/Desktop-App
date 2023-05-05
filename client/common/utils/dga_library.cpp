@@ -33,7 +33,7 @@ bool DgaLibrary::load()
     }
 
     ExecutableSignature sigCheck;
-    if (!sigCheck.verifyWithSignCheck(dgaLibPath.toStdWString()))
+    if (!sigCheck.verify(dgaLibPath.toStdWString()))
     {
         qCDebug(LOG_BASIC) << "Failed to verify dga signature: " << QString::fromStdString(sigCheck.lastError());
         return false;

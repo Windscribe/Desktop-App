@@ -46,20 +46,6 @@ bool ExecutableSignature::verify(const std::string &exePath)
 #endif
 }
 
-bool ExecutableSignature::verifyWithSignCheck(const std::wstring &exePath)
-{
-#ifdef USE_SIGNATURE_CHECK
-    #if defined __APPLE__
-        return d_ptr->verifyWithSignCheck(exePath);
-    #else
-        return d_ptr->verify(exePath);
-    #endif
-#else
-    (void)exePath;
-    return true;
-#endif
-}
-
 std::string ExecutableSignature::lastError() const
 {
     if (d_ptr != nullptr) {
