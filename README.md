@@ -68,7 +68,7 @@ See `build_all --help` for other build options.
 - Service: `<Windscribe_installation_path>/windscribeservice.log`
 - Installer: `<Windscribe_installation_path>/log_installer.txt`
 - Uninstaller: system Debug View
-- `<Windscribe_installation_path>` defaults to `"C:/Program Files/Windscribe"`
+- `<Windscribe_installation_path>` defaults to `C:/Program Files/Windscribe`
 
 ## Mac
 
@@ -148,8 +148,8 @@ You will find the application logs in `~/Library/Application Support/Windscribe/
 
 ### Logs
 
-- Client app and location pings: `"/Users/<user_name>/Library/Application Support/Windscribe/Windsrcibe2"`
-- Installer: `"/Users/<user_name>/Library/Application Support/Windscribe/Windsrcibe/log_installer.txt"`
+- Client app and location pings: `/Users/<user_name>/Library/Application Support/Windscribe/Windsrcibe2`
+- Installer: `/Users/<user_name>/Library/Application Support/Windscribe/Windsrcibe/log_installer.txt`
 - Helper: `/Library/Logs/com.windscribe.helper.macos/helper_log.txt`
 
 ## Linux
