@@ -62,7 +62,13 @@ Go to subfolder `tools` and run `build_all`. Assuming all goes well with the bui
 
 See `build_all --help` for other build options.
 
-You will find the application logs in `C:/Users/USER/AppData/Local/Windscribe/Windscribe2`.
+### Logs
+
+- Client app, location pings and installer helper: `C:/Users/<user_name>/AppData/Local/Windscribe/Windscribe2`
+- Service: `<Windscribe_installation_path>/windscribeservice.log`
+- Installer: `<Windscribe_installation_path>/log_installer.txt`
+- Uninstaller: system Debug View
+- `<Windscribe_installation_path>` defaults to `C:/Program Files/Windscribe`
 
 ## Mac
 
@@ -140,6 +146,12 @@ You will find the application logs in `~/Library/Application Support/Windscribe/
 - If you make any changes to the helper source code `backend/mac/helper/src`, you must increase the `CFBundleVersion` in `backend/mac/helper/src/helper-info.plist`. The installer only updates the helper if this bundle version number has changed.
 - The IKEv2 protocol will only function in builds produced by Windscribe.  It's implementation on macOS utilizes the NEVPNManager API, which requires the 'Personal VPN' entitlement (`com.apple.developer.networking.vpn.api`) and an embedded provisioning profile file.  If you wish to enable IKEv2 functionality, you will have to create an embedded provisioning file in your Apple Developer account and use it in the client project (Search for `embedded.provisionprofile` in `client/CMakeLists.txt` for details on where to place the embedded provisioning profile).
 
+### Logs
+
+- Client app and location pings: `/Users/<user_name>/Library/Application Support/Windscribe/Windsrcibe2`
+- Installer: `/Users/<user_name>/Library/Application Support/Windscribe/Windsrcibe/log_installer.txt`
+- Helper: `/Library/Logs/com.windscribe.helper.macos/helper_log.txt`
+
 ## Linux
 
 ### Prerequisites
@@ -189,6 +201,10 @@ Go to subfolder `tools` and run `build_all`. Assuming all goes well with the bui
 See `build_all --help` for other build options.
 
 The application installs to `/opt/windscribe`.  You will find the application logs in `~/.local/share/Windscribe/Windscribe2`.
+
+### Logs
+- Client app and location pings: `~/.local/share/Windscribe/Windscribe2`
+- Helper: `/opt/windscribe/helper_log.txt`
 
 ## Contributing
 
