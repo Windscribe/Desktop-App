@@ -53,10 +53,9 @@ int UninstallPrev::executeStep()
 
                 //todo It is better to extract Windscribe.exe to the global variable without hardcode.
                 Process process;
-                unsigned long resultCode = 5;
                 const wstring appName = Directory::GetSystemDir() + wstring(L"\\taskkill.exe");
-                process.InstExec(appName, L"/f /im Windscribe.exe /t", L"", ewWaitUntilTerminated, SW_HIDE, resultCode);
-                if(resultCode == S_OK) {
+                const auto res = process.InstExec(appName, L"/f /im Windscribe.exe /t", INFINITE, SW_HIDE);
+                if(res.has_value() && res.value() == S_OK) {
                     Log::instance().out(L"Process \"Windcribe.exe\" was successfully killed.");
                     break;
                 }
