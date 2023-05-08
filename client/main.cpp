@@ -211,8 +211,6 @@ int main(int argc, char *argv[])
 
     appSingleInstGuard.release();
 
-    Sleep(INFINITE);
-
     return ret;
 }
 

@@ -5,10 +5,13 @@
 #include <windows.h>
 
 #include "../../../utils/applicationinfo.h"
+#include "../../../utils/directory.h"
 #include "../../../utils/logger.h"
 #include "../../../utils/process1.h"
 #include "../../../utils/registry.h"
 #include "../../../../../client/common/utils/wsscopeguard.h"
+
+using namespace std;
 
 const std::wstring wmActivateGui = L"WindscribeAppActivate";
 const auto kWindscribeClosingTimeout = std::chrono::milliseconds(5000);
@@ -30,7 +33,7 @@ int UninstallPrev::executeStep()
         if (hwnd)
         {
             Log::instance().out(L"Windscribe is running - sending close");
-            // SendMessage WM_CLOSE will only work on an active window
+            // PostMessage WM_CLOSE will only work on an active window
             UINT dwActivateMessage = RegisterWindowMessage(wmActivateGui.c_str());
             PostMessage(hwnd, dwActivateMessage, 0, 0);
         }
@@ -42,8 +45,8 @@ int UninstallPrev::executeStep()
             curTime = chr::high_resolution_clock::now();
             if (curTime - start < kWindscribeClosingTimeout) {
                 PostMessage(hwnd, WM_CLOSE, 0, 0);
+                Sleep(100);
                 hwnd = ApplicationInfo::getAppMainWindowHandle();
-                Sleep(10);
             }
             else {
                 Log::instance().out(L"Timeout exceeded when trying to close Windscribe. Kill the process.");
@@ -51,7 +54,8 @@ int UninstallPrev::executeStep()
                 //todo It is better to extract Windscribe.exe to the global variable without hardcode.
                 Process process;
                 unsigned long resultCode = 5;
-                process.InstExec(L"taskkill", L"/f /im Windscribe.exe /t", L"", ewWaitUntilTerminated, SW_HIDE, resultCode);
+                const wstring appName = Directory::GetSystemDir() + wstring(L"\\taskkill.exe");
+                process.InstExec(appName, L"/f /im Windscribe.exe /t", L"", ewWaitUntilTerminated, SW_HIDE, resultCode);
                 if(resultCode == S_OK) {
                     Log::instance().out(L"Process \"Windcribe.exe\" was successfully killed.");
                     break;

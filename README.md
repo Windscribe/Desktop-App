@@ -62,14 +62,13 @@ Go to subfolder `tools` and run `build_all`. Assuming all goes well with the bui
 
 See `build_all --help` for other build options.
 
-You will find the application logs in `C:/Users/USER/AppData/Local/Windscribe/Windscribe2`.
-
 ### Logs
 
-- ping and client, installer helper: C:/Users/<user_name>/AppData/Local/Windscribe/Windscribe2
-- installer: <Windscribe_installation_path>/log_installer.txt
-- service: <Windscribe_installation_path>/windscribeservice.log
-<Windscribe_installation_path> is usually "C:/Program Files/Windscribe".
+- Client app, location pings and installer helper: `C:/Users/<user_name>/AppData/Local/Windscribe/Windscribe2`
+- Service: `<Windscribe_installation_path>/windscribeservice.log`
+- Installer: `<Windscribe_installation_path>/log_installer.txt`
+- Uninstaller: system Debug View
+- `<Windscribe_installation_path>` defaults to `"C:/Program Files/Windscribe"`
 
 ## Mac
 
@@ -149,9 +148,9 @@ You will find the application logs in `~/Library/Application Support/Windscribe/
 
 ### Logs
 
-- client, ping, engine: "/Users/<user_name>/Library/Application Support/Windscribe/Windsrcibe2"
-- installer: "/Users/<user_name>/Library/Application Support/Windscribe/Windsrcibe"
-- helper: /Library/Logs/com.windscribe/helper.macos
+- Client app and location pings: `"/Users/<user_name>/Library/Application Support/Windscribe/Windsrcibe2"`
+- Installer: `"/Users/<user_name>/Library/Application Support/Windscribe/Windsrcibe/log_installer.txt"`
+- Helper: `/Library/Logs/com.windscribe.helper.macos/helper_log.txt`
 
 ## Linux
 
@@ -204,8 +203,8 @@ See `build_all --help` for other build options.
 The application installs to `/opt/windscribe`.  You will find the application logs in `~/.local/share/Windscribe/Windscribe2`.
 
 ### Logs
-- client, ping: ~/.local/share/Windscribe/Windscribe2
-- helper: /opt/windscribe/helper_log.txt
+- Client app and location pings: `~/.local/share/Windscribe/Windscribe2`
+- Helper: `/opt/windscribe/helper_log.txt`
 
 ## Contributing
 
