@@ -29,6 +29,10 @@ dnsleak_protection_up()
 		get_os_default_dnsservers_NMCLI
 	else
 		get_os_default_dnsservers_resolvectl	
+		# try the nmcli method if resolvectl failed
+                if [ -z "$dns_array" ]; then
+			get_os_default_dnsservers_NMCLI	
+		fi
 	fi
 
 	local marker="-m comment --comment \"Windscribe client dns leak protection\""
