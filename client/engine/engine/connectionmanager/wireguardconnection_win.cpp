@@ -151,7 +151,7 @@ void WireGuardConnection::run()
     // create matches the name of the service the helper installs.  The helper will install
     // the service using the name WireGuardTunnel$ConfFileName
 
-    QString configFile = tr("%1/%2.conf").arg(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation), kServiceIdentifier);
+    QString configFile = QString("%1/%2.conf").arg(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation), kServiceIdentifier);
 
     // Installing the wireguard service requires admin privilege.
     IHelper::ExecuteError err = helper_->startWireGuard(getWireGuardExeName(), configFile);
@@ -180,7 +180,7 @@ void WireGuardConnection::run()
     // The wireguard service creates the log file in the same folder as the config file we passed to it.
     // We must create this log file watcher before we start the wireguard service to ensure we get
     // all log entries.
-    QString logFile = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + tr("/log.bin");
+    QString logFile = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + QString("/log.bin");
     wireguardLog_.reset(new wsl::WireguardRingLogger(logFile));
 
     bool disableDNSLeakProtection = false;

@@ -179,13 +179,13 @@ void CustomConfigLocationsModel::startPingAndWhitelistIps()
                 for (auto ipIt = remoteIt->ips.begin(); ipIt != remoteIt->ips.end(); ++ipIt)
                 {
                     strListIps << ipIt->ip;
-                    allIps << PingIpInfo(ipIt->ip, it->customConfig->name(), it->customConfig->nick(), PingHost::PING_ICMP);
+                    allIps << PingIpInfo(ipIt->ip, ipIt->ip, QString(), it->customConfig->name(), it->customConfig->nick(), PingHost::PING_ICMP);
                 }
             }
             else
             {
                 strListIps << remoteIt->ipOrHostname.ip;
-                allIps << PingIpInfo(remoteIt->ipOrHostname.ip, it->customConfig->name(), it->customConfig->nick(), PingHost::PING_ICMP);
+                allIps << PingIpInfo(remoteIt->ipOrHostname.ip, remoteIt->ipOrHostname.ip, QString(), it->customConfig->name(), it->customConfig->nick(), PingHost::PING_ICMP);
             }
         }
     }

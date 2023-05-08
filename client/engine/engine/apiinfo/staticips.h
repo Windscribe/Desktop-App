@@ -46,9 +46,11 @@ struct StaticIpDescr
     QString wgIp;
     QString wgPubKey;
     QString ovpnX509;
+    QString pingHost;
     QVector<StaticIpPortDescr> ports;
 
     const QString& getPingIp() const { WS_ASSERT(!nodeIPs.isEmpty()); return nodeIPs[0]; }
+    const QString& getPingHost() const { return pingHost; }
 
     StaticIpPortsVector getAllStaticIpIntPorts() const;
 
@@ -59,7 +61,7 @@ struct StaticIpDescr
     friend QDataStream& operator >>(QDataStream& stream, StaticIpDescr& s);
 
 private:
-    static constexpr quint32 versionForSerialization_ = 1;
+    static constexpr quint32 versionForSerialization_ = 2;
 };
 
 // internal data for StaticIps

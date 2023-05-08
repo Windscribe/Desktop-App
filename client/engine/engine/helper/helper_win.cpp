@@ -209,6 +209,17 @@ bool Helper_win::sendConnectStatus(bool isConnected, bool isTerminateSocket, boo
     cmd.isTerminateSocket = isTerminateSocket;
     cmd.isKeepLocalSocket = isKeepLocalSocket;
 
+    auto fillAdapterInfo = [](const AdapterGatewayInfo &a, ADAPTER_GATEWAY_INFO &out) {
+        out.adapterName = a.adapterName().toStdString();
+        out.adapterIp = a.adapterIp().toStdString();
+        out.gatewayIp = a.gateway().toStdString();
+        out.ifIndex = a.ifIndex();
+        const QStringList dns = a.dnsServers();
+        for(auto ip : dns) {
+            out.dnsServers.push_back(ip.toStdString());
+        }
+    };
+
     if (isConnected) {
         if (protocol.isStunnelOrWStunnelProtocol()) {
             cmd.protocol = CMD_PROTOCOL_STUNNEL_OR_WSTUNNEL;
@@ -226,25 +237,13 @@ bool Helper_win::sendConnectStatus(bool isConnected, bool isTerminateSocket, boo
             WS_ASSERT(false);
         }
 
-        auto fillAdapterInfo = [](const AdapterGatewayInfo &a, ADAPTER_GATEWAY_INFO &out)
-        {
-            out.adapterName = a.adapterName().toStdString();
-            out.adapterIp = a.adapterIp().toStdString();
-            out.gatewayIp = a.gateway().toStdString();
-            out.ifIndex = a.ifIndex();
-            const QStringList dns = a.dnsServers();
-            for(auto ip : dns)
-            {
-                out.dnsServers.push_back(ip.toStdString());
-            }
-        };
-
-        fillAdapterInfo(defaultAdapter, cmd.defaultAdapter);
         fillAdapterInfo(vpnAdapter, cmd.vpnAdapter);
 
         cmd.connectedIp = connectedIp.toStdString();
         cmd.remoteIp = vpnAdapter.remoteIp().toStdString();
     }
+
+    fillAdapterInfo(defaultAdapter, cmd.defaultAdapter);
 
     std::stringstream stream;
     boost::archive::text_oarchive oa(stream, boost::archive::no_header);

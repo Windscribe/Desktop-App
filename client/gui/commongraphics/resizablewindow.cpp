@@ -210,5 +210,5 @@ void ResizableWindow::setScrollOffset(int offset)
 
 void ResizableWindow::onLanguageChanged()
 {
-    onAppSkinChanged(preferences_->appSkin());
+    updatePositions();
 }

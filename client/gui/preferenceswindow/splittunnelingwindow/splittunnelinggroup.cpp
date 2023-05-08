@@ -83,7 +83,7 @@ void SplitTunnelingGroup::onActiveSwitchStateChanged(bool checked)
                     tr("The split tunneling driver is not installed.  To enable this feature, try"
                        " reinstalling the Windscribe application.\n\nIf the reinstall does not help, please"
                        " contact Windscribe support for assistance."),
-                    tr(GeneralMessage::kOk),
+                    GeneralMessageController::tr(GeneralMessageController::kOk),
                     "",
                     "",
                     std::function<void(bool)>(nullptr),

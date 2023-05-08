@@ -1,2 +1,4 @@
 colorama
 pyyaml
+requests
+translate-toolkit[XML]

@@ -1,11 +1,11 @@
 #include "toggleitem.h"
 
+#include <QCursor>
 #include <QGraphicsSceneMouseEvent>
 #include <QPainter>
-#include <QCursor>
-#include "graphicresources/imageresourcessvg.h"
-#include "graphicresources/fontmanager.h"
+
 #include "dpiscalemanager.h"
+#include "graphicresources/fontmanager.h"
 #include "preferencesconst.h"
 
 namespace PreferencesWindow {
@@ -31,18 +31,25 @@ void ToggleItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
     painter->setFont(*font);
     painter->setPen(Qt::white);
 
-    int xOffset = PREFERENCES_MARGIN*G_SCALE;
-    if (icon_)
-    {
-        xOffset = (2*PREFERENCES_MARGIN + ICON_WIDTH)*G_SCALE;
+    qreal xOffset = PREFERENCES_MARGIN*G_SCALE;
+    if (icon_) {
+        xOffset = (1.5*PREFERENCES_MARGIN + ICON_WIDTH)*G_SCALE;
         icon_->draw(PREFERENCES_MARGIN*G_SCALE, PREFERENCES_MARGIN*G_SCALE, ICON_WIDTH*G_SCALE, ICON_HEIGHT*G_SCALE, painter);
     }
+
+    QFontMetrics fm(*font);
+    int availableWidth = checkBoxButton_->pos().x() - xOffset - DESCRIPTION_MARGIN*G_SCALE;
+    QString elidedText = strCaption_;
+    if (availableWidth < fm.horizontalAdvance(strCaption_)) {
+        elidedText = fm.elidedText(strCaption_, Qt::ElideRight, availableWidth, 0);
+    }
+
     painter->drawText(boundingRect().adjusted(xOffset,
                                               PREFERENCES_MARGIN*G_SCALE,
                                               -PREFERENCES_MARGIN*G_SCALE,
                                               -PREFERENCES_MARGIN*G_SCALE),
                       Qt::AlignLeft,
-                      strCaption_);
+                      elidedText);
 }
 
 void ToggleItem::setEnabled(bool enabled)

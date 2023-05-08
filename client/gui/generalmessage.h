@@ -48,9 +48,4 @@ public:
     MainWindowController::WINDOW_ID source;
     Flags flags;
     QString learnMoreUrl;
-
-    static inline const char *kOk = QT_TR_NOOP("Ok");
-    static inline const char *kYes = QT_TR_NOOP("Yes");
-    static inline const char *kNo = QT_TR_NOOP("No");
-    static inline const char *kCancel = QT_TR_NOOP("Cancel");
 };

@@ -18,6 +18,7 @@ bool Group::initFromJson(QJsonObject &obj, QStringList &forceDisconnectNodes)
     d->nick_ = obj["nick"].toString();
     d->pro_ = obj["pro"].toInt();
     d->pingIp_ = obj["ping_ip"].toString();
+    d->pingHost_ = obj["ping_host"].toString();
     d->wg_pubkey_ = obj["wg_pubkey"].toString();
     d->ovpn_x509_ = obj["ovpn_x509"].toString();
 
@@ -81,6 +82,7 @@ bool Group::operator==(const Group &other) const
            d->nick_ == other.d->nick_ &&
            d->pro_ == other.d->pro_ &&
            d->pingIp_ == other.d->pingIp_ &&
+           d->pingHost_ == other.d->pingHost_ &&
            d->wg_pubkey_ == other.d->wg_pubkey_ &&
            d->ovpn_x509_ == other.d->ovpn_x509_ &&
            d->link_speed_ == other.d->link_speed_ &&
@@ -99,7 +101,7 @@ QDataStream& operator <<(QDataStream& stream, const Group& g)
 {
     WS_ASSERT(g.d->isValid_);
     stream << g.versionForSerialization_;
-    stream << g.d->id_ << g.d->city_ << g.d->nick_ << g.d->pro_ << g.d->pingIp_ << g.d->wg_pubkey_ << g.d->ovpn_x509_ << g.d->link_speed_ <<
+    stream << g.d->id_ << g.d->city_ << g.d->nick_ << g.d->pro_ << g.d->pingIp_ << g.d->pingHost_ << g.d->wg_pubkey_ << g.d->ovpn_x509_ << g.d->link_speed_ <<
               g.d->health_ << g.d->dnsHostName_ << g.d->nodes_;
 
     return stream;
@@ -109,15 +111,19 @@ QDataStream& operator >>(QDataStream& stream, Group& g)
 {
     quint32 version;
     stream >> version;
-    if (version > g.versionForSerialization_)
-    {
+    if (version > g.versionForSerialization_) {
         stream.setStatus(QDataStream::ReadCorruptData);
         g.d->isValid_ = false;
         return stream;
     }
 
-    stream >> g.d->id_ >> g.d->city_ >> g.d->nick_ >> g.d->pro_ >> g.d->pingIp_ >> g.d->wg_pubkey_ >> g.d->ovpn_x509_ >> g.d->link_speed_ >>
-              g.d->health_ >> g.d->dnsHostName_ >> g.d->nodes_;
+    if (version == 1) {
+        stream >> g.d->id_ >> g.d->city_ >> g.d->nick_ >> g.d->pro_ >> g.d->pingIp_ >> g.d->wg_pubkey_ >> g.d->ovpn_x509_ >> g.d->link_speed_ >>
+                  g.d->health_ >> g.d->dnsHostName_ >> g.d->nodes_;
+    } else if (version == g.versionForSerialization_) {
+        stream >> g.d->id_ >> g.d->city_ >> g.d->nick_ >> g.d->pro_ >> g.d->pingIp_ >> g.d->pingHost_ >> g.d->wg_pubkey_ >> g.d->ovpn_x509_ >> g.d->link_speed_ >>
+                  g.d->health_ >> g.d->dnsHostName_ >> g.d->nodes_;
+    }
 
     g.d->isValid_ = true;
 

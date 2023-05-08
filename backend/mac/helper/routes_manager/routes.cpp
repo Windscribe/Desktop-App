@@ -34,13 +34,13 @@ void Routes::clear()
     {
         if (rd.interface.empty())
         {
-            std::string cmd = "route delete -net " + rd.ip + " " + rd.gateway + " " + rd.mask;
+            std::string cmd = "route -q -n delete -net " + rd.ip + " " + rd.gateway + " " + rd.mask;
             LOG("execute: %s", cmd.c_str());
             Utils::executeCommand(cmd);
         }
         else
         {
-            std::string cmd = "route delete -inet " + rd.ip + " -interface " + rd.interface;
+            std::string cmd = "netstat -rn | grep " + rd.interface + " && route -q -n delete -inet " + rd.ip + " -interface " + rd.interface;
             LOG("execute: %s", cmd.c_str());
             Utils::executeCommand(cmd);
         }

@@ -66,41 +66,6 @@ bool WindscribeApplication::isExitWithRestart()
 #endif
 }
 
-QString WindscribeApplication::changeLanguage(const QString &lang)
-{
-    if (lang == "en")
-    {
-        removeTranslator(&translator);
-        qCDebug(LOG_BASIC) << "Language changed:" << lang;
-        return lang;
-    }
-    else
-    {
-#if defined Q_OS_WIN
-        QString filename = QApplication::applicationDirPath() + "/languages/" + lang + ".qm";
-#elif defined Q_OS_MAC
-        QString filename = QApplication::applicationDirPath() + "/../Languages/" + lang + ".qm";
-#elif defined Q_OS_LINUX
-        QString filename = QApplication::applicationDirPath() + "/../Languages/" + lang + ".qm";
-#endif
-
-        if (translator.load(filename))
-        {
-            qCDebug(LOG_BASIC) << "Language changed:" << lang;
-            installTranslator(&translator);
-            return lang;
-        }
-        else
-        {
-            qCDebug(LOG_BASIC) << "Failed load language file for" << lang;
-            // set English on error
-            removeTranslator(&translator);
-            qCDebug(LOG_BASIC) << "Language changed: en";
-            return "en";
-        }
-    }
-}
-
 void WindscribeApplication::onActivateFromAnotherInstance()
 {
     emit activateFromAnotherInstance();

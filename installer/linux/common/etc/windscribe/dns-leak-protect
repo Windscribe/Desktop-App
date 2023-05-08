@@ -9,30 +9,41 @@ cmd() {
 	"$@"
 }
 
+get_os_default_dnsservers_resolvectl()
+{
+	mapfile -t dns_array < <( resolvectl dns | awk -F: '$1 !~ /\(utun420|\(tun/ {st = index($0,":"); print substr($0,st+1)}' | 
+				  awk '$1 {print $1}' | sed 's/^[ \t]*//;s/[ \t]*$//' )
+}
+
+
+get_os_default_dnsservers_NMCLI()
+{
+	mapfile -t dns_array < <( (nmcli dev list || nmcli dev show ) 2>/dev/null | grep DNS |
+				  awk -F: '{ st = index($0,":");print substr($0,st+1)}' | awk '$1 {print $1}' | sed 's/^[ \t]*//;s/[ \t]*$//' )
+}
+
 dnsleak_protection_up() 
 {
-
-	local interface_name="$1"
-	shift
-	local marker="-m comment --comment \"Windscribe client dns leak protection\""
-
-	if [ -z "$interface_name" ]
-	then
-   		echo "\$interface_name is empty"
-   		return 0
+	# get dns default DNS-servers and put it into dns_array variable based on resolvectl or nmcli methods.
+	if ! command -v resolvectl &> /dev/null; then
+		get_os_default_dnsservers_NMCLI
+	else
+		get_os_default_dnsservers_resolvectl	
 	fi
+
+	local marker="-m comment --comment \"Windscribe client dns leak protection\""
 
 	local rules=$'*filter\n'
 	printf -v rules '%s:windscribe_dnsleaks - [0:0]\n' "$rules"
 	printf -v rules '%s-I OUTPUT 1 -j windscribe_dnsleaks %s\n' "$rules" "$marker"
 	printf -v rules '%s-A windscribe_dnsleaks -o lo -j ACCEPT %s\n' "$rules" "$marker"
-	# allow DNS servers that we've configured
-	for i in $@; do
-		printf -v rules '%s-A windscribe_dnsleaks -o %s -d %s -j ACCEPT %s\n' "$rules" "$interface_name" "$i" "$marker"
+
+	# disallow all OS-default DNS servers
+	for dnsIp in "${dns_array[@]}"
+	do
+		printf -v rules '%s-A windscribe_dnsleaks -d %s -p udp --dport 53 -j DROP %s\n' "$rules" "$dnsIp" "$marker"
+		printf -v rules '%s-A windscribe_dnsleaks -d %s -p tcp --dport 53 -j DROP %s\n' "$rules" "$dnsIp" "$marker"
 	done
-	# disallow all others
-	printf -v rules '%s-A windscribe_dnsleaks -p udp --dport 53 -j DROP %s\n' "$rules" "$marker"
-	printf -v rules '%s-A windscribe_dnsleaks -p tcp --dport 53 -j DROP %s\n' "$rules" "$marker"
 
 	printf -v rules '%sCOMMIT\n' "$rules"
 
@@ -67,17 +78,16 @@ dnsleak_protection_down()
 	fi
 }
 
-
-main() {
+main() 
+{
 	local action="$1"
-	shift
 
 	if [[ $action == "up" ]]; then
-		dnsleak_protection_up $@
+		dnsleak_protection_up
 	elif [[ $action == "down" ]]; then
 		dnsleak_protection_down
 	else
-		echo "Usage: dns-leak-protect up|down [interface_name] [servers_to_allow]"
+		echo "Usage: dns-leak-protect up|down"
 		return 1
 	fi
 }

@@ -1,3 +1,24 @@
+2.7.3 (26/04/2023)
+All:
+   * Added translations for Arabic, French, German, Hindi, Russian, Simplified Chinese, and Spanish. #607
+   * Fixed busy spinner displayed when exiting is not centered. #457
+   * Fixed ROBERT screen loading icon not antialiased. #490
+   * Fixed protocol badge not immediately updated on network changes. #600
+   * Updated app to use server-supplied ping (latency) values. #596
+   * Updated app warnings and error messages. #620
+Windows:
+   * Fixed app to apply split exclude rules even while disconnected, if the firewall is up. #575
+   * Fixed WireGuard service fails to start if Windows account name contains Unicode characters. #626
+   * Fixed Windows network discovery blocked by firewall. #630
+macOS:
+   * Fixed app removes user's static IPv6 configuration and does not restore it. #64
+   * Fixed Air Drop, Handoff, Airplay and other local Mac sharing features are partially functional or blocked with Allow LAN turned on. #415
+   * Fixed helper holds installer executable hostage after installing app. #599
+   * Fixed always-on firewall bug causing app to hang on startup. #609
+Linux:
+   * Added support for native aarch64 (arm64) Ubuntu build. #190
+
+
 2.7.2 (12/04/2023)
 All:
    * Added support for DNS-over-HTTPS (DoH) and split DNS to the 'Connected DNS' feature. #393 & #54

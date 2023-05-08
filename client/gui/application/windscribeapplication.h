@@ -27,7 +27,6 @@ public:
     void setWasRestartOSFlag() { bWasRestartOS_ = true; }
     void clearWasRestartOSFlag() { bWasRestartOS_ = false; }
     bool isExitWithRestart();
-    QString changeLanguage(const QString &lang);
 
     bool isNeedAskClose() { return bNeedAskClose_; }
     void setNeedAskClose() { bNeedAskClose_ = true; }

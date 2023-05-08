@@ -49,6 +49,7 @@ update-desktop-database
 echo linux_rpm_x64 > ../etc/windscribe/platform
 
 %postun
+killall -q Windscribe || true
 rm -rf /usr/bin/windscribe-cli
 
 %files

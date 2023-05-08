@@ -1,18 +1,17 @@
-#ifndef TYPES_ENGINESETTINGS_H
-#define TYPES_ENGINESETTINGS_H
+#pragma once
 
-#include <QString>
-#include <QSharedDataPointer>
 #include <QSharedData>
-#include "types/enums.h"
-#include "types/connectionsettings.h"
+#include <QSharedDataPointer>
+#include <QString>
+
 #include "types/apiresolutionsettings.h"
-#include "types/proxysettings.h"
-#include "types/firewallsettings.h"
-#include "types/packetsize.h"
-#include "types/macaddrspoofing.h"
 #include "types/connecteddnsinfo.h"
-#include "utils/simplecrypt.h"
+#include "types/connectionsettings.h"
+#include "types/enums.h"
+#include "types/firewallsettings.h"
+#include "types/macaddrspoofing.h"
+#include "types/packetsize.h"
+#include "types/proxysettings.h"
 
 class LegacyProtobufSupport;
 
@@ -21,7 +20,6 @@ namespace types {
 struct EngineSettingsData : public QSharedData
 {
     EngineSettingsData() :
-        language("en"),
         updateChannel(UPDATE_CHANNEL_RELEASE),
         isIgnoreSslErrors(false),
         isTerminateSockets(true),
@@ -108,12 +106,10 @@ public:
     TAP_ADAPTER_TYPE tapAdapter() const;
     void setTapAdapter(TAP_ADAPTER_TYPE tap);
 
-
     QString customOvpnConfigsPath() const;
     void setCustomOvpnConfigsPath(const QString &path);
     bool isKeepAliveEnabled() const;
     void setIsKeepAliveEnabled(bool enabled);
-
 
     bool operator==(const EngineSettings &other) const;
     bool operator!=(const EngineSettings &other) const;
@@ -130,7 +126,4 @@ private:
     static constexpr int versionForSerialization_ = 3;  // should increment the version if the data format is changed
 };
 
-
 } // types namespace
-
-#endif // TYPES_ENGINESETTINGS_H

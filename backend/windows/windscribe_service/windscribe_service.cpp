@@ -351,6 +351,7 @@ MessagePacketResult processMessagePacket(int cmdId, const std::string &packet, I
         ia >> cmdFirewallOn;
 
         firewallFilter.on(cmdFirewallOn.ip.c_str(), cmdFirewallOn.allowLanTraffic, cmdFirewallOn.isCustomConfig);
+        splitTunnelling.updateState();
         Logger::instance().out(L"AA_COMMAND_FIREWALL_ON, AllowLocalTraffic=%d, IsCustomConfig=%d", cmdFirewallOn.allowLanTraffic, cmdFirewallOn.isCustomConfig);
         mpr.success = true;
         mpr.exitCode = 0;
@@ -358,6 +359,7 @@ MessagePacketResult processMessagePacket(int cmdId, const std::string &packet, I
     else if (cmdId == AA_COMMAND_FIREWALL_OFF)
     {
         firewallFilter.off();
+        splitTunnelling.updateState();
         Logger::instance().out(L"AA_COMMAND_FIREWALL_OFF");
         mpr.success = true;
         mpr.exitCode = 0;

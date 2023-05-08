@@ -1,17 +1,18 @@
 #include "twofactorauthokbutton.h"
 
-#include <QPainter>
-#include <QPainterPath>
 #include <QCursor>
 #include <QGraphicsSceneMouseEvent>
-#include "graphicresources/fontmanager.h"
+#include <QPainter>
+#include <QPainterPath>
+
 #include "commongraphics/commongraphics.h"
 #include "dpiscalemanager.h"
+#include "graphicresources/fontmanager.h"
 
 namespace TwoFactorAuthWindow
 {
-TwoFactorAuthOkButton::TwoFactorAuthOkButton(ScalableGraphicsObject *parent, int width, int height)
-        : ClickableGraphicsObject(parent), width_(width), height_(height), arcWidth_(16),
+TwoFactorAuthOkButton::TwoFactorAuthOkButton(ScalableGraphicsObject *parent)
+        : ClickableGraphicsObject(parent), width_(OK_BUTTON_WIDTH), height_(OK_BUTTON_HEIGHT), arcWidth_(16),
           arcHeight_(16), fontDescr_(14, false), text_()
 {
     setButtonType(BUTTON_TYPE_ADD);
@@ -70,6 +71,11 @@ void TwoFactorAuthOkButton::setButtonType(BUTTON_TYPE type)
         text_ = tr("Login");
         break;
     }
+
+    // Ensure the button is wide enough for the translated text and margins.
+    QFont *font = FontManager::instance().getFont(fontDescr_);
+    int buttonWidth = CommonGraphics::textWidth(text_, *font) + 2*16*G_SCALE;
+    width_ = qMax(OK_BUTTON_WIDTH, buttonWidth);
 }
 
 void TwoFactorAuthOkButton::setFont(const FontDescr &fontDescr)

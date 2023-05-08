@@ -12,11 +12,14 @@ PingHost_TCP::~PingHost_TCP()
     clearPings();
 }
 
-void PingHost_TCP::addHostForPing(const QString &ip)
+void PingHost_TCP::addHostForPing(const QString &id, const QString &ip)
 {
-    if (!hostAlreadyPingingOrInWaitingQueue(ip))
+    if (!hostAlreadyPingingOrInWaitingQueue(id))
     {
-        waitingPingsQueue_.enqueue(ip);
+        QueueJob job;
+        job.id = id;
+        job.ip = ip;
+        waitingPingsQueue_.enqueue(job);
         processNextPings();
     }
 }
@@ -62,8 +65,8 @@ void PingHost_TCP::onSocketBytesWritten(qint64 bytes)
     QTcpSocket *tcpSocket = (QTcpSocket *)sender();
     if (bytes == 1)
     {
-        QString ip = tcpSocket->property("ip").toString();
-        auto it = pingingHosts_.find(ip);
+        QString id = tcpSocket->property("id").toString();
+        auto it = pingingHosts_.find(id);
         if (it != pingingHosts_.end())
         {
             PingInfo *pingInfo = it.value();
@@ -71,11 +74,11 @@ void PingHost_TCP::onSocketBytesWritten(qint64 bytes)
             int timeMs = (int)pingInfo->elapsedTimer.elapsed();
             pingInfo->tcpSocket->deleteLater();
             pingInfo->timer->deleteLater();
-            pingingHosts_.remove(ip);
+            pingingHosts_.remove(id);
             delete pingInfo;
-            emit pingFinished(true, timeMs, ip, bFromDisconnectedState);
+            emit pingFinished(true, timeMs, id, bFromDisconnectedState);
         }
-        waitingPingsQueue_.removeAll(ip);
+        removeFromQueue(id);
         processNextPings();
     }
     else
@@ -97,19 +100,26 @@ void PingHost_TCP::onSocketTimeout()
     processError(obj);
 }
 
-inline bool PingHost_TCP::hostAlreadyPingingOrInWaitingQueue(const QString &ip)
+bool PingHost_TCP::hostAlreadyPingingOrInWaitingQueue(const QString &id)
 {
-    return pingingHosts_.find(ip) != pingingHosts_.end() || waitingPingsQueue_.indexOf(ip) != -1;
+    if (pingingHosts_.find(id) != pingingHosts_.end())
+        return true;
+
+    for (const auto &it : waitingPingsQueue_)
+        if (it.id == id)
+            return true;
+
+    return false;
 }
 
 void PingHost_TCP::processNextPings()
 {
     if (pingingHosts_.count() < MAX_PARALLEL_PINGS && !waitingPingsQueue_.isEmpty())
     {
-        QString ip = waitingPingsQueue_.dequeue();
+        QueueJob job = waitingPingsQueue_.dequeue();
 
         PingInfo *pingInfo = new PingInfo();
-        pingInfo->ip = ip;
+        pingInfo->ip = job.ip;
         pingInfo->tcpSocket = new QTcpSocket(this);
         if (isProxyEnabled())
         {
@@ -128,32 +138,42 @@ void PingHost_TCP::processNextPings()
             pingInfo->tcpSocket->setProperty("fromDisconnectedState", true);
         }
 
-        pingInfo->tcpSocket->setProperty("ip", ip);
-        pingInfo->timer->setProperty("ip", ip);
-        pingingHosts_[ip] = pingInfo;
+        pingInfo->tcpSocket->setProperty("id", job.id);
+        pingInfo->timer->setProperty("id", job.id);
+        pingingHosts_[job.id] = pingInfo;
 
         pingInfo->elapsedTimer.start();
         pingInfo->timer->start(PING_TIMEOUT);
-        pingInfo->tcpSocket->connectToHost(ip, 443, QTcpSocket::ReadWrite, QTcpSocket::IPv4Protocol);
+        pingInfo->tcpSocket->connectToHost(job.ip, 443, QTcpSocket::ReadWrite, QTcpSocket::IPv4Protocol);
     }
 }
 
 void PingHost_TCP::processError(QObject *obj)
 {
-    QString ip = obj->property("ip").toString();
-    auto it = pingingHosts_.find(ip);
+    QString id = obj->property("id").toString();
+    auto it = pingingHosts_.find(id);
     if (it != pingingHosts_.end())
     {
         PingInfo *pingInfo = it.value();
         bool bFromDisconnectedState = pingInfo->tcpSocket->property("fromDisconnectedState").toBool();
         pingInfo->tcpSocket->deleteLater();
         pingInfo->timer->deleteLater();
-        pingingHosts_.remove(ip);
+        pingingHosts_.remove(id);
         delete pingInfo;
-        emit pingFinished(false, 0, ip, bFromDisconnectedState);
+        emit pingFinished(false, 0, id, bFromDisconnectedState);
     }
-    waitingPingsQueue_.removeAll(ip);
+
+    removeFromQueue(id);
     processNextPings();
+}
+
+void PingHost_TCP::removeFromQueue(const QString &id)
+{
+    QMutableListIterator<QueueJob> i(waitingPingsQueue_);
+    while (i.hasNext()) {
+        if (i.next().id == id)
+            i.remove();
+    }
 }
 
 bool PingHost_TCP::isProxyEnabled() const

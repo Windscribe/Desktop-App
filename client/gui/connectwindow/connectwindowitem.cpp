@@ -1,16 +1,17 @@
 #include "connectwindowitem.h"
 
-#include <QGraphicsSceneMouseEvent>
-#include <QPainter>
 #include <QCursor>
 #include <QGraphicsScene>
+#include <QGraphicsSceneMouseEvent>
 #include <QGraphicsView>
-#include "graphicresources/fontmanager.h"
-#include "utils/ws_assert.h"
-#include "utils/logger.h"
+#include <QPainter>
+
 #include "dpiscalemanager.h"
-#include "tooltips/tooltiputil.h"
+#include "languagecontroller.h"
 #include "tooltips/tooltipcontroller.h"
+#include "tooltips/tooltiputil.h"
+#include "utils/logger.h"
+#include "utils/ws_assert.h"
 
 
 namespace ConnectWindow {
@@ -115,7 +116,7 @@ ConnectWindowItem::ConnectWindowItem(QGraphicsObject *parent, Preferences *prefe
     connect(preferencesHelper, &PreferencesHelper::isDockedModeChanged, this, &ConnectWindowItem::onDockedModeChanged);
     connect(preferences, &Preferences::appSkinChanged, this, &ConnectWindowItem::onAppSkinChanged);
 
-    QFont descFont = *FontManager::instance().getFont(11, false);
+    connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &ConnectWindowItem::onLanguageChanged);
 
     updatePositions();
 }
@@ -609,7 +610,7 @@ void ConnectWindowItem::updatePositions()
         serverRatingIndicator_->setPos(296*G_SCALE, 129*G_SCALE);
         middleItem_->setPos(0, 182*G_SCALE);
         firewallButton_->setPos(16*G_SCALE, 224*G_SCALE);
-        firewallInfo_->setPos(82*G_SCALE, 184*G_SCALE);
+        firewallInfo_->setPos(middleItem_->firewallTextRight() + 8*G_SCALE, 184*G_SCALE);
     }
     else
     {
@@ -677,6 +678,11 @@ void ConnectWindowItem::onProtocolsClick()
 void ConnectWindowItem::setIsPreferredProtocol(bool on)
 {
     connectStateProtocolPort_->setIsPreferredProtocol(on);
+}
+
+void ConnectWindowItem::onLanguageChanged()
+{
+    updatePositions();
 }
 
 } //namespace ConnectWindow
