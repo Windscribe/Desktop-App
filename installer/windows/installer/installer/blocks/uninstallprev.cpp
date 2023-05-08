@@ -55,7 +55,7 @@ int UninstallPrev::executeStep()
                 Process process;
                 const wstring appName = Directory::GetSystemDir() + wstring(L"\\taskkill.exe");
                 const auto res = process.InstExec(appName, L"/f /im Windscribe.exe /t", INFINITE, SW_HIDE);
-                if(res.has_value() && res.value() == S_OK) {
+                if(res.has_value() && res.value() == NO_ERROR) {
                     Log::instance().out(L"Process \"Windcribe.exe\" was successfully killed.");
                     break;
                 }
