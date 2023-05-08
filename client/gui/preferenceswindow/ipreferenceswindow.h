@@ -15,6 +15,7 @@ public:
         : ResizableWindow(parent, preferences, preferencesHelper) {}
     virtual ~IPreferencesWindow() {}
 
+    virtual PREFERENCES_TAB_TYPE currentTab() = 0;
     virtual void setCurrentTab(PREFERENCES_TAB_TYPE tab) = 0;
     virtual void setCurrentTab(PREFERENCES_TAB_TYPE tab, CONNECTION_SCREEN_TYPE subpage ) = 0;
 

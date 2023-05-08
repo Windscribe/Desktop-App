@@ -167,6 +167,11 @@ void PreferencesWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsI
     }
 }
 
+PREFERENCES_TAB_TYPE PreferencesWindowItem::currentTab()
+{
+    return tabControlItem_->currentTab();
+}
+
 void PreferencesWindowItem::setCurrentTab(PREFERENCES_TAB_TYPE tab)
 {
     changeTab(tab);

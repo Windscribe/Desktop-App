@@ -39,6 +39,7 @@ public:
 
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
+    PREFERENCES_TAB_TYPE currentTab() override;
     void setCurrentTab(PREFERENCES_TAB_TYPE tab) override;
     void setCurrentTab(PREFERENCES_TAB_TYPE tab, CONNECTION_SCREEN_TYPE subpage ) override;
 

@@ -696,6 +696,70 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *event)
 
 bool MainWindow::handleKeyPressEvent(QKeyEvent *event)
 {
+    if (ExtraConfig::instance().getUsingScreenTransitionHotkeys()) {
+        if (event->modifiers() & Qt::ControlModifier) {
+            if (event->key() == Qt::Key_E) {
+                mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_EMERGENCY);
+            } else if (event->key() == Qt::Key_L) {
+                if (event->modifiers() & Qt::ShiftModifier) {
+                    mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_LOGGING_IN);
+                } else {
+                    mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_LOGIN);
+                }
+            } else if (event->key() == Qt::Key_C) {
+                mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_CONNECT);
+            } else if (event->key() == Qt::Key_X) {
+                mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_EXTERNAL_CONFIG);
+            } else if (event->key() == Qt::Key_G) {
+                mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_UPGRADE);
+            } else if (event->key() == Qt::Key_D) {
+                mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_UPDATE);
+            } else if (event->key() == Qt::Key_I) {
+                if (event->modifiers() & Qt::ShiftModifier) {
+                    mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_LOGOUT);
+                } else {
+                    mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_EXIT);
+                }
+            } else if (event->key() == Qt::Key_P) {
+                if (event->modifiers() & Qt::ShiftModifier) {
+                    collapsePreferences();
+                } else {
+                    if (mainWindowController_->isPreferencesVisible()) {
+                        PREFERENCES_TAB_TYPE tab = (PREFERENCES_TAB_TYPE)((mainWindowController_->getPreferencesWindow()->currentTab() + 1) % TAB_UNDEFINED);
+                        mainWindowController_->getPreferencesWindow()->setCurrentTab(tab);
+                    }
+                    mainWindowController_->expandPreferences();
+                }
+            } else if (event->key() == Qt::Key_O) {
+                if (event->modifiers() & Qt::ShiftModifier) {
+                    mainWindowController_->collapseLocations();
+                } else {
+                    mainWindowController_->expandLocations();
+                }
+            } else if (event->key() == Qt::Key_N) {
+                if (event->modifiers() & Qt::ShiftModifier) {
+                    mainWindowController_->collapseNewsFeed();
+                } else {
+                    mainWindowController_->getNewsFeedWindow()->setMessages(
+                        notificationsController_.messages(), notificationsController_.shownIds());
+                    mainWindowController_->expandNewsFeed();
+                }
+            } else if (event->key() == Qt::Key_R) {
+                if (event->modifiers() & Qt::ShiftModifier) {
+                    mainWindowController_->collapseProtocols();
+                } else {
+                    mainWindowController_->expandProtocols(ProtocolWindowMode::kChangeProtocol);
+                }
+            } else if (event->key() == Qt::Key_U) {
+                if (event->modifiers() & Qt::ShiftModifier) {
+                    mainWindowController_->hideUpdateWidget();
+                } else {
+                    mainWindowController_->showUpdateWidget();
+                }
+            }
+        }
+    }
+
     if (mainWindowController_->isLocationsExpanded())
     {
         if(event->key() == Qt::Key_Escape || event->key() == Qt::Key_Space)
