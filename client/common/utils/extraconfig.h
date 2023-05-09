@@ -46,6 +46,7 @@ public:
 
     bool getLogAPIResponse();
     bool getWireGuardVerboseLogging();
+    bool getUsingScreenTransitionHotkeys();
 
 private:
     ExtraConfig();

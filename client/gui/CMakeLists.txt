@@ -39,8 +39,6 @@ set(PROJECT_SOURCES
     generalmessage.h
     generalmessagecontroller.cpp
     generalmessagecontroller.h
-    guitest.cpp
-    guitest.h
     languagecontroller.cpp
     languagecontroller.h
     loginattemptscontroller.cpp

@@ -17,7 +17,6 @@
 #include "blockconnect.h"
 #include "freetrafficnotificationcontroller.h"
 #include "graphicresources/iconmanager.h"
-#include "guitest.h"
 #include "systemtray/locationstraymenunative.h"
 #include "systemtray/locationstraymenu.h"
 #include "dialogs/advancedparametersdialog.h"
@@ -328,7 +327,6 @@ private:
     QString signOutErrorMessage_;
 
     LoginAttemptsController loginAttemptsController_;
-    GuiTest *guiTest_;
     QSharedPointer<IMultipleAccountDetection> multipleAccountDetection_;
     BlockConnect blockConnect_;
     FreeTrafficNotificationController *freeTrafficNotificationController_;
