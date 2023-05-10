@@ -28,6 +28,8 @@
 # Define what needs to be called via DBus
 DBUS_DEST="org.freedesktop.resolve1"
 DBUS_NODE="/org/freedesktop/resolve1"
+WINDSCRIBE_SYSTEMD_CONFIG_DIR="/usr/local/lib/systemd/resolved.conf.d"
+WINDSCRIBE_SYSTEMD_CONFIG_FILE="$WINDSCRIBE_SYSTEMD_CONFIG_DIR/windscribe.conf"
 
 SCRIPT_NAME="${BASH_SOURCE[0]##*/}"
 
@@ -72,6 +74,24 @@ dhcp_settings() {
   done
 }
 
+up_loopback() {
+  if [ ! -d "$WINDSCRIBE_SYSTEMD_CONFIG_DIR" ]; then
+    mkdir -p "$WINDSCRIBE_SYSTEMD_CONFIG_DIR";
+  fi
+
+  echo "[Resolve]" > "$WINDSCRIBE_SYSTEMD_CONFIG_FILE"
+  echo "DNS=$1" >> "$WINDSCRIBE_SYSTEMD_CONFIG_FILE"
+  echo "Domains=~." >> "$WINDSCRIBE_SYSTEMD_CONFIG_FILE"
+
+  systemctl restart systemd-resolved
+}
+
+down_loopback() {
+  rm -f "$WINDSCRIBE_SYSTEMD_CONFIG_FILE"
+  systemctl restart systemd-resolved
+}
+
+
 up() {
   local link="$1"
   shift
@@ -87,6 +107,28 @@ up() {
   local -a dns_servers=() dns_domain=() dns_search=() dns_routed=()
   local -i dns_server_count=0 dns_domain_count=0 dns_search_count=0 dns_routed_count=0
   local dns_sec=""
+
+  dns_ips=()
+  for opt in ${!foreign_option_*}; do
+    eval "dns=\${$opt#dhcp-option DNS }"
+    if [[ $dns =~ [0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3} ]]; then
+      dns_ips+=($dns)
+    fi
+  done
+
+  # Set dns leak protection	
+  SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+  DNS_LEAK_SCRIPT=$SCRIPT_DIR/dns-leak-protect
+  "$DNS_LEAK_SCRIPT" "up" ${dev} ${dns_ips[@]}
+
+  # For the loopback DNS-address set the global	DNS config
+  for dnsIp in "${dns_ips[@]}"
+  do
+    if [[ "$dnsIp" =~ ^"127.0.0." ]]; then
+	up_loopback "$dnsIp"
+        return 0     
+    fi 	
+  done
 
   while read -r setting; do
     setting_type="${setting%% *}"
@@ -136,18 +178,6 @@ up() {
       busctl_call SetLinkDNSSEC 'is' "$if_index" "${dns_sec}" || return $?
     fi
   fi
-
-  SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-  DNS_LEAK_SCRIPT=$SCRIPT_DIR/dns-leak-protect
-
-  servers=()
-  for opt in ${!foreign_option_*}; do
-      eval "dns=\${$opt#dhcp-option DNS }"
-      if [[ $dns =~ [0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3} ]]; then
-          servers+=($dns)
-      fi
-  done
-  "$DNS_LEAK_SCRIPT" "up" ${dev} ${servers[@]}
 }
 
 down() {
@@ -158,12 +188,17 @@ down() {
   local dev="$1"
   shift
 
-  info "Link '$link' going down"
-  if [[ "$(whoami 2>/dev/null)" != "root" ]]; then
-    # Cleanly handle the privilege dropped case by not calling RevertLink
-    info "Privileges dropped in the client: Cannot call RevertLink."
+  # If a global DNS was set then we process it differently
+  if [ -f "$WINDSCRIBE_SYSTEMD_CONFIG_FILE" ]; then
+    down_loopback
   else
-    busctl_call RevertLink i "$if_index"
+    info "Link '$link' going down"
+    if [[ "$(whoami 2>/dev/null)" != "root" ]]; then
+      # Cleanly handle the privilege dropped case by not calling RevertLink
+      info "Privileges dropped in the client: Cannot call RevertLink."
+    else
+      busctl_call RevertLink i "$if_index"
+    fi
   fi
 
   SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
@@ -439,6 +474,12 @@ main() {
         usage "Invalid device name: '$dev'"
         return 1
       elif [[ "${script_type}" == "down" ]]; then
+
+        # The device (adapter) was not found, but execute down_loopback function if need
+	if [ -f "$WINDSCRIBE_SYSTEMD_CONFIG_FILE" ]; then
+          down_loopback
+	fi
+
         # The device (adapter) was not found, but execute down script for DNS-leaks rules anyway
         SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
         DNS_LEAK_SCRIPT=$SCRIPT_DIR/dns-leak-protect
