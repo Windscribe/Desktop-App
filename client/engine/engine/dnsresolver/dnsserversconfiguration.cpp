@@ -22,22 +22,20 @@ QStringList DnsServersConfiguration::getCurrentDnsServers() const
 {
     QMutexLocker locker(&mutex_);
     if (isConnectedToVpn_)
-        return vpnDnsServers_;
+        return QStringList();       // use OS default DNS
     else
         return ips;
 }
 
-void DnsServersConfiguration::setConnectedState(const QStringList &vpnDnsServers)
+void DnsServersConfiguration::setConnectedState()
 {
     QMutexLocker locker(&mutex_);
-    vpnDnsServers_ = vpnDnsServers;
     isConnectedToVpn_ = true;
 }
 
 void DnsServersConfiguration::setDisconnectedState()
 {
     QMutexLocker locker(&mutex_);
-    vpnDnsServers_.clear();
     isConnectedToVpn_ = false;
 }
 
