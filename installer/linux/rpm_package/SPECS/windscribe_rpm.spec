@@ -49,8 +49,12 @@ update-desktop-database
 echo linux_rpm_x64 > ../etc/windscribe/platform
 
 %postun
+systemctl stop windscribe-helper
+systemctl disable windscribe-helper
 killall -q Windscribe || true
-rm -rf /usr/bin/windscribe-cli
+rm -f /usr/bin/windscribe-cli
+rm -rf /etc/windscribe
+rm -f /opt/windscribe/helper_log.txt
 
 %files
 %config /etc/systemd/system-preset/50-windscribe-helper.preset
