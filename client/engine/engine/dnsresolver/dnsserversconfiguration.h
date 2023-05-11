@@ -21,12 +21,11 @@ public:
 
     QStringList getCurrentDnsServers() const;
 
-    void setConnectedState(const QStringList &vpnDnsServers);
+    void setConnectedState();
     void setDisconnectedState();
 
 private:
     QStringList ips;
-    QStringList vpnDnsServers_;
     bool isConnectedToVpn_ = false;
     mutable QMutex mutex_;
 

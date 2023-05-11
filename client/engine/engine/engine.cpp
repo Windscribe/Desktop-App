@@ -1374,7 +1374,7 @@ void Engine::onConnectionManagerConnected()
     networkAccessManager_->disableProxy();
     locationsModel_->disableProxy();
 
-    DnsServersConfiguration::instance().setConnectedState(connectionManager_->getVpnAdapterInfo().dnsServers());
+    DnsServersConfiguration::instance().setConnectedState();
 
     if (engineSettings_.isTerminateSockets())
     {
@@ -1872,7 +1872,7 @@ void Engine::onEmergencyControllerConnected()
 #endif
 
     networkAccessManager_->disableProxy();
-    DnsServersConfiguration::instance().setConnectedState(emergencyController_->getVpnAdapterInfo().dnsServers());
+    DnsServersConfiguration::instance().setConnectedState();
 
     emergencyConnectStateController_->setConnectedState(LocationID());
     Q_EMIT emergencyConnected();

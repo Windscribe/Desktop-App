@@ -31,9 +31,9 @@ bool CtrldManager_posix::runProcess(const QString &upstream1, const QString &ups
     QStringList args;
     args << "run";
     args << "--listen=" + ip + ":53";
-    args << "--primary_upstream=" + upstream1;
+    args << "--primary_upstream=" + addWsSuffix(upstream1);
     if (!upstream2.isEmpty()) {
-        args << "--secondary_upstream=" + upstream2;
+        args << "--secondary_upstream=" + addWsSuffix(upstream2);
         if (!domains.isEmpty()) {
             args << "--domains=" + domains.join(',');
         }
