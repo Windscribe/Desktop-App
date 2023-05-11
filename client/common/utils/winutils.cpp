@@ -1536,3 +1536,50 @@ std::optional<bool> WinUtils::haveInternetConnectivity()
 
     return false;
 }
+
+QString WinUtils::getVersionInfoItem(QString exeName, QString itemName)
+{
+    QString itemValue;
+
+    struct LANGANDCODEPAGE {
+        WORD wLanguage;
+        WORD wCodePage;
+    } *lpTranslate;
+
+    std::wstring binary(exeName.toStdWString());
+
+    DWORD dwNotUsed;
+    DWORD dwSize = ::GetFileVersionInfoSize(binary.c_str(), &dwNotUsed);
+
+    if (dwSize > 0) {
+        std::unique_ptr<UCHAR[]> versionInfo(new UCHAR[dwSize]);
+        BOOL bResult = ::GetFileVersionInfo(binary.c_str(), 0L, dwSize, versionInfo.get());
+        if (bResult) {
+            // To get a string value must pass query in the form
+            // "\StringFileInfo\<langID><codepage>\keyname"
+            // where <langID><codepage> is the languageID concatenated with the code page, in hex.
+            UINT nTranslateLen;
+            bResult = ::VerQueryValue(versionInfo.get(), _T("\\VarFileInfo\\Translation"), (LPVOID*)&lpTranslate, &nTranslateLen);
+
+            if (bResult) {
+                for (UINT i = 0; i < (nTranslateLen/sizeof(struct LANGANDCODEPAGE)); ++i)
+                {
+                    wchar_t subBlock[MAX_PATH];
+                    swprintf_s(subBlock, MAX_PATH, _T("\\StringFileInfo\\%04x%04x\\%s"), lpTranslate[i].wLanguage,
+                               lpTranslate[i].wCodePage, itemName.toStdWString().c_str());
+
+                    LPVOID lpvi;
+                    UINT   nLen;
+                    bResult = ::VerQueryValue(versionInfo.get(), subBlock, &lpvi, &nLen);
+
+                    if (bResult && nLen > 0) {
+                        itemValue = QString::fromStdWString(std::wstring((LPCTSTR)lpvi));
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    return itemValue;
+}

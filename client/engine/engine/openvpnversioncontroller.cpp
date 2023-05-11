@@ -1,79 +1,50 @@
 #include "openvpnversioncontroller.h"
 
-#include <QDir>
 #include <QCoreApplication>
+#include <QDir>
+
+#ifdef Q_OS_WIN
+#include "utils/winutils.h"
+#else
 #include <QProcess>
-#include <QSettings>
 #include <QRegExp>
+#endif
+
 #include "utils/ws_assert.h"
 
-QStringList OpenVpnVersionController::getAvailableOpenVpnVersions()
+QString OpenVpnVersionController::getOpenVpnVersion()
 {
-    QMutexLocker locker(&mutex_);
-    return openVpnVersionsList_;
+    if (ovpnVersion_.isEmpty()) {
+        detectVersion();
+    }
+
+    return ovpnVersion_;
 }
 
-QStringList OpenVpnVersionController::getAvailableOpenVpnExecutables()
+QString OpenVpnVersionController::getOpenVpnFilePath()
 {
-    QMutexLocker locker(&mutex_);
-    return openVpnFilesList_;
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
+    QString exe = QCoreApplication::applicationDirPath() + QDir::separator() + getOpenVpnFileName();
+#elif defined Q_OS_MAC
+    QString exe = QCoreApplication::applicationDirPath() + "/../Helpers/" + getOpenVpnFileName();
+#else
+#error OpenVpnVersionController::getOpenVpnFilePath() not implemented for this platform.
+#endif
+    return exe;
 }
 
-QString OpenVpnVersionController::getSelectedOpenVpnVersion()
+QString OpenVpnVersionController::getOpenVpnFileName()
 {
-    QMutexLocker locker(&mutex_);
-    if (selectedInd_ >= 0 && selectedInd_ < openVpnVersionsList_.count())
-    {
-        return openVpnVersionsList_[selectedInd_];
-    }
-    else
-    {
-        return "";
-    }
-}
-
-QString OpenVpnVersionController::getSelectedOpenVpnExecutable()
-{
-    QMutexLocker locker(&mutex_);
-    if (selectedInd_ >= 0 && selectedInd_ < openVpnVersionsList_.count())
-    {
-        return openVpnFilesList_[selectedInd_];
-    }
-    else
-    {
-        return "";
-    }
-}
-
-void OpenVpnVersionController::setSelectedOpenVpnVersion(const QString &version)
-{
-    QMutexLocker locker(&mutex_);
-    for (int i = 0; i < openVpnVersionsList_.count(); ++i)
-    {
-        if (openVpnVersionsList_[i] == version)
-        {
-            if (selectedInd_ != i)
-            {
-                selectedInd_ = i;
-                QSettings settings;
-                settings.setValue("openvpnVersion", version);
-            }
-            break;
-        }
-    }
+#ifdef Q_OS_WIN
+    return QString("windscribeopenvpn.exe");
+#else
+    return QString("windscribeopenvpn");
+#endif
 }
 
 void OpenVpnVersionController::setUseWinTun(bool bUseWinTun)
 {
     bUseWinTun_ = bUseWinTun;
-    if (bUseWinTun_)
-    {
-        setSelectedOpenVpnVersion("2.5.0");
-    }
-    else
-    {
-        setSelectedOpenVpnVersion("2.5.0");
-    }
 }
 
 bool OpenVpnVersionController::isUseWinTun()
@@ -83,82 +54,31 @@ bool OpenVpnVersionController::isUseWinTun()
 
 OpenVpnVersionController::OpenVpnVersionController()
 {
-    bUseWinTun_ = false;
-    selectedInd_ = -1;
-    QString pathDir = getOpenVpnBinaryPath();
-    QDir dir(pathDir);
-    const QStringList files = dir.entryList(QStringList() << "windscribeopenvpn*");
-    for (const QString &fileName : files)
-    {
-        QString version = detectVersion(pathDir + "/" + fileName);
-        if (!version.isEmpty())
-        {
-            openVpnVersionsList_ << version;
-            openVpnFilesList_ << fileName;
-        }
-    }
-
-    QSettings settings;
-    QString selVersion = settings.value("openvpnVersion", "").toString();
-    if (!selVersion.isEmpty())
-    {
-        for (int i = 0; i < openVpnVersionsList_.count(); ++i)
-        {
-            if (openVpnVersionsList_[i] == selVersion)
-            {
-                selectedInd_ = i;
-                break;
-            }
-        }
-    }
-    // if no saved selected version, select default
-    if (selectedInd_ == -1)
-    {
-        if (openVpnVersionsList_.count() == 1)
-        {
-            selectedInd_ = 0;
-        }
-        else
-        {
-            for (int i = 0; i < openVpnVersionsList_.count(); ++i)
-            {
-                if (openVpnVersionsList_[i] == "2.4.8")
-                {
-                    selectedInd_ = i;
-                    settings.setValue("openvpnVersion", openVpnVersionsList_[i]);
-                    break;
-                }
-            }
-        }
-    }
-    // last chance, if openVpnVersionsList_.count > 0, select first
-    if (selectedInd_ == -1 && openVpnVersionsList_.count() > 0)
-    {
-        selectedInd_ = 0;
-    }
 }
 
-QString OpenVpnVersionController::getOpenVpnBinaryPath()
+void OpenVpnVersionController::detectVersion()
 {
+    ovpnVersion_.clear();
+
+    QString exe = getOpenVpnFilePath();
+
+    if (!QFile::exists(exe)) {
+        return;
+    }
+
 #ifdef Q_OS_WIN
-    QString path = QCoreApplication::applicationDirPath();
-#elif defined Q_OS_MAC
-    QString path = QCoreApplication::applicationDirPath() + "/../Helpers";
-#elif defined Q_OS_LINUX
-    QString path = QCoreApplication::applicationDirPath();
-#endif
-    return path;
-}
+    ovpnVersion_ = WinUtils::getVersionInfoItem(exe, "ProductVersion");
 
-QString OpenVpnVersionController::detectVersion(const QString &path)
-{
-    if (!QFile::exists(path))
-    {
-        return "";
+    // Trim fourth component of version number (e.g. 2.6.1.0 -> 2.6.1) if necessary.
+    if (ovpnVersion_.count('.') > 2) {
+        QStringList parts = ovpnVersion_.split('.');
+        WS_ASSERT(parts.size() >= 3);
+        ovpnVersion_ = QString("%1.%2.%3").arg(parts.at(0), parts.at(1), parts.at(2));
     }
+#else
     QProcess process;
     process.setProcessChannelMode(QProcess::MergedChannels);
-    process.start(path, QStringList() << "--version");
+    process.start(exe, QStringList() << "--version");
     process.waitForFinished(-1);
     QString strAnswer = QString::fromStdString((const char *)process.readAll().constData()).toLower();
 
@@ -167,12 +87,8 @@ QString OpenVpnVersionController::detectVersion(const QString &path)
     rx.indexIn(strAnswer);
     QStringList list = rx.capturedTexts();
     WS_ASSERT(list.count() == 1);
-    if (list.count() == 1)
-    {
-        return list[0];
+    if (list.count() == 1) {
+        ovpnVersion_ = list[0];
     }
-    else
-    {
-        return "";
-    }
+#endif
 }

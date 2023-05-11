@@ -73,6 +73,9 @@ namespace WinUtils
     bool authorizeWithUac();
     bool isWindows64Bit();
     unsigned long Win32GetErrorString(unsigned long errorCode, wchar_t *buffer, unsigned long bufferSize);
+
+    // Retrieve the version information item specified by itemName (e.g. "FileVersion") from the executable.
+    QString getVersionInfoItem(QString exeName, QString itemName);
 }
 
 

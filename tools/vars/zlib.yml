@@ -4,5 +4,4 @@
 # ------------------------------------------------------------------------------
 variables:
   VERSION_ZLIB: '1.2.13'
-  BUILDROOT_ZLIB: 'build-libs/zlib'
   ARTIFACT_ZLIB: 'zlib.zip'

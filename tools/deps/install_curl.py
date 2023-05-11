@@ -13,7 +13,6 @@ TOOLS_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, TOOLS_DIR)
 
 CONFIG_NAME = os.path.join("vars", "curl.yml")
-CMAKE_BINARY_WIN = "C:\\Program Files\\CMake\\bin\\cmake.exe"
 
 # To ensure modules in the 'base' folder can import other modules in base.
 import base.pathhelper as pathhelper
@@ -34,23 +33,27 @@ def BuildDependencyMSVC(openssl_root, zlib_root, outpath):
     # Create an environment with VS vars.
     buildenv = os.environ.copy()
     buildenv.update({"MAKEFLAGS": "S"})
-    buildenv.update(iutl.GetVisualStudioEnvironment())
+    buildenv.update(iutl.GetVisualStudioEnvironment(is_arm64_build))
     # Build and install.
     current_wd = os.getcwd()
     buildpath = os.path.join(current_wd, "build")
     utl.CreateDirectory(buildpath)
     os.chdir(buildpath)
 
-    build_cmd = [CMAKE_BINARY_WIN, "..", "-DCURL_USE_OPENSSL=ON", "-DUSE_ECH=ON"]
+    build_cmd = ["cmake.exe", "..", "-DCURL_USE_OPENSSL=ON", "-DUSE_ECH=ON"]
+    if is_arm64_build:
+        build_cmd.append("-A ARM64")
+        build_cmd.append("-DZLIB_LIBRARY={}/lib/zlib.lib".format(zlib_root))
+    else:
+        build_cmd.append("-DZLIB_LIBRARY={}/lib/zdll.lib".format(zlib_root))
     build_cmd.append("-DOPENSSL_ROOT_DIR={}".format(openssl_root))
     build_cmd.append("-DZLIB_INCLUDE_DIR={}/include".format(zlib_root))
-    build_cmd.append("-DZLIB_LIBRARY={}/lib/zdll.lib".format(zlib_root))
 
     iutl.RunCommand(build_cmd, env=buildenv, shell=True)
-    build_cmd = [CMAKE_BINARY_WIN, "--build", ".", "--config", "Release"]
+    build_cmd = ["cmake.exe", "--build", ".", "--config", "Release"]
     iutl.RunCommand(build_cmd, env=buildenv, shell=True)
 
-    build_cmd = [CMAKE_BINARY_WIN, "--install", ".", "--prefix", outpath]
+    build_cmd = ["cmake.exe", "--install", ".", "--prefix", outpath]
     iutl.RunCommand(build_cmd, env=buildenv, shell=True)
 
 
@@ -111,8 +114,7 @@ def InstallDependency():
     iutl.CopyCustomFiles(dep_name, os.path.join(temp_dir, archivetitle))
 
     # Build the dependency.
-    dep_buildroot_var = "BUILDROOT_" + DEP_TITLE.upper()
-    dep_buildroot_str = os.environ.get(dep_buildroot_var, os.path.join("build-libs", dep_name))
+    dep_buildroot_str = os.path.join("build-libs-arm64" if is_arm64_build else "build-libs", dep_name)
     outpath = os.path.normpath(os.path.join(os.path.dirname(TOOLS_DIR), dep_buildroot_str))
     # Clean the output folder to ensure no conflicts when we're updating to a newer curl version.
     utl.RemoveDirectory(outpath)
@@ -140,11 +142,13 @@ def InstallDependency():
     # Cleanup.
     msg.Print("Cleaning temporary directory...")
     utl.RemoveDirectory(temp_dir)
+    msg.Print(f"{DEP_TITLE} v{dep_version_str} installed in {outpath}")
 
 
 if __name__ == "__main__":
     start_time = time.time()
     current_os = utl.GetCurrentOS()
+    is_arm64_build = "--arm64" in sys.argv
     if current_os not in DEP_OS_LIST:
         msg.Print("{} is not needed on {}, skipping.".format(DEP_TITLE, current_os))
         sys.exit(0)

@@ -6,6 +6,7 @@ stages:
 
 variables:
   BUILD_WIN: 'y'
+  BUILD_WIN_ARM64: 'y'
   BUILD_MAC: 'y'
   BUILD_LINUX: 'y'
   GIT_DEPTH: 5 # Only grab the last 5 commits when cloning
@@ -22,6 +23,7 @@ variables:
   CODE_SIGNING_PROVISION_PROFILE_PATH: '$CODE_SIGNING_PROVISION_PROFILE_FOLDER_PATH/embedded.provisionprofile'
   ARCH_LINUX_BUILD_PATH: '/home/build/windscribe'
   RHEL_CMAKE_BUILD_PATH: '/home/build/windscribe'
+  BUILD_LIBS_FOLDER: 'build-libs'
 
 .template_win10_build: &template_win10_build
   tags: [win10qty6]
@@ -56,72 +58,71 @@ variables:
 .download_dependency_boost:
   script:
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --create-dirs -o build-libs/boost.zip "${NEXUS_PATH_DEPS}/${OS_IDENTIFIER}/boost.zip"
+      --create-dirs -o ${BUILD_LIBS_FOLDER}/boost.zip "${NEXUS_PATH_DEPS}/${OS_IDENTIFIER}/boost.zip"
 
 .download_dependency_cares:
   script:
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --create-dirs -o build-libs/cares.zip "${NEXUS_PATH_DEPS}/${OS_IDENTIFIER}/cares.zip"
+      --create-dirs -o ${BUILD_LIBS_FOLDER}/cares.zip "${NEXUS_PATH_DEPS}/${OS_IDENTIFIER}/cares.zip"
 
 .download_dependency_curl:
   script:
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --create-dirs -o build-libs/curl.zip "${NEXUS_PATH_DEPS}/${OS_IDENTIFIER}/curl.zip"
+      --create-dirs -o ${BUILD_LIBS_FOLDER}/curl.zip "${NEXUS_PATH_DEPS}/${OS_IDENTIFIER}/curl.zip"
 
 .download_dependency_ctrld:
   script:
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --create-dirs -o build-libs/ctrld.zip "${NEXUS_PATH_DEPS}/${OS_IDENTIFIER}/ctrld.zip"
+      --create-dirs -o ${BUILD_LIBS_FOLDER}/ctrld.zip "${NEXUS_PATH_DEPS}/${OS_IDENTIFIER}/ctrld.zip"
 
 .download_dependency_dga:
   script:
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --create-dirs -o build-libs/dga.zip "${NEXUS_PATH_DEPS}/${OS_IDENTIFIER}/dga.zip"
+      --create-dirs -o ${BUILD_LIBS_FOLDER}/dga.zip "${NEXUS_PATH_DEPS}/${OS_IDENTIFIER}/dga.zip"
 
 .download_dependency_lzo:
   script:
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --create-dirs -o build-libs/lzo.zip "${NEXUS_PATH_DEPS}/${OS_IDENTIFIER}/lzo.zip"
+      --create-dirs -o ${BUILD_LIBS_FOLDER}/lzo.zip "${NEXUS_PATH_DEPS}/${OS_IDENTIFIER}/lzo.zip"
 
 .download_dependency_openssl:
   script:
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --create-dirs -o build-libs/openssl_ech_draft.zip "${NEXUS_PATH_DEPS}/${OS_IDENTIFIER}/openssl_ech_draft.zip"
+      --create-dirs -o ${BUILD_LIBS_FOLDER}/openssl_ech_draft.zip "${NEXUS_PATH_DEPS}/${OS_IDENTIFIER}/openssl_ech_draft.zip"
 
 .download_dependency_openvpn:
   script:
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --create-dirs -o build-libs/openvpn_2_6_1.zip "${NEXUS_PATH_DEPS}/${OS_IDENTIFIER}/openvpn_2_6_1.zip"
+      --create-dirs -o ${BUILD_LIBS_FOLDER}/openvpn.zip "${NEXUS_PATH_DEPS}/${OS_IDENTIFIER}/openvpn.zip"
 
 .download_dependency_qt:
   script:
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --create-dirs -o build-libs/qt.zip "${NEXUS_PATH_DEPS}/${OS_IDENTIFIER}/qt.zip"
+      --create-dirs -o ${BUILD_LIBS_FOLDER}/qt.zip "${NEXUS_PATH_DEPS}/${OS_IDENTIFIER}/qt.zip"
 
 .download_dependency_stunnel:
   script:
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --create-dirs -o build-libs/stunnel.zip "${NEXUS_PATH_DEPS}/${OS_IDENTIFIER}/stunnel.zip"
+      --create-dirs -o ${BUILD_LIBS_FOLDER}/stunnel.zip "${NEXUS_PATH_DEPS}/${OS_IDENTIFIER}/stunnel.zip"
 
 .download_dependency_wireguard:
   script:
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --create-dirs -o build-libs/wireguard.zip "${NEXUS_PATH_DEPS}/${OS_IDENTIFIER}/wireguard.zip"
+      --create-dirs -o ${BUILD_LIBS_FOLDER}/wireguard.zip "${NEXUS_PATH_DEPS}/${OS_IDENTIFIER}/wireguard.zip"
 
 .download_dependency_zlib:
   script:
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --create-dirs -o build-libs/zlib.zip "${NEXUS_PATH_DEPS}/${OS_IDENTIFIER}/zlib.zip"
+      --create-dirs -o ${BUILD_LIBS_FOLDER}/zlib.zip "${NEXUS_PATH_DEPS}/${OS_IDENTIFIER}/zlib.zip"
 
 # Build and Upload Installer
 .build_win_installer_common:
   script:
-    - Set-Variable -name OS_IDENTIFIER -value "windows"
     # Remove the default Powershell curl alias so referencing 'curl' will call Windows built-in curl.exe
     - Remove-Item alias:curl
     - Set-Alias -Name curl -Value curl.exe
     - !reference [.download_dependency_boost, script]
-    - !reference [.download_dependency_cares, script ]
+    #- !reference [.download_dependency_cares, script ]
     - !reference [.download_dependency_curl, script]
     - !reference [.download_dependency_ctrld, script]
     - !reference [.download_dependency_dga, script]
@@ -132,7 +133,10 @@ variables:
     - !reference [.download_dependency_stunnel, script]
     - !reference [.download_dependency_wireguard, script]
     - !reference [.download_dependency_zlib, script]
-    - 'IF(Test-Path .\build-libs\) {Get-ChildItem .\build-libs\*.zip | Foreach {.\tools\bin\7z.exe x $_.FullName -obuild-libs\}}'
+    # Temporarily reference new cares Windows dependency containing new folder structure
+    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+      --create-dirs -o ${BUILD_LIBS_FOLDER}/cares.zip "${NEXUS_PATH_DEPS}/${OS_IDENTIFIER}/cares_new.zip"
+    - 'IF(Test-Path .\$BUILD_LIBS_FOLDER\) {Get-ChildItem .\$BUILD_LIBS_FOLDER\*.zip | Foreach {.\tools\bin\7z.exe x $_.FullName -o"$BUILD_LIBS_FOLDER\"}}'
     # extractions
     - Set-Variable -name VAULT_CLIENT_TOKEN -value $(curl --cacert tools/cacert.pem
       --data "{\`"role_id\`":\`"$VAULT_ROLE_ID\`",\`"secret_id\`":\`"$VAULT_SECRET_ID\`"}"
@@ -147,8 +151,6 @@ variables:
     - echo $CODE_SIGNING_PFX_BASE64 > $CODE_SIGNING_PFX_PATH # write base64 encoded temporarily to file
     - powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command .\.base64_decode.ps1 # overwrite temp base64 contents with decoded version
     - Set-Variable -name VERSION -value $(python3 tools/base/extract.py)
-    # build
-    - tools/build_all -zip --ci-mode --sign
 
 build:win:installer:
   <<: *template_win10_build
@@ -156,7 +158,9 @@ build:win:installer:
   variables:
     GIT_STRATEGY: clone
   script:
+    - Set-Variable -name OS_IDENTIFIER -value "windows"
     - !reference [.build_win_installer_common, script]
+    - tools/build_all -zip --ci-mode --sign
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --upload-file build-exe/Windscribe_$VERSION.exe "${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/Windscribe_$VERSION.exe"
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
@@ -171,7 +175,9 @@ build:win:installer:mr:
   variables:
     GIT_STRATEGY: clone
   script:
+    - Set-Variable -name OS_IDENTIFIER -value "windows"
     - !reference [.build_win_installer_common, script]
+    - tools/build_all -zip --ci-mode --sign
   rules:
     - if: $BUILD_WIN == "y" && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH == null
 
@@ -181,7 +187,9 @@ build:win:installer:tagged:
   variables:
     GIT_STRATEGY: clone
   script:
+    - Set-Variable -name OS_IDENTIFIER -value "windows"
     - !reference [.build_win_installer_common, script]
+    - tools/build_all -zip --ci-mode --sign
     - Set-Variable -name VERSION_NO_SUFFIX -value $(python3 tools/base/extract.py --no-suffix)
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --upload-file build-exe/Windscribe_$VERSION.exe "${NEXUS_PATH_TAGGED_UPLOAD}/$VERSION_NO_SUFFIX/Windscribe_$VERSION.exe"
@@ -189,6 +197,62 @@ build:win:installer:tagged:
       --upload-file build-exe/WindscribeSymbols_$VERSION.zip "${NEXUS_PATH_TAGGED_UPLOAD}/$VERSION_NO_SUFFIX/WindscribeSymbols_$VERSION.zip"
   rules:
     - if: $BUILD_WIN == "y" && $CI_COMMIT_TAG != null
+
+.build_win_arm64_installer_common:
+  script:
+    # Remove the default Powershell curl alias so referencing 'curl' will call Windows built-in curl.exe
+    - Remove-Item alias:curl
+    - Set-Alias -Name curl -Value curl.exe
+    # Need the x64 Qt package so we can reference it as the QT_HOST_PATH in build_all.
+    - Set-Variable -name OS_IDENTIFIER -value "windows"
+    - !reference [.download_dependency_qt, script]
+    - 'IF(Test-Path .\$BUILD_LIBS_FOLDER\) {Get-ChildItem .\$BUILD_LIBS_FOLDER\*.zip | Foreach {.\tools\bin\7z.exe x $_.FullName -o"$BUILD_LIBS_FOLDER\"}}'
+    - Set-Variable -name OS_IDENTIFIER -value "windows-arm64"
+    - Set-Variable -name BUILD_LIBS_FOLDER -value "build-libs-arm64"
+    - !reference [.build_win_installer_common, script]
+
+build:win:arm64:installer:
+  <<: *template_win10_build
+  stage: Build
+  variables:
+    GIT_STRATEGY: clone
+  script:
+    - !reference [.build_win_arm64_installer_common, script]
+    - tools/build_all -zip --ci-mode --sign --arm64
+    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+      --upload-file build-exe/Windscribe_$VERSION.exe "${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/Windscribe_${VERSION}_arm64.exe"
+    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+      --upload-file build-exe/WindscribeSymbols_$VERSION.zip "${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/WindscribeSymbols_${VERSION}_arm64.zip"
+  rules:
+    - if: $BUILD_WIN_ARM64 == "y" && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH != null
+
+# We don't upload artifacts for merge requests
+build:win:arm64:installer:mr:
+  <<: *template_win10_build
+  stage: Build
+  variables:
+    GIT_STRATEGY: clone
+  script:
+    - !reference [.build_win_arm64_installer_common, script]
+    - tools/build_all -zip --ci-mode --sign --arm64
+  rules:
+    - if: $BUILD_WIN_ARM64 == "y" && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH == null
+
+build:win:arm64:installer:tagged:
+  <<: *template_win10_build
+  stage: Build
+  variables:
+    GIT_STRATEGY: clone
+  script:
+    - !reference [.build_win_arm64_installer_common, script]
+    - tools/build_all -zip --ci-mode --sign --arm64
+    - Set-Variable -name VERSION_NO_SUFFIX -value $(python3 tools/base/extract.py --no-suffix)
+    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+      --upload-file build-exe/Windscribe_$VERSION.exe "${NEXUS_PATH_TAGGED_UPLOAD}/$VERSION_NO_SUFFIX/Windscribe_${VERSION}_arm64.exe"
+    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+      --upload-file build-exe/WindscribeSymbols_$VERSION.zip "${NEXUS_PATH_TAGGED_UPLOAD}/$VERSION_NO_SUFFIX/WindscribeSymbols_${VERSION}_arm64.zip"
+  rules:
+    - if: $BUILD_WIN_ARM64 == "y" && $CI_COMMIT_TAG != null
 
 .build_mac_installer_common:
   script:
@@ -204,7 +268,7 @@ build:win:installer:tagged:
     - !reference [.download_dependency_qt, script]
     - !reference [.download_dependency_stunnel, script]
     - !reference [.download_dependency_wireguard, script]
-    - if [ -d ./build-libs/ ]; then for z in ./build-libs/*.zip; do unzip -qod ./build-libs $z; done; fi
+    - if [ -d ./${BUILD_LIBS_FOLDER}/ ]; then for z in ./${BUILD_LIBS_FOLDER}/*.zip; do unzip -qod ./${BUILD_LIBS_FOLDER} $z; done; fi
     # extractions
     - VAULT_CLIENT_TOKEN=$(curl --cacert tools/cacert.pem --data "{\"role_id\":\"$VAULT_ROLE_ID\",\"secret_id\":\"$VAULT_SECRET_ID\"}"
       $VAULT_ADDR/v1/auth/approle/login | python3 tools/base/vaulthelper.py --get-client-token)
@@ -275,7 +339,7 @@ build:mac:installer:tagged:
     - !reference [.download_dependency_qt, script]
     - !reference [.download_dependency_stunnel, script]
     - !reference [.download_dependency_wireguard, script]
-    - if [ -d ./build-libs/ ]; then for z in ./build-libs/*.zip; do unzip -qod ./build-libs $z; done; fi
+    - if [ -d ./${BUILD_LIBS_FOLDER}/ ]; then for z in ./${BUILD_LIBS_FOLDER}/*.zip; do unzip -qod ./${BUILD_LIBS_FOLDER} $z; done; fi
     # extractions
     - VAULT_CLIENT_TOKEN=$(curl --cacert tools/cacert.pem
       --data "{\"role_id\":\"$VAULT_ROLE_ID\",\"secret_id\":\"$VAULT_SECRET_ID\"}"
@@ -400,6 +464,7 @@ build:artifact:links:
   script:
     - Set-Variable -name VERSION -value $(python3 tools/base/extract.py)
     - echo ${NEXUS_PATH_BRANCH_UPLOAD}/windows/Windscribe_$VERSION.exe
+    - echo ${NEXUS_PATH_BRANCH_UPLOAD}/windows-arm64/Windscribe_${VERSION}_arm64.exe
     - echo ${NEXUS_PATH_BRANCH_UPLOAD}/macos/Windscribe_$VERSION.dmg
     - echo ${NEXUS_PATH_BRANCH_UPLOAD}/linux/windscribe_${VERSION}_amd64.deb
     - echo ${NEXUS_PATH_BRANCH_UPLOAD}/linux/windscribe_${VERSION}_x86_64.rpm
@@ -414,6 +479,7 @@ build:artifact:links:tagged:
     - Set-Variable -name VERSION -value $(python3 tools/base/extract.py)
     - Set-Variable -name VERSION_NO_SUFFIX -value $(python3 tools/base/extract.py --no-suffix)
     - echo ${NEXUS_PATH_TAGGED_UPLOAD}/$VERSION_NO_SUFFIX/Windscribe_$VERSION.exe
+    - echo ${NEXUS_PATH_TAGGED_UPLOAD}/$VERSION_NO_SUFFIX/Windscribe_${VERSION}_arm64.exe
     - echo ${NEXUS_PATH_TAGGED_UPLOAD}/$VERSION_NO_SUFFIX/Windscribe_$VERSION.dmg
     - echo ${NEXUS_PATH_TAGGED_UPLOAD}/$VERSION_NO_SUFFIX/windscribe_${VERSION}_amd64.deb
     - echo ${NEXUS_PATH_TAGGED_UPLOAD}/$VERSION_NO_SUFFIX/windscribe_${VERSION}_x86_64.rpm
@@ -431,5 +497,3 @@ lint:flake8:
     - flake8 --ignore=E402,E501 tools
   rules:
     - if: $BUILD_WIN == "y"
-
-

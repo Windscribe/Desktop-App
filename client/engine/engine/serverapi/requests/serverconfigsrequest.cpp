@@ -22,8 +22,7 @@ QUrl ServerConfigsRequest::url(const QString &domain) const
     QUrl url("https://" + hostname(domain, SudomainType::kApi) + "/ServerConfigs");
     QUrlQuery query;
 
-    query.addQueryItem("ovpn_version",
-                       OpenVpnVersionController::instance().getSelectedOpenVpnVersion());
+    query.addQueryItem("ovpn_version", OpenVpnVersionController::instance().getOpenVpnVersion());
     urlquery_utils::addAuthQueryItems(query, authHash_);
     urlquery_utils::addPlatformQueryItems(query);
     url.setQuery(query);

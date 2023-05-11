@@ -18,7 +18,6 @@
 #include "dnsresolver/dnsrequest.h"
 #include "crossplatformobjectfactory.h"
 #include "openvpnversioncontroller.h"
-#include "openvpnversioncontroller.h"
 #include "types/global_consts.h"
 #include "serverapi/requests/websessionrequest.h"
 #include "serverapi/requests/debuglogrequest.h"

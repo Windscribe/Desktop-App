@@ -32,6 +32,9 @@ class ArgHelper:
     # linux packaging
     OPTION_BUILD_RPM = "--build-rpm"
     OPTION_BUILD_DEB = "--build-deb"
+    # target architecture
+    OPTION_TARGET_X86_64 = "--x86_64"  # this is the default
+    OPTION_TARGET_ARM64 = "--arm64"
 
     options = list()
     options.append(("\nGeneral", ""))
@@ -58,6 +61,9 @@ class ArgHelper:
     options.append(("\nLinux packaging", ""))
     options.append((OPTION_BUILD_RPM, "Build .rpm package for Red Hat and derivative distros"))
     options.append((OPTION_BUILD_DEB, "Build .deb package for Debian and derivative distros (default)"))
+    options.append(("\nTarget Architecture", ""))
+    options.append((OPTION_TARGET_X86_64, "Build for the Intel/AMD 64-bit x86 CPU architecture (default) (Note: only used for Windows builds)"))
+    options.append((OPTION_TARGET_ARM64, "Build for the ARM 64-bit CPU architecture (Note: only used for Windows builds)"))
 
     def __init__(self, program_arg_list):
         self.args_only = program_arg_list[1:]
@@ -87,6 +93,11 @@ class ArgHelper:
 
         self.mode_build_deb = no_packaging_selected or ArgHelper.OPTION_BUILD_DEB in program_arg_list
         self.mode_build_rpm = ArgHelper.OPTION_BUILD_RPM in program_arg_list
+
+        # target architecture
+        no_arch_selected = ArgHelper.OPTION_TARGET_X86_64 not in program_arg_list and ArgHelper.OPTION_TARGET_ARM64 not in program_arg_list
+        self.target_x86_64 = no_arch_selected or ArgHelper.OPTION_TARGET_X86_64 in program_arg_list
+        self.target_arm64 = ArgHelper.OPTION_TARGET_ARM64 in program_arg_list
 
         # 1password user/session
         try:
@@ -159,6 +170,12 @@ class ArgHelper:
 
     def build_debug(self):
         return self.mode_debug
+
+    def target_x86_64_arch(self):
+        return self.target_x86_64
+
+    def target_arm64_arch(self):
+        return self.target_arm64
 
     def invalid_mode(self):
         if self.mode_help:

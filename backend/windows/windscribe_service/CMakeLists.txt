@@ -4,6 +4,12 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
+if("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "arm64")
+    set(WINDSCRIBE_BUILD_LIBS_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../../../build-libs-arm64)
+else()
+    set(WINDSCRIBE_BUILD_LIBS_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../../../build-libs)
+endif()
+
 add_definitions(-DUNICODE -D_UNICODE -DWINDSCRIBE_SERVICE)
 
 project(Service)
@@ -65,9 +71,8 @@ add_executable(WindscribeService ${SOURCES})
 
 target_link_directories(WindscribeService
                         PRIVATE
-                        ../../../build-libs/boost/lib
-                        ../../../build-libs/cares/dll_x64/lib
-                        ../../../build-libs/cares/static_x64/lib
+                        ${WINDSCRIBE_BUILD_LIBS_PATH}/boost/lib
+                        ${WINDSCRIBE_BUILD_LIBS_PATH}/cares//lib
 )
 
 target_link_libraries(WindscribeService
@@ -81,7 +86,7 @@ target_link_libraries(WindscribeService
 )
 
 target_include_directories(WindscribeService PRIVATE
-                           ../../../build-libs/boost/include
-                           ../../../build-libs/cares/dll_x64/include
+                           ${WINDSCRIBE_BUILD_LIBS_PATH}/boost/include
+                           ${WINDSCRIBE_BUILD_LIBS_PATH}/cares/include
                            ../../../client/common/
 )

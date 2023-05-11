@@ -27,31 +27,21 @@ DEP_URL = "https://c-ares.haxx.se/download/"
 DEP_OS_LIST = ["win32", "macos", "linux"]
 DEP_FILE_MASK = []  # filled out later.
 
-CARES_CONFIGS = {
-    "dll_x64": ["x86_amd64", "dll"],
-    "static_x64": ["x86_amd64", "lib"],
-}
-
 
 def BuildDependencyMSVC(outpath):
     global DEP_FILE_MASK
-    for prefix, params in CARES_CONFIGS.items():
-        msg.HeadPrint("Building: {} ({} {})".format(prefix, params[0], params[1]))
-        # Create an environment with VS vars.
-        buildenv = os.environ.copy()
-        buildenv.update({"MAKEFLAGS": "S"})
-        buildenv.update({"RTLIBCFG": "static"})
-        buildenv.update({"INSTALL_DIR": "{}/{}".format(outpath, prefix)})
-        buildenv.update(iutl.GetVisualStudioEnvironment(params[0]))
-        buildenv.update({"CL": "/D_WINSOCK_DEPRECATED_NO_WARNINGS"})
-        # Build and install.
-        # for buildcfg in ["debug", "release"]:
-        for buildcfg in ["release"]:
-            iutl.RunCommand(["nmake", "/NOLOGO", "/F", "Makefile.msvc",
-                             "CFG={}-{}".format(params[1], buildcfg), "c-ares"], env=buildenv, shell=True)
-            iutl.RunCommand(["nmake", "/F", "Makefile.msvc", "CFG={}-{}".format(params[1], buildcfg),
-                             "install"], env=buildenv, shell=True)
-        iutl.RunCommand(["nmake", "/F", "Makefile.msvc", "clean"], env=buildenv, shell=True)
+    # Create an environment with VS vars.
+    buildenv = os.environ.copy()
+    buildenv.update({"MAKEFLAGS": "S"})
+    buildenv.update({"RTLIBCFG": "static"})
+    buildenv.update({"INSTALL_DIR": "{}".format(outpath)})
+    buildenv.update(iutl.GetVisualStudioEnvironment(is_arm64_build))
+    buildenv.update({"CL": "/D_WINSOCK_DEPRECATED_NO_WARNINGS"})
+    # Build and install.
+    iutl.RunCommand(["nmake", "/NOLOGO", "/F", "Makefile.msvc", "CFG=dll-release", "c-ares"], env=buildenv, shell=True)
+    iutl.RunCommand(["nmake", "/F", "Makefile.msvc", "CFG=dll-release", "install"], env=buildenv, shell=True)
+    iutl.RunCommand(["nmake", "/F", "Makefile.msvc", "clean"], env=buildenv, shell=True)
+    for prefix in ["include", "lib"]:
         DEP_FILE_MASK.append("{}/**".format(prefix))
 
 
@@ -98,8 +88,7 @@ def InstallDependency():
     if utl.GetCurrentOS() == "win32":
         iutl.CopyCustomFiles(dep_name, os.path.join(temp_dir, archivetitle))
     # Build the dependency.
-    dep_buildroot_var = "BUILDROOT_" + DEP_TITLE.upper()
-    dep_buildroot_str = os.environ.get(dep_buildroot_var, os.path.join("build-libs", dep_name))
+    dep_buildroot_str = os.path.join("build-libs-arm64" if is_arm64_build else "build-libs", dep_name)
     outpath = os.path.normpath(os.path.join(os.path.dirname(TOOLS_DIR), dep_buildroot_str))
     # Clean the output folder to ensure no conflicts when we're updating to a newer c-ares version.
     utl.RemoveDirectory(outpath)
@@ -122,11 +111,13 @@ def InstallDependency():
     # Cleanup.
     msg.Print("Cleaning temporary directory...")
     utl.RemoveDirectory(temp_dir)
+    msg.Print(f"{DEP_TITLE} v{dep_version_str} installed in {outpath}")
 
 
 if __name__ == "__main__":
     start_time = time.time()
     current_os = utl.GetCurrentOS()
+    is_arm64_build = "--arm64" in sys.argv
     if current_os not in DEP_OS_LIST:
         msg.Print("{} is not needed on {}, skipping.".format(DEP_TITLE, current_os))
         sys.exit(0)

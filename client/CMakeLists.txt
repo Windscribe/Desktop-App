@@ -35,7 +35,11 @@ if(DEFINE_USE_BUILD_ID_MACRO)
     add_definitions(-DUSE_BUILD_ID="${DEFINE_USE_BUILD_ID_MACRO}")
 endif(DEFINE_USE_BUILD_ID_MACRO)
 
-set(WINDSCRIBE_BUILD_LIBS_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../build-libs)
+if(WIN32 AND "${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "arm64")
+    set(WINDSCRIBE_BUILD_LIBS_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../build-libs-arm64)
+else()
+    set(WINDSCRIBE_BUILD_LIBS_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../build-libs)
+endif()
 
 set(PROJECT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 
@@ -47,10 +51,10 @@ if (WIN32)
     link_directories(${WINDSCRIBE_BUILD_LIBS_PATH}/boost/lib
                      ${WINDSCRIBE_BUILD_LIBS_PATH}/curl/lib
                      ${WINDSCRIBE_BUILD_LIBS_PATH}/openssl_ech_draft/lib
-                     ${WINDSCRIBE_BUILD_LIBS_PATH}/cares/dll_x64/lib
+                     ${WINDSCRIBE_BUILD_LIBS_PATH}/cares/lib
     )
 
-    set (OS_SPECIFIC_LIBRARIES psapi.lib iphlpapi.lib dnsapi.lib rasapi32.lib pdh.lib Crypt32.lib
+    set (OS_SPECIFIC_LIBRARIES psapi.lib iphlpapi.lib dnsapi.lib rasapi32.lib pdh.lib Crypt32.lib Version.lib
         libcurl_imp libssl libcrypto cares
     )
     list(APPEND PROJECT_SOURCES client.rc)
@@ -112,12 +116,12 @@ if (APPLE)
 
     add_custom_command(TARGET Windscribe POST_BUILD COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:Windscribe>/../Helpers)
     add_custom_command(TARGET Windscribe POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                       ${WINDSCRIBE_BUILD_LIBS_PATH}/openvpn_2_6_1/openvpn $<TARGET_FILE_DIR:Windscribe>/../Helpers/windscribeopenvpn_2_6_1)
+                       ${WINDSCRIBE_BUILD_LIBS_PATH}/openvpn/openvpn $<TARGET_FILE_DIR:Windscribe>/../Helpers/windscribeopenvpn)
     add_custom_command(TARGET Windscribe POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
                        ${WINDSCRIBE_BUILD_LIBS_PATH}/stunnel/stunnel $<TARGET_FILE_DIR:Windscribe>/../Helpers/windscribestunnel)
     add_custom_command(TARGET Windscribe POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
                        ${WINDSCRIBE_BUILD_LIBS_PATH}/wireguard/windscribewireguard $<TARGET_FILE_DIR:Windscribe>/../Helpers/windscribewireguard)
-   add_custom_command(TARGET Windscribe POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    add_custom_command(TARGET Windscribe POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
                       ${WINDSCRIBE_BUILD_LIBS_PATH}/ctrld/ctrld $<TARGET_FILE_DIR:Windscribe>/../Helpers/windscribectrld)
 
     add_custom_command(TARGET Windscribe POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different

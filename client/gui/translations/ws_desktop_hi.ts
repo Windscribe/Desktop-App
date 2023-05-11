@@ -2696,17 +2696,17 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <translation>फ़ायरवॉल बंद नहीं कर सकता क्योंकि &quot;हमेशा चालू&quot; मोड सक्षम है</translation>
     </message>
     <message>
-        <location filename="../../main.cpp" line="137"/>
+        <location filename="../../main.cpp" line="140"/>
         <source>Windscribe is already running on your computer, but appears to not be responding.</source>
         <translation>विंडस्क्राइब आपके कंप्यूटर पर पहले से ही चल रहा है, लेकिन ऐसा प्रतीत होता है कि वह प्रतिसाद नहीं दे रहा है.</translation>
     </message>
     <message>
-        <location filename="../../main.cpp" line="138"/>
+        <location filename="../../main.cpp" line="141"/>
         <source>You may need to kill the non-responding Windscribe app or reboot your computer to fix the issue.</source>
         <translation>समस्या को ठीक करने के लिए आपको गैर-प्रतिक्रिया देने वाले विंडस्क्राइब ऐप को मारने या अपने कंप्यूटर को रीबूट करने की आवश्यकता हो सकती है।</translation>
     </message>
     <message>
-        <location filename="../../main.cpp" line="190"/>
+        <location filename="../../main.cpp" line="185"/>
         <source>One or more files in the Windscribe application bundle have been suspiciously modified. Please re-install Windscribe.</source>
         <translation>विंडस्क्राइब एप्लिकेशन बंडल में एक या अधिक फ़ाइलों को संदिग्ध रूप से संशोधित किया गया है। कृपया विंडस्क्राइब पुनः स्थापित करें.</translation>
     </message>

@@ -2696,17 +2696,17 @@ Wenn die Neuinstallation nicht hilft, wenden Sie sich bitte an den Windscribe-Su
         <translation>Die Firewall kann nicht deaktiviert werden, da der Modus &quot;Immer eingeschaltet&quot; aktiviert ist</translation>
     </message>
     <message>
-        <location filename="../../main.cpp" line="137"/>
+        <location filename="../../main.cpp" line="140"/>
         <source>Windscribe is already running on your computer, but appears to not be responding.</source>
         <translation>Windscribe wird bereits auf Ihrem Computer ausgeführt, scheint aber nicht zu reagieren.</translation>
     </message>
     <message>
-        <location filename="../../main.cpp" line="138"/>
+        <location filename="../../main.cpp" line="141"/>
         <source>You may need to kill the non-responding Windscribe app or reboot your computer to fix the issue.</source>
         <translation>Möglicherweise müssen Sie die nicht reagierende Windscribe-App beenden oder Ihren Computer neu starten, um das Problem zu beheben.</translation>
     </message>
     <message>
-        <location filename="../../main.cpp" line="190"/>
+        <location filename="../../main.cpp" line="185"/>
         <source>One or more files in the Windscribe application bundle have been suspiciously modified. Please re-install Windscribe.</source>
         <translation>Eine oder mehrere Dateien im Windscribe-Anwendungspaket wurden verdächtig geändert. Bitte installieren Sie Windscribe neu.</translation>
     </message>

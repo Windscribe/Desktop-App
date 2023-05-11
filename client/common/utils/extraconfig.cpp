@@ -24,6 +24,7 @@ const QString WS_STAGING_STR    = WS_PREFIX + "staging";
 const QString WS_LOG_API_RESPONSE = WS_PREFIX + "log-api-response";
 const QString WS_WG_VERBOSE_LOGGING = WS_PREFIX + "wireguard-verbose-logging";
 const QString WS_SCREEN_TRANSITION_HOTKEYS = WS_PREFIX + "screen-transition-hotkeys";
+const QString WS_USE_ICMP_PINGS = WS_PREFIX + "use-icmp-pings";
 
 void ExtraConfig::writeConfig(const QString &cfg)
 {
@@ -219,6 +220,11 @@ bool ExtraConfig::getWireGuardVerboseLogging()
 bool ExtraConfig::getUsingScreenTransitionHotkeys()
 {
     return getFlagFromExtraConfigLines(WS_SCREEN_TRANSITION_HOTKEYS);
+}
+
+bool ExtraConfig::getUseICMPPings()
+{
+    return getFlagFromExtraConfigLines(WS_USE_ICMP_PINGS);
 }
 
 int ExtraConfig::getIntFromLineWithString(const QString &line, const QString &str, bool &success)

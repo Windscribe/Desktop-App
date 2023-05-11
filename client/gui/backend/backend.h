@@ -266,5 +266,4 @@ private:
 
     QString generateNewFriendlyName();
     void updateAccountInfo();
-    void getOpenVpnVersionsFromInitCommand(const QStringList &availableOpenvpnVersions);
 };

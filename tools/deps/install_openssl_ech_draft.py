@@ -32,10 +32,10 @@ def BuildDependencyMSVC(outpath):
     # Create an environment with VS vars.
     buildenv = os.environ.copy()
     buildenv.update({"MAKEFLAGS": "S"})
-    buildenv.update(iutl.GetVisualStudioEnvironment())
+    buildenv.update(iutl.GetVisualStudioEnvironment(is_arm64_build))
     # Configure.
     is_testing_ok = "-test" in sys.argv
-    configure_cmd = ["perl.exe", "Configure", "VC-WIN64A", "no-asm", "-FS"]
+    configure_cmd = ["perl.exe", "Configure", "VC-WIN64-ARM" if is_arm64_build else "VC-WIN64A", "no-asm", "-FS"]
     if not is_testing_ok:
         configure_cmd.extend(["no-unit-test", "no-tests"])
     configure_cmd.append("--prefix={}".format(outpath))
@@ -119,8 +119,7 @@ def InstallDependency():
             iutl.RunCommand(["mv", archivetitle, archivetitle + "-arm64"])
             iutl.RunCommand(["cp", "-r", archivetitle + "-arm64", archivetitle + "-x86_64"])
     # Build the dependency.
-    dep_buildroot_var = "BUILDROOT_" + DEP_TITLE.upper()
-    dep_buildroot_str = os.environ.get(dep_buildroot_var, os.path.join("build-libs", dep_name))
+    dep_buildroot_str = os.path.join("build-libs-arm64" if is_arm64_build else "build-libs", dep_name)
     outpath = os.path.normpath(os.path.join(os.path.dirname(TOOLS_DIR), dep_buildroot_str))
     # Clean the output folder to ensure no conflicts when we're updating to a newer openssl version.
     utl.RemoveDirectory(outpath)
@@ -156,11 +155,13 @@ def InstallDependency():
     # Cleanup.
     msg.Print("Cleaning temporary directory...")
     utl.RemoveDirectory(temp_dir)
+    msg.Print(f"{DEP_TITLE} v{dep_version_str} installed in {outpath}")
 
 
 if __name__ == "__main__":
     start_time = time.time()
     current_os = utl.GetCurrentOS()
+    is_arm64_build = "--arm64" in sys.argv
     if current_os not in DEP_OS_LIST:
         msg.Print("{} is not needed on {}, skipping.".format(DEP_TITLE, current_os))
         sys.exit(0)

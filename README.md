@@ -14,10 +14,12 @@ This repo contains the complete source code for the Windscribe 2.0 app. This inc
 - Install [Active Perl](https://www.activestate.com/products/perl/downloads/).
     - Alternately, you can install [Strawberry Perl](https://strawberryperl.com/).
 - Install CMake v3.20.x or newer from [here](https://cmake.org/download/) (`install_cmake.bat` in `tools/prepare_build_environment/windows` will download and install CMake v3.23.2 for you).
+- Install Ninja v1.10.2 from [here](https://github.com/ninja-build/ninja/releases)
 - Verify the following entries are in your System `PATH` environment variable. If they are not, add them to the System `PATH` environment variable and reboot.
     - `C:\Perl64\site\bin` (or equivalent Strawberry Perl `site\bin` folder)
     - `C:\Perl64\bin` (or equivalent Strawberry Perl `bin` folder)
     - `C:\Program Files\Git\cmd`
+    - `C:\[folder containing ninja.exe]`
 - Verify that `python3` is available in your System `PATH` environment variable.
   - If you installed Python from the Microsoft Store, enable the `python3.exe` execution alias in System Settings `Manage App Execution Aliases`.
   - If you installed Python from python.org, you can `mklink /path/to/your/python3.exe /path/to/your/python.exe`
