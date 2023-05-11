@@ -55,7 +55,8 @@ private:
         NetworkRequest request;
         NetworkReply *reply;
         QByteArray data;
-        QElapsedTimer elapsedTimer_;
+        QElapsedTimer elapsedTimer;
+        QStringList ips;
     };
 
     QHash<quint64, QSharedPointer<RequestData> > activeRequests_;

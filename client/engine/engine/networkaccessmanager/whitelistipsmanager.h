@@ -10,16 +10,13 @@ class WhitelistIpsManager : public QObject
 public:
     WhitelistIpsManager(QObject *parent);
 
-    void add(const QString &hostname, const QStringList &ips);
-    void remove(const QString &hostname);
+    void add(const QStringList &ips);
+    void remove(const QStringList &ips);
 
 signals:
     void whitelistIpsChanged(const QSet<QString> &ips);
 
 private:
-    QHash<QString, QStringList> hash_;
-    QSet<QString> lastWhitelistIps_;
-
-    void updateIps();
+    QSet<QString> ips_;
 };
 

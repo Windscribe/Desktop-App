@@ -22,6 +22,8 @@ void PingHost_Curl::addHostForPing(const QString &id, const QString &ip, const Q
     QUrl url(hostame);
     NetworkRequest networkRequest(url.toString(), PING_TIMEOUT, true, DnsServersConfiguration::instance().getCurrentDnsServers(), false);
     networkRequest.setOverrideIp(ip);
+    // We add all ips to the firewall exceptions at once in the EngineLocationsModel, so there is no need to do it NetworkAccessManager
+    networkRequest.setIsWhiteListIps(false);
     NetworkReply *reply = networkAccessManager_->get(networkRequest);
     connect(reply, &NetworkReply::finished, this, &PingHost_Curl::onNetworkRequestFinished);
     reply->setProperty("id", id);
