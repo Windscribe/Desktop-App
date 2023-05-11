@@ -1,5 +1,10 @@
 #include "pinghost.h"
+
 #include "utils/ws_assert.h"
+
+#ifdef Q_OS_WIN
+#include "utils/extraconfig.h"
+#endif
 
 const int typeIdPingType = qRegisterMetaType<PingHost::PING_TYPE>("PingHost::PING_TYPE");
 
@@ -43,20 +48,29 @@ void PingHost::enableProxy()
 
 void PingHost::addHostForPingImpl(const QString &id, const QString &ip, PING_TYPE pingType, const QString &hostname)
 {
-    if (pingType == PING_CURL) {
-        pingHostCurl_.addHostForPing(id, ip, hostname);
-        return;
+#ifdef Q_OS_WIN
+    // The new curl-based ping mechanism is exhibiting the same spurious delays as experienced before
+    // with the TCP-based ping mechanism.  The ICMP mechanism on Windows does not exhibit this behavior.
+    if (ExtraConfig::instance().getUseICMPPings() && pingType != PING_ICMP) {
+        // Setting it to TCP so we can check the isProxyEnabled() below.
+        pingType = PING_TCP;
     }
 
-#ifdef Q_OS_WIN
+    if (pingType == PING_CURL) {
+        pingHostCurl_.addHostForPing(id, ip, hostname);
+    }
     // The icmp ping object is not currently set up to work with a network proxy.
-    if (pingType == PING_TCP && pingHostTcp_.isProxyEnabled()) {
+    else if (pingType == PING_TCP && pingHostTcp_.isProxyEnabled()) {
         pingHostTcp_.addHostForPing(id, ip);
-    } else {
+    }
+    else {
         pingHostIcmp_.addHostForPing(id, ip);
     }
 #else
-    if (pingType == PING_TCP) {
+    if (pingType == PING_CURL) {
+        pingHostCurl_.addHostForPing(id, ip, hostname);
+    }
+    else if (pingType == PING_TCP) {
         pingHostTcp_.addHostForPing(id, ip);
     }
     else if (pingType == PING_ICMP) {

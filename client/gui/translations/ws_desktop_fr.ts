@@ -2696,17 +2696,17 @@ Si la réinstallation ne résout pas le problème, veuillez contacter le support
         <translation>Impossible de désactiver le pare-feu car le mode « Toujours activé » est activé</translation>
     </message>
     <message>
-        <location filename="../../main.cpp" line="137"/>
+        <location filename="../../main.cpp" line="140"/>
         <source>Windscribe is already running on your computer, but appears to not be responding.</source>
         <translation>Windscribe est déjà en cours d’exécution sur votre ordinateur, mais ne semble pas répondre.</translation>
     </message>
     <message>
-        <location filename="../../main.cpp" line="138"/>
+        <location filename="../../main.cpp" line="141"/>
         <source>You may need to kill the non-responding Windscribe app or reboot your computer to fix the issue.</source>
         <translation>Vous devrez peut-être tuer l’application Windscribe qui ne répond pas ou redémarrer votre ordinateur pour résoudre le problème.</translation>
     </message>
     <message>
-        <location filename="../../main.cpp" line="190"/>
+        <location filename="../../main.cpp" line="185"/>
         <source>One or more files in the Windscribe application bundle have been suspiciously modified. Please re-install Windscribe.</source>
         <translation>Un ou plusieurs fichiers du bundle d’applications Windscribe ont été modifiés de manière suspecte. Veuillez réinstaller Windscribe.</translation>
     </message>

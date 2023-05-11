@@ -1,8 +1,6 @@
-#ifndef OPENVPNVERSIONCONTROLLER_H
-#define OPENVPNVERSIONCONTROLLER_H
+#pragma once
 
 #include <QStringList>
-#include <QMutex>
 
 //thread safe
 class OpenVpnVersionController
@@ -14,12 +12,13 @@ public:
         return s;
     }
 
-    QStringList getAvailableOpenVpnVersions();
-    QStringList getAvailableOpenVpnExecutables();
-    QString getSelectedOpenVpnVersion();
-    QString getSelectedOpenVpnExecutable();
+    QString getOpenVpnVersion();
 
-    void setSelectedOpenVpnVersion(const QString &version);
+    // Returns an absolute path to the OpenVPN binary, including the file name.
+    QString getOpenVpnFilePath();
+
+    // Return the file name of the OpenVPN binary, excluding the path.
+    QString getOpenVpnFileName();
 
     void setUseWinTun(bool bUseWinTun);
     bool isUseWinTun();
@@ -27,14 +26,8 @@ public:
 private:
     OpenVpnVersionController();
 
-    QStringList openVpnVersionsList_;
-    QStringList openVpnFilesList_;
-    int selectedInd_;
-    QMutex mutex_;
-    bool bUseWinTun_;
+    bool bUseWinTun_ = false;
+    QString ovpnVersion_;
 
-    QString getOpenVpnBinaryPath();
-    QString detectVersion(const QString &path);
+    void detectVersion();
 };
-
-#endif // OPENVPNVERSIONCONTROLLER_H

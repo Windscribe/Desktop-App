@@ -146,9 +146,6 @@ client_deploy_files:
       - vcruntime140.dll
       - vcruntime140_1.dll
     additional_files:
-      - tap6/
-      - wintun/
-      - splittunnel/
       - wstunnel/wstunnel.exe -> wstunnel.exe
       - subinacl.exe
     libs:
@@ -166,21 +163,17 @@ client_deploy_files:
         - plugins/networkinformation/qnetworklistmanager.dll -> networkinformation/qnetworklistmanager.dll
         - plugins/platforms/qwindows.dll -> platforms/qwindows.dll
         - plugins/styles/qwindowsvistastyle.dll -> styles/qwindowsvistastyle.dll
-        - plugins/tls/qopensslbackend.dll -> tls/qopensslbackend.dll
         - plugins/tls/qschannelbackend.dll -> tls/qschannelbackend.dll
       cares:
-        - dll_x64/lib/cares.dll -> cares.dll
+        - lib/cares.dll -> cares.dll
       curl:
         - bin/libcurl.dll -> libcurl.dll
-      openssl_ech_draft:
-        - bin/libcrypto-3-x64.dll -> libcrypto-3-x64.dll
-        - bin/libssl-3-x64.dll -> libssl-3-x64.dll
       stunnel:
         - tstunnel.exe -> tstunnel.exe
       zlib:
         - lib/zlib1.dll -> zlib1.dll
       openvpn:
-        - openvpn.exe -> windscribeopenvpn_2_6_1.exe
+        - openvpn.exe -> windscribeopenvpn.exe
       wireguard:
         - tunnel.dll -> tunnel.dll
         - wireguard.dll -> wireguard.dll
@@ -190,13 +183,49 @@ client_deploy_files:
       dga:
         - dga.dll -> dga.dll
 
+  win32_x86_64:
+    additional_files:
+      - splittunnel/amd64/windscribesplittunnel.cat -> splittunnel/windscribesplittunnel.cat
+      - splittunnel/amd64/windscribesplittunnel.inf -> splittunnel/windscribesplittunnel.inf
+      - splittunnel/amd64/windscribesplittunnel.sys -> splittunnel/windscribesplittunnel.sys
+      - tap/amd64/OemVista.inf -> tap/OemVista.inf
+      - tap/amd64/tapinstall.exe -> tap/tapinstall.exe
+      - tap/amd64/tapwindscribe0901.cat -> tap/tapwindscribe0901.cat
+      - tap/amd64/tapwindscribe0901.sys -> tap/tapwindscribe0901.sys
+      - wintun/amd64/tapinstall.exe -> wintun/tapinstall.exe
+      - wintun/amd64/windtun420.cat -> wintun/windtun420.cat
+      - wintun/amd64/windtun420.inf -> wintun/windtun420.inf
+      - wintun/amd64/windtun420.sys -> wintun/windtun420.sys
+    libs:
+      openssl_ech_draft:
+        - bin/libcrypto-3-x64.dll -> libcrypto-3-x64.dll
+        - bin/libssl-3-x64.dll -> libssl-3-x64.dll
+
+  win32_arm64:
+    additional_files:
+      - splittunnel/arm64/windscribesplittunnel.cat -> splittunnel/windscribesplittunnel.cat
+      - splittunnel/arm64/windscribesplittunnel.inf -> splittunnel/windscribesplittunnel.inf
+      - splittunnel/arm64/windscribesplittunnel.sys -> splittunnel/windscribesplittunnel.sys
+      - tap/arm64/OemVista.inf -> tap/OemVista.inf
+      - tap/arm64/tapinstall.exe -> tap/tapinstall.exe
+      - tap/arm64/tapwindscribe0901.cat -> tap/tapwindscribe0901.cat
+      - tap/arm64/tapwindscribe0901.sys -> tap/tapwindscribe0901.sys
+      - wintun/arm64/tapinstall.exe -> wintun/tapinstall.exe
+      - wintun/arm64/windtun420.cat -> wintun/windtun420.cat
+      - wintun/arm64/windtun420.inf -> wintun/windtun420.inf
+      - wintun/arm64/windtun420.sys -> wintun/windtun420.sys
+    libs:
+      openssl_ech_draft:
+        - bin/libcrypto-3-arm64.dll -> libcrypto-3-arm64.dll
+        - bin/libssl-3-arm64.dll -> libssl-3-arm64.dll
+
   macos:
     libs:
       openssl_ech_draft:
         - lib/libcrypto.3.dylib -> Contents/Helpers/libcrypto.3.dylib
         - lib/libssl.3.dylib -> Contents/Helpers/libssl.3.dylib
     fix_rpath:
-      Contents/Helpers/windscribeopenvpn_2_6_1:
+      Contents/Helpers/windscribeopenvpn:
         openssl_ech_draft:
           - lib/libssl.3.dylib -> libssl.3.dylib
           - lib/libcrypto.3.dylib -> libcrypto.3.dylib
@@ -294,15 +323,20 @@ client_deploy_files:
 
 codesign_files:
   win32:
-    - cares.dll
-    - libcurl.dll
-    - tunnel.dll
-    - ws_com.dll
-    - ws_proxy_stub.dll
-    - zlib1.dll
-    - dga.dll
-    - libcrypto-3-x64.dll
-    - libssl-3-x64.dll
+    common:
+      - cares.dll
+      - libcurl.dll
+      - tunnel.dll
+      - ws_com.dll
+      - ws_proxy_stub.dll
+      - zlib1.dll
+      - dga.dll
+    x86_64:
+      - libcrypto-3-x64.dll
+      - libssl-3-x64.dll
+    arm64:
+      - libcrypto-3-arm64.dll
+      - libssl-3-arm64.dll
   linux:
     - windscribestunnel
     - windscribewstunnel

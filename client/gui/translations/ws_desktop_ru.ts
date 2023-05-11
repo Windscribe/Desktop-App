@@ -2696,17 +2696,17 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <translation>Не удается выключить брандмауэр, так как включен режим «Всегда включен»</translation>
     </message>
     <message>
-        <location filename="../../main.cpp" line="137"/>
+        <location filename="../../main.cpp" line="140"/>
         <source>Windscribe is already running on your computer, but appears to not be responding.</source>
         <translation>Windscribe уже запущен на вашем компьютере, но, похоже, не отвечает.</translation>
     </message>
     <message>
-        <location filename="../../main.cpp" line="138"/>
+        <location filename="../../main.cpp" line="141"/>
         <source>You may need to kill the non-responding Windscribe app or reboot your computer to fix the issue.</source>
         <translation>Возможно, вам придется убить не отвечающее приложение Windscribe или перезагрузить компьютер, чтобы устранить проблему.</translation>
     </message>
     <message>
-        <location filename="../../main.cpp" line="190"/>
+        <location filename="../../main.cpp" line="185"/>
         <source>One or more files in the Windscribe application bundle have been suspiciously modified. Please re-install Windscribe.</source>
         <translation>Один или несколько файлов в пакете приложений Windscribe были подозрительно изменены. Пожалуйста, переустановите Windscribe.</translation>
     </message>

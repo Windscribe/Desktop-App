@@ -12,7 +12,7 @@
 TARGET=win32
 SSLLIBS=libcrypto.lib libssl.lib
 !ELSE
-TARGET=win64
+TARGET=$(TARGET_ARCH)
 SSLLIBS=libcrypto.lib libssl.lib
 !ENDIF
 !MESSAGE Detected target: $(TARGET)
@@ -37,11 +37,11 @@ BINROOT=..\bin
 BIN=$(BINROOT)\$(TARGET)
 
 SHAREDOBJS=$(OBJ)\stunnel.obj $(OBJ)\ssl.obj $(OBJ)\ctx.obj \
-	$(OBJ)\verify.obj $(OBJ)\file.obj $(OBJ)\client.obj \
-	$(OBJ)\protocol.obj $(OBJ)\sthreads.obj $(OBJ)\log.obj \
-	$(OBJ)\options.obj $(OBJ)\network.obj $(OBJ)\resolver.obj \
-	$(OBJ)\str.obj $(OBJ)\tls.obj $(OBJ)\fd.obj $(OBJ)\dhparam.obj \
-	$(OBJ)\cron.obj
+    $(OBJ)\verify.obj $(OBJ)\file.obj $(OBJ)\client.obj \
+    $(OBJ)\protocol.obj $(OBJ)\sthreads.obj $(OBJ)\log.obj \
+    $(OBJ)\options.obj $(OBJ)\network.obj $(OBJ)\resolver.obj \
+    $(OBJ)\str.obj $(OBJ)\tls.obj $(OBJ)\fd.obj $(OBJ)\dhparam.obj \
+    $(OBJ)\cron.obj
 GUIOBJS=$(OBJ)\ui_win_gui.obj $(OBJ)\resources.res
 CLIOBJS=$(OBJ)\ui_win_cli.obj
 
@@ -59,45 +59,45 @@ CLILIBS=
 #	/LIBPATH:"$(LIBDIR)\VC\static" libeay32MD.lib ssleay32MD.lib
 
 {$(SRC)\}.c{$(OBJ)\}.obj:
-	$(CC) $(CFLAGS) -Fo$@ -c $<
+    $(CC) $(CFLAGS) -Fo$@ -c $<
 
 {$(SRC)\}.rc{$(OBJ)\}.res:
-	$(RC) -fo$@ -r $<
+    $(RC) -fo$@ -r $<
 
 all: build
 
 build: makedirs $(BIN)\stunnel.exe $(BIN)\tstunnel.exe
 
 clean:
-	-@ del $(SHAREDOBJS) >NUL 2>&1
-	-@ del $(GUIOBJS) >NUL 2>&1
-	-@ del $(CLIOBJS) >NUL 2>&1
+    -@ del $(SHAREDOBJS) >NUL 2>&1
+    -@ del $(GUIOBJS) >NUL 2>&1
+    -@ del $(CLIOBJS) >NUL 2>&1
 #	-@ del *.manifest >NUL 2>&1
-	-@ del $(BIN)\stunnel.exe >NUL 2>&1
-	-@ del $(BIN)\stunnel.exe.manifest >NUL 2>&1
-	-@ del $(BIN)\tstunnel.exe >NUL 2>&1
-	-@ del $(BIN)\tstunnel.exe.manifest >NUL 2>&1
-	-@ rmdir $(OBJ) >NUL 2>&1
-	-@ rmdir $(BIN) >NUL 2>&1
+    -@ del $(BIN)\stunnel.exe >NUL 2>&1
+    -@ del $(BIN)\stunnel.exe.manifest >NUL 2>&1
+    -@ del $(BIN)\tstunnel.exe >NUL 2>&1
+    -@ del $(BIN)\tstunnel.exe.manifest >NUL 2>&1
+    -@ rmdir $(OBJ) >NUL 2>&1
+    -@ rmdir $(BIN) >NUL 2>&1
 
 makedirs:
-	-@ IF NOT EXIST $(OBJROOT) mkdir $(OBJROOT) >NUL 2>&1
-	-@ IF NOT EXIST $(OBJ) mkdir $(OBJ) >NUL 2>&1
-	-@ IF NOT EXIST $(BINROOT) mkdir $(BINROOT) >NUL 2>&1
-	-@ IF NOT EXIST $(BIN) mkdir $(BIN) >NUL 2>&1
+    -@ IF NOT EXIST $(OBJROOT) mkdir $(OBJROOT) >NUL 2>&1
+    -@ IF NOT EXIST $(OBJ) mkdir $(OBJ) >NUL 2>&1
+    -@ IF NOT EXIST $(BINROOT) mkdir $(BINROOT) >NUL 2>&1
+    -@ IF NOT EXIST $(BIN) mkdir $(BIN) >NUL 2>&1
 
 $(SHAREDOBJS): *.h vc.mak
 $(GUIOBJS): *.h vc.mak
 $(CLIOBJS): *.h vc.mak
 
 $(BIN)\stunnel.exe: $(SHAREDOBJS) $(GUIOBJS)
-	$(LINK) $(LDFLAGS) $(SHAREDLIBS) $(GUILIBS) /LIBPATH:"$(LIBDIR)" $(SSLLIBS) /OUT:$@ $**
-	IF EXIST $@.manifest \
-		mt -nologo -manifest $@.manifest -outputresource:$@;1
+    $(LINK) $(LDFLAGS) $(SHAREDLIBS) $(GUILIBS) /LIBPATH:"$(LIBDIR)" $(SSLLIBS) /OUT:$@ $**
+    IF EXIST $@.manifest \
+        mt -nologo -manifest $@.manifest -outputresource:$@;1
 
 $(BIN)\tstunnel.exe: $(SHAREDOBJS) $(CLIOBJS)
-	$(LINK) $(LDFLAGS) $(SHAREDLIBS) $(CLILIBS) /LIBPATH:"$(LIBDIR)" $(SSLLIBS) /OUT:$@ $**
-	IF EXIST $@.manifest \
-		mt -nologo -manifest $@.manifest -outputresource:$@;1
+    $(LINK) $(LDFLAGS) $(SHAREDLIBS) $(CLILIBS) /LIBPATH:"$(LIBDIR)" $(SSLLIBS) /OUT:$@ $**
+    IF EXIST $@.manifest \
+        mt -nologo -manifest $@.manifest -outputresource:$@;1
 
 # end of vc.mak

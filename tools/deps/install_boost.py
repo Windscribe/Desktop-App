@@ -42,6 +42,8 @@ def BuildDependencyMSVC(installpath):
     # Build and install.  Use tagged layout to get installpath folder structure similar to MacOS/Linux.
     b2cmd = [".\\b2", "install", "-q", "link=static", "--build-type=complete", "--abbreviate-paths", "--layout=tagged", "address-model=64"]
     b2cmd.append("--prefix={}".format(installpath))
+    if is_arm64_build:
+        b2cmd.append("architecture=arm")
     if BOOST_WITH_MODULES:
         b2cmd.extend(["--with-" + m for m in BOOST_WITH_MODULES])
     iutl.RunCommand(b2cmd, env=buildenv, shell=True)
@@ -116,8 +118,7 @@ def InstallDependency():
             iutl.RunCommand(["mv", archivetitle, archivetitle + "-arm64"])
             iutl.RunCommand(["cp", "-r", archivetitle + "-arm64", archivetitle + "-x86_64"])
     # Build the dependency.
-    dep_buildroot_var = "BUILDROOT_" + DEP_TITLE.upper()
-    dep_buildroot_str = os.environ.get(dep_buildroot_var, os.path.join("build-libs", dep_name))
+    dep_buildroot_str = os.path.join("build-libs-arm64" if is_arm64_build else "build-libs", dep_name)
     outpath = os.path.normpath(os.path.join(os.path.dirname(TOOLS_DIR), dep_buildroot_str))
     # Clean the output folder to ensure no conflicts when we're updating to a newer boost version.
     utl.RemoveDirectory(outpath)
@@ -156,11 +157,13 @@ def InstallDependency():
     if "--no-clean" not in sys.argv:
         msg.Print("Cleaning temporary directory...")
         utl.RemoveDirectory(temp_dir)
+    msg.Print(f"{DEP_TITLE} v{dep_version_str} installed in {outpath}")
 
 
 if __name__ == "__main__":
     start_time = time.time()
     current_os = utl.GetCurrentOS()
+    is_arm64_build = "--arm64" in sys.argv
     if current_os not in DEP_OS_LIST:
         msg.Print("{} is not needed on {}, skipping.".format(DEP_TITLE, current_os))
         sys.exit(0)

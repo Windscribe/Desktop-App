@@ -149,7 +149,7 @@ IHelper::ExecuteError OpenVPNConnection::runOpenVPN(unsigned int port, const typ
         WS_ASSERT(false);
     }
 
-    qCDebug(LOG_CONNECTION) << "OpenVPN version:" << OpenVpnVersionController::instance().getSelectedOpenVpnVersion();
+    qCDebug(LOG_CONNECTION) << "OpenVPN version:" << OpenVpnVersionController::instance().getOpenVpnVersion();
 
     Helper_win *helper_win = dynamic_cast<Helper_win *>(helper_);
     return helper_win->executeOpenVPN(config_, port, httpProxy, httpPort, socksProxy, socksPort, outCmdId, isCustomConfig);
@@ -168,7 +168,7 @@ IHelper::ExecuteError OpenVPNConnection::runOpenVPN(unsigned int port, const typ
     {
         WS_ASSERT(false);
     }
-    qCDebug(LOG_CONNECTION) << "OpenVPN version:" << OpenVpnVersionController::instance().getSelectedOpenVpnVersion();
+    qCDebug(LOG_CONNECTION) << "OpenVPN version:" << OpenVpnVersionController::instance().getOpenVpnVersion();
     //qCDebug(LOG_CONNECTION) << strCommand;
 
     Helper_posix *helper_posix = dynamic_cast<Helper_posix *>(helper_);
@@ -191,7 +191,7 @@ void OpenVPNConnection::onKillControllerTimer()
     killControllerTimer_.stop();
 #ifdef Q_OS_WIN
     Helper_win *helper_win= dynamic_cast<Helper_win *>(helper_);
-    helper_win->executeTaskKill(OpenVpnVersionController::instance().getSelectedOpenVpnExecutable());
+    helper_win->executeTaskKill(OpenVpnVersionController::instance().getOpenVpnFileName());
 #else
     Helper_posix *helper_posix = dynamic_cast<Helper_posix *>(helper_);
     helper_posix->executeTaskKill(kTargetOpenVpn);

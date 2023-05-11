@@ -364,7 +364,7 @@ IHelper::ExecuteError Helper_win::executeOpenVPN(const QString &config, unsigned
     QMutexLocker locker(&mutex_);
 
     // check openvpn executable signature
-    QString openVpnExePath = QCoreApplication::applicationDirPath() + "/" + OpenVpnVersionController::instance().getSelectedOpenVpnExecutable();
+    QString openVpnExePath = OpenVpnVersionController::instance().getOpenVpnFilePath();
     ExecutableSignature sigCheck;
     if (!sigCheck.verify(openVpnExePath.toStdWString()))
     {
@@ -373,7 +373,7 @@ IHelper::ExecuteError Helper_win::executeOpenVPN(const QString &config, unsigned
     }
 
     CMD_RUN_OPENVPN cmdRunOpenVpn;
-    cmdRunOpenVpn.szOpenVpnExecutable = OpenVpnVersionController::instance().getSelectedOpenVpnExecutable().toStdWString();
+    cmdRunOpenVpn.szOpenVpnExecutable = OpenVpnVersionController::instance().getOpenVpnFileName().toStdWString();
     cmdRunOpenVpn.szConfig = config.toStdWString();
     cmdRunOpenVpn.portNumber = portNumber;
     cmdRunOpenVpn.szHttpProxy = httpProxy.toStdWString();

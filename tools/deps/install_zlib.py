@@ -32,8 +32,8 @@ def BuildDependencyMSVC(outpath):
     # Create an environment with VS vars.
     buildenv = os.environ.copy()
     buildenv.update({"MAKEFLAGS": "S"})
-    buildenv.update(iutl.GetVisualStudioEnvironment())
-    buildenv.update({"CL": "/FS"})  # needed for JOM.
+    buildenv.update(iutl.GetVisualStudioEnvironment(is_arm64_build))
+
     # Build.
     build_cmd = iutl.GetMakeBuildCommand()
     build_cmd.extend(["/F", "win32/Makefile.msc"])
@@ -71,8 +71,7 @@ def InstallDependency():
     msg.HeadPrint("Extracting: \"{}\"".format(archivename))
     iutl.ExtractFile(localfilename)
     # Build the dependency.
-    dep_buildroot_var = "BUILDROOT_" + DEP_TITLE.upper()
-    dep_buildroot_str = os.environ.get(dep_buildroot_var, os.path.join("build-libs", dep_name))
+    dep_buildroot_str = os.path.join("build-libs-arm64" if is_arm64_build else "build-libs", dep_name)
     outpath = os.path.normpath(os.path.join(os.path.dirname(TOOLS_DIR), dep_buildroot_str))
     with utl.PushDir(os.path.join(temp_dir, archivetitle)):
         msg.HeadPrint("Building: \"{}\"".format(archivetitle))
@@ -90,11 +89,16 @@ def InstallDependency():
     # Cleanup.
     msg.Print("Cleaning temporary directory...")
     utl.RemoveDirectory(temp_dir)
+    msg.Print(f"{DEP_TITLE} v{dep_version_str} installed in {outpath}")
 
 
 if __name__ == "__main__":
     start_time = time.time()
     current_os = utl.GetCurrentOS()
+    is_arm64_build = "--arm64" in sys.argv
+    if is_arm64_build:
+        msg.Print(f"Cross compiling arm64 on Windows not currently implemented for {DEP_TITLE}.")
+        sys.exit(0)
     if current_os not in DEP_OS_LIST:
         msg.Print("{} is not needed on {}, skipping.".format(DEP_TITLE, current_os))
         sys.exit(0)

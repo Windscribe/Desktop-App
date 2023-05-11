@@ -4,7 +4,6 @@
 
 #include "engine/apiinfo/apiinfo.h"
 #include "engine/engine.h"
-#include "engine/openvpnversioncontroller.h"
 #include "persistentstate.h"
 #include "utils/logger.h"
 #include "utils/utils.h"
@@ -384,7 +383,6 @@ void Backend::onEngineInitFinished(ENGINE_INIT_RET_CODE retCode, bool isCanLogin
         connect(engine_->getLocationsModel(), &locationsmodel::LocationsModel::locationPingTimeChanged, this, &Backend::onEngineLocationsModelPingChangedChanged);
 
         preferences_.setEngineSettings(engineSettings);
-        getOpenVpnVersionsFromInitCommand(OpenVpnVersionController::instance().getAvailableOpenVpnVersions());
         // WiFi sharing supported state
         preferencesHelper_.setWifiSharingSupported(engine_->isWifiSharingSupported());
         isSavedApiSettingsExists_ = engine_->isApiSavedSettingsExists();
@@ -867,13 +865,6 @@ void Backend::updateAccountInfo()
     accountInfo_.setPlan(latestSessionStatus_.getTrafficMax());
     accountInfo_.setTrafficUsed(latestSessionStatus_.getTrafficUsed());
     accountInfo_.setIsPremium(latestSessionStatus_.isPremium());
-}
-
-void Backend::getOpenVpnVersionsFromInitCommand(const QStringList &availableOpenvpnVersions)
-{
-    // OpenVpn versions
-    if (availableOpenvpnVersions.size() > 0)
-        preferencesHelper_.setAvailableOpenVpnVersions(availableOpenvpnVersions);
 }
 
 bool Backend::haveAutoLoginCredentials(QString &username, QString &password)

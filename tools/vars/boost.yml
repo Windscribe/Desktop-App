@@ -4,5 +4,4 @@
 # ------------------------------------------------------------------------------
 variables:
   VERSION_BOOST: '1.80.0'
-  BUILDROOT_BOOST: 'build-libs/boost'
   ARTIFACT_BOOST: 'boost.zip'

@@ -48,7 +48,6 @@ int Files::executeStep()
             return -1;
         }
 
-        fileList_.remove_if(FilterFiles(true, true));
         fillPathList();
 
         archive_->calcTotal(fileList_, pathList_);
@@ -80,32 +79,8 @@ int Files::executeStep()
 void Files::fillPathList()
 {
     pathList_.clear();
-    for (auto it = fileList_.cbegin(); it != fileList_.cend(); it++)
-    {
-        wstring destination;
-
-        if ((*it).find(L"tap6") != std::string::npos)
-        {
-            destination = installPath_ + L"\\tap\\" + getFileName(*it);
-        }
-        else if ((*it).find(L"wintun") != std::string::npos)
-        {
-            destination = installPath_ + L"\\wintun\\" + getFileName(*it);
-        }
-        else if ((*it).find(L"splittunnel") != std::string::npos)
-        {
-            destination = installPath_ + L"\\splittunnel\\" + getFileName(*it);
-        }
-        else if (((*it).find(L"x64\\") != std::string::npos) || ((*it).find(L"x64/") != std::string::npos) || ((*it).find(L"x32\\") != std::string::npos) || ((*it).find(L"x32/") != std::string::npos))
-        {
-            destination = installPath_ + L"\\" + getFileName(*it);
-        }
-        else
-        {
-            destination = installPath_ + L"\\" + *it;
-        }
-
-        pathList_.push_back(Path::PathExtractDir(destination));
+    for (auto it = fileList_.cbegin(); it != fileList_.cend(); it++) {
+        pathList_.push_back(Path::PathExtractDir(installPath_ + L"\\" + *it));
     }
 }
 
@@ -174,50 +149,4 @@ int Files::moveFiles()
     }
 
     return 100;
-}
-
-FilterFiles::FilterFiles(bool isX64, bool win10_or_greater) :
-    isX64_(isX64), win10_or_greater_(win10_or_greater)
-{
-}
-
-bool FilterFiles::operator()(const std::wstring& value) const
-{
-    bool file_name = false;
-    size_t i = value.rfind('.', value.length());
-
-    if (i != string::npos)
-    {
-        size_t len = value.length();
-        if ((i == (len - 4)) || (i == (len - 5)))
-        {
-            file_name = true;
-        }
-    }
-
-    // return true if need remove
-    bool ret = false;
-    if (!file_name)
-    {
-        ret = true;
-    }
-    else if (value.find(L"splittunnel") != std::string::npos || value.find(L"wintun") != std::string::npos || value.find(L"tap6") != std::string::npos)
-    {
-        ret = ((value.find(L"i386") != std::string::npos) && (isX64_)) ||
-            ((value.find(L"amd64") != std::string::npos) && (!isX64_));
-
-        ret |= ((value.find(L"win7") != std::string::npos) && (win10_or_greater_)) ||
-            ((value.find(L"win10") != std::string::npos) && (!win10_or_greater_));
-    }
-
-    else if (value.find(L"x32/") != std::string::npos)
-    {
-        ret = isX64_;
-    }
-    else if (value.find(L"x64/") != std::string::npos)
-    {
-        ret = !isX64_;
-    }
-
-    return ret;
 }
