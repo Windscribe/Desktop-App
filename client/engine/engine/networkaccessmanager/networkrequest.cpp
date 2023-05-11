@@ -1,7 +1,7 @@
 #include "networkrequest.h"
 
 NetworkRequest::NetworkRequest(const QUrl &url, int timeout, bool bUseDnsCache) : url_(url), timeout_(timeout), bUseDnsCache_(bUseDnsCache), bIgnoreSslErrors_(false),
-    bRemoveFromWhitelistIpsAfterFinish_(false)
+    bRemoveFromWhitelistIpsAfterFinish_(false), isWhiteListIps_(true)
 {
 }
 
@@ -11,7 +11,8 @@ NetworkRequest::NetworkRequest(const QUrl &url, int timeout, bool bUseDnsCache, 
     bUseDnsCache_(bUseDnsCache),
     bIgnoreSslErrors_(isIgnoreSslErrors),
     dnsServers_(dnsServers),
-    bRemoveFromWhitelistIpsAfterFinish_(false)
+    bRemoveFromWhitelistIpsAfterFinish_(false),
+    isWhiteListIps_(true)
 {
 }
 
@@ -103,4 +104,14 @@ void NetworkRequest::setOverrideIp(const QString &ip)
 QString NetworkRequest::overrideIp() const
 {
     return overrideIp_;
+}
+
+void NetworkRequest::setIsWhiteListIps(bool isWhiteListIps)
+{
+    isWhiteListIps_ = isWhiteListIps;
+}
+
+bool NetworkRequest::isWhiteListIps() const
+{
+    return isWhiteListIps_;
 }

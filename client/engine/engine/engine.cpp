@@ -2399,9 +2399,6 @@ void Engine::updateProxySettings()
         locationsModel_->setProxySettings(proxySettings);
         firewallExceptions_.setProxyIP(proxySettings);
         updateFirewallSettings();
-        // TODO: is this need?
-        //if (connectStateController_->currentState() == CONNECT_STATE_DISCONNECTED)
-        //    getMyIPController_->getIPFromDisconnectedState(500);
     }
 }
 
