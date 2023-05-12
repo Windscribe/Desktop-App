@@ -29,7 +29,11 @@ Requires:	fontconfig
 Requires:	freetype
 Requires:	systemd-libs
 Requires:	libxcb
-Requires:       net-tools
+Requires:	net-tools
+Requires:	xcb-util-wm
+Requires:	xcb-util-image
+Requires:	xcb-util-keysyms
+Requires:	xcb-util-renderutil
 
 %description
 Windscribe client.
