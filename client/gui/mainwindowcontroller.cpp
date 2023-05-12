@@ -1948,6 +1948,11 @@ void MainWindowController::gotoExitWindow(bool isLogout)
 
     if (curWindow_ == WINDOW_ID_CONNECT) {
         win->setHeight(connectWindow_->getGraphicsObject()->boundingRect().height());
+        shadowManager_->changeRectangleSize(ShadowManager::SHAPE_ID_EXIT,
+                                            QRect(0,
+                                                childWindowShadowOffsetY(true),
+                                                connectWindow_->getGraphicsObject()->boundingRect().width(),
+                                                connectWindow_->getGraphicsObject()->boundingRect().height() - childWindowShadowOffsetY(false)));
         if (preferences_->appSkin() == APP_SKIN_VAN_GOGH) {
             win->setBackgroundShape(IGeneralMessageWindow::kConnectScreenVanGoghShape);
         } else {
@@ -1962,6 +1967,11 @@ void MainWindowController::gotoExitWindow(bool isLogout)
     } else {
         win->setBackgroundShape(IGeneralMessageWindow::kLoginScreenShape);
         win->setHeight(LOGIN_HEIGHT*G_SCALE);
+        shadowManager_->changeRectangleSize(ShadowManager::SHAPE_ID_EXIT,
+                                            QRect(0,
+                                                childWindowShadowOffsetY(true),
+                                                win->getGraphicsObject()->boundingRect().width(),
+                                                LOGIN_HEIGHT*G_SCALE - childWindowShadowOffsetY(false)));
 
         if (curWindow_ == WINDOW_ID_LOGIN) {
             TooltipController::instance().hideAllTooltips();
