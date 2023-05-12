@@ -406,7 +406,7 @@ build:rhel:installer:tagged:
 .template_archlinux_build: &template_archlinux_build
   image: archlinux:base-devel
   before_script:
-    - pacman -Sy --noconfirm git curl python nftables c-ares freetype2 hicolor-icon-theme libglvnd fontconfig libx11 libxkbcommon libxcb net-tools
+    - pacman -Sy --noconfirm git curl python nftables c-ares freetype2 hicolor-icon-theme libglvnd fontconfig libx11 libxkbcommon libxcb net-tools xcb-util-wm xcb-util-image xcb-util-keysyms xcb-util-renderutil
 
 .build_archlinux_installer_prep_build_dir:
   script:
