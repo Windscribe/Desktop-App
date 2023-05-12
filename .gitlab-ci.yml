@@ -122,7 +122,7 @@ variables:
     - Remove-Item alias:curl
     - Set-Alias -Name curl -Value curl.exe
     - !reference [.download_dependency_boost, script]
-    #- !reference [.download_dependency_cares, script ]
+    - !reference [.download_dependency_cares, script ]
     - !reference [.download_dependency_curl, script]
     - !reference [.download_dependency_ctrld, script]
     - !reference [.download_dependency_dga, script]
@@ -133,9 +133,6 @@ variables:
     - !reference [.download_dependency_stunnel, script]
     - !reference [.download_dependency_wireguard, script]
     - !reference [.download_dependency_zlib, script]
-    # Temporarily reference new cares Windows dependency containing new folder structure
-    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --create-dirs -o ${BUILD_LIBS_FOLDER}/cares.zip "${NEXUS_PATH_DEPS}/${OS_IDENTIFIER}/cares_new.zip"
     - 'IF(Test-Path .\$BUILD_LIBS_FOLDER\) {Get-ChildItem .\$BUILD_LIBS_FOLDER\*.zip | Foreach {.\tools\bin\7z.exe x $_.FullName -o"$BUILD_LIBS_FOLDER\"}}'
     # extractions
     - Set-Variable -name VAULT_CLIENT_TOKEN -value $(curl --cacert tools/cacert.pem
