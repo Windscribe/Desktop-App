@@ -23,7 +23,7 @@ public:
 
 private slots:
     // this slots must be queued connected
-    void onRequestFinished(quint64 requestId, CURLcode curlErrorCode);
+    void onRequestFinished(quint64 requestId, CURLcode curlErrorCode, qint64 elapsedMs);
     void onRequestProgress(quint64 requestId, qint64 bytesReceived, qint64 bytesTotal);
     void onRequestNewData(quint64 requestId, const QByteArray &newData);
 

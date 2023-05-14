@@ -115,17 +115,18 @@ void NetworkAccessManager::handleRequest(quint64 id)
     }
 }
 
-void NetworkAccessManager::onCurlReplyFinished()
+void NetworkAccessManager::onCurlReplyFinished(qint64 elapsedMs)
 {
     quint64 replyId = sender()->property("replyId").toULongLong();
     auto it = activeRequests_.find(replyId);
     if (it != activeRequests_.end()) {
         QSharedPointer<RequestData> requestData = it.value();
         activeRequests_.erase(it);
+        requestData->elapsedMs_ += elapsedMs;
         requestData->reply->checkForCurlError();
         if (requestData->request.isRemoveFromWhitelistIpsAfterFinish())
             whitelistIpsManager_->remove(requestData->request.url().host());
-        emit requestData->reply->finished(requestData->elapsedTimer_.elapsed());
+        emit requestData->reply->finished(requestData->elapsedMs_);
     }
 }
 
@@ -155,6 +156,7 @@ void NetworkAccessManager::onResolved(bool success, const QStringList &ips, quin
     auto it = activeRequests_.find(id);
     if (it != activeRequests_.end()) {
         QSharedPointer<RequestData> requestData = it.value();
+        requestData->elapsedMs_ += timeMs;
 
         if (success) {
             if (requestData->request.timeout() - timeMs > 0) {
@@ -184,12 +186,12 @@ void NetworkAccessManager::onResolved(bool success, const QStringList &ips, quin
             } else {    // timeout exceed
                 activeRequests_.erase(it);
                 requestData->reply->setError(NetworkReply::TimeoutExceed);
-                emit requestData->reply->finished(requestData->elapsedTimer_.elapsed());
+                emit requestData->reply->finished(requestData->elapsedMs_);
             }
         } else {
             activeRequests_.erase(it);
             requestData->reply->setError(NetworkReply::DnsResolveError);
-            emit requestData->reply->finished(requestData->elapsedTimer_.elapsed());
+            emit requestData->reply->finished(requestData->elapsedMs_);
         }
     }
 }
@@ -215,7 +217,6 @@ NetworkReply *NetworkAccessManager::invokeHandleRequest(NetworkAccessManager::RE
     requestData->request = request;
     requestData->reply = reply;
     requestData->data = data;
-    requestData->elapsedTimer_.start();
 
     WS_ASSERT(!activeRequests_.contains(id));
     activeRequests_[id] = requestData;
