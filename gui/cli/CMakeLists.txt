@@ -11,6 +11,12 @@ set(CMAKE_AUTORCC ON)
 
 find_package(Qt6 COMPONENTS Core Network Core5Compat)
 
+if(WIN32 AND "${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "arm64")
+    set(WINDSCRIBE_BUILD_LIBS_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../../build-libs-arm64)
+else()
+    set(WINDSCRIBE_BUILD_LIBS_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../../build-libs)
+endif()
+
 set(SOURCES
     backendcommander.cpp
     backendcommander.h
@@ -40,7 +46,8 @@ if(WIN32)
     set(OS_SPECIFIC_LIBS
         user32
         Advapi32
-        Iphlpapi)
+        Iphlpapi
+        Version)
     list(APPEND SOURCES
          ../../client/common/utils/executable_signature/executable_signature_win.cpp
          ../../client/common/utils/winutils.cpp
@@ -78,7 +85,7 @@ endif()
 
 target_include_directories(windscribe-cli
                            PRIVATE
-                           ../../build-libs/openssl_ech_draft/include
+                           ${WINDSCRIBE_BUILD_LIBS_PATH}/openssl_ech_draft/include
 )
 
 target_link_libraries(windscribe-cli
@@ -91,8 +98,8 @@ target_link_libraries(windscribe-cli
 
 target_link_directories(windscribe-cli
                         PRIVATE
-                        ../../build-libs/openssl_ech_draft/lib
-                        ../../build-libs/openssl_ech_draft/lib64)
+                        ${WINDSCRIBE_BUILD_LIBS_PATH}/openssl_ech_draft/lib
+                        ${WINDSCRIBE_BUILD_LIBS_PATH}/openssl_ech_draft/lib64)
 
 target_include_directories(windscribe-cli PRIVATE
                            ../../client/common

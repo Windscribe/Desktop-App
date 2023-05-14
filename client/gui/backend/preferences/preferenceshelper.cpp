@@ -38,20 +38,6 @@ QString PreferencesHelper::getProxyGatewayAddress() const
     return proxyGatewayAddress_;
 }
 
-void PreferencesHelper::setAvailableOpenVpnVersions(const QStringList &list)
-{
-    if (list != availableOpenVpnVersions_)
-    {
-        availableOpenVpnVersions_ = list;
-        emit availableOpenVpnVersionsChanged(availableOpenVpnVersions_);
-    }
-}
-
-QStringList PreferencesHelper::getAvailableOpenVpnVersions()
-{
-    return availableOpenVpnVersions_;
-}
-
 QVector<TAP_ADAPTER_TYPE> PreferencesHelper::getAvailableTapAdapters(const QString & /*openVpnVersion*/)
 {
     return QVector<TAP_ADAPTER_TYPE>() << TAP_ADAPTER << WINTUN_ADAPTER;

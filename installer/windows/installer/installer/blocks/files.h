@@ -10,10 +10,10 @@
 class Files : public IInstallBlock
 {
 public:
-	Files(double weight);
-	virtual ~Files();
+    Files(double weight);
+    virtual ~Files();
 
-	virtual int executeStep();
+    virtual int executeStep();
 
  private:
    std::unique_ptr<Archive> archive_;
@@ -26,18 +26,6 @@ public:
    void fillPathList();
    std::wstring getFileName(const std::wstring &s);
    int moveFiles();
-};
-
-
-class FilterFiles
-{
-public:
-	FilterFiles(bool isX64, bool win10_or_greater);
-	bool operator()(const std::wstring &value) const;
-
-private:
-	const bool isX64_;
-	const bool win10_or_greater_;
 };
 
 #endif // FILES_H

@@ -18,7 +18,6 @@
 #include "dnsresolver/dnsrequest.h"
 #include "crossplatformobjectfactory.h"
 #include "openvpnversioncontroller.h"
-#include "openvpnversioncontroller.h"
 #include "types/global_consts.h"
 #include "serverapi/requests/websessionrequest.h"
 #include "serverapi/requests/debuglogrequest.h"
@@ -2399,9 +2398,6 @@ void Engine::updateProxySettings()
         locationsModel_->setProxySettings(proxySettings);
         firewallExceptions_.setProxyIP(proxySettings);
         updateFirewallSettings();
-        // TODO: is this need?
-        //if (connectStateController_->currentState() == CONNECT_STATE_DISCONNECTED)
-        //    getMyIPController_->getIPFromDisconnectedState(500);
     }
 }
 

@@ -32,17 +32,17 @@ def BuildDependencyMSVC(openssl_root, outpath):
     # Create an environment with VS vars.
     buildenv = os.environ.copy()
     buildenv.update({"MAKEFLAGS": "S"})
-    buildenv.update(iutl.GetVisualStudioEnvironment())
+    buildenv.update(iutl.GetVisualStudioEnvironment(is_arm64_build))
     buildenv.update({"CL": "/D_WINSOCK_DEPRECATED_NO_WARNINGS /FS"})  # /FS needed for JOM.
-    buildenv.update({"NEWTGTCPU": "W32", "OPENSSL_HOME": openssl_root})
+    target_arch = "arm64" if is_arm64_build else "win64"
+    buildenv.update({"NEWTGTCPU": "W32", "OPENSSL_HOME": openssl_root, "TARGET_ARCH": target_arch})
     currend_wd = os.getcwd()
     os.chdir("src")
     # Build and install.
     build_cmd = iutl.GetMakeBuildCommand()
     build_cmd.extend(["/F", "vc.mak"])
     iutl.RunCommand(build_cmd, env=buildenv, shell=True)
-    utl.CopyFile("{}/bin/win64/tstunnel.exe".format(currend_wd),
-                 "{}/tstunnel.exe".format(outpath))
+    utl.CopyFile("{}/bin/{}/tstunnel.exe".format(currend_wd, target_arch), "{}/tstunnel.exe".format(outpath))
 
 
 def BuildDependencyGNU(openssl_root, outpath):
@@ -88,8 +88,7 @@ def InstallDependency():
     iutl.ExtractFile(localfilename)
     # Copy modified files.
     iutl.CopyCustomFiles(dep_name, os.path.join(temp_dir, archivetitle))
-    dep_buildroot_var = "BUILDROOT_" + DEP_TITLE.upper()
-    dep_buildroot_str = os.environ.get(dep_buildroot_var, os.path.join("build-libs", dep_name))
+    dep_buildroot_str = os.path.join("build-libs-arm64" if is_arm64_build else "build-libs", dep_name)
     outpath = os.path.normpath(os.path.join(os.path.dirname(TOOLS_DIR), dep_buildroot_str))
     # Clean the output folder to ensure no conflicts when we're updating to a newer stunnel version.
     utl.RemoveDirectory(outpath)
@@ -113,11 +112,13 @@ def InstallDependency():
     # Cleanup.
     msg.Print("Cleaning temporary directory...")
     utl.RemoveDirectory(temp_dir)
+    msg.Print(f"{DEP_TITLE} v{dep_version_str} installed in {outpath}")
 
 
 if __name__ == "__main__":
     start_time = time.time()
     current_os = utl.GetCurrentOS()
+    is_arm64_build = "--arm64" in sys.argv
     if current_os not in DEP_OS_LIST:
         msg.Print("{} is not needed on {}, skipping.".format(DEP_TITLE, current_os))
         sys.exit(0)

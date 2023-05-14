@@ -2696,17 +2696,17 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <translation>无法关闭防火墙，因为启用了“始终开启”模式</translation>
     </message>
     <message>
-        <location filename="../../main.cpp" line="137"/>
+        <location filename="../../main.cpp" line="140"/>
         <source>Windscribe is already running on your computer, but appears to not be responding.</source>
         <translation>Windscribe 已经在您的计算机上运行，但似乎没有响应。</translation>
     </message>
     <message>
-        <location filename="../../main.cpp" line="138"/>
+        <location filename="../../main.cpp" line="141"/>
         <source>You may need to kill the non-responding Windscribe app or reboot your computer to fix the issue.</source>
         <translation>您可能需要终止无响应的 Windscribe 应用程序或重新启动计算机以解决此问题。</translation>
     </message>
     <message>
-        <location filename="../../main.cpp" line="190"/>
+        <location filename="../../main.cpp" line="185"/>
         <source>One or more files in the Windscribe application bundle have been suspiciously modified. Please re-install Windscribe.</source>
         <translation>Windscribe 应用程序捆绑包中的一个或多个文件已被可疑修改。请重新安装 Windscribe。</translation>
     </message>

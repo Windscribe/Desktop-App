@@ -55,16 +55,10 @@ def PrepareTempDirectory(depname, doclean=True):
 
 
 def GetDependencyBuildRoot(depname):
-    configdata = utl.LoadConfig(os.path.join(TOOLS_VARS_DIR, "{}.yml".format(depname)))
-    buildroot_var = "BUILDROOT_" + depname.upper()
-    buildroot_str = None
-    if "variables" in configdata:
-        for k, v in configdata["variables"].items():
-            if k == buildroot_var:
-                buildroot_str = os.path.normpath(os.path.join(REPOSITORY_ROOT, v))
-                if not os.path.exists(buildroot_str):
-                    buildroot_str = None
-                break
+    build_libs_dir = "build-libs-arm64" if "--arm64" in sys.argv else "build-libs"
+    buildroot_str = os.path.normpath(os.path.join(REPOSITORY_ROOT, f"{build_libs_dir}/{depname}"))
+    if not os.path.exists(buildroot_str):
+        buildroot_str = None
     return buildroot_str
 
 
@@ -154,8 +148,9 @@ def ExtractFile(localfilename, outputpath=None, deleteonsuccess=True):
             utl.RemoveFile(localfilename2)
 
 
-def GetVisualStudioEnvironment(architecture="x64"):
+def GetVisualStudioEnvironment(target_arm64_arch=False):
     result = None
+    architecture = "amd64_arm64" if target_arm64_arch else "amd64"
     for batfile in [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Auxiliary\\Build\\vcvarsall.bat",
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\BuildTools\\VC\\Auxiliary\\Build\\vcvarsall.bat"

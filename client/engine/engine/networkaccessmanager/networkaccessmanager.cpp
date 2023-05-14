@@ -78,7 +78,7 @@ void NetworkAccessManager::abort(NetworkReply *reply)
         activeRequests_.erase(it);
 
         if (requestData->request.isRemoveFromWhitelistIpsAfterFinish())
-            whitelistIpsManager_->remove(requestData->request.url().host());
+            whitelistIpsManager_->remove(requestData->ips);
     }
 }
 
@@ -125,7 +125,7 @@ void NetworkAccessManager::onCurlReplyFinished(qint64 elapsedMs)
         requestData->elapsedMs_ += elapsedMs;
         requestData->reply->checkForCurlError();
         if (requestData->request.isRemoveFromWhitelistIpsAfterFinish())
-            whitelistIpsManager_->remove(requestData->request.url().host());
+            whitelistIpsManager_->remove(requestData->ips);
         emit requestData->reply->finished(requestData->elapsedMs_);
     }
 }
@@ -161,8 +161,10 @@ void NetworkAccessManager::onResolved(bool success, const QStringList &ips, quin
         if (success) {
             if (requestData->request.timeout() - timeMs > 0) {
                 requestData->request.setTimeout(requestData->request.timeout() - timeMs);
+                requestData->ips = ips;
 
-                whitelistIpsManager_->add(requestData->request.url().host(), ips);
+                if (requestData->request.isWhiteListIps())
+                    whitelistIpsManager_->add(ips);
 
                 CurlReply *curlReply{ nullptr };
 

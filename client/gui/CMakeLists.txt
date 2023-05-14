@@ -12,7 +12,12 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Qt6 REQUIRED COMPONENTS Widgets Network Svg Core5Compat LinguistTools)
-set(WINDSCRIBE_BUILD_LIBS_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../../build-libs)
+
+if(WIN32 AND "${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "arm64")
+    set(WINDSCRIBE_BUILD_LIBS_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../../build-libs-arm64)
+else()
+    set(WINDSCRIBE_BUILD_LIBS_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../../build-libs)
+endif()
 
 set(WS_TS_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/translations/ws_desktop_ar.ts
@@ -96,7 +101,7 @@ target_include_directories(gui PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/../common
     ${WINDSCRIBE_BUILD_LIBS_PATH}/boost/include
     ${WINDSCRIBE_BUILD_LIBS_PATH}/curl/include
-    ${WINDSCRIBE_BUILD_LIBS_PATH}/cares/dll_x64/include
+    ${WINDSCRIBE_BUILD_LIBS_PATH}/cares/include
     ${WINDSCRIBE_BUILD_LIBS_PATH}/openssl_ech_draft/include
 )
 

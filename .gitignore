@@ -14,10 +14,6 @@ installer/windows/temp-tests/*
 installer/mac/installer/installer/temp_Info.plist
 test-exe/*
 drawings/*/*.png
-/gui/authhelper/win/ws_proxy_stub/ws_proxy_stub/dlldata.c
-/gui/authhelper/win/ws_proxy_stub/ws_proxy_stub/ws_proxy_stub_h.h
-/gui/authhelper/win/ws_proxy_stub/ws_proxy_stub/ws_proxy_stub_i.c
-/gui/authhelper/win/ws_proxy_stub/ws_proxy_stub/ws_proxy_stub_p.c
 tools/.idea/
 build/
 .vscode/

@@ -1,3 +1,32 @@
+2.7.4 (12/05/2023)
+All:
+   * Fixed window shadow incorrectly sized on logout/exit screens. #457
+   * Fixed login screen height may be truncated. #482
+   * Fixed alert screen may overlap other screens (e.g. news feed, protocol change). #583
+   * Fixed notifications are missing after marking all as read, leaving the notifications screen, and returning to it. #633
+   * Fixed changing languages in app causes the news feed screen to become smaller. #637
+   * Fixed view/send log functionality to truncate the log if it is too large to view/send. #642
+   * Fixed firewall settings updated repeatedly when pinging locations. #651
+Windows:
+   * Added support for native aarch64 (arm64) Windows build. #592
+   * Fixed installer to force kill the app if it does not respond to the exit request. #302
+   * Fixed UI issue when invalid login credentials are supplied to the installer and app is in Alpha mode. #309
+   * Fixed height of location entries is too large for some display scale factors. #631
+   * Fixed log files cannot be read when Windows account name contains Unicode characters. #634
+   * Fixed Windscribe service may hang if there are many split tunnel exclusive rules. #643
+macOS:
+   * Fixed installer built on Apple Silicon crashes on launch. #638
+   * Fixed app update takes a long time if done while connected. #639
+   * Removed redundant signature verification method. #143
+Linux:
+   * Fixed uninstall script to terminate app during uninstall or manual update to new version. #335
+   * Fixed app to explicitly block only OS default DNS servers and allow all others. #585
+   * Fixed in-app upgrade on Ubuntu will fail if upgrade requires additional Linux packages to be installed. #640
+   * Fixed uninstall to remove all files created by the app. #650
+   * Fixed missing dependency requirements in install package for some desktop environments (e.g. XFCE). #653
+   * Updated wstunnel to v4.1 for x86_64 and arm64. #190
+
+
 2.7.3 (26/04/2023)
 All:
    * Added translations for Arabic, French, German, Hindi, Russian, Simplified Chinese, and Spanish. #607

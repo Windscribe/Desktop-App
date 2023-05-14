@@ -446,13 +446,7 @@ IHelper::ExecuteError Helper_posix::executeOpenVPN(const QString &config, const 
 {
     QMutexLocker locker(&mutex_);
 
-    // check openvpn executable signature
-    // no need for windows implementation in posix file
-#if defined Q_OS_LINUX
-    const QString &openVpnExePath = QCoreApplication::applicationDirPath() + "/" + OpenVpnVersionController::instance().getSelectedOpenVpnExecutable();
-#else
-    const QString &openVpnExePath = QCoreApplication::applicationDirPath() + "/../Helpers/" + OpenVpnVersionController::instance().getSelectedOpenVpnExecutable();
-#endif
+    // NOTE: openvpn executable signature check is performed by the helper
 
     if (curState_ != STATE_CONNECTED) {
         return IHelper::EXECUTE_ERROR;
@@ -466,7 +460,7 @@ IHelper::ExecuteError Helper_posix::executeOpenVPN(const QString &config, const 
 
     CMD_START_OPENVPN cmd;
     cmd.exePath = helpersPath.toStdString();
-    cmd.executable = OpenVpnVersionController::instance().getSelectedOpenVpnExecutable().toStdString();
+    cmd.executable = OpenVpnVersionController::instance().getOpenVpnFileName().toStdString();
     cmd.config = config.toStdString();
     cmd.arguments = arguments.toStdString();
     cmd.isCustomConfig = isCustomConfig;
@@ -592,7 +586,7 @@ bool Helper_posix::getFirewallRules(CmdIpVersion version, const QString &table, 
     if (!runCommand(HELPER_CMD_GET_FIREWALL_RULES, stream.str(), answer)) {
         return false;
     }
-    rules = QString::fromStdString(answer.body); 
+    rules = QString::fromStdString(answer.body);
     return true;
 }
 

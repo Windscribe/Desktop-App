@@ -274,10 +274,12 @@ def apply_mac_deploy_fixes(configdata, target, appname, fullpath):
             msg.Warn("No embedded.provisionprofile found for this project.  IKEv2 will not function in this build.")
 
 
-def build_component(component, qt_root, buildenv=None):
-    msg.Info("Building {} (64-bit)...".format(component["name"]))
+def build_component(component, qt_root, buildenv=None, force_rebuild=False):
+    msg.Info("Building {}...".format(component["name"]))
     with utl.PushDir() as current_wd:
         temp_wd = os.path.normpath(os.path.join(current_wd, component["subdir"]))
+        if force_rebuild:
+            utl.RemoveDirectory(temp_wd)
         utl.CreateDirectory(temp_wd)
         os.chdir(temp_wd)
         if CURRENT_OS == "macos" and component["name"] == "Helper":
@@ -285,7 +287,7 @@ def build_component(component, qt_root, buildenv=None):
             # plist via the Other Linker Flags section of the Xcode project.
             update_team_id(os.path.join(pathhelper.ROOT_DIR, component["subdir"], "helper-info.plist"))
 
-        generate_cmd = ["cmake", "-DCMAKE_PREFIX_PATH=" + qt_root, os.path.join(pathhelper.ROOT_DIR, component["subdir"], "CMakeLists.txt")]
+        generate_cmd = ["cmake", f"-DCMAKE_PREFIX_PATH:PATH={qt_root}", os.path.join(pathhelper.ROOT_DIR, component["subdir"], "CMakeLists.txt")]
         generate_cmd.extend(["--no-warn-unused-cli", "-DCMAKE_BUILD_TYPE=" + ("Debug" if arghelper.build_debug() else "Release")])
         if arghelper.sign_app():
             generate_cmd.extend(["-DDEFINE_USE_SIGNATURE_CHECK_MACRO=ON"])
@@ -293,6 +295,16 @@ def build_component(component, qt_root, buildenv=None):
             generate_cmd.extend(["-DCMAKE_OSX_ARCHITECTURES=\'arm64;x86_64\'"])
         if "generator" in component:
             generate_cmd.extend(["-G", component["generator"]])
+        elif CURRENT_OS == "win32":
+            generate_cmd.append('-G Ninja')
+            generate_cmd.append("-DCMAKE_GENERATOR:STRING=Ninja")
+        if arghelper.target_arm64_arch() and CURRENT_OS == "win32":
+            generate_cmd.append("-DCMAKE_SYSTEM_NAME:STRING=Windows")
+            generate_cmd.append("-DCMAKE_SYSTEM_PROCESSOR:STRING=arm64")
+            generate_cmd.append("-DCMAKE_SYSTEM_VERSION:STRING=10")
+            generate_cmd.append(f"-DCMAKE_TOOLCHAIN_FILE:FILEPATH={qt_root}/lib/cmake/Qt6/qt.toolchain.cmake")
+            if arghelper.ci_mode():
+                generate_cmd.append("-DQT_HOST_PATH={}".format(os.path.join(pathhelper.ROOT_DIR, "build-libs", "qt")))
 
         if component["name"] == "Client":
             try:
@@ -345,7 +357,7 @@ def deploy_component(configdata, component_name, buildenv=None, target_name_over
                 # Could not find an automated way to do this like we could with xcodebuild.
                 update_team_id(os.path.join(temp_wd, c_target, "Contents", "Info.plist"))
 
-        if CURRENT_OS == "macos" and component["name"] in ["CLI", "Client"] or CURRENT_OS == "linux":
+        if CURRENT_OS == "macos" and component["name"] in ["CLI", "Client"] or CURRENT_OS == "linux" or CURRENT_OS == "win32":
             target_location = ""
         elif arghelper.build_debug():
             target_location = "Debug"
@@ -388,7 +400,7 @@ def build_components(configdata, targetlist, qt_root):
     buildenv = os.environ.copy()
     if CURRENT_OS == "win32":
         buildenv.update({"MAKEFLAGS": "S"})
-        buildenv.update(iutl.GetVisualStudioEnvironment("x86_amd64"))
+        buildenv.update(iutl.GetVisualStudioEnvironment(arghelper.target_arm64_arch()))
         buildenv.update({"CL": "/MP"})
     # Build all components needed.
     for target in targetlist:
@@ -440,12 +452,24 @@ def build_installer_win32(configdata, qt_root, msvc_root, crt_root, win_cert_pas
     if "msvc" in configdata["client_deploy_files"]["win32"]:
         copy_files("MSVC", configdata["client_deploy_files"]["win32"]["msvc"], msvc_root, BUILD_INSTALLER_FILES)
 
-    utl.CopyAllFiles(crt_root, BUILD_INSTALLER_FILES)
+    if crt_root:
+        utl.CopyAllFiles(crt_root, BUILD_INSTALLER_FILES)
+
     if "additional_files" in configdata["client_deploy_files"]["win32"]:
         additional_dir = os.path.join(pathhelper.ROOT_DIR, "installer", "windows", "additional_files")
         copy_files("additional", configdata["client_deploy_files"]["win32"]["additional_files"], additional_dir, BUILD_INSTALLER_FILES)
 
     copy_libs(configdata, "win32", BUILD_INSTALLER_FILES)
+    if arghelper.target_arm64_arch():
+        copy_libs(configdata, "win32_arm64", BUILD_INSTALLER_FILES)
+        if "additional_files" in configdata["client_deploy_files"]["win32_arm64"]:
+            additional_dir = os.path.join(pathhelper.ROOT_DIR, "installer", "windows", "additional_files")
+            copy_files("additional arm64", configdata["client_deploy_files"]["win32_arm64"]["additional_files"], additional_dir, BUILD_INSTALLER_FILES)
+    else:
+        copy_libs(configdata, "win32_x86_64", BUILD_INSTALLER_FILES)
+        if "additional_files" in configdata["client_deploy_files"]["win32_x86_64"]:
+            additional_dir = os.path.join(pathhelper.ROOT_DIR, "installer", "windows", "additional_files")
+            copy_files("additional x86_64", configdata["client_deploy_files"]["win32_x86_64"]["additional_files"], additional_dir, BUILD_INSTALLER_FILES)
 
     if "license_files" in configdata:
         license_dir = os.path.join(pathhelper.COMMON_DIR, "licenses")
@@ -461,12 +485,20 @@ def build_installer_win32(configdata, qt_root, msvc_root, crt_root, win_cert_pas
         # Sign DLLs we created
         if "win32" in configdata["codesign_files"]:
             msg.Info("Signing DLLs...")
-            for binary_name in configdata["codesign_files"]["win32"]:
+            for binary_name in configdata["codesign_files"]["win32"]["common"]:
                 binary_path = os.path.join(BUILD_INSTALLER_FILES, binary_name)
                 if os.path.exists(binary_path):
                     sign_executables_win32(configdata, win_cert_password, binary_path)
                 else:
                     msg.Warn("Skipping signing of {}.  File not found.".format(binary_path))
+            target_arch = "arm64" if arghelper.target_arm64_arch() else "x86_64"
+            if target_arch in configdata["codesign_files"]["win32"]:
+                for binary_name in configdata["codesign_files"]["win32"][target_arch]:
+                    binary_path = os.path.join(BUILD_INSTALLER_FILES, binary_name)
+                    if os.path.exists(binary_path):
+                        sign_executables_win32(configdata, win_cert_password, binary_path)
+                    else:
+                        msg.Warn("Skipping signing of {}.  File not found.".format(binary_path))
 
     # Place everything in a 7z archive.
     installer_info = configdata["installer"]["win32"]
@@ -481,9 +513,10 @@ def build_installer_win32(configdata, qt_root, msvc_root, crt_root, win_cert_pas
     # Build and sign the installer.
     buildenv = os.environ.copy()
     buildenv.update({"MAKEFLAGS": "S"})
-    buildenv.update(iutl.GetVisualStudioEnvironment("x86_amd64"))
+    buildenv.update(iutl.GetVisualStudioEnvironment(arghelper.target_arm64_arch()))
     buildenv.update({"CL": "/MP"})
-    build_component(installer_info, qt_root, buildenv)
+    # Force a rebuild of the installer to ensure we pick up a possibly modified Windscribe.7z archive.
+    build_component(installer_info, qt_root, buildenv, True)
     deploy_component(configdata, "installer", buildenv)
     final_installer_name = os.path.normpath(os.path.join(BUILD_INSTALLER_FILES, "..",
                                                          "Windscribe_{}.exe".format(extractor.app_version(True))))
@@ -645,15 +678,22 @@ def build_all(win_cert_password):
         raise iutl.InstallError("Qt is not installed.")
 
     # Do some preliminary VS checks on Windows.
+    # TODO: JDRM not sure we should be copying the crt_root files.  I removed them all from the install
+    #       on the ARM laptop and the app still starts.  Plus, arm64 versions are not available in the
+    #       SDK, only 32-bit arm...
     if CURRENT_OS == "win32":
         buildenv = os.environ.copy()
-        buildenv.update(iutl.GetVisualStudioEnvironment("x86_amd64"))
-        msvc_root = os.path.join(buildenv["VCTOOLSREDISTDIR"], "x64", "Microsoft.VC142.CRT")
-        crt_root = "C:\\Program Files (x86)\\Windows Kits\\10\\Redist\\{}\\ucrt\\DLLS\\x64"\
-            .format(buildenv["WINDOWSSDKVERSION"])
+        buildenv.update(iutl.GetVisualStudioEnvironment(arghelper.target_arm64_arch()))
+        if arghelper.target_arm64_arch():
+            msvc_root = os.path.join(buildenv["VCTOOLSREDISTDIR"], "arm64", "Microsoft.VC142.CRT")
+            # crt_root = "C:\\Program Files (x86)\\Windows Kits\\10\\Redist\\{}\\ucrt\\DLLS\\arm".format(buildenv["WINDOWSSDKVERSION"])
+            crt_root = ""
+        else:
+            msvc_root = os.path.join(buildenv["VCTOOLSREDISTDIR"], "x64", "Microsoft.VC142.CRT")
+            crt_root = "C:\\Program Files (x86)\\Windows Kits\\10\\Redist\\{}\\ucrt\\DLLS\\x64".format(buildenv["WINDOWSSDKVERSION"])
         if not os.path.exists(msvc_root):
             raise iutl.InstallError("MSVS installation not found.")
-        if not os.path.exists(crt_root):
+        if crt_root and not os.path.exists(crt_root):
             raise iutl.InstallError("CRT files not found.")
 
     # Prepare output.

@@ -2696,17 +2696,17 @@ Si la reinstalación no ayuda, póngase en contacto con el soporte de Windscribe
         <translation>No se puede desactivar el firewall porque el modo &quot;Siempre encendido&quot; está habilitado</translation>
     </message>
     <message>
-        <location filename="../../main.cpp" line="137"/>
+        <location filename="../../main.cpp" line="140"/>
         <source>Windscribe is already running on your computer, but appears to not be responding.</source>
         <translation>Windscribe ya se está ejecutando en su equipo, pero parece que no responde.</translation>
     </message>
     <message>
-        <location filename="../../main.cpp" line="138"/>
+        <location filename="../../main.cpp" line="141"/>
         <source>You may need to kill the non-responding Windscribe app or reboot your computer to fix the issue.</source>
         <translation>Es posible que deba eliminar la aplicación Windscribe que no responde o reiniciar su computadora para solucionar el problema.</translation>
     </message>
     <message>
-        <location filename="../../main.cpp" line="190"/>
+        <location filename="../../main.cpp" line="185"/>
         <source>One or more files in the Windscribe application bundle have been suspiciously modified. Please re-install Windscribe.</source>
         <translation>Uno o más archivos del paquete de aplicaciones de Windscribe se han modificado sospechosamente. Vuelva a instalar Windscribe.</translation>
     </message>

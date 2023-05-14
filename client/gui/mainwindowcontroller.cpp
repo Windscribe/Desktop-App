@@ -1069,7 +1069,26 @@ void MainWindowController::gotoLoginWindow()
         anim->setEndValue(1.0);
         anim->setDuration(SCREEN_SWITCH_OPACITY_ANIMATION_DURATION);
 
-        connect(anim, &QPropertyAnimation::finished, [this]() {
+        // Init size
+        QVariantAnimation *initHeightAnim = new QVariantAnimation(this);
+        initHeightAnim->setStartValue(initWindowInitHeight_);
+        initHeightAnim->setEndValue(LOGIN_HEIGHT);
+        initHeightAnim->setDuration(REVEAL_LOGIN_ANIMATION_DURATION);
+        connect(initHeightAnim, &QVariantAnimation::valueChanged, [this](const QVariant &value) {
+            initWindow_->setHeight(value.toInt());
+            shadowManager_->changeRectangleSize(ShadowManager::SHAPE_ID_INIT_WINDOW,
+                                                QRect(0,0, initWindow_->getGraphicsObject()->boundingRect().width(),
+                                                      initWindow_->getGraphicsObject()->boundingRect().height()));
+            updateMainAndViewGeometry(true);
+        });
+
+        QSequentialAnimationGroup *animGroup = new QSequentialAnimationGroup(this);
+        animGroup->addPause(REVEAL_LOGIN_ANIMATION_DURATION/2 );
+        animGroup->addAnimation(anim);
+        animGroup->addAnimation(initHeightAnim);
+
+        // group
+        connect(animGroup, &QPropertyAnimation::finished, [this, animGroup, anim, initHeightAnim]() {
             loggingInWindow_->getGraphicsObject()->setVisible(false);
             loggingInWindow_->stopAnimation();
             loginWindow_->setClickable(true);
@@ -1078,7 +1097,7 @@ void MainWindowController::gotoLoginWindow()
         });
 
         isAtomicAnimationActive_ = true;
-        anim->start(QPropertyAnimation::DeleteWhenStopped);
+        animGroup->start(QPropertyAnimation::DeleteWhenStopped);
     } else if (curWindow_ == WINDOW_ID_GENERAL_MESSAGE) {
         // qDebug() << "General -> Login";
         curWindow_ = WINDOW_ID_LOGIN;
@@ -1948,6 +1967,11 @@ void MainWindowController::gotoExitWindow(bool isLogout)
 
     if (curWindow_ == WINDOW_ID_CONNECT) {
         win->setHeight(connectWindow_->getGraphicsObject()->boundingRect().height());
+        shadowManager_->changeRectangleSize(ShadowManager::SHAPE_ID_EXIT,
+                                            QRect(0,
+                                                childWindowShadowOffsetY(true),
+                                                connectWindow_->getGraphicsObject()->boundingRect().width(),
+                                                connectWindow_->getGraphicsObject()->boundingRect().height() - childWindowShadowOffsetY(false)));
         if (preferences_->appSkin() == APP_SKIN_VAN_GOGH) {
             win->setBackgroundShape(IGeneralMessageWindow::kConnectScreenVanGoghShape);
         } else {
@@ -1962,6 +1986,11 @@ void MainWindowController::gotoExitWindow(bool isLogout)
     } else {
         win->setBackgroundShape(IGeneralMessageWindow::kLoginScreenShape);
         win->setHeight(LOGIN_HEIGHT*G_SCALE);
+        shadowManager_->changeRectangleSize(ShadowManager::SHAPE_ID_EXIT,
+                                            QRect(0,
+                                                childWindowShadowOffsetY(true),
+                                                win->getGraphicsObject()->boundingRect().width(),
+                                                LOGIN_HEIGHT*G_SCALE - childWindowShadowOffsetY(false)));
 
         if (curWindow_ == WINDOW_ID_LOGIN) {
             TooltipController::instance().hideAllTooltips();

@@ -56,6 +56,7 @@ private:
         NetworkReply *reply;
         QByteArray data;
         qint64 elapsedMs_ = 0;
+        QStringList ips;
     };
 
     QHash<quint64, QSharedPointer<RequestData> > activeRequests_;
