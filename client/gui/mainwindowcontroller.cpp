@@ -1057,7 +1057,10 @@ void MainWindowController::gotoLoginWindow()
         // qDebug() << "LoggingIn -> Login";
         curWindow_ = WINDOW_ID_LOGIN;
 
+        connectWindow_->getGraphicsObject()->stackBefore(loginWindow_->getGraphicsObject());
         loggingInWindow_->getGraphicsObject()->stackBefore(loginWindow_->getGraphicsObject());
+        updateWindow_->getGraphicsObject()->stackBefore(loginWindow_->getGraphicsObject());
+        upgradeAccountWindow_->getGraphicsObject()->stackBefore(loginWindow_->getGraphicsObject());
 
         loginWindow_->getGraphicsObject()->setOpacity(0.0);
         loginWindow_->getGraphicsObject()->setVisible(true);
@@ -1102,7 +1105,11 @@ void MainWindowController::gotoLoginWindow()
         // qDebug() << "General -> Login";
         curWindow_ = WINDOW_ID_LOGIN;
 
+        connectWindow_->getGraphicsObject()->stackBefore(loginWindow_->getGraphicsObject());
         generalMessageWindow_->getGraphicsObject()->stackBefore(loginWindow_->getGraphicsObject());
+        updateWindow_->getGraphicsObject()->stackBefore(loginWindow_->getGraphicsObject());
+        upgradeAccountWindow_->getGraphicsObject()->stackBefore(loginWindow_->getGraphicsObject());
+
         shadowManager_->setVisible(ShadowManager::SHAPE_ID_GENERAL_MESSAGE, false);
 
         loginWindow_->getGraphicsObject()->setOpacity(0.0);
@@ -1304,20 +1311,26 @@ void MainWindowController::gotoLoggingInWindow()
         anim->start(QPropertyAnimation::DeleteWhenStopped);
     } else if (curWindow_ == WINDOW_ID_GENERAL_MESSAGE) {
         curWindow_ = WINDOW_ID_LOGGING_IN;
+        connectWindow_->getGraphicsObject()->stackBefore(loggingInWindow_->getGraphicsObject());
         generalMessageWindow_->getGraphicsObject()->stackBefore(loggingInWindow_->getGraphicsObject());
+        updateWindow_->getGraphicsObject()->stackBefore(loggingInWindow_->getGraphicsObject());
+        upgradeAccountWindow_->getGraphicsObject()->stackBefore(loggingInWindow_->getGraphicsObject());
+
+        shadowManager_->setVisible(ShadowManager::SHAPE_ID_GENERAL_MESSAGE, false);
+
+        generalMessageWindow_->getGraphicsObject()->setVisible(false);
 
         loggingInWindow_->getGraphicsObject()->setOpacity(0.0);
         loggingInWindow_->getGraphicsObject()->setVisible(true);
         loggingInWindow_->startAnimation();
 
         QPropertyAnimation *anim = new QPropertyAnimation(this);
-        anim->setTargetObject(generalMessageWindow_->getGraphicsObject());
+        anim->setTargetObject(loggingInWindow_->getGraphicsObject());
         anim->setPropertyName("opacity");
         anim->setStartValue(0.0);
         anim->setEndValue(1.0);
         anim->setDuration(SCREEN_SWITCH_OPACITY_ANIMATION_DURATION);
         connect(anim, &QPropertyAnimation::finished, [this]() {
-            generalMessageWindow_->getGraphicsObject()->setVisible(false);
             isAtomicAnimationActive_ = false;
             handleNextWindowChange();
         });
