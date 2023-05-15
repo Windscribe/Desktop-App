@@ -1305,21 +1305,27 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <location filename="../preferenceswindow/connectionwindow/connecteddnsgroup.cpp" line="143"/>
-        <source>Upstream 1 (IP/DNS-over-HTTPS/TLS)</source>
-        <translation>अपस्ट्रीम 1 (IP/DNS-ओवर-HTTPS/TLS)</translation>
+        <source>Upstream 1</source>
+        <translation>अपस्ट्रीम 1</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/connectionwindow/connecteddnsgroup.cpp" line="144"/>
-        <source>Upstream 2 (IP/DNS-over-HTTPS/TLS)</source>
-        <translation>अपस्ट्रीम 2 (IP/DNS-ओवर-HTTPS/TLS)</translation>
+        <location filename="../preferenceswindow/connectionwindow/connecteddnsgroup.cpp" line="146"/>
+        <source>IP/DNS-over-HTTPS/TLS</source>
+        <translation>IP/DNS-ओवर-HTTPS/TLS</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/connectionwindow/connecteddnsgroup.cpp" line="145"/>
+        <source>Upstream 2</source>
+        <translation>अपस्ट्रीम 2</translation>
+    </message>
+    <message>
+        <location filename="../preferenceswindow/connectionwindow/connecteddnsgroup.cpp" line="147"/>
         <source>Split DNS</source>
         <translation>विभाजित DNS</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connecteddnsgroup.cpp" line="146"/>
+        <location filename="../preferenceswindow/connectionwindow/connecteddnsgroup.cpp" line="148"/>
         <source>Domains</source>
         <translation>डोमेन</translation>
     </message>

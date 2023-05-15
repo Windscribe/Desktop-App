@@ -27,7 +27,7 @@ QString Utils::getPlatformName()
 {
 #ifdef Q_OS_WIN
     #if defined(_M_ARM64)
-    return "windows-arm64";
+    return "windows_arm64";
     #else
     return "windows";
     #endif
