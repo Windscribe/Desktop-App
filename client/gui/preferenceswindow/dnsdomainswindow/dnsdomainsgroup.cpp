@@ -64,8 +64,6 @@ void DnsDomainsGroup::setFocusOnTextEntry()
 void DnsDomainsGroup::onAddClicked(const QString &address)
 {
     ValidationCode code = validate(address);
-    SPLIT_TUNNELING_NETWORK_ROUTE_TYPE type;
-    types::SplitTunnelingNetworkRoute route;
 
     switch(code)
     {
@@ -73,8 +71,12 @@ void DnsDomainsGroup::onAddClicked(const QString &address)
             addAddress(address);
             break;
         case ERROR_EXISTS:
-            emit setError(tr("IP or hostname already exists"),
-                          tr("Please enter a new IP or hostname."));
+            emit setError(tr("Domain already exists"),
+                          tr("Please enter a new domain."));
+            break;
+        case ERROR_INVALID:
+            emit setError(tr("Incorrect domain name"),
+                          tr("Please enter a valid domain in plain or CIDR notation."));
             break;
     }
 }
@@ -89,6 +91,11 @@ void DnsDomainsGroup::onDeleteClicked()
 
 DnsDomainsGroup::ValidationCode DnsDomainsGroup::validate(const QString &address)
 {
+    if (!IpValidation::isDomainWithWildcard(address))
+    {
+        return ValidationCode::ERROR_INVALID;
+    }
+
     if (itemByName(address) != nullptr)
     {
         return ValidationCode::ERROR_EXISTS;

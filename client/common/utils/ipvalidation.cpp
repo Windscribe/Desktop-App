@@ -30,6 +30,17 @@ bool IpValidation::isDomain(const QString &str)
     return domainRegex.exactMatch(str);
 }
 
+// the same as isDomain() but also allows the use the wildcard '*', for example "*.company.int" or "*.lol"
+bool IpValidation::isDomainWithWildcard(const QString &str)
+{
+    if (str.size() > 253) {
+        return false;
+    }
+
+    QRegExp domainRegex("^([a-zA-Z0-9*]([a-zA-Z0-9-*]{0,61}[a-zA-Z0-9*])?\\.){1,}([a-zA-Z][a-zA-Z0-9-]*[a-zA-Z])$");
+    return domainRegex.exactMatch(str);
+}
+
 bool IpValidation::isIpOrDomain(const QString &str)
 {
     return (isIp(str) || isDomain(str));
