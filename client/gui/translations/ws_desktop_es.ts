@@ -1467,14 +1467,32 @@ Si el problema persiste después de un reinicio, envíe un registro de depuraci�
 <context>
     <name>PreferencesWindow::DnsDomainsGroup</name>
     <message>
-        <location filename="../preferenceswindow/dnsdomainswindow/dnsdomainsgroup.cpp" line="76"/>
         <source>IP or hostname already exists</source>
-        <translation>IP o nombre de host ya existe</translation>
+        <translation type="vanished">IP o nombre de host ya existe</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/dnsdomainswindow/dnsdomainsgroup.cpp" line="77"/>
         <source>Please enter a new IP or hostname.</source>
-        <translation>Introduzca una nueva IP o nombre de host.</translation>
+        <translation type="vanished">Introduzca una nueva IP o nombre de host.</translation>
+    </message>
+    <message>
+        <location filename="../preferenceswindow/dnsdomainswindow/dnsdomainsgroup.cpp" line="74"/>
+        <source>Domain already exists</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../preferenceswindow/dnsdomainswindow/dnsdomainsgroup.cpp" line="75"/>
+        <source>Please enter a new domain.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../preferenceswindow/dnsdomainswindow/dnsdomainsgroup.cpp" line="78"/>
+        <source>Incorrect domain name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../preferenceswindow/dnsdomainswindow/dnsdomainsgroup.cpp" line="79"/>
+        <source>Please enter a valid domain in plain or CIDR notation.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

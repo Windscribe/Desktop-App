@@ -8,6 +8,7 @@ public:
     static bool isIp(const QString &str);
     static bool isIpCidr(const QString &str);
     static bool isDomain(const QString &str);
+    static bool isDomainWithWildcard(const QString &str);
     static bool isIpOrDomain(const QString &str);
     static bool isIpCidrOrDomain(const QString &str);
     static bool isCtrldCorrectAddress(const QString &str);

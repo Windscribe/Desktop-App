@@ -35,7 +35,8 @@ private slots:
 private:
     enum ValidationCode {
         OK = 0,
-        ERROR_EXISTS
+        ERROR_EXISTS,
+        ERROR_INVALID
     };
 
     void addAddressInternal(const QString &address);
