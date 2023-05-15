@@ -20,7 +20,7 @@ public:
     QString errorString() const;
 
 signals:
-    void finished();
+    void finished(qint64 elapsedMs);
     void progress(qint64 bytesReceived, qint64 bytesTotal);
     void readyRead();
 
@@ -31,6 +31,7 @@ private:
 
     void appendNewData(const QByteArray &newData);
     void setCurlErrorCode(CURLcode curlErrorCode);
+    void setElapsedMs(qint64 elapsedMs);
     quint64 id() const;
 
     QByteArray data_;

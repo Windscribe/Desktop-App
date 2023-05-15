@@ -133,7 +133,7 @@ quint64 CurlNetworkManagerImpl::get(const NetworkRequest &request, const QString
     // here if something failed
     WS_ASSERT(false);
     delete requestInfo;
-    emit requestFinished(id, CURLE_FAILED_INIT);       // this signal must be queued
+    emit requestFinished(id, CURLE_FAILED_INIT, 0);       // this signal must be queued
     return id;
 }
 
@@ -160,7 +160,7 @@ quint64 CurlNetworkManagerImpl::post(const NetworkRequest &request, const QByteA
     // here if something failed
     WS_ASSERT(false);
     delete requestInfo;
-    emit requestFinished(id, CURLE_FAILED_INIT);       // this signal must be queued
+    emit requestFinished(id, CURLE_FAILED_INIT, 0);       // this signal must be queued
     return id;
 }
 
@@ -188,7 +188,7 @@ quint64 CurlNetworkManagerImpl::put(const NetworkRequest &request, const QByteAr
     // here if something failed
     WS_ASSERT(false);
     delete requestInfo;
-    emit requestFinished(id, CURLE_FAILED_INIT);       // this signal must be queued
+    emit requestFinished(id, CURLE_FAILED_INIT, 0);       // this signal must be queued
     return id;
 }
 
@@ -214,7 +214,7 @@ quint64 CurlNetworkManagerImpl::deleteResource(const NetworkRequest &request, co
     // here if something failed
     WS_ASSERT(false);
     delete requestInfo;
-    emit requestFinished(id, CURLE_FAILED_INIT);       // this signal must be queued
+    emit requestFinished(id, CURLE_FAILED_INIT, 0);       // this signal must be queued
     return id;
 }
 
@@ -282,11 +282,14 @@ void CurlNetworkManagerImpl::run()
                   curl_easy_getinfo(curlEasyHandle, CURLINFO_PRIVATE, &pointerId);
                   WS_ASSERT(pointerId != nullptr);
 
+                  curl_off_t totalTime;
+                  curl_easy_getinfo(curlEasyHandle, CURLINFO_TOTAL_TIME_T, &totalTime);
+
                   quint64 id = *pointerId;
                   auto it = activeRequests_.find(id);
                   WS_ASSERT(it != activeRequests_.end());
                   WS_ASSERT(it.value()->curlEasyHandle == curlEasyHandle);
-                  emit requestFinished(id, curlMsg->data.result);
+                  emit requestFinished(id, curlMsg->data.result, totalTime / 1000); // convert total time to ms
 
                   //remove request from activeRequests
                   curl_multi_remove_handle(multiHandle_, curlEasyHandle);

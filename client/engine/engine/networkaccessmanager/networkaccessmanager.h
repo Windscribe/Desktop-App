@@ -38,7 +38,7 @@ signals:
 private slots:
     void handleRequest(quint64 id);
 
-    void onCurlReplyFinished();
+    void onCurlReplyFinished(qint64 elapsedMs);
     void onCurlProgress(qint64 bytesReceived, qint64 bytesTotal);
     void onCurlReadyRead();
 
@@ -55,7 +55,7 @@ private:
         NetworkRequest request;
         NetworkReply *reply;
         QByteArray data;
-        QElapsedTimer elapsedTimer;
+        qint64 elapsedMs_ = 0;
         QStringList ips;
     };
 

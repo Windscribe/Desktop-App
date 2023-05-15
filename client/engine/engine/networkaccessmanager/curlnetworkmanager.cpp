@@ -59,12 +59,12 @@ void CurlNetworkManager::abort(CurlReply *reply)
     curlNetworkManagerImpl_->abort(reply->id());
 }
 
-void CurlNetworkManager::onRequestFinished(quint64 requestId, CURLcode curlErrorCode)
+void CurlNetworkManager::onRequestFinished(quint64 requestId, CURLcode curlErrorCode, qint64 elapsedMs)
 {
     auto it = activeRequests_.find(requestId);
     if (it != activeRequests_.end()) {
         it.value()->setCurlErrorCode(curlErrorCode);
-        emit it.value()->finished();
+        emit it.value()->finished(elapsedMs);
     }
 }
 
