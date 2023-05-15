@@ -316,7 +316,8 @@ void CurlNetworkManagerImpl::run()
 bool CurlNetworkManagerImpl::setupResolveHosts(RequestInfo *requestInfo, const NetworkRequest &request, const QStringList &ips)
 {
     if (!ips.isEmpty()) {
-        QString strResolve = request.url().host() + ":443" + ":" + ips.join(",");
+        uint port = request.url().port(443);    //  use 443 by default
+        QString strResolve = request.url().host() + ":" + QString::number(port) + ":" + ips.join(",");
         struct curl_slist *hosts = curl_slist_append(NULL, strResolve.toStdString().c_str());
         if (hosts == NULL) return false;
         requestInfo->curlLists << hosts;
