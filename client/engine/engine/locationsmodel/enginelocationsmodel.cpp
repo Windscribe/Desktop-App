@@ -4,14 +4,9 @@
 
 namespace locationsmodel {
 
-LocationsModel::LocationsModel(QObject *parent, IConnectStateController *stateController, INetworkDetectionManager *networkDetectionManager) : QObject(parent)
+LocationsModel::LocationsModel(QObject *parent, IConnectStateController *stateController, INetworkDetectionManager *networkDetectionManager, NetworkAccessManager *networkAccessManager) : QObject(parent)
 {
-    pingThread_ = new QThread(this);
-    pingHost_ = new PingHost(nullptr, stateController);
-    pingHost_->moveToThread(pingThread_);
-    connect(pingThread_, &QThread::started, pingHost_, &PingHost::init);
-    connect(pingThread_, &QThread::finished, pingHost_, &PingHost::finish);
-    pingThread_->start(QThread::HighPriority);
+    pingHost_ = new PingHost(nullptr, stateController, networkAccessManager);
 
     apiLocationsModel_ = new ApiLocationsModel(this, stateController, networkDetectionManager, pingHost_);
     customConfigLocationsModel_ = new CustomConfigLocationsModel(this, stateController, networkDetectionManager, pingHost_);
@@ -28,9 +23,9 @@ LocationsModel::LocationsModel(QObject *parent, IConnectStateController *stateCo
 
 LocationsModel::~LocationsModel()
 {
-    pingThread_->quit();
-    pingThread_->wait();
-    pingHost_->deleteLater();
+    delete customConfigLocationsModel_;
+    delete apiLocationsModel_;
+    delete pingHost_;
 }
 
 void LocationsModel::setApiLocations(const QVector<apiinfo::Location> &locations, const apiinfo::StaticIps &staticIps)

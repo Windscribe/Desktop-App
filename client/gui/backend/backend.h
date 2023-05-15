@@ -1,28 +1,28 @@
-#ifndef BACKEND_H
-#define BACKEND_H
+#pragma once
 
 #include <QElapsedTimer>
 #include <QObject>
-#include <QTimer>
 #include <QProcess>
-#include "ipc/iconnection.h"
-#include "ipc/command.h"
-#include "ipc/servercommands.h"
-#include "types/locationid.h"
-#include "types/upgrademodetype.h"
-#include "locations/locationsmodel_manager.h"
-#include "preferences/preferences.h"
-#include "preferences/preferenceshelper.h"
-#include "preferences/accountinfo.h"
+#include <QTimer>
+
 #include "connectstatehelper.h"
 #include "firewallstatehelper.h"
-#include "types/sessionstatus.h"
+#include "locations/locationsmodel_manager.h"
+#include "preferences/accountinfo.h"
+#include "preferences/preferences.h"
+#include "preferences/preferenceshelper.h"
+#include "types/checkupdate.h"
+#include "types/locationid.h"
+#include "types/notification.h"
+#include "types/protocolstatus.h"
 #include "types/proxysharinginfo.h"
-#include "types/wifisharinginfo.h"
+#include "types/robertfilter.h"
+#include "types/sessionstatus.h"
 #include "types/splittunneling.h"
-//#include "engine/engineserver.h"
+#include "types/upgrademodetype.h"
+#include "types/wifisharinginfo.h"
 
-class EngineServer;
+class Engine;
 
 class Backend : public QObject
 {
@@ -85,7 +85,6 @@ public:
     void continueWithCredentialsForOvpnConfig(const QString &username, const QString &password, bool bSave);
 
     void sendAdvancedParametersChanged();
-    void sendEngineSettingsIfChanged();
 
     gui_locations::LocationsModelManager *locationsModelManager();
 
@@ -113,13 +112,71 @@ public:
 
     void sendMakeHostsFilesWritableWin();
 
+    bool haveAutoLoginCredentials(QString &username, QString &password);
+
 private slots:
-    void onConnectionNewCommand(IPC::Command *command);
+    void onEngineSettingsChangedInPreferences();
+
+    void onEngineCleanupFinished();
+    void onEngineInitFinished(ENGINE_INIT_RET_CODE retCode, bool isCanLoginWithAuthHash, const types::EngineSettings &engineSettings);
+    void onEngineBfeEnableFinished(ENGINE_INIT_RET_CODE retCode, bool isCanLoginWithAuthHash, const types::EngineSettings &engineSettings);
+    void onEngineFirewallStateChanged(bool isEnabled);
+    void onEngineLoginFinished(bool isLoginFromSavedSettings, const QString &authHash, const types::PortMap &portMap);
+    void onEngineLoginError(LOGIN_RET retCode, const QString &errorMessage);
+    void onEngineTryingBackupEndpoint(int num, int cnt);
+    void onEngineSessionDeleted();
+    void onEngineUpdateSessionStatus(const types::SessionStatus &sessionStatus);
+    void onEngineNotificationsUpdated(const QVector<types::Notification> &notifications);
+    void onEngineCheckUpdateUpdated(const types::CheckUpdate &checkUpdate);
+    void onEngineUpdateVersionChanged(uint progressPercent, const UPDATE_VERSION_STATE &state, const UPDATE_VERSION_ERROR &error);
+    void onEngineMyIpUpdated(const QString &ip, bool isDisconnected);
+    void onEngineConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, CONNECT_ERROR err, const LocationID &locationId);
+    void onEngineStatisticsUpdated(quint64 bytesIn, quint64 bytesOut, bool isTotalBytes);
+    void onEngineProtocolPortChanged(const types::Protocol &protocol, const uint port);
+    void onEngineRobertFiltersUpdated(bool success, const QVector<types::RobertFilter> &filters);
+    void onEngineSetRobertFilterFinished(bool success);
+    void onEngineSyncRobertFinished(bool success);
+    void onEngineProtocolStatusChanged(const QVector<types::ProtocolStatus> &status);
+
+    void onEngineEmergencyConnected();
+    void onEngineEmergencyDisconnected();
+    void onEngineEmergencyConnectError(CONNECT_ERROR err);
+
+    void onEngineTestTunnelResult(bool bSuccess);
+    void onEngineLostConnectionToHelper();
+    void onEngineProxySharingStateChanged(bool bEnabled, PROXY_SHARING_TYPE proxySharingType, const QString &address, int usersCount);
+    void onEngineWifiSharingStateChanged(bool bEnabled, const QString &ssid, int usersCount);
+    void onEngineSignOutFinished();
+
+    void onEngineGotoCustomOvpnConfigModeFinished();
+
+    void onEngineNetworkChanged(types::NetworkInterface networkInterface);
+
+    void onEngineDetectionCpuUsageAfterConnected(QStringList list);
+
+    void onEngineRequestUsername();
+    void onEngineRequestPassword();
+
+    void onEngineInternetConnectivityChanged(bool connectivity);
+
+    void onEngineSendDebugLogFinished(bool bSuccess);
+    void onEngineConfirmEmailFinished(bool bSuccess);
+    void onEngineWebSessionToken(WEB_SESSION_PURPOSE purpose, const QString &token);
+
+    void onEngineLocationsModelItemsUpdated(const LocationID &bestLocation, const QString &staticIpDeviceName, QSharedPointer< QVector<types::Location> > items);
+    void onEngineLocationsModelBestLocationUpdated(const LocationID &bestLocation);
+    void onEngineLocationsModelCustomConfigItemsUpdated(QSharedPointer<types::Location> item);
+    void onEngineLocationsModelPingChangedChanged(const LocationID &id, PingTime timeMs);
+
+    void onEngineMacAddrSpoofingChanged(const types::EngineSettings &engineSettings);
+    void onEngineSendUserWarning(USER_WARNING_TYPE userWarningType);
+    void onEnginePacketSizeChanged(const types::EngineSettings &engineSettings);
+    void onEnginePacketSizeDetectionStateChanged(bool on, bool isError);
+    void onEngineHostsFileBecameWritable();
 
 signals:
     // emited when connected to engine and received the engine settings, or error in initState variable
     void initFinished(INIT_STATE initState);
-    void initTooLong();
     void cleanupFinished();
 
     void gotoCustomOvpnConfigModeFinished();
@@ -183,12 +240,12 @@ private:
     QString lastCode2fa_;
 
     types::SessionStatus latestSessionStatus_;
-    types::EngineSettings latestEngineSettings_;
     ConnectStateHelper connectStateHelper_;
     ConnectStateHelper emergencyConnectStateHelper_;
     FirewallStateHelper firewallStateHelper_;
 
-    EngineServer *engineServer_;
+    QThread *threadEngine_;
+    Engine *engine_;
     bool isCleanupFinished_;
 
     quint32 cmdId_;
@@ -209,7 +266,4 @@ private:
 
     QString generateNewFriendlyName();
     void updateAccountInfo();
-    void getOpenVpnVersionsFromInitCommand(const IPC::ServerCommands::InitFinished &state);
 };
-
-#endif // BACKEND_H

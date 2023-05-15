@@ -40,6 +40,15 @@ bool IpValidation::isIpCidrOrDomain(const QString &str)
     return (isIpCidr(str) || isDomain(str));
 }
 
+// checking the correctness of the address for the ctrld utility
+// If IP address -> legacy
+// if https://..... -> DOH
+// if hostname -> DOT
+bool IpValidation::isCtrldCorrectAddress(const QString &str)
+{
+    return isIp(str) || isDomain(str) || isValidHttpsUrl(str);
+}
+
 bool IpValidation::isValidIpForCidr(const QString &str)
 {
     const auto ip_and_cidr = str.split("/", Qt::SkipEmptyParts);
@@ -72,6 +81,12 @@ bool IpValidation::isLocalIp(const QString &str)
         }
     }
     return false;
+}
+
+bool IpValidation::isValidHttpsUrl(const QString &str)
+{
+    QRegExp regex("^((https):\\/)\\/?([^:\\/\\s]+)((\\/\\w+)*\\/)([\\w\\-\\.]+[^#?\\s]+)(.*)?(#[\\w\\-]+)?$");
+    return regex.exactMatch(str);
 }
 
 bool IpValidation::isWindscribeReservedIp(const QString &str)

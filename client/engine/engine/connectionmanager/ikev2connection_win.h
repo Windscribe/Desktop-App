@@ -22,7 +22,7 @@ public:
     ~IKEv2Connection_win() override;
 
     void startConnect(const QString &configPathOrUrl, const QString &ip, const QString &dnsHostName,  const QString &username, const QString &password, const types::ProxySettings &proxySettings,
-                      const WireGuardConfig *wireGuardConfig, bool isEnableIkev2Compression, bool isAutomaticConnectionMode, bool isCustomConfig) override;
+                      const WireGuardConfig *wireGuardConfig, bool isEnableIkev2Compression, bool isAutomaticConnectionMode, bool isCustomConfig, const QString &overrideDnsIp) override;
     void startDisconnect() override;
     bool isDisconnected() const override;
 

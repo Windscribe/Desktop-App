@@ -66,7 +66,6 @@ void LoginWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *o
 void LoginWindowItem::resetState()
 {
     credentialsWindowItem_->resetState();
-    welcomeWindowItem_->resetState();
 
     credentialsWindowItem_->stackBefore(welcomeWindowItem_);
 

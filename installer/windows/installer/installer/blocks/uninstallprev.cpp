@@ -1,15 +1,20 @@
 #include "uninstallprev.h"
 
+#include <chrono>
 #include <shlobj_core.h>
 #include <windows.h>
 
 #include "../../../utils/applicationinfo.h"
+#include "../../../utils/directory.h"
 #include "../../../utils/logger.h"
 #include "../../../utils/process1.h"
 #include "../../../utils/registry.h"
 #include "../../../../../client/common/utils/wsscopeguard.h"
 
+using namespace std;
+
 const std::wstring wmActivateGui = L"WindscribeAppActivate";
+const auto kWindscribeClosingTimeout = std::chrono::milliseconds(5000);
 
 
 UninstallPrev::UninstallPrev(bool isFactoryReset, double weight) : IInstallBlock(weight, L"UninstallPrev"),
@@ -19,6 +24,8 @@ UninstallPrev::UninstallPrev(bool isFactoryReset, double weight) : IInstallBlock
 
 int UninstallPrev::executeStep()
 {
+    namespace chr = std::chrono;
+
     if (state_ == 0)
     {
         HWND hwnd = ApplicationInfo::getAppMainWindowHandle();
@@ -26,15 +33,36 @@ int UninstallPrev::executeStep()
         if (hwnd)
         {
             Log::instance().out(L"Windscribe is running - sending close");
-            // SendMessage WM_CLOSE will only work on an active window
+            // PostMessage WM_CLOSE will only work on an active window
             UINT dwActivateMessage = RegisterWindowMessage(wmActivateGui.c_str());
             PostMessage(hwnd, dwActivateMessage, 0, 0);
         }
+
+        const auto start = chr::high_resolution_clock::now();
+        auto curTime = chr::high_resolution_clock::now();
         while (hwnd)
         {
-            SendMessage(hwnd, WM_CLOSE, 0, 0);
-            hwnd = ApplicationInfo::getAppMainWindowHandle();
-            Sleep(10);
+            curTime = chr::high_resolution_clock::now();
+            if (curTime - start < kWindscribeClosingTimeout) {
+                PostMessage(hwnd, WM_CLOSE, 0, 0);
+                Sleep(100);
+                hwnd = ApplicationInfo::getAppMainWindowHandle();
+            }
+            else {
+                Log::instance().out(L"Timeout exceeded when trying to close Windscribe. Kill the process.");
+
+                //todo It is better to extract Windscribe.exe to the global variable without hardcode.
+                Process process;
+                const wstring appName = Directory::GetSystemDir() + wstring(L"\\taskkill.exe");
+                const auto res = process.InstExec(appName, L"/f /im Windscribe.exe /t", INFINITE, SW_HIDE);
+                if(res.has_value() && res.value() == NO_ERROR) {
+                    Log::instance().out(L"Process \"Windcribe.exe\" was successfully killed.");
+                    break;
+                }
+                else {
+                    Log::instance().out(L"Error to kill the process \"Windscribe.exe\".");
+                }
+            }
         }
         Sleep(1000);
         state_++;

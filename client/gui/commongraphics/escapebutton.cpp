@@ -5,6 +5,7 @@
 #include <QCursor>
 #include "graphicresources/imageresourcessvg.h"
 #include "graphicresources/fontmanager.h"
+#include "languagecontroller.h"
 #include "dpiscalemanager.h"
 
 namespace CommonGraphics {
@@ -73,6 +74,11 @@ void EscapeButton::updateScaling()
 {
     ScalableGraphicsObject::updateScaling();
     setTextPosition(textPosition_);
+}
+
+void EscapeButton::onLanguageChanged() {
+    setTextPosition(textPosition_);
+    update();
 }
 
 } // namespace CommonGraphics

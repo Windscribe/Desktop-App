@@ -59,7 +59,7 @@ void KeepAliveManager::onTimer()
     {
         if (!ips_[i].bFailed_)
         {
-            pingHostIcmp_.addHostForPing(ips_[i].ip_);
+            pingHostIcmp_.addHostForPing(ips_[i].ip_, ips_[i].ip_);
             return;
         }
     }
@@ -67,7 +67,7 @@ void KeepAliveManager::onTimer()
     if (ips_.count() > 0)
     {
         int ind = Utils::generateIntegerRandom(0, ips_.count() - 1);
-        pingHostIcmp_.addHostForPing(ips_[ind].ip_);
+        pingHostIcmp_.addHostForPing(ips_[ind].ip_, ips_[ind].ip_);
     }
 }
 

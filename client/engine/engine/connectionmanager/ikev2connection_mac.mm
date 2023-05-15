@@ -160,7 +160,7 @@ IKEv2Connection_mac::~IKEv2Connection_mac()
 
 }
 
-void IKEv2Connection_mac::startConnect(const QString &configOrUrl, const QString &ip, const QString &dnsHostName, const QString &username, const QString &password, const types::ProxySettings &proxySettings, const WireGuardConfig *wireGuardConfig, bool isEnableIkev2Compression, bool isAutomaticConnectionMode, bool isCustomConfig)
+void IKEv2Connection_mac::startConnect(const QString &configOrUrl, const QString &ip, const QString &dnsHostName, const QString &username, const QString &password, const types::ProxySettings &proxySettings, const WireGuardConfig *wireGuardConfig, bool isEnableIkev2Compression, bool isAutomaticConnectionMode, bool isCustomConfig, const QString &overrideDnsIp)
 {
     Q_UNUSED(configOrUrl);
     Q_UNUSED(proxySettings);
@@ -179,6 +179,7 @@ void IKEv2Connection_mac::startConnect(const QString &configOrUrl, const QString
 
     isPrevConnectionStatusInitialized_ = false;
     state_ = STATE_START_CONNECT;
+    overrideDnsIp_ = overrideDnsIp;
 
     if (!setKeyChain(username, password))
     {
@@ -431,6 +432,13 @@ void IKEv2Connection_mac::handleNotificationImpl(int status)
     }
     else if (status == NEVPNStatusConnected)
     {
+        if (!overrideDnsIp_.isEmpty()) {
+            if (!setCustomDns(overrideDnsIp_)) {
+                qCDebug(LOG_IKEV2) << "Failed to set custom DNS ip for ikev2";
+                WS_ASSERT(false);
+            }
+        }
+
         qCDebug(LOG_IKEV2) << "Connection status changed: NEVPNStatusConnected";
         state_ = STATE_CONNECTED;
 
@@ -586,6 +594,37 @@ bool IKEv2Connection_mac::isSocketError(QMap<time_t, QString> &logs)
         }
     }
     return false;
+}
+
+bool IKEv2Connection_mac::setCustomDns(const QString &overrideDnsIpAddress)
+{
+    // get list of entries of interest
+    QStringList networkServices = NetworkUtils_mac::getListOfDnsNetworkServiceEntries();
+
+    // filter list to only ikev2 entries
+    QStringList dnsNetworkServices;
+    for (QString service : networkServices)
+        if (MacUtils::dynamicStoreEntryHasKey(service, "ConfirmedServiceID"))
+            dnsNetworkServices.append(service);
+
+    qCDebug(LOG_IKEV2) << "Applying custom 'while connected' DNS change to network services: " << dnsNetworkServices;
+
+    if (dnsNetworkServices.isEmpty()) {
+        qCDebug(LOG_IKEV2) << "No network services to configure 'while connected' DNS";
+        return false;
+    }
+
+    // change DNS on each entry
+    bool successAll = true;
+    for (QString service : dnsNetworkServices) {
+        if (!helper_->setDnsOfDynamicStoreEntry(overrideDnsIpAddress, service)) {
+            successAll = false;
+            qCDebug(LOG_CONNECTED_DNS) << "Failed to set network service DNS: " << service;
+            break;
+        }
+    }
+
+    return successAll;
 }
 
 

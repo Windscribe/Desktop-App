@@ -1,5 +1,7 @@
 #include "locationitem.h"
 
+#include "languagecontroller.h"
+
 namespace gui_locations {
 
 LocationItem::LocationItem(const types::Location &location) : location_(location), load_(0), averagePing_(0),
@@ -10,7 +12,6 @@ LocationItem::LocationItem(const types::Location &location) : location_(location
 LocationItem::LocationItem(const LocationID &bestLocation, const types::Location &l, int cityInd)
 {
     WS_ASSERT(bestLocation.isBestLocation());
-    location_.name = "Best Location";
     location_.id = bestLocation;
     location_.countryCode = l.countryCode;
     location_.isNoP2P = l.isNoP2P;
@@ -28,6 +29,12 @@ LocationItem::LocationItem(const LocationID &bestLocation, const types::Location
     }
     averagePing_ = city.pingTimeMs.toInt();
     nickname_ = city.nick;
+}
+
+void LocationItem::setName(const QString &name)
+{
+    WS_ASSERT(location_.id.isBestLocation());
+    location_.name = name;
 }
 
 int LocationItem::load()

@@ -29,6 +29,7 @@ private slots:
     void onFirewallWhenChanged(QVariant value);
     void onFirewallModeHoverEnter();
     void onFirewallModeHoverLeave();
+    void onLanguageChanged();
 
 private:
     void updateMode();

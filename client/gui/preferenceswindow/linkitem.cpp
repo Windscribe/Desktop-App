@@ -98,7 +98,7 @@ QString LinkItem::title()
     return title_;
 }
 
-void LinkItem::setTitle(QString &title)
+void LinkItem::setTitle(const QString &title)
 {
     title_ = title;
     update();
@@ -109,7 +109,7 @@ QString LinkItem::linkText()
     return linkText_;
 }
 
-void LinkItem::setLinkText(QString &text)
+void LinkItem::setLinkText(const QString &text)
 {
     linkText_ = text;
     update();

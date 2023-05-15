@@ -32,6 +32,7 @@ namespace NetworkUtils_mac
     QStringList getDnsServersForInterface(const QString &interfaceName);
 
     QStringList getListOfDnsNetworkServiceEntries();
+    QStringList getP2P_AWDL_NetworkInterfaces();
 }
 
 

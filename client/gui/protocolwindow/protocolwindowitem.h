@@ -25,6 +25,7 @@ public:
     void setMode(ProtocolWindowMode mode) override;
     void resetProtocolStatus() override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR) override;
+    bool hasMoreAttempts() override;
 
 private slots:
     void onPromptHeightChanged(int height);
@@ -33,13 +34,12 @@ private slots:
 
 signals:
     void protocolClicked(types::Protocol protocol, uint port) override;
-    void setAsPreferredProtocol(types::ConnectionSettings settings) override;
-    void sendDebugLog() override;
     void stopConnection() override;
 
 private:
     ProtocolPromptItem *protocolPromptItem_;
     int promptHeight_;
+    bool allProtocolsFailed_;
 };
 
 }

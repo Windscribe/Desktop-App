@@ -57,6 +57,10 @@ public:
 
     bool isEverythingInit() const;
 
+    static void clearAutoLoginCredentials();
+    static QString autoLoginUsername();
+    static QString autoLoginPassword();
+
 private:
     void mergeWindflixLocations();
 

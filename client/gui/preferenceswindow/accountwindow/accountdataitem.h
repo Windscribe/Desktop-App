@@ -14,6 +14,7 @@ public:
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
     void updateScaling() override;
 
+    void setValue1(const QString &value);
     void setValue2(const QString &value);
 
 public:

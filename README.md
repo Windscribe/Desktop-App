@@ -13,11 +13,13 @@ This repo contains the complete source code for the Windscribe 2.0 app. This inc
 - Install Python 3 via either the Microsoft Store or from [here](https://www.python.org/downloads/).  Minimum tested version is 3.6.8.
 - Install [Active Perl](https://www.activestate.com/products/perl/downloads/).
     - Alternately, you can install [Strawberry Perl](https://strawberryperl.com/).
-- Install CMake v3.23.x or newer from [here](https://cmake.org/download/) (`install_cmake.bat` in `tools/prepare_build_environment/windows` will download and install CMake v3.23.2 for you).
+- Install CMake v3.20.x or newer from [here](https://cmake.org/download/) (`install_cmake.bat` in `tools/prepare_build_environment/windows` will download and install CMake v3.23.2 for you).
+- Install Ninja v1.10.2 from [here](https://github.com/ninja-build/ninja/releases)
 - Verify the following entries are in your System `PATH` environment variable. If they are not, add them to the System `PATH` environment variable and reboot.
     - `C:\Perl64\site\bin` (or equivalent Strawberry Perl `site\bin` folder)
     - `C:\Perl64\bin` (or equivalent Strawberry Perl `bin` folder)
     - `C:\Program Files\Git\cmd`
+    - `C:\[folder containing ninja.exe]`
 - Verify that `python3` is available in your System `PATH` environment variable.
   - If you installed Python from the Microsoft Store, enable the `python3.exe` execution alias in System Settings `Manage App Execution Aliases`.
   - If you installed Python from python.org, you can `mklink /path/to/your/python3.exe /path/to/your/python.exe`
@@ -42,8 +44,6 @@ This repo contains the complete source code for the Windscribe 2.0 app. This inc
 Go to subfolder `tools/deps` and run the following scripts in order. Libraries will be placed in `build-libs`.
 
 ```
-install_jom
-install_openssl
 install_openssl_ech_draft
 install_qt
 install_cares
@@ -56,13 +56,21 @@ install_wireguard
 install_stunnel
 ```
 
+As of version 2.7, you will need a copy of the [ctrld utility](https://github.com/Control-D-Inc/ctrld). Follow the instructions in that repo to build it, and place the binary at `build-libs/ctrld/ctrld.exe`.
+
 ### Build the Windscribe 2.0 app
 
 Go to subfolder `tools` and run `build_all`. Assuming all goes well with the build, the installer will be placed in `build-exe`.  You can run `build_all --sign --use-local-secrets` for a code-signed build, using the certificate from the [Install signing certificate](#install-signing-certificate-optional) section above, which will perform run-time signature verification checks on the executables.  Note that an unsigned build must be installed on your PC if you intend to debug the project.
 
 See `build_all --help` for other build options.
 
-You will find the application logs in `C:/Users/USER/AppData/Local/Windscribe/Windscribe2`.
+### Logs
+
+- Client app, location pings and installer helper: `C:/Users/<user_name>/AppData/Local/Windscribe/Windscribe2`
+- Service: `<Windscribe_installation_path>/windscribeservice.log`
+- Installer: `<Windscribe_installation_path>/log_installer.txt`
+- Uninstaller: system Debug View
+- `<Windscribe_installation_path>` defaults to `C:/Program Files/Windscribe`
 
 ## Mac
 
@@ -98,12 +106,13 @@ You will find the application logs in `C:/Users/USER/AppData/Local/Windscribe/Wi
 ```bash
   python3 -m pip install dmgbuild
 ```
-- Install CMake v3.23.x or newer from [here](https://cmake.org/download/)
+- Install CMake v3.20.x or newer from [here](https://cmake.org/download/)
 - Clone the repository.
 - Install python deps:
 ```python
   python3 -m pip install -r tools/requirements.txt
 ```
+- Install golang (minimum version 1.18): follow instructions from `https://go.dev/doc/install`
 
 ### Install signing certificate (required)
 - Install your Developer ID Application signing certificate from your Apple Developer account in Keychain Access.
@@ -114,7 +123,6 @@ You will find the application logs in `C:/Users/USER/AppData/Local/Windscribe/Wi
 Go to subfolder `tools/deps` and run the following scripts in order. Libraries will be placed in `build-libs`.
 
 ```
-install_openssl
 install_openssl_ech_draft
 install_qt
 install_cares
@@ -125,6 +133,8 @@ install_openvpn
 install_wireguard
 install_stunnel
 ```
+
+As of version 2.7, you will need a copy of the [ctrld utility](https://github.com/Control-D-Inc/ctrld). Follow the instructions in that repo to build it, and place the binary at `build-libs/ctrld/ctrld`.
 
 ### Build the Windscribe 2.0 app
 
@@ -138,6 +148,12 @@ You will find the application logs in `~/Library/Application Support/Windscribe/
 - If you make any changes to the helper source code `backend/mac/helper/src`, you must increase the `CFBundleVersion` in `backend/mac/helper/src/helper-info.plist`. The installer only updates the helper if this bundle version number has changed.
 - The IKEv2 protocol will only function in builds produced by Windscribe.  It's implementation on macOS utilizes the NEVPNManager API, which requires the 'Personal VPN' entitlement (`com.apple.developer.networking.vpn.api`) and an embedded provisioning profile file.  If you wish to enable IKEv2 functionality, you will have to create an embedded provisioning file in your Apple Developer account and use it in the client project (Search for `embedded.provisionprofile` in `client/CMakeLists.txt` for details on where to place the embedded provisioning profile).
 
+### Logs
+
+- Client app and location pings: `/Users/<user_name>/Library/Application Support/Windscribe/Windsrcibe2`
+- Installer: `/Users/<user_name>/Library/Application Support/Windscribe/Windsrcibe/log_installer.txt`
+- Helper: `/Library/Logs/com.windscribe.helper.macos/helper_log.txt`
+
 ## Linux
 
 ### Prerequisites
@@ -146,15 +162,16 @@ Build process tested on Ubuntu 20.04/ZorinOS 16 (gcc 9.3.0).
 
 - Install build requirements:
 ```bash
-  sudo apt-get install build-essential git curl patchelf libpam0g-dev software-properties-common libgl1-mesa-dev fakeroot python3-pip zip unzip
   sudo apt-get update
-  sudo apt-get install wget autoconf libtool
-  # install cmake 3.23.x (default for Ubuntu 20.04 is 3.16.3)
+  sudo apt-get install build-essential git curl patchelf libpam0g-dev software-properties-common libgl1-mesa-dev fakeroot python3-pip zip unzip libnl-genl-3-dev pkg-config libcap-ng-dev wget autoconf libtool libfontconfig1-dev libfreetype6-dev libx11-dev libx11-xcb-dev libxext-dev libxfixes-dev libxi-dev libxrender-dev libxcb1-dev libxcb-cursor-dev libxcb-glx0-dev libxcb-keysyms1-dev libxcb-image0-dev libxcb-shm0-dev libxcb-icccm4-dev libxcb-sync-dev libxcb-xfixes0-dev libxcb-shape0-dev libxcb-randr0-dev libxcb-render-util0-dev libxcb-util-dev libxcb-xinerama0-dev libxcb-xkb-dev libxkbcommon-dev libxkbcommon-x11-dev
+
+  # install cmake 3.20.x or newer (default for Ubuntu 20.04 is 3.16.3)
   wget -qO /etc/apt/trusted.gpg.d/kitware-key.asc https://apt.kitware.com/keys/kitware-archive-latest.asc
   echo "deb https://apt.kitware.com/ubuntu/ focal main" | tee /etc/apt/sources.list.d/kitware.list
   sudo apt-get -y update
   sudo apt-get -y install cmake
 ```
+- Install golang (minimum version 1.18): follow instructions from `https://go.dev/doc/install`
 - Clone the repository.
 - Install python deps:
 ```python
@@ -163,10 +180,9 @@ Build process tested on Ubuntu 20.04/ZorinOS 16 (gcc 9.3.0).
 
 ### Build libraries
 
-Go to subfolder `tools/deps` and run the following scripts in order. Libraries will be placed in `build-libs`.
+Go to subfolder `tools/deps` and run the following scripts in order. Libraries will be placed in `build-libs`.  When building Qt6, you may encounter an error relating to `check_for_ulimit`.  If so, downgrade to CMake version 3.24.
 
 ```
-install_openssl
 install_openssl_ech_draft
 install_qt
 install_cares
@@ -178,6 +194,8 @@ install_wireguard
 install_stunnel
 ```
 
+As of version 2.7, you will need a copy of the [ctrld utility](https://github.com/Control-D-Inc/ctrld). Follow the instructions in that repo to build it, and place the binary at `build-libs/ctrld/ctrld`.
+
 ### Build the Windscribe 2.0 app
 
 Go to subfolder `tools` and run `build_all`. Assuming all goes well with the build, the installer will be placed in `build-exe`.
@@ -185,6 +203,10 @@ Go to subfolder `tools` and run `build_all`. Assuming all goes well with the bui
 See `build_all --help` for other build options.
 
 The application installs to `/opt/windscribe`.  You will find the application logs in `~/.local/share/Windscribe/Windscribe2`.
+
+### Logs
+- Client app and location pings: `~/.local/share/Windscribe/Windscribe2`
+- Helper: `/opt/windscribe/helper_log.txt`
 
 ## Contributing
 

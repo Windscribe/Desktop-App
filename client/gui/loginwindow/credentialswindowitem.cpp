@@ -27,7 +27,7 @@ const QString CONFIG_ICON_PATH             = "login/CONFIG_ICON";
 const QString SETTINGS_ICON_PATH           = "login/SETTINGS_ICON";
 
 CredentialsWindowItem::CredentialsWindowItem(QGraphicsObject *parent, PreferencesHelper *preferencesHelper)
-    : ScalableGraphicsObject(parent)
+    : ScalableGraphicsObject(parent), curError_(ILoginWindow::ERR_MSG_EMPTY), curErrorMsg_("")
 {
     WS_ASSERT(preferencesHelper);
     setFlag(QGraphicsItem::ItemIsFocusable);
@@ -62,16 +62,13 @@ CredentialsWindowItem::CredentialsWindowItem(QGraphicsObject *parent, Preference
 
 #endif
 
-    QString firewallOffText = QT_TRANSLATE_NOOP("LoginWindow::FirewallTurnOffButton", "Turn Off Firewall");
+    QString firewallOffText = tr("Turn Off Firewall");
     firewallTurnOffButton_ = new FirewallTurnOffButton(std::move(firewallOffText), this);
     connect(firewallTurnOffButton_, SIGNAL(clicked()), SLOT(onFirewallTurnOffClick()));
 
     // Center Region:
-    QString usernameText = QT_TRANSLATE_NOOP("LoginWindow::UsernamePasswordEntry", "Username");
-    QString passwordText = QT_TRANSLATE_NOOP("LoginWindow::UsernamePasswordEntry", "Password");
-
-    usernameEntry_ = new UsernamePasswordEntry(usernameText, false, this);
-    passwordEntry_ = new UsernamePasswordEntry(passwordText, true, this);
+    usernameEntry_ = new UsernamePasswordEntry("", false, this);
+    passwordEntry_ = new UsernamePasswordEntry("", true, this);
 
     curForgotAnd2FAPosY_ = FORGOT_AND_2FA_POS_Y_DEFAULT;
     connect(&forgotAnd2FAPosYAnimation_, SIGNAL(valueChanged(QVariant)),
@@ -80,15 +77,11 @@ CredentialsWindowItem::CredentialsWindowItem(QGraphicsObject *parent, Preference
     curErrorOpacity_ = OPACITY_HIDDEN;
     connect(&errorAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onErrorChanged(QVariant)));
 
-    QString twoFactorAuthText = QT_TRANSLATE_NOOP("CommonGraphics::TextButton", "2FA Code");
-    twoFactorAuthButton_ = new CommonGraphics::TextButton(twoFactorAuthText, FontDescr(12, false),
-                                                          Qt::white, true, this);
+    twoFactorAuthButton_ = new CommonGraphics::TextButton("", FontDescr(12, false), Qt::white, true, this);
     connect(twoFactorAuthButton_, SIGNAL(clicked()), SLOT(onTwoFactorAuthClick()));
     twoFactorAuthButton_->quickHide();
 
-    QString forgotPassText = QT_TRANSLATE_NOOP("CommonGraphics::TextButton", "Forgot password?");
-    forgotPassButton_ = new CommonGraphics::TextButton(forgotPassText, FontDescr(12, false),
-                                                       Qt::white, true, this);
+    forgotPassButton_ = new CommonGraphics::TextButton("", FontDescr(12, false), Qt::white, true, this);
     connect(forgotPassButton_, SIGNAL(clicked()), SLOT(onForgotPassClick()));
     forgotPassButton_->quickHide();
 
@@ -114,6 +107,7 @@ CredentialsWindowItem::CredentialsWindowItem(QGraphicsObject *parent, Preference
     emergencyConnectOn_ = false;
 
     connect(&LanguageController::instance(), SIGNAL(languageChanged()), SLOT(onLanguageChanged()));
+    onLanguageChanged();
 
     curEmergencyTextOpacity_ = OPACITY_HIDDEN;
     connect(&emergencyTextAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onEmergencyTextTransition(QVariant)));
@@ -181,6 +175,9 @@ void CredentialsWindowItem::setErrorMessage(ILoginWindow::ERROR_MESSAGE_TYPE err
             WS_ASSERT(false);
             break;
     }
+
+    curError_ = errorMessageType;
+    curErrorMsg_ = errorMessage;
 
     usernameEntry_->setError(error);
     passwordEntry_->setError(error);
@@ -511,17 +508,17 @@ void CredentialsWindowItem::onUsernamePasswordTextChanged(const QString & /*text
 
 void CredentialsWindowItem::onEmergencyHoverEnter()
 {
-    onAbstractButtonHoverEnter(emergencyButton_, QT_TRANSLATE_NOOP("CommonWidgets::ToolTipWidget", "Emergency Connect"));
+    onAbstractButtonHoverEnter(emergencyButton_, tr("Emergency Connect"));
 }
 
 void CredentialsWindowItem::onConfigHoverEnter()
 {
-    onAbstractButtonHoverEnter(configButton_, QT_TRANSLATE_NOOP("CommonWidgets::ToolTipWidget", "External Config"));
+    onAbstractButtonHoverEnter(configButton_, tr("External Config"));
 }
 
 void CredentialsWindowItem::onSettingsHoverEnter()
 {
-    onAbstractButtonHoverEnter(settingsButton_, QT_TRANSLATE_NOOP("CommonWidgets::ToolTipWidget", "Preferences"));
+    onAbstractButtonHoverEnter(settingsButton_, tr("Preferences"));
 }
 
 void CredentialsWindowItem::onAbstractButtonHoverEnter(QGraphicsObject *button, QString text)
@@ -546,8 +543,13 @@ void CredentialsWindowItem::onAbstractButtonHoverEnter(QGraphicsObject *button, 
 
 void CredentialsWindowItem::onLanguageChanged()
 {
+    twoFactorAuthButton_->setText(tr("2FA Code"));
     twoFactorAuthButton_->recalcBoundingRect();
+    forgotPassButton_->setText(tr("Forgot password?"));
     forgotPassButton_->recalcBoundingRect();
+    usernameEntry_->setText(tr("Username"));
+    passwordEntry_->setText(tr("Password"));
+    setErrorMessage(curError_, curErrorMsg_);
 }
 
 void CredentialsWindowItem::onDockedModeChanged(bool bIsDockedToTray)

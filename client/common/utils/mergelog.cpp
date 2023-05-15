@@ -1,25 +1,15 @@
 #include "mergelog.h"
+
 #include <QCoreApplication>
-#include <QDateTime>
 #include <QFile>
+#include <QFileInfo>
 #include <QStandardPaths>
 #include <QTextStream>
-#include <QFileInfo>
-#include <fstream>
-#include <iostream>
-#include <sstream>
-#include <thread>
+
 #include <future>
 
 namespace
 {
-// On Linux and Mac: big files take a while to load but can be loaded. Tested with 2GB (on linux) and 10GB file on OSX
-// On Windows only:
-// Application seems to crash reliably (in debug mode) at 630MB
-// Selecting a slightly lower max combined file size to prevent app from crashing
-// Even at 500MB, application is very slow to load (5-10s) and UI background glitches are obivous
-const quint64 MAX_COMBINED_LOG_SIZE = 500000000; // 500MB
-
 bool isYearInDatePresent(const std::string &dateline)
 {
     const int scan = qMin(6, (int)dateline.size());
@@ -38,10 +28,8 @@ QDateTime parseDateTimeFormat1(const std::string &datestr)
     {
         return QDateTime(QDate(yy + 1900, MM, dd), QTime(hh, mm, ss, zzz));
     }
-    else
-    {
-        return QDateTime();
-    }
+
+    return QDateTime();
 }
 
 // parse date from string "ddMM hh:mm:ss:zzz"
@@ -53,10 +41,8 @@ QDateTime parseDateTimeFormat2(const std::string &datestr)
     {
         return QDateTime(QDate(1900, MM, dd), QTime(hh, mm, ss, zzz));
     }
-    else
-    {
-        return QDateTime();
-    }
+
+    return QDateTime();
 }
 
 
@@ -82,55 +68,33 @@ QString MergeLog::mergePrevLogs(bool doMergePerLine)
                  wgPrevServiceLogFilename, doMergePerLine);
 }
 
-bool MergeLog::canMerge()
-{
-    quint64 mergedFileSize = 0;
-
-    // gui
-    QFileInfo guiLogInfo(guiLogLocation());
-    mergedFileSize += guiLogInfo.size();
-
-    // prev gui
-    QFileInfo prevGuiLogInfo(prevGuiLogLocation());
-    mergedFileSize += prevGuiLogInfo.size();
-
-    // service (twice)
-    QFileInfo serviceLogInfo(serviceLogLocation());
-    mergedFileSize += serviceLogInfo.size() * 2; // why are we merging twice though, is this a bug?
-
-    // prev service (twice)
-    QFileInfo prevServiceLogInfo(prevServiceLogLocation());
-    mergedFileSize += prevServiceLogInfo.size() * 2; // why are we merging twice though, is this a bug?
-
-    QFileInfo wgServiceLog(wireguardServiceLogLocation());
-    mergedFileSize += wgServiceLog.size();
-
-    QFileInfo prevWGServiceLog(prevWireguardServiceLogLocation());
-    mergedFileSize += prevWGServiceLog.size();
-
-    return mergedFileSize < MAX_COMBINED_LOG_SIZE;
-}
-
 int MergeLog::mergeTask(QMutex *mutex, QMultiMap<quint64, QPair<LineSource, QString>> *lines, const QString *filename, LineSource source, bool useMinMax, QDateTime min, QDateTime max)
 {
     int datasize = 0;
     const int kCurrentYearOffset = QDateTime::currentDateTime().date().year() - 1900;
     QDateTime prevDateTime;
 
-    std::ifstream file;
-    file.open(filename->toStdString());
-    if (file.fail())
-    {
+    QFile file(*filename);
+    if (!file.open(QIODevice::ReadOnly)) {
         return 0;
     }
 
     int timestamp = 0;
-    std::string line;
-    while (std::getline(file, line))
+    QTextStream textStream(&file);
+    // If file is larger than 10MiB, just take the last 10MiB
+    int64_t filelen = file.size();
+    if (filelen > 10000000) {
+        file.seek(filelen - 10000000);
+    }
+
+    while (!textStream.atEnd())
     {
-        if (line[0] != '[')
+        QString line = textStream.readLine();
+
+        if (line[0] != '[' || line.length() < 20)
             continue;
-        const auto datestr = line.substr(1, 19);
+
+        const auto datestr = line.sliced(1, 19).toStdString();
 
         const auto datetime = isYearInDatePresent(datestr)
             ? parseDateTimeFormat1(datestr)
@@ -140,6 +104,7 @@ int MergeLog::mergeTask(QMutex *mutex, QMultiMap<quint64, QPair<LineSource, QStr
 
         if (useMinMax && (datetime < min || datetime > max))
             continue;
+
         if (prevDateTime != datetime) {
             prevDateTime = datetime;
             timestamp = 0;
@@ -157,7 +122,7 @@ int MergeLog::mergeTask(QMutex *mutex, QMultiMap<quint64, QPair<LineSource, QStr
 
         {
             QMutexLocker locker(mutex);
-            lines->insert(key, qMakePair(source, QString::fromStdString(line)));
+            lines->insert(key, qMakePair(source, line));
         }
         datasize += line.length() + 3;
     }

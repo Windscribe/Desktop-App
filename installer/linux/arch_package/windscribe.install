@@ -53,5 +53,8 @@ post_upgrade() {
 pre_remove() {
         systemctl stop windscribe-helper
         systemctl disable windscribe-helper
-        rm /usr/bin/windscribe
+        killall -q Windscribe || true
+        rm -rf /etc/windscribe
+        rm -f /opt/windscribe/helper_log.txt
+        rm -f /usr/bin/windscribe
 }

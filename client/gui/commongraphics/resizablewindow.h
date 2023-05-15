@@ -29,9 +29,12 @@ public:
     void setHeight(int height);
     void setScrollBarVisibility(bool on);
     void updateScaling() override;
+    int scrollPos();
+    void setScrollPos(int pos);
     void setScrollOffset(int offset);
 
     void setBackButtonEnabled(bool b);
+    void setResizeBarEnabled(bool b);
 
 signals:
     void escape();
@@ -44,6 +47,7 @@ protected slots:
     virtual void onResizeFinished();
     virtual void onBackArrowButtonClicked();
     virtual void onAppSkinChanged(APP_SKIN s);
+    void onLanguageChanged();
 
 protected:
     static constexpr int kBottomAreaHeight = 16;
@@ -72,6 +76,5 @@ protected:
 
     virtual QRectF getBottomResizeArea();
     void keyPressEvent(QKeyEvent *event) override;
-    virtual void updateChildItemsAfterHeightChanged();
     virtual void updatePositions();
 };

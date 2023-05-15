@@ -16,7 +16,7 @@ class WireGuardConnectionImpl
 {
 public:
     explicit WireGuardConnectionImpl(WireGuardConnection *host);
-    void setConfig(const WireGuardConfig *wireGuardConfig);
+    void setConfig(const WireGuardConfig *wireGuardConfig, const QString &overrideDnsIp);
     void setUsingKernelModule(bool usingKernelModule);
     void connect();
     void configure();
@@ -42,10 +42,15 @@ WireGuardConnectionImpl::WireGuardConnectionImpl(WireGuardConnection *host)
 {
 }
 
-void WireGuardConnectionImpl::setConfig(const WireGuardConfig *wireGuardConfig)
+void WireGuardConnectionImpl::setConfig(const WireGuardConfig *wireGuardConfig, const QString &overrideDnsIp)
 {
-    if (wireGuardConfig)
+    if (wireGuardConfig) {
         config_ = *wireGuardConfig;
+        // override the DNS if we are using custom
+        if (!overrideDnsIp.isEmpty()) {
+            config_.setClientDnsAddress(overrideDnsIp);
+        }
+    }
 }
 
 void WireGuardConnectionImpl::connect()
@@ -146,7 +151,7 @@ void WireGuardConnection::startConnect(const QString &configPathOrUrl, const QSt
                                        const QString &password, const types::ProxySettings &proxySettings,
                                        const WireGuardConfig *wireGuardConfig,
                                        bool isEnableIkev2Compression, bool isAutomaticConnectionMode,
-                                       bool isCustomConfig)
+                                       bool isCustomConfig, const QString &overrideDnsIp)
 {
     Q_UNUSED(configPathOrUrl);
     Q_UNUSED(ip);
@@ -164,7 +169,7 @@ void WireGuardConnection::startConnect(const QString &configPathOrUrl, const QSt
     do_stop_thread_ = false;
 
     isAutomaticConnectionMode_ = isAutomaticConnectionMode;
-    pimpl_->setConfig(wireGuardConfig);
+    pimpl_->setConfig(wireGuardConfig, overrideDnsIp);
 
     // if kernel module became available, or is no longer available, update the state
     using_kernel_module_ = checkForKernelModule();

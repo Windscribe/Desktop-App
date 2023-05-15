@@ -1,10 +1,11 @@
 #include "splittunnelingaddresseswindowitem.h"
 #include "utils/logger.h"
+#include "languagecontroller.h"
 
 namespace PreferencesWindow {
 
 SplitTunnelingAddressesWindowItem::SplitTunnelingAddressesWindowItem(ScalableGraphicsObject *parent, Preferences *preferences)
-  : CommonGraphics::BasePage(parent), preferences_(preferences)
+  : CommonGraphics::BasePage(parent), preferences_(preferences), loggedIn_(false)
 {
     setFlags(flags() | QGraphicsItem::ItemClipsChildrenToShape | QGraphicsItem::ItemIsFocusable);
     setSpacerHeight(PREFERENCES_MARGIN);
@@ -25,11 +26,14 @@ SplitTunnelingAddressesWindowItem::SplitTunnelingAddressesWindowItem(ScalableGra
     addressesGroup_->setAddresses(preferences->splitTunnelingNetworkRoutes());
 
     setLoggedIn(false);
+
+    connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &SplitTunnelingAddressesWindowItem::onLanguageChanged);
+    onLanguageChanged();
 }
 
-QString SplitTunnelingAddressesWindowItem::caption()
+QString SplitTunnelingAddressesWindowItem::caption() const
 {
-    return QT_TRANSLATE_NOOP("PreferencesWindow::PreferencesWindowItem", "IPs & Hostnames");
+    return tr("IPs & Hostnames");
 }
 
 void SplitTunnelingAddressesWindowItem::setFocusOnTextEntry()
@@ -55,17 +59,21 @@ void SplitTunnelingAddressesWindowItem::onClearError()
 
 void SplitTunnelingAddressesWindowItem::setLoggedIn(bool loggedIn)
 {
-    if (loggedIn)
-    {
+    loggedIn_ = loggedIn;
+
+    if (loggedIn) {
         desc_->clearError();
         desc_->setDescription(tr("Enter the IP and/or hostnames you wish to include in or exclude from the VPN tunnel below."));
-    }
-    else
-    {
+    } else {
         desc_->setDescription(tr("Please log in to modify split tunneling rules."), true);
     }
 
     addressesGroup_->setLoggedIn(loggedIn);
+}
+
+void SplitTunnelingAddressesWindowItem::onLanguageChanged()
+{
+    setLoggedIn(loggedIn_);
 }
 
 } // namespace

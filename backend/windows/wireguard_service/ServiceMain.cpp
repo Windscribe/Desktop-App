@@ -9,10 +9,10 @@
 #include <cstdio>
 #include <sstream>
 
-#include "boost/filesystem/path.hpp"
+#include <boost/filesystem/path.hpp>
 
-#include "servicecontrolmanager.h"
-#include "win32handle.h"
+#include "utils/servicecontrolmanager.h"
+#include "utils/win32handle.h"
 
 
 // C:\Code\ThirdParty\Wireguard\wireguard-windows-0.5.3\docs\enterprise.md has useful info
@@ -182,15 +182,12 @@ monitorClientStatus(LPVOID lpParam)
             // During normal operation, the client app should ask the helper to shut this
             // process down gracefully when the app disconnects the tunnel.
 
-            std::string serviceName;
+            std::wstring serviceName;
             {
                 // The wireguard tunnel DLL derives the service name from the config file name
                 // we passed to WireGuardTunnelService() in main().
                 boost::filesystem::path path((const char*)lpParam);
-                std::wostringstream stream;
-                stream << L"WireGuardTunnel$" << path.stem().native();
-                std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-                serviceName = converter.to_bytes(stream.str());
+                serviceName = L"WireGuardTunnel$" + path.stem().native();
             }
 
             wsl::ServiceControlManager svcCtrl;
@@ -221,8 +218,7 @@ stopMonitorThread(ULONG_PTR lpParam)
 
 
 //---------------------------------------------------------------------------
-int
-main(int argc, char *argv[])
+int wmain(int argc, wchar_t *argv[])
 {
     PROCESS_START_TIME = std::chrono::system_clock::now();
 
@@ -236,10 +232,12 @@ main(int argc, char *argv[])
         return 0;
     }
 
-    DWORD dwAttrib = ::GetFileAttributesA(argv[1]);
+    std::wstring configFile(argv[1]);
+
+    DWORD dwAttrib = ::GetFileAttributes(configFile.c_str());
     if ((dwAttrib == INVALID_FILE_ATTRIBUTES) || (dwAttrib & FILE_ATTRIBUTE_DIRECTORY))
     {
-        debugOut("Windscribe WireGuard service - invalid config file path: %s", argv[1]);
+        debugOut("Windscribe WireGuard service - invalid config file path: %ls", configFile.c_str());
         return 0;
     }
 
@@ -260,9 +258,6 @@ main(int argc, char *argv[])
         debugOut("Windscribe WireGuard service - failed to load WireGuardTunnelService entry point from tunnel.dll (%d)", ::GetLastError());
         return 0;
     }
-
-    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-    std::wstring configFile = converter.from_bytes(argv[1]);
 
     debugOut("Starting WireGuard tunnel with config file: %ls", configFile.c_str());
 

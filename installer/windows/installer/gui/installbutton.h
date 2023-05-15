@@ -9,7 +9,7 @@ class TextItem;
 class InstallButton
 {
 public:
-	enum BUTTON_STATE { INSTALL_TITLE, WAIT_WITH_PROGRESS, WAIT_WITHOUT_PROGRESS };
+	enum BUTTON_STATE { INSTALL_TITLE, WAIT_WITH_PROGRESS, WAIT_WITHOUT_PROGRESS, LAUNCHING };
 
 	InstallButton(MainWindow *mainWindow, const wchar_t *szTitle);
 	virtual ~InstallButton();
@@ -29,7 +29,7 @@ private:
 	MainWindow *mainWindow_;
 	HWND hwnd_;
 	TextItem *titleItem_;
-	const int TEXT_MARGIN = 14;
+	const int TEXT_MARGIN = 18;
 	const int BEFORE_ARROW_MARGIN = 10;
 	const int TIMER_ID = 1111;
 	bool bMouseTracking_;
@@ -56,4 +56,6 @@ private:
 
 	void drawStateInstallTitle(Gdiplus::Graphics *graphics, const RECT &rc);
 	void drawStateWithProgress(Gdiplus::Graphics *graphics, const RECT &rc);
+	void drawStateLaunching(Gdiplus::Graphics *graphics, const RECT &rc);
+	void drawSpinner(Gdiplus::Graphics *graphics, const Gdiplus::Rect &rect);
 };

@@ -2,7 +2,6 @@
 
 #include <QGraphicsScene>
 #include <QGraphicsView>
-#include <QMessageBox>
 #include <QPainter>
 
 #include "dpiscalemanager.h"
@@ -11,6 +10,7 @@
 #include "graphicresources/imageresourcessvg.h"
 #include "graphicresources/independentpixmap.h"
 #include "languagecontroller.h"
+#include "generalmessagecontroller.h"
 #include "tooltips/tooltipcontroller.h"
 
 extern QWidget *g_mainWindow;
@@ -41,37 +41,35 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
     connect(preferences, &Preferences::isTerminateSocketsChanged, this, &ConnectionWindowItem::onTerminateSocketsPreferencesChanged);
     connect(preferences, &Preferences::isAutoConnectChanged, this, &ConnectionWindowItem::onIsAutoConnectPreferencesChanged);
 
-    connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &ConnectionWindowItem::onLanguageChanged);
-
     subpagesGroup_ = new PreferenceGroup(this);
 
-    networkOptionsItem_ = new LinkItem(subpagesGroup_, LinkItem::LinkType::SUBPAGE_LINK, QT_TRANSLATE_NOOP("PreferencesWindow::LinkItem","Network Options"));
+    networkOptionsItem_ = new LinkItem(subpagesGroup_, LinkItem::LinkType::SUBPAGE_LINK);
     connect(networkOptionsItem_, &LinkItem::clicked, this, &ConnectionWindowItem::networkOptionsPageClick);
     subpagesGroup_->addItem(networkOptionsItem_);
 
 #ifndef Q_OS_LINUX
-    splitTunnelingItem_ = new LinkItem(subpagesGroup_, LinkItem::LinkType::SUBPAGE_LINK, QT_TRANSLATE_NOOP("PreferencesWindow::LinkItem","Split Tunneling"));
+    splitTunnelingItem_ = new LinkItem(subpagesGroup_, LinkItem::LinkType::SUBPAGE_LINK);
     connect(splitTunnelingItem_, &LinkItem::clicked, this, &ConnectionWindowItem::splitTunnelingPageClick);
     onSplitTunnelingPreferencesChanged(preferences->splitTunneling());
     subpagesGroup_->addItem(splitTunnelingItem_);
 #endif
 
-    proxySettingsItem_ = new LinkItem(subpagesGroup_, LinkItem::LinkType::SUBPAGE_LINK, QT_TRANSLATE_NOOP("PreferencesWindow::LinkItem","Proxy Settings"));
+    proxySettingsItem_ = new LinkItem(subpagesGroup_, LinkItem::LinkType::SUBPAGE_LINK);
     connect(proxySettingsItem_, &LinkItem::clicked, this, &ConnectionWindowItem::proxySettingsPageClick);
     subpagesGroup_->addItem(proxySettingsItem_);
 
     addItem(subpagesGroup_);
 
-    autoConnectGroup_ = new PreferenceGroup(this, tr("Connects to last used location when the app launches or joins a network."));
-    checkBoxAutoConnect_ = new CheckBoxItem(autoConnectGroup_, QT_TRANSLATE_NOOP("PreferencesWindow::CheckBoxItem", "Auto-Connect"), QString());
+    autoConnectGroup_ = new PreferenceGroup(this);
+    checkBoxAutoConnect_ = new ToggleItem(autoConnectGroup_);
     checkBoxAutoConnect_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/AUTOCONNECT"));
     checkBoxAutoConnect_->setState(preferences->isAutoConnect());
-    connect(checkBoxAutoConnect_, &CheckBoxItem::stateChanged, this, &ConnectionWindowItem::onIsAutoConnectPreferencesChangedByUser);
+    connect(checkBoxAutoConnect_, &ToggleItem::stateChanged, this, &ConnectionWindowItem::onIsAutoConnectPreferencesChangedByUser);
     autoConnectGroup_->addItem(checkBoxAutoConnect_);
     addItem(autoConnectGroup_);
 
     firewallGroup_ = new FirewallGroup(this,
-                                       tr("Control the mode of behavior of the Windscribe firewall."),
+                                       "",
                                        QString("https://%1/features/firewall").arg(HardcodedSettings::instance().serverUrl()));
     connect(firewallGroup_, &FirewallGroup::firewallPreferencesChanged, this, &ConnectionWindowItem::onFirewallPreferencesChangedByUser);
     firewallGroup_->setFirewallSettings(preferences->firewallSettings());
@@ -80,10 +78,10 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
 
     connectionModeGroup_ = new ProtocolGroup(this,
                                              preferencesHelper,
-                                             tr("Connection Mode"),
+                                             "",
                                              "preferences/CONNECTION_MODE",
                                              ProtocolGroup::SelectionType::COMBO_BOX,
-                                             tr("Automatically choose the VPN protocol, or select one manually."),
+                                             "",
                                              QString("https://%1/features/flexible-connectivity").arg(HardcodedSettings::instance().serverUrl()));
     connectionModeGroup_->setConnectionSettings(preferences->connectionSettings());
     connect(connectionModeGroup_, &ProtocolGroup::connectionModePreferencesChanged, this, &ConnectionWindowItem::onConnectionModePreferencesChangedByUser);
@@ -91,35 +89,35 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
 
 #ifndef Q_OS_LINUX
     packetSizeGroup_ = new PacketSizeGroup(this,
-                                           tr("Automatically determine the MTU for your connection, or manually override."),
+                                           "",
                                            QString("https://%1/features/packet-size").arg(HardcodedSettings::instance().serverUrl()));
     packetSizeGroup_->setPacketSizeSettings(preferences->packetSize());
     connect(packetSizeGroup_, &PacketSizeGroup::packetSizeChanged, this, &ConnectionWindowItem::onPacketSizePreferencesChangedByUser);
     connect(packetSizeGroup_, &PacketSizeGroup::detectPacketSize, this, &ConnectionWindowItem::detectPacketSize);
     addItem(packetSizeGroup_);
+#endif
 
     connectedDnsGroup_ = new ConnectedDnsGroup(this,
-                                               tr("Select the DNS server while connected to Windscribe."),
+                                               "",
                                                QString("https://%1/features/flexible-dns").arg(HardcodedSettings::instance().serverUrl()));
     connectedDnsGroup_->setConnectedDnsInfo(preferences->connectedDnsInfo());
     connect(connectedDnsGroup_, &ConnectedDnsGroup::connectedDnsInfoChanged, this, &ConnectionWindowItem::onConnectedDnsPreferencesChangedByUser);
+    connect(connectedDnsGroup_, &ConnectedDnsGroup::domainsClick, this, &ConnectionWindowItem::connectedDnsDomainsClick);
     addItem(connectedDnsGroup_);
-#endif
-
     allowLanTrafficGroup_ = new PreferenceGroup(this,
-                                                tr("Allow access to local services and printers while connected to Windscribe."),
+                                                "",
                                                 QString("https://%1/features/lan-traffic").arg(HardcodedSettings::instance().serverUrl()));
-    checkBoxAllowLanTraffic_ = new CheckBoxItem(allowLanTrafficGroup_, QT_TRANSLATE_NOOP("PreferencesWindow::CheckBoxItem", "Allow LAN Traffic"), QString());
+    checkBoxAllowLanTraffic_ = new ToggleItem(allowLanTrafficGroup_, tr("Allow LAN Traffic"));
     checkBoxAllowLanTraffic_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/ALLOW_LAN_TRAFFIC"));
     checkBoxAllowLanTraffic_->setState(preferences->isAllowLanTraffic());
-    connect(checkBoxAllowLanTraffic_, &CheckBoxItem::stateChanged, this, &ConnectionWindowItem::onIsAllowLanTrafficPreferencesChangedByUser);
-    connect(checkBoxAllowLanTraffic_, &CheckBoxItem::buttonHoverLeave, this, &ConnectionWindowItem::onAllowLanTrafficButtonHoverLeave);
+    connect(checkBoxAllowLanTraffic_, &ToggleItem::stateChanged, this, &ConnectionWindowItem::onIsAllowLanTrafficPreferencesChangedByUser);
+    connect(checkBoxAllowLanTraffic_, &ToggleItem::buttonHoverLeave, this, &ConnectionWindowItem::onAllowLanTrafficButtonHoverLeave);
     allowLanTrafficGroup_->addItem(checkBoxAllowLanTraffic_);
     addItem(allowLanTrafficGroup_);
 
 #ifndef Q_OS_LINUX
     macSpoofingGroup_ = new MacSpoofingGroup(this,
-                                             tr("Spoof your device's physical address (MAC address)."),
+                                             "",
                                              QString("https://%1/features/mac-spoofing").arg(HardcodedSettings::instance().serverUrl()));
     connect(macSpoofingGroup_, &MacSpoofingGroup::macAddrSpoofingChanged, this, &ConnectionWindowItem::onMacAddrSpoofingPreferencesChangedByUser);
     connect(macSpoofingGroup_, &MacSpoofingGroup::cycleMacAddressClick, this, &ConnectionWindowItem::cycleMacAddressClick);
@@ -129,12 +127,12 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
 
 #if defined(Q_OS_WIN)
     terminateSocketsGroup_ = new PreferenceGroup(this,
-                                                 tr("Close all active TCP sockets when the VPN tunnel is established."),
+                                                 "",
                                                  QString("https://%1/features/tcp-socket-termination").arg(HardcodedSettings::instance().serverUrl()));
-    terminateSocketsItem_ = new CheckBoxItem(terminateSocketsGroup_, QT_TRANSLATE_NOOP("PreferencesWindow::CheckBoxItem", "Terminate Sockets"), QString());
+    terminateSocketsItem_ = new ToggleItem(terminateSocketsGroup_, tr("Terminate Sockets"));
     terminateSocketsItem_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/TERMINATE_SOCKETS"));
     terminateSocketsItem_->setState(preferences->isTerminateSockets());
-    connect(terminateSocketsItem_, &CheckBoxItem::stateChanged, this, &ConnectionWindowItem::onTerminateSocketsPreferencesChangedByUser);
+    connect(terminateSocketsItem_, &ToggleItem::stateChanged, this, &ConnectionWindowItem::onTerminateSocketsPreferencesChangedByUser);
     terminateSocketsGroup_->addItem(terminateSocketsItem_);
     addItem(terminateSocketsGroup_);
 #endif
@@ -151,16 +149,19 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
 #endif
 
     proxyGatewayGroup_ = new ProxyGatewayGroup(this,
-                                               tr("Configure your TV, gaming console, or other devices that support proxy servers."),
+                                               "",
                                                QString("https://%1/features/proxy-gateway").arg(HardcodedSettings::instance().serverUrl()));
     connect(proxyGatewayGroup_, &ProxyGatewayGroup::proxyGatewayPreferencesChanged, this, &ConnectionWindowItem::onProxyGatewayPreferencesChangedByUser);
     proxyGatewayGroup_->setProxyGatewaySettings(preferences->shareProxyGateway());
     addItem(proxyGatewayGroup_);
+
+    connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &ConnectionWindowItem::onLanguageChanged);
+    onLanguageChanged();
 }
 
-QString ConnectionWindowItem::caption()
+QString ConnectionWindowItem::caption() const
 {
-    return QT_TRANSLATE_NOOP("PreferencesWindow::PreferencesWindowItem", "Connection");
+    return tr("Connection");
 }
 
 void ConnectionWindowItem::updateScaling()
@@ -337,9 +338,7 @@ void ConnectionWindowItem::onIsExternalConfigModeChanged(bool bIsExternalConfigM
 
 void ConnectionWindowItem::onConnectedDnsPreferencesChanged(const types::ConnectedDnsInfo &dns)
 {
-#ifndef Q_OS_LINUX
     connectedDnsGroup_->setConnectedDnsInfo(dns);
-#endif
 }
 
 void ConnectionWindowItem::onProxyGatewayAddressChanged(const QString &address)
@@ -354,29 +353,68 @@ void ConnectionWindowItem::onIsAllowLanTrafficPreferencesChanged(bool b)
 
 void ConnectionWindowItem::onLanguageChanged()
 {
+    networkOptionsItem_->setTitle(tr("Network Options"));
+#ifndef Q_OS_LINUX
+    splitTunnelingItem_->setTitle(tr("Split Tunneling"));
+    onSplitTunnelingPreferencesChanged(preferences_->splitTunneling());
+#endif
+    proxySettingsItem_->setTitle(tr("Proxy Settings"));
 
+    autoConnectGroup_->setDescription(tr("Connects to last used location when the app launches or joins a network."));
+    checkBoxAutoConnect_->setCaption(tr("Auto-Connect"));
+    firewallGroup_->setDescription(tr("Control the mode of behavior of the Windscribe firewall."));
+    connectionModeGroup_->setTitle(tr("Connection Mode"));
+    connectionModeGroup_->setDescription(tr("Automatically choose the VPN protocol, or select one manually."));
+
+#ifndef Q_OS_LINUX
+    packetSizeGroup_->setDescription(tr("Automatically determine the MTU for your connection, or manually override."));
+#endif
+
+    connectedDnsGroup_->setDescription(tr("Select the DNS server while connected to Windscribe."));
+    allowLanTrafficGroup_->setDescription(tr("Allow access to local services and printers while connected to Windscribe."));
+    checkBoxAllowLanTraffic_->setCaption(tr("Allow LAN Traffic"));
+
+#ifndef Q_OS_LINUX
+    macSpoofingGroup_->setDescription(tr("Spoof your device's physical address (MAC address)."));
+#endif
+
+#if defined(Q_OS_WIN)
+    terminateSocketsGroup_->setDescription(tr("Close all active TCP sockets when the VPN tunnel is established."));
+#endif
+
+#ifndef Q_OS_LINUX
+    //secureHotspotGroup_ sets its own description
+#endif
+
+    proxyGatewayGroup_->setDescription(tr("Configure your TV, gaming console, or other devices that support proxy servers."));
 }
 
 void ConnectionWindowItem::onIsAllowLanTrafficPreferencesChangedByUser(bool b)
 {
     preferences_->setAllowLanTraffic(b);
 
-    types::ShareProxyGateway sp = preferences_->shareProxyGateway();
-    if (sp.isEnabled && !b) {
-        QMessageBox::StandardButton button = QMessageBox::question(g_mainWindow, tr("Windscribe"),
-            tr("Disabling this feature will cause your proxy gateway to stop working.  Do you want to disable the proxy?"));
-        if (button == QMessageBox::Yes) {
-            sp.isEnabled = false;
-            preferences_->setShareProxyGateway(sp);
-        }
+    if (preferences_->shareProxyGateway().isEnabled && !b) {
+        GeneralMessageController::instance().showMessage(
+            "WARNING_WHITE",
+            tr("Settings Conflict"),
+            tr("Disabling Allow LAN Traffic will cause your proxy gateway to stop working.  Do you want to disable the proxy?"),
+            GeneralMessageController::tr(GeneralMessageController::kYes),
+            GeneralMessageController::tr(GeneralMessageController::kNo),
+            "",
+            [this](bool b) {
+                types::ShareProxyGateway sp = preferences_->shareProxyGateway();
+                sp.isEnabled = false;
+                preferences_->setShareProxyGateway(sp);
+            },
+            std::function<void(bool b)>(nullptr),
+            std::function<void(bool b)>(nullptr),
+            GeneralMessage::kFromPreferences);
     }
 }
 
 void ConnectionWindowItem::onConnectedDnsPreferencesChangedByUser(const types::ConnectedDnsInfo &dns)
 {
-#ifndef Q_OS_LINUX
     preferences_->setConnectedDnsInfo(dns);
-#endif
 }
 
 void ConnectionWindowItem::hideOpenPopups()
@@ -410,14 +448,18 @@ void ConnectionWindowItem::onProxyGatewayPreferencesChangedByUser(const types::S
     preferences_->setShareProxyGateway(sp);
 
     if (sp.isEnabled && !preferences_->isAllowLanTraffic()) {
-        QMessageBox::StandardButton button = QMessageBox::question(g_mainWindow, tr("Windscribe"),
-            tr("LAN traffic is currently blocked by the Windscribe firewall. "
-               "Do you want to allow LAN traffic to bypass the firewall in order for this feature to work?"));
-        if (button == QMessageBox::Yes) {
-            preferences_->setAllowLanTraffic(true);
-        }
+        GeneralMessageController::instance().showMessage(
+            "WARNING_WHITE",
+            tr("Settings Conflict"),
+            tr("LAN traffic is currently blocked by the Windscribe firewall.  Do you want to allow LAN traffic to bypass the firewall in order for this feature to work?"),
+            GeneralMessageController::tr(GeneralMessageController::kYes),
+            GeneralMessageController::tr(GeneralMessageController::kNo),
+            "",
+            [this](bool b) { preferences_->setAllowLanTraffic(true); },
+            std::function<void(bool)>(nullptr),
+            std::function<void(bool)>(nullptr),
+            GeneralMessage::kFromPreferences);
     }
-
 }
 
 void ConnectionWindowItem::onProxyGatewayPreferencesChanged(const types::ShareProxyGateway &sp)

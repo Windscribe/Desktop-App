@@ -3,14 +3,13 @@
 #include <QKeyEvent>
 #include <QSet>
 #include "../../common/types/protocolstatus.h"
-#include "../commongraphics/textbutton.h"
 #include "../backend/backend.h"
 #include "../backend/preferences/preferences.h"
 #include "../backend/preferences/preferenceshelper.h"
 #include "commongraphics/imageitem.h"
 #include "commongraphics/basepage.h"
+#include "commongraphics/listbutton.h"
 #include "connectwindow/iconnectwindow.h"
-#include "protocollistbutton.h"
 #include "protocolwindow/iprotocolwindow.h"
 #include "protocolwindow/protocollineitem.h"
 
@@ -34,6 +33,7 @@ public:
     void clearCountdown();
     void setProtocolStatus(const types::ProtocolStatus &status);
     void setProtocolStatus(const QVector<types::ProtocolStatus> &status);
+    void clearItems() override;
 
 public slots:
     void resetProtocolStatus();
@@ -42,37 +42,23 @@ signals:
     void escape();
     void protocolClicked(types::Protocol protocol, uint port);
     void heightChanged(int height);
-    void setAsPreferredProtocol(types::ConnectionSettings settings);
-    void sendDebugLog();
     void stopConnection();
 
 private slots:
-    void onSetAsPreferred();
-    void onSendDebugLog();
-    void onContactSupport();
     void onProtocolClicked();
     void onTimerTimeout();
     void onCancelClicked();
+    void onLanguageChanged();
 
 private:
     static constexpr int kSpacerHeight = 16;
     static constexpr int kIndent = 36;
 
-    const char *kChangeProtocolTitle = "Change Protocol";
-    const char *kChangeProtocolDescription = "Quickly re-connect using a different protocol.";
-    const char *kFailedProtocolTitle = "Connection Failure!";
-    const char *kFailedProtocolDescription = "The protocol you’ve chosen has failed to connect. Windscribe will attempt to reconnect using the first protocol below.";
-    const char *kSavePreferredProtocolTitle = "Set “%1” as preferred protocol?";
-    const char *kSavePreferredProtocolDescription = "Windscribe will always use this protocol to connect on this network in the future to avoid any interruptions.";
-    const char *kSendDebugLogTitle = "This network hates us";
-    const char *kSendDebugLogDescription = "We couldn’t connect you on this network. Send us your debug log so we can figure out what happened.";
-    const char *kDebugLogSentTitle = "Debug Sent!";
-    const char *kDebugLogSentDescription = "Your debug log has been received. Please contact support if you want assistance with this issue.";
-
-    const char *kSetAsPreferredButton = "Set as Preferred";
-    const char *kSendDebugLogButton = "Send Debug Log";
-    const char *kContactSupportButton = "Contact Support";
-    const char *kCancelButton = "Cancel";
+    const char *kChangeProtocolTitle = QT_TR_NOOP("Change Protocol");
+    const char *kChangeProtocolDescription = QT_TR_NOOP("Quickly re-connect using a different protocol.");
+    const char *kFailedProtocolTitle = QT_TR_NOOP("Connection Failure!");
+    const char *kFailedProtocolDescription = QT_TR_NOOP("The protocol you’ve chosen has failed to connect. Windscribe will attempt to reconnect using the first protocol below.");
+    const char *kCancelButton = QT_TR_NOOP("Cancel");
 
     QScopedPointer<ImageItem> icon_;
 
@@ -82,8 +68,7 @@ private:
     int titleHeight_;
     int descHeight_;
 
-    ProtocolListButton *actionButton_;
-    ProtocolListButton *cancelButton_;
+    CommonGraphics::ListButton *cancelButton_;
 
     ProtocolWindowMode mode_;
     IConnectWindow *connectWindow_;

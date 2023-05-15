@@ -29,7 +29,7 @@
 //   on Windows, so no need to emit it.
 
 static const QString kServiceIdentifier("WindscribeWireguard");
-static const QString kServiceName = QString("WireGuardTunnel$") + kServiceIdentifier;
+static const std::wstring kServiceName = L"WireGuardTunnel$" + kServiceIdentifier.toStdWString();
 
 static HANDLE createTimer(int timeout, bool singleShot, PTIMERAPCROUTINE completionRoutine, LPVOID argToCompletionRoutine)
 {
@@ -83,7 +83,7 @@ void WireGuardConnection::startConnect(const QString &configPathOrUrl, const QSt
                                        const QString &password, const types::ProxySettings &proxySettings,
                                        const WireGuardConfig *wireGuardConfig,
                                        bool isEnableIkev2Compression, bool isAutomaticConnectionMode,
-                                       bool isCustomConfig)
+                                       bool isCustomConfig, const QString &overrideDnsIp)
 {
     Q_UNUSED(configPathOrUrl);
     Q_UNUSED(ip);
@@ -93,6 +93,7 @@ void WireGuardConnection::startConnect(const QString &configPathOrUrl, const QSt
     Q_UNUSED(proxySettings);
     Q_UNUSED(isEnableIkev2Compression);
     Q_UNUSED(isCustomConfig);
+    Q_UNUSED(overrideDnsIp);
 
     WS_ASSERT(helper_ != nullptr);
     WS_ASSERT(wireGuardConfig != nullptr);
@@ -127,8 +128,8 @@ bool WireGuardConnection::isDisconnected() const
     try {
         wsl::ServiceControlManager scm;
         scm.openSCM(SC_MANAGER_CONNECT);
-        if (scm.isServiceInstalled(qPrintable(kServiceName))) {
-            scm.openService(qPrintable(kServiceName), SERVICE_QUERY_STATUS);
+        if (scm.isServiceInstalled(kServiceName.c_str())) {
+            scm.openService(kServiceName.c_str(), SERVICE_QUERY_STATUS);
             dwStatus = scm.queryServiceStatus();
         }
     }
@@ -150,7 +151,7 @@ void WireGuardConnection::run()
     // create matches the name of the service the helper installs.  The helper will install
     // the service using the name WireGuardTunnel$ConfFileName
 
-    QString configFile = tr("%1/%2.conf").arg(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation), kServiceIdentifier);
+    QString configFile = QString("%1/%2.conf").arg(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation), kServiceIdentifier);
 
     // Installing the wireguard service requires admin privilege.
     IHelper::ExecuteError err = helper_->startWireGuard(getWireGuardExeName(), configFile);
@@ -179,7 +180,7 @@ void WireGuardConnection::run()
     // The wireguard service creates the log file in the same folder as the config file we passed to it.
     // We must create this log file watcher before we start the wireguard service to ensure we get
     // all log entries.
-    QString logFile = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + tr("/log.bin");
+    QString logFile = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + QString("/log.bin");
     wireguardLog_.reset(new wsl::WireguardRingLogger(logFile));
 
     bool disableDNSLeakProtection = false;
@@ -372,7 +373,7 @@ bool WireGuardConnection::startService()
     try {
         wsl::ServiceControlManager scm;
         scm.openSCM(SC_MANAGER_CONNECT);
-        scm.openService(qPrintable(kServiceName), SERVICE_QUERY_STATUS | SERVICE_START);
+        scm.openService(kServiceName.c_str(), SERVICE_QUERY_STATUS | SERVICE_START);
         scm.startService();
         return true;
     }

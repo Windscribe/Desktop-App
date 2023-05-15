@@ -13,8 +13,9 @@ class Application
 {
 public:
     Application(HINSTANCE hInstance, int nCmdShow, bool isAutoUpdateMode,
-        bool isSilent, bool noDrivers, bool noAutoStart, bool isFactoryReset,
-        const std::wstring& installPath);
+                bool isSilent, bool noDrivers, bool noAutoStart, bool isFactoryReset,
+                const std::wstring& installPath, const std::wstring& username,
+                const std::wstring& password);
     virtual ~Application();
 
     bool init(int windowCenterX, int windowCenterY);
@@ -30,12 +31,16 @@ public:
 
     std::wstring getPreviousInstallPath();
 
+    void saveCredentials() const;
+
 private:
     ULONG_PTR gdiplusToken_;
     HINSTANCE hInstance_;
     const int nCmdShow_;
     const bool isAutoUpdateMode_;
     const bool isSilent_;
+    const std::wstring username_;
+    const std::wstring password_;
 
     MainWindow* mainWindow_;
     ImageResources* imageResources_;

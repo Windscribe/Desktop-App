@@ -31,6 +31,7 @@ public:
     virtual void setProtocolPort(const types::Protocol &protocol, const uint port) = 0;
     virtual void setCornerColor(QColor color) = 0;
     virtual types::ProtocolStatus getProtocolStatus() = 0;
+    virtual void setIsPreferredProtocol(bool on) = 0;
 
 public slots:
     virtual void updateLocationInfo(const QString &firstName, const QString &secondName, const QString &countryCode, PingTime pingTime, bool isCustomConfig) = 0;

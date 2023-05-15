@@ -21,6 +21,7 @@ public:
           nick_(other.nick_),
           pro_(other.pro_),
           pingIp_(other.pingIp_),
+          pingHost_(other.pingHost_),
           wg_pubkey_(other.wg_pubkey_),
           ovpn_x509_(other.ovpn_x509_),
           link_speed_(other.link_speed_),
@@ -34,6 +35,7 @@ public:
     QString nick_;
     int pro_;       // 0 - for free account, 1 - for pro account
     QString pingIp_;
+    QString pingHost_;
     QString wg_pubkey_;
     QString ovpn_x509_;
     int link_speed_;
@@ -62,6 +64,7 @@ public:
     bool isPro() const { WS_ASSERT(d->isValid_); return d->pro_ != 0; }
     bool isDisabled() const { WS_ASSERT(d->isValid_); return d->nodes_.isEmpty(); }
     QString getPingIp() const { WS_ASSERT(d->isValid_); return d->pingIp_; }
+    QString getPingHost() const { WS_ASSERT(d->isValid_); return d->pingHost_; }
     QString getWgPubKey() const { WS_ASSERT(d->isValid_); return d->wg_pubkey_; }
     QString getOvpnX509() const { WS_ASSERT(d->isValid_); return d->ovpn_x509_; }
     int getLinkSpeed() const { WS_ASSERT(d->isValid_); return d->link_speed_; }
@@ -82,7 +85,7 @@ public:
 
 private:
     QSharedDataPointer<GroupData> d;
-    static constexpr quint32 versionForSerialization_ = 1;
+    static constexpr quint32 versionForSerialization_ = 2;
 };
 
 } //namespace apiinfo

@@ -18,7 +18,6 @@ namespace Utils {
     QString getPlatformName();
     QString getPlatformNameSafe();
     QString getOSVersion();
-    QString humanReadableByteCount(double bytes, bool isUseSpace, bool isDecimal = false);
     void parseVersionString(const QString &version, int &major, int &minor, bool &bSuccess);
     void getOSVersionAndBuild(QString &osVersion, QString &build);
     //thread safe random number generator from min to max inclusive

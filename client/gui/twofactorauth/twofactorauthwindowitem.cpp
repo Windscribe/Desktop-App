@@ -21,7 +21,7 @@ TwoFactorAuthWindowItem::TwoFactorAuthWindowItem(QGraphicsObject *parent,
     curTextOpacity_ = OPACITY_FULL;
     curEscTextOpacity_ = OPACITY_FULL;
 
-    okButton_ = new TwoFactorAuthOkButton(this, OK_BUTTON_WIDTH, OK_BUTTON_HEIGHT);
+    okButton_ = new TwoFactorAuthOkButton(this);
     okButton_->setClickable(false);
     connect(okButton_, SIGNAL(clicked()), this, SLOT(onButtonClicked()));
 
@@ -124,7 +124,7 @@ void TwoFactorAuthWindowItem::paint(QPainter *painter, const QStyleOptionGraphic
     painter->setPen(Qt::white);
     painter->drawText(QRect(0, 87 * G_SCALE, WINDOW_WIDTH * G_SCALE, 20 * G_SCALE),
                       Qt::AlignCenter, tr("Two-factor Auth"));
- 
+
     // Message
     painter->setOpacity(curTextOpacity_ * initialOpacity);
     painter->setFont(*FontManager::instance().getFont(14, false));

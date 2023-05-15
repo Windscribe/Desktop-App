@@ -8,6 +8,7 @@
 #include "graphicresources/imageresourcessvg.h"
 #include "preferencestab/preferencestabcontrolitem.h"
 #include "graphicresources/fontmanager.h"
+#include "languagecontroller.h"
 #include "utils/ws_assert.h"
 #include "utils/utils.h"
 #include "utils/logger.h"
@@ -46,6 +47,7 @@ PreferencesWindowItem::PreferencesWindowItem(QGraphicsObject *parent, Preference
     connect(connectionWindowItem_, &ConnectionWindowItem::proxySettingsPageClick, this, &PreferencesWindowItem::onProxySettingsPageClick);
     connect(connectionWindowItem_, &ConnectionWindowItem::cycleMacAddressClick, this, &PreferencesWindowItem::cycleMacAddressClick);
     connect(connectionWindowItem_, &ConnectionWindowItem::detectPacketSize, this, &PreferencesWindowItem::detectPacketSizeClick);
+    connect(connectionWindowItem_, &ConnectionWindowItem::connectedDnsDomainsClick, this, &PreferencesWindowItem::onConnectedDnsDomainsClick);
 
     advancedWindowItem_ = new AdvancedWindowItem(nullptr, preferences, preferencesHelper);
     connect(advancedWindowItem_, &AdvancedWindowItem::advParametersClick, this, &PreferencesWindowItem::onAdvParametersClick);
@@ -64,7 +66,6 @@ PreferencesWindowItem::PreferencesWindowItem(QGraphicsObject *parent, Preference
     aboutWindowItem_ = new AboutWindowItem(nullptr, preferences, preferencesHelper);
 
     scrollAreaItem_->setItem(generalWindowItem_);
-    pageCaption_ = generalWindowItem_->caption();
 
     networkOptionsWindowItem_ = new NetworkOptionsWindowItem(nullptr, preferences);
     networkOptionsNetworkWindowItem_ = new NetworkOptionsNetworkWindowItem(nullptr, preferences, preferencesHelper);
@@ -72,6 +73,7 @@ PreferencesWindowItem::PreferencesWindowItem(QGraphicsObject *parent, Preference
     splitTunnelingWindowItem_ = new SplitTunnelingWindowItem(nullptr, preferences);
     splitTunnelingAppsWindowItem_ = new SplitTunnelingAppsWindowItem(nullptr, preferences);
     splitTunnelingAddressesWindowItem_ = new SplitTunnelingAddressesWindowItem(nullptr, preferences);
+    dnsDomainsWindowItem_ = new DnsDomainsWindowItem(nullptr, preferences);
 
     connect(splitTunnelingWindowItem_, &SplitTunnelingWindowItem::appsPageClick, this, &PreferencesWindowItem::onSplitTunnelingAppsClick);
     connect(splitTunnelingWindowItem_, &SplitTunnelingWindowItem::addressesPageClick, this, &PreferencesWindowItem::onSplitTunnelingAddressesClick);
@@ -81,6 +83,8 @@ PreferencesWindowItem::PreferencesWindowItem(QGraphicsObject *parent, Preference
 
     connect(splitTunnelingAddressesWindowItem_, &SplitTunnelingAddressesWindowItem::addressesUpdated, this, &PreferencesWindowItem::onAddressesUpdated);
     connect(splitTunnelingAddressesWindowItem_, &SplitTunnelingAddressesWindowItem::escape, this, &PreferencesWindowItem::onIpsAndHostnameEscape);
+
+    connect(dnsDomainsWindowItem_, &DnsDomainsWindowItem::escape, this, &PreferencesWindowItem::onDnsDomainsEscape);
 
     connect(networkOptionsWindowItem_, &NetworkOptionsWindowItem::currentNetworkUpdated, this, &PreferencesWindowItem::onCurrentNetworkUpdated);
     connect(networkOptionsWindowItem_, &NetworkOptionsWindowItem::networkClicked, this, &PreferencesWindowItem::onNetworkOptionsNetworkClick);
@@ -94,6 +98,7 @@ PreferencesWindowItem::~PreferencesWindowItem()
     delete splitTunnelingWindowItem_;
     delete splitTunnelingAppsWindowItem_;
     delete splitTunnelingAddressesWindowItem_;
+    delete dnsDomainsWindowItem_;
 
     delete generalWindowItem_;
     delete accountWindowItem_;
@@ -145,7 +150,7 @@ void PreferencesWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsI
     QFont *font = FontManager::instance().getFont(16, true);
     painter->setFont(*font);
     QFontMetrics fm(*font);
-    painter->drawText(rcCaption, Qt::AlignLeft | Qt::AlignVCenter, fm.elidedText(pageCaption_, Qt::ElideRight, 140*G_SCALE));
+    painter->drawText(rcCaption, Qt::AlignLeft | Qt::AlignVCenter, fm.elidedText(scrollAreaItem_->item()->caption(), Qt::ElideRight, 140*G_SCALE));
 
     // bottom-most background
     painter->setOpacity(initialOpacity);
@@ -160,6 +165,11 @@ void PreferencesWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsI
     {
         painter->fillRect(getBottomResizeArea(), QBrush(footerColor_));
     }
+}
+
+PREFERENCES_TAB_TYPE PreferencesWindowItem::currentTab()
+{
+    return tabControlItem_->currentTab();
 }
 
 void PreferencesWindowItem::setCurrentTab(PREFERENCES_TAB_TYPE tab)
@@ -197,6 +207,7 @@ void PreferencesWindowItem::setLoggedIn(bool loggedIn)
     robertWindowItem_->setLoggedIn(loggedIn);
     splitTunnelingAppsWindowItem_->setLoggedIn(loggedIn);
     splitTunnelingAddressesWindowItem_->setLoggedIn(loggedIn);
+    dnsDomainsWindowItem_->setLoggedIn(loggedIn);
     loggedIn_ = loggedIn;
 }
 
@@ -224,7 +235,6 @@ void PreferencesWindowItem::changeTab(PREFERENCES_TAB_TYPE tab)
         scrollAreaItem_->setItem(generalWindowItem_);
         generalWindowItem_->updateScaling();
         setShowSubpageMode(false);
-        pageCaption_ = generalWindowItem_->caption();
         update();
     }
     else if (tab == TAB_ACCOUNT)
@@ -232,7 +242,6 @@ void PreferencesWindowItem::changeTab(PREFERENCES_TAB_TYPE tab)
         scrollAreaItem_->setItem(accountWindowItem_);
         accountWindowItem_->updateScaling();
         setShowSubpageMode(false);
-        pageCaption_ = accountWindowItem_->caption();
         update();
     }
     else if (tab == TAB_CONNECTION)
@@ -241,7 +250,6 @@ void PreferencesWindowItem::changeTab(PREFERENCES_TAB_TYPE tab)
         connectionWindowItem_->updateScaling();
         connectionWindowItem_->setScreen(CONNECTION_SCREEN_HOME);
         setShowSubpageMode(false);
-        pageCaption_ = connectionWindowItem_->caption();
         update();
     }
     else if (tab == TAB_ROBERT)
@@ -255,7 +263,6 @@ void PreferencesWindowItem::changeTab(PREFERENCES_TAB_TYPE tab)
         scrollAreaItem_->setItem(robertWindowItem_);
         robertWindowItem_->updateScaling();
         setShowSubpageMode(false);
-        pageCaption_ = robertWindowItem_->caption();
         update();
     }
     else if (tab == TAB_ADVANCED)
@@ -264,7 +271,6 @@ void PreferencesWindowItem::changeTab(PREFERENCES_TAB_TYPE tab)
         advancedWindowItem_->updateScaling();
         advancedWindowItem_->setScreen(ADVANCED_SCREEN_HOME);
         setShowSubpageMode(false);
-        pageCaption_ = advancedWindowItem_->caption();
         update();
     }
     else if (tab == TAB_HELP)
@@ -272,7 +278,6 @@ void PreferencesWindowItem::changeTab(PREFERENCES_TAB_TYPE tab)
         scrollAreaItem_->setItem(helpWindowItem_);
         helpWindowItem_->updateScaling();
         setShowSubpageMode(false);
-        pageCaption_ = helpWindowItem_->caption();
         update();
     }
     else if (tab == TAB_ABOUT)
@@ -280,7 +285,6 @@ void PreferencesWindowItem::changeTab(PREFERENCES_TAB_TYPE tab)
         scrollAreaItem_->setItem(aboutWindowItem_);
         aboutWindowItem_->updateScaling();
         setShowSubpageMode(false);
-        pageCaption_ = aboutWindowItem_->caption();
         update();
     }
     else
@@ -326,6 +330,8 @@ void PreferencesWindowItem::moveOnePageBack()
             }
         } else if (screen == CONNECTION_SCREEN_PROXY_SETTINGS) {
             changeTab(tabControlItem_->currentTab());
+        } else if (screen == CONNECTION_SCREEN_DNS_DOMAINS) {
+            changeTab(tabControlItem_->currentTab());
         }
     } else { // non-connection screen
         changeTab(tabControlItem_->currentTab());
@@ -348,7 +354,6 @@ void PreferencesWindowItem::onNetworkOptionsPageClick()
     connectionWindowItem_->setScreen(CONNECTION_SCREEN_NETWORK_OPTIONS);
     networkOptionsWindowItem_->setScreen(NETWORK_OPTIONS_HOME);
     setShowSubpageMode(true);
-    pageCaption_ = networkOptionsWindowItem_->caption();
     setFocus();
     update();
 }
@@ -361,7 +366,6 @@ void PreferencesWindowItem::onNetworkOptionsNetworkClick(types::NetworkInterface
     connectionWindowItem_->setScreen(CONNECTION_SCREEN_NETWORK_OPTIONS);
     networkOptionsWindowItem_->setScreen(NETWORK_OPTIONS_DETAILS);
     setShowSubpageMode(true);
-    pageCaption_ = network.friendlyName;
     update();
 }
 
@@ -372,7 +376,6 @@ void PreferencesWindowItem::setPreferencesWindowToSplitTunnelingHome()
     connectionWindowItem_->setScreen(CONNECTION_SCREEN_SPLIT_TUNNELING);
     splitTunnelingWindowItem_->setScreen(SPLIT_TUNNEL_SCREEN_HOME);
     setShowSubpageMode(true);
-    pageCaption_ = splitTunnelingWindowItem_->caption();
     setFocus();
     update();
 }
@@ -388,9 +391,18 @@ void PreferencesWindowItem::onProxySettingsPageClick()
     proxySettingsWindowItem_->updateScaling();
     connectionWindowItem_->setScreen(CONNECTION_SCREEN_PROXY_SETTINGS);
     setShowSubpageMode(true);
-    pageCaption_ = proxySettingsWindowItem_->caption();
     setFocus();
     update();
+}
+
+void PreferencesWindowItem::onConnectedDnsDomainsClick(const QStringList &domains)
+{
+    scrollAreaItem_->setItem(dnsDomainsWindowItem_);
+    dnsDomainsWindowItem_->updateScaling();
+    connectionWindowItem_->setScreen(CONNECTION_SCREEN_DNS_DOMAINS);
+    setShowSubpageMode(true);
+    update();
+    dnsDomainsWindowItem_->setFocusOnTextEntry();
 }
 
 void PreferencesWindowItem::onAdvParametersClick()
@@ -405,7 +417,6 @@ void PreferencesWindowItem::setPreferencesWindowToSplitTunnelingAppsHome()
     connectionWindowItem_->setScreen(CONNECTION_SCREEN_SPLIT_TUNNELING);
     splitTunnelingWindowItem_->setScreen(SPLIT_TUNNEL_SCREEN_APPS);
     setShowSubpageMode(true);
-    pageCaption_ = splitTunnelingAppsWindowItem_->caption();
     update();
 }
 
@@ -449,7 +460,6 @@ void PreferencesWindowItem::onSplitTunnelingAddressesClick()
     connectionWindowItem_->setScreen(CONNECTION_SCREEN_SPLIT_TUNNELING);
     splitTunnelingWindowItem_->setScreen(SPLIT_TUNNEL_SCREEN_IPS_AND_HOSTNAMES);
     setShowSubpageMode(true);
-    pageCaption_ = splitTunnelingAddressesWindowItem_->caption();
     update();
     splitTunnelingAddressesWindowItem_->setFocusOnTextEntry();
 }
@@ -503,6 +513,11 @@ void PreferencesWindowItem::onIpsAndHostnameEscape()
     setPreferencesWindowToSplitTunnelingHome();
 }
 
+void PreferencesWindowItem::onDnsDomainsEscape()
+{
+    changeTab(tabControlItem_->currentTab());
+}
+
 void PreferencesWindowItem::onNetworkEscape()
 {
     onNetworkOptionsPageClick();
@@ -533,19 +548,6 @@ void PreferencesWindowItem::setShowSubpageMode(bool isShowSubPage)
 {
     isShowSubPage_ = isShowSubPage;
     tabControlItem_->setInSubpage(isShowSubPage);
-}
-
-void PreferencesWindowItem::updateChildItemsAfterHeightChanged()
-{
-    bottomResizeItem_->setPos(kBottomResizeOriginX*G_SCALE, curHeight_ - kBottomResizeOffsetY*G_SCALE);
-
-    if (preferences_->appSkin() == APP_SKIN_VAN_GOGH) {
-        tabControlItem_->setHeight(curHeight_ - 71*G_SCALE);
-        scrollAreaItem_->setHeight(curHeight_ - 74*G_SCALE);
-    } else {
-        tabControlItem_->setHeight(curHeight_ - 99*G_SCALE);
-        scrollAreaItem_->setHeight(curHeight_ - 102*G_SCALE);
-    }
 }
 
 void PreferencesWindowItem::setRobertFilters(const QVector<types::RobertFilter> &filters)

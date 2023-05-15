@@ -1,9 +1,9 @@
 #include "wireguardgocommunicator.h"
 #include "../../../../../client/common/utils/executable_signature/executable_signature.h"
 #include "../../../../posix_common/helper_commands.h"
-#include "execute_cmd.h"
-#include "utils.h"
-#include "logger.h"
+#include "../../execute_cmd.h"
+#include "../../logger.h"
+#include "../../utils.h"
 #include <codecvt>
 #include <regex>
 #include <type_traits>
@@ -156,7 +156,7 @@ bool WireGuardGoCommunicator::start(
 
     const std::string fullPath = exePath + "/" + executable;
     ExecutableSignature sigCheck;
-    if (!sigCheck.verifyWithSignCheck(std::wstring_convert<std::codecvt_utf8<wchar_t>>().from_bytes(fullPath))) {
+    if (!sigCheck.verify(std::wstring_convert<std::codecvt_utf8<wchar_t>>().from_bytes(fullPath))) {
         Logger::instance().out("WireGuard executable signature incorrect: %s", sigCheck.lastError().c_str());
         return false;
     }

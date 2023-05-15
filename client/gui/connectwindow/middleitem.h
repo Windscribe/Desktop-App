@@ -21,6 +21,8 @@ public:
 
     void updateScaling() override;
 
+    int firewallTextRight() const;
+
 public slots:
     void setIpAddress(const QString &ipAddress);
     void setIsSecured(bool isSecured);

@@ -324,7 +324,7 @@ void CityItemDelegate::tooltipEnterEvent(const ItemStyleOption &option, const QM
     if (tooltipId == (int)TooltipRect::kCustomConfigErrorMessage) {
         QString text = index.data(gui_locations::kCustomConfigErrorMessage).toString();
         if (text.isEmpty())
-            text = widget->tr("Unknown Config Error");
+            text = QWidget::tr("Unknown Config Error");
 
         QRect rc = latencyIconRect(option.rect);
         QPoint pt = widget->mapToGlobal(QPoint(rc.center().x(), rc.top() - 3*G_SCALE));

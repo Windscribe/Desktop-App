@@ -14,12 +14,15 @@ class EditBoxItem : public CommonGraphics::BaseItem
     Q_OBJECT
 
 public:
-    explicit EditBoxItem(ScalableGraphicsObject *parent, const QString &caption, const QString &editPrompt);
+    explicit EditBoxItem(ScalableGraphicsObject *parent, const QString &title = "", const QString &editPrompt = "");
 
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
+    void setCaption(const QString &caption);
     void setText(const QString &text);
+    void setPrompt(const QString &prompt);
     void setValidator(QRegularExpressionValidator *validator);
+    void setMinimumLength(int length);
 
     void updateScaling() override;
     void setEditButtonClickable(bool clickable);
@@ -40,8 +43,7 @@ private slots:
     void onEditClick();
     void onConfirmClick();
     void onUndoClick();
-
-    void onLanguageChanged();
+    void onTextChanged(const QString &text);
 
 private:
     QString caption_;
@@ -56,6 +58,8 @@ private:
 
     QGraphicsProxyWidget *proxyWidget_;
     CommonWidgets::CustomMenuLineEdit *lineEdit_;
+
+    int minLength_;
 
     void updatePositions();
 

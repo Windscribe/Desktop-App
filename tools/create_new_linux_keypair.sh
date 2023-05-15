@@ -22,6 +22,7 @@ import deps.installutils as iutl
 TOOLS_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.dirname(TOOLS_DIR)
 
+
 def create_keys():
     linux_keys = os.path.join(ROOT_DIR, "common", "keys", "linux")
     private_key = os.path.join(linux_keys, "key.pem")
@@ -44,18 +45,18 @@ def success_print():
 if __name__ == "__main__":
     if (utl.GetCurrentOS() != "linux"):
         msg.Print("This script is not for any OS other than linux, silly!")
-        sys.exit(0) 
+        sys.exit(0)
 
     # warn users and get confirmation
     msg.Print(purpose)
     msg.Print(remember)
     user_input = raw_input(warning)
 
-    # user decides to not run 
+    # user decides to not run
     if user_input != "yes":
         msg.Print("NOT creating keys! Quitting.")
         sys.exit(0)
-    
+
     # proceed with key creation
     msg.Print("Creating keys")
     create_keys()

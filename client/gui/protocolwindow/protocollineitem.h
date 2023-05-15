@@ -21,6 +21,8 @@ public:
     int decrementCountdown();
     void clearCountdown();
 
+    void setDescription(const QString &desc);
+
 protected:
     void hoverEnterEvent(QGraphicsSceneHoverEvent* event) override;
     void hoverLeaveEvent(QGraphicsSceneHoverEvent* event) override;

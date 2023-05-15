@@ -192,7 +192,10 @@ signals:
     void splitTunnelingChanged(types::SplitTunneling st);
     void keepAliveChanged(bool b);
     void networkLastKnownGoodProtocolPortChanged(const QString &network, const types::Protocol &protocol, uint port);
-    void updateEngineSettings();
+
+    // emit if any of the engine options have changed
+    // don't emit in setEngineSettings()
+    void engineSettingsChanged();
 
     void reportErrorToUser(QString title, QString desc);
 
@@ -200,8 +203,10 @@ private:
     types::EngineSettings engineSettings_;
     types::GuiSettings guiSettings_;
 
-    bool receivingEngineSettings_;
+    bool isSettingEngineSettings_;
     QMap<QString, QTimer *> timers_;
+
+    void emitEngineSettingsChanged();
 
     // for serialization
     static constexpr quint32 magic_ = 0x7715C211;

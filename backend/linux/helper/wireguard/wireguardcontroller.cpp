@@ -4,9 +4,9 @@
 #include "kernelmodule/kernelmodulecommunicator.h"
 #include "defaultroutemonitor.h"
 #include "../../../posix_common/helper_commands.h"
-#include "execute_cmd.h"
-#include "utils.h"
-#include "logger.h"
+#include "../execute_cmd.h"
+#include "../logger.h"
+#include "../utils.h"
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/algorithm/string/split.hpp>

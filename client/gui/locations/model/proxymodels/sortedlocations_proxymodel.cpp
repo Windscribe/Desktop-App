@@ -85,18 +85,25 @@ bool SortedLocationsProxyModel::filterAcceptsRow(int source_row, const QModelInd
 
 bool SortedLocationsProxyModel::lessThanByGeography(const QModelIndex &left, const QModelIndex &right) const
 {
-    // If it is a country then sort by index
-    // the right index can not be checked, since it must correspond to the same type as the left one.
     LocationID leftLid = qvariant_cast<LocationID>(sourceModel()->data(left, kLocationId));
-    if (leftLid.isTopLevelLocation())
-    {
+    LocationID rightLid = qvariant_cast<LocationID>(sourceModel()->data(right, kLocationId));
+
+    // keep the best location on top
+    if (leftLid.isBestLocation() && !rightLid.isBestLocation()) {
+        return true;
+    }
+
+    if (!leftLid.isBestLocation() && rightLid.isBestLocation()) {
+        return false;
+    }
+
+    // If it is a country then sort by index
+    if (leftLid.isTopLevelLocation()) {
         return left.row() < right.row();
     }
+
     // cities are sorted alphabetically
-    else
-    {
-        return sourceModel()->data(left).toString() < sourceModel()->data(right).toString();
-    }
+    return sourceModel()->data(left).toString() < sourceModel()->data(right).toString();
 }
 
 bool SortedLocationsProxyModel::lessThanByAlphabetically(const QModelIndex &left, const QModelIndex &right) const
@@ -105,12 +112,11 @@ bool SortedLocationsProxyModel::lessThanByAlphabetically(const QModelIndex &left
     LocationID rightLid = qvariant_cast<LocationID>(sourceModel()->data(right, kLocationId));
 
     // keep the best location on top
-    if (leftLid.isBestLocation() && !rightLid.isBestLocation())
-    {
+    if (leftLid.isBestLocation() && !rightLid.isBestLocation()) {
         return true;
     }
-    else if (!leftLid.isBestLocation() && rightLid.isBestLocation())
-    {
+
+    if (!leftLid.isBestLocation() && rightLid.isBestLocation()) {
         return false;
     }
 
@@ -123,12 +129,11 @@ bool SortedLocationsProxyModel::lessThanByLatency(const QModelIndex &left, const
     LocationID rightLid = qvariant_cast<LocationID>(sourceModel()->data(right, kLocationId));
 
     // keep the best location on top
-    if (leftLid.isBestLocation() && !rightLid.isBestLocation())
-    {
+    if (leftLid.isBestLocation() && !rightLid.isBestLocation()) {
         return true;
     }
-    else if (!leftLid.isBestLocation() && rightLid.isBestLocation())
-    {
+
+    if (!leftLid.isBestLocation() && rightLid.isBestLocation()) {
         return false;
     }
 

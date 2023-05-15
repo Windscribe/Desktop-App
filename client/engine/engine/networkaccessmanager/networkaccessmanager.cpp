@@ -78,7 +78,7 @@ void NetworkAccessManager::abort(NetworkReply *reply)
         activeRequests_.erase(it);
 
         if (requestData->request.isRemoveFromWhitelistIpsAfterFinish())
-            whitelistIpsManager_->remove(requestData->request.url().host());
+            whitelistIpsManager_->remove(requestData->ips);
     }
 }
 
@@ -104,8 +104,14 @@ void NetworkAccessManager::handleRequest(quint64 id)
     auto it = activeRequests_.find(id);
     if (it != activeRequests_.end()) {
         QSharedPointer<RequestData> requestData = it.value();
-        QString hostname = requestData->request.url().host();
-        dnsCache_->resolve(hostname, requestData->id, !requestData->request.isUseDnsCache(), requestData->request.dnsServers(), requestData->request.timeout());
+
+        // skip DNS-resolution if the overrideIp is settled
+        if (!requestData->request.overrideIp().isEmpty()) {
+            onResolved(true, QStringList() << requestData->request.overrideIp(), requestData->id, false, 0);
+        } else {
+            QString hostname = requestData->request.url().host();
+            dnsCache_->resolve(hostname, requestData->id, !requestData->request.isUseDnsCache(), requestData->request.dnsServers(), requestData->request.timeout());
+        }
     }
 }
 
@@ -118,8 +124,8 @@ void NetworkAccessManager::onCurlReplyFinished()
         activeRequests_.erase(it);
         requestData->reply->checkForCurlError();
         if (requestData->request.isRemoveFromWhitelistIpsAfterFinish())
-            whitelistIpsManager_->remove(requestData->request.url().host());
-        emit requestData->reply->finished(requestData->elapsedTimer_.elapsed());
+            whitelistIpsManager_->remove(requestData->ips);
+        emit requestData->reply->finished(requestData->elapsedTimer.elapsed());
     }
 }
 
@@ -153,8 +159,10 @@ void NetworkAccessManager::onResolved(bool success, const QStringList &ips, quin
         if (success) {
             if (requestData->request.timeout() - timeMs > 0) {
                 requestData->request.setTimeout(requestData->request.timeout() - timeMs);
+                requestData->ips = ips;
 
-                whitelistIpsManager_->add(requestData->request.url().host(), ips);
+                if (requestData->request.isWhiteListIps())
+                    whitelistIpsManager_->add(ips);
 
                 CurlReply *curlReply{ nullptr };
 
@@ -178,12 +186,12 @@ void NetworkAccessManager::onResolved(bool success, const QStringList &ips, quin
             } else {    // timeout exceed
                 activeRequests_.erase(it);
                 requestData->reply->setError(NetworkReply::TimeoutExceed);
-                emit requestData->reply->finished(requestData->elapsedTimer_.elapsed());
+                emit requestData->reply->finished(requestData->elapsedTimer.elapsed());
             }
         } else {
             activeRequests_.erase(it);
             requestData->reply->setError(NetworkReply::DnsResolveError);
-            emit requestData->reply->finished(requestData->elapsedTimer_.elapsed());
+            emit requestData->reply->finished(requestData->elapsedTimer.elapsed());
         }
     }
 }
@@ -209,7 +217,7 @@ NetworkReply *NetworkAccessManager::invokeHandleRequest(NetworkAccessManager::RE
     requestData->request = request;
     requestData->reply = reply;
     requestData->data = data;
-    requestData->elapsedTimer_.start();
+    requestData->elapsedTimer.start();
 
     WS_ASSERT(!activeRequests_.contains(id));
     activeRequests_[id] = requestData;

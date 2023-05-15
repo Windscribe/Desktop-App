@@ -1,9 +1,10 @@
 #include "macspoofinggroup.h"
 
 #include <QPainter>
-#include <QMessageBox>
 #include "graphicresources/fontmanager.h"
 #include "graphicresources/imageresourcessvg.h"
+#include "generalmessagecontroller.h"
+#include "languagecontroller.h"
 #include "utils/logger.h"
 #include "dpiscalemanager.h"
 
@@ -14,23 +15,28 @@ MacSpoofingGroup::MacSpoofingGroup(ScalableGraphicsObject *parent, const QString
 {
     setFlags(flags() | QGraphicsItem::ItemClipsChildrenToShape);
 
-    checkBoxEnable_ = new CheckBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::CheckBoxItem", "MAC Spoofing"), "");
+    checkBoxEnable_ = new ToggleItem(this);
     checkBoxEnable_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/MAC_SPOOFING"));
-    connect(checkBoxEnable_, &CheckBoxItem::stateChanged, this, &MacSpoofingGroup::onCheckBoxStateChanged);
+    connect(checkBoxEnable_, &ToggleItem::stateChanged, this, &MacSpoofingGroup::onCheckBoxStateChanged);
     addItem(checkBoxEnable_);
 
-    macAddressItem_ = new MacAddressItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::MacAddressItem", "MAC Address"));
+    macAddressItem_ = new MacAddressItem(this);
     connect(macAddressItem_, &MacAddressItem::cycleMacAddressClick, this, &MacSpoofingGroup::onCycleMacAddressClick);
     addItem(macAddressItem_);
 
-    comboBoxInterface_ = new ComboBoxItem(this, tr("Interface"), "");
+    comboBoxInterface_ = new ComboBoxItem(this);
     comboBoxInterface_ ->setCaptionFont(FontDescr(12, false));
     connect(comboBoxInterface_, &ComboBoxItem::currentItemChanged, this, &MacSpoofingGroup::onInterfaceItemChanged);
     addItem(comboBoxInterface_);
 
-    autoRotateMacItem_ = new CheckBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::CheckBoxItem", "Auto-Rotate MAC"), "");
-    connect(autoRotateMacItem_, &CheckBoxItem::stateChanged, this, &MacSpoofingGroup::onAutoRotateMacStateChanged);
+    autoRotateMacItem_ = new ToggleItem(this);
+    connect(autoRotateMacItem_, &ToggleItem::stateChanged, this, &MacSpoofingGroup::onAutoRotateMacStateChanged);
     addItem(autoRotateMacItem_);
+
+    hideItems(indexOf(macAddressItem_), indexOf(autoRotateMacItem_), DISPLAY_FLAGS::FLAG_NO_ANIMATION);
+
+    connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &MacSpoofingGroup::onLanguageChanged);
+    onLanguageChanged();
 }
 
 void MacSpoofingGroup::setMacSpoofingSettings(const types::MacAddrSpoofing &macAddrSpoofing)
@@ -94,13 +100,33 @@ void MacSpoofingGroup::onCycleMacAddressClick()
         else
         {
             qCDebug(LOG_BASIC) << "Cannot spoof on 'No Interface'";
-            QMessageBox::information(nullptr, QString(tr("Cannot spooof on 'No Interface'")), QString(tr("You can only spoof an existing adapter.")));
+            GeneralMessageController::instance().showMessage(
+                "ERROR_ICON",
+                tr("Cannot spoof on 'No Interface'"),
+                tr("You can only spoof an existing adapter."),
+                GeneralMessageController::tr(GeneralMessageController::kOk),
+                "",
+                "",
+                std::function<void(bool)>(nullptr),
+                std::function<void(bool)>(nullptr),
+                std::function<void(bool)>(nullptr),
+                GeneralMessage::kFromPreferences);
         }
     }
     else
     {
         qCDebug(LOG_BASIC) << "Cannot spoof the current interface -- must match selected interface";
-        QMessageBox::information(nullptr, QString(tr("Cannot spooof the current interface")), QString(tr("The current primary interface must match the selected interface to spoof.")));
+        GeneralMessageController::instance().showMessage(
+            "ERROR_ICON",
+            tr("Cannot spoof the current interface"),
+            tr("The current primary interface must match the selected interface to spoof."),
+            GeneralMessageController::tr(GeneralMessageController::kOk),
+            "",
+            "",
+            std::function<void(bool)>(nullptr),
+            std::function<void(bool)>(nullptr),
+            std::function<void(bool)>(nullptr),
+            GeneralMessage::kFromPreferences);
     }
 }
 
@@ -111,7 +137,11 @@ void MacSpoofingGroup::updateMode()
         comboBoxInterface_->clear();
         for (int i = 0; i < settings_.networkInterfaces.size(); i++) {
             types::NetworkInterface interface = settings_.networkInterfaces[i];
-            comboBoxInterface_->addItem(interface.interfaceName, interface.interfaceIndex);
+            if (interface.interfaceName == "No Interface") {
+                comboBoxInterface_->addItem(tr("No Interface"), interface.interfaceIndex);
+            } else {
+                comboBoxInterface_->addItem(interface.interfaceName, interface.interfaceIndex);
+            }
 
             adapters += interface.interfaceName;
 
@@ -129,6 +159,15 @@ void MacSpoofingGroup::updateMode()
     else {
         hideItems(indexOf(macAddressItem_), size() - 1);
     }
+}
+
+void MacSpoofingGroup::onLanguageChanged()
+{
+    checkBoxEnable_->setCaption(tr("MAC Spoofing"));
+    macAddressItem_->setCaption(tr("MAC Address"));
+    comboBoxInterface_->setLabelCaption(tr("Interface"));
+    autoRotateMacItem_->setCaption(tr("Auto-Rotate MAC"));
+    updateMode();
 }
 
 } // namespace PreferencesWindow

@@ -127,7 +127,14 @@ void ProtocolLineItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
         QFont *font = FontManager::instance().getFont(12, false);
         painter->setFont(*font);
         painter->setOpacity(0.5);
-        painter->drawText(boundingRect().adjusted(kTextIndent*G_SCALE, kSecondLineY*G_SCALE, -40*G_SCALE, 0), desc_);
+
+        int availableWidth = boundingRect().width() - kTextIndent*G_SCALE - 40*G_SCALE;
+        QFontMetrics fm(*font);
+        QString elidedText = desc_;
+        if (availableWidth < fm.horizontalAdvance(desc_)) {
+            elidedText = fm.elidedText(desc_, Qt::ElideRight, availableWidth, 0);
+        }
+        painter->drawText(boundingRect().adjusted(kTextIndent*G_SCALE, kSecondLineY*G_SCALE, -40*G_SCALE, 0), elidedText);
     }
 
     // countdown banner
@@ -264,6 +271,12 @@ void ProtocolLineItem::hoverLeaveEvent(QGraphicsSceneHoverEvent* event)
 void ProtocolLineItem::onHoverValueChanged(const QVariant &value)
 {
     hoverValue_ = value.toDouble();
+    update();
+}
+
+void ProtocolLineItem::setDescription(const QString &desc)
+{
+    desc_ = desc;
     update();
 }
 

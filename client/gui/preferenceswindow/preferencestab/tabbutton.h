@@ -17,7 +17,7 @@ public:
         TAB_BUTTON_FULL_OPACITY = 1 // Always full opacity, retain original color
     };
 
-    explicit TabButton(ScalableGraphicsObject *parent, QString text, PREFERENCES_TAB_TYPE type, QString path, uint32_t flags = 0);
+    explicit TabButton(ScalableGraphicsObject *parent, PREFERENCES_TAB_TYPE type, QString path, uint32_t flags = 0);
 
     QRectF boundingRect() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;

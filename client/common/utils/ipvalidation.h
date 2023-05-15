@@ -10,9 +10,11 @@ public:
     static bool isDomain(const QString &str);
     static bool isIpOrDomain(const QString &str);
     static bool isIpCidrOrDomain(const QString &str);
+    static bool isCtrldCorrectAddress(const QString &str);
 
     static bool isValidIpForCidr(const QString &str);
     static bool isLocalIp(const QString &str);
+    static bool isValidHttpsUrl(const QString &str);
     static bool isWindscribeReservedIp(const QString &str);
     static QString getRemoteIdFromDomain(const QString &str);
 

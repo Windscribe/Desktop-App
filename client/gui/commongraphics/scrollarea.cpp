@@ -77,6 +77,11 @@ void ScrollArea::setItem(BasePage *item)
     updateScrollBarByHeight();
 }
 
+BasePage *ScrollArea::item()
+{
+    return curItem_;
+}
+
 double ScrollArea::screenFraction()
 {
     double screenFraction = 1;
@@ -127,9 +132,26 @@ void ScrollArea::onPageHeightChange(int newHeight)
     updateScrollBarByHeight();
 }
 
-void ScrollArea::setScrollPos(int amt)
+void ScrollArea::setScrollOffset(int amt)
 {
     curItem_->setY(curItem_->y() + amt*G_SCALE);
+    scrollBar_->setValueWithoutAnimation(-curItem_->y());
+    update();
+}
+
+
+void ScrollArea::setScrollPos(int pos)
+{
+    int lowestY = height_ - static_cast<int>(curItem_->boundingRect().height());
+    if (pos > lowestY) {
+        pos = lowestY;
+    }
+    if (pos < 0) {
+        pos = 0;
+    }
+
+    curItem_->setY(pos);
+    scrollBar_->setValueWithoutAnimation(-curItem_->y());
     update();
 }
 

@@ -67,3 +67,4 @@ elseif(UNIX)
     )
 endif()
 
+add_subdirectory(ctrldmanager)

@@ -19,9 +19,12 @@ public:
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
     void setItem(BasePage *item);
+    BasePage *item();
 
     void setHeight(int height);
-    void setScrollPos(int amt);
+    int scrollPos();
+    void setScrollPos(int pos);
+    void setScrollOffset(int amt);
 
     void setScrollBarVisibility(bool on);
 

@@ -1,6 +1,5 @@
 #include "locationstab.h"
 
-#include <QMessageBox>
 #include <QPainter>
 #include <QtMath>
 
@@ -8,6 +7,7 @@
 #include "commongraphics/commongraphics.h"
 #include "graphicresources/fontmanager.h"
 #include "dpiscalemanager.h"
+#include "languagecontroller.h"
 #include "tooltips/tooltiptypes.h"
 #include "tooltips/tooltipcontroller.h"
 #include "utils/ws_assert.h"
@@ -75,7 +75,6 @@ LocationsTab::LocationsTab(QWidget *parent, Preferences *preferences, gui_locati
     connect(viewAllLocations, &gui_locations::LocationsView::selected, this, &LocationsTab::onLocationSelected);
     connect(viewAllLocations, &gui_locations::LocationsView::clickedOnPremiumStarCity, this, &LocationsTab::onClickedOnPremiumStarCity);
     EmptyListWidget *emptyListWidgetAllLocations = new EmptyListWidget(this);
-    emptyListWidgetAllLocations->setText(tr("No locations"), 120);
     widgetAllLocations_ = new WidgetSwitcher(this, viewAllLocations, emptyListWidgetAllLocations);
 
     // custom configs
@@ -96,8 +95,6 @@ LocationsTab::LocationsTab(QWidget *parent, Preferences *preferences, gui_locati
     connect(viewStaticIpsLocations_, &gui_locations::LocationsView::clickedOnPremiumStarCity, this, &LocationsTab::onClickedOnPremiumStarCity);
     EmptyListWidget *emptyListWidgetStaticIps = new EmptyListWidget(this);
     emptyListWidgetStaticIps->setIcon("locations/STATIC_IP_ICON_BIG");
-    emptyListWidgetStaticIps->setText(tr("You don't have any Static IPs"), 120);
-    emptyListWidgetStaticIps->setButton(tr("Buy"));
     emptyListWidgetStaticIps->hide();
     connect(emptyListWidgetStaticIps, &EmptyListWidget::clicked, [this]() {
         emit addStaticIpClicked();
@@ -114,7 +111,6 @@ LocationsTab::LocationsTab(QWidget *parent, Preferences *preferences, gui_locati
     connect(viewFavoriteLocations_, &gui_locations::LocationsView::clickedOnPremiumStarCity, this, &LocationsTab::onClickedOnPremiumStarCity);
     EmptyListWidget *emptyListWidgetFavorites = new EmptyListWidget(this);
     emptyListWidgetFavorites->setIcon("locations/BROKEN_HEART_ICON");
-    emptyListWidgetFavorites->setText(tr("Nothing to see here..."), 120);
     widgetFavoriteLocations_ = new WidgetSwitcher(this, viewFavoriteLocations_, emptyListWidgetFavorites);
     widgetFavoriteLocations_->hide();
 
@@ -123,7 +119,6 @@ LocationsTab::LocationsTab(QWidget *parent, Preferences *preferences, gui_locati
     connect(viewSearchLocations, &gui_locations::LocationsView::selected, this, &LocationsTab::onLocationSelected);
     connect(viewSearchLocations, &gui_locations::LocationsView::clickedOnPremiumStarCity, this, &LocationsTab::onClickedOnPremiumStarCity);
     EmptyListWidget *emptyListWidgetSearchLocations = new EmptyListWidget(this);
-    emptyListWidgetSearchLocations->setText(tr("No locations found"), 120);
     widgetSearchLocations_ = new WidgetSwitcher(this, viewSearchLocations, emptyListWidgetSearchLocations);
     widgetSearchLocations_->hide();
 
@@ -150,6 +145,9 @@ LocationsTab::LocationsTab(QWidget *parent, Preferences *preferences, gui_locati
 
     connect(locationsModelManager, SIGNAL(deviceNameChanged(QString)), SLOT(onDeviceNameChanged(QString)));
     updateCustomConfigsEmptyListVisibility();
+
+    connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &LocationsTab::onLanguageChanged);
+    onLanguageChanged();
 }
 
 void LocationsTab::setCountVisibleItemSlots(int cnt)
@@ -212,25 +210,25 @@ void LocationsTab::mouseMoveEvent(QMouseEvent *event)
             {
                 curTabMouseOver_ = LOCATION_TAB_ALL_LOCATIONS;
                 setPointingHandCursor();
-                rectHoverEnter(rcAllLocationsIcon_, QT_TRANSLATE_NOOP("CommonWidgets::ToolTipWidget", "All"), 8 * G_SCALE, -5 * G_SCALE);
+                rectHoverEnter(rcAllLocationsIcon_, tr("All"), 8 * G_SCALE, -5 * G_SCALE);
             }
             else if (rcConfiguredLocationsIcon_.adjusted(-addMargin, -addMargin, addMargin, addMargin).contains(pt))
             {
                 curTabMouseOver_ = LOCATION_TAB_CONFIGURED_LOCATIONS;
                 setPointingHandCursor();
-                rectHoverEnter(rcConfiguredLocationsIcon_, QT_TRANSLATE_NOOP("CommonWidgets::ToolTipWidget", "Configured"), 9 * G_SCALE, -5 * G_SCALE);
+                rectHoverEnter(rcConfiguredLocationsIcon_, tr("Configured"), 9 * G_SCALE, -5 * G_SCALE);
             }
             else if (rcStaticIpsLocationsIcon_.adjusted(-addMargin, -addMargin, addMargin, addMargin).contains(pt))
             {
                 curTabMouseOver_ = LOCATION_TAB_STATIC_IPS_LOCATIONS;
                 setPointingHandCursor();
-                rectHoverEnter(rcStaticIpsLocationsIcon_, QT_TRANSLATE_NOOP("CommonWidgets::ToolTipWidget", "Static IPs"), 8 * G_SCALE, -5 * G_SCALE);
+                rectHoverEnter(rcStaticIpsLocationsIcon_, tr("Static IPs"), 8 * G_SCALE, -5 * G_SCALE);
             }
             else if (rcFavoriteLocationsIcon_.adjusted(-addMargin, -addMargin, addMargin, addMargin).contains(pt))
             {
                 curTabMouseOver_ = LOCATION_TAB_FAVORITE_LOCATIONS;
                 setPointingHandCursor();
-                rectHoverEnter(rcFavoriteLocationsIcon_, QT_TRANSLATE_NOOP("CommonWidgets::ToolTipWidget", "Favourites"), 8 * G_SCALE, -5 * G_SCALE);
+                rectHoverEnter(rcFavoriteLocationsIcon_, tr("Favourites"), 8 * G_SCALE, -5 * G_SCALE);
             }
             else
             {
@@ -990,6 +988,20 @@ void LocationsTab::onAppSkinChanged(APP_SKIN s)
     Q_UNUSED(s);
     updateScaling();
     updateIconRectsAndLine();
+}
+
+void LocationsTab::onLanguageChanged()
+{
+    widgetSearchLocations_->emptyListWidget()->setText(tr("No locations found"), 120);
+    widgetFavoriteLocations_->emptyListWidget()->setText(tr("Nothing to see here..."), 120);
+    widgetStaticIpsLocations_->emptyListWidget()->setText(tr("You don't have any Static IPs"), 120);
+    widgetAllLocations_->emptyListWidget()->setText(tr("No locations"), 120);
+    // Delete old button first
+    widgetStaticIpsLocations_->emptyListWidget()->setButton("");
+    widgetConfiguredLocations_->emptyListWidget()->setButton("");
+    // Set new buttons
+    widgetStaticIpsLocations_->emptyListWidget()->setButton(tr("Buy"));
+    updateCustomConfigsEmptyListVisibility();
 }
 
 } // namespace GuiLocations

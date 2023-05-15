@@ -315,7 +315,7 @@ void EmergencyController::onConnectionError(CONNECT_ERROR err)
 
 void EmergencyController::doConnect()
 {
-    defaultAdapterInfo_ = AdapterGatewayInfo::detectAndCreateDefaultAdaperInfo();
+    defaultAdapterInfo_ = AdapterGatewayInfo::detectAndCreateDefaultAdapterInfo();
     qCDebug(LOG_CONNECTION) << "Default adapter and gateway:" << defaultAdapterInfo_.makeLogString();
 
     WS_ASSERT(!attempts_.empty());
@@ -347,7 +347,7 @@ void EmergencyController::doConnect()
     }
 
 
-    bool bOvpnSuccess = makeOVPNFile_->generate(ovpnConfig_, attempt.ip, types::Protocol::fromString(attempt.protocol), attempt.port, 0, mss, defaultAdapterInfo_.gateway(), "");
+    bool bOvpnSuccess = makeOVPNFile_->generate(ovpnConfig_, attempt.ip, types::Protocol::fromString(attempt.protocol), attempt.port, 0, mss, defaultAdapterInfo_.gateway(), "", "");
     if (!bOvpnSuccess )
     {
         qCDebug(LOG_EMERGENCY_CONNECT) << "Failed create ovpn config";
@@ -358,7 +358,7 @@ void EmergencyController::doConnect()
     qCDebug(LOG_EMERGENCY_CONNECT) << "Connecting to IP:" << attempt.ip << " protocol:" << attempt.protocol << " port:" << attempt.port;
     DgaLibrary dga;
     if (dga.load()) {
-        connector_->startConnect(makeOVPNFile_->config(), "", "", dga.getParameter(PAR_EMERGENCY_USERNAME), dga.getParameter(PAR_EMERGENCY_PASSWORD), proxySettings_, nullptr, false, false, false);
+        connector_->startConnect(makeOVPNFile_->config(), "", "", dga.getParameter(PAR_EMERGENCY_USERNAME), dga.getParameter(PAR_EMERGENCY_PASSWORD), proxySettings_, nullptr, false, false, false, QString());
         lastIp_ = attempt.ip;
     } else {
         qCDebug(LOG_EMERGENCY_CONNECT) << "No dga found";

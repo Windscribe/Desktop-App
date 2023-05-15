@@ -41,6 +41,8 @@ private:
         bool isStaticIpPortsEmpty;
     };
 
+    QStringList awdl_p2p_interfaces_;
+
     bool isFirewallEnabled_;
     QSet<QString> windscribeIps_;
     QString interfaceToSkip_;

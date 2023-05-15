@@ -3,7 +3,6 @@
 #include <QPainter>
 #include "graphicresources/imageresourcessvg.h"
 #include "languagecontroller.h"
-#include "networkoptionsshared.h"
 #include "preferenceswindow/preferencegroup.h"
 #include "utils/logger.h"
 
@@ -14,30 +13,32 @@ NetworkOptionsNetworkWindowItem::NetworkOptionsNetworkWindowItem(ScalableGraphic
 {
     setSpacerHeight(PREFERENCES_MARGIN);
 
-    autoSecureGroup_ = new PreferenceGroup(this, tr("Windscribe auto-connects if the device connects to this network."), "");
-    autoSecureCheckBox_ = new CheckBoxItem(autoSecureGroup_, tr("Auto-Secure"), QString());
+    autoSecureGroup_ = new PreferenceGroup(this);
+    autoSecureCheckBox_ = new ToggleItem(autoSecureGroup_);
     autoSecureCheckBox_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/AUTOSECURE"));
-    connect(autoSecureCheckBox_, &CheckBoxItem::stateChanged, this, &NetworkOptionsNetworkWindowItem::onAutoSecureChanged);
+    connect(autoSecureCheckBox_, &ToggleItem::stateChanged, this, &NetworkOptionsNetworkWindowItem::onAutoSecureChanged);
     autoSecureGroup_->addItem(autoSecureCheckBox_);
     addItem(autoSecureGroup_);
 
     preferredProtocolGroup_ = new ProtocolGroup(this,
                                                 preferencesHelper,
-                                                tr("Preferred Protocol"),
+                                                "",
                                                 "preferences/PREFERRED_PROTOCOL",
                                                 ProtocolGroup::SelectionType::TOGGLE_SWITCH,
-                                                tr("Choose whether to connect using the recommended tunneling protocol, or to specify a protocol of your choice."), "");
+                                                "");
     connect(preferredProtocolGroup_, &ProtocolGroup::connectionModePreferencesChanged, this, &NetworkOptionsNetworkWindowItem::onPreferredProtocolChanged);
     addItem(preferredProtocolGroup_);
 
     forgetGroup_ = new PreferenceGroup(this);
-    forgetItem_ = new LinkItem(forgetGroup_, LinkItem::LinkType::BLANK_LINK, tr("Forget Network"));
+    forgetItem_ = new LinkItem(forgetGroup_, LinkItem::LinkType::BLANK_LINK);
     forgetGroup_->addItem(forgetItem_);
     addItem(forgetGroup_);
     connect(forgetItem_, &LinkItem::clicked, this, &NetworkOptionsNetworkWindowItem::onForgetClicked);
 
-    //connect(&LanguageController::instance(), &LanguageController::languageChanged(), this, &NetworkOptionsNetworkWindowItem::onLanguageChanged);
     connect(preferences, &Preferences::networkWhiteListChanged, this, &NetworkOptionsNetworkWindowItem::onNetworkWhitelistChanged);
+
+    connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &NetworkOptionsNetworkWindowItem::onLanguageChanged);
+    onLanguageChanged();
 }
 
 void NetworkOptionsNetworkWindowItem::setNetwork(types::NetworkInterface network)
@@ -115,6 +116,20 @@ void NetworkOptionsNetworkWindowItem::updateForgetGroup()
 void NetworkOptionsNetworkWindowItem::onPreferredProtocolChanged(const types::ConnectionSettings &settings)
 {
     preferences_->setNetworkPreferredProtocol(network_.networkOrSsid, settings);
+}
+
+QString NetworkOptionsNetworkWindowItem::caption() const
+{
+    return network_.networkOrSsid;
+}
+
+void NetworkOptionsNetworkWindowItem::onLanguageChanged()
+{
+    autoSecureGroup_->setDescription(tr("Windscribe auto-connects if the device connects to this network."));
+    autoSecureCheckBox_->setCaption(tr("Auto-Secure"));
+    preferredProtocolGroup_->setTitle(tr("Preferred Protocol"));
+    preferredProtocolGroup_->setDescription(tr("Choose whether to connect using the recommended tunneling protocol, or to specify a protocol of your choice."));
+    forgetItem_->setTitle(tr("Forget Network"));
 }
 
 } // namespace PreferencesWindow

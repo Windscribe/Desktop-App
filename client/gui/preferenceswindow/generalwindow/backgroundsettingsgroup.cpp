@@ -3,6 +3,7 @@
 #include <QPainter>
 
 #include "graphicresources/imageresourcessvg.h"
+#include "languagecontroller.h"
 
 namespace PreferencesWindow {
 
@@ -11,28 +12,36 @@ BackgroundSettingsGroup::BackgroundSettingsGroup(ScalableGraphicsObject *parent,
 {
     setFlags(flags() | QGraphicsItem::ItemIsFocusable);
 
-    comboBoxMode_ = new ComboBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::BackgroundSettingsGroup", "Background"), "");
-    comboBoxMode_->addItem(tr("Country Flags"), BACKGROUND_TYPE_COUNTRY_FLAGS);
-    comboBoxMode_->addItem(tr("None"), BACKGROUND_TYPE_NONE);
-    comboBoxMode_->addItem(tr("Custom"), BACKGROUND_TYPE_CUSTOM);
+    comboBoxMode_ = new ComboBoxItem(this);
     comboBoxMode_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/APP_BACKGROUND"));
-    comboBoxMode_->setCurrentItem(BACKGROUND_TYPE_COUNTRY_FLAGS);
     connect(comboBoxMode_, &ComboBoxItem::currentItemChanged, this, &BackgroundSettingsGroup::onBackgroundModeChanged);
     addItem(comboBoxMode_);
 
     imageItemDisconnected_ = new SelectImageItem(this, tr("Disconnected"));
     connect(imageItemDisconnected_, &SelectImageItem::pathChanged, this, &BackgroundSettingsGroup::onDisconnectedPathChanged);
     addItem(imageItemDisconnected_);
-    hideItems(indexOf(imageItemDisconnected_), -1, DISPLAY_FLAGS::FLAG_NO_ANIMATION);
 
     imageItemConnected_ = new SelectImageItem(this, tr("Connected"));
     connect(imageItemConnected_, &SelectImageItem::pathChanged, this, &BackgroundSettingsGroup::onConnectedPathChanged);
     addItem(imageItemConnected_);
-    hideItems(indexOf(imageItemConnected_), -1, DISPLAY_FLAGS::FLAG_NO_ANIMATION);
+
+    hideItems(indexOf(imageItemDisconnected_), indexOf(imageItemConnected_), DISPLAY_FLAGS::FLAG_NO_ANIMATION);
+
+    connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &BackgroundSettingsGroup::onLanguageChanged);
+    onLanguageChanged();
 }
 
 void BackgroundSettingsGroup::onLanguageChanged()
 {
+    comboBoxMode_->setLabelCaption(tr("Background"));
+    QList<QPair<QString, QVariant>> list;
+    list << qMakePair(tr("Country Flags"), BACKGROUND_TYPE_COUNTRY_FLAGS);
+    list << qMakePair(tr("None"), BACKGROUND_TYPE_NONE);
+    list << qMakePair(tr("Custom"), BACKGROUND_TYPE_CUSTOM);
+    comboBoxMode_->setItems(list, settings_.backgroundType);
+
+    imageItemDisconnected_->setCaption(tr("Disconnected"));
+    imageItemConnected_->setCaption(tr("Connected"));
 }
 
 void BackgroundSettingsGroup::onDisconnectedPathChanged(const QString &path)

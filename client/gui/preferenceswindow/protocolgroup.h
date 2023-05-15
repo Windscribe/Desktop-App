@@ -5,7 +5,7 @@
 #include "backend/preferences/preferences.h"
 #include "backend/preferences/preferenceshelper.h"
 #include "commongraphics/scalablegraphicsobject.h"
-#include "preferenceswindow/checkboxitem.h"
+#include "preferenceswindow/toggleitem.h"
 #include "preferenceswindow/comboboxitem.h"
 #include "preferenceswindow/preferencegroup.h"
 
@@ -29,6 +29,7 @@ public:
                            const QString &descUrl = "");
 
     void setConnectionSettings(const types::ConnectionSettings &cm);
+    void setTitle(const QString &title);
 
 signals:
     void connectionModePreferencesChanged(const types::ConnectionSettings &settings);
@@ -39,6 +40,7 @@ private slots:
     void onCheckBoxStateChanged(bool isChecked);
     void onProtocolChanged(QVariant value);
     void onPortChanged(QVariant value);
+    void onLanguageChanged();
 
 private:
     void updatePositions();
@@ -46,8 +48,9 @@ private:
     void updateMode();
     PreferencesHelper *preferencesHelper_;
 
+    QString title_;
     ComboBoxItem *connectionModeItem_;
-    CheckBoxItem *checkBoxEnable_;
+    ToggleItem *checkBoxEnable_;
     ComboBoxItem *protocolItem_;
     ComboBoxItem *portItem_;
 

@@ -5,8 +5,7 @@
 #include <QEvent>
 #include "../backend/backend.h"
 #include "emergencyconnectwindow/iemergencyconnectwindow.h"
-#include "commongraphics/bubblebuttonbright.h"
-#include "commongraphics/bubblebuttondark.h"
+#include "commongraphics/bubblebutton.h"
 #include "commongraphics/escapebutton.h"
 #include "commongraphics/iconbutton.h"
 #include "textlinkbutton.h"
@@ -79,8 +78,8 @@ private:
 
     QString curSubDescription_;
 
-    CommonGraphics::BubbleButtonDark *connectButton_;
-    CommonGraphics::BubbleButtonBright *disconnectButton_;
+    CommonGraphics::BubbleButton *connectButton_;
+    CommonGraphics::BubbleButton *disconnectButton_;
 
     CommonGraphics::EscapeButton *escButton_;
     TextLinkButton *textLinkButton_;
@@ -129,9 +128,6 @@ private:
     static constexpr int DISCONNECT_BUTTON_POS_Y = 233;
 
     static constexpr int TARGET_ROTATION = 360;
-
-    const QString CONNECTING_STRING = QT_TR_NOOP("Connecting...");
-
 };
 
 }

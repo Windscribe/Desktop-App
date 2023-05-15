@@ -209,6 +209,17 @@ bool Helper_win::sendConnectStatus(bool isConnected, bool isTerminateSocket, boo
     cmd.isTerminateSocket = isTerminateSocket;
     cmd.isKeepLocalSocket = isKeepLocalSocket;
 
+    auto fillAdapterInfo = [](const AdapterGatewayInfo &a, ADAPTER_GATEWAY_INFO &out) {
+        out.adapterName = a.adapterName().toStdString();
+        out.adapterIp = a.adapterIp().toStdString();
+        out.gatewayIp = a.gateway().toStdString();
+        out.ifIndex = a.ifIndex();
+        const QStringList dns = a.dnsServers();
+        for(auto ip : dns) {
+            out.dnsServers.push_back(ip.toStdString());
+        }
+    };
+
     if (isConnected) {
         if (protocol.isStunnelOrWStunnelProtocol()) {
             cmd.protocol = CMD_PROTOCOL_STUNNEL_OR_WSTUNNEL;
@@ -226,25 +237,13 @@ bool Helper_win::sendConnectStatus(bool isConnected, bool isTerminateSocket, boo
             WS_ASSERT(false);
         }
 
-        auto fillAdapterInfo = [](const AdapterGatewayInfo &a, ADAPTER_GATEWAY_INFO &out)
-        {
-            out.adapterName = a.adapterName().toStdString();
-            out.adapterIp = a.adapterIp().toStdString();
-            out.gatewayIp = a.gateway().toStdString();
-            out.ifIndex = a.ifIndex();
-            const QStringList dns = a.dnsServers();
-            for(auto ip : dns)
-            {
-                out.dnsServers.push_back(ip.toStdString());
-            }
-        };
-
-        fillAdapterInfo(defaultAdapter, cmd.defaultAdapter);
         fillAdapterInfo(vpnAdapter, cmd.vpnAdapter);
 
         cmd.connectedIp = connectedIp.toStdString();
         cmd.remoteIp = vpnAdapter.remoteIp().toStdString();
     }
+
+    fillAdapterInfo(defaultAdapter, cmd.defaultAdapter);
 
     std::stringstream stream;
     boost::archive::text_oarchive oa(stream, boost::archive::no_header);
@@ -254,10 +253,8 @@ bool Helper_win::sendConnectStatus(bool isConnected, bool isTerminateSocket, boo
     return mpr.success;
 }
 
-bool Helper_win::setCustomDnsWhileConnected(bool isIkev2, unsigned long ifIndex, const QString &overrideDnsIpAddress)
+bool Helper_win::setCustomDnsWhileConnected(unsigned long ifIndex, const QString &overrideDnsIpAddress)
 {
-    Q_UNUSED(isIkev2)
-
     QMutexLocker locker(&mutex_);
 
     CMD_CONNECTED_DNS cmd;
@@ -345,6 +342,18 @@ void Helper_win::setDefaultWireGuardDeviceName(const QString & /*deviceName*/)
     // Nothing to do.
 }
 
+IHelper::ExecuteError Helper_win::startCtrld(const QString &exeName, const QString &parameters)
+{
+    // Nothing to do.
+    return IHelper::EXECUTE_SUCCESS;
+}
+
+bool Helper_win::stopCtrld()
+{
+    // Nothing to do.
+    return true;
+}
+
 bool Helper_win::isHelperConnected() const
 {
     return curState_ == STATE_CONNECTED;
@@ -355,7 +364,7 @@ IHelper::ExecuteError Helper_win::executeOpenVPN(const QString &config, unsigned
     QMutexLocker locker(&mutex_);
 
     // check openvpn executable signature
-    QString openVpnExePath = QCoreApplication::applicationDirPath() + "/" + OpenVpnVersionController::instance().getSelectedOpenVpnExecutable();
+    QString openVpnExePath = OpenVpnVersionController::instance().getOpenVpnFilePath();
     ExecutableSignature sigCheck;
     if (!sigCheck.verify(openVpnExePath.toStdWString()))
     {
@@ -364,7 +373,7 @@ IHelper::ExecuteError Helper_win::executeOpenVPN(const QString &config, unsigned
     }
 
     CMD_RUN_OPENVPN cmdRunOpenVpn;
-    cmdRunOpenVpn.szOpenVpnExecutable = OpenVpnVersionController::instance().getSelectedOpenVpnExecutable().toStdWString();
+    cmdRunOpenVpn.szOpenVpnExecutable = OpenVpnVersionController::instance().getOpenVpnFileName().toStdWString();
     cmdRunOpenVpn.szConfig = config.toStdWString();
     cmdRunOpenVpn.portNumber = portNumber;
     cmdRunOpenVpn.szHttpProxy = httpProxy.toStdWString();

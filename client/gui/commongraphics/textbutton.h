@@ -1,5 +1,4 @@
-#ifndef TEXTBUTTON_H
-#define TEXTBUTTON_H
+#pragma once
 
 #include <QGraphicsObject>
 #include <QVariantAnimation>
@@ -27,6 +26,8 @@ public:
     void quickHide();
     void animateShow(int animationSpeed);
     void animateHide(int animationSpeed);
+
+    void hover();
     void unhover();
 
     QFont getFont() const;
@@ -42,6 +43,10 @@ public:
     void recalcBoundingRect();
 
     void setTextAlignment(int alignment);
+    void setUnderline(bool on);
+    void setUnhoverOnClick(bool on);
+
+    void setMaxWidth(int width);
 
 protected:
     void mouseReleaseEvent(QGraphicsSceneMouseEvent *event) override;
@@ -62,6 +67,7 @@ private:
     int height_;
     int addWidth_;   // HACK - allows full displaying of text in Upgrade Widget
     int margin_;
+    int maxWidth_ = 0;
 
     double curTextOpacity_;
     QVariantAnimation textOpacityAnimation_;
@@ -70,7 +76,9 @@ private:
     bool isHovered_;
 
     int textAlignment_;
+    bool textUnderline_;
+
+    bool unhoverOnClick_;
 };
 
 }
-#endif // TEXTBUTTON_H

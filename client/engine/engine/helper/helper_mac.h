@@ -15,8 +15,6 @@ public:
     bool reinstallHelper() override;
     QString getHelperVersion() override;
 
-    bool setCustomDnsWhileConnected(bool isIkev2, unsigned long ifIndex, const QString &overrideDnsIpAddress) override;
-
     // Mac specific functions
     bool setMacAddress(const QString &interface, const QString &macAddress, bool robustMethod);
     bool enableMacSpoofingOnBoot(bool bEnable, const QString &interfaceName, const QString &macAddress, bool robustMethod);

@@ -17,8 +17,7 @@
 #include "overlaysconnectwindow/iupdateappitem.h"
 #include "overlaysconnectwindow/iupgradewindow.h"
 #include "overlaysconnectwindow/iupdatewindow.h"
-#include "overlaysconnectwindow/igeneralmessagewindow.h"
-#include "overlaysconnectwindow/igeneralmessagetwobuttonwindow.h"
+#include "generalmessage/generalmessagewindowitem.h"
 #include "newsfeedwindow/inewsfeedwindow.h"
 #include "protocolwindow/iprotocolwindow.h"
 #include "externalconfig/iexternalconfigwindow.h"
@@ -37,11 +36,12 @@ class MainWindowController : public QObject
 public:
     enum WINDOW_ID {
         // use this consts in changeWindow(...)
-        WINDOW_ID_UNITIALIZED,
+        WINDOW_ID_UNINITIALIZED,
         WINDOW_ID_INITIALIZATION,
         WINDOW_ID_LOGIN,
         WINDOW_ID_LOGGING_IN,
         WINDOW_ID_CONNECT,
+        WINDOW_ID_CONNECT_PREFERENCES,
         WINDOW_ID_EMERGENCY,
         WINDOW_ID_EXTERNAL_CONFIG,
         WINDOW_ID_TWO_FACTOR_AUTH,
@@ -49,7 +49,9 @@ public:
         WINDOW_ID_UPGRADE,
         WINDOW_ID_GENERAL_MESSAGE,
         WINDOW_ID_EXIT,
+        WINDOW_ID_LOGOUT,
         WINDOW_CMD_CLOSE_EXIT,
+        WINDOW_CMD_CLOSE_EXIT_FROM_PREFS,
         // internal states
         WINDOW_CMD_UPDATE_BOTTOM_INFO
     };
@@ -106,7 +108,8 @@ public:
     IUpdateWindow *getUpdateWindow() { return updateWindow_; }
     IUpgradeWindow *getUpgradeWindow() { return upgradeAccountWindow_; }
     IGeneralMessageWindow *getGeneralMessageWindow() { return generalMessageWindow_; }
-    IGeneralMessageTwoButtonWindow *getExitWindow() { return exitWindow_; }
+    IGeneralMessageWindow *getExitWindow() { return exitWindow_; }
+    IGeneralMessageWindow *getLogoutWindow() { return logoutWindow_; }
     QWidget *getLocationsWindow() { return locationsWindow_; }
 
     void hideLocationsWindow();
@@ -151,6 +154,7 @@ private slots:
     void onAppSkinChanged(APP_SKIN s);
     void onVanGoghAnimationProgressChanged(QVariant value);
     void onVanGoghAnimationFinished();
+    void onLanguageChanged();
 
 private:
     WINDOW_ID curWindow_;
@@ -178,15 +182,18 @@ private:
     INewsFeedWindow *newsFeedWindow_;
     IProtocolWindow *protocolWindow_;
     IBottomInfoItem *bottomInfoWindow_;
-    IGeneralMessageWindow *generalMessageWindow_;
     IUpdateAppItem *updateAppItem_;
-    IGeneralMessageTwoButtonWindow *exitWindow_;
+    IGeneralMessageWindow *generalMessageWindow_;
+    IGeneralMessageWindow *exitWindow_;
+    IGeneralMessageWindow *logoutWindow_;
 
     LocationsWindow *locationsWindow_;
 
-    QString CLOSING_WINDSCRIBE;
-    QString CLOSE_ACCEPT;
-    QString CLOSE_REJECT;
+    const char *kQuitTitle = QT_TR_NOOP("Quit Windscribe?");
+    const char *kLogOutTitle = QT_TR_NOOP("Log Out of Windscribe?");
+    const char *kQuit = QT_TR_NOOP("Quit");
+    const char *kLogOut = QT_TR_NOOP("Log Out");
+    const char *kCancel = QT_TR_NOOP("Cancel");
 
     static constexpr int LOCATIONS_WINDOW_TOP_OFFS = 27;
     static constexpr int LOCATIONS_WINDOW_WIDTH = WINDOW_WIDTH;
@@ -226,15 +233,15 @@ private:
     void gotoLoginWindow();
     void gotoEmergencyWindow();
     void gotoLoggingInWindow();
-    void gotoConnectWindow();
+    void gotoConnectWindow(bool expandPrefs);
     void gotoNotificationsWindow();
     void gotoExternalConfigWindow();
     void gotoTwoFactorAuthWindow();
     void gotoUpdateWindow();
     void gotoUpgradeWindow();
     void gotoGeneralMessageWindow();
-    void gotoExitWindow();
-    void closeExitWindow();
+    void gotoExitWindow(bool isLogout);
+    void closeExitWindow(bool fromPrefs);
 
     void expandPreferencesFromLogin();
     void collapsePreferencesFromLogin();
@@ -273,7 +280,7 @@ private:
 
     qreal locationsShadowOpacity_;
 
-    int childWindowShadowOffsetY();
+    int childWindowShadowOffsetY(bool withVanGoghOffset);
     int initWindowInitHeight_;
 
     int locationsYOffset();

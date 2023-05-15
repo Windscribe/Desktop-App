@@ -6,9 +6,7 @@ PreferencesHelper::PreferencesHelper(QObject *parent) : QObject(parent),
     isWifiSharingSupported_(true), bIpv6StateInOS_(true), isFirewallBlocked_(false),
     isDockedToTray_(false), isExternalConfigMode_(false)
 {
-    availableLanguageCodes_ << "en" ; // << "en_nsfw" << "ru" << "ar" << "es" << "fr" << "hu" << "it" << "ja" << "ko" << "nl" <<
-                            // "zh" << "de" << "pl" << "tr" << "cs" << "da" << "el" << "pt" << "sk" << "th" << "vi" << "sv" <<
-                            // "id" << "hi" << "hr";
+    availableLanguageCodes_ << "ar" << "de" << "en" << "es" << "fr" << "hi" << "ru" << "zh";
 }
 
 QString PreferencesHelper::buildVersion()
@@ -16,11 +14,10 @@ QString PreferencesHelper::buildVersion()
     return AppVersion::instance().fullVersionString();
 }
 
-QList<QPair<QString, QString> > PreferencesHelper::availableLanguages() const
+QList<QPair<QString, QVariant>> PreferencesHelper::availableLanguages() const
 {
-    QList<QPair<QString, QString> > pairs;
-    for (const QString &lang : availableLanguageCodes_)
-    {
+    QList<QPair<QString, QVariant>> pairs;
+    for (const QString &lang : availableLanguageCodes_) {
         pairs << QPair<QString, QString>(LanguagesUtil::convertCodeToNative(lang), lang);
     }
 
@@ -39,20 +36,6 @@ void PreferencesHelper::setProxyGatewayAddress(const QString &address)
 QString PreferencesHelper::getProxyGatewayAddress() const
 {
     return proxyGatewayAddress_;
-}
-
-void PreferencesHelper::setAvailableOpenVpnVersions(const QStringList &list)
-{
-    if (list != availableOpenVpnVersions_)
-    {
-        availableOpenVpnVersions_ = list;
-        emit availableOpenVpnVersionsChanged(availableOpenVpnVersions_);
-    }
-}
-
-QStringList PreferencesHelper::getAvailableOpenVpnVersions()
-{
-    return availableOpenVpnVersions_;
 }
 
 QVector<TAP_ADAPTER_TYPE> PreferencesHelper::getAvailableTapAdapters(const QString & /*openVpnVersion*/)

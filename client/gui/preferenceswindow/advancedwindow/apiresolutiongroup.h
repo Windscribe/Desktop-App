@@ -4,7 +4,7 @@
 #include "commongraphics/baseitem.h"
 
 #include <QVariantAnimation>
-#include "preferenceswindow/checkboxitem.h"
+#include "preferenceswindow/toggleitem.h"
 #include "preferenceswindow/editboxitem.h"
 #include "preferenceswindow/preferencegroup.h"
 #include "types/apiresolutionsettings.h"
@@ -28,6 +28,7 @@ signals:
 private slots:
     void onAutomaticChanged(QVariant value);
     void onAddressChanged(const QString &text);
+    void onLanguageChanged();
 
 private:
     void updateMode();

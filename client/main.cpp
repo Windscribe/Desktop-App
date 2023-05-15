@@ -1,8 +1,11 @@
 #include "gui/mainwindow.h"
+
 #include <QApplication>
+#include <QFileInfo>
+#include <QMessageBox>
 #include <QScreen>
 #include <QWindow>
-#include <QMessageBox>
+
 #include "gui/dpiscalemanager.h"
 #include "utils/logger.h"
 #include "utils/utils.h"
@@ -162,18 +165,10 @@ int main(int argc, char *argv[])
     InstalledAntiviruses_win::outToLog();
 #endif
 
-    QStringList strs = OpenVpnVersionController::instance().getAvailableOpenVpnVersions();
-    if (strs.count() > 0)
-    {
-        qCDebug(LOG_BASIC) << "Detected OpenVPN versions:" << strs;
-        qCDebug(LOG_BASIC) << "Selected OpenVPN version:" << OpenVpnVersionController::instance().getSelectedOpenVpnVersion();
-    }
-    else
-    {
-        qCDebug(LOG_BASIC) << "OpenVPN executables not found";
+    if (!QFileInfo::exists(OpenVpnVersionController::instance().getOpenVpnFilePath())) {
+        qCDebug(LOG_BASIC) << "OpenVPN executable not found";
         return 0;
     }
-
 
 #ifdef Q_OS_WIN
     QVector<TapInstall_win::TAP_TYPE> tapAdapters = TapInstall_win::detectInstalledTapDriver(true);
@@ -184,15 +179,6 @@ int main(int argc, char *argv[])
 #endif
 
 #if defined Q_OS_MAC
-    if (!MacUtils::isOsVersion10_11_or_greater())
-    {
-        QMessageBox msgBox;
-        msgBox.setText( QObject::tr("Windscribe is not compatible with your version of OSX. Please upgrade to 10.11+") );
-        msgBox.setIcon( QMessageBox::Information );
-        msgBox.exec();
-        return 0;
-    }
-
     if (!MacUtils::verifyAppBundleIntegrity())
     {
         QMessageBox msgBox;

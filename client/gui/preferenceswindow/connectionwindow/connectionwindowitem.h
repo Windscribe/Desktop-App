@@ -5,7 +5,7 @@
 #include "backend/preferences/preferences.h"
 #include "backend/preferences/preferenceshelper.h"
 #include "commongraphics/basepage.h"
-#include "preferenceswindow/checkboxitem.h"
+#include "preferenceswindow/toggleitem.h"
 #include "preferenceswindow/linkitem.h"
 #include "preferenceswindow/protocolgroup.h"
 #include "connecteddnsgroup.h"
@@ -18,7 +18,8 @@
 enum CONNECTION_SCREEN_TYPE { CONNECTION_SCREEN_HOME,
                               CONNECTION_SCREEN_NETWORK_OPTIONS,
                               CONNECTION_SCREEN_SPLIT_TUNNELING,
-                              CONNECTION_SCREEN_PROXY_SETTINGS };
+                              CONNECTION_SCREEN_PROXY_SETTINGS,
+                              CONNECTION_SCREEN_DNS_DOMAINS };
 
 namespace PreferencesWindow {
 
@@ -28,7 +29,7 @@ class ConnectionWindowItem : public CommonGraphics::BasePage
 public:
     explicit ConnectionWindowItem(ScalableGraphicsObject *parent, Preferences *preferences, PreferencesHelper *preferencesHelper);
 
-    QString caption();
+    QString caption() const override;
     void updateScaling() override;
 
     CONNECTION_SCREEN_TYPE getScreen();
@@ -43,6 +44,7 @@ signals:
     void proxySettingsPageClick();
     void cycleMacAddressClick();
     void detectPacketSize();
+    void connectedDnsDomainsClick(const QStringList &domains);
 
 private slots:
     // slots for preference changes
@@ -95,11 +97,11 @@ private:
     MacSpoofingGroup *macSpoofingGroup_;
     PreferenceGroup *allowLanTrafficGroup_;
     PreferenceGroup *autoConnectGroup_;
-    CheckBoxItem *checkBoxAutoConnect_;
-    CheckBoxItem *checkBoxAllowLanTraffic_;
+    ToggleItem *checkBoxAutoConnect_;
+    ToggleItem *checkBoxAllowLanTraffic_;
     ConnectedDnsGroup *connectedDnsGroup_;
     PreferenceGroup *terminateSocketsGroup_;
-    CheckBoxItem *terminateSocketsItem_;
+    ToggleItem *terminateSocketsItem_;
     SecureHotspotGroup *secureHotspotGroup_;
     ProxyGatewayGroup *proxyGatewayGroup_;
 

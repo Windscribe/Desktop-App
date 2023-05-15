@@ -31,13 +31,14 @@ OpenVPNConnection::~OpenVPNConnection()
 
 void OpenVPNConnection::startConnect(const QString &config, const QString &ip, const QString &dnsHostName, const QString &username, const QString &password,
                                      const types::ProxySettings &proxySettings, const WireGuardConfig *wireGuardConfig, bool isEnableIkev2Compression, bool isAutomaticConnectionMode,
-                                     bool isCustomConfig)
+                                     bool isCustomConfig, const QString &overrideDnsIp)
 {
     Q_UNUSED(ip);
     Q_UNUSED(dnsHostName);
     Q_UNUSED(wireGuardConfig);
     Q_UNUSED(isEnableIkev2Compression);
     Q_UNUSED(isAutomaticConnectionMode);
+    Q_UNUSED(overrideDnsIp);
     WS_ASSERT(getCurrentState() == STATUS_DISCONNECTED);
 
     qCDebug(LOG_CONNECTION) << "connectOVPN";
@@ -148,7 +149,7 @@ IHelper::ExecuteError OpenVPNConnection::runOpenVPN(unsigned int port, const typ
         WS_ASSERT(false);
     }
 
-    qCDebug(LOG_CONNECTION) << "OpenVPN version:" << OpenVpnVersionController::instance().getSelectedOpenVpnVersion();
+    qCDebug(LOG_CONNECTION) << "OpenVPN version:" << OpenVpnVersionController::instance().getOpenVpnVersion();
 
     Helper_win *helper_win = dynamic_cast<Helper_win *>(helper_);
     return helper_win->executeOpenVPN(config_, port, httpProxy, httpPort, socksProxy, socksPort, outCmdId, isCustomConfig);
@@ -167,7 +168,7 @@ IHelper::ExecuteError OpenVPNConnection::runOpenVPN(unsigned int port, const typ
     {
         WS_ASSERT(false);
     }
-    qCDebug(LOG_CONNECTION) << "OpenVPN version:" << OpenVpnVersionController::instance().getSelectedOpenVpnVersion();
+    qCDebug(LOG_CONNECTION) << "OpenVPN version:" << OpenVpnVersionController::instance().getOpenVpnVersion();
     //qCDebug(LOG_CONNECTION) << strCommand;
 
     Helper_posix *helper_posix = dynamic_cast<Helper_posix *>(helper_);
@@ -190,7 +191,7 @@ void OpenVPNConnection::onKillControllerTimer()
     killControllerTimer_.stop();
 #ifdef Q_OS_WIN
     Helper_win *helper_win= dynamic_cast<Helper_win *>(helper_);
-    helper_win->executeTaskKill(OpenVpnVersionController::instance().getSelectedOpenVpnExecutable());
+    helper_win->executeTaskKill(OpenVpnVersionController::instance().getOpenVpnFileName());
 #else
     Helper_posix *helper_posix = dynamic_cast<Helper_posix *>(helper_);
     helper_posix->executeTaskKill(kTargetOpenVpn);
@@ -403,7 +404,8 @@ void OpenVPNConnection::handleRead(const boost::system::error_code &err, size_t 
                 stateVariables_.bSigTermSent = true;
             }
         }
-        else if (serverReply.contains("There are no TAP-Windows nor Wintun adapters on this system.", Qt::CaseInsensitive))
+        else if (serverReply.contains("There are no TAP-Windows", Qt::CaseInsensitive) && serverReply.contains("Wintun",Qt::CaseInsensitive) &&
+                 serverReply.contains("adapters on this system.",Qt::CaseInsensitive))
         {
             if (!stateVariables_.bTapErrorEmited)
             {

@@ -8,6 +8,7 @@
 #include "commongraphics/baseitem.h"
 #include "commongraphics/scrollarea.h"
 #include "graphicresources/fontmanager.h"
+#include "languagecontroller.h"
 #include "utils/hardcodedsettings.h"
 #include "utils/logger.h"
 
@@ -18,7 +19,8 @@ ProtocolPromptItem::ProtocolPromptItem(ScalableGraphicsObject *parent,
                                        Preferences *preferences,
                                        PreferencesHelper *preferencesHelper,
                                        ProtocolWindowMode mode)
-    : BasePage(parent, WINDOW_WIDTH), connectWindow_(connectWindow), preferences_(preferences), preferencesHelper_(preferencesHelper)
+    : BasePage(parent, WINDOW_WIDTH), connectWindow_(connectWindow), preferences_(preferences), preferencesHelper_(preferencesHelper),
+      cancelButton_(nullptr)
 {
     setFlag(QGraphicsItem::ItemIsFocusable);
     setSpacerHeight(kSpacerHeight);
@@ -30,6 +32,9 @@ ProtocolPromptItem::ProtocolPromptItem(ScalableGraphicsObject *parent,
 
     countdownTimer_.setInterval(1000);
     connect(&countdownTimer_, &QTimer::timeout, this, &ProtocolPromptItem::onTimerTimeout);
+
+    connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &ProtocolPromptItem::onLanguageChanged);
+    onLanguageChanged();
 }
 
 void ProtocolPromptItem::paint(QPainter *painter, const QStyleOptionGraphicsItem */*option*/, QWidget */*widget*/)
@@ -165,42 +170,10 @@ void ProtocolPromptItem::setMode(ProtocolWindowMode mode)
         desc_ = tr(kChangeProtocolDescription);
         doResetProtocolStatus();
     } else if (mode == ProtocolWindowMode::kFailedProtocol) {
-        setIcon("WARNING");
+        setIcon("WARNING_WHITE");
         title_ = tr(kFailedProtocolTitle);
         desc_ = tr(kFailedProtocolDescription);
         doResetProtocolStatus();
-    } else if (mode == ProtocolWindowMode::kSavePreferredProtocol) {
-        setIcon("WARNING");
-        title_ = QString(tr(kSavePreferredProtocolTitle)).arg(connectedProtocol().toLongString());
-        desc_ = tr(kSavePreferredProtocolDescription);
-        clearItems();
-
-        actionButton_ = new ProtocolListButton(this, kSetAsPreferredButton, false, QColor(0, 0, 0));
-        connect(actionButton_, &ProtocolListButton::clicked, this, &ProtocolPromptItem::onSetAsPreferred);
-        addItem(actionButton_);
-        addCancelButton();
-    } else if (mode == ProtocolWindowMode::kSendDebugLog) {
-        resetProtocolStatus();
-
-        setIcon("WARNING");
-        title_ = tr(kSendDebugLogTitle);
-        desc_ = tr(kSendDebugLogDescription);
-        clearItems();
-
-        actionButton_ = new ProtocolListButton(this, kSendDebugLogButton, false, QColor(255, 255, 255));
-        connect(actionButton_, &ProtocolListButton::clicked, this, &ProtocolPromptItem::onSendDebugLog);
-        addItem(actionButton_);
-        addCancelButton();
-    } else if (mode == ProtocolWindowMode::kDebugLogSent) {
-        setIcon("CHECKMARK_IN_CIRCLE");
-        title_ = tr(kDebugLogSentTitle);
-        desc_ = tr(kDebugLogSentDescription);
-        clearItems();
-
-        actionButton_ = new ProtocolListButton(this, kContactSupportButton, false, QColor(255, 255, 255));
-        connect(actionButton_, &ProtocolListButton::clicked, this, &ProtocolPromptItem::onContactSupport);
-        addItem(actionButton_);
-        addCancelButton();
     }
     mode_ = mode;
     updateItemOffset();
@@ -208,30 +181,10 @@ void ProtocolPromptItem::setMode(ProtocolWindowMode mode)
     emit heightChanged(fullHeight());
 }
 
-void ProtocolPromptItem::onSetAsPreferred()
-{
-    countdownTimer_.stop();
-    emit escape();
-    emit setAsPreferredProtocol(types::ConnectionSettings(lastProtocol_, lastPort_, false));
-}
-
-void ProtocolPromptItem::onSendDebugLog()
-{
-    emit sendDebugLog();
-    setMode(ProtocolWindowMode::kDebugLogSent);
-}
-
-void ProtocolPromptItem::onContactSupport()
-{
-    countdownTimer_.stop();
-    emit escape();
-    QDesktopServices::openUrl(QUrl(QString("https://%1/support/ticket").arg(HardcodedSettings::instance().serverUrl())));
-}
-
 void ProtocolPromptItem::addCancelButton()
 {
-    cancelButton_ = new ProtocolListButton(this, kCancelButton, true);
-    connect(cancelButton_, &ProtocolListButton::clicked, this, &ProtocolPromptItem::onCancelClicked);
+    cancelButton_ = new CommonGraphics::ListButton(this, CommonGraphics::ListButton::kText, tr(kCancelButton));
+    connect(cancelButton_, &CommonGraphics::ListButton::clicked, this, &ProtocolPromptItem::onCancelClicked);
     addItem(cancelButton_);
 }
 
@@ -327,6 +280,25 @@ types::Protocol ProtocolPromptItem::connectedProtocol() {
         }
     }
     return types::Protocol(types::Protocol::TYPE::UNINITIALIZED);
+}
+
+void ProtocolPromptItem::onLanguageChanged()
+{
+    setMode(mode_);
+    if (cancelButton_) {
+        cancelButton_->setText(tr(kCancelButton));
+    }
+    for (auto i : items()) {
+        if (ProtocolLineItem *item = dynamic_cast<ProtocolLineItem *>(i)) {
+            item->setDescription(getProtocolDescription(item->protocol()));
+        }
+    }
+}
+
+void ProtocolPromptItem::clearItems()
+{
+    cancelButton_ = nullptr;
+    BasePage::clearItems();
 }
 
 } // namespace ProtocolWindow

@@ -14,17 +14,15 @@ installer/windows/temp-tests/*
 installer/mac/installer/installer/temp_Info.plist
 test-exe/*
 drawings/*/*.png
-/gui/authhelper/win/ws_proxy_stub/ws_proxy_stub/dlldata.c
-/gui/authhelper/win/ws_proxy_stub/ws_proxy_stub/ws_proxy_stub_h.h
-/gui/authhelper/win/ws_proxy_stub/ws_proxy_stub/ws_proxy_stub_i.c
-/gui/authhelper/win/ws_proxy_stub/ws_proxy_stub/ws_proxy_stub_p.c
 tools/.idea/
+build/
+.vscode/
 
 # secrets
 tools/notarize.yml
 client/common/utils/hardcodedsecrets.ini
-common/keys/linux/key.pem
-common/keys/linux/key.pub
-common/keys/linux/key_pub.txt
+client/common/keys/linux/key.pem
+client/common/keys/linux/key.pub
+client/common/keys/linux/key_pub.txt
 installer/windows/signing/code_signing.pfx
 backend/mac/provisioning_profile/

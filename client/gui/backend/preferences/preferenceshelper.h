@@ -13,13 +13,10 @@ public:
     explicit PreferencesHelper(QObject *parent = nullptr);
 
     QString buildVersion();
-    QList<QPair<QString, QString> > availableLanguages() const;
+    QList<QPair<QString, QVariant>> availableLanguages() const;
 
     void setProxyGatewayAddress(const QString &address);
     QString getProxyGatewayAddress() const;
-
-    void setAvailableOpenVpnVersions(const QStringList &list);
-    QStringList getAvailableOpenVpnVersions();
 
     QVector<TAP_ADAPTER_TYPE> getAvailableTapAdapters(const QString &openVpnVersion);
 
@@ -46,7 +43,6 @@ public:
 
 signals:
     void portMapChanged();
-    void availableOpenVpnVersionsChanged(const QStringList &list);
     void wifiSharingSupportedChanged(bool bSupported);
     void proxyGatewayAddressChanged(const QString &address);
     void ipv6StateInOSChanged(bool bEnabled);
@@ -57,7 +53,6 @@ signals:
 
 private:
     QStringList availableLanguageCodes_;
-    QStringList availableOpenVpnVersions_;
 
     types::PortMap portMap_;
     bool isWifiSharingSupported_;

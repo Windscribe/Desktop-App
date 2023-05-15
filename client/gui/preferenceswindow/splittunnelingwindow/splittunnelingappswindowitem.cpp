@@ -1,11 +1,12 @@
 #include "splittunnelingappswindowitem.h"
 
+#include "languagecontroller.h"
 #include "preferenceswindow/preferencegroup.h"
 
 namespace PreferencesWindow {
 
 SplitTunnelingAppsWindowItem::SplitTunnelingAppsWindowItem(ScalableGraphicsObject *parent, Preferences *preferences)
-  : CommonGraphics::BasePage(parent), preferences_(preferences)
+  : CommonGraphics::BasePage(parent), preferences_(preferences), loggedIn_(false)
 {
     setFlags(flags() | QGraphicsItem::ItemClipsChildrenToShape | QGraphicsItem::ItemIsFocusable);
     setSpacerHeight(PREFERENCES_MARGIN);
@@ -24,11 +25,14 @@ SplitTunnelingAppsWindowItem::SplitTunnelingAppsWindowItem(ScalableGraphicsObjec
     splitTunnelingAppsGroup_->setApps(preferences->splitTunnelingApps());
 
     setLoggedIn(false);
+
+    connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &SplitTunnelingAppsWindowItem::onLanguageChanged);
+    onLanguageChanged();
 }
 
-QString SplitTunnelingAppsWindowItem::caption()
+QString SplitTunnelingAppsWindowItem::caption() const
 {
-    return QT_TRANSLATE_NOOP("PreferencesWindow::PreferencesWindowItem", "Apps");
+    return tr("Apps");
 }
 
 QList<types::SplitTunnelingApp> SplitTunnelingAppsWindowItem::getApps()
@@ -54,17 +58,21 @@ void SplitTunnelingAppsWindowItem::onAppsUpdated(QList<types::SplitTunnelingApp>
 
 void SplitTunnelingAppsWindowItem::setLoggedIn(bool loggedIn)
 {
-    if (loggedIn)
-    {
+    loggedIn_ = loggedIn;
+
+    if (loggedIn) {
         desc_->clearError();
         desc_->setDescription(tr("Add the apps you wish to include in or exclude from the VPN tunnel below."));
-    }
-    else
-    {
+    } else {
         desc_->setDescription(tr("Please log in to modify split tunneling rules."), true);
     }
 
     splitTunnelingAppsGroup_->setLoggedIn(loggedIn);
+}
+
+void SplitTunnelingAppsWindowItem::onLanguageChanged()
+{
+    setLoggedIn(loggedIn_);
 }
 
 } // namespace PreferencesWindow

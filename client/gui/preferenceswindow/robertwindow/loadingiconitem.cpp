@@ -1,5 +1,6 @@
 #include "loadingiconitem.h"
 
+#include <QIcon>
 #include <QPainter>
 #include "commongraphics/commongraphics.h"
 #include "dpiscalemanager.h"
@@ -45,6 +46,10 @@ void LoadingIconItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *o
 
     painter->setOpacity(opacity_);
     painter->setPen(Qt::NoPen);
+    painter->setRenderHint(QPainter::Antialiasing);
     painter->setRenderHint(QPainter::SmoothPixmapTransform);
-    painter->drawPixmap(0, 0, movie_->currentPixmap().scaled(width_*G_SCALE, height_*G_SCALE, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
+
+    QIcon icon;
+    icon.addPixmap(movie_->currentPixmap());
+    icon.paint(painter, QRect(0, 0, width_*G_SCALE, height_*G_SCALE));
 }

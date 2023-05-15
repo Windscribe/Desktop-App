@@ -19,7 +19,7 @@ public:
     explicit PingHost_TCP(QObject *parent, IConnectStateController *stateController);
     virtual ~PingHost_TCP();
 
-    void addHostForPing(const QString &ip);
+    void addHostForPing(const QString &id, const QString &ip);
     void clearPings();
 
     void setProxySettings(const types::ProxySettings &proxySettings);
@@ -46,6 +46,12 @@ private:
         QElapsedTimer elapsedTimer;
     };
 
+    struct QueueJob
+    {
+        QString id;
+        QString ip;
+    };
+
     enum {PING_TIMEOUT = 2000};
     static constexpr int MAX_PARALLEL_PINGS = 10;
 
@@ -54,11 +60,12 @@ private:
     bool bProxyEnabled_;
 
     QMap<QString, PingInfo *> pingingHosts_;
-    QQueue<QString> waitingPingsQueue_;
+    QQueue<QueueJob> waitingPingsQueue_;
 
-    bool hostAlreadyPingingOrInWaitingQueue(const QString &ip);
+    bool hostAlreadyPingingOrInWaitingQueue(const QString &id);
     void processNextPings();
     void processError(QObject *obj);
+    void removeFromQueue(const QString &id);
 };
 
 #endif // PINGHOST_TCP_H

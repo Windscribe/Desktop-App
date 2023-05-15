@@ -1,5 +1,6 @@
 #include "enums.h"
 #include <QList>
+#include <QObject>
 #include <QMetaType>
 #include "utils/ws_assert.h"
 
@@ -75,7 +76,7 @@ QString DNS_POLICY_TYPE_ToString(DNS_POLICY_TYPE d)
 {
     if (d == DNS_TYPE_OS_DEFAULT)
     {
-        return "OS Default";
+        return QObject::tr("OS Default");
     }
     else if (d == DNS_TYPE_OPEN_DNS)
     {
@@ -96,7 +97,7 @@ QString DNS_POLICY_TYPE_ToString(DNS_POLICY_TYPE d)
     else
     {
         WS_ASSERT(false);
-        return "UNKNOWN";
+        return QObject::tr("UNKNOWN");
     }
 }
 
@@ -106,28 +107,28 @@ QString PROXY_SHARING_TYPE_toString(PROXY_SHARING_TYPE t)
     else if (t == PROXY_SHARING_SOCKS) return "SOCKS";
     else {
         WS_ASSERT(false);
-        return "UNKNOWN";
+        return QObject::tr("UNKNOWN");
     }
 }
 
 QString ORDER_LOCATION_TYPE_toString(ORDER_LOCATION_TYPE p)
 {
-    if (p == ORDER_LOCATION_BY_GEOGRAPHY) return "Geography";
-    else if (p == ORDER_LOCATION_BY_ALPHABETICALLY) return "Alphabet";
-    else if (p == ORDER_LOCATION_BY_LATENCY) return "Latency";
+    if (p == ORDER_LOCATION_BY_GEOGRAPHY) return QObject::tr("Geography");
+    else if (p == ORDER_LOCATION_BY_ALPHABETICALLY) return QObject::tr("Alphabet");
+    else if (p == ORDER_LOCATION_BY_LATENCY) return QObject::tr("Latency");
     else {
         WS_ASSERT(false);
-        return "UNKNOWN";
+        return QObject::tr("UNKNOWN");
     }
 }
 
 QString LATENCY_DISPLAY_TYPE_toString(LATENCY_DISPLAY_TYPE t)
 {
-    if (t == LATENCY_DISPLAY_BARS) return "Bars";
-    else if (t == LATENCY_DISPLAY_MS) return "Ms";
+    if (t == LATENCY_DISPLAY_BARS) return QObject::tr("Bars");
+    else if (t == LATENCY_DISPLAY_MS) return QObject::tr("Ms");
     else {
         WS_ASSERT(false);
-        return "UNKNOWN";
+        return QObject::tr("UNKNOWN");
     }
 }
 
@@ -137,24 +138,24 @@ QString TAP_ADAPTER_TYPE_toString(TAP_ADAPTER_TYPE t)
     else if (t == WINTUN_ADAPTER) return "Wintun";
     else {
         WS_ASSERT(false);
-        return "UNKNOWN";
+        return QObject::tr("UNKNOWN");
     }
 }
 
 QString FIREWALL_MODE_toString(FIREWALL_MODE t)
 {
-    if (t == FIREWALL_MODE_MANUAL) return "Manual";
-    else if (t == FIREWALL_MODE_AUTOMATIC) return "Automatic";
-    else if (t == FIREWALL_MODE_ALWAYS_ON) return "Always On";
+    if (t == FIREWALL_MODE_MANUAL) return QObject::tr("Manual");
+    else if (t == FIREWALL_MODE_AUTOMATIC) return QObject::tr("Automatic");
+    else if (t == FIREWALL_MODE_ALWAYS_ON) return QObject::tr("Always On");
     else {
         WS_ASSERT(false);
-        return "UNKNOWN";
+        return QObject::tr("UNKNOWN");
     }
 }
 
-QList<QPair<QString, int> > FIREWALL_MODE_toList()
+QList<QPair<QString, QVariant>> FIREWALL_MODE_toList()
 {
-    QList<QPair<QString, int> > l;
+    QList<QPair<QString, QVariant>> l;
     l << qMakePair(FIREWALL_MODE_toString(FIREWALL_MODE_MANUAL), FIREWALL_MODE_MANUAL);
     l << qMakePair(FIREWALL_MODE_toString(FIREWALL_MODE_AUTOMATIC), FIREWALL_MODE_AUTOMATIC);
     l << qMakePair(FIREWALL_MODE_toString(FIREWALL_MODE_ALWAYS_ON), FIREWALL_MODE_ALWAYS_ON);
@@ -163,25 +164,25 @@ QList<QPair<QString, int> > FIREWALL_MODE_toList()
 
 QString FIREWALL_WHEN_toString(FIREWALL_WHEN t)
 {
-    if (t == FIREWALL_WHEN_BEFORE_CONNECTION) return "Before Connection";
-    else if (t == FIREWALL_WHEN_AFTER_CONNECTION) return "After Connection";
+    if (t == FIREWALL_WHEN_BEFORE_CONNECTION) return QObject::tr("Before Connection");
+    else if (t == FIREWALL_WHEN_AFTER_CONNECTION) return QObject::tr("After Connection");
     else {
         WS_ASSERT(false);
-        return "UNKNOWN";
+        return QObject::tr("UNKNOWN");
     }
 }
 
-QList<QPair<QString, int> > FIREWALL_WHEN_toList()
+QList<QPair<QString, QVariant>> FIREWALL_WHEN_toList()
 {
-    QList<QPair<QString, int> > l;
+    QList<QPair<QString, QVariant>> l;
     l << qMakePair(FIREWALL_WHEN_toString(FIREWALL_WHEN_BEFORE_CONNECTION), FIREWALL_WHEN_BEFORE_CONNECTION);
     l << qMakePair(FIREWALL_WHEN_toString(FIREWALL_WHEN_AFTER_CONNECTION), FIREWALL_WHEN_AFTER_CONNECTION);
     return l;
 }
 
-QList<QPair<QString, int> > PROXY_SHARING_TYPE_toList()
+QList<QPair<QString, QVariant>> PROXY_SHARING_TYPE_toList()
 {
-    QList<QPair<QString, int> > l;
+    QList<QPair<QString, QVariant>> l;
     l << qMakePair(PROXY_SHARING_TYPE_toString(PROXY_SHARING_HTTP), PROXY_SHARING_HTTP);
     l << qMakePair(PROXY_SHARING_TYPE_toString(PROXY_SHARING_SOCKS), PROXY_SHARING_SOCKS);
     return l;
@@ -189,19 +190,19 @@ QList<QPair<QString, int> > PROXY_SHARING_TYPE_toList()
 
 QString PROXY_OPTION_toString(PROXY_OPTION t)
 {
-    if (t == PROXY_OPTION_NONE) return "None";
-    else if (t == PROXY_OPTION_AUTODETECT) return "Auto-detect";
+    if (t == PROXY_OPTION_NONE) return QObject::tr("None");
+    else if (t == PROXY_OPTION_AUTODETECT) return QObject::tr("Auto-detect");
     else if (t == PROXY_OPTION_HTTP) return "HTTP";
     else if (t == PROXY_OPTION_SOCKS) return "SOCKS";
     else {
         WS_ASSERT(false);
-        return "UNKNOWN";
+        return QObject::tr("UNKNOWN");
     }
 }
 
-QList<QPair<QString, int> > PROXY_OPTION_toList()
+QList<QPair<QString, QVariant>> PROXY_OPTION_toList()
 {
-    QList<QPair<QString, int> > l;
+    QList<QPair<QString, QVariant>> l;
     l << qMakePair(PROXY_OPTION_toString(PROXY_OPTION_NONE), PROXY_OPTION_NONE);
     l << qMakePair(PROXY_OPTION_toString(PROXY_OPTION_AUTODETECT), PROXY_OPTION_AUTODETECT);
     l << qMakePair(PROXY_OPTION_toString(PROXY_OPTION_HTTP), PROXY_OPTION_HTTP);
@@ -209,9 +210,9 @@ QList<QPair<QString, int> > PROXY_OPTION_toList()
     return l;
 }
 
-QList<QPair<QString, int> > DNS_POLICY_TYPE_toList()
+QList<QPair<QString, QVariant>> DNS_POLICY_TYPE_toList()
 {
-    QList<QPair<QString, int> > l;
+    QList<QPair<QString, QVariant>> l;
     l << qMakePair(DNS_POLICY_TYPE_ToString(DNS_TYPE_OS_DEFAULT), DNS_TYPE_OS_DEFAULT);
     l << qMakePair(DNS_POLICY_TYPE_ToString(DNS_TYPE_OPEN_DNS), DNS_TYPE_OPEN_DNS);
     l << qMakePair(DNS_POLICY_TYPE_ToString(DNS_TYPE_CLOUDFLARE), DNS_TYPE_CLOUDFLARE);
@@ -220,9 +221,9 @@ QList<QPair<QString, int> > DNS_POLICY_TYPE_toList()
     return l;
 }
 
-QList<QPair<QString, int> > ORDER_LOCATION_TYPE_toList()
+QList<QPair<QString, QVariant>> ORDER_LOCATION_TYPE_toList()
 {
-    QList<QPair<QString, int> > l;
+    QList<QPair<QString, QVariant>> l;
     l << qMakePair(ORDER_LOCATION_TYPE_toString(ORDER_LOCATION_BY_GEOGRAPHY), ORDER_LOCATION_BY_GEOGRAPHY);
     l << qMakePair(ORDER_LOCATION_TYPE_toString(ORDER_LOCATION_BY_ALPHABETICALLY), ORDER_LOCATION_BY_ALPHABETICALLY);
     l << qMakePair(ORDER_LOCATION_TYPE_toString(ORDER_LOCATION_BY_LATENCY), ORDER_LOCATION_BY_LATENCY);
@@ -230,9 +231,9 @@ QList<QPair<QString, int> > ORDER_LOCATION_TYPE_toList()
 
 }
 
-QList<QPair<QString, int> > LATENCY_DISPLAY_TYPE_toList()
+QList<QPair<QString, QVariant>> LATENCY_DISPLAY_TYPE_toList()
 {
-    QList<QPair<QString, int> > l;
+    QList<QPair<QString, QVariant>> l;
     l << qMakePair(LATENCY_DISPLAY_TYPE_toString(LATENCY_DISPLAY_BARS), LATENCY_DISPLAY_BARS);
     l << qMakePair(LATENCY_DISPLAY_TYPE_toString(LATENCY_DISPLAY_MS), LATENCY_DISPLAY_MS);
     return l;
@@ -240,19 +241,19 @@ QList<QPair<QString, int> > LATENCY_DISPLAY_TYPE_toList()
 
 QString UPDATE_CHANNEL_toString(UPDATE_CHANNEL t)
 {
-    if (t == UPDATE_CHANNEL_RELEASE) return "Release";
-    else if (t == UPDATE_CHANNEL_BETA) return "Beta";
-    else if (t == UPDATE_CHANNEL_GUINEA_PIG) return "Guinea Pig";
-    else if (t == UPDATE_CHANNEL_INTERNAL) return "Internal";
+    if (t == UPDATE_CHANNEL_RELEASE) return QObject::tr("Release");
+    else if (t == UPDATE_CHANNEL_BETA) return QObject::tr("Beta");
+    else if (t == UPDATE_CHANNEL_GUINEA_PIG) return QObject::tr("Guinea Pig");
+    else if (t == UPDATE_CHANNEL_INTERNAL) return QObject::tr("Internal");
     else {
         WS_ASSERT(false);
-        return "UNKNOWN";
+        return QObject::tr("UNKNOWN");
     }
 }
 
-QList<QPair<QString, int> > UPDATE_CHANNEL_toList()
+QList<QPair<QString, QVariant>> UPDATE_CHANNEL_toList()
 {
-    QList<QPair<QString, int> > l;
+    QList<QPair<QString, QVariant>> l;
     l << qMakePair(UPDATE_CHANNEL_toString(UPDATE_CHANNEL_RELEASE), UPDATE_CHANNEL_RELEASE);
     l << qMakePair(UPDATE_CHANNEL_toString(UPDATE_CHANNEL_BETA), UPDATE_CHANNEL_BETA);
     l << qMakePair(UPDATE_CHANNEL_toString(UPDATE_CHANNEL_GUINEA_PIG), UPDATE_CHANNEL_GUINEA_PIG);
@@ -262,19 +263,19 @@ QList<QPair<QString, int> > UPDATE_CHANNEL_toList()
 
 QString DNS_MANAGER_TYPE_toString(DNS_MANAGER_TYPE t)
 {
-    if (t == DNS_MANAGER_AUTOMATIC) return "Automatic";
-    else if (t == DNS_MANAGER_RESOLV_CONF) return "Resolvconf";
-    else if (t == DNS_MANAGER_SYSTEMD_RESOLVED) return "Systemd-resolved";
+    if (t == DNS_MANAGER_AUTOMATIC) return QObject::tr("Automatic");
+    else if (t == DNS_MANAGER_RESOLV_CONF) return "resolvconf";
+    else if (t == DNS_MANAGER_SYSTEMD_RESOLVED) return "systemd-resolved";
     else if (t == DNS_MANAGER_NETWORK_MANAGER) return "NetworkManager";
     else {
         WS_ASSERT(false);
-        return "UNKNOWN";
+        return QObject::tr("UNKNOWN");
     }
 }
 
-QList<QPair<QString, int> > DNS_MANAGER_TYPE_toList()
+QList<QPair<QString, QVariant>> DNS_MANAGER_TYPE_toList()
 {
-    QList<QPair<QString, int> > l;
+    QList<QPair<QString, QVariant>> l;
     l << qMakePair(DNS_MANAGER_TYPE_toString(DNS_MANAGER_AUTOMATIC), DNS_MANAGER_AUTOMATIC);
     l << qMakePair(DNS_MANAGER_TYPE_toString(DNS_MANAGER_RESOLV_CONF), DNS_MANAGER_RESOLV_CONF);
     l << qMakePair(DNS_MANAGER_TYPE_toString(DNS_MANAGER_SYSTEMD_RESOLVED), DNS_MANAGER_SYSTEMD_RESOLVED);
@@ -286,34 +287,34 @@ QList<QPair<QString, int> > DNS_MANAGER_TYPE_toList()
 QString CONNECTED_DNS_TYPE_toString(CONNECTED_DNS_TYPE t)
 {
     if (t == CONNECTED_DNS_TYPE_ROBERT) {
-        return "R.O.B.E.R.T.";
+        return QObject::tr("R.O.B.E.R.T.");
     }
     else if (t == CONNECTED_DNS_TYPE_CUSTOM) {
-        return "Custom";
+        return QObject::tr("Custom");
     }
     else {
         WS_ASSERT(false);
-        return "unknown";
+        return QObject::tr("UNKNOWN");
     }
 }
 
 QString SPLIT_TUNNELING_MODE_toString(SPLIT_TUNNELING_MODE t)
 {
     if (t == SPLIT_TUNNELING_MODE_EXCLUDE) {
-        return "Exclude";
+        return QObject::tr("Exclude");
     }
     else if (t == SPLIT_TUNNELING_MODE_INCLUDE) {
-        return "Include";
+        return QObject::tr("Include");
     }
     else {
         WS_ASSERT(false);
-        return "unknown";
+        return QObject::tr("UNKNOWN");
     }
 }
 
-QList<QPair<QString, int> > APP_SKIN_toList()
+QList<QPair<QString, QVariant>> APP_SKIN_toList()
 {
-    QList<QPair<QString, int> > l;
+    QList<QPair<QString, QVariant>> l;
     l << qMakePair(APP_SKIN_toString(APP_SKIN_ALPHA), APP_SKIN_ALPHA);
     l << qMakePair(APP_SKIN_toString(APP_SKIN_VAN_GOGH), APP_SKIN_VAN_GOGH);
     return l;
@@ -322,13 +323,13 @@ QList<QPair<QString, int> > APP_SKIN_toList()
 QString APP_SKIN_toString(APP_SKIN s)
 {
     if (s == APP_SKIN_ALPHA) {
-        return "Alpha";
+        return QObject::tr("Alpha");
     }
     else if (s == APP_SKIN_VAN_GOGH) {
-        return "Van Gogh";
+        return QObject::tr("Van Gogh");
     }
     else {
         WS_ASSERT(false);
-        return "unknown";
+        return QObject::tr("UNKNOWN");
     }
 }

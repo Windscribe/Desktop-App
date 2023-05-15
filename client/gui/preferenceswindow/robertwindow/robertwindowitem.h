@@ -6,7 +6,7 @@
 #include "backend/preferences/preferenceshelper.h"
 #include "backend/preferences/preferences.h"
 #include "commongraphics/basepage.h"
-#include "commongraphics/bubblebuttondark.h"
+#include "commongraphics/bubblebutton.h"
 #include "graphicresources/imageresourcessvg.h"
 #include "graphicresources/independentpixmap.h"
 #include "preferenceswindow/linkitem.h"
@@ -23,7 +23,7 @@ class RobertWindowItem : public CommonGraphics::BasePage
 public:
     explicit RobertWindowItem(ScalableGraphicsObject *parent, Preferences *preferences, PreferencesHelper *preferencesHelper);
 
-    QString caption() const;
+    QString caption() const override;
     void updateScaling() override;
 
     void setLoggedIn(bool loggedIn);
@@ -36,6 +36,9 @@ signals:
     void accountLoginClick();
     void manageRobertRulesClick();
     void setRobertFilter(const types::RobertFilter &filter);
+
+private slots:
+    void onLanguageChanged();
 
 private:
     static constexpr int kMessageOffsetY = 85;
@@ -51,12 +54,14 @@ private:
     LoadingIconItem *loadingIcon_;
 
     QGraphicsTextItem *loginPrompt_;
-    CommonGraphics::BubbleButtonDark *loginButton_;
+    CommonGraphics::BubbleButton *loginButton_;
 
     QGraphicsTextItem *errorMessage_;
     bool loggedIn_;
     bool isError_;
     bool loading_;
+
+    LinkItem *manageRulesItem_;
 };
 
 } // namespace PreferencesWindow

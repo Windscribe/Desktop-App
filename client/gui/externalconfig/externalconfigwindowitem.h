@@ -4,7 +4,7 @@
 #include <QGraphicsObject>
 #include <QVariantAnimation>
 #include "../backend/backend.h"
-#include "commongraphics/bubblebuttondark.h"
+#include "commongraphics/bubblebutton.h"
 #include "commongraphics/escapebutton.h"
 #include "commongraphics/iconbutton.h"
 #include "externalconfig/iexternalconfigwindow.h"
@@ -46,10 +46,11 @@ private slots:
     void onTextOpacityChange(const QVariant &value);
     void onEscTextOpacityChange(const QVariant &value);
     void onDockedModeChanged(bool bIsDockedToTray);
+    void onLanguageChanged();
 
 private:
     CommonGraphics::EscapeButton *escButton_;
-    CommonGraphics::BubbleButtonDark *okButton_;
+    CommonGraphics::BubbleButton *okButton_;
 
     IconButton *closeButton_;
     IconButton *minimizeButton_;

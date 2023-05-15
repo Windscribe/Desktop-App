@@ -3,7 +3,7 @@
 
 #include "backend/preferences/accountinfo.h"
 #include "commongraphics/basepage.h"
-#include "commongraphics/bubblebuttondark.h"
+#include "commongraphics/bubblebutton.h"
 #include "preferenceswindow/linkitem.h"
 #include "preferenceswindow/preferencegroup.h"
 #include "preferenceswindow/titleitem.h"
@@ -19,7 +19,7 @@ class AccountWindowItem : public CommonGraphics::BasePage
 public:
     explicit AccountWindowItem(ScalableGraphicsObject *parent, AccountInfo *accountInfo);
 
-    QString caption();
+    QString caption() const override;
     void setLoggedIn(bool loggedIn);
     void setConfirmEmailResult(bool bSuccess);
 
@@ -46,6 +46,7 @@ signals:
     void addEmailButtonClick();
 
 private:
+    AccountInfo *accountInfo_;
     TitleItem *infoTitle_;
     AccountDataItem *usernameItem_;
     PreferenceGroup *infoGroup_;
@@ -60,7 +61,7 @@ private:
     LinkItem *manageAccountItem_;
 
     QGraphicsTextItem *textItem_;
-    CommonGraphics::BubbleButtonDark *loginButton_;
+    CommonGraphics::BubbleButton *loginButton_;
     void updateWidgetPos();
 
     qint64 plan_;

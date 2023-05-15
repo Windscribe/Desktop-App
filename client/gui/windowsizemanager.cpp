@@ -15,6 +15,7 @@ void WindowSizeManager::addWindow(ResizableWindow *window, ShadowManager::SHAPE_
     info.height = std::max(window->minimumHeight(), (int)window->boundingRect().height());
     info.prevHeight = info.height;
     info.resizeDurationMs = resizeDurationMs;
+    info.scrollPos = 0;
 
     windowInfo_[window] = info;
 }
@@ -35,6 +36,9 @@ void WindowSizeManager::setWindowHeight(ResizableWindow *window, int height)
         // not found
         return;
     }
+    if (height < window->minimumHeight()) {
+        height = window->minimumHeight();
+    }
     windowInfo_[window].height = height;
 }
 
@@ -45,6 +49,24 @@ int WindowSizeManager::windowHeight(ResizableWindow *window)
         return -1;
     }
     return windowInfo_[window].height;
+}
+
+void WindowSizeManager::setScrollPos(ResizableWindow *window, int pos)
+{
+    if (windowInfo_.find(window) == windowInfo_.end()) {
+        // not found
+        return;
+    }
+    windowInfo_[window].scrollPos = pos;
+}
+
+int WindowSizeManager::scrollPos(ResizableWindow *window)
+{
+    if (windowInfo_.find(window) == windowInfo_.end()) {
+        // not found
+        return -1;
+    }
+    return windowInfo_[window].scrollPos;
 }
 
 void WindowSizeManager::setPreviousWindowHeight(ResizableWindow *window, int height)

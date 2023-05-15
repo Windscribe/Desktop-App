@@ -96,6 +96,12 @@ void BasePage::setFirstItemOffsetY(int offset)
     recalcItemsPos();
 }
 
+void BasePage::setEndSpacing(int spacing)
+{
+    endSpacing_ = spacing;
+    recalcItemsPos();
+}
+
 void BasePage::setIndent(int indent)
 {
     indent_ = indent;
@@ -143,6 +149,7 @@ void BasePage::recalcItemsPos()
         item->setPos(indent_*G_SCALE, newHeight);
         newHeight += item->boundingRect().height() + spacerHeight_*G_SCALE;
     }
+    newHeight += endSpacing_*G_SCALE;
 
     if (newHeight != height_)
     {
@@ -159,7 +166,14 @@ int BasePage::fullHeight() const
     for (BaseItem *item : qAsConst(items_)) {
         height += item->boundingRect().height() + spacerHeight_*G_SCALE;
     }
+    height += endSpacing_*G_SCALE;
+
     return height;
+}
+
+QString BasePage::caption() const
+{
+    return "";
 }
 
 } // namespace CommonGraphics

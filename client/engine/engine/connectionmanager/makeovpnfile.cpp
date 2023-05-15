@@ -20,7 +20,7 @@ MakeOVPNFile::~MakeOVPNFile()
 }
 
 bool MakeOVPNFile::generate(const QString &ovpnData, const QString &ip, types::Protocol protocol, uint port,
-                            uint portForStunnelOrWStunnel, int mss, const QString &defaultGateway, const QString &openVpnX509, bool blockOutsideDnsOption)
+                            uint portForStunnelOrWStunnel, int mss, const QString &defaultGateway, const QString &openVpnX509, const QString &customDns, bool blockOutsideDnsOption)
 {
 #ifndef Q_OS_MAC
     Q_UNUSED(defaultGateway);
@@ -83,6 +83,11 @@ bool MakeOVPNFile::generate(const QString &ovpnData, const QString &ip, types::P
 
     if (openVpnX509 != "") {
         config_ += QString("verify-x509-name %1 name\r\n").arg(openVpnX509);
+    }
+
+    if (!customDns.isEmpty()) {
+        config_ += "\r\npull-filter ignore \"dhcp-option DNS\"\r\n";
+        config_ += QString("dhcp-option DNS %1\r\n").arg(customDns);
     }
 
     // concatenate with windscribe_extra.conf file, if it exists

@@ -16,8 +16,7 @@
 #include "iconhoverengagebutton.h"
 #include "commongraphics/scalablegraphicsobject.h"
 #include "tooltips/tooltiptypes.h"
-#include "commongraphics/bubblebuttonbright.h"
-#include "commongraphics/bubblebuttondark.h"
+#include "commongraphics/bubblebutton.h"
 
 namespace LoginWindow {
 
@@ -31,8 +30,6 @@ public:
 
     QRectF boundingRect() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
-
-    void resetState();
 
     void setClickable(bool enabled);
 
@@ -55,8 +52,6 @@ signals:
     void firewallTurnOffClick();
 
 private slots:
-    void onBackClick();
-
     void onCloseClick();
     void onMinimizeClick();
 
@@ -67,19 +62,7 @@ private slots:
     void onEmergencyButtonClick();
     void onConfigButtonClick();
 
-    void onBadgePosXChanged(const QVariant &value);
-    void onBadgePosYChanged(const QVariant &value);
-    void onBadgeScaleChanged(const QVariant &value);
-
-    void onLoginTextOpacityChanged(const QVariant &value);
-
-    void onButtonLinePosChanged(const QVariant &value);
-
-    void onErrorChanged(const QVariant &value);
-
     void onEmergencyTextTransition(const QVariant &value);
-
-    void onHideYesNoTimerTick();
 
     void onFirewallTurnOffClick();
 
@@ -94,33 +77,17 @@ private slots:
 
 protected:
     void keyPressEvent(QKeyEvent *event) override;
-    bool sceneEvent(QEvent *event) override;
 
 private:
     void updateEmergencyConnect();
-    void showYesNo();
-
     void transitionToEmergencyON();
     void transitionToEmergencyOFF();
-
-    void changeToAccountScreen();
-
     int centeredOffset(int background_length, int graphic_length);
-
-    double curBadgeScale_;
-    int curBadgePosX_;
-    int curBadgePosY_;
-    QVariantAnimation badgePosXAnimation_;
-    QVariantAnimation badgePosYAnimation_;
-    QVariantAnimation badgeScaleAnimation_;
-
-    double curLoginTextOpacity_;
-    QVariantAnimation loginTextOpacityAnimation_;
 
     IconButton *minimizeButton_;
     IconButton *closeButton_;
 
-    CommonGraphics::BubbleButtonBright *getStartedButton_;
+    CommonGraphics::BubbleButton *getStartedButton_;
     CommonGraphics::TextButton *gotoLoginButton_;
 
     IconButton *settingsButton_;
@@ -138,33 +105,13 @@ private:
     QVariantAnimation errorAnimation_;
 
     FirewallTurnOffButton *firewallTurnOffButton_;
-
-    int curButtonLineXPos_;
-    QVariantAnimation buttonLinePosAnimation_;
-
     bool emergencyConnectOn_;
 
-    static constexpr int HEADER_HEIGHT               = 71;
-
-    static constexpr int Y_COORD_YES_BUTTON          = 196;
-    static constexpr int Y_COORD_NO_BUTTON           = 241;
-    static constexpr int Y_COORD_YES_LINE            = 194;
-    static constexpr int Y_COORD_NO_LINE             = 244;
-
-    static constexpr int EMERGENCY_CONNECT_TEXT_WIDTH = 125;
-    static constexpr int EMERGENCY_CONNECT_TEXT_POS_Y = 282;
-
-    static constexpr int BADGE_HEIGHT_BIG     = 40;
-    static constexpr int BADGE_WIDTH_BIG      = 40;
-
-    static constexpr int BADGE_SMALL_POS_X    = 45;
-    static constexpr int BADGE_SMALL_POS_Y    = 54;
-
-    static constexpr int LOGIN_TEXT_HEIGHT    = 32;
-
-    static constexpr double BADGE_SCALE_SMALL = 0.6;
-    static constexpr double BADGE_SCALE_LARGE = 1.0;
-
+    static constexpr int GET_STARTED_BUTTON_POS_Y = 169;
+    static constexpr int LOGIN_BUTTON_POS_Y       = 219;
+    static constexpr int BADGE_HEIGHT = 40;
+    static constexpr int BADGE_WIDTH = 40;
+    static constexpr int BADGE_POS_Y = 16;
 };
 
 } // namespace LoginWindow

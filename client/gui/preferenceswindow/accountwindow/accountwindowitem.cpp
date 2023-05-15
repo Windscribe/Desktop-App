@@ -13,7 +13,8 @@
 
 namespace PreferencesWindow {
 
-AccountWindowItem::AccountWindowItem(ScalableGraphicsObject *parent, AccountInfo *accountInfo) : CommonGraphics::BasePage(parent)
+AccountWindowItem::AccountWindowItem(ScalableGraphicsObject *parent, AccountInfo *accountInfo)
+  : CommonGraphics::BasePage(parent), accountInfo_(accountInfo)
 {
     plan_ = accountInfo->plan();
     trafficUsed_ = accountInfo->trafficUsed();
@@ -30,11 +31,11 @@ AccountWindowItem::AccountWindowItem(ScalableGraphicsObject *parent, AccountInfo
     connect(accountInfo, &AccountInfo::trafficUsedChanged, this, &AccountWindowItem::onTrafficUsedChanged);
     connect(accountInfo, &AccountInfo::lastResetChanged, this, &AccountWindowItem::onLastResetChanged);
 
-    infoTitle_ = new TitleItem(this, tr("INFO"));
+    infoTitle_ = new TitleItem(this);
     addItem(infoTitle_);
 
     infoGroup_ = new PreferenceGroup(this);
-    usernameItem_ = new AccountDataItem(infoGroup_, tr("Username"), accountInfo->username());
+    usernameItem_ = new AccountDataItem(infoGroup_, "", accountInfo->username());
     infoGroup_->addItem(usernameItem_);
 
     emailItem_ = new EmailItem(infoGroup_);
@@ -45,7 +46,7 @@ AccountWindowItem::AccountWindowItem(ScalableGraphicsObject *parent, AccountInfo
     infoGroup_->addItem(emailItem_);
     addItem(infoGroup_);
 
-    planTitle_ = new TitleItem(this, tr("PLAN"));
+    planTitle_ = new TitleItem(this);
     addItem(planTitle_);
 
     planGroup_ = new PreferenceGroup(this);
@@ -56,15 +57,15 @@ AccountWindowItem::AccountWindowItem(ScalableGraphicsObject *parent, AccountInfo
     planItem_->setPlan(plan_);
     planGroup_->addItem(planItem_);
 
-    expireDateItem_ = new AccountDataItem(planGroup_, tr("Expires On"), accountInfo->expireDate());
+    expireDateItem_ = new AccountDataItem(planGroup_, "", accountInfo->expireDate());
     planGroup_->addItem(expireDateItem_);
 
     resetDateItem_ = new AccountDataItem(planGroup_,
-                                         tr("Reset Date"),
+                                         "",
                                          QDate::fromString(accountInfo->lastReset(), "yyyy-MM-dd").addMonths(1).toString("yyyy-MM-dd"));
     planGroup_->addItem(resetDateItem_);
 
-    dataLeftItem_ = new AccountDataItem(planGroup_, tr("Data Left"), tr(""));
+    dataLeftItem_ = new AccountDataItem(planGroup_, "", "");
     planGroup_->addItem(dataLeftItem_);
     addItem(planGroup_);
 
@@ -73,7 +74,7 @@ AccountWindowItem::AccountWindowItem(ScalableGraphicsObject *parent, AccountInfo
     // for the POST we use the ServerAPI in the backend and we get a temporary one-time token back from the API that
     // can be safetly used in a GET command 
     manageAccountGroup_ = new PreferenceGroup(this);
-    manageAccountItem_ = new LinkItem(manageAccountGroup_, LinkItem::LinkType::EXTERNAL_LINK, tr("Manage Account"));
+    manageAccountItem_ = new LinkItem(manageAccountGroup_, LinkItem::LinkType::EXTERNAL_LINK);
     connect(manageAccountItem_, &LinkItem::clicked, this, &AccountWindowItem::manageAccountClick);
     manageAccountGroup_->addItem(manageAccountItem_);
     addItem(manageAccountGroup_);
@@ -86,19 +87,20 @@ AccountWindowItem::AccountWindowItem(ScalableGraphicsObject *parent, AccountInfo
     textItem_->setTextWidth(125);
     textItem_->document()->setDefaultTextOption(QTextOption(Qt::AlignHCenter));
 
-    loginButton_ = new CommonGraphics::BubbleButtonDark(this, 69, 24, 12, 20);
+    loginButton_ = new CommonGraphics::BubbleButton(this, CommonGraphics::BubbleButton::kOutline, 69, 24, 12);
     loginButton_->setText(tr("Login"));
     loginButton_->setFont(FontDescr(12,false));
-    connect(loginButton_, &CommonGraphics::BubbleButtonDark::clicked, this, &AccountWindowItem::accountLoginClick);
+    connect(loginButton_, &CommonGraphics::BubbleButton::clicked, this, &AccountWindowItem::accountLoginClick);
 
     updateWidgetPos();
 
     connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &AccountWindowItem::onLanguageChanged);
+    onLanguageChanged();
 }
 
-QString AccountWindowItem::caption()
+QString AccountWindowItem::caption() const
 {
-    return QT_TRANSLATE_NOOP("PreferencesWindow::PreferencesWindowItem", "Account");
+    return tr("Account");
 }
 
 void AccountWindowItem::setLoggedIn(bool loggedIn)
@@ -180,6 +182,15 @@ void AccountWindowItem::onLanguageChanged()
     loginButton_->setText(tr("Login"));
     textItem_->setPlainText(tr("Login to view your account info"));
 
+    infoTitle_->setTitle(tr("INFO"));
+    usernameItem_->setValue1(tr("Username"));
+    planTitle_->setTitle(tr("PLAN"));
+    expireDateItem_->setValue1(tr("Expires On"));
+    resetDateItem_->setValue1(tr("Reset Date"));
+    dataLeftItem_->setValue1(tr("Data Left"));
+
+    manageAccountItem_->setTitle(tr("Manage Account"));
+
     updateWidgetPos();
 }
 
@@ -201,7 +212,8 @@ void AccountWindowItem::onIsPremiumChanged(bool isPremium)
 void AccountWindowItem::setDataLeft() const
 {
     if (!isUnlimitedData()) {
-        dataLeftItem_->setValue2(Utils::humanReadableByteCount(qMax(0, plan_ - trafficUsed_), false, true));
+        QLocale locale(LanguageController::instance().getLanguage());
+        dataLeftItem_->setValue2(locale.formattedDataSize(qMax(0, plan_ - trafficUsed_), 1, QLocale::DataSizeTraditionalFormat));
     }
 }
 

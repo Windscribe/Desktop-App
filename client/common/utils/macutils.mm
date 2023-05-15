@@ -39,14 +39,14 @@ void MacUtils::activateApp()
 
 void MacUtils::invalidateShadow(void *pNSView)
 {
-    NSView *view = (NSView *)pNSView;
+    NSView *view = (__bridge NSView *)pNSView;
     NSWindow *win = [view window];
     [win invalidateShadow];
 }
 
 void MacUtils::invalidateCursorRects(void *pNSView)
 {
-    NSView *view = (NSView *)pNSView;
+    NSView *view = (__bridge NSView *)pNSView;
     NSWindow *win = [view window];
     [win resetCursorRects];
 }
@@ -193,7 +193,7 @@ QString MacUtils::getBundlePath()
 
 void MacUtils::getNSWindowCenter(void *nsView, int &outX, int &outY)
 {
-    NSView *view = (NSView *)nsView;
+    NSView *view = (__bridge NSView *)nsView;
     NSRect rc = view.window.frame;
     outX = rc.origin.x + rc.size.width / 2;
     outY = rc.origin.y + rc.size.height / 2;

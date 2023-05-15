@@ -67,6 +67,9 @@ public:
 signals:
     void deviceNameChanged(const QString &deviceName);
 
+private slots:
+    void onLanguageChanged();
+
 private:
     QVector<LocationItem *> locations_;
     QHash<LocationID, LocationItem *> mapLocations_;   // map LocationID to index in locations_
@@ -74,6 +77,7 @@ private:
     int *root_;   // Fake root node. The typename does not matter, only the pointer to identify the root node matters.
     bool isFreeSessionStatus_;
     FavoriteLocationsStorage favoriteLocationsStorage_;
+    const char *BEST_LOCATION_NAME = QT_TR_NOOP("Best Location");
 
     QVariant dataForLocation(int row, int role) const;
     QVariant dataForCity(LocationItem *l, int row, int role) const;

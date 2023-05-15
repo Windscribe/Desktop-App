@@ -30,7 +30,7 @@ public:
 
 private:
 	HWND hwnd_ = nullptr;
-	InstallButton *instalButton_ = nullptr;
+	InstallButton *installButton_ = nullptr;
 	CloseButton *closeButton_ = nullptr;
 	MinimizeButton *minimizeButton_ = nullptr;
 	SettingsButton *settingsButton_ = nullptr;

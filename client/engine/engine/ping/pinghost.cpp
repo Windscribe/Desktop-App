@@ -1,12 +1,18 @@
 #include "pinghost.h"
+
 #include "utils/ws_assert.h"
+
+#ifdef Q_OS_WIN
+#include "utils/extraconfig.h"
+#endif
 
 const int typeIdPingType = qRegisterMetaType<PingHost::PING_TYPE>("PingHost::PING_TYPE");
 
 
-PingHost::PingHost(QObject *parent, IConnectStateController *stateController) : QObject(parent),
-    pingHostTcp_(this, stateController), pingHostIcmp_(this, stateController)
+PingHost::PingHost(QObject *parent, IConnectStateController *stateController, NetworkAccessManager *networkAccessManager) : QObject(parent),
+    pingHostCurl_(this, stateController, networkAccessManager), pingHostTcp_(this, stateController), pingHostIcmp_(this, stateController)
 {
+    connect(&pingHostCurl_, &PingHost_Curl::pingFinished, this, &PingHost::pingFinished);
     connect(&pingHostTcp_, &PingHost_TCP::pingFinished, this, &PingHost::pingFinished);
 #if defined(Q_OS_WIN)
     connect(&pingHostIcmp_, &PingHost_ICMP_win::pingFinished, this, &PingHost::pingFinished);
@@ -15,27 +21,9 @@ PingHost::PingHost(QObject *parent, IConnectStateController *stateController) : 
 #endif
 }
 
-void PingHost::init()
+void PingHost::addHostForPing(const QString &id, const QString &ip, PING_TYPE pingType, const QString &hostname)
 {
-#ifdef Q_OS_WIN
-    crashHandler_.reset(new Debug::CrashHandlerForThread());
-#endif
-}
-
-void PingHost::finish()
-{
-    // The destructors for the tcp/icmp objects will run in a different thread.  Need to clear
-    // these objects in the thread that created them, otherwise some objects (e.g. QTimer) will
-    // complain about being killed by a thread that did not create them.
-    clearPings();
-#ifdef Q_OS_WIN
-    crashHandler_.reset();
-#endif
-}
-
-void PingHost::addHostForPing(const QString &ip, PingHost::PING_TYPE pingType)
-{
-    QMetaObject::invokeMethod(this, "addHostForPingImpl", Q_ARG(QString, ip), Q_ARG(PingHost::PING_TYPE, pingType));
+    QMetaObject::invokeMethod(this, "addHostForPingImpl", Q_ARG(QString, id), Q_ARG(QString, ip), Q_ARG(PingHost::PING_TYPE, pingType), Q_ARG(QString, hostname));
 }
 
 void PingHost::clearPings()
@@ -58,21 +46,35 @@ void PingHost::enableProxy()
     QMetaObject::invokeMethod(this, "enableProxyImpl");
 }
 
-void PingHost::addHostForPingImpl(const QString &ip, PingHost::PING_TYPE pingType)
+void PingHost::addHostForPingImpl(const QString &id, const QString &ip, PING_TYPE pingType, const QString &hostname)
 {
 #ifdef Q_OS_WIN
+    // The new curl-based ping mechanism is exhibiting the same spurious delays as experienced before
+    // with the TCP-based ping mechanism.  The ICMP mechanism on Windows does not exhibit this behavior.
+    if (ExtraConfig::instance().getUseICMPPings() && pingType != PING_ICMP) {
+        // Setting it to TCP so we can check the isProxyEnabled() below.
+        pingType = PING_TCP;
+    }
+
+    if (pingType == PING_CURL) {
+        pingHostCurl_.addHostForPing(id, ip, hostname);
+    }
     // The icmp ping object is not currently set up to work with a network proxy.
-    if (pingType == PING_TCP && pingHostTcp_.isProxyEnabled()) {
-        pingHostTcp_.addHostForPing(ip);
-    } else {
-        pingHostIcmp_.addHostForPing(ip);
+    else if (pingType == PING_TCP && pingHostTcp_.isProxyEnabled()) {
+        pingHostTcp_.addHostForPing(id, ip);
+    }
+    else {
+        pingHostIcmp_.addHostForPing(id, ip);
     }
 #else
-    if (pingType == PING_TCP) {
-        pingHostTcp_.addHostForPing(ip);
+    if (pingType == PING_CURL) {
+        pingHostCurl_.addHostForPing(id, ip, hostname);
+    }
+    else if (pingType == PING_TCP) {
+        pingHostTcp_.addHostForPing(id, ip);
     }
     else if (pingType == PING_ICMP) {
-        pingHostIcmp_.addHostForPing(ip);
+        pingHostIcmp_.addHostForPing(id, ip);
     }
     else {
         WS_ASSERT(false);
@@ -82,24 +84,28 @@ void PingHost::addHostForPingImpl(const QString &ip, PingHost::PING_TYPE pingTyp
 
 void PingHost::clearPingsImpl()
 {
+    pingHostCurl_.clearPings();
     pingHostTcp_.clearPings();
     pingHostIcmp_.clearPings();
 }
 
 void PingHost::setProxySettingsImpl(const types::ProxySettings &proxySettings)
 {
+    pingHostCurl_.setProxySettings(proxySettings);
     pingHostTcp_.setProxySettings(proxySettings);
     pingHostIcmp_.setProxySettings(proxySettings);
 }
 
 void PingHost::disableProxyImpl()
 {
+    pingHostCurl_.disableProxy();
     pingHostTcp_.disableProxy();
     pingHostIcmp_.disableProxy();
 }
 
 void PingHost::enableProxyImpl()
 {
+    pingHostCurl_.enableProxy();
     pingHostTcp_.enableProxy();
     pingHostIcmp_.enableProxy();
 }

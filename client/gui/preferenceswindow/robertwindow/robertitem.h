@@ -3,7 +3,7 @@
 
 #include <QSharedPointer>
 #include "commongraphics/baseitem.h"
-#include "commongraphics/checkboxbutton.h"
+#include "commongraphics/togglebutton.h"
 #include "graphicresources/fontdescr.h"
 #include "graphicresources/independentpixmap.h"
 #include "types/robertfilter.h"
@@ -36,6 +36,7 @@ signals:
 
 private slots:
     void onStateChanged(bool isChecked);
+    void onLanguageChanged();
 
 private:
     QSharedPointer<IndependentPixmap> iconForId(QString id);
@@ -49,7 +50,7 @@ private:
     
     QString strCaption_;
 
-    CheckBoxButton *checkBoxButton_;
+    ToggleButton *checkBoxButton_;
     FontDescr captionFont_;
     QSharedPointer<IndependentPixmap> icon_;
 

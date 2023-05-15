@@ -2,9 +2,9 @@
 #define MAINWINDOW_H
 
 #include <QWidget>
-#include <QMessageBox>
 #include <QSystemTrayIcon>
 #include <QWidgetAction>
+#include "generalmessagecontroller.h"
 #include "mainwindowcontroller.h"
 
 #include "locationswindow/locationswindow.h"
@@ -17,7 +17,6 @@
 #include "blockconnect.h"
 #include "freetrafficnotificationcontroller.h"
 #include "graphicresources/iconmanager.h"
-#include "guitest.h"
 #include "systemtray/locationstraymenunative.h"
 #include "systemtray/locationstraymenu.h"
 #include "dialogs/advancedparametersdialog.h"
@@ -95,7 +94,6 @@ private slots:
     // protocol window signals
     void onEscapeProtocolsClick();
     void onProtocolWindowProtocolClick(const types::Protocol &protocol, uint port);
-    void onProtocolWindowSetAsPreferred(const types::ConnectionSettings &settings);
     void onProtocolWindowDisconnect();
 
     // preferences window signals
@@ -146,10 +144,8 @@ private slots:
     void onUpgradeAccountAccept();
     void onUpgradeAccountCancel();
 
-    // general window signals
-    void onGeneralMessageWindowAccept();
-
-    // exit window signals
+    // logout & exit window signals
+    void onLogoutWindowAccept();
     void onExitWindowAccept();
     void onExitWindowReject();
 
@@ -164,7 +160,6 @@ private slots:
 
     // backend state signals
     void onBackendInitFinished(INIT_STATE initState);
-    void onBackendInitTooLong();
 
     void onBackendLoginFinished(bool isLoginFromSavedSettings);
     void onBackendTryingBackupEndpoint(int num, int cnt);
@@ -216,7 +211,6 @@ private slots:
     void onPreferencesLocationOrderChanged(ORDER_LOCATION_TYPE o);
     void onPreferencesSplitTunnelingChanged(types::SplitTunneling st);
     void onPreferencesAllowLanTrafficChanged(bool bAllowLanTraffic);
-    void onPreferencesUpdateEngineSettings();
     void onPreferencesLaunchOnStartupChanged(bool bEnabled);
     void onPreferencesConnectionSettingsChanged(types::ConnectionSettings connectionSettings);
     void onPreferencesNetworkPreferredProtocolsChanged(QMap<QString, types::ConnectionSettings> p);
@@ -224,7 +218,6 @@ private slots:
     void onPreferencesUpdateChannelChanged(UPDATE_CHANNEL updateChannel);
     void onPreferencesGetRobertFilters();
     void onPreferencesSetRobertFilter(const types::RobertFilter &filter);
-
     void onPreferencesReportErrorToUser(const QString &title, const QString &desc);
 
     void onPreferencesCollapsed();
@@ -264,7 +257,6 @@ private slots:
     void onLocationsTrayMenuLocationSelected(const LocationID &lid);
 
     void onFreeTrafficNotification(const QString &message);
-    void onNativeInfoErrorMessage(QString title, QString desc);
     void onSplitTunnelingAppsAddButtonClick();
     void onRevealConnectStateChanged(bool revealingConnect);
 
@@ -285,10 +277,9 @@ private slots:
     void onSelectedLocationChanged();
     void onSelectedLocationRemoved();
 
-    void onMsgBoxClicked(QAbstractButton *button);
-
 private:
     void gotoLoginWindow();
+    void gotoLogoutWindow();
     void gotoExitWindow();
     void collapsePreferences();
 
@@ -336,7 +327,6 @@ private:
     QString signOutErrorMessage_;
 
     LoginAttemptsController loginAttemptsController_;
-    GuiTest *guiTest_;
     QSharedPointer<IMultipleAccountDetection> multipleAccountDetection_;
     BlockConnect blockConnect_;
     FreeTrafficNotificationController *freeTrafficNotificationController_;
@@ -367,10 +357,7 @@ private:
     bool revealingConnectWindow_;
     bool internetConnected_;
 
-    bool currentlyShowingUserWarningMessage_;
     QSet<USER_WARNING_TYPE> alreadyShownWarnings_;
-
-    bool bGotoUpdateWindowAfterGeneralMessage_;
 
     types::NetworkInterface curNetwork_;
 
@@ -423,7 +410,7 @@ private:
     types::Protocol getDefaultProtocolForNetwork(const QString &network);
     bool userProtocolOverride_;
 
-    QMessageBox *tunnelTestMsgBox_;
+    bool sendDebugLogOnDisconnect_;
 };
 
 #endif // MAINWINDOW_H

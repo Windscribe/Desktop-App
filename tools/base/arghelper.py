@@ -14,6 +14,7 @@ class ArgHelper:
     OPTION_CLEAN_ONLY = "--clean-only"
     OPTION_DELETE_SECRETS_ONLY = "--delete-secrets-only"
     OPTION_DOWNLOAD_SECRETS = "--download-secrets"
+    OPTION_DEBUG = "--debug"
     # signing
     OPTION_NOTARIZE = "--notarize"
     OPTION_SIGN = "--sign"
@@ -22,7 +23,7 @@ class ArgHelper:
     OPTION_ONE_PASSWORD_SESSION = "--session"
     OPTION_USE_LOCAL_SECRETS = "--use-local-secrets"
     # partial builds
-    OPTION_NO_CLEAN = "--no-clean" # basically exists to achieve partial builds
+    OPTION_CLEAN = "--clean"
     OPTION_NO_APP = "--no-app"
     OPTION_NO_COM = "--no-com"
     OPTION_NO_INSTALLER = "--no-installer"
@@ -31,6 +32,9 @@ class ArgHelper:
     # linux packaging
     OPTION_BUILD_RPM = "--build-rpm"
     OPTION_BUILD_DEB = "--build-deb"
+    # target architecture
+    OPTION_TARGET_X86_64 = "--x86_64"  # this is the default
+    OPTION_TARGET_ARM64 = "--arm64"
 
     options = list()
     options.append(("\nGeneral", ""))
@@ -39,6 +43,7 @@ class ArgHelper:
     options.append((OPTION_DELETE_SECRETS_ONLY, "Deletes secrets needed for signing"))
     options.append((OPTION_DOWNLOAD_SECRETS, "Download secrets from 1password (not recommended)"))
     options.append((OPTION_NO_INSTALLER, "Do not build the installer component"))
+    options.append((OPTION_DEBUG, "Build project as debug"))
     options.append(("\nSigning", ""))
     options.append((OPTION_NOTARIZE, "Notarizes the app after building (Mac only, CI-only, requires --sign)"))
     options.append((OPTION_SIGN, "Sign the build"))
@@ -47,7 +52,7 @@ class ArgHelper:
     options.append((OPTION_ONE_PASSWORD_SESSION, "1password session to skip 1p login"))
     options.append((OPTION_USE_LOCAL_SECRETS, "Do not download secrets, use local secrets"))
     options.append(("\nComponent skipping", ""))
-    options.append((OPTION_NO_CLEAN, "Skip cleaning up temp files/folders. Helps speed up re-building"))
+    options.append((OPTION_CLEAN, "Fully clean previous build files before building"))
     options.append((OPTION_NO_APP, "Do not build the main application components"))
     options.append((OPTION_NO_COM, "Do not build the COM components required for auth helper"))
     options.append((OPTION_NO_INSTALLER, "Do not build the installer component"))
@@ -56,6 +61,9 @@ class ArgHelper:
     options.append(("\nLinux packaging", ""))
     options.append((OPTION_BUILD_RPM, "Build .rpm package for Red Hat and derivative distros"))
     options.append((OPTION_BUILD_DEB, "Build .deb package for Debian and derivative distros (default)"))
+    options.append(("\nTarget Architecture", ""))
+    options.append((OPTION_TARGET_X86_64, "Build for the Intel/AMD 64-bit x86 CPU architecture (default) (Note: only used for Windows builds)"))
+    options.append((OPTION_TARGET_ARM64, "Build for the ARM 64-bit CPU architecture (Note: only used for Windows builds)"))
 
     def __init__(self, program_arg_list):
         self.args_only = program_arg_list[1:]
@@ -65,11 +73,11 @@ class ArgHelper:
         self.mode_help = ArgHelper.OPTION_HELP in program_arg_list
         self.mode_delete_secrets = ArgHelper.OPTION_DELETE_SECRETS_ONLY in program_arg_list
         self.mode_download_secrets = ArgHelper.OPTION_DOWNLOAD_SECRETS in program_arg_list
+        self.mode_debug = ArgHelper.OPTION_DEBUG in program_arg_list
 
         # building
-        self.mode_post_clean = not (ArgHelper.OPTION_NO_CLEAN in program_arg_list)
+        self.mode_clean = ArgHelper.OPTION_CLEAN in program_arg_list
         self.mode_build_app = not (ArgHelper.OPTION_NO_APP in program_arg_list)
-        self.mode_build_com = not (ArgHelper.OPTION_NO_COM in program_arg_list)
         self.mode_build_installer = not (ArgHelper.OPTION_NO_INSTALLER in program_arg_list)
 
         # signing related
@@ -86,6 +94,11 @@ class ArgHelper:
         self.mode_build_deb = no_packaging_selected or ArgHelper.OPTION_BUILD_DEB in program_arg_list
         self.mode_build_rpm = ArgHelper.OPTION_BUILD_RPM in program_arg_list
 
+        # target architecture
+        no_arch_selected = ArgHelper.OPTION_TARGET_X86_64 not in program_arg_list and ArgHelper.OPTION_TARGET_ARM64 not in program_arg_list
+        self.target_x86_64 = no_arch_selected or ArgHelper.OPTION_TARGET_X86_64 in program_arg_list
+        self.target_arm64 = ArgHelper.OPTION_TARGET_ARM64 in program_arg_list
+
         # 1password user/session
         try:
             user_index = program_arg_list.index(ArgHelper.OPTION_ONE_PASSWORD_USER) + 1
@@ -98,9 +111,9 @@ class ArgHelper:
                 if session_token_index >= len(program_arg_list):
                     raise IOError()
                 self.one_password_session = program_arg_list[session_token_index]
-            except:
+            except Exception:
                 self.one_password_session = ""
-        except:
+        except Exception:
             self.one_password_user = ""
             self.one_password_session = ""
 
@@ -110,14 +123,11 @@ class ArgHelper:
     def clean_only(self):
         return self.mode_clean_only
 
-    def post_clean(self):
-        return self.mode_post_clean
+    def clean(self):
+        return self.mode_clean
 
     def build_app(self):
         return self.mode_build_app
-
-    def build_com(self):
-        return self.mode_build_com
 
     def build_installer(self):
         return self.mode_build_installer
@@ -157,6 +167,15 @@ class ArgHelper:
 
     def build_deb(self):
         return self.mode_build_deb
+
+    def build_debug(self):
+        return self.mode_debug
+
+    def target_x86_64_arch(self):
+        return self.target_x86_64
+
+    def target_arm64_arch(self):
+        return self.target_arm64
 
     def invalid_mode(self):
         if self.mode_help:

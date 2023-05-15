@@ -3,7 +3,7 @@
 
 #include "iupgradewindow.h"
 #include "backend/preferences/preferences.h"
-#include "commongraphics/bubblebuttonbright.h"
+#include "commongraphics/bubblebutton.h"
 #include "commongraphics/textbutton.h"
 
 namespace UpgradeWindow {
@@ -37,7 +37,7 @@ private slots:
 private:
     Preferences *preferences_;
 
-    CommonGraphics::BubbleButtonBright *acceptButton_;
+    CommonGraphics::BubbleButton *acceptButton_;
     CommonGraphics::TextButton *cancelButton_;
 
     int height_;

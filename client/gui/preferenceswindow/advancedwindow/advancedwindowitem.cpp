@@ -3,8 +3,8 @@
 #include <QPainter>
 #include <QGraphicsScene>
 #include <QGraphicsView>
-#include <QMessageBox>
 #include "dpiscalemanager.h"
+#include "generalmessagecontroller.h"
 #include "languagecontroller.h"
 #include "commongraphics/commongraphics.h"
 #include "graphicresources/imageresourcessvg.h"
@@ -36,15 +36,15 @@ AdvancedWindowItem::AdvancedWindowItem(ScalableGraphicsObject *parent, Preferenc
     connect(preferences, &Preferences::isIgnoreSslErrorsChanged, this, &AdvancedWindowItem::onIgnoreSslErrorsPreferencesChanged);
     connect(preferences, &Preferences::keepAliveChanged, this, &AdvancedWindowItem::onKeepAlivePreferencesChanged);
 
-    advParametersGroup_ = new PreferenceGroup(this, "Make advanced tweaks to the way the app functions.", "");
-    advParametersItem_ = new LinkItem(advParametersGroup_, LinkItem::LinkType::SUBPAGE_LINK, QT_TRANSLATE_NOOP("PreferencesWindow::LinkItem","Advanced Parameters"));
+    advParametersGroup_ = new PreferenceGroup(this);
+    advParametersItem_ = new LinkItem(advParametersGroup_, LinkItem::LinkType::SUBPAGE_LINK);
     connect(advParametersItem_, &LinkItem::clicked, this, &AdvancedWindowItem::advParametersClick);
     advParametersGroup_->addItem(advParametersItem_);
     addItem(advParametersGroup_);
 
 #ifdef Q_OS_WIN
-    tapAdapterGroup_ = new PreferenceGroup(this, "Pick between the TAP and Wintun network adapters for OpenVPN connections.", "");
-    comboBoxTapAdapter_ = new ComboBoxItem(tapAdapterGroup_, QT_TRANSLATE_NOOP("PreferencesWindow::ComboBoxItem", "TAP Driver"), QString());
+    tapAdapterGroup_ = new PreferenceGroup(this);
+    comboBoxTapAdapter_ = new ComboBoxItem(tapAdapterGroup_);
     comboBoxTapAdapter_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/TAP_DRIVER"));
     updateTapAdaptersList();
     comboBoxTapAdapter_->setCurrentItem((int)preferences_->tapAdapter());
@@ -52,70 +52,59 @@ AdvancedWindowItem::AdvancedWindowItem(ScalableGraphicsObject *parent, Preferenc
     tapAdapterGroup_->addItem(comboBoxTapAdapter_);
     addItem(tapAdapterGroup_);
 
-    ipv6Group_ = new PreferenceGroup(this, "Enables / disables system-wide IPv6 connectivity.", "");
-    checkBoxIPv6_ = new CheckBoxItem(ipv6Group_, QT_TRANSLATE_NOOP("PreferencesWindow::CheckBoxItem", "IPv6"), "");
+    ipv6Group_ = new PreferenceGroup(this);
+    checkBoxIPv6_ = new ToggleItem(ipv6Group_);
     checkBoxIPv6_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/IPV6"));
     checkBoxIPv6_->setState(preferencesHelper->getIpv6StateInOS());
-    connect(checkBoxIPv6_, &CheckBoxItem::stateChanged, this, &AdvancedWindowItem::onIPv6StateChanged);
+    connect(checkBoxIPv6_, &ToggleItem::stateChanged, this, &AdvancedWindowItem::onIPv6StateChanged);
     ipv6Group_->addItem(checkBoxIPv6_);
     addItem(ipv6Group_);
 #endif
 
-    apiResolutionGroup_ = new ApiResolutionGroup(this, "Resolve server API address automatically, or use one provided by the Support team.");
+    apiResolutionGroup_ = new ApiResolutionGroup(this);
     apiResolutionGroup_->setApiResolution(preferences->apiResolution());
     connect(apiResolutionGroup_, &ApiResolutionGroup::apiResolutionChanged, this, &AdvancedWindowItem::onApiResolutionChanged);
     addItem(apiResolutionGroup_);
 
-    ignoreSslErrorsGroup_ = new PreferenceGroup(this, "Ignore SSL certificate validation errors.", "");
-    cbIgnoreSslErrors_ = new CheckBoxItem(ignoreSslErrorsGroup_, QT_TRANSLATE_NOOP("PreferencesWindow::CheckBoxItem", "Ignore SSL Errors"), "");
+    ignoreSslErrorsGroup_ = new PreferenceGroup(this);
+    cbIgnoreSslErrors_ = new ToggleItem(ignoreSslErrorsGroup_);
     cbIgnoreSslErrors_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/IGNORE_SSL_ERRORS"));
     cbIgnoreSslErrors_->setState(preferences->isIgnoreSslErrors());
-    connect(cbIgnoreSslErrors_, &CheckBoxItem::stateChanged, this, &AdvancedWindowItem::onIgnoreSslErrorsStateChanged);
+    connect(cbIgnoreSslErrors_, &ToggleItem::stateChanged, this, &AdvancedWindowItem::onIgnoreSslErrorsStateChanged);
     ignoreSslErrorsGroup_->addItem(cbIgnoreSslErrors_);
     addItem(ignoreSslErrorsGroup_);
 
-    keepAliveGroup_ = new PreferenceGroup(this, "Prevents IKEv2 connections from dying (by time-out) by periodically pinging the server.", "");
-    cbKeepAlive_ = new CheckBoxItem(keepAliveGroup_, QT_TRANSLATE_NOOP("PreferencesWindow::CheckBoxItem", "Client-side Keepalive"), "");
+    keepAliveGroup_ = new PreferenceGroup(this);
+    cbKeepAlive_ = new ToggleItem(keepAliveGroup_);
     cbKeepAlive_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/KEEPALIVE"));
     cbKeepAlive_->setState(preferences->keepAlive());
-    connect(cbKeepAlive_, &CheckBoxItem::stateChanged, this, &AdvancedWindowItem::onKeepAliveStateChanged);
+    connect(cbKeepAlive_, &ToggleItem::stateChanged, this, &AdvancedWindowItem::onKeepAliveStateChanged);
     keepAliveGroup_->addItem(cbKeepAlive_);
     addItem(keepAliveGroup_);
 
-    internalDnsGroup_ = new PreferenceGroup(this, "Windscribe uses this DNS server to resolve addresses outside the VPN.\nWarning: Using \"OS Default\" may sometimes cause DNS leaks during reconnects.");
-    comboBoxAppInternalDns_ = new ComboBoxItem(internalDnsGroup_, QT_TRANSLATE_NOOP("PreferencesWindow::ComboBoxItem", "App Internal DNS"), QString());
+    internalDnsGroup_ = new PreferenceGroup(this);
+    comboBoxAppInternalDns_ = new ComboBoxItem(internalDnsGroup_);
     comboBoxAppInternalDns_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/INTERNAL_DNS"));
-    const QList< QPair<QString, int> > dnsTypes = DNS_POLICY_TYPE_toList();
-    for (const auto &d : dnsTypes)
-    {
-        comboBoxAppInternalDns_->addItem(d.first, d.second);
-    }
-    comboBoxAppInternalDns_->setCurrentItem(preferences->dnsPolicy());
     connect(comboBoxAppInternalDns_, &ComboBoxItem::currentItemChanged, this, &AdvancedWindowItem::onAppInternalDnsItemChanged);
     internalDnsGroup_->addItem(comboBoxAppInternalDns_);
     addItem(internalDnsGroup_);
 
 #ifdef Q_OS_LINUX
-    dnsManagerGroup_ = new PreferenceGroup(this, "Select the DNS system service Windscribe enforces. Experienced users only.", "");
-    comboBoxDnsManager_ = new ComboBoxItem(dnsManagerGroup_, QT_TRANSLATE_NOOP("PreferencesWindow::ComboBoxItem", "DNS Manager"), QString());
+    dnsManagerGroup_ = new PreferenceGroup(this);
+    comboBoxDnsManager_ = new ComboBoxItem(dnsManagerGroup_);
     comboBoxDnsManager_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/DNS_MANAGER"));
-    const QList< QPair<QString, int> > dnsManagerTypes = DNS_MANAGER_TYPE_toList();
-    for (const auto &d : dnsManagerTypes)
-    {
-        comboBoxDnsManager_->addItem(d.first, d.second);
-    }
-
-    comboBoxDnsManager_->setCurrentItem(preferences->dnsManager());
     connect(comboBoxDnsManager_, &ComboBoxItem::currentItemChanged, this, &AdvancedWindowItem::onDnsManagerItemChanged);
     dnsManagerGroup_->addItem(comboBoxDnsManager_);
     addItem(dnsManagerGroup_);
-
 #endif
+
+    connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &AdvancedWindowItem::onLanguageChanged);
+    onLanguageChanged();
 }
 
 QString AdvancedWindowItem::caption() const
 {
-    return QT_TRANSLATE_NOOP("PreferencesWindow::PreferencesWindowItem", "Advanced Options");
+    return tr("Advanced Options");
 }
 
 ADVANCED_SCREEN AdvancedWindowItem::getScreen()
@@ -141,25 +130,17 @@ void AdvancedWindowItem::onTapAdapterChanged(QVariant v)
 
 void AdvancedWindowItem::onIPv6StateChanged(bool isChecked)
 {
-    QMessageBox msgBox(g_mainWindow);
-    msgBox.setText(tr("In order to disable IPv6, a computer restart is required. Do it now?"));
-    QAbstractButton* pButtonYes = msgBox.addButton(tr("Yes"), QMessageBox::NoRole);
-    QAbstractButton* pButtonLater = msgBox.addButton(tr("Restart later"), QMessageBox::NoRole);
-    QAbstractButton* pButtonCancel = msgBox.addButton(tr("Cancel"), QMessageBox::NoRole);
-    msgBox.exec();
-
-    if (msgBox.clickedButton() == pButtonYes)
-    {
-        emit setIpv6StateInOS(isChecked, true);
-    }
-    else if (msgBox.clickedButton() == pButtonLater)
-    {
-        emit setIpv6StateInOS(isChecked, false);
-    }
-    else if (msgBox.clickedButton() == pButtonCancel)
-    {
-        checkBoxIPv6_->setState(!isChecked);
-    }
+    GeneralMessageController::instance().showMessage(
+        "WARNING_WHITE",
+        tr("Restart Required"),
+        tr("In order to toggle IPv6, a computer restart is required. Do it now?"),
+        GeneralMessageController::tr(GeneralMessageController::kYes),
+        GeneralMessageController::tr(GeneralMessageController::kCancel),
+        tr("Restart later"),
+        [this, isChecked](bool b) { emit setIpv6StateInOS(isChecked, true); },
+        [this, isChecked](bool b) { checkBoxIPv6_->setState(!isChecked); },
+        [this, isChecked](bool b) { emit setIpv6StateInOS(isChecked, false); },
+        GeneralMessage::kFromPreferences);
 }
 #endif
 
@@ -238,6 +219,31 @@ void AdvancedWindowItem::updateTapAdaptersList()
 
 void AdvancedWindowItem::onLanguageChanged()
 {
+    advParametersGroup_->setDescription(tr("Make advanced tweaks to the way the app functions."));
+    advParametersItem_->setTitle(tr("Advanced Parameters"));
+
+#ifdef Q_OS_WIN
+    tapAdapterGroup_->setDescription(tr("Pick between the TAP and Wintun network adapters for OpenVPN connections."));
+    comboBoxTapAdapter_->setLabelCaption(tr("TAP Driver"));
+
+    ipv6Group_->setDescription(tr("Enables / disables system-wide IPv6 connectivity."));
+    checkBoxIPv6_->setCaption(tr("IPv6"));
+#endif
+
+    apiResolutionGroup_->setDescription(tr("Resolve server API address automatically, or use one provided by the Support team."));
+    ignoreSslErrorsGroup_->setDescription(tr("Ignore SSL certificate validation errors."));
+    cbIgnoreSslErrors_->setCaption(tr("Ignore SSL Errors"));
+    keepAliveGroup_->setDescription(tr("Prevents IKEv2 connections from dying (by time-out) by periodically pinging the server."));
+    cbKeepAlive_->setCaption(tr("Client-side Keepalive"));
+    internalDnsGroup_->setDescription(tr("Windscribe uses this DNS server to resolve addresses outside the VPN.") + "\n" + tr("Warning: Using \"OS Default\" may sometimes cause DNS leaks during reconnects."));
+    comboBoxAppInternalDns_->setLabelCaption(tr("App Internal DNS"));
+    comboBoxAppInternalDns_->setItems(DNS_POLICY_TYPE_toList(), preferences_->dnsPolicy());
+
+#ifdef Q_OS_LINUX
+    dnsManagerGroup_->setDescription(tr("Select the DNS system service Windscribe enforces. Experienced users only."));
+    comboBoxDnsManager_->setLabelCaption(tr("DNS Manager"));
+    comboBoxDnsManager_->setItems(DNS_MANAGER_TYPE_toList(), preferences_->dnsManager());
+#endif
 }
 
 void AdvancedWindowItem::hideOpenPopups()

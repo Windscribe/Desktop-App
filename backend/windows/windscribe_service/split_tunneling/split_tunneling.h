@@ -17,6 +17,7 @@ public:
     void setSettings(bool isEnabled, bool isExclude, const std::vector<std::wstring>& apps, const std::vector<std::wstring>& ips,
                      const std::vector<std::string>& hosts, bool isAllowLanTraffic);
     bool setConnectStatus(CMD_CONNECT_STATUS& connectStatus);
+    bool updateState();
 
     static void removeAllFilters(FwpmWrapper& fwmpWrapper);
 
@@ -37,6 +38,5 @@ private:
     bool prevIsExclude_ = false;
 
     void detectWindscribeExecutables();
-    bool updateState();
 };
 

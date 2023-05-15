@@ -1,16 +1,17 @@
 #include "connectwindowitem.h"
 
-#include <QGraphicsSceneMouseEvent>
-#include <QPainter>
 #include <QCursor>
 #include <QGraphicsScene>
+#include <QGraphicsSceneMouseEvent>
 #include <QGraphicsView>
-#include "graphicresources/fontmanager.h"
-#include "utils/ws_assert.h"
-#include "utils/logger.h"
+#include <QPainter>
+
 #include "dpiscalemanager.h"
-#include "tooltips/tooltiputil.h"
+#include "languagecontroller.h"
 #include "tooltips/tooltipcontroller.h"
+#include "tooltips/tooltiputil.h"
+#include "utils/logger.h"
+#include "utils/ws_assert.h"
 
 
 namespace ConnectWindow {
@@ -115,7 +116,7 @@ ConnectWindowItem::ConnectWindowItem(QGraphicsObject *parent, Preferences *prefe
     connect(preferencesHelper, &PreferencesHelper::isDockedModeChanged, this, &ConnectWindowItem::onDockedModeChanged);
     connect(preferences, &Preferences::appSkinChanged, this, &ConnectWindowItem::onAppSkinChanged);
 
-    QFont descFont = *FontManager::instance().getFont(11, false);
+    connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &ConnectWindowItem::onLanguageChanged);
 
     updatePositions();
 }
@@ -154,6 +155,7 @@ void ConnectWindowItem::setClickable(bool isClickable)
     firewallInfo_->setClickableHoverable(false, isClickable);
     serverRatingIndicator_->setClickableHoverable(false, isClickable);
     connectStateProtocolPort_->setHoverable(isClickable);
+    connectStateProtocolPort_->setClickable(isClickable);
 }
 
 QRegion ConnectWindowItem::getMask()
@@ -381,8 +383,8 @@ void ConnectWindowItem::onConnectStateTextHoverEnter()
 
             if (prevConnectState_.connectState == CONNECT_STATE_DISCONNECTED)
             {
-                QString text = QT_TRANSLATE_NOOP("CommonWidgets::ToolTipWidget", "Connection to Windscribe has been terminated. ") +
-                        dataTransferred_ + QT_TRANSLATE_NOOP("CommonWidgets::ToolTipWidget", " transferred in ") +
+                QString text = tr("Connection to Windscribe has been terminated. ") +
+                        dataTransferred_ + tr(" transferred in ") +
                         connectionTime_;
 
                 TooltipInfo ti(TOOLTIP_TYPE_DESCRIPTIVE, TOOLTIP_ID_CONNECTION_INFO);
@@ -397,9 +399,8 @@ void ConnectWindowItem::onConnectStateTextHoverEnter()
             }
             else // CONNECTED
             {
-                QString text = QT_TRANSLATE_NOOP("CommonWidgets::ToolTipWidget", "Connected for ") +
-                        connectionTime_ + ", " +
-                        dataTransferred_ + QT_TRANSLATE_NOOP("CommonWidgets::ToolTipWidget", " transferred");
+                QString text = tr("Connected for ") +
+                        connectionTime_ + ", " + dataTransferred_ + tr(" transferred");
 
                 TooltipInfo ti(TOOLTIP_TYPE_BASIC, TOOLTIP_ID_CONNECTION_INFO);
                 ti.x = posX;
@@ -609,7 +610,7 @@ void ConnectWindowItem::updatePositions()
         serverRatingIndicator_->setPos(296*G_SCALE, 129*G_SCALE);
         middleItem_->setPos(0, 182*G_SCALE);
         firewallButton_->setPos(16*G_SCALE, 224*G_SCALE);
-        firewallInfo_->setPos(82*G_SCALE, 184*G_SCALE);
+        firewallInfo_->setPos(middleItem_->firewallTextRight() + 8*G_SCALE, 184*G_SCALE);
     }
     else
     {
@@ -672,6 +673,16 @@ void ConnectWindowItem::onProtocolsClick()
     if (connectStateProtocolPort_->isProtocolButtonVisible()) {
         emit protocolsClick();
     }
+}
+
+void ConnectWindowItem::setIsPreferredProtocol(bool on)
+{
+    connectStateProtocolPort_->setIsPreferredProtocol(on);
+}
+
+void ConnectWindowItem::onLanguageChanged()
+{
+    updatePositions();
 }
 
 } //namespace ConnectWindow

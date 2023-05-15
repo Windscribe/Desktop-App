@@ -40,7 +40,7 @@ class Engine : public QObject
 {
     Q_OBJECT
 public:
-    explicit Engine(const types::EngineSettings &engineSettings);
+    explicit Engine();
     virtual ~Engine();
 
     void setSettings(const types::EngineSettings &engineSettings);
@@ -124,8 +124,8 @@ public slots:
     void onWireGuardKeyLimitUserResponse(bool deleteOldestKey);
 
 signals:
-    void initFinished(ENGINE_INIT_RET_CODE retCode, bool isCanLoginWithAuthHash);
-    void bfeEnableFinished(ENGINE_INIT_RET_CODE retCode, bool isCanLoginWithAuthHash);
+    void initFinished(ENGINE_INIT_RET_CODE retCode, bool isCanLoginWithAuthHash, const types::EngineSettings &engineSettings);
+    void bfeEnableFinished(ENGINE_INIT_RET_CODE retCode, bool isCanLoginWithAuthHash, const types::EngineSettings &engineSettings);
     void cleanupFinished();
     void loginFinished(bool isLoginFromSavedSettings, const QString &authHash, const types::PortMap &portMap);
     void tryingBackupEndpoint(int num, int cnt);
@@ -166,10 +166,10 @@ signals:
 
     void networkChanged(types::NetworkInterface networkInterface);
 
-    void macAddrSpoofingChanged(const types::MacAddrSpoofing &macAddrSpoofing);
+    void macAddrSpoofingChanged(const types::EngineSettings &engineSettings);
     void sendUserWarning(USER_WARNING_TYPE userWarningType);
     void internetConnectivityChanged(bool connectivity);
-    void packetSizeChanged(bool isAuto, int mtu);
+    void packetSizeChanged(const types::EngineSettings &engineSettings);
     void packetSizeDetectionStateChanged(bool on, bool isError);
 
     void hostsFileBecameWritable();

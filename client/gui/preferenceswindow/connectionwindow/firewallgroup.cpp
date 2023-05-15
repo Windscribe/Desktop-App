@@ -4,6 +4,7 @@
 #include "dpiscalemanager.h"
 #include "graphicresources/imageresourcessvg.h"
 #include "graphicresources/independentpixmap.h"
+#include "languagecontroller.h"
 #include "tooltips/tooltiputil.h"
 #include "tooltips/tooltipcontroller.h"
 
@@ -12,25 +13,18 @@ namespace PreferencesWindow {
 FirewallGroup::FirewallGroup(ScalableGraphicsObject *parent, const QString &desc, const QString &descUrl)
   : PreferenceGroup(parent, desc, descUrl)
 {
-    firewallModeItem_ = new ComboBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::ComboBoxItem", "Firewall Mode"), QString());
-    const QList< QPair<QString, int> > modes = FIREWALL_MODE_toList();
-    for (const auto v : modes)
-    {
-        firewallModeItem_->addItem(v.first, v.second);
-    }
+    firewallModeItem_ = new ComboBoxItem(this);
     connect(firewallModeItem_, &ComboBoxItem::currentItemChanged, this, &FirewallGroup::onFirewallModeChanged);
     firewallModeItem_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/FIREWALL_MODE"));
     addItem(firewallModeItem_);
 
-    firewallWhenItem_ = new ComboBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::ComboBoxItem", "When?"), QString());
-    const QList< QPair<QString, int> > whens = FIREWALL_WHEN_toList();
-    for (const auto v : whens)
-    {
-        firewallWhenItem_->addItem(v.first, v.second);
-    }
+    firewallWhenItem_ = new ComboBoxItem(this);
     connect(firewallWhenItem_, &ComboBoxItem::currentItemChanged, this, &FirewallGroup::onFirewallWhenChanged);
     firewallWhenItem_->setCaptionFont(FontDescr(12, false));
     addItem(firewallWhenItem_);
+
+    connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &FirewallGroup::onLanguageChanged);
+    onLanguageChanged();
 }
 
 void FirewallGroup::setFirewallSettings(types::FirewallSettings settings)
@@ -99,6 +93,14 @@ void FirewallGroup::onFirewallModeHoverEnter()
 void FirewallGroup::onFirewallModeHoverLeave()
 {
     TooltipController::instance().hideTooltip(TOOLTIP_ID_FIREWALL_BLOCKED);
+}
+
+void FirewallGroup::onLanguageChanged()
+{
+    firewallModeItem_->setLabelCaption(tr("Firewall Mode"));
+    firewallModeItem_->setItems(FIREWALL_MODE_toList(), settings_.mode);
+    firewallWhenItem_->setLabelCaption(tr("When?"));
+    firewallWhenItem_->setItems(FIREWALL_WHEN_toList(), settings_.when);
 }
 
 } // namespace PreferencesWindow

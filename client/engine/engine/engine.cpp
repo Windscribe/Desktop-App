@@ -18,7 +18,6 @@
 #include "dnsresolver/dnsrequest.h"
 #include "crossplatformobjectfactory.h"
 #include "openvpnversioncontroller.h"
-#include "openvpnversioncontroller.h"
 #include "types/global_consts.h"
 #include "serverapi/requests/websessionrequest.h"
 #include "serverapi/requests/debuglogrequest.h"
@@ -48,8 +47,7 @@
     #include "utils/linuxutils.h"
 #endif
 
-Engine::Engine(const types::EngineSettings &engineSettings) : QObject(nullptr),
-    engineSettings_(engineSettings),
+Engine::Engine() : QObject(nullptr),
     helper_(nullptr),
     firewallController_(nullptr),
     networkAccessManager_(nullptr),
@@ -90,12 +88,15 @@ Engine::Engine(const types::EngineSettings &engineSettings) : QObject(nullptr),
     bPrevNetworkInterfaceInitialized_(false),
     connectionSettingsOverride_(types::Protocol(types::Protocol::TYPE::UNINITIALIZED), 0, true)
 {
+    engineSettings_.loadFromSettings();
+    qCDebug(LOG_BASIC) << "Engine settings" << engineSettings_;
+
     connectStateController_ = new ConnectStateController(nullptr);
     connect(connectStateController_, SIGNAL(stateChanged(CONNECT_STATE,DISCONNECT_REASON,CONNECT_ERROR,LocationID)), SLOT(onConnectStateChanged(CONNECT_STATE,DISCONNECT_REASON,CONNECT_ERROR,LocationID)));
     emergencyConnectStateController_ = new ConnectStateController(nullptr);
-    OpenVpnVersionController::instance().setUseWinTun(engineSettings.isUseWintun());
+    OpenVpnVersionController::instance().setUseWinTun(engineSettings_.isUseWintun());
 #ifdef Q_OS_LINUX
-    DnsScripts_linux::instance().setDnsManager(engineSettings.dnsManager());
+    DnsScripts_linux::instance().setDnsManager(engineSettings_.dnsManager());
 #endif
 }
 
@@ -606,7 +607,7 @@ void Engine::initPart2()
     connect(connectionManager_, SIGNAL(requestPassword(QString)), SLOT(onConnectionManagerRequestPassword(QString)));
     connect(connectionManager_, SIGNAL(protocolStatusChanged(QVector<types::ProtocolStatus>)), SIGNAL(protocolStatusChanged(QVector<types::ProtocolStatus>)));
 
-    locationsModel_ = new locationsmodel::LocationsModel(this, connectStateController_, networkDetectionManager_);
+    locationsModel_ = new locationsmodel::LocationsModel(this, connectStateController_, networkDetectionManager_, networkAccessManager_);
     connect(locationsModel_, SIGNAL(whitelistLocationsIpsChanged(QStringList)), SLOT(onLocationsModelWhitelistIpsChanged(QStringList)));
     connect(locationsModel_, SIGNAL(whitelistCustomConfigsIpsChanged(QStringList)), SLOT(onLocationsModelWhitelistCustomConfigIpsChanged(QStringList)));
 
@@ -667,30 +668,31 @@ void Engine::onInitializeHelper(INIT_HELPER_RET ret)
         FinishActiveConnections::finishAllActiveConnections(helper_);
 
         // turn off split tunneling (for case the state remains from the last launch)
-        helper_->sendConnectStatus(false, engineSettings_.isTerminateSockets(), engineSettings_.isAllowLanTraffic(), AdapterGatewayInfo(), AdapterGatewayInfo(), QString(), types::Protocol());
+        helper_->sendConnectStatus(false, engineSettings_.isTerminateSockets(), engineSettings_.isAllowLanTraffic(), AdapterGatewayInfo::detectAndCreateDefaultAdapterInfo(), AdapterGatewayInfo(), QString(), types::Protocol());
+
         helper_->setSplitTunnelingSettings(false, false, false, QStringList(), QStringList(), QStringList());
 
     #ifdef Q_OS_WIN
         // check BFE service status
         if (!BFE_Service_win::instance().isBFEEnabled())
         {
-            Q_EMIT initFinished(ENGINE_INIT_BFE_SERVICE_FAILED, isAuthHashExists);
+            Q_EMIT initFinished(ENGINE_INIT_BFE_SERVICE_FAILED, isAuthHashExists, engineSettings_);
         }
         else
         {
-            Q_EMIT initFinished(ENGINE_INIT_SUCCESS, isAuthHashExists);
+            Q_EMIT initFinished(ENGINE_INIT_SUCCESS, isAuthHashExists, engineSettings_);
         }
     #else
-        Q_EMIT initFinished(ENGINE_INIT_SUCCESS, isAuthHashExists);
+        Q_EMIT initFinished(ENGINE_INIT_SUCCESS, isAuthHashExists, engineSettings_);
     #endif
     }
     else if (ret == INIT_HELPER_FAILED)
     {
-        Q_EMIT initFinished(ENGINE_INIT_HELPER_FAILED, isAuthHashExists);
+        Q_EMIT initFinished(ENGINE_INIT_HELPER_FAILED, isAuthHashExists, engineSettings_);
     }
     else if (ret == INIT_HELPER_USER_CANCELED)
     {
-        Q_EMIT initFinished(ENGINE_INIT_HELPER_USER_CANCELED, isAuthHashExists);
+        Q_EMIT initFinished(ENGINE_INIT_HELPER_USER_CANCELED, isAuthHashExists, engineSettings_);
     }
     else
     {
@@ -746,7 +748,7 @@ void Engine::cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool is
     // turn off split tunneling
     if (helper_)
     {
-        helper_->sendConnectStatus(false, engineSettings_.isTerminateSockets(), engineSettings_.isAllowLanTraffic(), AdapterGatewayInfo(), AdapterGatewayInfo(), QString(), types::Protocol());
+        helper_->sendConnectStatus(false, engineSettings_.isTerminateSockets(), engineSettings_.isAllowLanTraffic(), AdapterGatewayInfo::detectAndCreateDefaultAdapterInfo(), AdapterGatewayInfo(), QString(), types::Protocol());
         helper_->setSplitTunnelingSettings(false, false, false, QStringList(), QStringList(), QStringList());
     }
 
@@ -862,9 +864,9 @@ void Engine::enableBFE_winImpl()
 
     bool bSuccess = BFE_Service_win::instance().checkAndEnableBFE(helper_);
     if (bSuccess)
-        Q_EMIT bfeEnableFinished(ENGINE_INIT_SUCCESS, api_resources::ApiResourcesManager::isAuthHashExists());
+        Q_EMIT bfeEnableFinished(ENGINE_INIT_SUCCESS, api_resources::ApiResourcesManager::isAuthHashExists(), engineSettings_);
     else
-        Q_EMIT bfeEnableFinished(ENGINE_INIT_BFE_SERVICE_FAILED, api_resources::ApiResourcesManager::isAuthHashExists());
+        Q_EMIT bfeEnableFinished(ENGINE_INIT_BFE_SERVICE_FAILED, api_resources::ApiResourcesManager::isAuthHashExists(), engineSettings_);
 #endif
 }
 
@@ -945,14 +947,6 @@ void Engine::sendDebugLogImpl()
     QString userName;
     if (apiResourcesManager_)
         userName = apiResourcesManager_->sessionStatus().getUsername();
-
-#ifdef Q_OS_WIN
-    if (!MergeLog::canMerge())
-    {
-        Q_EMIT sendUserWarning(USER_WARNING_SEND_LOG_FILE_TOO_BIG);
-        return;
-    }
-#endif
 
     QString log = MergeLog::mergePrevLogs(true);
     log += "================================================================================================================================================================================================\n";
@@ -1066,6 +1060,17 @@ void Engine::updateCurrentNetworkInterfaceImpl()
     {
         prevNetworkInterface_ = networkInterface;
         bPrevNetworkInterfaceInitialized_ = true;
+
+        if (helper_ && connectStateController_->currentState() == CONNECT_STATE_DISCONNECTED) {
+            helper_->sendConnectStatus(false,
+                                       engineSettings_.isTerminateSockets(),
+                                       engineSettings_.isAllowLanTraffic(),
+                                       AdapterGatewayInfo::detectAndCreateDefaultAdapterInfo(),
+                                       AdapterGatewayInfo(),
+                                       QString(),
+                                       types::Protocol());
+        }
+
         Q_EMIT networkChanged(networkInterface);
     }
 }
@@ -1100,6 +1105,9 @@ void Engine::speedRatingImpl(int rating, const QString &localExternalIp)
 
 void Engine::setSettingsImpl(const types::EngineSettings &engineSettings)
 {
+    if (engineSettings_ == engineSettings)
+        return;
+
     qCDebug(LOG_BASIC) << "Engine::setSettingsImpl";
 
     bool isAllowLanTrafficChanged = engineSettings_.isAllowLanTraffic() != engineSettings.isAllowLanTraffic();
@@ -1111,6 +1119,7 @@ void Engine::setSettingsImpl(const types::EngineSettings &engineSettings)
     bool isPacketSizeChanged =  engineSettings_.packetSize() != engineSettings.packetSize();
     bool isDnsWhileConnectedChanged = engineSettings_.connectedDnsInfo() != engineSettings.connectedDnsInfo();
     engineSettings_ = engineSettings;
+    engineSettings_.saveToSettings();
 
 #ifdef Q_OS_LINUX
     DnsScripts_linux::instance().setDnsManager(engineSettings.dnsManager());
@@ -1251,7 +1260,7 @@ void Engine::onConnectionManagerConnected()
 #ifdef Q_OS_WIN
     // wireguard-nt driver monitors metrics itself.
     if (!connectionManager_->currentProtocol().isWireGuardProtocol()) {
-        AdapterMetricsController_win::updateMetrics(connectionManager_->getVpnAdapterInfo().adapterName(), helper_);
+        AdapterMetricsController_win::updateMetrics(adapterName, helper_);
     }
 #elif defined (Q_OS_MAC) || defined (Q_OS_LINUX)
     firewallController_->setInterfaceToSkip_posix(adapterName);
@@ -1287,7 +1296,7 @@ void Engine::onConnectionManagerConnected()
     }
 
     bool result = helper_->sendConnectStatus(true, engineSettings_.isTerminateSockets(), engineSettings_.isAllowLanTraffic(),
-                                             connectionManager_->getDefaultAdapterInfo(), connectionManager_->getCustomDnsAdapterGatewayInfo().adapterInfo,
+                                             connectionManager_->getDefaultAdapterInfo(), connectionManager_->getVpnAdapterInfo(),
                                              connectionManager_->getLastConnectedIp(), lastConnectingProtocol_);
     if (!result) {
         #if defined(Q_OS_WINDOWS)
@@ -1303,18 +1312,17 @@ void Engine::onConnectionManagerConnected()
         firewallController_->firewallOn(firewallExceptions_.getIPAddressesForFirewallForConnectedState(connectionManager_->getLastConnectedIp()), engineSettings_.isAllowLanTraffic(), locationId_.isCustomConfigsLocation());
     }
 
-    if (connectionManager_->getCustomDnsAdapterGatewayInfo().connectedDnsInfo.type() == CONNECTED_DNS_TYPE_CUSTOM)
-    {
-         if (!helper_->setCustomDnsWhileConnected(connectionManager_->currentProtocol().isIkev2Protocol(),
-                                                  connectionManager_->getVpnAdapterInfo().ifIndex(),
-                                                  connectionManager_->getCustomDnsAdapterGatewayInfo().connectedDnsInfo.ipAddress()))
-         {
-             qCDebug(LOG_CONNECTED_DNS) << "Failed to set Custom 'while connected' DNS";
-         }
-    }
-
 #ifdef Q_OS_WIN
     Helper_win *helper_win = dynamic_cast<Helper_win *>(helper_);
+    if (connectionManager_->connectedDnsInfo().type == CONNECTED_DNS_TYPE_CUSTOM)
+    {
+        WS_ASSERT(connectionManager_->getVpnAdapterInfo().dnsServers().count() == 1);
+        if (!helper_win->setCustomDnsWhileConnected( connectionManager_->getVpnAdapterInfo().ifIndex(),
+                                                     connectionManager_->getVpnAdapterInfo().dnsServers().first()))
+        {
+            qCDebug(LOG_CONNECTED_DNS) << "Failed to set Custom 'while connected' DNS";
+        }
+    }
     helper_win->setIPv6EnabledInFirewall(false);
 #endif
 
@@ -1365,7 +1373,7 @@ void Engine::onConnectionManagerConnected()
     networkAccessManager_->disableProxy();
     locationsModel_->disableProxy();
 
-    DnsServersConfiguration::instance().setDnsServersPolicy(DNS_TYPE_OS_DEFAULT);
+    DnsServersConfiguration::instance().setConnectedState();
 
     if (engineSettings_.isTerminateSockets())
     {
@@ -1437,7 +1445,7 @@ void Engine::onConnectionManagerReconnecting()
 {
     qCDebug(LOG_BASIC) << "on reconnecting event";
 
-    DnsServersConfiguration::instance().setDnsServersPolicy(engineSettings_.dnsPolicy());
+    DnsServersConfiguration::instance().setDisconnectedState();
 
     if (firewallController_->firewallActualState())
     {
@@ -1863,7 +1871,7 @@ void Engine::onEmergencyControllerConnected()
 #endif
 
     networkAccessManager_->disableProxy();
-    DnsServersConfiguration::instance().setDnsServersPolicy(DNS_TYPE_OS_DEFAULT);
+    DnsServersConfiguration::instance().setConnectedState();
 
     emergencyConnectStateController_->setConnectedState(LocationID());
     Q_EMIT emergencyConnected();
@@ -1874,7 +1882,7 @@ void Engine::onEmergencyControllerDisconnected(DISCONNECT_REASON reason)
     qCDebug(LOG_BASIC) << "Engine::onEmergencyControllerDisconnected(), reason =" << reason;
 
     networkAccessManager_->enableProxy();
-    DnsServersConfiguration::instance().setDnsServersPolicy(engineSettings_.dnsPolicy());
+    DnsServersConfiguration::instance().setDisconnectedState();
 
     emergencyConnectStateController_->setDisconnectedState(reason, CONNECT_ERROR::NO_CONNECT_ERROR);
     Q_EMIT emergencyDisconnected();
@@ -1960,6 +1968,16 @@ void Engine::onNetworkChange(const types::NetworkInterface &networkInterface)
                 types::PortMap(),
                 ProxyServerController::instance().getCurrentProxySettings());
         }
+
+        if (helper_ && connectStateController_->currentState() == CONNECT_STATE_DISCONNECTED) {
+            helper_->sendConnectStatus(false,
+                                       engineSettings_.isTerminateSockets(),
+                                       engineSettings_.isAllowLanTraffic(),
+                                       AdapterGatewayInfo::detectAndCreateDefaultAdapterInfo(),
+                                       AdapterGatewayInfo(),
+                                       QString(),
+                                       types::Protocol());
+        }
     }
 
     Q_EMIT networkChanged(networkInterface);
@@ -1996,7 +2014,7 @@ void Engine::onPacketSizeControllerPacketSizeChanged(bool isAuto, int mtu)
 
         // Connection to EngineServer is chewing the parameters to garbage when passed as ProtoTypes::PacketSize
         // Probably has something to do with EngineThread
-        Q_EMIT packetSizeChanged(packetSize.isAutomatic, packetSize.mtu);
+        Q_EMIT packetSizeChanged(engineSettings_);
     }
 }
 
@@ -2092,7 +2110,7 @@ void Engine::stopWifiSharingImpl()
 void Engine::setSettingsMacAddressSpoofingImpl(const types::MacAddrSpoofing &macAddrSpoofing)
 {
     engineSettings_.setMacAddrSpoofing(macAddrSpoofing);
-    Q_EMIT macAddrSpoofingChanged(macAddrSpoofing);
+    Q_EMIT macAddrSpoofingChanged(engineSettings_);
 }
 
 void Engine::setSplitTunnelingSettingsImpl(bool isActive, bool isExclude, const QStringList &files, const QStringList &ips, const QStringList &hosts)
@@ -2326,7 +2344,7 @@ void Engine::doDisconnectRestoreStuff()
 
     networkAccessManager_->enableProxy();
     locationsModel_->enableProxy();
-    DnsServersConfiguration::instance().setDnsServersPolicy(engineSettings_.dnsPolicy());
+    DnsServersConfiguration::instance().setDisconnectedState();
 
 #if defined (Q_OS_MAC) || defined(Q_OS_LINUX)
     firewallController_->setInterfaceToSkip_posix("");
@@ -2365,11 +2383,9 @@ void Engine::stopPacketDetectionImpl()
 
 void Engine::onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON /*reason*/, CONNECT_ERROR /*err*/, const LocationID & /*location*/)
 {
-    if (helper_)
-    {
-        if (state != CONNECT_STATE_CONNECTED)
-        {
-            helper_->sendConnectStatus(false, engineSettings_.isTerminateSockets(), engineSettings_.isAllowLanTraffic(), AdapterGatewayInfo(), AdapterGatewayInfo(), QString(), types::Protocol());
+    if (helper_) {
+        if (state != CONNECT_STATE_CONNECTED) {
+            helper_->sendConnectStatus(false, engineSettings_.isTerminateSockets(), engineSettings_.isAllowLanTraffic(), AdapterGatewayInfo::detectAndCreateDefaultAdapterInfo(), AdapterGatewayInfo(), QString(), types::Protocol());
         }
     }
 }
@@ -2382,9 +2398,6 @@ void Engine::updateProxySettings()
         locationsModel_->setProxySettings(proxySettings);
         firewallExceptions_.setProxyIP(proxySettings);
         updateFirewallSettings();
-        // TODO: is this need?
-        //if (connectStateController_->currentState() == CONNECT_STATE_DISCONNECTED)
-        //    getMyIPController_->getIPFromDisconnectedState(500);
     }
 }
 

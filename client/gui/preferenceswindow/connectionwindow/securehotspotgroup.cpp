@@ -1,9 +1,10 @@
 #include "securehotspotgroup.h"
 
 #include <QPainter>
-#include <QMessageBox>
 #include "graphicresources/fontmanager.h"
 #include "graphicresources/imageresourcessvg.h"
+#include "generalmessagecontroller.h"
+#include "languagecontroller.h"
 #include "dpiscalemanager.h"
 
 extern QWidget *g_mainWindow;
@@ -15,23 +16,27 @@ SecureHotspotGroup::SecureHotspotGroup(ScalableGraphicsObject *parent, const QSt
 {
     setFlags(flags() | QGraphicsItem::ItemClipsChildrenToShape | QGraphicsItem::ItemIsFocusable);
 
-    checkBoxEnable_ = new CheckBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::CheckBoxItem", "Secure Hotspot"), "");
+    checkBoxEnable_ = new ToggleItem(this, tr("Secure Hotspot"));
     checkBoxEnable_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/SECURE_HOTSPOT"));
-    connect(checkBoxEnable_, &CheckBoxItem::stateChanged, this, &SecureHotspotGroup::onCheckBoxStateChanged);
+    connect(checkBoxEnable_, &ToggleItem::stateChanged, this, &SecureHotspotGroup::onCheckBoxStateChanged);
     addItem(checkBoxEnable_);
 
-    editBoxSSID_ = new EditBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::EditBoxItem", "SSID"), QT_TRANSLATE_NOOP("PreferencesWindow::EditBoxItem", "Enter SSID"));
+    editBoxSSID_ = new EditBoxItem(this);
     connect(editBoxSSID_, &EditBoxItem::textChanged, this, &SecureHotspotGroup::onSSIDChanged);
     addItem(editBoxSSID_);
-    hideItems(indexOf(editBoxSSID_), -1, DISPLAY_FLAGS::FLAG_NO_ANIMATION);
 
-    editBoxPassword_ = new EditBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::EditBoxItem", "Password"), QT_TRANSLATE_NOOP("PreferencesWindow::EditBoxItem", "Enter Password"));
+    editBoxPassword_ = new EditBoxItem(this);
+    editBoxPassword_->setMinimumLength(8);
     connect(editBoxPassword_, &EditBoxItem::textChanged, this, &SecureHotspotGroup::onPasswordChanged);
     addItem(editBoxPassword_);
-    hideItems(indexOf(editBoxPassword_), -1, DISPLAY_FLAGS::FLAG_NO_ANIMATION);
+
+    hideItems(indexOf(editBoxSSID_), indexOf(editBoxPassword_), DISPLAY_FLAGS::FLAG_NO_ANIMATION);
 
     setSupported(supported_);
     updateDescription();
+
+    connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &SecureHotspotGroup::onLanguageChanged);
+    onLanguageChanged();
 }
 
 void SecureHotspotGroup::setSecureHotspotSettings(const types::ShareSecureHotspot &ss)
@@ -81,22 +86,10 @@ void SecureHotspotGroup::onSSIDChanged(const QString &text)
 
 void SecureHotspotGroup::onPasswordChanged(const QString &password)
 {
-    if (password.length() >= 8)
-    {
+    if (password.length() >= 8) {
         settings_.password = password;
         emit secureHotspotPreferencesChanged(settings_);
     }
-    else
-    {
-        QString title = tr("Windscribe");
-        QString desc = tr("Hotspot password must be at least 8 characters.");
-        QMessageBox::information(g_mainWindow, title, desc);
-        editBoxPassword_->setText(settings_.password);
-    }
-}
-
-void SecureHotspotGroup::onLanguageChanged()
-{
 }
 
 void SecureHotspotGroup::updateDescription()
@@ -125,6 +118,16 @@ void SecureHotspotGroup::updateMode()
     {
         hideItems(indexOf(editBoxSSID_), indexOf(editBoxPassword_));
     }
+}
+
+void SecureHotspotGroup::onLanguageChanged()
+{
+    checkBoxEnable_->setCaption(tr("Secure Hotspot"));
+    editBoxSSID_->setCaption(tr("SSID"));
+    editBoxSSID_->setPrompt(tr("Enter SSID"));
+    editBoxPassword_->setCaption(tr("Password"));
+    editBoxPassword_->setPrompt(tr("At least 8 characters"));
+    updateDescription();
 }
 
 } // namespace PreferencesWindow

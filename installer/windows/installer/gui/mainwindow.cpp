@@ -40,13 +40,12 @@ MainWindow::MainWindow()
     memset(&rgn_, 0, sizeof(rgn_));
     this_ = this;
     strInstallTitle_ = L"Install";
-    strInstallButtonText_ = L"Click below to start.";
 }
 
 MainWindow::~MainWindow()
 {
     SAFE_DELETE(captionItem_);
-    SAFE_DELETE(instalButton_);
+    SAFE_DELETE(installButton_);
     SAFE_DELETE(closeButton_);
     SAFE_DELETE(minimizeButton_);
     SAFE_DELETE(settingsButton_);
@@ -60,7 +59,7 @@ MainWindow::~MainWindow()
 
 bool MainWindow::create(int windowCenterX, int windowCenterY)
 {
-    instalButton_ = new InstallButton(this, strInstallTitle_.c_str());
+    installButton_ = new InstallButton(this, strInstallTitle_.c_str());
     closeButton_ = new CloseButton(this);
     minimizeButton_ = new MinimizeButton(this);
     settingsButton_ = new SettingsButton(this);
@@ -202,7 +201,7 @@ LRESULT CALLBACK  MainWindow::realWndProc(HWND hwnd, UINT msg, WPARAM wParam, LP
     case WM_NCACTIVATE:
         // DefWindowProc won't repaint the window border if lParam (normally a
         //   HRGN) is -1. This is recommended in:
-        //   https://blogs.msdn.microsoft.com/wpfsdk/2008/09/08/custom-window-chrome-in-wpf/ 
+        //   https://blogs.msdn.microsoft.com/wpfsdk/2008/09/08/custom-window-chrome-in-wpf/
         return DefWindowProc(hwnd, msg, wParam, -1);
     case WM_NCCALCSIZE:
         handleNCCalcSize(wParam, lParam);
@@ -212,7 +211,7 @@ LRESULT CALLBACK  MainWindow::realWndProc(HWND hwnd, UINT msg, WPARAM wParam, LP
         return handleNCHittest(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
     case WM_NCPAINT:
         // Only block WM_NCPAINT when composition is disabled. If it's blocked
-        //   when composition is enabled, the window shadow won't be drawn. 
+        //   when composition is enabled, the window shadow won't be drawn.
         if (!compositionIsEnabled_)
         {
             return 0;
@@ -221,7 +220,7 @@ LRESULT CALLBACK  MainWindow::realWndProc(HWND hwnd, UINT msg, WPARAM wParam, LP
     case WM_NCUAHDRAWCAPTION:
     case WM_NCUAHDRAWFRAME:
         // These undocumented messages are sent to draw themed window borders.
-        //   Block them to prevent drawing borders over the client area. 
+        //   Block them to prevent drawing borders over the client area.
         return 0;
     case WM_SETICON:
     case WM_SETTEXT:
@@ -229,7 +228,7 @@ LRESULT CALLBACK  MainWindow::realWndProc(HWND hwnd, UINT msg, WPARAM wParam, LP
         //   from drawing a window caption over the client area, but only when
         //   composition and theming are disabled. These messages don't paint
         //   when composition is enabled and blocking WM_NCUAHDRAWCAPTION should
-        //   be enough to prevent painting when theming is enabled. 
+        //   be enough to prevent painting when theming is enabled.
         if (!compositionIsEnabled_ && !themeIsEnabled_)
             return handleMessageInvisible(hwnd, msg, wParam, lParam);
         break;
@@ -307,18 +306,18 @@ LRESULT MainWindow::onCreate(HWND hwnd)
     RECT clientRect;
     GetClientRect(hwnd, &clientRect);
 
-    int wInstall = instalButton_->getRecommendedWidth();
-    int hInstall = instalButton_->getRecommendedHeight();
+    int wInstall = installButton_->getRecommendedWidth();
+    int hInstall = installButton_->getRecommendedHeight();
     int xInstall = (clientRect.right - wInstall) / 2;
-    int yInstall = (clientRect.bottom - hInstall) / 2 + BIG_MARGIN * SCALE_FACTOR;
+    int yInstall = (clientRect.bottom - hInstall) / 2;
 
-    if (!instalButton_->create(xInstall, yInstall, wInstall, hInstall))
+    if (!installButton_->create(xInstall, yInstall, wInstall, hInstall))
     {
         return -1;
     }
 
     captionItem_ = new TextItem(strInstallButtonText_.c_str(), (int)(16 * SCALE_FACTOR), true);
-    topOffsTitle_ = yInstall - BIG_MARGIN * SCALE_FACTOR - captionItem_->textHeight();
+    topOffsTitle_ = yInstall - BIG_MARGIN * SCALE_FACTOR - captionItem_->textHeight() - 42 * SCALE_FACTOR;
 
     const int CLOSE_BUTTON_MARGIN = (int)(10 * SCALE_FACTOR);
     if (!closeButton_->create(clientRect.right - closeButton_->getRecommendedWidth() - CLOSE_BUTTON_MARGIN, CLOSE_BUTTON_MARGIN, closeButton_->getRecommendedWidth(), closeButton_->getRecommendedHeight()))
@@ -357,7 +356,7 @@ LRESULT MainWindow::onCreate(HWND hwnd)
 
     int settingsOffs = 16 * SCALE_FACTOR;
     if (!pathControl_->create(settingsOffs,
-        yInstall - 49 * SCALE_FACTOR,
+        yInstall + BIG_MARGIN * SCALE_FACTOR - 49 * SCALE_FACTOR,
         clientRect.right - settingsOffs,
         pathControl_->getRecommendedHeight(),
         Settings::instance().getPath()))
@@ -366,8 +365,8 @@ LRESULT MainWindow::onCreate(HWND hwnd)
     }
 
     if (!desktopShortcutControl_->create(settingsOffs,
-        yInstall - 49 * SCALE_FACTOR
-        + pathControl_->getRecommendedHeight(),
+        yInstall + BIG_MARGIN * SCALE_FACTOR - 49 * SCALE_FACTOR
+            + pathControl_->getRecommendedHeight(),
         clientRect.right - settingsOffs,
         desktopShortcutControl_->getRecommendedHeight()))
     {
@@ -375,9 +374,9 @@ LRESULT MainWindow::onCreate(HWND hwnd)
     }
 
     if (!factoryResetControl_->create(settingsOffs,
-        yInstall - 49 * SCALE_FACTOR
-        + pathControl_->getRecommendedHeight()
-        + desktopShortcutControl_->getRecommendedHeight(),
+        yInstall + BIG_MARGIN * SCALE_FACTOR - 49 * SCALE_FACTOR
+            + pathControl_->getRecommendedHeight()
+            + desktopShortcutControl_->getRecommendedHeight(),
         clientRect.right - settingsOffs,
         factoryResetControl_->getRecommendedHeight()))
     {
@@ -487,7 +486,7 @@ void MainWindow::drawControl(HDC hdc)
 
 void MainWindow::resetControls()
 {
-    ShowWindow(instalButton_->getHwnd(), SW_SHOW);
+    ShowWindow(installButton_->getHwnd(), SW_SHOW);
     ShowWindow(eulaButton_->getHwnd(), SW_SHOW);
     ShowWindow(settingsButton_->getHwnd(), SW_SHOW);
     ShowWindow(pathControl_->getHwnd(), SW_HIDE);
@@ -495,24 +494,16 @@ void MainWindow::resetControls()
     ShowWindow(factoryResetControl_->getHwnd(), SW_HIDE);
     ShowWindow(escButton_->getHwnd(), SW_HIDE);
 
-    instalButton_->setState(InstallButton::INSTALL_TITLE);
-    captionItem_->changeText(strInstallButtonText_.c_str());
-    topOffsTitle_ += 42 * SCALE_FACTOR;
+    installButton_->setState(InstallButton::INSTALL_TITLE);
+    captionItem_->changeText(L"");
     redraw();
 }
 
 void MainWindow::onInstallClick(bool isUpdating)
 {
-    if (isUpdating) {
-        captionItem_->changeText(L"Updating...");
-    }
-    else {
-        captionItem_->changeText(L"Installing...");
-    }
-
     if (settingsButton_)
         settingsButton_->setEnabled(false);
-    instalButton_->setState(InstallButton::WAIT_WITH_PROGRESS);
+    installButton_->setState(InstallButton::WAIT_WITH_PROGRESS);
     InvalidateRect(hwnd_, NULL, TRUE);
     UpdateWindow(hwnd_);
 
@@ -528,7 +519,7 @@ void MainWindow::onSettingsClick()
     incBackgroundOpacity_ = false;
     SetTimer(hwnd_, OPACITY_TIMER_ID, 10, NULL);
 
-    ShowWindow(instalButton_->getHwnd(), SW_HIDE);
+    ShowWindow(installButton_->getHwnd(), SW_HIDE);
     ShowWindow(eulaButton_->getHwnd(), SW_HIDE);
     if (settingsButton_)
         ShowWindow(settingsButton_->getHwnd(), SW_HIDE);
@@ -538,7 +529,6 @@ void MainWindow::onSettingsClick()
     ShowWindow(factoryResetControl_->getHwnd(), SW_SHOW);
     ShowWindow(escButton_->getHwnd(), SW_SHOW);
 
-    topOffsTitle_ -= 42 * SCALE_FACTOR;
     captionItem_->changeText(L"Install Settings");
     redraw();
 }
@@ -576,17 +566,19 @@ void MainWindow::onInstallerCallback(unsigned int progress, INSTALLER_CURRENT_ST
 
     if (state == STATE_EXTRACTING)
     {
-        instalButton_->setProgress(progress);
+        installButton_->setProgress(progress);
     }
     else if (state == STATE_FINISHED)
     {
-        instalButton_->setProgress(progress);
-        captionItem_->changeText(L"Launching...");
-        InvalidateRect(hwnd_, NULL, TRUE);
-        UpdateWindow(hwnd_);
+        g_application->saveCredentials();
 
-        if (Settings::instance().getAutoStart())
+        if (Settings::instance().getAutoStart()) {
+            installButton_->setState(InstallButton::LAUNCHING);
+            InvalidateRect(hwnd_, NULL, TRUE);
+            UpdateWindow(hwnd_);
             g_application->getInstaller()->launchApp();
+        }
+
         DestroyWindow(hwnd_);
     }
     else if (state == STATE_ERROR || state == STATE_FATAL_ERROR)
@@ -677,7 +669,7 @@ void MainWindow::onOpacityAnimationTimer()
     SendMessage(pathControl_->getHwnd(), WI_FORCE_REDRAW, 0, 0);
     SendMessage(desktopShortcutControl_->getHwnd(), WI_FORCE_REDRAW, 0, 0);
     SendMessage(factoryResetControl_->getHwnd(), WI_FORCE_REDRAW, 0, 0);
-    SendMessage(instalButton_->getHwnd(), WI_FORCE_REDRAW, 0, 0);
+    SendMessage(installButton_->getHwnd(), WI_FORCE_REDRAW, 0, 0);
     if (settingsButton_)
         SendMessage(settingsButton_->getHwnd(), WI_FORCE_REDRAW, 0, 0);
     SendMessage(eulaButton_->getHwnd(), WI_FORCE_REDRAW, 0, 0);
@@ -695,7 +687,7 @@ void MainWindow::handleCompositionChanged()
     if (enabled)
     {
         // The window needs a frame to show a shadow, so give it the smallest
-        // amount of frame possible 
+        // amount of frame possible
         MARGINS margins{ 0, 0, 1, 0 };
         DwmExtendFrameIntoClientArea(hwnd_, &margins);
         DWORD dwAttribute = DWMNCRP_ENABLED;
@@ -805,7 +797,7 @@ LRESULT MainWindow::handleNCHittest(int x, int y)
     ScreenToClient(hwnd_, &mouse);
 
     // The horizontal frame should be the same size as the vertical frame,
-    //   since the NONCLIENTMETRICS structure does not distinguish between them 
+    //   since the NONCLIENTMETRICS structure does not distinguish between them
     int frame_size = GetSystemMetrics(SM_CXFRAME) + GetSystemMetrics(SM_CXPADDEDBORDER);
     // The diagonal size handles are wider than the frame
     int diagonal_width = frame_size * 2 + GetSystemMetrics(SM_CXBORDER);
@@ -900,7 +892,7 @@ void MainWindow::updateRegion()
         GetWindowInfo(hwnd_, &wi);
 
         // For maximized windows, a region is needed to cut off the non-client
-        // borders that hang over the edge of the screen 
+        // borders that hang over the edge of the screen
         rgn_.left = wi.rcClient.left - wi.rcWindow.left;
         rgn_.top = wi.rcClient.top - wi.rcWindow.top;
         rgn_.right = wi.rcClient.right - wi.rcWindow.left;

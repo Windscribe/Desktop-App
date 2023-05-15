@@ -1,12 +1,15 @@
 #include "expandableitemswidget.h"
-#include "clickableandtooltiprects.h"
-#include "../locationsmodel_roles.h"
 
+#include <QDebug>
+#include <QElapsedTimer>
 #include <QMouseEvent>
 #include <QPainter>
-#include <QDebug>
 #include <QRegion>
-#include <QElapsedTimer>
+
+#include "dpiscalemanager.h"
+#include "../locationsmodel_roles.h"
+#include "clickableandtooltiprects.h"
+#include "commongraphics/commongraphics.h"
 
 namespace gui_locations {
 
@@ -259,6 +262,12 @@ void ExpandableItemsWidget::doActionOnSelectedItem()
 
 void ExpandableItemsWidget::updateScaling()
 {
+    int newHeight = qCeil(LOCATION_ITEM_HEIGHT * G_SCALE);
+    if (itemHeight_ != newHeight) {
+        itemHeight_ = newHeight;
+        updateHeight();
+    }
+
     itemsCacheData_.clear();
     for (int i = 0, rows_cnt = model_->rowCount(); i < rows_cnt; ++i) {
         QModelIndex mi = model_->index(i, 0);

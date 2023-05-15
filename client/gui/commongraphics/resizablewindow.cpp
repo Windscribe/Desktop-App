@@ -7,6 +7,7 @@
 
 #include "graphicresources/imageresourcessvg.h"
 #include "graphicresources/fontmanager.h"
+#include "languagecontroller.h"
 #include "utils/ws_assert.h"
 #include "utils/utils.h"
 #include "utils/logger.h"
@@ -47,6 +48,8 @@ ResizableWindow::ResizableWindow(QGraphicsObject *parent, Preferences *preferenc
 
     scrollAreaItem_ = new CommonGraphics::ScrollArea(this, curHeight_ - 102*G_SCALE, WINDOW_WIDTH);
 
+    connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &ResizableWindow::onLanguageChanged);
+
     updatePositions();
     // trigger app skin change in case we start in van gogh mode
     onAppSkinChanged(preferences_->appSkin());
@@ -80,7 +83,6 @@ void ResizableWindow::setHeight(int height)
 {
     prepareGeometryChange();
     curHeight_ = height;
-    updateChildItemsAfterHeightChanged();
     updatePositions();
     update();
 }
@@ -102,7 +104,7 @@ void ResizableWindow::onResizeChange(int y)
     if ((heightAtResizeStart_ + y) >= min*G_SCALE) {
         prepareGeometryChange();
         curHeight_ = heightAtResizeStart_ + y;
-        updateChildItemsAfterHeightChanged();
+        updatePositions();
 
         emit sizeChanged(this);
     }
@@ -131,22 +133,32 @@ void ResizableWindow::updateScaling()
 void ResizableWindow::updatePositions()
 {
     bottomResizeItem_->setPos(kBottomResizeOriginX*G_SCALE, curHeight_ - kBottomResizeOffsetY*G_SCALE);
+    escapeButton_->onLanguageChanged();
     escapeButton_->setPos(WINDOW_WIDTH*G_SCALE - escapeButton_->boundingRect().width() - 16*G_SCALE, 16*G_SCALE);
+    int heightOffset = 0;
+    if (!bottomResizeItem_->isVisible()) {
+        heightOffset = 9*G_SCALE;
+    }
 
     if (preferences_->appSkin() == APP_SKIN_VAN_GOGH) {
         backArrowButton_->setPos(16*G_SCALE, 12*G_SCALE);
         scrollAreaItem_->setPos(0, 55*G_SCALE);
-        scrollAreaItem_->setHeight(curHeight_ - 74*G_SCALE);
+        scrollAreaItem_->setHeight(curHeight_ - 74*G_SCALE + heightOffset);
     } else {
         backArrowButton_->setPos(16*G_SCALE, 40*G_SCALE);
         scrollAreaItem_->setPos(0, 83*G_SCALE);
-        scrollAreaItem_->setHeight(curHeight_ - 102*G_SCALE);
+        scrollAreaItem_->setHeight(curHeight_ - 102*G_SCALE + heightOffset);
     }
 }
 
 void ResizableWindow::setBackButtonEnabled(bool b)
 {
 	backArrowButton_->setVisible(b);
+}
+
+void ResizableWindow::setResizeBarEnabled(bool b)
+{
+    bottomResizeItem_->setVisible(b);
 }
 
 void ResizableWindow::keyPressEvent(QKeyEvent *event)
@@ -166,17 +178,6 @@ QRectF ResizableWindow::getBottomResizeArea()
     return QRectF(0, curHeight_ - kBottomAreaHeight*G_SCALE, boundingRect().width(), kBottomAreaHeight*G_SCALE);
 }
 
-void ResizableWindow::updateChildItemsAfterHeightChanged()
-{
-    bottomResizeItem_->setPos(kBottomResizeOriginX*G_SCALE, curHeight_ - kBottomResizeOffsetY*G_SCALE);
-
-    if (preferences_->appSkin() == APP_SKIN_VAN_GOGH) {
-        scrollAreaItem_->setHeight(curHeight_ - 74*G_SCALE);
-    } else {
-        scrollAreaItem_->setHeight(curHeight_ - 102*G_SCALE);
-    }
-}
-
 void ResizableWindow::onAppSkinChanged(APP_SKIN s)
 {
     if (s == APP_SKIN_ALPHA) {
@@ -186,9 +187,28 @@ void ResizableWindow::onAppSkinChanged(APP_SKIN s)
     }
     updatePositions();
     update();
+    emit sizeChanged(this);
+}
+
+int ResizableWindow::scrollPos()
+{
+    if (!scrollAreaItem_->item()) {
+        return 0;
+    }
+    return scrollAreaItem_->item()->y();
+}
+
+void ResizableWindow::setScrollPos(int pos)
+{
+    scrollAreaItem_->setScrollPos(pos);
 }
 
 void ResizableWindow::setScrollOffset(int offset)
 {
-    scrollAreaItem_->setScrollPos(offset);
+    scrollAreaItem_->setScrollOffset(offset);
+}
+
+void ResizableWindow::onLanguageChanged()
+{
+    updatePositions();
 }

@@ -81,3 +81,58 @@ unsigned int AvailablePort::getAvailablePort(unsigned int defaultPort)
     return retPort;
 #endif
 }
+
+bool AvailablePort::isPortBusy(const QString &ip, unsigned int port)
+{
+#ifdef Q_OS_WIN
+    struct addrinfo *result = NULL;
+    struct addrinfo hints;
+
+    ZeroMemory(&hints, sizeof(hints));
+    hints.ai_family = AF_UNSPEC;
+    hints.ai_socktype = SOCK_STREAM;
+    hints.ai_protocol = IPPROTO_TCP;
+
+    int iResult = getaddrinfo(ip.toStdString().c_str(), QString::number(port).toStdString().c_str(), &hints, &result);
+    if ( iResult != 0 )
+        return true;
+
+    SOCKET sock = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
+    if (sock == INVALID_SOCKET) {
+        freeaddrinfo(result);
+        return true;
+    }
+
+    iResult = bind( sock, result->ai_addr, (int)result->ai_addrlen);
+    if (iResult == SOCKET_ERROR)
+    {
+        freeaddrinfo(result);
+        closesocket(sock);
+        return true;
+    }
+
+    freeaddrinfo(result);
+    closesocket(sock);
+    return false;
+
+#elif defined(Q_OS_MAC) || defined(Q_OS_LINUX)
+    int sock = socket(AF_INET, SOCK_STREAM, 0);
+    if  (sock < 0) {
+        return true;
+    }
+
+    struct sockaddr_in serv_addr;
+    bzero((char *) &serv_addr, sizeof(serv_addr));
+    serv_addr.sin_family = AF_INET;
+    serv_addr.sin_addr.s_addr = INADDR_ANY;
+    serv_addr.sin_port = port;
+    if (bind(sock, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0)
+    {
+        close(sock);
+        return true;
+    }
+
+    close (sock);
+    return false;
+#endif
+}

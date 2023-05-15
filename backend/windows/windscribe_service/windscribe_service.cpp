@@ -350,14 +350,22 @@ MessagePacketResult processMessagePacket(int cmdId, const std::string &packet, I
         CMD_FIREWALL_ON cmdFirewallOn;
         ia >> cmdFirewallOn;
 
+        bool prevStatus = firewallFilter.currentStatus();
         firewallFilter.on(cmdFirewallOn.ip.c_str(), cmdFirewallOn.allowLanTraffic, cmdFirewallOn.isCustomConfig);
+        if (!prevStatus) {
+            splitTunnelling.updateState();
+        }
         Logger::instance().out(L"AA_COMMAND_FIREWALL_ON, AllowLocalTraffic=%d, IsCustomConfig=%d", cmdFirewallOn.allowLanTraffic, cmdFirewallOn.isCustomConfig);
         mpr.success = true;
         mpr.exitCode = 0;
     }
     else if (cmdId == AA_COMMAND_FIREWALL_OFF)
     {
+        bool prevStatus = firewallFilter.currentStatus();
         firewallFilter.off();
+        if (prevStatus) {
+            splitTunnelling.updateState();
+        }
         Logger::instance().out(L"AA_COMMAND_FIREWALL_OFF");
         mpr.success = true;
         mpr.exitCode = 0;

@@ -28,19 +28,11 @@ QString Helper_linux::getHelperVersion()
     return "";
 }
 
-bool Helper_linux::setCustomDnsWhileConnected(bool isIkev2, unsigned long ifIndex, const QString &overrideDnsIpAddress)
-{
-    Q_UNUSED(isIkev2);
-    Q_UNUSED(ifIndex);
-    Q_UNUSED(overrideDnsIpAddress);
-    return false;
-}
-
 std::optional<bool> Helper_linux::installUpdate(const QString &package) const
 {
     QString bashCmd;
     if (package.endsWith(".deb")) {
-        bashCmd = QString("pkexec apt install %1").arg(package);
+        bashCmd = QString("pkexec apt install -y %1").arg(package);
     }
     else if (package.endsWith(".rpm")) {
         bashCmd = QString("pkexec dnf upgrade -y %1").arg(package);

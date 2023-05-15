@@ -44,6 +44,12 @@ void AccountDataItem::updateScaling()
     setHeight(PREFERENCE_GROUP_ITEM_HEIGHT*G_SCALE);
 }
 
+void AccountDataItem::setValue1(const QString &value)
+{
+    value1_ = value;
+    update();
+}
+
 void AccountDataItem::setValue2(const QString &value)
 {
     value2_ = value;

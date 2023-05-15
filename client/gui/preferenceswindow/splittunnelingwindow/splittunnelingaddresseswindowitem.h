@@ -15,7 +15,7 @@ class SplitTunnelingAddressesWindowItem : public CommonGraphics::BasePage
 public:
     explicit SplitTunnelingAddressesWindowItem(ScalableGraphicsObject *parent, Preferences *preferences);
 
-    QString caption();
+    QString caption() const override;
     void setFocusOnTextEntry();
 
     void setLoggedIn(bool loggedIn);
@@ -28,11 +28,14 @@ private slots:
     void onAddressesUpdated(QList<types::SplitTunnelingNetworkRoute> addresses);
     void onError(QString title, QString msg);
     void onClearError();
+    void onLanguageChanged();
 
 private:
     Preferences *preferences_;
     PreferenceGroup *desc_;
     SplitTunnelingAddressesGroup *addressesGroup_;
+
+    bool loggedIn_;
 };
 
 }

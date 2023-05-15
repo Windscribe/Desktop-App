@@ -8,6 +8,7 @@
 #include "graphicresources/imageresourcessvg.h"
 #include "utils/ws_assert.h"
 #include "dpiscalemanager.h"
+#include "languagecontroller.h"
 
 namespace ExternalConfigWindow {
 
@@ -24,10 +25,7 @@ ExternalConfigWindowItem::ExternalConfigWindowItem(QGraphicsObject *parent,
     curTextOpacity_ = OPACITY_FULL;
     curEscTextOpacity_ = OPACITY_FULL;
 
-    QString acceptText = QT_TRANSLATE_NOOP("CommonGraphics::BubbleButtonDark", "Ok, got it!");
-
-    okButton_ = new CommonGraphics::BubbleButtonDark(this, 108, 40, 20, 20);
-    okButton_->setText(acceptText);
+    okButton_ = new CommonGraphics::BubbleButton(this, CommonGraphics::BubbleButton::kOutline, 108, 40, 20);
     connect(okButton_, SIGNAL(clicked()), this, SLOT(onButtonClicked()));
 
     escButton_ = new CommonGraphics::EscapeButton(this);
@@ -39,23 +37,13 @@ ExternalConfigWindowItem::ExternalConfigWindowItem(QGraphicsObject *parent,
 
     minimizeButton_ = new IconButton(16, 16, "WINDOWS_MINIMIZE_ICON", "", this);
     connect(minimizeButton_, SIGNAL(clicked()), SIGNAL(minimizeClick()));
-#else //if Q_OS_MAC
-    /*closeButton_ = new IconButton(14,14, "MAC_CLOSE_DEFAULT", this);
-    connect(closeButton_, SIGNAL(clicked()), SIGNAL(closeClick()));
-    connect(closeButton_, &IconButton::hoverEnter, [=](){ closeButton_->setIcon("MAC_CLOSE_HOVER"); });
-    connect(closeButton_, &IconButton::hoverLeave, [=](){ closeButton_->setIcon("MAC_CLOSE_DEFAULT"); });
-    closeButton_->setSelected(true);
-
-    minimizeButton_ = new IconButton(14,14,"MAC_MINIMIZE_DEFAULT", this);
-    connect(minimizeButton_, SIGNAL(clicked()), SIGNAL(minimizeClick()));
-    connect(minimizeButton_, &IconButton::hoverEnter, [=](){ minimizeButton_->setIcon("MAC_MINIMIZE_HOVER"); });
-    connect(minimizeButton_, &IconButton::hoverLeave, [=](){ minimizeButton_->setIcon("MAC_MINIMIZE_DEFAULT"); });
-    minimizeButton_->setSelected(true);*/
-
 #endif
 
     connect(preferencesHelper, SIGNAL(isDockedModeChanged(bool)), this,
             SLOT(onDockedModeChanged(bool)));
+
+    connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &ExternalConfigWindowItem::onLanguageChanged);
+    onLanguageChanged();
 
     updatePositions();
 }
@@ -206,6 +194,11 @@ void ExternalConfigWindowItem::updatePositions()
 
     escButton_->setPos(WINDOW_MARGIN*G_SCALE, WINDOW_MARGIN*G_SCALE);
     okButton_->setPos(WINDOW_WIDTH/2*G_SCALE - okButton_->boundingRect().width()/2, CONNECT_BUTTON_POS_Y*G_SCALE);
+}
+
+void ExternalConfigWindowItem::onLanguageChanged()
+{
+    okButton_->setText(tr("Ok, got it!"));
 }
 
 }

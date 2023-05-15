@@ -71,9 +71,6 @@ void AdvancedParametersDialog::updateScaling()
         *FontManager::instance().getFontWithCustomScale(currentScale(), 12, false));
 
     hSpacer_->changeSize(UNSCALED_SPACER_WIDTH * currentScale(), 1, QSizePolicy::Expanding);
-    clearButton_->setFixedWidth(40 * currentScale());
-    okButton_->setFixedWidth(30 * currentScale());
-    cancelButton_->setFixedWidth(50 * currentScale());
     update();
 }
 

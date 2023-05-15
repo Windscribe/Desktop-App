@@ -1,6 +1,6 @@
 #include "routes.h"
-#include "utils.h"
-#include "logger.h"
+#include "../logger.h"
+#include "../utils.h"
 
 void Routes::add(const std::string &ip, const std::string &gateway, const std::string &mask)
 {
@@ -20,6 +20,7 @@ void Routes::addWithInterface(const std::string &ip, const std::string &interfac
     RouteDescr rd;
     rd.ip = ip;
     rd.interface = interface;
+    rd.mask = mask;
     routes_.push_back(rd);
 
     std::string cmd = "ip route add " + ip + "/" + mask + " dev " + interface;

@@ -11,8 +11,6 @@ public:
     bool verify(const std::wstring &exePath);
     bool verify(const std::string &exePath);
 
-    bool verifyWithSignCheck(const std::wstring &exePath);
-
 private:
     explicit ExecutableSignaturePrivate(ExecutableSignature* const q);
 

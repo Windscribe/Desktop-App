@@ -37,6 +37,7 @@
 #define HELPER_CMD_SET_MAC_SPOOFING_ON_BOOT          29
 #define HELPER_CMD_SET_MAC_ADDRESS                   30
 #define HELPER_CMD_TASK_KILL                         31
+#define HELPER_CMD_START_CTRLD                       32
 
 // enums
 
@@ -67,6 +68,7 @@ enum CmdKillTarget {
     kTargetStunnel,
     kTargetWStunnel,
     kTargetWireGuard,
+    kTargetCtrld
 };
 
 enum CmdDnsManager {
@@ -160,6 +162,12 @@ struct CMD_CONFIGURE_WIREGUARD {
     std::string peerEndpoint;
     std::string allowedIps;
     CmdDnsManager dnsManager; // Linux only
+};
+
+struct CMD_START_CTRLD {
+    std::string exePath;
+    std::string executable;
+    std::string parameters;
 };
 
 struct CMD_KILL_PROCESS {

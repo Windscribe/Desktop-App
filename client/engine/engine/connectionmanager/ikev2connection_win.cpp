@@ -39,12 +39,13 @@ IKEv2Connection_win::~IKEv2Connection_win()
     this_ = NULL;
 }
 
-void IKEv2Connection_win::startConnect(const QString &configOrUrl, const QString &ip, const QString &dnsHostName, const QString &username, const QString &password, const types::ProxySettings &proxySettings, const WireGuardConfig *wireGuardConfig, bool isEnableIkev2Compression, bool isAutomaticConnectionMode, bool isCustomConfig)
+void IKEv2Connection_win::startConnect(const QString &configOrUrl, const QString &ip, const QString &dnsHostName, const QString &username, const QString &password, const types::ProxySettings &proxySettings, const WireGuardConfig *wireGuardConfig, bool isEnableIkev2Compression, bool isAutomaticConnectionMode, bool isCustomConfig, const QString &overrideDnsIp)
 {
     Q_UNUSED(dnsHostName);
     Q_UNUSED(proxySettings);
     Q_UNUSED(wireGuardConfig);
     Q_UNUSED(isCustomConfig);
+    Q_UNUSED(overrideDnsIp);
 
     QMutexLocker locker(&mutex_);
 

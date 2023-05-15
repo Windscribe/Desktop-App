@@ -11,7 +11,7 @@
 namespace PreferencesWindow {
 
 EditBoxItem::EditBoxItem(ScalableGraphicsObject *parent, const QString &caption, const QString &editPrompt)
-  : BaseItem(parent, PREFERENCE_GROUP_ITEM_HEIGHT*G_SCALE), caption_(caption), isEditMode_(false), maskingChar_('\0')
+  : BaseItem(parent, PREFERENCE_GROUP_ITEM_HEIGHT*G_SCALE), caption_(caption), isEditMode_(false), maskingChar_('\0'), minLength_(0)
 {
     btnEdit_ = new IconButton(16, 16, "preferences/EDIT_ICON", "", this);
     connect(btnEdit_, &IconButton::clicked, this, &EditBoxItem::onEditClick);
@@ -30,8 +30,7 @@ EditBoxItem::EditBoxItem(ScalableGraphicsObject *parent, const QString &caption,
     lineEdit_->setPlaceholderText(tr(editPrompt.toStdString().c_str()));
     lineEdit_->setStyleSheet("background: transparent; color: rgb(135, 138, 147)");
     lineEdit_->setFrame(false);
-
-    connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &EditBoxItem::onLanguageChanged);
+    connect(lineEdit_, &QLineEdit::textChanged, this, &EditBoxItem::onTextChanged);
 
     proxyWidget_ = new QGraphicsProxyWidget(this);
     proxyWidget_->setWidget(lineEdit_);
@@ -49,14 +48,13 @@ void EditBoxItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
     {
         QFont *font = FontManager::instance().getFont(12, false);
         QFontMetrics fm(*font);
-        QString caption = tr(caption_.toStdString().c_str());
         painter->setFont(*font);
         painter->setPen(Qt::white);
         painter->drawText(boundingRect().adjusted(PREFERENCES_MARGIN*G_SCALE,
                                                   PREFERENCES_MARGIN*G_SCALE,
                                                   -(2*PREFERENCES_MARGIN + ICON_WIDTH)*G_SCALE,
                                                   -PREFERENCES_MARGIN*G_SCALE),
-                          Qt::AlignLeft, caption);
+                          Qt::AlignLeft, caption_);
 
         painter->setOpacity(OPACITY_HALF);
         QString t;
@@ -73,15 +71,21 @@ void EditBoxItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
             t = text_;
         }
 
-        painter->drawText(boundingRect().adjusted((2*PREFERENCES_MARGIN*G_SCALE) + fm.horizontalAdvance(caption),
+        painter->drawText(boundingRect().adjusted((2*PREFERENCES_MARGIN*G_SCALE) + fm.horizontalAdvance(caption_),
                                                   PREFERENCES_MARGIN*G_SCALE,
                                                   -(2*PREFERENCES_MARGIN + ICON_WIDTH)*G_SCALE,
                                                   -PREFERENCES_MARGIN),
                           Qt::AlignRight,
                           fm.elidedText(t,
                                         Qt::ElideRight,
-                                        boundingRect().width() - (4*PREFERENCES_MARGIN + ICON_WIDTH)*G_SCALE - fm.horizontalAdvance(caption)));
+                                        boundingRect().width() - (4*PREFERENCES_MARGIN + ICON_WIDTH)*G_SCALE - fm.horizontalAdvance(caption_)));
     }
+}
+
+void EditBoxItem::setCaption(const QString &caption)
+{
+    caption_ = caption;
+    update();
 }
 
 void EditBoxItem::setText(const QString &text)
@@ -89,6 +93,12 @@ void EditBoxItem::setText(const QString &text)
     text_ = text;
     lineEdit_->setText(text_);
     update();
+}
+
+void EditBoxItem::setPrompt(const QString &prompt)
+{
+    editPlaceholderText_ = prompt;
+    lineEdit_->setPlaceholderText(editPlaceholderText_.toStdString().c_str());
 }
 
 void EditBoxItem::setValidator(QRegularExpressionValidator *validator)
@@ -122,12 +132,11 @@ bool EditBoxItem::lineEditHasFocus()
 
 void EditBoxItem::keyPressEvent(QKeyEvent *event)
 {
-    if (event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter)
-    {
-        onConfirmClick();
-    }
-    else if (event->key() == Qt::Key_Escape)
-    {
+    if (event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter) {
+        if (btnConfirm_->isClickable()) {
+            onConfirmClick();
+        }
+    } else if (event->key() == Qt::Key_Escape) {
         onUndoClick();
         parentItem()->setFocus();
     }
@@ -173,11 +182,6 @@ void EditBoxItem::updateScaling()
     updatePositions();
 }
 
-void EditBoxItem::onLanguageChanged()
-{
-    lineEdit_->setPlaceholderText(tr(editPlaceholderText_.toStdString().c_str()));
-}
-
 void EditBoxItem::updatePositions()
 {
     btnEdit_->setPos(boundingRect().width() - (ICON_WIDTH + PREFERENCES_MARGIN)*G_SCALE, PREFERENCES_MARGIN*G_SCALE);
@@ -194,6 +198,27 @@ void EditBoxItem::updatePositions()
     else
     {
         lineEdit_->setGeometry(PREFERENCES_MARGIN*G_SCALE, PREFERENCES_MARGIN*G_SCALE, boundingRect().width() - (2*ICON_WIDTH + 3*PREFERENCES_MARGIN)*G_SCALE, ICON_HEIGHT*G_SCALE);
+    }
+}
+
+void EditBoxItem::setMinimumLength(int length)
+{
+    minLength_ = length;
+    onTextChanged(lineEdit_->text());
+}
+
+void EditBoxItem::onTextChanged(const QString &text)
+{
+    if (text.length() >= minLength_) {
+        if (!btnConfirm_->isClickable()) {
+            btnConfirm_->setTintColor(QColor(85, 255, 138, 255));
+            btnConfirm_->setClickable(true);
+        }
+    } else {
+        if (btnConfirm_->isClickable()) {
+            btnConfirm_->setTintColor(QColor(128, 128, 128, 255));
+            btnConfirm_->setClickable(false);
+        }
     }
 }
 

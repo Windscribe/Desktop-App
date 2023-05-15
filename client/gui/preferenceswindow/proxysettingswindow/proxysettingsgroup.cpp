@@ -4,6 +4,7 @@
 #include "graphicresources/fontmanager.h"
 #include "graphicresources/imageresourcessvg.h"
 #include "dpiscalemanager.h"
+#include "languagecontroller.h"
 
 namespace PreferencesWindow {
 
@@ -18,36 +19,32 @@ ProxySettingsGroup::ProxySettingsGroup(ScalableGraphicsObject *parent, const QSt
 {
     setFlags(flags() | QGraphicsItem::ItemClipsChildrenToShape | QGraphicsItem::ItemIsFocusable);
 
-    comboBoxProxyType_ = new ComboBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::ComboBoxItem", "Proxy"), "");
-    const QList<QPair<QString, int>> types = PROXY_OPTION_toList();
-    for (const auto p : types)
-    {
-        if (IsProxyOptionAllowed(p.second))
-            comboBoxProxyType_->addItem(p.first, p.second);
-    }
-    comboBoxProxyType_->setCurrentItem(types.begin()->second);
+    comboBoxProxyType_ = new ComboBoxItem(this);
     connect(comboBoxProxyType_, &ComboBoxItem::currentItemChanged, this, &ProxySettingsGroup::onProxyTypeChanged);
     comboBoxProxyType_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/PROXY"));
     addItem(comboBoxProxyType_);
 
-    editBoxAddress_ = new EditBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::EditBoxItem", "Address"), QT_TRANSLATE_NOOP("PreferencesWindow::EditBoxItem","Address"));
+    editBoxAddress_ = new EditBoxItem(this);
     connect(editBoxAddress_, &EditBoxItem::textChanged, this, &ProxySettingsGroup::onAddressChanged);
     addItem(editBoxAddress_);
 
-    editBoxPort_ = new EditBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::EditBoxItem", "Port"), QT_TRANSLATE_NOOP("PreferencesWindow::EditBoxItem","Port"));
+    editBoxPort_ = new EditBoxItem(this);
     connect(editBoxPort_, &EditBoxItem::textChanged, this, &ProxySettingsGroup::onPortChanged);
     addItem(editBoxPort_);
 
-    editBoxUsername_ = new EditBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::EditBoxItem", "Username"), QT_TRANSLATE_NOOP("PreferencesWindow::EditBoxItem","Username"));
+    editBoxUsername_ = new EditBoxItem(this);
     connect(editBoxUsername_, &EditBoxItem::textChanged, this, &ProxySettingsGroup::onUsernameChanged);
     addItem(editBoxUsername_);
 
-    editBoxPassword_ = new EditBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::EditBoxItem","Password"), QT_TRANSLATE_NOOP("PreferencesWindow::EditBoxItem","Password"));
+    editBoxPassword_ = new EditBoxItem(this);
     editBoxPassword_->setMasked(true);
     connect(editBoxPassword_, &EditBoxItem::textChanged, this, &ProxySettingsGroup::onPasswordChanged);
     addItem(editBoxPassword_);
 
     hideItems(indexOf(editBoxAddress_), indexOf(editBoxPassword_), DISPLAY_FLAGS::FLAG_NO_ANIMATION);
+
+    connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &ProxySettingsGroup::onLanguageChanged);
+    onLanguageChanged();
 }
 
 void ProxySettingsGroup::onAddressChanged(const QString &text)
@@ -139,6 +136,26 @@ void ProxySettingsGroup::updateMode()
     } else if (settings_.option() == PROXY_OPTION_NONE || settings_.option() == PROXY_OPTION_AUTODETECT) {
         hideItems(indexOf(editBoxAddress_), indexOf(editBoxPassword_));
     }
+}
+
+void ProxySettingsGroup::onLanguageChanged()
+{
+    comboBoxProxyType_->setLabelCaption(tr("Proxy"));
+    QList<QPair<QString, QVariant>> list;
+    for (const auto p : PROXY_OPTION_toList()) {
+        if (IsProxyOptionAllowed(p.second.toInt())) {
+            list << p;
+        }
+    }
+    comboBoxProxyType_->setItems(list, settings_.option());
+    editBoxAddress_->setCaption(tr("Address"));
+    editBoxAddress_->setPrompt(tr("Address"));
+    editBoxPort_->setCaption(tr("Port"));
+    editBoxPort_->setPrompt(tr("Port"));
+    editBoxUsername_->setCaption(tr("Username"));
+    editBoxUsername_->setPrompt(tr("Username"));
+    editBoxPassword_->setCaption(tr("Password"));
+    editBoxPassword_->setPrompt(tr("Password"));
 }
 
 

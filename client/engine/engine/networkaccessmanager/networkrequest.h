@@ -33,6 +33,13 @@ public:
     void setEchConfig(const QString &echConfig);
     QString echConfig() const;
 
+    // Explicitly specify ip to avoid DNS resolution
+    void setOverrideIp(const QString &ip);
+    QString overrideIp() const;
+
+    void setIsWhiteListIps(bool isWhiteListIps);
+    bool isWhiteListIps() const;
+
 private:
     QUrl url_;
     int timeout_;
@@ -43,7 +50,13 @@ private:
 
     QString echConfig_;         // if not empty, use ECH request
 
-    //default false, if true then immediately removes the IP from the whitelist ips after the request is completed.
+    // if not empty use specified overrideIp_ to make the request
+    QString overrideIp_;
+
+    // default false, if true then immediately removes the IP from the whitelist ips after the request is completed.
     bool bRemoveFromWhitelistIpsAfterFinish_;
+
+    // default true
+    bool isWhiteListIps_;
 };
 

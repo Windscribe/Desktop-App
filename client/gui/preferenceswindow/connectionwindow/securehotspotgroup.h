@@ -4,7 +4,7 @@
 #include <QVariantAnimation>
 #include "backend/preferences/preferences.h"
 #include "commongraphics/baseitem.h"
-#include "preferenceswindow/checkboxitem.h"
+#include "preferenceswindow/toggleitem.h"
 #include "preferenceswindow/editboxitem.h"
 #include "preferenceswindow/preferencegroup.h"
 
@@ -32,14 +32,13 @@ private slots:
     void onCheckBoxStateChanged(bool isChecked);
     void onSSIDChanged(const QString &text);
     void onPasswordChanged(const QString &password);
-
     void onLanguageChanged();
 
 private:
     void updateMode();
     void updateDescription();
 
-    CheckBoxItem *checkBoxEnable_;
+    ToggleItem *checkBoxEnable_;
     EditBoxItem *editBoxSSID_;
     EditBoxItem *editBoxPassword_;
 

@@ -32,6 +32,7 @@ private slots:
     void onEditBoxTextChanged(const QString &text);
     void onDetectHoverEnter();
     void onDetectHoverLeave();
+    void onLanguageChanged();
 
 private:
     void updateMode();

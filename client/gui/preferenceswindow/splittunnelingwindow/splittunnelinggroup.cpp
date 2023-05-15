@@ -2,11 +2,12 @@
 
 #include <QGraphicsScene>
 #include <QGraphicsView>
-#include <QMessageBox>
 #include <QPainter>
 
 #include "graphicresources/imageresourcessvg.h"
 #include "graphicresources/independentpixmap.h"
+#include "generalmessagecontroller.h"
+#include "languagecontroller.h"
 
 #if defined(Q_OS_MAC)
     #include "utils/macutils.h"
@@ -24,30 +25,31 @@ SplitTunnelingGroup::SplitTunnelingGroup(ScalableGraphicsObject *parent, const Q
 {
     setFlags(flags() | QGraphicsItem::ItemClipsChildrenToShape);
 
-    activeCheckBox_ = new CheckBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::CheckBoxItem", "Split Tunneling"), QString());
+    activeCheckBox_ = new ToggleItem(this);
     activeCheckBox_->setState(true);
     activeCheckBox_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/SPLIT_TUNNELING"));
-    connect(activeCheckBox_, &CheckBoxItem::stateChanged, this, &SplitTunnelingGroup::onActiveSwitchStateChanged);
+    connect(activeCheckBox_, &ToggleItem::stateChanged, this, &SplitTunnelingGroup::onActiveSwitchStateChanged);
     addItem(activeCheckBox_);
 
-    modeComboBox_ = new ComboBoxItem(this, QT_TRANSLATE_NOOP("PreferencesWindow::ComboBoxItem", "Mode"), "");
+    modeComboBox_ = new ComboBoxItem(this);
     modeComboBox_->setCaptionFont(FontDescr(12, false));
-    modeComboBox_->addItem(tr("Exclusive"), SPLIT_TUNNELING_MODE_EXCLUDE);
-    modeComboBox_->addItem(tr("Inclusive"), SPLIT_TUNNELING_MODE_INCLUDE);
     connect(modeComboBox_, &ComboBoxItem::currentItemChanged, this, &SplitTunnelingGroup::onCurrentModeChanged);
     addItem(modeComboBox_);
 
 #ifndef Q_OS_MAC
-    appsLinkItem_ = new LinkItem(this, LinkItem::LinkType::SUBPAGE_LINK, QT_TRANSLATE_NOOP("PreferencesWindow::LinkItem", tr("Apps")));
+    appsLinkItem_ = new LinkItem(this, LinkItem::LinkType::SUBPAGE_LINK);
     connect(appsLinkItem_, &LinkItem::clicked, this, &SplitTunnelingGroup::appsPageClick);
     addItem(appsLinkItem_);
 #else
     appsLinkItem_ = nullptr;
 #endif
 
-    addressesLinkItem_ = new LinkItem(this, LinkItem::LinkType::SUBPAGE_LINK, QT_TRANSLATE_NOOP("PreferencesWindow::LinkItem", tr("IPs & Hostnames")));
+    addressesLinkItem_ = new LinkItem(this, LinkItem::LinkType::SUBPAGE_LINK);
     connect(addressesLinkItem_, &LinkItem::clicked, this, &SplitTunnelingGroup::addressesPageClick);
     addItem(addressesLinkItem_);
+
+    connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &SplitTunnelingGroup::onLanguageChanged);
+    onLanguageChanged();
 
     updateScaling();
 }
@@ -72,13 +74,22 @@ void SplitTunnelingGroup::onActiveSwitchStateChanged(bool checked)
             // moving/replicating this logic in a code path invoked during app startup.
             wsl::ServiceControlManager manager;
             manager.openSCM(SC_MANAGER_CONNECT);
-            if (!manager.isServiceInstalled("WindscribeSplitTunnel")) {
+            if (!manager.isServiceInstalled(L"WindscribeSplitTunnel")) {
                 checked = false;
                 activeCheckBox_->setState(false);
-                QMessageBox::warning(g_mainWindow, tr("Windscribe"),
+                GeneralMessageController::instance().showMessage(
+                    "WARNING_YELLOW",
+                    tr("Service Not Installed"),
                     tr("The split tunneling driver is not installed.  To enable this feature, try"
                        " reinstalling the Windscribe application.\n\nIf the reinstall does not help, please"
-                       " contact Windscribe support for assistance."));
+                       " contact Windscribe support for assistance."),
+                    GeneralMessageController::tr(GeneralMessageController::kOk),
+                    "",
+                    "",
+                    std::function<void(bool)>(nullptr),
+                    std::function<void(bool)>(nullptr),
+                    std::function<void(bool)>(nullptr),
+                    GeneralMessage::kFromPreferences);
             }
         }
         catch (std::system_error& ex) {
@@ -161,6 +172,23 @@ void SplitTunnelingGroup::updateUIState(bool active)
         hideDescription();
         hideItems(indexOf(modeComboBox_), size() - 1);
     }
+}
+
+void SplitTunnelingGroup::onLanguageChanged()
+{
+    activeCheckBox_->setCaption(tr("Split Tunneling"));
+    modeComboBox_->setLabelCaption(tr("Mode"));
+    QList<QPair<QString, QVariant>> list;
+    list << qMakePair(tr("Exclusive"), SPLIT_TUNNELING_MODE_EXCLUDE);
+    list << qMakePair(tr("Inclusive"), SPLIT_TUNNELING_MODE_INCLUDE);
+    modeComboBox_->setItems(list, settings_.mode);
+
+#ifndef Q_OS_MAC
+    appsLinkItem_->setTitle(tr("Apps"));
+#endif
+    addressesLinkItem_->setTitle(tr("IPs & Hostnames"));
+
+    updateDescription();
 }
 
 }

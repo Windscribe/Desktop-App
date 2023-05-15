@@ -1,7 +1,7 @@
 #include "../../../../posix_common/helper_commands.h"
 #include "kernelmodulecommunicator.h"
-#include "logger.h"
-#include "utils.h"
+#include "../../logger.h"
+#include "../../utils.h"
 #include "wireguard.h"
 #include <boost/asio.hpp>
 #include <boost/algorithm/hex.hpp>

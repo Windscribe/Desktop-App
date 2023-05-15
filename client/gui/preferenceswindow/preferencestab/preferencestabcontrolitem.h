@@ -46,6 +46,7 @@ signals:
 
 private slots:
     void onTabClicked(PREFERENCES_TAB_TYPE tab, TabButton *button);
+    void onLanguageChanged();
 
 private:
     TabButton *generalButton_;
@@ -61,6 +62,7 @@ private:
     QList<TabButton *> buttonList_;
 
     bool loggedIn_;
+    bool isExternalConfigMode_;
     int height_;
 
     PREFERENCES_TAB_TYPE curTab_;

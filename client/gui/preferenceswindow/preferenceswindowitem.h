@@ -16,6 +16,7 @@
 #include "splittunnelingwindow/splittunnelingwindowitem.h"
 #include "splittunnelingwindow/splittunnelingaddresseswindowitem.h"
 #include "splittunnelingwindow/splittunnelingappswindowitem.h"
+#include "dnsdomainswindow/dnsdomainswindowitem.h"
 #include "backend/preferences/preferences.h"
 #include "backend/preferences/accountinfo.h"
 #include "commongraphics/resizebar.h"
@@ -38,6 +39,7 @@ public:
 
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
+    PREFERENCES_TAB_TYPE currentTab() override;
     void setCurrentTab(PREFERENCES_TAB_TYPE tab) override;
     void setCurrentTab(PREFERENCES_TAB_TYPE tab, CONNECTION_SCREEN_TYPE subpage ) override;
 
@@ -93,6 +95,7 @@ private slots:
     void onNetworkOptionsNetworkClick(types::NetworkInterface network);
     void onSplitTunnelingPageClick();
     void onProxySettingsPageClick();
+    void onConnectedDnsDomainsClick(const QStringList &domains);
 
     void onAdvParametersClick();
 
@@ -103,6 +106,7 @@ private slots:
 
     void onStAppsEscape();
     void onIpsAndHostnameEscape();
+    void onDnsDomainsEscape();
     void onNetworkEscape();
 
     void onCurrentNetworkUpdated(types::NetworkInterface network);
@@ -110,7 +114,6 @@ private slots:
 protected:
     void keyPressEvent(QKeyEvent *event) override;
     void updatePositions() override;
-    void updateChildItemsAfterHeightChanged() override;
 
 protected slots:
     void onBackArrowButtonClicked() override;
@@ -135,10 +138,9 @@ private:
     SplitTunnelingWindowItem *splitTunnelingWindowItem_;
     SplitTunnelingAppsWindowItem *splitTunnelingAppsWindowItem_;
     SplitTunnelingAddressesWindowItem *splitTunnelingAddressesWindowItem_;
+    DnsDomainsWindowItem *dnsDomainsWindowItem_;
 
     bool isShowSubPage_;
-    QString pageCaption_;
-
     bool loggedIn_;
 
     void changeTab(PREFERENCES_TAB_TYPE tab);

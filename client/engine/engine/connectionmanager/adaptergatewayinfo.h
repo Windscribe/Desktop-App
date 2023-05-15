@@ -6,7 +6,7 @@
 class AdapterGatewayInfo
 {
 public:
-    static AdapterGatewayInfo detectAndCreateDefaultAdaperInfo();
+    static AdapterGatewayInfo detectAndCreateDefaultAdapterInfo();
 
 public:
     explicit AdapterGatewayInfo();

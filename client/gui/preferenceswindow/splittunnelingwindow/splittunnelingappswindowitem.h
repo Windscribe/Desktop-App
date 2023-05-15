@@ -14,7 +14,7 @@ class SplitTunnelingAppsWindowItem : public CommonGraphics::BasePage
 public:
     explicit SplitTunnelingAppsWindowItem(ScalableGraphicsObject *parent, Preferences *preferences);
 
-    QString caption();
+    QString caption() const override;
     QList<types::SplitTunnelingApp> getApps();
     void setApps(QList<types::SplitTunnelingApp> apps);
     void addAppManually(types::SplitTunnelingApp app);
@@ -29,11 +29,14 @@ signals:
 
 private slots:
     void onAppsUpdated(QList<types::SplitTunnelingApp> apps);
+    void onLanguageChanged();
 
 private:
     Preferences *preferences_;
     PreferenceGroup *desc_;
     SplitTunnelingAppsGroup *splitTunnelingAppsGroup_;
+
+    bool loggedIn_;
 };
 
 }

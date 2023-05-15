@@ -1,0 +1,8 @@
+# ------------------------------------------------------------------------------
+# Windscribe Build System
+# Copyright (c) 2020-2023, Windscribe Limited. All rights reserved.
+# ------------------------------------------------------------------------------
+variables:
+  VERSION_CTRLD: '1.1.5'
+  BUILDROOT_CTRLD: 'build-libs/ctrld'
+  ARTIFACT_CTRLD: 'ctrld.zip'

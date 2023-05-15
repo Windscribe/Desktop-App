@@ -16,8 +16,6 @@
 #include "iconhoverengagebutton.h"
 #include "commongraphics/scalablegraphicsobject.h"
 #include "tooltips/tooltiptypes.h"
-#include "commongraphics/bubblebuttonbright.h"
-#include "commongraphics/bubblebuttondark.h"
 
 namespace LoginWindow {
 
@@ -135,6 +133,8 @@ private:
     CommonGraphics::TextButton *forgotPassButton_;
     QVariantAnimation forgotAnd2FAPosYAnimation_;
 
+    ILoginWindow::ERROR_MESSAGE_TYPE curError_;
+    QString curErrorMsg_;
     QString curErrorText_;
     double curErrorOpacity_;
     QVariantAnimation errorAnimation_;

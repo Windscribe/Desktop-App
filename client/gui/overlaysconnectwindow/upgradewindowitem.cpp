@@ -15,22 +15,19 @@ UpgradeWindowItem::UpgradeWindowItem(Preferences *preferences, ScalableGraphicsO
 {
     setFlag(QGraphicsItem::ItemIsFocusable);
 
-    connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &UpgradeWindowItem::onLanguageChanged);
     connect(preferences_, &Preferences::appSkinChanged, this, &UpgradeWindowItem::onAppSkinChanged);
 
     // accept
-    acceptButton_ = new CommonGraphics::BubbleButtonBright(this, 128, 40, 20, 20);
-    connect(acceptButton_, &CommonGraphics::BubbleButtonBright::clicked, this, &UpgradeWindowItem::acceptClick);
-    QString upgradeText = QT_TRANSLATE_NOOP("CommonGraphics::BubbleButtonBright", "Get more data");
-    acceptButton_->setText(upgradeText);
-
+    acceptButton_ = new CommonGraphics::BubbleButton(this, CommonGraphics::BubbleButton::kBright, 128, 40, 20);
+    connect(acceptButton_, &CommonGraphics::BubbleButton::clicked, this, &UpgradeWindowItem::acceptClick);
     // cancel
-    QString cancelText = QT_TRANSLATE_NOOP("CommonGraphics::TextButton", "I'm broke");
     double cancelOpacity = OPACITY_UNHOVER_TEXT;
-    cancelButton_ = new CommonGraphics::TextButton(cancelText, FontDescr(16, false),
-                                                   Qt::white, true, this);
+    cancelButton_ = new CommonGraphics::TextButton("", FontDescr(16, false), Qt::white, true, this);
     connect(cancelButton_, &CommonGraphics::TextButton::clicked, this, &UpgradeWindowItem::cancelClick);
     cancelButton_->quickSetOpacity(cancelOpacity);
+
+    connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &UpgradeWindowItem::onLanguageChanged);
+    onLanguageChanged();
 
     updatePositions();
 }
@@ -130,6 +127,8 @@ void UpgradeWindowItem::keyPressEvent(QKeyEvent *event)
 
 void UpgradeWindowItem::onLanguageChanged()
 {
+    acceptButton_->setText(tr("Get more data"));
+    cancelButton_->setText(tr("I'm broke"));
     cancelButton_->recalcBoundingRect();
     int cancelPosX = CommonGraphics::centeredOffset(WINDOW_WIDTH*G_SCALE, cancelButton_->boundingRect().width());
     int yOffset = preferences_->appSkin() == APP_SKIN_VAN_GOGH ? -28*G_SCALE : 0;

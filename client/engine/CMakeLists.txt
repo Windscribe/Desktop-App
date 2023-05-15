@@ -12,13 +12,14 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Qt6 REQUIRED COMPONENTS Widgets Network Core5Compat)
-set(WINDSCRIBE_BUILD_LIBS_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../../build-libs)
+
+if(WIN32 AND "${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "arm64")
+    set(WINDSCRIBE_BUILD_LIBS_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../../build-libs-arm64)
+else()
+    set(WINDSCRIBE_BUILD_LIBS_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../../build-libs)
+endif()
 
 set(PROJECT_SOURCES
-    clientconnectiondescr.cpp
-    clientconnectiondescr.h
-    engineserver.cpp
-    engineserver.h
     engine.qrc
 )
 
@@ -36,7 +37,6 @@ target_include_directories(engine PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/../common
     ${WINDSCRIBE_BUILD_LIBS_PATH}/boost/include
     ${WINDSCRIBE_BUILD_LIBS_PATH}/curl/include
-    ${WINDSCRIBE_BUILD_LIBS_PATH}/cares/dll_x64/include
     ${WINDSCRIBE_BUILD_LIBS_PATH}/cares/include
     ${WINDSCRIBE_BUILD_LIBS_PATH}/openssl_ech_draft/include
 )

@@ -32,118 +32,130 @@ DEP_FILE_MASK = ["openvpn.exe", "openvpn"]
 
 
 def BuildDependencyMSVC(openssl_root, lzo_root, outpath):
-  # Create an environment with VS vars.
-  buildenv = os.environ.copy()
-  buildenv.update({ "MAKEFLAGS" : "S" })
-  buildenv.update(iutl.GetVisualStudioEnvironment())
-  buildenv.update({ "OPENVPN_DEPROOT" : outpath, "OPENSSL_HOME" : openssl_root, "LZO_HOME" : lzo_root })
-  # Build and install.
-  iutl.RunCommand("msvc-build.bat", env=buildenv, shell=True)
-  currend_wd = os.getcwd()
-  utl.CopyFile("{}/x64-Output/Release/openvpn.exe".format(currend_wd),
-               "{}/openvpn.exe".format(outpath))
+    # Create an environment with VS vars.
+    buildenv = os.environ.copy()
+    buildenv.update({"MAKEFLAGS": "S"})
+    buildenv.update(iutl.GetVisualStudioEnvironment(is_arm64_build))
+    buildenv.update({"OPENVPN_DEPROOT": outpath, "OPENSSL_HOME": openssl_root, "LZO_HOME": lzo_root})
+    # Build and install.
+    target_arch = "ARM64" if is_arm64_build else "x64"
+    iutl.RunCommand(f"msbuild openvpn.sln /p:Configuration=Release /p:Platform={target_arch}", env=buildenv, shell=True)
+    currend_wd = os.getcwd()
+    utl.CopyFile("{}/{}-Output/Release/openvpn.exe".format(currend_wd, target_arch),
+                 "{}/openvpn.exe".format(outpath))
 
 
-def BuildDependencyGNU(openssl_root, lzo_root, outpath):
-  # Create an environment with CC flags.
-  buildenv = os.environ.copy()
-  buildenv.update({ "CFLAGS" : "-I{}/include -I{}/include".format(openssl_root, lzo_root) })
-  buildenv.update({ "CPPFLAGS" : "-I{}/include -I{}/include".format(openssl_root, lzo_root) })
-  buildenv.update({ "LDFLAGS" : "-L{}/lib -L{}/lib".format(openssl_root, lzo_root) })
-  # Configure.
-  configure_cmd = ["./configure", "--with-crypto-library=openssl"]
-  if utl.GetCurrentOS() == "macos":
-    configure_cmd.append("CFLAGS=-arch x86_64 -arch arm64 -mmacosx-version-min=10.14")
-  configure_cmd.append("--prefix={}".format(outpath))
-  iutl.RunCommand(configure_cmd, env=buildenv)
-  # Build and install.
-  iutl.RunCommand(iutl.GetMakeBuildCommand(), env=buildenv)
-  iutl.RunCommand(["make", "install-exec", "-s"], env=buildenv)
-  utl.CopyFile("{}/sbin/openvpn".format(outpath), "{}/openvpn".format(outpath))
+def BuildDependencyGNU(openssl_root, lzo_root, lz4_root, outpath):
+    # Build lz4 lib statically
+    with utl.PushDir(lz4_root):
+        msg.HeadPrint("Building lz4...")
+        buildenv = os.environ.copy()
+        if utl.GetCurrentOS() == "macos":
+            buildenv.update({"CFLAGS": "-arch x86_64 -arch arm64 -mmacosx-version-min=10.14"})
+        make_cmd = ["make"]
+        iutl.RunCommand(make_cmd, env=buildenv)
+
+    # Create an environment with CC flags.
+    buildenv = os.environ.copy()
+    buildenv.update({"CFLAGS": "-I{}/include -I{}/include -I{}".format(openssl_root, lzo_root, lz4_root)})
+    buildenv.update({"CPPFLAGS": "-I{}/include -I{}/include -I{}".format(openssl_root, lzo_root, lz4_root)})
+    buildenv.update({"LDFLAGS": "-L{}/lib -L{}/lib -L{}".format(openssl_root, lzo_root, lz4_root)})
+    # Configure.
+    configure_cmd = ["./configure", "--with-crypto-library=openssl"]
+    if utl.GetCurrentOS() == "macos":
+        configure_cmd.append("CFLAGS=-arch x86_64 -arch arm64 -mmacosx-version-min=10.14")
+    configure_cmd.append("--prefix={}".format(outpath))
+    configure_cmd.append("OPENSSL_CFLAGS=-I{}/include".format(openssl_root))
+    configure_cmd.append("OPENSSL_LIBS=-L{}/lib64 -lssl -lcrypto".format(openssl_root))
+    iutl.RunCommand(configure_cmd, env=buildenv)
+    # Build and install.
+    iutl.RunCommand(iutl.GetMakeBuildCommand(), env=buildenv)
+    iutl.RunCommand(["make", "install-exec", "-s"], env=buildenv)
+    utl.CopyFile("{}/sbin/openvpn".format(outpath), "{}/openvpn".format(outpath))
 
 
 def InstallDependency():
-  # Load environment.
-  msg.HeadPrint("Loading: \"{}\"".format(CONFIG_NAME))
-  configdata = utl.LoadConfig(os.path.join(TOOLS_DIR, CONFIG_NAME))
-  if not configdata:
-    raise iutl.InstallError("Failed to get config data.")
-  iutl.SetupEnvironment(configdata)
-  dep_name = DEP_TITLE.lower()
-  dep_version_var = "VERSION_" + DEP_TITLE.upper().replace("-", "")
-  dep_version_str = os.environ.get(dep_version_var, None)
-  if not dep_version_str:
-    raise iutl.InstallError("{} not defined.".format(dep_version_var))
-  openssl_root = iutl.GetDependencyBuildRoot("openssl")
-  if not openssl_root:
-    raise iutl.InstallError("OpenSSL is not installed.")
-  lzo_root = iutl.GetDependencyBuildRoot("lzo")
-  if not lzo_root:
-    raise iutl.InstallError("LZO is not installed.")
-  # Prepare output.
-  temp_dir = iutl.PrepareTempDirectory(dep_name)
-  # Download and unpack the archive.
-  archivetitle = "{}-{}".format(dep_name, dep_version_str)
-  if utl.GetCurrentOS() == "win32":
-    dep_url = DEP_URL_WIN32
-    archivename = "v{}.tar.gz".format(dep_version_str)
-  else:
-    dep_url = DEP_URL_POSIX
-    archivename = archivetitle + ".tar.gz"
-  localfilename = os.path.join(temp_dir, archivename)
-  msg.HeadPrint("Downloading: \"{}\"".format(archivename))
-  iutl.DownloadFile("{}{}".format(dep_url, archivename), localfilename)
-  msg.HeadPrint("Extracting: \"{}\"".format(archivename))
-  iutl.ExtractFile(localfilename)
-  # Copy modified files (Windows only).
-  if utl.GetCurrentOS() == "win32":
-    iutl.CopyCustomFiles(dep_name,os.path.join(temp_dir, archivetitle))
-  # Build the dependency.
-  dep_buildroot_var = "BUILDROOT_" + DEP_TITLE.upper()
-  dep_buildroot_str = os.environ.get(dep_buildroot_var, os.path.join("build-libs", dep_name))
-  outpath = os.path.normpath(os.path.join(os.path.dirname(TOOLS_DIR), dep_buildroot_str))
-  # Clean the output folder to ensure no conflicts when we're updating to a newer openvpn version.
-  utl.RemoveDirectory(outpath)
-  with utl.PushDir(os.path.join(temp_dir, archivetitle)):
-    msg.HeadPrint("Building: \"{}\"".format(archivetitle))
+    # Load environment.
+    msg.HeadPrint("Loading: \"{}\"".format(CONFIG_NAME))
+    configdata = utl.LoadConfig(os.path.join(TOOLS_DIR, CONFIG_NAME))
+    if not configdata:
+        raise iutl.InstallError("Failed to get config data.")
+    iutl.SetupEnvironment(configdata)
+    dep_name = DEP_TITLE.lower()
+    dep_version_var = "VERSION_" + DEP_TITLE.upper().replace("-", "")
+    dep_version_str = os.environ.get(dep_version_var, None)
+    if not dep_version_str:
+        raise iutl.InstallError("{} not defined.".format(dep_version_var))
+    openssl_root = iutl.GetDependencyBuildRoot("openssl_ech_draft")
+    if not openssl_root:
+        raise iutl.InstallError("OpenSSL is not installed.")
+    lzo_root = iutl.GetDependencyBuildRoot("lzo")
+    if not lzo_root:
+        raise iutl.InstallError("LZO is not installed.")
+    # Prepare output.
+    temp_dir = iutl.PrepareTempDirectory(dep_name)
+    # Download and unpack the archive.
+    archivetitle = "{}-{}".format(dep_name, dep_version_str)
     if utl.GetCurrentOS() == "win32":
-      BuildDependencyMSVC(openssl_root, lzo_root, temp_dir)
+        dep_url = DEP_URL_WIN32
+        archivename = "v{}.tar.gz".format(dep_version_str)
     else:
-      BuildDependencyGNU(openssl_root, lzo_root, temp_dir)
-  # Copy the dependency to output directory and to a zip file, if needed.
-  installzipname = None
-  if "-zip" in sys.argv:
-    dep_artifact_var = "ARTIFACT_" + DEP_TITLE.upper()
-    dep_artifact_str = os.environ.get(dep_artifact_var, "{}.zip".format(dep_name))
-    installzipname = os.path.join(os.path.dirname(outpath), dep_artifact_str)
-  msg.Print("Installing artifacts...")
-  aflist = iutl.InstallArtifacts(temp_dir, DEP_FILE_MASK, outpath, installzipname)
-  for af in aflist:
-    msg.HeadPrint("Ready: \"{}\"".format(af))
-  # Cleanup.
-  msg.Print("Cleaning temporary directory...")
-  utl.RemoveDirectory(temp_dir)
+        dep_url = DEP_URL_POSIX
+        archivename = archivetitle + ".tar.gz"
+    localfilename = os.path.join(temp_dir, archivename)
+    msg.HeadPrint("Downloading: \"{}\"".format(archivename))
+    iutl.DownloadFile("{}{}".format(dep_url, archivename), localfilename)
+    msg.HeadPrint("Extracting: \"{}\"".format(archivename))
+    iutl.ExtractFile(localfilename)
+    # Copy modified files.
+    iutl.CopyCustomFiles(dep_name, os.path.join(temp_dir, archivetitle))
+    # Build the dependency.
+    dep_buildroot_str = os.path.join("build-libs-arm64" if is_arm64_build else "build-libs", dep_name)
+    outpath = os.path.normpath(os.path.join(os.path.dirname(TOOLS_DIR), dep_buildroot_str))
+    # Clean the output folder to ensure no conflicts when we're updating to a newer openvpn version.
+    utl.RemoveDirectory(outpath)
+    with utl.PushDir(os.path.join(temp_dir, archivetitle)):
+        msg.HeadPrint("Building: \"{}\"".format(archivetitle))
+        if utl.GetCurrentOS() == "win32":
+            BuildDependencyMSVC(openssl_root, lzo_root, temp_dir)
+        else:
+            BuildDependencyGNU(openssl_root, lzo_root, os.path.join(temp_dir, archivetitle, "lz4-1.9.4"), temp_dir)
+    # Copy the dependency to output directory and to a zip file, if needed.
+    installzipname = None
+    if "-zip" in sys.argv:
+        dep_artifact_var = "ARTIFACT_" + DEP_TITLE.upper()
+        dep_artifact_str = os.environ.get(dep_artifact_var, "{}.zip".format(dep_name))
+        installzipname = os.path.join(os.path.dirname(outpath), dep_artifact_str)
+    msg.Print("Installing artifacts...")
+    aflist = iutl.InstallArtifacts(temp_dir, DEP_FILE_MASK, outpath, installzipname)
+    for af in aflist:
+        msg.HeadPrint("Ready: \"{}\"".format(af))
+    # Cleanup.
+    msg.Print("Cleaning temporary directory...")
+    utl.RemoveDirectory(temp_dir)
+    msg.Print(f"{DEP_TITLE} v{dep_version_str} installed in {outpath}")
 
 
 if __name__ == "__main__":
-  start_time = time.time()
-  current_os = utl.GetCurrentOS()
-  if current_os not in DEP_OS_LIST:
-    msg.Print("{} is not needed on {}, skipping.".format(DEP_TITLE, current_os))
-    sys.exit(0)
-  try:
-    msg.Print("Installing {}...".format(DEP_TITLE))
-    InstallDependency()
-    exitcode = 0
-  except iutl.InstallError as e:
-    msg.Error(e)
-    exitcode = e.exitcode
-  except IOError as e:
-    msg.Error(e)
-    exitcode = 1
-  elapsed_time = time.time() - start_time
-  if elapsed_time >= 60:
-    msg.HeadPrint("All done: %i minutes %i seconds elapsed" % (elapsed_time / 60, elapsed_time % 60))
-  else:
-    msg.HeadPrint("All done: %i seconds elapsed" % elapsed_time)
-  sys.exit(exitcode)
+    start_time = time.time()
+    current_os = utl.GetCurrentOS()
+    is_arm64_build = "--arm64" in sys.argv
+    if current_os not in DEP_OS_LIST:
+        msg.Print("{} is not needed on {}, skipping.".format(DEP_TITLE, current_os))
+        sys.exit(0)
+    try:
+        msg.Print("Installing {}...".format(DEP_TITLE))
+        InstallDependency()
+        exitcode = 0
+    except iutl.InstallError as e:
+        msg.Error(e)
+        exitcode = e.exitcode
+    except IOError as e:
+        msg.Error(e)
+        exitcode = 1
+    elapsed_time = time.time() - start_time
+    if elapsed_time >= 60:
+        msg.HeadPrint("All done: %i minutes %i seconds elapsed" % (elapsed_time / 60, elapsed_time % 60))
+    else:
+        msg.HeadPrint("All done: %i seconds elapsed" % elapsed_time)
+    sys.exit(exitcode)

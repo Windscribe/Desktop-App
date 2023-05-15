@@ -11,6 +11,7 @@
 // Some simplified implementation of the QNetworkAccessManager class for our needs based on curl and cares(DnsRequest).
 // In particular, it has the functionality to whitelist IP addresses to firewall exceptions.
 // It has an internal DNS cache.
+// Currently not thead safe.
 class NetworkAccessManager : public QObject
 {
     Q_OBJECT
@@ -54,7 +55,8 @@ private:
         NetworkRequest request;
         NetworkReply *reply;
         QByteArray data;
-        QElapsedTimer elapsedTimer_;
+        QElapsedTimer elapsedTimer;
+        QStringList ips;
     };
 
     QHash<quint64, QSharedPointer<RequestData> > activeRequests_;

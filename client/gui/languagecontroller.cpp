@@ -1,52 +1,18 @@
 #include "languagecontroller.h"
 
 #include <QApplication>
-#include "utils/ws_assert.h"
+
+#include "utils/languagesutil.h"
 #include "utils/logger.h"
 
-void LanguageController::setLanguage(const QString &language)
+LanguageController::LanguageController()
 {
-    if (language != language_)
-    {
-        if (language == "en")
-        {
-            qApp->removeTranslator(&translator_);
-            qCDebug(LOG_BASIC) << "Language changed:" << language;
+    // The language used at startup will be set by EngineSettings::loadFromSettings()
+    // so we have one source of truth for which language we are using.
+}
 
-            language_ = language;
-            emit languageChanged();
-        }
-        else
-        {
-
-#if defined Q_OS_WIN
-            QString filename = QApplication::applicationDirPath() + "/languages/" + language + ".qm";
-            filename = "C:/work/client-desktop-gui/NewVersion/WindscribeGUI/languages/" + language + ".qm";
-#elif defined Q_OS_MAC
-            QString filename = QApplication::applicationDirPath() + "/../Languages/" + language + ".qm";
-#elif defined Q_OS_LINUX
-        //todo linux
-        QString filename;
-        WS_ASSERT(false);
-#endif
-
-            if (translator_.load(filename))
-            {
-                qCDebug(LOG_BASIC) << "Language changed:" << language;
-                qApp->installTranslator(&translator_);
-
-                language_ = language;
-                emit languageChanged();
-            }
-            else
-            {
-                qCDebug(LOG_BASIC) << "Failed load language file for" << language;
-                qApp->removeTranslator(&translator_);
-
-                qCDebug(LOG_BASIC) << "Language changed: default language";
-            }
-        }
-    }
+LanguageController::~LanguageController()
+{
 }
 
 QString LanguageController::getLanguage() const
@@ -54,11 +20,41 @@ QString LanguageController::getLanguage() const
     return language_;
 }
 
-LanguageController::LanguageController() : language_("en")
+void LanguageController::setLanguage(const QString &language)
 {
+    if (language != language_) {
+        bool languageLoaded = false;
+
+        // We don't have a language file for English, since all the hard-coded strings are
+        // already in English.
+        if (language != "en") {
+            // Try to load the specified language.  If that fails, try to load the system language.
+            languageLoaded = loadLanguage(language);
+            if (!languageLoaded) {
+                languageLoaded = loadLanguage(LanguagesUtil::systemLanguage());
+            }
+        }
+
+        if (!languageLoaded) {
+            qApp->removeTranslator(&translator_);
+            language_ = "en";
+        }
+
+        emit languageChanged();
+    }
 }
 
-LanguageController::~LanguageController()
+bool LanguageController::loadLanguage(const QString &language)
 {
+    const QString filename = ":/translations/ws_desktop_" + language + ".qm";
 
+    if (translator_.load(filename)) {
+        qCDebug(LOG_BASIC) << "LanguageController::setLanguage - language changed:" << language;
+        qApp->installTranslator(&translator_);
+        language_ = language;
+        return true;
+    }
+
+    qCDebug(LOG_BASIC) << "LanguageController::setLanguage - failed to load language file:" << filename;
+    return false;
 }

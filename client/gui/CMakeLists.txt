@@ -11,8 +11,25 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(Qt6 REQUIRED COMPONENTS Widgets Network Svg Core5Compat)
-set(WINDSCRIBE_BUILD_LIBS_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../../build-libs)
+find_package(Qt6 REQUIRED COMPONENTS Widgets Network Svg Core5Compat LinguistTools)
+
+if(WIN32 AND "${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "arm64")
+    set(WINDSCRIBE_BUILD_LIBS_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../../build-libs-arm64)
+else()
+    set(WINDSCRIBE_BUILD_LIBS_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../../build-libs)
+endif()
+
+set(WS_TS_FILES
+    ${CMAKE_CURRENT_SOURCE_DIR}/translations/ws_desktop_ar.ts
+    ${CMAKE_CURRENT_SOURCE_DIR}/translations/ws_desktop_de.ts
+    ${CMAKE_CURRENT_SOURCE_DIR}/translations/ws_desktop_es.ts
+    ${CMAKE_CURRENT_SOURCE_DIR}/translations/ws_desktop_fr.ts
+    ${CMAKE_CURRENT_SOURCE_DIR}/translations/ws_desktop_hi.ts
+    ${CMAKE_CURRENT_SOURCE_DIR}/translations/ws_desktop_ru.ts
+    ${CMAKE_CURRENT_SOURCE_DIR}/translations/ws_desktop_zh.ts)
+# Using the -extensions flag to skip processing the .ui files in the test projects.  Otherwise, the
+# strings in said ui files will be added to the .ts output files.
+qt6_create_translation(WS_QM_FILES ${CMAKE_CURRENT_SOURCE_DIR}/.. ${WS_TS_FILES} OPTIONS -extensions cpp,h)
 
 set(PROJECT_SOURCES
     # --- sources and headers ---
@@ -24,8 +41,9 @@ set(PROJECT_SOURCES
     dpiscalemanager.h
     freetrafficnotificationcontroller.cpp
     freetrafficnotificationcontroller.h
-    guitest.cpp
-    guitest.h
+    generalmessage.h
+    generalmessagecontroller.cpp
+    generalmessagecontroller.h
     languagecontroller.cpp
     languagecontroller.h
     loginattemptscontroller.cpp
@@ -54,6 +72,15 @@ endif (APPLE)
 
 add_library(gui STATIC ${PROJECT_SOURCES})
 
+qt_add_resources(gui "translations"
+    PREFIX
+        "/translations"
+    BASE
+        ${CMAKE_CURRENT_BINARY_DIR}
+    FILES
+        ${WS_QM_FILES}
+)
+
 target_link_libraries(gui PRIVATE Qt6::Core Qt6::Network Qt6::Widgets Qt6::Svg Qt6::Core5Compat)
 
 if (WIN32)
@@ -74,7 +101,7 @@ target_include_directories(gui PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/../common
     ${WINDSCRIBE_BUILD_LIBS_PATH}/boost/include
     ${WINDSCRIBE_BUILD_LIBS_PATH}/curl/include
-    ${WINDSCRIBE_BUILD_LIBS_PATH}/cares/dll_x64/include
+    ${WINDSCRIBE_BUILD_LIBS_PATH}/cares/include
     ${WINDSCRIBE_BUILD_LIBS_PATH}/openssl_ech_draft/include
 )
 
@@ -87,6 +114,7 @@ add_subdirectory(connectwindow)
 add_subdirectory(dialogs)
 add_subdirectory(emergencyconnectwindow)
 add_subdirectory(externalconfig)
+add_subdirectory(generalmessage)
 add_subdirectory(graphicresources)
 add_subdirectory(launchonstartup)
 add_subdirectory(localipcserver)
@@ -105,4 +133,3 @@ add_subdirectory(twofactorauth)
 add_subdirectory(utils)
 add_subdirectory(widgetutils)
 add_subdirectory(tests)
-

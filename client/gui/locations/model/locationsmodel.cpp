@@ -1,6 +1,7 @@
 #include "locationsmodel.h"
 #include "locationsmodel_utils.h"
 #include "../locationsmodel_roles.h"
+#include "languagecontroller.h"
 
 namespace gui_locations {
 
@@ -8,6 +9,8 @@ LocationsModel::LocationsModel(QObject *parent) : QAbstractItemModel(parent), is
 {
     root_ = new int();
     favoriteLocationsStorage_.readFromSettings();
+
+    connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &LocationsModel::onLanguageChanged);
 }
 
 LocationsModel::~LocationsModel()
@@ -145,6 +148,7 @@ void LocationsModel::updateBestLocation(const LocationID &bestLocation)
             endInsertRows();
         }
     }
+    onLanguageChanged();
 }
 
 void LocationsModel::updateCustomConfigLocation(const types::Location &location)
@@ -727,11 +731,22 @@ LocationItem *LocationsModel::findAndCreateBestLocationItem(const LocationID &be
             if (bestLocation == cityLid.apiLocationToBestLocation())
             {
                 LocationItem *liBestLocation = new LocationItem(bestLocation, li->location(), c);
+                liBestLocation->setName(tr(BEST_LOCATION_NAME));
                 return liBestLocation;
             }
         }
     }
     return nullptr;
+}
+
+void LocationsModel::onLanguageChanged()
+{
+    if (locations_.isEmpty() || !locations_[0]->location().id.isBestLocation()) {
+        return;
+    }
+
+    locations_[0]->setName(tr(BEST_LOCATION_NAME));
+    emit dataChanged(index(0, 0), index(0, 0), QList<int>() << kName);
 }
 
 } //namespace gui_locations

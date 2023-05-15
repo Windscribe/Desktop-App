@@ -242,8 +242,8 @@ bool LegacyProtobufSupport::loadEngineSettings(const QByteArray &arr, types::Eng
 
     if (es->dns_while_connected_info)
     {
-        if (es->dns_while_connected_info->has_type) out.d->connectedDnsInfo.setType((CONNECTED_DNS_TYPE)es->dns_while_connected_info->type);
-        out.d->connectedDnsInfo.setIpAddress(es->dns_while_connected_info->ip_address);
+        if (es->dns_while_connected_info->has_type) out.d->connectedDnsInfo.type = (CONNECTED_DNS_TYPE)es->dns_while_connected_info->type;
+        out.d->connectedDnsInfo.upStream1 = es->dns_while_connected_info->ip_address;
     }
 
     if (es->has_dns_manager) out.d->dnsManager = (DNS_MANAGER_TYPE)es->dns_manager;

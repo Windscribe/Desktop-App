@@ -7,6 +7,8 @@
 #include "engine/apiinfo/location.h"
 #include "engine/apiinfo/staticips.h"
 
+class NetworkAccessManager;
+
 namespace locationsmodel {
 
 // Combine ApiLocationsModel and CustomConfigLocationsModel
@@ -14,7 +16,7 @@ class LocationsModel : public QObject
 {
     Q_OBJECT
 public:
-    explicit LocationsModel(QObject *parent, IConnectStateController *stateController, INetworkDetectionManager *networkDetectionManager);
+    explicit LocationsModel(QObject *parent, IConnectStateController *stateController, INetworkDetectionManager *networkDetectionManager, NetworkAccessManager *networkAccessManager);
     ~LocationsModel() override;
 
     void setApiLocations(const QVector<apiinfo::Location> &locations, const apiinfo::StaticIps &staticIps);
@@ -40,8 +42,6 @@ private:
     ApiLocationsModel *apiLocationsModel_;
     CustomConfigLocationsModel *customConfigLocationsModel_;
     PingHost *pingHost_;
-    QThread *pingThread_;
-
 };
 
 } //namespace locationsmodel
