@@ -1565,11 +1565,8 @@ void MainWindow::onBackendLoginFinished(bool /*isLoginFromSavedSettings*/)
 
 void MainWindow::onBackendTryingBackupEndpoint(int num, int cnt)
 {
-    if (!isLoginOkAndConnectWindowVisible_)
-    {
-        QString additionalMessage = tr("Trying Backup Endpoints %1/%2").arg(num).arg(cnt);
-        mainWindowController_->getLoggingInWindow()->setAdditionalMessage(additionalMessage);
-    }
+    QString additionalMessage = tr("Trying Backup Endpoints %1/%2").arg(num).arg(cnt);
+    mainWindowController_->getLoggingInWindow()->setAdditionalMessage(additionalMessage);
 }
 
 void MainWindow::onBackendLoginError(LOGIN_RET loginError, const QString &errorMessage)
@@ -1626,12 +1623,11 @@ void MainWindow::onBackendLoginError(LOGIN_RET loginError, const QString &errorM
     }
     else if (loginError == LOGIN_RET_NO_API_CONNECTIVITY)
     {
-        if (!isLoginOkAndConnectWindowVisible_)
-        {
-            //qCDebug(LOG_BASIC) << "Show No API connectivity message to user.";
-            mainWindowController_->getLoginWindow()->setErrorMessage(ILoginWindow::ERR_MSG_NO_API_CONNECTIVITY, QString());
-            //loginWindow_->setEmergencyConnectState(falseengine_->isEmergencyDisconnected());
+        mainWindowController_->getLoginWindow()->setErrorMessage(ILoginWindow::ERR_MSG_NO_API_CONNECTIVITY, QString());
+        if (!isLoginOkAndConnectWindowVisible_) {
             gotoLoginWindow();
+        } else {
+            backToLoginWithErrorMessage(ILoginWindow::ERR_MSG_NO_API_CONNECTIVITY, QString());
         }
     }
     else if (loginError == LOGIN_RET_INCORRECT_JSON)
@@ -1670,7 +1666,8 @@ void MainWindow::onBackendLoginError(LOGIN_RET loginError, const QString &errorM
                                    "",
                                    [this](bool b) {
                                        backend_->getPreferences()->setIgnoreSslErrors(true);
-                                       mainWindowController_->getLoggingInWindow()->setMessage("");
+                                       mainWindowController_->getLoggingInWindow()->setMessage(tr("Logging you in..."));
+                                       mainWindowController_->getLoggingInWindow()->setAdditionalMessage("");
                                        backend_->loginWithLastLoginSettings();
                                        mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_LOGGING_IN);
                                    },
