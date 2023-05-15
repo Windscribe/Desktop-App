@@ -26,7 +26,7 @@ signals:
 
 private slots:
     void onAddressesUpdated(QList<types::SplitTunnelingNetworkRoute> addresses);
-    void onError(QString title, QString msg);
+    void onError(QString msg);
     void onClearError();
     void onLanguageChanged();
 
