@@ -45,9 +45,11 @@ Windscribe client.
 %install
 mv -f %{_sourcedir}/* %{buildroot}
 
-%post
+%posttrans
 systemctl enable windscribe-helper
 systemctl start windscribe-helper
+
+%post
 ln -sf /opt/windscribe/windscribe-cli /usr/bin/windscribe-cli
 update-desktop-database
 echo linux_rpm_x64 > ../etc/windscribe/platform
