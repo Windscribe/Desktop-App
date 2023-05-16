@@ -23,7 +23,7 @@ signals:
 
 private slots:
     void onAddressesUpdated(const QStringList &addresses);
-    void onError(QString title, QString msg);
+    void onError(QString msg);
     void onClearError();
     void onConnectedDnsPreferencesChanged(const types::ConnectedDnsInfo &dns);
     void onLanguageChanged();

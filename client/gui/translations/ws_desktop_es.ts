@@ -785,23 +785,7 @@
         <translation>El adaptador de red no admite la suplantación de MAC. Pruebe con otro adaptador.</translation>
     </message>
     <message>
-        <source>Logs too large to send</source>
-        <translation type="vanished">Registros demasiado grandes para enviarlos</translation>
-    </message>
-    <message>
-        <source>Could not send logs to Windscribe, they are too big. Either re-send after replicating the issue or manually compressing and sending to support.</source>
-        <translation type="vanished">No se pudieron enviar registros a Windscribe, son demasiado grandes. Vuelva a enviar después de replicar el problema o comprima y envíe manualmente al soporte técnico.</translation>
-    </message>
-    <message>
-        <source>Logs too large to view</source>
-        <translation type="vanished">Registros demasiado grandes para verlos</translation>
-    </message>
-    <message>
-        <source>Could not view the logs because they are too big. You may want to try viewing manually.</source>
-        <translation type="vanished">No se pudieron ver los registros porque son demasiado grandes. Es posible que desee intentar ver manualmente.</translation>
-    </message>
-    <message>
-        <location filename="../mainwindow.cpp" line="2304"/>
+        <location filename="../mainwindow.cpp" line="2307"/>
         <source>Detection Error</source>
         <translation>Error de detección</translation>
     </message>
@@ -1468,32 +1452,14 @@ Si el problema persiste después de un reinicio, envíe un registro de depuraci�
 <context>
     <name>PreferencesWindow::DnsDomainsGroup</name>
     <message>
-        <source>IP or hostname already exists</source>
-        <translation type="vanished">IP o nombre de host ya existe</translation>
-    </message>
-    <message>
-        <source>Please enter a new IP or hostname.</source>
-        <translation type="vanished">Introduzca una nueva IP o nombre de host.</translation>
-    </message>
-    <message>
         <location filename="../preferenceswindow/dnsdomainswindow/dnsdomainsgroup.cpp" line="74"/>
-        <source>Domain already exists</source>
-        <translation type="unfinished"></translation>
+        <source>Domain already exists. Please enter a new domain.</source>
+        <translation>El dominio ya existe. Introduce un nuevo dominio.</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/dnsdomainswindow/dnsdomainsgroup.cpp" line="75"/>
-        <source>Please enter a new domain.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../preferenceswindow/dnsdomainswindow/dnsdomainsgroup.cpp" line="78"/>
-        <source>Incorrect domain name</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../preferenceswindow/dnsdomainswindow/dnsdomainsgroup.cpp" line="79"/>
-        <source>Please enter a valid domain in plain or CIDR notation.</source>
-        <translation type="unfinished"></translation>
+        <location filename="../preferenceswindow/dnsdomainswindow/dnsdomainsgroup.cpp" line="77"/>
+        <source>Incorrect domain name. Please enter a valid domain in plain or CIDR notation.</source>
+        <translation>Nombre de dominio incorrecto. Introduzca un dominio válido en notación simple o CIDR.</translation>
     </message>
 </context>
 <context>
@@ -2248,31 +2214,16 @@ Conéctese primero a una red</translation>
     <name>PreferencesWindow::SplitTunnelingAddressesGroup</name>
     <message>
         <location filename="../preferenceswindow/splittunnelingwindow/splittunnelingaddressesgroup.cpp" line="79"/>
-        <source>IP or hostname already exists</source>
-        <translation>IP o nombre de host ya existe</translation>
+        <source>IP or hostname already exists. Please enter a new IP or hostname.</source>
+        <translation>IP o nombre de host ya existe. Introduzca una nueva IP o nombre de host.</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/splittunnelingwindow/splittunnelingaddressesgroup.cpp" line="80"/>
-        <source>Please enter a new IP or hostname.</source>
-        <translation>Introduzca una nueva IP o nombre de host.</translation>
+        <location filename="../preferenceswindow/splittunnelingwindow/splittunnelingaddressesgroup.cpp" line="82"/>
+        <source>Incorrect IP address/mask combination. Please enter a valid hostname or IP address in plain or CIDR notation.</source>
+        <translation>Combinación incorrecta de dirección IP / máscara. Introduzca un nombre de host o una dirección IP válidos en notación simple o CIDR.</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/splittunnelingwindow/splittunnelingaddressesgroup.cpp" line="83"/>
-        <source>Incorrect IP address/mask combination</source>
-        <translation>Combinación incorrecta de dirección IP / máscara</translation>
-    </message>
-    <message>
-        <location filename="../preferenceswindow/splittunnelingwindow/splittunnelingaddressesgroup.cpp" line="84"/>
-        <source>Please enter a valid hostname or IP address in plain or CIDR notation.</source>
-        <translation>Introduzca un nombre de host o una dirección IP válidos en notación simple o CIDR.</translation>
-    </message>
-    <message>
-        <location filename="../preferenceswindow/splittunnelingwindow/splittunnelingaddressesgroup.cpp" line="87"/>
-        <source>Reserved IP address range</source>
-        <translation>Intervalo de direcciones IP reservadas</translation>
-    </message>
-    <message>
-        <location filename="../preferenceswindow/splittunnelingwindow/splittunnelingaddressesgroup.cpp" line="88"/>
+        <location filename="../preferenceswindow/splittunnelingwindow/splittunnelingaddressesgroup.cpp" line="85"/>
         <source>This IP address or range is reserved by Windscribe and can not be changed.</source>
         <translation>Esta dirección IP o rango está reservado por Windscribe y no se puede cambiar.</translation>
     </message>

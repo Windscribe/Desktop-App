@@ -47,7 +47,7 @@ void SplitTunnelingAddressesWindowItem::onAddressesUpdated(QList<types::SplitTun
     emit addressesUpdated(addresses); // tell other screens about change
 }
 
-void SplitTunnelingAddressesWindowItem::onError(QString title, QString msg)
+void SplitTunnelingAddressesWindowItem::onError(QString msg)
 {
     desc_->setDescription(msg, true);
 }

@@ -24,7 +24,7 @@ public:
 
 signals:
     void addressesUpdated(const QStringList &addresses);
-    void setError(const QString &title, const QString &msg);
+    void setError(const QString &msg);
     void clearError();
     void escape();
 

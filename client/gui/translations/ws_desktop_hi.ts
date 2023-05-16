@@ -785,23 +785,7 @@
         <translation>आपका नेटवर्क एडाप्टर MAC स्पूफिंग का समर्थन नहीं करता. किसी भिन्न एडाप्टर का प्रयास करें.</translation>
     </message>
     <message>
-        <source>Logs too large to send</source>
-        <translation type="vanished">भेजने के लिए लॉग बहुत बड़े</translation>
-    </message>
-    <message>
-        <source>Could not send logs to Windscribe, they are too big. Either re-send after replicating the issue or manually compressing and sending to support.</source>
-        <translation type="vanished">विंडस्क्राइब को लॉग नहीं भेज सका, वे बहुत बड़े हैं। या तो समस्या को दोहराने के बाद फिर से भेजें या मैन्युअल रूप से संपीड़ित करें और समर्थन में भेजें।</translation>
-    </message>
-    <message>
-        <source>Logs too large to view</source>
-        <translation type="vanished">लॉग देखने के लिए बहुत बड़े</translation>
-    </message>
-    <message>
-        <source>Could not view the logs because they are too big. You may want to try viewing manually.</source>
-        <translation type="vanished">लॉग ्स नहीं देख सका क्योंकि वे बहुत बड़े हैं. आप मैन्युअल रूप से देखने का प्रयास करना चाह सकते हैं।</translation>
-    </message>
-    <message>
-        <location filename="../mainwindow.cpp" line="2304"/>
+        <location filename="../mainwindow.cpp" line="2307"/>
         <source>Detection Error</source>
         <translation>डिटेक्शन त्रुटि</translation>
     </message>
@@ -1468,32 +1452,14 @@ If the problem persists after a restart, please send a debug log and open a supp
 <context>
     <name>PreferencesWindow::DnsDomainsGroup</name>
     <message>
-        <source>IP or hostname already exists</source>
-        <translation type="vanished">IP या होस्टनाम पहले से मौजूद है</translation>
-    </message>
-    <message>
-        <source>Please enter a new IP or hostname.</source>
-        <translation type="vanished">कृपया कोई नया IP या होस्टनाम दर्ज करें.</translation>
-    </message>
-    <message>
         <location filename="../preferenceswindow/dnsdomainswindow/dnsdomainsgroup.cpp" line="74"/>
-        <source>Domain already exists</source>
-        <translation type="unfinished"></translation>
+        <source>Domain already exists. Please enter a new domain.</source>
+        <translation>डोमेन पहले से मौजूद है. कृपया कोई नया डोमेन दर्ज करें.</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/dnsdomainswindow/dnsdomainsgroup.cpp" line="75"/>
-        <source>Please enter a new domain.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../preferenceswindow/dnsdomainswindow/dnsdomainsgroup.cpp" line="78"/>
-        <source>Incorrect domain name</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../preferenceswindow/dnsdomainswindow/dnsdomainsgroup.cpp" line="79"/>
-        <source>Please enter a valid domain in plain or CIDR notation.</source>
-        <translation type="unfinished"></translation>
+        <location filename="../preferenceswindow/dnsdomainswindow/dnsdomainsgroup.cpp" line="77"/>
+        <source>Incorrect domain name. Please enter a valid domain in plain or CIDR notation.</source>
+        <translation>गलत डोमेन नाम. कृपया सादे या CIDR संकेतन में कोई मान्य डोमेन दर्ज करें.</translation>
     </message>
 </context>
 <context>
@@ -2248,31 +2214,16 @@ Connect to a network first</source>
     <name>PreferencesWindow::SplitTunnelingAddressesGroup</name>
     <message>
         <location filename="../preferenceswindow/splittunnelingwindow/splittunnelingaddressesgroup.cpp" line="79"/>
-        <source>IP or hostname already exists</source>
-        <translation>IP या होस्टनाम पहले से मौजूद है</translation>
+        <source>IP or hostname already exists. Please enter a new IP or hostname.</source>
+        <translation>IP या होस्टनाम पहले से मौजूद है. कृपया कोई नया IP या होस्टनाम दर्ज करें.</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/splittunnelingwindow/splittunnelingaddressesgroup.cpp" line="80"/>
-        <source>Please enter a new IP or hostname.</source>
-        <translation>कृपया कोई नया IP या होस्टनाम दर्ज करें.</translation>
+        <location filename="../preferenceswindow/splittunnelingwindow/splittunnelingaddressesgroup.cpp" line="82"/>
+        <source>Incorrect IP address/mask combination. Please enter a valid hostname or IP address in plain or CIDR notation.</source>
+        <translation>गलत आईपी पता / मास्क संयोजन। कृपया सादे या CIDR संकेतन में कोई मान्य होस्टनाम या IP पता दर्ज करें.</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/splittunnelingwindow/splittunnelingaddressesgroup.cpp" line="83"/>
-        <source>Incorrect IP address/mask combination</source>
-        <translation>गलत आईपी पता / मास्क संयोजन</translation>
-    </message>
-    <message>
-        <location filename="../preferenceswindow/splittunnelingwindow/splittunnelingaddressesgroup.cpp" line="84"/>
-        <source>Please enter a valid hostname or IP address in plain or CIDR notation.</source>
-        <translation>कृपया सादे या CIDR संकेतन में कोई मान्य होस्टनाम या IP पता दर्ज करें.</translation>
-    </message>
-    <message>
-        <location filename="../preferenceswindow/splittunnelingwindow/splittunnelingaddressesgroup.cpp" line="87"/>
-        <source>Reserved IP address range</source>
-        <translation>आरक्षित IP पता श्रेणी</translation>
-    </message>
-    <message>
-        <location filename="../preferenceswindow/splittunnelingwindow/splittunnelingaddressesgroup.cpp" line="88"/>
+        <location filename="../preferenceswindow/splittunnelingwindow/splittunnelingaddressesgroup.cpp" line="85"/>
         <source>This IP address or range is reserved by Windscribe and can not be changed.</source>
         <translation>यह IP पता या श्रेणी Windscribe द्वारा आरक्षित है और इसे बदला नहीं जा सकता.</translation>
     </message>

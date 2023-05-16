@@ -751,23 +751,7 @@
         <translation>无法欺骗 MAC 地址。 请尝试其他网络接口或联系支持人员。</translation>
     </message>
     <message>
-        <source>Logs too large to send</source>
-        <translation type="vanished">日志太大而无法发送</translation>
-    </message>
-    <message>
-        <source>Could not send logs to Windscribe, they are too big. Either re-send after replicating the issue or manually compressing and sending to support.</source>
-        <translation type="vanished">无法将日志发送给Windscribe，它们太大了。复制问题后重新发送，或手动压缩并发送给支持人员。</translation>
-    </message>
-    <message>
-        <source>Logs too large to view</source>
-        <translation type="vanished">日志太大，无法查看</translation>
-    </message>
-    <message>
-        <source>Could not view the logs because they are too big. You may want to try viewing manually.</source>
-        <translation type="vanished">无法查看日志，因为它们太大。您可能需要尝试手动查看。</translation>
-    </message>
-    <message>
-        <location filename="../mainwindow.cpp" line="2304"/>
+        <location filename="../mainwindow.cpp" line="2307"/>
         <source>Detection Error</source>
         <translation>检测错误</translation>
     </message>
@@ -1468,32 +1452,14 @@ If the problem persists after a restart, please send a debug log and open a supp
 <context>
     <name>PreferencesWindow::DnsDomainsGroup</name>
     <message>
-        <source>IP or hostname already exists</source>
-        <translation type="vanished">IP 或主机名已存在</translation>
-    </message>
-    <message>
-        <source>Please enter a new IP or hostname.</source>
-        <translation type="vanished">请输入新的 IP 或主机名。</translation>
-    </message>
-    <message>
         <location filename="../preferenceswindow/dnsdomainswindow/dnsdomainsgroup.cpp" line="74"/>
-        <source>Domain already exists</source>
-        <translation type="unfinished"></translation>
+        <source>Domain already exists. Please enter a new domain.</source>
+        <translation>域已存在。请输入新域。</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/dnsdomainswindow/dnsdomainsgroup.cpp" line="75"/>
-        <source>Please enter a new domain.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../preferenceswindow/dnsdomainswindow/dnsdomainsgroup.cpp" line="78"/>
-        <source>Incorrect domain name</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../preferenceswindow/dnsdomainswindow/dnsdomainsgroup.cpp" line="79"/>
-        <source>Please enter a valid domain in plain or CIDR notation.</source>
-        <translation type="unfinished"></translation>
+        <location filename="../preferenceswindow/dnsdomainswindow/dnsdomainsgroup.cpp" line="77"/>
+        <source>Incorrect domain name. Please enter a valid domain in plain or CIDR notation.</source>
+        <translation>域名不正确。请以普通或 CIDR 表示法输入有效域。</translation>
     </message>
 </context>
 <context>
@@ -2248,31 +2214,16 @@ Connect to a network first</source>
     <name>PreferencesWindow::SplitTunnelingAddressesGroup</name>
     <message>
         <location filename="../preferenceswindow/splittunnelingwindow/splittunnelingaddressesgroup.cpp" line="79"/>
-        <source>IP or hostname already exists</source>
-        <translation>IP 或主机名已存在</translation>
+        <source>IP or hostname already exists. Please enter a new IP or hostname.</source>
+        <translation>IP 或主机名已存在。请输入新的 IP 或主机名。</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/splittunnelingwindow/splittunnelingaddressesgroup.cpp" line="80"/>
-        <source>Please enter a new IP or hostname.</source>
-        <translation>请输入新的 IP 或主机名。</translation>
+        <location filename="../preferenceswindow/splittunnelingwindow/splittunnelingaddressesgroup.cpp" line="82"/>
+        <source>Incorrect IP address/mask combination. Please enter a valid hostname or IP address in plain or CIDR notation.</source>
+        <translation>IP 地址/掩码组合不正确。请以普通或 CIDR 表示法输入有效的主机名或 IP 地址。</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/splittunnelingwindow/splittunnelingaddressesgroup.cpp" line="83"/>
-        <source>Incorrect IP address/mask combination</source>
-        <translation>IP 地址/掩码组合不正确</translation>
-    </message>
-    <message>
-        <location filename="../preferenceswindow/splittunnelingwindow/splittunnelingaddressesgroup.cpp" line="84"/>
-        <source>Please enter a valid hostname or IP address in plain or CIDR notation.</source>
-        <translation>请以普通或 CIDR 表示法输入有效的主机名或 IP 地址。</translation>
-    </message>
-    <message>
-        <location filename="../preferenceswindow/splittunnelingwindow/splittunnelingaddressesgroup.cpp" line="87"/>
-        <source>Reserved IP address range</source>
-        <translation>保留的 IP 地址范围</translation>
-    </message>
-    <message>
-        <location filename="../preferenceswindow/splittunnelingwindow/splittunnelingaddressesgroup.cpp" line="88"/>
+        <location filename="../preferenceswindow/splittunnelingwindow/splittunnelingaddressesgroup.cpp" line="85"/>
         <source>This IP address or range is reserved by Windscribe and can not be changed.</source>
         <translation>此IP地址或范围由Windscribe保留，无法更改。</translation>
     </message>

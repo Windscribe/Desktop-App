@@ -50,7 +50,7 @@ void DnsDomainsWindowItem::onAddressesUpdated(const QStringList &addresses)
 
 }
 
-void DnsDomainsWindowItem::onError(QString title, QString msg)
+void DnsDomainsWindowItem::onError(QString msg)
 {
     desc_->setDescription(msg, true);
 }

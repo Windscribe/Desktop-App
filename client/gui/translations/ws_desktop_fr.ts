@@ -785,23 +785,7 @@
         <translation>Votre carte réseau ne prend pas en charge l’usurpation d’adresse MAC. Essayez un autre adaptateur.</translation>
     </message>
     <message>
-        <source>Logs too large to send</source>
-        <translation type="vanished">Journaux trop volumineux pour être envoyés</translation>
-    </message>
-    <message>
-        <source>Could not send logs to Windscribe, they are too big. Either re-send after replicating the issue or manually compressing and sending to support.</source>
-        <translation type="vanished">Impossible d’envoyer des journaux à Windscribe, ils sont trop gros. Renvoyez après avoir répliqué le problème ou compressez manuellement et envoyez au support.</translation>
-    </message>
-    <message>
-        <source>Logs too large to view</source>
-        <translation type="vanished">Journaux trop volumineux pour être affichés</translation>
-    </message>
-    <message>
-        <source>Could not view the logs because they are too big. You may want to try viewing manually.</source>
-        <translation type="vanished">Impossible d’afficher les journaux car ils sont trop volumineux. Vous pouvez essayer d’afficher manuellement.</translation>
-    </message>
-    <message>
-        <location filename="../mainwindow.cpp" line="2304"/>
+        <location filename="../mainwindow.cpp" line="2307"/>
         <source>Detection Error</source>
         <translation>Erreur de détection</translation>
     </message>
@@ -1468,32 +1452,14 @@ Si le problème persiste après un redémarrage, envoyez un journal de débogage
 <context>
     <name>PreferencesWindow::DnsDomainsGroup</name>
     <message>
-        <source>IP or hostname already exists</source>
-        <translation type="vanished">L’adresse IP ou le nom d’hôte existe déjà</translation>
-    </message>
-    <message>
-        <source>Please enter a new IP or hostname.</source>
-        <translation type="vanished">Veuillez saisir une nouvelle adresse IP ou un nouveau nom d’hôte.</translation>
-    </message>
-    <message>
         <location filename="../preferenceswindow/dnsdomainswindow/dnsdomainsgroup.cpp" line="74"/>
-        <source>Domain already exists</source>
-        <translation type="unfinished"></translation>
+        <source>Domain already exists. Please enter a new domain.</source>
+        <translation>Le domaine existe déjà. Veuillez saisir un nouveau domaine.</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/dnsdomainswindow/dnsdomainsgroup.cpp" line="75"/>
-        <source>Please enter a new domain.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../preferenceswindow/dnsdomainswindow/dnsdomainsgroup.cpp" line="78"/>
-        <source>Incorrect domain name</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../preferenceswindow/dnsdomainswindow/dnsdomainsgroup.cpp" line="79"/>
-        <source>Please enter a valid domain in plain or CIDR notation.</source>
-        <translation type="unfinished"></translation>
+        <location filename="../preferenceswindow/dnsdomainswindow/dnsdomainsgroup.cpp" line="77"/>
+        <source>Incorrect domain name. Please enter a valid domain in plain or CIDR notation.</source>
+        <translation>Nom de domaine incorrect. Veuillez saisir un domaine valide en notation simple ou CIDR.</translation>
     </message>
 </context>
 <context>
@@ -2248,31 +2214,16 @@ Se connecter d’abord à un réseau</translation>
     <name>PreferencesWindow::SplitTunnelingAddressesGroup</name>
     <message>
         <location filename="../preferenceswindow/splittunnelingwindow/splittunnelingaddressesgroup.cpp" line="79"/>
-        <source>IP or hostname already exists</source>
-        <translation>L’adresse IP ou le nom d’hôte existe déjà</translation>
+        <source>IP or hostname already exists. Please enter a new IP or hostname.</source>
+        <translation>L’adresse IP ou le nom d’hôte existe déjà. Veuillez saisir une nouvelle adresse IP ou un nouveau nom d’hôte.</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/splittunnelingwindow/splittunnelingaddressesgroup.cpp" line="80"/>
-        <source>Please enter a new IP or hostname.</source>
-        <translation>Veuillez saisir une nouvelle adresse IP ou un nouveau nom d’hôte.</translation>
+        <location filename="../preferenceswindow/splittunnelingwindow/splittunnelingaddressesgroup.cpp" line="82"/>
+        <source>Incorrect IP address/mask combination. Please enter a valid hostname or IP address in plain or CIDR notation.</source>
+        <translation>Combinaison adresse IP/masque incorrecte. Veuillez saisir un nom d’hôte ou une adresse IP valide en notation simple ou CIDR.</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/splittunnelingwindow/splittunnelingaddressesgroup.cpp" line="83"/>
-        <source>Incorrect IP address/mask combination</source>
-        <translation>Combinaison adresse IP/masque incorrecte</translation>
-    </message>
-    <message>
-        <location filename="../preferenceswindow/splittunnelingwindow/splittunnelingaddressesgroup.cpp" line="84"/>
-        <source>Please enter a valid hostname or IP address in plain or CIDR notation.</source>
-        <translation>Veuillez saisir un nom d’hôte ou une adresse IP valide en notation simple ou CIDR.</translation>
-    </message>
-    <message>
-        <location filename="../preferenceswindow/splittunnelingwindow/splittunnelingaddressesgroup.cpp" line="87"/>
-        <source>Reserved IP address range</source>
-        <translation>Plage d’adresses IP réservées</translation>
-    </message>
-    <message>
-        <location filename="../preferenceswindow/splittunnelingwindow/splittunnelingaddressesgroup.cpp" line="88"/>
+        <location filename="../preferenceswindow/splittunnelingwindow/splittunnelingaddressesgroup.cpp" line="85"/>
         <source>This IP address or range is reserved by Windscribe and can not be changed.</source>
         <translation>Cette adresse IP ou plage est réservée par Windscribe et ne peut être modifiée.</translation>
     </message>

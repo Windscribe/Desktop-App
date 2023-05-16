@@ -76,16 +76,13 @@ void SplitTunnelingAddressesGroup::onAddClicked(QString address)
             addAddress(route);
             break;
         case ERROR_EXISTS:
-            emit setError(tr("IP or hostname already exists"),
-                          tr("Please enter a new IP or hostname."));
+            emit setError(tr("IP or hostname already exists. Please enter a new IP or hostname."));
             break;
         case ERROR_INVALID:
-            emit setError(tr("Incorrect IP address/mask combination"),
-                          tr("Please enter a valid hostname or IP address in plain or CIDR notation."));
+            emit setError(tr("Incorrect IP address/mask combination. Please enter a valid hostname or IP address in plain or CIDR notation."));
             break;
         case ERROR_RESERVED:
-            emit setError(tr("Reserved IP address range"),
-                          tr("This IP address or range is reserved by Windscribe and can not be changed."));
+            emit setError(tr("This IP address or range is reserved by Windscribe and can not be changed."));
             break;
     }
 }

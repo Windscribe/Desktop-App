@@ -785,23 +785,7 @@
         <translation>Сетевой адаптер не поддерживает спуфинг MAC-адресов. Попробуйте использовать другой адаптер.</translation>
     </message>
     <message>
-        <source>Logs too large to send</source>
-        <translation type="vanished">Журналы, слишком большие для отправки</translation>
-    </message>
-    <message>
-        <source>Could not send logs to Windscribe, they are too big. Either re-send after replicating the issue or manually compressing and sending to support.</source>
-        <translation type="vanished">Не удалось отправить журналы в Windscribe, они слишком большие. Повторная отправка после репликации проблемы или ручное сжатие и отправка в службу поддержки.</translation>
-    </message>
-    <message>
-        <source>Logs too large to view</source>
-        <translation type="vanished">Журналы, слишком большие для просмотра</translation>
-    </message>
-    <message>
-        <source>Could not view the logs because they are too big. You may want to try viewing manually.</source>
-        <translation type="vanished">Не удалось просмотреть журналы, так как они слишком большие. Вы можете попробовать просмотр вручную.</translation>
-    </message>
-    <message>
-        <location filename="../mainwindow.cpp" line="2304"/>
+        <location filename="../mainwindow.cpp" line="2307"/>
         <source>Detection Error</source>
         <translation>Ошибка обнаружения</translation>
     </message>
@@ -1468,32 +1452,14 @@ If the problem persists after a restart, please send a debug log and open a supp
 <context>
     <name>PreferencesWindow::DnsDomainsGroup</name>
     <message>
-        <source>IP or hostname already exists</source>
-        <translation type="vanished">IP-адрес или имя хоста уже существует</translation>
-    </message>
-    <message>
-        <source>Please enter a new IP or hostname.</source>
-        <translation type="vanished">Пожалуйста, введите новый IP или имя хоста.</translation>
-    </message>
-    <message>
         <location filename="../preferenceswindow/dnsdomainswindow/dnsdomainsgroup.cpp" line="74"/>
-        <source>Domain already exists</source>
-        <translation type="unfinished"></translation>
+        <source>Domain already exists. Please enter a new domain.</source>
+        <translation>Домен уже существует. Пожалуйста, введите новый домен.</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/dnsdomainswindow/dnsdomainsgroup.cpp" line="75"/>
-        <source>Please enter a new domain.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../preferenceswindow/dnsdomainswindow/dnsdomainsgroup.cpp" line="78"/>
-        <source>Incorrect domain name</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../preferenceswindow/dnsdomainswindow/dnsdomainsgroup.cpp" line="79"/>
-        <source>Please enter a valid domain in plain or CIDR notation.</source>
-        <translation type="unfinished"></translation>
+        <location filename="../preferenceswindow/dnsdomainswindow/dnsdomainsgroup.cpp" line="77"/>
+        <source>Incorrect domain name. Please enter a valid domain in plain or CIDR notation.</source>
+        <translation>Неверное доменное имя. Пожалуйста, введите допустимый домен в простой или CIDR-нотации.</translation>
     </message>
 </context>
 <context>
@@ -2248,31 +2214,16 @@ Connect to a network first</source>
     <name>PreferencesWindow::SplitTunnelingAddressesGroup</name>
     <message>
         <location filename="../preferenceswindow/splittunnelingwindow/splittunnelingaddressesgroup.cpp" line="79"/>
-        <source>IP or hostname already exists</source>
-        <translation>IP-адрес или имя хоста уже существует</translation>
+        <source>IP or hostname already exists. Please enter a new IP or hostname.</source>
+        <translation>IP-адрес или имя хоста уже существует. Пожалуйста, введите новый IP-адрес или имя хоста.</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/splittunnelingwindow/splittunnelingaddressesgroup.cpp" line="80"/>
-        <source>Please enter a new IP or hostname.</source>
-        <translation>Пожалуйста, введите новый IP или имя хоста.</translation>
+        <location filename="../preferenceswindow/splittunnelingwindow/splittunnelingaddressesgroup.cpp" line="82"/>
+        <source>Incorrect IP address/mask combination. Please enter a valid hostname or IP address in plain or CIDR notation.</source>
+        <translation>Неверная комбинация IP-адреса и маски. Пожалуйста, введите действительное имя хоста или IP-адрес в обычной нотации или нотации CIDR.</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/splittunnelingwindow/splittunnelingaddressesgroup.cpp" line="83"/>
-        <source>Incorrect IP address/mask combination</source>
-        <translation>Неправильная комбинация IP-адреса и маски</translation>
-    </message>
-    <message>
-        <location filename="../preferenceswindow/splittunnelingwindow/splittunnelingaddressesgroup.cpp" line="84"/>
-        <source>Please enter a valid hostname or IP address in plain or CIDR notation.</source>
-        <translation>Пожалуйста, введите допустимое имя хоста или IP-адрес в обычной или CIDR нотации.</translation>
-    </message>
-    <message>
-        <location filename="../preferenceswindow/splittunnelingwindow/splittunnelingaddressesgroup.cpp" line="87"/>
-        <source>Reserved IP address range</source>
-        <translation>Зарезервированный диапазон IP-адресов</translation>
-    </message>
-    <message>
-        <location filename="../preferenceswindow/splittunnelingwindow/splittunnelingaddressesgroup.cpp" line="88"/>
+        <location filename="../preferenceswindow/splittunnelingwindow/splittunnelingaddressesgroup.cpp" line="85"/>
         <source>This IP address or range is reserved by Windscribe and can not be changed.</source>
         <translation>Этот IP-адрес или диапазон зарезервирован Windscribe и не может быть изменен.</translation>
     </message>

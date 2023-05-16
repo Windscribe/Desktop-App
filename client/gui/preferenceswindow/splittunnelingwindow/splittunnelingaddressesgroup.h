@@ -25,7 +25,7 @@ public:
 
 signals:
     void addressesUpdated(QList<types::SplitTunnelingNetworkRoute> addresses);
-    void setError(QString title, QString msg);
+    void setError(QString msg);
     void clearError();
     void escape();
 
