@@ -137,6 +137,23 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
         return 0;
     }
 
+#if !defined(_M_ARM64)
+    {
+        // Tried using GetSystemInfo and GetNativeSystemInfo.  Both return PROCESSOR_ARCHITECTURE_AMD64
+        // when run on Windows 11 ARM64.
+        USHORT process_machine;
+        USHORT native_machine;
+        BOOL result = ::IsWow64Process2(::GetCurrentProcess(), &process_machine, &native_machine);
+        if (result && native_machine == IMAGE_FILE_MACHINE_ARM64) {
+            WSMessageBox(NULL, _T("Windscribe Installer"), MB_OK | MB_ICONSTOP,
+                         _T("This version of the Windscribe app will not operate correctly on your PC."
+                            "  Please download the 'ARM64' version from the Windscribe website to ensure"
+                            " optimal compatibility and performance."));
+            return 0;
+        }
+    }
+#endif
+
     if (CheckCommandLineArgument(L"-help"))
     {
         WSMessageBox(NULL, _T("Windscribe Install Options"), MB_OK | MB_ICONINFORMATION,

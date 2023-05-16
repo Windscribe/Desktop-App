@@ -26,7 +26,11 @@ using namespace Utils;
 QString Utils::getPlatformName()
 {
 #ifdef Q_OS_WIN
+    #if defined(_M_ARM64)
+    return "windows_arm64";
+    #else
     return "windows";
+    #endif
 #elif defined Q_OS_MAC
     return "macos";
 #elif defined Q_OS_LINUX
@@ -40,7 +44,7 @@ QString Utils::getOSVersion()
     return WinUtils::getWinVersionString();
 #elif defined Q_OS_MAC
     return ("OS X " + MacUtils::getOsVersion());
-#elif defined Q_OS_LINUX    
+#elif defined Q_OS_LINUX
     return LinuxUtils::getOsVersionString();
 #endif
 }

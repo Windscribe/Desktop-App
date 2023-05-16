@@ -1305,21 +1305,27 @@ Si el problema persiste después de un reinicio, envíe un registro de depuraci�
     </message>
     <message>
         <location filename="../preferenceswindow/connectionwindow/connecteddnsgroup.cpp" line="143"/>
-        <source>Upstream 1 (IP/DNS-over-HTTPS/TLS)</source>
-        <translation>Upstream 1 (IP/DNS-over-HTTPS/TLS)</translation>
+        <source>Upstream 1</source>
+        <translation>Aguas arriba 1</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/connectionwindow/connecteddnsgroup.cpp" line="144"/>
-        <source>Upstream 2 (IP/DNS-over-HTTPS/TLS)</source>
-        <translation>Upstream 2 (IP/DNS-over-HTTPS/TLS)</translation>
+        <location filename="../preferenceswindow/connectionwindow/connecteddnsgroup.cpp" line="146"/>
+        <source>IP/DNS-over-HTTPS/TLS</source>
+        <translation>IP/DNS-over-HTTPS/TLS</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/connectionwindow/connecteddnsgroup.cpp" line="145"/>
+        <source>Upstream 2</source>
+        <translation>Aguas arriba 2</translation>
+    </message>
+    <message>
+        <location filename="../preferenceswindow/connectionwindow/connecteddnsgroup.cpp" line="147"/>
         <source>Split DNS</source>
         <translation>DNS dividido</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connecteddnsgroup.cpp" line="146"/>
+        <location filename="../preferenceswindow/connectionwindow/connecteddnsgroup.cpp" line="148"/>
         <source>Domains</source>
         <translation>Dominios</translation>
     </message>

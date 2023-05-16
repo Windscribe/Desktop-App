@@ -140,8 +140,10 @@ void ConnectedDnsGroup::onLanguageChanged()
     }
     comboBoxDns_->setItems(list, settings_.type);
 
-    editBoxUpstream1_->setCaption(tr("Upstream 1 (IP/DNS-over-HTTPS/TLS)"));
-    editBoxUpstream2_->setCaption(tr("Upstream 2 (IP/DNS-over-HTTPS/TLS)"));
+    editBoxUpstream1_->setCaption(tr("Upstream 1"));
+    editBoxUpstream1_->setPrompt(tr("IP/DNS-over-HTTPS/TLS"));
+    editBoxUpstream2_->setCaption(tr("Upstream 2"));
+    editBoxUpstream2_->setPrompt(tr("IP/DNS-over-HTTPS/TLS"));
     splitDnsCheckBox_->setCaption(tr("Split DNS"));
     domainsItem_->setTitle(tr("Domains"));
 }
