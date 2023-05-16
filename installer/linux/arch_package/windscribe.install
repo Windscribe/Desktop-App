@@ -44,6 +44,7 @@ pre_upgrade() {
         set -e
         systemctl stop windscribe-helper
         systemctl disable windscribe-helper
+        killall -q Windscribe || true
 }
 
 post_upgrade() {
