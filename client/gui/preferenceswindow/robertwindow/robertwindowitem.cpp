@@ -87,7 +87,7 @@ void RobertWindowItem::setFilters(const QVector<types::RobertFilter> &filters)
     /* Add "Manage Rules" link */
     PreferenceGroup *manageRulesGroup = new PreferenceGroup(this);
     manageRulesItem_ = new LinkItem(manageRulesGroup, LinkItem::LinkType::EXTERNAL_LINK);
-    connect(manageRulesItem_, &LinkItem::clicked, this, &RobertWindowItem::manageRobertRulesClick);
+    connect(manageRulesItem_, &LinkItem::clicked, this, &RobertWindowItem::onManageRobertRulesClick);
     manageRulesGroup->addItem(manageRulesItem_);
     addItem(manageRulesGroup);
     groups_ << manageRulesGroup;
@@ -177,6 +177,18 @@ void RobertWindowItem::onLanguageChanged()
     loginButton_->setText(tr("Login"));
     if (manageRulesItem_) {
         manageRulesItem_->setTitle(tr("Manage Custom Rules"));
+    }
+}
+
+void RobertWindowItem::onManageRobertRulesClick()
+{
+    manageRulesItem_->setInProgress(true);
+}
+
+void RobertWindowItem::setWebSessionCompleted()
+{
+    if (manageRulesItem_) {
+        manageRulesItem_->setInProgress(false);
     }
 }
 

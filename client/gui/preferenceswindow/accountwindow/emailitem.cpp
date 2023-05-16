@@ -11,7 +11,7 @@
 namespace PreferencesWindow {
 
 EmailItem::EmailItem(ScalableGraphicsObject *parent)
-  : BaseItem(parent, PREFERENCE_GROUP_ITEM_HEIGHT*G_SCALE), isNeedConfirmEmail_(false), msgHeight_(0),
+  : BaseItem(parent, PREFERENCE_GROUP_ITEM_HEIGHT*G_SCALE), isNeedConfirmEmail_(false), spinnerRotation_(0), msgHeight_(0),
     emailSendState_(EMAIL_NOT_INITIALIZED)
 {
     sendButton_ = new CommonGraphics::TextButton(tr("Sent!"),
@@ -31,12 +31,14 @@ EmailItem::EmailItem(ScalableGraphicsObject *parent)
                                                        Qt::white,
                                                        true,
                                                        this);
-    connect(emptyEmailButton_, &CommonGraphics::TextButton::clicked, this, &EmailItem::emptyEmailButtonClick);
+    connect(emptyEmailButton_, &CommonGraphics::TextButton::clicked, this, &EmailItem::onEmptyEmailButtonClick);
     emptyEmailButton_->setClickable(false);
     emptyEmailButton_->setMarginHeight(0);
     emptyEmailButton_->hide();
-
     connect(this, &EmailItem::visibleChanged, this, &EmailItem::onVisibleChanged);
+
+    connect(&spinnerAnimation_, &QVariantAnimation::valueChanged, this, &EmailItem::onSpinnerRotationChanged);
+    connect(&spinnerAnimation_, &QVariantAnimation::finished, this, &EmailItem::onSpinnerRotationFinished);
 
     setEmailSendState(EMAIL_NO_SEND);
     updatePositions();
@@ -76,6 +78,17 @@ void EmailItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
         }
         painter->setOpacity(OPACITY_FULL);
         pixmapInfoIcon->draw(PREFERENCES_MARGIN*G_SCALE, PREFERENCES_MARGIN*G_SCALE, ICON_WIDTH*G_SCALE, ICON_HEIGHT*G_SCALE, painter);
+
+        if (emailSendState_ == EMAIL_ADDING) {
+            QSharedPointer<IndependentPixmap> p;
+            painter->setOpacity(1.0);
+            p = ImageResourcesSvg::instance().getIndependentPixmap("SPINNER");
+            painter->save();
+            painter->translate(static_cast<int>(boundingRect().width() - p->width()/2 - PREFERENCES_MARGIN*G_SCALE), PREFERENCES_MARGIN*G_SCALE + p->height()/2);
+            painter->rotate(spinnerRotation_);
+            p->draw(-p->width()/2, -p->height()/2, painter);
+            painter->restore();
+        }
 
         painter->setFont(*FontManager::instance().getFont(12, true));
         painter->drawText(boundingRect().adjusted((PREFERENCES_MARGIN + ICON_WIDTH + DESCRIPTION_MARGIN)*G_SCALE, PREFERENCES_MARGIN*G_SCALE, -PREFERENCES_MARGIN*G_SCALE, -PREFERENCES_MARGIN*G_SCALE), Qt::AlignLeft, tr(EMAIL_TEXT));
@@ -141,7 +154,9 @@ void EmailItem::updatePositions()
 {
     if (email_.isEmpty()) {
         emptyEmailButton_->setClickable(true);
-        emptyEmailButton_->setVisible(true);
+        if (emailSendState_ != EMAIL_ADDING) {
+            emptyEmailButton_->setVisible(true);
+        }
         sendButton_->hide();
 
         QFontMetrics fm(*FontManager::instance().getFont(10, false));
@@ -235,6 +250,35 @@ void EmailItem::onLanguageChanged()
     emptyEmailButton_->setText(tr(ADD_TEXT));
     setEmailSendState(emailSendState_);
     update();
+}
+
+void EmailItem::onSpinnerRotationChanged(const QVariant &value)
+{
+    spinnerRotation_ = value.toInt();
+    update();
+}
+
+void EmailItem::onSpinnerRotationFinished()
+{
+    startAnAnimation<int>(spinnerAnimation_, 0, 360, ANIMATION_SPEED_VERY_SLOW);
+}
+
+void EmailItem::onEmptyEmailButtonClick()
+{
+    setEmailSendState(EMAIL_ADDING);
+    startAnAnimation<int>(spinnerAnimation_, spinnerRotation_, 360, ANIMATION_SPEED_VERY_SLOW);
+    emptyEmailButton_->setVisible(false);
+    emit emptyEmailButtonClick();
+}
+
+void EmailItem::setWebSessionCompleted()
+{
+    if (emailSendState_ == EMAIL_ADDING) {
+        spinnerAnimation_.stop();
+        emptyEmailButton_->setVisible(true);
+        setEmailSendState(EMAIL_NO_SEND);
+        update();
+    }
 }
 
 } // namespace PreferencesWindow

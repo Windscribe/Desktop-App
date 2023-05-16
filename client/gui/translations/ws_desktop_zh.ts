@@ -596,7 +596,7 @@
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1406"/>
-        <location filename="../mainwindow.cpp" line="3485"/>
+        <location filename="../mainwindow.cpp" line="3491"/>
         <source>The application is corrupted.  Please reinstall Windscribe.</source>
         <translation>应用程序已损坏。 请重新安装 Windscribe。</translation>
     </message>
@@ -662,7 +662,7 @@
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1850"/>
-        <location filename="../mainwindow.cpp" line="3362"/>
+        <location filename="../mainwindow.cpp" line="3368"/>
         <source>Disconnected</source>
         <translation>断开</translation>
     </message>
@@ -822,98 +822,98 @@
         <translation>无法运行更新程序（错误 %1）。 请联系支持人员</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2484"/>
+        <location filename="../mainwindow.cpp" line="2490"/>
         <source>Lost connection to the backend process.
 Recovering...</source>
         <translation>与后端进程的连接丢失。
 恢复。。。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3091"/>
+        <location filename="../mainwindow.cpp" line="3097"/>
         <source>Select an application</source>
         <translation>选择一个应用程序</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3122"/>
+        <location filename="../mainwindow.cpp" line="3128"/>
         <source>Connect</source>
         <translation>连接</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3126"/>
+        <location filename="../mainwindow.cpp" line="3132"/>
         <source>Disconnect</source>
         <translation>断开</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3135"/>
-        <location filename="../mainwindow.cpp" line="3164"/>
+        <location filename="../mainwindow.cpp" line="3141"/>
+        <location filename="../mainwindow.cpp" line="3170"/>
         <source>Locations</source>
         <translation>地点</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3142"/>
-        <location filename="../mainwindow.cpp" line="3171"/>
+        <location filename="../mainwindow.cpp" line="3148"/>
+        <location filename="../mainwindow.cpp" line="3177"/>
         <source>Favourites</source>
         <translation>收藏夹</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3149"/>
-        <location filename="../mainwindow.cpp" line="3178"/>
+        <location filename="../mainwindow.cpp" line="3155"/>
+        <location filename="../mainwindow.cpp" line="3184"/>
         <source>Static IPs</source>
         <translation>静态 IP</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3156"/>
-        <location filename="../mainwindow.cpp" line="3185"/>
+        <location filename="../mainwindow.cpp" line="3162"/>
+        <location filename="../mainwindow.cpp" line="3191"/>
         <source>Configured</source>
         <translation>配置</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3196"/>
+        <location filename="../mainwindow.cpp" line="3202"/>
         <source>Show/Hide</source>
         <translation>显示/隐藏</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3201"/>
+        <location filename="../mainwindow.cpp" line="3207"/>
         <source>Preferences</source>
         <translation>偏好</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3204"/>
+        <location filename="../mainwindow.cpp" line="3210"/>
         <source>Help</source>
         <translation>帮助</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3205"/>
+        <location filename="../mainwindow.cpp" line="3211"/>
         <source>Exit</source>
         <translation>退出</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3449"/>
+        <location filename="../mainwindow.cpp" line="3455"/>
         <source>Read-only file</source>
         <translation>只读文件</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3450"/>
+        <location filename="../mainwindow.cpp" line="3456"/>
         <source>Your hosts file is read-only. IKEv2 connectivity requires for it to be writable. Fix the issue automatically?</source>
         <translation>主机文件是只读的。IKEv2 连接要求它是可写的。自动修复问题？</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3475"/>
+        <location filename="../mainwindow.cpp" line="3481"/>
         <source>The custom configuration could not be loaded.  Please check that it’s correct or contact support.</source>
         <translation>无法加载自定义配置。 请检查是否正确或联系支持人员。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3477"/>
+        <location filename="../mainwindow.cpp" line="3483"/>
         <source>There is a problem with the Wintun device driver, and it could not be reinstalled automatically.  Please reinstall Windscribe.</source>
         <translation>Wintun 设备驱动程序有问题，无法自动重新安装。 请重新安装 Windscribe。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3479"/>
+        <location filename="../mainwindow.cpp" line="3485"/>
         <source>There is a problem with the TAP device driver, and it could not be reinstalled automatically.  Please reinstall Windscribe.</source>
         <translation>TAP 设备驱动程序有问题，无法自动重新安装。 请重新安装 Windscribe。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3487"/>
+        <location filename="../mainwindow.cpp" line="3493"/>
         <source>WireGuard adapter setup failed. Please wait one minute and try the connection again. If adapter setup fails again, please try restarting your computer.
 
 If the problem persists after a restart, please send a debug log and open a support ticket, then switch to a different connection mode.</source>
@@ -922,37 +922,37 @@ If the problem persists after a restart, please send a debug log and open a supp
 如果重新启动后问题仍然存在，请发送调试日志并打开支持票证，然后切换到其他连接模式。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3491"/>
+        <location filename="../mainwindow.cpp" line="3497"/>
         <source>An unexpected error occurred establishing the VPN connection (Error %1).  If this error persists, try using a different protocol or contact support.</source>
         <translation>建立 VPN 连接时发生意外错误（错误 %1）。 如果此错误仍然存在，请尝试使用其他协议或联系支持人员。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3494"/>
+        <location filename="../mainwindow.cpp" line="3500"/>
         <source>Connection Error</source>
         <translation>连接错误</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3650"/>
+        <location filename="../mainwindow.cpp" line="3656"/>
         <source>Reached Key Limit</source>
         <translation>已达到密钥限制</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3651"/>
+        <location filename="../mainwindow.cpp" line="3657"/>
         <source>You have reached your limit of WireGuard public keys. Do you want to delete your oldest key?</source>
         <translation>您已达到 WireGuard 公钥的限制。是否要删除最旧的密钥？</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3705"/>
+        <location filename="../mainwindow.cpp" line="3711"/>
         <source>Error Starting Service</source>
         <translation>启动服务时出错</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3706"/>
+        <location filename="../mainwindow.cpp" line="3712"/>
         <source>The split tunneling feature could not be started, and has been disabled in Preferences.</source>
         <translation>拆分隧道功能无法启动，并且已在首选项中禁用。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3713"/>
+        <location filename="../mainwindow.cpp" line="3719"/>
         <source>Windscribe</source>
         <translation>风抄写员</translation>
     </message>
@@ -1518,43 +1518,43 @@ If the problem persists after a restart, please send a debug log and open a supp
     <name>PreferencesWindow::EmailItem</name>
     <message>
         <location filename="../preferenceswindow/accountwindow/emailitem.cpp" line="17"/>
-        <location filename="../preferenceswindow/accountwindow/emailitem.cpp" line="220"/>
+        <location filename="../preferenceswindow/accountwindow/emailitem.cpp" line="235"/>
         <source>Sent!</source>
         <translation>送！</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/accountwindow/emailitem.cpp" line="29"/>
-        <location filename="../preferenceswindow/accountwindow/emailitem.h" line="48"/>
+        <location filename="../preferenceswindow/accountwindow/emailitem.h" line="55"/>
         <source>Add</source>
         <translation>加</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/accountwindow/emailitem.cpp" line="214"/>
+        <location filename="../preferenceswindow/accountwindow/emailitem.cpp" line="229"/>
         <source>Resend</source>
         <translation>发送</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/accountwindow/emailitem.cpp" line="217"/>
+        <location filename="../preferenceswindow/accountwindow/emailitem.cpp" line="232"/>
         <source>Sending</source>
         <translation>发送</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/accountwindow/emailitem.cpp" line="223"/>
+        <location filename="../preferenceswindow/accountwindow/emailitem.cpp" line="238"/>
         <source>Failed</source>
         <translation>失败</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/accountwindow/emailitem.h" line="49"/>
+        <location filename="../preferenceswindow/accountwindow/emailitem.h" line="56"/>
         <source>Get 10GB/Month of data and gain the ability to reset your password.</source>
         <translation>获取每月 10GB 的数据，并能够重置密码。</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/accountwindow/emailitem.h" line="50"/>
+        <location filename="../preferenceswindow/accountwindow/emailitem.h" line="57"/>
         <source>Please confirm your email</source>
         <translation>请确认您的电子邮件</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/accountwindow/emailitem.h" line="51"/>
+        <location filename="../preferenceswindow/accountwindow/emailitem.h" line="58"/>
         <source>Email</source>
         <translation>电子邮件</translation>
     </message>
@@ -1718,77 +1718,77 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>帮助</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="96"/>
+        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="103"/>
         <source>All you need to know about Windscribe.</source>
         <translation>所有你需要知道的关于Windscribe。</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="97"/>
+        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="104"/>
         <source>Knowledge Base</source>
         <translation>知识库</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="98"/>
+        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="105"/>
         <source>Not as smart as a human, but can still answer your questions.</source>
         <translation>不如人类聪明，但仍然可以回答你的问题。</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="99"/>
+        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="106"/>
         <source>Talk to Garry</source>
         <translation>与加里对话</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="100"/>
+        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="107"/>
         <source>Stuck? Send us a ticket.</source>
         <translation>卡住了？给我们发一张票。</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="101"/>
+        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="108"/>
         <source>Send Ticket</source>
         <translation>发送工单</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="102"/>
+        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="109"/>
         <source>Best places to help and get help from other users.</source>
         <translation>帮助和从其他用户那里获得帮助的最佳场所。</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="103"/>
+        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="110"/>
         <source>Community Support</source>
         <translation>社区支持</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="104"/>
+        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="111"/>
         <source>Reddit</source>
         <translation>红迪网</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="105"/>
+        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="112"/>
         <source>Discord</source>
         <translation>不和</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="106"/>
+        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="113"/>
         <source>View Debug Log</source>
         <translation>查看调试日志</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="109"/>
+        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="116"/>
         <source>Send Debug Log</source>
         <translation>发送调试日志</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="111"/>
+        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="118"/>
         <source>Sending log...</source>
         <translation>正在发送日志...</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="113"/>
+        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="120"/>
         <source>Sent, thanks!</source>
         <translation>发送，谢谢！</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="115"/>
+        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="122"/>
         <source>Failed!</source>
         <translation>失败！</translation>
     </message>

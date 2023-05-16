@@ -570,4 +570,10 @@ void PreferencesWindowItem::onCollapse()
     robertWindowItem_->setLoading(false);
 }
 
+void PreferencesWindowItem::setWebSessionCompleted()
+{
+    accountWindowItem_->setWebSessionCompleted();
+    robertWindowItem_->setWebSessionCompleted();
+}
+
 } // namespace PreferencesWindow

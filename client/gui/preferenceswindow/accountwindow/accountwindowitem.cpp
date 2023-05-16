@@ -75,7 +75,7 @@ AccountWindowItem::AccountWindowItem(ScalableGraphicsObject *parent, AccountInfo
     // can be safetly used in a GET command 
     manageAccountGroup_ = new PreferenceGroup(this);
     manageAccountItem_ = new LinkItem(manageAccountGroup_, LinkItem::LinkType::EXTERNAL_LINK);
-    connect(manageAccountItem_, &LinkItem::clicked, this, &AccountWindowItem::manageAccountClick);
+    connect(manageAccountItem_, &LinkItem::clicked, this, &AccountWindowItem::onManageAccountClicked);
     manageAccountGroup_->addItem(manageAccountItem_);
     addItem(manageAccountGroup_);
 
@@ -239,6 +239,26 @@ void AccountWindowItem::updatePlanGroupItemVisibility()
 bool AccountWindowItem::isUnlimitedData() const
 {
     return (plan_ < 0);
+}
+
+void AccountWindowItem::onManageAccountClicked()
+{
+    if (!manageAccountClickInProgress_) {
+        manageAccountClickInProgress_ = true;
+        manageAccountItem_->setInProgress(true);
+        emit manageAccountClick();
+    }
+}
+
+void AccountWindowItem::setWebSessionCompleted()
+{
+    manageAccountClickInProgress_ = false;
+    if (manageAccountItem_) {
+        manageAccountItem_->setInProgress(false);
+    }
+    if (emailItem_) {
+        emailItem_->setWebSessionCompleted();
+    }
 }
 
 } // namespace PreferencesWindow

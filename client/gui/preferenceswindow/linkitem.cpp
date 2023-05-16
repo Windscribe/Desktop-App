@@ -13,15 +13,12 @@
 namespace PreferencesWindow {
 
 LinkItem::LinkItem(ScalableGraphicsObject *parent, LinkType type, const QString &title, const QString &url)
-  : BaseItem(parent, PREFERENCE_GROUP_ITEM_HEIGHT*G_SCALE), title_(title), url_(url), linkText_(""), type_(type), icon_(nullptr)
+  : BaseItem(parent, PREFERENCE_GROUP_ITEM_HEIGHT*G_SCALE), title_(title), url_(url), linkText_(""), type_(type), icon_(nullptr), inProgress_(false), spinnerRotation_(0)
 {
     curArrowOpacity_= OPACITY_HALF;
-    if (type == LinkType::TEXT_ONLY)
-    {
+    if (type == LinkType::TEXT_ONLY) {
         curTextOpacity_ = OPACITY_FULL;
-    }
-    else
-    {
+    } else {
         setClickable(true);
         curTextOpacity_ = OPACITY_HALF;
         connect(this, &BaseItem::clicked, this, &LinkItem::onOpenUrl);
@@ -29,6 +26,8 @@ LinkItem::LinkItem(ScalableGraphicsObject *parent, LinkType type, const QString 
         connect(this, &BaseItem::hoverLeave, this, &LinkItem::onHoverLeave);
         connect(&textOpacityAnimation_, &QVariantAnimation::valueChanged, this, &LinkItem::onTextOpacityChanged);
         connect(&arrowOpacityAnimation_, &QVariantAnimation::valueChanged, this, &LinkItem::onArrowOpacityChanged);
+        connect(&spinnerAnimation_, &QVariantAnimation::valueChanged, this, &LinkItem::onSpinnerRotationChanged);
+        connect(&spinnerAnimation_, &QVariantAnimation::finished, this, &LinkItem::onSpinnerRotationFinished);
     }
 }
 
@@ -52,17 +51,24 @@ void LinkItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, 
     painter->drawText(boundingRect().adjusted(linkTextPosX, PREFERENCES_MARGIN*G_SCALE, -PREFERENCES_MARGIN*G_SCALE, -PREFERENCES_MARGIN*G_SCALE), Qt::AlignLeft, linkText_);
 
     // arrow or external link
-    painter->setOpacity(curArrowOpacity_);
     QSharedPointer<IndependentPixmap> p;
-    if (type_ == LinkType::EXTERNAL_LINK)
-    {
-        p = ImageResourcesSvg::instance().getIndependentPixmap("preferences/EXTERNAL_LINK_ICON");
-        p->draw(static_cast<int>(boundingRect().width() - p->width() - PREFERENCES_MARGIN*G_SCALE), static_cast<int>((boundingRect().height() - p->height()) / 2), painter);
-    }
-    else if (type_ == LinkType::SUBPAGE_LINK)
-    {
-        p = ImageResourcesSvg::instance().getIndependentPixmap("preferences/FRWRD_ARROW_WHITE_ICON");
-        p->draw(static_cast<int>(boundingRect().width() - p->width() - PREFERENCES_MARGIN*G_SCALE), static_cast<int>((boundingRect().height() - p->height()) / 2), painter);
+    if (inProgress_) {
+        painter->setOpacity(1.0);
+        p = ImageResourcesSvg::instance().getIndependentPixmap("SPINNER");
+        painter->save();
+        painter->translate(static_cast<int>(boundingRect().width() - p->width()/2 - PREFERENCES_MARGIN*G_SCALE), PREFERENCES_MARGIN*G_SCALE + p->height()/2);
+        painter->rotate(spinnerRotation_);
+        p->draw(-p->width()/2, -p->height()/2, painter);
+        painter->restore();
+    } else {
+        painter->setOpacity(curArrowOpacity_);
+        if (type_ == LinkType::EXTERNAL_LINK) {
+            p = ImageResourcesSvg::instance().getIndependentPixmap("preferences/EXTERNAL_LINK_ICON");
+            p->draw(static_cast<int>(boundingRect().width() - p->width() - PREFERENCES_MARGIN*G_SCALE), static_cast<int>((boundingRect().height() - p->height()) / 2), painter);
+        } else if (type_ == LinkType::SUBPAGE_LINK) {
+            p = ImageResourcesSvg::instance().getIndependentPixmap("preferences/FRWRD_ARROW_WHITE_ICON");
+            p->draw(static_cast<int>(boundingRect().width() - p->width() - PREFERENCES_MARGIN*G_SCALE), static_cast<int>((boundingRect().height() - p->height()) / 2), painter);
+        }
     }
 
     // text
@@ -159,6 +165,28 @@ void LinkItem::onOpenUrl()
 void LinkItem::setIcon(QSharedPointer<IndependentPixmap> icon)
 {
     icon_ = icon;
+}
+
+void LinkItem::setInProgress(bool inProgress)
+{
+    inProgress_ = inProgress;
+    if (inProgress_) {
+        startAnAnimation<int>(spinnerAnimation_, spinnerRotation_, 360, ANIMATION_SPEED_VERY_SLOW);
+    } else {
+        spinnerAnimation_.stop();
+        update();
+    }
+}
+
+void LinkItem::onSpinnerRotationChanged(const QVariant &value)
+{
+    spinnerRotation_ = value.toInt();
+    update();
+}
+
+void LinkItem::onSpinnerRotationFinished()
+{
+    startAnAnimation<int>(spinnerAnimation_, 0, 360, ANIMATION_SPEED_VERY_SLOW);
 }
 
 } // namespace PreferencesWindow

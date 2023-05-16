@@ -103,7 +103,7 @@ void PacketSizeEditBoxItem::paint(QPainter *painter, const QStyleOptionGraphicsI
         painter->setOpacity(busySpinnerOpacity_);
         painter->translate(spinnerPosX_ + ICON_WIDTH/2*G_SCALE, spinnerPosY_ + ICON_HEIGHT/2*G_SCALE);
         painter->rotate(busySpinnerRotation_);
-        QSharedPointer<IndependentPixmap> spinnerP = ImageResourcesSvg::instance().getIndependentPixmap("login/SPINNER");
+        QSharedPointer<IndependentPixmap> spinnerP = ImageResourcesSvg::instance().getIndependentPixmap("SPINNER");
         spinnerP->draw(-ICON_WIDTH/2*G_SCALE, -ICON_HEIGHT/2*G_SCALE, painter);
     }
 }

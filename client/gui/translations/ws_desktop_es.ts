@@ -591,7 +591,7 @@
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1406"/>
-        <location filename="../mainwindow.cpp" line="3485"/>
+        <location filename="../mainwindow.cpp" line="3491"/>
         <source>The application is corrupted.  Please reinstall Windscribe.</source>
         <translation>La aplicación está dañada.  Vuelva a instalar Windscribe.</translation>
     </message>
@@ -631,32 +631,32 @@
         <translation>No se pudo ejecutar el actualizador (error %1).  Póngase en contacto con el servicio de asistencia</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3449"/>
+        <location filename="../mainwindow.cpp" line="3455"/>
         <source>Read-only file</source>
         <translation>Archivo de solo lectura</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3475"/>
+        <location filename="../mainwindow.cpp" line="3481"/>
         <source>The custom configuration could not be loaded.  Please check that it’s correct or contact support.</source>
         <translation>No se pudo cargar la configuración personalizada.  Comprueba que es correcto o ponte en contacto con el servicio de asistencia.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3477"/>
+        <location filename="../mainwindow.cpp" line="3483"/>
         <source>There is a problem with the Wintun device driver, and it could not be reinstalled automatically.  Please reinstall Windscribe.</source>
         <translation>Hay un problema con el controlador de dispositivo Wintun y no se pudo reinstalar automáticamente.  Vuelva a instalar Windscribe.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3479"/>
+        <location filename="../mainwindow.cpp" line="3485"/>
         <source>There is a problem with the TAP device driver, and it could not be reinstalled automatically.  Please reinstall Windscribe.</source>
         <translation>Hay un problema con el controlador de dispositivo TAP y no se pudo reinstalar automáticamente.  Vuelva a instalar Windscribe.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3491"/>
+        <location filename="../mainwindow.cpp" line="3497"/>
         <source>An unexpected error occurred establishing the VPN connection (Error %1).  If this error persists, try using a different protocol or contact support.</source>
         <translation>Se ha producido un error inesperado al establecer la conexión VPN (error %1).  Si este error persiste, intente usar un protocolo diferente o póngase en contacto con el soporte técnico.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3713"/>
+        <location filename="../mainwindow.cpp" line="3719"/>
         <source>Windscribe</source>
         <translation>Windscribe</translation>
     </message>
@@ -717,7 +717,7 @@
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1850"/>
-        <location filename="../mainwindow.cpp" line="3362"/>
+        <location filename="../mainwindow.cpp" line="3368"/>
         <source>Disconnected</source>
         <translation>Desconectado</translation>
     </message>
@@ -852,78 +852,78 @@
         <translation>Póngase en contacto con el servicio de asistencia</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2484"/>
+        <location filename="../mainwindow.cpp" line="2490"/>
         <source>Lost connection to the backend process.
 Recovering...</source>
         <translation>Se perdió la conexión con el proceso de backend.
 Recuperación...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3091"/>
+        <location filename="../mainwindow.cpp" line="3097"/>
         <source>Select an application</source>
         <translation>Seleccione una aplicación</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3122"/>
+        <location filename="../mainwindow.cpp" line="3128"/>
         <source>Connect</source>
         <translation>Conectar</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3126"/>
+        <location filename="../mainwindow.cpp" line="3132"/>
         <source>Disconnect</source>
         <translation>Desconectar</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3135"/>
-        <location filename="../mainwindow.cpp" line="3164"/>
+        <location filename="../mainwindow.cpp" line="3141"/>
+        <location filename="../mainwindow.cpp" line="3170"/>
         <source>Locations</source>
         <translation>Ubicaciones</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3142"/>
-        <location filename="../mainwindow.cpp" line="3171"/>
+        <location filename="../mainwindow.cpp" line="3148"/>
+        <location filename="../mainwindow.cpp" line="3177"/>
         <source>Favourites</source>
         <translation>Favoritos</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3149"/>
-        <location filename="../mainwindow.cpp" line="3178"/>
+        <location filename="../mainwindow.cpp" line="3155"/>
+        <location filename="../mainwindow.cpp" line="3184"/>
         <source>Static IPs</source>
         <translation>IP estáticas</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3156"/>
-        <location filename="../mainwindow.cpp" line="3185"/>
+        <location filename="../mainwindow.cpp" line="3162"/>
+        <location filename="../mainwindow.cpp" line="3191"/>
         <source>Configured</source>
         <translation>Configurado</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3196"/>
+        <location filename="../mainwindow.cpp" line="3202"/>
         <source>Show/Hide</source>
         <translation>Mostrar/Ocultar</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3201"/>
+        <location filename="../mainwindow.cpp" line="3207"/>
         <source>Preferences</source>
         <translation>Preferencias</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3204"/>
+        <location filename="../mainwindow.cpp" line="3210"/>
         <source>Help</source>
         <translation>Ayuda</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3205"/>
+        <location filename="../mainwindow.cpp" line="3211"/>
         <source>Exit</source>
         <translation>Salida</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3450"/>
+        <location filename="../mainwindow.cpp" line="3456"/>
         <source>Your hosts file is read-only. IKEv2 connectivity requires for it to be writable. Fix the issue automatically?</source>
         <translation>El archivo hosts es de solo lectura. La conectividad IKEv2 requiere que sea escribible. ¿Solucionar el problema automáticamente?</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3487"/>
+        <location filename="../mainwindow.cpp" line="3493"/>
         <source>WireGuard adapter setup failed. Please wait one minute and try the connection again. If adapter setup fails again, please try restarting your computer.
 
 If the problem persists after a restart, please send a debug log and open a support ticket, then switch to a different connection mode.</source>
@@ -932,27 +932,27 @@ If the problem persists after a restart, please send a debug log and open a supp
 Si el problema persiste después de un reinicio, envíe un registro de depuración y abra un ticket de soporte, luego cambie a un modo de conexión diferente.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3494"/>
+        <location filename="../mainwindow.cpp" line="3500"/>
         <source>Connection Error</source>
         <translation>Error de conexión</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3650"/>
+        <location filename="../mainwindow.cpp" line="3656"/>
         <source>Reached Key Limit</source>
         <translation>Límite de clave alcanzado</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3651"/>
+        <location filename="../mainwindow.cpp" line="3657"/>
         <source>You have reached your limit of WireGuard public keys. Do you want to delete your oldest key?</source>
         <translation>Ha alcanzado su límite de claves públicas de WireGuard. ¿Desea eliminar su clave más antigua?</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3705"/>
+        <location filename="../mainwindow.cpp" line="3711"/>
         <source>Error Starting Service</source>
         <translation>Error al iniciar el servicio</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3706"/>
+        <location filename="../mainwindow.cpp" line="3712"/>
         <source>The split tunneling feature could not be started, and has been disabled in Preferences.</source>
         <translation>No se pudo iniciar la función de túnel dividido y se ha deshabilitado en Preferencias.</translation>
     </message>
@@ -1518,43 +1518,43 @@ Si el problema persiste después de un reinicio, envíe un registro de depuraci�
     <name>PreferencesWindow::EmailItem</name>
     <message>
         <location filename="../preferenceswindow/accountwindow/emailitem.cpp" line="17"/>
-        <location filename="../preferenceswindow/accountwindow/emailitem.cpp" line="220"/>
+        <location filename="../preferenceswindow/accountwindow/emailitem.cpp" line="235"/>
         <source>Sent!</source>
         <translation>¡Enviado!</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/accountwindow/emailitem.cpp" line="29"/>
-        <location filename="../preferenceswindow/accountwindow/emailitem.h" line="48"/>
+        <location filename="../preferenceswindow/accountwindow/emailitem.h" line="55"/>
         <source>Add</source>
         <translation>Agregar</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/accountwindow/emailitem.cpp" line="214"/>
+        <location filename="../preferenceswindow/accountwindow/emailitem.cpp" line="229"/>
         <source>Resend</source>
         <translation>Reenviar</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/accountwindow/emailitem.cpp" line="217"/>
+        <location filename="../preferenceswindow/accountwindow/emailitem.cpp" line="232"/>
         <source>Sending</source>
         <translation>Envío</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/accountwindow/emailitem.cpp" line="223"/>
+        <location filename="../preferenceswindow/accountwindow/emailitem.cpp" line="238"/>
         <source>Failed</source>
         <translation>Fracasado</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/accountwindow/emailitem.h" line="49"/>
+        <location filename="../preferenceswindow/accountwindow/emailitem.h" line="56"/>
         <source>Get 10GB/Month of data and gain the ability to reset your password.</source>
         <translation>Obtenga 10 GB / mes de datos y obtenga la capacidad de restablecer su contraseña.</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/accountwindow/emailitem.h" line="50"/>
+        <location filename="../preferenceswindow/accountwindow/emailitem.h" line="57"/>
         <source>Please confirm your email</source>
         <translation>Por favor, confirme su correo electrónico</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/accountwindow/emailitem.h" line="51"/>
+        <location filename="../preferenceswindow/accountwindow/emailitem.h" line="58"/>
         <source>Email</source>
         <translation>Correo electrónico</translation>
     </message>
@@ -1718,77 +1718,77 @@ Si el problema persiste después de un reinicio, envíe un registro de depuraci�
         <translation>Ayuda</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="96"/>
+        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="103"/>
         <source>All you need to know about Windscribe.</source>
         <translation>Todo lo que necesitas saber sobre Windscribe.</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="97"/>
+        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="104"/>
         <source>Knowledge Base</source>
         <translation>Knowledge base</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="98"/>
+        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="105"/>
         <source>Not as smart as a human, but can still answer your questions.</source>
         <translation>No es tan inteligente como un humano, pero aún puede responder a sus preguntas.</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="99"/>
+        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="106"/>
         <source>Talk to Garry</source>
         <translation>Habla con Garry</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="100"/>
+        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="107"/>
         <source>Stuck? Send us a ticket.</source>
         <translation>¿Pegado? Envíanos un ticket.</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="101"/>
+        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="108"/>
         <source>Send Ticket</source>
         <translation>Enviar ticket</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="102"/>
+        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="109"/>
         <source>Best places to help and get help from other users.</source>
         <translation>Los mejores lugares para ayudar y obtener ayuda de otros usuarios.</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="103"/>
+        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="110"/>
         <source>Community Support</source>
         <translation>Apoyo a la comunidad</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="104"/>
+        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="111"/>
         <source>Reddit</source>
         <translation>Reddit</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="105"/>
+        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="112"/>
         <source>Discord</source>
         <translation>Discordia</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="106"/>
+        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="113"/>
         <source>View Debug Log</source>
         <translation>Ver registro de depuración</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="109"/>
+        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="116"/>
         <source>Send Debug Log</source>
         <translation>Enviar registro de depuración</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="111"/>
+        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="118"/>
         <source>Sending log...</source>
         <translation>Enviando registro...</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="113"/>
+        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="120"/>
         <source>Sent, thanks!</source>
         <translation>Enviado, gracias!</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="115"/>
+        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="122"/>
         <source>Failed!</source>
         <translation>¡Fracasado!</translation>
     </message>

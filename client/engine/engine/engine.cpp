@@ -1231,8 +1231,12 @@ void Engine::onConfirmEmailAnswer()
 void Engine::onWebSessionAnswer()
 {
     QSharedPointer<server_api::WebSessionRequest> request(static_cast<server_api::WebSessionRequest *>(sender()), &QObject::deleteLater);
-    if (request->networkRetCode() == SERVER_RETURN_SUCCESS)
+    if (request->networkRetCode() == SERVER_RETURN_SUCCESS) {
         Q_EMIT webSessionToken(request->purpose(), request->token());
+    } else {
+        // Failure indicated by empty token
+        Q_EMIT webSessionToken(request->purpose(), "");
+    }
 }
 
 void Engine::onGetRobertFiltersAnswer()

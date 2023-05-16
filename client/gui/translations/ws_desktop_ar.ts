@@ -591,7 +591,7 @@
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1406"/>
-        <location filename="../mainwindow.cpp" line="3485"/>
+        <location filename="../mainwindow.cpp" line="3491"/>
         <source>The application is corrupted.  Please reinstall Windscribe.</source>
         <translation>التطبيق تالف.  الرجاء إعادة تثبيت Windscribe.</translation>
     </message>
@@ -631,32 +631,32 @@
         <translation>تعذر تشغيل المحدث (خطأ ٪ 1).  يرجى الاتصال بالدعم</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3449"/>
+        <location filename="../mainwindow.cpp" line="3455"/>
         <source>Read-only file</source>
         <translation>ملف للقراءة فقط</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3475"/>
+        <location filename="../mainwindow.cpp" line="3481"/>
         <source>The custom configuration could not be loaded.  Please check that it’s correct or contact support.</source>
         <translation>تعذر تحميل التكوين المخصص.  يرجى التحقق من صحته أو الاتصال بالدعم.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3477"/>
+        <location filename="../mainwindow.cpp" line="3483"/>
         <source>There is a problem with the Wintun device driver, and it could not be reinstalled automatically.  Please reinstall Windscribe.</source>
         <translation>توجد مشكلة في برنامج تشغيل جهاز Wintun، ولا يمكن إعادة تثبيته تلقائيا.  الرجاء إعادة تثبيت Windscribe.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3479"/>
+        <location filename="../mainwindow.cpp" line="3485"/>
         <source>There is a problem with the TAP device driver, and it could not be reinstalled automatically.  Please reinstall Windscribe.</source>
         <translation>توجد مشكلة في برنامج تشغيل جهاز TAP، ولا يمكن إعادة تثبيته تلقائيا.  الرجاء إعادة تثبيت Windscribe.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3491"/>
+        <location filename="../mainwindow.cpp" line="3497"/>
         <source>An unexpected error occurred establishing the VPN connection (Error %1).  If this error persists, try using a different protocol or contact support.</source>
         <translation>حدث خطأ غير متوقع أثناء تأسيس اتصال VPN (خطأ ٪ 1).  إذا استمر هذا الخطأ، فحاول استخدام بروتوكول مختلف أو اتصل بالدعم.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3713"/>
+        <location filename="../mainwindow.cpp" line="3719"/>
         <source>Windscribe</source>
         <translation>ويندسكريب</translation>
     </message>
@@ -717,7 +717,7 @@
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1850"/>
-        <location filename="../mainwindow.cpp" line="3362"/>
+        <location filename="../mainwindow.cpp" line="3368"/>
         <source>Disconnected</source>
         <translation>قطع اتصال</translation>
     </message>
@@ -852,78 +852,78 @@
         <translation>يرجى الاتصال بالدعم</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2484"/>
+        <location filename="../mainwindow.cpp" line="2490"/>
         <source>Lost connection to the backend process.
 Recovering...</source>
         <translation>فقد الاتصال بعملية الواجهة الخلفية.
 يتعافي...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3091"/>
+        <location filename="../mainwindow.cpp" line="3097"/>
         <source>Select an application</source>
         <translation>حدد تطبيقا</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3122"/>
+        <location filename="../mainwindow.cpp" line="3128"/>
         <source>Connect</source>
         <translation>عشق</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3126"/>
+        <location filename="../mainwindow.cpp" line="3132"/>
         <source>Disconnect</source>
         <translation>قطع الاتصال</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3135"/>
-        <location filename="../mainwindow.cpp" line="3164"/>
+        <location filename="../mainwindow.cpp" line="3141"/>
+        <location filename="../mainwindow.cpp" line="3170"/>
         <source>Locations</source>
         <translation>مواقع</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3142"/>
-        <location filename="../mainwindow.cpp" line="3171"/>
+        <location filename="../mainwindow.cpp" line="3148"/>
+        <location filename="../mainwindow.cpp" line="3177"/>
         <source>Favourites</source>
         <translation>المفضلة</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3149"/>
-        <location filename="../mainwindow.cpp" line="3178"/>
+        <location filename="../mainwindow.cpp" line="3155"/>
+        <location filename="../mainwindow.cpp" line="3184"/>
         <source>Static IPs</source>
         <translation>عناوين IP ثابتة</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3156"/>
-        <location filename="../mainwindow.cpp" line="3185"/>
+        <location filename="../mainwindow.cpp" line="3162"/>
+        <location filename="../mainwindow.cpp" line="3191"/>
         <source>Configured</source>
         <translation>تكوين</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3196"/>
+        <location filename="../mainwindow.cpp" line="3202"/>
         <source>Show/Hide</source>
         <translation>إظهار/إخفاء</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3201"/>
+        <location filename="../mainwindow.cpp" line="3207"/>
         <source>Preferences</source>
         <translation>التفضيلات</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3204"/>
+        <location filename="../mainwindow.cpp" line="3210"/>
         <source>Help</source>
         <translation>تعليمات</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3205"/>
+        <location filename="../mainwindow.cpp" line="3211"/>
         <source>Exit</source>
         <translation>مخرج</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3450"/>
+        <location filename="../mainwindow.cpp" line="3456"/>
         <source>Your hosts file is read-only. IKEv2 connectivity requires for it to be writable. Fix the issue automatically?</source>
         <translation>ملف المضيفين الخاص بك للقراءة فقط. يتطلب اتصال IKEv2 أن يكون قابلا للكتابة. حل المشكلة تلقائيا؟</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3487"/>
+        <location filename="../mainwindow.cpp" line="3493"/>
         <source>WireGuard adapter setup failed. Please wait one minute and try the connection again. If adapter setup fails again, please try restarting your computer.
 
 If the problem persists after a restart, please send a debug log and open a support ticket, then switch to a different connection mode.</source>
@@ -932,27 +932,27 @@ If the problem persists after a restart, please send a debug log and open a supp
 إذا استمرت المشكلة بعد إعادة التشغيل ، فيرجى إرسال سجل تصحيح الأخطاء وفتح تذكرة دعم ، ثم التبديل إلى وضع اتصال مختلف.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3494"/>
+        <location filename="../mainwindow.cpp" line="3500"/>
         <source>Connection Error</source>
         <translation>خطأ في الاتصال</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3650"/>
+        <location filename="../mainwindow.cpp" line="3656"/>
         <source>Reached Key Limit</source>
         <translation>تم الوصول إلى حد المفتاح</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3651"/>
+        <location filename="../mainwindow.cpp" line="3657"/>
         <source>You have reached your limit of WireGuard public keys. Do you want to delete your oldest key?</source>
         <translation>لقد وصلت إلى الحد الأقصى لمفاتيح WireGuard العامة. هل تريد حذف أقدم مفتاح لديك؟</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3705"/>
+        <location filename="../mainwindow.cpp" line="3711"/>
         <source>Error Starting Service</source>
         <translation>خطأ في بدء تشغيل الخدمة</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3706"/>
+        <location filename="../mainwindow.cpp" line="3712"/>
         <source>The split tunneling feature could not be started, and has been disabled in Preferences.</source>
         <translation>تعذر بدء تشغيل ميزة الانقسام النفقي، وتم تعطيلها في التفضيلات.</translation>
     </message>
@@ -1518,43 +1518,43 @@ If the problem persists after a restart, please send a debug log and open a supp
     <name>PreferencesWindow::EmailItem</name>
     <message>
         <location filename="../preferenceswindow/accountwindow/emailitem.cpp" line="17"/>
-        <location filename="../preferenceswindow/accountwindow/emailitem.cpp" line="220"/>
+        <location filename="../preferenceswindow/accountwindow/emailitem.cpp" line="235"/>
         <source>Sent!</source>
         <translation>ارسال!</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/accountwindow/emailitem.cpp" line="29"/>
-        <location filename="../preferenceswindow/accountwindow/emailitem.h" line="48"/>
+        <location filename="../preferenceswindow/accountwindow/emailitem.h" line="55"/>
         <source>Add</source>
         <translation>جمع</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/accountwindow/emailitem.cpp" line="214"/>
+        <location filename="../preferenceswindow/accountwindow/emailitem.cpp" line="229"/>
         <source>Resend</source>
         <translation>ارسال</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/accountwindow/emailitem.cpp" line="217"/>
+        <location filename="../preferenceswindow/accountwindow/emailitem.cpp" line="232"/>
         <source>Sending</source>
         <translation>ارسال</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/accountwindow/emailitem.cpp" line="223"/>
+        <location filename="../preferenceswindow/accountwindow/emailitem.cpp" line="238"/>
         <source>Failed</source>
         <translation>فشل</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/accountwindow/emailitem.h" line="49"/>
+        <location filename="../preferenceswindow/accountwindow/emailitem.h" line="56"/>
         <source>Get 10GB/Month of data and gain the ability to reset your password.</source>
         <translation>احصل على 10 جيجابايت / شهر من البيانات واكتسب القدرة على إعادة تعيين كلمة المرور الخاصة بك.</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/accountwindow/emailitem.h" line="50"/>
+        <location filename="../preferenceswindow/accountwindow/emailitem.h" line="57"/>
         <source>Please confirm your email</source>
         <translation>يرجى تأكيد بريدك الإلكتروني</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/accountwindow/emailitem.h" line="51"/>
+        <location filename="../preferenceswindow/accountwindow/emailitem.h" line="58"/>
         <source>Email</source>
         <translation>البريد الإلكتروني</translation>
     </message>
@@ -1718,77 +1718,77 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>تعليمات</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="96"/>
+        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="103"/>
         <source>All you need to know about Windscribe.</source>
         <translation>كل ما تحتاج لمعرفته حول Windscribe.</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="97"/>
+        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="104"/>
         <source>Knowledge Base</source>
         <translation>معارف</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="98"/>
+        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="105"/>
         <source>Not as smart as a human, but can still answer your questions.</source>
         <translation>ليس ذكيا مثل الإنسان ، ولكن لا يزال بإمكانه الإجابة على أسئلتك.</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="99"/>
+        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="106"/>
         <source>Talk to Garry</source>
         <translation>تحدث إلى غاري</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="100"/>
+        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="107"/>
         <source>Stuck? Send us a ticket.</source>
         <translation>عالقه؟ أرسل لنا تذكرة.</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="101"/>
+        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="108"/>
         <source>Send Ticket</source>
         <translation>إرسال تذكرة</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="102"/>
+        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="109"/>
         <source>Best places to help and get help from other users.</source>
         <translation>أفضل الأماكن للمساعدة والحصول على المساعدة من المستخدمين الآخرين.</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="103"/>
+        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="110"/>
         <source>Community Support</source>
         <translation>دعم المجتمع</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="104"/>
+        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="111"/>
         <source>Reddit</source>
         <translation>رديت</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="105"/>
+        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="112"/>
         <source>Discord</source>
         <translation>الخلاف</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="106"/>
+        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="113"/>
         <source>View Debug Log</source>
         <translation>عرض سجل التصحيح</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="109"/>
+        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="116"/>
         <source>Send Debug Log</source>
         <translation>إرسال سجل التصحيح</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="111"/>
+        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="118"/>
         <source>Sending log...</source>
         <translation>إرسال السجل...</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="113"/>
+        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="120"/>
         <source>Sent, thanks!</source>
         <translation>أرسلت ، شكرا!</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="115"/>
+        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="122"/>
         <source>Failed!</source>
         <translation>فشل!</translation>
     </message>

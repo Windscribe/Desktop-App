@@ -120,7 +120,7 @@
         <file>svg/login/DISABLED_LOGIN_ICON.svg</file>
         <file>svg/login/FRWRD_ARROW_ICON.svg</file>
         <file>svg/login/SETTINGS_ICON.svg</file>
-        <file>svg/login/SPINNER.svg</file>
+        <file>svg/SPINNER.svg</file>
         <file>svg/login/ENABLED_LOGIN_ICON.svg</file>
         <file>svg/login/ERROR_LOGIN_ICON.svg</file>
         <file>svg/login/EMERGENCY_ICON_ENABLED.svg</file>

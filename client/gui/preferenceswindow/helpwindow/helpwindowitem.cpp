@@ -61,7 +61,7 @@ HelpWindowItem::HelpWindowItem(ScalableGraphicsObject *parent, Preferences *pref
     sendLogGroup_ = new PreferenceGroup(this);
     sendLogItem_ = new LinkItem(sendLogGroup_, LinkItem::LinkType::BLANK_LINK);
     sendLogItem_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/SEND_LOG"));
-    connect(sendLogItem_, &LinkItem::clicked, this, &HelpWindowItem::sendLogClick);
+    connect(sendLogItem_, &LinkItem::clicked, this, &HelpWindowItem::onSendLogClick);
     sendLogGroup_->addItem(sendLogItem_);
     addItem(sendLogGroup_);
 
@@ -81,14 +81,21 @@ void HelpWindowItem::setSendLogResult(bool success)
     } else {
         sendLogState_ = FAILED;
     }
+    sendLogItem_->setInProgress(false);
     onLanguageChanged();
 }
 
 void HelpWindowItem::onSendLogClick()
 {
-    sendLogState_ = SENDING;
-    onLanguageChanged();
-    emit sendLogClick();
+    if (sendLogState_ == NOT_SENT) {
+        sendLogState_ = SENDING;
+        sendLogItem_->setInProgress(true);
+        onLanguageChanged();
+        emit sendLogClick();
+    } else if (sendLogState_ == SENT || sendLogState_ == FAILED) {
+        sendLogState_ = NOT_SENT;
+        onLanguageChanged();
+    }
 }
 
 void HelpWindowItem::onLanguageChanged()

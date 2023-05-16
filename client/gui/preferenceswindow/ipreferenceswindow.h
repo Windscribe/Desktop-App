@@ -32,8 +32,8 @@ public:
 
     virtual void setRobertFilters(const QVector<types::RobertFilter> &filters) = 0;
     virtual void setRobertFiltersError() = 0;
-
     virtual void setSplitTunnelingActive(bool active) = 0;
+    virtual void setWebSessionCompleted() = 0;
 
     virtual void onCollapse() = 0;
 

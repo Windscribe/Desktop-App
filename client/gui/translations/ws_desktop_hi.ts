@@ -591,7 +591,7 @@
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1406"/>
-        <location filename="../mainwindow.cpp" line="3485"/>
+        <location filename="../mainwindow.cpp" line="3491"/>
         <source>The application is corrupted.  Please reinstall Windscribe.</source>
         <translation>अनुप्रयोग दूषित है.  कृपया विंडस्क्राइब को पुनर्स्थापित करें।</translation>
     </message>
@@ -631,32 +631,32 @@
         <translation>अद्यतनकर्ता नहीं चलाया जा सका (त्रुटि %1).  कृपया समर्थन से संपर्क करें</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3449"/>
+        <location filename="../mainwindow.cpp" line="3455"/>
         <source>Read-only file</source>
         <translation>केवल पढ़ने की फ़ाइल</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3475"/>
+        <location filename="../mainwindow.cpp" line="3481"/>
         <source>The custom configuration could not be loaded.  Please check that it’s correct or contact support.</source>
         <translation>कस्टम कॉन्फ़िगरेशन लोड नहीं किया जा सका.  कृपया जांचें कि यह सही है या समर्थन से संपर्क करें।</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3477"/>
+        <location filename="../mainwindow.cpp" line="3483"/>
         <source>There is a problem with the Wintun device driver, and it could not be reinstalled automatically.  Please reinstall Windscribe.</source>
         <translation>Wintun डिवाइस ड्राइवर के साथ कोई समस्या है, और इसे स्वचालित रूप से पुनर्स्थापित नहीं किया जा सका।  कृपया विंडस्क्राइब को पुनर्स्थापित करें।</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3479"/>
+        <location filename="../mainwindow.cpp" line="3485"/>
         <source>There is a problem with the TAP device driver, and it could not be reinstalled automatically.  Please reinstall Windscribe.</source>
         <translation>TAP डिवाइस ड्राइवर के साथ कोई समस्या है, और इसे स्वचालित रूप से पुनर्स्थापित नहीं किया जा सका।  कृपया विंडस्क्राइब को पुनर्स्थापित करें।</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3491"/>
+        <location filename="../mainwindow.cpp" line="3497"/>
         <source>An unexpected error occurred establishing the VPN connection (Error %1).  If this error persists, try using a different protocol or contact support.</source>
         <translation>VPN कनेक्शन स्थापित करने में कोई अनपेक्षित त्रुटि आई (त्रुटि %1).  यदि यह त्रुटि बनी रहती है, तो किसी भिन्न प्रोटोकॉल या संपर्क समर्थन का उपयोग करने का प्रयास करें.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3713"/>
+        <location filename="../mainwindow.cpp" line="3719"/>
         <source>Windscribe</source>
         <translation>विंडस्क्राइब</translation>
     </message>
@@ -717,7 +717,7 @@
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1850"/>
-        <location filename="../mainwindow.cpp" line="3362"/>
+        <location filename="../mainwindow.cpp" line="3368"/>
         <source>Disconnected</source>
         <translation>डिस्कनेक्ट</translation>
     </message>
@@ -852,78 +852,78 @@
         <translation>कृपया समर्थन से संपर्क करें</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2484"/>
+        <location filename="../mainwindow.cpp" line="2490"/>
         <source>Lost connection to the backend process.
 Recovering...</source>
         <translation>बैकएंड प्रक्रिया से कनेक्शन खो गया.
 ठीक।।।</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3091"/>
+        <location filename="../mainwindow.cpp" line="3097"/>
         <source>Select an application</source>
         <translation>किसी अनुप्रयोग का चयन करें</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3122"/>
+        <location filename="../mainwindow.cpp" line="3128"/>
         <source>Connect</source>
         <translation>जोड़ना</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3126"/>
+        <location filename="../mainwindow.cpp" line="3132"/>
         <source>Disconnect</source>
         <translation>अलग करना</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3135"/>
-        <location filename="../mainwindow.cpp" line="3164"/>
+        <location filename="../mainwindow.cpp" line="3141"/>
+        <location filename="../mainwindow.cpp" line="3170"/>
         <source>Locations</source>
         <translation>स्थान</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3142"/>
-        <location filename="../mainwindow.cpp" line="3171"/>
+        <location filename="../mainwindow.cpp" line="3148"/>
+        <location filename="../mainwindow.cpp" line="3177"/>
         <source>Favourites</source>
         <translation>पसंदीदा</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3149"/>
-        <location filename="../mainwindow.cpp" line="3178"/>
+        <location filename="../mainwindow.cpp" line="3155"/>
+        <location filename="../mainwindow.cpp" line="3184"/>
         <source>Static IPs</source>
         <translation>स्थैतिक आईपी</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3156"/>
-        <location filename="../mainwindow.cpp" line="3185"/>
+        <location filename="../mainwindow.cpp" line="3162"/>
+        <location filename="../mainwindow.cpp" line="3191"/>
         <source>Configured</source>
         <translation>कॉन्फ़िगर</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3196"/>
+        <location filename="../mainwindow.cpp" line="3202"/>
         <source>Show/Hide</source>
         <translation>दिखाओ/छिपाओ</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3201"/>
+        <location filename="../mainwindow.cpp" line="3207"/>
         <source>Preferences</source>
         <translation>प्राथमिकताएँ</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3204"/>
+        <location filename="../mainwindow.cpp" line="3210"/>
         <source>Help</source>
         <translation>मदद</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3205"/>
+        <location filename="../mainwindow.cpp" line="3211"/>
         <source>Exit</source>
         <translation>निकासी</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3450"/>
+        <location filename="../mainwindow.cpp" line="3456"/>
         <source>Your hosts file is read-only. IKEv2 connectivity requires for it to be writable. Fix the issue automatically?</source>
         <translation>आपकी होस्ट्स फ़ाइल केवल पढ़ने के लिए है. IKEv2 कनेक्टिविटी को लिखने योग्य होने की आवश्यकता है। समस्या को स्वचालित रूप से ठीक करें?</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3487"/>
+        <location filename="../mainwindow.cpp" line="3493"/>
         <source>WireGuard adapter setup failed. Please wait one minute and try the connection again. If adapter setup fails again, please try restarting your computer.
 
 If the problem persists after a restart, please send a debug log and open a support ticket, then switch to a different connection mode.</source>
@@ -932,27 +932,27 @@ If the problem persists after a restart, please send a debug log and open a supp
 यदि पुनरारंभ के बाद भी समस्या बनी रहती है, तो कृपया एक डीबग लॉग भेजें और एक समर्थन टिकट खोलें, फिर किसी अन्य कनेक्शन मोड पर स्विच करें।</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3494"/>
+        <location filename="../mainwindow.cpp" line="3500"/>
         <source>Connection Error</source>
         <translation>कनेक्शन त्रुटि</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3650"/>
+        <location filename="../mainwindow.cpp" line="3656"/>
         <source>Reached Key Limit</source>
         <translation>कुंजी सीमा तक पहुँच गया</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3651"/>
+        <location filename="../mainwindow.cpp" line="3657"/>
         <source>You have reached your limit of WireGuard public keys. Do you want to delete your oldest key?</source>
         <translation>आप वायरगार्ड सार्वजनिक कुंजी की अपनी सीमा तक पहुंच गए हैं। क्या आप अपनी सबसे पुरानी कुंजी हटाना चाहते हैं?</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3705"/>
+        <location filename="../mainwindow.cpp" line="3711"/>
         <source>Error Starting Service</source>
         <translation>प्रारंभ सेवा में त्रुटि</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3706"/>
+        <location filename="../mainwindow.cpp" line="3712"/>
         <source>The split tunneling feature could not be started, and has been disabled in Preferences.</source>
         <translation>स्प्लिट टनलिंग सुविधा प्रारंभ नहीं की जा सकी, और प्राथमिकताओं में अक्षम कर दी गई है.</translation>
     </message>
@@ -1518,43 +1518,43 @@ If the problem persists after a restart, please send a debug log and open a supp
     <name>PreferencesWindow::EmailItem</name>
     <message>
         <location filename="../preferenceswindow/accountwindow/emailitem.cpp" line="17"/>
-        <location filename="../preferenceswindow/accountwindow/emailitem.cpp" line="220"/>
+        <location filename="../preferenceswindow/accountwindow/emailitem.cpp" line="235"/>
         <source>Sent!</source>
         <translation>प्रेषित!</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/accountwindow/emailitem.cpp" line="29"/>
-        <location filename="../preferenceswindow/accountwindow/emailitem.h" line="48"/>
+        <location filename="../preferenceswindow/accountwindow/emailitem.h" line="55"/>
         <source>Add</source>
         <translation>जोड़ना</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/accountwindow/emailitem.cpp" line="214"/>
+        <location filename="../preferenceswindow/accountwindow/emailitem.cpp" line="229"/>
         <source>Resend</source>
         <translation>भेजें</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/accountwindow/emailitem.cpp" line="217"/>
+        <location filename="../preferenceswindow/accountwindow/emailitem.cpp" line="232"/>
         <source>Sending</source>
         <translation>भेजने</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/accountwindow/emailitem.cpp" line="223"/>
+        <location filename="../preferenceswindow/accountwindow/emailitem.cpp" line="238"/>
         <source>Failed</source>
         <translation>असफल</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/accountwindow/emailitem.h" line="49"/>
+        <location filename="../preferenceswindow/accountwindow/emailitem.h" line="56"/>
         <source>Get 10GB/Month of data and gain the ability to reset your password.</source>
         <translation>10GB / माह डेटा प्राप्त करें और अपना पासवर्ड रीसेट करने की क्षमता प्राप्त करें।</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/accountwindow/emailitem.h" line="50"/>
+        <location filename="../preferenceswindow/accountwindow/emailitem.h" line="57"/>
         <source>Please confirm your email</source>
         <translation>कृपया अपने ईमेल की पुष्टि करें</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/accountwindow/emailitem.h" line="51"/>
+        <location filename="../preferenceswindow/accountwindow/emailitem.h" line="58"/>
         <source>Email</source>
         <translation>ईमेल</translation>
     </message>
@@ -1718,77 +1718,77 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>मदद</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="96"/>
+        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="103"/>
         <source>All you need to know about Windscribe.</source>
         <translation>विंडस्क्राइब के बारे में आपको जो कुछ भी जानने की जरूरत है।</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="97"/>
+        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="104"/>
         <source>Knowledge Base</source>
         <translation>ज्ञानकोष</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="98"/>
+        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="105"/>
         <source>Not as smart as a human, but can still answer your questions.</source>
         <translation>एक इंसान की तरह स्मार्ट नहीं है, लेकिन फिर भी आपके सवालों के जवाब दे सकता है।</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="99"/>
+        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="106"/>
         <source>Talk to Garry</source>
         <translation>गैरी से बात करें</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="100"/>
+        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="107"/>
         <source>Stuck? Send us a ticket.</source>
         <translation>अटकना? हमें एक टिकट भेजें।</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="101"/>
+        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="108"/>
         <source>Send Ticket</source>
         <translation>टिकट भेजें</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="102"/>
+        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="109"/>
         <source>Best places to help and get help from other users.</source>
         <translation>अन्य उपयोगकर्ताओं की मदद करने और उनसे मदद प्राप्त करने के लिए सर्वोत्तम स्थान।</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="103"/>
+        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="110"/>
         <source>Community Support</source>
         <translation>सामुदायिक समर्थन</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="104"/>
+        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="111"/>
         <source>Reddit</source>
         <translation>Reddit</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="105"/>
+        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="112"/>
         <source>Discord</source>
         <translation>असहमति</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="106"/>
+        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="113"/>
         <source>View Debug Log</source>
         <translation>डीबग लॉग देखें</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="109"/>
+        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="116"/>
         <source>Send Debug Log</source>
         <translation>डीबग लॉग भेजें</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="111"/>
+        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="118"/>
         <source>Sending log...</source>
         <translation>लॉग भेजना...</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="113"/>
+        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="120"/>
         <source>Sent, thanks!</source>
         <translation>भेजा, धन्यवाद!</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="115"/>
+        <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="122"/>
         <source>Failed!</source>
         <translation>असफल!</translation>
     </message>
