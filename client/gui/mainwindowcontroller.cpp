@@ -542,7 +542,7 @@ void MainWindowController::collapseLocations()
     functionOnAnimationFinished_ = NULL;
 
     connectWindow_->updateLocationsState(false);
-    if (locationsWindow_->currentTab() == GuiLocations::LocationsTab::LOCATION_TAB_SEARCH_LOCATIONS) {
+    if (locationsWindow_->currentTab() == LOCATION_TAB_SEARCH_LOCATIONS) {
         locationsWindow_->hideSearchTabWithoutAnimation();
     }
 
@@ -2543,7 +2543,7 @@ void MainWindowController::collapseWindow(ResizableWindow *window, bool bSkipBot
     windowSizeManager_->setState(window, WindowSizeManager::kWindowAnimating);
     connectWindow_->getGraphicsObject()->show();
 
-    if (locationsWindow_->currentTab() == GuiLocations::LocationsTab::LOCATION_TAB_SEARCH_LOCATIONS) {
+    if (locationsWindow_->currentTab() == LOCATION_TAB_SEARCH_LOCATIONS) {
         locationsWindow_->hideSearchTabWithoutAnimation();
     }
 

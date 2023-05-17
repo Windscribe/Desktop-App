@@ -82,7 +82,7 @@ void LocationsWindow::hideSearchTabWithoutAnimation()
     locationsTab_->hideSearchTabWithoutAnimation();
 }
 
-GuiLocations::LocationsTab::LocationTabEnum LocationsWindow::currentTab()
+LOCATION_TAB LocationsWindow::currentTab()
 {
     return locationsTab_->currentTab();
 }

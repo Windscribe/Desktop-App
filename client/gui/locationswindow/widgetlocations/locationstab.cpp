@@ -3,6 +3,7 @@
 #include <QPainter>
 #include <QtMath>
 
+#include "backend/persistentstate.h"
 #include "graphicresources/imageresourcessvg.h"
 #include "commongraphics/commongraphics.h"
 #include "graphicresources/fontmanager.h"
@@ -148,6 +149,11 @@ LocationsTab::LocationsTab(QWidget *parent, Preferences *preferences, gui_locati
 
     connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &LocationsTab::onLanguageChanged);
     onLanguageChanged();
+
+    // We default to showing the all locations tab, so only changeTab if the last session exited on a different tab.
+    if (curTab_ != PersistentState::instance().lastLocationTab()) {
+        changeTab(PersistentState::instance().lastLocationTab(), false);
+    }
 }
 
 void LocationsTab::setCountVisibleItemSlots(int cnt)
@@ -275,10 +281,17 @@ void LocationsTab::mouseReleaseEvent(QMouseEvent *event)
 }
 
 
-void LocationsTab::changeTab(LocationTabEnum newTab, bool animateChange)
+void LocationsTab::changeTab(LOCATION_TAB newTab, bool animateChange)
 {
     lastTab_ = curTab_;
     curTab_ = newTab;
+
+    // We don't support opening the search tab as the last selected tab when the app starts,
+    // since collapsing locations, either by user request or on app exit, bumps us out of
+    // the search tab.
+    if (curTab_ != LOCATION_TAB_SEARCH_LOCATIONS) {
+        PersistentState::instance().setLastLocationTab(curTab_);
+    }
 
     updateTabIconRects();
 
@@ -428,7 +441,7 @@ void LocationsTab::onClickSearchLocations()
     updateRibbonVisibility();
 }
 
-void LocationsTab::switchToTabAndRestoreCursorToAccentedItem(LocationTabEnum locationTab)
+void LocationsTab::switchToTabAndRestoreCursorToAccentedItem(LOCATION_TAB locationTab)
 {
     if (locationTab == LOCATION_TAB_SEARCH_LOCATIONS) // going to search tab
     {
@@ -815,7 +828,7 @@ bool LocationsTab::handleKeyPressEvent(QKeyEvent *event)
             if (curTabInt < LOCATION_TAB_LAST)
             {
                 curTabInt++;
-                switchToTabAndRestoreCursorToAccentedItem(static_cast<LocationTabEnum>(curTabInt));
+                switchToTabAndRestoreCursorToAccentedItem(static_cast<LOCATION_TAB>(curTabInt));
             }
         }
         return true;
@@ -828,7 +841,7 @@ bool LocationsTab::handleKeyPressEvent(QKeyEvent *event)
             if (curTabInt > LOCATION_TAB_FIRST)
             {
                 curTabInt--;
-                switchToTabAndRestoreCursorToAccentedItem(static_cast<LocationTabEnum>(curTabInt));
+                switchToTabAndRestoreCursorToAccentedItem(static_cast<LOCATION_TAB>(curTabInt));
             }
         }
         return true;
@@ -880,7 +893,7 @@ bool LocationsTab::handleKeyPressEvent(QKeyEvent *event)
     return false;
 }
 
-LocationsTab::LocationTabEnum LocationsTab::currentTab()
+LOCATION_TAB LocationsTab::currentTab()
 {
     return curTab_;
 }
