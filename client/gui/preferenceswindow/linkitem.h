@@ -32,6 +32,7 @@ public:
     void setLinkText(const QString &text);
     void setUrl(const QString &url);
     void setIcon(QSharedPointer<IndependentPixmap> icon);
+    void setInProgress(bool inProgress);
 
 private slots:
     void onOpenUrl();
@@ -40,6 +41,8 @@ private slots:
 
     void onTextOpacityChanged(const QVariant &value);
     void onArrowOpacityChanged(const QVariant &value);
+    void onSpinnerRotationChanged(const QVariant &value);
+    void onSpinnerRotationFinished();
 
 private:
     IconButton *button_;
@@ -48,12 +51,15 @@ private:
     QString linkText_;
     LinkType type_;
     QSharedPointer<IndependentPixmap> icon_;
+    bool inProgress_;
+    int spinnerRotation_;
 
     double curTextOpacity_;
     double curArrowOpacity_;
 
     QVariantAnimation textOpacityAnimation_;
     QVariantAnimation arrowOpacityAnimation_;
+    QVariantAnimation spinnerAnimation_;
 };
 
 } // namespace PreferencesWindow

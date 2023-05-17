@@ -56,8 +56,8 @@ public:
 
     void setRobertFilters(const QVector<types::RobertFilter> &filters) override;
     void setRobertFiltersError() override;
-
     void setSplitTunnelingActive(bool active) override;
+    void setWebSessionCompleted() override;
 
     void onCollapse() override;
 

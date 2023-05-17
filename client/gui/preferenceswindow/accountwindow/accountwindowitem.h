@@ -22,6 +22,7 @@ public:
     QString caption() const override;
     void setLoggedIn(bool loggedIn);
     void setConfirmEmailResult(bool bSuccess);
+    void setWebSessionCompleted();
 
     void updateScaling() override;
 
@@ -36,6 +37,7 @@ private slots:
     void onLastResetChanged(const QString &date);
 
     void onUpgradeClicked();
+    void onManageAccountClicked();
 
     void onLanguageChanged();
 
@@ -66,6 +68,7 @@ private:
 
     qint64 plan_;
     qint64 trafficUsed_;
+    bool manageAccountClickInProgress_;
 
     bool isUnlimitedData() const;
     void setDataLeft() const;

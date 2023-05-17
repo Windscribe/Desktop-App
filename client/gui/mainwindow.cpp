@@ -2461,12 +2461,18 @@ void MainWindow::openBrowserToMyAccountWithToken(const QString &tempSessionToken
 
 void MainWindow::onBackendWebSessionTokenForManageAccount(const QString &tempSessionToken)
 {
-    openBrowserToMyAccountWithToken(tempSessionToken);
+    mainWindowController_->getPreferencesWindow()->setWebSessionCompleted();
+    if (!tempSessionToken.isEmpty()) {
+        openBrowserToMyAccountWithToken(tempSessionToken);
+    }
 }
 
 void MainWindow::onBackendWebSessionTokenForAddEmail(const QString &tempSessionToken)
 {
-    openBrowserToMyAccountWithToken(tempSessionToken);
+    mainWindowController_->getPreferencesWindow()->setWebSessionCompleted();
+    if (!tempSessionToken.isEmpty()) {
+        openBrowserToMyAccountWithToken(tempSessionToken);
+    }
 }
 
 void MainWindow::onBackendWebSessionTokenForManageRobertRules(const QString &tempSessionToken)

@@ -31,6 +31,7 @@ public:
     void setFilters(const QVector<types::RobertFilter> &filters);
     void setError(bool isError);
     void setLoading(bool loading);
+    void setWebSessionCompleted();
 
 signals:
     void accountLoginClick();
@@ -38,6 +39,7 @@ signals:
     void setRobertFilter(const types::RobertFilter &filter);
 
 private slots:
+    void onManageRobertRulesClick();
     void onLanguageChanged();
 
 private:
