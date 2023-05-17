@@ -86,7 +86,7 @@ void NetworkDetectionManager_linux::updateNetworkInfo(bool bWithEmitSignal)
 QString NetworkDetectionManager_linux::getDefaultRouteInterface(bool &isOnline)
 {
     QString strReply;
-    FILE *file = popen("route -n | grep '^0\\.0\\.0\\.0'", "r");
+    FILE *file = popen("/sbin/route -n | grep '^0\\.0\\.0\\.0'", "r");
     if (file)
     {
         char szLine[4096];
