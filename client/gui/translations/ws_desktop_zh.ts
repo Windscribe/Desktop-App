@@ -282,67 +282,67 @@
 <context>
     <name>GuiLocations::LocationsTab</name>
     <message>
-        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="213"/>
+        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="219"/>
         <source>All</source>
         <translation>都</translation>
     </message>
     <message>
-        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="219"/>
+        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="225"/>
         <source>Configured</source>
         <translation>配置</translation>
     </message>
     <message>
-        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="225"/>
+        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="231"/>
         <source>Static IPs</source>
         <translation>静态 IP</translation>
     </message>
     <message>
-        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="231"/>
+        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="237"/>
         <source>Favourites</source>
         <translation>收藏夹</translation>
     </message>
     <message>
-        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="473"/>
+        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="486"/>
         <source>Search</source>
         <translation>搜索</translation>
     </message>
     <message>
-        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="939"/>
+        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="952"/>
         <source>Choose the directory that contains custom configs you wish to display here</source>
         <translation>选择包含您希望在此处显示的自定义配置的目录</translation>
     </message>
     <message>
-        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="940"/>
+        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="953"/>
         <source>Choose</source>
         <translation>选择</translation>
     </message>
     <message>
-        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="943"/>
+        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="956"/>
         <source>The selected directory contains no custom configs</source>
         <translation>所选目录不包含自定义配置</translation>
     </message>
     <message>
-        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="995"/>
+        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="1008"/>
         <source>No locations found</source>
         <translation>未找到位置</translation>
     </message>
     <message>
-        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="996"/>
+        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="1009"/>
         <source>Nothing to see here...</source>
         <translation>这里没什么可看的...</translation>
     </message>
     <message>
-        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="997"/>
+        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="1010"/>
         <source>You don&apos;t have any Static IPs</source>
         <translation>您没有任何静态 IP</translation>
     </message>
     <message>
-        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="998"/>
+        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="1011"/>
         <source>No locations</source>
         <translation>暂无位置</translation>
     </message>
     <message>
-        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="1003"/>
+        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="1016"/>
         <source>Buy</source>
         <translation>买</translation>
     </message>
@@ -751,7 +751,7 @@
         <translation>无法欺骗 MAC 地址。 请尝试其他网络接口或联系支持人员。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2307"/>
+        <location filename="../mainwindow.cpp" line="2304"/>
         <source>Detection Error</source>
         <translation>检测错误</translation>
     </message>

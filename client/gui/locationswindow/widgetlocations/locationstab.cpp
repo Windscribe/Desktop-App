@@ -286,9 +286,9 @@ void LocationsTab::changeTab(LOCATION_TAB newTab, bool animateChange)
     lastTab_ = curTab_;
     curTab_ = newTab;
 
-    // We don't support opening the search tab as the last selected tab when the app starts,
-    // since collapsing locations, either by user request or on app exit, bumps us out of
-    // the search tab.
+    // No need to persist the search tab as the last tab.  If we're on the search tab
+    // and locations is collapsed, either by a user action or the app exiting, we'll
+    // transition back to lastTab_ and persist that tab.
     if (curTab_ != LOCATION_TAB_SEARCH_LOCATIONS) {
         PersistentState::instance().setLastLocationTab(curTab_);
     }
