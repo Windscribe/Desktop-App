@@ -5,5 +5,4 @@
 variables:
   VERSION_WIREGUARD_WIN: '0.5.3'
   VERSION_WIREGUARD_GNU: '0.0.20220316'
-  BUILDROOT_WIREGUARD: 'build-libs/wireguard'
   ARTIFACT_WIREGUARD: 'wireguard.zip'
