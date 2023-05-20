@@ -2754,12 +2754,12 @@ void MainWindow::hideShowDockIconImpl(bool bAllowActivateAndShow)
 }
 #endif
 
-void MainWindow::activateAndShow()
+void MainWindow::activateAndShow(bool moveBetweenVirtualDesktops)
 {
     // qDebug() << "ActivateAndShow()";
 #ifdef Q_OS_MAC
     const bool kAllowMoveBetweenSpaces = backend_->getPreferences()->isHideFromDock();
-    WidgetUtils_mac::allowMoveBetweenSpacesForWindow(this, kAllowMoveBetweenSpaces);
+    WidgetUtils_mac::allowMoveBetweenSpacesForWindow(this, kAllowMoveBetweenSpaces, moveBetweenVirtualDesktops);
 #endif
     mainWindowController_->updateMainAndViewGeometry(true);
 
@@ -2823,7 +2823,12 @@ void MainWindow::toggleVisibilityIfDocked()
         else
         {
             // qDebug() << "dock click activate";
+
+#if defined(Q_OS_MAC)
+            activateAndShow(true);
+#else
             activateAndShow();
+#endif
             setBackendAppActiveState(true);
         }
     }
@@ -3046,7 +3051,13 @@ void MainWindow::onTrayMenuShowHide()
 {
     if (isMinimized() || !isVisible())
     {
+#if defined(Q_OS_MAC)
+        // Show not docked window in the active virtual desktop in this case.
+        // But not on the virtual desktop where the window was created.
+        activateAndShow(true);
+#else
         activateAndShow();
+#endif
         setBackendAppActiveState(true);
     }
     else

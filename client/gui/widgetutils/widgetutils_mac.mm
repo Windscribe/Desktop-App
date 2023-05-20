@@ -39,15 +39,16 @@ void WidgetUtils_mac::allowMinimizeForFramelessWindow(QWidget *window)
 #endif
 }
 
-void WidgetUtils_mac::allowMoveBetweenSpacesForWindow(QWidget *window, bool allow)
+void WidgetUtils_mac::allowMoveBetweenSpacesForWindow(QWidget *window, bool allow, bool allowMoveBetweenVirtualDesktops)
 {
     NSWindow* nsWindow = [(NSView*)(window->winId()) window];
     if (allow)
         [nsWindow setCollectionBehavior:NSWindowCollectionBehaviorCanJoinAllSpaces | NSWindowCollectionBehaviorTransient];
+    else if (allowMoveBetweenVirtualDesktops)
+        [nsWindow setCollectionBehavior:NSWindowCollectionBehaviorMoveToActiveSpace];
     else
         [nsWindow setCollectionBehavior:NSWindowCollectionBehaviorDefault];
 }
-
 
 void WidgetUtils_mac::setNeedsDisplayForWindow(QWidget *widget)
 {
