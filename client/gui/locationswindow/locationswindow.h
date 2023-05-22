@@ -27,7 +27,7 @@ public:
     void updateScaling();
 
     void hideSearchTabWithoutAnimation();
-    GuiLocations::LocationsTab::LocationTabEnum currentTab();
+    LOCATION_TAB currentTab();
 
     bool handleKeyPressEvent(QKeyEvent *event);
 

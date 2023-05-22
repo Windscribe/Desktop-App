@@ -282,67 +282,67 @@
 <context>
     <name>GuiLocations::LocationsTab</name>
     <message>
-        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="213"/>
+        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="219"/>
         <source>All</source>
         <translation>Все</translation>
     </message>
     <message>
-        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="219"/>
+        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="225"/>
         <source>Configured</source>
         <translation>Сконфигурированный</translation>
     </message>
     <message>
-        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="225"/>
+        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="231"/>
         <source>Static IPs</source>
         <translation>Статические IP-адреса</translation>
     </message>
     <message>
-        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="231"/>
+        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="237"/>
         <source>Favourites</source>
         <translation>Избранное</translation>
     </message>
     <message>
-        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="473"/>
+        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="486"/>
         <source>Search</source>
         <translation>Искать</translation>
     </message>
     <message>
-        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="939"/>
+        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="952"/>
         <source>Choose the directory that contains custom configs you wish to display here</source>
         <translation>Выберите каталог, содержащий пользовательские конфигурации, которые вы хотите отобразить здесь</translation>
     </message>
     <message>
-        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="940"/>
+        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="953"/>
         <source>Choose</source>
         <translation>Выбирать</translation>
     </message>
     <message>
-        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="943"/>
+        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="956"/>
         <source>The selected directory contains no custom configs</source>
         <translation>Выбранный каталог не содержит пользовательских конфигураций</translation>
     </message>
     <message>
-        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="995"/>
+        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="1008"/>
         <source>No locations found</source>
         <translation>Местоположения не найдены</translation>
     </message>
     <message>
-        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="996"/>
+        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="1009"/>
         <source>Nothing to see here...</source>
         <translation>Здесь нечего смотреть...</translation>
     </message>
     <message>
-        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="997"/>
+        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="1010"/>
         <source>You don&apos;t have any Static IPs</source>
         <translation>У вас нет статических IP-адресов</translation>
     </message>
     <message>
-        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="998"/>
+        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="1011"/>
         <source>No locations</source>
         <translation>Нет локаций</translation>
     </message>
     <message>
-        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="1003"/>
+        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="1016"/>
         <source>Buy</source>
         <translation>Покупать</translation>
     </message>
@@ -785,7 +785,7 @@
         <translation>Сетевой адаптер не поддерживает спуфинг MAC-адресов. Попробуйте использовать другой адаптер.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2307"/>
+        <location filename="../mainwindow.cpp" line="2304"/>
         <source>Detection Error</source>
         <translation>Ошибка обнаружения</translation>
     </message>

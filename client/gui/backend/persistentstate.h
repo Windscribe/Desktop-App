@@ -44,6 +44,8 @@ public:
     void setPreferencesWindowHeight(int height);
     int preferencesWindowHeight() const;
 
+    LOCATION_TAB lastLocationTab() const;
+    void setLastLocationTab(LOCATION_TAB tab);
 
     void save();
 

@@ -1,18 +1,17 @@
-#ifndef LOCATIONSTAB_H
-#define LOCATIONSTAB_H
+#pragma once
 
+#include <QElapsedTimer>
 #include <QObject>
 #include <QPushButton>
-#include <QWidget>
-#include <QVariantAnimation>
 #include <QTimer>
-#include <QElapsedTimer>
+#include <QVariantAnimation>
+#include <QWidget>
 
-#include "locations/locationsmodel_manager.h"
 #include "backend/preferences/preferences.h"
-#include "staticipdeviceinfo.h"
-#include "configfooterinfo.h"
 #include "commonwidgets/custommenulineedit.h"
+#include "configfooterinfo.h"
+#include "locations/locationsmodel_manager.h"
+#include "staticipdeviceinfo.h"
 #include "widgetswitcher.h"
 
 
@@ -41,17 +40,7 @@ public:
 
     bool handleKeyPressEvent(QKeyEvent *event);
 
-    enum LocationTabEnum {
-        LOCATION_TAB_NONE = 0,
-        LOCATION_TAB_ALL_LOCATIONS,
-        LOCATION_TAB_FAVORITE_LOCATIONS,
-        LOCATION_TAB_STATIC_IPS_LOCATIONS,
-        LOCATION_TAB_CONFIGURED_LOCATIONS,
-        LOCATION_TAB_SEARCH_LOCATIONS,
-        LOCATION_TAB_FIRST = LOCATION_TAB_ALL_LOCATIONS,
-        LOCATION_TAB_LAST = LOCATION_TAB_SEARCH_LOCATIONS
-    };
-    LocationTabEnum currentTab();
+    LOCATION_TAB currentTab();
 
     static constexpr int TAB_HEADER_HEIGHT = 48;
     static constexpr int COVER_LAST_ITEM_LINE = 4;
@@ -112,9 +101,9 @@ private:
     StaticIPDeviceInfo *staticIPDeviceInfo_;
     ConfigFooterInfo *configFooterInfo_;
 
-    LocationTabEnum curTab_;
-    LocationTabEnum lastTab_;
-    LocationTabEnum tabPress_;
+    LOCATION_TAB curTab_;
+    LOCATION_TAB lastTab_;
+    LOCATION_TAB tabPress_;
 
     static constexpr int RIBBON_HEIGHT = 50;
     static constexpr int ANIMATION_DURATION = 150;
@@ -141,7 +130,7 @@ private:
     QRect rcFavoriteLocationsIcon_;
 
     Qt::CursorShape curCursorShape_;
-    LocationTabEnum curTabMouseOver_;
+    LOCATION_TAB curTabMouseOver_;
 
     int curWhiteLinePos_;
     QVariantAnimation whiteLineAnimation_;
@@ -153,7 +142,7 @@ private:
 
     QColor tabBackgroundColor_;
 
-    void changeTab(LocationTabEnum newTab, bool animateChange = true);
+    void changeTab(LOCATION_TAB newTab, bool animateChange = true);
 
     void onClickAllLocations();
     void onClickConfiguredLocations();
@@ -161,7 +150,7 @@ private:
     void onClickFavoriteLocations();
     void onClickSearchLocations();
 
-    void switchToTabAndRestoreCursorToAccentedItem(LocationTabEnum locationTab);
+    void switchToTabAndRestoreCursorToAccentedItem(LOCATION_TAB locationTab);
 
     void drawTabRegion(QPainter &painter, const QRect &rc);
     void drawBottomLine(QPainter &painter, int bottom, int whiteLinePos);
@@ -182,5 +171,3 @@ private:
 };
 
 } // namespace GuiLocations
-
-#endif // LOCATIONSTAB_H

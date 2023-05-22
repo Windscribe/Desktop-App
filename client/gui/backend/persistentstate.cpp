@@ -184,3 +184,14 @@ int PersistentState::preferencesWindowHeight() const
 {
     return state_.preferencesWindowHeight;
 }
+
+LOCATION_TAB PersistentState::lastLocationTab() const
+{
+    return state_.lastLocationTab;
+}
+
+void PersistentState::setLastLocationTab(LOCATION_TAB tab)
+{
+    state_.lastLocationTab = tab;
+    save();
+}

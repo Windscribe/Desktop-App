@@ -282,67 +282,67 @@
 <context>
     <name>GuiLocations::LocationsTab</name>
     <message>
-        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="213"/>
+        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="219"/>
         <source>All</source>
         <translation>كل</translation>
     </message>
     <message>
-        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="219"/>
+        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="225"/>
         <source>Configured</source>
         <translation>تكوين</translation>
     </message>
     <message>
-        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="225"/>
+        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="231"/>
         <source>Static IPs</source>
         <translation>عناوين IP ثابتة</translation>
     </message>
     <message>
-        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="231"/>
+        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="237"/>
         <source>Favourites</source>
         <translation>المفضلة</translation>
     </message>
     <message>
-        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="473"/>
+        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="486"/>
         <source>Search</source>
         <translation>بحث</translation>
     </message>
     <message>
-        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="939"/>
+        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="952"/>
         <source>Choose the directory that contains custom configs you wish to display here</source>
         <translation>اختر الدليل الذي يحتوي على تكوينات مخصصة ترغب في عرضها هنا</translation>
     </message>
     <message>
-        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="940"/>
+        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="953"/>
         <source>Choose</source>
         <translation>اختار</translation>
     </message>
     <message>
-        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="943"/>
+        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="956"/>
         <source>The selected directory contains no custom configs</source>
         <translation>لا يحتوي الدليل المحدد على تكوينات مخصصة</translation>
     </message>
     <message>
-        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="995"/>
+        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="1008"/>
         <source>No locations found</source>
         <translation>لم يتم العثور على مواقع</translation>
     </message>
     <message>
-        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="996"/>
+        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="1009"/>
         <source>Nothing to see here...</source>
         <translation>لا شيء يمكن رؤيته هنا ...</translation>
     </message>
     <message>
-        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="997"/>
+        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="1010"/>
         <source>You don&apos;t have any Static IPs</source>
         <translation>ليس لديك أي عناوين IP ثابتة</translation>
     </message>
     <message>
-        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="998"/>
+        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="1011"/>
         <source>No locations</source>
         <translation>لا توجد مواقع</translation>
     </message>
     <message>
-        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="1003"/>
+        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="1016"/>
         <source>Buy</source>
         <translation>ابتاع</translation>
     </message>
@@ -785,7 +785,7 @@
         <translation>لا يدعم محول الشبكة انتحال MAC. جرب محولا مختلفا.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2307"/>
+        <location filename="../mainwindow.cpp" line="2304"/>
         <source>Detection Error</source>
         <translation>خطأ في الكشف</translation>
     </message>

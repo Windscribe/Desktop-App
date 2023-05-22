@@ -282,67 +282,67 @@
 <context>
     <name>GuiLocations::LocationsTab</name>
     <message>
-        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="213"/>
+        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="219"/>
         <source>All</source>
         <translation>Todo</translation>
     </message>
     <message>
-        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="219"/>
+        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="225"/>
         <source>Configured</source>
         <translation>Configurado</translation>
     </message>
     <message>
-        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="225"/>
+        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="231"/>
         <source>Static IPs</source>
         <translation>IP estáticas</translation>
     </message>
     <message>
-        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="231"/>
+        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="237"/>
         <source>Favourites</source>
         <translation>Favoritos</translation>
     </message>
     <message>
-        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="473"/>
+        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="486"/>
         <source>Search</source>
         <translation>Buscar</translation>
     </message>
     <message>
-        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="939"/>
+        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="952"/>
         <source>Choose the directory that contains custom configs you wish to display here</source>
         <translation>Elija el directorio que contiene las configuraciones personalizadas que desea mostrar aquí</translation>
     </message>
     <message>
-        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="940"/>
+        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="953"/>
         <source>Choose</source>
         <translation>Elegir</translation>
     </message>
     <message>
-        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="943"/>
+        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="956"/>
         <source>The selected directory contains no custom configs</source>
         <translation>El directorio seleccionado no contiene configuraciones personalizadas</translation>
     </message>
     <message>
-        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="995"/>
+        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="1008"/>
         <source>No locations found</source>
         <translation>No se han encontrado ubicaciones</translation>
     </message>
     <message>
-        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="996"/>
+        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="1009"/>
         <source>Nothing to see here...</source>
         <translation>Nada que ver aquí. . .</translation>
     </message>
     <message>
-        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="997"/>
+        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="1010"/>
         <source>You don&apos;t have any Static IPs</source>
         <translation>No tienes ninguna IP estática</translation>
     </message>
     <message>
-        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="998"/>
+        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="1011"/>
         <source>No locations</source>
         <translation>No hay ubicaciones</translation>
     </message>
     <message>
-        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="1003"/>
+        <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="1016"/>
         <source>Buy</source>
         <translation>Comprar</translation>
     </message>
@@ -785,7 +785,7 @@
         <translation>El adaptador de red no admite la suplantación de MAC. Pruebe con otro adaptador.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2307"/>
+        <location filename="../mainwindow.cpp" line="2304"/>
         <source>Detection Error</source>
         <translation>Error de detección</translation>
     </message>
