@@ -6,6 +6,7 @@
 #include <ifaddrs.h>
 #include <QDir>
 #include <QCoreApplication>
+#include <QSettings>
 
 class Anchor
 {
@@ -46,7 +47,7 @@ private:
 };
 
 FirewallController_mac::FirewallController_mac(QObject *parent, IHelper *helper) :
-    FirewallController(parent), isFirewallEnabled_(false), isAllowLanTraffic_(false), isCustomConfig_(false)
+    FirewallController(parent), isWindscribeFirewallEnabled_(false), isAllowLanTraffic_(false), isCustomConfig_(false)
 {
     helper_ = dynamic_cast<Helper_mac *>(helper);
 
@@ -56,10 +57,8 @@ FirewallController_mac::FirewallController_mac(QObject *parent, IHelper *helper)
     getFirewallStateFromPfctl(firewallState);
 
     if (firewallState.isEnabled && !firewallState.isBasicWindscribeRulesCorrect) {
-        qCDebug(LOG_FIREWALL_CONTROLLER) << "Warning: the firewall was enabled at the start, but not by the Windscribe program.";
-        WS_ASSERT(false);
-        firewallOffImpl();
-        isFirewallEnabled_ = false;
+        setPfWasEnabledState(true);
+        isWindscribeFirewallEnabled_ = false;
     } else if (firewallState.isEnabled && firewallState.isBasicWindscribeRulesCorrect) {
         windscribeIps_ = firewallState.windscribeIps;
         if (windscribeIps_.isEmpty())
@@ -70,28 +69,31 @@ FirewallController_mac::FirewallController_mac(QObject *parent, IHelper *helper)
         interfaceToSkip_ = firewallState.interfaceToSkip;
         isAllowLanTraffic_ = firewallState.isAllowLanTraffic;
         isCustomConfig_ = firewallState.isCustomConfig;
-        isFirewallEnabled_ = true;
+        isWindscribeFirewallEnabled_ = true;
     } else {
-        isFirewallEnabled_ = false;
+        setPfWasEnabledState(false);
+        isWindscribeFirewallEnabled_ = false;
     }
 }
 
 bool FirewallController_mac::firewallOn(const QSet<QString> &ips, bool bAllowLanTraffic, bool bIsCustomConfig)
 {
     QMutexLocker locker(&mutex_);
+    FirewallState firewallState;
 
-    if (!checkInternalVsPfctlState()) {
+    if (!checkInternalVsPfctlState(&firewallState)) {
         qCDebug(LOG_FIREWALL_CONTROLLER) << "Fatal error: firewall internal state not equal firewall state from pfctl";
     }
 
-    if (!isFirewallEnabled_) {
+    if (!isWindscribeFirewallEnabled_) {
+        setPfWasEnabledState(firewallState.isEnabled);
         QString pfConfig = generatePfConf(ips, bAllowLanTraffic, bIsCustomConfig, interfaceToSkip_);
         if (!pfConfig.isEmpty()) {
             helper_->setFirewallRules(kIpv4, "", "", pfConfig);
             windscribeIps_ = ips;
             isAllowLanTraffic_ = bAllowLanTraffic;
             isCustomConfig_ = bIsCustomConfig;
-            isFirewallEnabled_ = true;
+            isWindscribeFirewallEnabled_ = true;
         } else {
             qCDebug(LOG_FIREWALL_CONTROLLER) << "Fatal error: can't set firewall rules";
         }
@@ -128,7 +130,7 @@ bool FirewallController_mac::firewallOff()
         qCDebug(LOG_FIREWALL_CONTROLLER) << "Fatal error: firewall internal state not equal firewall state from pfctl";
     }
     firewallOffImpl();
-    isFirewallEnabled_ = false;
+    isWindscribeFirewallEnabled_ = false;
     windscribeIps_.clear();
     return true;
 }
@@ -141,7 +143,7 @@ bool FirewallController_mac::firewallActualState()
         qCDebug(LOG_FIREWALL_CONTROLLER) << "Fatal error: firewall internal state not equal firewall state from pfctl";
     }
 
-    return isFirewallEnabled_;
+    return isWindscribeFirewallEnabled_;
 }
 
 bool FirewallController_mac::whitelistPorts(const apiinfo::StaticIpPortsVector &ports)
@@ -151,7 +153,7 @@ bool FirewallController_mac::whitelistPorts(const apiinfo::StaticIpPortsVector &
         qCDebug(LOG_FIREWALL_CONTROLLER) << "Fatal error: firewall internal state not equal firewall state from pfctl";
     }
 
-    if (isFirewallEnabled_) {
+    if (isWindscribeFirewallEnabled_) {
         if (staticIpPorts_ != ports) {
             Anchor portsAnchor("windscribe_static_ports_traffic");
             if (!ports.isEmpty()) {
@@ -178,8 +180,8 @@ bool FirewallController_mac::deleteWhitelistPorts()
 
 void FirewallController_mac::firewallOffImpl()
 {
-    helper_->clearFirewallRules();
-    isFirewallEnabled_ = false;
+    helper_->clearFirewallRules(isPfWasEnabled());
+    isWindscribeFirewallEnabled_ = false;
     qCDebug(LOG_FIREWALL_CONTROLLER) << "firewallOff disabled";
 }
 
@@ -296,14 +298,16 @@ void FirewallController_mac::getFirewallStateFromPfctl(FirewallState &outState)
     }
 }
 
-bool FirewallController_mac::checkInternalVsPfctlState()
+bool FirewallController_mac::checkInternalVsPfctlState(FirewallState *outFirewallState /*= nullptr*/)
 {
     FirewallState firewallState;
     getFirewallStateFromPfctl(firewallState);
 
-    if (firewallState.isEnabled) {
-        if (!firewallState.isBasicWindscribeRulesCorrect ||
-            !isFirewallEnabled_ ||
+    if (outFirewallState)
+        *outFirewallState = firewallState;
+
+    if (firewallState.isEnabled && firewallState.isBasicWindscribeRulesCorrect) {
+        if (!isWindscribeFirewallEnabled_ ||
             windscribeIps_ != firewallState.windscribeIps ||
             interfaceToSkip_ != firewallState.interfaceToSkip ||
             isAllowLanTraffic_ != firewallState.isAllowLanTraffic ||
@@ -313,8 +317,6 @@ bool FirewallController_mac::checkInternalVsPfctlState()
         {
             return false;
         }
-    } else if (isFirewallEnabled_) {
-        return false;
     }
     return true;
 }
@@ -411,7 +413,7 @@ void FirewallController_mac::setInterfaceToSkip_posix(const QString &interfaceTo
         qCDebug(LOG_FIREWALL_CONTROLLER) << "Fatal error: firewall internal state not equal firewall state from pfctl";
     }
 
-    if (isFirewallEnabled_) {
+    if (isWindscribeFirewallEnabled_) {
         if (interfaceToSkip_ != interfaceToSkip) {
             interfaceToSkip_ = interfaceToSkip;
             updateVpnAnchor();
@@ -498,4 +500,16 @@ QStringList FirewallController_mac::getLocalAddresses(const QString iface) const
 
     freeifaddrs(ifap);
     return addrs;
+}
+
+void FirewallController_mac::setPfWasEnabledState(bool b)
+{
+    QSettings settings;
+    settings.setValue("pfIsEnabled", b);
+}
+
+bool FirewallController_mac::isPfWasEnabled() const
+{
+    QSettings settings;
+    return settings.value("pfIsEnabled").toBool();
 }

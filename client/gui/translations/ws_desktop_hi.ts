@@ -785,7 +785,7 @@
         <translation>आपका नेटवर्क एडाप्टर MAC स्पूफिंग का समर्थन नहीं करता. किसी भिन्न एडाप्टर का प्रयास करें.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2307"/>
+        <location filename="../mainwindow.cpp" line="2304"/>
         <source>Detection Error</source>
         <translation>डिटेक्शन त्रुटि</translation>
     </message>

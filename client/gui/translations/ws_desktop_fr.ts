@@ -785,7 +785,7 @@
         <translation>Votre carte réseau ne prend pas en charge l’usurpation d’adresse MAC. Essayez un autre adaptateur.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2307"/>
+        <location filename="../mainwindow.cpp" line="2304"/>
         <source>Detection Error</source>
         <translation>Erreur de détection</translation>
     </message>

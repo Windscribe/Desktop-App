@@ -50,7 +50,7 @@ public:
     bool deleteRoute(const QString &range, int mask, const QString &gateway);
     bool setDnsScriptEnabled(bool bEnabled);
     bool checkFirewallState(const QString &tag);
-    bool clearFirewallRules();
+    bool clearFirewallRules(bool isKeepPfEnabled);
     bool setFirewallRules(CmdIpVersion version, const QString &table, const QString &group, const QString &rules);
     bool getFirewallRules(CmdIpVersion version, const QString &table, const QString &group, QString &rules);
     bool setFirewallOnBoot(bool bEnabled);

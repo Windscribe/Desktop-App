@@ -751,7 +751,7 @@
         <translation>无法欺骗 MAC 地址。 请尝试其他网络接口或联系支持人员。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2307"/>
+        <location filename="../mainwindow.cpp" line="2304"/>
         <source>Detection Error</source>
         <translation>检测错误</translation>
     </message>

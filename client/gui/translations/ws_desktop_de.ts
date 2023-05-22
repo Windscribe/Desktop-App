@@ -785,7 +785,7 @@
         <translation>Ihr Netzwerkadapter unterstützt kein MAC-Spoofing. Versuchen Sie es mit einem anderen Adapter.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2307"/>
+        <location filename="../mainwindow.cpp" line="2304"/>
         <source>Detection Error</source>
         <translation>Erkennungsfehler</translation>
     </message>

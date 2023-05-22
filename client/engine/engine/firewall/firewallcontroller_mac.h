@@ -43,7 +43,7 @@ private:
 
     QStringList awdl_p2p_interfaces_;
 
-    bool isFirewallEnabled_;
+    bool isWindscribeFirewallEnabled_;
     QSet<QString> windscribeIps_;
     QString interfaceToSkip_;
     bool isAllowLanTraffic_;
@@ -56,11 +56,16 @@ private:
     QStringList lanTrafficRules(bool bAllowLanTraffic) const;
     QStringList vpnTrafficRules(const QString &interfaceToSkip, bool bIsCustomConfig) const;
     void getFirewallStateFromPfctl(FirewallState &outState);
-    bool checkInternalVsPfctlState();
+    bool checkInternalVsPfctlState(FirewallState *outFirewallState = nullptr);
     QString generatePfConf(const QSet<QString> &ips, bool bAllowLanTraffic, bool bIsCustomConfig, const QString &interfaceToSkip);
     QString generateTable(const QSet<QString> &ips);
     void updateVpnAnchor();
     QStringList getLocalAddresses(const QString iface) const;
+
+    // We have to save the state of pf (enabled/disabled) before enabling the firewall in order to restore it.
+    // We should keep it in QSettings as we need to save it between program launches.
+    void setPfWasEnabledState(bool b);
+    bool isPfWasEnabled() const;
 };
 
 #endif // FIREWALLCONTROLLER_MAC_H

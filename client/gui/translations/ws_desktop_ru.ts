@@ -785,7 +785,7 @@
         <translation>Сетевой адаптер не поддерживает спуфинг MAC-адресов. Попробуйте использовать другой адаптер.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2307"/>
+        <location filename="../mainwindow.cpp" line="2304"/>
         <source>Detection Error</source>
         <translation>Ошибка обнаружения</translation>
     </message>

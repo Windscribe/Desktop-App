@@ -785,7 +785,7 @@
         <translation>El adaptador de red no admite la suplantación de MAC. Pruebe con otro adaptador.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2307"/>
+        <location filename="../mainwindow.cpp" line="2304"/>
         <source>Detection Error</source>
         <translation>Error de detección</translation>
     </message>

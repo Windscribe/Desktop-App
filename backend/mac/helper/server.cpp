@@ -340,9 +340,12 @@ bool Server::readAndHandleCommand(socket_ptr sock, boost::asio::streambuf *buf, 
             outCmdAnswer.executed = 0;
         }
     } else if (cmdId == HELPER_CMD_CLEAR_FIREWALL_RULES) {
+        CMD_CLEAR_FIREWALL_RULES cmd;
+        ia >> cmd;
         LOG("Clear firewall rules");
         Utils::executeCommand("pfctl", {"-v", "-F", "all", "-f", "/etc/pf.conf"});
-        Utils::executeCommand("pfctl", {"-d"});
+        if (!cmd.isKeekPfEnabled)
+            Utils::executeCommand("pfctl", {"-d"});
         outCmdAnswer.executed = 1;
     } else if (cmdId == HELPER_CMD_CHECK_FIREWALL_STATE) {
         std::string output;

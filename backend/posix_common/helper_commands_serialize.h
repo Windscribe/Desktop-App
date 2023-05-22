@@ -205,6 +205,14 @@ void serialize(Archive &ar, CMD_SET_FIREWALL_RULES &a, const unsigned int versio
 }
 
 template<class Archive>
+void serialize(Archive &ar, CMD_CLEAR_FIREWALL_RULES &a, const unsigned int version)
+{
+    UNUSED(version);
+    ar & a.isKeekPfEnabled;
+}
+
+
+template<class Archive>
 void serialize(Archive &ar, CMD_GET_FIREWALL_RULES &a, const unsigned int version)
 {
     UNUSED(version);

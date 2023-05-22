@@ -785,7 +785,7 @@
         <translation>لا يدعم محول الشبكة انتحال MAC. جرب محولا مختلفا.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2307"/>
+        <location filename="../mainwindow.cpp" line="2304"/>
         <source>Detection Error</source>
         <translation>خطأ في الكشف</translation>
     </message>
