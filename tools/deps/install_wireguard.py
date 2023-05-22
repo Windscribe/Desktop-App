@@ -31,13 +31,15 @@ DEP_FILE_MASK = ["windscribewireguard*", "*.dll"]
 
 def BuildDependencyMSVC(outpath):
     buildenv = os.environ.copy()
+    dep_buildroot_arm64 = os.path.join("build-libs-arm64", DEP_TITLE.lower())
+    outpath_arm64 = os.path.normpath(os.path.join(os.path.dirname(TOOLS_DIR), dep_buildroot_arm64))
     with utl.PushDir(os.path.join(os.getcwd(), "embeddable-dll-service")):
         currend_wd = os.getcwd()
         iutl.RunCommand(["build.bat"], env=buildenv, shell=True)
-        utl.CopyFile("{}/amd64/tunnel.dll".format(currend_wd),
-                     "{}/tunnel.dll".format(outpath))
-    utl.CopyFile("{}/.deps/wireguard-nt/bin/amd64/wireguard.dll".format(os.getcwd()),
-                 "{}/wireguard.dll".format(outpath))
+        utl.CopyFile("{}/amd64/tunnel.dll".format(currend_wd), "{}/tunnel.dll".format(outpath))
+        utl.CopyFile("{}/arm64/tunnel.dll".format(currend_wd), "{}/tunnel.dll".format(outpath_arm64))
+    utl.CopyFile("{}/.deps/wireguard-nt/bin/amd64/wireguard.dll".format(os.getcwd()), "{}/wireguard.dll".format(outpath))
+    utl.CopyFile("{}/.deps/wireguard-nt/bin/arm64/wireguard.dll".format(os.getcwd()), "{}/wireguard.dll".format(outpath_arm64))
 
 
 def BuildDependencyMacOS(build_arch):
@@ -97,8 +99,7 @@ def InstallDependency():
             iutl.RunCommand(["mv", archivetitle, archivetitle + "-arm64"])
             iutl.RunCommand(["cp", "-r", archivetitle + "-arm64", archivetitle + "-amd64"])
     # Build the dependency.
-    dep_buildroot_var = "BUILDROOT_" + DEP_TITLE.upper()
-    dep_buildroot_str = os.environ.get(dep_buildroot_var, os.path.join("build-libs", dep_name))
+    dep_buildroot_str = os.path.join("build-libs", dep_name)
     outpath = os.path.normpath(os.path.join(os.path.dirname(TOOLS_DIR), dep_buildroot_str))
     # Clean the output folder to ensure no conflicts when we're updating to a newer wireguard version.
     utl.RemoveDirectory(outpath)
@@ -134,6 +135,7 @@ def InstallDependency():
     # Cleanup.
     msg.Print("Cleaning temporary directory...")
     utl.RemoveDirectory(temp_dir)
+    msg.Print(f"{DEP_TITLE} v{dep_version_str} installed in {outpath}")
 
 
 if __name__ == "__main__":
