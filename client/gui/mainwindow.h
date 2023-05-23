@@ -361,7 +361,7 @@ private:
 
     types::NetworkInterface curNetwork_;
 
-    void activateAndShow();
+    void activateAndShow(bool moveBetweenVirtualDesktops = false);
     void deactivateAndHide();
     void createTrayMenuItems();
 

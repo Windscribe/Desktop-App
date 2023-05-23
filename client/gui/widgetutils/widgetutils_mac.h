@@ -8,7 +8,7 @@ namespace WidgetUtils_mac {
 
 QPixmap extractProgramIcon(const QString &filePath);
 void allowMinimizeForFramelessWindow(QWidget *window);
-void allowMoveBetweenSpacesForWindow(QWidget *window, bool allow);
+void allowMoveBetweenSpacesForWindow(QWidget *window, bool allow, bool allowMoveBetweenVirtualDesktops = false);
 void setNeedsDisplayForWindow(QWidget *window);
 
 }
