@@ -1,3 +1,28 @@
+2.7.5 (24/05/2023)
+All:
+   * Added a small loading spinner to some operations which may take a long time. #480
+   * Added custom connected DNS placeholder text. #592
+   * Added feature to remember last locations tab on exit and default to that tab on startup. #656
+   * Fixed missing ?int=ws in the URI when making queries if user supplies DoH resolver that's on *.controld.com. #393
+   * Fixed validation of the domains entered by the user. #393
+   * Fixed transition to the initialization window to hide the general message window shadow. #457
+   * Fixed some user interface transitions involving the "SSL error" alert. #583
+   * Fixed missing port number for the CURLOPT_RESOLVE parameter. #596
+   * Fixed redundant updateFirewallSettings calls being made during pings. #648 and #651
+   * Fixed split tunnel hostname and IP validation errors are unclear. #655
+   * Updated ctrld binary to v1.2.0.
+Windows:
+   * Fixed x86_64 installer to block install on an arm64 PC and notify user they should download the arm64 version of the app. #592
+macOS:
+   * Fixed firewall's enabled state not restored if it was enabled when the Windscribe firewall was turned on. #26
+   * Fixed menubar icon not showing app on the current virtual desktop. #48
+Linux:
+   * Added global DNS in the update-systemd-resolved script for a loopback DNS IP. #393
+   * Fixed route call failure if route binary not in $PATH. #190
+   * Fixed Arch install script to kill the app if it is running. #335
+   * Fixed RPM install script to ensure helper is running after upgrade. #335
+
+
 2.7.4 (12/05/2023)
 All:
    * Fixed window shadow incorrectly sized on logout/exit screens. #457
