@@ -221,6 +221,10 @@ struct CMD_SET_FIREWALL_RULES {
     std::string rules;
 };
 
+struct CMD_CLEAR_FIREWALL_RULES {
+    bool isKeekPfEnabled;
+};
+
 struct CMD_GET_FIREWALL_RULES {
     CmdIpVersion ipVersion;
     std::string table;

@@ -291,6 +291,8 @@ bool Server::readAndHandleCommand(socket_ptr sock, boost::asio::streambuf *buf, 
         outCmdAnswer.executed = Utils::executeCommand("modprobe", {"wireguard"}) ? 0 : 1;
         Logger::instance().out("WireGuard kernel module: %s", outCmdAnswer.executed ? "available" : "not available");
     } else if (cmdId == HELPER_CMD_CLEAR_FIREWALL_RULES) {
+        CMD_CLEAR_FIREWALL_RULES cmd;
+        ia >> cmd;
         Logger::instance().out("Clear firewall rules");
         Utils::executeCommand("rm", {"-f", "/etc/windscribe/rules.v4"});
         Utils::executeCommand("rm", {"-f", "/etc/windscribe/rules.v6"});

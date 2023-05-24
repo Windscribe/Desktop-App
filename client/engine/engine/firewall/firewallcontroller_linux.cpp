@@ -43,7 +43,7 @@ bool FirewallController_linux::firewallOff()
         // remove IPv6 rules
         removeWindscribeRules(comment_, true);
 
-        bool ret = helper_->clearFirewallRules();
+        bool ret = helper_->clearFirewallRules(false);
         if (!ret) {
             qCDebug(LOG_FIREWALL_CONTROLLER) << "Clear firewall rules unsuccessful:" << ret;
         }

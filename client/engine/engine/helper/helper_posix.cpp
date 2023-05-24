@@ -543,12 +543,19 @@ bool Helper_posix::checkFirewallState(const QString &tag)
     return answer.exitCode != 0;
 }
 
-bool Helper_posix::clearFirewallRules()
+bool Helper_posix::clearFirewallRules(bool isKeepPfEnabled)
 {
     QMutexLocker locker(&mutex_);
 
+    CMD_CLEAR_FIREWALL_RULES cmd;
     CMD_ANSWER answer;
-    return runCommand(HELPER_CMD_CLEAR_FIREWALL_RULES, {}, answer);
+    cmd.isKeekPfEnabled = isKeepPfEnabled;
+
+    std::stringstream stream;
+    boost::archive::text_oarchive oa(stream, boost::archive::no_header);
+    oa << cmd;
+
+    return runCommand(HELPER_CMD_CLEAR_FIREWALL_RULES, stream.str(), answer);
 }
 
 bool Helper_posix::setFirewallRules(CmdIpVersion version, const QString &table, const QString &group, const QString &rules)
