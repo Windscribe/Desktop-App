@@ -15,7 +15,7 @@ public:
     explicit FirewallFilter(FwpmWrapper &fwmpWrapper);
     ~FirewallFilter();
 
-    void on(const wchar_t *ip, bool bAllowLocalTraffic, bool bIsCustomConfig);
+    void on(const wchar_t *connectingIp, const wchar_t *ip, bool bAllowLocalTraffic, bool bIsCustomConfig);
     void off();
     bool currentStatus();
 
@@ -25,6 +25,8 @@ public:
 
     void setSplitTunnelingAppsIds(const AppsIds &appsIds);
     void setSplitTunnelingWhitelistIps(const std::vector<Ip4AddressAndMask> &ips);
+    void setWindscribeAppsIds(const AppsIds &appsIds);
+    void setParentAdapterIndex(NET_IFINDEX index);
 
 private:
     FwpmWrapper &fwpmWrapper_;
@@ -36,10 +38,9 @@ private:
     bool currentStatusImpl(HANDLE engineHandle);
     void offImpl(HANDLE engineHandle);
 
-    void addFilters(HANDLE engineHandle, const wchar_t *ip, bool bAllowLocalTraffic, bool bIsCustomConfig);
+    void addFilters(HANDLE engineHandle, const wchar_t *connectingIp, const wchar_t *ip, bool bAllowLocalTraffic, bool bIsCustomConfig);
+    void addPermitFilterForWindscribeAndSystemServices(HANDLE engineHandle, const wchar_t *ip);
     void addPermitFilterForAppsIds(HANDLE engineHandle);
-    void addPermitFilterForAppsIdsExclusiveMode(HANDLE engineHandle);
-    void addPermitFilterForAppsIdsInclusiveMode(HANDLE engineHandle);
     void addPermitFilterForSplitRoutingWhitelistIps(HANDLE engineHandle);
 
     void removeAppsSplitTunnelingFilter(HANDLE engineHandle);
@@ -49,12 +50,12 @@ private:
     std::vector<std::wstring> &split(const std::wstring &s, wchar_t delim, std::vector<std::wstring> &elems);
     std::vector<std::wstring> split(const std::wstring &s, wchar_t delim);
 
-
     std::vector<std::wstring> tapAdapters_;
 
     bool isSplitTunnelingEnabled_;
     bool isSplitTunnelingExclusiveMode_;
     AppsIds appsIds_;
+    AppsIds windscribeAppsIds_;
     std::vector<Ip4AddressAndMask> splitRoutingIps_;
 
     std::vector<UINT64> filterIdsApps_;

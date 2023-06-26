@@ -38,7 +38,7 @@ void RequestExecuterViaFailover_test::testEchFailover()
     server_api::RequestExecuterViaFailover *requestExecuter = new server_api::RequestExecuterViaFailover(this, connectStateController_, networkAccessManager_);
     server_api::MyIpRequest *request = new server_api::MyIpRequest(this, 5000);
     QSharedPointer<failover::BaseFailover> failover = QSharedPointer<failover::BaseFailover>(new failover::EchFailover(this, "3e60e3d5-d379-46cc-a9a0-d9f04f47999a", networkAccessManager_,
-                                                                                                                       dga_.getParameter(PAR_DYNAMIC_DOMAIN_CLOUDFLARE_URL2), dga_.getParameter(PAR_ECH_CONFIG_DOMAIN), dga_.getParameter(PAR_ECH_DOMAIN)));
+                                                                                                                       dga_.getParameter(PAR_DYNAMIC_DOMAIN_CLOUDFLARE_URL2), dga_.getParameter(PAR_ECH_CONFIG_DOMAIN), dga_.getParameter(PAR_ECH_DOMAIN), false));
 
     QSignalSpy spy(requestExecuter, SIGNAL(finished(server_api::RequestExecuterRetCode)));
 

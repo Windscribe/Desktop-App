@@ -68,13 +68,6 @@ void Preferences::setAllowLanTraffic(bool b)
 {
     if (engineSettings_.isAllowLanTraffic() != b)
     {
-        const auto address = Utils::getLocalIP();
-        if (b && !DetectLanRange::isRfcLanRange(address)) {
-            b = false;
-            qCDebug(LOG_BASIC) << "IP address not in a valid RFC-1918 range:" << address;
-            emit invalidLanAddressNotification(address);
-        }
-
         engineSettings_.setIsAllowLanTraffic(b);
         emitEngineSettingsChanged();
         emit isAllowLanTrafficChanged(engineSettings_.isAllowLanTraffic());

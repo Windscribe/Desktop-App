@@ -61,7 +61,6 @@ private slots:
     void onProxyGatewayAddressChanged(const QString &address);
     void onProxyGatewayPreferencesChanged(const types::ShareProxyGateway &sp);
     void onPreferencesHelperWifiSharingSupportedChanged(bool bSupported);
-    void onInvalidLanAddressNotification(QString address);
     void onIsFirewallBlockedChanged(bool bFirewallBlocked);
     void onIsExternalConfigModeChanged(bool bIsExternalConfigMode);
     void onTerminateSocketsPreferencesChanged(bool b);

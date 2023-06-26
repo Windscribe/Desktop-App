@@ -1,5 +1,4 @@
-#ifndef FIREWALLEXCEPTIONS_H
-#define FIREWALLEXCEPTIONS_H
+#pragma once
 
 #include <QSharedPointer>
 #include "types/proxysettings.h"
@@ -16,14 +15,15 @@ public:
     void setConnectingIp(const QString &connectingIp, bool &bChanged);
     void setDNSServerIp(const QString &dnsIp, bool &bChanged);
 
-
     void setDnsPolicy(DNS_POLICY_TYPE dnsPolicy);
 
     void setLocationsPingIps(const QStringList &listIps);
     void setCustomConfigPingIps(const QStringList &listIps);
 
     QSet<QString> getIPAddressesForFirewall() const;
-    QSet<QString> getIPAddressesForFirewallForConnectedState(const QString &connectedIp) const;
+    QSet<QString> getIPAddressesForFirewallForConnectedState() const;
+
+    const QString& connectingIp() const;
 
 private:
     QSet<QString> hostIPs_;
@@ -36,5 +36,3 @@ private:
     DNS_POLICY_TYPE dnsPolicyType_;
 
 };
-
-#endif // FIREWALLEXCEPTIONS_H

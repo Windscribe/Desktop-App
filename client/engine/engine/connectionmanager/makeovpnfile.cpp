@@ -20,7 +20,7 @@ MakeOVPNFile::~MakeOVPNFile()
 }
 
 bool MakeOVPNFile::generate(const QString &ovpnData, const QString &ip, types::Protocol protocol, uint port,
-                            uint portForStunnelOrWStunnel, int mss, const QString &defaultGateway, const QString &openVpnX509, const QString &customDns, bool blockOutsideDnsOption)
+                            uint portForStunnelOrWStunnel, int mss, const QString &defaultGateway, const QString &openVpnX509, const QString &customDns)
 {
 #ifndef Q_OS_MAC
     Q_UNUSED(defaultGateway);
@@ -29,7 +29,7 @@ bool MakeOVPNFile::generate(const QString &ovpnData, const QString &ip, types::P
     config_ = "";
 
     QString strExtraConfig = ExtraConfig::instance().getExtraConfigForOpenVpn();
-    bool bExtraContainsRemote = strExtraConfig.contains("remote", Qt::CaseInsensitive);
+    bool bExtraContainsRemote = !ExtraConfig::instance().getRemoteIpFromExtraConfig().isEmpty();
 
     QString newOvpnData = ExtraConfig::instance().modifyVerbParameter(ovpnData, strExtraConfig);
 
@@ -40,10 +40,6 @@ bool MakeOVPNFile::generate(const QString &ovpnData, const QString &ip, types::P
     config_ += "\r\n--connect-timeout 30\r\n";
 
 #ifdef Q_OS_WIN
-    if (blockOutsideDnsOption) {
-        config_ += "\r\nblock-outside-dns\r\n";
-    }
-
     if (OpenVpnVersionController::instance().isUseWinTun()) {
         config_ += "\r\nwindows-driver wintun\r\n";
     }

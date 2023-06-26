@@ -12,6 +12,7 @@ SplitTunneling::SplitTunneling(FirewallFilter& firewallFilter, FwpmWrapper& fwmp
 {
     connectStatus_.isConnected = false;
     detectWindscribeExecutables();
+    firewallFilter_.setWindscribeAppsIds(windscribeExecutablesIds_);
 }
 
 SplitTunneling::~SplitTunneling()
@@ -104,15 +105,15 @@ bool SplitTunneling::updateState()
         Ip4AddressAndMask vpnAddr(connectStatus_.vpnAdapter.adapterIp.c_str());
         vpnIp = vpnAddr.ipNetworkOrder();
 
+        firewallFilter_.setSplitTunnelingAppsIds(appsIds);
+        firewallFilter_.setSplitTunnelingEnabled(isExclude_);
+
         if (isExclude_) {
             hostnamesManager_.enable(connectStatus_.defaultAdapter.gatewayIp, connectStatus_.defaultAdapter.ifIndex);
         } else {
             appsIds.addFrom(windscribeExecutablesIds_);
             hostnamesManager_.enable(connectStatus_.vpnAdapter.gatewayIp, connectStatus_.vpnAdapter.ifIndex);
         }
-
-        firewallFilter_.setSplitTunnelingAppsIds(appsIds);
-        firewallFilter_.setSplitTunnelingEnabled(isExclude_);
         calloutFilter_.enable(localIp, vpnIp, appsIds, isExclude_, isAllowLanTraffic_);
     } else {
         calloutFilter_.disable();

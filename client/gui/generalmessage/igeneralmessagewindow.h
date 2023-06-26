@@ -25,6 +25,7 @@ public:
     virtual void setShowBottomPanel(bool on) = 0;
     virtual void setLearnMoreUrl(const QString &url) = 0;
     virtual bool isRememberChecked() = 0;
+    virtual Shape backgroundShape() const = 0;
 
 signals:
     virtual void acceptClick() = 0;

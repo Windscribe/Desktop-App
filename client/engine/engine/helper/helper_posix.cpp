@@ -483,8 +483,6 @@ IHelper::ExecuteError Helper_posix::executeOpenVPN(const QString &config, const 
     boost::archive::text_oarchive oa(stream, boost::archive::no_header);
     oa << cmd;
 
-    qDebug() << QString::fromStdString(Utils::cleanSensitiveInfo(cmd.exePath + "/" + cmd.executable + " " + cmd.arguments));
-
     CMD_ANSWER answer;
     if (!runCommand(HELPER_CMD_START_OPENVPN, stream.str(), answer) || answer.executed == 0) {
         doDisconnectAndReconnect();
@@ -597,7 +595,7 @@ bool Helper_posix::getFirewallRules(CmdIpVersion version, const QString &table, 
     return true;
 }
 
-bool Helper_posix::setFirewallOnBoot(bool bEnabled)
+bool Helper_posix::setFirewallOnBoot(bool bEnabled, const QSet<QString> &ipTable)
 {
     QMutexLocker locker(&mutex_);
 
@@ -605,11 +603,99 @@ bool Helper_posix::setFirewallOnBoot(bool bEnabled)
     CMD_ANSWER answer;
     cmd.enabled = bEnabled;
 
+    std::string ipTableStr = "";
+    for (const auto& ip : ipTable) {
+        ipTableStr += ip.toStdString();
+        ipTableStr += " ";
+    }
+
+    cmd.ipTable = ipTableStr;
+
     std::stringstream stream;
     boost::archive::text_oarchive oa(stream, boost::archive::no_header);
     oa << cmd;
 
     return runCommand(HELPER_CMD_SET_FIREWALL_ON_BOOT, stream.str(), answer);
+}
+
+bool Helper_posix::startStunnel()
+{
+    QMutexLocker locker(&mutex_);
+
+    CMD_START_STUNNEL cmd;
+#ifdef Q_OS_MAC
+    cmd.exePath = (QCoreApplication::applicationDirPath() + "/../Helpers/").toStdString();
+#elif defined Q_OS_LINUX
+    cmd.exePath = (QCoreApplication::applicationDirPath() + "/").toStdString();
+#else
+    WS_ASSERT(false);
+#endif
+    cmd.executable = "windscribestunnel";
+
+    std::stringstream stream;
+    boost::archive::text_oarchive oa(stream, boost::archive::no_header);
+    oa << cmd;
+
+    CMD_ANSWER answer;
+    if (!runCommand(HELPER_CMD_START_STUNNEL, stream.str(), answer) || answer.executed == 0) {
+        doDisconnectAndReconnect();
+        return IHelper::EXECUTE_ERROR;
+    }
+
+    return IHelper::EXECUTE_SUCCESS;
+}
+
+bool Helper_posix::configureStunnel(const QString &hostname, unsigned int port, unsigned int localPort)
+{
+    QMutexLocker locker(&mutex_);
+
+    CMD_CONFIGURE_STUNNEL cmd;
+    cmd.hostname = hostname.toStdString();
+    cmd.port = port;
+    cmd.localPort = localPort;
+
+    std::stringstream stream;
+    boost::archive::text_oarchive oa(stream, boost::archive::no_header);
+    oa << cmd;
+
+    CMD_ANSWER answer;
+    if (!runCommand(HELPER_CMD_CONFIGURE_STUNNEL, stream.str(), answer) || answer.executed == 0) {
+        doDisconnectAndReconnect();
+        return IHelper::EXECUTE_ERROR;
+    }
+
+    return IHelper::EXECUTE_SUCCESS;
+}
+
+bool Helper_posix::startWstunnel(const QString &hostname, unsigned int port, bool isUdp, unsigned int localPort)
+{
+    QMutexLocker locker(&mutex_);
+
+    CMD_START_WSTUNNEL cmd;
+#ifdef Q_OS_MAC
+    cmd.exePath = (QCoreApplication::applicationDirPath() + "/../Helpers/").toStdString();
+#elif defined Q_OS_LINUX
+    cmd.exePath = (QCoreApplication::applicationDirPath() + "/").toStdString();
+#else
+    WS_ASSERT(false);
+#endif
+    cmd.executable = "windscribewstunnel";
+    cmd.hostname = hostname.toStdString();
+    cmd.port = port;
+    cmd.isUdp = isUdp;
+    cmd.localPort = localPort;
+
+    std::stringstream stream;
+    boost::archive::text_oarchive oa(stream, boost::archive::no_header);
+    oa << cmd;
+
+    CMD_ANSWER answer;
+    if (!runCommand(HELPER_CMD_START_WSTUNNEL, stream.str(), answer) || answer.executed == 0) {
+        doDisconnectAndReconnect();
+        return IHelper::EXECUTE_ERROR;
+    }
+
+    return IHelper::EXECUTE_SUCCESS;
 }
 
 void Helper_posix::run()

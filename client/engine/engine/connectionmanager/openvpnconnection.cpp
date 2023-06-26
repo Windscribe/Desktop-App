@@ -179,9 +179,18 @@ IHelper::ExecuteError OpenVPNConnection::runOpenVPN(unsigned int port, const typ
 void OpenVPNConnection::run()
 {
     BIND_CRASH_HANDLER_FOR_THREAD();
+#ifdef Q_OS_WIN
+    Helper_win *helper_win = dynamic_cast<Helper_win *>(helper_);
+    helper_win->enableDnsLeaksProtection();
+#endif
+
     io_service_.reset();
     io_service_.post(boost::bind( &OpenVPNConnection::funcRunOpenVPN, this ));
     io_service_.run();
+
+#ifdef Q_OS_WIN
+    helper_win->disableDnsLeaksProtection();
+#endif
 }
 
 void OpenVPNConnection::onKillControllerTimer()

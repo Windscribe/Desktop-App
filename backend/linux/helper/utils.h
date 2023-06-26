@@ -23,12 +23,16 @@ namespace Utils
 
     // combine exe path, exe, and arguments
     std::string getFullCommand(const std::string &exePath, const std::string &executable, const std::string &arguments);
+    std::string getFullCommandAsUser(const std::string &user, const std::string &exePath, const std::string &executable, const std::string &arguments);
 
     // get list of openvpn exe names from package
     std::vector<std::string> getOpenVpnExeNames();
 
     // get dns script associated with a particular dns manager
     std::string getDnsScript(CmdDnsManager mgr);
+
+    // create the system group and user 'windscribe'
+    void createWindscribeUserAndGroup();
 };
 
 #endif

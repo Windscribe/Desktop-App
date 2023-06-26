@@ -69,6 +69,7 @@ public:
     bool isPreferencesVisible();
     bool isNewsFeedVisible();
     WINDOW_ID currentWindow();
+    WINDOW_ID windowBeforeExit();
     void changeWindow(WINDOW_ID windowId);
 
     void expandLocations();
@@ -297,7 +298,7 @@ private:
 #endif
 
     void expandWindow(ResizableWindow *window);
-    void collapseWindow(ResizableWindow *window, bool bSkipBottomInfoWindowAnimate = false);
+    void collapseWindow(ResizableWindow *window, bool bSkipBottomInfoWindowAnimate = false, bool bSkipSetClickable = false);
 
 };
 

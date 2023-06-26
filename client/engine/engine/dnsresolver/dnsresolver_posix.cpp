@@ -1,4 +1,4 @@
-#include "dnsresolver.h"
+#include "dnsresolver_posix.h"
 #include "dnsutils.h"
 #include "utils/ws_assert.h"
 #include "utils/logger.h"
@@ -97,8 +97,12 @@ public:
         }
 
         if (object_) {
+            QString errorStr;
+            if (errorCode_ != ARES_SUCCESS)
+                errorStr = QString::fromStdString(ares_strerror(errorCode_));
+
             bool bSuccess = QMetaObject::invokeMethod(object_.get(), "onResolved",
-                            Qt::QueuedConnection, Q_ARG(QStringList, ips_), Q_ARG(int, errorCode_), Q_ARG(qint64, elapsedMs_));
+                            Qt::QueuedConnection, Q_ARG(QStringList, ips_), Q_ARG(QString, errorStr), Q_ARG(qint64, elapsedMs_));
             WS_ASSERT(bSuccess);
         }
     }
@@ -176,33 +180,36 @@ private:
 
 } // namespace
 
-DnsResolver::DnsResolver(QObject *parent) : QObject(parent)
+DnsResolver_posix::DnsResolver_posix()
 {
     aresLibraryInit_.init();
-    threadPool_ = new QThreadPool(this);
+    threadPool_ = new QThreadPool();
 }
 
-DnsResolver::~DnsResolver()
+DnsResolver_posix::~DnsResolver_posix()
 {
-    qCDebug(LOG_BASIC) << "Stopping DnsResolver";
     g_FinishAll = true;
     threadPool_->waitForDone();
+    delete threadPool_;
     qCDebug(LOG_BASIC) << "DnsResolver stopped";
 }
 
-void DnsResolver::lookup(const QString &hostname, QSharedPointer<QObject> object, const QStringList &dnsServers, int timeoutMs)
+void DnsResolver_posix::lookup(const QString &hostname, QSharedPointer<QObject> object, const QStringList &dnsServers, int timeoutMs)
 {
     LookupJob *job = new LookupJob(hostname, object, dnsServers, timeoutMs);
     threadPool_->start(job);
     WS_ASSERT(threadPool_->activeThreadCount() <= threadPool_->maxThreadCount());   // in this case, we probably need to redo the logic
 }
 
-QStringList DnsResolver::lookupBlocked(const QString &hostname, const QStringList &dnsServers, int timeoutMs, int *outErrorCode)
+QStringList DnsResolver_posix::lookupBlocked(const QString &hostname, const QStringList &dnsServers, int timeoutMs, QString *outError)
 {
     LookupJob job(hostname, nullptr, dnsServers, timeoutMs);
     job.run();
-    if (outErrorCode) {
-        *outErrorCode = job.errorCode();
+    if (outError) {
+        if (job.errorCode() != ARES_SUCCESS)
+            *outError = QString::fromStdString(ares_strerror(job.errorCode()));
+        else
+            *outError = QString();
     }
     return job.ips();
 }

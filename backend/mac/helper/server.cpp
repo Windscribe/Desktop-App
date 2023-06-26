@@ -420,8 +420,8 @@ bool Server::readAndHandleCommand(socket_ptr sock, boost::asio::streambuf *buf, 
     } else if (cmdId == HELPER_CMD_SET_FIREWALL_ON_BOOT) {
         CMD_SET_FIREWALL_ON_BOOT cmd;
         ia >> cmd;
-        LOG("Set firewall on boot: %s", cmd.enabled ? "true" : "false");
-
+        LOG("Set firewall on boot: %s ip table: %s", cmd.enabled ? "true" : "false", cmd.ipTable.c_str());
+        firewallOnBoot_.setIpTable(cmd.ipTable);
         outCmdAnswer.executed = firewallOnBoot_.setEnabled(cmd.enabled);
     } else if (cmdId == HELPER_CMD_SET_MAC_SPOOFING_ON_BOOT) {
         CMD_SET_MAC_SPOOFING_ON_BOOT cmd;
@@ -440,6 +440,70 @@ bool Server::readAndHandleCommand(socket_ptr sock, boost::asio::streambuf *buf, 
         outCmdAnswer.executed = Utils::executeCommand("ifconfig", {cmd.interface.c_str(), "ether", cmd.macAddress.c_str()});
         if (cmd.robustMethod) {
             Utils::executeCommand("ifconfig", {cmd.interface.c_str(), "up"});
+        }
+    } else if (cmdId == HELPER_CMD_START_STUNNEL) {
+        CMD_START_STUNNEL cmd;
+        ia >> cmd;
+        LOG("Starting stunnel");
+
+        std::string fullCmd = Utils::getFullCommandAsUser("windscribe", cmd.exePath, cmd.executable, "/etc/windscribe/stunnel.conf");
+        if (fullCmd.empty()) {
+            // Something wrong with the command
+            outCmdAnswer.executed = 0;
+        } else {
+            const std::string fullPath = cmd.exePath + "/" + cmd.executable;
+            ExecutableSignature sigCheck;
+            if (!sigCheck.verify(std::wstring_convert<std::codecvt_utf8<wchar_t>>().from_bytes(fullPath))) {
+                LOG("stunnel executable signature incorrect: %s", sigCheck.lastError().c_str());
+                outCmdAnswer.executed = 0;
+            } else {
+                outCmdAnswer.cmdId = ExecuteCmd::instance().execute(fullCmd, std::string());
+                outCmdAnswer.executed = 1;
+            }
+        }
+    } else if (cmdId == HELPER_CMD_CONFIGURE_STUNNEL) {
+        CMD_CONFIGURE_STUNNEL cmd;
+        ia >> cmd;
+
+        std::stringstream conf;
+        conf << "[openvpn]\n";
+        conf << "client = yes\n";
+        conf << "accept = 127.0.0.1:" << cmd.localPort << "\n";
+        conf << "connect = " << cmd.hostname << ":" << cmd.port << "\n";
+
+        int fd = open("/etc/windscribe/stunnel.conf", O_CREAT | O_WRONLY | O_TRUNC, S_IRWXU);
+        if (fd < 0) {
+            LOG("Could not open stunnel config for writing");
+            outCmdAnswer.executed = 0;
+        } else {
+            write(fd, conf.str().c_str(), conf.str().length());
+            close(fd);
+            outCmdAnswer.executed = 1;
+            outCmdAnswer.cmdId = Utils::executeCommand("chown", {"windscribe:windscribe", "/etc/windscribe/stunnel.conf"});
+        }
+    } else if (cmdId == HELPER_CMD_START_WSTUNNEL) {
+        CMD_START_WSTUNNEL cmd;
+        ia >> cmd;
+        LOG("Starting wstunnel");
+
+        std::string arguments = "--localToRemote 127.0.0.1:" + std::to_string(cmd.localPort) + ":127.0.0.1:1194 wss://" + cmd.hostname + ":" + std::to_string(cmd.port) + " --verbose --upgradePathPrefix=/";
+        if (cmd.isUdp) {
+            arguments += " --udp";
+        }
+        std::string fullCmd = Utils::getFullCommandAsUser("windscribe", cmd.exePath, cmd.executable, arguments);
+        if (fullCmd.empty()) {
+            // Something wrong with the command
+            outCmdAnswer.executed = 0;
+        } else {
+            const std::string fullPath = cmd.exePath + "/" + cmd.executable;
+            ExecutableSignature sigCheck;
+            if (!sigCheck.verify(std::wstring_convert<std::codecvt_utf8<wchar_t>>().from_bytes(fullPath))) {
+                LOG("wstunnel executable signature incorrect: %s", sigCheck.lastError().c_str());
+                outCmdAnswer.executed = 0;
+            } else {
+                outCmdAnswer.cmdId = ExecuteCmd::instance().execute(fullCmd, std::string());
+                outCmdAnswer.executed = 1;
+            }
         }
     } else {
         // these commands are not used in MacOS:
@@ -528,6 +592,7 @@ void Server::run()
 {
     system("mkdir -p /var/run");
     system("mkdir -p /etc/windscribe");
+    Utils::createWindscribeUserAndGroup();
 
     ::unlink(SOCK_PATH);
 

@@ -123,6 +123,6 @@ void Installer::executionImpl()
 void Installer::launchAppImpl()
 {
     wstring app = Settings::instance().getPath() + L"\\Windscribe.exe";
-    Log::instance().out(L"Launching Windscribe app: " + app);
+    Log::instance().out(L"Launching Windscribe app");
     ShellExecuteAsUser::shellExecuteFromExplorer(app.c_str(), NULL, NULL, NULL, SW_RESTORE);
 }

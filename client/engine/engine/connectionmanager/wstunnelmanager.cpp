@@ -4,12 +4,16 @@
 #include <QStandardPaths>
 #include "utils/logger.h"
 #include "availableport.h"
+#if defined(Q_OS_MACOS) || defined(Q_OS_LINUX)
+#include "engine/helper/helper_posix.h"
+#endif
 #include "utils/executable_signature/executable_signature.h"
 
 
-WstunnelManager::WstunnelManager(QObject *parent) : QObject(parent), bProcessStarted_(false),
-                                                    bFirstMarketLineAfterStart_(false), port_(0)
+WstunnelManager::WstunnelManager(QObject *parent, IHelper *helper)
+  : QObject(parent), helper_(helper), bProcessStarted_(false), bFirstMarketLineAfterStart_(false), port_(0)
 {
+#if defined Q_OS_WIN
     process_ = new QProcess(this);
     connect(process_, SIGNAL(started()), SLOT(onProcessStarted()));
     connect(process_, SIGNAL(finished(int)), SLOT(onProcessFinished()));
@@ -17,14 +21,7 @@ WstunnelManager::WstunnelManager(QObject *parent) : QObject(parent), bProcessSta
     connect(process_, SIGNAL(errorOccurred(QProcess::ProcessError)), SLOT(onProcessErrorOccurred(QProcess::ProcessError)));
     process_->setProcessChannelMode(QProcess::MergedChannels);
 
-#if defined Q_OS_WIN
-    wstunelExePath_ = QCoreApplication::applicationDirPath() + "/wstunnel.exe";
-#elif defined Q_OS_MAC
-    wstunelExePath_ = QCoreApplication::applicationDirPath() + "/../Helpers/windscribewstunnel";
-    qCDebug(LOG_BASIC) << Utils::cleanSensitiveInfo(wstunelExePath_);
-#elif defined Q_OS_LINUX
-    wstunelExePath_ = QCoreApplication::applicationDirPath() + "/windscribewstunnel";
-    qCDebug(LOG_BASIC) << Utils::cleanSensitiveInfo(wstunelExePath_);
+    wstunnelExePath_ = QCoreApplication::applicationDirPath() + "/wstunnel.exe";
 #endif
 }
 
@@ -35,8 +32,10 @@ WstunnelManager::~WstunnelManager()
 
 bool WstunnelManager::runProcess(const QString &hostname, unsigned int port, bool isUdp)
 {
+    bool ret = false;
+#if defined(Q_OS_WIN)
     ExecutableSignature sigCheck;
-    if (!sigCheck.verify(wstunelExePath_.toStdWString()))
+    if (!sigCheck.verify(wstunnelExePath_.toStdWString()))
     {
         qCDebug(LOG_BASIC) << "Failed to verify wstunnel signature: " << QString::fromStdString(sigCheck.lastError());
         return false;
@@ -53,27 +52,31 @@ bool WstunnelManager::runProcess(const QString &hostname, unsigned int port, boo
     {
         args << "--udp";
     }
-    process_->start(wstunelExePath_, args);
-    return true;
+    process_->start(wstunnelExePath_, args);
+    ret = true;
+#else
+    Helper_posix *helper_posix = dynamic_cast<Helper_posix *>(helper_);
+    ret = !helper_posix->startWstunnel(hostname, port, isUdp, port_);
+    emit wstunnelStarted();
+#endif
+    qCDebug(LOG_BASIC) << "wstunnel started on port " << port_;
+    return ret;
 }
 
 void WstunnelManager::killProcess()
 {
+#if defined(Q_OS_WIN)
     if (bProcessStarted_)
     {
         bProcessStarted_ = false;
         process_->close();
-
-        // for Mac/Linux send kill command
-    #if defined (Q_OS_MAC) || defined(Q_OS_LINUX)
-        QProcess killCmd(this);
-        killCmd.execute("killall", QStringList() << "windscribewstunnel");
-        killCmd.waitForFinished(-1);
-    #endif
-
         process_->waitForFinished(-1);
-        qCDebug(LOG_WSTUNNEL) << "wstunnel stopped";
     }
+#else
+    Helper_posix *helper_posix = dynamic_cast<Helper_posix *>(helper_);
+    helper_posix->executeTaskKill(kTargetWStunnel);
+#endif
+    qCDebug(LOG_BASIC) << "wstunnel stopped";
 }
 
 unsigned int WstunnelManager::getPort()

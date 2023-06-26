@@ -233,6 +233,7 @@ void serialize(Archive &ar, CMD_SET_FIREWALL_ON_BOOT &a, const unsigned int vers
 {
     UNUSED(version);
     ar & a.enabled;
+    ar & a.ipTable;
 }
 
 template<class Archive>
@@ -259,6 +260,35 @@ void serialize(Archive &ar, CMD_TASK_KILL &a, const unsigned int version)
 {
     UNUSED(version);
     ar & a.target;
+}
+
+template<class Archive>
+void serialize(Archive &ar, CMD_START_STUNNEL &a, const unsigned int version)
+{
+    UNUSED(version);
+    ar & a.exePath;
+    ar & a.executable;
+}
+
+template<class Archive>
+void serialize(Archive &ar, CMD_CONFIGURE_STUNNEL &a, const unsigned int version)
+{
+    UNUSED(version);
+    ar & a.hostname;
+    ar & a.port;
+    ar & a.localPort;
+}
+
+template<class Archive>
+void serialize(Archive &ar, CMD_START_WSTUNNEL &a, const unsigned int version)
+{
+    UNUSED(version);
+    ar & a.exePath;
+    ar & a.executable;
+    ar & a.hostname;
+    ar & a.port;
+    ar & a.localPort;
+    ar & a.isUdp;
 }
 
 }

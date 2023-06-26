@@ -106,9 +106,12 @@ static void replaceAll(std::wstring &inout, std::wstring_view what, std::wstring
     }
 }
 
-static std::wstring santizedCommandLine(const std::wstring &username, const std::wstring &password)
+static std::wstring sanitizedCommandLine(const std::wstring &exeName, const std::wstring &username, const std::wstring &password)
 {
     std::wstring cmdLine(::GetCommandLine());
+    if (!exeName.empty()) {
+        replaceAll(cmdLine, argList[0], exeName);
+    }
 
     if (!username.empty()) {
         std::wstring oldVal = L"\"" + username + L"\"";
@@ -307,7 +310,9 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
 
     Log::instance().init(true);
     Log::instance().out(L"Installing Windscribe version " + ApplicationInfo::instance().getVersion());
-    Log::instance().out(L"Command-line args: " + santizedCommandLine(username, password));
+    std::wstring exeName = argList[0];
+    exeName = exeName.substr(exeName.find_last_of(L"/\\") + 1);
+    Log::instance().out(L"Command-line args: " + sanitizedCommandLine(exeName, username, password));
 
     Application app(hInstance, nCmdShow, isUpdateMode, isSilent, noDrivers, noAutoStart, isFactoryReset, installPath, username, password);
 

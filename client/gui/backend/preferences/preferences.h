@@ -172,7 +172,6 @@ signals:
     void packetSizeChanged(const types::PacketSize &ps);
     void macAddrSpoofingChanged(const types::MacAddrSpoofing &mas);
     void isIgnoreSslErrorsChanged(bool b);
-    void invalidLanAddressNotification(QString address);
     void customConfigsPathChanged(QString path);
     void showLocationLoadChanged(bool b);
     void isAutoSecureNetworksChanged(bool b);

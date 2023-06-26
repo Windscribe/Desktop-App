@@ -70,10 +70,10 @@ ConnectionManager::ConnectionManager(QObject *parent, IHelper *helper, INetworkD
     connect(&connectTimer_, &QTimer::timeout, this, &ConnectionManager::onConnectTrigger);
     connect(&connectingTimer_, &QTimer::timeout, this, &ConnectionManager::onConnectingTimeout);
 
-    stunnelManager_ = new StunnelManager(this);
+    stunnelManager_ = new StunnelManager(this, helper);
     connect(stunnelManager_, &StunnelManager::stunnelFinished, this, &ConnectionManager::onStunnelFinishedBeforeConnection);
 
-    wstunnelManager_ = new WstunnelManager(this);
+    wstunnelManager_ = new WstunnelManager(this, helper);
     connect(wstunnelManager_, &WstunnelManager::wstunnelStarted, this, &ConnectionManager::onWstunnelStarted);
     connect(wstunnelManager_, &WstunnelManager::wstunnelFinished, this, &ConnectionManager::onWstunnelFinishedBeforeConnection);
 
@@ -495,7 +495,6 @@ void ConnectionManager::onConnectionReconnecting()
                 if (connector_) {
                     connector_->startDisconnect();
                 } else {
-                    state_ = STATE_DISCONNECTED;
                     connectOrStartConnectTimer();
                 }
             }
@@ -918,6 +917,10 @@ void ConnectionManager::doConnectPart2()
     #ifdef Q_OS_WIN
         dynamic_cast<Helper_win*>(helper_)->setCustomDnsIp(ctrldManager_->listenIp());
     #endif
+    } else {
+#ifdef Q_OS_WIN
+        dynamic_cast<Helper_win*>(helper_)->setCustomDnsIp(QString());
+#endif
     }
 
     if (currentConnectionDescr_.connectionNodeType == CONNECTION_NODE_DEFAULT ||
@@ -966,8 +969,7 @@ void ConnectionManager::doConnectPart2()
 
             const bool bOvpnSuccess = makeOVPNFile_->generate(lastOvpnConfig_, currentConnectionDescr_.ip, currentConnectionDescr_.protocol,
                                                         currentConnectionDescr_.port, portForStunnelOrWStunnel, mss, defaultAdapterInfo_.gateway(),
-                                                        currentConnectionDescr_.verifyX509name, connectedDnsInfo_.type == CONNECTED_DNS_TYPE_ROBERT ? "" : ctrldManager_->listenIp(),
-                                                        connectedDnsInfo_.type == CONNECTED_DNS_TYPE_ROBERT);
+                                                        currentConnectionDescr_.verifyX509name, connectedDnsInfo_.type == CONNECTED_DNS_TYPE_ROBERT ? "" : ctrldManager_->listenIp());
             if (!bOvpnSuccess )
             {
                 qCDebug(LOG_CONNECTION) << "Failed create ovpn config";

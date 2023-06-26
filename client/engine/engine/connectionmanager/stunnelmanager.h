@@ -1,14 +1,14 @@
-#ifndef STUNNELMANAGER_H
-#define STUNNELMANAGER_H
+#pragma once
 
 #include <QObject>
 #include <QProcess>
+#include "engine/helper/ihelper.h"
 
 class StunnelManager : public QObject
 {
     Q_OBJECT
 public:
-    explicit StunnelManager(QObject *parent = 0);
+    explicit StunnelManager(QObject *parent, IHelper *helper);
     virtual ~StunnelManager();
 
     bool setConfig(const QString &hostname, uint port);
@@ -24,15 +24,17 @@ private slots:
     void onStunnelProcessFinished();
 
 private:
-    QString path_;
-    QProcess    *process_;
-    QString     stunelExePath_;
+    static constexpr unsigned int DEFAULT_PORT = 1194;
+
+    IHelper *helper_;
+    unsigned int portForStunnel_;
     bool bProcessStarted_;
 
-    static constexpr unsigned int DEFAULT_PORT = 1194;
-    unsigned int portForStunnel_;
+#ifdef Q_OS_WIN
+    QString path_;
+    QProcess    *process_;
+    QString     stunnelExePath_;
 
     bool makeConfigFile(const QString &hostname, uint port);
+#endif
 };
-
-#endif // STUNNELMANAGER_H

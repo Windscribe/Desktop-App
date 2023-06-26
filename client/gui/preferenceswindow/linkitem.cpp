@@ -171,6 +171,7 @@ void LinkItem::setInProgress(bool inProgress)
 {
     inProgress_ = inProgress;
     if (inProgress_) {
+        spinnerRotation_ = 0;
         startAnAnimation<int>(spinnerAnimation_, spinnerRotation_, 360, ANIMATION_SPEED_VERY_SLOW);
     } else {
         spinnerAnimation_.stop();

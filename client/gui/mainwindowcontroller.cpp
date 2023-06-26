@@ -410,6 +410,11 @@ MainWindowController::WINDOW_ID MainWindowController::currentWindow()
     return curWindow_;
 }
 
+MainWindowController::WINDOW_ID MainWindowController::windowBeforeExit()
+{
+    return windowBeforeExit_;
+}
+
 void MainWindowController::changeWindow(MainWindowController::WINDOW_ID windowId)
 {
     if (isAtomicAnimationActive_) {
@@ -1325,6 +1330,13 @@ void MainWindowController::gotoLoggingInWindow()
         loggingInWindow_->getGraphicsObject()->setVisible(true);
         loggingInWindow_->startAnimation();
 
+        if (bottomInfoWindow_->getGraphicsObject()->isVisible()) {
+            bottomInfoWindow_->getGraphicsObject()->hide();
+            bottomInfoWindow_->setClickable(false);
+            shadowManager_->removeObject(ShadowManager::SHAPE_ID_BOTTOM_INFO);
+        }
+        hideUpdateWidget();
+
         QPropertyAnimation *anim = new QPropertyAnimation(this);
         anim->setTargetObject(loggingInWindow_->getGraphicsObject());
         anim->setPropertyName("opacity");
@@ -1569,6 +1581,7 @@ void MainWindowController::gotoConnectWindow(bool expandPrefs)
         updateMaskForGraphicsView();
 
         shadowManager_->setVisible(ShadowManager::SHAPE_ID_GENERAL_MESSAGE, false);
+        shadowManager_->setVisible(ShadowManager::SHAPE_ID_CONNECT_WINDOW, true);
 
         QPropertyAnimation *anim = new QPropertyAnimation(this);
         anim->setTargetObject(generalMessageWindow_->getGraphicsObject());
@@ -1906,7 +1919,14 @@ void MainWindowController::gotoGeneralMessageWindow()
               curWindow_ == WINDOW_ID_LOGIN ||
               curWindow_ == WINDOW_ID_LOGGING_IN ||
               curWindow_ == WINDOW_ID_CONNECT ||
-              curWindow_ == WINDOW_ID_UPDATE);
+              curWindow_ == WINDOW_ID_UPDATE ||
+              curWindow_ == WINDOW_ID_LOGOUT ||
+              curWindow_ == WINDOW_ID_EXIT);
+
+    if (curWindow_ == WINDOW_ID_LOGOUT || curWindow_ == WINDOW_ID_EXIT) {
+        // Do not transition while on logout/exit screen
+        return;
+    }
 
     isAtomicAnimationActive_ = true;
     WINDOW_ID saveCurWindow = curWindow_;
@@ -1919,24 +1939,26 @@ void MainWindowController::gotoGeneralMessageWindow()
         generalMessageWindow_->setBackgroundShape(IGeneralMessageWindow::kConnectScreenAlphaShape);
     }
 
-    TooltipController::instance().hideAllTooltips();
-    if (curWindow_ == WINDOW_ID_CONNECT) {
-        connectWindow_->setClickable(false);
-        bottomInfoWindow_->setClickable(false);
-    } else if (curWindow_ == WINDOW_ID_UPDATE) {
-        updateWindow_->setClickable(false);
-    } else if (curWindow_ == WINDOW_ID_LOGIN) {
-        loginWindow_->setClickable(false);
-    }
+    shadowManager_->changeRectangleSize(ShadowManager::SHAPE_ID_GENERAL_MESSAGE,
+                                        QRect(0,
+                                              childWindowShadowOffsetY(true),
+                                              generalMessageWindow_->getGraphicsObject()->boundingRect().width(),
+                                              generalMessageWindow_->getGraphicsObject()->boundingRect().height() - childWindowShadowOffsetY(false)));
 
+    TooltipController::instance().hideAllTooltips();
     for (auto w : windowSizeManager_->windows()) {
-        collapseWindow(w);
+        collapseWindow(w, false, true);
     }
 
     curWindow_ = WINDOW_ID_GENERAL_MESSAGE;
     updateMaskForGraphicsView();
     shadowManager_->setVisible(ShadowManager::SHAPE_ID_CONNECT_WINDOW, false);
     shadowManager_->setVisible(ShadowManager::SHAPE_ID_GENERAL_MESSAGE, true);
+
+    connectWindow_->setClickable(false);
+    bottomInfoWindow_->setClickable(false);
+    updateWindow_->setClickable(false);
+    loginWindow_->setClickable(false);
 
     functionOnAnimationFinished_ = [this, saveCurWindow]() {
         generalMessageWindow_->getGraphicsObject()->setOpacity(0.0);
@@ -1974,40 +1996,26 @@ void MainWindowController::gotoExitWindow(bool isLogout)
              || curWindow_ == WINDOW_ID_LOGIN
              || curWindow_ == WINDOW_ID_EMERGENCY
              || curWindow_ == WINDOW_ID_EXTERNAL_CONFIG
-             || curWindow_ == WINDOW_ID_TWO_FACTOR_AUTH);
+             || curWindow_ == WINDOW_ID_TWO_FACTOR_AUTH
+             || curWindow_ == WINDOW_ID_GENERAL_MESSAGE);
 
     windowBeforeExit_ = curWindow_;
     IGeneralMessageWindow *win = (isLogout ? logoutWindow_ : exitWindow_);
 
+    TooltipController::instance().hideAllTooltips();
     if (curWindow_ == WINDOW_ID_CONNECT) {
-        win->setHeight(connectWindow_->getGraphicsObject()->boundingRect().height());
-        shadowManager_->changeRectangleSize(ShadowManager::SHAPE_ID_EXIT,
-                                            QRect(0,
-                                                childWindowShadowOffsetY(true),
-                                                connectWindow_->getGraphicsObject()->boundingRect().width(),
-                                                connectWindow_->getGraphicsObject()->boundingRect().height() - childWindowShadowOffsetY(false)));
         if (preferences_->appSkin() == APP_SKIN_VAN_GOGH) {
             win->setBackgroundShape(IGeneralMessageWindow::kConnectScreenVanGoghShape);
         } else {
-            // this is only needed for Alpha; in Van Gogh mode the exit window is the
-            // same shape & size as the connect window and the connect shadow suffices
-            shadowManager_->setVisible(ShadowManager::SHAPE_ID_EXIT, true);
             win->setBackgroundShape(IGeneralMessageWindow::kConnectScreenAlphaShape);
         }
-        TooltipController::instance().hideAllTooltips();
         connectWindow_->setClickable(false);
         bottomInfoWindow_->setClickable(false);
+    } else if (curWindow_ == WINDOW_ID_GENERAL_MESSAGE) {
+        win->setBackgroundShape(generalMessageWindow_->backgroundShape());
     } else {
         win->setBackgroundShape(IGeneralMessageWindow::kLoginScreenShape);
-        win->setHeight(LOGIN_HEIGHT*G_SCALE);
-        shadowManager_->changeRectangleSize(ShadowManager::SHAPE_ID_EXIT,
-                                            QRect(0,
-                                                childWindowShadowOffsetY(true),
-                                                win->getGraphicsObject()->boundingRect().width(),
-                                                LOGIN_HEIGHT*G_SCALE - childWindowShadowOffsetY(false)));
-
         if (curWindow_ == WINDOW_ID_LOGIN) {
-            TooltipController::instance().hideAllTooltips();
             loginWindow_->setClickable(false);
         } else if (curWindow_ == WINDOW_ID_EMERGENCY) {
             emergencyConnectWindow_->setClickable(false);
@@ -2018,23 +2026,31 @@ void MainWindowController::gotoExitWindow(bool isLogout)
         }
     }
 
+    shadowManager_->changeRectangleSize(ShadowManager::SHAPE_ID_EXIT,
+                                        QRect(0,
+                                            childWindowShadowOffsetY(true),
+                                            win->getGraphicsObject()->boundingRect().width(),
+                                            win->getGraphicsObject()->boundingRect().height() - childWindowShadowOffsetY(false)));
+    if (win->backgroundShape() == IGeneralMessageWindow::Shape::kConnectScreenAlphaShape ||
+        curWindow_ == WINDOW_ID_GENERAL_MESSAGE)
+    {
+        shadowManager_->setVisible(ShadowManager::SHAPE_ID_EXIT, true);
+    }
+
     WINDOW_ID saveCurWindow = curWindow_;
     curWindow_ = isLogout ? WINDOW_ID_LOGOUT : WINDOW_ID_EXIT;
     updateMaskForGraphicsView();
     isAtomicAnimationActive_ = true;
 
+    shadowManager_->setVisible(ShadowManager::SHAPE_ID_GENERAL_MESSAGE, false);
+
     functionOnAnimationFinished_ = [this, win, saveCurWindow]() {
         win->getGraphicsObject()->setOpacity(0.0);
-        if (saveCurWindow == WINDOW_ID_CONNECT) {
-            connectWindow_->getGraphicsObject()->stackBefore(win->getGraphicsObject());
-        } else if (saveCurWindow == WINDOW_ID_LOGIN) {
-            loginWindow_->getGraphicsObject()->stackBefore(win->getGraphicsObject());
-        } else if (saveCurWindow == WINDOW_ID_EMERGENCY) {
-            emergencyConnectWindow_->getGraphicsObject()->stackBefore(win->getGraphicsObject());
-        } else if (saveCurWindow == WINDOW_ID_EXTERNAL_CONFIG) {
-            externalConfigWindow_->getGraphicsObject()->stackBefore(win->getGraphicsObject());
-        }
-
+        connectWindow_->getGraphicsObject()->stackBefore(win->getGraphicsObject());
+        loginWindow_->getGraphicsObject()->stackBefore(win->getGraphicsObject());
+        emergencyConnectWindow_->getGraphicsObject()->stackBefore(win->getGraphicsObject());
+        externalConfigWindow_->getGraphicsObject()->stackBefore(win->getGraphicsObject());
+        generalMessageWindow_->getGraphicsObject()->stackBefore(win->getGraphicsObject());
         win->getGraphicsObject()->show();
 
         QPropertyAnimation *anim = new QPropertyAnimation(this);
@@ -2046,6 +2062,7 @@ void MainWindowController::gotoExitWindow(bool isLogout)
 
         connect(anim, &QPropertyAnimation::finished, [this, win]() {
             isAtomicAnimationActive_ = false;
+            generalMessageWindow_->getGraphicsObject()->hide();
             handleNextWindowChange();
             win->getGraphicsObject()->setFocus();
         });
@@ -2053,6 +2070,7 @@ void MainWindowController::gotoExitWindow(bool isLogout)
         anim->start(QPropertyAnimation::DeleteWhenStopped);
     };
 
+    updateMainAndViewGeometry(false);
     collapseAllExpandedOnBottom();
 }
 
@@ -2087,7 +2105,9 @@ void MainWindowController::closeExitWindow(bool fromPrefs)
             connectWindow_->setClickable(true);
             bottomInfoWindow_->setClickable(true);
 
-            if (fromPrefs) {
+            if (GeneralMessageController::instance().hasMessages()) {
+                gotoGeneralMessageWindow();
+            } else if (fromPrefs) {
                 bottomInfoWindow_->getGraphicsObject()->setVisible(false);
                 expandWindow(preferencesWindow_);
             } else {
@@ -2118,12 +2138,18 @@ void MainWindowController::closeExitWindow(bool fromPrefs)
         anim->setEndValue(0.0);
         anim->setDuration(SCREEN_SWITCH_OPACITY_ANIMATION_DURATION);
 
+        shadowManager_->setVisible(ShadowManager::SHAPE_ID_EXIT, false);
+
         connect(anim, &QPropertyAnimation::finished, [this, win]() {
-            win->getGraphicsObject()->hide();
-            loginWindow_->setClickable(true);
-            loginWindow_->getGraphicsObject()->setFocus();
-            isAtomicAnimationActive_ = false;
-            handleNextWindowChange();
+            if (GeneralMessageController::instance().hasMessages()) {
+                gotoGeneralMessageWindow();
+            } else {
+                win->getGraphicsObject()->hide();
+                loginWindow_->setClickable(true);
+                loginWindow_->getGraphicsObject()->setFocus();
+                isAtomicAnimationActive_ = false;
+                handleNextWindowChange();
+            }
         });
 
         anim->start(QPropertyAnimation::DeleteWhenStopped);
@@ -2138,12 +2164,18 @@ void MainWindowController::closeExitWindow(bool fromPrefs)
         anim->setEndValue(0.0);
         anim->setDuration(SCREEN_SWITCH_OPACITY_ANIMATION_DURATION);
 
+        shadowManager_->setVisible(ShadowManager::SHAPE_ID_EXIT, false);
+
         connect(anim, &QPropertyAnimation::finished, [this, win]() {
-            win->getGraphicsObject()->hide();
-            emergencyConnectWindow_->setClickable(true);
-            emergencyConnectWindow_->getGraphicsObject()->setFocus();
-            isAtomicAnimationActive_ = false;
-            handleNextWindowChange();
+            if (GeneralMessageController::instance().hasMessages()) {
+                gotoGeneralMessageWindow();
+            } else {
+                win->getGraphicsObject()->hide();
+                emergencyConnectWindow_->setClickable(true);
+                emergencyConnectWindow_->getGraphicsObject()->setFocus();
+                isAtomicAnimationActive_ = false;
+                handleNextWindowChange();
+            }
         });
 
         anim->start(QPropertyAnimation::DeleteWhenStopped);
@@ -2158,12 +2190,18 @@ void MainWindowController::closeExitWindow(bool fromPrefs)
         anim->setEndValue(0.0);
         anim->setDuration(SCREEN_SWITCH_OPACITY_ANIMATION_DURATION);
 
+        shadowManager_->setVisible(ShadowManager::SHAPE_ID_EXIT, false);
+
         connect(anim, &QPropertyAnimation::finished, [this, win]() {
-            win->getGraphicsObject()->hide();
-            externalConfigWindow_->setClickable(true);
-            externalConfigWindow_->getGraphicsObject()->setFocus();
-            isAtomicAnimationActive_ = false;
-            handleNextWindowChange();
+            if (GeneralMessageController::instance().hasMessages()) {
+                gotoGeneralMessageWindow();
+            } else {
+                win->getGraphicsObject()->hide();
+                externalConfigWindow_->setClickable(true);
+                externalConfigWindow_->getGraphicsObject()->setFocus();
+                isAtomicAnimationActive_ = false;
+                handleNextWindowChange();
+            }
         });
 
         anim->start(QPropertyAnimation::DeleteWhenStopped);
@@ -2178,18 +2216,54 @@ void MainWindowController::closeExitWindow(bool fromPrefs)
         anim->setEndValue(0.0);
         anim->setDuration(SCREEN_SWITCH_OPACITY_ANIMATION_DURATION);
 
+        shadowManager_->setVisible(ShadowManager::SHAPE_ID_EXIT, false);
+
         connect(anim, &QPropertyAnimation::finished, [this, win]() {
-            win->getGraphicsObject()->hide();
-            twoFactorAuthWindow_->setClickable(true);
-            twoFactorAuthWindow_->getGraphicsObject()->setFocus();
-            isAtomicAnimationActive_ = false;
-            handleNextWindowChange();
+            if (GeneralMessageController::instance().hasMessages()) {
+                gotoGeneralMessageWindow();
+            } else {
+                win->getGraphicsObject()->hide();
+                twoFactorAuthWindow_->setClickable(true);
+                twoFactorAuthWindow_->getGraphicsObject()->setFocus();
+                isAtomicAnimationActive_ = false;
+                handleNextWindowChange();
+            }
         });
 
         anim->start(QPropertyAnimation::DeleteWhenStopped);
     } else if (windowBeforeExit_ == WINDOW_ID_INITIALIZATION) {
         curWindow_ = WINDOW_ID_INITIALIZATION;
         isAtomicAnimationActive_ = true;
+
+        QPropertyAnimation *anim = new QPropertyAnimation(this);
+        anim->setTargetObject(win->getGraphicsObject());
+        anim->setPropertyName("opacity");
+        anim->setStartValue(win->getGraphicsObject()->opacity());
+        anim->setEndValue(0.0);
+        anim->setDuration(SCREEN_SWITCH_OPACITY_ANIMATION_DURATION);
+
+        shadowManager_->setVisible(ShadowManager::SHAPE_ID_EXIT, false);
+
+        connect(anim, &QPropertyAnimation::finished, [this, win]() {
+            if (GeneralMessageController::instance().hasMessages()) {
+                gotoGeneralMessageWindow();
+            } else {
+                win->getGraphicsObject()->hide();
+                isAtomicAnimationActive_ = false;
+                updateBottomInfoWindowVisibilityAndPos();
+                handleNextWindowChange();
+            }
+        });
+
+        anim->start(QPropertyAnimation::DeleteWhenStopped);
+    } else if (windowBeforeExit_ == WINDOW_ID_GENERAL_MESSAGE) {
+        curWindow_ = WINDOW_ID_GENERAL_MESSAGE;
+        isAtomicAnimationActive_ = true;
+
+        generalMessageWindow_->getGraphicsObject()->stackBefore(win->getGraphicsObject());
+        generalMessageWindow_->getGraphicsObject()->show();
+        shadowManager_->setVisible(ShadowManager::SHAPE_ID_EXIT, false);
+        shadowManager_->setVisible(ShadowManager::SHAPE_ID_GENERAL_MESSAGE, true);
 
         QPropertyAnimation *anim = new QPropertyAnimation(this);
         anim->setTargetObject(win->getGraphicsObject());
@@ -2207,6 +2281,7 @@ void MainWindowController::closeExitWindow(bool fromPrefs)
 
         anim->start(QPropertyAnimation::DeleteWhenStopped);
     }
+
 }
 
 void MainWindowController::expandPreferencesFromLogin()
@@ -2526,7 +2601,7 @@ void MainWindowController::collapsePreferencesFromLogin()
     animGroup->start(QVariantAnimation::DeleteWhenStopped);
 }
 
-void MainWindowController::collapseWindow(ResizableWindow *window, bool bSkipBottomInfoWindowAnimate)
+void MainWindowController::collapseWindow(ResizableWindow *window, bool bSkipBottomInfoWindowAnimate, bool bSkipSetClickable)
 {
     // qCDebug(LOG_BASIC) << "MainWindowController::collapseWindow";
 
@@ -2583,7 +2658,7 @@ void MainWindowController::collapseWindow(ResizableWindow *window, bool bSkipBot
 
     // group finished
     QParallelAnimationGroup *animGroup = new QParallelAnimationGroup(this);
-    connect(animGroup, &QVariantAnimation::finished, [this, window, bSkipBottomInfoWindowAnimate]() {
+    connect(animGroup, &QVariantAnimation::finished, [this, window, bSkipBottomInfoWindowAnimate, bSkipSetClickable]() {
         windowSizeManager_->setState(window, WindowSizeManager::kWindowCollapsed);
         if (window == preferencesWindow_) {
             preferencesWindow_->onCollapse();
@@ -2592,8 +2667,10 @@ void MainWindowController::collapseWindow(ResizableWindow *window, bool bSkipBot
         TooltipController::instance().hideAllTooltips();
         updateMainAndViewGeometry(false);
 
-        connectWindow_->setClickable(true);
-        bottomInfoWindow_->setClickable(true);
+        if (!bSkipSetClickable) {
+            connectWindow_->setClickable(true);
+            bottomInfoWindow_->setClickable(true);
+        }
         invalidateShadow_mac();
 
         if (!bSkipBottomInfoWindowAnimate && bottomInfoWindow_->getGraphicsObject()->isVisible()) {

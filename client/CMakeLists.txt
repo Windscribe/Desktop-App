@@ -54,8 +54,8 @@ if (WIN32)
                      ${WINDSCRIBE_BUILD_LIBS_PATH}/cares/lib
     )
 
-    set (OS_SPECIFIC_LIBRARIES psapi.lib iphlpapi.lib dnsapi.lib rasapi32.lib pdh.lib Crypt32.lib Version.lib
-        libcurl_imp libssl libcrypto cares
+    set (OS_SPECIFIC_LIBRARIES psapi.lib iphlpapi.lib dnsapi.lib rasapi32.lib pdh.lib Crypt32.lib Version.lib Ntdll.lib
+        libcurl_imp libssl libcrypto
     )
     list(APPEND PROJECT_SOURCES client.rc)
     # Generate debug information (symbol files) for Windows (release build only)

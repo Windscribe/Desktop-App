@@ -5,6 +5,8 @@
 #include <QObject>
 #include <QSharedPointer>
 
+#include "idnsresolver.h"
+
 class DnsRequest : public QObject
 {
     Q_OBJECT
@@ -25,14 +27,15 @@ signals:
     void finished();
 
 private slots:
-    void onResolved(const QStringList &ips, int aresErrorCode, qint64 elapsedMs);
+    void onResolved(const QStringList &ips, const QString &error, qint64 elapsedMs);
 
 private:
+    IDnsResolver &dnsResolver_;
     QString hostname_;
     QStringList ips_;
     QStringList dnsServers_;
     int timeoutMs_;
-    int aresErrorCode_;
+    QString error_;
     qint64 elapsedMs_;
     // this object is shared with DnsResolver object
     // we need to store it here otherwise it may be deleted by DnsResolver before the signal finished() is emitted
@@ -45,8 +48,8 @@ class DnsRequestPrivate : public QObject
     Q_OBJECT
 
 signals:
-    void resolved(const QStringList &ips, int aresErrorCode, qint64 elapsedMs);
+    void resolved(const QStringList &ips,  const QString &error, qint64 elapsedMs);
 
 private slots:
-    void onResolved(const QStringList &ips, int aresErrorCode, qint64 elapsedMs);
+    void onResolved(const QStringList &ips,  const QString &error, qint64 elapsedMs);
 };

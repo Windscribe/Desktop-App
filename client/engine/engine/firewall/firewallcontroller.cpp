@@ -7,17 +7,19 @@ FirewallController::FirewallController(QObject *parent) : QObject(parent),
 {
 }
 
-bool FirewallController::firewallOn(const QSet<QString> &ips, bool bAllowLanTraffic, bool bIsCustomConfig)
+bool FirewallController::firewallOn(const QString &connectingIp, const QSet<QString> &ips, bool bAllowLanTraffic, bool bIsCustomConfig)
 {
-    if (!bInitialized_)
-    {
+    if (!bInitialized_) {
         bStateChanged_ = true;
         bInitialized_ = true;
+    } else {
+        bStateChanged_ = (latestEnabledState_ != true ||
+                          latestConnectingIp_ != connectingIp ||
+                          latestIps_ != ips ||
+                          latestAllowLanTraffic_ != bAllowLanTraffic ||
+                          latestIsCustomConfig_ != bIsCustomConfig);
     }
-    else
-    {
-        bStateChanged_ = (latestEnabledState_ != true || latestIps_ != ips || latestAllowLanTraffic_ != bAllowLanTraffic || latestIsCustomConfig_ != bIsCustomConfig);
-    }
+    latestConnectingIp_ = connectingIp;
     latestIps_ = ips;
     latestAllowLanTraffic_ = bAllowLanTraffic;
     latestIsCustomConfig_ = bIsCustomConfig;
@@ -27,13 +29,10 @@ bool FirewallController::firewallOn(const QSet<QString> &ips, bool bAllowLanTraf
 
 bool FirewallController::firewallOff()
 {
-    if (!bInitialized_)
-    {
+    if (!bInitialized_) {
         bStateChanged_ = true;
         bInitialized_ = true;
-    }
-    else
-    {
+    } else {
         bStateChanged_ = (latestEnabledState_ != false);
     }
     latestEnabledState_ = false;
@@ -42,13 +41,10 @@ bool FirewallController::firewallOff()
 
 bool FirewallController::whitelistPorts(const apiinfo::StaticIpPortsVector &ports)
 {
-    if (!bInitialized_)
-    {
+    if (!bInitialized_) {
         bStateChanged_ = true;
         bInitialized_ = true;
-    }
-    else
-    {
+    } else {
         bStateChanged_ = (latestStaticIpPorts_.getAsStringWithDelimiters() != ports.getAsStringWithDelimiters());
     }
     latestStaticIpPorts_ = ports;

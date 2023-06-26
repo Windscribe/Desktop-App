@@ -218,7 +218,7 @@ void UpdateAppItem::onLanguageChanged()
 {
     updateButton_->setText(tr("UPDATE"));
     updateButton_->recalcBoundingRect();
-    int width = preferences_->appSkin() == APP_SKIN_VAN_GOGH ? WIDTH_VAN_GOGH : WIDTH;
+    int width = preferences_->appSkin() == APP_SKIN_VAN_GOGH ? WIDTH_VAN_GOGH*G_SCALE : WIDTH*G_SCALE;
     int updatePosX = width - updateButton_->boundingRect().width() - 15;
     updateButton_->setPos(updatePosX, 0);
     update();

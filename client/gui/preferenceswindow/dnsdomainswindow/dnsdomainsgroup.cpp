@@ -74,7 +74,7 @@ void DnsDomainsGroup::onAddClicked(const QString &address)
             emit setError(tr("Domain already exists. Please enter a new domain."));
             break;
         case ERROR_INVALID:
-            emit setError(tr("Incorrect domain name. Please enter a valid domain in plain or CIDR notation."));
+            emit setError(tr("Incorrect domain name. Please enter a valid domain."));
             break;
     }
 }

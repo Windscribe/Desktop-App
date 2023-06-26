@@ -38,6 +38,9 @@
 #define HELPER_CMD_SET_MAC_ADDRESS                   30
 #define HELPER_CMD_TASK_KILL                         31
 #define HELPER_CMD_START_CTRLD                       32
+#define HELPER_CMD_START_STUNNEL                     33
+#define HELPER_CMD_CONFIGURE_STUNNEL                 34
+#define HELPER_CMD_START_WSTUNNEL                    35
 
 // enums
 
@@ -237,6 +240,7 @@ struct CMD_INSTALLER_REMOVE_OLD_INSTALL {
 
 struct CMD_SET_FIREWALL_ON_BOOT {
     bool enabled;
+    std::string ipTable;
 };
 
 struct CMD_SET_MAC_SPOOFING_ON_BOOT {
@@ -254,6 +258,26 @@ struct CMD_SET_MAC_ADDRESS {
 
 struct CMD_TASK_KILL {
     CmdKillTarget target;
+};
+
+struct CMD_START_STUNNEL {
+    std::string exePath;
+    std::string executable;
+};
+
+struct CMD_CONFIGURE_STUNNEL {
+    std::string hostname;
+    int port;
+    int localPort;
+};
+
+struct CMD_START_WSTUNNEL {
+    std::string exePath;
+    std::string executable;
+    std::string hostname;
+    int port;
+    int localPort;
+    bool isUdp;
 };
 
 #endif

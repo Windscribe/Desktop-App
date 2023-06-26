@@ -1,5 +1,4 @@
-#ifndef HELPER_WIN_H
-#define HELPER_WIN_H
+#pragma once
 
 #include <QMutex>
 #include <QTimer>
@@ -126,8 +125,7 @@ private:
 
     friend class FirewallController_win;
     // friend functions for windows firewall controller class
-    bool firewallOn(const QString &ip, bool bAllowLanTraffic, bool bIsCustomConfig);
-    bool firewallChange(const QString &ip, bool bAllowLanTraffic, bool bIsCustomConfig);
+    bool firewallOn(const QString &connectingIp, const QString &ip, bool bAllowLanTraffic, bool bIsCustomConfig);
     bool firewallOff();
     bool firewallActualState();
     void initVariables();
@@ -135,5 +133,3 @@ private:
     bool readAllFromPipe(HANDLE hPipe, char *buf, DWORD len);
     bool writeAllToPipe(HANDLE hPipe, const char *buf, DWORD len);
 };
-
-#endif // HELPER_WIN_H

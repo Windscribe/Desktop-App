@@ -4,7 +4,7 @@
 //#define AA_COMMAND_EXECUTE                                0
 #define AA_COMMAND_FIREWALL_ON                              1
 #define AA_COMMAND_FIREWALL_OFF                             2
-#define AA_COMMAND_FIREWALL_CHANGE                          3
+#define AA_COMMAND_FIREWALL_CHANGE                          3 // deprecated
 #define AA_COMMAND_FIREWALL_STATUS                          4
 #define AA_COMMAND_FIREWALL_IPV6_ENABLE                     5
 #define AA_COMMAND_FIREWALL_IPV6_DISABLE                    6
@@ -62,6 +62,7 @@ struct CMD_FIREWALL_ON
 {
 	bool allowLanTraffic = false;
     bool isCustomConfig = false;
+    std::wstring connectingIp;
     std::wstring ip;
 };
 

@@ -1,5 +1,4 @@
-#ifndef FIREWALLCONTROLLER_WIN_H
-#define FIREWALLCONTROLLER_WIN_H
+#pragma once
 
 #include "firewallcontroller.h"
 #include "Engine/Helper/helper_win.h"
@@ -12,7 +11,7 @@ public:
     explicit FirewallController_win(QObject *parent, IHelper *helper);
     ~FirewallController_win() override;
 
-    bool firewallOn(const QSet<QString> &ips, bool bAllowLanTraffic, bool bIsCustomConfig) override;
+    bool firewallOn(const QString &connectingIp, const QSet<QString> &ips, bool bAllowLanTraffic, bool bIsCustomConfig) override;
     bool firewallOff() override;
     bool firewallActualState() override;
 
@@ -20,11 +19,9 @@ public:
     bool deleteWhitelistPorts() override;
 
     void setInterfaceToSkip_posix(const QString &interfaceToSkip) override;
-    void enableFirewallOnBoot(bool bEnable) override;
+    void enableFirewallOnBoot(bool bEnable, const QSet<QString>& ipTable = QSet<QString>()) override;
 
 private:
     Helper_win *helper_win_;
     QMutex mutex_;
 };
-
-#endif // FIREWALLCONTROLLER_WIN_H

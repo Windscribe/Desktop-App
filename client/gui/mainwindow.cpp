@@ -756,6 +756,20 @@ bool MainWindow::handleKeyPressEvent(QKeyEvent *event)
                 } else {
                     mainWindowController_->showUpdateWidget();
                 }
+            } else if (event->key() == Qt::Key_M) {
+                if (event->modifiers() & Qt::ShiftModifier) {
+                    GeneralMessageController::instance().showMessage(
+                        "WARNING_WHITE",
+                        "Test Message",
+                        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+                        GeneralMessageController::tr(GeneralMessageController::kOk));
+                } else {
+                    GeneralMessageController::instance().showMessage(
+                        "WARNING_YELLOW",
+                        "Test Message",
+                        "Lorem ipsum dolor sit amet",
+                        GeneralMessageController::tr(GeneralMessageController::kOk));
+                }
             }
         }
     }
@@ -1502,7 +1516,7 @@ void MainWindow::onBackendInitFinished(INIT_STATE initState)
     } else if (initState == INIT_STATE_HELPER_FAILED) {
         GeneralMessageController::instance().showMessage("ERROR_ICON",
                                                tr("Failed to Start"),
-                                               tr("Windscribe helper initialize error. Please reinstall the application or contact support."),
+                                               tr("Windscribe is malfunctioning.  Please restart the application."),
                                                GeneralMessageController::tr(GeneralMessageController::kOk),
                                                "",
                                                "",
@@ -2782,6 +2796,16 @@ void MainWindow::activateAndShow(bool moveBetweenVirtualDesktops)
     lastWindowStateChange_ = QDateTime::currentMSecsSinceEpoch();
 }
 
+void MainWindow::activateAndShow() {
+#ifdef Q_OS_MAC
+    // True is passed for Mac in order to fix issue #48 and #647.
+    // App should appear always on the active virtual desktop.
+    activateAndShow(true);
+#else
+    activateAndShow(false);
+#endif
+}
+
 void MainWindow::deactivateAndHide()
 {
     MainWindowState::instance().setActive(false);
@@ -2824,11 +2848,7 @@ void MainWindow::toggleVisibilityIfDocked()
         {
             // qDebug() << "dock click activate";
 
-#if defined(Q_OS_MAC)
-            activateAndShow(true);
-#else
             activateAndShow();
-#endif
             setBackendAppActiveState(true);
         }
     }
@@ -3051,13 +3071,7 @@ void MainWindow::onTrayMenuShowHide()
 {
     if (isMinimized() || !isVisible())
     {
-#if defined(Q_OS_MAC)
-        // Show not docked window in the active virtual desktop in this case.
-        // But not on the virtual desktop where the window was created.
-        activateAndShow(true);
-#else
         activateAndShow();
-#endif
         setBackendAppActiveState(true);
     }
     else

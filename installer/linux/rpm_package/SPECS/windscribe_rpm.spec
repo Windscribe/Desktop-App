@@ -34,6 +34,8 @@ Requires:	xcb-util-wm
 Requires:	xcb-util-image
 Requires:	xcb-util-keysyms
 Requires:	xcb-util-renderutil
+Requires:	sudo
+Requires:	shadow-utils
 
 %description
 Windscribe client.
@@ -58,8 +60,12 @@ echo linux_rpm_x64 > ../etc/windscribe/platform
 systemctl stop windscribe-helper
 systemctl disable windscribe-helper
 killall -q Windscribe || true
+userdel -f windscribe || true
+groupdel -f windscribe || true
 rm -f /usr/bin/windscribe-cli
-rm -rf /etc/windscribe
+rm -rf /etc/windscribe/rules.*
+rm -rf /etc/windscribe/*.ovpn
+rm -rf /etc/windscribe/stunnel.conf
 rm -f /opt/windscribe/helper_log.txt
 
 %files

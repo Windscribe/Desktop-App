@@ -17,7 +17,7 @@ FirewallFilter::~FirewallFilter()
 {
 }
 
-void FirewallFilter::on(const wchar_t *ip, bool bAllowLocalTraffic, bool bIsCustomConfig)
+void FirewallFilter::on(const wchar_t *connectingIp, const wchar_t *ip, bool bAllowLocalTraffic, bool bIsCustomConfig)
 {
     std::lock_guard<std::recursive_mutex> guard(mutex_);
 
@@ -38,7 +38,7 @@ void FirewallFilter::on(const wchar_t *ip, bool bAllowLocalTraffic, bool bIsCust
 
     DWORD dwRet = FwpmSubLayerAdd0(hEngine, &subLayer, NULL );
     if (dwRet == ERROR_SUCCESS) {
-        addFilters(hEngine, ip, bAllowLocalTraffic, bIsCustomConfig);
+        addFilters(hEngine, connectingIp, ip, bAllowLocalTraffic, bIsCustomConfig);
     } else {
         Logger::instance().out(L"FirewallFilter::on(), FwpmSubLayerAdd0 failed");
     }
@@ -118,6 +118,27 @@ void FirewallFilter::setSplitTunnelingDisabled()
     isSplitTunnelingEnabled_ = false;
 }
 
+void FirewallFilter::setWindscribeAppsIds(const AppsIds &appsIds)
+{
+    std::lock_guard<std::recursive_mutex> guard(mutex_);
+    if (windscribeAppsIds_ == appsIds) {
+        return;
+    }
+    windscribeAppsIds_ = appsIds;
+
+    HANDLE hEngine = fwpmWrapper_.getHandleAndLock();
+
+    // if split tunneling is ON and firewall is ON then add filter for apps immediately
+    if (isSplitTunnelingEnabled_ && currentStatusImpl(hEngine) == true) {
+        fwpmWrapper_.beginTransaction();
+        removeAppsSplitTunnelingFilter(hEngine);
+        addPermitFilterForAppsIds(hEngine);
+        fwpmWrapper_.endTransaction();
+    }
+
+    fwpmWrapper_.unlock();
+}
+
 void FirewallFilter::setSplitTunnelingAppsIds(const AppsIds &appsIds)
 {
     std::lock_guard<std::recursive_mutex> guard(mutex_);
@@ -159,7 +180,7 @@ void FirewallFilter::setSplitTunnelingWhitelistIps(const std::vector<Ip4AddressA
     fwpmWrapper_.unlock();
 }
 
-void FirewallFilter::addFilters(HANDLE engineHandle, const wchar_t *ip, bool bAllowLocalTraffic, bool bIsCustomConfig)
+void FirewallFilter::addFilters(HANDLE engineHandle, const wchar_t *connectingIp, const wchar_t *ip, bool bAllowLocalTraffic, bool bIsCustomConfig)
 {
     std::vector<std::wstring> ipAddresses = split(ip, L';');
 
@@ -224,6 +245,8 @@ void FirewallFilter::addFilters(HANDLE engineHandle, const wchar_t *ip, bool bAl
         addPermitFilterForSplitRoutingWhitelistIps(engineHandle);
     }
 
+    addPermitFilterForWindscribeAndSystemServices(engineHandle, connectingIp);
+
     // add permit filter for specific IPs
     for (size_t i = 0; i < ipAddresses.size(); ++i) {
         const std::vector<Ip4AddressAndMask> ipAddr = Ip4AddressAndMask::fromVector({ipAddresses[i].c_str()});
@@ -242,13 +265,6 @@ void FirewallFilter::addFilters(HANDLE engineHandle, const wchar_t *ip, bool bAl
     ret = Utils::addFilterV4(engineHandle, nullptr, FWP_ACTION_PERMIT, 3, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, nullptr, 67);
     if (!ret) {
         Logger::instance().out(L"Could not add DHCP allow filter (67)");
-    }
-
-    // Add permit filter for Windscribe reserved range (10.255.255.0 - 10.255.255.255)
-    const std::vector<Ip4AddressAndMask> reserved = Ip4AddressAndMask::fromVector({L"10.255.255.0/24"});
-    ret = Utils::addFilterV4(engineHandle, nullptr, FWP_ACTION_PERMIT, 4, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, &reserved);
-    if (!ret) {
-        Logger::instance().out(L"Could not add reserved allow filter");
     }
 
     // Always allow localhost
@@ -281,6 +297,25 @@ void FirewallFilter::addFilters(HANDLE engineHandle, const wchar_t *ip, bool bAl
     }
 }
 
+void FirewallFilter::addPermitFilterForWindscribeAndSystemServices(HANDLE engineHandle, const wchar_t *connectingIp)
+{
+    int ret = 0;
+
+    AppsIds allowedIds;
+    wchar_t sysPath[MAX_PATH];
+    GetSystemDirectory(sysPath, MAX_PATH);
+    std::wstring svchost = std::wstring(sysPath) + L"\\svchost.exe";
+
+    allowedIds.setFromList({svchost, L"System"});
+    allowedIds.addFrom(windscribeAppsIds_);
+
+    // add allow filter for connecting IP
+    const std::vector<Ip4AddressAndMask> connectingIpAddr = Ip4AddressAndMask::fromVector({connectingIp});
+    ret = Utils::addFilterV4(engineHandle, nullptr, FWP_ACTION_PERMIT, 2, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, &connectingIpAddr, 0, 0, &allowedIds);
+    if (!ret) {
+        Logger::instance().out(L"Could not add connecting IP allow filter");
+    }
+}
 
 void FirewallFilter::addPermitFilterForAppsIds(HANDLE engineHandle)
 {

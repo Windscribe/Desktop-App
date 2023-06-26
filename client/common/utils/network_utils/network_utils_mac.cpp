@@ -283,7 +283,8 @@ void NetworkUtils_mac::getDefaultRoute(QString &outGatewayIp, QString &outInterf
     }
     else
     {
-        WS_ASSERT(false);
+        outGatewayIp.clear();
+        outInterfaceName.clear();
     }
 }
 

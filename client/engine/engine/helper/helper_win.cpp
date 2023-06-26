@@ -1031,11 +1031,12 @@ int Helper_win::debugGetActiveUnblockingCmdCount()
     return mpr.exitCode;
 }
 
-bool Helper_win::firewallOn(const QString &ip, bool bAllowLanTraffic, bool bIsCustomConfig)
+bool Helper_win::firewallOn(const QString &connectingIp, const QString &ip, bool bAllowLanTraffic, bool bIsCustomConfig)
 {
     QMutexLocker locker(&mutex_);
 
     CMD_FIREWALL_ON cmdFirewallOn;
+    cmdFirewallOn.connectingIp = connectingIp.toStdWString();
     cmdFirewallOn.allowLanTraffic = bAllowLanTraffic;
     cmdFirewallOn.isCustomConfig = bIsCustomConfig;
     cmdFirewallOn.ip = ip.toStdWString();
@@ -1045,23 +1046,6 @@ bool Helper_win::firewallOn(const QString &ip, bool bAllowLanTraffic, bool bIsCu
     oa << cmdFirewallOn;
 
     MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_FIREWALL_ON, stream.str());
-    return mpr.success;
-}
-
-bool Helper_win::firewallChange(const QString &ip, bool bAllowLanTraffic, bool bIsCustomConfig)
-{
-    QMutexLocker locker(&mutex_);
-
-    CMD_FIREWALL_ON cmdFirewallOn;
-    cmdFirewallOn.allowLanTraffic = bAllowLanTraffic;
-    cmdFirewallOn.isCustomConfig = bIsCustomConfig;
-    cmdFirewallOn.ip = ip.toStdWString();
-
-    std::stringstream stream;
-    boost::archive::text_oarchive oa(stream, boost::archive::no_header);
-    oa << cmdFirewallOn;
-
-    MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_FIREWALL_CHANGE, stream.str());
     return mpr.success;
 }
 

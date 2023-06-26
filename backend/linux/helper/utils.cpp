@@ -97,6 +97,11 @@ std::string getFullCommand(const std::string &exePath, const std::string &execut
     return fullCmd;
 }
 
+std::string getFullCommandAsUser(const std::string &user, const std::string &exePath, const std::string &executable, const std::string &arguments)
+{
+    return "sudo -u " + user + " " + getFullCommand(exePath, executable, arguments);
+}
+
 std::vector<std::string> getOpenVpnExeNames()
 {
     std::vector<std::string> ret;
@@ -130,6 +135,19 @@ std::string getDnsScript(CmdDnsManager mgr)
     default:
         return "";
     }
+}
+
+void createWindscribeUserAndGroup()
+{
+    bool exists = !Utils::executeCommand("id windscribe");
+    if (exists) {
+        return;
+    }
+
+    // Create group
+    Utils::executeCommand("groupadd", {"windscribe"});
+    // Create user
+    Utils::executeCommand("useradd", {"-r", "-g", "windscribe", "-s", "/bin/false", "windscribe"});
 }
 
 } // namespace Utils

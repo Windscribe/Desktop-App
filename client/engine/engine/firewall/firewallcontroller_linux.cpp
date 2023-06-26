@@ -15,16 +15,16 @@ FirewallController_linux::~FirewallController_linux()
 {
 }
 
-bool FirewallController_linux::firewallOn(const QSet<QString> &ips, bool bAllowLanTraffic, bool bIsCustomConfig)
+bool FirewallController_linux::firewallOn(const QString &connectingIp, const QSet<QString> &ips, bool bAllowLanTraffic, bool bIsCustomConfig)
 {
     QMutexLocker locker(&mutex_);
-    FirewallController::firewallOn(ips, bAllowLanTraffic, bIsCustomConfig);
+    FirewallController::firewallOn(connectingIp, ips, bAllowLanTraffic, bIsCustomConfig);
     if (isStateChanged()) {
-        qCDebug(LOG_FIREWALL_CONTROLLER) << "firewall enabled with ips count:" << ips.count();
-        return firewallOnImpl(ips, bAllowLanTraffic, bIsCustomConfig, latestStaticIpPorts_);
+        qCDebug(LOG_FIREWALL_CONTROLLER) << "firewall enabled with ips count:" << ips.count() + 1;
+        return firewallOnImpl(connectingIp, ips, bAllowLanTraffic, bIsCustomConfig, latestStaticIpPorts_);
     } else if (forceUpdateInterfaceToSkip_) {
         qCDebug(LOG_FIREWALL_CONTROLLER) << "firewall changed due to interface-to-skip update";
-        return firewallOnImpl(ips, bAllowLanTraffic, bIsCustomConfig, latestStaticIpPorts_);
+        return firewallOnImpl(connectingIp, ips, bAllowLanTraffic, bIsCustomConfig, latestStaticIpPorts_);
     }
     return true;
 }
@@ -82,13 +82,13 @@ void FirewallController_linux::setInterfaceToSkip_posix(const QString &interface
     }
 }
 
-void FirewallController_linux::enableFirewallOnBoot(bool bEnable)
+void FirewallController_linux::enableFirewallOnBoot(bool bEnable, const QSet<QString>& ipTable)
 {
     Q_UNUSED(bEnable);
     //nothing todo for Linux
 }
 
-bool FirewallController_linux::firewallOnImpl(const QSet<QString> &ips, bool bAllowLanTraffic, bool bIsCustomConfig, const apiinfo::StaticIpPortsVector &ports)
+bool FirewallController_linux::firewallOnImpl(const QString &connectingIp, const QSet<QString> &ips, bool bAllowLanTraffic, bool bIsCustomConfig, const apiinfo::StaticIpPortsVector &ports)
 {
     // TODO: this is need for Linux?
     Q_UNUSED(ports);
@@ -138,6 +138,19 @@ bool FirewallController_linux::firewallOnImpl(const QSet<QString> &ips, bool bAl
 
             rules << "-A windscribe_input -i " + interfaceToSkip_ + " -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
             rules << "-A windscribe_output -o " + interfaceToSkip_ + " -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
+        }
+
+        if (!connectingIp.isEmpty()) {
+            rules << "-A windscribe_input -s " + connectingIp + "/32 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
+            // Allow packets from gid 0
+            rules << "-A windscribe_output -d " + connectingIp + "/32 -j ACCEPT -m owner --gid-owner 0 -m comment --comment \"" + comment_ + "\"\n";
+            // Allow packets from windscribe group
+            rules << "-A windscribe_output -d " + connectingIp + "/32 -j ACCEPT -m owner --gid-owner windscribe -m comment --comment \"" + comment_ + "\"\n";
+            // Allow packets from kernel (no uid), for wireguard control traffic
+            rules << "-A windscribe_output -d " + connectingIp + "/32 -j ACCEPT -m owner ! --uid-owner 0-4294967294 -m comment --comment \"" + comment_ + "\"\n";
+            // Allow marked packets.  These packets are marked by the wireguard adapter code.
+            // This is necessary because wg packets have uid/gid of the app that created the packet, not wg itself.
+            rules << "-A windscribe_output -d " + connectingIp + "/32 -j ACCEPT -m mark --mark 51820 -m comment --comment \"" + comment_ + "\"\n";
         }
 
         for (const auto &i : ips) {

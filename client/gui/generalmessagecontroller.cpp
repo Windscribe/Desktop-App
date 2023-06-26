@@ -26,6 +26,9 @@ void GeneralMessageController::showMessage(const QString &icon, const QString &t
     }
 
     MainWindowController::WINDOW_ID source = controller_->currentWindow();
+    if (source == MainWindowController::WINDOW_ID_LOGOUT || source == MainWindowController::WINDOW_ID_EXIT) {
+        source = controller_->windowBeforeExit();
+    }
     if (!(flags & GeneralMessage::kNoWindowChange) && source == MainWindowController::WINDOW_ID_GENERAL_MESSAGE) {
         // Look backwards in the message queue until we find something that has a different source
         for (auto it = messages_.rbegin(); it != messages_.rend(); ++it) {
@@ -143,4 +146,9 @@ void GeneralMessageController::handleResult(Result res)
     }
 
     SAFE_DELETE(message);
+}
+
+bool GeneralMessageController::hasMessages() const
+{
+    return !messages_.isEmpty();
 }

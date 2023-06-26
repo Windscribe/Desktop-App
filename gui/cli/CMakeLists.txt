@@ -17,6 +17,12 @@ else()
     set(WINDSCRIBE_BUILD_LIBS_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../../build-libs)
 endif()
 
+# build_all.py sets this option when invoked with the '--sign' flag. Disabled by default
+option(DEFINE_USE_SIGNATURE_CHECK_MACRO "Add define USE_SIGNATURE_CHECK to project" OFF)
+if(DEFINE_USE_SIGNATURE_CHECK_MACRO)
+    add_definitions(-DUSE_SIGNATURE_CHECK)
+endif(DEFINE_USE_SIGNATURE_CHECK_MACRO)
+
 set(SOURCES
     backendcommander.cpp
     backendcommander.h
@@ -74,6 +80,7 @@ else()
         ssl
         crypto)
     list(APPEND SOURCES
+         ../../client/common/utils/executable_signature/executablesignature_linux.cpp
          ../../client/common/utils/linuxutils.cpp)
 endif()
 
@@ -104,3 +111,20 @@ target_link_directories(windscribe-cli
 target_include_directories(windscribe-cli PRIVATE
                            ../../client/common
 )
+
+if(UNIX)
+    target_include_directories(windscribe-cli
+                               PRIVATE
+                               ${WINDSCRIBE_BUILD_LIBS_PATH}/boost/include
+    )
+
+    target_link_directories(windscribe-cli
+                            PRIVATE
+                            ${WINDSCRIBE_BUILD_LIBS_PATH}/boost/lib
+    )
+
+    target_link_libraries(windscribe-cli
+                          PRIVATE
+                          libboost_filesystem.a
+    )
+endif()

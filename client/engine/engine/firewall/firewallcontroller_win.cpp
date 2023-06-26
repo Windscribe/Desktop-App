@@ -15,10 +15,10 @@ FirewallController_win::~FirewallController_win()
 
 }
 
-bool FirewallController_win::firewallOn(const QSet<QString> &ips, bool bAllowLanTraffic, bool bIsCustomConfig)
+bool FirewallController_win::firewallOn(const QString &connectingIp, const QSet<QString> &ips, bool bAllowLanTraffic, bool bIsCustomConfig)
 {
     QMutexLocker locker(&mutex_);
-    FirewallController::firewallOn(ips, bAllowLanTraffic, bIsCustomConfig);
+    FirewallController::firewallOn(connectingIp, ips, bAllowLanTraffic, bIsCustomConfig);
     if (isStateChanged())
     {
         QString ipStr;
@@ -33,7 +33,7 @@ bool FirewallController_win::firewallOn(const QSet<QString> &ips, bool bAllowLan
          }
 
         qCDebug(LOG_FIREWALL_CONTROLLER) << "firewall enabled with ips count:" << ips.count();
-        return helper_win_->firewallOn(ipStr, bAllowLanTraffic, bIsCustomConfig);
+        return helper_win_->firewallOn(connectingIp, ipStr, bAllowLanTraffic, bIsCustomConfig);
     }
     else
     {
@@ -80,7 +80,7 @@ void FirewallController_win::setInterfaceToSkip_posix(const QString &interfaceTo
     //nothing todo for Windows
 }
 
-void FirewallController_win::enableFirewallOnBoot(bool bEnable)
+void FirewallController_win::enableFirewallOnBoot(bool bEnable, const QSet<QString> &ipTable)
 {
     Q_UNUSED(bEnable);
     //nothing todo for Windows

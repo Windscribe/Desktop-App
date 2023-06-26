@@ -351,7 +351,7 @@ MessagePacketResult processMessagePacket(int cmdId, const std::string &packet, I
         ia >> cmdFirewallOn;
 
         bool prevStatus = firewallFilter.currentStatus();
-        firewallFilter.on(cmdFirewallOn.ip.c_str(), cmdFirewallOn.allowLanTraffic, cmdFirewallOn.isCustomConfig);
+        firewallFilter.on(cmdFirewallOn.connectingIp.c_str(), cmdFirewallOn.ip.c_str(), cmdFirewallOn.allowLanTraffic, cmdFirewallOn.isCustomConfig);
         if (!prevStatus) {
             splitTunnelling.updateState();
         }
@@ -367,16 +367,6 @@ MessagePacketResult processMessagePacket(int cmdId, const std::string &packet, I
             splitTunnelling.updateState();
         }
         Logger::instance().out(L"AA_COMMAND_FIREWALL_OFF");
-        mpr.success = true;
-        mpr.exitCode = 0;
-    }
-    else if (cmdId == AA_COMMAND_FIREWALL_CHANGE)
-    {
-        CMD_FIREWALL_ON cmdFirewallOn;
-        ia >> cmdFirewallOn;
-
-        firewallFilter.on(cmdFirewallOn.ip.c_str(), cmdFirewallOn.allowLanTraffic, cmdFirewallOn.isCustomConfig);
-        Logger::instance().out(L"AA_COMMAND_FIREWALL_CHANGE, AllowLocalTraffic=%d, IsCustomConfig=%d", cmdFirewallOn.allowLanTraffic, cmdFirewallOn.isCustomConfig);
         mpr.success = true;
         mpr.exitCode = 0;
     }
@@ -692,12 +682,8 @@ MessagePacketResult processMessagePacket(int cmdId, const std::string &packet, I
                     strCmd += L" --socks-proxy " + cmdRunOpenVpn.szSocksProxy + L" " + std::to_wstring(cmdRunOpenVpn.socksPortNumber);
                 }
 
-                Logger::instance().out(L"AA_COMMAND_RUN_OPENVPN, cmd=%s", strCmd.c_str());
-
                 wchar_t szWorkingDir[MAX_PATH];
                 wcscpy(szWorkingDir, Utils::getDirPathFromFullPath(filename).c_str());
-                Logger::instance().out(L"AA_COMMAND_RUN_OPENVPN, ovpn file directory=%s", szWorkingDir);
-
                 mpr = ExecuteCmd::instance().executeUnblockingCmd(strCmd.c_str(), L"", szWorkingDir);
             }
         }
@@ -847,19 +833,19 @@ MessagePacketResult processMessagePacket(int cmdId, const std::string &packet, I
                                cmdSplitTunnelingSettings.isAllowLanTraffic,
                                cmdSplitTunnelingSettings.files.size());
 
-        for (size_t i = 0; i < cmdSplitTunnelingSettings.files.size(); ++i)
-        {
-            Logger::instance().out(L"AA_COMMAND_SPLIT_TUNNELING_SETTINGS: %s", cmdSplitTunnelingSettings.files[i].c_str());
+        for (size_t i = 0; i < cmdSplitTunnelingSettings.files.size(); ++i) {
+            Logger::instance().out(L"AA_COMMAND_SPLIT_TUNNELING_SETTINGS: %s",
+                cmdSplitTunnelingSettings.files[i].substr(cmdSplitTunnelingSettings.files[i].find_last_of(L"/\\") + 1).c_str());
         }
 
-        for (size_t i = 0; i < cmdSplitTunnelingSettings.ips.size(); ++i)
-        {
-            Logger::instance().out(L"AA_COMMAND_SPLIT_TUNNELING_SETTINGS: %s", cmdSplitTunnelingSettings.ips[i].c_str());
+        for (size_t i = 0; i < cmdSplitTunnelingSettings.ips.size(); ++i) {
+            Logger::instance().out(L"AA_COMMAND_SPLIT_TUNNELING_SETTINGS: %s",
+                cmdSplitTunnelingSettings.ips[i].c_str());
         }
 
-        for (size_t i = 0; i < cmdSplitTunnelingSettings.hosts.size(); ++i)
-        {
-            Logger::instance().out("AA_COMMAND_SPLIT_TUNNELING_SETTINGS: %s", cmdSplitTunnelingSettings.hosts[i].c_str());
+        for (size_t i = 0; i < cmdSplitTunnelingSettings.hosts.size(); ++i) {
+            Logger::instance().out("AA_COMMAND_SPLIT_TUNNELING_SETTINGS: %s",
+                cmdSplitTunnelingSettings.hosts[i].c_str());
         }
 
 

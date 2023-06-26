@@ -29,7 +29,9 @@ bool FirewallOnBootManager::enable() {
     rules << "set skip on { lo0 }\n";
     rules << "scrub in all fragment reassemble\n";
     rules << "block all\n";
-    rules << "table <windscribe_ips> persist\n";
+    rules << "table <windscribe_ips> persist {";
+    rules << ipTable_.c_str();
+    rules << "}\n";
     rules << "pass out quick inet from any to <windscribe_ips>\n";
     rules << "anchor windscribe_vpn_traffic all\n";
     rules << "pass out quick inet proto udp from any to any port = 67\n";
@@ -52,11 +54,14 @@ bool FirewallOnBootManager::enable() {
 
     script << "#!/bin/bash\n";
     script << "FILE=\"/Applications/Windscribe.app/Contents/MacOS/Windscribe\"\n";
-    script << "launchctl stop com.aaa.windscribe.firewall_on\n";
-    script << "launchctl unload /Library/LaunchDaemons/com.aaa.windscribe.firewall_on.plist\n";
-    script << "launchctl remove com.aaa.windscribe.firewall_on\n";
-    script << "while grep -q \"No such key\" <<< \"`echo 'show State:/Network/Global/IPv4' | scutil`\"; do sleep 1; done;\n";
-    script << "/sbin/pfctl -e -f \"/etc/windscribe/boot_pf.conf\"\n";
+    script << "if [ -d \"/Applications/Windscribe.app\" ]; then\n";
+    script << "    while grep -q \"No such key\" <<< \"`echo 'show State:/Network/Global/IPv4' | scutil`\"; do sleep 1; done;\n";
+    script << "    /sbin/pfctl -e -f \"/etc/windscribe/boot_pf.conf\"\n";
+    script << "else\n";
+    script << "    launchctl stop com.aaa.windscribe.firewall_on\n";
+    script << "    launchctl unload /Library/LaunchDaemons/com.aaa.windscribe.firewall_on.plist\n";
+    script << "    launchctl remove com.aaa.windscribe.firewall_on\n";
+    script << "fi\n";
 
     fd = open("/etc/windscribe/boot_pf.sh", O_CREAT | O_WRONLY | O_TRUNC);
     if (fd < 0) {

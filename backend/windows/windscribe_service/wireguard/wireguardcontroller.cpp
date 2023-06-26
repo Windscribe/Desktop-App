@@ -58,7 +58,7 @@ bool WireGuardController::installService(const std::wstring &exeName, const std:
             svcCtrl.deleteService(serviceName_.c_str());
         }
 
-        Logger::instance().out("WireGuardController::installService - command-line: %ls", serviceCmdLine.c_str());
+        Logger::instance().out("WireGuardController::installService");
 
         svcCtrl.installService(serviceName_.c_str(), serviceCmdLine.c_str(),
             L"Windscribe Wireguard Tunnel", L"Manages the Windscribe WireGuard tunnel connection",

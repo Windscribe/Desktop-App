@@ -35,6 +35,7 @@ public:
     void setShowBottomPanel(bool on) override;
     void setLearnMoreUrl(const QString &url) override;
     bool isRememberChecked() override;
+    IGeneralMessageWindow::Shape backgroundShape() const override;
 
 signals:
     void acceptClick() override;

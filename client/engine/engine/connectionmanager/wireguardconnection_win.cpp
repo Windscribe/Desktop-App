@@ -11,6 +11,7 @@
 #include "utils/logger.h"
 #include "utils/servicecontrolmanager.h"
 #include "utils/winutils.h"
+#include "utils/timer_win.h"
 #include "utils/ws_assert.h"
 
 // Useful code:
@@ -30,37 +31,6 @@
 
 static const QString kServiceIdentifier("WindscribeWireguard");
 static const std::wstring kServiceName = L"WireGuardTunnel$" + kServiceIdentifier.toStdWString();
-
-static HANDLE createTimer(int timeout, bool singleShot, PTIMERAPCROUTINE completionRoutine, LPVOID argToCompletionRoutine)
-{
-    HANDLE hTimer = ::CreateWaitableTimer(NULL, FALSE, NULL);
-    if (hTimer == NULL) {
-        qCDebug(LOG_CONNECTION) << "WireGuardConnection - CreateWaitableTimer failed:" << ::GetLastError();
-        return NULL;
-    }
-
-    LARGE_INTEGER initialTimeout;
-    initialTimeout.QuadPart = -(timeout * 10000);
-
-    LONG period = (singleShot ? 0 : timeout);
-
-    BOOL result = ::SetWaitableTimer(hTimer, &initialTimeout, period, completionRoutine, argToCompletionRoutine, FALSE);
-    if (result == FALSE) {
-        ::CloseHandle(hTimer);
-        qCDebug(LOG_CONNECTION) << "WireGuardConnection - SetWaitableTimer failed:" << ::GetLastError();
-        return NULL;
-    }
-
-    return hTimer;
-}
-
-static void cancelTimer(wsl::Win32Handle &timer)
-{
-    if (timer.isValid()) {
-        ::CancelWaitableTimer(timer.getHandle());
-        timer.closeHandle();
-    }
-}
 
 
 WireGuardConnection::WireGuardConnection(QObject *parent, IHelper *helper)
@@ -199,25 +169,25 @@ void WireGuardConnection::run()
             onGetWireguardStats();
         }
 
-        wsl::Win32Handle timerGetWireguardStats(createTimer(kTimeoutForGetStats, false, getWireguardStatsProc, this));
+        wsl::Win32Handle timerGetWireguardStats(timer_win::createTimer(kTimeoutForGetStats, false, getWireguardStatsProc, this));
         if (!timerGetWireguardStats.isValid()) {
             break;
         }
 
-        wsl::Win32Handle timerCheckServiceRunning(createTimer(kTimeoutForCheckService, false, checkServiceRunningProc, this));
+        wsl::Win32Handle timerCheckServiceRunning(timer_win::createTimer(kTimeoutForCheckService, false, checkServiceRunningProc, this));
         if (!timerCheckServiceRunning.isValid()) {
             break;
         }
 
         wsl::Win32Handle timerTimeoutForAutomatic;
         if (isAutomaticConnectionMode_) {
-            timerTimeoutForAutomatic.setHandle(createTimer(kTimeoutForAutomatic, true, automaticConnectionTimeoutProc, this));
+            timerTimeoutForAutomatic.setHandle(timer_win::createTimer(kTimeoutForAutomatic, true, automaticConnectionTimeoutProc, this));
             if (!timerTimeoutForAutomatic.isValid()) {
                 break;
             }
         }
 
-        wsl::Win32Handle timerGetWireguardLogUpdates(createTimer(kTimeoutForLogUpdate, false, getWireguardLogUpdatesProc, this));
+        wsl::Win32Handle timerGetWireguardLogUpdates(timer_win::createTimer(kTimeoutForLogUpdate, false, getWireguardLogUpdatesProc, this));
         if (!timerGetWireguardLogUpdates.isValid()) {
             break;
         }
@@ -229,10 +199,10 @@ void WireGuardConnection::run()
             }
         }
 
-        cancelTimer(timerGetWireguardLogUpdates);
-        cancelTimer(timerGetWireguardStats);
-        cancelTimer(timerCheckServiceRunning);
-        cancelTimer(timerTimeoutForAutomatic);
+        timer_win::cancelTimer(timerGetWireguardLogUpdates);
+        timer_win::cancelTimer(timerGetWireguardStats);
+        timer_win::cancelTimer(timerCheckServiceRunning);
+        timer_win::cancelTimer(timerTimeoutForAutomatic);
 
         // Get final receive/transmit byte counts.
         onGetWireguardStats();

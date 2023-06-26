@@ -259,7 +259,7 @@ int wmain(int argc, wchar_t *argv[])
         return 0;
     }
 
-    debugOut("Starting WireGuard tunnel with config file: %ls", configFile.c_str());
+    debugOut("Starting WireGuard tunnel");
 
     // Disabling client app monitoring.  The tunnel should remain up if the client app crashes.
     // The client app will shut the tunnel down when it restarts.

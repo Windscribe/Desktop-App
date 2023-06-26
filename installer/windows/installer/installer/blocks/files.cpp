@@ -112,7 +112,7 @@ int Files::moveFiles()
         return 100;
     }
 
-    Log::instance().out(L"Moving installed files from [%s] to [%s]...", installPath_.c_str(), settingsInstallPath.c_str());
+    Log::instance().out(L"Moving installed files to user custom path...");
 
     try
     {
@@ -128,7 +128,7 @@ int Files::moveFiles()
             // Ensure the target's parent folder exists or MoveFile will fail.
             wstring parentFolder = Path::PathExtractDir(settingsInstallPath);
             if (!parentFolder.empty() && !Path::isRoot(parentFolder) && !Directory::DirExists(parentFolder)) {
-                Log::instance().out(L"Creating parent folder %s...", parentFolder.c_str());
+                Log::instance().out(L"Creating parent folder...");
                 if (::SHCreateDirectoryEx(NULL, parentFolder.c_str(), NULL) != ERROR_SUCCESS) {
                     throw system_error(::GetLastError(), generic_category(), "could not create target folder's parent");
                 }

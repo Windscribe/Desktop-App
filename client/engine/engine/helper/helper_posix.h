@@ -1,5 +1,4 @@
-#ifndef HELPER_POSIX_H
-#define HELPER_POSIX_H
+#pragma once
 
 #include <QElapsedTimer>
 #include <QThread>
@@ -53,7 +52,10 @@ public:
     bool clearFirewallRules(bool isKeepPfEnabled);
     bool setFirewallRules(CmdIpVersion version, const QString &table, const QString &group, const QString &rules);
     bool getFirewallRules(CmdIpVersion version, const QString &table, const QString &group, QString &rules);
-    bool setFirewallOnBoot(bool bEnabled);
+    bool setFirewallOnBoot(bool bEnabled, const QSet<QString>& ipTable);
+    bool startStunnel();
+    bool configureStunnel(const QString &hostname, unsigned int port, unsigned int localPort);
+    bool startWstunnel(const QString &hostname, unsigned int port, bool isUdp, unsigned int localPort);
 
 protected:
     void run() override;
@@ -121,5 +123,3 @@ protected:
 private:
     bool firstConnectToHelperErrorReported_;
 };
-
-#endif // HELPER_POSIX_H

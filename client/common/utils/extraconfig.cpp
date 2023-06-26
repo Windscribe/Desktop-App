@@ -54,7 +54,7 @@ QString ExtraConfig::getExtraConfig(bool bWithLog)
         QByteArray extraArr = fileExtra.readAll();
         fileExtra.close();
         if (bWithLog) {
-            qCDebug(LOG_BASIC) << "Found extra config file:" << path_;
+            qCDebug(LOG_BASIC) << "Found extra config file";
             qCDebug(LOG_BASIC) << "Extra options:" << extraArr;
         }
         return extraArr;

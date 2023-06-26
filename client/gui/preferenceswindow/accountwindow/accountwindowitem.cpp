@@ -14,7 +14,7 @@
 namespace PreferencesWindow {
 
 AccountWindowItem::AccountWindowItem(ScalableGraphicsObject *parent, AccountInfo *accountInfo)
-  : CommonGraphics::BasePage(parent), accountInfo_(accountInfo)
+  : CommonGraphics::BasePage(parent), accountInfo_(accountInfo), manageAccountClickInProgress_(false)
 {
     plan_ = accountInfo->plan();
     trafficUsed_ = accountInfo->trafficUsed();

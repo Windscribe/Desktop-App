@@ -33,7 +33,7 @@ bool writeOVPNFile(std::wstring &filename, const std::wstring &config)
     }
 
     filePath << L"\\config.ovpn";
-    Logger::instance().out("Writing OpenVPN config to %ls", filePath.str().c_str());
+    Logger::instance().out("Writing OpenVPN config");
 
     std::wofstream file(filePath.str().c_str(), std::ios::out | std::ios::trunc);
     if (!file) {

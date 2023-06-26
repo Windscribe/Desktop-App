@@ -93,7 +93,7 @@ WireguardRingLogger::mapWireguardRinglogFile()
         return false;
     }
 
-    qCDebug(LOG_CONNECTION) << "Opened and mapped the wireguard service log file" << wireguardLogFile_.fileName();
+    qCDebug(LOG_CONNECTION) << "Opened and mapped the wireguard service log file";
 
     const uint32_t magicHeader = 0xbadbabe;
     if (memcmp(logData_, &magicHeader, sizeof(uint32_t)) != 0) {

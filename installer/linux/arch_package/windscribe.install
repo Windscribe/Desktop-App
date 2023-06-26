@@ -45,6 +45,8 @@ pre_upgrade() {
         systemctl stop windscribe-helper
         systemctl disable windscribe-helper
         killall -q Windscribe || true
+        userdel -f windscribe || true
+        groupdel -f windscribe || true
 }
 
 post_upgrade() {
@@ -55,6 +57,8 @@ pre_remove() {
         systemctl stop windscribe-helper
         systemctl disable windscribe-helper
         killall -q Windscribe || true
+        userdel -f windscribe || true
+        groupdel -f windscribe || true
         rm -rf /etc/windscribe
         rm -f /opt/windscribe/helper_log.txt
         rm -f /usr/bin/windscribe

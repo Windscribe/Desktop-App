@@ -5,6 +5,9 @@ systemctl disable windscribe-helper
 
 killall -q Windscribe || true
 
+deluser --force windscribe || true
+delgroup --force windscribe || true
+
 rm -f /opt/windscribe/helper_log.txt
 rm -rf /etc/windscribe
 rm -f /usr/bin/windscribe-cli

@@ -13,55 +13,41 @@ void FirewallExceptions::setHostIPs(const QSet<QString> &hostIPs)
 
 void FirewallExceptions::setProxyIP(const types::ProxySettings &proxySettings)
 {
-    if (proxySettings.option() == PROXY_OPTION_NONE)
-    {
+    if (proxySettings.option() == PROXY_OPTION_NONE) {
         proxyIP_.clear();
-    }
-    else if (proxySettings.option() == PROXY_OPTION_HTTP || proxySettings.option() == PROXY_OPTION_SOCKS)
-    {
+    } else if (proxySettings.option() == PROXY_OPTION_HTTP || proxySettings.option() == PROXY_OPTION_SOCKS) {
         proxyIP_ = proxySettings.address();
-    }
-    else
-    {
+    } else {
         WS_ASSERT(false);
     }
 }
 
 void FirewallExceptions::setCustomRemoteIp(const QString &remoteIP, bool &bChanged)
 {
-    if (remoteIP_ != remoteIP)
-    {
+    if (remoteIP_ != remoteIP) {
         remoteIP_ = remoteIP;
         bChanged = true;
-    }
-    else
-    {
+    } else {
         bChanged = false;
     }
 }
 
 void FirewallExceptions::setConnectingIp(const QString &connectingIp, bool &bChanged)
 {
-    if (connectingIp_ != connectingIp)
-    {
+    if (connectingIp_ != connectingIp) {
         connectingIp_ = connectingIp;
         bChanged = true;
-    }
-    else
-    {
+    } else {
         bChanged = false;
     }
 }
 
 void FirewallExceptions::setDNSServerIp(const QString &dnsIp, bool &bChanged)
 {
-    if (dnsIp_ != dnsIp)
-    {
+    if (dnsIp_ != dnsIp) {
         dnsIp_ = dnsIp;
         bChanged = true;
-    }
-    else
-    {
+    } else {
         bChanged = false;
     }
 }
@@ -89,84 +75,56 @@ QSet<QString> FirewallExceptions::getIPAddressesForFirewall() const
     ipList.add("127.0.0.1");
 
     // add dns servers
-    if (dnsPolicyType_ == DNS_TYPE_OS_DEFAULT)
-    {
+    if (dnsPolicyType_ == DNS_TYPE_OS_DEFAULT) {
         std::vector<std::wstring> listDns = DnsUtils::getOSDefaultDnsServers();
-        for (std::vector<std::wstring>::iterator it = listDns.begin(); it != listDns.end(); ++it)
-        {
+        for (std::vector<std::wstring>::iterator it = listDns.begin(); it != listDns.end(); ++it) {
             ipList.add(QString::fromStdWString(*it));
         }
         //qCDebug(LOG_FIREWALL_CONTROLLER) << "Get OS default DNS list:" << ipList.get();
-    }
-    else if (dnsPolicyType_ == DNS_TYPE_OPEN_DNS)
-    {
-        for (const QString &s : HardcodedSettings::instance().openDns())
-        {
+    } else if (dnsPolicyType_ == DNS_TYPE_OPEN_DNS) {
+        for (const QString &s : HardcodedSettings::instance().openDns()) {
             ipList.add(s);
         }
-    }
-    else if (dnsPolicyType_ == DNS_TYPE_CLOUDFLARE)
-    {
-        for (const QString &s : HardcodedSettings::instance().cloudflareDns())
-        {
+    } else if (dnsPolicyType_ == DNS_TYPE_CLOUDFLARE) {
+        for (const QString &s : HardcodedSettings::instance().cloudflareDns()) {
             ipList.add(s);
         }
-    }
-    else if (dnsPolicyType_ == DNS_TYPE_GOOGLE)
-    {
-        for (const QString &s : HardcodedSettings::instance().googleDns())
-        {
+    } else if (dnsPolicyType_ == DNS_TYPE_GOOGLE) {
+        for (const QString &s : HardcodedSettings::instance().googleDns()) {
             ipList.add(s);
         }
-    }
-    else if (dnsPolicyType_ == DNS_TYPE_CONTROLD)
-    {
-        for (const QString &s : HardcodedSettings::instance().controldDns())
-        {
+    } else if (dnsPolicyType_ == DNS_TYPE_CONTROLD) {
+        for (const QString &s : HardcodedSettings::instance().controldDns()) {
             ipList.add(s);
         }
     }
 
-    for (const QString &s : hostIPs_)
-    {
-        if (!s.isEmpty())
-        {
+    for (const QString &s : hostIPs_) {
+        if (!s.isEmpty()) {
             ipList.add(s);
         }
     }
 
-    if (!proxyIP_.isEmpty())
-    {
+    if (!proxyIP_.isEmpty()) {
         ipList.add(proxyIP_);
     }
 
-    if (!remoteIP_.isEmpty())
-    {
+    if (!remoteIP_.isEmpty()) {
         ipList.add(remoteIP_);
     }
 
-    if (!connectingIp_.isEmpty())
-    {
-        ipList.add(connectingIp_);
-    }
-
-    if (!dnsIp_.isEmpty())
-    {
+    if (!dnsIp_.isEmpty()) {
         ipList.add(dnsIp_);
     }
 
-    for (const QString &sl : locationsPingIPs_)
-    {
-        if (!sl.isEmpty())
-        {
+    for (const QString &sl : locationsPingIPs_) {
+        if (!sl.isEmpty()) {
             ipList.add(sl);
         }
     }
 
-    for (const QString &sl : customConfigsPingIPs_)
-    {
-        if (!sl.isEmpty())
-        {
+    for (const QString &sl : customConfigsPingIPs_) {
+        if (!sl.isEmpty()) {
             ipList.add(sl);
         }
     }
@@ -174,16 +132,19 @@ QSet<QString> FirewallExceptions::getIPAddressesForFirewall() const
     return ipList.get();
 }
 
-QSet<QString> FirewallExceptions::getIPAddressesForFirewallForConnectedState(const QString &connectedIp) const
+QSet<QString> FirewallExceptions::getIPAddressesForFirewallForConnectedState() const
 {
     UniqueIpList ipList;
     ipList.add("127.0.0.1");
-    ipList.add(connectedIp);
-    if (!remoteIP_.isEmpty())
-    {
+    if (!remoteIP_.isEmpty()) {
         ipList.add(remoteIP_);
     }
     return ipList.get();
+}
+
+const QString& FirewallExceptions::connectingIp() const
+{
+    return connectingIp_;
 }
 
 FirewallExceptions::FirewallExceptions(): dnsPolicyType_(DNS_TYPE_OPEN_DNS)

@@ -28,7 +28,6 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
     connect(preferences, &Preferences::connectionSettingsChanged, this, &ConnectionWindowItem::onConnectionModePreferencesChanged);
     connect(preferences, &Preferences::packetSizeChanged, this, &ConnectionWindowItem::onPacketSizePreferencesChanged);
     connect(preferences, &Preferences::isAllowLanTrafficChanged, this, &ConnectionWindowItem::onIsAllowLanTrafficPreferencesChanged);
-    connect(preferences, &Preferences::invalidLanAddressNotification, this, &ConnectionWindowItem::onInvalidLanAddressNotification);
     connect(preferences, &Preferences::macAddrSpoofingChanged, this, &ConnectionWindowItem::onMacAddrSpoofingPreferencesChanged);
     connect(preferences, &Preferences::connectedDnsInfoChanged, this, &ConnectionWindowItem::onConnectedDnsPreferencesChanged);
     connect(preferences_, &Preferences::shareSecureHotspotChanged, this, &ConnectionWindowItem::onSecureHotspotPreferencesChanged);
@@ -286,37 +285,6 @@ void ConnectionWindowItem::onTerminateSocketsPreferencesChanged(bool b)
 #if defined(Q_OS_WIN)
     terminateSocketsItem_->setState(b);
 #endif
-}
-
-void ConnectionWindowItem::onInvalidLanAddressNotification(QString address)
-{
-    TooltipController::instance().hideTooltip(TOOLTIP_ID_INVALID_LAN_ADDRESS);
-
-    const auto *the_scene = scene();
-    if (!the_scene || !isVisible())
-        return;
-    const auto *view = the_scene->views().first();
-    if (!view)
-        return;
-
-    const auto global_pt = view->mapToGlobal(
-        view->mapFromScene(checkBoxAllowLanTraffic_->getButtonScenePos()));
-
-    const int width = 150 * G_SCALE;
-    const int posX = global_pt.x() + 15 * G_SCALE;
-    const int posY = global_pt.y() - 5 * G_SCALE;
-
-    TooltipInfo ti(TOOLTIP_TYPE_DESCRIPTIVE, TOOLTIP_ID_INVALID_LAN_ADDRESS);
-    ti.x = posX;
-    ti.y = posY;
-    ti.tailtype = TOOLTIP_TAIL_BOTTOM;
-    ti.tailPosPercent = 0.9;
-    ti.title = address;
-    ti.desc = tr("Your IP address is not in a LAN address range. Please reconfigure your LAN with "
-                 "a valid RFC-1918 IP range.");
-    ti.width = width;
-    ti.delay = 100;
-    TooltipController::instance().showTooltipDescriptive(ti);
 }
 
 void ConnectionWindowItem::onAllowLanTrafficButtonHoverLeave()

@@ -185,15 +185,15 @@ bool DnsResolver::processChannel(ares_channel channel)
 	FD_ZERO(&read_fds);
 	FD_ZERO(&write_fds);
 	nfds = ares_fds(channel, &read_fds, &write_fds);
-	if (nfds == 0)
-	{
+	if (nfds == 0) {
 		return false;
 	}
 
 	res = select(nfds, &read_fds, &write_fds, NULL, &tvp);
-	if (res == -1)
-	{
+	if (res == -1) {
 		return false;
+	} else if (res == 0) {
+		return true;
 	}
 	ares_process(channel, &read_fds, &write_fds);
 	return true;

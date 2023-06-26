@@ -1,3 +1,28 @@
+2.7.6 (08/06/2023)
+All:
+   * Fixed UI overlap and alignment issues. #457 & #583
+   * Fixed loading spinner in Manage Account preference slows down. #480
+   * Fixed access to server IP to be only allowed for Windscribe & system apps. #654
+   * Fixed incorrect error message in the DNS domain screen when a domain name is not valid. #655
+   * Fixed WireGuard may not recover correctly in manual mode. #664
+   * Fixed OpenVPN UDP and TCP may not work with certain commented out Advanced Parameters. #670
+   * Fixed executable signature checking mechanism disabled in the helper and CLI. #676
+   * Removed incorrect primary IP check when enabling the Allow LAN Traffic preference. #663
+   * Removed full directory paths from log to obscure user's PII. #666
+Windows:
+   * Fixed DNS leaks when using openvpn + custom connected DNS (ctrld). #625
+   * Fixed possible helper (Windscribe service) hang during app startup. #643
+   * Fixed DNS resolver works with a noticeable delay after connecting. #668
+macOS:
+   * Fixed app may become non-responsive and eventually crash. #645
+   * Fixed app to appear on the active virtual desktop when user clicks either the menubar icon or dock icon. #647
+   * Fixed firewall disabled on computer startup when firewall mode set to Always On. #658
+Linux:
+   * Fixed incorrect app categorization. #660
+   * Fixed the dns-leak-protect script to only process IPv4 DNS. #662
+   * Fixed RPM package upgrade failures. #672
+
+
 2.7.5 (24/05/2023)
 All:
    * Added a small loading spinner to some operations which may take a long time. #480

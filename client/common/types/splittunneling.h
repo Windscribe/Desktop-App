@@ -151,7 +151,7 @@ struct SplitTunnelingApp
         dbg.nospace();
         dbg << "{type:" << (int)s.type << "; ";
         dbg << "name:" << s.name << "; ";
-        dbg << "fullName:" << s.fullName << "; ";
+        dbg << "fullName:" << (s.fullName.isEmpty() ? "empty" : "settled") << "; ";
         dbg << "active:" << s.active << "}";
         return dbg;
     }

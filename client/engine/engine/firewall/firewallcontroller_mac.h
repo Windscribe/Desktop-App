@@ -1,5 +1,4 @@
-#ifndef FIREWALLCONTROLLER_MAC_H
-#define FIREWALLCONTROLLER_MAC_H
+#pragma once
 
 #include "firewallcontroller.h"
 #include "engine/helper/helper_mac.h"
@@ -16,7 +15,7 @@ class FirewallController_mac : public FirewallController
 public:
     explicit FirewallController_mac(QObject *parent, IHelper *helper);
 
-    bool firewallOn(const QSet<QString> &ips, bool bAllowLanTraffic, bool bIsCustomConfig) override;
+    bool firewallOn(const QString &connectingIp, const QSet<QString> &ips, bool bAllowLanTraffic, bool bIsCustomConfig) override;
     bool firewallOff() override;
     bool firewallActualState() override;
 
@@ -24,7 +23,7 @@ public:
     bool deleteWhitelistPorts() override;
 
     void setInterfaceToSkip_posix(const QString &interfaceToSkip) override;
-    void enableFirewallOnBoot(bool bEnable) override;
+    void enableFirewallOnBoot(bool bEnable, const QSet<QString>& ipTable) override;
 
 private:
     Helper_mac *helper_;
@@ -48,16 +47,17 @@ private:
     QString interfaceToSkip_;
     bool isAllowLanTraffic_;
     bool isCustomConfig_;
+    QString connectingIp_;
     apiinfo::StaticIpPortsVector staticIpPorts_;
 
     QTemporaryFile tempFile_;
 
     void firewallOffImpl();
     QStringList lanTrafficRules(bool bAllowLanTraffic) const;
-    QStringList vpnTrafficRules(const QString &interfaceToSkip, bool bIsCustomConfig) const;
+    QStringList vpnTrafficRules(const QString &connectingIp, const QString &interfaceToSkip, bool bIsCustomConfig) const;
     void getFirewallStateFromPfctl(FirewallState &outState);
     bool checkInternalVsPfctlState(FirewallState *outFirewallState = nullptr);
-    QString generatePfConf(const QSet<QString> &ips, bool bAllowLanTraffic, bool bIsCustomConfig, const QString &interfaceToSkip);
+    QString generatePfConf(const QString &connectingIp, const QSet<QString> &ips, bool bAllowLanTraffic, bool bIsCustomConfig, const QString &interfaceToSkip);
     QString generateTable(const QSet<QString> &ips);
     void updateVpnAnchor();
     QStringList getLocalAddresses(const QString iface) const;
@@ -67,5 +67,3 @@ private:
     void setPfWasEnabledState(bool b);
     bool isPfWasEnabled() const;
 };
-
-#endif // FIREWALLCONTROLLER_MAC_H

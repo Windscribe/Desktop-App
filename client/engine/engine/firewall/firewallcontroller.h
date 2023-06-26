@@ -1,5 +1,4 @@
-#ifndef FIREWALLCONTROLLER_H
-#define FIREWALLCONTROLLER_H
+#pragma once
 
 #include <QObject>
 #include <QSet>
@@ -17,7 +16,7 @@ public:
     virtual ~FirewallController() {}
 
     // this function also uses for change firewall ips, then it is already enabled
-    virtual bool firewallOn(const QSet<QString> &ips, bool bAllowLanTraffic, bool bIsCustomConfig);
+    virtual bool firewallOn(const QString &connectingIp, const QSet<QString> &ips, bool bAllowLanTraffic, bool bIsCustomConfig);
     virtual bool firewallOff();
     virtual bool firewallActualState() = 0;
 
@@ -26,11 +25,12 @@ public:
 
     // Mac/Linux specific functions
     virtual void setInterfaceToSkip_posix(const QString &interfaceToSkip) = 0;
-    virtual void enableFirewallOnBoot(bool bEnable) = 0;
+    virtual void enableFirewallOnBoot(bool bEnable, const QSet<QString>& ipTable = QSet<QString>()) = 0;
 
 protected:
     bool isStateChanged();
 
+    QString latestConnectingIp_;
     QSet<QString> latestIps_;
     bool latestAllowLanTraffic_;
     bool latestEnabledState_;
@@ -39,5 +39,3 @@ protected:
     bool bInitialized_;
     bool bStateChanged_;
 };
-
-#endif // FIREWALLCONTROLLER_H

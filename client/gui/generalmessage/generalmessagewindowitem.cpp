@@ -243,4 +243,9 @@ void GeneralMessageWindowItem::updateHeight()
     contentItem_->update();
 }
 
+IGeneralMessageWindow::Shape GeneralMessageWindowItem::backgroundShape() const
+{
+    return shape_;
+}
+
 } // namespace GeneralMessage

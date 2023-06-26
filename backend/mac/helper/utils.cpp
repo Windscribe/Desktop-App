@@ -97,6 +97,11 @@ std::string getFullCommand(const std::string &exePath, const std::string &execut
     return fullCmd;
 }
 
+std::string getFullCommandAsUser(const std::string &user, const std::string &exePath, const std::string &executable, const std::string &arguments)
+{
+    return "sudo -u " + user + " " + getFullCommand(exePath, executable, arguments);
+}
+
 std::vector<std::string> getOpenVpnExeNames()
 {
     std::vector<std::string> ret;
@@ -116,6 +121,31 @@ std::vector<std::string> getOpenVpnExeNames()
         }
     }
     return ret;
+}
+
+void createWindscribeUserAndGroup()
+{
+    bool exists = !Utils::executeCommand("id windscribe");
+    if (exists) {
+        return;
+    }
+
+    // Create group
+    Utils::executeCommand("dscl", {".", "-create", "/Groups/windscribe"});
+    // Below attributes are required for group to be considered valid
+    Utils::executeCommand("dscl", {".", "-create", "/Groups/windscribe", "gid", "518"}); // Arbitrary number
+    Utils::executeCommand("dscl", {".", "-create", "/Groups/windscribe", "passwd", "*"});
+    Utils::executeCommand("dscl", {".", "-create", "/Groups/windscribe", "GroupMembership", "windscribe"});
+    Utils::executeCommand("dscl", {".", "-create", "/Groups/windscribe", "RealName", "Windscribe Apps Group"});
+
+    // Create user
+    Utils::executeCommand("dscl", {".", "-create", "/Users/windscribe"});
+    // Below attributes are required for user to be considered valid
+    Utils::executeCommand("dscl", {".", "-create", "/Users/windscribe", "gid", "518"}); // From above
+    Utils::executeCommand("dscl", {".", "-create", "/Users/windscribe", "uid", "1639"}); // Arbitrary number
+    Utils::executeCommand("dscl", {".", "-create", "/Users/windscribe", "passwd", "*"});
+    Utils::executeCommand("dscl", {".", "-create", "/Users/windscribe", "RealName", "Windscribe Apps User"});
+    Utils::executeCommand("dscl", {".", "-create", "/Users/windscribe", "UserShell", "/bin/false"});
 }
 
 } // namespace Utils
