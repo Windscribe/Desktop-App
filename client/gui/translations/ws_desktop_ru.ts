@@ -11,7 +11,7 @@
     <message>
         <location filename="../dialogs/advancedparametersdialog.cpp" line="23"/>
         <source>Clear</source>
-        <translation>Ясный</translation>
+        <translation>Очистить</translation>
     </message>
     <message>
         <location filename="../dialogs/advancedparametersdialog.cpp" line="24"/>
@@ -31,7 +31,7 @@
         <location filename="../commongraphics/escapebutton.cpp" line="45"/>
         <location filename="../commongraphics/escapebutton.cpp" line="50"/>
         <source>ESC</source>
-        <translation>ЭКУ</translation>
+        <translation>ESC</translation>
     </message>
 </context>
 <context>
@@ -119,7 +119,7 @@
     <message>
         <location filename="../commonwidgets/custommenuwidget.cpp" line="68"/>
         <source>Cut</source>
-        <translation>Резать</translation>
+        <translation>Вырезать</translation>
     </message>
     <message>
         <location filename="../commonwidgets/custommenuwidget.cpp" line="69"/>
@@ -129,7 +129,7 @@
     <message>
         <location filename="../commonwidgets/custommenuwidget.cpp" line="70"/>
         <source>Paste</source>
-        <translation>Паста</translation>
+        <translation>Вставить</translation>
     </message>
     <message>
         <location filename="../commonwidgets/custommenuwidget.cpp" line="71"/>
@@ -139,7 +139,7 @@
     <message>
         <location filename="../commonwidgets/custommenuwidget.cpp" line="74"/>
         <source>Select All</source>
-        <translation>Выберите Все</translation>
+        <translation>Выберить все</translation>
     </message>
 </context>
 <context>
@@ -170,17 +170,17 @@
     <message>
         <location filename="../emergencyconnectwindow/emergencyconnectwindowitem.cpp" line="124"/>
         <source>Emergency connection failure. Try again?</source>
-        <translation>Аварийный сбой соединения. Повторить?</translation>
+        <translation>Экстренное соединение не сработало. Повторить?</translation>
     </message>
     <message>
         <location filename="../emergencyconnectwindow/emergencyconnectwindowitem.cpp" line="129"/>
         <source>Can&apos;t access Windscribe.com or login into the app on your restrictive network? Connect to the emergency server that unblocks all of Windscribe.</source>
-        <translation>Не удается получить доступ к Windscribe.com или войти в приложение в ограничительной сети? Подключитесь к аварийному серверу, который разблокирует весь Windscribe.</translation>
+        <translation>Не удается получить доступ к Windscribe.com или войти в приложение в ограничительной сети? Подключитесь к экстренному серверу, который разблокирует весь Windscribe.</translation>
     </message>
     <message>
         <location filename="../emergencyconnectwindow/emergencyconnectwindowitem.cpp" line="218"/>
         <source>Connecting...</source>
-        <translation>Соединительный...</translation>
+        <translation>Подключение...</translation>
     </message>
     <message>
         <location filename="../emergencyconnectwindow/emergencyconnectwindowitem.cpp" line="228"/>
@@ -344,7 +344,7 @@
     <message>
         <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="1016"/>
         <source>Buy</source>
-        <translation>Покупать</translation>
+        <translation>Купить</translation>
     </message>
 </context>
 <context>
@@ -448,7 +448,7 @@
     <message>
         <location filename="../loginwindow/credentialswindowitem.cpp" line="163"/>
         <source>Rate limited. Please wait before trying to login again.</source>
-        <translation>Тариф ограничен. Пожалуйста, подождите, прежде чем пытаться войти в систему снова.</translation>
+        <translation>Доступ ограничен. Пожалуйста, подождите, прежде чем пытаться войти в систему снова.</translation>
     </message>
     <message>
         <location filename="../loginwindow/credentialswindowitem.cpp" line="166"/>
@@ -468,7 +468,7 @@
     <message>
         <location filename="../loginwindow/credentialswindowitem.cpp" line="288"/>
         <source>Emergency Connect is ON</source>
-        <translation>Аварийное подключение включено</translation>
+        <translation>Экстренное подключение включено</translation>
     </message>
     <message>
         <location filename="../loginwindow/credentialswindowitem.cpp" line="511"/>
@@ -608,7 +608,7 @@
     <message>
         <location filename="../mainwindow.cpp" line="2180"/>
         <source>We&apos;ve detected that your network settings may interfere with Windscribe.  Please send us a debug log to troubleshoot.</source>
-        <translation>Мы обнаружили, что настройки вашей сети могут мешать работе Windscribe.  Пожалуйста, пришлите нам журнал отладки для устранения неполадок.</translation>
+        <translation>Мы обнаружили, что настройки вашей сети могут влиять работоспособности Windscribe.  Пожалуйста, пришлите нам журнал отладки для устранения неполадок.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1519"/>
@@ -659,7 +659,7 @@
     <message>
         <location filename="../mainwindow.cpp" line="3744"/>
         <source>Windscribe</source>
-        <translation>Виндписец</translation>
+        <translation>Windscribe</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1414"/>
@@ -715,7 +715,7 @@
         <location filename="../mainwindow.cpp" line="1864"/>
         <location filename="../mainwindow.cpp" line="3393"/>
         <source>Disconnected</source>
-        <translation>Бессвязный</translation>
+        <translation>Отключено</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1870"/>
@@ -846,12 +846,12 @@ Recovering...</source>
     <message>
         <location filename="../mainwindow.cpp" line="3153"/>
         <source>Connect</source>
-        <translation>Соединять</translation>
+        <translation>Подключить</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="3157"/>
         <source>Disconnect</source>
-        <translation>Разъединять</translation>
+        <translation>Отключить</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="3166"/>
@@ -942,7 +942,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <location filename="../mainwindowcontroller.h" line="193"/>
         <source>Quit Windscribe?</source>
-        <translation>Бросить Windscribe?</translation>
+        <translation>Закрыть Windscribe?</translation>
     </message>
     <message>
         <location filename="../mainwindowcontroller.h" line="194"/>
@@ -975,7 +975,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <location filename="../newsfeedwindow/entryitem.cpp" line="163"/>
         <source>1 day ago</source>
-        <translation>1 день назад</translation>
+        <translation>день назад</translation>
     </message>
     <message>
         <location filename="../newsfeedwindow/entryitem.cpp" line="166"/>
@@ -1033,7 +1033,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <location filename="../preferenceswindow/aboutwindow/aboutwindowitem.cpp" line="55"/>
         <source>About</source>
-        <translation>Около</translation>
+        <translation>О нас</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/aboutwindow/aboutwindowitem.cpp" line="60"/>
@@ -1063,7 +1063,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <location filename="../preferenceswindow/aboutwindow/aboutwindowitem.cpp" line="65"/>
         <source>Jobs</source>
-        <translation>Рабочих мест</translation>
+        <translation>Вакансии</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/aboutwindow/aboutwindowitem.cpp" line="66"/>
@@ -1088,7 +1088,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <location filename="../preferenceswindow/accountwindow/accountwindowitem.cpp" line="103"/>
         <source>Account</source>
-        <translation>Счет</translation>
+        <translation>Аккаунт</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/accountwindow/accountwindowitem.cpp" line="185"/>
@@ -1263,13 +1263,13 @@ If the problem persists after a restart, please send a debug log and open a supp
         <location filename="../preferenceswindow/generalwindow/backgroundsettingsgroup.cpp" line="20"/>
         <location filename="../preferenceswindow/generalwindow/backgroundsettingsgroup.cpp" line="43"/>
         <source>Disconnected</source>
-        <translation>Бессвязный</translation>
+        <translation>Отключения</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/generalwindow/backgroundsettingsgroup.cpp" line="24"/>
         <location filename="../preferenceswindow/generalwindow/backgroundsettingsgroup.cpp" line="44"/>
         <source>Connected</source>
-        <translation>Связанный</translation>
+        <translation>Подключения</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/generalwindow/backgroundsettingsgroup.cpp" line="36"/>
@@ -1284,12 +1284,12 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <location filename="../preferenceswindow/generalwindow/backgroundsettingsgroup.cpp" line="39"/>
         <source>None</source>
-        <translation>Никакой</translation>
+        <translation>Пустота</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/generalwindow/backgroundsettingsgroup.cpp" line="40"/>
         <source>Custom</source>
-        <translation>Обычай</translation>
+        <translation>Пользовательское</translation>
     </message>
 </context>
 <context>
@@ -1357,7 +1357,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="253"/>
         <source>Off</source>
-        <translation>От</translation>
+        <translation>Выкл.</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="324"/>
@@ -1483,7 +1483,7 @@ If the problem persists after a restart, please send a debug log and open a supp
         <location filename="../preferenceswindow/accountwindow/emailitem.cpp" line="17"/>
         <location filename="../preferenceswindow/accountwindow/emailitem.cpp" line="235"/>
         <source>Sent!</source>
-        <translation>Посылать!</translation>
+        <translation>Отправлена!</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/accountwindow/emailitem.cpp" line="29"/>
@@ -1499,12 +1499,12 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <location filename="../preferenceswindow/accountwindow/emailitem.cpp" line="232"/>
         <source>Sending</source>
-        <translation>Посылка</translation>
+        <translation>Отправление</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/accountwindow/emailitem.cpp" line="238"/>
         <source>Failed</source>
-        <translation>Неудавшийся</translation>
+        <translation>Сбой отправление</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/accountwindow/emailitem.h" line="56"/>
@@ -1560,7 +1560,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <location filename="../preferenceswindow/generalwindow/generalwindowitem.cpp" line="289"/>
         <source>Start Minimized</source>
-        <translation>Запуск свернут</translation>
+        <translation>Свёрнутое запуск</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/generalwindow/generalwindowitem.cpp" line="292"/>
@@ -1620,7 +1620,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <location filename="../preferenceswindow/generalwindow/generalwindowitem.cpp" line="308"/>
         <source>Location Order</source>
-        <translation>Расположение Заказ</translation>
+        <translation>Сортирование расположение</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/generalwindow/generalwindowitem.cpp" line="310"/>
@@ -1698,17 +1698,17 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="106"/>
         <source>Talk to Garry</source>
-        <translation>Поговорите с Гарри</translation>
+        <translation>Поговорить с Garry</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="107"/>
         <source>Stuck? Send us a ticket.</source>
-        <translation>Застрявший? Пришлите нам билет.</translation>
+        <translation>Застрял? Пришлите нам талон.</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="108"/>
         <source>Send Ticket</source>
-        <translation>Отправить билет</translation>
+        <translation>Отправить талон</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="109"/>
@@ -1723,12 +1723,12 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="111"/>
         <source>Reddit</source>
-        <translation>Реддит</translation>
+        <translation>Reddit</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="112"/>
         <source>Discord</source>
-        <translation>Разногласие</translation>
+        <translation>Discord</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="113"/>
@@ -1748,12 +1748,12 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="120"/>
         <source>Sent, thanks!</source>
-        <translation>Прислали, спасибо!</translation>
+        <translation>Отправлено, спасибо!</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="122"/>
         <source>Failed!</source>
-        <translation>Неудавшийся!</translation>
+        <translation>Не удалось!</translation>
     </message>
 </context>
 <context>
@@ -1922,7 +1922,7 @@ Connect to a network first</source>
         <location filename="../preferenceswindow/connectionwindow/packetsizegroup.cpp" line="144"/>
         <location filename="../preferenceswindow/connectionwindow/packetsizegroup.cpp" line="145"/>
         <source>MTU</source>
-        <translation>МТУ</translation>
+        <translation>MTU</translation>
     </message>
 </context>
 <context>
@@ -1940,12 +1940,12 @@ Connect to a network first</source>
     <message>
         <location filename="../preferenceswindow/accountwindow/planitem.h" line="38"/>
         <source>Pro</source>
-        <translation>Профессионал</translation>
+        <translation>Pro</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/accountwindow/planitem.h" line="39"/>
         <source>Upgrade</source>
-        <translation>Модернизировать</translation>
+        <translation>Бронировать</translation>
     </message>
 </context>
 <context>
@@ -1958,7 +1958,7 @@ Connect to a network first</source>
     <message>
         <location filename="../preferenceswindow/preferencestab/preferencestabcontrolitem.cpp" line="85"/>
         <source>Account</source>
-        <translation>Счет</translation>
+        <translation>Аккаунт</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/preferencestab/preferencestabcontrolitem.cpp" line="86"/>
@@ -1968,7 +1968,7 @@ Connect to a network first</source>
     <message>
         <location filename="../preferenceswindow/preferencestab/preferencestabcontrolitem.cpp" line="87"/>
         <source>R.O.B.E.R.T.</source>
-        <translation>Р.О.Б.Е.Р.Т.</translation>
+        <translation>R.O.B.E.R.T.</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/preferencestab/preferencestabcontrolitem.cpp" line="88"/>
@@ -1983,7 +1983,7 @@ Connect to a network first</source>
     <message>
         <location filename="../preferenceswindow/preferencestab/preferencestabcontrolitem.cpp" line="90"/>
         <source>About</source>
-        <translation>Около</translation>
+        <translation>О нас</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/preferencestab/preferencestabcontrolitem.cpp" line="92"/>
@@ -2047,7 +2047,7 @@ Connect to a network first</source>
     <message>
         <location filename="../preferenceswindow/connectionwindow/proxyipaddressitem.cpp" line="80"/>
         <source>Copied</source>
-        <translation>Скопированы</translation>
+        <translation>Скопировано</translation>
     </message>
 </context>
 <context>
@@ -2055,7 +2055,7 @@ Connect to a network first</source>
     <message>
         <location filename="../preferenceswindow/proxysettingswindow/proxysettingsgroup.cpp" line="143"/>
         <source>Proxy</source>
-        <translation>Доверенность</translation>
+        <translation>Прокси</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/proxysettingswindow/proxysettingsgroup.cpp" line="151"/>
@@ -2105,7 +2105,7 @@ Connect to a network first</source>
     <message>
         <location filename="../preferenceswindow/robertwindow/robertitem.cpp" line="62"/>
         <source>Allowing</source>
-        <translation>Позволяя</translation>
+        <translation>Разрешена</translation>
     </message>
 </context>
 <context>
@@ -2113,7 +2113,7 @@ Connect to a network first</source>
     <message>
         <location filename="../preferenceswindow/robertwindow/robertwindowitem.cpp" line="56"/>
         <source>R.O.B.E.R.T.</source>
-        <translation>Р.О.Б.Е.Р.Т.</translation>
+        <translation>R.O.B.E.R.T.</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/robertwindow/robertwindowitem.cpp" line="174"/>
@@ -2161,7 +2161,7 @@ Connect to a network first</source>
     <message>
         <location filename="../preferenceswindow/connectionwindow/securehotspotgroup.cpp" line="100"/>
         <source>Secure hotspot is not supported by your network adapter.</source>
-        <translation>Безопасная точка доступа не поддерживается сетевым адаптером.</translation>
+        <translation>Безопасная точка доступа не поддерживается на вашим сетевым адаптером.</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/connectionwindow/securehotspotgroup.cpp" line="103"/>
@@ -2436,13 +2436,13 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <location filename="../../common/types/connecteddnsinfo.cpp" line="18"/>
         <location filename="../../common/types/enums.cpp" line="290"/>
         <source>R.O.B.E.R.T.</source>
-        <translation>Р.О.Б.Е.Р.Т.</translation>
+        <translation>R.O.B.E.R.T.</translation>
     </message>
     <message>
         <location filename="../../common/types/connecteddnsinfo.cpp" line="22"/>
         <location filename="../../common/types/enums.cpp" line="293"/>
         <source>Custom</source>
-        <translation>Обычай</translation>
+        <translation>Пользовательские</translation>
     </message>
     <message>
         <location filename="../../common/types/enums.cpp" line="79"/>
@@ -2484,12 +2484,12 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <location filename="../../common/types/enums.cpp" line="127"/>
         <source>Bars</source>
-        <translation>Баров</translation>
+        <translation>Полос</translation>
     </message>
     <message>
         <location filename="../../common/types/enums.cpp" line="128"/>
         <source>Ms</source>
-        <translation>Госпожа</translation>
+        <translation>Миллисекунд</translation>
     </message>
     <message>
         <location filename="../../common/types/enums.cpp" line="147"/>
@@ -2530,7 +2530,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <location filename="../../common/types/enums.cpp" line="244"/>
         <source>Release</source>
-        <translation>Отпускать</translation>
+        <translation>Выпуск</translation>
     </message>
     <message>
         <location filename="../../common/types/enums.cpp" line="245"/>
@@ -2560,12 +2560,12 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <location filename="../../common/types/enums.cpp" line="326"/>
         <source>Alpha</source>
-        <translation>Альфа</translation>
+        <translation>Alpha</translation>
     </message>
     <message>
         <location filename="../../common/types/enums.cpp" line="329"/>
         <source>Van Gogh</source>
-        <translation>Ван Гог</translation>
+        <translation>Van Gogh</translation>
     </message>
     <message>
         <location filename="../../engine/engine/customconfigs/wireguardcustomconfig.cpp" line="78"/>
@@ -2696,7 +2696,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <location filename="../tooltips/serverratingstooltip.cpp" line="228"/>
         <source>Rate speed</source>
-        <translation>Скорость тарифа</translation>
+        <translation>Оцените скорость</translation>
     </message>
 </context>
 <context>
@@ -2869,7 +2869,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <location filename="../overlaysconnectwindow/upgradewindowitem.cpp" line="88"/>
         <source>Don&apos;t leave your front door open. Upgrade or wait until next month to get your monthly data allowance back.</source>
-        <translation>Не оставляйте входную дверь открытой. Обновите или подождите до следующего месяца, чтобы вернуть ежемесячный объем трафика.</translation>
+        <translation>Не оставляйте входную дверь открытой. Бронируйте или подождите до следующего месяца, чтобы вернуть ежемесячный объем трафика.</translation>
     </message>
     <message>
         <location filename="../overlaysconnectwindow/upgradewindowitem.cpp" line="130"/>
