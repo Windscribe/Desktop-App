@@ -11,12 +11,12 @@
     <message>
         <location filename="../dialogs/advancedparametersdialog.cpp" line="23"/>
         <source>Clear</source>
-        <translation>清楚</translation>
+        <translation>清空</translation>
     </message>
     <message>
         <location filename="../dialogs/advancedparametersdialog.cpp" line="24"/>
         <source>Ok</source>
-        <translation>还行</translation>
+        <translation>确定</translation>
     </message>
     <message>
         <location filename="../dialogs/advancedparametersdialog.cpp" line="25"/>
@@ -31,7 +31,7 @@
         <location filename="../commongraphics/escapebutton.cpp" line="45"/>
         <location filename="../commongraphics/escapebutton.cpp" line="50"/>
         <source>ESC</source>
-        <translation>电调</translation>
+        <translation>退出键</translation>
     </message>
 </context>
 <context>
@@ -44,12 +44,12 @@
     <message>
         <location filename="../connectwindow/connectwindowitem.cpp" line="343"/>
         <source>Unsecured</source>
-        <translation>担保</translation>
+        <translation>未保护</translation>
     </message>
     <message>
         <location filename="../connectwindow/connectwindowitem.cpp" line="347"/>
         <source>Secured</source>
-        <translation>担保</translation>
+        <translation>已保护</translation>
     </message>
     <message>
         <location filename="../connectwindow/connectwindowitem.cpp" line="386"/>
@@ -119,7 +119,7 @@
     <message>
         <location filename="../commonwidgets/custommenuwidget.cpp" line="68"/>
         <source>Cut</source>
-        <translation>切</translation>
+        <translation>剪切</translation>
     </message>
     <message>
         <location filename="../commonwidgets/custommenuwidget.cpp" line="69"/>
@@ -129,7 +129,7 @@
     <message>
         <location filename="../commonwidgets/custommenuwidget.cpp" line="70"/>
         <source>Paste</source>
-        <translation>糊</translation>
+        <translation>粘贴</translation>
     </message>
     <message>
         <location filename="../commonwidgets/custommenuwidget.cpp" line="71"/>
@@ -175,17 +175,17 @@
     <message>
         <location filename="../emergencyconnectwindow/emergencyconnectwindowitem.cpp" line="129"/>
         <source>Can&apos;t access Windscribe.com or login into the app on your restrictive network? Connect to the emergency server that unblocks all of Windscribe.</source>
-        <translation>无法访问受限网络上的 Windscribe.com 或登录应用程序？连接到紧急服务器，以解锁所有Windscribe。</translation>
+        <translation>无法在受限网络上访问 Windscribe.com 或登录应用程序？连接到紧急服务器，以解除对Windscribe的所有限制。</translation>
     </message>
     <message>
         <location filename="../emergencyconnectwindow/emergencyconnectwindowitem.cpp" line="218"/>
         <source>Connecting...</source>
-        <translation>连接。。。</translation>
+        <translation>连接中。。。</translation>
     </message>
     <message>
         <location filename="../emergencyconnectwindow/emergencyconnectwindowitem.cpp" line="228"/>
         <source>Disconnecting...</source>
-        <translation>断开。。。</translation>
+        <translation>断开中。。。</translation>
     </message>
     <message>
         <location filename="../emergencyconnectwindow/emergencyconnectwindowitem.cpp" line="429"/>
@@ -203,7 +203,7 @@
     <message>
         <location filename="../emergencyconnectwindow/textlinkbutton.cpp" line="32"/>
         <source>Access for  Windscribe.com  Only</source>
-        <translation>仅限 Windscribe.com 访问</translation>
+        <translation>仅限对 Windscribe.com 的访问</translation>
     </message>
     <message>
         <location filename="../emergencyconnectwindow/textlinkbutton.cpp" line="52"/>
@@ -226,7 +226,7 @@
     <message>
         <location filename="../externalconfig/externalconfigwindowitem.cpp" line="100"/>
         <source>Use the Windscribe app without an account to connect to any OpenVPN or WireGuard server.</source>
-        <translation>在没有帐户的情况下使用Windscribe应用程序连接到任何OpenVPN或WireGuard服务器。</translation>
+        <translation>在没有帐户的情况下使用Windscribe应用程序以连接任何OpenVPN或WireGuard服务器。</translation>
     </message>
     <message>
         <location filename="../externalconfig/externalconfigwindowitem.cpp" line="201"/>
@@ -248,17 +248,17 @@
     <message>
         <location filename="../generalmessagecontroller.h" line="35"/>
         <source>Ok</source>
-        <translation>还行</translation>
+        <translation>确定</translation>
     </message>
     <message>
         <location filename="../generalmessagecontroller.h" line="36"/>
         <source>Yes</source>
-        <translation>是的</translation>
+        <translation>是</translation>
     </message>
     <message>
         <location filename="../generalmessagecontroller.h" line="37"/>
         <source>No</source>
-        <translation>不</translation>
+        <translation>否</translation>
     </message>
     <message>
         <location filename="../generalmessagecontroller.h" line="38"/>
@@ -284,7 +284,7 @@
     <message>
         <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="219"/>
         <source>All</source>
-        <translation>都</translation>
+        <translation>全部</translation>
     </message>
     <message>
         <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="225"/>
@@ -329,7 +329,7 @@
     <message>
         <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="1009"/>
         <source>Nothing to see here...</source>
-        <translation>这里没什么可看的...</translation>
+        <translation>空空如也...</translation>
     </message>
     <message>
         <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="1010"/>
@@ -344,7 +344,7 @@
     <message>
         <location filename="../locationswindow/widgetlocations/locationstab.cpp" line="1016"/>
         <source>Buy</source>
-        <translation>买</translation>
+        <translation>购买</translation>
     </message>
 </context>
 <context>
@@ -395,7 +395,7 @@
     <message>
         <location filename="../log/logviewerwindow.cpp" line="113"/>
         <source>Failed to export log.  Make sure you have the correct permissions.</source>
-        <translation>无法导出日志。 确保您具有正确的权限。</translation>
+        <translation>无法导出日志。确保您具有正确的权限。</translation>
     </message>
 </context>
 <context>
@@ -433,7 +433,7 @@
     <message>
         <location filename="../loginwindow/credentialswindowitem.cpp" line="151"/>
         <source>...hmm are you sure this is correct?</source>
-        <translation>...嗯，你确定这是正确的吗？</translation>
+        <translation>...嗯，您确定这是正确的吗？</translation>
     </message>
     <message>
         <location filename="../loginwindow/credentialswindowitem.cpp" line="155"/>
@@ -443,12 +443,12 @@
     <message>
         <location filename="../loginwindow/credentialswindowitem.cpp" line="159"/>
         <source>...hmm, try resetting your password!</source>
-        <translation>...嗯，尝试重置密码！</translation>
+        <translation>...嗯，试试重置密码！</translation>
     </message>
     <message>
         <location filename="../loginwindow/credentialswindowitem.cpp" line="163"/>
         <source>Rate limited. Please wait before trying to login again.</source>
-        <translation>价格有限。请稍候，然后再尝试再次登录。</translation>
+        <translation>请求已到上限。请稍候再尝试重新登录。</translation>
     </message>
     <message>
         <location filename="../loginwindow/credentialswindowitem.cpp" line="166"/>
@@ -468,7 +468,7 @@
     <message>
         <location filename="../loginwindow/credentialswindowitem.cpp" line="288"/>
         <source>Emergency Connect is ON</source>
-        <translation>紧急连接已打开</translation>
+        <translation>紧急连接已启动</translation>
     </message>
     <message>
         <location filename="../loginwindow/credentialswindowitem.cpp" line="511"/>
@@ -598,7 +598,7 @@
         <location filename="../mainwindow.cpp" line="1420"/>
         <location filename="../mainwindow.cpp" line="3516"/>
         <source>The application is corrupted.  Please reinstall Windscribe.</source>
-        <translation>应用程序已损坏。 请重新安装 Windscribe。</translation>
+        <translation>应用程序已损坏。请重新安装 Windscribe。</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1421"/>
@@ -633,7 +633,7 @@
     <message>
         <location filename="../mainwindow.cpp" line="1511"/>
         <source>Could not start &apos;Base Filtering Engine&apos; service.  Please enable this service manually in Windows Services.</source>
-        <translation>无法启动“基本筛选引擎”服务。 请在 Windows 服务中手动启用此服务。</translation>
+        <translation>无法启动“基本筛选引擎”服务。请在 Windows 服务中手动启用此服务。</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1518"/>
@@ -659,7 +659,7 @@
         <location filename="../mainwindow.cpp" line="1864"/>
         <location filename="../mainwindow.cpp" line="3393"/>
         <source>Disconnected</source>
-        <translation>断开</translation>
+        <translation>已断开</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1870"/>
@@ -669,7 +669,7 @@
     <message>
         <location filename="../mainwindow.cpp" line="1915"/>
         <source>You are now connected to Windscribe (%1).</source>
-        <translation>您现在已连接到 Windscribe （%1）。</translation>
+        <translation>您现在已连接到 Windscribe（%1）。</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1947"/>
@@ -686,7 +686,7 @@
     <message>
         <location filename="../mainwindow.cpp" line="2180"/>
         <source>We&apos;ve detected that your network settings may interfere with Windscribe.  Please send us a debug log to troubleshoot.</source>
-        <translation>我们检测到您的网络设置可能会干扰 Windscribe。 请向我们发送调试日志以进行故障排除。</translation>
+        <translation>我们检测到您的网络设置可能会干扰 Windscribe。请向我们发送调试日志以进行故障排除。</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="2181"/>
@@ -702,7 +702,7 @@
     <message>
         <location filename="../mainwindow.cpp" line="2210"/>
         <source>Windscribe will always use this protocol to connect on this network in the future to avoid any interruptions.</source>
-        <translation>Windscribe将来将始终使用此协议在此网络上进行连接，以避免任何中断。</translation>
+        <translation>Windscribe将在此网络上始终使用此协议进行连接，以避免任何中断。</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="2211"/>
@@ -718,7 +718,7 @@
         <location filename="../mainwindow.cpp" line="1519"/>
         <location filename="../mainwindow.cpp" line="2233"/>
         <source>Windscribe is malfunctioning.  Please restart the application.</source>
-        <translation>风抄写员出现故障。 请重新启动应用程序。</translation>
+        <translation>Windscribe 出现故障。请重新启动应用程序。</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="2251"/>
@@ -744,7 +744,7 @@
     <message>
         <location filename="../mainwindow.cpp" line="2281"/>
         <source>Could not spoof MAC address.  Please try a different network interface or contact support.</source>
-        <translation>无法欺骗 MAC 地址。 请尝试其他网络接口或联系支持人员。</translation>
+        <translation>无法欺骗 MAC 地址。请尝试其他网络接口或联系支持人员。</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="2318"/>
@@ -759,12 +759,12 @@
     <message>
         <location filename="../mainwindow.cpp" line="2371"/>
         <source>This network hates us</source>
-        <translation>这个网络讨厌我们</translation>
+        <translation>这个网络憎恨我们</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="2372"/>
         <source>We couldn’t connect you on this network. Send us your debug log so we can figure out what happened.</source>
-        <translation>我们无法在此网络上连接您。将您的调试日志发送给我们，以便我们弄清楚发生了什么。</translation>
+        <translation>我们无法在此网络上与您连线。将您的调试日志发送给我们，以便我们弄清楚发生了什么。</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="2380"/>
@@ -794,19 +794,19 @@
     <message>
         <location filename="../mainwindow.cpp" line="2427"/>
         <source>Could not download update.  Please try again or use a different network.</source>
-        <translation>无法下载更新。 请重试或使用其他网络。</translation>
+        <translation>无法下载更新。请重试或使用其他网络。</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="2429"/>
         <source>Could not run updater (Error %1).  Please contact support</source>
-        <translation>无法运行更新程序（错误 %1）。 请联系支持人员</translation>
+        <translation>无法运行更新程序（错误 %1）。请联系支持人员</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="2504"/>
         <source>Lost connection to the backend process.
 Recovering...</source>
         <translation>与后端进程的连接丢失。
-恢复。。。</translation>
+恢复中。。。</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="3122"/>
@@ -885,26 +885,26 @@ Recovering...</source>
     <message>
         <location filename="../mainwindow.cpp" line="3508"/>
         <source>There is a problem with the Wintun device driver, and it could not be reinstalled automatically.  Please reinstall Windscribe.</source>
-        <translation>Wintun 设备驱动程序有问题，无法自动重新安装。 请重新安装 Windscribe。</translation>
+        <translation>Wintun 设备驱动程序有问题，且无法自动重新安装。请重新安装 Windscribe。</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="3510"/>
         <source>There is a problem with the TAP device driver, and it could not be reinstalled automatically.  Please reinstall Windscribe.</source>
-        <translation>TAP 设备驱动程序有问题，无法自动重新安装。 请重新安装 Windscribe。</translation>
+        <translation>TAP 设备驱动程序有问题，且无法自动重新安装。请重新安装 Windscribe。</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="3518"/>
         <source>WireGuard adapter setup failed. Please wait one minute and try the connection again. If adapter setup fails again, please try restarting your computer.
 
 If the problem persists after a restart, please send a debug log and open a support ticket, then switch to a different connection mode.</source>
-        <translation>线卫适配器设置失败。请等待一分钟，然后重试连接。如果适配器设置再次失败，请尝试重新启动计算机。
+        <translation>WireGuard 适配器设置失败。请等待一分钟，然后重试连接。如果适配器设置再次失败，请尝试重新启动计算机。
 
-如果重新启动后问题仍然存在，请发送调试日志并打开支持票证，然后切换到其他连接模式。</translation>
+如果重新启动后问题仍然存在，请发送调试日志并新建支持工单，然后切换到其他连接模式。</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="3522"/>
         <source>An unexpected error occurred establishing the VPN connection (Error %1).  If this error persists, try using a different protocol or contact support.</source>
-        <translation>建立 VPN 连接时发生意外错误（错误 %1）。 如果此错误仍然存在，请尝试使用其他协议或联系支持人员。</translation>
+        <translation>建立 VPN 连接时发生意外错误（错误 %1）。如果此错误仍然存在，请尝试使用其他协议或联系支持人员。</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="3525"/>
@@ -934,7 +934,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <location filename="../mainwindow.cpp" line="3744"/>
         <source>Windscribe</source>
-        <translation>风抄写员</translation>
+        <translation>Windscribe</translation>
     </message>
 </context>
 <context>
@@ -942,12 +942,12 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <location filename="../mainwindowcontroller.h" line="193"/>
         <source>Quit Windscribe?</source>
-        <translation>退出风抄写员？</translation>
+        <translation>退出 Windscribe？</translation>
     </message>
     <message>
         <location filename="../mainwindowcontroller.h" line="194"/>
         <source>Log Out of Windscribe?</source>
-        <translation>退出风抄写员？</translation>
+        <translation>登出 Windscribe？</translation>
     </message>
     <message>
         <location filename="../mainwindowcontroller.h" line="195"/>
@@ -957,7 +957,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <location filename="../mainwindowcontroller.h" line="196"/>
         <source>Log Out</source>
-        <translation>注销</translation>
+        <translation>登出</translation>
     </message>
     <message>
         <location filename="../mainwindowcontroller.h" line="197"/>
@@ -1001,12 +1001,12 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <location filename="../backend/notificationscontroller.cpp" line="49"/>
         <source>WELCOME TO WINDSCRIBE</source>
-        <translation>欢迎来到温抄写员</translation>
+        <translation>欢迎来到WINDSCRIBE</translation>
     </message>
     <message>
         <location filename="../backend/notificationscontroller.cpp" line="50"/>
         <source>&lt;p&gt;You will find announcements and general Windscribe related news here. Perhaps even delicious cake, everyone loves cake!&lt;/p&gt;</source>
-        <translation>&lt;p&gt;您可以在此处找到公告和一般Windscribe相关新闻。也许甚至是美味的蛋糕，每个人都喜欢蛋糕！&lt;/p&gt;</translation>
+        <translation>&lt;p&gt;您可以在此处找到公告和一般Windscribe相关新闻。也许甚至是美味的蛋糕，人人都喜欢蛋糕！&lt;/p&gt;</translation>
     </message>
 </context>
 <context>
@@ -1033,12 +1033,12 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <location filename="../preferenceswindow/aboutwindow/aboutwindowitem.cpp" line="55"/>
         <source>About</source>
-        <translation>大约</translation>
+        <translation>关于</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/aboutwindow/aboutwindowitem.cpp" line="60"/>
         <source>Status</source>
-        <translation>地位</translation>
+        <translation>状态</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/aboutwindow/aboutwindowitem.cpp" line="61"/>
@@ -1103,7 +1103,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <location filename="../preferenceswindow/accountwindow/accountwindowitem.cpp" line="187"/>
         <source>PLAN</source>
-        <translation>计划</translation>
+        <translation>方案</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/accountwindow/accountwindowitem.cpp" line="188"/>
@@ -1118,7 +1118,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <location filename="../preferenceswindow/accountwindow/accountwindowitem.cpp" line="190"/>
         <source>Data Left</source>
-        <translation>剩余数据</translation>
+        <translation>剩余流量</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/accountwindow/accountwindowitem.cpp" line="192"/>
@@ -1141,12 +1141,12 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <location filename="../preferenceswindow/advancedwindow/advancedwindowitem.cpp" line="136"/>
         <source>In order to toggle IPv6, a computer restart is required. Do it now?</source>
-        <translation>要切换 IPv6，需要重新启动计算机。现在就做？</translation>
+        <translation>要切换 IPv6，需要重新启动计算机。现在就重启？</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/advancedwindow/advancedwindowitem.cpp" line="139"/>
         <source>Restart later</source>
-        <translation>稍后重新启动</translation>
+        <translation>稍后重启</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/advancedwindow/advancedwindowitem.cpp" line="222"/>
@@ -1211,7 +1211,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <location filename="../preferenceswindow/advancedwindow/advancedwindowitem.cpp" line="238"/>
         <source>Warning: Using &quot;OS Default&quot; may sometimes cause DNS leaks during reconnects.</source>
-        <translation>警告：使用“操作系统默认值”有时可能会导致重新连接期间 DNS 泄漏。</translation>
+        <translation>警告：使用“操作系统默认值”有时可能会在重新连接期间导致 DNS 泄漏。</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/advancedwindow/advancedwindowitem.cpp" line="239"/>
@@ -1221,7 +1221,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <location filename="../preferenceswindow/advancedwindow/advancedwindowitem.cpp" line="243"/>
         <source>Select the DNS system service Windscribe enforces. Experienced users only.</source>
-        <translation>选择 Windscribe 强制执行的 DNS 系统服务。仅限有经验的用户。</translation>
+        <translation>选择 Windscribe 强制执行的 DNS 系统服务。请勿轻易更改。</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/advancedwindow/advancedwindowitem.cpp" line="244"/>
@@ -1284,12 +1284,12 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <location filename="../preferenceswindow/generalwindow/backgroundsettingsgroup.cpp" line="39"/>
         <source>None</source>
-        <translation>没有</translation>
+        <translation>空</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/generalwindow/backgroundsettingsgroup.cpp" line="40"/>
         <source>Custom</source>
-        <translation>习惯</translation>
+        <translation>自定义</translation>
     </message>
 </context>
 <context>
@@ -1347,12 +1347,12 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="244"/>
         <source>Exclusive</source>
-        <translation>独家</translation>
+        <translation>排除</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="247"/>
         <source>Inclusive</source>
-        <translation>包容</translation>
+        <translation>包括</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="253"/>
@@ -1407,7 +1407,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="341"/>
         <source>Select the DNS server while connected to Windscribe.</source>
-        <translation>在连接到Windscribe时选择DNS服务器。</translation>
+        <translation>在连接到 Windscribe 时选择DNS服务器。</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="342"/>
@@ -1438,12 +1438,12 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="368"/>
         <source>Disabling Allow LAN Traffic will cause your proxy gateway to stop working.  Do you want to disable the proxy?</source>
-        <translation>禁用允许 LAN 流量将导致代理网关停止工作。 是否要禁用代理？</translation>
+        <translation>禁用“允许局域网流量”将导致代理网关停止工作。是否要禁用代理？</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="422"/>
         <source>LAN traffic is currently blocked by the Windscribe firewall.  Do you want to allow LAN traffic to bypass the firewall in order for this feature to work?</source>
-        <translation>LAN 流量目前被 Windscribe 防火墙阻止。 是否要允许 LAN 流量绕过防火墙以使此功能正常工作？</translation>
+        <translation>局域网流量目前被 Windscribe 防火墙阻止。是否要允许局域网流量绕过防火墙以使此功能正常工作？</translation>
     </message>
 </context>
 <context>
@@ -1451,12 +1451,12 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <location filename="../preferenceswindow/dnsdomainswindow/dnsdomainsgroup.cpp" line="74"/>
         <source>Domain already exists. Please enter a new domain.</source>
-        <translation>域已存在。请输入新域。</translation>
+        <translation>域名已存在。请输入新域名。</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/dnsdomainswindow/dnsdomainsgroup.cpp" line="77"/>
         <source>Incorrect domain name. Please enter a valid domain.</source>
-        <translation>域名不正确。请输入有效的域。</translation>
+        <translation>域名不正确。请输入有效的域名。</translation>
     </message>
 </context>
 <context>
@@ -1474,7 +1474,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <location filename="../preferenceswindow/dnsdomainswindow/dnsdomainswindowitem.cpp" line="76"/>
         <source>Please log in to modify domains.</source>
-        <translation>请登录以修改域。</translation>
+        <translation>请登录以修改域名。</translation>
     </message>
 </context>
 <context>
@@ -1483,13 +1483,13 @@ If the problem persists after a restart, please send a debug log and open a supp
         <location filename="../preferenceswindow/accountwindow/emailitem.cpp" line="17"/>
         <location filename="../preferenceswindow/accountwindow/emailitem.cpp" line="235"/>
         <source>Sent!</source>
-        <translation>送！</translation>
+        <translation>发送！</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/accountwindow/emailitem.cpp" line="29"/>
         <location filename="../preferenceswindow/accountwindow/emailitem.h" line="55"/>
         <source>Add</source>
-        <translation>加</translation>
+        <translation>添加</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/accountwindow/emailitem.cpp" line="229"/>
@@ -1509,7 +1509,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <location filename="../preferenceswindow/accountwindow/emailitem.h" line="56"/>
         <source>Get 10GB/Month of data and gain the ability to reset your password.</source>
-        <translation>获取每月 10GB 的数据，并能够重置密码。</translation>
+        <translation>每月可获取 10GB 的流量，并能够重置密码。</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/accountwindow/emailitem.h" line="57"/>
@@ -1545,7 +1545,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <location filename="../preferenceswindow/generalwindow/generalwindowitem.cpp" line="286"/>
         <source>Run Windscribe when your device starts.</source>
-        <translation>在设备启动时运行Windscribe。</translation>
+        <translation>在设备启动时运行 Windscribe。</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/generalwindow/generalwindowitem.cpp" line="287"/>
@@ -1555,7 +1555,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <location filename="../preferenceswindow/generalwindow/generalwindowitem.cpp" line="288"/>
         <source>Launch Windscribe in a minimized state.</source>
-        <translation>以最小化状态启动风抄写员。</translation>
+        <translation>以最小化状态启动 Windscribe。</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/generalwindow/generalwindowitem.cpp" line="289"/>
@@ -1580,12 +1580,12 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <location filename="../preferenceswindow/generalwindow/generalwindowitem.cpp" line="299"/>
         <source>Hide from Dock</source>
-        <translation>从停靠坞隐藏</translation>
+        <translation>从停靠栏隐藏</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/generalwindow/generalwindowitem.cpp" line="301"/>
         <source>Pin Windscribe near the system tray or menu bar.</source>
-        <translation>将风抄写器固定在系统托盘或菜单栏附近。</translation>
+        <translation>将 Windscribe 固定在系统托盘或菜单栏附近。</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/generalwindow/generalwindowitem.cpp" line="302"/>
@@ -1605,12 +1605,12 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <location filename="../preferenceswindow/generalwindow/generalwindowitem.cpp" line="305"/>
         <source>Display a location&apos;s load. Shorter bars mean lesser load (usage).</source>
-        <translation>显示位置的负载。较短的棒材意味着较小的负载（使用量）。</translation>
+        <translation>显示位置的负载。进度条越短表示负载越小（使用量）。</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/generalwindow/generalwindowitem.cpp" line="306"/>
         <source>Show Location Load</source>
-        <translation>显示位置加载</translation>
+        <translation>显示位置负载</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/generalwindow/generalwindowitem.cpp" line="307"/>
@@ -1683,7 +1683,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="103"/>
         <source>All you need to know about Windscribe.</source>
-        <translation>所有你需要知道的关于Windscribe。</translation>
+        <translation>您需要了解关于 Windscribe 的一切。</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="104"/>
@@ -1693,17 +1693,17 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="105"/>
         <source>Not as smart as a human, but can still answer your questions.</source>
-        <translation>不如人类聪明，但仍然可以回答你的问题。</translation>
+        <translation>虽不如人类聪明，但仍然可以回答您的问题。</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="106"/>
         <source>Talk to Garry</source>
-        <translation>与加里对话</translation>
+        <translation>与 Garry 对话</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="107"/>
         <source>Stuck? Send us a ticket.</source>
-        <translation>卡住了？给我们发一张票。</translation>
+        <translation>卡关了？给我们发一张工单。</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="108"/>
@@ -1713,7 +1713,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="109"/>
         <source>Best places to help and get help from other users.</source>
-        <translation>帮助和从其他用户那里获得帮助的最佳场所。</translation>
+        <translation>可帮助或从其他用户获得帮助的最佳场所。</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="110"/>
@@ -1723,12 +1723,12 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="111"/>
         <source>Reddit</source>
-        <translation>红迪网</translation>
+        <translation>Reddit 社区</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="112"/>
         <source>Discord</source>
-        <translation>不和</translation>
+        <translation>Discord 社区</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="113"/>
@@ -1748,7 +1748,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="120"/>
         <source>Sent, thanks!</source>
-        <translation>发送，谢谢！</translation>
+        <translation>已发送，谢谢！</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/helpwindow/helpwindowitem.cpp" line="122"/>
@@ -1791,7 +1791,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <location filename="../preferenceswindow/connectionwindow/macspoofinggroup.cpp" line="167"/>
         <source>MAC Address</source>
-        <translation>MAC地址</translation>
+        <translation>MAC 地址</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/connectionwindow/macspoofinggroup.cpp" line="168"/>
@@ -1814,7 +1814,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <location filename="../preferenceswindow/networkoptionswindow/networkoptionsnetworkwindowitem.cpp" line="129"/>
         <source>Auto-Secure</source>
-        <translation>自动安全</translation>
+        <translation>自动保护</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/networkoptionswindow/networkoptionsnetworkwindowitem.cpp" line="130"/>
@@ -1824,7 +1824,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <location filename="../preferenceswindow/networkoptionswindow/networkoptionsnetworkwindowitem.cpp" line="131"/>
         <source>Choose whether to connect using the recommended tunneling protocol, or to specify a protocol of your choice.</source>
-        <translation>选择是使用建议的隧道协议进行连接，还是指定您选择的协议。</translation>
+        <translation>选择是使用建议的隧道协议进行连接，或是由您选择的协议。</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/networkoptionswindow/networkoptionsnetworkwindowitem.cpp" line="132"/>
@@ -1842,12 +1842,12 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <location filename="../preferenceswindow/networkoptionswindow/networkoptionswindowitem.cpp" line="128"/>
         <source>Windscribe will auto-disconnect when the device connects to a network tagged &quot;Unsecured&quot;.</source>
-        <translation>当设备连接到标记为“不安全”的网络时，Windscribe将自动断开连接。</translation>
+        <translation>当设备连接到标记为“不保护”的网络时，Windscribe将自动断开连接。</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/networkoptionswindow/networkoptionswindowitem.cpp" line="129"/>
         <source>Mark all newly encountered networks as Secured.</source>
-        <translation>将所有新遇到的网络标记为“安全”。</translation>
+        <translation>将所有新遇到的网络标记为“保护”。</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/networkoptionswindow/networkoptionswindowitem.cpp" line="130"/>
@@ -1872,12 +1872,12 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <location filename="../preferenceswindow/networkoptionswindow/networkoptionswindowitem.cpp" line="179"/>
         <source>Secured</source>
-        <translation>担保</translation>
+        <translation>保护</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/networkoptionswindow/networkoptionswindowitem.cpp" line="181"/>
         <source>Unsecured</source>
-        <translation>担保</translation>
+        <translation>不保护</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/networkoptionswindow/networkoptionswindowitem.h" line="68"/>
@@ -1930,7 +1930,7 @@ Connect to a network first</source>
     <message>
         <location filename="../preferenceswindow/accountwindow/planitem.cpp" line="95"/>
         <source>Unlimited Data</source>
-        <translation>无限数据</translation>
+        <translation>无限流量</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/accountwindow/planitem.cpp" line="98"/>
@@ -1940,7 +1940,7 @@ Connect to a network first</source>
     <message>
         <location filename="../preferenceswindow/accountwindow/planitem.h" line="38"/>
         <source>Pro</source>
-        <translation>亲</translation>
+        <translation>专业版</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/accountwindow/planitem.h" line="39"/>
@@ -1983,7 +1983,7 @@ Connect to a network first</source>
     <message>
         <location filename="../preferenceswindow/preferencestab/preferencestabcontrolitem.cpp" line="90"/>
         <source>About</source>
-        <translation>大约</translation>
+        <translation>关于</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/preferencestab/preferencestabcontrolitem.cpp" line="92"/>
@@ -2021,7 +2021,7 @@ Connect to a network first</source>
     <message>
         <location filename="../preferenceswindow/protocolgroup.cpp" line="152"/>
         <source>Port</source>
-        <translation>港口</translation>
+        <translation>端口</translation>
     </message>
 </context>
 <context>
@@ -2042,12 +2042,12 @@ Connect to a network first</source>
     <message>
         <location filename="../preferenceswindow/connectionwindow/proxyipaddressitem.cpp" line="41"/>
         <source>IP</source>
-        <translation>知识产权</translation>
+        <translation>IP 地址</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/connectionwindow/proxyipaddressitem.cpp" line="80"/>
         <source>Copied</source>
-        <translation>复制</translation>
+        <translation>已复制</translation>
     </message>
 </context>
 <context>
@@ -2067,7 +2067,7 @@ Connect to a network first</source>
         <location filename="../preferenceswindow/proxysettingswindow/proxysettingsgroup.cpp" line="153"/>
         <location filename="../preferenceswindow/proxysettingswindow/proxysettingsgroup.cpp" line="154"/>
         <source>Port</source>
-        <translation>港口</translation>
+        <translation>端口</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/proxysettingswindow/proxysettingsgroup.cpp" line="155"/>
@@ -2092,7 +2092,7 @@ Connect to a network first</source>
     <message>
         <location filename="../preferenceswindow/proxysettingswindow/proxysettingswindowitem.cpp" line="48"/>
         <source>If your network has a LAN proxy, configure it here.</source>
-        <translation>如果您的网络具有 LAN 代理，请在此处进行配置。</translation>
+        <translation>如果您的网络具有局域网代理，请在此处进行配置。</translation>
     </message>
 </context>
 <context>
@@ -2100,7 +2100,7 @@ Connect to a network first</source>
     <message>
         <location filename="../preferenceswindow/robertwindow/robertitem.cpp" line="56"/>
         <source>Blocking</source>
-        <translation>阻塞</translation>
+        <translation>阻止</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/robertwindow/robertitem.cpp" line="62"/>
@@ -2181,7 +2181,7 @@ Connect to a network first</source>
     <message>
         <location filename="../preferenceswindow/connectionwindow/securehotspotgroup.cpp" line="127"/>
         <source>Enter SSID</source>
-        <translation>输入固态硬盘</translation>
+        <translation>输入 SSID</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/connectionwindow/securehotspotgroup.cpp" line="128"/>
@@ -2222,7 +2222,7 @@ Connect to a network first</source>
     <message>
         <location filename="../preferenceswindow/splittunnelingwindow/splittunnelingaddressesgroup.cpp" line="85"/>
         <source>This IP address or range is reserved by Windscribe and can not be changed.</source>
-        <translation>此IP地址或范围由Windscribe保留，无法更改。</translation>
+        <translation>此IP地址或范围由 Windscribe 保留，无法更改。</translation>
     </message>
 </context>
 <context>
@@ -2288,22 +2288,22 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <location filename="../preferenceswindow/splittunnelingwindow/splittunnelinggroup.cpp" line="132"/>
         <source>Selected IPs and hostnames will not go through Windscribe when connected.</source>
-        <translation>选定的IP和主机名在连接时不会通过Windscribe。</translation>
+        <translation>选定的 IP 和主机名在连接时不会通过 Windscribe。</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/splittunnelingwindow/splittunnelinggroup.cpp" line="134"/>
         <source>Selected apps, IPs, and hostnames will not go through Windscribe when connected.</source>
-        <translation>选定的应用程序，IP和主机名在连接时不会通过Windscribe。</translation>
+        <translation>选定的应用程序，IP 和主机名在连接时不会通过 Windscribe。</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/splittunnelingwindow/splittunnelinggroup.cpp" line="139"/>
         <source>Only selected IPs and hostnames will go through Windscribe when connected.</source>
-        <translation>只有选定的IP和主机名在连接时才会通过Windscribe。</translation>
+        <translation>只有选定的 IP 和主机名在连接时才会通过 Windscribe。</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/splittunnelingwindow/splittunnelinggroup.cpp" line="141"/>
         <source>Only selected apps, IPs, and hostnames will go through Windscribe when connected.</source>
-        <translation>只有选定的应用程序，IP和主机名在连接时才会通过Windscribe。</translation>
+        <translation>只有选定的应用程序，IP 和主机名在连接时才会通过 Windscribe。</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/splittunnelingwindow/splittunnelinggroup.cpp" line="179"/>
@@ -2318,12 +2318,12 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <location filename="../preferenceswindow/splittunnelingwindow/splittunnelinggroup.cpp" line="182"/>
         <source>Exclusive</source>
-        <translation>独家</translation>
+        <translation>排除</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/splittunnelingwindow/splittunnelinggroup.cpp" line="183"/>
         <source>Inclusive</source>
-        <translation>包容</translation>
+        <translation>包括</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/splittunnelingwindow/splittunnelinggroup.cpp" line="187"/>
@@ -2442,7 +2442,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <location filename="../../common/types/connecteddnsinfo.cpp" line="22"/>
         <location filename="../../common/types/enums.cpp" line="293"/>
         <source>Custom</source>
-        <translation>习惯</translation>
+        <translation>自定义</translation>
     </message>
     <message>
         <location filename="../../common/types/enums.cpp" line="79"/>
@@ -2484,12 +2484,12 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <location filename="../../common/types/enums.cpp" line="127"/>
         <source>Bars</source>
-        <translation>酒吧</translation>
+        <translation>进度条</translation>
     </message>
     <message>
         <location filename="../../common/types/enums.cpp" line="128"/>
         <source>Ms</source>
-        <translation>女士</translation>
+        <translation>毫秒</translation>
     </message>
     <message>
         <location filename="../../common/types/enums.cpp" line="147"/>
@@ -2530,12 +2530,12 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <location filename="../../common/types/enums.cpp" line="244"/>
         <source>Release</source>
-        <translation>释放</translation>
+        <translation>正式版</translation>
     </message>
     <message>
         <location filename="../../common/types/enums.cpp" line="245"/>
         <source>Beta</source>
-        <translation>试用版</translation>
+        <translation>测试版</translation>
     </message>
     <message>
         <location filename="../../common/types/enums.cpp" line="246"/>
@@ -2560,12 +2560,12 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <location filename="../../common/types/enums.cpp" line="326"/>
         <source>Alpha</source>
-        <translation>阿尔法</translation>
+        <translation>Alpha</translation>
     </message>
     <message>
         <location filename="../../common/types/enums.cpp" line="329"/>
         <source>Van Gogh</source>
-        <translation>梵</translation>
+        <translation>Van Gogh</translation>
     </message>
     <message>
         <location filename="../../engine/engine/customconfigs/wireguardcustomconfig.cpp" line="78"/>
@@ -2625,17 +2625,17 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <location filename="../blockconnect.cpp" line="24"/>
         <source>Your application version is no longer supported. Please update to continue using Windscribe.</source>
-        <translation>您的应用程序版本不再受支持。请更新以继续使用Windscribe。</translation>
+        <translation>您的应用程序版本不再受支持。请更新以继续使用 Windscribe。</translation>
     </message>
     <message>
         <location filename="../blockconnect.cpp" line="33"/>
         <source>Please upgrade to a Pro account to continue using Windscribe.</source>
-        <translation>请升级到专业帐户以继续使用Windscribe。</translation>
+        <translation>请升级到专业帐户以继续使用 Windscribe。</translation>
     </message>
     <message>
         <location filename="../blockconnect.cpp" line="37"/>
         <source>Your original account %1 has expired. Creating multiple accounts to bypass free tier limitations is prohibited. Please login into the original account and wait until the bandwidth is reset. You can also upgrade to Pro.</source>
-        <translation>原始帐户 %1 已过期。禁止创建多个账户以绕过免费套餐限制。请登录原始帐户并等待带宽重置。您也可以升级到专业版。</translation>
+        <translation>原始帐户 %1 已过期。禁止创建多个账户以绕过免费套餐限制。请登录原始帐户并等待套餐重置。您也可以升级到专业版。</translation>
     </message>
     <message>
         <location filename="../blockconnect.cpp" line="41"/>
@@ -2688,7 +2688,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <location filename="../locations/view/countryitemdelegate.cpp" line="221"/>
         <source>File Sharing Frowned Upon</source>
-        <translation>文件共享皱眉</translation>
+        <translation>对文件共享行为皱眉头</translation>
     </message>
 </context>
 <context>
@@ -2696,7 +2696,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <location filename="../tooltips/serverratingstooltip.cpp" line="228"/>
         <source>Rate speed</source>
-        <translation>速率速度</translation>
+        <translation>速度如何</translation>
     </message>
 </context>
 <context>
@@ -2722,7 +2722,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <location filename="../twofactorauth/twofactorauthokbutton.cpp" line="68"/>
         <source>Add</source>
-        <translation>加</translation>
+        <translation>添加</translation>
     </message>
     <message>
         <location filename="../twofactorauth/twofactorauthokbutton.cpp" line="71"/>
@@ -2735,7 +2735,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <location filename="../twofactorauth/twofactorauthwindowitem.cpp" line="126"/>
         <source>Two-factor Auth</source>
-        <translation>双因素身份验证</translation>
+        <translation>双因素（2FA）身份验证</translation>
     </message>
     <message>
         <location filename="../twofactorauth/twofactorauthwindowitem.cpp" line="135"/>
@@ -2771,17 +2771,17 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <location filename="../overlaysconnectwindow/updatewindowitem.cpp" line="106"/>
         <source>Updating </source>
-        <translation>更新</translation>
+        <translation>更新中</translation>
     </message>
     <message>
         <location filename="../overlaysconnectwindow/updatewindowitem.cpp" line="125"/>
         <source>You&apos;re about to update Windscribe. The application will terminate the active connection and restart automatically.</source>
-        <translation>你即将更新Windscribe。应用程序将终止活动连接并自动重新启动。</translation>
+        <translation>您即将更新 Windscribe。应用程序将终止活动连接并自动重新启动。</translation>
     </message>
     <message>
         <location filename="../overlaysconnectwindow/updatewindowitem.cpp" line="135"/>
         <source>Your update is in progress, hang in there...</source>
-        <translation>您的更新正在进行中，请坚持下去...</translation>
+        <translation>您的更新正在进行中，稍等片刻...</translation>
     </message>
     <message>
         <location filename="../overlaysconnectwindow/updatewindowitem.cpp" line="262"/>
@@ -2792,7 +2792,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <location filename="../overlaysconnectwindow/updatewindowitem.cpp" line="263"/>
         <location filename="../overlaysconnectwindow/updatewindowitem.cpp" line="346"/>
         <source>Later</source>
-        <translation>后</translation>
+        <translation>稍后</translation>
     </message>
     <message>
         <location filename="../overlaysconnectwindow/updatewindowitem.cpp" line="345"/>
@@ -2864,17 +2864,17 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <location filename="../overlaysconnectwindow/upgradewindowitem.cpp" line="80"/>
         <source>You&apos;re out of data!</source>
-        <translation>你的数据用完了！</translation>
+        <translation>您的流量用完了！</translation>
     </message>
     <message>
         <location filename="../overlaysconnectwindow/upgradewindowitem.cpp" line="88"/>
         <source>Don&apos;t leave your front door open. Upgrade or wait until next month to get your monthly data allowance back.</source>
-        <translation>不要把你的前门打开。升级或等到下个月再拿回您的每月数据限额。</translation>
+        <translation>不要把您的前门开着。升级或等到下个月再拿回您的每月流量限额。</translation>
     </message>
     <message>
         <location filename="../overlaysconnectwindow/upgradewindowitem.cpp" line="130"/>
         <source>Get more data</source>
-        <translation>获取更多数据</translation>
+        <translation>获取更多流量</translation>
     </message>
     <message>
         <location filename="../overlaysconnectwindow/upgradewindowitem.cpp" line="131"/>
