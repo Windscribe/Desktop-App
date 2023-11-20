@@ -10,7 +10,8 @@ project(changeics)
 
 set(SOURCES
     changeics.cpp
-    file_wrapper.cpp
+    icsmanager.cpp
+    icsmanager.h
     stdafx.cpp
     changeics.rc
 )

@@ -47,7 +47,6 @@ private:
     static constexpr int ROUNDED_RECT_RADIUS = 16;
     static constexpr int TEXT_MARGIN = 16;
     static constexpr int READ_MARKER_WIDTH = 8;
-    static constexpr int DATE_WIDTH = 88;
     static constexpr int ICON_HEIGHT = 16;
     static constexpr int ICON_WIDTH = 16;
 

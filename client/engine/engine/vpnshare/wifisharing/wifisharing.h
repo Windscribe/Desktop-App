@@ -5,7 +5,7 @@
 #include <QTimer>
 
 class IHelper;
-class WlanManager;
+class WiFiDirectManager;
 class IcsManager;
 
 class WifiSharing : public QObject
@@ -25,35 +25,27 @@ public:
     bool isSharingStarted();
 
     void switchSharingForDisconnected();
-    void switchSharingForConnectingOrConnected(const QString &vpnAdapterName);
+    void switchSharingForConnected(const QString &vpnAdapterName);
 
     int getConnectedUsersCount();
-
-    bool isUpdateIcsInProgress();
 
 signals:
     void usersCountChanged();
 
 private slots:
-    void onWlanStarted();
-    void onTimerForUpdateIcsDisconnected();
+    void onWifiDirectStarted();
 
 private:
     bool isSharingStarted_;
     QString ssid_;
-    WlanManager *wlanManager_;
+    WiFiDirectManager *wifiDirectManager_;
     IcsManager *icsManager_;
     QString vpnAdapterName_;
-
-    QTimer timerForUpdateIcsDisconnected_;
-    static constexpr int DELAY_FOR_UPDATE_ICS_DISCONNECTED = 10000;
 
     enum {STATE_CONNECTING_CONNECTED, STATE_DISCONNECTED};
     int sharingState_;
 
-
-
-    void updateICS(int state, const QString &vpnAdapterName);
+    void updateICS(const QString &vpnAdapterName);
 };
 
 #endif // WIFISHARING_H

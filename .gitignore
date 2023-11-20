@@ -4,6 +4,7 @@ release/
 release64/
 release_x64/
 debug/
+build/
 temp/
 .vs/
 *.pyc

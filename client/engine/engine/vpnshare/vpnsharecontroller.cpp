@@ -226,13 +226,13 @@ bool VpnShareController::isWifiSharingSupported()
 #endif
 }
 
-void VpnShareController::onConnectingOrConnectedToVPNEvent(const QString &vpnAdapterName)
+void VpnShareController::onConnectedToVPNEvent(const QString &vpnAdapterName)
 {
     QMutexLocker locker(&mutex_);
 #ifdef Q_OS_WIN
     if (wifiSharing_)
     {
-        wifiSharing_->switchSharingForConnectingOrConnected(vpnAdapterName);
+        wifiSharing_->switchSharingForConnected(vpnAdapterName);
     }
 #else
     Q_UNUSED(vpnAdapterName);
@@ -265,18 +265,6 @@ void VpnShareController::onDisconnectedFromVPNEvent()
         socksProxyServer_->closeActiveConnections();
     }
 }
-
-bool VpnShareController::isUpdateIcsInProgress()
-{
-#ifdef Q_OS_WIN
-    if (wifiSharing_)
-    {
-        return wifiSharing_->isUpdateIcsInProgress();
-    }
-#endif
-    return false;
-}
-
 
 bool VpnShareController::getLastSavedPort(uint &outPort)
 {

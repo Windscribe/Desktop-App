@@ -56,13 +56,6 @@ helper:
     subdir:   backend/linux/helper
     target:   helper
 
-changeics:
-  win32:
-    name:     ChangeICS
-    subdir:   backend/windows/changeics
-    target:   ChangeIcs.exe
-    symbols:  ChangeIcs.pdb
-
 authhelper:
   win32:
     name:     "Auth Helper"
@@ -122,7 +115,6 @@ installer:
 targets:
     - cli
     - helper
-    - changeics
     - installhelper
     - uninstaller
     - wireguardservice

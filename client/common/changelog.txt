@@ -1,3 +1,16 @@
+2.7.8 (17/07/2023)
+All:
+   * Fixed spinner animation on the ROBERT page continues after the website has already been opened. #480
+   * Removed timestamp from news feed items. #693
+Windows:
+   * Added split tunneling driver for Windows-on-Arm. #661
+   * Fixed Wifi hotpsot feature does not correctly detect "hosted network support". #32
+   * Fixed DNS resolver bugs. #643
+   * Fixed Unicode application names not supported for split tunneling apps. #683
+Linux:
+   * Fixed Linux firewall may not block some traffic if sharing internet connection. #685
+
+
 2.7.7 (29/06/2023)
 All:
    * Added anti-censorship feature: OpenVPN TCP split-reset, UDP stuffing, Stunnel extra padding. #671

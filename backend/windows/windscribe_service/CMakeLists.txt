@@ -32,13 +32,13 @@ set(SOURCES
     fwpm_wrapper.cpp
     get_active_processes.cpp
     hostsedit.cpp
-    icsmanager.cpp
     ikev2ipsec.cpp
     ikev2route.cpp
     ioutils.cpp
     ipv6_firewall.cpp
     ip_address/ip4_address_and_mask.cpp
     ip_address/ip6_address_and_prefix.cpp
+    changeics/icsmanager.cpp
     logger.cpp
     ovpn.cpp
     pipe_for_process.cpp

@@ -56,14 +56,10 @@ void serialize(Archive & ar, CMD_WMIC_GET_CONFIG_ERROR_CODE & g, const unsigned 
 }
 
 template<class Archive>
-void serialize(Archive & ar, CMD_UPDATE_ICS & g, const unsigned int version)
+void serialize(Archive & ar, CMD_ICS_CHANGE & g, const unsigned int version)
 {
     UNREFERENCED_PARAMETER(version);
-    ar & g.cmd;
-    ar & g.szConfigPath;
-    ar & g.szPublicGuid;
-    ar & g.szPrivateGuid;
-    ar & g.szEventName;
+    ar & g.szAdapterName;
 }
 
 template<class Archive>

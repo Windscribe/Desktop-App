@@ -56,8 +56,12 @@ public:
     QString executeSetMetric(const QString &interfaceType, const QString &interfaceName, const QString &metricNumber);
     QString executeWmicEnable(const QString &adapterName);
     QString executeWmicGetConfigManagerErrorCode(const QString &adapterName);
-    bool executeChangeIcs(int cmd, const QString &configPath, const QString &publicGuid, const QString &privateGuid,
-                          unsigned long &outCmdId, const QString &eventName);
+
+    bool isIcsSupported();
+    bool startIcs();
+    bool changeIcs(const QString &adapterName);
+    bool stopIcs();
+
 
     bool clearDnsOnTap();
     QString enableBFE();
@@ -75,8 +79,6 @@ public:
 
     bool whitelistPorts(const QString &ports);
     bool deleteWhitelistPorts();
-
-    bool isSupportedICS();
 
     void enableDnsLeaksProtection();
     void disableDnsLeaksProtection();

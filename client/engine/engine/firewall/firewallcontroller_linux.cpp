@@ -3,6 +3,7 @@
 #include "utils/logger.h"
 #include <ifaddrs.h>
 #include <QDir>
+#include <QRegularExpression>
 #include "engine/helper/ihelper.h"
 
 FirewallController_linux::FirewallController_linux(QObject *parent, IHelper *helper) :
@@ -93,6 +94,8 @@ bool FirewallController_linux::firewallOnImpl(const QString &connectingIp, const
     // TODO: this is need for Linux?
     Q_UNUSED(ports);
 
+    QString hotspotAdapter = getHotspotAdapter();
+
     forceUpdateInterfaceToSkip_ = false;
     bool bExists = firewallActualState();
 
@@ -138,6 +141,12 @@ bool FirewallController_linux::firewallOnImpl(const QString &connectingIp, const
 
             rules << "-A windscribe_input -i " + interfaceToSkip_ + " -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
             rules << "-A windscribe_output -o " + interfaceToSkip_ + " -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
+
+            // accept filter for the hotspot adapter in the connected state
+            if (!hotspotAdapter.isEmpty()) {
+                rules << "-A windscribe_input -i " + hotspotAdapter + " -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
+                rules << "-A windscribe_output -o " + hotspotAdapter + " -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
+            }
         }
 
         if (!connectingIp.isEmpty()) {
@@ -156,6 +165,12 @@ bool FirewallController_linux::firewallOnImpl(const QString &connectingIp, const
         for (const auto &i : ips) {
             rules << "-A windscribe_input -s " + i + "/32 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
             rules << "-A windscribe_output -d " + i + "/32 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
+        }
+
+        // drop filter for the hotspot adapter in the disconnected state
+        if (!hotspotAdapter.isEmpty()) {
+            rules << "-A windscribe_input -i " + hotspotAdapter + " -j DROP -m comment --comment \"" + comment_ + "\"\n";
+            rules << "-A windscribe_output -o " + hotspotAdapter + " -j DROP -m comment --comment \"" + comment_ + "\"\n";
         }
 
         // Loopback addresses to the local host
@@ -314,4 +329,37 @@ QStringList FirewallController_linux::getLocalAddresses(const QString iface) con
 
     freeifaddrs(ifap);
     return addrs;
+}
+
+// Return hotspot adapter name, or empty string if hotspot adapter not found on not connected
+QString FirewallController_linux::getHotspotAdapter() const
+{
+    QString strReply;
+    FILE *file = popen("nmcli d | grep Hotspot", "r");
+    if (file)
+    {
+        char szLine[4096];
+        while(fgets(szLine, sizeof(szLine), file) != 0)
+        {
+            strReply += szLine;
+        }
+        pclose(file);
+    }
+
+    if (strReply.isEmpty())
+        return QString();
+
+    QRegularExpression regExp("\\s+");
+    QStringList list = strReply.split(regExp, Qt::SkipEmptyParts);
+    // must be 4 values
+    if (list.count() != 4) {
+        qCDebug(LOG_FIREWALL_CONTROLLER) << "Can't parse get hotspot adapter name function output:" << strReply;
+        return QString();
+    }
+
+    if (list[2].compare("connected", Qt::CaseInsensitive) == 0) {
+        return list[0];
+    }
+
+    return QString();
 }

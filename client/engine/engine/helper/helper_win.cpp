@@ -470,34 +470,25 @@ QString Helper_win::executeWmicGetConfigManagerErrorCode(const QString &adapterN
     return QString::fromLocal8Bit(mpr.additionalString.c_str(), mpr.additionalString.size());
 }
 
-bool Helper_win::executeChangeIcs(int cmd, const QString &configPath, const QString &publicGuid, const QString &privateGuid, unsigned long &outCmdId, const QString &eventName)
+bool Helper_win::changeIcs(const QString &adapterName)
 {
     QMutexLocker locker(&mutex_);
-
-    // check executable signature
-    QString updateIcsExePath = QCoreApplication::applicationDirPath() + "/ChangeIcs.exe";
-    ExecutableSignature sigCheck;
-    if (!sigCheck.verify(updateIcsExePath.toStdWString()))
-    {
-        qCDebug(LOG_CONNECTION) << "ChangeIcs executable signature incorrect: " << QString::fromStdString(sigCheck.lastError());
-        return false;
-    }
-
-    CMD_UPDATE_ICS cmdUpdateIcs;
-    cmdUpdateIcs.cmd = cmd;
-    cmdUpdateIcs.szConfigPath = configPath.toStdWString();
-    cmdUpdateIcs.szPublicGuid = publicGuid.toStdWString();
-    cmdUpdateIcs.szPrivateGuid = privateGuid.toStdWString();
-    cmdUpdateIcs.szEventName = eventName.toStdWString();
+    CMD_ICS_CHANGE cmdIcsChange;
+    cmdIcsChange.szAdapterName = adapterName.toStdWString();
 
     std::stringstream stream;
     boost::archive::text_oarchive oa(stream, boost::archive::no_header);
-    oa << cmdUpdateIcs;
+    oa << cmdIcsChange;
 
-    MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_UPDATE_ICS, stream.str());
-    outCmdId = mpr.blockingCmdId;
-
+    MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_ICS_CHANGE, stream.str());
     return mpr.success;
+}
+
+bool Helper_win::stopIcs()
+{
+    QMutexLocker locker(&mutex_);
+    MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_ICS_STOP, std::string());
+    return mpr.exitCode;
 }
 
 bool Helper_win::changeMtu(const QString &adapter, int mtu)
@@ -667,11 +658,17 @@ bool Helper_win::deleteWhitelistPorts()
     return mpr.success;
 }
 
-bool Helper_win::isSupportedICS()
+bool Helper_win::isIcsSupported()
 {
     QMutexLocker locker(&mutex_);
+    MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_ICS_IS_SUPPORTED, std::string());
+    return mpr.exitCode;
+}
 
-    MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_IS_SUPPORTED_ICS, std::string());
+bool Helper_win::startIcs()
+{
+    QMutexLocker locker(&mutex_);
+    MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_ICS_START, std::string());
     return mpr.exitCode;
 }
 

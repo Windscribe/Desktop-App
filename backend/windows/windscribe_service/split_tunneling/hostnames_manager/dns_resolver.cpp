@@ -1,9 +1,6 @@
-#include "../../all_headers.h"
 #include "dns_resolver.h"
-
-
+#include <assert.h>
 #include "../../logger.h"
-#include "../../../../../client/common/utils/crashhandler.h"
 
 DnsResolver *DnsResolver::this_ = NULL;
 
@@ -53,6 +50,7 @@ void DnsResolver::stop()
 void DnsResolver::resolveDomains(const std::vector<std::string> &hostnames)
 {
     std::lock_guard<std::mutex> lock(mutex_);
+
 	{
 		// cancel any lookups currently in channel
 		if (!hostnamesInProgress_.empty())
@@ -77,23 +75,26 @@ void DnsResolver::resolveDomains(const std::vector<std::string> &hostnames)
 		int status = ares_init_options(&channel_, &options, optmask);
 		if (status != ARES_SUCCESS)
 		{
-			Logger::instance().out("ares_init_options failed: %s", ares_strerror(status));
+            Logger::instance().out("ares_init_options failed: %s", ares_strerror(status));
 			return;
 		}
 
+        for (auto &hostname : hostnames)
+        {
+            hostnamesInProgress_.insert(hostname);
+        }
 
 		// filter for unique hostnames and execute request
 		for (auto &hostname : hostnames)
 		{
 			USER_ARG *userArg = new USER_ARG();
 			userArg->hostname = hostname;
-			ares_gethostbyname(channel_, hostname.c_str(), AF_INET, aresLookupFinishedCallback, userArg);
-			hostnamesInProgress_.insert(hostname);
+            ares_gethostbyname(channel_, hostname.c_str(), AF_INET, aresLookupFinishedCallback, userArg);
 		}
 	}
 
-	// kick thread
-	waitCondition_.notify_all();
+    // kick thread
+    waitCondition_.notify_all();
 }
 
 void DnsResolver::cancelAll()
@@ -116,6 +117,7 @@ void DnsResolver::aresLookupFinishedCallback(void * arg, int status, int /*timeo
 	// cancel and fail cases
 	if (status == ARES_ECANCELLED)
 	{
+        delete userArg;
 		return;
 	}
 
@@ -138,8 +140,8 @@ void DnsResolver::aresLookupFinishedCallback(void * arg, int status, int /*timeo
 	}
 
 	this_->hostinfoResults_[hostInfo.hostname] = hostInfo;
-	this_->hostnamesInProgress_.erase(userArg->hostname);
-	
+    this_->hostnamesInProgress_.erase(userArg->hostname);
+
 	if (this_->hostnamesInProgress_.empty())
 	{
 		this_->resolveDomainsCallback_(this_->hostinfoResults_);
@@ -150,7 +152,7 @@ void DnsResolver::aresLookupFinishedCallback(void * arg, int status, int /*timeo
 
 DWORD __stdcall DnsResolver::threadFunc(LPVOID n)
 {
-    BIND_CRASH_HANDLER_FOR_THREAD();
+    //BIND_CRASH_HANDLER_FOR_THREAD();
 	DnsResolver *resolver = static_cast<DnsResolver *>(n);
 
 	while (true)
@@ -178,9 +180,6 @@ bool DnsResolver::processChannel(ares_channel channel)
 	fd_set read_fds, write_fds;
 	int res;
 	int nfds;
-	struct timeval tvp;
-    tvp.tv_sec = 1;
-    tvp.tv_usec = 0;
 
 	FD_ZERO(&read_fds);
 	FD_ZERO(&write_fds);
@@ -188,13 +187,9 @@ bool DnsResolver::processChannel(ares_channel channel)
 	if (nfds == 0) {
 		return false;
 	}
-
-	res = select(nfds, &read_fds, &write_fds, NULL, &tvp);
-	if (res == -1) {
-		return false;
-	} else if (res == 0) {
-		return true;
-	}
+    timeval tv;
+    timeval *tvp = ares_timeout(channel, NULL, &tv);
+    res = select(nfds, &read_fds, &write_fds, NULL, tvp);
 	ares_process(channel, &read_fds, &write_fds);
 	return true;
 }

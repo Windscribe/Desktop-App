@@ -596,7 +596,7 @@
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1420"/>
-        <location filename="../mainwindow.cpp" line="3516"/>
+        <location filename="../mainwindow.cpp" line="3497"/>
         <source>The application is corrupted.  Please reinstall Windscribe.</source>
         <translation>Aplikace je poškozena.  Přeinstalujte program Windscribe.</translation>
     </message>
@@ -663,7 +663,7 @@
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1864"/>
-        <location filename="../mainwindow.cpp" line="3393"/>
+        <location filename="../mainwindow.cpp" line="3374"/>
         <source>Disconnected</source>
         <translation>Nesouvislý</translation>
     </message>
@@ -809,91 +809,91 @@ Recovering...</source>
 Uzdravování...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3122"/>
+        <location filename="../mainwindow.cpp" line="3102"/>
         <source>Select an application</source>
         <translation>Vyberte aplikaci</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3153"/>
+        <location filename="../mainwindow.cpp" line="3134"/>
         <source>Connect</source>
         <translation>Spojit</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3157"/>
+        <location filename="../mainwindow.cpp" line="3138"/>
         <source>Disconnect</source>
         <translation>Odpojit</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3166"/>
-        <location filename="../mainwindow.cpp" line="3195"/>
+        <location filename="../mainwindow.cpp" line="3147"/>
+        <location filename="../mainwindow.cpp" line="3176"/>
         <source>Locations</source>
         <translation>Místa</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3173"/>
-        <location filename="../mainwindow.cpp" line="3202"/>
+        <location filename="../mainwindow.cpp" line="3154"/>
+        <location filename="../mainwindow.cpp" line="3183"/>
         <source>Favourites</source>
         <translation>Oblíbené</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3180"/>
-        <location filename="../mainwindow.cpp" line="3209"/>
+        <location filename="../mainwindow.cpp" line="3161"/>
+        <location filename="../mainwindow.cpp" line="3190"/>
         <source>Static IPs</source>
         <translation>Statické IP adresy</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3187"/>
-        <location filename="../mainwindow.cpp" line="3216"/>
+        <location filename="../mainwindow.cpp" line="3168"/>
+        <location filename="../mainwindow.cpp" line="3197"/>
         <source>Configured</source>
         <translation>Nastavený</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3227"/>
+        <location filename="../mainwindow.cpp" line="3208"/>
         <source>Show/Hide</source>
         <translation>Zobrazit/skrýt</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3232"/>
+        <location filename="../mainwindow.cpp" line="3213"/>
         <source>Preferences</source>
         <translation>Možnosti</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3235"/>
+        <location filename="../mainwindow.cpp" line="3216"/>
         <source>Help</source>
         <translation>Pomoc</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3236"/>
+        <location filename="../mainwindow.cpp" line="3217"/>
         <source>Exit</source>
         <translation>Východ</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3480"/>
+        <location filename="../mainwindow.cpp" line="3461"/>
         <source>Read-only file</source>
         <translation>Soubor jen pro čtení</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3481"/>
+        <location filename="../mainwindow.cpp" line="3462"/>
         <source>Your hosts file is read-only. IKEv2 connectivity requires for it to be writable. Fix the issue automatically?</source>
         <translation>Soubor hosts je jen pro čtení. Připojení IKEv2 vyžaduje, aby bylo možné zapisovat. Opravit problém automaticky?</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3506"/>
+        <location filename="../mainwindow.cpp" line="3487"/>
         <source>The custom configuration could not be loaded.  Please check that it’s correct or contact support.</source>
         <translation>Vlastní konfiguraci nelze načíst.  Zkontrolujte správnost nebo kontaktujte podporu.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3508"/>
+        <location filename="../mainwindow.cpp" line="3489"/>
         <source>There is a problem with the Wintun device driver, and it could not be reinstalled automatically.  Please reinstall Windscribe.</source>
         <translation>Došlo k potížím s ovladačem zařízení Wintun a nelze jej automaticky přeinstalovat.  Přeinstalujte program Windscribe.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3510"/>
+        <location filename="../mainwindow.cpp" line="3491"/>
         <source>There is a problem with the TAP device driver, and it could not be reinstalled automatically.  Please reinstall Windscribe.</source>
         <translation>Došlo k potížím s ovladačem zařízení TAP a nelze jej automaticky přeinstalovat.  Přeinstalujte program Windscribe.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3518"/>
+        <location filename="../mainwindow.cpp" line="3499"/>
         <source>WireGuard adapter setup failed. Please wait one minute and try the connection again. If adapter setup fails again, please try restarting your computer.
 
 If the problem persists after a restart, please send a debug log and open a support ticket, then switch to a different connection mode.</source>
@@ -902,37 +902,37 @@ If the problem persists after a restart, please send a debug log and open a supp
 Pokud problém přetrvává i po restartování, odešlete protokol ladění, otevřete lístek podpory a poté přepněte do jiného režimu připojení.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3522"/>
+        <location filename="../mainwindow.cpp" line="3503"/>
         <source>An unexpected error occurred establishing the VPN connection (Error %1).  If this error persists, try using a different protocol or contact support.</source>
         <translation>Při vytváření připojení VPN došlo k neočekávané chybě (Chyba % 1).  Pokud tato chyba přetrvává, zkuste použít jiný protokol nebo kontaktujte podporu.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3525"/>
+        <location filename="../mainwindow.cpp" line="3506"/>
         <source>Connection Error</source>
         <translation>Chyba připojení</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3681"/>
+        <location filename="../mainwindow.cpp" line="3662"/>
         <source>Reached Key Limit</source>
         <translation>Dosažen limit klíče</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3682"/>
+        <location filename="../mainwindow.cpp" line="3663"/>
         <source>You have reached your limit of WireGuard public keys. Do you want to delete your oldest key?</source>
         <translation>Dosáhli jste limitu veřejných klíčů WireGuard. Chcete odstranit nejstarší klíč?</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3736"/>
+        <location filename="../mainwindow.cpp" line="3717"/>
         <source>Error Starting Service</source>
         <translation>Chyba při spuštění služby</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3737"/>
+        <location filename="../mainwindow.cpp" line="3718"/>
         <source>The split tunneling feature could not be started, and has been disabled in Preferences.</source>
         <translation>Funkci děleného tunelového propojení nelze spustit a byla zakázána v Předvolbách.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3744"/>
+        <location filename="../mainwindow.cpp" line="3725"/>
         <source>Windscribe</source>
         <translation>Windscribe</translation>
     </message>
@@ -963,29 +963,6 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
         <location filename="../mainwindowcontroller.h" line="197"/>
         <source>Cancel</source>
         <translation>Zrušit</translation>
-    </message>
-</context>
-<context>
-    <name>NewsFeedWindow::EntryItem</name>
-    <message>
-        <location filename="../newsfeedwindow/entryitem.cpp" line="160"/>
-        <source>Long ago</source>
-        <translation>Dávno</translation>
-    </message>
-    <message>
-        <location filename="../newsfeedwindow/entryitem.cpp" line="163"/>
-        <source>1 day ago</source>
-        <translation>Před 1 dnem</translation>
-    </message>
-    <message>
-        <location filename="../newsfeedwindow/entryitem.cpp" line="166"/>
-        <source>Today</source>
-        <translation>Dnes</translation>
-    </message>
-    <message>
-        <location filename="../newsfeedwindow/entryitem.cpp" line="169"/>
-        <source>%1 days ago</source>
-        <translation>%1 dny</translation>
     </message>
 </context>
 <context>

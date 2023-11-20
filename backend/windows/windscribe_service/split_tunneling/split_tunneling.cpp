@@ -80,6 +80,7 @@ void SplitTunneling::detectWindscribeExecutables()
 
 bool SplitTunneling::updateState()
 {
+    Logger::instance().out(L"SplitTunneling::updateState begin");
     AppsIds appsIds;
     appsIds.setFromList(apps_);
     Ip4AddressAndMask localAddr(connectStatus_.defaultAdapter.adapterIp.c_str());
@@ -133,6 +134,8 @@ bool SplitTunneling::updateState()
     
     prevIsSplitTunnelActive_ = isSplitTunnelActive;
     prevIsExclude_ = isExclude_;
+
+    Logger::instance().out(L"SplitTunneling::updateState end");
 
     return true;
 }

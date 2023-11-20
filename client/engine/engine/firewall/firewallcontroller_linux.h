@@ -33,4 +33,5 @@ private:
     QStringList getWindscribeRules(const QString &comment, bool modifyForDelete, bool isIPv6);
     void removeWindscribeRules(const QString &comment, bool isIPv6);
     QStringList getLocalAddresses(const QString iface) const;
+    QString getHotspotAdapter() const;
 };

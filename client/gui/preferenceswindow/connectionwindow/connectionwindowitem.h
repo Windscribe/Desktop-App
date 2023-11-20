@@ -104,8 +104,8 @@ private:
     SecureHotspotGroup *secureHotspotGroup_;
     ProxyGatewayGroup *proxyGatewayGroup_;
 
-    bool isIkev2OrAutomaticConnectionMode(const types::ConnectionSettings &cs) const;
-    void updateIsSupported(bool isWifiSharingSupported, bool isIkev2OrAutomatic);
+    bool isIkev2(const types::ConnectionSettings &cs) const;
+    void updateIsSupported(bool isWifiSharingSupported, bool isIkev2);
 
     CONNECTION_SCREEN_TYPE currentScreen_;
 };

@@ -1583,3 +1583,27 @@ QString WinUtils::getVersionInfoItem(QString exeName, QString itemName)
 
     return itemValue;
 }
+
+GUID WinUtils::stringToGuid(const char *str)
+{
+    GUID guid;
+    unsigned long p0;
+    unsigned int p1, p2, p3, p4, p5, p6, p7, p8, p9, p10;
+
+    sscanf_s(str, "{%08lX-%04X-%04X-%02X%02X-%02X%02X%02X%02X%02X%02X}",
+        &p0, &p1, &p2, &p3, &p4, &p5, &p6, &p7, &p8, &p9, &p10);
+
+    guid.Data1 = p0;
+    guid.Data2 = p1;
+    guid.Data3 = p2;
+    guid.Data4[0] = p3;
+    guid.Data4[1] = p4;
+    guid.Data4[2] = p5;
+    guid.Data4[3] = p6;
+    guid.Data4[4] = p7;
+    guid.Data4[5] = p8;
+    guid.Data4[6] = p9;
+    guid.Data4[7] = p10;
+
+    return guid;
+}

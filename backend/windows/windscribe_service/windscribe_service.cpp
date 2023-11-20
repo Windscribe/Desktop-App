@@ -5,7 +5,7 @@
 #include "firewallfilter.h"
 #include "logger.h"
 #include "ipc/servicecommunication.h"
-#include "icsmanager.h"
+#include "../changeics/icsmanager.h"
 #include "sys_ipv6_controller.h"
 #include "hostsedit.h"
 #include "get_active_processes.h"
@@ -481,10 +481,31 @@ MessagePacketResult processMessagePacket(int cmdId, const std::string &packet, I
         sysIpv6Controller.setIpv6Enabled(false);
         mpr.success = true;
     }
-    else if (cmdId == AA_COMMAND_IS_SUPPORTED_ICS)
+    else if (cmdId == AA_COMMAND_ICS_IS_SUPPORTED)
     {
-        Logger::instance().out(L"AA_COMMAND_IS_SUPPORTED_ICS");
+        Logger::instance().out(L"AA_COMMAND_ICS_IS_SUPPORTED");
         mpr.exitCode = icsManager.isSupported();
+        mpr.success = true;
+    }
+    else if (cmdId == AA_COMMAND_ICS_START)
+    {
+        // do nothing in the current implementation
+        Logger::instance().out(L"AA_COMMAND_ICS_START");
+        mpr.exitCode = true;
+        mpr.success = true;
+    }
+    else if (cmdId == AA_COMMAND_ICS_STOP)
+    {
+        Logger::instance().out(L"AA_COMMAND_ICS_STOP");
+        mpr.exitCode = icsManager.stop();
+        mpr.success = true;
+    }
+    else if (cmdId == AA_COMMAND_ICS_CHANGE)
+    {
+        CMD_ICS_CHANGE cmdIcsChange;
+        ia >> cmdIcsChange;
+        Logger::instance().out(L"AA_COMMAND_ICS_CHANGE");
+        mpr.exitCode = icsManager.change(cmdIcsChange.szAdapterName);
         mpr.success = true;
     }
     else if (cmdId == AA_COMMAND_REINSTALL_WAN_IKEV2)
@@ -686,43 +707,6 @@ MessagePacketResult processMessagePacket(int cmdId, const std::string &packet, I
                 wcscpy(szWorkingDir, Utils::getDirPathFromFullPath(filename).c_str());
                 mpr = ExecuteCmd::instance().executeUnblockingCmd(strCmd.c_str(), L"", szWorkingDir);
             }
-        }
-        else
-        {
-            mpr.success = false;
-        }
-    }
-    else if (cmdId == AA_COMMAND_UPDATE_ICS)
-    {
-        CMD_UPDATE_ICS cmdUpdateIcs;
-        ia >> cmdUpdateIcs;
-
-        // make command line
-        std::wstring strCmd = L"\"" + Utils::getExePath() + L"\\ChangeIcs.exe\"";
-        if (cmdUpdateIcs.cmd == 0)  // save
-        {
-            strCmd += L" -save \"";
-            strCmd += cmdUpdateIcs.szConfigPath;
-            strCmd += L"\"";
-            mpr = ExecuteCmd::instance().executeUnblockingCmd(strCmd.c_str(), cmdUpdateIcs.szEventName.c_str(), NULL);
-            Logger::instance().out(L"AA_COMMAND_UPDATE_ICS, cmd=%s", strCmd.c_str());
-        }
-        else if (cmdUpdateIcs.cmd == 1) // restore
-        {
-            strCmd += L" -restore \"";
-            strCmd += cmdUpdateIcs.szConfigPath;
-            strCmd += L"\"";
-            mpr = ExecuteCmd::instance().executeUnblockingCmd(strCmd.c_str(), cmdUpdateIcs.szEventName.c_str(), NULL);
-            Logger::instance().out(L"AA_COMMAND_UPDATE_ICS, cmd=%s", strCmd.c_str());
-        }
-        else if (cmdUpdateIcs.cmd == 2) // change
-        {
-            strCmd += L" -change ";
-            strCmd += cmdUpdateIcs.szPublicGuid;
-            strCmd += L" ";
-            strCmd += cmdUpdateIcs.szPrivateGuid;
-            mpr = ExecuteCmd::instance().executeUnblockingCmd(strCmd.c_str(), cmdUpdateIcs.szEventName.c_str(), NULL);
-            Logger::instance().out(L"AA_COMMAND_UPDATE_ICS, cmd=%s", strCmd.c_str());
         }
         else
         {
@@ -1029,99 +1013,101 @@ DWORD WINAPI serviceWorkerThread(LPVOID)
         return 0;
     }
 
-    IcsManager          icsManager;
-    FirewallFilter      firewallFilter(fwpmHandleWrapper);
-    Ipv6Firewall        ipv6Firewall(fwpmHandleWrapper);
-    DnsFirewall            dnsFirewall(fwpmHandleWrapper);
-    SysIpv6Controller   sysIpv6Controller;
-    HostsEdit            hostsEdit;
-    GetActiveProcesses  getActiveProcesses;
-    SplitTunneling      splitTunnelling(firewallFilter, fwpmHandleWrapper);
-    WireGuardController wireGuardController;
-
-    Logger::instance().out(L"Service started");
-
-    HANDLE hPipe = CreatePipe();
-    if (hPipe == INVALID_HANDLE_VALUE)
     {
-        return 0;
-    }
+        IcsManager          icsManager;
+        FirewallFilter      firewallFilter(fwpmHandleWrapper);
+        Ipv6Firewall        ipv6Firewall(fwpmHandleWrapper);
+        DnsFirewall         dnsFirewall(fwpmHandleWrapper);
+        SysIpv6Controller   sysIpv6Controller;
+        HostsEdit           hostsEdit;
+        GetActiveProcesses  getActiveProcesses;
+        SplitTunneling      splitTunnelling(firewallFilter, fwpmHandleWrapper);
+        WireGuardController wireGuardController;
 
-    HANDLE hEvent = CreateEvent(NULL, TRUE, TRUE, NULL);
-    if (hEvent == NULL)
-    {
-        return 0;
-    }
+        Logger::instance().out(L"Service started");
 
-    // Tell the service controller we are started
-    g_ServiceStatus.dwControlsAccepted = SERVICE_ACCEPT_STOP | SERVICE_ACCEPT_SHUTDOWN;
-    g_ServiceStatus.dwCurrentState = SERVICE_RUNNING;
-    g_ServiceStatus.dwWin32ExitCode = 0;
-    g_ServiceStatus.dwCheckPoint = 0;
-
-    if (SetServiceStatus(g_StatusHandle, &g_ServiceStatus) == FALSE)
-    {
-        //OutputDebugString(_T(
-        //"My Sample Service: ServiceMain: SetServiceStatus returned error"));
-    }
-
-    OVERLAPPED overlapped;
-    overlapped.hEvent = hEvent;
-
-    HANDLE hEvents[2];
-
-    hEvents[0] = g_ServiceStopEvent;
-    hEvents[1] = hEvent;
-
-    while (true)
-    {
-        ::ConnectNamedPipe(hPipe, &overlapped);
-
-        DWORD dwWait = WaitForMultipleObjects(2, hEvents, FALSE, INFINITE);
-        if (dwWait == WAIT_OBJECT_0)
+        HANDLE hPipe = CreatePipe();
+        if (hPipe == INVALID_HANDLE_VALUE)
         {
-            break;
+            return 0;
         }
-        else if (dwWait == (WAIT_OBJECT_0 + 1))
+
+        HANDLE hEvent = CreateEvent(NULL, TRUE, TRUE, NULL);
+        if (hEvent == NULL)
         {
-         if (Utils::verifyWindscribeProcessPath(hPipe))
-         {
-            int cmdId;
-            unsigned long sizeOfBuf;
-            if (IOUtils::readAll(hPipe, (char *)&cmdId, sizeof(cmdId)))
+            return 0;
+        }
+
+        // Tell the service controller we are started
+        g_ServiceStatus.dwControlsAccepted = SERVICE_ACCEPT_STOP | SERVICE_ACCEPT_SHUTDOWN;
+        g_ServiceStatus.dwCurrentState = SERVICE_RUNNING;
+        g_ServiceStatus.dwWin32ExitCode = 0;
+        g_ServiceStatus.dwCheckPoint = 0;
+
+        if (SetServiceStatus(g_StatusHandle, &g_ServiceStatus) == FALSE)
+        {
+            //OutputDebugString(_T(
+            //"My Sample Service: ServiceMain: SetServiceStatus returned error"));
+        }
+
+        OVERLAPPED overlapped;
+        overlapped.hEvent = hEvent;
+
+        HANDLE hEvents[2];
+
+        hEvents[0] = g_ServiceStopEvent;
+        hEvents[1] = hEvent;
+
+        while (true)
+        {
+            ::ConnectNamedPipe(hPipe, &overlapped);
+
+            DWORD dwWait = WaitForMultipleObjects(2, hEvents, FALSE, INFINITE);
+            if (dwWait == WAIT_OBJECT_0)
             {
-               if (IOUtils::readAll(hPipe, (char *)&sizeOfBuf, sizeof(sizeOfBuf)))
-               {
-                  std::string strData;
-                  if (sizeOfBuf > 0)
-                  {
-                     std::vector<char> buffer(sizeOfBuf);
-                     if (IOUtils::readAll(hPipe, buffer.data(), sizeOfBuf))
-                     {
-                        strData = std::string(buffer.begin(), buffer.end());
-                     }
-                  }
-
-                  MessagePacketResult mpr = processMessagePacket(cmdId, strData, icsManager, firewallFilter, ipv6Firewall, dnsFirewall,
-                     sysIpv6Controller, hostsEdit, getActiveProcesses, splitTunnelling, wireGuardController);
-                  writeMessagePacketResult(hPipe, mpr);
-               }
+                break;
             }
-         }
+            else if (dwWait == (WAIT_OBJECT_0 + 1))
+            {
+             if (Utils::verifyWindscribeProcessPath(hPipe))
+             {
+                int cmdId;
+                unsigned long sizeOfBuf;
+                if (IOUtils::readAll(hPipe, (char *)&cmdId, sizeof(cmdId)))
+                {
+                   if (IOUtils::readAll(hPipe, (char *)&sizeOfBuf, sizeof(sizeOfBuf)))
+                   {
+                      std::string strData;
+                      if (sizeOfBuf > 0)
+                      {
+                         std::vector<char> buffer(sizeOfBuf);
+                         if (IOUtils::readAll(hPipe, buffer.data(), sizeOfBuf))
+                         {
+                            strData = std::string(buffer.begin(), buffer.end());
+                         }
+                      }
 
-            ::FlushFileBuffers(hPipe);
-            ::DisconnectNamedPipe(hPipe);
+                      MessagePacketResult mpr = processMessagePacket(cmdId, strData, icsManager, firewallFilter, ipv6Firewall, dnsFirewall,
+                         sysIpv6Controller, hostsEdit, getActiveProcesses, splitTunnelling, wireGuardController);
+                      writeMessagePacketResult(hPipe, mpr);
+                   }
+                }
+             }
+
+                ::FlushFileBuffers(hPipe);
+                ::DisconnectNamedPipe(hPipe);
+            }
         }
+
+        CloseHandle(hEvent);
+        CloseHandle(hPipe);
+
+        // turn off split tunneling
+        CMD_CONNECT_STATUS connectStatus = { 0 };
+        connectStatus.isConnected = false;
+        splitTunnelling.setConnectStatus(connectStatus);
+        //splitTunnelling.stop();
     }
-
-    CloseHandle(hEvent);
-    CloseHandle(hPipe);
-
-    // turn off split tunneling
-    CMD_CONNECT_STATUS connectStatus = { 0 };
-    connectStatus.isConnected = false;
-    splitTunnelling.setConnectStatus(connectStatus);
-    //splitTunnelling.stop();
 
     CoUninitialize();
     Logger::instance().out(L"Service stopped");

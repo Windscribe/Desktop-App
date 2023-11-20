@@ -1,5 +1,11 @@
 #pragma once
 
+#include <string>
+#include <vector>
+#include <map>
+#include <functional>
+#include <mutex>
+#include <set>
 
 #include "ares_library_init.h"
 #include "ares.h"

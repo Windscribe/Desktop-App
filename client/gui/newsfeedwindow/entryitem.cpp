@@ -113,8 +113,7 @@ void EntryItem::paint(QPainter *painter, const QStyleOptionGraphicsItem * /*opti
     painter->fillPath(path, QBrush(Qt::white));
 
     // unread marker
-    if (!read_)
-    {
+    if (!read_) {
         painter->setPen(Qt::NoPen);
         painter->setBrush(QColor(85, 255, 138));
         painter->setOpacity(OPACITY_FULL);
@@ -130,52 +129,23 @@ void EntryItem::paint(QPainter *painter, const QStyleOptionGraphicsItem * /*opti
     painter->setOpacity(textOpacity_);
     QFont *font = FontManager::instance().getFont(12, true);
     painter->setFont(*font);
-    if (expanded_)
-    {
+    if (expanded_) {
         painter->drawText(boundingRect().adjusted(TEXT_MARGIN*G_SCALE,
                                                   TEXT_MARGIN*G_SCALE,
-                                                  -(3*TEXT_MARGIN*G_SCALE + ICON_WIDTH*G_SCALE + DATE_WIDTH*G_SCALE),
+                                                  -(2*TEXT_MARGIN*G_SCALE + ICON_WIDTH*G_SCALE),
                                                   0),
                           item_.title.toUpper());
-    }
-    else
-    {
+    } else {
         QFontMetrics titleMetrics(*font);
         QString elided = titleMetrics.elidedText(item_.title.toUpper(),
                                                  Qt::ElideRight,
-                                                 boundingRect().width() - (4*TEXT_MARGIN*G_SCALE + ICON_WIDTH*G_SCALE + DATE_WIDTH*G_SCALE));
+                                                 boundingRect().width() - (3*TEXT_MARGIN*G_SCALE + ICON_WIDTH*G_SCALE));
         painter->drawText(boundingRect().adjusted(TEXT_MARGIN*G_SCALE,
                                                   TEXT_MARGIN*G_SCALE,
-                                                  -(3*TEXT_MARGIN*G_SCALE + ICON_WIDTH*G_SCALE + DATE_WIDTH*G_SCALE),
+                                                  -(2*TEXT_MARGIN*G_SCALE + ICON_WIDTH*G_SCALE),
                                                   0),
                           elided);
     }
-
-    // X days ago
-    painter->setOpacity(OPACITY_HALF);
-    QString timedelta;
-    int daysAgo = QDateTime::fromSecsSinceEpoch(item_.date).daysTo(QDateTime::currentDateTime());
-
-    if (daysAgo > 100) {
-        timedelta = tr("Long ago");
-    }
-    else if (daysAgo == 1) {
-        timedelta = tr("1 day ago");
-    }
-    else if (daysAgo == 0) {
-        timedelta = tr("Today");
-    }
-    else {
-        timedelta = QString(tr("%1 days ago")).arg(daysAgo);
-    }
-
-    painter->setFont(*FontManager::instance().getFont(12, false));
-    QFontMetrics timeDeltaMetrics(*font);
-    int textWidth = timeDeltaMetrics.horizontalAdvance(timedelta);
-    painter->drawText(boundingRect().adjusted(boundingRect().width() - 2*TEXT_MARGIN*G_SCALE - ICON_WIDTH*G_SCALE - textWidth,
-                                              TEXT_MARGIN*G_SCALE,
-                                              -(2*TEXT_MARGIN*G_SCALE + ICON_WIDTH*G_SCALE),
-                                              0), timedelta);
 
     // +/X icon
     painter->save();
@@ -187,13 +157,10 @@ void EntryItem::paint(QPainter *painter, const QStyleOptionGraphicsItem * /*opti
     painter->restore();
 
     // body
-    if (expanded_)
-    {
+    if (expanded_) {
         messageItem_->setVisible(true);
         messageItem_->setOpacity(expandAnimationProgress_);
-    }
-    else
-    {
+    } else {
         messageItem_->setVisible(false);
     }
 }
@@ -204,7 +171,7 @@ void EntryItem::updateScaling()
     QFontMetrics metrics(*FontManager::instance().getFont(12, true));
     titleHeight_ = metrics.boundingRect(boundingRect().adjusted(TEXT_MARGIN*G_SCALE,
                                                                 TEXT_MARGIN*G_SCALE,
-                                                                -(3*TEXT_MARGIN*G_SCALE + ICON_WIDTH*G_SCALE + DATE_WIDTH*G_SCALE),
+                                                                -(2*TEXT_MARGIN*G_SCALE + ICON_WIDTH*G_SCALE),
                                                                 0).toRect(),
                                         Qt::AlignLeft | Qt::TextWordWrap,
                                         item_.title.toUpper()).height();

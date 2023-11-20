@@ -591,7 +591,7 @@
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1420"/>
-        <location filename="../mainwindow.cpp" line="3516"/>
+        <location filename="../mainwindow.cpp" line="3497"/>
         <source>The application is corrupted.  Please reinstall Windscribe.</source>
         <translation>अनुप्रयोग दूषित है.  कृपया विंडस्क्राइब को पुनर्स्थापित करें।</translation>
     </message>
@@ -632,32 +632,32 @@
         <translation>अद्यतनकर्ता नहीं चलाया जा सका (त्रुटि %1).  कृपया समर्थन से संपर्क करें</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3480"/>
+        <location filename="../mainwindow.cpp" line="3461"/>
         <source>Read-only file</source>
         <translation>केवल पढ़ने की फ़ाइल</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3506"/>
+        <location filename="../mainwindow.cpp" line="3487"/>
         <source>The custom configuration could not be loaded.  Please check that it’s correct or contact support.</source>
         <translation>कस्टम कॉन्फ़िगरेशन लोड नहीं किया जा सका.  कृपया जांचें कि यह सही है या समर्थन से संपर्क करें।</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3508"/>
+        <location filename="../mainwindow.cpp" line="3489"/>
         <source>There is a problem with the Wintun device driver, and it could not be reinstalled automatically.  Please reinstall Windscribe.</source>
         <translation>Wintun डिवाइस ड्राइवर के साथ कोई समस्या है, और इसे स्वचालित रूप से पुनर्स्थापित नहीं किया जा सका।  कृपया विंडस्क्राइब को पुनर्स्थापित करें।</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3510"/>
+        <location filename="../mainwindow.cpp" line="3491"/>
         <source>There is a problem with the TAP device driver, and it could not be reinstalled automatically.  Please reinstall Windscribe.</source>
         <translation>TAP डिवाइस ड्राइवर के साथ कोई समस्या है, और इसे स्वचालित रूप से पुनर्स्थापित नहीं किया जा सका।  कृपया विंडस्क्राइब को पुनर्स्थापित करें।</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3522"/>
+        <location filename="../mainwindow.cpp" line="3503"/>
         <source>An unexpected error occurred establishing the VPN connection (Error %1).  If this error persists, try using a different protocol or contact support.</source>
         <translation>VPN कनेक्शन स्थापित करने में कोई अनपेक्षित त्रुटि आई (त्रुटि %1).  यदि यह त्रुटि बनी रहती है, तो किसी भिन्न प्रोटोकॉल या संपर्क समर्थन का उपयोग करने का प्रयास करें.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3744"/>
+        <location filename="../mainwindow.cpp" line="3725"/>
         <source>Windscribe</source>
         <translation>विंडस्क्राइब</translation>
     </message>
@@ -713,7 +713,7 @@
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1864"/>
-        <location filename="../mainwindow.cpp" line="3393"/>
+        <location filename="../mainwindow.cpp" line="3374"/>
         <source>Disconnected</source>
         <translation>डिस्कनेक्ट</translation>
     </message>
@@ -839,71 +839,71 @@ Recovering...</source>
 ठीक।।।</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3122"/>
+        <location filename="../mainwindow.cpp" line="3102"/>
         <source>Select an application</source>
         <translation>किसी अनुप्रयोग का चयन करें</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3153"/>
+        <location filename="../mainwindow.cpp" line="3134"/>
         <source>Connect</source>
         <translation>जोड़ना</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3157"/>
+        <location filename="../mainwindow.cpp" line="3138"/>
         <source>Disconnect</source>
         <translation>अलग करना</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3166"/>
-        <location filename="../mainwindow.cpp" line="3195"/>
+        <location filename="../mainwindow.cpp" line="3147"/>
+        <location filename="../mainwindow.cpp" line="3176"/>
         <source>Locations</source>
         <translation>स्थान</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3173"/>
-        <location filename="../mainwindow.cpp" line="3202"/>
+        <location filename="../mainwindow.cpp" line="3154"/>
+        <location filename="../mainwindow.cpp" line="3183"/>
         <source>Favourites</source>
         <translation>पसंदीदा</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3180"/>
-        <location filename="../mainwindow.cpp" line="3209"/>
+        <location filename="../mainwindow.cpp" line="3161"/>
+        <location filename="../mainwindow.cpp" line="3190"/>
         <source>Static IPs</source>
         <translation>स्थैतिक आईपी</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3187"/>
-        <location filename="../mainwindow.cpp" line="3216"/>
+        <location filename="../mainwindow.cpp" line="3168"/>
+        <location filename="../mainwindow.cpp" line="3197"/>
         <source>Configured</source>
         <translation>कॉन्फ़िगर</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3227"/>
+        <location filename="../mainwindow.cpp" line="3208"/>
         <source>Show/Hide</source>
         <translation>दिखाओ/छिपाओ</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3232"/>
+        <location filename="../mainwindow.cpp" line="3213"/>
         <source>Preferences</source>
         <translation>प्राथमिकताएँ</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3235"/>
+        <location filename="../mainwindow.cpp" line="3216"/>
         <source>Help</source>
         <translation>मदद</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3236"/>
+        <location filename="../mainwindow.cpp" line="3217"/>
         <source>Exit</source>
         <translation>निकासी</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3481"/>
+        <location filename="../mainwindow.cpp" line="3462"/>
         <source>Your hosts file is read-only. IKEv2 connectivity requires for it to be writable. Fix the issue automatically?</source>
         <translation>आपकी होस्ट्स फ़ाइल केवल पढ़ने के लिए है. IKEv2 कनेक्टिविटी को लिखने योग्य होने की आवश्यकता है। समस्या को स्वचालित रूप से ठीक करें?</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3518"/>
+        <location filename="../mainwindow.cpp" line="3499"/>
         <source>WireGuard adapter setup failed. Please wait one minute and try the connection again. If adapter setup fails again, please try restarting your computer.
 
 If the problem persists after a restart, please send a debug log and open a support ticket, then switch to a different connection mode.</source>
@@ -912,27 +912,27 @@ If the problem persists after a restart, please send a debug log and open a supp
 यदि पुनरारंभ के बाद भी समस्या बनी रहती है, तो कृपया एक डीबग लॉग भेजें और एक समर्थन टिकट खोलें, फिर किसी अन्य कनेक्शन मोड पर स्विच करें।</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3525"/>
+        <location filename="../mainwindow.cpp" line="3506"/>
         <source>Connection Error</source>
         <translation>कनेक्शन त्रुटि</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3681"/>
+        <location filename="../mainwindow.cpp" line="3662"/>
         <source>Reached Key Limit</source>
         <translation>कुंजी सीमा तक पहुँच गया</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3682"/>
+        <location filename="../mainwindow.cpp" line="3663"/>
         <source>You have reached your limit of WireGuard public keys. Do you want to delete your oldest key?</source>
         <translation>आप वायरगार्ड सार्वजनिक कुंजी की अपनी सीमा तक पहुंच गए हैं। क्या आप अपनी सबसे पुरानी कुंजी हटाना चाहते हैं?</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3736"/>
+        <location filename="../mainwindow.cpp" line="3717"/>
         <source>Error Starting Service</source>
         <translation>प्रारंभ सेवा में त्रुटि</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3737"/>
+        <location filename="../mainwindow.cpp" line="3718"/>
         <source>The split tunneling feature could not be started, and has been disabled in Preferences.</source>
         <translation>स्प्लिट टनलिंग सुविधा प्रारंभ नहीं की जा सकी, और प्राथमिकताओं में अक्षम कर दी गई है.</translation>
     </message>
@@ -963,29 +963,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <location filename="../mainwindowcontroller.h" line="197"/>
         <source>Cancel</source>
         <translation>रद्द करना</translation>
-    </message>
-</context>
-<context>
-    <name>NewsFeedWindow::EntryItem</name>
-    <message>
-        <location filename="../newsfeedwindow/entryitem.cpp" line="160"/>
-        <source>Long ago</source>
-        <translation>पूर्व</translation>
-    </message>
-    <message>
-        <location filename="../newsfeedwindow/entryitem.cpp" line="163"/>
-        <source>1 day ago</source>
-        <translation>1 दिन पहले</translation>
-    </message>
-    <message>
-        <location filename="../newsfeedwindow/entryitem.cpp" line="166"/>
-        <source>Today</source>
-        <translation>आज</translation>
-    </message>
-    <message>
-        <location filename="../newsfeedwindow/entryitem.cpp" line="169"/>
-        <source>%1 days ago</source>
-        <translation>%1 दिन पहले</translation>
     </message>
 </context>
 <context>

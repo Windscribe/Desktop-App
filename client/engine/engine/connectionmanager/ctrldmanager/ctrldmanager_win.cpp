@@ -99,7 +99,8 @@ void CtrldManager_win::onReadyReadStandardOutput()
         QString str = getNextStringFromInputBuffer(bSuccess, length);    
         if (bSuccess) {
             inputArr_.remove(0, length);
-            qCDebug(LOG_CTRLD) << str;
+            if (isCreateLog_)
+                qCDebug(LOG_CTRLD) << str;
         } else {
             break;
         }

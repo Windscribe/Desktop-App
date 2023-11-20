@@ -76,6 +76,8 @@ namespace WinUtils
 
     // Retrieve the version information item specified by itemName (e.g. "FileVersion") from the executable.
     QString getVersionInfoItem(QString exeName, QString itemName);
+
+    GUID stringToGuid(const char *str);
 }
 
 

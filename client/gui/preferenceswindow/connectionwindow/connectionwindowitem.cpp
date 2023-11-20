@@ -142,8 +142,7 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
                                                  QString("https://%1/features/secure-hotspot").arg(HardcodedSettings::instance().serverUrl()));
     connect(secureHotspotGroup_, &SecureHotspotGroup::secureHotspotPreferencesChanged, this, &ConnectionWindowItem::onSecureHotspotPreferencesChangedByUser);
     secureHotspotGroup_->setSecureHotspotSettings(preferences->shareSecureHotspot());
-    updateIsSupported(preferencesHelper_->isWifiSharingSupported(),
-                      isIkev2OrAutomaticConnectionMode(preferences_->connectionSettings()));
+    updateIsSupported(preferencesHelper_->isWifiSharingSupported(), isIkev2(preferences_->connectionSettings()));
     addItem(secureHotspotGroup_);
 #endif
 
@@ -347,6 +346,7 @@ void ConnectionWindowItem::onLanguageChanged()
 #endif
 
 #if defined(Q_OS_WIN)
+    terminateSocketsItem_->setCaption(tr("Terminate Sockets"));
     terminateSocketsGroup_->setDescription(tr("Close all active TCP sockets when the VPN tunnel is established."));
 #endif
 
@@ -408,7 +408,7 @@ void ConnectionWindowItem::onSecureHotspotPreferencesChanged(const types::ShareS
 
 void ConnectionWindowItem::onConnectionSettingsPreferencesChanged(const types::ConnectionSettings &cs)
 {
-    updateIsSupported(preferencesHelper_->isWifiSharingSupported(), isIkev2OrAutomaticConnectionMode(cs));
+    updateIsSupported(preferencesHelper_->isWifiSharingSupported(), isIkev2(cs));
 }
 
 void ConnectionWindowItem::onProxyGatewayPreferencesChangedByUser(const types::ShareProxyGateway &sp)
@@ -437,15 +437,15 @@ void ConnectionWindowItem::onProxyGatewayPreferencesChanged(const types::SharePr
 
 void ConnectionWindowItem::onPreferencesHelperWifiSharingSupportedChanged(bool bSupported)
 {
-    updateIsSupported(bSupported, isIkev2OrAutomaticConnectionMode(preferences_->connectionSettings()));
+    updateIsSupported(bSupported, isIkev2(preferences_->connectionSettings()));
 }
 
-bool ConnectionWindowItem::isIkev2OrAutomaticConnectionMode(const types::ConnectionSettings &cs) const
+bool ConnectionWindowItem::isIkev2(const types::ConnectionSettings &cs) const
 {
-    return cs.protocol() == types::Protocol::IKEV2 || cs.protocol() == types::Protocol::WIREGUARD || cs.isAutomatic();
+    return cs.protocol() == types::Protocol::IKEV2;
 }
 
-void ConnectionWindowItem::updateIsSupported(bool isWifiSharingSupported, bool isIkev2OrAutomatic)
+void ConnectionWindowItem::updateIsSupported(bool isWifiSharingSupported, bool isIkev2)
 {
 #ifndef Q_OS_LINUX
     if (secureHotspotGroup_)
@@ -454,7 +454,7 @@ void ConnectionWindowItem::updateIsSupported(bool isWifiSharingSupported, bool i
         {
             secureHotspotGroup_->setSupported(SecureHotspotGroup::HOTSPOT_NOT_SUPPORTED);
         }
-        else if (isIkev2OrAutomatic)
+        else if (isIkev2)
         {
             secureHotspotGroup_->setSupported(SecureHotspotGroup::HOTSPOT_NOT_SUPPORTED_BY_IKEV2);
         }

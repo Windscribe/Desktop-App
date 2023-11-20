@@ -1409,6 +1409,9 @@ void Engine::onConnectionManagerConnected()
 #endif
     }
 
+    // Update ICS sharing. The operation may take a few seconds.
+    vpnShareController_->onConnectedToVPNEvent(adapterName);
+
     connectStateController_->setConnectedState(locationId_);
     connectionManager_->startTunnelTests(); // It is important that startTunnelTests() are after setConnectedState().
 }
@@ -2304,13 +2307,6 @@ void Engine::addCustomRemoteIpToFirewallIfNeed()
 
 void Engine::doConnect(bool bEmitAuthError)
 {
-    // before connect, update ICS sharing and wait for update ICS finished
-    vpnShareController_->onConnectingOrConnectedToVPNEvent(OpenVpnVersionController::instance().isUseWinTun() ? "Windscribe Windtun420" : "Windscribe VPN");
-    while (vpnShareController_->isUpdateIcsInProgress())
-    {
-        QThread::msleep(1);
-    }
-
     QSharedPointer<locationsmodel::BaseLocationInfo> bli = locationsModel_->getMutableLocationInfoById(locationId_);
     if (bli.isNull())
     {

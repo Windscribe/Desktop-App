@@ -2491,6 +2491,7 @@ void MainWindow::onBackendWebSessionTokenForAddEmail(const QString &tempSessionT
 
 void MainWindow::onBackendWebSessionTokenForManageRobertRules(const QString &tempSessionToken)
 {
+    mainWindowController_->getPreferencesWindow()->setWebSessionCompleted();
     QString getUrl = QString("https://%1/myaccount?temp_session=%2#robertrules")
                         .arg(HardcodedSettings::instance().serverUrl())
                         .arg(tempSessionToken);
@@ -3098,28 +3099,8 @@ void MainWindow::onFreeTrafficNotification(const QString &message)
 
 void MainWindow::onSplitTunnelingAppsAddButtonClick()
 {
-    QString filename;
     ShowingDialogState::instance().setCurrentlyShowingExternalDialog(true);
-#if defined(Q_OS_WIN)
-    QProcess getOpenFileNameProcess;
-    QString changeIcsExePath = QCoreApplication::applicationDirPath() + "/ChangeIcs.exe";
-    getOpenFileNameProcess.start(changeIcsExePath, { "-browseforapp" }, QIODevice::ReadOnly);
-    if (getOpenFileNameProcess.waitForStarted(-1)) {
-        const int kRefreshGuiMs = 10;
-        do {
-            QApplication::processEvents();
-            if (getOpenFileNameProcess.waitForFinished(kRefreshGuiMs)) {
-                filename = getOpenFileNameProcess.readAll().trimmed();
-                if (filename.isEmpty()) {
-                    ShowingDialogState::instance().setCurrentlyShowingExternalDialog(false);
-                    return;
-                }
-            }
-        } while (getOpenFileNameProcess.state() == QProcess::Running);
-    }
-#endif  // Q_OS_WIN
-    if (filename.isEmpty())
-        filename = QFileDialog::getOpenFileName(this, tr("Select an application"), "C:\\");
+    QString filename = QFileDialog::getOpenFileName(this, tr("Select an application"), "C:\\");
     ShowingDialogState::instance().setCurrentlyShowingExternalDialog(false);
 
     if (!filename.isEmpty()) // TODO: validation

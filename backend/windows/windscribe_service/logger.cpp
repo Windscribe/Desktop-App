@@ -22,7 +22,7 @@ Logger::Logger()
 
     // Cannot use _wfopen_s here, as it will lock the file for exclusive access
     // until the helper is stopped.
-    file_ = _wfsopen(filePath.c_str(), L"w", _SH_DENYWR);
+    file_ = _wfsopen(filePath.c_str(), L"wt,ccs=UTF-8", _SH_DENYWR);
     if (file_ == nullptr) {
         debugOut("Logger could not open: %ls", filePath.c_str());
     }

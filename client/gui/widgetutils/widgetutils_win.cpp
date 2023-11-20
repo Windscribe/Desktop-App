@@ -17,17 +17,14 @@ Q_GUI_EXPORT HICON qt_pixmapToWinHICON(const QPixmap &p);
 
 QPixmap WidgetUtils_win::extractProgramIcon(QString filePath)
 {
-    HICON icon;
     HINSTANCE instance = NULL;
-    icon = ExtractIconA(instance, (LPSTR)filePath.toLocal8Bit().constData(), 0);
+    HICON icon = ExtractIcon(instance, filePath.toStdWString().c_str(), 0);
 
     QPixmap p;
-    if (icon != NULL && (__int64)icon != 1)
-    {
+    if (icon != NULL && (__int64)icon != 1) {
         p = QPixmap(qt_pixmapFromWinHICON(icon));
     }
-    else
-    {
+    else {
         // qDebug() << "Failed to call qt_pixmapFromWinHICON: " << filePath << "(" << icon << ")";
     }
 

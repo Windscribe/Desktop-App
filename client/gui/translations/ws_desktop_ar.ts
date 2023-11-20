@@ -591,7 +591,7 @@
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1420"/>
-        <location filename="../mainwindow.cpp" line="3516"/>
+        <location filename="../mainwindow.cpp" line="3497"/>
         <source>The application is corrupted.  Please reinstall Windscribe.</source>
         <translation>التطبيق تالف.  الرجاء إعادة تثبيت Windscribe.</translation>
     </message>
@@ -632,32 +632,32 @@
         <translation>تعذر تشغيل المحدث (خطأ ٪ 1).  يرجى الاتصال بالدعم</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3480"/>
+        <location filename="../mainwindow.cpp" line="3461"/>
         <source>Read-only file</source>
         <translation>ملف للقراءة فقط</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3506"/>
+        <location filename="../mainwindow.cpp" line="3487"/>
         <source>The custom configuration could not be loaded.  Please check that it’s correct or contact support.</source>
         <translation>تعذر تحميل التكوين المخصص.  يرجى التحقق من صحته أو الاتصال بالدعم.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3508"/>
+        <location filename="../mainwindow.cpp" line="3489"/>
         <source>There is a problem with the Wintun device driver, and it could not be reinstalled automatically.  Please reinstall Windscribe.</source>
         <translation>توجد مشكلة في برنامج تشغيل جهاز Wintun، ولا يمكن إعادة تثبيته تلقائيا.  الرجاء إعادة تثبيت Windscribe.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3510"/>
+        <location filename="../mainwindow.cpp" line="3491"/>
         <source>There is a problem with the TAP device driver, and it could not be reinstalled automatically.  Please reinstall Windscribe.</source>
         <translation>توجد مشكلة في برنامج تشغيل جهاز TAP، ولا يمكن إعادة تثبيته تلقائيا.  الرجاء إعادة تثبيت Windscribe.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3522"/>
+        <location filename="../mainwindow.cpp" line="3503"/>
         <source>An unexpected error occurred establishing the VPN connection (Error %1).  If this error persists, try using a different protocol or contact support.</source>
         <translation>حدث خطأ غير متوقع أثناء تأسيس اتصال VPN (خطأ ٪ 1).  إذا استمر هذا الخطأ، فحاول استخدام بروتوكول مختلف أو اتصل بالدعم.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3744"/>
+        <location filename="../mainwindow.cpp" line="3725"/>
         <source>Windscribe</source>
         <translation>ويندسكريب</translation>
     </message>
@@ -713,7 +713,7 @@
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1864"/>
-        <location filename="../mainwindow.cpp" line="3393"/>
+        <location filename="../mainwindow.cpp" line="3374"/>
         <source>Disconnected</source>
         <translation>قطع اتصال</translation>
     </message>
@@ -839,71 +839,71 @@ Recovering...</source>
 يتعافي...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3122"/>
+        <location filename="../mainwindow.cpp" line="3102"/>
         <source>Select an application</source>
         <translation>حدد تطبيقا</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3153"/>
+        <location filename="../mainwindow.cpp" line="3134"/>
         <source>Connect</source>
         <translation>عشق</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3157"/>
+        <location filename="../mainwindow.cpp" line="3138"/>
         <source>Disconnect</source>
         <translation>قطع الاتصال</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3166"/>
-        <location filename="../mainwindow.cpp" line="3195"/>
+        <location filename="../mainwindow.cpp" line="3147"/>
+        <location filename="../mainwindow.cpp" line="3176"/>
         <source>Locations</source>
         <translation>مواقع</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3173"/>
-        <location filename="../mainwindow.cpp" line="3202"/>
+        <location filename="../mainwindow.cpp" line="3154"/>
+        <location filename="../mainwindow.cpp" line="3183"/>
         <source>Favourites</source>
         <translation>المفضلة</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3180"/>
-        <location filename="../mainwindow.cpp" line="3209"/>
+        <location filename="../mainwindow.cpp" line="3161"/>
+        <location filename="../mainwindow.cpp" line="3190"/>
         <source>Static IPs</source>
         <translation>عناوين IP ثابتة</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3187"/>
-        <location filename="../mainwindow.cpp" line="3216"/>
+        <location filename="../mainwindow.cpp" line="3168"/>
+        <location filename="../mainwindow.cpp" line="3197"/>
         <source>Configured</source>
         <translation>تكوين</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3227"/>
+        <location filename="../mainwindow.cpp" line="3208"/>
         <source>Show/Hide</source>
         <translation>إظهار/إخفاء</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3232"/>
+        <location filename="../mainwindow.cpp" line="3213"/>
         <source>Preferences</source>
         <translation>التفضيلات</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3235"/>
+        <location filename="../mainwindow.cpp" line="3216"/>
         <source>Help</source>
         <translation>تعليمات</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3236"/>
+        <location filename="../mainwindow.cpp" line="3217"/>
         <source>Exit</source>
         <translation>مخرج</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3481"/>
+        <location filename="../mainwindow.cpp" line="3462"/>
         <source>Your hosts file is read-only. IKEv2 connectivity requires for it to be writable. Fix the issue automatically?</source>
         <translation>ملف المضيفين الخاص بك للقراءة فقط. يتطلب اتصال IKEv2 أن يكون قابلا للكتابة. حل المشكلة تلقائيا؟</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3518"/>
+        <location filename="../mainwindow.cpp" line="3499"/>
         <source>WireGuard adapter setup failed. Please wait one minute and try the connection again. If adapter setup fails again, please try restarting your computer.
 
 If the problem persists after a restart, please send a debug log and open a support ticket, then switch to a different connection mode.</source>
@@ -912,27 +912,27 @@ If the problem persists after a restart, please send a debug log and open a supp
 إذا استمرت المشكلة بعد إعادة التشغيل ، فيرجى إرسال سجل تصحيح الأخطاء وفتح تذكرة دعم ، ثم التبديل إلى وضع اتصال مختلف.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3525"/>
+        <location filename="../mainwindow.cpp" line="3506"/>
         <source>Connection Error</source>
         <translation>خطأ في الاتصال</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3681"/>
+        <location filename="../mainwindow.cpp" line="3662"/>
         <source>Reached Key Limit</source>
         <translation>تم الوصول إلى حد المفتاح</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3682"/>
+        <location filename="../mainwindow.cpp" line="3663"/>
         <source>You have reached your limit of WireGuard public keys. Do you want to delete your oldest key?</source>
         <translation>لقد وصلت إلى الحد الأقصى لمفاتيح WireGuard العامة. هل تريد حذف أقدم مفتاح لديك؟</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3736"/>
+        <location filename="../mainwindow.cpp" line="3717"/>
         <source>Error Starting Service</source>
         <translation>خطأ في بدء تشغيل الخدمة</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3737"/>
+        <location filename="../mainwindow.cpp" line="3718"/>
         <source>The split tunneling feature could not be started, and has been disabled in Preferences.</source>
         <translation>تعذر بدء تشغيل ميزة الانقسام النفقي، وتم تعطيلها في التفضيلات.</translation>
     </message>
@@ -963,29 +963,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <location filename="../mainwindowcontroller.h" line="197"/>
         <source>Cancel</source>
         <translation>إلغاء الأمر</translation>
-    </message>
-</context>
-<context>
-    <name>NewsFeedWindow::EntryItem</name>
-    <message>
-        <location filename="../newsfeedwindow/entryitem.cpp" line="160"/>
-        <source>Long ago</source>
-        <translation>منذ زمن بعيد</translation>
-    </message>
-    <message>
-        <location filename="../newsfeedwindow/entryitem.cpp" line="163"/>
-        <source>1 day ago</source>
-        <translation>1 اليوم منذ</translation>
-    </message>
-    <message>
-        <location filename="../newsfeedwindow/entryitem.cpp" line="166"/>
-        <source>Today</source>
-        <translation>اليوم</translation>
-    </message>
-    <message>
-        <location filename="../newsfeedwindow/entryitem.cpp" line="169"/>
-        <source>%1 days ago</source>
-        <translation>٪منذ 1 أيام</translation>
     </message>
 </context>
 <context>

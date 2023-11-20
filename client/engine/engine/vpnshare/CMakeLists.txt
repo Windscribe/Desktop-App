@@ -41,9 +41,10 @@ if (WIN32)
     target_sources(engine PRIVATE
         wifisharing/icsmanager.cpp
         wifisharing/icsmanager.h
+        wifisharing/wifidirectmanager.cpp
+        wifisharing/wifidirectmanager.h
         wifisharing/wifisharing.cpp
         wifisharing/wifisharing.h
-        wifisharing/wlanmanager.cpp
-        wifisharing/wlanmanager.h
+        wifisharing/winrt_headers.h
     )
 endif (WIN32)

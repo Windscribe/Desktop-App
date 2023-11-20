@@ -20,10 +20,8 @@ public:
     explicit VpnShareController(QObject *parent, IHelper *helper);
     virtual ~VpnShareController();
 
-    void onConnectingOrConnectedToVPNEvent(const QString &vpnAdapterName);
+    void onConnectedToVPNEvent(const QString &vpnAdapterName);
     void onDisconnectedFromVPNEvent();
-
-    bool isUpdateIcsInProgress();
 
     void startProxySharing(PROXY_SHARING_TYPE proxyType);
     void stopProxySharing();

@@ -100,7 +100,7 @@ void SecureHotspotGroup::updateDescription()
             setDescription(tr("Secure hotspot is not supported by your network adapter."));
             break;
         case HOTSPOT_NOT_SUPPORTED_BY_IKEV2:
-            setDescription(tr("Secure hotspot is not supported for IKEv2/WireGuard protocol and automatic connection mode."));
+            setDescription(tr("Secure hotspot is not supported for IKEv2 protocol."));
             break;
         case HOTSPOT_SUPPORTED:
             setDescription(tr("Share your secure Windscribe connection wirelessly."));

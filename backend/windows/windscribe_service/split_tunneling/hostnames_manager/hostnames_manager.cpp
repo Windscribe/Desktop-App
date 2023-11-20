@@ -14,31 +14,39 @@ HostnamesManager::~HostnamesManager()
 
 void HostnamesManager::enable(const std::string &gatewayIp, unsigned long ifIndex)
 {
-	std::lock_guard<std::recursive_mutex> guard(mutex_);
+    Logger::instance().out("HostnamesManager::enable(), begin");
+    {
+        std::lock_guard<std::recursive_mutex> guard(mutex_);
 
-	gatewayIp_ = gatewayIp;
-	ifIndex_ = ifIndex;
-	ipRoutes_.clear();
-	ipRoutes_.setIps(gatewayIp_, ifIndex_, ipsLatest_);
-	firewallFilter_.setSplitTunnelingWhitelistIps(ipsLatest_);
-	dnsResolver_.cancelAll();
+        gatewayIp_ = gatewayIp;
+        ifIndex_ = ifIndex;
+        ipRoutes_.clear();
+        ipRoutes_.setIps(gatewayIp_, ifIndex_, ipsLatest_);
+        firewallFilter_.setSplitTunnelingWhitelistIps(ipsLatest_);
+        isEnabled_ = true;
+    }
+
+    dnsResolver_.cancelAll();
 	dnsResolver_.resolveDomains(hostsLatest_);
-
-	isEnabled_ = true;
+    Logger::instance().out("HostnamesManager::enable(), end");
 }
 
 void HostnamesManager::disable()
 {
-	std::lock_guard<std::recursive_mutex> guard(mutex_);
+    Logger::instance().out("HostnamesManager::disable(), begin");
 
-	if (!isEnabled_)
-	{
-		return;
-	}
-	ipRoutes_.clear();
+    {
+        std::lock_guard<std::recursive_mutex> guard(mutex_);
 
+        if (!isEnabled_)
+        {
+            return;
+        }
+        ipRoutes_.clear();
+        isEnabled_ = false;
+    }
 	dnsResolver_.cancelAll();
-	isEnabled_ = false; 
+    Logger::instance().out("HostnamesManager::disable(), end");
 }
 
 void HostnamesManager::setSettings(bool isExclude, const std::vector<Ip4AddressAndMask> &ips, const std::vector<std::string> &hosts)
@@ -47,6 +55,8 @@ void HostnamesManager::setSettings(bool isExclude, const std::vector<Ip4AddressA
 	ipsLatest_ = ips;
 	hostsLatest_ = hosts;
 	isExcludeMode_ = isExclude;
+    Logger::instance().out("HostnamesManager::setSettings(), end");
+
 }
 
 void HostnamesManager::dnsResolverCallback(std::map<std::string, DnsResolver::HostInfo> hostInfos)

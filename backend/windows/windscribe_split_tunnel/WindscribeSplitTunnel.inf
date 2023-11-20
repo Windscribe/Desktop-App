@@ -4,6 +4,7 @@
 	ClassGuid = {58465043-616C-6C6F-7574-5F636C617372}
 	Provider = %ManufacturerName%
 	CatalogFile = "WindscribeSplitTunnel.cat"
+	PnpLockdown = 1
 
 [SourceDisksNames]
 	1 = %DiskName%,,,""
@@ -15,17 +16,22 @@
 	DefaultDestDir = 12 ; %windir%\system32\drivers
 	WindscribeSplitTunnel.DriverFiles = 12 ; %windir%\system32\drivers
 
-[DefaultInstall]
+[DefaultInstall.NTamd64] |
+[DefaultInstall.NTarm64]
 	OptionDesc = %ServiceDesc%
 	CopyFiles = WindscribeSplitTunnel.CopyDriverFiles
 
-[DefaultInstall.Services]
+[DefaultInstall.NTamd64.Services] |
+[DefaultInstall.NTarm64.Services]
 	AddService = %ServiceName%,,WindscribeSplitTunnel.Service
 
-[DefaultUninstall]
+[DefaultUninstall.NTamd64] |
+[DefaultUninstall.NTarm64]
 	DelFiles = WindscribeSplitTunnel.DeleteDriverFiles
+	LegacyUninstall = 1
 
-[DefaultUninstall.Services]
+[DefaultUninstall.NTamd64.Services] |
+[DefaultUninstall.NTarm64.Services]
 	DelService = %ServiceName%,0x200 ; SPSVCINST_STOPSERVICE
 
 [WindscribeSplitTunnel.DeleteDriverFiles]
