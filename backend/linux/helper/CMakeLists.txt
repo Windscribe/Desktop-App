@@ -3,6 +3,12 @@ cmake_minimum_required(VERSION 3.20)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# build_all.py sets this option when invoked with the '--sign' flag. Disabled by default
+option(DEFINE_USE_SIGNATURE_CHECK_MACRO "Add define USE_SIGNATURE_CHECK to project" OFF)
+if(DEFINE_USE_SIGNATURE_CHECK_MACRO)
+    add_definitions(-DUSE_SIGNATURE_CHECK)
+endif(DEFINE_USE_SIGNATURE_CHECK_MACRO)
+
 project(helper)
 
 set(SOURCES

@@ -272,7 +272,7 @@ void FirewallController_mac::getFirewallStateFromPfctl(FirewallState &outState)
     if (ret && !output.isEmpty()) {
         QStringList rules = output.split("\n");
         if (rules.size() > 0) {
-            QStringList words = rules[1].split(" ");
+            QStringList words = rules[0].split(" ");
             if (words.size() >= 10) {
                 // pass out quick on [interface]
                 outState.interfaceToSkip = words[4];
@@ -345,9 +345,6 @@ QString FirewallController_mac::generatePfConf(const QString &connectingIp, cons
     pf += "anchor \"com.apple/*\"\n";
     pf += "load anchor \"com.apple\" from \"/etc/pf.anchors/com.apple\"\n";
 
-    // block everything
-    pf += "block all\n";
-
     // skip awdl and p2p interfaces (awdl Apple Wireless Direct Link and p2p related to AWDL features)
     for (const auto &interface : awdl_p2p_interfaces_)
         pf += "pass quick on " + interface + "\n";
@@ -371,6 +368,9 @@ QString FirewallController_mac::generatePfConf(const QString &connectingIp, cons
 
     // always allow esp/gre
     pf += "pass proto {esp, gre} from any to any\n";
+
+    // block everything
+    pf += "block all\n";
 
     // add Windscribe rules
     pf += "table <windscribe_ips> persist {";
@@ -439,8 +439,6 @@ QStringList FirewallController_mac::vpnTrafficRules(const QString &connectingIp,
     QStringList rules;
 
     if (!interfaceToSkip.isEmpty()) {
-        rules += "pass on " + interfaceToSkip;
-
         if (!bIsCustomConfig) {
             // Allow local addresses
             QList<QString> localAddrs = getLocalAddresses(interfaceToSkip);

@@ -1,3 +1,10 @@
+2.7.12 (25/09/2023)
+All:
+   * Promoted app to beta channel.
+macOS:
+   * Removed firewall patch for macOS 14 Sonoma Beta.  Apple has fixed their firewall bug in latest Sonoma release. #714
+
+
 2.7.11 (19/09/2023)
 All:
    * Improved latency (ping) algorithm to reduce ping frequency, especially during app startup. #737

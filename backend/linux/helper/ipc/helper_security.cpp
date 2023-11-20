@@ -7,7 +7,7 @@
 #if defined(USE_SIGNATURE_CHECK)
 #include "boost/filesystem/path.hpp"
 
-#include "logger.h"
+#include "../logger.h"
 
 #include "../../../client/common/utils/executable_signature/executable_signature.h"
 
