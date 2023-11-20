@@ -976,7 +976,7 @@ void ConnectionManager::doConnectPart2()
             const bool bOvpnSuccess = makeOVPNFile_->generate(
                 lastOvpnConfig_, currentConnectionDescr_.ip, currentConnectionDescr_.protocol,
                 currentConnectionDescr_.port, localPort, mss, defaultAdapterInfo_.gateway(),
-                currentConnectionDescr_.verifyX509name, "");
+                currentConnectionDescr_.verifyX509name, connectedDnsInfo_.type == CONNECTED_DNS_TYPE_ROBERT ? "" : ctrldManager_->listenIp());
             if (!bOvpnSuccess) {
                 qCDebug(LOG_CONNECTION) << "Failed create ovpn config";
                 WS_ASSERT(false);
