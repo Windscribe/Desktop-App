@@ -1,0 +1,24 @@
+From 7e3d668a260ed1b92b131a1fd68a4179695097ae Mon Sep 17 00:00:00 2001
+Date: Wed, 7 Jun 2023 23:39:36 +0300
+Subject: [PATCH 2/4] TUN interface name = windtun420
+
+---
+ src/openvpn/tun.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/openvpn/tun.h b/src/openvpn/tun.h
+index e19e1a2..aa1d958 100644
+--- a/src/openvpn/tun.h
++++ b/src/openvpn/tun.h
+@@ -43,7 +43,7 @@
+ #include "dco.h"
+ 
+ #ifdef _WIN32
+-#define WINTUN_COMPONENT_ID "wintun"
++#define WINTUN_COMPONENT_ID "windtun420"
+ #define DCO_WIN_REFERENCE_STRING "ovpn-dco"
+ 
+ enum windows_driver_type {
+-- 
+2.40.1
+

@@ -6,7 +6,7 @@ PreferencesHelper::PreferencesHelper(QObject *parent) : QObject(parent),
     isWifiSharingSupported_(true), bIpv6StateInOS_(true), isFirewallBlocked_(false),
     isDockedToTray_(false), isExternalConfigMode_(false)
 {
-    availableLanguageCodes_ << "ar" << "de" << "en" << "es" << "fr" << "hi" << "ru" << "zh";
+    availableLanguageCodes_ << "ar" << "cs" << "de" << "en" << "es" << "fr" << "hi" << "ru" << "zh";
 }
 
 QString PreferencesHelper::buildVersion()

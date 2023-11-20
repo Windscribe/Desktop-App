@@ -314,6 +314,8 @@ struct ssl_config_data {
   BIT(native_ca_store); /* use the native ca store of operating system */
   BIT(auto_client_cert);   /* automatically locate and use a client
                               certificate for authentication (Schannel) */
+  BIT(tlsext_padding);
+  BIT(tlsext_padding_super);
 };
 
 struct ssl_general_config {

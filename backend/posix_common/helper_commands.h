@@ -269,6 +269,7 @@ struct CMD_CONFIGURE_STUNNEL {
     std::string hostname;
     int port;
     int localPort;
+    bool extraPadding;
 };
 
 struct CMD_START_WSTUNNEL {

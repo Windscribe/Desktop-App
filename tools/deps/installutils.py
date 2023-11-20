@@ -147,33 +147,13 @@ def ExtractFile(localfilename, outputpath=None, deleteonsuccess=True):
         if localfilename2:
             utl.RemoveFile(localfilename2)
 
-def DetectVisualStudioDir(insatllerPath, legacy=False):
-    if os.path.exists(insatllerPath):
-        executor = f"{insatllerPath}\\vswhere.exe"
-        executor_args = [executor , '-utf8']
-
-        if legacy:
-            executor_args.append("-legacy")
-        else:
-            executor_args.append("-latest")
-        
-        executor_args.extend(["-property", "installationPath"])
-
-        return proc.ExecuteAndGetOutput(executor_args)
-    else:
-        raise InstallError("Visual Studio is not installed, Which is necessary for the build,\
-                            Please install Visual Studio and try again")
-
 
 def GetVisualStudioEnvironment(target_arm64_arch=False):
     result = None
     architecture = "amd64_arm64" if target_arm64_arch else "amd64"
-    vs_installer_path = "C:\\Program Files (x86)\\Microsoft Visual Studio\\Installer"
-    vs_path = DetectVisualStudioDir(vs_installer_path, legacy=False)
-
     for batfile in [
-        f"{vs_path}\\VC\\Auxiliary\\Build\\vcvarsall.bat",
-        f"{vs_path}\\BuildTools\\VC\\Auxiliary\\Build\\vcvarsall.bat"
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Auxiliary\\Build\\vcvarsall.bat",
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\BuildTools\\VC\\Auxiliary\\Build\\vcvarsall.bat"
     ]:
         if os.path.isfile(batfile):
             process = subprocess.Popen(

@@ -1,0 +1,74 @@
+From b52603dd193bdd29d0761b52be641a60a90e83ea Mon Sep 17 00:00:00 2001
+Date: Thu, 8 Jun 2023 02:47:05 +0300
+Subject: [PATCH 2/3] Fix SSL option variable size on Windows
+
+---
+ src/ctx.c     |  2 +-
+ src/options.c | 10 +++++-----
+ 2 files changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/src/ctx.c b/src/ctx.c
+index cc0806c..32e633d 100644
+--- a/src/ctx.c
++++ b/src/ctx.c
+@@ -134,7 +134,7 @@ NOEXPORT void sslerror_log(unsigned long, const char *, int, const char *);
+ /**************************************** initialize section->ctx */
+ 
+ #if OPENSSL_VERSION_NUMBER>=0x10100000L
+-typedef long unsigned SSL_OPTIONS_TYPE;
++typedef uint64_t SSL_OPTIONS_TYPE;
+ #else
+ typedef long SSL_OPTIONS_TYPE;
+ #endif
+diff --git a/src/options.c b/src/options.c
+index 9ac9c7e..526ddb3 100644
+--- a/src/options.c
++++ b/src/options.c
+@@ -103,7 +103,7 @@ NOEXPORT void key_free(TICKET_KEY *);
+ 
+ typedef struct {
+     const char *name;
+-    long unsigned value;
++    uint64_t value;
+ } SSL_OPTION;
+ 
+ static const SSL_OPTION ssl_opts[] = {
+@@ -269,7 +269,7 @@ static const SSL_OPTION ssl_opts[] = {
+     {NULL, 0}
+ };
+ 
+-NOEXPORT long unsigned parse_ssl_option(char *);
++NOEXPORT uint64_t parse_ssl_option(char *);
+ NOEXPORT void print_ssl_options(void);
+ 
+ NOEXPORT SOCK_OPT *socket_options_init(void);
+@@ -2427,7 +2427,7 @@ NOEXPORT const char *parse_service_option(CMD cmd, SERVICE_OPTIONS **section_ptr
+             break;
+ #if OPENSSL_VERSION_NUMBER>=0x009080dfL
+         if(*arg=='-') {
+-            long unsigned tmp=parse_ssl_option(arg+1);
++            uint64_t tmp=parse_ssl_option(arg+1);
+             if(tmp==INVALID_SSL_OPTION)
+                 return "Illegal TLS option";
+             section->ssl_options_clear|=tmp;
+@@ -2435,7 +2435,7 @@ NOEXPORT const char *parse_service_option(CMD cmd, SERVICE_OPTIONS **section_ptr
+         }
+ #endif /* OpenSSL 0.9.8m or later */
+         {
+-            long unsigned tmp=parse_ssl_option(arg);
++            uint64_t tmp=parse_ssl_option(arg);
+             if(tmp==INVALID_SSL_OPTION)
+                 return "Illegal TLS option";
+             section->ssl_options_set|=tmp;
+@@ -4100,7 +4100,7 @@ NOEXPORT const char *parse_debug_level(char *arg, SERVICE_OPTIONS *section) {
+ 
+ /**************************************** TLS options */
+ 
+-NOEXPORT long unsigned parse_ssl_option(char *arg) {
++NOEXPORT uint64_t parse_ssl_option(char *arg) {
+     const SSL_OPTION *option;
+ 
+     for(option=ssl_opts; option->name; ++option)
+-- 
+2.40.1.windows.1
+

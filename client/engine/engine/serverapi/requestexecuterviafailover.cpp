@@ -116,6 +116,9 @@ void RequestExecuterViaFailover::executeBaseRequest(const failover::FailoverData
     if (!failoverData.echConfig().isEmpty()) {
         networkRequest.setEchConfig(failoverData.echConfig());
     }
+    if (ExtraConfig::instance().getAPIExtraTLSPadding()) {
+        networkRequest.setExtraTLSPadding(true);
+    }
 
     NetworkReply *reply;
     switch (request_->requestType()) {

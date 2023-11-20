@@ -7809,6 +7809,16 @@ add_option(struct options *options,
         VERIFY_PERMISSION(OPT_P_GENERAL);
         options->server_flags |= SF_TCP_NODELAY_HELPER;
     }
+    else if (streq(p[0], "tcp-split-reset") && !p[1])
+    {
+        VERIFY_PERMISSION(OPT_P_GENERAL);
+        options->sockflags |= SF_TCP_SPLITRESET;
+    }
+    else if (streq(p[0], "udp-stuffing") && !p[1])
+    {
+        VERIFY_PERMISSION(OPT_P_GENERAL);
+        options->sockflags |= SF_UDP_STUFFING;
+    }
     else if (streq(p[0], "stale-routes-check") && p[1] && !p[3])
     {
         int ageing_time, check_interval;

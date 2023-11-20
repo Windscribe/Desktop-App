@@ -48,6 +48,8 @@ public:
     bool getWireGuardVerboseLogging();
     bool getUsingScreenTransitionHotkeys();
     bool getUseICMPPings();
+    bool getStealthExtraTLSPadding();
+    bool getAPIExtraTLSPadding();
 
 private:
     ExtraConfig();

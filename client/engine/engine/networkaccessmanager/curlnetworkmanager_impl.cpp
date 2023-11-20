@@ -93,6 +93,13 @@ bool CurlNetworkManagerImpl::setupBasicOptions(RequestInfo *requestInfo, const N
             return false;
     }
 
+    if (request.isExtraTLSPadding()) {
+#ifdef CURLSSLOPT_TLSEXT_PADDING_SUPER
+        if (curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_SSL_OPTIONS, CURLSSLOPT_TLSEXT_PADDING | CURLSSLOPT_TLSEXT_PADDING_SUPER) != CURLE_OK)
+            return false;
+#endif
+    }
+
     curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_PRIVATE, new quint64(requestInfo->id));    // our user data, must be deleted in the RequestInfo destructor
     return true;
 }

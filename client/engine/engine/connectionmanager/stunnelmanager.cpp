@@ -8,6 +8,7 @@
 #endif
 #include "utils/executable_signature/executable_signature.h"
 #include "utils/logger.h"
+#include "utils/extraconfig.h"
 
 StunnelManager::StunnelManager(QObject *parent, IHelper *helper)
   : QObject(parent), helper_(helper), bProcessStarted_(false), portForStunnel_(0)
@@ -72,9 +73,10 @@ bool StunnelManager::setConfig(const QString &hostname, uint port)
     }
 #else
     portForStunnel_ = AvailablePort::getAvailablePort(DEFAULT_PORT);
+    bool extraPadding = ExtraConfig::instance().getStealthExtraTLSPadding();
 
     Helper_posix *helper_posix = dynamic_cast<Helper_posix *>(helper_);
-    return !helper_posix->configureStunnel(hostname, port, portForStunnel_);
+    return !helper_posix->configureStunnel(hostname, port, portForStunnel_ ,extraPadding);
 #endif
 }
 
@@ -127,6 +129,10 @@ bool StunnelManager::makeConfigFile(const QString &hostname, uint port)
         file.write(str.toLocal8Bit());
         str = "connect = " + hostname + ":" + QString::number(port) + "\r\n";
         file.write(str.toLocal8Bit());
+        if (ExtraConfig::instance().getStealthExtraTLSPadding()) {
+            str = "options = TLSEXT_PADDING\r\noptions = TLSEXT_PADDING_SUPER\r\n";
+            file.write(str.toLocal8Bit());
+        }
 
         file.close();
 

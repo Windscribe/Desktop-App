@@ -3632,6 +3632,14 @@ static CURLcode ossl_connect_step1(struct Curl_cfilter *cf,
     ctx_options &= ~SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS;
 #endif
 
+  if(ssl_config->tlsext_padding)
+    ctx_options |= SSL_OP_TLSEXT_PADDING;
+
+#ifdef SSL_OP_TLSEXT_PADDING_SUPER
+  if(ssl_config->tlsext_padding_super)
+    ctx_options |= SSL_OP_TLSEXT_PADDING_SUPER;
+#endif
+
   switch(ssl_version) {
     case CURL_SSLVERSION_SSLv2:
     case CURL_SSLVERSION_SSLv3:

@@ -150,8 +150,8 @@ You will find the application logs in `~/Library/Application Support/Windscribe/
 
 ### Logs
 
-- Client app and location pings: `/Users/<user_name>/Library/Application Support/Windscribe/Windsrcibe2`
-- Installer: `/Users/<user_name>/Library/Application Support/Windscribe/Windsrcibe/log_installer.txt`
+- Client app and location pings: `/Users/<user_name>/Library/Application Support/Windscribe/Windscribe2`
+- Installer: `/Users/<user_name>/Library/Application Support/Windscribe/Windscribe/log_installer.txt`
 - Helper: `/Library/Logs/com.windscribe.helper.macos/helper_log.txt`
 
 ## Linux

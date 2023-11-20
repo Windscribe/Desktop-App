@@ -1,0 +1,96 @@
+From 8ffc9853f6dfa5dcf08473f08d5d22fb932d4d28 Mon Sep 17 00:00:00 2001
+Date: Wed, 7 Jun 2023 23:30:37 +0300
+Subject: [PATCH 3/4] OpenVPN TCP Split-reset (--tcp-split-reset)
+
+Split a RESET packet into two pieces: 1-byte and remaining bytes.
+Allows to bypass non-reassembling censorship filters with "unidentifiable"
+data.
+
+Client-only option.
+Should be enabled with "tcp-split-reset" in the configuration file
+or --tcp-split-reset command line option.
+---
+ src/openvpn/options.c |  5 +++++
+ src/openvpn/socket.c  | 37 +++++++++++++++++++++++++++++++++++++
+ src/openvpn/socket.h  |  1 +
+ 3 files changed, 43 insertions(+)
+
+diff --git a/src/openvpn/options.c b/src/openvpn/options.c
+index 32b820f..9bea414 100644
+--- a/src/openvpn/options.c
++++ b/src/openvpn/options.c
+@@ -7809,6 +7809,11 @@ add_option(struct options *options,
+         VERIFY_PERMISSION(OPT_P_GENERAL);
+         options->server_flags |= SF_TCP_NODELAY_HELPER;
+     }
++    else if (streq(p[0], "tcp-split-reset") && !p[1])
++    {
++        VERIFY_PERMISSION(OPT_P_GENERAL);
++        options->sockflags |= SF_TCP_SPLITRESET;
++    }
+     else if (streq(p[0], "stale-routes-check") && p[1] && !p[3])
+     {
+         int ageing_time, check_interval;
+diff --git a/src/openvpn/socket.c b/src/openvpn/socket.c
+index eff21ca..6f14559 100644
+--- a/src/openvpn/socket.c
++++ b/src/openvpn/socket.c
+@@ -3409,7 +3409,44 @@ link_socket_write_tcp(struct link_socket *sock,
+     dmsg(D_STREAM_DEBUG, "STREAM: WRITE %d offset=%d", (int)len, buf->offset);
+     ASSERT(len <= sock->stream_buf.maxlen);
+     len = htonps(len);
++
++    uint8_t opcode = *BPTR(buf) >> P_OPCODE_SHIFT;
++
+     ASSERT(buf_write_prepend(buf, &len, sizeof(len)));
++
++    if (sock->sockflags & SF_TCP_SPLITRESET)
++    {
++        int saved_len;
++        int size;
++        if (opcode == P_CONTROL_HARD_RESET_CLIENT_V2
++            || opcode == P_CONTROL_HARD_RESET_CLIENT_V3)
++        {
++            saved_len = buf->len;
++            buf->len = 1;
++
++            socket_set_tcp_nodelay(sock->sd, 1);
++#ifdef _WIN32
++            size = link_socket_write_win32(sock, buf, to);
++#else
++            size = link_socket_write_tcp_posix(sock, buf, to);
++#endif
++            if (!(sock->sockflags & SF_TCP_NODELAY))
++            {
++                socket_set_tcp_nodelay(sock->sd, 0);
++            }
++            buf->len = saved_len;
++            buf_advance(buf, 1);
++
++#ifdef _WIN32
++            size += link_socket_write_win32(sock, buf, to);
++#else
++            size += link_socket_write_tcp_posix(sock, buf, to);
++#endif
++            return size;
++        }
++    }
++
+ #ifdef _WIN32
+     return link_socket_write_win32(sock, buf, to);
+ #else
+diff --git a/src/openvpn/socket.h b/src/openvpn/socket.h
+index 605b6ad..afd1867 100644
+--- a/src/openvpn/socket.h
++++ b/src/openvpn/socket.h
+@@ -207,6 +207,7 @@ struct link_socket
+ #define SF_PORT_SHARE (1<<2)
+ #define SF_HOST_RANDOMIZE (1<<3)
+ #define SF_GETADDRINFO_DGRAM (1<<4)
++#define SF_TCP_SPLITRESET (1<<5)
+     unsigned int sockflags;
+     int mark;
+     const char *bind_dev;
+-- 
+2.40.1
+

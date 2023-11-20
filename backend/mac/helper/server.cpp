@@ -470,6 +470,9 @@ bool Server::readAndHandleCommand(socket_ptr sock, boost::asio::streambuf *buf, 
         conf << "client = yes\n";
         conf << "accept = 127.0.0.1:" << cmd.localPort << "\n";
         conf << "connect = " << cmd.hostname << ":" << cmd.port << "\n";
+        if (cmd.extraPadding) {
+            conf << "options = TLSEXT_PADDING\noptions = TLSEXT_PADDING_SUPER\n";
+        }
 
         int fd = open("/etc/windscribe/stunnel.conf", O_CREAT | O_WRONLY | O_TRUNC, S_IRWXU);
         if (fd < 0) {

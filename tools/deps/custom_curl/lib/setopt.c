@@ -2349,6 +2349,8 @@ CURLcode Curl_vsetopt(struct Curl_easy *data, CURLoption option, va_list param)
     data->set.ssl.revoke_best_effort = !!(arg & CURLSSLOPT_REVOKE_BEST_EFFORT);
     data->set.ssl.native_ca_store = !!(arg & CURLSSLOPT_NATIVE_CA);
     data->set.ssl.auto_client_cert = !!(arg & CURLSSLOPT_AUTO_CLIENT_CERT);
+    data->set.ssl.tlsext_padding = !!(arg & CURLSSLOPT_TLSEXT_PADDING);
+    data->set.ssl.tlsext_padding_super = !!(arg & CURLSSLOPT_TLSEXT_PADDING_SUPER);
     /* If a setting is added here it should also be added in dohprobe()
        which sets its own CURLOPT_SSL_OPTIONS based on these settings. */
     break;

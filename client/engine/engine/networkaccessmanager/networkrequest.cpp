@@ -1,7 +1,7 @@
 #include "networkrequest.h"
 
 NetworkRequest::NetworkRequest(const QUrl &url, int timeout, bool bUseDnsCache) : url_(url), timeout_(timeout), bUseDnsCache_(bUseDnsCache), bIgnoreSslErrors_(false),
-    bRemoveFromWhitelistIpsAfterFinish_(false), isWhiteListIps_(true)
+    bRemoveFromWhitelistIpsAfterFinish_(false), isWhiteListIps_(true), bExtraTLSPadding_(false)
 {
 }
 
@@ -12,7 +12,8 @@ NetworkRequest::NetworkRequest(const QUrl &url, int timeout, bool bUseDnsCache, 
     bIgnoreSslErrors_(isIgnoreSslErrors),
     dnsServers_(dnsServers),
     bRemoveFromWhitelistIpsAfterFinish_(false),
-    isWhiteListIps_(true)
+    isWhiteListIps_(true),
+    bExtraTLSPadding_(false)
 {
 }
 
@@ -94,6 +95,16 @@ void NetworkRequest::setEchConfig(const QString &echConfig)
 QString NetworkRequest::echConfig() const
 {
     return echConfig_;
+}
+
+void NetworkRequest::setExtraTLSPadding(const bool ExtraTLSPadding)
+{
+    bExtraTLSPadding_ = ExtraTLSPadding;
+}
+
+bool NetworkRequest::isExtraTLSPadding() const
+{
+    return bExtraTLSPadding_;
 }
 
 void NetworkRequest::setOverrideIp(const QString &ip)

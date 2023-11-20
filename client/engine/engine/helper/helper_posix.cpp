@@ -645,7 +645,7 @@ bool Helper_posix::startStunnel()
     return IHelper::EXECUTE_SUCCESS;
 }
 
-bool Helper_posix::configureStunnel(const QString &hostname, unsigned int port, unsigned int localPort)
+bool Helper_posix::configureStunnel(const QString &hostname, unsigned int port, unsigned int localPort, bool extraPadding)
 {
     QMutexLocker locker(&mutex_);
 
@@ -653,6 +653,7 @@ bool Helper_posix::configureStunnel(const QString &hostname, unsigned int port, 
     cmd.hostname = hostname.toStdString();
     cmd.port = port;
     cmd.localPort = localPort;
+    cmd.extraPadding = extraPadding;
 
     std::stringstream stream;
     boost::archive::text_oarchive oa(stream, boost::archive::no_header);

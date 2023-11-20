@@ -441,6 +441,9 @@ void ServerAPI::executeRequestImpl(QPointer<BaseRequest> request, const failover
     if (!failoverData.echConfig().isEmpty()) {
         networkRequest.setEchConfig(failoverData.echConfig());
     }
+    if (ExtraConfig::instance().getAPIExtraTLSPadding()) {
+        networkRequest.setExtraTLSPadding(true);
+    }
 
     NetworkReply *reply;
     switch (request->requestType()) {

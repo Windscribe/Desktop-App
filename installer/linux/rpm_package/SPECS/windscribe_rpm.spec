@@ -59,7 +59,6 @@ echo linux_rpm_x64 > ../etc/windscribe/platform
 %postun
 systemctl stop windscribe-helper
 systemctl disable windscribe-helper
-killall -q Windscribe || true
 userdel -f windscribe || true
 groupdel -f windscribe || true
 rm -f /usr/bin/windscribe-cli

@@ -1997,12 +1997,23 @@ void MainWindowController::gotoExitWindow(bool isLogout)
              || curWindow_ == WINDOW_ID_EMERGENCY
              || curWindow_ == WINDOW_ID_EXTERNAL_CONFIG
              || curWindow_ == WINDOW_ID_TWO_FACTOR_AUTH
-             || curWindow_ == WINDOW_ID_GENERAL_MESSAGE);
+             || curWindow_ == WINDOW_ID_GENERAL_MESSAGE
+             || curWindow_ == WINDOW_ID_LOGOUT);
 
+    // If we're overriding a logout with a quit (e.g. user pressed alt-f4 while on the logout prompt),
+    // close the previous logout window first
+    if (curWindow_ == WINDOW_ID_LOGOUT) {
+        // Suppress expanding preferences window even though originally logout came from prefs.
+        closeExitWindow(false);
+    }
     windowBeforeExit_ = curWindow_;
     IGeneralMessageWindow *win = (isLogout ? logoutWindow_ : exitWindow_);
 
     TooltipController::instance().hideAllTooltips();
+    for (auto w : windowSizeManager_->windows()) {
+        collapseWindow(w, false, true);
+    }
+
     if (curWindow_ == WINDOW_ID_CONNECT) {
         if (preferences_->appSkin() == APP_SKIN_VAN_GOGH) {
             win->setBackgroundShape(IGeneralMessageWindow::kConnectScreenVanGoghShape);

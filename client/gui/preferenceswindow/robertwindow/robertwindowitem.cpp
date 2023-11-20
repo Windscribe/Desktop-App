@@ -183,6 +183,7 @@ void RobertWindowItem::onLanguageChanged()
 void RobertWindowItem::onManageRobertRulesClick()
 {
     manageRulesItem_->setInProgress(true);
+    emit manageRobertRulesClick();
 }
 
 void RobertWindowItem::setWebSessionCompleted()

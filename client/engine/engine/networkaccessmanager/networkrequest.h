@@ -33,6 +33,9 @@ public:
     void setEchConfig(const QString &echConfig);
     QString echConfig() const;
 
+    void setExtraTLSPadding(const bool ExtraTLSPadding);
+    bool isExtraTLSPadding() const;
+
     // Explicitly specify ip to avoid DNS resolution
     void setOverrideIp(const QString &ip);
     QString overrideIp() const;
@@ -58,5 +61,7 @@ private:
 
     // default true
     bool isWhiteListIps_;
+
+    bool bExtraTLSPadding_;
 };
 

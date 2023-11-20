@@ -1,3 +1,15 @@
+2.7.7 (29/06/2023)
+All:
+   * Added anti-censorship feature: OpenVPN TCP split-reset, UDP stuffing, Stunnel extra padding. #671
+   * Added anti-censorship feature: use extra TLS padding for fallback API requests. #678
+   * Added Czech language translation. #677
+   * Fixed Logout/Quit screen UI bugs. #457
+   * Fixed Manage ROBERT rules link click does nothing. #480
+   * Fixed Russian translation. #679
+Linux:
+   * Removed 'kill app' functionality from the uninstall script. #335
+
+
 2.7.6 (08/06/2023)
 All:
    * Fixed UI overlap and alignment issues. #457 & #583

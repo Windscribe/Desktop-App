@@ -932,6 +932,9 @@ typedef enum {
    a client certificate for authentication. (Schannel) */
 #define CURLSSLOPT_AUTO_CLIENT_CERT (1<<5)
 
+#define CURLSSLOPT_TLSEXT_PADDING (1<<6)
+#define CURLSSLOPT_TLSEXT_PADDING_SUPER (1<<7)
+
 /* The default connection attempt delay in milliseconds for happy eyeballs.
    CURLOPT_HAPPY_EYEBALLS_TIMEOUT_MS.3 and happy-eyeballs-timeout-ms.d document
    this value, keep them in sync. */
