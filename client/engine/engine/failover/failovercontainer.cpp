@@ -6,6 +6,7 @@
 #include "failovers/echfailover.h"
 #include "failovers/hardcodeddomainfailover.h"
 #include "failovers/randomdomainfailover.h"
+#include "failovers/cdndomainfailover.h"
 #include "utils/hardcodedsettings.h"
 #include "utils/dga_library.h"
 #include "utils/logger.h"
@@ -17,6 +18,7 @@
 // Attention: do not change the unique identifiers of failover. By adding a new failover generate a new unique identifier
 #define FAILOVER_DEFAULT_HARDCODED               "300fa426-4640-4a3f-b95c-1f0277462358"
 #define FAILOVER_BACKUP_HARDCODED                "83e64a18-31bb-4d26-956a-ade58a5df0b9"
+#define FAILOVER_CDN_HARDCODED                   "64e5c2e1-829b-4f6a-a3a3-a37c762778c6"
 
 #define FAILOVER_ECH_CLOUFLARE_1                 "3e60e3d5-d379-46cc-a9a0-d9f04f47999a"
 #define FAILOVER_ECH_CLOUFLARE_2                 "ee195090-f5e8-4ae0-9142-ca0961a43173"
@@ -52,6 +54,7 @@ FailoverContainer::FailoverContainer(QObject *parent, NetworkAccessManager *netw
 
     // Don't use other failovers for the staging functionality, as the hashed domains will hit the production environment.
     if (!AppVersion::instance().isStaging()) {
+
         failovers_ << FAILOVER_BACKUP_HARDCODED;
 
         failovers_ << FAILOVER_DYNAMIC_CLOUDFLARE_1;
@@ -81,6 +84,8 @@ FailoverContainer::FailoverContainer(QObject *parent, NetworkAccessManager *netw
             failovers_ << FAILOVER_ACCESS_IP_2;
             failovers_ << FAILOVER_ACCESS_IP_1;
         }
+
+        failovers_ << FAILOVER_CDN_HARDCODED;
     }
 
     resetImpl();
@@ -193,6 +198,11 @@ QSharedPointer<BaseFailover> FailoverContainer::failoverById(const QString &fail
         DgaLibrary dga;
         if (dga.load()) {
             return QSharedPointer<BaseFailover>(new AccessIpsFailover(this, FAILOVER_ACCESS_IP_2, networkAccessManager_, dga.getParameter(PAR_API_ACCESS_IP2)));
+        }
+    } else if (failoverUniqueId == FAILOVER_CDN_HARDCODED) {
+        DgaLibrary dga;
+        if (dga.load()) {
+            return QSharedPointer<BaseFailover>(new CdnDomainFailover(this, FAILOVER_CDN_HARDCODED, dga.getParameter(PAR_CDN_BACKEND_DOMAIN), dga.getParameter(PAR_CDN_FRONTEND_DOMAIN)));
         }
     }
 

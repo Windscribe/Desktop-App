@@ -1,32 +1,33 @@
 #include "all_headers.h"
-#include "split_tunneling/split_tunneling.h"
-#include "ipv6_firewall.h"
-#include "dns_firewall.h"
-#include "firewallfilter.h"
-#include "logger.h"
-#include "ipc/servicecommunication.h"
+
+#include <conio.h>
+
+#include "../../../client/common/utils/crashhandler.h"
 #include "../changeics/icsmanager.h"
-#include "sys_ipv6_controller.h"
-#include "hostsedit.h"
-#include "get_active_processes.h"
-#include "pipe_for_process.h"
-#include "executecmd.h"
-#include "reinstall_wan_ikev2.h"
-#include "close_tcp_connections.h"
 #include "cleardns_on_tap.h"
-#include "utils.h"
-#include "registry.h"
+#include "close_tcp_connections.h"
+#include "dns_firewall.h"
+#include "executecmd.h"
+#include "firewallfilter.h"
+#include "fwpm_wrapper.h"
+#include "get_active_processes.h"
+#include "hostsedit.h"
 #include "ikev2ipsec.h"
 #include "ikev2route.h"
 #include "ioutils.h"
-#include "ovpn.h"
 #include "ipc/serialize_structs.h"
-#include "fwpm_wrapper.h"
-#include "remove_windscribe_network_profiles.h"
-#include "wireguard/wireguardcontroller.h"
+#include "ipc/servicecommunication.h"
+#include "ipv6_firewall.h"
+#include "logger.h"
+#include "ovpn.h"
+#include "registry.h"
 #include "reinstall_tun_drivers.h"
-#include <conio.h>
-#include "../../../client/common/utils/crashhandler.h"
+#include "reinstall_wan_ikev2.h"
+#include "remove_windscribe_network_profiles.h"
+#include "split_tunneling/split_tunneling.h"
+#include "sys_ipv6_controller.h"
+#include "utils.h"
+#include "wireguard/wireguardcontroller.h"
 
 #define SERVICE_NAME  (L"WindscribeService")
 #define SERVICE_PIPE_NAME  (L"\\\\.\\pipe\\WindscribeService")
@@ -101,7 +102,7 @@ int main(int argc, char *argv[])
     CloseHandle(hThread);
     CloseHandle (g_ServiceStopEvent);
 #else
-        
+
     SERVICE_TABLE_ENTRY serviceTable[] =
     {
         { (LPWSTR)SERVICE_NAME, (LPSERVICE_MAIN_FUNCTION)serviceMain },
@@ -117,20 +118,20 @@ int main(int argc, char *argv[])
     return 0;
 }
 
-BOOL isElevated() 
+BOOL isElevated()
 {
     BOOL fRet = FALSE;
     HANDLE hToken = NULL;
-    if (OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &hToken)) 
+    if (OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &hToken))
     {
         TOKEN_ELEVATION Elevation;
         DWORD cbSize = sizeof(TOKEN_ELEVATION);
-        if (GetTokenInformation(hToken, TokenElevation, &Elevation, sizeof(Elevation), &cbSize)) 
+        if (GetTokenInformation(hToken, TokenElevation, &Elevation, sizeof(Elevation), &cbSize))
         {
             fRet = Elevation.TokenIsElevated;
         }
     }
-    if (hToken) 
+    if (hToken)
     {
         CloseHandle(hToken);
     }
@@ -263,7 +264,7 @@ VOID WINAPI serviceCtrlHandler(DWORD CtrlCode)
 
 BOOL CreateDACL(SECURITY_ATTRIBUTES *pSA)
 {
-    TCHAR * szSD = TEXT("D:")         // Discretionary ACL
+    const TCHAR * szSD = TEXT("D:")         // Discretionary ACL
         TEXT("(D;OICI;GA;;;AN)")      // Deny access to anonymous logon
         TEXT("(A;OICI;GRGWGX;;;BG)")  // Allow access to built-in guests
         TEXT("(A;OICI;GRGWGX;;;AU)")  // Allow read/write/execute to authenticated  users
@@ -272,7 +273,7 @@ BOOL CreateDACL(SECURITY_ATTRIBUTES *pSA)
     if (NULL == pSA)
         return FALSE;
 
-    return ConvertStringSecurityDescriptorToSecurityDescriptor(szSD, SDDL_REVISION_1, &(pSA->lpSecurityDescriptor),    NULL);
+    return ConvertStringSecurityDescriptorToSecurityDescriptor(szSD, SDDL_REVISION_1, &(pSA->lpSecurityDescriptor), NULL);
 }
 
 HANDLE CreatePipe()
@@ -542,7 +543,7 @@ MessagePacketResult processMessagePacket(int cmdId, const std::string &packet, I
     else if (cmdId == AA_COMMAND_ENUM_PROCESSES)
     {
         Logger::instance().out(L"AA_COMMAND_ENUM_PROCESSES");
-        
+
         std::vector<std::wstring> list = getActiveProcesses.getList();
 
         size_t overallCharactersCount = 0;
@@ -566,7 +567,7 @@ MessagePacketResult processMessagePacket(int cmdId, const std::string &packet, I
             }
             mpr.additionalString = std::string(v.begin(), v.end());
         }
-        
+
         mpr.success = true;
     }
     else if (cmdId == AA_COMMAND_TASK_KILL)
@@ -574,10 +575,8 @@ MessagePacketResult processMessagePacket(int cmdId, const std::string &packet, I
         CMD_TASK_KILL cmdTaskKill;
         ia >> cmdTaskKill;
 
-        wchar_t killCmd[MAX_PATH];
-        wcscpy(killCmd, L"taskkill /f /t /im ");
-        wcscat(killCmd, cmdTaskKill.szExecutableName.c_str());
-        Logger::instance().out(L"AA_COMMAND_TASK_KILL, cmd=%s", killCmd);
+        std::wstring killCmd = Utils::getSystemDir() + L"\\taskkill.exe /f /t /im " + cmdTaskKill.szExecutableName;
+        Logger::instance().out(L"AA_COMMAND_TASK_KILL, cmd=%s", killCmd.c_str());
         mpr = ExecuteCmd::instance().executeBlockingCmd(killCmd);
     }
     else if (cmdId == AA_COMMAND_RESET_TAP)
@@ -585,17 +584,13 @@ MessagePacketResult processMessagePacket(int cmdId, const std::string &packet, I
         CMD_RESET_TAP cmdResetTap;
         ia >> cmdResetTap;
 
-        wchar_t resetCmd[MAX_PATH];
-        wcscpy(resetCmd, L"wmic path win32_networkadapter where Description=\"");
-        wcscat(resetCmd, cmdResetTap.szTapName.c_str());
-        wcscat(resetCmd, L"\" call disable");
-        Logger::instance().out(L"AA_COMMAND_RESET_TAP, cmd1=%s", resetCmd);
+        std::wstring baseCmd = Utils::getSystemDir() + L"\\wbem\\wmic.exe path win32_networkadapter where Description=\"" + cmdResetTap.szTapName + L"\"";
+        std::wstring resetCmd = baseCmd + L" call disable";
+        Logger::instance().out(L"AA_COMMAND_RESET_TAP, cmd1=%s", resetCmd.c_str());
         mpr = ExecuteCmd::instance().executeBlockingCmd(resetCmd);
 
-        wcscpy(resetCmd, L"wmic path win32_networkadapter where Description=\"");
-        wcscat(resetCmd, cmdResetTap.szTapName.c_str());
-        wcscat(resetCmd, L"\" call enable");
-        Logger::instance().out(L"AA_COMMAND_RESET_TAP, cmd2=%s", resetCmd);
+        resetCmd = baseCmd + L" call enable";
+        Logger::instance().out(L"AA_COMMAND_RESET_TAP, cmd2=%s", resetCmd.c_str());
         mpr = ExecuteCmd::instance().executeBlockingCmd(resetCmd);
     }
     else if (cmdId == AA_COMMAND_SET_METRIC)
@@ -603,15 +598,9 @@ MessagePacketResult processMessagePacket(int cmdId, const std::string &packet, I
         CMD_SET_METRIC cmdSetMetric;
         ia >> cmdSetMetric;
 
-        wchar_t setMetricCmd[MAX_PATH];
-        wcscpy(setMetricCmd, L"netsh int ");
-        wcscat(setMetricCmd, cmdSetMetric.szInterfaceType.c_str());
-        wcscat(setMetricCmd, L" set interface interface=\"");
-        wcscat(setMetricCmd, cmdSetMetric.szInterfaceName.c_str());
-        wcscat(setMetricCmd, L"\" metric=");
-        wcscat(setMetricCmd, cmdSetMetric.szMetricNumber.c_str());
-        
-        Logger::instance().out(L"AA_COMMAND_SET_METRIC, cmd=%s", setMetricCmd);
+        std::wstring setMetricCmd = Utils::getSystemDir() + L"\\netsh.exe int " + cmdSetMetric.szInterfaceType + L" set interface interface=\"" +
+                                    cmdSetMetric.szInterfaceName + L"\" metric=" + cmdSetMetric.szMetricNumber;
+        Logger::instance().out(L"AA_COMMAND_SET_METRIC, cmd=%s", setMetricCmd.c_str());
         mpr = ExecuteCmd::instance().executeBlockingCmd(setMetricCmd);
     }
     else if (cmdId == AA_COMMAND_WMIC_ENABLE)
@@ -619,12 +608,8 @@ MessagePacketResult processMessagePacket(int cmdId, const std::string &packet, I
         CMD_WMIC_ENABLE cmdWmicEnable;
         ia >> cmdWmicEnable;
 
-        wchar_t wmicCmd[MAX_PATH];
-        wcscpy(wmicCmd, L"wmic path win32_networkadapter where description=\"");
-        wcscat(wmicCmd, cmdWmicEnable.szAdapterName.c_str());
-        wcscat(wmicCmd, L"\" call enable");
-        
-        Logger::instance().out(L"AA_COMMAND_WMIC_ENABLE, cmd=%s", wmicCmd);
+        std::wstring wmicCmd = Utils::getSystemDir() + L"\\wbem\\wmic.exe path win32_networkadapter where description=\"" + cmdWmicEnable.szAdapterName + L"\" call enable";
+        Logger::instance().out(L"AA_COMMAND_WMIC_ENABLE, cmd=%s", wmicCmd.c_str());
         mpr = ExecuteCmd::instance().executeBlockingCmd(wmicCmd);
     }
     else if (cmdId == AA_COMMAND_WMIC_GET_CONFIG_ERROR_CODE)
@@ -632,12 +617,8 @@ MessagePacketResult processMessagePacket(int cmdId, const std::string &packet, I
         CMD_WMIC_GET_CONFIG_ERROR_CODE cmdWmicGetConfigErrorCode;
         ia >> cmdWmicGetConfigErrorCode;
 
-        wchar_t wmicCmd[MAX_PATH];
-        wcscpy(wmicCmd, L"wmic path win32_networkadapter where description=\"");
-        wcscat(wmicCmd, cmdWmicGetConfigErrorCode.szAdapterName.c_str());
-        wcscat(wmicCmd, L"\" get ConfigManagerErrorCode");
-
-        Logger::instance().out(L"AA_COMMAND_WMIC_GET_CONFIG_ERROR_CODE, cmd=%s", wmicCmd);
+        std::wstring wmicCmd = Utils::getSystemDir() + L"\\wbem\\wmic.exe path win32_networkadapter where description=\"" + cmdWmicGetConfigErrorCode.szAdapterName + L"\" get ConfigManagerErrorCode";
+        Logger::instance().out(L"AA_COMMAND_WMIC_GET_CONFIG_ERROR_CODE, cmd=%s", wmicCmd.c_str());
         mpr = ExecuteCmd::instance().executeBlockingCmd(wmicCmd);
     }
     else if (cmdId == AA_COMMAND_CLEAR_DNS_ON_TAP)
@@ -650,30 +631,21 @@ MessagePacketResult processMessagePacket(int cmdId, const std::string &packet, I
     {
         Logger::instance().out(L"AA_COMMAND_ENABLE_BFE");
 
-        wchar_t bfeCmd[MAX_PATH];
-        wcscpy(bfeCmd, L"sc config BFE start= auto");
-        mpr = ExecuteCmd::instance().executeBlockingCmd(bfeCmd);
-        wcscpy(bfeCmd, L"sc start BFE");
-        mpr = ExecuteCmd::instance().executeBlockingCmd(bfeCmd);
+        std::wstring exe = Utils::getSystemDir() + L"\\sc.exe";
+        mpr = ExecuteCmd::instance().executeBlockingCmd(exe + L" config BFE start= auto");
+        mpr = ExecuteCmd::instance().executeBlockingCmd(exe + L" start BFE");
     }
     else if (cmdId == AA_COMMAND_RESET_AND_START_RAS)
     {
         Logger::instance().out(L"AA_COMMAND_RESET_AND_START_RAS");
 
-        wchar_t serviceCmd[MAX_PATH];
-        wcscpy(serviceCmd, L"sc config RasMan start= demand");
-        mpr = ExecuteCmd::instance().executeBlockingCmd(serviceCmd);
-        wcscpy(serviceCmd, L"sc stop RasMan");
-        mpr = ExecuteCmd::instance().executeBlockingCmd(serviceCmd);
-        wcscpy(serviceCmd, L"sc start RasMan");
-        mpr = ExecuteCmd::instance().executeBlockingCmd(serviceCmd);
-
-        wcscpy(serviceCmd, L"sc config SstpSvc start= demand");
-        mpr = ExecuteCmd::instance().executeBlockingCmd(serviceCmd);
-        wcscpy(serviceCmd, L"sc stop SstpSvc");
-        mpr = ExecuteCmd::instance().executeBlockingCmd(serviceCmd);
-        wcscpy(serviceCmd, L"sc start SstpSvc");
-        mpr = ExecuteCmd::instance().executeBlockingCmd(serviceCmd);
+        std::wstring exe = Utils::getSystemDir() + L"\\sc.exe";
+        mpr = ExecuteCmd::instance().executeBlockingCmd(exe + L" config RasMan start= demand");
+        mpr = ExecuteCmd::instance().executeBlockingCmd(exe + L" stop RasMan");
+        mpr = ExecuteCmd::instance().executeBlockingCmd(exe + L" start RasMan");
+        mpr = ExecuteCmd::instance().executeBlockingCmd(exe + L" config SstpSvc start= demand");
+        mpr = ExecuteCmd::instance().executeBlockingCmd(exe + L" stop SstpSvc");
+        mpr = ExecuteCmd::instance().executeBlockingCmd(exe + L" start SstpSvc");
     }
     else if (cmdId == AA_COMMAND_RUN_OPENVPN)
     {
@@ -685,7 +657,6 @@ MessagePacketResult processMessagePacket(int cmdId, const std::string &packet, I
             Utils::noSpacesInString(cmdRunOpenVpn.szHttpProxy) &&
             Utils::noSpacesInString(cmdRunOpenVpn.szSocksProxy))
         {
-
             std::wstring filename;
             int ret = OVPN::writeOVPNFile(filename, cmdRunOpenVpn.szConfig);
             if (ret) {
@@ -703,9 +674,7 @@ MessagePacketResult processMessagePacket(int cmdId, const std::string &packet, I
                     strCmd += L" --socks-proxy " + cmdRunOpenVpn.szSocksProxy + L" " + std::to_wstring(cmdRunOpenVpn.socksPortNumber);
                 }
 
-                wchar_t szWorkingDir[MAX_PATH];
-                wcscpy(szWorkingDir, Utils::getDirPathFromFullPath(filename).c_str());
-                mpr = ExecuteCmd::instance().executeUnblockingCmd(strCmd.c_str(), L"", szWorkingDir);
+                mpr = ExecuteCmd::instance().executeUnblockingCmd(strCmd.c_str(), L"", Utils::getDirPathFromFullPath(filename));
             }
         }
         else
@@ -718,32 +687,27 @@ MessagePacketResult processMessagePacket(int cmdId, const std::string &packet, I
         CMD_WHITELIST_PORTS cmdWhitelistPorts;
         ia >> cmdWhitelistPorts;
 
-        wchar_t szBuf[1024];
-        std::wstring strCmd = L"netsh advfirewall firewall add rule name=\"WindscribeStaticIpTcp\" protocol=TCP dir=in localport=\"";
+        std::wstring strCmd = Utils::getSystemDir() + L"\\netsh.exe advfirewall firewall add rule name=\"WindscribeStaticIpTcp\" protocol=TCP dir=in localport=\"";
         strCmd += cmdWhitelistPorts.ports;
         strCmd += L"\" action=allow";
-        wcscpy(szBuf, strCmd.c_str());
-        mpr = ExecuteCmd::instance().executeBlockingCmd(szBuf);
         Logger::instance().out(L"AA_COMMAND_WHITELIST_PORTS, cmd=%s", strCmd.c_str());
+        mpr = ExecuteCmd::instance().executeBlockingCmd(strCmd);
 
-        strCmd = L"netsh advfirewall firewall add rule name=\"WindscribeStaticIpUdp\" protocol=UDP dir=in localport=\"";
+        strCmd = Utils::getSystemDir() + L"\\netsh.exe advfirewall firewall add rule name=\"WindscribeStaticIpUdp\" protocol=UDP dir=in localport=\"";
         strCmd += cmdWhitelistPorts.ports;
         strCmd += L"\" action=allow";
-        wcscpy(szBuf, strCmd.c_str());
-        mpr = ExecuteCmd::instance().executeBlockingCmd(szBuf);
         Logger::instance().out(L"AA_COMMAND_WHITELIST_PORTS, cmd=%s", strCmd.c_str());
+        mpr = ExecuteCmd::instance().executeBlockingCmd(strCmd);
     }
     else if (cmdId == AA_COMMAND_DELETE_WHITELIST_PORTS)
     {
-        wchar_t szBuf[1024];
-        std::wstring strCmd = L"netsh advfirewall firewall delete rule name=\"WindscribeStaticIpTcp\" dir=in";
-        wcscpy(szBuf, strCmd.c_str());
-        mpr = ExecuteCmd::instance().executeBlockingCmd(szBuf);
+        std::wstring strCmd = Utils::getSystemDir() + L"\\netsh.exe advfirewall firewall delete rule name=\"WindscribeStaticIpTcp\" dir=in";
         Logger::instance().out(L"AA_COMMAND_DELETE_WHITELIST_PORTS, cmd=%s", strCmd.c_str());
-        strCmd = L"netsh advfirewall firewall delete rule name=\"WindscribeStaticIpUdp\" dir=in";
-        wcscpy(szBuf, strCmd.c_str());
-        mpr = ExecuteCmd::instance().executeBlockingCmd(szBuf);
+        mpr = ExecuteCmd::instance().executeBlockingCmd(strCmd);
+
+        strCmd = Utils::getSystemDir() + L"\\netsh.exe advfirewall firewall delete rule name=\"WindscribeStaticIpUdp\" dir=in";
         Logger::instance().out(L"AA_COMMAND_DELETE_WHITELIST_PORTS, cmd=%s", strCmd.c_str());
+        mpr = ExecuteCmd::instance().executeBlockingCmd(strCmd);
     }
     else if (cmdId == AA_COMMAND_SET_MAC_ADDRESS_REGISTRY_VALUE_SZ)
     {
@@ -773,7 +737,7 @@ MessagePacketResult processMessagePacket(int cmdId, const std::string &packet, I
         std::wstring keyPath = L"SYSTEM\\CurrentControlSet\\Control\\Class\\{4D36E972-E325-11CE-BFC1-08002BE10318}\\" + cmdRemoveMacAddressRegistryProperty.szInterfaceName;
 
         wchar_t keyPathSz[128];
-        wcscpy(keyPathSz, keyPath.c_str());
+        wcsncpy_s(keyPathSz, 128, keyPath.c_str(), _TRUNCATE);
 
         bool success1 = Registry::regDeleteProperty(HKEY_LOCAL_MACHINE, keyPathSz, propertyName);
         bool success2 = false;
@@ -839,7 +803,7 @@ MessagePacketResult processMessagePacket(int cmdId, const std::string &packet, I
                                     cmdSplitTunnelingSettings.ips,
                                     cmdSplitTunnelingSettings.hosts,
                                     cmdSplitTunnelingSettings.isAllowLanTraffic);
-        
+
         g_SplitTunnelingPars.isEnabled = cmdSplitTunnelingSettings.isActive;
         g_SplitTunnelingPars.isExclude = cmdSplitTunnelingSettings.isExclude;
         g_SplitTunnelingPars.apps = cmdSplitTunnelingSettings.files;
@@ -859,20 +823,10 @@ MessagePacketResult processMessagePacket(int cmdId, const std::string &packet, I
         CMD_CONNECTED_DNS cmdDnsWhileConnected;
         ia >> cmdDnsWhileConnected;
 
-        wchar_t szBuf[1024];
-        wcscpy(szBuf, L"netsh interface ipv4 set dns \"");
-        wcscat(szBuf, std::to_wstring(cmdDnsWhileConnected.ifIndex).c_str());
-        wcscat(szBuf, L"\" static ");
-        wcscat(szBuf, cmdDnsWhileConnected.szDnsIpAddress.c_str());
-        mpr = ExecuteCmd::instance().executeBlockingCmd(szBuf);
+        std::wstring netshCmd = Utils::getSystemDir() + L"\\netsh.exe interface ipv4 set dns \"" + std::to_wstring(cmdDnsWhileConnected.ifIndex) + L"\" static " + cmdDnsWhileConnected.szDnsIpAddress;
+        mpr = ExecuteCmd::instance().executeBlockingCmd(netshCmd);
 
-        wchar_t logBuf[1024];
-        wcscpy(logBuf, L"AA_COMMAND_CONNECTED_DNS: ");
-        wcscat(logBuf, szBuf);
-        wcscat(logBuf, L" ");
-        wcscat(logBuf, mpr.success ? L"Success" : L"Failure");
-        wcscat(logBuf, L" ");
-        wcscat(logBuf, std::to_wstring(mpr.exitCode).c_str());
+        std::wstring logBuf = L"AA_COMMAND_CONNECTED_DNS: " + netshCmd + L" " + (mpr.success ? L"Success" : L"Failure") + L" " + std::to_wstring(mpr.exitCode);
         Logger::instance().out(logBuf);
     }
     else if (cmdId == AA_COMMAND_ADD_IKEV2_DEFAULT_ROUTE)
@@ -891,26 +845,15 @@ MessagePacketResult processMessagePacket(int cmdId, const std::string &packet, I
         CMD_CHANGE_MTU cmdChangeMtu;
         ia >> cmdChangeMtu;
 
-        std::wstring storePersistent = L"active";
-        if (cmdChangeMtu.storePersistent)
-        {
-            storePersistent = L"persistent";
+        std::wstring netshCmd = Utils::getSystemDir() + L"\\netsh.exe interface ipv4 set subinterface \"" + cmdChangeMtu.szAdapterName + L"\" mtu=" + std::to_wstring(cmdChangeMtu.mtu) + L" store=";
+        if (cmdChangeMtu.storePersistent) {
+            netshCmd += L"persistent";
+        } else {
+            netshCmd += L"active";
         }
 
-        wchar_t szBuf[1024];
-        wcscpy(szBuf, L"netsh interface ipv4 set subinterface \"");
-        wcscat(szBuf, cmdChangeMtu.szAdapterName.c_str());
-        wcscat(szBuf, L"\" mtu=");
-        wcscat(szBuf, std::to_wstring(cmdChangeMtu.mtu).c_str());
-        wcscat(szBuf, L" store=");
-        wcscat(szBuf, storePersistent.c_str());
-        mpr = ExecuteCmd::instance().executeBlockingCmd(szBuf);
-
-        wchar_t logBuf[1024];
-        wcscpy(logBuf, L"AA_COMMAND_CHANGE_MTU: ");
-        wcscat(logBuf, szBuf);
-        Logger::instance().out(logBuf);
-
+        Logger::instance().out(L"AA_COMMAND_CHANGE_MTU: " + netshCmd);
+        mpr = ExecuteCmd::instance().executeBlockingCmd(netshCmd);
         mpr.success = true;
     }
     else if (cmdId == AA_COMMAND_SET_IKEV2_IPSEC_PARAMETERS)
@@ -949,7 +892,7 @@ MessagePacketResult processMessagePacket(int cmdId, const std::string &packet, I
             mpr.success = false;
         }
     }
-    else if (cmdId == AA_COMMAND_REINSTALL_TAP_DRIVER) 
+    else if (cmdId == AA_COMMAND_REINSTALL_TAP_DRIVER)
     {
         CMD_REINSTALL_TUN_DRIVER cmdReinstallTunDriver;
         ia >> cmdReinstallTunDriver;
@@ -958,7 +901,7 @@ MessagePacketResult processMessagePacket(int cmdId, const std::string &packet, I
         {
             mpr.success = true;
         }
-        else 
+        else
         {
             mpr.success = false;
         }
@@ -977,7 +920,7 @@ MessagePacketResult processMessagePacket(int cmdId, const std::string &packet, I
             mpr.success = false;
         }
     }
-    
+
     return mpr;
 }
 

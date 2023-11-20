@@ -437,7 +437,7 @@ bool addFilterV4(HANDLE engineHandle, std::vector<UINT64> *filterId, FWP_ACTION_
                 condition.fieldKey = FWPM_CONDITION_ALE_APP_ID;
                 condition.matchType = FWP_MATCH_EQUAL;
                 condition.conditionValue.type = FWP_BYTE_BLOB_TYPE;
-                condition.conditionValue.byteBlob = (*appsIds).getAppId(i);
+                condition.conditionValue.byteBlob = (FWP_BYTE_BLOB *)(*appsIds).getAppId(i);
                 conditions.push_back(condition);
             }
         }
@@ -521,6 +521,18 @@ bool addFilterV6(HANDLE engineHandle, std::vector<UINT64> *filterId, FWP_ACTION_
         }
     }
     return success;
+}
+
+std::wstring getSystemDir()
+{
+    wchar_t path[MAX_PATH];
+    UINT result = ::GetSystemDirectory(path, MAX_PATH);
+    if (result == 0 || result >= MAX_PATH) {
+        Logger::instance().out("GetSystemDir failed (%lu)", ::GetLastError());
+        return std::wstring(L"C:\\Windows\\System32");
+    }
+
+    return std::wstring(path);
 }
 
 }

@@ -110,6 +110,9 @@ void NetworkAccessManager::handleRequest(quint64 id)
             onResolved(true, QStringList() << requestData->request.overrideIp(), requestData->id, false, 0);
         } else {
             QString hostname = requestData->request.url().host();
+            if (!requestData->request.sniDomain().isEmpty()) {
+                hostname = requestData->request.sniDomain();
+            }
             dnsCache_->resolve(hostname, requestData->id, !requestData->request.isUseDnsCache(), requestData->request.dnsServers(), requestData->request.timeout());
         }
     }

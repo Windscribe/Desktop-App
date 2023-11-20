@@ -31,58 +31,58 @@
         <location filename="../commongraphics/escapebutton.cpp" line="45"/>
         <location filename="../commongraphics/escapebutton.cpp" line="50"/>
         <source>ESC</source>
-        <translation>Закрыть</translation>
+        <translation>Закр.</translation>
     </message>
 </context>
 <context>
     <name>ConnectWindow::ConnectWindowItem</name>
     <message>
-        <location filename="../connectwindow/connectwindowitem.cpp" line="335"/>
+        <location filename="../connectwindow/connectwindowitem.cpp" line="336"/>
         <source>No Network Info</source>
         <translation>Нет информации о сети</translation>
     </message>
     <message>
-        <location filename="../connectwindow/connectwindowitem.cpp" line="343"/>
+        <location filename="../connectwindow/connectwindowitem.cpp" line="344"/>
         <source>Unsecured</source>
         <translation>Не защищена</translation>
     </message>
     <message>
-        <location filename="../connectwindow/connectwindowitem.cpp" line="347"/>
+        <location filename="../connectwindow/connectwindowitem.cpp" line="348"/>
         <source>Secured</source>
         <translation>Защищена</translation>
     </message>
     <message>
-        <location filename="../connectwindow/connectwindowitem.cpp" line="386"/>
+        <location filename="../connectwindow/connectwindowitem.cpp" line="387"/>
         <source>Connection to Windscribe has been terminated. </source>
         <translation>Соединение с Windscribe было прервано. </translation>
     </message>
     <message>
-        <location filename="../connectwindow/connectwindowitem.cpp" line="387"/>
+        <location filename="../connectwindow/connectwindowitem.cpp" line="388"/>
         <source> transferred in </source>
         <translation> переведено в </translation>
     </message>
     <message>
-        <location filename="../connectwindow/connectwindowitem.cpp" line="402"/>
+        <location filename="../connectwindow/connectwindowitem.cpp" line="403"/>
         <source>Connected for </source>
         <translation>Подключено </translation>
     </message>
     <message>
-        <location filename="../connectwindow/connectwindowitem.cpp" line="403"/>
+        <location filename="../connectwindow/connectwindowitem.cpp" line="404"/>
         <source> transferred</source>
         <translation> передано</translation>
     </message>
     <message>
-        <location filename="../connectwindow/connectwindowitem.cpp" line="480"/>
+        <location filename="../connectwindow/connectwindowitem.cpp" line="481"/>
         <source>Firewall</source>
         <translation>Брандмауэр</translation>
     </message>
     <message>
-        <location filename="../connectwindow/connectwindowitem.cpp" line="481"/>
+        <location filename="../connectwindow/connectwindowitem.cpp" line="482"/>
         <source>Blocks all connectivity in the event of a sudden disconnect</source>
         <translation>Заблокирует все соединения в случае внезапного отключения VPN</translation>
     </message>
     <message>
-        <location filename="../connectwindow/connectwindowitem.cpp" line="573"/>
+        <location filename="../connectwindow/connectwindowitem.cpp" line="574"/>
         <source>Connect to rate</source>
         <translation>Подключитесь, чтобы оценить сервер</translation>
     </message>
@@ -1307,108 +1307,109 @@ If the problem persists after a restart, please send a debug log and open a supp
     <name>PreferencesWindow::ConnectionWindowItem</name>
     <message>
         <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="110"/>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="363"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="361"/>
         <source>Allow LAN Traffic</source>
-        <translation>Разрешить трафик локальной сети</translation>
+        <translation>Разрешить трафик LAN</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="132"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="368"/>
         <source>Terminate Sockets</source>
         <translation>Закрытие сокетов</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="160"/>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="379"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="158"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="377"/>
         <source>Circumvent Censorship</source>
         <translation>Обход блокировок</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="173"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="171"/>
         <source>Connection</source>
         <translation>Связь</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="259"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="257"/>
         <source>Exclusive</source>
         <translation>Исключающий</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="262"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="260"/>
         <source>Inclusive</source>
         <translation>Включающий</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="268"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="266"/>
         <source>Off</source>
         <translation>Выкл.</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="344"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="342"/>
         <source>Network Options</source>
-        <translation>Параметры сети</translation>
+        <translation>Параметры сетей</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="346"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="344"/>
         <source>Split Tunneling</source>
         <translation>Раздельное туннелирование</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="349"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="347"/>
         <source>Proxy Settings</source>
         <translation>Настройки прокси-сервера</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="351"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="349"/>
         <source>Connects to last used location when the app launches or joins a network.</source>
         <translation>Подключаться к последней используемой локации при запуске приложения или присоединении к сети.</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="352"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="350"/>
         <source>Auto-Connect</source>
         <translation>Автоматическое подключение</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="353"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="351"/>
         <source>Control the mode of behavior of the Windscribe firewall.</source>
         <translation>Управление режимом поведения брандмауэра Windscribe.</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="354"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="352"/>
         <source>Connection Mode</source>
         <translation>Режим подключения</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="355"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="353"/>
         <source>Automatically choose the VPN protocol, or select one manually.</source>
         <translation>Выбор VPN-протокола автоматически или вручную</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="358"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="356"/>
         <source>Automatically determine the MTU for your connection, or manually override.</source>
         <translation>Автоматическое определение MTU для подключения или переопределение вручную.</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="361"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="359"/>
         <source>Select the DNS server while connected to Windscribe.</source>
         <translation>Выберите DNS-сервер при подключении к Windscribe.</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="362"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="360"/>
         <source>Allow access to local services and printers while connected to Windscribe.</source>
         <translation>Разрешить доступ к локальным службам и принтерам при подключении к Windscribe.</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="366"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="364"/>
         <source>Spoof your device&apos;s physical address (MAC address).</source>
         <translation>Подделка физичесого адреса (MAC-адреса) устройства.</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="370"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="369"/>
         <source>Close all active TCP sockets when the VPN tunnel is established.</source>
         <translation>Закрытие всех активных TCP-соединений при установке VPN-туннеля.</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="377"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="376"/>
         <source>Configure your TV, gaming console, or other devices that support proxy servers.</source>
         <translation>Настройка телевизора, игровой консоли и других устройств, поддерживающих прокси-серверы.</translation>
     </message>
@@ -1538,7 +1539,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <location filename="../preferenceswindow/generalwindow/generalwindowitem.cpp" line="287"/>
         <source>Launch on Startup</source>
-        <translation>Запуск при включении ОС</translation>
+        <translation>Запуск при вкл. ОС</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/generalwindow/generalwindowitem.cpp" line="288"/>
@@ -1578,7 +1579,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <location filename="../preferenceswindow/generalwindow/generalwindowitem.cpp" line="302"/>
         <source>Docked</source>
-        <translation>Закреплённый</translation>
+        <translation>Закреплённый вид</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/generalwindow/generalwindowitem.cpp" line="303"/>
@@ -1598,7 +1599,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <location filename="../preferenceswindow/generalwindow/generalwindowitem.cpp" line="306"/>
         <source>Show Location Load</source>
-        <translation>Отображать нагрузку локаций</translation>
+        <translation>Нагрузка локаций</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/generalwindow/generalwindowitem.cpp" line="307"/>
@@ -1618,7 +1619,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <location filename="../preferenceswindow/generalwindow/generalwindowitem.cpp" line="311"/>
         <source>Latency Display</source>
-        <translation>Отображение задержки</translation>
+        <translation>Вид задержки</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/generalwindow/generalwindowitem.cpp" line="313"/>
@@ -1648,7 +1649,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <location filename="../preferenceswindow/generalwindow/generalwindowitem.cpp" line="320"/>
         <source>Choose to receive stable, beta, or experimental builds.</source>
-        <translation>Выбор получения стабильных, бета- или экспериментальных сборок.</translation>
+        <translation>Выбор получения стабильных, бета или экспериментальных сборок.</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/generalwindow/generalwindowitem.cpp" line="321"/>
@@ -1840,7 +1841,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <location filename="../preferenceswindow/networkoptionswindow/networkoptionswindowitem.cpp" line="130"/>
         <source>Auto-Secure Networks</source>
-        <translation>Автоматически безопасные сети</translation>
+        <translation>Автозащита сетей</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/networkoptionswindow/networkoptionswindowitem.cpp" line="131"/>
@@ -2338,7 +2339,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <location filename="../preferenceswindow/splittunnelingwindow/splittunnelingwindowitem.cpp" line="78"/>
         <source>Include or exclude apps and hostnames from the VPN tunnel.</source>
-        <translation>Включение или исключение приложений и имен узлов из VPN-туннеля.</translation>
+        <translation>Включение или исключение приложений и адресов/доменов из VPN-туннеля.</translation>
     </message>
     <message>
         <location filename="../preferenceswindow/splittunnelingwindow/splittunnelingwindowitem.cpp" line="80"/>
@@ -2461,17 +2462,17 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <location filename="../../common/types/enums.cpp" line="116"/>
         <source>Geography</source>
-        <translation>География</translation>
+        <translation>Географически</translation>
     </message>
     <message>
         <location filename="../../common/types/enums.cpp" line="117"/>
         <source>Alphabet</source>
-        <translation>Алфавит</translation>
+        <translation>В алфавитном порядке</translation>
     </message>
     <message>
         <location filename="../../common/types/enums.cpp" line="118"/>
         <source>Latency</source>
-        <translation>Задержка</translation>
+        <translation>По задержке (пингу)</translation>
     </message>
     <message>
         <location filename="../../common/types/enums.cpp" line="127"/>

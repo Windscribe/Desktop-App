@@ -13,7 +13,7 @@ public:
     void addFrom(const AppsIds &a);
 
     size_t count() const;
-    FWP_BYTE_BLOB *getAppId(size_t ind);
+    const FWP_BYTE_BLOB *getAppId(size_t ind) const;
 
     bool operator==(const AppsIds& other) const;
 

@@ -206,6 +206,7 @@ void OpenVPNConnection::onKillControllerTimer()
     helper_posix->executeTaskKill(kTargetOpenVpn);
 #endif
 
+    setCurrentStateAndEmitDisconnected(STATUS_DISCONNECTED);
 }
 
 void OpenVPNConnection::funcRunOpenVPN()

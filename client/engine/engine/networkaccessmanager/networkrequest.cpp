@@ -107,6 +107,16 @@ bool NetworkRequest::isExtraTLSPadding() const
     return bExtraTLSPadding_;
 }
 
+void NetworkRequest::setSniDomain(const QString &sniDomain)
+{
+    sniDomain_ = sniDomain;
+}
+
+QString NetworkRequest::sniDomain() const
+{
+    return sniDomain_;
+}
+
 void NetworkRequest::setOverrideIp(const QString &ip)
 {
     overrideIp_ = ip;

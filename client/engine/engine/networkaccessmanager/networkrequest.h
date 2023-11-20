@@ -32,6 +32,8 @@ public:
 
     void setEchConfig(const QString &echConfig);
     QString echConfig() const;
+    void setSniDomain(const QString &sniDomain);
+    QString sniDomain() const;
 
     void setExtraTLSPadding(const bool ExtraTLSPadding);
     bool isExtraTLSPadding() const;
@@ -51,6 +53,7 @@ private:
     QString header_;
     QStringList dnsServers_;
 
+    QString sniDomain_;
     QString echConfig_;         // if not empty, use ECH request
 
     // if not empty use specified overrideIp_ to make the request

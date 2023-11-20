@@ -10,6 +10,7 @@ target_sources(engine PRIVATE
     failovers/echfailover.h
     failovers/hardcodeddomainfailover.h
     failovers/randomdomainfailover.h
+    failovers/cdndomainfailover.h
     ifailovercontainer.h
     failovercontainer.cpp
     failovercontainer.h

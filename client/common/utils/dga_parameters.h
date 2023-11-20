@@ -31,5 +31,8 @@
 #define PAR_ECH_CONFIG_DOMAIN				800	
 #define PAR_ECH_DOMAIN						900	
 
+#define PAR_CDN_BACKEND_DOMAIN              1000
+#define PAR_CDN_FRONTEND_DOMAIN           	1001
+
 
 #endif // PARAMETERS_H

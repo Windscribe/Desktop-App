@@ -11,19 +11,20 @@ public:
     explicit
     Win32Handle(HANDLE hWin32Handle = nullptr) : win32Handle_(hWin32Handle) {}
 
-    ~Win32Handle(void) {
+    ~Win32Handle() {
         closeHandle();
     }
 
-    bool isValid(void) const {
+    bool isValid() const {
         return ((win32Handle_ != nullptr) && (win32Handle_ != INVALID_HANDLE_VALUE));
     }
 
-    HANDLE getHandle(void) const { return win32Handle_; }
+    HANDLE getHandle() const { return win32Handle_; }
+    PHANDLE data() { return &win32Handle_; }
 
     void setHandle(HANDLE hNewHandle);
-    void closeHandle(void);
-    HANDLE release(void);
+    void closeHandle();
+    HANDLE release();
     DWORD wait(DWORD dwTimeout, BOOL bAlertable = FALSE) const;
 
     bool isSignaled() const;
@@ -32,7 +33,7 @@ private:
     HANDLE win32Handle_;
 };
 
-inline void Win32Handle::closeHandle(void)
+inline void Win32Handle::closeHandle()
 {
     if (isValid()) {
         ::CloseHandle(win32Handle_);
@@ -40,7 +41,7 @@ inline void Win32Handle::closeHandle(void)
     }
 }
 
-inline HANDLE Win32Handle::release(void)
+inline HANDLE Win32Handle::release()
 {
     HANDLE hTemp = win32Handle_;
     win32Handle_ = nullptr;

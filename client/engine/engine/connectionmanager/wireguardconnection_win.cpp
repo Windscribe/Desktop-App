@@ -63,7 +63,6 @@ void WireGuardConnection::startConnect(const QString &configPathOrUrl, const QSt
     Q_UNUSED(proxySettings);
     Q_UNUSED(isEnableIkev2Compression);
     Q_UNUSED(isCustomConfig);
-    Q_UNUSED(overrideDnsIp);
 
     WS_ASSERT(helper_ != nullptr);
     WS_ASSERT(wireGuardConfig != nullptr);
@@ -76,7 +75,13 @@ void WireGuardConnection::startConnect(const QString &configPathOrUrl, const QSt
 
     connectedSignalEmited_ = false;
     isAutomaticConnectionMode_ = isAutomaticConnectionMode;
-    wireGuardConfig_ = wireGuardConfig;
+    wireGuardConfig_ = *wireGuardConfig;
+
+    // override the DNS if we are using custom
+    if (!overrideDnsIp.isEmpty()) {
+        wireGuardConfig_.setClientDnsAddress(overrideDnsIp);
+    }
+
     ::ResetEvent(stopThreadEvent_.getHandle());
 
     start(LowPriority);
@@ -141,7 +146,7 @@ void WireGuardConnection::run()
     // If there was a running instance of the wireguard service, the helper (startWireGuard call) will
     // have stopped it and it will have deleted the existing config file.  Therefore, don't create our
     // new config file until we're sure the wireguard service is stopped.
-    if (!wireGuardConfig_->generateConfigFile(configFile)) {
+    if (!wireGuardConfig_.generateConfigFile(configFile)) {
         emit error(CONNECT_ERROR::WIREGUARD_CONNECTION_ERROR);
         emit disconnected();
         return;

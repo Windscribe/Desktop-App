@@ -40,11 +40,6 @@ private:
     bool doCustomTunnelTest_;
     QElapsedTimer elapsedOverallTimer_;
 
-    enum {
-           PING_TEST_TIMEOUT_1 = 2000,
-           PING_TEST_TIMEOUT_2 = 4000,
-           PING_TEST_TIMEOUT_3 = 8000
-       };
     QVector<uint> timeouts_;
 
     types::Protocol protocol_;

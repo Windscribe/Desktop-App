@@ -11,30 +11,28 @@ public:
     explicit StunnelManager(QObject *parent, IHelper *helper);
     virtual ~StunnelManager();
 
-    bool setConfig(const QString &hostname, uint port);
-    bool runProcess();
+    bool runProcess(const QString &hostname, unsigned int port);
     void killProcess();
 
-    unsigned int getStunnelPort();
+    unsigned int getPort();
 
 signals:
+    void stunnelStarted();
     void stunnelFinished();
 
 private slots:
-    void onStunnelProcessFinished();
+    void onProcessStarted();
+    void onProcessFinished();
+    void onProcessReadyRead();
+    void onProcessErrorOccurred(QProcess::ProcessError error);
 
 private:
-    static constexpr unsigned int DEFAULT_PORT = 1194;
+    static constexpr unsigned int kDefaultPort = 1194;
 
     IHelper *helper_;
-    unsigned int portForStunnel_;
+    unsigned int port_;
     bool bProcessStarted_;
-
-#ifdef Q_OS_WIN
     QString path_;
-    QProcess    *process_;
-    QString     stunnelExePath_;
-
-    bool makeConfigFile(const QString &hostname, uint port);
-#endif
+    QProcess *process_;
+    QString stunnelExePath_;
 };

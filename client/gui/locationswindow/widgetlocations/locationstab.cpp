@@ -22,6 +22,7 @@ LocationsTab::LocationsTab(QWidget *parent, Preferences *preferences, gui_locati
   , preferences_(preferences)
   , locationsModelManager_(locationsModelManager)
   , curTab_(LOCATION_TAB_ALL_LOCATIONS)
+  , lastTab_(LOCATION_TAB_ALL_LOCATIONS)
   , tabPress_(LOCATION_TAB_NONE)
   , filterText_("")
   , searchTabSelected_(false)

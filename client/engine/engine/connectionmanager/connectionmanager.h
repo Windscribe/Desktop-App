@@ -90,7 +90,7 @@ public:
 
 signals:
     void connected();
-    void connectingToHostname(const QString &hostname, const QString &ip, const QString &dnsServer);
+    void connectingToHostname(const QString &hostname, const QString &ip, const QStringList &dnsServers);
     void disconnected(DISCONNECT_REASON reason);
     void errorDuringConnection(CONNECT_ERROR errorCode);
     void reconnecting();
@@ -126,8 +126,6 @@ private slots:
     void onConnectTrigger();
     void onConnectingTimeout();
 
-    void onStunnelFinishedBeforeConnection();
-    void onWstunnelFinishedBeforeConnection();
     void onWstunnelStarted();
     void onTunnelTestsFinished(bool bSuccess, const QString &ipAddress);
 

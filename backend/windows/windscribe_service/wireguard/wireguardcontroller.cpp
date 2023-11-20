@@ -107,10 +107,8 @@ bool WireGuardController::deleteService()
     if (!bServiceDeleted && !exeName_.empty())
     {
         serviceName_.clear();
-        wchar_t killCmd[MAX_PATH];
-        wcscpy_s(killCmd, L"taskkill /f /t /im ");
-        wcscat_s(killCmd, exeName_.c_str());
         Logger::instance().out("WireGuardController::deleteService - task killing the WireGuard service instance");
+        std::wstring killCmd = Utils::getSystemDir() + L"\\taskkill.exe /f /t /im " + exeName_;
         ExecuteCmd::instance().executeBlockingCmd(killCmd);
     }
 

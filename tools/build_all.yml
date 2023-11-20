@@ -138,7 +138,6 @@ client_deploy_files:
       - vcruntime140.dll
       - vcruntime140_1.dll
     additional_files:
-      - wstunnel/wstunnel.exe -> wstunnel.exe
       - subinacl.exe
     libs:
       qt:
@@ -160,8 +159,6 @@ client_deploy_files:
         - lib/cares.dll -> cares.dll
       curl:
         - bin/libcurl.dll -> libcurl.dll
-      stunnel:
-        - tstunnel.exe -> tstunnel.exe
       zlib:
         - lib/zlib1.dll -> zlib1.dll
       openvpn:
@@ -171,6 +168,8 @@ client_deploy_files:
         - wireguard.dll -> wireguard.dll
       ctrld:
         - ctrld.exe -> windscribectrld.exe
+      wstunnel:
+        - windscribewstunnel.exe -> windscribewstunnel.exe
       # The dga library should be in the build-libs directory. If it is not there, then it will not be included in the installer.
       dga:
         - dga.dll -> dga.dll
@@ -221,7 +220,7 @@ client_deploy_files:
         openssl_ech_draft:
           - lib/libssl.3.dylib -> libssl.3.dylib
           - lib/libcrypto.3.dylib -> libcrypto.3.dylib
-      Contents/Helpers/windscribestunnel:
+      Contents/Helpers/windscribewstunnel:
         openssl_ech_draft:
           - lib/libssl.3.dylib -> libssl.3.dylib
           - lib/libcrypto.3.dylib -> libcrypto.3.dylib
@@ -235,7 +234,6 @@ client_deploy_files:
       # Remove unused Qt frameworks.
       - Contents/Frameworks/QtQml.framework
       - Contents/Frameworks/QtQuick.framework
-      - stunnel
 
   linux_x86_64:
     libs:
@@ -293,12 +291,13 @@ client_deploy_files:
         - libdga.so -> lib/libdga.so
       openvpn:
         - openvpn -> windscribeopenvpn
-      stunnel:
-        - stunnel -> windscribestunnel
       ctrld:
         - ctrld -> windscribectrld
       wireguard:
         - windscribewireguard -> windscribewireguard
+      wstunnel:
+        - windscribewstunnel -> windscribewstunnel
+
     fix_rpath:
       - lib/libQt6Network.so.6 -> $ORIGIN
       - lib/libQt6XcbQpa.so.6 -> $ORIGIN
@@ -306,7 +305,6 @@ client_deploy_files:
       - lib/libcurl.so.4 -> $ORIGIN
       - lib/libssl.so.3 -> $ORIGIN
       - lib/libcrypto.so.3 -> $ORIGIN
-      - windscribestunnel -> $ORIGIN/lib
       - windscribeopenvpn -> $ORIGIN/lib
       - windscribe-authhelper -> $ORIGIN/lib
       - Windscribe -> $ORIGIN/lib
@@ -330,7 +328,6 @@ codesign_files:
       - libcrypto-3-arm64.dll
       - libssl-3-arm64.dll
   linux:
-    - windscribestunnel
     - windscribewstunnel
     - windscribeopenvpn
     - windscribectrld
@@ -353,5 +350,3 @@ rpath_fix_files_mac:
       - lib/libcurl.4.dylib
     openvpn:
       - openvpn
-    stunnel:
-      - stunnel

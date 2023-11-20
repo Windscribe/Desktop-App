@@ -79,6 +79,17 @@ bool CurlNetworkManagerImpl::setupBasicOptions(RequestInfo *requestInfo, const N
     struct curl_slist *list = NULL;
     list = curl_slist_append(list, request.contentTypeHeader().toStdString().c_str());
     if (list == NULL) return false;
+
+    if (!request.sniDomain().isEmpty()) {
+        list = curl_slist_append(list, ("Host: " + request.url().host()).toStdString().c_str());
+        if (list == NULL) return false;
+
+        QUrl urlRepl = request.url();
+        urlRepl.setHost(request.sniDomain());
+
+        if (curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_URL, urlRepl.toString().toStdString().c_str()) != CURLE_OK) return false;
+    }
+
     requestInfo->curlLists << list;
     if (curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_HTTPHEADER, list) != CURLE_OK) return false;
 

@@ -37,52 +37,52 @@
 <context>
     <name>ConnectWindow::ConnectWindowItem</name>
     <message>
-        <location filename="../connectwindow/connectwindowitem.cpp" line="335"/>
+        <location filename="../connectwindow/connectwindowitem.cpp" line="336"/>
         <source>No Network Info</source>
         <translation>कोई नेटवर्क जानकारी नहीं</translation>
     </message>
     <message>
-        <location filename="../connectwindow/connectwindowitem.cpp" line="343"/>
+        <location filename="../connectwindow/connectwindowitem.cpp" line="344"/>
         <source>Unsecured</source>
         <translation>असुरक्षित</translation>
     </message>
     <message>
-        <location filename="../connectwindow/connectwindowitem.cpp" line="347"/>
+        <location filename="../connectwindow/connectwindowitem.cpp" line="348"/>
         <source>Secured</source>
         <translation>सुरक्षित</translation>
     </message>
     <message>
-        <location filename="../connectwindow/connectwindowitem.cpp" line="386"/>
+        <location filename="../connectwindow/connectwindowitem.cpp" line="387"/>
         <source>Connection to Windscribe has been terminated. </source>
         <translation>विंडस्क्राइब से कनेक्शन समाप्त कर दिया गया है. </translation>
     </message>
     <message>
-        <location filename="../connectwindow/connectwindowitem.cpp" line="387"/>
+        <location filename="../connectwindow/connectwindowitem.cpp" line="388"/>
         <source> transferred in </source>
         <translation> में स्थानांतरित </translation>
     </message>
     <message>
-        <location filename="../connectwindow/connectwindowitem.cpp" line="402"/>
+        <location filename="../connectwindow/connectwindowitem.cpp" line="403"/>
         <source>Connected for </source>
         <translation>के लिए कनेक्ट डे </translation>
     </message>
     <message>
-        <location filename="../connectwindow/connectwindowitem.cpp" line="403"/>
+        <location filename="../connectwindow/connectwindowitem.cpp" line="404"/>
         <source> transferred</source>
         <translation> स्थानांतरित</translation>
     </message>
     <message>
-        <location filename="../connectwindow/connectwindowitem.cpp" line="480"/>
+        <location filename="../connectwindow/connectwindowitem.cpp" line="481"/>
         <source>Firewall</source>
         <translation>फ़ायरवॉल</translation>
     </message>
     <message>
-        <location filename="../connectwindow/connectwindowitem.cpp" line="481"/>
+        <location filename="../connectwindow/connectwindowitem.cpp" line="482"/>
         <source>Blocks all connectivity in the event of a sudden disconnect</source>
         <translation>अचानक डिस्कनेक्ट होने की स्थिति में सभी कनेक्टिविटी ब्लॉक</translation>
     </message>
     <message>
-        <location filename="../connectwindow/connectwindowitem.cpp" line="573"/>
+        <location filename="../connectwindow/connectwindowitem.cpp" line="574"/>
         <source>Connect to rate</source>
         <translation>दर से कनेक्ट करें</translation>
     </message>
@@ -832,14 +832,14 @@
         <translation>कृपया समर्थन से संपर्क करें</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2504"/>
+        <location filename="../mainwindow.cpp" line="2505"/>
         <source>Lost connection to the backend process.
 Recovering...</source>
         <translation>बैकएंड प्रक्रिया से कनेक्शन खो गया.
 ठीक।।।</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3102"/>
+        <location filename="../mainwindow.cpp" line="3103"/>
         <source>Select an application</source>
         <translation>किसी अनुप्रयोग का चयन करें</translation>
     </message>
@@ -989,18 +989,18 @@ If the problem persists after a restart, please send a debug log and open a supp
 <context>
     <name>Preferences</name>
     <message>
-        <location filename="../backend/preferences/preferences.cpp" line="798"/>
-        <location filename="../backend/preferences/preferences.cpp" line="802"/>
+        <location filename="../backend/preferences/preferences.cpp" line="815"/>
+        <location filename="../backend/preferences/preferences.cpp" line="819"/>
         <source>Invalid DNS Settings</source>
         <translation>अमान्य DNS सेटिंग्स</translation>
     </message>
     <message>
-        <location filename="../backend/preferences/preferences.cpp" line="798"/>
+        <location filename="../backend/preferences/preferences.cpp" line="815"/>
         <source>&apos;Connected DNS&apos; was not configured with a valid Upstream 1 (IP/DNS-over-HTTPS/TLS). DNS was reverted to ROBERT (default).</source>
         <translation>&apos;कनेक्टेड DNS&apos; को मान्य अपस्ट्रीम 1 (IP/DNS-over-HTTPS/TLS) के साथ कॉन्फ़िगर नहीं किया गया था. DNS को ROBERT (डिफ़ॉल्ट) में वापस कर दिया गया था।</translation>
     </message>
     <message>
-        <location filename="../backend/preferences/preferences.cpp" line="802"/>
+        <location filename="../backend/preferences/preferences.cpp" line="819"/>
         <source>&apos;Connected DNS&apos; was not configured with a valid Upstream 2 (IP/DNS-over-HTTPS/TLS). DNS was reverted to ROBERT (default).</source>
         <translation>&apos;कनेक्टेड DNS&apos; को मान्य अपस्ट्रीम 2 (IP/DNS-over-HTTPS/TLS) के साथ कॉन्फ़िगर नहीं किया गया था. DNS को ROBERT (डिफ़ॉल्ट) में वापस कर दिया गया था।</translation>
     </message>
@@ -1306,119 +1306,131 @@ If the problem persists after a restart, please send a debug log and open a supp
 <context>
     <name>PreferencesWindow::ConnectionWindowItem</name>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="109"/>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="343"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="110"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="361"/>
         <source>Allow LAN Traffic</source>
         <translation>LAN ट्रैफ़िक की अनुमति दें</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="131"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="132"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="368"/>
         <source>Terminate Sockets</source>
         <translation>सॉकेट समाप्त करें</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="163"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="158"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="377"/>
+        <source>Circumvent Censorship</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="171"/>
         <source>Connection</source>
         <translation>नाता</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="244"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="257"/>
         <source>Exclusive</source>
         <translation>निवारक</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="247"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="260"/>
         <source>Inclusive</source>
         <translation>सम्मिलित</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="253"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="266"/>
         <source>Off</source>
         <translation>बंद</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="324"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="342"/>
         <source>Network Options</source>
         <translation>नेटवर्क विकल्प</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="326"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="344"/>
         <source>Split Tunneling</source>
         <translation>स्प्लिट टनलिंग</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="329"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="347"/>
         <source>Proxy Settings</source>
         <translation>प्रॉक्सी सेटिंग्स</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="331"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="349"/>
         <source>Connects to last used location when the app launches or joins a network.</source>
         <translation>ऐप लॉन्च होने या नेटवर्क में शामिल होने पर अंतिम उपयोग किए गए स्थान से कनेक्ट होता है।</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="332"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="350"/>
         <source>Auto-Connect</source>
         <translation>ऑटो-कनेक्ट</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="333"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="351"/>
         <source>Control the mode of behavior of the Windscribe firewall.</source>
         <translation>विंडस्क्राइब फ़ायरवॉल के व्यवहार के तरीके को नियंत्रित करें।</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="334"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="352"/>
         <source>Connection Mode</source>
         <translation>कनेक्शन मोड</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="335"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="353"/>
         <source>Automatically choose the VPN protocol, or select one manually.</source>
         <translation>स्वचालित रूप से वीपीएन प्रोटोकॉल चुनें, या मैन्युअल रूप से एक का चयन करें।</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="338"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="356"/>
         <source>Automatically determine the MTU for your connection, or manually override.</source>
         <translation>स्वचालित रूप से अपने कनेक्शन के लिए MTU निर्धारित करें, या मैन्युअल रूप से ओवरराइड करें।</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="341"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="359"/>
         <source>Select the DNS server while connected to Windscribe.</source>
         <translation>विंडस्क्राइब से कनेक्ट करते समय DNS सर्वर का चयन करें।</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="342"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="360"/>
         <source>Allow access to local services and printers while connected to Windscribe.</source>
         <translation>विंडस्क्राइब से कनेक्ट होने के दौरान स्थानीय सेवाओं और प्रिंटर तक पहुंच की अनुमति दें।</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="346"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="364"/>
         <source>Spoof your device&apos;s physical address (MAC address).</source>
         <translation>अपने डिवाइस के भौतिक पते (MAC पता) को स्पूफ करें।</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="350"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="369"/>
         <source>Close all active TCP sockets when the VPN tunnel is established.</source>
         <translation>वीपीएन सुरंग स्थापित होने पर सभी सक्रिय टीसीपी सॉकेट बंद करें।</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="357"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="376"/>
         <source>Configure your TV, gaming console, or other devices that support proxy servers.</source>
         <translation>अपने टीवी, गेमिंग कंसोल, या प्रॉक्सी सर्वर का समर्थन करने वाले अन्य डिवाइस कॉन्फ़िगर करें।</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="367"/>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="421"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="378"/>
+        <source>Connect to the VPN even in hostile environment.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="388"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="442"/>
         <source>Settings Conflict</source>
         <translation>सेटिंग्स विरोध</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="368"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="389"/>
         <source>Disabling Allow LAN Traffic will cause your proxy gateway to stop working.  Do you want to disable the proxy?</source>
         <translation>LAN ट्रैफ़िक की अनुमति अक्षम करने से आपका प्रॉक्सी गेटवे काम करना बंद कर देगा।  क्या आप प्रॉक्सी को अक्षम करना चाहते हैं?</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="422"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="443"/>
         <source>LAN traffic is currently blocked by the Windscribe firewall.  Do you want to allow LAN traffic to bypass the firewall in order for this feature to work?</source>
         <translation>लैन यातायात वर्तमान में विंडस्क्राइब फ़ायरवॉल द्वारा अवरुद्ध है।  क्या आप इस सुविधा के काम करने के लिए LAN ट्रैफ़िक को फ़ायरवॉल को बायपास करने की अनुमति देना चाहते हैं?</translation>
     </message>
@@ -2141,9 +2153,13 @@ Connect to a network first</source>
         <translation>सुरक्षित हॉटस्पॉट आपके नेटवर्क एडाप्टर द्वारा समर्थित नहीं है।</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/securehotspotgroup.cpp" line="103"/>
         <source>Secure hotspot is not supported for IKEv2/WireGuard protocol and automatic connection mode.</source>
-        <translation>सुरक्षित हॉटस्पॉट IKEv2/WireGuard प्रोटोकॉल और स्वचालित कनेक्शन मोड के लिए समर्थित नहीं है।</translation>
+        <translation type="vanished">सुरक्षित हॉटस्पॉट IKEv2/WireGuard प्रोटोकॉल और स्वचालित कनेक्शन मोड के लिए समर्थित नहीं है।</translation>
+    </message>
+    <message>
+        <location filename="../preferenceswindow/connectionwindow/securehotspotgroup.cpp" line="103"/>
+        <source>Secure hotspot is not supported for IKEv2 protocol.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../preferenceswindow/connectionwindow/securehotspotgroup.cpp" line="106"/>

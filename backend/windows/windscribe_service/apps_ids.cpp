@@ -32,7 +32,7 @@ size_t AppsIds::count() const
     return appIds_.size();
 }
 
-FWP_BYTE_BLOB *AppsIds::getAppId(size_t ind)
+const FWP_BYTE_BLOB *AppsIds::getAppId(size_t ind) const
 {
     if (ind < appIds_.size())
     {

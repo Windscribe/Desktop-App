@@ -119,9 +119,4 @@ void RoutesManager::addDnsRoutes(const CMD_CONNECT_STATUS &connectStatus)
 	// 10.255.255.0/24 contains the default DNS servers, on-node APIs, decoy traffic servers, etc
 	// and always goes through the tunnel.
 	dnsServersRoutes_.addRoute(table, "10.255.255.0", "255.255.255.0", connectStatus.vpnAdapter.gatewayIp, connectStatus.vpnAdapter.ifIndex, false);
-
-	// However the DNS server may fall outside the above range if configured with custom DNS after connecting.
-	// Set a /32 for each DNS server to make sure they are routed correctly.
-	for (auto it = connectStatus.vpnAdapter.dnsServers.begin(); it != connectStatus.vpnAdapter.dnsServers.end(); ++it)
-		dnsServersRoutes_.addRoute(table, *it, "255.255.255.255", connectStatus.vpnAdapter.gatewayIp, connectStatus.vpnAdapter.ifIndex, false);
 }

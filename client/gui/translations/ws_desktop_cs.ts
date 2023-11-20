@@ -37,52 +37,52 @@
 <context>
     <name>ConnectWindow::ConnectWindowItem</name>
     <message>
-        <location filename="../connectwindow/connectwindowitem.cpp" line="335"/>
+        <location filename="../connectwindow/connectwindowitem.cpp" line="336"/>
         <source>No Network Info</source>
         <translation>Žádné informace o síti</translation>
     </message>
     <message>
-        <location filename="../connectwindow/connectwindowitem.cpp" line="343"/>
+        <location filename="../connectwindow/connectwindowitem.cpp" line="344"/>
         <source>Unsecured</source>
         <translation>Nezabezpečený</translation>
     </message>
     <message>
-        <location filename="../connectwindow/connectwindowitem.cpp" line="347"/>
+        <location filename="../connectwindow/connectwindowitem.cpp" line="348"/>
         <source>Secured</source>
         <translation>Zabezpečený</translation>
     </message>
     <message>
-        <location filename="../connectwindow/connectwindowitem.cpp" line="386"/>
+        <location filename="../connectwindow/connectwindowitem.cpp" line="387"/>
         <source>Connection to Windscribe has been terminated. </source>
         <translation>Připojení k Windscribe bylo ukončeno. </translation>
     </message>
     <message>
-        <location filename="../connectwindow/connectwindowitem.cpp" line="387"/>
+        <location filename="../connectwindow/connectwindowitem.cpp" line="388"/>
         <source> transferred in </source>
         <translation> převedeno do </translation>
     </message>
     <message>
-        <location filename="../connectwindow/connectwindowitem.cpp" line="402"/>
+        <location filename="../connectwindow/connectwindowitem.cpp" line="403"/>
         <source>Connected for </source>
         <translation>Připojeno pro </translation>
     </message>
     <message>
-        <location filename="../connectwindow/connectwindowitem.cpp" line="403"/>
+        <location filename="../connectwindow/connectwindowitem.cpp" line="404"/>
         <source> transferred</source>
         <translation> převedený</translation>
     </message>
     <message>
-        <location filename="../connectwindow/connectwindowitem.cpp" line="480"/>
+        <location filename="../connectwindow/connectwindowitem.cpp" line="481"/>
         <source>Firewall</source>
         <translation>Firewall</translation>
     </message>
     <message>
-        <location filename="../connectwindow/connectwindowitem.cpp" line="481"/>
+        <location filename="../connectwindow/connectwindowitem.cpp" line="482"/>
         <source>Blocks all connectivity in the event of a sudden disconnect</source>
         <translation>Blokuje veškerou konektivitu v případě náhlého odpojení</translation>
     </message>
     <message>
-        <location filename="../connectwindow/connectwindowitem.cpp" line="573"/>
+        <location filename="../connectwindow/connectwindowitem.cpp" line="574"/>
         <source>Connect to rate</source>
         <translation>Připojit k sazbě</translation>
     </message>
@@ -802,14 +802,14 @@
         <translation>Nelze spustit updater (Chyba %1).  Kontaktujte prosím podporu</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2504"/>
+        <location filename="../mainwindow.cpp" line="2505"/>
         <source>Lost connection to the backend process.
 Recovering...</source>
         <translation>Došlo ke ztrátě připojení k back-endovému procesu.
 Uzdravování...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3102"/>
+        <location filename="../mainwindow.cpp" line="3103"/>
         <source>Select an application</source>
         <translation>Vyberte aplikaci</translation>
     </message>
@@ -989,18 +989,18 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
 <context>
     <name>Preferences</name>
     <message>
-        <location filename="../backend/preferences/preferences.cpp" line="798"/>
-        <location filename="../backend/preferences/preferences.cpp" line="802"/>
+        <location filename="../backend/preferences/preferences.cpp" line="815"/>
+        <location filename="../backend/preferences/preferences.cpp" line="819"/>
         <source>Invalid DNS Settings</source>
         <translation>Neplatná nastavení DNS</translation>
     </message>
     <message>
-        <location filename="../backend/preferences/preferences.cpp" line="798"/>
+        <location filename="../backend/preferences/preferences.cpp" line="815"/>
         <source>&apos;Connected DNS&apos; was not configured with a valid Upstream 1 (IP/DNS-over-HTTPS/TLS). DNS was reverted to ROBERT (default).</source>
         <translation>&quot;Připojený DNS&quot; nebyl nakonfigurován s platným nadřazeným serverem 1 (IP/DNS-over-HTTPS/TLS). DNS byl vrácen na ROBERT (výchozí).</translation>
     </message>
     <message>
-        <location filename="../backend/preferences/preferences.cpp" line="802"/>
+        <location filename="../backend/preferences/preferences.cpp" line="819"/>
         <source>&apos;Connected DNS&apos; was not configured with a valid Upstream 2 (IP/DNS-over-HTTPS/TLS). DNS was reverted to ROBERT (default).</source>
         <translation>&quot;Připojený DNS&quot; nebyl nakonfigurován s platným nadřazeným serverem 2 (IP/DNS-over-HTTPS/TLS). DNS byl vrácen na ROBERT (výchozí).</translation>
     </message>
@@ -1306,119 +1306,131 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
 <context>
     <name>PreferencesWindow::ConnectionWindowItem</name>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="109"/>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="343"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="110"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="361"/>
         <source>Allow LAN Traffic</source>
         <translation>Povolit provoz v síti LAN</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="131"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="132"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="368"/>
         <source>Terminate Sockets</source>
         <translation>Ukončení zásuvek</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="163"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="158"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="377"/>
+        <source>Circumvent Censorship</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="171"/>
         <source>Connection</source>
         <translation>Připojení</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="244"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="257"/>
         <source>Exclusive</source>
         <translation>Výhradní</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="247"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="260"/>
         <source>Inclusive</source>
         <translation>Zahrnující</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="253"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="266"/>
         <source>Off</source>
         <translation>Pryč</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="324"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="342"/>
         <source>Network Options</source>
         <translation>Možnosti sítě</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="326"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="344"/>
         <source>Split Tunneling</source>
         <translation>Dělené tunelové propojení</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="329"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="347"/>
         <source>Proxy Settings</source>
         <translation>Nastavení proxy serveru</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="331"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="349"/>
         <source>Connects to last used location when the app launches or joins a network.</source>
         <translation>Připojí se k naposledy použitému umístění, když se aplikace spustí nebo připojí k síti.</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="332"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="350"/>
         <source>Auto-Connect</source>
         <translation>Automatické připojení</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="333"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="351"/>
         <source>Control the mode of behavior of the Windscribe firewall.</source>
         <translation>Ovládejte režim chování brány firewall Windscribe.</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="334"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="352"/>
         <source>Connection Mode</source>
         <translation>Režim připojení</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="335"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="353"/>
         <source>Automatically choose the VPN protocol, or select one manually.</source>
         <translation>Automaticky vyberte protokol VPN nebo jej vyberte ručně.</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="338"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="356"/>
         <source>Automatically determine the MTU for your connection, or manually override.</source>
         <translation>Automaticky určete jednotku MTU pro připojení nebo ručně přepište.</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="341"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="359"/>
         <source>Select the DNS server while connected to Windscribe.</source>
         <translation>Vyberte server DNS při připojení k aplikaci Windscribe.</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="342"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="360"/>
         <source>Allow access to local services and printers while connected to Windscribe.</source>
         <translation>Povolte přístup k místním službám a tiskárnám při připojení k aplikaci Windscribe.</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="346"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="364"/>
         <source>Spoof your device&apos;s physical address (MAC address).</source>
         <translation>Falšování fyzické adresy (MAC adresy) zařízení.</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="350"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="369"/>
         <source>Close all active TCP sockets when the VPN tunnel is established.</source>
         <translation>Zavřete všechny aktivní sokety TCP při vytvoření tunelu VPN.</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="357"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="376"/>
         <source>Configure your TV, gaming console, or other devices that support proxy servers.</source>
         <translation>Nakonfigurujte televizor, herní konzoli nebo jiná zařízení, která podporují proxy servery.</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="367"/>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="421"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="378"/>
+        <source>Connect to the VPN even in hostile environment.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="388"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="442"/>
         <source>Settings Conflict</source>
         <translation>Konflikt nastavení</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="368"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="389"/>
         <source>Disabling Allow LAN Traffic will cause your proxy gateway to stop working.  Do you want to disable the proxy?</source>
         <translation>Zakázání možnosti Povolit provoz LAN způsobí, že brána proxy přestane fungovat.  Chcete zakázat proxy server?</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="422"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="443"/>
         <source>LAN traffic is currently blocked by the Windscribe firewall.  Do you want to allow LAN traffic to bypass the firewall in order for this feature to work?</source>
         <translation>Provoz v síti LAN je v současné době blokován bránou firewall Windscribe.  Chcete, aby přenosy v síti LAN obcházely bránu firewall, aby tato funkce fungovala?</translation>
     </message>
@@ -2141,9 +2153,13 @@ Nejprve se připojte k síti</translation>
         <translation>Zabezpečený hotspot není síťovým adaptérem podporován.</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/securehotspotgroup.cpp" line="103"/>
         <source>Secure hotspot is not supported for IKEv2/WireGuard protocol and automatic connection mode.</source>
-        <translation>Zabezpečený hotspot není podporován protokolem IKEv2/WireGuard a režimem automatického připojení.</translation>
+        <translation type="vanished">Zabezpečený hotspot není podporován protokolem IKEv2/WireGuard a režimem automatického připojení.</translation>
+    </message>
+    <message>
+        <location filename="../preferenceswindow/connectionwindow/securehotspotgroup.cpp" line="103"/>
+        <source>Secure hotspot is not supported for IKEv2 protocol.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../preferenceswindow/connectionwindow/securehotspotgroup.cpp" line="106"/>

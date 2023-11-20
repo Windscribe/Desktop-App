@@ -2,6 +2,7 @@
 
 #include <QScopedPointer>
 
+#include "engine/wireguardconfig/wireguardconfig.h"
 #include "iconnection.h"
 #include "engine/helper/helper_win.h"
 #include "wireguardringlogger.h"
@@ -46,7 +47,7 @@ private:
     static constexpr int kTimeoutForAutomatic    = 20000; // 20s timeout for the automatic connection mode
 
     Helper_win* const helper_;
-    const WireGuardConfig* wireGuardConfig_ = nullptr;
+    WireGuardConfig wireGuardConfig_;
 
     bool connectedSignalEmited_ = false;
     bool isAutomaticConnectionMode_ = false;

@@ -11,35 +11,29 @@
 #include "utils/extraconfig.h"
 
 StunnelManager::StunnelManager(QObject *parent, IHelper *helper)
-  : QObject(parent), helper_(helper), bProcessStarted_(false), portForStunnel_(0)
+  : QObject(parent), helper_(helper), port_(0), bProcessStarted_(false)
 {
 #if defined Q_OS_WIN
     process_ = new QProcess(this);
-    connect(process_, SIGNAL(finished(int)), SLOT(onStunnelProcessFinished()));
+    connect(process_, &QProcess::started, this, &StunnelManager::onProcessStarted);
+    connect(process_, &QProcess::finished, this, &StunnelManager::onProcessFinished);
+    connect(process_, &QProcess::readyReadStandardOutput, this, &StunnelManager::onProcessReadyRead);
+    connect(process_, &QProcess::errorOccurred, this, &StunnelManager::onProcessErrorOccurred);
+    process_->setProcessChannelMode(QProcess::MergedChannels);
 
-    stunnelExePath_ = QCoreApplication::applicationDirPath() + "/tstunnel.exe";
-
-    QString strPath = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
-    QDir dir(strPath);
-    dir.mkpath(strPath);
-    path_ = strPath + "/stunnel.conf";
+    stunnelExePath_ = QCoreApplication::applicationDirPath() + "/windscribewstunnel.exe";
 #endif
 }
 
 StunnelManager::~StunnelManager()
 {
     killProcess();
-
-#if defined Q_OS_WIN
-    if (QFile::exists(path_)) {
-        QFile::remove(path_);
-    }
-#endif
 }
 
-bool StunnelManager::runProcess()
+bool StunnelManager::runProcess(const QString &hostname, unsigned int port)
 {
     bool ret = false;
+    bool extraPadding = ExtraConfig::instance().getStealthExtraTLSPadding();
 
 #if defined(Q_OS_WIN)
     ExecutableSignature sigCheck;
@@ -48,43 +42,41 @@ bool StunnelManager::runProcess()
         return false;
     }
 
-    bProcessStarted_ = true;
     QStringList args;
     args << path_;
+    QString addr = QString("127.0.0.1:%1").arg(port_);
+    QString hostaddr = QString("https://%1:%2").arg(hostname).arg(port);
+    args << "--listenAddress" << addr;
+    args << "--remoteAddress" << hostaddr;
+    args << "--logFilePath" << "";
+    args << "--tunnelType" << "2";
+    if (extraPadding) {
+        args << "--extraTlsPadding";
+    }
+
     process_->start(stunnelExePath_, args);
     ret = true;
 #else
     Helper_posix *helper_posix = dynamic_cast<Helper_posix *>(helper_);
-    ret = !helper_posix->startStunnel();
-#endif
-    qCDebug(LOG_BASIC) << "stunnel started on port " << portForStunnel_;
-    return ret;
-}
 
-bool StunnelManager::setConfig(const QString &hostname, uint port)
-{
-    killProcess();
-
-#if defined(Q_OS_WIN)
-    if (makeConfigFile(hostname, port)) {
-        return true;
-    } else {
-        return false;
+    ret = !helper_posix->startStunnel(hostname, port, port_, extraPadding);
+    if (ret) {
+        emit stunnelStarted();
     }
-#else
-    portForStunnel_ = AvailablePort::getAvailablePort(DEFAULT_PORT);
-    bool extraPadding = ExtraConfig::instance().getStealthExtraTLSPadding();
-
-    Helper_posix *helper_posix = dynamic_cast<Helper_posix *>(helper_);
-    return !helper_posix->configureStunnel(hostname, port, portForStunnel_ ,extraPadding);
 #endif
+    if (ret) {
+        qCDebug(LOG_BASIC) << "stunnel started on port " << port_;
+    } else {
+        qCDebug(LOG_BASIC) << "stunnel failed to start";
+    }
+    bProcessStarted_ = ret;
+    return ret;
 }
 
 void StunnelManager::killProcess()
 {
 #if defined(Q_OS_WIN)
     if (bProcessStarted_) {
-        bProcessStarted_ = false;
         process_->close();
         process_->waitForFinished(-1);
     }
@@ -92,15 +84,23 @@ void StunnelManager::killProcess()
     Helper_posix *helper_posix = dynamic_cast<Helper_posix *>(helper_);
     helper_posix->executeTaskKill(kTargetStunnel);
 #endif
+    bProcessStarted_ = false;
     qCDebug(LOG_BASIC) << "stunnel stopped";
 }
 
-unsigned int StunnelManager::getStunnelPort()
+unsigned int StunnelManager::getPort()
 {
-    return portForStunnel_;
+    port_ = AvailablePort::getAvailablePort(kDefaultPort);
+    return port_;
 }
 
-void StunnelManager::onStunnelProcessFinished()
+void StunnelManager::onProcessStarted()
+{
+    qCDebug(LOG_BASIC) << "stunnel started";
+    emit stunnelStarted();
+}
+
+void StunnelManager::onProcessFinished()
 {
 #ifdef Q_OS_WIN
     if (bProcessStarted_) {
@@ -109,40 +109,18 @@ void StunnelManager::onStunnelProcessFinished()
         emit stunnelFinished();
     }
 #endif
+    bProcessStarted_ = false;
 }
 
-#ifdef Q_OS_WIN
-bool StunnelManager::makeConfigFile(const QString &hostname, uint port)
+void StunnelManager::onProcessErrorOccurred(QProcess::ProcessError /*error*/)
 {
-    QFile file(path_);
-    if (file.open(QIODevice::WriteOnly)) {
-        file.resize(0);
-
-        portForStunnel_ = AvailablePort::getAvailablePort(DEFAULT_PORT);
-
-        QString str;
-        str = "[openvpn]\r\n";
-        file.write(str.toLocal8Bit());
-        str = "client = yes\r\n";
-        file.write(str.toLocal8Bit());
-        str = QString("accept = 127.0.0.1:%1\r\n").arg(portForStunnel_);
-        file.write(str.toLocal8Bit());
-        str = "connect = " + hostname + ":" + QString::number(port) + "\r\n";
-        file.write(str.toLocal8Bit());
-        if (ExtraConfig::instance().getStealthExtraTLSPadding()) {
-            str = "options = TLSEXT_PADDING\r\noptions = TLSEXT_PADDING_SUPER\r\n";
-            file.write(str.toLocal8Bit());
-        }
-
-        file.close();
-
-        qCDebug(LOG_BASIC) << "Used for stunnel:" << portForStunnel_;
-        //qCDebug(LOG_BASIC) << "Stunnel config file: " << file.fileName();
-        return true;
-    } else {
-        qCDebug(LOG_BASIC) << "Can't create stunnel config file";
-    }
-    return false;
+    qCDebug(LOG_BASIC) << "stunnel process error:" << process_->errorString();
 }
-#endif
 
+void StunnelManager::onProcessReadyRead()
+{
+    QStringList strs = QString(process_->readAll()).split("\n", Qt::SkipEmptyParts);
+    for (auto str : strs) {
+        qCDebug(LOG_WSTUNNEL) << str;
+    }
+}

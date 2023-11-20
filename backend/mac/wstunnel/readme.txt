@@ -1,1 +1,0 @@
-Precompiled binary of wstunnel for Mac. Copies to engine bundle when building engine project.

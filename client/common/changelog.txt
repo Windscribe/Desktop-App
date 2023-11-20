@@ -1,3 +1,19 @@
+2.7.10 (07/09/2023)
+All:
+   * Added anti-censorship feature: use domain fronting via CDN for API requests. #688
+   * Added new in-house Stealth/Wstunnel application. #718
+   * Fixed app may open locations screen to a random tab. #656
+   * Fixed "All protocols failed" prompt doesn't show. #712
+Windows:
+   * Added additional logging to diagnose service startup failure. #704
+   * Fixed (reduced) tunnel test time when using OpenVPN-based protocols. #109
+   * Fixed no DNS connectivity with custom DoH/DoT resolver and inclusive split tunneling. #710
+   * Fixed helper security vulnerability when app installed to custom folder. #719
+macOS:
+   * Fixed DNS failures with firewall enabled on macOS 14 Sonoma. #714
+   * Fixed Stealth/Wstunnel sometimes can't connect. #718
+
+
 2.7.9 (08/08/2023)
 All:
    * Added anti-censorship toggle in preferences. #695

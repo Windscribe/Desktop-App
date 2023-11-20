@@ -53,9 +53,8 @@ public:
     bool setFirewallRules(CmdIpVersion version, const QString &table, const QString &group, const QString &rules);
     bool getFirewallRules(CmdIpVersion version, const QString &table, const QString &group, QString &rules);
     bool setFirewallOnBoot(bool bEnabled, const QSet<QString>& ipTable);
-    bool startStunnel();
-    bool configureStunnel(const QString &hostname, unsigned int port, unsigned int localPort, bool extraPadding);
-    bool startWstunnel(const QString &hostname, unsigned int port, bool isUdp, unsigned int localPort);
+    bool startStunnel(const QString &hostname, unsigned int port, unsigned int localPort, bool extraPadding);
+    bool startWstunnel(const QString &hostname, unsigned int port, unsigned int localPort);
 
 protected:
     void run() override;

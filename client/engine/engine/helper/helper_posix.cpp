@@ -618,7 +618,7 @@ bool Helper_posix::setFirewallOnBoot(bool bEnabled, const QSet<QString> &ipTable
     return runCommand(HELPER_CMD_SET_FIREWALL_ON_BOOT, stream.str(), answer);
 }
 
-bool Helper_posix::startStunnel()
+bool Helper_posix::startStunnel(const QString &hostname, unsigned int port, unsigned int localPort, bool extraPadding)
 {
     QMutexLocker locker(&mutex_);
 
@@ -630,7 +630,11 @@ bool Helper_posix::startStunnel()
 #else
     WS_ASSERT(false);
 #endif
-    cmd.executable = "windscribestunnel";
+    cmd.executable = "windscribewstunnel";
+    cmd.hostname = hostname.toStdString();
+    cmd.port = port;
+    cmd.localPort = localPort;
+    cmd.extraPadding = extraPadding;
 
     std::stringstream stream;
     boost::archive::text_oarchive oa(stream, boost::archive::no_header);
@@ -645,30 +649,7 @@ bool Helper_posix::startStunnel()
     return IHelper::EXECUTE_SUCCESS;
 }
 
-bool Helper_posix::configureStunnel(const QString &hostname, unsigned int port, unsigned int localPort, bool extraPadding)
-{
-    QMutexLocker locker(&mutex_);
-
-    CMD_CONFIGURE_STUNNEL cmd;
-    cmd.hostname = hostname.toStdString();
-    cmd.port = port;
-    cmd.localPort = localPort;
-    cmd.extraPadding = extraPadding;
-
-    std::stringstream stream;
-    boost::archive::text_oarchive oa(stream, boost::archive::no_header);
-    oa << cmd;
-
-    CMD_ANSWER answer;
-    if (!runCommand(HELPER_CMD_CONFIGURE_STUNNEL, stream.str(), answer) || answer.executed == 0) {
-        doDisconnectAndReconnect();
-        return IHelper::EXECUTE_ERROR;
-    }
-
-    return IHelper::EXECUTE_SUCCESS;
-}
-
-bool Helper_posix::startWstunnel(const QString &hostname, unsigned int port, bool isUdp, unsigned int localPort)
+bool Helper_posix::startWstunnel(const QString &hostname, unsigned int port, unsigned int localPort)
 {
     QMutexLocker locker(&mutex_);
 
@@ -683,7 +664,6 @@ bool Helper_posix::startWstunnel(const QString &hostname, unsigned int port, boo
     cmd.executable = "windscribewstunnel";
     cmd.hostname = hostname.toStdString();
     cmd.port = port;
-    cmd.isUdp = isUdp;
     cmd.localPort = localPort;
 
     std::stringstream stream;

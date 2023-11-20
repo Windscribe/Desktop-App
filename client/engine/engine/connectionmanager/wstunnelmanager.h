@@ -11,7 +11,7 @@ public:
     explicit WstunnelManager(QObject *parent, IHelper *helper);
     virtual ~WstunnelManager();
 
-    bool runProcess(const QString &hostname, unsigned int port, bool isUdp);
+    bool runProcess(const QString &hostname, unsigned int port);
     void killProcess();
 
     unsigned int getPort();
@@ -23,20 +23,15 @@ signals:
 private slots:
     void onProcessStarted();
     void onProcessFinished();
-    void onReadyReadStandardOutput();
+    void onProcessReadyRead();
     void onProcessErrorOccurred(QProcess::ProcessError error);
 
 private:
+    static constexpr unsigned int kDefaultPort = 1194;
+
     IHelper *helper_;
-    QProcess    *process_;
-    QString     wstunnelExePath_;
+    QProcess *process_;
+    QString wstunnelExePath_;
     bool bProcessStarted_;
-    QByteArray inputArr_;
-    bool bFirstMarketLineAfterStart_;
-
-    static constexpr unsigned int DEFAULT_PORT = 1194;
     unsigned int port_;
-
-    QString getNextStringFromInputBuffer(bool &bSuccess, int &outSize);
-
 };

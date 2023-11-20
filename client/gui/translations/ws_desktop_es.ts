@@ -37,52 +37,52 @@
 <context>
     <name>ConnectWindow::ConnectWindowItem</name>
     <message>
-        <location filename="../connectwindow/connectwindowitem.cpp" line="335"/>
+        <location filename="../connectwindow/connectwindowitem.cpp" line="336"/>
         <source>No Network Info</source>
         <translation>Sin información de red</translation>
     </message>
     <message>
-        <location filename="../connectwindow/connectwindowitem.cpp" line="343"/>
+        <location filename="../connectwindow/connectwindowitem.cpp" line="344"/>
         <source>Unsecured</source>
         <translation>Mal fijado</translation>
     </message>
     <message>
-        <location filename="../connectwindow/connectwindowitem.cpp" line="347"/>
+        <location filename="../connectwindow/connectwindowitem.cpp" line="348"/>
         <source>Secured</source>
         <translation>Asegurado</translation>
     </message>
     <message>
-        <location filename="../connectwindow/connectwindowitem.cpp" line="386"/>
+        <location filename="../connectwindow/connectwindowitem.cpp" line="387"/>
         <source>Connection to Windscribe has been terminated. </source>
         <translation>La conexión a Windscribe ha finalizado. </translation>
     </message>
     <message>
-        <location filename="../connectwindow/connectwindowitem.cpp" line="387"/>
+        <location filename="../connectwindow/connectwindowitem.cpp" line="388"/>
         <source> transferred in </source>
         <translation> transferido en </translation>
     </message>
     <message>
-        <location filename="../connectwindow/connectwindowitem.cpp" line="402"/>
+        <location filename="../connectwindow/connectwindowitem.cpp" line="403"/>
         <source>Connected for </source>
         <translation>Conectado para </translation>
     </message>
     <message>
-        <location filename="../connectwindow/connectwindowitem.cpp" line="403"/>
+        <location filename="../connectwindow/connectwindowitem.cpp" line="404"/>
         <source> transferred</source>
         <translation> Transferido</translation>
     </message>
     <message>
-        <location filename="../connectwindow/connectwindowitem.cpp" line="480"/>
+        <location filename="../connectwindow/connectwindowitem.cpp" line="481"/>
         <source>Firewall</source>
         <translation>Cortafuegos</translation>
     </message>
     <message>
-        <location filename="../connectwindow/connectwindowitem.cpp" line="481"/>
+        <location filename="../connectwindow/connectwindowitem.cpp" line="482"/>
         <source>Blocks all connectivity in the event of a sudden disconnect</source>
         <translation>Bloquea toda la conectividad en caso de una desconexión repentina</translation>
     </message>
     <message>
-        <location filename="../connectwindow/connectwindowitem.cpp" line="573"/>
+        <location filename="../connectwindow/connectwindowitem.cpp" line="574"/>
         <source>Connect to rate</source>
         <translation>Conéctese a la tarifa</translation>
     </message>
@@ -832,14 +832,14 @@
         <translation>Póngase en contacto con el servicio de asistencia</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2504"/>
+        <location filename="../mainwindow.cpp" line="2505"/>
         <source>Lost connection to the backend process.
 Recovering...</source>
         <translation>Se perdió la conexión con el proceso de backend.
 Recuperación...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3102"/>
+        <location filename="../mainwindow.cpp" line="3103"/>
         <source>Select an application</source>
         <translation>Seleccione una aplicación</translation>
     </message>
@@ -989,18 +989,18 @@ Si el problema persiste después de un reinicio, envíe un registro de depuraci�
 <context>
     <name>Preferences</name>
     <message>
-        <location filename="../backend/preferences/preferences.cpp" line="798"/>
-        <location filename="../backend/preferences/preferences.cpp" line="802"/>
+        <location filename="../backend/preferences/preferences.cpp" line="815"/>
+        <location filename="../backend/preferences/preferences.cpp" line="819"/>
         <source>Invalid DNS Settings</source>
         <translation>Configuración de DNS no válida</translation>
     </message>
     <message>
-        <location filename="../backend/preferences/preferences.cpp" line="798"/>
+        <location filename="../backend/preferences/preferences.cpp" line="815"/>
         <source>&apos;Connected DNS&apos; was not configured with a valid Upstream 1 (IP/DNS-over-HTTPS/TLS). DNS was reverted to ROBERT (default).</source>
         <translation>&apos;DNS conectado&apos; no se configuró con un Upstream 1 válido (IP/DNS-over-HTTPS/TLS). DNS se revirtió a ROBERT (predeterminado).</translation>
     </message>
     <message>
-        <location filename="../backend/preferences/preferences.cpp" line="802"/>
+        <location filename="../backend/preferences/preferences.cpp" line="819"/>
         <source>&apos;Connected DNS&apos; was not configured with a valid Upstream 2 (IP/DNS-over-HTTPS/TLS). DNS was reverted to ROBERT (default).</source>
         <translation>&apos;DNS conectado&apos; no se configuró con un Upstream 2 válido (IP/DNS-over-HTTPS/TLS). DNS se revirtió a ROBERT (predeterminado).</translation>
     </message>
@@ -1306,119 +1306,131 @@ Si el problema persiste después de un reinicio, envíe un registro de depuraci�
 <context>
     <name>PreferencesWindow::ConnectionWindowItem</name>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="109"/>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="343"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="110"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="361"/>
         <source>Allow LAN Traffic</source>
         <translation>Permitir tráfico LAN</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="131"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="132"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="368"/>
         <source>Terminate Sockets</source>
         <translation>Terminar sockets</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="163"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="158"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="377"/>
+        <source>Circumvent Censorship</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="171"/>
         <source>Connection</source>
         <translation>Conexión</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="244"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="257"/>
         <source>Exclusive</source>
         <translation>Exclusivo</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="247"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="260"/>
         <source>Inclusive</source>
         <translation>Inclusivo</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="253"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="266"/>
         <source>Off</source>
         <translation>Apagado</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="324"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="342"/>
         <source>Network Options</source>
         <translation>Opciones de red</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="326"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="344"/>
         <source>Split Tunneling</source>
         <translation>Túnel dividido</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="329"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="347"/>
         <source>Proxy Settings</source>
         <translation>Configuración de proxy</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="331"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="349"/>
         <source>Connects to last used location when the app launches or joins a network.</source>
         <translation>Se conecta a la última ubicación utilizada cuando la aplicación se inicia o se une a una red.</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="332"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="350"/>
         <source>Auto-Connect</source>
         <translation>Conexión automática</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="333"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="351"/>
         <source>Control the mode of behavior of the Windscribe firewall.</source>
         <translation>Controle el modo de comportamiento del firewall de Windscribe.</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="334"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="352"/>
         <source>Connection Mode</source>
         <translation>Modo de conexión</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="335"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="353"/>
         <source>Automatically choose the VPN protocol, or select one manually.</source>
         <translation>Elija automáticamente el protocolo VPN o seleccione uno manualmente.</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="338"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="356"/>
         <source>Automatically determine the MTU for your connection, or manually override.</source>
         <translation>Determine automáticamente la MTU para su conexión o anule manualmente.</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="341"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="359"/>
         <source>Select the DNS server while connected to Windscribe.</source>
         <translation>Seleccione el servidor DNS mientras está conectado a Windscribe.</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="342"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="360"/>
         <source>Allow access to local services and printers while connected to Windscribe.</source>
         <translation>Permita el acceso a servicios e impresoras locales mientras está conectado a Windscribe.</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="346"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="364"/>
         <source>Spoof your device&apos;s physical address (MAC address).</source>
         <translation>Suplantar la dirección física de su dispositivo (dirección MAC).</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="350"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="369"/>
         <source>Close all active TCP sockets when the VPN tunnel is established.</source>
         <translation>Cierre todos los sockets TCP activos cuando se establezca el túnel VPN.</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="357"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="376"/>
         <source>Configure your TV, gaming console, or other devices that support proxy servers.</source>
         <translation>Configure su televisor, consola de juegos u otros dispositivos que admitan servidores proxy.</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="367"/>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="421"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="378"/>
+        <source>Connect to the VPN even in hostile environment.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="388"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="442"/>
         <source>Settings Conflict</source>
         <translation>Conflicto de configuración</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="368"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="389"/>
         <source>Disabling Allow LAN Traffic will cause your proxy gateway to stop working.  Do you want to disable the proxy?</source>
         <translation>Si deshabilita Permitir tráfico LAN, la puerta de enlace proxy dejará de funcionar.  ¿Desea desactivar el proxy?</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="422"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="443"/>
         <source>LAN traffic is currently blocked by the Windscribe firewall.  Do you want to allow LAN traffic to bypass the firewall in order for this feature to work?</source>
         <translation>El tráfico LAN está actualmente bloqueado por el firewall de Windscribe.  ¿Desea permitir que el tráfico LAN evite el firewall para que esta función funcione?</translation>
     </message>
@@ -2141,9 +2153,13 @@ Conéctese primero a una red</translation>
         <translation>El adaptador de red no admite Secure Hotspot.</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/securehotspotgroup.cpp" line="103"/>
         <source>Secure hotspot is not supported for IKEv2/WireGuard protocol and automatic connection mode.</source>
-        <translation>El punto de acceso seguro no es compatible con el protocolo IKEv2 / WireGuard y el modo de conexión automática.</translation>
+        <translation type="vanished">El punto de acceso seguro no es compatible con el protocolo IKEv2 / WireGuard y el modo de conexión automática.</translation>
+    </message>
+    <message>
+        <location filename="../preferenceswindow/connectionwindow/securehotspotgroup.cpp" line="103"/>
+        <source>Secure hotspot is not supported for IKEv2 protocol.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../preferenceswindow/connectionwindow/securehotspotgroup.cpp" line="106"/>

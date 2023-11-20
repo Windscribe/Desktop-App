@@ -74,11 +74,10 @@ ConnectionManager::ConnectionManager(QObject *parent, IHelper *helper, INetworkD
     connect(&connectingTimer_, &QTimer::timeout, this, &ConnectionManager::onConnectingTimeout);
 
     stunnelManager_ = new StunnelManager(this, helper);
-    connect(stunnelManager_, &StunnelManager::stunnelFinished, this, &ConnectionManager::onStunnelFinishedBeforeConnection);
+    connect(stunnelManager_, &StunnelManager::stunnelStarted, this, &ConnectionManager::onWstunnelStarted);
 
     wstunnelManager_ = new WstunnelManager(this, helper);
     connect(wstunnelManager_, &WstunnelManager::wstunnelStarted, this, &ConnectionManager::onWstunnelStarted);
-    connect(wstunnelManager_, &WstunnelManager::wstunnelFinished, this, &ConnectionManager::onWstunnelFinishedBeforeConnection);
 
     ctrldManager_ = CrossPlatformObjectFactory::createCtrldManager(this, helper, false);
 
@@ -854,24 +853,6 @@ void ConnectionManager::onTimerReconnection()
     timerReconnection_.stop();
 }
 
-void ConnectionManager::onStunnelFinishedBeforeConnection()
-{
-    state_ = STATE_AUTO_DISCONNECT;
-    if (connector_)
-        connector_->startDisconnect();
-    else
-        onConnectionDisconnected();
-}
-
-void ConnectionManager::onWstunnelFinishedBeforeConnection()
-{
-    state_ = STATE_AUTO_DISCONNECT;
-    if (connector_)
-        connector_->startDisconnect();
-    else
-        onConnectionDisconnected();
-}
-
 void ConnectionManager::onWstunnelStarted()
 {
     doConnectPart3();
@@ -950,17 +931,6 @@ void ConnectionManager::doConnectPart2()
     if (currentConnectionDescr_.connectionNodeType == CONNECTION_NODE_DEFAULT ||
             currentConnectionDescr_.connectionNodeType == CONNECTION_NODE_STATIC_IPS)
     {
-        if (currentConnectionDescr_.protocol == types::Protocol::STUNNEL)
-        {
-            bool bStunnelConfigSuccess = stunnelManager_->setConfig(currentConnectionDescr_.ip, currentConnectionDescr_.port);
-            if (!bStunnelConfigSuccess)
-            {
-                qCDebug(LOG_CONNECTION) << "Failed create config for stunnel";
-                WS_ASSERT(false);
-                return;
-            }
-        }
-
         if (currentConnectionDescr_.protocol.isOpenVpnProtocol())
         {
 
@@ -988,33 +958,36 @@ void ConnectionManager::doConnectPart2()
                 qCDebug(LOG_PACKET_SIZE) << "Packet size mode auto - using default MSS (ConnectionManager)";
             }
 
-            uint portForStunnelOrWStunnel = currentConnectionDescr_.protocol.isStunnelOrWStunnelProtocol() ?
-                        (currentConnectionDescr_.protocol == types::Protocol::STUNNEL ? stunnelManager_->getStunnelPort() : wstunnelManager_->getPort()) : 0;
+            uint localPort = 0;
+            if (currentConnectionDescr_.protocol.isStunnelOrWStunnelProtocol()) {
+                if (currentConnectionDescr_.protocol == types::Protocol::STUNNEL) {
+                    localPort = stunnelManager_->getPort();
+                } else {
+                    localPort = wstunnelManager_->getPort();
+                }
+            }
 
-            const bool bOvpnSuccess = makeOVPNFile_->generate(lastOvpnConfig_, currentConnectionDescr_.ip, currentConnectionDescr_.protocol,
-                                                        currentConnectionDescr_.port, portForStunnelOrWStunnel, mss, defaultAdapterInfo_.gateway(),
-                                                        currentConnectionDescr_.verifyX509name, connectedDnsInfo_.type == CONNECTED_DNS_TYPE_ROBERT ? "" : ctrldManager_->listenIp());
-            if (!bOvpnSuccess )
-            {
+            const bool bOvpnSuccess = makeOVPNFile_->generate(
+                lastOvpnConfig_, currentConnectionDescr_.ip, currentConnectionDescr_.protocol,
+                currentConnectionDescr_.port, localPort, mss, defaultAdapterInfo_.gateway(),
+                currentConnectionDescr_.verifyX509name, "");
+            if (!bOvpnSuccess) {
                 qCDebug(LOG_CONNECTION) << "Failed create ovpn config";
                 WS_ASSERT(false);
                 return;
             }
 
-            if (currentConnectionDescr_.protocol == types::Protocol::STUNNEL)
-            {
-                if(!stunnelManager_->runProcess())
-                {
+            if (currentConnectionDescr_.protocol == types::Protocol::STUNNEL) {
+                if (!stunnelManager_->runProcess(currentConnectionDescr_.ip, currentConnectionDescr_.port)) {
                     state_ = STATE_DISCONNECTED;
                     timerReconnection_.stop();
                     Q_EMIT errorDuringConnection(CONNECT_ERROR::EXE_VERIFY_STUNNEL_ERROR);
                     return;
                 }
-            }
-            else if (currentConnectionDescr_.protocol == types::Protocol::WSTUNNEL)
-            {
-                if (!wstunnelManager_->runProcess(currentConnectionDescr_.ip, currentConnectionDescr_.port, false))
-                {
+                // call doConnectPart2 in onWstunnelStarted slot
+                return;
+            } else if (currentConnectionDescr_.protocol == types::Protocol::WSTUNNEL) {
+                if (!wstunnelManager_->runProcess(currentConnectionDescr_.ip, currentConnectionDescr_.port)) {
                     state_ = STATE_DISCONNECTED;
                     timerReconnection_.stop();
                     Q_EMIT errorDuringConnection(CONNECT_ERROR::EXE_VERIFY_WSTUNNEL_ERROR);
@@ -1086,12 +1059,23 @@ void ConnectionManager::doConnectPart3()
     {
         WireGuardConfig* pConfig = (currentConnectionDescr_.connectionNodeType == CONNECTION_NODE_CUSTOM_CONFIG ? currentConnectionDescr_.wgCustomConfig.get() : &wireGuardConfig_);
         WS_ASSERT(pConfig != nullptr);
-        Q_EMIT connectingToHostname(currentConnectionDescr_.hostname, currentConnectionDescr_.ip,
-                                    (connectedDnsInfo_.type == CONNECTED_DNS_TYPE_ROBERT) ? pConfig->clientDnsAddress() : ctrldManager_->listenIp());
+
+        // For WG protocol we need to add upStream1 adrress if it's custom ip. Otherwise on Windows WG may not connect.
+        QStringList dnsIps;
+        if (connectedDnsInfo_.type == CONNECTED_DNS_TYPE_ROBERT) {
+            dnsIps << pConfig->clientDnsAddress();
+        } else {
+            if (IpValidation::isIp(connectedDnsInfo_.upStream1)) {
+                dnsIps << connectedDnsInfo_.upStream1;
+            }
+            dnsIps << ctrldManager_->listenIp();
+        }
+
+        Q_EMIT connectingToHostname(currentConnectionDescr_.hostname, currentConnectionDescr_.ip, dnsIps);
     }
     else
     {
-        Q_EMIT connectingToHostname(currentConnectionDescr_.hostname, currentConnectionDescr_.ip, "");
+        Q_EMIT connectingToHostname(currentConnectionDescr_.hostname, currentConnectionDescr_.ip, QStringList());
     }
 
     if (currentConnectionDescr_.connectionNodeType == CONNECTION_NODE_CUSTOM_CONFIG)

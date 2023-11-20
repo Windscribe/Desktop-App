@@ -119,6 +119,9 @@ void RequestExecuterViaFailover::executeBaseRequest(const failover::FailoverData
     if (ExtraConfig::instance().getAPIExtraTLSPadding()) {
         networkRequest.setExtraTLSPadding(true);
     }
+    if (!failoverData.sniDomain().isEmpty()) {
+        networkRequest.setSniDomain(failoverData.sniDomain());
+    }
 
     NetworkReply *reply;
     switch (request_->requestType()) {

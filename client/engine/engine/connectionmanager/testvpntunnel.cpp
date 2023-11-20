@@ -42,34 +42,41 @@ void TestVPNTunnel::startTestImpl()
 {
     timeouts_.clear();
 
-    bool advParamExists;
+    doCustomTunnelTest_ = false;
 
+    bool advParamExists;
     int attempts = ExtraConfig::instance().getTunnelTestAttempts(advParamExists);
-    if (!advParamExists) {
-        attempts = 3;
-    } else {
+    if (advParamExists) {
+        if (attempts == 0) {
+            // Do not emit result directly here, callers may not be ready for callback before startTests() returns.
+            QTimer::singleShot(1, this, &TestVPNTunnel::onTestsSkipped);
+            return;
+        }
         doCustomTunnelTest_ = true;
-    }
-    if (attempts == 0) {
-        // Do not emit result directly here, callers may not be ready for callback before startTests() returns.
-        QTimer::singleShot(1, this, &TestVPNTunnel::onTestsSkipped);
-        return;
     }
 
     int timeout = ExtraConfig::instance().getTunnelTestTimeout(advParamExists);
-    if (!advParamExists) {
-        int timeout = PING_TEST_TIMEOUT_1;
-        for (int i = 0; i < attempts; i++)
-        {
-            timeouts_ << timeout;
-            if (timeout < PING_TEST_TIMEOUT_3)
-            {
-                timeout *= 2;
-            }
-        }
-    } else {
+    if (advParamExists) {
         doCustomTunnelTest_ = true;
         timeouts_.fill(timeout, attempts);
+    }
+    else {
+        // There is a delay when using OpenVPN+wintun preventing DNS resolution once the tunnel is up.
+        // The delay also occurs when using the vanilla OpenVPN client.  We tried experimenting with
+        // the various settings for the --ip-win32 OpenVPN parameter, but none helped.  Increasing the
+        // initial tunnel test timeout appears to dramatically improve the tunnel test time.  The test
+        // was taking ~5.5s before the change, and is now taking ~3-3.5s.  Verified on x86_64 and arm64
+        // Windows 10/11.
+        if (protocol_.isOpenVpnProtocol()) {
+            timeouts_ << 5000;
+            timeouts_ << 10000;
+            timeouts_ << 15000;
+        }
+        else {
+            timeouts_ << 2000;
+            timeouts_ << 4000;
+            timeouts_ << 8000;
+        }
     }
 
     testRetryDelay_ = ExtraConfig::instance().getTunnelTestRetryDelay(advParamExists);
@@ -209,4 +216,3 @@ void TestVPNTunnel::onTestsSkipped()
     qCDebug(LOG_CONNECTION) << "Tunnel tests disabled";
     emit testsFinished(true, "");
 }
-

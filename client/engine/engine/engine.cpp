@@ -600,7 +600,7 @@ void Engine::initPart2()
     connect(connectionManager_, SIGNAL(statisticsUpdated(quint64,quint64, bool)), SLOT(onConnectionManagerStatisticsUpdated(quint64,quint64, bool)));
     connect(connectionManager_, SIGNAL(interfaceUpdated(QString)), SLOT(onConnectionManagerInterfaceUpdated(QString)));
     connect(connectionManager_, SIGNAL(testTunnelResult(bool, QString)), SLOT(onConnectionManagerTestTunnelResult(bool, QString)));
-    connect(connectionManager_, SIGNAL(connectingToHostname(QString, QString, QString)), SLOT(onConnectionManagerConnectingToHostname(QString, QString, QString)));
+    connect(connectionManager_, SIGNAL(connectingToHostname(QString, QString, QStringList)), SLOT(onConnectionManagerConnectingToHostname(QString, QString, QStringList)));
     connect(connectionManager_, &ConnectionManager::protocolPortChanged, this, &Engine::onConnectionManagerProtocolPortChanged);
     connect(connectionManager_, SIGNAL(internetConnectivityChanged(bool)), SLOT(onConnectionManagerInternetConnectivityChanged(bool)));
     connect(connectionManager_, SIGNAL(wireGuardAtKeyLimit()), SLOT(onConnectionManagerWireGuardAtKeyLimit()));
@@ -1338,9 +1338,10 @@ void Engine::onConnectionManagerConnected()
             locationId_.isCustomConfigsLocation());
     }
 
+    // For Windows we should to set the custom dns for the adapter explicitly except WireGuard protocol
 #ifdef Q_OS_WIN
     Helper_win *helper_win = dynamic_cast<Helper_win *>(helper_);
-    if (connectionManager_->connectedDnsInfo().type == CONNECTED_DNS_TYPE_CUSTOM)
+    if (connectionManager_->connectedDnsInfo().type == CONNECTED_DNS_TYPE_CUSTOM && connectionManager_->currentProtocol() != types::Protocol::WIREGUARD)
     {
         WS_ASSERT(connectionManager_->getVpnAdapterInfo().dnsServers().count() == 1);
         if (!helper_win->setCustomDnsWhileConnected( connectionManager_->getVpnAdapterInfo().ifIndex(),
@@ -1608,21 +1609,21 @@ void Engine::onConnectionManagerInterfaceUpdated(const QString &interfaceName)
 #endif
 }
 
-void Engine::onConnectionManagerConnectingToHostname(const QString &hostname, const QString &ip, const QString &dnsServer)
+void Engine::onConnectionManagerConnectingToHostname(const QString &hostname, const QString &ip, const QStringList &dnsServers)
 {
     lastConnectingHostname_ = hostname;
     connectStateController_->setConnectingState(locationId_);
 
     qCDebug(LOG_BASIC) << "Whitelist connecting ip:" << ip;
-    if (!dnsServer.isEmpty())
+    if (!dnsServers.isEmpty())
     {
-        qCDebug(LOG_BASIC) << "Whitelist DNS-server ip:" << dnsServer;
+        qCDebug(LOG_BASIC) << "Whitelist DNS-server ip:" << dnsServers;
     }
 
     bool bChanged1 = false;
     firewallExceptions_.setConnectingIp(ip, bChanged1);
     bool bChanged2 = false;
-    firewallExceptions_.setDNSServerIp(dnsServer, bChanged2);
+    firewallExceptions_.setDNSServers(dnsServers, bChanged2);
     if (bChanged1 || bChanged2)
     {
         updateFirewallSettings();
@@ -2381,7 +2382,7 @@ void Engine::doDisconnectRestoreStuff()
 
     bool bChanged;
     firewallExceptions_.setConnectingIp("", bChanged);
-    firewallExceptions_.setDNSServerIp("", bChanged);
+    firewallExceptions_.setDNSServers(QStringList(), bChanged);
 
     if (firewallController_->firewallActualState()) {
         firewallController_->firewallOn(

@@ -42,10 +42,10 @@ void FirewallExceptions::setConnectingIp(const QString &connectingIp, bool &bCha
     }
 }
 
-void FirewallExceptions::setDNSServerIp(const QString &dnsIp, bool &bChanged)
+void FirewallExceptions::setDNSServers(const QStringList &ips, bool &bChanged)
 {
-    if (dnsIp_ != dnsIp) {
-        dnsIp_ = dnsIp;
+    if (dnsIps_ != ips) {
+        dnsIps_ = ips;
         bChanged = true;
     } else {
         bChanged = false;
@@ -99,6 +99,11 @@ QSet<QString> FirewallExceptions::getIPAddressesForFirewall() const
         }
     }
 
+    // we should always add ControlD DNS servers because the ctrld-utility uses them
+    for (const QString &s : HardcodedSettings::instance().controldDns()) {
+        ipList.add(s);
+    }
+
     for (const QString &s : hostIPs_) {
         if (!s.isEmpty()) {
             ipList.add(s);
@@ -113,9 +118,8 @@ QSet<QString> FirewallExceptions::getIPAddressesForFirewall() const
         ipList.add(remoteIP_);
     }
 
-    if (!dnsIp_.isEmpty()) {
-        ipList.add(dnsIp_);
-    }
+    for (const QString &s : dnsIps_)
+            ipList.add(s);
 
     for (const QString &sl : locationsPingIPs_) {
         if (!sl.isEmpty()) {

@@ -321,7 +321,7 @@ bool Server::readAndHandleCommand(socket_ptr sock, boost::asio::streambuf *buf, 
             outCmdAnswer.executed = 1;
         } else if (cmd.target == kTargetStunnel) {
             LOG("Killing Stunnel processes");
-            Utils::executeCommand("pkill", {"-f", "windscribestunnel"});
+            Utils::executeCommand("pkill", {"-f", "windscribewstunnel"});
             outCmdAnswer.executed = 1;
         } else if (cmd.target == kTargetWStunnel) {
             LOG("Killing WStunnel processes");
@@ -446,7 +446,16 @@ bool Server::readAndHandleCommand(socket_ptr sock, boost::asio::streambuf *buf, 
         ia >> cmd;
         LOG("Starting stunnel");
 
-        std::string fullCmd = Utils::getFullCommandAsUser("windscribe", cmd.exePath, cmd.executable, "/etc/windscribe/stunnel.conf");
+        std::stringstream arguments;
+        arguments << "--listenAddress :" << cmd.localPort;
+        arguments << " --remoteAddress https://" << cmd.hostname << ":" << cmd.port;
+        arguments << " --logFilePath \"\"";
+        if (cmd.extraPadding) {
+            arguments << " --extraTlsPadding";
+        }
+        arguments << " --tunnelType 2";
+        //arguments << " --dev"; // enables verbose logging when necessary
+        std::string fullCmd = Utils::getFullCommandAsUser("windscribe", cmd.exePath, cmd.executable, arguments.str());
         if (fullCmd.empty()) {
             // Something wrong with the command
             outCmdAnswer.executed = 0;
@@ -461,39 +470,17 @@ bool Server::readAndHandleCommand(socket_ptr sock, boost::asio::streambuf *buf, 
                 outCmdAnswer.executed = 1;
             }
         }
-    } else if (cmdId == HELPER_CMD_CONFIGURE_STUNNEL) {
-        CMD_CONFIGURE_STUNNEL cmd;
-        ia >> cmd;
-
-        std::stringstream conf;
-        conf << "[openvpn]\n";
-        conf << "client = yes\n";
-        conf << "accept = 127.0.0.1:" << cmd.localPort << "\n";
-        conf << "connect = " << cmd.hostname << ":" << cmd.port << "\n";
-        if (cmd.extraPadding) {
-            conf << "options = TLSEXT_PADDING\noptions = TLSEXT_PADDING_SUPER\n";
-        }
-
-        int fd = open("/etc/windscribe/stunnel.conf", O_CREAT | O_WRONLY | O_TRUNC, S_IRWXU);
-        if (fd < 0) {
-            LOG("Could not open stunnel config for writing");
-            outCmdAnswer.executed = 0;
-        } else {
-            write(fd, conf.str().c_str(), conf.str().length());
-            close(fd);
-            outCmdAnswer.executed = 1;
-            outCmdAnswer.cmdId = Utils::executeCommand("chown", {"windscribe:windscribe", "/etc/windscribe/stunnel.conf"});
-        }
     } else if (cmdId == HELPER_CMD_START_WSTUNNEL) {
         CMD_START_WSTUNNEL cmd;
         ia >> cmd;
         LOG("Starting wstunnel");
 
-        std::string arguments = "--localToRemote 127.0.0.1:" + std::to_string(cmd.localPort) + ":127.0.0.1:1194 wss://" + cmd.hostname + ":" + std::to_string(cmd.port) + " --verbose --upgradePathPrefix=/";
-        if (cmd.isUdp) {
-            arguments += " --udp";
-        }
-        std::string fullCmd = Utils::getFullCommandAsUser("windscribe", cmd.exePath, cmd.executable, arguments);
+        std::stringstream arguments;
+        arguments << "--listenAddress :" << cmd.localPort;
+        arguments << " --remoteAddress wss://" << cmd.hostname << ":" << cmd.port << "/tcp/127.0.0.1/1194";
+        arguments << " --logFilePath \"\"";
+        //arguments << " --dev"; // enables verbose logging when necessary
+        std::string fullCmd = Utils::getFullCommandAsUser("windscribe", cmd.exePath, cmd.executable, arguments.str());
         if (fullCmd.empty()) {
             // Something wrong with the command
             outCmdAnswer.executed = 0;

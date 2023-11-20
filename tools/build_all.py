@@ -612,14 +612,6 @@ def build_installer_linux(configdata, qt_root):
             dstfile = os.path.join(BUILD_INSTALLER_FILES, k)
             fix_rpath_linux(dstfile)
 
-    # Copy wstunnel into InstallerFiles
-    msg.Info("Copying wstunnel...")
-    if platform.processor() == "aarch64":
-        wstunnel_dir = os.path.join(pathhelper.ROOT_DIR, "installer", "linux", "additional_files", "arm64", "wstunnel")
-    else:
-        wstunnel_dir = os.path.join(pathhelper.ROOT_DIR, "installer", "linux", "additional_files", "x86_64", "wstunnel")
-    copy_file("windscribewstunnel", wstunnel_dir, BUILD_INSTALLER_FILES)
-
     # sign supplementary binaries and move the signatures into InstallerFiles/signatures
     if arghelper.sign_app() and "linux" in configdata["codesign_files"]:
         for binary_name in configdata["codesign_files"]["linux"]:

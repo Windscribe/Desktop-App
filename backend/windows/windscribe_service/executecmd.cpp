@@ -1,14 +1,8 @@
-#include "all_headers.h"
-#include "pipe_for_process.h"
-#include "ipc/servicecommunication.h"
 #include "executecmd.h"
-#include "utils.h"
-#include "logger.h"
-#include <WtsApi32.h>
-#include <UserEnv.h>
 
-#pragma comment(lib, "WtsApi32.lib")
-#pragma comment(lib, "Userenv.lib")
+#include "logger.h"
+#include "utils.h"
+#include "utils/win32handle.h"
 
 unsigned long ExecuteCmd::blockingCmdId_ = 0;
 ExecuteCmd *ExecuteCmd::this_ = NULL;
@@ -26,7 +20,7 @@ ExecuteCmd::~ExecuteCmd()
     this_ = NULL;
 }
 
-MessagePacketResult ExecuteCmd::executeBlockingCmd(wchar_t *cmd, HANDLE user_token)
+MessagePacketResult ExecuteCmd::executeBlockingCmd(const std::wstring &cmd, HANDLE user_token)
 {
     MessagePacketResult mpr;
 
@@ -35,9 +29,9 @@ MessagePacketResult ExecuteCmd::executeBlockingCmd(wchar_t *cmd, HANDLE user_tok
     sa.nLength = sizeof(sa);
     sa.bInheritHandle = TRUE;
 
-    HANDLE rPipe, wPipe;
-    if (!CreatePipe(&rPipe, &wPipe, &sa, 0))
-    {
+    wsl::Win32Handle pipeRead;
+    wsl::Win32Handle pipeWrite;
+    if (!CreatePipe(pipeRead.data(), pipeWrite.data(), &sa, 0)) {
         return mpr;
     }
 
@@ -47,50 +41,55 @@ MessagePacketResult ExecuteCmd::executeBlockingCmd(wchar_t *cmd, HANDLE user_tok
     si.cb = sizeof(si);
     si.dwFlags |= STARTF_USESTDHANDLES;
     si.hStdInput = NULL;
-    si.hStdError = wPipe;
-    si.hStdOutput = wPipe;
+    si.hStdError = pipeWrite.getHandle();
+    si.hStdOutput = pipeWrite.getHandle();
+
+    // As per the Win32 docs; the Unicode version of CreateProcess 'may' modify its lpCommandLine
+    // parameter.  Therefore, this parameter cannot be a pointer to read-only memory (such as a
+    // const variable or a literal string).  If this parameter is a constant string, CreateProcess
+    // may cause an access violation.  Maximum length of the lpCommandLine parameter is 32767.
+    std::unique_ptr<wchar_t[]> exec(new wchar_t[32767]);
+    wcsncpy_s(exec.get(), 32767, cmd.c_str(), _TRUNCATE);
 
     ZeroMemory( &pi, sizeof(pi) );
     const auto run_result = user_token != INVALID_HANDLE_VALUE
-        ? CreateProcessAsUser(user_token, NULL, cmd, NULL, NULL, TRUE,
-            CREATE_NO_WINDOW | NORMAL_PRIORITY_CLASS, NULL, NULL, &si, &pi)
-        : CreateProcess(NULL, cmd, NULL, NULL, TRUE,
-            CREATE_NO_WINDOW | NORMAL_PRIORITY_CLASS, NULL, NULL, &si, &pi);
+                                ? CreateProcessAsUser(user_token, NULL, exec.get(), NULL, NULL, TRUE,
+                                                      CREATE_NO_WINDOW | NORMAL_PRIORITY_CLASS, NULL, NULL, &si, &pi)
+                                : CreateProcess(NULL, exec.get(), NULL, NULL, TRUE,
+                                                CREATE_NO_WINDOW | NORMAL_PRIORITY_CLASS, NULL, NULL, &si, &pi);
 
-	if (run_result)
-    {
+    if (run_result) {
         DWORD exitCode;
         WaitForSingleObject(pi.hProcess, INFINITE);
         GetExitCodeProcess(pi.hProcess, &exitCode);
 
-        CloseHandle(wPipe);
-        std::string str = Utils::readAllFromPipe(rPipe);
-        CloseHandle(rPipe);
+        pipeWrite.closeHandle();
+        std::string str = Utils::readAllFromPipe(pipeRead.getHandle());
 
         CloseHandle( pi.hProcess );
         CloseHandle( pi.hThread );
 
         mpr.success = true;
         mpr.exitCode = exitCode;
-		mpr.additionalString = str;
+        mpr.additionalString = str;
     }
-    else
-    {
-		Logger::instance().out(L"Failed create process: %x", GetLastError());
-        CloseHandle(rPipe);
-        CloseHandle(wPipe);
+    else {
+        Logger::instance().out(L"Failed create process: %x", GetLastError());
     }
+
     return mpr;
 }
 
-MessagePacketResult ExecuteCmd::executeUnblockingCmd(const wchar_t *cmd, const wchar_t *szEventName, const wchar_t *szWorkingDir)
+MessagePacketResult ExecuteCmd::executeUnblockingCmd(const std::wstring &cmd, const wchar_t *szEventName, const std::wstring &workingDir)
 {
     std::lock_guard<std::mutex> lock(mutex_);
 
-    wchar_t szCmd[1024] = {};
-    if (wcslen(cmd) > sizeof(szCmd) / sizeof(szCmd[0]) - 1)
-        Logger::instance().out(L"Command too long: \"%x\"", cmd);
-    wcsncpy(szCmd, cmd, sizeof(szCmd)/sizeof(szCmd[0])-1);
+    // As per the Win32 docs; the Unicode version of CreateProcess 'may' modify its lpCommandLine
+    // parameter.  Therefore, this parameter cannot be a pointer to read-only memory (such as a
+    // const variable or a literal string).  If this parameter is a constant string, CreateProcess
+    // may cause an access violation.  Maximum length of the lpCommandLine parameter is 32767.
+    std::unique_ptr<wchar_t[]> exec(new wchar_t[32767]);
+    wcsncpy_s(exec.get(), 32767, cmd.c_str(), _TRUNCATE);
 
     MessagePacketResult mpr;
 
@@ -107,15 +106,15 @@ MessagePacketResult ExecuteCmd::executeUnblockingCmd(const wchar_t *cmd, const w
     si.cb = sizeof(si);
     si.dwFlags |= STARTF_USESTDHANDLES;
     si.hStdInput = NULL;
-	si.hStdError = blockingCmd->pipeForProcess.getPipeHandle();
-	si.hStdOutput = blockingCmd->pipeForProcess.getPipeHandle();
+    si.hStdError = blockingCmd->pipeForProcess.getPipeHandle();
+    si.hStdOutput = blockingCmd->pipeForProcess.getPipeHandle();
 
     ZeroMemory( &pi, sizeof(pi) );
-	if (CreateProcess(NULL, szCmd, NULL, NULL, TRUE, CREATE_NO_WINDOW | NORMAL_PRIORITY_CLASS, NULL, szWorkingDir, &si, &pi))
+    if (CreateProcess(NULL, exec.get(), NULL, NULL, TRUE, CREATE_NO_WINDOW | NORMAL_PRIORITY_CLASS, NULL, workingDir.c_str(), &si, &pi))
     {
-		blockingCmd->pipeForProcess.startReading();
-		blockingCmd->szEventName = szEventName;
-		blockingCmd->hProcess = pi.hProcess;
+        blockingCmd->pipeForProcess.startReading();
+        blockingCmd->szEventName = szEventName;
+        blockingCmd->hProcess = pi.hProcess;
         blockingCmd->hThread = pi.hThread;
         blockingCmd->id = blockingCmdId_;
 
@@ -124,13 +123,13 @@ MessagePacketResult ExecuteCmd::executeUnblockingCmd(const wchar_t *cmd, const w
         blockingCmdId_++;
 
         blockingCmds_.push_back(blockingCmd);
-		
+
         RegisterWaitForSingleObject(&blockingCmd->hWait, blockingCmd->hProcess, waitOrTimerCallback,
                                     blockingCmd, INFINITE, WT_EXECUTEONLYONCE);
     }
     else
     {
-		Logger::instance().out(L"Failed create process: %x", GetLastError());
+        Logger::instance().out(L"Failed create process: %x", GetLastError());
         delete blockingCmd;
     }
 
@@ -152,7 +151,7 @@ MessagePacketResult ExecuteCmd::getUnblockingCmdStatus(unsigned long cmdId)
                 mpr.success = true;
                 mpr.exitCode = blockingCmd->dwExitCode;
                 mpr.blockingCmdFinished = true;
-				mpr.additionalString = blockingCmd->strLogOutput.c_str();
+                mpr.additionalString = blockingCmd->strLogOutput.c_str();
 
                 blockingCmds_.erase(it);
                 delete blockingCmd;
@@ -205,7 +204,7 @@ void ExecuteCmd::waitOrTimerCallback(PVOID lpParameter, BOOLEAN /*timerOrWaitFir
     GetExitCodeProcess(blockingCmd->hProcess, &exitCode);
     blockingCmd->dwExitCode = exitCode;
 
-	blockingCmd->strLogOutput = blockingCmd->pipeForProcess.stopAndGetOutput();
+    blockingCmd->strLogOutput = blockingCmd->pipeForProcess.stopAndGetOutput();
 
     CloseHandle(blockingCmd->hProcess);
     CloseHandle(blockingCmd->hThread);
@@ -214,21 +213,21 @@ void ExecuteCmd::waitOrTimerCallback(PVOID lpParameter, BOOLEAN /*timerOrWaitFir
 
     blockingCmd->bFinished = true;
 
-	// set event if specified
-	if (!blockingCmd->szEventName.empty())
-	{
-		HANDLE hEvent = OpenEvent(EVENT_MODIFY_STATE, FALSE, blockingCmd->szEventName.c_str());
-		if (hEvent != NULL)
-		{
-			SetEvent(hEvent);
-			CloseHandle(hEvent);
-			Logger::instance().out(L"OpenEvent success");
-		}
-		else
-		{
-			Logger::instance().out(L"OpenEvent failed, err=%d", GetLastError());
-		}
-	}
+    // set event if specified
+    if (!blockingCmd->szEventName.empty())
+    {
+        HANDLE hEvent = OpenEvent(EVENT_MODIFY_STATE, FALSE, blockingCmd->szEventName.c_str());
+        if (hEvent != NULL)
+        {
+            SetEvent(hEvent);
+            CloseHandle(hEvent);
+            Logger::instance().out(L"OpenEvent success");
+        }
+        else
+        {
+            Logger::instance().out(L"OpenEvent failed, err=%d", GetLastError());
+        }
+    }
 }
 
 void ExecuteCmd::terminateCmd(unsigned long id, unsigned long waitTimeout)
@@ -267,54 +266,54 @@ void ExecuteCmd::clearCmd(unsigned long id)
     for (auto it = blockingCmds_.begin(); it != blockingCmds_.end(); ++it)
     {
         BlockingCmd *blockingCmd = *it;
-		if (blockingCmd->id == id)
-		{
-			if (!blockingCmd->bFinished)
-			{
-				CloseHandle(blockingCmd->hProcess);
-				CloseHandle(blockingCmd->hThread);
+        if (blockingCmd->id == id)
+        {
+            if (!blockingCmd->bFinished)
+            {
+                CloseHandle(blockingCmd->hProcess);
+                CloseHandle(blockingCmd->hThread);
 
-				UnregisterWaitEx(blockingCmd->hWait, NULL);
-			}
-			blockingCmds_.erase(it);
-			delete blockingCmd;
-			break;
-		}
+                UnregisterWaitEx(blockingCmd->hWait, NULL);
+            }
+            blockingCmds_.erase(it);
+            delete blockingCmd;
+            break;
+        }
     }
 }
 
 void ExecuteCmd::clearAllCmds()
 {
-	for (auto it = blockingCmds_.begin(); it != blockingCmds_.end(); ++it)
-	{
-		BlockingCmd *blockingCmd = *it;
-		if (!blockingCmd->bFinished)
-		{
-			CloseHandle(blockingCmd->hProcess);
-			CloseHandle(blockingCmd->hThread);
-			
-			UnregisterWaitEx(blockingCmd->hWait, NULL);
-		}
-		delete blockingCmd;
-	}
+    for (auto it = blockingCmds_.begin(); it != blockingCmds_.end(); ++it)
+    {
+        BlockingCmd *blockingCmd = *it;
+        if (!blockingCmd->bFinished)
+        {
+            CloseHandle(blockingCmd->hProcess);
+            CloseHandle(blockingCmd->hThread);
 
-	blockingCmds_.clear();
+            UnregisterWaitEx(blockingCmd->hWait, NULL);
+        }
+        delete blockingCmd;
+    }
+
+    blockingCmds_.clear();
 }
 
 BOOL ExecuteCmd::isTokenElevated(HANDLE handle)
 {
-	TOKEN_ELEVATION Elevation;
-	DWORD cbSize = sizeof(TOKEN_ELEVATION);
-	if (GetTokenInformation(handle, TokenElevation, &Elevation, sizeof(Elevation), &cbSize))
-	{
-		return Elevation.TokenIsElevated;
-	}
+    TOKEN_ELEVATION Elevation;
+    DWORD cbSize = sizeof(TOKEN_ELEVATION);
+    if (GetTokenInformation(handle, TokenElevation, &Elevation, sizeof(Elevation), &cbSize))
+    {
+        return Elevation.TokenIsElevated;
+    }
 
-	return FALSE;
+    return FALSE;
 }
 
 void ExecuteCmd::safeCloseHandle(HANDLE handle)
 {
-	if (handle)
-		CloseHandle(handle);
+    if (handle)
+        CloseHandle(handle);
 }

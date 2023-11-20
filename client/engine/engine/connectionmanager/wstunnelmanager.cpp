@@ -11,17 +11,17 @@
 
 
 WstunnelManager::WstunnelManager(QObject *parent, IHelper *helper)
-  : QObject(parent), helper_(helper), bProcessStarted_(false), bFirstMarketLineAfterStart_(false), port_(0)
+  : QObject(parent), helper_(helper), bProcessStarted_(false), port_(0)
 {
 #if defined Q_OS_WIN
     process_ = new QProcess(this);
-    connect(process_, SIGNAL(started()), SLOT(onProcessStarted()));
-    connect(process_, SIGNAL(finished(int)), SLOT(onProcessFinished()));
-    connect(process_, SIGNAL(readyReadStandardOutput()), SLOT(onReadyReadStandardOutput()));
-    connect(process_, SIGNAL(errorOccurred(QProcess::ProcessError)), SLOT(onProcessErrorOccurred(QProcess::ProcessError)));
-    process_->setProcessChannelMode(QProcess::MergedChannels);
+    connect(process_, &QProcess::started, this, &WstunnelManager::onProcessStarted);
+    connect(process_, &QProcess::finished, this, &WstunnelManager::onProcessFinished);
+    connect(process_, &QProcess::readyReadStandardOutput, this, &WstunnelManager::onProcessReadyRead);
+    connect(process_, &QProcess::errorOccurred, this, &WstunnelManager::onProcessErrorOccurred);
 
-    wstunnelExePath_ = QCoreApplication::applicationDirPath() + "/wstunnel.exe";
+    process_->setProcessChannelMode(QProcess::MergedChannels);
+    wstunnelExePath_ = QCoreApplication::applicationDirPath() + "/windscribewstunnel.exe";
 #endif
 }
 
@@ -30,7 +30,7 @@ WstunnelManager::~WstunnelManager()
     killProcess();
 }
 
-bool WstunnelManager::runProcess(const QString &hostname, unsigned int port, bool isUdp)
+bool WstunnelManager::runProcess(const QString &hostname, unsigned int port)
 {
     bool ret = false;
 #if defined(Q_OS_WIN)
@@ -41,25 +41,28 @@ bool WstunnelManager::runProcess(const QString &hostname, unsigned int port, boo
         return false;
     }
 
-    inputArr_.clear();
-    bFirstMarketLineAfterStart_ = true;
-    bProcessStarted_ = true;
     QStringList args;
-    QString addr = QString("127.0.0.1:%1:127.0.0.1:1194").arg(port_);
-    QString hostaddr = QString("wss://%1:%2").arg(hostname).arg(port);
-    args << "--localToRemote" << addr << hostaddr << "--verbose" << "--upgradePathPrefix=/";
-    if (isUdp)
-    {
-        args << "--udp";
-    }
+    QString addr = QString("127.0.0.1:%1").arg(port_);
+    QString hostaddr = QString("wss://%1:%2/tcp/127.0.0.1/1194").arg(hostname).arg(port);
+    args << "--listenAddress" << addr;
+    args << "--remoteAddress" << hostaddr;
+    args << "--logFilePath" << "";
     process_->start(wstunnelExePath_, args);
     ret = true;
 #else
     Helper_posix *helper_posix = dynamic_cast<Helper_posix *>(helper_);
-    ret = !helper_posix->startWstunnel(hostname, port, isUdp, port_);
-    emit wstunnelStarted();
+    ret = !helper_posix->startWstunnel(hostname, port, port_);
+    if (ret) {
+        emit wstunnelStarted();
+    }
 #endif
-    qCDebug(LOG_BASIC) << "wstunnel started on port " << port_;
+    if (ret) {
+        qCDebug(LOG_BASIC) << "wstunnel started on port " << port_;
+    } else {
+        qCDebug(LOG_BASIC) << "wstunnel failed to start";
+    }
+
+    bProcessStarted_ = ret;
     return ret;
 }
 
@@ -68,7 +71,6 @@ void WstunnelManager::killProcess()
 #if defined(Q_OS_WIN)
     if (bProcessStarted_)
     {
-        bProcessStarted_ = false;
         process_->close();
         process_->waitForFinished(-1);
     }
@@ -76,18 +78,20 @@ void WstunnelManager::killProcess()
     Helper_posix *helper_posix = dynamic_cast<Helper_posix *>(helper_);
     helper_posix->executeTaskKill(kTargetWStunnel);
 #endif
+    bProcessStarted_ = false;
     qCDebug(LOG_BASIC) << "wstunnel stopped";
 }
 
 unsigned int WstunnelManager::getPort()
 {
-    port_ = AvailablePort::getAvailablePort(DEFAULT_PORT);
+    port_ = AvailablePort::getAvailablePort(kDefaultPort);
     return port_;
 }
 
 void WstunnelManager::onProcessStarted()
 {
     qCDebug(LOG_WSTUNNEL) << "wstunnel started";
+    emit wstunnelStarted();
 }
 
 void WstunnelManager::onProcessFinished()
@@ -100,35 +104,7 @@ void WstunnelManager::onProcessFinished()
         emit wstunnelFinished();
     }
 #endif
-}
-
-void WstunnelManager::onReadyReadStandardOutput()
-{
-    inputArr_.append(process_->readAll());
-    bool bSuccess = true;
-    int length;
-    while (true)
-    {
-        QString str = getNextStringFromInputBuffer(bSuccess, length);    
-        if (bSuccess)
-        {
-            inputArr_.remove(0, length);
-            qCDebug(LOG_WSTUNNEL) << str;
-
-            if (bFirstMarketLineAfterStart_)
-            {
-                if (str.contains("WAIT for tcp connection on"))
-                {
-                    bFirstMarketLineAfterStart_ = false;
-                    emit wstunnelStarted();
-                }
-            }
-        }
-        else
-        {
-            break;
-        }
-    };
+    bProcessStarted_ = false;
 }
 
 void WstunnelManager::onProcessErrorOccurred(QProcess::ProcessError /*error*/)
@@ -136,22 +112,10 @@ void WstunnelManager::onProcessErrorOccurred(QProcess::ProcessError /*error*/)
     qCDebug(LOG_WSTUNNEL) << "wstunnel process error:" << process_->errorString();
 }
 
-QString WstunnelManager::getNextStringFromInputBuffer(bool &bSuccess, int &outSize)
+void WstunnelManager::onProcessReadyRead()
 {
-    QString str;
-    bSuccess = false;
-    outSize = 0;
-    for (int i = 0; i < inputArr_.size(); ++i)
-    {
-        if (inputArr_[i] == '\n')
-        {
-            bSuccess = true;
-            outSize = i + 1;
-            return str.trimmed();
-        }
-        str += inputArr_[i];
+    QStringList strs = QString(process_->readAll()).split("\n", Qt::SkipEmptyParts);
+    for (auto str : strs) {
+        qCDebug(LOG_WSTUNNEL) << str;
     }
-
-    return QString();
 }
-

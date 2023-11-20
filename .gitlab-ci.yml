@@ -100,15 +100,15 @@ variables:
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --create-dirs -o ${BUILD_LIBS_FOLDER}/qt.zip "${NEXUS_PATH_DEPS}/${OS_IDENTIFIER}/qt.zip"
 
-.download_dependency_stunnel:
-  script:
-    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --create-dirs -o ${BUILD_LIBS_FOLDER}/stunnel.zip "${NEXUS_PATH_DEPS}/${OS_IDENTIFIER}/stunnel.zip"
-
 .download_dependency_wireguard:
   script:
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --create-dirs -o ${BUILD_LIBS_FOLDER}/wireguard.zip "${NEXUS_PATH_DEPS}/${OS_IDENTIFIER}/wireguard.zip"
+
+.download_dependency_wstunnel:
+  script:
+    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+      --create-dirs -o ${BUILD_LIBS_FOLDER}/stunnel.zip "${NEXUS_PATH_DEPS}/${OS_IDENTIFIER}/wstunnel.zip"
 
 .download_dependency_zlib:
   script:
@@ -130,8 +130,8 @@ variables:
     - !reference [.download_dependency_openssl, script]
     - !reference [.download_dependency_openvpn, script]
     - !reference [.download_dependency_qt, script]
-    - !reference [.download_dependency_stunnel, script]
     - !reference [.download_dependency_wireguard, script]
+    - !reference [.download_dependency_wstunnel, script]
     - !reference [.download_dependency_zlib, script]
     - 'IF(Test-Path .\$BUILD_LIBS_FOLDER\) {Get-ChildItem .\$BUILD_LIBS_FOLDER\*.zip | Foreach {.\tools\bin\7z.exe x $_.FullName -o"$BUILD_LIBS_FOLDER\"}}'
     # extractions
@@ -263,8 +263,8 @@ build:win:arm64:installer:tagged:
     - !reference [.download_dependency_openssl, script]
     - !reference [.download_dependency_openvpn, script]
     - !reference [.download_dependency_qt, script]
-    - !reference [.download_dependency_stunnel, script]
     - !reference [.download_dependency_wireguard, script]
+    - !reference [.download_dependency_wstunnel, script]
     - if [ -d ./${BUILD_LIBS_FOLDER}/ ]; then for z in ./${BUILD_LIBS_FOLDER}/*.zip; do unzip -qod ./${BUILD_LIBS_FOLDER} $z; done; fi
     # extractions
     - VAULT_CLIENT_TOKEN=$(curl --cacert tools/cacert.pem --data "{\"role_id\":\"$VAULT_ROLE_ID\",\"secret_id\":\"$VAULT_SECRET_ID\"}"
@@ -334,8 +334,8 @@ build:mac:installer:tagged:
     - !reference [.download_dependency_openssl, script]
     - !reference [.download_dependency_openvpn, script]
     - !reference [.download_dependency_qt, script]
-    - !reference [.download_dependency_stunnel, script]
     - !reference [.download_dependency_wireguard, script]
+    - !reference [.download_dependency_wstunnel, script]
     - if [ -d ./${BUILD_LIBS_FOLDER}/ ]; then for z in ./${BUILD_LIBS_FOLDER}/*.zip; do unzip -qod ./${BUILD_LIBS_FOLDER} $z; done; fi
     # extractions
     - VAULT_CLIENT_TOKEN=$(curl --cacert tools/cacert.pem
@@ -403,6 +403,7 @@ build:rhel:installer:tagged:
 .template_archlinux_build: &template_archlinux_build
   image: archlinux:base-devel
   before_script:
+    - pacman -Syu --noconfirm
     - pacman -Sy --noconfirm git curl python nftables c-ares freetype2 hicolor-icon-theme libglvnd fontconfig libx11 libxkbcommon libxcb net-tools xcb-util-wm xcb-util-image xcb-util-keysyms xcb-util-renderutil
 
 .build_archlinux_installer_prep_build_dir:

@@ -13,6 +13,7 @@ class FailoverData {
 
 public:
     explicit FailoverData(const QString &domain) : domain_(domain) {}
+    explicit FailoverData(const QString &domain, const QString &sniDomain) : domain_(domain), sniDomain_(sniDomain) {}
     explicit FailoverData(const QString &domain, const QString &echConfig, int ttl) :
         domain_(domain), echConfig_(echConfig), ttl_(ttl)
     {
@@ -21,6 +22,7 @@ public:
 
     QString domain() const { return domain_; }
     QString echConfig() const { return echConfig_; }
+    QString sniDomain() const { return sniDomain_; }
     bool isExpired() const
     {
         WS_ASSERT(!echConfig_.isEmpty());
@@ -39,6 +41,7 @@ public:
 
 private:
     QString   domain_;
+    QString   sniDomain_;     // empty if no SNI spoofing / domain fronting
     QString   echConfig_;     // empty if it does not support ECH
     int ttl_;                 // TTL in seconds
     QElapsedTimer elapsedTimer_;

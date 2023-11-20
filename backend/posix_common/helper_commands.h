@@ -39,8 +39,7 @@
 #define HELPER_CMD_TASK_KILL                         31
 #define HELPER_CMD_START_CTRLD                       32
 #define HELPER_CMD_START_STUNNEL                     33
-#define HELPER_CMD_CONFIGURE_STUNNEL                 34
-#define HELPER_CMD_START_WSTUNNEL                    35
+#define HELPER_CMD_START_WSTUNNEL                    34
 
 // enums
 
@@ -263,9 +262,6 @@ struct CMD_TASK_KILL {
 struct CMD_START_STUNNEL {
     std::string exePath;
     std::string executable;
-};
-
-struct CMD_CONFIGURE_STUNNEL {
     std::string hostname;
     int port;
     int localPort;
@@ -278,7 +274,6 @@ struct CMD_START_WSTUNNEL {
     std::string hostname;
     int port;
     int localPort;
-    bool isUdp;
 };
 
 #endif
