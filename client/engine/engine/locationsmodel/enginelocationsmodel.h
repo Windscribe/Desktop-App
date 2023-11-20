@@ -41,7 +41,7 @@ signals:
 private:
     ApiLocationsModel *apiLocationsModel_;
     CustomConfigLocationsModel *customConfigLocationsModel_;
-    PingHost *pingHost_;
+    PingMultipleHosts *pingHosts_;
 };
 
 } //namespace locationsmodel

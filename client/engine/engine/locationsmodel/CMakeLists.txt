@@ -11,17 +11,9 @@ target_sources(engine PRIVATE
     customconfiglocationsmodel.h
     enginelocationsmodel.cpp
     enginelocationsmodel.h
-    failedpinglogcontroller.cpp
-    failedpinglogcontroller.h
     locationnode.h
     mutablelocationinfo.cpp
     mutablelocationinfo.h
     nodeselectionalgorithm.cpp
     nodeselectionalgorithm.h
-    pingipscontroller.cpp
-    pingipscontroller.h
-    pinglog.cpp
-    pinglog.h
-    pingstorage.cpp
-    pingstorage.h
 )

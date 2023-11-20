@@ -3,12 +3,21 @@ target_sources(engine PRIVATE
     ipv4_header.h
     keepalivemanager.cpp
     keepalivemanager.h
-    pinghost.cpp
-    pinghost.h
+    ipinghost.h
     pinghost_curl.cpp
     pinghost_curl.h
     pinghost_tcp.cpp
     pinghost_tcp.h
+    failedpinglogcontroller.cpp
+    failedpinglogcontroller.h
+    pingmanager.cpp
+    pingmanager.h
+    pinglog.cpp
+    pinglog.h
+    pingstorage.cpp
+    pingstorage.h
+    pingmultiplehosts.cpp
+    pingmultiplehosts.h
 )
 
 if (WIN32)
@@ -18,7 +27,11 @@ if (WIN32)
     )
 elseif(UNIX)    # both Mac and Linux
     target_sources(engine PRIVATE
-        pinghost_icmp_mac.cpp       # todo rename to _posix
-        pinghost_icmp_mac.h
+        pinghost_icmp_posix.cpp      
+        pinghost_icmp_posix.h
     )
 endif()
+
+if(DEFINED IS_BUILD_TESTS)
+   add_subdirectory(tests)
+endif(DEFINED IS_BUILD_TESTS)

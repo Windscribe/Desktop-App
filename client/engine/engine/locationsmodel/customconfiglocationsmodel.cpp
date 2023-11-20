@@ -13,12 +13,11 @@
 
 namespace locationsmodel {
 
-CustomConfigLocationsModel::CustomConfigLocationsModel(QObject *parent, IConnectStateController *stateController, INetworkDetectionManager *networkDetectionManager, PingHost *pingHost) : QObject(parent),
-    pingIpsController_(this, stateController, networkDetectionManager, pingHost, "ping_log_custom_configs.txt")
+CustomConfigLocationsModel::CustomConfigLocationsModel(QObject *parent, IConnectStateController *stateController, INetworkDetectionManager *networkDetectionManager,
+                                                       PingMultipleHosts *pingHosts) : QObject(parent),
+    pingManager_(this, stateController, networkDetectionManager, pingHosts, "pingStorageCustomConfigs", "ping_log_custom_configs.txt")
 {
-    connect(&pingIpsController_, &PingIpsController::pingInfoChanged, this, &CustomConfigLocationsModel::onPingInfoChanged);
-    connect(&pingIpsController_, &PingIpsController::needIncrementPingIteration, this, &CustomConfigLocationsModel::onNeedIncrementPingIteration);
-    pingStorage_.incIteration();
+    connect(&pingManager_, &PingManager::pingInfoChanged, this, &CustomConfigLocationsModel::onPingInfoChanged);
 }
 
 void CustomConfigLocationsModel::setCustomConfigs(const QVector<QSharedPointer<const customconfigs::ICustomConfig> > &customConfigs)
@@ -45,7 +44,7 @@ void CustomConfigLocationsModel::setCustomConfigs(const QVector<QSharedPointer<c
 
             if (!ri.isHostname)
             {
-                ri.ipOrHostname.pingTime = pingStorage_.getPing(hostname);
+                ri.ipOrHostname.pingTime = pingManager_.getPing(hostname);
             }
             else
             {
@@ -78,7 +77,7 @@ void CustomConfigLocationsModel::setCustomConfigs(const QVector<QSharedPointer<c
 void CustomConfigLocationsModel::clear()
 {
     pingInfos_.clear();
-    pingIpsController_.updateIps(QVector<PingIpInfo>());
+    pingManager_.clearIps();
     QSharedPointer<types::Location> empty(new types::Location());
     Q_EMIT locationsUpdated(empty);
 }
@@ -101,8 +100,6 @@ QSharedPointer<BaseLocationInfo> CustomConfigLocationsModel::getMutableLocationI
 
 void CustomConfigLocationsModel::onPingInfoChanged(const QString &ip, int timems)
 {
-    pingStorage_.setPing(ip, timems);
-
     for (auto it = pingInfos_.begin(); it != pingInfos_.end(); ++it)
     {
         if (it->setPingTime(ip, timems))
@@ -110,11 +107,6 @@ void CustomConfigLocationsModel::onPingInfoChanged(const QString &ip, int timems
             Q_EMIT locationPingTimeChanged(LocationID::createCustomConfigLocationId(it->customConfig->filename()), it->getPing());
         }
     }
-}
-
-void CustomConfigLocationsModel::onNeedIncrementPingIteration()
-{
-    pingStorage_.incIteration();
 }
 
 void CustomConfigLocationsModel::onDnsRequestFinished()
@@ -135,7 +127,7 @@ void CustomConfigLocationsModel::onDnsRequestFinished()
                 {
                     IpItem ipItem;
                     ipItem.ip = ip;
-                    ipItem.pingTime = pingStorage_.getPing(ipItem.ip);
+                    ipItem.pingTime = pingManager_.getPing(ipItem.ip);
                     remoteIt->ips << ipItem;
 
                     Q_EMIT locationPingTimeChanged(LocationID::createCustomConfigLocationId(it->customConfig->filename()), it->getPing());
@@ -179,18 +171,18 @@ void CustomConfigLocationsModel::startPingAndWhitelistIps()
                 for (auto ipIt = remoteIt->ips.begin(); ipIt != remoteIt->ips.end(); ++ipIt)
                 {
                     strListIps << ipIt->ip;
-                    allIps << PingIpInfo(ipIt->ip, ipIt->ip, QString(), it->customConfig->name(), it->customConfig->nick(), PingHost::PING_ICMP);
+                    allIps << PingIpInfo { ipIt->ip, QString(), it->customConfig->name(), it->customConfig->nick(), PingType::kIcmp };
                 }
             }
             else
             {
                 strListIps << remoteIt->ipOrHostname.ip;
-                allIps << PingIpInfo(remoteIt->ipOrHostname.ip, remoteIt->ipOrHostname.ip, QString(), it->customConfig->name(), it->customConfig->nick(), PingHost::PING_ICMP);
+                allIps << PingIpInfo { remoteIt->ipOrHostname.ip, QString(), it->customConfig->name(), it->customConfig->nick(), PingType::kIcmp };
             }
         }
     }
     Q_EMIT whitelistIpsChanged(strListIps);
-    pingIpsController_.updateIps(allIps);
+    pingManager_.updateIps(allIps);
 }
 
 void CustomConfigLocationsModel::generateLocationsUpdated()

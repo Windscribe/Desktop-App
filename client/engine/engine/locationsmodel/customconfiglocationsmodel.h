@@ -5,8 +5,7 @@
 
 #include "baselocationinfo.h"
 #include "engine/customconfigs/icustomconfig.h"
-#include "pingipscontroller.h"
-#include "pingstorage.h"
+#include "engine/ping/pingmanager.h"
 #include "types/location.h"
 #include "types/locationid.h"
 
@@ -20,7 +19,7 @@ class CustomConfigLocationsModel : public QObject
 {
     Q_OBJECT
 public:
-    explicit CustomConfigLocationsModel(QObject *parent, IConnectStateController *stateController, INetworkDetectionManager *networkDetectionManager, PingHost *pingHost);
+    explicit CustomConfigLocationsModel(QObject *parent, IConnectStateController *stateController, INetworkDetectionManager *networkDetectionManager, PingMultipleHosts *pingHosts);
 
     void setCustomConfigs(const QVector<QSharedPointer<const customconfigs::ICustomConfig>> &customConfigs);
     void clear();
@@ -38,13 +37,10 @@ signals:
 
 private slots:
     void onPingInfoChanged(const QString &ip, int timems);
-    void onNeedIncrementPingIteration();
     void onDnsRequestFinished();
 
 private:
-    CustomConfigPingStorage pingStorage_;
-
-    PingIpsController pingIpsController_;
+    PingManager pingManager_;
 
     struct IpItem
     {

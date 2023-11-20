@@ -2,21 +2,18 @@
 
 #include "engine/dnsresolver/dnsrequest.h"
 #include "engine/dnsresolver/dnsserversconfiguration.h"
+#include "engine/connectstatecontroller/iconnectstatecontroller.h"
 #include "utils/hardcodedsettings.h"
 #include "utils/logger.h"
 #include "utils/utils.h"
 #include "utils/ws_assert.h"
 
-KeepAliveManager::KeepAliveManager(QObject *parent, IConnectStateController *stateController) : QObject(parent),
-    isEnabled_(false), curConnectState_(CONNECT_STATE_DISCONNECTED), pingHostIcmp_(this, stateController)
+KeepAliveManager::KeepAliveManager(QObject *parent, IConnectStateController *stateController, NetworkAccessManager *networkAccessManager) : QObject(parent),
+    isEnabled_(false), curConnectState_(CONNECT_STATE_DISCONNECTED), pingHosts_(this, stateController, networkAccessManager)
 {
     connect(stateController, &IConnectStateController::stateChanged, this, &KeepAliveManager::onConnectStateChanged);
     connect(&timer_, &QTimer::timeout, this, &KeepAliveManager::onTimer);
-#if defined(Q_OS_WIN)
-    connect(&pingHostIcmp_, &PingHost_ICMP_win::pingFinished, this, &KeepAliveManager::onPingFinished);
-#else
-    connect(&pingHostIcmp_, &PingHost_ICMP_mac::pingFinished, this, &KeepAliveManager::onPingFinished);
-#endif
+    connect(&pingHosts_, &PingMultipleHosts::pingFinished, this, &KeepAliveManager::onPingFinished);
 }
 
 void KeepAliveManager::setEnabled(bool isEnabled)
@@ -59,15 +56,15 @@ void KeepAliveManager::onTimer()
     {
         if (!ips_[i].bFailed_)
         {
-            pingHostIcmp_.addHostForPing(ips_[i].ip_, ips_[i].ip_);
+            pingHosts_.addHostForPing(ips_[i].ip_, QString(), PingType::kIcmp);
             return;
         }
     }
-    // if all failed, then select random
+    // if all failed then select random
     if (ips_.count() > 0)
     {
         int ind = Utils::generateIntegerRandom(0, ips_.count() - 1);
-        pingHostIcmp_.addHostForPing(ips_[ind].ip_, ips_[ind].ip_);
+        pingHosts_.addHostForPing(ips_[ind].ip_, QString(), PingType::kIcmp);
     }
 }
 

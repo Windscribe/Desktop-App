@@ -1,5 +1,4 @@
-#ifndef PINGLOG_H
-#define PINGLOG_H
+#pragma once
 
 #include <QFile>
 #include <QTextStream>
@@ -21,4 +20,3 @@ private:
     QTextStream textStream_;
 };
 
-#endif // PINGLOG_H

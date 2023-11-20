@@ -1,5 +1,4 @@
-#ifndef FAILEDPINGLOGCONTROLLER_H
-#define FAILEDPINGLOGCONTROLLER_H
+#pragma once
 
 #include <QSet>
 #include <QString>
@@ -18,4 +17,3 @@ private:
     QMutex mutex_;
 };
 
-#endif // FAILEDPINGLOGCONTROLLER_H

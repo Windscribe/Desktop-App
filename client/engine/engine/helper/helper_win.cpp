@@ -677,9 +677,9 @@ void Helper_win::enableDnsLeaksProtection()
     QMutexLocker locker(&mutex_);
 
     CMD_DISABLE_DNS_TRAFFIC cmdDisableDnsTraffic;
-    if(!customDnsIp_.isEmpty()) {
-        cmdDisableDnsTraffic.excludedIps.push_back(customDnsIp_.toStdWString());
-    }
+
+    for (const auto &ip : customDnsIp_)
+        cmdDisableDnsTraffic.excludedIps.push_back(ip.toStdWString());
 
     std::stringstream stream;
     boost::archive::text_oarchive oa(stream, boost::archive::no_header);
@@ -835,9 +835,9 @@ bool Helper_win::reinstallWintunDriver(const QString &wintunDriverDir)
     return mpr.success;
 }
 
-void Helper_win::setCustomDnsIp(const QString &ip)
+void Helper_win::setCustomDnsIps(const QStringList &ips)
 {
-    customDnsIp_ = ip;
+    customDnsIp_ = ips;
 }
 
 void Helper_win::run()

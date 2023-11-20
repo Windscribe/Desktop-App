@@ -1,35 +1,20 @@
-#ifndef PINGHOST_TCP_H
-#define PINGHOST_TCP_H
+#pragma once
 
 #include <QVector>
 #include <QAbstractSocket>
 #include <QTcpSocket>
 #include <QTimer>
 #include <QElapsedTimer>
-#include <QQueue>
+#include "ipinghost.h"
 #include "types/proxysettings.h"
 
-class IConnectStateController;
-
-class PingHost_TCP : public QObject
+class PingHost_TCP : public IPingHost
 {
     Q_OBJECT
 public:
-    // stateController can be NULL, in this case not used
-    explicit PingHost_TCP(QObject *parent, IConnectStateController *stateController);
-    virtual ~PingHost_TCP();
+    explicit PingHost_TCP(QObject *parent, const QString &ip, const types::ProxySettings &proxySettings, bool isProxyEnabled);
 
-    void addHostForPing(const QString &id, const QString &ip);
-    void clearPings();
-
-    void setProxySettings(const types::ProxySettings &proxySettings);
-    void disableProxy();
-    void enableProxy();
-
-    bool isProxyEnabled() const;
-
-signals:
-    void pingFinished(bool bSuccess, int timems, const QString &ip, bool isFromDisconnectedState);
+    void ping() override;
 
 private slots:
     void onSocketConnected();
@@ -38,34 +23,16 @@ private slots:
     void onSocketTimeout();
 
 private:
-    struct PingInfo
-    {
-        QString ip;
-        QTcpSocket *tcpSocket;
-        QTimer *timer;
-        QElapsedTimer elapsedTimer;
-    };
-
-    struct QueueJob
-    {
-        QString id;
-        QString ip;
-    };
-
     enum {PING_TIMEOUT = 2000};
-    static constexpr int MAX_PARALLEL_PINGS = 10;
 
-    IConnectStateController *connectStateController_;
+    QString ip_;
     types::ProxySettings proxySettings_;
-    bool bProxyEnabled_;
+    bool isProxyEnabled_ = false;
+    QTcpSocket *tcpSocket_ = nullptr;
+    QTimer *timer_ = nullptr;
+    QElapsedTimer elapsedTimer_;
 
-    QMap<QString, PingInfo *> pingingHosts_;
-    QQueue<QueueJob> waitingPingsQueue_;
-
-    bool hostAlreadyPingingOrInWaitingQueue(const QString &id);
-    void processNextPings();
-    void processError(QObject *obj);
-    void removeFromQueue(const QString &id);
+    bool isProxyEnabled() const;
+    void processError();
 };
 
-#endif // PINGHOST_TCP_H

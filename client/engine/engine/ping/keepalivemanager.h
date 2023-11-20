@@ -1,19 +1,17 @@
 #pragma once
 
 #include <QObject>
+#include <QTimer>
 
-#ifdef Q_OS_WIN
-    #include "pinghost_icmp_win.h"
-#elif defined (Q_OS_MAC) || defined(Q_OS_LINUX)
-    #include "pinghost_icmp_mac.h"
-#endif
+#include "types/locationid.h"
+#include "pingmultiplehosts.h"
 
 // If enabled, when user is connected to the tunnel send an ICMP request to windscribe.com every 10s.
 class KeepAliveManager : public QObject
 {
     Q_OBJECT
 public:
-    explicit KeepAliveManager(QObject *parent, IConnectStateController *stateController);
+    explicit KeepAliveManager(QObject *parent, IConnectStateController *stateController, NetworkAccessManager *networkAccessManager);
 
     void setEnabled(bool isEnabled);
 
@@ -40,9 +38,5 @@ private:
 
     QVector<IP_DESCR> ips_;
 
-#ifdef Q_OS_WIN
-    PingHost_ICMP_win pingHostIcmp_;
-#elif defined (Q_OS_MAC) || defined(Q_OS_LINUX)
-    PingHost_ICMP_mac pingHostIcmp_;
-#endif
+    PingMultipleHosts pingHosts_;
 };

@@ -1,27 +1,15 @@
 #pragma once
 
-#include "types/proxysettings.h"
 #include "engine/networkaccessmanager/networkaccessmanager.h"
+#include "ipinghost.h"
 
-class IConnectStateController;
-
-class PingHost_Curl : public QObject
+class PingHost_Curl : public IPingHost
 {
     Q_OBJECT
 public:
-    // stateController can be NULL, in this case not used
-    explicit PingHost_Curl(QObject *parent, IConnectStateController *stateController, NetworkAccessManager *networkAccessManager);
-    virtual ~PingHost_Curl();
+    explicit PingHost_Curl(QObject *parent, NetworkAccessManager *networkAccessManager, const QString &ip, const QString &hostname);
 
-    void addHostForPing(const QString &id, const QString &ip, const QString &hostame);
-    void clearPings();
-
-    void setProxySettings(const types::ProxySettings &proxySettings);
-    void disableProxy();
-    void enableProxy();
-
-signals:
-    void pingFinished(bool bSuccess, int timems, const QString &id, bool isFromDisconnectedState);
+    void ping() override;
 
 private slots:
     void onNetworkRequestFinished();
@@ -29,10 +17,11 @@ private slots:
 private:
     enum {PING_TIMEOUT = 2000};
 
-    IConnectStateController *connectStateController_;
     NetworkAccessManager *networkAccessManager_;
-
     QMap<QString, NetworkReply *> pingingHosts_;
+    QString ip_;
+    QString hostname_;
+    bool isAlreadyPinging_ = false;
 
     // Parse a string like {"rtt": "155457"} and return a rtt integer value. Return -1 if failed
     int parseReplyString(const QByteArray &arr);

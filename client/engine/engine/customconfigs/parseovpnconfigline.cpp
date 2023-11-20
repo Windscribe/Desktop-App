@@ -120,6 +120,10 @@ ParseOvpnConfigLine::OpenVpnLine ParseOvpnConfigLine::processLine(const QString 
             strs[2].compare("redirect-gateway", Qt::CaseInsensitive) == 0)
             openVpnLine.type = OVPN_CMD_IGNORE_REDIRECT_GATEWAY;
     }
+    else if (line.contains("block-outside-dns", Qt::CaseInsensitive))
+    {
+        openVpnLine.type = OVPN_CMD_BLOCK_OUTSIDE_DNS;
+    }
 
     return openVpnLine;
 }

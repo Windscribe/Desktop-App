@@ -17,6 +17,7 @@ public:
         OVPN_CMD_CIPHER,
         OVPN_CMD_SCRIPT_SECURITY,
         OVPN_CMD_IGNORE_REDIRECT_GATEWAY,
+        OVPN_CMD_BLOCK_OUTSIDE_DNS
     };
 
     struct OpenVpnLine

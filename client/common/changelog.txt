@@ -1,3 +1,12 @@
+2.7.11 (19/09/2023)
+All:
+   * Improved latency (ping) algorithm to reduce ping frequency, especially during app startup. #737
+   * Fixed LAN-hosted DNS server cannot be accessed when using a custom OpenVPN config. #721
+Windows:
+   * Fixed regression introduced in 2.7.10. Tunnel test fails if split tunneling enabled in
+     exclusive mode and no apps are specified to exclude. #741
+
+
 2.7.10 (07/09/2023)
 All:
    * Added anti-censorship feature: use domain fronting via CDN for API requests. #688

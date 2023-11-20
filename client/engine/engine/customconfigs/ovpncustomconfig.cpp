@@ -175,6 +175,11 @@ void OvpnCustomConfig::process()
                 if (!openVpnLine.protocol.trimmed().isEmpty())
                     bHasValidCipher = true;
             }
+            else if (openVpnLine.type == ParseOvpnConfigLine::OVPN_CMD_BLOCK_OUTSIDE_DNS)
+            {
+                qDebug(LOG_CUSTOM_OVPN) << "Ovpn config file" << Utils::cleanSensitiveInfo(filepath_) << ", the block-outside-dns option disabled because this option is already implemented by our program.";
+                continue;
+            }
             else
             {
                 if (openVpnLine.type == ParseOvpnConfigLine::OVPN_CMD_PROTO) // proto cmd

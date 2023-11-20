@@ -616,7 +616,7 @@ void Engine::initPart2()
     connect(vpnShareController_, &VpnShareController::connectedWifiUsersChanged, this, &Engine::wifiSharingStateChanged);
     connect(vpnShareController_, &VpnShareController::connectedProxyUsersChanged, this, &Engine::proxySharingStateChanged);
 
-    keepAliveManager_ = new KeepAliveManager(this, connectStateController_);
+    keepAliveManager_ = new KeepAliveManager(this, connectStateController_, networkAccessManager_);
     keepAliveManager_->setEnabled(engineSettings_.isKeepAliveEnabled());
 
     emergencyController_ = new EmergencyController(this, helper_);

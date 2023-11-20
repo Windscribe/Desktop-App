@@ -97,7 +97,7 @@ public:
     bool reinstallTapDriver(const QString& tapDriverDir);
     bool reinstallWintunDriver(const QString& wintunDriverDir);
 
-    void setCustomDnsIp(const QString& ip);
+    void setCustomDnsIps(const QStringList& ips);
 
 protected:
     void run() override;
@@ -108,7 +108,7 @@ private:
     enum {CHECK_UNBLOCKING_CMD_PERIOD = 2000};
 
     QString helperLabel_;
-    QString customDnsIp_;
+    QStringList customDnsIp_;
     std::atomic<STATE> curState_;
     std::atomic<bool> bStopThread_;
 

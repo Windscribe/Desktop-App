@@ -8,8 +8,8 @@
 #include "engine/apiinfo/location.h"
 #include "engine/apiinfo/staticips.h"
 #include "engine/networkdetectionmanager/inetworkdetectionmanager.h"
-#include "pingipscontroller.h"
-#include "pingstorage.h"
+#include "engine/ping/pingmultiplehosts.h"
+#include "engine/ping/pingmanager.h"
 #include "types/location.h"
 #include "types/locationid.h"
 
@@ -27,7 +27,7 @@ class ApiLocationsModel : public QObject
 {
     Q_OBJECT
 public:
-    explicit ApiLocationsModel(QObject *parent, IConnectStateController *stateController, INetworkDetectionManager *networkDetectionManager, PingHost *pingHost);
+    explicit ApiLocationsModel(QObject *parent, IConnectStateController *stateController, INetworkDetectionManager *networkDetectionManager, PingMultipleHosts *pingHosts);
 
     void setLocations(const QVector<apiinfo::Location> &locations, const apiinfo::StaticIps &staticIps);
     void clear();
@@ -45,17 +45,13 @@ signals:
     //void customOvpnConfgsIpsChanged(const QStringList &ips);
 
 private slots:
-    void onPingInfoChanged(const QString &id, int timems);
-    void onNeedIncrementPingIteration();
+    void onPingInfoChanged(const QString &ip, int timems);
 
 private:
-    ApiPingStorage pingStorage_;
     QVector<apiinfo::Location> locations_;
     apiinfo::StaticIps staticIps_;
-
     BestLocation bestLocation_;
-
-    PingIpsController pingIpsController_;
+    PingManager pingManager_;
 
 private:
     void detectBestLocation(bool isAllNodesInDisconnectedState);

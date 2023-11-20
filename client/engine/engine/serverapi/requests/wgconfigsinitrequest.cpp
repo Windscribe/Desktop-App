@@ -81,7 +81,6 @@ void WgConfigsInitRequest::handle(const QByteArray &arr)
     if (jsonConfig.contains("PresharedKey") && jsonConfig.contains("AllowedIPs")) {
         presharedKey_ = jsonConfig["PresharedKey"].toString();
         allowedIps_   = jsonConfig["AllowedIPs"].toString();
-        qCDebug(LOG_SERVER_API) << "WgConfigs/init json:" << doc.toJson(QJsonDocument::Compact);
         qCDebug(LOG_SERVER_API) << "WgConfigs init request successfully executed";
     } else {
         qCDebugMultiline(LOG_SERVER_API) << arr;

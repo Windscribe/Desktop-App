@@ -1,0 +1,3 @@
+69.12.94.66;https://us-central-014.whiskergalaxy.com:6363/latency
+107.150.23.194;https://us-central-013.whiskergalaxy.com:6363/latency
+198.54.128.115;https://us-central-058.whiskergalaxy.com:6363/latency

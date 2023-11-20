@@ -67,8 +67,7 @@ void CalloutFilter::enable(UINT32 localIp, UINT32 vpnIp, const AppsIds &windscri
         return;
     }
 
-    if (isEnabled_)
-    {
+    if (isEnabled_) {
         Logger::instance().out(L"CalloutFilter: disable before enable");
         disable();
     }
@@ -84,26 +83,22 @@ void CalloutFilter::enable(UINT32 localIp, UINT32 vpnIp, const AppsIds &windscri
 
     bool success = true;
 
-    if (!addProviderContext(hEngine, CALLOUT_PROVIDER_CONTEXT_IP_GUID, localIp, vpnIp, isExclude))
-    {
+    if (!addProviderContext(hEngine, CALLOUT_PROVIDER_CONTEXT_IP_GUID, localIp, vpnIp, isExclude)) {
         Logger::instance().out(L"CalloutFilter::enable(), addProviderContext failed");
         success = false;
     }
 
-    if (success && !addCallouts(hEngine))
-    {
+    if (success && !addCallouts(hEngine)) {
         Logger::instance().out(L"CalloutFilter::enable(), FwpmCalloutAdd failed");
         success = false;
     }
 
-    if (success && !addSubLayer(hEngine))
-    {
+    if (success && !addSubLayer(hEngine)) {
         Logger::instance().out(L"CalloutFilter::enable(), addSubLayer failed");
         success = false;
     }
 
-    if (success && !addFilters(hEngine, !isExclude && isAllowLanTraffic, windscribeMainExecutableIds, appsIds))
-    {
+    if (success && !addFilters(hEngine, !isExclude && isAllowLanTraffic, windscribeMainExecutableIds, appsIds)) {
         Logger::instance().out(L"CalloutFilter::enable(), addFilters failed");
         success = false;
     }
@@ -111,8 +106,7 @@ void CalloutFilter::enable(UINT32 localIp, UINT32 vpnIp, const AppsIds &windscri
     fwmpWrapper_.endTransaction();
     fwmpWrapper_.unlock();
 
-    if (success)
-    {
+    if (success) {
         isEnabled_ = true;
     }
 }
@@ -121,8 +115,7 @@ void CalloutFilter::disable()
 {
     std::lock_guard<std::recursive_mutex> guard(mutex_);
 
-    if (!isEnabled_)
-    {
+    if (!isEnabled_) {
         return;
     }
     Logger::instance().out(L"CalloutFilter::disable()");
@@ -151,8 +144,7 @@ bool CalloutFilter::addProviderContext(HANDLE engineHandle, const GUID &guid, UI
     providerContext.dataBuffer->data = (UINT8*)&proxyData;
 
     DWORD ret = FwpmProviderContextAdd1(engineHandle, &providerContext, 0, &providerContextId);
-    if (ret != ERROR_SUCCESS)
-    {
+    if (ret != ERROR_SUCCESS) {
         Logger::instance().out(L"CalloutFilter::addProviderContext(): %u", ret);
         bRet = false;
     }
@@ -171,8 +163,7 @@ bool CalloutFilter::addCallouts(HANDLE engineHandle)
         callout.applicableLayer = FWPM_LAYER_ALE_BIND_REDIRECT_V4;
         callout.flags |= FWPM_CALLOUT_FLAG_USES_PROVIDER_CONTEXT;
         DWORD ret = FwpmCalloutAdd(engineHandle, &callout, NULL, &calloutId);
-        if (ret != ERROR_SUCCESS)
-        {
+        if (ret != ERROR_SUCCESS) {
             Logger::instance().out(L"CalloutFilter::addCallouts(), FwpmCalloutAdd (non-TCP) failed");
             return false;
         }
@@ -187,8 +178,7 @@ bool CalloutFilter::addCallouts(HANDLE engineHandle)
         callout.applicableLayer = FWPM_LAYER_ALE_CONNECT_REDIRECT_V4;
         callout.flags |= FWPM_CALLOUT_FLAG_USES_PROVIDER_CONTEXT;
         DWORD ret = FwpmCalloutAdd(engineHandle, &callout, NULL, &calloutId);
-        if (ret != ERROR_SUCCESS)
-        {
+        if (ret != ERROR_SUCCESS) {
             Logger::instance().out(L"CalloutFilter::addCallouts(), FwpmCalloutAdd (TCP) failed");
             return false;
         }
@@ -204,8 +194,7 @@ bool CalloutFilter::addSubLayer(HANDLE engineHandle)
     subLayer.weight = 0x200;
 
     DWORD dwFwAPiRetCode = FwpmSubLayerAdd(engineHandle, &subLayer, NULL);
-    if (dwFwAPiRetCode != ERROR_SUCCESS)
-    {
+    if (dwFwAPiRetCode != ERROR_SUCCESS) {
         Logger::instance().out(L"CalloutFilter::addSubLayer(), FwpmSubLayerAdd failed");
         return false;
     }
@@ -233,18 +222,12 @@ bool CalloutFilter::addFilters(HANDLE engineHandle, bool withTcpFilters, const A
     std::vector<FWP_V4_ADDR_AND_MASK> addrMasks(lanRanges.size());
     std::vector<FWP_V4_ADDR_AND_MASK> localAddrMasks;
 
-    if (appsIds.count() == 0 && windscribeMainExecutableIds.count() == 0) {
-        return true;
-    }
-
     // Windscribe main program traffic goes to the bind filter except UDP traffic. Otherwise, DNS resolution in Windscribe app via 127.0.0.1(ctrld util) will not work.
     // Not an elegant solution, but working for now. Maybe redo it later when ideas come up.
-    if (!prevIsExclude_ && windscribeMainExecutableIds.count() > 0)    // (only for the inclusive mode)
-    {
+    if (!prevIsExclude_ && windscribeMainExecutableIds.count() > 0) { // (only for the inclusive mode)
         std::vector<FWPM_FILTER_CONDITION> conditions;
         conditions.reserve(windscribeMainExecutableIds.count());
-        for (size_t i = 0; i < windscribeMainExecutableIds.count(); ++i)
-        {
+        for (size_t i = 0; i < windscribeMainExecutableIds.count(); ++i) {
             FWPM_FILTER_CONDITION condition;
             condition.fieldKey = FWPM_CONDITION_ALE_APP_ID;
             condition.matchType = FWP_MATCH_EQUAL;
@@ -254,14 +237,12 @@ bool CalloutFilter::addFilters(HANDLE engineHandle, bool withTcpFilters, const A
         }
 
         // Skip UDP protocol
-        if (!prevIsExclude_) {
-            FWPM_FILTER_CONDITION condition;
-            condition.fieldKey = FWPM_CONDITION_IP_PROTOCOL;
-            condition.matchType = FWP_MATCH_NOT_EQUAL;
-            condition.conditionValue.type = FWP_UINT8;
-            condition.conditionValue.uint8 = 17;    // UDP protocol code as specified in RFC 1700 (see docs)
-            conditions.push_back(condition);
-        }
+        FWPM_FILTER_CONDITION condition;
+        condition.fieldKey = FWPM_CONDITION_IP_PROTOCOL;
+        condition.matchType = FWP_MATCH_NOT_EQUAL;
+        condition.conditionValue.type = FWP_UINT8;
+        condition.conditionValue.uint8 = 17;    // UDP protocol code as specified in RFC 1700 (see docs)
+        conditions.push_back(condition);
 
         FWPM_FILTER filter = { 0 };
         filter.subLayerKey = SUBLAYER_CALLOUT_GUID;
@@ -285,12 +266,15 @@ bool CalloutFilter::addFilters(HANDLE engineHandle, bool withTcpFilters, const A
         }
     }
 
-    // All  other traffic for apps goes to BIND filter
+    if (appsIds.count() == 0) {
+        return true;
+    }
+
+    // All other traffic for apps goes to BIND filter
     {
         std::vector<FWPM_FILTER_CONDITION> conditions;
         conditions.reserve(appsIds.count());
-        for (size_t i = 0; i < appsIds.count(); ++i)
-        {
+        for (size_t i = 0; i < appsIds.count(); ++i) {
             FWPM_FILTER_CONDITION condition;
             condition.fieldKey = FWPM_CONDITION_ALE_APP_ID;
             condition.matchType = FWP_MATCH_EQUAL;
@@ -374,8 +358,7 @@ bool CalloutFilter::addFilters(HANDLE engineHandle, bool withTcpFilters, const A
             std::vector<FWPM_FILTER_CONDITION> conditions;
 
             // Must match one of the apps
-            for (size_t i = 0; i < appsIds.count(); ++i)
-            {
+            for (size_t i = 0; i < appsIds.count(); ++i) {
                 FWPM_FILTER_CONDITION condition;
                 condition.fieldKey = FWPM_CONDITION_ALE_APP_ID;
                 condition.matchType = FWP_MATCH_EQUAL;

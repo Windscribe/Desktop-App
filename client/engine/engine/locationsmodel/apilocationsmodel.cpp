@@ -9,13 +9,9 @@
 
 namespace locationsmodel {
 
-ApiLocationsModel::ApiLocationsModel(QObject *parent, IConnectStateController *stateController, INetworkDetectionManager *networkDetectionManager, PingHost *pingHost) : QObject(parent),
-    pingIpsController_(this, stateController, networkDetectionManager, pingHost, "ping_log.txt")
+ApiLocationsModel::ApiLocationsModel(QObject *parent, IConnectStateController *stateController, INetworkDetectionManager *networkDetectionManager, PingMultipleHosts *pingHosts) : QObject(parent),
+    pingManager_(this, stateController, networkDetectionManager, pingHosts, "pingStorage", "ping_log.txt")
 {
-    connect(&pingIpsController_, &PingIpsController::pingInfoChanged, this, &ApiLocationsModel::onPingInfoChanged);
-    connect(&pingIpsController_, &PingIpsController::needIncrementPingIteration, this, &ApiLocationsModel::onNeedIncrementPingIteration);
-    pingStorage_.incIteration();
-
     if (bestLocation_.isValid())
     {
         qCDebug(LOG_BEST_LOCATION) << "Best location loaded from settings: " << bestLocation_.getId().getHashString();
@@ -24,6 +20,7 @@ ApiLocationsModel::ApiLocationsModel(QObject *parent, IConnectStateController *s
     {
         qCDebug(LOG_BEST_LOCATION) << "No saved best location in settings";
     }
+    connect(&pingManager_, &PingManager::pingInfoChanged, this, &ApiLocationsModel::onPingInfoChanged);
 }
 
 void ApiLocationsModel::setLocations(const QVector<apiinfo::Location> &locations, const apiinfo::StaticIps &staticIps)
@@ -44,7 +41,7 @@ void ApiLocationsModel::setLocations(const QVector<apiinfo::Location> &locations
             apiinfo::Group group = l.getGroup(i);
             // Ping with Curl by hostname was introduced later, so the ping hostname may be empty when updating the program from an older version.
             if (!group.getPingHost().isEmpty()) {
-                ips << PingIpInfo(QString::number(group.getId()), group.getPingIp(), group.getPingHost(), group.getCity(), group.getNick(), PingHost::PING_CURL);
+                ips << PingIpInfo { group.getPingIp(), group.getPingHost(), group.getCity(), group.getNick(), PingType::kCurl };
             }
         }
     }
@@ -53,11 +50,11 @@ void ApiLocationsModel::setLocations(const QVector<apiinfo::Location> &locations
     for (int i = 0; i < staticIps_.getIpsCount(); ++i) {
         const apiinfo::StaticIpDescr &sid = staticIps_.getIp(i);
         if (!sid.getPingHost().isEmpty()) {
-            ips << PingIpInfo(QString::number(sid.id), sid.getPingIp(), sid.getPingHost(), sid.name, "staticIP", PingHost::PING_CURL);
+            ips << PingIpInfo { sid.getPingIp(), sid.getPingHost(), sid.name, "staticIP", PingType::kCurl };
         }
     }
 
-    pingIpsController_.updateIps(ips);
+    pingManager_.updateIps(ips);
     sendLocationsUpdated();
 }
 
@@ -65,7 +62,7 @@ void ApiLocationsModel::clear()
 {
     locations_.clear();
     staticIps_ = apiinfo::StaticIps();
-    pingIpsController_.updateIps(QVector<PingIpInfo>());
+    pingManager_.clearIps();
     QSharedPointer<QVector<types::Location> > empty(new QVector<types::Location>());
     Q_EMIT locationsUpdated(LocationID(), QString(),  empty);
 }
@@ -146,47 +143,30 @@ QSharedPointer<BaseLocationInfo> ApiLocationsModel::getMutableLocationInfoById(c
     return NULL;
 }
 
-void ApiLocationsModel::onPingInfoChanged(const QString &id, int timems)
+void ApiLocationsModel::onPingInfoChanged(const QString &ip, int timems)
 {
-    int locationId = id.toInt();
-    pingStorage_.setPing(locationId, timems);
-
-    bool isAllNodesHaveCurIteration;
-    pingStorage_.getState(isAllNodesHaveCurIteration);
-
-    if (isAllNodesHaveCurIteration) {
+    if (pingManager_.isAllNodesHaveCurIteration()) {
         detectBestLocation(true);
     }
-
-    bool signalEmitted = false;
 
     for (const apiinfo::Location &l : locations_) {
         for (int i = 0; i < l.groupsCount(); ++i) {
             const apiinfo::Group group = l.getGroup(i);
-            if (group.getId() == locationId) {
+            if (group.getPingIp() == ip) {
                 Q_EMIT locationPingTimeChanged(LocationID::createApiLocationId(l.getId(), group.getCity(), group.getNick()), timems);
-                signalEmitted = true;
+            }
+        }
+    }
+
+    if (staticIps_.getIpsCount() > 0) {
+        for (int i = 0; i < staticIps_.getIpsCount(); ++i) {
+            const apiinfo::StaticIpDescr &sid = staticIps_.getIp(i);
+            if (sid.getPingIp() == ip) {
+                Q_EMIT locationPingTimeChanged(LocationID::createStaticIpsLocationId(sid.cityName, sid.staticIp), timems);
                 break;
             }
         }
     }
-
-    if (!signalEmitted) {
-        if (staticIps_.getIpsCount() > 0) {
-            for (int i = 0; i < staticIps_.getIpsCount(); ++i) {
-                const apiinfo::StaticIpDescr &sid = staticIps_.getIp(i);
-                if (sid.id == locationId) {
-                    Q_EMIT locationPingTimeChanged(LocationID::createStaticIpsLocationId(sid.cityName, sid.staticIp), timems);
-                    break;
-                }
-            }
-        }
-    }
-}
-
-void ApiLocationsModel::onNeedIncrementPingIteration()
-{
-    pingStorage_.incIteration();
 }
 
 void ApiLocationsModel::detectBestLocation(bool isAllNodesInDisconnectedState)
@@ -213,7 +193,7 @@ void ApiLocationsModel::detectBestLocation(bool isAllNodesInDisconnectedState)
             }
 
             LocationID lid = LocationID::createApiLocationId(l.getId(), group.getCity(), group.getNick());
-            int latency = pingStorage_.getPing(group.getId()).toInt();
+            int latency = pingManager_.getPing(group.getPingIp()).toInt();
 
             // we assume a maximum ping time for three bars when no ping info
             if (latency == PingTime::NO_PING_INFO)
@@ -327,7 +307,7 @@ BestAndAllLocations ApiLocationsModel::generateLocationsUpdated()
             city.city = group.getCity();
             city.nick = group.getNick();
             city.isPro = group.isPro();
-            city.pingTimeMs = pingStorage_.getPing(group.getId());
+            city.pingTimeMs = pingManager_.getPing(group.getPingIp());
             city.isDisabled = group.isDisabled();
             city.is10Gbps = (group.getLinkSpeed() == 10000);
             city.health = group.getHealth();
@@ -386,7 +366,7 @@ BestAndAllLocations ApiLocationsModel::generateLocationsUpdated()
             types::City city;
             city.id = LocationID::createStaticIpsLocationId(sid.cityName, sid.staticIp);
             city.city = sid.cityName;
-            city.pingTimeMs = pingStorage_.getPing(sid.id);
+            city.pingTimeMs = pingManager_.getPing(sid.getPingIp());
             city.isPro = true;
             city.isDisabled = false;
             city.staticIpCountryCode = sid.countryCode;

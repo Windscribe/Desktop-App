@@ -6,10 +6,10 @@ namespace locationsmodel {
 
 LocationsModel::LocationsModel(QObject *parent, IConnectStateController *stateController, INetworkDetectionManager *networkDetectionManager, NetworkAccessManager *networkAccessManager) : QObject(parent)
 {
-    pingHost_ = new PingHost(nullptr, stateController, networkAccessManager);
+    pingHosts_ = new PingMultipleHosts(nullptr, stateController, networkAccessManager);
 
-    apiLocationsModel_ = new ApiLocationsModel(this, stateController, networkDetectionManager, pingHost_);
-    customConfigLocationsModel_ = new CustomConfigLocationsModel(this, stateController, networkDetectionManager, pingHost_);
+    apiLocationsModel_ = new ApiLocationsModel(this, stateController, networkDetectionManager, pingHosts_);
+    customConfigLocationsModel_ = new CustomConfigLocationsModel(this, stateController, networkDetectionManager, pingHosts_);
 
     connect(apiLocationsModel_, &ApiLocationsModel::locationsUpdated, this, &LocationsModel::locationsUpdated);
     connect(apiLocationsModel_, &ApiLocationsModel::bestLocationUpdated, this, &LocationsModel::bestLocationUpdated);
@@ -25,7 +25,7 @@ LocationsModel::~LocationsModel()
 {
     delete customConfigLocationsModel_;
     delete apiLocationsModel_;
-    delete pingHost_;
+    delete pingHosts_;
 }
 
 void LocationsModel::setApiLocations(const QVector<apiinfo::Location> &locations, const apiinfo::StaticIps &staticIps)
@@ -46,17 +46,17 @@ void LocationsModel::clear()
 
 void LocationsModel::setProxySettings(const types::ProxySettings &proxySettings)
 {
-    pingHost_->setProxySettings(proxySettings);
+    pingHosts_->setProxySettings(proxySettings);
 }
 
 void LocationsModel::disableProxy()
 {
-    pingHost_->disableProxy();
+    pingHosts_->disableProxy();
 }
 
 void LocationsModel::enableProxy()
 {
-    pingHost_->enableProxy();
+    pingHosts_->enableProxy();
 }
 
 QSharedPointer<BaseLocationInfo> LocationsModel::getMutableLocationInfoById(const LocationID &locationId)

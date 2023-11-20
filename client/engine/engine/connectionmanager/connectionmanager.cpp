@@ -920,11 +920,17 @@ void ConnectionManager::doConnectPart2()
             return;
         }
     #ifdef Q_OS_WIN
-        dynamic_cast<Helper_win*>(helper_)->setCustomDnsIp(ctrldManager_->listenIp());
+        // we need to exclude these DNS-addresses from DNS leak protection on Windows
+        QStringList dnsIps;
+        dnsIps << ctrldManager_->listenIp();
+        if (IpValidation::isIp(connectedDnsInfo_.upStream1)) {
+            dnsIps << connectedDnsInfo_.upStream1;
+        }
+        dynamic_cast<Helper_win*>(helper_)->setCustomDnsIps(dnsIps);
     #endif
     } else {
 #ifdef Q_OS_WIN
-        dynamic_cast<Helper_win*>(helper_)->setCustomDnsIp(QString());
+        dynamic_cast<Helper_win*>(helper_)->setCustomDnsIps(QStringList());
 #endif
     }
 
