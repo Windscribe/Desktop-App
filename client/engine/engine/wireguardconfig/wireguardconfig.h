@@ -16,6 +16,7 @@ public:
     QString clientPublicKey() const { return client_.publicKey; }
     QString clientIpAddress() const { return client_.ipAddress; }
     QString clientDnsAddress() const { return client_.dnsAddress; }
+    QString clientListenPort() const { return client_.listenPort; }
 
     QString peerPublicKey() const { return peer_.publicKey; }
     QString peerPresharedKey() const { return peer_.presharedKey; }
@@ -27,6 +28,7 @@ public:
     void setPeerAllowedIPs(const QString &allowedIPs) { peer_.allowedIps = allowedIPs; }
     void setClientIpAddress(const QString &ip) { client_.ipAddress = ip; }
     void setClientDnsAddress(const QString &dns) { client_.dnsAddress = dns; }
+    void setClientListenPort(const QString &listenPort) { client_.listenPort = listenPort; }
     bool haveServerGeneratedPeerParams() const;
 
     bool generateConfigFile(const QString &fileName) const;
@@ -47,6 +49,7 @@ private:
         QString publicKey;
         QString ipAddress;
         QString dnsAddress;
+        QString listenPort;
     } client_;
     struct {
         QString publicKey;
@@ -56,5 +59,5 @@ private:
     } peer_;
 
     // for serialization
-    static constexpr quint32 versionForSerialization_ = 1;  // should increment the version if the data format is changed
+    static constexpr quint32 versionForSerialization_ = 2;  // should increment the version if the data format is changed
 };

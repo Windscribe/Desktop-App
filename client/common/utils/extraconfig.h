@@ -19,6 +19,8 @@ public:
 
     void logExtraConfig();
     void writeConfig(const QString &cfg);
+    void setAntiCensorship(bool bEnable);
+    bool getAntiCensorship();
 
     QString getExtraConfig(bool bWithLog = false);
     QString getExtraConfigForOpenVpn();
@@ -50,6 +52,7 @@ public:
     bool getUseICMPPings();
     bool getStealthExtraTLSPadding();
     bool getAPIExtraTLSPadding();
+    bool getWireGuardUdpStuffing();
 
 private:
     ExtraConfig();
@@ -58,6 +61,7 @@ private:
     QString path_;
     QRegularExpression regExp_;
     QString detectedIp_;
+    bool isAntiCensorship_;
 
     int getIntFromLineWithString(const QString &line, const QString &str, bool &success);
     int getIntFromExtraConfigLines(const QString &variableName, bool &success);

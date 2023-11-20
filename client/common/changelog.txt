@@ -1,3 +1,14 @@
+2.7.9 (08/08/2023)
+All:
+   * Added anti-censorship toggle in preferences. #695
+   * Added anti-censorship feature: WireGuard UDP stuffing. #696
+   * Added an icon on the main screen to indicate anti-censorship mode is enabled. #700
+Windows:
+   * Fixed DNS resolver issue. #643 & #697
+Linux:
+   * Fixed app fails to download update package on Ubuntu arm64. #690
+
+
 2.7.8 (17/07/2023)
 All:
    * Fixed spinner animation on the ROBERT page continues after the website has already been opened. #480

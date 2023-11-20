@@ -94,6 +94,9 @@ public:
     void setTerminateSockets(bool b);
 #endif
 
+    bool isAntiCensorship() const;
+    void setAntiCensorship(bool b);
+
     const types::ShareSecureHotspot &shareSecureHotspot() const;
     void setShareSecureHotspot(const types::ShareSecureHotspot &ss);
 
@@ -177,6 +180,7 @@ signals:
     void isAutoSecureNetworksChanged(bool b);
     void minimizeAndCloseToTrayChanged(bool b);
     void isTerminateSocketsChanged(bool b);
+    void isAntiCensorshipChanged(bool b);
     void tapAdapterChanged(TAP_ADAPTER_TYPE tapAdapter);
     void hideFromDockChanged(bool b);
     void shareSecureHotspotChanged(const types::ShareSecureHotspot &ss);

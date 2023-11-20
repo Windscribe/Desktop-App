@@ -39,7 +39,7 @@ void IconButton::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
 
     qreal initialOpacity = painter->opacity();
     painter->setOpacity(curOpacity_ * initialOpacity);
-    int rcW = static_cast<int>(boundingRect().width() );
+    int rcW = static_cast<int>(boundingRect().width());
     int rcH = static_cast<int>(boundingRect().height());
 
     if (imageWithShadow_)

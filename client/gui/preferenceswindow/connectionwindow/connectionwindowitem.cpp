@@ -38,6 +38,7 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
     connect(preferencesHelper, &PreferencesHelper::isExternalConfigModeChanged, this, &ConnectionWindowItem::onIsExternalConfigModeChanged);
     connect(preferencesHelper, &PreferencesHelper::proxyGatewayAddressChanged, this, &ConnectionWindowItem::onProxyGatewayAddressChanged);
     connect(preferences, &Preferences::isTerminateSocketsChanged, this, &ConnectionWindowItem::onTerminateSocketsPreferencesChanged);
+    connect(preferences, &Preferences::isAntiCensorshipChanged, this, &ConnectionWindowItem::onAntiCensorshipPreferencesChanged);
     connect(preferences, &Preferences::isAutoConnectChanged, this, &ConnectionWindowItem::onIsAutoConnectPreferencesChanged);
 
     subpagesGroup_ = new PreferenceGroup(this);
@@ -153,6 +154,14 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
     proxyGatewayGroup_->setProxyGatewaySettings(preferences->shareProxyGateway());
     addItem(proxyGatewayGroup_);
 
+    antiCensorshipGroup_ = new PreferenceGroup(this);
+    antiCensorshipItem_ = new ToggleItem(antiCensorshipGroup_, tr("Circumvent Censorship"));
+    antiCensorshipItem_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/CIRCUMVENT_CENSORSHIP"));
+    antiCensorshipItem_->setState(preferences->isAntiCensorship());
+    connect(antiCensorshipItem_, &ToggleItem::stateChanged, this, &ConnectionWindowItem::onAntiCensorshipPreferencesChangedByUser);
+    antiCensorshipGroup_->addItem(antiCensorshipItem_);
+    addItem(antiCensorshipGroup_);
+
     connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &ConnectionWindowItem::onLanguageChanged);
     onLanguageChanged();
 }
@@ -230,6 +239,11 @@ void ConnectionWindowItem::onTerminateSocketsPreferencesChangedByUser(bool isChe
 #endif
 }
 
+void ConnectionWindowItem::onAntiCensorshipPreferencesChangedByUser(bool isChecked)
+{
+    preferences_->setAntiCensorship(isChecked);
+}
+
 void ConnectionWindowItem::onSplitTunnelingPreferencesChanged(const types::SplitTunneling &st)
 {
 #ifndef Q_OS_LINUX
@@ -284,6 +298,11 @@ void ConnectionWindowItem::onTerminateSocketsPreferencesChanged(bool b)
 #if defined(Q_OS_WIN)
     terminateSocketsItem_->setState(b);
 #endif
+}
+
+void ConnectionWindowItem::onAntiCensorshipPreferencesChanged(bool b)
+{
+    antiCensorshipItem_->setState(b);
 }
 
 void ConnectionWindowItem::onAllowLanTrafficButtonHoverLeave()
@@ -355,6 +374,8 @@ void ConnectionWindowItem::onLanguageChanged()
 #endif
 
     proxyGatewayGroup_->setDescription(tr("Configure your TV, gaming console, or other devices that support proxy servers."));
+    antiCensorshipItem_->setCaption(tr("Circumvent Censorship"));
+    antiCensorshipGroup_->setDescription(tr("Connect to the VPN even in hostile environment."));
 }
 
 void ConnectionWindowItem::onIsAllowLanTrafficPreferencesChangedByUser(bool b)

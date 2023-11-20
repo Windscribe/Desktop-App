@@ -368,16 +368,17 @@ void GeneralWindowItem::onAppSkinPreferencesChanged(APP_SKIN s)
 
 void GeneralWindowItem::onVersionInfoClicked()
 {
-    QString platform;
 #ifdef Q_OS_WIN
-    platform = "windows";
+    QString platform = "windows";
 #elif defined(Q_OS_MAC)
-    platform = "mac";
+    QString platform = "mac";
 #else
-    platform = LinuxUtils::getLastInstallPlatform();
-    if (platform == LinuxUtils::DEB_PLATFORM_NAME) {
+    QString platform;
+    QString lastPlatform = LinuxUtils::getLastInstallPlatform();
+    if (lastPlatform == LinuxUtils::DEB_PLATFORM_NAME_X64 ||
+        lastPlatform == LinuxUtils::DEB_PLATFORM_NAME_ARM64) {
         platform = "linux_deb";
-    } else if (platform == LinuxUtils::RPM_PLATFORM_NAME) {
+    } else if (lastPlatform == LinuxUtils::RPM_PLATFORM_NAME) {
         platform = "linux_rpm";
     } else {
         // We don't have a website changelog for zst yet, go to top page instead

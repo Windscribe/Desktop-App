@@ -426,7 +426,14 @@ QString Utils::getPlatformNameSafe()
 {
     QString platform = getPlatformName();
 #ifdef Q_OS_LINUX
-    if (platform == "") return LinuxUtils::DEB_PLATFORM_NAME; // default to debian so most of our API calls don't fail if we cannot find the /etc/windscribe/platform file (someone would have to manually delete)
+    // Default to debian so most of our API calls don't fail if we cannot find the /etc/windscribe/platform
+    // file (someone would have to manually delete)
+    if (platform.isEmpty())
+#ifdef __aarch64__
+        return LinuxUtils::DEB_PLATFORM_NAME_ARM64;
+#else
+        return LinuxUtils::DEB_PLATFORM_NAME_X64;
+#endif
 #endif
     return platform;
 }

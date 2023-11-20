@@ -40,6 +40,9 @@ ConnectStateProtocolPort::ConnectStateProtocolPort(ScalableGraphicsObject *paren
 
     preferredProtocolBadge_->setClickableHoverable(false, false);
 
+    antiCensorshipBadge_ = new IconButton(8, 16, "preferences/CIRCUMVENT_CENSORSHIP", "", this, OPACITY_FULL, OPACITY_FULL);
+    antiCensorshipBadge_->setClickableHoverable(false, false);
+
     setClickableHoverable(true, false);
     recalcSize();
 }
@@ -140,9 +143,6 @@ void ConnectStateProtocolPort::updateStateDisplay(const types::ConnectState &con
             connectionBadgeDots_->hide();
             connectionBadgeDots_->stop();
         }
-        badgePixmap_.setColor(badgeBgColor_);
-        protocolArrow_->setTintColor(textColor_);
-        preferredProtocolBadge_->setTintColor(textColor_);
     }
     else
     {
@@ -164,10 +164,13 @@ void ConnectStateProtocolPort::updateStateDisplay(const types::ConnectState &con
             textOpacity_ = 1.0;
             textColor_ = FontManager::instance().getBrightYellowColor();
         }
-        badgePixmap_.setColor(badgeBgColor_);
-        protocolArrow_->setTintColor(textColor_);
-        preferredProtocolBadge_->setTintColor(textColor_);
     }
+
+    badgePixmap_.setColor(badgeBgColor_);
+    protocolArrow_->setTintColor(textColor_);
+    preferredProtocolBadge_->setTintColor(textColor_);
+    antiCensorshipBadge_->setTintColor(textColor_);
+
     recalcSize();
 }
 
@@ -290,12 +293,31 @@ void ConnectStateProtocolPort::recalcSize()
     if (isPreferredProtocol_) {
         width_ += preferredProtocolBadge_->boundingRect().width() + separatorWidth;
     }
+    if (isAntiCensorshipEnabled_) {
+        width_ += antiCensorshipBadge_->boundingRect().width() + separatorWidth;
+    }
     height_ = badgeHeight;
 
     protocolArrow_->setPos(width_ - protocolArrowWidth - 4*G_SCALE + arrowShift_*G_SCALE, 2*G_SCALE);
+
     preferredProtocolBadge_->setVisible(isPreferredProtocol_);
-    preferredProtocolBadge_->setPos(protocolWidth + portWidth + badgeWidth + 4*separatorWidth + 4*G_SCALE,
-                                    boundingRect().height()/2 - preferredProtocolBadge_->boundingRect().height()/2);
+    if (isPreferredProtocol_) {
+        preferredProtocolBadge_->setPos(protocolWidth + portWidth + badgeWidth + 4*separatorWidth + 4*G_SCALE,
+                                        boundingRect().height()/2 - preferredProtocolBadge_->boundingRect().height()/2);
+    }
+
+    antiCensorshipBadge_->setVisible(isAntiCensorshipEnabled_);
+    if (isAntiCensorshipEnabled_) {
+        qreal antiCensorshipBadgeLeft;
+        if (isPreferredProtocol_) {
+            antiCensorshipBadgeLeft = preferredProtocolBadge_->pos().x() + preferredProtocolBadge_->boundingRect().width() + separatorWidth;
+        }
+        else {
+            antiCensorshipBadgeLeft = protocolWidth + portWidth + badgeWidth + 4*separatorWidth + 4*G_SCALE;
+        }
+
+        antiCensorshipBadge_->setPos(antiCensorshipBadgeLeft, boundingRect().height()/2 - antiCensorshipBadge_->boundingRect().height()/2);
+    }
 }
 
 types::ProtocolStatus ConnectStateProtocolPort::getProtocolStatus()
@@ -324,19 +346,25 @@ void ConnectStateProtocolPort::setProtocolButtonVisible(bool visible)
 
 void ConnectStateProtocolPort::onHoverEnter()
 {
-    protocolArrow_->hoverEnter();
+    protocolArrow_->hover();
     startAnAnimation(protocolArrowAnimation_, arrowShift_, 4, ANIMATION_SPEED_FAST);
 }
 
 void ConnectStateProtocolPort::onHoverLeave()
 {
-    protocolArrow_->hoverLeave();
+    protocolArrow_->unhover();
     startAnAnimation(protocolArrowAnimation_, arrowShift_, 0, ANIMATION_SPEED_FAST);
 }
 
 void ConnectStateProtocolPort::setIsPreferredProtocol(bool on)
 {
     isPreferredProtocol_ = on;
+    recalcSize();
+}
+
+void ConnectStateProtocolPort::antiCensorshipChanged(bool enabled)
+{
+    isAntiCensorshipEnabled_ = enabled;
     recalcSize();
 }
 

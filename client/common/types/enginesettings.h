@@ -23,6 +23,7 @@ struct EngineSettingsData : public QSharedData
         updateChannel(UPDATE_CHANNEL_RELEASE),
         isIgnoreSslErrors(false),
         isTerminateSockets(true),
+        isAntiCensorship(false),
         isAllowLanTraffic(false),
         dnsPolicy(DNS_TYPE_CLOUDFLARE),
         tapAdapter(WINTUN_ADAPTER),
@@ -34,6 +35,7 @@ struct EngineSettingsData : public QSharedData
     UPDATE_CHANNEL updateChannel;
     bool isIgnoreSslErrors;
     bool isTerminateSockets;
+    bool isAntiCensorship;
     bool isAllowLanTraffic;
     types::FirewallSettings firewallSettings;
     types::ConnectionSettings connectionSettings;
@@ -70,6 +72,8 @@ public:
     void setIsIgnoreSslErrors(bool ignore);
     bool isTerminateSockets() const;
     void setIsTerminateSockets(bool close);
+    bool isAntiCensorship() const;
+    void setIsAntiCensorship(bool enable);
     bool isAllowLanTraffic() const;
     void setIsAllowLanTraffic(bool isAllowLanTraffic);
 
@@ -123,7 +127,7 @@ private:
 
     // for serialization
     static constexpr quint32 magic_ = 0x7745C2AE;
-    static constexpr int versionForSerialization_ = 3;  // should increment the version if the data format is changed
+    static constexpr int versionForSerialization_ = 4;  // should increment the version if the data format is changed
 };
 
 } // types namespace

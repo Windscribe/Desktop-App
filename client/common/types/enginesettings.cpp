@@ -24,7 +24,8 @@ void EngineSettings::saveToSettings()
         ds << d->language << d->updateChannel << d->isIgnoreSslErrors << d->isTerminateSockets << d->isAllowLanTraffic <<
               d->firewallSettings << d->connectionSettings << d->apiResolutionSettings << d->proxySettings << d->packetSize <<
               d->macAddrSpoofing << d->dnsPolicy << d->tapAdapter << d->customOvpnConfigsPath << d->isKeepAliveEnabled <<
-              d->connectedDnsInfo << d->dnsManager << d->networkPreferredProtocols << d->networkLastKnownGoodProtocols;
+              d->connectedDnsInfo << d->dnsManager << d->networkPreferredProtocols << d->networkLastKnownGoodProtocols <<
+              d->isAntiCensorship;
     }
 
     QSettings settings;
@@ -62,6 +63,10 @@ void EngineSettings::loadFromSettings()
             if (version >= 3)
             {
                 ds >> d->networkLastKnownGoodProtocols;
+            }
+            if (version >= 4)
+            {
+                ds >> d->isAntiCensorship;
             }
             if (ds.status() == QDataStream::Ok)
             {
@@ -123,6 +128,16 @@ bool EngineSettings::isTerminateSockets() const
 void EngineSettings::setIsTerminateSockets(bool close)
 {
     d->isTerminateSockets = close;
+}
+
+bool EngineSettings::isAntiCensorship() const
+{
+    return d->isAntiCensorship;
+}
+
+void EngineSettings::setIsAntiCensorship(bool enable)
+{
+    d->isAntiCensorship = enable;
 }
 
 bool EngineSettings::isAllowLanTraffic() const
@@ -322,6 +337,7 @@ bool EngineSettings::operator==(const EngineSettings &other) const
             other.d->updateChannel == d->updateChannel &&
             other.d->isIgnoreSslErrors == d->isIgnoreSslErrors &&
             other.d->isTerminateSockets == d->isTerminateSockets &&
+            other.d->isAntiCensorship == d->isAntiCensorship &&
             other.d->isAllowLanTraffic == d->isAllowLanTraffic &&
             other.d->firewallSettings == d->firewallSettings &&
             other.d->connectionSettings == d->connectionSettings &&
@@ -352,6 +368,7 @@ QDebug operator<<(QDebug dbg, const EngineSettings &es)
     dbg << "updateChannel:" << UPDATE_CHANNEL_toString(es.d->updateChannel) << "; ";
     dbg << "isIgnoreSslErrors:" << es.d->isIgnoreSslErrors << "; ";
     dbg << "isTerminateSockets:" << es.d->isTerminateSockets << "; ";
+    dbg << "isAntiCensorship:" << es.d->isAntiCensorship << "; ";
     dbg << "isAllowLanTraffic:" << es.d->isAllowLanTraffic << "; ";
     dbg << "firewallSettings: " << es.d->firewallSettings << "; ";
     dbg << "connectionSettings: " << es.d->connectionSettings << "; ";

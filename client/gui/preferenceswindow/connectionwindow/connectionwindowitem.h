@@ -64,6 +64,7 @@ private slots:
     void onIsFirewallBlockedChanged(bool bFirewallBlocked);
     void onIsExternalConfigModeChanged(bool bIsExternalConfigMode);
     void onTerminateSocketsPreferencesChanged(bool b);
+    void onAntiCensorshipPreferencesChanged(bool b);
     void onIsAutoConnectPreferencesChanged(bool b);
 
     // slots for changes made by user
@@ -76,6 +77,7 @@ private slots:
     void onSecureHotspotPreferencesChangedByUser(const types::ShareSecureHotspot &ss);
     void onProxyGatewayPreferencesChangedByUser(const types::ShareProxyGateway &sp);
     void onTerminateSocketsPreferencesChangedByUser(bool isChecked);
+    void onAntiCensorshipPreferencesChangedByUser(bool isChecked);
     void onIsAutoConnectPreferencesChangedByUser(bool b);
 
     void onLanguageChanged();
@@ -101,6 +103,8 @@ private:
     ConnectedDnsGroup *connectedDnsGroup_;
     PreferenceGroup *terminateSocketsGroup_;
     ToggleItem *terminateSocketsItem_;
+    PreferenceGroup *antiCensorshipGroup_;
+    ToggleItem *antiCensorshipItem_;
     SecureHotspotGroup *secureHotspotGroup_;
     ProxyGatewayGroup *proxyGatewayGroup_;
 

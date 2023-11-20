@@ -1,6 +1,8 @@
 target_sources(engine PRIVATE
     areslibraryinit.cpp
     areslibraryinit.h
+    dnsresolver_cares.cpp
+    dnsresolver_cares.h
     dnsrequest.cpp
     dnsrequest.h
     idnsresolver.h
@@ -11,20 +13,14 @@ target_sources(engine PRIVATE
 
 if (WIN32)
     target_sources(engine PRIVATE
-	dnsresolver_win.cpp
-	dnsresolver_win.h
         dnsutils_win.cpp
     )
 elseif(APPLE)
     target_sources(engine PRIVATE
-	dnsresolver_posix.cpp
-	dnsresolver_posix.h
         dnsutils_mac.cpp
     )
 elseif(UNIX)
     target_sources(engine PRIVATE
-	dnsresolver_posix.cpp
-	dnsresolver_posix.h
         dnsutils_linux.cpp
     )
 endif()

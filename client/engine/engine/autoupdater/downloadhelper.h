@@ -1,5 +1,4 @@
-#ifndef DOWNLOADHELPER_H
-#define DOWNLOADHELPER_H
+#pragma once
 
 #include <QString>
 #include <QObject>
@@ -64,7 +63,4 @@ private:
     bool allRepliesDone();
     void abortAllReplies();
     void deleteAllReplies();
-
 };
-
-#endif // DOWNLOADHELPER_H

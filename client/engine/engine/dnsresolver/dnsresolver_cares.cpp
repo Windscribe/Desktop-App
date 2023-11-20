@@ -1,4 +1,4 @@
-#include "dnsresolver_posix.h"
+#include "dnsresolver_cares.h"
 #include "dnsutils.h"
 #include "utils/ws_assert.h"
 #include "utils/logger.h"
@@ -81,8 +81,11 @@ public:
                 int nfds = ares_fds(channel, &readers, &writers);
                 if (nfds == 0)
                     break;
-                timeval *tvp = ares_timeout(channel, NULL, &tv);
-                select(nfds, &readers, &writers, NULL, tvp);
+                // do not block for longer than kTimeoutMs interval
+                timeval tvp;
+                tvp.tv_sec = 0;
+                tvp.tv_usec = kTimeoutMs * 1000;
+                select(nfds, &readers, &writers, NULL, &tvp);
                 ares_process(channel, &readers, &writers);
                 if (elapsedTimer.elapsed() > timeoutMs_) {
                     userArg.errorCode = ARES_ETIMEOUT;
@@ -112,8 +115,12 @@ public:
     qint64 elapsedMs() const { return elapsedMs_; }
 
 private:
-    static constexpr int kTimeoutMs = 2000;
-    static constexpr int kTries = 1;
+    // 200 ms settled for faster switching to the next try (next server)
+    // this does not mean that the current request will be limited to 200ms,
+    // but after 200 ms, the next one will start parallel to the first one
+    // (see discussion for details: https://lists.haxx.se/pipermail/c-ares/2022-January/000032.html
+    static constexpr int kTimeoutMs = 200;
+    static constexpr int kTries = 4; // default value in c-ares, let's leave it as it is
     QString hostname_;
     QSharedPointer<QObject> object_;
     QStringList dnsServers_;
@@ -180,13 +187,13 @@ private:
 
 } // namespace
 
-DnsResolver_posix::DnsResolver_posix()
+DnsResolver_cares::DnsResolver_cares()
 {
     aresLibraryInit_.init();
     threadPool_ = new QThreadPool();
 }
 
-DnsResolver_posix::~DnsResolver_posix()
+DnsResolver_cares::~DnsResolver_cares()
 {
     g_FinishAll = true;
     threadPool_->waitForDone();
@@ -194,14 +201,14 @@ DnsResolver_posix::~DnsResolver_posix()
     qCDebug(LOG_BASIC) << "DnsResolver stopped";
 }
 
-void DnsResolver_posix::lookup(const QString &hostname, QSharedPointer<QObject> object, const QStringList &dnsServers, int timeoutMs)
+void DnsResolver_cares::lookup(const QString &hostname, QSharedPointer<QObject> object, const QStringList &dnsServers, int timeoutMs)
 {
     LookupJob *job = new LookupJob(hostname, object, dnsServers, timeoutMs);
     threadPool_->start(job);
     WS_ASSERT(threadPool_->activeThreadCount() <= threadPool_->maxThreadCount());   // in this case, we probably need to redo the logic
 }
 
-QStringList DnsResolver_posix::lookupBlocked(const QString &hostname, const QStringList &dnsServers, int timeoutMs, QString *outError)
+QStringList DnsResolver_cares::lookupBlocked(const QString &hostname, const QStringList &dnsServers, int timeoutMs, QString *outError)
 {
     LookupJob job(hostname, nullptr, dnsServers, timeoutMs);
     job.run();

@@ -1,16 +1,19 @@
 #include "downloadhelper.h"
 
-#include "utils/logger.h"
-#include <QStandardPaths>
-#include <QFile>
 #include <QDir>
-#include "names.h"
+#include <QFile>
+#include <QStandardPaths>
+
 #include "engine/networkaccessmanager/networkaccessmanager.h"
 #include "engine/networkaccessmanager/networkreply.h"
-#include "utils/utils.h"
+#include "names.h"
+#include "utils/logger.h"
+#include "utils/ws_assert.h"
 
-#ifdef Q_OS_LINUX
+#if defined(Q_OS_LINUX)
 #include "utils/linuxutils.h"
+#elif defined(Q_OS_MAC)
+#include "utils/utils.h"
 #endif
 
 DownloadHelper::DownloadHelper(QObject *parent, NetworkAccessManager *networkAccessManager, const QString &platform) : QObject(parent)
@@ -39,7 +42,9 @@ const QString DownloadHelper::downloadInstallerPath()
     const QString path = downloadInstallerPathWithoutExtension() + ".dmg";
 #elif defined Q_OS_LINUX
     QString path;
-    if (platform_ == LinuxUtils::DEB_PLATFORM_NAME) { // if getPlatformName() fails, we should never get this far anyway
+    // if getPlatformName() fails, we should never get this far anyway
+    if (platform_ == LinuxUtils::DEB_PLATFORM_NAME_X64 ||
+        platform_ == LinuxUtils::DEB_PLATFORM_NAME_ARM64) {
         path = downloadInstallerPathWithoutExtension() + ".deb";
     }
     else if (platform_ == LinuxUtils::RPM_PLATFORM_NAME) {
@@ -49,6 +54,7 @@ const QString DownloadHelper::downloadInstallerPath()
         path = downloadInstallerPathWithoutExtension() + ".pkg.tar.zst";
     }
 #endif
+    WS_ASSERT(!path.isEmpty());
     return path;
 }
 

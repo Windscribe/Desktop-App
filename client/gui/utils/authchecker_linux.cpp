@@ -45,6 +45,6 @@ AuthCheckerError AuthChecker_linux::authenticate()
     qCDebug(LOG_AUTH_HELPER) << "Failed to authenticate: " << process_->exitStatus()
                              << ", code: " << process_->exitCode()
                              << ", error: " << process_->error();
-    return AuthCheckerError::AUTH_NO_ERROR;
+    return AuthCheckerError::AUTH_AUTHENTICATION_ERROR;
 }
 

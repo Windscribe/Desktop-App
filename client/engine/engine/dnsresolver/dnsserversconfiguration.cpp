@@ -21,21 +21,32 @@ void DnsServersConfiguration::setDnsServersPolicy(DNS_POLICY_TYPE policy)
 QStringList DnsServersConfiguration::getCurrentDnsServers() const
 {
     QMutexLocker locker(&mutex_);
-    if (isConnectedToVpn_)
+    if (isConnectedToVpn_) {
+    // For windows c-ares library puts the loopback address in low priority and this
+    // creates unnecessary delay when executing a dns request
+    // As a workaround, we form a list of servers ourselves for a loopback adress, bypassing c-ares.
+#ifdef Q_OS_WIN
+        if (vpnDnsServers_.size() == 1 && vpnDnsServers_[0].startsWith("127.0.0")) {
+            return vpnDnsServers_;
+        }
+#endif
         return QStringList();       // use OS default DNS
-    else
+    } else {
         return ips;
+    }
 }
 
-void DnsServersConfiguration::setConnectedState()
+void DnsServersConfiguration::setConnectedState(const QStringList &vpnDnsServers)
 {
     QMutexLocker locker(&mutex_);
+    vpnDnsServers_ = vpnDnsServers;
     isConnectedToVpn_ = true;
 }
 
 void DnsServersConfiguration::setDisconnectedState()
 {
     QMutexLocker locker(&mutex_);
+    vpnDnsServers_.clear();
     isConnectedToVpn_ = false;
 }
 

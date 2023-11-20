@@ -20,6 +20,7 @@ WireGuardConfig::WireGuardConfig(const QString &privateKey, const QString &ipAdd
     client_.privateKey = privateKey;
     client_.ipAddress = ipAddress;
     client_.dnsAddress = dnsAddress;
+    client_.listenPort = QString();
     peer_.publicKey = publicKey;
     peer_.presharedKey = presharedKey;
     peer_.endpoint = endpoint;
@@ -59,6 +60,11 @@ bool WireGuardConfig::generateConfigFile(const QString &fileName) const
     ts << "PrivateKey = " << client_.privateKey << '\n';
     ts << "Address = " << client_.ipAddress << '\n';
     ts << "DNS = " << client_.dnsAddress << '\n';
+
+    if (!client_.listenPort.isEmpty()) {
+        ts << "ListenPort = " << client_.listenPort << '\n';
+    }
+
     ts << '\n';
     ts << "[Peer]\n";
     ts << "PublicKey = " << peer_.publicKey << '\n';
@@ -92,6 +98,7 @@ void WireGuardConfig::reset()
     client_.publicKey.clear();
     client_.ipAddress.clear();
     client_.dnsAddress.clear();
+    client_.listenPort.clear();
     peer_.publicKey.clear();
     peer_.presharedKey.clear();
     peer_.endpoint.clear();
@@ -170,7 +177,7 @@ bool WireGuardConfig::haveServerGeneratedPeerParams() const
 QDataStream& operator <<(QDataStream &stream, const WireGuardConfig &c)
 {
     stream << c.versionForSerialization_;
-    stream << c.client_.privateKey << c.client_.publicKey << c.client_.ipAddress << c.client_.dnsAddress;
+    stream << c.client_.privateKey << c.client_.publicKey << c.client_.ipAddress << c.client_.dnsAddress << c.client_.listenPort;
     stream << c.peer_.publicKey << c.peer_.presharedKey << c.peer_.endpoint << c.peer_.allowedIps;
     return stream;
 }
@@ -185,6 +192,9 @@ QDataStream& operator >>(QDataStream &stream, WireGuardConfig &c)
     }
 
     stream >> c.client_.privateKey >> c.client_.publicKey >> c.client_.ipAddress >> c.client_.dnsAddress;
+    if (version >= 2) {
+        stream >> c.client_.listenPort;
+    }
     stream >> c.peer_.publicKey >> c.peer_.presharedKey >> c.peer_.endpoint >> c.peer_.allowedIps;
     return stream;
 }

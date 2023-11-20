@@ -3,6 +3,9 @@
 #include <QThread>
 #include <QCoreApplication>
 #include <QDateTime>
+#include <QUdpSocket>
+#include <QRandomGenerator>
+
 #include "isleepevents.h"
 #include "openvpnconnection.h"
 #include "engine/crossplatformobjectfactory.h"
@@ -115,6 +118,27 @@ ConnectionManager::~ConnectionManager()
     SAFE_DELETE(makeOVPNFileFromCustom_);
     SAFE_DELETE(sleepEvents_);
     SAFE_DELETE(getWireGuardConfig_);
+}
+
+QString ConnectionManager::udpStuffingWithNtp(const QString &ip, const quint16 port)
+{
+    char ntpBuf[48] = {0};
+    // NTP client behavior as seen in Linux with chrony
+    ntpBuf[0] = 0x23; // ntp ver=4, mode=client
+    ntpBuf[2] = 0x09; // polling interval=9
+    ntpBuf[3] = 0x20; // clock precision
+    quint64 *ntpRand = (quint64*)&ntpBuf[40];
+
+    QUdpSocket udpSocket = QUdpSocket();
+    udpSocket.bind(QHostAddress::Any, 0);
+    const QString localPort = QString::number(udpSocket.localPort());
+    // repeat up to 5 times. Bounded argument is exclusive.
+    for (int i=0; i<=QRandomGenerator::global()->bounded(5); i++) {
+        *ntpRand = QRandomGenerator::global()->generate64();
+        udpSocket.writeDatagram(ntpBuf, sizeof(ntpBuf), QHostAddress(ip), port);
+    }
+    udpSocket.close();
+    return localPort;
 }
 
 void ConnectionManager::clickConnect(const QString &ovpnConfig, const apiinfo::ServerCredentials &serverCredentials,
@@ -1127,6 +1151,12 @@ void ConnectionManager::doConnectPart3()
             QString endpointAndPort = QString("%1:%2").arg(currentConnectionDescr_.ip).arg(currentConnectionDescr_.port);
             wireGuardConfig_.setPeerPublicKey(currentConnectionDescr_.wgPeerPublicKey);
             wireGuardConfig_.setPeerEndpoint(endpointAndPort);
+
+            if (ExtraConfig::instance().getWireGuardUdpStuffing()) {
+                QString localPort = udpStuffingWithNtp(currentConnectionDescr_.ip, currentConnectionDescr_.port);
+                wireGuardConfig_.setClientListenPort(localPort);
+            }
+
             recreateConnector(types::Protocol::WIREGUARD);
             connector_->startConnect(QString(), currentConnectionDescr_.ip,
                 currentConnectionDescr_.dnsHostName, QString(), QString(), lastProxySettings_,

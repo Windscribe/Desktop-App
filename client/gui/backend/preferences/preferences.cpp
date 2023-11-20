@@ -414,6 +414,22 @@ void Preferences::setTerminateSockets(bool b)
 }
 #endif
 
+bool Preferences::isAntiCensorship() const
+{
+    return engineSettings_.isAntiCensorship();
+}
+
+void Preferences::setAntiCensorship(bool b)
+{
+    if (engineSettings_.isAntiCensorship() != b)
+    {
+        engineSettings_.setIsAntiCensorship(b);
+        ExtraConfig::instance().setAntiCensorship(b);
+        emitEngineSettingsChanged();
+        emit isAntiCensorshipChanged(engineSettings_.isAntiCensorship());
+    }
+}
+
 const types::ShareSecureHotspot &Preferences::shareSecureHotspot() const
 {
     return guiSettings_.shareSecureHotspot;
@@ -682,6 +698,7 @@ void Preferences::setEngineSettings(const types::EngineSettings &es)
 #if defined(Q_OS_WIN)
     setTerminateSockets(es.isTerminateSockets());
 #endif
+    setAntiCensorship(es.isAntiCensorship());
 #if defined(Q_OS_WIN)
     setTapAdapter(es.tapAdapter());
 #endif

@@ -43,6 +43,9 @@ public:
 signals:
     void protocolsClick();
 
+public slots:
+    void antiCensorshipChanged(bool enabled);
+
 private slots:
     void onProtocolTestTunnelTimerTick();
     void onProtocolOpacityAnimationChanged(const QVariant &value);
@@ -77,6 +80,9 @@ private:
 
     IconButton *protocolArrow_;
     int arrowShift_;
+
+    IconButton *antiCensorshipBadge_;
+    bool isAntiCensorshipEnabled_ = false;
 
     int width_;
     int height_;

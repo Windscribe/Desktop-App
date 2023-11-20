@@ -4,14 +4,14 @@
 #include "idnsresolver.h"
 #include "areslibraryinit.h"
 
-// DnsResolver implementation based on the cares library (for Mac/Linux)
-class DnsResolver_posix : public IDnsResolver
+// DnsResolver implementation based on the cares library
+class DnsResolver_cares : public IDnsResolver
 {
 
 public:
-    static DnsResolver_posix &instance()
+    static DnsResolver_cares &instance()
     {
-        static DnsResolver_posix s;
+        static DnsResolver_cares s;
         return s;
     }
 
@@ -19,8 +19,8 @@ public:
     QStringList lookupBlocked(const QString &hostname, const QStringList &dnsServers, int timeoutMs, QString *outError) override;
 
 private:
-    explicit DnsResolver_posix();
-    virtual ~DnsResolver_posix();
+    explicit DnsResolver_cares();
+    virtual ~DnsResolver_cares();
 
 private:
     AresLibraryInit aresLibraryInit_;

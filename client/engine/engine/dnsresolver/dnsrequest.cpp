@@ -1,19 +1,11 @@
 #include "dnsrequest.h"
 #include "idnsresolver.h"
 #include "utils/logger.h"
-#ifdef Q_OS_WIN
-    #include "dnsresolver_win.h"
-#else
-    #include "dnsresolver_posix.h"
-#endif
+#include "dnsresolver_cares.h"
 
 DnsRequest::DnsRequest(QObject *parent, const QString &hostname, const QStringList &dnsServers, int timeoutMs /*= 5000*/)
     : QObject(parent),
-#ifdef Q_OS_WIN
-    dnsResolver_(DnsResolver_win::instance()),
-#else
-    dnsResolver_(DnsResolver_posix::instance()),
-#endif
+    dnsResolver_(DnsResolver_cares::instance()),
     hostname_(hostname),
     dnsServers_(dnsServers),
     timeoutMs_(timeoutMs)

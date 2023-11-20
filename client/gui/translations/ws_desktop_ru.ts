@@ -832,14 +832,14 @@
         <translation>Пожалуйста, свяжитесь со службой поддержки</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2504"/>
+        <location filename="../mainwindow.cpp" line="2505"/>
         <source>Lost connection to the backend process.
 Recovering...</source>
         <translation>Потеряно соединение с серверным процессом.
 Восстановление...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3102"/>
+        <location filename="../mainwindow.cpp" line="3103"/>
         <source>Select an application</source>
         <translation>Выберите приложение</translation>
     </message>
@@ -989,18 +989,18 @@ If the problem persists after a restart, please send a debug log and open a supp
 <context>
     <name>Preferences</name>
     <message>
-        <location filename="../backend/preferences/preferences.cpp" line="798"/>
-        <location filename="../backend/preferences/preferences.cpp" line="802"/>
+        <location filename="../backend/preferences/preferences.cpp" line="815"/>
+        <location filename="../backend/preferences/preferences.cpp" line="819"/>
         <source>Invalid DNS Settings</source>
         <translation>Недопустимые настройки DNS</translation>
     </message>
     <message>
-        <location filename="../backend/preferences/preferences.cpp" line="798"/>
+        <location filename="../backend/preferences/preferences.cpp" line="815"/>
         <source>&apos;Connected DNS&apos; was not configured with a valid Upstream 1 (IP/DNS-over-HTTPS/TLS). DNS was reverted to ROBERT (default).</source>
         <translation>&quot;Подключенный DNS&quot; не был настроен с допустимым исходящим потоком 1 (IP/DNS-over-HTTPS/TLS). DNS был возвращен к ROBERT (по умолчанию).</translation>
     </message>
     <message>
-        <location filename="../backend/preferences/preferences.cpp" line="802"/>
+        <location filename="../backend/preferences/preferences.cpp" line="819"/>
         <source>&apos;Connected DNS&apos; was not configured with a valid Upstream 2 (IP/DNS-over-HTTPS/TLS). DNS was reverted to ROBERT (default).</source>
         <translation>&apos;Подключенный DNS&apos; не был настроен с допустимым апстримом 2 (IP/DNS-over-HTTPS/TLS). DNS был перенастроен на ROBERT (по умолчанию).</translation>
     </message>
@@ -1306,119 +1306,130 @@ If the problem persists after a restart, please send a debug log and open a supp
 <context>
     <name>PreferencesWindow::ConnectionWindowItem</name>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="109"/>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="343"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="110"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="363"/>
         <source>Allow LAN Traffic</source>
         <translation>Разрешить трафик локальной сети</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="131"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="132"/>
         <source>Terminate Sockets</source>
         <translation>Закрытие сокетов</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="163"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="160"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="379"/>
+        <source>Circumvent Censorship</source>
+        <translation>Обход блокировок</translation>
+    </message>
+    <message>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="173"/>
         <source>Connection</source>
         <translation>Связь</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="244"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="259"/>
         <source>Exclusive</source>
         <translation>Исключающий</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="247"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="262"/>
         <source>Inclusive</source>
         <translation>Включающий</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="253"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="268"/>
         <source>Off</source>
         <translation>Выкл.</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="324"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="344"/>
         <source>Network Options</source>
         <translation>Параметры сети</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="326"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="346"/>
         <source>Split Tunneling</source>
         <translation>Раздельное туннелирование</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="329"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="349"/>
         <source>Proxy Settings</source>
         <translation>Настройки прокси-сервера</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="331"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="351"/>
         <source>Connects to last used location when the app launches or joins a network.</source>
         <translation>Подключаться к последней используемой локации при запуске приложения или присоединении к сети.</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="332"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="352"/>
         <source>Auto-Connect</source>
         <translation>Автоматическое подключение</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="333"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="353"/>
         <source>Control the mode of behavior of the Windscribe firewall.</source>
         <translation>Управление режимом поведения брандмауэра Windscribe.</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="334"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="354"/>
         <source>Connection Mode</source>
         <translation>Режим подключения</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="335"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="355"/>
         <source>Automatically choose the VPN protocol, or select one manually.</source>
         <translation>Выбор VPN-протокола автоматически или вручную</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="338"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="358"/>
         <source>Automatically determine the MTU for your connection, or manually override.</source>
         <translation>Автоматическое определение MTU для подключения или переопределение вручную.</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="341"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="361"/>
         <source>Select the DNS server while connected to Windscribe.</source>
         <translation>Выберите DNS-сервер при подключении к Windscribe.</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="342"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="362"/>
         <source>Allow access to local services and printers while connected to Windscribe.</source>
         <translation>Разрешить доступ к локальным службам и принтерам при подключении к Windscribe.</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="346"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="366"/>
         <source>Spoof your device&apos;s physical address (MAC address).</source>
         <translation>Подделка физичесого адреса (MAC-адреса) устройства.</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="350"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="370"/>
         <source>Close all active TCP sockets when the VPN tunnel is established.</source>
         <translation>Закрытие всех активных TCP-соединений при установке VPN-туннеля.</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="357"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="377"/>
         <source>Configure your TV, gaming console, or other devices that support proxy servers.</source>
         <translation>Настройка телевизора, игровой консоли и других устройств, поддерживающих прокси-серверы.</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="367"/>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="421"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="378"/>
+        <source>Connect to the VPN even in hostile environment.</source>
+        <translation>Подключаться к VPN даже во враждебно настроенной сети.</translation>
+    </message>
+    <message>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="388"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="442"/>
         <source>Settings Conflict</source>
         <translation>Конфликт настроек</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="368"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="389"/>
         <source>Disabling Allow LAN Traffic will cause your proxy gateway to stop working.  Do you want to disable the proxy?</source>
         <translation>Отключение параметра &quot;Разрешить трафик локальной сети&quot; приведет к тому, что прокси-шлюз перестанет работать.  Вы хотите отключить прокси?</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="422"/>
+        <location filename="../preferenceswindow/connectionwindow/connectionwindowitem.cpp" line="443"/>
         <source>LAN traffic is currently blocked by the Windscribe firewall.  Do you want to allow LAN traffic to bypass the firewall in order for this feature to work?</source>
         <translation>Трафик локальной сети в настоящее время блокируется брандмауэром Windscribe.  Вы хотите разрешить трафику локальной сети обходить брандмауэр, чтобы эта функция заработала?</translation>
     </message>
@@ -2141,9 +2152,13 @@ Connect to a network first</source>
         <translation>Безопасная точка доступа не поддерживается сетевым адаптером.</translation>
     </message>
     <message>
-        <location filename="../preferenceswindow/connectionwindow/securehotspotgroup.cpp" line="103"/>
         <source>Secure hotspot is not supported for IKEv2/WireGuard protocol and automatic connection mode.</source>
-        <translation>Безопасная точка доступа не поддерживается для протокола IKEv2/WireGuard и режима автоматического подключения.</translation>
+        <translation type="vanished">Безопасная точка доступа не поддерживается для протокола IKEv2/WireGuard и режима автоматического подключения.</translation>
+    </message>
+    <message>
+        <location filename="../preferenceswindow/connectionwindow/securehotspotgroup.cpp" line="103"/>
+        <source>Secure hotspot is not supported for IKEv2 protocol.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../preferenceswindow/connectionwindow/securehotspotgroup.cpp" line="106"/>

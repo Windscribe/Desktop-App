@@ -51,6 +51,8 @@ public:
     void blockingDisconnect();
     bool isDisconnected();
 
+    QString udpStuffingWithNtp(const QString &ip, const quint16 port);
+
     QString getLastConnectedIp();
     const AdapterGatewayInfo &getDefaultAdapterInfo() const;
     const AdapterGatewayInfo &getVpnAdapterInfo() const;
