@@ -4,7 +4,7 @@
 #include <map>
 #include <string>
 #include <vector>
-
+#include <cstdint>
 #include "../iwireguardcommunicator.h"
 #include "wireguard.h"
 

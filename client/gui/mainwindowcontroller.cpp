@@ -2845,8 +2845,8 @@ MainWindowController::TaskbarLocation MainWindowController::primaryScreenTaskbar
     QRect desktopAvailableRc = screen->availableGeometry();
     QRect desktopScreenRc = screen->geometry();
 
-    // qDebug() << "Desktop Available: " << desktopAvailableRc;
-    // qDebug() << "Desktop Screen: "    << desktopScreenRc;
+    qDebug() << "Desktop Available: " << desktopAvailableRc;
+    qDebug() << "Desktop Screen: "    << desktopScreenRc;
 
     if (desktopAvailableRc.x() > desktopScreenRc.x()) {
         taskbarLocation = TASKBAR_LEFT;
@@ -3100,8 +3100,8 @@ void MainWindowController::updateMainAndViewGeometry(bool updateShadow)
 
     }
 
-    // qDebug() << "Updating mainwindow geo: " << geo;
-    mainWindow_->setGeometry(geo);
+    qDebug() << "Updating mainwindow geo: " << geo;
+    //mainWindow_->setGeometry(geo);
     updateViewAndScene(width, height, shadowSize, updateShadow);
 }
 

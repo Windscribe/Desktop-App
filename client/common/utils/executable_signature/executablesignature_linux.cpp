@@ -1,5 +1,6 @@
 #include "executablesignature_linux.h"
 
+#include <memory>
 #include <codecvt>
 #include <stdio.h>
 #include <stdlib.h>
