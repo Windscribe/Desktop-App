@@ -19,7 +19,7 @@ const QString WS_TT_RETRY_DELAY_STR = WS_PREFIX + "tunnel-test-retry-delay";
 const QString WS_TT_ATTEMPTS_STR    = WS_PREFIX + "tunnel-test-attempts";
 const QString WS_TT_NO_ERROR_STR    = WS_PREFIX + "tunnel-test-no-error";
 
-const QString WS_STAGING_STR    = WS_PREFIX + "staging";
+const QString WS_STAGING_STR = WS_PREFIX + "staging";
 
 const QString WS_LOG_API_RESPONSE = WS_PREFIX + "log-api-response";
 const QString WS_WG_VERBOSE_LOGGING = WS_PREFIX + "wireguard-verbose-logging";
@@ -30,25 +30,26 @@ const QString WS_STEALTH_EXTRA_TLS_PADDING = WS_PREFIX + "stealth-extra-tls-padd
 const QString WS_API_EXTRA_TLS_PADDING = WS_PREFIX + "api-extra-tls-padding";
 const QString WS_WG_UDP_STUFFING = WS_PREFIX + "wireguard-udp-stuffing";
 
+const QString WS_SERVERLIST_COUNTRY_OVERRIDE = WS_PREFIX + "serverlist-country-override";
+
 void ExtraConfig::writeConfig(const QString &cfg)
 {
     QMutexLocker locker(&mutex_);
     QFile file(path_);
     if (cfg.isEmpty()) {
         file.remove();
+        return;
     }
-    else {
-        if (file.open(QIODevice::WriteOnly)) {
-            file.resize(0);
-            file.write(cfg.toLocal8Bit());
-            file.close();
 
-            qCDebug(LOG_BASIC) << "Wrote extra config file:" << path_;
-            qCDebug(LOG_BASIC) << "Extra options:" << cfg.toLocal8Bit();
-        }
+    if (file.open(QIODevice::WriteOnly)) {
+        file.resize(0);
+        file.write(cfg.toLocal8Bit());
+        file.close();
+
+        qCDebug(LOG_BASIC) << "Wrote extra config file:" << path_;
+        qCDebug(LOG_BASIC) << "Extra options:" << cfg.toLocal8Bit();
     }
 }
-
 
 QString ExtraConfig::getExtraConfig(bool bWithLog)
 {
@@ -67,11 +68,30 @@ QString ExtraConfig::getExtraConfig(bool bWithLog)
     return "";
 }
 
+QStringList ExtraConfig::extraConfigEntries()
+{
+    const QString config = getExtraConfig();
+    return config.split("\n");
+}
+
+std::optional<QString> ExtraConfig::getValue(const QString& key)
+{
+    const QStringList strs = extraConfigEntries();
+    for (const QString &line : strs) {
+        QString lineTrimmed = line.trimmed();
+        if (lineTrimmed.startsWith(key, Qt::CaseInsensitive)) {
+            QString value = line.mid(key.length());
+            return value.remove('=').trimmed();
+        }
+    }
+
+    return std::nullopt;
+}
+
 QString ExtraConfig::getExtraConfigForOpenVpn()
 {
-    QMutexLocker locker(&mutex_);
     QString result;
-    const QStringList strs = getExtraConfig().split("\n");
+    const QStringList strs = extraConfigEntries();
     for (const QString &line: strs) {
         if (isLegalOpenVpnCommand(line))
             result += line + "\n";
@@ -85,10 +105,8 @@ QString ExtraConfig::getExtraConfigForOpenVpn()
 
 QString ExtraConfig::getExtraConfigForIkev2()
 {
-    QMutexLocker locker(&mutex_);
     QString result;
-    const QString strExtraConfig = getExtraConfig();
-    const QStringList strs = strExtraConfig.split("\n");
+    const QStringList strs = extraConfigEntries();
     for (const QString &line : strs) {
         QString lineTrimmed = line.trimmed();
         if (lineTrimmed.startsWith("--ikev2", Qt::CaseInsensitive)) {
@@ -100,16 +118,13 @@ QString ExtraConfig::getExtraConfigForIkev2()
 
 bool ExtraConfig::isUseIkev2Compression()
 {
-    QMutexLocker locker(&mutex_);
     QString config = getExtraConfigForIkev2();
     return config.contains("--ikev2-compression", Qt::CaseInsensitive);
 }
 
 QString ExtraConfig::getRemoteIpFromExtraConfig()
 {
-    QMutexLocker locker(&mutex_);
-    const QString strExtraConfig = getExtraConfig(false);
-    const QStringList strs = strExtraConfig.split("\n");
+    const QStringList strs = extraConfigEntries();
     for (const QString &line : strs) {
         if (line.contains("remote", Qt::CaseInsensitive)) {
             QStringList words = line.split(" ");
@@ -260,55 +275,41 @@ bool ExtraConfig::getWireGuardUdpStuffing()
     return getFlagFromExtraConfigLines(WS_WG_UDP_STUFFING) || getAntiCensorship();
 }
 
-int ExtraConfig::getIntFromLineWithString(const QString &line, const QString &str, bool &success)
+std::optional<QString> ExtraConfig::serverlistCountryOverride()
 {
-    int endOfId = line.indexOf(str, Qt::CaseInsensitive) + str.length();
-    int equals = line.indexOf("=", endOfId, Qt::CaseInsensitive)+1;
-
-    int result = 0;
-    if (equals != -1) {
-        QString afterEquals = line.mid(equals).trimmed();
-        result = afterEquals.toInt(&success);
+    auto value = getValue(WS_SERVERLIST_COUNTRY_OVERRIDE);
+    if (value.has_value() && !value.value().isEmpty()) {
+        return value;
     }
 
-    return result;
+    return std::nullopt;
+}
+
+bool ExtraConfig::serverListIgnoreCountryOverride()
+{
+    auto value = serverlistCountryOverride();
+    if (value.has_value() && value.value().compare("ignore", Qt::CaseInsensitive) == 0) {
+        return true;
+    }
+
+    return false;
 }
 
 int ExtraConfig::getIntFromExtraConfigLines(const QString &variableName, bool &success)
 {
-    success = false;
-
-    const QString strExtraConfig = getExtraConfig();
-    const QStringList strs = strExtraConfig.split("\n");
-
-    for (const QString &line : strs) {
-        QString lineTrimmed = line.trimmed();
-
-        if (lineTrimmed.startsWith(variableName, Qt::CaseInsensitive)) {
-            int result = getIntFromLineWithString(lineTrimmed, variableName, success);
-
-            if (success) {
-                return result;
-            }
-        }
+    auto value = getValue(variableName);
+    if (value.has_value()) {
+        return value->toInt(&success);
     }
 
+    success = false;
     return 0;
 }
 
 bool ExtraConfig::getFlagFromExtraConfigLines(const QString &flagName)
 {
-    const QString strExtraConfig = getExtraConfig();
-    const QStringList strs = strExtraConfig.split("\n");
-
-    for (const QString &line : strs) {
-        QString lineTrimmed = line.trimmed();
-        if (lineTrimmed.startsWith(flagName, Qt::CaseInsensitive)) {
-            return true;
-        }
-    }
-    return false;
-
+    auto value = getValue(flagName);
+    return value.has_value();
 }
 
 bool ExtraConfig::isLegalOpenVpnCommand(const QString &command) const

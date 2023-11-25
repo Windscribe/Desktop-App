@@ -98,17 +98,14 @@ bool CurlNetworkManagerImpl::setupBasicOptions(RequestInfo *requestInfo, const N
     if (!setupProxy(requestInfo, proxySettings)) return false;
 
     if (!request.echConfig().isEmpty()) {
-        if (curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_ECH_STATUS, 1) != CURLE_OK)
-            return false;
-        if (curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_ECH_CONFIG, request.echConfig().toStdString().c_str()) != CURLE_OK)
+        std::string sss = "ECL:" + request.echConfig().toStdString();
+        if (curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_ECH, sss.c_str()) != CURLE_OK)
             return false;
     }
 
     if (request.isExtraTLSPadding()) {
-#ifdef CURLSSLOPT_TLSEXT_PADDING_SUPER
         if (curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_SSL_OPTIONS, CURLSSLOPT_TLSEXT_PADDING | CURLSSLOPT_TLSEXT_PADDING_SUPER) != CURLE_OK)
             return false;
-#endif
     }
 
     curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_PRIVATE, new quint64(requestInfo->id));    // our user data, must be deleted in the RequestInfo destructor

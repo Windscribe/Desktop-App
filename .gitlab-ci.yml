@@ -136,7 +136,7 @@ variables:
 .download_dependency_wstunnel:
   script:
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --create-dirs -o ${BUILD_LIBS_FOLDER}/stunnel.zip "${NEXUS_PATH_DEPS}/${OS_IDENTIFIER}/wstunnel.zip"
+      --create-dirs -o ${BUILD_LIBS_FOLDER}/wstunnel.zip "${NEXUS_PATH_DEPS}/${OS_IDENTIFIER}/wstunnel.zip"
 
 .download_dependency_zlib:
   script:
@@ -154,7 +154,6 @@ variables:
     - !reference [.download_dependency_curl, script]
     - !reference [.download_dependency_ctrld, script]
     - !reference [.download_dependency_dga, script]
-    - !reference [.download_dependency_lzo, script]
     - !reference [.download_dependency_openssl, script]
     - !reference [.download_dependency_openvpn, script]
     - !reference [.download_dependency_qt, script]

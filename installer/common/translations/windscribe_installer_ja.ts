@@ -92,10 +92,6 @@
         <translation>ウィンドスクライブインストーラ</translation>
     </message>
     <message>
-        <source>The Windscribe app can only be installed on Windows 10 or newer.</source>
-        <translation>Windscribe アプリは、Windows 10 以降にのみインストールできます。</translation>
-    </message>
-    <message>
         <source>This version of the Windscribe app will not operate correctly on your PC.  Please download the &apos;ARM64&apos; version from the Windscribe website to ensure optimal compatibility and performance.</source>
         <translation>このバージョンの Windscribe アプリは、お使いの PC では正しく動作しません。 最適な互換性とパフォーマンスを確保するために、WindscribeのWebサイトから「ARM64」バージョンをダウンロードしてください。</translation>
     </message>

@@ -745,6 +745,10 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>The split tunneling feature could not be started, and has been disabled in Preferences.</source>
         <translation>Не удалось запустить функцию раздельного туннелирования, функция была автоматически отключена в настройках.</translation>
     </message>
+    <message>
+        <source>Unable to start custom DNS service.  Please ensure you don&apos;t have any other local DNS services running, or contact support.</source>
+        <translation>Не удается запустить пользовательскую службу DNS.  Убедитесь, что у вас не запущены другие локальные службы DNS, или обратитесь в службу поддержки.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -1878,6 +1882,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Include or exclude apps and hostnames from the VPN tunnel.</source>
         <translation>Включение или исключение приложений и адресов/доменов из VPN-туннеля.</translation>
+    </message>
+    <message>
+        <source>Include or exclude IPs and hostnames from the VPN tunnel.</source>
+        <translation>Включение или исключение IP-адресов и имен хостов из VPN-туннеля.</translation>
     </message>
 </context>
 <context>

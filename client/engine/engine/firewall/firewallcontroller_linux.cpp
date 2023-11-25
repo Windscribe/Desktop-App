@@ -135,8 +135,8 @@ bool FirewallController_linux::firewallOnImpl(const QString &connectingIp, const
                 rules << "-A windscribe_output -o " + interfaceToSkip_ + " -d 10.255.255.0/24 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
                 rules << "-A windscribe_input -i " + interfaceToSkip_ + " -s 10.0.0.0/8 -j DROP -m comment --comment \"" + comment_ + "\"\n";
                 rules << "-A windscribe_output -o " + interfaceToSkip_ + " -d 10.0.0.0/8 -j DROP -m comment --comment \"" + comment_ + "\"\n";
-                rules << "-A windscribe_input -i " + interfaceToSkip_ + " -s 224.0.0.0/24 -j DROP -m comment --comment \"" + comment_ + "\"\n";
-                rules << "-A windscribe_output -o " + interfaceToSkip_ + " -d 224.0.0.0/24 -j DROP -m comment --comment \"" + comment_ + "\"\n";
+                rules << "-A windscribe_input -i " + interfaceToSkip_ + " -s 224.0.0.0/4 -j DROP -m comment --comment \"" + comment_ + "\"\n";
+                rules << "-A windscribe_output -o " + interfaceToSkip_ + " -d 224.0.0.0/4 -j DROP -m comment --comment \"" + comment_ + "\"\n";
             }
 
             rules << "-A windscribe_input -i " + interfaceToSkip_ + " -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";

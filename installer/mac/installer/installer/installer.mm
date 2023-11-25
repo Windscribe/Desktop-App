@@ -339,7 +339,7 @@
     [[Logger sharedLogger] logAndStdOut:@"Done writing blocks"];
 
     // create symlink for cli
-    [self runProcess:@"/bin/mkdir" args:@[@"-p", @"/usr/local/bin"]];
+    helper_.createCliSymlinkDir();
     [[Logger sharedLogger] logAndStdOut:@"Creating CLI symlink"];
     NSString *filepath = [NSString stringWithFormat:@"%@%@", [self getInstallPath], @"/Contents/MacOS/windscribe-cli"];
     NSString *sympath = @"/usr/local/bin/windscribe-cli";

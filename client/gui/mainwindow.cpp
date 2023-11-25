@@ -112,18 +112,13 @@ MainWindow::MainWindow() :
     trayIcon_.setIcon(*IconManager::instance().getDisconnectedTrayIcon(trayIconColorWhite_));
 #endif
 
+    trayIcon_.show();
 #ifdef Q_OS_MAC
-    // Work around https://bugreports.qt.io/browse/QTBUG-107008 by delaying showing trayIcon_.
-    QTimer::singleShot(0, this, [this] {
-        trayIcon_.show();
-    });
     const QRect desktopScreenRc = screen->geometry();
     if (desktopScreenRc.top() != desktopAvailableRc.top()) {
         while (trayIcon_.geometry().isEmpty())
             qApp->processEvents();
     }
-#else
-    trayIcon_.show();
 #endif
 
     setWindowFlags(Qt::FramelessWindowHint | Qt::WindowMinimizeButtonHint);
@@ -545,6 +540,7 @@ bool MainWindow::doClose(QCloseEvent *event, bool isFromSigTerm_mac)
 
     PersistentState::instance().setAppGeometry(this->saveGeometry());
 
+    deactivationTimer_.stop();
 
     // Shutdown notification controller here, and not in a destructor. Otherwise, sometimes we won't
     // be able to shutdown properly, because the destructor may not be called. On the Windows
@@ -1706,6 +1702,7 @@ void MainWindow::onBackendLoginError(LOGIN_RET loginError, const QString &errorM
                                        backend_->getPreferences()->setIgnoreSslErrors(true);
                                        mainWindowController_->getLoggingInWindow()->setMessage(tr("Logging you in..."));
                                        mainWindowController_->getLoggingInWindow()->setAdditionalMessage("");
+                                       isLoginOkAndConnectWindowVisible_ = false;
                                        backend_->loginWithLastLoginSettings();
                                        mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_LOGGING_IN);
                                    },
@@ -3462,9 +3459,11 @@ void MainWindow::handleDisconnectWithError(const types::ConnectState &connectSta
     } else if (connectState.connectError == EXE_VERIFY_WSTUNNEL_ERROR ||
                connectState.connectError == EXE_VERIFY_STUNNEL_ERROR ||
                connectState.connectError == EXE_VERIFY_WIREGUARD_ERROR ||
-               connectState.connectError == EXE_VERIFY_OPENVPN_ERROR ||
-               connectState.connectError == CTRLD_START_FAILED) {
+               connectState.connectError == EXE_VERIFY_OPENVPN_ERROR)
+    {
         msg = tr("The application is corrupted.  Please reinstall Windscribe.");
+    } else if (connectState.connectError == CTRLD_START_FAILED) {
+        msg = tr("Unable to start custom DNS service.  Please ensure you don't have any other local DNS services running, or contact support.");
     } else if (connectState.connectError == WIREGUARD_ADAPTER_SETUP_FAILED) {
         msg = tr("WireGuard adapter setup failed. Please wait one minute and try the connection again. If adapter setup fails again,"
                  " please try restarting your computer.\n\nIf the problem persists after a restart, please send a debug log and open"

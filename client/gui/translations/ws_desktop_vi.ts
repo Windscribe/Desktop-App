@@ -745,6 +745,10 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
         <source>Windscribe</source>
         <translation>Windscribe</translation>
     </message>
+    <message>
+        <source>Unable to start custom DNS service.  Please ensure you don&apos;t have any other local DNS services running, or contact support.</source>
+        <translation>Không thể khởi động dịch vụ DNS tùy chỉnh.  Vui lòng đảm bảo bạn không có bất kỳ dịch vụ DNS cục bộ nào khác đang chạy hoặc liên hệ với bộ phận hỗ trợ.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -1878,6 +1882,10 @@ Nếu việc cài đặt lại không hiệu quả, vui lòng liên hệ với b
     <message>
         <source>Include or exclude apps and hostnames from the VPN tunnel.</source>
         <translation>Bao gồm hoặc loại trừ các ứng dụng và tên máy chủ khỏi đường hầm VPN.</translation>
+    </message>
+    <message>
+        <source>Include or exclude IPs and hostnames from the VPN tunnel.</source>
+        <translation>Bao gồm hoặc loại trừ IP và tên máy chủ khỏi đường hầm VPN.</translation>
     </message>
 </context>
 <context>

@@ -92,10 +92,6 @@
         <translation>Windscribe Yükleyici</translation>
     </message>
     <message>
-        <source>The Windscribe app can only be installed on Windows 10 or newer.</source>
-        <translation>Windscribe uygulaması yalnızca Windows 10 veya daha yeni sürümlere yüklenebilir.</translation>
-    </message>
-    <message>
         <source>This version of the Windscribe app will not operate correctly on your PC.  Please download the &apos;ARM64&apos; version from the Windscribe website to ensure optimal compatibility and performance.</source>
         <translation>Windscribe uygulamasının bu sürümü PC&apos;nizde düzgün çalışmayacaktır.  Optimum uyumluluk ve performans sağlamak için lütfen Windscribe web sitesinden &apos;ARM64&apos; sürümünü indirin.</translation>
     </message>

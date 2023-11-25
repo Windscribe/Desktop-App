@@ -745,6 +745,10 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
         <source>Windscribe</source>
         <translation>Juru tulis angin</translation>
     </message>
+    <message>
+        <source>Unable to start custom DNS service.  Please ensure you don&apos;t have any other local DNS services running, or contact support.</source>
+        <translation>Tidak dapat memulai layanan DNS kustom.  Pastikan Anda tidak menjalankan layanan DNS lokal lainnya, atau hubungi dukungan.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -1878,6 +1882,10 @@ Jika penginstalan ulang tidak membantu, hubungi dukungan Windscribe untuk mendap
     <message>
         <source>Include or exclude apps and hostnames from the VPN tunnel.</source>
         <translation>Sertakan atau kecualikan aplikasi dan nama host dari terowongan VPN.</translation>
+    </message>
+    <message>
+        <source>Include or exclude IPs and hostnames from the VPN tunnel.</source>
+        <translation>Sertakan atau kecualikan IP dan nama host dari terowongan VPN.</translation>
     </message>
 </context>
 <context>

@@ -3,5 +3,5 @@
 # Copyright (c) 2020-2023, Windscribe Limited. All rights reserved.
 # ------------------------------------------------------------------------------
 variables:
-  VERSION_CURL: '7.87.0'
+  VERSION_CURL: '8.5.0'
   ARTIFACT_CURL: 'curl.zip'

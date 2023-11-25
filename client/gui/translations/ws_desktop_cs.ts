@@ -745,6 +745,10 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
         <source>Windscribe</source>
         <translation>Windscribe</translation>
     </message>
+    <message>
+        <source>Unable to start custom DNS service.  Please ensure you don&apos;t have any other local DNS services running, or contact support.</source>
+        <translation>Nelze spustit vlastní službu DNS.  Ujistěte se, že nemáte spuštěné žádné další místní služby DNS, nebo se obraťte na podporu.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -1878,6 +1882,10 @@ Pokud přeinstalace nepomůže, obraťte se na podporu Windscribe a požádejte 
     <message>
         <source>Include or exclude apps and hostnames from the VPN tunnel.</source>
         <translation>Zahrňte nebo vylučte aplikace a názvy hostitelů z tunelu VPN.</translation>
+    </message>
+    <message>
+        <source>Include or exclude IPs and hostnames from the VPN tunnel.</source>
+        <translation>Zahrňte nebo vylučte IP adresy a názvy hostitelů z tunelu VPN.</translation>
     </message>
 </context>
 <context>

@@ -3,6 +3,9 @@
 #include <QMutex>
 #include <QRegularExpression>
 #include <QString>
+#include <QStringList>
+
+#include <optional>
 
 // for work with windscribe_extra.conf file (additional parameters), thread-safe access
 // all ikev2 params will be prefixed with --ikev2, so you don't use them when using OpenVPN, and vise versa
@@ -54,6 +57,9 @@ public:
     bool getAPIExtraTLSPadding();
     bool getWireGuardUdpStuffing();
 
+    std::optional<QString> serverlistCountryOverride();
+    bool serverListIgnoreCountryOverride();
+
 private:
     ExtraConfig();
 
@@ -63,9 +69,11 @@ private:
     QString detectedIp_;
     bool isAntiCensorship_;
 
-    int getIntFromLineWithString(const QString &line, const QString &str, bool &success);
     int getIntFromExtraConfigLines(const QString &variableName, bool &success);
     bool getFlagFromExtraConfigLines(const QString &flagName);
 
     bool isLegalOpenVpnCommand(const QString &command) const;
+
+    QStringList extraConfigEntries();
+    std::optional<QString> getValue(const QString& key);
 };

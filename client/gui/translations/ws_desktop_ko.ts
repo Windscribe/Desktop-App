@@ -745,6 +745,10 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>Windscribe</source>
         <translation>윈드스크라이브</translation>
     </message>
+    <message>
+        <source>Unable to start custom DNS service.  Please ensure you don&apos;t have any other local DNS services running, or contact support.</source>
+        <translation>사용자 지정 DNS 서비스를 시작할 수 없습니다.  실행 중인 다른 로컬 DNS 서비스가 없는지 확인하거나 지원팀에 문의하세요.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -1878,6 +1882,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Include or exclude apps and hostnames from the VPN tunnel.</source>
         <translation>VPN 터널에서 앱과 호스트 이름을 포함하거나 제외합니다.</translation>
+    </message>
+    <message>
+        <source>Include or exclude IPs and hostnames from the VPN tunnel.</source>
+        <translation>VPN 터널에서 IP 및 호스트 이름을 포함하거나 제외합니다.</translation>
     </message>
 </context>
 <context>

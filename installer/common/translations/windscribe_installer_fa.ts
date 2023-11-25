@@ -92,10 +92,6 @@
         <translation>نصب کننده Windscribe</translation>
     </message>
     <message>
-        <source>The Windscribe app can only be installed on Windows 10 or newer.</source>
-        <translation>برنامه Windscribe فقط می تواند در ویندوز 10 یا جدیدتر نصب شود.</translation>
-    </message>
-    <message>
         <source>This version of the Windscribe app will not operate correctly on your PC.  Please download the &apos;ARM64&apos; version from the Windscribe website to ensure optimal compatibility and performance.</source>
         <translation>این نسخه از برنامه Windscribe به درستی بر روی کامپیوتر شما کار نخواهد کرد.  لطفا نسخه ARM64 را از وب سایت Windscribe دانلود کنید تا از سازگاری و عملکرد مطلوب اطمینان حاصل شود.</translation>
     </message>

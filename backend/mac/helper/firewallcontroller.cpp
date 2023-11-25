@@ -20,6 +20,9 @@ bool FirewallController::enable(const std::string &rules, const std::string &tab
     if (table.empty() && group.empty()) {
         Utils::executeCommand("pfctl", {"-v", "-F", "all", "-f", "/etc/windscribe/pf.conf"});
         Utils::executeCommand("pfctl", {"-e"});
+
+        // reapply split tunneling rules if necessary
+        setSplitTunnelExceptions(splitTunnelIps_);
     } else if (!table.empty()) {
         Utils::executeCommand("pfctl", {"-T", "load", "-f", "/etc/windscribe/pf.conf"});
     } else if (!group.empty()) {
@@ -72,9 +75,13 @@ void FirewallController::setSplitTunnelingEnabled(bool isEnabled, bool isExclude
 void FirewallController::setSplitTunnelExceptions(const std::vector<std::string> &ips)
 {
     splitTunnelIps_ = ips;
+
     std::string ipStr = "table <windscribe_split_tunnel_ips> persist { ";
 
-    if (splitTunnelExclude_) {
+    if (!splitTunnelEnabled_) {
+        // If split tunneling is disabled, treat this table as if there are no IPs
+        ipStr += " }\n";
+    } else if (splitTunnelExclude_) {
         for (const auto ip : ips) {
             ipStr += ip + " ";
         } 

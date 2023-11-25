@@ -373,8 +373,7 @@ QString FirewallController_mac::generatePfConf(const QString &connectingIp, cons
 
     // add Windscribe rules
     pf += "table <windscribe_ips> persist {";
-    for (auto &ip : ips)
-    {
+    for (auto &ip : ips) {
         pf += ip + " ";
     }
     pf += "}\n";
@@ -383,7 +382,7 @@ QString FirewallController_mac::generatePfConf(const QString &connectingIp, cons
     pf += "pass in quick inet from <windscribe_ips> to any\n";
 
     // this table is filled in by the helper
-    pf += "table <windscribe_split_exclude_ips> persist\n";
+    pf += "table <windscribe_split_tunnel_ips> persist\n";
     pf += "pass out quick inet from any to <windscribe_split_tunnel_ips>\n";
     pf += "pass in quick inet from <windscribe_split_tunnel_ips> to any\n";
 
@@ -475,9 +474,10 @@ QStringList FirewallController_mac::vpnTrafficRules(const QString &connectingIp,
 
     if (!connectingIp.isEmpty()) {
         // only allow gid 0 and windscribe group to send plaintext to VPN server
-        rules << "pass out quick inet from any to " + connectingIp + " group 0";
-        rules << "pass out quick inet from any to " + connectingIp + " group windscribe";
-        rules << "pass in quick inet from " + connectingIp + " to any";
+        // NB: set 'flags any' here, otherwise TCP-based VPN connections will drop if the firewall is enabled after the connection
+        rules << "pass out quick inet from any to " + connectingIp + " group 0 flags any";
+        rules << "pass out quick inet from any to " + connectingIp + " group windscribe flags any";
+        rules << "pass in quick inet from " + connectingIp + " to any flags any";
     }
     return rules;
 }

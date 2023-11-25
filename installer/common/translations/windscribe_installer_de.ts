@@ -92,10 +92,6 @@
         <translation>Windscribe-Installationsprogramm</translation>
     </message>
     <message>
-        <source>The Windscribe app can only be installed on Windows 10 or newer.</source>
-        <translation>Die Windscribe-App kann nur unter Windows 10 oder neuer installiert werden.</translation>
-    </message>
-    <message>
         <source>This version of the Windscribe app will not operate correctly on your PC.  Please download the &apos;ARM64&apos; version from the Windscribe website to ensure optimal compatibility and performance.</source>
         <translation>Diese Version der Windscribe-App funktioniert auf Ihrem PC nicht ordnungsgemäß.  Bitte laden Sie die Version &quot;ARM64&quot; von der Windscribe-Website herunter, um eine optimale Kompatibilität und Leistung zu gewährleisten.</translation>
     </message>

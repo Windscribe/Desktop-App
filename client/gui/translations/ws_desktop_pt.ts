@@ -745,6 +745,10 @@ Se o problema persistir após uma reinicialização, envie um log de depuração
         <source>Windscribe</source>
         <translation>Windscribe</translation>
     </message>
+    <message>
+        <source>Unable to start custom DNS service.  Please ensure you don&apos;t have any other local DNS services running, or contact support.</source>
+        <translation>Não é possível iniciar o serviço DNS personalizado.  Certifique-se de que não tem outros serviços DNS locais em execução ou contacte o suporte.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -1878,6 +1882,10 @@ Se a reinstalação não ajudar, entre em contato com o suporte do Windscribe pa
     <message>
         <source>Include or exclude apps and hostnames from the VPN tunnel.</source>
         <translation>Inclua ou exclua aplicativos e nomes de host do túnel VPN.</translation>
+    </message>
+    <message>
+        <source>Include or exclude IPs and hostnames from the VPN tunnel.</source>
+        <translation>Inclua ou exclua IPs e nomes de host do túnel VPN.</translation>
     </message>
 </context>
 <context>

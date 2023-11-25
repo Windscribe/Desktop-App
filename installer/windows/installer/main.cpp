@@ -1,6 +1,5 @@
 #include <Windows.h>
 #include <tchar.h>
-#include <versionhelpers.h>
 
 #include <QApplication>
 #include <QMessageBox>
@@ -167,13 +166,6 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
     QTranslator translator;
 
     loadSystemLanguage(translator, &a);
-
-    if (!IsWindows10OrGreater())
-    {
-        WSMessageBox(QObject::tr("Windscribe Installer"),
-                     QObject::tr("The Windscribe app can only be installed on Windows 10 or newer."));
-        return 0;
-    }
 
 #if !defined(_M_ARM64)
     {

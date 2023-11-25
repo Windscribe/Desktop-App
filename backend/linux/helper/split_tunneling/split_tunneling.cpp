@@ -34,7 +34,7 @@ void SplitTunneling::setSplitTunnelingParams(bool isActive, bool isExclude, cons
     isSplitTunnelActive_ = isActive;
     isExclude_ = isExclude;
 
-    if (!isExclude) {
+    if (isActive && !isExclude) {
         allHosts.push_back("checkip.windscribe.com");
     }
 

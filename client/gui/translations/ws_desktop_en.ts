@@ -745,6 +745,10 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>Windscribe</source>
         <translation>Windscribe</translation>
     </message>
+    <message>
+        <source>Unable to start custom DNS service.  Please ensure you don&apos;t have any other local DNS services running, or contact support.</source>
+        <translation>Unable to start custom DNS service.  Please ensure you don&apos;t have any other local DNS services running, or contact support.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -1878,6 +1882,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Include or exclude apps and hostnames from the VPN tunnel.</source>
         <translation>Include or exclude apps and hostnames from the VPN tunnel.</translation>
+    </message>
+    <message>
+        <source>Include or exclude IPs and hostnames from the VPN tunnel.</source>
+        <translation>Include or exclude IPs and hostnames from the VPN tunnel.</translation>
     </message>
 </context>
 <context>

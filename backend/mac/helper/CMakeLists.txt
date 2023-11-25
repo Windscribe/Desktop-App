@@ -1,6 +1,6 @@
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.23)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 project(com.windscribe.helper.macos)
@@ -10,8 +10,6 @@ option(DEFINE_USE_SIGNATURE_CHECK_MACRO "Add define USE_SIGNATURE_CHECK to proje
 if(DEFINE_USE_SIGNATURE_CHECK_MACRO)
     ADD_DEFINITIONS(-DUSE_SIGNATURE_CHECK)
 endif(DEFINE_USE_SIGNATURE_CHECK_MACRO)
-
-ADD_DEFINITIONS(-DBOOST_NO_CXX98_FUNCTION_BASE)
 
 set(SOURCES
     ../../../client/common/utils/executable_signature/executable_signature.cpp
@@ -107,7 +105,8 @@ set(SOURCES
     wireguard/wireguardcontroller.h
 )
 
-set(CMAKE_CXX_FLAGS "-fvisibility=hidden")
+# -Wno-shorten-64-to-32 to silence warnings in pstream.h
+set(CMAKE_CXX_FLAGS "-fvisibility=hidden -Wno-shorten-64-to-32")
 
 add_executable(com.windscribe.helper.macos ${SOURCES})
 set_property(TARGET com.windscribe.helper.macos PROPERTY COMPILE_WARNING_AS_ERROR ON)
@@ -126,7 +125,7 @@ target_link_libraries(com.windscribe.helper.macos
                       "-sectcreate __TEXT __info_plist ${CMAKE_CURRENT_SOURCE_DIR}/helper-info.plist"
                       "-sectcreate __TEXT __launchd_plist ${CMAKE_CURRENT_SOURCE_DIR}/helper-launchd.plist"
 )
-set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LANGUAGE_STANDARD "c++17")
+set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LANGUAGE_STANDARD "c++20")
 set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LIBRARY "libc++")
 set(CMAKE_XCODE_ATTRIBUTE_CLANG_ENABLE_OBJC_ARC "YES")
 set(CMAKE_XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "Developer ID Application")

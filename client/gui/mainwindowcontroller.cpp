@@ -1122,6 +1122,12 @@ void MainWindowController::gotoLoginWindow()
         loginWindow_->setVisible(true);
         loggingInWindow_->setVisible(false);
 
+        if (bottomInfoWindow_->isVisible()) {
+            bottomInfoWindow_->hide();
+            bottomInfoWindow_->setClickable(false);
+            shadowManager_->removeObject(ShadowManager::SHAPE_ID_BOTTOM_INFO);
+        }
+
         QPropertyAnimation *anim = new QPropertyAnimation(this);
         anim->setTargetObject(loginWindow_);
         anim->setPropertyName("opacity");

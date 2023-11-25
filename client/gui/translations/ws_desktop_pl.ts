@@ -745,6 +745,10 @@ Jeśli problem nadal występuje po ponownym uruchomieniu, wyślij dziennik debug
         <source>Windscribe</source>
         <translation>Skryba wiatru</translation>
     </message>
+    <message>
+        <source>Unable to start custom DNS service.  Please ensure you don&apos;t have any other local DNS services running, or contact support.</source>
+        <translation>Nie można uruchomić niestandardowej usługi DNS.  Upewnij się, że nie masz uruchomionych żadnych innych lokalnych usług DNS lub skontaktuj się z pomocą techniczną.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -1878,6 +1882,10 @@ Jeśli ponowna instalacja nie pomoże, skontaktuj się z pomocą techniczną Win
     <message>
         <source>Include or exclude apps and hostnames from the VPN tunnel.</source>
         <translation>Uwzględnij lub wyklucz aplikacje i nazwy hostów z tunelu sieci VPN.</translation>
+    </message>
+    <message>
+        <source>Include or exclude IPs and hostnames from the VPN tunnel.</source>
+        <translation>Dołączanie lub wykluczanie adresów IP i nazw hostów z tunelu VPN.</translation>
     </message>
 </context>
 <context>

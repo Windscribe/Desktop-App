@@ -12,11 +12,7 @@ class TabButton : public ClickableGraphicsObject
 {
     Q_OBJECT
 public:
-    enum flags {
-        TAB_BUTTON_FULL_OPACITY = 1 // Always full opacity, retain original color
-    };
-
-    explicit TabButton(ScalableGraphicsObject *parent, PREFERENCES_TAB_TYPE type, QString path, uint32_t flags = 0);
+    explicit TabButton(ScalableGraphicsObject *parent, PREFERENCES_TAB_TYPE type, QString path, const QColor &color = Qt::white);
 
     QRectF boundingRect() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
@@ -59,12 +55,12 @@ private:
     PREFERENCES_TAB_TYPE type_;
     QSharedPointer<IndependentPixmap> icon_;
     QString text_;
+    QColor iconColor_;
 
     QVariantAnimation iconOpacityAnimation_;
     QVariantAnimation circleOpacityAnimation_;
     double circleOpacity_;
     double iconOpacity_;
-    uint32_t flags_;
 };
 
 } // namespace PreferencesWindow

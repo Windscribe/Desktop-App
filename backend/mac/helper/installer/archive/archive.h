@@ -10,11 +10,8 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "LZMA_SDK/C/CpuArch.h"
 #include "LZMA_SDK/C/7z.h"
-#include "LZMA_SDK/C/7zAlloc.h"
 #include "LZMA_SDK/C/7zBuf.h"
-#include "LZMA_SDK/C/7zCrc.h"
 #include "LZMA_SDK/C/7zFile.h"
 #include "LZMA_SDK/C/7zVersion.h"
 
@@ -158,12 +155,12 @@ class Archive
     void ConvertFileTimeToString(const CNtfsFileTime *nt, char *s);
     void PrintLF();
     void PrintError(const char *s);
-    void GetAttribString(UInt32 wa, Bool isDir, char *s);
+    void GetAttribString(UInt32 wa, bool isDir, char *s);
 
     static WRes File_Read1(CSzFile1 *p, void *data, size_t *size);
-    static SRes FileInStream_Read1(ISeekInStream *pp, void *buf, size_t *size);
+    static SRes FileInStream_Read1(ISeekInStreamPtr pp, void *buf, size_t *size);
     static WRes File_Seek1(CSzFile1 *p, Int64 *pos, ESzSeek origin);
-    static SRes FileInStream_Seek1(ISeekInStream *pp, Int64 *pos, ESzSeek origin);
+    static SRes FileInStream_Seek1(ISeekInStreamPtr pp, Int64 *pos, ESzSeek origin);
 
     void FileInStream_CreateVTable1(CFileInStream1 *p);
 

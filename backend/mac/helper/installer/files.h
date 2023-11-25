@@ -1,7 +1,8 @@
 #pragma once
 
-#include <string>
 #include <list>
+#include <string>
+
 #include "archive/archive.h"
 
 class Files
@@ -13,19 +14,19 @@ public:
     int executeStep();
     std::string getLastError() { return lastError_; }
 
- private:
-   uid_t userId_;
+private:
+    uid_t userId_;
     gid_t groupId_;
-   std::wstring archivePath_;
-   std::wstring installPath_;
-   Archive *archive_;
-   int state_;
-   unsigned int curFileInd_;
-   std::list<std::wstring> fileList_;
-   std::list<std::wstring> pathList_;
-   std::string lastError_;
+    std::wstring archivePath_;
+    std::wstring installPath_;
+    Archive *archive_;
+    int state_;
+    unsigned int curFileInd_;
+    std::list<std::wstring> fileList_;
+    std::list<std::wstring> pathList_;
+    std::string lastError_;
 
-   void eraseSubStr(std::wstring &mainStr, const std::wstring &toErase);
-   void fillPathList();
-   std::wstring getFileName(const std::wstring &s);
+    void eraseSubStr(std::wstring &mainStr, const std::wstring &toErase);
+    void fillPathList();
+    std::wstring getFileName(const std::wstring &s);
 };

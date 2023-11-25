@@ -92,10 +92,6 @@
         <translation>Trình cài đặt Windscribe</translation>
     </message>
     <message>
-        <source>The Windscribe app can only be installed on Windows 10 or newer.</source>
-        <translation>Bạn chỉ có thể cài đặt ứng dụng Windscribe trên Windows 10 trở lên.</translation>
-    </message>
-    <message>
         <source>This version of the Windscribe app will not operate correctly on your PC.  Please download the &apos;ARM64&apos; version from the Windscribe website to ensure optimal compatibility and performance.</source>
         <translation>Phiên bản ứng dụng Windscribe này sẽ không hoạt động chính xác trên PC của bạn.  Vui lòng tải xuống phiên bản &apos;ARM64&apos; từ trang web Windscribe để đảm bảo khả năng tương thích và hiệu suất tối ưu.</translation>
     </message>

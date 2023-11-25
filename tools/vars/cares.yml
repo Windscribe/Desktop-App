@@ -3,5 +3,5 @@
 # Copyright (c) 2020-2023, Windscribe Limited. All rights reserved.
 # ------------------------------------------------------------------------------
 variables:
-  VERSION_CARES: '1.18.1'
+  VERSION_CARES: '1.21.0'
   ARTIFACT_CARES: 'cares.zip'

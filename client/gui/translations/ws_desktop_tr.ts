@@ -745,6 +745,10 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
         <source>Windscribe</source>
         <translation>Rüzgar yazısı</translation>
     </message>
+    <message>
+        <source>Unable to start custom DNS service.  Please ensure you don&apos;t have any other local DNS services running, or contact support.</source>
+        <translation>Özel DNS hizmeti başlatılamıyor.  Lütfen çalışan başka bir yerel DNS hizmetiniz olmadığından emin olun veya desteğe başvurun.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -1878,6 +1882,10 @@ Yeniden yükleme yardımcı olmazsa, lütfen yardım için Windscribe desteği i
     <message>
         <source>Include or exclude apps and hostnames from the VPN tunnel.</source>
         <translation>Uygulamaları ve ana bilgisayar adlarını VPN tüneline dahil edin veya hariç tutun.</translation>
+    </message>
+    <message>
+        <source>Include or exclude IPs and hostnames from the VPN tunnel.</source>
+        <translation>IP&apos;leri ve ana bilgisayar adlarını VPN tüneline dahil edin veya hariç tutun.</translation>
     </message>
 </context>
 <context>

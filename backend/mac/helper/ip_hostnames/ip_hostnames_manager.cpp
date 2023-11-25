@@ -16,6 +16,7 @@ void IpHostnamesManager::enable(const std::string &ipAddress)
     std::lock_guard<std::recursive_mutex> guard(mutex_);
 
     defaultRouteIp_ = ipAddress;
+    ipRoutes_.clear();
     ipRoutes_.setIps(defaultRouteIp_, ipsLatest_);
     FirewallController::instance().setSplitTunnelExceptions(ipsLatest_);
     isEnabled_ = true;
@@ -39,9 +40,4 @@ void IpHostnamesManager::setSettings(const std::vector<std::string> &ips, const 
 
     ipsLatest_ = ips;
     ipsLatest_.insert( ipsLatest_.end(), hosts.begin(), hosts.end() );
-
-    if (isEnabled_) {
-        ipRoutes_.setIps(defaultRouteIp_, ipsLatest_);
-        FirewallController::instance().setSplitTunnelExceptions(ipsLatest_);
-    }
 }

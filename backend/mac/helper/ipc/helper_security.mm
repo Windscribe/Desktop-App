@@ -1,10 +1,12 @@
 #include "helper_security.h"
+
+#import <Foundation/Foundation.h>
+
+#include <libproc.h>
+
 #include "../logger.h"
 #include "../utils.h"
 #include "utils/executable_signature/executable_signature.h"
-#include <boost/algorithm/string.hpp>
-#include <libproc.h>
-#import <Foundation/Foundation.h>
 
 void HelperSecurity::reset()
 {

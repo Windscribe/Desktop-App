@@ -751,27 +751,28 @@ void LocationsTab::showSearchTab()
         searchButton_->setEnabled(false);
 
         changeTab(LOCATION_TAB_SEARCH_LOCATIONS);
-
-        searchTabSelected_ = true;
         update();
 
         QTimer::singleShot(100, [this]()
         {
-            searchButtonPosAnimation_.stop();
-            searchButtonPosAnimation_.setStartValue(preferences_->appSkin() == APP_SKIN_VAN_GOGH ? FIRST_TAB_ICON_POS_X_VAN_GOGH : FIRST_TAB_ICON_POS_X);
-            searchButtonPosAnimation_.setDirection(QAbstractAnimation::Backward);
-            searchButtonPosAnimation_.start();
+            if (!searchTabSelected_) {
+                searchButtonPosAnimation_.stop();
+                searchButtonPosAnimation_.setStartValue(preferences_->appSkin() == APP_SKIN_VAN_GOGH ? FIRST_TAB_ICON_POS_X_VAN_GOGH : FIRST_TAB_ICON_POS_X);
+                searchButtonPosAnimation_.setDirection(QAbstractAnimation::Backward);
+                searchButtonPosAnimation_.start();
 
-            // delay so cursor and cancel don't appear before search slides over
-            QTimer::singleShot(SEARCH_BUTTON_POS_ANIMATION_DURATION+100, [this](){
-                // check no interruption by hideSearchTab() -- could happen on fast searchClick->close locations tray
-                if (!delayShowIconsTimer_.isActive() && searchTabSelected_)
-                {
-                    searchCancelButton_->show();
-                    searchLineEdit_->show();
-                    searchLineEdit_->setFocus();
-                }
-            });
+                // delay so cursor and cancel don't appear before search slides over
+                QTimer::singleShot(SEARCH_BUTTON_POS_ANIMATION_DURATION+100, [this](){
+                    // check no interruption by hideSearchTab() -- could happen on fast searchClick->close locations tray
+                    if (!delayShowIconsTimer_.isActive() && searchTabSelected_)
+                    {
+                        searchCancelButton_->show();
+                        searchLineEdit_->show();
+                        searchLineEdit_->setFocus();
+                    }
+                });
+                searchTabSelected_ = true;
+            }
         });
     }
 }

@@ -92,10 +92,6 @@
         <translation>Windscribe Installer</translation>
     </message>
     <message>
-        <source>The Windscribe app can only be installed on Windows 10 or newer.</source>
-        <translation>विंडसाइड ऐप केवल विंडोज 10 या नए पर इंस्टॉल किया जा सकता है।</translation>
-    </message>
-    <message>
         <source>This version of the Windscribe app will not operate correctly on your PC.  Please download the &apos;ARM64&apos; version from the Windscribe website to ensure optimal compatibility and performance.</source>
         <translation>विंडसाइड ऐप का यह संस्करण आपके पीसी पर ठीक से काम नहीं करेगा।  इष्टतम संगतता और प्रदर्शन सुनिश्चित करने के लिए कृपया विंडसाइड वेबसाइट से &apos;एआरएम 64&apos; संस्करण डाउनलोड करें।</translation>
     </message>

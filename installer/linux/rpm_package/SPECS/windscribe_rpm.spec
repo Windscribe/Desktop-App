@@ -37,6 +37,7 @@ Requires:	xcb-util-wm
 Requires:	xcb-util-image
 Requires:	xcb-util-keysyms
 Requires:	xcb-util-renderutil
+Requires:	xcb-util-cursor
 Requires:	sudo
 Requires:	shadow-utils
 

@@ -110,9 +110,12 @@ void OpenVPNConnection::setCurrentState(CONNECTION_STATUS state)
 void OpenVPNConnection::setCurrentStateAndEmitDisconnected(OpenVPNConnection::CONNECTION_STATUS state)
 {
     QMutexLocker locker(&mutexCurrentState_);
-    QTimer::singleShot(0, &killControllerTimer_, SLOT(stop()));
-    currentState_ = state;
-    emit disconnected();
+    // If we have already gotten to the disconnected state, do not send a duplicate signal
+    if (currentState_ != STATUS_DISCONNECTED) {
+        QTimer::singleShot(0, &killControllerTimer_, SLOT(stop()));
+        currentState_ = state;
+        emit disconnected();
+    }
 }
 
 void OpenVPNConnection::setCurrentStateAndEmitError(OpenVPNConnection::CONNECTION_STATUS state, CONNECT_ERROR err)
@@ -565,6 +568,9 @@ void OpenVPNConnection::handleRead(const boost::system::error_code &err, size_t 
                     // we have connected (unless the current custom config explicitly forbits this).
                     isAllowFirewallAfterCustomConfigConnection_ = true;
                 }
+            } else if (serverReply.contains("write UDP: Unknown error (code=10065)") || serverReply.contains("write UDP: Unknown error (code=10054)")) {
+                // These errors indicate socket was closed or otherwise unavailable for writing.
+                setCurrentStateAndEmitDisconnected(STATUS_DISCONNECTED);
             }
         }
         else if (serverReply.contains(">FATAL:All tap-windows6 adapters on this system are currently in use", Qt::CaseInsensitive))

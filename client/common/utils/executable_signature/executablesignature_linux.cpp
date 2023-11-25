@@ -66,7 +66,7 @@ bool ExecutableSignaturePrivate::verify(const std::string& exePath)
 
     // Read signature from file
     std::filesystem::path path(exePath);
-    path = path.parent_path() / "signatures" / (path.filename().string() + ".sig");
+    path = path.parent_path() / "signatures" / (path.filename().stem().string() + ".sig");
     sign = fopen(path.c_str(), "r");
 
     if (sign == NULL) {

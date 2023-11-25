@@ -92,10 +92,6 @@
         <translation>Penginstal Windscribe</translation>
     </message>
     <message>
-        <source>The Windscribe app can only be installed on Windows 10 or newer.</source>
-        <translation>Aplikasi Windscribe hanya dapat diinstal pada Windows 10 atau yang lebih baru.</translation>
-    </message>
-    <message>
         <source>This version of the Windscribe app will not operate correctly on your PC.  Please download the &apos;ARM64&apos; version from the Windscribe website to ensure optimal compatibility and performance.</source>
         <translation>Versi aplikasi Windscribe ini tidak akan beroperasi dengan benar di PC Anda.  Silakan unduh versi &apos;ARM64&apos; dari situs web Windscribe untuk memastikan kompatibilitas dan kinerja yang optimal.</translation>
     </message>

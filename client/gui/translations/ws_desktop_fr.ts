@@ -745,6 +745,10 @@ Si le problème persiste après un redémarrage, envoyez un journal de débogage
         <source>The split tunneling feature could not be started, and has been disabled in Preferences.</source>
         <translation>La fonctionnalité de tunneling fractionné n’a pas pu être démarrée et a été désactivée dans les Préférences.</translation>
     </message>
+    <message>
+        <source>Unable to start custom DNS service.  Please ensure you don&apos;t have any other local DNS services running, or contact support.</source>
+        <translation>Impossible de démarrer le service DNS personnalisé.  Assurez-vous qu’aucun autre service DNS local n’est en cours d’exécution ou contactez l’assistance.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -1878,6 +1882,10 @@ Si la réinstallation ne résout pas le problème, veuillez contacter le support
     <message>
         <source>Include or exclude apps and hostnames from the VPN tunnel.</source>
         <translation>Incluez ou excluez des applications et des noms d’hôte du tunnel VPN.</translation>
+    </message>
+    <message>
+        <source>Include or exclude IPs and hostnames from the VPN tunnel.</source>
+        <translation>Incluez ou excluez les adresses IP et les noms d’hôte du tunnel VPN.</translation>
     </message>
 </context>
 <context>

@@ -2,6 +2,8 @@
 
 #include <codecvt>
 #include <fcntl.h>
+#include <grp.h>
+#include <pwd.h>
 #include <sstream>
 #include <stdlib.h>
 #include "execute_cmd.h"
@@ -577,5 +579,48 @@ CMD_ANSWER startWstunnel(boost::archive::text_iarchive &ia)
         }
 #pragma clang diagnostic pop
     }
+    return answer;
+}
+
+CMD_ANSWER installerCreateCliSymlinkDir(boost::archive::text_iarchive &ia)
+{
+    CMD_ANSWER answer;
+    CMD_INSTALLER_CREATE_CLI_SYMLINK_DIR cmd;
+    ia >> cmd;
+
+    std::error_code err;
+    if (!std::filesystem::is_directory("/usr/local/bin", err)) {
+        LOG("Creating CLI symlink dir");
+
+        if (!std::filesystem::create_directory("/usr/local/bin", err)) {
+            LOG("Failed to create CLI directory: %s", err.message().c_str());
+            answer.executed = 0;
+            return answer;
+        }
+        const struct group *grp = getgrnam("admin");
+        if (grp == nullptr) {
+            LOG("Could not get group info");
+            answer.executed = 0;
+            return answer;
+        }
+        int rc = chown("/usr/local/bin", cmd.uid, grp->gr_gid);
+        if (rc != 0) {
+            LOG("Failed to set owner: %s", strerror(errno));
+            answer.executed = 0;
+            return answer;
+        }
+        std::filesystem::permissions("/usr/local/bin",
+            std::filesystem::perms::owner_all |
+            std::filesystem::perms::group_all |
+            std::filesystem::perms::others_read | std::filesystem::perms::others_exec,
+            err);
+        if (err) {
+            LOG("Failed to set permissions: %s", err.message().c_str());
+            answer.executed = 0;
+            return answer;
+        }
+    }
+
+    answer.executed = 1;
     return answer;
 }

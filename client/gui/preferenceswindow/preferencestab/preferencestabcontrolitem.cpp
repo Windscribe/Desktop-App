@@ -55,10 +55,10 @@ PreferencesTabControlItem::PreferencesTabControlItem(ScalableGraphicsObject * pa
     dividerLine_ = new CommonGraphics::DividerLine(this, 32, 0);
     dividerLine_->setOpacity(0.1);
 
-    signOutButton_ = new TabButton(this, TAB_UNDEFINED, "preferences/SIGN_OUT_ICON");
+    signOutButton_ = new TabButton(this, TAB_UNDEFINED, "preferences/SIGN_OUT_ICON", QColor(0xff, 0xef, 0x02));
     connect(signOutButton_, &TabButton::tabClicked, this, &PreferencesTabControlItem::onTabClicked);
 
-    quitButton_ = new TabButton(this, TAB_UNDEFINED, "preferences/QUIT_ICON", TabButton::TAB_BUTTON_FULL_OPACITY);
+    quitButton_ = new TabButton(this, TAB_UNDEFINED, "preferences/QUIT_ICON", QColor(0xff, 0x3b, 0x3b));
     connect(quitButton_, &TabButton::tabClicked, this, &PreferencesTabControlItem::onTabClicked);
 
     updateBottomAnchoredButtonPos();

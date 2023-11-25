@@ -142,6 +142,20 @@ bool Helper_mac::killWindscribeProcess()
     return runCommand(HELPER_CMD_TASK_KILL, stream.str(), answer);
 }
 
+bool Helper_mac::createCliSymlinkDir()
+{
+    CMD_ANSWER answer;
+    CMD_INSTALLER_CREATE_CLI_SYMLINK_DIR cmd;
+    cmd.uid = getuid();
+
+    std::stringstream stream;
+    boost::archive::text_oarchive oa(stream, boost::archive::no_header);
+    oa << cmd;
+
+    return runCommand(HELPER_CMD_INSTALLER_CREATE_CLI_SYMLINK_DIR, stream.str(), answer);
+}
+
+
 bool Helper_mac::sendCmdToHelper(int cmdId, const std::string &data)
 {
     int length = (int)data.size();

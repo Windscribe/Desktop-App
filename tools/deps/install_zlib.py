@@ -97,7 +97,7 @@ if __name__ == "__main__":
     current_os = utl.GetCurrentOS()
     is_arm64_build = "--arm64" in sys.argv
     if is_arm64_build:
-        msg.Print(f"Cross compiling arm64 on Windows not currently implemented for {DEP_TITLE}.")
+        msg.Print(f"Cross compiling arm64 on Windows not currently implemented in the build system for {DEP_TITLE}.  Current dependency obtained from vcpkg.")
         sys.exit(0)
     if current_os not in DEP_OS_LIST:
         msg.Print("{} is not needed on {}, skipping.".format(DEP_TITLE, current_os))

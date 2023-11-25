@@ -1,0 +1,14 @@
+{
+  "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg/master/scripts/vcpkg.schema.json",
+  "name": "openvpn",
+  "version": "2.7",
+  "dependencies": [
+      "tap-windows6",
+      "lzo",
+      "lz4",
+      {
+          "name": "pkgconf",
+          "host": true
+      }
+  ]
+}

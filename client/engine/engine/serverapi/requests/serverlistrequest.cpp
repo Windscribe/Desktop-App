@@ -4,8 +4,9 @@
 #include <QJsonDocument>
 #include <QSettings>
 
-#include "utils/logger.h"
 #include "engine/utils/urlquery_utils.h"
+#include "utils/extraconfig.h"
+#include "utils/logger.h"
 
 namespace server_api {
 
@@ -34,25 +35,33 @@ QUrl ServerListRequest::url(const QString &domain) const
         }
     }
 
-    //TODO: countryOverride logic should be here?
-    QSettings settings;
-    QString countryOverride = settings.value("countryOverride", "").toString();
-
-    QString strIsPro = isPro_ ? "1" : "0";
-    QUrl url = QUrl("https://" + hostname(domain, SudomainType::kAssets) + "/serverlist/mob-v2/" + strIsPro + "/" + revision_);
-
-    // add alc parameter in query, if not empty
     QUrlQuery query;
     if (!alcField.isEmpty()) {
         query.addQueryItem("alc", alcField);
     }
-    if (!countryOverride.isEmpty() && connectStateController_->currentState() != CONNECT_STATE::CONNECT_STATE_DISCONNECTED) {
-        query.addQueryItem("country_override", countryOverride);
-        qCDebug(LOG_SERVER_API) << "API request ServerLocations added countryOverride = " << countryOverride;
+
+    if (!ExtraConfig::instance().serverListIgnoreCountryOverride()) {
+        QString countryOverride;
+        auto extraConfigCountryOverride = ExtraConfig::instance().serverlistCountryOverride();
+        if (extraConfigCountryOverride.has_value()) {
+            countryOverride = extraConfigCountryOverride.value();
+        }
+        else if (connectStateController_->currentState() != CONNECT_STATE::CONNECT_STATE_DISCONNECTED) {
+            QSettings settings;
+            countryOverride = settings.value("countryOverride", "").toString();
+        }
+
+        if (!countryOverride.isEmpty()) {
+            query.addQueryItem("country_override", countryOverride);
+            qCDebug(LOG_SERVER_API) << "API request ServerLocations added countryOverride = " << countryOverride;
+        }
     }
 
     urlquery_utils::addAuthQueryItems(query);
     urlquery_utils::addPlatformQueryItems(query);
+
+    QString strIsPro = isPro_ ? "1" : "0";
+    QUrl url = QUrl("https://" + hostname(domain, SudomainType::kAssets) + "/serverlist/mob-v2/" + strIsPro + "/" + revision_);
     url.setQuery(query);
 
     return url;
@@ -105,8 +114,10 @@ void ServerListRequest::handle(const QByteArray &arr)
     } else {
         if (isFromDisconnectedVPNState_ && connectStateController_->currentState() == CONNECT_STATE::CONNECT_STATE_DISCONNECTED) {
             QSettings settings;
-            settings.remove("countryOverride");
-            qCDebug(LOG_SERVER_API) << "API request ServerLocations removed countryOverride flag";
+            if (settings.contains("countryOverride")) {
+                settings.remove("countryOverride");
+                qCDebug(LOG_SERVER_API) << "API request ServerLocations removed countryOverride flag";
+            }
         }
     }
 

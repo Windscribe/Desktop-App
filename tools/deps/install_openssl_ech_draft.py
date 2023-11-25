@@ -23,7 +23,7 @@ import installutils as iutl
 
 # Dependency-specific settings.
 DEP_TITLE = "openssl_ech_draft"
-DEP_URL = "https://github.com/sftcd/openssl/archive/refs/heads/ECH-draft-13a.zip"
+DEP_URL = "https://github.com/sftcd/openssl/archive/ff6d726fc05b7cdd6eddc1b92cae507d6ddc7aee.zip"
 DEP_OS_LIST = ["win32", "macos", "linux"]
 DEP_FILE_MASK = ["bin/*.dll", "include/**", "lib/**"]
 
@@ -102,16 +102,17 @@ def InstallDependency():
     # Prepare output.
     temp_dir = iutl.PrepareTempDirectory(dep_name)
     # Download and unpack the archive.
-    archivetitle = "openssl-ECH-draft-13a"
+    archivetitle = "openssl-ECH-draft-13c"
     archivename = DEP_URL
     localfilename = os.path.join(temp_dir, "{}{}".format(archivetitle, ".zip"))
     msg.HeadPrint("Downloading: \"{}\"".format(archivename))
     iutl.DownloadFile("{}".format(archivename), localfilename)
     msg.HeadPrint("Extracting: \"{}\"".format(archivename))
     iutl.ExtractFile(localfilename)
-    # Copy modified files (Windows only).
-    if utl.GetCurrentOS() == "win32":
-        iutl.CopyCustomFiles(dep_name, os.path.join(temp_dir, archivetitle))
+    os.rename(os.path.join(temp_dir, "openssl-ff6d726fc05b7cdd6eddc1b92cae507d6ddc7aee"), os.path.join(temp_dir, archivetitle))
+
+    # Copy modified files.
+    iutl.CopyCustomFiles(dep_name, os.path.join(temp_dir, archivetitle))
 
     if c_ismac:
         # Need to configure and build openssl for each target architecture in its own folder.

@@ -75,7 +75,11 @@ void SplitTunnelingWindowItem::setActive(bool active)
 
 void SplitTunnelingWindowItem::onLanguageChanged()
 {
+#ifdef Q_OS_WIN
     desc_->setDescription(tr("Include or exclude apps and hostnames from the VPN tunnel."));
+#else
+    desc_->setDescription(tr("Include or exclude IPs and hostnames from the VPN tunnel."));
+#endif
 }
 
 } // namespace PreferencesWindow

@@ -7,9 +7,12 @@
 #include <string>
 #include <tchar.h>
 #include <iostream>
+#include <versionhelpers.h>
 
 #include "archive/archive.h"
 #include "wsscopeguard.h"
+
+static constexpr DWORD kMinOSBuildNumber = 17763;
 
 static int showMessageBox(HWND hOwner, LPCTSTR szTitle, UINT nStyle, LPCTSTR szFormat, ...)
 {
@@ -85,11 +88,42 @@ static void DeleteFolder(const wchar_t *folder)
     SHFileOperation(&fos);
 }
 
+static bool isOSCompatible()
+{
+    if (!IsWindows10OrGreater()) {
+        return false;
+    }
+
+    // The version of Qt we use, and some Win32 functions we call, require a minimum of Windows 10 1809.
+    NTSTATUS (WINAPI *RtlGetVersion)(LPOSVERSIONINFOEXW);
+    *(FARPROC*)&RtlGetVersion = ::GetProcAddress(::GetModuleHandleA("ntdll"), "RtlGetVersion");
+    if (!RtlGetVersion) {
+        // Shouldn't ever get here... but if we do we at least know they are on >= Windows 10, and
+        // will assume the OS build is compatible.
+        debugMessage(L"Windscribe installer failed to load RtlGetVersion");
+        return true;
+    }
+
+    RTL_OSVERSIONINFOEXW rtlOsVer;
+    ::ZeroMemory(&rtlOsVer, sizeof(RTL_OSVERSIONINFOEXW));
+    rtlOsVer.dwOSVersionInfoSize = sizeof(RTL_OSVERSIONINFOEXW);
+    RtlGetVersion(&rtlOsVer);
+    // Windows 11 build numbers continue from the W10 build numbers, so no need to check the OS version here.
+    return (rtlOsVer.dwBuildNumber >= kMinOSBuildNumber);
+}
+
 int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpszCmdParam, int nCmdShow)
 {
-    wchar_t path[MAX_PATH];
+    // We make this check here, rather than in the main installer, since it may fail to launch on an
+    // incompatible OS due to missing function imports.
+    if (!isOSCompatible()) {
+        showMessageBox(NULL, _T("Windscribe Installer"), MB_OK | MB_ICONSTOP,
+                       _T("The Windscribe app cannot be installed on this version of Windows.  It requires Windows 10 build %lu or newer."), kMinOSBuildNumber);
+        return -1;
+    }
 
     // Find the temporary dir
+    wchar_t path[MAX_PATH];
     DWORD result = GetTempPath(MAX_PATH, path);
     if (result == 0) {
         showMessageBox(NULL, _T("Windscribe Installer"), MB_OK | MB_ICONSTOP,

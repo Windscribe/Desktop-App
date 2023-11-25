@@ -1,10 +1,39 @@
+2.8.2 (16/11/2023)
+All:
+   * Added advanced parameter to control serverpede functionality. #755
+   * Improved the appearance of the sign out button. #674
+   * Improved error message when ctrld (custom DNS) fails to start. #785
+   * Improved build instructions in the README. #800
+   * Fixed reconnect not triggered when OpenVPN reports a tunnel connectivity failure. #37
+   * Fixed search icon on locations screen may overlap the All icon. #297
+   * Fixed UI issue when the hotspot feature is enabled and a SSL error occurs. #692
+   * Fixed app may not reconnect after Internet is restored when using OpenVPN. #794
+   * Fixed app gets stuck on the logging in screen after accepting the 'ignore SSL errors' prompt. #801
+   * Upgraded app dependencies to latest available version. #759
+Windows:
+   * Fixed installer fails to launch if Windows version is incompatible. #789
+macOS:
+   * Fixed split tunneling rules not reapplied if firewall state is toggled. #748
+   * Fixed symlink for windscribe-cli isn't created. #780
+   * Fixed in-app update fails when updating from 2.7. #797
+   * Fixed using the dock menu and clicking "Quit" causes the app to crash. #802
+   * Fixed split tunneling description suggests app supports per-app split tunneling. #804
+Linux:
+   * Fixed install-update script not waiting for app to exit before invoking package manager. #335
+   * Fixed split tunneling rules not reapplied if firewall state is toggled. #748
+   * Fixed missing xcb dependencies for some distros. #786
+   * Fixed a firewall bug that may prevent multicast from working. #790
+   * Fixed signature check failing for the DGA library. #798
+   * Fixed split tunneling description suggests app supports per-app split tunneling. #804
+
+
 2.8.1 (02/11/2023)
 All:
-   * Improved error description in 'admin required' error screen. #776
    * Improved in-app upgrade message to indicate the update will be downloaded before terminating connections. #778
-   * Fixed debug log to indicate that a custom dns is being used. #777
+   * Fixed debug log to more clearly indicate that a custom dns is being used. #777
 Windows:
    * Improved wintun support by replacing custom wintun driver with OEM driver. #723
+   * Improved error description in 'admin required' error screen. #776
    * Fixed connect state badge icon not displayed on the taskbar icon when the app is closed to tray then restored. #779
    * Removed TAP adapter support.  OpenVPN-based connections will always use wintun. #723
 macOS:

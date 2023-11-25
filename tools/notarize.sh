@@ -37,60 +37,17 @@ echo "Sending to Apple for notarization"
 # Outputs are written to stderr
 # Upload the tool for notarization
 # (Tee through /dev/stderr so the output is logged in case we exit here due to set -e)
-notarizeOutput=$( (xcrun altool --notarize-app -t osx -f "WindscribeInstaller.zip" --primary-bundle-id="$APP_BUNDLE" -u "$APPLE_ID_EMAIL" -p "$APPLE_ID_PASSWORD") 2>&1 | tee /dev/stderr)
+notarizeOutput=$( (xcrun notarytool submit "WindscribeInstaller.zip" --wait --apple-id "$APPLE_ID_EMAIL" --team-id "$1" --password "$APPLE_ID_PASSWORD") 2>&1 | tee /dev/stderr)
 
-if [[ $notarizeOutput == *"No errors uploading"* ]];
+if [[ $notarizeOutput == *"Processing complete"* ]];
 then
-    REQUEST_ID=$(echo "$notarizeOutput"| grep RequestUUID |awk '{print $NF}')
-    echo "Request ID is: $REQUEST_ID"
+    echo "Notarization request processed."
 else
     echo "Notarization upload failed."
     echo "$notarizeOutput"
     popd
     exit 3
 fi
-
-# Wait 20 seconds otherwise we may get the error "Could not find the RequestUUID"
-echo "Waiting 20 seconds"
-sleep 20
-
-# Wait up to 10 minutes
-deadline=$(($(date "+%s") + ${APPLE_NOTARIZE_TIMEOUT}))
-
-while :
-do
-    notarizationStatus=$( (xcrun altool --notarization-info "$REQUEST_ID" -u "$APPLE_ID_EMAIL" -p "$APPLE_ID_PASSWORD") 2>&1 | tee /dev/stderr)
-
-    if [[ $notarizationStatus == *"in progress"* ]];
-    then
-        now="$(date "+%s")"
-        if [[ "$now" -ge "$deadline" ]];
-        then
-            echo "Timed out waiting for approval"
-            echo "Last status:"
-            echo "$notarizationStatus"
-            popd
-            exit 3
-        fi
-        # In progress
-        echo "Waiting for notarization"
-    elif [[ $notarizationStatus == *"Package Approved"* ]];
-    then
-        echo "Package has been approved"
-        break;
-    elif [[ $notarizationStatus == *"invalid"* ]];
-    then
-        echo "Notarization invalid"
-        echo "$notarizationStatus"
-        popd
-        exit 3
-    else
-        echo "Unknown notarization status"
-        echo "$notarizationStatus"
-    fi
-
-    sleep 15
-done
 
 # Assuming that the package has been approved by this point
 stapleOutput=$( (xcrun stapler staple "WindscribeInstaller.app") 2>&1)

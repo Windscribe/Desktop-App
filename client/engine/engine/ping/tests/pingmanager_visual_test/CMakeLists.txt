@@ -1,10 +1,10 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.23)
 
 set(PROJECT_SOURCES
-        pingmanager_test_main.cpp
-        pingmanager_test_widget.cpp
-        pingmanager_test_widget.h
-        pingmanager_test_widget.ui
+    pingmanager_test_main.cpp
+    pingmanager_test_widget.cpp
+    pingmanager_test_widget.h
+    pingmanager_test_widget.ui
     pingmanager_test.qrc
 )
 

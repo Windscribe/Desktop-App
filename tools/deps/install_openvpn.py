@@ -31,18 +31,17 @@ DEP_OS_LIST = ["win32", "macos", "linux"]
 DEP_FILE_MASK = ["openvpn.exe", "openvpn"]
 
 
-def BuildDependencyMSVC(openssl_root, lzo_root, outpath):
+def BuildDependencyMSVC(openssl_root, outpath):
     # Create an environment with VS vars.
     buildenv = os.environ.copy()
-    buildenv.update({"MAKEFLAGS": "S"})
     buildenv.update(iutl.GetVisualStudioEnvironment(is_arm64_build))
-    buildenv.update({"OPENVPN_DEPROOT": outpath, "OPENSSL_HOME": openssl_root, "LZO_HOME": lzo_root})
+    buildenv.update({"OPENVPN_DEPROOT": outpath, "OPENSSL_ROOT_DIR": openssl_root})
     # Build and install.
-    target_arch = "ARM64" if is_arm64_build else "x64"
-    iutl.RunCommand(f"msbuild openvpn.sln /p:Configuration=Release /p:Platform={target_arch}", env=buildenv, shell=True)
+    preset_name = "win-arm64-release" if is_arm64_build else "win-amd64-release"
+    iutl.RunCommand(f"cmake --preset {preset_name} -DBUILD_TESTING=OFF -DENABLE_PKCS11=OFF", env=buildenv, shell=True)
+    iutl.RunCommand(f"cmake --build --preset {preset_name} -DBUILD_TESTING=OFF -DENABLE_PKCS11=OFF", env=buildenv, shell=True)
     currend_wd = os.getcwd()
-    utl.CopyFile("{}/{}-Output/Release/openvpn.exe".format(currend_wd, target_arch),
-                 "{}/openvpn.exe".format(outpath))
+    utl.CopyFile(f"{currend_wd}/out/build/{preset_name}/Release/openvpn.exe", f"{outpath}/openvpn.exe")
 
 
 def BuildDependencyGNU(openssl_root, lzo_root, lz4_root, outpath):
@@ -75,6 +74,10 @@ def BuildDependencyGNU(openssl_root, lzo_root, lz4_root, outpath):
 
 
 def InstallDependency():
+    is_windows_build = utl.GetCurrentOS() == "win32"
+    if is_windows_build:
+        if "VCPKG_ROOT" not in os.environ:
+            raise IOError("Please set the 'VCPKG_ROOT' environment variable to the path of your vcpkg install.")
     # Load environment.
     msg.HeadPrint("Loading: \"{}\"".format(CONFIG_NAME))
     configdata = utl.LoadConfig(os.path.join(TOOLS_DIR, CONFIG_NAME))
@@ -89,14 +92,15 @@ def InstallDependency():
     openssl_root = iutl.GetDependencyBuildRoot("openssl_ech_draft")
     if not openssl_root:
         raise iutl.InstallError("OpenSSL is not installed.")
-    lzo_root = iutl.GetDependencyBuildRoot("lzo")
-    if not lzo_root:
-        raise iutl.InstallError("LZO is not installed.")
+    if not is_windows_build:
+        lzo_root = iutl.GetDependencyBuildRoot("lzo")
+        if not lzo_root:
+            raise iutl.InstallError("LZO is not installed.")
     # Prepare output.
     temp_dir = iutl.PrepareTempDirectory(dep_name)
     # Download and unpack the archive.
     archivetitle = "{}-{}".format(dep_name, dep_version_str)
-    if utl.GetCurrentOS() == "win32":
+    if is_windows_build:
         dep_url = DEP_URL_WIN32
         archivename = "v{}.tar.gz".format(dep_version_str)
     else:
@@ -116,8 +120,8 @@ def InstallDependency():
     utl.RemoveDirectory(outpath)
     with utl.PushDir(os.path.join(temp_dir, archivetitle)):
         msg.HeadPrint("Building: \"{}\"".format(archivetitle))
-        if utl.GetCurrentOS() == "win32":
-            BuildDependencyMSVC(openssl_root, lzo_root, temp_dir)
+        if is_windows_build:
+            BuildDependencyMSVC(openssl_root, temp_dir)
         else:
             BuildDependencyGNU(openssl_root, lzo_root, os.path.join(temp_dir, archivetitle, "lz4-1.9.4"), temp_dir)
     # Copy the dependency to output directory and to a zip file, if needed.

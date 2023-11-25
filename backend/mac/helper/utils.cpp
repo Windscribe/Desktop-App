@@ -1,7 +1,9 @@
 #include "utils.h"
+
+#include <sstream>
+
 #include "3rdparty/pstream.h"
 #include "logger.h"
-#include <sstream>
 
 namespace Utils
 {

@@ -569,7 +569,7 @@ def build_installer_mac(configdata, qt_root, build_path):
     deploy_component(configdata, "installer", target_name_override="WindscribeInstaller.app")
     if arghelper.notarize():
         msg.Print("Notarizing...")
-        iutl.RunCommand([pathhelper.notarize_script_filename_absolute(), arghelper.OPTION_CI_MODE])
+        iutl.RunCommand([pathhelper.notarize_script_filename_absolute(), MAC_DEV_TEAM_ID])
     # Drop DMG.
     msg.Print("Preparing dmg...")
     dmg_dir = BUILD_INSTALLER_FILES

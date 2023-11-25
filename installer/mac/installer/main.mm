@@ -149,7 +149,7 @@ int main(int argc, char *argv[]) {
         // Setup code that might create autoreleased objects goes here.
     }
 
-    ops.updating = CheckCommandLineArgument(argc, argv, "-update");
+    ops.updating = CheckCommandLineArgument(argc, argv, "-update") || CheckCommandLineArgument(argc, argv, "-q");
     int expectedArgumentCount = ops.updating ? 2 : 1;
 
     int center_coord_index = 0, center_coord_count = 0;

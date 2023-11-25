@@ -39,6 +39,7 @@
 #define HELPER_CMD_START_CTRLD                       32
 #define HELPER_CMD_START_STUNNEL                     33
 #define HELPER_CMD_START_WSTUNNEL                    34
+#define HELPER_CMD_INSTALLER_CREATE_CLI_SYMLINK_DIR  35
 
 // enums
 
@@ -267,3 +268,8 @@ struct CMD_START_WSTUNNEL {
     int port;
     int localPort;
 };
+
+struct CMD_INSTALLER_CREATE_CLI_SYMLINK_DIR {
+    uid_t uid;
+};
+

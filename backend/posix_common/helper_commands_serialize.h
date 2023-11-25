@@ -274,5 +274,12 @@ void serialize(Archive &ar, CMD_START_WSTUNNEL &a, const unsigned int version)
     ar & a.localPort;
 }
 
+template<class Archive>
+void serialize(Archive &ar, CMD_INSTALLER_CREATE_CLI_SYMLINK_DIR &a, const unsigned int version)
+{
+    UNUSED(version);
+    ar & a.uid;
+}
+
 }
 }

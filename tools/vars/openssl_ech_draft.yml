@@ -3,5 +3,5 @@
 # Copyright (c) 2020-2023, Windscribe Limited. All rights reserved.
 # ------------------------------------------------------------------------------
 variables:
-  VERSION_OPENSSL_ECH_DRAFT: '13a'
-  ARTIFACT_OPENSSL_ECH_DRAFT: 'ECH-draft-13a.zip'
+  VERSION_OPENSSL_ECH_DRAFT: '13c'
+  ARTIFACT_OPENSSL_ECH_DRAFT: 'ECH-draft-13c.zip'

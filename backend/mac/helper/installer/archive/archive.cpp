@@ -1,6 +1,11 @@
 #include "archive.h"
+
 #include <locale>
 #include <codecvt>
+
+#include "LZMA_SDK/C/7zAlloc.h"
+#include "LZMA_SDK/C/7zCrc.h"
+#include "LZMA_SDK/C/7zTypes.h"
 
 static const ISzAlloc g_Alloc = { SzAlloc, SzFree };
 
@@ -107,7 +112,7 @@ Archive::Archive(const wstring &name, uid_t userId, gid_t groupId) : file_size(0
  {
   lookStream.bufSize =   kInputBufSize;
   lookStream.realStream = &archiveStream.vt;
-  LookToRead2_Init(&lookStream);
+  LookToRead2_INIT(&lookStream);
  }
 
 
@@ -504,7 +509,7 @@ wstring Archive::getLastError()
  return last_error;
 }
 
-void Archive::GetAttribString(UInt32 wa, Bool isDir, char *s)
+void Archive::GetAttribString(UInt32 wa, bool isDir, char *s)
 {
 #ifdef USE_WINDOWS_FILE
     s[0] = (char)(((wa & FILE_ATTRIBUTE_DIRECTORY) != 0 || isDir) ? 'D' : '.');
@@ -538,15 +543,15 @@ WRes Archive::File_Read1(CSzFile1 *p, void *data, size_t *size)
   return 1;
 }
 
-SRes Archive::FileInStream_Read1(ISeekInStream *pp, void *buf, size_t *size)
+SRes Archive::FileInStream_Read1(ISeekInStreamPtr pp, void *buf, size_t *size)
 {
- char *p0 = reinterpret_cast<char *>((pp)  - MY_offsetof(CFileInStream1, vt));
+    const char *p0 = reinterpret_cast<const char *>((pp) - MY_offsetof(CFileInStream1, vt));
 
- CFileInStream1 *p = reinterpret_cast<CFileInStream1 *>(p0);
+  CFileInStream1 *p = reinterpret_cast<CFileInStream1 *>(const_cast<char*>(p0));
 
- //CFileInStream1 *p = CONTAINER_FROM_VTBL(pp, CFileInStream1, vt);
+    //CFileInStream1 *p = CONTAINER_FROM_VTBL(pp, CFileInStream1, vt);
 
- return (File_Read1(&p->file, buf, size) == 0) ? SZ_OK : SZ_ERROR_READ;
+    return (File_Read1(&p->file, buf, size) == 0) ? SZ_OK : SZ_ERROR_READ;
 }
 
 
@@ -584,11 +589,11 @@ WRes Archive::File_Seek1(CSzFile1 *p, Int64 *pos, ESzSeek origin)
 
   return res;
 }
-SRes Archive::FileInStream_Seek1(ISeekInStream *pp, Int64 *pos, ESzSeek origin)
+SRes Archive::FileInStream_Seek1(ISeekInStreamPtr pp, Int64 *pos, ESzSeek origin)
 {
-  char *p0 = reinterpret_cast<char *>((pp)  - MY_offsetof(CFileInStream1, vt));
+  const char *p0 = reinterpret_cast<const char *>((pp)  - MY_offsetof(CFileInStream1, vt));
 
-  CFileInStream1 *p = reinterpret_cast<CFileInStream1 *>(p0);
+  CFileInStream1 *p = reinterpret_cast<CFileInStream1 *>(const_cast<char*>(p0));
 
   //CFileInStream1 *p = CONTAINER_FROM_VTBL(pp, CFileInStream1, vt);
   return static_cast<SRes>(File_Seek1(&p->file, pos, origin));
@@ -687,7 +692,7 @@ UInt64 Archive::getMaxPercent()
 
 SRes Archive::fileList(std::list<std::wstring> &file_list)
 {
- Print("\n7z Decoder " MY_VERSION_CPU1 " : " MY_COPYRIGHT_DATE1 "\n\n");
+ Print("\n7z Decoder " MY_VERSION_CPU " : " MY_COPYRIGHT_DATE "\n\n");
 
  for(UInt32 i = 0; i < db.NumFiles; i++)
  {
@@ -756,7 +761,7 @@ SRes Archive::fileList(std::list<std::wstring> &file_list)
 
 void Archive::calcTotal(const std::list<std::wstring> &files, const std::list<std::wstring> &paths)
 {
- Print("\n7z Decoder " MY_VERSION_CPU1 " : " MY_COPYRIGHT_DATE1 "\n\n");
+ Print("\n7z Decoder " MY_VERSION_CPU " : " MY_COPYRIGHT_DATE "\n\n");
 
  this->file_list = files;
  this->path_list = paths;

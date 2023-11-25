@@ -22,9 +22,11 @@ import base.messages as msg
 import base.utils as utl
 import installutils as iutl
 
+from pathlib import Path
+
 # Dependency-specific settings.
 DEP_TITLE = "CUrl"
-DEP_URL = "https://curl.haxx.se/download/"
+DEP_URL = "https://github.com/sftcd/curl/archive/ecf5952a8b668d59f7da4d082c91d555f3689aec.zip"
 DEP_OS_LIST = ["win32", "macos", "linux"]
 DEP_FILE_MASK = ["bin/**", "include/**", "lib/**"]
 
@@ -40,7 +42,11 @@ def BuildDependencyMSVC(openssl_root, zlib_root, outpath):
     utl.CreateDirectory(buildpath)
     os.chdir(buildpath)
 
-    build_cmd = ["cmake.exe", "..", "-DCURL_USE_OPENSSL=ON", "-DUSE_ECH=ON"]
+    # As of curl 8.4.0, the cmake portion of the build process does not like Windows backslashes.
+    openssl_root = Path(openssl_root).as_posix()
+    zlib_root = Path(zlib_root).as_posix()
+
+    build_cmd = ["cmake.exe", "..", "-DCURL_USE_OPENSSL=ON", "-DUSE_ECH=ON", "-DUSE_HTTPSRR=ON"]
     if is_arm64_build:
         build_cmd.append("-A ARM64")
         build_cmd.append("-DZLIB_LIBRARY={}/lib/zlib.lib".format(zlib_root))
@@ -58,12 +64,16 @@ def BuildDependencyMSVC(openssl_root, zlib_root, outpath):
 
 
 def BuildDependencyGNU(openssl_root, outpath):
+
     # Create an environment with CC flags.
     buildenv = os.environ.copy()
     if utl.GetCurrentOS() == "macos":
         buildenv.update({"CC": "cc -mmacosx-version-min=10.14 -arch x86_64 -arch arm64"})
     if utl.GetCurrentOS() == "linux" and platform.processor() == "aarch64":
         buildenv.update({"LDFLAGS": "-Wl,-rpath,{}/lib".format(openssl_root)})
+
+    set_execute_permissions_cmd = ["chmod", "+x", "buildconf"]
+    iutl.RunCommand(set_execute_permissions_cmd, env=buildenv)
 
     buildconf_cmd = ["./buildconf"]
     iutl.RunCommand(buildconf_cmd, env=buildenv)
@@ -73,6 +83,7 @@ def BuildDependencyGNU(openssl_root, outpath):
     configure_cmd.append("--prefix={}".format(outpath))
     configure_cmd.append("--with-openssl={}".format(openssl_root))
     configure_cmd.append("--enable-ech")
+    configure_cmd.append("--enable-httpsrr")
     configure_cmd.append("--without-brotli")
     configure_cmd.append("--without-zstd")
     iutl.RunCommand(configure_cmd, env=buildenv)
@@ -103,13 +114,16 @@ def InstallDependency():
     # Prepare output.
     temp_dir = iutl.PrepareTempDirectory(dep_name)
     # Download and unpack the archive.
-    archivetitle = "{}-{}".format(dep_name, dep_version_str)
-    archivename = archivetitle + (".zip" if utl.GetCurrentOS() == "win32" else ".tar.gz")
-    localfilename = os.path.join(temp_dir, archivename)
+    archivetitle = "curl"
+    archivename = DEP_URL
+
+    localfilename = os.path.join(temp_dir, "{}{}".format(archivetitle, ".zip"))
     msg.HeadPrint("Downloading: \"{}\"".format(archivename))
-    iutl.DownloadFile("{}{}".format(DEP_URL, archivename), localfilename)
+    iutl.DownloadFile("{}".format(archivename), localfilename)
     msg.HeadPrint("Extracting: \"{}\"".format(archivename))
     iutl.ExtractFile(localfilename)
+    os.rename(os.path.join(temp_dir, "curl-ecf5952a8b668d59f7da4d082c91d555f3689aec"), os.path.join(temp_dir, archivetitle))
+
     # Copy modified files.
     iutl.CopyCustomFiles(dep_name, os.path.join(temp_dir, archivetitle))
 
@@ -133,9 +147,6 @@ def InstallDependency():
     msg.Print("Installing artifacts...")
     artifacts_dir = outpath
     install_dir = None
-    # if utl.GetCurrentOS() == "win32":
-    #  artifacts_dir = os.path.join(temp_dir, archivetitle, "builds", "libcurl-vc-x64-release-dll-ssl-dll-zlib-dll-ipv6-sspi")
-    #  install_dir = outpath
     aflist = iutl.InstallArtifacts(artifacts_dir, DEP_FILE_MASK, install_dir, installzipname)
     for af in aflist:
         msg.HeadPrint("Ready: \"{}\"".format(af))

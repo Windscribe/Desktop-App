@@ -92,10 +92,6 @@
         <translation>مثبت ويندسكريب</translation>
     </message>
     <message>
-        <source>The Windscribe app can only be installed on Windows 10 or newer.</source>
-        <translation>لا يمكن تثبيت تطبيق Windscribe إلا على نظام التشغيل Windows 10 أو الأحدث.</translation>
-    </message>
-    <message>
         <source>This version of the Windscribe app will not operate correctly on your PC.  Please download the &apos;ARM64&apos; version from the Windscribe website to ensure optimal compatibility and performance.</source>
         <translation>لن يعمل هذا الإصدار من تطبيق Windscribe بشكل صحيح على جهاز الكمبيوتر الخاص بك.  يرجى تنزيل إصدار &quot;ARM64&quot; من موقع Windscribe لضمان التوافق والأداء الأمثل.</translation>
     </message>

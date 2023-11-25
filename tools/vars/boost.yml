@@ -3,5 +3,5 @@
 # Copyright (c) 2020-2023, Windscribe Limited. All rights reserved.
 # ------------------------------------------------------------------------------
 variables:
-  VERSION_BOOST: '1.80.0'
+  VERSION_BOOST: '1.83.0'
   ARTIFACT_BOOST: 'boost.zip'

@@ -28,4 +28,7 @@ private:
     bool splitTunnelEnabled_;
     bool splitTunnelExclude_;
     std::vector<std::string> splitTunnelIps_;
+
+    void removeExclusiveRules();
+    void removeInclusiveRules();
 };

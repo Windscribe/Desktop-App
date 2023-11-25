@@ -92,10 +92,6 @@
         <translation>风抄写员安装程序</translation>
     </message>
     <message>
-        <source>The Windscribe app can only be installed on Windows 10 or newer.</source>
-        <translation>Windscribe应用程序只能安装在Windows 10或更高版本上。</translation>
-    </message>
-    <message>
         <source>This version of the Windscribe app will not operate correctly on your PC.  Please download the &apos;ARM64&apos; version from the Windscribe website to ensure optimal compatibility and performance.</source>
         <translation>此版本的Windscribe应用程序将无法在您的PC上正常运行。 请从Windscribe网站下载“ARM64”版本，以确保最佳的兼容性和性能。</translation>
     </message>

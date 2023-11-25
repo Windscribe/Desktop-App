@@ -21,6 +21,8 @@ public:
     bool removeOldInstall(const std::string &path);
     bool deleteOldHelper();
 
+    bool createCliSymlinkDir();
+
 private:
     bool sendCmdToHelper(int cmdId, const std::string &data);
     bool readAnswer(CMD_ANSWER &outAnswer);
