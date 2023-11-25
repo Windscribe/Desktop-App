@@ -94,10 +94,13 @@ void HoverButton::setText(const QString &text)
     setFixedWidth(std::max(fm.horizontalAdvance(text), icon_ ? icon_->width() : 0));
 
     if (icon_) {
-        text_->move(icon_->width()/2 - fm.horizontalAdvance(text)/2, icon_->height() + 2);
+        setFixedHeight(icon_->height() + 2 + fm.height());
+        icon_->move(width()/2 - icon_->width()/2, 0);
+        text_->move(width()/2 - fm.horizontalAdvance(text)/2, icon_->height() + 2);
     } else {
         QFontMetrics fm(ThemeController::instance().defaultFont(12));
         setFixedWidth(fm.horizontalAdvance(text));
+        setFixedHeight(fm.height());
         text_->move(0, 0);
     }
 }
@@ -105,5 +108,7 @@ void HoverButton::setText(const QString &text)
 void HoverButton::setTextSize(int size)
 {
     textSize_ = size;
-    setText(text_->text());
+    if (text_) {
+        setText(text_->text());
+    }
 }

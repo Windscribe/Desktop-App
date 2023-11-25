@@ -320,11 +320,11 @@ void LocationsTab::changeTab(LOCATION_TAB newTab, bool animateChange)
     if (animateChange) {
         whiteLineAnimation_.stop();
         whiteLineAnimation_.setStartValue(curWhiteLinePos_);
-        whiteLineAnimation_.setEndValue(endWhiteLinePos + 2);
+        whiteLineAnimation_.setEndValue(endWhiteLinePos);
         whiteLineAnimation_.setDuration(ANIMATION_DURATION);
         whiteLineAnimation_.start();
     } else {
-        curWhiteLinePos_ = endWhiteLinePos+2;
+        curWhiteLinePos_ = endWhiteLinePos;
     }
 
     update();
@@ -750,12 +750,12 @@ void LocationsTab::showSearchTab()
     {
         searchButton_->setEnabled(false);
 
-        changeTab(LOCATION_TAB_SEARCH_LOCATIONS);
-        update();
-
         QTimer::singleShot(100, [this]()
         {
             if (!searchTabSelected_) {
+                changeTab(LOCATION_TAB_SEARCH_LOCATIONS);
+                update();
+
                 searchButtonPosAnimation_.stop();
                 searchButtonPosAnimation_.setStartValue(preferences_->appSkin() == APP_SKIN_VAN_GOGH ? FIRST_TAB_ICON_POS_X_VAN_GOGH : FIRST_TAB_ICON_POS_X);
                 searchButtonPosAnimation_.setDirection(QAbstractAnimation::Backward);

@@ -157,6 +157,8 @@ int main(int argc, char *argv[])
     qCDebug(LOG_BASIC) << "Platform:" << QGuiApplication::platformName();
     qCDebug(LOG_BASIC) << "OS Version:" << Utils::getOSVersion();
     qCDebug(LOG_BASIC) << "CPU architecture:" << QSysInfo::currentCpuArchitecture();
+    // To aid us in diagnosing possible region-specific issues.
+    qCDebug(LOG_BASIC) << "UI languages:" << QLocale::system().uiLanguages();
 
     ExtraConfig::instance().logExtraConfig();
 

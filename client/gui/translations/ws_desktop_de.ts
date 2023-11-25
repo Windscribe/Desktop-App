@@ -1333,6 +1333,14 @@ Wenn das Problem nach einem Neustart weiterhin besteht, senden Sie bitte ein Deb
         <source>Tray Icon Color</source>
         <translation>Farbe des Tray-Symbols</translation>
     </message>
+    <message>
+        <source>Do not allow the Windscribe window to be moved.</source>
+        <translation>Lassen Sie nicht zu, dass das Windscribe-Fenster verschoben wird.</translation>
+    </message>
+    <message>
+        <source>Pinned</source>
+        <translation>Angeheftet</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::HelpWindowItem</name>

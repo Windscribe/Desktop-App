@@ -313,8 +313,13 @@ void GeneralWindowItem::onLanguageChanged()
     hideFromDockGroup_->setDescription(tr("Don't show the Windscribe icon in dock."));
     checkBoxHideFromDock_->setCaption(tr("Hide from Dock"));
 #endif
+#if defined(Q_OS_LINUX)
+    dockedGroup_->setDescription(tr("Do not allow the Windscribe window to be moved."));
+    checkBoxDockedToTray_->setCaption(tr("Pinned"));
+#else
     dockedGroup_->setDescription(tr("Pin Windscribe near the system tray or menu bar."));
     checkBoxDockedToTray_->setCaption(tr("Docked"));
+#endif
     showNotificationsGroup_->setDescription(tr("Display system-level notifications when connection events occur."));
     checkBoxShowNotifications_->setCaption(tr("Show Notifications"));
     showLocationLoadGroup_->setDescription(tr("Display a location's load. Shorter bars mean lesser load (usage)."));

@@ -1,36 +1,39 @@
 #pragma once
 
+#include <atomic>
+
 #include <QObject>
+
+#include "apiresources/apiresourcesmanager.h"
+#include "apiresources/checkupdatemanager.h"
+#include "apiresources/myipmanager.h"
+#include "autoupdater/downloadhelper.h"
+#include "connectionmanager/connectionmanager.h"
+#include "connectstatecontroller/connectstatecontroller.h"
+#include "engine/customconfigs/customconfigs.h"
+#include "engine/customconfigs/customovpnauthcredentialsstorage.h"
+#include "engine/emergencycontroller/emergencycontroller.h"
+#include "engine/macaddresscontroller/imacaddresscontroller.h"
+#include "engine/ping/keepalivemanager.h"
+#include "engine/vpnshare/vpnsharecontroller.h"
+#include "firewall/firewallcontroller.h"
 #include "firewall/firewallexceptions.h"
 #include "helper/ihelper.h"
 #include "helper/initializehelper.h"
-#include "networkdetectionmanager/inetworkdetectionmanager.h"
-#include "firewall/firewallcontroller.h"
-#include "serverapi/serverapi.h"
-#include "types/notification.h"
 #include "locationsmodel/enginelocationsmodel.h"
-#include "connectionmanager/connectionmanager.h"
-#include "connectstatecontroller/connectstatecontroller.h"
-#include "engine/vpnshare/vpnsharecontroller.h"
-#include "engine/emergencycontroller/emergencycontroller.h"
-#include "apiresources/myipmanager.h"
-#include "types/enginesettings.h"
-#include "types/checkupdate.h"
-#include "engine/customconfigs/customconfigs.h"
-#include "engine/customconfigs/customovpnauthcredentialsstorage.h"
-#include <atomic>
-#include "engine/macaddresscontroller/imacaddresscontroller.h"
-#include "engine/ping/keepalivemanager.h"
-#include "packetsizecontroller.h"
-#include "autoupdater/downloadhelper.h"
-#include "autoupdater/autoupdaterhelper_mac.h"
 #include "networkaccessmanager/networkaccessmanager.h"
-#include "apiresources/apiresourcesmanager.h"
-#include "apiresources/checkupdatemanager.h"
+#include "networkdetectionmanager/inetworkdetectionmanager.h"
+#include "packetsizecontroller.h"
+#include "serverapi/serverapi.h"
+#include "types/checkupdate.h"
+#include "types/enginesettings.h"
+#include "types/notification.h"
 
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN)
     #include "measurementcpuusage.h"
     #include "utils/crashhandler.h"
+#elif defined(Q_OS_MAC)
+    #include "autoupdater/autoupdaterhelper_mac.h"
 #endif
 
 // all the functionality of the connections, firewall, helper, etc
@@ -179,6 +182,8 @@ signals:
     void initCleanup(bool isExitWithRestart, bool isFirewallChecked, bool isFirewallAlwaysOn, bool isLaunchOnStart);
 
     void helperSplitTunnelingStartFailed();
+
+    void autoEnableAntiCensorship();
 
 private slots:
     void onLostConnectionToHelper();
@@ -387,4 +392,6 @@ private:
     types::NetworkInterface prevNetworkInterface_;
 
     types::ConnectionSettings connectionSettingsOverride_;
+
+    bool checkAutoEnableAntiCensorship_ = false;
 };

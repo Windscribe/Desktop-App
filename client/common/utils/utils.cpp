@@ -211,7 +211,7 @@ QString Utils::generateRandomMacAddress()
             tp &= 0xFE;
         }
 
-        sprintf(buf, "%s%X", tp < 16 ? "0" : "", tp);
+        snprintf(buf, 256, "%s%X", tp < 16 ? "0" : "", tp);
         s += QString::fromStdString(buf);
     }
     return s;

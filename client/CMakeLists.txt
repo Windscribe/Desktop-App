@@ -145,7 +145,6 @@ if (WIN32)
     target_link_options(Windscribe PRIVATE "/IGNORE:4099")
 elseif (APPLE)
     set_property(TARGET Windscribe APPEND_STRING PROPERTY COMPILE_FLAGS "-fobjc-arc")
-    set(CMAKE_CXX_FLAGS "-Wno-deprecated-declarations")
 endif()
 
 target_link_libraries(Windscribe PRIVATE Qt6::Widgets Qt6::Network gui engine common ${OS_SPECIFIC_LIBRARIES})

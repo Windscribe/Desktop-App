@@ -1333,6 +1333,14 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
         <source>Tray Icon Color</source>
         <translation>Tepsi Simgesi Rengi</translation>
     </message>
+    <message>
+        <source>Do not allow the Windscribe window to be moved.</source>
+        <translation>Windscribe penceresinin hareket ettirilmesine izin vermeyin.</translation>
+    </message>
+    <message>
+        <source>Pinned</source>
+        <translation>Sabitlenmiş</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::HelpWindowItem</name>

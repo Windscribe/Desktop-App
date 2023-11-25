@@ -2,12 +2,19 @@
 
 #include <QLocale>
 
+#if defined(Q_OS_WIN)
+#include <qt_windows.h>
+#endif
+
+
 QString LanguagesUtil::convertCodeToNative(const QString &code)
 {
     if (code == "en")
         return "English";
     else if (code == "ar") // Arabic
         return "العربية";
+    else if (code == "be") // Belarusian
+        return "беларуская";
     else if (code == "cs") // Czech
         return "Čeština";
     else if (code == "de") // German
@@ -68,4 +75,32 @@ QString LanguagesUtil::systemLanguage()
         break;
     }
     return ret;
+}
+
+bool LanguagesUtil::isCensorshipCountry()
+{
+    // Design Note:
+    // Using our systemLanguage() implementation, rather than QLocale::name()/bcp47Name(),
+    // since we discovered during development of this class that they do not give the correct
+    // language on macOS.
+    const QStringList censoredCountries = { "be", "fa", "ru", "tr", "zh" };
+    if (censoredCountries.contains(systemLanguage())) {
+        return true;
+    }
+
+#if defined(Q_OS_WIN)
+    // Extra check on Windows using the default geographical location of the user.  This API
+    // returns the two-letter ISO 3166-1 code for the default geographical location of the user.
+    wchar_t systemGeoName[LOCALE_NAME_MAX_LENGTH];
+    int strlen = ::GetUserDefaultGeoName(systemGeoName, LOCALE_NAME_MAX_LENGTH);
+    if (strlen > 0) {
+        const QStringList censoredCountriesISO3166 = { "by", "cn", "ir", "ru", "tr" };
+        const QString geoName = QString::fromWCharArray(systemGeoName, strlen).toLower();
+        if (censoredCountriesISO3166.contains(geoName)) {
+            return true;
+        }
+    }
+#endif
+
+    return false;
 }

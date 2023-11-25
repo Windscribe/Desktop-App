@@ -61,7 +61,7 @@ public:
     explicit EngineSettings();
 
     void saveToSettings();
-    void loadFromSettings();
+    bool loadFromSettings();
 
     //bool isEqual(const ProtoTypes::EngineSettings &s) const;
 

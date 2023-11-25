@@ -4,6 +4,11 @@
 #import <Foundation/Foundation.h>
 #import <SystemConfiguration/SystemConfiguration.h>
 
+// Ignore deprecated warnings for this file:
+// - SecKeychainFindInternetPassword
+// - SecKeychainItemFreeContent
+// There does not seem to be any replacement for them
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 
 types::ProxySettings AutoDetectProxy_mac::detect(bool &bSuccessfully)
 {

@@ -32,9 +32,9 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QWidget(parent), animValue_(0)
     title->move(175 - fm.horizontalAdvance(tr("Install Settings"))/2, 95);
 
     HoverButton *escapeButton = new HoverButton(this, ":/resources/CHECK_ICON.svg");
-    escapeButton->setGeometry(163, 290, 24, 36);
     escapeButton->setText(tr("OK"));
     escapeButton->setTextSize(10);
+    escapeButton->move(175 - escapeButton->width()/2, 290);
     connect(escapeButton, &QPushButton::clicked, this, &SettingsWindow::escapeClicked);
 
 #ifdef Q_OS_MAC

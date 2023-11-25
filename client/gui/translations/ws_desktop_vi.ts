@@ -1333,6 +1333,14 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
         <source>Tray Icon Color</source>
         <translation>Màu biểu tượng khay</translation>
     </message>
+    <message>
+        <source>Do not allow the Windscribe window to be moved.</source>
+        <translation>Không cho phép di chuyển cửa sổ Windscribe.</translation>
+    </message>
+    <message>
+        <source>Pinned</source>
+        <translation>Pinned</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::HelpWindowItem</name>

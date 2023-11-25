@@ -1,3 +1,27 @@
+2.8.3 (24/11/2023)
+All:
+   * Improved anti-censorship feature. Feature automatically enabled for first-run users in censored countries. #770
+   * Fixed UI connection state may stick at 'connecting' when disconnecting and connecting to a different location rapidly. #165
+   * Fixed bottom information bar on connect screen is not displayed after upgrade screen is dismissed. #361
+   * Fixed firewall does not disable on failed connection to non-existent location. #374
+   * Fixed opening locations drop down when prompted to save preferred protocol causes errant UI behavior or may crash the app. #703
+   * Fixed incorrect server list returned when serverpede advanced param is set to 'ignore' and user is geo-located to a censored country. #755
+   * Fixed UI issue where search tab may overlay other tabs. #811
+   * Fixed UI screen transition issues (UI may freeze) when account is expired or anti-abuse is triggered. #817
+Windows:
+   * Fixed 'OK' text in installer is not centered underneath the checkmark button for some languages. #726
+   * Fixed app icon in Windows task manager is blurry. #807
+macOS:
+   * Fixed 'OK' text in installer is not centered underneath the checkmark button for some languages. #726
+   * Fixed using the dock menu and clicking "Quit" causes the app to crash. #802
+   * Fixed wireguard binary contains debug symbols. #814
+Linux:
+   * Added StartupWMClass to windscribe.desktop file. #815
+   * Improved 'Docked' mode.  Renamed it to 'Pinned' and modified description accordingly. #241
+   * Improved iptables handling.  Windscribe-specific rules are now prepended, rather than appended. #475
+   * Fixed wireguard binary contains debug symbols. #814
+
+
 2.8.2 (16/11/2023)
 All:
    * Added advanced parameter to control serverpede functionality. #755

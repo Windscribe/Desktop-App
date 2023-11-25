@@ -2,6 +2,7 @@
 
 #include "legacy_protobuf_support/legacy_protobuf.h"
 #include "types/global_consts.h"
+#include "utils/extraconfig.h"
 #include "utils/languagesutil.h"
 #include "utils/logger.h"
 #include "utils/simplecrypt.h"
@@ -34,7 +35,7 @@ void EngineSettings::saveToSettings()
     settings.sync();
 }
 
-void EngineSettings::loadFromSettings()
+bool EngineSettings::loadFromSettings()
 {
     bool bLoaded = false;
     SimpleCrypt simpleCrypt(SIMPLE_CRYPT_KEY);
@@ -77,8 +78,7 @@ void EngineSettings::loadFromSettings()
         // todo remove this code at some point later
         QString str = settings.value("engineSettings2", "").toString();
         QByteArray arr = simpleCrypt.decryptToByteArray(str);
-        if (LegacyProtobufSupport::loadEngineSettings(arr, *this))
-        {
+        if (LegacyProtobufSupport::loadEngineSettings(arr, *this)) {
             bLoaded = true;
         }
 
@@ -87,12 +87,22 @@ void EngineSettings::loadFromSettings()
 
     if (!bLoaded) {
         qCDebug(LOG_BASIC) << "Could not load engine settings -- resetting to defaults";
-        *this = EngineSettings();   // reset to defaults
+        *this = EngineSettings();
+
+        // Automatically enable anti-censorship feature for first-run users.
+        if (LanguagesUtil::isCensorshipCountry()) {
+            qCDebug(LOG_BASIC) << "Automatically enabled anti-censorship feature due to locale";
+            // TODO: **JDRM** refactor this logic at some point so we don't have two sources of truth for the anti-censorship state.
+            setIsAntiCensorship(true);
+            ExtraConfig::instance().setAntiCensorship(true);
+        }
     }
 
     if (d->language.isEmpty()) {
         d->language = LanguagesUtil::systemLanguage();
     }
+
+    return bLoaded;
 }
 
 QString EngineSettings::language() const

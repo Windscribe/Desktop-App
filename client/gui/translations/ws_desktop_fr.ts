@@ -1333,6 +1333,14 @@ Si le problème persiste après un redémarrage, envoyez un journal de débogage
         <source>Tray Icon Color</source>
         <translation>Couleur de l’icône du bac</translation>
     </message>
+    <message>
+        <source>Do not allow the Windscribe window to be moved.</source>
+        <translation>N’autorisez pas le déplacement de la fenêtre Windscribe.</translation>
+    </message>
+    <message>
+        <source>Pinned</source>
+        <translation>Épinglé</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::HelpWindowItem</name>

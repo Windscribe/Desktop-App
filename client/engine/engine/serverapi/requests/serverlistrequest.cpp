@@ -40,21 +40,27 @@ QUrl ServerListRequest::url(const QString &domain) const
         query.addQueryItem("alc", alcField);
     }
 
-    if (!ExtraConfig::instance().serverListIgnoreCountryOverride()) {
-        QString countryOverride;
+    QString countryOverride;
+    if (ExtraConfig::instance().serverListIgnoreCountryOverride()) {
+        // Instruct the serverlist endpoint to ignore geolocation based on our IP.
+        countryOverride = "ZZ";
+    }
+    else {
         auto extraConfigCountryOverride = ExtraConfig::instance().serverlistCountryOverride();
         if (extraConfigCountryOverride.has_value()) {
             countryOverride = extraConfigCountryOverride.value();
         }
         else if (connectStateController_->currentState() != CONNECT_STATE::CONNECT_STATE_DISCONNECTED) {
             QSettings settings;
-            countryOverride = settings.value("countryOverride", "").toString();
+            if (settings.contains("countryOverride")) {
+                countryOverride = settings.value("countryOverride").toString();
+            }
         }
+    }
 
-        if (!countryOverride.isEmpty()) {
-            query.addQueryItem("country_override", countryOverride);
-            qCDebug(LOG_SERVER_API) << "API request ServerLocations added countryOverride = " << countryOverride;
-        }
+    if (!countryOverride.isEmpty()) {
+        query.addQueryItem("country_override", countryOverride);
+        qCDebug(LOG_SERVER_API) << "API request ServerLocations added countryOverride =" << countryOverride;
     }
 
     urlquery_utils::addAuthQueryItems(query);
@@ -109,7 +115,7 @@ void ServerListRequest::handle(const QByteArray &arr)
         if (isFromDisconnectedVPNState_ && connectStateController_->currentState() == CONNECT_STATE::CONNECT_STATE_DISCONNECTED) {
             QSettings settings;
             settings.setValue("countryOverride", jsonInfo["country_override"].toString());
-            qCDebug(LOG_SERVER_API) << "API request ServerLocations saved countryOverride = " << jsonInfo["country_override"].toString();
+            qCDebug(LOG_SERVER_API) << "API request ServerLocations saved countryOverride =" << jsonInfo["country_override"].toString();
         }
     } else {
         if (isFromDisconnectedVPNState_ && connectStateController_->currentState() == CONNECT_STATE::CONNECT_STATE_DISCONNECTED) {

@@ -80,9 +80,7 @@ bool FirewallController_mac::firewallOn(const QString &connectingIp, const QSet<
     QMutexLocker locker(&mutex_);
     FirewallState firewallState;
 
-    if (!checkInternalVsPfctlState(&firewallState)) {
-        qCDebug(LOG_FIREWALL_CONTROLLER) << "Fatal error: firewall internal state not equal firewall state from pfctl";
-    }
+    checkInternalVsPfctlState(&firewallState);
 
     if (!isWindscribeFirewallEnabled_) {
         setPfWasEnabledState(firewallState.isEnabled);
@@ -131,9 +129,7 @@ bool FirewallController_mac::firewallOff()
 {
     QMutexLocker locker(&mutex_);
 
-    if (!checkInternalVsPfctlState()) {
-        qCDebug(LOG_FIREWALL_CONTROLLER) << "Fatal error: firewall internal state not equal firewall state from pfctl";
-    }
+    checkInternalVsPfctlState();
     firewallOffImpl();
     isWindscribeFirewallEnabled_ = false;
     windscribeIps_.clear();
@@ -144,19 +140,14 @@ bool FirewallController_mac::firewallActualState()
 {
     QMutexLocker locker(&mutex_);
 
-    if (!checkInternalVsPfctlState()) {
-        qCDebug(LOG_FIREWALL_CONTROLLER) << "Fatal error: firewall internal state not equal firewall state from pfctl";
-    }
-
+    checkInternalVsPfctlState();
     return isWindscribeFirewallEnabled_;
 }
 
 bool FirewallController_mac::whitelistPorts(const apiinfo::StaticIpPortsVector &ports)
 {
     QMutexLocker locker(&mutex_);
-    if (!checkInternalVsPfctlState()) {
-        qCDebug(LOG_FIREWALL_CONTROLLER) << "Fatal error: firewall internal state not equal firewall state from pfctl";
-    }
+    checkInternalVsPfctlState();
 
     if (isWindscribeFirewallEnabled_) {
         if (staticIpPorts_ != ports) {
@@ -262,45 +253,6 @@ void FirewallController_mac::getFirewallStateFromPfctl(FirewallState &outState)
             }
         }
     }
-
-    // read anchor windscribe_vpn_traffic rules
-    output.clear();
-    outState.interfaceToSkip.clear();
-    ret = helper_->getFirewallRules(kIpv4, "", "windscribe_vpn_traffic", output);
-    output = output.trimmed();
-    if (ret && !output.isEmpty()) {
-        QStringList rules = output.split("\n");
-        if (rules.size() > 0) {
-            QStringList words = rules[0].split(" ");
-            if (words.size() >= 10) {
-                // pass out quick on [interface]
-                outState.interfaceToSkip = words[4];
-            } else {
-                WS_ASSERT(false);
-            }
-        }
-        outState.isCustomConfig = (rules.size() == 2 && !outState.interfaceToSkip.isEmpty());
-    } else {
-        outState.isCustomConfig = false;
-    }
-    // read anchor windscribe_lan_traffic rules
-    outState.isAllowLanTraffic = false;
-    output.clear();
-    ret = helper_->getFirewallRules(kIpv4, "", "windscribe_lan_traffic", output);
-    output = output.trimmed();
-    if (ret && !output.isEmpty()) {
-        QStringList rules = output.split("\n");
-        outState.isAllowLanTraffic = (rules.size() > 2);
-    }
-
-    // read anchor windscribe_static_ports_traffic rules
-    outState.isStaticIpPortsEmpty = true;
-    output.clear();
-    ret = helper_->getFirewallRules(kIpv4, "", "windscribe_static_ports_traffic", output);
-    output = output.trimmed();
-    if (ret && !output.isEmpty()) {
-        outState.isStaticIpPortsEmpty = false;
-    }
 }
 
 bool FirewallController_mac::checkInternalVsPfctlState(FirewallState *outFirewallState /*= nullptr*/)
@@ -312,14 +264,12 @@ bool FirewallController_mac::checkInternalVsPfctlState(FirewallState *outFirewal
         *outFirewallState = firewallState;
 
     if (firewallState.isEnabled && firewallState.isBasicWindscribeRulesCorrect) {
-        if (!isWindscribeFirewallEnabled_ ||
-            windscribeIps_ != firewallState.windscribeIps ||
-            interfaceToSkip_ != firewallState.interfaceToSkip ||
-            isAllowLanTraffic_ != firewallState.isAllowLanTraffic ||
-            isCustomConfig_ != firewallState.isCustomConfig ||
-            (staticIpPorts_.isEmpty() && !firewallState.isStaticIpPortsEmpty) ||
-            (!staticIpPorts_.isEmpty() && firewallState.isStaticIpPortsEmpty))
-        {
+        if (!isWindscribeFirewallEnabled_) {
+            WS_ASSERT("Firewall state doesn't match");
+            return false;
+        }
+        if (windscribeIps_ != firewallState.windscribeIps) {
+            WS_ASSERT("Windscribe IPs don't match");
             return false;
         }
     }
@@ -419,9 +369,7 @@ void FirewallController_mac::setInterfaceToSkip_posix(const QString &interfaceTo
 {
     QMutexLocker locker(&mutex_);
     qCDebug(LOG_BASIC) << "FirewallController_mac::setInterfaceToSkip_posix ->" << interfaceToSkip;
-    if (!checkInternalVsPfctlState()) {
-        qCDebug(LOG_FIREWALL_CONTROLLER) << "Fatal error: firewall internal state not equal firewall state from pfctl";
-    }
+    checkInternalVsPfctlState();
 
     if (isWindscribeFirewallEnabled_) {
         if (interfaceToSkip_ != interfaceToSkip) {

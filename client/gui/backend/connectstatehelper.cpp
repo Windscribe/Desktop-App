@@ -1,7 +1,7 @@
 #include "connectstatehelper.h"
 
 ConnectStateHelper::ConnectStateHelper(QObject *parent) : QObject(parent),
-    bInternalDisconnecting_(false), isDisconnected_(true)
+    isDisconnected_(true)
 {
 
 }
@@ -17,7 +17,6 @@ void ConnectStateHelper::connectClickFromUser()
 
 void ConnectStateHelper::disconnectClickFromUser()
 {
-    bInternalDisconnecting_ = true;
     isDisconnected_ = false;
     types::ConnectState cs;
     cs.connectState = CONNECT_STATE_DISCONNECTING;
@@ -27,15 +26,6 @@ void ConnectStateHelper::disconnectClickFromUser()
 
 void ConnectStateHelper::setConnectStateFromEngine(const types::ConnectState &connectState)
 {
-    if (bInternalDisconnecting_)
-    {
-        if (connectState.connectState != CONNECT_STATE_DISCONNECTED)
-        {
-            return;
-        }
-        bInternalDisconnecting_ = false;
-    }
-
     isDisconnected_ = connectState.connectState == CONNECT_STATE_DISCONNECTED;
     curState_ = connectState;
     emit connectStateChanged(connectState);

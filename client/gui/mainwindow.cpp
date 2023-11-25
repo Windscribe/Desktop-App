@@ -404,7 +404,7 @@ MainWindow::MainWindow() :
     deactivationTimer_.setSingleShot(true);
     connect(&deactivationTimer_, &QTimer::timeout, this, &MainWindow::onWindowDeactivateAndHideImpl);
 
-    QTimer::singleShot(0, this, SLOT(setWindowToDpiScaleManager()));
+    QTimer::singleShot(0, this, &MainWindow::setWindowToDpiScaleManager);
 }
 
 MainWindow::~MainWindow()
@@ -506,7 +506,6 @@ bool MainWindow::doClose(QCloseEvent *event, bool isFromSigTerm_mac)
 #endif  // Q_OS_WIN || Q_OS_MAC
 
     setEnabled(false);
-    isSpontaneousCloseEvent_ = false;
 
     // for startup fix (when app disabled in task manager)
     LaunchOnStartup::instance().setLaunchOnStartup(backend_->getPreferences()->isLaunchOnStartup());
@@ -540,8 +539,6 @@ bool MainWindow::doClose(QCloseEvent *event, bool isFromSigTerm_mac)
 
     PersistentState::instance().setAppGeometry(this->saveGeometry());
 
-    deactivationTimer_.stop();
-
     // Shutdown notification controller here, and not in a destructor. Otherwise, sometimes we won't
     // be able to shutdown properly, because the destructor may not be called. On the Windows
     // platform, when the user logs off, the system terminates the process after Qt closes all top
@@ -554,14 +551,21 @@ bool MainWindow::doClose(QCloseEvent *event, bool isFromSigTerm_mac)
     PersistentState::instance().save();
     backend_->locationsModelManager()->saveFavoriteLocations();
 
-    if (WindscribeApplication::instance()->isExitWithRestart() || isFromSigTerm_mac) {
+    if (WindscribeApplication::instance()->isExitWithRestart() || isFromSigTerm_mac || isSpontaneousCloseEvent_) {
         // Since we may process events below, disable UI updates and prevent the slot for this signal
         // from attempting to close this widget. We have encountered instances of that occurring during
         // the app update process on macOS.
         setUpdatesEnabled(false);
         disconnect(WindscribeApplication::instance(), &WindscribeApplication::shouldTerminate_mac, this, nullptr);
 
-        qCDebug(LOG_BASIC) << "close main window with" << (isFromSigTerm_mac ? "SIGTERM" : "restart OS");
+        if (isFromSigTerm_mac) {
+            qCDebug(LOG_BASIC) << "close main window with SIGTERM";
+        } else if (isSpontaneousCloseEvent_) {
+            qCDebug(LOG_BASIC) << "close main window with close event";
+        } else {
+            qCDebug(LOG_BASIC) << "close main window with restart OS";
+        }
+        isSpontaneousCloseEvent_ = false;
 
         while (!backend_->isAppCanClose()) {
             QThread::msleep(1);
@@ -576,10 +580,11 @@ bool MainWindow::doClose(QCloseEvent *event, bool isFromSigTerm_mac)
         }
     }
     else {
+        isSpontaneousCloseEvent_ = false;
         qCDebug(LOG_BASIC) << "close main window";
         if (event) {
             event->ignore();
-            QTimer::singleShot(TIME_BEFORE_SHOW_SHUTDOWN_WINDOW, this, SLOT(showShutdownWindow()));
+            QTimer::singleShot(TIME_BEFORE_SHOW_SHUTDOWN_WINDOW, this, &MainWindow::showShutdownWindow);
         }
     }
     return true;
@@ -588,7 +593,7 @@ bool MainWindow::doClose(QCloseEvent *event, bool isFromSigTerm_mac)
 void MainWindow::minimizeToTray()
 {
     trayIcon_.show();
-    QTimer::singleShot(0, this, SLOT(hide()));
+    QTimer::singleShot(0, this, &MainWindow::hide);
     MainWindowState::instance().setActive(false);
 #if defined(Q_OS_MAC)
     MacUtils::hideDockIcon();
@@ -943,7 +948,10 @@ void MainWindow::onConnectWindowConnectClick()
         if (!selectedLocation_->isValid())
         {
             LocationID bestLocation = backend_->locationsModelManager()->getBestLocationId();
-            WS_ASSERT(bestLocation.isValid());
+            // If we are in external config mode, there may be no best or selected location; do not attempt connect
+            if(!bestLocation.isValid()) {
+                return;
+            }
             selectedLocation_->set(bestLocation);
             PersistentState::instance().setLastLocation(selectedLocation_->locationdId());
             WS_ASSERT(selectedLocation_->isValid());
@@ -1524,7 +1532,7 @@ void MainWindow::onBackendInitFinished(INIT_STATE initState)
                                                GeneralMessageController::tr(GeneralMessageController::kNo),
                                                "",
                                                [this](bool b) { backend_->enableBFE_win(); },
-                                               [this](bool b) { QTimer::singleShot(0, this, SLOT(close())); });
+                                               [this](bool b) { QTimer::singleShot(0, this, &MainWindow::close); });
     } else if (initState == INIT_STATE_BFE_SERVICE_FAILED_TO_START) {
         GeneralMessageController::instance().showMessage("ERROR_ICON",
                                                tr("Failed to Enable Service"),
@@ -1532,7 +1540,7 @@ void MainWindow::onBackendInitFinished(INIT_STATE initState)
                                                GeneralMessageController::tr(GeneralMessageController::kOk),
                                                "",
                                                "",
-                                               [this](bool b) { QTimer::singleShot(0, this, SLOT(close())); });
+                                               [this](bool b) { QTimer::singleShot(0, this, &MainWindow::close); });
     } else if (initState == INIT_STATE_HELPER_FAILED) {
         GeneralMessageController::instance().showMessage("ERROR_ICON",
                                                tr("Failed to Start"),
@@ -1540,16 +1548,16 @@ void MainWindow::onBackendInitFinished(INIT_STATE initState)
                                                GeneralMessageController::tr(GeneralMessageController::kOk),
                                                "",
                                                "",
-                                               [this](bool b) { QTimer::singleShot(0, this, SLOT(close())); });
+                                               [this](bool b) { QTimer::singleShot(0, this, &MainWindow::close); });
     } else if (initState == INIT_STATE_HELPER_USER_CANCELED) {
         // close without message box
-        QTimer::singleShot(0, this, SLOT(close()));
+        QTimer::singleShot(0, this, &MainWindow::close);
     } else {
         if (!isInitializationAborted_) {
             qCDebug(LOG_BASIC) << "Engine failed to start.";
             WS_ASSERT(false);
         }
-        QTimer::singleShot(0, this, SLOT(close()));
+        QTimer::singleShot(0, this, &MainWindow::close);
     }
 }
 
@@ -3103,11 +3111,11 @@ void MainWindow::createTrayMenuItems()
     {
         if (backend_->currentConnectState() == CONNECT_STATE_DISCONNECTED)
         {
-            trayMenu_.addAction(tr("Connect"), this, SLOT(onTrayMenuConnect()));
+            trayMenu_.addAction(tr("Connect"), this, &MainWindow::onTrayMenuConnect);
         }
         else
         {
-            trayMenu_.addAction(tr("Disconnect"), this, SLOT(onTrayMenuDisconnect()));
+            trayMenu_.addAction(tr("Disconnect"), this, &MainWindow::onTrayMenuDisconnect);
         }
         trayMenu_.addSeparator();
 
@@ -3177,16 +3185,16 @@ void MainWindow::createTrayMenuItems()
     }
 
 #if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
-    trayMenu_.addAction(tr("Show/Hide"), this, SLOT(onTrayMenuShowHide()));
+    trayMenu_.addAction(tr("Show/Hide"), this, &MainWindow::onTrayMenuShowHide);
 #endif
 
     if (!mainWindowController_->isPreferencesVisible())
     {
-        trayMenu_.addAction(tr("Preferences"), this, SLOT(onTrayMenuPreferences()));
+        trayMenu_.addAction(tr("Preferences"), this, &MainWindow::onTrayMenuPreferences);
     }
 
-    trayMenu_.addAction(tr("Help"), this, SLOT(onTrayMenuHelpMe()));
-    trayMenu_.addAction(tr("Exit"), this, SLOT(onTrayMenuQuit()));
+    trayMenu_.addAction(tr("Help"), this, &MainWindow::onTrayMenuHelpMe);
+    trayMenu_.addAction(tr("Exit"), this, &MainWindow::onTrayMenuQuit);
 }
 
 void MainWindow::onTrayMenuAboutToShow()

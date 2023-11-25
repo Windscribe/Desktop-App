@@ -1333,6 +1333,14 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>Tray Icon Color</source>
         <translation>لون أيقونة الدرج</translation>
     </message>
+    <message>
+        <source>Do not allow the Windscribe window to be moved.</source>
+        <translation>لا تسمح بتحريك نافذة Windscribe.</translation>
+    </message>
+    <message>
+        <source>Pinned</source>
+        <translation>المثبته</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::HelpWindowItem</name>

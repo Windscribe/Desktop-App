@@ -100,6 +100,7 @@ void Backend::init()
     connect(engine_, &Engine::setRobertFilterFinished, this, &Backend::onEngineSetRobertFilterFinished);
     connect(engine_, &Engine::syncRobertFinished, this, &Backend::onEngineSyncRobertFinished);
     connect(engine_, &Engine::helperSplitTunnelingStartFailed, this, &Backend::helperSplitTunnelingStartFailed);
+    connect(engine_, &Engine::autoEnableAntiCensorship, this, &Backend::onEngineAutoEnableAntiCensorship);
     threadEngine_->start(QThread::LowPriority);
 }
 
@@ -883,4 +884,9 @@ bool Backend::haveAutoLoginCredentials(QString &username, QString &password)
 #else
     return false;
 #endif
+}
+
+void Backend::onEngineAutoEnableAntiCensorship()
+{
+    preferences_.setAntiCensorship(true);
 }

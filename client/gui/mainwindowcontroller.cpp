@@ -494,6 +494,10 @@ void MainWindowController::changeWindow(MainWindowController::WINDOW_ID windowId
 
 void MainWindowController::expandLocations()
 {
+    // #703: If current window is general message window then locations expansion should not occur.
+    if (curWindow_ == WINDOW_ID_GENERAL_MESSAGE)
+        return;
+
     // qCDebug(LOG_LOCATION_LIST) << "MainWindowController::expandLocations";
     WS_ASSERT(curWindow_ == WINDOW_ID_CONNECT);
     WS_ASSERT(expandLocationsAnimationGroup_ != NULL);
@@ -606,7 +610,7 @@ void MainWindowController::expandNewsFeed()
 
 void MainWindowController::collapseNewsFeed()
 {
-    if (curWindow_ == WINDOW_ID_CONNECT) {
+    if (curWindow_ == WINDOW_ID_CONNECT || curWindow_ == WINDOW_ID_UPGRADE) {
         collapseWindow(newsFeedWindow_, false);
     }
 }
@@ -1444,13 +1448,7 @@ void MainWindowController::gotoConnectWindow(bool expandPrefs)
         initWindow_->stackBefore(connectWindow_);
 
         isAtomicAnimationActive_ = true;
-
-        // The second condition occurs when engine crashes and user tries to exit app using hot keys but then selects "No".
-        // In this case it is necessary to set windowBeforeExit_ to WINDOW_ID_CONNECT because it will be necessary to enter
-        // connect window after closing exit dialog.
-        if(curWindow_ == WINDOW_ID_EXIT) {
-            windowBeforeExit_ = WINDOW_ID_CONNECT;
-        }
+        curWindow_ = WINDOW_ID_CONNECT;
 
         shadowManager_->setVisible(ShadowManager::SHAPE_ID_INIT_WINDOW, false);
         shadowManager_->setVisible(ShadowManager::SHAPE_ID_CONNECT_WINDOW, true);
@@ -1497,7 +1495,6 @@ void MainWindowController::gotoConnectWindow(bool expandPrefs)
         connect(revealConnectAnimationGroup, &QPropertyAnimation::finished,
                 [this, revealConnectOpacityAnimation, revealConnectOpacitySeq, revealInitSizeAnimation]()
         {
-            curWindow_ = WINDOW_ID_CONNECT;
             updateBottomInfoWindowVisibilityAndPos(/*forceCollapsed =*/ true);
             if (bottomInfoWindow_->isVisible()) {
                 std::function<void()> finish_function = [this]() {
@@ -1533,10 +1530,10 @@ void MainWindowController::gotoConnectWindow(bool expandPrefs)
             connectWindow_->setClickable(true);
             bottomInfoWindow_->setClickable(true);
 
+            updateBottomInfoWindowVisibilityAndPos();
             if (bottomInfoWindow_->isVisible()) {
                 std::function<void()> finish_function = [this](){
                     isAtomicAnimationActive_ = false;
-                    updateBottomInfoWindowVisibilityAndPos();
                     handleNextWindowChange();
                 };
 
@@ -1565,10 +1562,10 @@ void MainWindowController::gotoConnectWindow(bool expandPrefs)
             connectWindow_->setClickable(true);
             bottomInfoWindow_->setClickable(true);
 
+            updateBottomInfoWindowVisibilityAndPos();
             if (bottomInfoWindow_->isVisible()) {
                 std::function<void()> finish_function = [this](){
                     isAtomicAnimationActive_ = false;
-                    updateBottomInfoWindowVisibilityAndPos();
                     handleNextWindowChange();
                 };
 
@@ -1588,6 +1585,8 @@ void MainWindowController::gotoConnectWindow(bool expandPrefs)
 
         shadowManager_->setVisible(ShadowManager::SHAPE_ID_GENERAL_MESSAGE, false);
         shadowManager_->setVisible(ShadowManager::SHAPE_ID_CONNECT_WINDOW, true);
+        connectWindow_->setVisible(true);
+        connectWindow_->show();
 
         QPropertyAnimation *anim = new QPropertyAnimation(this);
         anim->setTargetObject(generalMessageWindow_);
@@ -1605,10 +1604,10 @@ void MainWindowController::gotoConnectWindow(bool expandPrefs)
                 bottomInfoWindow_->setVisible(false);
                 expandWindow(preferencesWindow_);
             } else {
+                updateBottomInfoWindowVisibilityAndPos();
                 if (bottomInfoWindow_->isVisible()) {
                     std::function<void()> finish_function = [this](){
                         isAtomicAnimationActive_ = false;
-                        updateBottomInfoWindowVisibilityAndPos();
                         handleNextWindowChange();
                     };
 
@@ -1890,6 +1889,10 @@ void MainWindowController::gotoUpgradeWindow()
 
     isAtomicAnimationActive_ = true;
     curWindow_ = WINDOW_ID_UPGRADE;
+
+    if (isPreferencesVisible()) {
+        collapseWindow(preferencesWindow_, true);
+    }
 
     TooltipController::instance().hideAllTooltips();
     connectWindow_->setClickable(false);
@@ -2802,7 +2805,12 @@ void MainWindowController::updateExpandAnimationParameters()
     connect(collapseBottomInfoWindowAnimation_, &QPropertyAnimation::valueChanged, this, &MainWindowController::onCollapseBottomInfoWindowAnimationValueChanged);
 
     expandLocationsAnimationGroup_ = new QSequentialAnimationGroup(this);
-    connect(expandLocationsAnimationGroup_, &QSequentialAnimationGroup::finished, this, &MainWindowController::onExpandLocationsAnimationGroupFinished);
+
+    // In some scenarios onExpandLocationsAnimationGroupFinished() slot could lead to the re-creation of the signal sender
+    // expandLocationsAnimationGroup_ inside. It is particularly occurs when expanding location animation occurs during animation of
+    // general window appearance (see issue #703). For such cases we should use Qt::QueuedConnection.
+    // It's safer to use a queued connection and delete the object after the event loop has processed the signal.
+    connect(expandLocationsAnimationGroup_, &QSequentialAnimationGroup::finished, this, &MainWindowController::onExpandLocationsAnimationGroupFinished, Qt::QueuedConnection);
 
     if (bottomInfoWindow_->isVisible()) {
         expandLocationsAnimationGroup_->addAnimation(collapseBottomInfoWindowAnimation_);

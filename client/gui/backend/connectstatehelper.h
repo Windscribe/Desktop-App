@@ -19,7 +19,6 @@ signals:
     void connectStateChanged(const types::ConnectState &connectState);
 
 private:
-    bool bInternalDisconnecting_;
     bool isDisconnected_;
     types::ConnectState curState_;
 };

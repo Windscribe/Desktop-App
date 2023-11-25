@@ -1333,6 +1333,14 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
         <source>Tray Icon Color</source>
         <translation>Barva ikony na hlavním panelu</translation>
     </message>
+    <message>
+        <source>Do not allow the Windscribe window to be moved.</source>
+        <translation>Nedovolte, aby se okno Windscribe pohybovalo.</translation>
+    </message>
+    <message>
+        <source>Pinned</source>
+        <translation>Přišpendlený</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::HelpWindowItem</name>

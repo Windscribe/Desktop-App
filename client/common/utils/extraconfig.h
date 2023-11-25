@@ -59,6 +59,7 @@ public:
 
     std::optional<QString> serverlistCountryOverride();
     bool serverListIgnoreCountryOverride();
+    bool haveServerListCountryOverride();
 
 private:
     ExtraConfig();

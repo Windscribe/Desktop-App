@@ -376,7 +376,7 @@ void OpenVPNConnection::handleRead(const boost::system::error_code &err, size_t 
             if (!username_.isEmpty())
             {
                 char message[1024];
-                sprintf(message, "username \"Auth\" %s\n", username_.toUtf8().data());
+                snprintf(message, 1024, "username \"Auth\" %s\n", username_.toUtf8().data());
                 boost::asio::write(*stateVariables_.socket, boost::asio::buffer(message,strlen(message)), boost::asio::transfer_all(), write_error);
             }
             else
@@ -387,13 +387,13 @@ void OpenVPNConnection::handleRead(const boost::system::error_code &err, size_t 
         else if (serverReply.contains("PASSWORD:Need 'HTTP Proxy' username/password", Qt::CaseInsensitive))
         {
             char message[1024];
-            sprintf(message, "username \"HTTP Proxy\" %s\n", proxySettings_.getUsername().toUtf8().data());
+            snprintf(message, 1024, "username \"HTTP Proxy\" %s\n", proxySettings_.getUsername().toUtf8().data());
             boost::asio::write(*stateVariables_.socket, boost::asio::buffer(message,strlen(message)), boost::asio::transfer_all(), write_error);
         }
         else if (serverReply.contains("'HTTP Proxy' username entered, but not yet verified", Qt::CaseInsensitive))
         {
             char message[1024];
-            sprintf(message, "password \"HTTP Proxy\" %s\n", proxySettings_.getPassword().toUtf8().data());
+            snprintf(message, 1024, "password \"HTTP Proxy\" %s\n", proxySettings_.getPassword().toUtf8().data());
             boost::asio::write(*stateVariables_.socket, boost::asio::buffer(message, strlen(message)), boost::asio::transfer_all(), write_error);
         }
         else if (serverReply.contains("'Auth' username entered, but not yet verified", Qt::CaseInsensitive))
@@ -401,7 +401,7 @@ void OpenVPNConnection::handleRead(const boost::system::error_code &err, size_t 
             if (!password_.isEmpty())
             {
                 char message[1024];
-                sprintf(message, "password \"Auth\" %s\n", password_.toUtf8().data());
+                snprintf(message, 1024, "password \"Auth\" %s\n", password_.toUtf8().data());
                 boost::asio::write(*stateVariables_.socket, boost::asio::buffer(message, strlen(message)), boost::asio::transfer_all(), write_error);
             }
             else
@@ -640,7 +640,7 @@ void OpenVPNConnection::continueWithUsernameImpl()
 {
     boost::system::error_code write_error;
     char message[1024];
-    sprintf(message, "username \"Auth\" %s\n", username_.toUtf8().data());
+    snprintf(message, 1024, "username \"Auth\" %s\n", username_.toUtf8().data());
     boost::asio::write(*stateVariables_.socket, boost::asio::buffer(message,strlen(message)), boost::asio::transfer_all(), write_error);
 
     checkErrorAndContinue(write_error, false);
@@ -650,7 +650,7 @@ void OpenVPNConnection::continueWithPasswordImpl()
 {
     boost::system::error_code write_error;
     char message[1024];
-    sprintf(message, "password \"Auth\" %s\n", password_.toUtf8().data());
+    snprintf(message, 1024, "password \"Auth\" %s\n", password_.toUtf8().data());
     boost::asio::write(*stateVariables_.socket, boost::asio::buffer(message, strlen(message)), boost::asio::transfer_all(), write_error);
 
     checkErrorAndContinue(write_error, false);

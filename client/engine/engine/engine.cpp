@@ -1,43 +1,44 @@
 #include "engine.h"
 
 #include <QCoreApplication>
-#include <QDir>
 #include <QCryptographicHash>
-#include "utils/ws_assert.h"
-#include "utils/utils.h"
-#include "utils/logger.h"
-#include "utils/mergelog.h"
-#include "utils/extraconfig.h"
-#include "utils/ipvalidation.h"
-#include "utils/executable_signature/executable_signature.h"
+#include <QDir>
+
 #include "connectionmanager/connectionmanager.h"
 #include "connectionmanager/finishactiveconnections.h"
-#include "proxy/proxyservercontroller.h"
 #include "connectstatecontroller/connectstatecontroller.h"
-#include "dnsresolver/dnsserversconfiguration.h"
-#include "dnsresolver/dnsrequest.h"
 #include "crossplatformobjectfactory.h"
-#include "types/global_consts.h"
-#include "serverapi/requests/websessionrequest.h"
+#include "dnsresolver/dnsrequest.h"
+#include "dnsresolver/dnsserversconfiguration.h"
+#include "failover/failovercontainer.h"
+#include "firewall/firewallexceptions.h"
+#include "proxy/proxyservercontroller.h"
 #include "serverapi/requests/debuglogrequest.h"
 #include "serverapi/requests/getrobertfiltersrequest.h"
 #include "serverapi/requests/setrobertfiltersrequest.h"
-#include "failover/failovercontainer.h"
-#include "firewall/firewallexceptions.h"
+#include "serverapi/requests/websessionrequest.h"
+#include "types/global_consts.h"
+#include "utils/executable_signature/executable_signature.h"
+#include "utils/extraconfig.h"
+#include "utils/ipvalidation.h"
+#include "utils/logger.h"
+#include "utils/mergelog.h"
+#include "utils/utils.h"
+#include "utils/ws_assert.h"
 
 #ifdef Q_OS_WIN
     #include <Objbase.h>
     #include <shellapi.h>
-    #include "utils/bfe_service_win.h"
-    #include "utils/winutils.h"
-    #include "engine/dnsinfo_win.h"
     #include "engine/adaptermetricscontroller_win.h"
+    #include "engine/dnsinfo_win.h"
     #include "helper/helper_win.h"
+    #include "utils/bfe_service_win.h"
     #include "utils/executable_signature/executable_signature.h"
+    #include "utils/winutils.h"
 #elif defined Q_OS_MAC
     #include "ipv6controller_mac.h"
-    #include "utils/network_utils/network_utils_mac.h"
     #include "networkdetectionmanager/reachabilityevents.h"
+    #include "utils/network_utils/network_utils_mac.h"
 #elif defined Q_OS_LINUX
     #include "helper/helper_linux.h"
     #include "utils/executable_signature/executablesignature_linux.h"
@@ -86,8 +87,12 @@ Engine::Engine() : QObject(nullptr),
     bPrevNetworkInterfaceInitialized_(false),
     connectionSettingsOverride_(types::Protocol(types::Protocol::TYPE::UNINITIALIZED), 0, true)
 {
-    engineSettings_.loadFromSettings();
-    qCDebug(LOG_BASIC) << "Engine settings" << engineSettings_;
+    // Skip printing the engine settings if we loaded the defaults.
+    if (engineSettings_.loadFromSettings()) {
+        qCDebug(LOG_BASIC) << "Engine settings" << engineSettings_;
+    } else {
+        checkAutoEnableAntiCensorship_ = true;
+    }
 
     connectStateController_ = new ConnectStateController(nullptr);
     connect(connectStateController_, &ConnectStateController::stateChanged, this, &Engine::onConnectStateChanged);
@@ -885,7 +890,7 @@ void Engine::setIgnoreSslErrorsImlp(bool bIgnoreSslErrors)
 void Engine::recordInstallImpl()
 {
     server_api::BaseRequest *request = serverAPI_->recordInstall();
-    connect(request, &server_api::BaseRequest::finished, [this]() {
+    connect(request, &server_api::BaseRequest::finished, this, [this]() {
         // nothing to do here, just delete the request object
         QSharedPointer<server_api::BaseRequest> request(static_cast<server_api::BaseRequest *>(sender()), &QObject::deleteLater);
     });
@@ -2175,6 +2180,16 @@ void Engine::onApiResourcesManagerSessionUpdated(const types::SessionStatus &ses
 void Engine::onApiResourcesManagerLocationsUpdated()
 {
     updateServerLocations();
+
+    // Auto-enable anti-censorship for first-run users if the serverlist endpoint returned a country override.
+    if (checkAutoEnableAntiCensorship_) {
+        checkAutoEnableAntiCensorship_ = false;
+        QSettings settings;
+        if (settings.contains("countryOverride") && !ExtraConfig::instance().haveServerListCountryOverride()) {
+            qCDebug(LOG_BASIC) << "Automatically enabled anti-censorship feature due to country override";
+            emit autoEnableAntiCensorship();
+        }
+    }
 }
 
 void Engine::onApiResourcesManagerStaticIpsUpdated()

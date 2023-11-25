@@ -89,7 +89,6 @@ add_executable(windscribe-cli ${SOURCES})
 
 if(APPLE)
     set_property(TARGET windscribe-cli APPEND_STRING PROPERTY COMPILE_FLAGS "-fobjc-arc")
-    set(CMAKE_CXX_FLAGS "-Wno-deprecated-declarations")
 endif()
 
 target_include_directories(windscribe-cli

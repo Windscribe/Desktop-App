@@ -868,15 +868,10 @@ void ConnectionManager::doConnect()
 
 void ConnectionManager::doConnectPart2()
 {
-
     bIgnoreConnectionErrorsForOpenVpn_ = false;
 
     currentConnectionDescr_ = connSettingsPolicy_->getCurrentConnectionSettings();
 
-    qCDebug(LOG_CONNECTION) << "Connecting to IP:" << currentConnectionDescr_.ip << " protocol:" << currentConnectionDescr_.protocol.toLongString() << " port:" << currentConnectionDescr_.port;
-    emit protocolPortChanged(currentConnectionDescr_.protocol, currentConnectionDescr_.port);
-
-    //WS_ASSERT(currentConnectionDescr_.connectionNodeType != CONNECTION_NODE_ERROR);
     if (currentConnectionDescr_.connectionNodeType == CONNECTION_NODE_ERROR)
     {
         qCDebug(LOG_CONNECTION) << "connSettingsPolicy_.getCurrentConnectionSettings returned incorrect value";
@@ -885,6 +880,9 @@ void ConnectionManager::doConnectPart2()
         emit errorDuringConnection(CONNECT_ERROR::LOCATION_NO_ACTIVE_NODES);
         return;
     }
+
+    qCDebug(LOG_CONNECTION) << "Connecting to IP:" << currentConnectionDescr_.ip << " protocol:" << currentConnectionDescr_.protocol.toLongString() << " port:" << currentConnectionDescr_.port;
+    emit protocolPortChanged(currentConnectionDescr_.protocol, currentConnectionDescr_.port);
 
     // start ctrld utility
     if (connectedDnsInfo_.type == CONNECTED_DNS_TYPE_CUSTOM) {

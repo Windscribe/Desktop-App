@@ -107,8 +107,8 @@ bool FirewallController_linux::firewallOnImpl(const QString &connectingIp, const
         rules << ":windscribe_output - [0:0]\n";
 
         if (!bExists) {
-            rules << "-A INPUT -j windscribe_input -m comment --comment \"" + comment_ + "\"\n";
-            rules << "-A OUTPUT -j windscribe_output -m comment --comment \"" + comment_ + "\"\n";
+            rules << "-I INPUT -j windscribe_input -m comment --comment \"" + comment_ + "\"\n";
+            rules << "-I OUTPUT -j windscribe_output -m comment --comment \"" + comment_ + "\"\n";
         }
 
         rules << "-A windscribe_input -i lo -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";

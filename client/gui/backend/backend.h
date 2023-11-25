@@ -173,6 +173,7 @@ private slots:
     void onEnginePacketSizeChanged(const types::EngineSettings &engineSettings);
     void onEnginePacketSizeDetectionStateChanged(bool on, bool isError);
     void onEngineHostsFileBecameWritable();
+    void onEngineAutoEnableAntiCensorship();
 
 signals:
     // emited when connected to engine and received the engine settings, or error in initState variable

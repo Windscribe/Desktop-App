@@ -39,7 +39,7 @@ dnsleak_protection_up()
 
     local rules=$'*filter\n'
     printf -v rules '%s:windscribe_dnsleaks - [0:0]\n' "$rules"
-    printf -v rules '%s-I OUTPUT 1 -j windscribe_dnsleaks %s\n' "$rules" "$marker"
+    printf -v rules '%s-I OUTPUT -j windscribe_dnsleaks %s\n' "$rules" "$marker"
 
     # disallow all OS-default DNS servers
     for dnsIp in "${dns_array[@]}"

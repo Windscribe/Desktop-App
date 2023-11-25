@@ -295,6 +295,16 @@ bool ExtraConfig::serverListIgnoreCountryOverride()
     return false;
 }
 
+bool ExtraConfig::haveServerListCountryOverride()
+{
+    auto value = serverlistCountryOverride();
+    if (value.has_value() && value.value().compare("ignore", Qt::CaseInsensitive) != 0) {
+        return true;
+    }
+
+    return false;
+}
+
 int ExtraConfig::getIntFromExtraConfigLines(const QString &variableName, bool &success)
 {
     auto value = getValue(variableName);
