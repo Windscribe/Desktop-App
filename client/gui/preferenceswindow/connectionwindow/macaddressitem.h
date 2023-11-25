@@ -1,5 +1,4 @@
-#ifndef MACADDRESSITEM_H
-#define MACADDRESSITEM_H
+#pragma once
 
 #include <QGraphicsObject>
 #include <QGraphicsProxyWidget>
@@ -37,5 +36,3 @@ private:
 };
 
 } // namespace PreferencesWindow
-
-#endif // MACADDRESSITEM_H

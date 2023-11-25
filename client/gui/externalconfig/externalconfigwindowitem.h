@@ -1,5 +1,4 @@
-#ifndef EXTERNALCONFIGWINDOWITEM_H
-#define EXTERNALCONFIGWINDOWITEM_H
+#pragma once
 
 #include <QGraphicsObject>
 #include <QVariantAnimation>
@@ -7,33 +6,27 @@
 #include "commongraphics/bubblebutton.h"
 #include "commongraphics/escapebutton.h"
 #include "commongraphics/iconbutton.h"
-#include "externalconfig/iexternalconfigwindow.h"
 
 namespace ExternalConfigWindow {
 
-class ExternalConfigWindowItem : public ScalableGraphicsObject, public IExternalConfigWindow
+class ExternalConfigWindowItem : public ScalableGraphicsObject
 {
     Q_OBJECT
-    Q_INTERFACES(IExternalConfigWindow)
 public:
     explicit ExternalConfigWindowItem(QGraphicsObject *parent, PreferencesHelper *preferencesHelper);
-
-    QGraphicsObject *getGraphicsObject() override;
-
     QRectF boundingRect() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
-
-    void setClickable(bool isClickable) override;
     void updateScaling() override;
 
+    void setClickable(bool isClickable);
     void setIcon(QString iconPath);
     void setButtonText(QString text);
 
 signals:
-    void buttonClick() override;
-    void escapeClick() override;
-    void minimizeClick() override;
-    void closeClick() override;
+    void buttonClick();
+    void escapeClick();
+    void minimizeClick();
+    void closeClick();
 
 protected:
     void keyPressEvent(QKeyEvent *event) override;
@@ -75,4 +68,3 @@ private:
 };
 
 }
-#endif // EXTERNALCONFIGWINDOWITEM_H

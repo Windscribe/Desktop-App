@@ -71,11 +71,11 @@ void MY_FAST_CALL CrcGenerateTable()
   }
 
   #if CRC_NUM_TABLES < 4
-  
+
   g_CrcUpdate = CrcUpdateT1;
-  
+
   #else
- 
+
   #ifdef MY_CPU_LE
 
     g_CrcUpdateT4 = CrcUpdateT4;
@@ -83,7 +83,7 @@ void MY_FAST_CALL CrcGenerateTable()
 
     #if CRC_NUM_TABLES >= 8
       g_CrcUpdateT8 = CrcUpdateT8;
-  
+
       #ifdef MY_CPU_X86_OR_AMD64
       if (!CPU_Is_InOrder())
       #endif

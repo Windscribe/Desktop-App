@@ -3,13 +3,13 @@
 class AresLibraryInit
 {
 public:
-	AresLibraryInit();
-	~AresLibraryInit();
+    AresLibraryInit();
+    ~AresLibraryInit();
 
-	void init();
+    void init();
 
 private:
-	bool bInitialized_;
-	bool bFailedInitialize_;
+    bool bInitialized_;
+    bool bFailedInitialize_;
 };
 

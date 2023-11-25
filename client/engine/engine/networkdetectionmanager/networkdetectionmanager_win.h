@@ -1,5 +1,4 @@
-#ifndef NETWORKDETECTIONMANAGER_WIN_H
-#define NETWORKDETECTIONMANAGER_WIN_H
+#pragma once
 
 #include "inetworkdetectionmanager.h"
 #include "networkchangeworkerthread.h"
@@ -33,5 +32,3 @@ private:
     bool isOnlineImpl();
 
 };
-
-#endif // NETWORKDETECTIONMANAGER_WIN_H

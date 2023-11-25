@@ -1,5 +1,4 @@
-#ifndef UNIQUEIPLIST_H
-#define UNIQUEIPLIST_H
+#pragma once
 
 #include <QString>
 #include <QSet>
@@ -13,5 +12,3 @@ public:
 private:
     QSet<QString> set_;
 };
-
-#endif // UNIQUEIPLIST_H

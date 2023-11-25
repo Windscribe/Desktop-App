@@ -46,7 +46,7 @@ private:
 bool IKEv2IPSec::setIKEv2IPSecParameters()
 {
     disableMODP2048Support();
-    
+
     // First, try to add IPSec parameters to the phonebook manually.
     if (setIKEv2IPSecParametersInPhoneBook())
         return true;

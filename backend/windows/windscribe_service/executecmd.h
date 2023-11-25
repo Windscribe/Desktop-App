@@ -16,6 +16,8 @@ public:
         return i;
     }
 
+    void release();
+
     MessagePacketResult executeBlockingCmd(const std::wstring &cmd, HANDLE user_token = INVALID_HANDLE_VALUE);
     MessagePacketResult executeUnblockingCmd(const std::wstring &cmd, const wchar_t *szEventName, const std::wstring &workingDir);
     MessagePacketResult getUnblockingCmdStatus(unsigned long cmdId);
@@ -25,7 +27,6 @@ public:
 
 private:
     ExecuteCmd();
-    virtual ~ExecuteCmd();
 
 private:
     static unsigned long blockingCmdId_;

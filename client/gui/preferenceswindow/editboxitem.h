@@ -1,5 +1,4 @@
-#ifndef EDITBOXITEM_H
-#define EDITBOXITEM_H
+#pragma once
 
 #include <QGraphicsObject>
 #include <QGraphicsProxyWidget>
@@ -66,6 +65,3 @@ private:
 };
 
 } // namespace PreferencesWindow
-
-
-#endif // EDITBOXITEM_H

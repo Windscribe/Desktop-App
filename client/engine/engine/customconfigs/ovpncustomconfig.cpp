@@ -232,14 +232,13 @@ void OvpnCustomConfig::process()
         if (!bHasValidCipher)
             ovpnData_ += "cipher BF-CBC\n";
 
-#ifdef Q_OS_MAC
         if (isTapDevice)
         {
-            qDebug(LOG_CUSTOM_OVPN) << "Ovpn config file" << Utils::cleanSensitiveInfo(filepath_) << "uses TAP device, which is not supported on Mac.";
+            qDebug(LOG_CUSTOM_OVPN) << "Ovpn config file" << Utils::cleanSensitiveInfo(filepath_) << "uses TAP device, which is not supported.";
             isCorrect_ = false;
             errMessage_ = "TAP adapter is not supported, please change \"device\" to \"tun\" in the config.";
         }
-#endif
+
         if (!bFoundAtLeastOneRemote)
         {
             qDebug(LOG_CUSTOM_OVPN) << "Ovpn config file" << Utils::cleanSensitiveInfo(filepath_) << "incorrect, because can't find remote host command. The file format may be incorrect.";

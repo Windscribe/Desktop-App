@@ -1,5 +1,4 @@
-#ifndef KernelModuleCommunicator_h
-#define KernelModuleCommunicator_h
+#pragma once
 
 #include <map>
 #include <string>
@@ -36,5 +35,3 @@ private:
     void freeAllowedIps(wg_allowedip *ips);
     std::string deviceName_;
 };
-
-#endif  // KernelModuleCommunicator_h

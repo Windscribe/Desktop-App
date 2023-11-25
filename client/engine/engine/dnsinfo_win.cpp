@@ -25,7 +25,7 @@ void DnsInfo_win::outputDebugDnsInfo()
 
         do
         {
-            if ((ai->Type == MIB_IF_TYPE_ETHERNET) 	// If type is etherent
+            if ((ai->Type == MIB_IF_TYPE_ETHERNET) // If type is etherent
                     || (ai->Type == IF_TYPE_IEEE80211))   // radio
             {
                 ULONG ulPerAdapterInfoSize = sizeof(IP_PER_ADAPTER_INFO);

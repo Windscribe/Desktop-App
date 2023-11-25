@@ -1,5 +1,4 @@
-#ifndef ADAPTER_GATEWAY_INFO_H
-#define ADAPTER_GATEWAY_INFO_H
+#pragma once
 
 #include <QStringList>
 
@@ -48,5 +47,3 @@ private:
 
     unsigned long ifIndex_; // used only for Windows
 };
-
-#endif // ADAPTER_GATEWAY_INFO_H

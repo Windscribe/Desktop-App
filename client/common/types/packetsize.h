@@ -1,10 +1,8 @@
-#ifndef TYPES_PACKETSIZE_H
-#define TYPES_PACKETSIZE_H
+#pragma once
 
 #include "types/enums.h"
 
 #include <QJsonObject>
-
 
 namespace types {
 
@@ -62,7 +60,4 @@ private:
     static constexpr quint32 versionForSerialization_ = 1;  // should increment the version if the data format is changed
 };
 
-
 } // types namespace
-
-#endif // TYPES_PACKETSIZE_H

@@ -1,5 +1,4 @@
-#ifndef PROTOCOLGROUP_H
-#define PROTOCOLGROUP_H
+#pragma once
 
 #include <QGraphicsObject>
 #include "backend/preferences/preferences.h"
@@ -62,5 +61,3 @@ private:
 };
 
 } // namespace PreferencesWindow
-
-#endif // PROTOCOLGROUP_H

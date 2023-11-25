@@ -1,5 +1,4 @@
-#ifndef FINISHACTIVECONNECTIONS_H
-#define FINISHACTIVECONNECTIONS_H
+#pragma once
 
 #include "../helper/ihelper.h"
 
@@ -23,5 +22,3 @@ private:
     static void removeDnsLeaksprotection_linux(IHelper *helper);
 #endif
 };
-
-#endif // FINISHACTIVECONNECTIONS_H

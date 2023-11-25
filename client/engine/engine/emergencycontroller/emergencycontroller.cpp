@@ -35,10 +35,10 @@ EmergencyController::EmergencyController(QObject *parent, IHelper *helper) : QOb
     }
 
      connector_ = new OpenVPNConnection(this, helper_);
-     connect(connector_, SIGNAL(connected(AdapterGatewayInfo)), SLOT(onConnectionConnected(AdapterGatewayInfo)), Qt::QueuedConnection);
-     connect(connector_, SIGNAL(disconnected()), SLOT(onConnectionDisconnected()), Qt::QueuedConnection);
-     connect(connector_, SIGNAL(reconnecting()), SLOT(onConnectionReconnecting()), Qt::QueuedConnection);
-     connect(connector_, SIGNAL(error(CONNECT_ERROR)), SLOT(onConnectionError(CONNECT_ERROR)), Qt::QueuedConnection);
+     connect(connector_, &OpenVPNConnection::connected, this, &EmergencyController::onConnectionConnected, Qt::QueuedConnection);
+     connect(connector_, &OpenVPNConnection::disconnected, this, &EmergencyController::onConnectionDisconnected, Qt::QueuedConnection);
+     connect(connector_, &OpenVPNConnection::reconnecting, this, &EmergencyController::onConnectionReconnecting, Qt::QueuedConnection);
+     connect(connector_, &OpenVPNConnection::error, this, &EmergencyController::onConnectionError, Qt::QueuedConnection);
 
      makeOVPNFile_ = new MakeOVPNFile();
 }
@@ -60,7 +60,7 @@ void EmergencyController::clickConnect(const types::ProxySettings &proxySettings
     qCDebug(LOG_EMERGENCY_CONNECT) << "Generated hashed domain for emergency connect:" << hashedDomain;
 
     DnsRequest *dnsRequest = new DnsRequest(this, hashedDomain, DnsServersConfiguration::instance().getCurrentDnsServers());
-    connect(dnsRequest, SIGNAL(finished()), SLOT(onDnsRequestFinished()));
+    connect(dnsRequest, &DnsRequest::finished, this,&EmergencyController::onDnsRequestFinished);
     dnsRequest->lookup();
 }
 
@@ -80,7 +80,7 @@ void EmergencyController::clickDisconnect()
         else
         {
             state_ = STATE_DISCONNECTED;
-            Q_EMIT disconnected(DISCONNECTED_BY_USER);
+            emit disconnected(DISCONNECTED_BY_USER);
         }
     }
 }
@@ -194,7 +194,7 @@ void EmergencyController::onConnectionConnected(const AdapterGatewayInfo &connec
     qCDebug(LOG_CONNECTION) << "VPN adapter and gateway:" << vpnAdapterInfo_.makeLogString();
 
     state_ = STATE_CONNECTED;
-    Q_EMIT connected();
+    emit connected();
 }
 
 void EmergencyController::onConnectionDisconnected()
@@ -208,7 +208,7 @@ void EmergencyController::onConnectionDisconnected()
         case STATE_DISCONNECTING_FROM_USER_CLICK:
         case STATE_CONNECTED:
             state_ = STATE_DISCONNECTED;
-            Q_EMIT disconnected(DISCONNECTED_BY_USER);
+            emit disconnected(DISCONNECTED_BY_USER);
             break;
         case STATE_CONNECTING_FROM_USER_CLICK:
         case STATE_ERROR_DURING_CONNECTION:
@@ -219,7 +219,7 @@ void EmergencyController::onConnectionDisconnected()
             }
             else
             {
-                Q_EMIT errorDuringConnection(CONNECT_ERROR::EMERGENCY_FAILED_CONNECT);
+                emit errorDuringConnection(CONNECT_ERROR::EMERGENCY_FAILED_CONNECT);
                 state_ = STATE_DISCONNECTED;
             }
             break;
@@ -236,7 +236,7 @@ void EmergencyController::onConnectionReconnecting()
     {
         case STATE_CONNECTED:
             state_ = STATE_DISCONNECTED;
-            Q_EMIT disconnected(DISCONNECTED_BY_USER);
+            emit disconnected(DISCONNECTED_BY_USER);
             break;
         case STATE_CONNECTING_FROM_USER_CLICK:
             state_ = STATE_ERROR_DURING_CONNECTION;
@@ -258,7 +258,7 @@ void EmergencyController::onConnectionError(CONNECT_ERROR err)
             || err == CONNECT_ERROR::NO_INSTALLED_TUN_TAP
             || err == CONNECT_ERROR::ALL_TAP_IN_USE)
     {
-        // Q_EMIT error in disconnected event
+        // emit error in disconnected event
         state_ = STATE_ERROR_DURING_CONNECTION;
     }
     else if (err == CONNECT_ERROR::UDP_CANT_ASSIGN
@@ -289,7 +289,7 @@ void EmergencyController::onConnectionError(CONNECT_ERROR err)
             {
                 if (state_ != STATE_RECONNECTING)
                 {
-                    Q_EMIT reconnecting();
+                    emit reconnecting();
                     state_ = STATE_RECONNECTING;
                     startReconnectionTimer();
                 }
@@ -303,7 +303,7 @@ void EmergencyController::onConnectionError(CONNECT_ERROR err)
             {
                 state_ = STATE_AUTO_DISCONNECT;
                 connector_->startDisconnect();
-                Q_EMIT showFailedAutomaticConnectionMessage();
+                emit showFailedAutomaticConnectionMessage();
             }
         }*/
     }

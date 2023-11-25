@@ -1,41 +1,37 @@
-#ifndef BOTTOMINFOITEM_H
-#define BOTTOMINFOITEM_H
+#pragma once
 
 #include <QGraphicsObject>
-#include "ibottominfoitem.h"
 #include "sharingfeatures/sharingfeatureswindowitem.h"
 #include "upgradewidget/upgradewidgetitem.h"
 
 namespace SharingFeatures {
 
-class BottomInfoItem : public ScalableGraphicsObject, public IBottomInfoItem
+class BottomInfoItem : public ScalableGraphicsObject
 {
     Q_OBJECT
 public:
     explicit BottomInfoItem(Preferences *preferences, QGraphicsObject *parent = nullptr);
-
-    QGraphicsObject *getGraphicsObject() override { return this; }
     QRectF boundingRect() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
+    void updateScaling() override;
 
     // upgrade widget functions
-    bool isUpgradeWidgetVisible() const override;
-    void setDataRemaining(qint64 bytesUsed, qint64 bytesMax) override;
-    void setDaysRemaining(int daysLeft) override;
-    void setExtConfigMode(bool isExtConfigMode) override;
+    bool isUpgradeWidgetVisible() const;
+    void setDataRemaining(qint64 bytesUsed, qint64 bytesMax);
+    void setDaysRemaining(int daysLeft);
+    void setExtConfigMode(bool isExtConfigMode);
 
     // sharing features widget functions
-    bool isSharingFeatureVisible() const override;
+    bool isSharingFeatureVisible() const;
 
-    void setSecureHotspotFeatures(bool isEnabled, const QString &ssid) override;
-    void setSecureHotspotUsersCount(int usersCount) override;
-    void setProxyGatewayFeatures(bool isEnabled, PROXY_SHARING_TYPE mode) override;
-    void setProxyGatewayUsersCount(int usersCount) override;
+    void setSecureHotspotFeatures(bool isEnabled, const QString &ssid);
+    void setSecureHotspotUsersCount(int usersCount);
+    void setProxyGatewayFeatures(bool isEnabled, PROXY_SHARING_TYPE mode);
+    void setProxyGatewayUsersCount(int usersCount);
 
-    QPixmap getCurrentPixmapShape() override;
+    QPixmap getCurrentPixmapShape();
 
-    void setClickable(bool enabled) override;
-    void updateScaling() override;
+    void setClickable(bool enabled);
 
 signals:
     void heightChanged(int newHeight);
@@ -80,4 +76,3 @@ private:
 };
 
 }
-#endif // BOTTOMINFOITEM_H

@@ -1,5 +1,4 @@
-#ifndef CUSTOMCONFIGSDIRWATCHER_H
-#define CUSTOMCONFIGSDIRWATCHER_H
+#pragma once
 
 #include <QFileSystemWatcher>
 #include <QObject>
@@ -34,5 +33,3 @@ private:
 
     void checkFiles(bool bWithEmitSignal, bool bFileChanged);
 };
-
-#endif // CUSTOMCONFIGSDIRWATCHER_H

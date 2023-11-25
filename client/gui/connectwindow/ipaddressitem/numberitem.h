@@ -1,5 +1,4 @@
-#ifndef NUMBERITEM_H
-#define NUMBERITEM_H
+#pragma once
 
 #include <QElapsedTimer>
 #include <QObject>
@@ -49,5 +48,3 @@ private:
     int detectNumFromOffs(double offs);
     int distBetweenNumbers(int n1, int n2);
 };
-
-#endif // NUMBERITEM_H

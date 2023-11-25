@@ -1,5 +1,4 @@
-#ifndef EXECUTABLESIGNATURE_P_H
-#define EXECUTABLESIGNATURE_P_H
+#pragma once
 
 #include <string>
 #include <sstream>
@@ -26,5 +25,3 @@ protected:
     ExecutableSignature* const q_ptr;
     std::ostringstream lastError_;
 };
-
-#endif // EXECUTABLESIGNATURE_P_H

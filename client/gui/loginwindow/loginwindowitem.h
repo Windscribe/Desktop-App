@@ -1,52 +1,44 @@
-#ifndef LOGINWINDOWITEM_H
-#define LOGINWINDOWITEM_H
+#pragma once
 
 #include <QGraphicsObject>
-#include "iloginwindow.h"
 #include "credentialswindowitem.h"
+#include "loginwindowtypes.h"
 #include "welcomewindowitem.h"
 
 namespace LoginWindow {
 
 // Basically item which contains two other items - CredentialsWindowItem and WelcomWindowItem
-class LoginWindowItem : public ScalableGraphicsObject, public ILoginWindow
+class LoginWindowItem : public ScalableGraphicsObject
 {
     Q_OBJECT
-    Q_INTERFACES(ILoginWindow)
 public:
-    explicit LoginWindowItem(QGraphicsObject *parent, PreferencesHelper *preferencesHelper);
-
-    QGraphicsObject *getGraphicsObject() override;
-    void setErrorMessage(ERROR_MESSAGE_TYPE errorMessageType, const QString &errorMessage) override;
-    void setEmergencyConnectState(bool isEmergencyConnected) override;
-
-    QRectF boundingRect() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
-
-    void resetState() override;
-
-    void setClickable(bool enabled) override;
-    void setCurrent2FACode(QString code) override;
-
-    void transitionToUsernameScreen() override;
-    void setFirewallTurnOffButtonVisibility(bool visible) override;
-
+    QRectF boundingRect() const override;
     void updateScaling() override;
 
-public slots:
-    //void onTooltipButtonHoverLeave();
+    explicit LoginWindowItem(QGraphicsObject *parent, PreferencesHelper *preferencesHelper);
+
+    void setErrorMessage(ERROR_MESSAGE_TYPE errorMessageType, const QString &errorMessage);
+    void setEmergencyConnectState(bool isEmergencyConnected);
+
+    void resetState();
+
+    void setClickable(bool enabled);
+    void setCurrent2FACode(QString code);
+
+    void transitionToUsernameScreen();
+    void setFirewallTurnOffButtonVisibility(bool visible);
 
 signals:
-    void minimizeClick() override;
-    void closeClick() override;
-    void preferencesClick() override;
-    void emergencyConnectClick() override;
-    void externalConfigModeClick() override;
-    void twoFactorAuthClick(const QString &username, const QString &password) override;
-    void loginClick(const QString &username, const QString &password,
-                    const QString &code2fa) override;
-    void haveAccountYesClick() override;
-    void backToWelcomeClick() override;
+    void minimizeClick();
+    void closeClick();
+    void preferencesClick();
+    void emergencyConnectClick();
+    void externalConfigModeClick();
+    void twoFactorAuthClick(const QString &username, const QString &password);
+    void loginClick(const QString &username, const QString &password, const QString &code2fa);
+    void haveAccountYesClick();
+    void backToWelcomeClick();
     void firewallTurnOffClick();
 
 private slots:
@@ -60,10 +52,6 @@ private:
     bool isWelcomeScreen_;
     WelcomeWindowItem *welcomeWindowItem_;
     CredentialsWindowItem *credentialsWindowItem_;
-
 };
 
 } // namespace LoginWindow
-
-
-#endif // LOGINWINDOWITEM_H

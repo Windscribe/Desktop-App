@@ -1,5 +1,4 @@
-#ifndef CONNECTBUTTON_H
-#define CONNECTBUTTON_H
+#pragma once
 
 #include <QGraphicsObject>
 #include <QPropertyAnimation>
@@ -17,6 +16,7 @@ public:
 
     QRectF boundingRect() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
+    QPainterPath shape() const override;
 
     void onConnectStateChanged(CONNECT_STATE newConnectState, CONNECT_STATE prevConnectState);
     void setInternetConnectivity(bool online);
@@ -49,7 +49,7 @@ private:
     QPropertyAnimation connectingRingOpacityAnimation_;
     QPropertyAnimation noInternetRingRotationAnimation_;
     QPropertyAnimation noInternetRingOpacityAnimation_;
-    QPropertyAnimation connectedRingOpacityAnimation_;    
+    QPropertyAnimation connectedRingOpacityAnimation_;
     QPropertyAnimation connectedSplitRoutingRingOpacityAnimation_;
 
     void fuzzyHideConnectedRing();
@@ -63,5 +63,3 @@ private:
 };
 
 } //namespace ConnectWindow
-
-#endif // CONNECTBUTTON_H

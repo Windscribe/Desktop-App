@@ -1,5 +1,4 @@
-#ifndef Routes_h
-#define Routes_h
+#pragma once
 
 #include <string>
 #include <vector>
@@ -24,5 +23,3 @@ private:
 
     std::vector<RouteDescr> routes_;
 };
-
-#endif /* Routes_h */

@@ -23,9 +23,9 @@ IconHoverEngageButton::IconHoverEngageButton(const QString &imagePathDisabled, c
 
     curOpacity_ = OPACITY_UNHOVER_ICON_STANDALONE; // 40% opacity for standalone icons
 
-    connect(&imageOpacityAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onImageHoverOpacityChanged(QVariant)));
-    connect(this, SIGNAL(hoverEnter()), SLOT(onHoverEnter()));
-    connect(this, SIGNAL(hoverLeave()), SLOT(onHoverLeave()));
+    connect(&imageOpacityAnimation_, &QVariantAnimation::valueChanged, this, &IconHoverEngageButton::onImageHoverOpacityChanged);
+    connect(this, &ClickableGraphicsObject::hoverEnter, this, &IconHoverEngageButton::onHoverEnter);
+    connect(this, &ClickableGraphicsObject::hoverLeave, this, &IconHoverEngageButton::onHoverLeave);
     setClickable(true);
 }
 

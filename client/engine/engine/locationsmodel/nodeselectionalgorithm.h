@@ -1,5 +1,4 @@
-#ifndef NODESELECTIONALGORITHM_H
-#define NODESELECTIONALGORITHM_H
+#pragma once
 
 #include "locationnode.h"
 
@@ -15,5 +14,3 @@ private:
 };
 
 } //namespace locationsmodel
-
-#endif // NODESELECTIONALGORITHM_H

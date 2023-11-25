@@ -19,7 +19,6 @@ target_sources(gui PRIVATE
     connectwindowitem.h
     firewallbutton.cpp
     firewallbutton.h
-    iconnectwindow.h
     ipaddressitem/ipaddressitem.cpp
     ipaddressitem/ipaddressitem.h
     ipaddressitem/numberitem.cpp

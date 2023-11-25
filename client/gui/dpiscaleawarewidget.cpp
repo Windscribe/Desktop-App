@@ -8,7 +8,7 @@ DPIScaleAwareWidget::DPIScaleAwareWidget(QWidget *parent)
     : QWidget(parent), currentScale_(G_SCALE), currentWidth_(width()), currentHeight_(height())
 {
 #if defined(Q_OS_WIN)
-    connect(&autoResizeTimer_, SIGNAL(timeout()), SLOT(performAutoResize_win()));
+    connect(&autoResizeTimer_, &QTimer::timeout, this, &DPIScaleAwareWidget::performAutoResize_win);
     autoResizeTimer_.setInterval(100);
     autoResizeTimer_.setSingleShot(true);
 #endif  // Q_OS_WIN

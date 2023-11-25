@@ -1,10 +1,7 @@
-#ifndef DNSINFO_WIN_H
-#define DNSINFO_WIN_H
+#pragma once
 
 class DnsInfo_win
 {
 public:
     static void outputDebugDnsInfo();
 };
-
-#endif // DNSINFO_WIN_H

@@ -1,5 +1,4 @@
-#ifndef ACCOUNTWINDOWITEM_H
-#define ACCOUNTWINDOWITEM_H
+#pragma once
 
 #include "backend/preferences/accountinfo.h"
 #include "commongraphics/basepage.h"
@@ -76,5 +75,3 @@ private:
 };
 
 } // namespace PreferencesWindow
-
-#endif // ACCOUNTWINDOWITEM_H

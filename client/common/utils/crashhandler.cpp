@@ -105,7 +105,7 @@ LONG WINAPI LocalSehHandler(__in PEXCEPTION_POINTERS exceptionPointers)
 DWORD WINAPI StackOverflowThreadHandler(LPVOID threadParameter)
 {
     auto *exceptionInfo = static_cast<StackOverflowThreadInfo*>(threadParameter);
-    CrashHandler::instance().handleException(ExceptionInfo(ExceptionType::SEH, 
+    CrashHandler::instance().handleException(ExceptionInfo(ExceptionType::SEH,
                                                            exceptionInfo->exceptionPointers,
                                                            exceptionInfo->crashedThreadId));
     return 0;

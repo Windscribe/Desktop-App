@@ -1,5 +1,4 @@
-#ifndef INSTALLHELPER_MAC_H
-#define INSTALLHELPER_MAC_H
+#pragma once
 
 #include <QString>
 
@@ -10,5 +9,3 @@ public:
     static bool installHelper(bool &isUserCanceled);
     static bool uninstallHelper();
 };
-
-#endif // INSTALLHELPER_MAC_H

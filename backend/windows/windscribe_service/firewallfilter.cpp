@@ -13,7 +13,7 @@ FirewallFilter::FirewallFilter(FwpmWrapper &fwpmWrapper) :
     UuidFromString((RPC_WSTR)UUID_LAYER, &subLayerGUID_);
 }
 
-FirewallFilter::~FirewallFilter()
+void FirewallFilter::release()
 {
 }
 
@@ -302,9 +302,7 @@ void FirewallFilter::addPermitFilterForWindscribeAndSystemServices(HANDLE engine
     int ret = 0;
 
     AppsIds allowedIds;
-    wchar_t sysPath[MAX_PATH];
-    GetSystemDirectory(sysPath, MAX_PATH);
-    std::wstring svchost = std::wstring(sysPath) + L"\\svchost.exe";
+    std::wstring svchost = Utils::getSystemDir() + L"\\svchost.exe";
 
     allowedIds.setFromList({svchost, L"System"});
     allowedIds.addFrom(windscribeAppsIds_);

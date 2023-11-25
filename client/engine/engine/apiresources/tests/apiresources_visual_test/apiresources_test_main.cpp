@@ -6,7 +6,7 @@ int main(int argc, char *argv[])
 {
     QGuiApplication::setHighDpiScaleFactorRoundingPolicy(Qt::HighDpiScaleFactorRoundingPolicy::Floor);
     QApplication a(argc, argv);
-    
+
     // These values are used for QSettings by default
     a.setOrganizationName("Windscribe");
     a.setApplicationName("Windscribe2");

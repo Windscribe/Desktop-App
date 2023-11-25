@@ -1,5 +1,4 @@
-#ifndef DNS_SCRIPTS_LINUX_H
-#define DNS_SCRIPTS_LINUX_H
+#pragma once
 
 #include "types/enums.h"
 #include <QString>
@@ -29,5 +28,3 @@ private:
     SCRIPT_TYPE detectScript();
     QString getSymlink(const QString &path);
 };
-
-#endif // DNS_SCRIPTS_LINUX_H

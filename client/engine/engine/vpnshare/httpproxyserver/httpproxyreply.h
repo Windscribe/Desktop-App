@@ -1,5 +1,4 @@
-#ifndef HTTPPROXYREPLY_H
-#define HTTPPROXYREPLY_H
+#pragma once
 
 #include <QByteArray>
 #include <vector>
@@ -44,5 +43,3 @@ public:
 };
 
 } // namespace HttpProxyServer
-
-#endif // HTTPPROXYREPLY_H

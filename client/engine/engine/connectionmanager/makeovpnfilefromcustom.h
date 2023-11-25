@@ -1,5 +1,4 @@
-#ifndef MAKEOVPNFILEFROMCUSTOM_H
-#define MAKEOVPNFILEFROMCUSTOM_H
+#pragma once
 
 #include <QString>
 
@@ -15,5 +14,3 @@ public:
 private:
     QString config_;
 };
-
-#endif // MAKEOVPNFILEFROMCUSTOM_H

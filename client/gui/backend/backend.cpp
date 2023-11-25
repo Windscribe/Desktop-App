@@ -371,7 +371,7 @@ void Backend::onEngineSettingsChangedInPreferences()
 void Backend::onEngineCleanupFinished()
 {
     isCleanupFinished_ = true;
-    Q_EMIT cleanupFinished();
+    emit cleanupFinished();
 }
 
 void Backend::onEngineInitFinished(ENGINE_INIT_RET_CODE retCode, bool isCanLoginWithAuthHash, const types::EngineSettings &engineSettings)
@@ -388,14 +388,14 @@ void Backend::onEngineInitFinished(ENGINE_INIT_RET_CODE retCode, bool isCanLogin
         isSavedApiSettingsExists_ = engine_->isApiSavedSettingsExists();
         isCanLoginWithAuthHash_ = isCanLoginWithAuthHash;
 
-        Q_EMIT initFinished(INIT_STATE_SUCCESS);
+        emit initFinished(INIT_STATE_SUCCESS);
         engine_->updateCurrentInternetConnectivity();
     } else if (retCode == ENGINE_INIT_HELPER_FAILED) {
-        Q_EMIT initFinished(INIT_STATE_HELPER_FAILED);
+        emit initFinished(INIT_STATE_HELPER_FAILED);
     } else if (retCode == ENGINE_INIT_BFE_SERVICE_FAILED) {
-        Q_EMIT initFinished(INIT_STATE_BFE_SERVICE_NOT_STARTED);
+        emit initFinished(INIT_STATE_BFE_SERVICE_NOT_STARTED);
     } else if (retCode == ENGINE_INIT_HELPER_USER_CANCELED) {
-        Q_EMIT initFinished(INIT_STATE_HELPER_USER_CANCELED);
+        emit initFinished(INIT_STATE_HELPER_USER_CANCELED);
     } else {
         WS_ASSERT(false);
     }
@@ -406,7 +406,7 @@ void Backend::onEngineBfeEnableFinished(ENGINE_INIT_RET_CODE retCode, bool isCan
     if (retCode == ENGINE_INIT_SUCCESS)
         onEngineInitFinished(ENGINE_INIT_SUCCESS, isCanLoginWithAuthHash, engineSettings);
     else
-        Q_EMIT initFinished(INIT_STATE_BFE_SERVICE_FAILED_TO_START);
+        emit initFinished(INIT_STATE_BFE_SERVICE_FAILED_TO_START);
 }
 
 void Backend::onEngineFirewallStateChanged(bool isEnabled)
@@ -417,22 +417,22 @@ void Backend::onEngineFirewallStateChanged(bool isEnabled)
 void Backend::onEngineLoginFinished(bool isLoginFromSavedSettings, const QString &authHash, const types::PortMap &portMap)
 {
     preferencesHelper_.setPortMap(portMap);
-    Q_EMIT loginFinished(isLoginFromSavedSettings);
+    emit loginFinished(isLoginFromSavedSettings);
 }
 
 void Backend::onEngineLoginError(LOGIN_RET retCode, const QString &errorMessage)
 {
-    Q_EMIT loginError(retCode, errorMessage);
+    emit loginError(retCode, errorMessage);
 }
 
 void Backend::onEngineTryingBackupEndpoint(int num, int cnt)
 {
-    Q_EMIT tryingBackupEndpoint(num, cnt);
+    emit tryingBackupEndpoint(num, cnt);
 }
 
 void Backend::onEngineSessionDeleted()
 {
-    Q_EMIT sessionDeleted();
+    emit sessionDeleted();
 }
 
 void Backend::onEngineUpdateSessionStatus(const types::SessionStatus &sessionStatus)
@@ -440,27 +440,27 @@ void Backend::onEngineUpdateSessionStatus(const types::SessionStatus &sessionSta
     latestSessionStatus_ = sessionStatus;
     locationsModelManager_->setFreeSessionStatus(!latestSessionStatus_.isPremium());
     updateAccountInfo();
-    Q_EMIT sessionStatusChanged(latestSessionStatus_);
+    emit sessionStatusChanged(latestSessionStatus_);
 }
 
 void Backend::onEngineNotificationsUpdated(const QVector<types::Notification> &notifications)
 {
-    Q_EMIT notificationsChanged(notifications);
+    emit notificationsChanged(notifications);
 }
 
 void Backend::onEngineCheckUpdateUpdated(const types::CheckUpdate &checkUpdate)
 {
-    Q_EMIT checkUpdateChanged(checkUpdate);
+    emit checkUpdateChanged(checkUpdate);
 }
 
 void Backend::onEngineUpdateVersionChanged(uint progressPercent, const UPDATE_VERSION_STATE &state, const UPDATE_VERSION_ERROR &error)
 {
-    Q_EMIT updateVersionChanged(progressPercent, state, error);
+    emit updateVersionChanged(progressPercent, state, error);
 }
 
 void Backend::onEngineMyIpUpdated(const QString &ip, bool isDisconnected)
 {
-    Q_EMIT myIpChanged(ip, isDisconnected);
+    emit myIpChanged(ip, isDisconnected);
 }
 
 void Backend::onEngineConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, CONNECT_ERROR err, const LocationID &locationId)
@@ -475,32 +475,32 @@ void Backend::onEngineConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON
 
 void Backend::onEngineStatisticsUpdated(quint64 bytesIn, quint64 bytesOut, bool isTotalBytes)
 {
-    Q_EMIT statisticsUpdated(bytesIn, bytesOut, isTotalBytes);
+    emit statisticsUpdated(bytesIn, bytesOut, isTotalBytes);
 }
 
 void Backend::onEngineProtocolPortChanged(const types::Protocol &protocol, const uint port)
 {
-    Q_EMIT protocolPortChanged(protocol, port);
+    emit protocolPortChanged(protocol, port);
 }
 
 void Backend::onEngineRobertFiltersUpdated(bool success, const QVector<types::RobertFilter> &filters)
 {
-    Q_EMIT robertFiltersChanged(success, filters);
+    emit robertFiltersChanged(success, filters);
 }
 
 void Backend::onEngineSetRobertFilterFinished(bool success)
 {
-    Q_EMIT setRobertFilterResult(success);
+    emit setRobertFilterResult(success);
 }
 
 void Backend::onEngineSyncRobertFinished(bool success)
 {
-    Q_EMIT syncRobertResult(success);
+    emit syncRobertResult(success);
 }
 
 void Backend::onEngineProtocolStatusChanged(const QVector<types::ProtocolStatus> &status)
 {
-    Q_EMIT protocolStatusChanged(status);
+    emit protocolStatusChanged(status);
 }
 
 void Backend::onEngineEmergencyConnected()
@@ -528,12 +528,12 @@ void Backend::onEngineEmergencyConnectError(CONNECT_ERROR err)
 
 void Backend::onEngineTestTunnelResult(bool bSuccess)
 {
-    Q_EMIT testTunnelResult(bSuccess);
+    emit testTunnelResult(bSuccess);
 }
 
 void Backend::onEngineLostConnectionToHelper()
 {
-    Q_EMIT lostConnectionToHelper();
+    emit lostConnectionToHelper();
 }
 
 void Backend::onEngineProxySharingStateChanged(bool bEnabled, PROXY_SHARING_TYPE proxySharingType, const QString &address, int usersCount)
@@ -545,7 +545,7 @@ void Backend::onEngineProxySharingStateChanged(bool bEnabled, PROXY_SHARING_TYPE
         proxySharingInfo.address = address;
         proxySharingInfo.usersCount = usersCount;
     }
-    Q_EMIT proxySharingInfoChanged(proxySharingInfo);
+    emit proxySharingInfoChanged(proxySharingInfo);
 }
 
 void Backend::onEngineWifiSharingStateChanged(bool bEnabled, const QString &ssid, int usersCount)
@@ -556,17 +556,17 @@ void Backend::onEngineWifiSharingStateChanged(bool bEnabled, const QString &ssid
         wifiSharingInfo.ssid = ssid;
         wifiSharingInfo.usersCount = usersCount;
     }
-    Q_EMIT wifiSharingInfoChanged(wifiSharingInfo);
+    emit wifiSharingInfoChanged(wifiSharingInfo);
 }
 
 void Backend::onEngineSignOutFinished()
 {
-    Q_EMIT signOutFinished();
+    emit signOutFinished();
 }
 
 void Backend::onEngineGotoCustomOvpnConfigModeFinished()
 {
-    Q_EMIT gotoCustomOvpnConfigModeFinished();
+    emit gotoCustomOvpnConfigModeFinished();
 }
 
 void Backend::onEngineNetworkChanged(types::NetworkInterface networkInterface)
@@ -576,42 +576,42 @@ void Backend::onEngineNetworkChanged(types::NetworkInterface networkInterface)
 
 void Backend::onEngineDetectionCpuUsageAfterConnected(QStringList list)
 {
-    Q_EMIT highCpuUsage(list);
+    emit highCpuUsage(list);
 }
 
 void Backend::onEngineRequestUsername()
 {
-    Q_EMIT requestCustomOvpnConfigCredentials();
+    emit requestCustomOvpnConfigCredentials();
 }
 
 void Backend::onEngineRequestPassword()
 {
-    Q_EMIT requestCustomOvpnConfigCredentials();
+    emit requestCustomOvpnConfigCredentials();
 }
 
 void Backend::onEngineInternetConnectivityChanged(bool connectivity)
 {
-    Q_EMIT internetConnectivityChanged(connectivity);
+    emit internetConnectivityChanged(connectivity);
 }
 
 void Backend::onEngineSendDebugLogFinished(bool bSuccess)
 {
-    Q_EMIT debugLogResult(bSuccess);
+    emit debugLogResult(bSuccess);
 }
 
 void Backend::onEngineConfirmEmailFinished(bool bSuccess)
 {
-    Q_EMIT confirmEmailResult(bSuccess);
+    emit confirmEmailResult(bSuccess);
 }
 
 void Backend::onEngineWebSessionToken(WEB_SESSION_PURPOSE purpose, const QString &token)
 {
     if (purpose == WEB_SESSION_PURPOSE_MANAGE_ACCOUNT)
-        Q_EMIT webSessionTokenForManageAccount(token);
+        emit webSessionTokenForManageAccount(token);
     else if (purpose == WEB_SESSION_PURPOSE_ADD_EMAIL)
-        Q_EMIT webSessionTokenForAddEmail(token);
+        emit webSessionTokenForAddEmail(token);
     else if (purpose == WEB_SESSION_PURPOSE_MANAGE_ROBERT_RULES)
-        Q_EMIT webSessionTokenForManageRobertRules(token);
+        emit webSessionTokenForManageRobertRules(token);
 }
 
 void Backend::onEngineLocationsModelItemsUpdated(const LocationID &bestLocation, const QString &staticIpDeviceName, QSharedPointer<QVector<types::Location> > items)
@@ -642,7 +642,7 @@ void Backend::onEngineMacAddrSpoofingChanged(const types::EngineSettings &engine
 
 void Backend::onEngineSendUserWarning(USER_WARNING_TYPE userWarningType)
 {
-    Q_EMIT userWarning(userWarningType);
+    emit userWarning(userWarningType);
 }
 
 void Backend::onEnginePacketSizeChanged(const types::EngineSettings &engineSettings)
@@ -652,7 +652,7 @@ void Backend::onEnginePacketSizeChanged(const types::EngineSettings &engineSetti
 
 void Backend::onEnginePacketSizeDetectionStateChanged(bool on, bool isError)
 {
-    Q_EMIT packetSizeDetectionStateChanged(on, isError);
+    emit packetSizeDetectionStateChanged(on, isError);
 }
 
 void Backend::onEngineHostsFileBecameWritable()
@@ -663,7 +663,7 @@ void Backend::onEngineHostsFileBecameWritable()
 
 void Backend::abortInitialization()
 {
-    Q_EMIT initFinished(INIT_STATE_CLEAN);
+    emit initFinished(INIT_STATE_CLEAN);
 }
 
 // Assumes that duplicate network filtering occurs on Engine side
@@ -757,13 +757,13 @@ void Backend::handleNetworkChange(types::NetworkInterface networkInterface, bool
         // Even if not a real network change we want to update the UI with current network info.
         types::NetworkInterface protoInterface = networkInterface;
         protoInterface.trustType =foundInterface.trustType;
-        Q_EMIT networkChanged(protoInterface);
+        emit networkChanged(protoInterface);
 
     }
     else
     {
         // inform UI no network
-        Q_EMIT networkChanged(networkInterface);
+        emit networkChanged(networkInterface);
     }
 }
 
@@ -809,7 +809,7 @@ void Backend::sendSplitTunneling(const types::SplitTunneling &st)
     }
 
     engine_->setSplitTunnelingSettings(isActive, isExclude, files, ips, hosts);
-    Q_EMIT splitTunnelingStateChanged(st.settings.active);
+    emit splitTunnelingStateChanged(st.settings.active);
 }
 
 void Backend::sendUpdateWindowInfo(qint32 mainWindowCenterX, qint32 mainWindowCenterY)

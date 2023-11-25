@@ -1,6 +1,4 @@
-﻿//---------------------------------------------------------------------------
-#ifndef loggerH
-#define loggerH
+﻿#pragma once
 
 #include <list>
 #include <string>
@@ -39,5 +37,3 @@ private:
 
     void writeToSystemDebugger() const;
 };
-
-#endif

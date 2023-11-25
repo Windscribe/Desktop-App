@@ -1,5 +1,4 @@
-#ifndef RESIZEBAR_H
-#define RESIZEBAR_H
+#pragma once
 
 #include "commongraphics/scalablegraphicsobject.h"
 
@@ -29,5 +28,3 @@ private:
 };
 
 } // namespace CommonGraphics
-
-#endif // RESIZEBAR_H

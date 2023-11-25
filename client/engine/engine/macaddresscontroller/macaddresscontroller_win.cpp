@@ -10,7 +10,7 @@ MacAddressController_win::MacAddressController_win(QObject *parent, NetworkDetec
   , lastSpoofIndex_(-1)
   , networkDetectionManager_(ndManager)
 {
-    connect(networkDetectionManager_, SIGNAL(networkChanged(types::NetworkInterface)), SLOT(onNetworkChange(types::NetworkInterface)));
+    connect(networkDetectionManager_, &INetworkDetectionManager::networkChanged, this, &MacAddressController_win::onNetworkChange);
 }
 
 MacAddressController_win::~MacAddressController_win()
@@ -267,7 +267,7 @@ void MacAddressController_win::checkMacSpoofAppliedCorrectly()
 
     if (currentMacAddress != attemptedSpoof.toLower())
     {
-    	qCDebug(LOG_BASIC) << "Detected failure to change Mac Address";
+        qCDebug(LOG_BASIC) << "Detected failure to change Mac Address";
         emit sendUserWarning(USER_WARNING_MAC_SPOOFING_FAILURE_HARD);
 
     }

@@ -1,5 +1,4 @@
-#ifndef MACADDRESSCONTROLLER_LINUX_H
-#define MACADDRESSCONTROLLER_LINUX_H
+#pragma once
 
 #include <QDateTime>
 #include "imacaddresscontroller.h"
@@ -17,5 +16,3 @@ public:
     void initMacAddrSpoofing(const types::MacAddrSpoofing &macAddrSpoofing) override;
     void setMacAddrSpoofing(const types::MacAddrSpoofing &macAddrSpoofing) override;
 };
-
-#endif // MACADDRESSCONTROLLER_LINUX_H

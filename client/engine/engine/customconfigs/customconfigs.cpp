@@ -30,7 +30,7 @@ void CustomConfigs::changeDir(const QString &path)
     if (!path.isEmpty())
     {
         dirWatcher_ = new CustomConfigsDirWatcher(this, path);
-        connect(dirWatcher_, SIGNAL(dirChanged()), SLOT(onDirectoryChanged()));
+        connect(dirWatcher_, &CustomConfigsDirWatcher::dirChanged, this, &CustomConfigs::onDirectoryChanged);
     }
     parseDir();
     emit changed();

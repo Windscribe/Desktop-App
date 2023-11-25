@@ -64,31 +64,6 @@ QString MacUtils::getOsVersion()
     return QString::fromCFString((__bridge CFStringRef)osVer);
 }
 
-bool MacUtils::isOsVersion10_11_or_greater()
-{
-    if (floor(NSAppKitVersionNumber) < NSAppKitVersionNumber10_11)
-    {
-        return false;
-    }
-    else
-    {
-        return true;
-    }
-}
-
-bool MacUtils::isOsVersionIsSierra_or_greater()
-{
-    if (floor(NSAppKitVersionNumber) >= 1500)
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
-}
-
-
 void MacUtils::hideDockIcon()
 {
     ProcessSerialNumber psn = { 0, kCurrentProcess };
@@ -173,17 +148,6 @@ bool MacUtils::showGui()
         return true;
     }
     return false;
-}
-
-bool MacUtils::isOsVersionIsCatalina_or_greater()
-{
-    return floor(NSAppKitVersionNumber) >= 1800;
-}
-
-bool MacUtils::isOsVersionIsBigSur_or_greater()
-{
-    // TODO: get exact NSAppKitVersionNumber for Big Sur; currently it is not known.
-    return floor(NSAppKitVersionNumber) >= 2000;
 }
 
 QString MacUtils::getBundlePath()

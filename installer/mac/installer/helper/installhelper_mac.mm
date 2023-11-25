@@ -11,7 +11,12 @@ bool InstallHelper_mac::installHelper()
     NSString *helperLabel = @"com.windscribe.helper.macos";
     BOOL result = NO;
 
-    NSDictionary *installedHelperJobData  = (__bridge NSDictionary *)SMJobCopyDictionary( kSMDomainSystemLaunchd, (__bridge CFStringRef)helperLabel);
+// Avoid deprecated warning from deprecated SDK functions.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+    NSDictionary *installedHelperJobData  = (__bridge NSDictionary *)SMJobCopyDictionary(kSMDomainSystemLaunchd, (__bridge CFStringRef)helperLabel);
+#pragma clang diagnostic pop
+
     if (installedHelperJobData) {
         NSString*       installedPath           = [[installedHelperJobData objectForKey:@"ProgramArguments"] objectAtIndex:0];
         NSURL*          installedPathURL        = [NSURL fileURLWithPath:installedPath];
@@ -53,12 +58,12 @@ bool InstallHelper_mac::installHelper()
         [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"InstallHelper - helper not installed"]];
     }
 
-    AuthorizationItem authItem		= { kSMRightBlessPrivilegedHelper, 0, NULL, 0 };
-    AuthorizationRights authRights	= { 1, &authItem };
-    AuthorizationFlags flags		=	kAuthorizationFlagDefaults				|
-    kAuthorizationFlagInteractionAllowed	|
-    kAuthorizationFlagPreAuthorize			|
-    kAuthorizationFlagExtendRights;
+    AuthorizationItem authItem     = { kSMRightBlessPrivilegedHelper, 0, NULL, 0 };
+    AuthorizationRights authRights = { 1, &authItem };
+    AuthorizationFlags flags       = kAuthorizationFlagDefaults |
+                                     kAuthorizationFlagInteractionAllowed |
+                                     kAuthorizationFlagPreAuthorize |
+                                     kAuthorizationFlagExtendRights;
 
     AuthorizationRef authRef = NULL;
 

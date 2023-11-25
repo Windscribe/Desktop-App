@@ -108,7 +108,7 @@ void NetworkListGroup::clear()
 void NetworkListGroup::onNetworkClicked()
 {
     LinkItem *item = static_cast<LinkItem *>(sender());
-    emit networkClicked(networkInterfaceByName(item->title())); 
+    emit networkClicked(networkInterfaceByName(item->title()));
 }
 
 void NetworkListGroup::updateNetworks(QVector<types::NetworkInterface> list)

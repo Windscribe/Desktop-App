@@ -1,5 +1,4 @@
-#ifndef BACKGROUNDIMAGE_H
-#define BACKGROUNDIMAGE_H
+#pragma once
 
 #include <QObject>
 #include <QVariantAnimation>
@@ -67,5 +66,3 @@ private:
 };
 
 } //namespace ConnectWindow
-
-#endif // BACKGROUNDIMAGE_H

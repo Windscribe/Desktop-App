@@ -1,10 +1,9 @@
-#ifndef EXECUTABLE_SIGNATURE_WIN_H
-#define EXECUTABLE_SIGNATURE_WIN_H
-
-#include "executablesignature_p.h"
+#pragma once
 
 #include <Windows.h>
 #include <wincrypt.h>
+
+#include "executablesignature_p.h"
 
 class ExecutableSignaturePrivate : public ExecutableSignaturePrivateBase
 {
@@ -18,9 +17,7 @@ private:
     explicit ExecutableSignaturePrivate(ExecutableSignature* const q);
 
     bool verifyEmbeddedSignature(const std::wstring &exePath);
-    bool checkWindscribeCertificate(PCCERT_CONTEXT pCertContext);
+    bool checkCertificate(PCCERT_CONTEXT certContext);
 
     friend class ExecutableSignature;
 };
-
-#endif // EXECUTABLE_SIGNATURE_WIN_H

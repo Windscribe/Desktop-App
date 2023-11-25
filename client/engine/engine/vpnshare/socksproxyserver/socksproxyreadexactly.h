@@ -1,5 +1,4 @@
-#ifndef SOCKSPROXYREADEXACTLY_H
-#define SOCKSPROXYREADEXACTLY_H
+#pragma once
 
 #include <QByteArray>
 
@@ -19,5 +18,3 @@ private:
 };
 
 } // namespace SocksProxyServer
-
-#endif // SOCKSPROXYREADEXACTLY_H

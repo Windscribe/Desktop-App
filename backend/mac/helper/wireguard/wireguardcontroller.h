@@ -1,18 +1,21 @@
-#ifndef WireGuardController_h
-#define WireGuardController_h
+#pragma once
 
 #include <memory>
 #include <string>
 #include <vector>
 
-class DefaultRouteMonitor;
-class WireGuardAdapter;
-class WireGuardCommunicator;
+#include "defaultroutemonitor.h"
+#include "wireguardadapter.h"
+#include "wireguardcommunicator.h"
 
 class WireGuardController
 {
 public:
-    WireGuardController();
+    static WireGuardController &instance()
+    {
+        static WireGuardController wgc;
+        return wgc;
+    }
 
     bool start(
         const std::string &exePath,
@@ -40,6 +43,7 @@ private:
     std::shared_ptr<WireGuardCommunicator> comm_;
     unsigned long daemonCmdId_;
     bool is_initialized_;
-};
 
-#endif  // WireGuardController_h
+    WireGuardController();
+    ~WireGuardController() {};
+};

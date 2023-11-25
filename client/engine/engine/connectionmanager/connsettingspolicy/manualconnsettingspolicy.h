@@ -1,5 +1,4 @@
-#ifndef MANUALCONNSETTINGSPOLICY_H
-#define MANUALCONNSETTINGSPOLICY_H
+#pragma once
 
 #include "baseconnsettingspolicy.h"
 #include "types/connectionsettings.h"
@@ -29,5 +28,3 @@ private:
     types::ConnectionSettings connectionSettings_;
     int failedManualModeCounter_;
 };
-
-#endif // MANUALCONNSETTINGSPOLICY_H

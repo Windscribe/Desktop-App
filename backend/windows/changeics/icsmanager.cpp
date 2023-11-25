@@ -29,7 +29,7 @@ bool IcsManager::isSupported()
 
     VARIANT_BOOL bInstalled = VARIANT_FALSE;
     if (pNSM_->get_SharingInstalled(&bInstalled) != S_OK)
-		return false;
+        return false;
 
     return (bInstalled == VARIANT_TRUE);
 }

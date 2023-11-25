@@ -11,8 +11,8 @@ DialogGetUsernamePassword::DialogGetUsernamePassword(QWidget *parent, bool isReq
 
     this->setWindowTitle(tr("Enter connection credentials"));
 
-    connect(ui->btnOk, SIGNAL(clicked(bool)), SLOT(onOkClick()));
-    connect(ui->btnCancel, SIGNAL(clicked(bool)), SLOT(onCancelClick()));
+    connect(ui->btnOk, &QPushButton::clicked, this, &DialogGetUsernamePassword::onOkClick);
+    connect(ui->btnCancel, &QPushButton::clicked, this, &DialogGetUsernamePassword::onCancelClick);
     ui->cbSave->setChecked(true);
 
     if (!isRequestUsername)

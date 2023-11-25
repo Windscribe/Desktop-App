@@ -3,7 +3,7 @@
 SocketWriteAll::SocketWriteAll(QObject *parent, QTcpSocket *socket) : QObject(parent),
     socket_(socket), bEmitAllDataWritten_(false)
 {
-    connect(socket_, SIGNAL(bytesWritten(qint64)), SLOT(onBytesWritten(qint64)));
+    connect(socket_, &QTcpSocket::bytesWritten, this, &SocketWriteAll::onBytesWritten);
 }
 
 void SocketWriteAll::write(const QByteArray &arr)

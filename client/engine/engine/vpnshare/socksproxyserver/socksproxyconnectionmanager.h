@@ -1,5 +1,4 @@
-#ifndef SOCKSPROXYCONNECTIONMANAGER_H
-#define SOCKSPROXYCONNECTIONMANAGER_H
+#pragma once
 
 #include <QObject>
 #include <QMap>
@@ -32,5 +31,3 @@ private:
 };
 
 } // namespace SocksProxyServer
-
-#endif // SOCKSPROXYCONNECTIONMANAGER_H

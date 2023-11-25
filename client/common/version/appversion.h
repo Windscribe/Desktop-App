@@ -1,5 +1,4 @@
-#ifndef APPVERSION_H
-#define APPVERSION_H
+#pragma once
 
 #include <QString>
 #include "windscribe_version.h"
@@ -35,5 +34,3 @@ private:
     bool isStaging_;
     UPDATE_CHANNEL buildChannel_;
 };
-
-#endif // APPVERSION_H

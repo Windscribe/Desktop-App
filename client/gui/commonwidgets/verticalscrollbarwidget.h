@@ -1,5 +1,4 @@
-#ifndef VERTICALSCROLLBARWIDGET_H
-#define VERTICALSCROLLBARWIDGET_H
+#pragma once
 
 #include <QWidget>
 #include <QVariantAnimation>
@@ -58,5 +57,3 @@ private:
 
     QVariantAnimation barPosYAnimation_;
 };
-
-#endif // VERTICALSCROLLBARWIDGET_H

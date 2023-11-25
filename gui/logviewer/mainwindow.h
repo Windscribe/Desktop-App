@@ -1,5 +1,4 @@
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#pragma once
 
 #include <QVector>
 #include <QWidget>
@@ -60,7 +59,7 @@ private:
     void updateDisplay();
     void updateScroll();
     void updateMatchLabel();
- 
+
     QPlainTextEdit *timeEdit_;
     QPlainTextEdit *textEdit_[NUM_LOG_TYPES];
     QLabel *timeLabel_;
@@ -97,5 +96,3 @@ private:
     int previousFilterMatch_;
     QVector<int> filterMatches_;
 };
-
-#endif  // MAINWINDOW_H

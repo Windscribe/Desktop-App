@@ -1,4 +1,4 @@
-#import "installer.hpp"
+#import "installer.h"
 #import "../Logger.h"
 #include "../helper/installhelper_mac.h"
 #include "processes_helper.h"
@@ -30,13 +30,12 @@
     return self;
 }
 
-- (void)setObjectForCallback: (SEL)aSelector withObject:(id)arg
+-(void)setCallback: (std::function<void()>)func
 {
-    callbackSelector_ = aSelector;
-    callbackObject_ = arg;
+    callback_ = func;
 }
 
-- (BOOL)isFolderAlreadyExist
+-(BOOL)isFolderAlreadyExist
 {
     if (isUseUpdatePath_) {
         return NO;
@@ -69,7 +68,7 @@
         self.currentState = STATE_CANCELED;
     }
     [self waitForCompletion];
-    
+
     [[NSFileManager defaultManager] removeItemAtPath:[self getOldInstallPath] error:nil];
 }
 
@@ -77,13 +76,15 @@
 {
     self.progress = 100;
     self.currentState = STATE_LAUNCHED;
-    [callbackObject_ performSelectorOnMainThread:callbackSelector_ withObject:self waitUntilDone:NO];
+    callback_();
 }
 
 -(void)runLauncher
 {
     [[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:self selector:@selector(appDidLaunch:) name:NSWorkspaceDidLaunchApplicationNotification object:nil];
-    [[NSWorkspace sharedWorkspace] launchApplication:[self getInstallPath]];
+    NSWorkspaceOpenConfiguration *config = [NSWorkspaceOpenConfiguration configuration];
+    [config setCreatesNewApplicationInstance: YES];
+    [[NSWorkspace sharedWorkspace] openApplicationAtURL: [NSURL fileURLWithPath: [self getInstallPath]] configuration: config completionHandler: nil];
 }
 
 -(NSString *)runProcess:(NSString*)exePath args:(NSArray *)args
@@ -114,8 +115,9 @@
     int prevOverallProgress = 0;
     bool terminated = false;
     self.progress = 0;
+    [[Logger sharedLogger] logAndStdOut:@"Starting execution"];
     self.currentState = STATE_EXTRACTING;
-    [callbackObject_ performSelectorOnMainThread:callbackSelector_ withObject:self waitUntilDone:NO];
+    callback_();
 
     BOOL connectedOldHelper = NO;
 
@@ -141,7 +143,7 @@
         if (!terminated) {
             // if the above method failed or helper was not connected, try the older way
             [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"Waiting for Windscribe programs to close..."]];
-            
+
             for (auto pid : processesList) {
                 if (connectedOldHelper) {
                     helper_.killProcess(pid);
@@ -155,9 +157,9 @@
             if (!terminated) {
                 NSString *errStr = @"Couldn't kill running Windscribe programs in time. Please close running Windscribe programs manually and try install again.";
                 [[Logger sharedLogger] logAndStdOut:errStr];
-                self.lastError = errStr;
+                self.lastError = ERROR_KILL;
                 self.currentState = STATE_ERROR;
-                [callbackObject_ performSelectorOnMainThread:callbackSelector_ withObject:self waitUntilDone:NO];
+                callback_();
                 return;
             }
         }
@@ -189,9 +191,9 @@
             if (desc == nil) {
                 NSString *errStr = @"Couldn't re-enable the helper.";
                 [[Logger sharedLogger] logAndStdOut:errStr];
-                self.lastError = errStr;
+                self.lastError = ERROR_OTHER;
                 self.currentState = STATE_ERROR;
-                [callbackObject_ performSelectorOnMainThread:callbackSelector_ withObject:self waitUntilDone:NO];
+                callback_();
                 return;
             }
         }
@@ -203,19 +205,19 @@
     {
         NSString *errStr = @"Couldn't install the helper.";
         [[Logger sharedLogger] logAndStdOut:errStr];
-        self.lastError = errStr;
+        self.lastError = ERROR_PERMISSION;
         self.currentState = STATE_ERROR;
-        [callbackObject_ performSelectorOnMainThread:callbackSelector_ withObject:self waitUntilDone:NO];
+        callback_();
         return;
     }
-    
+
     if (!self.connectHelper)
     {
         NSString *errStr = @"Couldn't connect to new helper in time";
         [[Logger sharedLogger] logAndStdOut:errStr];
-        self.lastError = errStr;
+        self.lastError = ERROR_CONNECT_HELPER;
         self.currentState = STATE_ERROR;
-        [callbackObject_ performSelectorOnMainThread:callbackSelector_ withObject:self waitUntilDone:NO];
+        callback_();
         return;
     }
 
@@ -225,15 +227,15 @@
         [[Logger sharedLogger] logAndStdOut:@"Windscribe exists in desired folder"];
 
         [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"Attempting to remove: %@", [self getOldInstallPath]]];
-        
+
         bool success = helper_.removeOldInstall([[self getOldInstallPath] UTF8String]);
         if (!success)
         {
             NSString *errStr = @"Previous version of the program cannot be deleted. Please contact support.";
             [[Logger sharedLogger] logAndStdOut:errStr];
-            self.lastError = errStr;
+            self.lastError = ERROR_DELETE;
             self.currentState = STATE_ERROR;
-            [callbackObject_ performSelectorOnMainThread:callbackSelector_ withObject:self waitUntilDone:NO];
+            callback_();
             helper_.stop();
             return;
         }
@@ -242,7 +244,7 @@
             [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"Removed!"]];
         }
     }
-    
+
     if (self.factoryReset)
     {
         [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"Executing factory reset"]];
@@ -270,23 +272,23 @@
 
         [self runProcess:@"/usr/bin/killall" args:@[@"cfprefsd"]];
     }
-    
+
     [[Logger sharedLogger] logAndStdOut:@"Writing blocks"];
-    
+
     uid_t userId = getuid();
     gid_t groupId = getgid();
-    
+
     NSString* archivePathFromApp = [[NSBundle mainBundle] pathForResource:@"windscribe.7z" ofType:nil];
     std::wstring strArchivePath = NSStringToStringW(archivePathFromApp);
     std::wstring strPath = NSStringToStringW([self getInstallPath]);
-    
+
     if (!helper_.setPaths(strArchivePath, strPath, userId, groupId))
     {
         NSString *errStr = @"setPaths in helper failed";
         [[Logger sharedLogger] logAndStdOut:errStr];
-        self.lastError = errStr;
+        self.lastError = ERROR_OTHER;
         self.currentState = STATE_ERROR;
-        [callbackObject_ performSelectorOnMainThread:callbackSelector_ withObject:self waitUntilDone:NO];
+        callback_();
         helper_.stop();
         return;
     }
@@ -306,23 +308,23 @@
         }
 
         int progressOfBlock = helper_.executeFilesStep();
-            
+
         // block is finished?
         if (progressOfBlock >= 100)
         {
             [[Logger sharedLogger] logAndStdOut:@"Block install 100+"];
 
             self.progress = prevOverallProgress + (int)(100.0);
-            [callbackObject_ performSelectorOnMainThread:callbackSelector_ withObject:self waitUntilDone:NO];
+            callback_();
             break;
         }
         // error from block?
         else if (progressOfBlock < 0)
         {
             [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"Block < 0: %i", progressOfBlock]];
-            self.lastError = @"Extracting error";
+            self.lastError = ERROR_OTHER;
             self.currentState = STATE_ERROR;
-            [callbackObject_ performSelectorOnMainThread:callbackSelector_ withObject:self waitUntilDone:NO];
+            callback_();
             helper_.stop();
             return;
         }
@@ -330,13 +332,14 @@
         {
             // [[Logger sharedLogger] writeToLog:@"Block processing"];
             self.progress = prevOverallProgress + (int)(progressOfBlock);
-            [callbackObject_ performSelectorOnMainThread:callbackSelector_ withObject:self waitUntilDone:NO];
+            callback_();
         }
     }
 
     [[Logger sharedLogger] logAndStdOut:@"Done writing blocks"];
-    
+
     // create symlink for cli
+    [self runProcess:@"/bin/mkdir" args:@[@"-p", @"/usr/local/bin"]];
     [[Logger sharedLogger] logAndStdOut:@"Creating CLI symlink"];
     NSString *filepath = [NSString stringWithFormat:@"%@%@", [self getInstallPath], @"/Contents/MacOS/windscribe-cli"];
     NSString *sympath = @"/usr/local/bin/windscribe-cli";
@@ -345,8 +348,8 @@
 
     self.progress = 100;
     self.currentState = STATE_FINISHED;
-    [callbackObject_ performSelectorOnMainThread:callbackSelector_ withObject:self waitUntilDone:NO];
-    
+    callback_();
+
     helper_.stop();
 }
 
@@ -363,7 +366,7 @@ std::wstring NSStringToStringW ( NSString* Str )
 {
     NSStringEncoding pEncode    =   CFStringConvertEncodingToNSStringEncoding ( kCFStringEncodingUTF32LE );
     NSData* pSData              =   [ Str dataUsingEncoding : pEncode ];
-   
+
     return std::wstring ( (wchar_t*) [ pSData bytes ], [ pSData length] / sizeof ( wchar_t ) );
 }
 
@@ -387,7 +390,7 @@ NSString* StringWToNSString ( const std::wstring& Str )
             return NO;
         }
     }
-    
+
     return YES;
 }
 
@@ -402,11 +405,11 @@ NSString* StringWToNSString ( const std::wstring& Str )
                 break;
             }
         }
-        
+
         if (bAllFinished) {
             break;
         }
-        
+
         usleep(10000); // 10 milliseconds
         int seconds = -(int)[waitingSince_ timeIntervalSinceNow];
         if (seconds > timeoutSec) {

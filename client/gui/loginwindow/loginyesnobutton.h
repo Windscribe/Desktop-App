@@ -1,5 +1,4 @@
-#ifndef LOGINYESNOBUTTON_H
-#define LOGINYESNOBUTTON_H
+#pragma once
 
 #include <QFont>
 #include <QColor>
@@ -63,5 +62,3 @@ private:
 };
 
 } // namespace LoginWindow
-
-#endif // LOGINYESNOBUTTON_H

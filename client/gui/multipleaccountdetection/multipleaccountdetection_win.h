@@ -1,5 +1,4 @@
-#ifndef MULTIPLEACCOUNTDETECTION_WIN_H
-#define MULTIPLEACCOUNTDETECTION_WIN_H
+#pragma once
 
 #include <QString>
 #include "secretvalue_win.h"
@@ -16,5 +15,3 @@ public:
 private:
     SecretValue_win secretValue_;
 };
-
-#endif // MULTIPLEACCOUNTDETECTION_WIN_H

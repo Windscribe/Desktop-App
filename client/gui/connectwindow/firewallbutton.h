@@ -1,5 +1,4 @@
-#ifndef FIREWALLBUTTON_H
-#define FIREWALLBUTTON_H
+#pragma once
 
 #include <QGraphicsObject>
 #include <QVariantAnimation>
@@ -25,7 +24,6 @@ protected:
     void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
     void mouseReleaseEvent(QGraphicsSceneMouseEvent *event) override;
 
-
 private slots:
     void onAnimationValueChanged(const QVariant &value);
 
@@ -36,5 +34,3 @@ private:
 };
 
 } //namespace ConnectWindow
-
-#endif // FIREWALLBUTTON_H

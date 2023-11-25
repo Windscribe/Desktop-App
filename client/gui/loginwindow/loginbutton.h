@@ -1,8 +1,6 @@
-#ifndef LOGINBUTTON_H
-#define LOGINBUTTON_H
+#pragma once
 
 #include "commongraphics/clickablegraphicsobject.h"
-
 
 namespace LoginWindow {
 
@@ -26,4 +24,3 @@ private:
 };
 
 }
-#endif // LOGINBUTTON_H

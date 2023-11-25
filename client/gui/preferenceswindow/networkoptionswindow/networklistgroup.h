@@ -1,5 +1,4 @@
-#ifndef COMBOBOXLISTITEM_H
-#define COMBOBOXLISTITEM_H
+#pragma once
 
 #include "commongraphics/baseitem.h"
 #include "preferenceswindow/comboboxitem.h"
@@ -50,4 +49,3 @@ private:
 };
 
 }
-#endif // COMBOBOXLISTITEM_H

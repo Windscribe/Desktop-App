@@ -1,5 +1,4 @@
-#ifndef DIVIDERLINE_H
-#define DIVIDERLINE_H
+#pragma once
 
 #include "commongraphics/baseitem.h"
 #include "commongraphics/scalablegraphicsobject.h"
@@ -11,7 +10,7 @@ class DividerLine : public CommonGraphics::BaseItem
 
 public:
     explicit DividerLine(ScalableGraphicsObject *parent, int width = PAGE_WIDTH, int startX = 16);
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR) override;
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
     void updateScaling() override;
 
     void setOpacity(double opacity);
@@ -24,5 +23,3 @@ private:
 };
 
 } // namespace CommonGraphics
-
-#endif // DIVIDERLINE_H

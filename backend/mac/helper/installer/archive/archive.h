@@ -1,5 +1,4 @@
-#ifndef ARCHIVE_H
-#define ARCHIVE_H
+#pragma once
 
 //LZMA SDK it is taken from here https://www.7-zip.org/a/lzma1805.7z
 
@@ -88,10 +87,10 @@ class Archive
     #ifdef _WIN32
     HGLOBAL hGlobal;
     #endif
-	
-	unsigned long file_size;
-	unsigned char* pData;
-    
+
+    unsigned long file_size;
+    unsigned char* pData;
+
     uid_t userId_;
     gid_t groupId_;
 
@@ -179,7 +178,7 @@ class Archive
  public:
     Archive(const std::wstring &name, uid_t userId, gid_t groupId);
     ~Archive();
-    
+
     bool isCorrect() const;
 
    //list of files
@@ -195,7 +194,3 @@ class Archive
     SRes finish();
     std::wstring getLastError();
 };
-
-
-
-#endif // ARCHIVE_H

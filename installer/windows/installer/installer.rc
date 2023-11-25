@@ -2,24 +2,4 @@
 
 Windscribe            RCDATA "resources\windscribe.7z"
 
-WS_BACKGROUND_IMAGE PNG DISCARDABLE "resources\background.png"
-WS_BACKGROUND_IMAGE15 PNG DISCARDABLE "resources\background@15x.png"
-WS_BACKGROUND_IMAGE2 PNG DISCARDABLE "resources\background@2x.png"
-WS_BACKGROUND_IMAGE3 PNG DISCARDABLE "resources\background@3x.png"
-
-WINDOWS_CLOSE_ICON    RCDATA "resources\WINDOWS_CLOSE_ICON.svg"
-WINDOWS_MINIMIZE_ICON RCDATA "resources\WINDOWS_MINIMIZE_ICON.svg"
-SETTINGS_ICON         RCDATA "resources\SETTINGS_ICON.svg"
-FOLDER_ICON           RCDATA "resources\FOLDER_ICON.svg"
-OK_BUTTON_ICON        RCDATA "resources\ok_button.svg"
-GREEN_TOGGLE_BG       RCDATA "resources\GREEN_TOGGLE_BG.svg"
-WHITE_TOGGLE_BG       RCDATA "resources\WHITE_TOGGLE_BG.svg"
-TOGGLE_BUTTON_BLACK   RCDATA "resources\BUTTON_BLACK.svg"
-WINDSCRIBE_ICON       RCDATA "resources\WINDSCRIBE_ICON.svg"
-INSTALL_ICON          RCDATA "resources\INSTALL_ICON.svg"
-
 IDI_ICON1 ICON DISCARDABLE "resources\windscribe.ico"
-
-IDR_PLEXFONT_BOLD BINARY "resources\IBMPlexSans-Bold.ttf"
-IDR_PLEXFONT_REGULAR BINARY "resources\IBMPlexSans-Regular.ttf"
-

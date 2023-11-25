@@ -1,5 +1,4 @@
-#ifndef APPINCLUDEDITEM_H
-#define APPINCLUDEDITEM_H
+#pragma once
 
 #include "commongraphics/baseitem.h"
 #include "commongraphics/iconbutton.h"
@@ -13,7 +12,7 @@ class AppIncludedItem : public CommonGraphics::BaseItem
     Q_OBJECT
 public:
     explicit AppIncludedItem(types::SplitTunnelingApp app, QString iconPath, ScalableGraphicsObject *parent);
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR) override;
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
     QString getName();
     QString getAppIcon();
@@ -36,5 +35,3 @@ private:
 };
 
 }
-
-#endif // APPINCLUDEDITEM_H

@@ -6,7 +6,7 @@
 #include "../utils.h"
 #include "../logger.h"
 
-Ipv6Manager::Ipv6Manager() : enabled_(false)
+Ipv6Manager::Ipv6Manager()
 {
 }
 
@@ -17,11 +17,6 @@ Ipv6Manager::~Ipv6Manager()
 
 bool Ipv6Manager::setEnabled(bool bEnabled)
 {
-    if (bEnabled == enabled_) {
-        LOG("IPv6 state already set");
-        return false;
-    }
-
     const std::vector<const std::string> interfaces = getInterfaces();
     if (interfaces.empty()) {
         LOG("Could not get interfaces");
@@ -55,7 +50,6 @@ bool Ipv6Manager::setEnabled(bool bEnabled)
         }
     }
 
-    enabled_ = bEnabled;
     return true;
 }
 

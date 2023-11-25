@@ -1,9 +1,7 @@
-#ifndef SCROLLAREA_H
-#define SCROLLAREA_H
+#pragma once
 
 #include "commongraphics/scalablegraphicsobject.h"
 #include <QGraphicsSceneWheelEvent>
-//#include "verticalscrollbar.h"
 #include "commonwidgets/scrollbar.h"
 #include "basepage.h"
 
@@ -70,5 +68,3 @@ private:
 };
 
 } // namespace CommonGraphics
-
-#endif // SCROLLAREA_H

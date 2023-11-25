@@ -35,12 +35,6 @@ void FirewallGroup::setFirewallSettings(types::FirewallSettings settings)
     updateMode();
 }
 
-void FirewallGroup::setBlock(bool block)
-{
-    block_ = block;
-    firewallModeItem_->setClickable(!block);
-}
-
 void FirewallGroup::onFirewallModeChanged(QVariant value)
 {
     if (settings_.mode != (FIREWALL_MODE)value.toInt())
@@ -70,29 +64,6 @@ void FirewallGroup::onFirewallWhenChanged(QVariant value)
         settings_.when = (FIREWALL_WHEN)value.toInt();
         emit firewallPreferencesChanged(settings_);
     }
-}
-
-void FirewallGroup::onFirewallModeHoverEnter()
-{
-    if (!block_)
-        return;
-
-    QGraphicsView *view = scene()->views().first();
-    QPoint globalPt = view->mapToGlobal(view->mapFromScene(firewallModeItem_->getButtonScenePos()));
-
-    TooltipInfo ti(TOOLTIP_TYPE_DESCRIPTIVE, TOOLTIP_ID_FIREWALL_BLOCKED);
-    ti.tailtype = TOOLTIP_TAIL_BOTTOM;
-    ti.tailPosPercent = 0.5;
-    ti.x = globalPt.x() + 8 * G_SCALE;
-    ti.y = globalPt.y() - 4 * G_SCALE;
-    ti.width = 200 * G_SCALE;
-    TooltipUtil::getFirewallBlockedTooltipInfo(&ti.title, &ti.desc);
-    TooltipController::instance().showTooltipDescriptive(ti);
-}
-
-void FirewallGroup::onFirewallModeHoverLeave()
-{
-    TooltipController::instance().hideTooltip(TOOLTIP_ID_FIREWALL_BLOCKED);
 }
 
 void FirewallGroup::onLanguageChanged()

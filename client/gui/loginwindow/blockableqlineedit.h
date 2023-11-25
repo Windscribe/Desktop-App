@@ -1,5 +1,4 @@
-#ifndef BLOCKABLEQLINEEDIT_H
-#define BLOCKABLEQLINEEDIT_H
+#pragma once
 
 #include <QLineEdit>
 #include <QMouseEvent>
@@ -9,7 +8,7 @@ class BlockableQLineEdit : public QLineEdit
 {
     Q_OBJECT
 public:
-    BlockableQLineEdit(QWidget *parent = Q_NULLPTR);
+    BlockableQLineEdit(QWidget *parent = nullptr);
 
     void setClickable(bool clickable);
 
@@ -29,5 +28,3 @@ protected:
 private:
     bool clickable_;
 };
-
-#endif // BLOCKABLEQLINEEDIT_H

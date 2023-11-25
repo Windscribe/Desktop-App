@@ -1,5 +1,4 @@
-#ifndef MACADDRESSCONTROLLER_WIN_H
-#define MACADDRESSCONTROLLER_WIN_H
+#pragma once
 
 #include "imacaddresscontroller.h"
 #include "../NetworkDetectionManager/networkdetectionmanager_win.h"
@@ -33,5 +32,3 @@ private:
     int lastSpoofIndex_;
 
 };
-
-#endif // MACADDRESSCONTROLLER_WIN_H

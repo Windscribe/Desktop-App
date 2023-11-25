@@ -26,7 +26,7 @@ UpgradeWidgetItem::UpgradeWidgetItem(ScalableGraphicsObject *parent) : ScalableG
     textButton_ = new CommonGraphics::TextButton(buttonText, fontDescr_, Qt::white, true, this, 15);
     textButton_->setTextAlignment(Qt::AlignRight | Qt::AlignVCenter);
 
-    connect(textButton_, SIGNAL(clicked()), SLOT(onButtonClick()));
+    connect(textButton_, &CommonGraphics::TextButton::clicked, this, &UpgradeWidgetItem::onButtonClick);
 
     curBackgroundOpacity_ = OPACITY_FULL;
     curDataRemainingIconOpacity_ = OPACITY_FULL;
@@ -34,11 +34,11 @@ UpgradeWidgetItem::UpgradeWidgetItem(ScalableGraphicsObject *parent) : ScalableG
 
     curDataRemainingColor_ = FontManager::instance().getErrorRedColor();
 
-    connect(&backgroundOpacityAnimation_   , SIGNAL(valueChanged(QVariant)), this, SLOT(onBackgroundOpacityChanged(QVariant)));
-    connect(&dataRemainingTextOpacityAnimation_, SIGNAL(valueChanged(QVariant)), this, SLOT(onDataRemainingTextOpacityChanged(QVariant)));
-    connect(&dataRemainingIconOpacityAnimation_, SIGNAL(valueChanged(QVariant)), this, SLOT(onDataRemainingIconOpacityChanged(QVariant)));
+    connect(&backgroundOpacityAnimation_, &QVariantAnimation::valueChanged, this, &UpgradeWidgetItem::onBackgroundOpacityChanged);
+    connect(&dataRemainingTextOpacityAnimation_, &QVariantAnimation::valueChanged, this, &UpgradeWidgetItem::onDataRemainingTextOpacityChanged);
+    connect(&dataRemainingIconOpacityAnimation_, &QVariantAnimation::valueChanged, this, &UpgradeWidgetItem::onDataRemainingIconOpacityChanged);
 
-    connect(&LanguageController::instance(), SIGNAL(languageChanged()), SLOT(onLanguageChanged()));
+    connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &UpgradeWidgetItem::onLanguageChanged);
     updateDisplayElements();
     updateTextPos();
 }

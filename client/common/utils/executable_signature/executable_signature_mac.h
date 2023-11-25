@@ -1,5 +1,4 @@
-#ifndef EXECUTABLE_SIGNATURE_MAC_H
-#define EXECUTABLE_SIGNATURE_MAC_H
+#pragma once
 
 #include "executablesignature_p.h"
 
@@ -16,5 +15,3 @@ private:
 
     friend class ExecutableSignature;
 };
-
-#endif // EXECUTABLE_SIGNATURE_MAC_H

@@ -64,7 +64,7 @@ void ApiLocationsModel::clear()
     staticIps_ = apiinfo::StaticIps();
     pingManager_.clearIps();
     QSharedPointer<QVector<types::Location> > empty(new QVector<types::Location>());
-    Q_EMIT locationsUpdated(LocationID(), QString(),  empty);
+    emit locationsUpdated(LocationID(), QString(),  empty);
 }
 
 QSharedPointer<BaseLocationInfo> ApiLocationsModel::getMutableLocationInfoById(const LocationID &locationId)
@@ -153,7 +153,7 @@ void ApiLocationsModel::onPingInfoChanged(const QString &ip, int timems)
         for (int i = 0; i < l.groupsCount(); ++i) {
             const apiinfo::Group group = l.getGroup(i);
             if (group.getPingIp() == ip) {
-                Q_EMIT locationPingTimeChanged(LocationID::createApiLocationId(l.getId(), group.getCity(), group.getNick()), timems);
+                emit locationPingTimeChanged(LocationID::createApiLocationId(l.getId(), group.getCity(), group.getNick()), timems);
             }
         }
     }
@@ -162,7 +162,7 @@ void ApiLocationsModel::onPingInfoChanged(const QString &ip, int timems)
         for (int i = 0; i < staticIps_.getIpsCount(); ++i) {
             const apiinfo::StaticIpDescr &sid = staticIps_.getIp(i);
             if (sid.getPingIp() == ip) {
-                Q_EMIT locationPingTimeChanged(LocationID::createStaticIpsLocationId(sid.cityName, sid.staticIp), timems);
+                emit locationPingTimeChanged(LocationID::createStaticIpsLocationId(sid.cityName, sid.staticIp), timems);
                 break;
             }
         }
@@ -279,7 +279,7 @@ void ApiLocationsModel::detectBestLocation(bool isAllNodesInDisconnectedState)
         }
 
         qCDebug(LOG_BEST_LOCATION) << "Best location changed to " << bestLocation_.getId().getHashString();
-        Q_EMIT bestLocationUpdated(bestLocation_.getId().apiLocationToBestLocation());
+        emit bestLocationUpdated(bestLocation_.getId().apiLocationToBestLocation());
     }
 }
 
@@ -387,7 +387,7 @@ BestAndAllLocations ApiLocationsModel::generateLocationsUpdated()
 void ApiLocationsModel::sendLocationsUpdated()
 {
     BestAndAllLocations ball = generateLocationsUpdated();
-    Q_EMIT locationsUpdated(ball.bestLocation, ball.staticIpDeviceName, ball.locations);
+    emit locationsUpdated(ball.bestLocation, ball.staticIpDeviceName, ball.locations);
 }
 
 void ApiLocationsModel::whitelistIps()
@@ -401,7 +401,7 @@ void ApiLocationsModel::whitelistIps()
         }
     }
     ips << staticIps_.getAllPingIps();
-    Q_EMIT whitelistIpsChanged(ips);
+    emit whitelistIpsChanged(ips);
 }
 
 bool ApiLocationsModel::isChanged(const QVector<apiinfo::Location> &locations, const apiinfo::StaticIps &staticIps)

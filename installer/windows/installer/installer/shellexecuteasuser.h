@@ -1,12 +1,11 @@
 #pragma once
-class ShellExecuteAsUser
+
+#include <Windows.h>
+
+namespace ShellExec
 {
-public:
-	static void shellExecuteFromExplorer(PCWSTR pszFile, PCWSTR pszParameters = nullptr, PCWSTR pszDirectory = nullptr,
-			PCWSTR pszOperation = nullptr, int nShowCmd = SW_SHOWNORMAL);
 
-private:
-	static void getDesktopAutomationObject(REFIID riid, void **ppv);
-	static void findDesktopFolderView(REFIID riid, void **ppv);
+void executeFromExplorer(const wchar_t *pszFile, const wchar_t *pszParameters = L"", const wchar_t *pszDirectory = L"",
+                         const wchar_t *pszOperation = L"", int nShowCmd = SW_SHOWNORMAL);
+
 };
-

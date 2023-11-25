@@ -1,5 +1,4 @@
-#ifndef SHARINGFEATURESWINDOWITEM_H
-#define SHARINGFEATURESWINDOWITEM_H
+#pragma once
 
 #include <QGraphicsObject>
 #include <QVariantAnimation>
@@ -112,4 +111,3 @@ private:
 };
 
 }
-#endif // SHARINGFEATURESWINDOWITEM_H

@@ -5,40 +5,66 @@
 
 MyIcon ICON "uninstall.ico"
 
+LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
+
 /////////////////////////////////////////////////////////////////////////////
 //
 // Version
 //
 
 VS_VERSION_INFO VERSIONINFO
-	FILEVERSION WINDSCRIBE_MAJOR_VERSION, WINDSCRIBE_MINOR_VERSION, WINDSCRIBE_BUILD_VERSION, 0
-	PRODUCTVERSION WINDSCRIBE_MAJOR_VERSION, WINDSCRIBE_MINOR_VERSION, WINDSCRIBE_BUILD_VERSION, 0
-	FILEFLAGSMASK 0x3fL
+    FILEVERSION WINDSCRIBE_MAJOR_VERSION, WINDSCRIBE_MINOR_VERSION, WINDSCRIBE_BUILD_VERSION, 0
+    PRODUCTVERSION WINDSCRIBE_MAJOR_VERSION, WINDSCRIBE_MINOR_VERSION, WINDSCRIBE_BUILD_VERSION, 0
+    FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
-	FILEFLAGS 0x1L
+    FILEFLAGS 0x1L
 #else
-	FILEFLAGS 0x0L
+    FILEFLAGS 0x0L
 #endif
-	FILEOS 0x40004L
-	FILETYPE 0x1L
-	FILESUBTYPE 0x0L
+    FILEOS 0x40004L
+    FILETYPE 0x1L
+    FILESUBTYPE 0x0L
 BEGIN
-	BLOCK "StringFileInfo"
-	BEGIN
-		BLOCK "040904b0"
-		BEGIN
-			VALUE "CompanyName", "Windscribe Limited"
-			VALUE "FileDescription", "Setup/Uninstall"
-			VALUE "FileVersion", WINDSCRIBE_VERSION_STR
-			VALUE "InternalName", "uninstall.exe"
-			VALUE "LegalCopyright", WINDSCRIBE_COPYRIGHT_STR
-			VALUE "OriginalFilename", "uninstall.exe"
-			VALUE "ProductName", "Windscribe"
-			VALUE "ProductVersion", WINDSCRIBE_VERSION_STR
-		END
-	END
-	BLOCK "VarFileInfo"
-	BEGIN
-		VALUE "Translation", 0x409, 1200
-	END
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904b0"
+        BEGIN
+            VALUE "CompanyName", "Windscribe Limited"
+            VALUE "FileDescription", "Uninstall Windscribe"
+            VALUE "FileVersion", WINDSCRIBE_VERSION_STR
+            VALUE "InternalName", "uninstall.exe"
+            VALUE "LegalCopyright", WINDSCRIBE_COPYRIGHT_STR
+            VALUE "OriginalFilename", "uninstall.exe"
+            VALUE "ProductName", "Windscribe"
+            VALUE "ProductVersion", WINDSCRIBE_VERSION_STR
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
 END
+
+/* UTF-8 */
+#pragma code_page(65001)
+
+#include "translations/windscribe_uninstaller_ar.rc"
+#include "translations/windscribe_uninstaller_cs.rc"
+#include "translations/windscribe_uninstaller_de.rc"
+#include "translations/windscribe_uninstaller_en.rc"
+#include "translations/windscribe_uninstaller_es.rc"
+#include "translations/windscribe_uninstaller_fa.rc"
+#include "translations/windscribe_uninstaller_fr.rc"
+#include "translations/windscribe_uninstaller_hi.rc"
+#include "translations/windscribe_uninstaller_id.rc"
+#include "translations/windscribe_uninstaller_it.rc"
+#include "translations/windscribe_uninstaller_ja.rc"
+#include "translations/windscribe_uninstaller_ko.rc"
+#include "translations/windscribe_uninstaller_pl.rc"
+#include "translations/windscribe_uninstaller_pt-BR.rc"
+#include "translations/windscribe_uninstaller_ru.rc"
+#include "translations/windscribe_uninstaller_tr.rc"
+#include "translations/windscribe_uninstaller_uk.rc"
+#include "translations/windscribe_uninstaller_vi.rc"
+#include "translations/windscribe_uninstaller_zh-CN.rc"
+#include "translations/windscribe_uninstaller_zh-TW.rc"

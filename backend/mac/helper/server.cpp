@@ -1,37 +1,33 @@
 #include "server.h"
-#include <sys/socket.h>
-#include <sys/un.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <stdlib.h>
-#include <codecvt>
-#include <string>
-#include <mach-o/dyld.h>
 
 #define BOOST_BIND_GLOBAL_PLACEHOLDERS 1
-
 #include <boost/bind.hpp>
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/serialization/vector.hpp>
-#include "logger.h"
-#include "utils/executable_signature/executable_signature.h"
+#include <codecvt>
+#include <mach-o/dyld.h>
+#include <stdlib.h>
+#include <string>
+#include <sys/socket.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <sys/un.h>
+#include <unistd.h>
+
 #include "execute_cmd.h"
-#include "keychain_utils.h"
-#include "../../posix_common/helper_commands_serialize.h"
+#include "logger.h"
 #include "ipc/helper_security.h"
 #include "macutils.h"
-#include "firewallonboot.h"
-#include "ovpn.h"
+#include "process_command.h"
 #include "utils.h"
+#include "utils/executable_signature/executable_signature.h"
 
 #define SOCK_PATH "/var/run/windscribe_helper_socket2"
 
 Server::Server()
 {
     acceptor_ = NULL;
-    files_ = NULL;
 }
 
 Server::~Server()
@@ -40,10 +36,6 @@ Server::~Server()
 
     if (acceptor_) {
         delete acceptor_;
-    }
-
-    if (files_) {
-        delete files_;
     }
 
     unlink(SOCK_PATH);
@@ -87,420 +79,7 @@ bool Server::readAndHandleCommand(socket_ptr sock, boost::asio::streambuf *buf, 
 
     std::string str(bufPtr + headerSize, length);
     std::istringstream stream(str);
-    boost::archive::text_iarchive ia(stream, boost::archive::no_header);
-
-    if (cmdId == HELPER_CMD_START_OPENVPN) {
-        CMD_START_OPENVPN cmd;
-        ia >> cmd;
-
-        if (!OVPN::writeOVPNFile(MacUtils::resourcePath() + "dns.sh", cmd.config, cmd.isCustomConfig)) {
-           LOG("Could not write OpenVPN config");
-           outCmdAnswer.executed = 0;
-        } else {
-            std::string fullCmd = Utils::getFullCommand(cmd.exePath, cmd.executable, "--config /etc/windscribe/config.ovpn " + cmd.arguments);
-            if (fullCmd.empty()) {
-                // Something wrong with the command
-                outCmdAnswer.executed = 0;
-            } else {
-                const std::string fullPath = cmd.exePath + "/" + cmd.executable;
-                ExecutableSignature sigCheck;
-                if (!sigCheck.verify(std::wstring_convert<std::codecvt_utf8<wchar_t>>().from_bytes(fullPath))) {
-                    LOG("OpenVPN executable signature incorrect: %s", sigCheck.lastError().c_str());
-                    outCmdAnswer.executed = 0;
-                } else {
-                    outCmdAnswer.cmdId = ExecuteCmd::instance().execute(fullCmd, "/etc/windscribe");
-                    outCmdAnswer.executed = 1;
-                }
-            }
-        }
-    } else if (cmdId == HELPER_CMD_GET_CMD_STATUS) {
-        CMD_GET_CMD_STATUS cmd;
-        ia >> cmd;
-
-        bool bFinished;
-        std::string log;
-        ExecuteCmd::instance().getStatus(cmd.cmdId, bFinished, log);
-
-        if (bFinished) {
-            outCmdAnswer.executed = 1;
-            outCmdAnswer.body = log;
-        } else {
-            outCmdAnswer.executed = 2;
-        }
-    } else if (cmdId == HELPER_CMD_CLEAR_CMDS) {
-        CMD_CLEAR_CMDS cmd;
-        ia >> cmd;
-
-        ExecuteCmd::instance().clearCmds();
-        outCmdAnswer.executed = 2;
-    } else if (cmdId == HELPER_CMD_SET_KEYCHAIN_ITEM) {
-        CMD_SET_KEYCHAIN_ITEM cmd;
-        ia >> cmd;
-
-        bool bSuccess = KeyChainUtils::setUsernameAndPassword("Windscribe IKEv2", "Windscribe IKEv2", "Windscribe IKEv2 password", cmd.username.c_str(), cmd.password.c_str());
-
-        if (bSuccess) {
-            outCmdAnswer.executed = 1;
-        } else {
-            outCmdAnswer.executed = 0;
-        }
-    } else if (cmdId == HELPER_CMD_SPLIT_TUNNELING_SETTINGS) {
-        CMD_SPLIT_TUNNELING_SETTINGS cmd;
-        ia >> cmd;
-
-        splitTunneling_.setSplitTunnelingParams(cmd.isActive, cmd.isExclude, cmd.files, cmd.ips, cmd.hosts);
-        outCmdAnswer.executed = 1;
-    } else if (cmdId == HELPER_CMD_SEND_CONNECT_STATUS) {
-        CMD_SEND_CONNECT_STATUS cmd;
-        ia >> cmd;
-
-        splitTunneling_.setConnectParams(cmd);
-        outCmdAnswer.executed = 1;
-    } else if (cmdId == HELPER_CMD_START_WIREGUARD) {
-        CMD_START_WIREGUARD cmd;
-        ia >> cmd;
-
-        if (wireGuardController_.start(cmd.exePath, cmd.executable, cmd.deviceName)) {
-            outCmdAnswer.executed = 1;
-        } else {
-            outCmdAnswer.executed = 0;
-        }
-    } else if (cmdId == HELPER_CMD_STOP_WIREGUARD) {
-        if (wireGuardController_.stop()) {
-            outCmdAnswer.executed = 1;
-        }
-    } else if (cmdId == HELPER_CMD_START_CTRLD) {
-        CMD_START_CTRLD cmd;
-        ia >> cmd;
-
-        std::string fullCmd = Utils::getFullCommand(cmd.exePath, cmd.executable, cmd.parameters);
-        if (fullCmd.empty()) {
-            // Something wrong with the command
-            outCmdAnswer.executed = 0;
-        } else {
-            const std::string fullPath = cmd.exePath + "/" + cmd.executable;
-            ExecutableSignature sigCheck;
-            if (!sigCheck.verify(std::wstring_convert<std::codecvt_utf8<wchar_t>>().from_bytes(fullPath))) {
-                LOG("ctrld executable signature incorrect: %s", sigCheck.lastError().c_str());
-                outCmdAnswer.executed = 0;
-            } else {
-                outCmdAnswer.cmdId = ExecuteCmd::instance().execute(fullCmd, std::string());
-                outCmdAnswer.executed = 1;
-            }
-        }
-    } else if (cmdId == HELPER_CMD_CONFIGURE_WIREGUARD) {
-        CMD_CONFIGURE_WIREGUARD cmd;
-        ia >> cmd;
-
-        outCmdAnswer.executed = 0;
-        if (wireGuardController_.isInitialized()) {
-            do {
-                std::vector<std::string> allowed_ips_vector =
-                    wireGuardController_.splitAndDeduplicateAllowedIps(cmd.allowedIps);
-                if (allowed_ips_vector.size() < 1) {
-                    LOG("WireGuard: invalid AllowedIps \"%s\"", cmd.allowedIps.c_str());
-                    break;
-                }
-
-                if (!wireGuardController_.configureAdapter(cmd.clientIpAddress,
-                                                           cmd.clientDnsAddressList,
-                                                           MacUtils::resourcePath() + "/dns.sh",
-                                                           allowed_ips_vector)) {
-                    LOG("WireGuard: configureAdapter() failed");
-                    break;
-                }
-
-                if (!wireGuardController_.configureDefaultRouteMonitor(cmd.peerEndpoint)) {
-                    LOG("WireGuard: configureDefaultRouteMonitor() failed");
-                    break;
-                }
-                if (!wireGuardController_.configure(cmd.clientPrivateKey,
-                                                    cmd.peerPublicKey, cmd.peerPresharedKey,
-                                                    cmd.peerEndpoint, allowed_ips_vector)) {
-                    LOG("WireGuard: configureDaemon() failed");
-                    break;
-                }
-                outCmdAnswer.executed = 1;
-            } while (0);
-        }
-    } else if (cmdId == HELPER_CMD_GET_WIREGUARD_STATUS) {
-        unsigned int errorCode = 0;
-        unsigned long long bytesReceived = 0, bytesTransmitted = 0;
-
-        outCmdAnswer.executed = 1;
-        outCmdAnswer.cmdId = wireGuardController_.getStatus(&errorCode, &bytesReceived, &bytesTransmitted);
-        if (outCmdAnswer.cmdId == kWgStateError) {
-            if (errorCode) {
-                outCmdAnswer.customInfoValue[0] = errorCode;
-            } else {
-                outCmdAnswer.customInfoValue[0] = -1;
-            }
-        } else if (outCmdAnswer.cmdId == kWgStateActive) {
-            outCmdAnswer.customInfoValue[0] = bytesReceived;
-            outCmdAnswer.customInfoValue[1] = bytesTransmitted;
-        }
-    } else if (cmdId == HELPER_CMD_INSTALLER_SET_PATH) {
-        CMD_INSTALLER_FILES_SET_PATH cmd;
-        ia >> cmd;
-
-        if (files_) {
-            delete files_;
-        }
-        files_ = new Files(cmd.archivePath, cmd.installPath, cmd.userId, cmd.groupId);
-        outCmdAnswer.executed = 1;
-    } else if (cmdId == HELPER_CMD_INSTALLER_EXECUTE_COPY_FILE) {
-        if (files_) {
-            outCmdAnswer.executed = files_->executeStep();
-            if (outCmdAnswer.executed == -1) {
-                outCmdAnswer.body = files_->getLastError();
-            }
-            if (outCmdAnswer.executed == -1 || outCmdAnswer.executed == 100) {
-                delete files_;
-                files_ = NULL;
-            }
-        }
-    } else if (cmdId == HELPER_CMD_APPLY_CUSTOM_DNS) {
-        CMD_APPLY_CUSTOM_DNS cmd;
-        ia >> cmd;
-
-        if (MacUtils::setDnsOfDynamicStoreEntry(cmd.ipAddress, cmd.networkService)) {
-            outCmdAnswer.executed = 1;
-        } else {
-            outCmdAnswer.executed = 0;
-        }
-    } else if (cmdId == HELPER_CMD_CHANGE_MTU) {
-        CMD_CHANGE_MTU cmd;
-        ia >> cmd;
-        LOG("Change MTU: %d", cmd.mtu);
-
-        outCmdAnswer.executed = 1;
-        Utils::executeCommand("ifconfig", {cmd.adapterName.c_str(), "mtu", std::to_string(cmd.mtu)});
-    } else if (cmdId == HELPER_CMD_DELETE_ROUTE) {
-        CMD_DELETE_ROUTE cmd;
-        ia >> cmd;
-        LOG("Delete route: %s/%d gw %s", cmd.range.c_str(), cmd.mask, cmd.gateway.c_str());
-
-        outCmdAnswer.executed = 1;
-        std::stringstream str;
-        str << cmd.range << "/" << cmd.mask;
-        Utils::executeCommand("route", {"-n", "delete", str.str().c_str(), cmd.gateway.c_str()});
-    } else if (cmdId == HELPER_CMD_SET_IPV6_ENABLED) {
-        CMD_SET_IPV6_ENABLED cmd;
-        ia >> cmd;
-        LOG("Set IPv6: %s", cmd.enabled ? "enabled" : "disabled");
-
-        outCmdAnswer.executed = ipv6Manager_.setEnabled(cmd.enabled);
-    } else if (cmdId == HELPER_CMD_SET_DNS_SCRIPT_ENABLED) {
-        CMD_SET_DNS_SCRIPT_ENABLED cmd;
-        ia >> cmd;
-        LOG("Set DNS script: %s", cmd.enabled ? "enabled" : "disabled");
-
-        outCmdAnswer.executed = 1;
-        std::string out;
-
-        // We only handle the down case; the 'up' trigger happens elsewhere
-        if (!cmd.enabled) {
-            Utils::executeCommand(MacUtils::resourcePath() + "/dns.sh", {"-down"}, &out);
-            LOG("%s", out.c_str());
-        }
-    } else if (cmdId == HELPER_CMD_TASK_KILL) {
-        CMD_TASK_KILL cmd;
-        ia >> cmd;
-
-        if (cmd.target == kTargetWindscribe) {
-            LOG("Killing Windscribe processes");
-            Utils::executeCommand("pkill", {"Windscribe"});
-            Utils::executeCommand("pkill", {"WindscribeEngine"}); // For older 1.x clients
-            outCmdAnswer.executed = 1;
-        } else if (cmd.target == kTargetOpenVpn) {
-            LOG("Killing OpenVPN processes");
-            const std::vector<std::string> exes = Utils::getOpenVpnExeNames();
-            for (auto exe : exes) {
-                Utils::executeCommand("pkill", {"-f", exe.c_str()});
-            }
-            outCmdAnswer.executed = 1;
-        } else if (cmd.target == kTargetStunnel) {
-            LOG("Killing Stunnel processes");
-            Utils::executeCommand("pkill", {"-f", "windscribewstunnel"});
-            outCmdAnswer.executed = 1;
-        } else if (cmd.target == kTargetWStunnel) {
-            LOG("Killing WStunnel processes");
-            Utils::executeCommand("pkill", {"-f", "windscribewstunnel"});
-            outCmdAnswer.executed = 1;
-        } else if (cmd.target == kTargetWireGuard) {
-            LOG("Killing WireGuard processes");
-            Utils::executeCommand("pkill", {"-f", "windscribewireguard"});
-            outCmdAnswer.executed = 1;
-        } else if (cmd.target == kTargetCtrld) {
-            LOG("Killing ctrld processes");
-            Utils::executeCommand("pkill", {"-f", "windscribectrld"});
-            outCmdAnswer.executed = 1;
-        } else {
-            LOG("Did not kill processes for type %d", cmd.target);
-            outCmdAnswer.executed = 0;
-        }
-    } else if (cmdId == HELPER_CMD_CLEAR_FIREWALL_RULES) {
-        CMD_CLEAR_FIREWALL_RULES cmd;
-        ia >> cmd;
-        LOG("Clear firewall rules");
-        Utils::executeCommand("pfctl", {"-v", "-F", "all", "-f", "/etc/pf.conf"});
-        if (!cmd.isKeekPfEnabled)
-            Utils::executeCommand("pfctl", {"-d"});
-        outCmdAnswer.executed = 1;
-    } else if (cmdId == HELPER_CMD_CHECK_FIREWALL_STATE) {
-        std::string output;
-
-        Utils::executeCommand("pfctl", {"-si"}, &output);
-        outCmdAnswer.exitCode = (output.find("Status: Enabled") != std::string::npos);
-        outCmdAnswer.executed = 1;
-    } else if (cmdId == HELPER_CMD_SET_FIREWALL_RULES) {
-        LOG("Set firewall rules");
-        CMD_SET_FIREWALL_RULES cmd;
-        ia >> cmd;
-
-        int fd = open("/etc/windscribe/pf.conf", O_CREAT | O_WRONLY | O_TRUNC);
-        if (fd < 0) {
-            LOG("Could not open firewall rules for writing");
-            outCmdAnswer.executed = 0;
-        } else {
-            write(fd, cmd.rules.c_str(), cmd.rules.length());
-            close(fd);
-
-            if (cmd.table.empty() && cmd.group.empty()) {
-                Utils::executeCommand("pfctl", {"-v", "-F", "all", "-f", "/etc/windscribe/pf.conf"});
-                Utils::executeCommand("pfctl", {"-e"});
-            } else if (!cmd.table.empty()) {
-                Utils::executeCommand("pfctl", {"-T", "load", "-f", "/etc/windscribe/pf.conf"});
-            } else if (!cmd.group.empty()) {
-                Utils::executeCommand("pfctl", {"-a", cmd.group.c_str(), "-f", "/etc/windscribe/pf.conf"});
-            }
-            outCmdAnswer.executed = 1;
-        }
-    } else if (cmdId == HELPER_CMD_GET_FIREWALL_RULES) {
-        CMD_GET_FIREWALL_RULES cmd;
-        ia >> cmd;
-
-        if (cmd.table.empty() && cmd.group.empty()) {
-            Utils::executeCommand("pfctl", {"-s", "rules"}, &outCmdAnswer.body, false);
-        } else if (!cmd.table.empty()) {
-            Utils::executeCommand("pfctl", {"-t", cmd.table.c_str(), "-T", "show"}, &outCmdAnswer.body, false);
-        } else if (!cmd.group.empty()) {
-            Utils::executeCommand("pfctl", {"-a", cmd.group.c_str(), "-s", "rules"}, &outCmdAnswer.body, false);
-        }
-        outCmdAnswer.executed = 1;
-    } else if (cmdId == HELPER_CMD_DELETE_OLD_HELPER) {
-        LOG("Delete old helper");
-        Utils::executeCommand("rm", {"-f", "/Library/PrivilegedHelperTools/com.windscribe.helper.macos"});
-        Utils::executeCommand("rm", {"-f", "/Library/Logs/com.windscribe.helper.macos/helper_log.txt"});
-
-        // remove helper from version 1
-        Utils::executeCommand("launchctl", {"unload", "/Library/LaunchDaemons/com.aaa.windscribe.OVPNHelper.plist"});
-        Utils::executeCommand("rm", {"-f", "/Library/LaunchDaemons/com.aaa.windscribe.OVPNHelper.plist"});
-        Utils::executeCommand("rm", {"-f", "/Library/PrivilegedHelperTools/com.aaa.windscribe.OVPNHelper"});
-
-        outCmdAnswer.executed = 1;
-    } else if (cmdId == HELPER_CMD_INSTALLER_REMOVE_OLD_INSTALL) {
-        CMD_INSTALLER_REMOVE_OLD_INSTALL cmd;
-        ia >> cmd;
-
-        // sanity check that path at least contains our binary.  We can't assume this path is in /Applications
-        // because versions < 2.6 allowed custom dir installs.  This check at least disallows user to try to
-        // delete paths that they can't write to.
-        std::stringstream path;
-        path << cmd.path << "/Contents/MacOS/Windscribe";
-
-        if (access(path.str().c_str(), F_OK) == 0) {
-            LOG("Remove old install: %s", cmd.path.c_str());
-            Utils::executeCommand("rm", {"-rf", cmd.path.c_str()});
-            outCmdAnswer.executed = 1;
-        } else {
-            LOG("Old install at %s not removed", cmd.path.c_str());
-            outCmdAnswer.executed = 0;
-        }
-    } else if (cmdId == HELPER_CMD_SET_FIREWALL_ON_BOOT) {
-        CMD_SET_FIREWALL_ON_BOOT cmd;
-        ia >> cmd;
-        LOG("Set firewall on boot: %s ip table: %s", cmd.enabled ? "true" : "false", cmd.ipTable.c_str());
-        firewallOnBoot_.setIpTable(cmd.ipTable);
-        outCmdAnswer.executed = firewallOnBoot_.setEnabled(cmd.enabled);
-    } else if (cmdId == HELPER_CMD_SET_MAC_SPOOFING_ON_BOOT) {
-        CMD_SET_MAC_SPOOFING_ON_BOOT cmd;
-        ia >> cmd;
-        LOG("Set mac spoofing on boot%s: %s", cmd.robustMethod ? " (robust method)" : "", cmd.enabled ? "true" : "false");
-
-        outCmdAnswer.executed = macSpoofingOnBoot_.setEnabled(cmd.enabled, cmd.interface, cmd.macAddress, cmd.robustMethod);
-    } else if (cmdId == HELPER_CMD_SET_MAC_ADDRESS) {
-        CMD_SET_MAC_ADDRESS cmd;
-        ia >> cmd;
-        LOG("Set mac address on %s: %s%s", cmd.interface.c_str(), cmd.macAddress.c_str(), cmd.robustMethod ? " (robust method)" : "");
-
-        if (cmd.robustMethod) {
-            Utils::executeCommand("/System/Library/PrivateFrameworks/Apple80211.framework/Resources/airport", {"-z"});
-        }
-        outCmdAnswer.executed = Utils::executeCommand("ifconfig", {cmd.interface.c_str(), "ether", cmd.macAddress.c_str()});
-        if (cmd.robustMethod) {
-            Utils::executeCommand("ifconfig", {cmd.interface.c_str(), "up"});
-        }
-    } else if (cmdId == HELPER_CMD_START_STUNNEL) {
-        CMD_START_STUNNEL cmd;
-        ia >> cmd;
-        LOG("Starting stunnel");
-
-        std::stringstream arguments;
-        arguments << "--listenAddress :" << cmd.localPort;
-        arguments << " --remoteAddress https://" << cmd.hostname << ":" << cmd.port;
-        arguments << " --logFilePath \"\"";
-        if (cmd.extraPadding) {
-            arguments << " --extraTlsPadding";
-        }
-        arguments << " --tunnelType 2";
-        //arguments << " --dev"; // enables verbose logging when necessary
-        std::string fullCmd = Utils::getFullCommandAsUser("windscribe", cmd.exePath, cmd.executable, arguments.str());
-        if (fullCmd.empty()) {
-            // Something wrong with the command
-            outCmdAnswer.executed = 0;
-        } else {
-            const std::string fullPath = cmd.exePath + "/" + cmd.executable;
-            ExecutableSignature sigCheck;
-            if (!sigCheck.verify(std::wstring_convert<std::codecvt_utf8<wchar_t>>().from_bytes(fullPath))) {
-                LOG("stunnel executable signature incorrect: %s", sigCheck.lastError().c_str());
-                outCmdAnswer.executed = 0;
-            } else {
-                outCmdAnswer.cmdId = ExecuteCmd::instance().execute(fullCmd, std::string());
-                outCmdAnswer.executed = 1;
-            }
-        }
-    } else if (cmdId == HELPER_CMD_START_WSTUNNEL) {
-        CMD_START_WSTUNNEL cmd;
-        ia >> cmd;
-        LOG("Starting wstunnel");
-
-        std::stringstream arguments;
-        arguments << "--listenAddress :" << cmd.localPort;
-        arguments << " --remoteAddress wss://" << cmd.hostname << ":" << cmd.port << "/tcp/127.0.0.1/1194";
-        arguments << " --logFilePath \"\"";
-        //arguments << " --dev"; // enables verbose logging when necessary
-        std::string fullCmd = Utils::getFullCommandAsUser("windscribe", cmd.exePath, cmd.executable, arguments.str());
-        if (fullCmd.empty()) {
-            // Something wrong with the command
-            outCmdAnswer.executed = 0;
-        } else {
-            const std::string fullPath = cmd.exePath + "/" + cmd.executable;
-            ExecutableSignature sigCheck;
-            if (!sigCheck.verify(std::wstring_convert<std::codecvt_utf8<wchar_t>>().from_bytes(fullPath))) {
-                LOG("wstunnel executable signature incorrect: %s", sigCheck.lastError().c_str());
-                outCmdAnswer.executed = 0;
-            } else {
-                outCmdAnswer.cmdId = ExecuteCmd::instance().execute(fullCmd, std::string());
-                outCmdAnswer.executed = 1;
-            }
-        }
-    } else {
-        // these commands are not used in MacOS:
-        //
-        // HELPER_CMD_SET_DNS_LEAK_PROTECT_ENABLED
-        // HELPER_CMD_CHECK_FOR_WIREGUARD_KERNEL_MODULE
-    }
+    outCmdAnswer = processCommand(cmdId, str);
 
     buf->consume(headerSize + length);
 
@@ -580,6 +159,11 @@ bool Server::sendAnswerCmd(socket_ptr sock, const CMD_ANSWER &cmdAnswer)
 
 void Server::run()
 {
+    if (Utils::isAppUninstalled()) {
+        Utils::deleteSelf();
+        return;
+    }
+
     system("mkdir -p /var/run");
     system("mkdir -p /etc/windscribe");
     Utils::createWindscribeUserAndGroup();
@@ -593,8 +177,7 @@ void Server::run()
     startAccept();
 
     boost::thread_group g;
-    for (int i = 0; i < 4; i++)
-    {
+    for (int i = 0; i < 4; i++) {
         g.add_thread(new boost::thread( boost::bind(&Server::runService, this) ));
     }
     g.join_all();

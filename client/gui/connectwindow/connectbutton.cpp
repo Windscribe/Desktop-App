@@ -40,7 +40,7 @@ ConnectButton::ConnectButton(ScalableGraphicsObject *parent) : ClickableGraphics
     buttonRotationAnimation_.setStartValue(-180);
     buttonRotationAnimation_.setEndValue(0);
     buttonRotationAnimation_.setDuration(150);
-    connect(&buttonRotationAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onButtonRotationAnimationValueChanged(QVariant)));
+    connect(&buttonRotationAnimation_, &QPropertyAnimation::valueChanged, this, &ConnectButton::onButtonRotationAnimationValueChanged);
 
     connectingRingRotationAnimation_.setTargetObject(svgItemConnectingRing_);
     connectingRingRotationAnimation_.setPropertyName("rotation");
@@ -48,15 +48,15 @@ ConnectButton::ConnectButton(ScalableGraphicsObject *parent) : ClickableGraphics
     connectingRingRotationAnimation_.setEndValue(360);
     connectingRingRotationAnimation_.setDuration(1200);
     connectingRingRotationAnimation_.setLoopCount(-1);
-    connect(&connectingRingRotationAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onConnectingRingRotationAnimationValueChanged(QVariant)));
+    connect(&connectingRingRotationAnimation_, &QPropertyAnimation::valueChanged, this, &ConnectButton::onConnectingRingRotationAnimationValueChanged);
 
     connectingRingOpacityAnimation_.setTargetObject(svgItemConnectingRing_);
     connectingRingOpacityAnimation_.setPropertyName("opacity");
     connectingRingOpacityAnimation_.setStartValue(0.0);
     connectingRingOpacityAnimation_.setEndValue(1.0);
     connectingRingOpacityAnimation_.setDuration(200);
-    connect(&connectingRingOpacityAnimation_, SIGNAL(finished()), SLOT(onConnectingRingOpacityAnimationFinished()));
-    connect(&connectingRingOpacityAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onConnectingRingOpacityAnimationValueChanged(QVariant)));
+    connect(&connectingRingOpacityAnimation_, &QPropertyAnimation::finished, this, &ConnectButton::onConnectingRingOpacityAnimationFinished);
+    connect(&connectingRingOpacityAnimation_, &QPropertyAnimation::valueChanged, this, &ConnectButton::onConnectingRingOpacityAnimationValueChanged);
 
     noInternetRingRotationAnimation_.setTargetObject(svgItemConnectingNoInternetRing_);
     noInternetRingRotationAnimation_.setPropertyName("rotation");
@@ -70,7 +70,7 @@ ConnectButton::ConnectButton(ScalableGraphicsObject *parent) : ClickableGraphics
     noInternetRingOpacityAnimation_.setStartValue(0.0);
     noInternetRingOpacityAnimation_.setEndValue(1.0);
     noInternetRingOpacityAnimation_.setDuration(200);
-    connect(&noInternetRingOpacityAnimation_, SIGNAL(finished()), SLOT(onNoInternetRingOpacityAnimationFinished()));
+    connect(&noInternetRingOpacityAnimation_, &QPropertyAnimation::finished, this, &ConnectButton::onNoInternetRingOpacityAnimationFinished);
 
     connectedRingOpacityAnimation_.setTargetObject(svgItemConnectedRing_);
     connectedRingOpacityAnimation_.setPropertyName("opacity");
@@ -375,5 +375,23 @@ void ConnectButton::startNoInternetRingAnimations(QPropertyAnimation::Direction 
         noInternetRingOpacityAnimation_.start();
     }
 }
+
+QPainterPath ConnectButton::shape() const
+{
+    QPainterPath path;
+
+    if (connectStateType_ == CONNECT_STATE_DISCONNECTED || connectStateType_ == CONNECT_STATE_DISCONNECTING) {
+        // excludes ring
+        path.addEllipse(QPointF(boundingRect().width()/2, boundingRect().height()/2),
+                        svgItemButton_->boundingRect().width()/2, svgItemButton_->boundingRect().height()/2);
+    } else {
+        // includes ring
+        path.addEllipse(QPointF(boundingRect().width()/2, boundingRect().height()/2),
+                        boundingRect().width()/2, boundingRect().height()/2);
+    }
+
+    return path;
+}
+
 
 } //namespace ConnectWindow

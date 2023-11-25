@@ -1782,7 +1782,7 @@ namespace redi
         {
           nbuf = std::min(nbuf, n - done);
           traits_type::copy(this->pptr(), s + done, nbuf);
-          this->pbump(nbuf);
+          this->pbump(static_cast<int>(nbuf));
           done += nbuf;
         }
         else if (!empty_buffer())
@@ -1806,7 +1806,7 @@ namespace redi
         {
           if (const std::streamsize unwritten = count - written)
             traits_type::move(this->pbase(), this->pbase()+written, unwritten);
-          this->pbump(-written);
+          this->pbump(-static_cast<int>(written));
           return true;
         }
       }
@@ -1859,7 +1859,7 @@ namespace redi
     {
       int avail = 0;
       if (sizeof(char_type) == 1)
-        avail = fill_buffer(true) ? this->egptr() - this->gptr() : -1;
+        avail = fill_buffer(true) ? static_cast<int>(this->egptr() - this->gptr()) : -1;
 #ifdef FIONREAD
       else
       {

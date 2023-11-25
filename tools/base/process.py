@@ -30,8 +30,8 @@ def ExecuteWithRealtimeOutput(command_and_args, env=None, shell=False, logOutput
             if not output and process_handle.poll() is not None:
                 break
             if output:
-                file_out.write(output.decode('utf-8'))
-                print(output.strip().decode('utf-8'))
+                file_out.write(output.decode(encoding='utf-8', errors='ignore'))
+                print(output.strip().decode(encoding='utf-8', errors='ignore'))
                 sys.stdout.flush()
         execute_result = process_handle.poll()
         if execute_result:

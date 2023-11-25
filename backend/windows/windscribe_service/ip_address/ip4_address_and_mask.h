@@ -1,5 +1,4 @@
-#ifndef IP4_ADDRESS_AND_MASK_H
-#define IP4_ADDRESS_AND_MASK_H
+#pragma once
 
 #include <string>
 #include <vector>
@@ -43,5 +42,3 @@ private:
     void constructFromString(const std::string &str);
     UINT32 maskFromInteger(UINT32 num);
 };
-
-#endif // IP4_ADDRESS_AND_MASK_H

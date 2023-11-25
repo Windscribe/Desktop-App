@@ -1,11 +1,17 @@
-#ifndef BOOST_INCLUDES_H
-#define BOOST_INCLUDES_H
+#pragma once
 
 #if defined __cplusplus
 
 #ifdef WIN32
 // Required due to --layout=tagged being added to install_boost.py
 #define BOOST_AUTO_LINK_TAGGED 1
+#endif
+
+#if defined(Q_OS_MAC)
+// Avoid warnings from boost libraries on Mac.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#pragma clang diagnostic ignored "-Wshorten-64-to-32"
 #endif
 
 #include <boost/asio.hpp>
@@ -26,6 +32,8 @@ typedef boost::shared_ptr<boost::asio::ip::tcp::socket> socket_ptr;
 
 using namespace boost::placeholders;
 
+#if defined(Q_OS_MAC)
+#pragma clang diagnostic pop
 #endif
 
-#endif // BOOST_INCLUDES_H
+#endif

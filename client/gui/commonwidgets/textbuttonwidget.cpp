@@ -13,8 +13,8 @@ TextButtonWidget::TextButtonWidget(QString text, QWidget * parent) : QPushButton
     curOpacity_(OPACITY_UNHOVER_ICON_STANDALONE),
     fontDescr_(12, false)
 {
-    connect(this, SIGNAL(clicked()), SLOT(resetHoverState()));
-    connect(&opacityAnimation_, SIGNAL(valueChanged(QVariant)), this, SLOT(onOpacityChanged(QVariant)));
+    connect(this, &QPushButton::clicked, this, &TextButtonWidget::resetHoverState);
+    connect(&opacityAnimation_, &QVariantAnimation::valueChanged, this, &TextButtonWidget::onOpacityChanged);
 }
 
 QSize TextButtonWidget::sizeHint() const

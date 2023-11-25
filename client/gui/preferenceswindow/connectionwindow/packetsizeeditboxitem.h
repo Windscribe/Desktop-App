@@ -1,5 +1,4 @@
-#ifndef PACKETSIZEEDITBOXITEM_H
-#define PACKETSIZEEDITBOXITEM_H
+#pragma once
 
 #include <QGraphicsObject>
 #include <QGraphicsProxyWidget>
@@ -78,10 +77,6 @@ private:
     QVariantAnimation detectButtonOpacityAnimation_;
 
     void updatePositions();
-
 };
 
 } // namespace PreferencesWindow
-
-
-#endif // PACKETSIZEEDITBOXITEM_H

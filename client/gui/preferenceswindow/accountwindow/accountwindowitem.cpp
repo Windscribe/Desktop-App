@@ -72,7 +72,7 @@ AccountWindowItem::AccountWindowItem(ScalableGraphicsObject *parent, AccountInfo
     // don't set url on this since we need to first grab the temp_session_token from the api first
     // this is because we want to obscure user auth info by POST request to API rather than QDesktopServices HTTP GET
     // for the POST we use the ServerAPI in the backend and we get a temporary one-time token back from the API that
-    // can be safetly used in a GET command 
+    // can be safetly used in a GET command
     manageAccountGroup_ = new PreferenceGroup(this);
     manageAccountItem_ = new LinkItem(manageAccountGroup_, LinkItem::LinkType::EXTERNAL_LINK);
     connect(manageAccountItem_, &LinkItem::clicked, this, &AccountWindowItem::onManageAccountClicked);

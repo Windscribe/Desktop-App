@@ -1,5 +1,4 @@
-#ifndef STATICIPDEVICEINFO_H
-#define STATICIPDEVICEINFO_H
+#pragma once
 
 #include <QWidget>
 #include <QVariantAnimation>
@@ -47,4 +46,3 @@ private:
 };
 
 }
-#endif // STATICIPDEVICEINFO_H

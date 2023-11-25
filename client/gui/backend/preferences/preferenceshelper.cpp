@@ -3,10 +3,10 @@
 #include "version/appversion.h"
 
 PreferencesHelper::PreferencesHelper(QObject *parent) : QObject(parent),
-    isWifiSharingSupported_(true), bIpv6StateInOS_(true), isFirewallBlocked_(false),
-    isDockedToTray_(false), isExternalConfigMode_(false)
+    isWifiSharingSupported_(true), bIpv6StateInOS_(true), isDockedToTray_(false), isExternalConfigMode_(false)
 {
-    availableLanguageCodes_ << "ar" << "cs" << "de" << "en" << "es" << "fr" << "hi" << "ru" << "zh";
+    availableLanguageCodes_ << "ar" << "cs" << "de" << "en" << "es" << "fa" << "fr" << "hi" << "id" << "it" << "ja" << "ko"
+        << "pl" << "pt" << "ru" << "tr" << "uk" << "vi" << "zh-CN" << "zh-TW";
 }
 
 QString PreferencesHelper::buildVersion()
@@ -40,7 +40,7 @@ QString PreferencesHelper::getProxyGatewayAddress() const
 
 QVector<TAP_ADAPTER_TYPE> PreferencesHelper::getAvailableTapAdapters(const QString & /*openVpnVersion*/)
 {
-    return QVector<TAP_ADAPTER_TYPE>() << TAP_ADAPTER << WINTUN_ADAPTER;
+    return QVector<TAP_ADAPTER_TYPE>() << DCO_ADAPTER << WINTUN_ADAPTER;
 }
 
 void PreferencesHelper::setPortMap(const types::PortMap &portMap)
@@ -52,7 +52,7 @@ void PreferencesHelper::setPortMap(const types::PortMap &portMap)
 QVector<types::Protocol> PreferencesHelper::getAvailableProtocols()
 {
     QVector<types::Protocol> p;
-    for (auto it : portMap_.const_items())
+    for (const auto &it : portMap_.const_items())
         p << it.protocol;
     return p;
 }
@@ -60,7 +60,7 @@ QVector<types::Protocol> PreferencesHelper::getAvailableProtocols()
 QVector<uint> PreferencesHelper::getAvailablePortsForProtocol(types::Protocol protocol)
 {
     QVector<uint> v;
-    for (auto it : portMap_.const_items())
+    for (const auto &it : portMap_.const_items())
     {
         if (it.protocol == protocol)
         {
@@ -86,20 +86,6 @@ void PreferencesHelper::setWifiSharingSupported(bool bSupported)
 bool PreferencesHelper::isWifiSharingSupported() const
 {
     return isWifiSharingSupported_;
-}
-
-void PreferencesHelper::setBlockFirewall(bool b)
-{
-    if (isFirewallBlocked_ != b)
-    {
-        isFirewallBlocked_ = b;
-        emit isFirewallBlockedChanged(isFirewallBlocked_);
-    }
-}
-
-bool PreferencesHelper::isFirewallBlocked() const
-{
-    return isFirewallBlocked_;
 }
 
 void PreferencesHelper::setIsDockedToTray(bool b)

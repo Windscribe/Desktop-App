@@ -1,5 +1,4 @@
-#ifndef NUMBERSPIXMAP_H
-#define NUMBERSPIXMAP_H
+#pragma once
 
 #include <QFont>
 #include "graphicresources/independentpixmap.h"
@@ -32,5 +31,3 @@ private:
     int itemHeight_;
     int dotWidth_;
 };
-
-#endif // NUMBERSPIXMAP_H

@@ -1,5 +1,4 @@
-#ifndef TEXTHIGHLIGHTER_H
-#define TEXTHIGHLIGHTER_H
+#pragma once
 
 #include "common.h"
 
@@ -28,5 +27,3 @@ private:
     int current_filter_match_line_;
     LogDataType log_data_type_;
 };
-
-#endif  // TEXTHIGHLIGHTER_H

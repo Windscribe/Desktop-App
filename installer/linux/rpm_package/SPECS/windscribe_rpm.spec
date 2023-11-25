@@ -2,6 +2,9 @@
 %define debug_package %{nil}
 %define __strip /bin/true
 
+%global __provides_exclude_from .*
+%global __requires_exclude_from .*
+
 Name:		windscribe
 Version:	2.6.0
 Release:	0
@@ -57,15 +60,18 @@ update-desktop-database
 echo linux_rpm_x64 > ../etc/windscribe/platform
 
 %postun
-systemctl stop windscribe-helper
-systemctl disable windscribe-helper
-userdel -f windscribe || true
-groupdel -f windscribe || true
-rm -f /usr/bin/windscribe-cli
-rm -rf /etc/windscribe/rules.*
-rm -rf /etc/windscribe/*.ovpn
-rm -rf /etc/windscribe/stunnel.conf
-rm -f /opt/windscribe/helper_log.txt
+if [ $1 -eq 0 ]; then
+    killall -q Windscribe || true
+    systemctl stop windscribe-helper || true
+    systemctl disable windscribe-helper || true
+    userdel -f windscribe || true
+    groupdel -f windscribe || true
+    rm -f /usr/bin/windscribe-cli
+    rm -rf /etc/windscribe/rules.*
+    rm -rf /etc/windscribe/*.ovpn
+    rm -rf /etc/windscribe/stunnel.conf
+    rm -f /opt/windscribe/helper_log.txt
+fi
 
 %files
 %config /etc/systemd/system-preset/50-windscribe-helper.preset

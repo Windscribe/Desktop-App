@@ -26,9 +26,9 @@ LoginYesNoButton::LoginYesNoButton(QString text, ScalableGraphicsObject *parent)
     curIconOpacity_ = OPACITY_UNHOVER_ICON_TEXT;
     curTextPosX_ = MARGIN_UNHOVER_TEXT_PX;
 
-    connect(&textOpacityAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onTextHoverOpacityChanged(QVariant)));
-    connect(&iconOpacityAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onIconHoverOpacityChanged(QVariant)));
-    connect(&textPosXAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onTextHoverOffsetChanged(QVariant)));
+    connect(&textOpacityAnimation_, &QVariantAnimation::valueChanged, this, &LoginYesNoButton::onTextHoverOpacityChanged);
+    connect(&iconOpacityAnimation_, &QVariantAnimation::valueChanged, this, &LoginYesNoButton::onIconHoverOpacityChanged);
+    connect(&textPosXAnimation_, &QVariantAnimation::valueChanged, this, &LoginYesNoButton::onTextHoverOffsetChanged);
     setClickable(true);
 }
 

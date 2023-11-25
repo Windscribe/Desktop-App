@@ -52,7 +52,7 @@ void BottomInfoItem::setDataRemaining(qint64 bytesUsed, qint64 bytesMax)
         if (upgradeWidgetItem_ == NULL)
         {
             upgradeWidgetItem_ = new UpgradeWidget::UpgradeWidgetItem(this);
-            connect(upgradeWidgetItem_, SIGNAL(buttonClick()), SIGNAL(upgradeClick()));
+            connect(upgradeWidgetItem_, &UpgradeWidget::UpgradeWidgetItem::buttonClick, this, &BottomInfoItem::upgradeClick);
             upgradeWidgetItem_->setDataRemaining(bytesUsed, bytesMax);
         }
         else
@@ -75,7 +75,7 @@ void BottomInfoItem::setDaysRemaining(int daysLeft)
         if (upgradeWidgetItem_ == NULL)
         {
             upgradeWidgetItem_ = new UpgradeWidget::UpgradeWidgetItem(this);
-            connect(upgradeWidgetItem_, SIGNAL(buttonClick()), SIGNAL(renewClick()));
+            connect(upgradeWidgetItem_, &UpgradeWidget::UpgradeWidgetItem::buttonClick, this, &BottomInfoItem::renewClick);
         }
         upgradeWidgetItem_->setDaysRemaining(daysLeft);
     }
@@ -93,7 +93,7 @@ void BottomInfoItem::setExtConfigMode(bool isExtConfigMode)
         if (upgradeWidgetItem_ == NULL)
         {
             upgradeWidgetItem_ = new UpgradeWidget::UpgradeWidgetItem(this);
-            connect(upgradeWidgetItem_, SIGNAL(buttonClick()), SIGNAL(loginClick()));
+            connect(upgradeWidgetItem_, &UpgradeWidget::UpgradeWidgetItem::buttonClick, this, &BottomInfoItem::loginClick);
         }
         upgradeWidgetItem_->setExtConfigMode(isExtConfigMode);
     }
@@ -227,8 +227,8 @@ void BottomInfoItem::updateSecureHotspotState()
     else if (isSharingFeatureVisible() && sharingFeaturesWindowItem_ == NULL)
     {
         sharingFeaturesWindowItem_ = new SharingFeaturesWindowItem(preferences_, this);
-        connect(sharingFeaturesWindowItem_, SIGNAL(clickedProxy()), SIGNAL(proxyGatewayClick()));
-        connect(sharingFeaturesWindowItem_, SIGNAL(clickedHotSpot()), SIGNAL(secureHotspotClick()));
+        connect(sharingFeaturesWindowItem_, &SharingFeaturesWindowItem::clickedProxy, this, &BottomInfoItem::proxyGatewayClick);
+        connect(sharingFeaturesWindowItem_, &SharingFeaturesWindowItem::clickedHotSpot, this, &BottomInfoItem::secureHotspotClick);
     }
 
     sharingFeaturesWindowItem_->setSecureHotspotFeatures(isSecureHotspotEnabled_, secureHotspotSsid_);

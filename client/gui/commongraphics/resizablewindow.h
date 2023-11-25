@@ -19,8 +19,6 @@ public:
     explicit ResizableWindow(QGraphicsObject *parent, Preferences *preferences, PreferencesHelper *preferencesHelper);
     ~ResizableWindow();
 
-    QGraphicsObject *getGraphicsObject();
-
     QRectF boundingRect() const override;
 
     void setMinimumHeight(int height);

@@ -1,0 +1,10 @@
+LANGUAGE LANG_JAPANESE, SUBLANG_NEUTRAL
+
+STRINGTABLE
+BEGIN
+    IDS_MSGBOX_TITLE "Windscribeアンインストール"
+    IDS_DIRECTORY_MISMATCH "アンインストールを続行できません。インストールディレクトリが削除ディレクトリと一致しません。"
+    IDS_CONFIRM_UNINSTALL "Windscribeとそのすべてのコンポーネントを完全に削除してもよろしいですか?"
+    IDS_UNINSTALL_SUCCESS "Windscribeがコンピューターから正常に削除されました。"
+    IDS_CLOSE_APP "アンインストールを続行するには、Windscribeアプリを終了してください。アプリケーションを終了すると、接続が保護されなくなることに注意してください。"
+END

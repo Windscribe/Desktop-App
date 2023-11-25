@@ -1,5 +1,4 @@
-#ifndef TYPES_CHECKUPDATE_H
-#define TYPES_CHECKUPDATE_H
+#pragma once
 
 #include <QString>
 #include <QJsonObject>
@@ -22,7 +21,4 @@ struct CheckUpdate
     static CheckUpdate createFromApiJson(QJsonObject &json, bool &outSuccess, QString &outErrorMessage);
 };
 
-
 } // types namespace
-
-#endif // TYPES_CHECKUPDATE_H

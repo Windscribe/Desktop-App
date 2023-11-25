@@ -1,5 +1,4 @@
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#pragma once
 
 #include <QWidget>
 #include <QSystemTrayIcon>
@@ -39,7 +38,7 @@ public:
 
     virtual bool eventFilter(QObject *watched, QEvent *event);
 
-    void doClose(QCloseEvent *event = NULL, bool isFromSigTerm_mac = false);
+    bool doClose(QCloseEvent *event = NULL, bool isFromSigTerm_mac = false);
     bool isActiveState() const { return activeState_; }
     QRect trayIconRect();
     void showAfterLaunch();
@@ -56,7 +55,7 @@ protected:
 
     virtual void paintEvent(QPaintEvent *event);
 
-Q_SIGNALS:
+signals:
     void wireGuardKeyLimitUserResponse(bool deleteOldestKey);
 
 private slots:
@@ -222,15 +221,18 @@ private slots:
 
     void onPreferencesCollapsed();
 
-#ifdef Q_OS_MAC
+#if defined(Q_OS_MAC)
     void onPreferencesHideFromDockChanged(bool hideFromDock);
     void hideShowDockIconImpl(bool bAllowActivateAndShow);
+#elif defined(Q_OS_LINUX)
+    void onPreferencesTrayIconColorChanged(TRAY_ICON_COLOR c);
 #endif
     // WindscribeApplications signals
     void toggleVisibilityIfDocked();
     void onAppActivateFromAnotherInstance();
     void onAppShouldTerminate_mac();
     void onAppCloseRequest();
+    void onAppStateChanged(Qt::ApplicationState state);
 #if defined(Q_OS_WIN)
     void onAppWinIniChanged();
 #endif
@@ -323,7 +325,7 @@ private:
 
     enum SIGN_OUT_REASON { SIGN_OUT_UNDEFINED, SIGN_OUT_FROM_MENU, SIGN_OUT_SESSION_EXPIRED, SIGN_OUT_WITH_MESSAGE };
     SIGN_OUT_REASON signOutReason_;
-    ILoginWindow::ERROR_MESSAGE_TYPE signOutMessageType_;
+    LoginWindow::ERROR_MESSAGE_TYPE signOutMessageType_;
     QString signOutErrorMessage_;
 
     LoginAttemptsController loginAttemptsController_;
@@ -341,7 +343,7 @@ private:
 
     void hideSupplementaryWidgets();
 
-    void backToLoginWithErrorMessage(ILoginWindow::ERROR_MESSAGE_TYPE errorMessageType, const QString &errorMessage);
+    void backToLoginWithErrorMessage(LoginWindow::ERROR_MESSAGE_TYPE errorMessageType, const QString &errorMessage);
     void setupTrayIcon();
     QString getConnectionTime();
     QString getConnectionTransferred();
@@ -368,8 +370,8 @@ private:
 
     bool backendAppActiveState_;
     void setBackendAppActiveState(bool state);
-
-    bool isRunningInDarkMode_;
+    
+    bool trayIconColorWhite_;
 
 #if defined(Q_OS_MAC)
     void hideShowDockIcon(bool hideFromDock);
@@ -413,5 +415,3 @@ private:
 
     bool sendDebugLogOnDisconnect_;
 };
-
-#endif // MAINWINDOW_H

@@ -1,5 +1,4 @@
-#ifndef SPLITTUNNELINGGROUP_H
-#define SPLITTUNNELINGGROUP_H
+#pragma once
 
 #include "commongraphics/scalablegraphicsobject.h"
 #include "preferenceswindow/toggleitem.h"
@@ -51,5 +50,3 @@ private:
 };
 
 } // namespace PreferencesWindow
-
-#endif // SPLITTUNNELINGGROUP_H

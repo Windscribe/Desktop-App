@@ -1,5 +1,4 @@
-#ifndef PREFERENCESCONST_H
-#define PREFERENCESCONST_H
+#pragma once
 
 namespace PreferencesWindow {
 
@@ -17,5 +16,3 @@ static constexpr int ICON_WIDTH = 16;
 static constexpr int MIN_COMBOBOX_WIDTH = 60;
 
 } // namespace PreferencesWindow
-
-#endif // PREFERENCESCONST_H

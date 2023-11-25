@@ -1,5 +1,4 @@
-#ifndef HTTPPROXYHEADER_H
-#define HTTPPROXYHEADER_H
+#pragma once
 
 #include <string>
 
@@ -12,5 +11,3 @@ struct HttpProxyHeader
 };
 
 } // namespace HttpProxyServer
-
-#endif // HTTPPROXYHEADER_H

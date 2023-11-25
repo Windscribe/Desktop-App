@@ -43,7 +43,7 @@ bool FirewallOnBootManager::enable() {
     int fd = open("/etc/windscribe/boot_pf.conf", O_CREAT | O_WRONLY | O_TRUNC);
     if (fd < 0) {
         LOG("Could not open boot firewall rules for writing");
-    	return false;
+        return false;
     }
 
     write(fd, rules.str().c_str(), rules.str().length());
@@ -66,7 +66,7 @@ bool FirewallOnBootManager::enable() {
     fd = open("/etc/windscribe/boot_pf.sh", O_CREAT | O_WRONLY | O_TRUNC);
     if (fd < 0) {
         LOG("Could not open boot script for writing");
-    	return false;
+        return false;
     }
 
     write(fd, script.str().c_str(), script.str().length());
@@ -103,7 +103,7 @@ bool FirewallOnBootManager::enable() {
     fd = open("/Library/LaunchDaemons/com.aaa.windscribe.firewall_on.plist", O_CREAT | O_WRONLY | O_TRUNC);
     if (fd < 0) {
         LOG("Could not open boot plist for writing");
-    	return false;
+        return false;
     }
     write(fd, plist.str().c_str(), plist.str().length());
     close(fd);

@@ -1,5 +1,4 @@
-#ifndef UTILS_H
-#define UTILS_H
+#pragma once
 
 #include <random>
 #include <QString>
@@ -67,4 +66,3 @@ namespace Utils {
 #endif
 
 }
-#endif // UTILS_H

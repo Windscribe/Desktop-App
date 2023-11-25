@@ -1,5 +1,4 @@
-#ifndef CONNECTIONBADGEDOTS_H
-#define CONNECTIONBADGEDOTS_H
+#pragma once
 
 #include <QVariantAnimation>
 #include "commongraphics/scalablegraphicsobject.h"
@@ -10,7 +9,7 @@ class ConnectionBadgeDots : public ScalableGraphicsObject
 public:
     explicit ConnectionBadgeDots(ScalableGraphicsObject *parent = nullptr);
     QRectF boundingRect() const override;
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR) override;
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
     void updateScaling() override;
 
     void start();
@@ -49,5 +48,3 @@ private:
     QVariantAnimation circleOpacityAnimation_;
     void initAnimation();
 };
-
-#endif // CONNECTIONBADGEDOTS_H

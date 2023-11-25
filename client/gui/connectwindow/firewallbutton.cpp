@@ -13,7 +13,7 @@ FirewallButton::FirewallButton(ScalableGraphicsObject *parent) : ClickableGraphi
     animation_.setStartValue(0.0);
     animation_.setEndValue(1.0);
     animation_.setDuration(150);
-    connect(&animation_, SIGNAL(valueChanged(QVariant)), SLOT(onAnimationValueChanged(QVariant)));
+    connect(&animation_, &QVariantAnimation::valueChanged, this, &FirewallButton::onAnimationValueChanged);
     setClickable(true);
     setResetHoverOnClick(false);
 }

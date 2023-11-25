@@ -8,7 +8,7 @@ namespace IPC
 
 Server::Server()
 {
-    connect(&server_, SIGNAL(newConnection()), SLOT(onNewConnection()));
+    connect(&server_, &QLocalServer::newConnection, this, &Server::onNewConnection);
 }
 
 Server::~Server()
@@ -37,7 +37,7 @@ void Server::onNewConnection()
     while (server_.hasPendingConnections())
     {
         QLocalSocket *socket = server_.nextPendingConnection();
-        IConnection *connection = new Connection(socket);
+        Connection *connection = new Connection(socket);
         emit newConnection(connection);
     }
 }

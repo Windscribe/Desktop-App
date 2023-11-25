@@ -2,17 +2,39 @@
     <qresource prefix="/">
         <file>resources/fonts/ibmplexsans-bold.ttf</file>
         <file>resources/fonts/ibmplexsans-regular.ttf</file>
-        <file>resources/icons/icon_connected.ico</file>
-        <file>resources/icons/icon_connecting.ico</file>
-        <file>resources/icons/icon_disconnected.ico</file>
-        <file>resources/icons/win/CONNECTING_BLACK.ico</file>
-        <file>resources/icons/win/CONNECTING_WHITE.ico</file>
-        <file>resources/icons/win/OFF_BLACK.ico</file>
-        <file>resources/icons/win/OFF_WHITE.ico</file>
-        <file>resources/icons/win/ON_BLACK.ico</file>
-        <file>resources/icons/win/ON_WHITE.ico</file>
-        <file>resources/icons/win/ConnectedOverlay.ico</file>
-        <file>resources/icons/win/ConnectingOverlay.ico</file>
-        <file>resources/icons/win/ErrorOverlay.ico</file>
+        <file>resources/icons/linux/connected_dark.ico</file>
+        <file>resources/icons/linux/connected_light.ico</file>
+        <file>resources/icons/linux/connecting_dark.ico</file>
+        <file>resources/icons/linux/connecting_light.ico</file>
+        <file>resources/icons/linux/disconnected_dark.ico</file>
+        <file>resources/icons/linux/disconnected_light.ico</file>
+        <file>resources/icons/linux/error_dark.ico</file>
+        <file>resources/icons/linux/error_light.ico</file>
+        <file>resources/icons/linux/windscribe.ico</file>
+        <file>resources/icons/win/connected_dark.ico</file>
+        <file>resources/icons/win/connected_light.ico</file>
+        <file>resources/icons/win/connecting_dark.ico</file>
+        <file>resources/icons/win/connecting_light.ico</file>
+        <file>resources/icons/win/disconnected_dark.ico</file>
+        <file>resources/icons/win/disconnected_light.ico</file>
+        <file>resources/icons/win/error_dark.ico</file>
+        <file>resources/icons/win/error_light.ico</file>
+        <file>resources/icons/win/overlay_connected.ico</file>
+        <file>resources/icons/win/overlay_connecting.ico</file>
+        <file>resources/icons/win/overlay_error.ico</file>
+        <file>resources/icons/win/windscribe.ico</file>
+        <file>resources/icons/mac/connected.icns</file>
+        <file>resources/icons/mac/connected_dark.icns</file>
+        <file>resources/icons/mac/connected_light.icns</file>
+        <file>resources/icons/mac/connecting.icns</file>
+        <file>resources/icons/mac/connecting_dark.icns</file>
+        <file>resources/icons/mac/connecting_light.icns</file>
+        <file>resources/icons/mac/disconnected.icns</file>
+        <file>resources/icons/mac/disconnected_dark.icns</file>
+        <file>resources/icons/mac/disconnected_light.icns</file>
+        <file>resources/icons/mac/error_dark.icns</file>
+        <file>resources/icons/mac/error_light.icns</file>
+        <file>resources/icons/mac/windscribe.icns</file>
+        <file>resources/icons/mac/error.icns</file>
     </qresource>
 </RCC>

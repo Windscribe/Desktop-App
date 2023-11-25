@@ -1,5 +1,4 @@
-#ifndef CONNECTSTATEHELPER_H
-#define CONNECTSTATEHELPER_H
+#pragma once
 
 #include <QObject>
 #include "types/connectstate.h"
@@ -24,5 +23,3 @@ private:
     bool isDisconnected_;
     types::ConnectState curState_;
 };
-
-#endif // CONNECTSTATEHELPER_H

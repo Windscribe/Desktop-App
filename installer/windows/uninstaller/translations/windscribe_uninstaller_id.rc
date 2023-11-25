@@ -1,0 +1,10 @@
+LANGUAGE LANG_INDONESIAN, SUBLANG_NEUTRAL
+
+STRINGTABLE
+BEGIN
+    IDS_MSGBOX_TITLE "Hapus Pemasangan Windscribe"
+    IDS_DIRECTORY_MISMATCH "Penghapusan pemasangan tidak dapat dilanjutkan. Direktori instalasi tidak cocok dengan direktori penghapusan."
+    IDS_CONFIRM_UNINSTALL "Yakin ingin menghapus Windscribe sepenuhnya beserta seluruh komponennya?"
+    IDS_UNINSTALL_SUCCESS "Windscribe berhasil dihapus dari komputer Anda."
+    IDS_CLOSE_APP "Tutup aplikasi Windscribe untuk melanjutkan penghapusan pemasangan. Perhatikan bahwa koneksi Anda akan kehilangan perlindungan setelah keluar dari aplikasi."
+END

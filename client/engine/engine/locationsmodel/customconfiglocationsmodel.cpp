@@ -68,7 +68,7 @@ void CustomConfigLocationsModel::setCustomConfigs(const QVector<QSharedPointer<c
         for (const QString &hostname : hostnamesForResolve)
         {
             DnsRequest *dnsRequest = new DnsRequest(this, hostname, DnsServersConfiguration::instance().getCurrentDnsServers());
-            connect(dnsRequest, SIGNAL(finished()), SLOT(onDnsRequestFinished()));
+            connect(dnsRequest, &DnsRequest::finished, this, &CustomConfigLocationsModel::onDnsRequestFinished);
             dnsRequest->lookup();
         }
     }
@@ -79,7 +79,7 @@ void CustomConfigLocationsModel::clear()
     pingInfos_.clear();
     pingManager_.clearIps();
     QSharedPointer<types::Location> empty(new types::Location());
-    Q_EMIT locationsUpdated(empty);
+    emit locationsUpdated(empty);
 }
 
 QSharedPointer<BaseLocationInfo> CustomConfigLocationsModel::getMutableLocationInfoById(const LocationID &locationId)
@@ -104,7 +104,7 @@ void CustomConfigLocationsModel::onPingInfoChanged(const QString &ip, int timems
     {
         if (it->setPingTime(ip, timems))
         {
-            Q_EMIT locationPingTimeChanged(LocationID::createCustomConfigLocationId(it->customConfig->filename()), it->getPing());
+            emit locationPingTimeChanged(LocationID::createCustomConfigLocationId(it->customConfig->filename()), it->getPing());
         }
     }
 }
@@ -130,7 +130,7 @@ void CustomConfigLocationsModel::onDnsRequestFinished()
                     ipItem.pingTime = pingManager_.getPing(ipItem.ip);
                     remoteIt->ips << ipItem;
 
-                    Q_EMIT locationPingTimeChanged(LocationID::createCustomConfigLocationId(it->customConfig->filename()), it->getPing());
+                    emit locationPingTimeChanged(LocationID::createCustomConfigLocationId(it->customConfig->filename()), it->getPing());
                 }
             }
         }
@@ -181,7 +181,7 @@ void CustomConfigLocationsModel::startPingAndWhitelistIps()
             }
         }
     }
-    Q_EMIT whitelistIpsChanged(strListIps);
+    emit whitelistIpsChanged(strListIps);
     pingManager_.updateIps(allIps);
 }
 
@@ -214,7 +214,7 @@ void CustomConfigLocationsModel::generateLocationsUpdated()
         }
     }
 
-    Q_EMIT locationsUpdated(item);
+    emit locationsUpdated(item);
 }
 
 PingTime CustomConfigLocationsModel::CustomConfigWithPingInfo::getPing() const

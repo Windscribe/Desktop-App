@@ -1,5 +1,4 @@
-#ifndef WIREGUARDCUSTOMCONFIG_H
-#define WIREGUARDCUSTOMCONFIG_H
+#pragma once
 
 #include "icustomconfig.h"
 #include "engine/wireguardconfig/wireguardconfig.h"
@@ -48,5 +47,3 @@ private:
 };
 
 } //namespace customconfigs
-
-#endif // WIREGUARDCUSTOMCONFIG_H

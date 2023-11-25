@@ -1,8 +1,8 @@
 LIBRARY ws_proxy_stub.dll
 
 EXPORTS
-	DllGetClassObject PRIVATE
-	DllCanUnloadNow	PRIVATE
-	GetProxyDllInfo	
-	DllRegisterServer PRIVATE
-	DllUnregisterServer PRIVATE
+    DllGetClassObject PRIVATE
+    DllCanUnloadNow PRIVATE
+    GetProxyDllInfo
+    DllRegisterServer PRIVATE
+    DllUnregisterServer PRIVATE

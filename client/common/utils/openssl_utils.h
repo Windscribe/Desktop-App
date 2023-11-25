@@ -1,5 +1,4 @@
-#ifndef OPENSSL_UTILS_H
-#define OPENSSL_UTILS_H
+#pragma once
 
 #include <openssl/bio.h>
 #include <openssl/evp.h>
@@ -104,5 +103,3 @@ int EvpBioCharBuf::write(const void *data, int dlen)
 }
 
 }
-
-#endif // OPENSSL_UTILS_H

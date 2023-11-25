@@ -34,7 +34,6 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
     connect(preferences_, &Preferences::shareProxyGatewayChanged, this, &ConnectionWindowItem::onProxyGatewayPreferencesChanged);
     connect(preferences_, &Preferences::connectionSettingsChanged, this, &ConnectionWindowItem::onConnectionSettingsPreferencesChanged);
     connect(preferencesHelper, &PreferencesHelper::wifiSharingSupportedChanged, this, &ConnectionWindowItem::onPreferencesHelperWifiSharingSupportedChanged);
-    connect(preferencesHelper, &PreferencesHelper::isFirewallBlockedChanged, this, &ConnectionWindowItem::onIsFirewallBlockedChanged);
     connect(preferencesHelper, &PreferencesHelper::isExternalConfigModeChanged, this, &ConnectionWindowItem::onIsExternalConfigModeChanged);
     connect(preferencesHelper, &PreferencesHelper::proxyGatewayAddressChanged, this, &ConnectionWindowItem::onProxyGatewayAddressChanged);
     connect(preferences, &Preferences::isTerminateSocketsChanged, this, &ConnectionWindowItem::onTerminateSocketsPreferencesChanged);
@@ -47,12 +46,10 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
     connect(networkOptionsItem_, &LinkItem::clicked, this, &ConnectionWindowItem::networkOptionsPageClick);
     subpagesGroup_->addItem(networkOptionsItem_);
 
-#ifndef Q_OS_LINUX
     splitTunnelingItem_ = new LinkItem(subpagesGroup_, LinkItem::LinkType::SUBPAGE_LINK);
     connect(splitTunnelingItem_, &LinkItem::clicked, this, &ConnectionWindowItem::splitTunnelingPageClick);
     onSplitTunnelingPreferencesChanged(preferences->splitTunneling());
     subpagesGroup_->addItem(splitTunnelingItem_);
-#endif
 
     proxySettingsItem_ = new LinkItem(subpagesGroup_, LinkItem::LinkType::SUBPAGE_LINK);
     connect(proxySettingsItem_, &LinkItem::clicked, this, &ConnectionWindowItem::proxySettingsPageClick);
@@ -73,7 +70,6 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
                                        QString("https://%1/features/firewall").arg(HardcodedSettings::instance().serverUrl()));
     connect(firewallGroup_, &FirewallGroup::firewallPreferencesChanged, this, &ConnectionWindowItem::onFirewallPreferencesChangedByUser);
     firewallGroup_->setFirewallSettings(preferences->firewallSettings());
-    firewallGroup_->setBlock(preferencesHelper->isFirewallBlocked());
     addItem(firewallGroup_);
 
     connectionModeGroup_ = new ProtocolGroup(this,
@@ -246,7 +242,6 @@ void ConnectionWindowItem::onAntiCensorshipPreferencesChangedByUser(bool isCheck
 
 void ConnectionWindowItem::onSplitTunnelingPreferencesChanged(const types::SplitTunneling &st)
 {
-#ifndef Q_OS_LINUX
     QString splitTunnelStatus;
 
     if (st.settings.active)
@@ -266,7 +261,6 @@ void ConnectionWindowItem::onSplitTunnelingPreferencesChanged(const types::Split
         splitTunnelStatus = tr("Off");
     }
     splitTunnelingItem_->setLinkText(splitTunnelStatus);
-#endif
 }
 
 void ConnectionWindowItem::onFirewallPreferencesChanged(const types::FirewallSettings &fm)
@@ -310,11 +304,6 @@ void ConnectionWindowItem::onAllowLanTrafficButtonHoverLeave()
     TooltipController::instance().hideTooltip(TOOLTIP_ID_INVALID_LAN_ADDRESS);
 }
 
-void ConnectionWindowItem::onIsFirewallBlockedChanged(bool bFirewallBlocked)
-{
-    firewallGroup_->setBlock(bFirewallBlocked);
-}
-
 void ConnectionWindowItem::onIsExternalConfigModeChanged(bool bIsExternalConfigMode)
 {
     connectionModeGroup_->setVisible(!bIsExternalConfigMode);
@@ -340,17 +329,15 @@ void ConnectionWindowItem::onIsAllowLanTrafficPreferencesChanged(bool b)
 void ConnectionWindowItem::onLanguageChanged()
 {
     networkOptionsItem_->setTitle(tr("Network Options"));
-#ifndef Q_OS_LINUX
     splitTunnelingItem_->setTitle(tr("Split Tunneling"));
     onSplitTunnelingPreferencesChanged(preferences_->splitTunneling());
-#endif
     proxySettingsItem_->setTitle(tr("Proxy Settings"));
 
     autoConnectGroup_->setDescription(tr("Connects to last used location when the app launches or joins a network."));
     checkBoxAutoConnect_->setCaption(tr("Auto-Connect"));
     firewallGroup_->setDescription(tr("Control the mode of behavior of the Windscribe firewall."));
     connectionModeGroup_->setTitle(tr("Connection Mode"));
-    connectionModeGroup_->setDescription(tr("Automatically choose the VPN protocol, or select one manually."));
+    connectionModeGroup_->setDescription(tr("Automatically choose the VPN protocol, or select one manually. NOTE: \"Preferred Protocol\" will override this setting."));
 
 #ifndef Q_OS_LINUX
     packetSizeGroup_->setDescription(tr("Automatically determine the MTU for your connection, or manually override."));

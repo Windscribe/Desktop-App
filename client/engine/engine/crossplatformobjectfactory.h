@@ -1,5 +1,4 @@
-#ifndef CROSSPLATFORMOBJECTFACTORY_H
-#define CROSSPLATFORMOBJECTFACTORY_H
+#pragma once
 
 #include "helper/ihelper.h"
 #include "networkdetectionmanager/inetworkdetectionmanager.h"
@@ -15,5 +14,3 @@ namespace CrossPlatformObjectFactory
     IMacAddressController *createMacAddressController(QObject *parent, INetworkDetectionManager *ndManager, IHelper *helper);
     ICtrldManager *createCtrldManager(QObject *parent, IHelper *helper, bool isCreateLog);
 }
-
-#endif // CROSSPLATFORMOBJECTFACTORY_H

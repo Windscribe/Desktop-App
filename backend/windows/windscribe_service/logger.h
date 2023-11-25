@@ -1,5 +1,4 @@
-#ifndef LOGGER_H
-#define LOGGER_H
+#pragma once
 
 #include <Windows.h>
 #include <string>
@@ -16,7 +15,7 @@ public:
     }
 
     void out(const wchar_t *format, ...);
-	void out(const char *format, ...);
+    void out(const char *format, ...);
     void out(const std::wstring& message);
     void debugOut(const char *format, ...);
 
@@ -30,5 +29,3 @@ private:
     Logger(const Logger &) = delete;
     Logger &operator=(const Logger &) = delete;
 };
-
-#endif // LOGGER_H

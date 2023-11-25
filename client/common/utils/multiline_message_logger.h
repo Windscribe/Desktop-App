@@ -1,5 +1,4 @@
-#ifndef MULTILINE_MESSAGE_LOGGER_H
-#define MULTILINE_MESSAGE_LOGGER_H
+#pragma once
 
 #include <QDebug>
 #include <QLoggingCategory>
@@ -85,5 +84,3 @@ struct MultilineMessageLoggerOutputCritical
 #define qCCriticalMultiline(category, ...) \
     for (bool qt_category_enabled = category().isCriticalEnabled(); qt_category_enabled; qt_category_enabled = false) \
         MultilineMessageLogger<MultilineMessageLoggerOutputCritical>(QMessageLogger(QT_MESSAGELOG_FILE, QT_MESSAGELOG_LINE, QT_MESSAGELOG_FUNC, category().categoryName()))
-
-#endif  // MULTILINE_MESSAGE_LOGGER_H

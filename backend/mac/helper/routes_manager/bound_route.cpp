@@ -4,7 +4,7 @@
 
 BoundRoute::BoundRoute() : isBoundRouteAdded_(false)
 {
-    
+
 }
 
 BoundRoute::~BoundRoute()
@@ -15,10 +15,10 @@ BoundRoute::~BoundRoute()
 void BoundRoute::create(const std::string &ipAddress, const std::string &interfaceName)
 {
     remove();   // remove previous if exists
-    
+
     ipAddress_ = ipAddress;
     interfaceName_ = interfaceName;
-        
+
     std::string cmd = "route add -net 0.0.0.0 " + ipAddress_ + " -ifscope " + interfaceName_;
     LOG("execute: %s", cmd.c_str());
     Utils::executeCommand(cmd);

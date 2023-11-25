@@ -75,12 +75,7 @@ void SplitTunnelingWindowItem::setActive(bool active)
 
 void SplitTunnelingWindowItem::onLanguageChanged()
 {
-    QString desc = tr("Include or exclude apps and hostnames from the VPN tunnel.");
-#ifdef Q_OS_MAC
-    desc_->setDescription(desc + "\n\n" + tr("Firewall will not function in this mode."));
-#else 
-    desc_->setDescription(desc);
-#endif
+    desc_->setDescription(tr("Include or exclude apps and hostnames from the VPN tunnel."));
 }
 
 } // namespace PreferencesWindow

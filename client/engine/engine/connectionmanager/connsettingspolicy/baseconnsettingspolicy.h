@@ -1,5 +1,4 @@
-#ifndef BASECONNSETTINGSPOLICY_H
-#define BASECONNSETTINGSPOLICY_H
+#pragma once
 
 #include <QVector>
 #include "engine/apiinfo/staticips.h"
@@ -77,5 +76,3 @@ signals:
 protected:
     bool bStarted_;
 };
-
-#endif // BASECONNSETTINGSPOLICY_H

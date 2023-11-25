@@ -1,5 +1,4 @@
-#ifndef SCROLLABLEMENUWIDGET_H
-#define SCROLLABLEMENUWIDGET_H
+#pragma once
 
 #include <QWidget>
 #include <QString>
@@ -99,5 +98,3 @@ private:
 };
 
 }
-
-#endif // SCROLLABLEMENUWIDGET_H

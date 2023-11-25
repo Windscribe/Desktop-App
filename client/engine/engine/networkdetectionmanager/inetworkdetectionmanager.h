@@ -1,5 +1,4 @@
-#ifndef INETWORKDETECTIONMANAGER_H
-#define INETWORKDETECTIONMANAGER_H
+#pragma once
 
 #include <QObject>
 #include "types/networkinterface.h"
@@ -18,5 +17,3 @@ signals:
     void onlineStateChanged(bool isOnline);
 
 };
-
-#endif // INETWORKDETECTIONMANAGER_H

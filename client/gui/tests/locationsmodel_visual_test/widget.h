@@ -1,5 +1,4 @@
-#ifndef WIDGET_H
-#define WIDGET_H
+#pragma once
 
 #include <QWidget>
 #include "../../locations/model/locationsmodel.h"
@@ -46,4 +45,3 @@ private:
     QVector<types::Location> generateRandomLocations();
 
 };
-#endif // WIDGET_H

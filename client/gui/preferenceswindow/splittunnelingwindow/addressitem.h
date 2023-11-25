@@ -1,5 +1,4 @@
-#ifndef ADDRESSITEM_H
-#define ADDRESSITEM_H
+#pragma once
 
 #include "commongraphics/baseitem.h"
 #include "commongraphics/iconbutton.h"
@@ -37,5 +36,3 @@ private:
 };
 
 }
-
-#endif // ADDRESSITEM_H

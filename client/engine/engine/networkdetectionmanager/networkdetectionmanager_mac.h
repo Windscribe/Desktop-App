@@ -1,5 +1,4 @@
-#ifndef NETWORKDETECTIONMANAGER_MAC_H
-#define NETWORKDETECTIONMANAGER_MAC_H
+#pragma once
 
 #include <QMutex>
 #include "engine/helper/ihelper.h"
@@ -39,5 +38,3 @@ private:
     bool isOnlineImpl();
 
 };
-
-#endif // NETWORKDETECTIONMANAGER_MAC_H

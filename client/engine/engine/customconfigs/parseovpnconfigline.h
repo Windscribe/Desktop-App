@@ -1,5 +1,4 @@
-#ifndef PARSEOVPNCONFIGLINE_H
-#define PARSEOVPNCONFIGLINE_H
+#pragma once
 
 #include <QStringList>
 
@@ -38,5 +37,3 @@ public:
 private:
     static QStringList splitLine(const QString &line);
 };
-
-#endif // PARSEOVPNCONFIGLINE_H

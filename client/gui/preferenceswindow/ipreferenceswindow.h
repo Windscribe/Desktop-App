@@ -1,5 +1,4 @@
-#ifndef IPREFERENCESWINDOW_H
-#define IPREFERENCESWINDOW_H
+#pragma once
 
 #include <QGraphicsObject>
 #include "preferenceswindow/preferencestab/ipreferencestabcontrol.h"
@@ -60,5 +59,3 @@ signals:
 };
 
 Q_DECLARE_INTERFACE(IPreferencesWindow, "IPreferencesWindow")
-
-#endif // IPREFERENCESWINDOW_H

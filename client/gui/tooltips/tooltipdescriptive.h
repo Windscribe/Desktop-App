@@ -1,5 +1,4 @@
-#ifndef TOOLTIPDESCRIPTIVE_H
-#define TOOLTIPDESCRIPTIVE_H
+#pragma once
 
 #include <QWidget>
 #include <QLabel>
@@ -38,5 +37,3 @@ private:
     int widthOfDescriptionLabel() const;
 
 };
-
-#endif // TOOLTIPDESCRIPTIVE_H

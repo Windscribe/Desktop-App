@@ -1,5 +1,4 @@
-#ifndef NETWORKEXTENSIONLOG_MAC_H
-#define NETWORKEXTENSIONLOG_MAC_H
+#pragma once
 
 #include <QObject>
 #include <QMap>
@@ -20,5 +19,3 @@ private:
     QMap<quint64, QString> logs_;
     QDateTime lastTimeCollected_;
 };
-
-#endif // NETWORKEXTENSIONLOG_MAC_H

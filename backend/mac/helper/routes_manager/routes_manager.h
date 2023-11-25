@@ -1,5 +1,4 @@
-#ifndef RoutesManager_h
-#define RoutesManager_h
+#pragma once
 
 #include "../../../posix_common/helper_commands.h"
 #include "bound_route.h"
@@ -12,12 +11,12 @@ class RoutesManager
 public:
     RoutesManager();
     void updateState(const CMD_SEND_CONNECT_STATUS &connectStatus, bool isSplitTunnelActive, bool isExcludeMode);
-        
+
 private:
     CMD_SEND_CONNECT_STATUS connectStatus_;
     bool isSplitTunnelActive_;
     bool isExcludeMode_;
-    
+
     BoundRoute boundRoute_;
     Routes dnsServersRoutes_;
     Routes vpnRoutes_;
@@ -25,10 +24,8 @@ private:
 
     void deleteOpenVpnDefaultRoutes(const CMD_SEND_CONNECT_STATUS &connectStatus);
     void deleteWireGuardDefaultRoutes(const CMD_SEND_CONNECT_STATUS &connectStatus);
-    
+
     void addDnsRoutes(const CMD_SEND_CONNECT_STATUS &connectStatus);
     void addIkev2RoutesForInclusiveMode(const CMD_SEND_CONNECT_STATUS &connectStatus);
     void clearAllRoutes();
 };
-
-#endif /* RoutesManager_h */

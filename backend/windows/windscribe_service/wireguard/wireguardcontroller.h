@@ -6,7 +6,11 @@
 class WireGuardController final
 {
 public:
-    explicit WireGuardController();
+    static WireGuardController &instance()
+    {
+        static WireGuardController wc;
+        return wc;
+    }
 
     bool installService(const std::wstring &exeName, const std::wstring &configFile);
     bool deleteService();
@@ -21,5 +25,6 @@ private:
     std::wstring exeName_;
 
 private:
+    explicit WireGuardController();
     HANDLE getKernelInterfaceHandle() const;
 };

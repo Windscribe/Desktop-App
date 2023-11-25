@@ -31,118 +31,52 @@ namespace KeyChainUtils
 
     NSData *searchKeychainCopyMatching(const char *serviceName)
     {
-            NSMutableDictionary *searchDictionary = [[NSMutableDictionary alloc] init];
+            NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
 
-            [searchDictionary setObject:(__bridge id)kSecClassGenericPassword forKey:(__bridge id)kSecClass];
-            [searchDictionary setObject:[NSString stringWithUTF8String:serviceName] forKey:(__bridge id)kSecAttrService];
-            [searchDictionary setObject:(__bridge id)kSecMatchLimitOne forKey:(__bridge id)kSecMatchLimit];
-            [searchDictionary setObject:@YES forKey:(__bridge id)kSecReturnPersistentRef];
+            [dict setObject:(__bridge id)kSecClassGenericPassword forKey:(__bridge id)kSecClass];
+            [dict setObject:[NSString stringWithUTF8String:serviceName] forKey:(__bridge id)kSecAttrService];
+            [dict setObject:(__bridge id)kSecMatchLimitOne forKey:(__bridge id)kSecMatchLimit];
+            [dict setObject:@YES forKey:(__bridge id)kSecReturnPersistentRef];
 
             CFTypeRef result = NULL;
-            SecItemCopyMatching((__bridge CFDictionaryRef)searchDictionary, &result);
+            SecItemCopyMatching((__bridge CFDictionaryRef)dict, &result);
 
             return (NSData *)result;
     }
 
-
-    NSArray *trustedApps()
-    {
-        NSMutableArray *apps = [NSMutableArray array];
-        SecTrustedApplicationRef app;
-        OSStatus err;
-
-        // add myself
-        err = SecTrustedApplicationCreateFromPath(NULL, &app);
-        if (err == errSecSuccess)
-        {
-            [apps addObject:(__bridge id)app];
-
-        }
-
-        for (size_t i = 0; i < (sizeof(trustedAppPaths) / sizeof(*trustedAppPaths)); i++)
-        {
-            err = SecTrustedApplicationCreateFromPath(trustedAppPaths[i], &app);
-            if (err == errSecSuccess)
-            {
-                [apps addObject:(__bridge id)app];
-            }
-        }
-
-        return apps;
-    }
-
-    void releaseArrayApps(NSArray *arr)
-    {
-        for (id object in arr)
-        {
-            CFRelease(object);
-        }
-    }
-
     bool createKeychainItem(const char *username, const char *password)
     {
-        SecKeychainRef keychain = NULL;
-        OSStatus status = SecKeychainCopyDomainDefault(kSecPreferencesDomainUser, &keychain);
-        if (status != errSecSuccess)
-        {
-            qCDebug(LOG_IKEV2) << "createKeychainItem, SecKeychainCopyDomainDefault return:" << (int)status;
-            return false;
-        }
-        status = SecKeychainUnlock(keychain, 0, NULL, FALSE);  // don't need to check for SecKeychainUnlock errors, as it doesn't affect anything
+        NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
 
-        SecAccessRef access = nil;
-        NSArray *arrApps = trustedApps();
-        status = SecAccessCreate(CFSTR("Windscribe IKEv2 SecAccess"), (__bridge CFArrayRef)(arrApps), &access);
-        if(status != noErr)
-        {
-            qCDebug(LOG_IKEV2) << "createKeychainItem, SecAccessCreate return:" << (int)status;
-            releaseArrayApps(arrApps);
-            CFRelease(keychain);
-            return false;
-        }
+        dict[(__bridge id)kSecClass] = (__bridge id)kSecClassGenericPassword;
+        dict[(__bridge id)kSecAttrGeneric] = [[NSString stringWithUTF8String:username] dataUsingEncoding:NSUTF8StringEncoding];
+        dict[(__bridge id)kSecAttrAccount] = [[NSString stringWithUTF8String:username] dataUsingEncoding:NSUTF8StringEncoding];
+        dict[(__bridge id)kSecAttrService] = [NSString stringWithUTF8String:szServiceName];
+        dict[(__bridge id)kSecMatchLimit] = (__bridge id)kSecMatchLimitOne;
+        dict[(__bridge id)kSecValueData] = [[NSString stringWithUTF8String:password] dataUsingEncoding:NSUTF8StringEncoding];
+        dict[(__bridge id)kSecReturnPersistentRef] = @NO;
 
-        SecKeychainAttribute attrs[] = {
-                    {kSecLabelItemAttr, (UInt32)strlen(szLabel), (char *)szLabel},
-                    {kSecGenericItemAttr, (UInt32)strlen(username), (char *)username},
-                    {kSecServiceItemAttr, (UInt32)strlen(szServiceName), (char *)szServiceName},
-                    {kSecDescriptionItemAttr, (UInt32)strlen(szDescr), (char *)szDescr},
-                };
+        OSStatus status = SecItemAdd((__bridge CFDictionaryRef)(dict), nil);
+        qCDebug(LOG_IKEV2) << "create keychain:" << (int)status;
 
-        SecKeychainAttributeList attributes = {sizeof(attrs) / sizeof(attrs[0]), attrs};
-
-        SecKeychainItemRef item = nil;
-        status = SecKeychainItemCreateFromContent(kSecGenericPasswordItemClass, &attributes, (int)strlen(password), password, keychain, access, &item);
-        if (status != noErr)
-        {
-            qCDebug(LOG_IKEV2) << "createKeychainItem, SecKeychainItemCreateFromContent return:" << (int)status;
-            releaseArrayApps(arrApps);
-            CFRelease(access);
-            CFRelease(keychain);
-            return false;
-        }
-
-        CFRelease(item);
-        CFRelease(access);
-        releaseArrayApps(arrApps);
-        CFRelease(keychain);
-        return true;
+        return status != noErr;
     }
 
     void removeKeychainItem()
     {
-        NSMutableDictionary *searchDictionary = [[NSMutableDictionary alloc] init];
+        NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
 
-        [searchDictionary setObject:(__bridge id)kSecClassGenericPassword forKey:(__bridge id)kSecClass];
-        [searchDictionary setObject:[NSString stringWithUTF8String:szServiceName] forKey:(__bridge id)kSecAttrService];
-        [searchDictionary setObject:(__bridge id)kSecMatchLimitAll forKey:(__bridge id)kSecMatchLimit];
-        [searchDictionary setObject:@NO forKey:(__bridge id)kSecReturnRef];
+        [dict setObject:(__bridge id)kSecClassGenericPassword forKey:(__bridge id)kSecClass];
+        [dict setObject:[NSString stringWithUTF8String:szServiceName] forKey:(__bridge id)kSecAttrService];
+        [dict setObject:(__bridge id)kSecMatchLimitAll forKey:(__bridge id)kSecMatchLimit];
+        [dict setObject:@NO forKey:(__bridge id)kSecReturnRef];
 
-        OSStatus status = SecItemDelete((__bridge CFDictionaryRef)searchDictionary);
+        OSStatus status = SecItemDelete((__bridge CFDictionaryRef)dict);
         if (status != noErr)
         {
             qCDebug(LOG_IKEV2) << "removeKeychainItem, SecItemDelete return:" << (int)status;
         }
-        CFRelease(searchDictionary);
+        CFRelease(dict);
     }
 }
 
@@ -152,7 +86,7 @@ IKEv2Connection_mac::IKEv2Connection_mac(QObject *parent, IHelper *helper) : ICo
 {
     helper_ = dynamic_cast<Helper_mac *>(helper);
     networkExtensionLog_.collectNext();
-    connect(&statisticsTimer_, SIGNAL(timeout()), SLOT(onStatisticsTimer()));
+    connect(&statisticsTimer_, &QTimer::timeout, this, &IKEv2Connection_mac::onStatisticsTimer);
 }
 
 IKEv2Connection_mac::~IKEv2Connection_mac()
@@ -174,6 +108,8 @@ void IKEv2Connection_mac::startConnect(const QString &configOrUrl, const QString
     static QMutex mutexLocal;
 
     mutexLocal.lock();
+
+    isConnectingStateReachedAfterStartingConnection_ = false;
 
     WS_ASSERT(state_ == STATE_DISCONNECTED);
 
@@ -201,7 +137,7 @@ void IKEv2Connection_mac::startConnect(const QString &configOrUrl, const QString
 
         if (err)
         {
-            qCDebug(LOG_IKEV2) << "Load vpn preferences failed:" << QString::fromNSString(err.localizedDescription);
+            qCDebug(LOG_IKEV2) << "First load vpn preferences failed:" << QString::fromNSString(err.localizedDescription);
             state_ = STATE_DISCONNECTED;
             emit error(IKEV_FAILED_LOAD_PREFERENCES_MAC);
             waitConditionLocal.wakeAll();
@@ -209,20 +145,13 @@ void IKEv2Connection_mac::startConnect(const QString &configOrUrl, const QString
         }
         else
         {
-            qCDebug(LOG_IKEV2) << "loadFromPreferences ok";
             NEVPNProtocolIKEv2 *protocol = [[NEVPNProtocolIKEv2 alloc] init];
             protocol.username = nsUsername;
-            if (MacUtils::isOsVersionIsCatalina_or_greater())
-            {
-                protocol.passwordReference = KeyChainUtils::searchKeychainCopyMatching(KeyChainUtils::szServiceName);
-            }
-            else
-            {
-                protocol.passwordReference = KeyChainUtils::searchKeychainCopyMatching("Windscribe IKEv2");
-            }
+            protocol.passwordReference = KeyChainUtils::searchKeychainCopyMatching(KeyChainUtils::szServiceName);
             protocol.serverAddress = nsIp;
             protocol.remoteIdentifier = nsRemoteId;
             protocol.useExtendedAuthentication = YES;
+            protocol.enablePFS = YES;
 
             protocol.IKESecurityAssociationParameters.encryptionAlgorithm = NEVPNIKEv2EncryptionAlgorithmAES256GCM;
             protocol.IKESecurityAssociationParameters.diffieHellmanGroup = NEVPNIKEv2DiffieHellmanGroup20;
@@ -237,10 +166,10 @@ void IKEv2Connection_mac::startConnect(const QString &configOrUrl, const QString
             //protocol.disconnectOnSleep = YES;
             //[protocol setValue: [NSNumber numberWithBool:YES]  forKey:@"disconnectOnWake"];
 
-            manager.protocolConfiguration = protocol;
+            [manager setEnabled:YES];
+            [manager setProtocolConfiguration:(protocol)];
             [manager setOnDemandEnabled:NO];
             [manager setLocalizedDescription:@"Windscribe VPN"];
-            [manager setEnabled:YES];
 
             NSString *strProtocol = [NSString stringWithFormat:@"{Protocol: %@", protocol];
             qCDebug(LOG_IKEV2) << QString::fromNSString(strProtocol);
@@ -250,7 +179,7 @@ void IKEv2Connection_mac::startConnect(const QString &configOrUrl, const QString
             {
                 if (err)
                 {
-                    qCDebug(LOG_IKEV2) << "Save vpn preferences failed:" << QString::fromNSString(err.localizedDescription);
+                    qCDebug(LOG_IKEV2) << "First save vpn preferences failed:" << QString::fromNSString(err.localizedDescription);
                     state_ = STATE_DISCONNECTED;
                     emit error(IKEV_FAILED_SAVE_PREFERENCES_MAC);
                     waitConditionLocal.wakeAll();
@@ -258,13 +187,12 @@ void IKEv2Connection_mac::startConnect(const QString &configOrUrl, const QString
                 }
                 else
                 {
-                    qCDebug(LOG_IKEV2) << "Save vpn preferences ok";
-                     // load  preferences again, otherwise Mac bug (https://forums.developer.apple.com/thread/25928)
+                     // load and save preferences again, otherwise Mac bug (https://forums.developer.apple.com/thread/25928)
                     [manager loadFromPreferencesWithCompletionHandler:^(NSError *err)
                     {
                         if (err)
                         {
-                            qCDebug(LOG_IKEV2) << "load vpn preferences failed:" << QString::fromNSString(err.localizedDescription);
+                            qCDebug(LOG_IKEV2) << "Second load vpn preferences failed:" << QString::fromNSString(err.localizedDescription);
                             state_ = STATE_DISCONNECTED;
                             emit error(IKEV_FAILED_SAVE_PREFERENCES_MAC);
                             waitConditionLocal.wakeAll();
@@ -272,27 +200,39 @@ void IKEv2Connection_mac::startConnect(const QString &configOrUrl, const QString
                         }
                         else
                         {
-                            qCDebug(LOG_IKEV2) << "loadFromPreferences after save ok";
+                            [manager saveToPreferencesWithCompletionHandler:^(NSError *err)
+                            {
+                                if (err)
+                                {
+                                    qCDebug(LOG_IKEV2) << "Second Save vpn preferences failed:" << QString::fromNSString(err.localizedDescription);
+                                    state_ = STATE_DISCONNECTED;
+                                    emit error(IKEV_FAILED_SAVE_PREFERENCES_MAC);
+                                    waitConditionLocal.wakeAll();
+                                    mutexLocal.unlock();
+                                }
+                                else
+                                {
+                                    notificationId_ = [[NSNotificationCenter defaultCenter] addObserverForName: (NSString *)NEVPNStatusDidChangeNotification object: manager.connection queue: nil usingBlock: ^ (NSNotification *notification)
+                                    {
+                                        this->handleNotification(notification);
+                                    }];
+
+                                    qCDebug(LOG_IKEV2) << "NEVPNConnection current status:" << (int)manager.connection.status;
+
+                                    NSError *startError;
+                                    [manager.connection startVPNTunnelAndReturnError:&startError];
+                                    if (startError)
+                                    {
+                                        qCDebug(LOG_IKEV2) << "Error starting ikev2 connection:" << QString::fromNSString(startError.localizedDescription);
+                                        [[NSNotificationCenter defaultCenter] removeObserver: (id)notificationId_ name: (NSString *)NEVPNStatusDidChangeNotification object: manager.connection];
+                                        state_ = STATE_DISCONNECTED;
+                                        emit error(IKEV_FAILED_START_MAC);
+                                    }
+                                    waitConditionLocal.wakeAll();
+                                    mutexLocal.unlock();
+                                }
+                            }];
                         }
-
-                        notificationId_ = [[NSNotificationCenter defaultCenter] addObserverForName: (NSString *)NEVPNStatusDidChangeNotification object: manager.connection queue: nil usingBlock: ^ (NSNotification *notification)
-                        {
-                            this->handleNotification(notification);
-                        }];
-
-                        qCDebug(LOG_IKEV2) << "NEVPNConnection current status:" << (int)manager.connection.status;
-
-                        NSError *startError;
-                        [manager.connection startVPNTunnelAndReturnError:&startError];
-                        if (startError)
-                        {
-                            qCDebug(LOG_IKEV2) << "Error starting ikev2 connection:" << QString::fromNSString(startError.localizedDescription);
-                            [[NSNotificationCenter defaultCenter] removeObserver: (id)notificationId_ name: (NSString *)NEVPNStatusDidChangeNotification object: manager.connection];
-                            state_ = STATE_DISCONNECTED;
-                            emit error(IKEV_FAILED_START_MAC);
-                        }
-                        waitConditionLocal.wakeAll();
-                        mutexLocal.unlock();
                     }];
                 }
             }];
@@ -316,7 +256,13 @@ void IKEv2Connection_mac::startDisconnect()
     {
         state_ = STATE_START_DISCONNECTING;
         NEVPNManager *manager = [NEVPNManager sharedManager];
-        if (manager.connection.status == NEVPNStatusDisconnected)
+
+        // #713: If user had started connecting to IKev2 on Mac and quickly started after this connecting to Wireguard
+        //       then manager.connection.status doesn't have time to change to NEVPNStatusConnecting
+        //       and remains NEVPNStatusDisconnected as it was before connection tries.
+        //       Then we should check below isConnectingStateReachedAfterStartingConnection_ flag to be sure that connecting started.
+        //       Without this check we will start connecting to the Wireguard when IKEv2 connecting process hasn't finished yet.
+        if (manager.connection.status == NEVPNStatusDisconnected && isConnectingStateReachedAfterStartingConnection_)
         {
             [[NSNotificationCenter defaultCenter] removeObserver: (id)notificationId_ name: (NSString *)NEVPNStatusDidChangeNotification object: manager.connection];
             state_ = STATE_DISCONNECTED;
@@ -428,6 +374,7 @@ void IKEv2Connection_mac::handleNotificationImpl(int status)
     }
     else if (status == NEVPNStatusConnecting)
     {
+        isConnectingStateReachedAfterStartingConnection_ = true;
         qCDebug(LOG_IKEV2) << "Connection status changed: NEVPNStatusConnecting";
     }
     else if (status == NEVPNStatusConnected)
@@ -541,22 +488,11 @@ void IKEv2Connection_mac::onStatisticsTimer()
 
 bool IKEv2Connection_mac::setKeyChain(const QString &username, const QString &password)
 {
-    if (MacUtils::isOsVersionIsCatalina_or_greater())
+    KeyChainUtils::removeKeychainItem();
+    if (KeyChainUtils::createKeychainItem(username.toStdString().c_str(), password.toStdString().c_str()))
     {
-        KeyChainUtils::removeKeychainItem();
-        if (!KeyChainUtils::createKeychainItem(username.toStdString().c_str(), password.toStdString().c_str()))
-        {
-            qCDebug(LOG_IKEV2) << "Can't set username/password in keychain (KeyChainUtils part)";
-            return false;
-        }
-    }
-    else
-    {
-        if (!helper_->setKeychainUsernamePassword(username, password))
-        {
-            qCDebug(LOG_IKEV2) << "Can't set username/password in keychain (helper part)";
-            return false;
-        }
+        qCDebug(LOG_IKEV2) << "Can't set username/password in keychain";
+        return false;
     }
     return true;
 }
@@ -603,7 +539,7 @@ bool IKEv2Connection_mac::setCustomDns(const QString &overrideDnsIpAddress)
 
     // filter list to only ikev2 entries
     QStringList dnsNetworkServices;
-    for (QString service : networkServices)
+    for (const QString &service : networkServices)
         if (MacUtils::dynamicStoreEntryHasKey(service, "ConfirmedServiceID"))
             dnsNetworkServices.append(service);
 
@@ -616,7 +552,7 @@ bool IKEv2Connection_mac::setCustomDns(const QString &overrideDnsIpAddress)
 
     // change DNS on each entry
     bool successAll = true;
-    for (QString service : dnsNetworkServices) {
+    for (const QString &service : dnsNetworkServices) {
         if (!helper_->setDnsOfDynamicStoreEntry(overrideDnsIpAddress, service)) {
             successAll = false;
             qCDebug(LOG_CONNECTED_DNS) << "Failed to set network service DNS: " << service;

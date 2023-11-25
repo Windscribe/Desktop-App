@@ -1,7 +1,6 @@
 target_sources(gui PRIVATE
     bottominfoitem.cpp
     bottominfoitem.h
-    ibottominfoitem.h
     sharingfeatures/sharingfeature.cpp
     sharingfeatures/sharingfeature.h
     sharingfeatures/sharingfeatureswindowitem.cpp

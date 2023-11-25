@@ -56,6 +56,7 @@ if(WIN32)
         Version)
     list(APPEND SOURCES
          ../../client/common/utils/executable_signature/executable_signature_win.cpp
+         ../../client/common/utils/servicecontrolmanager.cpp
          ../../client/common/utils/winutils.cpp
          cli.rc)
     add_compile_options("$<$<CONFIG:Release>:/Zi>")

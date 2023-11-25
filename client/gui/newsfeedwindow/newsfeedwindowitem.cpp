@@ -13,7 +13,7 @@ namespace NewsFeedWindow {
 NewsFeedWindowItem::NewsFeedWindowItem(QGraphicsObject *parent,
                                        Preferences *preferences,
                                        PreferencesHelper *preferencesHelper)
-    : INewsFeedWindow(parent, preferences, preferencesHelper)
+    : ResizableWindow(parent, preferences, preferencesHelper)
 {
     WS_ASSERT(preferencesHelper);
     setMinimumHeight(kMinHeight);

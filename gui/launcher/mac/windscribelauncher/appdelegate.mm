@@ -8,10 +8,10 @@
 @implementation AppDelegate
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
-    
+
     NSWorkspace *workspace = [NSWorkspace sharedWorkspace];
     NSArray *apps = [workspace runningApplications];
-    
+
     // determine if already running
     bool isRunning = false;
     for (NSRunningApplication *a in apps)
@@ -22,7 +22,7 @@
             break;
         }
     }
-    
+
     // run if not already running
     if (!isRunning)
     {
@@ -31,7 +31,7 @@
         {
             bundlePath = [bundlePath stringByDeletingLastPathComponent];
         }
-        
+
         [workspace launchApplication:bundlePath];
     }
 }

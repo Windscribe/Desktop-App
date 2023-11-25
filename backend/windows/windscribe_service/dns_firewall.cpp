@@ -16,7 +16,7 @@ DnsFirewall::DnsFirewall(FwpmWrapper &fwmpWrapper) : fwmpWrapper_(fwmpWrapper), 
     UuidFromString((RPC_WSTR)UUID_LAYER_DNS, &subLayerGUID_);
 }
 
-DnsFirewall::~DnsFirewall()
+void DnsFirewall::release()
 {
     disable();
     WSACleanup();
@@ -24,25 +24,19 @@ DnsFirewall::~DnsFirewall()
 
 void DnsFirewall::disable()
 {
-    if (bCurrentState_)
-    {
-        HANDLE hEngine = fwmpWrapper_.getHandleAndLock();
+    HANDLE hEngine = fwmpWrapper_.getHandleAndLock();
 
-        fwmpWrapper_.beginTransaction();
-        bCurrentState_ = false;
+    fwmpWrapper_.beginTransaction();
+    bCurrentState_ = false;
 
-        if (Utils::deleteSublayerAndAllFilters(hEngine, &subLayerGUID_))
-        {
-            Logger::instance().out(L"DnsFirewall::disable(), all filters deleted");
-        }
-        else
-        {
-            Logger::instance().out(L"DnsFirewall::disable(), failed delete filters");
-        }
-
-        fwmpWrapper_.endTransaction();
-        fwmpWrapper_.unlock();
+    if (Utils::deleteSublayerAndAllFilters(hEngine, &subLayerGUID_)) {
+        Logger::instance().out(L"DnsFirewall::disable(), all filters deleted");
+    } else {
+        Logger::instance().out(L"DnsFirewall::disable(), failed delete filters");
     }
+
+    fwmpWrapper_.endTransaction();
+    fwmpWrapper_.unlock();
 }
 
 void DnsFirewall::enable()
@@ -96,11 +90,11 @@ void DnsFirewall::addFilters(HANDLE engineHandle)
         }
 
         const std::vector<Ip4AddressAndMask> addr = Ip4AddressAndMask::fromVector({dnsServers[i].c_str()});
-		// Rule weight must be greater than the LAN allow rule (4)
+        // Rule weight must be greater than the LAN allow rule (4)
         bool ret = Utils::addFilterV4(engineHandle, nullptr, FWP_ACTION_BLOCK, 6, subLayerGUID_, (wchar_t*)FIREWALL_SUBLAYER_DNS_NAMEW, nullptr, &addr, 0, 53, nullptr, false);
-		if (!ret) {
+        if (!ret) {
             Logger::instance().out(L"Could not add DNS filter for %s", dnsServers[i].c_str());
-		} else {
+        } else {
             Logger::instance().out(L"Added DNS filter for %s", dnsServers[i].c_str());
         }
     }
@@ -140,8 +134,8 @@ std::vector<std::wstring> DnsFirewall::getDnsServers()
     while (pCurrAddresses)
     {
         // Warning: we control the FriendlyName of the wireguard-nt adapter, but not the Description.
-        if ((wcsstr(pCurrAddresses->Description, L"Windscribe") == 0) && // ignore Windscribe TAP and Windscribe Ikev2 adapters
-            (wcsstr(pCurrAddresses->FriendlyName, L"Windscribe") == 0)) // ignore Windscribe wireguard-nt tunnel
+        if ((wcsstr(pCurrAddresses->Description, L"Windscribe") == 0) &&
+            (wcsstr(pCurrAddresses->FriendlyName, L"Windscribe") == 0))
         {
             PIP_ADAPTER_DNS_SERVER_ADDRESS dnsServerAddress = pCurrAddresses->FirstDnsServerAddress;
             while (dnsServerAddress)

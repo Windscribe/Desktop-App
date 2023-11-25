@@ -24,7 +24,7 @@ enum
   BCJ2_DEC_STATE_ORIG_1,
   BCJ2_DEC_STATE_ORIG_2,
   BCJ2_DEC_STATE_ORIG_3,
-  
+
   BCJ2_DEC_STATE_ORIG,
   BCJ2_DEC_STATE_OK
 };
@@ -124,7 +124,7 @@ typedef struct
   Byte temp[4 * 2];
 
   unsigned flushPos;
-  
+
   UInt16 probs[2 + 256];
 } CBcj2Enc;
 

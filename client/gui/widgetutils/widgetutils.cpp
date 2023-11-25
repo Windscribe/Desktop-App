@@ -34,7 +34,7 @@ QPixmap WidgetUtils::extractProgramIcon(QString filePath)
     WS_ASSERT(false);
     Q_UNUSED(filePath);
     return QPixmap();
-#endif 
+#endif
 }
 
 QScreen *WidgetUtils::slightlySaferScreenAt(QPoint pt)

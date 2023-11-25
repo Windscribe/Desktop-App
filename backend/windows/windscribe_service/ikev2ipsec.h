@@ -1,5 +1,4 @@
-#ifndef IKEV2IPSEC_H
-#define IKEV2IPSEC_H
+#pragma once
 
 class IKEv2IPSec
 {
@@ -11,5 +10,3 @@ private:
     static bool setIKEv2IPSecParametersPowerShell();
     static void disableMODP2048Support();
 };
-
-#endif // IKEV2IPSEC_H

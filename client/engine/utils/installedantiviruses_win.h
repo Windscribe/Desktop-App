@@ -1,5 +1,4 @@
-#ifndef INSTALLEDANTIVIRUSES_WIN_H
-#define INSTALLEDANTIVIRUSES_WIN_H
+#pragma once
 
 #include <QList>
 #include <QString>
@@ -32,4 +31,3 @@ private:
 
     static QString recognizeState(quint32 state);
 };
-#endif // INSTALLEDANTIVIRUSES_WIN_H

@@ -6,14 +6,6 @@
 #include "utils/ws_assert.h"
 #include "utils/logger.h"
 
-void AdapterUtils_win::resetAdapter(IHelper *helper, const QString &tapName)
-{
-    Helper_win *helper_win = dynamic_cast<Helper_win *>(helper);
-    WS_ASSERT(helper_win);
-    qCDebug(LOG_BASIC) << "Reset TAP adapter:" << tapName;
-    helper_win->executeResetTap(tapName);
-}
-
 AdapterGatewayInfo AdapterUtils_win::getWindscribeConnectedAdapterInfo()
 {
     return getAdapterInfo(false, 0, QString());

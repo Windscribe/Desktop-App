@@ -4,6 +4,7 @@
 # Copyright (c) 2020-2023, Windscribe Limited. All rights reserved.
 # ------------------------------------------------------------------------------
 # Purpose: installs Qt.
+import multiprocessing
 import os
 import sys
 import time
@@ -33,7 +34,7 @@ QT_SKIP_MODULES = ["qtdoc", "qt3d", "qtactiveqt", "qtcanvas3d", "qtcharts", "qtc
                    "qtremoteobjects", "qtscript", "qtscxml", "qtserialbus", "qtserialport", "qtspeech",
                    "qtvirtualkeyboard", "qtwebchannel", "qtwebengine", "qtwebglplugin", "qtwebsockets",
                    "qtwebview", "qtlottie", "qtmqtt", "qtopcua", "qtquicktimeline", "qtquick3d", "qtcoap", "qtpositioning",
-                   "qtsensors", "qtopengl"]
+                   "qtsensors", "qtopengl", "qtquick3dphysics", "qtquickeffectmaker"]
 
 QT_SOURCE_CHANGES_JSON_PATH = "deps/custom_qt/source_changes.json"
 
@@ -69,7 +70,6 @@ def BuildDependencyGNU(installpath, openssl_root, outpath):
     # Configure.
     configure_cmd = \
         ["./configure", "-opensource", "-confirm-license", "-release", "-nomake", "examples"]
-    configure_cmd.append("-openssl-linked")
     configure_cmd.append("-qt-zlib")
     configure_cmd.append("-qt-pcre")
     configure_cmd.append("-no-icu")
@@ -81,7 +81,7 @@ def BuildDependencyGNU(installpath, openssl_root, outpath):
         configure_cmd.extend(x for t in zip(["-skip"] * len(QT_SKIP_MODULES), QT_SKIP_MODULES) for x in t)
     iutl.RunCommand(configure_cmd, env=buildenv)
     # Build and install.
-    iutl.RunCommand(["cmake", "--build", ".", "--parallel", "8"], env=buildenv)
+    iutl.RunCommand(["cmake", "--build", ".", "--parallel", str(multiprocessing.cpu_count())], env=buildenv)
     iutl.RunCommand(["cmake", "--install", "."], env=buildenv)
 
 

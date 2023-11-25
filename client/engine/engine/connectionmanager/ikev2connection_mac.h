@@ -1,5 +1,4 @@
-#ifndef IKEV2CONNECTION_MAC_H
-#define IKEV2CONNECTION_MAC_H
+#pragma once
 
 #include <QObject>
 #include <QTimer>
@@ -55,11 +54,13 @@ private:
     int prevConnectionStatus_;
     bool isPrevConnectionStatusInitialized_;
 
+    // True if startConnect() method was called and NEVPNManager emitted notification NEVPNStatusConnecting.
+    // False otherwise.
+    bool isConnectingStateReachedAfterStartingConnection_;
+
     bool setKeyChain(const QString &username, const QString &password);
     void handleNotification(void *notification);
     bool isFailedAuthError(QMap<time_t, QString> &logs);
     bool isSocketError(QMap<time_t, QString> &logs);
     bool setCustomDns(const QString &overrideDnsIpAddress);
 };
-
-#endif // IKEV2CONNECTION_MAC_H

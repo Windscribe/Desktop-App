@@ -9,7 +9,7 @@ namespace ConnectWindow {
 SimpleImageChanger::SimpleImageChanger(QObject *parent, int animationDuration) : QObject(parent),
     animationDuration_(animationDuration), opacityCurImage_(1.0), opacityPrevImage_(0.0)
 {
-    connect(&opacityAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onOpacityChanged(QVariant)));
+    connect(&opacityAnimation_, &QVariantAnimation::valueChanged, this, &SimpleImageChanger::onOpacityChanged);
 }
 
 QPixmap *SimpleImageChanger::currentPixmap()

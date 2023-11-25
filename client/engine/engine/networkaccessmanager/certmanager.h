@@ -1,5 +1,4 @@
-#ifndef CERTMANAGER_H
-#define CERTMANAGER_H
+#pragma once
 
 #include <QByteArray>
 #include <QStringList>
@@ -28,5 +27,3 @@ private:
 
     QVector<CertDescr> certs_;
 };
-
-#endif // CERTMANAGER_H

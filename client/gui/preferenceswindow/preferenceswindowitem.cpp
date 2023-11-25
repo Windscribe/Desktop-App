@@ -18,17 +18,17 @@ namespace PreferencesWindow {
 
 
 PreferencesWindowItem::PreferencesWindowItem(QGraphicsObject *parent, Preferences *preferences, PreferencesHelper *preferencesHelper, AccountInfo *accountInfo)
-    : IPreferencesWindow(parent, preferences, preferencesHelper), isShowSubPage_(false), loggedIn_(false)
+    : ResizableWindow(parent, preferences, preferencesHelper), isShowSubPage_(false), loggedIn_(false)
 {
     setFlags(QGraphicsObject::ItemIsFocusable);
     setMinimumHeight(kMinHeight);
     installEventFilter(this);
 
     tabControlItem_ = new PreferencesTabControlItem(this, preferencesHelper);
-    connect(dynamic_cast<QObject*>(tabControlItem_), SIGNAL(currentTabChanged(PREFERENCES_TAB_TYPE)), SLOT(onCurrentTabChanged(PREFERENCES_TAB_TYPE)));
-    connect(dynamic_cast<QObject*>(tabControlItem_), SIGNAL(signOutClick()), SIGNAL(signOutClick()));
-    connect(dynamic_cast<QObject*>(tabControlItem_), SIGNAL(loginClick()), SIGNAL(loginClick()));
-    connect(dynamic_cast<QObject*>(tabControlItem_), SIGNAL(quitClick()), SIGNAL(quitAppClick()));
+    connect(tabControlItem_, &PreferencesTabControlItem::currentTabChanged, this, &PreferencesWindowItem::onCurrentTabChanged);
+    connect(tabControlItem_, &PreferencesTabControlItem::signOutClick, this, &PreferencesWindowItem::signOutClick);
+    connect(tabControlItem_, &PreferencesTabControlItem::loginClick, this, &PreferencesWindowItem::loginClick);
+    connect(tabControlItem_, &PreferencesTabControlItem::quitClick, this, &PreferencesWindowItem::quitAppClick);
 
     scrollAreaItem_ = new CommonGraphics::ScrollArea(this, curHeight_ - 102*G_SCALE, WINDOW_WIDTH - kTabAreaWidth);
 
@@ -436,7 +436,7 @@ void PreferencesWindowItem::addApplicationManually(QString filename)
     updateSplitTunnelingAppsCount(apps);
     splitTunnelingAppsWindowItem_->addAppManually(app);
 }
- 
+
 void PreferencesWindowItem::setPacketSizeDetectionState(bool on)
 {
     connectionWindowItem_->setPacketSizeDetectionState(on);
@@ -479,13 +479,13 @@ void PreferencesWindowItem::updatePositions()
     escapeButton_->setPos(WINDOW_WIDTH*G_SCALE - escapeButton_->boundingRect().width() - 16*G_SCALE, 16*G_SCALE);
 
     if (preferences_->appSkin() == APP_SKIN_VAN_GOGH) {
-        tabControlItem_->getGraphicsObject()->setPos(0, 54*G_SCALE);
+        tabControlItem_->setPos(0, 54*G_SCALE);
         backArrowButton_->setPos(16*G_SCALE, 12*G_SCALE);
         scrollAreaItem_->setPos(kTabAreaWidth*G_SCALE, 55*G_SCALE);
         tabControlItem_->setHeight(curHeight_ - 71*G_SCALE);
         scrollAreaItem_->setHeight(curHeight_ - 74*G_SCALE);
     } else {
-        tabControlItem_->getGraphicsObject()->setPos(0, 82*G_SCALE);
+        tabControlItem_->setPos(0, 82*G_SCALE);
         backArrowButton_->setPos(16*G_SCALE, 40*G_SCALE);
         scrollAreaItem_->setPos(kTabAreaWidth*G_SCALE, 83*G_SCALE);
         tabControlItem_->setHeight(curHeight_ - 99*G_SCALE);

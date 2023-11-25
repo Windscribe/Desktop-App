@@ -1,5 +1,4 @@
-#ifndef TEXTLINKBUTTON_H
-#define TEXTLINKBUTTON_H
+#pragma once
 
 #include <QGraphicsObject>
 #include <QVariantAnimation>
@@ -16,7 +15,7 @@ public:
     explicit TextLinkButton(ScalableGraphicsObject *parent = nullptr);
 
     QRectF boundingRect() const override;
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR) override;
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
     void animateShow(int animationSpeed);
     void animateHide(int animationSpeed);
@@ -46,10 +45,6 @@ private:
     QVariantAnimation textOpacityAnimation_;
 
     void recalculateDimensions();
-
-
 };
 
 }
-
-#endif // TEXTLINKBUTTON_H

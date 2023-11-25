@@ -6,29 +6,26 @@
 #include "blocks/icons.h"
 #include "blocks/install_authhelper.h"
 #include "blocks/install_splittunnel.h"
-#include "blocks/install_tap.h"
-#include "blocks/install_wintun.h"
 #include "blocks/service.h"
 #include "blocks/uninstall_info.h"
 #include "blocks/uninstallprev.h"
 
+#include "../../utils/applicationinfo.h"
 #include "../../utils/logger.h"
+#include "../../utils/path.h"
 
 using namespace std;
 
-Installer::Installer(const std::function<void(unsigned int, INSTALLER_CURRENT_STATE)> &callbackState)
-    : InstallerBase(callbackState)
+Installer::Installer() : InstallerBase(), state_(STATE_INIT), progress_(0), error_(ERROR_OTHER)
 {
 }
 
 Installer::~Installer()
 {
-    for (std::list<IInstallBlock *>::iterator it = blocks_.begin(); it != blocks_.end(); ++it)
-    {
+    for (list<IInstallBlock *>::iterator it = blocks_.begin(); it != blocks_.end(); ++it) {
         IInstallBlock *install_block = (*it);
 
-        if (install_block != nullptr)
-        {
+        if (install_block != nullptr) {
             delete install_block;
         }
     }
@@ -39,11 +36,12 @@ void Installer::startImpl()
     blocks_.push_back(new UninstallPrev(Settings::instance().getFactoryReset(), 10));
     blocks_.push_back(new Files(40));
     blocks_.push_back(new Service(5));
-    if (Settings::instance().getInstallDrivers())
-    {
-        blocks_.push_back(new InstallTap(10));
-        blocks_.push_back(new InstallWinTun(10));
+
+    // Leaving this option here for now in anticipation of us adding installation of the OpenVPN DCO
+    // driver in a future release.
+    if (Settings::instance().getInstallDrivers()) {
     }
+
     blocks_.push_back(new InstallSplitTunnel(10));
     blocks_.push_back(new UninstallInfo(5));
     blocks_.push_back(new Icons(Settings::instance().getCreateShortcut(), 5));
@@ -58,71 +56,94 @@ void Installer::executionImpl()
     int overallProgress = 0;
     int prevOverallProgress = 0;
 
-    callbackState_(static_cast<unsigned int>(overallProgress), STATE_EXTRACTING);
+    state_ = STATE_EXTRACTING;
+    callback_();
 
-    std::vector<DWORD> ticks;
+    vector<DWORD> ticks;
 
-    for (std::list<IInstallBlock *>::iterator it = blocks_.begin(); it != blocks_.end(); ++it)
-    {
+    for (list<IInstallBlock *>::iterator it = blocks_.begin(); it != blocks_.end(); ++it) {
         DWORD initTick = GetTickCount();
         IInstallBlock *block = *it;
 
         Log::instance().out(L"Installing " + block->getName() + L"...");
 
-        while (true)
-        {
+        while (true) {
             {
-                std::lock_guard<std::mutex> lock(mutex_);
-                if (isCanceled_)
-                {
-                    callbackState_(0, STATE_CANCELED);
+                lock_guard<mutex> lock(mutex_);
+                if (isCanceled_) {
+                    state_ = STATE_CANCELED;
+                    progress_ = 0;
                     return;
-                }
-                if (isPaused_)
-                {
-                    Sleep(1);
-                    continue;
                 }
             }
 
             int progressOfBlock = block->executeStep();
-            
+
             // block is finished?
-            if (progressOfBlock >= 100 || (progressOfBlock < 0 && !block->isCritical()))
-            {
+            if (progressOfBlock >= 100 || (progressOfBlock < 0 && !block->isCritical())) {
                 overallProgress = prevOverallProgress + (int)(100 * block->getWeight() / totalWork_);
-                callbackState_(static_cast<unsigned int>(overallProgress), STATE_EXTRACTING);
+                progress_ = overallProgress;
+                callback_();
                 ticks.push_back(GetTickCount() - initTick);
-                if (progressOfBlock < 0)
+                if (progressOfBlock < 0) {
                     Log::instance().out(L"Non-critical error installing " + block->getName());
-                else
+                } else {
                     Log::instance().out(L"Installed " + block->getName());
+                }
                 break;
             }
             // error from block?
-            else if (progressOfBlock < 0)
-            {
-                strLastError_ = block->getLastError();
-                callbackState_(static_cast<unsigned int>(overallProgress), STATE_FATAL_ERROR);
-                Log::instance().out(strLastError_);
+            else if (progressOfBlock < 0) {
+                progress_ = overallProgress;
+                error_ = ERROR_OTHER;
+                state_ = STATE_ERROR;
+                callback_();
+                Log::instance().out(block->getLastError());
                 return;
-            }
-            else
-            {
+            } else {
                 overallProgress = prevOverallProgress + (int)(progressOfBlock * block->getWeight() / totalWork_);
-                callbackState_(static_cast<unsigned int>(overallProgress), STATE_EXTRACTING);
+                progress_ = overallProgress;
+                callback_();
             }
         }
         prevOverallProgress = overallProgress;
 
     }
 
-    callbackState_(static_cast<unsigned int>(100), STATE_FINISHED);
+    state_ = STATE_FINISHED;
+    progress_ = 100;
+    callback_();
 }
 
 void Installer::launchAppImpl()
 {
-    wstring app = Settings::instance().getPath() + L"\\Windscribe.exe";
-    Log::instance().out(L"Launching Windscribe app");
-    ShellExecuteAsUser::shellExecuteFromExplorer(app.c_str(), NULL, NULL, NULL, SW_RESTORE);
+    if (Settings::instance().getAutoStart()) {
+        wstring app = Path::append(Settings::instance().getPath(), ApplicationInfo::appExeName());
+        Log::instance().out(L"Launching Windscribe app");
+        ShellExec::executeFromExplorer(app.c_str(), NULL, NULL, NULL, SW_RESTORE);
+    } else {
+        Log::instance().out(L"Skip launching app");
+    }
+    state_ = STATE_LAUNCHED;
+    callback_();
+}
+
+INSTALLER_CURRENT_STATE Installer::state()
+{
+    return state_;
+}
+
+int Installer::progress()
+{
+    return progress_;
+}
+
+void Installer::setCallback(function<void()> func)
+{
+    callback_ = func;
+}
+
+INSTALLER_ERROR Installer::lastError()
+{
+    return error_;
 }

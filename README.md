@@ -31,6 +31,13 @@ This repo contains the complete source code for the Windscribe 2.0 app. This inc
   python3 -m pip install -r tools/requirements.txt
 ```
 
+In case of `pyyaml` [building issue on Windows](https://github.com/yaml/pyyaml/issues/724#issuecomment-1638636728), execute the following:
+
+```python
+pip install "cython<3.0.0" && pip install --no-build-isolation pyyaml==6.0
+pip install setuptools wheel
+```
+
 ### Install signing certificate (optional)
 - Copy your PFX code signing file to `installer/windows/signing/code_signing.pfx`.
 - Edit (create) `tools/notarize.yml` and add the following line:
@@ -52,8 +59,9 @@ install_curl
 install_boost
 install_lzo
 install_openvpn
+install_wintun
 install_wireguard
-install_stunnel
+install_wstunnel
 ```
 
 As of version 2.7, you will need a copy of the [ctrld utility](https://github.com/Control-D-Inc/ctrld). Follow the instructions in that repo to build it, and place the binary at `build-libs/ctrld/ctrld.exe`.
@@ -131,7 +139,7 @@ install_boost
 install_lzo
 install_openvpn
 install_wireguard
-install_stunnel
+install_wstunnel
 ```
 
 As of version 2.7, you will need a copy of the [ctrld utility](https://github.com/Control-D-Inc/ctrld). Follow the instructions in that repo to build it, and place the binary at `build-libs/ctrld/ctrld`.
@@ -155,6 +163,23 @@ You will find the application logs in `~/Library/Application Support/Windscribe/
 - Helper: `/Library/Logs/com.windscribe.helper.macos/helper_log.txt`
 
 ## Linux
+
+### Build with Docker
+
+The repository contains Dockerfile to simplify building process. Skip all the other sections of this manual if you decide to use Docker.
+
+- Generate builder image:
+```bash
+  sudo docker build -t ws-builder .
+```
+- Build all the dependencies:
+```bash
+  for i in openssl_ech_draft qt cares curl boost lzo openvpn wireguard stunnel; do sudo docker run --rm -v .:/w ws-builder /bin/bash -c "cd /w/tools/deps/ && ./install_$i"; done
+```
+- Build the application:
+```bash
+  sudo docker run --rm -v .:/w ws-builder /bin/bash -c "cd /w/tools/ && ./build_all"
+```
 
 ### Prerequisites
 
@@ -191,7 +216,7 @@ install_boost
 install_lzo
 install_openvpn
 install_wireguard
-install_stunnel
+install_wstunnel
 ```
 
 As of version 2.7, you will need a copy of the [ctrld utility](https://github.com/Control-D-Inc/ctrld). Follow the instructions in that repo to build it, and place the binary at `build-libs/ctrld/ctrld`.

@@ -1,5 +1,4 @@
-#ifndef FREETRAFFICNOTIFICATIONCONTROLLER_H
-#define FREETRAFFICNOTIFICATIONCONTROLLER_H
+#pragma once
 
 #include <QObject>
 
@@ -19,5 +18,3 @@ private:
 
     bool isReached(qint64 trafficUsed, qint64 trafficMax, int procent);
 };
-
-#endif // FREETRAFFICNOTIFICATIONCONTROLLER_H

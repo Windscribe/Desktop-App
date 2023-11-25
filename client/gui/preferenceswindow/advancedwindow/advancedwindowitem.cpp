@@ -25,7 +25,6 @@ AdvancedWindowItem::AdvancedWindowItem(ScalableGraphicsObject *parent, Preferenc
     setSpacerHeight(PREFERENCES_MARGIN);
 
 #ifdef Q_OS_WIN
-    connect(preferences, &Preferences::tapAdapterChanged, this, &AdvancedWindowItem::onTapAdapterPreferencesChanged);
     connect(preferencesHelper, &PreferencesHelper::ipv6StateInOSChanged, this, &AdvancedWindowItem::onPreferencesIpv6InOSStateChanged);
 #endif
     connect(preferences, &Preferences::apiResolutionChanged, this, &AdvancedWindowItem::onApiResolutionPreferencesChanged);
@@ -43,15 +42,6 @@ AdvancedWindowItem::AdvancedWindowItem(ScalableGraphicsObject *parent, Preferenc
     addItem(advParametersGroup_);
 
 #ifdef Q_OS_WIN
-    tapAdapterGroup_ = new PreferenceGroup(this);
-    comboBoxTapAdapter_ = new ComboBoxItem(tapAdapterGroup_);
-    comboBoxTapAdapter_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/TAP_DRIVER"));
-    updateTapAdaptersList();
-    comboBoxTapAdapter_->setCurrentItem((int)preferences_->tapAdapter());
-    connect(comboBoxTapAdapter_, &ComboBoxItem::currentItemChanged, this, &AdvancedWindowItem::onTapAdapterChanged);
-    tapAdapterGroup_->addItem(comboBoxTapAdapter_);
-    addItem(tapAdapterGroup_);
-
     ipv6Group_ = new PreferenceGroup(this);
     checkBoxIPv6_ = new ToggleItem(ipv6Group_);
     checkBoxIPv6_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/IPV6"));
@@ -123,11 +113,6 @@ void AdvancedWindowItem::updateScaling()
 }
 
 #ifdef Q_OS_WIN
-void AdvancedWindowItem::onTapAdapterChanged(QVariant v)
-{
-    preferences_->setTapAdapter((TAP_ADAPTER_TYPE)v.toInt());
-}
-
 void AdvancedWindowItem::onIPv6StateChanged(bool isChecked)
 {
     GeneralMessageController::instance().showMessage(
@@ -203,18 +188,6 @@ void AdvancedWindowItem::onPreferencesIpv6InOSStateChanged(bool bEnabled)
 {
     checkBoxIPv6_->setState(bEnabled);
 }
-
-void AdvancedWindowItem::onTapAdapterPreferencesChanged(TAP_ADAPTER_TYPE tapAdapter)
-{
-    comboBoxTapAdapter_->setCurrentItem((int)tapAdapter);
-}
-
-void AdvancedWindowItem::updateTapAdaptersList()
-{
-    comboBoxTapAdapter_->clear();
-    comboBoxTapAdapter_->addItem(TAP_ADAPTER_TYPE_toString(TAP_ADAPTER), (int)TAP_ADAPTER);
-    comboBoxTapAdapter_->addItem(TAP_ADAPTER_TYPE_toString(WINTUN_ADAPTER), (int)WINTUN_ADAPTER);
-}
 #endif
 
 void AdvancedWindowItem::onLanguageChanged()
@@ -223,9 +196,6 @@ void AdvancedWindowItem::onLanguageChanged()
     advParametersItem_->setTitle(tr("Advanced Parameters"));
 
 #ifdef Q_OS_WIN
-    tapAdapterGroup_->setDescription(tr("Pick between the TAP and Wintun network adapters for OpenVPN connections."));
-    comboBoxTapAdapter_->setLabelCaption(tr("TAP Driver"));
-
     ipv6Group_->setDescription(tr("Enables / disables system-wide IPv6 connectivity."));
     checkBoxIPv6_->setCaption(tr("IPv6"));
 #endif
@@ -249,10 +219,6 @@ void AdvancedWindowItem::onLanguageChanged()
 void AdvancedWindowItem::hideOpenPopups()
 {
     CommonGraphics::BasePage::hideOpenPopups();
-
-#ifdef Q_OS_WIN
-    comboBoxTapAdapter_->hideMenu();
-#endif
 }
 
 } // namespace PreferencesWindow

@@ -1,5 +1,4 @@
-#ifndef LOCATIONID_H
-#define LOCATIONID_H
+#pragma once
 
 #include <QString>
 #include <QMetaType>
@@ -104,5 +103,3 @@ inline size_t qHash(const LocationID &key, uint seed = 0)
 }
 
 Q_DECLARE_METATYPE(LocationID)
-
-#endif // LOCATIONID_H

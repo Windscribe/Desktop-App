@@ -1,8 +1,6 @@
-#ifndef BLOCKCONNECT_H
-#define BLOCKCONNECT_H
+#pragma once
 
 #include <QString>
-
 
 class BlockConnect
 {
@@ -24,5 +22,3 @@ private:
     bool bNeedUpgrade_;
     QString originalUsername_;
 };
-
-#endif // BLOCKCONNECT_H

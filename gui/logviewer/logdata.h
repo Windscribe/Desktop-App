@@ -1,5 +1,4 @@
-#ifndef LOGDATA_H
-#define LOGDATA_H
+#pragma once
 
 #include <QDateTime>
 #include <QHash>
@@ -52,5 +51,3 @@ private:
     QDateTime lastDateTime_;
     qint32 timestampCounter_;
 };
-
-#endif  // LOGDATA_H

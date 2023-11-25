@@ -1,5 +1,4 @@
-#ifndef APPSEARCHITEM_H
-#define APPSEARCHITEM_H
+#pragma once
 
 #include "commongraphics/baseitem.h"
 #include "commongraphics/iconbutton.h"
@@ -40,4 +39,3 @@ private:
 };
 
 }
-#endif // APPSEARCHITEM_H

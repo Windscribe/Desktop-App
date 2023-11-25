@@ -1,10 +1,8 @@
-#ifndef EMERGENCYCONNECTWINDOWITEM_H
-#define EMERGENCYCONNECTWINDOWITEM_H
+#pragma once
 
 #include <QGraphicsObject>
 #include <QEvent>
 #include "../backend/backend.h"
-#include "emergencyconnectwindow/iemergencyconnectwindow.h"
 #include "commongraphics/bubblebutton.h"
 #include "commongraphics/escapebutton.h"
 #include "commongraphics/iconbutton.h"
@@ -12,31 +10,25 @@
 
 namespace EmergencyConnectWindow {
 
-
-class EmergencyConnectWindowItem : public ScalableGraphicsObject, public IEmergencyConnectWindow
+class EmergencyConnectWindowItem : public ScalableGraphicsObject
 {
     Q_OBJECT
-    Q_INTERFACES(IEmergencyConnectWindow)
 public:
     explicit EmergencyConnectWindowItem(QGraphicsObject *parent, PreferencesHelper *preferencesHelper);
-
-    QGraphicsObject *getGraphicsObject() override { return this; }
-
-    QRectF boundingRect() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
-
-    void setState(types::ConnectState state) override;
-    void setClickable(bool isClickable) override;
-
+    QRectF boundingRect() const override;
     void updateScaling() override;
 
+    void setState(types::ConnectState state);
+    void setClickable(bool isClickable);
+
 signals:
-    void minimizeClick() override;
-    void closeClick() override;
-    void escapeClick() override;
-    void connectClick() override;
-    void windscribeLinkClick() override;
-    void disconnectClick() override;
+    void minimizeClick();
+    void closeClick();
+    void escapeClick();
+    void connectClick();
+    void windscribeLinkClick();
+    void disconnectClick();
 
 protected:
     void keyPressEvent(QKeyEvent *event) override;
@@ -131,5 +123,3 @@ private:
 };
 
 }
-
-#endif // EMERGENCYCONNECTWINDOWITEM_H

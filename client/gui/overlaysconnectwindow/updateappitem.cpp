@@ -33,11 +33,6 @@ UpdateAppItem::UpdateAppItem(Preferences *preferences, QGraphicsObject *parent) 
     updatePositions();
 }
 
-QGraphicsObject *UpdateAppItem::getGraphicsObject()
-{
-    return this;
-}
-
 QRectF UpdateAppItem::boundingRect() const
 {
     if (preferences_->appSkin() == APP_SKIN_VAN_GOGH)
@@ -164,7 +159,7 @@ void UpdateAppItem::updateScaling()
     updatePositions();
 }
 
-void UpdateAppItem::setMode(IUpdateAppItem::UpdateAppItemMode mode)
+void UpdateAppItem::setMode(UpdateAppItemMode mode)
 {
     if (mode == UPDATE_APP_ITEM_MODE_PROMPT)
     {

@@ -21,16 +21,13 @@ LocationsWindow::LocationsWindow(QWidget *parent, Preferences *preferences, gui_
     locationsTab_ = new GuiLocations::LocationsTab(this, preferences, locationsModelManager);
     locationsTab_->setGeometry(0, 0, WINDOW_WIDTH * G_SCALE, qCeil(locationsTabHeightUnscaled_ * G_SCALE));
 
-    footerTopStrip_ = new GuiLocations::FooterTopStrip(this);
-    updateFooterOverlayGeo();
+    connect(locationsTab_, &GuiLocations::LocationsTab::selected, this, &LocationsWindow::selected);
+    connect(locationsTab_, &GuiLocations::LocationsTab::clickedOnPremiumStarCity, this, &LocationsWindow::clickedOnPremiumStarCity);
+    connect(locationsTab_, &GuiLocations::LocationsTab::addStaticIpClicked, this, &LocationsWindow::addStaticIpClicked);
+    connect(locationsTab_, &GuiLocations::LocationsTab::clearCustomConfigClicked, this, &LocationsWindow::clearCustomConfigClicked);
+    connect(locationsTab_, &GuiLocations::LocationsTab::addCustomConfigClicked, this, &LocationsWindow::addCustomConfigClicked);
 
-    connect(locationsTab_, SIGNAL(selected(LocationID)), SIGNAL(selected(LocationID)));
-    connect(locationsTab_, SIGNAL(clickedOnPremiumStarCity()), SIGNAL(clickedOnPremiumStarCity()));
-    connect(locationsTab_, SIGNAL(addStaticIpClicked()), SIGNAL(addStaticIpClicked()));
-    connect(locationsTab_, SIGNAL(clearCustomConfigClicked()), SIGNAL(clearCustomConfigClicked()));
-    connect(locationsTab_, SIGNAL(addCustomConfigClicked()), SIGNAL(addCustomConfigClicked()));
-
-    connect(&LanguageController::instance(), SIGNAL(languageChanged()), SLOT(onLanguageChanged()));
+    connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &LocationsWindow::onLanguageChanged);
 
     setCountVisibleItemSlots(PersistentState::instance().countVisibleLocations());
 }
@@ -46,7 +43,6 @@ void LocationsWindow::setCountVisibleItemSlots(int cnt)
     // Previously there were issues directly grabbing locationsTab height... keeping a cache somehow helped. Not sure if the original issue persists
     locationsTabHeightUnscaled_ = locationsTab_->unscaledHeightOfItemViewport() + GuiLocations::LocationsTab::TAB_HEADER_HEIGHT;
     locationsTab_->setGeometry(0, 0, WINDOW_WIDTH * G_SCALE, qCeil(locationsTabHeightUnscaled_ * G_SCALE));
-    updateFooterOverlayGeo();
     PersistentState::instance().setCountVisibleLocations(getCountVisibleItems());
     emit heightChanged();
 }
@@ -64,7 +60,6 @@ void LocationsWindow::setOnlyConfigTabVisible(bool onlyConfig)
 void LocationsWindow::updateLocationsTabGeometry()
 {
     locationsTab_->setGeometry(0, 0, WINDOW_WIDTH * G_SCALE, qCeil(locationsTabHeightUnscaled_ * G_SCALE));
-    updateFooterOverlayGeo();
 
     locationsTab_->updateLocationWidgetsGeometry(locationsTab_->unscaledHeightOfItemViewport());
     locationsTab_->updateIconRectsAndLine();
@@ -74,7 +69,6 @@ void LocationsWindow::updateLocationsTabGeometry()
 void LocationsWindow::updateScaling()
 {
     locationsTab_->updateScaling();
-    updateFooterOverlayGeo();
 }
 
 void LocationsWindow::hideSearchTabWithoutAnimation()
@@ -229,17 +223,4 @@ QRect LocationsWindow::getResizeHandleClickableRect()
     return QRect(width() / 2 - 14*G_SCALE,
                  height() - FOOTER_HEIGHT_FULL*G_SCALE / 2 - 2*G_SCALE,
                  28*G_SCALE, 8*G_SCALE);
-}
-
-void LocationsWindow::updateFooterOverlayGeo()
-{
-    int bringItBackAbit = qCeil(GuiLocations::FooterTopStrip::HEIGHT * G_SCALE);
-    int tabHeight = locationsTab_->geometry().height();
-    int newFooterPos = tabHeight - bringItBackAbit;
-
-    footerTopStrip_->setGeometry(0,
-                                 newFooterPos,
-                                 WINDOW_WIDTH*G_SCALE,
-                                 bringItBackAbit);
-    footerTopStrip_->update();
 }

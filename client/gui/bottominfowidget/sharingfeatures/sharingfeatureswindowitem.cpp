@@ -411,7 +411,7 @@ QPixmap SharingFeaturesWindowItem::getCurrentPixmapShape()
     painter.setRenderHint(QPainter::Antialiasing);
     painter.setBrush(FontManager::instance().getMidnightColor());
     painter.setPen(Qt::transparent);
-    {   
+    {
         painter.drawRect(0, 0, WIDTH*G_SCALE, height);
 
         QPolygonF leftPoly = leftHornPolygon(LEFT_HORN_ORIGIN_X*G_SCALE, curHornPosY_*G_SCALE, HORN_WIDTH*G_SCALE, HORN_HEIGHT*G_SCALE);
@@ -443,7 +443,7 @@ void SharingFeaturesWindowItem::recalcHeight()
     else if (mode_ == SHARE_MODE_PROXY) newHeight = HEADER_HEIGHT + SharingFeature::HEIGHT;
     else if (mode_ == SHARE_MODE_BOTH)  newHeight = HEADER_HEIGHT + SharingFeature::HEIGHT*2;
 
-	prepareGeometryChange();
+    prepareGeometryChange();
     height_ = newHeight;
     HORN_POS_Y_HIDDEN = height_ - 30;
     HORN_POS_Y_SHOWING = height_;

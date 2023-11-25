@@ -74,7 +74,6 @@ void Preferences::setAllowLanTraffic(bool b)
     }
 }
 
-#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
 bool Preferences::isMinimizeAndCloseToTray() const
 {
     return QSystemTrayIcon::isSystemTrayAvailable() && guiSettings_.isMinimizeAndCloseToTray;
@@ -90,7 +89,7 @@ void Preferences::setMinimizeAndCloseToTray(bool b)
     }
 }
 
-#elif defined Q_OS_MAC
+#if defined Q_OS_MAC
 bool Preferences::isHideFromDock() const
 {
     return guiSettings_.isHideFromDock;
@@ -105,8 +104,6 @@ void Preferences::setHideFromDock(bool b)
         emit hideFromDockChanged(guiSettings_.isHideFromDock);
     }
 }
-#elif defined Q_OS_LINUX
-
 #endif
 
 bool Preferences::isStartMinimized() const
@@ -471,23 +468,6 @@ void Preferences::setDebugAdvancedParameters(const QString &p)
     emit debugAdvancedParametersChanged(p);
 }
 
-#ifdef Q_OS_WIN
-TAP_ADAPTER_TYPE Preferences::tapAdapter() const
-{
-    return engineSettings_.tapAdapter();
-}
-
-void Preferences::setTapAdapter(TAP_ADAPTER_TYPE tapAdapter)
-{
-    if (engineSettings_.tapAdapter() != tapAdapter)
-    {
-        engineSettings_.setTapAdapter(tapAdapter);
-        emitEngineSettingsChanged();
-        emit tapAdapterChanged(tapAdapter);
-    }
-}
-#endif
-
 DNS_POLICY_TYPE Preferences::dnsPolicy() const
 {
     return engineSettings_.dnsPolicy();
@@ -563,6 +543,23 @@ void Preferences::setAppSkin(APP_SKIN appSkin)
         emit appSkinChanged(guiSettings_.appSkin);
     }
 }
+
+#if defined(Q_OS_LINUX)
+TRAY_ICON_COLOR Preferences::trayIconColor() const
+{
+    return guiSettings_.trayIconColor;
+}
+
+void Preferences::setTrayIconColor(TRAY_ICON_COLOR c)
+{
+    if (guiSettings_.trayIconColor != c)
+    {
+        guiSettings_.trayIconColor = c;
+        saveGuiSettings();
+        emit trayIconColorChanged(guiSettings_.trayIconColor);
+    }
+}
+#endif
 
 types::SplitTunneling Preferences::splitTunneling()
 {
@@ -699,9 +696,6 @@ void Preferences::setEngineSettings(const types::EngineSettings &es)
     setTerminateSockets(es.isTerminateSockets());
 #endif
     setAntiCensorship(es.isAntiCensorship());
-#if defined(Q_OS_WIN)
-    setTapAdapter(es.tapAdapter());
-#endif
     setAllowLanTraffic(es.isAllowLanTraffic());
     setFirewallSettings(es.firewallSettings());
     setConnectionSettings(es.connectionSettings());

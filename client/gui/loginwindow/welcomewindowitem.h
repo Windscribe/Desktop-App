@@ -1,12 +1,10 @@
-#ifndef WELCOMEWINDOWITEM_H
-#define WELCOMEWINDOWITEM_H
+#pragma once
 
 #include <QGraphicsObject>
 #include <QGraphicsTextItem>
 #include <QGraphicsPixmapItem>
 #include <QTimer>
 #include "../backend/backend.h"
-#include "iloginwindow.h"
 #include "loginyesnobutton.h"
 #include "usernamepasswordentry.h"
 #include "commongraphics/iconbutton.h"
@@ -115,6 +113,3 @@ private:
 };
 
 } // namespace LoginWindow
-
-
-#endif // WELCOMEWINDOWITEM_H

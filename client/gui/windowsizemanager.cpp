@@ -22,7 +22,7 @@ void WindowSizeManager::addWindow(ResizableWindow *window, ShadowManager::SHAPE_
 
 std::vector<ResizableWindow *> WindowSizeManager::windows()
 {
-	std::vector<ResizableWindow *> keys;
+    std::vector<ResizableWindow *> keys;
 
     for (auto it = windowInfo_.begin(); it != windowInfo_.end(); ++it) {
         keys.push_back(it->first);
@@ -71,7 +71,7 @@ int WindowSizeManager::scrollPos(ResizableWindow *window)
 
 void WindowSizeManager::setPreviousWindowHeight(ResizableWindow *window, int height)
 {
-	if (windowInfo_.find(window) == windowInfo_.end()) {
+    if (windowInfo_.find(window) == windowInfo_.end()) {
         // not found
         return;
     }
@@ -80,7 +80,7 @@ void WindowSizeManager::setPreviousWindowHeight(ResizableWindow *window, int hei
 
 int WindowSizeManager::previousWindowHeight(ResizableWindow *window)
 {
-	if (windowInfo_.find(window) == windowInfo_.end()) {
+    if (windowInfo_.find(window) == windowInfo_.end()) {
         // not found
         return -1;
     }
@@ -89,7 +89,7 @@ int WindowSizeManager::previousWindowHeight(ResizableWindow *window)
 
 void WindowSizeManager::setState(ResizableWindow *window, WindowState state)
 {
-	if (windowInfo_.find(window) == windowInfo_.end()) {
+    if (windowInfo_.find(window) == windowInfo_.end()) {
         // not found
         return;
     }
@@ -98,7 +98,7 @@ void WindowSizeManager::setState(ResizableWindow *window, WindowState state)
 
 WindowSizeManager::WindowState WindowSizeManager::state(ResizableWindow *window)
 {
-	if (windowInfo_.find(window) == windowInfo_.end()) {
+    if (windowInfo_.find(window) == windowInfo_.end()) {
         // not found
         return kWindowUnknown;
     }
@@ -108,9 +108,9 @@ WindowSizeManager::WindowState WindowSizeManager::state(ResizableWindow *window)
 bool WindowSizeManager::hasWindowInState(WindowState state)
 {
     for (auto it = windowInfo_.begin(); it != windowInfo_.end(); ++it) {
-    	if (it->second.state == state) {
-    		return true;
-    	}
+        if (it->second.state == state) {
+            return true;
+        }
     }
     return false;
 }
@@ -118,9 +118,9 @@ bool WindowSizeManager::hasWindowInState(WindowState state)
 bool WindowSizeManager::allWindowsInState(WindowState state)
 {
     for (auto it = windowInfo_.begin(); it != windowInfo_.end(); ++it) {
-    	if (it->second.state != state) {
-    		return false;
-    	}
+        if (it->second.state != state) {
+            return false;
+        }
     }
     return true;
 }
@@ -128,16 +128,16 @@ bool WindowSizeManager::allWindowsInState(WindowState state)
 bool WindowSizeManager::isExclusivelyExpanded(ResizableWindow *window)
 {
     for (auto it = windowInfo_.begin(); it != windowInfo_.end(); ++it) {
-    	if ((it->first == window && it->second.state != kWindowExpanded) || (it->first != window && it->second.state == kWindowExpanded)) {
-    		return false;
-    	}
+        if ((it->first == window && it->second.state != kWindowExpanded) || (it->first != window && it->second.state == kWindowExpanded)) {
+            return false;
+        }
     }
     return true;
 }
 
 ShadowManager::SHAPE_ID WindowSizeManager::shapeId(ResizableWindow *window)
 {
-	if (windowInfo_.find(window) == windowInfo_.end()) {
+    if (windowInfo_.find(window) == windowInfo_.end()) {
         // not found
         return ((ShadowManager::SHAPE_ID)-1);
     }
@@ -146,7 +146,7 @@ ShadowManager::SHAPE_ID WindowSizeManager::shapeId(ResizableWindow *window)
 
 int WindowSizeManager::resizeDurationMs(ResizableWindow *window)
 {
-	if (windowInfo_.find(window) == windowInfo_.end()) {
+    if (windowInfo_.find(window) == windowInfo_.end()) {
         // not found
         return -1;
     }

@@ -13,7 +13,7 @@ void RoutesManager::updateState(const CMD_SEND_CONNECT_STATUS &connectStatus, bo
 {
     bool prevIsConnected = connectStatus_.isConnected;
     bool prevIsExcludeMode = isExcludeMode_;
-    
+
     if  (prevIsConnected == false && connectStatus.isConnected == true)
     {
         if (isSplitTunnelActive)
@@ -60,7 +60,7 @@ void RoutesManager::updateState(const CMD_SEND_CONNECT_STATUS &connectStatus, bo
             if (prevIsExcludeMode != isExcludeMode)
             {
                 clearAllRoutes();
-                
+
                 if (isExcludeMode)
                 {
                     if (connectStatus.protocol == kCmdProtocolOpenvpn || connectStatus.protocol == kCmdProtocolStunnelOrWstunnel)
@@ -100,7 +100,7 @@ void RoutesManager::updateState(const CMD_SEND_CONNECT_STATUS &connectStatus, bo
         }
         addDnsRoutes(connectStatus);
     }
-    
+
     connectStatus_ = connectStatus;
     isSplitTunnelActive_ = isSplitTunnelActive;
     isExcludeMode_ = isExcludeMode;
@@ -123,11 +123,11 @@ void RoutesManager::deleteOpenVpnDefaultRoutes(const CMD_SEND_CONNECT_STATUS &co
     std::string cmd = "route delete -net " + connectStatus.remoteIp + " " + connectStatus.defaultAdapter.gatewayIp + " 255.255.255.255";
     LOG("execute: %s", cmd.c_str());
     Utils::executeCommand(cmd);
-    
+
     cmd = "route delete -net 0.0.0.0 " + connectStatus.vpnAdapter.gatewayIp + " 128.0.0.0";
     LOG("execute: %s", cmd.c_str());
     Utils::executeCommand(cmd);
-    
+
     cmd = "route delete -net 128.0.0.0 " + connectStatus.vpnAdapter.gatewayIp + " 128.0.0.0";
     LOG("execute: %s", cmd.c_str());
     Utils::executeCommand(cmd);
@@ -138,7 +138,7 @@ void RoutesManager::deleteWireGuardDefaultRoutes(const CMD_SEND_CONNECT_STATUS &
     std::string cmd = "route delete -inet 0.0.0.0/1 -interface " + connectStatus.vpnAdapter.adapterName;
     LOG("execute: %s", cmd.c_str());
     Utils::executeCommand(cmd);
-    
+
     cmd = "route delete -inet 128.0.0.0/1 -interface " + connectStatus.vpnAdapter.adapterName;
     LOG("execute: %s", cmd.c_str());
     Utils::executeCommand(cmd);
@@ -149,7 +149,7 @@ void RoutesManager::addIkev2RoutesForInclusiveMode(const CMD_SEND_CONNECT_STATUS
     // add routes for override ikev2 default routes
     ikev2OverrideRoutes_.add("0.0.0.0", connectStatus.defaultAdapter.gatewayIp, "128.0.0.0");
     ikev2OverrideRoutes_.add("128.0.0.0", connectStatus.defaultAdapter.gatewayIp, "128.0.0.0");
-    
+
     // add bound route
     boundRoute_.create(connectStatus.vpnAdapter.adapterIp, connectStatus.vpnAdapter.adapterName);
 }

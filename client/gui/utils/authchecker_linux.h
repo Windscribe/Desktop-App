@@ -1,5 +1,4 @@
-#ifndef AUTHCHECKER_LINUX_H
-#define AUTHCHECKER_LINUX_H
+#pragma once
 
 #include <QProcess>
 #include "iauthchecker.h"
@@ -15,5 +14,3 @@ public:
 private:
     QProcess *process_;
 };
-
-#endif // AUTHCHECKER_LINUX_H

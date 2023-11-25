@@ -14,11 +14,11 @@
 -(id)init
 {
     startTime_ = [NSDate date];
-    
+
     NSString *logFolderOuter =[NSString stringWithFormat:@"%@/Library/Application Support/Windscribe", NSHomeDirectory()];
     NSString *logFolder = [NSString stringWithFormat:@"%@/Windscribe", logFolderOuter];
     aFile_ = [NSString stringWithFormat:@"%@/log_installer.txt", logFolder];
-    
+
     // Create logFolder (deletes name-colliding files if necessary)
     BOOL isInnerDir;
     BOOL innerExists = [[NSFileManager defaultManager] fileExistsAtPath:logFolder isDirectory:&isInnerDir];
@@ -43,7 +43,7 @@
         [[NSFileManager defaultManager] removeItemAtPath:prevLogFile error:nil];
         [[NSFileManager defaultManager] moveItemAtPath:aFile_ toPath:prevLogFile error:nil];
     }
-    
+
     // create new log
     [[NSFileManager defaultManager] createFileAtPath:aFile_ contents:nil attributes:nil];
     [self logAndStdOut:@"Installer log created"];
@@ -55,7 +55,7 @@
     NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
     [dateFormatter setDateFormat:@"ddMM HH:mm:ss:SSS"];
     NSDate *currentTime = [NSDate date];
-    
+
     NSFileHandle *aFileHandle = [NSFileHandle fileHandleForWritingAtPath:aFile_];
     [aFileHandle seekToEndOfFile];
     [aFileHandle writeData:[[NSString stringWithFormat:@"[%@ %12.03f] %@\n",

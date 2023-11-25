@@ -1,5 +1,4 @@
-#ifndef BFE_SERVICE_WIN_H
-#define BFE_SERVICE_WIN_H
+#pragma once
 
 class IHelper;
 class QWidget;
@@ -22,5 +21,3 @@ private:
 
     void enableBFE(IHelper *helper);
 };
-
-#endif // BFE_SERVICE_WIN_H

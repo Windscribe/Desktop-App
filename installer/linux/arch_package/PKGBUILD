@@ -10,7 +10,7 @@ url="https://windscribe.com/download"
 license=('GPL2')
 depends=('nftables' 'c-ares' 'freetype2' 'hicolor-icon-theme' 'systemd' 'glibc>=2.28' 'glib2' 'zlib' 'gcc-libs' 'dbus'
          'libglvnd' 'fontconfig' 'libx11' 'libxkbcommon' 'libxcb' 'net-tools' 'xcb-util-wm' 'xcb-util-image'
-         'xcb-util-keysyms' 'xcb-util-renderutil' 'sudo' 'shadow')
+         'xcb-util-keysyms' 'xcb-util-renderutil' 'sudo' 'shadow' 'xcb-util-cursor' 'networkmanager')
 conflicts=('windscribe-cli')
 provides=('windscribe')
 options=('!strip' '!emptydirs')
@@ -19,12 +19,12 @@ source=($APP_DOWNLOAD_URL)
 sha512sums=('SKIP')
 
 package(){
-	# Extract package data
-	tar xf data.tar.xz -C "${pkgdir}"
+    # Extract package data
+    tar xf data.tar.xz -C "${pkgdir}"
 
-	# Correct permissions
-	chmod -R 755 "${pkgdir}"
+    # Correct permissions
+    chmod -R 755 "${pkgdir}"
 
-	# Install license
-	install -D -m644 "${pkgdir}/opt/windscribe/open_source_licenses.txt" "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+    # Install license
+    install -D -m644 "${pkgdir}/opt/windscribe/open_source_licenses.txt" "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
 }

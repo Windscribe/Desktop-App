@@ -1,5 +1,4 @@
-#ifndef SPLITTUNNELINGAPPSWINDOWITEM_H
-#define SPLITTUNNELINGAPPSWINDOWITEM_H
+#pragma once
 
 #include "commongraphics/basepage.h"
 #include "backend/preferences/preferences.h"
@@ -40,5 +39,3 @@ private:
 };
 
 }
-
-#endif // SPLITTUNNELINGAPPSWINDOWITEM_H

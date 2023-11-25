@@ -1,5 +1,4 @@
-#ifndef SHARINGFEATURE_H
-#define SHARINGFEATURE_H
+#pragma once
 
 #include <QGraphicsObject>
 #include <QFont>
@@ -64,4 +63,3 @@ private:
 };
 
 }
-#endif // SHARINGFEATURE_H

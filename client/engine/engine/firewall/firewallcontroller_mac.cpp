@@ -61,8 +61,7 @@ FirewallController_mac::FirewallController_mac(QObject *parent, IHelper *helper)
         isWindscribeFirewallEnabled_ = false;
     } else if (firewallState.isEnabled && firewallState.isBasicWindscribeRulesCorrect) {
         windscribeIps_ = firewallState.windscribeIps;
-        if (windscribeIps_.isEmpty())
-        {
+        if (windscribeIps_.isEmpty()) {
             qCDebug(LOG_FIREWALL_CONTROLLER) << "Warning: the firewall was enabled at the start, but windscribe_ips table not found or empty.";
             WS_ASSERT(false);
         }
@@ -364,10 +363,10 @@ QString FirewallController_mac::generatePfConf(const QString &connectingIp, cons
     pf += "pass in quick inet6 proto udp from any to any port {547}\n";
 
     // always allow igmp
-    pf += "pass proto igmp allow-opts\n";
+    pf += "pass quick proto igmp allow-opts\n";
 
     // always allow esp/gre
-    pf += "pass proto {esp, gre} from any to any\n";
+    pf += "pass quick proto {esp, gre} from any to any\n";
 
     // block everything
     pf += "block all\n";
@@ -382,6 +381,11 @@ QString FirewallController_mac::generatePfConf(const QString &connectingIp, cons
 
     pf += "pass out quick inet from any to <windscribe_ips>\n";
     pf += "pass in quick inet from <windscribe_ips> to any\n";
+
+    // this table is filled in by the helper
+    pf += "table <windscribe_split_exclude_ips> persist\n";
+    pf += "pass out quick inet from any to <windscribe_split_tunnel_ips>\n";
+    pf += "pass in quick inet from <windscribe_split_tunnel_ips> to any\n";
 
     Anchor vpnTrafficAnchor("windscribe_vpn_traffic");
     vpnTrafficAnchor.addRules(vpnTrafficRules(connectingIp, interfaceToSkip, bIsCustomConfig));
@@ -398,6 +402,7 @@ QString FirewallController_mac::generatePfConf(const QString &connectingIp, cons
         }
     }
     pf += portsAnchor.getString() + "\n";
+
     return pf;
 }
 

@@ -3,5 +3,4 @@ target_sources(gui PRIVATE
     generalmessageitem.h
     generalmessagewindowitem.cpp
     generalmessagewindowitem.h
-    igeneralmessagewindow.h
 )

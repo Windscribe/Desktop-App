@@ -8,8 +8,8 @@
 class InstallAuthHelper : public IInstallBlock
 {
 public:
-	InstallAuthHelper(double weight);
-	~InstallAuthHelper();
-	int executeStep();
+    InstallAuthHelper(double weight);
+    ~InstallAuthHelper();
+    int executeStep();
 };
 

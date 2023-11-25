@@ -1,5 +1,4 @@
-#ifndef AUTHCHECKER_MAC_H
-#define AUTHCHECKER_MAC_H
+#pragma once
 
 #include "iauthchecker.h"
 
@@ -12,5 +11,3 @@ public:
     ~AuthChecker_mac() override;
     AuthCheckerError authenticate() override;
 };
-
-#endif

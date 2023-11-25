@@ -1,5 +1,4 @@
-#ifndef CONNECTEDUSERSCOUNTER_H
-#define CONNECTEDUSERSCOUNTER_H
+#pragma once
 
 #include <QObject>
 #include <QMap>
@@ -25,5 +24,3 @@ private:
 
     void checkUsersCount();
 };
-
-#endif // CONNECTEDUSERSCOUNTER_H

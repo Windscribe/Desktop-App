@@ -1,5 +1,4 @@
-#ifndef TYPES_CONNECTIONSETTINGS_H
-#define TYPES_CONNECTIONSETTINGS_H
+#pragma once
 
 #include <QJsonObject>
 #include <QSettings>
@@ -50,5 +49,3 @@ private:
 };
 
 } //namespace types
-
-#endif // TYPES_CONNECTIONSETTINGS_H

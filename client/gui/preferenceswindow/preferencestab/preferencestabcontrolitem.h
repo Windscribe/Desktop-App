@@ -1,48 +1,42 @@
-#ifndef PREFERENCESTABCONTROLITEM_H
-#define PREFERENCESTABCONTROLITEM_H
+#pragma once
 
 #include <QGraphicsObject>
 #include <QTimer>
-#include "ipreferencestabcontrol.h"
-#include "tabbutton.h"
+#include "backend/preferences/preferenceshelper.h"
 #include "commongraphics/dividerline.h"
 #include "commongraphics/iconbutton.h"
+#include "preferencestabtypes.h"
+#include "tabbutton.h"
 #include "tooltips/tooltiptypes.h"
-#include "backend/preferences/preferenceshelper.h"
 
 namespace PreferencesWindow {
 
-
-class PreferencesTabControlItem : public ScalableGraphicsObject, public IPreferencesTabControl
+class PreferencesTabControlItem : public ScalableGraphicsObject
 {
     Q_OBJECT
-    Q_INTERFACES(IPreferencesTabControl)
 public:
     explicit PreferencesTabControlItem(ScalableGraphicsObject *parent,
                                        PreferencesHelper *preferencesHelper);
-
-    QGraphicsObject *getGraphicsObject() override;
-
-    PREFERENCES_TAB_TYPE currentTab() override;
-    void setCurrentTab(PREFERENCES_TAB_TYPE tab) override;
-
     QRectF boundingRect() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
-
-    void setHeight(int newHeight) override;
-
-    void setInSubpage(bool inSubpage) override;
-    void setLoggedIn(bool loggedIn) override;
     void updateScaling() override;
+
+    PREFERENCES_TAB_TYPE currentTab();
+    void setCurrentTab(PREFERENCES_TAB_TYPE tab);
+
+    void setHeight(int newHeight);
+
+    void setInSubpage(bool inSubpage);
+    void setLoggedIn(bool loggedIn);
 
 public slots:
     void onIsExternalConfigModeChanged(bool bIsExternalConfigMode);
 
 signals:
-    void currentTabChanged(PREFERENCES_TAB_TYPE tab) override;
-    void signOutClick() override;
-    void loginClick() override;
-    void quitClick() override;
+    void currentTabChanged(PREFERENCES_TAB_TYPE tab);
+    void signOutClick();
+    void loginClick();
+    void quitClick();
 
 private slots:
     void onTabClicked(PREFERENCES_TAB_TYPE tab, TabButton *button);
@@ -80,5 +74,3 @@ private:
 };
 
 }
-
-#endif // PREFERENCESTABCONTROLITEM_H

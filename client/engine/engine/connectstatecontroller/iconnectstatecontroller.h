@@ -1,5 +1,4 @@
-#ifndef ICONNECTSTATECONTROLLER_H
-#define ICONNECTSTATECONTROLLER_H
+#pragma once
 
 #include <QObject>
 #include <QTimer>
@@ -23,5 +22,3 @@ public:
 signals:
     void stateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, CONNECT_ERROR err, const LocationID &location);
 };
-
-#endif // ICONNECTSTATECONTROLLER_H

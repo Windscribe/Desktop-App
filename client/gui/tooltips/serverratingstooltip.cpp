@@ -18,18 +18,18 @@ ServerRatingsTooltip::ServerRatingsTooltip(QWidget *parent) : ITooltip(parent)
     rateUpButton_ = new CommonWidgets::IconButtonWidget("RATE_SPEED_GOOD_OFF", this);
     rateUpButton_->setUnhoverHoverOpacity(OPACITY_FULL, OPACITY_FULL);
     rateUpButton_->animateOpacityChange(OPACITY_FULL);
-    connect(rateUpButton_, SIGNAL(clicked()), SLOT(onRateUpButtonClicked()));
-    connect(rateUpButton_, SIGNAL(hoverEnter()), SLOT(onRateUpButtonHoverEnter()));
+    connect(rateUpButton_, &CommonWidgets::IconButtonWidget::clicked, this, &ServerRatingsTooltip::onRateUpButtonClicked);
+    connect(rateUpButton_, &CommonWidgets::IconButtonWidget::hoverEnter, this, &ServerRatingsTooltip::onRateUpButtonHoverEnter);
 
     rateDownButton_ = new CommonWidgets::IconButtonWidget("RATE_SPEED_BAD_OFF", this);
     rateDownButton_->setUnhoverHoverOpacity(OPACITY_FULL, OPACITY_FULL);
     rateDownButton_->animateOpacityChange(OPACITY_FULL);
-    connect(rateDownButton_, SIGNAL(clicked()), SLOT(onRateDownButtonClicked()));
-    connect(rateDownButton_, SIGNAL(hoverEnter()), SLOT(onRateDownButtonHoverEnter()));
+    connect(rateDownButton_, &CommonWidgets::IconButtonWidget::clicked, this, &ServerRatingsTooltip::onRateDownButtonClicked);
+    connect(rateDownButton_, &CommonWidgets::IconButtonWidget::hoverEnter, this, &ServerRatingsTooltip::onRateDownButtonHoverEnter);
 
     hoverTimer_.setInterval(50);
     hoverTimer_.setSingleShot(false);
-    connect(&hoverTimer_, SIGNAL(timeout()), SLOT(onHoverTimerTick()));
+    connect(&hoverTimer_, &QTimer::timeout, this, &ServerRatingsTooltip::onHoverTimerTick);
 
     updateScaling();
 }

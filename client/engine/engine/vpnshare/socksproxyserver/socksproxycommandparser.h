@@ -1,5 +1,4 @@
-#ifndef SOCKSPROXYCOMMANDPARSER_H
-#define SOCKSPROXYCOMMANDPARSER_H
+#pragma once
 
 #include <QByteArray>
 #include "socksstructs.h"
@@ -40,5 +39,3 @@ private:
 };
 
 }
-
-#endif // SOCKSPROXYCOMMANDPARSER_H

@@ -1,5 +1,4 @@
-#ifndef IPC_CLI_COMMANDS_H
-#define IPC_CLI_COMMANDS_H
+#pragma once
 
 #include "command.h"
 #include "types/enginesettings.h"
@@ -418,5 +417,3 @@ public:
 
 } // namespace CliCommands
 } // namespace IPC
-
-#endif // IPC_CLI_COMMANDS_H

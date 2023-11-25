@@ -12,7 +12,7 @@ void PingHost_ICMP_posix::ping()
 {
     WS_ASSERT(process_ == nullptr);
     process_ = new QProcess(this);
-    connect(process_, SIGNAL(finished(int,QProcess::ExitStatus)), SLOT(onProcessFinished(int,QProcess::ExitStatus)));
+    connect(process_, &QProcess::finished, this, &PingHost_ICMP_posix::onProcessFinished);
     process_->start("ping", QStringList() << "-c" << "1" << "-W" << "2000" << ip_);
 }
 

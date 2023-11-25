@@ -48,7 +48,7 @@ WindscribeApplication::WindscribeApplication(int &argc, char **argv) : QApplicat
 
 #ifdef Q_OS_MAC
     setupDockClickHandler();
-    connect(&exitHanlderMac_, SIGNAL(shouldTerminate()), SIGNAL(shouldTerminate_mac()));
+    connect(&exitHandlerMac_, &ExitHandler_mac::shouldTerminate, this, &WindscribeApplication::shouldTerminate_mac);
 #endif
 }
 
@@ -60,7 +60,7 @@ void WindscribeApplication::onClickOnDock()
 bool WindscribeApplication::isExitWithRestart()
 {
 #ifdef Q_OS_MAC
-    return exitHanlderMac_.isExitWithRestart();
+    return exitHandlerMac_.isExitWithRestart();
 #else
     return bWasRestartOS_;
 #endif

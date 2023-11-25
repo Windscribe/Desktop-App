@@ -1,5 +1,4 @@
-#ifndef NOTIFICCATIONLABEL_H
-#define NOTIFICCATIONLABEL_H
+#pragma once
 
 #include <QGraphicsObject>
 #include <QFont>
@@ -41,5 +40,3 @@ private:
 };
 
 }
-
-#endif // NOTIFICCATIONLABEL_H

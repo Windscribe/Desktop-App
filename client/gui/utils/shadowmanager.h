@@ -1,5 +1,4 @@
-#ifndef SHADOWMANAGER_H
-#define SHADOWMANAGER_H
+#pragma once
 
 #include <QObject>
 #include <QPixmap>
@@ -54,5 +53,3 @@ private:
     QRect calcBoundingRect();
     int findObjectIndById(int id) const;
 };
-
-#endif // SHADOWMANAGER_H

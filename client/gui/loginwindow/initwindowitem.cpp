@@ -20,17 +20,17 @@ InitWindowItem::InitWindowItem(QGraphicsObject *parent) : ScalableGraphicsObject
 {
 #ifdef Q_OS_WIN
     closeButton_ = new IconButton(10, 10, "WINDOWS_CLOSE_ICON", "", this);
-    connect(closeButton_, SIGNAL(clicked()), SIGNAL(abortClicked()));
+    connect(closeButton_, &IconButton::clicked, this, &InitWindowItem::abortClicked);
 #else
     closeButton_ = new IconButton(14, 14, "MAC_CLOSE_DEFAULT", "", this);
-    connect(closeButton_, SIGNAL(clicked()), SIGNAL(abortClicked()));
+    connect(closeButton_, &IconButton::clicked, this, &InitWindowItem::abortClicked);
     connect(closeButton_, &IconButton::hoverEnter, [=]() { closeButton_->setIcon("MAC_CLOSE_HOVER"); });
     connect(closeButton_, &IconButton::hoverLeave, [=]() { closeButton_->setIcon("MAC_CLOSE_DEFAULT"); });
     closeButton_->setSelected(true);
 #endif
-    connect(&spinnerRotationAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onSpinnerRotationChanged(QVariant)));
-    connect(&spinnerRotationAnimation_, SIGNAL(finished()), SLOT(onSpinnerRotationFinished()));
-    connect(&logoPosAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onLogoPosChanged(QVariant)));
+    connect(&spinnerRotationAnimation_, &QVariantAnimation::valueChanged, this, &InitWindowItem::onSpinnerRotationChanged);
+    connect(&spinnerRotationAnimation_, &QVariantAnimation::finished, this, &InitWindowItem::onSpinnerRotationFinished);
+    connect(&logoPosAnimation_, &QVariantAnimation::valueChanged, this, &InitWindowItem::onLogoPosChanged);
 
     updatePositions();
 }

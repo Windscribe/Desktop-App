@@ -1,10 +1,7 @@
-#ifndef INTERFACEUTILS_H
-#define INTERFACEUTILS_H
+#pragma once
 
 namespace InterfaceUtils {
 
 bool isDarkMode();
 
 }
-
-#endif  // INTERFACEUTILS_H

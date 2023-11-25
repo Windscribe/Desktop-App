@@ -1,5 +1,4 @@
-#ifndef COMMANDFACTORY_H
-#define COMMANDFACTORY_H
+#pragma once
 
 #include "command.h"
 
@@ -15,5 +14,3 @@ public:
 };
 
 } // namespace IPC
-
-#endif // COMMANDFACTORY_H

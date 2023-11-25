@@ -1,5 +1,4 @@
-#ifndef ICONWIDGET_H
-#define ICONWIDGET_H
+#pragma once
 
 #include <QWidget>
 #include <QVariantAnimation>
@@ -33,5 +32,3 @@ private:
     double curOpacity_;
 
 };
-
-#endif // ICONWIDGET_H

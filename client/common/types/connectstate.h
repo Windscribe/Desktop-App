@@ -1,9 +1,7 @@
-#ifndef TYPES_CONNECTSTATE_H
-#define TYPES_CONNECTSTATE_H
+#pragma once
 
 #include "types/enums.h"
 #include "types/locationid.h"
-
 
 namespace types {
 
@@ -51,7 +49,4 @@ private:
     static constexpr quint32 versionForSerialization_ = 1;  // should increment the version if the data format is changed
 };
 
-
 } // types namespace
-
-#endif // TYPES_CONNECTSTATE_H

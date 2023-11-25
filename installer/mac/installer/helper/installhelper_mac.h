@@ -1,5 +1,4 @@
-#ifndef INSTALLHELPER_MAC_H
-#define INSTALLHELPER_MAC_H
+#pragma once
 
 #import <Foundation/Foundation.h>
 
@@ -9,5 +8,3 @@ class InstallHelper_mac
 public:
     static bool installHelper();
 };
-
-#endif // INSTALLHELPER_MAC_H

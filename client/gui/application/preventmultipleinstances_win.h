@@ -1,5 +1,4 @@
-#ifndef PREVENTMULTIPLEINSTANCES_WIN_H
-#define PREVENTMULTIPLEINSTANCES_WIN_H
+#pragma once
 
 #include <windows.h>
 
@@ -14,5 +13,3 @@ public:
 private:
     HANDLE hMutexCurrentApp_;
 };
-
-#endif // PREVENTMULTIPLEINSTANCES_WIN_H

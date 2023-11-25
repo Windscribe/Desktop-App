@@ -41,6 +41,7 @@ public:
    void setServiceSIDType(DWORD dwServiceSidType) const;
    void startService();
    void stopService();
+   void stopService(LPCTSTR pszServiceName);
 
    // Prevents the initiation of, and aborts any currently running, start/stop requests.
    void blockStartStopRequests();

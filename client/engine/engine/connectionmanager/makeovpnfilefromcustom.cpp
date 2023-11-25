@@ -1,13 +1,6 @@
 #include "makeovpnfilefromcustom.h"
-#include <QCoreApplication>
-#include <QString>
-#include "utils/extraconfig.h"
-#include "utils/logger.h"
-#include "engine/customconfigs/parseovpnconfigline.h"
 
-#ifdef Q_OS_MAC
-    #include "utils/macutils.h"
-#endif
+#include "engine/customconfigs/parseovpnconfigline.h"
 
 MakeOVPNFileFromCustom::MakeOVPNFileFromCustom() : config_()
 {
@@ -36,4 +29,3 @@ bool MakeOVPNFileFromCustom::generate(const QString &customConfigPath, const QSt
 
     return true;
 }
-

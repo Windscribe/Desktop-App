@@ -1,5 +1,4 @@
-#ifndef HTTPPROXYSERVER_H
-#define HTTPPROXYSERVER_H
+#pragma once
 
 #include "httpproxyconnectionmanager.h"
 #include "../connecteduserscounter.h"
@@ -33,7 +32,4 @@ private:
     ConnectedUsersCounter *usersCounter_;
 };
 
-
 } // namespace HttpProxyServer
-
-#endif // HTTPPROXYSERVER_H

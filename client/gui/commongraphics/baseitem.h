@@ -1,5 +1,4 @@
-#ifndef BASEITEM_H
-#define BASEITEM_H
+#pragma once
 
 #include <QGraphicsObject>
 #include <QVariant>
@@ -46,5 +45,3 @@ private:
 };
 
 } // namespace CommonGraphics
-
-#endif // BASEITEM_H

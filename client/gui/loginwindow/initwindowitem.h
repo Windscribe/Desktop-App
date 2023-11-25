@@ -1,37 +1,31 @@
-#ifndef INITWINDOWITEM_H
-#define INITWINDOWITEM_H
+#pragma once
 
 #include <QVariantAnimation>
 #include <QTimer>
-#include "iinitwindow.h"
 #include "commongraphics/iconbutton.h"
 
 namespace LoginWindow {
 
-class InitWindowItem : public ScalableGraphicsObject, public IInitWindow
+class InitWindowItem : public ScalableGraphicsObject
 {
     Q_OBJECT
-    Q_INTERFACES(IInitWindow)
 public:
     explicit InitWindowItem(QGraphicsObject *parent = nullptr);
-
-    QGraphicsObject *getGraphicsObject() override { return this; }
     QRectF boundingRect() const override;
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR) override;
-
-    void resetState() override ;
-    void startSlideAnimation() override;
-    void startWaitingAnimation() override;
-
-    void setAdditionalMessage(const QString &msg, bool useSmallFont) override;
-    void setCropHeight(int height) override;
-    void setHeight(int height) override;
-    void setCloseButtonVisible(bool visible) override;
-
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
     void updateScaling() override;
 
+    void resetState();
+    void startSlideAnimation();
+    void startWaitingAnimation();
+
+    void setAdditionalMessage(const QString &msg, bool useSmallFont);
+    void setCropHeight(int height);
+    void setHeight(int height);
+    void setCloseButtonVisible(bool visible);
+
 signals:
-    void abortClicked() override;
+    void abortClicked();
 
 private slots:
     void onSpinnerRotationChanged(const QVariant &value);
@@ -73,5 +67,3 @@ private:
 };
 
 }
-
-#endif // INITWINDOWITEM_H

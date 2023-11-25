@@ -1,5 +1,4 @@
-#ifndef WIREGUARDCONNECTION_H
-#define WIREGUARDCONNECTION_H
+#pragma once
 
 #include "iconnection.h"
 #include <atomic>
@@ -60,5 +59,3 @@ private:
     AdapterGatewayInfo adapterGatewayInfo_;
     bool isAutomaticConnectionMode_;
 };
-
-#endif // WIREGUARDCONNECTION_H

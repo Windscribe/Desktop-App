@@ -1,4 +1,4 @@
-#import "base_installer.hpp"
+#import "base_installer.h"
 
 
 @implementation BaseInstaller
@@ -24,7 +24,7 @@
         isUseUpdatePath_ = true;
         updatePath_ = path;
         self.path = [self getDefaultInstallPath];
-        
+
     }
     return self;
 }

@@ -1,5 +1,4 @@
-#ifndef SERVERRATINGSTOOLTIP_H
-#define SERVERRATINGSTOOLTIP_H
+#pragma once
 
 #include <QWidget>
 #include <QLabel>
@@ -62,5 +61,3 @@ private:
     const QString translatedText();
 
 };
-
-#endif // SERVERRATINGSTOOLTIP_H

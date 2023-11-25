@@ -40,7 +40,7 @@ void TestCurlNetworkManager::test_delete_manager()
     delete reply2;
     manager->deleteLater();
 
-    QSignalSpy signalFinished(reply, SIGNAL(finished()));
+    QSignalSpy signalFinished(reply, &CurlReply::finished);
     signalFinished.wait(1000);
     QCOMPARE(signalFinished.count(), 0);
 }
@@ -78,7 +78,7 @@ void TestCurlNetworkManager::test_get()
     });
 
 
-    QSignalSpy signalFinished(reply, SIGNAL(finished()));
+    QSignalSpy signalFinished(reply, &CurlReply::finished);
     signalFinished.wait(20000);
     QCOMPARE(signalFinished.count(), 1);
     QVERIFY(progressCalled > 0);
@@ -102,7 +102,7 @@ void TestCurlNetworkManager::test_readall_get()
         arr.append(newData);
     });
 
-    QSignalSpy signalFinished(reply, SIGNAL(finished()));
+    QSignalSpy signalFinished(reply, &CurlReply::finished);
     signalFinished.wait(20000);
     QCOMPARE(signalFinished.count(), 1);
 
@@ -131,7 +131,7 @@ void TestCurlNetworkManager::test_incorrect_get()
         reply->deleteLater();
     });
 
-    QSignalSpy signalFinished(reply, SIGNAL(finished()));
+    QSignalSpy signalFinished(reply, &CurlReply::finished);
     signalFinished.wait(20000);
     QCOMPARE(signalFinished.count(), 1);
 }
@@ -153,7 +153,7 @@ void TestCurlNetworkManager::test_timeout_get()
         reply->deleteLater();
     });
 
-    QSignalSpy signalFinished(reply, SIGNAL(finished()));
+    QSignalSpy signalFinished(reply, &CurlReply::finished);
     signalFinished.wait(20000);
 
     QVERIFY(timer.elapsed() < time1 * 1.2);
@@ -177,7 +177,7 @@ void TestCurlNetworkManager::test_ssl_errors()
             QVERIFY(reply->isSSLError());
             reply->deleteLater();
         });
-        signalSpyes << new QSignalSpy (reply, SIGNAL(finished()));
+        signalSpyes << new QSignalSpy (reply, &CurlReply::finished);
     }
     {
         NetworkRequest request(QUrl("https://wrong.host.badssl.com/"), 10000, false);
@@ -187,7 +187,7 @@ void TestCurlNetworkManager::test_ssl_errors()
             QVERIFY(reply->isSSLError());
             reply->deleteLater();
         });
-        signalSpyes << new QSignalSpy (reply, SIGNAL(finished()));
+        signalSpyes << new QSignalSpy (reply, &CurlReply::finished);
     }
     {
         NetworkRequest request(QUrl("https://self-signed.badssl.com/"), 10000, false);
@@ -197,7 +197,7 @@ void TestCurlNetworkManager::test_ssl_errors()
             QVERIFY(reply->isSSLError());
             reply->deleteLater();
         });
-        signalSpyes << new QSignalSpy (reply, SIGNAL(finished()));
+        signalSpyes << new QSignalSpy (reply, &CurlReply::finished);
     }
     {
         NetworkRequest request(QUrl("https://untrusted-root.badssl.com/"), 10000, false);
@@ -207,7 +207,7 @@ void TestCurlNetworkManager::test_ssl_errors()
             QVERIFY(reply->isSSLError());
             reply->deleteLater();
         });
-        signalSpyes << new QSignalSpy (reply, SIGNAL(finished()));
+        signalSpyes << new QSignalSpy (reply, &CurlReply::finished);
     }
 
     for (auto it : signalSpyes)
@@ -234,7 +234,7 @@ void TestCurlNetworkManager::test_ignore_ssl_error()
         reply->deleteLater();
     });
 
-    QSignalSpy signalFinished(reply, SIGNAL(finished()));
+    QSignalSpy signalFinished(reply, &CurlReply::finished);
     signalFinished.wait(20000);
 
     QVERIFY(signalFinished.count() == 1);
@@ -260,7 +260,7 @@ void TestCurlNetworkManager::test_iplist_get()
             reply->deleteLater();
         });
 
-        QSignalSpy signalFinished(reply, SIGNAL(finished()));
+        QSignalSpy signalFinished(reply, &CurlReply::finished);
         signalFinished.wait(20000);
         QCOMPARE(signalFinished.count(), 1);
     }
@@ -273,7 +273,7 @@ void TestCurlNetworkManager::test_iplist_get()
             reply->deleteLater();
         });
 
-        QSignalSpy signalFinished(reply, SIGNAL(finished()));
+        QSignalSpy signalFinished(reply, &CurlReply::finished);
         signalFinished.wait(20000);
         QCOMPARE(signalFinished.count(), 1);
     }
@@ -313,7 +313,7 @@ void TestCurlNetworkManager::test_post()
         progressCalled++;
     });
 
-    QSignalSpy signalFinished(reply, SIGNAL(finished()));
+    QSignalSpy signalFinished(reply, &CurlReply::finished);
     signalFinished.wait(20000);
     QCOMPARE(signalFinished.count(), 1);
     QVERIFY(progressCalled > 0);
@@ -353,7 +353,7 @@ void TestCurlNetworkManager::test_put()
         progressCalled++;
     });
 
-    QSignalSpy signalFinished(reply, SIGNAL(finished()));
+    QSignalSpy signalFinished(reply, &CurlReply::finished);
     signalFinished.wait(20000);
     QCOMPARE(signalFinished.count(), 1);
     QVERIFY(progressCalled > 0);
@@ -389,7 +389,7 @@ void TestCurlNetworkManager::test_delete()
         progressCalled++;
     });
 
-    QSignalSpy signalFinished(reply, SIGNAL(finished()));
+    QSignalSpy signalFinished(reply, &CurlReply::finished);
     signalFinished.wait(20000);
     QCOMPARE(signalFinished.count(), 1);
     QVERIFY(progressCalled > 0);
@@ -401,9 +401,9 @@ void TestCurlNetworkManager::test_multi()
     CurlTestMulti async;
 
     async.moveToThread(&thread);
-    async.connect(&thread, SIGNAL(started()), SLOT(start()));
-    thread.connect(&async, SIGNAL(finished()), SLOT(quit()));
-    QSignalSpy signalFinished(&thread, SIGNAL(finished()));
+    async.connect(&thread, &QThread::started, this, &TestCurlNetworkManager::start);
+    thread.connect(&async, &CurlReply::finished, this, &TestCurlNetworkManager::quit);
+    QSignalSpy signalFinished(&thread, &CurlReply::finished);
 
     thread.start();
 
@@ -425,7 +425,7 @@ void CurlTestMulti::start()
     for (int i = 0; i < 100; ++i)
     {
         CurlReply *reply = manager_->get(request, dnsRequest.ips());
-        connect(reply, SIGNAL(finished()), SLOT(onReplyFinished()));
+        connect(reply, &CurlReply::finished, SLOT(onReplyFinished()));
         replies_ << reply;
     }
     QTimer::singleShot(10, this, SLOT(addMore()));
@@ -473,7 +473,7 @@ void CurlTestMulti::addMore()
     for (int i = 0; i < 100; ++i)
     {
         CurlReply *reply = manager_->get(request, dnsRequest.ips());
-        connect(reply, SIGNAL(finished()), SLOT(onReplyFinished()));
+        connect(reply, &CurlReply::finished, SLOT(onReplyFinished()));
         replies_ << reply;
     }
     int g = 0;

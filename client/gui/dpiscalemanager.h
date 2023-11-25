@@ -1,5 +1,4 @@
-#ifndef DPISCALEMANAGER_H
-#define DPISCALEMANAGER_H
+#pragma once
 
 #include <QObject>
 #include <QScreen>
@@ -54,5 +53,3 @@ private:
     void setScale();
     void update(QScreen *screen);
 };
-
-#endif // DPISCALEMANAGER_H

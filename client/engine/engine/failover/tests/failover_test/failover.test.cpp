@@ -93,7 +93,7 @@ void TestFailover::basicTest()
     while (true) {
         QSharedPointer<failover::BaseFailover> failover = failoverContainer->currentFailover();
         uniqueIds << failover->uniqueId();
-        QSignalSpy spy(failover.get(), SIGNAL(finished(QVector<failover::FailoverData>)));
+        QSignalSpy spy(failover.get(), &failover::BaseFailover::finished);
         failover->getData(false);
         while (spy.count() != 1) {
             spy.wait(1000);

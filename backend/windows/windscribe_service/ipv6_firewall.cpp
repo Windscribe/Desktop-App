@@ -8,20 +8,20 @@
 #define FIREWALL_SUBLAYER_IPV6_NAMEW L"WindscribeIPV6FirewallSublayer"
 #define UUID_LAYER_IPV6 L"8b03e426-56a7-4669-a985-706406675e68"
 
-Ipv6Firewall::Ipv6Firewall(FwpmWrapper &fwmpWrapper): fwmpWrapper_(fwmpWrapper)
+Ipv6Firewall::Ipv6Firewall(FwpmWrapper &fwpmWrapper): fwpmWrapper_(fwpmWrapper)
 {
     UuidFromString((RPC_WSTR)UUID_LAYER_IPV6, &subLayerGUID_);
 }
 
-Ipv6Firewall::~Ipv6Firewall()
+void Ipv6Firewall::release()
 {
     enableIPv6();
 }
 
 void Ipv6Firewall::enableIPv6()
 {
-    HANDLE hEngine = fwmpWrapper_.getHandleAndLock();
-    fwmpWrapper_.beginTransaction();
+    HANDLE hEngine = fwpmWrapper_.getHandleAndLock();
+    fwpmWrapper_.beginTransaction();
 
     if (Utils::deleteSublayerAndAllFilters(hEngine, &subLayerGUID_)) {
         Logger::instance().out(L"Ipv6Firewall::enableIPv6(), all filters deleted");
@@ -29,14 +29,14 @@ void Ipv6Firewall::enableIPv6()
         Logger::instance().out(L"Ipv6Firewall::enableIPv6(), failed delete filters");
     }
 
-    fwmpWrapper_.endTransaction();
-    fwmpWrapper_.unlock();
+    fwpmWrapper_.endTransaction();
+    fwpmWrapper_.unlock();
 }
 
 void Ipv6Firewall::disableIPv6()
 {
-    HANDLE hEngine = fwmpWrapper_.getHandleAndLock();
-    fwmpWrapper_.beginTransaction();
+    HANDLE hEngine = fwpmWrapper_.getHandleAndLock();
+    fwpmWrapper_.beginTransaction();
 
     FWPM_SUBLAYER0 subLayer = { 0 };
 
@@ -49,15 +49,15 @@ void Ipv6Firewall::disableIPv6()
     DWORD dwFwAPiRetCode = FwpmSubLayerAdd0(hEngine, &subLayer, NULL);
     if (dwFwAPiRetCode != ERROR_SUCCESS && dwFwAPiRetCode != FWP_E_ALREADY_EXISTS) {
         Logger::instance().out(L"Ipv6Firewall::disableIPv6(), FwpmSubLayerAdd0 failed");
-        fwmpWrapper_.endTransaction();
-        fwmpWrapper_.unlock();
+        fwpmWrapper_.endTransaction();
+        fwpmWrapper_.unlock();
         return;
     }
 
     addFilters(hEngine);
 
-    fwmpWrapper_.endTransaction();
-    fwmpWrapper_.unlock();
+    fwpmWrapper_.endTransaction();
+    fwpmWrapper_.unlock();
 }
 
 void Ipv6Firewall::addFilters(HANDLE engineHandle)

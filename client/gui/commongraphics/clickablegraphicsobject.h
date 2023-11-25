@@ -1,5 +1,4 @@
-#ifndef CLICKABLEGRAPHICSOBJECT_H
-#define CLICKABLEGRAPHICSOBJECT_H
+#pragma once
 
 #include "commongraphics/scalablegraphicsobject.h"
 
@@ -46,5 +45,3 @@ protected:
     virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent *event) override;
 
 };
-
-#endif // CLICKABLEGRAPHICSOBJECT_H

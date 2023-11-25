@@ -1,5 +1,4 @@
-#ifndef CRASHDUMP_H
-#define CRASHDUMP_H
+#pragma once
 
 #include "crashhandler.h"
 #include <memory>
@@ -27,4 +26,3 @@ private:
 }
 
 #endif  // ENABLE_CRASH_REPORTS
-#endif // CRASHDUMP_H

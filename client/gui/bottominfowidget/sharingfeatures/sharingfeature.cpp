@@ -18,8 +18,8 @@ SharingFeature::SharingFeature(QString ssidOrProxyText, QString primaryIcon, Sca
     textIconButton_->setCursor(Qt::PointingHandCursor);
     textIconButton_->setVerticalOffset(-4);
 
-    connect(textIconButton_, SIGNAL(widthChanged(int)), this, SLOT(onTextIconWidthChanged(int)));
-    connect(textIconButton_, SIGNAL(clicked()), this, SIGNAL(clicked()));
+    connect(textIconButton_, &CommonGraphics::TextIconButton::widthChanged, this, &SharingFeature::onTextIconWidthChanged);
+    connect(textIconButton_, &CommonGraphics::TextIconButton::clicked, this, &SharingFeature::clicked);
 
     verticalLine_ = new CommonGraphics::VerticalDividerLine(this, 16);
 

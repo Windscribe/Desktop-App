@@ -1,5 +1,4 @@
-#ifndef HelperCommandsSerialize_h
-#define HelperCommandsSerialize_h
+#pragma once
 
 #ifndef UNUSED
 #define UNUSED(x) (void)(x)
@@ -45,14 +44,6 @@ void serialize(Archive &ar, CMD_CLEAR_CMDS &a, const unsigned int version)
     UNUSED(a);
     UNUSED(ar);
     UNUSED(version);
-}
-
-template<class Archive>
-void serialize(Archive &ar, CMD_SET_KEYCHAIN_ITEM &a, const unsigned int version)
-{
-    UNUSED(a);
-    ar & a.username;
-    ar & a.password;
 }
 
 template<class Archive>
@@ -208,7 +199,7 @@ template<class Archive>
 void serialize(Archive &ar, CMD_CLEAR_FIREWALL_RULES &a, const unsigned int version)
 {
     UNUSED(version);
-    ar & a.isKeekPfEnabled;
+    ar & a.isKeepPfEnabled;
 }
 
 
@@ -243,7 +234,6 @@ void serialize(Archive &ar, CMD_SET_MAC_SPOOFING_ON_BOOT &a, const unsigned int 
     ar & a.enabled;
     ar & a.interface;
     ar & a.macAddress;
-    ar & a.robustMethod;
 }
 
 template<class Archive>
@@ -252,7 +242,6 @@ void serialize(Archive &ar, CMD_SET_MAC_ADDRESS &a, const unsigned int version)
     UNUSED(version);
     ar & a.interface;
     ar & a.macAddress;
-    ar & a.robustMethod;
 }
 
 template<class Archive>
@@ -287,6 +276,3 @@ void serialize(Archive &ar, CMD_START_WSTUNNEL &a, const unsigned int version)
 
 }
 }
-
-
-#endif

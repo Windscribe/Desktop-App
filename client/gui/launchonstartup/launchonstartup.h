@@ -1,6 +1,4 @@
-#ifndef LAUNCHONSTARTUP_H
-#define LAUNCHONSTARTUP_H
-
+#pragma once
 
 class LaunchOnStartup
 {
@@ -17,5 +15,3 @@ public:
 private:
     LaunchOnStartup() {}
 };
-
-#endif // LAUNCHONSTARTUP_H

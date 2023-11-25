@@ -1,5 +1,4 @@
-#ifndef LOCATIONSTRAYMENUBUTTON_H
-#define LOCATIONSTRAYMENUBUTTON_H
+#pragma once
 
 #include <QPushButton>
 
@@ -18,5 +17,3 @@ protected:
 private:
     int type_;
 };
-
-#endif // LOCATIONSTRAYMENUBUTTON_H

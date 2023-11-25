@@ -1,26 +1,28 @@
-#include "all_headers.h"
 #include "adapters_info.h"
+
+#include <ws2tcpip.h>
+
 #include "logger.h"
 
 AdaptersInfo::AdaptersInfo()
 {
-	ULONG ulAdapterInfoSize = 4096;
+    ULONG ulAdapterInfoSize = 4096;
     adapterInfoBuffer_.reset(new unsigned char[ulAdapterInfoSize]);
 
     DWORD result = ::GetAdaptersAddresses(AF_UNSPEC, NULL, NULL, (PIP_ADAPTER_ADDRESSES)adapterInfoBuffer_.get(), &ulAdapterInfoSize);
 
-	if (result == ERROR_BUFFER_OVERFLOW)
-	{
+    if (result == ERROR_BUFFER_OVERFLOW)
+    {
         adapterInfoBuffer_.reset(new unsigned char[ulAdapterInfoSize]);
         result = ::GetAdaptersAddresses(AF_UNSPEC, NULL, NULL, (PIP_ADAPTER_ADDRESSES)adapterInfoBuffer_.get(), &ulAdapterInfoSize);
     }
 
-	if (result == ERROR_SUCCESS)
-	{
-		pAdapterInfo_ = (PIP_ADAPTER_ADDRESSES)adapterInfoBuffer_.get();
-	}
-	else
-	{
+    if (result == ERROR_SUCCESS)
+    {
+        pAdapterInfo_ = (PIP_ADAPTER_ADDRESSES)adapterInfoBuffer_.get();
+    }
+    else
+    {
         adapterInfoBuffer_.reset();
         Logger::instance().out(L"AdaptersInfo - GetAdaptersAddresses failed %lu", ::GetLastError());
     }
@@ -31,13 +33,13 @@ bool AdaptersInfo::isWindscribeAdapter(NET_IFINDEX index) const
 {
     PIP_ADAPTER_ADDRESSES ai = pAdapterInfo_;
     while (ai)
-	{
-		if (ai->IfIndex == index)
-		{
+    {
+        if (ai->IfIndex == index)
+        {
             return isWindscribeAdapter(ai);
-		}
-		ai = ai->Next;
-    } 
+        }
+        ai = ai->Next;
+    }
 
     return false;
 }
@@ -49,9 +51,9 @@ bool AdaptersInfo::getWindscribeIkev2AdapterInfo(NET_IFINDEX &outIfIndex, std::w
 
     PIP_ADAPTER_ADDRESSES ai = pAdapterInfo_;
     while (ai)
-	{
-		if (wcsstr(ai->Description, L"Windscribe IKEv2") != 0)
-		{
+    {
+        if (wcsstr(ai->Description, L"Windscribe IKEv2") != 0)
+        {
             PIP_ADAPTER_UNICAST_ADDRESS pUnicast = ai->FirstUnicastAddress;
             while (pUnicast)
             {
@@ -71,7 +73,7 @@ bool AdaptersInfo::getWindscribeIkev2AdapterInfo(NET_IFINDEX &outIfIndex, std::w
 
                     break;
                 }
-                
+
                 pUnicast = pUnicast->Next;
             }
 
@@ -83,27 +85,27 @@ bool AdaptersInfo::getWindscribeIkev2AdapterInfo(NET_IFINDEX &outIfIndex, std::w
             }
 
             break;
-		}
-		ai = ai->Next;
-	}
+        }
+        ai = ai->Next;
+    }
 
-	return (outIfIndex != NET_IFINDEX_UNSPECIFIED);
+    return (outIfIndex != NET_IFINDEX_UNSPECIFIED);
 }
 
 std::vector<NET_IFINDEX> AdaptersInfo::getTAPAdapters()
 {
-	std::vector<NET_IFINDEX> list;
+    std::vector<NET_IFINDEX> list;
 
     PIP_ADAPTER_ADDRESSES ai = pAdapterInfo_;
     while (ai)
     {
         if (isWindscribeAdapter(ai)) {
-			list.push_back(ai->IfIndex);
+            list.push_back(ai->IfIndex);
         }
-		ai = ai->Next;
-	}
+        ai = ai->Next;
+    }
 
-	return list;
+    return list;
 }
 
 std::vector<std::string> AdaptersInfo::getAdapterAddresses(NET_IFINDEX idx)

@@ -32,41 +32,40 @@ EmergencyConnectWindowItem::EmergencyConnectWindowItem(QGraphicsObject *parent,
     spinnerRotationAnimationActive_ = false;
 
     connectButton_ = new CommonGraphics::BubbleButton(this, CommonGraphics::BubbleButton::kOutline, 108, 40, 20);
-    connect(connectButton_, SIGNAL(clicked()), SLOT(onConnectClicked()));
+    connect(connectButton_, &CommonGraphics::BubbleButton::clicked, this, &EmergencyConnectWindowItem::onConnectClicked);
 
     disconnectButton_ = new CommonGraphics::BubbleButton(this, CommonGraphics::BubbleButton::kBright, 128, 40, 20);
-    connect(disconnectButton_, SIGNAL(clicked()), SLOT(onDisconnectClicked()));
+    connect(disconnectButton_, &CommonGraphics::BubbleButton::clicked, this, &EmergencyConnectWindowItem::onDisconnectClicked);
 
     escButton_ = new CommonGraphics::EscapeButton(this);
-    connect(escButton_, SIGNAL(clicked()), SLOT(onEscClicked()));
+    connect(escButton_, &CommonGraphics::EscapeButton::clicked, this, &EmergencyConnectWindowItem::onEscClicked);
 
 #ifdef Q_OS_WIN
     closeButton_ = new IconButton(16, 16, "WINDOWS_CLOSE_ICON", "", this);
-    connect(closeButton_, SIGNAL(clicked()), SIGNAL(closeClick()));
+    connect(closeButton_, &IconButton::clicked, this, &EmergencyConnectWindowItem::closeClick);
 
     minimizeButton_ = new IconButton(16, 16, "WINDOWS_MINIMIZE_ICON", "", this);
-    connect(minimizeButton_, SIGNAL(clicked()), SIGNAL(minimizeClick()));
+    connect(minimizeButton_, &IconButton::clicked, this, &EmergencyConnectWindowItem::minimizeClick);
 #endif
 
     textLinkButton_ = new TextLinkButton(this);
-    connect(textLinkButton_, SIGNAL(clicked()), SIGNAL(windscribeLinkClick()));
-    connect(textLinkButton_, SIGNAL(widthChanged()), SLOT(onTextLinkWidthChanged()));
+    connect(textLinkButton_, &TextLinkButton::clicked, this, &EmergencyConnectWindowItem::windscribeLinkClick);
+    connect(textLinkButton_, &TextLinkButton::widthChanged, this, &EmergencyConnectWindowItem::onTextLinkWidthChanged);
 
-    connect(&titleOpacityAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onTitleOpacityChange(QVariant)));
-    connect(&descriptionOpacityAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onDescriptionTransition(QVariant)));
-    connect(&iconOpacityAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onIconOpacityChange(QVariant)));
-    connect(&minimizeCloseOpacityAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onMinimizeCloseOpacityChange(QVariant)));
+    connect(&titleOpacityAnimation_, &QVariantAnimation::valueChanged, this, &EmergencyConnectWindowItem::onTitleOpacityChange);
+    connect(&descriptionOpacityAnimation_, &QVariantAnimation::valueChanged, this, &EmergencyConnectWindowItem::onDescriptionTransition);
+    connect(&iconOpacityAnimation_, &QVariantAnimation::valueChanged, this, &EmergencyConnectWindowItem::onIconOpacityChange);
+    connect(&minimizeCloseOpacityAnimation_, &QVariantAnimation::valueChanged, this, &EmergencyConnectWindowItem::onMinimizeCloseOpacityChange);
 
-    connect(&spinnerOpacityAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onSpinnerTransition(QVariant)));
-    connect(&subDescriptionTextOpacityAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onSubDescriptionTextTransition(QVariant)));
+    connect(&spinnerOpacityAnimation_, &QVariantAnimation::valueChanged, this, &EmergencyConnectWindowItem::onSpinnerTransition);
+    connect(&subDescriptionTextOpacityAnimation_, &QVariantAnimation::valueChanged, this, &EmergencyConnectWindowItem::onSubDescriptionTextTransition);
 
-    connect(&spinnerRotationAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onSpinnerRotation(QVariant)));
+    connect(&spinnerRotationAnimation_, &QVariantAnimation::valueChanged, this, &EmergencyConnectWindowItem::onSpinnerRotation);
 
-    connect(&LanguageController::instance(), SIGNAL(languageChanged()), SLOT(onLanguageChanged()));
+    connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &EmergencyConnectWindowItem::onLanguageChanged);
     onLanguageChanged();
 
-    connect(preferencesHelper, SIGNAL(isDockedModeChanged(bool)), this,
-            SLOT(onDockedModeChanged(bool)));
+    connect(preferencesHelper, &PreferencesHelper::isDockedModeChanged, this, &EmergencyConnectWindowItem::onDockedModeChanged);
 
     textLinkButton_->animateShow(ANIMATION_SPEED_FAST);
 

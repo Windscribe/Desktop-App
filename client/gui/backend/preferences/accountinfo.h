@@ -1,5 +1,4 @@
-#ifndef ACCOUNTINFO_H
-#define ACCOUNTINFO_H
+#pragma once
 
 #include <QDateTime>
 #include <QObject>
@@ -55,5 +54,3 @@ private:
     qint64 trafficUsed_;
     QString lastReset_;
 };
-
-#endif // ACCOUNTINFO_H

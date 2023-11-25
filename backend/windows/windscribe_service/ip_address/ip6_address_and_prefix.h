@@ -1,5 +1,4 @@
-#ifndef IP6_ADDRESS_AND_PREFIX_H
-#define IP6_ADDRESS_AND_PREFIX_H
+#pragma once
 
 #include <string>
 #include <vector>
@@ -28,5 +27,3 @@ private:
 
     void constructFromString(const std::string &str);
 };
-
-#endif // IP4_ADDRESS_AND_MASK_H

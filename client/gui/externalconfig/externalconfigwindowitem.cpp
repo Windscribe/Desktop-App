@@ -26,31 +26,25 @@ ExternalConfigWindowItem::ExternalConfigWindowItem(QGraphicsObject *parent,
     curEscTextOpacity_ = OPACITY_FULL;
 
     okButton_ = new CommonGraphics::BubbleButton(this, CommonGraphics::BubbleButton::kOutline, 108, 40, 20);
-    connect(okButton_, SIGNAL(clicked()), this, SLOT(onButtonClicked()));
+    connect(okButton_, &CommonGraphics::BubbleButton::clicked, this, &ExternalConfigWindowItem::onButtonClicked);
 
     escButton_ = new CommonGraphics::EscapeButton(this);
-    connect(escButton_, SIGNAL(clicked()), SLOT(onEscClicked()));
+    connect(escButton_, &CommonGraphics::EscapeButton::clicked, this, &ExternalConfigWindowItem::onEscClicked);
 
 #ifdef Q_OS_WIN
     closeButton_ = new IconButton(16, 16, "WINDOWS_CLOSE_ICON", "", this);
-    connect(closeButton_, SIGNAL(clicked()), SIGNAL(closeClick()));
+    connect(closeButton_, &IconButton::clicked, this, &ExternalConfigWindowItem::closeClick);
 
     minimizeButton_ = new IconButton(16, 16, "WINDOWS_MINIMIZE_ICON", "", this);
-    connect(minimizeButton_, SIGNAL(clicked()), SIGNAL(minimizeClick()));
+    connect(minimizeButton_, &IconButton::clicked, this, &ExternalConfigWindowItem::minimizeClick);
 #endif
 
-    connect(preferencesHelper, SIGNAL(isDockedModeChanged(bool)), this,
-            SLOT(onDockedModeChanged(bool)));
+    connect(preferencesHelper, &PreferencesHelper::isDockedModeChanged, this, &ExternalConfigWindowItem::onDockedModeChanged);
 
     connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &ExternalConfigWindowItem::onLanguageChanged);
     onLanguageChanged();
 
     updatePositions();
-}
-
-QGraphicsObject *ExternalConfigWindowItem::getGraphicsObject()
-{
-    return this;
 }
 
 QRectF ExternalConfigWindowItem::boundingRect() const

@@ -1,5 +1,4 @@
-#ifndef PREFERENCES_H
-#define PREFERENCES_H
+#pragma once
 
 #include <QObject>
 #include <QMap>
@@ -25,10 +24,10 @@ public:
     bool isAllowLanTraffic() const;
     void setAllowLanTraffic(bool b);
 
-#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     bool isMinimizeAndCloseToTray() const;
     void setMinimizeAndCloseToTray(bool b);
-#elif defined Q_OS_MAC
+
+#if defined Q_OS_MAC
     bool isHideFromDock() const;
     void setHideFromDock(bool b);
 #endif
@@ -106,10 +105,6 @@ public:
     const QString debugAdvancedParameters() const;
     void setDebugAdvancedParameters(const QString &p);
 
-#ifdef Q_OS_WIN
-    TAP_ADAPTER_TYPE tapAdapter() const;
-    void setTapAdapter(TAP_ADAPTER_TYPE tapAdapter);
-#endif
     DNS_POLICY_TYPE dnsPolicy() const;
     void setDnsPolicy(DNS_POLICY_TYPE d);
 
@@ -126,6 +121,11 @@ public:
 
     APP_SKIN appSkin() const;
     void setAppSkin(APP_SKIN s);
+
+#if defined(Q_OS_LINUX)
+    TRAY_ICON_COLOR trayIconColor() const;
+    void setTrayIconColor(TRAY_ICON_COLOR c);
+#endif
 
     types::SplitTunneling splitTunneling();
     QList<types::SplitTunnelingApp> splitTunnelingApps();
@@ -181,7 +181,6 @@ signals:
     void minimizeAndCloseToTrayChanged(bool b);
     void isTerminateSocketsChanged(bool b);
     void isAntiCensorshipChanged(bool b);
-    void tapAdapterChanged(TAP_ADAPTER_TYPE tapAdapter);
     void hideFromDockChanged(bool b);
     void shareSecureHotspotChanged(const types::ShareSecureHotspot &ss);
     void shareProxyGatewayChanged(const types::ShareProxyGateway &sp);
@@ -189,6 +188,11 @@ signals:
     void dnsPolicyChanged(DNS_POLICY_TYPE d);
     void dnsManagerChanged(DNS_MANAGER_TYPE d);
     void appSkinChanged(APP_SKIN s);
+
+#if defined(Q_OS_LINUX)
+    void trayIconColorChanged(TRAY_ICON_COLOR c);
+#endif
+
     void connectedDnsInfoChanged(types::ConnectedDnsInfo dnsWcInfo);
     void networkWhiteListChanged(QVector<types::NetworkInterface> l);
     void networkPreferredProtocolsChanged(QMap<QString, types::ConnectionSettings> p);
@@ -215,5 +219,3 @@ private:
     static constexpr quint32 magic_ = 0x7715C211;
     static constexpr int versionForSerialization_ = 1;  // should increment the version if the data format is changed
 };
-
-#endif // PREFERENCES_H

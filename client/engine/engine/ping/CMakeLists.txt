@@ -27,7 +27,7 @@ if (WIN32)
     )
 elseif(UNIX)    # both Mac and Linux
     target_sources(engine PRIVATE
-        pinghost_icmp_posix.cpp      
+        pinghost_icmp_posix.cpp
         pinghost_icmp_posix.h
     )
 endif()

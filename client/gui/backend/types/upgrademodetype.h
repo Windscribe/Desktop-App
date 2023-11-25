@@ -1,5 +1,4 @@
-#ifndef UPGRADEMODETYPE_H
-#define UPGRADEMODETYPE_H
+#pragma once
 
 struct UpgradeModeType
 {
@@ -19,5 +18,3 @@ inline bool operator!=(const UpgradeModeType& lhs, const UpgradeModeType& rhs)
 {
     return lhs.isNeedUpgrade != rhs.isNeedUpgrade || lhs.gbLeft == rhs.gbLeft || lhs.gbMax == rhs.gbMax;
 }
-
-#endif // UPGRADEMODETYPE_H

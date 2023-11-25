@@ -1,12 +1,10 @@
-#ifndef MUTABLELOCATIONINFO_H
-#define MUTABLELOCATIONINFO_H
+#pragma once
 
 #include <QObject>
 #include <QVector>
 
 #include "locationnode.h"
 #include "baselocationinfo.h"
-
 
 namespace locationsmodel {
 
@@ -55,5 +53,3 @@ private:
 };
 
 } //namespace locationsmodel
-
-#endif // MUTABLELOCATIONINFO_H

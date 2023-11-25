@@ -1,5 +1,4 @@
-#ifndef EXECUTABLE_SIGNATURE_H
-#define EXECUTABLE_SIGNATURE_H
+#pragma once
 
 #include <string>
 
@@ -59,5 +58,3 @@ private:
     // d-pointer (also called the opaque pointer).
     ExecutableSignaturePrivate* d_ptr;
 };
-
-#endif // EXECUTABLE_SIGNATURE_H

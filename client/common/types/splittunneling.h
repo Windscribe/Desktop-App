@@ -1,5 +1,4 @@
-#ifndef TYPES_SPLITTUNNELING_H
-#define TYPES_SPLITTUNNELING_H
+#pragma once
 
 #include <QVector>
 #include <qdebug.h>
@@ -214,8 +213,4 @@ private:
 
 };
 
-
-
 } // types namespace
-
-#endif // TYPES_SPLITTUNNELING_H

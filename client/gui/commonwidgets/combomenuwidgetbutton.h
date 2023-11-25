@@ -1,5 +1,4 @@
-#ifndef SCROLLABLEMENUBUTTON_H
-#define SCROLLABLEMENUBUTTON_H
+#pragma once
 
 #include <QPushButton>
 #include <QVariant>
@@ -28,5 +27,3 @@ private:
     int heightUnscaled_;
     QVariant data_;
 };
-
-#endif // SCROLLABLEMENUBUTTON_H

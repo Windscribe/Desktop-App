@@ -242,7 +242,6 @@ void IKEv2Connection_win::handleErrorReinstallWan()
         {
             if (WinUtils::isWindows10orGreater())
             {
-
                 if (CheckAdapterEnable::isAdapterDisabled(helper_, "WAN Miniport (IKEv2)") || CheckAdapterEnable::isAdapterDisabled(helper_, "WAN Miniport (IP)"))
                 {
                     qCDebug(LOG_IKEV2) << "WAN Miniport (IKEv2) or WAN Miniport (IP) disabled, try enable it";

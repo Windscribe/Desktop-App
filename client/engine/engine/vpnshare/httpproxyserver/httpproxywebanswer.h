@@ -1,5 +1,4 @@
-#ifndef HTTPPROXYWEBANSWER_H
-#define HTTPPROXYWEBANSWER_H
+#pragma once
 
 #include <string>
 #include <QVector>
@@ -23,5 +22,3 @@ private:
 };
 
 } // namespace HttpProxyServer
-
-#endif // HTTPPROXYWEBANSWER_H

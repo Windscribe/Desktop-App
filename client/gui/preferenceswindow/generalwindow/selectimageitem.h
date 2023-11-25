@@ -1,5 +1,4 @@
-#ifndef SELECTIMAGEITEM_H
-#define SELECTIMAGEITEM_H
+#pragma once
 
 #include <QGraphicsObject>
 #include <QGraphicsProxyWidget>
@@ -41,6 +40,3 @@ private:
 };
 
 } // namespace PreferencesWindow
-
-
-#endif // SELECTIMAGEITEM_H

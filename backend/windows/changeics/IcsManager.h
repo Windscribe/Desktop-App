@@ -11,10 +11,10 @@ typedef void (WINAPI *PFNNcFreeNetconProperties)(NETCON_PROPERTIES* pProps);
 class IcsManager
 {
 public:
-	IcsManager();
+    IcsManager();
     ~IcsManager();
 
-	bool isSupported();
+    bool isSupported();
 
     bool change(const std::wstring &adapterName);
     bool stop();

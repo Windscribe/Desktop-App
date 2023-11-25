@@ -1,5 +1,4 @@
-#ifndef LOCATIONSMODEL_LOCATIONNODE_H
-#define LOCATIONSMODEL_LOCATIONNODE_H
+#pragma once
 
 #include <QObject>
 #include <QVector>
@@ -91,8 +90,4 @@ private:
     apiinfo::StaticIpPortsVector ipPortsVector_;
 };
 
-
-
 } //namespace locationsmodel
-
-#endif // LOCATIONSMODEL_LOCATIONNODE_H

@@ -1,14 +1,17 @@
 #pragma once
 
 #include <QIcon>
+#include <map>
 
 class IconManager
 {
-    enum {
+    enum class IconType {
+        ICON_APP_MAIN,
         // dock/task bar icons
         ICON_APP_DISCONNECTED,
         ICON_APP_CONNECTING,
         ICON_APP_CONNECTED,
+        ICON_APP_ERROR,
         // needed for tray icons
         ICON_TRAY_DISCONNECTED_DARK,
         ICON_TRAY_DISCONNECTED_LIGHT,
@@ -16,11 +19,13 @@ class IconManager
         ICON_TRAY_CONNECTING_LIGHT,
         ICON_TRAY_CONNECTED_DARK,
         ICON_TRAY_CONNECTED_LIGHT,
-        #if defined(Q_OS_WIN)
+        ICON_TRAY_ERROR_DARK,
+        ICON_TRAY_ERROR_LIGHT,
+#if defined(Q_OS_WIN)
         ICON_OVERLAY_CONNECTING,
         ICON_OVERLAY_CONNECTED,
         ICON_OVERLAY_ERROR,
-        #endif
+#endif
         NUM_ICON_TYPES
     };
 
@@ -32,24 +37,32 @@ public:
         return im;
     }
 
-    // dock/taskbar
-    const QIcon *getDisconnectedIcon() const { return &icons_[ICON_APP_DISCONNECTED]; }
-    const QIcon *getConnectingIcon() const { return &icons_[ICON_APP_CONNECTING]; }
-    const QIcon *getConnectedIcon() const { return &icons_[ICON_APP_CONNECTED]; }
-
     // tray
     const QIcon *getDisconnectedTrayIcon(bool isDarkMode) const;
     const QIcon *getConnectingTrayIcon(bool isDarkMode) const;
     const QIcon *getConnectedTrayIcon(bool isDarkMode) const;
+    const QIcon *getErrorTrayIcon(bool isDarkMode) const;
 
-    #if defined(Q_OS_WIN)
-    const QIcon *getConnectingOverlayIcon() const { return &icons_[ICON_OVERLAY_CONNECTING]; }
-    const QIcon *getConnectedOverlayIcon() const { return &icons_[ICON_OVERLAY_CONNECTED]; }
-    const QIcon *getErrorOverlayIcon() const { return &icons_[ICON_OVERLAY_ERROR]; }
-    #endif
+    // dock/taskbar
+#if defined(Q_OS_WIN)
+    const QIcon *getConnectingOverlayIcon() const;
+    const QIcon *getConnectedOverlayIcon() const;
+    const QIcon *getErrorOverlayIcon() const;
+#else // Mac OS, Linux
+    const QIcon *getDisconnectedIcon() const;
+    const QIcon *getConnectingIcon() const;
+    const QIcon *getConnectedIcon() const;
+    const QIcon *getErrorIcon() const;
+#endif
 
 private:
     explicit IconManager();
+    const QIcon* getIconByType(const IconType& iconType) const;
+    std::map<IconType, QIcon> icons_;
 
-    QIcon icons_[NUM_ICON_TYPES];
+#if defined(Q_OS_WIN) | defined(Q_OS_LINUX)
+    void initWinLinuxIcons(const std::map<IconType, QString>& iconPaths);
+#elif defined(Q_OS_MAC)
+    void initMacIcons(const std::map<IconType, QString>& iconPaths);
+#endif
 };

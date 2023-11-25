@@ -1,5 +1,4 @@
-#ifndef NETWORKCHANGEWORKERTHREAD_H
-#define NETWORKCHANGEWORKERTHREAD_H
+#pragma once
 
 #include <QObject>
 #include <QThread>
@@ -25,5 +24,3 @@ private:
     void *hExitEvent_;
     void *hIpInterfaceChange_;
 };
-
-#endif // NETWORKCHANGEWORKERTHREAD_H

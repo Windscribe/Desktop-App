@@ -1,5 +1,4 @@
-#ifndef ICONHOVERENGAGEBUTTON_H
-#define ICONHOVERENGAGEBUTTON_H
+#pragma once
 
 #include <QGraphicsObject>
 #include <QGraphicsPixmapItem>
@@ -42,5 +41,3 @@ private:
 };
 
 }
-
-#endif // ICONHOVERENGAGEBUTTON_H

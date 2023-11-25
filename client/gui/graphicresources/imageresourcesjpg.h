@@ -1,5 +1,4 @@
-#ifndef IMAGERESOURCESJPG_H
-#define IMAGERESOURCESJPG_H
+#pragma once
 
 #include <QPixmap>
 #include <QMutex>
@@ -38,5 +37,3 @@ private:
     bool parseFileName(const QString &filename, QString &outName, int &outWidth, int &outHeight);
     static bool sortSizesFunction(const FilenameDescr &f1, const FilenameDescr &f2);
 };
-
-#endif // IMAGERESOURCESJPG_H

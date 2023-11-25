@@ -11,8 +11,13 @@
 class SplitTunneling
 {
 public:
-    SplitTunneling(FirewallFilter& firewallFilter, FwpmWrapper& fwmpWrapper);
-    ~SplitTunneling();
+    static SplitTunneling &instance(FwpmWrapper *wrapper = nullptr)
+    {
+        static SplitTunneling st(*wrapper);
+        return st;
+    }
+
+    void release();
 
     void setSettings(bool isEnabled, bool isExclude, const std::vector<std::wstring>& apps, const std::vector<std::wstring>& ips,
                      const std::vector<std::string>& hosts, bool isAllowLanTraffic);
@@ -22,7 +27,6 @@ public:
     static void removeAllFilters(FwpmWrapper& fwmpWrapper);
 
 private:
-    FirewallFilter& firewallFilter_;
     CalloutFilter calloutFilter_;
     RoutesManager routesManager_;
     HostnamesManager hostnamesManager_;
@@ -39,6 +43,7 @@ private:
     bool prevIsSplitTunnelActive_ = false;
     bool prevIsExclude_ = false;
 
+    SplitTunneling(FwpmWrapper& fwpmWrapper);
     void detectWindscribeExecutables();
 };
 

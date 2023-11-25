@@ -1,5 +1,4 @@
-#ifndef VERTICALDIVIDERLINE_H
-#define VERTICALDIVIDERLINE_H
+#pragma once
 
 #include "commongraphics/scalablegraphicsobject.h"
 
@@ -19,5 +18,3 @@ private:
 };
 
 }
-
-#endif // VERTICALDIVIDERLINE_H

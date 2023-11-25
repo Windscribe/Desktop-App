@@ -1,8 +1,7 @@
-#ifndef INITIALIZEHELPER_H
-#define INITIALIZEHELPER_H
+#pragma once
 
-#include <QElapsedTimer>
 #include <QObject>
+
 #include "types/enums.h"
 
 class IHelper;
@@ -28,5 +27,3 @@ private:
 
     void printHelperVersion();
 };
-
-#endif // INITIALIZEHELPER_H

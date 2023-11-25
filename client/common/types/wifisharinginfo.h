@@ -1,5 +1,4 @@
-#ifndef TYPES_WIFISHARINGINFO_H
-#define TYPES_WIFISHARINGINFO_H
+#pragma once
 
 #include "types/enums.h"
 
@@ -31,7 +30,4 @@ struct WifiSharingInfo
 
 };
 
-
 } // types namespace
-
-#endif // TYPES_CHECKUPDATE_H

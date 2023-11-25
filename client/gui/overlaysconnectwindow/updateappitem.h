@@ -1,33 +1,28 @@
-#ifndef UPDATEAPPITEM_H
-#define UPDATEAPPITEM_H
+#pragma once
 
 #include <QGraphicsObject>
 #include <QVariantAnimation>
-#include "iupdateappitem.h"
 #include "backend/preferences/preferences.h"
 #include "commongraphics/textbutton.h"
 
 namespace UpdateApp {
 
-class UpdateAppItem : public ScalableGraphicsObject, public IUpdateAppItem
+class UpdateAppItem : public ScalableGraphicsObject
 {
     Q_OBJECT
-    Q_INTERFACES(IUpdateAppItem)
 public:
+    enum UpdateAppItemMode { UPDATE_APP_ITEM_MODE_PROMPT, UPDATE_APP_ITEM_MODE_PROGRESS };
+
     explicit UpdateAppItem(Preferences *preferences, QGraphicsObject *parent = nullptr);
-
-    QGraphicsObject *getGraphicsObject() override;
-
     QRectF boundingRect() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
-
-    void setVersionAvailable(const QString &versionNumber, int buildNumber) override;
-    void setProgress(int value) override; // from 0 to 100
-
-    QPixmap getCurrentPixmapShape() override;
     void updateScaling() override;
 
-    void setMode(UpdateAppItemMode mode) override;
+    void setVersionAvailable(const QString &versionNumber, int buildNumber);
+    void setProgress(int value); // from 0 to 100
+    QPixmap getCurrentPixmapShape();
+
+    void setMode(UpdateAppItemMode mode);
 
 signals:
     void updateClick();
@@ -78,5 +73,3 @@ private:
 };
 
 } // namespace UpdateApp
-
-#endif // UPDATEAPPITEM_H

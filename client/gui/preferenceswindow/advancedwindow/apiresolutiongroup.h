@@ -1,5 +1,4 @@
-#ifndef APIRESOLUTIONGROUP_H
-#define APIRESOLUTIONGROUP_H
+#pragma once
 
 #include "commongraphics/baseitem.h"
 
@@ -38,5 +37,3 @@ private:
 };
 
 } // namespace PreferencesWindow
-
-#endif // APIRESOLUTIONGROUP_H

@@ -2,7 +2,6 @@
 
 #include <QCoreApplication>
 #include <QDir>
-#include <QElapsedTimer>
 
 #include <sstream>
 
@@ -12,21 +11,17 @@
 #include "engine/connectionmanager/adaptergatewayinfo.h"
 #include "engine/openvpnversioncontroller.h"
 #include "engine/wireguardconfig/wireguardconfig.h"
+#include "installhelper_win.h"
 #include "types/wireguardtypes.h"
-#include "utils/crashhandler.h"
 #include "utils/executable_signature/executable_signature.h"
 #include "utils/logger.h"
 #include "utils/win32handle.h"
 #include "utils/ws_assert.h"
-#include "windscribeinstallhelper_win.h"
 
 #define SERVICE_PIPE_NAME  (L"\\\\.\\pipe\\WindscribeService")
 
 //  the program to connect to the helper socket without starting the service (uncomment for debug purpose)
 // #define DEBUG_DONT_USE_SERVICE
-
-SC_HANDLE schSCManager_ = NULL;
-SC_HANDLE schService_ = NULL;
 
 Helper_win::Helper_win(QObject *parent) : IHelper(parent)
 {
@@ -35,7 +30,7 @@ Helper_win::Helper_win(QObject *parent) : IHelper(parent)
 
 Helper_win::~Helper_win()
 {
-    bStopThread_ = true;
+    scm_.blockStartStopRequests();
     wait();
 
 #if defined QT_DEBUG
@@ -45,30 +40,15 @@ Helper_win::~Helper_win()
         qCDebug(LOG_BASIC) << "Active unblocking commands in helper on exit:" << debugGetActiveUnblockingCmdCount();
     }
 #endif
-
-    if (schService_)
-    {
-        CloseServiceHandle(schService_);
-    }
-    if (schSCManager_)
-    {
-        CloseServiceHandle(schSCManager_);
-    }
 }
 
 void Helper_win::startInstallHelper()
 {
     initVariables();
-    WS_ASSERT(schSCManager_ == NULL);
-    WS_ASSERT(schService_ == NULL);
 
-    helperLabel_ = "WindscribeService";
-
-    // check WindscribeService.exe signature
     QString serviceExePath = QCoreApplication::applicationDirPath() + "/WindscribeService.exe";
     ExecutableSignature sigCheck;
-    if (!sigCheck.verify(serviceExePath.toStdWString()))
-    {
+    if (!sigCheck.verify(serviceExePath.toStdWString())) {
         qCDebug(LOG_BASIC) << "WindscribeService signature incorrect: " << QString::fromStdString(sigCheck.lastError());
         curState_ = STATE_USER_CANCELED;
         return;
@@ -85,8 +65,7 @@ Helper_win::STATE Helper_win::currentState() const
 bool Helper_win::reinstallHelper()
 {
     QString servicePath = QCoreApplication::applicationDirPath() + "/WindscribeService.exe";
-    QString subinaclPath = QCoreApplication::applicationDirPath() + "/subinacl.exe";
-    return WindscribeInstallHelper_win::executeInstallHelperCmd(servicePath, subinaclPath);
+    return InstallHelper_win::executeInstallHelperCmd(servicePath);
 }
 
 void Helper_win::setNeedFinish()
@@ -98,14 +77,11 @@ QString Helper_win::getHelperVersion()
 {
     QMutexLocker locker(&mutex_);
     MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_GET_HELPER_VERSION, std::string());
-    if (mpr.success)
-    {
+    if (mpr.success) {
         return QString::fromLocal8Bit(mpr.additionalString.c_str(), mpr.additionalString.size());
     }
-    else
-    {
-        return "failed detect";
-    }
+
+    return "failed detect";
 }
 
 void Helper_win::getUnblockingCmdStatus(unsigned long cmdId, QString &outLog, bool &outFinished)
@@ -121,16 +97,13 @@ void Helper_win::getUnblockingCmdStatus(unsigned long cmdId, QString &outLog, bo
 
     MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_CHECK_UNBLOCKING_CMD_STATUS, stream.str());
 
-    if (mpr.success)
-    {
+    if (mpr.success) {
         outFinished = mpr.blockingCmdFinished;
-        if (outFinished)
-        {
+        if (outFinished) {
             outLog = QString::fromLocal8Bit(mpr.additionalString.c_str(), mpr.additionalString.size());
         }
     }
-    else
-    {
+    else {
         outFinished = false;
         outLog.clear();
     }
@@ -175,18 +148,15 @@ bool Helper_win::setSplitTunnelingSettings(bool isActive, bool isExclude, bool i
     cmdSplitTunnelingSettings.isExclude = isExclude;
     cmdSplitTunnelingSettings.isAllowLanTraffic = isAllowLanTraffic;
 
-    for (int i = 0; i < files.count(); ++i)
-    {
+    for (int i = 0; i < files.count(); ++i) {
         cmdSplitTunnelingSettings.files.push_back(files[i].toStdWString());
     }
 
-    for (int i = 0; i < ips.count(); ++i)
-    {
+    for (int i = 0; i < ips.count(); ++i) {
         cmdSplitTunnelingSettings.ips.push_back(ips[i].toStdWString());
     }
 
-    for (int i = 0; i < hosts.count(); ++i)
-    {
+    for (int i = 0; i < hosts.count(); ++i) {
         cmdSplitTunnelingSettings.hosts.push_back(hosts[i].toStdString());
     }
 
@@ -215,7 +185,7 @@ bool Helper_win::sendConnectStatus(bool isConnected, bool isTerminateSocket, boo
         out.gatewayIp = a.gateway().toStdString();
         out.ifIndex = a.ifIndex();
         const QStringList dns = a.dnsServers();
-        for(auto ip : dns) {
+        for(const auto &ip : dns) {
             out.dnsServers.push_back(ip.toStdString());
         }
     };
@@ -276,8 +246,7 @@ IHelper::ExecuteError Helper_win::startWireGuard(const QString &exeName, const Q
     // check executable signature
     QString wireGuardExePath = QCoreApplication::applicationDirPath() + "/" + exeName + ".exe";
     ExecutableSignature sigCheck;
-    if (!sigCheck.verify(wireGuardExePath.toStdWString()))
-    {
+    if (!sigCheck.verify(wireGuardExePath.toStdWString())) {
         qCDebug(LOG_CONNECTION) << "WireGuard executable signature incorrect: " << QString::fromStdString(sigCheck.lastError());
         return IHelper::EXECUTE_VERIFY_ERROR;
     }
@@ -316,17 +285,14 @@ bool Helper_win::getWireGuardStatus(types::WireGuardStatus *status)
     QMutexLocker locker(&mutex_);
 
     MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_GET_WIREGUARD_STATUS, std::string());
-    if (mpr.success && status)
-    {
-        if (mpr.exitCode == WIREGUARD_STATE_ERROR)
-        {
+    if (mpr.success && status) {
+        if (mpr.exitCode == WIREGUARD_STATE_ERROR) {
             status->state = types::WireGuardState::FAILURE;
             status->lastHandshake = 0;
             status->bytesReceived = 0;
             status->bytesTransmitted = 0;
         }
-        else
-        {
+        else {
             status->state = types::WireGuardState::ACTIVE;
             status->lastHandshake = mpr.customInfoValue[0];
             status->bytesTransmitted = mpr.customInfoValue[1];
@@ -359,15 +325,16 @@ bool Helper_win::isHelperConnected() const
     return curState_ == STATE_CONNECTED;
 }
 
-IHelper::ExecuteError Helper_win::executeOpenVPN(const QString &config, unsigned int portNumber, const QString &httpProxy, unsigned int httpPort, const QString &socksProxy, unsigned int socksPort, unsigned long &outCmdId, bool isCustomConfig)
+IHelper::ExecuteError Helper_win::executeOpenVPN(const QString &config, unsigned int portNumber, const QString &httpProxy,
+                                                 unsigned int httpPort, const QString &socksProxy, unsigned int socksPort,
+                                                 unsigned long &outCmdId, bool isCustomConfig)
 {
     QMutexLocker locker(&mutex_);
 
     // check openvpn executable signature
     QString openVpnExePath = OpenVpnVersionController::instance().getOpenVpnFilePath();
     ExecutableSignature sigCheck;
-    if (!sigCheck.verify(openVpnExePath.toStdWString()))
-    {
+    if (!sigCheck.verify(openVpnExePath.toStdWString())) {
         qCDebug(LOG_CONNECTION) << "OpenVPN executable signature incorrect: " << QString::fromStdString(sigCheck.lastError());
         return IHelper::EXECUTE_VERIFY_ERROR;
     }
@@ -404,21 +371,6 @@ bool Helper_win::executeTaskKill(const QString &executableName)
     oa << cmdTaskKill;
 
     MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_TASK_KILL, stream.str());
-
-    return mpr.success;
-}
-
-bool Helper_win::executeResetTap(const QString &tapName)
-{
-    QMutexLocker locker(&mutex_);
-    CMD_RESET_TAP cmdResetTap;
-    cmdResetTap.szTapName = tapName.toStdWString();
-
-    std::stringstream stream;
-    boost::archive::text_oarchive oa(stream, boost::archive::no_header);
-    oa << cmdResetTap;
-
-    MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_RESET_TAP, stream.str());
 
     return mpr.success;
 }
@@ -508,14 +460,6 @@ bool Helper_win::changeMtu(const QString &adapter, int mtu)
     return mpr.success;
 }
 
-bool Helper_win::clearDnsOnTap()
-{
-    QMutexLocker locker(&mutex_);
-
-    MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_CLEAR_DNS_ON_TAP, std::string());
-    return mpr.success;
-}
-
 QString Helper_win::enableBFE()
 {
     QMutexLocker locker(&mutex_);
@@ -534,15 +478,12 @@ QString Helper_win::resetAndStartRAS()
 
 void Helper_win::setIPv6EnabledInFirewall(bool b)
 {
-    if (bIPV6State_ != b)
-    {
-        if (!b)
-        {
+    if (bIPV6State_ != b) {
+        if (!b) {
             disableIPv6();
             qCDebug(LOG_BASIC) << "IPv6 disabled";
         }
-        else
-        {
+        else {
             enableIPv6();
             qCDebug(LOG_BASIC) << "IPv6 enabled";
         }
@@ -552,13 +493,11 @@ void Helper_win::setIPv6EnabledInFirewall(bool b)
 
 void Helper_win::setIPv6EnabledInOS(bool b)
 {
-    if (!b)
-    {
+    if (!b) {
         disableIPv6InOS();
         qCDebug(LOG_BASIC) << "IPv6 in Windows registry disabled";
     }
-    else
-    {
+    else {
         enableIPv6InOS();
         qCDebug(LOG_BASIC) << "IPv6 in Windows registry enabled";
     }
@@ -613,21 +552,17 @@ QStringList Helper_win::getProcessesList()
     QMutexLocker locker(&mutex_);
     MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_ENUM_PROCESSES, std::string());
     QStringList list;
-    if (mpr.success)
-    {
-        QString str = QString::fromUtf16((const ushort *)mpr.additionalString.c_str(), mpr.additionalString.size() / sizeof(ushort));
+    if (mpr.success) {
+        QString str = QString::fromUtf16((const char16_t *)mpr.additionalString.c_str(), mpr.additionalString.size() / sizeof(char16_t));
 
         int pos = 0;
         QString curStr;
-        while (pos < str.length())
-        {
-            if (str.at(pos) == static_cast<QChar>('\0'))
-            {
+        while (pos < str.length()) {
+            if (str.at(pos) == static_cast<QChar>('\0')) {
                 list << curStr;
                 curStr.clear();
             }
-            else
-            {
+            else {
                 curStr += str[pos];
             }
             pos++;
@@ -791,50 +726,6 @@ bool Helper_win::makeHostsFileWritable()
     return mpr.success;
 }
 
-bool Helper_win::reinstallTapDriver(const QString &tapDriverDir)
-{
-    QMutexLocker locker(&mutex_);
-
-    CMD_REINSTALL_TUN_DRIVER cmdReinstallTunDriver;
-    cmdReinstallTunDriver.driverDir.resize(tapDriverDir.size());
-    tapDriverDir.toWCharArray(const_cast<wchar_t*>(cmdReinstallTunDriver.driverDir.data()));
-
-    std::stringstream stream;
-    boost::archive::text_oarchive oa(stream, boost::archive::no_header);
-    oa << cmdReinstallTunDriver;
-
-    MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_REINSTALL_TAP_DRIVER, stream.str());
-    if(mpr.success) {
-        qCDebug(LOG_BASIC) << "Tap driver was successfully re-installed.";
-    }
-    else {
-        qCDebug(LOG_BASIC) << "Error to re-install tap driver.";
-    }
-    return mpr.success;
-}
-
-bool Helper_win::reinstallWintunDriver(const QString &wintunDriverDir)
-{
-    QMutexLocker locker(&mutex_);
-
-    CMD_REINSTALL_TUN_DRIVER cmdReinstallTunDriver;
-    cmdReinstallTunDriver.driverDir.resize(wintunDriverDir.size());
-    wintunDriverDir.toWCharArray(const_cast<wchar_t*>(cmdReinstallTunDriver.driverDir.data()));
-
-    std::stringstream stream;
-    boost::archive::text_oarchive oa(stream, boost::archive::no_header);
-    oa << cmdReinstallTunDriver;
-
-    MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_REINSTALL_WINTUN_DRIVER, stream.str());
-    if(mpr.success) {
-        qCDebug(LOG_BASIC) << "Wintun driver was successfully re-installed.";
-    }
-    else {
-        qCDebug(LOG_BASIC) << "Error to re-install wintun driver.";
-    }
-    return mpr.success;
-}
-
 void Helper_win::setCustomDnsIps(const QStringList &ips)
 {
     customDnsIp_ = ips;
@@ -843,99 +734,36 @@ void Helper_win::setCustomDnsIps(const QStringList &ips)
 void Helper_win::run()
 {
 #ifndef DEBUG_DONT_USE_SERVICE
-    BIND_CRASH_HANDLER_FOR_THREAD();
-    schSCManager_ = OpenSCManager(NULL, NULL, SC_MANAGER_CONNECT);
-    if (schSCManager_ == NULL)
-    {
-        DWORD err = GetLastError();
-        qCDebug(LOG_BASIC) << "OpenSCManager failed: " << err;
+    try {
+        scm_.openSCM(SC_MANAGER_CONNECT);
+        scm_.openService(L"WindscribeService", SERVICE_QUERY_STATUS | SERVICE_START);
+        auto status = scm_.queryServiceStatus();
+        if (status != SERVICE_RUNNING) {
+            scm_.startService();
+        }
+        curState_ = STATE_CONNECTED;
+    }
+    catch (std::system_error& ex) {
+        qCDebug(LOG_BASIC) << "Helper_win::run -" << ex.what();
         curState_ = STATE_FAILED_CONNECT;
-        return;
     }
 
-    QElapsedTimer elapsedTimer;
-    elapsedTimer.start();
-
-    while (schService_ == NULL)
-    {
-        schService_ = OpenService(schSCManager_, (LPCTSTR)helperLabel_.utf16(), SERVICE_START | SERVICE_STOP | SERVICE_QUERY_STATUS);
-        if (schService_ != NULL)
-        {
-            break;
-        }
-        DWORD err = GetLastError();
-
-        Sleep(100);
-        if (elapsedTimer.elapsed() > MAX_WAIT_TIME_FOR_HELPER)
-        {
-            qCDebug(LOG_BASIC) << "OpenService failed: " << err;
-            curState_ = STATE_FAILED_CONNECT;
-            return;
-        }
-        if (bStopThread_)
-        {
-            return;
-        }
-    }
-
-    bool bStartServiceCalled = false;
-
-    while (true)
-    {
-        SERVICE_STATUS_PROCESS ssStatus;
-        DWORD dwBytesNeeded;
-
-        if (!QueryServiceStatusEx(schService_, SC_STATUS_PROCESS_INFO,
-                    (LPBYTE) &ssStatus, sizeof(SERVICE_STATUS_PROCESS), &dwBytesNeeded ))
-        {
-            qCDebug(LOG_BASIC) << "QueryServiceStatusEx failed: " << GetLastError();
-            curState_ = STATE_FAILED_CONNECT;
-            return;
-        }
-
-        if (ssStatus.dwCurrentState != SERVICE_RUNNING)
-        {
-            if (!bStartServiceCalled)
-            {
-                if (StartService(schService_, NULL, NULL) != 0)
-                {
-                    bStartServiceCalled = true;
-                }
-            }
-        }
-        else
-        {
-            break;
-        }
-        Sleep(1);
-        if (elapsedTimer.elapsed() > MAX_WAIT_TIME_FOR_HELPER)
-        {
-            qCDebug(LOG_BASIC) << "Timer for QueryServiceStatusEx exceed";
-            curState_ = STATE_FAILED_CONNECT;
-            return;
-        }
-        if (bStopThread_)
-        {
-            return;
-        }
-    }
-#endif
+    scm_.closeSCM();
+#else
     curState_ = STATE_CONNECTED;
+#endif
 }
 
 MessagePacketResult Helper_win::sendCmdToHelper(int cmdId, const std::string &data)
 {
     HANDLE hPipe = ::CreateFileW(SERVICE_PIPE_NAME, GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, 0, 0);
-    if (hPipe == INVALID_HANDLE_VALUE)
-    {
-        if (WaitNamedPipe(SERVICE_PIPE_NAME, MAX_WAIT_TIME_FOR_PIPE) == 0)
-        {
+    if (hPipe == INVALID_HANDLE_VALUE) {
+        if (WaitNamedPipe(SERVICE_PIPE_NAME, MAX_WAIT_TIME_FOR_PIPE) == 0) {
             return MessagePacketResult();
         }
 
         hPipe = ::CreateFileW(SERVICE_PIPE_NAME, GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, 0, 0);
-        if (hPipe == INVALID_HANDLE_VALUE)
-        {
+        if (hPipe == INVALID_HANDLE_VALUE) {
             return MessagePacketResult();
         }
     }
@@ -943,39 +771,32 @@ MessagePacketResult Helper_win::sendCmdToHelper(int cmdId, const std::string &da
     wsl::Win32Handle closePipe(hPipe);
 
     // first 4 bytes - cmdId
-    if (!writeAllToPipe(hPipe, (char *)&cmdId, sizeof(cmdId)))
-    {
+    if (!writeAllToPipe(hPipe, (char *)&cmdId, sizeof(cmdId))) {
         return MessagePacketResult();
     }
 
     // second 4 bytes - size of buffer
     unsigned long sizeOfBuf = data.size();
-    if (!writeAllToPipe(hPipe, (char *)&sizeOfBuf, sizeof(sizeOfBuf)))
-    {
+    if (!writeAllToPipe(hPipe, (char *)&sizeOfBuf, sizeof(sizeOfBuf))) {
         return MessagePacketResult();
     }
 
     // body of message
-    if (sizeOfBuf > 0)
-    {
-        if (!writeAllToPipe(hPipe, data.c_str(), sizeOfBuf))
-        {
+    if (sizeOfBuf > 0) {
+        if (!writeAllToPipe(hPipe, data.c_str(), sizeOfBuf)) {
             return MessagePacketResult();
         }
     }
 
     // read MessagePacketResult
     MessagePacketResult mpr;
-    if (!readAllFromPipe(hPipe, (char *)&sizeOfBuf, sizeof(sizeOfBuf)))
-    {
+    if (!readAllFromPipe(hPipe, (char *)&sizeOfBuf, sizeof(sizeOfBuf))) {
         return mpr;
     }
 
-    if (sizeOfBuf > 0)
-    {
+    if (sizeOfBuf > 0) {
         QScopedArrayPointer<char> buf(new char[sizeOfBuf]);
-        if (!readAllFromPipe(hPipe, buf.data(), sizeOfBuf))
-        {
+        if (!readAllFromPipe(hPipe, buf.data(), sizeOfBuf)) {
             return mpr;
         }
 
@@ -1063,19 +884,9 @@ bool Helper_win::firewallActualState()
 
 void Helper_win::initVariables()
 {
-    if (schService_)
-    {
-        CloseServiceHandle(schService_);
-        schService_ = NULL;
-    }
-    if (schSCManager_)
-    {
-        CloseServiceHandle(schSCManager_);
-        schSCManager_ = NULL;
-    }
     curState_= STATE_INIT;
-    bStopThread_ = false;
     bIPV6State_ = true;
+    scm_.unblockStartStopRequests();
 }
 
 bool Helper_win::readAllFromPipe(HANDLE hPipe, char *buf, DWORD len)
@@ -1083,15 +894,12 @@ bool Helper_win::readAllFromPipe(HANDLE hPipe, char *buf, DWORD len)
     char *ptr = buf;
     DWORD dwRead = 0;
     DWORD lenCopy = len;
-    while (lenCopy > 0)
-    {
-        if (::ReadFile(hPipe, ptr, lenCopy, &dwRead, 0))
-        {
+    while (lenCopy > 0) {
+        if (::ReadFile(hPipe, ptr, lenCopy, &dwRead, 0)) {
             ptr += dwRead;
             lenCopy -= dwRead;
         }
-        else
-        {
+        else {
             return false;
         }
     }
@@ -1103,17 +911,28 @@ bool Helper_win::writeAllToPipe(HANDLE hPipe, const char *buf, DWORD len)
 {
     const char *ptr = buf;
     DWORD dwWrite = 0;
-    while (len > 0)
-    {
-        if (::WriteFile(hPipe, ptr, len, &dwWrite, 0))
-        {
+    while (len > 0) {
+        if (::WriteFile(hPipe, ptr, len, &dwWrite, 0)) {
             ptr += dwWrite;
             len -= dwWrite;
         }
-        else
-        {
+        else {
             return false;
         }
     }
     return true;
+}
+
+bool Helper_win::createWintunAdapter()
+{
+    QMutexLocker locker(&mutex_);
+    MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_CREATE_WINTUN_ADAPTER, std::string());
+    return mpr.success;
+}
+
+bool Helper_win::removeWintunAdapter()
+{
+    QMutexLocker locker(&mutex_);
+    MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_REMOVE_WINTUN_ADAPTER, std::string());
+    return mpr.success;
 }

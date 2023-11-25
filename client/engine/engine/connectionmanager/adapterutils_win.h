@@ -1,5 +1,4 @@
-#ifndef ADAPTER_UTILS_WIN_H
-#define ADAPTER_UTILS_WIN_H
+#pragma once
 
 #include <QString>
 #include "adaptergatewayinfo.h"
@@ -10,8 +9,6 @@ class IHelper;
 class AdapterUtils_win
 {
 public:
-    static void resetAdapter(IHelper *helper, const QString &tapName);
-
     static AdapterGatewayInfo getWindscribeConnectedAdapterInfo();
     static AdapterGatewayInfo getDefaultAdapterInfo();
     static AdapterGatewayInfo getWireguardConnectedAdapterInfo(const QString &serviceIdentifier);
@@ -22,5 +19,3 @@ private:
     static AdapterGatewayInfo getAdapterInfo(bool byIfIndex, unsigned long ifIndex, const QString &serviceIdentifier);
     static void getAdapterIpAndGateway(unsigned long ifIndex, QString &outIp, QString &outGateway);
 };
-
-#endif // ADAPTER_UTILS_WIN_H

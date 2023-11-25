@@ -1,5 +1,4 @@
-#ifndef CHECKADAPTERENABLED_H
-#define CHECKADAPTERENABLED_H
+#pragma once
 
 #include <QString>
 
@@ -7,10 +6,6 @@ class IHelper;
 
 class CheckAdapterEnable
 {
-public:    
-    static void enable(IHelper *helper, const QString &adapterName);
-    static void enableIfNeed(IHelper *helper, const QString &adapterName);
+public:
     static bool isAdapterDisabled(IHelper *helper, const QString &adapterName);
 };
-
-#endif // CHECKADAPTERENABLED_H

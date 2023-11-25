@@ -13,7 +13,7 @@ HelpWindowItem::HelpWindowItem(ScalableGraphicsObject *parent, Preferences *pref
 
     setFlag(QGraphicsItem::ItemIsFocusable);
     setSpacerHeight(PREFERENCES_MARGIN);
-    
+
     knowledgeBaseGroup_ = new PreferenceGroup(this);
     knowledgeBaseItem_ = new LinkItem(knowledgeBaseGroup_,
                                       LinkItem::LinkType::EXTERNAL_LINK,

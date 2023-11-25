@@ -40,7 +40,7 @@ void RequestExecuterViaFailover_test::testEchFailover()
     QSharedPointer<failover::BaseFailover> failover = QSharedPointer<failover::BaseFailover>(new failover::EchFailover(this, "3e60e3d5-d379-46cc-a9a0-d9f04f47999a", networkAccessManager_,
                                                                                                                        dga_.getParameter(PAR_DYNAMIC_DOMAIN_CLOUDFLARE_URL2), dga_.getParameter(PAR_ECH_CONFIG_DOMAIN), dga_.getParameter(PAR_ECH_DOMAIN), false));
 
-    QSignalSpy spy(requestExecuter, SIGNAL(finished(server_api::RequestExecuterRetCode)));
+    QSignalSpy spy(requestExecuter, &server_api::RequestExecuterViaFailover::finished);
 
     requestExecuter->execute(request, failover, false);
     while (spy.count() != 1) {
@@ -57,7 +57,7 @@ void RequestExecuterViaFailover_test::testDynamicFailover()
     server_api::MyIpRequest *request = new server_api::MyIpRequest(this, 5000);
     QSharedPointer<failover::BaseFailover> failover = QSharedPointer<failover::BaseFailover>(new failover::DynamicDomainFailover(this, "20846580-b8fc-418b-9202-0af1fdbd90b9", networkAccessManager_, dga_.getParameter(PAR_DYNAMIC_DOMAIN_CLOUDFLARE_URL2), dga_.getParameter(PAR_DYNAMIC_DOMAIN_DESKTOP)));
 
-    QSignalSpy spy(requestExecuter, SIGNAL(finished(server_api::RequestExecuterRetCode)));
+    QSignalSpy spy(requestExecuter, &server_api::RequestExecuterViaFailover::finished);
 
     requestExecuter->execute(request, failover, false);
     while (spy.count() != 1) {
@@ -74,7 +74,7 @@ void RequestExecuterViaFailover_test::testFailoverFailed()
     server_api::MyIpRequest *request = new server_api::MyIpRequest(this, 5000);
     QSharedPointer<failover::BaseFailover> failover = QSharedPointer<failover::BaseFailover>(new failover::DynamicDomainFailover(this, "20846580-b8fc-418b-9202-0af1fdbd90b9", networkAccessManager_, "bad_domain_32764623746873246.com", dga_.getParameter(PAR_DYNAMIC_DOMAIN_DESKTOP)));
 
-    QSignalSpy spy(requestExecuter, SIGNAL(finished(server_api::RequestExecuterRetCode)));
+    QSignalSpy spy(requestExecuter, &server_api::RequestExecuterViaFailover::finished);
 
     requestExecuter->execute(request, failover, false);
     while (spy.count() != 1) {
@@ -91,7 +91,7 @@ void RequestExecuterViaFailover_test::testRequestDeleted()
     server_api::MyIpRequest *request = new server_api::MyIpRequest(this, 5000);
     QSharedPointer<failover::BaseFailover> failover = QSharedPointer<failover::BaseFailover>(new failover::DynamicDomainFailover(this, "20846580-b8fc-418b-9202-0af1fdbd90b9", networkAccessManager_, dga_.getParameter(PAR_DYNAMIC_DOMAIN_CLOUDFLARE_URL2), dga_.getParameter(PAR_DYNAMIC_DOMAIN_DESKTOP)));
 
-    QSignalSpy spy(requestExecuter, SIGNAL(finished(server_api::RequestExecuterRetCode)));
+    QSignalSpy spy(requestExecuter, &server_api::RequestExecuterViaFailover::finished);
 
     requestExecuter->execute(request, failover, false);
     while (spy.count() != 1) {
@@ -112,7 +112,7 @@ void RequestExecuterViaFailover_test::testConnectStateChanged()
     server_api::MyIpRequest *request = new server_api::MyIpRequest(this, 5000);
     QSharedPointer<failover::BaseFailover> failover = QSharedPointer<failover::BaseFailover>(new failover::DynamicDomainFailover(this, "20846580-b8fc-418b-9202-0af1fdbd90b9", networkAccessManager_, dga_.getParameter(PAR_DYNAMIC_DOMAIN_CLOUDFLARE_URL2), dga_.getParameter(PAR_DYNAMIC_DOMAIN_DESKTOP)));
 
-    QSignalSpy spy(requestExecuter, SIGNAL(finished(server_api::RequestExecuterRetCode)));
+    QSignalSpy spy(requestExecuter, &server_api::RequestExecuterViaFailover::finished);
 
     requestExecuter->execute(request, failover, false);
     while (spy.count() != 1) {
@@ -131,7 +131,7 @@ void RequestExecuterViaFailover_test::testMultiIpFailover()
     server_api::MyIpRequest *request = new server_api::MyIpRequest(this, 5000);
     QSharedPointer<failover::BaseFailover> failover = QSharedPointer<failover::BaseFailover>(new failover::AccessIpsFailover(this, "20846580-b8fc-418b-9202-0af1fdbd90b9", networkAccessManager_, dga_.getParameter(PAR_API_ACCESS_IP1)));
 
-    QSignalSpy spy(requestExecuter, SIGNAL(finished(server_api::RequestExecuterRetCode)));
+    QSignalSpy spy(requestExecuter, &server_api::RequestExecuterViaFailover::finished);
 
     requestExecuter->execute(request, failover, false);
     while (spy.count() != 1) {

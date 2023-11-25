@@ -1,5 +1,4 @@
-#ifndef SPLITTUNNELINGADDRESSESWINDOWITEM_H
-#define SPLITTUNNELINGADDRESSESWINDOWITEM_H
+#pragma once
 
 #include "backend/preferences/preferences.h"
 #include "backend/preferences/preferenceshelper.h"
@@ -39,5 +38,3 @@ private:
 };
 
 }
-
-#endif // SPLITTUNNELINGADDRESSESWINDOWITEM_H

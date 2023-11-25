@@ -1,0 +1,10 @@
+LANGUAGE LANG_HINDI, SUBLANG_NEUTRAL
+
+STRINGTABLE
+BEGIN
+    IDS_MSGBOX_TITLE "स्थापना रद्द करें Windscribe"
+    IDS_DIRECTORY_MISMATCH "अनइंस्टॉल आगे नहीं बढ़ सकता. स्थापना निर्देशिका निष्कासन निर्देशिका से मेल नहीं खाती."
+    IDS_CONFIRM_UNINSTALL "क्या आप वाकई Windscribe और उसके सभी घटकों को पूरी तरह से हटाना चाहते हैं?"
+    IDS_UNINSTALL_SUCCESS "Windscribe को आपके कंप्यूटर से सफलतापूर्वक हटा दिया गया था।"
+    IDS_CLOSE_APP "कृपया अनइंस्टॉल जारी रखने के लिए Windscribe ऐप से बाहर निकलें। ध्यान दें कि एप्लिकेशन समाप्त होने के बाद आपका कनेक्शन सुरक्षित नहीं रहेगा।"
+END

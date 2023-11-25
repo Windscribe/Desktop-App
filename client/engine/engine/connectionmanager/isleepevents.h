@@ -1,5 +1,4 @@
-#ifndef ISLEEPEVENTS_H
-#define ISLEEPEVENTS_H
+#pragma once
 
 #include <QObject>
 
@@ -14,5 +13,3 @@ signals:
     void gotoSleep();
     void gotoWake();
 };
-
-#endif // ISLEEPEVENTS_H

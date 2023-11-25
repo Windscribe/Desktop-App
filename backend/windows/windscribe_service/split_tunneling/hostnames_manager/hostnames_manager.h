@@ -8,32 +8,29 @@
 class HostnamesManager
 {
 public:
-	explicit HostnamesManager(FirewallFilter &firewallFilter);
-	~HostnamesManager();
+    explicit HostnamesManager();
+    ~HostnamesManager();
 
-	void enable(const std::string &gatewayIp, unsigned long ifIndex);
-	void disable();
-	void setSettings(bool isExclude, const std::vector<Ip4AddressAndMask> &ips, const std::vector<std::string> &hosts);
+    void enable(const std::string &gatewayIp, unsigned long ifIndex);
+    void disable();
+    void setSettings(bool isExclude, const std::vector<Ip4AddressAndMask> &ips, const std::vector<std::string> &hosts);
 
 private:
-	FirewallFilter &firewallFilter_;
-	DnsResolver dnsResolver_;
-	IpRoutes ipRoutes_;
+    DnsResolver dnsResolver_;
+    IpRoutes ipRoutes_;
 
-	bool isEnabled_;
-	std::recursive_mutex mutex_;
+    bool isEnabled_;
+    std::recursive_mutex mutex_;
 
-	bool isExcludeMode_;
+    bool isExcludeMode_;
 
-	// latest ips and hosts list
-	std::vector<Ip4AddressAndMask> ipsLatest_;
-	std::vector<std::string> hostsLatest_;
+    // latest ips and hosts list
+    std::vector<Ip4AddressAndMask> ipsLatest_;
+    std::vector<std::string> hostsLatest_;
 
-	std::string gatewayIp_;
-	unsigned long ifIndex_;
+    std::string gatewayIp_;
+    unsigned long ifIndex_;
 
-
-	void dnsResolverCallback(std::map<std::string, DnsResolver::HostInfo> hostInfos);
-
+    void dnsResolverCallback(std::map<std::string, DnsResolver::HostInfo> hostInfos);
 };
 

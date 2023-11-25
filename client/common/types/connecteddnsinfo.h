@@ -1,5 +1,4 @@
-#ifndef TYPES_CONNECTEDDNSINFO_H
-#define TYPES_CONNECTEDDNSINFO_H
+#pragma once
 
 #include <QString>
 #include <QList>
@@ -31,8 +30,4 @@ struct ConnectedDnsInfo
     static constexpr quint32 versionForSerialization_ = 2;  // should increment the version if the data format is changed
 };
 
-
-
 } // types namespace
-
-#endif // TYPES_CONNECTEDDNSINFO_H

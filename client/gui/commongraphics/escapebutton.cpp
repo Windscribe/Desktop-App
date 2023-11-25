@@ -14,6 +14,9 @@ EscapeButton::EscapeButton(ScalableGraphicsObject *parent) : ScalableGraphicsObj
 {
     iconButton_ = new IconButton(BUTTON_SIZE, BUTTON_SIZE, "ESC_BUTTON", "", this);
     connect(iconButton_, &IconButton::clicked, this, &EscapeButton::clicked);
+
+    connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &EscapeButton::onLanguageChanged);
+    onLanguageChanged();
 }
 
 QRectF EscapeButton::boundingRect() const

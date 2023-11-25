@@ -1,5 +1,4 @@
-#ifndef TEXTICONBUTTON_H
-#define TEXTICONBUTTON_H
+#pragma once
 
 #include <QVariantAnimation>
 #include <QGraphicsSceneHoverEvent>
@@ -70,5 +69,3 @@ private:
 };
 
 }
-
-#endif // TEXTICONBUTTON_H

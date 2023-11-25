@@ -1,5 +1,4 @@
-#ifndef TOOLTIPTYPES_H
-#define TOOLTIPTYPES_H
+#pragma once
 
 #include <QString>
 
@@ -77,6 +76,3 @@ inline bool operator==(const TooltipInfo& lhs, const TooltipInfo& rhs)
         && lhs.desc  == rhs.desc
         && lhs.type  == rhs.type;
 }
-
-
-#endif // TOOLTIPTYPES_H

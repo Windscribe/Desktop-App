@@ -1,5 +1,4 @@
-#ifndef SHOWINGDIALOGSTATE_H
-#define SHOWINGDIALOGSTATE_H
+#pragma once
 
 // singleton, global indicator for external dialog state. When an external dialog is used, we should set the flag.
 class ShowingDialogState
@@ -21,5 +20,3 @@ private:
 private:
     bool currentlyShowingExternalDialog_;
 };
-
-#endif // SHOWINGDIALOGSTATE_H

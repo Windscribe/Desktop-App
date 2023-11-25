@@ -1,12 +1,11 @@
-#ifndef NETWORKTYPES_H
-#define NETWORKTYPES_H
+#pragma once
 
 #include <QDebug>
 #include <QString>
 #include "types/enums.h"
 
 // TODO: convert unsigned long to int where appropriate
-// TODO: simplify these types 
+// TODO: simplify these types
 
 struct IpForwardRow
 {
@@ -83,8 +82,7 @@ struct IfTable2Row
 
     bool isWindscribeAdapter() const
     {
-        // Windscribe-built tap/tun adapters have 'windscribe' in their description.
-        // The generic wireguard-nt adapter we're using has it in the alias.
+        // Warning: we control the alias of the wireguard-nt adapter, but not the description.
         return description.contains("windscribe", Qt::CaseInsensitive) || alias.contains("windscribe", Qt::CaseInsensitive);
     }
 
@@ -138,6 +136,3 @@ struct IpAdapter
                  << ", physical: " << physicalAddress;
     }
 };
-
-
-#endif // NETWORKTYPES_H

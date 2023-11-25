@@ -1,30 +1,26 @@
-#ifndef UPGRADEWINDOWITEM_H
-#define UPGRADEWINDOWITEM_H
+#pragma once
 
-#include "iupgradewindow.h"
 #include "backend/preferences/preferences.h"
 #include "commongraphics/bubblebutton.h"
 #include "commongraphics/textbutton.h"
 
 namespace UpgradeWindow {
 
-class UpgradeWindowItem : public ScalableGraphicsObject, public IUpgradeWindow
+class UpgradeWindowItem : public ScalableGraphicsObject
 {
     Q_OBJECT
-    Q_INTERFACES(IUpgradeWindow)
 public:
     explicit UpgradeWindowItem(Preferences *preferences, ScalableGraphicsObject *parent = nullptr);
     ~UpgradeWindowItem() {}
-
-    QGraphicsObject *getGraphicsObject() override { return this; }
     QRectF boundingRect() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
     void updateScaling() override;
-    void setHeight(int height) override;
+
+    void setHeight(int height);
 
 signals:
-    void acceptClick() override;
-    void cancelClick() override;
+    void acceptClick();
+    void cancelClick();
 
 protected:
     void keyPressEvent(QKeyEvent *event) override;
@@ -52,5 +48,3 @@ private:
 };
 
 }
-
-#endif // UPGRADEWINDOWITEM_H

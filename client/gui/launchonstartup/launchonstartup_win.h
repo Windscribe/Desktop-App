@@ -1,5 +1,4 @@
-#ifndef LAUNCHONSTARTUP_WIN_H
-#define LAUNCHONSTARTUP_WIN_H
+#pragma once
 
 class LaunchOnStartup_win
 {
@@ -10,5 +9,3 @@ private:
     static void clearDisableAutoStartFlag();
 
 };
-
-#endif // LAUNCHONSTARTUP_WIN_H

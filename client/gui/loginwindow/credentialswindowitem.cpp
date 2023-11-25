@@ -27,34 +27,34 @@ const QString CONFIG_ICON_PATH             = "login/CONFIG_ICON";
 const QString SETTINGS_ICON_PATH           = "login/SETTINGS_ICON";
 
 CredentialsWindowItem::CredentialsWindowItem(QGraphicsObject *parent, PreferencesHelper *preferencesHelper)
-    : ScalableGraphicsObject(parent), curError_(ILoginWindow::ERR_MSG_EMPTY), curErrorMsg_("")
+    : ScalableGraphicsObject(parent), curError_(LoginWindow::ERR_MSG_EMPTY), curErrorMsg_("")
 {
     WS_ASSERT(preferencesHelper);
     setFlag(QGraphicsItem::ItemIsFocusable);
 
     // Header Region:
     backButton_ = new IconButton(32, 32, "BACK_ARROW", "", this);
-    connect(backButton_, SIGNAL(clicked()), SLOT(onBackClick()));
+    connect(backButton_, &IconButton::clicked, this, &CredentialsWindowItem::onBackClick);
 
     curLoginTextOpacity_ = OPACITY_HIDDEN;
-    connect(&loginTextOpacityAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onLoginTextOpacityChanged(QVariant)));
+    connect(&loginTextOpacityAnimation_, &QVariantAnimation::valueChanged, this, &CredentialsWindowItem::onLoginTextOpacityChanged);
 
  #ifdef Q_OS_WIN
     closeButton_ = new IconButton(16, 16, "WINDOWS_CLOSE_ICON", "", this);
-    connect(closeButton_, SIGNAL(clicked()), SLOT(onCloseClick()));
+    connect(closeButton_, &IconButton::clicked, this, &CredentialsWindowItem::onCloseClick);
 
     minimizeButton_ = new IconButton(16, 16, "WINDOWS_MINIMIZE_ICON", "", this);
-    connect(minimizeButton_, SIGNAL(clicked()), SLOT(onMinimizeClick()));
+    connect(minimizeButton_, &IconButton::clicked, this, &CredentialsWindowItem::onMinimizeClick);
 #else //if Q_OS_MAC
 
     closeButton_ = new IconButton(14,14, "MAC_CLOSE_DEFAULT", "", this);
-    connect(closeButton_, SIGNAL(clicked()), SLOT(onCloseClick()));
+    connect(closeButton_, &IconButton::clicked, this, &CredentialsWindowItem::onCloseClick);
     connect(closeButton_, &IconButton::hoverEnter, [=](){ closeButton_->setIcon("MAC_CLOSE_HOVER"); });
     connect(closeButton_, &IconButton::hoverLeave, [=](){ closeButton_->setIcon("MAC_CLOSE_DEFAULT"); });
     closeButton_->setSelected(true);
 
     minimizeButton_ = new IconButton(14,14,"MAC_MINIMIZE_DEFAULT", "", this);
-    connect(minimizeButton_, SIGNAL(clicked()), SLOT(onMinimizeClick()));
+    connect(minimizeButton_, &IconButton::clicked, this, &CredentialsWindowItem::onMinimizeClick);
     connect(minimizeButton_, &IconButton::hoverEnter, [=](){ minimizeButton_->setIcon("MAC_MINIMIZE_HOVER"); });
     connect(minimizeButton_, &IconButton::hoverLeave, [=](){ minimizeButton_->setIcon("MAC_MINIMIZE_DEFAULT"); });
     minimizeButton_->setVisible(!preferencesHelper->isDockedToTray());
@@ -64,111 +64,109 @@ CredentialsWindowItem::CredentialsWindowItem(QGraphicsObject *parent, Preference
 
     QString firewallOffText = tr("Turn Off Firewall");
     firewallTurnOffButton_ = new FirewallTurnOffButton(std::move(firewallOffText), this);
-    connect(firewallTurnOffButton_, SIGNAL(clicked()), SLOT(onFirewallTurnOffClick()));
+    connect(firewallTurnOffButton_, &FirewallTurnOffButton::clicked, this, &CredentialsWindowItem::onFirewallTurnOffClick);
 
     // Center Region:
     usernameEntry_ = new UsernamePasswordEntry("", false, this);
     passwordEntry_ = new UsernamePasswordEntry("", true, this);
 
     curForgotAnd2FAPosY_ = FORGOT_AND_2FA_POS_Y_DEFAULT;
-    connect(&forgotAnd2FAPosYAnimation_, SIGNAL(valueChanged(QVariant)),
-        SLOT(onForgotAnd2FAPosYChanged(QVariant)));
+    connect(&forgotAnd2FAPosYAnimation_, &QVariantAnimation::valueChanged, this, &CredentialsWindowItem::onForgotAnd2FAPosYChanged);
 
     curErrorOpacity_ = OPACITY_HIDDEN;
-    connect(&errorAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onErrorChanged(QVariant)));
+    connect(&errorAnimation_, &QVariantAnimation::valueChanged, this, &CredentialsWindowItem::onErrorChanged);
 
     twoFactorAuthButton_ = new CommonGraphics::TextButton("", FontDescr(12, false), Qt::white, true, this);
-    connect(twoFactorAuthButton_, SIGNAL(clicked()), SLOT(onTwoFactorAuthClick()));
+    connect(twoFactorAuthButton_, &CommonGraphics::TextButton::clicked, this, &CredentialsWindowItem::onTwoFactorAuthClick);
     twoFactorAuthButton_->quickHide();
 
     forgotPassButton_ = new CommonGraphics::TextButton("", FontDescr(12, false), Qt::white, true, this);
-    connect(forgotPassButton_, SIGNAL(clicked()), SLOT(onForgotPassClick()));
+    connect(forgotPassButton_, &CommonGraphics::TextButton::clicked, this, &CredentialsWindowItem::onForgotPassClick);
     forgotPassButton_->quickHide();
 
     loginButton_ = new LoginButton(this);
-    connect(loginButton_, SIGNAL(clicked()), SLOT(onLoginClick()));
+    connect(loginButton_, &LoginButton::clicked, this, &CredentialsWindowItem::onLoginClick);
 
     // Lower Region:
     settingsButton_ = new IconButton(24, 24, SETTINGS_ICON_PATH, "", this);
-    connect(settingsButton_, SIGNAL(clicked()), SLOT(onSettingsButtonClick()));
-    connect(settingsButton_, SIGNAL(hoverEnter()), SLOT(onSettingsHoverEnter()));
-    connect(settingsButton_, SIGNAL(hoverLeave()), SLOT(onTooltipButtonHoverLeave()));
+    connect(settingsButton_, &IconButton::clicked, this, &CredentialsWindowItem::onSettingsButtonClick);
+    connect(settingsButton_, &IconButton::hoverEnter, this, &CredentialsWindowItem::onSettingsHoverEnter);
+    connect(settingsButton_, &IconButton::hoverLeave, this, &CredentialsWindowItem::onTooltipButtonHoverLeave);
 
     configButton_ = new IconButton(24, 24, CONFIG_ICON_PATH, "", this);
-    connect(configButton_, SIGNAL(clicked()), SLOT(onConfigButtonClick()));
-    connect(configButton_, SIGNAL(hoverEnter()), SLOT(onConfigHoverEnter()));
-    connect(configButton_, SIGNAL(hoverLeave()), SLOT(onTooltipButtonHoverLeave()));
+    connect(configButton_, &IconButton::clicked, this, &CredentialsWindowItem::onConfigButtonClick);
+    connect(configButton_, &IconButton::hoverEnter, this, &CredentialsWindowItem::onConfigHoverEnter);
+    connect(configButton_, &IconButton::hoverLeave, this, &CredentialsWindowItem::onTooltipButtonHoverLeave);
 
     emergencyButton_ = new IconHoverEngageButton(EMERGENCY_ICON_DISABLED_PATH, EMERGENCY_ICON_ENABLED_PATH, this);
-    connect(emergencyButton_, SIGNAL(clicked()), SLOT(onEmergencyButtonClick()));
-    connect(emergencyButton_, SIGNAL(hoverEnter()), SLOT(onEmergencyHoverEnter()));
-    connect(emergencyButton_, SIGNAL(hoverLeave()), SLOT(onTooltipButtonHoverLeave()));
+    connect(emergencyButton_, &IconHoverEngageButton::clicked, this, &CredentialsWindowItem::onEmergencyButtonClick);
+    connect(emergencyButton_, &IconHoverEngageButton::hoverEnter, this, &CredentialsWindowItem::onEmergencyHoverEnter);
+    connect(emergencyButton_, &IconHoverEngageButton::hoverLeave, this, &CredentialsWindowItem::onTooltipButtonHoverLeave);
 
     emergencyConnectOn_ = false;
 
-    connect(&LanguageController::instance(), SIGNAL(languageChanged()), SLOT(onLanguageChanged()));
+    connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &CredentialsWindowItem::onLanguageChanged);
     onLanguageChanged();
 
     curEmergencyTextOpacity_ = OPACITY_HIDDEN;
-    connect(&emergencyTextAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onEmergencyTextTransition(QVariant)));
+    connect(&emergencyTextAnimation_, &QVariantAnimation::valueChanged, this, &CredentialsWindowItem::onEmergencyTextTransition);
 
-    connect(usernameEntry_, SIGNAL(textChanged(const QString &)), this, SLOT(onUsernamePasswordTextChanged(const QString &)));
-    connect(passwordEntry_, SIGNAL(textChanged(const QString &)), this, SLOT(onUsernamePasswordTextChanged(const QString &)));
+    connect(usernameEntry_, &UsernamePasswordEntry::textChanged, this, &CredentialsWindowItem::onUsernamePasswordTextChanged);
+    connect(passwordEntry_, &UsernamePasswordEntry::textChanged, this, &CredentialsWindowItem::onUsernamePasswordTextChanged);
 
-    connect(preferencesHelper, SIGNAL(isDockedModeChanged(bool)), this,
-            SLOT(onDockedModeChanged(bool)));
+    connect(preferencesHelper, &PreferencesHelper::isDockedModeChanged, this, &CredentialsWindowItem::onDockedModeChanged);
 
     updatePositions();
     transitionToUsernameScreen();
 }
 
-void CredentialsWindowItem::setErrorMessage(ILoginWindow::ERROR_MESSAGE_TYPE errorMessageType, const QString &errorMessage)
+void CredentialsWindowItem::setErrorMessage(LoginWindow::ERROR_MESSAGE_TYPE errorMessageType, const QString &errorMessage)
 {
     bool error = false;
 
     switch(errorMessageType)
     {
-        case ILoginWindow::ERR_MSG_EMPTY:
+        case LoginWindow::ERR_MSG_EMPTY:
             curErrorText_.clear();
             break;
-        case ILoginWindow::ERR_MSG_NO_INTERNET_CONNECTIVITY:
+        case LoginWindow::ERR_MSG_NO_INTERNET_CONNECTIVITY:
             curErrorText_ = tr("No Internet Connectivity");
             break;
-        case ILoginWindow::ERR_MSG_NO_API_CONNECTIVITY:
+        case LoginWindow::ERR_MSG_NO_API_CONNECTIVITY:
             curErrorText_ = tr("No API Connectivity");
             break;
-        case ILoginWindow::ERR_MSG_PROXY_REQUIRES_AUTH:
+        case LoginWindow::ERR_MSG_PROXY_REQUIRES_AUTH:
             curErrorText_ = tr("Proxy requires authentication");
             break;
-        case ILoginWindow::ERR_MSG_INVALID_API_RESPONSE:
+        case LoginWindow::ERR_MSG_INVALID_API_RESPONSE:
             curErrorText_ = tr("Invalid API response, check your network");
             break;
-        case ILoginWindow::ERR_MSG_INVALID_API_ENDPOINT:
+        case LoginWindow::ERR_MSG_INVALID_API_ENDPOINT:
             curErrorText_ = tr("Invalid API Endpoint");
             break;
-        case ILoginWindow::ERR_MSG_INCORRECT_LOGIN1:
+        case LoginWindow::ERR_MSG_INCORRECT_LOGIN1:
             error = true;
             curErrorText_ = tr("...hmm are you sure this is correct?");
             break;
-        case ILoginWindow::ERR_MSG_INCORRECT_LOGIN2:
+        case LoginWindow::ERR_MSG_INCORRECT_LOGIN2:
             error = true;
             curErrorText_ = tr("...Sorry, seems like it's wrong again");
             break;
-        case ILoginWindow::ERR_MSG_INCORRECT_LOGIN3:
+        case LoginWindow::ERR_MSG_INCORRECT_LOGIN3:
             error = true;
             curErrorText_ = tr("...hmm, try resetting your password!");
             break;
-        case ILoginWindow::ERR_MSG_RATE_LIMITED:
+        case LoginWindow::ERR_MSG_RATE_LIMITED:
             error = true;
             curErrorText_ = tr("Rate limited. Please wait before trying to login again.");
             break;
-        case ILoginWindow::ERR_MSG_SESSION_EXPIRED:
+        case LoginWindow::ERR_MSG_SESSION_EXPIRED:
             curErrorText_ = tr("Session is expired. Please login again");
             break;
-        case ILoginWindow::ERR_MSG_USERNAME_IS_EMAIL:
+        case LoginWindow::ERR_MSG_USERNAME_IS_EMAIL:
             curErrorText_ = tr("Your username should not be an email address. Please try again.");
             break;
-        case ILoginWindow::ERR_MSG_ACCOUNT_DISABLED:
+        case LoginWindow::ERR_MSG_ACCOUNT_DISABLED:
             curErrorText_ = errorMessage;
             break;
         default:
@@ -318,7 +316,7 @@ void CredentialsWindowItem::resetState()
     loginButton_->setError(false);
     loginButton_->setClickable(false);
 
-    setErrorMessage(ILoginWindow::ERR_MSG_EMPTY, QString()); // reset error state
+    setErrorMessage(LoginWindow::ERR_MSG_EMPTY, QString()); // reset error state
 
     curForgotAnd2FAPosY_ = FORGOT_AND_2FA_POS_Y_DEFAULT;
     twoFactorAuthButton_->setPos(WINDOW_MARGIN * G_SCALE, curForgotAnd2FAPosY_ * G_SCALE);
@@ -391,7 +389,7 @@ void CredentialsWindowItem::attemptLogin()
 
     if (userOrPassError)
     {
-        setErrorMessage(ILoginWindow::ERR_MSG_INCORRECT_LOGIN1, QString());
+        setErrorMessage(LoginWindow::ERR_MSG_INCORRECT_LOGIN1, QString());
     }
     else
     {

@@ -1,5 +1,4 @@
-#ifndef DIALOGGETUSERNAMEPASSWORD_H
-#define DIALOGGETUSERNAMEPASSWORD_H
+#pragma once
 
 #include <QDialog>
 #include "utils/ws_assert.h"
@@ -31,5 +30,3 @@ private:
     QString password_;
     bool isSave_;
 };
-
-#endif // DIALOGGETUSERNAMEPASSWORD_H

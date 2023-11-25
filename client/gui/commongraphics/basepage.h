@@ -1,5 +1,4 @@
-#ifndef BASEPAGE_H
-#define BASEPAGE_H
+#pragma once
 
 #include <QGraphicsObject>
 #include "baseitem.h"
@@ -60,5 +59,3 @@ private:
 };
 
 } // namespace CommonGraphics
-
-#endif // BASEPAGE_H

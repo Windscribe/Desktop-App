@@ -182,6 +182,23 @@ void ComboBoxItem::hideMenu()
 {
     // qCDebug(LOG_PREFERENCES) << "Hiding menu for: " << strCaption_;
     menu_->hide();
+
+#ifdef Q_OS_MACOS
+    // HACK: There is a Qt issue introduced in Qt 6.5 for MacOS only, where after clicking
+    // anything in the menu, the hover effects from its stylesheet no longer apply.
+    // As a workaround, recreate and repopulate the menu item every time we hide it.
+
+    menu_->deleteLater();
+
+    menu_ = new CommonWidgets::ComboMenuWidget();
+    connect(menu_, &CommonWidgets::ComboMenuWidget::itemClicked, this, &ComboBoxItem::onMenuItemSelected);
+    connect(menu_, &CommonWidgets::ComboMenuWidget::sizeChanged, this, &ComboBoxItem::onMenuSizeChanged);
+    connect(menu_, &CommonWidgets::ComboMenuWidget::hidden, this, &ComboBoxItem::onMenuHidden);
+
+    for (auto item : items_) {
+        menu_->addItem(item.caption(), item.userValue());
+    }
+#endif
 }
 
 void ComboBoxItem::setMaxMenuItemsShowing(int maxItemsShowing)

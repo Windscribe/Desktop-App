@@ -1,5 +1,4 @@
-#ifndef HELPER_LINUX_H
-#define HELPER_LINUX_H
+#pragma once
 
 #include "helper_posix.h"
 
@@ -20,5 +19,3 @@ public:
     bool setDnsLeakProtectEnabled(bool bEnabled);
     bool checkForWireGuardKernelModule();
 };
-
-#endif // HELPER_LINUX_H

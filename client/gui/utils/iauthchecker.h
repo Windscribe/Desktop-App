@@ -1,5 +1,4 @@
-#ifndef IAUTHCHECKER_H
-#define IAUTHCHECKER_H
+#pragma once
 
 #include <QObject>
 
@@ -15,5 +14,3 @@ public:
 };
 
 Q_DECLARE_INTERFACE(IAuthChecker, "IAuthChecker")
-
-#endif // IAUTHCHECKER_H

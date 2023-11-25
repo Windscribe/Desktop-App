@@ -9,7 +9,7 @@ void Routes::add(const std::string &ip, const std::string &gateway, const std::s
     rd.gateway = gateway;
     rd.mask = mask;
     routes_.push_back(rd);
-    
+
     std::string cmd = "route add -net " + ip + " " + gateway + " " + mask;
     LOG("execute: %s", cmd.c_str());
     Utils::executeCommand(cmd);
@@ -21,7 +21,7 @@ void Routes::addWithInterface(const std::string &ip, const std::string &interfac
     rd.ip = ip;
     rd.interface = interface;
     routes_.push_back(rd);
-    
+
     std::string cmd = "route -q -n add -inet " + ip + " -interface " + interface;
     LOG("execute: %s", cmd.c_str());
     Utils::executeCommand(cmd);

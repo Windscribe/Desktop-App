@@ -1,5 +1,4 @@
-#ifndef IINSTALL_BLOCK_H
-#define IINSTALL_BLOCK_H
+#pragma once
 
 #include <string>
 
@@ -26,5 +25,3 @@ protected:
 
     std::wstring lastError_;
 };
-
-#endif // IINSTALL_BLOCK_H

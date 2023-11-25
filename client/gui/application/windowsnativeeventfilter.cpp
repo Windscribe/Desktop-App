@@ -60,7 +60,7 @@ bool WindowsNativeEventFilter::nativeEventFilter(const QByteArray &b, void *mess
     }
     else if (msg->message == WM_WININICHANGE)
     {
-		// WM_WININICHANGE fires when OS light/dark mode is updated
+        // WM_WININICHANGE fires when OS light/dark mode is updated
         WindscribeApplication::instance()->onWinIniChanged();
         return true;
     }

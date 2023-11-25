@@ -1,5 +1,4 @@
-#ifndef GENERALWINDOWITEM_H
-#define GENERALWINDOWITEM_H
+#pragma once
 
 #include "commongraphics/basepage.h"
 #include "backend/preferences/preferenceshelper.h"
@@ -29,10 +28,10 @@ private slots:
     void onStartMinimizedClicked(bool b);
     void onVersionInfoClicked();
 
-#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     void onMinimizeAndCloseToTrayPreferencesChanged(bool b);
     void onMinimizeAndCloseToTrayClicked(bool b);
-#elif defined Q_OS_MAC
+
+#if defined Q_OS_MAC
     void onHideFromDockPreferecesChanged(bool b);
     void onHideFromDockClicked(bool b);
 #endif
@@ -68,6 +67,11 @@ private slots:
     void onAppSkinPreferencesChanged(APP_SKIN s);
     void onAppSkinChanged(QVariant value);
 
+#if defined(Q_OS_LINUX)
+    void onTrayIconColorChanged(QVariant value);
+    void onPreferencesTrayIconColorChanged(QVariant value);
+#endif
+
 signals:
     void languageChanged();
 
@@ -89,11 +93,9 @@ private:
     ToggleItem *checkBoxStartMinimized_;
     PreferenceGroup *showLocationLoadGroup_;
     ToggleItem *checkBoxShowLocationLoad_;
-
-#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     PreferenceGroup *closeToTrayGroup_;
     ToggleItem *checkBoxMinimizeAndCloseToTray_;
-#elif defined Q_OS_MAC
+#if defined Q_OS_MAC
     PreferenceGroup *hideFromDockGroup_;
     ToggleItem *checkBoxHideFromDock_;
 #endif
@@ -111,8 +113,11 @@ private:
 
     PreferenceGroup *versionGroup_;
     VersionInfoItem *versionInfoItem_;
+
+#if defined(Q_OS_LINUX)
+    PreferenceGroup *trayIconColorGroup_;
+    ComboBoxItem *trayIconColorItem_;
+#endif
 };
 
 } // namespace PreferencesWindow
-
-#endif // GENERALWINDOWITEM_H

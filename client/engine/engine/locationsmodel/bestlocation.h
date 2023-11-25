@@ -1,5 +1,4 @@
-#ifndef LOCATIONSMODEL_BESTLOCATION_H
-#define LOCATIONSMODEL_BESTLOCATION_H
+#pragma once
 
 #include <QString>
 #include <QVector>
@@ -37,7 +36,4 @@ private:
     static constexpr int versionForSerialization_ = 1;  // should increment the version if the data format is changed
 };
 
-
 } //namespace locationsmodel
-
-#endif // LOCATIONSMODEL_BESTLOCATION_H

@@ -1,5 +1,4 @@
-#ifndef OPENVPNCONNECTION_H
-#define OPENVPNCONNECTION_H
+#pragma once
 
 #include <QThread>
 #include <QElapsedTimer>
@@ -131,5 +130,3 @@ private:
     bool parseDeviceOpenedReply(const QString &reply, QString &outDeviceName);
     bool parseConnectedSuccessReply(const QString &reply, QString &outRemoteIp);
 };
-
-#endif // OPENVPNCONNECTION_H

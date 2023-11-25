@@ -17,7 +17,7 @@ LocalIPCServer::LocalIPCServer(Backend *backend, QObject *parent) : QObject(pare
 
 LocalIPCServer::~LocalIPCServer()
 {
-    for (IPC::IConnection * connection : connections_)
+    for (IPC::Connection * connection : connections_)
     {
         connection->close();
         delete connection;
@@ -31,7 +31,7 @@ void LocalIPCServer::start()
 {
     WS_ASSERT(server_ == nullptr);
     server_ = new IPC::Server();
-    connect(dynamic_cast<QObject*>(server_), SIGNAL(newConnection(IPC::IConnection *)), SLOT(onServerCallbackAcceptFunction(IPC::IConnection *)));
+    connect(server_, &IPC::Server::newConnection, this, &LocalIPCServer::onServerCallbackAcceptFunction);
 
     if (!server_->start())
     {
@@ -45,24 +45,24 @@ void LocalIPCServer::start()
 
 void LocalIPCServer::sendLocationsShown()
 {
-    for (IPC::IConnection * connection : connections_)
+    for (IPC::Connection * connection : connections_)
     {
         IPC::CliCommands::LocationsShown cmd;
         connection->sendCommand(cmd);
     }
 }
 
-void LocalIPCServer::onServerCallbackAcceptFunction(IPC::IConnection *connection)
+void LocalIPCServer::onServerCallbackAcceptFunction(IPC::Connection *connection)
 {
     qCDebug(LOG_IPC) << "Client connected:" << connection;
 
     connections_.append(connection);
 
-    connect(dynamic_cast<QObject*>(connection), SIGNAL(newCommand(IPC::Command *, IPC::IConnection *)), SLOT(onConnectionCommandCallback(IPC::Command *, IPC::IConnection *)));
-    connect(dynamic_cast<QObject*>(connection), SIGNAL(stateChanged(int, IPC::IConnection *)), SLOT(onConnectionStateCallback(int, IPC::IConnection *)));
+    connect(connection, &IPC::Connection::newCommand, this, &LocalIPCServer::onConnectionCommandCallback);
+    connect(connection, &IPC::Connection::stateChanged, this, &LocalIPCServer::onConnectionStateCallback);
 }
 
-void LocalIPCServer::onConnectionCommandCallback(IPC::Command *command, IPC::IConnection * /*connection*/)
+void LocalIPCServer::onConnectionCommandCallback(IPC::Command *command, IPC::Connection * /*connection*/)
 {
     if (command->getStringId() ==IPC::CliCommands::ShowLocations::getCommandStringId())
     {
@@ -171,7 +171,7 @@ void LocalIPCServer::onConnectionCommandCallback(IPC::Command *command, IPC::ICo
             connect(backend_, &Backend::loginFinished, this, &LocalIPCServer::notifyCliLoginFinished);
             connect(backend_, &Backend::loginError, this, &LocalIPCServer::notifyCliLoginFailed);
             IPC::CliCommands::Login *cmd = static_cast<IPC::CliCommands::Login *>(command);
-            Q_EMIT attemptLogin(cmd->username_, cmd->password_, cmd->code2fa_);
+            emit attemptLogin(cmd->username_, cmd->password_, cmd->code2fa_);
         }
     }
     else if (command->getStringId() == IPC::CliCommands::SignOut::getCommandStringId())
@@ -188,7 +188,7 @@ void LocalIPCServer::onConnectionCommandCallback(IPC::Command *command, IPC::ICo
     }
 }
 
-void LocalIPCServer::onConnectionStateCallback(int state, IPC::IConnection *connection)
+void LocalIPCServer::onConnectionStateCallback(int state, IPC::Connection *connection)
 {
     if (state == IPC::CONNECTION_DISCONNECTED)
     {
@@ -234,7 +234,7 @@ void LocalIPCServer::onBackendSignOutFinished()
 
 void LocalIPCServer::sendCommand(const IPC::Command &command)
 {
-    for (IPC::IConnection * connection : connections_)
+    for (IPC::Connection * connection : connections_)
     {
         connection->sendCommand(command);
     }

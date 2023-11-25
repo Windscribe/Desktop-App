@@ -1,5 +1,4 @@
-#ifndef CUSTOMTEXTEDITWIDGET_H
-#define CUSTOMTEXTEDITWIDGET_H
+#pragma once
 
 #include <QPlainTextEdit>
 #include "commonwidgets/custommenulineedit.h"
@@ -74,5 +73,3 @@ private:
     void recalcHeight();
 
 };
-
-#endif // CUSTOMTEXTEDITWIDGET_H

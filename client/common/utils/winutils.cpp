@@ -1,5 +1,3 @@
-#include "winutils.h"
-
 #include <WinSock2.h>
 #include <WS2tcpip.h>
 #include <iphlpapi.h>
@@ -9,9 +7,9 @@
 #include <strsafe.h>
 #include <tlhelp32.h>
 
+#include <filesystem>
 #include <iostream>
 
-#include <Windows.h>
 #include <LM.h>
 
 #include <wlanapi.h>
@@ -24,9 +22,15 @@
 #include <QDir>
 #include <QCoreApplication>
 #include <QScopeGuard>
+#include <QSettings>
 
-#include "utils.h"
+// Must be included here otherwise #include <Windows.h> conflicts with other Win API includes.
+#include "winutils.h"
+
 #include "logger.h"
+#include "servicecontrolmanager.h"
+#include "utils.h"
+#include "win32handle.h"
 
 #include "../../gui/authhelper/win/ws_com/guids.h"
 
@@ -134,39 +138,43 @@ bool WinUtils::isWindowsVISTAor7or8()
 
 QString WinUtils::getWinVersionString()
 {
-    QString ret;
-
     RTL_OSVERSIONINFOEXW rtlOsVer;
-    if (getWinVersion(&rtlOsVer))
-    {
-        if (rtlOsVer.dwMajorVersion == 10 && rtlOsVer.dwMinorVersion >= 0 && rtlOsVer.wProductType == VER_NT_WORKSTATION)  ret = (rtlOsVer.dwBuildNumber >= 22000 ? "Windows 11" : "Windows 10");
-        else if (rtlOsVer.dwMajorVersion == 10 && rtlOsVer.dwMinorVersion >= 0 && rtlOsVer.wProductType != VER_NT_WORKSTATION)  ret = "Windows 10 Server";
-        else if (rtlOsVer.dwMajorVersion == 6 && rtlOsVer.dwMinorVersion == 3 && rtlOsVer.wProductType != VER_NT_WORKSTATION)  ret = "Windows Server 2012 R2";
-        else if (rtlOsVer.dwMajorVersion == 6 && rtlOsVer.dwMinorVersion == 3 && rtlOsVer.wProductType == VER_NT_WORKSTATION)  ret = "Windows 8.1";
-        else if (rtlOsVer.dwMajorVersion == 6 && rtlOsVer.dwMinorVersion == 2 && rtlOsVer.wProductType != VER_NT_WORKSTATION)  ret = "Windows Server 2012";
-        else if (rtlOsVer.dwMajorVersion == 6 && rtlOsVer.dwMinorVersion == 2 && rtlOsVer.wProductType == VER_NT_WORKSTATION)  ret = "Windows 8";
-        else if (rtlOsVer.dwMajorVersion == 6 && rtlOsVer.dwMinorVersion == 1 && rtlOsVer.wProductType != VER_NT_WORKSTATION)  ret = "Windows Server 2008 R2";
-        else if (rtlOsVer.dwMajorVersion == 6 && rtlOsVer.dwMinorVersion == 1 && rtlOsVer.wProductType == VER_NT_WORKSTATION)  ret = "Windows 7";
-        else if (rtlOsVer.dwMajorVersion == 6 && rtlOsVer.dwMinorVersion == 0 && rtlOsVer.wProductType != VER_NT_WORKSTATION)  ret = "Windows Server 2008";
-        else if (rtlOsVer.dwMajorVersion == 6 && rtlOsVer.dwMinorVersion == 0 && rtlOsVer.wProductType == VER_NT_WORKSTATION)  ret = "Windows Vista";
-        else if (rtlOsVer.dwMajorVersion == 5 && rtlOsVer.dwMinorVersion == 2 && rtlOsVer.wProductType == VER_NT_WORKSTATION)  ret = "Windows XP";
-        else if (rtlOsVer.dwMajorVersion == 5 && rtlOsVer.dwMinorVersion == 2)   ret = "Windows Server 2003";
-        else if (rtlOsVer.dwMajorVersion == 5 && rtlOsVer.dwMinorVersion == 1)   ret = "Windows XP";
-        else if (rtlOsVer.dwMajorVersion == 5 && rtlOsVer.dwMinorVersion == 0)   ret = "Windows 2000";
-        else ret = "Unknown";
-
-        if (rtlOsVer.szCSDVersion[0] != L'\0')
-        {
-            ret += " " + QString::fromStdWString(rtlOsVer.szCSDVersion);
-        }
-
-        ret += " (major: " + QString::number(rtlOsVer.dwMajorVersion) + ", minor: " + QString::number(rtlOsVer.dwMinorVersion) + ")";
-        ret += " (build: " + QString::number(rtlOsVer.dwBuildNumber) + ")";
+    if (!getWinVersion(&rtlOsVer)) {
+        return "Failed to detect Windows version";
     }
-    else
-    {
-        ret = "Can't detect Windows version";
+
+    QString ret;
+    if (rtlOsVer.dwMajorVersion == 10 && rtlOsVer.dwMinorVersion >= 0 && rtlOsVer.wProductType == VER_NT_WORKSTATION) ret = (rtlOsVer.dwBuildNumber >= 22000 ? "Windows 11" : "Windows 10");
+    else if (rtlOsVer.dwMajorVersion == 10 && rtlOsVer.dwMinorVersion >= 0 && rtlOsVer.wProductType != VER_NT_WORKSTATION) ret = "Windows 10 Server";
+    else if (rtlOsVer.dwMajorVersion == 6 && rtlOsVer.dwMinorVersion == 3 && rtlOsVer.wProductType != VER_NT_WORKSTATION) ret = "Windows Server 2012 R2";
+    else if (rtlOsVer.dwMajorVersion == 6 && rtlOsVer.dwMinorVersion == 3 && rtlOsVer.wProductType == VER_NT_WORKSTATION) ret = "Windows 8.1";
+    else if (rtlOsVer.dwMajorVersion == 6 && rtlOsVer.dwMinorVersion == 2 && rtlOsVer.wProductType != VER_NT_WORKSTATION) ret = "Windows Server 2012";
+    else if (rtlOsVer.dwMajorVersion == 6 && rtlOsVer.dwMinorVersion == 2 && rtlOsVer.wProductType == VER_NT_WORKSTATION) ret = "Windows 8";
+    else if (rtlOsVer.dwMajorVersion == 6 && rtlOsVer.dwMinorVersion == 1 && rtlOsVer.wProductType != VER_NT_WORKSTATION) ret = "Windows Server 2008 R2";
+    else if (rtlOsVer.dwMajorVersion == 6 && rtlOsVer.dwMinorVersion == 1 && rtlOsVer.wProductType == VER_NT_WORKSTATION) ret = "Windows 7";
+    else if (rtlOsVer.dwMajorVersion == 6 && rtlOsVer.dwMinorVersion == 0 && rtlOsVer.wProductType != VER_NT_WORKSTATION) ret = "Windows Server 2008";
+    else if (rtlOsVer.dwMajorVersion == 6 && rtlOsVer.dwMinorVersion == 0 && rtlOsVer.wProductType == VER_NT_WORKSTATION) ret = "Windows Vista";
+    else if (rtlOsVer.dwMajorVersion == 5 && rtlOsVer.dwMinorVersion == 2 && rtlOsVer.wProductType == VER_NT_WORKSTATION) ret = "Windows XP";
+    else if (rtlOsVer.dwMajorVersion == 5 && rtlOsVer.dwMinorVersion == 2) ret = "Windows Server 2003";
+    else if (rtlOsVer.dwMajorVersion == 5 && rtlOsVer.dwMinorVersion == 1) ret = "Windows XP";
+    else if (rtlOsVer.dwMajorVersion == 5 && rtlOsVer.dwMinorVersion == 0) ret = "Windows 2000";
+    else ret = "Unknown";
+
+    if (rtlOsVer.szCSDVersion[0] != L'\0') {
+        ret += " " + QString::fromStdWString(rtlOsVer.szCSDVersion);
     }
+
+    ret += " (major: " + QString::number(rtlOsVer.dwMajorVersion) + ", minor: " + QString::number(rtlOsVer.dwMinorVersion) + ")";
+    ret += " (build: " + QString::number(rtlOsVer.dwBuildNumber);
+
+    // Retrieve the Update Build Revision to aid us in determining if the user is running an insider preview.
+    QSettings registry("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion", QSettings::NativeFormat);
+    uint ubr = registry.value("UBR", 0).toUInt();
+    if (ubr != 0) {
+        ret += "." + QString::number(ubr);
+    }
+
+    ret += ")";
 
     return ret;
 }
@@ -271,7 +279,7 @@ QList<QString> enumerateSubkeyNames(HKEY rootKey, QString keyPath, bool wow64)
             &ftLastWriteTime);       // last write time
 
 
-        if (cSubKeys)
+        if (retCode == ERROR_SUCCESS && cSubKeys)
         {
             for (DWORD i=0; i<cSubKeys; i++)
             {
@@ -337,28 +345,12 @@ QMap<QString, QString> WinUtils::enumerateInstalledProgramIconLocations()
     {
         const QMap<QString,QString> map = maps[i];
         const auto mapKeys = map.keys();
-        for (QString name : mapKeys)
+        for (const QString &name : mapKeys)
         {
             programLocations.insert(name, map[name]);
         }
     }
     return programLocations;
-}
-
-
-bool WinUtils::isGuiAlreadyRunning()
-{
-    HWND hwnd = FindWindow(classNameIcon.c_str(), wsGuiIcon.c_str());
-    if (hwnd) {
-        return true;
-    }
-
-    hwnd = FindWindow(classNameIconDebug.c_str(), wsGuiIcon.c_str());
-    if (hwnd) {
-        return true;
-    }
-
-    return false;
 }
 
 QString WinUtils::regGetLocalMachineRegistryValueSz(QString keyPath, QString propertyName)
@@ -444,30 +436,25 @@ bool WinUtils::regGetCurrentUserRegistryDword(QString keyPath, QString propertyN
     return result;
 }
 
-QList<QString> WinUtils::enumerateRunningProgramLocations()
+QStringList WinUtils::enumerateRunningProgramLocations()
 {
-    QList<QString> result;
+    QStringList result;
 
     // Get the list of process identifiers.
-    DWORD aProcesses[1024], cbNeeded, cProcesses;
-    unsigned int i;
+    DWORD aProcesses[1024], cbNeeded;
 
-    if ( !EnumProcesses( aProcesses, sizeof(aProcesses), &cbNeeded ) )
-    {
+    if (!EnumProcesses(aProcesses, sizeof(aProcesses), &cbNeeded)) {
         return result;
     }
 
     // Calculate how many process identifiers were returned.
-    cProcesses = cbNeeded / sizeof(DWORD);
+    DWORD cProcesses = cbNeeded / sizeof(DWORD);
 
     // Print the name and process identifier for each process.
-    for ( i = 0; i < cProcesses; i++ )
-    {
-        if( aProcesses[i] != 0 )
-        {
-            QString exePath = processExecutablePath( aProcesses[i] );
-            if (!result.contains(exePath) && exePath != "")
-            {
+    for (auto i = 0; i < cProcesses; i++) {
+        if (aProcesses[i] != 0) {
+            QString exePath = processExecutablePath(aProcesses[i]);
+            if (!exePath.isEmpty() && !result.contains(exePath)) {
                 result.append(exePath);
             }
         }
@@ -475,7 +462,6 @@ QList<QString> WinUtils::enumerateRunningProgramLocations()
 
     return result;
 }
-
 
 QString processExecutablePath( DWORD processID )
 {
@@ -662,7 +648,7 @@ IfTableRow WinUtils::ifRowByIndex(int index)
     IfTableRow found;
 
     const auto if_table = getIfTable();
-    for (IfTableRow row : if_table)
+    for (const IfTableRow &row : if_table)
     {
         if (index == static_cast<int>(row.index)) // TODO: convert all ifIndices to int
         {
@@ -769,7 +755,7 @@ QList<QString> WinUtils::interfaceSubkeys(QString keyPath)
             &ftLastWriteTime);       // last write time
 
 
-        if (cSubKeys)
+        if (retCode == ERROR_SUCCESS && cSubKeys)
         {
             for (DWORD i=0; i<cSubKeys; i++)
             {
@@ -1311,25 +1297,15 @@ QString WinUtils::getLocalIP()
     ULONG ulAdapterInfoSize = sizeof(IP_ADAPTER_INFO);
     std::vector<unsigned char> pAdapterInfo(ulAdapterInfoSize);
 
-    if (GetAdaptersInfo((IP_ADAPTER_INFO *)&pAdapterInfo[0], &ulAdapterInfoSize) == ERROR_BUFFER_OVERFLOW) // out of buff
-    {
+    if (GetAdaptersInfo((IP_ADAPTER_INFO *)&pAdapterInfo[0], &ulAdapterInfoSize) == ERROR_BUFFER_OVERFLOW) {
         pAdapterInfo.resize(ulAdapterInfoSize);
     }
 
-    if (GetAdaptersInfo((IP_ADAPTER_INFO *)&pAdapterInfo[0], &ulAdapterInfoSize) == ERROR_SUCCESS)
-    {
+    if (GetAdaptersInfo((IP_ADAPTER_INFO *)&pAdapterInfo[0], &ulAdapterInfoSize) == ERROR_SUCCESS) {
         IP_ADAPTER_INFO *ai = (IP_ADAPTER_INFO *)&pAdapterInfo[0];
-
-        do
-        {
-            if ((ai->Type == MIB_IF_TYPE_ETHERNET) || (ai->Type == IF_TYPE_IEEE80211))
-            {
-                // JDRM - I don't think this check for "Windscribe VPN" is necessary, as the tun/tap adapters are
-                // Type = 53 (IF_TYPE_PROP_VIRTUAL).  However, if it is, shouldn't we also be checking for
-                // "Windscribe Windtun420" and the wireguard-nt adapters?
-                if (strstr(ai->Description, "Windscribe VPN") == 0 && strcmp(ai->IpAddressList.IpAddress.String, "0.0.0.0") != 0
-                    && strcmp(ai->GatewayList.IpAddress.String, "0.0.0.0") != 0)
-                {
+        do {
+            if ((ai->Type == MIB_IF_TYPE_ETHERNET) || (ai->Type == IF_TYPE_IEEE80211)) {
+                if (strcmp(ai->IpAddressList.IpAddress.String, "0.0.0.0") != 0 && strcmp(ai->GatewayList.IpAddress.String, "0.0.0.0") != 0) {
                     return ai->IpAddressList.IpAddress.String;
                 }
             }
@@ -1341,64 +1317,18 @@ QString WinUtils::getLocalIP()
 
 bool WinUtils::isServiceRunning(const QString &serviceName)
 {
-    SC_HANDLE schSCManager = NULL;
-    SC_HANDLE schService = NULL;
-
-    schSCManager = OpenSCManager(NULL, NULL, SC_MANAGER_CONNECT);
-    if (schSCManager == NULL)
-    {
-        DWORD err = GetLastError();
-        qCDebug(LOG_BASIC) << "OpenSCManager failed: " << err;
-        return false;
+    DWORD dwStatus = SERVICE_STOPPED;
+    try {
+        wsl::ServiceControlManager scm;
+        scm.openSCM(SC_MANAGER_CONNECT);
+        scm.openService(serviceName.toStdWString().c_str(), SERVICE_QUERY_STATUS);
+        dwStatus = scm.queryServiceStatus();
+    }
+    catch (std::system_error& ex) {
+        qCDebug(LOG_BASIC) << "WinUtils::isServiceRunning -" << ex.what();
     }
 
-    schService = OpenService(schSCManager, serviceName.toStdWString().c_str(), SERVICE_QUERY_STATUS);
-    if (schService == NULL)
-    {
-        DWORD err = GetLastError();
-        qCDebug(LOG_BASIC) << "OpenService for " << serviceName << " failed: " << err;
-        CloseServiceHandle(schSCManager);
-        return false;
-    }
-
-    SERVICE_STATUS_PROCESS ssStatus;
-    DWORD dwBytesNeeded;
-    if (!QueryServiceStatusEx(schService, SC_STATUS_PROCESS_INFO,
-                (LPBYTE) &ssStatus, sizeof(SERVICE_STATUS_PROCESS), &dwBytesNeeded ))
-    {
-        qCDebug(LOG_BASIC) << "QueryServiceStatusEx for " << serviceName << " failed: " << GetLastError();
-        CloseServiceHandle(schService);
-        CloseServiceHandle(schSCManager);
-        return false;
-    }
-
-    bool bRet = ssStatus.dwCurrentState == SERVICE_RUNNING;
-    CloseServiceHandle(schService);
-    CloseServiceHandle(schSCManager);
-    return bRet;
-}
-
-bool WinUtils::is32BitAppRunningOn64Bit()
-{
-    // Check if this is a 64-bit app used in a 32-bit app.
-#if defined (_M_X64)
-    return false;
-#else
-    BOOL iswow64 = FALSE;
-    static bool result = IsWow64Process(GetCurrentProcess(), &iswow64) && iswow64;
-    return result;
-#endif
-}
-
-QString WinUtils::iconPathFromBinPath(const QString &binPath)
-{
-    QString result = binPath;
-    if (is32BitAppRunningOn64Bit()) {
-        result.replace("\\", "/");
-        if (result.contains("/System32/", Qt::CaseInsensitive) && !QFileInfo(result).exists())
-            result.replace("/System32/", "/Sysnative/", Qt::CaseInsensitive);
-    }
-    return result;
+    return (dwStatus == SERVICE_RUNNING);
 }
 
 HRESULT CoCreateInstanceAsAdmin(HWND hwnd, REFCLSID rclsid, REFIID riid, __out void ** ppv)
@@ -1456,21 +1386,6 @@ bool WinUtils::authorizeWithUac()
     return result;
 }
 
-bool WinUtils::isWindows64Bit()
-{
-    bool is_64_bit = true;
-
-    if (::GetSystemWow64DirectoryW(nullptr, 0u) == FALSE)
-    {
-        const DWORD last_error = ::GetLastError();
-        if (last_error == ERROR_CALL_NOT_IMPLEMENTED) {
-            is_64_bit = false;
-        }
-    }
-
-    return is_64_bit;
-}
-
 unsigned long WinUtils::Win32GetErrorString(unsigned long errorCode, wchar_t *buffer, unsigned long bufferSize)
 {
     DWORD nLength = ::FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM    |
@@ -1491,7 +1406,7 @@ IfTable2Row WinUtils::ifTable2RowByIndex(int index)
     IfTable2Row found;
 
     const auto if_table = getIfTable2();
-    for (IfTable2Row row : if_table)
+    for (const IfTable2Row &row : if_table)
     {
         if (index == static_cast<int>(row.index)) // TODO: convert all ifIndices to int
         {
@@ -1606,4 +1521,69 @@ GUID WinUtils::stringToGuid(const char *str)
     guid.Data4[7] = p10;
 
     return guid;
+}
+
+class EnumWindowInfo
+{
+public:
+    HWND appMainWindow = nullptr;
+};
+
+static BOOL CALLBACK
+FindAppWindowHandleProc(HWND hwnd, LPARAM lParam)
+{
+    DWORD processID = 0;
+    ::GetWindowThreadProcessId(hwnd, &processID);
+
+    if (processID == 0) {
+        qCDebug(LOG_BASIC) << "FindAppWindowHandleProc GetWindowThreadProcessId failed" << ::GetLastError();
+        return TRUE;
+    }
+
+    wsl::Win32Handle hProcess(::OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, processID));
+    if (!hProcess.isValid()) {
+        if (::GetLastError() != ERROR_ACCESS_DENIED) {
+            qCDebug(LOG_BASIC) << "FindAppWindowHandleProc OpenProcess failed" << ::GetLastError();
+        }
+        return TRUE;
+    }
+
+    TCHAR imageName[MAX_PATH];
+    DWORD pathLen = sizeof(imageName) / sizeof(imageName[0]);
+    BOOL result = ::QueryFullProcessImageName(hProcess.getHandle(), 0, imageName, &pathLen);
+
+    if (result == FALSE) {
+        qCDebug(LOG_BASIC) << "FindAppWindowHandleProc QueryFullProcessImageName failed" << ::GetLastError();
+        return TRUE;
+    }
+
+    std::filesystem::path path(std::wstring(imageName, pathLen));
+    std::wstring exeName(path.filename());
+
+    if (_wcsicmp(exeName.c_str(), L"windscribe.exe") == 0) {
+        TCHAR buffer[128];
+        int resultLen = ::GetWindowText(hwnd, buffer, sizeof(buffer) / sizeof(buffer[0]));
+
+        if (resultLen > 0 && (_wcsicmp(buffer, L"windscribe") == 0)) {
+            EnumWindowInfo* pWindowInfo = (EnumWindowInfo*)lParam;
+            pWindowInfo->appMainWindow = hwnd;
+            return FALSE;
+        }
+    }
+
+    return TRUE;
+}
+
+HWND WinUtils::appMainWindowHandle()
+{
+    auto pWindowInfo = std::make_unique<EnumWindowInfo>();
+    ::EnumWindows((WNDENUMPROC)FindAppWindowHandleProc, (LPARAM)pWindowInfo.get());
+
+    return pWindowInfo->appMainWindow;
+}
+
+bool WinUtils::isGuiAlreadyRunning()
+{
+    auto handle = appMainWindowHandle();
+    return handle != nullptr;
 }

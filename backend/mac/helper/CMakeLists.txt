@@ -11,6 +11,8 @@ if(DEFINE_USE_SIGNATURE_CHECK_MACRO)
     ADD_DEFINITIONS(-DUSE_SIGNATURE_CHECK)
 endif(DEFINE_USE_SIGNATURE_CHECK_MACRO)
 
+ADD_DEFINITIONS(-DBOOST_NO_CXX98_FUNCTION_BASE)
+
 set(SOURCES
     ../../../client/common/utils/executable_signature/executable_signature.cpp
     ../../../client/common/utils/executable_signature/executable_signature.h
@@ -19,6 +21,10 @@ set(SOURCES
     3rdparty/pstream.h
     execute_cmd.cpp
     execute_cmd.h
+    files_manager.cpp
+    files_manager.h
+    firewallcontroller.cpp
+    firewallcontroller.h
     firewallonboot.cpp
     firewallonboot.h
     helper.cpp
@@ -69,8 +75,6 @@ set(SOURCES
     ipc/helper_security.mm
     ipv6/ipv6manager.cpp
     ipv6/ipv6manager.h
-    keychain_utils.h
-    keychain_utils.mm
     logger.cpp
     logger.h
     macspoofingonboot.cpp
@@ -79,6 +83,8 @@ set(SOURCES
     macutils.mm
     ovpn.cpp
     ovpn.h
+    process_command.cpp
+    process_command.h
     routes_manager/bound_route.cpp
     routes_manager/bound_route.h
     routes_manager/routes.cpp
@@ -99,11 +105,13 @@ set(SOURCES
     wireguard/wireguardcommunicator.h
     wireguard/wireguardcontroller.cpp
     wireguard/wireguardcontroller.h
-) 
+)
 
 set(CMAKE_CXX_FLAGS "-fvisibility=hidden")
 
 add_executable(com.windscribe.helper.macos ${SOURCES})
+set_property(TARGET com.windscribe.helper.macos PROPERTY COMPILE_WARNING_AS_ERROR ON)
+
 target_link_directories(com.windscribe.helper.macos
                         PRIVATE
                         ../../../build-libs/boost/lib
@@ -125,7 +133,7 @@ set(CMAKE_XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "Developer ID Application")
 set(CMAKE_XCODE_ATTRIBUTE_CODE_SIGN_STYLE "Manual")
 set(CMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM ${DEVELOPMENT_TEAM})
 set(CMAKE_XCODE_ATTRIBUTE_ENABLE_HARDENED_RUNTIME "YES")
-set(CMAKE_XCODE_ATTRIBUTE_MACOSX_DEPLOYMENT_TARGET "10.14")
+set(CMAKE_XCODE_ATTRIBUTE_MACOSX_DEPLOYMENT_TARGET "11")
 set(CMAKE_XCODE_ATTRIBUTE_PROVISIONING_PROFILE "")
 set(CMAKE_XCODE_ATTRIBUTE_PROVISIONING_PROFILE_SPECIFIER "")
 set(CMAKE_XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "com.windscribe.helper.macos")

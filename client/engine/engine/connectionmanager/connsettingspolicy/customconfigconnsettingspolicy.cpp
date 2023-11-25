@@ -8,7 +8,7 @@ CustomConfigConnSettingsPolicy::CustomConfigConnSettingsPolicy(
 {
     WS_ASSERT(!locationInfo_.isNull());
     WS_ASSERT(locationInfo_->locationId().isCustomConfigsLocation());
-    connect(locationInfo_.data(), SIGNAL(hostnamesResolved()), SLOT(onHostnamesResolved()));
+    connect(locationInfo_.data(), &locationsmodel::CustomConfigLocationInfo::hostnamesResolved, this, &CustomConfigConnSettingsPolicy::onHostnamesResolved);
 }
 
 void CustomConfigConnSettingsPolicy::reset()

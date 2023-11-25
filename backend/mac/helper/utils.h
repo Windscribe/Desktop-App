@@ -1,5 +1,4 @@
-#ifndef Utils_h
-#define Utils_h
+#pragma once
 
 #include <string>
 #include <vector>
@@ -24,6 +23,10 @@ namespace Utils
 
     // create the system group and user 'windscribe'
     void createWindscribeUserAndGroup();
-};
 
-#endif
+    // check if the app has been uninstalled
+    bool isAppUninstalled();
+
+    // delete this helper app and the cli symlink
+    void deleteSelf();
+};

@@ -70,29 +70,29 @@ MainWindow::MainWindow() : QWidget(), dpiScale_(1.0), logAutoScrollMode_(true),
 
     // Setup controls.
     btnOpenLog_ = new QPushButton(tr("Open Logs..."), this);
-    connect(btnOpenLog_, SIGNAL(clicked()), SLOT(openLogFile()));
+    connect(btnOpenLog_, &QPushButton::clicked, this, &MainWindow::openLogFile);
     btnSaveLog_ = new QPushButton(tr("Save Logs..."), this);
-    connect(btnSaveLog_, SIGNAL(clicked()), SLOT(saveLogFile()));
+    connect(btnSaveLog_, &QPushButton::clicked, this, &MainWindow::saveLogFile);
     btnClearLog_ = new QPushButton(tr("Clear Logs"), this);
-    connect(btnClearLog_, SIGNAL(clicked()), SLOT(clearLogFile()));
+    connect(btnClearLog_, &QPushButton::clicked, this, &MainWindow::clearLogFile);
     cbMultiColumn_ = new QCheckBox(tr("Multi-column"), this);
     cbMultiColumn_->setChecked(logDisplayMode_ == LogDisplayMode::MULTI_COLUMNS);
     cbMultiColumn_->setEnabled(false);
-    connect(cbMultiColumn_, SIGNAL(toggled(bool)), SLOT(setMultiColumn(bool)));
+    connect(cbMultiColumn_, &QCheckBox::toggled, this, &MainWindow::setMultiColumn);
     cbHighlight_ = new QCheckBox(tr("Color highlighting"), this);
     cbHighlight_->setChecked(logHightlightMode_);
-    connect(cbHighlight_, SIGNAL(toggled(bool)), SLOT(setHighlight(bool)));
+    connect(cbHighlight_, &QCheckBox::toggled, this, &MainWindow::setHighlight);
     cbAutoScroll_ = new QCheckBox(tr("Auto-scroll"), this);
     cbAutoScroll_->setChecked(logAutoScrollMode_);
-    connect(cbAutoScroll_, SIGNAL(toggled(bool)), SLOT(setAutoScroll(bool)));
+    connect(cbAutoScroll_, &QCheckBox::toggled, this, &MainWindow::setAutoScroll);
     cbFilterCI_ = new QCheckBox(tr("CI"), this);
     cbFilterCI_->setToolTip(tr("Use case-insensitive filter"));
     cbFilterCI_->setChecked(isFilterCI_);
-    connect(cbFilterCI_, SIGNAL(toggled(bool)), SLOT(setFilterCaseSensitive(bool)));
+    connect(cbFilterCI_, &QCheckBox::toggled, this, &MainWindow::setFilterCaseSensitive);
     cbHideUnmatched_ = new QCheckBox(tr("Hide"), this);
     cbHideUnmatched_->setToolTip(tr("Hide unmatched lines"));
     cbHideUnmatched_->setChecked(isHideUnmatched_);
-    connect(cbHideUnmatched_, SIGNAL(toggled(bool)), SLOT(setHideUnmatched(bool)));
+    connect(cbHideUnmatched_, &QCheckBox::toggled, this, &MainWindow::setHideUnmatched);
     matchLabel_ = new QLabel(this);
     matchLabel_->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
     btnNavigate_[0] = new QToolButton(this);
@@ -101,14 +101,14 @@ MainWindow::MainWindow() : QWidget(), dpiScale_(1.0), logAutoScrollMode_(true),
     btnNavigate_[0]->setShortcut(QKeySequence("F3"));
     btnNavigate_[0]->setToolTip(tr("Go to the previous block of matches (%1)")
                                 .arg(btnNavigate_[0]->shortcut().toString()));
-    connect(btnNavigate_[0], SIGNAL(clicked()), SLOT(gotoPrevMatch()));
+    connect(btnNavigate_[0], QToolButton::clicked, this, &MainWindow::gotoPrevMatch);
     btnNavigate_[1] = new QToolButton(this);
     btnNavigate_[1]->setIcon(QCommonStyle().standardIcon(QStyle::SP_ArrowForward));
     btnNavigate_[1]->setEnabled(!isHideUnmatched_);
     btnNavigate_[1]->setShortcut(QKeySequence("F4"));
     btnNavigate_[1]->setToolTip(tr("Go to the next block of matches (%1)")
                                 .arg(btnNavigate_[1]->shortcut().toString()));
-    connect(btnNavigate_[1], SIGNAL(clicked()), SLOT(gotoNextMatch()));
+    connect(btnNavigate_[1], &QToolButton::clicked, this, &MainWindow::gotoNextMatch);
 
     auto *horzLine = new QFrame(this);
     horzLine->setMaximumHeight(3);
@@ -118,10 +118,10 @@ MainWindow::MainWindow() : QWidget(), dpiScale_(1.0), logAutoScrollMode_(true),
     leFilter_ = new QLineEdit(this);
     leFilter_->setMinimumWidth(200 * dpiScale_);
     leFilter_->setPlaceholderText(tr("Enter text filter..."));
-    connect(leFilter_, SIGNAL(textEdited(QString)), SLOT(setFilter(QString)));
+    connect(leFilter_, &QLineEdit::textEdited, this, &MainWindow::setFilter);
     filterTimer_ = new QTimer(this);
     filterTimer_->setSingleShot(true);
-    connect(filterTimer_, SIGNAL(timeout()), SLOT(applyFilter()));
+    connect(filterTimer_, &QTimer::timeout, this, &MainWindow::applyFilter);
 
     timeLabel_ = new QLabel(tr("Timestamp") + ":", this);
     timeEdit_ = new QPlainTextEdit(this);
@@ -143,10 +143,8 @@ MainWindow::MainWindow() : QWidget(), dpiScale_(1.0), logAutoScrollMode_(true),
         textEdit_[i]->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
         textEdit_[i]->setPalette(window_backround_palette);
         textEdit_[i]->setAutoFillBackground(true);
-        connect(timeEdit_->verticalScrollBar(), SIGNAL(valueChanged(int)),
-                textEdit_[i]->verticalScrollBar(), SLOT(setValue(int)));
-        connect(textEdit_[i]->verticalScrollBar(), SIGNAL(valueChanged(int)),
-                timeEdit_->verticalScrollBar(), SLOT(setValue(int)));
+        connect(timeEdit_->verticalScrollBar(), &VerticalScrollBar::valueChanged, textEdit_[i]->verticalScrollBar(), &VerticalScrollBar::setValue);
+        connect(textEdit_[i]->verticalScrollBar(), &VerticalScrollBarvalueChanged, timeEdit_->verticalScrollBar(), &VerticalScrollBar::setValue);
         auto *vlayout = new QVBoxLayout;
         vlayout->setContentsMargins(0, 0, 0, 0);
         vlayout->addWidget(textLabel_[i]);
@@ -195,14 +193,10 @@ MainWindow::MainWindow() : QWidget(), dpiScale_(1.0), logAutoScrollMode_(true),
         desktopRc.height() * 0.7);
 
     // Setup log watching.
-    connect(logWatcher_.get(),
-            SIGNAL(logLinesReady(QStringList, LogDataType, quint32, LogRangeCheckType)),
-            logData_.get(), SLOT(addLines(QStringList, LogDataType, quint32, LogRangeCheckType)));
-    connect(logWatcher_.get(), SIGNAL(logTypeRemoved(LogDataType)),
-            logData_.get(), SLOT(clearDataByLogType(LogDataType)));
-    connect(logWatcher_.get(), SIGNAL(logIndexRemoved(quint32)),
-            logData_.get(), SLOT(clearDataByLogIndex(quint32)));
-    connect(logData_.get(), SIGNAL(dataUpdated()), SLOT(onDataUpdated()));
+    connect(logWatcher_.get(), &LogWatcher::logLinesReady, logData_.get(), &LogData::addLines);
+    connect(logWatcher_.get(), &LogWatcher::logTypeRemoved, logData_.get(), &LogData::clearDataByLogType);
+    connect(logWatcher_.get(), &LogWatcher::logIndexRemoved, logData_.get(), &LogData::clearDataByLogIndex);
+    connect(logData_.get(), &LogData::dataUpdated, this, &MainWindow::onDataUpdated);
 
     setAcceptDrops(true);
     updatePlaceholderText();
@@ -537,7 +531,7 @@ void MainWindow::updateDisplay()
 {
     const bool kIsMulti = logDisplayMode_ == LogDisplayMode::MULTI_COLUMNS
         && logData_->numTypes() > 1;
- 
+
     const int scrollPos = timeEdit_->verticalScrollBar()->value();
     const auto &lines = logData_->data();
     const auto global_info = logData_->getDataSizeForType(LOG_TYPE_MIXED);

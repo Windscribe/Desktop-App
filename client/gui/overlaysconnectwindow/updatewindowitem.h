@@ -1,41 +1,35 @@
-#ifndef UPDATEWINDOWITEM_H
-#define UPDATEWINDOWITEM_H
+#pragma once
 
 #include <QGraphicsObject>
 #include <QVariantAnimation>
 #include "backend/preferences/preferences.h"
-#include "overlaysconnectwindow/iupdatewindow.h"
 #include "commongraphics/bubblebutton.h"
 #include "commongraphics/textbutton.h"
 
-class UpdateWindowItem : public ScalableGraphicsObject, public IUpdateWindow
+class UpdateWindowItem : public ScalableGraphicsObject
 {
     Q_OBJECT
-    Q_INTERFACES(IUpdateWindow)
 public:
     explicit UpdateWindowItem(Preferences *preferences, ScalableGraphicsObject *parent = nullptr);
-
-    QGraphicsObject *getGraphicsObject() override { return this; }
-
     QRectF boundingRect() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
-
-    void setClickable(bool isClickable) override;
-
-    void startAnimation() override;
-    void stopAnimation() override;
     void updateScaling() override;
 
-    void setVersion(QString version, int buildNumber) override;
-    void setProgress(int progressPercent) override;
-    void changeToDownloadingScreen() override;
-    void changeToPromptScreen() override;
-    void setHeight(int height) override;
+    void setClickable(bool isClickable);
+
+    void startAnimation();
+    void stopAnimation();
+
+    void setVersion(QString version, int buildNumber);
+    void setProgress(int progressPercent);
+    void changeToDownloadingScreen();
+    void changeToPromptScreen();
+    void setHeight(int height);
 
 signals:
-    void acceptClick() override;
-    void cancelClick() override;
-    void laterClick() override;
+    void acceptClick();
+    void cancelClick();
+    void laterClick();
 
 protected:
     void keyPressEvent(QKeyEvent *event) override;
@@ -90,7 +84,7 @@ private:
     // constants:
     static constexpr int TITLE_POS_Y = 51;
 
-    static constexpr int DESCRIPTION_WIDTH_MIN = 230;
+    static constexpr int DESCRIPTION_WIDTH_MIN = 275;
     static constexpr int DESCRIPTION_POS_Y = 102;
 
     static constexpr int LOWER_DESCRIPTION_WIDTH_MIN = 168;
@@ -108,5 +102,3 @@ private:
 
     const QString cancelButtonText();
 };
-
-#endif // UPDATEWINDOWITEM_H

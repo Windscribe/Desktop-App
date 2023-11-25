@@ -20,7 +20,7 @@ VerticalScrollBarWidget::VerticalScrollBarWidget(int width, int height, QWidget 
     , pressed_(false)
     , mouseOnClickY_(0)
 {
-    connect(&barPosYAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onBarPosYChanged(QVariant)));
+    connect(&barPosYAnimation_, &QVariantAnimation::valueChanged, this, &VerticalScrollBarWidget::onBarPosYChanged);
 }
 
 void VerticalScrollBarWidget::setHeight(int height)

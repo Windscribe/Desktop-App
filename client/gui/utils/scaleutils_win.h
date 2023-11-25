@@ -1,5 +1,4 @@
-#ifndef SCALEUTILS_H
-#define SCALEUTILS_H
+#pragma once
 
 #include <QList>
 
@@ -11,5 +10,3 @@ double closestLargerScaleFactor(double value, QList<double> set);
 double scaleFactor(double devicePixelRatio, double logicalDPI);
 
 }
-
-#endif // SCALEUTILS_H

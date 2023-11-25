@@ -1,5 +1,4 @@
-#ifndef VERSIONINFOITEM_H
-#define VERSIONINFOITEM_H
+#pragma once
 
 #include "commongraphics/baseitem.h"
 #include <QMenu>
@@ -23,5 +22,3 @@ private:
 };
 
 } // namespace PreferencesWindow
-
-#endif // VERSIONINFOITEM_H

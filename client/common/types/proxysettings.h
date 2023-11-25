@@ -1,5 +1,4 @@
-#ifndef TYPES_PROXYSETTINGS_H
-#define TYPES_PROXYSETTINGS_H
+#pragma once
 
 #include <QSettings>
 #include <QString>
@@ -55,6 +54,5 @@ private:
 
     static constexpr quint32 versionForSerialization_ = 1;  // should increment the version if the data format is changed
 };
-} //namespace types
 
-#endif // TYPES_PROXYSETTINGS_H
+} //namespace types

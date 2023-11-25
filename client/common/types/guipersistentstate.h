@@ -1,5 +1,4 @@
-#ifndef TYPES_GUIPERSISTENTSTATE_H
-#define TYPES_GUIPERSISTENTSTATE_H
+#pragma once
 
 #include <QString>
 #include "locationid.h"
@@ -92,7 +91,4 @@ private:
     static constexpr int versionForSerialization_ = 4;  // should increment the version if the data format is changed
 };
 
-
 } // types namespace
-
-#endif // TYPES_GUIPERSISTENTSTATE_H

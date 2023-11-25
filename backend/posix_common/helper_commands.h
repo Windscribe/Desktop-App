@@ -1,5 +1,4 @@
-#ifndef HelperCommands_h
-#define HelperCommands_h
+#pragma once
 
 #include <string>
 #include <vector>
@@ -106,11 +105,6 @@ struct CMD_GET_CMD_STATUS {
 };
 
 struct CMD_CLEAR_CMDS {
-};
-
-struct CMD_SET_KEYCHAIN_ITEM {
-    std::string username;
-    std::string password;
 };
 
 struct CMD_SPLIT_TUNNELING_SETTINGS {
@@ -224,7 +218,7 @@ struct CMD_SET_FIREWALL_RULES {
 };
 
 struct CMD_CLEAR_FIREWALL_RULES {
-    bool isKeekPfEnabled;
+    bool isKeepPfEnabled;
 };
 
 struct CMD_GET_FIREWALL_RULES {
@@ -246,13 +240,11 @@ struct CMD_SET_MAC_SPOOFING_ON_BOOT {
     bool enabled;
     std::string interface;
     std::string macAddress;
-    bool robustMethod;
 };
 
 struct CMD_SET_MAC_ADDRESS {
     std::string interface;
     std::string macAddress;
-    bool robustMethod;
 };
 
 struct CMD_TASK_KILL {
@@ -275,5 +267,3 @@ struct CMD_START_WSTUNNEL {
     int port;
     int localPort;
 };
-
-#endif

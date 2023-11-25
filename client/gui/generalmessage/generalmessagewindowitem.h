@@ -1,46 +1,45 @@
 #pragma once
 
-#include "igeneralmessagewindow.h"
+#include "commongraphics/resizablewindow.h"
 #include "commongraphics/scalablegraphicsobject.h"
 #include "generalmessageitem.h"
+#include "generalmessagetypes.h"
 
 namespace GeneralMessageWindow {
 
-class GeneralMessageWindowItem : public IGeneralMessageWindow
+class GeneralMessageWindowItem : public ResizableWindow 
 {
     Q_OBJECT
-    Q_INTERFACES(IGeneralMessageWindow)
-
 public:
     explicit GeneralMessageWindowItem(ScalableGraphicsObject *parent, Preferences *preferences, PreferencesHelper *preferencesHelper,
-                                      IGeneralMessageWindow::Style style, const QString &icon = "", const QString &title = "",
+                                      GeneralMessageWindow::Style style, const QString &icon = "", const QString &title = "",
                                       const QString &desc = "", const QString &acceptText = "", const QString &rejectText = "",
                                       const QString &tertiaryText = "");
 
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
-    void setIcon(const QString &icon) override;
-    void setTitle(const QString &title) override;
-    void setDescription(const QString &desc) override;
+    void setIcon(const QString &icon);
+    void setTitle(const QString &title);
+    void setDescription(const QString &desc);
 
-    void setAcceptText(const QString &text) override;
-    void setRejectText(const QString &text) override;
-    void setTertiaryText(const QString &text) override;
+    void setAcceptText(const QString &text);
+    void setRejectText(const QString &text);
+    void setTertiaryText(const QString &text);
 
-    void setTitleSize(int size) override;
-    void setBackgroundShape(IGeneralMessageWindow::Shape shape) override;
+    void setTitleSize(int size);
+    void setBackgroundShape(GeneralMessageWindow::Shape shape);
 
-    void setSpinnerMode(bool on) override;
+    void setSpinnerMode(bool on);
 
-    void setShowBottomPanel(bool on) override;
-    void setLearnMoreUrl(const QString &url) override;
-    bool isRememberChecked() override;
-    IGeneralMessageWindow::Shape backgroundShape() const override;
+    void setShowBottomPanel(bool on);
+    void setLearnMoreUrl(const QString &url);
+    bool isRememberChecked();
+    GeneralMessageWindow::Shape backgroundShape() const;
 
 signals:
-    void acceptClick() override;
-    void rejectClick() override;
-    void tertiaryClick() override;
+    void acceptClick();
+    void rejectClick();
+    void tertiaryClick();
 
 protected slots:
     void onAppSkinChanged(APP_SKIN s) override;
@@ -60,7 +59,7 @@ private:
     QVariantAnimation spinnerRotationAnimation_;
     static constexpr int kSpinnerSpeed = 500;
 
-    IGeneralMessageWindow::Shape shape_;
+    GeneralMessageWindow::Shape shape_;
     GeneralMessageItem *contentItem_;
 
     void updateHeight();

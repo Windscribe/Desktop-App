@@ -1,5 +1,4 @@
-#ifndef ARCHIVE_H
-#define ARCHIVE_H
+#pragma once
 
 //LZMA SDK it is taken from here https://www.7-zip.org/a/lzma1805.7z
 //The archive is unpacked in D:\DISTR\LZMA_SDK
@@ -93,9 +92,9 @@ class Archive
     #ifdef _WIN32
     HGLOBAL hGlobal;
     #endif
-	
-	unsigned long file_size;
-	unsigned char* pData;
+
+    unsigned long file_size;
+    unsigned char* pData;
 
     UInt64 importantTotalUnpacked;
     UInt64 Total;
@@ -195,7 +194,3 @@ class Archive
     SRes finish();
     std::wstring getLastError();
 };
-
-
-
-#endif // ARCHIVE_H

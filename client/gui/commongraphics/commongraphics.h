@@ -1,5 +1,4 @@
-#ifndef COMMONGRAPHICS_H
-#define COMMONGRAPHICS_H
+#pragma once
 
 #include <QVariantAnimation>
 #include <QPropertyAnimation>
@@ -95,9 +94,5 @@ QRect textBoundingRect(QFont font, int posX, int posY, int width, QString messag
 
 QString maybeTruncatedText(const QString &original, const QFont &font, int width);
 QString truncatedText(QString original, QFont font, int width);
+
 }
-
-
-
-
-#endif // COMMONGRAPHICS_H

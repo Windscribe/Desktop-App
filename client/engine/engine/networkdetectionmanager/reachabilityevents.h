@@ -1,5 +1,4 @@
-#ifndef REACHABILITYEVENTS_H
-#define REACHABILITYEVENTS_H
+#pragma once
 
 #include <QObject>
 
@@ -25,5 +24,3 @@ signals:
     void networkStateChanged();
 
 };
-
-#endif // REACHABILITYEVENTS_H

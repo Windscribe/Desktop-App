@@ -1,5 +1,4 @@
-#ifndef PROXYIPADDRESSITEM_H
-#define PROXYIPADDRESSITEM_H
+#pragma once
 
 #include <QGraphicsObject>
 #include <QTimer>
@@ -37,5 +36,3 @@ private:
 };
 
 } // namespace PreferencesWindow
-
-#endif // PROXYIPADDRESSITEM_H

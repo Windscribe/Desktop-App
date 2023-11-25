@@ -83,7 +83,7 @@ std::string getFullCommand(const std::string &exePath, const std::string &execut
         return "";
     }
 #endif
-    
+
     std::string fullCmd = std::string(canonicalPath) + "/" + executable + " " + arguments;
     LOG("Resolved command: %s", fullCmd.c_str());
     free(canonicalPath);
@@ -127,6 +127,8 @@ void createWindscribeUserAndGroup()
 {
     bool exists = !Utils::executeCommand("id windscribe");
     if (exists) {
+        // set the user to hidden if it wasn't already
+        Utils::executeCommand("dscl", {".", "-create", "/Users/windscribe", "IsHidden", "1"});
         return;
     }
 
@@ -139,13 +141,29 @@ void createWindscribeUserAndGroup()
     Utils::executeCommand("dscl", {".", "-create", "/Groups/windscribe", "RealName", "Windscribe Apps Group"});
 
     // Create user
-    Utils::executeCommand("dscl", {".", "-create", "/Users/windscribe"});
+    Utils::executeCommand("dscl", {".", "-create", "/Users/windscribe", "IsHidden", "1"});
     // Below attributes are required for user to be considered valid
     Utils::executeCommand("dscl", {".", "-create", "/Users/windscribe", "gid", "518"}); // From above
     Utils::executeCommand("dscl", {".", "-create", "/Users/windscribe", "uid", "1639"}); // Arbitrary number
     Utils::executeCommand("dscl", {".", "-create", "/Users/windscribe", "passwd", "*"});
     Utils::executeCommand("dscl", {".", "-create", "/Users/windscribe", "RealName", "Windscribe Apps User"});
     Utils::executeCommand("dscl", {".", "-create", "/Users/windscribe", "UserShell", "/bin/false"});
+}
+
+bool isAppUninstalled()
+{
+    // App is uninstalled if the application path is no longer valid AND the installer app is not running
+    return Utils::executeCommand("ls", {"/Applications/Windscribe.app"}) && Utils::executeCommand("pgrep", {"-f", "WindscribeInstaller.app"});
+}
+
+void deleteSelf()
+{
+    Utils::executeCommand("launchctl", {"remove", "/Library/LaunchDaemons/com.windscribe.helper.macos.plist"});
+    Utils::executeCommand("rm", {"/Library/LaunchDaemons/com.windscribe.helper.macos.plist"});
+    Utils::executeCommand("rm", {"/Library/PrivilegedHelperTools/com.windscribe.helper.macos"});
+    Utils::executeCommand("rm", {"/usr/local/bin/windscribe-cli"});
+    Utils::executeCommand("dscl", {".", "-delete", "/Users/windscribe"});
+    Utils::executeCommand("dscl", {".", "-delete", "/Groups/windscribe"});
 }
 
 } // namespace Utils

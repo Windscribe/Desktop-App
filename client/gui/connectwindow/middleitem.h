@@ -1,5 +1,4 @@
-#ifndef MIDDLEITEM_H
-#define MIDDLEITEM_H
+#pragma once
 
 #include <QFont>
 #include "commongraphics/scalablegraphicsobject.h"
@@ -38,5 +37,3 @@ private:
 };
 
 } //namespace ConnectWindow
-
-#endif // MIDDLEITEM_H

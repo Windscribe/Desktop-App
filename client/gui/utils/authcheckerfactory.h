@@ -1,5 +1,4 @@
-#ifndef AUTHCHECKERFACTORY_H
-#define AUTHCHECKERFACTORY_H
+#pragma once
 
 #include <memory>
 #include "authchecker_linux.h"
@@ -19,5 +18,3 @@ namespace AuthCheckerFactory
 #endif
     }
 }
-
-#endif // AUTHCHECKERFACTORY_H

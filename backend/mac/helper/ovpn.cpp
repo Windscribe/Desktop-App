@@ -40,7 +40,7 @@ bool writeOVPNFile(const std::string &dnsScript, const std::string &config, bool
         {
             continue;
         }
-        bytes = write(fd, (line + "\n").c_str(), line.length() + 1);
+        bytes = static_cast<int>(write(fd, (line + "\n").c_str(), line.length() + 1));
         if (bytes <= 0) {
             LOG("Could not write openvpn config");
             close(fd);
@@ -52,7 +52,7 @@ bool writeOVPNFile(const std::string &dnsScript, const std::string &config, bool
     const std::string upScript = \
         "--script-security 2\n" \
         "up \"" + dnsScript + " -up\"\n";
-    bytes = write(fd, upScript.c_str(), upScript.length());
+    bytes = static_cast<int>(write(fd, upScript.c_str(), upScript.length()));
     if (bytes <= 0) {
         Logger::instance().out("Could not write openvpn config");
         close(fd);

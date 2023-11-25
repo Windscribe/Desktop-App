@@ -1,8 +1,7 @@
-#ifndef LOGINATTEMPTSCONTROLLER_H
-#define LOGINATTEMPTSCONTROLLER_H
+#pragma once
 
 #include <QObject>
-#include "loginwindow/iloginwindow.h"
+#include "loginwindow/loginwindowtypes.h"
 
 class LoginAttemptsController
 {
@@ -12,11 +11,9 @@ public:
     void pushIncorrectLogin();
     void reset();
     int attempts();
-    ILoginWindow::ERROR_MESSAGE_TYPE currentMessage() const;
-    
+    LoginWindow::ERROR_MESSAGE_TYPE currentMessage() const;
+
 private:
     int loginAttempts_;
-    
-};
 
-#endif // LOGINATTEMPTSCONTROLLER_H
+};

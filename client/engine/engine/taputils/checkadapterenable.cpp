@@ -1,29 +1,8 @@
 #include "checkadapterenable.h"
+
 #include "engine/helper/helper_win.h"
-#include "utils/ws_assert.h"
 #include "utils/logger.h"
-
-void CheckAdapterEnable::enable(IHelper *helper, const QString &adapterName)
-{
-    Helper_win *helper_win = dynamic_cast<Helper_win *>(helper);
-    WS_ASSERT(helper_win);
-    qCDebug(LOG_BASIC) << QString("%1 adapter seems disabled, try enable it").arg(adapterName);
-    QString str = helper_win->executeWmicEnable(adapterName);
-    qCDebug(LOG_BASIC) << "wmic enable command output:" << str;
-}
-
-void CheckAdapterEnable::enableIfNeed(IHelper *helper, const QString &adapterName)
-{
-    bool isDisabled = isAdapterDisabled(helper, adapterName);
-    if (isDisabled)
-    {
-        enable(helper, adapterName);
-    }
-    else
-    {
-        qCDebug(LOG_BASIC) << QString("%1 adapter already enabled").arg(adapterName);
-    }
-}
+#include "utils/ws_assert.h"
 
 bool CheckAdapterEnable::isAdapterDisabled(IHelper *helper, const QString &adapterName)
 {

@@ -7,7 +7,7 @@
 IKEv2ConnectionDisconnectLogic_win::IKEv2ConnectionDisconnectLogic_win(QObject *parent) : QThread(parent),
     cntRasHangUp_(0), connHandle_(NULL)
 {
-    connect(&timer_, SIGNAL(timeout()), SLOT(onTimer()));
+    connect(&timer_, &QTimer::timeout, this, &IKEv2ConnectionDisconnectLogic_win::onTimer);
 }
 
 void IKEv2ConnectionDisconnectLogic_win::startDisconnect(HRASCONN connHandle)

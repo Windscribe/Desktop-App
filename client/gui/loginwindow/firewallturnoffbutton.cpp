@@ -13,7 +13,7 @@ FirewallTurnOffButton::FirewallTurnOffButton(const QString &text, ScalableGraphi
                         text_(text), is_animating_(false), animation_()
 {
     setFlag(GraphicsItemFlag::ItemIsMovable);
-    connect(&animation_, SIGNAL(valueChanged(QVariant)), SLOT(onPositionChanged(QVariant)));
+    connect(&animation_, &QVariantAnimation::valueChanged, this, &FirewallTurnOffButton::onPositionChanged);
 }
 
 QRectF FirewallTurnOffButton::boundingRect() const

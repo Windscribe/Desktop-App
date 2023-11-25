@@ -7,7 +7,13 @@
 #include <codecvt>
 #include <regex>
 #include <type_traits>
+
+// Avoid deprecated warning from boost library.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 #include <boost/algorithm/string/trim.hpp>
+#pragma clang diagnostic pop
+
 #include <sys/socket.h>
 #include <sys/stat.h>
 #include <sys/time.h>
@@ -156,10 +162,14 @@ bool WireGuardCommunicator::start(
 
     const std::string fullPath = exePath + "/" + executable;
     ExecutableSignature sigCheck;
+// Avoid deprecated warning from wstring_convert.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     if (!sigCheck.verify(std::wstring_convert<std::codecvt_utf8<wchar_t>>().from_bytes(fullPath))) {
         LOG("WireGuard executable signature incorrect: %s", sigCheck.lastError().c_str());
         return false;
     }
+#pragma clang diagnostic pop
 
     daemonCmdId_ = ExecuteCmd::instance().execute(fullCmd);
     deviceName_ = deviceName;

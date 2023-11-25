@@ -1,5 +1,4 @@
-#ifndef BASELOCATIONINFO_H
-#define BASELOCATIONINFO_H
+#pragma once
 
 #include <QObject>
 
@@ -32,5 +31,3 @@ protected:
 };
 
 } //namespace locationsmodel
-
-#endif // BASELOCATIONINFO_H

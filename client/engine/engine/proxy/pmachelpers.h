@@ -1,5 +1,4 @@
-#ifndef PMACHELPERS_H
-#define PMACHELPERS_H
+#pragma once
 
 #include <QVariant>
 
@@ -26,5 +25,3 @@ namespace pMacHelpers
     QVariant toQVariant( CFBundleRef bundle );
     QVariant toQVariant( CFTypeRef ref );
 };
-
-#endif // PMACHELPERS_H

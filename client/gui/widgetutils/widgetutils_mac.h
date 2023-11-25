@@ -1,5 +1,4 @@
-#ifndef WIDGETUTILS_MAC_H
-#define WIDGETUTILS_MAC_H
+#pragma once
 
 #include <QPixmap>
 #include <QWidget>
@@ -12,6 +11,3 @@ void allowMoveBetweenSpacesForWindow(QWidget *window, bool allow, bool allowMove
 void setNeedsDisplayForWindow(QWidget *window);
 
 }
-
-
-#endif // WIDGETUTILS_MAC_H

@@ -31,7 +31,7 @@ private slots:
 protected:
     void hideOpenPopups() override;
 
-private:    
+private:
     ToggleItem *checkBoxEnable_;
     ComboBoxItem *comboBoxProxyType_;
     ProxyIpAddressItem *proxyIpAddressItem_;

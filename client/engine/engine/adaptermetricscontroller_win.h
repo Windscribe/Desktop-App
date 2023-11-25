@@ -1,5 +1,4 @@
-#ifndef ADAPTERMETRICSCONTROLLER_WIN_H
-#define ADAPTERMETRICSCONTROLLER_WIN_H
+#pragma once
 
 #include <QString>
 
@@ -10,5 +9,3 @@ class AdapterMetricsController_win
 public:
     static void updateMetrics(const QString &adapterName, IHelper *helper);
 };
-
-#endif // ADAPTERMETRICSCONTROLLER_WIN_H

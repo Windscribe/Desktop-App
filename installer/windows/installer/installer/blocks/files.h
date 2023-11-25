@@ -1,5 +1,4 @@
-#ifndef FILES_H
-#define FILES_H
+#pragma once
 
 #include <list>
 #include <string>
@@ -24,8 +23,5 @@ public:
    std::wstring installPath_;
 
    void fillPathList();
-   std::wstring getFileName(const std::wstring &s);
    int moveFiles();
 };
-
-#endif // FILES_H

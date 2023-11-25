@@ -10,8 +10,8 @@ IPAddressItem::IPAddressItem(ScalableGraphicsObject *parent) : ScalableGraphicsO
     for (int i = 0; i < 4; ++i)
     {
         octetItems_[i] = new OctetItem(this, &numbersPixmap_);
-        connect(octetItems_[i], SIGNAL(needUpdate()), SLOT(doUpdate()));
-        connect(octetItems_[i], SIGNAL(widthChanged()), SLOT(onOctetWidthChanged()));
+        connect(octetItems_[i], &OctetItem::needUpdate, this, &IPAddressItem::doUpdate);
+        connect(octetItems_[i], &OctetItem::widthChanged, this, &IPAddressItem::onOctetWidthChanged);
     }
     onOctetWidthChanged();
 
@@ -109,8 +109,9 @@ void IPAddressItem::updateScaling()
 
 void IPAddressItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
 {
-    Q_UNUSED(event);
-    blurEffect_.setEnabled(!blurEffect_.isEnabled());
+    if (event->button() == Qt::LeftButton) {
+        blurEffect_.setEnabled(!blurEffect_.isEnabled());
+    }
 }
 
 void IPAddressItem::onOctetWidthChanged()

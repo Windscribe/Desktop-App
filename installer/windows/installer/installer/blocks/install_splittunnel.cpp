@@ -1,14 +1,13 @@
 #include "install_splittunnel.h"
 
+#include <filesystem>
 #include <sstream>
 
 #include "../settings.h"
-#include "../../../utils/directory.h"
 #include "../../../utils/logger.h"
 #include "../../../utils/path.h"
-#include "../../../utils/process1.h"
-#include "../../../utils/redirection.h"
-#include "../../../utils/services.h"
+#include "../../../utils/utils.h"
+#include "servicecontrolmanager.h"
 
 using namespace std;
 
@@ -18,11 +17,10 @@ InstallSplitTunnel::InstallSplitTunnel(double weight) : IInstallBlock(weight, L"
 
 int InstallSplitTunnel::executeStep()
 {
-    wstring infFile = Path::AddBackslash(Settings::instance().getPath()) + wstring(L"splittunnel\\windscribesplittunnel.inf");
+    wstring infFile = Path::append(Settings::instance().getPath(), L"splittunnel\\windscribesplittunnel.inf");
     wstring commandLine = wstring(L"setupapi,InstallHinfSection DefaultInstall 132 ") + infFile;
 
-    Redirection redir;
-    if (!redir.NewFileExists(infFile)) {
+    if (!filesystem::exists(infFile)) {
         Log::instance().out("WARNING: the split tunnel driver inf (%ls) was not found.", infFile.c_str());
         return -1;
     }
@@ -32,10 +30,10 @@ int InstallSplitTunnel::executeStep()
     // incorrectly places the 64-bit split tunnel driver in the sysWOW64/drivers folder, but points
     // the service entry at the correct system32/drivers folder.  The helper is then unable to start
     // the driver.  Specifying the full path to the 64-bit rundll32 seems to resolve the issue.
-    wstring appName = Directory::GetSystemDir() + wstring(L"\\rundll32.exe");
+    wstring appName = Path::append(Utils::GetSystemDir(), L"rundll32.exe");
 
     for (int attempts = 1; attempts <= 2; ++attempts) {
-        auto result = Process::InstExec(appName, commandLine, 30 * 1000, SW_HIDE);
+        auto result = Utils::InstExec(appName, commandLine, 30 * 1000, SW_HIDE);
 
         if (!result.has_value()) {
             Log::instance().out("WARNING: an error was encountered launching the split tunnel driver installer or while monitoring its progress.");
@@ -52,10 +50,7 @@ int InstallSplitTunnel::executeStep()
             return -1;
         }
 
-        // Verify the service has been installed.  We've encountered cases where an uninstall followed rapidly by
-        // an install (e.g. during an in-app upgrade) oddly causes the split tunnel driver install to silently fail.
-        Services service;
-        if (service.serviceExists(L"WindscribeSplitTunnel")) {
+        if (serviceInstalled()) {
             break;
         }
 
@@ -70,4 +65,21 @@ int InstallSplitTunnel::executeStep()
     }
 
     return 100;
+}
+
+bool InstallSplitTunnel::serviceInstalled() const
+{
+    bool installed = false;
+    try {
+        // Verify the service has been installed.  We've encountered cases where an uninstall followed rapidly by
+        // an install (e.g. during an in-app upgrade) oddly causes the split tunnel driver install to silently fail.
+        wsl::ServiceControlManager scm;
+        scm.openSCM(SC_MANAGER_CONNECT);
+        installed = scm.isServiceInstalled(L"WindscribeSplitTunnel");
+    }
+    catch (system_error& ex) {
+        Log::instance().out("WARNING: the split tunnel service status could not be queried %s (%lu)", ex.what(), ex.code().value());
+    }
+
+    return installed;
 }

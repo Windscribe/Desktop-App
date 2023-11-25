@@ -1,5 +1,4 @@
-#ifndef IMULTIPLEACCOUNTDETECTION_H
-#define IMULTIPLEACCOUNTDETECTION_H
+#pragma once
 
 #include <QString>
 
@@ -11,5 +10,3 @@ public:
     virtual bool entryIsPresent(QString &username) = 0;
     virtual void removeEntry() = 0;
 };
-
-#endif // IMULTIPLEACCOUNTDETECTION_H

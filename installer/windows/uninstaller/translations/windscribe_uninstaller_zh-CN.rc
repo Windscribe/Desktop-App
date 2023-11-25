@@ -1,0 +1,10 @@
+LANGUAGE LANG_CHINESE, SUBLANG_CHINESE_SIMPLIFIED
+
+STRINGTABLE
+BEGIN
+    IDS_MSGBOX_TITLE "卸载 Windscribe"
+    IDS_DIRECTORY_MISMATCH "卸载无法继续。安装目录与删除目录不匹配。"
+    IDS_CONFIRM_UNINSTALL "是否确实要完全删除 Windscribe 及其所有组件？"
+    IDS_UNINSTALL_SUCCESS "已成功从计算机中删除 Windscribe。"
+    IDS_CLOSE_APP "请退出 Windscribe 应用程序以继续卸载。请注意，退出应用程序后，您的连接将不受保护。"
+END

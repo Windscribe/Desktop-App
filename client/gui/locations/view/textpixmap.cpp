@@ -16,7 +16,7 @@ TextPixmap::TextPixmap(const QString &text, const QFont &font, qreal devicePixel
             QPainter painter(&pixmap);
             painter.setPen(Qt::white);      // for current needs, we use only white color
             painter.setFont(font);
-            painter.drawText(QRect(0, 0, rcText.width(), rcText.height()), Qt::AlignLeft, text);
+            painter.drawText(QRect(0, 0, fm.horizontalAdvance(text), rcText.height()), Qt::AlignLeft, text);
         }
         pixmap_ = IndependentPixmap(pixmap);
     }

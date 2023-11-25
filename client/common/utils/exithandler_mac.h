@@ -1,5 +1,4 @@
-#ifndef EXITHANDLER_MAC_H
-#define EXITHANDLER_MAC_H
+#pragma once
 
 #include <QFuture>
 #include <QHostInfo>
@@ -23,5 +22,3 @@ signals:
 private:
     bool bExitWithRestart_;
 };
-
-#endif // EXITHANDLER_MAC_H

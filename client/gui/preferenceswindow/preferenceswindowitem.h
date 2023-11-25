@@ -2,90 +2,87 @@
 
 #include <QGraphicsObject>
 #include <QGraphicsView>
-#include "ipreferenceswindow.h"
 #include "aboutwindow/aboutwindowitem.h"
 #include "accountwindow/accountwindowitem.h"
 #include "advancedwindow/advancedwindowitem.h"
-#include "connectionwindow/connectionwindowitem.h"
-#include "generalwindow/generalwindowitem.h"
-#include "helpwindow/helpwindowitem.h"
-#include "networkoptionswindow/networkoptionswindowitem.h"
-#include "networkoptionswindow/networkoptionsnetworkwindowitem.h"
-#include "proxysettingswindow/proxysettingswindowitem.h"
-#include "robertwindow/robertwindowitem.h"
-#include "splittunnelingwindow/splittunnelingwindowitem.h"
-#include "splittunnelingwindow/splittunnelingaddresseswindowitem.h"
-#include "splittunnelingwindow/splittunnelingappswindowitem.h"
-#include "dnsdomainswindow/dnsdomainswindowitem.h"
 #include "backend/preferences/preferences.h"
 #include "backend/preferences/accountinfo.h"
 #include "commongraphics/resizebar.h"
 #include "commongraphics/escapebutton.h"
 #include "commongraphics/iconbutton.h"
+#include "commongraphics/resizablewindow.h"
 #include "commongraphics/scalablegraphicsobject.h"
 #include "commongraphics/scrollarea.h"
-#include "preferencestab/ipreferencestabcontrol.h"
+#include "connectionwindow/connectionwindowitem.h"
+#include "dnsdomainswindow/dnsdomainswindowitem.h"
+#include "generalwindow/generalwindowitem.h"
+#include "helpwindow/helpwindowitem.h"
+#include "networkoptionswindow/networkoptionswindowitem.h"
+#include "networkoptionswindow/networkoptionsnetworkwindowitem.h"
+#include "preferencestab/preferencestabcontrolitem.h"
+#include "proxysettingswindow/proxysettingswindowitem.h"
+#include "robertwindow/robertwindowitem.h"
+#include "splittunnelingwindow/splittunnelingwindowitem.h"
+#include "splittunnelingwindow/splittunnelingaddresseswindowitem.h"
+#include "splittunnelingwindow/splittunnelingappswindowitem.h"
 
 namespace PreferencesWindow {
 
-
-class PreferencesWindowItem : public IPreferencesWindow
+class PreferencesWindowItem : public ResizableWindow
 {
     Q_OBJECT
-    Q_INTERFACES(IPreferencesWindow)
 public:
     explicit PreferencesWindowItem(QGraphicsObject *parent, Preferences *preferences, PreferencesHelper *preferencesHelper, AccountInfo *accountInfo);
-    ~PreferencesWindowItem() override;
-
+    ~PreferencesWindowItem();
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
-    PREFERENCES_TAB_TYPE currentTab() override;
-    void setCurrentTab(PREFERENCES_TAB_TYPE tab) override;
-    void setCurrentTab(PREFERENCES_TAB_TYPE tab, CONNECTION_SCREEN_TYPE subpage ) override;
+    PREFERENCES_TAB_TYPE currentTab();
+    void setCurrentTab(PREFERENCES_TAB_TYPE tab);
+    void setCurrentTab(PREFERENCES_TAB_TYPE tab, CONNECTION_SCREEN_TYPE subpage);
 
-    void setLoggedIn(bool loggedIn) override;
-    void setConfirmEmailResult(bool bSuccess) override;
-    void setSendLogResult(bool bSuccess) override;
+    void setLoggedIn(bool loggedIn);
+    void setConfirmEmailResult(bool bSuccess);
+    void setSendLogResult(bool bSuccess);
 
-    void updateNetworkState(types::NetworkInterface network) override;
+    void updateNetworkState(types::NetworkInterface network);
 
-    void addApplicationManually(QString filename) override;
+    void addApplicationManually(QString filename);
 
-    void setPacketSizeDetectionState(bool on) override;
-    void showPacketSizeDetectionError(const QString &title, const QString &message) override;
+    void setPacketSizeDetectionState(bool on);
+    void showPacketSizeDetectionError(const QString &title, const QString &message);
 
-    void setRobertFilters(const QVector<types::RobertFilter> &filters) override;
-    void setRobertFiltersError() override;
-    void setSplitTunnelingActive(bool active) override;
-    void setWebSessionCompleted() override;
+    void setRobertFilters(const QVector<types::RobertFilter> &filters);
+    void setRobertFiltersError();
+    void setSplitTunnelingActive(bool active);
+    void setWebSessionCompleted();
 
-    void onCollapse() override;
+    void onCollapse();
 
 signals:
-    void signOutClick() override;
-    void loginClick() override;
-    void quitAppClick() override;
+    void signOutClick();
+    void loginClick();
+    void quitAppClick();
 
-    void viewLogClick() override;
-    void sendConfirmEmailClick() override;
-    void sendDebugLogClick() override;
-    void accountLoginClick() override;
-    void manageAccountClick() override;
-    void addEmailButtonClick() override;
-    void manageRobertRulesClick() override;
+    void viewLogClick();
+    void sendConfirmEmailClick();
+    void sendDebugLogClick();
+    void accountLoginClick();
+    void manageAccountClick();
+    void addEmailButtonClick();
+    void manageRobertRulesClick();
 
-    void currentNetworkUpdated(types::NetworkInterface) override;
+    void currentNetworkUpdated(types::NetworkInterface);
     void cycleMacAddressClick();
     void splitTunnelingAppsAddButtonClick();
     void detectPacketSizeClick();
 
-    void advancedParametersClicked() override;
+    void advancedParametersClicked();
 
     void getRobertFilters();
     void setRobertFilter(const types::RobertFilter &filter);
 
 #ifdef Q_OS_WIN
-    void setIpv6StateInOS(bool bEnabled, bool bRestartNow) override;
+    void setIpv6StateInOS(bool bEnabled, bool bRestartNow);
 #endif
 
 private slots:
@@ -122,7 +119,7 @@ private:
     static constexpr int kTabAreaWidth = 64;
     static constexpr int kMinHeight = 572;
 
-    IPreferencesTabControl *tabControlItem_;
+    PreferencesTabControlItem *tabControlItem_;
     GeneralWindowItem *generalWindowItem_;
     AccountWindowItem *accountWindowItem_;
     ConnectionWindowItem *connectionWindowItem_;

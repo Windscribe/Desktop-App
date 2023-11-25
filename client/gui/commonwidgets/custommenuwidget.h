@@ -1,5 +1,4 @@
-#ifndef CUSTOMMENUWIDGET_H
-#define CUSTOMMENUWIDGET_H
+#pragma once
 
 #include <QMenu>
 #include "preferenceswindow/comboboxitem.h"
@@ -31,5 +30,3 @@ private:
     FontDescr fontDescr_;
     bool is_dark_mode_;
 };
-
-#endif // CUSTOMMENUWIDGET_H

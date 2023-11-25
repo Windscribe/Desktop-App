@@ -1,20 +1,21 @@
-#ifndef WireGuardController_h
-#define WireGuardController_h
+#pragma once
 
 #include <memory>
 #include <string>
 #include <vector>
 
 #include "iwireguardcommunicator.h"
-
-class DefaultRouteMonitor;
-class WireGuardAdapter;
-class WireGuardCommunicator;
+#include "defaultroutemonitor.h"
+#include "wireguardadapter.h"
 
 class WireGuardController
 {
 public:
-    WireGuardController();
+    static WireGuardController &instance()
+    {
+        static WireGuardController wgc;
+        return wgc;
+    }
 
     bool start(
         const std::string &exePath,
@@ -54,6 +55,6 @@ private:
     std::unique_ptr<DefaultRouteMonitor> drm_;
     std::shared_ptr<IWireGuardCommunicator> comm_;
     bool is_initialized_;
-};
 
-#endif  // WireGuardController_h
+    WireGuardController();
+};

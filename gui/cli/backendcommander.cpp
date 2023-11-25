@@ -28,14 +28,14 @@ void BackendCommander::initAndSend(bool isGuiAlreadyRunning)
 {
     isGuiAlreadyRunning_ = isGuiAlreadyRunning;
     connection_ = new IPC::Connection();
-    connect(dynamic_cast<QObject*>(connection_), SIGNAL(newCommand(IPC::Command *, IPC::IConnection *)), SLOT(onConnectionNewCommand(IPC::Command *, IPC::IConnection *)), Qt::QueuedConnection);
-    connect(dynamic_cast<QObject*>(connection_), SIGNAL(stateChanged(int, IPC::IConnection *)), SLOT(onConnectionStateChanged(int, IPC::IConnection *)), Qt::QueuedConnection);
+    connect(connection_, &IPC::Connection::newCommand, this, &BackendCommander::onConnectionNewCommand, Qt::QueuedConnection);
+    connect(connection_, &IPC::Connection::stateChanged, this, &BackendCommander::onConnectionStateChanged, Qt::QueuedConnection);
     connectingTimer_.start();
     ipcState_ = IPC_CONNECTING;
     connection_->connect();
 }
 
-void BackendCommander::onConnectionNewCommand(IPC::Command *command, IPC::IConnection * /*connection*/)
+void BackendCommander::onConnectionNewCommand(IPC::Command *command, IPC::Connection * /*connection*/)
 {
     if (bCommandSent_ && command->getStringId() == IPC::CliCommands::LocationsShown::getCommandStringId())
     {
@@ -133,7 +133,7 @@ void BackendCommander::onConnectionNewCommand(IPC::Command *command, IPC::IConne
     }
 }
 
-void BackendCommander::onConnectionStateChanged(int state, IPC::IConnection * /*connection*/)
+void BackendCommander::onConnectionStateChanged(int state, IPC::Connection * /*connection*/)
 {
     if (state == IPC::CONNECTION_CONNECTED)
     {

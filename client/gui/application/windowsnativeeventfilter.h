@@ -1,5 +1,4 @@
-#ifndef WINDOWSNATIVEEVENTFILTER_H
-#define WINDOWSNATIVEEVENTFILTER_H
+#pragma once
 
 #include <QAbstractNativeEventFilter>
 
@@ -16,5 +15,3 @@ private:
     unsigned int dwActivateMessage_;
 #endif
 };
-
-#endif // WINDOWSNATIVEEVENTFILTER_H

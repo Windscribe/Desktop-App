@@ -1,5 +1,4 @@
-#ifndef TYPES_PORTMAP_H
-#define TYPES_PORTMAP_H
+#pragma once
 
 #include <QJsonArray>
 #include <QSharedDataPointer>
@@ -68,6 +67,3 @@ private:
 };
 
 } //namespace types
-
-
-#endif // TYPES_PORTMAP_H

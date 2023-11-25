@@ -1,5 +1,4 @@
-#ifndef LIGHTWIDGET_H
-#define LIGHTWIDGET_H
+#pragma once
 
 #include <QObject>
 #include <QRect>
@@ -47,5 +46,3 @@ private:
     double opacity_;
 
 };
-
-#endif // LIGHTWIDGET_H

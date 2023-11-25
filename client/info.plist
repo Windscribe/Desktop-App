@@ -2,34 +2,34 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>CFBundleDisplayName</key>
-	<string>Windscribe</string>
-	<key>NSPrincipalClass</key>
-	<string>NSApplication</string>
-	<key>CFBundleIconFile</key>
-	<string>windscribe.icns</string>
-	<key>CFBundlePackageType</key>
-	<string>APPL</string>
-	<key>CFBundleExecutable</key>
-	<string>Windscribe</string>
-	<key>CFBundleIdentifier</key>
-	<string>com.windscribe.gui.macos</string>
-	<key>CFBundleInfoDictionaryVersion</key>
-	<string>6.0</string>
-	<key>CFBundleVersion</key>
-	<string>1.82.0.12</string>
-	<key>CFBundleName</key>
-	<string>Windscribe</string>
-	<key>CFBundleShortVersionString</key>
-	<string>1.82.0</string>
-	<key>NSHumanReadableCopyright</key>
-	<string>Copyright © 2023 Windscribe Limited. All rights reserved.</string>
-	<key>LSMinimumSystemVersion</key>
-	<string>10.11</string>
-	<key>SMPrivilegedExecutables</key>
-	<dict>
-		<key>com.windscribe.helper.macos</key>
-		<string>anchor apple generic and identifier &quot;com.windscribe.helper.macos&quot; and (certificate leaf[field.1.2.840.113635.100.6.1.9] /* exists */ or certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = $(DEVELOPMENT_TEAM))</string>
-	</dict>
+    <key>CFBundleDisplayName</key>
+    <string>Windscribe</string>
+    <key>NSPrincipalClass</key>
+    <string>NSApplication</string>
+    <key>CFBundleIconFile</key>
+    <string>windscribe.icns</string>
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+    <key>CFBundleExecutable</key>
+    <string>Windscribe</string>
+    <key>CFBundleIdentifier</key>
+    <string>com.windscribe.gui.macos</string>
+    <key>CFBundleInfoDictionaryVersion</key>
+    <string>6.0</string>
+    <key>CFBundleVersion</key>
+    <string>1.82.0.12</string>
+    <key>CFBundleName</key>
+    <string>Windscribe</string>
+    <key>CFBundleShortVersionString</key>
+    <string>1.82.0</string>
+    <key>NSHumanReadableCopyright</key>
+    <string>Copyright © 2023 Windscribe Limited. All rights reserved.</string>
+    <key>LSMinimumSystemVersion</key>
+        <string>11</string>
+    <key>SMPrivilegedExecutables</key>
+    <dict>
+        <key>com.windscribe.helper.macos</key>
+        <string>anchor apple generic and identifier &quot;com.windscribe.helper.macos&quot; and (certificate leaf[field.1.2.840.113635.100.6.1.9] /* exists */ or certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = $(DEVELOPMENT_TEAM))</string>
+    </dict>
 </dict>
 </plist>

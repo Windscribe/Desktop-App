@@ -1,5 +1,4 @@
-#ifndef PROXYSERVERCONTROLLER_H
-#define PROXYSERVERCONTROLLER_H
+#pragma once
 
 #include "types/proxysettings.h"
 
@@ -22,5 +21,3 @@ private:
     types::ProxySettings proxySettings_;
     bool bInitialized_;
 };
-
-#endif // PROXYSERVERCONTROLLER_H

@@ -374,7 +374,7 @@ void PreferenceGroup::hideItems(int start, int end, uint32_t flags)
     {
         e += 1;
     }
- 
+
     // if we're hiding the first visible item(s), also hide the divider before the next visible item
     if (firstVisible >= s && firstVisible <= e && e < items_.size() - 1)
     {

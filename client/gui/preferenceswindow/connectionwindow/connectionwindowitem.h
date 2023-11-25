@@ -1,5 +1,4 @@
-#ifndef CONNECTIONWINDOWITEM_H
-#define CONNECTIONWINDOWITEM_H
+#pragma once
 
 #include "preferenceswindow/preferencegroup.h"
 #include "backend/preferences/preferences.h"
@@ -61,7 +60,6 @@ private slots:
     void onProxyGatewayAddressChanged(const QString &address);
     void onProxyGatewayPreferencesChanged(const types::ShareProxyGateway &sp);
     void onPreferencesHelperWifiSharingSupportedChanged(bool bSupported);
-    void onIsFirewallBlockedChanged(bool bFirewallBlocked);
     void onIsExternalConfigModeChanged(bool bIsExternalConfigMode);
     void onTerminateSocketsPreferencesChanged(bool b);
     void onAntiCensorshipPreferencesChanged(bool b);
@@ -115,5 +113,3 @@ private:
 };
 
 } // namespace PreferencesWindow
-
-#endif // CONNECTIONWINDOWITEM_H

@@ -1,5 +1,4 @@
-#ifndef CONNECTIONMANAGER_H
-#define CONNECTIONMANAGER_H
+#pragma once
 
 #include <QElapsedTimer>
 #include <QObject>
@@ -171,7 +170,6 @@ private:
     MakeOVPNFileFromCustom *makeOVPNFileFromCustom_;
     TestVPNTunnel *testVPNTunnel_;
 
-    bool bNeedResetTap_;
     bool bIgnoreConnectionErrorsForOpenVpn_;
     bool bWasSuccessfullyConnectionAttempt_;
     CONNECT_ERROR latestConnectionError_;
@@ -229,5 +227,3 @@ private:
         const types::ProxySettings &proxySettings);
     void connectOrStartConnectTimer();
 };
-
-#endif // CONNECTIONMANAGER_H

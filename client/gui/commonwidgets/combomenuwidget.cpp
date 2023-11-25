@@ -21,20 +21,8 @@ ComboMenuWidget::ComboMenuWidget(QWidget *parent) : QWidget(parent)
     // Qt::SubWindow will also take focus in/out events properly (unlike Qt::Tool and Qt::ToolTip)
     // Until Popup bug is fixed Qt::SubWindow is best option
     setWindowFlags(Qt::SubWindow | Qt::FramelessWindowHint | Qt::NoDropShadowWindowHint);
-#elif defined(Q_OS_LINUX)
-    // Linux needs the Qt::Popup flag; particularly for Wayland, where the Widget will be placed arbitrarily by the window manager if it's not set.
-    setWindowFlags(Qt::Popup | Qt::FramelessWindowHint | Qt::NoDropShadowWindowHint);
 #else
-    // Menu not visible on Mac with when it is a Qt::SubWindow
-    // It appears that Popup is no longer necessary to prevent mainwindow WindowDeactivate event from hiding the app while using the combobox
-    // I have removed it since it causes a very rare crash when we attempt to call show() on the menu on MacOS Catalina
-    // Seems like a Qt bug -- as of Qt5.12.7 can reproduce unreliably (with popup enabled):
-    // 1. go to preferences connection window and open port combobox
-    // 2. wheel up/down and select a different port a few times
-    // 3. go to preferences general window
-    // 4. click on the comboboxes you can see, scroll down click on the rest
-    // If it becomes clear that we NEED the Qt::Popup then perhaps this bug will be resolved in future Qt versions.
-    setWindowFlags(Qt::FramelessWindowHint | Qt::NoDropShadowWindowHint);
+    setWindowFlags(Qt::Popup | Qt::FramelessWindowHint | Qt::NoDropShadowWindowHint);
 #endif
     setAttribute(Qt::WA_TranslucentBackground, true);
     setFocusPolicy(Qt::StrongFocus);
@@ -51,7 +39,7 @@ ComboMenuWidget::ComboMenuWidget(QWidget *parent) : QWidget(parent)
     menuListWidget_->show();
 
     scrollBar_ = new VerticalScrollBarWidget(SCROLL_BAR_WIDTH, 90, this);
-    connect(scrollBar_, SIGNAL(moved(double)), SLOT(onScrollBarMoved(double)));
+    connect(scrollBar_, &VerticalScrollBarWidget::moved, this, &ComboMenuWidget::onScrollBarMoved);
     scrollBar_->setOpacity(OPACITY_FULL);
     scrollBar_->setBackgroundColor(Qt::transparent);
     scrollBar_->setForegroundColor(Qt::black);
@@ -69,8 +57,8 @@ void ComboMenuWidget::addItem(QString text, const QVariant &item_data)
     button->setFont(*font);
     button->setCheckable(true);
 
-    connect(button, SIGNAL(pressed()), SLOT(onButtonClick()));
-    connect(button, SIGNAL(hoverEnter()), SLOT(onButtonHoverEnter()));
+    connect(button, &ComboMenuWidgetButton::pressed, this, &ComboMenuWidget::onButtonClick);
+    connect(button, &ComboMenuWidgetButton::hoverEnter, this, &ComboMenuWidget::onButtonHoverEnter);
 
     items_.append(button);
 

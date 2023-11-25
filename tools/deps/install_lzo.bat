@@ -11,6 +11,8 @@ if not _%RUNNING_CI%_==_1_ (
   if not errorlevel 1 set pause_on_exit=1
 )
 set PYTHONDONTWRITEBYTECODE=1
+set PYTHONIOENCODING=utf_8
+chcp 65001
 
 set python_dir=%PYTHONHOME%
 if not "%python_dir%" == "" set python_dir=%python_dir%\

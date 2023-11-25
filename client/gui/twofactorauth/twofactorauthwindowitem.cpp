@@ -23,26 +23,26 @@ TwoFactorAuthWindowItem::TwoFactorAuthWindowItem(QGraphicsObject *parent,
 
     okButton_ = new TwoFactorAuthOkButton(this);
     okButton_->setClickable(false);
-    connect(okButton_, SIGNAL(clicked()), this, SLOT(onButtonClicked()));
+    connect(okButton_, &TwoFactorAuthOkButton::clicked, this, &TwoFactorAuthWindowItem::onButtonClicked);
 
     escButton_ = new CommonGraphics::EscapeButton(this);
-    connect(escButton_, SIGNAL(clicked()), SLOT(onEscClicked()));
+    connect(escButton_, &CommonGraphics::EscapeButton::clicked, this, &TwoFactorAuthWindowItem::onEscClicked);
 
 #if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     closeButton_ = new IconButton(16, 16, "WINDOWS_CLOSE_ICON", "", this);
-    connect(closeButton_, SIGNAL(clicked()), SIGNAL(closeClick()));
+    connect(closeButton_, &IconButton::clicked, this, &TwoFactorAuthWindowItem::closeClick);
 
     minimizeButton_ = new IconButton(16, 16, "WINDOWS_MINIMIZE_ICON", "", this);
-    connect(minimizeButton_, SIGNAL(clicked()), SIGNAL(minimizeClick()));
+    connect(minimizeButton_, &IconButton::clicked, this, &TwoFactorAuthWindowItem::minimizeClick);
 #else //if Q_OS_MAC
     closeButton_ = new IconButton(14,14, "MAC_CLOSE_DEFAULT", "", this);
-    connect(closeButton_, SIGNAL(clicked()), SIGNAL(closeClick()));
+    connect(closeButton_, &IconButton::clicked, this, &TwoFactorAuthWindowItem::closeClick);
     connect(closeButton_, &IconButton::hoverEnter, [=](){ closeButton_->setIcon("MAC_CLOSE_HOVER"); });
     connect(closeButton_, &IconButton::hoverLeave, [=](){ closeButton_->setIcon("MAC_CLOSE_DEFAULT"); });
     closeButton_->setSelected(true);
 
     minimizeButton_ = new IconButton(14,14,"MAC_MINIMIZE_DEFAULT", "", this);
-    connect(minimizeButton_, SIGNAL(clicked()), SIGNAL(minimizeClick()));
+    connect(minimizeButton_, &IconButton::clicked, this, &TwoFactorAuthWindowItem::minimizeClick);
     connect(minimizeButton_, &IconButton::hoverEnter, [=](){ minimizeButton_->setIcon("MAC_MINIMIZE_HOVER"); });
     connect(minimizeButton_, &IconButton::hoverLeave, [=](){ minimizeButton_->setIcon("MAC_MINIMIZE_DEFAULT"); });
     minimizeButton_->setVisible(!preferencesHelper->isDockedToTray());
@@ -50,26 +50,18 @@ TwoFactorAuthWindowItem::TwoFactorAuthWindowItem(QGraphicsObject *parent,
 #endif
 
     curErrorOpacity_ = OPACITY_HIDDEN;
-    connect(&errorAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onErrorChanged(QVariant)));
+    connect(&errorAnimation_, &QVariantAnimation::valueChanged, this, &TwoFactorAuthWindowItem::onErrorChanged);
 
     curCodeEntryOpacity_ = OPACITY_HIDDEN;
-    connect(&codeEntryOpacityAnimation_, SIGNAL(valueChanged(QVariant)),
-        SLOT(onCodeEntryOpacityChanged(QVariant)));
+    connect(&codeEntryOpacityAnimation_, &QVariantAnimation::valueChanged, this, &TwoFactorAuthWindowItem::onCodeEntryOpacityChanged);
 
     codeEntry_ = new LoginWindow::UsernamePasswordEntry(QString(), false, this);
-    connect(codeEntry_, SIGNAL(textChanged(const QString&)), this,
-                        SLOT(onCodeTextChanged(const QString&)));
+    connect(codeEntry_, &LoginWindow::UsernamePasswordEntry::textChanged, this, &TwoFactorAuthWindowItem::onCodeTextChanged);
     codeEntry_->setClickable(true);
 
-    connect(preferencesHelper, SIGNAL(isDockedModeChanged(bool)), this,
-            SLOT(onDockedModeChanged(bool)));
+    connect(preferencesHelper, &PreferencesHelper::isDockedModeChanged, this, &TwoFactorAuthWindowItem::onDockedModeChanged);
 
     updatePositions();
-}
-
-QGraphicsObject *TwoFactorAuthWindowItem::getGraphicsObject()
-{
-    return this;
 }
 
 QRectF TwoFactorAuthWindowItem::boundingRect() const

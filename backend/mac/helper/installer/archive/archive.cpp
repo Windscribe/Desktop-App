@@ -44,10 +44,14 @@ Archive::Archive(const wstring &name, uid_t userId, gid_t groupId) : file_size(0
 
  file_size = SizeofResource(nullptr, hResource);
  #else
-    
+
+// Avoid deprecated warning from wstring_convert.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     using convert_type = std::codecvt_utf8<wchar_t>;
     std::wstring_convert<convert_type, wchar_t> converter;
     std::string filename = converter.to_bytes( name );
+#pragma clang diagnostic pop
 
     FILE *file = fopen(filename.c_str(), "rb");
     if (file)
@@ -56,9 +60,9 @@ Archive::Archive(const wstring &name, uid_t userId, gid_t groupId) : file_size(0
         fseek (file , 0 , SEEK_END);
         file_size = ftell (file);
         rewind (file);
-            
+
         pData = (unsigned char*)malloc(sizeof(char)*file_size);
-            
+
         size_t readedCount = fread(pData, 1, file_size, file);
         if (readedCount != file_size)
         {
@@ -346,8 +350,8 @@ WRes Archive::MyCreateDir(const UInt16 *name)
     chown(reinterpret_cast<const char *>(buf.data), userId_, groupId_);
 #endif
     Buf_Free(&buf, &g_Alloc);
-    
-    
+
+
 
     return res;
 
@@ -688,7 +692,7 @@ SRes Archive::fileList(std::list<std::wstring> &file_list)
  for(UInt32 i = 0; i < db.NumFiles; i++)
  {
   unsigned isDir = SzArEx_IsDir(&db, i);
-     
+
   // skip dirs
   if (isDir)
   {
@@ -718,7 +722,7 @@ SRes Archive::fileList(std::list<std::wstring> &file_list)
           t[j] = ' ';
       t[j] = '\0';
   }
-     
+
   Print(t);
   Print(" ");
   Print(attr);
@@ -776,7 +780,7 @@ void Archive::calcTotal(const std::list<std::wstring> &files, const std::list<st
 
   }
 
- Total = importantTotalUnpacked;	 //the size of the unpacked archive
+ Total = importantTotalUnpacked; // the size of the unpacked archive
 
 
 /*
@@ -834,7 +838,7 @@ SRes Archive::extractionFile(const UInt32 &i)
        {
            return res;
        }
-       
+
     #ifndef _WIN32
        bool isSymLink = (db.Attribs.Vals[i] >> 16) & 0x2000;
     #else
@@ -916,7 +920,7 @@ SRes Archive::extractionFile(const UInt32 &i)
            {
                processedSize = outSizeProcessed;
                printPercent(processedSize);
-               
+
                CBuf buf;
                Buf_Init(&buf);
                Utf16_To_Char(&buf, destPath MY_FILE_CODE_PAGE_PARAM);
@@ -930,7 +934,7 @@ SRes Archive::extractionFile(const UInt32 &i)
                delete[] symlinkStr;
                return res;
            }
-           
+
            else
            {
                 if(OutFile_OpenUtf16(&outFile, destPath))
@@ -968,7 +972,7 @@ SRes Archive::extractionFile(const UInt32 &i)
        {
            UInt32 attrVal = SzBitWithVals_Check(&db.Attribs, i) ? db.Attribs.Vals[i] : 0;
            mode_t perm = attrVal >> 16;
-           
+
            CBuf buf;
            Buf_Init(&buf);
 
@@ -982,10 +986,10 @@ SRes Archive::extractionFile(const UInt32 &i)
            {
                return SZ_ERROR_FAIL;
            }
-           
+
            // set file owner
            chown(reinterpret_cast<const char *>(buf.data), userId_, groupId_);
-           
+
            Buf_Free(&buf, &g_Alloc);
        }
 #endif

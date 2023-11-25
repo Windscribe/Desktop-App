@@ -13,13 +13,13 @@ unsigned long ExecuteCmd::execute(const std::string &cmd, const std::string &cwd
     cmdDescr->cmdId = curCmdId_;
     executingCmds_.push_back(cmdDescr);
     mutex_.unlock();
-    
+
     if (!cwd.empty()) {
         boost::thread(runCmd, curCmdId_, "cd \"" + cwd + "\" && " + cmd);
     } else {
         boost::thread(runCmd, curCmdId_, cmd);
     }
-    
+
     return curCmdId_;
 }
 
@@ -30,7 +30,7 @@ void ExecuteCmd::getStatus(unsigned long cmdId, bool &bFinished, std::string &lo
         if ((*it)->cmdId == cmdId) {
             bFinished = (*it)->bFinished;
             log = (*it)->log;
-            
+
             if ((*it)->bFinished) {
                 delete (*it);
                 executingCmds_.erase(it);
@@ -59,7 +59,7 @@ ExecuteCmd::ExecuteCmd() : curCmdId_(0)
 void ExecuteCmd::runCmd(unsigned long cmdId, std::string cmd)
 {
     std::string strReply;
-     
+
     FILE *file = popen(cmd.c_str(), "r");
     if (file) {
         char szLine[4096];

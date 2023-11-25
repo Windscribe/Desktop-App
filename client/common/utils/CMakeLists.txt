@@ -34,7 +34,7 @@ if (WIN32)
         executable_signature/executable_signature_win.cpp
         servicecontrolmanager.cpp
         timer_win.cpp
-	timer_win.h
+    timer_win.h
         wincryptutils.cpp
         wincryptutils.h
     )

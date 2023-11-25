@@ -1,5 +1,4 @@
-#ifndef NEWADDRESSITEM_H
-#define NEWADDRESSITEM_H
+#pragma once
 
 #include <QGraphicsProxyWidget>
 #include "commongraphics/baseitem.h"
@@ -50,5 +49,3 @@ private:
 };
 
 }
-
-#endif // NEWADDRESSITEM_H

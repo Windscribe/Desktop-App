@@ -1,5 +1,4 @@
-#ifndef COMMAND_H
-#define COMMAND_H
+#pragma once
 
 #include <vector>
 #include <string>
@@ -23,5 +22,3 @@ public:
 };
 
 } // namespace IPC
-
-#endif // COMMAND_H

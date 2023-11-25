@@ -1,5 +1,4 @@
-#ifndef LOCATIONSBUTTON_H
-#define LOCATIONSBUTTON_H
+#pragma once
 
 #include <QFont>
 #include <QGraphicsObject>
@@ -55,5 +54,3 @@ private:
 };
 
 } //namespace ConnectWindow
-
-#endif // LOCATIONSBUTTON_H

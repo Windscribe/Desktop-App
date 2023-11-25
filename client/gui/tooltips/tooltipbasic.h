@@ -1,5 +1,4 @@
-#ifndef TOOLTIPBASIC_H
-#define TOOLTIPBASIC_H
+#pragma once
 
 #include <QWidget>
 #include "tooltiptypes.h"
@@ -26,7 +25,4 @@ private:
 
     void recalcWidth();
     void recalcHeight();
-
 };
-
-#endif // TOOLTIPBASIC_H

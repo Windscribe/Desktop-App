@@ -9,8 +9,8 @@ ConnectionBadgeDots::ConnectionBadgeDots(ScalableGraphicsObject *parent) : Scala
     circleOpacityAnimation_.setDuration(ANIMATION_DURATION);
     circleOpacityAnimation_.setStartValue(0.0);
     circleOpacityAnimation_.setEndValue(1.0);
-    connect(&circleOpacityAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onCircleOpacityAnimationChanged(QVariant)));
-    connect(&circleOpacityAnimation_, SIGNAL(finished()), SLOT(onCircleOpacityAnimationFinished()));
+    connect(&circleOpacityAnimation_, &QVariantAnimation::valueChanged, this, &ConnectionBadgeDots::onCircleOpacityAnimationChanged);
+    connect(&circleOpacityAnimation_, &QVariantAnimation::finished, this, &ConnectionBadgeDots::onCircleOpacityAnimationFinished);
     initAnimation();
     recalcSize();
 }

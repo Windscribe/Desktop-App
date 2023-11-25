@@ -1,6 +1,4 @@
-
-#ifndef processes_helper_hpp
-#define processes_helper_hpp
+#pragma once
 
 #include <vector>
 #include <string>
@@ -10,9 +8,8 @@ class ProcessesHelper
 {
 public:
     ProcessesHelper();
-    
+
     std::vector<pid_t> getPidsByProcessname(const char *name);
     bool isProcessFinished(pid_t pid) const;
 };
 
-#endif 

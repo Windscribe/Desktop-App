@@ -1,5 +1,4 @@
-#ifndef FIREWALLTURNOFFBUTTON_H
-#define FIREWALLTURNOFFBUTTON_H
+#pragma once
 
 #include <QVariantAnimation>
 
@@ -38,4 +37,3 @@ private:
 };
 
 }
-#endif // FIREWALLTURNOFFBUTTON_H

@@ -25,7 +25,7 @@ public:
     bool stopWireGuard();
 
     QString getAdapterName() const { return adapterName_; }
- 
+
 private:
     WireGuardConnection *host_;
     QString adapterName_;
@@ -138,7 +138,7 @@ WireGuardConnection::WireGuardConnection(QObject *parent, IHelper *helper)
       current_state_(ConnectionState::DISCONNECTED),
       do_stop_thread_(false)
 {
-    connect(&kill_process_timer_, SIGNAL(timeout()), SLOT(onProcessKillTimeout()));
+    connect(&kill_process_timer_, &QTimer::timeout, this, &WireGuardConnection::onProcessKillTimeout);
 }
 
 WireGuardConnection::~WireGuardConnection()
@@ -341,7 +341,7 @@ void WireGuardConnection::setCurrentStateAndEmitSignal(ConnectionState state)
         QTimer::singleShot(0, &kill_process_timer_, SLOT(stop()));
         emit disconnected();
         break;
-    case ConnectionState::CONNECTED:        
+    case ConnectionState::CONNECTED:
         emit connected(adapterGatewayInfo_);
         break;
     default:

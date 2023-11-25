@@ -41,7 +41,7 @@ void TestDnsCache::basicTest()
     DnsCache *dnsCache = new DnsCache(this);
 
     {
-        QSignalSpy spy(dnsCache, SIGNAL(resolved(bool, QStringList, quint64, bool, int)));
+        QSignalSpy spy(dnsCache, &DnsCache::resolved);
 
         dnsCache->resolve("google.com", 0, false);
 
@@ -55,7 +55,7 @@ void TestDnsCache::basicTest()
         QVERIFY(arguments.at(3).toBool() == false);
     }
     {
-            QSignalSpy spy(dnsCache, SIGNAL(resolved(bool, QStringList, quint64, bool, int)));
+            QSignalSpy spy(dnsCache, &DnsCache::resolved);
 
             dnsCache->resolve("google.com", 1, false);
 
@@ -73,7 +73,7 @@ void TestDnsCache::basicTest()
         }
 
     {
-        QSignalSpy spy(dnsCache, SIGNAL(resolved(bool, QStringList, quint64, bool, int)));
+        QSignalSpy spy(dnsCache, &DnsCache::resolved);
 
         dnsCache->resolve("google.com", 2, true);
 
@@ -92,7 +92,7 @@ void TestDnsCache::testCacheTimeout()
 {
      DnsCache *dnsCache = new DnsCache(this, 3000, 10);
      {
-         QSignalSpy spy(dnsCache, SIGNAL(resolved(bool, QStringList, quint64, bool, int)));
+         QSignalSpy spy(dnsCache, &DnsCache::resolved);
 
          QObject::connect(dnsCache, &DnsCache::resolved, this, [=](bool success, const QStringList &ips, quint64 id, bool bFromCache, int timeMs)
          {
@@ -107,7 +107,7 @@ void TestDnsCache::testCacheTimeout()
          QVERIFY(arguments.at(3).toBool() == false);
      }
      {
-         QSignalSpy spy(dnsCache, SIGNAL(resolved(bool, QStringList, quint64, bool, int)));
+         QSignalSpy spy(dnsCache, &DnsCache::resolved);
 
          dnsCache->resolve("google.com", 0, false);
 
@@ -118,7 +118,7 @@ void TestDnsCache::testCacheTimeout()
      }
      delay(3100);
      {
-         QSignalSpy spy(dnsCache, SIGNAL(resolved(bool, QStringList, quint64, bool, int)));
+         QSignalSpy spy(dnsCache, &DnsCache::resolved);
 
          dnsCache->resolve("google.com", 0, false);
 

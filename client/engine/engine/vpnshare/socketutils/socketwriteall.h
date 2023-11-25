@@ -1,5 +1,4 @@
-#ifndef SOCKETWRITEALL_H
-#define SOCKETWRITEALL_H
+#pragma once
 
 #include <QObject>
 #include <QTcpSocket>
@@ -24,5 +23,3 @@ private:
     QByteArray arr_;
     bool bEmitAllDataWritten_;
 };
-
-#endif // SOCKETWRITEALL_H

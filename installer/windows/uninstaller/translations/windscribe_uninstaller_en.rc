@@ -1,0 +1,10 @@
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+
+STRINGTABLE
+BEGIN
+    IDS_MSGBOX_TITLE "Uninstall Windscribe"
+    IDS_DIRECTORY_MISMATCH "The uninstall cannot proceed. The installation directory does not match the removal directory."
+    IDS_CONFIRM_UNINSTALL "Are you sure you want to completely remove Windscribe and all of its components?"
+    IDS_UNINSTALL_SUCCESS "Windscribe was successfully removed from your computer."
+    IDS_CLOSE_APP "Please exit the Windscribe app to continue the uninstall. Note that your connection will not be protected once the application is exited."
+END

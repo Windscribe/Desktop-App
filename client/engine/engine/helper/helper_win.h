@@ -8,6 +8,7 @@
 
 #include "ihelper.h"
 #include "../../../../backend/windows/windscribe_service/ipc/servicecommunication.h"
+#include "utils/servicecontrolmanager.h"
 
 class Helper_win : public IHelper
 {
@@ -50,9 +51,7 @@ public:
     // Windows specific functions
     bool isHelperConnected() const;
     IHelper::ExecuteError executeOpenVPN(const QString &configPath, unsigned int portNumber, const QString &httpProxy, unsigned int httpPort,
-                        const QString &socksProxy, unsigned int socksPort,
-                        unsigned long &outCmdId, bool isCustomConfig);
-    bool executeResetTap(const QString &tapName);
+                                         const QString &socksProxy, unsigned int socksPort, unsigned long &outCmdId, bool isCustomConfig);
     QString executeSetMetric(const QString &interfaceType, const QString &interfaceName, const QString &metricNumber);
     QString executeWmicEnable(const QString &adapterName);
     QString executeWmicGetConfigManagerErrorCode(const QString &adapterName);
@@ -62,8 +61,6 @@ public:
     bool changeIcs(const QString &adapterName);
     bool stopIcs();
 
-
-    bool clearDnsOnTap();
     QString enableBFE();
     QString resetAndStartRAS();
 
@@ -94,26 +91,25 @@ public:
     bool removeWindscribeNetworkProfiles();
     void setIKEv2IPSecParameters();
     bool makeHostsFileWritable();
-    bool reinstallTapDriver(const QString& tapDriverDir);
-    bool reinstallWintunDriver(const QString& wintunDriverDir);
 
     void setCustomDnsIps(const QStringList& ips);
+
+    bool createWintunAdapter();
+    bool removeWintunAdapter();
 
 protected:
     void run() override;
 
 private:
-    enum {MAX_WAIT_TIME_FOR_HELPER = 30000};
     enum {MAX_WAIT_TIME_FOR_PIPE = 10000};
     enum {CHECK_UNBLOCKING_CMD_PERIOD = 2000};
 
-    QString helperLabel_;
     QStringList customDnsIp_;
     std::atomic<STATE> curState_;
-    std::atomic<bool> bStopThread_;
 
     bool bIPV6State_;
     QMutex mutex_;
+    wsl::ServiceControlManager scm_;
 
     MessagePacketResult sendCmdToHelper(int cmdId, const std::string &data);
     bool disableIPv6();
@@ -121,7 +117,6 @@ private:
 
     bool disableIPv6InOS();
     bool enableIPv6InOS();
-
 
     int debugGetActiveUnblockingCmdCount();
 

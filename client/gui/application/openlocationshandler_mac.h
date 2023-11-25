@@ -1,5 +1,4 @@
-#ifndef OPENLOCATIONSHANDER_MAC_H
-#define OPENLOCATIONSHANDER_MAC_H
+#pragma once
 
 #include <QObject>
 
@@ -15,5 +14,3 @@ public:
 signals:
     void receivedOpenLocationsMessage();
 };
-
-#endif // OPENLOCATIONSHANDER_MAC_H

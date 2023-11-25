@@ -1,0 +1,10 @@
+LANGUAGE LANG_UKRAINIAN, SUBLANG_NEUTRAL
+
+STRINGTABLE
+BEGIN
+    IDS_MSGBOX_TITLE "Видалення Windscribe"
+    IDS_DIRECTORY_MISMATCH "Не можна продовжити видалення. Каталог інсталяції відрізняється від каталогу видалення."
+    IDS_CONFIRM_UNINSTALL "Дійсно повністю видалити Windscribe і всі його компоненти?"
+    IDS_UNINSTALL_SUCCESS "Windscribe видалено з комп’ютера."
+    IDS_CLOSE_APP "Закрийте програму Windscribe, щоб продовжити видалення. Зверніть увагу, що ваше з’єднання залишиться незахищеним після виходу з програми."
+END

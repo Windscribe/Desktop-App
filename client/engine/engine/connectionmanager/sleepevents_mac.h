@@ -1,5 +1,4 @@
-#ifndef SLEEPEVENTS_MAC_H
-#define SLEEPEVENTS_MAC_H
+#pragma once
 
 #include <QObject>
 #include "isleepevents.h"
@@ -14,5 +13,3 @@ public:
     virtual void emitGotoSleep();
     virtual void emitGotoWake();
 };
-
-#endif // SLEEPEVENTS_MAC_H

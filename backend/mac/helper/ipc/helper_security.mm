@@ -34,14 +34,14 @@ bool HelperSecurity::verifyProcessIdImpl(pid_t pid)
         LOG("Failed to get app/bundle name for PID %i", pid);
         return false;
     }
-    
+
     std::string app_name = pathbuf;
-    
+
     std::vector<std::string> endings;
     // Check for a correct ending.
     endings.push_back("/Contents/MacOS/installer");
     endings.push_back("/Contents/MacOS/Windscribe");
-    
+
     const auto app_name_length = app_name.length();
 
     // Check bundle name.
@@ -56,7 +56,7 @@ bool HelperSecurity::verifyProcessIdImpl(pid_t pid)
             break;
         }
     }
-    
+
     if (!bFoundBundleName)
     {
         LOG("Invalid app/bundle name for PID %i: '%s'", pid, app_name.c_str());

@@ -1,8 +1,6 @@
-#ifndef FONTDESCR_H
-#define FONTDESCR_H
+#pragma once
 
 #include <QObject>
-
 
 class FontDescr
 {
@@ -20,5 +18,3 @@ private:
     int stretch_;
     qreal letterSpacing_;
 };
-
-#endif // FONTDESCR_H

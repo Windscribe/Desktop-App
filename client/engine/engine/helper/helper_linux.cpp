@@ -1,5 +1,6 @@
 #include "helper_linux.h"
 
+#include <QProcess>
 #include <stdlib.h>
 
 #include "../../../../backend/posix_common/helper_commands_serialize.h"
@@ -30,26 +31,12 @@ QString Helper_linux::getHelperVersion()
 
 std::optional<bool> Helper_linux::installUpdate(const QString &package) const
 {
-    QString bashCmd;
-    if (package.endsWith(".deb")) {
-        bashCmd = QString("pkexec apt install -y %1").arg(package);
-    }
-    else if (package.endsWith(".rpm")) {
-        bashCmd = QString("pkexec dnf upgrade -y %1").arg(package);
-    }
-    else if (package.endsWith(".zst")) {
-        bashCmd = QString("pkexec pacman -U --noconfirm %1").arg(package);
-    }
-    else {
-        qCDebug(LOG_AUTO_UPDATER) << "Helper_linux::installUpdate unrecognized package type:" << package;
-        return std::nullopt;
-    }
-
-    qCDebug(LOG_AUTO_UPDATER) << "Installing package " << package << " with command " << bashCmd;
-
-    int exitCode = system(bashCmd.toStdString().c_str());
-    if (!WIFEXITED(exitCode) || WEXITSTATUS(exitCode) != 0) {
-        qCDebug(LOG_AUTO_UPDATER) << "Install failed with exit code" << exitCode;
+    QProcess process;
+    process.setProgram("/etc/windscribe/install-update");
+    process.setArguments(QStringList() << package);
+    int ret = process.startDetached();
+    if (!ret) {
+        qCDebug(LOG_AUTO_UPDATER) << "Install failed to start" << ret;
         return false;
     }
 

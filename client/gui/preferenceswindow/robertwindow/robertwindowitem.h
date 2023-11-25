@@ -1,5 +1,4 @@
-#ifndef ROBERTWINDOWITEM_H
-#define ROBERTWINDOWITEM_H
+#pragma once
 
 #include <QSharedPointer>
 
@@ -67,5 +66,3 @@ private:
 };
 
 } // namespace PreferencesWindow
-
-#endif // ROBERTWINDOWITEM_H

@@ -7,9 +7,11 @@
 class Ipv6Manager
 {
 public:
-    explicit Ipv6Manager();
-    ~Ipv6Manager();
-
+    static Ipv6Manager& instance()
+    {
+        static Ipv6Manager ipv6Manager;
+        return ipv6Manager;
+    }
     bool setEnabled(bool bEnabled);
 
 private:
@@ -25,10 +27,11 @@ private:
         }
     };
 
-	std::vector<const std::string> getInterfaces();
-	void saveIpv6States(const std::vector<const std::string> &interfaces);
+    explicit Ipv6Manager();
+    ~Ipv6Manager();
+    std::vector<const std::string> getInterfaces();
+    void saveIpv6States(const std::vector<const std::string> &interfaces);
     IPv6State getState(const std::string &interface);
 
-    bool enabled_;
     std::map<std::string, IPv6State> interfaceStates_;
 };

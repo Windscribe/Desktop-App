@@ -1,5 +1,4 @@
-#ifndef FIREWALLGROUP_H
-#define FIREWALLGROUP_H
+#pragma once
 
 #include <QGraphicsObject>
 #include "backend/preferences/preferences.h"
@@ -19,7 +18,6 @@ public:
                            const QString &descUrl = "");
 
     void setFirewallSettings(types::FirewallSettings settings);
-    void setBlock(bool block);
 
 signals:
     void firewallPreferencesChanged(const types::FirewallSettings &settings);
@@ -27,8 +25,6 @@ signals:
 private slots:
     void onFirewallModeChanged(QVariant value);
     void onFirewallWhenChanged(QVariant value);
-    void onFirewallModeHoverEnter();
-    void onFirewallModeHoverLeave();
     void onLanguageChanged();
 
 private:
@@ -36,9 +32,6 @@ private:
     types::FirewallSettings settings_;
     ComboBoxItem *firewallModeItem_;
     ComboBoxItem *firewallWhenItem_;
-    bool block_;
 };
 
 } // namespace PreferencesWindow
-
-#endif // FIREWALLGROUP_H

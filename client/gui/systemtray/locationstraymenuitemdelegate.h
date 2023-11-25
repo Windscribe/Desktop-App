@@ -1,5 +1,4 @@
-#ifndef LOCATIONSTRAYMENUITEMDELEGATE_H
-#define LOCATIONSTRAYMENUITEMDELEGATE_H
+#pragma once
 
 #include <QItemDelegate>
 
@@ -23,5 +22,3 @@ private:
     double scale_;
     const int CITY_CAPTION_MAX_WIDTH = 210;
 };
-
-#endif // LOCATIONSTRAYMENUITEMDELEGATE_H

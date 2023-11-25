@@ -1,5 +1,4 @@
-#ifndef HTTPPROXYWEBANSWERPARSER_H
-#define HTTPPROXYWEBANSWERPARSER_H
+#pragma once
 
 #include "utils/boost_includes.h"
 #include "httpproxywebanswer.h"
@@ -52,5 +51,3 @@ private:
 };
 
 } // namespace HttpProxyServer
-
-#endif // HTTPPROXYWEBANSWERPARSER_H

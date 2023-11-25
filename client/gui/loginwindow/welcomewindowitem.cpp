@@ -38,20 +38,20 @@ WelcomeWindowItem::WelcomeWindowItem(QGraphicsObject *parent, PreferencesHelper 
 
 #if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     closeButton_ = new IconButton(16, 16, "WINDOWS_CLOSE_ICON", "", this);
-    connect(closeButton_, SIGNAL(clicked()), SLOT(onCloseClick()));
+    connect(closeButton_, &IconButton::clicked, this, &WelcomeWindowItem::onCloseClick);
 
     minimizeButton_ = new IconButton(16, 16, "WINDOWS_MINIMIZE_ICON", "", this);
-    connect(minimizeButton_, SIGNAL(clicked()), SLOT(onMinimizeClick()));
+    connect(minimizeButton_, &IconButton::clicked, this, &WelcomeWindowItem::onMinimizeClick);
 #else //if Q_OS_MAC
 
     closeButton_ = new IconButton(14,14, "MAC_CLOSE_DEFAULT", "", this);
-    connect(closeButton_, SIGNAL(clicked()), SLOT(onCloseClick()));
+    connect(closeButton_, &IconButton::clicked, this, &WelcomeWindowItem::onCloseClick);
     connect(closeButton_, &IconButton::hoverEnter, [=](){ closeButton_->setIcon("MAC_CLOSE_HOVER"); });
     connect(closeButton_, &IconButton::hoverLeave, [=](){ closeButton_->setIcon("MAC_CLOSE_DEFAULT"); });
     closeButton_->setSelected(true);
 
     minimizeButton_ = new IconButton(14,14,"MAC_MINIMIZE_DEFAULT", "", this);
-    connect(minimizeButton_, SIGNAL(clicked()), SLOT(onMinimizeClick()));
+    connect(minimizeButton_, &IconButton::clicked, this, &WelcomeWindowItem::onMinimizeClick);
     connect(minimizeButton_, &IconButton::hoverEnter, [=](){ minimizeButton_->setIcon("MAC_MINIMIZE_HOVER"); });
     connect(minimizeButton_, &IconButton::hoverLeave, [=](){ minimizeButton_->setIcon("MAC_MINIMIZE_DEFAULT"); });
     minimizeButton_->setVisible(!preferencesHelper->isDockedToTray());
@@ -60,42 +60,41 @@ WelcomeWindowItem::WelcomeWindowItem(QGraphicsObject *parent, PreferencesHelper 
 #endif
 
     firewallTurnOffButton_ = new FirewallTurnOffButton("", this);
-    connect(firewallTurnOffButton_, SIGNAL(clicked()), SLOT(onFirewallTurnOffClick()));
+    connect(firewallTurnOffButton_, &FirewallTurnOffButton::clicked, this, &WelcomeWindowItem::onFirewallTurnOffClick);
 
     gotoLoginButton_ = new CommonGraphics::TextButton("", FontDescr(14, true), QColor(255, 255, 255), true, this );
-    connect(gotoLoginButton_, SIGNAL(clicked()), SLOT(onGotoLoginButtonClick()));
+    connect(gotoLoginButton_, &CommonGraphics::TextButton::clicked, this, &WelcomeWindowItem::onGotoLoginButtonClick);
     gotoLoginButton_->setClickable(true);
     gotoLoginButton_->show();
 
     getStartedButton_ = new CommonGraphics::BubbleButton(this, CommonGraphics::BubbleButton::kBright, 130, 32, 15);
     getStartedButton_->setFont(FontDescr(14, false));
-    connect(getStartedButton_, SIGNAL(clicked()), SLOT(onGetStartedButtonClick()));
+    connect(getStartedButton_, &CommonGraphics::BubbleButton::clicked, this, &WelcomeWindowItem::onGetStartedButtonClick);
     getStartedButton_->setClickable(true);
     getStartedButton_->show();
 
     // Lower Region:
     settingsButton_ = new IconButton(24, 24, SETTINGS_ICON_PATH, "", this);
-    connect(settingsButton_, SIGNAL(clicked()), SLOT(onSettingsButtonClick()));
-    connect(settingsButton_, SIGNAL(hoverEnter()), SLOT(onSettingsHoverEnter()));
-    connect(settingsButton_, SIGNAL(hoverLeave()), SLOT(onTooltipButtonHoverLeave()));
+    connect(settingsButton_, &IconButton::clicked, this, &WelcomeWindowItem::onSettingsButtonClick);
+    connect(settingsButton_, &IconButton::hoverEnter, this, &WelcomeWindowItem::onSettingsHoverEnter);
+    connect(settingsButton_, &IconButton::hoverLeave, this, &WelcomeWindowItem::onTooltipButtonHoverLeave);
 
     configButton_ = new IconButton(24, 24, CONFIG_ICON_PATH, "", this);
-    connect(configButton_, SIGNAL(clicked()), SLOT(onConfigButtonClick()));
-    connect(configButton_, SIGNAL(hoverEnter()), SLOT(onConfigHoverEnter()));
-    connect(configButton_, SIGNAL(hoverLeave()), SLOT(onTooltipButtonHoverLeave()));
+    connect(configButton_, &IconButton::clicked, this, &WelcomeWindowItem::onConfigButtonClick);
+    connect(configButton_, &IconButton::hoverEnter, this, &WelcomeWindowItem::onConfigHoverEnter);
+    connect(configButton_, &IconButton::hoverLeave, this, &WelcomeWindowItem::onTooltipButtonHoverLeave);
 
     emergencyButton_ = new IconHoverEngageButton(EMERGENCY_ICON_DISABLED_PATH, EMERGENCY_ICON_ENABLED_PATH, this);
-    connect(emergencyButton_, SIGNAL(clicked()), SLOT(onEmergencyButtonClick()));
-    connect(emergencyButton_, SIGNAL(hoverEnter()), SLOT(onEmergencyHoverEnter()));
-    connect(emergencyButton_, SIGNAL(hoverLeave()), SLOT(onTooltipButtonHoverLeave()));
+    connect(emergencyButton_, &IconHoverEngageButton::clicked, this, &WelcomeWindowItem::onEmergencyButtonClick);
+    connect(emergencyButton_, &IconHoverEngageButton::hoverEnter, this, &WelcomeWindowItem::onEmergencyHoverEnter);
+    connect(emergencyButton_, &IconHoverEngageButton::hoverLeave, this, &WelcomeWindowItem::onTooltipButtonHoverLeave);
 
     emergencyConnectOn_ = false;
 
     curEmergencyTextOpacity_ = OPACITY_HIDDEN;
-    connect(&emergencyTextAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onEmergencyTextTransition(QVariant)));
+    connect(&emergencyTextAnimation_, &QVariantAnimation::valueChanged, this, &WelcomeWindowItem::onEmergencyTextTransition);
 
-    connect(preferencesHelper, SIGNAL(isDockedModeChanged(bool)), this,
-            SLOT(onDockedModeChanged(bool)));
+    connect(preferencesHelper, &PreferencesHelper::isDockedModeChanged, this, &WelcomeWindowItem::onDockedModeChanged);
 
     connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &WelcomeWindowItem::onLanguageChanged);
     onLanguageChanged();

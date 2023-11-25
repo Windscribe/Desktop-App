@@ -6,6 +6,9 @@
 setlocal
 set tools_dir=%~dp0
 set PYTHONDONTWRITEBYTECODE=1
+set PYTHONIOENCODING=utf_8
+chcp 65001
+
 set python_dir=%PYTHONHOME%
 if not "%python_dir%" == "" set python_dir=%python_dir%\
 

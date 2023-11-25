@@ -1,5 +1,4 @@
-#ifndef LOCATIONSTRAYMENUNATIVE_H
-#define LOCATIONSTRAYMENUNATIVE_H
+#pragma once
 
 #include <QHash>
 #include <QMenu>
@@ -22,5 +21,3 @@ private slots:
 private:
     void buildMenu(QAbstractItemModel *model);
 };
-
-#endif // LOCATIONSTRAYMENUNATIVE_H

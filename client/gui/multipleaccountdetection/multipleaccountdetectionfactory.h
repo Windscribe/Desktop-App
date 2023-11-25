@@ -1,5 +1,4 @@
-#ifndef MULTIPLEACCOUNTDETECTIONFACTORY_H
-#define MULTIPLEACCOUNTDETECTIONFACTORY_H
+#pragma once
 
 #include "imultipleaccountdetection.h"
 
@@ -8,5 +7,3 @@ class MultipleAccountDetectionFactory
 public:
     static IMultipleAccountDetection *create();
 };
-
-#endif // MULTIPLEACCOUNTDETECTIONFACTORY_H

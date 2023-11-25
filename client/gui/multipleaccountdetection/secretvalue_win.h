@@ -1,5 +1,4 @@
-#ifndef SECRETVALUE_WIN_H
-#define SECRETVALUE_WIN_H
+#pragma once
 
 #include <QDate>
 #include <QString>
@@ -19,5 +18,3 @@ public:
 private:
     SimpleCrypt crypt_;
 };
-
-#endif // SECRETVALUE_WIN_H

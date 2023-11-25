@@ -1,7 +1,7 @@
 @echo off
 
 set curpath=%cd%
-set INF2CAT_TOOL_PATH="C:\Program Files (x86)\Windows Kits\10\bin\x86\inf2cat.exe" 
+set INF2CAT_TOOL_PATH="C:\Program Files (x86)\Windows Kits\10\bin\x86\inf2cat.exe"
 
 set VSCOMNTOOLS="C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat"
 call %VSCOMNTOOLS% x86_amd64

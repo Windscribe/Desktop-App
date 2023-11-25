@@ -1,7 +1,6 @@
 // Adapted from Qt's QScopeGuard definition for use in our non-Qt projects.
 
-#ifndef WSSCOPEGUARD_H
-#define WSSCOPEGUARD_H
+#pragma once
 
 #include <algorithm>
 
@@ -54,5 +53,3 @@ ScopeGuard<F> wsScopeGuard(F f)
 }
 
 } // end namespace wsl
-
-#endif // WSSCOPEGUARD_H

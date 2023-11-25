@@ -16,7 +16,7 @@ IconButtonWidget::IconButtonWidget(QString imagePath, QWidget * parent) : QPushB
   , height_(0)
 {
     setImage(imagePath);
-    connect(&opacityAnimation_, SIGNAL(valueChanged(QVariant)), this, SLOT(onOpacityChanged(QVariant)));
+    connect(&opacityAnimation_, &QVariantAnimation::valueChanged, this, &IconButtonWidget::onOpacityChanged);
 }
 
 int IconButtonWidget::width()

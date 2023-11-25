@@ -1,5 +1,4 @@
-#ifndef TYPES_SESSION_STATUS_H
-#define TYPES_SESSION_STATUS_H
+#pragma once
 
 #include <QString>
 #include <QSet>
@@ -81,8 +80,4 @@ private:
     static constexpr quint32 versionForSerialization_ = 1;
 };
 
-
-
 } //namespace types
-
-#endif // TYPES_SESSION_STATUS_H

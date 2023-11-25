@@ -1,5 +1,4 @@
-#ifndef LOADINGICONITEM_H
-#define LOADINGICONITEM_H
+#pragma once
 
 #include <QMovie>
 #include "commongraphics/scalablegraphicsobject.h"
@@ -10,7 +9,7 @@ public:
     explicit LoadingIconItem(ScalableGraphicsObject *parent, QString file, int width, int height);
 
     QRectF boundingRect() const override;
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR) override;
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
     void setOpacity(double opacity);
     void start();
@@ -26,5 +25,3 @@ private:
     int width_;
     int height_;
 };
-
-#endif // LOADINGICONITEM_H

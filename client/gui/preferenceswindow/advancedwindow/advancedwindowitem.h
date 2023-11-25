@@ -1,5 +1,4 @@
-#ifndef DEBUGWINDOWITEM_H
-#define DEBUGWINDOWITEM_H
+#pragma once
 
 #include <QTimer>
 #include "backend/preferences/preferences.h"
@@ -56,8 +55,6 @@ private slots:
 #ifdef Q_OS_WIN
     void onIPv6StateChanged(bool isChecked);
     void onPreferencesIpv6InOSStateChanged(bool bEnabled);
-    void onTapAdapterChanged(QVariant v);
-    void onTapAdapterPreferencesChanged(TAP_ADAPTER_TYPE tapAdapter);
 #endif
 
 protected:
@@ -86,12 +83,7 @@ private:
 #ifdef Q_OS_WIN
     PreferenceGroup *ipv6Group_;
     ToggleItem *checkBoxIPv6_;
-    PreferenceGroup *tapAdapterGroup_;
-    ComboBoxItem *comboBoxTapAdapter_;
-    void updateTapAdaptersList();
 #endif
 };
 
 } // namespace PreferencesWindow
-
-#endif // DEBUGWINDOWITEM_H

@@ -1,5 +1,4 @@
-#ifndef SOCKSPROXYCONNECTION_H
-#define SOCKSPROXYCONNECTION_H
+#pragma once
 
 #include <QObject>
 #include <QTcpSocket>
@@ -62,5 +61,3 @@ private:
 };
 
 } // namespace SocksProxyServer
-
-#endif // SOCKSPROXYCONNECTION_H

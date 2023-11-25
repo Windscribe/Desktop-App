@@ -21,16 +21,15 @@ add_definitions(-DUNICODE -D_UNICODE -DWINDSCRIBE_SERVICE)
 project(Service)
 
 set(SOURCES
+    active_processes.cpp
     adapters_info.cpp
     apps_ids.cpp
-    cleardns_on_tap.cpp
     close_tcp_connections.cpp
     date_time_helper.cpp
     dns_firewall.cpp
     executecmd.cpp
     firewallfilter.cpp
     fwpm_wrapper.cpp
-    get_active_processes.cpp
     hostsedit.cpp
     ikev2ipsec.cpp
     ikev2route.cpp
@@ -42,8 +41,8 @@ set(SOURCES
     logger.cpp
     ovpn.cpp
     pipe_for_process.cpp
+    process_command.cpp
     registry.cpp
-    reinstall_tun_drivers.cpp
     reinstall_wan_ikev2.cpp
     remove_windscribe_network_profiles.cpp
     simple_xor_crypt.cpp
@@ -61,6 +60,7 @@ set(SOURCES
     sys_ipv6_controller.cpp
     utils.cpp
     windscribe_service.cpp
+    wintuncontroller.cpp
     wireguard/wireguardcontroller.cpp
     ../../../client/common/utils/crashdump.cpp
     ../../../client/common/utils/crashhandler.cpp
@@ -74,6 +74,7 @@ add_compile_options("$<$<CONFIG:Release>:/Zi>")
 add_link_options("$<$<CONFIG:Release>:/DEBUG>" "$<$<CONFIG:Release>:/OPT:REF>" "$<$<CONFIG:Release>:/OPT:ICF>")
 
 add_executable(WindscribeService ${SOURCES})
+set_property(TARGET WindscribeService PROPERTY COMPILE_WARNING_AS_ERROR ON)
 
 target_link_directories(WindscribeService
                         PRIVATE
@@ -94,5 +95,6 @@ target_link_libraries(WindscribeService
 target_include_directories(WindscribeService PRIVATE
                            ${WINDSCRIBE_BUILD_LIBS_PATH}/boost/include
                            ${WINDSCRIBE_BUILD_LIBS_PATH}/cares/include
+                           ${WINDSCRIBE_BUILD_LIBS_PATH}/wintun/include
                            ../../../client/common/
 )

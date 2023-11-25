@@ -4,16 +4,16 @@
 <policyconfig>
      <vendor>Windscribe</vendor>
      <action id="com.windscribe.authhelper.authenticate">
-         <description>Run AuthHelper</description>                
+         <description>Run AuthHelper</description>
          <message>Authentication is required to change to a non-root custom config directory.</message>
-         <defaults>                                                                                       
+         <defaults>
              <allow_any>auth_admin_keep</allow_any>
              <allow_inactive>auth_admin_keep</allow_inactive>
              <allow_active>auth_admin_keep</allow_active>
-         </defaults>        
+         </defaults>
          <annotate key="org.freedesktop.policykit.exec.path">/opt/windscribe/windscribe-authhelper</annotate>
          <annotate key="org.freedesktop.policykit.exec.allow_gui">true</annotate>
-     </action>                                                                       
+     </action>
 </policyconfig>
 
 

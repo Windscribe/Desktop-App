@@ -1,5 +1,4 @@
-#ifndef LOCATIONSTRAYMENUWIDGET_H
-#define LOCATIONSTRAYMENUWIDGET_H
+#pragma once
 
 #include <QMenu>
 #include <QWidget>
@@ -50,5 +49,3 @@ private:
     void updateButtonsState();
     void updateBackground_mac();
 };
-
-#endif // LOCATIONSTRAYMENUWIDGET_H

@@ -35,8 +35,7 @@ UsernamePasswordEntry::UsernamePasswordEntry(const QString &text, bool password,
         userEntryLine_->setEchoMode(QLineEdit::Password);
     }
 
-    connect(userEntryLine_, SIGNAL(textChanged(const QString&)), this,
-                            SIGNAL(textChanged(const QString&)));
+    connect(userEntryLine_, &CommonWidgets::CustomMenuLineEdit::textChanged, this, &UsernamePasswordEntry::textChanged);
     setClickable(true);
     clearActiveState();
 

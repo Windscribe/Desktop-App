@@ -105,8 +105,7 @@ void ServiceControlManager::openSCM(DWORD dwDesiredAccess, LPCTSTR pszServerName
 *          Thus we don't want this method raising an exception thereby 'cancelling'
 *          the first exception.
 *******************************************************************************/
-void
-ServiceControlManager::closeSCM() noexcept
+void ServiceControlManager::closeSCM() noexcept
 {
     closeService();
 
@@ -134,8 +133,7 @@ ServiceControlManager::closeSCM() noexcept
 *
 * THROWS:  A system_error object.
 *******************************************************************************/
-void
-ServiceControlManager::openService(LPCTSTR pszServiceName, DWORD dwDesiredAccess)
+void ServiceControlManager::openService(LPCTSTR pszServiceName, DWORD dwDesiredAccess)
 {
     if (pszServiceName == NULL) {
         throw std::system_error(ERROR_INVALID_NAME, std::system_category(), "OpenService: the service name parameter cannot be null");
@@ -274,9 +272,8 @@ ServiceControlManager::queryServiceStatus() const
 *
 * THROWS:  A system_error object.
 *******************************************************************************/
-void
-ServiceControlManager::queryServiceConfig(std::wstring &sExePath, std::wstring &sAccountName,
-                                          DWORD& dwStartType, bool& bServiceShareProcess) const
+void ServiceControlManager::queryServiceConfig(std::wstring &sExePath, std::wstring &sAccountName,
+                                               DWORD& dwStartType, bool& bServiceShareProcess) const
 {
     DWORD dwNumBytesNeeded = 0;
     DWORD dwBufferSize = 1024;
@@ -339,8 +336,7 @@ ServiceControlManager::queryServiceConfig(std::wstring &sExePath, std::wstring &
 *
 * THROWS:  A system_error object.
 *******************************************************************************/
-void
-ServiceControlManager::startService()
+void ServiceControlManager::startService()
 {
     if (m_bBlockStartStopRequests) {
         throw std::system_error(ERROR_CANCELLED, std::system_category(), std::string("StartService: ") + wstring_to_string(m_sServiceName));
@@ -443,8 +439,7 @@ ServiceControlManager::startService()
 *
 * THROWS:  A system_error object.
 *******************************************************************************/
-void
-ServiceControlManager::stopService()
+void ServiceControlManager::stopService()
 {
     if (m_bBlockStartStopRequests) {
         throw std::system_error(ERROR_CANCELLED, std::system_category(), std::string("StopService: ") + wstring_to_string(m_sServiceName));
@@ -511,6 +506,30 @@ ServiceControlManager::stopService()
 
 
 /******************************************************************************
+* METHOD:  StopService()
+*
+* PURPOSE: Opens the SCM and instructs it to stop the service if it is installed.
+*
+* INPUT:   pszServiceName: Points to a null-terminated string that names the
+*             service to open. The maximum string length is 256 characters. The
+*             SCM database preserves the case of the characters, but service
+*             name comparisons are always case insensitive. A slash (/),
+*             backslash (\), comma, and space are invalid service name
+*             characters.
+*
+* THROWS:  A system_error object.
+*******************************************************************************/
+void ServiceControlManager::stopService(LPCTSTR pszServiceName)
+{
+    openSCM(SC_MANAGER_CONNECT);
+    if (isServiceInstalled(pszServiceName)) {
+        openService(pszServiceName, SERVICE_QUERY_STATUS | SERVICE_STOP);
+        stopService();
+    }
+}
+
+
+/******************************************************************************
 * METHOD:  DeleteService(LPCTSTR pszServiceName)
 *
 * PURPOSE: Deletes the service from the SCM database.
@@ -528,8 +547,7 @@ ServiceControlManager::stopService()
 *
 * THROWS:  A system_error object.
 *******************************************************************************/
-void
-ServiceControlManager::deleteService(LPCTSTR pszServiceName, bool bStopRunningService)
+void ServiceControlManager::deleteService(LPCTSTR pszServiceName, bool bStopRunningService)
 {
     openService(pszServiceName);
 
@@ -660,11 +678,10 @@ ServiceControlManager::isServiceInstalled(LPCTSTR pszServiceName) const
 *
 * THROWS:  A system_error object.
 *******************************************************************************/
-void
-ServiceControlManager::installService(LPCTSTR pszServiceName,  LPCTSTR pszBinaryPathName,
-                                      LPCTSTR pszDisplayName,  LPCTSTR pszDescription,
-                                      DWORD  dwServiceType,   DWORD  dwStartType,
-                                      LPCTSTR pszDependencies, bool   bAllowInteractiveUserStart)
+void ServiceControlManager::installService(LPCTSTR pszServiceName,  LPCTSTR pszBinaryPathName,
+                                           LPCTSTR pszDisplayName,  LPCTSTR pszDescription,
+                                           DWORD   dwServiceType,   DWORD   dwStartType,
+                                           LPCTSTR pszDependencies, bool    bAllowInteractiveUserStart)
 {
     // Can only call this method to install a service on a local machine.
     if (!m_sServerName.empty()) {
@@ -737,8 +754,7 @@ ServiceControlManager::installService(LPCTSTR pszServiceName,  LPCTSTR pszBinary
 *
 * THROWS:  A system_error object.
 *******************************************************************************/
-void
-ServiceControlManager::sendControlCode(DWORD dwCode) const
+void ServiceControlManager::sendControlCode(DWORD dwCode) const
 {
     DWORD dwLastError;
 
@@ -803,8 +819,7 @@ ServiceControlManager::sendControlCode(DWORD dwCode) const
 *
 * RETURNS: NULL if we are attached to the local SCM.
 *******************************************************************************/
-LPCTSTR
-ServiceControlManager::getServerName() const
+LPCTSTR ServiceControlManager::getServerName() const
 {
     if (m_sServerName.empty()) {
         return NULL;
@@ -815,8 +830,7 @@ ServiceControlManager::getServerName() const
 
 
 //---------------------------------------------------------------------------
-void
-ServiceControlManager::setServiceDescription(LPCTSTR pszDescription) const
+void ServiceControlManager::setServiceDescription(LPCTSTR pszDescription) const
 {
     if (pszDescription != NULL) {
         SERVICE_DESCRIPTION svcDesc = { (LPTSTR)pszDescription };
@@ -841,8 +855,7 @@ std::wstring ServiceControlManager::serverNameForDebug() const
 }
 
 //---------------------------------------------------------------------------
-void
-ServiceControlManager::setServiceSIDType(DWORD dwServiceSidType) const
+void ServiceControlManager::setServiceSIDType(DWORD dwServiceSidType) const
 {
     SERVICE_SID_INFO ssi;
     ssi.dwServiceSidType = dwServiceSidType;
@@ -856,8 +869,7 @@ ServiceControlManager::setServiceSIDType(DWORD dwServiceSidType) const
 }
 
 //---------------------------------------------------------------------------
-void
-ServiceControlManager::grantUserStartPermission() const
+void ServiceControlManager::grantUserStartPermission() const
 {
     wchar_t sddl[] = L"D:"
       L"(A;;CCLCSWRPWPDTLOCRRC;;;SY)"           // default permissions for local system

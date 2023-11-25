@@ -32,7 +32,7 @@ void HttpProxyConnectionManager::newConnection(qintptr socketDescriptor)
     usersCounter_->newUserConnected(ip);
     QThread *thread = getLessBusyThread();
     HttpProxyConnection *connection = new HttpProxyConnection(socketDescriptor, ip);
-    connect(connection, SIGNAL(finished(QString)), SLOT(onConnectionFinished(QString)));
+    connect(connection, &HttpProxyConnection::finished, this, &HttpProxyConnectionManager::onConnectionFinished);
     addConnectionToThread(thread, connection);
 
     //qDebug() << "Count of connections:" << connections_.count();

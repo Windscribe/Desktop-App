@@ -1,5 +1,4 @@
-#ifndef FIREWALLSTATEHELPER_H
-#define FIREWALLSTATEHELPER_H
+#pragma once
 
 #include <QObject>
 
@@ -20,5 +19,3 @@ signals:
 private:
     bool isEnabled_;
 };
-
-#endif // FIREWALLSTATEHELPER_H

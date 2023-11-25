@@ -1,5 +1,4 @@
-#ifndef ACCOUNTDATAITEM_H
-#define ACCOUNTDATAITEM_H
+#pragma once
 
 #include "commongraphics/baseitem.h"
 
@@ -25,5 +24,3 @@ private:
 };
 
 } // namespace PreferencesWindow
-
-#endif // ACCOUNTDATAITEM_H

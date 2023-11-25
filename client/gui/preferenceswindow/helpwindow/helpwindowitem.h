@@ -1,5 +1,4 @@
-#ifndef HELPWINDOWITEM_H
-#define HELPWINDOWITEM_H
+#pragma once
 
 #include "backend/preferences/preferenceshelper.h"
 #include "backend/preferences/preferences.h"
@@ -52,5 +51,3 @@ private:
 };
 
 } // namespace PreferencesWindow
-
-#endif // HELPWINDOWITEM_H

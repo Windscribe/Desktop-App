@@ -1,5 +1,4 @@
-#ifndef SCALABLEGRAPHICSOBJECT_H
-#define SCALABLEGRAPHICSOBJECT_H
+#pragma once
 
 #include <QGraphicsObject>
 
@@ -10,7 +9,4 @@ public:
     explicit ScalableGraphicsObject(QGraphicsObject *parent = nullptr);
 
     virtual void updateScaling();
-
 };
-
-#endif // SCALABLEGRAPHICSOBJECT_H

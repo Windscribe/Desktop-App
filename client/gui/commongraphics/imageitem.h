@@ -1,5 +1,4 @@
-#ifndef IMAGEITEM_H
-#define IMAGEITEM_H
+#pragma once
 
 #include "scalablegraphicsobject.h"
 #include "../utils/imagewithshadow.h"
@@ -23,6 +22,3 @@ private:
     int width_;
     int height_;
 };
-
-
-#endif // IMAGEITEM_H

@@ -1,5 +1,4 @@
-#ifndef TYPES_NOTIFICATION_H
-#define TYPES_NOTIFICATION_H
+#pragma once
 
 #include <QString>
 #include <QJsonObject>
@@ -30,5 +29,3 @@ private:
 };
 
 } //namespace types
-
-#endif // TYPES_NOTIFICATION_H

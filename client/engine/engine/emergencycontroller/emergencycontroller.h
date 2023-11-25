@@ -1,5 +1,4 @@
-#ifndef EMERGENCYCONTROLLER_H
-#define EMERGENCYCONTROLLER_H
+#pragma once
 
 #include <QHostInfo>
 #include <QObject>
@@ -72,5 +71,3 @@ private:
     void doMacRestoreProcedures();
     void addRandomHardcodedIpsToAttempts();
 };
-
-#endif // EMERGENCYCONTROLLER_H

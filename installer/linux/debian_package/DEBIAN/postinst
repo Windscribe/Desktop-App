@@ -12,3 +12,4 @@ if [ "`uname -p`" == "aarch64" ]; then
 else
     echo linux_deb_x64 > ../etc/windscribe/platform
 fi
+

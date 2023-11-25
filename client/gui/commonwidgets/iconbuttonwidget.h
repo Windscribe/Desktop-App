@@ -1,5 +1,4 @@
-#ifndef ICONBUTTONWIDGET_H
-#define ICONBUTTONWIDGET_H
+#pragma once
 
 #include <QPushButton>
 #include <QVariant>
@@ -50,5 +49,3 @@ private:
 };
 
 }
-
-#endif // ICONBUTTONWIDGET_H

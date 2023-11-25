@@ -1,5 +1,4 @@
-#ifndef SOCKSSTRUCTS_H
-#define SOCKSSTRUCTS_H
+#pragma once
 
 #ifdef Q_OS_WIN
     #include <Winsock2.h>
@@ -90,5 +89,3 @@ __attribute__((aligned(1)));
 #endif
 
 } // namespace SocksProxyServer
-
-#endif // SOCKSSTRUCTS_H

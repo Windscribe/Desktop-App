@@ -1,5 +1,4 @@
-#ifndef SINGLE_APP_INSTANCE_H
-#define SINGLE_APP_INSTANCE_H
+#pragma once
 
 #include <QObject>
 #include <QScopedPointer>
@@ -19,7 +18,7 @@ public:
     bool isRunning();
     void release();
 
-Q_SIGNALS:
+signals:
     void anotherInstanceRunning();
 
 private:
@@ -29,5 +28,3 @@ private:
 };
 
 }
-
-#endif // SINGLE_APP_INSTANCE_H

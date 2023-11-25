@@ -1,5 +1,4 @@
-#ifndef WireGuardAdapter_h
-#define WireGuardAdapter_h
+#pragma once
 
 #include <map>
 #include <string>
@@ -36,5 +35,3 @@ private:
     bool addFirewallRules(const std::string &ipAddress, uint32_t fwmark);
     bool removeFirewallRules();
 };
-
-#endif  // WireGuardAdapter_h

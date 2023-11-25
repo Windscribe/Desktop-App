@@ -1,5 +1,5 @@
-#ifndef FILES_H
-#define FILES_H
+#pragma once
+
 #include <string>
 #include <list>
 #include "archive/archive.h"
@@ -7,12 +7,12 @@
 class Files
 {
 public:
-	Files(const std::wstring &archivePath, const std::wstring &installPath, uid_t userId, gid_t groupId);
+    Files(const std::wstring &archivePath, const std::wstring &installPath, uid_t userId, gid_t groupId);
     ~Files();
 
-	int executeStep();
+    int executeStep();
     std::string getLastError() { return lastError_; }
-    
+
  private:
    uid_t userId_;
     gid_t groupId_;
@@ -29,6 +29,3 @@ public:
    void fillPathList();
    std::wstring getFileName(const std::wstring &s);
 };
-
-
-#endif // FILES_H

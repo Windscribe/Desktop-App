@@ -1,5 +1,4 @@
-#ifndef HTTPPROXYREQUEST_H
-#define HTTPPROXYREQUEST_H
+#pragma once
 
 #include <string>
 #include <QObject>
@@ -43,5 +42,3 @@ private:
 };
 
 } // namespace HttpProxyServer
-
-#endif // HTTPPROXYREQUEST_H

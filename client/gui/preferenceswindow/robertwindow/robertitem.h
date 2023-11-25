@@ -1,5 +1,4 @@
-#ifndef ROBERTITEM_H
-#define ROBERTITEM_H
+#pragma once
 
 #include <QSharedPointer>
 #include "commongraphics/baseitem.h"
@@ -47,7 +46,7 @@ private:
     static constexpr int ROBERT_TEXT_FIRST_MARGIN_Y = 14;
     static constexpr int ROBERT_TEXT_SECOND_MARGIN_Y = 31;
     static constexpr int ROBERT_TEXT_GAP_Y = 2;
-    
+
     QString strCaption_;
 
     ToggleButton *checkBoxButton_;
@@ -58,5 +57,3 @@ private:
 };
 
 } // namespace PreferencesWindow
-
-#endif // ROBERTITEM_H

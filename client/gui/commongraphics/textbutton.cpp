@@ -225,7 +225,7 @@ void TextButton::recalcBoundingRect()
         width_ = maxWidth_;
     }
     else {
-        width_ = fm.boundingRect(text_).width() + addWidth_*G_SCALE;
+        width_ = fm.horizontalAdvance(text_) + addWidth_*G_SCALE;
     }
     height_ = fm.height();
 }

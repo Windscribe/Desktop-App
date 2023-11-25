@@ -17,12 +17,7 @@ const int LOGIN_SPINNER_OFFSET = 16;
 LoggingInWindowItem::LoggingInWindowItem(QGraphicsObject *parent) : ScalableGraphicsObject(parent),
     curSpinnerRotation_(0), animationActive_(false), targetRotation_(360)
 {
-    connect(&spinnerAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onSpinnerRotationChanged(QVariant)));
-}
-
-QGraphicsObject *LoggingInWindowItem::getGraphicsObject()
-{
-    return this;
+    connect(&spinnerAnimation_, &QVariantAnimation::valueChanged, this, &LoggingInWindowItem::onSpinnerRotationChanged);
 }
 
 QRectF LoggingInWindowItem::boundingRect() const

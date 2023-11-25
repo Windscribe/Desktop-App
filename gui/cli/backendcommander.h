@@ -5,7 +5,7 @@
 
 #include "cliarguments.h"
 #include "ipc/command.h"
-#include "ipc/iconnection.h"
+#include "ipc/connection.h"
 
 class BackendCommander : public QObject
 {
@@ -21,8 +21,8 @@ signals:
     void report(const QString &msg);
 
 private slots:
-    void onConnectionNewCommand(IPC::Command *command, IPC::IConnection *connection);
-    void onConnectionStateChanged(int state, IPC::IConnection *connection);
+    void onConnectionNewCommand(IPC::Command *command, IPC::Connection *connection);
+    void onConnectionStateChanged(int state, IPC::Connection *connection);
 
     void sendCommand();
     void sendStateCommand();
@@ -34,7 +34,7 @@ private:
 
     static constexpr int MAX_WAIT_TIME_MS = 10000;   // 10 sec - maximum waiting time for connection to the GUI
     static constexpr int MAX_LOGIN_TIME_MS = 10000;   // 10 sec - maximum waiting time for login in the GUI
-    IPC::IConnection *connection_ = nullptr;
+    IPC::Connection *connection_ = nullptr;
     QElapsedTimer connectingTimer_;
     QElapsedTimer loggedInTimer_;
     bool bCommandSent_ = false;

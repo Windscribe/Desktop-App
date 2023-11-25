@@ -1,5 +1,4 @@
-#ifndef TYPES_MACADDRSPOOFING_H
-#define TYPES_MACADDRSPOOFING_H
+#pragma once
 
 #include <QJsonArray>
 #include <QString>
@@ -77,7 +76,4 @@ private:
 
 };
 
-
 } // types namespace
-
-#endif // TYPES_MACADDRSPOOFING_H

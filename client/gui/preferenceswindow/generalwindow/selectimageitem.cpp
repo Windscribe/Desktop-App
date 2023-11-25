@@ -55,7 +55,7 @@ void SelectImageItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *o
                       Qt::AlignLeft,
                       " (664x274)");
 
-    // path 
+    // path
     QRectF rcText = boundingRect().adjusted(PREFERENCES_MARGIN*G_SCALE,
                                             SELECT_IMAGE_MARGIN_Y*G_SCALE + textHeight,
                                             -(2*PREFERENCES_MARGIN + ICON_WIDTH)*G_SCALE,
@@ -112,7 +112,7 @@ void SelectImageItem::setCaption(const QString &caption)
 
 void SelectImageItem::updatePositions()
 {
-    btnOpen_->setPos(boundingRect().width() - (PREFERENCES_MARGIN + ICON_WIDTH)*G_SCALE, 
+    btnOpen_->setPos(boundingRect().width() - (PREFERENCES_MARGIN + ICON_WIDTH)*G_SCALE,
                      (SELECT_IMAGE_HEIGHT - ICON_HEIGHT)/2*G_SCALE);
 }
 

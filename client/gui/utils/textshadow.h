@@ -1,5 +1,4 @@
-#ifndef TEXTSHADOW_H
-#define TEXTSHADOW_H
+#pragma once
 
 #include <QPainter>
 
@@ -25,6 +24,3 @@ private:
 
     void updatePixmap();
 };
-
-
-#endif // TEXTSHADOW_H

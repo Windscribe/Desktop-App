@@ -1,5 +1,4 @@
-#ifndef ESCAPEBUTTON_H
-#define ESCAPEBUTTON_H
+#pragma once
 
 #include <QGraphicsObject>
 #include "commongraphics/iconbutton.h"
@@ -19,7 +18,7 @@ public:
     explicit EscapeButton(ScalableGraphicsObject *parent = nullptr);
 
     QRectF boundingRect() const override;
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR) override;
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
     void setTextPosition(TEXT_POSITION pos);
     void setClickable(bool isClickable);
@@ -40,5 +39,3 @@ private:
 };
 
 } // namespace CommonGraphics
-
-#endif // ESCAPEBUTTON_H

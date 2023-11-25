@@ -1,11 +1,9 @@
-#ifndef INSTALL_SPLITTUNNEL_H
-#define INSTALL_SPLITTUNNEL_H
+#pragma once
 
 #include <string>
 #include <Windows.h>
 
 #include "../iinstall_block.h"
-
 
 // install split tunnel driver
 class InstallSplitTunnel : public IInstallBlock
@@ -13,6 +11,5 @@ class InstallSplitTunnel : public IInstallBlock
 public:
     InstallSplitTunnel(double weight);
     int executeStep();
+    bool serviceInstalled() const;
 };
-
-#endif // INSTALL_SPLITTUNNEL_H

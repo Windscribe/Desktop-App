@@ -1,5 +1,4 @@
-#ifndef ABOUTWINDOWITEM_H
-#define ABOUTWINDOWITEM_H
+#pragma once
 
 #include "commongraphics/basepage.h"
 #include "backend/preferences/preferenceshelper.h"
@@ -32,5 +31,3 @@ private:
 };
 
 } // namespace PreferencesWindow
-
-#endif // ABOUTWINDOWITEM_H

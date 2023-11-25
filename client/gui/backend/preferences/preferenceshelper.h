@@ -1,5 +1,4 @@
-#ifndef PREFERENCESHELPER_H
-#define PREFERENCESHELPER_H
+#pragma once
 
 #include <QObject>
 #include <QVector>
@@ -27,9 +26,6 @@ public:
     void setWifiSharingSupported(bool bSupported);
     bool isWifiSharingSupported() const;
 
-    void setBlockFirewall(bool b);
-    bool isFirewallBlocked() const;
-
     void setIsDockedToTray(bool b);
     bool isDockedToTray() const;
 
@@ -47,7 +43,6 @@ signals:
     void proxyGatewayAddressChanged(const QString &address);
     void ipv6StateInOSChanged(bool bEnabled);
     void installedTapAdapterChanged(TAP_ADAPTER_TYPE tapAdapter);
-    void isFirewallBlockedChanged(bool bFirewallBlocked);
     void isDockedModeChanged(bool bIsDockedToTray);
     void isExternalConfigModeChanged(bool bIsExternalConfigMode);
 
@@ -60,9 +55,6 @@ private:
     QString proxyGatewayAddress_;
     bool bIpv6StateInOS_;
 
-    bool isFirewallBlocked_;
     bool isDockedToTray_;
     bool isExternalConfigMode_;
 };
-
-#endif // PREFERENCESHELPER_H

@@ -1,5 +1,4 @@
-#ifndef IKEV2CONNECTION_WIN_H
-#define IKEV2CONNECTION_WIN_H
+#pragma once
 
 #include <QObject>
 #include <QMap>
@@ -85,5 +84,3 @@ private:
     static bool wanReinstalled_;
     static void CALLBACK staticRasDialFunc(HRASCONN hrasconn, UINT unMsg, RASCONNSTATE rascs, DWORD dwError, DWORD dwExtendedError);
 };
-
-#endif // IKEV2CONNECTION_WIN_H

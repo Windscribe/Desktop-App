@@ -1,5 +1,4 @@
-#ifndef OCTETITEM_H
-#define OCTETITEM_H
+#pragma once
 
 #include <QElapsedTimer>
 #include <QObject>
@@ -45,5 +44,3 @@ private:
     int calcWidth();
 
 };
-
-#endif // OCTETITEM_H

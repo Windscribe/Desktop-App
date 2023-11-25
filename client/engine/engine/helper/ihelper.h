@@ -1,5 +1,4 @@
-#ifndef IHELPER_H
-#define IHELPER_H
+#pragma once
 
 #include <QThread>
 #include "types/protocol.h"
@@ -58,5 +57,3 @@ public:
 signals:
     void lostConnectionToHelper();
 };
-
-#endif // IHELPER_H

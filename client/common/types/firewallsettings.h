@@ -1,10 +1,8 @@
-#ifndef TYPES_FIREWALLSETTINGS_H
-#define TYPES_FIREWALLSETTINGS_H
+#pragma once
 
 #include "types/enums.h"
 
 #include <QJsonObject>
-
 
 namespace types {
 
@@ -64,7 +62,4 @@ private:
 
 };
 
-
 } // types namespace
-
-#endif // TYPES_CHECKUPDATE_H

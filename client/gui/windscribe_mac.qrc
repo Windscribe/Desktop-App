@@ -1,10 +1,12 @@
 <RCC>
     <qresource prefix="/">
-        <file>Resources/icons/menubar/os10/conn_dark.icns</file>
-        <file>Resources/icons/menubar/os10/conn_light.icns</file>
-        <file>Resources/icons/menubar/os10/off_dark.icns</file>
-        <file>Resources/icons/menubar/os10/off_light.icns</file>
-        <file>Resources/icons/menubar/os10/on_dark.icns</file>
-        <file>Resources/icons/menubar/os10/on_light.icns</file>
+        <file>resources/icons/mac/connected_dark.icns</file>
+        <file>resources/icons/mac/connected_light.icns</file>
+        <file>resources/icons/mac/connecting_dark.icns</file>
+        <file>resources/icons/mac/connecting_light.icns</file>
+        <file>resources/icons/mac/disconnected_dark.icns</file>
+        <file>resources/icons/mac/disconnected_light.icns</file>
+        <file>resources/icons/mac/error_dark.icns</file>
+        <file>resources/icons/mac/error_light.icns</file>
     </qresource>
 </RCC>

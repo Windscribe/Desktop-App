@@ -1,5 +1,4 @@
-#ifndef TYPES_WIREGUARDTYPES_H
-#define TYPES_WIREGUARDTYPES_H
+#pragma once
 
 #include <QtCore>
 
@@ -25,5 +24,3 @@ struct WireGuardStatus
 };
 
 } //namespace types
-
-#endif // TYPES_WIREGUARDTYPES_H

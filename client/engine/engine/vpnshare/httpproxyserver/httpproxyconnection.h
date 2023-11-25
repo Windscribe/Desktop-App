@@ -1,5 +1,4 @@
-#ifndef HTTPPROXYCONNECTION_H
-#define HTTPPROXYCONNECTION_H
+#pragma once
 
 #include <QObject>
 #include <QTcpSocket>
@@ -60,5 +59,3 @@ private:
 };
 
 } // namespace HttpProxyServer
-
-#endif // HTTPPROXYCONNECTION_H

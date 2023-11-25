@@ -51,7 +51,7 @@ void BubbleButton::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
         QColor outlineColor = QColor(255, 255, 255);
         outlineColor.setAlpha(curTextOpacity_ * curOutlineFillOpacity_ * 255);
         QPen pen(outlineColor, 2*G_SCALE);
-        painter->setPen(pen); // thick line 
+        painter->setPen(pen); // thick line
     } else {
         painter->setPen(Qt::NoPen);
     }

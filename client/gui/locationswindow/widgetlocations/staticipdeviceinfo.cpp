@@ -22,8 +22,8 @@ StaticIPDeviceInfo::StaticIPDeviceInfo(QWidget *parent) : QWidget(parent)
   , curTextOpacity_(OPACITY_UNHOVER_TEXT)
   , curIconOpacity_(OPACITY_UNHOVER_ICON_TEXT)
 {
-    connect(&textOpacityAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onTextOpacityChange(QVariant)));
-    connect(&iconOpacityAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onIconOpacityChange(QVariant)));
+    connect(&textOpacityAnimation_, &QVariantAnimation::valueChanged, this, &StaticIPDeviceInfo::onTextOpacityChange);
+    connect(&iconOpacityAnimation_, &QVariantAnimation::valueChanged, this, &StaticIPDeviceInfo::onIconOpacityChange);
 }
 
 void StaticIPDeviceInfo::setDeviceName(QString deviceName)

@@ -10,10 +10,10 @@
 namespace ProtocolWindow {
 
 ProtocolWindowItem::ProtocolWindowItem(QGraphicsObject *parent,
-                                       IConnectWindow *connectWindow,
+                                       ConnectWindow::ConnectWindowItem *connectWindow,
                                        Preferences *preferences,
                                        PreferencesHelper *preferencesHelper)
-    : IProtocolWindow(parent, preferences, preferencesHelper),
+    : ResizableWindow(parent, preferences, preferencesHelper),
       protocolPromptItem_(new ProtocolPromptItem(this, connectWindow, preferences, preferencesHelper, ProtocolWindowMode::kChangeProtocol)),
       promptHeight_(protocolPromptItem_->currentHeight())
 {

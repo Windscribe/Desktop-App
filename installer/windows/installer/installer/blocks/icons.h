@@ -1,13 +1,6 @@
 #pragma once
 
-#include <string>
-#include <ShlObj.h>
-
 #include "../iinstall_block.h"
-#include "../../../utils/paths_to_folders.h"
-#include "../../../utils/redirection.h"
-
-using namespace std;
 
 //1% - Creating of the Shortcuts
 class Icons : public IInstallBlock
@@ -20,7 +13,7 @@ public:
 
 private:
     const bool isCreateShortcut_;
-    PathsToFolders pathsToFolders_;
 
-    void createShortcut(const wstring link, const wstring target, const wstring params, const wstring workingDir, const wstring icon, const int idx);
+    void createShortcut(const std::wstring link, const std::wstring target, const std::wstring params,
+                        const std::wstring workingDir, const std::wstring icon, const int idx);
 };

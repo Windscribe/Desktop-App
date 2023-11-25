@@ -51,7 +51,7 @@ PreferencesTabControlItem::PreferencesTabControlItem(ScalableGraphicsObject * pa
     };
 
     updateTopAnchoredButtonsPos();
-    
+
     dividerLine_ = new CommonGraphics::DividerLine(this, 32, 0);
     dividerLine_->setOpacity(0.1);
 
@@ -72,11 +72,6 @@ PreferencesTabControlItem::PreferencesTabControlItem(ScalableGraphicsObject * pa
 
     connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &PreferencesTabControlItem::onLanguageChanged);
     onLanguageChanged();
-}
-
-QGraphicsObject *PreferencesTabControlItem::getGraphicsObject()
-{
-    return this;
 }
 
 void PreferencesTabControlItem::onLanguageChanged()

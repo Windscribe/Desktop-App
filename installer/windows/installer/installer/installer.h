@@ -1,6 +1,6 @@
-#ifndef INSTALLER_H
-#define INSTALLER_H
+#pragma once
 
+#include <functional>
 #include <list>
 #include <string>
 
@@ -10,8 +10,13 @@
 class Installer : public InstallerBase
 {
 public:
-    Installer(const std::function<void(unsigned int, INSTALLER_CURRENT_STATE)>& callbackState);
+    Installer();
     ~Installer() override;
+
+    INSTALLER_CURRENT_STATE state();
+    INSTALLER_ERROR lastError();
+    int progress();
+    void setCallback(std::function<void()> func);
 
 protected:
     void startImpl() override;
@@ -20,7 +25,9 @@ protected:
 
     std::list<IInstallBlock *> blocks_;
     int totalWork_ = 0;
+
+    std::function<void()> callback_;
+    INSTALLER_CURRENT_STATE state_;
+    INSTALLER_ERROR error_;
+    int progress_;
 };
-
-
-#endif // INSTALLER_H

@@ -1,5 +1,4 @@
-#ifndef MAINWINDOWSTATE_H
-#define MAINWINDOWSTATE_H
+#pragma once
 
 #include <QObject>
 
@@ -27,5 +26,3 @@ private:
 private:
     bool isActive_;
 };
-
-#endif // MAINWINDOWSTATE_H

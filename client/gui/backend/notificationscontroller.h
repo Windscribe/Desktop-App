@@ -1,5 +1,4 @@
-#ifndef NOTIFICATIONSCONTROLLER_H
-#define NOTIFICATIONSCONTROLLER_H
+#pragma once
 
 #include <QObject>
 #include <QSet>
@@ -45,5 +44,3 @@ private:
     void updateState();
     void checkForUnreadPopup();
 };
-
-#endif // NOTIFICATIONSCONTROLLER_H

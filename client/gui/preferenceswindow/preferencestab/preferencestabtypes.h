@@ -1,0 +1,13 @@
+#pragma once
+
+enum PREFERENCES_TAB_TYPE
+{
+    TAB_GENERAL,
+    TAB_ACCOUNT,
+    TAB_CONNECTION,
+    TAB_ROBERT,
+    TAB_ADVANCED,
+    TAB_HELP,
+    TAB_ABOUT,
+    TAB_UNDEFINED
+};

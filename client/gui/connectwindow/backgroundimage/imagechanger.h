@@ -1,5 +1,4 @@
-#ifndef IMAGECHANGER_H
-#define IMAGECHANGER_H
+#pragma once
 
 #include <QObject>
 #include <QVariantAnimation>
@@ -81,5 +80,3 @@ private:
 };
 
 } //namespace ConnectWindow
-
-#endif // IMAGECHANGER_H

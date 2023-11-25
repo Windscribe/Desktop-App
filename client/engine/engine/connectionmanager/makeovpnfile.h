@@ -1,5 +1,5 @@
-#ifndef MAKEOVPNFILE_H
-#define MAKEOVPNFILE_H
+#pragma once
+
 #include "types/protocol.h"
 
 class MakeOVPNFile
@@ -15,5 +15,3 @@ public:
 private:
     QString config_;
 };
-
-#endif // MAKEOVPNFILE_H

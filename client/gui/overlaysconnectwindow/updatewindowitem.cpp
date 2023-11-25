@@ -87,7 +87,7 @@ void UpdateWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
         p->draw(0, 0, painter);
     }
 
-    int yOffset = preferences_->appSkin() == APP_SKIN_VAN_GOGH ? -14*G_SCALE : 0;
+    int yOffset = preferences_->appSkin() == APP_SKIN_VAN_GOGH ? -28*G_SCALE : 0;
 
     // title
     painter->setOpacity(curTitleOpacity_ * initialOpacity);
@@ -122,8 +122,7 @@ void UpdateWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
     painter->setFont(descFont);
     painter->setPen(Qt::white);
 
-    const QString descText = tr("You're about to update Windscribe. "
-                                "The application will terminate the active connection and restart automatically.");
+    const QString descText = tr("Windscribe will download the update, then terminate active connections and restart automatically.");
     int width = CommonGraphics::idealWidthOfTextRect(DESCRIPTION_WIDTH_MIN*G_SCALE, WINDOW_WIDTH*G_SCALE, 3,
                                                      descText, descFont);
     painter->drawText(CommonGraphics::centeredOffset(WINDOW_WIDTH*G_SCALE, width), (DESCRIPTION_POS_Y + yOffset)*G_SCALE,
@@ -141,7 +140,7 @@ void UpdateWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
                       lowerDescWidth, height_*G_SCALE,
                       Qt::AlignHCenter | Qt::TextWordWrap, lowerDescText);
 
-	// spinner
+    // spinner
     painter->setOpacity(spinnerOpacity_ * initialOpacity);
     const int spinnerPosX = CommonGraphics::centeredOffset(WINDOW_WIDTH*G_SCALE, SPINNER_HALF_WIDTH*2*G_SCALE);
     painter->translate(spinnerPosX + SPINNER_HALF_WIDTH*G_SCALE, (SPINNER_POS_Y + yOffset)*G_SCALE + SPINNER_HALF_HEIGHT*G_SCALE);

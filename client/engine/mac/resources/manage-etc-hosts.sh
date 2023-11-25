@@ -41,7 +41,7 @@ function addhost() {
 
 if [ "$1" = "-addhost" ] ; then
     addhost
-    
+
 elif [ "$1" = "-removewindscribehosts" ] ; then
     removewindscribehosts
 fi

@@ -1,5 +1,4 @@
-#ifndef CLIARGUMENTS_H
-#define CLIARGUMENTS_H
+#pragma once
 
 #include <QString>
 
@@ -30,5 +29,3 @@ private:
     QString code2fa_;
     bool keepFirewallOn_ = false;
 };
-
-#endif // CLIARGUMENTS_H

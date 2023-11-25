@@ -11,8 +11,8 @@
 
 namespace GeneralMessageWindow {
 
-GeneralMessageItem::GeneralMessageItem(ScalableGraphicsObject *parent, int width, IGeneralMessageWindow::Style style)
-    : CommonGraphics::BasePage(parent, width), style_(style), shape_(IGeneralMessageWindow::kLoginScreenShape),
+GeneralMessageItem::GeneralMessageItem(ScalableGraphicsObject *parent, int width, GeneralMessageWindow::Style style)
+    : CommonGraphics::BasePage(parent, width), style_(style), shape_(GeneralMessageWindow::kLoginScreenShape),
     title_(""), desc_(""), titleSize_(16), acceptButton_(nullptr), rejectButton_(nullptr), tertiaryButton_(nullptr),
     showBottomPanel_(false), learnMoreUrl_(""), selection_(NONE)
 {
@@ -117,7 +117,7 @@ void GeneralMessageItem::setAcceptText(const QString &text)
 
     if (!acceptButton_) {
         CommonGraphics::ListButton::Style buttonStyle = CommonGraphics::ListButton::kBright;
-        if (style_ == IGeneralMessageWindow::kDark) {
+        if (style_ == GeneralMessageWindow::kDark) {
             buttonStyle = CommonGraphics::ListButton::kDark;
         }
         acceptButton_ = new CommonGraphics::ListButton(this, buttonStyle, text);
@@ -142,7 +142,7 @@ void GeneralMessageItem::setTertiaryText(const QString &text)
 
     if (!tertiaryButton_) {
         CommonGraphics::ListButton::Style buttonStyle = CommonGraphics::ListButton::kBright;
-        if (style_ == IGeneralMessageWindow::kDark) {
+        if (style_ == GeneralMessageWindow::kDark) {
             buttonStyle = CommonGraphics::ListButton::kDark;
         }
         tertiaryButton_ = new CommonGraphics::ListButton(this, buttonStyle, text);

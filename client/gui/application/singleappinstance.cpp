@@ -28,9 +28,8 @@ bool SingleAppInstancePrivate::activateRunningInstance()
 {
     #if defined(Q_OS_WINDOWS)
 
-    HWND hwnd = ::FindWindow(WinUtils::classNameIcon.c_str(), WinUtils::wsGuiIcon.c_str());
-    if (hwnd)
-    {
+    HWND hwnd = WinUtils::appMainWindowHandle();
+    if (hwnd) {
         ::SetForegroundWindow(hwnd);
         UINT dwActivateMessage = ::RegisterWindowMessage(WinUtils::wmActivateGui.c_str());
         ::PostMessage(hwnd, dwActivateMessage, 0, 0);

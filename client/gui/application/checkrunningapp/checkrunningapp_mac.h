@@ -1,5 +1,4 @@
-#ifndef CHECKRUNNINGAPP_MAC_H
-#define CHECKRUNNINGAPP_MAC_H
+#pragma once
 
 class CheckRunningApp_mac
 {
@@ -8,5 +7,3 @@ public:
     // return true in bShouldCloseCurrentApp, if need finish current instance of app
     static void checkPrevInstance(bool &bShouldCloseCurrentApp);
 };
-
-#endif // CHECKRUNNINGAPP_MAC_H

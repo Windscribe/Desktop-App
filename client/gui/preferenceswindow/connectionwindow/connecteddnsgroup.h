@@ -1,5 +1,4 @@
-#ifndef CONNECTEDDNSITEM_H
-#define CONNECTEDDNSITEM_H
+#pragma once
 
 #include "preferenceswindow/comboboxitem.h"
 #include "preferenceswindow/toggleitem.h"
@@ -51,4 +50,3 @@ private:
 };
 
 }
-#endif // CONNECTEDDNSITEM_H

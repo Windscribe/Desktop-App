@@ -743,7 +743,7 @@ void Archive::calcTotal(const std::list<std::wstring>& files, const std::list<st
 
     }
 
-    Total = importantTotalUnpacked;	 //the size of the unpacked archive
+    Total = importantTotalUnpacked; // the size of the unpacked archive
 
 
    /*

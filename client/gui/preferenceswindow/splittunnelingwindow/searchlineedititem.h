@@ -1,5 +1,4 @@
-#ifndef SEARCHLINEEDITITEM_H
-#define SEARCHLINEEDITITEM_H
+#pragma once
 
 #include <QFocusEvent>
 #include <QGraphicsProxyWidget>
@@ -64,5 +63,3 @@ private:
 };
 
 }
-
-#endif // SEARCHLINEEDITITEM_H

@@ -1,5 +1,4 @@
-#ifndef Logger_h
-#define Logger_h
+#pragma once
 
 #include <mutex>
 
@@ -23,5 +22,3 @@ private:
 
     std::mutex mutex_;
 };
-
-#endif // Logger_h

@@ -12,11 +12,6 @@ namespace MacUtils
     QString getOsVersion();
     QString getBundlePath();
 
-    bool isOsVersion10_11_or_greater();
-    bool isOsVersionIsSierra_or_greater();
-    bool isOsVersionIsCatalina_or_greater();
-    bool isOsVersionIsBigSur_or_greater();
-
     void hideDockIcon();
     void showDockIcon();
     void setHandCursor();

@@ -1,5 +1,4 @@
-#ifndef PREFERENCEGROUP_H
-#define PREFERENCEGROUP_H
+#pragma once
 
 #include "commongraphics/baseitem.h"
 #include "commongraphics/iconbutton.h"
@@ -76,5 +75,3 @@ private:
 };
 
 } // namespace PreferencesWindow
-
-#endif // PREFERENCEGROUP_H

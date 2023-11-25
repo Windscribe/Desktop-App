@@ -40,8 +40,7 @@ void EngineSettings::loadFromSettings()
     SimpleCrypt simpleCrypt(SIMPLE_CRYPT_KEY);
 
     QSettings settings;
-    if (settings.contains("engineSettings"))
-    {
+    if (settings.contains("engineSettings")) {
         QString str = settings.value("engineSettings", "").toString();
         QByteArray arr = simpleCrypt.decryptToByteArray(str);
 
@@ -49,34 +48,31 @@ void EngineSettings::loadFromSettings()
 
         quint32 magic, version;
         ds >> magic;
-        if (magic == magic_)
-        {
+        if (magic == magic_) {
             ds >> version;
             ds >> d->language >> d->updateChannel >> d->isIgnoreSslErrors >> d->isTerminateSockets >> d->isAllowLanTraffic >>
                     d->firewallSettings >> d->connectionSettings >> d->apiResolutionSettings >> d->proxySettings >> d->packetSize >>
                     d->macAddrSpoofing >> d->dnsPolicy >> d->tapAdapter >> d->customOvpnConfigsPath >> d->isKeepAliveEnabled >>
                     d->connectedDnsInfo >> d->dnsManager;
-            if (version >= 2)
-            {
+            if (version >= 2) {
                 ds >> d->networkPreferredProtocols;
             }
-            if (version >= 3)
-            {
+            if (version >= 3) {
                 ds >> d->networkLastKnownGoodProtocols;
             }
-            if (version >= 4)
-            {
+            if (version >= 4) {
                 ds >> d->isAntiCensorship;
             }
-            if (ds.status() == QDataStream::Ok)
-            {
+            if (version >= 5) {
+                d->tapAdapter = WINTUN_ADAPTER;
+            }
+            if (ds.status() == QDataStream::Ok) {
                 bLoaded = true;
             }
         }
     }
 
-    if (!bLoaded && settings.contains("engineSettings2"))
-    {
+    if (!bLoaded && settings.contains("engineSettings2")) {
         // try load from legacy protobuf
         // todo remove this code at some point later
         QString str = settings.value("engineSettings2", "").toString();
@@ -89,8 +85,7 @@ void EngineSettings::loadFromSettings()
         settings.remove("engineSettings2");
     }
 
-    if (!bLoaded)
-    {
+    if (!bLoaded) {
         qCDebug(LOG_BASIC) << "Could not load engine settings -- resetting to defaults";
         *this = EngineSettings();   // reset to defaults
     }
@@ -252,21 +247,6 @@ void EngineSettings::setConnectedDnsInfo(const ConnectedDnsInfo &info)
     d->connectedDnsInfo = info;
 }
 
-bool EngineSettings::isUseWintun() const
-{
-    return d->tapAdapter == WINTUN_ADAPTER;
-}
-
-TAP_ADAPTER_TYPE EngineSettings::tapAdapter() const
-{
-    return d->tapAdapter;
-}
-
-void EngineSettings::setTapAdapter(TAP_ADAPTER_TYPE tap)
-{
-    d->tapAdapter = tap;
-}
-
 QString EngineSettings::customOvpnConfigsPath() const
 {
     return d->customOvpnConfigsPath;
@@ -372,7 +352,7 @@ QDebug operator<<(QDebug dbg, const EngineSettings &es)
     dbg << "isAllowLanTraffic:" << es.d->isAllowLanTraffic << "; ";
     dbg << "firewallSettings: " << es.d->firewallSettings << "; ";
     dbg << "connectionSettings: " << es.d->connectionSettings << "; ";
-    dbg << "dnsResolutionSettings: " << es.d->apiResolutionSettings << "; ";
+    dbg << "apiResolutionSettings: " << es.d->apiResolutionSettings << "; ";
     dbg << "proxySettings: " << es.d->proxySettings << "; ";
     dbg << "packetSize: " << es.d->packetSize << "; ";
     dbg << "macAddrSpoofing: " << es.d->macAddrSpoofing << "; ";

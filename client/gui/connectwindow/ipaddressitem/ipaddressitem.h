@@ -1,11 +1,11 @@
-#ifndef IPADDRESSITEM_H
-#define IPADDRESSITEM_H
+#pragma once
 
 #include "commongraphics/scalablegraphicsobject.h"
 #include "numberspixmap.h"
 #include "octetitem.h"
 
 #include <QGraphicsBlurEffect>
+#include <QGraphicsSceneMouseEvent>
 
 class IPAddressItem : public ScalableGraphicsObject
 {
@@ -42,5 +42,3 @@ private:
 
     const int defaultBlurRadius_ = 16;
 };
-
-#endif // IPADDRESSITEM_H

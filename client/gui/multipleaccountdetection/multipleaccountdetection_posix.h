@@ -1,5 +1,4 @@
-#ifndef MULTIPLEACCOUNTDETECTION_POSIX_H
-#define MULTIPLEACCOUNTDETECTION_POSIX_H
+#pragma once
 
 #include <QString>
 #include <QDate>
@@ -28,5 +27,3 @@ private:
     static const QString entryName_;
     SimpleCrypt crypt_;
 };
-
-#endif // MULTIPLEACCOUNTDETECTION_POSIX_H

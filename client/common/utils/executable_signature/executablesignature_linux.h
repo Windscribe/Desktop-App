@@ -1,5 +1,4 @@
-#ifndef EXECUTABLESIGNATURE_LINUX_H
-#define EXECUTABLESIGNATURE_LINUX_H
+#pragma once
 
 #include "executablesignature_p.h"
 
@@ -16,5 +15,3 @@ private:
 
     friend class ExecutableSignature;
 };
-
-#endif // EXECUTABLESIGNATURE_LINUX_H

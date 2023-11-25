@@ -1,15 +1,11 @@
 #include "makeovpnfile.h"
+
 #include <QString>
-#include "utils/ws_assert.h"
+
 #include "utils/extraconfig.h"
 #include "utils/logger.h"
-#include "../openvpnversioncontroller.h"
+#include "utils/ws_assert.h"
 
-#ifdef Q_OS_MAC
-    #include "utils/macutils.h"
-#elif defined(Q_OS_LINUX)
-    #include "utils/dnsscripts_linux.h"
-#endif
 
 MakeOVPNFile::MakeOVPNFile()
 {
@@ -22,28 +18,17 @@ MakeOVPNFile::~MakeOVPNFile()
 bool MakeOVPNFile::generate(const QString &ovpnData, const QString &ip, types::Protocol protocol, uint port,
                             uint portForStunnelOrWStunnel, int mss, const QString &defaultGateway, const QString &openVpnX509, const QString &customDns)
 {
-#ifndef Q_OS_MAC
+#ifdef Q_OS_WIN
     Q_UNUSED(defaultGateway);
 #endif
-
-    config_ = "";
 
     QString strExtraConfig = ExtraConfig::instance().getExtraConfigForOpenVpn();
     bool bExtraContainsRemote = !ExtraConfig::instance().getRemoteIpFromExtraConfig().isEmpty();
 
-    QString newOvpnData = ExtraConfig::instance().modifyVerbParameter(ovpnData, strExtraConfig);
+    config_ = ExtraConfig::instance().modifyVerbParameter(ovpnData, strExtraConfig);
 
-    config_ += newOvpnData;
-
-    QString str;
     // set timeout 30 sec according to this: https://www.notion.so/windscribe/Data-Plane-VPN-Protocol-Failover-Refresh-48ed7aea1a244617b327c3a7d816a902
     config_ += "\r\n--connect-timeout 30\r\n";
-
-#ifdef Q_OS_WIN
-    if (OpenVpnVersionController::instance().isUseWinTun()) {
-        config_ += "\r\nwindows-driver wintun\r\n";
-    }
-#endif
 
     if (protocol == types::Protocol::OPENVPN_UDP) {
         if (!bExtraContainsRemote) {

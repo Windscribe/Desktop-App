@@ -1,5 +1,4 @@
-#ifndef LOGGER_H
-#define LOGGER_H
+#pragma once
 
 #include <QFile>
 #include <QMutex>
@@ -78,6 +77,3 @@ private:
 
     static void copyToPrevLog();
 };
-
-
-#endif // LOGGER_H

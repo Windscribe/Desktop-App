@@ -5,10 +5,8 @@
 #include "../logger.h"
 #include "../utils.h"
 
-SplitTunneling::SplitTunneling(FirewallFilter& firewallFilter, FwpmWrapper& fwmpWrapper)
-    : firewallFilter_(firewallFilter),
-      calloutFilter_(fwmpWrapper),
-      hostnamesManager_(firewallFilter)
+SplitTunneling::SplitTunneling(FwpmWrapper& fwpmWrapper)
+    : calloutFilter_(fwpmWrapper), hostnamesManager_()
 {
     connectStatus_.isConnected = false;
     detectWindscribeExecutables();
@@ -16,10 +14,10 @@ SplitTunneling::SplitTunneling(FirewallFilter& firewallFilter, FwpmWrapper& fwmp
     AppsIds appIds;
     appIds.addFrom(windscribeMainExecutableIds_);
     appIds.addFrom(windscribeToolsExecutablesIds_);
-    firewallFilter_.setWindscribeAppsIds(appIds);
+    FirewallFilter::instance().setWindscribeAppsIds(appIds);
 }
 
-SplitTunneling::~SplitTunneling()
+void SplitTunneling::release()
 {
     assert(isSplitTunnelEnabled_ == false);
 }
@@ -41,7 +39,7 @@ void SplitTunneling::setSettings(bool isEnabled, bool isExclude, const std::vect
 
     hostnamesManager_.setSettings(isExclude, ipsList, hosts);
     routesManager_.updateState(connectStatus_, isSplitTunnelEnabled_, isExclude_);
-    
+
     updateState();
 }
 
@@ -52,9 +50,9 @@ bool SplitTunneling::setConnectStatus(CMD_CONNECT_STATUS& connectStatus)
     return updateState();
 }
 
-void SplitTunneling::removeAllFilters(FwpmWrapper& fwmpWrapper)
+void SplitTunneling::removeAllFilters(FwpmWrapper& fwpmWrapper)
 {
-    CalloutFilter::removeAllFilters(fwmpWrapper);
+    CalloutFilter::removeAllFilters(fwpmWrapper);
 }
 
 void SplitTunneling::detectWindscribeExecutables()
@@ -101,11 +99,11 @@ bool SplitTunneling::updateState()
 
     // Allow excluded traffic to bypass firewall even when not connected
     if (!connectStatus_.isConnected && isSplitTunnelEnabled_ && isExclude_
-        && connectStatus_.defaultAdapter.ifIndex != 0 && firewallFilter_.currentStatus())
+        && connectStatus_.defaultAdapter.ifIndex != 0 && FirewallFilter::instance().currentStatus())
     {
         hostnamesManager_.enable(connectStatus_.defaultAdapter.gatewayIp, connectStatus_.defaultAdapter.ifIndex);
-        firewallFilter_.setSplitTunnelingAppsIds(appsIds);
-        firewallFilter_.setSplitTunnelingEnabled(isExclude_);
+        FirewallFilter::instance().setSplitTunnelingAppsIds(appsIds);
+        FirewallFilter::instance().setSplitTunnelingEnabled(isExclude_);
 
         calloutFilter_.disable();
         splitTunnelServiceManager_.stop();
@@ -118,8 +116,8 @@ bool SplitTunneling::updateState()
         Ip4AddressAndMask vpnAddr(connectStatus_.vpnAdapter.adapterIp.c_str());
         vpnIp = vpnAddr.ipNetworkOrder();
 
-        firewallFilter_.setSplitTunnelingAppsIds(appsIds);
-        firewallFilter_.setSplitTunnelingEnabled(isExclude_);
+        FirewallFilter::instance().setSplitTunnelingAppsIds(appsIds);
+        FirewallFilter::instance().setSplitTunnelingEnabled(isExclude_);
 
         if (isExclude_) {
             hostnamesManager_.enable(connectStatus_.defaultAdapter.gatewayIp, connectStatus_.defaultAdapter.ifIndex);
@@ -131,7 +129,7 @@ bool SplitTunneling::updateState()
     } else {
         calloutFilter_.disable();
         hostnamesManager_.disable();
-        firewallFilter_.setSplitTunnelingDisabled();
+        FirewallFilter::instance().setSplitTunnelingDisabled();
         splitTunnelServiceManager_.stop();
     }
 
@@ -143,7 +141,7 @@ bool SplitTunneling::updateState()
         Logger::instance().out(L"SplitTunneling::threadFunc() close all TCP sockets");
         CloseTcpConnections::closeAllTcpConnections(connectStatus_.isKeepLocalSocket);
     }
-    
+
     prevIsSplitTunnelActive_ = isSplitTunnelActive;
     prevIsExclude_ = isExclude_;
 

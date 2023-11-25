@@ -1,5 +1,4 @@
-#ifndef MESSAGEITEM_H
-#define MESSAGEITEM_H
+#pragma once
 
 #include <QFont>
 #include <QString>
@@ -32,5 +31,3 @@ private:
 };
 
 } // namespace NewsFeedWindow
-
-#endif // MESSAGEITEM_H

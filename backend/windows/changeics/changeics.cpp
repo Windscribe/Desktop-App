@@ -63,6 +63,6 @@ int _tmain(int argc, _TCHAR* argv[])
     }
 
     CoUninitialize();
-	return 0;
+    return 0;
 }
 

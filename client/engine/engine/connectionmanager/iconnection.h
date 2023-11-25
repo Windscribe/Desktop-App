@@ -1,5 +1,4 @@
-#ifndef ICONNECTION_H
-#define ICONNECTION_H
+#pragma once
 
 #include <QThread>
 #include "types/proxysettings.h"
@@ -43,5 +42,3 @@ signals:
     void requestUsername();
     void requestPassword();
 };
-
-#endif // ICONNECTION_H

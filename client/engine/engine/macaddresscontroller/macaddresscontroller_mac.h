@@ -1,5 +1,4 @@
-#ifndef MACADDRESSCONTROLLER_MAC_H
-#define MACADDRESSCONTROLLER_MAC_H
+#pragma once
 
 #include <QDateTime>
 #include "imacaddresscontroller.h"
@@ -24,7 +23,7 @@ private slots:
     void onPrimaryAdapterChanged(const types::NetworkInterface &currentAdapter);
     void onPrimaryAdapterNetworkLostOrChanged(const types::NetworkInterface &currentAdapter);
     void onNetworkListChanged(const QVector<types::NetworkInterface> &adapterList);
-    void onWifiAdapterChaged(bool adapterUp);
+    void onWifiAdapterChanged(bool adapterUp);
 
 private:
     Helper_mac *helper_;
@@ -46,11 +45,4 @@ private:
     void removeSpoofs(QMap<QString, QString> spoofsToRemove);
 
     void filterAndRotateOrUpdateList();
-
-    // Some OSX systems don't seem to spoof with a simple ifconfig command
-    // This is observed on MacBookPro 2018, 13" on Catalina, BigSur and Monterey (and maybe other similar systems)
-    // Use this "robust" command sequence to achieve the spoof, which may temporarily bring the network card down
-    void robustMacAddressSpoof(const QString &interfaceName, const QString &macAddress);
 };
-
-#endif // MACADDRESSCONTROLLER_MAC_H

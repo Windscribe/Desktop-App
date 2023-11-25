@@ -1,5 +1,4 @@
-#ifndef TOOLTIPCONTROLLER_H
-#define TOOLTIPCONTROLLER_H
+#pragma once
 
 #include <QObject>
 #include "serverratingstooltip.h"
@@ -43,5 +42,3 @@ private:
     QMap<TooltipId, ITooltip*> tooltips_;
 
 };
-
-#endif // TOOLTIPCONTROLLER_H

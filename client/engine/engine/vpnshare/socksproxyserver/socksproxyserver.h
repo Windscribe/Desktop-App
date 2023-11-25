@@ -1,5 +1,4 @@
-#ifndef SOCKSPROXYSERVER_H
-#define SOCKSPROXYSERVER_H
+#pragma once
 
 #include "socksproxyconnectionmanager.h"
 #include "../connecteduserscounter.h"
@@ -34,7 +33,4 @@ private:
     ConnectedUsersCounter *usersCounter_;
 };
 
-
 } // namespace SocksProxyServer
-
-#endif // SOCKSPROXYSERVER_H

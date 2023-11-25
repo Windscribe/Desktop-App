@@ -16,8 +16,8 @@ WifiSharing::WifiSharing(QObject *parent, IHelper *helper) : QObject(parent),
 {
     icsManager_ = new IcsManager(this, helper);
     wifiDirectManager_ = new WiFiDirectManager(this);
-    connect(wifiDirectManager_, SIGNAL(started()), SLOT(onWifiDirectStarted()));
-    connect(wifiDirectManager_, SIGNAL(usersCountChanged()), SIGNAL(usersCountChanged()));
+    connect(wifiDirectManager_, &WiFiDirectManager::started, this, &WifiSharing::onWifiDirectStarted);
+    connect(wifiDirectManager_, &WiFiDirectManager::usersCountChanged, this, &WifiSharing::usersCountChanged);
 }
 
 WifiSharing::~WifiSharing()
@@ -186,5 +186,3 @@ GUID getGuidForPrimaryAdapter(bool &bSuccess, bool bForWindscribeAdapter, const 
     bSuccess = false;
     return GUID();
 }
-
-

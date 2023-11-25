@@ -15,7 +15,7 @@ VpnShareController::VpnShareController(QObject *parent, IHelper *helper) : QObje
 {
 #ifdef Q_OS_WIN
     wifiSharing_ = new WifiSharing(this, helper_);
-    connect(wifiSharing_, SIGNAL(usersCountChanged()), SLOT(onWifiUsersCountChanged()));
+    connect(wifiSharing_, &WifiSharing::usersCountChanged, this, &VpnShareController::onWifiUsersCountChanged);
 #endif
 }
 
@@ -37,7 +37,7 @@ void VpnShareController::startProxySharing(PROXY_SHARING_TYPE proxyType)
     if (proxyType == PROXY_SHARING_HTTP)
     {
         httpProxyServer_ = new HttpProxyServer::HttpProxyServer(this);
-        connect(httpProxyServer_, SIGNAL(usersCountChanged()), SLOT(onProxyUsersCountChanged()));
+        connect(httpProxyServer_, &HttpProxyServer::HttpProxyServer::usersCountChanged, this, &VpnShareController::onProxyUsersCountChanged);
 
         uint port;
         bool isStarted = false;
@@ -55,7 +55,7 @@ void VpnShareController::startProxySharing(PROXY_SHARING_TYPE proxyType)
     else if (proxyType == PROXY_SHARING_SOCKS)
     {
         socksProxyServer_ = new SocksProxyServer::SocksProxyServer(this);
-        connect(socksProxyServer_, SIGNAL(usersCountChanged()), SLOT(onProxyUsersCountChanged()));
+        connect(socksProxyServer_, &SocksProxyServer::SocksProxyServer::usersCountChanged, this, &VpnShareController::onProxyUsersCountChanged);
 
         uint port;
         bool isStarted = false;
@@ -125,9 +125,9 @@ void VpnShareController::onWifiUsersCountChanged()
         {
             cntUsers += wifiSharing_->getConnectedUsersCount();
         }
-        Q_EMIT connectedWifiUsersChanged(isWifiSharingEnabled(), wifiSharing_->getSsid(), cntUsers);
+        emit connectedWifiUsersChanged(isWifiSharingEnabled(), wifiSharing_->getSsid(), cntUsers);
     #else
-        Q_EMIT connectedWifiUsersChanged(isWifiSharingEnabled(), "", cntUsers);
+        emit connectedWifiUsersChanged(isWifiSharingEnabled(), "", cntUsers);
     #endif
 }
 
@@ -139,12 +139,12 @@ void VpnShareController::onProxyUsersCountChanged()
     if (httpProxyServer_)
     {
         cntUsers += httpProxyServer_->getConnectedUsersCount();
-        Q_EMIT connectedProxyUsersChanged(isProxySharingEnabled(), PROXY_SHARING_HTTP, getProxySharingAddress(), cntUsers);
+        emit connectedProxyUsersChanged(isProxySharingEnabled(), PROXY_SHARING_HTTP, getProxySharingAddress(), cntUsers);
     }
     else if (socksProxyServer_)
     {
         cntUsers += socksProxyServer_->getConnectedUsersCount();
-        Q_EMIT connectedProxyUsersChanged(isProxySharingEnabled(), PROXY_SHARING_SOCKS, getProxySharingAddress(), cntUsers);
+        emit connectedProxyUsersChanged(isProxySharingEnabled(), PROXY_SHARING_SOCKS, getProxySharingAddress(), cntUsers);
     }
 }
 

@@ -290,7 +290,7 @@ private slots:
     void onMacAddressSpoofingChanged(const types::MacAddrSpoofing &macAddrSpoofing);
     void onMacAddressControllerSendUserWarning(USER_WARNING_TYPE userWarningType);
 #ifdef Q_OS_MAC
-    void onMacAddressControllerRobustMacSpoofApplied();
+    void onMacAddressControllerMacSpoofApplied();
 #endif
 
     void stopPacketDetectionImpl();
@@ -298,7 +298,7 @@ private slots:
     void onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, CONNECT_ERROR err, const LocationID &location);
 
 #ifdef Q_OS_MAC
-    void onRobustMacSpoofTimerTick();
+    void onMacSpoofTimerTick();
 #endif
 
 private:
@@ -342,8 +342,8 @@ private:
     DownloadHelper *downloadHelper_;
 #ifdef Q_OS_MAC
     AutoUpdaterHelper_mac *autoUpdaterHelper_;
-    QDateTime robustTimerStart_;
-    QTimer *robustMacSpoofTimer_;
+    QDateTime macSpoofTimerStart_;
+    QTimer *macSpoofTimer_;
 #endif
 
     QMutex mutex_;

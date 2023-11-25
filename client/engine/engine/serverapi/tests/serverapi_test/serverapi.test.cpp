@@ -44,7 +44,7 @@ void ServerApi_test::testRequests()
                 authHash_ = request->authHash();
             request->deleteLater();
         });
-        QSignalSpy spy(request, SIGNAL(finished()));
+        QSignalSpy spy(request, &server_api::BaseRequest::finished);
         spy.wait(30000);
     }
 
@@ -54,112 +54,112 @@ void ServerApi_test::testRequests()
         connect(request, &server_api::BaseRequest::finished, [request]() {
             request->deleteLater();
         });
-        spies << QSharedPointer<QSignalSpy>(new QSignalSpy(request, SIGNAL(finished())));
+        spies << QSharedPointer<QSignalSpy>(new QSignalSpy(request, &server_api::BaseRequest::finished));
     }
     {
         server_api::BaseRequest *request = serverAPI_->serverLocations("", "df", false, QStringList());
         connect(request, &server_api::BaseRequest::finished, [request]() {
             request->deleteLater();
         });
-        spies << QSharedPointer<QSignalSpy>(new QSignalSpy(request, SIGNAL(finished())));
+        spies << QSharedPointer<QSignalSpy>(new QSignalSpy(request, &server_api::BaseRequest::finished));
     }
     {
         server_api::BaseRequest *request = serverAPI_->serverCredentials(authHash_, types::Protocol::OPENVPN_TCP);
         connect(request, &server_api::BaseRequest::finished, [request]() {
             request->deleteLater();
         });
-        spies << QSharedPointer<QSignalSpy>(new QSignalSpy(request, SIGNAL(finished())));
+        spies << QSharedPointer<QSignalSpy>(new QSignalSpy(request, &server_api::BaseRequest::finished));
     }
     {
         server_api::BaseRequest *request = serverAPI_->serverConfigs(authHash_);
         connect(request, &server_api::BaseRequest::finished, [request]() {
             request->deleteLater();
         });
-        spies << QSharedPointer<QSignalSpy>(new QSignalSpy(request, SIGNAL(finished())));
+        spies << QSharedPointer<QSignalSpy>(new QSignalSpy(request, &server_api::BaseRequest::finished));
     }
     {
         server_api::BaseRequest *request = serverAPI_->portMap(authHash_);
         connect(request, &server_api::BaseRequest::finished, [request]() {
             request->deleteLater();
         });
-        spies << QSharedPointer<QSignalSpy>(new QSignalSpy(request, SIGNAL(finished())));
+        spies << QSharedPointer<QSignalSpy>(new QSignalSpy(request, &server_api::BaseRequest::finished));
     }
     {
         server_api::BaseRequest *request = serverAPI_->notifications(authHash_);
         connect(request, &server_api::BaseRequest::finished, [request]() {
             request->deleteLater();
         });
-        spies << QSharedPointer<QSignalSpy>(new QSignalSpy(request, SIGNAL(finished())));
+        spies << QSharedPointer<QSignalSpy>(new QSignalSpy(request, &server_api::BaseRequest::finished));
     }
     {
         server_api::BaseRequest *request = serverAPI_->pingTest(5000, true);
         connect(request, &server_api::BaseRequest::finished, [request]() {
             request->deleteLater();
         });
-        spies << QSharedPointer<QSignalSpy>(new QSignalSpy(request, SIGNAL(finished())));
+        spies << QSharedPointer<QSignalSpy>(new QSignalSpy(request, &server_api::BaseRequest::finished));
     }
     {
         server_api::BaseRequest *request = serverAPI_->pingTest(5000, false);
         connect(request, &server_api::BaseRequest::finished, [request]() {
             request->deleteLater();
         });
-        spies << QSharedPointer<QSignalSpy>(new QSignalSpy(request, SIGNAL(finished())));
+        spies << QSharedPointer<QSignalSpy>(new QSignalSpy(request, &server_api::BaseRequest::finished));
     }
     {
         server_api::BaseRequest *request = serverAPI_->debugLog("aaa_test", "true");
         connect(request, &server_api::BaseRequest::finished, [request]() {
             request->deleteLater();
         });
-        spies << QSharedPointer<QSignalSpy>(new QSignalSpy(request, SIGNAL(finished())));
+        spies << QSharedPointer<QSignalSpy>(new QSignalSpy(request, &server_api::BaseRequest::finished));
     }
     {
         server_api::BaseRequest *request = serverAPI_->recordInstall();
         connect(request, &server_api::BaseRequest::finished, [request]() {
             request->deleteLater();
         });
-        spies << QSharedPointer<QSignalSpy>(new QSignalSpy(request, SIGNAL(finished())));
+        spies << QSharedPointer<QSignalSpy>(new QSignalSpy(request, &server_api::BaseRequest::finished));
     }
     {
         server_api::BaseRequest *request = serverAPI_->confirmEmail(authHash_);
         connect(request, &server_api::BaseRequest::finished, [request]() {
             request->deleteLater();
         });
-        spies << QSharedPointer<QSignalSpy>(new QSignalSpy(request, SIGNAL(finished())));
+        spies << QSharedPointer<QSignalSpy>(new QSignalSpy(request, &server_api::BaseRequest::finished));
     }
     {
         server_api::BaseRequest *request = serverAPI_->webSession(authHash_, WEB_SESSION_PURPOSE_MANAGE_ACCOUNT);
         connect(request, &server_api::BaseRequest::finished, [request]() {
             request->deleteLater();
         });
-        spies << QSharedPointer<QSignalSpy>(new QSignalSpy(request, SIGNAL(finished())));
+        spies << QSharedPointer<QSignalSpy>(new QSignalSpy(request, &server_api::BaseRequest::finished));
     }
     {
         server_api::BaseRequest *request = serverAPI_->myIP(5000);
         connect(request, &server_api::BaseRequest::finished, [request]() {
             request->deleteLater();
         });
-        spies << QSharedPointer<QSignalSpy>(new QSignalSpy(request, SIGNAL(finished())));
+        spies << QSharedPointer<QSignalSpy>(new QSignalSpy(request, &server_api::BaseRequest::finished));
     }
     {
         server_api::BaseRequest *request = serverAPI_->checkUpdate(UPDATE_CHANNEL_RELEASE);
         connect(request, &server_api::BaseRequest::finished, [request]() {
             request->deleteLater();
         });
-        spies << QSharedPointer<QSignalSpy>(new QSignalSpy(request, SIGNAL(finished())));
+        spies << QSharedPointer<QSignalSpy>(new QSignalSpy(request, &server_api::BaseRequest::finished));
     }
     {
         server_api::BaseRequest *request = serverAPI_->speedRating(authHash_, "aaa.com","22.22.22.22", 1);
         connect(request, &server_api::BaseRequest::finished, [request]() {
             request->deleteLater();
         });
-        spies << QSharedPointer<QSignalSpy>(new QSignalSpy(request, SIGNAL(finished())));
+        spies << QSharedPointer<QSignalSpy>(new QSignalSpy(request, &server_api::BaseRequest::finished));
     }
     {
         server_api::BaseRequest *request = serverAPI_->staticIps(authHash_, "aaa");
         connect(request, &server_api::BaseRequest::finished, [request]() {
             request->deleteLater();
         });
-        spies << QSharedPointer<QSignalSpy>(new QSignalSpy(request, SIGNAL(finished())));
+        spies << QSharedPointer<QSignalSpy>(new QSignalSpy(request, &server_api::BaseRequest::finished));
     }
 
     {
@@ -167,7 +167,7 @@ void ServerApi_test::testRequests()
         connect(request, &server_api::BaseRequest::finished, [request]() {
             request->deleteLater();
         });
-        spies << QSharedPointer<QSignalSpy>(new QSignalSpy(request, SIGNAL(finished())));
+        spies << QSharedPointer<QSignalSpy>(new QSignalSpy(request, &server_api::BaseRequest::finished));
     }
 
     {
@@ -175,7 +175,7 @@ void ServerApi_test::testRequests()
         connect(request, &server_api::BaseRequest::finished, [request]() {
             request->deleteLater();
         });
-        spies << QSharedPointer<QSignalSpy>(new QSignalSpy(request, SIGNAL(finished())));
+        spies << QSharedPointer<QSignalSpy>(new QSignalSpy(request, &server_api::BaseRequest::finished));
     }
 
     {
@@ -183,7 +183,7 @@ void ServerApi_test::testRequests()
         connect(request, &server_api::BaseRequest::finished, [request]() {
             request->deleteLater();
         });
-        spies << QSharedPointer<QSignalSpy>(new QSignalSpy(request, SIGNAL(finished())));
+        spies << QSharedPointer<QSignalSpy>(new QSignalSpy(request, &server_api::BaseRequest::finished));
     }
 
     serverAPI_->setIgnoreSslErrors(true);
@@ -193,7 +193,7 @@ void ServerApi_test::testRequests()
         connect(request, &server_api::BaseRequest::finished, [request]() {
             request->deleteLater();
         });
-        spies << QSharedPointer<QSignalSpy>(new QSignalSpy(request, SIGNAL(finished())));
+        spies << QSharedPointer<QSignalSpy>(new QSignalSpy(request, &server_api::BaseRequest::finished));
     }
 
     {
@@ -201,7 +201,7 @@ void ServerApi_test::testRequests()
         connect(request, &server_api::BaseRequest::finished, [request]() {
             request->deleteLater();
         });
-        spies << QSharedPointer<QSignalSpy>(new QSignalSpy(request, SIGNAL(finished())));
+        spies << QSharedPointer<QSignalSpy>(new QSignalSpy(request, &server_api::BaseRequest::finished));
     }
 
     serverAPI_->getHostname();
@@ -224,7 +224,7 @@ void ServerApi_test::testRequests()
 //        connect(request, &server_api::BaseRequest::finished, [request]() {
 //            request->deleteLater();
 //        });
-//        QSignalSpy spy(request, SIGNAL(finished()));
+//        QSignalSpy spy(request, &server_api::BaseRequest::finished);
 //        spy.wait(30000);
     //    }
 }
@@ -242,21 +242,21 @@ void ServerApi_test::testFailoverFailed()
         connect(request, &server_api::BaseRequest::finished, [request]() {
             request->deleteLater();
         });
-        spies << QSharedPointer<QSignalSpy>(new QSignalSpy(request, SIGNAL(finished())));
+        spies << QSharedPointer<QSignalSpy>(new QSignalSpy(request, &server_api::BaseRequest::finished));
     }
     {
         server_api::BaseRequest *request = serverAPI_->serverLocations("", "df", false, QStringList());
         connect(request, &server_api::BaseRequest::finished, [request]() {
             request->deleteLater();
         });
-        spies << QSharedPointer<QSignalSpy>(new QSignalSpy(request, SIGNAL(finished())));
+        spies << QSharedPointer<QSignalSpy>(new QSignalSpy(request, &server_api::BaseRequest::finished));
     }
     {
         server_api::BaseRequest *request = serverAPI_->serverCredentials(authHash_, types::Protocol::OPENVPN_TCP);
         connect(request, &server_api::BaseRequest::finished, [request]() {
             request->deleteLater();
         });
-        spies << QSharedPointer<QSignalSpy>(new QSignalSpy(request, SIGNAL(finished())));
+        spies << QSharedPointer<QSignalSpy>(new QSignalSpy(request, &server_api::BaseRequest::finished));
     }
 
     while (true) {
@@ -277,7 +277,7 @@ void ServerApi_test::testFailoverFailed()
         connect(request, &server_api::BaseRequest::finished, [request]() {
             request->deleteLater();
         });
-        QSignalSpy spy(request, SIGNAL(finished()));
+        QSignalSpy spy(request, &server_api::BaseRequest::finished);
         spy.wait(30000);
     }
 }
@@ -295,14 +295,14 @@ void ServerApi_test::testDeleteServerAPIWhileRequestsRunning()
         connect(request, &server_api::BaseRequest::finished, [request]() {
             request->deleteLater();
         });
-        spies << QSharedPointer<QSignalSpy>(new QSignalSpy(request, SIGNAL(finished())));
+        spies << QSharedPointer<QSignalSpy>(new QSignalSpy(request, &server_api::BaseRequest::finished));
     }
     {
         server_api::BaseRequest *request = serverAPI_->serverLocations("", "df", false, QStringList());
         connect(request, &server_api::BaseRequest::finished, [request]() {
             request->deleteLater();
         });
-        spies << QSharedPointer<QSignalSpy>(new QSignalSpy(request, SIGNAL(finished())));
+        spies << QSharedPointer<QSignalSpy>(new QSignalSpy(request, &server_api::BaseRequest::finished));
     }
 }
 

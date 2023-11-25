@@ -1,5 +1,4 @@
-#ifndef HELPER_SECURITY_H
-#define HELPER_SECURITY_H
+#pragma once
 
 #include <map>
 #include <unistd.h>
@@ -23,5 +22,3 @@ private:
     bool verifyProcessIdImpl(pid_t pid);
     std::map<pid_t,bool> pid_validity_cache_;
 };
-
-#endif  // HELPER_SECURITY_H

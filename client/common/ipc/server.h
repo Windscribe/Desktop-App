@@ -1,23 +1,22 @@
-#ifndef IPCSERVER_H
-#define IPCSERVER_H
+#pragma once
 
-#include "iserver.h"
 #include <QLocalServer>
+#include "connection.h"
 
 namespace IPC
 {
 
-class Server : public QObject, public IServer
+class Server : public QObject
 {
     Q_OBJECT
 public:
     Server();
-    ~Server() override;
+    ~Server();
 
-    bool start() override;
+    bool start();
 
 signals:
-    void newConnection(IPC::IConnection *connection) override;
+    void newConnection(IPC::Connection *connection);
 
 private slots:
     void onNewConnection();
@@ -27,5 +26,3 @@ private:
 };
 
 } // namespace IPC
-
-#endif // IPCSERVER_H

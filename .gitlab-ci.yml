@@ -1,7 +1,7 @@
 stages:
   - Build
   - Build Arch Linux
-  - Lint
+  - Test
   - Artifact Links
 
 variables:
@@ -9,9 +9,10 @@ variables:
   BUILD_WIN_ARM64: 'y'
   BUILD_MAC: 'y'
   BUILD_LINUX: 'y'
+  BUILD_LINUX_ARM64: 'y'
   GIT_DEPTH: 5 # Only grab the last 5 commits when cloning
   NEXUS_PATH_ROOT: 'https://nexus.int.windscribe.com/repository/client-desktop/client-desktop'
-  NEXUS_PATH_DEPS: '$NEXUS_PATH_ROOT/dependencies/2.7'
+  NEXUS_PATH_DEPS: '$NEXUS_PATH_ROOT/dependencies/current'
   NEXUS_PATH_BRANCH_UPLOAD: '${NEXUS_PATH_ROOT}/branches/${CI_COMMIT_BRANCH}'
   NEXUS_PATH_TAGGED_UPLOAD: '${NEXUS_PATH_ROOT}/tagged-builds'
   CODE_SIGNING_PFX_PATH: 'installer\windows\signing\code_signing.pfx'
@@ -35,17 +36,39 @@ variables:
   before_script:
     - python3 -m pip install -r tools/requirements.txt
 
+.template_aarch64_ubuntu_build: &template_aarch64_ubuntu_build
+  image: arm64v8/ubuntu:focal
+  before_script:
+    # run this blindly until baked into image
+    - DEBIAN_FRONTEND=noninteractive apt-get -y update
+    - DEBIAN_FRONTEND=noninteractive apt-get -y install build-essential git curl patchelf libpam0g-dev software-properties-common libgl1-mesa-dev fakeroot python3-pip zip unzip
+    - DEBIAN_FRONTEND=noninteractive apt-get -y update
+    - DEBIAN_FRONTEND=noninteractive apt-get -y install wget autoconf libtool
+    # install cmake 3.23.x (default for Ubuntu 20.04 is 3.16.3)
+    - wget -qO /etc/apt/trusted.gpg.d/kitware-key.asc https://apt.kitware.com/keys/kitware-archive-latest.asc
+    - echo "deb https://apt.kitware.com/ubuntu/ focal main" | tee /etc/apt/sources.list.d/kitware.list
+    - DEBIAN_FRONTEND=noninteractive apt-get -y update
+    - DEBIAN_FRONTEND=noninteractive apt-get -y install cmake
+    # Qt 6 dependencies
+    - DEBIAN_FRONTEND=noninteractive apt-get -y install libfontconfig1-dev libfreetype6-dev libx11-dev libx11-xcb-dev libxext-dev libxfixes-dev libxi-dev libxrender-dev libxcb1-dev libxcb-glx0-dev libxcb-keysyms1-dev libxcb-image0-dev libxcb-shm0-dev libxcb-icccm4-dev libxcb-sync0-dev libxcb-xfixes0-dev libxcb-shape0-dev libxcb-randr0-dev libxcb-render-util0-dev libxcb-util-dev libxcb-xinerama0-dev libxcb-xkb-dev libxkbcommon-dev libxkbcommon-x11-dev libxcb-cursor-dev libwayland-dev
+    # Only necessary to install golang if we're building the WireGuard package.
+    #- wget -q https://go.dev/dl/go1.18.2.linux-amd64.tar.gz
+    #- rm -rf /usr/local/go && tar -C /usr/local -xzf go1.18.2.linux-amd64.tar.gz && export PATH=$PATH:/usr/local/go/bin
+    - python3 -m pip install --user -r tools/requirements.txt
+    # hack to fix 777 file permissions, which breaks the dpkg-deb command in the build_all script.
+    - chmod -R o-w installer/linux
+
 .template_rhel_build: &template_rhel_build
-  # RHEL 8.4 is the minimum build target for Qt 6.3
+  # RHEL 8.4 is the minimum build target for Qt 6.5
   # Could not use the RHEL 8.4 ubi Docker images, as they require a subscription license in order to install many of the packages we require below.
-  image: fedora:29
+  image: fedora:32
   before_script:
     # run this blindly until baked into image
     - dnf -y update
     - dnf group install -y "Development Tools"
     - dnf install -y gcc-c++ patchelf libxkbcommon-devel mesa-libGL-devel mesa-vulkan-devel cmake python3-pip wget rpm-build fakeroot dpkg
     # Qt 6 dependencies
-    - dnf install -y fontconfig-devel freetype-devel libX11-devel libxcb-devel xcb-util-devel xcb-util-image-devel xcb-util-cursor-devel xcb-util-keysyms-devel xcb-util-renderutil-devel libxkbcommon-x11-devel
+    - dnf install -y fontconfig-devel freetype-devel libX11-devel libxcb-devel xcb-util-devel xcb-util-image-devel xcb-util-cursor-devel xcb-util-keysyms-devel xcb-util-renderutil-devel libxkbcommon-x11-devel wayland-devel
     - python3 -m pip install --user -r tools/requirements.txt
     # install cmake 3.23.x (default for Fedora 29 is 3.14.5)
     - wget -q -N https://cmake.org/files/v3.23/cmake-3.23.5-linux-x86_64.sh -P ${RHEL_CMAKE_BUILD_PATH}
@@ -100,6 +123,11 @@ variables:
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --create-dirs -o ${BUILD_LIBS_FOLDER}/qt.zip "${NEXUS_PATH_DEPS}/${OS_IDENTIFIER}/qt.zip"
 
+.download_dependency_wintun:
+  script:
+    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+      --create-dirs -o ${BUILD_LIBS_FOLDER}/wintun.zip "${NEXUS_PATH_DEPS}/${OS_IDENTIFIER}/wintun.zip"
+
 .download_dependency_wireguard:
   script:
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
@@ -130,6 +158,7 @@ variables:
     - !reference [.download_dependency_openssl, script]
     - !reference [.download_dependency_openvpn, script]
     - !reference [.download_dependency_qt, script]
+    - !reference [.download_dependency_wintun, script]
     - !reference [.download_dependency_wireguard, script]
     - !reference [.download_dependency_wstunnel, script]
     - !reference [.download_dependency_zlib, script]
@@ -158,6 +187,12 @@ build:win:installer:
     - Set-Variable -name OS_IDENTIFIER -value "windows"
     - !reference [.build_win_installer_common, script]
     - tools/build_all -zip --ci-mode --sign
+    - $Diff = git diff client/gui/translations
+    - if ( $Diff.Count -ne 0 ) { echo "You have changed desktop strings which are not in ts files.  Update your ts files by building locally, run the translation script on them, and add them to the commit."; exit 1 }
+    - $Diff = git diff installer/common/translations
+    - if ( $Diff.Count -ne 0 ) { echo "You have changed installer strings which are not in ts files.  Update your ts files by building locally, run the translation script on them, and add them to the commit."; exit 1 }
+    - $Diff = git diff installer/windows/uninstaller/translations
+    - if ( $Diff.Count -ne 0 ) { echo "You have changed uninstaller strings which are not in ts files.  Update your ts files by building locally, run the translation script on them, and add them to the commit."; exit 1 }
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --upload-file build-exe/Windscribe_$VERSION.exe "${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/Windscribe_$VERSION.exe"
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
@@ -324,7 +359,6 @@ build:mac:installer:tagged:
 
 .build_linux_installer_common:
   script:
-    - OS_IDENTIFIER="linux"
     - !reference [.download_dependency_boost, script]
     - !reference [.download_dependency_cares, script ]
     - !reference [.download_dependency_curl, script]
@@ -355,12 +389,64 @@ build:mac:installer:tagged:
     # build the application/installer
     - VERSION=$(python3 tools/base/extract.py)
 
+build:aarch64_ubuntu:installer:
+  <<: *template_aarch64_ubuntu_build
+  stage: Build
+  variables:
+    GIT_STRATEGY: clone
+  script:
+    - OS_IDENTIFIER="linux-arm64"
+    - !reference [.build_linux_installer_common, script]
+    - tools/build_all -zip --ci-mode --sign
+    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+      --upload-file build-exe/windscribe_${VERSION}_arm64.deb "${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/windscribe_${VERSION}_arm64.deb"
+  timeout: 2 hours
+  rules:
+    - if: $BUILD_LINUX_ARM64 == "y" && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH != null
+      when: manual
+      allow_failure: true
+
+# We don't upload artifacts for merge requests
+build:aarch64_ubuntu:installer:mr:
+  <<: *template_aarch64_ubuntu_build
+  stage: Build
+  variables:
+    GIT_STRATEGY: clone
+  script:
+    - OS_IDENTIFIER="linux-arm64"
+    - !reference [.build_linux_installer_common, script]
+    - tools/build_all -zip --ci-mode --sign
+  timeout: 2 hours
+  rules:
+    - if: $BUILD_LINUX_ARM64 == "y" && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH == null
+      when: manual
+      allow_failure: true
+
+build:aarch64_ubuntu:installer:tagged:
+  <<: *template_aarch64_ubuntu_build
+  stage: Build
+  variables:
+    GIT_STRATEGY: clone
+  script:
+    - OS_IDENTIFIER="linux-arm64"
+    - !reference [.build_linux_installer_common, script]
+    - tools/build_all -zip --ci-mode --sign
+    - VERSION_NO_SUFFIX=$(python3 tools/base/extract.py --no-suffix)
+    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+      --upload-file build-exe/windscribe_${VERSION}_arm64.deb "${NEXUS_PATH_TAGGED_UPLOAD}/$VERSION_NO_SUFFIX/windscribe_${VERSION}_arm64.deb"
+  timeout: 2 hours
+  rules:
+    - if: $BUILD_LINUX_ARM64 == "y" && $CI_COMMIT_TAG != null
+      when: manual
+      allow_failure: true
+
 build:rhel:installer:
   <<: *template_rhel_build
   stage: Build
   variables:
     GIT_STRATEGY: clone
   script:
+    - OS_IDENTIFIER="linux"
     - !reference [.build_linux_installer_common, script]
     - tools/build_all -zip --ci-mode --sign --build-deb --build-rpm
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
@@ -378,6 +464,7 @@ build:rhel:installer:mr:
   variables:
     GIT_STRATEGY: clone
   script:
+    - OS_IDENTIFIER="linux"
     - !reference [.build_linux_installer_common, script]
     - tools/build_all -zip --ci-mode --sign --build-deb --build-rpm
   rules:
@@ -389,6 +476,7 @@ build:rhel:installer:tagged:
   variables:
     GIT_STRATEGY: clone
   script:
+    - OS_IDENTIFIER="linux"
     - !reference [.build_linux_installer_common, script]
     - tools/build_all -zip --ci-mode --sign --build-deb --build-rpm
     - VERSION_NO_SUFFIX=$(python3 tools/base/extract.py --no-suffix)
@@ -404,7 +492,7 @@ build:rhel:installer:tagged:
   image: archlinux:base-devel
   before_script:
     - pacman -Syu --noconfirm
-    - pacman -Sy --noconfirm git curl python nftables c-ares freetype2 hicolor-icon-theme libglvnd fontconfig libx11 libxkbcommon libxcb net-tools xcb-util-wm xcb-util-image xcb-util-keysyms xcb-util-renderutil
+    - pacman -Sy --noconfirm git curl python nftables c-ares freetype2 hicolor-icon-theme libglvnd fontconfig libx11 libxkbcommon libxcb net-tools xcb-util-wm xcb-util-image xcb-util-keysyms xcb-util-renderutil xcb-util-cursor networkmanager
 
 .build_archlinux_installer_prep_build_dir:
   script:
@@ -487,11 +575,24 @@ build:artifact:links:tagged:
 
 lint:flake8:
   <<: *template_win10_build
-  stage: Lint
+  stage: Test
   variables:
     GIT_STRATEGY: clone
   script:
     - python3 -m pip install flake8
     - flake8 --ignore=E402,E501 tools
+  rules:
+    - if: $BUILD_WIN == "y"
+
+test:translations:
+  <<: *template_win10_build
+  stage: Test
+  variables:
+    GIT_STRATEGY: clone
+  script:
+    - $Unfinished = Select-String -Path client\gui\translations\*,installer\common\translations\*,installer\windows\uninstaller\translations\* -Pattern 'type="unfinished"'
+    - if ( $Unfinished.Matches.Count -ne 0 ) { echo "You have untranslated strings in your ts files.  Run the translation script on the ts files and add them to the commit."; exit 1 }
+    - $Vanished = Select-String -Path client\gui\translations\*,installer\common\translations\*,installer\windows\uninstaller\translations\* -Pattern 'type="vanished"'
+    - if ( $Vanished.Matches.Count -ne 0 ) { echo "You have vanished strings in your ts files.  Run the translation script on the ts files with --remove-vanished and add them to the commit."; exit 1 }
   rules:
     - if: $BUILD_WIN == "y"

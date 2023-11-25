@@ -8,7 +8,7 @@ DnsCache::DnsCache(QObject *parent, int cacheTimeoutMs /*= 60000*/, int reviewCa
     cacheTimeoutMs_(cacheTimeoutMs)
 {
     QTimer *timer = new QTimer(this);
-    connect(timer, SIGNAL(timeout()), SLOT(onTimer()));
+    connect(timer, &QTimer::timeout, this, &DnsCache::onTimer);
     timer->start(reviewCacheIntervalMs);
 }
 
@@ -28,7 +28,7 @@ void DnsCache::resolve(const QString &hostname, quint64 id, bool bypassCache /*=
 
     DnsRequest *dnsRequest = new DnsRequest(this, hostname, dnsServers, timeoutMs);
     dnsRequest->setProperty("requestId", id);
-    connect(dnsRequest, SIGNAL(finished()), SLOT(onDnsRequestFinished()));
+    connect(dnsRequest, &DnsRequest::finished, this, &DnsCache::onDnsRequestFinished);
     dnsRequest->lookup();
 }
 

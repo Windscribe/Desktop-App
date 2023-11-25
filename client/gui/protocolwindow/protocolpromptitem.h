@@ -9,9 +9,9 @@
 #include "commongraphics/imageitem.h"
 #include "commongraphics/basepage.h"
 #include "commongraphics/listbutton.h"
-#include "connectwindow/iconnectwindow.h"
-#include "protocolwindow/iprotocolwindow.h"
+#include "connectwindow/connectwindowitem.h"
 #include "protocolwindow/protocollineitem.h"
+#include "protocolwindow/protocolwindowmode.h"
 
 namespace ProtocolWindow {
 
@@ -20,7 +20,7 @@ class ProtocolPromptItem: public CommonGraphics::BasePage
     Q_OBJECT
 public:
     explicit ProtocolPromptItem(ScalableGraphicsObject *parent,
-                                IConnectWindow *connectWindow,
+                                ConnectWindow::ConnectWindowItem *connectWindow,
                                 Preferences *preferences,
                                 PreferencesHelper *preferencesHelper,
                                 ProtocolWindowMode mode);
@@ -71,7 +71,7 @@ private:
     CommonGraphics::ListButton *cancelButton_;
 
     ProtocolWindowMode mode_;
-    IConnectWindow *connectWindow_;
+    ConnectWindow::ConnectWindowItem *connectWindow_;
     Preferences *preferences_;
     PreferencesHelper *preferencesHelper_;
 

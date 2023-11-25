@@ -1,5 +1,4 @@
-#ifndef CONFIGLOCATIONFOOTER_H
-#define CONFIGLOCATIONFOOTER_H
+#pragma once
 
 #include <QAbstractButton>
 #include <QVariantAnimation>
@@ -55,5 +54,3 @@ private:
     enum { ICON_CLEAR, ICON_CHOOSE, NUM_ICONS };
     IconButton iconButtons_[NUM_ICONS];
 };
-
-#endif // CONFIGLOCATIONFOOTER_H

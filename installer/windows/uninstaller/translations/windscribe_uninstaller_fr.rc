@@ -1,0 +1,10 @@
+LANGUAGE LANG_FRENCH, SUBLANG_NEUTRAL
+
+STRINGTABLE
+BEGIN
+    IDS_MSGBOX_TITLE "Désinstaller Windscribe"
+    IDS_DIRECTORY_MISMATCH "La désinstallation ne peut pas être effectuée. Le répertoire d'installation ne correspond pas au répertoire de suppression."
+    IDS_CONFIRM_UNINSTALL "Voulez-vous vraiment supprimer complètement Windscribe et tous ses composants?"
+    IDS_UNINSTALL_SUCCESS "Windscribe a été supprimé de votre ordinateur."
+    IDS_CLOSE_APP "Veuillez quitter l'application Windscribe pour poursuivre la désinstallation. Notez que votre connexion ne sera pas protégée une fois que vous aurez quitté l'application."
+END

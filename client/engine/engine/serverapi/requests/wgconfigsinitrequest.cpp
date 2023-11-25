@@ -47,7 +47,6 @@ void WgConfigsInitRequest::handle(const QByteArray &arr)
     QJsonParseError errCode;
     QJsonDocument doc = QJsonDocument::fromJson(arr, &errCode);
     if (errCode.error != QJsonParseError::NoError || !doc.isObject()) {
-        qCDebugMultiline(LOG_SERVER_API) << arr;
         qCDebug(LOG_SERVER_API) << "Failed to parse JSON for WgConfigs init response";
         setNetworkRetCode(SERVER_RETURN_INCORRECT_JSON);
         return;
@@ -55,7 +54,6 @@ void WgConfigsInitRequest::handle(const QByteArray &arr)
 
     QJsonObject jsonObject = doc.object();
     if (jsonObject.contains("errorCode")) {
-        qCDebugMultiline(LOG_SERVER_API) << arr;
         errorCode_ = jsonObject["errorCode"].toInt();
         isErrorCode_ = true;
         qCDebug(LOG_SERVER_API) << "WgConfigs init failed:" << jsonObject["errorMessage"].toString() << "(" << errorCode_ << ")";
@@ -63,7 +61,6 @@ void WgConfigsInitRequest::handle(const QByteArray &arr)
     }
 
     if (!jsonObject.contains("data")) {
-        qCDebugMultiline(LOG_SERVER_API) << arr;
         qCDebug(LOG_SERVER_API) << "WgConfigs init JSON is missing the 'data' element";
         setNetworkRetCode(SERVER_RETURN_INCORRECT_JSON);
         return;
@@ -71,7 +68,6 @@ void WgConfigsInitRequest::handle(const QByteArray &arr)
 
     QJsonObject jsonData = jsonObject["data"].toObject();
     if (!jsonData.contains("success") || jsonData["success"].toInt(0) == 0) {
-        qCDebugMultiline(LOG_SERVER_API) << arr;
         qCDebug(LOG_SERVER_API) << "WgConfigs init JSON contains a missing or invalid 'success' field";
         setNetworkRetCode(SERVER_RETURN_INCORRECT_JSON);
         return;

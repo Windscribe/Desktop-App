@@ -4,28 +4,26 @@
 #include "commongraphics/scalablegraphicsobject.h"
 #include "commongraphics/resizablewindow.h"
 #include "commongraphics/basepage.h"
-#include "connectwindow/iconnectwindow.h"
-#include "protocolwindow/iprotocolwindow.h"
+#include "connectwindow/connectwindowitem.h"
 #include "protocolwindow/protocolpromptitem.h"
 
 namespace ProtocolWindow {
 
-class ProtocolWindowItem : public IProtocolWindow
+class ProtocolWindowItem : public ResizableWindow
 {
     Q_OBJECT
-    Q_INTERFACES(IProtocolWindow)
 public:
     explicit ProtocolWindowItem(QGraphicsObject *parent,
-                                IConnectWindow *connectWindow,
+                                ConnectWindow::ConnectWindowItem *connectWindow,
                                 Preferences *preferences,
                                 PreferencesHelper *preferencesHelper);
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
-    void setProtocolStatus(const types::ProtocolStatus &status) override;
-    void setProtocolStatus(const QVector<types::ProtocolStatus> &status) override;
-    void setMode(ProtocolWindowMode mode) override;
-    void resetProtocolStatus() override;
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR) override;
-    bool hasMoreAttempts() override;
+    void setProtocolStatus(const types::ProtocolStatus &status);
+    void setProtocolStatus(const QVector<types::ProtocolStatus> &status);
+    void setMode(ProtocolWindowMode mode);
+    void resetProtocolStatus();
+    bool hasMoreAttempts();
 
 private slots:
     void onPromptHeightChanged(int height);
@@ -33,8 +31,8 @@ private slots:
     void onEscape();
 
 signals:
-    void protocolClicked(types::Protocol protocol, uint port) override;
-    void stopConnection() override;
+    void protocolClicked(types::Protocol protocol, uint port);
+    void stopConnection();
 
 private:
     ProtocolPromptItem *protocolPromptItem_;

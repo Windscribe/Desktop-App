@@ -5,11 +5,18 @@
 class MacSpoofingOnBootManager
 {
 public:
-    MacSpoofingOnBootManager();
-    ~MacSpoofingOnBootManager();
-    bool setEnabled(bool bEnabled, const std::string &interface, const std::string &macAddress, bool robustMethod);
+    static MacSpoofingOnBootManager& instance()
+    {
+        static MacSpoofingOnBootManager msobm;
+        return msobm;
+    }
+
+    bool setEnabled(bool bEnabled, const std::string &interface, const std::string &macAddress);
 
 private:
-    bool enable(const std::string &interface, const std::string &macAddress, bool robustMethod);
+    MacSpoofingOnBootManager();
+    ~MacSpoofingOnBootManager();
+
+    bool enable(const std::string &interface, const std::string &macAddress);
     bool disable();
 };

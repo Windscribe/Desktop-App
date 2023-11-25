@@ -1,5 +1,4 @@
-#ifndef IMAGERESOURCESSVG_H
-#define IMAGERESOURCESSVG_H
+#pragma once
 
 #include <QThread>
 #include <QPixmap>
@@ -53,5 +52,3 @@ private:
     QSharedPointer<IndependentPixmap> getIndependentPixmapScaled(const QString &name, int width, int height, int flags);
     void clearHash();
 };
-
-#endif // IMAGERESOURCESSVG_H

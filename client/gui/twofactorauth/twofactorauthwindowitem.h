@@ -1,10 +1,8 @@
-#ifndef TWOFACTORAUTHWINDOWITEM_H
-#define TWOFACTORAUTHWINDOWITEM_H
+#pragma once
 
 #include <QGraphicsObject>
 #include <QVariantAnimation>
 #include "../backend/backend.h"
-#include "itwofactorauthwindow.h"
 #include "twofactorauthokbutton.h"
 #include "commongraphics/escapebutton.h"
 #include "commongraphics/iconbutton.h"
@@ -12,32 +10,30 @@
 
 namespace TwoFactorAuthWindow {
 
-class TwoFactorAuthWindowItem : public ScalableGraphicsObject, public ITwoFactorAuthWindow
+class TwoFactorAuthWindowItem : public ScalableGraphicsObject
 {
     Q_OBJECT
-    Q_INTERFACES(ITwoFactorAuthWindow)
 public:
+    enum ERROR_MESSAGE_TYPE { ERR_MSG_EMPTY, ERR_MSG_NO_CODE, ERR_MSG_INVALID_CODE };
+
     explicit TwoFactorAuthWindowItem(QGraphicsObject *parent, PreferencesHelper *preferencesHelper);
-
-    QGraphicsObject *getGraphicsObject() override;
-
-    QRectF boundingRect() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
-    void resetState() override;
-    void clearCurrentCredentials() override;
-    void setCurrentCredentials(const QString &username, const QString &password) override;
-    void setLoginMode(bool is_login_mode) override;
-    void setErrorMessage(ERROR_MESSAGE_TYPE errorMessage) override;
-    void setClickable(bool isClickable) override;
+    QRectF boundingRect() const override;
     void updateScaling() override;
 
+    void resetState();
+    void clearCurrentCredentials();
+    void setCurrentCredentials(const QString &username, const QString &password);
+    void setLoginMode(bool is_login_mode);
+    void setErrorMessage(ERROR_MESSAGE_TYPE errorMessage);
+    void setClickable(bool isClickable);
+
 signals:
-    void addClick(const QString &code2fa) override;
-    void loginClick(const QString &username, const QString &password,
-                    const QString &code2fa) override;
-    void escapeClick() override;
-    void minimizeClick() override;
-    void closeClick() override;
+    void addClick(const QString &code2fa);
+    void loginClick(const QString &username, const QString &password, const QString &code2fa);
+    void escapeClick();
+    void minimizeClick();
+    void closeClick();
 
 protected:
     void keyPressEvent(QKeyEvent *event) override;
@@ -85,5 +81,3 @@ private:
 };
 
 }  // namespace TwoFactorAuthWindow
-
-#endif // TWOFACTORAUTHWINDOWITEM_H

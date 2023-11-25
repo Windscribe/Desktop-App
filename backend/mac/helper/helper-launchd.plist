@@ -2,9 +2,9 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>Label</key>
-	<string>com.windscribe.helper.macos</string>
-	<key>KeepAlive</key>
-	<true/>
+    <key>Label</key>
+    <string>com.windscribe.helper.macos</string>
+    <key>KeepAlive</key>
+    <true/>
 </dict>
 </plist>

@@ -1,5 +1,4 @@
-#ifndef BADGEPIXMAP_H
-#define BADGEPIXMAP_H
+#pragma once
 
 #include <QPainter>
 
@@ -31,6 +30,3 @@ private:
 };
 
 } //namespace ConnectWindow
-
-
-#endif // BADGEPIXMAP_H

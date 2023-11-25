@@ -1,5 +1,4 @@
-#ifndef USERNAMEPASSWORDENTRY_H
-#define USERNAMEPASSWORDENTRY_H
+#pragma once
 
 #include <QGraphicsObject>
 #include <QVariantAnimation>
@@ -59,5 +58,3 @@ private:
 };
 
 }
-
-#endif // USERNAMEPASSWORDENTRY_H

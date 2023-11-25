@@ -49,7 +49,7 @@ QString Helper_mac::getHelperVersion()
     return "";
 }
 
-bool Helper_mac::setMacAddress(const QString &interface, const QString &macAddress, bool robustMethod)
+bool Helper_mac::setMacAddress(const QString &interface, const QString &macAddress)
 {
     QMutexLocker locker(&mutex_);
 
@@ -57,7 +57,6 @@ bool Helper_mac::setMacAddress(const QString &interface, const QString &macAddre
     CMD_ANSWER answer;
     cmd.interface = interface.toStdString();
     cmd.macAddress = macAddress.toStdString();
-    cmd.robustMethod = robustMethod;
 
     std::stringstream stream;
     boost::archive::text_oarchive oa(stream, boost::archive::no_header);
@@ -67,7 +66,7 @@ bool Helper_mac::setMacAddress(const QString &interface, const QString &macAddre
 
 }
 
-bool Helper_mac::enableMacSpoofingOnBoot(bool bEnabled, const QString &interface, const QString &macAddress, bool robustMethod)
+bool Helper_mac::enableMacSpoofingOnBoot(bool bEnabled, const QString &interface, const QString &macAddress)
 {
     QMutexLocker locker(&mutex_);
 
@@ -76,53 +75,12 @@ bool Helper_mac::enableMacSpoofingOnBoot(bool bEnabled, const QString &interface
     cmd.enabled = bEnabled;
     cmd.interface = interface.toStdString();
     cmd.macAddress = macAddress.toStdString();
-    cmd.robustMethod = robustMethod;
 
     std::stringstream stream;
     boost::archive::text_oarchive oa(stream, boost::archive::no_header);
     oa << cmd;
 
     return runCommand(HELPER_CMD_SET_MAC_SPOOFING_ON_BOOT, stream.str(), answer);
-}
-
-bool Helper_mac::setKeychainUsernamePassword(const QString &username, const QString &password)
-{
-    QMutexLocker locker(&mutex_);
-
-    if (curState_ != STATE_CONNECTED)
-    {
-        return false;
-    }
-
-    bool bExecuted;
-    int ret = setKeychainUsernamePasswordImpl(username, password, &bExecuted);
-    if (ret == RET_SUCCESS)
-    {
-        return bExecuted;
-    }
-    else
-    {
-        qCDebug(LOG_BASIC) << "App disconnected from helper, try reconnect";
-        doDisconnectAndReconnect();
-
-        QElapsedTimer elapsedTimer;
-        elapsedTimer.start();
-        while (elapsedTimer.elapsed() < MAX_WAIT_HELPER && !isNeedFinish())
-        {
-            if (curState_ == STATE_CONNECTED)
-            {
-                ret = setKeychainUsernamePasswordImpl(username, password, &bExecuted);
-                if (ret == RET_SUCCESS)
-                {
-                    return bExecuted;
-                }
-            }
-            msleep(1);
-        }
-    }
-
-    qCDebug(LOG_BASIC) << "setKeychainUsernamePassword() failed";
-    return false;
 }
 
 bool Helper_mac::setDnsOfDynamicStoreEntry(const QString &ipAddress, const QString &entry)
@@ -152,36 +110,6 @@ bool Helper_mac::setDnsOfDynamicStoreEntry(const QString &ipAddress, const QStri
     }
 
     return answerCmd.executed != 0;
-}
-
-
-bool Helper_mac::setKeychainUsernamePasswordImpl(const QString &username, const QString &password, bool *bExecuted)
-{
-    CMD_SET_KEYCHAIN_ITEM cmd;
-    cmd.username = username.toStdString();
-    cmd.password = password.toStdString();
-
-    std::stringstream stream;
-    boost::archive::text_oarchive oa(stream, boost::archive::no_header);
-    oa << cmd;
-
-    if (!sendCmdToHelper(HELPER_CMD_SET_KEYCHAIN_ITEM, stream.str()))
-    {
-        return RET_DISCONNECTED;
-    }
-    else
-    {
-        CMD_ANSWER answerCmd;
-        if (!readAnswer(answerCmd))
-        {
-            return RET_DISCONNECTED;
-        }
-        else
-        {
-            *bExecuted = (answerCmd.executed == 1);
-            return RET_SUCCESS;
-        }
-    }
 }
 
 bool Helper_mac::setIpv6Enabled(bool bEnabled)

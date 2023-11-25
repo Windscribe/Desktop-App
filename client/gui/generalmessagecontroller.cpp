@@ -10,9 +10,9 @@ GeneralMessageController::GeneralMessageController() : controller_(nullptr), isS
 void GeneralMessageController::setMainWindowController(MainWindowController *controller) {
     controller_ = controller;
 
-    connect(dynamic_cast<QObject*>(controller->getGeneralMessageWindow()), SIGNAL(acceptClick()), SLOT(onAcceptClick()));
-    connect(dynamic_cast<QObject*>(controller->getGeneralMessageWindow()), SIGNAL(rejectClick()), SLOT(onRejectClick()));
-    connect(dynamic_cast<QObject*>(controller->getGeneralMessageWindow()), SIGNAL(tertiaryClick()), SLOT(onTertiaryClick()));
+    connect(controller->getGeneralMessageWindow(), &GeneralMessageWindow::GeneralMessageWindowItem::acceptClick, this, &GeneralMessageController::onAcceptClick);
+    connect(controller->getGeneralMessageWindow(), &GeneralMessageWindow::GeneralMessageWindowItem::rejectClick, this, &GeneralMessageController::onRejectClick);
+    connect(controller->getGeneralMessageWindow(), &GeneralMessageWindow::GeneralMessageWindowItem::tertiaryClick, this, &GeneralMessageController::onTertiaryClick);
 }
 
 void GeneralMessageController::showMessage(const QString &icon, const QString &title, const QString &desc, const QString &acceptText,
@@ -41,7 +41,7 @@ void GeneralMessageController::showMessage(const QString &icon, const QString &t
         if (source == MainWindowController::WINDOW_ID_GENERAL_MESSAGE) {
             source = MainWindowController::WINDOW_ID_CONNECT;
         }
-    } 
+    }
     showMessage(new GeneralMessage(icon, title, desc, acceptText, rejectText, tertiaryText, acceptFunc, rejectFunc, tertiaryFunc, source, flags, learnMoreUrl));
 }
 
@@ -68,7 +68,7 @@ void GeneralMessageController::showMessage(GeneralMessage *message)
 void GeneralMessageController::showNext()
 {
     isShowing_ = true;
-    IGeneralMessageWindow *window = controller_->getGeneralMessageWindow();
+    GeneralMessageWindow::GeneralMessageWindowItem *window = controller_->getGeneralMessageWindow();
     GeneralMessage *message = messages_.first();
     if (message == nullptr) {
         // should not be here
@@ -117,7 +117,7 @@ void GeneralMessageController::handleResult(Result res)
     GeneralMessage *message = messages_.first();
     messages_.removeFirst();
 
-    IGeneralMessageWindow *window = controller_->getGeneralMessageWindow();
+    GeneralMessageWindow::GeneralMessageWindowItem *window = controller_->getGeneralMessageWindow();
     bool remember = window->isRememberChecked();
 
     if (res == ACCEPT && message->acceptFunc) {

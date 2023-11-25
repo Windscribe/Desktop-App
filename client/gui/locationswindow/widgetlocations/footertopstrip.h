@@ -1,5 +1,4 @@
-#ifndef FOOTER_H
-#define FOOTER_H
+#pragma once
 
 #include <QWidget>
 
@@ -18,4 +17,3 @@ protected:
 };
 
 }
-#endif // FOOTER_H

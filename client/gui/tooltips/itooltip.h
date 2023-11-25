@@ -1,5 +1,4 @@
-#ifndef ITOOLTIP_H
-#define ITOOLTIP_H
+#pragma once
 
 #include <QWidget>
 #include "tooltiptypes.h"
@@ -53,5 +52,3 @@ protected:
 };
 
 Q_DECLARE_INTERFACE(ITooltip, "ITooltip")
-
-#endif // ITOOLTIP_H

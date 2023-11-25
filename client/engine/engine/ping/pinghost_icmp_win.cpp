@@ -1,9 +1,13 @@
 #include "pinghost_icmp_win.h"
 
+#include <ws2tcpip.h>
+#include <iphlpapi.h>
+#include <winternl.h>
+#include <icmpapi.h>
+
 #include "utils/ipvalidation.h"
 #include "utils/logger.h"
 
-#include <ntstatus.h>
 #include <QPointer>
 
 PingHost_ICMP_win::PingHost_ICMP_win(QObject *parent, const QString &ip)
@@ -67,7 +71,7 @@ void PingHost_ICMP_win::icmpCallback(PVOID ApcContext, PIO_STATUS_BLOCK IoStatus
     QPointer<PingHost_ICMP_win> *this_ = static_cast<QPointer<PingHost_ICMP_win>*>(ApcContext);
     if (this_) {
         bool bSuccess = false;
-        if (IoStatusBlock->Status == STATUS_SUCCESS && (*this_)->replyBuffer_ && (*this_)->replySize_ > 0) {
+        if (NT_SUCCESS(IoStatusBlock->Status) && (*this_)->replyBuffer_ && (*this_)->replySize_ > 0) {
             bSuccess = ::IcmpParseReplies((*this_)->replyBuffer_.get(), (*this_)->replySize_) > 0;
         }
         QMetaObject::invokeMethod((*this_), "onPingRequestFinished", Qt::QueuedConnection, Q_ARG(bool, bSuccess), Q_ARG(int, (*this_)->timer_.elapsed()), Q_ARG(QString, (*this_)->ip_));

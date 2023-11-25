@@ -15,7 +15,7 @@ TooltipController::TooltipController() : QObject(nullptr)
 {
     serverRatingsHideTimer_.setInterval(TOOLTIP_SHOW_DELAY);
     serverRatingsHideTimer_.setSingleShot(true);
-    connect(&serverRatingsHideTimer_, SIGNAL(timeout()), SLOT(onServerRatingHideTimerTimeout()));
+    connect(&serverRatingsHideTimer_, &QTimer::timeout, this, &TooltipController::onServerRatingHideTimerTimeout);
 }
 
 void TooltipController::hideAllTooltips()
@@ -60,8 +60,8 @@ void TooltipController::showTooltipInteractive(TooltipId id, int x, int y, int d
         y -= serverRatingsTooltip_->getHeight();
 
         serverRatingsTooltip_->setGeometry(x, y, serverRatingsTooltip_->getWidth(), serverRatingsTooltip_->getHeight());
-        connect(serverRatingsTooltip_, SIGNAL(rateUpClicked()), SLOT(onServerRatingsTooltipRateUpClicked()));
-        connect(serverRatingsTooltip_, SIGNAL(rateDownClicked()), SLOT(onServerRatingsTooltipRateDownClicked()));
+        connect(serverRatingsTooltip_, &ServerRatingsTooltip::rateUpClicked, this, &TooltipController::onServerRatingsTooltipRateUpClicked);
+        connect(serverRatingsTooltip_, &ServerRatingsTooltip::rateDownClicked, this, &TooltipController::onServerRatingsTooltipRateDownClicked);
 
         int actualDelay = TOOLTIP_SHOW_DELAY;
         if (delay != -1) actualDelay = delay;

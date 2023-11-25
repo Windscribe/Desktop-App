@@ -12,7 +12,7 @@ NetworkDetectionManager_mac::NetworkDetectionManager_mac(QObject *parent, IHelpe
     , helper_(helper)
     , lastWifiAdapterUp_(false)
 {
-    connect(&ReachAbilityEvents::instance(), SIGNAL(networkStateChanged()), SLOT(onNetworkStateChanged()));
+    connect(&ReachAbilityEvents::instance(), &ReachAbilityEvents::networkStateChanged, this, &NetworkDetectionManager_mac::onNetworkStateChanged);
     lastNetworkList_ = NetworkUtils_mac::currentNetworkInterfaces(true);
     lastNetworkInterface_ = currentNetworkInterfaceFromNetworkList(lastNetworkList_);
     lastWifiAdapterUp_ = isWifiAdapterUp(lastNetworkList_);

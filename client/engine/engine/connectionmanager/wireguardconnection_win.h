@@ -34,7 +34,7 @@ public:
 protected:
     void run() override;
 
-private Q_SLOTS:
+private slots:
     void onCheckServiceRunning();
     void onGetWireguardLogUpdates();
     void onGetWireguardStats();

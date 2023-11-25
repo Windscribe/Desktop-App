@@ -1,5 +1,4 @@
-#ifndef FONTMANAGER_H
-#define FONTMANAGER_H
+#pragma once
 
 #include <QHash>
 #include <QSharedPointer>
@@ -48,5 +47,3 @@ private:
 
     void clearFontMap();
 };
-
-#endif // FONTMANAGER_H

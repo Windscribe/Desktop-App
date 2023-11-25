@@ -1,5 +1,4 @@
-#ifndef WRITEACCESSRIGHTSCHECKER_H
-#define WRITEACCESSRIGHTSCHECKER_H
+#pragma once
 
 #include <QString>
 #include <QTemporaryFile>
@@ -21,5 +20,3 @@ private:
 
     bool is_writeable_;
 };
-
-#endif // WRITEACCESSRIGHTSCHECKER_H

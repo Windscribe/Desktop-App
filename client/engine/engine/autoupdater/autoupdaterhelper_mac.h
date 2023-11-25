@@ -1,5 +1,4 @@
-#ifndef AUTOUPDATERHELPER_H
-#define AUTOUPDATERHELPER_H
+#pragma once
 
 #include <QString>
 #include "types/enums.h"
@@ -19,5 +18,3 @@ private:
 
     UPDATE_VERSION_ERROR error_;
 };
-
-#endif // AUTOUPDATERHELPER_H

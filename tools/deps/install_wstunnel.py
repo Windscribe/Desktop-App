@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # ------------------------------------------------------------------------------
-# ESET VPN Build System
+# Windscribe VPN Build System
 # Copyright (c) 2020-2023, Windscribe Limited. All rights reserved.
 # ------------------------------------------------------------------------------
 # Purpose: installs Wstunnel executables.

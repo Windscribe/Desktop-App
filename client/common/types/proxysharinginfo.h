@@ -1,8 +1,6 @@
-#ifndef TYPES_PROXYSHARINGINFO_H
-#define TYPES_PROXYSHARINGINFO_H
+#pragma once
 
 #include "types/enums.h"
-
 
 namespace types {
 
@@ -35,7 +33,4 @@ struct ProxySharingInfo
 
 };
 
-
 } // types namespace
-
-#endif // TYPES_PROXYSHARINGINFO_H

@@ -1,5 +1,4 @@
-#ifndef TYPES_SHARESECUREHOTSPOT_H
-#define TYPES_SHARESECUREHOTSPOT_H
+#pragma once
 
 #include "types/enums.h"
 
@@ -67,7 +66,4 @@ private:
 
 };
 
-
 } // types namespace
-
-#endif // TYPES_SHARESECUREHOTSPOT_H

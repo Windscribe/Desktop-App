@@ -68,9 +68,7 @@ void SplitTunnelingAppsGroup::addAppInternal(types::SplitTunnelingApp &app)
 {
     QString iconPath = app.fullName;
 
-#ifdef Q_OS_WIN
-    iconPath = WinUtils::iconPathFromBinPath(iconPath);
-#elif defined Q_OS_MAC
+#if defined Q_OS_MAC
     iconPath = MacUtils::iconPathFromBinPath(iconPath);
 #endif
 
@@ -90,9 +88,7 @@ void SplitTunnelingAppsGroup::addSearchApp(types::SplitTunnelingApp &app)
 {
     QString iconPath = app.fullName;
 
-#ifdef Q_OS_WIN
-    iconPath = WinUtils::iconPathFromBinPath(iconPath);
-#elif defined Q_OS_MAC
+#if defined Q_OS_MAC
     iconPath = MacUtils::iconPathFromBinPath(iconPath);
 #endif
 

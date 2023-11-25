@@ -1,5 +1,4 @@
-#ifndef IMACADDRESSCONTROLLER_H
-#define IMACADDRESSCONTROLLER_H
+#pragma once
 
 #include <QObject>
 #include "types/macaddrspoofing.h"
@@ -17,8 +16,6 @@ public:
 signals:
     void macAddrSpoofingChanged(const types::MacAddrSpoofing &macAddrSpoofing);
     void sendUserWarning(USER_WARNING_TYPE userWarningType);
-    void robustMacSpoofApplied();
+    // MacOS only
+    void macSpoofApplied();
 };
-
-#endif // IMACADDRESSCONTROLLER_H
-

@@ -6,66 +6,66 @@ QString LanguagesUtil::convertCodeToNative(const QString &code)
 {
     if (code == "en")
         return "English";
-    else if (code == "en_nsfw")
-        return "English (NSFW)";
-    else if (code == "ru")
-        return "Русский";
-    else if (code == "ar")
+    else if (code == "ar") // Arabic
         return "العربية";
-    else if (code == "es")
-        return "Español";
-    else if (code == "fr")
-        return "Français";
-    else if (code == "hu")
-        return "Magyar";
-    else if (code == "it")
-        return "Italiano";
-    else if (code == "ja")
-        return "日本語";
-    else if (code == "ko")
-        return "한국어";
-    else if (code == "nl")
-        return "Nederlands";
-    else if (code == "zh")
-        return "简体中文";
-    else if (code == "de")
-        return "Deutsch";
-    else if (code == "pl")
-        return "Polski";
-    else if (code == "tr")
-        return "Türkçe";
-    else if (code == "cs")
+    else if (code == "cs") // Czech
         return "Čeština";
-    else if (code == "da")
-        return "Dansk";
-    else if (code == "el")
-        return "Ελληνικά";
-    else if (code == "pt")
-        return "Português";
-    else if (code == "sk")
-        return "Slovenčina";
-    else if (code == "th")
-        return "ไทย";
-    else if (code == "vi")
-        return "Tiếng Việt";
-    else if (code == "sv")
-        return "Svenska";
-    else if (code == "id")
-        return "Indonesia";
-    else if (code == "hi")
+    else if (code == "de") // German
+        return "Deutsch";
+    else if (code == "es") // Spanish
+        return "Español";
+    else if (code == "fa") // Farsi
+        return "فارسی";
+    else if (code == "fr") // French
+        return "Français";
+    else if (code == "hi") // Hindi
         return "हिन्दी";
-    else if (code == "hr")
-        return "Hrvatski jezik";
+    else if (code == "id") // Indonesian
+        return "Bahasa Indonesia";
+    else if (code == "it") // Italian
+        return "Italiano";
+    else if (code == "ja") // Japanese
+        return "日本語";
+    else if (code == "ko") // Korean
+        return "한국어";
+    else if (code == "pl") // Polish
+        return "Polski";
+    else if (code == "pt") // Portuguese
+        return "Português";
+    else if (code == "ru") // Russian
+        return "Русский";
+    else if (code == "tr") // Turkish
+        return "Türkçe";
+    else if (code == "uk") // Ukranian
+        return "Українська";
+    else if (code == "vi") // Vietnamese
+        return "Tiếng Việt";
+    else if (code == "zh-CN") // Chinese (Simplified)
+        return "中文 (简体)";
+    else if (code == "zh-TW") // Chinese (Traditional)
+        return "中文 (繁體)";
 
     return "Unknown";
 }
 
 QString LanguagesUtil::systemLanguage()
 {
-    QString language = QLocale::system().bcp47Name().left(2);
-    if (language.isEmpty()) {
-        language = "en";
-    }
+    QStringList languages = QLocale::system().uiLanguages();
+    QString ret = "en";
 
-    return language;
+    for (QString language : languages) {
+        if (language.isEmpty()) {
+            continue;
+        }
+        if (convertCodeToNative(language) == "Unknown") {
+            // try with just 2 letters
+            language = language.left(2);
+            if (convertCodeToNative(language) == "Unknown") {
+                continue;
+            }
+        }
+        ret = language;
+        break;
+    }
+    return ret;
 }

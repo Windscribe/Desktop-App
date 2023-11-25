@@ -1,0 +1,581 @@
+#include "process_command.h"
+
+#include <codecvt>
+#include <fcntl.h>
+#include <sstream>
+#include <stdlib.h>
+#include "execute_cmd.h"
+#include "files_manager.h"
+#include "firewallcontroller.h"
+#include "firewallonboot.h"
+#include "ipv6/ipv6manager.h"
+#include "logger.h"
+#include "macspoofingonboot.h"
+#include "macutils.h"
+#include "ovpn.h"
+#include "split_tunneling/split_tunneling.h"
+#include "utils.h"
+#include "utils/executable_signature/executable_signature.h"
+#include "wireguard/wireguardcontroller.h"
+
+CMD_ANSWER processCommand(int cmdId, const std::string packet)
+{
+    const auto command = kCommands.find(cmdId);
+    if (command == kCommands.end()) {
+        LOG("Unknown command id: %d", cmdId);
+        return CMD_ANSWER();
+    }
+
+    std::istringstream stream(packet);
+    boost::archive::text_iarchive ia(stream, boost::archive::no_header);
+
+    return (command->second)(ia);
+}
+
+CMD_ANSWER startOpenvpn(boost::archive::text_iarchive &ia)
+{
+    CMD_START_OPENVPN cmd;
+    CMD_ANSWER answer;
+    ia >> cmd;
+
+    if (!OVPN::writeOVPNFile(MacUtils::resourcePath() + "dns.sh", cmd.config, cmd.isCustomConfig)) {
+        LOG("Could not write OpenVPN config");
+        answer.executed = 0;
+    } else {
+        std::string fullCmd = Utils::getFullCommand(cmd.exePath, cmd.executable, "--config /etc/windscribe/config.ovpn " + cmd.arguments);
+        if (fullCmd.empty()) {
+            // Something wrong with the command
+            answer.executed = 0;
+        } else {
+            const std::string fullPath = cmd.exePath + "/" + cmd.executable;
+            ExecutableSignature sigCheck;
+// Avoid warnings from deprecated wstring_convert.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+            if (!sigCheck.verify(std::wstring_convert<std::codecvt_utf8<wchar_t>>().from_bytes(fullPath))) {
+                LOG("OpenVPN executable signature incorrect: %s", sigCheck.lastError().c_str());
+                answer.executed = 0;
+            } else {
+                answer.cmdId = ExecuteCmd::instance().execute(fullCmd, "/etc/windscribe");
+                answer.executed = 1;
+            }
+#pragma clang diagnostic pop
+        }
+    }
+
+    return answer;
+}
+
+CMD_ANSWER getCmdStatus(boost::archive::text_iarchive &ia)
+{
+    CMD_ANSWER answer;
+    CMD_GET_CMD_STATUS cmd;
+    ia >> cmd;
+
+    bool bFinished;
+    std::string log;
+    ExecuteCmd::instance().getStatus(cmd.cmdId, bFinished, log);
+
+    if (bFinished) {
+        answer.executed = 1;
+        answer.body = log;
+    } else {
+        answer.executed = 2;
+    }
+
+    return answer;
+}
+
+CMD_ANSWER clearCmds(boost::archive::text_iarchive &ia)
+{
+    CMD_ANSWER answer;
+    CMD_CLEAR_CMDS cmd;
+    ia >> cmd;
+
+    ExecuteCmd::instance().clearCmds();
+    answer.executed = 2;
+
+    return answer;
+}
+
+CMD_ANSWER splitTunnelingSettings(boost::archive::text_iarchive &ia)
+{
+    CMD_ANSWER answer;
+    CMD_SPLIT_TUNNELING_SETTINGS cmd;
+    ia >> cmd;
+
+    SplitTunneling::instance().setSplitTunnelingParams(cmd.isActive, cmd.isExclude, cmd.files, cmd.ips, cmd.hosts);
+    answer.executed = 1;
+
+    return answer;
+}
+
+CMD_ANSWER sendConnectStatus(boost::archive::text_iarchive &ia)
+{
+    CMD_ANSWER answer;
+    CMD_SEND_CONNECT_STATUS cmd;
+    ia >> cmd;
+
+    SplitTunneling::instance().setConnectParams(cmd);
+    answer.executed = 1;
+
+    return answer;
+}
+
+CMD_ANSWER startWireGuard(boost::archive::text_iarchive &ia)
+{
+    CMD_ANSWER answer;
+    CMD_START_WIREGUARD cmd;
+    ia >> cmd;
+
+    if (WireGuardController::instance().start(cmd.exePath, cmd.executable, cmd.deviceName)) {
+        answer.executed = 1;
+    } else {
+        answer.executed = 0;
+    }
+
+    return answer;
+}
+
+CMD_ANSWER stopWireGuard(boost::archive::text_iarchive &ia)
+{
+    CMD_ANSWER answer;
+
+    if (WireGuardController::instance().stop()) {
+        answer.executed = 1;
+    }
+
+    return answer;
+}
+
+CMD_ANSWER configureWireGuard(boost::archive::text_iarchive &ia)
+{
+    CMD_ANSWER answer;
+    CMD_CONFIGURE_WIREGUARD cmd;
+    ia >> cmd;
+
+    answer.executed = 0;
+    if (WireGuardController::instance().isInitialized()) {
+        do {
+            std::vector<std::string> allowed_ips_vector = WireGuardController::instance().splitAndDeduplicateAllowedIps(cmd.allowedIps);
+            if (allowed_ips_vector.size() < 1) {
+                LOG("WireGuard: invalid AllowedIps \"%s\"", cmd.allowedIps.c_str());
+                break;
+            }
+
+            if (!WireGuardController::instance().configureAdapter(cmd.clientIpAddress,
+                                                       cmd.clientDnsAddressList,
+                                                       MacUtils::resourcePath() + "/dns.sh",
+                                                       allowed_ips_vector)) {
+                LOG("WireGuard: configureAdapter() failed");
+                break;
+            }
+
+            if (!WireGuardController::instance().configureDefaultRouteMonitor(cmd.peerEndpoint)) {
+                LOG("WireGuard: configureDefaultRouteMonitor() failed");
+                break;
+            }
+            if (!WireGuardController::instance().configure(cmd.clientPrivateKey,
+                                                cmd.peerPublicKey, cmd.peerPresharedKey,
+                                                cmd.peerEndpoint, allowed_ips_vector)) {
+                LOG("WireGuard: configureDaemon() failed");
+                break;
+            }
+            answer.executed = 1;
+        } while (0);
+    }
+
+    return answer;
+}
+
+CMD_ANSWER getWireGuardStatus(boost::archive::text_iarchive &ia)
+{
+    CMD_ANSWER answer;
+    unsigned int errorCode = 0;
+    unsigned long long bytesReceived = 0, bytesTransmitted = 0;
+
+    answer.executed = 1;
+    answer.cmdId = WireGuardController::instance().getStatus(&errorCode, &bytesReceived, &bytesTransmitted);
+    if (answer.cmdId == kWgStateError) {
+        if (errorCode) {
+            answer.customInfoValue[0] = errorCode;
+        } else {
+            answer.customInfoValue[0] = -1;
+        }
+    } else if (answer.cmdId == kWgStateActive) {
+        answer.customInfoValue[0] = bytesReceived;
+        answer.customInfoValue[1] = bytesTransmitted;
+    }
+
+    return answer;
+}
+
+CMD_ANSWER installerSetPath(boost::archive::text_iarchive &ia)
+{
+    CMD_ANSWER answer;
+    CMD_INSTALLER_FILES_SET_PATH cmd;
+    ia >> cmd;
+
+    FilesManager::instance().setFiles(new Files(cmd.archivePath, cmd.installPath, cmd.userId, cmd.groupId));
+    answer.executed = 1;
+
+    return answer;
+}
+
+CMD_ANSWER installerExecuteCopyFile(boost::archive::text_iarchive &ia)
+{
+    CMD_ANSWER answer;
+    Files *files = FilesManager::instance().files();
+
+    if (files) {
+        answer.executed = files->executeStep();
+        if (answer.executed == -1) {
+            answer.body = files->getLastError();
+        }
+        if (answer.executed == -1 || answer.executed == 100) {
+            FilesManager::instance().setFiles(nullptr);
+        }
+    }
+
+    return answer;
+}
+
+CMD_ANSWER installerRemoveOldInstall(boost::archive::text_iarchive &ia)
+{
+    CMD_ANSWER answer;
+    CMD_INSTALLER_REMOVE_OLD_INSTALL cmd;
+    ia >> cmd;
+
+    // sanity check that path at least contains our binary.  We can't assume this path is in /Applications
+    // because versions < 2.6 allowed custom dir installs.  This check at least disallows user to try to
+    // delete paths that they can't write to.
+    std::stringstream path;
+    path << cmd.path << "/Contents/MacOS/Windscribe";
+
+    if (access(path.str().c_str(), F_OK) == 0) {
+        LOG("Remove old install: %s", cmd.path.c_str());
+        Utils::executeCommand("rm", {"-rf", cmd.path.c_str()});
+        answer.executed = 1;
+    } else {
+        LOG("Old install at %s not removed", cmd.path.c_str());
+        answer.executed = 0;
+    }
+
+    return answer;
+}
+
+
+CMD_ANSWER applyCustomDns(boost::archive::text_iarchive &ia)
+{
+    CMD_ANSWER answer;
+    CMD_APPLY_CUSTOM_DNS cmd;
+    ia >> cmd;
+
+    if (MacUtils::setDnsOfDynamicStoreEntry(cmd.ipAddress, cmd.networkService)) {
+        answer.executed = 1;
+    } else {
+        answer.executed = 0;
+    }
+    return answer;
+}
+
+CMD_ANSWER changeMtu(boost::archive::text_iarchive &ia)
+{
+    CMD_ANSWER answer;
+    CMD_CHANGE_MTU cmd;
+    ia >> cmd;
+    LOG("Change MTU: %d", cmd.mtu);
+
+    answer.executed = 1;
+    Utils::executeCommand("ifconfig", {cmd.adapterName.c_str(), "mtu", std::to_string(cmd.mtu)});
+
+    return answer;
+}
+
+CMD_ANSWER deleteRoute(boost::archive::text_iarchive &ia)
+{
+    CMD_ANSWER answer;
+    CMD_DELETE_ROUTE cmd;
+    ia >> cmd;
+    LOG("Delete route: %s/%d gw %s", cmd.range.c_str(), cmd.mask, cmd.gateway.c_str());
+
+    answer.executed = 1;
+    std::stringstream str;
+    str << cmd.range << "/" << cmd.mask;
+    Utils::executeCommand("route", {"-n", "delete", str.str().c_str(), cmd.gateway.c_str()});
+
+    return answer;
+}
+
+CMD_ANSWER setIpv6Enabled(boost::archive::text_iarchive &ia)
+{
+    CMD_ANSWER answer;
+    CMD_SET_IPV6_ENABLED cmd;
+    ia >> cmd;
+    LOG("Set IPv6: %s", cmd.enabled ? "enabled" : "disabled");
+
+    answer.executed = Ipv6Manager::instance().setEnabled(cmd.enabled);
+    return answer;
+}
+
+CMD_ANSWER setDnsScriptEnabled(boost::archive::text_iarchive &ia)
+{
+    CMD_ANSWER answer;
+    CMD_SET_DNS_SCRIPT_ENABLED cmd;
+    ia >> cmd;
+    LOG("Set DNS script: %s", cmd.enabled ? "enabled" : "disabled");
+
+    answer.executed = 1;
+    std::string out;
+
+    // We only handle the down case; the 'up' trigger happens elsewhere
+    if (!cmd.enabled) {
+        Utils::executeCommand(MacUtils::resourcePath() + "/dns.sh", {"-down"}, &out);
+        LOG("%s", out.c_str());
+    }
+
+    return answer;
+}
+
+CMD_ANSWER clearFirewallRules(boost::archive::text_iarchive &ia)
+{
+    CMD_ANSWER answer;
+    CMD_CLEAR_FIREWALL_RULES cmd;
+    ia >> cmd;
+    LOG("Clear firewall rules");
+
+    FirewallController::instance().disable(cmd.isKeepPfEnabled);
+    answer.executed = 1;
+
+    return answer;
+}
+
+CMD_ANSWER checkFirewallState(boost::archive::text_iarchive &ia)
+{
+    CMD_ANSWER answer;
+    answer.exitCode = FirewallController::instance().enabled();
+    answer.executed = 1;
+
+    return answer;
+}
+
+CMD_ANSWER setFirewallRules(boost::archive::text_iarchive &ia)
+{
+    CMD_ANSWER answer;
+    LOG("Set firewall rules");
+    CMD_SET_FIREWALL_RULES cmd;
+    ia >> cmd;
+
+    if (FirewallController::instance().enable(cmd.rules, cmd.table, cmd.group)) {
+        answer.executed = 1;
+    } else {
+        answer.executed = 0;
+    }
+    return answer;
+}
+
+CMD_ANSWER getFirewallRules(boost::archive::text_iarchive &ia)
+{
+    CMD_ANSWER answer;
+    CMD_GET_FIREWALL_RULES cmd;
+    ia >> cmd;
+
+    FirewallController::instance().getRules(cmd.table, cmd.group, &answer.body);
+    answer.executed = 1;
+
+    return answer;
+}
+
+CMD_ANSWER deleteOldHelper(boost::archive::text_iarchive &ia)
+{
+    CMD_ANSWER answer;
+    LOG("Delete old helper");
+    Utils::executeCommand("rm", {"-f", "/Library/PrivilegedHelperTools/com.windscribe.helper.macos"});
+    Utils::executeCommand("rm", {"-f", "/Library/Logs/com.windscribe.helper.macos/helper_log.txt"});
+
+    // remove helper from version 1
+    Utils::executeCommand("launchctl", {"unload", "/Library/LaunchDaemons/com.aaa.windscribe.OVPNHelper.plist"});
+    Utils::executeCommand("rm", {"-f", "/Library/LaunchDaemons/com.aaa.windscribe.OVPNHelper.plist"});
+    Utils::executeCommand("rm", {"-f", "/Library/PrivilegedHelperTools/com.aaa.windscribe.OVPNHelper"});
+
+    answer.executed = 1;
+    return answer;
+}
+
+CMD_ANSWER setFirewallOnBoot(boost::archive::text_iarchive &ia)
+{
+    CMD_ANSWER answer;
+    CMD_SET_FIREWALL_ON_BOOT cmd;
+    ia >> cmd;
+    LOG("Set firewall on boot: %s ip table: %s", cmd.enabled ? "true" : "false", cmd.ipTable.c_str());
+    FirewallOnBootManager::instance().setIpTable(cmd.ipTable);
+    answer.executed = FirewallOnBootManager::instance().setEnabled(cmd.enabled);
+
+    return answer;
+}
+
+CMD_ANSWER setMacSpoofingOnBoot(boost::archive::text_iarchive &ia)
+{
+    CMD_ANSWER answer;
+    CMD_SET_MAC_SPOOFING_ON_BOOT cmd;
+    ia >> cmd;
+    LOG("Set mac spoofing on boot: %s", cmd.enabled ? "true" : "false");
+
+    answer.executed = MacSpoofingOnBootManager::instance().setEnabled(cmd.enabled, cmd.interface, cmd.macAddress);
+    return answer;
+}
+
+CMD_ANSWER setMacAddress(boost::archive::text_iarchive &ia)
+{
+    CMD_ANSWER answer;
+    CMD_SET_MAC_ADDRESS cmd;
+    ia >> cmd;
+    LOG("Set mac address on %s: %s", cmd.interface.c_str(), cmd.macAddress.c_str());
+
+    Utils::executeCommand("/System/Library/PrivateFrameworks/Apple80211.framework/Resources/airport", {"-z"});
+    answer.executed = Utils::executeCommand("ifconfig", {cmd.interface.c_str(), "ether", cmd.macAddress.c_str()});
+    Utils::executeCommand("ifconfig", {cmd.interface.c_str(), "up"});
+    return answer;
+}
+
+CMD_ANSWER taskKill(boost::archive::text_iarchive &ia)
+{
+    CMD_ANSWER answer;
+    CMD_TASK_KILL cmd;
+    ia >> cmd;
+
+    if (cmd.target == kTargetWindscribe) {
+        LOG("Killing Windscribe processes");
+        Utils::executeCommand("pkill", {"Windscribe"});
+        Utils::executeCommand("pkill", {"WindscribeEngine"}); // For older 1.x clients
+        answer.executed = 1;
+    } else if (cmd.target == kTargetOpenVpn) {
+        LOG("Killing OpenVPN processes");
+        const std::vector<std::string> exes = Utils::getOpenVpnExeNames();
+        for (auto exe : exes) {
+            Utils::executeCommand("pkill", {"-f", exe.c_str()});
+        }
+        answer.executed = 1;
+    } else if (cmd.target == kTargetStunnel) {
+        LOG("Killing Stunnel processes");
+        Utils::executeCommand("pkill", {"-f", "windscribewstunnel"});
+        answer.executed = 1;
+    } else if (cmd.target == kTargetWStunnel) {
+        LOG("Killing WStunnel processes");
+        Utils::executeCommand("pkill", {"-f", "windscribewstunnel"});
+        answer.executed = 1;
+    } else if (cmd.target == kTargetWireGuard) {
+        LOG("Killing WireGuard processes");
+        Utils::executeCommand("pkill", {"-f", "windscribewireguard"});
+        answer.executed = 1;
+    } else if (cmd.target == kTargetCtrld) {
+        LOG("Killing ctrld processes");
+        Utils::executeCommand("pkill", {"-f", "windscribectrld"});
+        answer.executed = 1;
+    } else {
+        LOG("Did not kill processes for type %d", cmd.target);
+        answer.executed = 0;
+    }
+
+    return answer;
+}
+
+CMD_ANSWER startCtrld(boost::archive::text_iarchive &ia)
+{
+    CMD_ANSWER answer;
+    CMD_START_CTRLD cmd;
+    ia >> cmd;
+
+    std::string fullCmd = Utils::getFullCommand(cmd.exePath, cmd.executable, cmd.parameters);
+    if (fullCmd.empty()) {
+        // Something wrong with the command
+        answer.executed = 0;
+    } else {
+// Avoid warnings from deprecated wstring_convert.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+        const std::string fullPath = cmd.exePath + "/" + cmd.executable;
+        ExecutableSignature sigCheck;
+        if (!sigCheck.verify(std::wstring_convert<std::codecvt_utf8<wchar_t>>().from_bytes(fullPath))) {
+            LOG("ctrld executable signature incorrect: %s", sigCheck.lastError().c_str());
+            answer.executed = 0;
+        } else {
+            answer.cmdId = ExecuteCmd::instance().execute(fullCmd, std::string());
+            answer.executed = 1;
+        }
+#pragma clang diagnostic pop
+    }
+    return answer;
+}
+
+CMD_ANSWER startStunnel(boost::archive::text_iarchive &ia)
+{
+    CMD_ANSWER answer;
+    CMD_START_STUNNEL cmd;
+    ia >> cmd;
+    LOG("Starting stunnel");
+
+    std::stringstream arguments;
+    arguments << "--listenAddress :" << cmd.localPort;
+    arguments << " --remoteAddress https://" << cmd.hostname << ":" << cmd.port;
+    arguments << " --logFilePath \"\"";
+    if (cmd.extraPadding) {
+        arguments << " --extraTlsPadding";
+    }
+    arguments << " --tunnelType 2";
+    //arguments << " --dev"; // enables verbose logging when necessary
+    std::string fullCmd = Utils::getFullCommandAsUser("windscribe", cmd.exePath, cmd.executable, arguments.str());
+    if (fullCmd.empty()) {
+        // Something wrong with the command
+        answer.executed = 0;
+    } else {
+// Avoid warnings from deprecated wstring_convert.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+        const std::string fullPath = cmd.exePath + "/" + cmd.executable;
+        ExecutableSignature sigCheck;
+        if (!sigCheck.verify(std::wstring_convert<std::codecvt_utf8<wchar_t>>().from_bytes(fullPath))) {
+            LOG("stunnel executable signature incorrect: %s", sigCheck.lastError().c_str());
+            answer.executed = 0;
+        } else {
+            answer.cmdId = ExecuteCmd::instance().execute(fullCmd, std::string());
+            answer.executed = 1;
+        }
+#pragma clang diagnostic pop
+    }
+    return answer;
+}
+
+CMD_ANSWER startWstunnel(boost::archive::text_iarchive &ia)
+{
+    CMD_ANSWER answer;
+    CMD_START_WSTUNNEL cmd;
+    ia >> cmd;
+    LOG("Starting wstunnel");
+
+    std::stringstream arguments;
+    arguments << "--listenAddress :" << cmd.localPort;
+    arguments << " --remoteAddress wss://" << cmd.hostname << ":" << cmd.port << "/tcp/127.0.0.1/1194";
+    arguments << " --logFilePath \"\"";
+    //arguments << " --dev"; // enables verbose logging when necessary
+    std::string fullCmd = Utils::getFullCommandAsUser("windscribe", cmd.exePath, cmd.executable, arguments.str());
+    if (fullCmd.empty()) {
+        // Something wrong with the command
+        answer.executed = 0;
+    } else {
+        const std::string fullPath = cmd.exePath + "/" + cmd.executable;
+        ExecutableSignature sigCheck;
+// Avoid warnings from deprecated wstring_convert.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+        if (!sigCheck.verify(std::wstring_convert<std::codecvt_utf8<wchar_t>>().from_bytes(fullPath))) {
+            LOG("wstunnel executable signature incorrect: %s", sigCheck.lastError().c_str());
+            answer.executed = 0;
+        } else {
+            answer.cmdId = ExecuteCmd::instance().execute(fullCmd, std::string());
+            answer.executed = 1;
+        }
+#pragma clang diagnostic pop
+    }
+    return answer;
+}

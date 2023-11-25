@@ -42,16 +42,6 @@ QString OpenVpnVersionController::getOpenVpnFileName()
 #endif
 }
 
-void OpenVpnVersionController::setUseWinTun(bool bUseWinTun)
-{
-    bUseWinTun_ = bUseWinTun;
-}
-
-bool OpenVpnVersionController::isUseWinTun()
-{
-    return bUseWinTun_;
-}
-
 OpenVpnVersionController::OpenVpnVersionController()
 {
 }

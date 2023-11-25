@@ -134,7 +134,7 @@ QString LATENCY_DISPLAY_TYPE_toString(LATENCY_DISPLAY_TYPE t)
 
 QString TAP_ADAPTER_TYPE_toString(TAP_ADAPTER_TYPE t)
 {
-    if (t == TAP_ADAPTER) return "Windscribe VPN";
+    if (t == DCO_ADAPTER) return "DCO";
     else if (t == WINTUN_ADAPTER) return "Wintun";
     else {
         WS_ASSERT(false);
@@ -333,3 +333,29 @@ QString APP_SKIN_toString(APP_SKIN s)
         return QObject::tr("UNKNOWN");
     }
 }
+
+#if defined(Q_OS_LINUX)
+
+QString TRAY_ICON_COLOR_toString(TRAY_ICON_COLOR c)
+{
+    if (c == TRAY_ICON_COLOR_WHITE) {
+        return QObject::tr("White");
+    }
+    else if (c == TRAY_ICON_COLOR_BLACK) {
+        return QObject::tr("Black");
+    }
+    else {
+        WS_ASSERT(false);
+        return QObject::tr("UNKNOWN");
+    }
+}
+
+QList<QPair<QString, QVariant>> TRAY_ICON_COLOR_toList()
+{
+    QList<QPair<QString, QVariant>> l;
+    l << qMakePair(TRAY_ICON_COLOR_toString(TRAY_ICON_COLOR_WHITE), TRAY_ICON_COLOR_WHITE);
+    l << qMakePair(TRAY_ICON_COLOR_toString(TRAY_ICON_COLOR_BLACK), TRAY_ICON_COLOR_BLACK);
+    return l;
+}
+
+#endif

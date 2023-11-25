@@ -10,7 +10,7 @@
 
 namespace
 {
-std::string GetNetMaskFromCidr(int cidr) 
+std::string GetNetMaskFromCidr(int cidr)
 {
     std::stringstream netmask;
     for (int byte_index = 0; byte_index < 4; ++byte_index) {

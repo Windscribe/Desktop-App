@@ -1,5 +1,4 @@
-#ifndef HTTPPROXYREQUESTPARSER_H
-#define HTTPPROXYREQUESTPARSER_H
+#pragma once
 
 #include <QByteArray>
 #include "httpproxyrequest.h"
@@ -54,5 +53,3 @@ private:
 };
 
 } // namespace HttpProxyServer
-
-#endif // HTTPPROXYREQUESTPARSER_H

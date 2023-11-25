@@ -1,8 +1,0 @@
-# ------------------------------------------------------------------------------
-# Windscribe Build System
-# Copyright (c) 2020-2023, Windscribe Limited. All rights reserved.
-# ------------------------------------------------------------------------------
-variables:
-  VERSION_PROTOBUF: '21.1'
-  BUILDROOT_PROTOBUF: 'build-libs/protobuf'
-  ARTIFACT_PROTOBUF: 'protobuf.zip'

@@ -1,5 +1,4 @@
-#ifndef Routes_h
-#define Routes_h
+#pragma once
 
 #include "ip_forward_table.h"
 
@@ -8,16 +7,14 @@ class Routes
 {
 public:
     Routes();
-    
-	void deleteRoute(const IpForwardTable &curRouteTable, const std::string &destIp, const std::string &maskIp, const std::string &gatewayIp, unsigned long ifIndex);
-	void addRoute(const IpForwardTable &curRouteTable, const std::string &destIp, const std::string &maskIp, const std::string &gatewayIp, unsigned long ifIndex, bool useMaxMetric);
 
-	void revertRoutes();
+    void deleteRoute(const IpForwardTable &curRouteTable, const std::string &destIp, const std::string &maskIp, const std::string &gatewayIp, unsigned long ifIndex);
+    void addRoute(const IpForwardTable &curRouteTable, const std::string &destIp, const std::string &maskIp, const std::string &gatewayIp, unsigned long ifIndex, bool useMaxMetric);
+
+    void revertRoutes();
 
 private:
-	std::vector<MIB_IPFORWARDROW> deletedRoutes_;
-	std::vector<MIB_IPFORWARDROW> addedRoutes_;
-    
-};
+    std::vector<MIB_IPFORWARDROW> deletedRoutes_;
+    std::vector<MIB_IPFORWARDROW> addedRoutes_;
 
-#endif /* Routes_h */
+};

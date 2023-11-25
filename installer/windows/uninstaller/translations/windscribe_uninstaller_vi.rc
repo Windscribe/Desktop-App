@@ -1,0 +1,10 @@
+LANGUAGE LANG_VIETNAMESE, SUBLANG_NEUTRAL
+
+STRINGTABLE
+BEGIN
+    IDS_MSGBOX_TITLE "Gỡ cài đặt Windscribe"
+    IDS_DIRECTORY_MISMATCH "Quá trình gỡ cài đặt không thể tiến hành. Thư mục cài đặt không khớp với thư mục loại bỏ."
+    IDS_CONFIRM_UNINSTALL "Bạn có chắc chắn muốn loại bỏ hoàn toàn Windscribe và tất cả các thành phần của nó không?"
+    IDS_UNINSTALL_SUCCESS "Windscribe đã được xóa thành công khỏi máy tính của bạn."
+    IDS_CLOSE_APP "Vui lòng thoát ứng dụng Windscribe để tiếp tục gỡ cài đặt. Lưu ý rằng kết nối của bạn sẽ không được bảo vệ sau khi thoát ứng dụng."
+END

@@ -6,6 +6,7 @@
 # - Translate toolkit: pip install translate-toolkit[XML]
 
 import argparse
+import glob
 import json
 import os
 import requests
@@ -48,7 +49,7 @@ def simulate(in_file):
         print(f"{strings_to_remove} strings to remove")
 
 
-def remove_vanished(in_file):
+def remove_vanished_from_file(in_file):
     tsfile = tsparser.tsfile.parsefile(in_file)
 
     units_to_remove = []
@@ -73,6 +74,18 @@ def remove_vanished(in_file):
         tsfile.savefile(in_file)
 
     print("{} vanished units removed".format(len(units_to_remove)))
+
+
+def remove_vanished(in_file):
+    if os.path.isdir(in_file):
+        print(f"Removing all vanished entries for files in {in_file}")
+        fullmask = os.path.join(in_file, "*.ts")
+        for filename in glob.glob(fullmask):
+            if not os.path.isdir(filename):
+                print(f"Removing all vanished entries from {filename}")
+                remove_vanished_from_file(filename)
+    else:
+        remove_vanished_from_file(in_file)
 
 
 def translate_tsfile(in_file):
@@ -139,14 +152,14 @@ if __name__ == "__main__":  # pragma: no cover
     parser = argparse.ArgumentParser(description="Translate 'unfinished' entries in a Qt ts file to the target language specified in the file")
     parser.add_argument('source', metavar='SOURCE', type=str, action='store', help="The Qt ts file to process.")
     parser.add_argument('--output', metavar='DIR', type=str, action='store', help="Output modified file, and translator json response if translating, to this directory.  Default is to overwrite the SOURCE file.")
-    parser.add_argument('--remove-vanished', default=False, action='store_true', help="Remove all 'vanished' entries from the ts file.")
+    parser.add_argument('--remove-vanished', default=False, action='store_true', help="Remove all 'vanished' entries from the ts file, or all ts files in a folder.")
     parser.add_argument('--simulate', default=False, action='store_true', help="Print entries requiring translation/removal, but do not translate/remove them.")
     args = parser.parse_args()
 
     try:
         in_file = os.path.abspath(args.source)
-        if not os.path.isfile(in_file):
-            raise IOError("The specified source file could not be found: " + in_file)
+        if not os.path.exists(in_file):
+            raise IOError("The specified source file/folder could not be found: " + in_file)
         if args.simulate:
             simulate(in_file)
         elif args.remove_vanished:

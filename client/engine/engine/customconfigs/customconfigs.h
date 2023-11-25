@@ -1,5 +1,4 @@
-#ifndef CUSTOMCONFIGS_H
-#define CUSTOMCONFIGS_H
+#pragma once
 
 #include <QObject>
 #include <QSharedPointer>
@@ -35,5 +34,3 @@ private:
 };
 
 } //namespace customconfigs
-
-#endif // CUSTOMCONFIGS_H

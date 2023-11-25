@@ -1,5 +1,4 @@
-#ifndef PLANITEM_H
-#define PLANITEM_H
+#pragma once
 
 #include "commongraphics/baseitem.h"
 #include "commongraphics/textbutton.h"
@@ -12,7 +11,7 @@ class PlanItem : public CommonGraphics::BaseItem
 public:
     explicit PlanItem(ScalableGraphicsObject *parent);
 
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR) override;
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
     void setPlan(qint64 plan);
     void setIsPremium(bool isPremium);
@@ -40,5 +39,3 @@ private:
 };
 
 } // namespace PreferencesWindow
-
-#endif // PLANITEM_H

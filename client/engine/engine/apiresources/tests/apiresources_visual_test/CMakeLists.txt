@@ -5,7 +5,7 @@ set(PROJECT_SOURCES
         apiresources_test_widget.cpp
         apiresources_test_widget.h
         apiresources_test_widget.ui
-	apiresources_test.qrc
+    apiresources_test.qrc
 )
 
 add_executable(apiresources_visual_test ${PROJECT_SOURCES} )

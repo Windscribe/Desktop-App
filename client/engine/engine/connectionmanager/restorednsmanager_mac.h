@@ -1,5 +1,4 @@
-#ifndef RESTOREDNSMANAGER_MAC_H
-#define RESTOREDNSMANAGER_MAC_H
+#pragma once
 
 #include <QVector>
 #include <QString>
@@ -10,5 +9,3 @@ class RestoreDNSManager_mac
 public:
     static bool restoreState(IHelper *helper);
 };
-
-#endif // RESTOREDNSMANAGER_MAC_H

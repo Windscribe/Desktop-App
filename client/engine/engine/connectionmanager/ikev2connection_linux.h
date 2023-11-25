@@ -1,5 +1,4 @@
-#ifndef IKEV2CONNECTION_LINUX_H
-#define IKEV2CONNECTION_LINUX_H
+#pragma once
 
 #include <QObject>
 #include <QMap>
@@ -31,5 +30,3 @@ private slots:
     void fakeImpl();
 
 };
-
-#endif // IKEV2CONNECTION_LINUX_H

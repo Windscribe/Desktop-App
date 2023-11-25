@@ -9,7 +9,7 @@ NumberItem::NumberItem(QObject *parent, NumbersPixmap *numbersPixmap) : QObject(
     accelerationStopping_(0)
 {
     timer_ = new QTimer(this);
-    connect(timer_, SIGNAL(timeout()), SLOT(onTimer()));
+    connect(timer_, &QTimer::timeout, this, &NumberItem::onTimer);
 }
 
 void NumberItem::setNumber(int num)

@@ -1,5 +1,4 @@
-#ifndef CONNECTSTATECONTROLLER_H
-#define CONNECTSTATECONTROLLER_H
+#pragma once
 
 #include <QObject>
 #include <QTimer>
@@ -33,5 +32,3 @@ private:
     LocationID location_;
     QRecursiveMutex mutex_;
 };
-
-#endif // CONNECTSTATECONTROLLER_H

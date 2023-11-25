@@ -1,0 +1,10 @@
+LANGUAGE LANG_ARABIC, SUBLANG_NEUTRAL
+
+STRINGTABLE
+BEGIN
+    IDS_MSGBOX_TITLE "إزالة تثبيت Windscribe"
+    IDS_DIRECTORY_MISMATCH "لا يمكن متابعة إزالة التثبيت. دليل التثبيت لا يتطابق مع دليل الإزالة."
+    IDS_CONFIRM_UNINSTALL "هل تريد بالتأكيد إزالة Windscribe وجميع مكوناته بالكامل؟"
+    IDS_UNINSTALL_SUCCESS "تمت إزالة Windscribe بنجاح من جهاز الكمبيوتر الخاص بك."
+    IDS_CLOSE_APP "يرجى الخروج من تطبيق Windscribe لمتابعة إزالة التثبيت. لاحظ أن الاتصال الخاص بك لن يكون محمياً بمجرد الخروج من التطبيق."
+END

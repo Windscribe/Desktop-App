@@ -15,7 +15,7 @@
 namespace ProtocolWindow {
 
 ProtocolPromptItem::ProtocolPromptItem(ScalableGraphicsObject *parent,
-                                       IConnectWindow *connectWindow,
+                                       ConnectWindow::ConnectWindowItem *connectWindow,
                                        Preferences *preferences,
                                        PreferencesHelper *preferencesHelper,
                                        ProtocolWindowMode mode)
@@ -102,7 +102,7 @@ void ProtocolPromptItem::doResetProtocolStatus()
         if (ports.size() == 0) {
             continue;
         }
-        
+
         types::ProtocolStatus ps = types::ProtocolStatus(p, ports[0], types::ProtocolStatus::Status::kDisconnected, -1);
         statuses_ << ps;
 

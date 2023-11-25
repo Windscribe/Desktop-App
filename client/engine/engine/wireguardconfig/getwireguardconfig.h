@@ -1,5 +1,4 @@
-#ifndef GETWIREGUARDCONFIG_H
-#define GETWIREGUARDCONFIG_H
+#pragma once
 
 #include <QObject>
 #include "wireguardconfig.h"
@@ -60,5 +59,3 @@ private:
     static constexpr quint32 versionForSerialization_ = 1;  // should increment the version if the data format is changed
 
 };
-
-#endif // GETWIREGUARDCONFIG_H

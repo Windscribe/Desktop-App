@@ -1,5 +1,4 @@
-#ifndef SplitTunneling_h
-#define SplitTunneling_h
+#pragma once
 
 #include <string>
 #include <mutex>
@@ -11,28 +10,29 @@
 
 class SplitTunneling
 {
-    
 public:
-    SplitTunneling();
-    ~SplitTunneling();
-    
+    static SplitTunneling& instance()
+    {
+        static SplitTunneling st;
+        return st;
+    }
+
     void setConnectParams(CMD_SEND_CONNECT_STATUS &connectStatus);
     void setSplitTunnelingParams(bool isActive, bool isExclude, const std::vector<std::string> &apps,
                                  const std::vector<std::string> &ips, const std::vector<std::string> &hosts);
-    
+
 private:
     std::mutex mutex_;
-    
+
     CMD_SEND_CONNECT_STATUS connectStatus_;
-    
+
     bool isSplitTunnelActive_;
     bool isExclude_;
-    
+
     RoutesManager routesManager_;
     IpHostnamesManager ipHostnamesManager_;
-        
-    void updateState();
-    
-};
 
-#endif /* SplitTunneling_h */
+     SplitTunneling();
+    ~SplitTunneling();
+    void updateState();
+};

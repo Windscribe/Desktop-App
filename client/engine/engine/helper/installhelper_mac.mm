@@ -12,13 +12,16 @@ bool InstallHelper_mac::installHelper(bool &isUserCanceled)
     NSString *helperLabel = @HELPER_BUNDLE_ID;
     BOOL result = NO;
 
-    NSDictionary *installedHelperJobData  = (NSDictionary *)SMJobCopyDictionary( kSMDomainSystemLaunchd, (CFStringRef)helperLabel);
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+    NSDictionary *installedHelperJobData  = (__bridge NSDictionary *)SMJobCopyDictionary(kSMDomainSystemLaunchd, (CFStringRef)helperLabel);
+#pragma clang diagnostic pop
     if (installedHelperJobData)
     {
         NSString*       installedPath           = [[installedHelperJobData objectForKey:@"ProgramArguments"] objectAtIndex:0];
         NSURL*          installedPathURL        = [NSURL fileURLWithPath:installedPath];
 
-        NSDictionary*   installedInfoPlist      = (NSDictionary*)CFBundleCopyInfoDictionaryForURL( (CFURLRef)installedPathURL );
+        NSDictionary*   installedInfoPlist      = (__bridge NSDictionary*)CFBundleCopyInfoDictionaryForURL( (CFURLRef)installedPathURL );
         NSString*       installedBundleVersion  = [installedInfoPlist objectForKey:@"CFBundleVersion"];
         NSInteger       installedVersion        = [installedBundleVersion integerValue];
 
@@ -28,7 +31,7 @@ bool InstallHelper_mac::installHelper(bool &isUserCanceled)
         NSURL*          appBundleURL    = [appBundle bundleURL];
 
         NSURL*          currentHelperToolURL    = [appBundleURL URLByAppendingPathComponent:@HELPER_BUNDLE_ID_PATH_FROM_ENGINE];
-        NSDictionary*   currentInfoPlist        = (NSDictionary*)CFBundleCopyInfoDictionaryForURL( (CFURLRef)currentHelperToolURL );
+        NSDictionary*   currentInfoPlist        = (__bridge NSDictionary*)CFBundleCopyInfoDictionaryForURL( (CFURLRef)currentHelperToolURL );
         NSString*       currentBundleVersion    = [currentInfoPlist objectForKey:@"CFBundleVersion"];
         NSInteger       currentVersion          = [currentBundleVersion integerValue];
 
@@ -44,12 +47,12 @@ bool InstallHelper_mac::installHelper(bool &isUserCanceled)
         qCDebug(LOG_BASIC) << "Not installed helper";
     }
 
-    AuthorizationItem authItem		= { kSMRightBlessPrivilegedHelper, 0, NULL, 0 };
-    AuthorizationRights authRights	= { 1, &authItem };
-    AuthorizationFlags flags		=	kAuthorizationFlagDefaults				|
-    kAuthorizationFlagInteractionAllowed	|
-    kAuthorizationFlagPreAuthorize			|
-    kAuthorizationFlagExtendRights;
+    AuthorizationItem authItem      = { kSMRightBlessPrivilegedHelper, 0, NULL, 0 };
+    AuthorizationRights authRights  = { 1, &authItem };
+    AuthorizationFlags flags        = kAuthorizationFlagDefaults |
+                                      kAuthorizationFlagInteractionAllowed |
+                                      kAuthorizationFlagPreAuthorize |
+                                      kAuthorizationFlagExtendRights;
 
     AuthorizationRef authRef = NULL;
 
@@ -65,7 +68,7 @@ bool InstallHelper_mac::installHelper(bool &isUserCanceled)
         // executable is placed in /Library/PrivilegedHelperTools.
         //
         CFErrorRef outError = NULL;
-        result = SMJobBless(kSMDomainSystemLaunchd, (CFStringRef)helperLabel, authRef, &outError);
+        result = SMJobBless(kSMDomainSystemLaunchd, (__bridge CFStringRef)helperLabel, authRef, &outError);
         if (outError) {
             NSError *error = (NSError *)outError;
             qCDebug(LOG_BASIC) << QString::fromCFString((CFStringRef)[error localizedDescription]);

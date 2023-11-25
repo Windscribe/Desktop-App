@@ -1,5 +1,4 @@
-#ifndef CHECKBOXBUTTON_H
-#define CHECKBOXBUTTON_H
+#pragma once
 
 #include <QGraphicsObject>
 #include <QVariantAnimation>
@@ -44,5 +43,3 @@ private:
 };
 
 } // namespace PreferencesWindow
-
-#endif // CHECKBOXBUTTON_H

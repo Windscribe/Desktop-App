@@ -17,8 +17,8 @@ LogoNotificationsButton::LogoNotificationsButton(ScalableGraphicsObject *parent)
     //font_ = *FontManager::instance().getFont(10, true);
     //numberWidth_ = CommonGraphics::textWidth(numNotifications_, font_);
 
-    connect(this, SIGNAL(hoverEnter()), SLOT(onHoverEnter()));
-    connect(this, SIGNAL(hoverLeave()), SLOT(onHoverLeave()));
+    connect(this, &ClickableGraphicsObject::hoverEnter, this, &LogoNotificationsButton::onHoverEnter);
+    connect(this, &ClickableGraphicsObject::hoverLeave, this, &LogoNotificationsButton::onHoverLeave);
 
     setCountState(0, 0);
 }

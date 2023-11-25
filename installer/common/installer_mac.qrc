@@ -1,0 +1,20 @@
+<RCC>
+    <qresource prefix="/">
+        <file>resources/background.png</file>
+        <file>resources/CHECK_ICON.svg</file>
+        <file>resources/ESCAPE_BUTTON.svg</file>
+        <file>resources/ERROR.svg</file>
+        <file>resources/INSTALL_ICON.svg</file>
+        <file>resources/MAC_CLOSE_DEFAULT.svg</file>
+        <file>resources/MAC_CLOSE_HOVER.svg</file>
+        <file>resources/MAC_MINIMIZE_DEFAULT.svg</file>
+        <file>resources/MAC_MINIMIZE_HOVER.svg</file>
+        <file>resources/IBMPlexSans-Bold.ttf</file>
+        <file>resources/IBMPlexSans-Regular.ttf</file>
+        <file>resources/SETTINGS_ICON.svg</file>
+        <file>resources/SPINNER.svg</file>
+        <file>resources/SHUTDOWN_ICON.svg</file>
+        <file>resources/WINDSCRIBE_ICON.svg</file>
+    </qresource>
+</RCC>
+

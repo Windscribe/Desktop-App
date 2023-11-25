@@ -35,7 +35,7 @@ Background::Background(ScalableGraphicsObject *parent, Preferences *preferences)
     opacityDisconnectedAnimation_.setEndValue(0.0);
     opacityDisconnectedAnimation_.setDuration(ANIMATION_DURATION);
 
-    connect(&backgroundImage_, SIGNAL(updated()), SLOT(doUpdate()));
+    connect(&backgroundImage_, &BackgroundImage::updated, this, &Background::doUpdate);
 
     topFrameBG_         = "background/WIN_MAIN_BG";
     headerDisconnected_ = "background/WIN_HEADER_BG_DISCONNECTED";

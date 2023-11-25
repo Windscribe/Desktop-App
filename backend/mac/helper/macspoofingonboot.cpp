@@ -14,17 +14,17 @@ MacSpoofingOnBootManager::~MacSpoofingOnBootManager()
 {
 }
 
-bool MacSpoofingOnBootManager::setEnabled(bool bEnabled, const std::string &interface, const std::string &macAddress, bool robustMethod)
+bool MacSpoofingOnBootManager::setEnabled(bool bEnabled, const std::string &interface, const std::string &macAddress)
 {
     if (bEnabled) {
-        return enable(interface, macAddress, robustMethod);
+        return enable(interface, macAddress);
     }
     return disable();
 }
 
-bool MacSpoofingOnBootManager::enable(const std::string &interface, const std::string &macAddress, bool robustMethod)
+bool MacSpoofingOnBootManager::enable(const std::string &interface, const std::string &macAddress)
 {
-    // write script 
+    // write script
     std::stringstream script;
 
     script << "#!/bin/bash\n";
@@ -40,13 +40,9 @@ bool MacSpoofingOnBootManager::enable(const std::string &interface, const std::s
     script << "echo \"File $FILE exists\"\n";
     script << "ipconfig waitall\n";
     script << "sleep 3\n";
-    if (robustMethod) {
-        script << "/System/Library/PrivateFrameworks/Apple80211.framework/Resources/airport -z\n";
-    }
+    script << "/System/Library/PrivateFrameworks/Apple80211.framework/Resources/airport -z\n";
     script << "/sbin/ifconfig " << interface << " ether " << macAddress << "\n";
-    if (robustMethod) {
-        script << "/sbin/ifconfig " << interface << " up\n";
-    }
+    script << "/sbin/ifconfig " << interface << " up\n";
     script << "fi\n";
 
     int fd = open("/etc/windscribe/boot_macspoofing.sh", O_CREAT | O_WRONLY | O_TRUNC);

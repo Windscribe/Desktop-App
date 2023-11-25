@@ -1,5 +1,4 @@
-#ifndef SPLITTUNNELINGADDRESSESGROUP_H
-#define SPLITTUNNELINGADDRESSESGROUP_H
+#pragma once
 
 #include "backend/preferences/preferences.h"
 #include "commongraphics/baseitem.h"
@@ -51,5 +50,3 @@ private:
 };
 
 } // namespace PreferencesWindow
-
-#endif // SPLITTUNNELINGADDRESSESGROUP_H

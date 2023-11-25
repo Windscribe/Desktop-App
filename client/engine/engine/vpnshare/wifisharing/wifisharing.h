@@ -1,5 +1,4 @@
-#ifndef WIFISHARING_H
-#define WIFISHARING_H
+#pragma once
 
 #include <QObject>
 #include <QTimer>
@@ -47,5 +46,3 @@ private:
 
     void updateICS(const QString &vpnAdapterName);
 };
-
-#endif // WIFISHARING_H

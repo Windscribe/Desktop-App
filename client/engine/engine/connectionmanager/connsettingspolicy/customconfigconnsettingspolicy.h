@@ -1,5 +1,4 @@
-#ifndef CUSTOMCONFIGCONNSETTINGSPOLICY_H
-#define CUSTOMCONFIGCONNSETTINGSPOLICY_H
+#pragma once
 
 #include "baseconnsettingspolicy.h"
 #include "engine/locationsmodel/customconfiglocationinfo.h"
@@ -27,5 +26,3 @@ private slots:
 private:
     QSharedPointer<locationsmodel::CustomConfigLocationInfo> locationInfo_;
 };
-
-#endif // CUSTOMCONFIGCONNSETTINGSPOLICY_H

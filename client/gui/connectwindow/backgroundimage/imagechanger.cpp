@@ -10,10 +10,10 @@ namespace ConnectWindow {
 ImageChanger::ImageChanger(QObject *parent, int animationDuration) : QObject(parent),
     pixmap_(nullptr), opacityCurImage_(1.0), opacityPrevImage_(0.0), animationDuration_(animationDuration)
 {
-    connect(&opacityAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onOpacityChanged(QVariant)));
-    connect(&opacityAnimation_, SIGNAL(finished()), SLOT(onOpacityFinished()));
+    connect(&opacityAnimation_, &QVariantAnimation::valueChanged, this, &ImageChanger::onOpacityChanged);
+    connect(&opacityAnimation_, &QVariantAnimation::finished, this, &ImageChanger::onOpacityFinished);
 
-    connect(&MainWindowState::instance(), SIGNAL(isActiveChanged(bool)), SLOT(onMainWindowIsActiveChanged(bool)));
+    connect(&MainWindowState::instance(), &MainWindowState::isActiveChanged, this, &ImageChanger::onMainWindowIsActiveChanged);
 }
 
 ImageChanger::~ImageChanger()
@@ -75,7 +75,7 @@ void ImageChanger::setMovie(QSharedPointer<QMovie> movie, bool bShowPrevChangeAn
         curImage_.movie = movie;
         opacityPrevImage_ = 0.0;
         opacityCurImage_ = 1.0;
-        connect(curImage_.movie.get(), SIGNAL(updated(QRect)), SLOT(updatePixmap()));
+        connect(curImage_.movie.get(), &QMovie::updated, this, &ImageChanger::updatePixmap);
         curImage_.movie->start();
     }
     else
@@ -98,7 +98,7 @@ void ImageChanger::setMovie(QSharedPointer<QMovie> movie, bool bShowPrevChangeAn
         opacityAnimation_.setEndValue(1.0);
         opacityAnimation_.setDuration((1.0 - opacityCurImage_) * animationDuration_);
 
-        connect(curImage_.movie.get(), SIGNAL(updated(QRect)), SLOT(updatePixmap()));
+        connect(curImage_.movie.get(), &QMovie::updated, this, &ImageChanger::updatePixmap);
         curImage_.movie->start();
         opacityAnimation_.start();
     }

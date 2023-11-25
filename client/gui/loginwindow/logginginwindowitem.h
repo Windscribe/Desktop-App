@@ -1,33 +1,25 @@
-#ifndef LOGGINGINWINDOWITEM_H
-#define LOGGINGINWINDOWITEM_H
+#pragma once
 
 #include <QGraphicsObject>
 #include <QVariantAnimation>
-#include "ilogginginwindow.h"
 #include "loginbutton.h"
 
 namespace LoginWindow {
 
-class LoggingInWindowItem : public ScalableGraphicsObject, public ILoggingInWindow
+class LoggingInWindowItem : public ScalableGraphicsObject
 {
     Q_OBJECT
-    Q_INTERFACES(ILoggingInWindow)
 public:
-
     explicit LoggingInWindowItem(QGraphicsObject *parent = nullptr);
-
-    QGraphicsObject *getGraphicsObject() override;
-
     QRectF boundingRect() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
-
-    void startAnimation() override;
-    void stopAnimation() override;
-
-    void setMessage(const QString &msg) override;
-    void setAdditionalMessage(const QString &msg) override;
-
     void updateScaling() override;
+
+    void startAnimation();
+    void stopAnimation();
+
+    void setMessage(const QString &msg);
+    void setAdditionalMessage(const QString &msg);
 
 private slots:
     void onSpinnerRotationChanged(const QVariant &value);
@@ -46,5 +38,3 @@ private:
 };
 
 }
-
-#endif // LOGGINGINWINDOWITEM_H

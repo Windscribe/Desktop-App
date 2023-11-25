@@ -1,5 +1,4 @@
-#ifndef WIDGET_H
-#define WIDGET_H
+#pragma once
 
 #include <QWidget>
 #include "engine/connectstatecontroller/iconnectstatecontroller.h"
@@ -88,4 +87,3 @@ private:
     api_resources::MyIpManager *myIpManager_;
 
 };
-#endif // WIDGET_H

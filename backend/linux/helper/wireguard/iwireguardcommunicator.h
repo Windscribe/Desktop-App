@@ -1,5 +1,4 @@
-#ifndef IWireGuardCommunicator_h
-#define IWireGuardCommunicator_h
+#pragma once
 
 #include <map>
 #include <string>
@@ -25,5 +24,3 @@ public:
         unsigned long long *bytesReceived,
         unsigned long long *bytesTransmitted) = 0;
 };
-
-#endif  // IWireGuardCommunicator_h

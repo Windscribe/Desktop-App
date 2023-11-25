@@ -37,7 +37,7 @@ LocationsButton::LocationsButton(ScalableGraphicsObject *parent) : ClickableGrap
     backgroundOpacityAnimation_.setStartValue(OPACITY_FULL);
     backgroundOpacityAnimation_.setEndValue(OPACITY_HIDDEN);
     backgroundOpacityAnimation_.setDuration(270);
-    connect(&backgroundOpacityAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onBackgroundOpacityChange(QVariant)));
+    connect(&backgroundOpacityAnimation_, &QVariantAnimation::valueChanged, this, &LocationsButton::onBackgroundOpacityChange);
     setClickable(true);
     updatePositions();
 }

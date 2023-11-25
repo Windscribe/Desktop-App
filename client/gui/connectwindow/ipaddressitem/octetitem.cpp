@@ -9,13 +9,13 @@ OctetItem::OctetItem(QObject *parent, NumbersPixmap *numbersPixmap) : QObject(pa
     for (int i = 0; i < 3; ++i)
     {
         numberItem_[i] = new NumberItem(this, numbersPixmap);
-        connect(numberItem_[i], SIGNAL(needUpdate()), SIGNAL(needUpdate()));
+        connect(numberItem_[i], &NumberItem::needUpdate, this, &OctetItem::needUpdate);
         curNums_[i] = 0;
     }
     curWidth_ = calcWidth();
 
     timer_ = new QTimer(this);
-    connect(timer_, SIGNAL(timeout()), SLOT(onTimer()));
+    connect(timer_, &QTimer::timeout, this, &OctetItem::onTimer);
 }
 
 void OctetItem::setOctetNumber(int num, bool bWithAnimation)

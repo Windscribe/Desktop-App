@@ -1,5 +1,4 @@
-#ifndef TYPES_ROBERTFILTER_H
-#define TYPES_ROBERTFILTER_H
+#pragma once
 
 #include <QString>
 #include <QJsonObject>
@@ -27,5 +26,3 @@ private:
 };
 
 } //namespace types
-
-#endif // TYPES_ROBERTFILTER_H

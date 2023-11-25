@@ -1,5 +1,4 @@
-#ifndef TEXTBUTTONWIDGET_H
-#define TEXTBUTTONWIDGET_H
+#pragma once
 
 #include <QPushButton>
 #include <QVariant>
@@ -45,5 +44,3 @@ private:
 };
 
 }
-
-#endif // TEXTBUTTONWIDGET_H

@@ -9,7 +9,7 @@ PSID_SAVED=`echo "show State:/Network/Windscribe/DNS" | scutil | grep NetworkInt
 
 if [[ "${PRI_IFACE}" == "" ]]; then
     echo "Error: Primary interface not found"
-    echo 
+    echo
     if [ "$1" != "-down" ] ; then
        exit 1
     fi
@@ -17,7 +17,7 @@ else
     echo "Primary interface: ${PRI_IFACE}"
     echo "PSID: ${PSID}"
     echo "PSID_SAVED: ${PSID_SAVED}"
-    echo    
+    echo
 fi
 
 function print_state {
@@ -26,12 +26,12 @@ function print_state {
     S_SETUP=`echo "show Setup:/Network/Service/${PSID}/DNS" | scutil`
 
     echo "State: ${S_STATE}"
-    echo 
+    echo
     echo "Setup: ${S_SETUP}"
     echo
 }
 
-function is_dns_changed {    
+function is_dns_changed {
 
     PREFIX=$1
 
@@ -55,7 +55,7 @@ function is_vpn_dns_setup_set {
 
 
 function is_dns_set_by_windscribe {
-    PREFIX=$1    
+    PREFIX=$1
     echo "show ${PREFIX}:/Network/Service/${PSID}/DNS" | scutil | grep SetByWindscribe >/dev/null
     return $?
 }
@@ -128,7 +128,7 @@ if [ "$1" = "-up" ] ; then
     done <<< "${FOREIGN_OPTIONS}"
 
     echo "DOMAIN: $DOMAIN_NAME"
-    echo "VPN DNS: $VPN_DNS"    
+    echo "VPN DNS: $VPN_DNS"
 
     scutil <<_EOF
         d.init
@@ -151,7 +151,7 @@ elif [ "$1" = "-down" ] ; then
             exit 0
         else
             echo "Finded original DNS Setup configuration"
-        fi            
+        fi
     else
             echo "Finded original DNS State configuration"
     fi

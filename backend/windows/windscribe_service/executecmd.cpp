@@ -12,7 +12,7 @@ ExecuteCmd::ExecuteCmd()
     this_ = this;
 }
 
-ExecuteCmd::~ExecuteCmd()
+void ExecuteCmd::release()
 {
     std::lock_guard<std::mutex> lock(mutex_);
     clearAllCmds();

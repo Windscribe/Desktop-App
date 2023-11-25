@@ -116,7 +116,7 @@ up() {
     fi
   done
 
-  # Set dns leak protection	
+  # Set dns leak protection
   SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
   DNS_LEAK_SCRIPT=$SCRIPT_DIR/dns-leak-protect
   "$DNS_LEAK_SCRIPT" "up" ${dev} ${dns_ips[@]}
@@ -125,9 +125,9 @@ up() {
   for dnsIp in "${dns_ips[@]}"
   do
     if [[ "$dnsIp" =~ ^"127.0.0." ]]; then
-	up_loopback "$dnsIp"
-        return 0     
-    fi 	
+    up_loopback "$dnsIp"
+        return 0
+    fi
   done
 
   while read -r setting; do
@@ -476,15 +476,15 @@ main() {
       elif [[ "${script_type}" == "down" ]]; then
 
         # The device (adapter) was not found, but execute down_loopback function if need
-	if [ -f "$WINDSCRIBE_SYSTEMD_CONFIG_FILE" ]; then
+    if [ -f "$WINDSCRIBE_SYSTEMD_CONFIG_FILE" ]; then
           down_loopback
-	fi
+    fi
 
         # The device (adapter) was not found, but execute down script for DNS-leaks rules anyway
         SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
         DNS_LEAK_SCRIPT=$SCRIPT_DIR/dns-leak-protect
         "$DNS_LEAK_SCRIPT" "down"
-        return 0     
+        return 0
       fi
     fi
 

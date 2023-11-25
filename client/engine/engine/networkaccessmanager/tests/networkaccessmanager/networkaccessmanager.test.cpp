@@ -45,7 +45,7 @@ void TestNetworkAccessManager::test_get()
         progressCalled++;
     });
 
-    QSignalSpy signalFinished(reply, SIGNAL(finished(int)));
+    QSignalSpy signalFinished(reply, &NetworkReply::finished);
     signalFinished.wait(20000);
     QCOMPARE(signalFinished.count(), 1);
     QVERIFY(progressCalled > 0);
@@ -80,7 +80,7 @@ void TestNetworkAccessManager::test_post()
         progressCalled++;
     });
 
-    QSignalSpy signalFinished(reply, SIGNAL(finished(int)));
+    QSignalSpy signalFinished(reply, &NetworkReply::finished);
     signalFinished.wait(20000);
     QCOMPARE(signalFinished.count(), 1);
     QVERIFY(progressCalled > 0);
@@ -114,7 +114,7 @@ void TestNetworkAccessManager::test_put()
         progressCalled++;
     });
 
-    QSignalSpy signalFinished(reply, SIGNAL(finished(int)));
+    QSignalSpy signalFinished(reply, &NetworkReply::finished);
     signalFinished.wait(20000);
     QCOMPARE(signalFinished.count(), 1);
     QVERIFY(progressCalled > 0);
@@ -144,7 +144,7 @@ void TestNetworkAccessManager::test_delete()
         progressCalled++;
     });
 
-    QSignalSpy signalFinished(reply, SIGNAL(finished(int)));
+    QSignalSpy signalFinished(reply, &NetworkReply::finished);
     signalFinished.wait(20000);
     QCOMPARE(signalFinished.count(), 1);
     QVERIFY(progressCalled > 0);
@@ -162,7 +162,7 @@ void TestNetworkAccessManager::test_whitelist()
 
         QSignalSpy signalWhitelist(manager, &NetworkAccessManager::whitelistIpsChanged);
 
-        QSignalSpy signalFinished(reply, SIGNAL(finished(int)));
+        QSignalSpy signalFinished(reply, &NetworkReply::finished);
         signalFinished.wait(20000);
 
         QCOMPARE(signalWhitelist.count(), 1);
@@ -182,7 +182,7 @@ void TestNetworkAccessManager::test_whitelist()
 
         QSignalSpy signalWhitelist(manager, &NetworkAccessManager::whitelistIpsChanged);
 
-        QSignalSpy signalFinished(reply, SIGNAL(finished(int)));
+        QSignalSpy signalFinished(reply, &NetworkReply::finished);
         signalFinished.wait(20000);
 
         QCOMPARE(signalWhitelist.count(), 2);

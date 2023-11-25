@@ -6,14 +6,14 @@
 void IpRoutes::setIps(const std::string &defaultRouteIp, const std::vector<std::string> &ips)
 {
     std::lock_guard<std::recursive_mutex> guard(mutex_);
-    
+
     // exclude duplicates
     std::set<std::string> ipsSet;
     for (auto ip = ips.begin(); ip != ips.end(); ++ip)
     {
         ipsSet.insert(*ip);
     }
-    
+
     // find route which need to delete
     std::set<std::string> ipsDelete;
     for (auto it = activeRoutes_.begin(); it != activeRoutes_.end(); ++it)
@@ -23,7 +23,7 @@ void IpRoutes::setIps(const std::string &defaultRouteIp, const std::vector<std::
             ipsDelete.insert(it->first);
         }
     }
-    
+
     // delete routes
     for (auto ip = ipsDelete.begin(); ip != ipsDelete.end(); ++ip)
     {
@@ -34,7 +34,7 @@ void IpRoutes::setIps(const std::string &defaultRouteIp, const std::vector<std::
             activeRoutes_.erase(fr);
         }
     }
-    
+
     // add routes
     for (auto ip = ipsSet.begin(); ip != ipsSet.end(); ++ip)
     {
@@ -68,7 +68,7 @@ void IpRoutes::addRoute(const RouteDescr &rd)
 {
     std::string cmd = "route add -net " + rd.ip + " " + rd.defaultRouteIp;
     LOG("cmd: %s", cmd.c_str());
-    
+
     Utils::executeCommand(cmd);
 }
 

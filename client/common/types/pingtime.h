@@ -1,5 +1,4 @@
-#ifndef LOCATIONSMODEL_PINGTIME_H
-#define LOCATIONSMODEL_PINGTIME_H
+#pragma once
 
 #include <QDataStream>
 #include "utils/ws_assert.h"
@@ -51,5 +50,3 @@ private:
     int timeMs_;
     static constexpr quint32 versionForSerialization_ = 1;
 };
-
-#endif // LOCATIONSMODEL_PINGTIME_H

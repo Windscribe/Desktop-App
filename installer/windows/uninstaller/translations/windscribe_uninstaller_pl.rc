@@ -1,0 +1,10 @@
+LANGUAGE LANG_POLISH, SUBLANG_NEUTRAL
+
+STRINGTABLE
+BEGIN
+    IDS_MSGBOX_TITLE "Odinstaluj Windscribe"
+    IDS_DIRECTORY_MISMATCH "Nie można kontynuować odinstalowywania. Katalog instalacyjny nie jest zgodny z katalogiem usuwania."
+    IDS_CONFIRM_UNINSTALL "Czy na pewno chcesz całkowicie usunąć Windscribe i wszystkie jego komponenty?"
+    IDS_UNINSTALL_SUCCESS "Program Windscribe został pomyślnie usunięty z komputera."
+    IDS_CLOSE_APP "Zamknij aplikację Windscribe, aby kontynuować odinstalowywanie. Należy pamiętać, że połączenie nie będzie chronione po zamknięciu aplikacji."
+END

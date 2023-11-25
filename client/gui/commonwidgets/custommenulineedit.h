@@ -1,5 +1,4 @@
-#ifndef CUSTOMMENULINEEDIT_H
-#define CUSTOMMENULINEEDIT_H
+#pragma once
 
 #include <QLineEdit>
 #include <QMenu>
@@ -14,7 +13,7 @@ class CustomMenuLineEdit : public BlockableQLineEdit
 {
     Q_OBJECT
 public:
-    CustomMenuLineEdit(QWidget *parent = Q_NULLPTR);
+    CustomMenuLineEdit(QWidget *parent = nullptr);
 
     void setColorScheme(bool darkMode);
     void updateScaling();
@@ -40,4 +39,3 @@ private:
 };
 
 }
-#endif // CUSTOMMENULINEEDIT_H

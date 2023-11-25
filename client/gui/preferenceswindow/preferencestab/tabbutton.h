@@ -1,11 +1,10 @@
-#ifndef TABBUTTON_H
-#define TABBUTTON_H
+#pragma once
 
 #include <QString>
 #include <QVariantAnimation>
 #include "commongraphics/clickablegraphicsobject.h"
 #include "graphicresources/independentpixmap.h"
-#include "ipreferencestabcontrol.h"
+#include "preferencestabtypes.h"
 
 namespace PreferencesWindow {
 
@@ -69,5 +68,3 @@ private:
 };
 
 } // namespace PreferencesWindow
-
-#endif // TABBUTTON_H

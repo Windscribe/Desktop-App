@@ -74,7 +74,7 @@ void TestDnsRequest::test_async()
                 request->deleteLater();
             });
 
-            QSignalSpy spySignal(request, SIGNAL(destroyed()));
+            QSignalSpy spySignal(request, &DnsRequest::destroyed);
             request->lookup();
 
             spySignal.wait(20000);
@@ -135,7 +135,7 @@ void TestDnsRequest::test_timeout()
     DnsRequest *request = new DnsRequest(this, "google.com", QStringList() << "192.0.2.10", 2000);
     request->lookup();
 
-    QSignalSpy spySignal(request, SIGNAL(finished()));
+    QSignalSpy spySignal(request, &DnsRequest::finished);
     spySignal.wait(10000);
     QCOMPARE(spySignal.count(), 1);
 

@@ -7,10 +7,6 @@ target_sources(gui PRIVATE
     firewallturnoffbutton.h
     iconhoverengagebutton.cpp
     iconhoverengagebutton.h
-    iinitwindow.h
-    ilogginginwindow.h
-    ilogginginwindow.h
-    iloginwindow.h
     initwindowitem.cpp
     initwindowitem.h
     logginginwindowitem.cpp

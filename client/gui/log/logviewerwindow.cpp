@@ -48,7 +48,7 @@ LogViewerWindow::LogViewerWindow(QWidget *parent)
 
     btnExportLog_ = new QPushButton("this");
     btnExportLog_->setText(tr("Export to file..."));
-    connect(btnExportLog_, SIGNAL(clicked(bool)), SLOT(onExportClick()));
+    connect(btnExportLog_, &QPushButton::clicked, this, &LogViewerWindow::onExportClick);
 
     auto *hLayout = new QHBoxLayout();
     hLayout->setAlignment(Qt::AlignLeft);

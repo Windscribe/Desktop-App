@@ -1,21 +1,15 @@
-#ifndef WINUTILS_H
-#define WINUTILS_H
+#pragma once
 
-#include <QString>
+#include <Windows.h>
+
 #include <QMap>
+#include <QString>
 
-#include "types/networkinterface.h"
 #include "networktypes.h"
+#include "types/networkinterface.h"
 
 namespace WinUtils
 {
-    #if (QT_VERSION != QT_VERSION_CHECK(6, 3, 1))
-    #error Code fixup required due to Qt version change.  Please update classNameIcon below.
-    #endif
-
-    const std::wstring classNameIcon = L"Qt631QWindowIcon";
-    const std::wstring classNameIconDebug = L"Qt631dQWindowIcon";
-    const std::wstring wsGuiIcon = L"Windscribe";
     const std::wstring wmActivateGui = L"WindscribeAppActivate";
 
     bool reboot();
@@ -25,16 +19,13 @@ namespace WinUtils
     QString getWinVersionString();
     void getOSVersionAndBuild(QString &osVersion, QString &build);
     QMap<QString,QString> enumerateInstalledProgramIconLocations();
-    QList<QString> enumerateRunningProgramLocations();
+    QStringList enumerateRunningProgramLocations();
 
     QString executeBlockingCmd(QString cmd, const QString &params, int timeoutMs = -1);
 
     bool isGuiAlreadyRunning();
 
     bool isServiceRunning(const QString &serviceName);
-
-    bool is32BitAppRunningOn64Bit();
-    QString iconPathFromBinPath(const QString &binPath);
 
     // Registry Adapters
     bool regHasLocalMachineSubkeyProperty(QString keyPath, QString propertyName);
@@ -71,14 +62,12 @@ namespace WinUtils
     std::optional<bool> haveInternetConnectivity();
 
     bool authorizeWithUac();
-    bool isWindows64Bit();
     unsigned long Win32GetErrorString(unsigned long errorCode, wchar_t *buffer, unsigned long bufferSize);
 
     // Retrieve the version information item specified by itemName (e.g. "FileVersion") from the executable.
     QString getVersionInfoItem(QString exeName, QString itemName);
 
     GUID stringToGuid(const char *str);
+
+    HWND appMainWindowHandle();
 }
-
-
-#endif // WINUTILS_H

@@ -1,5 +1,4 @@
-#ifndef DNSSERVERSCONFIGURATION_H
-#define DNSSERVERSCONFIGURATION_H
+#pragma once
 
 #include <QStringList>
 #include <QMutex>
@@ -33,5 +32,3 @@ private:
 
     QStringList dnsPolicyTypeToStringList(DNS_POLICY_TYPE dnsPolicyType);
 };
-
-#endif // DNSSERVERSCONFIGURATION_H

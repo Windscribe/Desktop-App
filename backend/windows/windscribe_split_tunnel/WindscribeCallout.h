@@ -1,5 +1,4 @@
-#ifndef WINDSCRIBE_CALLOUT_H   
-#define WINDSCRIBE_CALLOUT_H
+#pragma once
 
 #include <initguid.h>
 
@@ -26,4 +25,3 @@ typedef struct WINDSCRIBE_CALLOUT_DATA_
     UINT8 isExclude;
 } WINDSCRIBE_CALLOUT_DATA;
 
-#endif

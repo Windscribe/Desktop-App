@@ -16,28 +16,23 @@ LoginWindowItem::LoginWindowItem(QGraphicsObject *parent, PreferencesHelper *pre
     credentialsWindowItem_ = new CredentialsWindowItem(this, preferencesHelper);
     credentialsWindowItem_->setVisible(false);
 
-    connect(welcomeWindowItem_, SIGNAL(minimizeClick()), SIGNAL(minimizeClick()));
-    connect(welcomeWindowItem_, SIGNAL(closeClick()), SIGNAL(closeClick()));
-    connect(welcomeWindowItem_, SIGNAL(preferencesClick()), SIGNAL(preferencesClick()));
-    connect(welcomeWindowItem_, SIGNAL(emergencyConnectClick()), SIGNAL(emergencyConnectClick()));
-    connect(welcomeWindowItem_, SIGNAL(externalConfigModeClick()), SIGNAL(externalConfigModeClick()));
-    connect(welcomeWindowItem_, SIGNAL(haveAccountYesClick()), SIGNAL(haveAccountYesClick()));
-    connect(welcomeWindowItem_, SIGNAL(firewallTurnOffClick()), SLOT(firewallTurnOffClickWelcomeWindow()));
+    connect(welcomeWindowItem_, &WelcomeWindowItem::minimizeClick, this, &LoginWindowItem::minimizeClick);
+    connect(welcomeWindowItem_, &WelcomeWindowItem::closeClick, this, &LoginWindowItem::closeClick);
+    connect(welcomeWindowItem_, &WelcomeWindowItem::preferencesClick, this, &LoginWindowItem::preferencesClick);
+    connect(welcomeWindowItem_, &WelcomeWindowItem::emergencyConnectClick, this, &LoginWindowItem::emergencyConnectClick);
+    connect(welcomeWindowItem_, &WelcomeWindowItem::externalConfigModeClick, this, &LoginWindowItem::externalConfigModeClick);
+    connect(welcomeWindowItem_, &WelcomeWindowItem::haveAccountYesClick, this, &LoginWindowItem::haveAccountYesClick);
+    connect(welcomeWindowItem_, &WelcomeWindowItem::firewallTurnOffClick, this, &LoginWindowItem::firewallTurnOffClickWelcomeWindow);
 
-    connect(credentialsWindowItem_, SIGNAL(minimizeClick()), SIGNAL(minimizeClick()));
-    connect(credentialsWindowItem_, SIGNAL(closeClick()), SIGNAL(closeClick()));
-    connect(credentialsWindowItem_, SIGNAL(preferencesClick()), SIGNAL(preferencesClick()));
-    connect(credentialsWindowItem_, SIGNAL(emergencyConnectClick()), SIGNAL(emergencyConnectClick()));
-    connect(credentialsWindowItem_, SIGNAL(externalConfigModeClick()), SIGNAL(externalConfigModeClick()));
-    connect(credentialsWindowItem_, SIGNAL(backClick()), SIGNAL(backToWelcomeClick()));
-    connect(credentialsWindowItem_, SIGNAL(twoFactorAuthClick(QString, QString)), SIGNAL(twoFactorAuthClick(QString, QString)));
-    connect(credentialsWindowItem_, SIGNAL(loginClick(QString, QString, QString)), SIGNAL(loginClick(QString, QString, QString)));
-    connect(credentialsWindowItem_, SIGNAL(firewallTurnOffClick()), SLOT(firewallTurnOffClickCredentialsWindow()));
-}
-
-QGraphicsObject *LoginWindowItem::getGraphicsObject()
-{
-    return this;
+    connect(credentialsWindowItem_, &CredentialsWindowItem::minimizeClick, this, &LoginWindowItem::minimizeClick);
+    connect(credentialsWindowItem_, &CredentialsWindowItem::closeClick, this, &LoginWindowItem::closeClick);
+    connect(credentialsWindowItem_, &CredentialsWindowItem::preferencesClick, this, &LoginWindowItem::preferencesClick);
+    connect(credentialsWindowItem_, &CredentialsWindowItem::emergencyConnectClick, this, &LoginWindowItem::emergencyConnectClick);
+    connect(credentialsWindowItem_, &CredentialsWindowItem::externalConfigModeClick, this, &LoginWindowItem::externalConfigModeClick);
+    connect(credentialsWindowItem_, &CredentialsWindowItem::backClick, this, &LoginWindowItem::backToWelcomeClick);
+    connect(credentialsWindowItem_, &CredentialsWindowItem::twoFactorAuthClick, this, &LoginWindowItem::twoFactorAuthClick);
+    connect(credentialsWindowItem_, &CredentialsWindowItem::loginClick, this, &LoginWindowItem::loginClick);
+    connect(credentialsWindowItem_, &CredentialsWindowItem::firewallTurnOffClick, this, &LoginWindowItem::firewallTurnOffClickCredentialsWindow);
 }
 
 void LoginWindowItem::setErrorMessage(ERROR_MESSAGE_TYPE errorMessageType, const QString &errorMessage)

@@ -1,3 +1,61 @@
+2.8.1 (02/11/2023)
+All:
+   * Improved error description in 'admin required' error screen. #776
+   * Improved in-app upgrade message to indicate the update will be downloaded before terminating connections. #778
+   * Fixed debug log to indicate that a custom dns is being used. #777
+Windows:
+   * Improved wintun support by replacing custom wintun driver with OEM driver. #723
+   * Fixed connect state badge icon not displayed on the taskbar icon when the app is closed to tray then restored. #779
+   * Removed TAP adapter support.  OpenVPN-based connections will always use wintun. #723
+macOS:
+   * Improved firewall functionality while using split tunneling. #748
+   * Fixed IP does not change on GUI when using inclusive split tunnel. #348
+   * Fixed (potentially) Air Drop, Handoff, Airplay and other local Mac sharing features are partially functional or blocked with Allow LAN turned on. #415
+   * Fixed MAC spoofing to ensure we do not undo spoofs that did not originate from us. #749
+   * Fixed symlink for windscribe-cli isn't created. #780
+Linux:
+   * Added hostname/IP split tunneling support. #748
+   * Added preference for setting tray icon color. #761
+   * Improved uninstall scriptlets. #774
+
+
+2.8.0 (26/10/2023)
+All:
+   * Added machine-generated translations for Chinese (Traditional), Indonesian, Italian, Japanese, Korean, Persian/Farsi, Polish, Portuguese, Turkish, Ukrainian, and Vietnamese. #753
+   * Improved the connection mode description in preferences. #717
+   * Fixed double-right-clicking on the IP address makes it blurry on the main screen. #366
+   * Fixed top of password dots on login screen are clipped. #604
+   * Fixed UI 'weirdness' on the login screen when secure hotspot or proxy gateway feature is enabled and a SSL-error occurs. #692
+   * Fixed ESC text is misaligned with the close button in preferences. #705
+   * Fixed incorrect padding in 'out of data' screen. #750
+   * Fixed load indicator for bottom-most location is slightly clipped. #765
+   * Fixed clicking the blog link in the About menu doesn't do anything. #771
+   * Upgraded bundled ctrld utility to v1.3.1. #709
+Windows:
+   * Added language localization to the installer. #726
+   * Added language localization to the uninstaller. #754
+   * Improved app and installer main icon. #616
+   * Improved installer to unify it with the macOS installer. #725
+   * Fixed IKEv2 connection may not clean up correctly. #713
+   * Fixed initial IKEv2 connection may fail after virgin install. #727
+   * Fixed update fails when app is running and split tunneling is enabled. #772
+macOS:
+   * Added language localization to the installer. #726
+   * Added minimize and close-to-tray feature. #739
+   * Improved uninstall.  Helper and CLI symlink are removed on OS reboot if the app has been uninstalled. #16, #31, #87
+   * Improved app and installer main icon. #616
+   * Improved installer to unify it with the Windows installer. #725
+   * Fixed pressing Cmd+Q results in the exit prompt showing, but the app exiting immediately anyway. #736
+   * Fixed drop-down menus can be resized or moved. #767
+   * Fixed installer main window can be resized. #767
+   * Fixed misleading error message displayed during first time use of MAC Spoofing feature. #768
+   * Fixed special user account for helper is displayed. #775
+Linux:
+   * Improved in-app and manual upgrade experience. #335
+   * Fixed ARM64 Linux package missing OpenGL library dependency for Pi devices. 752
+   * Fixed update-systemd-resolved script may not undo changes when disconnecting. #766
+
+
 2.7.14 (17/10/2023)
 All:
    * Fixed OpenVPN not using custom DNS. #762

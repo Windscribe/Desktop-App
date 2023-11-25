@@ -17,7 +17,7 @@ CustomMenuLineEdit::CustomMenuLineEdit(QWidget *parent) : BlockableQLineEdit (pa
     menu_ = new CustomMenuWidget();
     menu_->setColorScheme(false);
     menu_->initContextMenu();
-    connect(menu_, SIGNAL(triggered(QAction*)), SLOT(onMenuTriggered(QAction*)));
+    connect(menu_, &CustomMenuWidget::triggered, this, &CustomMenuLineEdit::onMenuTriggered);
 
 }
 

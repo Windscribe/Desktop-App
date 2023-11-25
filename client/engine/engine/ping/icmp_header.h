@@ -8,8 +8,7 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#ifndef ICMP_HEADER_H
-#define ICMP_HEADER_H
+#pragma once
 
 #include <istream>
 #include <ostream>
@@ -90,5 +89,3 @@ void compute_checksum(icmp_header& header,
   sum += (sum >> 16);
   header.checksum(static_cast<unsigned short>(~sum));
 }
-
-#endif // ICMP_HEADER_H

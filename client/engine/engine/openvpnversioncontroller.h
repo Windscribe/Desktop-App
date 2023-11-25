@@ -1,6 +1,6 @@
 #pragma once
 
-#include <QStringList>
+#include <QString>
 
 //thread safe
 class OpenVpnVersionController
@@ -20,13 +20,9 @@ public:
     // Return the file name of the OpenVPN binary, excluding the path.
     QString getOpenVpnFileName();
 
-    void setUseWinTun(bool bUseWinTun);
-    bool isUseWinTun();
-
 private:
     OpenVpnVersionController();
 
-    bool bUseWinTun_ = false;
     QString ovpnVersion_;
 
     void detectVersion();

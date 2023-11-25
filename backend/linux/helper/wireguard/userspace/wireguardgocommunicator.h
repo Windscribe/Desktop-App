@@ -1,5 +1,4 @@
-#ifndef WireGuardGoCommunicator_h
-#define WireGuardGoCommunicator_h
+#pragma once
 
 #include <map>
 #include <string>
@@ -55,5 +54,3 @@ private:
     std::string executable_;
     unsigned long daemonCmdId_;
 };
-
-#endif  // WireGuardGoCommunicator_h

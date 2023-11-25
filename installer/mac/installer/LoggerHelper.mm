@@ -1,9 +1,9 @@
 #include "LoggerHelper.h"
 #import "Logger.h"
 
-LoggerHelper::LoggerHelper() 
+LoggerHelper::LoggerHelper()
 {
-    
+
 }
 
 void LoggerHelper::writeToLog(const char *str)

@@ -31,8 +31,8 @@ void HttpProxyConnection::start()
     }
 
     state_ = READ_CLIENT_REQUEST;
-    connect(socket_, SIGNAL(disconnected()), SLOT(onSocketDisconnected()));
-    connect(socket_, SIGNAL(readyRead()), SLOT(onSocketReadyRead()));
+    connect(socket_, &QTcpSocket::disconnected, this, &HttpProxyConnection::onSocketDisconnected);
+    connect(socket_, &QTcpSocket::readyRead, this, &HttpProxyConnection::onSocketReadyRead);
     writeAllSocket_ = new SocketWriteAll(this, socket_);
 }
 
@@ -86,7 +86,7 @@ void HttpProxyConnection::onSocketReadyRead()
         else
         {
             httpError_ = HttpProxyReply::stock_reply(HttpProxyReply::service_unavailable);
-            connect(writeAllSocket_, SIGNAL(allDataWriteFinished()), SLOT(onSocketAllDataWritten()));
+            connect(writeAllSocket_, &SocketWriteAll::allDataWriteFinished, this, &HttpProxyConnection::onSocketAllDataWritten);
             writeAllSocket_->write(httpError_.toBuffer());
             writeAllSocket_->setEmitAllDataWritten();
             state_ = STATE_WRITE_HTTP_ERROR;
@@ -166,7 +166,7 @@ void HttpProxyConnection::onExternalSocketDisconnected()
         // wait while all data will be write to client socket
         if (writeAllSocket_)
         {
-            connect(writeAllSocket_, SIGNAL(allDataWriteFinished()), SLOT(onSocketAllDataWritten()));
+            connect(writeAllSocket_, &SocketWriteAll::allDataWriteFinished, this, &HttpProxyConnection::onSocketAllDataWritten);
             writeAllSocket_->setEmitAllDataWritten();
         }
         else
@@ -221,7 +221,7 @@ void HttpProxyConnection::onExternalSocketError(QAbstractSocket::SocketError soc
     if (state_ == CONNECTING_TO_EXTERNAL_SERVER)
     {
         httpError_ = HttpProxyReply::stock_reply(HttpProxyReply::internal_server_error);
-        connect(writeAllSocket_, SIGNAL(allDataWriteFinished()), SLOT(onSocketAllDataWritten()));
+        connect(writeAllSocket_, &SocketWriteAll::allDataWriteFinished, this, &HttpProxyConnection::onSocketAllDataWritten);
         writeAllSocket_->write(httpError_.toBuffer());
         writeAllSocket_->setEmitAllDataWritten();
         state_ = STATE_WRITE_HTTP_ERROR;
@@ -241,7 +241,7 @@ void HttpProxyConnection::closeSocketsAndEmitFinished()
         {
             socketExternal_->close();
         }
-        Q_EMIT finished(hostname_);
+        emit finished(hostname_);
     }
 }
 

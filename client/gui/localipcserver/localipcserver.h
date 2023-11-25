@@ -1,9 +1,8 @@
-#ifndef LOCALIPCSERVER_H
-#define LOCALIPCSERVER_H
+#pragma once
 
 #include <QVector>
-#include "ipc/iserver.h"
-#include "ipc/iconnection.h"
+#include "ipc/server.h"
+#include "ipc/connection.h"
 #include "backend/backend.h"
 
 // Local server for receive and execute commands from local processes (currently only from the CLI).
@@ -23,9 +22,9 @@ signals:
     void attemptLogin(const QString &username, const QString &password, const QString &code2fa);
 
 private slots:
-    void onServerCallbackAcceptFunction(IPC::IConnection *connection);
-    void onConnectionCommandCallback(IPC::Command *command, IPC::IConnection *connection);
-    void onConnectionStateCallback(int state, IPC::IConnection *connection);
+    void onServerCallbackAcceptFunction(IPC::Connection *connection);
+    void onConnectionCommandCallback(IPC::Command *command, IPC::Connection *connection);
+    void onConnectionStateCallback(int state, IPC::Connection *connection);
 
     void onBackendConnectStateChanged(const types::ConnectState &connectState);
     void onBackendFirewallStateChanged(bool isEnabled);
@@ -37,12 +36,10 @@ private slots:
 
 private:
     Backend *backend_;
-    IPC::IServer *server_ = nullptr;
-    QVector<IPC::IConnection *> connections_;
+    IPC::Server *server_ = nullptr;
+    QVector<IPC::Connection *> connections_;
     bool isLoggedIn_ = false;
 
     void sendCommand(const IPC::Command &command);
     void sendLoginResult(bool isLoggedIn, const QString &errorMessage);
 };
-
-#endif // LOCALIPCSERVER_H

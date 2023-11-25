@@ -1,5 +1,4 @@
-#ifndef IPV4_HEADER_H
-#define IPV4_HEADER_H
+#pragma once
 
 #include <algorithm>
 #include <boost/asio/ip/address_v4.hpp>

@@ -7,7 +7,7 @@ namespace HttpProxyServer {
 HttpProxyServer::HttpProxyServer(QObject *parent) : QTcpServer(parent)
 {
     usersCounter_ = new ConnectedUsersCounter(this);
-    connect(usersCounter_, SIGNAL(usersCountChanged()), SIGNAL(usersCountChanged()));
+    connect(usersCounter_, &ConnectedUsersCounter::usersCountChanged, this, &HttpProxyServer::usersCountChanged);
     connectionManager_ = new HttpProxyConnectionManager(this, 4, usersCounter_);
 }
 

@@ -16,8 +16,8 @@ TextLinkButton::TextLinkButton(ScalableGraphicsObject *parent) : ClickableGraphi
 
     recalculateDimensions();
 
-    connect(&linkOpacityAnimation_, SIGNAL(valueChanged(QVariant)), this, SLOT(onLinkOpacityChanged(QVariant)));
-    connect(&textOpacityAnimation_, SIGNAL(valueChanged(QVariant)), this, SLOT(onTextOpacityChanged(QVariant)));
+    connect(&linkOpacityAnimation_, &QVariantAnimation::valueChanged, this, &TextLinkButton::onLinkOpacityChanged);
+    connect(&textOpacityAnimation_, &QVariantAnimation::valueChanged, this, &TextLinkButton::onTextOpacityChanged);
     setClickable(true);
 }
 
@@ -100,10 +100,10 @@ void TextLinkButton::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
 {
     Q_UNUSED(event);
 
-	if (clickable_)
-	{
+    if (clickable_)
+    {
         startAnAnimation(linkOpacityAnimation_, curLinkOpacity_, OPACITY_FULL, ANIMATION_SPEED_FAST);
-	}
+    }
 }
 
 void TextLinkButton::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)

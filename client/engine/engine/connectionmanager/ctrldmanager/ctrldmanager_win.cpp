@@ -11,10 +11,10 @@
 CtrldManager_win::CtrldManager_win(QObject *parent, bool isCreateLog) : ICtrldManager(parent, isCreateLog), bProcessStarted_(false)
 {
     process_ = new QProcess(this);
-    connect(process_, SIGNAL(started()), SLOT(onProcessStarted()));
-    connect(process_, SIGNAL(finished(int)), SLOT(onProcessFinished()));
-    connect(process_, SIGNAL(readyReadStandardOutput()), SLOT(onReadyReadStandardOutput()));
-    connect(process_, SIGNAL(errorOccurred(QProcess::ProcessError)), SLOT(onProcessErrorOccurred(QProcess::ProcessError)));
+    connect(process_, &QProcess::started, this, &CtrldManager_win::onProcessStarted);
+    connect(process_, &QProcess::finished, this, &CtrldManager_win::onProcessFinished);
+    connect(process_, &QProcess::readyReadStandardOutput, this, &CtrldManager_win::onReadyReadStandardOutput);
+    connect(process_, &QProcess::errorOccurred, this,&CtrldManager_win::onProcessErrorOccurred);
     process_->setProcessChannelMode(QProcess::MergedChannels);
 
     ctrldExePath_ = QCoreApplication::applicationDirPath() + "/windscribectrld.exe";
@@ -96,7 +96,7 @@ void CtrldManager_win::onReadyReadStandardOutput()
     bool bSuccess = true;
     int length;
     while (true) {
-        QString str = getNextStringFromInputBuffer(bSuccess, length);    
+        QString str = getNextStringFromInputBuffer(bSuccess, length);
         if (bSuccess) {
             inputArr_.remove(0, length);
             if (isCreateLog_)

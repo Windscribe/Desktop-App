@@ -1,5 +1,4 @@
-#ifndef GETDEVICEID_H
-#define GETDEVICEID_H
+#pragma once
 
 #include <QString>
 #include <QMutex>
@@ -19,5 +18,3 @@ private:
     GetDeviceId();
     QMutex mutex_;
 };
-
-#endif // GETDEVICEID_H

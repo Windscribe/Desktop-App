@@ -26,8 +26,7 @@ ConnectWindowItem::ConnectWindowItem(QGraphicsObject *parent, Preferences *prefe
       networkActive_(false),
       connectionTime_(""),
       dataTransferred_(""),
-      isFirewallAlwaysOn_(false),
-      isFirewallBlocked_(false)
+      isFirewallAlwaysOn_(false)
 {
     WS_ASSERT(preferencesHelper_);
     background_ = new Background(this, preferences);
@@ -103,8 +102,6 @@ ConnectWindowItem::ConnectWindowItem(QGraphicsObject *parent, Preferences *prefe
 
     firewallButton_ = new FirewallButton(this);
     connect(firewallButton_, &FirewallButton::clicked, this, &ConnectWindowItem::onFirewallButtonClick);
-    connect(firewallButton_, &FirewallButton::hoverEnter, this, &ConnectWindowItem::onFirewallButtonHoverEnter);
-    connect(firewallButton_, &FirewallButton::hoverLeave, this, &ConnectWindowItem::onFirewallButtonHoverLeave);
 
     firewallInfo_ = new IconButton(16, 16, "INFO_ICON", "", this, 0.25, 0.25);
     firewallInfo_->setClickableHoverable(false, true);
@@ -134,11 +131,6 @@ void ConnectWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem 
     Q_UNUSED(widget);
 
     // painter->fillRect(boundingRect(), Qt::blue);
-}
-
-QGraphicsObject *ConnectWindowItem::getGraphicsObject()
-{
-    return this;
 }
 
 void ConnectWindowItem::setClickable(bool isClickable)
@@ -192,12 +184,6 @@ void ConnectWindowItem::setFirewallAlwaysOn(bool isFirewallAlwaysOn)
     isFirewallAlwaysOn_ = isFirewallAlwaysOn;
 }
 
-void ConnectWindowItem::setFirewallBlock(bool isFirewallBlocked)
-{
-    isFirewallBlocked_ = isFirewallBlocked;
-    firewallButton_->setDisabled(isFirewallBlocked_);
-}
-
 void ConnectWindowItem::setTestTunnelResult(bool success)
 {
     connectStateProtocolPort_->setTestTunnelResult(success);
@@ -232,7 +218,7 @@ void ConnectWindowItem::updateConnectState(const types::ConnectState &newConnect
     {
         middleItem_->setIsSecured(newConnectState.connectState == CONNECT_STATE_CONNECTED);
 
-        firewallButton_->setDisabled(isFirewallBlocked_ || (newConnectState.connectState == CONNECT_STATE_CONNECTING || newConnectState.connectState == CONNECT_STATE_DISCONNECTING));
+        firewallButton_->setDisabled(newConnectState.connectState == CONNECT_STATE_CONNECTING || newConnectState.connectState == CONNECT_STATE_DISCONNECTING);
 
         background_->onConnectStateChanged(newConnectState.connectState, prevConnectState_.connectState);
         connectButton_->onConnectStateChanged(newConnectState.connectState, prevConnectState_.connectState);
@@ -439,29 +425,6 @@ void ConnectWindowItem::onFirewallButtonClick()
     ti.delay = 100;
     TooltipUtil::getFirewallAlwaysOnTooltipInfo(&ti.title, &ti.desc);
     TooltipController::instance().showTooltipDescriptive(ti);
-}
-
-void ConnectWindowItem::onFirewallButtonHoverEnter()
-{
-    if (!preferencesHelper_->isFirewallBlocked())
-        return;
-
-    QGraphicsView *view = scene()->views().first();
-    QPoint globalPt = view->mapToGlobal(view->mapFromScene(firewallButton_->scenePos()));
-
-    TooltipInfo ti(TOOLTIP_TYPE_DESCRIPTIVE, TOOLTIP_ID_FIREWALL_BLOCKED);
-    ti.tailtype = TOOLTIP_TAIL_BOTTOM;
-    ti.tailPosPercent = 0.1;
-    ti.x = globalPt.x() + 8 * G_SCALE;
-    ti.y = globalPt.y() - 4 * G_SCALE;
-    ti.width = 200 * G_SCALE;
-    TooltipUtil::getFirewallBlockedTooltipInfo(&ti.title, &ti.desc);
-    TooltipController::instance().showTooltipDescriptive(ti);
-}
-
-void ConnectWindowItem::onFirewallButtonHoverLeave()
-{
-    TooltipController::instance().hideTooltip(TOOLTIP_ID_FIREWALL_BLOCKED);
 }
 
 void ConnectWindowItem::onFirewallInfoHoverEnter()

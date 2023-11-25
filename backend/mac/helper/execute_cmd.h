@@ -1,5 +1,4 @@
-#ifndef ____ExecuteCmd__
-#define ____ExecuteCmd__
+#pragma once
 
 #include <stdio.h>
 #include <string>
@@ -14,20 +13,20 @@ public:
         static ExecuteCmd i;
         return i;
     }
-    
+
     unsigned long execute(const std::string &cmd, const std::string &cwd = "");
     void getStatus(unsigned long cmdId, bool &bFinished, std::string &log);
     void clearCmds();
 
 private:
     ExecuteCmd();
-    
+
     unsigned long curCmdId_;
-    
+
     static void runCmd(unsigned long cmdId, std::string cmd);
     void cmdFinished(unsigned long cmdId, bool bSuccess, std::string log);
     bool isCmdExist(unsigned long cmdId);
-    
+
     struct CmdDescr
     {
         unsigned long cmdId;
@@ -35,9 +34,7 @@ private:
         bool bFinished;
         bool bSuccess;
     };
-    
+
     std::list<CmdDescr *> executingCmds_;
     std::mutex mutex_;
 };
-
-#endif /* defined(____ExecuteCmd__) */

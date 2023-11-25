@@ -31,18 +31,18 @@ bool Helper_mac::connect()
         sock_ = -1;
         return false;
     }
-    
+
     memset(&addr, 0, sizeof(addr));
     addr.sun_family = AF_UNIX;
     strncpy(addr.sun_path, SOCK_PATH, sizeof(addr.sun_path)-1);
-    
+
     if (::connect(sock_, (struct sockaddr*)&addr, sizeof(addr)) == -1)
     {
         close(sock_);
         sock_ = -1;
         return false;
     }
-    
+
     return true;
 }
 
@@ -75,7 +75,7 @@ bool Helper_mac::setPaths(const std::wstring &archivePath, const std::wstring &i
     {
         return false;
     }
-    
+
     return answerCmd.executed == 1;
 }
 
@@ -90,7 +90,7 @@ int Helper_mac::executeFilesStep()
     {
         return false;
     }
-    
+
     return answerCmd.executed;
 }
 
@@ -121,11 +121,11 @@ bool Helper_mac::killProcess(pid_t pid)
     CMD_ANSWER answer;
     CMD_KILL_PROCESS cmd;
     cmd.processId = pid;
- 
+
     std::stringstream stream;
     boost::archive::text_oarchive oa(stream, boost::archive::no_header);
     oa << cmd;
-    
+
     return runCommand(HELPER_CMD_KILL_PROCESS, stream.str(), answer);
 }
 
@@ -149,14 +149,14 @@ bool Helper_mac::sendCmdToHelper(int cmdId, const std::string &data)
     {
         return false;
     }
-    
+
     // second 4 bytes - pid
     const auto pid = getpid();
     if (!sendAll(sock_, (void *)&pid, sizeof(pid)))
     {
         return false;
     }
-    
+
     // third 4 bytes - size of buffer
     if (!sendAll(sock_, (void *)&length, sizeof(length)))
     {
@@ -171,7 +171,7 @@ bool Helper_mac::sendCmdToHelper(int cmdId, const std::string &data)
             return false;
         }
     }
-    
+
     return true;
 }
 
@@ -187,7 +187,7 @@ bool Helper_mac::readAnswer(CMD_ANSWER &outAnswer)
     {
         return false;
     }
-    
+
     std::string str(buff.begin(), buff.end());
     std::istringstream stream(str);
     boost::archive::text_iarchive ia(stream, boost::archive::no_header);

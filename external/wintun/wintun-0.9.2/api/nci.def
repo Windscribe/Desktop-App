@@ -1,4 +1,0 @@
-LIBRARY nci.dll
-EXPORTS
-	NciGetConnectionName
-	NciSetConnectionName

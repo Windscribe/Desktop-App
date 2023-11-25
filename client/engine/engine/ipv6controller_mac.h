@@ -1,5 +1,4 @@
-#ifndef IPV6CONTROLLER_MAC_H
-#define IPV6CONTROLLER_MAC_H
+#pragma once
 
 #include "engine/helper/helper_mac.h"
 
@@ -34,5 +33,3 @@ private:
     QString getStateFromCmd(const QString &interface);
 
 };
-
-#endif // IPV6CONTROLLER_MAC_H

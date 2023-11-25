@@ -1,5 +1,4 @@
-#ifndef EMAILITEM_H
-#define EMAILITEM_H
+#pragma once
 
 #include "commongraphics/baseitem.h"
 #include "commongraphics/textbutton.h"
@@ -59,5 +58,3 @@ private:
 };
 
 } // namespace PreferencesWindow
-
-#endif // EMAILITEM_H

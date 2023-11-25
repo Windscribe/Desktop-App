@@ -1,5 +1,4 @@
-#ifndef PINGBARBUTTON_H
-#define PINGBARBUTTON_H
+#pragma once
 
 #include <QGraphicsObject>
 #include "types/pingtime.h"
@@ -44,5 +43,3 @@ private:
 };
 
 } //namespace ConnectWindow
-
-#endif // PINGBARBUTTON_H

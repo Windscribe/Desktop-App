@@ -1,5 +1,4 @@
-#ifndef WINDSCRIBEAPPLICATION_H
-#define WINDSCRIBEAPPLICATION_H
+#pragma once
 
 #include <QApplication>
 #include <QTranslator>
@@ -57,9 +56,7 @@ private:
 #endif
 
 #ifdef Q_OS_MAC
-    ExitHandler_mac exitHanlderMac_;
+    ExitHandler_mac exitHandlerMac_;
 #endif
     QTranslator translator;
 };
-
-#endif // WINDSCRIBEAPPLICATION_H

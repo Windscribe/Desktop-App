@@ -1,5 +1,4 @@
-#ifndef CURLINITCONTROLLER_H
-#define CURLINITCONTROLLER_H
+#pragma once
 
 #include <QMutex>
 
@@ -13,5 +12,3 @@ private:
     static bool isInitialized_;
     static QMutex mutex_;
 };
-
-#endif // CURLINITCONTROLLER_H

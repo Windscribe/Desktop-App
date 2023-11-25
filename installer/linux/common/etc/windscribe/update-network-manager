@@ -1,5 +1,5 @@
 #!/bin/bash
-# 
+#
 # Parses DHCP options from openvpn to update DNS by writing directly to /etc/resolv.conf
 # Example envs set from openvpn:
 #
@@ -14,14 +14,15 @@
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 DNS_LEAK_SCRIPT=$SCRIPT_DIR/dns-leak-protect
+CACHE_NAMESERVER_DIR="/etc/windscribe/windscribe_nameservers"
+CACHE_NAMESERVER_FILE="$CACHE_NAMESERVER_DIR/$DEV.nameserver"
 
 case "$script_type" in
   up)
-    if [ ! -d /tmp/windscribe_openvpn ]; then
-        mkdir /tmp/windscribe_openvpn
+    if [ ! -d $CACHE_NAMESERVER_DIR ]; then
+        mkdir $CACHE_NAMESERVER_DIR
     fi
-    CACHE_NAMESERVER="/tmp/windscribe_openvpn/$DEV.nameserver"
-    echo -n "" > $CACHE_NAMESERVER
+    echo -n "" > $CACHE_NAMESERVER_FILE
 
     servers=()
 
@@ -36,7 +37,7 @@ case "$script_type" in
 
             cat /etc/resolv.conf | grep -v ^# | grep -v ^nameserver > /tmp/resolv.conf
             echo "nameserver $dns" >> /tmp/resolv.conf
-            echo $dns >> $CACHE_NAMESERVER
+            echo $dns >> $CACHE_NAMESERVER_FILE
             cat /etc/resolv.conf | grep -v ^# | grep -v "nameserver $dns" | grep nameserver >> /tmp/resolv.conf
             mv /tmp/resolv.conf $(readlink -f /etc/resolv.conf)
 
@@ -45,14 +46,13 @@ case "$script_type" in
     done
 
     "$DNS_LEAK_SCRIPT" "up" ${dev} ${servers[@]}
-	;;
+    ;;
   down)
 
-    CACHE_NAMESERVER="/tmp/windscribe_openvpn/$DEV.nameserver"
-    echo $CACHE_NAMESERVER
+    echo $CACHE_NAMESERVER_FILE
 
-    if [ -f $CACHE_NAMESERVER ]; then
-        for ns in `cat $CACHE_NAMESERVER`; do
+    if [ -f $CACHE_NAMESERVER_FILE ]; then
+        for ns in `cat $CACHE_NAMESERVER_FILE`; do
             echo "Removing $ns from /etc/resolv.conf"
             cat /etc/resolv.conf | grep -v "nameserver $ns" > /tmp/resolv.conf
             mv /tmp/resolv.conf $(readlink -f /etc/resolv.conf)
@@ -60,6 +60,6 @@ case "$script_type" in
         done
     fi
 
-	"$DNS_LEAK_SCRIPT" "down"
-	;;
+    "$DNS_LEAK_SCRIPT" "down"
+    ;;
 esac

@@ -1,8 +1,9 @@
 #include "initializehelper.h"
-#include "engine/helper/ihelper.h"
-#include "utils/logger.h"
 
 #include <QTimer>
+
+#include "engine/helper/ihelper.h"
+#include "utils/logger.h"
 
 InitializeHelper::InitializeHelper(QObject *parent, IHelper *helper) : QObject(parent),
     helper_(helper), helperInitAttempts_(0)
@@ -19,7 +20,7 @@ void InitializeHelper::onTimerControlHelper()
     QTimer *timer = (QTimer *)sender();
     if (helper_->currentState() == IHelper::STATE_CONNECTED)
     {
-        qCDebug(LOG_BASIC) << "OpenVPN helper connected ok";
+        qCDebug(LOG_BASIC) << "Windscribe helper connected ok";
         timer->stop();
         timer->deleteLater();
         printHelperVersion();
@@ -29,26 +30,26 @@ void InitializeHelper::onTimerControlHelper()
     {
         timer->stop();
         timer->deleteLater();
-        qCDebug(LOG_BASIC) << "OpenVPN helper connect failed";
+        qCDebug(LOG_BASIC) << "Windscribe helper connect failed";
         if (helperInitAttempts_ >= 1)
         {
             emit finished(INIT_HELPER_FAILED);
         }
         else
         {
-            qCDebug(LOG_BASIC) << "Attempt to reinstall helper";
+            qCDebug(LOG_BASIC) << "Attempting to reinstall helper";
             if (helper_->reinstallHelper())
             {
                 qCDebug(LOG_BASIC) << "Helper reinstalled";
                 helper_->startInstallHelper();
                 helperInitAttempts_++;
                 QTimer *newtimer = new QTimer(this);
-                connect(newtimer, SIGNAL(timeout()), SLOT(onTimerControlHelper()));
+                connect(newtimer, &QTimer::timeout, this, &InitializeHelper::onTimerControlHelper);
                 newtimer->start(10);
             }
             else
             {
-                qCDebug(LOG_BASIC) << "Failed reinstall helper";
+                qCDebug(LOG_BASIC) << "Failed to reinstall helper";
                 emit finished(INIT_HELPER_FAILED);
             }
         }
@@ -57,7 +58,7 @@ void InitializeHelper::onTimerControlHelper()
     {
         timer->stop();
         timer->deleteLater();
-        qCDebug(LOG_BASIC) << "Failed install helper (user canceled)";
+        qCDebug(LOG_BASIC) << "Failed to install helper (user canceled)";
         emit finished(INIT_HELPER_USER_CANCELED);
     }
 }
@@ -66,14 +67,14 @@ void InitializeHelper::handleHelperInit()
 {
     if (helper_->currentState() == IHelper::STATE_CONNECTED)
     {
-        qCDebug(LOG_BASIC) << "OpenVPN helper connected ok";
+        qCDebug(LOG_BASIC) << "Windscribe helper connected ok";
         printHelperVersion();
         emit finished(INIT_HELPER_SUCCESS);
     }
     else
     {
         QTimer *timer = new QTimer(this);
-        connect(timer, SIGNAL(timeout()), SLOT(onTimerControlHelper()));
+        connect(timer, &QTimer::timeout, this, &InitializeHelper::onTimerControlHelper);
         timer->start(10);
     }
 }

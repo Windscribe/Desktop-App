@@ -1,28 +1,16 @@
-#ifndef PATH_H
-#define PATH_H
+#pragma once
 
 #include <string>
 
-class Path
+namespace Path
 {
-public:
-    static bool PathCharIsSlash(const char C);
-	static bool PathCharIsSlash(const wchar_t C);
-	static std::wstring AddBackslash(const std::wstring S);
-	static std::wstring PathExpand(const std::wstring Filename);
-	static std::wstring RemoveBackslashUnlessRoot(const std::wstring S);
-	static unsigned int PathDrivePartLengthEx(const std::wstring Filename, const bool IncludeSignificantSlash);
-	static std::wstring PathExtractName(const std::wstring Filename);
-	static std::wstring PathExtractDir(const std::wstring Filename);
-	static std::wstring PathExtractPath(const std::wstring Filename);
-	static unsigned int PathPathPartLength(const std::wstring Filename, const bool IncludeSlashesAfterPath);
-	static std::wstring PathExtractDrive(const std::wstring Filename);
-	static unsigned int PathDrivePartLength(const std::wstring Filename);
-	static std::wstring PathChangeExt(const std::wstring Filename, const std::wstring Extension);
-	static unsigned int PathExtensionPos(const std::wstring Filename);
-	static std::wstring PathExtractExt(const std::wstring &s);
-    static bool isRoot(const std::wstring& fileName);
-	static bool isOnSystemDrive(const std::wstring& fileName);
-};
+    std::wstring addSeparator(const std::wstring &fileName);
+    std::wstring append(const std::wstring &dir, const std::wstring &suffix);
+    std::wstring extractDir(const std::wstring &fileName);
+    std::wstring extractName(const std::wstring &fileName);
+    std::wstring removeSeparator(const std::wstring &fileName);
 
-#endif // PATH_H
+    bool equivalent(const std::wstring& fileName1, const std::wstring& fileName2);
+    bool isOnSystemDrive(const std::wstring& fileName);
+    bool isRoot(const std::wstring& fileName);
+}

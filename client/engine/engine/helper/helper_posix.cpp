@@ -547,7 +547,7 @@ bool Helper_posix::clearFirewallRules(bool isKeepPfEnabled)
 
     CMD_CLEAR_FIREWALL_RULES cmd;
     CMD_ANSWER answer;
-    cmd.isKeekPfEnabled = isKeepPfEnabled;
+    cmd.isKeepPfEnabled = isKeepPfEnabled;
 
     std::stringstream stream;
     boost::archive::text_oarchive oa(stream, boost::archive::no_header);

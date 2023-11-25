@@ -1,5 +1,4 @@
-#ifndef Routes_h
-#define Routes_h
+#pragma once
 
 #include <string>
 #include <vector>
@@ -12,7 +11,7 @@ public:
     void add(const std::string &ip, const std::string &gateway, const std::string &mask);
     void addWithInterface(const std::string &ip, const std::string &interface);
     void clear();
-    
+
 private:
     struct RouteDescr
     {
@@ -21,8 +20,6 @@ private:
         std::string mask;
         std::string interface;
     };
-    
+
     std::vector<RouteDescr> routes_;
 };
-
-#endif /* Routes_h */

@@ -1,5 +1,4 @@
-#ifndef LEGACY_PROTOBUF_H
-#define LEGACY_PROTOBUF_H
+#pragma once
 
 #include "types/guisettings.h"
 #include "types/enginesettings.h"
@@ -16,7 +15,3 @@ public:
 
     static bool loadFavoriteLocations(const QByteArray &arr, QSet<LocationID> &out);
 };
-
-
-
-#endif // LEGACY_PROTOBUF_H

@@ -1,5 +1,4 @@
-#ifndef SLEEPEVENTS_WIN_H
-#define SLEEPEVENTS_WIN_H
+#pragma once
 
 #include <QObject>
 #include "isleepevents.h"
@@ -19,5 +18,3 @@ private:
     HWND hwnd_;
     static SleepEvents_win *this_;
 };
-
-#endif // SLEEPEVENTS_WIN_H

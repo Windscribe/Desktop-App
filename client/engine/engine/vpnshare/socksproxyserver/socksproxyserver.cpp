@@ -7,7 +7,7 @@ namespace SocksProxyServer {
 SocksProxyServer::SocksProxyServer(QObject *parent) : QTcpServer(parent)
 {
     usersCounter_ = new ConnectedUsersCounter(this);
-    connect(usersCounter_, SIGNAL(usersCountChanged()), SIGNAL(usersCountChanged()));
+    connect(usersCounter_, &ConnectedUsersCounter::usersCountChanged, this, &SocksProxyServer::usersCountChanged);
     connectionManager_ = new SocksProxyConnectionManager(this, 4, usersCounter_);
 }
 

@@ -106,10 +106,6 @@ public:
     void setNetworkLastKnownGoodProtocolPort(const QString &network, const types::Protocol &protocol, uint port);
     void clearLastKnownGoodProtocols(const QString &network);
 
-    bool isUseWintun() const;
-    TAP_ADAPTER_TYPE tapAdapter() const;
-    void setTapAdapter(TAP_ADAPTER_TYPE tap);
-
     QString customOvpnConfigsPath() const;
     void setCustomOvpnConfigsPath(const QString &path);
     bool isKeepAliveEnabled() const;
@@ -127,7 +123,7 @@ private:
 
     // for serialization
     static constexpr quint32 magic_ = 0x7745C2AE;
-    static constexpr int versionForSerialization_ = 4;  // should increment the version if the data format is changed
+    static constexpr int versionForSerialization_ = 5;  // should increment the version if the data format is changed
 };
 
 } // types namespace

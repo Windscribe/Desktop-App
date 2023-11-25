@@ -131,9 +131,8 @@ LocationsTab::LocationsTab(QWidget *parent, Preferences *preferences, gui_locati
     configFooterInfo_ = new ConfigFooterInfo(this);
     configFooterInfo_->hide();
 
-    connect(configFooterInfo_, SIGNAL(clearCustomConfigClicked()),
-            SIGNAL(clearCustomConfigClicked()));
-    connect(configFooterInfo_, SIGNAL(addCustomConfigClicked()), SIGNAL(addCustomConfigClicked()));
+    connect(configFooterInfo_, &ConfigFooterInfo::clearCustomConfigClicked, this, &LocationsTab::clearCustomConfigClicked);
+    connect(configFooterInfo_, &ConfigFooterInfo::addCustomConfigClicked, this, &LocationsTab::addCustomConfigClicked);
 
     updateLocationWidgetsGeometry(unscaledHeightOfItemViewport());
 
@@ -145,7 +144,7 @@ LocationsTab::LocationsTab(QWidget *parent, Preferences *preferences, gui_locati
     delayShowIconsTimer_.setInterval(SEARCH_BUTTON_POS_ANIMATION_DURATION+100);
     connect(&delayShowIconsTimer_, &QTimer::timeout, this, &LocationsTab::onDelayShowIconsTimerTimeout);
 
-    connect(locationsModelManager, SIGNAL(deviceNameChanged(QString)), SLOT(onDeviceNameChanged(QString)));
+    connect(locationsModelManager, &gui_locations::LocationsModelManager::deviceNameChanged, this, &LocationsTab::onDeviceNameChanged);
     updateCustomConfigsEmptyListVisibility();
 
     connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &LocationsTab::onLanguageChanged);

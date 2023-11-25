@@ -1,33 +1,32 @@
-#ifndef MAINWINDOWCONTROLLER_H
-#define MAINWINDOWCONTROLLER_H
+#pragma once
 
 #include <QObject>
 #include <QGraphicsView>
 #include <QQueue>
 #include <QPropertyAnimation>
 #include <QParallelAnimationGroup>
-#include "utils/shadowmanager.h"
-#include "locationswindow/locationswindow.h"
-#include "loginwindow/iloginwindow.h"
-#include "loginwindow/ilogginginwindow.h"
-#include "loginwindow/iinitwindow.h"
-#include "emergencyconnectwindow/iemergencyconnectwindow.h"
-#include "connectwindow/iconnectwindow.h"
-#include "preferenceswindow/ipreferenceswindow.h"
-#include "overlaysconnectwindow/iupdateappitem.h"
-#include "overlaysconnectwindow/iupgradewindow.h"
-#include "overlaysconnectwindow/iupdatewindow.h"
-#include "generalmessage/generalmessagewindowitem.h"
-#include "newsfeedwindow/inewsfeedwindow.h"
-#include "protocolwindow/iprotocolwindow.h"
-#include "externalconfig/iexternalconfigwindow.h"
-#include "twofactorauth/itwofactorauthwindow.h"
-#include "bottominfowidget/ibottominfoitem.h"
-#include "tooltips/tooltipcontroller.h"
-#include "windowsizemanager.h"
 
 #include "backend/preferences/preferenceshelper.h"
 #include "backend/preferences/accountinfo.h"
+#include "bottominfowidget/bottominfoitem.h"
+#include "connectwindow/connectwindowitem.h"
+#include "emergencyconnectwindow/emergencyconnectwindowitem.h"
+#include "externalconfig/externalconfigwindowitem.h"
+#include "generalmessage/generalmessagewindowitem.h"
+#include "locationswindow/locationswindow.h"
+#include "loginwindow/logginginwindowitem.h"
+#include "loginwindow/loginwindowitem.h"
+#include "loginwindow/initwindowitem.h"
+#include "newsfeedwindow/newsfeedwindowitem.h"
+#include "overlaysconnectwindow/updateappitem.h"
+#include "overlaysconnectwindow/upgradewindowitem.h"
+#include "overlaysconnectwindow/updatewindowitem.h"
+#include "preferenceswindow/preferenceswindowitem.h"
+#include "protocolwindow/protocolwindowitem.h"
+#include "twofactorauth/twofactorauthwindowitem.h"
+#include "tooltips/tooltipcontroller.h"
+#include "utils/shadowmanager.h"
+#include "windowsizemanager.h"
 
 // Helper for MainWindow. Integrates all windows, controls the display of the current window, shadows, animations and transitions between windows
 class MainWindowController : public QObject
@@ -94,23 +93,23 @@ public:
 
     void hideAllToolTips();
 
-    ILoginWindow *getLoginWindow() { return loginWindow_; }
-    ILoggingInWindow *getLoggingInWindow() { return loggingInWindow_; }
-    IConnectWindow *getConnectWindow() { return connectWindow_; }
-    IPreferencesWindow *getPreferencesWindow() { return preferencesWindow_; }
-    IBottomInfoItem *getBottomInfoWindow() { return bottomInfoWindow_; }
-    INewsFeedWindow *getNewsFeedWindow() { return newsFeedWindow_; }
-    IProtocolWindow *getProtocolWindow() { return protocolWindow_; }
-    IEmergencyConnectWindow *getEmergencyConnectWindow() { return emergencyConnectWindow_; }
-    IExternalConfigWindow *getExternalConfigWindow() { return externalConfigWindow_; }
-    ITwoFactorAuthWindow *getTwoFactorAuthWindow() { return twoFactorAuthWindow_; }
-    IInitWindow *getInitWindow() { return initWindow_; }
-    IUpdateAppItem *getUpdateAppItem() { return updateAppItem_; }
-    IUpdateWindow *getUpdateWindow() { return updateWindow_; }
-    IUpgradeWindow *getUpgradeWindow() { return upgradeAccountWindow_; }
-    IGeneralMessageWindow *getGeneralMessageWindow() { return generalMessageWindow_; }
-    IGeneralMessageWindow *getExitWindow() { return exitWindow_; }
-    IGeneralMessageWindow *getLogoutWindow() { return logoutWindow_; }
+    LoginWindow::LoginWindowItem *getLoginWindow() { return loginWindow_; }
+    LoginWindow::LoggingInWindowItem *getLoggingInWindow() { return loggingInWindow_; }
+    ConnectWindow::ConnectWindowItem *getConnectWindow() { return connectWindow_; }
+    PreferencesWindow::PreferencesWindowItem *getPreferencesWindow() { return preferencesWindow_; }
+    SharingFeatures::BottomInfoItem *getBottomInfoWindow() { return bottomInfoWindow_; }
+    NewsFeedWindow::NewsFeedWindowItem *getNewsFeedWindow() { return newsFeedWindow_; }
+    ProtocolWindow::ProtocolWindowItem *getProtocolWindow() { return protocolWindow_; }
+    EmergencyConnectWindow::EmergencyConnectWindowItem *getEmergencyConnectWindow() { return emergencyConnectWindow_; }
+    ExternalConfigWindow::ExternalConfigWindowItem *getExternalConfigWindow() { return externalConfigWindow_; }
+    TwoFactorAuthWindow::TwoFactorAuthWindowItem *getTwoFactorAuthWindow() { return twoFactorAuthWindow_; }
+    LoginWindow::InitWindowItem *getInitWindow() { return initWindow_; }
+    UpdateApp::UpdateAppItem *getUpdateAppItem() { return updateAppItem_; }
+    UpdateWindowItem *getUpdateWindow() { return updateWindow_; }
+    UpgradeWindow::UpgradeWindowItem *getUpgradeWindow() { return upgradeAccountWindow_; }
+    GeneralMessageWindow::GeneralMessageWindowItem *getGeneralMessageWindow() { return generalMessageWindow_; }
+    GeneralMessageWindow::GeneralMessageWindowItem *getExitWindow() { return exitWindow_; }
+    GeneralMessageWindow::GeneralMessageWindowItem *getLogoutWindow() { return logoutWindow_; }
     QWidget *getLocationsWindow() { return locationsWindow_; }
 
     void hideLocationsWindow();
@@ -170,23 +169,23 @@ private:
     QGraphicsView *view_;
     QGraphicsScene* scene_;
 
-    ILoginWindow *loginWindow_;
-    ILoggingInWindow *loggingInWindow_;
-    IInitWindow *initWindow_;
-    IConnectWindow *connectWindow_;
-    IEmergencyConnectWindow *emergencyConnectWindow_;
-    IExternalConfigWindow *externalConfigWindow_;
-    ITwoFactorAuthWindow *twoFactorAuthWindow_;
-    IPreferencesWindow *preferencesWindow_;
-    IUpdateWindow *updateWindow_;
-    IUpgradeWindow *upgradeAccountWindow_;
-    INewsFeedWindow *newsFeedWindow_;
-    IProtocolWindow *protocolWindow_;
-    IBottomInfoItem *bottomInfoWindow_;
-    IUpdateAppItem *updateAppItem_;
-    IGeneralMessageWindow *generalMessageWindow_;
-    IGeneralMessageWindow *exitWindow_;
-    IGeneralMessageWindow *logoutWindow_;
+    LoginWindow::LoginWindowItem *loginWindow_;
+    LoginWindow::LoggingInWindowItem *loggingInWindow_;
+    LoginWindow::InitWindowItem *initWindow_;
+    ConnectWindow::ConnectWindowItem *connectWindow_;
+    EmergencyConnectWindow::EmergencyConnectWindowItem *emergencyConnectWindow_;
+    ExternalConfigWindow::ExternalConfigWindowItem *externalConfigWindow_;
+    TwoFactorAuthWindow::TwoFactorAuthWindowItem *twoFactorAuthWindow_;
+    PreferencesWindow::PreferencesWindowItem *preferencesWindow_;
+    UpdateWindowItem *updateWindow_;
+    UpgradeWindow::UpgradeWindowItem *upgradeAccountWindow_;
+    NewsFeedWindow::NewsFeedWindowItem *newsFeedWindow_;
+    ProtocolWindow::ProtocolWindowItem *protocolWindow_;
+    SharingFeatures::BottomInfoItem *bottomInfoWindow_;
+    UpdateApp::UpdateAppItem *updateAppItem_;
+    GeneralMessageWindow::GeneralMessageWindowItem *generalMessageWindow_;
+    GeneralMessageWindow::GeneralMessageWindowItem *exitWindow_;
+    GeneralMessageWindow::GeneralMessageWindowItem *logoutWindow_;
 
     LocationsWindow *locationsWindow_;
 
@@ -299,7 +298,4 @@ private:
 
     void expandWindow(ResizableWindow *window);
     void collapseWindow(ResizableWindow *window, bool bSkipBottomInfoWindowAnimate = false, bool bSkipSetClickable = false);
-
 };
-
-#endif // MAINWINDOWCONTROLLER_H

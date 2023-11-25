@@ -1,5 +1,4 @@
-#ifndef ISCROLLABLEWIDGET_H
-#define ISCROLLABLEWIDGET_H
+#pragma once
 
 #include <QWidget>
 
@@ -24,6 +23,3 @@ signals:
 };
 
 Q_DECLARE_INTERFACE(IScrollableWidget, "IScrollableWidget")
-
-
-#endif // ISCROLLABLEWIDGET_H

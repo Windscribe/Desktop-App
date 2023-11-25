@@ -33,11 +33,11 @@ GeneralWindowItem::GeneralWindowItem(ScalableGraphicsObject *parent, Preferences
     connect(preferences, &Preferences::isStartMinimizedChanged, this, &GeneralWindowItem::onStartMinimizedPreferencesChanged);
     connect(preferences, &Preferences::showLocationLoadChanged, this, &GeneralWindowItem::onShowLocationLoadPreferencesChanged);
     connect(preferences, &Preferences::appSkinChanged, this, &GeneralWindowItem::onAppSkinPreferencesChanged);
-
-#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     connect(preferences, &Preferences::minimizeAndCloseToTrayChanged, this, &GeneralWindowItem::onMinimizeAndCloseToTrayPreferencesChanged);
-#elif defined Q_OS_MAC
+#if defined Q_OS_MAC
     connect(preferences, &Preferences::hideFromDockChanged, this, &GeneralWindowItem::onHideFromDockPreferecesChanged);
+#elif defined Q_OS_LINUX
+    connect(preferences, &Preferences::trayIconColorChanged, this, &GeneralWindowItem::onPreferencesTrayIconColorChanged);
 #endif
 
     launchOnStartGroup_ = new PreferenceGroup(this);
@@ -56,7 +56,6 @@ GeneralWindowItem::GeneralWindowItem(ScalableGraphicsObject *parent, Preferences
     startMinimizedGroup_->addItem(checkBoxStartMinimized_);
     addItem(startMinimizedGroup_);
 
-#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     if (QSystemTrayIcon::isSystemTrayAvailable())
     {
         closeToTrayGroup_ = new PreferenceGroup(this);
@@ -70,7 +69,8 @@ GeneralWindowItem::GeneralWindowItem(ScalableGraphicsObject *parent, Preferences
         closeToTrayGroup_ = nullptr;
         checkBoxMinimizeAndCloseToTray_ = nullptr;
     }
-#elif defined Q_OS_MAC
+
+#if defined Q_OS_MAC
     hideFromDockGroup_ = new PreferenceGroup(this);
     checkBoxHideFromDock_ = new ToggleItem(hideFromDockGroup_);
     checkBoxHideFromDock_->setState(preferences->isHideFromDock());
@@ -132,6 +132,16 @@ GeneralWindowItem::GeneralWindowItem(ScalableGraphicsObject *parent, Preferences
     appSkinGroup_->addItem(appSkinItem_);
     addItem(appSkinGroup_);
 
+#if defined(Q_OS_LINUX)
+    trayIconColorGroup_ = new PreferenceGroup(this);
+    trayIconColorItem_ = new ComboBoxItem(trayIconColorGroup_);
+    // Change pixmap to the new one.
+    trayIconColorItem_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/TRAY_ICON_COLOR"));
+    connect(trayIconColorItem_, &ComboBoxItem::currentItemChanged, this, &GeneralWindowItem::onTrayIconColorChanged);
+    trayIconColorGroup_->addItem(trayIconColorItem_);
+    addItem(trayIconColorGroup_);
+#endif
+
     backgroundSettingsGroup_ = new BackgroundSettingsGroup(this);
     backgroundSettingsGroup_->setBackgroundSettings(preferences->backgroundSettings());
     connect(backgroundSettingsGroup_, &BackgroundSettingsGroup::backgroundSettingsChanged, this, &GeneralWindowItem::onBackgroundSettingsChanged);
@@ -185,7 +195,6 @@ void GeneralWindowItem::onStartMinimizedClicked(bool b)
         preferences_->setStartMinimized(b);
 }
 
-#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
 void GeneralWindowItem::onMinimizeAndCloseToTrayPreferencesChanged(bool b)
 {
     checkBoxMinimizeAndCloseToTray_->setState(b);
@@ -196,7 +205,7 @@ void GeneralWindowItem::onMinimizeAndCloseToTrayClicked(bool b)
     preferences_->setMinimizeAndCloseToTray(b);
 }
 
-#elif defined Q_OS_MAC
+#if defined Q_OS_MAC
 void GeneralWindowItem::onHideFromDockPreferecesChanged(bool b)
 {
     checkBoxHideFromDock_->setState(b);
@@ -291,10 +300,16 @@ void GeneralWindowItem::onLanguageChanged()
     if (closeToTrayGroup_) {
         closeToTrayGroup_->setDescription(tr("Windscribe minimizes to system tray and no longer appears in the task bar."));
     }
+#else
+    if (closeToTrayGroup_) {
+        closeToTrayGroup_->setDescription(tr("Windscribe minimizes to menubar and no longer appears in the dock."));
+    }
+#endif
+
     if (checkBoxMinimizeAndCloseToTray_) {
         checkBoxMinimizeAndCloseToTray_->setCaption(tr("Close to Tray"));
     }
-#elif defined(Q_OS_MAC)
+#if defined(Q_OS_MAC)
     hideFromDockGroup_->setDescription(tr("Don't show the Windscribe icon in dock."));
     checkBoxHideFromDock_->setCaption(tr("Hide from Dock"));
 #endif
@@ -316,6 +331,13 @@ void GeneralWindowItem::onLanguageChanged()
     appSkinGroup_->setDescription(tr("Choose between the classic GUI or the \"earless\" alternative GUI."));
     appSkinItem_->setLabelCaption(tr("App Skin"));
     appSkinItem_->setItems(APP_SKIN_toList(), preferences_->appSkin());
+
+#if defined(Q_OS_LINUX)
+    trayIconColorGroup_->setDescription(tr("Choose between white and black tray icon."));
+    trayIconColorItem_->setLabelCaption(tr("Tray Icon Color"));
+    trayIconColorItem_->setItems(TRAY_ICON_COLOR_toList(), preferences_->trayIconColor());
+#endif
+
     backgroundSettingsGroup_->setDescription(tr("Customize the background of the main app screen."));
     updateChannelGroup_->setDescription(tr("Choose to receive stable, beta, or experimental builds."));
     comboBoxUpdateChannel_->setLabelCaption(tr("Update Channel"));
@@ -360,6 +382,18 @@ void GeneralWindowItem::onAppSkinChanged(QVariant value)
 {
     preferences_->setAppSkin((APP_SKIN)value.toInt());
 }
+
+#if defined(Q_OS_LINUX)
+void GeneralWindowItem::onTrayIconColorChanged(QVariant value)
+{
+    preferences_->setTrayIconColor((TRAY_ICON_COLOR)value.toInt());
+}
+
+void GeneralWindowItem::onPreferencesTrayIconColorChanged(QVariant value)
+{
+    trayIconColorItem_->setCurrentItem(value);
+}
+#endif
 
 void GeneralWindowItem::onAppSkinPreferencesChanged(APP_SKIN s)
 {

@@ -101,7 +101,7 @@ void UpgradeWindowItem::updateScaling()
 
 void UpgradeWindowItem::updatePositions()
 {
-    int yOffset = preferences_->appSkin() == APP_SKIN_VAN_GOGH ? -28*G_SCALE : 0;
+    int yOffset = preferences_->appSkin() == APP_SKIN_VAN_GOGH ? -14*G_SCALE : 0;
 
     acceptButton_->updateScaling();
     int acceptPosX = CommonGraphics::centeredOffset(WINDOW_WIDTH*G_SCALE, acceptButton_->boundingRect().width());
@@ -131,7 +131,7 @@ void UpgradeWindowItem::onLanguageChanged()
     cancelButton_->setText(tr("I'm broke"));
     cancelButton_->recalcBoundingRect();
     int cancelPosX = CommonGraphics::centeredOffset(WINDOW_WIDTH*G_SCALE, cancelButton_->boundingRect().width());
-    int yOffset = preferences_->appSkin() == APP_SKIN_VAN_GOGH ? -28*G_SCALE : 0;
+    int yOffset = preferences_->appSkin() == APP_SKIN_VAN_GOGH ? -14*G_SCALE : 0;
     cancelButton_->setPos(cancelPosX, (CANCEL_BUTTON_POS_Y + yOffset)*G_SCALE);
 }
 

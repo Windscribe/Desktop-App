@@ -1,5 +1,4 @@
-#ifndef WireGuardAdapter_h
-#define WireGuardAdapter_h
+#pragma once
 
 #include <map>
 #include <string>
@@ -25,5 +24,3 @@ private:
     bool is_dns_server_set_;
     bool has_default_route_;
 };
-
-#endif  // WireGuardAdapter_h

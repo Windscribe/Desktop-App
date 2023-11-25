@@ -1,5 +1,4 @@
-#ifndef TYPES_BACKGROUNDSETTINGS_H
-#define TYPES_BACKGROUNDSETTINGS_H
+#pragma once
 
 #include "types/enums.h"
 
@@ -59,7 +58,4 @@ private:
     static constexpr quint32 versionForSerialization_ = 1;  // should increment the version if the data format is changed
 };
 
-
 } // types namespace
-
-#endif // TYPES_BACKGROUNDSETTINGS_H

@@ -1,5 +1,4 @@
-#ifndef DefaultRouteMonitor_h
-#define DefaultRouteMonitor_h
+#pragma once
 
 #include <atomic>
 #include <string>
@@ -28,5 +27,3 @@ private:
     std::string endpoint_;
     std::string lastGateway_;
 };
-
-#endif  // DefaultRouteMonitor_h

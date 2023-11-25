@@ -1,5 +1,4 @@
-#ifndef CUSTOMCONFIGLOCATIONINFO_H
-#define CUSTOMCONFIGLOCATIONINFO_H
+#pragma once
 
 #include <QHostInfo>
 #include <QSharedPointer>
@@ -72,5 +71,3 @@ private:
 };
 
 } //namespace locationsmodel
-
-#endif // CUSTOMCONFIGLOCATIONINFO_H

@@ -1,5 +1,4 @@
-#ifndef IKEV2CONNECTIONDISCONNECTLOGIC_WIN_H
-#define IKEV2CONNECTIONDISCONNECTLOGIC_WIN_H
+#pragma once
 
 #include <QThread>
 #include <windows.h>
@@ -40,5 +39,3 @@ private:
 
     void waitForControlThreadFinish();
 };
-
-#endif // IKEV2CONNECTIONDISCONNECTLOGIC_WIN_H

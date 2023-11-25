@@ -25,8 +25,8 @@ void SocksProxyConnection::start()
     }
     state_ = READ_IDENT_REQ;
     readExactly_.reset(new SocksProxyReadExactly(sizeof(socks5_ident_req)));
-    connect(socket_, SIGNAL(disconnected()), SLOT(onSocketDisconnected()));
-    connect(socket_, SIGNAL(readyRead()), SLOT(onSocketReadyRead()));
+    connect(socket_, &QTcpSocket::disconnected, this, &SocksProxyConnection::onSocketDisconnected);
+    connect(socket_, &QTcpSocket::readyRead, this, &SocksProxyConnection::onSocketReadyRead);
     writeAllSocket_ = new SocketWriteAll(this, socket_);
 }
 
@@ -77,7 +77,7 @@ void SocksProxyConnection::onSocketReadyRead()
                 answer.Version = identReqParser_.identReq().Version;
                 answer.Method = 0xFF;
                 writeAllSocket_->write(QByteArray((const char *)&answer, sizeof(answer)));
-                connect(writeAllSocket_, SIGNAL(allDataWriteFinished()), SLOT(closeSocketsAndEmitFinished()));
+                connect(writeAllSocket_, &SocketWriteAll::allDataWriteFinished, this, &SocksProxyConnection::closeSocketsAndEmitFinished);
                 writeAllSocket_->setEmitAllDataWritten();
             }
         }
@@ -199,7 +199,7 @@ void SocksProxyConnection::onExternalSocketDisconnected()
     /*// wait while all data will be write to client socket
     if (writeAllSocket_)
     {
-        connect(writeAllSocket_, SIGNAL(allDataWriteFinished()), SLOT(onSocketAllDataWritten()));
+        connect(writeAllSocket_, &SocketWriteAll::allDataWriteFinished, this, &SocksProxyConnection::onSocketAllDataWritten);
         writeAllSocket_->setEmitAllDataWritten();
     }
     else

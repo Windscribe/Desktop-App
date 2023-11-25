@@ -6,8 +6,6 @@ target_sources(common PRIVATE
     commandfactory.h
     connection.cpp
     connection.h
-    iconnection.h
-    iserver.h
     server.cpp
     server.h
 )

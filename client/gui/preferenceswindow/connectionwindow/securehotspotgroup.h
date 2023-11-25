@@ -1,5 +1,4 @@
-#ifndef SECUREHOTSPOTITEM_H
-#define SECUREHOTSPOTITEM_H
+#pragma once
 
 #include <QVariantAnimation>
 #include "backend/preferences/preferences.h"
@@ -50,5 +49,3 @@ private:
 };
 
 } // namespace PreferencesWindow
-
-#endif // SECUREHOTSPOTITEM_H

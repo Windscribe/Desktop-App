@@ -1,5 +1,4 @@
-#ifndef IMAGEWITHSHADOW_H
-#define IMAGEWITHSHADOW_H
+#pragma once
 
 #include <QPainter>
 
@@ -18,6 +17,3 @@ private:
     QString shadowName_;
     QPixmap pixmap_;
 };
-
-
-#endif // IMAGEWITHSHADOW_H

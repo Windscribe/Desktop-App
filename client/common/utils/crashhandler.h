@@ -1,5 +1,4 @@
-#ifndef CRASHHANDLER_H
-#define CRASHHANDLER_H
+#pragma once
 
 #include <cassert>
 #include <map>
@@ -84,5 +83,3 @@ private:
 #define BIND_CRASH_HANDLER_FOR_THREAD() /* */
 
 #endif  // ENABLE_CRASH_REPORTS
-
-#endif  // CRASHHANDLER_H

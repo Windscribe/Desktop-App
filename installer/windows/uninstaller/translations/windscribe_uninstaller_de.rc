@@ -1,0 +1,10 @@
+LANGUAGE LANG_GERMAN, SUBLANG_NEUTRAL
+
+STRINGTABLE
+BEGIN
+    IDS_MSGBOX_TITLE "Windscribe deinstallieren"
+    IDS_DIRECTORY_MISMATCH "Die Deinstallation kann nicht fortgesetzt werden. Installationsverzeichnis und Entfernungsverzeichnis stimmen nicht überein."
+    IDS_CONFIRM_UNINSTALL "Möchten Sie Windscribe und sämtliche Komponenten wirklich vollständig entfernen?"
+    IDS_UNINSTALL_SUCCESS "Windscribe wurde erfolgreich von Ihrem Computer entfernt."
+    IDS_CLOSE_APP "Beenden Sie die Windscribe App, um die Deinstallation fortzusetzen. Nach dem Verlassen der Anwendung wird Ihre Verbindung nicht mehr geschützt."
+END

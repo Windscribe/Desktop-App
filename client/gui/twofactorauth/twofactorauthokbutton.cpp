@@ -18,7 +18,7 @@ TwoFactorAuthOkButton::TwoFactorAuthOkButton(ScalableGraphicsObject *parent)
     setButtonType(BUTTON_TYPE_ADD);
     fillColorAnimation_.setTargetObject(this);
     fillColorAnimation_.setParent(this);
-    connect(&fillColorAnimation_, SIGNAL(valueChanged(QVariant)), SLOT(onColorChanged(QVariant)));
+    connect(&fillColorAnimation_, &QPropertyAnimation::valueChanged, this, &TwoFactorAuthOkButton::onColorChanged);
     setClickable(true); // triggers fillColorAnimation -- after init to avoid "no-target" logging
 }
 

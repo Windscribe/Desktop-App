@@ -1,5 +1,4 @@
-#ifndef CUSTOMOVPNAUTHCREDENTIALSSTORAGE_H
-#define CUSTOMOVPNAUTHCREDENTIALSSTORAGE_H
+#pragma once
 
 #include <QString>
 #include <QHash>
@@ -36,5 +35,3 @@ private:
 
 QDataStream& operator<<(QDataStream &out, const CustomOvpnAuthCredentialsStorage::Credentials &c);
 QDataStream& operator>>(QDataStream &in, CustomOvpnAuthCredentialsStorage::Credentials &c);
-
-#endif // CUSTOMOVPNAUTHCREDENTIALSSTORAGE_H

@@ -1,5 +1,4 @@
-#ifndef OVPNCUSTOMCONFIG_H
-#define OVPNCUSTOMCONFIG_H
+#pragma once
 
 #include <QVector>
 #include "icustomconfig.h"
@@ -57,5 +56,3 @@ private:
 };
 
 } //namespace customconfigs
-
-#endif // OVPNCUSTOMCONFIG_H

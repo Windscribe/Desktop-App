@@ -1,5 +1,4 @@
-#ifndef VPNSHARECONTROLLER_H
-#define VPNSHARECONTROLLER_H
+#pragma once
 
 #include <QObject>
 #include <QMutex>
@@ -55,5 +54,3 @@ private:
     bool getLastSavedPort(uint &outPort);
     void saveLastPort(uint port);
 };
-
-#endif // VPNSHARECONTROLLER_H

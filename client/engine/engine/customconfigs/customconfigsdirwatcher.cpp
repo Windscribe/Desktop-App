@@ -10,10 +10,10 @@ CustomConfigsDirWatcher::CustomConfigsDirWatcher(QObject *parent, const QString 
     dirWatcher_.addPath(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation));
     dirWatcher_.addPath(path_);
 
-    connect(&dirWatcher_, SIGNAL(directoryChanged(QString)), SLOT(onDirectoryChanged(QString)));
-    connect(&dirWatcher_, SIGNAL(fileChanged(QString)), SLOT(onFileChanged(QString)));
+    connect(&dirWatcher_, &QFileSystemWatcher::directoryChanged, this, &CustomConfigsDirWatcher::onDirectoryChanged);
+    connect(&dirWatcher_, &QFileSystemWatcher::fileChanged, this, &CustomConfigsDirWatcher::onFileChanged);
 
-    connect(&emitTimer_, SIGNAL(timeout()), SLOT(onEmitTimer()));
+    connect(&emitTimer_, &QTimer::timeout, this, &CustomConfigsDirWatcher::onEmitTimer);
     emitTimer_.setSingleShot(true);
 
     checkFiles(false, false);

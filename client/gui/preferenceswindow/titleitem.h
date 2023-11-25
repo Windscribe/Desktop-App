@@ -1,5 +1,4 @@
-#ifndef TITLEITEM_H
-#define TITLEITEM_H
+#pragma once
 
 #include <QGraphicsObject>
 #include "commongraphics/baseitem.h"
@@ -23,5 +22,3 @@ private:
 };
 
 } // namespace PreferencesWindow
-
-#endif // TITLEITEM_H

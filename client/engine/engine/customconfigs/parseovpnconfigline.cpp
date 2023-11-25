@@ -136,7 +136,7 @@ QStringList ParseOvpnConfigLine::splitLine(const QString &line)
     bool isInsideString = false;
     bool isInsideQuetes = false;
 
-    while (i < line.count())
+    while (i < line.size())
     {
         if (isInsideString)
         {

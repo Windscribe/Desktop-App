@@ -1,5 +1,4 @@
-#ifndef DPISCALEAWAREWIDGET_H
-#define DPISCALEAWAREWIDGET_H
+#pragma once
 
 #include <QWidget>
 #include <QTimer>
@@ -38,5 +37,3 @@ private:
     QTimer autoResizeTimer_;
 #endif
 };
-
-#endif // DPISCALEAWAREWIDGET_H

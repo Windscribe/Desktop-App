@@ -1,5 +1,4 @@
- #ifndef LOGGER_H
- #define LOGGER_H
+ #pragma once
 
 #import <Cocoa/Cocoa.h>
 
@@ -14,7 +13,3 @@
 - (void)logAndStdOut:(NSString *)str;
 
 @end
-
-
-#endif // LOGGER_H
-

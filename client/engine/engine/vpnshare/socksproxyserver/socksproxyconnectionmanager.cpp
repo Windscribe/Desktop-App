@@ -33,7 +33,7 @@ void SocksProxyConnectionManager::newConnection(qintptr socketDescriptor)
 
     QThread *thread = getLessBusyThread();
     SocksProxyConnection *connection = new SocksProxyConnection(socketDescriptor, ip);
-    connect(connection, SIGNAL(finished(QString)), SLOT(onConnectionFinished(QString)));
+    connect(connection, &SocksProxyConnection::finished, this, &SocksProxyConnectionManager::onConnectionFinished);
     addConnectionToThread(thread, connection);
     //qCDebug(LOG_SOCKS_SERVER) << "Count of connections:" << connections_.count();
 }

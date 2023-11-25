@@ -1,0 +1,10 @@
+LANGUAGE LANG_KOREAN, SUBLANG_NEUTRAL
+
+STRINGTABLE
+BEGIN
+    IDS_MSGBOX_TITLE "Windscribe 제거"
+    IDS_DIRECTORY_MISMATCH "제거를 진행할 수 없습니다. 설치 디렉토리가 제거 디렉토리와 일치하지 않습니다."
+    IDS_CONFIRM_UNINSTALL "Windscribe 및 모든 구성 요소를 완전히 제거하시겠습니까?"
+    IDS_UNINSTALL_SUCCESS "Windscribe이 컴퓨터에서 제거되었습니다."
+    IDS_CLOSE_APP "제거를 계속하려면 Windscribe 앱을 종료하십시오. 애플리케이션이 종료되면 연결이 보호되지 않습니다."
+END

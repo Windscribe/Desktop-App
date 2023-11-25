@@ -1,5 +1,4 @@
-#ifndef HELPER_MAC_H
-#define HELPER_MAC_H
+#pragma once
 
 #include "helper_posix.h"
 
@@ -16,14 +15,9 @@ public:
     QString getHelperVersion() override;
 
     // Mac specific functions
-    bool setMacAddress(const QString &interface, const QString &macAddress, bool robustMethod);
-    bool enableMacSpoofingOnBoot(bool bEnable, const QString &interfaceName, const QString &macAddress, bool robustMethod);
-    bool setKeychainUsernamePassword(const QString &username, const QString &password);
+    bool setMacAddress(const QString &interface, const QString &macAddress);
+    bool enableMacSpoofingOnBoot(bool bEnable, const QString &interfaceName, const QString &macAddress);
     bool setDnsOfDynamicStoreEntry(const QString &ipAddress, const QString &dynEnties);
     bool setIpv6Enabled(bool bEnabled);
-
-private:
-    bool setKeychainUsernamePasswordImpl(const QString &username, const QString &password, bool *bExecuted);
 };
 
-#endif // HELPER_MAC_H

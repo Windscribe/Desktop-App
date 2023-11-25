@@ -6,6 +6,7 @@
 #include <QDir>
 #include "ws_assert.h"
 #include "logger.h"
+#include <stdio.h>
 
 #ifdef Q_OS_WIN
     #include <Windows.h>

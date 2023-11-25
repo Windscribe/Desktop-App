@@ -18,7 +18,7 @@ unsigned long ExecuteCmd::execute(const std::string &cmd, const std::string &cwd
     } else {
         boost::thread(runCmd, curCmdId_, cmd);
     }
-    
+
     return curCmdId_;
 }
 
@@ -29,7 +29,7 @@ void ExecuteCmd::getStatus(unsigned long cmdId, bool &bFinished, std::string &lo
         if ((*it)->cmdId == cmdId) {
             bFinished = (*it)->bFinished;
             log = (*it)->log;
-            
+
             if ((*it)->bFinished) {
                 delete (*it);
                 executingCmds_.erase(it);
@@ -58,7 +58,7 @@ ExecuteCmd::ExecuteCmd() : curCmdId_(0)
 void ExecuteCmd::runCmd(unsigned long cmdId, std::string cmd)
 {
     std::string strReply;
-     
+
     // run openvpn command
     FILE *file = popen(cmd.c_str(), "r");
     if (file) {

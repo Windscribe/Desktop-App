@@ -1,8 +1,9 @@
 #pragma once
+
+#include <NetCon.h>
+
 #include <string>
 #include <vector>
-#include <NetCon.h>
-#include <memory>
 
 #include "miniatl.h"
 
@@ -11,17 +12,22 @@ typedef void (WINAPI *PFNNcFreeNetconProperties)(NETCON_PROPERTIES* pProps);
 class IcsManager
 {
 public:
-	IcsManager();
-    ~IcsManager();
+    static IcsManager &instance()
+    {
+        static IcsManager im;
+        return im;
+    }
 
-	bool isSupported();
+    void release();
+
+    bool isSupported();
 
     bool change(const std::wstring &adapterName);
     bool stop();
 
 private:
-    HMODULE hDll_;
-    PFNNcFreeNetconProperties ncFreeNetconProperties_;
+    HMODULE hDll_ = nullptr;
+    PFNNcFreeNetconProperties ncFreeNetconProperties_ = nullptr;
 
     CComPtr<INetSharingManager> pNSM_;
 
@@ -29,7 +35,7 @@ private:
     CComPtr<INetSharingConfiguration> pNetConfigurationPrivate_;
     CComPtr<INetSharingConfiguration> pNetConfigurationPublic_;
 
+    IcsManager();
     std::vector< CComPtr<INetConnection> > getAllConnections(CComPtr<INetSharingManager> &pNSM);
     void disableIcsOnAll(CComPtr<INetSharingManager> &pNSM, std::vector<CComPtr<INetConnection> > &pNetConnections);
 };
-

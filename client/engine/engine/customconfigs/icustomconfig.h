@@ -1,5 +1,4 @@
-#ifndef ICUSTOMCONFIG_H
-#define ICUSTOMCONFIG_H
+#pragma once
 
 #include <QStringList>
 #include "types/enums.h"
@@ -24,5 +23,3 @@ public:
 };
 
 } //namespace customconfigs
-
-#endif // ICUSTOMCONFIG_H

@@ -1,5 +1,4 @@
-#ifndef FIREWALLFILTER_H
-#define FIREWALLFILTER_H
+#pragma once
 
 #include "apps_ids.h"
 #include "ip_address/ip4_address_and_mask.h"
@@ -12,8 +11,13 @@
 class FirewallFilter
 {
 public:
-    explicit FirewallFilter(FwpmWrapper &fwmpWrapper);
-    ~FirewallFilter();
+    static FirewallFilter &instance(FwpmWrapper *wrapper = nullptr)
+    {
+        static FirewallFilter ff(*wrapper);
+        return ff;
+    }
+
+    void release();
 
     void on(const wchar_t *connectingIp, const wchar_t *ip, bool bAllowLocalTraffic, bool bIsCustomConfig);
     void off();
@@ -34,6 +38,8 @@ private:
 
     std::recursive_mutex mutex_;
     bool lastAllowLocalTraffic_;
+
+    explicit FirewallFilter(FwpmWrapper &fwmpWrapper);
 
     bool currentStatusImpl(HANDLE engineHandle);
     void offImpl(HANDLE engineHandle);
@@ -61,5 +67,3 @@ private:
     std::vector<UINT64> filterIdsApps_;
     std::vector<UINT64> filterIdsSplitRoutingIps_;
 };
-
-#endif // FIREWALLFILTER_H

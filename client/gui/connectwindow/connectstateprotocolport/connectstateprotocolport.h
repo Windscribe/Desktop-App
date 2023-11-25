@@ -1,5 +1,4 @@
-#ifndef CONNECTSTATETEXT_H
-#define CONNECTSTATETEXT_H
+#pragma once
 
 #include <QFont>
 #include <QTimer>
@@ -25,7 +24,7 @@ public:
     explicit ConnectStateProtocolPort(ScalableGraphicsObject *parent = nullptr);
 
     QRectF boundingRect() const override;
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = Q_NULLPTR) override;
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
     void onConnectStateChanged(const types::ConnectState &newConnectState, const types::ConnectState &prevConnectState);
 
@@ -97,5 +96,3 @@ private:
 };
 
 } //namespace ConnectWindow
-
-#endif // CONNECTSTATETEXT_H

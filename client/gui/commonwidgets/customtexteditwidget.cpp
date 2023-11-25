@@ -19,18 +19,18 @@ CustomTextEditWidget::CustomTextEditWidget(QWidget *parent) : QPlainTextEdit (pa
     menu_ = new CustomMenuWidget();
     menu_->setColorScheme(false);
     menu_->initContextMenu();
-    connect(menu_, SIGNAL(triggered(QAction*)), SLOT(onMenuTriggered(QAction*)));
+    connect(menu_, &CustomMenuWidget::triggered, this, &CustomTextEditWidget::onMenuTriggered);
 
     disableActions();
     updateSelectAllAvailability();
 
-    connect(this, SIGNAL(undoAvailable(bool)), SLOT(onUndoAvailableChanged(bool)));
-    connect(this, SIGNAL(copyAvailable(bool)), SLOT(onCopyAvailableChanged(bool)));
-    connect(this, SIGNAL(redoAvailable(bool)), SLOT(onRedoAvailableChanged(bool)));
+    connect(this, &QPlainTextEdit::undoAvailable, this, &CustomTextEditWidget::onUndoAvailableChanged);
+    connect(this, &QPlainTextEdit::copyAvailable, this, &CustomTextEditWidget::onCopyAvailableChanged);
+    connect(this, &QPlainTextEdit::redoAvailable, this, &CustomTextEditWidget::onRedoAvailableChanged);
 
-    connect(this, SIGNAL(textChanged()), SLOT(onTextChanged()));
-    connect(this, SIGNAL(cursorPositionChanged()), SLOT(onCursorPosChanged()));
-    connect(this, SIGNAL(blockCountChanged(int)), SLOT(onBlockCountChanged(int)));
+    connect(this, &QPlainTextEdit::textChanged, this, &CustomTextEditWidget::onTextChanged);
+    connect(this, &QPlainTextEdit::cursorPositionChanged, this, &CustomTextEditWidget::onCursorPosChanged);
+    connect(this, &QPlainTextEdit::blockCountChanged, this, &CustomTextEditWidget::onBlockCountChanged);
 }
 
 QSize CustomTextEditWidget::sizeHint() const

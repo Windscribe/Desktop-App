@@ -1,0 +1,10 @@
+LANGUAGE LANG_RUSSIAN, SUBLANG_NEUTRAL
+
+STRINGTABLE
+BEGIN
+    IDS_MSGBOX_TITLE "Удалить Windscribe"
+    IDS_DIRECTORY_MISMATCH "Не удается выполнить удаление. Каталог установки не совпадает с каталогом удаления."
+    IDS_CONFIRM_UNINSTALL "Действительно полностью удалить приложение Windscribe и все его компоненты?"
+    IDS_UNINSTALL_SUCCESS "Приложение Windscribe было удалено с вашего компьютера."
+    IDS_CLOSE_APP "Выйдите из приложения Windscribe, чтобы продолжить удаление. Обратите внимание: после выхода из приложения ваше соединение останется без защиты."
+END

@@ -146,7 +146,7 @@
         <file>svg/preferences/AUTOSECURE_NETWORKS.svg</file>
         <file>svg/preferences/CLEAR_ICON.svg</file>
         <file>svg/preferences/CLOSE_ICON.svg</file>
-		<file>svg/preferences/CIRCUMVENT_CENSORSHIP.svg</file>
+        <file>svg/preferences/CIRCUMVENT_CENSORSHIP.svg</file>
         <file>svg/preferences/CNTXT_MENU_ICON.svg</file>
         <file>svg/preferences/COMMUNITY_SUPPORT.svg</file>
         <file>svg/preferences/CONFIRM_ICON.svg</file>
@@ -201,9 +201,9 @@
         <file>svg/preferences/SOCIAL_NETWORKS.svg</file>
         <file>svg/preferences/SPLIT_TUNNELING.svg</file>
         <file>svg/preferences/START_MINIMIZED.svg</file>
-        <file>svg/preferences/TAP_DRIVER.svg</file>
         <file>svg/preferences/TALK_TO_GARRY.svg</file>
         <file>svg/preferences/TERMINATE_SOCKETS.svg</file>
+        <file>svg/preferences/TRAY_ICON_COLOR.svg</file>
         <file>svg/preferences/UNDO_ICON.svg</file>
         <file>svg/preferences/UNKNOWN_FILTER.svg</file>
         <file>svg/preferences/UPDATE_CHANNEL.svg</file>

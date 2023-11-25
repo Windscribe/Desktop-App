@@ -15,7 +15,7 @@ AdvancedParametersDialog::AdvancedParametersDialog(QWidget *parent) : DPIScaleAw
     setWindowFlag(Qt::WindowMinimizeButtonHint, false);
 
     setWindowIcon(ImageResourcesSvg::instance().getIndependentPixmap("BADGE_BLACK_ICON")->getScaledIcon());
-    setWindowTitle("Advanced Parameters");
+    setWindowTitle(tr("Advanced Parameters"));
 
     textEdit_ = new QPlainTextEdit();
     textEdit_->setPlaceholderText(tr("Write your parameters here"));
@@ -25,9 +25,9 @@ AdvancedParametersDialog::AdvancedParametersDialog(QWidget *parent) : DPIScaleAw
     cancelButton_ = new QPushButton(tr("Cancel"));
     hSpacer_ = new QSpacerItem(UNSCALED_SPACER_WIDTH * currentScale(),1, QSizePolicy::Expanding);
 
-    connect(clearButton_, SIGNAL(clicked()), SLOT(onClearClicked()));
-    connect(okButton_, SIGNAL(clicked()), SLOT(onOkClicked()));
-    connect(cancelButton_, SIGNAL(clicked()), SLOT(onCancelClicked()));
+    connect(clearButton_, &QPushButton::clicked, this, &AdvancedParametersDialog::onClearClicked);
+    connect(okButton_, &QPushButton::clicked, this, &AdvancedParametersDialog::onOkClicked);
+    connect(cancelButton_, &QPushButton::clicked, this, &AdvancedParametersDialog::onCancelClicked);
 
     QHBoxLayout *buttonLayout = new QHBoxLayout();
     buttonLayout->addWidget(clearButton_);

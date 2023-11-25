@@ -1,121 +1,106 @@
 #include "applicationinfo.h"
 
 #include <memory>
-#include <string>
+#include <shlwapi.h>
+#include <shlobj_core.h>
 
 #include "logger.h"
 #include "path.h"
-#include "../../../client/common/utils/win32handle.h"
-#include "../../../client/common/version/windscribe_version.h"
+#include "version/windscribe_version.h"
 
-class EnumWindowInfo
+namespace ApplicationInfo {
+
+using namespace std;
+
+wstring name()
 {
-public:
-	HWND appMainWindow = NULL;
-};
-
-ApplicationInfo::ApplicationInfo()
-{
-
+    return L"Windscribe";
 }
 
-std::wstring ApplicationInfo::getName() const
+std::wstring version()
 {
-	return name;
+    return WINDSCRIBE_VERSION_STR_UNICODE;
 }
 
-std::wstring ApplicationInfo::getVersion() const
+wstring uninstaller()
 {
-	return WINDSCRIBE_VERSION_STR_UNICODE;
+    return L"uninstall.exe";
 }
 
-std::wstring ApplicationInfo::getUninstall() const
+std::wstring publisher()
 {
-	return uninstall;
+    return L"Windscribe Limited";
 }
 
-std::wstring  ApplicationInfo::getPublisher() const
+wstring guid()
 {
-	return publisher;
+    return L"{fa690e90-ddb0-4f0c-b3f1-136c084e5fc7}";
 }
 
-std::wstring ApplicationInfo::getId() const
+std::wstring publisherUrl()
 {
-	return id;
+    return L"http://www.windscribe.com/";
 }
 
-std::wstring ApplicationInfo::getPublisherUrl() const
+std::wstring supportUrl()
 {
-	return publisherUrl;
+    return L"http://www.windscribe.com/";
 }
 
-std::wstring ApplicationInfo::getSupportUrl() const
+std::wstring updateUrl()
 {
-	return supportURL;
+    return L"http://www.windscribe.com/";
 }
 
-std::wstring ApplicationInfo::getUpdateUrl() const
+wstring appExeName()
 {
-	return updateURL;
+    return L"Windscribe.exe";
 }
 
-static BOOL CALLBACK
-FindAppWindowHandleProc(HWND hwnd, LPARAM lParam)
+wstring defaultInstallPath()
 {
-    DWORD processID = 0;
-    ::GetWindowThreadProcessId(hwnd, &processID);
+    wstring defaultPath;
 
-    if (processID == 0) {
-        Log::instance().out(L"FindAppWindowHandleProc GetWindowThreadProcessId failed %lu", ::GetLastError());
-        return TRUE;
+    TCHAR programFilesPath[MAX_PATH];
+    BOOL result = ::SHGetSpecialFolderPath(0, programFilesPath, CSIDL_PROGRAM_FILES, FALSE);
+    if (!result) {
+        Log::WSDebugMessage(L"defaultInstallPath - SHGetSpecialFolderPath failed");
+        defaultPath = wstring(L"C:\\Program Files");
+    }
+    else {
+        defaultPath = wstring(programFilesPath);
     }
 
-    wsl::Win32Handle hProcess(::OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, processID));
-    if (!hProcess.isValid())
-    {
-        if (::GetLastError() != ERROR_ACCESS_DENIED) {
-            Log::instance().out(L"FindAppWindowHandleProc OpenProcess failed %lu", ::GetLastError());
-        }
-        return TRUE;
-    }
+    defaultPath = Path::append(defaultPath, name());
 
-    TCHAR imageName[MAX_PATH];
-    DWORD pathLen = sizeof(imageName) / sizeof(imageName[0]);
-    BOOL result = ::QueryFullProcessImageName(hProcess.getHandle(), 0, imageName, &pathLen);
-
-    if (result == FALSE) {
-        Log::instance().out(L"FindAppWindowHandleProc QueryFullProcessImageName failed %lu", ::GetLastError());
-        return TRUE;
-    }
-
-    std::wstring exeName = Path::PathExtractName(std::wstring(imageName, pathLen));
-
-    if (_wcsicmp(exeName.c_str(), L"windscribe.exe") == 0)
-    {
-        TCHAR buffer[128];
-        int resultLen = ::GetWindowText(hwnd, buffer, sizeof(buffer) / sizeof(buffer[0]));
-
-        if (resultLen > 0 && (_wcsicmp(buffer, L"windscribe") == 0))
-        {
-            EnumWindowInfo* pWindowInfo = (EnumWindowInfo*)lParam;
-            pWindowInfo->appMainWindow = hwnd;
-            return FALSE;
-        }
-    }
-
-    return TRUE;
+    return defaultPath;
 }
 
-HWND ApplicationInfo::getAppMainWindowHandle()
+wstring appRegistryKey()
 {
-    // Previously, we used FindWindow("Qt5QWindowIcon", "Windscribe") to find one of the app's
-    // top-level window handles.  In Qt 6, the window class name became "QtNNNQWindowIcon, where
-    // NNN is the Qt version (e.g. Qt631QWindowIcon).  This made it untenable to continue using
-    // the FindWindow API as we change Qt versions, since we would have to search for all prior
-    // Qt window class names.
+    return L"HKEY_CURRENT_USER\\Software\\Windscribe\\Windscribe2";
+}
 
-    auto pWindowInfo = std::make_unique<EnumWindowInfo>();
-    ::EnumWindows((WNDENUMPROC)FindAppWindowHandleProc, (LPARAM)pWindowInfo.get());
+wstring installerRegistryKey()
+{
+    return L"HKEY_CURRENT_USER\\Software\\Windscribe\\Installer";
+}
 
-	return pWindowInfo->appMainWindow;
+wstring uninstallerRegistryKey(bool includeRootKey)
+{
+    wstring keyName;
+    if (includeRootKey) {
+        keyName += wstring(L"HKEY_LOCAL_MACHINE\\");
+    }
+
+    keyName += wstring(L"Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\") + ApplicationInfo::guid() + wstring(L"_is1");
+
+    return keyName;
+}
+
+wstring serviceName()
+{
+    return L"WindscribeService";
+}
+
 }

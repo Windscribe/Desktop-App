@@ -1,5 +1,4 @@
-#ifndef UPGRADEWIDGETITEM_H
-#define UPGRADEWIDGETITEM_H
+#pragma once
 
 #include <QGraphicsObject>
 #include <QVariantAnimation>
@@ -85,5 +84,3 @@ private:
 };
 
 } // namespace UpgradeWindow
-
-#endif // UPGRADEWIDGETITEM_H

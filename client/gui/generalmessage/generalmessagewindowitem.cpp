@@ -11,9 +11,9 @@
 namespace GeneralMessageWindow {
 
 GeneralMessageWindowItem::GeneralMessageWindowItem(ScalableGraphicsObject *parent, Preferences *preferences, PreferencesHelper *preferencesHelper,
-        IGeneralMessageWindow::Style style, const QString &icon, const QString &title, const QString &desc,
+        GeneralMessageWindow::Style style, const QString &icon, const QString &title, const QString &desc,
         const QString &acceptText, const QString &rejectText, const QString &tertiaryText) :
-    IGeneralMessageWindow(parent, preferences, preferencesHelper), isSpinnerMode_(false), shape_(IGeneralMessageWindow::kLoginScreenShape)
+    ResizableWindow(parent, preferences, preferencesHelper), isSpinnerMode_(false), shape_(GeneralMessageWindow::kLoginScreenShape)
 {
     setBackButtonEnabled(false);
     setResizeBarEnabled(false);
@@ -28,7 +28,7 @@ GeneralMessageWindowItem::GeneralMessageWindowItem(ScalableGraphicsObject *paren
     scrollAreaItem_->setItem(contentItem_);
 
     // Do not go into Van Gogh mode if at login screen
-    if (shape_ == IGeneralMessageWindow::kLoginScreenShape) {
+    if (shape_ == GeneralMessageWindow::kLoginScreenShape) {
         escapeButton_->setTextPosition(CommonGraphics::EscapeButton::TEXT_POSITION_BOTTOM);
     }
 
@@ -45,7 +45,7 @@ GeneralMessageWindowItem::GeneralMessageWindowItem(ScalableGraphicsObject *paren
 void GeneralMessageWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem * /*option*/, QWidget * /*widget*/)
 {
     // base background
-    if (shape_ == IGeneralMessageWindow::kConnectScreenAlphaShape) {
+    if (shape_ == GeneralMessageWindow::kConnectScreenAlphaShape) {
         QSharedPointer<IndependentPixmap> pixmapBaseBackground = ImageResourcesSvg::instance().getIndependentPixmap(backgroundBase_);
         pixmapBaseBackground->draw(0, 0, painter);
         painter->fillRect(boundingRect().adjusted(0, pixmapBaseBackground->height(), 0, -7*G_SCALE), QBrush(QColor(2, 13, 28)));
@@ -73,9 +73,9 @@ void GeneralMessageWindowItem::paint(QPainter *painter, const QStyleOptionGraphi
 
     if (isSpinnerMode_) {
         int offset = 0;
-        if (shape_ == IGeneralMessageWindow::kConnectScreenAlphaShape) {
+        if (shape_ == GeneralMessageWindow::kConnectScreenAlphaShape) {
             offset = 10*G_SCALE;
-        } else if (shape_ == IGeneralMessageWindow::kConnectScreenVanGoghShape) {
+        } else if (shape_ == GeneralMessageWindow::kConnectScreenVanGoghShape) {
             offset = -24*G_SCALE;
         }
 
@@ -130,7 +130,7 @@ void GeneralMessageWindowItem::setTitleSize(int size)
     updateHeight();
 }
 
-void GeneralMessageWindowItem::setBackgroundShape(IGeneralMessageWindow::Shape shape)
+void GeneralMessageWindowItem::setBackgroundShape(GeneralMessageWindow::Shape shape)
 {
     shape_ = shape;
     updatePositions();
@@ -161,7 +161,7 @@ void GeneralMessageWindowItem::onEscape()
 
 void GeneralMessageWindowItem::onAppSkinChanged(APP_SKIN s)
 {
-    if (shape_ != IGeneralMessageWindow::kLoginScreenShape) {
+    if (shape_ != GeneralMessageWindow::kLoginScreenShape) {
         ResizableWindow::onAppSkinChanged(s);
     }
 }
@@ -202,7 +202,7 @@ void GeneralMessageWindowItem::updatePositions()
     escapeButton_->onLanguageChanged();
     escapeButton_->setPos(WINDOW_WIDTH*G_SCALE - escapeButton_->boundingRect().width() - 16*G_SCALE, 16*G_SCALE);
 
-    if (preferences_->appSkin() == APP_SKIN_VAN_GOGH && shape_ != kLoginScreenShape) {
+    if (preferences_->appSkin() == APP_SKIN_VAN_GOGH && shape_ != GeneralMessageWindow::kLoginScreenShape) {
         scrollAreaItem_->setPos(0, 55*G_SCALE);
         scrollAreaItem_->setHeight(curHeight_ - 55*G_SCALE);
     } else {
@@ -217,7 +217,7 @@ void GeneralMessageWindowItem::updateHeight()
 {
     int height = 0;
 
-    if (shape_ == IGeneralMessageWindow::kLoginScreenShape) {
+    if (shape_ == GeneralMessageWindow::kLoginScreenShape) {
         height = contentItem_->fullHeight() + 98*G_SCALE;
 
         if (height < LOGIN_HEIGHT*G_SCALE) {
@@ -243,7 +243,7 @@ void GeneralMessageWindowItem::updateHeight()
     contentItem_->update();
 }
 
-IGeneralMessageWindow::Shape GeneralMessageWindowItem::backgroundShape() const
+GeneralMessageWindow::Shape GeneralMessageWindowItem::backgroundShape() const
 {
     return shape_;
 }

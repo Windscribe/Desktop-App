@@ -1,5 +1,4 @@
-#ifndef SPLITTUNNELINGWINDOWITEM_H
-#define SPLITTUNNELINGWINDOWITEM_H
+#pragma once
 
 #include "backend/preferences/preferences.h"
 #include "commongraphics/basepage.h"
@@ -43,5 +42,3 @@ private:
 };
 
 } // namespace PreferencesWindow
-
-#endif // SPLITTUNNELINGWINDOWITEM_H

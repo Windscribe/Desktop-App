@@ -1,5 +1,4 @@
-#ifndef BACKGROUND_H
-#define BACKGROUND_H
+#pragma once
 
 #include <QGraphicsObject>
 #include <QPropertyAnimation>
@@ -71,5 +70,3 @@ private:
 };
 
 } //namespace ConnectWindow
-
-#endif // BACKGROUND_H

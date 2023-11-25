@@ -1,36 +1,42 @@
 #include "IcsManager.h"
 
 #include <wtsapi32.h>
+
 #include "../logger.h"
+#include "../utils.h"
 
-IcsManager::IcsManager() : ncFreeNetconProperties_(nullptr)
+IcsManager::IcsManager()
 {
-
-    WCHAR szPath[MAX_PATH];
-    if (GetSystemDirectory(szPath, MAX_PATH) > 0) {
-        std::wstring str(szPath);
-        str += L"\\netshell.dll";
-
-        hDll_ = LoadLibrary(str.c_str());
-        if (hDll_) {
-            ncFreeNetconProperties_ = (PFNNcFreeNetconProperties)GetProcAddress(hDll_, "NcFreeNetconProperties");
-        }
+    std::wstring dllPath = Utils::getSystemDir() + L"\\netshell.dll";
+    hDll_ = LoadLibrary(dllPath.c_str());
+    if (!hDll_) {
+        Logger::instance().out("Failed to load netshell.dll (%lu)", ::GetLastError());
+        return;
     }
 
-    if (!hDll_ || !ncFreeNetconProperties_)
-        Logger::instance().out("Failed to load the function NcFreeNetconProperties() from netshell.dll");
+    ncFreeNetconProperties_ = (PFNNcFreeNetconProperties)GetProcAddress(hDll_, "NcFreeNetconProperties");
 
+    if (!ncFreeNetconProperties_) {
+        Logger::instance().out("Failed to load the function NcFreeNetconProperties() from netshell.dll");
+    }
 
     HRESULT hr = ::CoCreateInstance(__uuidof(NetSharingManager), NULL, CLSCTX_ALL, __uuidof(INetSharingManager), (void**)&pNSM_);
     if (hr != S_OK) {
         pNSM_ = nullptr;
+        Logger::instance().out("Failed to create INetSharingManager instance");
     }
 }
 
-IcsManager::~IcsManager()
+void IcsManager::release()
 {
-    if (hDll_)
+    pNetConfigurationPrivate_.Release();
+    pNetConfigurationPublic_.Release();
+    pNSM_.Release();
+
+    if (hDll_) {
         FreeLibrary(hDll_);
+        hDll_ = nullptr;
+    }
 }
 
 bool IcsManager::isSupported()
@@ -42,7 +48,7 @@ bool IcsManager::isSupported()
 
     VARIANT_BOOL bInstalled = VARIANT_FALSE;
     if (pNSM_->get_SharingInstalled(&bInstalled) != S_OK)
-		return false;
+        return false;
 
     return (bInstalled == VARIANT_TRUE);
 }

@@ -1,5 +1,4 @@
-#ifndef PERSISTENTSTATE_H
-#define PERSISTENTSTATE_H
+#pragma once
 
 #include "types/locationid.h"
 #include "types/networkinterface.h"
@@ -59,5 +58,3 @@ private:
     static constexpr quint32 magic_ = 0x8845C2AE;
     static constexpr int versionForSerialization_ = 2;  // should increment the version if the data format is changed
 };
-
-#endif // PERSISTENTSTATE_H

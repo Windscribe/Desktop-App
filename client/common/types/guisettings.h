@@ -1,5 +1,4 @@
-#ifndef TYPES_GUISETTINGS_H
-#define TYPES_GUISETTINGS_H
+#pragma once
 
 #include <QDebug>
 #include <QString>
@@ -29,6 +28,7 @@ struct GuiSettings
     bool isShowLocationHealth = false;
     bool isAutoSecureNetworks = true;
     APP_SKIN appSkin = APP_SKIN_ALPHA;
+    TRAY_ICON_COLOR trayIconColor = TRAY_ICON_COLOR_WHITE;
 
     bool operator==(const GuiSettings &other) const
     {
@@ -47,7 +47,8 @@ struct GuiSettings
                other.isStartMinimized == isStartMinimized &&
                other.isShowLocationHealth == isShowLocationHealth &&
                other.isAutoSecureNetworks == isAutoSecureNetworks &&
-               other.appSkin == appSkin;
+               other.appSkin == appSkin &&
+               other.trayIconColor == trayIconColor;
     }
 
     bool operator!=(const GuiSettings &other) const
@@ -60,7 +61,8 @@ struct GuiSettings
         stream << versionForSerialization_;
         stream << o.isLaunchOnStartup << o.isAutoConnect << o.isHideFromDock << o.isShowNotifications << o.orderLocation << o.latencyDisplay <<
                   o.shareSecureHotspot << o.shareProxyGateway << o.splitTunneling << o.isDockedToTray << o.isMinimizeAndCloseToTray <<
-                  o.backgroundSettings << o.isStartMinimized << o.isShowLocationHealth << o.isAutoSecureNetworks << o.appSkin;
+                  o.backgroundSettings << o.isStartMinimized << o.isShowLocationHealth << o.isAutoSecureNetworks << o.appSkin << o.trayIconColor;
+
         return stream;
     }
 
@@ -76,10 +78,17 @@ struct GuiSettings
         stream >> o.isLaunchOnStartup >> o.isAutoConnect >> o.isHideFromDock >> o.isShowNotifications >> o.orderLocation >> o.latencyDisplay >>
                   o.shareSecureHotspot >> o.shareProxyGateway >> o.splitTunneling >> o.isDockedToTray >> o.isMinimizeAndCloseToTray >>
                   o.backgroundSettings >> o.isStartMinimized >> o.isShowLocationHealth >> o.isAutoSecureNetworks;
+
         if (version >= 2)
         {
             stream >> o.appSkin;
         }
+
+        if (version >= 3)
+        {
+            stream >> o.trayIconColor;
+        }
+
         return stream;
     }
 
@@ -102,18 +111,16 @@ struct GuiSettings
         dbg << "isStartMinimized:" << gs.isStartMinimized << "; ";
         dbg << "isShowLocationHealth:" << gs.isShowLocationHealth << "; ";
         dbg << "isAutoSecureNetworks:" << gs.isAutoSecureNetworks << "; ";
-        dbg << "appSkin:" << APP_SKIN_toString(gs.appSkin) << "}";
+        dbg << "appSkin:" << APP_SKIN_toString(gs.appSkin) << ";";
+        dbg << "trayIconColor:" << gs.trayIconColor << ";}";
 
         return dbg;
 
     }
 
 private:
-    static constexpr quint32 versionForSerialization_ = 2;  // should increment the version if the data format is changed
+    static constexpr quint32 versionForSerialization_ = 3;  // should increment the version if the data format is changed
 
 };
 
-
 } // types namespace
-
-#endif // TYPES_GUISETTINGS_H

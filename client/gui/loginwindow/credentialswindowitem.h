@@ -1,12 +1,11 @@
-#ifndef CREDENTIALSWINDOWITEM_H
-#define CREDENTIALSWINDOWITEM_H
+#pragma once
 
 #include <QGraphicsObject>
 #include <QGraphicsTextItem>
 #include <QGraphicsPixmapItem>
 #include <QTimer>
 #include "../backend/backend.h"
-#include "iloginwindow.h"
+#include "loginwindowtypes.h"
 #include "loginyesnobutton.h"
 #include "usernamepasswordentry.h"
 #include "commongraphics/iconbutton.h"
@@ -25,7 +24,7 @@ class CredentialsWindowItem : public ScalableGraphicsObject
 public:
     explicit CredentialsWindowItem(QGraphicsObject *parent, PreferencesHelper *preferencesHelper);
 
-    void setErrorMessage(ILoginWindow::ERROR_MESSAGE_TYPE errorMessageType, const QString &errorMessage);
+    void setErrorMessage(LoginWindow::ERROR_MESSAGE_TYPE errorMessageType, const QString &errorMessage);
     void setEmergencyConnectState(bool isEmergencyConnected);
 
     QRectF boundingRect() const override;
@@ -133,7 +132,7 @@ private:
     CommonGraphics::TextButton *forgotPassButton_;
     QVariantAnimation forgotAnd2FAPosYAnimation_;
 
-    ILoginWindow::ERROR_MESSAGE_TYPE curError_;
+    LoginWindow::ERROR_MESSAGE_TYPE curError_;
     QString curErrorMsg_;
     QString curErrorText_;
     double curErrorOpacity_;
@@ -170,6 +169,3 @@ private:
 };
 
 } // namespace LoginWindow
-
-
-#endif // CREDENTIALSWINDOWITEM_H

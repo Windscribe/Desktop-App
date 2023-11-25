@@ -1,0 +1,10 @@
+LANGUAGE LANG_TURKISH, SUBLANG_NEUTRAL
+
+STRINGTABLE
+BEGIN
+    IDS_MSGBOX_TITLE "Windscribe yüklemesini kaldır"
+    IDS_DIRECTORY_MISMATCH "Kaldırma işlemi devam edemiyor. Yükleme dizini kaldırma diziniyle eşleşmiyor."
+    IDS_CONFIRM_UNINSTALL "Windscribe ürününü ve tüm bileşenlerini tamamen kaldırmak istediğinizden emin misiniz?"
+    IDS_UNINSTALL_SUCCESS "Windscribe bilgisayarınızdan başarıyla kaldırıldı."
+    IDS_CLOSE_APP "Kaldırma işlemine devam etmek için lütfen Windscribe uygulamasından çıkın. Uygulamadan çıkıldıktan sonra bağlantınızın korunmayacağını unutmayın."
+END

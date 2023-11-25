@@ -5,13 +5,13 @@ bool IOUtils::readAll(HANDLE hPipe, char *buf, DWORD len)
 {
     char *ptr = buf;
     DWORD dwRead = 0;
-	DWORD lenCopy = len;
-	while (lenCopy > 0)
+    DWORD lenCopy = len;
+    while (lenCopy > 0)
     {
-		if (::ReadFile(hPipe, ptr, lenCopy, &dwRead, 0))
+        if (::ReadFile(hPipe, ptr, lenCopy, &dwRead, 0))
         {
             ptr += dwRead;
-			lenCopy -= dwRead;
+            lenCopy -= dwRead;
         }
         else
         {
@@ -24,7 +24,7 @@ bool IOUtils::readAll(HANDLE hPipe, char *buf, DWORD len)
 
 bool IOUtils::writeAll(HANDLE hPipe, const char *buf, DWORD len)
 {
-	const char *ptr = buf;
+    const char *ptr = buf;
     DWORD dwWrite = 0;
     while (len > 0)
     {

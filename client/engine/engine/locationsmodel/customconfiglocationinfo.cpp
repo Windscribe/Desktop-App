@@ -94,7 +94,7 @@ void CustomConfigLocationInfo::resolveHostnamesForWireGuardConfig()
             isExistsHostnames = true;
 
             DnsRequest *dnsRequest = new DnsRequest(this, remote, DnsServersConfiguration::instance().getCurrentDnsServers());
-            connect(dnsRequest, SIGNAL(finished()), SLOT(onDnsRequestFinished()));
+            connect(dnsRequest, &DnsRequest::finished, this, &CustomConfigLocationInfo::onDnsRequestFinished);
             dnsRequest->lookup();
         }
         remotes_ << rd;
@@ -150,7 +150,7 @@ void CustomConfigLocationInfo::resolveHostnamesForOVPNConfig()
             isExistsHostnames = true;
 
             DnsRequest *dnsRequest = new DnsRequest(this, remote.hostname, DnsServersConfiguration::instance().getCurrentDnsServers());
-            connect(dnsRequest, SIGNAL(finished()), SLOT(onDnsRequestFinished()));
+            connect(dnsRequest, &DnsRequest::finished, this, &CustomConfigLocationInfo::onDnsRequestFinished);
             dnsRequest->lookup();
         }
     }

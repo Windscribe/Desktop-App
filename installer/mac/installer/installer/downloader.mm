@@ -1,4 +1,4 @@
-#import "downloader.hpp"
+#import "downloader.h"
 #import "../Logger.h"
 
 @implementation Downloader
@@ -32,7 +32,7 @@
     [callbackObject_ performSelectorOnMainThread:callbackSelector_ withObject:self waitUntilDone:NO];
     NSURLSessionConfiguration *conf = [NSURLSessionConfiguration defaultSessionConfiguration];
     session_ = [NSURLSession sessionWithConfiguration:conf  delegate: self delegateQueue: nil];
-    
+
     [[session_ downloadTaskWithURL: [NSURL URLWithString:strUrl_]] resume];
 }
 
@@ -53,7 +53,7 @@
     std::string cmd = "hdiutil attach '";
     cmd += filePath;
     cmd += "'";
-     
+
     // run system command
     FILE *file = popen(cmd.c_str(), "r");
     if (file)
@@ -64,10 +64,10 @@
         }
         pclose(file);
     }
-    
+
     // open DMG in Finder
     [[NSWorkspace sharedWorkspace] openURL: [NSURL fileURLWithPath:@"/Volumes/Windscribe" isDirectory:YES]];
-    
+
     self.progress = 100;
     self.currentState = STATE_LAUNCHED;
     [callbackObject_ performSelectorOnMainThread:callbackSelector_ withObject:self waitUntilDone:NO];
@@ -100,10 +100,10 @@
         std::string filePath = getenv("TMPDIR");
         filePath += "windscribe_legacy_installer.dmg";
         filePath_ = [NSString stringWithUTF8String:filePath.c_str()];
-        
+
         NSData *data = [NSData dataWithContentsOfURL:location];
         [data writeToFile:filePath_ atomically:YES];
-        
+
         self.progress = 100;
         self.currentState = STATE_FINISHED;
         [callbackObject_ performSelectorOnMainThread:callbackSelector_ withObject:self waitUntilDone:NO];
@@ -112,7 +112,7 @@
     {
         self.progress = 0;
         self.currentState = STATE_ERROR;
-        self.lastError = @"Can't download legacy installer. Please contact support.";
+        self.lastError = ERROR_OTHER;
         [callbackObject_ performSelectorOnMainThread:callbackSelector_ withObject:self waitUntilDone:NO];
     }
 }
@@ -125,7 +125,7 @@
     {
         self.progress = 0;
         self.currentState = STATE_ERROR;
-        self.lastError = @"Can't download legacy installer. Please contact support.";
+        self.lastError = ERROR_OTHER;
         [callbackObject_ performSelectorOnMainThread:callbackSelector_ withObject:self waitUntilDone:NO];
     }
 }

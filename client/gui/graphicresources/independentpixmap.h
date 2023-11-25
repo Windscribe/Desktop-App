@@ -1,5 +1,4 @@
-#ifndef INDEPENDENTPIXMAP_H
-#define INDEPENDENTPIXMAP_H
+#pragma once
 
 #include <QObject>
 #include <QBitmap>
@@ -38,5 +37,3 @@ public:
 private:
     QPixmap pixmap_;
 };
-
-#endif // INDEPENDENTPIXMAP_H

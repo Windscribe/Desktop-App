@@ -59,11 +59,6 @@ ResizableWindow::~ResizableWindow()
 {
 }
 
-QGraphicsObject *ResizableWindow::getGraphicsObject()
-{
-    return this;
-}
-
 QRectF ResizableWindow::boundingRect() const
 {
     return QRectF(0, 0, WINDOW_WIDTH*G_SCALE, curHeight_);
@@ -112,7 +107,7 @@ void ResizableWindow::onResizeChange(int y)
 
 void ResizableWindow::onResizeFinished()
 {
-	emit resizeFinished(this);
+    emit resizeFinished(this);
 }
 
 void ResizableWindow::onBackArrowButtonClicked()
@@ -153,7 +148,7 @@ void ResizableWindow::updatePositions()
 
 void ResizableWindow::setBackButtonEnabled(bool b)
 {
-	backArrowButton_->setVisible(b);
+    backArrowButton_->setVisible(b);
 }
 
 void ResizableWindow::setResizeBarEnabled(bool b)

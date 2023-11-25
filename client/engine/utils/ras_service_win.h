@@ -1,5 +1,4 @@
-#ifndef RAS_SERVICE_WIN_H
-#define RAS_SERVICE_WIN_H
+#pragma once
 
 class IHelper;
 
@@ -19,5 +18,3 @@ public:
 private:
     RAS_Service_win();
 };
-
-#endif // RAS_SERVICE_WIN_H

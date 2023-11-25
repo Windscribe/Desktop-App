@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 
-set(CMAKE_OSX_DEPLOYMENT_TARGET "10.14" CACHE STRING "Minimum OS X deployment version")
+set(CMAKE_OSX_DEPLOYMENT_TARGET "11" CACHE STRING "Minimum OS X deployment version")
 
 project(Windscribe)
 
@@ -82,7 +82,7 @@ elseif(APPLE)
     )
 
     # add Mac icon to Resources bundle subfolder
-    set(MAC_APP_ICON ${CMAKE_CURRENT_SOURCE_DIR}/windscribe.icns)
+    set(MAC_APP_ICON ${CMAKE_CURRENT_SOURCE_DIR}/gui/resources/icons/Mac/windscribe.icns)
     set_source_files_properties(${MAC_APP_ICON} PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
     list(APPEND PROJECT_SOURCES ${MAC_APP_ICON})
 
@@ -159,6 +159,7 @@ set_target_properties(Windscribe PROPERTIES
     MACOSX_BUNDLE TRUE
     MACOSX_BUNDLE_INFO_PLIST ${CMAKE_SOURCE_DIR}/info.plist
     WIN32_EXECUTABLE TRUE
+    COMPILE_WARNING_AS_ERROR TRUE
 )
 
 add_subdirectory(engine)

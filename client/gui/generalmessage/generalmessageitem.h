@@ -4,12 +4,12 @@
 #include <QGraphicsProxyWidget>
 #include <QSet>
 
-#include "igeneralmessagewindow.h"
 #include "commongraphics/basepage.h"
 #include "commongraphics/checkbox.h"
 #include "commongraphics/imageitem.h"
 #include "commongraphics/listbutton.h"
 #include "commongraphics/textbutton.h"
+#include "generalmessagetypes.h"
 #include "languagecontroller.h"
 
 namespace GeneralMessageWindow {
@@ -18,7 +18,7 @@ class GeneralMessageItem: public CommonGraphics::BasePage
 {
     Q_OBJECT
 public:
-    explicit GeneralMessageItem(ScalableGraphicsObject *parent, int width, IGeneralMessageWindow::Style style);
+    explicit GeneralMessageItem(ScalableGraphicsObject *parent, int width, GeneralMessageWindow::Style style);
 
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
     void updateScaling() override;
@@ -27,7 +27,7 @@ public:
     void setTitle(const QString &title);
     void setDescription(const QString &desc);
 
-    void setAcceptButtonStyle(IGeneralMessageWindow::Style style);
+    void setAcceptButtonStyle(GeneralMessageWindow::Style style);
     void setAcceptText(const QString &text);
     void setRejectText(const QString &text);
     void setTertiaryText(const QString &text);
@@ -56,8 +56,8 @@ private slots:
     void onLanguageChanged();
 
 private:
-    IGeneralMessageWindow::Style style_;
-    IGeneralMessageWindow::Shape shape_;
+    GeneralMessageWindow::Style style_;
+    GeneralMessageWindow::Shape shape_;
 
     bool isSpinnerMode_;
 

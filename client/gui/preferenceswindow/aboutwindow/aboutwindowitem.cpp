@@ -13,7 +13,7 @@ AboutWindowItem::AboutWindowItem(ScalableGraphicsObject *parent, Preferences *pr
 
     setFlag(QGraphicsItem::ItemIsFocusable);
     setSpacerHeight(PREFERENCES_MARGIN);
-    
+
     group_ = new PreferenceGroup(this, "", "");
 
     statusLink_ = new LinkItem(group_, LinkItem::LinkType::EXTERNAL_LINK, "",
@@ -32,7 +32,7 @@ AboutWindowItem::AboutWindowItem(ScalableGraphicsObject *parent, Preferences *pr
                               QString("https://%1/terms").arg(HardcodedSettings::instance().serverUrl()));
     group_->addItem(termsLink_);
 
-    blogLink_ = new LinkItem(group_, LinkItem::LinkType::EXTERNAL_LINK, ""
+    blogLink_ = new LinkItem(group_, LinkItem::LinkType::EXTERNAL_LINK, "",
                              "https://blog.windscribe.com");
     group_->addItem(blogLink_);
 

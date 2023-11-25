@@ -1,5 +1,4 @@
-#ifndef LOGWATCHER_H
-#define LOGWATCHER_H
+#pragma once
 
 #include <memory>
 #include <QMap>
@@ -53,5 +52,3 @@ private:
     quint32 log_index_;
     bool is_watch_done_;
 };
-
-#endif  // LOGWATCHER_H

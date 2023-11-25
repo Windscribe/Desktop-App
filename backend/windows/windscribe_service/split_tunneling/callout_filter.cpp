@@ -115,9 +115,6 @@ void CalloutFilter::disable()
 {
     std::lock_guard<std::recursive_mutex> guard(mutex_);
 
-    if (!isEnabled_) {
-        return;
-    }
     Logger::instance().out(L"CalloutFilter::disable()");
     removeAllFilters(fwmpWrapper_);
     isEnabled_ = false;

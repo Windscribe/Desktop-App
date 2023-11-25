@@ -19,7 +19,6 @@
 #ifdef Q_OS_WIN
     #include "utils/crashhandler.h"
     #include "utils/installedantiviruses_win.h"
-    #include "engine/taputils/tapinstall_win.h"
 #elif defined (Q_OS_MACOS)
     #include "utils/macutils.h"
 #elif defined (Q_OS_LINUX)
@@ -169,14 +168,6 @@ int main(int argc, char *argv[])
         qCDebug(LOG_BASIC) << "OpenVPN executable not found";
         return 0;
     }
-
-#ifdef Q_OS_WIN
-    QVector<TapInstall_win::TAP_TYPE> tapAdapters = TapInstall_win::detectInstalledTapDriver(true);
-    if (tapAdapters.isEmpty())
-    {
-        qCDebug(LOG_BASIC) << "Can't detect installed TAP-adapter";
-    }
-#endif
 
 #if defined Q_OS_MAC
     if (!MacUtils::verifyAppBundleIntegrity())

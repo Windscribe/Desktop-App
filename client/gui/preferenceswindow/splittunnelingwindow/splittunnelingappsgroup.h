@@ -1,5 +1,4 @@
-#ifndef SPLITTUNNELINGAPPSGROUP_H
-#define SPLITTUNNELINGAPPSGROUP_H
+#pragma once
 
 #include "commongraphics/baseitem.h"
 #include "preferenceswindow/preferencegroup.h"
@@ -63,5 +62,3 @@ private:
 };
 
 } // namespace PreferencesWindow
-
-#endif // SPLITTUNNELINGAPPSGROUP_H

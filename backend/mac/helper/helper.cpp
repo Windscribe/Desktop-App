@@ -18,10 +18,9 @@ int main(int argc, const char *argv[])
     signal(SIGILL, handler_sigterm);
     signal(SIGINT, handler_sigterm);
     signal(SIGTERM, handler_sigterm);
-    
+
     server.run();
-    
+
     LOG("Windscribe helper finished");
     return EXIT_SUCCESS;
 }
-

@@ -1,11 +1,15 @@
 #include "install_service_command.h"
 
+#include <system_error>
 
-InstallServiceCommand::InstallServiceCommand(Logger *logger, const wchar_t *servicePath, const wchar_t *subinaclPath) :
-	BasicCommand(logger), servicePath_(servicePath), subinaclPath_(subinaclPath)
+#include "servicecontrolmanager.h"
+
+using namespace std;
+
+InstallServiceCommand::InstallServiceCommand(Logger *logger, const wchar_t *servicePath) :
+    BasicCommand(logger), servicePath_(servicePath)
 {
 }
-
 
 InstallServiceCommand::~InstallServiceCommand()
 {
@@ -13,172 +17,31 @@ InstallServiceCommand::~InstallServiceCommand()
 
 void InstallServiceCommand::execute()
 {
-	if (serviceExists(L"WindscribeService"))
-	{
-		logger_->outStr("Remove previous instance of WindscribeService\n");
-		simpleStopService(L"WindscribeService");
-		simpleDeleteService(L"WindscribeService");
-	}
+    try {
+        wsl::ServiceControlManager scm;
+        scm.openSCM(SC_MANAGER_ALL_ACCESS);
 
-	std::wstring cmd;
-	std::string answer;
-	cmd = L"sc create WindscribeService binPath= \"";
-	cmd += servicePath_ + L"\" start= auto";
-	if (executeBlockingCommand(cmd.c_str(), answer))
-	{
-		logger_->outStr("Output from command (sc create WindscribeService):\n");
-		logger_->outStr(answer.c_str());
-	}
-	else
-	{
-		logger_->outStr("Failed execute command (sc create WindscribeService)\n");
-		return;
-	}
+        const wstring serviceName(L"WindscribeService");
+        if (scm.isServiceInstalled(serviceName.c_str())) {
+            logger_->outStr(L"Remove previous instance of Windscribe Service\n");
+            scm.deleteService(serviceName.c_str());
+        }
 
-	cmd = L"sc description WindscribeService \"Manages the firewall and controls the VPN tunnel\"";
-	if (executeBlockingCommand(cmd.c_str(), answer))
-	{
-		logger_->outStr("Output from command (sc description WindscribeService):\n");
-		logger_->outStr(answer.c_str());
-	}
-	else
-	{
-		logger_->outStr("Failed execute command (sc description WindscribeService)\n");
-		return;
-	}
+        if (!servicePath_.starts_with(L'\"')) {
+            servicePath_.insert(0, L"\"");
+        }
 
-	cmd = L"\"" + subinaclPath_ + L"\"";
-	cmd += L" /SERVICE WindscribeService /grant=S-1-5-11=F"; 
-	if (executeBlockingCommand(cmd.c_str(), answer))
-	{
-		logger_->outStr("Subinacl command executed\n");
-		fixUnquotedServicePath();
-	}
-	else
-	{
-		logger_->outStr("Failed execute command subinacl\n");
-		return;
-	}
-}
+        if (!servicePath_.ends_with(L'\"')) {
+            servicePath_.append(L"\"");
+        }
 
-bool InstallServiceCommand::serviceExists(const wchar_t *serviceName)
-{
-	SC_HANDLE schSCManager = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
-	if (!schSCManager)
-	{
-		return false;
-	}
+        scm.installService(serviceName.c_str(), servicePath_.c_str(),
+                           L"Windscribe Service", L"Manages the firewall and controls the VPN tunnel",
+                           SERVICE_WIN32_OWN_PROCESS, SERVICE_AUTO_START, L"Nsi\0TcpIp\0", true);
 
-	SC_HANDLE serviceHandle = OpenService(schSCManager, serviceName, SERVICE_ALL_ACCESS);
-	if (!serviceHandle)
-	{
-		CloseServiceHandle(schSCManager);
-		return false;
-	}
-
-	CloseServiceHandle(serviceHandle);
-	CloseServiceHandle(schSCManager);
-	return true;
-}
-
-void InstallServiceCommand::simpleStopService(const wchar_t *serviceName)
-{
-	SC_HANDLE schSCManager = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
-	if (!schSCManager)
-	{
-		return;
-	}
-
-	SC_HANDLE serviceHandle = OpenService(schSCManager, serviceName, SERVICE_ALL_ACCESS);
-	if (!serviceHandle)
-	{
-		CloseServiceHandle(schSCManager);
-		return;
-	}
-	SERVICE_STATUS serviceStatus;
-	ControlService(serviceHandle, SERVICE_CONTROL_STOP, &serviceStatus);
-	waitForService(serviceHandle, SERVICE_STOPPED);
-
-	CloseServiceHandle(serviceHandle);
-	CloseServiceHandle(schSCManager);
-}
-
-bool InstallServiceCommand::waitForService(SC_HANDLE serviceHandle, DWORD status)
-{
-	DWORD pendingStatus = 0;
-	if (status == SERVICE_RUNNING)
-	{
-		pendingStatus = SERVICE_START_PENDING;
-	}
-	else if (status == SERVICE_STOPPED)
-	{
-		pendingStatus = SERVICE_STOP_PENDING;
-	}
-
-	while (true)
-	{
-		SERVICE_STATUS serviceStatus;
-		if (!ControlService(serviceHandle, SERVICE_CONTROL_INTERROGATE, &serviceStatus))
-		{
-			return false;
-		}
-		if (serviceStatus.dwWin32ExitCode != 0)
-		{
-			return false;
-		}
-		bool result = (serviceStatus.dwCurrentState == status);
-		if (!result && serviceStatus.dwCurrentState == pendingStatus)
-		{
-			Sleep(serviceStatus.dwWaitHint);
-		}
-		else
-		{
-			break;
-		}
-	}
-
-	return true;
-}
-
-void InstallServiceCommand::simpleDeleteService(const wchar_t *serviceName)
-{
-	SC_HANDLE schSCManager = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
-	if (!schSCManager)
-	{
-		return;
-	}
-
-	SC_HANDLE serviceHandle = OpenService(schSCManager, serviceName, SERVICE_ALL_ACCESS);
-	if (!serviceHandle)
-	{
-		CloseServiceHandle(schSCManager);
-		return;
-	}
-	DeleteService(serviceHandle);
-	
-	CloseServiceHandle(serviceHandle);
-	CloseServiceHandle(schSCManager);
-}
-
-void InstallServiceCommand::fixUnquotedServicePath()
-{
-	HKEY hKey;
-	LONG lRes = RegOpenKeyEx(HKEY_LOCAL_MACHINE, L"SYSTEM\\CurrentControlSet\\Services\\WindscribeService", 0, KEY_READ | KEY_WRITE, &hKey);
-	if (lRes == ERROR_SUCCESS)
-	{
-		WCHAR szBuffer[MAX_PATH];
-		DWORD dwBufferSize = sizeof(szBuffer);
-		DWORD dwType;
-		if (RegQueryValueEx(hKey, L"ImagePath", 0, &dwType, (LPBYTE)szBuffer, &dwBufferSize) == ERROR_SUCCESS)
-		{
-			std::wstring ws(szBuffer);
-			if (ws.length() > 0 && ws[0] != L'"')
-			{
-				ws.insert(0, 1, L'"');
-				ws.insert(ws.length(), 1, L'"');
-				RegSetValueEx(hKey, L"ImagePath", 0, dwType, (BYTE *)ws.c_str(), ws.size() * sizeof(wchar_t));
-			}
-		}
-		RegCloseKey(hKey);
-	}
+        scm.setServiceSIDType(SERVICE_SID_TYPE_UNRESTRICTED);
+    }
+    catch (system_error& ex) {
+        logger_->outStr(L"WARNING: failed to reinstall the Windscribe service - %s\n", ex.what());
+    }
 }

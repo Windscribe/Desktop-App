@@ -1,5 +1,4 @@
-#ifndef NETWORKOPTIONSNETWORKWINDOWITEM_H
-#define NETWORKOPTIONSNETWORKWINDOWITEM_H
+#pragma once
 
 #include "commongraphics/basepage.h"
 #include "backend/preferences/preferences.h"
@@ -51,5 +50,3 @@ private:
 };
 
 } // namespace PreferencesWindow
-
-#endif // NETWORKOPTIONSNETWORKWINDOWITEM_H

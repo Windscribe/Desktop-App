@@ -1,18 +1,25 @@
 #pragma once
+
 #include "fwpm_wrapper.h"
 
 class Ipv6Firewall
 {
 public:
-	explicit Ipv6Firewall(FwpmWrapper &fwmpWrapper);
-	~Ipv6Firewall();
+    static Ipv6Firewall &instance(FwpmWrapper *wrapper = nullptr)
+    {
+        static Ipv6Firewall ip6f(*wrapper);
+        return ip6f;
+    }
 
-	void enableIPv6();
-	void disableIPv6();
+    void release();
+
+    void enableIPv6();
+    void disableIPv6();
 
 private:
-	FwpmWrapper &fwmpWrapper_;
-	GUID subLayerGUID_;
-	void addFilters(HANDLE engineHandle);
-};
+    explicit Ipv6Firewall(FwpmWrapper &fwpmWrapper);
 
+    FwpmWrapper &fwpmWrapper_;
+    GUID subLayerGUID_;
+    void addFilters(HANDLE engineHandle);
+};

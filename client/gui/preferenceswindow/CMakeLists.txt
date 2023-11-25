@@ -53,7 +53,6 @@ target_sources(gui PRIVATE
     generalwindow/versioninfoitem.h
     helpwindow/helpwindowitem.cpp
     helpwindow/helpwindowitem.h
-    ipreferenceswindow.h
     linkitem.cpp
     linkitem.h
     networkoptionswindow/networklistgroup.cpp
@@ -65,7 +64,6 @@ target_sources(gui PRIVATE
     preferencegroup.cpp
     preferencegroup.h
     preferencesconst.h
-    preferencestab/ipreferencestabcontrol.h
     preferencestab/preferencestabcontrolitem.cpp
     preferencestab/preferencestabcontrolitem.h
     preferencestab/tabbutton.cpp

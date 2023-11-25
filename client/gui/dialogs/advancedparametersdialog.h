@@ -1,5 +1,4 @@
-#ifndef ADVANCEDPARAMETERSDIALOG_H
-#define ADVANCEDPARAMETERSDIALOG_H
+#pragma once
 
 #include <QWidget>
 #include <QPlainTextEdit>
@@ -38,5 +37,3 @@ private:
     QPushButton *cancelButton_;
     QSpacerItem *hSpacer_;
 };
-
-#endif // ADVANCEDPARAMETERSDIALOG_H

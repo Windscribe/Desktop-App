@@ -9,7 +9,6 @@
 #include "connectbutton.h"
 #include "connectstateprotocolport/connectstateprotocolport.h"
 #include "firewallbutton.h"
-#include "iconnectwindow.h"
 #include "locationsbutton.h"
 #include "logonotificationsbutton.h"
 #include "middleitem.h"
@@ -17,52 +16,44 @@
 
 namespace ConnectWindow {
 
-class ConnectWindowItem : public ScalableGraphicsObject, public IConnectWindow
+class ConnectWindowItem : public ScalableGraphicsObject
 {
     Q_OBJECT
-    Q_INTERFACES(IConnectWindow)
 public:
     explicit ConnectWindowItem(QGraphicsObject *parent, Preferences *preferences, PreferencesHelper *preferencesHelper);
-
     QRectF boundingRect() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
-
-    QGraphicsObject *getGraphicsObject() override;
-
-    void setClickable(bool isClickable) override;
-
-    QRegion getMask() override;
-    QPixmap getShadowPixmap() override;
-
-    void setConnectionTimeAndData(QString connectionTime, QString dataTransferred) override;
-    void setFirewallAlwaysOn(bool isFirewallAlwaysOn) override;
-    void setFirewallBlock(bool isFirewallBlocked) override;
-    void setTestTunnelResult(bool success) override;
-    void setCornerColor(QColor color) override;
-    types::ProtocolStatus getProtocolStatus() override;
-    void setIsPreferredProtocol(bool on) override;
-
     void updateScaling() override;
 
+    void setClickable(bool isClickable);
+
+    QRegion getMask();
+    QPixmap getShadowPixmap();
+
+    void setConnectionTimeAndData(QString connectionTime, QString dataTransferred);
+    void setFirewallAlwaysOn(bool isFirewallAlwaysOn);
+    void setTestTunnelResult(bool success);
+    void setCornerColor(QColor color);
+    types::ProtocolStatus getProtocolStatus();
+    void setIsPreferredProtocol(bool on);
+
 public slots:
-    void updateLocationInfo(const QString &firstName, const QString &secondName, const QString &countryCode, PingTime pingTime, bool isCustomConfig) override;
-    void updateConnectState(const types::ConnectState & newConnectState) override;
-    void updateFirewallState(bool isFirewallEnabled) override;
-    void updateLocationsState(bool isExpanded) override;
-    void updateMyIp(const QString &ip) override;
-    void updateNotificationsState(int totalMessages, int unread) override;
-    void updateNetworkState(types::NetworkInterface network) override;
-    void setSplitTunnelingState(bool on) override;
-    void setInternetConnectivity(bool connectivity) override;
-    void setProtocolPort(const types::Protocol &protocol, const uint port) override;
+    void updateLocationInfo(const QString &firstName, const QString &secondName, const QString &countryCode, PingTime pingTime, bool isCustomConfig);
+    void updateConnectState(const types::ConnectState & newConnectState);
+    void updateFirewallState(bool isFirewallEnabled);
+    void updateLocationsState(bool isExpanded);
+    void updateMyIp(const QString &ip);
+    void updateNotificationsState(int totalMessages, int unread);
+    void updateNetworkState(types::NetworkInterface network);
+    void setSplitTunnelingState(bool on);
+    void setInternetConnectivity(bool connectivity);
+    void setProtocolPort(const types::Protocol &protocol, const uint port);
 
     void onNetworkHoverEnter();
     void onNetworkHoverLeave();
     void onConnectStateTextHoverEnter();
     void onConnectStateTextHoverLeave();
     void onFirewallButtonClick();
-    void onFirewallButtonHoverEnter();
-    void onFirewallButtonHoverLeave();
     void onFirewallInfoHoverEnter();
     void onFirewallInfoHoverLeave();
     void onFirstNameHoverEnter();
@@ -74,16 +65,16 @@ public slots:
     void onProtocolsClick();
 
 signals:
-    void minimizeClick() override;
-    void closeClick() override;
-    void preferencesClick() override;
-    void connectClick() override;
-    void firewallClick() override;
-    void locationsClick() override;
-    void notificationsClick() override;
-    void networkButtonClick() override;
-    void splitTunnelingButtonClick() override;
-    void protocolsClick() override;
+    void minimizeClick();
+    void closeClick();
+    void preferencesClick();
+    void connectClick();
+    void firewallClick();
+    void locationsClick();
+    void notificationsClick();
+    void networkButtonClick();
+    void splitTunnelingButtonClick();
+    void protocolsClick();
 
 private slots:
     void onAppSkinChanged(APP_SKIN s);
@@ -126,7 +117,6 @@ private:
     QString dataTransferred_;
 
     bool isFirewallAlwaysOn_;
-    bool isFirewallBlocked_;
 
     void updatePositions();
     void updateShortenedText();

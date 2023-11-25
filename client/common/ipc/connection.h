@@ -1,29 +1,32 @@
-#ifndef IPCCONNECTION_H
-#define IPCCONNECTION_H
+#pragma once
 
 #include <QLocalSocket>
 #include <QObject>
-#include "iserver.h"
+#include "command.h"
 
 namespace IPC
 {
 
-class Connection : public QObject, public IConnection
+static const int CONNECTION_CONNECTED = 0;
+static const int CONNECTION_DISCONNECTED = 1;
+static const int CONNECTION_ERROR = 2;
+
+class Connection : public QObject
 {
     Q_OBJECT
 public:
     explicit Connection(QLocalSocket *localSocket);
     explicit Connection();
-    ~Connection() override;
+    ~Connection();
 
-    void connect() override;
-    void close() override;
-    void sendCommand(const Command &commandl) override;
+    void connect();
+    void close();
+    void sendCommand(const Command &commandl);
 
 signals:
-    void newCommand(IPC::Command *cmd, IPC::IConnection *connection) override;
-    void stateChanged(int state, IPC::IConnection *connection) override;
-    void allWritten(IPC::IConnection *connection) override;
+    void newCommand(IPC::Command *cmd, IPC::Connection *connection);
+    void stateChanged(int state, IPC::Connection *connection);
+    void allWritten(IPC::Connection *connection);
 
 private slots:
     void onSocketConnected();
@@ -46,5 +49,3 @@ private:
 };
 
 } // namespace IPC
-
-#endif // IPCCONNECTION_H

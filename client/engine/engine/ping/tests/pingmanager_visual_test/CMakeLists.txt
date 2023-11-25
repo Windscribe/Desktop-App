@@ -5,7 +5,7 @@ set(PROJECT_SOURCES
         pingmanager_test_widget.cpp
         pingmanager_test_widget.h
         pingmanager_test_widget.ui
-	pingmanager_test.qrc
+    pingmanager_test.qrc
 )
 
 add_executable(pingmanager_visual_test ${PROJECT_SOURCES} )

@@ -1,5 +1,4 @@
-#ifndef PROXYSETTINGSWINDOWITEM_H
-#define PROXYSETTINGSWINDOWITEM_H
+#pragma once
 
 #include "commongraphics/basepage.h"
 #include "backend/preferences/preferences.h"
@@ -30,5 +29,3 @@ private:
 };
 
 } // namespace PreferencesWindow
-
-#endif // PROXYSETTINGSWINDOWITEM_H

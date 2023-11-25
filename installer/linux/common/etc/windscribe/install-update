@@ -1,0 +1,21 @@
+#!/bin/bash
+
+if [ -z "$1" ]; then
+    exit 1 
+fi
+
+platform=`cat /etc/windscribe/platform`
+if [ -z $platform ]; then
+    # should not be here
+    platform="linux_deb_x64"
+fi
+
+if [ $platform == "linux_deb_x64" -o $platform == "linux_deb_arm64" ]; then
+    pkexec sh -c "killall -q Windscribe && apt install -y --reinstall \"$1\""
+elif [ $platform == "linux_rpm_x64" ]; then
+    pkexec sh -c "killall -q Windscribe && dnf upgrade -y \"$1\""
+elif [ $platform == "linux_zst_x64" ]; then
+    pkexec sh -c "killall -q Windscribe && pacman -U --noconfirm \"$1\""
+fi
+
+nohup /opt/windscribe/Windscribe &>/dev/null & disown;

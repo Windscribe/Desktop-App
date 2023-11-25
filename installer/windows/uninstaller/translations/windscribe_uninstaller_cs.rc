@@ -1,0 +1,10 @@
+LANGUAGE LANG_CZECH, SUBLANG_NEUTRAL
+
+STRINGTABLE
+BEGIN
+    IDS_MSGBOX_TITLE "Odinstalace Windscribe"
+    IDS_DIRECTORY_MISMATCH "Odinstalace nemůže pokračovat. Instalační adresář se neshoduje s adresářem pro odstranění."
+    IDS_CONFIRM_UNINSTALL "Jste si jisti, že chcete kompletně odstranit Windscribe a všechny její součásti?"
+    IDS_UNINSTALL_SUCCESS "Windscribe byla úspěšně odstraněna z vašeho zařízení."
+    IDS_CLOSE_APP "Vypněte aplikaci Windscribe, aby bylo možné pokračovat v odinstalaci. Upozorňujeme, že po vypnutí VPN aplikace nebude vaše připojení chráněno."
+END

@@ -1,5 +1,4 @@
-#ifndef COMMON_H
-#define COMMON_H
+#pragma once
 
 #include <QObject>
 
@@ -24,5 +23,3 @@ enum class LogRangeCheckType {
 
 Q_DECLARE_METATYPE(LogDataType);
 Q_DECLARE_METATYPE(LogRangeCheckType);
-
-#endif  // COMMON_H

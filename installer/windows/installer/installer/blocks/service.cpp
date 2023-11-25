@@ -1,11 +1,11 @@
 #include "service.h"
 
+#include <sstream>
+
 #include "../settings.h"
-#include "../../../utils/directory.h"
+#include "../../../utils/applicationinfo.h"
 #include "../../../utils/logger.h"
-#include "../../../utils/path.h"
-#include "../../../utils/process1.h"
-#include "../../../utils/registry.h"
+#include "servicecontrolmanager.h"
 
 using namespace std;
 
@@ -15,49 +15,29 @@ Service::Service(double weight) : IInstallBlock(weight, L"Service")
 
 int Service::executeStep()
 {
-	installWindscribeService();
-	fixUnquotedServicePath();
-	return 100;
+    installWindscribeService();
+    return 100;
 }
 
 void Service::installWindscribeService()
 {
-	const wstring& installPath = Path::AddBackslash(Settings::instance().getPath());
-    wstring ServicePath = L"\"" + installPath + L"WindscribeService.exe" + L"\"";
+    try {
+        std::wstring serviceCmdLine;
+        {
+            std::wostringstream stream;
+            stream << L"\"" << Settings::instance().getPath() << L"\\WindscribeService.exe\"";
+            serviceCmdLine = stream.str();
+        }
 
-	wstring sc = Path::AddBackslash(Directory::GetSystemDir()) + wstring(L"sc.exe");
-	executeProcess(sc, L"create WindscribeService binPath= " + ServicePath + L" start= auto");
-	executeProcess(sc, L"description WindscribeService \"Manages the firewall and controls the VPN tunnel\"");
+        wsl::ServiceControlManager scm;
+        scm.openSCM(SC_MANAGER_ALL_ACCESS);
+        scm.installService(ApplicationInfo::serviceName().c_str(), serviceCmdLine.c_str(),
+                           L"Windscribe Service", L"Manages the firewall and controls the VPN tunnel",
+                           SERVICE_WIN32_OWN_PROCESS, SERVICE_AUTO_START, L"Nsi\0TcpIp\0", true);
 
-	wstring subinacl = installPath + wstring(L"subinacl.exe");
-	executeProcess(subinacl, L"/SERVICE WindscribeService /grant=S-1-5-11=STO");
-}
-
-void Service::fixUnquotedServicePath()
-{
-	wstring ImagePath;
-
-	if (Registry::RegQueryStringValue(HKEY_LOCAL_MACHINE, L"SYSTEM\\CurrentControlSet\\Services\\WindscribeService", L"ImagePath", ImagePath))
-	{
-		if ((ImagePath.length() > 0) && (ImagePath[0] != '"'))
-		{
-			ImagePath = L"\"" + ImagePath + L"\"";
-			Registry::RegWriteStringValue(HKEY_LOCAL_MACHINE, L"SYSTEM\\CurrentControlSet\\Services\\WindscribeService", L"ImagePath", ImagePath);
-		}
-	}
-}
-
-void Service::executeProcess(const wstring& process, const wstring& cmdLine)
-{
-	auto result = Process::InstExec(process, cmdLine, 30 * 1000, SW_HIDE);
-
-	if (!result.has_value()) {
-		Log::instance().out("Service install stage - an error was encountered launching %ls or while monitoring its progress.", process.c_str());
-	}
-	else if (result.value() == WAIT_TIMEOUT) {
-		Log::instance().out("Service install stage - %ls timed out.", process.c_str());
-	}
-	else if (result.value() != NO_ERROR) {
-		Log::instance().out("Service install stage - %ls returned a failure code (%lu).", process.c_str(), result.value());
-	}
+        scm.setServiceSIDType(SERVICE_SID_TYPE_UNRESTRICTED);
+    }
+    catch (std::system_error& ex) {
+        Log::instance().out("installWindscribeService - %s", ex.what());
+    }
 }

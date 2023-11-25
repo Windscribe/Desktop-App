@@ -1,5 +1,4 @@
-#ifndef ICSMANAGER_H
-#define ICSMANAGER_H
+#pragma once
 
 #include "Engine/Helper/helper_win.h"
 
@@ -18,5 +17,3 @@ public:
 private:
     Helper_win *helper_;
 };
-
-#endif // ICSMANAGER_H

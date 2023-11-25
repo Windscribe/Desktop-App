@@ -1,5 +1,4 @@
-#ifndef DETECTLANRANGE_H
-#define DETECTLANRANGE_H
+#pragma once
 
 #include <QString>
 
@@ -12,5 +11,3 @@ private:
     static bool isRfcLoopbackAddress(quint32 ip);
     static bool isRfcPrivateAddress(quint32 ip);
 };
-
-#endif // DETECTLANRANGE_H

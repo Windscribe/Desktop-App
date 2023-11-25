@@ -1,5 +1,4 @@
-#ifndef SERIALIZE_STRUCTS_H
-#define SERIALIZE_STRUCTS_H
+#pragma once
 
 namespace boost {
 namespace serialization {
@@ -23,13 +22,6 @@ void serialize(Archive & ar, CMD_TASK_KILL & g, const unsigned int version)
 {
     UNREFERENCED_PARAMETER(version);
     ar & g.szExecutableName;
-}
-
-template<class Archive>
-void serialize(Archive & ar, CMD_RESET_TAP & g, const unsigned int version)
-{
-    UNREFERENCED_PARAMETER(version);
-    ar & g.szTapName;
 }
 
 template<class Archive>
@@ -130,7 +122,7 @@ void serialize(Archive & ar, CMD_SPLIT_TUNNELING_SETTINGS & g, const unsigned in
     ar & g.isAllowLanTraffic;
     ar & g.files;
     ar & g.ips;
-	ar & g.hosts;
+    ar & g.hosts;
 }
 
 template<class Archive>
@@ -149,8 +141,8 @@ void serialize(Archive & ar, CMD_CONNECT_STATUS & a, const unsigned int version)
 {
     UNREFERENCED_PARAMETER(version);
     ar & a.isConnected;
-	ar & a.isTerminateSocket;
-	ar & a.isKeepLocalSocket;
+    ar & a.isTerminateSocket;
+    ar & a.isKeepLocalSocket;
     ar & a.protocol;
 
     ar & a.defaultAdapter;
@@ -188,10 +180,10 @@ void serialize(Archive & ar, CMD_FIREWALL_ON & g, const unsigned int version)
 template<class Archive>
 void serialize(Archive & ar, CMD_CHANGE_MTU & g, const unsigned int version)
 {
-	UNREFERENCED_PARAMETER(version);
-	ar & g.mtu;
-	ar & g.storePersistent;
-	ar & g.szAdapterName;
+    UNREFERENCED_PARAMETER(version);
+    ar & g.mtu;
+    ar & g.storePersistent;
+    ar & g.szAdapterName;
 }
 
 template<class Archive>
@@ -218,21 +210,14 @@ void serialize(Archive & ar, CMD_CONFIGURE_WIREGUARD & g, const unsigned int ver
 template<class Archive>
 void serialize(Archive & ar, MessagePacketResult & g, const unsigned int version)
 {
-	UNREFERENCED_PARAMETER(version);
-	ar & g.id;
-	ar & g.success;
-	ar & g.exitCode;
-	ar & g.blockingCmdId;
-	ar & g.blockingCmdFinished;
-	ar & g.customInfoValue;
-	ar & g.additionalString;
-}
-
-template<class Archive>
-void serialize(Archive& ar, CMD_REINSTALL_TUN_DRIVER& g, const unsigned int version)
-{
     UNREFERENCED_PARAMETER(version);
-    ar& g.driverDir;
+    ar & g.id;
+    ar & g.success;
+    ar & g.exitCode;
+    ar & g.blockingCmdId;
+    ar & g.blockingCmdFinished;
+    ar & g.customInfoValue;
+    ar & g.additionalString;
 }
 
 template<class Archive>
@@ -244,7 +229,3 @@ void serialize(Archive& ar, CMD_DISABLE_DNS_TRAFFIC& g, const unsigned int versi
 
 } // namespace serialization
 } // namespace boost
-
-
-#endif // SERIALIZE_STRUCTS_H
-

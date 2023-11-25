@@ -1,5 +1,4 @@
-#ifndef CLEAN_SENSITIVE_INFO_H
-#define CLEAN_SENSITIVE_INFO_H
+#pragma once
 
 namespace Utils {
 
@@ -23,5 +22,3 @@ T cleanSensitiveInfo(const T &value)
 }
 
 }  // namespace Utils
-
-#endif  // CLEAN_SENSITIVE_INFO_H

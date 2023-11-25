@@ -1,5 +1,4 @@
-#ifndef TEST_LOCATIONSMODEL_H
-#define TEST_LOCATIONSMODEL_H
+#pragma once
 
 #include <QObject>
 #include <QTest>
@@ -48,6 +47,3 @@ private:
     bool isCitiesModelEqualTo(const QVector<types::Location> &locations, const types::Location &customConfigLocation);
 
 };
-
-
-#endif // TEST_LOCATIONSMODEL_H

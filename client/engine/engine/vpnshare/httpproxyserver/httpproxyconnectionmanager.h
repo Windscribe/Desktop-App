@@ -1,5 +1,4 @@
-#ifndef HTTPPROXYCONNECTIONMANAGER_H
-#define HTTPPROXYCONNECTIONMANAGER_H
+#pragma once
 
 #include <QObject>
 #include <QMap>
@@ -33,5 +32,3 @@ private:
 };
 
 } // namespace HttpProxyServer
-
-#endif // HTTPPROXYCONNECTIONMANAGER_H

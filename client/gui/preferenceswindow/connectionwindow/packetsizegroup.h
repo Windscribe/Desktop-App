@@ -1,5 +1,4 @@
-#ifndef PACKETSIZEGROUP_H
-#define PACKETSIZEGROUP_H
+#pragma once
 
 #include <QGraphicsObject>
 #include "backend/preferences/preferences.h"
@@ -44,5 +43,3 @@ private:
 };
 
 } // namespace PreferencesWindow
-
-#endif // PACKETSIZEGROUP_H

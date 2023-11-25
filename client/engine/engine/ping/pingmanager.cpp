@@ -98,7 +98,7 @@ void PingManager::onPingTimer()
     for (auto it = ips_.begin(); it != ips_.end(); ++it) {
         PingIpState &pni = it.value();
         if (pni.iterationTime != pingStorage_.currentIterationTime()) {
-            pingLog_.addLog("PingNodesController::onPingTimer", tr("ping new node: %1 (%2 - %3)").arg(pni.ipInfo.ip, pni.ipInfo.city, pni.ipInfo.nick));
+            pingLog_.addLog("PingNodesController::onPingTimer", QString::fromLatin1("ping new node: %1 (%2 - %3)").arg(pni.ipInfo.ip, pni.ipInfo.city, pni.ipInfo.nick));
             pingHosts_->addHostForPing(pni.ipInfo.ip, pni.ipInfo.hostname, pni.ipInfo.pingType);
         } else if (pni.latestPingFailed) {
             if (pni.nextTimeForFailedPing == 0 || QDateTime::currentMSecsSinceEpoch() >= pni.nextTimeForFailedPing) {
@@ -129,11 +129,11 @@ void PingManager::onPingFinished(bool success, int timems, const QString &ip, bo
         if (isFromDisconnectedState) {
             p.iterationTime = pingStorage_.currentIterationTime();
             pingStorage_.setPing(ip, timems);
-            Q_EMIT pingInfoChanged(ip, timems);
-            pingLog_.addLog("PingIpsController::onPingFinished", tr("ping successful: %1 (%2 - %3) %4ms").arg(p.ipInfo.ip, p.ipInfo.city, p.ipInfo.nick).arg(timems));
+            emit pingInfoChanged(ip, timems);
+            pingLog_.addLog("PingIpsController::onPingFinished", QString::fromLatin1("ping successful: %1 (%2 - %3) %4ms").arg(p.ipInfo.ip, p.ipInfo.city, p.ipInfo.nick).arg(timems));
         }
         else {
-            pingLog_.addLog("PingIpsController::onPingFinished", tr("discarding ping while connected: %1 (%2 - %3) %4ms").arg(p.ipInfo.ip, p.ipInfo.city, p.ipInfo.nick).arg(timems));
+            pingLog_.addLog("PingIpsController::onPingFinished", QString::fromLatin1("discarding ping while connected: %1 (%2 - %3) %4ms").arg(p.ipInfo.ip, p.ipInfo.city, p.ipInfo.nick).arg(timems));
         }
     }
     else {
@@ -147,11 +147,11 @@ void PingManager::onPingFinished(bool success, int timems, const QString &ip, bo
             if (isFromDisconnectedState) {
                 p.iterationTime = pingStorage_.currentIterationTime();
                 pingStorage_.setPing(ip, PingTime::PING_FAILED);
-                Q_EMIT pingInfoChanged(ip, PingTime::PING_FAILED);
+                emit pingInfoChanged(ip, PingTime::PING_FAILED);
             }
 
             if (failedPingLogController_.logFailedIPs(ip)) {
-                pingLog_.addLog("PingIpsController::onPingFinished", tr("ping failed: %1 (%2 - %3)").arg(p.ipInfo.ip, p.ipInfo.city, p.ipInfo.nick));
+                pingLog_.addLog("PingIpsController::onPingFinished", QString::fromLatin1("ping failed: %1 (%2 - %3)").arg(p.ipInfo.ip, p.ipInfo.city, p.ipInfo.nick));
             }
         }
         else {
@@ -159,7 +159,6 @@ void PingManager::onPingFinished(bool success, int timems, const QString &ip, bo
         }
     }
     if (pingStorage_.isAllNodesHaveCurIteration()) {
-        pingLog_.addLog("PingIpsController::onPingFinished", tr("All nodes have the same iteration time"));
+        pingLog_.addLog("PingIpsController::onPingFinished", "All nodes have the same iteration time");
     }
 }
-

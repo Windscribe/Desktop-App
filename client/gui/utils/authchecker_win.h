@@ -1,5 +1,4 @@
-#ifndef AUTHCHECKER_WIN_H
-#define AUTHCHECKER_WIN_H
+#pragma once
 
 #include "iauthchecker.h"
 
@@ -12,5 +11,3 @@ public:
     ~AuthChecker_win() override {}
     AuthCheckerError authenticate() override;
 };
-
-#endif // AUTHCHECKER_WIN_H

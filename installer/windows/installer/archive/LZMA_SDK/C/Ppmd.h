@@ -81,5 +81,5 @@ typedef
   p[z+7] = p[z+6] = p[z+5] = p[z+4] = p[z+3] = p[z+2] = p[z+1] = p[z+0] = ~(size_t)0; }}
 
 EXTERN_C_END
- 
+
 #endif

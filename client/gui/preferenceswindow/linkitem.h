@@ -1,5 +1,4 @@
-#ifndef LINKITEM_H
-#define LINKITEM_H
+#pragma once
 
 #include <QLineEdit>
 #include <QSharedPointer>
@@ -63,5 +62,3 @@ private:
 };
 
 } // namespace PreferencesWindow
-
-#endif // LINKITEM_H

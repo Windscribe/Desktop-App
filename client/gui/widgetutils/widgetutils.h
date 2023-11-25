@@ -1,5 +1,4 @@
-#ifndef WIDGETUTILS_H
-#define WIDGETUTILS_H
+#pragma once
 
 #include <QPixmap>
 #include <QScreen>
@@ -14,6 +13,3 @@ QScreen *screenByName(const QString &name);
 QScreen *screenContainingPt(const QPoint &pt);
 
 }
-
-
-#endif // WIDGETUTILS_H

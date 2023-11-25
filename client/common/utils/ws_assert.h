@@ -1,5 +1,4 @@
-#ifndef WS_ASSERT_H
-#define WS_ASSERT_H
+#pragma once
 
 #include "logger.h"
 #include "../version/windscribe_version.h"  // this file must be included, there are defined WINDSCRIBE_IS_BETA or WINDSCRIBE_IS_GUINEA_PIG
@@ -14,5 +13,3 @@
 #else
 #define WS_ASSERT(b)
 #endif
-
-#endif //WS_ASSERT_H

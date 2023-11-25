@@ -1,5 +1,4 @@
-#ifndef AUTOCONNSETTINGSPOLICY_H
-#define AUTOCONNSETTINGSPOLICY_H
+#pragma once
 
 #include "baseconnsettingspolicy.h"
 #include "engine/locationsmodel/mutablelocationinfo.h"
@@ -41,5 +40,3 @@ private:
 
     QVector<types::ProtocolStatus> protocolStatus();
 };
-
-#endif // AUTOCONNSETTINGSPOLICY_H
