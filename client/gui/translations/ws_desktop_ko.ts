@@ -1333,14 +1333,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>Tray Icon Color</source>
         <translation>트레이 아이콘 색상</translation>
     </message>
-    <message>
-        <source>Do not allow the Windscribe window to be moved.</source>
-        <translation>Windscribe 창을 이동하지 마십시오.</translation>
-    </message>
-    <message>
-        <source>Pinned</source>
-        <translation>고정</translation>
-    </message>
 </context>
 <context>
     <name>PreferencesWindow::HelpWindowItem</name>

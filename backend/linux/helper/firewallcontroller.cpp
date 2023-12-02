@@ -75,8 +75,9 @@ void FirewallController::disable()
 }
 
 
-void FirewallController::setSplitTunnelingEnabled(bool isEnabled, bool isExclude)
+void FirewallController::setSplitTunnelingEnabled(bool isConnected, bool isEnabled, bool isExclude)
 {
+    connected_ = isConnected;
     splitTunnelEnabled_ = isEnabled;
     splitTunnelExclude_ = isExclude;
 
@@ -103,7 +104,7 @@ void FirewallController::removeInclusiveRules()
 
 void FirewallController::setSplitTunnelExceptions(const std::vector<std::string> &ips)
 {
-    if (!splitTunnelEnabled_) {
+    if (!connected_ || !splitTunnelEnabled_) {
         removeInclusiveRules();
         removeExclusiveRules();
         splitTunnelIps_ = ips;

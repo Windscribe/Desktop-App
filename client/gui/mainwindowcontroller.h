@@ -68,6 +68,7 @@ public:
     bool isPreferencesVisible();
     bool isNewsFeedVisible();
     WINDOW_ID currentWindow();
+    WINDOW_ID currentWindowAfterAnimation();
     WINDOW_ID windowBeforeExit();
     void changeWindow(WINDOW_ID windowId);
 

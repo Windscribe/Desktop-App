@@ -1333,14 +1333,6 @@ Jeśli problem nadal występuje po ponownym uruchomieniu, wyślij dziennik debug
         <source>Tray Icon Color</source>
         <translation>Kolor ikony zasobnika</translation>
     </message>
-    <message>
-        <source>Do not allow the Windscribe window to be moved.</source>
-        <translation>Nie pozwól, aby okno Windscribe zostało przesunięte.</translation>
-    </message>
-    <message>
-        <source>Pinned</source>
-        <translation>Przypięte</translation>
-    </message>
 </context>
 <context>
     <name>PreferencesWindow::HelpWindowItem</name>

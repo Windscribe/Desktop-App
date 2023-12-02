@@ -46,7 +46,7 @@ void SplitTunneling::setSplitTunnelingParams(bool isActive, bool isExclude, cons
 
 void SplitTunneling::updateState()
 {
-    FirewallController::instance().setSplitTunnelingEnabled(isSplitTunnelActive_, isExclude_);
+    FirewallController::instance().setSplitTunnelingEnabled(connectStatus_.isConnected, isSplitTunnelActive_, isExclude_);
 
     if (connectStatus_.isConnected && isSplitTunnelActive_) {
         if (isExclude_) {

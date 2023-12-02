@@ -333,8 +333,6 @@ private:
     BlockConnect blockConnect_;
     FreeTrafficNotificationController *freeTrafficNotificationController_;
 
-    bool bDisconnectFromTrafficExceed_;
-
     bool isInitializationAborted_;
     bool isLoginOkAndConnectWindowVisible_;
     static constexpr int TIME_BEFORE_SHOW_SHUTDOWN_WINDOW = 1500;   // ms

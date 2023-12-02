@@ -1333,14 +1333,6 @@ Se il problema persiste dopo un riavvio, inviare un registro di debug e aprire u
         <source>Tray Icon Color</source>
         <translation>Colore dell&apos;icona del vassoio</translation>
     </message>
-    <message>
-        <source>Do not allow the Windscribe window to be moved.</source>
-        <translation>Non permettere che la finestra di Windscribe venga spostata.</translation>
-    </message>
-    <message>
-        <source>Pinned</source>
-        <translation>Appuntato</translation>
-    </message>
 </context>
 <context>
     <name>PreferencesWindow::HelpWindowItem</name>

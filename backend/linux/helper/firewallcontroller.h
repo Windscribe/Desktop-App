@@ -17,14 +17,15 @@ public:
     bool enabled(const std::string &tag);
     void getRules(bool ipv6, std::string *outRules);
 
-    void setSplitTunnelingEnabled(bool isEnabled, bool isExclude);
+    void setSplitTunnelingEnabled(bool isConnected, bool isEnabled, bool isExclude);
     void setSplitTunnelExceptions(const std::vector<std::string> &ips);
 
 private:
-    FirewallController() : enabled_(false) {};
+    FirewallController() : enabled_(false), connected_(false), splitTunnelEnabled_(false), splitTunnelExclude_(true) {};
     ~FirewallController() { disable(); };
 
     bool enabled_;
+    bool connected_;
     bool splitTunnelEnabled_;
     bool splitTunnelExclude_;
     std::vector<std::string> splitTunnelIps_;

@@ -275,7 +275,9 @@ void LocationsTab::mouseReleaseEvent(QMouseEvent *event)
         {
             // Currently this should only handle non-search icons
             // qCDebug(LOG_USER) << "Clicked tab: " << curTabMouseOver_;
-            changeTab(curTabMouseOver_);
+            if (!searchTabSelected_) {
+                changeTab(curTabMouseOver_);
+            }
         }
     }
 }

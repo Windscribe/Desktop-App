@@ -30,6 +30,7 @@ void IpHostnamesManager::disable()
         return;
     }
 
+    FirewallController::instance().setSplitTunnelExceptions(std::vector<std::string>());
     ipRoutes_.clear();
     isEnabled_ = false;
 }

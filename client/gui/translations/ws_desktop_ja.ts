@@ -1333,14 +1333,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>Tray Icon Color</source>
         <translation>トレイアイコンの色</translation>
     </message>
-    <message>
-        <source>Do not allow the Windscribe window to be moved.</source>
-        <translation>Windscribeウィンドウを移動させないでください。</translation>
-    </message>
-    <message>
-        <source>Pinned</source>
-        <translation>固定</translation>
-    </message>
 </context>
 <context>
     <name>PreferencesWindow::HelpWindowItem</name>

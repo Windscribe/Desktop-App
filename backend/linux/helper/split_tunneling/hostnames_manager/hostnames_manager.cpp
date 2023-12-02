@@ -45,6 +45,7 @@ void HostnamesManager::disable()
         isEnabled_ = false;
     }
     dnsResolver_.cancelAll();
+    FirewallController::instance().setSplitTunnelExceptions(std::vector<std::string>());
     Logger::instance().out("HostnamesManager::disable(), end");
 }
 

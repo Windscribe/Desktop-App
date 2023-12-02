@@ -80,6 +80,7 @@ GeneralWindowItem::GeneralWindowItem(ScalableGraphicsObject *parent, Preferences
     addItem(hideFromDockGroup_);
 #endif
 
+#ifndef Q_OS_LINUX
     dockedGroup_ = new PreferenceGroup(this);
     checkBoxDockedToTray_ = new ToggleItem(dockedGroup_);
     checkBoxDockedToTray_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/DOCKED"));
@@ -87,6 +88,7 @@ GeneralWindowItem::GeneralWindowItem(ScalableGraphicsObject *parent, Preferences
     connect(checkBoxDockedToTray_, &ToggleItem::stateChanged, this, &GeneralWindowItem::onDockedToTrayChanged);
     dockedGroup_->addItem(checkBoxDockedToTray_);
     addItem(dockedGroup_);
+#endif
 
     showNotificationsGroup_ = new PreferenceGroup(this);
     checkBoxShowNotifications_ = new ToggleItem(showNotificationsGroup_);
@@ -230,7 +232,9 @@ void GeneralWindowItem::onIsShowNotificationsClicked(bool b)
 
 void GeneralWindowItem::onIsDockedToTrayPreferencesChanged(bool b)
 {
+#ifndef Q_OS_LINUX
     checkBoxDockedToTray_->setState(b);
+#endif
 }
 
 void GeneralWindowItem::onDockedToTrayChanged(bool b)
@@ -313,10 +317,7 @@ void GeneralWindowItem::onLanguageChanged()
     hideFromDockGroup_->setDescription(tr("Don't show the Windscribe icon in dock."));
     checkBoxHideFromDock_->setCaption(tr("Hide from Dock"));
 #endif
-#if defined(Q_OS_LINUX)
-    dockedGroup_->setDescription(tr("Do not allow the Windscribe window to be moved."));
-    checkBoxDockedToTray_->setCaption(tr("Pinned"));
-#else
+#if !defined(Q_OS_LINUX)
     dockedGroup_->setDescription(tr("Pin Windscribe near the system tray or menu bar."));
     checkBoxDockedToTray_->setCaption(tr("Docked"));
 #endif

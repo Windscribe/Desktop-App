@@ -1333,14 +1333,6 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
         <source>Tray Icon Color</source>
         <translation>Color del icono de la bandeja</translation>
     </message>
-    <message>
-        <source>Do not allow the Windscribe window to be moved.</source>
-        <translation>No permitas que se mueva la ventana de Windscribe.</translation>
-    </message>
-    <message>
-        <source>Pinned</source>
-        <translation>Fijado</translation>
-    </message>
 </context>
 <context>
     <name>PreferencesWindow::HelpWindowItem</name>

@@ -71,7 +71,6 @@ MainWindow::MainWindow() :
     bMousePressed_(false),
     bMoveEnabled_(true),
     signOutReason_(SIGN_OUT_UNDEFINED),
-    bDisconnectFromTrafficExceed_(false),
     isInitializationAborted_(false),
     isLoginOkAndConnectWindowVisible_(false),
     revealingConnectWindow_(false),
@@ -1782,7 +1781,6 @@ void MainWindow::onBackendSessionStatusChanged(const types::SessionStatus &sessi
             if ((!selectedLocation_->locationdId().isCustomConfigsLocation()) &&
                 (backend_->currentConnectState() == CONNECT_STATE_CONNECTED || backend_->currentConnectState() == CONNECT_STATE_CONNECTING))
             {
-                bDisconnectFromTrafficExceed_ = true;
                 backend_->sendDisconnect();
                 mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_UPGRADE);
             }
@@ -3503,7 +3501,6 @@ void MainWindow::setVariablesToInitState()
     isLoginOkAndConnectWindowVisible_ = false;
     bNotificationConnectedShowed_ = false;
     bytesTransferred_ = 0;
-    bDisconnectFromTrafficExceed_ = false;
     backend_->getPreferencesHelper()->setIsExternalConfigMode(false);
 }
 

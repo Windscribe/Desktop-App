@@ -1,3 +1,17 @@
+2.8.4 (28/11/2023)
+All:
+   * Fixed UI issue where search tab may overlay other tabs. #811
+   * Fixed UI screen transition issues when anti-abuse is triggered. #817
+   * Upgraded to OpenVPN 2.6.8. #759
+Windows:
+   * Fixed custom OpenVPN configs fail to connect.  This was due to a bug in OpenVPN 2.6.7. #759
+macOS:
+   * Fixed firewall not blocking traffic while disconnected in split inclusive mode #748
+Linux:
+   * Fixed firewall not blocking traffic while disconnected in split inclusive mode #748
+   * Removed "Docked"/"Pinned" feature from preferences. #241
+
+
 2.8.3 (24/11/2023)
 All:
    * Improved anti-censorship feature. Feature automatically enabled for first-run users in censored countries. #770

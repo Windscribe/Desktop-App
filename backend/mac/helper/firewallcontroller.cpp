@@ -61,8 +61,9 @@ bool FirewallController::enabled()
     return (output.find("Status: Enabled") != std::string::npos);
 }
 
-void FirewallController::setSplitTunnelingEnabled(bool isEnabled, bool isExclude)
+void FirewallController::setSplitTunnelingEnabled(bool isConnected, bool isEnabled, bool isExclude)
 {
+    connected_ = isConnected;
     splitTunnelEnabled_ = isEnabled;
     splitTunnelExclude_ = isExclude;
 
@@ -78,7 +79,7 @@ void FirewallController::setSplitTunnelExceptions(const std::vector<std::string>
 
     std::string ipStr = "table <windscribe_split_tunnel_ips> persist { ";
 
-    if (!splitTunnelEnabled_) {
+    if (!connected_ || !splitTunnelEnabled_) {
         // If split tunneling is disabled, treat this table as if there are no IPs
         ipStr += " }\n";
     } else if (splitTunnelExclude_) {

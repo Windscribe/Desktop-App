@@ -25,7 +25,7 @@ void GeneralMessageController::showMessage(const QString &icon, const QString &t
         return;
     }
 
-    MainWindowController::WINDOW_ID source = controller_->currentWindow();
+    MainWindowController::WINDOW_ID source = controller_->currentWindowAfterAnimation();
     if (source == MainWindowController::WINDOW_ID_LOGOUT || source == MainWindowController::WINDOW_ID_EXIT) {
         source = controller_->windowBeforeExit();
     }
@@ -42,6 +42,7 @@ void GeneralMessageController::showMessage(const QString &icon, const QString &t
             source = MainWindowController::WINDOW_ID_CONNECT;
         }
     }
+
     showMessage(new GeneralMessage(icon, title, desc, acceptText, rejectText, tertiaryText, acceptFunc, rejectFunc, tertiaryFunc, source, flags, learnMoreUrl));
 }
 

@@ -3,5 +3,5 @@
 # Copyright (c) 2020-2023, Windscribe Limited. All rights reserved.
 # ------------------------------------------------------------------------------
 variables:
-  VERSION_OPENVPN: '2.6.7'
+  VERSION_OPENVPN: '2.6.8'
   ARTIFACT_OPENVPN: 'openvpn.zip'

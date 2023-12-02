@@ -154,7 +154,12 @@ void Preferences::setBackgroundSettings(const types::BackgroundSettings &backgro
 
 bool Preferences::isDockedToTray() const
 {
+    // no longer supported on Linux
+#ifdef Q_OS_LINUX
+    return false;
+#else
     return guiSettings_.isDockedToTray;
+#endif
 }
 
 void Preferences::setDockedToTray(bool b)

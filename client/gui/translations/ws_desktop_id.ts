@@ -1333,14 +1333,6 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
         <source>Tray Icon Color</source>
         <translation>Warna Ikon Baki</translation>
     </message>
-    <message>
-        <source>Do not allow the Windscribe window to be moved.</source>
-        <translation>Jangan biarkan jendela Windscribe dipindahkan.</translation>
-    </message>
-    <message>
-        <source>Pinned</source>
-        <translation>Disematkan</translation>
-    </message>
 </context>
 <context>
     <name>PreferencesWindow::HelpWindowItem</name>

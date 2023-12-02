@@ -410,6 +410,15 @@ MainWindowController::WINDOW_ID MainWindowController::currentWindow()
     return curWindow_;
 }
 
+MainWindowController::WINDOW_ID MainWindowController::currentWindowAfterAnimation()
+{
+    if (queueWindowChanges_.empty()) {
+        return curWindow_;
+    }
+    // Return the final window to be shown after animations
+    return queueWindowChanges_.last();
+}
+
 MainWindowController::WINDOW_ID MainWindowController::windowBeforeExit()
 {
     return windowBeforeExit_;
@@ -1885,7 +1894,8 @@ void MainWindowController::gotoUpdateWindow()
 
 void MainWindowController::gotoUpgradeWindow()
 {
-    WS_ASSERT(curWindow_ == WINDOW_ID_CONNECT);
+    WS_ASSERT(curWindow_ == WINDOW_ID_CONNECT ||
+              curWindow_ == WINDOW_ID_GENERAL_MESSAGE);
 
     isAtomicAnimationActive_ = true;
     curWindow_ = WINDOW_ID_UPGRADE;
@@ -1897,6 +1907,9 @@ void MainWindowController::gotoUpgradeWindow()
     TooltipController::instance().hideAllTooltips();
     connectWindow_->setClickable(false);
     bottomInfoWindow_->setClickable(false);
+
+    shadowManager_->setVisible(ShadowManager::SHAPE_ID_GENERAL_MESSAGE, false);
+    generalMessageWindow_->hide();
 
     functionOnAnimationFinished_ = [this]() {
         upgradeAccountWindow_->setOpacity(0.0);
@@ -1929,6 +1942,7 @@ void MainWindowController::gotoGeneralMessageWindow()
               curWindow_ == WINDOW_ID_LOGGING_IN ||
               curWindow_ == WINDOW_ID_CONNECT ||
               curWindow_ == WINDOW_ID_UPDATE ||
+              curWindow_ == WINDOW_ID_UPGRADE ||
               curWindow_ == WINDOW_ID_LOGOUT ||
               curWindow_ == WINDOW_ID_EXIT);
 
@@ -1977,6 +1991,7 @@ void MainWindowController::gotoGeneralMessageWindow()
         loginWindow_->stackBefore(generalMessageWindow_);
         initWindow_->stackBefore(generalMessageWindow_);
         loggingInWindow_->stackBefore(generalMessageWindow_);
+        upgradeAccountWindow_->stackBefore(generalMessageWindow_);
         generalMessageWindow_->show();
 
         QPropertyAnimation *anim = new QPropertyAnimation(this);
