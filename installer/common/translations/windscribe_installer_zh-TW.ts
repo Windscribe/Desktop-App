@@ -81,8 +81,8 @@
         <translation>指定的安裝路徑不在系統驅動器上。為了確保應用程式和系統的安全性，必須將其安裝在與 Windows 相同的驅動器上。安裝資料夾已重置為預設值。</translation>
     </message>
     <message>
-        <source>You don&apos;t have sufficient permissions to run this application.  Administrative priviledges are required to install Windscribe.</source>
-        <translation>您沒有足夠的權限來執行此應用程式。 安裝Windscribe需要管理許可權。</translation>
+        <source>You don&apos;t have sufficient permissions to run this application. Administrative privileges are required to install Windscribe.</source>
+        <translation>您沒有足夠的權限來執行此應用程式。安裝Windscribe需要管理許可權。</translation>
     </message>
 </context>
 <context>

@@ -966,7 +966,7 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
         <translation>Rozlišení rozhraní API</translation>
     </message>
     <message>
-        <source>Automatic</source>
+        <source>Auto</source>
         <translation>Automatický</translation>
     </message>
     <message>
@@ -1526,7 +1526,7 @@ Nejprve se připojte k síti</translation>
         <translation>Velikost paketu</translation>
     </message>
     <message>
-        <source>Automatic</source>
+        <source>Auto</source>
         <translation>Automatický</translation>
     </message>
     <message>
@@ -1603,7 +1603,7 @@ Nejprve se připojte k síti</translation>
 <context>
     <name>PreferencesWindow::ProtocolGroup</name>
     <message>
-        <source>Automatic</source>
+        <source>Auto</source>
         <translation>Automatický</translation>
     </message>
     <message>
@@ -1993,7 +1993,7 @@ Pokud přeinstalace nepomůže, obraťte se na podporu Windscribe a požádejte 
         <translation>Manuál</translation>
     </message>
     <message>
-        <source>Automatic</source>
+        <source>Auto</source>
         <translation>Automatický</translation>
     </message>
     <message>

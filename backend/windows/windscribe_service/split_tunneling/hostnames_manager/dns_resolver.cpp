@@ -70,7 +70,7 @@ void DnsResolver::resolveDomains(const std::vector<std::string> &hostnames)
         int optmask = 0;
         memset(&options, 0, sizeof(options));
         optmask |= ARES_OPT_TRIES;
-        options.tries = 1;
+        options.tries = 3;
 
         int status = ares_init_options(&channel_, &options, optmask);
         if (status != ARES_SUCCESS)

@@ -966,7 +966,7 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>एपीआई समाधान</translation>
     </message>
     <message>
-        <source>Automatic</source>
+        <source>Auto</source>
         <translation>स्वचालित</translation>
     </message>
     <message>
@@ -1526,7 +1526,7 @@ Connect to a network first</source>
         <translation>पैकेट का आकार</translation>
     </message>
     <message>
-        <source>Automatic</source>
+        <source>Auto</source>
         <translation>स्वचालित</translation>
     </message>
     <message>
@@ -1603,7 +1603,7 @@ Connect to a network first</source>
 <context>
     <name>PreferencesWindow::ProtocolGroup</name>
     <message>
-        <source>Automatic</source>
+        <source>Auto</source>
         <translation>स्वचालित</translation>
     </message>
     <message>
@@ -1993,7 +1993,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <translation>हस्तचालित</translation>
     </message>
     <message>
-        <source>Automatic</source>
+        <source>Auto</source>
         <translation>स्वचालित</translation>
     </message>
     <message>

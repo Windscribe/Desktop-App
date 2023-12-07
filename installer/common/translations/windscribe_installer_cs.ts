@@ -81,8 +81,8 @@
         <translation>Zrušit</translation>
     </message>
     <message>
-        <source>You don&apos;t have sufficient permissions to run this application.  Administrative priviledges are required to install Windscribe.</source>
-        <translation>Nemáte dostatečná oprávnění ke spuštění této aplikace.  K instalaci aplikace Windscribe jsou vyžadována oprávnění správce.</translation>
+        <source>You don&apos;t have sufficient permissions to run this application. Administrative privileges are required to install Windscribe.</source>
+        <translation>Nemáte dostatečná oprávnění ke spuštění této aplikace. K instalaci aplikace Windscribe jsou vyžadována oprávnění správce.</translation>
     </message>
 </context>
 <context>

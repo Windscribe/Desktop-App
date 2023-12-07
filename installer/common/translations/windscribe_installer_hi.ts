@@ -81,8 +81,8 @@
         <translation>रद्द करना</translation>
     </message>
     <message>
-        <source>You don&apos;t have sufficient permissions to run this application.  Administrative priviledges are required to install Windscribe.</source>
-        <translation>आपके पास इस अनुप्रयोग को चलाने के लिए पर्याप्त अनुमतियाँ नहीं हैं.  विंडसाइड स्थापित करने के लिए प्रशासनिक विशेषाधिकार ों की आवश्यकता होती है।</translation>
+        <source>You don&apos;t have sufficient permissions to run this application. Administrative privileges are required to install Windscribe.</source>
+        <translation>आपके पास इस अनुप्रयोग को चलाने के लिए पर्याप्त अनुमतियाँ नहीं हैं. विंडसाइड स्थापित करने के लिए व्यवस्थापकीय विशेषाधिकारों की आवश्यकता होती है.</translation>
     </message>
 </context>
 <context>

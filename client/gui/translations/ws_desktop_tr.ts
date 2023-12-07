@@ -966,7 +966,7 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
         <translation>API Çözümlemesi</translation>
     </message>
     <message>
-        <source>Automatic</source>
+        <source>Auto</source>
         <translation>Otomatik</translation>
     </message>
     <message>
@@ -1526,7 +1526,7 @@ Connect to a network first</source>
         <translation>Paket Boyutu</translation>
     </message>
     <message>
-        <source>Automatic</source>
+        <source>Auto</source>
         <translation>Otomatik</translation>
     </message>
     <message>
@@ -1603,7 +1603,7 @@ Connect to a network first</source>
 <context>
     <name>PreferencesWindow::ProtocolGroup</name>
     <message>
-        <source>Automatic</source>
+        <source>Auto</source>
         <translation>Otomatik</translation>
     </message>
     <message>
@@ -1993,7 +1993,7 @@ Yeniden yükleme yardımcı olmazsa, lütfen yardım için Windscribe desteği i
         <translation>El ile</translation>
     </message>
     <message>
-        <source>Automatic</source>
+        <source>Auto</source>
         <translation>Otomatik</translation>
     </message>
     <message>

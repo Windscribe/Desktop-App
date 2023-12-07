@@ -81,8 +81,8 @@
         <translation>지정한 설치 경로가 시스템 드라이브에 없습니다. 응용 프로그램 및 시스템의 보안을 보장하려면 Windows와 동일한 드라이브에 설치해야 합니다. 설치 폴더가 기본값으로 재설정되었습니다.</translation>
     </message>
     <message>
-        <source>You don&apos;t have sufficient permissions to run this application.  Administrative priviledges are required to install Windscribe.</source>
-        <translation>이 응용 프로그램을 실행할 수 있는 충분한 권한이 없습니다.  Windscribe를 설치하려면 관리 권한이 필요합니다.</translation>
+        <source>You don&apos;t have sufficient permissions to run this application. Administrative privileges are required to install Windscribe.</source>
+        <translation>이 응용 프로그램을 실행할 수 있는 충분한 권한이 없습니다. Windscribe를 설치하려면 관리자 권한이 필요합니다.</translation>
     </message>
 </context>
 <context>

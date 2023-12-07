@@ -81,8 +81,8 @@
         <translation>إلغاء الأمر</translation>
     </message>
     <message>
-        <source>You don&apos;t have sufficient permissions to run this application.  Administrative priviledges are required to install Windscribe.</source>
-        <translation>ليس لديك أذونات كافية لتشغيل هذا التطبيق.  الامتيازات الإدارية مطلوبة لتثبيت Windscribe.</translation>
+        <source>You don&apos;t have sufficient permissions to run this application. Administrative privileges are required to install Windscribe.</source>
+        <translation>ليس لديك أذونات كافية لتشغيل هذا التطبيق. الامتيازات الإدارية مطلوبة لتثبيت Windscribe.</translation>
     </message>
 </context>
 <context>

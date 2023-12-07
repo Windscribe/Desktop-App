@@ -81,8 +81,8 @@
         <translation>取消</translation>
     </message>
     <message>
-        <source>You don&apos;t have sufficient permissions to run this application.  Administrative priviledges are required to install Windscribe.</source>
-        <translation>您没有足够的权限来运行此应用程序。 安装 Windscribe 需要管理权限。</translation>
+        <source>You don&apos;t have sufficient permissions to run this application. Administrative privileges are required to install Windscribe.</source>
+        <translation>您没有足够的权限来运行此应用程序。安装 Windscribe 需要管理权限。</translation>
     </message>
 </context>
 <context>

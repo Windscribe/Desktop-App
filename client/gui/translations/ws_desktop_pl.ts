@@ -966,7 +966,7 @@ Jeśli problem nadal występuje po ponownym uruchomieniu, wyślij dziennik debug
         <translation>Rozdzielczość interfejsu API</translation>
     </message>
     <message>
-        <source>Automatic</source>
+        <source>Auto</source>
         <translation>Automatyczne</translation>
     </message>
     <message>
@@ -1526,7 +1526,7 @@ Najpierw połącz się z siecią</translation>
         <translation>Rozmiar pakietu</translation>
     </message>
     <message>
-        <source>Automatic</source>
+        <source>Auto</source>
         <translation>Automatyczne</translation>
     </message>
     <message>
@@ -1603,7 +1603,7 @@ Najpierw połącz się z siecią</translation>
 <context>
     <name>PreferencesWindow::ProtocolGroup</name>
     <message>
-        <source>Automatic</source>
+        <source>Auto</source>
         <translation>Automatyczne</translation>
     </message>
     <message>
@@ -1993,7 +1993,7 @@ Jeśli ponowna instalacja nie pomoże, skontaktuj się z pomocą techniczną Win
         <translation>Ręcznie</translation>
     </message>
     <message>
-        <source>Automatic</source>
+        <source>Auto</source>
         <translation>Automatyczne</translation>
     </message>
     <message>

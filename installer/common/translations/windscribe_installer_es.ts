@@ -81,8 +81,8 @@
         <translation>Cancelar</translation>
     </message>
     <message>
-        <source>You don&apos;t have sufficient permissions to run this application.  Administrative priviledges are required to install Windscribe.</source>
-        <translation>No tiene permisos suficientes para ejecutar esta aplicación.  Se requieren privilegios administrativos para instalar Windscribe.</translation>
+        <source>You don&apos;t have sufficient permissions to run this application. Administrative privileges are required to install Windscribe.</source>
+        <translation>No tiene permisos suficientes para ejecutar esta aplicación. Se requieren privilegios administrativos para instalar Windscribe.</translation>
     </message>
 </context>
 <context>

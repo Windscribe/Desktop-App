@@ -73,7 +73,7 @@ void ApiResolutionGroup::onLanguageChanged()
 {
     resolutionModeItem_->setLabelCaption(tr("API Resolution"));
     QList<QPair<QString, QVariant>> list;
-    list << qMakePair(tr("Automatic"), 0);
+    list << qMakePair(tr("Auto"), 0);
     list << qMakePair(tr("Manual"), 1);
 
     resolutionModeItem_->setItems(list, settings_.getIsAutomatic() ? 0 : 1);

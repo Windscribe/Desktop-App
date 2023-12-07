@@ -81,8 +81,8 @@
         <translation>指定されたインストール パスがシステム ドライブ上にありません。アプリケーションとシステムのセキュリティを確保するには、Windowsと同じドライブにインストールする必要があります。インストールフォルダがデフォルトにリセットされました。</translation>
     </message>
     <message>
-        <source>You don&apos;t have sufficient permissions to run this application.  Administrative priviledges are required to install Windscribe.</source>
-        <translation>このアプリケーションを実行するための十分なアクセス許可がありません。 Windscribeをインストールするには、管理者権限が必要です。</translation>
+        <source>You don&apos;t have sufficient permissions to run this application. Administrative privileges are required to install Windscribe.</source>
+        <translation>このアプリケーションを実行するための十分なアクセス許可がありません。Windscribeをインストールするには管理者権限が必要です。</translation>
     </message>
 </context>
 <context>

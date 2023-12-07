@@ -81,8 +81,8 @@
         <translation>Jalur instalasi yang ditentukan tidak ada di drive sistem. Untuk memastikan keamanan aplikasi, dan sistem Anda, itu harus diinstal pada drive yang sama dengan Windows. Folder instalasi telah diatur ulang ke default.</translation>
     </message>
     <message>
-        <source>You don&apos;t have sufficient permissions to run this application.  Administrative priviledges are required to install Windscribe.</source>
-        <translation>Anda tidak memiliki izin yang memadai untuk menjalankan aplikasi ini.  Hak istimewa administratif diperlukan untuk menginstal Windscribe.</translation>
+        <source>You don&apos;t have sufficient permissions to run this application. Administrative privileges are required to install Windscribe.</source>
+        <translation>Anda tidak memiliki izin yang memadai untuk menjalankan aplikasi ini. Hak administratif diperlukan untuk menginstal Windscribe.</translation>
     </message>
 </context>
 <context>

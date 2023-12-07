@@ -52,7 +52,7 @@ int UninstallPrev::executeStep()
                 Log::instance().out(L"Timeout exceeded when trying to close Windscribe. Killing the process.");
 
                 const wstring appName = Path::append(Utils::GetSystemDir(), L"taskkill.exe");
-                const wstring commandLine = L"/f /im " + ApplicationInfo::appExeName() + L" /t";
+                const wstring commandLine = L"/f /im " + ApplicationInfo::appExeName();
                 const auto result = Utils::InstExec(appName, commandLine, INFINITE, SW_HIDE);
                 if (!result.has_value()) {
                     Log::instance().out("WARNING: an error was encountered attempting to start taskkill.exe.");

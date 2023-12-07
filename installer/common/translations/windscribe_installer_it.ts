@@ -81,8 +81,8 @@
         <translation>Il percorso di installazione specificato non si trova nell&apos;unità di sistema. Per garantire la sicurezza dell&apos;applicazione e del sistema, è necessario installarla nella stessa unità di Windows. La cartella di installazione è stata ripristinata al valore predefinito.</translation>
     </message>
     <message>
-        <source>You don&apos;t have sufficient permissions to run this application.  Administrative priviledges are required to install Windscribe.</source>
-        <translation>Non si dispone di autorizzazioni sufficienti per eseguire l&apos;applicazione.  Per installare Windscribe sono necessari privilegi amministrativi.</translation>
+        <source>You don&apos;t have sufficient permissions to run this application. Administrative privileges are required to install Windscribe.</source>
+        <translation>Non si dispone di autorizzazioni sufficienti per eseguire l&apos;applicazione. Per installare Windscribe sono necessari privilegi amministrativi.</translation>
     </message>
 </context>
 <context>

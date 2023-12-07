@@ -81,8 +81,8 @@
         <translation>Отмена</translation>
     </message>
     <message>
-        <source>You don&apos;t have sufficient permissions to run this application.  Administrative priviledges are required to install Windscribe.</source>
-        <translation>У вас недостаточно разрешений для запуска этого приложения.  Для установки Windscribe требуются административные привилегии.</translation>
+        <source>You don&apos;t have sufficient permissions to run this application. Administrative privileges are required to install Windscribe.</source>
+        <translation>У вас недостаточно разрешений для запуска этого приложения. Для установки Windscribe требуются права администратора.</translation>
     </message>
 </context>
 <context>

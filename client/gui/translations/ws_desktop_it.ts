@@ -966,7 +966,7 @@ Se il problema persiste dopo un riavvio, inviare un registro di debug e aprire u
         <translation>Risoluzione API</translation>
     </message>
     <message>
-        <source>Automatic</source>
+        <source>Auto</source>
         <translation>Automatico</translation>
     </message>
     <message>
@@ -1526,7 +1526,7 @@ Connettersi prima a una rete</translation>
         <translation>Dimensione del pacchetto</translation>
     </message>
     <message>
-        <source>Automatic</source>
+        <source>Auto</source>
         <translation>Automatico</translation>
     </message>
     <message>
@@ -1603,7 +1603,7 @@ Connettersi prima a una rete</translation>
 <context>
     <name>PreferencesWindow::ProtocolGroup</name>
     <message>
-        <source>Automatic</source>
+        <source>Auto</source>
         <translation>Automatico</translation>
     </message>
     <message>
@@ -1993,7 +1993,7 @@ Se la reinstallazione non risolve il problema, contattare il supporto Windscribe
         <translation>Manuale</translation>
     </message>
     <message>
-        <source>Automatic</source>
+        <source>Auto</source>
         <translation>Automatico</translation>
     </message>
     <message>

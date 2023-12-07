@@ -966,7 +966,7 @@ Si le problème persiste après un redémarrage, envoyez un journal de débogage
         <translation>Résolution de l’API</translation>
     </message>
     <message>
-        <source>Automatic</source>
+        <source>Auto</source>
         <translation>Automatique</translation>
     </message>
     <message>
@@ -1526,7 +1526,7 @@ Se connecter d’abord à un réseau</translation>
         <translation>Taille du paquet</translation>
     </message>
     <message>
-        <source>Automatic</source>
+        <source>Auto</source>
         <translation>Automatique</translation>
     </message>
     <message>
@@ -1603,7 +1603,7 @@ Se connecter d’abord à un réseau</translation>
 <context>
     <name>PreferencesWindow::ProtocolGroup</name>
     <message>
-        <source>Automatic</source>
+        <source>Auto</source>
         <translation>Automatique</translation>
     </message>
     <message>
@@ -1993,7 +1993,7 @@ Si la réinstallation ne résout pas le problème, veuillez contacter le support
         <translation>Manuelle</translation>
     </message>
     <message>
-        <source>Automatic</source>
+        <source>Auto</source>
         <translation>Automatique</translation>
     </message>
     <message>

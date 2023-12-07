@@ -676,29 +676,25 @@ void Backend::handleNetworkChange(types::NetworkInterface networkInterface, bool
     QString friendlyName = networkInterface.networkOrSsid;
 
     QVector<types::NetworkInterface> networkListOld = PersistentState::instance().networkWhitelist();
-    for (int i = 0; i < networkListOld.size(); i++)
-    {
-        if (networkListOld[i].networkOrSsid== networkInterface.networkOrSsid)
-        {
+    for (int i = 0; i < networkListOld.size(); i++) {
+        if (networkListOld[i].networkOrSsid== networkInterface.networkOrSsid) {
             friendlyName = networkListOld[i].friendlyName;
             newNetwork = false;
             break;
         }
     }
 
-    if (friendlyName == "") friendlyName = networkInterface.networkOrSsid;
+    if (friendlyName == "") {
+        friendlyName = networkInterface.networkOrSsid;
+    }
     networkInterface.friendlyName = friendlyName;
 
-    if (networkInterface.networkOrSsid != "") // not a disconnect
-    {
+    if (networkInterface.networkOrSsid != "") { // not a disconnect
         // Add a new network as secured
-        if (newNetwork)
-        {
-
+        if (newNetwork) {
 #ifdef Q_OS_MAC
             // generate friendly name for MacOS Ethernet
-            if (networkInterface.interfaceType == NETWORK_INTERFACE_ETH)
-            {
+            if (networkInterface.interfaceType == NETWORK_INTERFACE_ETH) {
                 friendlyName = generateNewFriendlyName();
                 networkInterface.friendlyName = friendlyName;
 
@@ -706,12 +702,9 @@ void Backend::handleNetworkChange(types::NetworkInterface networkInterface, bool
 #endif
             types::NetworkInterface newEntry;
             newEntry = networkInterface;
-            if (preferences_.isAutoSecureNetworks())
-            {
+            if (preferences_.isAutoSecureNetworks()) {
                 newEntry.trustType = NETWORK_TRUST_SECURED;
-            }
-            else
-            {
+            } else {
                 newEntry.trustType = NETWORK_TRUST_UNSECURED;
             }
             networkListOld << newEntry;
@@ -721,32 +714,24 @@ void Backend::handleNetworkChange(types::NetworkInterface networkInterface, bool
         // GUI-side persistent list holds trustiness
         QVector<types::NetworkInterface> networkList = PersistentState::instance().networkWhitelist();
         types::NetworkInterface foundInterface;
-        for (int i = 0; i < networkList.size(); i++)
-        {
-            if (networkList[i].networkOrSsid == networkInterface.networkOrSsid)
-            {
+        for (int i = 0; i < networkList.size(); i++) {
+            if (networkList[i].networkOrSsid == networkInterface.networkOrSsid) {
                 foundInterface = networkList[i];
                 break;
             }
         }
 
-        if (!Utils::sameNetworkInterface(networkInterface, currentNetworkInterface_) || manual)
-            // actual network change or explicit trigger from preference change
-            // prevents brief/rare network loss during CONNECTING from triggering network change
-        {
+        // actual network change or explicit trigger from preference change
+        // prevents brief/rare network loss during CONNECTING from triggering network change
+        if (!Utils::sameNetworkInterface(networkInterface, currentNetworkInterface_) || manual) {
             // disconnect VPN on an unsecured network -- connect VPN on a secured network if auto-connect is on
-            if (foundInterface.trustType == NETWORK_TRUST_UNSECURED)
-            {
-                if (!connectStateHelper_.isDisconnected())
-                {
+            if (foundInterface.trustType == NETWORK_TRUST_UNSECURED) {
+                if (!connectStateHelper_.isDisconnected()) {
                     qCDebug(LOG_BASIC) << "Network Whitelisting detected UNSECURED network -- Disconnecting..";
                     sendDisconnect();
                 }
-            }
-            else // SECURED
-            {
-                if (preferences_.isAutoConnect() && connectStateHelper_.isDisconnected())
-                {
+            } else { // SECURED
+                if (preferences_.isAutoConnect() && connectStateHelper_.isDisconnected()) {
                     qCDebug(LOG_BASIC) << "Network Whitelisting detected SECURED network -- Connecting..";
                     sendConnect(PersistentState::instance().lastLocation());
                 }
@@ -757,12 +742,11 @@ void Backend::handleNetworkChange(types::NetworkInterface networkInterface, bool
 
         // Even if not a real network change we want to update the UI with current network info.
         types::NetworkInterface protoInterface = networkInterface;
-        protoInterface.trustType =foundInterface.trustType;
+        protoInterface.trustType = foundInterface.trustType;
         emit networkChanged(protoInterface);
+    } else {
+        currentNetworkInterface_ = networkInterface;
 
-    }
-    else
-    {
         // inform UI no network
         emit networkChanged(networkInterface);
     }

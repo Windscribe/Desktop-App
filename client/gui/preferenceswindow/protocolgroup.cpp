@@ -140,7 +140,7 @@ void ProtocolGroup::onLanguageChanged()
     if (type_ == SelectionType::COMBO_BOX) {
         connectionModeItem_->setLabelCaption(title_);
         QList<QPair<QString, QVariant>> list;
-        list << qMakePair(tr("Automatic"), 0);
+        list << qMakePair(tr("Auto"), 0);
         list << qMakePair(tr("Manual"), 1);
 
         connectionModeItem_->setItems(list, settings_.isAutomatic() ? 0 : 1);

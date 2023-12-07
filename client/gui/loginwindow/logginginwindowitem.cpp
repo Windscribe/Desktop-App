@@ -32,13 +32,13 @@ void LoggingInWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsIte
 
     painter->setRenderHint(QPainter::Antialiasing);
 
+    QColor color = FontManager::instance().getMidnightColor();
 #ifdef Q_OS_WIN
-    painter->fillRect(boundingRect(), QBrush(QColor(0, 0, 0)));
+    painter->fillRect(boundingRect(), QBrush(color));
 #else
     //todo scale
-    QColor black = FontManager::instance().getMidnightColor();
-    painter->setPen(black);
-    painter->setBrush(black);
+    painter->setPen(color);
+    painter->setBrush(color);
     painter->drawRoundedRect(boundingRect().adjusted(0,0,0,0), 5*G_SCALE, 5*G_SCALE);
 #endif
 

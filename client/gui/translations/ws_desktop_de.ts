@@ -966,7 +966,7 @@ Wenn das Problem nach einem Neustart weiterhin besteht, senden Sie bitte ein Deb
         <translation>API-Auflösung</translation>
     </message>
     <message>
-        <source>Automatic</source>
+        <source>Auto</source>
         <translation>Automatisch</translation>
     </message>
     <message>
@@ -1526,7 +1526,7 @@ Zuerst eine Verbindung mit einem Netzwerk herstellen</translation>
         <translation>Paketgröße</translation>
     </message>
     <message>
-        <source>Automatic</source>
+        <source>Auto</source>
         <translation>Automatisch</translation>
     </message>
     <message>
@@ -1603,7 +1603,7 @@ Zuerst eine Verbindung mit einem Netzwerk herstellen</translation>
 <context>
     <name>PreferencesWindow::ProtocolGroup</name>
     <message>
-        <source>Automatic</source>
+        <source>Auto</source>
         <translation>Automatisch</translation>
     </message>
     <message>
@@ -1993,7 +1993,7 @@ Wenn die Neuinstallation nicht hilft, wenden Sie sich bitte an den Windscribe-Su
         <translation>Manuell</translation>
     </message>
     <message>
-        <source>Automatic</source>
+        <source>Auto</source>
         <translation>Automatisch</translation>
     </message>
     <message>

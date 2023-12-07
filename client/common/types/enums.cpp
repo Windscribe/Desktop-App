@@ -145,7 +145,7 @@ QString TAP_ADAPTER_TYPE_toString(TAP_ADAPTER_TYPE t)
 QString FIREWALL_MODE_toString(FIREWALL_MODE t)
 {
     if (t == FIREWALL_MODE_MANUAL) return QObject::tr("Manual");
-    else if (t == FIREWALL_MODE_AUTOMATIC) return QObject::tr("Automatic");
+    else if (t == FIREWALL_MODE_AUTOMATIC) return QObject::tr("Auto");
     else if (t == FIREWALL_MODE_ALWAYS_ON) return QObject::tr("Always On");
     else {
         WS_ASSERT(false);
@@ -263,7 +263,7 @@ QList<QPair<QString, QVariant>> UPDATE_CHANNEL_toList()
 
 QString DNS_MANAGER_TYPE_toString(DNS_MANAGER_TYPE t)
 {
-    if (t == DNS_MANAGER_AUTOMATIC) return QObject::tr("Automatic");
+    if (t == DNS_MANAGER_AUTOMATIC) return QObject::tr("Auto");
     else if (t == DNS_MANAGER_RESOLV_CONF) return "resolvconf";
     else if (t == DNS_MANAGER_SYSTEMD_RESOLVED) return "systemd-resolved";
     else if (t == DNS_MANAGER_NETWORK_MANAGER) return "NetworkManager";

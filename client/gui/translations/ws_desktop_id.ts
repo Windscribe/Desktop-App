@@ -966,7 +966,7 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
         <translation>Resolusi API</translation>
     </message>
     <message>
-        <source>Automatic</source>
+        <source>Auto</source>
         <translation>Otomatis</translation>
     </message>
     <message>
@@ -1526,7 +1526,7 @@ Menyambungkan ke jaringan terlebih dahulu</translation>
         <translation>Ukuran Paket</translation>
     </message>
     <message>
-        <source>Automatic</source>
+        <source>Auto</source>
         <translation>Otomatis</translation>
     </message>
     <message>
@@ -1603,7 +1603,7 @@ Menyambungkan ke jaringan terlebih dahulu</translation>
 <context>
     <name>PreferencesWindow::ProtocolGroup</name>
     <message>
-        <source>Automatic</source>
+        <source>Auto</source>
         <translation>Otomatis</translation>
     </message>
     <message>
@@ -1993,7 +1993,7 @@ Jika penginstalan ulang tidak membantu, hubungi dukungan Windscribe untuk mendap
         <translation>Manual</translation>
     </message>
     <message>
-        <source>Automatic</source>
+        <source>Auto</source>
         <translation>Otomatis</translation>
     </message>
     <message>

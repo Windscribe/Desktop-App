@@ -966,7 +966,7 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
         <translation>Phân giải API</translation>
     </message>
     <message>
-        <source>Automatic</source>
+        <source>Auto</source>
         <translation>Tự động</translation>
     </message>
     <message>
@@ -1526,7 +1526,7 @@ Kết nối với mạng trước</translation>
         <translation>Kích thước gói</translation>
     </message>
     <message>
-        <source>Automatic</source>
+        <source>Auto</source>
         <translation>Tự động</translation>
     </message>
     <message>
@@ -1603,7 +1603,7 @@ Kết nối với mạng trước</translation>
 <context>
     <name>PreferencesWindow::ProtocolGroup</name>
     <message>
-        <source>Automatic</source>
+        <source>Auto</source>
         <translation>Tự động</translation>
     </message>
     <message>
@@ -1993,7 +1993,7 @@ Nếu việc cài đặt lại không hiệu quả, vui lòng liên hệ với b
         <translation>Cẩm nang</translation>
     </message>
     <message>
-        <source>Automatic</source>
+        <source>Auto</source>
         <translation>Tự động</translation>
     </message>
     <message>

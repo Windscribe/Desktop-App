@@ -137,7 +137,7 @@ void PacketSizeGroup::onLanguageChanged()
 {
     packetSizeModeItem_->setLabelCaption(tr("Packet Size"));
     QList<QPair<QString, QVariant>> list;
-    list << qMakePair(tr("Automatic"), 0);
+    list << qMakePair(tr("Auto"), 0);
     list << qMakePair(tr("Manual"), 1);
     packetSizeModeItem_->setItems(list, settings_.isAutomatic ? 0 : 1);
 

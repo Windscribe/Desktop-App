@@ -81,8 +81,8 @@
         <translation>O caminho de instalação especificado não está na unidade do sistema. Para garantir a segurança do aplicativo e do seu sistema, ele deve ser instalado na mesma unidade do Windows. A pasta de instalação foi redefinida para o padrão.</translation>
     </message>
     <message>
-        <source>You don&apos;t have sufficient permissions to run this application.  Administrative priviledges are required to install Windscribe.</source>
-        <translation>Você não tem permissões suficientes para executar este aplicativo.  São necessários privilégios administrativos para instalar o Windscribe.</translation>
+        <source>You don&apos;t have sufficient permissions to run this application. Administrative privileges are required to install Windscribe.</source>
+        <translation>Você não tem permissões suficientes para executar este aplicativo. São necessários privilégios administrativos para instalar o Windscribe.</translation>
     </message>
 </context>
 <context>

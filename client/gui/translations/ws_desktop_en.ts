@@ -966,8 +966,8 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>API Resolution</translation>
     </message>
     <message>
-        <source>Automatic</source>
-        <translation>Automatic</translation>
+        <source>Auto</source>
+        <translation>Auto</translation>
     </message>
     <message>
         <source>Manual</source>
@@ -1526,8 +1526,8 @@ Connect to a network first</translation>
         <translation>Packet Size</translation>
     </message>
     <message>
-        <source>Automatic</source>
-        <translation>Automatic</translation>
+        <source>Auto</source>
+        <translation>Auto</translation>
     </message>
     <message>
         <source>Manual</source>
@@ -1603,8 +1603,8 @@ Connect to a network first</translation>
 <context>
     <name>PreferencesWindow::ProtocolGroup</name>
     <message>
-        <source>Automatic</source>
-        <translation>Automatic</translation>
+        <source>Auto</source>
+        <translation>Auto</translation>
     </message>
     <message>
         <source>Manual</source>
@@ -1993,8 +1993,8 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <translation>Manual</translation>
     </message>
     <message>
-        <source>Automatic</source>
-        <translation>Automatic</translation>
+        <source>Auto</source>
+        <translation>Auto</translation>
     </message>
     <message>
         <source>Always On</source>

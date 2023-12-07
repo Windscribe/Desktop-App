@@ -81,8 +81,8 @@
         <translation>Określona ścieżka instalacji nie znajduje się na dysku systemowym. Aby zapewnić bezpieczeństwo aplikacji i systemu, musi ona być zainstalowana na tym samym dysku co system Windows. Folder instalacyjny został przywrócony do wartości domyślnych.</translation>
     </message>
     <message>
-        <source>You don&apos;t have sufficient permissions to run this application.  Administrative priviledges are required to install Windscribe.</source>
-        <translation>Nie masz wystarczających uprawnień do uruchamiania tej aplikacji.  Do zainstalowania Windscribe wymagane są uprawnienia administracyjne.</translation>
+        <source>You don&apos;t have sufficient permissions to run this application. Administrative privileges are required to install Windscribe.</source>
+        <translation>Nie masz wystarczających uprawnień do uruchamiania tej aplikacji. Do zainstalowania Windscribe wymagane są uprawnienia administratora.</translation>
     </message>
 </context>
 <context>

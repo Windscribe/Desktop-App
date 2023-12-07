@@ -1,14 +1,29 @@
+2.8.5 (04/12/2023)
+All:
+   * Fixed some text in preferences not matching with mobile. #826
+   * Fixed auto-connect not triggering when reconnecting to the same network. #821
+Windows:
+   * Fixed installer sometimes exiting during updates. #772
+   * Fixed misspelling in installer error message. #776
+   * Fixed "logging in" screen background color not matching with other OSes.
+   * Fixed DNS queries for hostname split tunnels sometimes not resolving. #822
+macOS:
+   * Fixed ctrld binary was not marked executable. #823
+Linux:
+   * Fixed DNS queries for hostname split tunnels sometimes not resolving. #822
+
+
 2.8.4 (28/11/2023)
 All:
+   * Updated OpenVPN to 2.6.8. #759
    * Fixed UI issue where search tab may overlay other tabs. #811
    * Fixed UI screen transition issues when anti-abuse is triggered. #817
-   * Upgraded to OpenVPN 2.6.8. #759
 Windows:
    * Fixed custom OpenVPN configs fail to connect.  This was due to a bug in OpenVPN 2.6.7. #759
 macOS:
-   * Fixed firewall not blocking traffic while disconnected in split inclusive mode #748
+   * Fixed firewall not blocking traffic while disconnected in split inclusive mode. #748
 Linux:
-   * Fixed firewall not blocking traffic while disconnected in split inclusive mode #748
+   * Fixed firewall not blocking traffic while disconnected in split inclusive mode. #748
    * Removed "Docked"/"Pinned" feature from preferences. #241
 
 
@@ -47,7 +62,7 @@ All:
    * Fixed UI issue when the hotspot feature is enabled and a SSL error occurs. #692
    * Fixed app may not reconnect after Internet is restored when using OpenVPN. #794
    * Fixed app gets stuck on the logging in screen after accepting the 'ignore SSL errors' prompt. #801
-   * Upgraded app dependencies to latest available version. #759
+   * Updated app dependencies to latest available version. #759
 Windows:
    * Fixed installer fails to launch if Windows version is incompatible. #789
 macOS:
@@ -97,7 +112,7 @@ All:
    * Fixed incorrect padding in 'out of data' screen. #750
    * Fixed load indicator for bottom-most location is slightly clipped. #765
    * Fixed clicking the blog link in the About menu doesn't do anything. #771
-   * Upgraded bundled ctrld utility to v1.3.1. #709
+   * Updated bundled ctrld utility to v1.3.1. #709
 Windows:
    * Added language localization to the installer. #726
    * Added language localization to the uninstaller. #754
@@ -564,7 +579,7 @@ All:
    * Fixed Proxy Gateway IP display goes blank when the proxy is connected to. #506
    * Fixed a crash caused by a bug in the failover logic. #507
 Windows:
-   * Detect failure to set up the WireGuard adapter and abort the connection attempt.  Notify the user of the failure if connection mode is manual. #489
+   * Improved failure detection when setting up the WireGuard adapter. #489
 
 
 2.5.9 (01/11/2022)
@@ -572,7 +587,7 @@ All:
    * Fixed bottom info widget hidden when something connects to proxy/hotspot #455
    * Fixed signing into an expired account. #500
    * Fixed the working connection setting isn't saved. #202
-   * Sync settings immediately. #476.
+   * Fixed settings not syncing immediately. #476.
 Windows:
    * Reverted inclusive split tunneled apps unable to access localhost. #464
 Linux:

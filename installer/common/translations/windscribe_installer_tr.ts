@@ -81,8 +81,8 @@
         <translation>Belirtilen yükleme yolu sistem sürücüsünde değil. Uygulamanın ve sisteminizin güvenliğini sağlamak için, Windows ile aynı sürücüye yüklenmesi gerekir. Yükleme klasörü varsayılana sıfırlandı.</translation>
     </message>
     <message>
-        <source>You don&apos;t have sufficient permissions to run this application.  Administrative priviledges are required to install Windscribe.</source>
-        <translation>Bu uygulamayı çalıştırmak için yeterli izinlere sahip değilsiniz.  Windscribe&apos;ı yüklemek için yönetici ayrıcalıkları gereklidir.</translation>
+        <source>You don&apos;t have sufficient permissions to run this application. Administrative privileges are required to install Windscribe.</source>
+        <translation>Bu uygulamayı çalıştırmak için yeterli izinlere sahip değilsiniz. Windscribe&apos;ı yüklemek için yönetici ayrıcalıkları gereklidir.</translation>
     </message>
 </context>
 <context>

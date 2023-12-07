@@ -90,7 +90,7 @@ MainWindow::MainWindow(bool isAdmin, InstallerOptions &options) : QWidget(nullpt
 
     if (!isAdmin) {
         showError(tr("Installation failed"),
-                  tr("You don't have sufficient permissions to run this application.  Administrative priviledges are required to install Windscribe."),
+                  tr("You don't have sufficient permissions to run this application. Administrative privileges are required to install Windscribe."),
                   true);
         return;
     }

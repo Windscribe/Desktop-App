@@ -81,8 +81,8 @@
         <translation>Вказаний шлях інсталяції відсутній на системному диску. Щоб забезпечити безпеку програми та вашої системи, вона повинна бути встановлена на тому ж диску, що й Windows. Папку інсталяції було скинуто до стандартних.</translation>
     </message>
     <message>
-        <source>You don&apos;t have sufficient permissions to run this application.  Administrative priviledges are required to install Windscribe.</source>
-        <translation>У вас недостатньо дозволів для запуску цієї програми.  Для встановлення Windscribe потрібні адміністративні привілеї.</translation>
+        <source>You don&apos;t have sufficient permissions to run this application. Administrative privileges are required to install Windscribe.</source>
+        <translation>У вас недостатньо дозволів для запуску цієї програми. Для встановлення Windscribe потрібні адміністративні привілеї.</translation>
     </message>
 </context>
 <context>

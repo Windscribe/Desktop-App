@@ -81,8 +81,8 @@
         <translation>مسیر نصب مشخص شده در درایو سیستم نیست. برای اطمینان از امنیت برنامه و سیستم شما، باید بر روی همان درایو ویندوز نصب شود. پوشه نصب به حالت پیشفرض بازنشانی شده است.</translation>
     </message>
     <message>
-        <source>You don&apos;t have sufficient permissions to run this application.  Administrative priviledges are required to install Windscribe.</source>
-        <translation>شما مجوز کافی برای اجرای این برنامه را ندارید.  امتیازات اداری برای نصب Windscribe مورد نیاز است.</translation>
+        <source>You don&apos;t have sufficient permissions to run this application. Administrative privileges are required to install Windscribe.</source>
+        <translation>شما مجوز کافی برای اجرای این برنامه را ندارید. امتیازات اداری برای نصب Windscribe مورد نیاز است.</translation>
     </message>
 </context>
 <context>

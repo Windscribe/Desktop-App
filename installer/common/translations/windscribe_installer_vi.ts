@@ -81,8 +81,8 @@
         <translation>Đường dẫn cài đặt được chỉ định không có trên ổ đĩa hệ thống. Để đảm bảo tính bảo mật của ứng dụng và hệ thống của bạn, nó phải được cài đặt trên cùng một ổ đĩa với Windows. Thư mục cài đặt đã được đặt lại về mặc định.</translation>
     </message>
     <message>
-        <source>You don&apos;t have sufficient permissions to run this application.  Administrative priviledges are required to install Windscribe.</source>
-        <translation>Bạn không có đủ quyền để chạy ứng dụng này.  Cần có đặc quyền quản trị để cài đặt Windscribe.</translation>
+        <source>You don&apos;t have sufficient permissions to run this application. Administrative privileges are required to install Windscribe.</source>
+        <translation>Bạn không có đủ quyền để chạy ứng dụng này. Cần có đặc quyền quản trị để cài đặt Windscribe.</translation>
     </message>
 </context>
 <context>
