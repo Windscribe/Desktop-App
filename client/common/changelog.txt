@@ -1,3 +1,10 @@
+2.8.6 (13/12/2023)
+All:
+   * Updated connected DNS utility (ctrld) to v1.3.2.
+Windows:
+   * Fixed installer/uninstaller local privilege escalation vulnerability. #828
+
+
 2.8.5 (04/12/2023)
 All:
    * Fixed some text in preferences not matching with mobile. #826

@@ -18,7 +18,10 @@ InstallSplitTunnel::InstallSplitTunnel(double weight) : IInstallBlock(weight, L"
 int InstallSplitTunnel::executeStep()
 {
     wstring infFile = Path::append(Settings::instance().getPath(), L"splittunnel\\windscribesplittunnel.inf");
-    wstring commandLine = wstring(L"setupapi,InstallHinfSection DefaultInstall 132 ") + infFile;
+    wstring commandLine =
+        Path::append(Utils::GetSystemDir(), L"setupapi.dll") +
+        L",InstallHinfSection DefaultInstall 132 " +
+        infFile;
 
     if (!filesystem::exists(infFile)) {
         Log::instance().out("WARNING: the split tunnel driver inf (%ls) was not found.", infFile.c_str());

@@ -218,7 +218,9 @@ bool Uninstaller::InitializeUninstall()
 void Uninstaller::UninstallSplitTunnelDriver(const wstring& installationPath)
 {
     wostringstream commandLine;
-    commandLine << L"setupapi,InstallHinfSection DefaultUninstall 132 " << Path::append(installationPath, L"splittunnel\\windscribesplittunnel.inf");
+    commandLine << Path::append(Utils::GetSystemDir(), L"setupapi.dll")
+                << L",InstallHinfSection DefaultUninstall 132 "
+                << Path::append(installationPath, L"splittunnel\\windscribesplittunnel.inf");
 
     wstring appName = Path::append(Utils::GetSystemDir(), L"rundll32.exe");
 
