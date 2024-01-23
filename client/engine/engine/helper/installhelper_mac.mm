@@ -12,10 +12,7 @@ bool InstallHelper_mac::installHelper(bool &isUserCanceled)
     NSString *helperLabel = @HELPER_BUNDLE_ID;
     BOOL result = NO;
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     NSDictionary *installedHelperJobData  = (__bridge NSDictionary *)SMJobCopyDictionary(kSMDomainSystemLaunchd, (CFStringRef)helperLabel);
-#pragma clang diagnostic pop
     if (installedHelperJobData)
     {
         NSString*       installedPath           = [[installedHelperJobData objectForKey:@"ProgramArguments"] objectAtIndex:0];

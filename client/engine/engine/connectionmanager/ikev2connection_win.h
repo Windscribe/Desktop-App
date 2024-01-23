@@ -1,14 +1,14 @@
 #pragma once
 
-#include <QObject>
-#include <QMap>
-#include <QTimer>
-#include <QMutex>
-#include "types/enums.h"
-#include "IConnection.h"
 #include <windows.h>
 #include <ras.h>
 #include <raserror.h>
+
+#include <QMap>
+#include <QString>
+#include <QTimer>
+
+#include "IConnection.h"
 #include "engine/helper/helper_win.h"
 #include "ikev2connectiondisconnectlogic_win.h"
 

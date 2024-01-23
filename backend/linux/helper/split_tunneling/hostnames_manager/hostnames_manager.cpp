@@ -22,7 +22,7 @@ void HostnamesManager::enable(const std::string &gatewayIp)
         gatewayIp_ = gatewayIp;
         ipRoutes_.clear();
         ipRoutes_.setIps(gatewayIp_, ipsLatest_);
-        FirewallController::instance().setSplitTunnelExceptions(ipsLatest_);
+        FirewallController::instance().setSplitTunnelIpExceptions(ipsLatest_);
         isEnabled_ = true;
     }
 
@@ -45,7 +45,7 @@ void HostnamesManager::disable()
         isEnabled_ = false;
     }
     dnsResolver_.cancelAll();
-    FirewallController::instance().setSplitTunnelExceptions(std::vector<std::string>());
+    FirewallController::instance().setSplitTunnelIpExceptions(std::vector<std::string>());
     Logger::instance().out("HostnamesManager::disable(), end");
 }
 
@@ -78,6 +78,6 @@ void HostnamesManager::dnsResolverCallback(std::map<std::string, DnsResolver::Ho
 
     if (isEnabled_) {
         ipRoutes_.setIps(gatewayIp_, hostsIps);
-        FirewallController::instance().setSplitTunnelExceptions(hostsIps);
+        FirewallController::instance().setSplitTunnelIpExceptions(hostsIps);
     }
 }

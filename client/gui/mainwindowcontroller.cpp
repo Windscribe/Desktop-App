@@ -433,7 +433,10 @@ void MainWindowController::changeWindow(MainWindowController::WINDOW_ID windowId
     }
 
     // for login window when preferences expanded, handle change window commands after preferences collapsed
-    if (curWindow_ == WINDOW_ID_LOGIN && windowSizeManager_->state(preferencesWindow_) != WindowSizeManager::kWindowCollapsed) {
+    if (curWindow_ == WINDOW_ID_LOGIN &&
+        windowSizeManager_->state(preferencesWindow_) != WindowSizeManager::kWindowCollapsed &&
+        windowId != WINDOW_ID_GENERAL_MESSAGE)
+    {
         queueWindowChanges_.enqueue(windowId);
         //qCDebug(LOG_BASIC) << "MainWindowController::changeWindow(enqueue):" << (int)windowId;
         return;

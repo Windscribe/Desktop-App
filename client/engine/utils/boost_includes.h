@@ -7,13 +7,6 @@
 #define BOOST_AUTO_LINK_TAGGED 1
 #endif
 
-#if defined(Q_OS_MAC)
-// Avoid warnings from boost libraries on Mac.
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-#pragma clang diagnostic ignored "-Wshorten-64-to-32"
-#endif
-
 #include <boost/asio.hpp>
 #include <boost/scoped_ptr.hpp>
 #include <boost/bind/bind.hpp>
@@ -31,9 +24,5 @@
 typedef boost::shared_ptr<boost::asio::ip::tcp::socket> socket_ptr;
 
 using namespace boost::placeholders;
-
-#if defined(Q_OS_MAC)
-#pragma clang diagnostic pop
-#endif
 
 #endif

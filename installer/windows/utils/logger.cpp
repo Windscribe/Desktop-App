@@ -2,13 +2,16 @@
 
 #include <Windows.h>
 
+#include <ctime>
 #include <fstream>
+#include <iomanip>
 #include <sstream>
 
 using namespace std;
 
 Log::Log()
 {
+    start_ = std::chrono::system_clock::now();
 }
 
 Log::~Log()
@@ -51,14 +54,20 @@ void Log::out(const wchar_t* format, ...)
 
 void Log::out(const wstring& message)
 {
-    time_t rawtime;
-    time(&rawtime);
-    struct tm* timeinfo = gmtime(&rawtime);
-    wchar_t timeStr[256];
-    wcsftime(timeStr, 256, L"%d-%m %I:%M:%S", timeinfo);
+    const auto now = std::chrono::system_clock::now();
+    const auto now_c = std::chrono::system_clock::to_time_t(now);
+    std::tm* utc_tm = std::gmtime(&now_c);
+    const auto milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(
+                            now.time_since_epoch()) % 1000;
+    const int millisecondsSinceStart = std::chrono::duration_cast<std::chrono::milliseconds>(now - start_).count();
+
 
     wostringstream stream;
-    stream << L"[" << timeStr << L"]\t" << message << endl;
+    stream << L"[" << std::put_time(utc_tm, L"%d%m%y %H:%M:%S")
+           << L':' << std::setfill(L'0') << std::setw(3) << milliseconds.count()
+           << L"      " << static_cast<int>(millisecondsSinceStart / 1000) << "."
+           << std::setfill(L'0') << std::setw(3) << (millisecondsSinceStart % 1000)
+           << L"]\t" << message << endl;
 
     if (installing_) {
         lock_guard<recursive_mutex> lock(mutex_);

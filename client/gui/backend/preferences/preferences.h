@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QJsonObject>
 #include <QObject>
 #include <QMap>
 #include <QTimer>
@@ -12,6 +13,13 @@ class Preferences : public QObject
 {
     Q_OBJECT
 public:
+
+    struct JsonInfo
+    {
+        const QString kEngineSettingsProp = "engineSettings";
+        const QString kGuiSettingsProp = "guiSettings";
+    };
+
     explicit Preferences(QObject *parent = nullptr);
     ~Preferences();
 
@@ -141,6 +149,8 @@ public:
     void setEngineSettings(const types::EngineSettings &es);
     types::EngineSettings getEngineSettings() const;
 
+    void setGuiSettings(const types::GuiSettings& gs);
+
     void saveGuiSettings() const;
     void loadGuiSettings();
     void validateAndUpdateIfNeeded();
@@ -154,6 +164,9 @@ public:
     uint networkLastKnownGoodPort(const QString &network) const;
     void setNetworkLastKnownGoodProtocolPort(const QString &network, const types::Protocol &protocol, uint port);
     void clearLastKnownGoodProtocols(const QString &network = "");
+
+    QJsonObject toJson() const;
+    void updateFromJson(const QJsonObject& ob);
 
 signals:
     void isLaunchOnStartupChanged(bool b);
@@ -207,11 +220,15 @@ signals:
     void reportErrorToUser(QString title, QString desc);
 
 private:
+    void updateEngineSettingsFromJson(const QJsonObject& json);
+    void updateGuiSettingsFromJson(const QJsonObject& json);
+
     types::EngineSettings engineSettings_;
     types::GuiSettings guiSettings_;
 
     bool isSettingEngineSettings_;
     QMap<QString, QTimer *> timers_;
+    JsonInfo jsonInfo_;
 
     void emitEngineSettingsChanged();
 

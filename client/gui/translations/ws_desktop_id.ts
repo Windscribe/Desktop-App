@@ -749,6 +749,42 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
         <source>Unable to start custom DNS service.  Please ensure you don&apos;t have any other local DNS services running, or contact support.</source>
         <translation>Tidak dapat memulai layanan DNS kustom.  Pastikan Anda tidak menjalankan layanan DNS lokal lainnya, atau hubungi dukungan.</translation>
     </message>
+    <message>
+        <source>JSON Files (*.json)</source>
+        <translation>File JSON (*.json)</translation>
+    </message>
+    <message>
+        <source>Unable to import preferences</source>
+        <translation>Tidak dapat mengimpor preferensi</translation>
+    </message>
+    <message>
+        <source>Preferences can only be imported when the app is disconnected. Please disconnect and try again.</source>
+        <translation>Preferensi hanya dapat diimpor saat aplikasi terputus. Harap putuskan sambungan dan coba lagi.</translation>
+    </message>
+    <message>
+        <source>The selected file&apos;s format is incorrect.</source>
+        <translation>Format file yang dipilih salah.</translation>
+    </message>
+    <message>
+        <source>Export Preferences To</source>
+        <translation>Ekspor Preferensi Ke</translation>
+    </message>
+    <message>
+        <source>Import Preferences From</source>
+        <translation>Impor preferensi dari</translation>
+    </message>
+    <message>
+        <source>Could not open file.</source>
+        <translation>Tidak dapat membuka file.</translation>
+    </message>
+    <message>
+        <source>Unable to export preferences</source>
+        <translation>Tidak dapat mengekspor preferensi</translation>
+    </message>
+    <message>
+        <source>Could not open file for writing.  Check your permissions and try again.</source>
+        <translation>Tidak dapat membuka file untuk menulis.  Periksa izin Anda dan coba lagi.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -868,10 +904,6 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
         <translation>RENCANA</translation>
     </message>
     <message>
-        <source>Expires On</source>
-        <translation>Kedaluwarsa pada</translation>
-    </message>
-    <message>
         <source>Reset Date</source>
         <translation>Tanggal Reset</translation>
     </message>
@@ -882,6 +914,10 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
     <message>
         <source>Manage Account</source>
         <translation>Kelola Akun</translation>
+    </message>
+    <message>
+        <source>Expiry Date</source>
+        <translation>Tanggal kadaluwarsa</translation>
     </message>
 </context>
 <context>
@@ -958,6 +994,18 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
         <source>DNS Manager</source>
         <translation>Manajer DNS</translation>
     </message>
+    <message>
+        <source>App Preferences</source>
+        <translation>Preferensi Aplikasi</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <translation>Ekspor</translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <translation>Mengimpor</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::ApiResolutionGroup</name>
@@ -981,6 +1029,14 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
         <source>Enter IP or Hostname</source>
         <translation>Masukkan IP atau Hostname</translation>
     </message>
+    <message>
+        <source>Invalid address</source>
+        <translation>Alamat tidak valid</translation>
+    </message>
+    <message>
+        <source>You have entered an invalid address for API resolution.  It has been reset to Auto.</source>
+        <translation>Anda telah memasukkan alamat yang tidak valid untuk resolusi API.  Ini telah diatur ulang ke Otomatis.</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::BackgroundSettingsGroup</name>
@@ -993,11 +1049,7 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
         <translation>Terhubung</translation>
     </message>
     <message>
-        <source>Background</source>
-        <translation>Latar</translation>
-    </message>
-    <message>
-        <source>Country Flags</source>
+        <source>Flags</source>
         <translation>Bendera Negara</translation>
     </message>
     <message>
@@ -1007,6 +1059,10 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
     <message>
         <source>Custom</source>
         <translation>Adat</translation>
+    </message>
+    <message>
+        <source>App Background</source>
+        <translation>Latar Belakang Aplikasi</translation>
     </message>
 </context>
 <context>
@@ -1138,6 +1194,10 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
         <source>LAN traffic is currently blocked by the Windscribe firewall.  Do you want to allow LAN traffic to bypass the firewall in order for this feature to work?</source>
         <translation>Lalu lintas LAN saat ini diblokir oleh firewall Windscribe.  Apakah Anda ingin mengizinkan lalu lintas LAN melewati firewall agar fitur ini berfungsi?</translation>
     </message>
+    <message>
+        <source>Disabling Allow LAN Traffic will cause your secure hotspot to stop working.  Do you want to disable the hotspot?</source>
+        <translation>Menonaktifkan Izinkan Lalu Lintas LAN akan menyebabkan hotspot aman Anda berhenti berfungsi.  Apakah Anda ingin menonaktifkan hotspot?</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::DnsDomainsGroup</name>
@@ -1172,10 +1232,6 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
         <translation>Dikirim!</translation>
     </message>
     <message>
-        <source>Add</source>
-        <translation>Tambah</translation>
-    </message>
-    <message>
         <source>Resend</source>
         <translation>Kirim ulang</translation>
     </message>
@@ -1198,6 +1254,10 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
     <message>
         <source>Email</source>
         <translation>Email</translation>
+    </message>
+    <message>
+        <source>Add Email</source>
+        <translation>Tambahkan Email</translation>
     </message>
 </context>
 <context>
@@ -1953,10 +2013,6 @@ Jika penginstalan ulang tidak membantu, hubungi dukungan Windscribe untuk mendap
 <context>
     <name>QObject</name>
     <message>
-        <source>R.O.B.E.R.T.</source>
-        <translation>R.O.B.E.R.T.</translation>
-    </message>
-    <message>
         <source>Custom</source>
         <translation>Adat</translation>
     </message>
@@ -2135,6 +2191,10 @@ Jika penginstalan ulang tidak membantu, hubungi dukungan Windscribe untuk mendap
     <message>
         <source>Black</source>
         <translation>Hitam</translation>
+    </message>
+    <message>
+        <source>Forced</source>
+        <translation>Dipaksa</translation>
     </message>
 </context>
 <context>

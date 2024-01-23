@@ -749,6 +749,42 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>Unable to start custom DNS service.  Please ensure you don&apos;t have any other local DNS services running, or contact support.</source>
         <translation>カスタム DNS サービスを開始できません。 他のローカルDNSサービスが実行されていないことを確認するか、サポートにお問い合わせください。</translation>
     </message>
+    <message>
+        <source>JSON Files (*.json)</source>
+        <translation>JSON ファイル (*.json)</translation>
+    </message>
+    <message>
+        <source>Unable to import preferences</source>
+        <translation>設定をインポートできません</translation>
+    </message>
+    <message>
+        <source>Preferences can only be imported when the app is disconnected. Please disconnect and try again.</source>
+        <translation>環境設定は、アプリが切断されている場合にのみインポートできます。切断して、もう一度やり直してください。</translation>
+    </message>
+    <message>
+        <source>The selected file&apos;s format is incorrect.</source>
+        <translation>選択したファイルの形式が正しくありません。</translation>
+    </message>
+    <message>
+        <source>Export Preferences To</source>
+        <translation>環境設定のエクスポート先</translation>
+    </message>
+    <message>
+        <source>Import Preferences From</source>
+        <translation>環境設定のインポート元</translation>
+    </message>
+    <message>
+        <source>Could not open file.</source>
+        <translation>ファイルを開くことができませんでした。</translation>
+    </message>
+    <message>
+        <source>Unable to export preferences</source>
+        <translation>設定をエクスポートできません</translation>
+    </message>
+    <message>
+        <source>Could not open file for writing.  Check your permissions and try again.</source>
+        <translation>書き込み用にファイルを開くことができませんでした。 権限を確認して、もう一度やり直してください。</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -868,10 +904,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>計画</translation>
     </message>
     <message>
-        <source>Expires On</source>
-        <translation>有効期限</translation>
-    </message>
-    <message>
         <source>Reset Date</source>
         <translation>リセット日</translation>
     </message>
@@ -882,6 +914,10 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Manage Account</source>
         <translation>アカウントの管理</translation>
+    </message>
+    <message>
+        <source>Expiry Date</source>
+        <translation>有効 期限</translation>
     </message>
 </context>
 <context>
@@ -958,6 +994,18 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>DNS Manager</source>
         <translation>DNS マネージャー</translation>
     </message>
+    <message>
+        <source>App Preferences</source>
+        <translation>アプリの基本設定</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <translation>輸出</translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <translation>輸入</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::ApiResolutionGroup</name>
@@ -981,6 +1029,14 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>Enter IP or Hostname</source>
         <translation>IP またはホスト名を入力</translation>
     </message>
+    <message>
+        <source>Invalid address</source>
+        <translation>無効なアドレス</translation>
+    </message>
+    <message>
+        <source>You have entered an invalid address for API resolution.  It has been reset to Auto.</source>
+        <translation>API 解決に無効なアドレスが入力されました。 自動にリセットされました。</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::BackgroundSettingsGroup</name>
@@ -993,11 +1049,7 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>接続</translation>
     </message>
     <message>
-        <source>Background</source>
-        <translation>バックグラウンド</translation>
-    </message>
-    <message>
-        <source>Country Flags</source>
+        <source>Flags</source>
         <translation>国旗</translation>
     </message>
     <message>
@@ -1007,6 +1059,10 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Custom</source>
         <translation>習慣</translation>
+    </message>
+    <message>
+        <source>App Background</source>
+        <translation>アプリの背景</translation>
     </message>
 </context>
 <context>
@@ -1138,6 +1194,10 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>LAN traffic is currently blocked by the Windscribe firewall.  Do you want to allow LAN traffic to bypass the firewall in order for this feature to work?</source>
         <translation>LAN トラフィックは現在、Windscribe ファイアウォールによってブロックされています。 この機能を動作させるために、LAN トラフィックがファイアウォールをバイパスすることを許可しますか?</translation>
     </message>
+    <message>
+        <source>Disabling Allow LAN Traffic will cause your secure hotspot to stop working.  Do you want to disable the hotspot?</source>
+        <translation>LANトラフィックの許可を無効にすると、安全なホットスポットが機能しなくなります。 ホットスポットを無効にしますか?</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::DnsDomainsGroup</name>
@@ -1172,10 +1232,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>送信！</translation>
     </message>
     <message>
-        <source>Add</source>
-        <translation>足す</translation>
-    </message>
-    <message>
         <source>Resend</source>
         <translation>再送</translation>
     </message>
@@ -1198,6 +1254,10 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Email</source>
         <translation>電子メール</translation>
+    </message>
+    <message>
+        <source>Add Email</source>
+        <translation>メールアドレスを追加</translation>
     </message>
 </context>
 <context>
@@ -1953,10 +2013,6 @@ If the reinstall does not help, please contact Windscribe support for assistance
 <context>
     <name>QObject</name>
     <message>
-        <source>R.O.B.E.R.T.</source>
-        <translation>R.O.B.E.R.T.</translation>
-    </message>
-    <message>
         <source>Custom</source>
         <translation>習慣</translation>
     </message>
@@ -2135,6 +2191,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Black</source>
         <translation>黒い</translation>
+    </message>
+    <message>
+        <source>Forced</source>
+        <translation>強制的</translation>
     </message>
 </context>
 <context>

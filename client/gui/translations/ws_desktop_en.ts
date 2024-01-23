@@ -749,6 +749,42 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>Unable to start custom DNS service.  Please ensure you don&apos;t have any other local DNS services running, or contact support.</source>
         <translation>Unable to start custom DNS service.  Please ensure you don&apos;t have any other local DNS services running, or contact support.</translation>
     </message>
+    <message>
+        <source>JSON Files (*.json)</source>
+        <translation>JSON Files (*.json)</translation>
+    </message>
+    <message>
+        <source>Unable to import preferences</source>
+        <translation>Unable to import preferences</translation>
+    </message>
+    <message>
+        <source>Preferences can only be imported when the app is disconnected. Please disconnect and try again.</source>
+        <translation>Preferences can only be imported when the app is disconnected. Please disconnect and try again.</translation>
+    </message>
+    <message>
+        <source>The selected file&apos;s format is incorrect.</source>
+        <translation>The selected file&apos;s format is incorrect.</translation>
+    </message>
+    <message>
+        <source>Export Preferences To</source>
+        <translation>Export Preferences To</translation>
+    </message>
+    <message>
+        <source>Import Preferences From</source>
+        <translation>Import Preferences From</translation>
+    </message>
+    <message>
+        <source>Could not open file.</source>
+        <translation>Could not open file.</translation>
+    </message>
+    <message>
+        <source>Unable to export preferences</source>
+        <translation>Unable to export preferences</translation>
+    </message>
+    <message>
+        <source>Could not open file for writing.  Check your permissions and try again.</source>
+        <translation>Could not open file for writing.  Check your permissions and try again.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -868,10 +904,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>PLAN</translation>
     </message>
     <message>
-        <source>Expires On</source>
-        <translation>Expires On</translation>
-    </message>
-    <message>
         <source>Reset Date</source>
         <translation>Reset Date</translation>
     </message>
@@ -882,6 +914,10 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Manage Account</source>
         <translation>Manage Account</translation>
+    </message>
+    <message>
+        <source>Expiry Date</source>
+        <translation>Expiry Date</translation>
     </message>
 </context>
 <context>
@@ -958,6 +994,18 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>DNS Manager</source>
         <translation>DNS Manager</translation>
     </message>
+    <message>
+        <source>App Preferences</source>
+        <translation>App Preferences</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <translation>Export</translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <translation>Import</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::ApiResolutionGroup</name>
@@ -981,6 +1029,14 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>Enter IP or Hostname</source>
         <translation>Enter IP or Hostname</translation>
     </message>
+    <message>
+        <source>Invalid address</source>
+        <translation>Invalid address</translation>
+    </message>
+    <message>
+        <source>You have entered an invalid address for API resolution.  It has been reset to Auto.</source>
+        <translation>You have entered an invalid address for API resolution.  It has been reset to Auto.</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::BackgroundSettingsGroup</name>
@@ -993,12 +1049,8 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Connected</translation>
     </message>
     <message>
-        <source>Background</source>
-        <translation>Background</translation>
-    </message>
-    <message>
-        <source>Country Flags</source>
-        <translation>Country Flags</translation>
+        <source>Flags</source>
+        <translation>Flags</translation>
     </message>
     <message>
         <source>None</source>
@@ -1007,6 +1059,10 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Custom</source>
         <translation>Custom</translation>
+    </message>
+    <message>
+        <source>App Background</source>
+        <translation>App Background</translation>
     </message>
 </context>
 <context>
@@ -1138,6 +1194,10 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>LAN traffic is currently blocked by the Windscribe firewall.  Do you want to allow LAN traffic to bypass the firewall in order for this feature to work?</source>
         <translation>LAN traffic is currently blocked by the Windscribe firewall.  Do you want to allow LAN traffic to bypass the firewall in order for this feature to work?</translation>
     </message>
+    <message>
+        <source>Disabling Allow LAN Traffic will cause your secure hotspot to stop working.  Do you want to disable the hotspot?</source>
+        <translation>Disabling Allow LAN Traffic will cause your secure hotspot to stop working.  Do you want to disable the hotspot?</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::DnsDomainsGroup</name>
@@ -1172,10 +1232,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Sent!</translation>
     </message>
     <message>
-        <source>Add</source>
-        <translation>Add</translation>
-    </message>
-    <message>
         <source>Resend</source>
         <translation>Resend</translation>
     </message>
@@ -1198,6 +1254,10 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Email</source>
         <translation>Email</translation>
+    </message>
+    <message>
+        <source>Add Email</source>
+        <translation>Add Email</translation>
     </message>
 </context>
 <context>
@@ -1953,10 +2013,6 @@ If the reinstall does not help, please contact Windscribe support for assistance
 <context>
     <name>QObject</name>
     <message>
-        <source>R.O.B.E.R.T.</source>
-        <translation>R.O.B.E.R.T.</translation>
-    </message>
-    <message>
         <source>Custom</source>
         <translation>Custom</translation>
     </message>
@@ -2135,6 +2191,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Black</source>
         <translation>Black</translation>
+    </message>
+    <message>
+        <source>Forced</source>
+        <translation>Forced</translation>
     </message>
 </context>
 <context>

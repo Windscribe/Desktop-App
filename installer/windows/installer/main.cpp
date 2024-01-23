@@ -12,7 +12,7 @@
 #include "../utils/applicationinfo.h"
 #include "../utils/logger.h"
 #include "../utils/path.h"
-#include "../utils/win32handle.h"
+#include "win32handle.h"
 
 // Set the DLL load directory to the system directory before entering WinMain().
 struct LoadSystemDLLsFromSystem32
@@ -153,6 +153,33 @@ static std::wstring sanitizedCommandLine(const std::wstring &exeName, const std:
     return cmdLine;
 }
 
+#if !defined(_M_ARM64)
+static bool isWindowsOnArm()
+{
+    // Notes:
+    // Tried using GetSystemInfo and GetNativeSystemInfo.  Both return PROCESSOR_ARCHITECTURE_AMD64
+    // when run on Windows 11 ARM64.
+    // Dynamically loading the function to allow the installer to run on Windows 10 versions lacking the function export.
+    HMODULE hDLL = ::GetModuleHandleA("kernel32.dll");
+    if (hDLL == NULL) {
+        Log::WSDebugMessage(L"Failed to load the kernel32 module (%lu)", ::GetLastError());
+        return false;
+    }
+
+    typedef BOOL (WINAPI* IsWow64Process2Func)(_In_ HANDLE hProcess, _Out_ USHORT* pProcessMachine, _Out_opt_ USHORT* pNativeMachine);
+
+    IsWow64Process2Func isWow64Process2Func = (IsWow64Process2Func)::GetProcAddress(hDLL, "IsWow64Process2");
+    if (isWow64Process2Func == NULL) {
+        Log::WSDebugMessage(L"Failed to load IsWow64Process2 function (%lu)", ::GetLastError());
+        return false;
+    }
+
+    USHORT process_machine, native_machine;
+    BOOL result = isWow64Process2Func(::GetCurrentProcess(), &process_machine, &native_machine);
+    return (result && native_machine == IMAGE_FILE_MACHINE_ARM64);
+}
+#endif
+
 }  // namespace
 
 
@@ -168,19 +195,12 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
     loadSystemLanguage(translator, &a);
 
 #if !defined(_M_ARM64)
-    {
-        // Tried using GetSystemInfo and GetNativeSystemInfo.  Both return PROCESSOR_ARCHITECTURE_AMD64
-        // when run on Windows 11 ARM64.
-        USHORT process_machine;
-        USHORT native_machine;
-        BOOL result = ::IsWow64Process2(::GetCurrentProcess(), &process_machine, &native_machine);
-        if (result && native_machine == IMAGE_FILE_MACHINE_ARM64) {
-            WSMessageBox(QObject::tr("Windscribe Installer"),
-                         QObject::tr("This version of the Windscribe app will not operate correctly on your PC."
-                                     "  Please download the 'ARM64' version from the Windscribe website to ensure"
-                                     " optimal compatibility and performance."));
-            return 0;
-        }
+    if (isWindowsOnArm()) {
+        WSMessageBox(QObject::tr("Windscribe Installer"),
+                     QObject::tr("This version of the Windscribe app will not operate correctly on your PC."
+                                 "  Please download the 'ARM64' version from the Windscribe website to ensure"
+                                 " optimal compatibility and performance."));
+        return 0;
     }
 #endif
 

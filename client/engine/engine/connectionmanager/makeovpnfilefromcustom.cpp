@@ -2,6 +2,10 @@
 
 #include "engine/customconfigs/parseovpnconfigline.h"
 
+#if defined (Q_OS_WIN)
+#include "types/global_consts.h"
+#endif
+
 MakeOVPNFileFromCustom::MakeOVPNFileFromCustom() : config_()
 {
 }
@@ -26,6 +30,13 @@ bool MakeOVPNFileFromCustom::generate(const QString &customConfigPath, const QSt
         line = line.replace(openVpnLine.host, ip);
         config_ += line + "\r\n";
     }
+
+#if defined (Q_OS_WIN)
+    // We use the --dev-node option to ensure OpenVPN will only use the dco/wintun adapter instance we create and not
+    // possibly attempt to use an adapter created by other software (e.g. the vanilla OpenVPN client app).
+    config_ += QString("\r\n--dev-node %1\r\n").arg(kOpenVPNAdapterIdentifier);
+    config_ += "\r\n--windows-driver wintun\r\n";
+#endif
 
     return true;
 }

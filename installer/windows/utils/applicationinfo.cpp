@@ -81,9 +81,16 @@ wstring appRegistryKey()
     return L"HKEY_CURRENT_USER\\Software\\Windscribe\\Windscribe2";
 }
 
-wstring installerRegistryKey()
+wstring installerRegistryKey(bool includeRootKey)
 {
-    return L"HKEY_CURRENT_USER\\Software\\Windscribe\\Installer";
+    wstring keyName;
+    if (includeRootKey) {
+        keyName += wstring(L"HKEY_CURRENT_USER\\");
+    }
+
+    keyName += L"Software\\Windscribe\\Installer";
+
+    return keyName;
 }
 
 wstring uninstallerRegistryKey(bool includeRootKey)

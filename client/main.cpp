@@ -17,8 +17,10 @@
 #include "gui/application/singleappinstance.h"
 
 #ifdef Q_OS_WIN
+    #include "types/global_consts.h"
     #include "utils/crashhandler.h"
     #include "utils/installedantiviruses_win.h"
+    #include "utils/winutils.h"
 #elif defined (Q_OS_MACOS)
     #include "utils/macutils.h"
 #elif defined (Q_OS_LINUX)
@@ -90,17 +92,6 @@ int main(int argc, char *argv[])
         Q_INIT_RESOURCE(windscribe_mac);
     #endif
 
-
-    // Switch to staging if necessary. It should be done at the beginning of main function.
-    // Further, in all parts of the program, the staging check is performed by the function AppVersion::instance().isStaging()
-    // Works only for guinea pig builds
-#ifdef WINDSCRIBE_IS_GUINEA_PIG
-    if (ExtraConfig::instance().getIsStaging())
-    {
-        AppVersion::instance().switchToStaging();
-    }
-#endif
-
     qSetMessagePattern("[{gmt_time} %{time process}] [%{category}]\t %{message}");
 
 #if defined(ENABLE_CRASH_REPORTS)
@@ -125,6 +116,16 @@ int main(int argc, char *argv[])
     a.setApplicationName("Windscribe2");
 
     a.setApplicationDisplayName("Windscribe");
+
+    // Switch to staging if necessary. It should be done at the beginning of main function.
+    // Further, in all parts of the program, the staging check is performed by the function AppVersion::instance().isStaging()
+    // Works only for guinea pig builds
+#ifdef WINDSCRIBE_IS_GUINEA_PIG
+    if (ExtraConfig::instance().getIsStaging())
+    {
+        AppVersion::instance().switchToStaging();
+    }
+#endif
 
     // This guard must be created after WindscribeApplication, or its objects will not
     // participate in the main event loop.  It must also be created before the Logger
@@ -164,6 +165,10 @@ int main(int argc, char *argv[])
 
 #ifdef Q_OS_WIN
     InstalledAntiviruses_win::outToLog();
+    if (!WinUtils::isOSCompatible()) {
+        qCDebug(LOG_BASIC) << "WARNING: OS version is not fully compatible.  Windows 10 build"
+                           << kMinWindowsBuildNumber << "or newer is required for full functionality.";
+    }
 #endif
 
     if (!QFileInfo::exists(OpenVpnVersionController::instance().getOpenVpnFilePath())) {

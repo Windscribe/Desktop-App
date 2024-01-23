@@ -205,6 +205,7 @@ void serialize(Archive & ar, CMD_CONFIGURE_WIREGUARD & g, const unsigned int ver
     ar & g.peerPresharedKey;
     ar & g.peerEndpoint;
     ar & g.allowedIps;
+    ar & g.listenPort;
 }
 
 template<class Archive>
@@ -225,6 +226,13 @@ void serialize(Archive& ar, CMD_DISABLE_DNS_TRAFFIC& g, const unsigned int versi
 {
     UNREFERENCED_PARAMETER(version);
     ar& g.excludedIps;
+}
+
+template<class Archive>
+void serialize(Archive & ar, CMD_CREATE_OPENVPN_ADAPTER & g, const unsigned int version)
+{
+    UNREFERENCED_PARAMETER(version);
+    ar & g.useDCODriver;
 }
 
 } // namespace serialization

@@ -32,6 +32,7 @@ signals:
 private slots:
     void onSettingsChanged(types::SplitTunnelingSettings settings);
     void onLanguageChanged();
+    void onPreferencesChanged();
 
 private:
     SPLIT_TUNNEL_SCREEN currentScreen_;

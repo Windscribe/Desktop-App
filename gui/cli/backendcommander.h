@@ -41,5 +41,6 @@ private:
     bool bLogginInMessageShown_ = false;
     bool isGuiAlreadyRunning_ = false;
 
-    void onStateResponse(IPC::Command *command);
+    void onLoginStateResponse(IPC::Command *command);
+    void onStatusResponse(IPC::Command *command);
 };

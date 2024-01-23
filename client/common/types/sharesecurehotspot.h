@@ -1,18 +1,44 @@
 #pragma once
 
 #include "types/enums.h"
+#include "utils/utils.h"
 
 #include <QDataStream>
 #include <QDebug>
+#include <QJsonObject>
 
 
 namespace types {
 
 struct ShareSecureHotspot
 {
+    struct JsonInfo
+    {
+        JsonInfo& operator=(const JsonInfo&) { return *this; }
+
+        const QString kIsEnabledProp = "isEnabled";
+        const QString kSSIDProp = "ssid";
+        const QString kPasswordProp = "password";
+    };
+
+    ShareSecureHotspot() = default;
+
+    ShareSecureHotspot(const QJsonObject &json)
+    {
+        if (json.contains(jsonInfo.kIsEnabledProp) && json[jsonInfo.kIsEnabledProp].isDouble())
+            isEnabled = json[jsonInfo.kIsEnabledProp].toBool();
+
+        if (json.contains(jsonInfo.kSSIDProp) && json[jsonInfo.kSSIDProp].isString())
+            ssid = Utils::fromBase64(json[jsonInfo.kSSIDProp].toString());
+
+        if (json.contains(jsonInfo.kPasswordProp) && json[jsonInfo.kPasswordProp].isString())
+            password = Utils::fromBase64(json[jsonInfo.kPasswordProp].toString());
+    }
+
     bool isEnabled = false;
     QString ssid;
     QString password;
+    JsonInfo jsonInfo;  // Include the JsonInfo structure within ShareSecureHotspot
 
     bool operator==(const ShareSecureHotspot &other) const
     {
@@ -24,6 +50,15 @@ struct ShareSecureHotspot
     bool operator!=(const ShareSecureHotspot &other) const
     {
         return !(*this == other);
+    }
+
+    QJsonObject toJson() const
+    {
+        QJsonObject json;
+        json[jsonInfo.kIsEnabledProp] = isEnabled;
+        json[jsonInfo.kSSIDProp] = Utils::toBase64(ssid);
+        json[jsonInfo.kPasswordProp] = Utils::toBase64(password);
+        return json;
     }
 
     friend QDataStream& operator <<(QDataStream &stream, const ShareSecureHotspot &o)

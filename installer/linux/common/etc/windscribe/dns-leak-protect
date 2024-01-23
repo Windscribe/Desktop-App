@@ -50,7 +50,7 @@ dnsleak_protection_up()
 
     printf -v rules '%sCOMMIT\n' "$rules"
 
-    echo -n "$rules" | cmd "/sbin/iptables-restore" -n
+    echo -n "$rules" | cmd "iptables-restore" -n
 }
 
 
@@ -74,10 +74,10 @@ dnsleak_protection_down()
         fi
         printf -v restore '%s%s\n' "$restore" "${line/#-A/-D}"
 
-    done < <(/sbin/iptables-save 2>/dev/null)
+    done < <(iptables-save 2>/dev/null)
 
     if [[ $found -ne 0 ]]; then
-        echo -n "$restore" | cmd "/sbin/iptables-restore" -n
+        echo -n "$restore" | cmd "iptables-restore" -n
     fi
 }
 

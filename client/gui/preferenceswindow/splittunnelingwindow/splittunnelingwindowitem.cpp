@@ -23,9 +23,8 @@ SplitTunnelingWindowItem::SplitTunnelingWindowItem(ScalableGraphicsObject *paren
     connect(splitTunnelingGroup_, &SplitTunnelingGroup::appsPageClick, this, &SplitTunnelingWindowItem::appsPageClick);
     connect(splitTunnelingGroup_, &SplitTunnelingGroup::settingsChanged, this, &SplitTunnelingWindowItem::onSettingsChanged);
 
-    splitTunnelingGroup_->setSettings(preferences->splitTunnelingSettings());
-    splitTunnelingGroup_->setAppsCount(preferences->splitTunnelingApps().count());
-    splitTunnelingGroup_->setAddressesCount(preferences->splitTunnelingNetworkRoutes().count());
+    connect(preferences_, &Preferences::splitTunnelingChanged, this, &SplitTunnelingWindowItem::onPreferencesChanged);
+    onPreferencesChanged();
 
     desc_ = new PreferenceGroup(this,
                                 "",
@@ -80,6 +79,13 @@ void SplitTunnelingWindowItem::onLanguageChanged()
 #else
     desc_->setDescription(tr("Include or exclude IPs and hostnames from the VPN tunnel."));
 #endif
+}
+
+void SplitTunnelingWindowItem::onPreferencesChanged()
+{
+    splitTunnelingGroup_->setSettings(preferences_->splitTunnelingSettings());
+    splitTunnelingGroup_->setAppsCount(preferences_->splitTunnelingApps().count());
+    splitTunnelingGroup_->setAddressesCount(preferences_->splitTunnelingNetworkRoutes().count());
 }
 
 } // namespace PreferencesWindow

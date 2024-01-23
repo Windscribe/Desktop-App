@@ -100,6 +100,8 @@ private slots:
     void onPreferencesSignOutClick();
     void onPreferencesLoginClick();
     void onPreferencesViewLogClick();
+    void onPreferencesExportSettingsClick();
+    void onPreferencesImportSettingsClick();
     void onPreferencesSendConfirmEmailClick();
     void onSendDebugLogClick(); // also used by protocol window
     void onPreferencesManageAccountClick();

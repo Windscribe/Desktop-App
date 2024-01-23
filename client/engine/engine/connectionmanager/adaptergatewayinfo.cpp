@@ -1,12 +1,13 @@
 #include "adaptergatewayinfo.h"
-#include "utils/logger.h"
+
+#include <QMetaType>
 
 #ifdef Q_OS_WIN
     #include "adapterutils_win.h"
 #elif defined Q_OS_MAC
     #include "utils/network_utils/network_utils_mac.h"
 #elif defined Q_OS_LINUX
-    #include "utils/linuxutils.h"
+    #include "utils/network_utils/network_utils_linux.h"
 #endif
 
 const int typeIdAdapterGatewayInfo = qRegisterMetaType<AdapterGatewayInfo>("AdapterGatewayInfo");
@@ -23,7 +24,7 @@ AdapterGatewayInfo AdapterGatewayInfo::detectAndCreateDefaultAdapterInfo()
     cai.adapterIp_ = NetworkUtils_mac::ipAddressByInterfaceName(cai.adapterName_);
     cai.dnsServers_ = NetworkUtils_mac::getDnsServersForInterface(cai.adapterName_);
 #elif defined Q_OS_LINUX
-    LinuxUtils::getDefaultRoute(cai.gateway_, cai.adapterName_, cai.adapterIp_);
+    NetworkUtils_linux::getDefaultRoute(cai.gateway_, cai.adapterName_, cai.adapterIp_);
     // todo: for split tunneling
     // cai.adapterIp_ =
     //cai.dnsServers_ =

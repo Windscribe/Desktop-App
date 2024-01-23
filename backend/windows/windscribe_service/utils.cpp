@@ -349,16 +349,6 @@ GUID guidFromString(const std::wstring &str)
     return reqGUID;
 }
 
-bool isWindows7()
-{
-    static int isWindows7 = -1;
-    if (isWindows7 == -1) {
-        isWindows7 = (IsWindows8OrGreater() ? 0 : 1);
-    }
-
-    return (isWindows7 == 1);
-}
-
 bool addFilterV4(HANDLE engineHandle, std::vector<UINT64> *filterId, FWP_ACTION_TYPE type, UINT8 weight,
                   GUID subLayerKey, wchar_t *subLayerName, PNET_LUID pluid,
                   const std::vector<Ip4AddressAndMask> *ranges,

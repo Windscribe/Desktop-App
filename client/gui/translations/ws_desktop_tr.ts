@@ -749,6 +749,42 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
         <source>Unable to start custom DNS service.  Please ensure you don&apos;t have any other local DNS services running, or contact support.</source>
         <translation>Özel DNS hizmeti başlatılamıyor.  Lütfen çalışan başka bir yerel DNS hizmetiniz olmadığından emin olun veya desteğe başvurun.</translation>
     </message>
+    <message>
+        <source>JSON Files (*.json)</source>
+        <translation>JSON Dosyaları (*.json)</translation>
+    </message>
+    <message>
+        <source>Unable to import preferences</source>
+        <translation>Tercihler içe aktarılamıyor</translation>
+    </message>
+    <message>
+        <source>Preferences can only be imported when the app is disconnected. Please disconnect and try again.</source>
+        <translation>Tercihler yalnızca uygulama bağlantısı kesildiğinde içe aktarılabilir. Lütfen bağlantıyı kesin ve tekrar deneyin.</translation>
+    </message>
+    <message>
+        <source>The selected file&apos;s format is incorrect.</source>
+        <translation>Seçilen dosyanın biçimi yanlış.</translation>
+    </message>
+    <message>
+        <source>Export Preferences To</source>
+        <translation>Tercihleri Dışa Aktar</translation>
+    </message>
+    <message>
+        <source>Import Preferences From</source>
+        <translation>Tercihleri İçe Aktar</translation>
+    </message>
+    <message>
+        <source>Could not open file.</source>
+        <translation>Dosya açılamadı.</translation>
+    </message>
+    <message>
+        <source>Unable to export preferences</source>
+        <translation>Tercihler dışa aktarılamıyor</translation>
+    </message>
+    <message>
+        <source>Could not open file for writing.  Check your permissions and try again.</source>
+        <translation>Dosya yazmak için açılamadı.  İzinlerinizi kontrol edin ve tekrar deneyin.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -868,10 +904,6 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
         <translation>PLAN</translation>
     </message>
     <message>
-        <source>Expires On</source>
-        <translation>Bitiş Tarihi</translation>
-    </message>
-    <message>
         <source>Reset Date</source>
         <translation>Tarihi Sıfırla</translation>
     </message>
@@ -882,6 +914,10 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     <message>
         <source>Manage Account</source>
         <translation>Hesabı Yönet</translation>
+    </message>
+    <message>
+        <source>Expiry Date</source>
+        <translation>Son kullanma tarihi</translation>
     </message>
 </context>
 <context>
@@ -958,6 +994,18 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
         <source>DNS Manager</source>
         <translation>DNS Yöneticisi</translation>
     </message>
+    <message>
+        <source>App Preferences</source>
+        <translation>Uygulama Tercihleri</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <translation>Ihracat</translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <translation>Ithalat</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::ApiResolutionGroup</name>
@@ -981,6 +1029,14 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
         <source>Enter IP or Hostname</source>
         <translation>IP veya Ana Bilgisayar Adını Girin</translation>
     </message>
+    <message>
+        <source>Invalid address</source>
+        <translation>Geçersiz adres</translation>
+    </message>
+    <message>
+        <source>You have entered an invalid address for API resolution.  It has been reset to Auto.</source>
+        <translation>API çözümlemesi için geçersiz bir adres girdiniz.  Otomatik olarak sıfırlandı.</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::BackgroundSettingsGroup</name>
@@ -993,11 +1049,7 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
         <translation>Bağlandı</translation>
     </message>
     <message>
-        <source>Background</source>
-        <translation>Arka plan</translation>
-    </message>
-    <message>
-        <source>Country Flags</source>
+        <source>Flags</source>
         <translation>Ülke Bayrakları</translation>
     </message>
     <message>
@@ -1007,6 +1059,10 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     <message>
         <source>Custom</source>
         <translation>Töre</translation>
+    </message>
+    <message>
+        <source>App Background</source>
+        <translation>Uygulama Arka Planı</translation>
     </message>
 </context>
 <context>
@@ -1138,6 +1194,10 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
         <source>LAN traffic is currently blocked by the Windscribe firewall.  Do you want to allow LAN traffic to bypass the firewall in order for this feature to work?</source>
         <translation>LAN trafiği şu anda Windscribe güvenlik duvarı tarafından engelleniyor.  Bu özelliğin çalışması için LAN trafiğinin güvenlik duvarını atlamasına izin vermek istiyor musunuz?</translation>
     </message>
+    <message>
+        <source>Disabling Allow LAN Traffic will cause your secure hotspot to stop working.  Do you want to disable the hotspot?</source>
+        <translation>LAN Trafiğine İzin Ver&apos;i devre dışı bırakmak, güvenli erişim noktanızın çalışmayı durdurmasına neden olur.  Hotspot&apos;u devre dışı bırakmak istiyor musunuz?</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::DnsDomainsGroup</name>
@@ -1172,10 +1232,6 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
         <translation>Gönderilen!</translation>
     </message>
     <message>
-        <source>Add</source>
-        <translation>Eklemek</translation>
-    </message>
-    <message>
         <source>Resend</source>
         <translation>Tekrar Gönder</translation>
     </message>
@@ -1198,6 +1254,10 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     <message>
         <source>Email</source>
         <translation>E-posta</translation>
+    </message>
+    <message>
+        <source>Add Email</source>
+        <translation>E-posta Ekle</translation>
     </message>
 </context>
 <context>
@@ -1953,10 +2013,6 @@ Yeniden yükleme yardımcı olmazsa, lütfen yardım için Windscribe desteği i
 <context>
     <name>QObject</name>
     <message>
-        <source>R.O.B.E.R.T.</source>
-        <translation>R.O.B.E.R.T.</translation>
-    </message>
-    <message>
         <source>Custom</source>
         <translation>Töre</translation>
     </message>
@@ -2135,6 +2191,10 @@ Yeniden yükleme yardımcı olmazsa, lütfen yardım için Windscribe desteği i
     <message>
         <source>Black</source>
         <translation>Siyah</translation>
+    </message>
+    <message>
+        <source>Forced</source>
+        <translation>Zorla</translation>
     </message>
 </context>
 <context>

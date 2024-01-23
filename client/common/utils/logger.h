@@ -59,6 +59,12 @@ public:
     QString getLogStr();
     QString getCurrentLogStr();
 
+    void startConnectionMode();
+    void endConnectionMode();
+    static bool connectionMode() { return connectionMode_; }
+    static const QLoggingCategory& connectionModeLoggingCategory() { return *connectionModeLoggingCategory_;}
+    static QMutex& mutex() { return mutex_; }
+
 private:
     Logger();
     ~Logger();
@@ -74,6 +80,12 @@ private:
     static QString logPath_;
     static QString prevLogPath_;
     static bool consoleOutput_;
+
+    // #23. If logger is in connection mode then it will use CONNECTION_MODE logging category for each log line.
+    // It will use randomly generated sequence as current connection identifier.
+    // Usually it occurs between connection start and next disconnect event.
+    static bool connectionMode_;
+    static QLoggingCategory *connectionModeLoggingCategory_;
 
     static void copyToPrevLog();
 };

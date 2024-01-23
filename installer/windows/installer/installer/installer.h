@@ -2,7 +2,6 @@
 
 #include <functional>
 #include <list>
-#include <string>
 
 #include "installer_base.h"
 #include "iinstall_block.h"

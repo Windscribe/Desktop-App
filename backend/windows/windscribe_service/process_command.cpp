@@ -4,17 +4,18 @@
 
 #include "close_tcp_connections.h"
 #include "changeics/icsmanager.h"
+#include "dohdata.h"
 #include "executecmd.h"
 #include "ikev2ipsec.h"
 #include "ikev2route.h"
 #include "ipc/servicecommunication.h"
 #include "logger.h"
+#include "openvpncontroller.h"
 #include "ovpn.h"
 #include "registry.h"
 #include "reinstall_wan_ikev2.h"
 #include "remove_windscribe_network_profiles.h"
 #include "utils.h"
-#include "wintuncontroller.h"
 
 SPLIT_TUNNELING_PARS g_SplitTunnelingPars;
 
@@ -452,9 +453,6 @@ MessagePacketResult runOpenvpn(boost::archive::text_iarchive &ia)
                 strCmd += L" --socks-proxy " + cmdRunOpenVpn.szSocksProxy + L" " + std::to_wstring(cmdRunOpenVpn.socksPortNumber);
             }
 
-            // Ensure OpenVPN will only use the wintun adapter instance we created (AA_COMMAND_CREATE_WINTUN_ADAPTER).
-            strCmd += L" --dev tun --windows-driver wintun --dev-node ";
-            strCmd += WintunController::adapterName();
             return ExecuteCmd::instance().executeUnblockingCmd(strCmd, L"", Utils::getDirPathFromFullPath(filename));
         }
     }
@@ -747,17 +745,99 @@ MessagePacketResult makeHostsFileWritable(boost::archive::text_iarchive &ia)
     return mpr;
 }
 
-MessagePacketResult createWintunAdapter(boost::archive::text_iarchive &ia) {
-    MessagePacketResult mpr;
+MessagePacketResult createOpenVPNAdapter(boost::archive::text_iarchive &ia)
+{
+    CMD_CREATE_OPENVPN_ADAPTER cmdCreateAdapter;
+    ia >> cmdCreateAdapter;
+    Logger::instance().out(L"AA_COMMAND_CREATE_OPENVPN_ADAPTER: creating '%s' adapter", (cmdCreateAdapter.useDCODriver ? L"ovpn-dco" : L"wintun"));
 
-    mpr.success = WintunController::instance().createAdapter();
+    MessagePacketResult mpr;
+    mpr.success = OpenVPNController::instance().createAdapter(cmdCreateAdapter.useDCODriver);
     return mpr;
 }
 
-MessagePacketResult removeWintunAdapter(boost::archive::text_iarchive &ia) {
-    MessagePacketResult mpr;
+MessagePacketResult removeOpenVPNAdapter(boost::archive::text_iarchive &ia)
+{
+    OpenVPNController::instance().removeAdapter();
 
-    WintunController::instance().removeAdapter();
+    MessagePacketResult mpr;
     mpr.success = true;
+    return mpr;
+}
+
+MessagePacketResult disableDohSettings(boost::archive::text_iarchive &ia)
+{
+
+    // In order to disable doh on Windows it is necessary to set to 0 value of the EnableAutoDoh property
+    // in the registry at the address SYSTEM\CurrentControlSet\Services\Dnscache\Parameters.
+
+    MessagePacketResult mpr;
+    mpr.success = false;
+
+    const std::wstring dohKeyPath = L"SYSTEM\\CurrentControlSet\\Services\\Dnscache\\Parameters";
+    const std::wstring enableDohValue = L"EnableAutoDoh";
+    DWORD autoEnableDoh = 0;
+    DWORD size = sizeof(DWORD);
+
+    if (DohData::instance().lastTimeDohWasEnabled()) {
+
+        bool propExists = false;
+        if (!Registry::regGetProperty(HKEY_LOCAL_MACHINE, dohKeyPath, enableDohValue, reinterpret_cast<LPBYTE>(&autoEnableDoh), &size)) {
+            propExists = Registry::regAddDwordValueIfNotExists(HKEY_LOCAL_MACHINE, dohKeyPath, enableDohValue);
+            DohData::instance().setDohRegistryWasCreated(propExists);
+        }
+        else {
+            propExists = true;
+            DohData::instance().setDohRegistryWasCreated(false);
+        }
+
+        if (propExists && Registry::regWriteDwordProperty(HKEY_LOCAL_MACHINE, dohKeyPath, enableDohValue, 0)) {
+            mpr.success = true;
+            DohData::instance().setEnableAutoDoh(autoEnableDoh);
+            DohData::instance().setLastTimeDohWasEnabled(false);
+        }
+        else {
+            mpr.success = false;
+        }
+    }
+
+    Logger::instance().out(L"AA_COMMAND_DISABLE_DOH_SETTINGS");
+    return mpr;
+}
+
+
+MessagePacketResult enableDohSettings(boost::archive::text_iarchive &ia)
+{
+    MessagePacketResult mpr;
+    mpr.success = false;
+
+    const std::wstring dohKeyPath = L"SYSTEM\\CurrentControlSet\\Services\\Dnscache\\Parameters";
+    const std::wstring enableDohValue = L"EnableAutoDoh";
+
+    if (!DohData::instance().lastTimeDohWasEnabled()) {
+
+        if (DohData::instance().dohRegistryWasCreated()) {
+            mpr.success = Registry::regDeleteProperty(HKEY_LOCAL_MACHINE, dohKeyPath, enableDohValue);
+            if (mpr.success) {
+                DohData::instance().setDohRegistryWasCreated(false);
+                DohData::instance().setLastTimeDohWasEnabled(true);
+            }
+        }
+        else {
+            const auto autoEnableDoh = DohData::instance().enableAutoDoh();
+            if (Registry::regWriteDwordProperty(HKEY_LOCAL_MACHINE, dohKeyPath, enableDohValue, autoEnableDoh)) {
+                mpr.success = true;
+                DohData::instance().setLastTimeDohWasEnabled(true);
+            }
+            else {
+                mpr.success = false;
+            }
+        }
+    }
+    else {
+        mpr.success = true;
+    }
+
+    Logger::instance().out(L"AA_COMMAND_ENABLE_DOH_SETTINGS");
     return mpr;
 }

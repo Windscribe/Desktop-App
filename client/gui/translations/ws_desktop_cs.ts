@@ -749,6 +749,42 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
         <source>Unable to start custom DNS service.  Please ensure you don&apos;t have any other local DNS services running, or contact support.</source>
         <translation>Nelze spustit vlastní službu DNS.  Ujistěte se, že nemáte spuštěné žádné další místní služby DNS, nebo se obraťte na podporu.</translation>
     </message>
+    <message>
+        <source>JSON Files (*.json)</source>
+        <translation>Soubory JSON (*.json)</translation>
+    </message>
+    <message>
+        <source>Unable to import preferences</source>
+        <translation>Předvolby nelze importovat</translation>
+    </message>
+    <message>
+        <source>Preferences can only be imported when the app is disconnected. Please disconnect and try again.</source>
+        <translation>Předvolby lze importovat pouze v případě, že je aplikace odpojena. Odpojte se a zkuste to znovu.</translation>
+    </message>
+    <message>
+        <source>The selected file&apos;s format is incorrect.</source>
+        <translation>Formát vybraného souboru je nesprávný.</translation>
+    </message>
+    <message>
+        <source>Export Preferences To</source>
+        <translation>Exportovat předvolby do</translation>
+    </message>
+    <message>
+        <source>Import Preferences From</source>
+        <translation>Importovat předvolby z</translation>
+    </message>
+    <message>
+        <source>Could not open file.</source>
+        <translation>Nelze otevřít soubor.</translation>
+    </message>
+    <message>
+        <source>Unable to export preferences</source>
+        <translation>Předvolby nelze exportovat</translation>
+    </message>
+    <message>
+        <source>Could not open file for writing.  Check your permissions and try again.</source>
+        <translation>Nelze otevřít soubor pro zápis.  Zkontrolujte svá oprávnění a zkuste to znovu.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -868,10 +904,6 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
         <translation>PLÁN</translation>
     </message>
     <message>
-        <source>Expires On</source>
-        <translation>Platnost vyprší dne</translation>
-    </message>
-    <message>
         <source>Reset Date</source>
         <translation>Datum resetování</translation>
     </message>
@@ -882,6 +914,10 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
     <message>
         <source>Manage Account</source>
         <translation>Spravovat účet</translation>
+    </message>
+    <message>
+        <source>Expiry Date</source>
+        <translation>Platnosti</translation>
     </message>
 </context>
 <context>
@@ -958,6 +994,18 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
         <source>DNS Manager</source>
         <translation>Správce DNS</translation>
     </message>
+    <message>
+        <source>App Preferences</source>
+        <translation>Předvolby aplikace</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <translation>Vývoz</translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <translation>Dovoz</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::ApiResolutionGroup</name>
@@ -981,6 +1029,14 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
         <source>Enter IP or Hostname</source>
         <translation>Zadejte IP adresu nebo název hostitele</translation>
     </message>
+    <message>
+        <source>Invalid address</source>
+        <translation>Neplatná adresa</translation>
+    </message>
+    <message>
+        <source>You have entered an invalid address for API resolution.  It has been reset to Auto.</source>
+        <translation>Zadali jste neplatnou adresu pro překlad rozhraní API.  Byla resetována na Auto.</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::BackgroundSettingsGroup</name>
@@ -993,11 +1049,7 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
         <translation>Připojený</translation>
     </message>
     <message>
-        <source>Background</source>
-        <translation>Pozadí</translation>
-    </message>
-    <message>
-        <source>Country Flags</source>
+        <source>Flags</source>
         <translation>Vlajky zemí</translation>
     </message>
     <message>
@@ -1007,6 +1059,10 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
     <message>
         <source>Custom</source>
         <translation>Zvyk</translation>
+    </message>
+    <message>
+        <source>App Background</source>
+        <translation>Pozadí aplikace</translation>
     </message>
 </context>
 <context>
@@ -1138,6 +1194,10 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
         <source>Automatically choose the VPN protocol, or select one manually. NOTE: &quot;Preferred Protocol&quot; will override this setting.</source>
         <translation>Automaticky vyberte protokol VPN nebo jej vyberte ručně. Poznámka: &quot;Upřednostňovaný protokol&quot; přepíše toto nastavení.</translation>
     </message>
+    <message>
+        <source>Disabling Allow LAN Traffic will cause your secure hotspot to stop working.  Do you want to disable the hotspot?</source>
+        <translation>Zakázání možnosti Povolit provoz LAN způsobí, že váš zabezpečený hotspot přestane fungovat.  Chcete hotspot deaktivovat?</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::DnsDomainsGroup</name>
@@ -1172,10 +1232,6 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
         <translation>Poslal!</translation>
     </message>
     <message>
-        <source>Add</source>
-        <translation>Přidat</translation>
-    </message>
-    <message>
         <source>Resend</source>
         <translation>Poslat zpátky</translation>
     </message>
@@ -1198,6 +1254,10 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
     <message>
         <source>Email</source>
         <translation>E-mail</translation>
+    </message>
+    <message>
+        <source>Add Email</source>
+        <translation>Přidat e-mail</translation>
     </message>
 </context>
 <context>
@@ -1953,10 +2013,6 @@ Pokud přeinstalace nepomůže, obraťte se na podporu Windscribe a požádejte 
 <context>
     <name>QObject</name>
     <message>
-        <source>R.O.B.E.R.T.</source>
-        <translation>R.O.B.E.R.T.</translation>
-    </message>
-    <message>
         <source>Custom</source>
         <translation>Zvyk</translation>
     </message>
@@ -2135,6 +2191,10 @@ Pokud přeinstalace nepomůže, obraťte se na podporu Windscribe a požádejte 
     <message>
         <source>Black</source>
         <translation>Černý</translation>
+    </message>
+    <message>
+        <source>Forced</source>
+        <translation>Vynucený</translation>
     </message>
 </context>
 <context>

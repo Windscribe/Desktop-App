@@ -749,6 +749,42 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>Unable to start custom DNS service.  Please ensure you don&apos;t have any other local DNS services running, or contact support.</source>
         <translation>कस्टम DNS सेवा प्रारंभ करने में असमर्थ.  कृपया सुनिश्चित करें कि आपके पास कोई अन्य स्थानीय DNS सेवाएँ नहीं चल रही हैं, या समर्थन से संपर्क करें.</translation>
     </message>
+    <message>
+        <source>JSON Files (*.json)</source>
+        <translation>JSON फ़ाइलें (*.json)</translation>
+    </message>
+    <message>
+        <source>Unable to import preferences</source>
+        <translation>वरीयताओं को आयात करने में असमर्थ</translation>
+    </message>
+    <message>
+        <source>Preferences can only be imported when the app is disconnected. Please disconnect and try again.</source>
+        <translation>प्राथमिकताएं केवल तभी आयात की जा सकती हैं जब ऐप डिस्कनेक्ट हो जाता है। कृपया डिस्कनेक्ट करें और पुन: प्रयास करें.</translation>
+    </message>
+    <message>
+        <source>The selected file&apos;s format is incorrect.</source>
+        <translation>चयनित फ़ाइल का स्वरूप ग़लत है.</translation>
+    </message>
+    <message>
+        <source>Export Preferences To</source>
+        <translation>निर्यात प्राथमिकताएँ</translation>
+    </message>
+    <message>
+        <source>Import Preferences From</source>
+        <translation>से आयात प्राथमिकताएँ</translation>
+    </message>
+    <message>
+        <source>Could not open file.</source>
+        <translation>फ़ाइल नहीं खोल सका.</translation>
+    </message>
+    <message>
+        <source>Unable to export preferences</source>
+        <translation>प्राथमिकताएँ निर्यात करने में असमर्थ</translation>
+    </message>
+    <message>
+        <source>Could not open file for writing.  Check your permissions and try again.</source>
+        <translation>लिखने के लिए फ़ाइल नहीं खोल सका.  अपनी अनुमतियों की जाँच करें और पुनः प्रयास करें.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -868,10 +904,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>योजना</translation>
     </message>
     <message>
-        <source>Expires On</source>
-        <translation>समाप्ति पर</translation>
-    </message>
-    <message>
         <source>Reset Date</source>
         <translation>दिनांक रीसेट करें</translation>
     </message>
@@ -882,6 +914,10 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Manage Account</source>
         <translation>खाता प्रबंधित करें</translation>
+    </message>
+    <message>
+        <source>Expiry Date</source>
+        <translation>समाप्ति तिथि</translation>
     </message>
 </context>
 <context>
@@ -958,6 +994,18 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>DNS Manager</source>
         <translation>DNS प्रबंधक</translation>
     </message>
+    <message>
+        <source>App Preferences</source>
+        <translation>ऐप्लिकेशन प्राथमिकताएँ</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <translation>निर्यातित माल</translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <translation>आयात</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::ApiResolutionGroup</name>
@@ -981,6 +1029,14 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>Enter IP or Hostname</source>
         <translation>IP या होस्टनाम दर्ज करें</translation>
     </message>
+    <message>
+        <source>Invalid address</source>
+        <translation>अमान्य पता</translation>
+    </message>
+    <message>
+        <source>You have entered an invalid address for API resolution.  It has been reset to Auto.</source>
+        <translation>आपने API रिज़ॉल्यूशन के लिए एक अमान्य पता दर्ज किया है।  इसे ऑटो पर रीसेट कर दिया गया है।</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::BackgroundSettingsGroup</name>
@@ -993,11 +1049,7 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>जुड़ा</translation>
     </message>
     <message>
-        <source>Background</source>
-        <translation>पृष्ठभूमि</translation>
-    </message>
-    <message>
-        <source>Country Flags</source>
+        <source>Flags</source>
         <translation>देश के झंडे</translation>
     </message>
     <message>
@@ -1007,6 +1059,10 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Custom</source>
         <translation>परम्परा</translation>
+    </message>
+    <message>
+        <source>App Background</source>
+        <translation>अनुप्रयोग पृष्ठभूमि</translation>
     </message>
 </context>
 <context>
@@ -1138,6 +1194,10 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>Automatically choose the VPN protocol, or select one manually. NOTE: &quot;Preferred Protocol&quot; will override this setting.</source>
         <translation>स्वचालित रूप से वीपीएन प्रोटोकॉल चुनें, या मैन्युअल रूप से एक का चयन करें। नोट: &quot;पसंदीदा प्रोटोकॉल&quot; इस सेटिंग को ओवरराइड करेगा।</translation>
     </message>
+    <message>
+        <source>Disabling Allow LAN Traffic will cause your secure hotspot to stop working.  Do you want to disable the hotspot?</source>
+        <translation>लैन ट्रैफ़िक को अक्षम करने से आपका सुरक्षित हॉटस्पॉट काम करना बंद कर देगा।  क्या आप हॉटस्पॉट को अक्षम करना चाहते हैं?</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::DnsDomainsGroup</name>
@@ -1172,10 +1232,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>प्रेषित!</translation>
     </message>
     <message>
-        <source>Add</source>
-        <translation>जोड़ना</translation>
-    </message>
-    <message>
         <source>Resend</source>
         <translation>भेजें</translation>
     </message>
@@ -1198,6 +1254,10 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Email</source>
         <translation>ईमेल</translation>
+    </message>
+    <message>
+        <source>Add Email</source>
+        <translation>ईमेल जोड़ें</translation>
     </message>
 </context>
 <context>
@@ -1953,10 +2013,6 @@ If the reinstall does not help, please contact Windscribe support for assistance
 <context>
     <name>QObject</name>
     <message>
-        <source>R.O.B.E.R.T.</source>
-        <translation>आर.ओ.बी.ई.आर.टी.</translation>
-    </message>
-    <message>
         <source>Custom</source>
         <translation>परम्परा</translation>
     </message>
@@ -2135,6 +2191,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Black</source>
         <translation>काला</translation>
+    </message>
+    <message>
+        <source>Forced</source>
+        <translation>मजबूर</translation>
     </message>
 </context>
 <context>

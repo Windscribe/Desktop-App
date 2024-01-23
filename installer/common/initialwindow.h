@@ -17,6 +17,9 @@ public:
 public slots:
     void setProgress(int progress);
 
+protected:
+    void keyPressEvent(QKeyEvent *event) override;
+
 signals:
     void installClicked();
     void minimizeClicked();

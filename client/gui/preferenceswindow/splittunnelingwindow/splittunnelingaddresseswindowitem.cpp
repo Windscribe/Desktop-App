@@ -21,9 +21,10 @@ SplitTunnelingAddressesWindowItem::SplitTunnelingAddressesWindowItem(ScalableGra
     connect(addressesGroup_, &SplitTunnelingAddressesGroup::clearError, this, &SplitTunnelingAddressesWindowItem::onClearError);
 
     addItem(addressesGroup_);
-
     setFocusProxy(addressesGroup_);
-    addressesGroup_->setAddresses(preferences->splitTunnelingNetworkRoutes());
+
+    connect(preferences_, &Preferences::splitTunnelingChanged, this, &SplitTunnelingAddressesWindowItem::onPreferencesChanged);
+    onPreferencesChanged();
 
     setLoggedIn(false);
 
@@ -74,6 +75,11 @@ void SplitTunnelingAddressesWindowItem::setLoggedIn(bool loggedIn)
 void SplitTunnelingAddressesWindowItem::onLanguageChanged()
 {
     setLoggedIn(loggedIn_);
+}
+
+void SplitTunnelingAddressesWindowItem::onPreferencesChanged()
+{
+    addressesGroup_->setAddresses(preferences_->splitTunnelingNetworkRoutes());
 }
 
 } // namespace

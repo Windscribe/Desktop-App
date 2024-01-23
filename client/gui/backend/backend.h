@@ -45,6 +45,7 @@ public:
     void sendDisconnect();
     bool isDisconnected() const;
     CONNECT_STATE currentConnectState() const;
+    LocationID currentLocation() const;
 
     void firewallOn(bool updateHelperFirst = true);
     void firewallOff(bool updateHelperFirst = true);

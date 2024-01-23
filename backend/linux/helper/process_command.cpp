@@ -101,7 +101,7 @@ CMD_ANSWER splitTunnelingSettings(boost::archive::text_iarchive &ia)
     CMD_SPLIT_TUNNELING_SETTINGS cmd;
     ia >> cmd;
 
-    SplitTunneling::instance().setSplitTunnelingParams(cmd.isActive, cmd.isExclude, cmd.files, cmd.ips, cmd.hosts);
+    SplitTunneling::instance().setSplitTunnelingParams(cmd.isActive, cmd.isExclude, cmd.files, cmd.ips, cmd.hosts, cmd.isAllowLanTraffic);
     answer.executed = 1;
 
     return answer;
@@ -113,8 +113,11 @@ CMD_ANSWER sendConnectStatus(boost::archive::text_iarchive &ia)
     CMD_SEND_CONNECT_STATUS cmd;
     ia >> cmd;
 
-    SplitTunneling::instance().setConnectParams(cmd);
-    answer.executed = 1;
+    if (SplitTunneling::instance().setConnectParams(cmd)) {
+        answer.executed = 0;
+    } else {
+        answer.executed = 1;
+    }
 
     return answer;
 }
@@ -160,7 +163,8 @@ CMD_ANSWER configureWireGuard(boost::archive::text_iarchive &ia)
 
             if (!WireGuardController::instance().configure(cmd.clientPrivateKey,
                                                 cmd.peerPublicKey, cmd.peerPresharedKey,
-                                                cmd.peerEndpoint, allowed_ips_vector, fwmark)) {
+                                                cmd.peerEndpoint, allowed_ips_vector,
+                                                fwmark, cmd.listenPort)) {
                 Logger::instance().out("WireGuard: configure() failed");
                 break;
             }

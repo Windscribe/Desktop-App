@@ -99,8 +99,9 @@ void StaticIPDeviceInfo::leaveEvent(QEvent *event)
 
 void StaticIPDeviceInfo::mousePressEvent(QMouseEvent *event)
 {
-    Q_UNUSED(event);
-    pressed_ = true;
+    if (event->button() == Qt::LeftButton) {
+        pressed_ = true;
+    }
 }
 
 void StaticIPDeviceInfo::mouseReleaseEvent(QMouseEvent *event)

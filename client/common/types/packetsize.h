@@ -8,13 +8,31 @@ namespace types {
 
 struct PacketSize
 {
+    struct JsonInfo
+    {
+        JsonInfo& operator=(const JsonInfo&) { return *this; }
+
+        const QString kIsAutomaticProp = "isAutomatic";
+        const QString kMTUProp = "mtu";
+    };
+
     PacketSize() :
         isAutomatic(true),
         mtu(-1)     // -1 not set
     {}
 
+    PacketSize(const QJsonObject &json)
+    {
+        if (json.contains(jsonInfo.kIsAutomaticProp) && json[jsonInfo.kIsAutomaticProp].isBool())
+            isAutomatic = json[jsonInfo.kIsAutomaticProp].toBool();
+
+        if (json.contains(jsonInfo.kMTUProp) && json[jsonInfo.kMTUProp].isDouble())
+            mtu = json[jsonInfo.kMTUProp].toInt();
+    }
+
     bool isAutomatic;
     int mtu;
+    JsonInfo jsonInfo;
 
     bool operator==(const PacketSize &other) const
     {
@@ -24,6 +42,14 @@ struct PacketSize
     bool operator!=(const PacketSize &other) const
     {
         return !(*this == other);
+    }
+
+    QJsonObject toJson() const
+    {
+        QJsonObject json;
+        json[jsonInfo.kIsAutomaticProp] = isAutomatic;
+        json[jsonInfo.kMTUProp] = mtu;
+        return json;
     }
 
     friend QDataStream& operator <<(QDataStream &stream, const PacketSize &o)

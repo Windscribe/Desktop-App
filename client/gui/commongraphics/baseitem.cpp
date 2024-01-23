@@ -94,4 +94,9 @@ void BaseItem::onHideProgressChanged(const QVariant &value)
     }
 }
 
+bool BaseItem::isHidden()
+{
+    return hideProgress_ != 1.0;
+}
+
 } // namespace CommonGraphics

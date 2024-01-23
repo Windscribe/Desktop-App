@@ -749,6 +749,42 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>Unable to start custom DNS service.  Please ensure you don&apos;t have any other local DNS services running, or contact support.</source>
         <translation>사용자 지정 DNS 서비스를 시작할 수 없습니다.  실행 중인 다른 로컬 DNS 서비스가 없는지 확인하거나 지원팀에 문의하세요.</translation>
     </message>
+    <message>
+        <source>JSON Files (*.json)</source>
+        <translation>JSON 파일(*.json)</translation>
+    </message>
+    <message>
+        <source>Unable to import preferences</source>
+        <translation>기본 설정을 가져올 수 없습니다.</translation>
+    </message>
+    <message>
+        <source>Preferences can only be imported when the app is disconnected. Please disconnect and try again.</source>
+        <translation>기본 설정은 앱 연결이 끊어진 경우에만 가져올 수 있습니다. 연결을 끊고 다시 시도하십시오.</translation>
+    </message>
+    <message>
+        <source>The selected file&apos;s format is incorrect.</source>
+        <translation>선택한 파일의 형식이 잘못되었습니다.</translation>
+    </message>
+    <message>
+        <source>Export Preferences To</source>
+        <translation>기본 설정 내보내기 대상</translation>
+    </message>
+    <message>
+        <source>Import Preferences From</source>
+        <translation>다음에서 기본 설정 가져오기</translation>
+    </message>
+    <message>
+        <source>Could not open file.</source>
+        <translation>파일을 열 수 없습니다.</translation>
+    </message>
+    <message>
+        <source>Unable to export preferences</source>
+        <translation>기본 설정을 내보낼 수 없습니다.</translation>
+    </message>
+    <message>
+        <source>Could not open file for writing.  Check your permissions and try again.</source>
+        <translation>쓰기 위해 파일을 열 수 없습니다.  권한을 확인하고 다시 시도하세요.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -868,10 +904,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>계획</translation>
     </message>
     <message>
-        <source>Expires On</source>
-        <translation>만료일</translation>
-    </message>
-    <message>
         <source>Reset Date</source>
         <translation>날짜 재설정</translation>
     </message>
@@ -882,6 +914,10 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Manage Account</source>
         <translation>계정 관리</translation>
+    </message>
+    <message>
+        <source>Expiry Date</source>
+        <translation>만기일</translation>
     </message>
 </context>
 <context>
@@ -958,6 +994,18 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>DNS Manager</source>
         <translation>DNS 관리자</translation>
     </message>
+    <message>
+        <source>App Preferences</source>
+        <translation>앱 기본 설정</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <translation>수출</translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <translation>수입</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::ApiResolutionGroup</name>
@@ -981,6 +1029,14 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>Enter IP or Hostname</source>
         <translation>IP 또는 호스트 이름 입력</translation>
     </message>
+    <message>
+        <source>Invalid address</source>
+        <translation>잘못된 주소</translation>
+    </message>
+    <message>
+        <source>You have entered an invalid address for API resolution.  It has been reset to Auto.</source>
+        <translation>API 확인을 위해 잘못된 주소를 입력했습니다.  자동으로 재설정되었습니다.</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::BackgroundSettingsGroup</name>
@@ -993,11 +1049,7 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>연결</translation>
     </message>
     <message>
-        <source>Background</source>
-        <translation>배경</translation>
-    </message>
-    <message>
-        <source>Country Flags</source>
+        <source>Flags</source>
         <translation>국기</translation>
     </message>
     <message>
@@ -1007,6 +1059,10 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Custom</source>
         <translation>관습</translation>
+    </message>
+    <message>
+        <source>App Background</source>
+        <translation>앱 배경</translation>
     </message>
 </context>
 <context>
@@ -1138,6 +1194,10 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>LAN traffic is currently blocked by the Windscribe firewall.  Do you want to allow LAN traffic to bypass the firewall in order for this feature to work?</source>
         <translation>LAN 트래픽은 현재 Windscribe 방화벽에 의해 차단되어 있습니다.  이 기능이 작동하기 위해 LAN 트래픽이 방화벽을 우회하도록 허용하시겠습니까?</translation>
     </message>
+    <message>
+        <source>Disabling Allow LAN Traffic will cause your secure hotspot to stop working.  Do you want to disable the hotspot?</source>
+        <translation>LAN 트래픽 허용을 비활성화하면 보안 핫스팟이 작동을 멈춥니다.  핫스팟을 비활성화하시겠습니까?</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::DnsDomainsGroup</name>
@@ -1172,10 +1232,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>전송!</translation>
     </message>
     <message>
-        <source>Add</source>
-        <translation>더하다</translation>
-    </message>
-    <message>
         <source>Resend</source>
         <translation>재전송</translation>
     </message>
@@ -1198,6 +1254,10 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Email</source>
         <translation>이메일</translation>
+    </message>
+    <message>
+        <source>Add Email</source>
+        <translation>이메일 추가</translation>
     </message>
 </context>
 <context>
@@ -1953,10 +2013,6 @@ If the reinstall does not help, please contact Windscribe support for assistance
 <context>
     <name>QObject</name>
     <message>
-        <source>R.O.B.E.R.T.</source>
-        <translation>R.O.B.E.R.T. (영어)</translation>
-    </message>
-    <message>
         <source>Custom</source>
         <translation>관습</translation>
     </message>
@@ -2135,6 +2191,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Black</source>
         <translation>검정</translation>
+    </message>
+    <message>
+        <source>Forced</source>
+        <translation>강제</translation>
     </message>
 </context>
 <context>

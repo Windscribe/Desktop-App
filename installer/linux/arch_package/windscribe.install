@@ -34,7 +34,6 @@ post_install() {
         systemctl start NetworkManager.service
         systemctl enable systemd-resolved
         systemctl start systemd-resolved
-        systemctl preset windscribe-helper
         systemctl enable windscribe-helper
         systemctl start windscribe-helper
         ln -s /opt/windscribe/Windscribe /usr/bin/windscribe

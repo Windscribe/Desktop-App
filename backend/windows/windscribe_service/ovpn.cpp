@@ -18,8 +18,9 @@ bool writeOVPNFile(std::wstring &filename, const std::wstring &config)
     std::wistringstream stream(config);
     wchar_t* programFilesPath = NULL;
     HRESULT hr = SHGetKnownFolderPath(FOLDERID_ProgramFiles, 0, NULL, &programFilesPath);
-    if (hr < 0) {
+    if (FAILED(hr)) {
         Logger::instance().out("Failed to get Program Files dir");
+        CoTaskMemFree(programFilesPath);
         return false;
     }
     std::wstringstream filePath;

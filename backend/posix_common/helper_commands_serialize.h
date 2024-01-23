@@ -104,6 +104,7 @@ void serialize(Archive &ar, CMD_CONFIGURE_WIREGUARD &a, const unsigned int versi
     ar & a.peerEndpoint;
     ar & a.allowedIps;
     ar & a.dnsManager;
+    ar & a.listenPort;
 }
 
 template<class Archive>

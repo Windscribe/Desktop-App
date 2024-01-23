@@ -15,7 +15,7 @@
 #     foreign_option_3='dhcp-option DOMAIN be.bnc.ch'
 #
 
-[ -x /sbin/resolvconf ] || exit 0
+command -v resolvconf || exit 0
 [ "$script_type" ] || exit 0
 [ "$dev" ] || exit 0
 
@@ -66,9 +66,9 @@ case "$script_type" in
     done
 
     if [[ -z "${is_wireguard}" ]]; then
-        echo -n "$R" | /sbin/resolvconf -a "${dev}.openvpn"
+        echo -n "$R" | resolvconf -a "${dev}.openvpn"
     else
-        echo -n "$R" | /sbin/resolvconf -a "$(resolvconf_iface_prefix)${dev}" -m 0 -x
+        echo -n "$R" | resolvconf -a "$(resolvconf_iface_prefix)${dev}" -m 0 -x
     fi
 
   "$DNS_LEAK_SCRIPT" "up" ${dev} ${servers[@]}
@@ -76,9 +76,9 @@ case "$script_type" in
     ;;
   down)
     if [[ -z "${is_wireguard}" ]]; then
-        /sbin/resolvconf -d "${dev}.openvpn"
+        resolvconf -d "${dev}.openvpn"
     else
-        /sbin/resolvconf -d "$(resolvconf_iface_prefix)${dev}" -f
+        resolvconf -d "$(resolvconf_iface_prefix)${dev}" -f
     fi
 
     "$DNS_LEAK_SCRIPT" "down"

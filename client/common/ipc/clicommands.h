@@ -340,14 +340,14 @@ public:
     {
         QByteArray arr(buf, size);
         QDataStream ds(&arr, QIODevice::ReadOnly);
-        ds >> isLoggedIn_ >> waitingForLoginInfo_;
+        ds >> isLoggedIn_ >> waitingForLoginInfo_ >> connectState_ >> location_;
     }
 
     std::vector<char> getData() const override
     {
         QByteArray arr;
         QDataStream ds(&arr, QIODevice::WriteOnly);
-        ds << isLoggedIn_ << waitingForLoginInfo_;
+        ds << isLoggedIn_ << waitingForLoginInfo_ << connectState_ << location_;
         return std::vector<char>(arr.begin(), arr.end());
     }
 
@@ -360,6 +360,8 @@ public:
 
     bool isLoggedIn_ = false;
     bool waitingForLoginInfo_ = false;
+    CONNECT_STATE connectState_ = CONNECT_STATE_DISCONNECTED;
+    LocationID location_;
 };
 
 class LoginResult : public Command

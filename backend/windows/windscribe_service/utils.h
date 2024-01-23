@@ -33,8 +33,6 @@ namespace Utils
     void callNetworkAdapterMethod(const std::wstring &methodName, const std::wstring &adapterRegistryName);
     GUID guidFromString(const std::wstring &str);
 
-    bool isWindows7();
-
     bool addFilterV4(HANDLE engineHandle, std::vector<UINT64> *filterId, FWP_ACTION_TYPE type, UINT8 weight,
                      GUID subLayerKey, wchar_t *subLayerName, PNET_LUID pluid = nullptr,
                      const std::vector<Ip4AddressAndMask> *range = nullptr,

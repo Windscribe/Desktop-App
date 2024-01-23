@@ -30,7 +30,10 @@ public:
     QString linkText();
     void setLinkText(const QString &text);
     void setUrl(const QString &url);
+    // This is the icon on the left side of the link text, if any
     void setIcon(QSharedPointer<IndependentPixmap> icon);
+    // This is the icon on the far right (e.g. external link or subpage link arrow)
+    void setLinkIcon(QSharedPointer<IndependentPixmap> icon);
     void setInProgress(bool inProgress);
 
 private slots:
@@ -50,6 +53,7 @@ private:
     QString linkText_;
     LinkType type_;
     QSharedPointer<IndependentPixmap> icon_;
+    QSharedPointer<IndependentPixmap> linkIcon_;
     bool inProgress_;
     int spinnerRotation_;
 

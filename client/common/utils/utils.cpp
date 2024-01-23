@@ -1,19 +1,18 @@
 #include "utils.h"
-#include <random>
-#include <time.h>
-#include <thread>
-#include <limits>
+
 #include <QDir>
-#include "ws_assert.h"
+
+#include <thread>
+#include <time.h>
+
 #include "logger.h"
-#include <stdio.h>
+#include "ws_assert.h"
 
 #ifdef Q_OS_WIN
     #include <Windows.h>
     #include "winutils.h"
 #elif defined Q_OS_MAC
     #include "macutils.h"
-    #include "network_utils/network_utils_mac.h"
     #include <math.h>
     #include <unistd.h>
     #include <ApplicationServices/ApplicationServices.h>
@@ -194,43 +193,6 @@ QList<types::SplitTunnelingApp> Utils::insertionSort(QList<types::SplitTunneling
     return sortedApps;
 }
 
-QString Utils::generateRandomMacAddress()
-{
-    QString s;
-
-    for (int i = 0; i < 6; i++)
-    {
-        char buf[256];
-        int tp = generateIntegerRandom(0, 255);
-
-        // Lowest bit in first byte must not be 1 ( 0 - Unicast, 1 - multicast )
-        // 2nd lowest bit in first byte must be 1 ( 0 - device, 1 - locally administered mac address )
-        if ( i == 0)
-        {
-            tp |= 0x02;
-            tp &= 0xFE;
-        }
-
-        snprintf(buf, 256, "%s%X", tp < 16 ? "0" : "", tp);
-        s += QString::fromStdString(buf);
-    }
-    return s;
-}
-
-QString Utils::formatMacAddress(QString macAddress)
-{
-    // WS_ASSERT(macAddress.length() == 12);
-
-    QString formattedMac = QString("%1:%2:%3:%4:%5:%6").arg(macAddress.mid(0,2))
-            .arg(macAddress.mid(2,2))
-            .arg(macAddress.mid(4,2))
-            .arg(macAddress.mid(6,2))
-            .arg(macAddress.mid(8,2))
-            .arg(macAddress.mid(10,2));
-
-    return formattedMac;
-}
-
 bool Utils::isGuiAlreadyRunning()
 {
 #ifdef Q_OS_WIN
@@ -239,74 +201,6 @@ bool Utils::isGuiAlreadyRunning()
     return MacUtils::isGuiAlreadyRunning();
 #elif defined Q_OS_LINUX
     return LinuxUtils::isGuiAlreadyRunning();
-#endif
-}
-
-bool Utils::sameNetworkInterface(const types::NetworkInterface &interface1, const types::NetworkInterface &interface2)
-{
-    if (interface1.interfaceIndex != interface2.interfaceIndex)      return false;
-    else if (interface1.interfaceName != interface2.interfaceName)   return false;
-    else if (interface1.interfaceGuid != interface2.interfaceGuid)   return false;
-    else if (interface1.networkOrSsid != interface2.networkOrSsid)   return false;
-    else if (interface1.friendlyName != interface2.friendlyName)     return false;
-    return true;
-}
-
-types::NetworkInterface Utils::noNetworkInterface()
-{
-    return types::NetworkInterface::noNetworkInterface();
-}
-
-types::NetworkInterface Utils::interfaceByName(const QVector<types::NetworkInterface> &interfaces, const QString &interfaceName)
-{
-    auto sameInterfaceName = [&interfaceName](const types::NetworkInterface &ni)
-    {
-        return (ni.interfaceName == interfaceName);
-    };
-
-    auto it = std::find_if(interfaces.begin(), interfaces.end(), sameInterfaceName);
-    if (it == interfaces.end())
-    {
-        return noNetworkInterface();
-    }
-    return *it;
-}
-
-QVector<types::NetworkInterface> Utils::interfacesExceptOne(const QVector<types::NetworkInterface> &interfaces, const types::NetworkInterface &exceptInterface)
-{
-    auto differentInterfaceName = [&exceptInterface](const types::NetworkInterface &ni)
-    {
-        return ni.interfaceName != exceptInterface.interfaceName;
-    };
-
-    QVector<types::NetworkInterface> resultInterfaces;
-    std::copy_if(interfaces.begin(), interfaces.end(),  std::back_inserter(resultInterfaces), differentInterfaceName);
-    return resultInterfaces;
-}
-
-bool Utils::pingWithMtu(const QString &url, int mtu)
-{
-#ifdef Q_OS_WIN
-    return WinUtils::pingWithMtu(url, mtu);
-#elif defined Q_OS_MAC
-    return NetworkUtils_mac::pingWithMtu(url, mtu);
-#elif defined Q_OS_LINUX
-    //todo linux
-    WS_ASSERT(false);
-    Q_UNUSED(url);
-    Q_UNUSED(mtu);
-    return true;
-#endif
-}
-
-QString Utils::getLocalIP()
-{
-#ifdef Q_OS_WIN
-    return WinUtils::getLocalIP();
-#elif defined Q_OS_MAC
-    return NetworkUtils_mac::getLocalIP();
-#elif defined Q_OS_LINUX
-    return LinuxUtils::getLocalIP();
 #endif
 }
 
@@ -342,55 +236,12 @@ const QString Utils::filenameQuotedDouble(const QString &filename)
 
 bool Utils::copyDirectoryRecursive(QString fromDir, QString toDir)
 {
-    if (!QFileInfo::exists(fromDir))
-    {
-        return false;
-    }
+    const auto opts = std::filesystem::copy_options::recursive |
+                      std::filesystem::copy_options::copy_symlinks;
+    std::error_code ec;
+    std::filesystem::copy(fromDir.toStdString(), toDir.toStdString(), opts, ec);
 
-    QDir dir;
-    dir.setPath(fromDir);
-
-    fromDir += QDir::separator();
-    toDir += QDir::separator();
-
-    const auto copy_file_list = dir.entryList(QDir::Files);
-    for (const QString &copy_file : copy_file_list)
-    {
-        QString from = fromDir + copy_file;
-        QString to = toDir + copy_file;
-
-        if (QFile::exists(to))
-        {
-            if (QFile::remove(to) == false)
-            {
-                return false;
-            }
-        }
-
-        if (QFile::copy(from, to) == false)
-        {
-            return false;
-        }
-    }
-
-    const auto copy_dir_list = dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
-    for (const QString &copy_dir : copy_dir_list)
-    {
-        QString from = fromDir + copy_dir;
-        QString to = toDir + copy_dir;
-
-        if (dir.mkpath(to) == false)
-        {
-            return false;
-        }
-        if (Utils::copyDirectoryRecursive(from, to) == false)
-        {
-            return false;
-        }
-    }
-    return true;
-
-
+    return !ec;
 }
 
 bool Utils::removeDirectory(const QString dir)
@@ -457,3 +308,13 @@ QString Utils::execCmd(const QString &cmd)
     return result;
 }
 #endif
+
+QString Utils::toBase64(const QString &str)
+{
+    return QString(str.toUtf8().toBase64());
+}
+
+QString Utils::fromBase64(const QString& str)
+{
+    return QString::fromUtf8(QByteArray::fromBase64(str.toUtf8()));
+}

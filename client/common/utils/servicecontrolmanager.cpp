@@ -688,11 +688,14 @@ void ServiceControlManager::installService(LPCTSTR pszServiceName,  LPCTSTR pszB
         throw std::system_error(ERROR_NOT_SUPPORTED, std::system_category(), "InstallService can only be run on the local machine");
     }
 
+    closeService();
+
     m_hService = ::CreateService(m_hSCM, pszServiceName, pszDisplayName,
                                  SERVICE_ALL_ACCESS, dwServiceType, dwStartType,
                                  SERVICE_ERROR_NORMAL, pszBinaryPathName, NULL, NULL,
                                  pszDependencies, NULL, NULL);
     if (m_hService != NULL) {
+        m_sServiceName = pszServiceName;
         setServiceDescription(pszDescription);
 
         if (bAllowInteractiveUserStart) {

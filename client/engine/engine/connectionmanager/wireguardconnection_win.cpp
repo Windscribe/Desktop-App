@@ -9,8 +9,8 @@
 #include "types/wireguardtypes.h"
 #include "utils/crashhandler.h"
 #include "utils/logger.h"
+#include "utils/network_utils/network_utils_win.h"
 #include "utils/servicecontrolmanager.h"
-#include "utils/winutils.h"
 #include "utils/timer_win.h"
 #include "utils/ws_assert.h"
 
@@ -313,7 +313,7 @@ void WireGuardConnection::onAutomaticConnectionTimeout()
 
 void WireGuardConnection::onWireguardHandshakeFailure()
 {
-    auto haveInternet = WinUtils::haveInternetConnectivity();
+    auto haveInternet = NetworkUtils_win::haveInternetConnectivity();
     if (!haveInternet.has_value()) {
         qCDebug(LOG_CONNECTION) << "The WireGuard service reported a handshake failure, but the Internet connectivity check failed.";
         return;
@@ -362,7 +362,7 @@ bool WireGuardConnection::startService()
 void WireGuardConnection::onTunnelConnected()
 {
     connectedSignalEmited_ = true;
-    AdapterGatewayInfo info = AdapterUtils_win::getWireguardConnectedAdapterInfo(kServiceIdentifier);
+    AdapterGatewayInfo info = AdapterUtils_win::getConnectedAdapterInfo(kServiceIdentifier);
     emit connected(info);
 }
 

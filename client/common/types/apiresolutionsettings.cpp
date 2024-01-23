@@ -7,6 +7,15 @@ ApiResolutionSettings::ApiResolutionSettings() : bAutomatic_(true)
 {
 }
 
+ApiResolutionSettings::ApiResolutionSettings(const QJsonObject &json)
+{
+    if (json.contains(jsonInfo_.kIsAutomaticProp) && json[jsonInfo_.kIsAutomaticProp].isBool())
+        bAutomatic_ = json[jsonInfo_.kIsAutomaticProp].toBool();
+
+    if (json.contains(jsonInfo_.kManualAddressProp) && json[jsonInfo_.kManualAddressProp].isString())
+        manualAddress_ = json[jsonInfo_.kManualAddressProp].toString();
+}
+
 void ApiResolutionSettings::set(bool bAutomatic, const QString &manualAddress)
 {
     bAutomatic_ = bAutomatic;

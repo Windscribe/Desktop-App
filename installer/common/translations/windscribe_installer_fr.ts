@@ -74,7 +74,7 @@
     </message>
     <message>
         <source>Quit</source>
-        <translation>Démissionner</translation>
+        <translation>Quitter</translation>
     </message>
     <message>
         <source>Cancel</source>

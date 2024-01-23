@@ -1,5 +1,7 @@
 #pragma once
 
+#include <QJsonArray>
+#include <QJsonObject>
 #include <QSharedData>
 #include <QSharedDataPointer>
 #include <QString>
@@ -19,6 +21,32 @@ namespace types {
 
 struct EngineSettingsData : public QSharedData
 {
+    struct JsonInfo {
+        const QString kApiResolutionSettingsProp = "apiResolutionSettings";
+        const QString kConnectedDnsInfoProp = "connectedDnsInfo";
+        const QString kConnectionSettingsProp = "connectionSettings";
+        const QString kCustomOvpnConfigsPathProp = "customOvpnConfigsPath";
+        const QString kDnsManagerProp = "dnsManager";
+        const QString kDnsPolicyProp = "dnsPolicy";
+        const QString kFirewallSettingsProp = "firewallSettings";
+        const QString kIsAllowLanTrafficProp = "isAllowLanTraffic";
+        const QString kIsAntiCensorshipProp = "isAntiCensorship";
+        const QString kIsIgnoreSslErrorsProp = "isIgnoreSslErrors";
+        const QString kIsKeepAliveEnabledProp = "isKeepAliveEnabled";
+        const QString kIsTerminateSocketsProp = "isTerminateSockets";
+        const QString kLanguageProp = "language";
+        const QString kMacAddrSpoofingProp = "macAddrSpoofing";
+        const QString kNetworkLastKnownGoodProtocolsProp = "networkLastKnownGoodProtocols";
+        const QString kNetworkPreferredProtocolsProp = "networkPreferredProtocols";
+        const QString kPacketSizeProp = "packetSize";
+        const QString kProtocolProp = "protocol";
+        const QString kProxySettingsProp = "proxySettings";
+        const QString kTapAdapterProp = "tapAdapter";
+        const QString kUpdateChannelProp = "updateChannel";
+        const QString kValueProp = "value";
+        const QString kVersionProp = "version";
+    };
+
     EngineSettingsData() :
         updateChannel(UPDATE_CHANNEL_RELEASE),
         isIgnoreSslErrors(false),
@@ -31,7 +59,6 @@ struct EngineSettingsData : public QSharedData
         dnsManager(DNS_MANAGER_AUTOMATIC)
     {}
 
-    QString language;
     UPDATE_CHANNEL updateChannel;
     bool isIgnoreSslErrors;
     bool isTerminateSockets;
@@ -51,6 +78,11 @@ struct EngineSettingsData : public QSharedData
     DNS_MANAGER_TYPE dnsManager;
     QMap<QString, types::ConnectionSettings> networkPreferredProtocols;
     QMap<QString, std::pair<types::Protocol, uint>> networkLastKnownGoodProtocols;
+    QString language;
+
+    JsonInfo jsonInfo;
+
+    QJsonObject toJson() const;
 };
 
 
@@ -59,6 +91,7 @@ class EngineSettings
 {
 public:
     explicit EngineSettings();
+    EngineSettings(const QJsonObject& json);
 
     void saveToSettings();
     bool loadFromSettings();
@@ -113,6 +146,7 @@ public:
 
     bool operator==(const EngineSettings &other) const;
     bool operator!=(const EngineSettings &other) const;
+    QJsonObject toJson() const;
 
     friend QDebug operator<<(QDebug dbg, const EngineSettings &es);
 

@@ -3,7 +3,9 @@
 #include <string>
 #include <mutex>
 #include <vector>
+#include "cgroups.h"
 #include "hostnames_manager/hostnames_manager.h"
+#include "process_monitor.h"
 #include "../routes_manager/routes.h"
 #include "../routes_manager/routes_manager.h"
 #include "../../../posix_common/helper_commands.h"
@@ -17,9 +19,9 @@ public:
         return st;
     }
 
-    void setConnectParams(CMD_SEND_CONNECT_STATUS &connectStatus);
+    bool setConnectParams(CMD_SEND_CONNECT_STATUS &connectStatus);
     void setSplitTunnelingParams(bool isActive, bool isExclude, const std::vector<std::string> &apps,
-                                 const std::vector<std::string> &ips, const std::vector<std::string> &hosts);
+                                 const std::vector<std::string> &ips, const std::vector<std::string> &hosts, bool isAllowLanTraffic);
 
 private:
     std::mutex mutex_;
@@ -28,11 +30,14 @@ private:
 
     bool isSplitTunnelActive_;
     bool isExclude_;
+    bool isAllowLanTraffic_;
 
     HostnamesManager hostnamesManager_;
     RoutesManager routesManager_;
 
+    std::vector<std::string> apps_;
+
     SplitTunneling();
     ~SplitTunneling();
-    void updateState();
+    bool updateState();
 };

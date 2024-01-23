@@ -1,44 +1,26 @@
 #pragma once
 
-#include <QList>
 #include <QString>
+#include <QStringList>
 
 namespace LinuxUtils
 {
-    QString getOsVersionString();
-    void getDefaultRoute(QString &outGatewayIp, QString &outInterfaceName, QString &outAdapterIp);
-    QString getLinuxKernelVersion();
-    const QString getLastInstallPlatform();
-    QString getLocalIP();
-
-    // CLI
-    bool isGuiAlreadyRunning();
-
     const QString LAST_INSTALL_PLATFORM_FILE = "/etc/windscribe/platform";
     const QString DEB_PLATFORM_NAME_X64 = QString("linux_deb_x64");
     const QString DEB_PLATFORM_NAME_ARM64 = QString("linux_deb_arm64");
     const QString RPM_PLATFORM_NAME = QString("linux_rpm_x64");
     const QString ZST_PLATFORM_NAME = QString("linux_zst_x64");
 
-    class RoutingTableEntry
-    {
-    public:
-        bool isIPv4() const;
+    QString getOsVersionString();
+    QString getLinuxKernelVersion();
+    const QString getLastInstallPlatform();
 
-    public:
-        int metric = 0;
-        int hopcount = 0;
-        int mtu = 0;
-        int flags = 0;
-        int netmask = 0; // This is the cidr-formatted mask
-        int family = 0;
-        QString interface;
-        QString gateway;
-        QString source;
-        QString destination;
-        QString type;
-    };
+    // CLI
+    bool isGuiAlreadyRunning();
 
-    // Retrieve the routing table via Netlink API.
-    QList<RoutingTableEntry> getRoutingTable(bool includeZeroMetricEntries);
+    // Split Tunneling
+    QMap<QString, QString> enumerateInstalledPrograms();
+    QString extractExeName(const QString &execLine);
+    QString unescape(const QString &in);
+    QString convertToAbsolutePath(const QString &in);
 }

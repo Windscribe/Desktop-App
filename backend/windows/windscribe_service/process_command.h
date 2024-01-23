@@ -77,8 +77,10 @@ MessagePacketResult connectStatus(boost::archive::text_iarchive &ia);
 MessagePacketResult suspendUnblockingCmd(boost::archive::text_iarchive &ia);
 MessagePacketResult connectedDns(boost::archive::text_iarchive &ia);
 MessagePacketResult makeHostsFileWritable(boost::archive::text_iarchive &ia);
-MessagePacketResult createWintunAdapter(boost::archive::text_iarchive &ia);
-MessagePacketResult removeWintunAdapter(boost::archive::text_iarchive &ia);
+MessagePacketResult createOpenVPNAdapter(boost::archive::text_iarchive &ia);
+MessagePacketResult removeOpenVPNAdapter(boost::archive::text_iarchive &ia);
+MessagePacketResult disableDohSettings(boost::archive::text_iarchive &ia);
+MessagePacketResult enableDohSettings(boost::archive::text_iarchive &ia);
 
 static const std::map<const int, std::function<MessagePacketResult(boost::archive::text_iarchive &)>> kCommands = {
     { AA_COMMAND_FIREWALL_ON, firewallOn },
@@ -130,8 +132,10 @@ static const std::map<const int, std::function<MessagePacketResult(boost::archiv
     { AA_COMMAND_SUSPEND_UNBLOCKING_CMD, suspendUnblockingCmd },
     { AA_COMMAND_CONNECTED_DNS, connectedDns },
     { AA_COMMAND_MAKE_HOSTS_FILE_WRITABLE, makeHostsFileWritable },
-    { AA_COMMAND_CREATE_WINTUN_ADAPTER, createWintunAdapter },
-    { AA_COMMAND_REMOVE_WINTUN_ADAPTER, removeWintunAdapter },
+    { AA_COMMAND_CREATE_OPENVPN_ADAPTER, createOpenVPNAdapter },
+    { AA_COMMAND_REMOVE_OPENVPN_ADAPTER, removeOpenVPNAdapter },
+    { AA_COMMAND_DISABLE_DOH_SETTINGS, disableDohSettings },
+    { AA_COMMAND_ENABLE_DOH_SETTINGS, enableDohSettings }
 };
 
 MessagePacketResult processCommand(int cmdId, const std::string &packet);

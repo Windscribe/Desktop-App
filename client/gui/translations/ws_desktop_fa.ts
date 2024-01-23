@@ -749,6 +749,42 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>Unable to start custom DNS service.  Please ensure you don&apos;t have any other local DNS services running, or contact support.</source>
         <translation>قادر به شروع سرویس DNS سفارشی نیست.  لطفا اطمینان حاصل کنید که هیچ سرویس DNS محلی دیگری در حال اجرا ندارید یا با پشتیبانی تماس بگیرید.</translation>
     </message>
+    <message>
+        <source>JSON Files (*.json)</source>
+        <translation>فایل های JSON (*.json)</translation>
+    </message>
+    <message>
+        <source>Unable to import preferences</source>
+        <translation>وارد کردن ترجیحات ممکن نیست</translation>
+    </message>
+    <message>
+        <source>Preferences can only be imported when the app is disconnected. Please disconnect and try again.</source>
+        <translation>ترجیحات تنها زمانی می توانند وارد شوند که برنامه قطع شده باشد. لطفا ارتباط را قطع کنید و دوباره تلاش کنید.</translation>
+    </message>
+    <message>
+        <source>The selected file&apos;s format is incorrect.</source>
+        <translation>قالب پرونده انتخاب شده نادرست است.</translation>
+    </message>
+    <message>
+        <source>Export Preferences To</source>
+        <translation>صادرات ترجیحات به</translation>
+    </message>
+    <message>
+        <source>Import Preferences From</source>
+        <translation>واردات ترجیحات از</translation>
+    </message>
+    <message>
+        <source>Could not open file.</source>
+        <translation>نتوانست پرونده را باز کند.</translation>
+    </message>
+    <message>
+        <source>Unable to export preferences</source>
+        <translation>صدور ترجیحات ممکن نیست</translation>
+    </message>
+    <message>
+        <source>Could not open file for writing.  Check your permissions and try again.</source>
+        <translation>نتوانست پرونده را برای نوشتن باز کند.  مجوزهای خود را بررسی کنید و دوباره امتحان کنید.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -868,10 +904,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>طرح</translation>
     </message>
     <message>
-        <source>Expires On</source>
-        <translation>انقضای در</translation>
-    </message>
-    <message>
         <source>Reset Date</source>
         <translation>تاریخ بازنشانی</translation>
     </message>
@@ -882,6 +914,10 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Manage Account</source>
         <translation>مدیریت حساب</translation>
+    </message>
+    <message>
+        <source>Expiry Date</source>
+        <translation>تاریخ انقضا</translation>
     </message>
 </context>
 <context>
@@ -958,6 +994,18 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>DNS Manager</source>
         <translation>مدیر DNS</translation>
     </message>
+    <message>
+        <source>App Preferences</source>
+        <translation>ترجیحات برنامه</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <translation>صادرات</translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <translation>واردات</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::ApiResolutionGroup</name>
@@ -981,6 +1029,14 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>Enter IP or Hostname</source>
         <translation>IP یا Hostname را وارد کنید</translation>
     </message>
+    <message>
+        <source>Invalid address</source>
+        <translation>نشانی نامعتبر</translation>
+    </message>
+    <message>
+        <source>You have entered an invalid address for API resolution.  It has been reset to Auto.</source>
+        <translation>شما یک ادرس نامعتبر برای وضوح API وارد کرده اید.  به Auto بازنشانی شده است.</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::BackgroundSettingsGroup</name>
@@ -993,11 +1049,7 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>متصل</translation>
     </message>
     <message>
-        <source>Background</source>
-        <translation>پس زمینه</translation>
-    </message>
-    <message>
-        <source>Country Flags</source>
+        <source>Flags</source>
         <translation>پرچم کشور</translation>
     </message>
     <message>
@@ -1007,6 +1059,10 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Custom</source>
         <translation>سفارشی</translation>
+    </message>
+    <message>
+        <source>App Background</source>
+        <translation>زمینه برنامه</translation>
     </message>
 </context>
 <context>
@@ -1138,6 +1194,10 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>LAN traffic is currently blocked by the Windscribe firewall.  Do you want to allow LAN traffic to bypass the firewall in order for this feature to work?</source>
         <translation>ترافیک LAN در حال حاضر توسط فایروال Windscribe مسدود شده است.  ایا می خواهید به ترافیک LAN اجازه دهید تا فایروال را دور بزند تا این ویژگی کار کند؟</translation>
     </message>
+    <message>
+        <source>Disabling Allow LAN Traffic will cause your secure hotspot to stop working.  Do you want to disable the hotspot?</source>
+        <translation>غیرفعال کردن Allow LAN Traffic باعث می شود که کانون امن شما کار خود را متوقف کند.  ایا می خواهید کانون را غیرفعال کنید؟</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::DnsDomainsGroup</name>
@@ -1172,10 +1232,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>فرستاده!</translation>
     </message>
     <message>
-        <source>Add</source>
-        <translation>اضافه کردن</translation>
-    </message>
-    <message>
         <source>Resend</source>
         <translation>ارسال مجدد</translation>
     </message>
@@ -1198,6 +1254,10 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Email</source>
         <translation>ایمیل</translation>
+    </message>
+    <message>
+        <source>Add Email</source>
+        <translation>افزودن ایمیل</translation>
     </message>
 </context>
 <context>
@@ -1953,10 +2013,6 @@ If the reinstall does not help, please contact Windscribe support for assistance
 <context>
     <name>QObject</name>
     <message>
-        <source>R.O.B.E.R.T.</source>
-        <translation>R.O.B.E.R.T.</translation>
-    </message>
-    <message>
         <source>Custom</source>
         <translation>سفارشی</translation>
     </message>
@@ -2135,6 +2191,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Black</source>
         <translation>سیاه</translation>
+    </message>
+    <message>
+        <source>Forced</source>
+        <translation>مجبور</translation>
     </message>
 </context>
 <context>

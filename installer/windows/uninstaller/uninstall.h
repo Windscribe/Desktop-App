@@ -36,6 +36,7 @@ private:
     static bool ProcessMsgs();
 
     static void UninstallSplitTunnelDriver(const std::wstring& installationPath);
+    static void UninstallOpenVPNDCODriver(const std::wstring& installationPath);
 
     static void DeleteService();
 };

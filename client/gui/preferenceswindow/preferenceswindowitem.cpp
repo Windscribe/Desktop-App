@@ -4,6 +4,9 @@
 #include <QCursor>
 #include <QGraphicsSceneMouseEvent>
 #include <QCoreApplication>
+#if defined(Q_OS_LINUX)
+#include <unistd.h>
+#endif
 
 #include "graphicresources/imageresourcessvg.h"
 #include "preferencestab/preferencestabcontrolitem.h"
@@ -62,6 +65,8 @@ PreferencesWindowItem::PreferencesWindowItem(QGraphicsObject *parent, Preference
     connect(robertWindowItem_, &RobertWindowItem::setRobertFilter, this, &PreferencesWindowItem::setRobertFilter);
     helpWindowItem_ = new HelpWindowItem(nullptr, preferences, preferencesHelper);
     connect(helpWindowItem_, &HelpWindowItem::viewLogClick, this, &PreferencesWindowItem::viewLogClick);
+    connect(advancedWindowItem_, &AdvancedWindowItem::exportSettingsClick, this, &PreferencesWindowItem::exportSettingsClick);
+    connect(advancedWindowItem_, &AdvancedWindowItem::importSettingsClick, this, &PreferencesWindowItem::importSettingsClick);
     connect(helpWindowItem_, &HelpWindowItem::sendLogClick, this, &PreferencesWindowItem::sendDebugLogClick);
     aboutWindowItem_ = new AboutWindowItem(nullptr, preferences, preferencesHelper);
 
@@ -430,7 +435,18 @@ void PreferencesWindowItem::addApplicationManually(QString filename)
     app.name = friendlyName;
     app.active = true;
     app.type = SPLIT_TUNNELING_APP_TYPE_USER;
+#if defined(Q_OS_LINUX)
+    // On Linux, get the canonical path (without ., .., or symlinks)
+    std::error_code ec;
+    app.fullName = QString::fromStdString(std::filesystem::canonical(filename.toStdString(), ec));
+
+    if (ec) {
+        WS_ASSERT(false);
+        app.fullName = filename;
+    }
+#else
     app.fullName = filename;
+#endif
     apps.append(app);
 
     updateSplitTunnelingAppsCount(apps);
@@ -568,6 +584,11 @@ void PreferencesWindowItem::setSplitTunnelingActive(bool active)
 void PreferencesWindowItem::onCollapse()
 {
     robertWindowItem_->setLoading(false);
+}
+
+void PreferencesWindowItem::setPreferencesImportCompleted()
+{
+    advancedWindowItem_->setPreferencesImportCompleted();
 }
 
 void PreferencesWindowItem::setWebSessionCompleted()

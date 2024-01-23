@@ -28,16 +28,23 @@ int Files::executeStep()
         // file extraction is complete.
         installPath_ = ApplicationInfo::defaultInstallPath();
 
-        if (::SHCreateDirectoryEx(NULL, installPath_.c_str(), NULL) != ERROR_SUCCESS)
-        {
-            if (::GetLastError() != ERROR_ALREADY_EXISTS)
-            {
-                Log::instance().out(L"Failed to create install directory");
+        if (filesystem::exists(installPath_)) {
+            if (!filesystem::is_empty(installPath_)) {
+                Log::instance().out(L"Warning: the default install directory exists and is not empty.");
+            }
+        }
+        else {
+            auto result = ::SHCreateDirectoryEx(NULL, installPath_.c_str(), NULL);
+            if (result != ERROR_SUCCESS) {
+                Log::instance().out(L"Failed to create default install directory (%d)", result);
                 return -1;
             }
         }
 
         archive_.reset(new Archive(L"Windscribe"));
+        archive_->setLogFunction([](const char* str) {
+            Log::instance().out((std::string("(archive) ") + str).c_str());
+        });
 
         SRes res = archive_->fileList(fileList_);
 
@@ -65,6 +72,10 @@ int Files::executeStep()
     if (curFileInd_ >= (archive_->getNumFiles() - 1))
     {
         archive_->finish();
+        if (!copyLibs()) {
+            Log::instance().out(L"Failed to copy libs");
+            return -1;
+        }
         return moveFiles();
     }
 
@@ -127,4 +138,49 @@ int Files::moveFiles()
     }
 
     return 100;
+}
+
+bool Files::copyLibs()
+{
+    std::error_code ec;
+
+    const filesystem::path installPath = installPath_;
+    const wstring exeStr = getExePath();
+    if (exeStr.empty()) {
+        Log::instance().out(L"Could not get exe path");
+        return false;
+    }
+    const filesystem::path exePath = exeStr;
+
+    // Copy DLLs
+    for (const auto &entry : filesystem::directory_iterator(exePath)) {
+        if (entry.is_regular_file() && entry.path().extension() == ".dll") {
+            filesystem::copy_file(entry.path(), installPath / entry.path().filename(), ec);
+            if (ec) {
+                Log::instance().out(L"Could not copy DLL %ls", entry.path().wstring().c_str());
+                return false;
+            }
+        }
+    }
+
+    // Copy Qt plugins
+    std::wstring paths[3] = { L"imageformats", L"platforms", L"styles" };
+    for (auto p : paths) {
+        filesystem::copy(exePath / p, installPath / p, ec);
+        if (ec) {
+            Log::instance().out(L"Could not copy %ls", p.c_str());
+            return false;
+        }
+    }
+    return true;
+}
+
+wstring Files::getExePath()
+{
+    wchar_t path[MAX_PATH];
+	int ret = GetModuleFileName(NULL, path, MAX_PATH);
+    if (ret == 0) {
+        return wstring();
+    }
+    return filesystem::path(path).parent_path().wstring();
 }

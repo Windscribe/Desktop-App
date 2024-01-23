@@ -749,6 +749,42 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
         <source>Unable to start custom DNS service.  Please ensure you don&apos;t have any other local DNS services running, or contact support.</source>
         <translation>No se puede iniciar el servicio DNS personalizado.  Asegúrese de que no tiene ningún otro servicio de DNS local en ejecución o póngase en contacto con el soporte técnico.</translation>
     </message>
+    <message>
+        <source>JSON Files (*.json)</source>
+        <translation>Archivos JSON (*.json)</translation>
+    </message>
+    <message>
+        <source>Unable to import preferences</source>
+        <translation>No se pueden importar preferencias</translation>
+    </message>
+    <message>
+        <source>Preferences can only be imported when the app is disconnected. Please disconnect and try again.</source>
+        <translation>Las preferencias solo se pueden importar cuando la aplicación está desconectada. Desconéctate e inténtalo de nuevo.</translation>
+    </message>
+    <message>
+        <source>The selected file&apos;s format is incorrect.</source>
+        <translation>El formato del archivo seleccionado es incorrecto.</translation>
+    </message>
+    <message>
+        <source>Export Preferences To</source>
+        <translation>Preferencias de exportación a</translation>
+    </message>
+    <message>
+        <source>Import Preferences From</source>
+        <translation>Preferencias de importación desde</translation>
+    </message>
+    <message>
+        <source>Could not open file.</source>
+        <translation>No se pudo abrir el archivo.</translation>
+    </message>
+    <message>
+        <source>Unable to export preferences</source>
+        <translation>No se pueden exportar las preferencias</translation>
+    </message>
+    <message>
+        <source>Could not open file for writing.  Check your permissions and try again.</source>
+        <translation>No se pudo abrir el archivo para escribir.  Compruebe sus permisos e inténtelo de nuevo.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -868,10 +904,6 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
         <translation>PLAN</translation>
     </message>
     <message>
-        <source>Expires On</source>
-        <translation>Caduca el</translation>
-    </message>
-    <message>
         <source>Reset Date</source>
         <translation>Fecha de restablecimiento</translation>
     </message>
@@ -882,6 +914,10 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
     <message>
         <source>Manage Account</source>
         <translation>Administrar cuenta</translation>
+    </message>
+    <message>
+        <source>Expiry Date</source>
+        <translation>Fecha de caducidad</translation>
     </message>
 </context>
 <context>
@@ -958,6 +994,18 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
         <source>DNS Manager</source>
         <translation>Administrador de DNS</translation>
     </message>
+    <message>
+        <source>App Preferences</source>
+        <translation>Preferencias de la aplicación</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <translation>Exportar</translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <translation>Importación</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::ApiResolutionGroup</name>
@@ -981,6 +1029,14 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
         <source>Enter IP or Hostname</source>
         <translation>Introduzca IP o nombre de host</translation>
     </message>
+    <message>
+        <source>Invalid address</source>
+        <translation>Dirección no válida</translation>
+    </message>
+    <message>
+        <source>You have entered an invalid address for API resolution.  It has been reset to Auto.</source>
+        <translation>Ha introducido una dirección no válida para la resolución de la API.  Se ha restablecido a Auto.</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::BackgroundSettingsGroup</name>
@@ -993,11 +1049,7 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
         <translation>Conectado</translation>
     </message>
     <message>
-        <source>Background</source>
-        <translation>Fondo</translation>
-    </message>
-    <message>
-        <source>Country Flags</source>
+        <source>Flags</source>
         <translation>Banderas de países</translation>
     </message>
     <message>
@@ -1007,6 +1059,10 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
     <message>
         <source>Custom</source>
         <translation>Personalizado</translation>
+    </message>
+    <message>
+        <source>App Background</source>
+        <translation>Fondo de la aplicación</translation>
     </message>
 </context>
 <context>
@@ -1138,6 +1194,10 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
         <source>Connect to the VPN even in hostile environment.</source>
         <translation>Conéctese a la VPN incluso en un entorno hostil.</translation>
     </message>
+    <message>
+        <source>Disabling Allow LAN Traffic will cause your secure hotspot to stop working.  Do you want to disable the hotspot?</source>
+        <translation>Deshabilitar Permitir tráfico LAN hará que su punto de acceso seguro deje de funcionar.  ¿Quieres desactivar el punto de acceso?</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::DnsDomainsGroup</name>
@@ -1172,10 +1232,6 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
         <translation>¡Enviado!</translation>
     </message>
     <message>
-        <source>Add</source>
-        <translation>Añadir</translation>
-    </message>
-    <message>
         <source>Resend</source>
         <translation>Reenviar</translation>
     </message>
@@ -1198,6 +1254,10 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
     <message>
         <source>Email</source>
         <translation>Correo electrónico</translation>
+    </message>
+    <message>
+        <source>Add Email</source>
+        <translation>Agregar correo electrónico</translation>
     </message>
 </context>
 <context>
@@ -1953,10 +2013,6 @@ Si la reinstalación no ayuda, póngase en contacto con el soporte de Windscribe
 <context>
     <name>QObject</name>
     <message>
-        <source>R.O.B.E.R.T.</source>
-        <translation>R.O.B.E.R.T.</translation>
-    </message>
-    <message>
         <source>Custom</source>
         <translation>Personalizado</translation>
     </message>
@@ -2135,6 +2191,10 @@ Si la reinstalación no ayuda, póngase en contacto con el soporte de Windscribe
     <message>
         <source>Black</source>
         <translation>Negro</translation>
+    </message>
+    <message>
+        <source>Forced</source>
+        <translation>Forzado</translation>
     </message>
 </context>
 <context>

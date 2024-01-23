@@ -131,7 +131,8 @@ bool KernelModuleCommunicator::setPeerEndpoint(wg_peer *peer, const std::string 
 
 bool KernelModuleCommunicator::configure(const std::string &clientPrivateKey,
     const std::string &peerPublicKey, const std::string &peerPresharedKey,
-    const std::string &peerEndpoint, const std::vector<std::string> &allowedIps, uint32_t fwmark)
+    const std::string &peerEndpoint, const std::vector<std::string> &allowedIps,
+    uint32_t fwmark, uint16_t listenPort)
 {
     std::string buf;
     wg_peer new_peer;
@@ -185,6 +186,10 @@ bool KernelModuleCommunicator::configure(const std::string &clientPrivateKey,
     new_device.first_peer = &new_peer;
     new_device.last_peer = &new_peer;
     new_device.fwmark = fwmark;
+    if (listenPort) {
+        new_device.flags = (enum wg_device_flags)(WGDEVICE_HAS_LISTEN_PORT | new_device.flags);
+        new_device.listen_port = listenPort;
+    }
 
     if (wg_add_device(new_device.name) < 0 || wg_set_device(&new_device) < 0)
     {

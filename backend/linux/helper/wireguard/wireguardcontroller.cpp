@@ -64,7 +64,8 @@ bool WireGuardController::configure(
     const std::string &peerPresharedKey,
     const std::string &peerEndpoint,
     const std::vector<std::string> &allowedIps,
-    uint32_t fwmark)
+    uint32_t fwmark,
+    uint16_t listenPort)
 {
     return is_initialized_
         && comm_->configure(clientPrivateKey,
@@ -72,7 +73,8 @@ bool WireGuardController::configure(
                             peerPresharedKey,
                             peerEndpoint,
                             allowedIps,
-                            fwmark);
+                            fwmark,
+                            listenPort);
 }
 
 unsigned long WireGuardController::getStatus(

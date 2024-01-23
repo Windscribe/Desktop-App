@@ -12,10 +12,10 @@
 #include "ipc/servicecommunication.h"
 #include "ipv6_firewall.h"
 #include "logger.h"
+#include "openvpncontroller.h"
 #include "process_command.h"
 #include "split_tunneling/split_tunneling.h"
 #include "utils.h"
-#include "wintuncontroller.h"
 
 #define SERVICE_NAME  (L"WindscribeService")
 #define SERVICE_PIPE_NAME  (L"\\\\.\\pipe\\WindscribeService")
@@ -345,7 +345,7 @@ DWORD WINAPI serviceWorkerThread(LPVOID)
 
     ActiveProcesses::instance().release();
     ExecuteCmd::instance().release();
-    WintunController::instance().release();
+    OpenVPNController::instance().release();
 
     CoUninitialize();
     Logger::instance().out(L"Service stopped");

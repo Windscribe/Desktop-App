@@ -9,7 +9,16 @@ namespace types {
 class ApiResolutionSettings
 {
 public:
+    struct JsonInfo
+    {
+        JsonInfo& operator=(const JsonInfo&) { return *this; }
+
+        const QString kIsAutomaticProp = "isAutomatic";
+        const QString kManualAddressProp = "manualAddress";
+    };
+
     explicit ApiResolutionSettings();
+    ApiResolutionSettings(const QJsonObject& json);
 
     void set(bool bAutomatic, const QString &manualAddress);
     bool getIsAutomatic() const;
@@ -28,6 +37,14 @@ public:
         return !(*this == other);
     }
 
+    QJsonObject toJson() const
+    {
+        QJsonObject json;
+        json[jsonInfo_.kIsAutomaticProp] = bAutomatic_;
+        json[jsonInfo_.kManualAddressProp] = manualAddress_;
+        return json;
+    }
+
     friend QDataStream& operator <<(QDataStream &stream, const ApiResolutionSettings &o);
     friend QDataStream& operator >>(QDataStream &stream, ApiResolutionSettings &o);
 
@@ -36,6 +53,7 @@ public:
 private:
     bool bAutomatic_;
     QString manualAddress_;
+    JsonInfo jsonInfo_;
 
     static constexpr quint32 versionForSerialization_ = 1;  // should increment the version if the data format is changed
 };

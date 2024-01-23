@@ -3,13 +3,8 @@
 #include <stdio.h>
 #include <vector>
 #include <thread>
-// Avoid warnings from boost library.
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-#pragma clang diagnostic ignored "-Wshorten-64-to-32"
 #include <boost/asio.hpp>
 #include <boost/thread.hpp>
-#pragma clang diagnostic pop "-Wdeprecated-declarations"
 #include <list>
 
 #include "../../posix_common/helper_commands.h"
@@ -40,7 +35,6 @@ private:
     void receiveCmdHandle(socket_ptr sock, boost::shared_ptr<boost::asio::streambuf> buf, const boost::system::error_code& ec, std::size_t bytes_transferred);
     void acceptHandler(const boost::system::error_code & ec, socket_ptr sock);
     void startAccept();
-    void runService();
 
     bool sendAnswerCmd(socket_ptr sock, const CMD_ANSWER &cmdAnswer);
 };

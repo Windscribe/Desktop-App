@@ -36,7 +36,7 @@ SplitTunnelingGroup::SplitTunnelingGroup(ScalableGraphicsObject *parent, const Q
     connect(modeComboBox_, &ComboBoxItem::currentItemChanged, this, &SplitTunnelingGroup::onCurrentModeChanged);
     addItem(modeComboBox_);
 
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     appsLinkItem_ = new LinkItem(this, LinkItem::LinkType::SUBPAGE_LINK);
     connect(appsLinkItem_, &LinkItem::clicked, this, &SplitTunnelingGroup::appsPageClick);
     addItem(appsLinkItem_);
@@ -104,10 +104,13 @@ void SplitTunnelingGroup::onActiveSwitchStateChanged(bool checked)
 void SplitTunnelingGroup::onCurrentModeChanged(QVariant value)
 {
     SPLIT_TUNNELING_MODE mode = (SPLIT_TUNNELING_MODE)value.toInt();
-    settings_.mode = mode;
-    emit settingsChanged(settings_);
+    if (settings_.mode == mode) {
+        return;
+    }
 
+    settings_.mode = mode;
     updateDescription();
+    emit settingsChanged(settings_);
 }
 
 void SplitTunnelingGroup::setAppsCount(int count)
@@ -128,14 +131,14 @@ void SplitTunnelingGroup::updateDescription()
 {
     switch(settings_.mode) {
         case SPLIT_TUNNELING_MODE_EXCLUDE:
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
             setDescription(tr("Selected apps, IPs, and hostnames will not go through Windscribe when connected."));
 #else
             setDescription(tr("Selected IPs and hostnames will not go through Windscribe when connected."));
 #endif
             break;
         case SPLIT_TUNNELING_MODE_INCLUDE:
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
             setDescription(tr("Only selected apps, IPs, and hostnames will go through Windscribe when connected."));
 #else
             setDescription(tr("Only selected IPs and hostnames will go through Windscribe when connected."));
@@ -183,7 +186,7 @@ void SplitTunnelingGroup::onLanguageChanged()
     list << qMakePair(tr("Inclusive"), SPLIT_TUNNELING_MODE_INCLUDE);
     modeComboBox_->setItems(list, settings_.mode);
 
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     appsLinkItem_->setTitle(tr("Apps"));
 #endif
     addressesLinkItem_->setTitle(tr("IPs & Hostnames"));

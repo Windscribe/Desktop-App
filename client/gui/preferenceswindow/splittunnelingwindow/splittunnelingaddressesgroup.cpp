@@ -26,10 +26,15 @@ SplitTunnelingAddressesGroup::SplitTunnelingAddressesGroup(ScalableGraphicsObjec
 
 void SplitTunnelingAddressesGroup::setAddresses(QList<types::SplitTunnelingNetworkRoute> addresses)
 {
-    clearItems(true);
+    if (addresses == addresses_.values()) {
+        return;
+    }
+    for (AddressItem *item : addresses_.keys()) {
+        addresses_.remove(item);
+        hideItems(indexOf(item), -1, DISPLAY_FLAGS::FLAG_DELETE_AFTER);
+    }
 
-    for (types::SplitTunnelingNetworkRoute addr : addresses)
-    {
+    for (types::SplitTunnelingNetworkRoute addr : addresses) {
         addAddressInternal(addr);
     }
     emit addressesUpdated(addresses_.values());

@@ -226,4 +226,7 @@ private:
         const types::PortMap &portMap,
         const types::ProxySettings &proxySettings);
     void connectOrStartConnectTimer();
+
+    bool connectedDnsTypeAuto() const;
+    void disconnect();
 };

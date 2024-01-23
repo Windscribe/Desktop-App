@@ -421,10 +421,10 @@ void PreferenceGroup::setDrawBackground(bool draw)
 
 int PreferenceGroup::firstVisibleItem(int start)
 {
-    for (int i = start; i < items_.size(); i++)
-    {
-        if (items_[i]->isVisible())
-        {
+    for (int i = start; i < items_.size(); i++) {
+        // Don't check items_[i].isVisible() here, because if the current preferences screen is not visible, all its children will also not be visible
+        // This matters if we are on a different screen (say, importing preferences), and it changes the values inside some preference groups
+        if (!items_[i]->isHidden()) {
             return i;
         }
     }

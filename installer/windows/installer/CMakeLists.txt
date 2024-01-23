@@ -23,29 +23,30 @@ set(SOURCES
     ../utils/path.cpp
     ../utils/utils.cpp
     ../utils/windscribepathcheck.cpp
-    archive/archive.cpp
-    archive/LZMA_SDK/C/7zAlloc.c
-    archive/LZMA_SDK/C/7zArcIn.c
-    archive/LZMA_SDK/C/7zBuf.c
-    archive/LZMA_SDK/C/7zCrc.c
-    archive/LZMA_SDK/C/7zCrcOpt.c
-    archive/LZMA_SDK/C/7zDec.c
-    archive/LZMA_SDK/C/7zFile.c
-    archive/LZMA_SDK/C/7zStream.c
-    archive/LZMA_SDK/C/Bcj2.c
-    archive/LZMA_SDK/C/Bra.c
-    archive/LZMA_SDK/C/Bra86.c
-    archive/LZMA_SDK/C/BraIA64.c
-    archive/LZMA_SDK/C/CpuArch.c
-    archive/LZMA_SDK/C/Delta.c
-    archive/LZMA_SDK/C/Lzma2Dec.c
-    archive/LZMA_SDK/C/LzmaDec.c
-    archive/LZMA_SDK/C/Ppmd7.c
+    ../../../client/common/archive/archive.cpp
+    ../../../client/common/archive/LZMA_SDK/C/7zAlloc.c
+    ../../../client/common/archive/LZMA_SDK/C/7zArcIn.c
+    ../../../client/common/archive/LZMA_SDK/C/7zBuf.c
+    ../../../client/common/archive/LZMA_SDK/C/7zCrc.c
+    ../../../client/common/archive/LZMA_SDK/C/7zCrcOpt.c
+    ../../../client/common/archive/LZMA_SDK/C/7zDec.c
+    ../../../client/common/archive/LZMA_SDK/C/7zFile.c
+    ../../../client/common/archive/LZMA_SDK/C/7zStream.c
+    ../../../client/common/archive/LZMA_SDK/C/Bcj2.c
+    ../../../client/common/archive/LZMA_SDK/C/Bra.c
+    ../../../client/common/archive/LZMA_SDK/C/Bra86.c
+    ../../../client/common/archive/LZMA_SDK/C/BraIA64.c
+    ../../../client/common/archive/LZMA_SDK/C/CpuArch.c
+    ../../../client/common/archive/LZMA_SDK/C/Delta.c
+    ../../../client/common/archive/LZMA_SDK/C/Lzma2Dec.c
+    ../../../client/common/archive/LZMA_SDK/C/LzmaDec.c
+    ../../../client/common/archive/LZMA_SDK/C/Ppmd7.c
     installer/installer.cpp
     installer/installer_shim.cpp
     installer/blocks/files.cpp
     installer/blocks/icons.cpp
     installer/blocks/install_authhelper.cpp
+    installer/blocks/install_openvpn_dco.cpp
     installer/blocks/install_splittunnel.cpp
     installer/blocks/service.cpp
     installer/blocks/uninstallprev.cpp

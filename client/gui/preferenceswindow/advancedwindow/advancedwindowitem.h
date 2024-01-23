@@ -26,6 +26,8 @@ public:
     ADVANCED_SCREEN getScreen();
     void setScreen(ADVANCED_SCREEN screen);
 
+    void setPreferencesImportCompleted();
+
     void updateScaling() override;
 
 signals:
@@ -57,6 +59,10 @@ private slots:
     void onPreferencesIpv6InOSStateChanged(bool bEnabled);
 #endif
 
+signals:
+    void exportSettingsClick();
+    void importSettingsClick();
+
 protected:
     void hideOpenPopups() override;
 
@@ -71,6 +77,11 @@ private:
     ToggleItem *cbKeepAlive_;
     PreferenceGroup *internalDnsGroup_;
     ComboBoxItem *comboBoxAppInternalDns_;
+
+    PreferenceGroup *appPreferencesGroup_;
+    LinkItem *appPreferencesItem_;
+    LinkItem *exportSettingsItem_;
+    LinkItem *importSettingsItem_;
 #ifdef Q_OS_LINUX
     PreferenceGroup *dnsManagerGroup_;
     ComboBoxItem *comboBoxDnsManager_;

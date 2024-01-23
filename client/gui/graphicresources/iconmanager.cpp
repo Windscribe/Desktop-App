@@ -128,7 +128,7 @@ const QIcon *IconManager::getErrorIcon() const
 
 const QIcon *IconManager::getIconByType(const IconType& iconType) const
 {
-    if(icons_.find(iconType) != icons_.cend())
+    if (icons_.find(iconType) != icons_.cend())
         return &icons_.at(iconType);
     else
         return &icons_.at(IconType::ICON_APP_MAIN);

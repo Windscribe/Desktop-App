@@ -88,6 +88,21 @@ AdvancedWindowItem::AdvancedWindowItem(ScalableGraphicsObject *parent, Preferenc
     addItem(dnsManagerGroup_);
 #endif
 
+    appPreferencesGroup_ = new PreferenceGroup(this);
+    appPreferencesItem_ = new LinkItem(appPreferencesGroup_, LinkItem::LinkType::TEXT_ONLY);
+    appPreferencesItem_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/APP_PREFERENCES"));
+    appPreferencesGroup_->addItem(appPreferencesItem_);
+
+    exportSettingsItem_ = new LinkItem(appPreferencesGroup_, LinkItem::LinkType::SUBPAGE_LINK);
+    connect(exportSettingsItem_, &LinkItem::clicked, this, &AdvancedWindowItem::exportSettingsClick);
+    appPreferencesGroup_->addItem(exportSettingsItem_);
+
+    importSettingsItem_ = new LinkItem(appPreferencesGroup_, LinkItem::LinkType::SUBPAGE_LINK);
+    connect(importSettingsItem_, &LinkItem::clicked, this, &AdvancedWindowItem::importSettingsClick);
+    appPreferencesGroup_->addItem(importSettingsItem_);
+
+    addItem(appPreferencesGroup_);
+
     connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &AdvancedWindowItem::onLanguageChanged);
     onLanguageChanged();
 }
@@ -214,11 +229,25 @@ void AdvancedWindowItem::onLanguageChanged()
     comboBoxDnsManager_->setLabelCaption(tr("DNS Manager"));
     comboBoxDnsManager_->setItems(DNS_MANAGER_TYPE_toList(), preferences_->dnsManager());
 #endif
+
+    appPreferencesItem_->setTitle(tr("App Preferences"));
+    exportSettingsItem_->setTitle(tr("Export"));
+    importSettingsItem_->setTitle(tr("Import"));
 }
 
 void AdvancedWindowItem::hideOpenPopups()
 {
     CommonGraphics::BasePage::hideOpenPopups();
+}
+
+void AdvancedWindowItem::setPreferencesImportCompleted()
+{
+    importSettingsItem_->setLinkIcon(ImageResourcesSvg::instance().getIndependentPixmap("CHECKMARK"));
+
+    // Revert to old icon after 5 seconds
+    QTimer::singleShot(5000, [this](){
+        importSettingsItem_->setLinkIcon(nullptr);
+    });
 }
 
 } // namespace PreferencesWindow

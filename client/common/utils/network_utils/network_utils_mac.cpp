@@ -1,19 +1,21 @@
 #include "network_utils_mac.h"
-#include "../ws_assert.h"
-#include "../utils.h"
+
+#include <QCoreApplication>
+#include <QDir>
 #include <QFile>
 #include <QProcess>
-#include <QDir>
-#include <QCoreApplication>
-#include <semaphore.h>
-
-#include <ifaddrs.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <netdb.h>
-#include <unistd.h>
-#include <libproc.h>
 #include <QRegExp>
+
+#include <arpa/inet.h>
+#include <ifaddrs.h>
+#include <libproc.h>
+#include <netdb.h>
+#include <netinet/in.h>
+#include <semaphore.h>
+#include <unistd.h>
+
+#include "network_utils.h"
+#include "../utils.h"
 
 namespace
 {
@@ -134,17 +136,14 @@ QVector<types::NetworkInterface> NetworkUtils_mac::currentNetworkInterfaces(bool
 {
     QVector<types::NetworkInterface> networkInterfaces;
 
-    // Add "No Interface" selection
-    if (includeNoInterface)
-    {
-        networkInterfaces << Utils::noNetworkInterface();
+    if (includeNoInterface) {
+        networkInterfaces << types::NetworkInterface::noNetworkInterface();
     }
 
     const QList<QString> hwInterfaces = currentNetworkHwInterfaces();
     const QMap<QString, int> interfaceIndexes = currentHardwareInterfaceIndexes();
 
-    for (const QString &interfaceName : hwInterfaces)
-    {
+    for (const QString &interfaceName : hwInterfaces) {
         types::NetworkInterface networkInterface;
 
         int index = 0;
@@ -156,16 +155,18 @@ QVector<types::NetworkInterface> NetworkUtils_mac::currentNetworkInterfaces(bool
         QString macAddress = macAddressFromInterfaceName(interfaceName);
         networkInterface.physicalAddress = macAddress;
 
-        if (wifi)
-        {
+        // TODO: **JDRM** see if we can get a useful adapter friendlyName (e.g. Belkin USB-C Ethernet)
+        // from a macOS API.
+        if (wifi) {
             networkInterface.interfaceType = NETWORK_INTERFACE_WIFI;
             QString ssid = ssidOfInterface(interfaceName);
             networkInterface.networkOrSsid = ssid;
+            networkInterface.friendlyName = "Wi-Fi";
         }
-        else // Eth
-        {
+        else {
             networkInterface.interfaceType = NETWORK_INTERFACE_ETH;
             networkInterface.networkOrSsid = macAddress;
+            networkInterface.friendlyName = "Ethernet";
         }
 
         networkInterface.active = isAdapterActive(interfaceName);
@@ -244,7 +245,7 @@ const types::NetworkInterface NetworkUtils_mac::currentNetworkInterface()
         return ni[0];
     }
 
-    return Utils::noNetworkInterface();
+    return types::NetworkInterface::noNetworkInterface();
 }
 
 bool NetworkUtils_mac::pingWithMtu(const QString &url, int mtu)

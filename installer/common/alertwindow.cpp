@@ -12,6 +12,8 @@
 
 AlertWindow::AlertWindow(QWidget *parent) : QWidget(parent)
 {
+    setFocusPolicy(Qt::StrongFocus);
+
     contents_ = new AlertWindowContents(this);
     connect(contents_, &AlertWindowContents::primaryButtonClicked, this, &AlertWindow::primaryButtonClicked);
     connect(contents_, &AlertWindowContents::escapeClicked, this, &AlertWindow::escapeClicked);
@@ -84,4 +86,13 @@ void AlertWindow::onContentsSizeChanged()
     int height = contents_->size().height();
 
     contents_->move(25, (size().height() - height)/2);
+}
+
+void AlertWindow::keyPressEvent(QKeyEvent *event)
+{
+    if (event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return) {
+        emit primaryButtonClicked();
+    } else if (event->key() == Qt::Key_Escape) {
+        emit escapeClicked();
+    }
 }

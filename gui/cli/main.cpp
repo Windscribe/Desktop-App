@@ -67,6 +67,7 @@ int main(int argc, char *argv[])
         std::cout << "locations                   - View a list of available locations" << std::endl;
         std::cout << "login \"username\" \"password\" [2FA code] - login with given username and password, and optional two-factor authentication code" << std::endl;
         std::cout << "signout [on|off]            - Sign out of the application, and optionally leave the firewall ON/OFF" << std::endl;
+        std::cout << "status                      - View the connected/disconnected state of the application" << std::endl;
         return 0;
     }
 
@@ -85,7 +86,7 @@ int main(int argc, char *argv[])
 
     if (Utils::isGuiAlreadyRunning())
     {
-        logAndCout(QCoreApplication::tr("GUI detected -- attempting Engine connect"));
+        qCDebug(LOG_BASIC) << "GUI detected -- attempting Engine connect";
         backendCommander->initAndSend(true);
     }
     else

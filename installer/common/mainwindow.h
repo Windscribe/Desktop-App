@@ -24,7 +24,6 @@ protected:
     void mousePressEvent(QMouseEvent *event) override;
     void mouseReleaseEvent(QMouseEvent *event) override;
     void closeEvent(QCloseEvent *event) override;
-    void keyPressEvent(QKeyEvent *event) override;
 
 private slots:
     void showError(const QString &title, const QString &desc, bool fatal);

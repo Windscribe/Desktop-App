@@ -23,6 +23,19 @@ ConnectionSettings::ConnectionSettings(Protocol protocol, uint port, bool isAuto
     checkForUnavailableProtocolAndFix();
 }
 
+ConnectionSettings::ConnectionSettings(const QJsonObject &json)
+{
+    if (json.contains(jsonInfo_.kProtocolProp) && json[jsonInfo_.kProtocolProp].isDouble())
+        protocol_ = static_cast<Protocol>(json[jsonInfo_.kProtocolProp].toInt());
+
+    if (json.contains(jsonInfo_.kPortProp) && json[jsonInfo_.kPortProp].isDouble())
+        port_ = static_cast<uint>(json[jsonInfo_.kPortProp].toInt());
+
+    if (json.contains(jsonInfo_.kIsAutomaticProp) && json[jsonInfo_.kIsAutomaticProp].isBool())
+        isAutomatic_ = json[jsonInfo_.kIsAutomaticProp].toBool();
+}
+
+
 void ConnectionSettings::setProtocolAndPort(Protocol protocol, uint port)
 {
     protocol_ = protocol;
@@ -38,6 +51,15 @@ void ConnectionSettings::setPort(uint port)
 void ConnectionSettings::setIsAutomatic(bool isAutomatic)
 {
     isAutomatic_ = isAutomatic;
+}
+
+QJsonObject ConnectionSettings::toJson() const
+{
+    QJsonObject json;
+    json[jsonInfo_.kProtocolProp] = protocol_.toInt();
+    json[jsonInfo_.kPortProp] = static_cast<int>(port_);
+    json[jsonInfo_.kIsAutomaticProp] = isAutomatic_;
+    return json;
 }
 
 void ConnectionSettings::checkForUnavailableProtocolAndFix()

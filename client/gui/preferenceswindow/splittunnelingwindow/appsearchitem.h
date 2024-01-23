@@ -10,7 +10,7 @@ class AppSearchItem : public CommonGraphics::BaseItem
 {
     Q_OBJECT
 public:
-    AppSearchItem(types::SplitTunnelingApp app, QString appIconPath, ScalableGraphicsObject *parent);
+    AppSearchItem(types::SplitTunnelingApp app, ScalableGraphicsObject *parent);
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
     QString getName();
@@ -32,10 +32,7 @@ private:
     double opacity_;
     types::SplitTunnelingApp app_;
 
-    QString appIcon_;
-
     QVariantAnimation opacityAnimation_;
-
 };
 
 }

@@ -82,9 +82,7 @@ int UninstallPrev::executeStep()
                 doFactoryReset();
             } else {
                 QSettings reg(QString::fromStdWString(ApplicationInfo::appRegistryKey()), QSettings::NativeFormat);
-                if (reg.contains("userId")) {
-                    reg.setValue("userId", "");
-                }
+                reg.setValue("userId", "");
             }
 
             if (!uninstallOldVersion(uninstallString)) {
@@ -103,6 +101,13 @@ wstring UninstallPrev::getUninstallString()
     QSettings reg(QString::fromStdWString(ApplicationInfo::uninstallerRegistryKey()), QSettings::NativeFormat);
     if (reg.contains(L"UninstallString")) {
         uninstallString = reg.value(L"UninstallString").toString().toStdWString();
+        return uninstallString;
+    }
+
+    // 64-bit registry key not found, try 32-bit
+    QSettings reg32(QString::fromStdWString(ApplicationInfo::uninstallerRegistryKey()), QSettings::Registry32Format);
+    if (reg32.contains(L"UninstallString")) {
+        uninstallString = reg32.value(L"UninstallString").toString().toStdWString();
     }
 
     return uninstallString;

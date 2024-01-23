@@ -17,6 +17,7 @@
 #include "utils/logger.h"
 #include "utils/win32handle.h"
 #include "utils/ws_assert.h"
+#include "utils/winutils.h"
 
 #define SERVICE_PIPE_NAME  (L"\\\\.\\pipe\\WindscribeService")
 
@@ -717,7 +718,7 @@ bool Helper_win::makeHostsFileWritable()
     QMutexLocker locker(&mutex_);
 
     MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_MAKE_HOSTS_FILE_WRITABLE, "");
-    if(mpr.success) {
+    if (mpr.success) {
         qCDebug(LOG_BASIC) << "\"hosts\" file is writable now.";
     }
     else {
@@ -923,16 +924,38 @@ bool Helper_win::writeAllToPipe(HANDLE hPipe, const char *buf, DWORD len)
     return true;
 }
 
-bool Helper_win::createWintunAdapter()
+bool Helper_win::createOpenVpnAdapter(bool useDCODriver)
 {
     QMutexLocker locker(&mutex_);
-    MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_CREATE_WINTUN_ADAPTER, std::string());
+
+    CMD_CREATE_OPENVPN_ADAPTER cmdCreateAdapter;
+    cmdCreateAdapter.useDCODriver = useDCODriver;
+
+    std::stringstream stream;
+    boost::archive::text_oarchive oa(stream, boost::archive::no_header);
+    oa << cmdCreateAdapter;
+
+    MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_CREATE_OPENVPN_ADAPTER, stream.str());
+    return mpr.exitCode;
+}
+
+bool Helper_win::removeOpenVpnAdapter()
+{
+    QMutexLocker locker(&mutex_);
+    MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_REMOVE_OPENVPN_ADAPTER, std::string());
     return mpr.success;
 }
 
-bool Helper_win::removeWintunAdapter()
+bool Helper_win::disableDohSettings()
 {
     QMutexLocker locker(&mutex_);
-    MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_REMOVE_WINTUN_ADAPTER, std::string());
+    MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_DISABLE_DOH_SETTINGS, std::string());
+    return mpr.success;
+}
+
+bool Helper_win::enableDohSettings()
+{
+    QMutexLocker locker(&mutex_);
+    MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_ENABLE_DOH_SETTINGS, std::string());
     return mpr.success;
 }

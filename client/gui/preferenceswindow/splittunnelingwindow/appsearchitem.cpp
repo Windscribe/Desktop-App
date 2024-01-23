@@ -1,20 +1,21 @@
 #include "appsearchitem.h"
 
+#include <QIcon>
 #include <QPainter>
 #include "graphicresources/fontmanager.h"
 #include "graphicresources/imageresourcessvg.h"
 #include "preferenceswindow/preferencesconst.h"
 #include "widgetutils/widgetutils.h"
 #include "dpiscalemanager.h"
+#include "utils/logger.h"
 
 namespace PreferencesWindow {
 
-AppSearchItem::AppSearchItem(types::SplitTunnelingApp app, QString appIconPath, ScalableGraphicsObject *parent)
-  : BaseItem (parent, PREFERENCE_GROUP_ITEM_HEIGHT*G_SCALE), opacity_(OPACITY_HALF), app_(app), appIcon_(appIconPath)
+AppSearchItem::AppSearchItem(types::SplitTunnelingApp app, ScalableGraphicsObject *parent)
+  : BaseItem (parent, PREFERENCE_GROUP_ITEM_HEIGHT*G_SCALE), opacity_(OPACITY_HALF), app_(app)
 {
-    if (appIcon_ == "")
-    {
-        appIcon_ = "preferences/WHITE_QUESTION_MARK_ICON";
+    if (app_.icon.isEmpty()) {
+        app_.icon = "preferences/WHITE_QUESTION_MARK_ICON";
     }
 
     connect(&opacityAnimation_, &QVariantAnimation::valueChanged, this, &AppSearchItem::onOpacityChanged);
@@ -28,12 +29,18 @@ void AppSearchItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opt
     Q_UNUSED(widget);
 
     // app icon
-    QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIconIndependentPixmap(appIcon_);
-    if (!p)
-    {
+#if !defined (Q_OS_LINUX)
+    QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIconIndependentPixmap(app_.icon);
+    if (!p) {
         p = ImageResourcesSvg::instance().getIndependentPixmap("preferences/WHITE_QUESTION_MARK_ICON");
     }
     p->draw(PREFERENCES_MARGIN*G_SCALE, APP_ICON_MARGIN_Y*G_SCALE, APP_ICON_WIDTH*G_SCALE, APP_ICON_HEIGHT*G_SCALE, painter);
+#else
+    QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap("preferences/WHITE_QUESTION_MARK_ICON");
+    QPixmap pixmap = QIcon::fromTheme(app_.icon, p->getIcon()).pixmap(QSize(APP_ICON_WIDTH*G_SCALE, APP_ICON_HEIGHT*G_SCALE));
+
+    painter->drawPixmap(PREFERENCES_MARGIN*G_SCALE, APP_ICON_MARGIN_Y*G_SCALE, pixmap);
+#endif
 
     // add icon
     painter->setPen(Qt::white);
@@ -70,7 +77,7 @@ QString AppSearchItem::getFullName()
 
 QString AppSearchItem::getAppIcon()
 {
-    return appIcon_;
+    return app_.icon;
 }
 
 void AppSearchItem::setSelected(bool selected)
@@ -109,7 +116,7 @@ void AppSearchItem::onHoverLeave()
 
 void AppSearchItem::setAppIcon(QString icon)
 {
-    appIcon_ = icon;
+    app_.icon = icon;
     update();
 }
 

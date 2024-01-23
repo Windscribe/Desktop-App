@@ -44,9 +44,16 @@ set_source_files_properties(installer.rc OBJECT_DEPENDS ${CMAKE_SOURCE_DIR}/reso
 set_property(TARGET windscribe_installer PROPERTY COMPILE_WARNING_AS_ERROR ON)
 set_property(TARGET windscribe_installer PROPERTY VS_DPI_AWARE "PerMonitor")
 set_property(TARGET windscribe_installer PROPERTY COMPILE_FLAGS "/Gy /Oi /sdl")
+set_property(TARGET windscribe_installer PROPERTY LINK_FLAGS "/DELAYLOAD:dwmapi.dll /DELAYLOAD:uxtheme.dll /DELAYLOAD:wldp.dll")
+
+target_link_libraries(windscribe_installer
+    PRIVATE
+    delayimp
+)
 
 target_include_directories(windscribe_installer
     PRIVATE
     ../../utils
+    ../../../client/common/types
     ../../../client/common/utils
 )

@@ -15,7 +15,6 @@ public:
 
     QString caption() const override;
     QList<types::SplitTunnelingApp> getApps();
-    void setApps(QList<types::SplitTunnelingApp> apps);
     void addAppManually(types::SplitTunnelingApp app);
 
     void setLoggedIn(bool loggedIn);
@@ -29,6 +28,7 @@ signals:
 private slots:
     void onAppsUpdated(QList<types::SplitTunnelingApp> apps);
     void onLanguageChanged();
+    void onPreferencesChanged();
 
 private:
     Preferences *preferences_;

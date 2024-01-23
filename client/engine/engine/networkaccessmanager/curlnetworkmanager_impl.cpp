@@ -14,7 +14,7 @@ CurlNetworkManagerImpl *g_this = nullptr;
 CurlNetworkManagerImpl::CurlNetworkManagerImpl(QObject *parent) : QThread(parent),
     bNeedFinish_(false)
   #if defined(Q_OS_MAC)
-    , certPath_(QCoreApplication::applicationDirPath() + "/../resources/cert.pem")
+    , certPath_(QCoreApplication::applicationDirPath() + "/../Resources/cert.pem")
   #elif defined (Q_OS_LINUX)
     , certPath_("/etc/windscribe/cert.pem")
   #endif

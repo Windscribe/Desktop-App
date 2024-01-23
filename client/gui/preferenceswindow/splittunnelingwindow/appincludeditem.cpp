@@ -1,5 +1,6 @@
 #include "appincludeditem.h"
 
+#include <QIcon>
 #include <QPainter>
 #include "graphicresources/fontmanager.h"
 #include "graphicresources/imageresourcessvg.h"
@@ -7,10 +8,14 @@
 #include "widgetutils/widgetutils.h"
 #include "dpiscalemanager.h"
 
+#if defined(Q_OS_MAC)
+#include "utils/macutils.h"
+#endif
+
 namespace PreferencesWindow {
 
-AppIncludedItem::AppIncludedItem(types::SplitTunnelingApp app, QString iconPath, ScalableGraphicsObject *parent)
-  : BaseItem(parent, PREFERENCE_GROUP_ITEM_HEIGHT*G_SCALE), appIcon_(iconPath), app_(app)
+AppIncludedItem::AppIncludedItem(types::SplitTunnelingApp app, ScalableGraphicsObject *parent)
+  : BaseItem(parent, PREFERENCE_GROUP_ITEM_HEIGHT*G_SCALE), app_(app)
 {
     setFlags(flags() | QGraphicsItem::ItemClipsChildrenToShape);
 
@@ -18,6 +23,14 @@ AppIncludedItem::AppIncludedItem(types::SplitTunnelingApp app, QString iconPath,
     deleteButton_->setUnhoverOpacity(OPACITY_UNHOVER_ICON_STANDALONE);
     deleteButton_->setHoverOpacity(OPACITY_FULL);
     connect(deleteButton_, &IconButton::clicked, this, &AppIncludedItem::deleteClicked);
+
+    if (app_.icon.isEmpty()) {
+#if defined(Q_OS_WIN)
+        app_.icon = app_.fullName;
+#elif defined(Q_OS_MAC)
+        app_.icon = MacUtils::iconPathFromBinPath(app_.fullName);
+#endif
+    }
 
     updatePositions();
 }
@@ -30,14 +43,20 @@ void AppIncludedItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *o
     qreal initOpacity = painter->opacity();
 
     // app icon
+#if !defined(Q_OS_LINUX)
     painter->save();
-    QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIconIndependentPixmap(appIcon_);
-    if (!p)
-    {
+    QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIconIndependentPixmap(app_.icon);
+    if (!p) {
         p = ImageResourcesSvg::instance().getIndependentPixmap("preferences/WHITE_QUESTION_MARK_ICON");
     }
     p->draw(PREFERENCES_MARGIN*G_SCALE, APP_ICON_MARGIN_Y*G_SCALE, APP_ICON_WIDTH*G_SCALE, APP_ICON_HEIGHT*G_SCALE, painter);
     painter->restore();
+#else
+    QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap("preferences/WHITE_QUESTION_MARK_ICON");
+    QPixmap pixmap = QIcon::fromTheme(app_.icon, p->getIcon()).pixmap(QSize(APP_ICON_WIDTH*G_SCALE, APP_ICON_HEIGHT*G_SCALE));
+
+    painter->drawPixmap(PREFERENCES_MARGIN*G_SCALE, APP_ICON_MARGIN_Y*G_SCALE, pixmap);
+#endif
 
     // app name
     painter->setOpacity(OPACITY_FULL * initOpacity);
@@ -62,7 +81,7 @@ QString AppIncludedItem::getName()
 
 QString AppIncludedItem::getAppIcon()
 {
-    return appIcon_;
+    return app_.icon;
 }
 
 void AppIncludedItem::setSelected(bool selected)

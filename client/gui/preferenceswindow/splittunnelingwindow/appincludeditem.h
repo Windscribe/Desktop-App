@@ -11,7 +11,7 @@ class AppIncludedItem : public CommonGraphics::BaseItem
 {
     Q_OBJECT
 public:
-    explicit AppIncludedItem(types::SplitTunnelingApp app, QString iconPath, ScalableGraphicsObject *parent);
+    explicit AppIncludedItem(types::SplitTunnelingApp app, ScalableGraphicsObject *parent);
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
     QString getName();
@@ -27,7 +27,6 @@ signals:
     void deleteClicked();
 
 private:
-    QString appIcon_;
     types::SplitTunnelingApp app_;
     IconButton *deleteButton_;
 

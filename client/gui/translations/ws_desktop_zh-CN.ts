@@ -749,6 +749,42 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>Unable to start custom DNS service.  Please ensure you don&apos;t have any other local DNS services running, or contact support.</source>
         <translation>无法启动自定义 DNS 服务。 请确保您没有运行任何其他本地 DNS 服务，或联系支持人员。</translation>
     </message>
+    <message>
+        <source>JSON Files (*.json)</source>
+        <translation>JSON 文件 （*.json）</translation>
+    </message>
+    <message>
+        <source>Unable to import preferences</source>
+        <translation>无法导入首选项</translation>
+    </message>
+    <message>
+        <source>Preferences can only be imported when the app is disconnected. Please disconnect and try again.</source>
+        <translation>只有在应用程序断开连接时才能导入首选项。请断开连接，然后重试。</translation>
+    </message>
+    <message>
+        <source>The selected file&apos;s format is incorrect.</source>
+        <translation>所选文件的格式不正确。</translation>
+    </message>
+    <message>
+        <source>Export Preferences To</source>
+        <translation>将首选项导出到</translation>
+    </message>
+    <message>
+        <source>Import Preferences From</source>
+        <translation>导入首选项</translation>
+    </message>
+    <message>
+        <source>Could not open file.</source>
+        <translation>无法打开文件。</translation>
+    </message>
+    <message>
+        <source>Unable to export preferences</source>
+        <translation>无法导出首选项</translation>
+    </message>
+    <message>
+        <source>Could not open file for writing.  Check your permissions and try again.</source>
+        <translation>无法打开文件进行写入。 请检查您的权限，然后重试。</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -868,10 +904,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>计划</translation>
     </message>
     <message>
-        <source>Expires On</source>
-        <translation>过期时间</translation>
-    </message>
-    <message>
         <source>Reset Date</source>
         <translation>重置日期</translation>
     </message>
@@ -882,6 +914,10 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Manage Account</source>
         <translation>管理帐户</translation>
+    </message>
+    <message>
+        <source>Expiry Date</source>
+        <translation>有效期</translation>
     </message>
 </context>
 <context>
@@ -958,6 +994,18 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>DNS Manager</source>
         <translation>域名系统管理器</translation>
     </message>
+    <message>
+        <source>App Preferences</source>
+        <translation>应用程序首选项</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <translation>出口</translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <translation>进口</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::ApiResolutionGroup</name>
@@ -981,6 +1029,14 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>Enter IP or Hostname</source>
         <translation>输入 IP 或主机名</translation>
     </message>
+    <message>
+        <source>Invalid address</source>
+        <translation>地址无效</translation>
+    </message>
+    <message>
+        <source>You have entered an invalid address for API resolution.  It has been reset to Auto.</source>
+        <translation>您输入的 API 解析地址无效。 它已重置为自动。</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::BackgroundSettingsGroup</name>
@@ -993,11 +1049,7 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>连接</translation>
     </message>
     <message>
-        <source>Background</source>
-        <translation>背景</translation>
-    </message>
-    <message>
-        <source>Country Flags</source>
+        <source>Flags</source>
         <translation>国旗</translation>
     </message>
     <message>
@@ -1007,6 +1059,10 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Custom</source>
         <translation>习惯</translation>
+    </message>
+    <message>
+        <source>App Background</source>
+        <translation>应用背景</translation>
     </message>
 </context>
 <context>
@@ -1138,6 +1194,10 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>Automatically choose the VPN protocol, or select one manually. NOTE: &quot;Preferred Protocol&quot; will override this setting.</source>
         <translation>自动选择 VPN 协议，或手动选择一个。注意：“首选协议”将覆盖此设置。</translation>
     </message>
+    <message>
+        <source>Disabling Allow LAN Traffic will cause your secure hotspot to stop working.  Do you want to disable the hotspot?</source>
+        <translation>禁用允许 LAN 流量将导致您的安全热点停止工作。 是否要禁用热点？</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::DnsDomainsGroup</name>
@@ -1172,10 +1232,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>送！</translation>
     </message>
     <message>
-        <source>Add</source>
-        <translation>加</translation>
-    </message>
-    <message>
         <source>Resend</source>
         <translation>发送</translation>
     </message>
@@ -1198,6 +1254,10 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Email</source>
         <translation>电子邮件</translation>
+    </message>
+    <message>
+        <source>Add Email</source>
+        <translation>添加电子邮件</translation>
     </message>
 </context>
 <context>
@@ -1953,10 +2013,6 @@ If the reinstall does not help, please contact Windscribe support for assistance
 <context>
     <name>QObject</name>
     <message>
-        <source>R.O.B.E.R.T.</source>
-        <translation>R.O.B.E.R.T.</translation>
-    </message>
-    <message>
         <source>Custom</source>
         <translation>习惯</translation>
     </message>
@@ -2135,6 +2191,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Black</source>
         <translation>黑</translation>
+    </message>
+    <message>
+        <source>Forced</source>
+        <translation>强迫</translation>
     </message>
 </context>
 <context>

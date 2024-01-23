@@ -118,6 +118,11 @@ variables:
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --create-dirs -o ${BUILD_LIBS_FOLDER}/openvpn.zip "${NEXUS_PATH_DEPS}/${OS_IDENTIFIER}/openvpn.zip"
 
+.download_dependency_openvpn_dco:
+  script:
+    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+      --create-dirs -o ${BUILD_LIBS_FOLDER}/openvpn_dco.zip "${NEXUS_PATH_DEPS}/${OS_IDENTIFIER}/openvpn_dco.zip"
+
 .download_dependency_qt:
   script:
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
@@ -156,6 +161,7 @@ variables:
     - !reference [.download_dependency_dga, script]
     - !reference [.download_dependency_openssl, script]
     - !reference [.download_dependency_openvpn, script]
+    - !reference [.download_dependency_openvpn_dco, script]
     - !reference [.download_dependency_qt, script]
     - !reference [.download_dependency_wintun, script]
     - !reference [.download_dependency_wireguard, script]

@@ -1,10 +1,12 @@
 #include "apiresolutiongroup.h"
 
 #include <QPainter>
+#include "dpiscalemanager.h"
+#include "generalmessagecontroller.h"
 #include "graphicresources/fontmanager.h"
 #include "graphicresources/imageresourcessvg.h"
 #include "languagecontroller.h"
-#include "dpiscalemanager.h"
+#include "utils/ipvalidation.h"
 
 namespace PreferencesWindow {
 
@@ -30,8 +32,7 @@ ApiResolutionGroup::ApiResolutionGroup(ScalableGraphicsObject *parent, const QSt
 
 void ApiResolutionGroup::setApiResolution(const types::ApiResolutionSettings &ar)
 {
-    if(settings_ != ar)
-    {
+    if (settings_ != ar) {
         settings_ = ar;
         resolutionModeItem_->setCurrentItem(settings_.getIsAutomatic() ? 0 : 1);
         editBoxAddress_->setText(settings_.getManualAddress());
@@ -53,18 +54,32 @@ void ApiResolutionGroup::onAutomaticChanged(QVariant value)
 
 void ApiResolutionGroup::onAddressChanged(const QString &text)
 {
+    if (!IpValidation::isIpOrDomain(text.trimmed())) {
+        GeneralMessageController::instance().showMessage(
+            "WARNING_YELLOW",
+            tr("Invalid address"),
+            tr("You have entered an invalid address for API resolution.  It has been reset to Auto."),
+            GeneralMessageController::tr(GeneralMessageController::kOk),
+            "",
+            "",
+            [this](bool b) {
+                resolutionModeItem_->setCurrentItem(0);
+                onAutomaticChanged(0);
+            },
+            std::function<void(bool b)>(nullptr),
+            std::function<void(bool b)>(nullptr),
+            GeneralMessage::kFromPreferences);
+        return;
+    }
     settings_.setManualAddress(text.trimmed());
     emit apiResolutionChanged(settings_);
 }
 
 void ApiResolutionGroup::updateMode()
 {
-    if (settings_.getIsAutomatic())
-    {
+    if (settings_.getIsAutomatic()) {
         hideItems(indexOf(editBoxAddress_));
-    }
-    else
-    {
+    } else {
         showItems(indexOf(editBoxAddress_));
     }
 }

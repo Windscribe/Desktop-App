@@ -749,6 +749,42 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
         <source>Unable to start custom DNS service.  Please ensure you don&apos;t have any other local DNS services running, or contact support.</source>
         <translation>Không thể khởi động dịch vụ DNS tùy chỉnh.  Vui lòng đảm bảo bạn không có bất kỳ dịch vụ DNS cục bộ nào khác đang chạy hoặc liên hệ với bộ phận hỗ trợ.</translation>
     </message>
+    <message>
+        <source>JSON Files (*.json)</source>
+        <translation>Tệp JSON (*.json)</translation>
+    </message>
+    <message>
+        <source>Unable to import preferences</source>
+        <translation>Không thể nhập tùy chọn</translation>
+    </message>
+    <message>
+        <source>Preferences can only be imported when the app is disconnected. Please disconnect and try again.</source>
+        <translation>Tùy chọn chỉ có thể được nhập khi ứng dụng bị ngắt kết nối. Vui lòng ngắt kết nối và thử lại.</translation>
+    </message>
+    <message>
+        <source>The selected file&apos;s format is incorrect.</source>
+        <translation>Định dạng của tệp đã chọn không chính xác.</translation>
+    </message>
+    <message>
+        <source>Export Preferences To</source>
+        <translation>Xuất tùy chọn sang</translation>
+    </message>
+    <message>
+        <source>Import Preferences From</source>
+        <translation>Nhập tùy chọn từ</translation>
+    </message>
+    <message>
+        <source>Could not open file.</source>
+        <translation>Không thể mở tệp.</translation>
+    </message>
+    <message>
+        <source>Unable to export preferences</source>
+        <translation>Không thể xuất tùy chọn</translation>
+    </message>
+    <message>
+        <source>Could not open file for writing.  Check your permissions and try again.</source>
+        <translation>Không thể mở tệp để viết.  Kiểm tra quyền của bạn và thử lại.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -868,10 +904,6 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
         <translation>Kế hoạch</translation>
     </message>
     <message>
-        <source>Expires On</source>
-        <translation>Hết hạn vào ngày</translation>
-    </message>
-    <message>
         <source>Reset Date</source>
         <translation>Đặt lại ngày</translation>
     </message>
@@ -882,6 +914,10 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
     <message>
         <source>Manage Account</source>
         <translation>Quản lý tài khoản</translation>
+    </message>
+    <message>
+        <source>Expiry Date</source>
+        <translation>Ngày hết hạn</translation>
     </message>
 </context>
 <context>
@@ -958,6 +994,18 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
         <source>DNS Manager</source>
         <translation>Trình quản lý DNS</translation>
     </message>
+    <message>
+        <source>App Preferences</source>
+        <translation>Tùy chọn ứng dụng</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <translation>Xuất khẩu</translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <translation>Nhập khẩu</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::ApiResolutionGroup</name>
@@ -981,6 +1029,14 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
         <source>Enter IP or Hostname</source>
         <translation>Nhập IP hoặc Tên máy chủ</translation>
     </message>
+    <message>
+        <source>Invalid address</source>
+        <translation>Địa chỉ không hợp lệ</translation>
+    </message>
+    <message>
+        <source>You have entered an invalid address for API resolution.  It has been reset to Auto.</source>
+        <translation>Bạn đã nhập địa chỉ không hợp lệ để phân giải API.  Nó đã được đặt lại thành Tự động.</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::BackgroundSettingsGroup</name>
@@ -993,11 +1049,7 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
         <translation>Kết nối</translation>
     </message>
     <message>
-        <source>Background</source>
-        <translation>Nền</translation>
-    </message>
-    <message>
-        <source>Country Flags</source>
+        <source>Flags</source>
         <translation>Cờ quốc gia</translation>
     </message>
     <message>
@@ -1007,6 +1059,10 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
     <message>
         <source>Custom</source>
         <translation>Phong tục</translation>
+    </message>
+    <message>
+        <source>App Background</source>
+        <translation>Nền ứng dụng</translation>
     </message>
 </context>
 <context>
@@ -1138,6 +1194,10 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
         <source>LAN traffic is currently blocked by the Windscribe firewall.  Do you want to allow LAN traffic to bypass the firewall in order for this feature to work?</source>
         <translation>Lưu lượng mạng LAN hiện đang bị chặn bởi tường lửa Windscribe.  Bạn có muốn cho phép lưu lượng mạng LAN vượt qua tường lửa để tính năng này hoạt động không?</translation>
     </message>
+    <message>
+        <source>Disabling Allow LAN Traffic will cause your secure hotspot to stop working.  Do you want to disable the hotspot?</source>
+        <translation>Vô hiệu hóa Cho phép lưu lượng mạng LAN sẽ khiến điểm phát sóng an toàn của bạn ngừng hoạt động.  Bạn có muốn tắt điểm phát sóng không?</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::DnsDomainsGroup</name>
@@ -1172,10 +1232,6 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
         <translation>Gửi!</translation>
     </message>
     <message>
-        <source>Add</source>
-        <translation>Thêm</translation>
-    </message>
-    <message>
         <source>Resend</source>
         <translation>Gửi lại</translation>
     </message>
@@ -1198,6 +1254,10 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
     <message>
         <source>Email</source>
         <translation>Email</translation>
+    </message>
+    <message>
+        <source>Add Email</source>
+        <translation>Thêm email</translation>
     </message>
 </context>
 <context>
@@ -1953,10 +2013,6 @@ Nếu việc cài đặt lại không hiệu quả, vui lòng liên hệ với b
 <context>
     <name>QObject</name>
     <message>
-        <source>R.O.B.E.R.T.</source>
-        <translation>R.O.B.E.R.T.</translation>
-    </message>
-    <message>
         <source>Custom</source>
         <translation>Phong tục</translation>
     </message>
@@ -2135,6 +2191,10 @@ Nếu việc cài đặt lại không hiệu quả, vui lòng liên hệ với b
     <message>
         <source>Black</source>
         <translation>Đen</translation>
+    </message>
+    <message>
+        <source>Forced</source>
+        <translation>Gượng</translation>
     </message>
 </context>
 <context>

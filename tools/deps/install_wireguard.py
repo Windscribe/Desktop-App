@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # ------------------------------------------------------------------------------
 # Windscribe Build System
-# Copyright (c) 2020-2023, Windscribe Limited. All rights reserved.
+# Copyright (c) 2020-2024, Windscribe Limited. All rights reserved.
 # ------------------------------------------------------------------------------
 # Purpose: installs WireGuard executables.
 import os
@@ -54,12 +54,11 @@ def BuildDependencyLinux(outpath):
     currend_wd = os.getcwd()
     buildenv = os.environ.copy()
     buildenv.update({"BINDIR": "wireguard", "DESTDIR": os.path.dirname(currend_wd) + os.sep})
-    if utl.GetCurrentOS() == "macos":
-        buildenv.update({"GOARCH": "arm64", "GOOS": "darwin"})
     # Build and install.
     iutl.RunCommand(["make"], env=buildenv)
     iutl.RunCommand(["make", "install", "-s"], env=buildenv)
     utl.CopyFile("{}/wireguard-go".format(currend_wd), "{}/windscribewireguard".format(outpath))
+    iutl.RunCommand(["strip", "--strip-all", "{}/windscribewireguard".format(outpath)], env=buildenv)
 
 
 def InstallDependency():
@@ -115,6 +114,7 @@ def InstallDependency():
         utl.CreateDirectory(outpath)
         with utl.PushDir(temp_dir):
             iutl.RunCommand(["lipo", "-create", archivetitle + "-arm64/wireguard-go", archivetitle + "-amd64/wireguard-go", "-output", outpath + "/windscribewireguard"])
+            iutl.RunCommand(["strip", "-ur", outpath + "/windscribewireguard"])
     else:
         with utl.PushDir(os.path.join(temp_dir, archivetitle)):
             msg.HeadPrint("Building: \"{}\"".format(archivetitle))

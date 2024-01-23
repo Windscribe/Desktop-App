@@ -6,7 +6,7 @@
 #include "engine/engine.h"
 #include "persistentstate.h"
 #include "utils/logger.h"
-#include "utils/utils.h"
+#include "utils/network_utils/network_utils.h"
 
 #ifdef Q_OS_LINUX
 #include "launchonstartup/launchonstartup.h"
@@ -43,6 +43,7 @@ Backend::Backend(QObject *parent) : QObject(parent),
 Backend::~Backend()
 {
     preferences_.saveGuiSettings();
+    delete engine_;
 }
 
 void Backend::init()
@@ -54,7 +55,6 @@ void Backend::init()
     engine_ = new Engine();
     engine_->moveToThread(threadEngine_);
     connect(threadEngine_, &QThread::started, engine_, &Engine::init);
-    connect(engine_, &Engine::cleanupFinished, threadEngine_, &QThread::quit);
     connect(threadEngine_, &QThread::finished, this,  &Backend::onEngineCleanupFinished);
     connect(engine_, &Engine::initFinished, this, &Backend::onEngineInitFinished);
     connect(engine_, &Engine::bfeEnableFinished, this, &Backend::onEngineBfeEnableFinished);
@@ -178,6 +178,11 @@ bool Backend::isDisconnected() const
 CONNECT_STATE Backend::currentConnectState() const
 {
     return connectStateHelper_.currentConnectState().connectState;
+}
+
+LocationID Backend::currentLocation() const
+{
+    return connectStateHelper_.currentConnectState().location;
 }
 
 void Backend::firewallOn(bool updateHelperFirst)
@@ -372,6 +377,7 @@ void Backend::onEngineSettingsChangedInPreferences()
 void Backend::onEngineCleanupFinished()
 {
     isCleanupFinished_ = true;
+    delete threadEngine_;
     emit cleanupFinished();
 }
 
@@ -723,7 +729,7 @@ void Backend::handleNetworkChange(types::NetworkInterface networkInterface, bool
 
         // actual network change or explicit trigger from preference change
         // prevents brief/rare network loss during CONNECTING from triggering network change
-        if (!Utils::sameNetworkInterface(networkInterface, currentNetworkInterface_) || manual) {
+        if (!currentNetworkInterface_.sameNetworkInterface(networkInterface) || manual) {
             // disconnect VPN on an unsecured network -- connect VPN on a secured network if auto-connect is on
             if (foundInterface.trustType == NETWORK_TRUST_UNSECURED) {
                 if (!connectStateHelper_.isDisconnected()) {
@@ -759,7 +765,7 @@ types::NetworkInterface Backend::getCurrentNetworkInterface()
 
 void Backend::cycleMacAddress()
 {
-    QString macAddress = Utils::generateRandomMacAddress(); // TODO: move generation into Engine (BEWARE: mac change only occurs on preferences closing and when manual MAC cycled)
+    QString macAddress = NetworkUtils::generateRandomMacAddress(); // TODO: move generation into Engine (BEWARE: mac change only occurs on preferences closing and when manual MAC cycled)
 
     types::MacAddrSpoofing mas = preferences_.macAddrSpoofing();
     mas.macAddress = macAddress;

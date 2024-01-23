@@ -1,12 +1,12 @@
 #include "macspoofinggroup.h"
 
 #include <QPainter>
-#include "graphicresources/fontmanager.h"
-#include "graphicresources/imageresourcessvg.h"
+
 #include "generalmessagecontroller.h"
+#include "graphicresources/imageresourcessvg.h"
 #include "languagecontroller.h"
 #include "utils/logger.h"
-#include "dpiscalemanager.h"
+#include "utils/network_utils/network_utils.h"
 
 namespace PreferencesWindow {
 
@@ -41,8 +41,7 @@ MacSpoofingGroup::MacSpoofingGroup(ScalableGraphicsObject *parent, const QString
 
 void MacSpoofingGroup::setMacSpoofingSettings(const types::MacAddrSpoofing &macAddrSpoofing)
 {
-    if(macAddrSpoofing != settings_)
-    {
+    if (macAddrSpoofing != settings_) {
         settings_ = macAddrSpoofing;
 
         checkBoxEnable_->setState(macAddrSpoofing.isEnabled);
@@ -76,13 +75,21 @@ void MacSpoofingGroup::onInterfaceItemChanged(const QVariant &value)
 {
     int interfaceIndex = value.toInt();
 
-    for (int i = 0; i < settings_.networkInterfaces.size(); i++)
-    {
-        if (settings_.networkInterfaces[i].interfaceIndex == interfaceIndex)
-        {
+    for (int i = 0; i < settings_.networkInterfaces.size(); i++) {
+        if (settings_.networkInterfaces[i].interfaceIndex == interfaceIndex) {
             settings_.selectedNetworkInterface = settings_.networkInterfaces[i];
             break;
         }
+    }
+
+    // Automatically generate a new MAC address for the user, if we don't already have one,
+    // so they don't have to manually click the cycle button.
+    if (curNetwork_.interfaceIndex == settings_.selectedNetworkInterface.interfaceIndex &&
+        curNetwork_.interfaceIndex != -1 && settings_.macAddress.isEmpty())
+    {
+        settings_.macAddress = NetworkUtils::generateRandomMacAddress();
+        macAddressItem_->setMacAddress(settings_.macAddress);
+        qCDebug(LOG_BASIC) << "Automatically generated a MAC address: " << settings_.macAddress;
     }
 
     qCDebug(LOG_USER) << "Changed MAC Spoof Interface Selection: " << settings_.selectedNetworkInterface.interfaceName;
@@ -91,14 +98,10 @@ void MacSpoofingGroup::onInterfaceItemChanged(const QVariant &value)
 
 void MacSpoofingGroup::onCycleMacAddressClick()
 {
-    if (curNetwork_.interfaceIndex == settings_.selectedNetworkInterface.interfaceIndex)
-    {
-        if (curNetwork_.interfaceIndex != -1)
-        {
+    if (curNetwork_.interfaceIndex == settings_.selectedNetworkInterface.interfaceIndex) {
+        if (curNetwork_.interfaceIndex != -1) {
             emit cycleMacAddressClick();
-        }
-        else
-        {
+        } else {
             qCDebug(LOG_BASIC) << "Cannot spoof on 'No Interface'";
             GeneralMessageController::instance().showMessage(
                 "ERROR_ICON",
@@ -112,9 +115,7 @@ void MacSpoofingGroup::onCycleMacAddressClick()
                 std::function<void(bool)>(nullptr),
                 GeneralMessage::kFromPreferences);
         }
-    }
-    else
-    {
+    } else {
         qCDebug(LOG_BASIC) << "Cannot spoof the current interface -- must match selected interface";
         GeneralMessageController::instance().showMessage(
             "ERROR_ICON",
@@ -133,24 +134,17 @@ void MacSpoofingGroup::onCycleMacAddressClick()
 void MacSpoofingGroup::updateMode()
 {
     if (settings_.isEnabled) {
-        QString adapters = "";
         comboBoxInterface_->clear();
         for (int i = 0; i < settings_.networkInterfaces.size(); i++) {
             types::NetworkInterface interface = settings_.networkInterfaces[i];
             if (interface.interfaceName == "No Interface") {
                 comboBoxInterface_->addItem(tr("No Interface"), interface.interfaceIndex);
             } else {
-                comboBoxInterface_->addItem(interface.interfaceName, interface.interfaceIndex);
-            }
-
-            adapters += interface.interfaceName;
-
-            if (i < settings_.networkInterfaces.size() - 1) {
-                adapters += ", ";
+                comboBoxInterface_->addItem(interface.friendlyName, interface.interfaceIndex);
             }
         }
 
-        qCDebug(LOG_BASIC) << "Updating Spoofing adapter dropdown with: " << adapters;
+        qCDebug(LOG_BASIC) << "Updating Spoofing adapter dropdown with: " << NetworkUtils::networkInterfacesToString(settings_.networkInterfaces, false);
         qCDebug(LOG_BASIC) << "Spoofing selection: " << settings_.selectedNetworkInterface.interfaceName;
 
         comboBoxInterface_->setCurrentItem(settings_.selectedNetworkInterface.interfaceIndex);

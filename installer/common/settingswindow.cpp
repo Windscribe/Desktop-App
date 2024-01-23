@@ -14,6 +14,8 @@
 
 SettingsWindow::SettingsWindow(QWidget *parent) : QWidget(parent), animValue_(0), path_(nullptr), factoryReset_(nullptr), createShortcut_(nullptr)
 {
+    setFocusPolicy(Qt::StrongFocus);
+
     backgroundPixmap_ = QPixmap(":/resources/background.png").scaled(350, 350);
 
     background_ = new QLabel(this);
@@ -47,7 +49,7 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QWidget(parent), animValue_(0)
     addDivider(250);
 #else
     path_ = addLineEdit(143, "");
-    connect(path_, &QLineEdit::textChanged, this, &SettingsWindow::installPathChanged);
+    connect(path_, &QLineEdit::editingFinished, this, &SettingsWindow::onEditingFinished);
     HoverButton *button = addIconButton(143, ":/resources/FOLDER_ICON.svg");
     connect(button, &HoverButton::clicked, this, &SettingsWindow::browseDirClicked);
 
@@ -225,5 +227,19 @@ void SettingsWindow::setInstallPath(const QString &path)
 {
     if (path_) {
         path_->setText(path);
+    }
+}
+
+void SettingsWindow::keyPressEvent(QKeyEvent *event)
+{
+    if (event->key() == Qt::Key_Escape) {
+        emit escapeClicked();
+    }
+}
+
+void SettingsWindow::onEditingFinished()
+{
+    if (path_) {
+        emit installPathChanged(path_->text());
     }
 }

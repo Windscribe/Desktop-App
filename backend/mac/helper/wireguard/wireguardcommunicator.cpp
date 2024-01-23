@@ -8,11 +8,7 @@
 #include <regex>
 #include <type_traits>
 
-// Avoid deprecated warning from boost library.
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 #include <boost/algorithm/string/trim.hpp>
-#pragma clang diagnostic pop
 
 #include <sys/socket.h>
 #include <sys/stat.h>
@@ -162,7 +158,6 @@ bool WireGuardCommunicator::start(
 
     const std::string fullPath = exePath + "/" + executable;
     ExecutableSignature sigCheck;
-// Avoid deprecated warning from wstring_convert.
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
     if (!sigCheck.verify(std::wstring_convert<std::codecvt_utf8<wchar_t>>().from_bytes(fullPath))) {
@@ -193,12 +188,24 @@ bool WireGuardCommunicator::stop()
 
 bool WireGuardCommunicator::configure(const std::string &clientPrivateKey,
     const std::string &peerPublicKey, const std::string &peerPresharedKey,
-    const std::string &peerEndpoint, const std::vector<std::string> &allowedIps)
+    const std::string &peerEndpoint, const std::vector<std::string> &allowedIps,
+    uint16_t listenPort)
 {
     Connection connection(deviceName_);
     if (connection.getStatus() != Connection::Status::OK) {
         LOG("WireGuardCommunicator::configure(): no connection to daemon");
         return false;
+    }
+
+    // Setup listen port first, otherwise it would be silently ignored
+    if (listenPort) {
+        fprintf(connection, "set=1\nlisten_port=%hu\n\n", listenPort);
+        fflush(connection);
+        // Check results.
+        Connection::ResultMap results{ std::make_pair("errno", "") };
+        bool success = connection.getOutput(&results);
+        if (success && stringToValue<int>(results["errno"]) != 0)
+            LOG("Wireguard listen_port is not successful");
     }
 
     // Send set command.

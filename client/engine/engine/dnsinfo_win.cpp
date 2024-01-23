@@ -14,12 +14,12 @@ void DnsInfo_win::outputDebugDnsInfo()
     ULONG ulAdapterInfoSize = sizeof(IP_ADAPTER_INFO);
     QByteArray pAdapterInfo(ulAdapterInfoSize, Qt::Uninitialized);
 
-    if( GetAdaptersInfo((IP_ADAPTER_INFO *)pAdapterInfo.data(), &ulAdapterInfoSize) == ERROR_BUFFER_OVERFLOW ) // out of buff
+    if ( GetAdaptersInfo((IP_ADAPTER_INFO *)pAdapterInfo.data(), &ulAdapterInfoSize) == ERROR_BUFFER_OVERFLOW ) // out of buff
     {
         pAdapterInfo.resize(ulAdapterInfoSize);
     }
 
-    if( GetAdaptersInfo((IP_ADAPTER_INFO *)pAdapterInfo.data(), &ulAdapterInfoSize) == ERROR_SUCCESS )
+    if ( GetAdaptersInfo((IP_ADAPTER_INFO *)pAdapterInfo.data(), &ulAdapterInfoSize) == ERROR_SUCCESS )
     {
         IP_ADAPTER_INFO *ai = (IP_ADAPTER_INFO *)pAdapterInfo.data();
 
@@ -31,7 +31,7 @@ void DnsInfo_win::outputDebugDnsInfo()
                 ULONG ulPerAdapterInfoSize = sizeof(IP_PER_ADAPTER_INFO);
                 QByteArray pPerAdapterInfo(ulPerAdapterInfoSize, Qt::Uninitialized);
 
-                if( GetPerAdapterInfo(
+                if ( GetPerAdapterInfo(
                             ai->Index,
                             (IP_PER_ADAPTER_INFO*)pPerAdapterInfo.data(),
                             &ulPerAdapterInfoSize) == ERROR_BUFFER_OVERFLOW ) // out of buff
@@ -41,7 +41,7 @@ void DnsInfo_win::outputDebugDnsInfo()
 
                 DWORD dwRet;
                 std::string dnsIps;
-                if((dwRet = GetPerAdapterInfo(
+                if ((dwRet = GetPerAdapterInfo(
                             ai->Index,
                             (IP_PER_ADAPTER_INFO*)pPerAdapterInfo.data(),
                             &ulPerAdapterInfoSize)) == ERROR_SUCCESS)

@@ -193,7 +193,7 @@ void GeneralWindowItem::onStartMinimizedPreferencesChanged(bool b)
 
 void GeneralWindowItem::onStartMinimizedClicked(bool b)
 {
-    if(preferences_)
+    if (preferences_)
         preferences_->setStartMinimized(b);
 }
 

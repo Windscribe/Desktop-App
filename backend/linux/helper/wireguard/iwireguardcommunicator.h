@@ -18,7 +18,8 @@ public:
         const std::string &peerPresharedKey,
         const std::string &peerEndpoint,
         const std::vector<std::string> &allowedIps,
-        uint32_t fwmark) = 0;
+        uint32_t fwmark,
+        uint16_t listenPort) = 0;
     virtual unsigned long getStatus(
         unsigned int *errorCode,
         unsigned long long *bytesReceived,

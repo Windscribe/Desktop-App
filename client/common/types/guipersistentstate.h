@@ -8,7 +8,7 @@ namespace types {
 
 struct GuiPersistentState
 {
-    GuiPersistentState() {};
+    GuiPersistentState() = default;
 
     bool isFirewallOn = false;
     qint32 windowOffsX = INT_MAX; // deprecated

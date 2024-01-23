@@ -113,7 +113,7 @@ bool Preferences::isStartMinimized() const
 
 void Preferences::setStartMinimized(bool b)
 {
-    if(guiSettings_.isStartMinimized != b)
+    if (guiSettings_.isStartMinimized != b)
     {
         guiSettings_.isStartMinimized = b;
         saveGuiSettings();
@@ -316,7 +316,7 @@ const types::FirewallSettings &Preferences::firewallSettings() const
 
 void Preferences::setFirewallSettings(const types::FirewallSettings &fs)
 {
-    if(engineSettings_.firewallSettings() != fs)
+    if (engineSettings_.firewallSettings() != fs)
     {
         engineSettings_.setFirewallSettings(fs);
         emitEngineSettingsChanged();
@@ -346,7 +346,7 @@ const types::ApiResolutionSettings &Preferences::apiResolution() const
 
 void Preferences::setApiResolution(const types::ApiResolutionSettings &s)
 {
-    if(engineSettings_.apiResolutionSettings() != s)
+    if (engineSettings_.apiResolutionSettings() != s)
     {
         engineSettings_.setApiResolutionSettings(s);
         emitEngineSettingsChanged();
@@ -361,7 +361,7 @@ const types::PacketSize &Preferences::packetSize() const
 
 void Preferences::setPacketSize(const types::PacketSize &ps)
 {
-    if(engineSettings_.packetSize() != ps)
+    if (engineSettings_.packetSize() != ps)
     {
         engineSettings_.setPacketSize(ps);
         emitEngineSettingsChanged();
@@ -439,7 +439,7 @@ const types::ShareSecureHotspot &Preferences::shareSecureHotspot() const
 
 void Preferences::setShareSecureHotspot(const types::ShareSecureHotspot &ss)
 {
-    if(guiSettings_.shareSecureHotspot != ss)
+    if (guiSettings_.shareSecureHotspot != ss)
     {
         guiSettings_.shareSecureHotspot = ss;
         saveGuiSettings();
@@ -454,7 +454,7 @@ const types::ShareProxyGateway &Preferences::shareProxyGateway() const
 
 void Preferences::setShareProxyGateway(const types::ShareProxyGateway &sp)
 {
-    if(guiSettings_.shareProxyGateway != sp)
+    if (guiSettings_.shareProxyGateway != sp)
     {
         guiSettings_.shareProxyGateway = sp;
         saveGuiSettings();
@@ -685,6 +685,33 @@ void Preferences::clearLastKnownGoodProtocols(const QString &network)
     }
 }
 
+QJsonObject Preferences::toJson() const
+{
+    QJsonObject json;
+    json[jsonInfo_.kGuiSettingsProp] = guiSettings_.toJson();
+    json[jsonInfo_.kEngineSettingsProp] = engineSettings_.toJson();
+    return json;
+}
+
+void Preferences::updateFromJson(const QJsonObject& json)
+{
+    if (json.contains(jsonInfo_.kEngineSettingsProp) && json[jsonInfo_.kEngineSettingsProp].isObject())
+        updateEngineSettingsFromJson(json[jsonInfo_.kEngineSettingsProp].toObject());
+
+    if (json.contains(jsonInfo_.kGuiSettingsProp) && json[jsonInfo_.kGuiSettingsProp].isObject())
+        updateGuiSettingsFromJson(json[jsonInfo_.kGuiSettingsProp].toObject());
+}
+
+void Preferences::updateEngineSettingsFromJson(const QJsonObject &json)
+{
+    setEngineSettings(types::EngineSettings(json));
+}
+
+void Preferences::updateGuiSettingsFromJson(const QJsonObject &json)
+{
+    setGuiSettings(types::GuiSettings(json));
+}
+
 void Preferences::emitEngineSettingsChanged()
 {
     if (!isSettingEngineSettings_)
@@ -722,6 +749,47 @@ void Preferences::setEngineSettings(const types::EngineSettings &es)
 types::EngineSettings Preferences::getEngineSettings() const
 {
     return engineSettings_;
+}
+
+void Preferences::setGuiSettings(const types::GuiSettings &gs)
+{
+    setAppSkin(gs.appSkin);
+    setBackgroundSettings(gs.backgroundSettings);
+    setAutoConnect(gs.isAutoConnect);
+    setDockedToTray(gs.isDockedToTray);
+
+#ifdef Q_OS_MAC
+    setHideFromDock(gs.isHideFromDock);
+#endif
+
+    setLaunchOnStartup(gs.isLaunchOnStartup);
+    setMinimizeAndCloseToTray(gs.isMinimizeAndCloseToTray);
+    setShowLocationLoad(gs.isShowLocationHealth);
+    setShowNotifications(gs.isShowNotifications);
+    setStartMinimized(gs.isStartMinimized);
+    setLatencyDisplay(gs.latencyDisplay);
+    setLocationOrder(gs.orderLocation);
+
+#ifdef Q_OS_LINUX
+    setTrayIconColor(gs.trayIconColor);
+#endif
+
+    setShareSecureHotspot(gs.shareSecureHotspot);
+    setShareProxyGateway(gs.shareProxyGateway);
+
+    QList<types::SplitTunnelingApp> apps;
+    for (const auto& app : gs.splitTunneling.apps) {
+        apps.append(app);
+    }
+    setSplitTunnelingApps(apps);
+
+    QList<types::SplitTunnelingNetworkRoute> networkRoutes;
+    for (const auto& route : gs.splitTunneling.networkRoutes) {
+        networkRoutes.append(route);
+    }
+    setSplitTunnelingNetworkRoutes(networkRoutes);
+
+    setSplitTunnelingSettings(gs.splitTunneling.settings);
 }
 
 void Preferences::saveGuiSettings() const
@@ -819,7 +887,7 @@ void Preferences::validateAndUpdateIfNeeded()
         }
         if (!bCorrect)
         {
-            cdi.type = CONNECTED_DNS_TYPE_ROBERT;
+            cdi.type = CONNECTED_DNS_TYPE_AUTO;
             engineSettings_.setConnectedDnsInfo(cdi);
             emit connectedDnsInfoChanged(engineSettings_.connectedDnsInfo());
             is_update_needed = true;

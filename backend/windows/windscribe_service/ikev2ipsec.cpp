@@ -76,7 +76,9 @@ bool IKEv2IPSec::setIKEv2IPSecParametersInPhoneBook()
             kWindscribeConnectionName, L"NumCustomPolicy", L"1", pbk_path) ||
             !WritePrivateProfileString(
                 kWindscribeConnectionName, L"CustomIPSecPolicies",
-                L"020000000400000005000000080000000500000005000000", pbk_path)) {
+                L"020000000400000005000000080000000500000005000000", pbk_path) ||
+            // This string disables NetBIOS over TCP/IP.
+            !WritePrivateProfileString( kWindscribeConnectionName, L"IpNBTFlags", L"0", pbk_path)) {
             // This is a valid phonebook, but we cannot write it. Don't try other locations, they
             // won't make any sense; better to try other IPSec setup functions, like PowerShell.
             Logger::instance().out(L"Phonebook is not accessible: %ls", pbk_path);

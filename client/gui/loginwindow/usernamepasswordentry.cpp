@@ -33,6 +33,7 @@ UsernamePasswordEntry::UsernamePasswordEntry(const QString &text, bool password,
     if (password)
     {
         userEntryLine_->setEchoMode(QLineEdit::Password);
+        userEntryLine_->setShowRevealToggle(true);
     }
 
     connect(userEntryLine_, &CommonWidgets::CustomMenuLineEdit::textChanged, this, &UsernamePasswordEntry::textChanged);
@@ -105,16 +106,8 @@ void UsernamePasswordEntry::setOpacityByFactor(double newOpacityFactor)
 void UsernamePasswordEntry::setClickable(bool clickable)
 {
     userEntryLine_->setClickable(clickable);
-
-    if (!clickable)
-    {
-        userEntryLine_->setCursor(Qt::ArrowCursor);
-    }
-    else
-    {
-        userEntryLine_->setCursor(Qt::IBeamCursor);
-    }
     ClickableGraphicsObject::setClickable(clickable);
+    setCursor(Qt::ArrowCursor);
 }
 
 void UsernamePasswordEntry::setFocus()

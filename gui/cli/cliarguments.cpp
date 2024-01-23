@@ -90,6 +90,10 @@ void CliArguments::processArguments()
                 keepFirewallOn_ = false;
             }
         }
+        else if (arg1 == "status")
+        {
+            cliCommand_ = CLI_COMMAND_STATUS;
+        }
     }
 }
 

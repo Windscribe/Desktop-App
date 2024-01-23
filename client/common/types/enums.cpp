@@ -286,11 +286,14 @@ QList<QPair<QString, QVariant>> DNS_MANAGER_TYPE_toList()
 
 QString CONNECTED_DNS_TYPE_toString(CONNECTED_DNS_TYPE t)
 {
-    if (t == CONNECTED_DNS_TYPE_ROBERT) {
-        return QObject::tr("R.O.B.E.R.T.");
+    if (t == CONNECTED_DNS_TYPE_AUTO) {
+        return QObject::tr("Auto");
     }
     else if (t == CONNECTED_DNS_TYPE_CUSTOM) {
         return QObject::tr("Custom");
+    }
+    else if (t == CONNECTED_DNS_TYPE_FORCED) {
+        return QObject::tr("Forced");
     }
     else {
         WS_ASSERT(false);
@@ -334,8 +337,6 @@ QString APP_SKIN_toString(APP_SKIN s)
     }
 }
 
-#if defined(Q_OS_LINUX)
-
 QString TRAY_ICON_COLOR_toString(TRAY_ICON_COLOR c)
 {
     if (c == TRAY_ICON_COLOR_WHITE) {
@@ -357,5 +358,3 @@ QList<QPair<QString, QVariant>> TRAY_ICON_COLOR_toList()
     l << qMakePair(TRAY_ICON_COLOR_toString(TRAY_ICON_COLOR_BLACK), TRAY_ICON_COLOR_BLACK);
     return l;
 }
-
-#endif

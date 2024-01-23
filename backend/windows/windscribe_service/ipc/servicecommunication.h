@@ -51,8 +51,10 @@
 #define AA_COMMAND_SUSPEND_UNBLOCKING_CMD                   48
 #define AA_COMMAND_CONNECTED_DNS                            49
 #define AA_COMMAND_MAKE_HOSTS_FILE_WRITABLE                 50
-#define AA_COMMAND_CREATE_WINTUN_ADAPTER                    51
-#define AA_COMMAND_REMOVE_WINTUN_ADAPTER                    52
+#define AA_COMMAND_CREATE_OPENVPN_ADAPTER                   51
+#define AA_COMMAND_REMOVE_OPENVPN_ADAPTER                   52
+#define AA_COMMAND_DISABLE_DOH_SETTINGS                     53
+#define AA_COMMAND_ENABLE_DOH_SETTINGS                      54
 
 #include <string>
 #include <vector>
@@ -231,6 +233,7 @@ struct CMD_CONFIGURE_WIREGUARD
     std::string     peerPresharedKey;
     std::string     peerEndpoint;
     std::string     allowedIps;
+    uint16_t        listenPort;
 };
 
 struct CMD_DISABLE_DNS_TRAFFIC
@@ -246,6 +249,11 @@ enum WireGuardServiceState
     WIREGUARD_STATE_LISTENING,  // WireGuard is listening for UAPI commands, but not connected.
     WIREGUARD_STATE_CONNECTING, // WireGuard is configured and awaits for a handshake.
     WIREGUARD_STATE_ACTIVE,     // WireGuard is connected.
+};
+
+struct CMD_CREATE_OPENVPN_ADAPTER
+{
+    bool useDCODriver;
 };
 
 struct MessagePacketResult

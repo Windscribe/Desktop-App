@@ -1,10 +1,12 @@
 #include "networkdetectionmanager_mac.h"
 
 #include <QRegularExpression>
+
 #include "../networkdetectionmanager/reachabilityevents.h"
+#include "utils/logger.h"
+#include "utils/network_utils/network_utils.h"
 #include "utils/network_utils/network_utils_mac.h"
 #include "utils/utils.h"
-#include "utils/logger.h"
 
 const int typeIdNetworkInterface = qRegisterMetaType<types::NetworkInterface>("types::NetworkInterface");
 
@@ -126,7 +128,7 @@ const types::NetworkInterface NetworkDetectionManager_mac::currentNetworkInterfa
         }
     }
 
-    return Utils::noNetworkInterface();
+    return types::NetworkInterface::noNetworkInterface();
 }
 
 bool NetworkDetectionManager_mac::isOnlineImpl()

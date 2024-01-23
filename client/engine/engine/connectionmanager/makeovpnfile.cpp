@@ -6,6 +6,10 @@
 #include "utils/logger.h"
 #include "utils/ws_assert.h"
 
+#if defined (Q_OS_WIN)
+#include "types/global_consts.h"
+#include "utils/winutils.h"
+#endif
 
 MakeOVPNFile::MakeOVPNFile()
 {
@@ -16,7 +20,8 @@ MakeOVPNFile::~MakeOVPNFile()
 }
 
 bool MakeOVPNFile::generate(const QString &ovpnData, const QString &ip, types::Protocol protocol, uint port,
-                            uint portForStunnelOrWStunnel, int mss, const QString &defaultGateway, const QString &openVpnX509, const QString &customDns)
+                            uint portForStunnelOrWStunnel, int mss, const QString &defaultGateway,
+                            const QString &openVpnX509, const QString &customDns)
 {
 #ifdef Q_OS_WIN
     Q_UNUSED(defaultGateway);
@@ -29,6 +34,26 @@ bool MakeOVPNFile::generate(const QString &ovpnData, const QString &ip, types::P
 
     // set timeout 30 sec according to this: https://www.notion.so/windscribe/Data-Plane-VPN-Protocol-Failover-Refresh-48ed7aea1a244617b327c3a7d816a902
     config_ += "\r\n--connect-timeout 30\r\n";
+
+#if defined (Q_OS_WIN)
+    // NOTE: --dev tun option already included in ovpnData by the server API.
+    // We use the --dev-node option to ensure OpenVPN will only use the dco/wintun adapter instance we create and not
+    // possibly attempt to use an adapter created by other software (e.g. the vanilla OpenVPN client app).
+    config_ += QString("\r\n--dev-node %1\r\n").arg(kOpenVPNAdapterIdentifier);
+    if (ExtraConfig::instance().useOpenVpnDCO()) {
+        if (WinUtils::getOSBuildNumber() >= kMinWindowsBuildNumberForOpenVPNDCO) {
+            config_ += "\r\n--windows-driver ovpn-dco\r\n";
+            // DCO driver on Windows will not accept the AES-256 cipher and will drop back to using wintun if it is provided in the ciphers list.
+            config_.replace(":AES-256-CBC:", ":");
+        } else {
+            qCDebug(LOG_CONNECTION) << "WARNING: OS version is not compatible with the OpenVPN DCO driver.  Windows 10 build"
+                                    << kMinWindowsBuildNumberForOpenVPNDCO << "or newer is required to use this driver.";
+            config_ += "\r\n--windows-driver wintun\r\n";
+        }
+    } else {
+        config_ += "\r\n--windows-driver wintun\r\n";
+    }
+#endif
 
     if (protocol == types::Protocol::OPENVPN_UDP) {
         if (!bExtraContainsRemote) {

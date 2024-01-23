@@ -1,52 +1,16 @@
-#include <WinSock2.h>
-#include <WS2tcpip.h>
-#include <iphlpapi.h>
-#include <shellapi.h>
-#include <psapi.h>
-#include <tchar.h>
-#include <strsafe.h>
-#include <tlhelp32.h>
-
-#include <filesystem>
-#include <iostream>
-
-#include <LM.h>
-
-#include <wlanapi.h>
-#include <objbase.h>
-#include <wtypes.h>
-#include <netlistmgr.h>
-
-#include <atlbase.h>
-
-#include <QDir>
-#include <QCoreApplication>
-#include <QScopeGuard>
-#include <QSettings>
-
-// Must be included here otherwise #include <Windows.h> conflicts with other Win API includes.
 #include "winutils.h"
 
+#include <QSettings>
+
+#include <LM.h>
+#include <psapi.h>
+
+#include "types/global_consts.h"
 #include "logger.h"
 #include "servicecontrolmanager.h"
-#include "utils.h"
 #include "win32handle.h"
 
-#include "../../gui/authhelper/win/ws_com/guids.h"
-
-
-#pragma comment(lib, "wlanapi.lib")
-
-// TODO: implement via new way
-#define WORKING_BUFFER_SIZE 15000
-#define MALLOC(x) HeapAlloc(GetProcessHeap(), 0, (x))
-#define FREE(x) HeapFree(GetProcessHeap(), 0, (x))
 #define MAX_KEY_LENGTH 255
-#define MAX_VALUE_NAME 16383
-
-QString processExecutablePath( DWORD processID );
-GUID guidFromQString(QString str);
-QString guidToQString(GUID guid);
 
 bool WinUtils::reboot()
 {
@@ -82,7 +46,7 @@ bool WinUtils::reboot()
     return true;
 }
 
-bool getWinVersion(RTL_OSVERSIONINFOEXW *rtlOsVer)
+static bool getWinVersion(RTL_OSVERSIONINFOEXW *rtlOsVer)
 {
     NTSTATUS (WINAPI *RtlGetVersion)(LPOSVERSIONINFOEXW);
     *(FARPROC*)&RtlGetVersion = GetProcAddress(GetModuleHandleA("ntdll"), "RtlGetVersion");
@@ -109,32 +73,15 @@ bool WinUtils::isWindows10orGreater()
     return false;
 }
 
-bool WinUtils::isWindows7()
+bool WinUtils::isDohSupported()
 {
     RTL_OSVERSIONINFOEXW rtlOsVer;
-    if (getWinVersion(&rtlOsVer))
-    {
-        if (rtlOsVer.dwMajorVersion == 6 && rtlOsVer.dwMinorVersion == 1)
-        {
-            return true;
-        }
+    if (getWinVersion(&rtlOsVer)) {
+        return rtlOsVer.dwMajorVersion >= 10 && rtlOsVer.dwBuildNumber >= 19628;
     }
+
     return false;
 }
-
-bool WinUtils::isWindowsVISTAor7or8()
-{
-    RTL_OSVERSIONINFOEXW rtlOsVer;
-    if (getWinVersion(&rtlOsVer))
-    {
-        if (rtlOsVer.dwMajorVersion == 6)
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
 
 QString WinUtils::getWinVersionString()
 {
@@ -144,7 +91,7 @@ QString WinUtils::getWinVersionString()
     }
 
     QString ret;
-    if (rtlOsVer.dwMajorVersion == 10 && rtlOsVer.dwMinorVersion >= 0 && rtlOsVer.wProductType == VER_NT_WORKSTATION) ret = (rtlOsVer.dwBuildNumber >= 22000 ? "Windows 11" : "Windows 10");
+    if (rtlOsVer.dwMajorVersion == 10 && rtlOsVer.dwMinorVersion >= 0 && rtlOsVer.wProductType == VER_NT_WORKSTATION) ret = (rtlOsVer.dwBuildNumber >= kWindows11BuildNumber ? "Windows 11" : "Windows 10");
     else if (rtlOsVer.dwMajorVersion == 10 && rtlOsVer.dwMinorVersion >= 0 && rtlOsVer.wProductType != VER_NT_WORKSTATION) ret = "Windows 10 Server";
     else if (rtlOsVer.dwMajorVersion == 6 && rtlOsVer.dwMinorVersion == 3 && rtlOsVer.wProductType != VER_NT_WORKSTATION) ret = "Windows Server 2012 R2";
     else if (rtlOsVer.dwMajorVersion == 6 && rtlOsVer.dwMinorVersion == 3 && rtlOsVer.wProductType == VER_NT_WORKSTATION) ret = "Windows 8.1";
@@ -194,60 +141,16 @@ void WinUtils::getOSVersionAndBuild(QString &osVersion, QString &build)
     }
 }
 
-QString regGetLocalMachineRegistryValueSz(HKEY rootKey, QString keyPath, QString propertyName, bool wow64)
+QStringList WinUtils::enumerateSubkeyNames(HKEY rootKey, const QString &keyPath)
 {
-    QString result = "";
-
-    DWORD options = KEY_READ;
-    if (wow64) options |= KEY_WOW64_64KEY;
-
-    HKEY hKey;
-    LONG nError = RegOpenKeyEx(rootKey, keyPath.toStdWString().c_str(), NULL, options, &hKey);
-    if (nError == ERROR_SUCCESS)
-    {
-        DWORD dwType = REG_SZ;
-        char value[1024];
-        DWORD value_length = 1024;
-        nError = RegQueryValueEx(hKey, propertyName.toStdWString().c_str(), NULL, &dwType, (LPBYTE) &value, &value_length);
-        if(nError == ERROR_SUCCESS)
-        {
-            // TODO: make this better!
-            for (DWORD i = 0; i < value_length; i++)
-            {
-                if (value[i] > 16)
-                {
-                    result += QString(value[i]);
-                }
-                else
-                {
-                    result += QString::fromUtf8(&value[i]);
-                }
-            }
-
-            RegCloseKey(hKey);
-        }
-        else
-        {
-            RegCloseKey(hKey);
-        }
-    }
-
-    return result;
-}
-
-QList<QString> enumerateSubkeyNames(HKEY rootKey, QString keyPath, bool wow64)
-{
-    QList<QString> result;
+    QStringList result;
 
     std::wstring subKey = keyPath.toStdWString();
 
-    DWORD options = KEY_READ;
-    if (wow64) options |= KEY_WOW64_64KEY;
-
     HKEY hKeyParent;
-    if (RegOpenKeyEx( rootKey,
-                      subKey.c_str(),
-                      0, options, &hKeyParent) == ERROR_SUCCESS)
+    if (RegOpenKeyEx(rootKey,
+                     subKey.c_str(),
+                     0, KEY_READ, &hKeyParent) == ERROR_SUCCESS)
     {
         TCHAR    achClass[MAX_PATH] = TEXT("");  // buffer for class name
         DWORD    cchClassName = MAX_PATH;  // size of class string
@@ -305,11 +208,52 @@ QList<QString> enumerateSubkeyNames(HKEY rootKey, QString keyPath, bool wow64)
     return result;
 }
 
-QMap<QString,QString> enumerateCleanedProgramLocations(HKEY hKey, QString keyPath, bool wow64)
+static QString regGetLocalMachineRegistryValueSz(HKEY rootKey, QString keyPath, QString propertyName, bool wow64)
+{
+    QString result = "";
+
+    DWORD options = KEY_READ;
+    if (wow64) options |= KEY_WOW64_64KEY;
+
+    HKEY hKey;
+    LONG nError = RegOpenKeyEx(rootKey, keyPath.toStdWString().c_str(), NULL, options, &hKey);
+    if (nError == ERROR_SUCCESS)
+    {
+        DWORD dwType = REG_SZ;
+        char value[1024];
+        DWORD value_length = 1024;
+        nError = RegQueryValueEx(hKey, propertyName.toStdWString().c_str(), NULL, &dwType, (LPBYTE) &value, &value_length);
+        if(nError == ERROR_SUCCESS)
+        {
+            // TODO: make this better!
+            for (DWORD i = 0; i < value_length; i++)
+            {
+                if (value[i] > 16)
+                {
+                    result += QString(value[i]);
+                }
+                else
+                {
+                    result += QString::fromUtf8(&value[i]);
+                }
+            }
+
+            RegCloseKey(hKey);
+        }
+        else
+        {
+            RegCloseKey(hKey);
+        }
+    }
+
+    return result;
+}
+
+static QMap<QString,QString> enumerateCleanedProgramLocations(HKEY hKey, QString keyPath, bool wow64)
 {
     QMap<QString, QString> programLocations;
 
-    const QList<QString> uninstallSubkeys = enumerateSubkeyNames(hKey, keyPath, wow64);
+    const QStringList uninstallSubkeys = WinUtils::enumerateSubkeyNames(hKey, keyPath);
 
     for (const QString &subkey : uninstallSubkeys)
     {
@@ -425,13 +369,31 @@ bool WinUtils::regGetCurrentUserRegistryDword(QString keyPath, QString propertyN
         nError = RegQueryValueEx(hKey, propertyName.toStdWString().c_str(),
                                  nullptr, nullptr, (LPBYTE) &dwordValue, &dwBufSize);
 
-        if(nError == ERROR_SUCCESS)
+        if (nError == ERROR_SUCCESS)
         {
             result = true;
         }
 
         RegCloseKey(hKey);
     }
+
+    return result;
+}
+
+static QString processExecutablePath(DWORD processID)
+{
+    QString result;
+    HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, processID);
+
+    // Get the process name.
+    if (NULL != hProcess ) {
+        TCHAR szProcessName[MAX_PATH] = TEXT("<unknown>");
+        if (GetModuleFileNameEx(hProcess, NULL, szProcessName, sizeof(szProcessName)/sizeof(TCHAR))) {
+            result = QString::fromWCharArray(szProcessName);
+        }
+    }
+
+    CloseHandle(hProcess);
 
     return result;
 }
@@ -463,742 +425,7 @@ QStringList WinUtils::enumerateRunningProgramLocations()
     return result;
 }
 
-QString processExecutablePath( DWORD processID )
-{
-    QString result;
-    HANDLE hProcess = OpenProcess( PROCESS_QUERY_INFORMATION |
-                                   PROCESS_VM_READ,
-                                   FALSE, processID );
-
-    // Get the process name.
-    if (NULL != hProcess )
-    {
-        TCHAR szProcessName[MAX_PATH] = TEXT("<unknown>");
-        if (GetModuleFileNameEx(hProcess, NULL, szProcessName, sizeof(szProcessName)/sizeof(TCHAR)))
-        {
-            result = QString::fromWCharArray(szProcessName);
-        }
-    }
-
-    CloseHandle( hProcess );
-
-    return result;
-}
-
-
-types::NetworkInterface WinUtils::currentNetworkInterface()
-{
-    types::NetworkInterface curNetworkInterface;
-
-    IfTable2Row row = lowestMetricNonWindscribeIfTableRow();
-    if (!row.valid)
-    {
-        qCDebug(LOG_BASIC) << "WinUtils::lowestMetricNonWindscribeIfTableRow failed";
-        return curNetworkInterface;
-    }
-
-    QVector<types::NetworkInterface> interfaces = currentNetworkInterfaces(true);
-
-    for (int i = 0; i < interfaces.size(); i++)
-    {
-        types::NetworkInterface network = interfaces[i];
-
-        if (network.interfaceIndex == static_cast<int>(row.index))
-        {
-            curNetworkInterface = network;
-            break;
-        }
-    }
-
-    // qDebug() << "#########Current interface found to be: ";
-    // Utils::printInterface(curNetworkInterface);
-    // qDebug() << "Of: ";
-    // Utils::printInterfaces(interfaces);
-
-    return curNetworkInterface;
-}
-
-QVector<types::NetworkInterface> WinUtils::currentNetworkInterfaces(bool includeNoInterface)
-{
-    QVector<types::NetworkInterface> networkInterfaces;
-
-    // Add "No Interface" selection
-    if (includeNoInterface)
-    {
-        types::NetworkInterface noInterfaceSelection = Utils::noNetworkInterface();
-        networkInterfaces << noInterfaceSelection;
-    }
-
-    const QList<IpAdapter> ipAdapters = getIpAdapterTable();
-    const QList<AdapterAddress> adapterAddresses = getAdapterAddressesTable(); // TODO: invalid parameters passed to C runtime
-
-    const QList<IfTableRow> ifTable = getIfTable();
-    const QList<IfTable2Row> ifTable2 = getIfTable2();
-    const QList<IpForwardRow> ipForwardTable = getIpForwardTable();
-
-    for (const IpAdapter &ia: ipAdapters)  // IpAdapters holds list of live adapters
-    {
-        types::NetworkInterface networkInterface;
-        networkInterface.interfaceIndex = ia.index;
-        networkInterface.interfaceGuid = ia.guid;
-        networkInterface.physicalAddress = ia.physicalAddress;
-
-        NETWORK_INTERACE_TYPE nicType = NETWORK_INTERFACE_NONE;
-
-        for (const IfTableRow &itRow: ifTable)
-        {
-            if (itRow.index == static_cast<int>(ia.index))
-            {
-                nicType = itRow.type;
-                networkInterface.mtu = itRow.mtu;
-                networkInterface.interfaceType = nicType;
-                networkInterface.active = itRow.connected;
-                networkInterface.dwType = itRow.dwType;
-                networkInterface.deviceName = itRow.interfaceName;
-
-                if (nicType == NETWORK_INTERFACE_WIFI)
-                {
-                    networkInterface.networkOrSsid = ssidFromInterfaceGUID(itRow.guidName);
-                }
-                break;
-            }
-        }
-
-        for (const IfTable2Row &it2Row: ifTable2)
-        {
-            if (it2Row.index == ia.index)
-            {
-                if (nicType == NETWORK_INTERFACE_ETH)
-                {
-                    networkInterface.networkOrSsid = networkNameFromInterfaceGUID(it2Row.interfaceGuid);
-                }
-                networkInterface.connectorPresent = it2Row.connectorPresent;
-                networkInterface.endPointInterface = it2Row.endPointInterface;
-                break;
-            }
-        }
-
-        for (const IpForwardRow &ipfRow: ipForwardTable)
-        {
-            if (ipfRow.index == ia.index)
-            {
-                networkInterface.metric = ipfRow.metric;
-                break;
-            }
-        }
-
-        for (const AdapterAddress &aa: adapterAddresses)
-        {
-            if (aa.index == ia.index)
-            {
-                networkInterface.interfaceName = aa.friendlyName;
-            }
-        }
-
-        // Filter out virtual physical adapters, but keep virtual adapters that act as Ethernet
-        // network bridges (e.g. Hyper-V virtual switches on the host side).
-        if (networkInterface.dwType != IF_TYPE_PPP &&
-            !networkInterface.endPointInterface &&
-            (networkInterface.interfaceType == NETWORK_INTERFACE_ETH
-                || networkInterface.connectorPresent))
-        {
-            networkInterfaces << networkInterface;
-        }
-    }
-
-    return networkInterfaces;
-}
-
-IfTable2Row WinUtils::lowestMetricNonWindscribeIfTableRow()
-{
-    IfTable2Row lowestMetricIfRow;
-
-    const QList<IpForwardRow> fwdTable = getIpForwardTable();
-    const QList<IpAdapter> ipAdapters = getIpAdapterTable();
-
-    int lowestMetric = 999999;
-
-    for (const IpForwardRow &row: fwdTable)
-    {
-        for (const IpAdapter &ipAdapter: ipAdapters)
-        {
-            if (ipAdapter.index == row.index)
-            {
-                IfTable2Row ifRow = ifTable2RowByIndex(row.index);
-                if (ifRow.valid && ifRow.interfaceType != IF_TYPE_PPP && !ifRow.isWindscribeAdapter())
-                {
-                    const auto row_metric = static_cast<int>(row.metric);
-                    if (row_metric < lowestMetric)
-                    {
-                        lowestMetric = static_cast<int>(row_metric);
-                        lowestMetricIfRow = ifRow;
-                    }
-                }
-            }
-        }
-    }
-
-    // qDebug() << "ifRow.dwType: " << lowestMetricIfRow.dwType;
-
-    return lowestMetricIfRow;
-}
-
-IfTableRow WinUtils::ifRowByIndex(int index)
-{
-    IfTableRow found;
-
-    const auto if_table = getIfTable();
-    for (const IfTableRow &row : if_table)
-    {
-        if (index == static_cast<int>(row.index)) // TODO: convert all ifIndices to int
-        {
-            found = row;
-            break;
-        }
-    }
-
-    return found;
-}
-
-QString WinUtils::interfaceSubkeyPath(int interfaceIndex)
-{
-    IfTableRow row = ifRowByIndex(interfaceIndex);
-
-    const QString keyPath("SYSTEM\\CurrentControlSet\\Control\\Class\\{4D36E972-E325-11CE-BFC1-08002BE10318}");
-    const QList<QString> ifSubkeys = interfaceSubkeys(keyPath);
-
-    QString foundSubkey = "";
-    for (const QString &subkey : ifSubkeys)
-    {
-        QString subkeyPath = keyPath + "\\" + subkey;
-        QString subkeyInterfaceGuid = WinUtils::regGetLocalMachineRegistryValueSz(subkeyPath, "NetCfgInstanceId");
-
-        if (subkeyInterfaceGuid == row.guidName)
-        {
-            foundSubkey = subkeyPath; // whole key path
-            break;
-        }
-    }
-
-    return foundSubkey;
-}
-
-QString WinUtils::interfaceSubkeyName(int interfaceIndex)
-{
-    IfTableRow row = ifRowByIndex(interfaceIndex);
-
-    const QString keyPath("SYSTEM\\CurrentControlSet\\Control\\Class\\{4D36E972-E325-11CE-BFC1-08002BE10318}");
-    const QList<QString> ifSubkeys = interfaceSubkeys(keyPath);
-
-    QString foundSubkeyName = "";
-    for (const QString &subkey : ifSubkeys)
-    {
-        QString subkeyPath = keyPath + "\\" + subkey;
-        QString subkeyInterfaceGuid = WinUtils::regGetLocalMachineRegistryValueSz(subkeyPath, "NetCfgInstanceId");
-
-        if (subkeyInterfaceGuid == row.guidName)
-        {
-            foundSubkeyName = subkey; // just name -- not path
-            break;
-        }
-    }
-
-    return foundSubkeyName;
-}
-
-bool WinUtils::interfaceSubkeyHasProperty(int interfaceIndex, QString propertyName)
-{
-    QString interfaceSubkeyP = interfaceSubkeyPath(interfaceIndex);
-    return WinUtils::regHasLocalMachineSubkeyProperty(interfaceSubkeyP, propertyName);
-}
-
-
-
-QList<QString> WinUtils::interfaceSubkeys(QString keyPath)
-{
-    QList<QString> result;
-
-    std::wstring subKey = keyPath.toStdWString();
-
-    HKEY hKeyParent;
-    if (RegOpenKeyEx( HKEY_LOCAL_MACHINE,
-                      subKey.c_str(),
-                      0, KEY_READ, &hKeyParent) == ERROR_SUCCESS)
-    {
-        TCHAR    achClass[MAX_PATH] = TEXT("");  // buffer for class name
-        DWORD    cchClassName = MAX_PATH;  // size of class string
-        DWORD    cSubKeys=0;               // number of subkeys
-        DWORD    cbMaxSubKey;              // longest subkey size
-        DWORD    cchMaxClass;              // longest class string
-        DWORD    cValues;              // number of values for key
-        DWORD    cchMaxValue;          // longest value name
-        DWORD    cbMaxValueData;       // longest value data
-        DWORD    cbSecurityDescriptor; // size of security descriptor
-        FILETIME ftLastWriteTime;      // last write time
-
-        DWORD retCode;
-
-        // HKEY hKey;
-        // Get the class name and the value count.
-        retCode = RegQueryInfoKey(
-            hKeyParent,                    // key handle
-            achClass,                // buffer for class name
-            &cchClassName,           // size of class string
-            NULL,                    // reserved
-            &cSubKeys,               // number of subkeys
-            &cbMaxSubKey,            // longest subkey size
-            &cchMaxClass,            // longest class string
-            &cValues,                // number of values for this key
-            &cchMaxValue,            // longest value name
-            &cbMaxValueData,         // longest value data
-            &cbSecurityDescriptor,   // security descriptor
-            &ftLastWriteTime);       // last write time
-
-
-        if (retCode == ERROR_SUCCESS && cSubKeys)
-        {
-            for (DWORD i=0; i<cSubKeys; i++)
-            {
-                TCHAR    achKey[MAX_KEY_LENGTH];   // buffer for subkey name
-                DWORD cbName = MAX_KEY_LENGTH;     // size of name string
-                retCode = RegEnumKeyEx(hKeyParent, i,
-                         achKey,
-                         &cbName,
-                         NULL,
-                         NULL,
-                         NULL,
-                         &ftLastWriteTime);
-                if (retCode == ERROR_SUCCESS)
-                {
-                    result.append(QString::fromWCharArray(achKey));
-                }
-            }
-        }
-
-        RegCloseKey(hKeyParent);
-    }
-
-    return result;
-}
-
-types::NetworkInterface WinUtils::interfaceByIndex(int index, bool &success)
-{
-    types::NetworkInterface result;
-    success = false;
-
-    QVector<types::NetworkInterface> nis = currentNetworkInterfaces(true);
-
-    for (int i = 0; i < nis.size(); i++)
-    {
-        types::NetworkInterface ni = nis[i];
-
-        if (ni.interfaceIndex == index)
-        {
-            result = ni;
-            success = true;
-            break;
-        }
-    }
-
-    return result;
-}
-
-QList<IpForwardRow> WinUtils::getIpForwardTable()
-{
-    QList<IpForwardRow> forwardTable;
-
-    DWORD dwSize = 0;
-    if (GetIpForwardTable(NULL, &dwSize, 0) != ERROR_INSUFFICIENT_BUFFER)
-    {
-        return forwardTable;
-    }
-
-    QScopedArrayPointer<unsigned char> buf(new unsigned char[dwSize]);
-
-    /* Note that the IPv4 addresses returned in
-     * GetIpForwardTable entries are in network byte order
-     */
-    if (GetIpForwardTable((PMIB_IPFORWARDTABLE)buf.data(), &dwSize, 0) == NO_ERROR)
-    {
-        PMIB_IPFORWARDTABLE pIpForwardTable = (PMIB_IPFORWARDTABLE)buf.data();
-
-        for (int i = 0; i < (int) pIpForwardTable->dwNumEntries; i++)
-        {
-            IpForwardRow ipRow = IpForwardRow(pIpForwardTable->table[i].dwForwardIfIndex,
-                                              pIpForwardTable->table[i].dwForwardMetric1
-                                              );
-            forwardTable.append(ipRow);
-        }
-
-        return forwardTable;
-    }
-    else
-    {
-        qCDebug(LOG_BASIC) << "GetIpForwardTable failed";
-        return forwardTable;
-    }
-}
-
-QList<IfTableRow> WinUtils::getIfTable()
-{
-    QList<IfTableRow> table;
-
-    DWORD dwRetVal = 0;
-
-    // Make an initial call to GetIfTable to get the necessary size into dwSize
-    DWORD dwSize = 0;
-    if (GetIfTable(NULL, &dwSize, FALSE) != ERROR_INSUFFICIENT_BUFFER)
-    {
-        return table;
-    }
-
-    QScopedArrayPointer<unsigned char> buf(new unsigned char[dwSize]);
-
-    // Make a second call to GetIfTable to get the actual data we want.
-    if ((dwRetVal = GetIfTable((PMIB_IFTABLE)buf.data(), &dwSize, FALSE)) == NO_ERROR)
-    {
-        PMIB_IFTABLE pIfTable = (PMIB_IFTABLE)buf.data();
-
-        for (DWORD i = 0; i < pIfTable->dwNumEntries; i++)
-        {
-            NETWORK_INTERACE_TYPE nicType = NETWORK_INTERFACE_NONE;
-            if (pIfTable->table[i].dwType == IF_TYPE_ETHERNET_CSMACD)
-            {
-                nicType = NETWORK_INTERFACE_ETH;
-            }
-            else if (pIfTable->table[i].dwType == IF_TYPE_IEEE80211)
-            {
-                nicType = NETWORK_INTERFACE_WIFI;
-            }
-            else if (pIfTable->table[i].dwType == IF_TYPE_PPP)
-            {
-                nicType = NETWORK_INTERFACE_PPP;
-            }
-
-//            qDebug() << "Index: " << pIfTable->table[i].dwIndex << ", State: " << pIfTable->table[i].dwOperStatus;
-
-            QString interfaceName = "";
-            for (DWORD j = 0; j < pIfTable->table[i].dwDescrLen; j++)
-            {
-                interfaceName.append(static_cast<char>(pIfTable->table[i].bDescr[j]));
-            }
-
-            QString physicalAddress = "";
-            for (DWORD j = 0; j < pIfTable->table[i].dwPhysAddrLen; j++)
-            {
-                physicalAddress.append(static_cast<char>(pIfTable->table[i].bPhysAddr[j]));
-            }
-
-            IfTableRow ifRow(static_cast<int>(pIfTable->table[i].dwIndex),
-                             QString::fromWCharArray(pIfTable->table[i].wszName),
-                             interfaceName,
-                             physicalAddress,
-                             nicType,
-                             static_cast<int>(pIfTable->table[i].dwType),
-                             static_cast<int>(pIfTable->table[i].dwMtu),
-                             pIfTable->table[i].dwOperStatus >= IF_OPER_STATUS_CONNECTED,
-                             (int) pIfTable->table[i].dwOperStatus);
-            table.append(ifRow);
-        }
-    }
-    else
-    {
-        qCDebug(LOG_BASIC) << "GetIfTable failed with error: " << dwRetVal;
-    }
-
-    return table;
-}
-
-QList<IfTable2Row> WinUtils::getIfTable2()
-{
-    QList<IfTable2Row> if2Table;
-
-    PMIB_IF_TABLE2 pIfTable2;
-    if (GetIfTable2(&pIfTable2) != NO_ERROR)
-    {
-        return if2Table;
-    }
-
-    for (ULONG i = 0; i < pIfTable2->NumEntries; i++)
-    {
-        PMIB_IF_ROW2 pEntry = &pIfTable2->Table[i];
-        if (!pEntry->InterfaceAndOperStatusFlags.FilterInterface)
-        {
-            QString guid = guidToQString(pEntry->InterfaceGuid);
-            QString description = QString::fromWCharArray(pEntry->Description);
-            QString alias = QString::fromWCharArray(pEntry->Alias);
-
-            IfTable2Row row(pEntry->InterfaceIndex,
-                            guid,
-                            description,
-                            alias,
-                            pEntry->AccessType,
-                            pEntry->InterfaceAndOperStatusFlags.ConnectorPresent,
-                            pEntry->InterfaceAndOperStatusFlags.EndPointInterface,
-                            pEntry->Type);
-            if2Table.append(row);
-        }
-    }
-
-    FreeMibTable(pIfTable2);
-
-    return if2Table;
-}
-
-QList<IpAdapter> WinUtils::getIpAdapterTable()
-{
-    QList<IpAdapter> adapters;
-
-    ULONG bufSize = sizeof(IP_ADAPTER_INFO) * 32;
-    QByteArray pAdapterInfo(bufSize, Qt::Uninitialized);
-
-    DWORD result = ::GetAdaptersInfo((IP_ADAPTER_INFO*)pAdapterInfo.data(), &bufSize);
-
-    if (result == ERROR_BUFFER_OVERFLOW) {
-        pAdapterInfo.resize(bufSize);
-        result = ::GetAdaptersInfo((IP_ADAPTER_INFO*)pAdapterInfo.data(), &bufSize);
-    }
-
-    if (result == NO_ERROR) {
-        IP_ADAPTER_INFO *pAdapter = (IP_ADAPTER_INFO*)pAdapterInfo.data();
-        while (pAdapter) {
-            QString physAddress = "";
-            for (UINT i = 0; i < pAdapter->AddressLength; i++) {
-                QString s = QString("%1").arg(pAdapter->Address[i], 0, 16);
-
-                if (singleHexChars().contains(s)) {
-                    s = "0" + s;
-                }
-                physAddress += s;
-            }
-
-            IpAdapter ipAdapter(pAdapter->Index, pAdapter->AdapterName, pAdapter->Description, physAddress);
-            adapters.append(ipAdapter);
-
-            pAdapter = pAdapter->Next;
-        }
-    }
-    else {
-        qCDebug(LOG_BASIC) << "WinUtils::getIpAdapterTable(): GetAdaptersInfo failed" << result;
-    }
-
-    return adapters;
-}
-
-QList<AdapterAddress> WinUtils::getAdapterAddressesTable()
-{
-    QList<AdapterAddress> adapters;
-
-    ULONG bufSize = sizeof(IP_ADAPTER_ADDRESSES_LH) * 32;
-    QByteArray pAddresses(bufSize, Qt::Uninitialized);
-
-    ULONG result = ::GetAdaptersAddresses(AF_INET, GAA_FLAG_INCLUDE_PREFIX, NULL, (PIP_ADAPTER_ADDRESSES)pAddresses.data(), &bufSize);
-
-    if (result == ERROR_BUFFER_OVERFLOW) {
-        pAddresses.resize(bufSize);
-        result = ::GetAdaptersAddresses(AF_INET, GAA_FLAG_INCLUDE_PREFIX, NULL, (PIP_ADAPTER_ADDRESSES)pAddresses.data(), &bufSize);
-    }
-
-    if (result == NO_ERROR) {
-        PIP_ADAPTER_ADDRESSES pCurrAddresses = (PIP_ADAPTER_ADDRESSES)pAddresses.data();
-        while (pCurrAddresses) {
-            QString guidString = guidToQString(pCurrAddresses->NetworkGuid);
-            AdapterAddress aa(pCurrAddresses->IfIndex, guidString, QString::fromWCharArray(pCurrAddresses->FriendlyName));
-            adapters.append(aa);
-
-            pCurrAddresses = pCurrAddresses->Next;
-        }
-    }
-    else {
-        if (result == ERROR_NO_DATA) {
-            qCDebug(LOG_BASIC) << "WinUtils::getAdapterAddressesTable(): GetAdaptersAddresses failed - no addresses were found for the requested parameters";
-        }
-        else {
-            wchar_t strErr[1024];
-            WinUtils::Win32GetErrorString(result, strErr, _countof(strErr));
-            qCDebug(LOG_BASIC) << "WinUtils::getAdapterAddressesTable(): GetAdaptersAddresses failed (" << result << ")" << strErr;
-        }
-    }
-
-    return adapters;
-}
-
-QString WinUtils::ssidFromInterfaceGUID(QString interfaceGUID)
-{
-    QString ssid = "";
-
-    HANDLE hClient = NULL;
-    DWORD dwMaxClient = 2;
-    DWORD dwCurVersion = 0;
-    DWORD dwResult = 0;
-
-    PWLAN_INTERFACE_INFO_LIST pIfList = NULL;
-
-    PWLAN_CONNECTION_ATTRIBUTES pConnectInfo = NULL;
-    DWORD connectInfoSize = sizeof(WLAN_CONNECTION_ATTRIBUTES);
-    WLAN_OPCODE_VALUE_TYPE opCode = wlan_opcode_value_type_invalid;
-
-    dwResult = WlanOpenHandle(dwMaxClient, NULL, &dwCurVersion, &hClient);
-    if (dwResult != ERROR_SUCCESS)
-    {
-
-        qCDebug(LOG_BASIC) << "WlanOpenHandle failed with error: " << dwResult;
-        return ssid;
-    }
-
-    dwResult = WlanEnumInterfaces(hClient, NULL, &pIfList);
-    if (dwResult != ERROR_SUCCESS)
-    {
-        qCDebug(LOG_BASIC) << "WlanEnumInterfaces failed with error:" << dwResult;
-        return ssid;
-    }
-    else
-    {
-        GUID actualGUID = guidFromQString(interfaceGUID);
-
-        dwResult = WlanQueryInterface(hClient,
-                                      &actualGUID,
-                                      wlan_intf_opcode_current_connection,
-                                      NULL,
-                                      &connectInfoSize,
-                                      (PVOID *) &pConnectInfo,
-                                      &opCode);
-
-        if (dwResult != ERROR_SUCCESS)
-        {
-            //qCDebug(LOG_BASIC) << "WlanQueryInterface failed with error:" << dwResult;
-        }
-        else
-        {
-            std::string str_ssid;
-            const auto &dot11Ssid = pConnectInfo->wlanAssociationAttributes.dot11Ssid;
-            if (dot11Ssid.uSSIDLength != 0) {
-                str_ssid.reserve(dot11Ssid.uSSIDLength);
-                for (ULONG k = 0; k < dot11Ssid.uSSIDLength; k++)
-                    str_ssid.push_back(static_cast<char>(dot11Ssid.ucSSID[k]));
-            }
-            // Note: |str_ssid| can contain UTF-8 characters, but QString::fromStdString() can
-            // handle the case.
-            ssid = QString::fromStdString(str_ssid);
-        }
-    }
-    if (pConnectInfo != NULL)
-    {
-        WlanFreeMemory(pConnectInfo);
-        pConnectInfo = NULL;
-    }
-
-    if (pIfList != NULL)
-    {
-        WlanFreeMemory(pIfList);
-        pIfList = NULL;
-    }
-
-    if (hClient != NULL)
-    {
-        WlanCloseHandle(hClient, NULL);
-        hClient = NULL;
-    }
-
-    return ssid;
-}
-
-QString WinUtils::networkNameFromInterfaceGUID(QString adapterGUID)
-{
-    QString result = "";
-
-    INetworkListManager *pNetListManager = NULL;
-    HRESULT hr = CoCreateInstance(CLSID_NetworkListManager, NULL,
-                                  CLSCTX_ALL, IID_INetworkListManager,
-                                  (LPVOID *)&pNetListManager);
-    if (hr == S_OK)
-    {
-        CComPtr<IEnumNetworkConnections> pEnumNetworkConnections;
-        if(SUCCEEDED(pNetListManager->GetNetworkConnections(&pEnumNetworkConnections)))
-        {
-            DWORD dwReturn = 0;
-            while(true)
-            {
-                CComPtr<INetworkConnection> pNetConnection;
-                hr = pEnumNetworkConnections->Next(1, &pNetConnection, &dwReturn);
-                if (hr == S_OK && dwReturn > 0)
-                {
-                    GUID adapterID;
-                    if (pNetConnection->GetAdapterId(&adapterID) == S_OK)
-                    {
-                        QString adapterIDStr = guidToQString(adapterID);
-
-                        if (adapterGUID == adapterIDStr)
-                        {
-                            CComPtr<INetwork> pNetwork;
-                            if (pNetConnection->GetNetwork(&pNetwork) == S_OK)
-                            {
-                                BSTR bstrName = NULL;
-                                if (pNetwork->GetName(&bstrName) == S_OK)
-                                {
-                                    result = QString::fromWCharArray(bstrName);
-                                    SysFreeString(bstrName);
-                                }
-                            }
-                            break;
-                        }
-                    }
-                }
-                else
-                {
-                    break;
-                }
-            }
-        }
-
-        pNetListManager->Release();
-    }
-
-    return result;
-}
-
-QList<QString> WinUtils::singleHexChars()
-{
-    return QList<QString>() << "0" << "1" << "2" << "3" << "4" << "5" << "6" << "7" << "8" << "9" << "a" << "b" << "c" << "d" << "e" << "f";
-}
-
-GUID guidFromQString(QString str)
-{
-    GUID reqGUID;
-    unsigned long p0;
-    unsigned int p1, p2, p3, p4, p5, p6, p7, p8, p9, p10;
-
-    sscanf_s(str.toStdString().c_str(), "{%08lX-%04X-%04X-%02X%02X-%02X%02X%02X%02X%02X%02X}",
-             &p0, &p1, &p2, &p3, &p4, &p5, &p6, &p7, &p8, &p9, &p10);
-    reqGUID.Data1 = p0;
-    reqGUID.Data2 = p1;
-    reqGUID.Data3 = p2;
-    reqGUID.Data4[0] = p3;
-    reqGUID.Data4[1] = p4;
-    reqGUID.Data4[2] = p5;
-    reqGUID.Data4[3] = p6;
-    reqGUID.Data4[4] = p7;
-    reqGUID.Data4[5] = p8;
-    reqGUID.Data4[6] = p9;
-    reqGUID.Data4[7] = p10;
-
-    return reqGUID;
-}
-
-QString guidToQString(GUID guid)
-{
-    OLECHAR* guidString;
-    StringFromCLSID(guid, &guidString);
-
-    std::wstring str = (guidString);
-    QString guidQString = QString::fromWCharArray(str.c_str());
-
-    ::CoTaskMemFree(guidString);
-
-    return guidQString;
-}
-
-std::string readAllFromPipe(HANDLE hPipe)
+static std::string readAllFromPipe(HANDLE hPipe)
 {
     const int BUFFER_SIZE = 1024;
     std::string csoutput;
@@ -1280,41 +507,6 @@ QString WinUtils::executeBlockingCmd(QString cmd, const QString & /*params*/, in
     return result;
 }
 
-bool WinUtils::pingWithMtu(const QString &url, int mtu)
-{
-    const QString cmd = QString("C:\\Windows\\system32\\ping.exe");
-    const QString params = QString(" -n 1 -l %1 -f %2").arg(mtu).arg(url);
-    QString result = executeBlockingCmd(cmd + params, params, 1000).trimmed();
-    if (result.contains("bytes="))
-    {
-        return true;
-    }
-    return false;
-}
-
-QString WinUtils::getLocalIP()
-{
-    ULONG ulAdapterInfoSize = sizeof(IP_ADAPTER_INFO);
-    std::vector<unsigned char> pAdapterInfo(ulAdapterInfoSize);
-
-    if (GetAdaptersInfo((IP_ADAPTER_INFO *)&pAdapterInfo[0], &ulAdapterInfoSize) == ERROR_BUFFER_OVERFLOW) {
-        pAdapterInfo.resize(ulAdapterInfoSize);
-    }
-
-    if (GetAdaptersInfo((IP_ADAPTER_INFO *)&pAdapterInfo[0], &ulAdapterInfoSize) == ERROR_SUCCESS) {
-        IP_ADAPTER_INFO *ai = (IP_ADAPTER_INFO *)&pAdapterInfo[0];
-        do {
-            if ((ai->Type == MIB_IF_TYPE_ETHERNET) || (ai->Type == IF_TYPE_IEEE80211)) {
-                if (strcmp(ai->IpAddressList.IpAddress.String, "0.0.0.0") != 0 && strcmp(ai->GatewayList.IpAddress.String, "0.0.0.0") != 0) {
-                    return ai->IpAddressList.IpAddress.String;
-                }
-            }
-            ai = ai->Next;
-        } while (ai);
-    }
-    return "";
-}
-
 bool WinUtils::isServiceRunning(const QString &serviceName)
 {
     DWORD dwStatus = SERVICE_STOPPED;
@@ -1331,61 +523,6 @@ bool WinUtils::isServiceRunning(const QString &serviceName)
     return (dwStatus == SERVICE_RUNNING);
 }
 
-HRESULT CoCreateInstanceAsAdmin(HWND hwnd, REFCLSID rclsid, REFIID riid, __out void ** ppv)
-{
-    BIND_OPTS3 bo;
-    WCHAR  wszCLSID[50];
-    WCHAR  wszMonikerName[300];
-
-    StringFromGUID2(rclsid, wszCLSID, sizeof(wszCLSID) / sizeof(wszCLSID[0]));
-    HRESULT hr = StringCchPrintf(wszMonikerName, sizeof(wszMonikerName) / sizeof(wszMonikerName[0]), L"Elevation:Administrator!new:%s", wszCLSID);
-    if (FAILED(hr))
-        return hr;
-    // std::wcout << L"Moniker name: " << wszMonikerName << std::endl;
-
-    memset(&bo, 0, sizeof(bo));
-    bo.cbStruct = sizeof(bo);
-    bo.hwnd = hwnd;
-    bo.dwClassContext = CLSCTX_LOCAL_SERVER;
-    return CoGetObject(wszMonikerName, &bo, riid, ppv);
-}
-
-bool WinUtils::authorizeWithUac()
-{
-    bool result = false;
-    CoInitializeEx(0, COINIT_APARTMENTTHREADED);
-
-    IUnknown *pThing = NULL;
-    HRESULT hr = CoCreateInstanceAsAdmin(NULL, CLSID_AUTH_HELPER, IID_AUTH_HELPER, (void**)&pThing);
-    if (FAILED(hr))
-    {
-        if (HRESULT_CODE(hr) == ERROR_CANCELLED)
-        {
-            std::cout << "Authentication failed due to user selection" << std::endl;
-        }
-        else
-        {
-            // Can fail here if StubProxyDll isn't in CLSID\InprocServer32
-            int facility = HRESULT_FACILITY(hr); // If returns 4 (FACILITY_ITF) then error codes are interface specific
-            int errorCode = HRESULT_CODE(hr);
-            wchar_t strErr[1024];
-            WinUtils::Win32GetErrorString(errorCode, strErr, _countof(strErr));
-            std::cout << "Failed to CoCreateInstance of MyThing, facility: " << facility << ", code: " << errorCode << std::endl;
-            std::cout << " (" << hr << "): " << strErr << std::endl;
-        }
-    }
-    else
-    {
-        // CoCreateInstanceAsAdmin will return S_OK if authorization was successful
-        std::cout << "Helper process is Authorized" << std::endl;
-        pThing->Release();
-        result = true;
-    }
-
-    CoUninitialize();
-    return result;
-}
-
 unsigned long WinUtils::Win32GetErrorString(unsigned long errorCode, wchar_t *buffer, unsigned long bufferSize)
 {
     DWORD nLength = ::FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM    |
@@ -1399,57 +536,6 @@ unsigned long WinUtils::Win32GetErrorString(unsigned long errorCode, wchar_t *bu
     }
 
     return nLength;
-}
-
-IfTable2Row WinUtils::ifTable2RowByIndex(int index)
-{
-    IfTable2Row found;
-
-    const auto if_table = getIfTable2();
-    for (const IfTable2Row &row : if_table)
-    {
-        if (index == static_cast<int>(row.index)) // TODO: convert all ifIndices to int
-        {
-            found = row;
-            break;
-        }
-    }
-
-    return found;
-}
-
-std::optional<bool> WinUtils::haveInternetConnectivity()
-{
-    INetworkListManager* mgr = nullptr;
-    HRESULT res = ::CoCreateInstance(CLSID_NetworkListManager, NULL, CLSCTX_ALL,
-                                     IID_INetworkListManager, reinterpret_cast<void**>(&mgr));
-    if (res != S_OK) {
-        qCDebug(LOG_BASIC) << "WinUtils::haveInternetConnectivity() could not create an INetworkListManager instance" << HRESULT_CODE(res);
-        return std::nullopt;
-    }
-
-    auto comRelease = qScopeGuard([&]
-    {
-        if (mgr != nullptr) {
-            mgr->Release();
-        }
-    });
-
-    NLM_CONNECTIVITY connectivity;
-    res = mgr->GetConnectivity(&connectivity);
-
-    if (res != S_OK) {
-        qCDebug(LOG_BASIC) << "WinUtils::haveInternetConnectivity() GetConnectivity failed" << HRESULT_CODE(res);
-        return std::nullopt;
-    }
-
-    qCDebug(LOG_BASIC) << "WinUtils::haveInternetConnectivity() GetConnectivity returned" << connectivity;
-
-    if ((connectivity & NLM_CONNECTIVITY_IPV4_INTERNET) || (connectivity & NLM_CONNECTIVITY_IPV6_INTERNET)) {
-        return true;
-    }
-
-    return false;
 }
 
 QString WinUtils::getVersionInfoItem(QString exeName, QString itemName)
@@ -1474,13 +560,13 @@ QString WinUtils::getVersionInfoItem(QString exeName, QString itemName)
             // "\StringFileInfo\<langID><codepage>\keyname"
             // where <langID><codepage> is the languageID concatenated with the code page, in hex.
             UINT nTranslateLen;
-            bResult = ::VerQueryValue(versionInfo.get(), _T("\\VarFileInfo\\Translation"), (LPVOID*)&lpTranslate, &nTranslateLen);
+            bResult = ::VerQueryValue(versionInfo.get(), L"\\VarFileInfo\\Translation", (LPVOID*)&lpTranslate, &nTranslateLen);
 
             if (bResult) {
                 for (UINT i = 0; i < (nTranslateLen/sizeof(struct LANGANDCODEPAGE)); ++i)
                 {
                     wchar_t subBlock[MAX_PATH];
-                    swprintf_s(subBlock, MAX_PATH, _T("\\StringFileInfo\\%04x%04x\\%s"), lpTranslate[i].wLanguage,
+                    swprintf_s(subBlock, MAX_PATH, L"\\StringFileInfo\\%04x%04x\\%s", lpTranslate[i].wLanguage,
                                lpTranslate[i].wCodePage, itemName.toStdWString().c_str());
 
                     LPVOID lpvi;
@@ -1586,4 +672,24 @@ bool WinUtils::isGuiAlreadyRunning()
 {
     auto handle = appMainWindowHandle();
     return handle != nullptr;
+}
+
+bool WinUtils::isOSCompatible()
+{
+    RTL_OSVERSIONINFOEXW rtlOsVer;
+    if (getWinVersion(&rtlOsVer)) {
+        return (rtlOsVer.dwMajorVersion >= 10 && rtlOsVer.dwBuildNumber >= kMinWindowsBuildNumber);
+    }
+
+    return true;
+}
+
+DWORD WinUtils::getOSBuildNumber()
+{
+    RTL_OSVERSIONINFOEXW rtlOsVer;
+    if (getWinVersion(&rtlOsVer)) {
+        return rtlOsVer.dwBuildNumber;
+    }
+
+    return 0;
 }

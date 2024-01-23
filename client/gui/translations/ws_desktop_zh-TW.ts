@@ -749,6 +749,42 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>Unable to start custom DNS service.  Please ensure you don&apos;t have any other local DNS services running, or contact support.</source>
         <translation>無法啟動自定義 DNS 服務。 請確保您沒有運行任何其他本地 DNS 服務，或聯繫支持人員。</translation>
     </message>
+    <message>
+        <source>JSON Files (*.json)</source>
+        <translation>JSON 檔 （*.json）</translation>
+    </message>
+    <message>
+        <source>Unable to import preferences</source>
+        <translation>無法匯入首選項</translation>
+    </message>
+    <message>
+        <source>Preferences can only be imported when the app is disconnected. Please disconnect and try again.</source>
+        <translation>只有在應用程式斷開連接時才能導入首選項。請斷開連接，然後重試。</translation>
+    </message>
+    <message>
+        <source>The selected file&apos;s format is incorrect.</source>
+        <translation>選取檔案格式不正確。</translation>
+    </message>
+    <message>
+        <source>Export Preferences To</source>
+        <translation>將首選項匯出到</translation>
+    </message>
+    <message>
+        <source>Import Preferences From</source>
+        <translation>匯入首選項</translation>
+    </message>
+    <message>
+        <source>Could not open file.</source>
+        <translation>無法打開檔。</translation>
+    </message>
+    <message>
+        <source>Unable to export preferences</source>
+        <translation>無法匯出首選項</translation>
+    </message>
+    <message>
+        <source>Could not open file for writing.  Check your permissions and try again.</source>
+        <translation>無法打開檔案進行寫入。 請檢查您的許可權，然後重試。</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -868,10 +904,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>計劃</translation>
     </message>
     <message>
-        <source>Expires On</source>
-        <translation>過期時間</translation>
-    </message>
-    <message>
         <source>Reset Date</source>
         <translation>重置日期</translation>
     </message>
@@ -882,6 +914,10 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Manage Account</source>
         <translation>管理帳戶</translation>
+    </message>
+    <message>
+        <source>Expiry Date</source>
+        <translation>有效期</translation>
     </message>
 </context>
 <context>
@@ -958,6 +994,18 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>DNS Manager</source>
         <translation>功能變數名稱系統管理員</translation>
     </message>
+    <message>
+        <source>App Preferences</source>
+        <translation>應用程式首選項</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <translation>出口</translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <translation>進口</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::ApiResolutionGroup</name>
@@ -981,6 +1029,14 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>Enter IP or Hostname</source>
         <translation>輸入IP或主機名</translation>
     </message>
+    <message>
+        <source>Invalid address</source>
+        <translation>位址無效</translation>
+    </message>
+    <message>
+        <source>You have entered an invalid address for API resolution.  It has been reset to Auto.</source>
+        <translation>您輸入的 API 解析地址無效。 它已重置為自動。</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::BackgroundSettingsGroup</name>
@@ -993,11 +1049,7 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>連接</translation>
     </message>
     <message>
-        <source>Background</source>
-        <translation>背景</translation>
-    </message>
-    <message>
-        <source>Country Flags</source>
+        <source>Flags</source>
         <translation>國旗</translation>
     </message>
     <message>
@@ -1007,6 +1059,10 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Custom</source>
         <translation>習慣</translation>
+    </message>
+    <message>
+        <source>App Background</source>
+        <translation>應用背景</translation>
     </message>
 </context>
 <context>
@@ -1138,6 +1194,10 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>LAN traffic is currently blocked by the Windscribe firewall.  Do you want to allow LAN traffic to bypass the firewall in order for this feature to work?</source>
         <translation>LAN 流量目前被Windscribe防火牆阻止。 是否要允許 LAN 流量繞過防火牆以使此功能正常工作？</translation>
     </message>
+    <message>
+        <source>Disabling Allow LAN Traffic will cause your secure hotspot to stop working.  Do you want to disable the hotspot?</source>
+        <translation>禁用允許 LAN 流量將導致您的安全熱點停止工作。 是否要禁用熱點？</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::DnsDomainsGroup</name>
@@ -1172,10 +1232,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>送！</translation>
     </message>
     <message>
-        <source>Add</source>
-        <translation>加</translation>
-    </message>
-    <message>
         <source>Resend</source>
         <translation>發送</translation>
     </message>
@@ -1198,6 +1254,10 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Email</source>
         <translation>電子郵件</translation>
+    </message>
+    <message>
+        <source>Add Email</source>
+        <translation>添加電子郵件</translation>
     </message>
 </context>
 <context>
@@ -1953,10 +2013,6 @@ If the reinstall does not help, please contact Windscribe support for assistance
 <context>
     <name>QObject</name>
     <message>
-        <source>R.O.B.E.R.T.</source>
-        <translation>R.O.B.E.R.T.</translation>
-    </message>
-    <message>
         <source>Custom</source>
         <translation>習慣</translation>
     </message>
@@ -2135,6 +2191,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Black</source>
         <translation>黑</translation>
+    </message>
+    <message>
+        <source>Forced</source>
+        <translation>強迫</translation>
     </message>
 </context>
 <context>

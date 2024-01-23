@@ -1,13 +1,14 @@
 #include "upgradewidgetitem.h"
 
+#include <QLocale>
 #include <QPainter>
 #include <QTimer>
+
 #include "commongraphics/commongraphics.h"
 #include "graphicresources/fontmanager.h"
 #include "graphicresources/imageresourcessvg.h"
 #include "languagecontroller.h"
 #include "utils/ws_assert.h"
-#include "utils/utils.h"
 #include "dpiscalemanager.h"
 
 namespace UpgradeWidget {

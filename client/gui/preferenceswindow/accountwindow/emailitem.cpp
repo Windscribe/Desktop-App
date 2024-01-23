@@ -26,7 +26,7 @@ EmailItem::EmailItem(ScalableGraphicsObject *parent)
     connect(sendButton_, &CommonGraphics::TextButton::clicked, this, &EmailItem::sendEmailClick);
     connect(sendButton_, &CommonGraphics::TextButton::clicked, this, &EmailItem::onSendEmailClick);
 
-    emptyEmailButton_ = new CommonGraphics::TextButton(tr("Add"),
+    emptyEmailButton_ = new CommonGraphics::TextButton(tr(ADD_TEXT),
                                                        FontDescr(12, true),
                                                        Qt::white,
                                                        true,

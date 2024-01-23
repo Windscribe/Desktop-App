@@ -63,9 +63,6 @@ QUrl ServerListRequest::url(const QString &domain) const
         qCDebug(LOG_SERVER_API) << "API request ServerLocations added countryOverride =" << countryOverride;
     }
 
-    urlquery_utils::addAuthQueryItems(query);
-    urlquery_utils::addPlatformQueryItems(query);
-
     QString strIsPro = isPro_ ? "1" : "0";
     QUrl url = QUrl("https://" + hostname(domain, SudomainType::kAssets) + "/serverlist/mob-v2/" + strIsPro + "/" + revision_);
     url.setQuery(query);

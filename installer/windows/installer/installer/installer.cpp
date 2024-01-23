@@ -5,6 +5,7 @@
 #include "blocks/files.h"
 #include "blocks/icons.h"
 #include "blocks/install_authhelper.h"
+#include "blocks/install_openvpn_dco.h"
 #include "blocks/install_splittunnel.h"
 #include "blocks/service.h"
 #include "blocks/uninstall_info.h"
@@ -40,6 +41,7 @@ void Installer::startImpl()
     // Leaving this option here for now in anticipation of us adding installation of the OpenVPN DCO
     // driver in a future release.
     if (Settings::instance().getInstallDrivers()) {
+        blocks_.push_back(new InstallOpenVPNDCO(10));
     }
 
     blocks_.push_back(new InstallSplitTunnel(10));

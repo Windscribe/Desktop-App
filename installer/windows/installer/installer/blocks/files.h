@@ -4,7 +4,7 @@
 #include <string>
 
 #include "../iinstall_block.h"
-#include "../../Archive/archive.h"
+#include "../../../../../client/common/archive/archive.h"
 
 class Files : public IInstallBlock
 {
@@ -24,4 +24,6 @@ public:
 
    void fillPathList();
    int moveFiles();
+   bool copyLibs();
+   std::wstring getExePath();
 };

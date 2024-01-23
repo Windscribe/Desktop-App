@@ -2,7 +2,6 @@
 
 #include "imacaddresscontroller.h"
 #include "../NetworkDetectionManager/networkdetectionmanager_win.h"
-#include "Engine/Helper/ihelper.h"
 
 class MacAddressController_win : public IMacAddressController
 {
@@ -19,16 +18,14 @@ private slots:
 
 private:
     QList<int> networksBeingUpdated_; // used to ignore network changes during an adapter reset
-    bool autoRotate_;
-    bool actuallyAutoRotate_;
+    bool autoRotate_ = false;
+    bool actuallyAutoRotate_ = false;
+    int lastSpoofIndex_ = -1;
 
     types::MacAddrSpoofing macAddrSpoofing_;
     types::NetworkInterface lastNetworkInterface_;
 
-    NetworkDetectionManager_win *networkDetectionManager_;
+    NetworkDetectionManager_win* const networkDetectionManager_;
 
     void checkMacSpoofAppliedCorrectly();
-
-    int lastSpoofIndex_;
-
 };

@@ -45,7 +45,6 @@ QDateTime parseDateTimeFormat2(const std::string &datestr)
     return QDateTime();
 }
 
-
 }  // namespace
 
 QString MergeLog::mergeLogs(bool doMergePerLine)
@@ -54,8 +53,9 @@ QString MergeLog::mergeLogs(bool doMergePerLine)
     const QString serviceLogFilename1 = serviceLogLocation();
     const QString serviceLogFilename2 = prevServiceLogLocation();
     const QString wgServiceLogFilename = wireguardServiceLogLocation();
+    const QString installerLogFilename = installerLogLocation();
     return merge(guiLogFilename, serviceLogFilename1, serviceLogFilename2,
-                 wgServiceLogFilename, doMergePerLine);
+                 wgServiceLogFilename, installerLogFilename, doMergePerLine);
 }
 
 QString MergeLog::mergePrevLogs(bool doMergePerLine)
@@ -64,8 +64,9 @@ QString MergeLog::mergePrevLogs(bool doMergePerLine)
     const QString serviceLogFilename1 = serviceLogLocation();
     const QString serviceLogFilename2 = prevServiceLogLocation();
     const QString wgPrevServiceLogFilename = prevWireguardServiceLogLocation();
+    const QString installerPrevLogFilename = prevInstallerLogLocation();
     return merge(guiLogFilename, serviceLogFilename1, serviceLogFilename2,
-                 wgPrevServiceLogFilename, doMergePerLine);
+                 wgPrevServiceLogFilename, installerPrevLogFilename, doMergePerLine);
 }
 
 int MergeLog::mergeTask(QMutex *mutex, QMultiMap<quint64, QPair<LineSource, QString>> *lines, const QString *filename, LineSource source, bool useMinMax, QDateTime min, QDateTime max)
@@ -95,17 +96,22 @@ int MergeLog::mergeTask(QMutex *mutex, QMultiMap<quint64, QPair<LineSource, QStr
             continue;
 
         const auto datestr = line.sliced(1, 19).toStdString();
-
         const auto datetime = isYearInDatePresent(datestr)
-            ? parseDateTimeFormat1(datestr)
-                .addYears(100)
-            : parseDateTimeFormat2(datestr)
-                .addYears(kCurrentYearOffset);
+                                  ? parseDateTimeFormat1(datestr)
+                                        .addYears(100)
+                                  : parseDateTimeFormat2(datestr)
+                                        .addYears(kCurrentYearOffset);
 
         if (useMinMax && (datetime < min || datetime > max))
             continue;
 
-        if (prevDateTime != datetime) {
+        // Installer on Mac can have inconsistency in times because of native mac api.
+        // In the example below we have the same timestamp but different time since start.
+        // [110124 20:16:15:449      0.002] CPU architecture: arm64)
+        // [110124 20:16:15:449      0.003] MacOS version: Version 14.1 (Build 23B74)
+        // It is necessary to calculate time there to increase timestamp var by 1 for each line.
+        // It is acceptable as times of installer do not intersect other times.
+        if (prevDateTime != datetime && source != LineSource::INSTALLER) {
             prevDateTime = datetime;
             timestamp = 0;
         }
@@ -157,6 +163,17 @@ const QString MergeLog::wireguardServiceLogLocation()
 #endif
 }
 
+const QString MergeLog::installerLogLocation()
+{
+#if defined(Q_OS_LINUX)
+    return "";
+#elif defined(Q_OS_MACOS)
+    return QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + "/../Windscribe/log_installer.txt";
+#else
+    return qApp->applicationDirPath() + "/log_installer.txt";
+#endif
+}
+
 const QString MergeLog::prevGuiLogLocation()
 {
     QString path = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
@@ -188,9 +205,20 @@ const QString MergeLog::prevWireguardServiceLogLocation()
 #endif
 }
 
+const QString MergeLog::prevInstallerLogLocation()
+{
+#if defined(Q_OS_LINUX)
+    return "";
+#elif defined(Q_OS_MACOS)
+    return QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + "/../Windscribe/prev_log_installer.txt";
+#else
+    return qApp->applicationDirPath() + "/prev_log_installer.txt";
+#endif
+}
+
 QString MergeLog::merge(const QString &guiLogFilename, const QString &serviceLogFilename,
                         const QString &servicePrevLogFilename, const QString &wireguardServiceLogFilename,
-                        bool doMergePerLine)
+                        const QString &installerLogFilename, bool doMergePerLine)
 {
     QMutex mutex;
     QMultiMap<quint64, QPair<LineSource, QString>> lines;
@@ -215,6 +243,12 @@ QString MergeLog::merge(const QString &guiLogFilename, const QString &serviceLog
     auto futureWGService = std::async(MergeLog::mergeTask, &mutex, &lines, &wireguardServiceLogFilename, LineSource::WIREGUARD_SERVICE, isUseMinMaxDate, minDate, maxDate);
     estimatedLogSize += futureWGService.get();
 
+    if (!installerLogFilename.isEmpty()) {
+        const auto installerMinDate = minDate.addDays(-7);
+        auto futureInstaller = std::async(MergeLog::mergeTask, &mutex, &lines, &installerLogFilename, LineSource::INSTALLER, isUseMinMaxDate, installerMinDate, maxDate);
+        estimatedLogSize += futureInstaller.get();
+    }
+
     if (!doMergePerLine)
         estimatedLogSize += 400;  // Account for log separation lines.
 
@@ -231,9 +265,13 @@ QString MergeLog::merge(const QString &guiLogFilename, const QString &serviceLog
         case LineSource::WIREGUARD_SERVICE:
             result.append("W ");
             break;
+        case LineSource::INSTALLER:
+            result.append("I ");
+            break;
         default:
             break;
         }
+
         result.append(data.second);
         result.append("\n");
     };

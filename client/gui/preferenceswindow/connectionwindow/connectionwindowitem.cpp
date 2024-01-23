@@ -385,6 +385,22 @@ void ConnectionWindowItem::onIsAllowLanTrafficPreferencesChangedByUser(bool b)
             std::function<void(bool b)>(nullptr),
             std::function<void(bool b)>(nullptr),
             GeneralMessage::kFromPreferences);
+    } else if (preferences_->shareSecureHotspot().isEnabled && !b) {
+        GeneralMessageController::instance().showMessage(
+            "WARNING_WHITE",
+            tr("Settings Conflict"),
+            tr("Disabling Allow LAN Traffic will cause your secure hotspot to stop working.  Do you want to disable the hotspot?"),
+            GeneralMessageController::tr(GeneralMessageController::kYes),
+            GeneralMessageController::tr(GeneralMessageController::kNo),
+            "",
+            [this](bool b) {
+                types::ShareSecureHotspot sh = preferences_->shareSecureHotspot();
+                sh.isEnabled = false;
+                preferences_->setShareSecureHotspot(sh);
+            },
+            std::function<void(bool b)>(nullptr),
+            std::function<void(bool b)>(nullptr),
+            GeneralMessage::kFromPreferences);
     }
 }
 
@@ -403,6 +419,20 @@ void ConnectionWindowItem::hideOpenPopups()
 void ConnectionWindowItem::onSecureHotspotPreferencesChangedByUser(const types::ShareSecureHotspot &ss)
 {
 #ifndef Q_OS_LINUX
+    if (ss.isEnabled && !preferences_->isAllowLanTraffic()) {
+        GeneralMessageController::instance().showMessage(
+            "WARNING_WHITE",
+            tr("Settings Conflict"),
+            tr("LAN traffic is currently blocked by the Windscribe firewall.  Do you want to allow LAN traffic to bypass the firewall in order for this feature to work?"),
+            GeneralMessageController::tr(GeneralMessageController::kYes),
+            GeneralMessageController::tr(GeneralMessageController::kNo),
+            "",
+            [this](bool b) { preferences_->setAllowLanTraffic(true); },
+            std::function<void(bool)>(nullptr),
+            std::function<void(bool)>(nullptr),
+            GeneralMessage::kFromPreferences);
+    }
+
     preferences_->setShareSecureHotspot(ss);
 #endif
 }

@@ -1,0 +1,86 @@
+#!/bin/bash
+
+mark=$1
+def_gateway=$2
+def_interface=$3
+vpn_gateway=$4
+vpn_interface=$5
+remote_ip=$6
+netclass=$7
+allow_lan=$8
+mode=$9
+
+net_cls_root="`mount -l -t cgroup | grep net_cls | cut -d ' ' -f 3 | head -n 1`"
+if [ ! -f "$net_cls_root/windscribe/net_cls.classid" ]; then
+    modprobe cls_cgroup
+    if [ $? -ne 0 ]; then
+        echo "Could not load cls_cgroup module"
+        exit 1
+    fi
+
+    net_cls_root="`mount -l -t cgroup | grep net_cls | cut -d ' ' -f 3 | head -n 1`"
+    if [ -z "$net_cls_root" ]; then
+        mkdir -p /sys/fs/cgroup/net_cls
+        mount -t cgroup -onet_cls net_cls /sys/fs/cgroup/net_cls
+        net_cls_root="`mount -l -t cgroup | grep net_cls | cut -d ' ' -f 3 | head -n 1`"
+        if [ -z "$net_cls_root" ]; then
+            echo "Could not find cgroup root"
+            exit 1
+        fi
+    fi
+
+    mkdir -p /etc/iproute2 # create dir if it doesn't exist
+    touch /etc/iproute2/rt_tables # create file if it doesn't exist
+
+    # Add "windscribe" table definition if it doesn't exist
+    if [ "`grep -c "69 windscribe" /etc/iproute2/rt_tables`" -eq 0 ]; then
+        echo "69 windscribe" >> /etc/iproute2/rt_tables
+    fi
+    if [ "`grep -c "70 windscribe_include" /etc/iproute2/rt_tables`" -eq 0 ]; then
+        echo "70 windscribe_include" >> /etc/iproute2/rt_tables
+    fi
+
+    # Create separate routing table for packets with our mark
+    ip rule add fwmark $mark priority 16384 table windscribe
+    ip route add default via $def_gateway dev $def_interface table windscribe
+    ip route add 10.255.255.0/24 dev $vpn_interface table windscribe
+
+    # Create separate routing table for packets that should always go into tunnel
+    ip route add default via $vpn_gateway dev $vpn_interface table windscribe_include
+    ip route add $remote_ip dev $def_interface table windscribe_include
+
+    # Create net_cls id
+    mkdir "$net_cls_root/windscribe"
+    echo "$netclass" > "$net_cls_root/windscribe/net_cls.classid"
+fi
+
+if [ "$allow_lan" = "allow" ]; then
+    if [ "$mode" == "inclusive" ]; then
+        # Allow IP rules to consult main routing table first, ignoring /0 or /1 routes
+        ip rule add priority 16383 table main suppress_prefixlength 1
+        priority="`ip rule show | grep 51820 | cut -d ":" -f1`" # priority of WireGuard rule, if it exists
+        if [ -n "$priority" ]; then
+            # WG uses the same ip rule mechanism, just adjust the WG rule
+            ip rule add priority $((priority - 1)) table main suppress_prefixlength 0
+        else
+            # For non-WG protocols, remove rule forcing other traffic into the tunnel
+            ip rule del priority 16385 table windscribe_include
+        fi
+    fi
+else
+    if [ "$mode" == "inclusive" ]; then
+        ip rule del priority 16383 table main suppress_prefixlength 1
+        priority="`ip rule show | grep 51820 | cut -d ":" -f1`" # priority of WireGuard rule, if it exists
+        if [ -n "$priority" ]; then
+            # WG uses the same ip rule mechanism, just adjust the WG rule
+            ip rule del priority $((priority - 1)) table main suppress_prefixlength 0
+        else
+            # For non-WG protocols, add rule forcing other traffic into the tunnel
+            ip rule add priority 16385 table windscribe_include
+        fi
+    fi
+fi
+
+# make sure to exit with code 0 since an above command may fail if we are adding a duplicate rule or
+# deleting a non-existent rule; these are not errors
+exit 0

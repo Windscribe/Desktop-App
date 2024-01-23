@@ -33,9 +33,9 @@ BackgroundSettingsGroup::BackgroundSettingsGroup(ScalableGraphicsObject *parent,
 
 void BackgroundSettingsGroup::onLanguageChanged()
 {
-    comboBoxMode_->setLabelCaption(tr("Background"));
+    comboBoxMode_->setLabelCaption(tr("App Background"));
     QList<QPair<QString, QVariant>> list;
-    list << qMakePair(tr("Country Flags"), BACKGROUND_TYPE_COUNTRY_FLAGS);
+    list << qMakePair(tr("Flags"), BACKGROUND_TYPE_COUNTRY_FLAGS);
     list << qMakePair(tr("None"), BACKGROUND_TYPE_NONE);
     list << qMakePair(tr("Custom"), BACKGROUND_TYPE_CUSTOM);
     comboBoxMode_->setItems(list, settings_.backgroundType);

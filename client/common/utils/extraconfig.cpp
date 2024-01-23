@@ -32,6 +32,8 @@ const QString WS_WG_UDP_STUFFING = WS_PREFIX + "wireguard-udp-stuffing";
 
 const QString WS_SERVERLIST_COUNTRY_OVERRIDE = WS_PREFIX + "serverlist-country-override";
 
+const QString WS_USE_OPENVPN_DCO = WS_PREFIX + "use-openvpn-dco";
+
 void ExtraConfig::writeConfig(const QString &cfg)
 {
     QMutexLocker locker(&mutex_);
@@ -346,6 +348,11 @@ bool ExtraConfig::isLegalOpenVpnCommand(const QString &command) const
             return false;
     }
     return true;
+}
+
+bool ExtraConfig::useOpenVpnDCO()
+{
+    return getFlagFromExtraConfigLines(WS_USE_OPENVPN_DCO);
 }
 
 ExtraConfig::ExtraConfig() : path_(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation)

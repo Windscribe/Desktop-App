@@ -50,16 +50,19 @@ public:
     bool getIsStaging();
 
     bool getLogAPIResponse();
-    bool getWireGuardVerboseLogging();
     bool getUsingScreenTransitionHotkeys();
     bool getUseICMPPings();
     bool getStealthExtraTLSPadding();
     bool getAPIExtraTLSPadding();
+
+    bool getWireGuardVerboseLogging();
     bool getWireGuardUdpStuffing();
 
     std::optional<QString> serverlistCountryOverride();
     bool serverListIgnoreCountryOverride();
     bool haveServerListCountryOverride();
+
+    bool useOpenVpnDCO();
 
 private:
     ExtraConfig();

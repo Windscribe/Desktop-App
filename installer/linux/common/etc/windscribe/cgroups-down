@@ -1,0 +1,20 @@
+#!/bin/bash
+
+net_cls_root="`mount -l | grep cgroup | grep net_cls | cut -d ' ' -f 3 | head -n 1`"
+if [ -z "$net_cls_root" ]; then
+    echo "Could not find cgroup root"
+    exit 1
+fi
+
+# Delete our routing table
+ip rule del priority 16383 table main suppress_prefixlength 1 2>/dev/null
+ip rule flush table windscribe 2>/dev/null
+ip route flush table windscribe 2>/dev/null
+ip rule flush table windscribe_include 2>/dev/null
+ip route flush table windscribe_include 2>/dev/null
+
+# Clear net_cls id
+for i in `cat "$net_cls_root/windscribe/cgroup.procs"`; do
+    echo $i > "$net_cls_root/cgroup.procs" 2>/dev/null
+done
+rmdir "$net_cls_root/windscribe"

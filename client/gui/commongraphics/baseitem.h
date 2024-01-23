@@ -24,6 +24,7 @@ public:
 
     virtual void hide(bool animate = true);
     virtual void show(bool animate = true);
+    bool isHidden();
 
     virtual bool hasItemWithFocus() { return false; }
 

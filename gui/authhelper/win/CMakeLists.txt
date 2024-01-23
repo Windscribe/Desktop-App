@@ -19,6 +19,7 @@ set(SOURCES
 add_library(ws_com SHARED ${SOURCES})
 
 set(SOURCES
+    ws_com_server/ws_com_server.rc
     ws_com_server/ws_com_server.cpp
 )
 

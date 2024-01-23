@@ -7,19 +7,23 @@ namespace types {
 QList<CONNECTED_DNS_TYPE> ConnectedDnsInfo::allAvailableTypes()
 {
     QList<CONNECTED_DNS_TYPE> t;
-    t << CONNECTED_DNS_TYPE_ROBERT << CONNECTED_DNS_TYPE_CUSTOM;
+    t << CONNECTED_DNS_TYPE_AUTO << CONNECTED_DNS_TYPE_FORCED << CONNECTED_DNS_TYPE_CUSTOM;
     return t;
 }
 
 QString ConnectedDnsInfo::typeToString(const CONNECTED_DNS_TYPE &type)
 {
-    if (type == CONNECTED_DNS_TYPE_ROBERT)
+    if (type == CONNECTED_DNS_TYPE_AUTO)
     {
-        return QObject::tr("R.O.B.E.R.T.");
+        return QObject::tr("Auto");
     }
     else if (type == CONNECTED_DNS_TYPE_CUSTOM)
     {
         return QObject::tr("Custom");
+    }
+    else if (type == CONNECTED_DNS_TYPE_FORCED)
+    {
+        return QObject::tr("Forced");
     }
     else
     {

@@ -16,6 +16,7 @@ project(wireguard_service)
 
 set(SOURCES
     ServiceMain.cpp
+    wireguard_service.rc
     ../../../client/common/utils/servicecontrolmanager.cpp
 )
 

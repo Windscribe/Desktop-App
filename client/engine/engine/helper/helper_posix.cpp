@@ -207,6 +207,9 @@ bool Helper_posix::sendConnectStatus(bool isConnected, bool isTerminateSocket, b
         doDisconnectAndReconnect();
         return false;
     }
+    if (answer.executed == 0) {
+        return false;
+    }
 
     return true;
 }
@@ -333,6 +336,7 @@ bool Helper_posix::configureWireGuard(const WireGuardConfig &config)
     cmd.peerPresharedKey
         = QByteArray::fromBase64(config.peerPresharedKey().toLatin1()).toHex().data();
     cmd.allowedIps = config.peerAllowedIps().toLatin1().data();
+    cmd.listenPort = config.clientListenPort().toUInt();
 
     std::stringstream stream;
     boost::archive::text_oarchive oa(stream, boost::archive::no_header);

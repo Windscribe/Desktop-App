@@ -26,6 +26,8 @@ set(SOURCES
     routes_manager/bound_route.cpp
     routes_manager/routes.cpp
     routes_manager/routes_manager.cpp
+    split_tunneling/cgroups.cpp
+    split_tunneling/process_monitor.cpp
     split_tunneling/split_tunneling.cpp
     split_tunneling/hostnames_manager/ares_library_init.cpp
     split_tunneling/hostnames_manager/dns_resolver.cpp

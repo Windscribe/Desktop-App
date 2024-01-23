@@ -2,7 +2,7 @@
 
 #include "utils/ipvalidation.h"
 #include "utils/logger.h"
-#include "utils/utils.h"
+#include "utils/network_utils/network_utils.h"
 
 PacketSizeController::PacketSizeController(QObject *parent)
     : QObject(parent),
@@ -103,7 +103,7 @@ int PacketSizeController::getIdealPacketSize(const QString &hostname)
             break;
         }
 
-        bool pingSuccess = Utils::pingWithMtu(modifiedHostname, mtu);
+        bool pingSuccess = NetworkUtils::pingWithMtu(modifiedHostname, mtu);
         if (pingSuccess)
         {
             success = true;

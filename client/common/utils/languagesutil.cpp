@@ -89,15 +89,23 @@ bool LanguagesUtil::isCensorshipCountry()
     }
 
 #if defined(Q_OS_WIN)
-    // Extra check on Windows using the default geographical location of the user.  This API
-    // returns the two-letter ISO 3166-1 code for the default geographical location of the user.
-    wchar_t systemGeoName[LOCALE_NAME_MAX_LENGTH];
-    int strlen = ::GetUserDefaultGeoName(systemGeoName, LOCALE_NAME_MAX_LENGTH);
-    if (strlen > 0) {
-        const QStringList censoredCountriesISO3166 = { "by", "cn", "ir", "ru", "tr" };
-        const QString geoName = QString::fromWCharArray(systemGeoName, strlen).toLower();
-        if (censoredCountriesISO3166.contains(geoName)) {
-            return true;
+    // Dynamically load the function to allow the app to run on Windows 10 versions lacking the function export.
+    HMODULE hDLL = ::GetModuleHandleA("kernel32.dll");
+    if (hDLL != NULL) {
+        typedef int (WINAPI* GetUserDefaultGeoNameFunc)(LPWSTR geoName, int geoNameCount);
+        GetUserDefaultGeoNameFunc getUserDefaultGeoNameFunc = (GetUserDefaultGeoNameFunc)::GetProcAddress(hDLL, "GetUserDefaultGeoName");
+        if (getUserDefaultGeoNameFunc != NULL) {
+            // Extra check on Windows using the default geographical location of the user.  This API
+            // returns the two-letter ISO 3166-1 code for the default geographical location of the user.
+            wchar_t systemGeoName[LOCALE_NAME_MAX_LENGTH];
+            int strlen = getUserDefaultGeoNameFunc(systemGeoName, LOCALE_NAME_MAX_LENGTH);
+            if (strlen > 0) {
+                const QStringList censoredCountriesISO3166 = { "by", "cn", "ir", "ru", "tr" };
+                const QString geoName = QString::fromWCharArray(systemGeoName, strlen).toLower();
+                if (censoredCountriesISO3166.contains(geoName)) {
+                    return true;
+                }
+            }
         }
     }
 #endif

@@ -31,7 +31,3 @@ namespace MacUtils
 
     bool isParentProcessGui();
 }
-
-
-
-

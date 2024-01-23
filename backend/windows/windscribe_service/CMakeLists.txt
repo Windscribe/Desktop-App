@@ -60,7 +60,7 @@ set(SOURCES
     sys_ipv6_controller.cpp
     utils.cpp
     windscribe_service.cpp
-    wintuncontroller.cpp
+    openvpncontroller.cpp
     wireguard/wireguardcontroller.cpp
     ../../../client/common/utils/crashdump.cpp
     ../../../client/common/utils/crashhandler.cpp

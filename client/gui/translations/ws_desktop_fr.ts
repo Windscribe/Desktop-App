@@ -749,6 +749,42 @@ Si le problème persiste après un redémarrage, envoyez un journal de débogage
         <source>Unable to start custom DNS service.  Please ensure you don&apos;t have any other local DNS services running, or contact support.</source>
         <translation>Impossible de démarrer le service DNS personnalisé.  Assurez-vous qu’aucun autre service DNS local n’est en cours d’exécution ou contactez l’assistance.</translation>
     </message>
+    <message>
+        <source>JSON Files (*.json)</source>
+        <translation>Fichiers JSON (*.json)</translation>
+    </message>
+    <message>
+        <source>Unable to import preferences</source>
+        <translation>Impossible d’importer les préférences</translation>
+    </message>
+    <message>
+        <source>Preferences can only be imported when the app is disconnected. Please disconnect and try again.</source>
+        <translation>Les préférences ne peuvent être importées que lorsque l’application est déconnectée. Veuillez vous déconnecter et réessayer.</translation>
+    </message>
+    <message>
+        <source>The selected file&apos;s format is incorrect.</source>
+        <translation>Le format du fichier sélectionné est incorrect.</translation>
+    </message>
+    <message>
+        <source>Export Preferences To</source>
+        <translation>Préférences d’exportation vers</translation>
+    </message>
+    <message>
+        <source>Import Preferences From</source>
+        <translation>Importer les préférences à partir de</translation>
+    </message>
+    <message>
+        <source>Could not open file.</source>
+        <translation>Impossible d’ouvrir le fichier.</translation>
+    </message>
+    <message>
+        <source>Unable to export preferences</source>
+        <translation>Impossible d’exporter les préférences</translation>
+    </message>
+    <message>
+        <source>Could not open file for writing.  Check your permissions and try again.</source>
+        <translation>Impossible d’ouvrir le fichier pour l’écriture.  Vérifiez vos autorisations et réessayez.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -762,7 +798,7 @@ Si le problème persiste après un redémarrage, envoyez un journal de débogage
     </message>
     <message>
         <source>Quit</source>
-        <translation>Démissionner</translation>
+        <translation>Quitter</translation>
     </message>
     <message>
         <source>Log Out</source>
@@ -868,10 +904,6 @@ Si le problème persiste après un redémarrage, envoyez un journal de débogage
         <translation>PLAN</translation>
     </message>
     <message>
-        <source>Expires On</source>
-        <translation>Expire le</translation>
-    </message>
-    <message>
         <source>Reset Date</source>
         <translation>Date de réinitialisation</translation>
     </message>
@@ -882,6 +914,10 @@ Si le problème persiste après un redémarrage, envoyez un journal de débogage
     <message>
         <source>Manage Account</source>
         <translation>Gérer le compte</translation>
+    </message>
+    <message>
+        <source>Expiry Date</source>
+        <translation>Échéance</translation>
     </message>
 </context>
 <context>
@@ -958,6 +994,18 @@ Si le problème persiste après un redémarrage, envoyez un journal de débogage
         <source>DNS Manager</source>
         <translation>Gestionnaire DNS</translation>
     </message>
+    <message>
+        <source>App Preferences</source>
+        <translation>Préférences de l’application</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <translation>Exportation</translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <translation>Importation</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::ApiResolutionGroup</name>
@@ -981,6 +1029,14 @@ Si le problème persiste après un redémarrage, envoyez un journal de débogage
         <source>Enter IP or Hostname</source>
         <translation>Entrez l’adresse IP ou le nom d’hôte</translation>
     </message>
+    <message>
+        <source>Invalid address</source>
+        <translation>Adresse non valide</translation>
+    </message>
+    <message>
+        <source>You have entered an invalid address for API resolution.  It has been reset to Auto.</source>
+        <translation>Vous avez entré une adresse non valide pour la résolution de l’API.  Il a été réinitialisé en Auto.</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::BackgroundSettingsGroup</name>
@@ -993,11 +1049,7 @@ Si le problème persiste après un redémarrage, envoyez un journal de débogage
         <translation>Relié</translation>
     </message>
     <message>
-        <source>Background</source>
-        <translation>Arrière-plan</translation>
-    </message>
-    <message>
-        <source>Country Flags</source>
+        <source>Flags</source>
         <translation>Drapeaux de pays</translation>
     </message>
     <message>
@@ -1007,6 +1059,10 @@ Si le problème persiste après un redémarrage, envoyez un journal de débogage
     <message>
         <source>Custom</source>
         <translation>Coutume</translation>
+    </message>
+    <message>
+        <source>App Background</source>
+        <translation>Arrière-plan de l’application</translation>
     </message>
 </context>
 <context>
@@ -1138,6 +1194,10 @@ Si le problème persiste après un redémarrage, envoyez un journal de débogage
         <source>Automatically choose the VPN protocol, or select one manually. NOTE: &quot;Preferred Protocol&quot; will override this setting.</source>
         <translation>Choisissez automatiquement le protocole VPN ou sélectionnez-en un manuellement. REMARQUE: «&#xa0;Protocole préféré&#xa0;» remplacera ce paramètre.</translation>
     </message>
+    <message>
+        <source>Disabling Allow LAN Traffic will cause your secure hotspot to stop working.  Do you want to disable the hotspot?</source>
+        <translation>La désactivation de l’option Autoriser le trafic LAN entraînera l’arrêt du fonctionnement de votre point d’accès sécurisé.  Voulez-vous désactiver le hotspot ?</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::DnsDomainsGroup</name>
@@ -1172,10 +1232,6 @@ Si le problème persiste après un redémarrage, envoyez un journal de débogage
         <translation>Envoyèrent!</translation>
     </message>
     <message>
-        <source>Add</source>
-        <translation>Ajouter</translation>
-    </message>
-    <message>
         <source>Resend</source>
         <translation>Renvoyer</translation>
     </message>
@@ -1198,6 +1254,10 @@ Si le problème persiste après un redémarrage, envoyez un journal de débogage
     <message>
         <source>Email</source>
         <translation>Messagerie électronique</translation>
+    </message>
+    <message>
+        <source>Add Email</source>
+        <translation>Ajouter une adresse e-mail</translation>
     </message>
 </context>
 <context>
@@ -1597,7 +1657,7 @@ Se connecter d’abord à un réseau</translation>
     </message>
     <message>
         <source>Quit</source>
-        <translation>Démissionner</translation>
+        <translation>Quitter</translation>
     </message>
 </context>
 <context>
@@ -1953,10 +2013,6 @@ Si la réinstallation ne résout pas le problème, veuillez contacter le support
 <context>
     <name>QObject</name>
     <message>
-        <source>R.O.B.E.R.T.</source>
-        <translation>R.O.B.E.R.T.</translation>
-    </message>
-    <message>
         <source>Custom</source>
         <translation>Coutume</translation>
     </message>
@@ -2135,6 +2191,10 @@ Si la réinstallation ne résout pas le problème, veuillez contacter le support
     <message>
         <source>Black</source>
         <translation>Noir</translation>
+    </message>
+    <message>
+        <source>Forced</source>
+        <translation>Forcé</translation>
     </message>
 </context>
 <context>

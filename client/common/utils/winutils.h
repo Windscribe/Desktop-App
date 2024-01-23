@@ -4,9 +4,7 @@
 
 #include <QMap>
 #include <QString>
-
-#include "networktypes.h"
-#include "types/networkinterface.h"
+#include <QStringList>
 
 namespace WinUtils
 {
@@ -14,12 +12,13 @@ namespace WinUtils
 
     bool reboot();
     bool isWindows10orGreater();
-    bool isWindows7();
-    bool isWindowsVISTAor7or8();
+    bool isOSCompatible();
+    bool isDohSupported();
     QString getWinVersionString();
     void getOSVersionAndBuild(QString &osVersion, QString &build);
     QMap<QString,QString> enumerateInstalledProgramIconLocations();
     QStringList enumerateRunningProgramLocations();
+    QStringList enumerateSubkeyNames(HKEY rootKey, const QString &keyPath);
 
     QString executeBlockingCmd(QString cmd, const QString &params, int timeoutMs = -1);
 
@@ -32,36 +31,6 @@ namespace WinUtils
     QString regGetLocalMachineRegistryValueSz(QString keyPath, QString propertyName);
     bool regGetCurrentUserRegistryDword(QString keyPath, QString propertyName, int &dwordValue);
 
-    // Network
-    types::NetworkInterface currentNetworkInterface();
-    QVector<types::NetworkInterface> currentNetworkInterfaces(bool includeNoInterface);
-
-    types::NetworkInterface interfaceByIndex(int index, bool &success);
-    IfTable2Row lowestMetricNonWindscribeIfTableRow();
-    IfTableRow ifRowByIndex(int index);
-    IfTable2Row ifTable2RowByIndex(int index);
-
-    QString interfaceSubkeyPath(int interfaceIndex);
-    QString interfaceSubkeyName(int interfaceIndex);
-    bool interfaceSubkeyHasProperty(int interfaceIndex, QString propertyName);
-    QList<QString> interfaceSubkeys(QString keyPath);
-
-    QList<IpForwardRow> getIpForwardTable();
-    QList<IfTableRow> getIfTable();
-    QList<IfTable2Row> getIfTable2();
-    QList<IpAdapter> getIpAdapterTable();
-    QList<AdapterAddress> getAdapterAddressesTable();
-
-    QString ssidFromInterfaceGUID(QString interfaceGUID);
-    QString networkNameFromInterfaceGUID(QString adapterGUID);
-    QList<QString> singleHexChars();
-
-    bool pingWithMtu(const QString &url, int mtu);
-    QString getLocalIP();
-
-    std::optional<bool> haveInternetConnectivity();
-
-    bool authorizeWithUac();
     unsigned long Win32GetErrorString(unsigned long errorCode, wchar_t *buffer, unsigned long bufferSize);
 
     // Retrieve the version information item specified by itemName (e.g. "FileVersion") from the executable.
@@ -70,4 +39,6 @@ namespace WinUtils
     GUID stringToGuid(const char *str);
 
     HWND appMainWindowHandle();
+
+    DWORD getOSBuildNumber();
 }

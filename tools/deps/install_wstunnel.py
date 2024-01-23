@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 # ------------------------------------------------------------------------------
 # Windscribe VPN Build System
-# Copyright (c) 2020-2023, Windscribe Limited. All rights reserved.
+# Copyright (c) 2020-2024, Windscribe Limited. All rights reserved.
 # ------------------------------------------------------------------------------
 # Purpose: installs Wstunnel executables.
 import os
+import platform
 import shutil
 import sys
 import time
@@ -45,7 +46,7 @@ def BuildDependencyMacOS():
 
 def BuildDependencyLinux():
     buildenv = os.environ.copy()
-    buildenv.update({"GOARCH": "arm64" if is_arm64_build else "amd64", "GOOS": "linux"})
+    buildenv.update({"GOARCH": "arm64" if platform.machine() in ("arm64", "aarch64") else "amd64", "GOOS": "linux"})
     iutl.RunCommand(["go", "build", "-o", os.path.join("build", "windscribewstunnel"), "-a", "-gcflags=all=-l -B", "-ldflags=-w -s"], env=buildenv)
 
 

@@ -51,7 +51,7 @@ private:
     void updatePositions();
     void setEmailSendState(EMAIL_SEND_STATE state);
 
-    const char *ADD_TEXT = QT_TR_NOOP("Add");
+    const char *ADD_TEXT = QT_TR_NOOP("Add Email");
     const char *UPGRADE_TEXT = QT_TR_NOOP("Get 10GB/Month of data and gain the ability to reset your password.");
     const char *CONFIRM_TEXT = QT_TR_NOOP("Please confirm your email");
     const char *EMAIL_TEXT = QT_TR_NOOP("Email");

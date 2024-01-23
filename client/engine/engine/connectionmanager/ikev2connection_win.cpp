@@ -1,14 +1,16 @@
 #include "ikev2connection_win.h"
-#include "utils/logger.h"
-#include <windows.h>
+#include "ikev2connection_win.h"
+
 #include <windns.h>
 #include <QCoreApplication>
-#include "utils/hardcodedsettings.h"
-#include "engine/taputils/checkadapterenable.h"
-#include "utils/ws_assert.h"
-#include "utils/winutils.h"
-#include "utils/ras_service_win.h"
+
 #include "adapterutils_win.h"
+#include "engine/taputils/checkadapterenable.h"
+#include "utils/logger.h"
+#include "utils/ras_service_win.h"
+#include "utils/winutils.h"
+#include "utils/ws_assert.h"
+
 
 #define IKEV2_CONNECTION_NAME  L"Windscribe IKEv2"
 
@@ -91,11 +93,6 @@ bool IKEv2Connection_win::isDisconnected() const
     QMutexLocker locker(&mutex_);
     return  state_ == STATE_DISCONNECTED;
 }
-
-/*QString IKEv2Connection_win::getConnectedTapTunAdapterName()
-{
-    return QString::fromStdWString(IKEV2_CONNECTION_NAME);
-}*/
 
 void IKEv2Connection_win::removeIkev2ConnectionFromOS()
 {
@@ -376,7 +373,7 @@ void IKEv2Connection_win::doConnect()
         rasEntry.dwfOptions = rasEntry.dwfOptions | RASEO_IpHeaderCompression | RASEO_SwCompression;
     }
 
-    rasEntry.dwfOptions2 = RASEO2_DontNegotiateMultilink | RASEO2_ReconnectIfDropped /*| RASEO2_IPv6RemoteDefaultGateway*/ | RASEO2_IPv4ExplicitMetric | RASEO2_IPv6ExplicitMetric;
+    rasEntry.dwfOptions2 = RASEO2_DontNegotiateMultilink | RASEO2_ReconnectIfDropped /*| RASEO2_IPv6RemoteDefaultGateway*/ | RASEO2_IPv4ExplicitMetric | RASEO2_IPv6ExplicitMetric | RASEO2_SecureFileAndPrint;
     rasEntry.dwFramingProtocol = RASFP_Ppp;
     rasEntry.dwEncryptionType = ET_RequireMax;
     rasEntry.dwType = RASET_Vpn;
@@ -497,7 +494,7 @@ void IKEv2Connection_win::rasDialFuncCallback(HRASCONN hrasconn, UINT unMsg, tag
             QTimer::singleShot(0, &timerControlConnection_, SLOT(start()));
             state_ = STATE_CONNECTED;
 
-            AdapterGatewayInfo cai = AdapterUtils_win::getWindscribeConnectedAdapterInfo();
+            AdapterGatewayInfo cai = AdapterUtils_win::getConnectedAdapterInfo(QString::fromStdWString(IKEV2_CONNECTION_NAME));
             emit connected(cai);
         }
     }

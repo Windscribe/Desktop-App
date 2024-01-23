@@ -2,15 +2,18 @@
 
 #include <fileapi.h>
 #include <filesystem>
+#include <optional>
 #include <shellapi.h>
 #include <shlobj.h>
+#include <sstream>
 #include <string>
 #include <tchar.h>
-#include <iostream>
 #include <versionhelpers.h>
 
 #include "archive/archive.h"
+#include "global_consts.h"
 #include "wsscopeguard.h"
+#include "win32handle.h"
 
 // Set the DLL load directory to the system directory before entering WinMain().
 struct LoadSystemDLLsFromSystem32
@@ -24,7 +27,23 @@ struct LoadSystemDLLsFromSystem32
     }
 } loadSystemDLLs;
 
-static constexpr DWORD kMinOSBuildNumber = 17763;
+static std::optional<bool> isElevated()
+{
+    wsl::Win32Handle token;
+    BOOL result = OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, token.data());
+    if (result == FALSE) {
+        return std::nullopt;
+    }
+
+    TOKEN_ELEVATION Elevation;
+    DWORD cbSize = sizeof(TOKEN_ELEVATION);
+    result = GetTokenInformation(token.getHandle(), TokenElevation, &Elevation, sizeof(Elevation), &cbSize);
+    if (result == FALSE) {
+        return std::nullopt;
+    }
+
+    return Elevation.TokenIsElevated;
+}
 
 static int showMessageBox(HWND hOwner, LPCTSTR szTitle, UINT nStyle, LPCTSTR szFormat, ...)
 {
@@ -74,11 +93,10 @@ static DWORD ExecuteProgram(const wchar_t *cmd, const wchar_t *params, bool wait
         return GetLastError();
     }
 
-    if (wait) {
-        if (ei.hProcess != 0) {
-            WaitForSingleObject(ei.hProcess, INFINITE);
-            CloseHandle(ei.hProcess);
-        }
+    wsl::Win32Handle processHandle(ei.hProcess);
+
+    if (wait && processHandle.isValid()) {
+        processHandle.wait(INFINITE);
     }
 
     return NO_ERROR;
@@ -102,11 +120,6 @@ static void DeleteFolder(const wchar_t *folder)
 
 static bool isOSCompatible()
 {
-    if (!IsWindows10OrGreater()) {
-        return false;
-    }
-
-    // The version of Qt we use, and some Win32 functions we call, require a minimum of Windows 10 1809.
     NTSTATUS (WINAPI *RtlGetVersion)(LPOSVERSIONINFOEXW);
     *(FARPROC*)&RtlGetVersion = ::GetProcAddress(::GetModuleHandleA("ntdll"), "RtlGetVersion");
     if (!RtlGetVersion) {
@@ -121,40 +134,83 @@ static bool isOSCompatible()
     rtlOsVer.dwOSVersionInfoSize = sizeof(RTL_OSVERSIONINFOEXW);
     RtlGetVersion(&rtlOsVer);
     // Windows 11 build numbers continue from the W10 build numbers, so no need to check the OS version here.
-    return (rtlOsVer.dwBuildNumber >= kMinOSBuildNumber);
+    return (rtlOsVer.dwBuildNumber >= kMinWindowsBuildNumber);
 }
 
 int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpszCmdParam, int nCmdShow)
 {
-    // We make this check here, rather than in the main installer, since it may fail to launch on an
-    // incompatible OS due to missing function imports.
-    if (!isOSCompatible()) {
+    if (!IsWindows10OrGreater()) {
         showMessageBox(NULL, _T("Windscribe Installer"), MB_OK | MB_ICONSTOP,
-                       _T("The Windscribe app cannot be installed on this version of Windows.  It requires Windows 10 build %lu or newer."), kMinOSBuildNumber);
+                       _T("The Windscribe app cannot be installed on this version of Windows.  It requires Windows 10 or newer."));
         return -1;
     }
 
-    // Find the temporary dir
-    wchar_t path[MAX_PATH];
-    DWORD result = GetTempPath(MAX_PATH, path);
-    if (result == 0) {
+    auto isAdmin = isElevated();
+    if (!isAdmin.has_value()) {
         showMessageBox(NULL, _T("Windscribe Installer"), MB_OK | MB_ICONSTOP,
-                       _T("Couldn't locate Windows temporary directory (%lu)"), GetLastError());
+                       _T("Couldn't determine if user has administrative rights."));
         return -1;
     }
 
-    // Create install path
-    std::wstring installPath = path;
+    std::wstringstream path;
     srand(time(NULL)); // Doesn't have to be cryptographically secure, just random
-    installPath += L"\\WindscribeBootstrap" + std::to_wstring(rand());
 
-    if (::SHCreateDirectoryEx(NULL, installPath.c_str(), NULL) != ERROR_SUCCESS) {
-        if (::GetLastError() != ERROR_ALREADY_EXISTS) {
+    if (!isAdmin.value()) {
+        if (!isOSCompatible()) {
+            auto response = showMessageBox(NULL, _T("Windscribe Installer"), MB_YESNO | MB_ICONWARNING,
+                                           _T("The Windscribe app may not function correctly on this version of Windows.  It requires Windows 10"
+                                              " build %lu or newer for full functionality.\n\nDo you want to proceed with the install?"), kMinWindowsBuildNumber);
+            if (response != IDYES) {
+                return -1;
+            }
+        }
+        // Attempt to run this program as admin
+        TCHAR buf[MAX_PATH];
+        DWORD result = GetModuleFileName(NULL, buf, MAX_PATH);
+        if (result == NO_ERROR) {
             showMessageBox(NULL, _T("Windscribe Installer"), MB_OK | MB_ICONSTOP,
-                _T("Couldn't create installer temporary directory"));
+                           _T("Couldn't get own exe path."));
             return -1;
         }
+        result = ExecuteProgram(buf, lpszCmdParam, false, true);
+        if (result == NO_ERROR) {
+            // Elevated process is running, exit this process
+            return 0;
+        } else if (result != ERROR_CANCELLED) {
+            // Some error occurred launching the elevated process
+            showMessageBox(NULL, _T("Windscribe Installer"), MB_OK | MB_ICONSTOP,
+                           _T("Couldn't run installer as administrator."));
+            return -1;
+        }
+
+        // Otherwise, UAC prompt was cancelled, continue unelevated so we can show the error
+
+        // Find the temporary dir
+        wchar_t tempPath[MAX_PATH];
+        result = GetTempPath(MAX_PATH, tempPath);
+        if (result == 0) {
+            showMessageBox(NULL, _T("Windscribe Installer"), MB_OK | MB_ICONSTOP,
+                           _T("Couldn't locate Windows temporary directory (%lu)"), GetLastError());
+            return -1;
+        }
+        path << tempPath;
+        path << L"\\WindscribeInstaller" + std::to_wstring(rand());
+    } else {
+        // Find the Windows dir
+        wchar_t *windowsPath = NULL;
+        HRESULT hr = SHGetKnownFolderPath(FOLDERID_Windows, 0, NULL, &windowsPath);
+        if (FAILED(hr)) {
+            showMessageBox(NULL, _T("Windscribe Installer"), MB_OK | MB_ICONSTOP,
+                           _T("Couldn't locate Windows directory (%lu)"), HRESULT_CODE(hr));
+            CoTaskMemFree(windowsPath);
+            return -1;
+        }
+        path << windowsPath;
+        CoTaskMemFree(windowsPath);
+        path << L"\\Temp\\WindscribeInstaller" + std::to_wstring(rand());
     }
+
+    std::wstring installPath = path.str();
 
     auto exitGuard = wsl::wsScopeGuard([&]
     {
@@ -198,13 +254,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpszC
     std::wstring app = installPath + L"\\";
     app.append(WINDSCRIBE_INSTALLER_NAME);
 
-    // Run the installer as admin.  If the user rejects the UAC prompt, run the installer unelevated
-    // so it can display a proper UI to the user explaining that elevation is required.
-    result = ExecuteProgram(app.c_str(), lpszCmdParam, true, true);
-    if (result == ERROR_CANCELLED) {
-        result = ExecuteProgram(app.c_str(), lpszCmdParam, true, false);
-    }
-
+    int result = ExecuteProgram(app.c_str(), lpszCmdParam, true, isAdmin.value());
     if (result != NO_ERROR) {
         showMessageBox(NULL, _T("Windscribe Installer"), MB_OK | MB_ICONSTOP,
                        _T("Windows was unable to launch the installer (%lu)"), result);

@@ -129,7 +129,6 @@ public slots:
 signals:
     void initFinished(ENGINE_INIT_RET_CODE retCode, bool isCanLoginWithAuthHash, const types::EngineSettings &engineSettings);
     void bfeEnableFinished(ENGINE_INIT_RET_CODE retCode, bool isCanLoginWithAuthHash, const types::EngineSettings &engineSettings);
-    void cleanupFinished();
     void loginFinished(bool isLoginFromSavedSettings, const QString &authHash, const types::PortMap &portMap);
     void tryingBackupEndpoint(int num, int cnt);
     void loginError(LOGIN_RET retCode, const QString &errorMessage);
@@ -310,6 +309,10 @@ private:
     void initPart2();
     void updateProxySettings();
     bool verifyContentsSha256(const QString &filename, const QString &compareHash);
+
+#ifdef Q_OS_WIN
+    void enableDohSettings();
+#endif
 
     types::EngineSettings engineSettings_;
     IHelper *helper_;

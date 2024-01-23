@@ -1,11 +1,11 @@
 #include "macaddressitem.h"
 
 #include <QPainter>
-#include <time.h>
+
+#include "dpiscalemanager.h"
 #include "graphicresources/fontmanager.h"
 #include "preferenceswindow/preferencesconst.h"
-#include "utils/utils.h"
-#include "dpiscalemanager.h"
+#include "utils/network_utils/network_utils.h"
 
 namespace PreferencesWindow {
 
@@ -36,7 +36,7 @@ void MacAddressItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *op
     QString t;
     if (!text_.isEmpty())
     {
-        t = Utils::formatMacAddress(text_);
+        t = NetworkUtils::formatMacAddress(text_);
     }
     else
     {

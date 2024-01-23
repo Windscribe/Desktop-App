@@ -8,16 +8,57 @@ namespace types {
 
 struct MacAddrSpoofing
 {
+    struct JsonInfo
+    {
+        JsonInfo& operator=(const JsonInfo&) { return *this; }
+
+        const QString kIsEnabledProp = "isEnabled";
+        const QString kMacAddressProp = "macAddress";
+        const QString kIsAutoRotateProp = "isAutoRotate";
+        const QString kSelectedNetworkInterfaceProp = "selectedNetworkInterface";
+        const QString kNetworkInterfacesProp = "networkInterfaces";
+    };
+
     MacAddrSpoofing() :
         isEnabled(false),
         isAutoRotate(false)
     {}
+
+    MacAddrSpoofing(const QJsonObject &json)
+    {
+        if (json.contains(jsonInfo.kIsEnabledProp) && json[jsonInfo.kIsEnabledProp].isBool())
+            isEnabled = json[jsonInfo.kIsEnabledProp].toBool();
+
+        if (json.contains(jsonInfo.kMacAddressProp) && json[jsonInfo.kMacAddressProp].isString())
+            macAddress = json[jsonInfo.kMacAddressProp].toString();
+
+        if (json.contains(jsonInfo.kIsAutoRotateProp) && json[jsonInfo.kIsAutoRotateProp].isBool())
+            isAutoRotate = json[jsonInfo.kIsAutoRotateProp].toBool();
+
+        if (json.contains(jsonInfo.kSelectedNetworkInterfaceProp) && json[jsonInfo.kSelectedNetworkInterfaceProp].isObject())
+            selectedNetworkInterface = NetworkInterface(json[jsonInfo.kSelectedNetworkInterfaceProp].toObject());
+
+        if (json.contains(jsonInfo.kNetworkInterfacesProp) && json[jsonInfo.kNetworkInterfacesProp].isArray())
+        {
+            QJsonArray networkInterfacesArray = json[jsonInfo.kNetworkInterfacesProp].toArray();
+            networkInterfaces.clear();
+            for (const QJsonValue &ifaceValue : networkInterfacesArray)
+            {
+                if (ifaceValue.isObject())
+                {
+                    NetworkInterface iface(ifaceValue.toObject());
+                    networkInterfaces.append(iface);
+                }
+            }
+        }
+    }
 
     bool isEnabled;
     QString macAddress;
     bool isAutoRotate;
     NetworkInterface selectedNetworkInterface;
     QVector<NetworkInterface> networkInterfaces;
+    JsonInfo jsonInfo;
 
     bool operator==(const MacAddrSpoofing &other) const
     {
@@ -31,6 +72,26 @@ struct MacAddrSpoofing
     bool operator!=(const MacAddrSpoofing &other) const
     {
         return !(*this == other);
+    }
+
+    QJsonObject toJson() const
+    {
+        QJsonObject json;
+
+        json[jsonInfo.kIsEnabledProp] = isEnabled;
+        json[jsonInfo.kMacAddressProp] = macAddress;
+        json[jsonInfo.kIsAutoRotateProp] = isAutoRotate;
+        json[jsonInfo.kSelectedNetworkInterfaceProp] = selectedNetworkInterface.toJson();
+
+        if (!networkInterfaces.isEmpty()) {
+            QJsonArray networkInterfacesArray;
+            for (const NetworkInterface& iface : networkInterfaces) {
+                networkInterfacesArray.append(iface.toJson());
+            }
+            json[jsonInfo.kNetworkInterfacesProp] = networkInterfacesArray;
+        }
+
+        return json;
     }
 
     friend QDataStream& operator <<(QDataStream &stream, const MacAddrSpoofing &o)

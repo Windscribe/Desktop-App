@@ -49,7 +49,7 @@ bool SecretValue_win::isExistValue(QString &value)
         DWORD dwBufSize = sizeof(dwReturn);
 
         nError = RegQueryValueEx(hKey, L"State", 0, NULL, (LPBYTE)dwReturn, &dwBufSize);
-        if(nError == ERROR_SUCCESS)
+        if (nError == ERROR_SUCCESS)
         {
             QByteArray arr((const char *)dwReturn, dwBufSize);
             value = crypt_.decryptToByteArray(arr);

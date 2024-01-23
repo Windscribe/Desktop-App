@@ -34,6 +34,7 @@
     #include "helper/helper_win.h"
     #include "utils/bfe_service_win.h"
     #include "utils/executable_signature/executable_signature.h"
+    #include "utils/network_utils/network_utils_win.h"
     #include "utils/winutils.h"
 #elif defined Q_OS_MAC
     #include "ipv6controller_mac.h"
@@ -489,8 +490,8 @@ void Engine::makeHostsFileWritableWin()
 {
 #ifdef Q_OS_WIN
     const auto winHelper = dynamic_cast<Helper_win*>(helper_);
-    if(winHelper) {
-        if(winHelper->makeHostsFileWritable()) {
+    if (winHelper) {
+        if (winHelper->makeHostsFileWritable()) {
             emit hostsFileBecameWritable();
         }
         else {
@@ -541,7 +542,7 @@ void Engine::initPart2()
 #ifdef Q_OS_MAC
     macAddrSpoofing.networkInterfaces = NetworkUtils_mac::currentNetworkInterfaces(true);
 #elif defined Q_OS_WIN
-    macAddrSpoofing.networkInterfaces = WinUtils::currentNetworkInterfaces(true);
+    macAddrSpoofing.networkInterfaces = NetworkUtils_win::currentNetworkInterfaces(true);
 #elif define Q_OS_LINUX
     todo
 #endif
@@ -739,6 +740,7 @@ void Engine::cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool is
         if (bWasIsConnected)
         {
             #ifdef Q_OS_WIN
+                enableDohSettings();
                 DnsInfo_win::outputDebugDnsInfo();
             #endif
             qCDebug(LOG_BASIC) << "Cleanup, connection manager disconnected";
@@ -862,12 +864,18 @@ void Engine::cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool is
     SAFE_DELETE(downloadHelper_);
     SAFE_DELETE(networkAccessManager_);
     isCleanupFinished_ = true;
-    emit cleanupFinished();
     qCDebug(LOG_BASIC) << "Cleanup finished";
 
 #ifdef Q_OS_WIN
     crashHandler_.reset();
 #endif
+
+    // Do not accept any new events.
+    disconnect(this);
+    // Clear any existing events.
+    QCoreApplication::removePostedEvents(this);
+    // Quit this thread.
+    thread()->quit();
 }
 
 void Engine::enableBFE_winImpl()
@@ -1324,12 +1332,7 @@ void Engine::onConnectionManagerConnected()
                                              connectionManager_->getDefaultAdapterInfo(), connectionManager_->getVpnAdapterInfo(),
                                              connectionManager_->getLastConnectedIp(), lastConnectingProtocol_);
     if (!result) {
-        #if defined(Q_OS_WINDOWS)
         emit helperSplitTunnelingStartFailed();
-        #else
-        // POSIX helper does not currently report failure of split tunneling driver startup.
-        qCDebug(LOG_BASIC) << "Helper_posix::sendConnectStatus failed";
-        #endif
     }
 
     if (firewallController_->firewallActualState() && !isFirewallAlreadyEnabled)
@@ -1397,7 +1400,7 @@ void Engine::onConnectionManagerConnected()
     if (connectionManager_->isStaticIpsLocation())
     {
         firewallController_->whitelistPorts(connectionManager_->getStatisIps());
-        qCDebug(LOG_BASIC) << "the firewall rules are added for static IPs location, ports:" << connectionManager_->getStatisIps().getAsStringWithDelimiters();
+        qCDebug(LOG_CONNECTION) << "the firewall rules are added for static IPs location, ports:" << connectionManager_->getStatisIps().getAsStringWithDelimiters();
     }
 
     networkAccessManager_->disableProxy();
@@ -1422,11 +1425,15 @@ void Engine::onConnectionManagerConnected()
 
 void Engine::onConnectionManagerDisconnected(DISCONNECT_REASON reason)
 {
-    qCDebug(LOG_BASIC) << "on disconnected event";
+    qCDebug(LOG_CONNECTION) << "on disconnected event";
+
+#if defined(Q_OS_WIN)
+    enableDohSettings();
+#endif
 
     if (connectionManager_->isStaticIpsLocation())
     {
-        qCDebug(LOG_BASIC) << "the firewall rules are removed for static IPs location";
+        qCDebug(LOG_CONNECTION) << "the firewall rules are removed for static IPs location";
         firewallController_->deleteWhitelistPorts();
     }
 
@@ -1588,10 +1595,10 @@ void Engine::onConnectionManagerConnectingToHostname(const QString &hostname, co
     lastConnectingHostname_ = hostname;
     connectStateController_->setConnectingState(locationId_);
 
-    qCDebug(LOG_BASIC) << "Whitelist connecting ip:" << ip;
+    qCDebug(LOG_CONNECTION) << "Whitelist connecting ip:" << ip;
     if (!dnsServers.isEmpty())
     {
-        qCDebug(LOG_BASIC) << "Whitelist DNS-server ip:" << dnsServers;
+        qCDebug(LOG_CONNECTION) << "Whitelist DNS-server ip:" << dnsServers;
     }
 
     bool bChanged1 = false;
@@ -2319,7 +2326,8 @@ void Engine::doConnect(bool bEmitAuthError)
             qCDebug(LOG_BASIC) << "radiusUsername openvpn: " << apiResourcesManager_->serverCredentials().usernameForOpenVpn();
             qCDebug(LOG_BASIC) << "radiusUsername ikev2: " << apiResourcesManager_->serverCredentials().usernameForIkev2();
         }
-        qCDebug(LOG_BASIC) << "Connecting to" << locationName_;
+        Logger::instance().startConnectionMode();
+        qCDebug(LOG_CONNECTION) << "Connecting to" << locationName_;
 
         types::ConnectionSettings connectionSettings;
         // User requested one time override
@@ -2338,7 +2346,8 @@ void Engine::doConnect(bool bEmitAuthError)
     // for custom configs without login
     else
     {
-        qCDebug(LOG_BASIC) << "Connecting to" << locationName_;
+        Logger::instance().startConnectionMode();
+        qCDebug(LOG_CONNECTION) << "Connecting to" << locationName_;
         connectionManager_->clickConnect("", apiinfo::ServerCredentials(), bli,
             engineSettings_.connectionSettingsForNetworkInterface(networkInterface.networkOrSsid), types::PortMap(),
             ProxyServerController::instance().getCurrentProxySettings(), bEmitAuthError, engineSettings_.customOvpnConfigsPath());
@@ -2427,6 +2436,17 @@ bool Engine::verifyContentsSha256(const QString &filename, const QString &compar
     }
     return false;
 }
+
+#ifdef Q_OS_WIN
+void Engine::enableDohSettings()
+{
+    if (WinUtils::isDohSupported()) {
+        auto* helperWin = dynamic_cast<Helper_win*>(helper_);
+        WS_ASSERT(helperWin);
+        helperWin->enableDohSettings();
+    }
+}
+#endif
 
 void Engine::doCheckUpdate()
 {

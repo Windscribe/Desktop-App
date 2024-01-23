@@ -11,12 +11,10 @@ bool InstallHelper_mac::installHelper()
     NSString *helperLabel = @"com.windscribe.helper.macos";
     BOOL result = NO;
 
-// Avoid deprecated warning from deprecated SDK functions.
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
     NSDictionary *installedHelperJobData  = (__bridge NSDictionary *)SMJobCopyDictionary(kSMDomainSystemLaunchd, (__bridge CFStringRef)helperLabel);
 #pragma clang diagnostic pop
-
     if (installedHelperJobData) {
         NSString*       installedPath           = [[installedHelperJobData objectForKey:@"ProgramArguments"] objectAtIndex:0];
         NSURL*          installedPathURL        = [NSURL fileURLWithPath:installedPath];

@@ -749,6 +749,42 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>Unable to start custom DNS service.  Please ensure you don&apos;t have any other local DNS services running, or contact support.</source>
         <translation>غير قادر على بدء تشغيل خدمة DNS المخصصة.  يرجى التأكد من عدم تشغيل أي خدمات DNS محلية أخرى، أو الاتصال بالدعم.</translation>
     </message>
+    <message>
+        <source>JSON Files (*.json)</source>
+        <translation>ملفات JSON (*.json)</translation>
+    </message>
+    <message>
+        <source>Unable to import preferences</source>
+        <translation>غير قادر على استيراد التفضيلات</translation>
+    </message>
+    <message>
+        <source>Preferences can only be imported when the app is disconnected. Please disconnect and try again.</source>
+        <translation>لا يمكن استيراد التفضيلات إلا عند قطع اتصال التطبيق. يرجى قطع الاتصال والمحاولة مرة أخرى.</translation>
+    </message>
+    <message>
+        <source>The selected file&apos;s format is incorrect.</source>
+        <translation>تنسيق الملف المحدد غير صحيح.</translation>
+    </message>
+    <message>
+        <source>Export Preferences To</source>
+        <translation>تصدير التفضيلات إلى</translation>
+    </message>
+    <message>
+        <source>Import Preferences From</source>
+        <translation>استيراد التفضيلات من</translation>
+    </message>
+    <message>
+        <source>Could not open file.</source>
+        <translation>تعذر فتح الملف.</translation>
+    </message>
+    <message>
+        <source>Unable to export preferences</source>
+        <translation>غير قادر على تصدير التفضيلات</translation>
+    </message>
+    <message>
+        <source>Could not open file for writing.  Check your permissions and try again.</source>
+        <translation>تعذر فتح ملف للكتابة.  تحقق من أذوناتك وحاول مرة أخرى.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -868,10 +904,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>خطة</translation>
     </message>
     <message>
-        <source>Expires On</source>
-        <translation>ينتهي في</translation>
-    </message>
-    <message>
         <source>Reset Date</source>
         <translation>تاريخ إعادة التعيين</translation>
     </message>
@@ -882,6 +914,10 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Manage Account</source>
         <translation>إدارة الحساب</translation>
+    </message>
+    <message>
+        <source>Expiry Date</source>
+        <translation>تاريخ انتهاء الصلاحية</translation>
     </message>
 </context>
 <context>
@@ -958,6 +994,18 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>DNS Manager</source>
         <translation>مدير DNS</translation>
     </message>
+    <message>
+        <source>App Preferences</source>
+        <translation>تفضيلات التطبيق</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <translation>تصدير</translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <translation>استورد</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::ApiResolutionGroup</name>
@@ -981,6 +1029,14 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>Enter IP or Hostname</source>
         <translation>أدخل IP أو اسم المضيف</translation>
     </message>
+    <message>
+        <source>Invalid address</source>
+        <translation>العنوان غير صالح</translation>
+    </message>
+    <message>
+        <source>You have entered an invalid address for API resolution.  It has been reset to Auto.</source>
+        <translation>لقد أدخلت عنوانا غير صالح لتحليل واجهة برمجة التطبيقات.  تمت إعادة تعيينه إلى تلقائي.</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::BackgroundSettingsGroup</name>
@@ -993,11 +1049,7 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>متصل</translation>
     </message>
     <message>
-        <source>Background</source>
-        <translation>خلفية</translation>
-    </message>
-    <message>
-        <source>Country Flags</source>
+        <source>Flags</source>
         <translation>أعلام الدول</translation>
     </message>
     <message>
@@ -1007,6 +1059,10 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Custom</source>
         <translation>تقليد</translation>
+    </message>
+    <message>
+        <source>App Background</source>
+        <translation>خلفية التطبيق</translation>
     </message>
 </context>
 <context>
@@ -1138,6 +1194,10 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>Automatically choose the VPN protocol, or select one manually. NOTE: &quot;Preferred Protocol&quot; will override this setting.</source>
         <translation>اختر بروتوكول VPN تلقائيا ، أو حدد واحدا يدويا. ملاحظة: سيتجاوز &quot;البروتوكول المفضل&quot; هذا الإعداد.</translation>
     </message>
+    <message>
+        <source>Disabling Allow LAN Traffic will cause your secure hotspot to stop working.  Do you want to disable the hotspot?</source>
+        <translation>سيؤدي تعطيل السماح بحركة مرور الشبكة المحلية إلى توقف نقطة الاتصال الآمنة عن العمل.  هل تريد تعطيل نقطة الاتصال؟</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::DnsDomainsGroup</name>
@@ -1172,10 +1232,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>ارسال!</translation>
     </message>
     <message>
-        <source>Add</source>
-        <translation>جمع</translation>
-    </message>
-    <message>
         <source>Resend</source>
         <translation>ارسال</translation>
     </message>
@@ -1198,6 +1254,10 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Email</source>
         <translation>البريد الإلكتروني</translation>
+    </message>
+    <message>
+        <source>Add Email</source>
+        <translation>اضف بريد الكتروني</translation>
     </message>
 </context>
 <context>
@@ -1953,10 +2013,6 @@ If the reinstall does not help, please contact Windscribe support for assistance
 <context>
     <name>QObject</name>
     <message>
-        <source>R.O.B.E.R.T.</source>
-        <translation>ر.و.ب.إ.ر.ت.</translation>
-    </message>
-    <message>
         <source>Custom</source>
         <translation>تقليد</translation>
     </message>
@@ -2135,6 +2191,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Black</source>
         <translation>أسود</translation>
+    </message>
+    <message>
+        <source>Forced</source>
+        <translation>مجبر</translation>
     </message>
 </context>
 <context>

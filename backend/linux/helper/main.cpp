@@ -10,7 +10,7 @@ void handler_sigterm(int signum)
 {
     UNUSED(signum);
     Logger::instance().out("Windscribe helper terminated");
-    server.stop();
+    exit(0);
 }
 
 int main(int argc, const char *argv[])

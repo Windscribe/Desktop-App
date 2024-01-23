@@ -32,7 +32,11 @@ signals:
     void createShortcutToggled(bool on);
     void installPathChanged(const QString &path);
 
+protected:
+    void keyPressEvent(QKeyEvent *event) override;
+
 private slots:
+    void onEditingFinished();
     void onAnimValueChanged(const QVariant &value);
     void onAnimFinished();
 

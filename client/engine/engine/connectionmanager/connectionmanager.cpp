@@ -35,6 +35,8 @@
     #include "sleepevents_win.h"
     #include "ikev2connection_win.h"
     #include "wireguardconnection_win.h"
+    #include "engine/helper/helper_win.h"
+    #include "utils/winutils.h"
 #elif defined Q_OS_MAC
     #include "sleepevents_mac.h"
     #include "utils/macutils.h"
@@ -195,7 +197,7 @@ void ConnectionManager::clickDisconnect()
         }
         else
         {
-            state_ = STATE_DISCONNECTED;
+            disconnect();
             if (!connSettingsPolicy_.isNull())
             {
                 connSettingsPolicy_->reset();
@@ -243,7 +245,7 @@ void ConnectionManager::blockingDisconnect()
                 connSettingsPolicy_->reset();
             }
 
-            state_ = STATE_DISCONNECTED;
+            disconnect();
         }
     }
 }
@@ -375,7 +377,7 @@ void ConnectionManager::onConnectionDisconnected()
     switch (state_)
     {
         case STATE_DISCONNECTING_FROM_USER_CLICK:
-            state_ = STATE_DISCONNECTED;
+            disconnect();
             connSettingsPolicy_->reset();
             timerReconnection_.stop();
             connectTimer_.stop();
@@ -391,7 +393,7 @@ void ConnectionManager::onConnectionDisconnected()
             break;
         case STATE_CONNECTING_FROM_USER_CLICK:
         case STATE_AUTO_DISCONNECT:
-            state_ = STATE_DISCONNECTED;
+            disconnect();
             timerReconnection_.stop();
             connectTimer_.stop();
             emit disconnected(DISCONNECTED_ITSELF);
@@ -402,7 +404,7 @@ void ConnectionManager::onConnectionDisconnected()
             break;
 
         case STATE_ERROR_DURING_CONNECTION:
-            state_ = STATE_DISCONNECTED;
+            disconnect();
             emit errorDuringConnection(latestConnectionError_);
             break;
 
@@ -410,7 +412,7 @@ void ConnectionManager::onConnectionDisconnected()
             connectOrStartConnectTimer();
             break;
         case STATE_RECONNECTION_TIME_EXCEED:
-            state_ = STATE_DISCONNECTED;
+            disconnect();
             timerReconnection_.stop();
             connectTimer_.stop();
             emit disconnected(DISCONNECTED_BY_RECONNECTION_TIMEOUT_EXCEEDED);
@@ -567,7 +569,7 @@ void ConnectionManager::onConnectionError(CONNECT_ERROR err)
             || err == CONNECT_ERROR::EXE_VERIFY_WIREGUARD_ERROR)
     {
         // immediately stop trying to connect
-        state_ = STATE_DISCONNECTED;
+        disconnect();
         timerReconnection_.stop();
         emit errorDuringConnection(err);
     }
@@ -828,7 +830,7 @@ void ConnectionManager::onTimerReconnection()
     }
     else
     {
-        state_ = STATE_DISCONNECTED;
+        disconnect();
         emit disconnected(DISCONNECTED_BY_RECONNECTION_TIMEOUT_EXCEEDED);
     }
     timerReconnection_.stop();
@@ -875,7 +877,7 @@ void ConnectionManager::doConnectPart2()
     if (currentConnectionDescr_.connectionNodeType == CONNECTION_NODE_ERROR)
     {
         qCDebug(LOG_CONNECTION) << "connSettingsPolicy_.getCurrentConnectionSettings returned incorrect value";
-        state_ = STATE_DISCONNECTED;
+        disconnect();
         timerReconnection_.stop();
         emit errorDuringConnection(CONNECT_ERROR::LOCATION_NO_ACTIVE_NODES);
         return;
@@ -883,6 +885,14 @@ void ConnectionManager::doConnectPart2()
 
     qCDebug(LOG_CONNECTION) << "Connecting to IP:" << currentConnectionDescr_.ip << " protocol:" << currentConnectionDescr_.protocol.toLongString() << " port:" << currentConnectionDescr_.port;
     emit protocolPortChanged(currentConnectionDescr_.protocol, currentConnectionDescr_.port);
+
+#if defined(Q_OS_WIN)
+    if (WinUtils::isDohSupported() && connectedDnsInfo_.type == CONNECTED_DNS_TYPE_FORCED) {
+        auto helperWin = dynamic_cast<Helper_win *>(helper_);
+        WS_ASSERT(helperWin);
+        helperWin->disableDohSettings();
+    }
+#endif
 
     // start ctrld utility
     if (connectedDnsInfo_.type == CONNECTED_DNS_TYPE_CUSTOM) {
@@ -893,7 +903,7 @@ void ConnectionManager::doConnectPart2()
             bStarted = ctrldManager_->runProcess(connectedDnsInfo_.upStream1, QString(), QStringList());
 
         if (!bStarted) {
-            state_ = STATE_DISCONNECTED;
+            disconnect();
             timerReconnection_.stop();
             emit errorDuringConnection(CONNECT_ERROR::CTRLD_START_FAILED);
             return;
@@ -955,7 +965,8 @@ void ConnectionManager::doConnectPart2()
             const bool bOvpnSuccess = makeOVPNFile_->generate(
                 lastOvpnConfig_, currentConnectionDescr_.ip, currentConnectionDescr_.protocol,
                 currentConnectionDescr_.port, localPort, mss, defaultAdapterInfo_.gateway(),
-                currentConnectionDescr_.verifyX509name, connectedDnsInfo_.type == CONNECTED_DNS_TYPE_ROBERT ? "" : ctrldManager_->listenIp());
+                currentConnectionDescr_.verifyX509name,
+                connectedDnsTypeAuto() ? "" : ctrldManager_->listenIp());
             if (!bOvpnSuccess) {
                 qCDebug(LOG_CONNECTION) << "Failed create ovpn config";
                 WS_ASSERT(false);
@@ -964,7 +975,7 @@ void ConnectionManager::doConnectPart2()
 
             if (currentConnectionDescr_.protocol == types::Protocol::STUNNEL) {
                 if (!stunnelManager_->runProcess(currentConnectionDescr_.ip, currentConnectionDescr_.port)) {
-                    state_ = STATE_DISCONNECTED;
+                    disconnect();
                     timerReconnection_.stop();
                     emit errorDuringConnection(CONNECT_ERROR::EXE_VERIFY_STUNNEL_ERROR);
                     return;
@@ -973,7 +984,7 @@ void ConnectionManager::doConnectPart2()
                 return;
             } else if (currentConnectionDescr_.protocol == types::Protocol::WSTUNNEL) {
                 if (!wstunnelManager_->runProcess(currentConnectionDescr_.ip, currentConnectionDescr_.port)) {
-                    state_ = STATE_DISCONNECTED;
+                    disconnect();
                     timerReconnection_.stop();
                     emit errorDuringConnection(CONNECT_ERROR::EXE_VERIFY_WSTUNNEL_ERROR);
                     return;
@@ -1013,7 +1024,7 @@ void ConnectionManager::doConnectPart2()
                 qCDebug(LOG_CONNECTION) << "Failed create ovpn config for custom ovpn file:"
                                         << currentConnectionDescr_.customConfigFilename;
                 //WS_ASSERT(false);
-                state_ = STATE_DISCONNECTED;
+                disconnect();
                 timerReconnection_.stop();
                 emit errorDuringConnection(CONNECT_ERROR::CANNOT_OPEN_CUSTOM_CONFIG);
                 return;
@@ -1023,7 +1034,7 @@ void ConnectionManager::doConnectPart2()
             if (currentConnectionDescr_.wgCustomConfig == nullptr) {
                 qCDebug(LOG_CONNECTION) << "Failed to get config for custom WG file:"
                                         << currentConnectionDescr_.customConfigFilename;
-                state_ = STATE_DISCONNECTED;
+                disconnect();
                 timerReconnection_.stop();
                 emit errorDuringConnection(CONNECT_ERROR::CANNOT_OPEN_CUSTOM_CONFIG);
                 return;
@@ -1047,7 +1058,7 @@ void ConnectionManager::doConnectPart3()
 
         // For WG protocol we need to add upStream1 adrress if it's custom ip. Otherwise on Windows WG may not connect.
         QStringList dnsIps;
-        if (connectedDnsInfo_.type == CONNECTED_DNS_TYPE_ROBERT) {
+        if (connectedDnsTypeAuto()) {
             dnsIps << pConfig->clientDnsAddress();
         } else {
             if (IpValidation::isIp(connectedDnsInfo_.upStream1)) {
@@ -1073,7 +1084,7 @@ void ConnectionManager::doConnectPart3()
         connector_->startConnect(makeOVPNFileFromCustom_->config(), "", "", usernameForCustomOvpn_,
                                  passwordForCustomOvpn_, lastProxySettings_,
                                  currentConnectionDescr_.wgCustomConfig.get(), false, false, true,
-                                 (connectedDnsInfo_.type == CONNECTED_DNS_TYPE_ROBERT) ? QString() : ctrldManager_->listenIp());
+                                 connectedDnsTypeAuto() ? QString() : ctrldManager_->listenIp());
     }
     else
     {
@@ -1094,7 +1105,7 @@ void ConnectionManager::doConnectPart3()
             recreateConnector(types::Protocol::OPENVPN_UDP);
             connector_->startConnect(makeOVPNFile_->config(), "", "", username, password, lastProxySettings_, nullptr,
                                      false, connSettingsPolicy_->isAutomaticMode(), false,
-                                     (connectedDnsInfo_.type == CONNECTED_DNS_TYPE_ROBERT) ? QString() : ctrldManager_->listenIp());
+                                     connectedDnsTypeAuto() ? QString() : ctrldManager_->listenIp());
         }
         else if (currentConnectionDescr_.protocol.isIkev2Protocol())
         {
@@ -1113,7 +1124,7 @@ void ConnectionManager::doConnectPart3()
             recreateConnector(types::Protocol::IKEV2);
             connector_->startConnect(currentConnectionDescr_.hostname, currentConnectionDescr_.ip, currentConnectionDescr_.hostname, username, password, lastProxySettings_,
                                      nullptr, ExtraConfig::instance().isUseIkev2Compression(), connSettingsPolicy_->isAutomaticMode(), false,
-                                     (connectedDnsInfo_.type == CONNECTED_DNS_TYPE_ROBERT) ? QString() : ctrldManager_->listenIp());
+                                     connectedDnsTypeAuto() ? QString() : ctrldManager_->listenIp());
         }
         else if (currentConnectionDescr_.protocol.isWireGuardProtocol())
         {
@@ -1130,7 +1141,7 @@ void ConnectionManager::doConnectPart3()
             connector_->startConnect(QString(), currentConnectionDescr_.ip,
                 currentConnectionDescr_.dnsHostName, QString(), QString(), lastProxySettings_,
                 &wireGuardConfig_, false, connSettingsPolicy_->isAutomaticMode(), false,
-                (connectedDnsInfo_.type == CONNECTED_DNS_TYPE_ROBERT) ? QString() : ctrldManager_->listenIp());
+                                     connectedDnsTypeAuto() ? QString() : ctrldManager_->listenIp());
         }
         else
         {
@@ -1313,7 +1324,7 @@ void ConnectionManager::onTimerWaitNetworkConnectivity()
             timerWaitNetworkConnectivity_.stop();
             timerReconnection_.stop();
             connectTimer_.stop();
-            state_ = STATE_DISCONNECTED;
+            disconnect();
             emit disconnected(DISCONNECTED_BY_RECONNECTION_TIMEOUT_EXCEEDED);
         }
     }
@@ -1492,6 +1503,17 @@ void ConnectionManager::connectOrStartConnectTimer()
     } else {
         doConnect();
     }
+}
+
+bool ConnectionManager::connectedDnsTypeAuto() const
+{
+    return connectedDnsInfo_.type == CONNECTED_DNS_TYPE_AUTO || connectedDnsInfo_.type == CONNECTED_DNS_TYPE_FORCED;
+}
+
+void ConnectionManager::disconnect()
+{
+    Logger::instance().endConnectionMode();
+    state_ = STATE_DISCONNECTED;
 }
 
 void ConnectionManager::onConnectTrigger()

@@ -135,11 +135,6 @@ void Server::startAccept()
     acceptor_->async_accept(*sock, boost::bind(&Server::acceptHandler, this, boost::asio::placeholders::error, sock));
 }
 
-void Server::runService()
-{
-    service_.run();
-}
-
 bool Server::sendAnswerCmd(socket_ptr sock, const CMD_ANSWER &cmdAnswer)
 {
     std::stringstream stream;
@@ -175,14 +170,5 @@ void Server::run()
     chmod(SOCK_PATH, 0777);
     startAccept();
 
-    boost::thread_group g;
-    for (int i = 0; i < 4; i++) {
-        g.add_thread(new boost::thread( boost::bind(&Server::runService, this) ));
-    }
-    g.join_all();
-}
-
-void Server::stop()
-{
-    service_.stop();
+    service_.run();
 }

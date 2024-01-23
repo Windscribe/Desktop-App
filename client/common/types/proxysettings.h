@@ -11,8 +11,21 @@ namespace types {
 class ProxySettings
 {
 public:
+
+    struct JsonInfo
+    {
+        JsonInfo& operator=(const JsonInfo&) { return *this; }
+
+        const QString kOptionProp = "option";
+        const QString kAddressProp = "address";
+        const QString kPortProp = "port";
+        const QString kUsernameProp = "username";
+        const QString kPasswordProp = "password";
+    };
+
     ProxySettings();
     ProxySettings(PROXY_OPTION option, const QString &address, uint port, const QString &password, const QString &username);
+    ProxySettings(const QJsonObject &json);
 
     PROXY_OPTION option() const;
     void setOption(PROXY_OPTION option);
@@ -36,9 +49,12 @@ public:
         return option_ == other.option_ && address_ == other.address_ && port_ == other.port_
                && username_ == other.username_ && password_ == other.password_;
     }
+
     bool operator!=(const ProxySettings &other) const {
         return !(*this == other);
     }
+
+    QJsonObject toJson() const;
 
     friend QDataStream& operator <<(QDataStream &stream, const ProxySettings &o);
     friend QDataStream& operator >>(QDataStream &stream, ProxySettings &o);
@@ -51,6 +67,7 @@ private:
     uint port_;
     QString username_;
     QString password_;
+    JsonInfo jsonInfo_;
 
     static constexpr quint32 versionForSerialization_ = 1;  // should increment the version if the data format is changed
 };

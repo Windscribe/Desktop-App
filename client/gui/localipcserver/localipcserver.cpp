@@ -120,6 +120,8 @@ void LocalIPCServer::onConnectionCommandCallback(IPC::Command *command, IPC::Con
         IPC::CliCommands::State cmd;
         cmd.isLoggedIn_ = isLoggedIn_;
         cmd.waitingForLoginInfo_ = !backend_->isCanLoginWithAuthHash();
+        cmd.connectState_ = backend_->currentConnectState();
+        cmd.location_ = backend_->currentLocation();
         sendCommand(cmd);
     }
     else if (command->getStringId() == IPC::CliCommands::Firewall::getCommandStringId())

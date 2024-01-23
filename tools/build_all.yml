@@ -1,6 +1,6 @@
 # ------------------------------------------------------------------------------
 # Windscribe Build System
-# Copyright (c) 2020-2023, Windscribe Limited. All rights reserved.
+# Copyright (c) 2020-2024, Windscribe Limited. All rights reserved.
 # ------------------------------------------------------------------------------
 client:
   win32:
@@ -149,19 +149,10 @@ deploy_files:
         - qt/qt.conf -> qt.conf
       libs:
         qt:
-          - bin/Qt6Core.dll -> Qt6Core.dll
+          # Add Qt libraries here if they are only used by the app and not the installer
           - bin/Qt6Core5Compat.dll ->Qt6Core5Compat.dll
-          - bin/Qt6Gui.dll -> Qt6Gui.dll
           - bin/Qt6Network.dll -> Qt6Network.dll
-          - bin/Qt6Svg.dll -> Qt6Svg.dll
-          - bin/Qt6Widgets.dll -> Qt6Widgets.dll
-          - plugins/imageformats/qgif.dll -> imageformats/qgif.dll
-          - plugins/imageformats/qico.dll -> imageformats/qico.dll
-          - plugins/imageformats/qsvg.dll -> imageformats/qsvg.dll
-          - plugins/imageformats/qjpeg.dll -> imageformats/qjpeg.dll
           - plugins/networkinformation/qnetworklistmanager.dll -> networkinformation/qnetworklistmanager.dll
-          - plugins/platforms/qwindows.dll -> platforms/qwindows.dll
-          - plugins/styles/qwindowsvistastyle.dll -> styles/qwindowsvistastyle.dll
           - plugins/tls/qschannelbackend.dll -> tls/qschannelbackend.dll
         cares:
           - lib/cares.dll -> cares.dll
@@ -183,9 +174,18 @@ deploy_files:
           - dga.dll -> dga.dll
         wintun:
           - bin/wintun.dll -> wintun.dll
+        ovpn-dco-win:
+          - win10/ovpn-dco.cat -> openvpndco/win10/ovpn-dco.cat
+          - win10/ovpn-dco.inf -> openvpndco/win10/ovpn-dco.inf
+          - win10/ovpn-dco.sys -> openvpndco/win10/ovpn-dco.sys
+          - win11/ovpn-dco.cat -> openvpndco/win11/ovpn-dco.cat
+          - win11/ovpn-dco.inf -> openvpndco/win11/ovpn-dco.inf
+          - win11/ovpn-dco.sys -> openvpndco/win11/ovpn-dco.sys
     bootstrap:
       libs:
         qt:
+          # Add Qt libraries here if they are used by both the installer and app.
+          # These libs are copied into the app installation folder during the install.
           - bin/Qt6Core.dll -> Qt6Core.dll
           - bin/Qt6Gui.dll -> Qt6Gui.dll
           - bin/Qt6Svg.dll -> Qt6Svg.dll
@@ -200,6 +200,8 @@ deploy_files:
   win32_x86_64:
     installer:
       additional_files:
+        - driver_utils/amd64/devcon.exe -> devcon.exe
+        - driver_utils/amd64/tapctl.exe -> tapctl.exe
         - splittunnel/amd64/windscribesplittunnel.cat -> splittunnel/windscribesplittunnel.cat
         - splittunnel/amd64/windscribesplittunnel.inf -> splittunnel/windscribesplittunnel.inf
         - splittunnel/amd64/windscribesplittunnel.sys -> splittunnel/windscribesplittunnel.sys
@@ -211,6 +213,8 @@ deploy_files:
   win32_arm64:
     installer:
       additional_files:
+        - driver_utils/arm64/devcon.exe -> devcon.exe
+        - driver_utils/arm64/tapctl.exe -> tapctl.exe
         - splittunnel/arm64/windscribesplittunnel.cat -> splittunnel/windscribesplittunnel.cat
         - splittunnel/arm64/windscribesplittunnel.inf -> splittunnel/windscribesplittunnel.inf
         - splittunnel/arm64/windscribesplittunnel.sys -> splittunnel/windscribesplittunnel.sys

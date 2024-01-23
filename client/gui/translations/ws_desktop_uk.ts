@@ -749,6 +749,42 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>Unable to start custom DNS service.  Please ensure you don&apos;t have any other local DNS services running, or contact support.</source>
         <translation>Не вдається запустити спеціальну службу DNS.  Будь ласка, переконайтеся, що у вас не запущені інші локальні служби DNS, або зверніться до служби підтримки.</translation>
     </message>
+    <message>
+        <source>JSON Files (*.json)</source>
+        <translation>Файли JSON (*.json)</translation>
+    </message>
+    <message>
+        <source>Unable to import preferences</source>
+        <translation>Не вдається імпортувати налаштування</translation>
+    </message>
+    <message>
+        <source>Preferences can only be imported when the app is disconnected. Please disconnect and try again.</source>
+        <translation>Налаштування можна імпортувати, лише коли програму від&apos;єднано. Будь ласка, від&apos;єднайте та повторіть спробу.</translation>
+    </message>
+    <message>
+        <source>The selected file&apos;s format is incorrect.</source>
+        <translation>Формат вибраного файлу неправильний.</translation>
+    </message>
+    <message>
+        <source>Export Preferences To</source>
+        <translation>Експортувати налаштування до</translation>
+    </message>
+    <message>
+        <source>Import Preferences From</source>
+        <translation>Імпортувати налаштування з</translation>
+    </message>
+    <message>
+        <source>Could not open file.</source>
+        <translation>Не вдалося відкрити файл.</translation>
+    </message>
+    <message>
+        <source>Unable to export preferences</source>
+        <translation>Не вдається експортувати налаштування</translation>
+    </message>
+    <message>
+        <source>Could not open file for writing.  Check your permissions and try again.</source>
+        <translation>Не вдалося відкрити файл для запису.  Перевірте дозволи та повторіть спробу.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -868,10 +904,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>ПЛАН</translation>
     </message>
     <message>
-        <source>Expires On</source>
-        <translation>Термін дії закінчується</translation>
-    </message>
-    <message>
         <source>Reset Date</source>
         <translation>Скинути дату</translation>
     </message>
@@ -882,6 +914,10 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Manage Account</source>
         <translation>Керування обліковим записом</translation>
+    </message>
+    <message>
+        <source>Expiry Date</source>
+        <translation>Термін придатності</translation>
     </message>
 </context>
 <context>
@@ -958,6 +994,18 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>DNS Manager</source>
         <translation>Менеджер DNS</translation>
     </message>
+    <message>
+        <source>App Preferences</source>
+        <translation>Налаштування програми</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <translation>Експорт</translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <translation>Імпорт</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::ApiResolutionGroup</name>
@@ -981,6 +1029,14 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>Enter IP or Hostname</source>
         <translation>Введіть IP-адресу або ім&apos;я хоста</translation>
     </message>
+    <message>
+        <source>Invalid address</source>
+        <translation>Недійсна адреса</translation>
+    </message>
+    <message>
+        <source>You have entered an invalid address for API resolution.  It has been reset to Auto.</source>
+        <translation>Ви ввели неправильну адресу для роздільної здатності API.  Його було скинуто до Auto.</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::BackgroundSettingsGroup</name>
@@ -993,11 +1049,7 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Підключений</translation>
     </message>
     <message>
-        <source>Background</source>
-        <translation>Тло</translation>
-    </message>
-    <message>
-        <source>Country Flags</source>
+        <source>Flags</source>
         <translation>Прапори країн</translation>
     </message>
     <message>
@@ -1007,6 +1059,10 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Custom</source>
         <translation>Нестандартний</translation>
+    </message>
+    <message>
+        <source>App Background</source>
+        <translation>Фон програми</translation>
     </message>
 </context>
 <context>
@@ -1138,6 +1194,10 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>LAN traffic is currently blocked by the Windscribe firewall.  Do you want to allow LAN traffic to bypass the firewall in order for this feature to work?</source>
         <translation>Наразі трафік локальної мережі заблокований брандмауером Windscribe.  Ви хочете дозволити трафіку локальної мережі обходити брандмауер, щоб ця функція працювала?</translation>
     </message>
+    <message>
+        <source>Disabling Allow LAN Traffic will cause your secure hotspot to stop working.  Do you want to disable the hotspot?</source>
+        <translation>Вимкнення параметра «Дозволити трафік локальної мережі» призведе до того, що ваша безпечна точка доступу перестане працювати.  Хочете відключити точку доступу?</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::DnsDomainsGroup</name>
@@ -1172,10 +1232,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Відправлені!</translation>
     </message>
     <message>
-        <source>Add</source>
-        <translation>Додати</translation>
-    </message>
-    <message>
         <source>Resend</source>
         <translation>Відправити</translation>
     </message>
@@ -1198,6 +1254,10 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Email</source>
         <translation>Електронна пошта</translation>
+    </message>
+    <message>
+        <source>Add Email</source>
+        <translation>Додати адресу електронної пошти</translation>
     </message>
 </context>
 <context>
@@ -1953,10 +2013,6 @@ If the reinstall does not help, please contact Windscribe support for assistance
 <context>
     <name>QObject</name>
     <message>
-        <source>R.O.B.E.R.T.</source>
-        <translation>Р.О.Б.Е.Р.Т.</translation>
-    </message>
-    <message>
         <source>Custom</source>
         <translation>Нестандартний</translation>
     </message>
@@ -2135,6 +2191,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Black</source>
         <translation>Чорний</translation>
+    </message>
+    <message>
+        <source>Forced</source>
+        <translation>Примусове</translation>
     </message>
 </context>
 <context>

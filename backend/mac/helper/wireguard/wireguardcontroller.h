@@ -29,7 +29,7 @@ public:
     bool configureDefaultRouteMonitor(const std::string &peerEndpoint);
     bool configure(const std::string &clientPrivateKey, const std::string &peerPublicKey,
         const std::string &peerPresharedKey, const std::string &peerEndpoint,
-        const std::vector<std::string> &allowedIps);
+        const std::vector<std::string> &allowedIps, uint16_t listenPort);
     bool isInitialized() const { return is_initialized_; }
     unsigned long getDaemonCmdId() const { return daemonCmdId_; }
     unsigned long getStatus(unsigned int *errorCode, unsigned long long *bytesReceived,

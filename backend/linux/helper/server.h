@@ -23,7 +23,6 @@ public:
     Server();
     ~Server();
     void run();
-    void stop();
 
 private:
     boost::asio::io_service service_;
@@ -34,7 +33,6 @@ private:
     void receiveCmdHandle(socket_ptr sock, boost::shared_ptr<boost::asio::streambuf> buf, const boost::system::error_code& ec, std::size_t bytes_transferred);
     void acceptHandler(const boost::system::error_code & ec, socket_ptr sock);
     void startAccept();
-    void runService();
 
     bool sendAnswerCmd(socket_ptr sock, const CMD_ANSWER &cmdAnswer);
 };

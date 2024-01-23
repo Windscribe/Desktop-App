@@ -28,6 +28,7 @@ private slots:
     void onError(QString msg);
     void onClearError();
     void onLanguageChanged();
+    void onPreferencesChanged();
 
 private:
     Preferences *preferences_;

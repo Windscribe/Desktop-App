@@ -1,12 +1,13 @@
 #include "planitem.h"
 
+#include <QLocale>
 #include <QPainter>
+
 #include "commongraphics/commongraphics.h"
-#include "graphicresources/fontmanager.h"
-#include "preferenceswindow/preferencesconst.h"
-#include "utils/utils.h"
 #include "dpiscalemanager.h"
+#include "graphicresources/fontmanager.h"
 #include "languagecontroller.h"
+#include "preferenceswindow/preferencesconst.h"
 
 namespace PreferencesWindow {
 
@@ -95,7 +96,7 @@ void PlanItem::generatePlanString()
         planStr_ = tr("Unlimited Data");
     } else {
         QLocale locale(LanguageController::instance().getLanguage());
-        planStr_ = QString(tr("%1/Month")).arg(locale.formattedDataSize(planBytes_, 1, QLocale::DataSizeTraditionalFormat));
+        planStr_ = QString(tr("%1/Month")).arg(locale.formattedDataSize(planBytes_, 0, QLocale::DataSizeTraditionalFormat));
     }
 }
 

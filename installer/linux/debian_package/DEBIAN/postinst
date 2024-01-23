@@ -2,7 +2,7 @@
 # This file will be overwritten by rpm specific script which is passed to fpm in build script
 # So if multi-platform change is needed remember to change that file as well
 set -e
-systemctl preset windscribe-helper
+systemctl enable windscribe-helper
 systemctl start windscribe-helper
 ln -sf /opt/windscribe/windscribe-cli /usr/bin/windscribe-cli
 update-desktop-database

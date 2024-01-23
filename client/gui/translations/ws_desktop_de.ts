@@ -749,6 +749,42 @@ Wenn das Problem nach einem Neustart weiterhin besteht, senden Sie bitte ein Deb
         <source>Unable to start custom DNS service.  Please ensure you don&apos;t have any other local DNS services running, or contact support.</source>
         <translation>Der benutzerdefinierte DNS-Dienst kann nicht gestartet werden.  Stellen Sie sicher, dass keine anderen lokalen DNS-Dienste ausgeführt werden, oder wenden Sie sich an den Support.</translation>
     </message>
+    <message>
+        <source>JSON Files (*.json)</source>
+        <translation>JSON-Dateien (*.json)</translation>
+    </message>
+    <message>
+        <source>Unable to import preferences</source>
+        <translation>Einstellungen können nicht importiert werden</translation>
+    </message>
+    <message>
+        <source>Preferences can only be imported when the app is disconnected. Please disconnect and try again.</source>
+        <translation>Einstellungen können nur importiert werden, wenn die App getrennt ist. Bitte trennen Sie die Verbindung und versuchen Sie es erneut.</translation>
+    </message>
+    <message>
+        <source>The selected file&apos;s format is incorrect.</source>
+        <translation>Das Format der ausgewählten Datei ist falsch.</translation>
+    </message>
+    <message>
+        <source>Export Preferences To</source>
+        <translation>Voreinstellungen exportieren nach</translation>
+    </message>
+    <message>
+        <source>Import Preferences From</source>
+        <translation>Importieren von Voreinstellungen aus</translation>
+    </message>
+    <message>
+        <source>Could not open file.</source>
+        <translation>Datei konnte nicht geöffnet werden.</translation>
+    </message>
+    <message>
+        <source>Unable to export preferences</source>
+        <translation>Einstellungen können nicht exportiert werden</translation>
+    </message>
+    <message>
+        <source>Could not open file for writing.  Check your permissions and try again.</source>
+        <translation>Die Datei konnte nicht zum Schreiben geöffnet werden.  Überprüfen Sie Ihre Berechtigungen, und versuchen Sie es erneut.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -868,10 +904,6 @@ Wenn das Problem nach einem Neustart weiterhin besteht, senden Sie bitte ein Deb
         <translation>PLAN</translation>
     </message>
     <message>
-        <source>Expires On</source>
-        <translation>Läuft ab am</translation>
-    </message>
-    <message>
         <source>Reset Date</source>
         <translation>Datum zurücksetzen</translation>
     </message>
@@ -882,6 +914,10 @@ Wenn das Problem nach einem Neustart weiterhin besteht, senden Sie bitte ein Deb
     <message>
         <source>Manage Account</source>
         <translation>Konto verwalten</translation>
+    </message>
+    <message>
+        <source>Expiry Date</source>
+        <translation>Verfallsdatum</translation>
     </message>
 </context>
 <context>
@@ -958,6 +994,18 @@ Wenn das Problem nach einem Neustart weiterhin besteht, senden Sie bitte ein Deb
         <source>DNS Manager</source>
         <translation>DNS-Manager</translation>
     </message>
+    <message>
+        <source>App Preferences</source>
+        <translation>App-Einstellungen</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <translation>Exportieren</translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <translation>Importieren</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::ApiResolutionGroup</name>
@@ -981,6 +1029,14 @@ Wenn das Problem nach einem Neustart weiterhin besteht, senden Sie bitte ein Deb
         <source>Enter IP or Hostname</source>
         <translation>Geben Sie die IP-Adresse oder den Hostnamen ein</translation>
     </message>
+    <message>
+        <source>Invalid address</source>
+        <translation>Ungültige Adresse</translation>
+    </message>
+    <message>
+        <source>You have entered an invalid address for API resolution.  It has been reset to Auto.</source>
+        <translation>Sie haben eine ungültige Adresse für die API-Auflösung eingegeben.  Er wurde auf &quot;Auto&quot; zurückgesetzt.</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::BackgroundSettingsGroup</name>
@@ -993,11 +1049,7 @@ Wenn das Problem nach einem Neustart weiterhin besteht, senden Sie bitte ein Deb
         <translation>Verbunden</translation>
     </message>
     <message>
-        <source>Background</source>
-        <translation>Hintergrund</translation>
-    </message>
-    <message>
-        <source>Country Flags</source>
+        <source>Flags</source>
         <translation>Länderflaggen</translation>
     </message>
     <message>
@@ -1007,6 +1059,10 @@ Wenn das Problem nach einem Neustart weiterhin besteht, senden Sie bitte ein Deb
     <message>
         <source>Custom</source>
         <translation>Gewohnheit</translation>
+    </message>
+    <message>
+        <source>App Background</source>
+        <translation>App-Hintergrund</translation>
     </message>
 </context>
 <context>
@@ -1138,6 +1194,10 @@ Wenn das Problem nach einem Neustart weiterhin besteht, senden Sie bitte ein Deb
         <source>Automatically choose the VPN protocol, or select one manually. NOTE: &quot;Preferred Protocol&quot; will override this setting.</source>
         <translation>Wählen Sie das VPN-Protokoll automatisch oder manuell aus. HINWEIS: &quot;Bevorzugtes Protokoll&quot; überschreibt diese Einstellung.</translation>
     </message>
+    <message>
+        <source>Disabling Allow LAN Traffic will cause your secure hotspot to stop working.  Do you want to disable the hotspot?</source>
+        <translation>Das Deaktivieren von LAN-Datenverkehr zulassen führt dazu, dass Ihr sicherer Hotspot nicht mehr funktioniert.  Möchten Sie den Hotspot deaktivieren?</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::DnsDomainsGroup</name>
@@ -1172,10 +1232,6 @@ Wenn das Problem nach einem Neustart weiterhin besteht, senden Sie bitte ein Deb
         <translation>Gesandt!</translation>
     </message>
     <message>
-        <source>Add</source>
-        <translation>Hinzufügen</translation>
-    </message>
-    <message>
         <source>Resend</source>
         <translation>Wieder senden</translation>
     </message>
@@ -1198,6 +1254,10 @@ Wenn das Problem nach einem Neustart weiterhin besteht, senden Sie bitte ein Deb
     <message>
         <source>Email</source>
         <translation>E-Mail</translation>
+    </message>
+    <message>
+        <source>Add Email</source>
+        <translation>E-Mail-Adresse hinzufügen</translation>
     </message>
 </context>
 <context>
@@ -1953,10 +2013,6 @@ Wenn die Neuinstallation nicht hilft, wenden Sie sich bitte an den Windscribe-Su
 <context>
     <name>QObject</name>
     <message>
-        <source>R.O.B.E.R.T.</source>
-        <translation>R.O.B.E.R.T.</translation>
-    </message>
-    <message>
         <source>Custom</source>
         <translation>Gewohnheit</translation>
     </message>
@@ -2135,6 +2191,10 @@ Wenn die Neuinstallation nicht hilft, wenden Sie sich bitte an den Windscribe-Su
     <message>
         <source>Black</source>
         <translation>Schwarz</translation>
+    </message>
+    <message>
+        <source>Forced</source>
+        <translation>Erzwungen</translation>
     </message>
 </context>
 <context>

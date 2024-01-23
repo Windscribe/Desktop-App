@@ -62,7 +62,7 @@ AccountWindowItem::AccountWindowItem(ScalableGraphicsObject *parent, AccountInfo
 
     resetDateItem_ = new AccountDataItem(planGroup_,
                                          "",
-                                         QDate::fromString(accountInfo->lastReset(), "yyyy-MM-dd").addMonths(1).toString("yyyy-MM-dd"));
+                                         accountInfo->lastReset().isEmpty() ? "--" : QDate::fromString(accountInfo->lastReset(), "yyyy-MM-dd").addMonths(1).toString("yyyy-MM-dd"));
     planGroup_->addItem(resetDateItem_);
 
     dataLeftItem_ = new AccountDataItem(planGroup_, "", "");
@@ -163,7 +163,11 @@ void AccountWindowItem::onExpireDateChanged(const QString &date)
 
 void AccountWindowItem::onLastResetChanged(const QString &date)
 {
-    resetDateItem_->setValue2(QDate::fromString(date, "yyyy-MM-dd").addMonths(1).toString("yyyy-MM-dd"));
+    if (date.isEmpty()) {
+        resetDateItem_->setValue2("--");
+    } else {
+        resetDateItem_->setValue2(QDate::fromString(date, "yyyy-MM-dd").addMonths(1).toString("yyyy-MM-dd"));
+    }
 }
 
 void AccountWindowItem::onTrafficUsedChanged(qint64 used)
@@ -185,7 +189,7 @@ void AccountWindowItem::onLanguageChanged()
     infoTitle_->setTitle(tr("INFO"));
     usernameItem_->setValue1(tr("Username"));
     planTitle_->setTitle(tr("PLAN"));
-    expireDateItem_->setValue1(tr("Expires On"));
+    expireDateItem_->setValue1(tr("Expiry Date"));
     resetDateItem_->setValue1(tr("Reset Date"));
     dataLeftItem_->setValue1(tr("Data Left"));
 
@@ -213,7 +217,7 @@ void AccountWindowItem::setDataLeft() const
 {
     if (!isUnlimitedData()) {
         QLocale locale(LanguageController::instance().getLanguage());
-        dataLeftItem_->setValue2(locale.formattedDataSize(qMax(0, plan_ - trafficUsed_), 1, QLocale::DataSizeTraditionalFormat));
+        dataLeftItem_->setValue2(locale.formattedDataSize(qMax(0, plan_ - trafficUsed_), 2, QLocale::DataSizeTraditionalFormat));
     }
 }
 

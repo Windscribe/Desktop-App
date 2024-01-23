@@ -25,6 +25,9 @@ int Files::executeStep()
         }
 
         archive_ = new Archive(archivePath_, userId_, groupId_);
+        archive_->setLogFunction([](const char* str) {
+            LOG((std::string("(archive) ") + str).c_str());
+        });
         if (!archive_->isCorrect())
         {
             LOG("Can't open file archive");

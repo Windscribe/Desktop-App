@@ -1,6 +1,7 @@
 #include "proxysettings.h"
 #include "utils/ws_assert.h"
 #include "utils/logger.h"
+#include "utils/utils.h"
 
 const int typeIdProxySettings = qRegisterMetaType<types::ProxySettings>("types::ProxySettings");
 
@@ -17,6 +18,35 @@ ProxySettings::ProxySettings(PROXY_OPTION option, const QString &address, uint p
     port_ = port;
     password_ = password;
     username_ = username;
+}
+
+ProxySettings::ProxySettings(const QJsonObject &json)
+{
+    if (json.contains(jsonInfo_.kOptionProp) && json[jsonInfo_.kOptionProp].isDouble())
+        option_ = static_cast<PROXY_OPTION>(json[jsonInfo_.kOptionProp].toInt());
+
+    if (json.contains(jsonInfo_.kAddressProp) && json[jsonInfo_.kAddressProp].isString())
+        address_ = json[jsonInfo_.kAddressProp].toString();
+
+    if (json.contains(jsonInfo_.kPortProp) && json[jsonInfo_.kPortProp].isDouble())
+        port_ = static_cast<uint>(json[jsonInfo_.kPortProp].toInt());
+
+    if (json.contains(jsonInfo_.kUsernameProp) && json[jsonInfo_.kUsernameProp].isString())
+        username_ = json[jsonInfo_.kUsernameProp].toString();
+
+    if (json.contains(jsonInfo_.kPasswordProp) && json[jsonInfo_.kPasswordProp].isString())
+        password_ = Utils::fromBase64(json[jsonInfo_.kPasswordProp].toString());
+}
+
+QJsonObject ProxySettings::toJson() const
+{
+    QJsonObject json;
+    json[jsonInfo_.kOptionProp] = static_cast<int>(option_);
+    json[jsonInfo_.kAddressProp] = address_;
+    json[jsonInfo_.kPortProp] = static_cast<int>(port_);
+    json[jsonInfo_.kUsernameProp] = username_;
+    json[jsonInfo_.kPasswordProp] = Utils::toBase64(password_);
+    return json;
 }
 
 PROXY_OPTION ProxySettings::option() const

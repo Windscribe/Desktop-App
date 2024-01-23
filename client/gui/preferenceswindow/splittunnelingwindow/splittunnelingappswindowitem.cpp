@@ -22,7 +22,8 @@ SplitTunnelingAppsWindowItem::SplitTunnelingAppsWindowItem(ScalableGraphicsObjec
     addItem(splitTunnelingAppsGroup_);
     setFocusProxy(splitTunnelingAppsGroup_);
 
-    splitTunnelingAppsGroup_->setApps(preferences->splitTunnelingApps());
+    connect(preferences_, &Preferences::splitTunnelingChanged, this, &SplitTunnelingAppsWindowItem::onPreferencesChanged);
+    onPreferencesChanged();
 
     setLoggedIn(false);
 
@@ -38,11 +39,6 @@ QString SplitTunnelingAppsWindowItem::caption() const
 QList<types::SplitTunnelingApp> SplitTunnelingAppsWindowItem::getApps()
 {
     return splitTunnelingAppsGroup_->apps();
-}
-
-void SplitTunnelingAppsWindowItem::setApps(QList<types::SplitTunnelingApp> apps)
-{
-    splitTunnelingAppsGroup_->setApps(apps);
 }
 
 void SplitTunnelingAppsWindowItem::addAppManually(types::SplitTunnelingApp app)
@@ -73,6 +69,11 @@ void SplitTunnelingAppsWindowItem::setLoggedIn(bool loggedIn)
 void SplitTunnelingAppsWindowItem::onLanguageChanged()
 {
     setLoggedIn(loggedIn_);
+}
+
+void SplitTunnelingAppsWindowItem::onPreferencesChanged()
+{
+    splitTunnelingAppsGroup_->setApps(preferences_->splitTunnelingApps());
 }
 
 } // namespace PreferencesWindow

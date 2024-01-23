@@ -1,16 +1,15 @@
 #include "networkdetectionmanager_win.h"
 
-#include "utils/ws_assert.h"
-#include "utils/winutils.h"
 #include "utils/logger.h"
-#include "utils/utils.h"
+#include "utils/network_utils/network_utils_win.h"
+#include "utils/ws_assert.h"
 
 NetworkDetectionManager_win::NetworkDetectionManager_win(QObject *parent, IHelper *helper) : INetworkDetectionManager (parent)
 {
     helper_ = dynamic_cast<Helper_win *>(helper);
     WS_ASSERT(helper_);
 
-    curNetworkInterface_ = WinUtils::currentNetworkInterface();
+    curNetworkInterface_ = NetworkUtils_win::currentNetworkInterface();
     bLastIsOnline_ = isOnlineImpl();
 
     networkWorker_ = new NetworkChangeWorkerThread(this);
@@ -31,13 +30,13 @@ NetworkDetectionManager_win::~NetworkDetectionManager_win()
 bool NetworkDetectionManager_win::interfaceEnabled(int interfaceIndex)
 {
     bool enabled = false;
-    types::NetworkInterface ni = WinUtils::interfaceByIndex(interfaceIndex, enabled);
+    types::NetworkInterface ni = NetworkUtils_win::interfaceByIndex(interfaceIndex, enabled);
     return enabled;
 }
 
 void NetworkDetectionManager_win::applyMacAddressSpoof(int ifIndex, QString macAddress)
 {
-    QString interfaceSubkeyN = WinUtils::interfaceSubkeyName(ifIndex);
+    QString interfaceSubkeyN = NetworkUtils_win::interfaceSubkeyName(ifIndex);
 
     if (interfaceSubkeyN != "")
     {
@@ -52,7 +51,7 @@ void NetworkDetectionManager_win::applyMacAddressSpoof(int ifIndex, QString macA
 void NetworkDetectionManager_win::removeMacAddressSpoof(int ifIndex)
 {
     qCDebug(LOG_BASIC) << "Removing spoof on interface: " << ifIndex;
-    QString interfaceSubkeyN = WinUtils::interfaceSubkeyName(ifIndex);
+    QString interfaceSubkeyN = NetworkUtils_win::interfaceSubkeyName(ifIndex);
 
     if (interfaceSubkeyN != "")
     {
@@ -67,7 +66,7 @@ void NetworkDetectionManager_win::removeMacAddressSpoof(int ifIndex)
 void NetworkDetectionManager_win::resetAdapter(int ifIndex, bool bringBackUp)
 {
     qCDebug(LOG_BASIC) << "Resetting interface: " << ifIndex;
-    QString subkeyName = WinUtils::interfaceSubkeyName(ifIndex);
+    QString subkeyName = NetworkUtils_win::interfaceSubkeyName(ifIndex);
 
     if (subkeyName != "")
     {
@@ -89,12 +88,11 @@ void NetworkDetectionManager_win::onNetworkChanged()
         emit onlineStateChanged(bLastIsOnline_);
     }
 
-    types::NetworkInterface newNetworkInterface = WinUtils::currentNetworkInterface();
+    types::NetworkInterface newNetworkInterface = NetworkUtils_win::currentNetworkInterface();
     newNetworkInterface.requested = false;
 
     // Only report a changed, properly formed
-    if (curNetworkInterface_.active != newNetworkInterface.active
-        || !Utils::sameNetworkInterface(curNetworkInterface_, newNetworkInterface))
+    if (curNetworkInterface_.active != newNetworkInterface.active || !curNetworkInterface_.sameNetworkInterface(newNetworkInterface))
     {
         const QString name = newNetworkInterface.networkOrSsid;
         if (name != "Unidentified network" && name != "Identifying...")
@@ -130,12 +128,10 @@ bool NetworkDetectionManager_win::isOnlineImpl()
 {
     bool result = false;
 
-    QVector<types::NetworkInterface> nis = WinUtils::currentNetworkInterfaces(true);
+    QVector<types::NetworkInterface> nis = NetworkUtils_win::currentNetworkInterfaces(true);
 
-    for (auto it : nis)
-    {
-        if (it.active)
-        {
+    for (const auto &it : nis) {
+        if (it.active) {
             result = true;
             break;
         }

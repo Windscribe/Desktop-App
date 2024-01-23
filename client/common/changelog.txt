@@ -1,6 +1,94 @@
-2.8.6 (13/12/2023)
+2.9.4 (22/01/2024)
 All:
-   * Updated connected DNS utility (ctrld) to v1.3.2.
+   * Added password reveal/hide button for main login. #227
+   * Fixed imported split tunneling settings not reflecting in the GUI until after app restart. #843
+   * Fixed right-click also triggering Static IP link. #249
+   * Fixed various minor UX issues on login screen and preferences. #205 #216 #231 #263 #303
+   * Updated ctrld dependency to 1.3.3. #871
+Windows:
+   * Added experimental support for the OpenVPN DCO driver. #646
+   * Improved IKEv2 profiles by disabling unnecessary features. #33
+   * Fixed some helper exes did not contain version information. #836
+Linux:
+   * Fixed export preferences dialog not adding the correct suffix automatically. #843
+   * Fixed non-existent pkexec dependency for older versions of Ubuntu. #870
+   * Fixed DNS scripts incorrectly referencing full paths to binaries. #876
+
+
+2.9.3 (16/01/2024)
+All:
+   * Improved UX for the export/import preferences feature and filter irrelevant preferences when importing. #843
+   * Fixed hard-to-read 10 Gbps location icon. #707
+   * Fixed possible crash during app exit. #858
+   * Removed changes causing credential issues with OpenVPN custom config. #745 #862 #868
+Windows:
+   * Fixed app can be moved by dragging its shadow. #220
+macOS:
+   * Fixed WireGuard anti-censorship. #865
+   * Fixed in-app update to 2.9.2 by reverting change for deduplicating libraries in installer. #854
+   * Removed unnecessary threads running on helper service. #869
+Linux:
+   * Fixed app search in preferences not working if it is reopened. #864
+   * Fixed inclusive app not obeying Allow LAN Traffic setting. #784
+   * Fixed WireGuard anti-censorship. #865
+   * Removed app shadows causing various issues. #220 #229 #689
+   * Removed unnecessary threads running on helper service. #869
+
+
+2.9.2 (09/01/2024)
+All:
+   * Added feature to export/import preferences to/from JSON file. #166 & #843
+   * Added feature to support custom OpenVPN configs requiring a user name and password. #745
+   * Added 'status' command to the CLI. #839
+   * Added special logging category to the client log containing random hash code of the given connection. #23
+   * Fixed advanced parameter file location differs between Guinea Pig vs Beta/Release builds. #837
+   * Fixed misdetection of TCP error during OpenVPN connection. #845
+   * Fixed installer log reordering in merge log. #791
+   * Fixed escaping of the openvpn password. #853
+   * Removed misleading logs indicating errors when it's benign. #847
+   * Removed unnecessary parameters for server list request API call. #852
+   * Updated boost and c-ares dependencies. #849
+Windows:
+   * Added support for installing the app on Windows 10 builds older than our officially supported build (17763). #855
+   * Improved app start up time by starting the helper service during install. #851
+   * Fixed updating from a build earlier than 2.4.10 does not work. #846
+   * Fixed DLL injection vulnerability in the installer. #841
+   * Fixed duplicate DLLs bloating installer size. #854
+   * Fixed uninstallation page opens in browser when reinstalling and user is not logged in. #860
+   * Fixed doh registry disable in forced mode when EnableDohValue property originally does not exist. #782
+macOS:
+   * Fixed ARM installer error that is a regression after LZMA migration. #840
+   * Fixed path reference with wrong case which breaks with case-sensitive APFS. #842
+   * Fixed duplicate DLLs bloating installer size. #854
+Linux:
+   * Added per-app split tunneling support. #784
+   * Added missing dependency for libglvnd-opengl. #838
+   * Fixed service is not enabled on some distributions during install. #859
+   * Fixed log spam when restarting while connected. #856
+
+
+2.9.1 (12/12/2023)
+All:
+   * Added advanced parameter for specifying specific wireguard server. #819
+   * Improved labels and descriptions in preferences to match the mobile app. #827
+   * Fixed incorrect translation of 'Quit' in French translation. #835
+Windows:
+   * Added feature to disable system-wide DoH configuration on connect in Windows 11. #782
+   * Improved debug log feature to include the installer log. #791
+   * Improved installer to support keyboard shortcuts (ESC/Enter/etc.). #824
+   * Improved Secure Hotspot preference to automatically enable the Allow LAN Traffic preference. #829
+   * Fixed a local privilege escalation vulnerability in the installer. #828
+   * Fixed MAC address does not auto-rotate when changing networks and the MAC Spoofing Auto-Rotate MAC preference is enabled. #831
+   * Updated LZMA SDK to latest version. #810
+macOS:
+   * Improved debug log feature to include the installer log. #791
+   * Improved installer to support keyboard shortcuts (ESC/Enter/etc.). #824
+   * Updated LZMA SDK to latest version. #810
+Linux:
+   * Fixed location of the close and minimize buttons on the login and start screens. #222
+
+
+2.8.6 (DD/MM/YYYY)
 Windows:
    * Fixed installer/uninstaller local privilege escalation vulnerability. #828
 

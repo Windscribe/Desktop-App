@@ -2,15 +2,17 @@
 
 #include <QApplication>
 #include <QClipboard>
+#include <QLineEdit>
 #include <QMimeData>
 #include <QStyle>
-#include "graphicresources/fontmanager.h"
+#include "dpiscalemanager.h"
 
 // #include <QDebug>
 
 namespace CommonWidgets {
 
-CustomMenuLineEdit::CustomMenuLineEdit(QWidget *parent) : BlockableQLineEdit (parent)
+CustomMenuLineEdit::CustomMenuLineEdit(QWidget *parent) : BlockableQLineEdit (parent),
+    icon_(nullptr), echoMode_(QLineEdit::Normal), showRevealToggle_(false), isRevealed_(false)
 {
     setContextMenuPolicy(Qt::NoContextMenu);
 
@@ -18,7 +20,6 @@ CustomMenuLineEdit::CustomMenuLineEdit(QWidget *parent) : BlockableQLineEdit (pa
     menu_->setColorScheme(false);
     menu_->initContextMenu();
     connect(menu_, &CustomMenuWidget::triggered, this, &CustomMenuLineEdit::onMenuTriggered);
-
 }
 
 void CustomMenuLineEdit::mousePressEvent(QMouseEvent *event)
@@ -143,6 +144,68 @@ void CustomMenuLineEdit::updateActionsState()
 
         action->setEnabled(enable);
     }
+}
+
+void CustomMenuLineEdit::resizeEvent(QResizeEvent *event)
+{
+    QLineEdit::resizeEvent(event);
+    updatePositions();
+}
+
+void CustomMenuLineEdit::setEchoMode(QLineEdit::EchoMode mode)
+{
+    echoMode_ = mode;
+    updateRevealPassword();
+}
+
+void CustomMenuLineEdit::setShowRevealToggle(bool show)
+{
+    showRevealToggle_ = show;
+    updateRevealPassword();
+}
+
+void CustomMenuLineEdit::updateRevealPassword()
+{
+    if (echoMode_ != QLineEdit::Password || !showRevealToggle_) {
+        QLineEdit::setEchoMode(QLineEdit::Normal);
+        isRevealed_ = false;
+        updatePositions();
+        return;
+    }
+
+    if (icon_ == nullptr) {
+        icon_ = new IconButtonWidget("", this);
+        icon_->show();
+        connect(icon_, &IconButtonWidget::clicked, this, &CustomMenuLineEdit::onRevealClicked);
+    }
+
+    if (isRevealed_) {
+        QLineEdit::setEchoMode(QLineEdit::Normal);
+        icon_->setImage("PASSWORD_HIDE");
+    } else {
+        QLineEdit::setEchoMode(QLineEdit::Password);
+        icon_->setImage("PASSWORD_REVEAL");
+    }
+    updatePositions();
+}
+
+void CustomMenuLineEdit::updatePositions()
+{
+    if (echoMode_ != QLineEdit::Password || !showRevealToggle_) {
+        setTextMargins(0, 0, 4*G_SCALE, 0);
+        if (icon_) {
+            icon_->hide();
+        }
+    } else {
+        icon_->move(width() - icon_->width() - 8*G_SCALE, 4*G_SCALE);
+        setTextMargins(0, 0, icon_->width() + 12*G_SCALE, 0);
+    }
+}
+
+void CustomMenuLineEdit::onRevealClicked()
+{
+    isRevealed_ = !isRevealed_;
+    updateRevealPassword();
 }
 
 } // namespace

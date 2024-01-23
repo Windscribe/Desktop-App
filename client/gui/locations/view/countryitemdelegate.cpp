@@ -145,7 +145,7 @@ void CountryItemDelegate::paint(QPainter *painter, const ItemStyleOption &option
     }
 
     // top-most line (white)
-    if( qFabs(1.0 - option.expandedProgress()) < 0.000001 )
+    if ( qFabs(1.0 - option.expandedProgress()) < 0.000001 )
     {
         QPen white_pen(Qt::white);
         white_pen.setWidth(1);

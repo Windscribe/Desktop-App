@@ -93,6 +93,21 @@ void MutableLocationInfo::selectNextNode()
     }
 }
 
+void MutableLocationInfo::selectNodeByIp(const QString &addr)
+{
+    WS_ASSERT(IpValidation::isIp(addr));
+    for (int i = 0; i < nodes_.count(); i++) {
+        for (int j = 0; j < 3; j++) {
+            if (nodes_[i]->getIp(j) == addr) {
+                qCDebug(LOG_BASIC) << "Selected node by IP: " << i;
+                selectedNode_ = i;
+                return;
+            }
+        }
+    }
+    qCDebug(LOG_BASIC) << "Could not find node for IP: " << addr;
+}
+
 QString MutableLocationInfo::getIpForSelectedNode(int indIp) const
 {
     WS_ASSERT(indIp >= 0 && indIp <= 3);

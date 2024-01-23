@@ -1,15 +1,9 @@
 #include "adapterutils_win.h"
-#include <QProcess>
+
 #include <winsock2.h>
 #include <iphlpapi.h>
-#include "engine/helper/helper_win.h"
-#include "utils/ws_assert.h"
-#include "utils/logger.h"
 
-AdapterGatewayInfo AdapterUtils_win::getWindscribeConnectedAdapterInfo()
-{
-    return getAdapterInfo(false, 0, QString());
-}
+#include "utils/logger.h"
 
 AdapterGatewayInfo AdapterUtils_win::getDefaultAdapterInfo()
 {
@@ -23,12 +17,12 @@ AdapterGatewayInfo AdapterUtils_win::getDefaultAdapterInfo()
     return info;
 }
 
-AdapterGatewayInfo AdapterUtils_win::getWireguardConnectedAdapterInfo(const QString &serviceIdentifier)
+AdapterGatewayInfo AdapterUtils_win::getConnectedAdapterInfo(const QString &adapterIdentifier)
 {
-    return getAdapterInfo(false, 0, serviceIdentifier);
+    return getAdapterInfo(false, 0, adapterIdentifier);
 }
 
-AdapterGatewayInfo AdapterUtils_win::getAdapterInfo(bool byIfIndex, unsigned long ifIndex, const QString &serviceIdentifier)
+AdapterGatewayInfo AdapterUtils_win::getAdapterInfo(bool byIfIndex, unsigned long ifIndex, const QString &adapterIdentifier)
 {
     ULONG sz = sizeof(IP_ADAPTER_ADDRESSES_LH) * 32;
     QByteArray arr(sz, Qt::Uninitialized);
@@ -52,9 +46,7 @@ AdapterGatewayInfo AdapterUtils_win::getAdapterInfo(bool byIfIndex, unsigned lon
     {
         if (aa->OperStatus == IfOperStatusUp)
         {
-            if ((byIfIndex && aa->IfIndex == ifIndex) ||
-                (!byIfIndex && serviceIdentifier.isEmpty() && wcsstr(aa->Description, L"Windscribe") != 0) ||
-                (!byIfIndex && !serviceIdentifier.isEmpty() && (serviceIdentifier.compare(aa->FriendlyName, Qt::CaseInsensitive) == 0)))
+            if ((byIfIndex && aa->IfIndex == ifIndex) || (!byIfIndex && (adapterIdentifier.compare(aa->FriendlyName) == 0)))
             {
                 info.setIfIndex(aa->IfIndex);
                 info.setAdapterName(QString::fromUtf16((const ushort *)aa->Description));

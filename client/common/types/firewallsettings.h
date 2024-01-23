@@ -8,13 +8,31 @@ namespace types {
 
 struct FirewallSettings
 {
+    struct JsonInfo
+    {
+        JsonInfo& operator=(const JsonInfo&) { return *this; }
+
+        const QString kModeProp = "mode";
+        const QString kWhenProp = "when";
+    };
+
     FirewallSettings() :
         mode(FIREWALL_MODE_AUTOMATIC),
         when(FIREWALL_WHEN_BEFORE_CONNECTION)
     {}
 
+    FirewallSettings(const QJsonObject &json)
+    {
+        if (json.contains(jsonInfo.kModeProp) && json[jsonInfo.kModeProp].isDouble())
+            mode = static_cast<FIREWALL_MODE>(json[jsonInfo.kModeProp].toInt());
+
+        if (json.contains(jsonInfo.kWhenProp) && json[jsonInfo.kWhenProp].isDouble())
+            when = static_cast<FIREWALL_WHEN>(json[jsonInfo.kWhenProp].toInt());
+    }
+
     FIREWALL_MODE mode;
     FIREWALL_WHEN when;
+    JsonInfo jsonInfo;
 
     bool operator==(const FirewallSettings &other) const
     {
@@ -25,6 +43,14 @@ struct FirewallSettings
     bool operator!=(const FirewallSettings &other) const
     {
         return !(*this == other);
+    }
+
+    QJsonObject toJson() const
+    {
+        QJsonObject json;
+        json[jsonInfo.kModeProp] = static_cast<int>(mode);
+        json[jsonInfo.kWhenProp] = static_cast<int>(when);
+        return json;
     }
 
     friend QDataStream& operator <<(QDataStream &stream, const FirewallSettings &o)

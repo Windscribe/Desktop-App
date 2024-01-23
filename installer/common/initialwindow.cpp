@@ -2,6 +2,7 @@
 
 #include <QApplication>
 #include <QDesktopServices>
+#include <QKeyEvent>
 #include <QWidget>
 
 #include "languagecontroller.h"
@@ -10,6 +11,8 @@
 
 InitialWindow::InitialWindow(QWidget *parent) : QWidget(parent)
 {
+    setFocusPolicy(Qt::StrongFocus);
+
     QLabel *background = new QLabel(this);
     background->setPixmap(QPixmap(":/resources/background.png").scaled(350, 350));
     background->move(0, 0);
@@ -86,4 +89,16 @@ void InitialWindow::onInstallClicked()
     eulaButton_->hide();
 
     emit installClicked();
+}
+
+void InitialWindow::keyPressEvent(QKeyEvent *event)
+{
+    if (event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return) {
+        onInstallClicked();
+    } else if (event->key() == Qt::Key_Escape) {
+        // if settingsButton_ is visible, then we're not installing yet
+        if (settingsButton_->isVisible()) {
+            emit closeClicked();
+        }
+    }
 }

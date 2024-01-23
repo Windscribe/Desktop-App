@@ -4,6 +4,10 @@
 #include "languagecontroller.h"
 #include "graphicresources/imageresourcessvg.h"
 
+#if defined(Q_OS_WIN)
+#include "utils/winutils.h"
+#endif
+
 namespace PreferencesWindow {
 
 ConnectedDnsGroup::ConnectedDnsGroup(ScalableGraphicsObject *parent, const QString &desc, const QString &descUrl)
@@ -52,8 +56,12 @@ void ConnectedDnsGroup::setConnectedDnsInfo(const types::ConnectedDnsInfo &dns)
         settings_ = dns;
 
         // update inner widgets
-        if (dns.type == CONNECTED_DNS_TYPE_ROBERT)
-            comboBoxDns_->setCurrentItem(CONNECTED_DNS_TYPE_ROBERT);
+        if (dns.type == CONNECTED_DNS_TYPE_AUTO)
+            comboBoxDns_->setCurrentItem(CONNECTED_DNS_TYPE_AUTO);
+#if defined(Q_OS_WIN)
+        else if (dns.type == CONNECTED_DNS_TYPE_FORCED)
+            comboBoxDns_->setCurrentItem(CONNECTED_DNS_TYPE_FORCED);
+#endif
         else
             comboBoxDns_->setCurrentItem(CONNECTED_DNS_TYPE_CUSTOM);
 
@@ -68,7 +76,7 @@ void ConnectedDnsGroup::setConnectedDnsInfo(const types::ConnectedDnsInfo &dns)
 
 void ConnectedDnsGroup::updateMode()
 {
-    if (settings_.type == CONNECTED_DNS_TYPE_ROBERT) {
+    if (settings_.type == CONNECTED_DNS_TYPE_AUTO || settings_.type == CONNECTED_DNS_TYPE_FORCED) {
         hideItems(indexOf(editBoxUpstream1_), indexOf(domainsItem_));
     } else  {
         if (settings_.isSplitDns)
@@ -136,6 +144,13 @@ void ConnectedDnsGroup::onLanguageChanged()
     QList<CONNECTED_DNS_TYPE> types = types::ConnectedDnsInfo::allAvailableTypes();
     QList<QPair<QString, QVariant>> list;
     for (const auto t : types) {
+#if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
+        if (t == CONNECTED_DNS_TYPE_FORCED)
+            continue; // only available on Windows
+#else // Windows
+        if (t == CONNECTED_DNS_TYPE_FORCED && !WinUtils::isDohSupported())
+            continue;
+#endif
         list << qMakePair(types::ConnectedDnsInfo::typeToString(t), t);
     }
     comboBoxDns_->setItems(list, settings_.type);

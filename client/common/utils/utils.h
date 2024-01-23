@@ -1,9 +1,10 @@
 #pragma once
 
-#include <random>
 #include <QString>
 #include <QStringList>
-#include "types/networkinterface.h"
+
+#include <random>
+
 #include "types/splittunneling.h"
 
 #define SAFE_DELETE(x) if (x) { delete x; x = nullptr; }
@@ -42,27 +43,16 @@ namespace Utils {
     unsigned long getCurrentPid();
     bool isGuiAlreadyRunning();
 
-    QString generateRandomMacAddress();
-    QString formatMacAddress(QString macAddress);
-
-    // Network
-    types::NetworkInterface noNetworkInterface();
-    bool sameNetworkInterface(const types::NetworkInterface &interface1, const types::NetworkInterface &interface2);
-    types::NetworkInterface interfaceByName(const QVector<types::NetworkInterface> &interfaces, const QString &interfaceName);
-    QVector<types::NetworkInterface> interfacesExceptOne(const QVector<types::NetworkInterface> &interfaces, const types::NetworkInterface &exceptInterface);
-
-    bool pingWithMtu(const QString &url, int mtu);
-    QString getLocalIP();
-
     const QString filenameQuotedSingle(const QString &filename);
     const QString filenameQuotedDouble(const QString &filename);
     const QString filenameEscapeSpaces(const QString &filename);
 
     bool copyDirectoryRecursive(QString fromDir, QString toDir);
     bool removeDirectory(const QString dir);
+    QString toBase64(const QString& str);
+    QString fromBase64(const QString& str);
 
 #if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
     QString execCmd(const QString &cmd);
 #endif
-
 }

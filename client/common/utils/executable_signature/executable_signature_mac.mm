@@ -18,7 +18,6 @@ ExecutableSignaturePrivate::~ExecutableSignaturePrivate()
 
 bool ExecutableSignaturePrivate::verify(const std::wstring& exePath)
 {
-// Avoid warnings from deprecated codecvt_utf8.
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
     std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;

@@ -3,13 +3,34 @@
 #include "types/enums.h"
 
 #include <QDebug>
+#include <QJsonObject>
 
 namespace types {
 
 struct ShareProxyGateway
 {
+    struct JsonInfo
+    {
+        JsonInfo& operator=(const JsonInfo&) { return *this; }
+
+        const QString kIsEnabledProp = "isEnabled";
+        const QString kProxySharingModeProp = "proxySharingMode";
+    };
+
+    ShareProxyGateway() = default;
+
+    ShareProxyGateway(const QJsonObject &json)
+    {
+        if (json.contains(jsonInfo.kIsEnabledProp) && json[jsonInfo.kIsEnabledProp].isBool())
+            isEnabled = json[jsonInfo.kIsEnabledProp].toBool();
+
+        if (json.contains(jsonInfo.kProxySharingModeProp) && json[jsonInfo.kProxySharingModeProp].isDouble())
+            proxySharingMode = static_cast<PROXY_SHARING_TYPE>(json[jsonInfo.kProxySharingModeProp].toInt());
+    }
+
     bool isEnabled = false;
     PROXY_SHARING_TYPE proxySharingMode = PROXY_SHARING_HTTP;
+    JsonInfo jsonInfo;
 
     bool operator==(const ShareProxyGateway &other) const
     {
@@ -20,6 +41,14 @@ struct ShareProxyGateway
     bool operator!=(const ShareProxyGateway &other) const
     {
         return !(*this == other);
+    }
+
+    QJsonObject toJson() const
+    {
+        QJsonObject json;
+        json[jsonInfo.kIsEnabledProp] = isEnabled;
+        json[jsonInfo.kProxySharingModeProp] = static_cast<int>(proxySharingMode);
+        return json;
     }
 
     friend QDataStream& operator <<(QDataStream &stream, const ShareProxyGateway &o)

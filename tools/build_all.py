@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # ------------------------------------------------------------------------------
 # Windscribe Build System
-# Copyright (c) 2020-2023, Windscribe Limited. All rights reserved.
+# Copyright (c) 2020-2024, Windscribe Limited. All rights reserved.
 # ------------------------------------------------------------------------------
 # Purpose: builds Windscribe.
 import glob
@@ -444,9 +444,6 @@ def sign_executables_win32(configdata, cert_password, filename_to_sign=None):
 def build_installer_win32(configdata, qt_root, msvc_root, crt_root, win_cert_password):
     # Copy Windows files.
     msg.Info("Copying libs...")
-
-    if "msvc" in configdata["deploy_files"]["win32"]["installer"]:
-        copy_files("MSVC", configdata["deploy_files"]["win32"]["installer"]["msvc"], msvc_root, BUILD_INSTALLER_FILES)
 
     if crt_root:
         utl.CopyAllFiles(crt_root, BUILD_INSTALLER_FILES)

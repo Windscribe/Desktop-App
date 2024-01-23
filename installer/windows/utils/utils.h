@@ -23,4 +23,5 @@ std::optional<DWORD> InstExec(const std::wstring &appName, const std::wstring &c
                               DWORD timeoutMS, WORD showWindowFlags,
                               const std::wstring &currentFolder = std::wstring());
 
+DWORD getOSBuildNumber();
 }

@@ -16,10 +16,9 @@ NetworkAccessManager::NetworkAccessManager(QObject *parent) : QObject(parent)
     //WS_ASSERT(g_countInstances == 0);       // this instance of the class is supposed to be a single instance for the entire program
     g_countInstances++;
 
-    if (QSslSocket::supportsSsl())
+    if (QSslSocket::supportsSsl()) {
         qCDebug(LOG_NETWORK) << "SSL version:" << QSslSocket::sslLibraryVersionString();
-    else
-        qCDebug(LOG_NETWORK) << "Fatal: SSL not supported";
+    }
 
     curlNetworkManager_ = new CurlNetworkManager(this);
     dnsCache_ = new DnsCache(this);

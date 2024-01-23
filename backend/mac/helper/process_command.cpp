@@ -51,7 +51,6 @@ CMD_ANSWER startOpenvpn(boost::archive::text_iarchive &ia)
         } else {
             const std::string fullPath = cmd.exePath + "/" + cmd.executable;
             ExecutableSignature sigCheck;
-// Avoid warnings from deprecated wstring_convert.
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
             if (!sigCheck.verify(std::wstring_convert<std::codecvt_utf8<wchar_t>>().from_bytes(fullPath))) {
@@ -179,7 +178,8 @@ CMD_ANSWER configureWireGuard(boost::archive::text_iarchive &ia)
             }
             if (!WireGuardController::instance().configure(cmd.clientPrivateKey,
                                                 cmd.peerPublicKey, cmd.peerPresharedKey,
-                                                cmd.peerEndpoint, allowed_ips_vector)) {
+                                                cmd.peerEndpoint, allowed_ips_vector,
+                                                cmd.listenPort)) {
                 LOG("WireGuard: configureDaemon() failed");
                 break;
             }
@@ -493,11 +493,10 @@ CMD_ANSWER startCtrld(boost::archive::text_iarchive &ia)
         // Something wrong with the command
         answer.executed = 0;
     } else {
-// Avoid warnings from deprecated wstring_convert.
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
         const std::string fullPath = cmd.exePath + "/" + cmd.executable;
         ExecutableSignature sigCheck;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
         if (!sigCheck.verify(std::wstring_convert<std::codecvt_utf8<wchar_t>>().from_bytes(fullPath))) {
             LOG("ctrld executable signature incorrect: %s", sigCheck.lastError().c_str());
             answer.executed = 0;
@@ -531,11 +530,10 @@ CMD_ANSWER startStunnel(boost::archive::text_iarchive &ia)
         // Something wrong with the command
         answer.executed = 0;
     } else {
-// Avoid warnings from deprecated wstring_convert.
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
         const std::string fullPath = cmd.exePath + "/" + cmd.executable;
         ExecutableSignature sigCheck;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
         if (!sigCheck.verify(std::wstring_convert<std::codecvt_utf8<wchar_t>>().from_bytes(fullPath))) {
             LOG("stunnel executable signature incorrect: %s", sigCheck.lastError().c_str());
             answer.executed = 0;
@@ -567,7 +565,6 @@ CMD_ANSWER startWstunnel(boost::archive::text_iarchive &ia)
     } else {
         const std::string fullPath = cmd.exePath + "/" + cmd.executable;
         ExecutableSignature sigCheck;
-// Avoid warnings from deprecated wstring_convert.
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
         if (!sigCheck.verify(std::wstring_convert<std::codecvt_utf8<wchar_t>>().from_bytes(fullPath))) {

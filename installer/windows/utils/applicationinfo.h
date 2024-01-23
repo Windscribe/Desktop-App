@@ -17,7 +17,7 @@ std::wstring updateUrl();
 std::wstring version();
 
 std::wstring appRegistryKey();
-std::wstring installerRegistryKey();
+std::wstring installerRegistryKey(bool includeRootKey = true);
 std::wstring uninstallerRegistryKey(bool includeRootKey = true);
 
 std::wstring defaultInstallPath();

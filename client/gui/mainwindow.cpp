@@ -7,6 +7,7 @@
 #include <QDesktopServices>
 #include <QThread>
 #include <QFileDialog>
+#include <QJsonDocument>
 #include <QWindow>
 #include <QScreen>
 #include <QWidgetAction>
@@ -256,6 +257,8 @@ MainWindow::MainWindow() :
     connect(mainWindowController_->getPreferencesWindow(), &PreferencesWindow::PreferencesWindowItem::signOutClick, this, &MainWindow::onPreferencesSignOutClick);
     connect(mainWindowController_->getPreferencesWindow(), &PreferencesWindow::PreferencesWindowItem::loginClick, this, &MainWindow::onPreferencesLoginClick);
     connect(mainWindowController_->getPreferencesWindow(), &PreferencesWindow::PreferencesWindowItem::viewLogClick, this, &MainWindow::onPreferencesViewLogClick);
+    connect(mainWindowController_->getPreferencesWindow(), &PreferencesWindow::PreferencesWindowItem::exportSettingsClick, this, &MainWindow::onPreferencesExportSettingsClick);
+    connect(mainWindowController_->getPreferencesWindow(), &PreferencesWindow::PreferencesWindowItem::importSettingsClick, this, &MainWindow::onPreferencesImportSettingsClick);
     connect(mainWindowController_->getPreferencesWindow(), &PreferencesWindow::PreferencesWindowItem::advancedParametersClicked, this, &MainWindow::onPreferencesAdvancedParametersClicked);
     connect(mainWindowController_->getPreferencesWindow(), &PreferencesWindow::PreferencesWindowItem::currentNetworkUpdated, this, &MainWindow::onCurrentNetworkUpdated);
     connect(mainWindowController_->getPreferencesWindow(), &PreferencesWindow::PreferencesWindowItem::sendConfirmEmailClick, this, &MainWindow::onPreferencesSendConfirmEmailClick);
@@ -683,17 +686,23 @@ void MainWindow::mouseMoveEvent(QMouseEvent *event)
 
 void MainWindow::mousePressEvent(QMouseEvent *event)
 {
-    if (bMoveEnabled_)
-    {
-        if (event->button() == Qt::LeftButton)
-        {
+    if (bMoveEnabled_) {
+        if (event->button() == Qt::LeftButton) {
             dragPosition_ = event->globalPosition().toPoint() - this->frameGeometry().topLeft();
+
+            if (dragPosition_.x() < mainWindowController_->getShadowMargin() ||
+                dragPosition_.x() > this->width() - mainWindowController_->getShadowMargin() ||
+                dragPosition_.y() < mainWindowController_->getShadowMargin() ||
+                dragPosition_.y() > this->height() - mainWindowController_->getShadowMargin())
+            {
+                // Ignore drag on shadow
+                return;
+            }
 
             //event->accept();
             bMousePressed_ = true;
 
-            if (QGuiApplication::platformName() == "wayland")
-            {
+            if (QGuiApplication::platformName() == "wayland") {
                 this->window()->windowHandle()->startSystemMove();
             }
         }
@@ -795,7 +804,7 @@ bool MainWindow::handleKeyPressEvent(QKeyEvent *event)
 
     if (mainWindowController_->isLocationsExpanded())
     {
-        if(event->key() == Qt::Key_Escape || event->key() == Qt::Key_Space)
+        if (event->key() == Qt::Key_Escape || event->key() == Qt::Key_Space)
         {
             mainWindowController_->collapseLocations();
             return true;
@@ -1069,6 +1078,7 @@ void MainWindow::onPreferencesLoginClick()
         // We're not really logged in, but trigger events as if user has confirmed logout
         onLogoutWindowAccept();
     }
+    mainWindowController_->getLoginWindow()->transitionToUsernameScreen();
 }
 
 void MainWindow::cleanupLogViewerWindow()
@@ -1111,6 +1121,76 @@ void MainWindow::onPreferencesViewLogClick()
     logViewerWindow_->show();
 }
 
+void MainWindow::onPreferencesExportSettingsClick()
+{
+    QString settingsFilename;
+
+#if !defined(Q_OS_LINUX)
+    settingsFilename = QFileDialog::getSaveFileName(this, tr("Export Preferences To"), "", tr("JSON Files (*.json)"));
+#else
+    QFileDialog dialog(this, tr("Export Preferences To"), "", tr("JSON Files (*.json)"));
+    dialog.setAcceptMode(QFileDialog::AcceptSave);
+    dialog.setDefaultSuffix("json");
+    dialog.setFileMode(QFileDialog::AnyFile);
+    if (!dialog.exec()) {
+        return;
+    }
+    settingsFilename = dialog.selectedFiles().first();
+#endif
+
+    if (settingsFilename.isEmpty()) {
+        return;
+    }
+
+    QFile file(settingsFilename);
+    if (!file.open(QIODevice::WriteOnly)) {
+        onPreferencesReportErrorToUser(tr("Unable to export preferences"), tr("Could not open file for writing.  Check your permissions and try again."));
+        return;
+    }
+
+    QJsonDocument doc(backend_->getPreferences()->toJson());
+    file.write(doc.toJson());
+    qCDebug(LOG_BASIC) << "Exported preferences to the file.";
+}
+
+void MainWindow::onPreferencesImportSettingsClick()
+{
+    if (backend_->currentConnectState() != CONNECT_STATE::CONNECT_STATE_DISCONNECTED) {
+        onPreferencesReportErrorToUser(tr("Unable to import preferences"), tr("Preferences can only be imported when the app is disconnected. Please disconnect and try again."));
+        return;
+    }
+
+    const QString settingsFilename = QFileDialog::getOpenFileName(this, tr("Import Preferences From"), "", tr("JSON Files (*.json)"));
+    if (!settingsFilename.isEmpty()) {
+        QFile file(settingsFilename);
+        if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+            onPreferencesReportErrorToUser(tr("Unable to import preferences"), tr("Could not open file."));
+            return;
+        }
+
+		QByteArray jsonData = file.readAll();
+		file.close();
+		QJsonParseError parseError;
+		const QJsonDocument jsonDoc = QJsonDocument::fromJson(jsonData, &parseError);
+
+		if (parseError.error != QJsonParseError::NoError) {
+			onPreferencesReportErrorToUser(tr("Unable to import preferences"), tr("The selected file's format is incorrect."));
+			qDebug() << "Error parsing JSON while importing preferences from :" << parseError.errorString();
+			return;
+		}
+
+		if (!jsonDoc.isObject()) {
+			onPreferencesReportErrorToUser(tr("Unable to import preferences"), tr("The selected file's format is incorrect."));
+			qDebug() << "Expected JSON object not found when importing preferences";
+			return;
+		}
+
+		backend_->getPreferences()->updateFromJson(jsonDoc.object());
+		qCDebug(LOG_BASIC) << "Imported preferences from the file.";
+		mainWindowController_->getPreferencesWindow()->setPreferencesImportCompleted();
+    }
+}
+
 void MainWindow::onPreferencesSendConfirmEmailClick()
 {
     backend_->sendConfirmEmail();
@@ -1144,7 +1224,7 @@ void MainWindow::onPreferencesQuitAppClick()
 void MainWindow::onPreferencesAccountLoginClick()
 {
     collapsePreferences();
-    mainWindowController_->getLoginWindow()->resetState();
+    mainWindowController_->getLoginWindow()->transitionToUsernameScreen();
 }
 
 void MainWindow::onPreferencesSetIpv6StateInOS(bool bEnabled, bool bRestartNow)

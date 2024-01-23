@@ -1,6 +1,6 @@
 #!/bin/bash
 
-WINDSCRIBE_PID=$(ps aux | grep "[W]indscribe" | awk '{print $2}')
+WINDSCRIBE_PID=$(ps aux | grep "[W]indscribe.app" | awk '{print $2}')
 
 take_screenshot() {
     WINDSCRIBE_GEOMETRY="`osascript -e 'tell application "System Events" to get { position, size } of first window of (first process whose unix id is '$WINDSCRIBE_PID')' | tr -d ' '`"

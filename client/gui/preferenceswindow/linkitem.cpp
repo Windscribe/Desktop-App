@@ -13,7 +13,7 @@
 namespace PreferencesWindow {
 
 LinkItem::LinkItem(ScalableGraphicsObject *parent, LinkType type, const QString &title, const QString &url)
-  : BaseItem(parent, PREFERENCE_GROUP_ITEM_HEIGHT*G_SCALE), title_(title), url_(url), linkText_(""), type_(type), icon_(nullptr), inProgress_(false), spinnerRotation_(0)
+  : BaseItem(parent, PREFERENCE_GROUP_ITEM_HEIGHT*G_SCALE), title_(title), url_(url), linkText_(""), type_(type), icon_(nullptr), linkIcon_(nullptr), inProgress_(false), spinnerRotation_(0)
 {
     curArrowOpacity_= OPACITY_HALF;
     if (type == LinkType::TEXT_ONLY) {
@@ -63,10 +63,10 @@ void LinkItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, 
     } else {
         painter->setOpacity(curArrowOpacity_);
         if (type_ == LinkType::EXTERNAL_LINK) {
-            p = ImageResourcesSvg::instance().getIndependentPixmap("preferences/EXTERNAL_LINK_ICON");
+            p = linkIcon_ ? linkIcon_ : ImageResourcesSvg::instance().getIndependentPixmap("preferences/EXTERNAL_LINK_ICON");
             p->draw(static_cast<int>(boundingRect().width() - p->width() - PREFERENCES_MARGIN*G_SCALE), static_cast<int>((boundingRect().height() - p->height()) / 2), painter);
         } else if (type_ == LinkType::SUBPAGE_LINK) {
-            p = ImageResourcesSvg::instance().getIndependentPixmap("preferences/FRWRD_ARROW_WHITE_ICON");
+            p = linkIcon_ ? linkIcon_ : ImageResourcesSvg::instance().getIndependentPixmap("preferences/FRWRD_ARROW_WHITE_ICON");
             p->draw(static_cast<int>(boundingRect().width() - p->width() - PREFERENCES_MARGIN*G_SCALE), static_cast<int>((boundingRect().height() - p->height()) / 2), painter);
         }
     }
@@ -165,6 +165,13 @@ void LinkItem::onOpenUrl()
 void LinkItem::setIcon(QSharedPointer<IndependentPixmap> icon)
 {
     icon_ = icon;
+    update();
+}
+
+void LinkItem::setLinkIcon(QSharedPointer<IndependentPixmap> icon)
+{
+    linkIcon_ = icon;
+    update();
 }
 
 void LinkItem::setInProgress(bool inProgress)

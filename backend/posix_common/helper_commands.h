@@ -159,6 +159,7 @@ struct CMD_CONFIGURE_WIREGUARD {
     std::string peerEndpoint;
     std::string allowedIps;
     CmdDnsManager dnsManager; // Linux only
+    uint16_t listenPort;
 };
 
 struct CMD_START_CTRLD {

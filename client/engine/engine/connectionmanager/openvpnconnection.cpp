@@ -13,9 +13,12 @@
 #ifdef Q_OS_WIN
     #include "adapterutils_win.h"
     #include "engine/helper/helper_win.h"
+    #include "types/global_consts.h"
+    #include "utils/extraconfig.h"
 #elif defined (Q_OS_MAC) || defined (Q_OS_LINUX)
     #include "engine/helper/helper_posix.h"
 #endif
+
 
 OpenVPNConnection::OpenVPNConnection(QObject *parent, IHelper *helper) : IConnection(parent), helper_(helper),
     bStopThread_(false), currentState_(STATUS_DISCONNECTED),
@@ -184,7 +187,7 @@ void OpenVPNConnection::run()
     BIND_CRASH_HANDLER_FOR_THREAD();
 #ifdef Q_OS_WIN
     Helper_win *helper_win = dynamic_cast<Helper_win *>(helper_);
-    helper_win->createWintunAdapter();
+    helper_win->createOpenVpnAdapter(!isCustomConfig_ && ExtraConfig::instance().useOpenVpnDCO());
     helper_win->enableDnsLeaksProtection();
 #endif
 
@@ -194,7 +197,7 @@ void OpenVPNConnection::run()
 
 #ifdef Q_OS_WIN
     helper_win->disableDnsLeaksProtection();
-    helper_win->removeWintunAdapter();
+    helper_win->removeOpenVpnAdapter();
 #endif
 }
 
@@ -400,8 +403,14 @@ void OpenVPNConnection::handleRead(const boost::system::error_code &err, size_t 
         {
             if (!password_.isEmpty())
             {
+                // See Command Parsing paragraph in management-notes.txt file of openvpn sources.
+                // There are escaping rules for the openvpn password command.
                 char message[1024];
-                snprintf(message, 1024, "password \"Auth\" %s\n", password_.toUtf8().data());
+                QString escaped = password_;
+                escaped.replace("\\", "\\\\");
+                escaped.replace("\"", "\\\"");
+                escaped.replace("\t", "\\t");
+                snprintf(message, 1024, "password \"Auth\" \"%s\"\n", escaped.toUtf8().data());
                 boost::asio::write(*stateVariables_.socket, boost::asio::buffer(message, strlen(message)), boost::asio::transfer_all(), write_error);
             }
             else
@@ -465,7 +474,7 @@ void OpenVPNConnection::handleRead(const boost::system::error_code &err, size_t 
             if (serverReply.contains("CONNECTED,SUCCESS", Qt::CaseInsensitive))
             {
 #ifdef Q_OS_WIN
-                AdapterGatewayInfo windscribeAdapter = AdapterUtils_win::getWindscribeConnectedAdapterInfo();
+                AdapterGatewayInfo windscribeAdapter = AdapterUtils_win::getConnectedAdapterInfo(QString::fromWCharArray(kOpenVPNAdapterIdentifier));
                 if (!windscribeAdapter.isEmpty())
                 {
                     if (connectionAdapterInfo_.adapterIp() != windscribeAdapter.adapterIp())
@@ -536,7 +545,7 @@ void OpenVPNConnection::handleRead(const boost::system::error_code &err, size_t 
             {
                 emit error(CONNECT_ERROR::WINTUN_OVER_CAPACITY);
             }
-            else if (serverReply.contains("TCP", Qt::CaseInsensitive) && serverReply.contains("failed", Qt::CaseInsensitive))
+            else if (serverReply.contains("TCP:", Qt::CaseInsensitive) && serverReply.contains("failed", Qt::CaseInsensitive))
             {
                 emit error(CONNECT_ERROR::TCP_ERROR);
             }

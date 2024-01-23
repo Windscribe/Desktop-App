@@ -25,11 +25,8 @@ MainWindow::MainWindow(bool isAdmin, InstallerOptions &options) : QWidget(nullpt
     installerShim_->setCallback(callback);
 
     qApp->setWindowIcon(QIcon(":/resources/Windscribe.ico"));
-#if defined(Q_OS_WIN)
-    setWindowFlags(Qt::FramelessWindowHint);
-#elif defined(Q_OS_MAC)
-    setWindowFlags(Qt::ToolTip | Qt::FramelessWindowHint);
-#endif
+    setWindowFlags(Qt::FramelessWindowHint | Qt::MSWindowsFixedSizeDialogHint);
+    setFixedSize(kWindowWidth, kWindowHeight);
     setAttribute(Qt::WA_TranslucentBackground, true);
 
     // initialize language before creating UI elements
@@ -118,6 +115,7 @@ void MainWindow::onSettingsClicked()
 {
     initialWindow_->hide();
     settingsWindow_->show();
+    settingsWindow_->setFocus();
     settingsWindow_->setDimmedBackground(true);
 }
 
@@ -146,6 +144,7 @@ void MainWindow::onSettingsWindowAnimFinished(bool dimmed)
     if (!dimmed) {
         settingsWindow_->hide();
         initialWindow_->show();
+        initialWindow_->setFocus();
     }
 }
 
@@ -297,6 +296,7 @@ void MainWindow::showError(const QString &title, const QString &desc, bool fatal
     alertWindow_->setSecondaryButton("");
     fatalError_ = fatal;
     alertWindow_->show();
+    alertWindow_->setFocus();
 }
 
 void MainWindow::showExitPrompt()
@@ -316,11 +316,17 @@ void MainWindow::showExitPrompt()
 
     exiting_ = true;
     alertWindow_->show();
+    alertWindow_->setFocus();
 }
 
 void MainWindow::onAlertWindowPrimaryButtonClicked()
 {
     alertWindow_->hide();
+    if (settingsWindow_->isVisible()) {
+        settingsWindow_->setFocus();
+    } else {
+        initialWindow_->setFocus();
+    }
     if (fatalError_ || exiting_) {
         qApp->exit();
     }
@@ -329,6 +335,11 @@ void MainWindow::onAlertWindowPrimaryButtonClicked()
 void MainWindow::onAlertWindowEscapeClicked()
 {
     alertWindow_->hide();
+    if (settingsWindow_->isVisible()) {
+        settingsWindow_->setFocus();
+    } else {
+        initialWindow_->setFocus();
+    }
     exiting_ = false;
     if (fatalError_) {
         qApp->exit();
@@ -341,14 +352,9 @@ void MainWindow::closeEvent(QCloseEvent *event)
     if (!exiting_) {
         event->ignore();
     }
-}
 
-void MainWindow::keyPressEvent(QKeyEvent *event)
-{
-    if (event->key() == Qt::Key_Escape) {
-        if (alertWindow_->isVisible()) {
-            onAlertWindowEscapeClicked();
-        }
+    if (!installing_) {
+        showExitPrompt();
     }
 }
 

@@ -55,6 +55,7 @@ public:
     void setRobertFiltersError();
     void setSplitTunnelingActive(bool active);
     void setWebSessionCompleted();
+    void setPreferencesImportCompleted();
 
     void onCollapse();
 
@@ -64,6 +65,8 @@ signals:
     void quitAppClick();
 
     void viewLogClick();
+    void exportSettingsClick();
+    void importSettingsClick();
     void sendConfirmEmailClick();
     void sendDebugLogClick();
     void accountLoginClick();

@@ -17,7 +17,7 @@ NetworkDetectionManager_linux::NetworkDetectionManager_linux(QObject *parent, IH
 {
     Q_UNUSED(helper);
 
-    networkInterface_ = Utils::noNetworkInterface();
+    networkInterface_ = types::NetworkInterface::noNetworkInterface();
     getDefaultRouteInterface(isOnline_);
     updateNetworkInfo(false);
 
@@ -67,7 +67,7 @@ void NetworkDetectionManager_linux::updateNetworkInfo(bool bWithEmitSignal)
     }
 
 
-    types::NetworkInterface newNetworkInterface = Utils::noNetworkInterface();
+    types::NetworkInterface newNetworkInterface = types::NetworkInterface::noNetworkInterface();
     if (!ifname.isEmpty())
     {
         getInterfacePars(ifname, newNetworkInterface);

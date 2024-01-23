@@ -2,8 +2,10 @@
 
 #include <QDataStream>
 #include <QSettings>
-#include "utils/ws_assert.h"
+#include "utils/extraconfig.h"
+#include "utils/ipvalidation.h"
 #include "utils/logger.h"
+#include "utils/ws_assert.h"
 
 types::Protocol AutoConnSettingsPolicy::lastKnownGoodProtocol_;
 
@@ -49,6 +51,11 @@ AutoConnSettingsPolicy::AutoConnSettingsPolicy(QSharedPointer<locationsmodel::Ba
             attempts_ << attemptInfo;
         }
     }
+
+    QString remoteOverride = ExtraConfig::instance().getRemoteIpFromExtraConfig();
+    if (IpValidation::isIp(remoteOverride) && attempts_.size() > 0 && attempts_[0].protocol == types::Protocol::WIREGUARD) {
+        locationInfo_->selectNodeByIp(remoteOverride);
+    }
 }
 
 void AutoConnSettingsPolicy::reset()
@@ -71,7 +78,12 @@ void AutoConnSettingsPolicy::putFailedConnection()
 
     if (curAttempt_ < (attempts_.count() - 1)) {
         if (attempts_[curAttempt_].changeNode) {
-            locationInfo_->selectNextNode();
+            QString remoteOverride = ExtraConfig::instance().getRemoteIpFromExtraConfig();
+            if (IpValidation::isIp(remoteOverride) && attempts_[curAttempt_ + 1].protocol == types::Protocol::WIREGUARD) {
+                locationInfo_->selectNodeByIp(remoteOverride);
+            } else {
+                locationInfo_->selectNextNode();
+            }
         }
         curAttempt_++;
         // even indicies are a new protocol, so emit a change
@@ -100,8 +112,13 @@ CurrentConnectionDescr AutoConnSettingsPolicy::getCurrentConnectionSettings() co
     ccd.protocol = attempts_[curAttempt_].protocol;
     ccd.port = portMap_.const_items()[attempts_[curAttempt_].portMapInd].ports[0];
 
-    int useIpInd = portMap_.getUseIpInd(ccd.protocol);
-    ccd.ip = locationInfo_->getIpForSelectedNode(useIpInd);
+    QString remoteOverride = ExtraConfig::instance().getRemoteIpFromExtraConfig();
+    if (IpValidation::isIp(remoteOverride) && ccd.protocol == types::Protocol::WIREGUARD) {
+        ccd.ip = remoteOverride;
+    } else {
+        int useIpInd = portMap_.getUseIpInd(ccd.protocol);
+        ccd.ip = locationInfo_->getIpForSelectedNode(useIpInd);
+    }
     ccd.hostname = locationInfo_->getHostnameForSelectedNode();
     ccd.dnsHostName = locationInfo_->getDnsName();
     ccd.wgPeerPublicKey = locationInfo_->getWgPubKeyForSelectedNode();
@@ -115,8 +132,7 @@ CurrentConnectionDescr AutoConnSettingsPolicy::getCurrentConnectionSettings() co
         ccd.staticIpPorts = locationInfo_->getStaticIpPorts();
 
         // for static ip with wireguard protocol override id to wg_ip
-        if (ccd.protocol == types::Protocol::WIREGUARD )
-        {
+        if (ccd.protocol == types::Protocol::WIREGUARD) {
             ccd.ip = locationInfo_->getWgIpForSelectedNode();
         }
     }

@@ -1,9 +1,12 @@
 #include "vpnsharecontroller.h"
-#include "utils/ws_assert.h"
-#include "utils/utils.h"
+
 #include <QElapsedTimer>
-#include "engine/connectionmanager/availableport.h"
 #include <QSettings>
+
+#include "engine/connectionmanager/availableport.h"
+#include "utils/network_utils/network_utils.h"
+#include "utils/utils.h"
+#include "utils/ws_assert.h"
 
 VpnShareController::VpnShareController(QObject *parent, IHelper *helper) : QObject(parent),
     helper_(helper),
@@ -106,11 +109,11 @@ QString VpnShareController::getProxySharingAddress()
     QMutexLocker locker(&mutex_);
     if (httpProxyServer_)
     {
-        return Utils::getLocalIP() + ":" + QString::number(httpProxyServer_->serverPort());
+        return NetworkUtils::getLocalIP() + ":" + QString::number(httpProxyServer_->serverPort());
     }
     else if (socksProxyServer_)
     {
-        return Utils::getLocalIP() + ":" + QString::number(socksProxyServer_->serverPort());
+        return NetworkUtils::getLocalIP() + ":" + QString::number(socksProxyServer_->serverPort());
     }
     WS_ASSERT(false);
     return "Unknown";

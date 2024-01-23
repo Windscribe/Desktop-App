@@ -25,6 +25,7 @@ Requires:	glib2
 Requires:	zlib
 Requires:	libglvnd-egl
 Requires:	libglvnd-glx
+Requires:	libglvnd-opengl
 Requires:	libX11
 Requires:	libxkbcommon
 Requires:	dbus-libs
@@ -40,6 +41,8 @@ Requires:	xcb-util-renderutil
 Requires:	xcb-util-cursor
 Requires:	sudo
 Requires:	shadow-utils
+Requires:	procps-ng
+Requires:	polkit
 
 %description
 Windscribe client.

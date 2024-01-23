@@ -94,8 +94,11 @@ public:
 
     void setCustomDnsIps(const QStringList& ips);
 
-    bool createWintunAdapter();
-    bool removeWintunAdapter();
+    bool createOpenVpnAdapter(bool useDCODriver);
+    bool removeOpenVpnAdapter();
+
+    bool disableDohSettings();
+    bool enableDohSettings();
 
 protected:
     void run() override;

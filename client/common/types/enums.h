@@ -161,8 +161,10 @@ enum TAP_ADAPTER_TYPE {
 };
 
 enum CONNECTED_DNS_TYPE {
-    CONNECTED_DNS_TYPE_ROBERT = 0,
-    CONNECTED_DNS_TYPE_CUSTOM = 1
+    CONNECTED_DNS_TYPE_AUTO = 0,
+    CONNECTED_DNS_TYPE_CUSTOM = 1,
+    // Windows only. Forcely dissable DOH settings on Windows 11.
+    CONNECTED_DNS_TYPE_FORCED = 2
 };
 
 enum DNS_MANAGER_TYPE {
@@ -212,7 +214,6 @@ enum SPLIT_TUNNELING_NETWORK_ROUTE_TYPE {
     SPLIT_TUNNELING_NETWORK_ROUTE_TYPE_IP = 0,
     SPLIT_TUNNELING_NETWORK_ROUTE_TYPE_HOSTNAME = 1
 };
-
 
 enum ORDER_LOCATION_TYPE {
     ORDER_LOCATION_BY_GEOGRAPHY = 0,
@@ -314,7 +315,5 @@ QList<QPair<QString, QVariant>> DNS_MANAGER_TYPE_toList();
 QString APP_SKIN_toString(APP_SKIN s);
 QList<QPair<QString, QVariant>> APP_SKIN_toList();
 
-#if defined(Q_OS_LINUX)
 QString TRAY_ICON_COLOR_toString(TRAY_ICON_COLOR c);
 QList<QPair<QString, QVariant>> TRAY_ICON_COLOR_toList();
-#endif

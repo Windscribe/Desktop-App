@@ -55,6 +55,7 @@ set_target_properties(installer
 target_include_directories(installer PRIVATE
                            ../../../build-libs/boost/include
                            ../../../client/common
+                           ../../../common
                            ../../common
                            ./installer
 )

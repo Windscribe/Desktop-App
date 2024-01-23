@@ -71,11 +71,12 @@ bool WireGuardController::configureDefaultRouteMonitor(const std::string &peerEn
 
 bool WireGuardController::configure(const std::string &clientPrivateKey,
     const std::string &peerPublicKey, const std::string &peerPresharedKey,
-    const std::string &peerEndpoint, const std::vector<std::string> &allowedIps)
+    const std::string &peerEndpoint, const std::vector<std::string> &allowedIps,
+    uint16_t listenPort)
 {
     return is_initialized_
         && comm_->configure(clientPrivateKey, peerPublicKey, peerPresharedKey, peerEndpoint,
-            allowedIps);
+            allowedIps, listenPort);
 }
 
 unsigned long WireGuardController::getStatus(unsigned int *errorCode,

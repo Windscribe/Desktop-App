@@ -9,8 +9,18 @@ namespace types {
 
 struct ConnectionSettings
 {
+    struct JsonInfo
+    {
+        JsonInfo& operator=(const JsonInfo&) { return *this; }
+
+        const QString kProtocolProp = "protocol";
+        const QString kPortProp = "port";
+        const QString kIsAutomaticProp = "isAutomatic";
+    };
+
     ConnectionSettings();
     explicit ConnectionSettings(Protocol protocol, uint port, bool isAutomatic);
+    ConnectionSettings(const QJsonObject& jsonObject);
 
     Protocol protocol() const { return protocol_; }
     uint port() const { return port_; }
@@ -32,6 +42,8 @@ struct ConnectionSettings
         return !(*this == other);
     }
 
+    QJsonObject toJson() const;
+
     friend QDataStream& operator <<(QDataStream &stream, const ConnectionSettings &o);
     friend QDataStream& operator >>(QDataStream &stream, ConnectionSettings &o);
 
@@ -44,6 +56,7 @@ private:
     Protocol protocol_;
     uint    port_;
     bool    isAutomatic_;
+    JsonInfo jsonInfo_;
 
     static constexpr quint32 versionForSerialization_ = 1;  // should increment the version if the data format is changed
 };

@@ -180,12 +180,24 @@ bool WireGuardGoCommunicator::stop()
 
 bool WireGuardGoCommunicator::configure(const std::string &clientPrivateKey,
     const std::string &peerPublicKey, const std::string &peerPresharedKey,
-    const std::string &peerEndpoint, const std::vector<std::string> &allowedIps, uint32_t fwmark)
+    const std::string &peerEndpoint, const std::vector<std::string> &allowedIps,
+    uint32_t fwmark, uint16_t listenPort)
 {
     Connection connection(deviceName_);
     if (connection.getStatus() != Connection::Status::OK) {
         Logger::instance().out("WireGuardGoCommunicator::configure(): no connection to daemon");
         return false;
+    }
+
+    // Setup listen port first, otherwise it would be silently ignored
+    if (listenPort) {
+        fprintf(connection, "set=1\nlisten_port=%hu\n\n", listenPort);
+        fflush(connection);
+        // Check results.
+        Connection::ResultMap results{ std::make_pair("errno", "") };
+        bool success = connection.getOutput(&results);
+        if (success && stringToValue<int>(results["errno"]) != 0)
+            Logger::instance().out("Wireguard listen_port is not successful");
     }
 
     // Send set command.

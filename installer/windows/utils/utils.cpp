@@ -200,4 +200,28 @@ HWND appMainWindowHandle()
     return pWindowInfo->appMainWindow;
 }
 
+DWORD getOSBuildNumber()
+{
+    HMODULE hDLL = ::GetModuleHandleA("ntdll.dll");
+    if (hDLL == NULL) {
+        Log::WSDebugMessage(L"Failed to load the ntdll module (%lu)", ::GetLastError());
+        return 0;
+    }
+
+    typedef NTSTATUS (WINAPI* RtlGetVersionFunc)(LPOSVERSIONINFOEXW lpVersionInformation);
+
+    RtlGetVersionFunc rtlGetVersionFunc = (RtlGetVersionFunc)::GetProcAddress(hDLL, "RtlGetVersion");
+    if (rtlGetVersionFunc == NULL) {
+        Log::WSDebugMessage(L"Failed to load RtlGetVersion function (%lu)", ::GetLastError());
+        return 0;
+    }
+
+    RTL_OSVERSIONINFOEXW rtlOsVer;
+    ::ZeroMemory(&rtlOsVer, sizeof(RTL_OSVERSIONINFOEXW));
+    rtlOsVer.dwOSVersionInfoSize = sizeof(RTL_OSVERSIONINFOEXW);
+    rtlGetVersionFunc(&rtlOsVer);
+
+    return rtlOsVer.dwBuildNumber;
+}
+
 }

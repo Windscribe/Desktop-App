@@ -19,7 +19,7 @@
     <name>InstallButton</name>
     <message>
         <source>Install</source>
-        <translation>Zainstaluj</translation>
+        <translation>Instalować</translation>
     </message>
     <message>
         <source>%1%</source>
@@ -30,19 +30,19 @@
     <name>MainWindow</name>
     <message>
         <source>Installation failed</source>
-        <translation>Błąd instalacji</translation>
+        <translation>Instalacja nie powiodła się</translation>
     </message>
     <message>
         <source>The installation was cancelled. Administrator privileges are required to install the application.</source>
-        <translation>Instalacja została anulowana. Aby zainstalować aplikację, wymagane są uprawnienia administratora.</translation>
+        <translation>Instalacja została anulowana. Do zainstalowania aplikacji wymagane są uprawnienia administratora.</translation>
     </message>
     <message>
         <source>Windscribe is running and could not be closed. Please close the application manually and try again.</source>
-        <translation>Windscribe jest uruchomiony i nie można go zamknąć. Zamknij aplikację ręcznie i spróbuj ponownie.</translation>
+        <translation>Windscribe działa i nie można go zamknąć. Zamknij aplikację ręcznie i spróbuj ponownie.</translation>
     </message>
     <message>
         <source>The installer could not connect to the privileged helper tool. Please try again.</source>
-        <translation>Instalator nie mógł się połączyć z uprzywilejowanym narzędziem pomocnika Spróbuj ponownie.</translation>
+        <translation>Instalator nie może połączyć się z uprzywilejowanym narzędziem pomocnika. Spróbuj ponownie.</translation>
     </message>
     <message>
         <source>An existing installation of Windscribe could not be removed. Please uninstall the application manually and try again.</source>
@@ -50,11 +50,11 @@
     </message>
     <message>
         <source>The installation could not be completed successfully. Please contact our Technical Support.</source>
-        <translation>Instalacja zakończona niepowodzeniem. Skontaktuj się z naszym działem pomocy technicznej.</translation>
+        <translation>Nie można pomyślnie ukończyć instalacji. Skontaktuj się z naszym działem pomocy technicznej.</translation>
     </message>
     <message>
         <source>Select a folder in the list below and click OK.</source>
-        <translation>Wybierz folder z listy poniżej i kliknij przycisk OK.</translation>
+        <translation>Wybierz folder z poniższej listy i kliknij przycisk OK.</translation>
     </message>
     <message>
         <source>OK</source>
@@ -62,11 +62,11 @@
     </message>
     <message>
         <source>Quit Windscribe Installer?</source>
-        <translation>Zamknąć instalator Windscribe?</translation>
+        <translation>Zamknij instalator Windscribe?</translation>
     </message>
     <message>
         <source>Quit</source>
-        <translation>Zamknij</translation>
+        <translation>Kończyć</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -78,11 +78,11 @@
     </message>
     <message>
         <source>The specified installation path is not on the system drive. To ensure the security of the application, and your system, it must be installed on the same drive as Windows. The installation folder has been reset to the default.</source>
-        <translation>Wybrana ścieżka instalacyjna nie znajduje się na dysku systemowym. Aby zapewnić bezpieczeństwo aplikacji i systemu, musi się znajdować na tym samym dysku co system Windows. Folder instalacyjny został przywrócony do wartości domyślnych.</translation>
+        <translation>Określona ścieżka instalacji nie znajduje się na dysku systemowym. Aby zapewnić bezpieczeństwo aplikacji i systemu, musi ona być zainstalowana na tym samym dysku co system Windows. Folder instalacyjny został przywrócony do wartości domyślnych.</translation>
     </message>
     <message>
         <source>You don&apos;t have sufficient permissions to run this application. Administrative privileges are required to install Windscribe.</source>
-        <translation>Nie masz wystarczających uprawnień, aby uruchomić tę aplikację. Wymagane są uprawnienia administratora, aby zainstalować Windscribe.</translation>
+        <translation>Nie masz wystarczających uprawnień do uruchamiania tej aplikacji. Do zainstalowania Windscribe wymagane są uprawnienia administratora.</translation>
     </message>
 </context>
 <context>
@@ -93,7 +93,7 @@
     </message>
     <message>
         <source>This version of the Windscribe app will not operate correctly on your PC.  Please download the &apos;ARM64&apos; version from the Windscribe website to ensure optimal compatibility and performance.</source>
-        <translation>Ta wersja aplikacji Windscribe nie będzie działać poprawnie na Twoim komputerze.  Pobierz wersję &apos;ARM64&apos; ze strony Windscribe, aby zapewnić optymalną kompatybilność i wydajność.</translation>
+        <translation>Ta wersja aplikacji Windscribe nie będzie działać poprawnie na Twoim komputerze.  Pobierz wersję &quot;ARM64&quot; ze strony Windscribe, aby zapewnić optymalną kompatybilność i wydajność.</translation>
     </message>
     <message>
         <source>Windscribe Install Options</source>
@@ -101,7 +101,7 @@
     </message>
     <message>
         <source>The Windscribe installer accepts the following optional commmand-line parameters: </source>
-        <translation>Instalator Windscribe akceptuje następujące opcjonalne parametry wiersza polecenia: </translation>
+        <translation>Instalator Windscribe akceptuje następujące opcjonalne parametry linii komunikacyjnej: </translation>
     </message>
     <message>
         <source>Show this information.</source>
@@ -109,7 +109,7 @@
     </message>
     <message>
         <source>Do not launch the application after installation.</source>
-        <translation>Nie uruchamiaj aplikacji po zakończeniu instalacji.</translation>
+        <translation>Nie uruchamiaj aplikacji po instalacji.</translation>
     </message>
     <message>
         <source>Instructs the installer to skip installing drivers.</source>
@@ -145,7 +145,7 @@
     </message>
     <message>
         <source>The -username parameter was specified but the username was not.</source>
-        <translation>Podano parametr -username, ale nie podano nazwy użytkownika.</translation>
+        <translation>Parametr -username został określony, ale nazwa użytkownika nie została określona.</translation>
     </message>
     <message>
         <source>The -password parameter was specified but the password was not.</source>
@@ -153,7 +153,7 @@
     </message>
     <message>
         <source>Incorrect number of arguments passed to installer.</source>
-        <translation>Przekazano nieprawidłową liczbę argumentów do instalatora.</translation>
+        <translation>Nieprawidłowa liczba argumentów przekazanych do instalatora.</translation>
     </message>
     <message>
         <source>Use the -help argument to see available arguments and their format.</source>
@@ -161,7 +161,7 @@
     </message>
     <message>
         <source>The specified installation path is not on the system drive.  To ensure the security of the application, and your system, it must be installed on the same drive as Windows.</source>
-        <translation>Wybrana ścieżka instalacyjna nie znajduje się na dysku systemowym.  Aby zapewnić bezpieczeństwo aplikacji i systemu, musi się znajdować na tym samym dysku co system Windows.</translation>
+        <translation>Określona ścieżka instalacji nie znajduje się na dysku systemowym.  Aby zapewnić bezpieczeństwo aplikacji i systemu, musi być ona zainstalowana na tym samym dysku co system Windows.</translation>
     </message>
     <message>
         <source>A username was specified but its corresponding password was not provided.</source>
@@ -169,7 +169,7 @@
     </message>
     <message>
         <source>Your username should not be an email address. Please try again.</source>
-        <translation>Nazwa użytkownika nie może być adresem e-mail. Spróbuj ponownie.</translation>
+        <translation>Twoja nazwa użytkownika nie powinna być adresem e-mail. Spróbuj ponownie.</translation>
     </message>
     <message>
         <source>A password was specified but its corresponding username was not provided.</source>
@@ -192,7 +192,7 @@
     </message>
     <message>
         <source>Factory Reset</source>
-        <translation>Przywróć ustawienia fabryczne</translation>
+        <translation>Fabrycznych</translation>
     </message>
     <message>
         <source>Create shortcut</source>

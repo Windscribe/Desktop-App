@@ -1,7 +1,12 @@
 #include "logger.h"
-#include <QStandardPaths>
-#include <QDir>
+
+
+#include <QByteArray>
+#include <QCryptographicHash>
 #include <QDateTime>
+#include <QDir>
+#include <QStandardPaths>
+#include <QString>
 
 QFile *Logger::file_ = NULL;
 QMutex Logger::mutex_;
@@ -10,11 +15,26 @@ QString Logger::logPath_;
 QString Logger::prevLogPath_;
 bool Logger::consoleOutput_;
 QtMessageHandler Logger::prevMessageHandler_ = NULL;
+bool Logger::connectionMode_ = false;
+QLoggingCategory* Logger::connectionModeLoggingCategory_ = nullptr;
+
+#define WS_LOGGING_CATEGORY(name, ...) \
+const QLoggingCategory &name() \
+    { \
+        QMutexLocker lock(&Logger::mutex()); \
+        if (!Logger::instance().connectionMode()) {\
+                static const QLoggingCategory category(__VA_ARGS__); \
+                return category; \
+        }\
+        else { \
+            return Logger::instance().connectionModeLoggingCategory(); \
+        } \
+    }
 
 Q_LOGGING_CATEGORY(LOG_BASIC, "basic")
 Q_LOGGING_CATEGORY(LOG_IPC, "ipc")
 Q_LOGGING_CATEGORY(LOG_CLI_IPC, "cli_ipc")
-Q_LOGGING_CATEGORY(LOG_CONNECTION, "connection")
+WS_LOGGING_CATEGORY(LOG_CONNECTION, "connection")
 Q_LOGGING_CATEGORY(LOG_SERVER_API, "server_api")
 Q_LOGGING_CATEGORY(LOG_FAILOVER, "failover")
 Q_LOGGING_CATEGORY(LOG_NETWORK, "network")
@@ -46,9 +66,10 @@ Q_LOGGING_CATEGORY(LOG_USER,  "user")
 Q_LOGGING_CATEGORY(LOG_LOCATION_LIST, "loclist");
 Q_LOGGING_CATEGORY(LOG_PREFERENCES, "prefs")
 
+
 void Logger::install(const QString &name, bool consoleOutput, bool recoveryMode)
 {
-    //QLoggingCategory::setFilterRules("basic=false\nipc=false\nserver_api=false");
+    QLoggingCategory::setFilterRules("qt.tlsbackend.ossl=false\nqt.network.ssl=false");
 
     QString logFilePath = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
     QDir dir(logFilePath);
@@ -85,6 +106,9 @@ Logger::~Logger()
         file_->close();
         delete file_;
     }
+
+    if (connectionModeLoggingCategory_)
+        delete connectionModeLoggingCategory_;
 }
 
 void Logger::copyToPrevLog()
@@ -138,4 +162,27 @@ QString Logger::getCurrentLogStr()
 {
     QMutexLocker lock(&mutex_);
     return strLog_;
+}
+
+void Logger::startConnectionMode()
+{
+    QMutexLocker lock(&mutex_);
+    connectionMode_ = true;
+    const qint64 currentTimeMillis = QDateTime::currentMSecsSinceEpoch();
+    const QByteArray timeBytes(reinterpret_cast<const char*>(&currentTimeMillis), sizeof(currentTimeMillis));
+    const QByteArray hashBytes = QCryptographicHash::hash(timeBytes, QCryptographicHash::Md5);
+
+    static std::string connectionModeId;
+    connectionModeId = hashBytes.toHex().mid(8).toStdString();
+    connectionModeLoggingCategory_ = new QLoggingCategory(connectionModeId.c_str());
+}
+
+void Logger::endConnectionMode()
+{
+    QMutexLocker lock(&mutex_);
+    connectionMode_ = false;
+    if (connectionModeLoggingCategory_) {
+        delete connectionModeLoggingCategory_;
+        connectionModeLoggingCategory_ = nullptr;
+    }
 }

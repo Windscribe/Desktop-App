@@ -52,16 +52,20 @@
 
 - (void)writeToLog:(NSString *)str
 {
-    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-    [dateFormatter setDateFormat:@"ddMM HH:mm:ss:SSS"];
-    NSDate *currentTime = [NSDate date];
+    @autoreleasepool {
+        NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+        NSTimeZone *timeZone = [NSTimeZone timeZoneWithName:@"UTC"];
+        [dateFormatter setTimeZone:timeZone];
+        [dateFormatter setDateFormat:@"ddMMYY HH:mm:ss:SSS"];
+        NSDate *currentTime = [NSDate date];
 
-    NSFileHandle *aFileHandle = [NSFileHandle fileHandleForWritingAtPath:aFile_];
-    [aFileHandle seekToEndOfFile];
-    [aFileHandle writeData:[[NSString stringWithFormat:@"[%@ %12.03f] %@\n",
-                             [dateFormatter stringFromDate:currentTime], [currentTime timeIntervalSinceDate:startTime_], str]
-                            dataUsingEncoding:NSASCIIStringEncoding]];
-    [aFileHandle closeFile];
+        NSFileHandle *aFileHandle = [NSFileHandle fileHandleForWritingAtPath:aFile_];
+        [aFileHandle seekToEndOfFile];
+        [aFileHandle writeData:[[NSString stringWithFormat:@"[%@ %10.03f] %@\n",
+                                 [dateFormatter stringFromDate:currentTime], [currentTime timeIntervalSinceDate:startTime_], str]
+                                dataUsingEncoding:NSASCIIStringEncoding]];
+        [aFileHandle closeFile];
+    }
 }
 
 -(void)logAndStdOut:(NSString *)str

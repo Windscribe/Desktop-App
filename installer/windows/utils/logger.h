@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+#include <chrono>
 #include <list>
 #include <string>
 #include <mutex>
@@ -31,6 +32,7 @@ private:
     bool installing_ = false;
     std::recursive_mutex mutex_;
     std::list<std::wstring> logEntries_;
+    std::chrono::time_point<std::chrono::system_clock> start_;
 
     Log();
     ~Log();

@@ -83,7 +83,7 @@ CertManager::CertDescr CertManager::loadCert(const QString &data)
     cd.bio = BIO_new_mem_buf(mypem, -1);
 
     PEM_read_bio_X509(cd.bio, &cd.cert, 0, NULL);
-    if(cd.cert == NULL)
+    if (cd.cert == NULL)
     {
         qCDebug(LOG_BASIC) << "PEM_read_bio_X509 failed...";
     }

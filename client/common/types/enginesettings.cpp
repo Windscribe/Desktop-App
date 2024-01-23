@@ -6,6 +6,7 @@
 #include "utils/languagesutil.h"
 #include "utils/logger.h"
 #include "utils/simplecrypt.h"
+#include "utils/utils.h"
 
 const int typeIdEngineSettings = qRegisterMetaType<types::EngineSettings>("types::EngineSettings");
 
@@ -13,6 +14,99 @@ namespace types {
 
 EngineSettings::EngineSettings() : d(new EngineSettingsData)
 {
+}
+
+EngineSettings::EngineSettings(const QJsonObject &json) : d(new EngineSettingsData)
+{
+    const auto& jsonInfo = d->jsonInfo;
+
+    if (json.contains(jsonInfo.kApiResolutionSettingsProp) && json[jsonInfo.kApiResolutionSettingsProp].isObject())
+        d->apiResolutionSettings = types::ApiResolutionSettings(json[jsonInfo.kApiResolutionSettingsProp].toObject());
+
+    if (json.contains(jsonInfo.kConnectedDnsInfoProp) && json[jsonInfo.kConnectedDnsInfoProp].isObject())
+        d->connectedDnsInfo = types::ConnectedDnsInfo(json[jsonInfo.kConnectedDnsInfoProp].toObject());
+
+    if (json.contains(jsonInfo.kConnectionSettingsProp) && json[jsonInfo.kConnectionSettingsProp].isObject())
+        d->connectionSettings = types::ConnectionSettings(json[jsonInfo.kConnectionSettingsProp].toObject());
+
+    if (json.contains(jsonInfo.kCustomOvpnConfigsPathProp) && json[jsonInfo.kCustomOvpnConfigsPathProp].isString())
+        d->customOvpnConfigsPath = Utils::fromBase64(json[jsonInfo.kCustomOvpnConfigsPathProp].toString());
+
+#if defined(Q_OS_LINUX)
+    if (json.contains(jsonInfo.kDnsManagerProp) && json[jsonInfo.kDnsManagerProp].isDouble())
+        d->dnsManager = static_cast<DNS_MANAGER_TYPE>(json[jsonInfo.kDnsManagerProp].toInt());
+#endif
+
+    if (json.contains(jsonInfo.kDnsPolicyProp) && json[jsonInfo.kDnsPolicyProp].isDouble())
+        d->dnsPolicy = static_cast<DNS_POLICY_TYPE>(json[jsonInfo.kDnsPolicyProp].toInt());
+
+    if (json.contains(jsonInfo.kFirewallSettingsProp) && json[jsonInfo.kFirewallSettingsProp].isObject())
+        d->firewallSettings = types::FirewallSettings(json[jsonInfo.kFirewallSettingsProp].toObject());
+
+    if (json.contains(jsonInfo.kIsAllowLanTrafficProp) && json[jsonInfo.kIsAllowLanTrafficProp].isBool())
+        d->isAllowLanTraffic = json[jsonInfo.kIsAllowLanTrafficProp].toBool();
+
+    if (json.contains(jsonInfo.kIsAntiCensorshipProp) && json[jsonInfo.kIsAntiCensorshipProp].isBool())
+        d->isAntiCensorship = json[jsonInfo.kIsAntiCensorshipProp].toBool();
+
+    if (json.contains(jsonInfo.kIsKeepAliveEnabledProp) && json[jsonInfo.kIsKeepAliveEnabledProp].isBool())
+        d->isKeepAliveEnabled = json[jsonInfo.kIsKeepAliveEnabledProp].toBool();
+
+#if defined(Q_OS_WIN)
+    if (json.contains(jsonInfo.kIsTerminateSocketsProp) && json[jsonInfo.kIsTerminateSocketsProp].isBool())
+        d->isTerminateSockets = json[jsonInfo.kIsTerminateSocketsProp].toBool();
+#endif
+
+    if (json.contains(jsonInfo.kLanguageProp) && json[jsonInfo.kLanguageProp].isString())
+        d->language = json[jsonInfo.kLanguageProp].toString();
+
+    if (json.contains(jsonInfo.kMacAddrSpoofingProp) && json[jsonInfo.kMacAddrSpoofingProp].isObject())
+        d->macAddrSpoofing = types::MacAddrSpoofing(json[jsonInfo.kMacAddrSpoofingProp].toObject());
+
+    if (json.contains(jsonInfo.kPacketSizeProp) && json[jsonInfo.kPacketSizeProp].isObject())
+        d->packetSize = types::PacketSize(json[jsonInfo.kPacketSizeProp].toObject());
+
+    if (json.contains(jsonInfo.kProxySettingsProp) && json[jsonInfo.kProxySettingsProp].isObject())
+        d->proxySettings = types::ProxySettings(json[jsonInfo.kProxySettingsProp].toObject());
+
+    if (json.contains(jsonInfo.kUpdateChannelProp) && json[jsonInfo.kUpdateChannelProp].isDouble())
+        d->updateChannel = static_cast<UPDATE_CHANNEL>(json[jsonInfo.kUpdateChannelProp].toInt());
+
+    if (json.contains(jsonInfo.kNetworkPreferredProtocolsProp) && json[jsonInfo.kNetworkPreferredProtocolsProp].isObject())
+    {
+        QMap<QString, types::ConnectionSettings> networkPreferredProtocols;
+        const QJsonObject protocolsObj = json[jsonInfo.kNetworkPreferredProtocolsProp].toObject();
+        for (const QString& networkBase64 : protocolsObj.keys())
+        {
+            if (protocolsObj[networkBase64].isObject())
+                networkPreferredProtocols.insert(Utils::fromBase64(networkBase64), types::ConnectionSettings(protocolsObj[networkBase64].toObject()));
+        }
+        d->networkPreferredProtocols = networkPreferredProtocols;
+    }
+
+    if (json.contains(jsonInfo.kNetworkLastKnownGoodProtocolsProp) && json[jsonInfo.kNetworkLastKnownGoodProtocolsProp].isObject())
+    {
+        const QJsonObject protocolsObj = json[jsonInfo.kNetworkLastKnownGoodProtocolsProp].toObject();
+        for (const QString& networkBase64 : protocolsObj.keys())
+        {
+            const QString network = Utils::fromBase64(networkBase64);
+            if (protocolsObj[network].isObject())
+            {
+                types::Protocol protocol;
+                uint port;
+                const QJsonObject protocolObj = protocolsObj[network].toObject();
+                if (protocolObj.contains(jsonInfo.kProtocolProp)
+                    && protocolObj.contains(jsonInfo.kValueProp)
+                    && protocolObj[jsonInfo.kProtocolProp].isDouble()
+                    && protocolObj[jsonInfo.kValueProp].isDouble())
+                {
+                    protocol = static_cast<types::Protocol>(protocolObj[jsonInfo.kProtocolProp].toInt());
+                    port = static_cast<uint>(protocolObj[jsonInfo.kValueProp].toInt());
+                    setNetworkLastKnownGoodProtocolPort(network, protocol, port);
+                }
+            }
+        }
+    }
 }
 
 void EngineSettings::saveToSettings()
@@ -350,6 +444,13 @@ bool EngineSettings::operator!=(const EngineSettings &other) const
     return !(*this == other);
 }
 
+QJsonObject EngineSettings::toJson() const
+{
+    auto json = d->toJson();
+    json[d->jsonInfo.kVersionProp] = static_cast<int>(versionForSerialization_);
+    return json;
+}
+
 QDebug operator<<(QDebug dbg, const EngineSettings &es)
 {
     QDebugStateSaver saver(dbg);
@@ -383,6 +484,47 @@ QDebug operator<<(QDebug dbg, const EngineSettings &es)
     }
     dbg << "}}";
     return dbg;
+}
+
+QJsonObject EngineSettingsData::toJson() const
+{
+    QJsonObject json;
+
+    json[jsonInfo.kApiResolutionSettingsProp] = apiResolutionSettings.toJson();
+    json[jsonInfo.kConnectedDnsInfoProp] = connectedDnsInfo.toJson();
+    json[jsonInfo.kConnectionSettingsProp] = connectionSettings.toJson();
+    json[jsonInfo.kCustomOvpnConfigsPathProp] = Utils::toBase64(customOvpnConfigsPath);
+    json[jsonInfo.kDnsPolicyProp] = static_cast<int>(dnsPolicy);
+    json[jsonInfo.kFirewallSettingsProp] = firewallSettings.toJson();
+    json[jsonInfo.kIsAllowLanTrafficProp] = isAllowLanTraffic;
+    json[jsonInfo.kIsAntiCensorshipProp] = isAntiCensorship;
+    json[jsonInfo.kIsIgnoreSslErrorsProp] = isIgnoreSslErrors;
+    json[jsonInfo.kIsKeepAliveEnabledProp] = isKeepAliveEnabled;
+    json[jsonInfo.kIsTerminateSocketsProp] = isTerminateSockets;
+    json[jsonInfo.kLanguageProp] = language;
+    json[jsonInfo.kMacAddrSpoofingProp] = macAddrSpoofing.toJson();
+
+    QJsonObject networkLastKnownGoodProtocolsObj;
+    for (const auto& key : networkLastKnownGoodProtocols.keys()) {
+        auto value = networkLastKnownGoodProtocols[key];
+        QJsonObject innerObj;
+        innerObj[jsonInfo.kProtocolProp] = value.first.toInt();
+        innerObj[jsonInfo.kValueProp] = static_cast<int>(value.second);
+        networkLastKnownGoodProtocolsObj[Utils::toBase64(key)] = innerObj;
+    }
+    json[jsonInfo.kNetworkLastKnownGoodProtocolsProp] = networkLastKnownGoodProtocolsObj;
+
+    QJsonObject networkPreferredProtocolsObj;
+    for (const auto& key : networkPreferredProtocols.keys()) {
+        networkPreferredProtocolsObj[Utils::toBase64(key)] = networkPreferredProtocols[key].toJson();
+    }
+    json[jsonInfo.kNetworkPreferredProtocolsProp] = networkPreferredProtocolsObj;
+
+    json[jsonInfo.kPacketSizeProp] = packetSize.toJson();
+    json[jsonInfo.kProxySettingsProp] = proxySettings.toJson();
+    json[jsonInfo.kTapAdapterProp] = static_cast<int>(tapAdapter);
+    json[jsonInfo.kUpdateChannelProp] = static_cast<int>(updateChannel);
+    return json;
 }
 
 } // types namespace

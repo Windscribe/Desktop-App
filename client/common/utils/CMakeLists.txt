@@ -19,6 +19,8 @@ target_sources(common PRIVATE
     mergelog.cpp
     mergelog.h
     multiline_message_logger.h
+    network_utils/network_utils.cpp
+    network_utils/network_utils.h
     simplecrypt.cpp
     simplecrypt.h
     utils.cpp
@@ -30,13 +32,15 @@ if (WIN32)
     target_sources(common PRIVATE
         crashdump.cpp
         crashhandler.cpp
-        winutils.cpp
         executable_signature/executable_signature_win.cpp
+        network_utils/network_utils_win.cpp
+        network_utils/network_utils_win.h
         servicecontrolmanager.cpp
         timer_win.cpp
-    timer_win.h
+        timer_win.h
         wincryptutils.cpp
         wincryptutils.h
+        winutils.cpp
     )
 elseif(APPLE)
     target_sources(common PRIVATE
@@ -55,5 +59,7 @@ elseif(UNIX)
         executable_signature/executablesignature_linux.h
         linuxutils.cpp
         linuxutils.h
+        network_utils/network_utils_linux.cpp
+        network_utils/network_utils_linux.h
     )
 endif()

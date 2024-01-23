@@ -39,7 +39,7 @@ CredentialsWindowItem::CredentialsWindowItem(QGraphicsObject *parent, Preference
     curLoginTextOpacity_ = OPACITY_HIDDEN;
     connect(&loginTextOpacityAnimation_, &QVariantAnimation::valueChanged, this, &CredentialsWindowItem::onLoginTextOpacityChanged);
 
- #ifdef Q_OS_WIN
+ #if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     closeButton_ = new IconButton(16, 16, "WINDOWS_CLOSE_ICON", "", this);
     connect(closeButton_, &IconButton::clicked, this, &CredentialsWindowItem::onCloseClick);
 
@@ -233,18 +233,18 @@ void CredentialsWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsI
     painter->setRenderHint(QPainter::Antialiasing);
     qreal initOpacity = painter->opacity();
 
-    #ifdef Q_OS_WIN
+#if defined Q_OS_WIN || defined (Q_OS_LINUX)
         const int pushDownSquare = 0;
-    #else
+#else
         const int pushDownSquare = 5;
-    #endif
+#endif
 
         QRectF rcTopRect(0, 0, WINDOW_WIDTH*G_SCALE, HEADER_HEIGHT*G_SCALE);
         QRectF rcBottomRect(0, HEADER_HEIGHT*G_SCALE, WINDOW_WIDTH*G_SCALE, (LOGIN_HEIGHT - HEADER_HEIGHT)*G_SCALE);
         QColor black = FontManager::instance().getMidnightColor();
         QColor darkblue = FontManager::instance().getDarkBlueColor();
 
-    #ifndef Q_OS_WIN // round background
+#ifdef Q_OS_MAC // round background
         painter->setPen(black);
         painter->setBrush(black);
         painter->drawRoundedRect(rcTopRect, 5*G_SCALE, 5*G_SCALE);
@@ -252,7 +252,7 @@ void CredentialsWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsI
         painter->setBrush(darkblue);
         painter->setPen(darkblue);
         painter->drawRoundedRect(rcBottomRect.adjusted(0, 5*G_SCALE, 0, 0), 5*G_SCALE, 5*G_SCALE);
-    #endif
+#endif
 
         // Square background
         painter->fillRect(rcTopRect.adjusted(0, pushDownSquare, 0, 0), black);
@@ -353,7 +353,7 @@ void CredentialsWindowItem::setClickable(bool enabled)
     configButton_->setClickable(enabled);
     emergencyButton_->setClickable(enabled);
 
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     minimizeButton_->setClickable(enabled);
     closeButton_->setClickable(enabled);
 #endif
@@ -561,7 +561,7 @@ void CredentialsWindowItem::onDockedModeChanged(bool bIsDockedToTray)
 
 void CredentialsWindowItem::updatePositions()
 {
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     closeButton_->setPos((LOGIN_WIDTH - 16 - 16)*G_SCALE, 14*G_SCALE);
     minimizeButton_->setPos((LOGIN_WIDTH - 16 - 16 - 32)*G_SCALE, 14*G_SCALE);
     firewallTurnOffButton_->setPos(8*G_SCALE, 0);

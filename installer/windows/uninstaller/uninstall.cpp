@@ -161,6 +161,9 @@ void Uninstaller::RunSecondPhase()
     Log::instance().out(L"uninstall split tunnel driver");
     UninstallSplitTunnelDriver(path_for_installation);
 
+    Log::instance().out(L"uninstall OpenVPN DCO driver");
+    UninstallOpenVPNDCODriver(path_for_installation);
+
     Log::instance().out(L"perform uninstall");
     PerformUninstall(&DeleteUninstallDataFiles, path_for_installation);
 
@@ -231,7 +234,6 @@ void Uninstaller::UninstallSplitTunnelDriver(const wstring& installationPath)
     }
     else if (result.value() == WAIT_TIMEOUT) {
         Log::instance().out("WARNING: The split tunnel driver uninstall stage timed out.");
-        return;
     }
     else if (result.value() != NO_ERROR) {
         Log::instance().out("WARNING: The split tunnel driver uninstall returned a failure code (%lu).", result.value());
@@ -280,4 +282,33 @@ int Uninstaller::messageBox(const UINT resourceID, const UINT type, HWND ownerWi
     result = ::MessageBox(ownerWindow, message, title, type);
 
     return result;
+}
+
+void Uninstaller::UninstallOpenVPNDCODriver(const wstring& installationPath)
+{
+    wstring adapterOEMIdentifier;
+    const wstring keyName = ApplicationInfo::installerRegistryKey(false);
+    Registry::RegQueryStringValue(HKEY_CURRENT_USER, keyName.c_str(), L"ovpnDCODriverOEMIdentifier", adapterOEMIdentifier);
+    if (adapterOEMIdentifier.empty()) {
+        Log::instance().out("WARNING: failed to find 'ovpnDCODriverOEMIdentifier' entry in the installer registry key.");
+        return;
+    }
+
+    const wstring appName = Path::append(installationPath, L"devcon.exe");
+    const wstring commandLine = wstring(L"dp_delete ") + adapterOEMIdentifier;
+
+    auto result = Utils::InstExec(appName, commandLine, 30 * 1000, SW_HIDE);
+
+    if (!result.has_value()) {
+        Log::instance().out("WARNING: The OpenVPN DCO driver uninstall failed to launch.");
+    }
+    else if (result.value() == WAIT_TIMEOUT) {
+        Log::instance().out("WARNING: The OpenVPN DCO driver uninstall stage timed out.");
+    }
+    else if (result.value() != NO_ERROR) {
+        Log::instance().out("WARNING: The OpenVPN DCO driver uninstall returned a failure code (%lu).", result.value());
+    }
+    else {
+        Log::instance().out(L"OpenVPN DCO driver (%s) successfully removed from the Windows driver store", adapterOEMIdentifier.c_str());
+    }
 }

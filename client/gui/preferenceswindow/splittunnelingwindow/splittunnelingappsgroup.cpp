@@ -9,10 +9,12 @@
 #include "utils/utils.h"
 #include "dpiscalemanager.h"
 
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN)
     #include "utils/winutils.h"
-#else
+#elif defined(Q_OS_MAC)
     #include "utils/macutils.h"
+#elif defined(Q_OS_LINUX)
+    #include "utils/linuxutils.h"
 #endif
 
 namespace PreferencesWindow {
@@ -45,14 +47,15 @@ QList<types::SplitTunnelingApp> SplitTunnelingAppsGroup::apps()
 
 void SplitTunnelingAppsGroup::setApps(QList<types::SplitTunnelingApp> apps)
 {
-    for (AppIncludedItem *item : apps_.keys())
-    {
+    if (apps == apps_.values()) {
+        return;
+    }
+    for (AppIncludedItem *item : apps_.keys()) {
         apps_.remove(item);
-        item->deleteLater();
+        hideItems(indexOf(item), -1, DISPLAY_FLAGS::FLAG_DELETE_AFTER);
     }
 
-    for (types::SplitTunnelingApp app : apps)
-    {
+    for (types::SplitTunnelingApp app : apps) {
         addAppInternal(app);
     }
     emit appsUpdated(apps_.values());
@@ -66,33 +69,20 @@ void SplitTunnelingAppsGroup::addApp(types::SplitTunnelingApp &app)
 
 void SplitTunnelingAppsGroup::addAppInternal(types::SplitTunnelingApp &app)
 {
-    QString iconPath = app.fullName;
-
-#if defined Q_OS_MAC
-    iconPath = MacUtils::iconPathFromBinPath(iconPath);
-#endif
-
-    AppIncludedItem *item = new AppIncludedItem(app, iconPath, this);
+    AppIncludedItem *item = new AppIncludedItem(app, this);
     connect(item, &AppIncludedItem::deleteClicked, this, &SplitTunnelingAppsGroup::onDeleteClicked);
     apps_[item] = app;
 
     addItem(item);
     hideItems(indexOf(item), -1, DISPLAY_FLAGS::FLAG_NO_ANIMATION);
-    if (mode_ == OP_MODE::DEFAULT)
-    {
+    if (mode_ == OP_MODE::DEFAULT) {
         showItems(indexOf(item));
     }
 }
 
 void SplitTunnelingAppsGroup::addSearchApp(types::SplitTunnelingApp &app)
 {
-    QString iconPath = app.fullName;
-
-#if defined Q_OS_MAC
-    iconPath = MacUtils::iconPathFromBinPath(iconPath);
-#endif
-
-    AppSearchItem *item = new AppSearchItem(app, iconPath, this);
+    AppSearchItem *item = new AppSearchItem(app, this);
     item->setClickable(true);
     connect(item, &AppSearchItem::clicked, this, &SplitTunnelingAppsGroup::onSearchItemClicked);
     searchApps_[item] = app;
@@ -173,38 +163,33 @@ void SplitTunnelingAppsGroup::populateSearchApps()
 
 #ifdef Q_OS_WIN
     const auto runningPrograms = WinUtils::enumerateRunningProgramLocations();
-    for (const QString &exePath : runningPrograms)
-    {
-        if (!exePath.contains("C:\\Windows")
-                && !exePath.contains("Windscribe.exe"))
-        {
+    for (const QString &exePath : runningPrograms) {
+        if (!exePath.contains("C:\\Windows") && !exePath.contains("Windscribe.exe")) {
+#elif defined Q_OS_MAC
+    const auto installedPrograms = MacUtils::enumerateInstalledPrograms();
+    for (const QString &exePath : installedPrograms) {
+        if (!exePath.contains("Windscribe")) {
+#elif defined Q_OS_LINUX
+    const auto installedPrograms = LinuxUtils::enumerateInstalledPrograms();
+    for (const QString &exePath : installedPrograms.keys()) {
+        if (!exePath.contains("Windscribe")) {
+#endif
             QFile f(exePath);
             QString name = QFileInfo(f).fileName();
-
             types::SplitTunnelingApp app;
             app.name = name;
             app.type = SPLIT_TUNNELING_APP_TYPE_SYSTEM;
             app.fullName = exePath;
-            addSearchApp(app);
-        }
-    }
+#ifdef Q_OS_WIN
+            app.icon = app.fullName;
 #elif defined Q_OS_MAC
-    const auto installedPrograms = MacUtils::enumerateInstalledPrograms();
-    for (const QString &binPath : installedPrograms)
-    {
-        if (!binPath.contains("Windscribe"))
-        {
-            QFile f(binPath);
-            QString name = QFileInfo(f).fileName();
-
-            types::SplitTunnelingApp app;
-            app.name = name;
-            app.type = SPLIT_TUNNELING_APP_TYPE_SYSTEM;
-            app.fullName = binPath;
+            app.icon = MacUtils::iconPathFromBinPath(exePath);
+#elif defined Q_OS_LINUX
+            app.icon = installedPrograms[exePath];
+#endif
             addSearchApp(app);
         }
     }
-#endif
 }
 
 void SplitTunnelingAppsGroup::onSearchItemClicked()
@@ -230,6 +215,7 @@ void SplitTunnelingAppsGroup::toggleAppItemActive(AppSearchItem *item)
         app.type = SPLIT_TUNNELING_APP_TYPE_SYSTEM;
         app.active = true;
         app.fullName = item->getFullName();
+        app.icon = item->getAppIcon();
         addAppInternal(app);
     }
 
