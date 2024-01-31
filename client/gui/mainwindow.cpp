@@ -1073,12 +1073,14 @@ void MainWindow::onPreferencesSignOutClick()
 
 void MainWindow::onPreferencesLoginClick()
 {
-    collapsePreferences();
     if (backend_->getPreferencesHelper()->isExternalConfigMode()) {
-        // We're not really logged in, but trigger events as if user has confirmed logout
-        onLogoutWindowAccept();
+        QApplication::setOverrideCursor(Qt::WaitCursor);
+        signOutReason_ = SIGN_OUT_GO_TO_LOGIN;
+        backend_->signOut(false);
+    } else {
+        collapsePreferences();
+        mainWindowController_->getLoginWindow()->transitionToUsernameScreen();
     }
-    mainWindowController_->getLoginWindow()->transitionToUsernameScreen();
 }
 
 void MainWindow::cleanupLogViewerWindow()
@@ -1692,24 +1694,49 @@ void MainWindow::onBackendTryingBackupEndpoint(int num, int cnt)
 
 void MainWindow::onBackendLoginError(LOGIN_RET loginError, const QString &errorMessage)
 {
-    if (loginError == LOGIN_RET_BAD_USERNAME)
-    {
-        if (backend_->isLastLoginWithAuthHash())
-        {
-            if (!isLoginOkAndConnectWindowVisible_)
-            {
-                mainWindowController_->getLoginWindow()->setErrorMessage(LoginWindow::ERR_MSG_EMPTY, QString());
-                mainWindowController_->getLoginWindow()->setEmergencyConnectState(false);
-                mainWindowController_->getLoginWindow()->resetState();
-                gotoLoginWindow();
-            }
-            else
-            {
-                backToLoginWithErrorMessage(LoginWindow::ERR_MSG_EMPTY, QString());
-            }
+    // This error is special in that we can show the prompt any time
+    if (loginError == LOGIN_RET_SSL_ERROR) {
+        GeneralMessageController::instance().showMessage(
+            "WARNING_WHITE",
+            tr("SSL Error"),
+            tr("We detected that SSL requests may be intercepted on your network. This could be due to a firewall configured on your computer, or Windscribe being blocked by your network administrator. Ignore SSL errors?"),
+            GeneralMessageController::tr(GeneralMessageController::kYes),
+            GeneralMessageController::tr(GeneralMessageController::kNo),
+            "",
+            [this](bool b) {
+                backend_->getPreferences()->setIgnoreSslErrors(true);
+                if (!isLoginOkAndConnectWindowVisible_) {
+                    mainWindowController_->getLoggingInWindow()->setMessage(tr("Logging you in..."));
+                    mainWindowController_->getLoggingInWindow()->setAdditionalMessage("");
+                    mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_LOGGING_IN);
+                    backend_->loginWithLastLoginSettings();
+                }
+            },
+            [this](bool b) {
+                if (!isLoginOkAndConnectWindowVisible_) {
+                    mainWindowController_->getLoginWindow()->setErrorMessage(LoginWindow::ERR_MSG_NO_API_CONNECTIVITY);
+                    gotoLoginWindow();
+                }
+            });
+        return;
+    }
+
+    if (isLoginOkAndConnectWindowVisible_) {
+        // If we have already activated at some point, we never log out regardless of API errors,
+        // except for messages indicating the session is no longer valid
+        if (loginError == LOGIN_RET_SESSION_INVALID) {
+            onBackendSessionDeleted();
+        } else {
+            qCDebug(LOG_BASIC) << "Session error while logged in: " << loginError;
         }
-        else
-        {
+        return;
+    }
+
+    if (loginError == LOGIN_RET_BAD_USERNAME) {
+        if (backend_->isLastLoginWithAuthHash()) {
+            qCDebug(LOG_BASIC) << "Got 'bad username' with auth hash login";
+            WS_ASSERT(false);
+        } else {
             loginAttemptsController_.pushIncorrectLogin();
             mainWindowController_->getLoginWindow()->setErrorMessage(loginAttemptsController_.currentMessage(), QString());
             // It's possible we were passed invalid credentials by the CLI or installer auto-login.  Ensure we transition
@@ -1717,118 +1744,29 @@ void MainWindow::onBackendLoginError(LOGIN_RET loginError, const QString &errorM
             mainWindowController_->getLoginWindow()->transitionToUsernameScreen();
             gotoLoginWindow();
         }
-    }
-    else if (loginError == LOGIN_RET_BAD_CODE2FA ||
-             loginError == LOGIN_RET_MISSING_CODE2FA)
-    {
+    } else if (loginError == LOGIN_RET_BAD_CODE2FA || loginError == LOGIN_RET_MISSING_CODE2FA) {
         const bool is_missing_code2fa = (loginError == LOGIN_RET_MISSING_CODE2FA);
         mainWindowController_->getTwoFactorAuthWindow()->setErrorMessage(
             is_missing_code2fa ? TwoFactorAuthWindow::TwoFactorAuthWindowItem::ERR_MSG_NO_CODE
                                : TwoFactorAuthWindow::TwoFactorAuthWindowItem::ERR_MSG_INVALID_CODE);
         mainWindowController_->getTwoFactorAuthWindow()->setLoginMode(true);
         mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_TWO_FACTOR_AUTH);
-    }
-    else if (loginError == LOGIN_RET_NO_CONNECTIVITY)
-    {
-        if (!isLoginOkAndConnectWindowVisible_)
-        {
-            //qCDebug(LOG_BASIC) << "Show no connectivity message to user.";
-            mainWindowController_->getLoginWindow()->setErrorMessage(LoginWindow::ERR_MSG_NO_INTERNET_CONNECTIVITY, QString());
-            mainWindowController_->getLoginWindow()->setEmergencyConnectState(false);
-            gotoLoginWindow();
-        }
-        else
-        {
-            backend_->loginWithLastLoginSettings();
-        }
-    }
-    else if (loginError == LOGIN_RET_NO_API_CONNECTIVITY)
-    {
-        mainWindowController_->getLoginWindow()->setErrorMessage(LoginWindow::ERR_MSG_NO_API_CONNECTIVITY, QString());
-        if (!isLoginOkAndConnectWindowVisible_) {
-            gotoLoginWindow();
-        } else {
-            backToLoginWithErrorMessage(LoginWindow::ERR_MSG_NO_API_CONNECTIVITY, QString());
-        }
-    }
-    else if (loginError == LOGIN_RET_INCORRECT_JSON)
-    {
-        if (!isLoginOkAndConnectWindowVisible_)
-        {
-            mainWindowController_->getLoginWindow()->setErrorMessage(LoginWindow::ERR_MSG_INVALID_API_RESPONSE, QString());
-            mainWindowController_->getLoginWindow()->setEmergencyConnectState(false);
-            gotoLoginWindow();
-        }
-        else
-        {
-            backToLoginWithErrorMessage(LoginWindow::ERR_MSG_INVALID_API_RESPONSE, QString());
-        }
-    }
-    else if (loginError == LOGIN_RET_PROXY_AUTH_NEED)
-    {
-        if (!isLoginOkAndConnectWindowVisible_)
-        {
-            mainWindowController_->getLoginWindow()->setErrorMessage(LoginWindow::ERR_MSG_PROXY_REQUIRES_AUTH, QString());
-            mainWindowController_->getLoginWindow()->setEmergencyConnectState(false);
-            gotoLoginWindow();
-        }
-        else
-        {
-            backToLoginWithErrorMessage(LoginWindow::ERR_MSG_PROXY_REQUIRES_AUTH, QString());
-        }
-    }
-    else if (loginError == LOGIN_RET_SSL_ERROR)
-    {
-        GeneralMessageController::instance().showMessage("WARNING_WHITE",
-                                   tr("SSL Error"),
-                                   tr("We detected that SSL requests may be intercepted on your network. This could be due to a firewall configured on your computer, or Windscribe being blocked by your network administrator. Ignore SSL errors?"),
-                                   GeneralMessageController::tr(GeneralMessageController::kYes),
-                                   GeneralMessageController::tr(GeneralMessageController::kNo),
-                                   "",
-                                   [this](bool b) {
-                                       backend_->getPreferences()->setIgnoreSslErrors(true);
-                                       mainWindowController_->getLoggingInWindow()->setMessage(tr("Logging you in..."));
-                                       mainWindowController_->getLoggingInWindow()->setAdditionalMessage("");
-                                       isLoginOkAndConnectWindowVisible_ = false;
-                                       backend_->loginWithLastLoginSettings();
-                                       mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_LOGGING_IN);
-                                   },
-                                   [this](bool b) {
-                                       if (!isLoginOkAndConnectWindowVisible_) {
-                                           mainWindowController_->getLoginWindow()->setErrorMessage(LoginWindow::ERR_MSG_INVALID_API_ENDPOINT, QString());
-                                           mainWindowController_->getLoginWindow()->setEmergencyConnectState(false);
-                                           gotoLoginWindow();
-                                       } else {
-                                           backToLoginWithErrorMessage(LoginWindow::ERR_MSG_INVALID_API_ENDPOINT, QString());
-                                       }
-                                    },
-                                    std::function<void(bool)>(nullptr),
-                                    GeneralMessage::kNoWindowChange);
+    } else if (loginError == LOGIN_RET_NO_CONNECTIVITY) {
+        mainWindowController_->getLoginWindow()->setErrorMessage(LoginWindow::ERR_MSG_NO_INTERNET_CONNECTIVITY);
+    } else if (loginError == LOGIN_RET_NO_API_CONNECTIVITY) {
+        mainWindowController_->getLoginWindow()->setErrorMessage(LoginWindow::ERR_MSG_NO_API_CONNECTIVITY);
+    } else if (loginError == LOGIN_RET_INCORRECT_JSON) {
+        mainWindowController_->getLoginWindow()->setErrorMessage(LoginWindow::ERR_MSG_INVALID_API_RESPONSE);
     } else if (loginError == LOGIN_RET_ACCOUNT_DISABLED) {
-        if (!isLoginOkAndConnectWindowVisible_) {
-            mainWindowController_->getLoginWindow()->setErrorMessage(LoginWindow::ERR_MSG_ACCOUNT_DISABLED, errorMessage);
-            mainWindowController_->getLoginWindow()->setEmergencyConnectState(false);
-            gotoLoginWindow();
-        } else {
-            backToLoginWithErrorMessage(LoginWindow::ERR_MSG_ACCOUNT_DISABLED, errorMessage);
-        }
+        mainWindowController_->getLoginWindow()->setErrorMessage(LoginWindow::ERR_MSG_ACCOUNT_DISABLED);
     } else if (loginError == LOGIN_RET_SESSION_INVALID) {
-        if (!isLoginOkAndConnectWindowVisible_) {
-            mainWindowController_->getLoginWindow()->setErrorMessage(LoginWindow::ERR_MSG_SESSION_EXPIRED, QString());
-            mainWindowController_->getLoginWindow()->setEmergencyConnectState(false);
-            gotoLoginWindow();
-        } else {
-            backToLoginWithErrorMessage(LoginWindow::ERR_MSG_SESSION_EXPIRED, QString());
-        }
+        mainWindowController_->getLoginWindow()->setErrorMessage(LoginWindow::ERR_MSG_SESSION_EXPIRED);
     } else if (loginError == LOGIN_RET_RATE_LIMITED) {
-        if (!isLoginOkAndConnectWindowVisible_) {
-            mainWindowController_->getLoginWindow()->setErrorMessage(LoginWindow::ERR_MSG_RATE_LIMITED, QString());
-            mainWindowController_->getLoginWindow()->setEmergencyConnectState(false);
-            gotoLoginWindow();
-        } else {
-            backToLoginWithErrorMessage(LoginWindow::ERR_MSG_RATE_LIMITED, QString());
-        }
+        mainWindowController_->getLoginWindow()->setErrorMessage(LoginWindow::ERR_MSG_RATE_LIMITED);
     }
+
+    mainWindowController_->getLoginWindow()->setEmergencyConnectState(false);
+    gotoLoginWindow();
 }
 
 void MainWindow::onBackendSessionStatusChanged(const types::SessionStatus &sessionStatus)
@@ -2119,30 +2057,19 @@ void MainWindow::onBackendSignOutFinished()
     backend_->getPreferencesHelper()->setIsExternalConfigMode(false);
     mainWindowController_->getBottomInfoWindow()->setDataRemaining(-1, -1);
 
-    //hideSupplementaryWidgets();
-
-    //shadowManager_->setVisible(ShadowManager::SHAPE_ID_PREFERENCES, false);
-    //shadowManager_->setVisible(ShadowManager::SHAPE_ID_CONNECT_WINDOW, false);
-    //preferencesWindow_->getGraphicsObject()->hide();
-    //curWindowState_.setPreferencesState(PREFERENCES_STATE_COLLAPSED);
-
-    if (signOutReason_ == SIGN_OUT_FROM_MENU)
-    {
+    if (signOutReason_ == SIGN_OUT_FROM_MENU) {
         mainWindowController_->getLoginWindow()->resetState();
         mainWindowController_->getLoginWindow()->setErrorMessage(LoginWindow::ERR_MSG_EMPTY, QString());
-    }
-    else if (signOutReason_ == SIGN_OUT_SESSION_EXPIRED)
-    {
+    } else if (signOutReason_ == SIGN_OUT_SESSION_EXPIRED) {
         mainWindowController_->getLoginWindow()->transitionToUsernameScreen();
         mainWindowController_->getLoginWindow()->setErrorMessage(LoginWindow::ERR_MSG_SESSION_EXPIRED, QString());
-    }
-    else if (signOutReason_ == SIGN_OUT_WITH_MESSAGE)
-    {
+    } else if (signOutReason_ == SIGN_OUT_WITH_MESSAGE) {
         mainWindowController_->getLoginWindow()->transitionToUsernameScreen();
         mainWindowController_->getLoginWindow()->setErrorMessage(signOutMessageType_, signOutErrorMessage_);
-    }
-    else
-    {
+    } else if (signOutReason_ == SIGN_OUT_GO_TO_LOGIN) {
+        mainWindowController_->getLoginWindow()->transitionToUsernameScreen();
+        mainWindowController_->getLoginWindow()->setErrorMessage(LoginWindow::ERR_MSG_EMPTY, QString());
+    } else {
         WS_ASSERT(false);
         mainWindowController_->getLoginWindow()->resetState();
         mainWindowController_->getLoginWindow()->setErrorMessage(LoginWindow::ERR_MSG_EMPTY, QString());

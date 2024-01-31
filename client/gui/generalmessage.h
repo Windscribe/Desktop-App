@@ -10,9 +10,8 @@ class GeneralMessage
 public:
     enum Flags {
         kNone = 0,
-        kNoWindowChange = 1,
-        kFromPreferences = 2,
-        kShowBottomPanel = 4,
+        kFromPreferences = 1,
+        kShowBottomPanel = 2,
     };
 
     explicit GeneralMessage(const QString &icon, const QString &title, const QString &desc, const QString &acceptText,

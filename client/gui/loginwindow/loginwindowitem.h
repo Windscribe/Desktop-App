@@ -18,7 +18,7 @@ public:
 
     explicit LoginWindowItem(QGraphicsObject *parent, PreferencesHelper *preferencesHelper);
 
-    void setErrorMessage(ERROR_MESSAGE_TYPE errorMessageType, const QString &errorMessage);
+    void setErrorMessage(ERROR_MESSAGE_TYPE errorMessageType, const QString &errorMessage=QString());
     void setEmergencyConnectState(bool isEmergencyConnected);
 
     void resetState();
@@ -40,6 +40,9 @@ signals:
     void haveAccountYesClick();
     void backToWelcomeClick();
     void firewallTurnOffClick();
+
+protected:
+    void focusInEvent(QFocusEvent *event) override;
 
 private slots:
     void updatePositions();

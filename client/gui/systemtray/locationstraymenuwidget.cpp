@@ -1,12 +1,13 @@
 #include "locationstraymenuwidget.h"
 
-#include <QPainter>
-#include <QTimer>
-#include <QEvent>
 #include <QApplication>
-#include <QVBoxLayout>
+#include <QEvent>
+#include <QMouseEvent>
+#include <QPainter>
 #include <QScreen>
 #include <QSortFilterProxyModel>
+#include <QTimer>
+#include <QVBoxLayout>
 #include "commongraphics/commongraphics.h"
 #include "locations/locationsmodel_roles.h"
 #include "utils/ws_assert.h"
@@ -26,6 +27,14 @@ public:
         QMenu::mouseMoveEvent(event);
         if (!geometry().contains(QCursor::pos()))
             host_->handleMouseMove();
+    }
+    void mousePressEvent(QMouseEvent *event) override
+    {
+        if (event->button() != Qt::LeftButton) {
+            event->ignore();
+            return;
+        }
+        QMenu::mousePressEvent(event);
     }
     void wheelEvent(QWheelEvent *event) override
     {

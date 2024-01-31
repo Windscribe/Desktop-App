@@ -197,8 +197,9 @@ void CustomMenuLineEdit::updatePositions()
             icon_->hide();
         }
     } else {
-        icon_->move(width() - icon_->width() - 8*G_SCALE, 4*G_SCALE);
-        setTextMargins(0, 0, icon_->width() + 12*G_SCALE, 0);
+        const int iconSize = 24*G_SCALE;
+        icon_->setGeometry(width() - iconSize - 8*G_SCALE, height()/2 - iconSize/2, iconSize, iconSize);
+        setTextMargins(0, 0, iconSize + 12*G_SCALE, 0);
     }
 }
 

@@ -37,10 +37,6 @@ QString LOGIN_RET_toString(LOGIN_RET ret)
     {
         return "BAD_USERNAME";
     }
-    else if (ret == LOGIN_RET_PROXY_AUTH_NEED)
-    {
-        return "PROXY_AUTH_NEED";
-    }
     else if (ret == LOGIN_RET_SSL_ERROR)
     {
         return "SSL_ERROR";

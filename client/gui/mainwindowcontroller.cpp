@@ -1183,6 +1183,7 @@ void MainWindowController::gotoLoginWindow()
         loginWindow_->setOpacity(1.0);
         loginWindow_->setVisible(true);
         loginWindow_->setClickable(true);
+        loginWindow_->setFocus();
 
         connectWindow_->hide();
         TooltipController::instance().hideAllTooltips();
@@ -1836,7 +1837,6 @@ void MainWindowController::gotoUpdateWindow()
             connect(anim4, &QPropertyAnimation::finished, [this]()
             {
                 generalMessageWindow_->hide();
-                updateWindow_->setClickable(true);
             });
         }
 
@@ -1886,6 +1886,7 @@ void MainWindowController::gotoUpdateWindow()
         connect(group, &QPropertyAnimation::finished, [this]() {
             isAtomicAnimationActive_ = false;
             handleNextWindowChange();
+            updateWindow_->setClickable(true);
             updateWindow_->setFocus();
         });
 

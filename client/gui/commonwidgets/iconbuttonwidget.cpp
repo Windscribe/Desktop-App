@@ -88,8 +88,7 @@ void IconButtonWidget::updateSize()
         int width =  p->width();
         int height = p->height();
 
-        if (width != width_ || height != height_)
-        {
+        if (width != width_ || height != height_) {
             width_ = width;
             height_ = height;
             emit sizeChanged(width, height);

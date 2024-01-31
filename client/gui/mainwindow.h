@@ -325,7 +325,7 @@ private:
     bool bMousePressed_;
     bool bMoveEnabled_;
 
-    enum SIGN_OUT_REASON { SIGN_OUT_UNDEFINED, SIGN_OUT_FROM_MENU, SIGN_OUT_SESSION_EXPIRED, SIGN_OUT_WITH_MESSAGE };
+    enum SIGN_OUT_REASON { SIGN_OUT_UNDEFINED, SIGN_OUT_FROM_MENU, SIGN_OUT_SESSION_EXPIRED, SIGN_OUT_WITH_MESSAGE, SIGN_OUT_GO_TO_LOGIN };
     SIGN_OUT_REASON signOutReason_;
     LoginWindow::ERROR_MESSAGE_TYPE signOutMessageType_;
     QString signOutErrorMessage_;

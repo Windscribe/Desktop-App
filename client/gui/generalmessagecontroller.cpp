@@ -29,7 +29,7 @@ void GeneralMessageController::showMessage(const QString &icon, const QString &t
     if (source == MainWindowController::WINDOW_ID_LOGOUT || source == MainWindowController::WINDOW_ID_EXIT) {
         source = controller_->windowBeforeExit();
     }
-    if (!(flags & GeneralMessage::kNoWindowChange) && source == MainWindowController::WINDOW_ID_GENERAL_MESSAGE) {
+    if (source == MainWindowController::WINDOW_ID_GENERAL_MESSAGE) {
         // Look backwards in the message queue until we find something that has a different source
         for (auto it = messages_.rbegin(); it != messages_.rend(); ++it) {
             if ((*it)->source != MainWindowController::WINDOW_ID_GENERAL_MESSAGE) {
@@ -121,6 +121,7 @@ void GeneralMessageController::handleResult(Result res)
     GeneralMessageWindow::GeneralMessageWindowItem *window = controller_->getGeneralMessageWindow();
     bool remember = window->isRememberChecked();
 
+    MainWindowController::WINDOW_ID curWin = controller_->currentWindowAfterAnimation();
     if (res == ACCEPT && message->acceptFunc) {
         message->acceptFunc(remember);
     } else if (res == TERTIARY && message->tertiaryFunc) {
@@ -128,20 +129,22 @@ void GeneralMessageController::handleResult(Result res)
     } else if (res == REJECT && message->rejectFunc) {
         message->rejectFunc(remember);
     }
+    if (curWin != controller_->currentWindowAfterAnimation()) {
+        // The handler function made a window transition, respect it and go to this window instead
+        message->source = controller_->currentWindowAfterAnimation();
+    }
 
     if (!messages_.isEmpty()) {
         showNext();
     } else {
         isShowing_ = false;
-        if (!(message->flags & GeneralMessage::kNoWindowChange)) {
-            // If transitioning to connect window + preferences, use the special id instead
-            if (message->source == MainWindowController::WINDOW_ID_CONNECT && message->flags & GeneralMessage::kFromPreferences) {
-                controller_->changeWindow(MainWindowController::WINDOW_ID_CONNECT_PREFERENCES);
-            } else {
-                controller_->changeWindow(message->source);
-                if (message->flags & GeneralMessage::kFromPreferences) {
-                    controller_->expandPreferences();
-                }
+        // If transitioning to connect window + preferences, use the special id instead
+        if (message->source == MainWindowController::WINDOW_ID_CONNECT && message->flags & GeneralMessage::kFromPreferences) {
+            controller_->changeWindow(MainWindowController::WINDOW_ID_CONNECT_PREFERENCES);
+        } else {
+            controller_->changeWindow(message->source);
+            if (message->flags & GeneralMessage::kFromPreferences) {
+                controller_->expandPreferences();
             }
         }
     }

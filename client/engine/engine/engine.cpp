@@ -2161,8 +2161,6 @@ void Engine::onApiResourcesManagerLoginFailed(LOGIN_RET retCode, const QString &
             emit loginError(LOGIN_RET_NO_API_CONNECTIVITY, QString());
         else
             emit loginError(LOGIN_RET_SSL_ERROR, QString());
-    } else if (retCode == LOGIN_RET_PROXY_AUTH_NEED) {
-        emit loginError(LOGIN_RET_PROXY_AUTH_NEED, QString());
     } else if (retCode == LOGIN_RET_INCORRECT_JSON) {
         emit loginError(LOGIN_RET_INCORRECT_JSON, QString());
     } else if (retCode == LOGIN_RET_BAD_USERNAME || retCode == LOGIN_RET_BAD_CODE2FA ||

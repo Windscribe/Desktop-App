@@ -157,5 +157,15 @@ void LoginWindowItem::updateScaling()
     ScalableGraphicsObject::updateScaling();
 }
 
+void LoginWindowItem::focusInEvent(QFocusEvent *event)
+{
+    QGraphicsItem::focusInEvent(event);
+    if (isWelcomeScreen_) {
+        welcomeWindowItem_->setFocus();
+    } else {
+        credentialsWindowItem_->setUsernameFocus();
+    }
+}
+
 } // namespace LoginWindow
 

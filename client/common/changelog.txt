@@ -1,3 +1,17 @@
+2.9.5 (30/01/2024)
+All:
+   * Fixed update screen may not be clickable after an alert is shown. #879
+   * Fixed reveal password icon may be slightly cut off at certain scaling. #227
+   * Fixed pressing Login from external config mode causes UI to not display. #231
+   * Fixed returning to login screen does not set focus to username field. #216 #231
+   * Fixed user is forcefully logged out on some server errors. #882
+Windows:
+   * Fixed tray menu items can be activated with right-click. #285
+Linux:
+   * Fixed compile dependency missing from README. #880
+   * Fixed app possibly getting stuck at startup or shortly after. #848
+
+
 2.9.4 (22/01/2024)
 All:
    * Added password reveal/hide button for main login. #227
