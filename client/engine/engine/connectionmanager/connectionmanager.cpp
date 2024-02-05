@@ -121,6 +121,11 @@ ConnectionManager::~ConnectionManager()
 
 QString ConnectionManager::udpStuffingWithNtp(const QString &ip, const quint16 port)
 {
+    // Special secret sause for Russia ;)
+    char simpleBuf[8] = {0};
+    simpleBuf[0] = 1;
+    simpleBuf[4] = 1;
+
     char ntpBuf[48] = {0};
     // NTP client behavior as seen in Linux with chrony
     ntpBuf[0] = 0x23; // ntp ver=4, mode=client
@@ -131,11 +136,16 @@ QString ConnectionManager::udpStuffingWithNtp(const QString &ip, const quint16 p
     QUdpSocket udpSocket = QUdpSocket();
     udpSocket.bind(QHostAddress::Any, 0);
     const QString localPort = QString::number(udpSocket.localPort());
-    // repeat up to 5 times. Bounded argument is exclusive.
+
+    // Send "secret" packet first
+    udpSocket.writeDatagram(simpleBuf, sizeof(simpleBuf), QHostAddress(ip), port);
+
+    // Send NTP packet, repeat up to 5 times. Bounded argument is exclusive.
     for (int i=0; i<=QRandomGenerator::global()->bounded(5); i++) {
         *ntpRand = QRandomGenerator::global()->generate64();
         udpSocket.writeDatagram(ntpBuf, sizeof(ntpBuf), QHostAddress(ip), port);
     }
+
     udpSocket.close();
     return localPort;
 }

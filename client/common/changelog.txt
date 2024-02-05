@@ -1,3 +1,8 @@
+2.9.6 (02/02/2024)
+All:
+   * Improved anti-censorship measures in WireGuard and OpenVPN. #890
+
+
 2.9.5 (30/01/2024)
 All:
    * Fixed update screen may not be clickable after an alert is shown. #879
