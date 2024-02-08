@@ -1127,6 +1127,7 @@ void MainWindow::onPreferencesExportSettingsClick()
 {
     QString settingsFilename;
 
+    ShowingDialogState::instance().setCurrentlyShowingExternalDialog(true);
 #if !defined(Q_OS_LINUX)
     settingsFilename = QFileDialog::getSaveFileName(this, tr("Export Preferences To"), "", tr("JSON Files (*.json)"));
 #else
@@ -1135,10 +1136,12 @@ void MainWindow::onPreferencesExportSettingsClick()
     dialog.setDefaultSuffix("json");
     dialog.setFileMode(QFileDialog::AnyFile);
     if (!dialog.exec()) {
+        ShowingDialogState::instance().setCurrentlyShowingExternalDialog(false);
         return;
     }
     settingsFilename = dialog.selectedFiles().first();
 #endif
+    ShowingDialogState::instance().setCurrentlyShowingExternalDialog(false);
 
     if (settingsFilename.isEmpty()) {
         return;

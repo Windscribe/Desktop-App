@@ -1,3 +1,8 @@
+2.9.7 (08/02/2024)
+All:
+   * Fixed exporting preferences closes the app window if docked. #893
+
+
 2.9.6 (02/02/2024)
 All:
    * Improved anti-censorship measures in WireGuard and OpenVPN. #890
