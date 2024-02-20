@@ -30,6 +30,7 @@ DBUS_DEST="org.freedesktop.resolve1"
 DBUS_NODE="/org/freedesktop/resolve1"
 WINDSCRIBE_SYSTEMD_CONFIG_DIR="/usr/local/lib/systemd/resolved.conf.d"
 WINDSCRIBE_SYSTEMD_CONFIG_FILE="$WINDSCRIBE_SYSTEMD_CONFIG_DIR/windscribe.conf"
+PATH="$PATH:/usr/local/sbin:/usr/sbin:/sbin"
 
 SCRIPT_NAME="${BASH_SOURCE[0]##*/}"
 

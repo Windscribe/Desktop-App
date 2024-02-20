@@ -16,7 +16,8 @@ signals:
     void locationSelected(const LocationID &lid);
 
 private slots:
-    void onMenuActionTriggered(QAction *action);
+    void onMenuActionTriggered(bool checked);
+    void onMenuTriggered(QAction *action);
 
 private:
     void buildMenu(QAbstractItemModel *model);

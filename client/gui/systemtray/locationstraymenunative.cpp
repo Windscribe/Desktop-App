@@ -11,10 +11,14 @@ LocationsTrayMenuNative::LocationsTrayMenuNative(QWidget *parent, QAbstractItemM
     // we do not need to rebuild the menu when the model changes because the menu will rebuild again when the menu is shown again
     // if something changes while the menu is being displayed, it is not critical
     buildMenu(model);
-    connect(this, &QMenu::triggered, this, &LocationsTrayMenuNative::onMenuActionTriggered);
 }
 
-void LocationsTrayMenuNative::onMenuActionTriggered(QAction *action)
+void LocationsTrayMenuNative::onMenuActionTriggered(bool checked)
+{
+    onMenuTriggered(qobject_cast<QAction*>(sender()));
+}
+
+void LocationsTrayMenuNative::onMenuTriggered(QAction *action)
 {
     WS_ASSERT(action);
     if (!action || !action->isEnabled())
@@ -51,6 +55,7 @@ void LocationsTrayMenuNative::buildMenu(QAbstractItemModel *model)
         if (childsCount == 0 || bRootShowAsPremium)
         {
             QAction *action = addAction(rootVisibleName);
+            connect(action, &QAction::triggered, this, &LocationsTrayMenuNative::onMenuActionTriggered);
             if (flag) {
                 action->setIcon(flag->getIcon());
             }
@@ -63,6 +68,7 @@ void LocationsTrayMenuNative::buildMenu(QAbstractItemModel *model)
         else
         {
             QMenu *subMenu = addMenu(mi.data().toString());
+            connect(subMenu, &QMenu::triggered, this, &LocationsTrayMenuNative::onMenuTriggered);
             subMenu->setEnabled(!mi.data(gui_locations::kIsDisabled).toBool());
             if (flag) {
                 subMenu->setIcon(flag->getIcon());
@@ -78,7 +84,6 @@ void LocationsTrayMenuNative::buildMenu(QAbstractItemModel *model)
                 QAction *cityAction = subMenu->addAction(visibleName);
                 cityAction->setEnabled(!cityMi.data(gui_locations::kIsDisabled).toBool());
                 cityAction->setData(cityMi.data(gui_locations::kLocationId));
-                connect(subMenu, &QMenu::triggered, this, &LocationsTrayMenuNative::onMenuActionTriggered);
             }
         }
     }

@@ -43,6 +43,7 @@ Requires:	sudo
 Requires:	shadow-utils
 Requires:	procps-ng
 Requires:	polkit
+Requires:	iproute
 
 %description
 Windscribe client.

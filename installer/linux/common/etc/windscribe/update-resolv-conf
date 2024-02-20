@@ -15,6 +15,7 @@
 #     foreign_option_3='dhcp-option DOMAIN be.bnc.ch'
 #
 
+PATH="$PATH:/usr/local/sbin:/usr/sbin:/sbin"
 command -v resolvconf || exit 0
 [ "$script_type" ] || exit 0
 [ "$dev" ] || exit 0

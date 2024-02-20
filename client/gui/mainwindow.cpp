@@ -1165,7 +1165,9 @@ void MainWindow::onPreferencesImportSettingsClick()
         return;
     }
 
+    ShowingDialogState::instance().setCurrentlyShowingExternalDialog(true);
     const QString settingsFilename = QFileDialog::getOpenFileName(this, tr("Import Preferences From"), "", tr("JSON Files (*.json)"));
+    ShowingDialogState::instance().setCurrentlyShowingExternalDialog(false);
     if (!settingsFilename.isEmpty()) {
         QFile file(settingsFilename);
         if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
@@ -1754,6 +1756,7 @@ void MainWindow::onBackendLoginError(LOGIN_RET loginError, const QString &errorM
                                : TwoFactorAuthWindow::TwoFactorAuthWindowItem::ERR_MSG_INVALID_CODE);
         mainWindowController_->getTwoFactorAuthWindow()->setLoginMode(true);
         mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_TWO_FACTOR_AUTH);
+        return;
     } else if (loginError == LOGIN_RET_NO_CONNECTIVITY) {
         mainWindowController_->getLoginWindow()->setErrorMessage(LoginWindow::ERR_MSG_NO_INTERNET_CONNECTIVITY);
     } else if (loginError == LOGIN_RET_NO_API_CONNECTIVITY) {
@@ -1761,7 +1764,7 @@ void MainWindow::onBackendLoginError(LOGIN_RET loginError, const QString &errorM
     } else if (loginError == LOGIN_RET_INCORRECT_JSON) {
         mainWindowController_->getLoginWindow()->setErrorMessage(LoginWindow::ERR_MSG_INVALID_API_RESPONSE);
     } else if (loginError == LOGIN_RET_ACCOUNT_DISABLED) {
-        mainWindowController_->getLoginWindow()->setErrorMessage(LoginWindow::ERR_MSG_ACCOUNT_DISABLED);
+        mainWindowController_->getLoginWindow()->setErrorMessage(LoginWindow::ERR_MSG_ACCOUNT_DISABLED, errorMessage);
     } else if (loginError == LOGIN_RET_SESSION_INVALID) {
         mainWindowController_->getLoginWindow()->setErrorMessage(LoginWindow::ERR_MSG_SESSION_EXPIRED);
     } else if (loginError == LOGIN_RET_RATE_LIMITED) {

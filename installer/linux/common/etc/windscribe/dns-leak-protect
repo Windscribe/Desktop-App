@@ -1,8 +1,9 @@
 #!/bin/bash
 
-# Copyright (c) 2020-2021, Windscribe Limited. All rights reserved.
+# Copyright (c) 2020-2024, Windscribe Limited. All rights reserved.
 # Usage: dns-leak-protect up|down [interface_name]
 
+PATH="$PATH:/usr/local/sbin:/usr/sbin:/sbin"
 
 cmd() {
     echo "[#] $*" >&2

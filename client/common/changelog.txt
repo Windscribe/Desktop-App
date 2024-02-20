@@ -1,3 +1,18 @@
+2.9.9 (16/02/2024)
+All:
+   * Fixed transition to 2FA screen when logging in. #917
+
+
+2.9.8 (14/02/2024)
+All:
+   * Fixed importing preferences closes the app window if docked. #893
+   * Fixed banned/disabled message not showing during login. #903
+MacOS:
+   * Fixed app may become unresponsive when using tray locations menu. #913
+Linux:
+   * Fixed DNS script can't find some executables. #908
+
+
 2.9.7 (08/02/2024)
 All:
    * Fixed exporting preferences closes the app window if docked. #893
@@ -112,7 +127,7 @@ Linux:
    * Fixed location of the close and minimize buttons on the login and start screens. #222
 
 
-2.8.6 (DD/MM/YYYY)
+2.8.6 (14/12/2023)
 Windows:
    * Fixed installer/uninstaller local privilege escalation vulnerability. #828
 
